@@ -2202,7 +2202,7 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 			for(uint i = 0; i < Entries.getCount(); i++) {
 				const VersionEntry * p_entry = Entries.at(i);
 				if(p_entry) {
-					entry_buf = 0;
+					entry_buf.Z();
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("thead", 0).CR());
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 0).CR());
 						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());

@@ -342,7 +342,7 @@ void * run_lthread(void * arg)
 	TM * gp, * mp, * tp;
 	uint lock, nl;
 	int err, i;
-	ulong id = (ulong)arg;
+	ulong id = reinterpret_cast<ulong>(arg);
 #if defined(MUTEX_THREAD_TEST)
 	ulong tid = (ulong)os_thread_self();
 #else
@@ -468,7 +468,7 @@ void * run_wthread(void * arg)
 	TM * gp, * tp;
 	uint check_id;
 	int err;
-	ulong id = (ulong)arg;
+	ulong id = reinterpret_cast<ulong>(arg);
 	int quitcheck = 0;
 #if defined(MUTEX_THREAD_TEST)
 	ulong tid = (ulong)os_thread_self();

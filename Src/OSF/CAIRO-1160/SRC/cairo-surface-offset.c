@@ -171,14 +171,8 @@ FINISH:
 	return status;
 }
 
-cairo_status_t _cairo_surface_offset_glyphs(cairo_surface_t * surface,
-    int x, int y,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    cairo_scaled_font_t * scaled_font,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    const cairo_clip_t * clip)
+cairo_status_t _cairo_surface_offset_glyphs(cairo_surface_t * surface, int x, int y, cairo_operator_t op,
+    const cairo_pattern_t * source, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int num_glyphs, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
 	cairo_clip_t * dev_clip = (cairo_clip_t *)clip;
@@ -189,7 +183,7 @@ cairo_status_t _cairo_surface_offset_glyphs(cairo_surface_t * surface,
 		return surface->status;
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
-	dev_glyphs = (cairo_glyph_t*)_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t));
+	dev_glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t)));
 	if(dev_glyphs == NULL)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	memcpy(dev_glyphs, glyphs, sizeof(cairo_glyph_t) * num_glyphs);

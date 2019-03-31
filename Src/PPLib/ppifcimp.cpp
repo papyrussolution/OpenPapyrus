@@ -10341,7 +10341,7 @@ int32 DL6ICLS_PPFias::SearchAddr(int32 id, SPpyO_FiasAddr* pRec)
 				p->GetText(rec.SnTRef, temp_buf.Z());
 				temp_buf.CopyToOleStr(&pRec->ShortDescr);
 
-				descr_buf = 0;
+				descr_buf.Z();
 				int    level = rec.LevelStatus;
 				PPFiasReference::IdentifyShortDescription(temp_buf, &level, &descr_buf);
 				descr_buf.CopyToOleStr(&pRec->Descr);
@@ -10434,7 +10434,7 @@ int32 DL6ICLS_PPFias::SearchAddrByGuid(SString & pGuidStr, SPpyO_FiasAddr* pRec)
 					p->GetText(rec.SnTRef, temp_buf.Z());
 					temp_buf.CopyToOleStr(&pRec->ShortDescr);
 
-					descr_buf = 0;
+					descr_buf.Z();
 					int    level = rec.LevelStatus;
 					PPFiasReference::IdentifyShortDescription(temp_buf, &level, &descr_buf);
 					descr_buf.CopyToOleStr(&pRec->Descr);

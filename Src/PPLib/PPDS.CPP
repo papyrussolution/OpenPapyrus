@@ -389,7 +389,7 @@ int SLAPI PPDeclStruc::Helper_WriteDataToStream(FILE * stream, int putPrefix, in
 		for(uint i = 1; i < getCount(); i++) {
 			r = 1;
 			uint   j;
-			buf = 0;
+			buf.Z();
 			GetItem(i, &item);
 			if(item.Flags & DSIF_LIST) {
 				WriteIndent(stream, level);

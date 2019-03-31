@@ -54,7 +54,7 @@ cairo_status_t _cairo_pen_init(cairo_pen_t * pen, double radius, double toleranc
 	reflect = _cairo_matrix_compute_determinant(ctm) < 0.;
 	pen->num_vertices = _cairo_pen_vertices_needed(tolerance, radius, ctm);
 	if(pen->num_vertices > ARRAY_LENGTH(pen->vertices_embedded)) {
-		pen->vertices = (cairo_pen_vertex_t *)_cairo_malloc_ab(pen->num_vertices, sizeof(cairo_pen_vertex_t));
+		pen->vertices = static_cast<cairo_pen_vertex_t *>(_cairo_malloc_ab(pen->num_vertices, sizeof(cairo_pen_vertex_t)));
 		if(unlikely(pen->vertices == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -99,7 +99,7 @@ cairo_status_t _cairo_pen_init_copy(cairo_pen_t * pen, const cairo_pen_t * other
 	pen->vertices = pen->vertices_embedded;
 	if(pen->num_vertices) {
 		if(pen->num_vertices > ARRAY_LENGTH(pen->vertices_embedded)) {
-			pen->vertices = (cairo_pen_vertex_t *)_cairo_malloc_ab(pen->num_vertices, sizeof(cairo_pen_vertex_t));
+			pen->vertices = static_cast<cairo_pen_vertex_t *>(_cairo_malloc_ab(pen->num_vertices, sizeof(cairo_pen_vertex_t)));
 			if(unlikely(pen->vertices == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -119,13 +119,13 @@ cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, i
 	if(num_vertices > ARRAY_LENGTH(pen->vertices_embedded) || pen->vertices != pen->vertices_embedded) {
 		cairo_pen_vertex_t * vertices;
 		if(pen->vertices == pen->vertices_embedded) {
-			vertices = (cairo_pen_vertex_t *)_cairo_malloc_ab(num_vertices, sizeof(cairo_pen_vertex_t));
+			vertices = static_cast<cairo_pen_vertex_t *>(_cairo_malloc_ab(num_vertices, sizeof(cairo_pen_vertex_t)));
 			if(unlikely(vertices == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(vertices, pen->vertices, pen->num_vertices * sizeof(cairo_pen_vertex_t));
 		}
 		else {
-			vertices = (cairo_pen_vertex_t *)_cairo_realloc_ab(pen->vertices, num_vertices, sizeof(cairo_pen_vertex_t));
+			vertices = static_cast<cairo_pen_vertex_t *>(_cairo_realloc_ab(pen->vertices, num_vertices, sizeof(cairo_pen_vertex_t)));
 			if(unlikely(vertices == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}

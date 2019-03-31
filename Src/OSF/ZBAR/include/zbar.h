@@ -750,7 +750,7 @@ extern char * zbar_symbol_xml(const zbar_symbol_t * symbol, char ** buffer, uint
  * the object any longer once references have been released.
  * @since 0.10
  */
-extern void zbar_symbol_set_ref(const zbar_symbol_set_t * symbols, int refs);
+extern void zbar_symbol_set_ref(/*const*/zbar_symbol_set_t * symbols, int refs);
 /** retrieve set size.
  * @returns the number of symbols in the set.
  * @since 0.10
@@ -1033,7 +1033,7 @@ extern const zbar_symbol_set_t* zbar_image_get_symbols(const zbar_image_t * imag
  * @see zbar_image_scanner_recycle_image()
  * @since 0.10
  */
-extern void zbar_image_set_symbols(zbar_image_t * image, const zbar_symbol_set_t * symbols);
+extern void zbar_image_set_symbols(zbar_image_t * image, /*const*/zbar_symbol_set_t * symbols);
 
 /** image_scanner decode result iterator.
  * @returns the first decoded symbol result for an image
@@ -1243,7 +1243,7 @@ extern int zbar_processor_set_active(zbar_processor_t * processor, int active);
  * ensure that the count is decremented after use
  * @since 0.10
  */
-extern const zbar_symbol_set_t* zbar_processor_get_results(const zbar_processor_t * processor);
+extern const zbar_symbol_set_t* zbar_processor_get_results(/*const*/zbar_processor_t * processor);
 /** wait for input to the display window from the user
  * (via mouse or keyboard).
  * @returns >0 when input is received, 0 if timeout ms expired
@@ -1581,7 +1581,7 @@ extern void FASTCALL zbar_image_scanner_recycle_image(zbar_image_scanner_t * sca
  * after the next image is scanned
  * @since 0.10
  */
-extern const zbar_symbol_set_t* zbar_image_scanner_get_results(const zbar_image_scanner_t * scanner);
+extern /*const*/zbar_symbol_set_t * zbar_image_scanner_get_results(/*const*/zbar_image_scanner_t * scanner);
 
 /** scan for symbols in provided image.  The image format must be
  * "Y800" or "GRAY".
@@ -1813,21 +1813,19 @@ typedef void (*zbar_decoder_handler_t)(zbar_decoder_t * decoder);
 // symbology independent decoder state
 //
 struct zbar_decoder_t {
-    uchar idx;                  /* current width index */
-    uint w[DECODE_WINDOW];          /* window of last N bar widths */
+    uchar  idx;                  /* current width index */
+    uint   w[DECODE_WINDOW];          /* window of last N bar widths */
     zbar_symbol_type_t type;            /* type of last decoded data */
     zbar_symbol_type_t lock;            /* buffer lock */
-    uint modifiers;                 /* symbology modifier */
-    int direction;                      /* direction of last decoded data */
-    uint s6;                        /* 6-element character width */
-
+    uint   modifiers;                 /* symbology modifier */
+    int    direction;                      /* direction of last decoded data */
+    uint   s6;                        /* 6-element character width */
     /* everything above here is automatically reset */
-    uint buf_alloc;                 /* dynamic buffer allocation */
-    uint buflen;                    /* binary data length */
-    uchar *buf;                 /* decoded characters */
-    void *userdata;                     /* application data */
+    uint   buf_alloc;                 /* dynamic buffer allocation */
+    uint   buflen;                    /* binary data length */
+    uchar * buf;                 /* decoded characters */
+    void * userdata;                     /* application data */
     zbar_decoder_handler_t handler;     /* application callback */
-
     /* symbology specific state */
 #ifdef ENABLE_EAN
     ean_decoder_t ean;                  /* EAN/UPC parallel decode attempts */
@@ -1952,10 +1950,7 @@ extern void zbar_decoder_destroy(zbar_decoder_t * decoder);
  * specified symbology, or value out of range)
  * @since 0.4
  */
-extern int zbar_decoder_set_config(zbar_decoder_t * decoder,
-    zbar_symbol_type_t symbology,
-    zbar_config_t config,
-    int value);
+extern int zbar_decoder_set_config(zbar_decoder_t * decoder, zbar_symbol_type_t symbology, zbar_config_t config, int value);
 
 /** parse configuration string using zbar_parse_config()
  * and apply to decoder using zbar_decoder_set_config().
@@ -1964,14 +1959,12 @@ extern int zbar_decoder_set_config(zbar_decoder_t * decoder,
  * @see zbar_decoder_set_config()
  * @since 0.4
  */
-static inline int zbar_decoder_parse_config(zbar_decoder_t * decoder,
-    const char * config_string)
+static inline int zbar_decoder_parse_config(zbar_decoder_t * decoder, const char * config_string)
 {
 	zbar_symbol_type_t sym;
 	zbar_config_t cfg;
 	int val;
-	return (zbar_parse_config(config_string, &sym, &cfg, &val) ||
-	    zbar_decoder_set_config(decoder, sym, cfg, val));
+	return (zbar_parse_config(config_string, &sym, &cfg, &val) || zbar_decoder_set_config(decoder, sym, cfg, val));
 }
 
 /** retrieve symbology boolean config settings.

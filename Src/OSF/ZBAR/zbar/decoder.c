@@ -162,25 +162,10 @@ void zbar_decoder_new_scan(zbar_decoder_t * dcode)
 #endif
 }
 
-zbar_color_t zbar_decoder_get_color(const zbar_decoder_t * dcode)
-{
-	return (zbar_color_t)get_color(dcode);
-}
-
-const char * zbar_decoder_get_data(const zbar_decoder_t * dcode)
-{
-	return ((char *)dcode->buf);
-}
-
-uint zbar_decoder_get_data_length(const zbar_decoder_t * dcode)
-{
-	return (dcode->buflen);
-}
-
-int zbar_decoder_get_direction(const zbar_decoder_t * dcode)
-{
-	return (dcode->direction);
-}
+zbar_color_t zbar_decoder_get_color(const zbar_decoder_t * dcode) { return static_cast<zbar_color_t>(get_color(dcode)); }
+const char * zbar_decoder_get_data(const zbar_decoder_t * dcode) { return reinterpret_cast<const char *>(dcode->buf); }
+uint zbar_decoder_get_data_length(const zbar_decoder_t * dcode) { return (dcode->buflen); }
+int zbar_decoder_get_direction(const zbar_decoder_t * dcode) { return (dcode->direction); }
 
 zbar_decoder_handler_t zbar_decoder_set_handler(zbar_decoder_t * dcode, zbar_decoder_handler_t handler)
 {
@@ -189,25 +174,10 @@ zbar_decoder_handler_t zbar_decoder_set_handler(zbar_decoder_t * dcode, zbar_dec
 	return result;
 }
 
-void zbar_decoder_set_userdata(zbar_decoder_t * dcode, void * userdata)
-{
-	dcode->userdata = userdata;
-}
-
-void * zbar_decoder_get_userdata(const zbar_decoder_t * dcode)
-{
-	return (dcode->userdata);
-}
-
-zbar_symbol_type_t FASTCALL zbar_decoder_get_type(const zbar_decoder_t * dcode)
-{
-	return (dcode->type);
-}
-
-uint zbar_decoder_get_modifiers(const zbar_decoder_t * dcode)
-{
-	return (dcode->modifiers);
-}
+void zbar_decoder_set_userdata(zbar_decoder_t * dcode, void * userdata) { dcode->userdata = userdata; }
+void * zbar_decoder_get_userdata(const zbar_decoder_t * dcode) { return (dcode->userdata); }
+zbar_symbol_type_t FASTCALL zbar_decoder_get_type(const zbar_decoder_t * dcode) { return (dcode->type); }
+uint zbar_decoder_get_modifiers(const zbar_decoder_t * dcode) { return (dcode->modifiers); }
 
 zbar_symbol_type_t zbar_decode_width(zbar_decoder_t * dcode, uint w)
 {

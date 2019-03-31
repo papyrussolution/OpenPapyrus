@@ -13877,18 +13877,13 @@ static int xmlSchemaCheckSRCCT(xmlSchemaParserCtxtPtr ctxt, xmlSchemaTypePtr typ
 					ret = XML_SCHEMAP_SRC_CT_1;
 				}
 				else
-				/*
-				 * Attention: at this point the <simpleType> child is in
-				 * ->contentTypeDef (put there during parsing).
-				 */
+				// Attention: at this point the <simpleType> child is in ->contentTypeDef (put there during parsing).
 				if(type->contentTypeDef == NULL) {
 					xmlChar * str = NULL;
-					/*
-					 * 2.2 If clause 2.1.2 above is satisfied, then there
-					 * must be a <simpleType> among the [children] of
-					 * <restriction>.
-					 */
-					/* @todo Change error code to ..._SRC_CT_2_2. */
+					//
+					// 2.2 If clause 2.1.2 above is satisfied, then there must be a <simpleType> among the [children] of <restriction>.
+					//
+					// @todo Change error code to ..._SRC_CT_2_2. 
 					xmlSchemaPCustomErr(ctxt, XML_SCHEMAP_SRC_CT_1, WXS_BASIC_CAST type, NULL,
 					    "A <simpleType> is expected among the children of <restriction>, if <simpleContent> is used and the base type '%s' is a complex type",
 					    xmlSchemaFormatQName(&str, base->targetNamespace, base->name));

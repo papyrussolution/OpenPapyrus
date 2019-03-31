@@ -310,7 +310,7 @@ private:
 SLAPI ClientBankImportDef::ClientBankImportDef()
 	{ P_Helper = new Helper_ClientBank2(0); }
 SLAPI ClientBankImportDef::~ClientBankImportDef()
-	{ delete (Helper_ClientBank2 *)P_Helper; }
+	{ delete static_cast<Helper_ClientBank2 *>(P_Helper); }
 PPImpExpParam & SLAPI ClientBankImportDef::GetParam() const
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
 int SLAPI ClientBankImportDef::ReadDefinition(const char * pIniSection)
@@ -353,7 +353,10 @@ static void LogError(PPLogger & rLogger, long err, const BankStmntItem * pItem)
 }
 
 struct Assoc {
-	BankStmntAssocItem * P_Item;
+	Assoc(const BankStmntAssocItem * pItem, PPID arID, PPID psnID) : P_Item(pItem), ArticleID(arID), PersonID(psnID)
+	{
+	}
+	const BankStmntAssocItem * P_Item;
 	PPID   ArticleID;
 	PPID   PersonID;
 };
@@ -363,27 +366,27 @@ public:
 	ResolveAssocCollisionDialog() : TDialog(DLG_ASC_RESOLVE), P_A(0)
 	{
 	}
-	int    getDTS(SArray *pA);
-	int    setDTS(SArray *pA);
+	int    setDTS(const SArray * pA);
+	int    getDTS(SArray * pA);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupPersonsListByOprKind(PPID oprKind);
-	SArray * P_A;
+	void   SetupPersonsListByOprKind(PPID oprKind);
+	const  SArray * P_A;
 };
 
-int ResolveAssocCollisionDialog::SetupPersonsListByOprKind(PPID opID)
+void ResolveAssocCollisionDialog::SetupPersonsListByOprKind(PPID opID)
 {
 	Assoc * p_a;
 	StrAssocArray persons;
 	PPObjPerson psn_obj;
 	PersonTbl::Rec r;
-	for(uint i = 0; P_A->enumItems(&i, (void **)&p_a);)
-		if(p_a->P_Item->OpID == opID && psn_obj.Search(p_a->PersonID, &r) > 0) {
+	for(uint i = 0; P_A->enumItems(&i, (void **)&p_a);) {
+		if(p_a->P_Item->OpID == opID && psn_obj.Fetch(p_a->PersonID, &r) > 0) { // @v10.3.12 Search-->Fetch
 			persons.Add(p_a->PersonID, r.Name);
 		}
+	}
 	PPID   s = persons.getCount() ? persons.Get(0).Id : 0;
 	SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, &persons, s, 0);
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(ResolveAssocCollisionDialog)
@@ -395,30 +398,35 @@ IMPL_HANDLE_EVENT(ResolveAssocCollisionDialog)
 	}
 }
 
-int ResolveAssocCollisionDialog::setDTS(SArray * pA)
+int ResolveAssocCollisionDialog::setDTS(const SArray * pA)
 {
 	P_A = pA;
 	PPIDArray op_list;
-	Assoc * p_a;
-	for(uint i = 0; pA->enumItems(&i, (void **)&p_a);)
-		op_list.add(p_a->P_Item->OpID);
-	p_a = static_cast<Assoc *>(pA->at(0));
-	SetupOprKindCombo(this, CTLSEL_ASCRES_OPRKIND, p_a->P_Item->OpID, 0, &op_list, OPKLF_OPLIST);
-	SetupPersonsListByOprKind(p_a->P_Item->OpID);
+	const uint _c = SVectorBase::GetCount(P_A);
+	PPID   op_id = 0;
+	if(_c) {
+		for(uint i = 0; i < pA->getCount(); i++) {
+			op_list.add(static_cast<const Assoc *>(pA->at(i))->P_Item->OpID);
+		}
+		op_id = static_cast<Assoc *>(pA->at(0))->P_Item->OpID;
+	}
+	SetupOprKindCombo(this, CTLSEL_ASCRES_OPRKIND, op_id, 0, &op_list, OPKLF_OPLIST);
+	SetupPersonsListByOprKind(op_id);
 	return 1;
 }
 
-int ResolveAssocCollisionDialog::getDTS(SArray *pA)
+int ResolveAssocCollisionDialog::getDTS(SArray * pA)
 {
 	int    ok = 1;
-	Assoc * p_a, a;
-	a.P_Item = 0;
+	Assoc  a(0, 0, 0);
 	PPID   op_id = 0;
 	getCtrlData(CTLSEL_ASCRES_OPRKIND, &op_id);
 	getCtrlData(CTLSEL_ASCRES_PERSON, &a.PersonID);
-	for(uint i = 0; pA->enumItems(&i, (void **)&p_a);)
-		if(p_a->P_Item->OpID == op_id && p_a->PersonID == a.PersonID)
-			a= *p_a;
+	for(uint i = 0; i < pA->getCount(); i++) {
+		const Assoc * p_assoc = static_cast<const Assoc *>(pA->at(i));
+		if(p_assoc->P_Item->OpID == op_id && p_assoc->PersonID == a.PersonID)
+			a = *p_assoc;
+	}
 	if(a.P_Item) {
 		pA->freeAll();
 		pA->insert(&a);
@@ -431,12 +439,13 @@ int ResolveAssocCollisionDialog::getDTS(SArray *pA)
 static int ResolveAssocCollision(SArray *pA, const BankStmntItem * pItem)
 {
 	int    ok = 1;
-	SString msg_buf, buf;
+	SString temp_buf;
+	SString msg_buf;
 	PPWait(0);
 	pItem->MakeDescrText(msg_buf).Quot('(', ')');
-	PPGetMessage(mfError, PPERR_ASSOCCOLLISION, msg_buf, 1, buf);
+	PPGetMessage(mfError, PPERR_ASSOCCOLLISION, msg_buf, 1, temp_buf);
 	ResolveAssocCollisionDialog * p_dlg = new ResolveAssocCollisionDialog();
-	p_dlg->setStaticText(CTL_ASCRES_TXT, buf);
+	p_dlg->setStaticText(CTL_ASCRES_TXT, temp_buf);
 	p_dlg->setDTS(pA);
 	if(ExecView(p_dlg) == cmOK)
 		ok = p_dlg->getDTS(pA);
@@ -451,62 +460,62 @@ static int SLAPI TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pIte
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
+	SString temp_buf;
+	SString msg_buf;
+	SString log_buf;
 	PPID   loc_id = 0;
 	PPBillPacket  pack;
+	AmtList amt_list;
 	if(pItem->LocSymb[0]) {
 		PPObjLocation loc_obj;
 		if(loc_obj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, pItem->LocSymb, &loc_id) <= 0)
 			loc_id = LConfig.Location;
 	}
-	{
+	THROW(pack.CreateBlank_WithoutCode(pAssoc->P_Item->OpID, 0, loc_id, 1));
+	pack.Rec.Dt = pItem->Date;
+	pack.Rec.Object = pAssoc->ArticleID;
+	pack.Rec.Object2 = obj2ID;
+	pack.Ext.AgentID = agentID;
+	STRNSCPY(pack.Rec.Code, pItem->Code);
+	STRNSCPY(pack.Rec.Memo, pItem->Purpose);	
+	const int sar = p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0);
+	THROW(sar);
+	if(sar > 0) {
+		LogError(rLogger, PPERR_DOC_ALREADY_EXISTS, pItem);
+	}
+	else {
 		PPTransaction tra(1);
 		THROW(tra);
-		THROW(pack.CreateBlank2(pAssoc->P_Item->OpID, ZERODATE, loc_id, 0));
-		pack.Rec.Dt = pItem->Date;
-		pack.Rec.Object = pAssoc->ArticleID;
-		pack.Rec.Object2 = obj2ID;
-		pack.Ext.AgentID = agentID;
-		STRNSCPY(pack.Rec.Code, pItem->Code);
-		STRNSCPY(pack.Rec.Memo, pItem->Purpose);
-		if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0) < 0) {
-			AmtList amt_list;
-			amt_list.Put(PPAMT_MAIN, pack.Rec.CurID, fabs(pItem->Amount), 0, 1);
-			pack.InitAmounts(&amt_list);
-			THROW(p_bobj->FillTurnList(&pack));
-			THROW(p_bobj->TurnPacket(&pack, 0));
-			{
-				SString msg_buf, log_buf, item_buf;
-				pItem->MakeDescrText(item_buf).Quot('(', ')');
-				if(PPLoadText(PPTXT_CLIBNK_BILLTURNED, msg_buf))
-					rLogger.Log(log_buf.Printf(msg_buf, item_buf.cptr()));
-			}
-			if(pItem->DebtBillID || (!isempty(pItem->DebtBillCode) && checkdate(pItem->DebtBillDate))) {
-				//
-				// ≈сли идент св€занного документа не нулевой либо определены номер и дата св€занного документа,
-				// то пытаемс€ зачесть прин€тый документ.
-				//
-				SString force_bill_text;
-				force_bill_text.CatEq("ID", pItem->DebtBillID).CatDiv(';', 2).
-					CatEq("Date", pItem->DebtBillDate).CatDiv(';', 2).CatEq("Code", pItem->DebtBillCode);
-				if(CheckOpFlags(pack.Rec.OpID, OPKF_RECKON)) {
-					PPObjBill::ReckonParam rp(1, 1);
-					rp.ForceBillID = pItem->DebtBillID;
-					rp.ForceBillDate = pItem->DebtBillDate;
-					STRNSCPY(rp.ForceBillCode, pItem->DebtBillCode);
-					int r = p_bobj->ReckoningPaym(pack.Rec.ID, rp, 0);
-					if(!r)
-						LogError(rLogger, -1, pItem);
-					else if(r > 0)
-						rLogger.LogString(PPTXT_CLIBNK_IMPRECKONED, force_bill_text);
-					else
-						rLogger.LogString(PPTXT_CLIBNK_IMPNRECKONED, force_bill_text);
-				}
+		amt_list.Put(PPAMT_MAIN, pack.Rec.CurID, fabs(pItem->Amount), 0, 1);
+		pack.InitAmounts(&amt_list);
+		THROW(p_bobj->FillTurnList(&pack));
+		THROW(p_bobj->TurnPacket(&pack, 0));
+		pItem->MakeDescrText(temp_buf).Quot('(', ')');
+		if(PPLoadText(PPTXT_CLIBNK_BILLTURNED, msg_buf))
+			rLogger.Log(log_buf.Printf(msg_buf, temp_buf.cptr()));
+		if(pItem->DebtBillID || (!isempty(pItem->DebtBillCode) && checkdate(pItem->DebtBillDate))) {
+			//
+			// ≈сли идент св€занного документа не нулевой либо определены номер и дата св€занного документа,
+			// то пытаемс€ зачесть прин€тый документ.
+			//
+			msg_buf.Z().CatEq("ID", pItem->DebtBillID).CatDiv(';', 2).
+				CatEq("Date", pItem->DebtBillDate).CatDiv(';', 2).CatEq("Code", pItem->DebtBillCode);
+			if(CheckOpFlags(pack.Rec.OpID, OPKF_RECKON)) {
+				PPObjBill::ReckonParam rp(1, 1);
+				rp.ForceBillID = pItem->DebtBillID;
+				rp.ForceBillDate = pItem->DebtBillDate;
+				STRNSCPY(rp.ForceBillCode, pItem->DebtBillCode);
+				int r = p_bobj->ReckoningPaym(pack.Rec.ID, rp, 0);
+				if(!r)
+					LogError(rLogger, -1, pItem);
+				else if(r > 0)
+					rLogger.LogString(PPTXT_CLIBNK_IMPRECKONED, msg_buf);
 				else
-					rLogger.LogString(PPTXT_CLIBNK_OPNRECKON, force_bill_text);
+					rLogger.LogString(PPTXT_CLIBNK_IMPNRECKONED, msg_buf);
 			}
+			else
+				rLogger.LogString(PPTXT_CLIBNK_OPNRECKON, msg_buf);
 		}
-		else
-			LogError(rLogger, PPERR_DOC_ALREADY_EXISTS, pItem);
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -588,7 +597,7 @@ int SLAPI ClientBankImportDef::ImportAll()
 	int    status = 1;
 	SString wait_msg;
 	SString contragent_inn;
-	Helper_ClientBank2 * p_helper = (Helper_ClientBank2 *)P_Helper;
+	Helper_ClientBank2 * p_helper = static_cast<Helper_ClientBank2 *>(P_Helper);
 	const  PPCliBnkImpExpParam & r_params = p_helper->GetParam();
 	int    payer_by_sign = BIN(r_params.DefPayerByAmtSign);
 	PPObjArticle ar_obj;
@@ -625,7 +634,6 @@ int SLAPI ClientBankImportDef::ImportAll()
 			SArray best_assoc(sizeof(Assoc));
 			PPIDArray psn_list, ar_list;
 			PPID * p_psn_id;
-			BankStmntAssocItem * p_assoc_item = 0;
 			PPWaitMsg(item.MakeDescrText(wait_msg));
 			contragent_inn = item.GetContragentINN();
 			if(contragent_inn.NotEmptyS()) {
@@ -647,14 +655,12 @@ int SLAPI ClientBankImportDef::ImportAll()
 				MEMSZERO(ar_rec);
 				if(ar_id)
 					THROW(ar_obj.Fetch(ar_id, &ar_rec) > 0);
-				for(j = 0; cfg.enumItems(&j, (void **)&p_assoc_item);) {
-					if(p_assoc_item->AccSheetID == ar_rec.AccSheetID &&
-						(p_assoc_item->AddedTag < 0 || p_assoc_item->AddedTag == item.AddedAssocTag))
+				//for(j = 0; cfg.enumItems(&j, (void **)&p_assoc_item);) {
+				for(uint j = 0; j < cfg.getCount(); j++) {
+					const BankStmntAssocItem * p_assoc_item = static_cast<const BankStmntAssocItem *>(cfg.at(j));
+					if(p_assoc_item->AccSheetID == ar_rec.AccSheetID && (p_assoc_item->AddedTag < 0 || p_assoc_item->AddedTag == item.AddedAssocTag))
 						if(item.WeArePayer ? (p_assoc_item->Sign < 0) : (p_assoc_item->Sign > 0)) {
-							Assoc a;
-							a.P_Item = p_assoc_item;
-							a.ArticleID = ar_id;
-							a.PersonID = ar_id ? ObjectToPerson(ar_id) : 0;
+							Assoc a(p_assoc_item, ar_id, (ar_id ? ObjectToPerson(ar_id) : 0));
 							best_assoc.insert(&a);
 						}
 				}
@@ -671,15 +677,14 @@ int SLAPI ClientBankImportDef::ImportAll()
 					MEMSZERO(ar_rec);
 					if(ar_id)
 						THROW(ar_obj.Fetch(ar_id, &ar_rec) > 0);
-					for(j = 0; cfg.enumItems(&j, (void **)&p_assoc_item);)
-						if(p_assoc_item->AccSheetID == ar_rec.AccSheetID && p_assoc_item->Sign == 0 &&
-							(p_assoc_item->AddedTag < 0 || p_assoc_item->AddedTag == item.AddedAssocTag)) {
-							Assoc a;
-							a.P_Item = p_assoc_item;
-							a.ArticleID = ar_id;
-							a.PersonID = ar_id ? ObjectToPerson(ar_id) : 0;
+					//for(j = 0; cfg.enumItems(&j, (void **)&p_assoc_item);) {
+					for(j = 0; j < cfg.getCount(); j++) {
+						const BankStmntAssocItem * p_assoc_item = static_cast<const BankStmntAssocItem *>(cfg.at(j));
+						if(p_assoc_item->AccSheetID == ar_rec.AccSheetID && p_assoc_item->Sign == 0 && (p_assoc_item->AddedTag < 0 || p_assoc_item->AddedTag == item.AddedAssocTag)) {
+							Assoc a(p_assoc_item, ar_id, (ar_id ? ObjectToPerson(ar_id) : 0));
 							best_assoc.insert(&a);
 						}
+					}
 				}
 			if(best_assoc.getCount() > 1) { // collision
 				LogError(logger, PPERR_ASSOCCOLLISION, &item);
@@ -692,7 +697,7 @@ int SLAPI ClientBankImportDef::ImportAll()
 			}
 			//we know best association - this is a best_assoc[0]
 			{
-				Assoc * p_assoc = (Assoc *)best_assoc.at(0);
+				const  Assoc * p_assoc = static_cast<const Assoc *>(best_assoc.at(0));
 				PPID   obj2_ar_id = 0, agent_id = 0;
 				PPAccSheet acs_rec2;
 				PPOprKind op_rec;
@@ -705,11 +710,6 @@ int SLAPI ClientBankImportDef::ImportAll()
 									break;
 						}
 						else {
-							/* @v7.3.8
-							for(j = 0; psn_list.enumItems(&j, (void **)&p_psn_id);)
-								if(ar_obj.GetByPerson(op_rec.AccSheet2ID, *p_psn_id, &obj2_ar_id) > 0)
-									break;
-							*/
 							if(!obj2_ar_id ) {
 								THROW(psn_obj.GetListByRegNumber(PPREGT_BIC, 0, item.GetOurBIC(), psn_list));
 								for(j = 0; psn_list.enumItems(&j, (void **)&p_psn_id);)
@@ -775,10 +775,10 @@ int Helper_ClientBank2::ReadDefinition(const char * pIniSection)
 //
 //
 //
-SLAPI ClientBankExportDef::ClientBankExportDef(const DateRange * pPeriod)
-	{ P_Helper = new Helper_ClientBank2(pPeriod); }
+SLAPI ClientBankExportDef::ClientBankExportDef(const DateRange * pPeriod) : P_Helper(new Helper_ClientBank2(pPeriod))
+	{}
 SLAPI ClientBankExportDef::~ClientBankExportDef()
-	{ delete (Helper_ClientBank2 *)P_Helper; }
+	{ delete static_cast<Helper_ClientBank2 *>(P_Helper); }
 PPImpExpParam & SLAPI ClientBankExportDef::GetParam() const
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
 int SLAPI ClientBankExportDef::ReadDefinition(const char * pIniSection)
@@ -813,7 +813,7 @@ SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & 
 	else {
 		SString n;
 		rBuf.CatDiv('-', 1).Cat(PPGetWord(PPWORD_NOTAX_VERB, 0, n));
-		(rBuf = "Ќƒ— - не облагаетс€").Transf(CTRANSF_OUTER_TO_INNER);
+		// @v10.3.12 (rBuf = "Ќƒ— - не облагаетс€").Transf(CTRANSF_OUTER_TO_INNER);
 	}
 	return rBuf;
 }
@@ -828,8 +828,8 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 	BankStmntItem data_buf;
 	BnkAcctData payer_ba, rcvr_ba;
 	PersonReq payer_req, rcvr_req;
-	int    r1 = PsnObj.GetBnkAcctData(pPack->P_PaymOrder->PayerBnkAccID, (const PPBankAccount *)0, &payer_ba);
-	int    r2 = PsnObj.GetBnkAcctData(pPack->P_PaymOrder->RcvrBnkAccID, (const PPBankAccount *)0, &rcvr_ba);
+	int    r1 = PsnObj.GetBnkAcctData(pPack->P_PaymOrder->PayerBnkAccID, static_cast<const PPBankAccount *>(0), &payer_ba);
+	int    r2 = PsnObj.GetBnkAcctData(pPack->P_PaymOrder->RcvrBnkAccID, static_cast<const PPBankAccount *>(0), &rcvr_ba);
 	SString buf, temp_buf;
 	if(r1 <= 0 || r2 <= 0) {
 		if(pLogger) {
@@ -875,7 +875,7 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 					paym_method = temp_buf.ToLong();
 				}
 			}
-			data_buf.PaymMethod = (int16)paym_method;
+			data_buf.PaymMethod = static_cast<int16>(paym_method);
 		}
 		STRNSCPY(data_buf.PayerName,     _EncodeStr(payer_req.ExtName[0] ? payer_req.ExtName : payer_req.Name, temp_buf));
 		STRNSCPY(data_buf.PayerINN,      _EncodeStr(payer_req.TPID, temp_buf));
@@ -921,7 +921,7 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 		STRNSCPY(data_buf.TaxReason,      _EncodeStr(pPack->P_PaymOrder->Txm.Reason, temp_buf));
 		STRNSCPY(data_buf.TaxPeriod,      _EncodeStr(pPack->P_PaymOrder->Txm.Period.Format(buf), temp_buf));
 		STRNSCPY(data_buf.TaxDocNumber,   _EncodeStr(pPack->P_PaymOrder->Txm.DocNumber, temp_buf));
-		STRNSCPY(data_buf.UIN,            _EncodeStr(pPack->P_PaymOrder->Txm.UIN, temp_buf)); // @v8.0.9
+		STRNSCPY(data_buf.UIN,            _EncodeStr(pPack->P_PaymOrder->Txm.UIN, temp_buf));
 		buf.Z().Cat(pPack->P_PaymOrder->Txm.DocDate, MKSFMT(0, DATF_GERMAN/*|DATF_CENTURY*/)).
 			CopyTo(data_buf.TaxDocDate, sizeof(data_buf.TaxDocDate));
 		STRNSCPY(data_buf.TaxPaymType,    _EncodeStr(pPack->P_PaymOrder->Txm.PaymType, temp_buf));
@@ -1091,7 +1091,7 @@ int SetupCliBnkFormatsDialog::delItem(long pos, long id)
 {
 	int    ok = 1;
 	SString ini_file_name, section;
-	if(Sections.get((uint *)&id, section)) {
+	if(Sections.get(reinterpret_cast<uint *>(&id), section)) {
 		THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_CLIBNK_INI, ini_file_name));
 		{
 			PPIniFile ini_file(ini_file_name, 0, 1, 1);

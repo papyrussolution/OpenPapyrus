@@ -728,7 +728,8 @@ static GCObject ** sweeptolive(lua_State * L, GCObject ** p) {
 /*
 ** If possible, shrink string table
 */
-static void checkSizes(lua_State * L, global_State * g) {
+static void checkSizes(lua_State * L, global_State * g) 
+{
 	if(g->gckind != KGC_EMERGENCY) {
 		l_mem olddebt = g->GCdebt;
 		if(g->strt.nuse < g->strt.size / 4) /* string table too big? */
@@ -737,7 +738,8 @@ static void checkSizes(lua_State * L, global_State * g) {
 	}
 }
 
-static GCObject * udata2finalize(global_State * g) {
+static GCObject * udata2finalize(global_State * g) 
+{
 	GCObject * o = g->tobefnz; /* get first element */
 	lua_assert(tofinalize(o));
 	g->tobefnz = o->next; /* remove it from 'tobefnz' list */

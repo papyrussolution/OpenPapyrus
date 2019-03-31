@@ -1500,24 +1500,15 @@ static cairo_status_t _cairo_svg_surface_emit_pattern_stops(cairo_output_stream_
 	if(pattern->n_stops < 1)
 		return CAIRO_STATUS_SUCCESS;
 	if(pattern->n_stops == 1) {
-		_cairo_output_stream_printf(output,
-		    "<stop offset=\"%f\" style=\""
-		    "stop-color:rgb(%f%%,%f%%,%f%%);"
-		    "stop-opacity:%f;\"/>\n",
-		    pattern->stops[0].offset,
-		    pattern->stops[0].color.red * 100.0,
-		    pattern->stops[0].color.green * 100.0,
-		    pattern->stops[0].color.blue * 100.0,
-		    pattern->stops[0].color.alpha);
+		_cairo_output_stream_printf(output, "<stop offset=\"%f\" style=\"stop-color:rgb(%f%%,%f%%,%f%%);stop-opacity:%f;\"/>\n",
+		    pattern->stops[0].offset, pattern->stops[0].color.red * 100.0, pattern->stops[0].color.green * 100.0, pattern->stops[0].color.blue * 100.0, pattern->stops[0].color.alpha);
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	if(emulate_reflect || reverse_stops) {
 		n_stops = emulate_reflect ? pattern->n_stops * 2 - 2 : pattern->n_stops;
-		stops = (cairo_gradient_stop_t *)_cairo_malloc_ab(n_stops, sizeof(cairo_gradient_stop_t));
+		stops = static_cast<cairo_gradient_stop_t *>(_cairo_malloc_ab(n_stops, sizeof(cairo_gradient_stop_t)));
 		if(unlikely(stops == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 		for(i = 0; i < pattern->n_stops; i++) {
 			if(reverse_stops) {
 				stops[i] = pattern->stops[pattern->n_stops - i - 1];

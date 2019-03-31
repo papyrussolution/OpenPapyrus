@@ -427,12 +427,11 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_polygon_to_boxes(co
 	event_ptrs = stack_event_ptrs;
 	edges = stack_edges;
 	if(num_events > ARRAY_LENGTH(stack_events)) {
-		events = (cairo_bo_event_t *)_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_event_t) +
-			sizeof(cairo_bo_edge_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *));
+		events = static_cast<cairo_bo_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_event_t) + sizeof(cairo_bo_edge_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *)));
 		if(unlikely(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-		event_ptrs = (cairo_bo_event_t**)(events + num_events);
-		edges = (cairo_bo_edge_t*)(event_ptrs + num_events + 1);
+		event_ptrs = reinterpret_cast<cairo_bo_event_t **>(events + num_events);
+		edges = reinterpret_cast<cairo_bo_edge_t *>(event_ptrs + num_events + 1);
 	}
 	for(i = j = 0; i < polygon->num_edges; i++) {
 		edges[i].edge = polygon->edges[i];
@@ -473,18 +472,15 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_traps(cairo_traps_t
 	cairo_bo_edge_t * edges;
 	cairo_status_t status;
 	int i, j, k;
-
 	if(unlikely(traps->num_traps == 0))
 		return CAIRO_STATUS_SUCCESS;
-
 	assert(traps->is_rectilinear);
 	i = 4 * traps->num_traps;
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
 	edges = stack_edges;
 	if(i > ARRAY_LENGTH(stack_events)) {
-		events = (cairo_bo_event_t *)_cairo_malloc_ab_plus_c(i, sizeof(cairo_bo_event_t) +
-			sizeof(cairo_bo_edge_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *));
+		events = static_cast<cairo_bo_event_t *>(_cairo_malloc_ab_plus_c(i, sizeof(cairo_bo_event_t) + sizeof(cairo_bo_edge_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *)));
 		if(unlikely(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		event_ptrs = (cairo_bo_event_t**)(events + i);

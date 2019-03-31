@@ -2266,7 +2266,7 @@ int SLAPI PPViewGoods::RemoveAll()
 				SString ext_fld_buf;
             	for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 					if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
-						ext_fld_buf = 0;
+						ext_fld_buf.Z();
                         for(uint i = 0; i < src_fld_id_list.getCount(); i++) {
 							const int src_fld_id = src_fld_id_list.get(i);
 							pack.GetExtStrData(src_fld_id, temp_buf.Z());

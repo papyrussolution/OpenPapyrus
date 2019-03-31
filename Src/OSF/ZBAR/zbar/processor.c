@@ -81,22 +81,17 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 		tmp = NULL;
 		if(nsyms < 0)
 			goto error;
-
 		proc->syms = zbar_image_scanner_get_results(proc->scanner);
 		if(proc->syms)
 			zbar_symbol_set_ref(proc->syms, 1);
-
 		if(_zbar_verbosity >= 8) {
 			const zbar_symbol_t * sym = zbar_image_first_symbol(img);
 			while(sym) {
 				zbar_symbol_type_t type = zbar_symbol_get_type(sym);
 				int count = zbar_symbol_get_count(sym);
 				zprintf(8, "%s: %s (%d pts) (dir=%d) (q=%d) (%s)\n",
-				    zbar_get_symbol_name(type),
-				    zbar_symbol_get_data(sym),
-				    zbar_symbol_get_loc_size(sym),
-				    zbar_symbol_get_orientation(sym),
-				    zbar_symbol_get_quality(sym),
+				    zbar_get_symbol_name(type), zbar_symbol_get_data(sym), zbar_symbol_get_loc_size(sym),
+				    zbar_symbol_get_orientation(sym), zbar_symbol_get_quality(sym),
 				    (count < 0) ? "uncertain" : ((count > 0) ? "duplicate" : "new"));
 				sym = zbar_symbol_next(sym);
 			}
@@ -172,7 +167,7 @@ int _zbar_processor_handle_input(zbar_processor_t * proc, int input)
 
 static ZTHREAD proc_video_thread(void * arg)
 {
-	zbar_processor_t * proc = (zbar_processor_t *)arg;
+	zbar_processor_t * proc = static_cast<zbar_processor_t *>(arg);
 	zbar_thread_t * thread = &proc->video_thread;
 	_zbar_mutex_lock(&proc->mutex);
 	_zbar_thread_init(thread);
@@ -188,27 +183,21 @@ static ZTHREAD proc_video_thread(void * arg)
 		_zbar_mutex_unlock(&proc->mutex);
 		zbar_image_t * img = zbar_video_next_image(proc->video);
 		_zbar_mutex_lock(&proc->mutex);
-
 		if(!img && !proc->streaming)
 			continue;
 		else if(!img)
 			/* FIXME could abort streaming and keep running? */
 			break;
-
 		/* acquire API lock */
 		_zbar_processor_lock(proc);
 		_zbar_mutex_unlock(&proc->mutex);
-
 		if(thread->started && proc->streaming)
 			_zbar_process_image(proc, img);
-
 		zbar_image_destroy(img);
-
 		_zbar_mutex_lock(&proc->mutex);
 		/* release API lock */
 		_zbar_processor_unlock(proc, 0);
 	}
-
 	thread->running = 0;
 	_zbar_event_trigger(&thread->activity);
 	_zbar_mutex_unlock(&proc->mutex);
@@ -217,7 +206,7 @@ static ZTHREAD proc_video_thread(void * arg)
 
 static ZTHREAD proc_input_thread(void * arg)
 {
-	zbar_processor_t * proc = (zbar_processor_t *)arg;
+	zbar_processor_t * proc = static_cast<zbar_processor_t *>(arg);
 	zbar_thread_t * thread = &proc->input_thread;
 	if(proc->window && proc_open(proc))
 		goto done;
@@ -246,7 +235,7 @@ done:
 
 zbar_processor_t * zbar_processor_create(int threaded)
 {
-	zbar_processor_t * proc = (zbar_processor_t *)SAlloc::C(1, sizeof(zbar_processor_t));
+	zbar_processor_t * proc = static_cast<zbar_processor_t *>(SAlloc::C(1, sizeof(zbar_processor_t)));
 	if(proc) {
 		err_init(&proc->err, ZBAR_MOD_PROCESSOR);
 		proc->scanner = zbar_image_scanner_create();
@@ -263,7 +252,6 @@ zbar_processor_t * zbar_processor_create(int threaded)
 void zbar_processor_destroy(zbar_processor_t * proc)
 {
 	zbar_processor_init(proc, NULL, 0);
-
 	if(proc->syms) {
 		zbar_symbol_set_ref(proc->syms, -1);
 		proc->syms = NULL;
@@ -467,11 +455,11 @@ int zbar_processor_set_visible(zbar_processor_t * proc, int visible)
 	return (rc);
 }
 
-const zbar_symbol_set_t* zbar_processor_get_results(const zbar_processor_t * proc)
+const zbar_symbol_set_t * zbar_processor_get_results(/*const*/zbar_processor_t * proc)
 {
-	zbar_processor_t * ncproc = (zbar_processor_t*)proc;
+	zbar_processor_t * ncproc = proc;
 	proc_enter(ncproc);
-	const zbar_symbol_set_t * syms = proc->syms;
+	zbar_symbol_set_t * syms = proc->syms;
 	if(syms)
 		zbar_symbol_set_ref(syms, 1);
 	proc_leave(ncproc);

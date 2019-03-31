@@ -58,18 +58,14 @@ typedef struct proc_waiter_s {
 struct zbar_processor_s {
     errinfo_t err;                      /* error reporting */
     const void *userdata;               /* application data */
-
     zbar_video_t *video;                /* input video device abstraction */
     zbar_window_t *window;              /* output window abstraction */
     zbar_image_scanner_t *scanner;      /* barcode scanner */
-
     zbar_image_data_handler_t *handler; /* application data handler */
-
     uint req_width, req_height;     /* application requested video size */
     int req_intf, req_iomode;           /* application requested interface */
     uint32 force_input;               /* force input format (debug) */
     uint32 force_output;              /* force format conversion (debug) */
-
     int input;                          /* user input status */
 
     /* state flags */
@@ -77,23 +73,17 @@ struct zbar_processor_s {
     int visible;                        /* output window mapped to display */
     int streaming;                      /* video enabled */
     int dumping;                        /* debug image dump */
-
     void *display;                      /* X display connection */
     ulong xwin;                 /* toplevel window */
-
     zbar_thread_t input_thread;         /* video input handler */
     zbar_thread_t video_thread;         /* window event handler */
-
-    const zbar_symbol_set_t *syms;      /* previous decode results */
-
+    /*const*/zbar_symbol_set_t * syms;      /* previous decode results */
     zbar_mutex_t mutex;                 /* shared data mutex */
-
     /* API serialization lock */
     int lock_level;
     zbar_thread_id_t lock_owner;
     proc_waiter_t *wait_head, *wait_tail, *wait_next;
     proc_waiter_t *free_waiter;
-
     processor_state_t *state;
 };
 

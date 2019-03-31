@@ -258,7 +258,7 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result
 		in = UTF8_NEXT_CHAR(in);
 	}
 	if(result) {
-		str32 = (uint32_t *)_cairo_malloc_ab(n_chars + 1, sizeof(uint32_t));
+		str32 = static_cast<uint32_t *>(_cairo_malloc_ab(n_chars + 1, sizeof(uint32_t)));
 		if(!str32)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		in = ustr;
@@ -386,7 +386,7 @@ cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16_t
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
 		in = UTF8_NEXT_CHAR(in);
 	}
-	str16 = (uint16_t *)_cairo_malloc_ab(n16 + 1, sizeof(uint16_t));
+	str16 = static_cast<uint16_t *>(_cairo_malloc_ab(n16 + 1, sizeof(uint16_t)));
 	if(!str16)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	in = ustr;

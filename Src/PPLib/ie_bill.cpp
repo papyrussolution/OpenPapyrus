@@ -725,7 +725,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						THROW(P_Data->BillParam.ReadIni(P_IniFile, sect, 0));
 						__id = getCtrlLong(CTLSEL_IEBILLSEL_BROW);
 						if(!(P_Data->BillParam.BaseFlags & PPImpExpParam::bfDLL) && !P_Data->BillParam.PredefFormat) { // @v9.7.8 (!P_Data->BillParam.PredefFormat)
-							if(__id || GetOpType(P_Data->OpID) != PPOPT_ACCTURN) { // @v8.4.10
+							if(__id || GetOpType(P_Data->OpID) != PPOPT_ACCTURN) {
 								THROW_PP(__id, PPERR_INVBILLIMPEXPCFG);
 								LineList.GetText(__id, sect);
 								P_Data->BRowParam.ProcessName(1, sect);
@@ -750,7 +750,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			// @vmiller {
 			if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
 				// Заполняем списком типов документов
-				uint   id = 0;
+				long   id = 0; // @v10.3.12 uint-->long
 				uint   p;
 				HdrList.Z();
 				SString buf;
@@ -767,8 +767,8 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					HdrList.Add(id, buf);
 				}
 				P_Data->BillParam.ProcessName(2, sect = P_Data->CfgNameBill); // @vmiller (для отображения в фильтре иконки)
-				id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
-				SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, (long)id, 0);
+				id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
+				SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, id, 0);
 				ok = 1;
 			}
 			// } @vmiller
@@ -780,7 +780,8 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			// @vmiller {
 			if(event.isClusterClk(CTL_IEBILLSEL_TECH)) {
 				if(P_Data) {
-					uint   id = 0, p = 0;
+					long   id = 0; // @v10.3.12 uint-->long
+					uint   p = 0;
 					SString sect;
 					SString buf;
 					PPBillImpExpParam param;
@@ -805,14 +806,14 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 							cb_param.ProcessName(2, sect = buf);
 							HdrList.Add(i+1, sect);
 						}
-						SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, (long)id, 0);
+						SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, id, 0);
 					}
 					// } @v9.2.10
 					else {
 						HdrList.Z();
 						if(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &param, &HdrList, Import ? 2 : 1) > 0) {
-							id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
-							SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, (long)id, 0);
+							id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
+							SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, id, 0);
 						}
 					}
 				}
@@ -1849,7 +1850,7 @@ int SLAPI PPBillImporter::ReadSpecXmlData()
 		}
 		PPWaitPercent(i + 1, count);
 	}
-	THROW(ie.CloseFile());
+	ie.CloseFile();
 	CATCHZOK
 	return ok;
 }
@@ -2115,12 +2116,10 @@ int SLAPI PPBillImporter::ReadData()
 				}
 				PPWaitPercent(i + 1, count);
 			}
-			THROW(ie.CloseFile());
-			// @v8.4.7 {
+			ie.CloseFile();
 			if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles) {
 				ToRemoveFiles.add(filename);
 			}
-			// } @v8.4.7
 			ok = 1;
 		}
 	}
@@ -2273,7 +2272,7 @@ int SLAPI PPBillImporter::ReadData()
 					if(imp_rows_from_same_file)
 						break;
 				}
-				THROW(ie.CloseFile());
+				ie.CloseFile();
 				if(imp_rows_from_same_file && accept_rows) {
 					THROW(ie_row.OpenFileForReading(filename));
 					THROW(ReadRows(&ie_row, 1, &fn_fld_list));

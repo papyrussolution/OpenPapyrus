@@ -1956,32 +1956,19 @@ static cairo_int_status_t _cairo_quartz_cg_glyphs(const cairo_compositor_t * com
 	}
 
 	if(num_glyphs > ARRAY_LENGTH(glyphs_static)) {
-		cg_glyphs = (CGGlyph*)_cairo_malloc_ab(num_glyphs, sizeof(CGGlyph) + sizeof(CGSize));
+		cg_glyphs = static_cast<CGGlyph *>(_cairo_malloc_ab(num_glyphs, sizeof(CGGlyph) + sizeof(CGSize)));
 		if(unlikely(cg_glyphs == NULL)) {
 			rv = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto BAIL;
 		}
-
 		cg_advances = (CGSize*)(cg_glyphs + num_glyphs);
 	}
-
 	/* scale(1,-1) * scaled_font->scale */
-	textTransform = CGAffineTransformMake(scaled_font->scale.xx,
-		scaled_font->scale.yx,
-		-scaled_font->scale.xy,
-		-scaled_font->scale.yy,
-		0.0, 0.0);
-
+	textTransform = CGAffineTransformMake(scaled_font->scale.xx, scaled_font->scale.yx, -scaled_font->scale.xy, -scaled_font->scale.yy, 0.0, 0.0);
 	/* scaled_font->scale_inverse * scale(1,-1) */
-	invTextTransform = CGAffineTransformMake(scaled_font->scale_inverse.xx,
-		-scaled_font->scale_inverse.yx,
-		scaled_font->scale_inverse.xy,
-		-scaled_font->scale_inverse.yy,
-		0.0, 0.0);
-
+	invTextTransform = CGAffineTransformMake(scaled_font->scale_inverse.xx, -scaled_font->scale_inverse.yx, scaled_font->scale_inverse.xy, -scaled_font->scale_inverse.yy, 0.0, 0.0);
 	CGContextSetTextPosition(state.cgMaskContext, 0.0, 0.0);
 	CGContextSetTextMatrix(state.cgMaskContext, CGAffineTransformIdentity);
-
 	/* Convert our glyph positions to glyph advances.  We need n-1 advances,
 	 * since the advance at index 0 is applied after glyph 0. */
 	xprev = glyphs[0].x;

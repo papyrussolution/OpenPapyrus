@@ -909,8 +909,8 @@ static void polygon_fini(struct polygon * polygon)
  * [ymin,ymax). */
 static glitter_status_t polygon_reset(struct polygon * polygon, grid_scaled_y_t ymin, grid_scaled_y_t ymax)
 {
-	unsigned h = ymax - ymin;
-	unsigned num_buckets = EDGE_Y_BUCKET_INDEX(ymax + GRID_Y-1, ymin);
+	uint   h = ymax - ymin;
+	uint   num_buckets = EDGE_Y_BUCKET_INDEX(ymax + GRID_Y-1, ymin);
 	pool_reset(polygon->edge_pool.base);
 	if(unlikely(h > 0x7FFFFFFFU - GRID_Y))
 		goto bail_no_mem; /* even if you could, you wouldn't want to. */
@@ -918,7 +918,7 @@ static glitter_status_t polygon_reset(struct polygon * polygon, grid_scaled_y_t 
 		SAlloc::F(polygon->y_buckets);
 	polygon->y_buckets =  polygon->y_buckets_embedded;
 	if(num_buckets > ARRAY_LENGTH(polygon->y_buckets_embedded)) {
-		polygon->y_buckets = (struct edge **)_cairo_malloc_ab(num_buckets, sizeof(struct edge *));
+		polygon->y_buckets = static_cast<struct edge **>(_cairo_malloc_ab(num_buckets, sizeof(struct edge *)));
 		if(unlikely(NULL == polygon->y_buckets))
 			goto bail_no_mem;
 	}
@@ -1340,7 +1340,7 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
 	converter->ymin = 0; converter->ymax = 0;
 	max_num_spans = xmax - xmin + 1;
 	if(max_num_spans > ARRAY_LENGTH(converter->spans_embedded)) {
-		converter->spans = (cairo_half_open_span_t *)_cairo_malloc_ab(max_num_spans, sizeof(cairo_half_open_span_t));
+		converter->spans = static_cast<cairo_half_open_span_t *>(_cairo_malloc_ab(max_num_spans, sizeof(cairo_half_open_span_t)));
 		if(unlikely(converter->spans == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}

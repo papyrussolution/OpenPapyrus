@@ -96,7 +96,8 @@ int SLAPI LssLin::Solve(uint count, const double * pX, const double * pY)
 		// In terms of y = a + b x
 		//
 		{
-			double s2 = 0, d2 = 0;
+			double s2 = 0.0;
+			double d2 = 0.0;
 			B = m_dxdy / m_dx2;
 			A = m_y - m_x * B;
 			//
@@ -108,9 +109,9 @@ int SLAPI LssLin::Solve(uint count, const double * pX, const double * pY)
 				const double d = (pY[i] - m_y) - B * (pX[i] - m_x);
 				d2 += d * d;
 			}
-			s2 = d2 / (count - 2); // chisq per degree of freedom
-			Cov00 = s2 * (1 / count) * (1 + m_x * m_x / m_dx2);
-			Cov11 = s2 * 1 / (count * m_dx2);
+			s2 = d2 / (count - 2.0); // chisq per degree of freedom
+			Cov00 = s2 * (1.0 / count) * (1.0 + m_x * m_x / m_dx2);
+			Cov11 = s2 * 1.0 / (count * m_dx2);
 			Cov01 = s2 * (-m_x) / (count * m_dx2);
 			SumSq = d2;
 		}

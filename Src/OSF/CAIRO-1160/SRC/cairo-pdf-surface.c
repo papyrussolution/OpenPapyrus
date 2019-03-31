@@ -2353,16 +2353,16 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 		    ASSERT_NOT_REACHED;
 		case CAIRO_IMAGE_IS_COLOR:
 		    data_size = image->height * image->width * 3;
-		    data = (char *)_cairo_malloc_abc(image->width, image->height, 3);
+		    data = static_cast<char *>(_cairo_malloc_abc(image->width, image->height, 3));
 		    break;
 
 		case CAIRO_IMAGE_IS_GRAYSCALE:
 		    data_size = image->height * image->width;
-		    data = (char *)_cairo_malloc_ab(image->width, image->height);
+		    data = static_cast<char *>(_cairo_malloc_ab(image->width, image->height));
 		    break;
 		case CAIRO_IMAGE_IS_MONOCHROME:
 		    data_size = (image->width + 7) / 8 * image->height;
-		    data = (char *)_cairo_malloc_ab((image->width+7) / 8, image->height);
+		    data = static_cast<char *>(_cairo_malloc_ab((image->width+7) / 8, image->height));
 		    break;
 	}
 	if(unlikely(data == NULL)) {
@@ -3581,7 +3581,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_pattern_stops(cairo_pdf_surfac
 	cairo_int_status_t status;
 	color_function->id = 0;
 	alpha_function->id = 0;
-	allstops = (cairo_pdf_color_stop_t *)_cairo_malloc_ab((pattern->n_stops + 2), sizeof(cairo_pdf_color_stop_t));
+	allstops = static_cast<cairo_pdf_color_stop_t *>(_cairo_malloc_ab((pattern->n_stops + 2), sizeof(cairo_pdf_color_stop_t)));
 	if(unlikely(allstops == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	stops = &allstops[1];
@@ -5637,7 +5637,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 	glyphs = static_cast<cairo_pdf_resource_t *>(_cairo_malloc_ab(font_subset->num_glyphs, sizeof(cairo_pdf_resource_t)));
 	if(unlikely(glyphs == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	widths = (double *)_cairo_malloc_ab(font_subset->num_glyphs, sizeof(double));
+	widths = static_cast<double *>(_cairo_malloc_ab(font_subset->num_glyphs, sizeof(double)));
 	if(unlikely(widths == NULL)) {
 		SAlloc::F(glyphs);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -7651,9 +7651,8 @@ static cairo_int_status_t _cairo_pdf_surface_show_text_glyphs(void * abstract_su
 			goto cleanup;
 		}
 		group->source_res = pattern_res;
-
 		if(utf8_len) {
-			group->utf8 = (char *)_cairo_malloc(utf8_len);
+			group->utf8 = static_cast<char *>(_cairo_malloc(utf8_len));
 			if(unlikely(group->utf8 == NULL)) {
 				_cairo_pdf_smask_group_destroy(group);
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -7663,7 +7662,7 @@ static cairo_int_status_t _cairo_pdf_surface_show_text_glyphs(void * abstract_su
 		}
 		group->utf8_len = utf8_len;
 		if(num_glyphs) {
-			group->glyphs = (cairo_glyph_t *)_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t));
+			group->glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t)));
 			if(unlikely(group->glyphs == NULL)) {
 				_cairo_pdf_smask_group_destroy(group);
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -7674,7 +7673,7 @@ static cairo_int_status_t _cairo_pdf_surface_show_text_glyphs(void * abstract_su
 		group->num_glyphs = num_glyphs;
 
 		if(num_clusters) {
-			group->clusters = (cairo_text_cluster_t *)_cairo_malloc_ab(num_clusters, sizeof(cairo_text_cluster_t));
+			group->clusters = static_cast<cairo_text_cluster_t *>(_cairo_malloc_ab(num_clusters, sizeof(cairo_text_cluster_t)));
 			if(unlikely(group->clusters == NULL)) {
 				_cairo_pdf_smask_group_destroy(group);
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

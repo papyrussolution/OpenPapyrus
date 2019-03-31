@@ -204,14 +204,14 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 			temp_buf.Z();
 			key.GetString(BillMultiplePrintCfg, temp_buf);
 			StringSet ss(';', temp_buf);
-			for(uint p = 0, i = 0; ss.get(&p, (sbuf = 0)) > 0; i++) {
+			for(uint p = 0, i = 0; ss.get(&p, sbuf) > 0; i++) {
 				uint   p1 = 0;
 				StringSet ss1(',', sbuf);
-				ss1.get(&p1, (sbuf = 0));   // ID
-				ss1.get(&p1, (sbuf = 0));   // State
+				ss1.get(&p1, sbuf);   // ID
+				ss1.get(&p1, sbuf);   // State
 				long   checked = p_clu->isItemEnabled(i) ? sbuf.ToLong() : 0;
 				SETFLAG(v, 0x0001 << i, checked);
-				ss1.get(&p1, (sbuf = 0));   // Num copies
+				ss1.get(&p1, sbuf);   // Num copies
 				rpt_info_list.Add(sbuf.ToLong(), checked, 0);
 			}
 			uint32 val = 0;

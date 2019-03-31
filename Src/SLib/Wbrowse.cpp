@@ -2366,21 +2366,6 @@ HWND GetPrevBrowser(HWND hw)
 // static
 LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	static const struct scrollkeys {
-		WORD wVirtkey;
-		int  iMessage;
-		WORD wRequest;
-	} key2scroll[] = {
-		{ VK_HOME, WM_VSCROLL, SB_TOP },
-		{ VK_END, WM_VSCROLL, SB_BOTTOM },
-		{ VK_PRIOR, WM_VSCROLL, SB_PAGEUP },
-		{ VK_NEXT, WM_VSCROLL, SB_PAGEDOWN },
-		{ VK_UP, WM_VSCROLL, SB_LINEUP },
-		{ VK_DOWN, WM_VSCROLL, SB_LINEDOWN },
-		{ VK_LEFT, WM_HSCROLL, SB_LINEUP },
-		{ VK_RIGHT, WM_HSCROLL, SB_LINEDOWN }
-	};
-#define NUMKEYS (sizeof key2scroll / sizeof key2scroll[0])
 	int    i;
 	long   hPos, vPos;
 	POINT  pnt;
@@ -2419,23 +2404,17 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			else
 				return -1;
 		case WM_DESTROY:
-			if(p_view) {
-				if(p_view->IsConsistent()) {
-					if((p_view->Sf & sfModal) && !(p_view->Sf & sfOnDestroy)) {
-						p_view->EndModalCmd = cmCancel;
-						PostMessage(hWnd, WM_NULL, 0, 0L);
-					}
-					else {
-						TView::SetWindowUserData(hWnd, 0);
-						if(!(p_view->Sf & sfOnDestroy)) {
-							delete p_view;
-						}
-					}
-					APPL->NotifyFrame(1);
+			if(p_view && p_view->IsConsistent()) {
+				if((p_view->Sf & sfModal) && !(p_view->Sf & sfOnDestroy)) {
+					p_view->EndModalCmd = cmCancel;
+					::PostMessage(hWnd, WM_NULL, 0, 0L);
 				}
 				else {
-					return 0; // @v8.4.11 @debug
+					TView::SetWindowUserData(hWnd, 0);
+					if(!(p_view->Sf & sfOnDestroy))
+						delete p_view;
 				}
+				APPL->NotifyFrame(1);
 			}
 			return 0;
 		case WM_SETFONT:
@@ -2449,7 +2428,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			return 0;
 		case BRO_GETCURCOL:
 			if(p_view) {
-				*(UINT *)(void FAR * FAR *)lParam = p_view->HScrollPos;
+				*(UINT *)(void **)lParam = p_view->HScrollPos;
 			}
 			return 0;
 		case BRO_DATACHG:
@@ -2506,7 +2485,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			break;
 		case WM_MOUSEWHEEL:
 			if(p_view) {
-				short delta = (short)HIWORD(wParam);
+				short delta = static_cast<short>(HIWORD(wParam));
 				int   scroll_code = (delta > 0) ? SB_LINEUP : SB_LINEDOWN;
 				for(int i = 0; i < 5; i++)
 					p_view->WMHScroll(SB_VERT, scroll_code, 0);
@@ -2514,7 +2493,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			break;
 		case WM_MOUSEHOVER:
 			tp.setwparam(lParam);
-			TView::messageBroadcast(p_view, cmMouseHover, (void *)&tp);
+			TView::messageBroadcast(p_view, cmMouseHover, &tp);
 			break;
 		case WM_SETFOCUS:
 			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION)) {
@@ -2550,7 +2529,22 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			}
 		case WM_KEYDOWN:
 			if(p_view) {
-				for(i = 0; i < NUMKEYS; i++) {
+				static const struct scrollkeys {
+					WORD wVirtkey;
+					int  iMessage;
+					WORD wRequest;
+				} key2scroll[] = {
+					{ VK_HOME, WM_VSCROLL, SB_TOP },
+					{ VK_END, WM_VSCROLL, SB_BOTTOM },
+					{ VK_PRIOR, WM_VSCROLL, SB_PAGEUP },
+					{ VK_NEXT, WM_VSCROLL, SB_PAGEDOWN },
+					{ VK_UP, WM_VSCROLL, SB_LINEUP },
+					{ VK_DOWN, WM_VSCROLL, SB_LINEDOWN },
+					{ VK_LEFT, WM_HSCROLL, SB_LINEUP },
+					{ VK_RIGHT, WM_HSCROLL, SB_LINEDOWN }
+				};
+				//#define NUMKEYS (sizeof key2scroll / sizeof key2scroll[0])
+				for(i = 0; i < SIZEOFARRAY(key2scroll); i++) {
 					if(wParam == key2scroll[i].wVirtkey) {
 						SendMessage(hWnd, key2scroll[i].iMessage, key2scroll[i].wRequest, 0L);
 						return 0;
@@ -2574,9 +2568,10 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 		case WM_CHAR:
 			if(p_view) {
 				char kb_scan_code = LOBYTE(HIWORD(lParam));
-				if(wParam != VK_RETURN || kb_scan_code != 0x1c) {
+				if(wParam != VK_RETURN /*||*/&& wParam != VK_ESCAPE/*kb_scan_code != 0x1c*/) {
+					char ac = SSystem::TranslateWmCharToAnsi(wParam);
 					e.what = TEvent::evKeyDown;
-					e.keyDown.keyCode = wParam;
+					e.keyDown.keyCode = ac/*wParam*/;
 					p_view->handleEvent(e);
 				}
 			}

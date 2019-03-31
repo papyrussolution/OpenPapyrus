@@ -304,10 +304,9 @@ int ExcelDbFile::Scan()
 }
 */
 
-int ExcelDbFile::GetNumRecords(ulong * pNumRecs)
+ulong ExcelDbFile::GetNumRecords() const
 {
-	ASSIGN_PTR(pNumRecs, RecCount);
-	return 1;
+	return RecCount;
 }
 
 int ExcelDbFile::GoToRecord(ulong recNo, int rel)

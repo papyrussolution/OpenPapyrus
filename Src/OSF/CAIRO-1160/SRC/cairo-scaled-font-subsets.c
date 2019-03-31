@@ -852,37 +852,27 @@ cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t 
 }
 
 static cairo_status_t _cairo_scaled_font_subsets_foreach_internal(cairo_scaled_font_subsets_t * font_subsets,
-    cairo_scaled_font_subset_callback_func_t font_subset_callback,
-    void * closure,
-    cairo_subsets_foreach_type_t type)
+    cairo_scaled_font_subset_callback_func_t font_subset_callback, void * closure, cairo_subsets_foreach_type_t type)
 {
 	cairo_sub_font_collection_t collection;
 	cairo_sub_font_t * sub_font;
-	cairo_bool_t is_scaled, is_user;
-
-	is_scaled = FALSE;
-	is_user = FALSE;
-
+	cairo_bool_t is_scaled = FALSE;
+	cairo_bool_t is_user = FALSE;
 	if(type == CAIRO_SUBSETS_FOREACH_USER)
 		is_user = TRUE;
-
-	if(type == CAIRO_SUBSETS_FOREACH_SCALED ||
-	    type == CAIRO_SUBSETS_FOREACH_USER) {
+	if(type == CAIRO_SUBSETS_FOREACH_SCALED || type == CAIRO_SUBSETS_FOREACH_USER) {
 		is_scaled = TRUE;
 	}
-
 	if(is_scaled)
 		collection.glyphs_size = font_subsets->max_glyphs_per_scaled_subset_used;
 	else
 		collection.glyphs_size = font_subsets->max_glyphs_per_unscaled_subset_used;
-
 	if(!collection.glyphs_size)
 		return CAIRO_STATUS_SUCCESS;
-
-	collection.glyphs = (ulong *)_cairo_malloc_ab(collection.glyphs_size, sizeof(ulong));
-	collection.utf8 = (char **)_cairo_malloc_ab(collection.glyphs_size, sizeof(char *));
-	collection.to_latin_char = (int *)_cairo_malloc_ab(collection.glyphs_size, sizeof(int));
-	collection.latin_to_subset_glyph_index = (ulong *)_cairo_malloc_ab(256, sizeof(ulong));
+	collection.glyphs = static_cast<ulong *>(_cairo_malloc_ab(collection.glyphs_size, sizeof(ulong)));
+	collection.utf8 = static_cast<char **>(_cairo_malloc_ab(collection.glyphs_size, sizeof(char *)));
+	collection.to_latin_char = static_cast<int *>(_cairo_malloc_ab(collection.glyphs_size, sizeof(int)));
+	collection.latin_to_subset_glyph_index = static_cast<ulong *>(_cairo_malloc_ab(256, sizeof(ulong)));
 	if(unlikely(collection.glyphs == NULL || collection.utf8 == NULL || collection.to_latin_char == NULL || collection.latin_to_subset_glyph_index == NULL)) {
 		SAlloc::F(collection.glyphs);
 		SAlloc::F(collection.utf8);

@@ -242,7 +242,7 @@ cairo_path_t * _cairo_path_create_in_error(cairo_status_t status)
 
 static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixed, cairo_t * cr, cairo_bool_t flatten)
 {
-	cairo_path_t * path = (cairo_path_t *)_cairo_malloc(sizeof(cairo_path_t));
+	cairo_path_t * path = static_cast<cairo_path_t *>(_cairo_malloc(sizeof(cairo_path_t)));
 	if(unlikely(path == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_path_t*)&_cairo_path_nil;
@@ -250,16 +250,15 @@ static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixe
 	path->num_data = _cairo_path_count(path, path_fixed, cairo_get_tolerance(cr), flatten);
 	if(path->num_data < 0) {
 		SAlloc::F(path);
-		return (cairo_path_t*)&_cairo_path_nil;
+		return (cairo_path_t *)&_cairo_path_nil;
 	}
 	if(path->num_data) {
-		path->data = (cairo_path_data_t *)_cairo_malloc_ab(path->num_data, sizeof(cairo_path_data_t));
+		path->data = static_cast<cairo_path_data_t *>(_cairo_malloc_ab(path->num_data, sizeof(cairo_path_data_t)));
 		if(unlikely(path->data == NULL)) {
 			SAlloc::F(path);
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
-			return (cairo_path_t*)&_cairo_path_nil;
+			return (cairo_path_t *)&_cairo_path_nil;
 		}
-
 		path->status = _cairo_path_populate(path, path_fixed, cr, flatten);
 	}
 	else {

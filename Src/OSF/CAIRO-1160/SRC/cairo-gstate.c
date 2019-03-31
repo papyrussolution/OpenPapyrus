@@ -435,7 +435,7 @@ cairo_status_t _cairo_gstate_set_dash(cairo_gstate_t * gstate, const double * da
 		gstate->stroke_style.dash_offset = 0.0;
 		return CAIRO_STATUS_SUCCESS;
 	}
-	gstate->stroke_style.dash = (double *)_cairo_malloc_ab(gstate->stroke_style.num_dashes, sizeof(double));
+	gstate->stroke_style.dash = static_cast<double *>(_cairo_malloc_ab(gstate->stroke_style.num_dashes, sizeof(double)));
 	if(unlikely(gstate->stroke_style.dash == NULL)) {
 		gstate->stroke_style.num_dashes = 0;
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);

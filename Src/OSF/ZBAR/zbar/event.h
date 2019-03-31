@@ -26,33 +26,25 @@
 #include <config.h>
 #include "mutex.h"
 #include "timer.h"
-
-/* platform synchronization "event" abstraction
- */
-
+//
+// platform synchronization "event" abstraction
+//
 #if defined(_WIN32)
+	#include <windows.h>
 
-#include <windows.h>
-
-typedef HANDLE zbar_event_t;
-
-
+	typedef HANDLE zbar_event_t;
 #else
-
-# ifdef HAVE_LIBPTHREAD
-#  include <pthread.h>
-# endif
-
-typedef struct zbar_event_s {
-    int state;
-# ifdef HAVE_LIBPTHREAD
-    pthread_cond_t cond;
-# endif
-    int pollfd;
-} zbar_event_t;
-
+	#ifdef HAVE_LIBPTHREAD
+		#include <pthread.h>
+	#endif
+	typedef struct zbar_event_s {
+		int state;
+	#ifdef HAVE_LIBPTHREAD
+		pthread_cond_t cond;
+	#endif
+		int pollfd;
+	} zbar_event_t;
 #endif
-
 
 extern int _zbar_event_init(zbar_event_t*);
 extern void _zbar_event_destroy(zbar_event_t*);

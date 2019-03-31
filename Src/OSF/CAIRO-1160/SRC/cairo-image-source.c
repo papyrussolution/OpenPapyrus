@@ -276,7 +276,7 @@ static pixman_image_t * _pixman_image_for_gradient(const cairo_gradient_pattern_
 	cairo_int_status_t status;
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(pattern->n_stops > ARRAY_LENGTH(pixman_stops_static)) {
-		pixman_stops = (pixman_gradient_stop_t *)_cairo_malloc_ab(pattern->n_stops, sizeof(pixman_gradient_stop_t));
+		pixman_stops = static_cast<pixman_gradient_stop_t *>(_cairo_malloc_ab(pattern->n_stops, sizeof(pixman_gradient_stop_t)));
 		if(unlikely(pixman_stops == NULL))
 			return NULL;
 	}

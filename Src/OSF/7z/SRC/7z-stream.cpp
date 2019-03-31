@@ -201,14 +201,14 @@ bool CCachedInStream::Alloc(unsigned blockSizeLog, unsigned numBlocksLog) throw(
 	size_t dataSize = (size_t)1 << sizeLog;
 	if(_data == 0 || dataSize != _dataSize) {
 		MidFree(_data);
-		_data = (Byte *)MidAlloc(dataSize);
+		_data = static_cast<Byte *>(MidAlloc(dataSize));
 		if(_data == 0)
 			return false;
 		_dataSize = dataSize;
 	}
 	if(_tags == 0 || numBlocksLog != _numBlocksLog) {
 		SAlloc::F(_tags);
-		_tags = (uint64 *)SAlloc::M(sizeof(uint64) << numBlocksLog);
+		_tags = static_cast<uint64 *>(SAlloc::M(sizeof(uint64) << numBlocksLog));
 		if(_tags == 0)
 			return false;
 		_numBlocksLog = numBlocksLog;
@@ -1075,7 +1075,7 @@ STDMETHODIMP CInFileStream::Read(void * data, uint32 size, uint32 * processedSiz
 			if(File.SizeDefined)
 				readSize = (uint32)MyMin(File.Size - PhyPos, (uint64)kClusterSize);
 			if(!Buf) {
-				Buf = (Byte *)MidAlloc(kClusterSize);
+				Buf = static_cast<Byte *>(MidAlloc(kClusterSize));
 				if(!Buf)
 					return E_OUTOFMEMORY;
 			}

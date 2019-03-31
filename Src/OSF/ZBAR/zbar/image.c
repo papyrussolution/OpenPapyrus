@@ -230,7 +230,7 @@ const zbar_symbol_set_t * zbar_image_get_symbols(const zbar_image_t * img)
 	return (img->syms);
 }
 
-void zbar_image_set_symbols(zbar_image_t * img, const zbar_symbol_set_t * syms)
+void zbar_image_set_symbols(zbar_image_t * img, /*const*/zbar_symbol_set_t * syms)
 {
 	if(syms)
 		zbar_symbol_set_ref(syms, 1);

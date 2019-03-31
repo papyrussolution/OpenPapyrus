@@ -1667,7 +1667,7 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 				// 'ACTUAL' 'LAST'
 				//
 				sub_criterion = 0;
-				arg_buf = 0;
+				arg_buf.Z();
 			}
 			else {
 				if(scan[0] == '.') {

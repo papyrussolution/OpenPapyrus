@@ -165,18 +165,6 @@ public:
 		int16  Prec;
 		uint16 Reserve; // @alignment
 	};
-	/*
-	struct TrendEntry {
-		TrendEntry(uint stride, uint nominalCount) : Stride(stride), NominalCount(nominalCount)
-		{
-			assert(stride > 0 && stride <= 100000);
-			assert(NominalCount > 0 && NominalCount <= 100);
-		}
-		const uint Stride;
-		const uint NominalCount;
-		RealArray TL;
-	};
-	*/
 	struct ImpactEntry {
 		ImpactEntry(LDATETIME t, double v) : T(t), Value(v)
 		{
@@ -1383,7 +1371,7 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 				}
 				{
 					STimeSeries::AnalyzeFitParam afp(ifs, tsc-p_entry->NominalCount, p_entry->NominalCount);
-					THROW(pBlk->T_.AnalyzeFit("close", afp, &p_entry->TL, 0));
+					THROW(pBlk->T_.AnalyzeFit("close", afp, &p_entry->TL, 0, &p_entry->ErrL, 0, 0));
 				}
 			}
 		}

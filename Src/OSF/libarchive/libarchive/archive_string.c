@@ -915,26 +915,20 @@ static void setup_converter(struct archive_string_conv * sc)
 			return;
 		}
 #endif
-
 #if defined(HAVE_ICONV)
 		if(sc->cd != (iconv_t)-1) {
 			add_converter(sc, iconv_strncat_in_locale);
 			return;
 		}
 #endif
-
-		if((sc->flag & (SCONV_BEST_EFFORT | SCONV_FROM_UTF16BE))
-		    == (SCONV_BEST_EFFORT | SCONV_FROM_UTF16BE))
+		if((sc->flag & (SCONV_BEST_EFFORT | SCONV_FROM_UTF16BE)) == (SCONV_BEST_EFFORT | SCONV_FROM_UTF16BE))
 			add_converter(sc, best_effort_strncat_from_utf16be);
-		else if((sc->flag & (SCONV_BEST_EFFORT | SCONV_FROM_UTF16LE))
-		    == (SCONV_BEST_EFFORT | SCONV_FROM_UTF16LE))
+		else if((sc->flag & (SCONV_BEST_EFFORT | SCONV_FROM_UTF16LE)) == (SCONV_BEST_EFFORT | SCONV_FROM_UTF16LE))
 			add_converter(sc, best_effort_strncat_from_utf16le);
 		else
-			/* Make sure we have no converter. */
-			sc->nconverter = 0;
+			sc->nconverter = 0; // Make sure we have no converter. 
 		return;
 	}
-
 	if(sc->flag & SCONV_FROM_UTF8) {
 		/*
 		 * At least we should normalize a UTF-8 string.
@@ -943,7 +937,6 @@ static void setup_converter(struct archive_string_conv * sc)
 			add_converter(sc, archive_string_normalize_D);
 		else if(sc->flag & SCONV_NORMALIZATION_C)
 			add_converter(sc, archive_string_normalize_C);
-
 		/*
 		 * Copy UTF-8 string with a check of CESU-8.
 		 * Apparently, iconv does not check surrogate pairs in UTF-8
@@ -955,13 +948,11 @@ static void setup_converter(struct archive_string_conv * sc)
 			 * If the current locale is UTF-8, we can translate
 			 * a UTF-16BE string into a UTF-8 string directly.
 			 */
-			if(!(sc->flag &
-			    (SCONV_NORMALIZATION_D |SCONV_NORMALIZATION_C)))
+			if(!(sc->flag & (SCONV_NORMALIZATION_D |SCONV_NORMALIZATION_C)))
 				add_converter(sc, strncat_from_utf8_to_utf8);
 			return;
 		}
 	}
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	/*
 	 * On Windows we can use Windows API for a string conversion.
@@ -971,7 +962,6 @@ static void setup_converter(struct archive_string_conv * sc)
 		return;
 	}
 #endif
-
 #if HAVE_ICONV
 	if(sc->cd != (iconv_t)-1) {
 		add_converter(sc, iconv_strncat_in_locale);
@@ -980,25 +970,21 @@ static void setup_converter(struct archive_string_conv * sc)
 		 * we have to the output of iconv from NFC to NFD if
 		 * need.
 		 */
-		if((sc->flag & SCONV_FROM_CHARSET) &&
-		    (sc->flag & SCONV_TO_UTF8)) {
+		if((sc->flag & SCONV_FROM_CHARSET) && (sc->flag & SCONV_TO_UTF8)) {
 			if(sc->flag & SCONV_NORMALIZATION_D)
 				add_converter(sc, archive_string_normalize_D);
 		}
 		return;
 	}
 #endif
-
 	/*
 	 * Try conversion in the best effort or no conversion.
 	 */
 	if((sc->flag & SCONV_BEST_EFFORT) || sc->same)
 		add_converter(sc, best_effort_strncat_in_locale);
 	else
-		/* Make sure we have no converter. */
-		sc->nconverter = 0;
+		sc->nconverter = 0; // Make sure we have no converter. 
 }
-
 /*
  * Return canonicalized charset-name but this supports just UTF-8, UTF-16BE
  * and CP932 which are referenced in create_sconv_object().

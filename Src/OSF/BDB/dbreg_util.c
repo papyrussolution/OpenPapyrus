@@ -316,7 +316,7 @@ int __dbreg_id_to_db(ENV * env, DB_TXN * txn, DB ** dbpp, int32 ndx, int tryopen
 		 * other process that has the file open shouldn't be closing it
 		 * while we're trying to abort.
 		 */
-		name = fname->fname_off == INVALID_ROFF ? NULL : (char *)R_ADDR(&dblp->reginfo, fname->fname_off);
+		name = fname->fname_off == INVALID_ROFF ? NULL : static_cast<char *>(R_ADDR(&dblp->reginfo, fname->fname_off));
 		/*
 		 * At this point, we are not holding the thread lock, so exit
 		 * directly instead of going through the exit code at the

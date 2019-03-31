@@ -77,12 +77,12 @@ static cairo_bool_t _cairo_tristrip_grow(cairo_tristrip_t * strip)
 		return FALSE;
 	}
 	if(strip->points == strip->points_embedded) {
-		points = (cairo_point_t*)_cairo_malloc_ab(new_size, sizeof(cairo_point_t));
+		points = static_cast<cairo_point_t *>(_cairo_malloc_ab(new_size, sizeof(cairo_point_t)));
 		if(points != NULL)
 			memcpy(points, strip->points, sizeof(strip->points_embedded));
 	}
 	else {
-		points = (cairo_point_t*)_cairo_realloc_ab(strip->points, new_size, sizeof(cairo_trapezoid_t));
+		points = static_cast<cairo_point_t *>(_cairo_realloc_ab(strip->points, new_size, sizeof(cairo_trapezoid_t)));
 	}
 	if(unlikely(points == NULL)) {
 		strip->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

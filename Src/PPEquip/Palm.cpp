@@ -3670,7 +3670,7 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 		for(ar_view.InitIteration(); ar_view.NextIteration(&ar_item) > 0;) {
 			PPWaitPercent(ar_view.GetCounter(), wait_msg);
 			if(ar_item.Closed == 0) { // Не будем выгружать пассивные статьи
-				inn_buf = 0;
+				inn_buf.Z();
 				long   _flags = 0;
 				PPID   quot_kind_id = 0;
 				PPClientAgreement cli_agt;

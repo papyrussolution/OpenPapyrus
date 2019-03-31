@@ -796,7 +796,7 @@ cairo_int_status_t _cairo_traps_extract_region(cairo_traps_t * traps, cairo_anti
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 	if(traps->num_traps > ARRAY_LENGTH(stack_rects)) {
-		rects = (cairo_rectangle_int_t *)_cairo_malloc_ab(traps->num_traps, sizeof(cairo_rectangle_int_t));
+		rects = static_cast<cairo_rectangle_int_t *>(_cairo_malloc_ab(traps->num_traps, sizeof(cairo_rectangle_int_t)));
 		if(unlikely(rects == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}

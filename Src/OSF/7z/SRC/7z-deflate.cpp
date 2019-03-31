@@ -130,32 +130,32 @@ namespace NCompress {
 			{
 				// COM_TRY_BEGIN
 				if(m_Values == 0) {
-					m_Values = (CCodeValue*)SAlloc::M((kMaxUncompressedBlockSize) * sizeof(CCodeValue));
+					m_Values = static_cast<CCodeValue *>(SAlloc::M((kMaxUncompressedBlockSize) * sizeof(CCodeValue)));
 					if(m_Values == 0)
 						return E_OUTOFMEMORY;
 				}
 				if(m_Tables == 0) {
-					m_Tables = (CTables*)SAlloc::M((kNumTables) * sizeof(CTables));
+					m_Tables = static_cast<CTables *>(SAlloc::M((kNumTables) * sizeof(CTables)));
 					if(m_Tables == 0)
 						return E_OUTOFMEMORY;
 				}
 				if(m_IsMultiPass) {
 					if(m_OnePosMatchesMemory == 0) {
-						m_OnePosMatchesMemory = (uint16 *)::MidAlloc(kMatchArraySize * sizeof(uint16));
+						m_OnePosMatchesMemory = static_cast<uint16 *>(::MidAlloc(kMatchArraySize * sizeof(uint16)));
 						if(m_OnePosMatchesMemory == 0)
 							return E_OUTOFMEMORY;
 					}
 				}
 				else {
 					if(m_DistanceMemory == 0) {
-						m_DistanceMemory = (uint16 *)SAlloc::M((kMatchMaxLen + 2) * 2 * sizeof(uint16));
+						m_DistanceMemory = static_cast<uint16 *>(SAlloc::M((kMatchMaxLen + 2) * 2 * sizeof(uint16)));
 						if(m_DistanceMemory == 0)
 							return E_OUTOFMEMORY;
 						m_MatchDistances = m_DistanceMemory;
 					}
 				}
 				if(!m_Created) {
-					_lzInWindow.btMode = (Byte)(_btMode ? 1 : 0);
+					_lzInWindow.btMode = static_cast<Byte>(BIN(_btMode));
 					_lzInWindow.numHashBytes = 3;
 					if(!MatchFinder_Create(&_lzInWindow, m_Deflate64Mode ? kHistorySize64 : kHistorySize32,
 						kNumOpts + kMaxUncompressedBlockSize, m_NumFastBytes, m_MatchMaxLen - m_NumFastBytes, &g_Alloc))

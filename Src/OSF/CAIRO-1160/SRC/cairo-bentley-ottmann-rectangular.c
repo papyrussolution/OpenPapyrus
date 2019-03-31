@@ -645,7 +645,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t
 	rectangles = stack_rectangles;
 	rectangles_ptrs = stack_rectangles_ptrs;
 	if(traps->num_traps > ARRAY_LENGTH(stack_rectangles)) {
-		rectangles = (rectangle_t *)_cairo_malloc_ab_plus_c(traps->num_traps, sizeof(rectangle_t) + sizeof(rectangle_t *), 3*sizeof(rectangle_t *));
+		rectangles = static_cast<rectangle_t *>(_cairo_malloc_ab_plus_c(traps->num_traps, sizeof(rectangle_t) + sizeof(rectangle_t *), 3*sizeof(rectangle_t *)));
 		if(unlikely(rectangles == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		rectangles_ptrs = (rectangle_t**)(rectangles + traps->num_traps);
@@ -741,7 +741,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 	if(y_max < in->num_boxes) {
 		rectangles_chain = stack_rectangles_chain;
 		if(y_max > ARRAY_LENGTH(stack_rectangles_chain)) {
-			rectangles_chain = (rectangle_t **)_cairo_malloc_ab(y_max, sizeof(rectangle_t *));
+			rectangles_chain = static_cast<rectangle_t **>(_cairo_malloc_ab(y_max, sizeof(rectangle_t *)));
 			if(unlikely(rectangles_chain == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -750,7 +750,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 	rectangles = stack_rectangles;
 	rectangles_ptrs = stack_rectangles_ptrs;
 	if(in->num_boxes > ARRAY_LENGTH(stack_rectangles)) {
-		rectangles = (rectangle_t *)_cairo_malloc_ab_plus_c(in->num_boxes, sizeof(rectangle_t) + sizeof(rectangle_t *), 3*sizeof(rectangle_t *));
+		rectangles = static_cast<rectangle_t *>(_cairo_malloc_ab_plus_c(in->num_boxes, sizeof(rectangle_t) + sizeof(rectangle_t *), 3*sizeof(rectangle_t *)));
 		if(unlikely(rectangles == NULL)) {
 			if(rectangles_chain != stack_rectangles_chain)
 				SAlloc::F(rectangles_chain);

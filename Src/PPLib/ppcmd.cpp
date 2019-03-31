@@ -30,11 +30,10 @@ void SLAPI PPCommandDescr::Init()
 	Text.Z();
 }
 
-int SLAPI PPCommandDescr::GetFactoryFuncName(SString & rBuf) const
+SString & FASTCALL PPCommandDescr::GetFactoryFuncName(SString & rBuf) const
 {
-	rBuf = P_FactoryPrfx;
-	rBuf.Cat(Symb).ToUpper();
-	return 1;
+	(rBuf = P_FactoryPrfx).Cat(Symb).ToUpper();
+	return rBuf;
 }
 
 int SLAPI PPCommandDescr::Write(SBuffer & rBuf, long) const
@@ -137,8 +136,7 @@ PPCommandHandler * SLAPI PPCommandDescr::CreateInstance(long cmdDescrID)
 	SString ffn;
 	THROW(LoadResource(cmdDescrID));
 	PPSetAddedMsgString(Text);
-	GetFactoryFuncName(ffn);
-	FN_CMD_FACTORY f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), ffn));
+	FN_CMD_FACTORY f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), GetFactoryFuncName(ffn)));
 	if(!f && MenuCm) {
 		SString def_factory_name;
 		def_factory_name = P_FactoryPrfx;
@@ -964,7 +962,7 @@ int SLAPI PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
 		ObjLinkFiles logo;
 		logo.Init(PPOBJ_DESKTOP, dir);
 		logo.Load(ID, 0L);
-		logo.At(0, (buf = 0));
+		logo.At(0, buf);
 		SetLogo(buf);
 		if(Flags & fBkgndImage)
 			Flags |= fBkgndImageLoaded;
@@ -1777,7 +1775,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 					psn_pack.LinkFiles.Init(PPOBJ_PERSON);
 					if(psn_pack.Rec.Flags & PSNF_HASIMAGES)
 						psn_pack.LinkFiles.Load(psn_pack.Rec.ID, 0L);
-					psn_pack.LinkFiles.At(0, (buf = 0));
+					psn_pack.LinkFiles.At(0, buf);
 					r = ViewImageInfo(buf, info, warn);
 				}
 				if(r > 0) {

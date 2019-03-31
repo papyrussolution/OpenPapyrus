@@ -1340,12 +1340,10 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    }
 			    return 0;
 			case WM_UNICHAR:
-			    if(wParam == UNICODE_NOCHAR) {
+			    if(wParam == UNICODE_NOCHAR)
 				    return TRUE;
-			    }
-			    else if(lastKeyDownConsumed) {
+			    else if(lastKeyDownConsumed)
 				    return 1;
-			    }
 			    else {
 				    wchar_t wcs[3] = {0};
 				    uint wclen = UTF16FromUTF32Character(static_cast<uint>(wParam), wcs);

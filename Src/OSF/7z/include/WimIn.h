@@ -531,7 +531,7 @@ struct CMidBuf {
 		if(size > _size) {
 			::MidFree(Data);
 			_size = 0;
-			Data = (Byte *)::MidAlloc(size);
+			Data = static_cast<Byte *>(::MidAlloc(size));
 			if(Data)
 				_size = size;
 		}

@@ -150,19 +150,19 @@ int PPDesktopAssocCmdPool::Pack()
 		Item & r_item = L.at(i);
 		P.getnz(r_item.CodeP, temp_buf);
 		if(temp_buf.NotEmptyS()) {
-			np.add(temp_buf, (uint *)&r_item.CodeP);
+			np.add(temp_buf, reinterpret_cast<uint *>(&r_item.CodeP));
 		}
 		else
 			r_item.CodeP = 0;
 		P.getnz(r_item.DvcSerialP, temp_buf);
 		if(temp_buf.NotEmptyS()) {
-			np.add(temp_buf, (uint *)&r_item.DvcSerialP);
+			np.add(temp_buf, reinterpret_cast<uint *>(&r_item.DvcSerialP));
 		}
 		else
 			r_item.DvcSerialP = 0;
 		P.getnz(r_item.CmdParamP, temp_buf);
 		if(temp_buf.NotEmptyS()) {
-			np.add(temp_buf, (uint *)&r_item.CmdParamP);
+			np.add(temp_buf, reinterpret_cast<uint *>(&r_item.CmdParamP));
 		}
 		else
 			r_item.CmdParamP = 0;
@@ -180,13 +180,13 @@ int PPDesktopAssocCmdPool::MakeItem(const PPDesktopAssocCmd & rOuter, Item & rIn
 	rInner.Flags = rOuter.Flags;
 	temp_buf = rOuter.Code;
 	if(temp_buf.NotEmptyS())
-		P.add(temp_buf, (uint *)&rInner.CodeP);
+		P.add(temp_buf, reinterpret_cast<uint *>(&rInner.CodeP));
 	temp_buf = rOuter.DvcSerial;
 	if(temp_buf.NotEmptyS())
-		P.add(temp_buf, (uint *)&rInner.DvcSerialP);
+		P.add(temp_buf, reinterpret_cast<uint *>(&rInner.DvcSerialP));
 	temp_buf = rOuter.CmdParam;
 	if(temp_buf.NotEmptyS())
-		P.add(temp_buf, (uint *)&rInner.CmdParamP);
+		P.add(temp_buf, reinterpret_cast<uint *>(&rInner.CmdParamP));
 	return ok;
 }
 
@@ -297,10 +297,8 @@ int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 			THROW_SL(P.Serialize(+1, tail_buf, &sctx));
 			const  size_t tail_size = tail_buf.GetAvailableSize();
 			sz += tail_size;
-
-			THROW_MEM(p_strg = (DesktopAssocCmdPool_Strg *)SAlloc::M(sz));
+			THROW_MEM(p_strg = static_cast<DesktopAssocCmdPool_Strg *>(SAlloc::M(sz)));
 			memzero(p_strg, sz);
-
 			p_strg->ObjType = PPOBJ_DESKTOP;
 			p_strg->ObjID = desktop_id;
 			p_strg->Prop  = PPPRP_DESKCMDASSOC;
@@ -337,7 +335,7 @@ int PPDesktopAssocCmdPool::ReadFromProp(PPID desktopId)
 	THROW_PP(desktop_id >= 0, PPERR_UNDEFDESKTID_READ);
 	SETIFZ(desktop_id, COMMON_DESKCMDASSOC);
 	if(p_ref->GetPropActualSize(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
-		p_strg = (DesktopAssocCmdPool_Strg *)SAlloc::M(sz);
+		p_strg = static_cast<DesktopAssocCmdPool_Strg *>(SAlloc::M(sz));
 		THROW(p_ref->GetProperty(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz) > 0);
 		{
 			SSerializeContext sctx;
@@ -378,12 +376,8 @@ static LRESULT CALLBACK EditDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	WNDPROC prev_window_proc = static_cast<WNDPROC>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_LBUTTONDBLCLK:
-		case WM_RBUTTONDOWN:
-			SendMessage(GetParent(hWnd), uMsg, wParam, lParam);
-			break;
-		case WM_VSCROLL:
-			InvalidateRect(hWnd, NULL, true);
-			break;
+		case WM_RBUTTONDOWN: ::SendMessage(GetParent(hWnd), uMsg, wParam, lParam); break;
+		case WM_VSCROLL: ::InvalidateRect(hWnd, NULL, true); break;
 	}
 	return CallWindowProc(prev_window_proc, hWnd, uMsg, wParam, lParam);
 }
@@ -1667,7 +1661,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 	switch(message) {
 		case WM_CREATE:
 			initData = reinterpret_cast<LPCREATESTRUCT>(lParam);
-			p_desk = (PPDesktop *)initData->lpCreateParams;
+			p_desk = static_cast<PPDesktop *>(initData->lpCreateParams);
 			if(p_desk) {
 				APPL->H_Desktop = hWnd;
 				p_desk->HW = hWnd;
@@ -1873,7 +1867,7 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 			const size_t cpl = rCpItem.DvcSerial.Len();
 			if(dsl > cpl) {
 				for(uint i = 0; !suite && i <= (dsl - cpl); i++) {
-					if(rCpItem.DvcSerial.CmpL(((const char *)pInp->DvcSerial)+i, 1) == 0)
+					if(rCpItem.DvcSerial.CmpL(pInp->DvcSerial.cptr()+i, 1) == 0)
 						suite = 1;
 				}
 			}
@@ -1976,8 +1970,8 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 //
 void PPDesktop::InputArray::Clear()
 {
-	clear();
-	DvcSerial = 0;
+	SVector::clear();
+	DvcSerial.Z();
 }
 
 PPDesktop::RawInputBlock::RawInputBlock()

@@ -2563,7 +2563,7 @@ public:
 			::MidFree(_data);
 			_size = 0;
 			_data = 0;
-			_data = (Byte *)::MidAlloc(size);
+			_data = static_cast<Byte *>(::MidAlloc(size));
 			if(_data)
 				_size = size;
 		}

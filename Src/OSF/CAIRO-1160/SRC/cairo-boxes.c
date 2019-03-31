@@ -119,10 +119,10 @@ static void FASTCALL _cairo_boxes_add_internal(cairo_boxes_t * boxes, const cair
 	cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	if(unlikely(boxes->status))
 		return;
-	chunk = (cairo_boxes_t::_cairo_boxes_chunk *)boxes->tail;
+	chunk = static_cast<cairo_boxes_t::_cairo_boxes_chunk *>(boxes->tail);
 	if(unlikely(chunk->count == chunk->size)) {
 		int size = chunk->size * 2;
-		chunk->next = (cairo_boxes_t::_cairo_boxes_chunk *)_cairo_malloc_ab_plus_c(size, sizeof(cairo_box_t), sizeof(cairo_boxes_t::_cairo_boxes_chunk));
+		chunk->next = static_cast<cairo_boxes_t::_cairo_boxes_chunk *>(_cairo_malloc_ab_plus_c(size, sizeof(cairo_box_t), sizeof(cairo_boxes_t::_cairo_boxes_chunk)));
 		if(unlikely(chunk->next == NULL)) {
 			boxes->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			return;
@@ -132,7 +132,7 @@ static void FASTCALL _cairo_boxes_add_internal(cairo_boxes_t * boxes, const cair
 		chunk->next = NULL;
 		chunk->count = 0;
 		chunk->size = size;
-		chunk->base = (cairo_box_t*)(chunk + 1);
+		chunk->base = reinterpret_cast<cairo_box_t *>(chunk + 1);
 	}
 	chunk->base[chunk->count++] = *box;
 	boxes->num_boxes++;
@@ -289,7 +289,7 @@ cairo_box_t * _cairo_boxes_to_array(const cairo_boxes_t * boxes, int * num_boxes
 	cairo_box_t * box;
 	int i, j;
 	*num_boxes = boxes->num_boxes;
-	box = (cairo_box_t *)_cairo_malloc_ab(boxes->num_boxes, sizeof(cairo_box_t));
+	box = static_cast<cairo_box_t *>(_cairo_malloc_ab(boxes->num_boxes, sizeof(cairo_box_t)));
 	if(box == NULL) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;

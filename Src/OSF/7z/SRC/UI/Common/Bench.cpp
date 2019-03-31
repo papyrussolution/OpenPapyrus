@@ -98,7 +98,7 @@ struct CBenchBuffer {
 	{
 		::MidFree(Buffer);
 		BufferSize = 0;
-		Buffer = (Byte *)::MidAlloc(size);
+		Buffer = static_cast<Byte *>(::MidAlloc(size));
 		if(Buffer)
 			BufferSize = size;
 	}
@@ -117,8 +117,7 @@ struct CBenchBuffer {
 		::MidFree(_bufBase);
 		Buffer = NULL;
 		BufferSize = 0;
-		_bufBase = (Byte *)::MidAlloc(size + alignMask);
-
+		_bufBase = static_cast<Byte *>(::MidAlloc(size + alignMask));
 		if(_bufBase) {
 			// Buffer = (Byte *)(((uintptr_t)_bufBase + alignMask) & ~(uintptr_t)alignMask);
 			Buffer = (Byte *)(((ptrdiff_t)_bufBase + alignMask) & ~(ptrdiff_t)alignMask);

@@ -12,7 +12,29 @@ int SSystem::BigEndian()
     return BIN((reinterpret_cast<const int *>("\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
 }
 
-//static 
+char FASTCALL SSystem::TranslateWmCharToAnsi(uintptr_t wparam)
+{
+	char   a = 0;
+	char   mb_buf[16];
+	union {
+		wchar_t wc[8];
+		char    mc[16];
+		uintptr_t wp;
+	} u;
+	u.wc[0] = 0;
+	u.wc[1] = 0;
+	u.wc[2] = 0;
+	u.wp = wparam;
+	if(u.mc[0] && u.mc[1] == 0)
+		a = u.mc[0];
+	else {
+		WideCharToMultiByte(CP_ACP, 0, u.wc, 1, mb_buf, SIZEOFARRAY(mb_buf), 0, 0);
+		a = mb_buf[0];
+	}
+	return a;
+}
+
+//static
 int SSystem::SGetModuleFileName(void * hModule, SString & rFileName)
 {
 	rFileName.Z();
@@ -38,7 +60,7 @@ int SSystem::SGetModuleFileName(void * hModule, SString & rFileName)
 	return BIN(size > 0);
 }
 
-//static 
+//static
 uint SSystem::SFormatMessage(int sysErrCode, SString & rMsg)
 {
 	rMsg.Z();
@@ -54,7 +76,7 @@ uint SSystem::SFormatMessage(int sysErrCode, SString & rMsg)
 			ret = sstrlen(static_cast<LPTSTR>(temp_buf.vptr()));
 	}
 	if(!intr_result) {
-		ret = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, sysErrCode, 
+		ret = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, sysErrCode,
 			MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), static_cast<LPTSTR>(temp_buf.vptr()), buf_len, 0);
 	}
 	if(ret) {
@@ -64,7 +86,7 @@ uint SSystem::SFormatMessage(int sysErrCode, SString & rMsg)
 	return ret;
 }
 
-//static 
+//static
 uint SSystem::SFormatMessage(SString & rMsg)
 {
 	return SFormatMessage(::GetLastError(), rMsg);

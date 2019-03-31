@@ -38,8 +38,7 @@ PPJobHandler * SLAPI PPJobMngr::CreateInstance(PPID jobID, const PPJobDescr * pD
 	if(!RVALUEPTR(jd, pDescr))
 		THROW(LoadResource(jobID, &jd));
 	PPSetAddedMsgString(jd.Text);
-	jd.GetFactoryFuncName(ffn);
-	FN_JOB_FACTORY f = reinterpret_cast<FN_JOB_FACTORY>(GetProcAddress(SLS.GetHInst(), ffn));
+	FN_JOB_FACTORY f = reinterpret_cast<FN_JOB_FACTORY>(GetProcAddress(SLS.GetHInst(), jd.GetFactoryFuncName(ffn)));
 	THROW(f);
 	THROW(p_jh = f(&jd));
 	CATCH
@@ -82,25 +81,21 @@ long SLAPI PPJobMngr::AcquireNewId()
 	return ++LastId;
 }
 
-int FASTCALL PPJobMngr::UpdateLastId(long id)
+void FASTCALL PPJobMngr::UpdateLastId(long id)
 {
 	assert(id >= LastId);
 	LastId = id;
-	return 1;
 }
 
-int SLAPI PPJobMngr::CloseFile()
+void SLAPI PPJobMngr::CloseFile()
 {
-	int    ok = -1;
 	if(P_F) {
 		if(LckH) {
 			P_F->Unlock(LckH);
 			LckH = 0;
 		}
 		ZDELETE(P_F);
-		ok = 1;
 	}
-	return ok;
 }
 
 int SLAPI PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
@@ -189,7 +184,6 @@ int SLAPI PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readO
 {
 	int    ok = 1;
 	assert(!P_F || LckH);
-
 	CloseFile();
 	pPool->Flags &= ~PPJobPool::fReadOnly;
 	pPool->freeAll();
@@ -226,9 +220,7 @@ int SLAPI PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readO
 	LastLoading = getcurdatetime_();
 	pPool->DbSymb = pDbSymb;
 	CATCH
-		if(P_F) {
-			CloseFile();
-		}
+		CloseFile();
 		ok = 0;
 	ENDCATCH
 	SETFLAG(pPool->Flags, PPJobPool::fReadOnly, readOnly);
@@ -285,7 +277,6 @@ int SLAPI PPJobMngr::SavePool(const PPJobPool * pPool)
 {
 	int    ok = 1;
 	assert(!P_F || LckH);
-
 	JobStrgHeader hdr;
 	SBuffer buf;
 	THROW_PP(P_F && LckH, PPERR_JOBPOOLNOPENWR);
@@ -327,11 +318,10 @@ SLAPI PPJobDescr::PPJobDescr()
 	THISZERO();
 }
 
-int FASTCALL PPJobDescr::GetFactoryFuncName(SString & rBuf) const
+SString & FASTCALL PPJobDescr::GetFactoryFuncName(SString & rBuf) const
 {
-	rBuf = P_FactoryPrfx;
-	rBuf.Cat(Symb).ToUpper();
-	return 1;
+	(rBuf = P_FactoryPrfx).Cat(Symb).ToUpper();
+	return rBuf;
 }
 
 int FASTCALL PPJobDescr::Write(SBuffer & rBuf) const
@@ -710,7 +700,7 @@ public:
 	}
 	void SLAPI Init()
 	{
-		DBSymb = 0;
+		DBSymb.Z();
 		MEMSZERO(BuScen);
 	}
 	int SLAPI Read(SBuffer & rBuf, long)

@@ -160,7 +160,7 @@ typedef struct _cairo_win32_device {
 
 cairo_private cairo_device_t * _cairo_win32_device_get(void);
 const cairo_compositor_t * _cairo_win32_gdi_compositor_get(void);
-cairo_status_t _cairo_win32_print_gdi_error(const char * context);
+cairo_status_t FASTCALL _cairo_win32_print_gdi_error(const char * context);
 cairo_private void _cairo_win32_display_surface_discard_fallback(cairo_win32_display_surface_t * surface);
 cairo_bool_t _cairo_win32_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);
 uint32_t _cairo_win32_flags_for_dc(HDC dc, cairo_format_t format);

@@ -475,7 +475,7 @@ public:
 	~TextDbFile();
 	int    Open(const char * pFileName, const Param * pParam, int readOnly);
 	int    Close();
-	int    GetNumRecords(ulong * pNumRecs);
+	ulong  GetNumRecords() const;
 	int    GoToRecord(ulong recNo, int rel = relAbs);
 	int    GetRecord(const SdRecord & rRec, void * pDataBuf);
 	int    AppendHeader(const SdRecord & rRec, const void * pDataBuf);
@@ -544,7 +544,7 @@ public:
 	int    Close();
 	int    AppendRecord(const SdRecord & rRec, const void * pDataBuf);
 	int    AppendRecord(const char * pRecTag, const SdRecord & rRec, const void * pDataBuf);
-	int    GetNumRecords(ulong * pRecords);
+	ulong  GetNumRecords() const;
 	// int  GoToRecord(ulong recNo, int rel = relAbs);
 	int    GetRecord(const SdRecord & rRec, void * pDataBuf);
 	//
@@ -626,7 +626,7 @@ public:
 	int    Open(const char * pPath, const Param * pParam, int readOnly);
 	int    Close();
 	int    AppendRecord(const SdRecord & rRec, const void * pDataBuf);
-	int    GetNumRecords(ulong * pRecords);
+	ulong  GetNumRecords() const;
 	// int  GoToRecord(ulong recNo, int rel = relAbs);
 	int    GetRecord(const SdRecord & rRec, void * pDataBuf);
 private:
@@ -682,7 +682,7 @@ public:
 	~ExcelDbFile();
 	int    Open(const char * pFileName, const Param * pParam, int readOnly);
 	int    Close();
-	int    GetNumRecords(ulong * pNumRecs);
+	ulong  GetNumRecords() const;
 	int    GoToRecord(ulong recNo, int rel = relAbs);
 	int    GetRecord(const SdRecord & rRec, void * pDataBuf);
 	int    AppendRecord(const SdRecord & rRec, const void * pDataBuf);

@@ -1569,12 +1569,10 @@ LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 {
 	ComboBox * p_view = static_cast<ComboBox *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
-		case WM_DESTROY:
-			p_view->OnDestroy(hWnd);
-			return 0;
+		case WM_DESTROY: p_view->OnDestroy(hWnd); return 0;
 		case WM_ENABLE:
 			if(!lParam)
-				PostMessage(GetParent(hWnd), WM_CHAR, 0x9, 0);
+				::PostMessage(GetParent(hWnd), WM_CHAR, 0x9, 0);
 			break;
 		case WM_LBUTTONUP:
 			if(p_view && p_view->P_ListWin/*&& !p_view->IsInState(sfMsgToParent)*/) {

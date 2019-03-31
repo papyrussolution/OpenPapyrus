@@ -249,18 +249,16 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
 				num_points += pen->num_vertices;
 			num_points += 2;
 			if(num_points > ARRAY_LENGTH(stack_points)) {
-				points = (cairo_point_t *)_cairo_malloc_ab(num_points, sizeof(cairo_point_t));
+				points = static_cast<cairo_point_t *>(_cairo_malloc_ab(num_points, sizeof(cairo_point_t)));
 				if(unlikely(points == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			}
-
 			points[0] = *inpt;
 			num_points = 1;
 			while(start != stop) {
 				points[num_points] = *midpt;
 				_translate_point(&points[num_points], &pen->vertices[start].point);
 				num_points++;
-
 				if(start-- == 0)
 					start += pen->num_vertices;
 			}
@@ -287,30 +285,26 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
 				if(++start == pen->num_vertices)
 					start = 0;
 			}
-			status = stroker->add_external_edge(stroker->closure,
-				outpt, &last);
+			status = stroker->add_external_edge(stroker->closure, outpt, &last);
 		}
 		else {
 			if(start == stop)
 				goto BEVEL;
-
 			num_points = stop - start;
 			if(num_points < 0)
 				num_points += pen->num_vertices;
 			num_points += 2;
 			if(num_points > ARRAY_LENGTH(stack_points)) {
-				points = (cairo_point_t *)_cairo_malloc_ab(num_points, sizeof(cairo_point_t));
+				points = static_cast<cairo_point_t *>(_cairo_malloc_ab(num_points, sizeof(cairo_point_t)));
 				if(unlikely(points == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			}
-
 			points[0] = *inpt;
 			num_points = 1;
 			while(start != stop) {
 				points[num_points] = *midpt;
 				_translate_point(&points[num_points], &pen->vertices[start].point);
 				num_points++;
-
 				if(++start == pen->num_vertices)
 					start = 0;
 			}

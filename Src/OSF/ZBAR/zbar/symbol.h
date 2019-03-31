@@ -36,9 +36,9 @@ struct point_t {
 
 struct zbar_symbol_set_s {
 	refcnt_t refcnt;
-	int nsyms;              /* number of filtered symbols */
-	zbar_symbol_t * head;   /* first of decoded symbol results */
-	zbar_symbol_t * tail;   /* last of unfiltered symbol results */
+	int    nsyms;         // number of filtered symbols
+	zbar_symbol_t * head; // first of decoded symbol results 
+	zbar_symbol_t * tail; // last of unfiltered symbol results 
 };
 
 struct zbar_symbol_s {
@@ -64,15 +64,15 @@ extern int _zbar_get_symbol_hash(zbar_symbol_type_t);
 extern void _zbar_symbol_free(zbar_symbol_t*);
 extern zbar_symbol_set_t * _zbar_symbol_set_create(void);
 extern void _zbar_symbol_set_free(zbar_symbol_set_t*);
-
-static inline void sym_add_point(zbar_symbol_t * sym, int x, int y)
+void FASTCALL sym_add_point(zbar_symbol_t * sym, int x, int y);
+/*static inline void sym_add_point(zbar_symbol_t * sym, int x, int y)
 {
 	int i = sym->npts;
 	if(++sym->npts >= sym->pts_alloc)
-		sym->pts = (point_t *)SAlloc::R(sym->pts, ++sym->pts_alloc * sizeof(point_t));
+		sym->pts = static_cast<point_t *>(SAlloc::R(sym->pts, ++sym->pts_alloc * sizeof(point_t)));
 	sym->pts[i].x = x;
 	sym->pts[i].y = y;
-}
+}*/
 
 static inline void _zbar_symbol_refcnt(zbar_symbol_t * sym, int delta)
 {

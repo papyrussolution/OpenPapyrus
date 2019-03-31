@@ -524,7 +524,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutTransferStatus(PPSoapClientS
 			}
 		}
 		{
-			param.documents->pTransferStatus = (ns1__pTransferStatus **)PPSoapCreateArray(arg_status_list.getCount(), param.documents->__sizepTransferStatus);
+			param.documents->pTransferStatus = reinterpret_cast<ns1__pTransferStatus **>(PPSoapCreateArray(arg_status_list.getCount(), param.documents->__sizepTransferStatus));
 			for(uint j = 0; j < arg_status_list.getCount(); j++) {
 				param.documents->pTransferStatus[j] = arg_status_list.at(j);
 			}
@@ -578,7 +578,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutDebtSettlement(PPSoapClientS
 			}
 		}
 		{
-			param.debtSettlements->DEBT = (ns1__DEBT **)PPSoapCreateArray(arg_item_list.getCount(), param.debtSettlements->__sizeDEBT);
+			param.debtSettlements->DEBT = reinterpret_cast<ns1__DEBT **>(PPSoapCreateArray(arg_item_list.getCount(), param.debtSettlements->__sizeDEBT));
 			for(uint j = 0; j < arg_item_list.getCount(); j++) {
 				param.debtSettlements->DEBT[j] = arg_item_list.at(j);
 			}
@@ -643,14 +643,14 @@ extern "C" __declspec(dllexport) SString * iSalesPutStockCounting(PPSoapClientSe
 							p_new_prod_item->AMOUNT = GetDynamicParamString_(p_src_stock_item->Qtty, MKSFMTD(0, 0, NMBF_DECCOMMA), arg_str_pool);
 						}
 					}
-					p_new_war_item->PRODS->PROD = (ns1__PROD **)PPSoapCreateArray(arg_prod_list.getCount()-start_prod_list_pos, p_new_war_item->PRODS->__sizePROD);
+					p_new_war_item->PRODS->PROD = reinterpret_cast<ns1__PROD **>(PPSoapCreateArray(arg_prod_list.getCount()-start_prod_list_pos, p_new_war_item->PRODS->__sizePROD));
 					for(j = start_prod_list_pos; j < arg_prod_list.getCount(); j++)
 						p_new_war_item->PRODS->PROD[j-start_prod_list_pos] = arg_prod_list.at(j);
 				}
 			}
 		}
 		{
-			param.stockCountingList->WAR = (ns1__WAR **)PPSoapCreateArray(arg_war_list.getCount(), param.stockCountingList->__sizeWAR);
+			param.stockCountingList->WAR = reinterpret_cast<ns1__WAR **>(PPSoapCreateArray(arg_war_list.getCount(), param.stockCountingList->__sizeWAR));
 			for(uint j = 0; j < arg_war_list.getCount(); j++) {
 				param.stockCountingList->WAR[j] = arg_war_list.at(j);
 			}
@@ -722,7 +722,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutPrices(PPSoapClientSession &
                     ns1__ArrayOfPRC * p_new_lh = arg_prclh_list.CreateNewItem(0);
                     THROW(p_new_lh);
                     p_new_pl->PRICES = p_new_lh;
-					p_new_pl->PRICES->PRC = (ns1__PRC **)PPSoapCreateArray(arg_prc_list.getCount()-start_prc_list_pos, p_new_pl->PRICES->__sizePRC);
+					p_new_pl->PRICES->PRC = reinterpret_cast<ns1__PRC **>(PPSoapCreateArray(arg_prc_list.getCount()-start_prc_list_pos, p_new_pl->PRICES->__sizePRC));
 					for(j = start_prc_list_pos; j < arg_prc_list.getCount(); j++)
 						p_new_pl->PRICES->PRC[j-start_prc_list_pos] = arg_prc_list.at(j);
 				}
@@ -738,14 +738,14 @@ extern "C" __declspec(dllexport) SString * iSalesPutPrices(PPSoapClientSession &
 						ns1__ArrayOfCUST * p_new_lh = arg_custlh_list.CreateNewItem(0);
 						THROW(p_new_lh);
 						p_new_pl->CUSTS = p_new_lh;
-						p_new_pl->CUSTS->CUST = (ns1__CUST **)PPSoapCreateArray(arg_cust_list.getCount()-start_cust_list_pos, p_new_pl->CUSTS->__sizeCUST);
+						p_new_pl->CUSTS->CUST = reinterpret_cast<ns1__CUST **>(PPSoapCreateArray(arg_cust_list.getCount()-start_cust_list_pos, p_new_pl->CUSTS->__sizeCUST));
 						for(j = start_cust_list_pos; j < arg_cust_list.getCount(); j++)
 							p_new_pl->CUSTS->CUST[j-start_cust_list_pos] = arg_cust_list.at(j);
 					}
 				}
 			}
         }
-        param.customerPrices->PL = (ns1__PL **)PPSoapCreateArray(arg_pl_list.getCount(), param.customerPrices->__sizePL);
+        param.customerPrices->PL = reinterpret_cast<ns1__PL **>(PPSoapCreateArray(arg_pl_list.getCount(), param.customerPrices->__sizePL));
         for(i = 0; i < arg_pl_list.getCount(); i++) {
 			param.customerPrices->PL[i] = arg_pl_list.at(i);
         }
@@ -877,7 +877,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 							ns1__ArrayOfDSET * p_new_lh = arg_dsetlh_list.CreateNewItem(0);
 							THROW(p_new_lh);
 							p_new_item->SETS = p_new_lh;
-							p_new_item->SETS->DSET = (ns1__DSET **)PPSoapCreateArray(arg_itemamt_list.getCount()-start_itemamt_list_pos, p_new_item->SETS->__sizeDSET);
+							p_new_item->SETS->DSET = reinterpret_cast<ns1__DSET **>(PPSoapCreateArray(arg_itemamt_list.getCount()-start_itemamt_list_pos, p_new_item->SETS->__sizeDSET));
 							for(k = start_itemamt_list_pos; k < arg_itemamt_list.getCount(); k++)
 								p_new_item->SETS->DSET[k-start_itemamt_list_pos] = arg_itemamt_list.at(k);
 						}
@@ -887,7 +887,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 					ns1__ArrayOfDOC_USCOREITEM * p_new_lh = arg_itemlh_list.CreateNewItem(0);
 					THROW(p_new_lh);
 					p_new_bill->DOC_USCOREITEMS = p_new_lh;
-					p_new_bill->DOC_USCOREITEMS->DOC_USCOREITEM = (ns1__DOC_USCOREITEM **)PPSoapCreateArray(arg_item_list.getCount()-start_item_list_pos, p_new_bill->DOC_USCOREITEMS->__sizeDOC_USCOREITEM);
+					p_new_bill->DOC_USCOREITEMS->DOC_USCOREITEM = reinterpret_cast<ns1__DOC_USCOREITEM **>(PPSoapCreateArray(arg_item_list.getCount()-start_item_list_pos, p_new_bill->DOC_USCOREITEMS->__sizeDOC_USCOREITEM));
 					for(j = start_item_list_pos; j < arg_item_list.getCount(); j++)
 						p_new_bill->DOC_USCOREITEMS->DOC_USCOREITEM[j-start_item_list_pos] = arg_item_list.at(j);
 				}
@@ -910,7 +910,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 					ns1__ArrayOfHSET * p_new_lh = arg_hsetlh_list.CreateNewItem(0);
 					THROW(p_new_lh);
 					p_new_bill->SUM_USCORESETS = p_new_lh;
-					p_new_bill->SUM_USCORESETS->HSET = (ns1__HSET **)PPSoapCreateArray(arg_billamt_list.getCount()-start_billamt_list_pos, p_new_bill->SUM_USCORESETS->__sizeHSET);
+					p_new_bill->SUM_USCORESETS->HSET = reinterpret_cast<ns1__HSET **>(PPSoapCreateArray(arg_billamt_list.getCount()-start_billamt_list_pos, p_new_bill->SUM_USCORESETS->__sizeHSET));
 					for(j = start_billamt_list_pos; j < arg_billamt_list.getCount(); j++)
 						p_new_bill->SUM_USCORESETS->HSET[j-start_billamt_list_pos] = arg_billamt_list.at(j);
 				}
@@ -930,13 +930,13 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 					ns1__ArrayOfREF * p_new_lh = arg_reflh_list.CreateNewItem(0);
 					THROW(p_new_lh);
 					p_new_bill->REFS = p_new_lh;
-					p_new_bill->REFS->REF = (ns1__REF **)PPSoapCreateArray(arg_ref_list.getCount()-start_ref_list_pos, p_new_bill->REFS->__sizeREF);
+					p_new_bill->REFS->REF = reinterpret_cast<ns1__REF **>(PPSoapCreateArray(arg_ref_list.getCount()-start_ref_list_pos, p_new_bill->REFS->__sizeREF));
 					for(j = start_ref_list_pos; j < arg_ref_list.getCount(); j++)
 						p_new_bill->REFS->REF[j-start_ref_list_pos] = arg_ref_list.at(j);
 				}
 			}
         }
-		param.documents->DOC = (ns1__DOC **)PPSoapCreateArray(arg_bill_list.getCount(), param.documents->__sizeDOC);
+		param.documents->DOC = reinterpret_cast<ns1__DOC **>(PPSoapCreateArray(arg_bill_list.getCount(), param.documents->__sizeDOC));
 		for(i = 0; i < arg_bill_list.getCount(); i++) {
 			param.documents->DOC[i] = arg_bill_list.at(i);
 		}

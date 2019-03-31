@@ -156,13 +156,11 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 		    bitmap_info->bmiHeader.biClrUsed = 0; /* unused */
 		    bitmap_info->bmiHeader.biClrImportant = 0;
 		    break;
-
 		case CAIRO_FORMAT_A8:
 		    bitmap_info->bmiHeader.biBitCount = 8;
 		    bitmap_info->bmiHeader.biCompression = BI_RGB;
 		    bitmap_info->bmiHeader.biClrUsed = 256;
 		    bitmap_info->bmiHeader.biClrImportant = 0;
-
 		    for(i = 0; i < 256; i++) {
 			    bitmap_info->bmiColors[i].rgbBlue = i;
 			    bitmap_info->bmiColors[i].rgbGreen = i;
@@ -170,13 +168,11 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 			    bitmap_info->bmiColors[i].rgbReserved = 0;
 		    }
 		    break;
-
 		case CAIRO_FORMAT_A1:
 		    bitmap_info->bmiHeader.biBitCount = 1;
 		    bitmap_info->bmiHeader.biCompression = BI_RGB;
 		    bitmap_info->bmiHeader.biClrUsed = 2;
 		    bitmap_info->bmiHeader.biClrImportant = 0;
-
 		    for(i = 0; i < 2; i++) {
 			    bitmap_info->bmiColors[i].rgbBlue = i * 255;
 			    bitmap_info->bmiColors[i].rgbGreen = i * 255;
@@ -191,7 +187,6 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 	surface->bitmap = CreateDIBSection(surface->win32.dc, bitmap_info, DIB_RGB_COLORS, &bits, NULL, 0);
 	if(!surface->bitmap)
 		goto FAIL;
-
 	surface->is_dib = TRUE;
 	GdiFlush();
 	surface->saved_dc_bitmap = (HBITMAP)SelectObject(surface->win32.dc, surface->bitmap);
@@ -212,42 +207,32 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 			case CAIRO_FORMAT_RGB24:
 			    *rowstride_out = 4 * width;
 			    break;
-
 			case CAIRO_FORMAT_A8:
 			    *rowstride_out = (width + 3) & ~3;
 			    break;
-
 			case CAIRO_FORMAT_A1:
 			    *rowstride_out = ((width + 31) & ~31) / 8;
 			    break;
 		}
 	}
-
 	surface->win32.flags = _cairo_win32_flags_for_dc(surface->win32.dc, format);
-
 	return CAIRO_STATUS_SUCCESS;
-
 FAIL:
 	status = _cairo_win32_print_gdi_error(__FUNCTION__);
-
 	if(bitmap_info && num_palette > 2)
 		SAlloc::F(bitmap_info);
-
 	if(surface->saved_dc_bitmap) {
 		SelectObject(surface->win32.dc, surface->saved_dc_bitmap);
 		surface->saved_dc_bitmap = NULL;
 	}
-
 	if(surface->bitmap) {
 		DeleteObject(surface->bitmap);
 		surface->bitmap = NULL;
 	}
-
 	if(surface->win32.dc) {
 		DeleteDC(surface->win32.dc);
 		surface->win32.dc = NULL;
 	}
-
 	return status;
 }
 

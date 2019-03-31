@@ -1197,7 +1197,7 @@ struct CAlignedMidBuffer {
 	void AllocAlignedMask(size_t size, size_t)
 	{
 		::MidFree(_buf);
-		_buf = (Byte *)::MidAlloc(size);
+		_buf = static_cast<Byte *>(::MidAlloc(size));
 	}
   #else
 	Byte * _bufBase;
@@ -1213,7 +1213,7 @@ struct CAlignedMidBuffer {
 	{
 		::MidFree(_bufBase);
 		_buf = NULL;
-		_bufBase = (Byte *)::MidAlloc(size + alignMask);
+		_bufBase = static_cast<Byte *>(::MidAlloc(size + alignMask));
 		if(_bufBase) {
 			// _buf = (Byte *)(((uintptr_t)_bufBase + alignMask) & ~(uintptr_t)alignMask);
 			_buf = (Byte *)(((ptrdiff_t)_bufBase + alignMask) & ~(ptrdiff_t)alignMask);

@@ -58,7 +58,7 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of malloc() failure or size is 0.
  **/
-#define _cairo_malloc(size) ((size) > 0 ? SAlloc::M((uint)(size)) : NULL)
+#define _cairo_malloc(size) ((size) > 0 ? SAlloc::M(static_cast<uint>(size)) : NULL)
 /**
  * _cairo_malloc_ab:
  * @a: number of elements to allocate
@@ -69,14 +69,12 @@
  * calloc(), except that the returned memory is not set to zero.
  * The memory should be freed using SAlloc::F().
  *
- * @size should be a constant so that the compiler can optimize
- * out a constant division.
+ * @size should be a constant so that the compiler can optimize out a constant division.
  *
- * Return value: A pointer to the newly allocated memory, or %NULL in
- * case of malloc() failure or overflow.
+ * Return value: A pointer to the newly allocated memory, or %NULL in case of malloc() failure or overflow.
  **/
 
-#define _cairo_malloc_ab(a, size) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(size)))
+#define _cairo_malloc_ab(a, size) ((size) && static_cast<uint>(a) >= INT32_MAX / static_cast<uint>(size) ? NULL : _cairo_malloc(static_cast<uint>(a) * static_cast<uint>(size)))
 
 /**
  * _cairo_realloc_ab:
@@ -95,7 +93,7 @@
  * case of realloc() failure or overflow (whereupon the original block
  * of memory * is left untouched).
  **/
-#define _cairo_realloc_ab(ptr, a, size) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : SAlloc::R(ptr, (uint)(a) * (uint)(size)))
+#define _cairo_realloc_ab(ptr, a, size) ((size) && static_cast<uint>(a) >= INT32_MAX / static_cast<uint>(size) ? NULL : SAlloc::R(ptr, static_cast<uint>(a) * static_cast<uint>(size)))
 /**
  * _cairo_malloc_abc:
  * @a: first factor of number of elements to allocate
@@ -112,7 +110,6 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of malloc() failure or overflow.
  **/
-
 #define _cairo_malloc_abc(a, b, size) ((b) && (uint)(a) >= INT32_MAX / (uint)(b) ? NULL : (size) && (uint)((a)*(b)) >= INT32_MAX / (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(b) * (uint)(size)))
 /**
  * _cairo_malloc_ab_plus_c:

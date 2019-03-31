@@ -640,7 +640,7 @@ namespace NWindows {
 				uint64 realNewPosition;
 				if(!Seek(pos, realNewPosition))
 					return;
-				Byte * buf = (Byte *)MidAlloc(kClusterSize);
+				Byte * buf = static_cast<Byte *>(MidAlloc(kClusterSize));
 				bool needbackward = true;
 				for(;; ) {
 					uint32 processed = 0;
@@ -663,7 +663,7 @@ namespace NWindows {
 						if(!Seek(pos, realNewPosition))
 							break;
 						if(!buf) {
-							buf = (Byte *)MidAlloc(kClusterSize);
+							buf = static_cast<Byte *>(MidAlloc(kClusterSize));
 							if(!buf)
 								break;
 						}

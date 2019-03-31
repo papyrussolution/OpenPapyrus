@@ -124,7 +124,7 @@ namespace NCompress {
 			if(!_inBuf || _inBufSize != _inBufSizeNew) {
 				MidFree(_inBuf);
 				_inBufSize = 0;
-				_inBuf = (Byte *)MidAlloc(_inBufSizeNew);
+				_inBuf = static_cast<Byte *>(MidAlloc(_inBufSizeNew));
 				if(!_inBuf)
 					return E_OUTOFMEMORY;
 				_inBufSize = _inBufSizeNew;

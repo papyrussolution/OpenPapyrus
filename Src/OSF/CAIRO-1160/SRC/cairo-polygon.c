@@ -135,7 +135,7 @@ cairo_status_t _cairo_polygon_init_boxes(cairo_polygon_t * polygon, const cairo_
 	polygon->edges_size = ARRAY_LENGTH(polygon->edges_embedded);
 	if(boxes->num_boxes > ARRAY_LENGTH(polygon->edges_embedded)/2) {
 		polygon->edges_size = 2 * boxes->num_boxes;
-		polygon->edges = (cairo_edge_t *)_cairo_malloc_ab(polygon->edges_size, 2*sizeof(cairo_edge_t));
+		polygon->edges = static_cast<cairo_edge_t *>(_cairo_malloc_ab(polygon->edges_size, 2*sizeof(cairo_edge_t)));
 		if(unlikely(polygon->edges == NULL))
 			return polygon->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -171,7 +171,7 @@ cairo_status_t _cairo_polygon_init_box_array(cairo_polygon_t * polygon, cairo_bo
 	polygon->edges_size = ARRAY_LENGTH(polygon->edges_embedded);
 	if(num_boxes > ARRAY_LENGTH(polygon->edges_embedded)/2) {
 		polygon->edges_size = 2 * num_boxes;
-		polygon->edges = (cairo_edge_t *)_cairo_malloc_ab(polygon->edges_size, 2*sizeof(cairo_edge_t));
+		polygon->edges = static_cast<cairo_edge_t *>(_cairo_malloc_ab(polygon->edges_size, 2*sizeof(cairo_edge_t)));
 		if(unlikely(polygon->edges == NULL))
 			return polygon->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -211,12 +211,12 @@ static cairo_bool_t _cairo_polygon_grow(cairo_polygon_t * polygon)
 		return FALSE;
 	}
 	if(polygon->edges == polygon->edges_embedded) {
-		new_edges = (cairo_edge_t *)_cairo_malloc_ab(new_size, sizeof(cairo_edge_t));
+		new_edges = static_cast<cairo_edge_t *>(_cairo_malloc_ab(new_size, sizeof(cairo_edge_t)));
 		if(new_edges != NULL)
 			memcpy(new_edges, polygon->edges, old_size * sizeof(cairo_edge_t));
 	}
 	else {
-		new_edges = (cairo_edge_t *)_cairo_realloc_ab(polygon->edges, new_size, sizeof(cairo_edge_t));
+		new_edges = static_cast<cairo_edge_t *>(_cairo_realloc_ab(polygon->edges, new_size, sizeof(cairo_edge_t)));
 	}
 	if(unlikely(new_edges == NULL)) {
 		polygon->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

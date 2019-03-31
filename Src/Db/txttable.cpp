@@ -1,5 +1,5 @@
 // TXTTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -38,10 +38,10 @@ void TextDbFile::Param::Init()
 	TimeFormat = 0;
 	RealFormat = 0;
 	Flags = 0;
-	VertRecTerm = 0;
-	FldDiv = 0;
-	FooterLine = 0;
-	DefFileName = 0;
+	VertRecTerm.Z();
+	FldDiv.Z();
+	FooterLine.Z();
+	DefFileName.Z();
 }
 
 int TextDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -64,12 +64,9 @@ int TextDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 	return ok;
 }
 
-TextDbFile::TextDbFile()
+TextDbFile::TextDbFile() : State(0), EndPos(0), CurRec(-1)
 {
-	P.Init();
-	State = 0;
-	EndPos = 0;
-	CurRec = -1;
+	//@v10.3.12 (redundunt) P.Init();
 }
 
 TextDbFile::~TextDbFile()
@@ -259,10 +256,9 @@ int TextDbFile::Scan()
 	return ok;
 }
 
-int TextDbFile::GetNumRecords(ulong * pNumRecs)
+ulong TextDbFile::GetNumRecords() const
 {
-	ASSIGN_PTR(pNumRecs, RecPosList.getCount());
-	return 1;
+	return RecPosList.getCount();
 }
 
 int TextDbFile::GoToRecord(ulong recNo, int rel)
@@ -284,7 +280,7 @@ int TextDbFile::GoToRecord(ulong recNo, int rel)
 			ok = GoToRecord(c-1, relAbs); // @recursion
 	}
 	else if(rel == relNext) {
-		if(c && CurRec >= 0 && CurRec < (long)(c-1))
+		if(c && CurRec >= 0 && CurRec < static_cast<long>(c-1))
 			ok = GoToRecord(CurRec+1, relAbs); // @recursion
 	}
 	else if(rel == relPrev) {
@@ -320,14 +316,13 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 {
 	int    ok = -1;
 	THROW(CheckParam(rRec));
-	if(CurRec >= 0 && CurRec < (long)RecPosList.getCount()) {
+	if(CurRec >= 0 && CurRec < static_cast<long>(RecPosList.getCount())) {
 		SString line, field_buf, fn, fv;
 		SdbField fld;
 		STextEncodingStat tes;
 		if(P.Flags & fVerticalRec) {
 			F.Seek(RecPosList.at(CurRec), SEEK_SET);
 			for(uint fld_pos = 0; F.ReadLine(line) && !IsTerminalLine(line.Chomp().Strip(), fld_pos); fld_pos++) {
-				// @v8.6.6 {
 				if(State & stSignUtf8) {
 					line.Utf8ToChar();
 				}
@@ -337,7 +332,6 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 					if(tes.CheckFlag(tes.fLegalUtf8Only))
 						line.Utf8ToChar();
 				}
-				// } @v8.6.6
 				if(P.Flags & fFldEqVal) {
 					if(line.Divide('=', fn, fv) > 0) {
 						if(rRec.GetFieldByName(fn, &fld) > 0) {
@@ -356,15 +350,12 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 			F.Seek(RecPosList.at(CurRec), SEEK_SET);
 			THROW(F.ReadLine(line));
 			line.Chomp();
-			// @v8.6.5 {
 			{
 				tes.Init();
 				tes.Add(line, line.Len());
-				if(tes.CheckFlag(tes.fLegalUtf8Only)) {
+				if(tes.CheckFlag(tes.fLegalUtf8Only))
 					line.Utf8ToChar();
-				}
 			}
-			// } @v8.6.5
 			if(P.Flags & fFixedFields) {
 				size_t offs = 0;
 				for(uint fld_pos = 0; fld_pos < rRec.GetCount(); fld_pos++) {
@@ -415,10 +406,10 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 		// Если файл пустой, то добавляем специфицированное количество пустых строк
 		// и (если необходимо) запись, содержащую наименования полей.
 		//
-		for(i = 0; i < (uint)P.HdrLinesCount; i++)
+		for(i = 0; i < static_cast<uint>(P.HdrLinesCount); i++)
 			THROW(F.WriteLine(0));
 		if(P.Flags & fFldNameRec) {
-			line = 0;
+			line.Z();
 			for(i = 0; i < rRec.GetCount(); i++) {
 				THROW(rRec.GetFieldByPos(i, &fld));
 				field_buf = fld.Name;
@@ -459,7 +450,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 		line = (P.VertRecTerm.Cmp("\\n", 0) == 0) ? static_cast<const char *>(0) : P.VertRecTerm;
 	}
 	else {
-		line = 0;
+		line.Z();
 		for(i = 0; i < rRec.GetCount(); i++) {
 			THROW(rRec.GetFieldByPos(i, &fld));
 			THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
@@ -469,7 +460,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 		}
 	}
 	THROW(F.WriteLine(line.CR()));
-	RecPosList.insert((int *)&pos);
+	RecPosList.insert(&pos);
 	F.Flush(); // @v9.2.0
 	CATCHZOK
 	return ok;

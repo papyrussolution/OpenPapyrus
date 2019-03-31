@@ -1426,10 +1426,14 @@ SLAPI STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx
 {
 }
 
-int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList) const
+int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList,
+	RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const
 {
 	CALLPTRMEMB(pTrendList, clear());
 	CALLPTRMEMB(pSumSqList, clear());
+	CALLPTRMEMB(pCov00, clear());
+	CALLPTRMEMB(pCov01, clear());
+	CALLPTRMEMB(pCov11, clear());
 	int    ok = 1;
 	uint   vec_idx = 0;
 	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
@@ -1441,8 +1445,15 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 			const  uint distance = rP.Distance;
 			RealArray lss_rv_x;
 			RealArray lss_rv_y;
+			const size_t chunk_size = 128;
+			double trend_chunk[chunk_size];
+			double sumsq_chunk[chunk_size];
+			double cov00_chunk[chunk_size];
+			double cov01_chunk[chunk_size];
+			double cov11_chunk[chunk_size];
+			size_t chunk_p = 0;
 			for(uint i = 0; i < distance; i++) {
-				THROW(lss_rv_x.add((double)(i+1)));
+				THROW(lss_rv_x.add(static_cast<double>(i+1)));
 			}
 			THROW(lss_rv_y.dim(distance));
 			/*if(pTrendList) {
@@ -1454,6 +1465,7 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 			for(uint j = rP.FirstIdx/*+1*/; j < ic; j++) {
 				double trend;
 				double sumsq;
+				double cov00, cov01, cov11;
 				if(j >= distance) {
 					LssLin lss;
 					int gvr = GetRealArray(vec_idx, j-distance+1, distance, lss_rv_y); // @v10.2.12 @fix (j-distance)-->(j-distance+1)
@@ -1463,17 +1475,38 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 					lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), static_cast<const double *>(lss_rv_y.dataPtr()));
 					trend = lss.B;
 					sumsq = lss.SumSq;
+					cov00 = lss.Cov00;
+					cov01 = lss.Cov01;
+					cov11 = lss.Cov11;
 				}
 				else {
 					trend = 0.0;
 					sumsq = 0.0;
+					cov00 = 0.0;
+					cov01 = 0.0;
+					cov11 = 0.0;
 				}
-				if(pTrendList) {
-					THROW(pTrendList->add(trend));
+				if(chunk_p >= chunk_size) {
+					if(pTrendList) { THROW(pTrendList->insertChunk(chunk_p, trend_chunk)); }
+					if(pSumSqList) { THROW(pSumSqList->insertChunk(chunk_p, sumsq_chunk)); }
+					if(pCov00) { THROW(pCov00->insertChunk(chunk_p, cov00_chunk)); }
+					if(pCov01) { THROW(pCov01->insertChunk(chunk_p, cov01_chunk)); }
+					if(pCov11) { THROW(pCov11->insertChunk(chunk_p, cov11_chunk)); }
+					chunk_p = 0;
 				}
-				if(pSumSqList) {
-					THROW(pSumSqList->add(sumsq));
-				}
+				trend_chunk[chunk_p] = trend;
+				sumsq_chunk[chunk_p] = sumsq;
+				cov00_chunk[chunk_p] = cov00;
+				cov01_chunk[chunk_p] = cov01;
+				cov11_chunk[chunk_p] = cov11;
+				chunk_p++;
+			}
+			if(chunk_p) {
+				if(pTrendList) { THROW(pTrendList->insertChunk(chunk_p, trend_chunk)); }
+				if(pSumSqList) { THROW(pSumSqList->insertChunk(chunk_p, sumsq_chunk)); }
+				if(pCov00) { THROW(pCov00->insertChunk(chunk_p, cov00_chunk)); }
+				if(pCov01) { THROW(pCov01->insertChunk(chunk_p, cov01_chunk)); }
+				if(pCov11) { THROW(pCov11->insertChunk(chunk_p, cov11_chunk)); }
 			}
 		}
 	}

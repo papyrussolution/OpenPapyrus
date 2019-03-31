@@ -5038,7 +5038,7 @@ int ResolveGoodsDialog::setupList()
 	for(uint i = 0; Data.enumItems(&i, (void **)&p_item) > 0;) {
 		if(!p_item->ResolvedGoodsID || Flags & RESOLVEGF_SHOWRESOLVED) {
 			int    barcode_added = 0, wo_name = 0, id_added = 0;
-			buf = 0;
+			buf.Z();
 			if(p_item->GoodsID) {
 				// @v9.0.2 PPGetWord(PPWORD_ID, 0, word);
 				PPLoadString("id", word); // @v9.0.2

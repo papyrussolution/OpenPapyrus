@@ -731,13 +731,13 @@ static cairo_bool_t pqueue_grow(pqueue_t * pq)
 	event_t ** new_elements;
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
-		new_elements = (event_t **)_cairo_malloc_ab(pq->max_size, sizeof(event_t *));
+		new_elements = static_cast<event_t **>(_cairo_malloc_ab(pq->max_size, sizeof(event_t *)));
 		if(unlikely(new_elements == NULL))
 			return FALSE;
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
-		new_elements = (event_t **)_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(event_t *));
+		new_elements = static_cast<event_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(event_t *)));
 		if(unlikely(new_elements == NULL))
 			return FALSE;
 	}
@@ -1158,13 +1158,11 @@ static void render_rows(cairo_botor_scan_converter_t * self,
 
 	num_spans = 2*sweep_line->coverage.count+2;
 	if(unlikely(num_spans > ARRAY_LENGTH(spans_stack))) {
-		spans = (cairo_half_open_span_t *)_cairo_malloc_ab(num_spans, sizeof(cairo_half_open_span_t));
+		spans = static_cast<cairo_half_open_span_t *>(_cairo_malloc_ab(num_spans, sizeof(cairo_half_open_span_t)));
 		if(unlikely(spans == NULL)) {
-			longjmp(sweep_line->unwind,
-			    _cairo_error(CAIRO_STATUS_NO_MEMORY));
+			longjmp(sweep_line->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		}
 	}
-
 	/* Form the spans from the coverage and areas. */
 	num_spans = 0;
 	prev_x = self->xmin;
@@ -1173,7 +1171,6 @@ static void render_rows(cairo_botor_scan_converter_t * self,
 	do {
 		int x = cell->x;
 		int area;
-
 		if(x > prev_x) {
 			spans[num_spans].x = prev_x;
 			spans[num_spans].inverse = 0;
@@ -1760,7 +1757,7 @@ static cairo_status_t _cairo_botor_scan_converter_generate(void * converter, cai
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
 	if(unlikely(num_events >= ARRAY_LENGTH(stack_events))) {
-		events = (start_event_t *)_cairo_malloc_ab_plus_c(num_events, sizeof(start_event_t) + sizeof(event_t *), sizeof(event_t *));
+		events = static_cast<start_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(start_event_t) + sizeof(event_t *), sizeof(event_t *)));
 		if(unlikely(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		event_ptrs = (event_t**)(events + num_events);
@@ -1787,8 +1784,7 @@ static edge_t * botor_allocate_edge(cairo_botor_scan_converter_t * self)
 	struct _cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk * chunk = self->tail;
 	if(chunk->count == chunk->size) {
 		int size = chunk->size * 2;
-		chunk->next = (struct _cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk *)_cairo_malloc_ab_plus_c(
-			size, sizeof(edge_t), sizeof(struct _cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk));
+		chunk->next = static_cast<struct _cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk *>(_cairo_malloc_ab_plus_c(size, sizeof(edge_t), sizeof(struct _cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk)));
 		if(unlikely(chunk->next == NULL))
 			return NULL;
 		chunk = chunk->next;

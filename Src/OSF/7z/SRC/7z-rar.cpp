@@ -1703,20 +1703,17 @@ namespace NCompress {
 		STDMETHODIMP CDecoder::Code(ISequentialInStream * inStream, ISequentialOutStream * outStream,
 					const uint64 * inSize, const uint64 * outSize, ICompressProgressInfo * progress)
 		{
-			try
-			{
+			try {
 				if(!inSize)
 					return E_INVALIDARG;
-
 				if(!_vmData) {
-					_vmData = (Byte *)::MidAlloc(kVmDataSizeMax + kVmCodeSizeMax);
+					_vmData = static_cast<Byte *>(::MidAlloc(kVmDataSizeMax + kVmCodeSizeMax));
 					if(!_vmData)
 						return E_OUTOFMEMORY;
 					_vmCode = _vmData + kVmDataSizeMax;
 				}
-
 				if(!_window) {
-					_window = (Byte *)::MidAlloc(kWindowSize);
+					_window = static_cast<Byte *>(::MidAlloc(kWindowSize));
 					if(!_window)
 						return E_OUTOFMEMORY;
 				}
@@ -1724,11 +1721,9 @@ namespace NCompress {
 					return E_OUTOFMEMORY;
 				if(!_vm.Create())
 					return E_OUTOFMEMORY;
-
 				m_InBitStream.BitDecoder.SetStream(inStream);
 				m_InBitStream.BitDecoder.Init();
 				_outStream = outStream;
-
 				// CCoderReleaser coderReleaser(this);
 				_unpackSize = outSize ? *outSize : static_cast<uint64>(-1LL);
 				return CodeReal(progress);
@@ -3565,7 +3560,7 @@ namespace NCompress {
 					}
 					Byte * win;
 					{
-						win = (Byte *)::MidAlloc(newSize);
+						win = static_cast<Byte *>(::MidAlloc(newSize));
 						if(!win)
 							return E_OUTOFMEMORY;
 						memzero(win, newSize);
@@ -3591,7 +3586,7 @@ namespace NCompress {
 				_winMask = _winSize - 1;
 				_winPos &= _winMask;
 				if(!_inputBuf) {
-					_inputBuf = (Byte *)::MidAlloc(kInputBufSize);
+					_inputBuf = static_cast<Byte *>(::MidAlloc(kInputBufSize));
 					if(!_inputBuf)
 						return E_OUTOFMEMORY;
 				}

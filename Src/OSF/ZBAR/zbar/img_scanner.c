@@ -353,7 +353,7 @@ static /*inline*/ void FASTCALL qr_handler(zbar_image_scanner_t * iscn)
 
 static void symbol_handler(zbar_decoder_t * dcode)
 {
-	zbar_image_scanner_t * iscn = (zbar_image_scanner_t *)zbar_decoder_get_userdata(dcode);
+	zbar_image_scanner_t * iscn = static_cast<zbar_image_scanner_t *>(zbar_decoder_get_userdata(dcode));
 	zbar_symbol_type_t type = zbar_decoder_get_type(dcode);
 	int x = 0, y = 0, dir;
 	const char * data;
@@ -419,7 +419,7 @@ static void symbol_handler(zbar_decoder_t * dcode)
 
 zbar_image_scanner_t * zbar_image_scanner_create()
 {
-	zbar_image_scanner_t * iscn = (zbar_image_scanner_t *)SAlloc::C(1, sizeof(zbar_image_scanner_t));
+	zbar_image_scanner_t * iscn = static_cast<zbar_image_scanner_t *>(SAlloc::C(1, sizeof(zbar_image_scanner_t)));
 	if(iscn) {
 		iscn->dcode = zbar_decoder_create();
 		iscn->scn = zbar_scanner_create(iscn->dcode);
@@ -560,7 +560,7 @@ void zbar_image_scanner_enable_cache(zbar_image_scanner_t * iscn, int enable)
 	iscn->enable_cache = (enable) ? 1 : 0;
 }
 
-const zbar_symbol_set_t * zbar_image_scanner_get_results(const zbar_image_scanner_t * iscn)
+/*const*/zbar_symbol_set_t * zbar_image_scanner_get_results(/*const*/zbar_image_scanner_t * iscn)
 {
 	return (iscn->syms);
 }
@@ -574,11 +574,7 @@ static /*inline*/ void FASTCALL quiet_border(zbar_image_scanner_t * iscn)
 	zbar_scanner_new_scan(scn);
 }
 
-#define movedelta(dx, dy) do {			\
-		x += (dx);				\
-		y += (dy);				\
-		p += (dx) + ((uintptr_t)(dy) * w);	 \
-} while(0);
+#define movedelta(dx, dy) do { x += (dx); y += (dy); p += (dx) + (static_cast<uintptr_t>(dy) * w); } while(0);
 
 int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 {

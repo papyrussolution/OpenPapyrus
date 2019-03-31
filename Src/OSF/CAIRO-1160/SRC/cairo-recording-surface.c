@@ -300,14 +300,14 @@ static void _cairo_recording_surface_destroy_bbtree(cairo_recording_surface_t * 
 
 static cairo_status_t _cairo_recording_surface_create_bbtree(cairo_recording_surface_t * surface)
 {
-	cairo_command_t ** elements = (cairo_command_t **)_cairo_array_index(&surface->commands, 0);
+	cairo_command_t ** elements = static_cast<cairo_command_t **>(_cairo_array_index(&surface->commands, 0));
 	uint * indices;
 	cairo_status_t status;
 	uint i;
 	uint count = surface->commands.num_elements;
 	if(count > surface->num_indices) {
 		SAlloc::F(surface->indices);
-		surface->indices = (uint *)_cairo_malloc_ab(count, sizeof(int));
+		surface->indices = static_cast<uint *>(_cairo_malloc_ab(count, sizeof(int)));
 		if(unlikely(surface->indices == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		surface->num_indices = count;
@@ -855,7 +855,6 @@ static cairo_int_status_t _cairo_recording_surface_show_text_glyphs(void * abstr
 	command->num_glyphs = num_glyphs;
 	command->clusters = NULL;
 	command->num_clusters = num_clusters;
-
 	if(utf8_len) {
 		command->utf8 = (char *)_cairo_malloc(utf8_len);
 		if(unlikely(command->utf8 == NULL)) {
@@ -865,7 +864,7 @@ static cairo_int_status_t _cairo_recording_surface_show_text_glyphs(void * abstr
 		memcpy(command->utf8, utf8, utf8_len);
 	}
 	if(num_glyphs) {
-		command->glyphs = (cairo_glyph_t *)_cairo_malloc_ab(num_glyphs, sizeof(glyphs[0]));
+		command->glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(glyphs[0])));
 		if(unlikely(command->glyphs == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto CLEANUP_ARRAYS;
@@ -873,7 +872,7 @@ static cairo_int_status_t _cairo_recording_surface_show_text_glyphs(void * abstr
 		memcpy(command->glyphs, glyphs, sizeof(glyphs[0]) * num_glyphs);
 	}
 	if(num_clusters) {
-		command->clusters = (cairo_text_cluster_t *)_cairo_malloc_ab(num_clusters, sizeof(clusters[0]));
+		command->clusters = static_cast<cairo_text_cluster_t *>(_cairo_malloc_ab(num_clusters, sizeof(clusters[0])));
 		if(unlikely(command->clusters == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto CLEANUP_ARRAYS;
@@ -1143,7 +1142,7 @@ static cairo_status_t _cairo_recording_surface_copy__glyphs(cairo_recording_surf
 		memcpy(command->utf8, src->show_text_glyphs.utf8, command->utf8_len);
 	}
 	if(command->num_glyphs) {
-		command->glyphs = (cairo_glyph_t *)_cairo_malloc_ab(command->num_glyphs, sizeof(command->glyphs[0]));
+		command->glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(command->num_glyphs, sizeof(command->glyphs[0])));
 		if(unlikely(command->glyphs == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto err_arrays;
@@ -1152,7 +1151,7 @@ static cairo_status_t _cairo_recording_surface_copy__glyphs(cairo_recording_surf
 		    sizeof(command->glyphs[0]) * command->num_glyphs);
 	}
 	if(command->num_clusters) {
-		command->clusters = (cairo_text_cluster_t *)_cairo_malloc_ab(command->num_clusters, sizeof(command->clusters[0]));
+		command->clusters = static_cast<cairo_text_cluster_t *>(_cairo_malloc_ab(command->num_clusters, sizeof(command->clusters[0])));
 		if(unlikely(command->clusters == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto err_arrays;

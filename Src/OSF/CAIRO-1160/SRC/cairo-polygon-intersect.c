@@ -689,13 +689,13 @@ static cairo_status_t _pqueue_grow(pqueue_t * pq)
 	cairo_bo_event_t ** new_elements;
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
-		new_elements = (cairo_bo_event_t **)_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *));
+		new_elements = static_cast<cairo_bo_event_t **>(_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *)));
 		if(unlikely(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
-		new_elements = (cairo_bo_event_t **)_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *));
+		new_elements = static_cast<cairo_bo_event_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *)));
 		if(unlikely(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -1152,7 +1152,7 @@ cairo_status_t _cairo_polygon_intersect(cairo_polygon_t * a, int winding_a, cair
 	event_ptrs = stack_event_ptrs;
 	num_events = a->num_edges + b->num_edges;
 	if(num_events > ARRAY_LENGTH(stack_events)) {
-		events = (cairo_bo_start_event_t *)_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *));
+		events = static_cast<cairo_bo_start_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *)));
 		if(unlikely(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		event_ptrs = (cairo_bo_event_t**)(events + num_events);

@@ -1227,7 +1227,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 				THROW_PP_S(idx_count == 1, PPERR_TXA_CORTEGENAMENSINGLE, term_ext_buf);
 				THROW_PP_S(Get(idx_first, item_), PPERR_TXA_UNDEFCORTEGENAME, term_ext_buf);
 				cortege_id = item_.TextId;
-				term_ext_buf = 0;
+				term_ext_buf.Z();
 			}
 			else {
 				cortege_id = 0;
@@ -1378,7 +1378,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 							THROW_MEM(p_current_chain);
 							THROW(p_current_chain->List.Add(term, 0, cid));
 						}
-						term_ext_buf = 0;
+						term_ext_buf.Z();
 					}
 					break;
 				default:
@@ -3935,7 +3935,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					for(uint i = 0; i < freq_list.getCount(); i++) {
 						const RAssoc item = freq_list.at(i);
                         uchar c = (uchar)item.Key;
-						item_buf = 0;
+						item_buf.Z();
 						if(c == 0)
 							item_buf.CatHex(c);
                         else if(isdec(c) || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || sstrchr(p_psymb, (int)c)) {

@@ -572,7 +572,7 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, cur_path);
 		cur_path.SetLastSlash();
 	}
-	((TSCollection <Entry> *)P_List)->freeAll();
+	static_cast<TSCollection <Entry> *>(P_List)->freeAll();
 	LogFileName.Z();
 	for(i = 0; sect_list.get(&i, sect_buf);) {
 		if(sect_buf.IsEqiAscii("common")) {
@@ -591,12 +591,13 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 				; // Test disabled
 			}
 			else {
-				Entry * p_entry = ((TSCollection <Entry> *)P_List)->CreateNewItem();
+				Entry * p_entry = static_cast<TSCollection <Entry> *>(P_List)->CreateNewItem();
 				if(p_entry) {
 					p_entry->MaxCount = 1;
 					p_entry->TestName = sect_buf;
-					if(ini_file.GetParam(sect_buf, "descr", param_buf) > 0)
-						p_entry->Descr = param_buf;
+					if(ini_file.GetParam(sect_buf, "descr", param_buf) > 0) {
+						(p_entry->Descr = param_buf).Transf(CTRANSF_INNER_TO_OUTER);
+					}
 					if(ini_file.GetParam(sect_buf, "arglist", param_buf) > 0) {
 						StringSet ss(';', param_buf);
 						for(uint k = 0; ss.get(&k, temp_buf);)
@@ -683,8 +684,8 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 		line_buf.Semicol();
 		line_buf.Cat(pEntry->TestName).Semicol().Cat(pEntry->Descr).Semicol().
 			Cat(pEntry->SuccCount).Semicol().Cat(pEntry->FailCount).Semicol().
-			Cat((long)(pEntry->Timing / 10000L)).Semicol().
-			Cat((long)(pEntry->SysTiming / 10000L)).Semicol().
+			Cat(static_cast<long>(pEntry->Timing / 10000L)).Semicol().
+			Cat(static_cast<long>(pEntry->SysTiming / 10000L)).Semicol().
 			Cat(inc_mem_blk).Semicol().Cat(inc_mem_size);
 		if(CaseBuffer.NotEmpty())
 			line_buf.Semicol().Cat(CaseBuffer);
@@ -702,8 +703,8 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 			}
 			line_buf.Cat(pEntry->TestName).CatDiv('-', 0).Cat(bm_buf);
 			line_buf.Semicol().Semicol().Semicol().Semicol().
-				Cat((long)(p_bm->Timing / 10000L)).Semicol().
-				Cat((long)(p_bm->SysTiming / 10000L)).Semicol().
+				Cat(static_cast<long>(p_bm->Timing / 10000L)).Semicol().
+				Cat(static_cast<long>(p_bm->SysTiming / 10000L)).Semicol().
 				Cat(inc_mem_blk).Semicol().Cat(inc_mem_size);
 			if(CaseBuffer.NotEmpty())
 				line_buf.Semicol().Cat(CaseBuffer);
@@ -745,7 +746,7 @@ int STestSuite::Run(const char * pIniFileName)
 			p_entry->SysTiming = 0;
 			SString ffn;
 			ffn.Cat("SLTCF_").Cat(p_entry->TestName);
-			FN_SLTEST_FACTORY f = (FN_SLTEST_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);
+			FN_SLTEST_FACTORY f = reinterpret_cast<FN_SLTEST_FACTORY>(GetProcAddress(SLS.GetHInst(), ffn));
 			if(f) {
 				CaseBuffer = 0;
 				/*// @v9.0.8*/ assert(Mht.CalcStat(&p_entry->HeapBefore));

@@ -143,13 +143,13 @@ static cairo_status_t _cairo_rectilinear_stroker_add_segment(cairo_rectilinear_s
 		int new_size = stroker->segments_size * 2;
 		segment_t * new_segments;
 		if(stroker->segments == stroker->segments_embedded) {
-			new_segments = (segment_t *)_cairo_malloc_ab(new_size, sizeof(segment_t));
+			new_segments = static_cast<segment_t *>(_cairo_malloc_ab(new_size, sizeof(segment_t)));
 			if(unlikely(new_segments == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(new_segments, stroker->segments, stroker->num_segments * sizeof(segment_t));
 		}
 		else {
-			new_segments = (segment_t *)_cairo_realloc_ab(stroker->segments, new_size, sizeof(segment_t));
+			new_segments = static_cast<segment_t *>(_cairo_realloc_ab(stroker->segments, new_size, sizeof(segment_t)));
 			if(unlikely(new_segments == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}

@@ -692,7 +692,7 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 								break;
 						}
 					}
-					buf = 0;
+					buf.Z();
 					if(ss2.get(&i, buf) > 0) {
 						SString dir;
 						if(buf.NotEmptyS()) {

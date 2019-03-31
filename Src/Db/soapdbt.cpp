@@ -1,5 +1,5 @@
 // SOAPDBT.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2010, 2015, 2017, 2018
+// Copyright (c) A.Starodub 2007, 2008, 2010, 2015, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -96,11 +96,7 @@ int SoapDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	return ok;
 }
 
-int SoapDbFile::GetNumRecords(ulong * pNumRecs)
+ulong SoapDbFile::GetNumRecords() const
 {
-	int    ok = 1;
-	long   num_recs = 0;
-	num_recs = NumRecs;
-	ASSIGN_PTR(pNumRecs, num_recs);
-	return ok;
+	return NumRecs;
 }

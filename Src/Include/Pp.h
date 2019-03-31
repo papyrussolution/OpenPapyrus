@@ -2183,7 +2183,7 @@ public:
 	int    IsOpened() const;
 	int    OpenFileForReading(const char * pFileName);
 	int    OpenFileForWriting(const char * pFileName, int truncOnWriting, StringSet * pResultFileList = 0);
-	int    CloseFile();
+	void   CloseFile();
 	//int    GetFilesFromSource(const char * pWildcard, PPLogger * pLogger);
 	int    DistributeFile(PPLogger * pLogger);
 	int    AppendHdrRecord(void * pDataBuf, size_t dataBufLen);
@@ -14509,7 +14509,7 @@ struct PPCommandDescr {
 	SLAPI  PPCommandDescr();
 	void   SLAPI Init();
 	int    SLAPI LoadResource(long cmdDescrID);
-	int    SLAPI GetFactoryFuncName(SString &) const;
+	SString & FASTCALL GetFactoryFuncName(SString &) const;
 	int    SLAPI Write(SBuffer &, long) const;
 	int    SLAPI Read(SBuffer &, long);
 	PPCommandHandler * SLAPI CreateInstance(long cmdDescrID);
@@ -14703,7 +14703,7 @@ struct PPJobDescr { // @persistent
 	static const char * P_FactoryPrfx;
 
 	SLAPI  PPJobDescr();
-	int    FASTCALL GetFactoryFuncName(SString &) const;
+	SString & FASTCALL GetFactoryFuncName(SString &) const;
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
 
@@ -14835,11 +14835,11 @@ public:
 	int    SLAPI EditJobParam(PPID jobID, SBuffer * pParam);
 
 	long   SLAPI AcquireNewId();
-	int    FASTCALL UpdateLastId(long id);
+	void   FASTCALL UpdateLastId(long id);
 private:
 	int    SLAPI Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode);
 	int    SLAPI CreatePool();
-	int    SLAPI CloseFile();
+	void   SLAPI CloseFile();
 
 	TVRez  * P_Rez;
 
@@ -15933,7 +15933,11 @@ public:
 		uint16 BottomAvgQuant;
 		uint16 PeakMaxQuant;
 		uint32 ID;
-		uint8  Reserve[20];
+		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии
+		double TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
+			// Эта величина умножается на TrendErrAvg для получения абсолютного значения лимита.
+			// [0..]. 0 - не использовать ограничение, 1.0 - ограничение равно TrendErrAvg, 1.05 - (1.05 * TrendErrAvg)
+		uint8  Reserve[4];
 	};
 	class StrategyContainer : public TSVector <Strategy> {
 	public:
@@ -16005,9 +16009,11 @@ public:
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
-		const uint Stride;
-		const uint NominalCount;
+		const  uint Stride;
+		const  uint NominalCount;
+		double ErrAvg; // @v10.3.12 Средняя ошибка регрессии
 		RealArray TL;
+		RealArray ErrL; // @v10.3.12 Ошибки регрессии
 	};
 	struct BestStrategyBlock {
 		SLAPI  BestStrategyBlock();

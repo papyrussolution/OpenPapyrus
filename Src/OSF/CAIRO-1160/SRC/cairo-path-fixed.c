@@ -591,7 +591,7 @@ static cairo_path_buf_t * _cairo_path_buf_create(int size_ops, int size_points)
 	cairo_path_buf_t * buf;
 	/* adjust size_ops to ensure that buf->points is naturally aligned */
 	size_ops += sizeof(double) - ((sizeof(cairo_path_buf_t) + size_ops) % sizeof(double));
-	buf = (cairo_path_buf_t *)_cairo_malloc_ab_plus_c(size_points, sizeof(cairo_point_t), size_ops + sizeof(cairo_path_buf_t));
+	buf = static_cast<cairo_path_buf_t *>(_cairo_malloc_ab_plus_c(size_points, sizeof(cairo_point_t), size_ops + sizeof(cairo_path_buf_t)));
 	if(buf) {
 		buf->num_ops = 0;
 		buf->num_points = 0;

@@ -89,7 +89,7 @@ namespace NCompress {
 		{
 			const uint32 kPropSize = 5;
 			Byte props[kPropSize];
-			props[0] = (Byte)_props.Order;
+			props[0] = static_cast<Byte>(_props.Order);
 			SetUi32(props + 1, _props.MemSize);
 			return WriteStream(outStream, props, kPropSize);
 		}
@@ -98,7 +98,7 @@ namespace NCompress {
 			const uint64 * /* inSize */, const uint64 * /* outSize */, ICompressProgressInfo * progress)
 		{
 			if(!_inBuf) {
-				_inBuf = (Byte *)::MidAlloc(kBufSize);
+				_inBuf = static_cast<Byte *>(::MidAlloc(kBufSize));
 				if(!_inBuf)
 					return E_OUTOFMEMORY;
 			}
@@ -210,7 +210,7 @@ namespace NCompress {
 					const uint64 * /* inSize */, const uint64 * outSize, ICompressProgressInfo * progress)
 		{
 			if(!_outBuf) {
-				_outBuf = (Byte *)::MidAlloc(kBufSize);
+				_outBuf = static_cast<Byte *>(::MidAlloc(kBufSize));
 				if(!_outBuf)
 					return E_OUTOFMEMORY;
 			}
@@ -219,7 +219,7 @@ namespace NCompress {
 			do {
 				const uint64 startPos = _processedSize;
 				HRESULT res = CodeSpec(_outBuf, kBufSize);
-				size_t processed = (size_t)(_processedSize - startPos);
+				size_t processed = static_cast<size_t>(_processedSize - startPos);
 				RINOK(WriteStream(outStream, _outBuf, processed));
 				RINOK(res);
 				if(_status == kStatus_Finished)

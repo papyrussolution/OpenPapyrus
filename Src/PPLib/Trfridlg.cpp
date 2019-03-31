@@ -1735,7 +1735,7 @@ void TrfrItemDialog::setupVaPct()
 				out_buf.CatDiv(':', 2).Cat(100.0 * (pc - ds - Item.Cost) / Item.Cost, MKSFMTD(0, 1, 0));
 			}
 			else
-				out_buf = 0;
+				out_buf.Z();
 		}
 		setStaticText(CTL_LOT_ST_VAPCT, out_buf);
 	}

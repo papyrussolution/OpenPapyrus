@@ -8070,6 +8070,7 @@ public:
 	static int     SGetModuleFileName(void * hModule, SString & rFileName);
 	static uint    SFormatMessage(int sysErrCode, SString & rMsg);
 	static uint    SFormatMessage(SString & rMsg);
+	static char    FASTCALL TranslateWmCharToAnsi(uintptr_t wparam);
 	explicit SSystem(int imm);
 	int    FASTCALL GetCpuInfo();
 	int    CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const;
@@ -10213,7 +10214,8 @@ public:
 		long   Flags;
 	};
 
-	int    SLAPI AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList) const;
+	int    SLAPI AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, 
+		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const;
 	int    SLAPI Repair(const char * pCriticalVecSymb);
 	//
 	// Descr: Опции нормализации фрейма временного ряда

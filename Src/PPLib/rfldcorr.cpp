@@ -294,7 +294,7 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 4, TextDbFile::fQuotText);
 			SetClusterData(CTL_TXTDBPARAM_FLAGS, Data.Flags);
 			setCtrlData(CTL_TXTDBPARAM_HDRCOUNT, &Data.HdrLinesCount);
-			setCtrlString(CTL_TXTDBPARAM_FOOTER, (temp_buf = Data.FooterLine).Transf(CTRANSF_OUTER_TO_INNER)); // @v7.4.1
+			setCtrlString(CTL_TXTDBPARAM_FOOTER, (temp_buf = Data.FooterLine)/*.Transf(CTRANSF_OUTER_TO_INNER)*/);
 			onOrientSelection();
 			return 1;
 		}
@@ -311,12 +311,12 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			if(orient) {
 				Data.VertRecTerm = temp_buf;
-				getCtrlString(CTL_TXTDBPARAM_FOOTER, temp_buf); // @v7.4.1
-				Data.FooterLine = temp_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER);    // @v7.4.1
+				getCtrlString(CTL_TXTDBPARAM_FOOTER, temp_buf);
+				Data.FooterLine = temp_buf.Strip()/*.Transf(CTRANSF_INNER_TO_OUTER)*/;
 			}
 			else {
 				Data.FldDiv = temp_buf;
-				Data.FooterLine = 0; // @v7.4.1
+				Data.FooterLine.Z();
 			}
 			getCtrlData(CTL_TXTDBPARAM_HDRCOUNT, &Data.HdrLinesCount);
 			ASSIGN_PTR(pData, Data);
@@ -349,8 +349,8 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			PPGetSubStr(PPTXT_LAB_TXTDBPARAM_DIV, orient, label_text);
 			setLabelText(CTL_TXTDBPARAM_DIV, label_text);
 			label_text = orient ? Data.VertRecTerm : Data.FldDiv;
-			setCtrlString(CTL_TXTDBPARAM_DIV, label_text.Transf(CTRANSF_OUTER_TO_INNER));
-			disableCtrl(CTL_TXTDBPARAM_FOOTER, orient != 1); // @v7.4.1
+			setCtrlString(CTL_TXTDBPARAM_DIV, label_text/*.Transf(CTRANSF_OUTER_TO_INNER)*/);
+			disableCtrl(CTL_TXTDBPARAM_FOOTER, orient != 1);
 		}
 		TextDbFile::Param Data;
 		PPImpExpParam * P_Param;
@@ -1717,7 +1717,7 @@ int PPImpExp::GetNumRecs(long * pNumRecs)
 	int    ok = 1;
 	ulong  numrecs = 0;
 	if(P_TxtT)
-		P_TxtT->GetNumRecords(&numrecs);
+		numrecs = P_TxtT->GetNumRecords();
 	else if(P_DbfT) {
 		numrecs = P_DbfT->getNumRecs();
 		ulong num_deleted_recs = 0;
@@ -1729,11 +1729,11 @@ int PPImpExp::GetNumRecs(long * pNumRecs)
 		numrecs -= num_deleted_recs;
 	}
 	else if(P_XmlT)
-		P_XmlT->GetNumRecords(&numrecs);
+		numrecs = P_XmlT->GetNumRecords();
 	else if(P_SoapT)
-		P_SoapT->GetNumRecords(&numrecs);
+		numrecs = P_SoapT->GetNumRecords();
 	else if(P_XlsT)
-		P_XlsT->GetNumRecords(&numrecs);
+		numrecs = P_XlsT->GetNumRecords();
 	else
 		ok = 0;
 	CATCHZOK
@@ -1742,14 +1742,9 @@ int PPImpExp::GetNumRecs(long * pNumRecs)
 }
 
 int PPImpExp::OpenFileForReading(const char * pFileName)
-{
-	return Helper_OpenFile(pFileName, 1, 0, 0);
-}
-
+	{ return Helper_OpenFile(pFileName, 1, 0, 0); }
 int PPImpExp::OpenFileForWriting(const char * pFileName, int truncOnWriting, StringSet * pResultFileList)
-{
-	return Helper_OpenFile(pFileName, 0, truncOnWriting, pResultFileList);
-}
+	{ return Helper_OpenFile(pFileName, 0, truncOnWriting, pResultFileList); }
 
 int FASTCALL PPImpExp::GetExportBuffer(SBuffer & rBuf)
 {
@@ -1800,6 +1795,13 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		THROW_PP_S(P_DbfT->isOpened(), PPERR_DBFOPFAULT, filename);
 	}
 	else if(P.DataFormat == PPImpExpParam::dfText) {
+		// @v10.3.12 {
+		if(!(P.TdfParam.Flags & TextDbFile::fOemText)) {
+			P.TdfParam.FldDiv.Transf(CTRANSF_INNER_TO_OUTER);
+			P.TdfParam.FooterLine.Transf(CTRANSF_INNER_TO_OUTER);
+			P.TdfParam.VertRecTerm.Transf(CTRANSF_INNER_TO_OUTER);
+		}
+		// } @v10.3.12 
 		if(!readOnly && truncOnWriting)
 			SFile::Remove(filename);
 		THROW_MEM(P_TxtT = new TextDbFile);
@@ -1877,14 +1879,13 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 	return ok;
 }
 
-int PPImpExp::CloseFile()
+void PPImpExp::CloseFile()
 {
 	ZDELETE(P_TxtT);
 	ZDELETE(P_DbfT);
 	ZDELETE(P_XmlT);
 	ZDELETE(P_XlsT);
 	State &= ~(sOpened | sReadOnly);
-	return 1;
 }
 //
 // @vmiller comment
@@ -2243,6 +2244,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 				}
 			}
 		}
+		rResult.Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.12
 	}
 	//CATCHZOK
 	/*if(inner_expr_ctx)
@@ -2454,7 +2456,7 @@ int PPImpExp::ReadRecord(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec)
 	if(P.OtrRec.GetDataC() == 0)
 		THROW_SL(P.OtrRec.AllocDataBuf());
 	if(P_TxtT) {
-		P_TxtT->GetNumRecords(&numrecs);
+		numrecs = P_TxtT->GetNumRecords();
 		if(R_RecNo < numrecs) {
 			THROW_SL(P_TxtT->GoToRecord(R_RecNo));
 			THROW_SL(P_TxtT->GetRecord(P.OtrRec, P.OtrRec.GetData()));
@@ -2494,7 +2496,7 @@ int PPImpExp::ReadRecord(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec)
 		}
 	}
 	else if(P_XlsT) {
-		P_XlsT->GetNumRecords(&numrecs);
+		numrecs = P_XlsT->GetNumRecords();
 		if(R_RecNo < numrecs) {
 			THROW_SL(P_XlsT->GoToRecord(R_RecNo));
 			THROW_SL(P_XlsT->GetRecord(P.OtrRec, P.OtrRec.GetData()));

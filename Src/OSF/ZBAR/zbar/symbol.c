@@ -25,6 +25,15 @@
 #pragma hdrstop
 #include "symbol.h"
 
+void FASTCALL sym_add_point(zbar_symbol_t * sym, int x, int y)
+{
+	int i = sym->npts;
+	if(++sym->npts >= sym->pts_alloc)
+		sym->pts = static_cast<point_t *>(SAlloc::R(sym->pts, ++sym->pts_alloc * sizeof(point_t)));
+	sym->pts[i].x = x;
+	sym->pts[i].y = y;
+}
+
 const char * zbar_get_symbol_name(zbar_symbol_type_t sym)
 {
 	switch(sym & ZBAR_SYMBOL) {
@@ -309,9 +318,9 @@ inline void _zbar_symbol_set_free(zbar_symbol_set_t * syms)
 	SAlloc::F(syms);
 }
 
-void zbar_symbol_set_ref(const zbar_symbol_set_t * syms, int delta)
+void zbar_symbol_set_ref(/*const*/zbar_symbol_set_t * syms, int delta)
 {
-	zbar_symbol_set_t * ncsyms = (zbar_symbol_set_t*)syms;
+	zbar_symbol_set_t * ncsyms = static_cast<zbar_symbol_set_t *>(syms);
 	if(!_zbar_refcnt(&ncsyms->refcnt, delta) && delta <= 0)
 		_zbar_symbol_set_free(ncsyms);
 }

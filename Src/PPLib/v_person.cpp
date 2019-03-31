@@ -1048,7 +1048,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 				THROW(PPRef->Ot.GetList(PPOBJ_PERSON, id, &tags));
 				for(uint i = 0; i < tags.GetCount(); i++) {
 					long   tab_id = DefaultTagID;
-					buf = 0;
+					buf.Z();
 					const  ObjTagItem * p_item = tags.GetItemByPos(i);
 					ObjTag.GetCurrTagVal(p_item, buf.Z());
 					tab_id = p_item->TagID;
@@ -2418,11 +2418,10 @@ int SLAPI PPViewPerson::ExportUhtt()
 				if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0) {
 					long    uhtt_loc_id = 0;
 					UhttLocationPacket uhtt_loc_pack, ret_loc_pack;
-
 					LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, phone_buf);
 					LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, contact_buf);
 					LocationCore::GetAddress(loc_rec, 0, addr_buf);
-					loc_text_buf = 0;
+					loc_text_buf.Z();
 					if(loc_rec.Code[0])
 						loc_text_buf.Cat(loc_rec.Code);
 					if(phone_buf.NotEmpty())

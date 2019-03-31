@@ -62,16 +62,12 @@ cairo_status_t _cairo_stroke_style_init_copy(cairo_stroke_style_t * style, const
 		style->dash = NULL;
 	}
 	else {
-		style->dash = (double *)_cairo_malloc_ab(style->num_dashes, sizeof(double));
+		style->dash = static_cast<double *>(_cairo_malloc_ab(style->num_dashes, sizeof(double)));
 		if(unlikely(style->dash == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
-		memcpy(style->dash, other->dash,
-		    style->num_dashes * sizeof(double));
+		memcpy(style->dash, other->dash, style->num_dashes * sizeof(double));
 	}
-
 	style->dash_offset = other->dash_offset;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -79,9 +75,7 @@ void _cairo_stroke_style_fini(cairo_stroke_style_t * style)
 {
 	SAlloc::F(style->dash);
 	style->dash = NULL;
-
 	style->num_dashes = 0;
-
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(style, sizeof(cairo_stroke_style_t)));
 }
 
@@ -90,24 +84,15 @@ void _cairo_stroke_style_fini(cairo_stroke_style_t * style)
  * from the path that vertices could be generated.  In the case
  * of rotation in the ctm, the distance will not be exact.
  */
-void _cairo_stroke_style_max_distance_from_path(const cairo_stroke_style_t * style,
-    const cairo_path_fixed_t * path,
-    const cairo_matrix_t * ctm,
-    double * dx, double * dy)
+void _cairo_stroke_style_max_distance_from_path(const cairo_stroke_style_t * style, const cairo_path_fixed_t * path, const cairo_matrix_t * ctm, double * dx, double * dy)
 {
 	double style_expansion = 0.5;
-
 	if(style->line_cap == CAIRO_LINE_CAP_SQUARE)
 		style_expansion = M_SQRT1_2;
-
-	if(style->line_join == CAIRO_LINE_JOIN_MITER &&
-	    !path->stroke_is_rectilinear &&
-	    style_expansion < M_SQRT2 * style->miter_limit) {
+	if(style->line_join == CAIRO_LINE_JOIN_MITER && !path->stroke_is_rectilinear && style_expansion < M_SQRT2 * style->miter_limit) {
 		style_expansion = M_SQRT2 * style->miter_limit;
 	}
-
 	style_expansion *= style->line_width;
-
 	if(_cairo_matrix_has_unity_scale(ctm)) {
 		*dx = *dy = style_expansion;
 	}
@@ -117,10 +102,7 @@ void _cairo_stroke_style_max_distance_from_path(const cairo_stroke_style_t * sty
 	}
 }
 
-void _cairo_stroke_style_max_line_distance_from_path(const cairo_stroke_style_t * style,
-    const cairo_path_fixed_t * path,
-    const cairo_matrix_t * ctm,
-    double * dx, double * dy)
+void _cairo_stroke_style_max_line_distance_from_path(const cairo_stroke_style_t * style, const cairo_path_fixed_t * path, const cairo_matrix_t * ctm, double * dx, double * dy)
 {
 	double style_expansion = 0.5 * style->line_width;
 	if(_cairo_matrix_has_unity_scale(ctm)) {
@@ -132,21 +114,13 @@ void _cairo_stroke_style_max_line_distance_from_path(const cairo_stroke_style_t 
 	}
 }
 
-void _cairo_stroke_style_max_join_distance_from_path(const cairo_stroke_style_t * style,
-    const cairo_path_fixed_t * path,
-    const cairo_matrix_t * ctm,
-    double * dx, double * dy)
+void _cairo_stroke_style_max_join_distance_from_path(const cairo_stroke_style_t * style, const cairo_path_fixed_t * path, const cairo_matrix_t * ctm, double * dx, double * dy)
 {
 	double style_expansion = 0.5;
-
-	if(style->line_join == CAIRO_LINE_JOIN_MITER &&
-	    !path->stroke_is_rectilinear &&
-	    style_expansion < M_SQRT2 * style->miter_limit) {
+	if(style->line_join == CAIRO_LINE_JOIN_MITER && !path->stroke_is_rectilinear && style_expansion < M_SQRT2 * style->miter_limit) {
 		style_expansion = M_SQRT2 * style->miter_limit;
 	}
-
 	style_expansion *= style->line_width;
-
 	if(_cairo_matrix_has_unity_scale(ctm)) {
 		*dx = *dy = style_expansion;
 	}
@@ -162,16 +136,12 @@ void _cairo_stroke_style_max_join_distance_from_path(const cairo_stroke_style_t 
  */
 double _cairo_stroke_style_dash_period(const cairo_stroke_style_t * style)
 {
-	double period;
 	uint i;
-
-	period = 0.0;
+	double period = 0.0;
 	for(i = 0; i < style->num_dashes; i++)
 		period += style->dash[i];
-
 	if(style->num_dashes & 1)
 		period *= 2.0;
-
 	return period;
 }
 
@@ -206,14 +176,12 @@ double _cairo_stroke_style_dash_stroked(const cairo_stroke_style_t * style)
 {
 	double stroked, cap_scale;
 	uint i;
-
 	switch(style->line_cap) {
 		default: ASSERT_NOT_REACHED;
 		case CAIRO_LINE_CAP_BUTT:   cap_scale = 0.0; break;
 		case CAIRO_LINE_CAP_ROUND:  cap_scale = ROUND_MINSQ_APPROXIMATION; break;
 		case CAIRO_LINE_CAP_SQUARE: cap_scale = 1.0; break;
 	}
-
 	stroked = 0.0;
 	if(style->num_dashes & 1) {
 		/* Each dash element is used both as on and as off. The order in which they are summed is

@@ -484,7 +484,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 //static
 LRESULT CALLBACK LogListWindowSCI::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	LogListWindowSCI * p_this = (LogListWindowSCI *)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	LogListWindowSCI * p_this = reinterpret_cast<LogListWindowSCI *>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	if(p_this) {
 		switch(msg) {
 			case WM_DESTROY:

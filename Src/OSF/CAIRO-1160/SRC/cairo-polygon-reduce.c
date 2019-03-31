@@ -765,13 +765,13 @@ static cairo_status_t _pqueue_grow(pqueue_t * pq)
 	cairo_bo_event_t ** new_elements;
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
-		new_elements = (cairo_bo_event_t **)_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *));
+		new_elements = static_cast<cairo_bo_event_t **>(_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *)));
 		if(unlikely(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
-		new_elements = (cairo_bo_event_t **)_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *));
+		new_elements = static_cast<cairo_bo_event_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *)));
 		if(unlikely(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -1186,11 +1186,9 @@ cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon,
 	int num_limits;
 	int num_events;
 	int i;
-
 	num_events = polygon->num_edges;
 	if(unlikely(0 == num_events))
 		return CAIRO_STATUS_SUCCESS;
-
 	if(DEBUG_POLYGON) {
 		FILE * file = fopen("reduce_in.txt", "w");
 		_cairo_debug_print_polygon(file, polygon);
@@ -1199,22 +1197,16 @@ cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon,
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
 	if(num_events > ARRAY_LENGTH(stack_events)) {
-		events = (cairo_bo_start_event_t *)_cairo_malloc_ab_plus_c(num_events,
-			sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *));
+		events = static_cast<cairo_bo_start_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *)));
 		if(unlikely(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-		event_ptrs = (cairo_bo_event_t**)(events + num_events);
+		event_ptrs = reinterpret_cast<cairo_bo_event_t **>(events + num_events);
 	}
-
 	for(i = 0; i < num_events; i++) {
 		event_ptrs[i] = (cairo_bo_event_t*)&events[i];
-
 		events[i].type = CAIRO_BO_EVENT_TYPE_START;
 		events[i].point.y = polygon->edges[i].top;
-		events[i].point.x =
-		    _line_compute_intersection_x_for_y(&polygon->edges[i].line,
-			events[i].point.y);
-
+		events[i].point.x = _line_compute_intersection_x_for_y(&polygon->edges[i].line, events[i].point.y);
 		events[i].edge.edge = polygon->edges[i];
 		events[i].edge.deferred.right = NULL;
 		events[i].edge.prev = NULL;

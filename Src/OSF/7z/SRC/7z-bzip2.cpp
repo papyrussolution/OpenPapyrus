@@ -110,13 +110,13 @@ namespace NCompress {
 		bool CThreadInfo::Alloc()
 		{
 			if(m_BlockSorterIndex == 0) {
-				m_BlockSorterIndex = (uint32 *)::BigAlloc(BLOCK_SORT_BUF_SIZE(kBlockSizeMax) * sizeof(uint32));
+				m_BlockSorterIndex = static_cast<uint32 *>(::BigAlloc(BLOCK_SORT_BUF_SIZE(kBlockSizeMax) * sizeof(uint32)));
 				if(m_BlockSorterIndex == 0)
 					return false;
 			}
 
 			if(m_Block == 0) {
-				m_Block = (Byte *)::MidAlloc(kBlockSizeMax * 5 + kBlockSizeMax / 10 + (20 << 10));
+				m_Block = static_cast<Byte *>(::MidAlloc(kBlockSizeMax * 5 + kBlockSizeMax / 10 + (20 << 10)));
 				if(m_Block == 0)
 					return false;
 				m_MtfArray = m_Block + kBlockSizeMax;
@@ -1581,7 +1581,6 @@ namespace NCompress {
 			for(;; ) {
 				Byte * data = _outBuf + _outPos;
 				size_t size = kOutBufSize - _outPos;
-
 				if(_outSizeDefined) {
 					const uint64 rem = _outSize - _outPosTotal;
 					if(size >= rem) {
@@ -1590,18 +1589,14 @@ namespace NCompress {
 							return FinishMode ? S_FALSE : S_OK;
 					}
 				}
-
 				TICKS_START
 				const size_t processed = block.Decode(data, size) - data;
 				TICKS_UPDATE(2)
-
 				_outPosTotal += processed;
 				_outPos += processed;
-
 				if(processed >= size) {
 					RINOK(Flush());
 				}
-
 				if(block.Finished()) {
 					_blockFinished = true;
 					_calcedBlockCrc = block._crc.GetDigest();
@@ -1624,15 +1619,11 @@ namespace NCompress {
 			PRIN("\n~CDecoder()");
 
 		  #ifndef _7ZIP_ST
-
 			if(Thread.IsCreated()) {
 				WaitScout();
-
 				_block.StopScout = true;
-
 				PRIN("\nScoutEvent.Set()");
 				ScoutEvent.Set();
-
 				PRIN("\nThread.Wait()()");
 				Thread.Wait();
 				PRIN("\n after Thread.Wait()()");
@@ -1640,9 +1631,7 @@ namespace NCompress {
 
 				// if(ScoutRes != S_OK) throw ScoutRes;
 			}
-
 		  #endif
-
 			BigFree(_counters);
 			MidFree(_outBuf);
 			MidFree(_inBuf);
@@ -1696,9 +1685,7 @@ namespace NCompress {
 		{
 			for(;; ) {
 				RINOK(ReadInput());
-
 				SRes res = Base.ReadBlockSignature2();
-
 				if(Base.state == STATE_STREAM_FINISHED)
 					Base.FinishedPackSize = GetInputProcessedSize();
 				if(res != SZ_OK)
@@ -1876,16 +1863,16 @@ namespace NCompress {
 		bool CDecoder::CreateInputBufer()
 		{
 			if(!_inBuf) {
-				_inBuf = (Byte *)MidAlloc(kInBufSize);
+				_inBuf = static_cast<Byte *>(MidAlloc(kInBufSize));
 				if(!_inBuf)
 					return false;
 			}
 			if(!_counters) {
-				_counters = (uint32 *)::BigAlloc((256 + kBlockSizeMax) * sizeof(uint32)
+				_counters = static_cast<uint32 *>(::BigAlloc((256 + kBlockSizeMax) * sizeof(uint32)
 			  #ifdef BZIP2_BYTE_MODE
 							+ kBlockSizeMax
 			  #endif
-							+ 256);
+							+ 256));
 				if(!_counters)
 					return false;
 				Base.Counters = _counters;
@@ -1942,7 +1929,7 @@ namespace NCompress {
 				if(!CreateInputBufer())
 					return E_OUTOFMEMORY;
 				if(!_outBuf) {
-					_outBuf = (Byte *)MidAlloc(kOutBufSize);
+					_outBuf = static_cast<Byte *>(MidAlloc(kOutBufSize));
 					if(!_outBuf)
 						return E_OUTOFMEMORY;
 				}

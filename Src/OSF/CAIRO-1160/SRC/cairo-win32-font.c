@@ -512,7 +512,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_wi
 	status = _cairo_utf8_to_utf16(utf8, -1, &utf16, &n16);
 	if(status)
 		return status;
-	glyph_indices = (WORD *)_cairo_malloc_ab(n16 + 1, sizeof(WORD));
+	glyph_indices = static_cast<WORD *>(_cairo_malloc_ab(n16 + 1, sizeof(WORD)));
 	if(!glyph_indices) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL1;
@@ -527,7 +527,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_wi
 		goto FAIL3;
 	}
 	*num_glyphs = n16;
-	*glyphs = (cairo_glyph_t *)_cairo_malloc_ab(n16, sizeof(cairo_glyph_t));
+	*glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(n16, sizeof(cairo_glyph_t)));
 	if(!*glyphs) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL3;
@@ -612,8 +612,8 @@ static cairo_int_status_t _cairo_win32_scaled_font_text_to_glyphs(void * abstrac
 		glyph_indices = NULL;
 		SAlloc::F(dx);
 		dx = NULL;
-		glyph_indices = (WCHAR *)_cairo_malloc_ab(buffer_size, sizeof(WCHAR));
-		dx = (int *)_cairo_malloc_ab(buffer_size, sizeof(int));
+		glyph_indices = static_cast<WCHAR *>(_cairo_malloc_ab(buffer_size, sizeof(WCHAR)));
+		dx = static_cast<int *>(_cairo_malloc_ab(buffer_size, sizeof(int)));
 		if(!glyph_indices || !dx) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto FAIL2;
@@ -636,7 +636,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_text_to_glyphs(void * abstrac
 		}
 	}
 	*num_glyphs = gcp_results.nGlyphs;
-	*glyphs = (cairo_glyph_t *)_cairo_malloc_ab(gcp_results.nGlyphs, sizeof(cairo_glyph_t));
+	*glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(gcp_results.nGlyphs, sizeof(cairo_glyph_t)));
 	if(!*glyphs) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL2;
@@ -1139,23 +1139,20 @@ static cairo_int_status_t _cairo_win32_scaled_font_index_to_ucs4(void * abstract
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto exit1;
 	}
-
 	res = GetFontUnicodeRanges(hdc, glyph_set);
 	if(res == 0) {
-		status = _cairo_win32_print_gdi_error(
-			"_cairo_win32_scaled_font_index_to_ucs4:GetFontUnicodeRanges");
+		status = _cairo_win32_print_gdi_error("_cairo_win32_scaled_font_index_to_ucs4:GetFontUnicodeRanges");
 		goto exit1;
 	}
-
 	*ucs4 = (uint32_t)-1;
 	for(i = 0; i < glyph_set->cRanges; i++) {
 		num_glyphs = glyph_set->ranges[i].cGlyphs;
-		utf16 = (uint16_t *)_cairo_malloc_ab(num_glyphs + 1, sizeof(uint16_t));
+		utf16 = static_cast<uint16_t *>(_cairo_malloc_ab(num_glyphs + 1, sizeof(uint16_t)));
 		if(utf16 == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto exit1;
 		}
-		glyph_indices = (WORD *)_cairo_malloc_ab(num_glyphs + 1, sizeof(WORD));
+		glyph_indices = static_cast<WORD *>(_cairo_malloc_ab(num_glyphs + 1, sizeof(WORD)));
 		if(glyph_indices == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto exit2;
@@ -1164,8 +1161,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_index_to_ucs4(void * abstract
 			utf16[j] = glyph_set->ranges[i].wcLow + j;
 		utf16[j] = 0;
 		if(GetGlyphIndicesW(hdc, (LPCWSTR)utf16, num_glyphs, glyph_indices, 0) == GDI_ERROR) {
-			status = _cairo_win32_print_gdi_error(
-				"_cairo_win32_scaled_font_index_to_ucs4:GetGlyphIndicesW");
+			status = _cairo_win32_print_gdi_error("_cairo_win32_scaled_font_index_to_ucs4:GetGlyphIndicesW");
 			goto exit2;
 		}
 		for(j = 0; j < num_glyphs; j++) {

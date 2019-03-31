@@ -615,7 +615,7 @@ namespace NCompress {
 			bool Alloc()
 			{
 				if(!Buf)
-					Buf = (Byte *)::MidAlloc(kBufSize);
+					Buf = static_cast<Byte *>(::MidAlloc(kBufSize));
 				return (Buf != 0);
 			}
 			Byte * Buf;
@@ -1709,7 +1709,7 @@ namespace NArchive {
 		HRESULT CAddCommon::CalcStreamCRC(ISequentialInStream * inStream, uint32 &resultCRC)
 		{
 			if(!_buf) {
-				_buf = (Byte *)MidAlloc(kBufSize);
+				_buf = static_cast<Byte *>(MidAlloc(kBufSize));
 				if(!_buf)
 					return E_OUTOFMEMORY;
 			}
@@ -6989,7 +6989,7 @@ namespace NArchive {
 
 		bool CCacheOutStream::Allocate()
 		{
-			return SETIFZ(_cache, (Byte *)::MidAlloc(kCacheSize));
+			return SETIFZ(_cache, static_cast<Byte *>(::MidAlloc(kCacheSize)));
 		}
 
 		HRESULT CCacheOutStream::Init(IOutStream * stream)

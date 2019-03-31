@@ -1546,7 +1546,7 @@ int FastEditRightsDlg::setupGrpUsrList()
 	for(i = 0; Data.enumItems(&i, (void **)&p_pack) > 0; ) {
 		temp_buf = p_pack->Secur.Name;
 		if(p_pack->Secur.Tag == PPOBJ_USR) {
-			inh_buf = 0;
+			inh_buf.Z();
 			if(p_pack->Secur.Flags & USRF_INHRIGHTS)
 				inh_buf.CatChar('R');
 			if(p_pack->Secur.Flags & USRF_INHCFG)

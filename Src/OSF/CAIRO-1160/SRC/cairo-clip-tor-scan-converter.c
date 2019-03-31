@@ -864,7 +864,7 @@ static cairo_status_t polygon_reset(struct polygon * polygon, grid_scaled_y_t ym
 		SAlloc::F(polygon->y_buckets);
 	polygon->y_buckets =  polygon->y_buckets_embedded;
 	if(num_buckets > ARRAY_LENGTH(polygon->y_buckets_embedded)) {
-		polygon->y_buckets = (struct edge **)_cairo_malloc_ab(num_buckets, sizeof(struct edge *));
+		polygon->y_buckets = static_cast<struct edge **>(_cairo_malloc_ab(num_buckets, sizeof(struct edge *)));
 		if(unlikely(NULL == polygon->y_buckets))
 			goto bail_no_mem;
 	}

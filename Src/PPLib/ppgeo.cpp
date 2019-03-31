@@ -1724,7 +1724,7 @@ int SLAPI PPViewGeoTracking::Export()
 						ZDELETE(p_n_trk);
 						THROW_MEM(p_n_trk = new SXml::WNode(p_writer, "trk"));
 						{
-							GetObjectTitle(oid.Obj, out_buf = 0);
+							GetObjectTitle(oid.Obj, out_buf.Z());
 							GetObjectName(oid.Obj, oid.Id, temp_buf);
 							out_buf.Space().CatBrackStr(temp_buf).Transf(CTRANSF_INNER_TO_UTF8);
 							p_n_trk->PutInner("name", out_buf);

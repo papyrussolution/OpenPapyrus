@@ -91,7 +91,7 @@ static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading
 	else
 		num_color_components = 3;
 	shading->decode_array_length = 4 + num_color_components * 2;
-	shading->decode_array = (double *)_cairo_malloc_ab(shading->decode_array_length, sizeof(double));
+	shading->decode_array = static_cast<double *>(_cairo_malloc_ab(shading->decode_array_length, sizeof(double)));
 	if(unlikely(shading->decode_array == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	is_valid = _cairo_mesh_pattern_coord_box(mesh, &shading->decode_array[0], &shading->decode_array[2], &shading->decode_array[1], &shading->decode_array[3]);
@@ -102,7 +102,6 @@ static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading
 		shading->decode_array[4 + 2*i] = 0;
 		shading->decode_array[5 + 2*i] = 1;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

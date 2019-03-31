@@ -1963,8 +1963,9 @@ int FASTCALL SFontDescr::SetLogFont(const LOGFONTW * pLf)
 {
 	int    ok = Helper_SetLogFont(pLf);
 	if(ok > 0) {
-		SStringU ustr = pLf->lfFaceName;
-		ustr.CopyToUtf8(Face, 1);
+		// @v10.3.12 SStringU ustr = pLf->lfFaceName;
+		// @v10.3.12 ustr.CopyToUtf8(Face, 1);
+		Face.CopyUtf8FromUnicode(pLf->lfFaceName, sstrlen(pLf->lfFaceName), 1); // @v10.3.12 
 		Face.Utf8ToChar();
 	}
 	return ok;

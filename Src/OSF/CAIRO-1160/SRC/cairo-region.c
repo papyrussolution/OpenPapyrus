@@ -222,7 +222,7 @@ cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_i
 		return region;
 	}
 	if(count > ARRAY_LENGTH(stack_pboxes)) {
-		pboxes = (pixman_box32_t *)_cairo_malloc_ab(count, sizeof(pixman_box32_t));
+		pboxes = static_cast<pixman_box32_t *>(_cairo_malloc_ab(count, sizeof(pixman_box32_t)));
 		if(unlikely(pboxes == NULL)) {
 			SAlloc::F(region);
 			return _cairo_region_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));

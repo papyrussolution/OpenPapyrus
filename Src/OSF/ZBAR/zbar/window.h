@@ -96,7 +96,7 @@ static inline int _zbar_window_add_format(zbar_window_t * w, uint32 fmt)
 	for(i = 0; w->formats && w->formats[i]; i++)
 		if(w->formats[i] == fmt)
 			return (i);
-	w->formats = (uint32 *)SAlloc::R(w->formats, (i + 2) * sizeof(uint32));
+	w->formats = static_cast<uint32 *>(SAlloc::R(w->formats, (i + 2) * sizeof(uint32)));
 	w->formats[i] = fmt;
 	w->formats[i + 1] = 0;
 	return (i);
@@ -118,8 +118,7 @@ extern int _zbar_window_begin(zbar_window_t*);
 extern int _zbar_window_end(zbar_window_t*);
 extern int _zbar_window_draw_marker(zbar_window_t*, uint32, point_t);
 extern int _zbar_window_draw_polygon(zbar_window_t*, uint32, const point_t*, int);
-extern int _zbar_window_draw_text(zbar_window_t*, uint32,
-    point_t, const char*);
+extern int _zbar_window_draw_text(zbar_window_t*, uint32, point_t, const char*);
 extern int _zbar_window_fill_rect(zbar_window_t*, uint32, point_t, point_t);
 extern int _zbar_window_draw_logo(zbar_window_t*);
 

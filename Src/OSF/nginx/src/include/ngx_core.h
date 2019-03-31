@@ -560,15 +560,11 @@ struct /*ngx_buf_s*/ngx_buf_t {
 };
 
 struct ngx_chain_t {
-	ngx_chain_t()
+	ngx_chain_t() : buf(0), next(0)
 	{
-		buf = 0;
-		next = 0;
 	}
-	ngx_chain_t(ngx_buf_t * pB, ngx_chain_t * pNext)
+	ngx_chain_t(ngx_buf_t * pB, ngx_chain_t * pNext) : buf(pB), next(pNext)
 	{
-		buf = pB;
-		next = pNext;
 	}
 	ngx_buf_t * buf;
 	ngx_chain_t * next;

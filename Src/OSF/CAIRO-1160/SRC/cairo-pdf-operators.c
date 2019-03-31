@@ -533,30 +533,26 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
 	 */
 	if(num_dashes && style->line_cap == CAIRO_LINE_CAP_BUTT) {
 		int i;
-
 		/* If there's an odd number of dash values they will each get
 		 * interpreted as both on and off. So we first explicitly
 		 * expand the array to remove the duplicate usage so that we
 		 * can modify some of the values.
 		 */
 		if(num_dashes % 2) {
-			dash = (double *)_cairo_malloc_abc(num_dashes, 2, sizeof(double));
+			dash = static_cast<double *>(_cairo_malloc_abc(num_dashes, 2, sizeof(double)));
 			if(unlikely(dash == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 			memcpy(dash, style->dash, num_dashes * sizeof(double));
 			memcpy(dash + num_dashes, style->dash, num_dashes * sizeof(double));
-
 			num_dashes *= 2;
 		}
-
 		for(i = 0; i < num_dashes; i += 2) {
 			if(dash[i] == 0.0) {
 				/* Do not modify the dashes in-place, as we may need to also
 				 * replay this stroke to an image fallback.
 				 */
 				if(dash == style->dash) {
-					dash = (double *)_cairo_malloc_ab(num_dashes, sizeof(double));
+					dash = static_cast<double *>(_cairo_malloc_ab(num_dashes, sizeof(double)));
 					if(unlikely(dash == NULL))
 						return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 					memcpy(dash, style->dash, num_dashes * sizeof(double));

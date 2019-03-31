@@ -152,13 +152,13 @@ static cairo_bool_t pqueue_grow(pqueue_t * pq)
 	rectangle_t ** new_elements;
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
-		new_elements = (rectangle_t **)_cairo_malloc_ab(pq->max_size, sizeof(rectangle_t *));
+		new_elements = static_cast<rectangle_t **>(_cairo_malloc_ab(pq->max_size, sizeof(rectangle_t *)));
 		if(unlikely(new_elements == NULL))
 			return FALSE;
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
-		new_elements = (rectangle_t **)_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(rectangle_t *));
+		new_elements = static_cast<rectangle_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(rectangle_t *)));
 		if(unlikely(new_elements == NULL))
 			return FALSE;
 	}
@@ -534,12 +534,11 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 		cairo_box_t box = b->chunks.base[0];
 		return _cairo_boxes_intersect_with_box(a, &box, out);
 	}
-
 	rectangles = stack_rectangles;
 	rectangles_ptrs = stack_rectangles_ptrs;
 	count = a->num_boxes + b->num_boxes;
 	if(count > ARRAY_LENGTH(stack_rectangles)) {
-		rectangles = (rectangle_t *)_cairo_malloc_ab_plus_c(count, sizeof(rectangle_t) + sizeof(rectangle_t *), sizeof(rectangle_t *));
+		rectangles = static_cast<rectangle_t *>(_cairo_malloc_ab_plus_c(count, sizeof(rectangle_t) + sizeof(rectangle_t *), sizeof(rectangle_t *)));
 		if(unlikely(rectangles == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		rectangles_ptrs = (rectangle_t**)(rectangles + count);
@@ -551,7 +550,6 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 			if(box[i].p1.x < box[i].p2.x) {
 				rectangles[j].left.x = box[i].p1.x;
 				rectangles[j].left.dir = 1;
-
 				rectangles[j].right.x = box[i].p2.x;
 				rectangles[j].right.dir = -1;
 			}

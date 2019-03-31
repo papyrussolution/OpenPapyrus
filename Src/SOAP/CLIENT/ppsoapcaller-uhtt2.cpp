@@ -2293,7 +2293,7 @@ extern "C" __declspec(dllexport) TSCollection <UhttStatus> * UhttSendSms(PPSoapC
 			}
 		}
 		{
-			param.message = (ns1__smsMessage **)PPSoapCreateArray(msg_list.getCount(), param.__sizemessage);
+			param.message = reinterpret_cast<ns1__smsMessage **>(PPSoapCreateArray(msg_list.getCount(), param.__sizemessage));
 			THROW(param.message);
 			for(uint i = 0; i < msg_list.getCount(); i++) {
 				param.message[i] = msg_list.at(i);

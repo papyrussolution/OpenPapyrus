@@ -585,12 +585,9 @@ int XmlDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	return AppendRecord(St.GetParam().RecTag, rRec, pDataBuf);
 }
 
-int XmlDbFile::GetNumRecords(ulong * pNumRecs)
+ulong XmlDbFile::GetNumRecords() const
 {
-	int    ok = 1;
-	long   num_recs = P_Doc ? St.NumRecs : 0;
-	ASSIGN_PTR(pNumRecs, num_recs);
-	return ok;
+	return P_Doc ? St.NumRecs : 0;
 }
 
 int XmlDbFile::WriteField(const char * pFieldName, const char * pFieldValue, int isDtd)

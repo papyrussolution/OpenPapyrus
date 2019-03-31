@@ -3915,7 +3915,7 @@ static cairo_status_t _cairo_ps_surface_emit_pattern_stops(cairo_ps_surface_t * 
 {
 	cairo_ps_color_stop_t * stops;
 	uint i, n_stops;
-	cairo_ps_color_stop_t * allstops = (cairo_ps_color_stop_t *)_cairo_malloc_ab((pattern->n_stops + 2), sizeof(cairo_ps_color_stop_t));
+	cairo_ps_color_stop_t * allstops = static_cast<cairo_ps_color_stop_t *>(_cairo_malloc_ab((pattern->n_stops + 2), sizeof(cairo_ps_color_stop_t)));
 	if(unlikely(allstops == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	stops = &allstops[1];

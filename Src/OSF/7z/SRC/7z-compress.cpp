@@ -24,7 +24,7 @@ namespace NCompress {
 		const uint64 * /* inSize */, const uint64 * outSize, ICompressProgressInfo * progress)
 	{
 		if(!_buf) {
-			_buf = (Byte *)::MidAlloc(kBufSize);
+			_buf = static_cast<Byte *>(::MidAlloc(kBufSize));
 			if(!_buf)
 				return E_OUTOFMEMORY;
 		}
@@ -32,7 +32,7 @@ namespace NCompress {
 		for(;; ) {
 			uint32 size = kBufSize;
 			if(outSize && size > *outSize - TotalSize)
-				size = (uint32)(*outSize - TotalSize);
+				size = static_cast<uint32>(*outSize - TotalSize);
 			if(size == 0)
 				return S_OK;
 			HRESULT readRes = inStream->Read(_buf, size, &size);
@@ -321,7 +321,7 @@ namespace NCompress {
 						_bufs[i] = 0;
 					}
 					_bufsCurSizes[i] = 0;
-					Byte * buf = (Byte *)::MidAlloc(newSize);
+					Byte * buf = static_cast<Byte *>(::MidAlloc(newSize));
 					_bufs[i] = buf;
 					if(!buf)
 						return E_OUTOFMEMORY;

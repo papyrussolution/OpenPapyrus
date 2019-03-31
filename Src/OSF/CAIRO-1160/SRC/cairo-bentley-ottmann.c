@@ -612,13 +612,13 @@ static cairo_status_t _pqueue_grow(pqueue_t * pq)
 	cairo_bo_event_t ** new_elements;
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
-		new_elements = (cairo_bo_event_t **)_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *));
+		new_elements = static_cast<cairo_bo_event_t **>(_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *)));
 		if(unlikely(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
-		new_elements = (cairo_bo_event_t **)_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *));
+		new_elements = static_cast<cairo_bo_event_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *)));
 		if(unlikely(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -1284,7 +1284,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t * traps, 
 		ymin = _cairo_fixed_integer_floor(polygon->limit.p1.y);
 		ymax = _cairo_fixed_integer_ceil(polygon->limit.p2.y) - ymin;
 		if(ymax > 64) {
-			event_y = (cairo_bo_start_event_t **)_cairo_malloc_ab(sizeof(cairo_bo_event_t*), ymax);
+			event_y = static_cast<cairo_bo_start_event_t **>(_cairo_malloc_ab(sizeof(cairo_bo_event_t*), ymax));
 			if(unlikely(event_y == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -1296,13 +1296,13 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t * traps, 
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
 	if(num_events > ARRAY_LENGTH(stack_events)) {
-		events = (cairo_bo_start_event_t *)_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *));
+		events = static_cast<cairo_bo_start_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *)));
 		if(unlikely(events == NULL)) {
 			if(event_y != stack_event_y)
 				SAlloc::F(event_y);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
-		event_ptrs = (cairo_bo_event_t**)(events + num_events);
+		event_ptrs = reinterpret_cast<cairo_bo_event_t**>(events + num_events);
 	}
 	for(i = 0; i < num_events; i++) {
 		events[i].type = CAIRO_BO_EVENT_TYPE_START;

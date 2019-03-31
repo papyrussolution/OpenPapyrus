@@ -1989,7 +1989,7 @@ int GeoCityImportBlock::Import(const char * pPath)
 		THROW(tra);
 		for(i = 0; i < CountryList.getCount(); i++) {
 			GeoCityImportBlock::Country & r_rec = CountryList.at(i);
-			name_buf = 0;
+			name_buf.Z();
 			if(GetString(r_rec.NameRuPos, name_buf) > 0) {
 				;
 			}
@@ -2021,7 +2021,7 @@ int GeoCityImportBlock::Import(const char * pPath)
 		for(i = 0; i < CityList.getCount(); i++) {
 			GeoCityImportBlock::City & r_rec = CityList.at(i);
 			uint   country_pos = 0;
-			name_buf = 0;
+			name_buf.Z();
 			if(GetString(r_rec.NameRuPos, name_buf) > 0) {
 				;
 			}

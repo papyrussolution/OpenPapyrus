@@ -38,7 +38,6 @@
 
 class Decoder {
 public:
-
 	/// Decoder result handler.
 	/// applications should subtype this and pass an instance to
 	/// set_handler() to implement result processing
@@ -47,30 +46,25 @@ public:
 		virtual ~Handler()
 		{
 		}
-
 		/// invoked by the Decoder as decode results become available.
 		virtual void decode_callback(Decoder &decoder) = 0;
 	};
 
 	/// constructor.
-	Decoder ()
-		: _handler(NULL)
+	Decoder () : _handler(NULL)
 	{
 		_decoder = zbar_decoder_create();
 	}
-
 	~Decoder ()
 	{
 		zbar_decoder_destroy(_decoder);
 	}
-
 	/// clear all decoder state.
 	/// see zbar_decoder_reset()
 	void reset()
 	{
 		zbar_decoder_reset(_decoder);
 	}
-
 	/// mark start of a new scan pass.
 	/// see zbar_decoder_new_scan()
 	void new_scan()
@@ -102,14 +96,12 @@ public:
 	{
 		return (zbar_decoder_get_type(_decoder));
 	}
-
 	/// retrieve string name of last decoded symbol type.
 	/// see zbar_get_symbol_name()
 	const char * get_symbol_name() const
 	{
 		return (zbar_get_symbol_name(zbar_decoder_get_type(_decoder)));
 	}
-
 	/// retrieve string name for last decode addon.
 	/// see zbar_get_addon_name()
 	/// @deprecated in 0.11
@@ -129,8 +121,7 @@ public:
 	/// see zbar_decoder_get_data()
 	const std::string get_data_string() const
 	{
-		return (std::string(zbar_decoder_get_data(_decoder),
-			    zbar_decoder_get_data_length(_decoder)));
+		return (std::string(zbar_decoder_get_data(_decoder), zbar_decoder_get_data_length(_decoder)));
 	}
 
 	/// retrieve last decoded data as a std::string.
@@ -166,9 +157,7 @@ public:
 	/// set config for indicated symbology (0 for all) to specified value.
 	/// @see zbar_decoder_set_config()
 	/// @since 0.4
-	int set_config(zbar_symbol_type_t symbology,
-	    zbar_config_t config,
-	    int value)
+	int set_config(zbar_symbol_type_t symbology, zbar_config_t config, int value)
 	{
 		return (zbar_decoder_set_config(_decoder, symbology, config, value));
 	}
@@ -180,7 +169,6 @@ public:
 	{
 		return (zbar_decoder_parse_config(_decoder, cfgstr.c_str()));
 	}
-
 private:
 	friend class Scanner;
 	zbar_decoder_t * _decoder;

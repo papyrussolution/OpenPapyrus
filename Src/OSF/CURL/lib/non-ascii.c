@@ -95,8 +95,7 @@ CURLcode Curl_convert_to_network(struct Curl_easy * data, char * buffer, size_t 
 		/* call iconv */
 		input_ptr = output_ptr = buffer;
 		in_bytes = out_bytes = length;
-		rc = iconv(data->outbound_cd, (const char**)&input_ptr, &in_bytes,
-		    &output_ptr, &out_bytes);
+		rc = iconv(data->outbound_cd, (const char**)&input_ptr, &in_bytes, &output_ptr, &out_bytes);
 		if((rc == ICONV_ERROR) || (in_bytes != 0)) {
 			error = ERRNO;
 			failf(data, "The Curl_convert_to_network iconv call failed with errno %i: %s", error, strerror(error));

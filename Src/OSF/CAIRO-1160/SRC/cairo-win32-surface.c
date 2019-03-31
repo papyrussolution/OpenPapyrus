@@ -97,7 +97,7 @@
  *
  * Return value: A cairo status code for the error code
  **/
-cairo_status_t _cairo_win32_print_gdi_error(const char * context)
+cairo_status_t FASTCALL _cairo_win32_print_gdi_error(const char * context)
 {
 	void * lpMsgBuf;
 	DWORD last_error = GetLastError();
@@ -193,7 +193,7 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t 
 	int * dxy_buf = dxy_buf_stack;
 	BOOL win_result = 0;
 	int i, j;
-	cairo_solid_pattern_t * solid_pattern;
+	const cairo_solid_pattern_t * solid_pattern;
 	COLORREF color;
 	cairo_matrix_t device_to_logical;
 	int start_x, start_y;
@@ -205,7 +205,7 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t 
 	/* We can only handle opaque solid color sources and destinations */
 	assert(_cairo_pattern_is_opaque_solid(source));
 	assert(dst->format == CAIRO_FORMAT_RGB24);
-	solid_pattern = (cairo_solid_pattern_t*)source;
+	solid_pattern = reinterpret_cast<const cairo_solid_pattern_t *>(source);
 	color = RGB(((int)solid_pattern->color.red_short) >> 8, ((int)solid_pattern->color.green_short) >> 8, ((int)solid_pattern->color.blue_short) >> 8);
 	cairo_win32_scaled_font_get_device_to_logical(scaled_font, &device_to_logical);
 	SaveDC(dst->dc);
@@ -214,8 +214,8 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t 
 	SetTextAlign(dst->dc, TA_BASELINE | TA_LEFT);
 	SetBkMode(dst->dc, TRANSPARENT);
 	if(num_glyphs > STACK_GLYPH_SIZE) {
-		glyph_buf = (WORD*)_cairo_malloc_ab(num_glyphs, sizeof(WORD));
-		dxy_buf = (int *)_cairo_malloc_abc(num_glyphs, sizeof(int), 2);
+		glyph_buf = static_cast<WORD *>(_cairo_malloc_ab(num_glyphs, sizeof(WORD)));
+		dxy_buf = static_cast<int *>(_cairo_malloc_abc(num_glyphs, sizeof(int), 2));
 	}
 	/* It is vital that dx values for dxy_buf are calculated from the delta of
 	 * _logical_ x coordinates (not user x coordinates) or else the sum of all

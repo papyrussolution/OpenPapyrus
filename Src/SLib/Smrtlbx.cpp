@@ -53,19 +53,11 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 				CALLPTRMEMB(p_view, OnDestroy(hWnd));
 				return 0;
 			case WM_KEYDOWN:
-			case WM_SYSKEYDOWN:
-				::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
-				return 0;
+			case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); return 0;
 			case WM_SETFOCUS:
-			case WM_KILLFOCUS:
-				::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
-				break;
-			case WM_CHAR:
-				::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
-				return 0;
-			case WM_MOUSEWHEEL:
-				::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
-				return 0;
+			case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+			case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
+			case WM_MOUSEWHEEL: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
 				/*
 				{
 					short delta = (short)HIWORD(wParam);
@@ -75,9 +67,7 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 				}
 				return 0;
 				*/
-			case WM_RBUTTONDOWN:
-				::SendMessage(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam);
-				return 0;
+			case WM_RBUTTONDOWN: ::SendMessage(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam); return 0;
 			case WM_ERASEBKGND:
 				if(p_view->HasState(SmartListBox::stOwnerDraw)) {
 					TDrawItemData di;
@@ -158,22 +148,12 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			CALLPTRMEMB(p_view, OnDestroy(hWnd));
 			return 0;
 		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN:
-			::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
-			break; // Process by default
+		case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
 		case WM_SETFOCUS:
-		case WM_KILLFOCUS:
-			::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
-			break;
-		case WM_CHAR:
-			::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
-			return 0;
-		case WM_LBUTTONDOWN:
-			::PostMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_SELCHANGE), reinterpret_cast<LPARAM>(hWnd));
-			break;
-		case WM_LBUTTONDBLCLK:
-			::SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_DBLCLK), reinterpret_cast<LPARAM>(hWnd));
-			return 0;
+		case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
+		case WM_LBUTTONDOWN: ::PostMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_SELCHANGE), reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_LBUTTONDBLCLK: ::SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_DBLCLK), reinterpret_cast<LPARAM>(hWnd)); return 0;
 		case WM_RBUTTONDOWN:
 			CALLPTRMEMB(p_view, handleWindowsMessage(uMsg, wParam, lParam));
 			// SendMessage(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam);
@@ -821,34 +801,32 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				search(0, srchFirst);
 			else if(wParam == kbCtrlG)
 				search(0, srchNext);
-			else if(!(State & stOmitSearchByFirstChar)) {
-				char b[2];
-				b[0] = static_cast<char>(wParam);
-				b[1] = 0;
-				SCharToOem(b);
-				uchar ub = b[0];
-				if(isalnum(ub) || IsLetter866(ub) || ub == '*')
-					search(b, srchFirst);
-				else
-					return 0;
-			}
-			// @v10.0.12 {
 			else {
+				char ac = SSystem::TranslateWmCharToAnsi(wParam);
 				char b[2];
-				b[0] = static_cast<char>(wParam);
+				b[0] = ac;//static_cast<char>(wParam);
 				b[1] = 0;
 				SCharToOem(b);
 				uchar ub = b[0];
-				if(isalnum(ub) || IsLetter866(ub))
-					return 0;
+				if(!(State & stOmitSearchByFirstChar)) {
+					if(isalnum(ub) || IsLetter866(ub) || ub == '*')
+						search(b, srchFirst);
+					else
+						return 0;
+				}
+				// @v10.0.12 {
+				else {
+					if(isalnum(ub) || IsLetter866(ub))
+						return 0;
+					else
+						return 1;
+				}
+				// } @v10.0.12
+				/* @v10.0.12
 				else
-					return 1;
+					return 1; // @v9.8.12 0-->1
+				*/
 			}
-			// } @v10.0.12
-			/* @v10.0.12
-			else
-				return 1; // @v9.8.12 0-->1
-			*/
 			break;
 		case WM_MOUSEWHEEL:
 			{
@@ -1626,18 +1604,15 @@ WordSelectorSmartListBox::WordSelectorSmartListBox(const TRect & bounds, ListBox
 int WordSelectorSmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg) {
-		case WM_INITDIALOG:
-			onInitDialog(0);
-			return 1;
-		case WM_CHAR:
-			return 0;
+		case WM_INITDIALOG: onInitDialog(0); return 1;
+		case WM_CHAR: return 0;
 		case WM_MOUSEWHEEL:
 		case WM_VSCROLL:
 		case WM_VKEYTOITEM:
 			{
 				short code = -1;
 				if(uMsg == WM_MOUSEWHEEL) {
-					short delta = (short)HIWORD(wParam);
+					short delta = static_cast<short>(HIWORD(wParam));
 					code = (delta > 0) ? SB_LINEUP : SB_LINEDOWN;
 				}
 				else if(uMsg == WM_VKEYTOITEM) {
@@ -1651,7 +1626,7 @@ int WordSelectorSmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPA
 					code  = LOWORD(wParam); // @v10.3.2 (short code)-->code
 				if(def->_curItem() == 0 && oneof3(code, SB_LINEUP, SB_PAGEUP, SB_TOP)) {
 					HWND parent = GetParent(getHandle());
-					WordSelector * p_selector = (WordSelector *)TView::GetWindowUserData(parent);
+					WordSelector * p_selector = static_cast<WordSelector *>(TView::GetWindowUserData(parent));
 					TView::messageCommand(p_selector, cmUp);
 				}
 			}

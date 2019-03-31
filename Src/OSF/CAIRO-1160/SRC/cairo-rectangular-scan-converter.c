@@ -124,13 +124,13 @@ static cairo_bool_t pqueue_grow(pqueue_t * pq)
 	rectangle_t ** new_elements;
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
-		new_elements = (rectangle_t **)_cairo_malloc_ab(pq->max_size, sizeof(rectangle_t *));
+		new_elements = static_cast<rectangle_t **>(_cairo_malloc_ab(pq->max_size, sizeof(rectangle_t *)));
 		if(unlikely(new_elements == NULL))
 			return FALSE;
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
-		new_elements = (rectangle_t **)_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(rectangle_t *));
+		new_elements = static_cast<rectangle_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(rectangle_t *)));
 		if(unlikely(new_elements == NULL))
 			return FALSE;
 	}
@@ -309,9 +309,7 @@ static inline void _active_edges_to_spans(sweep_line_t * sweep)
 
 		i = _cairo_fixed_integer_part(rectangle->left),
 		frac = _cairo_fixed_fractional_part(rectangle->left);
-		add_cell(sweep, i,
-		    (CAIRO_FIXED_ONE-frac) * height,
-		    frac * height);
+		add_cell(sweep, i, (CAIRO_FIXED_ONE-frac) * height, frac * height);
 
 		i = _cairo_fixed_integer_part(rectangle->right),
 		frac = _cairo_fixed_fractional_part(rectangle->right);
@@ -323,7 +321,7 @@ static inline void _active_edges_to_spans(sweep_line_t * sweep)
 			size <<= 1;
 		if(sweep->spans != sweep->spans_stack)
 			SAlloc::F(sweep->spans);
-		sweep->spans = (cairo_half_open_span_t *)_cairo_malloc_ab(size, sizeof(cairo_half_open_span_t));
+		sweep->spans = static_cast<cairo_half_open_span_t *>(_cairo_malloc_ab(size, sizeof(cairo_half_open_span_t)));
 		if(unlikely(sweep->spans == NULL))
 			longjmp(sweep->jmpbuf, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		sweep->size_spans = size;
@@ -598,22 +596,19 @@ static cairo_status_t _cairo_rectangular_scan_converter_generate(void * converte
 	cairo_status_t status;
 	int i, j;
 	if(unlikely(self->num_rectangles == 0)) {
-		return renderer->render_rows(renderer, _cairo_fixed_integer_part(self->extents.p1.y),
-			   _cairo_fixed_integer_part(self->extents.p2.y - self->extents.p1.y),
-			   NULL, 0);
+		return renderer->render_rows(renderer, _cairo_fixed_integer_part(self->extents.p1.y), _cairo_fixed_integer_part(self->extents.p2.y - self->extents.p1.y), NULL, 0);
 	}
-
 	if(self->num_rectangles == 1)
 		return generate_box(self, renderer);
 	rectangles = rectangles_stack;
 	if(unlikely(self->num_rectangles >= ARRAY_LENGTH(rectangles_stack))) {
-		rectangles = (rectangle_t **)_cairo_malloc_ab(self->num_rectangles + 1, sizeof(rectangle_t *));
+		rectangles = static_cast<rectangle_t **>(_cairo_malloc_ab(self->num_rectangles + 1, sizeof(rectangle_t *)));
 		if(unlikely(rectangles == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	j = 0;
 	for(chunk = &self->chunks; chunk != NULL; chunk = chunk->next) {
-		rectangle_t * rectangle = (rectangle_t *)chunk->base;
+		rectangle_t * rectangle = static_cast<rectangle_t *>(chunk->base);
 		for(i = 0; i < chunk->count; i++)
 			rectangles[j++] = &rectangle[i];
 	}
@@ -630,8 +625,7 @@ static rectangle_t * _allocate_rectangle(cairo_rectangular_scan_converter_t * se
 	struct _cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk * chunk = self->tail;
 	if(chunk->count == chunk->size) {
 		int size = chunk->size * 2;
-		chunk->next = (_cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk *)_cairo_malloc_ab_plus_c(
-			size, sizeof(rectangle_t), sizeof(struct _cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk));
+		chunk->next = static_cast<_cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk *>(_cairo_malloc_ab_plus_c(size, sizeof(rectangle_t), sizeof(struct _cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk)));
 		if(unlikely(chunk->next == NULL))
 			return NULL;
 		chunk = chunk->next;
@@ -642,7 +636,7 @@ static rectangle_t * _allocate_rectangle(cairo_rectangular_scan_converter_t * se
 		self->tail = chunk;
 	}
 	{
-		rectangle_t * rectangle = (rectangle_t *)chunk->base;
+		rectangle_t * rectangle = static_cast<rectangle_t *>(chunk->base);
 		return (rectangle + chunk->count++);
 	}
 }

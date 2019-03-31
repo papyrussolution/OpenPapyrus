@@ -958,7 +958,7 @@ static cairo_int_status_t _cairo_surface_observer_glyphs(void * abstract_surface
 	_cairo_composite_rectangles_fini(&composite);
 	/* XXX We have to copy the glyphs, because the backend is allowed to
 	 * modify! */
-	dev_glyphs = (cairo_glyph_t *)_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t));
+	dev_glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t)));
 	if(unlikely(dev_glyphs == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	memcpy(dev_glyphs, glyphs, num_glyphs * sizeof(cairo_glyph_t));
