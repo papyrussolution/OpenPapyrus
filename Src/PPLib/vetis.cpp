@@ -2881,7 +2881,6 @@ public:
 	};
 
 	static int SLAPI SetupParam(Param & rP);
-
 	explicit SLAPI PPVetisInterface(PPLogger * pLogger);
 	SLAPI ~PPVetisInterface();
 	int    SLAPI Init(const Param & rP);
@@ -7826,12 +7825,8 @@ private:
 static int FASTCALL SetupSurveyPeriod(const VetisDocumentTbl::Rec & rRec, DateRange & rPeriod)
 {
 	int    ok = 1;
-	int    delay_days = 0;
 	PPAlbatrosConfig acfg;
-	if(DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0)
-		delay_days = acfg.Hdr.VetisCertDelay;
-	else
-		delay_days = 3;
+	const  int delay_days = (DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0) ? acfg.Hdr.VetisCertDelay : 3;
 	if(checkdate(rRec.WayBillDate)) {
 		rPeriod.Set(rRec.WayBillDate, plusdate(rRec.WayBillDate, delay_days));
 	}
@@ -7958,6 +7953,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 					}
 					else
 						PPError(); // @v10.3.11
+					p_bobj->Unlock(bill_id); // @v10.3.12
 				}
 				else {
 					if(rRec.LinkFromPsnID) {
@@ -8192,7 +8188,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 								bill_view.SetOuterTitle(brw_title);
 							}
 							if(bill_view.Browse(0) > 0) {
-								bill_id = ((BillFilt*)bill_view.GetBaseFilt())->Sel;
+								bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 								ok = EC.MatchDocument(rRec.EntityID, bill_id, 0, 0/*fromBill*/, 1);
 								if(!ok)
 									PPError();

@@ -1691,7 +1691,8 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					Sdr_SupplBillLine line_rec = items_list.at(i);
 					THROW(soap_e.AppendRecT(PPREC_SUPPLBILLLINE, &line_rec, sizeof(line_rec), is_first_item, 1, 0/*pSchemeName*/));
 					is_first_item = 0;
-					log_msg.Z().Cat("code=[").Cat(line_rec.DocumentNumber).Cat("]").Space().Space().Space().Cat("order=[").Cat(line_rec.CRMOrderNumber).Cat("]");
+					log_msg.Z().Cat("code=[").Cat((temp_buf = line_rec.DocumentNumber).Transf(CTRANSF_OUTER_TO_INNER)).Cat("]").
+						Space().Space().Space().Cat("order=[").Cat(line_rec.CRMOrderNumber).Cat("]");
 					rLogger.Log(log_msg);
 					if(add_link_op) {
 						STRNSCPY(line_rec.DocumentTypeId, add_link_op_str);
@@ -1706,10 +1707,13 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					}
 				}
 				// @v10.3.11 {
-				for(uint promoidx = 0; promoidx < promo_item_list.getCount(); promoidx++) {
-					Sdr_BaltikaBillPricePromo promo_item_rec = promo_item_list.at(promoidx);
-					THROW(soap_e.AppendRecT(PPREC_BALTIKABILLPRICEPROMO, &promo_item_rec, sizeof(promo_item_rec), is_first_promo, 1, 0/*pSchemeName*/));
-					is_first_promo = 0;
+				if(promo_item_list.getCount()) {
+					for(uint promoidx = 0; promoidx < promo_item_list.getCount(); promoidx++) {
+						Sdr_BaltikaBillPricePromo promo_item_rec = promo_item_list.at(promoidx);
+						THROW(soap_e.AppendRecT(PPREC_BALTIKABILLPRICEPROMO, &promo_item_rec, sizeof(promo_item_rec), is_first_promo, 1, 0/*pSchemeName*/));
+						is_first_promo = 0;
+					}
+					soap_e.EndRecBlock();
 				}
 				// } @v10.3.11 
 			}

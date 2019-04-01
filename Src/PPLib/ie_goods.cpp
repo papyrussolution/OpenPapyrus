@@ -2116,7 +2116,6 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 	int    ok = 1, r = 0, codetohex = 0, matrix_action = -1;
 	int    err_barcode = 0;
 	PPID   warehouse_id = 0;
-	LAssoc subcode;
 	IterCounter cntr;
 	SString file_name, wait_msg, temp_buf2, err_msg_buf, fmt_buf, msg_buf;
 	SString ini_file_name;
@@ -2133,7 +2132,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 	PPID   suppl_acs_id = GetSupplAccSheet();
 	PPID   suppl_srch_reg_id = 0;
 	PPObjArticle::GetSearchingRegTypeID(suppl_acs_id, 0, 1, &suppl_srch_reg_id);
-	subcode.Key = subcode.Val = 0;
+	LAssoc subcode;
 	{
 		warehouse_id = Param.LocID;
 		matrix_action = Param.MatrixAction;

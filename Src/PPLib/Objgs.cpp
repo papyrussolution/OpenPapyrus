@@ -1472,7 +1472,7 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 				setupPrice();
 			else if(event.isClusterClk(CTL_GSITEM_GROUPONLY)) {
 				SETFLAG(P_Data->Flags, GSIF_GOODSGROUP, getCtrlUInt16(CTL_GSITEM_GROUPONLY));
-				GoodsCtrlGroup * p_grp = (GoodsCtrlGroup *)getGroup(GRP_GOODS);
+				GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(GRP_GOODS));
 				CALLPTRMEMB(p_grp, setFlag(this, GoodsCtrlGroup::disableEmptyGoods, BIN(!(P_Data->Flags & GSIF_GOODSGROUP))));
 			}
 			else if(event.isCmd(cmGSItemLots)) {

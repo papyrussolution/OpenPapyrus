@@ -19,7 +19,7 @@ IMPL_CMPFUNC(int,   i1, i2)       { return COMPARE(*static_cast<const int *>(i1)
 IMPL_CMPFUNC(int16, i1, i2)       { return COMPARE(*static_cast<const int16 *>(i1), *static_cast<const int16 *>(i2)); }
 IMPL_CMPFUNC(long,  i1, i2)       { return COMPARE(*static_cast<const long *>(i1), *static_cast<const long *>(i2)); }
 IMPL_CMPFUNC(int64, i1, i2)       { return COMPARE(*static_cast<const int64 *>(i1), *static_cast<const int64 *>(i2)); }
-IMPL_CMPFUNC(uint,  i1, i2)       { return COMPARE(*(const uint *)i1, *static_cast<const uint *>(i2)); }
+IMPL_CMPFUNC(uint,  i1, i2)       { return COMPARE(*static_cast<const uint *>(i1), *static_cast<const uint *>(i2)); }
 IMPL_CMPFUNC(double, i1, i2)      { return COMPARE(*static_cast<const double *>(i1), *static_cast<const double *>(i2)); }
 IMPL_CMPFUNC(LDATE, d1, d2)       { return COMPARE(static_cast<const LDATE *>(d1)->v, static_cast<const LDATE *>(d2)->v); }
 IMPL_CMPFUNC(LDATETIME, d1, d2)   { return cmp(*static_cast<const LDATETIME *>(d1), *static_cast<const LDATETIME *>(d2)); }
@@ -223,7 +223,7 @@ uint64 SLAPI SProfile::Helper_GetAbsTimeMicroseconds()
 	//
 	int64  msec1 = (sec * 1000 + (clock_cycles - sec * ClockFrequency) * 1000 / ClockFrequency);
 	SETMIN(Gtb.StartTick, tick_count);
-	int64  msec2 = (int64)(tick_count - Gtb.StartTick);
+	int64  msec2 = static_cast<int64>(tick_count - Gtb.StartTick);
 	int64  msec_diff = msec1 - msec2;
 	if(msec_diff > -100 && msec_diff < 100) {
 		// Adjust the starting time forwards.
@@ -267,7 +267,7 @@ SLAPI SProfile::SProfile(int singleThreaded) : SingleThreaded(BIN(singleThreaded
 	ClockFrequency = cf.QuadPart;
 	QueryPerformanceCounter(&cf);
 	Gtb.PrevHrc   = 0;
-	Gtb.StartHrc  = (int64)cf.QuadPart;
+	Gtb.StartHrc  = static_cast<int64>(cf.QuadPart);
 	Gtb.StartTick = GetTickCount();
 }
 

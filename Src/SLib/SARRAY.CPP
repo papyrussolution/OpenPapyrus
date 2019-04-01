@@ -1259,6 +1259,18 @@ int FASTCALL SCollection::Helper_CreateNewItem(void * pNewItem)
 //
 //
 //
+SLAPI LAssoc::LAssoc() : Key(0), Val(0)
+{
+}
+
+SLAPI LAssoc::LAssoc(int32 key, int32 val) : Key(key), Val(val)
+{
+}
+
+SLAPI LAssoc::LAssoc(const LAssoc & rS) : Key(rS.Key), Val(rS.Val)
+{
+}
+
 int FASTCALL LAssoc::operator == (const LAssoc & s) const
 {
 	return BIN(Key == s.Key && Val == s.Val);
@@ -1339,9 +1351,7 @@ int SLAPI LAssocArray::Add(long key, long val, uint * pPos, int inOrder)
 {
 	int    ok = 1;
 	uint   pos = 0;
-	LAssoc item;
-	item.Key = key;
-	item.Val = val;
+	LAssoc item(key, val);
 	if(inOrder)
 		ok = BIN(ordInsert(&item, &pos, CMPF_LONG));
 	else {
@@ -1418,9 +1428,7 @@ int SLAPI LAssocArray::SearchByVal(long val, long * pKey, uint * pPos) const
 
 int SLAPI LAssocArray::SearchPair(long key, long val, uint * pPos) const
 {
-	LAssoc k;
-	k.Key = key;
-	k.Val = val;
+	LAssoc k(key, val);
 	return lsearch(&k, pPos, PTR_CMPFUNC(_2long));
 }
 
@@ -2195,8 +2203,7 @@ int SLAPI StrAssocArray::GetListByParent(long parentId, int recursive, LongArray
 
 int SLAPI StrAssocArray::AddFast(long id, const char * pStr)
 {
-	LAssoc assc;
-	assc.Key = id;
+	LAssoc assc(id, 0);
 	if(!isempty(pStr)) {
 		uint   str_pos = 0;
 		AddS(pStr, &str_pos);
@@ -2209,8 +2216,7 @@ int SLAPI StrAssocArray::AddFast(long id, const char * pStr)
 
 int SLAPI StrAssocArray::AddFast(long id, long parentId, const char * pStr)
 {
-	LAssoc assc;
-	assc.Key = id;
+	LAssoc assc(id, 0);
 	if(!isempty(pStr)) {
 		uint   str_pos = 0;
 		AddS(pStr, &str_pos);
@@ -2240,8 +2246,7 @@ int SLAPI StrAssocArray::Add(long id, const char * pStr, int replaceDup)
 			ok = 2;
 		}
 		else if(replaceDup < 0) {
-			LAssoc assc;
-			assc.Key = id;
+			LAssoc assc(id, 0);
 			if(!isempty(pStr)) {
 				AddS(pStr, &str_pos);
 				assc.Val = str_pos;
@@ -2254,8 +2259,7 @@ int SLAPI StrAssocArray::Add(long id, const char * pStr, int replaceDup)
 			ok = -1;
 	}
 	else {
-		LAssoc assc;
-		assc.Key = id;
+		LAssoc assc(id, 0);
 		if(!isempty(pStr)) {
 			AddS(pStr, &str_pos);
 			assc.Val = str_pos;
@@ -2287,8 +2291,7 @@ int SLAPI StrAssocArray::Add(long id, long parentId, const char * pStr, int repl
 			ok = 2;
 		}
 		else if(replaceDup < 0) {
-			LAssoc assc;
-			assc.Key = id;
+			LAssoc assc(id, 0);
 			if(!isempty(pStr)) {
 				AddS(pStr, &str_pos);
 				assc.Val = str_pos;
@@ -2302,8 +2305,7 @@ int SLAPI StrAssocArray::Add(long id, long parentId, const char * pStr, int repl
 			ok = -1;
 	}
 	else {
-		LAssoc assc;
-		assc.Key = id;
+		LAssoc assc(id, 0);
 		if(!isempty(pStr)) {
 			AddS(pStr, &str_pos);
 			assc.Val = str_pos;
@@ -2915,9 +2917,7 @@ int SLAPI StrStrAssocArray::Add(const char * pKey, const char * pVal, int replac
 		uint   val_pos = 0;
 		AddS(pKey, &key_pos);
 		AddS(pVal, &val_pos);
-		LAssoc item;
-		item.Key = static_cast<long>(key_pos);
-		item.Val = static_cast<long>(val_pos);
+		LAssoc item(static_cast<long>(key_pos), static_cast<long>(val_pos));
 		L.insert(&item);
 	}
 	return ok;
@@ -3116,17 +3116,8 @@ void   SLAPI LongArray::sort() { SVector::sort(CMPF_LONG); }
 //
 // @todo Ускорить функцию, закладываясь на особенности массива LongArray
 //
-int FASTCALL LongArray::lsearch(long k, uint * pIdx) const
-{
-	//return SArray::lsearch(&k, pIdx, CMPF_LONG);
-	return SVector::lsearch(&k, pIdx, CMPF_LONG);
-}
-
-int FASTCALL LongArray::lsearch(long k) const
-{
-	//return SArray::lsearch(&k, 0, CMPF_LONG);
-	return SVector::lsearch(&k, 0, CMPF_LONG);
-}
+int FASTCALL LongArray::lsearch(long k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, CMPF_LONG); }
+int FASTCALL LongArray::lsearch(long k) const { return SVector::lsearch(&k, 0, CMPF_LONG); }
 
 int FASTCALL LongArray::setSingleNZ(long id)
 {
@@ -3346,11 +3337,10 @@ SLAPI FloatStack::FloatStack() : TSStack <float>(/*4*/)
 {
 }
 
-int SLAPI FloatStack::pushPoint(FPoint p)
+void SLAPI FloatStack::pushPoint(FPoint p)
 {
 	push(p.Y);
 	push(p.X);
-	return 1;
 }
 
 int SLAPI FloatStack::popPoint(FPoint & rP)
@@ -3523,13 +3513,25 @@ int SLAPI STimeChunkArray::Limit(const STimeChunk * pPeriod)
 
 int SLAPI STimeChunkArray::IsFreeEntry(const STimeChunk & rEntry, uint * pPos) const
 {
-	STimeChunk result, * p_item;
+	STimeChunk result;
+	// @v10.3.12 {
+	for(uint i = 0; i < getCount(); i++) {
+		const STimeChunk * p_item = static_cast<const STimeChunk *>(at(i));
+		if(p_item->Intersect(rEntry, &result) && cmp(result.Start, result.Finish) != 0) {
+			ASSIGN_PTR(pPos, i);
+			return 0;
+		}
+	}
+	// } @v10.3.12 
+	/* @v10.3.12
+	STimeChunk * p_item;
 	for(uint i = 0; enumItems(&i, (void **)&p_item);) {
 		if(p_item->Intersect(rEntry, &result) && cmp(result.Start, result.Finish) != 0) {
 			ASSIGN_PTR(pPos, i-1);
 			return 0;
 		}
 	}
+	*/
 	return 1;
 }
 

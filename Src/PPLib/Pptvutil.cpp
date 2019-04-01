@@ -1414,7 +1414,8 @@ int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 			SString symbol, drv_name;
 			int    drv_impl = 0;
 			if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
-				rBuf = drv_name.Transf(CTRANSF_OUTER_TO_INNER);
+				// @v10.3.12 rBuf = drv_name.Transf(CTRANSF_OUTER_TO_INNER);
+				rBuf = drv_name; // @v10.3.12
 				ok = 1;
 			}
 		}

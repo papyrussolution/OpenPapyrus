@@ -1011,7 +1011,7 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 				break;
 			case SB_LINEDOWN:
 				if(St.QBounds > 32000)
-					delta = (int)(St.QBounds / 32000);
+					delta = static_cast<int>(St.QBounds / 32000U);
 				else {
 					for(delta = 1; St.ScrollX < (St.QBounds-delta-1) && !IsQuantVisible(St.ScrollX+delta);)
 						delta++;
@@ -1024,9 +1024,9 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 			case SB_THUMBPOSITION:
 			case SB_THUMBTRACK:
 				if(St.QBounds > 32000)
-					St.ScrollX = (int)(thumbPos * St.QBounds / 32000);
+					St.ScrollX = static_cast<int>(thumbPos * St.QBounds / 32000U);
 				else if(GetCollapseList_()) {
-					long delta = (long)thumbPos - (long)St.ScrollX;
+					long delta = thumbPos - static_cast<long>(St.ScrollX);
 					if(delta > 0) {
 						while(St.ScrollX < (St.QBounds-delta-1) && !IsQuantVisible(St.ScrollX+delta)) {
 							delta++;
@@ -1034,7 +1034,7 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 					}
 					else if(delta < 0) {
 						delta = -delta;
-						while((int)St.ScrollX > delta && !IsQuantVisible(St.ScrollX-delta))
+						while(static_cast<long>(St.ScrollX) > delta && !IsQuantVisible(St.ScrollX-delta))
 							delta++;
 						delta = -delta;
 					}
@@ -1154,7 +1154,7 @@ int STimeChunkBrowser::ProcessDblClk(TPoint p)
 				long   row_idx = -1;
 				for(uint i = 0; i < P_Data->getCount(); i++) {
 					if(P_Data->at(i)->Id == loc.RowId) {
-						row_idx = (long)i;
+						row_idx = static_cast<long>(i);
 						break;
 					}
 				}
@@ -2370,7 +2370,7 @@ int STimeChunkBrowser::CopyToClipboard()
 						if(P_Data->GetChunksByTime(range, chunk_list) > 0) {
 							cell_buf.Z();
 							for(uint i = 0; i < chunk_list.getCount(); i++) {
-								const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
+								const STimeChunkAssoc * p_chunk = static_cast<const STimeChunkAssoc *>(chunk_list.at(i));
 								GetChunkText(p_chunk->Id, temp_buf);
 								if(cell_buf.NotEmpty())
 									cell_buf.CR();
@@ -2415,7 +2415,7 @@ void STimeChunkBrowser::Paint()
 		GetClientRect(H(), &cr);
 		h_dc_mem = CreateCompatibleDC(ps.hdc);
 		h_bmp = CreateCompatibleBitmap(ps.hdc, cr.right - cr.left, cr.bottom - cr.top);
-		h_old_bmp = (HBITMAP)SelectObject(h_dc_mem, h_bmp);
+		h_old_bmp = static_cast<HBITMAP>(::SelectObject(h_dc_mem, h_bmp));
 		h_dc = h_dc_mem;
 	}
 	TCanvas canv(h_dc);

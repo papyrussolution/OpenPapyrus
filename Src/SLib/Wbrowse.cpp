@@ -2568,7 +2568,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 		case WM_CHAR:
 			if(p_view) {
 				char kb_scan_code = LOBYTE(HIWORD(lParam));
-				if(wParam != VK_RETURN /*||*/&& wParam != VK_ESCAPE/*kb_scan_code != 0x1c*/) {
+				if(wParam != VK_RETURN || kb_scan_code != 0x1c) {
 					char ac = SSystem::TranslateWmCharToAnsi(wParam);
 					e.what = TEvent::evKeyDown;
 					e.keyDown.keyCode = ac/*wParam*/;

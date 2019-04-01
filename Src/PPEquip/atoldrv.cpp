@@ -195,7 +195,7 @@ private:
 			QueryDataProc(0), GetParamIntProc(0), GetParamDoubleProc(0), GetParamBoolProc(0), GetParamStrProc(0), GetParamDateTimeProc(0),
 			GetParamByteArrayProc(0), GetSingleSettingProc(0), SetSingleSettingProc(0), ApplySingleSettingsProc(0), OpenDrawerProc(0),
 			OperatorLoginProc(0), OpenReceiptProc(0), CancelReceiptProc(0), RegistrationProc(0), CloseReceiptProc(0), PrintBarcodeProc(0),
-			ReportProc(0), CheckDocumentClosedProc(0)
+			ReportProc(0), CheckDocumentClosedProc(0), CashIncomeProc(0), CashOutcomeProc(0)
 		{
 			SString dll_path;
 			PPGetFilePath(PPPATH_BIN, "fptr10.dll", dll_path);
@@ -223,6 +223,8 @@ private:
 			THROW_SL(ReportProc              = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_report")));
 			THROW_SL(CheckDocumentClosedProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_check_document_closed")));
 			THROW_SL(GetErrorCodeProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_error_code")));
+			THROW_SL(CashIncomeProc          = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cash_income")));
+			THROW_SL(CashOutcomeProc         = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cash_outcome")));
 			THROW_SL(GetSingleSettingProc    = reinterpret_cast<int (* cdecl)(void *, const wchar_t *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_single_setting")));
 			THROW_SL(SetSingleSettingProc    = reinterpret_cast<int (* cdecl)(void *, const wchar_t *, const wchar_t *)>(Lib.GetProcAddr("libfptr_set_single_setting")));
 			THROW_SL(GetErrorDescrProc     = reinterpret_cast<int (* cdecl)(void *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_error_description")));
@@ -298,6 +300,8 @@ private:
 		int    (* cdecl PrintBarcodeProc)(void *);
 		int    (* cdecl ReportProc)(void *);
 		int    (* cdecl CheckDocumentClosedProc)(void *);
+		int    (* cdecl CashIncomeProc)(void *);
+		int    (* cdecl CashOutcomeProc)(void *);
 
 		SString AccessPassword;
 		SString UserPassword;
@@ -332,9 +336,13 @@ private:
 			temp_buf.Z().Cat(LIBFPTR_PORT_COM);
 			temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_PORT, temp_buf_u);
-			temp_buf.Z().Cat(Port);
-			temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
-			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_COM_FILE, temp_buf_u);
+			{
+				temp_buf.Z().Cat(Port);
+				if(temp_buf.IsDigit())
+					temp_buf.Z().Cat("COM").Cat(Port);
+				temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+				P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_COM_FILE, temp_buf_u);
+			}
 			P_Fptr10->ApplySingleSettingsProc(h);
 			THROW(P_Fptr10->OpenProc(h) == 0);
 			ok = 1;
@@ -407,9 +415,16 @@ private:
 			//libfptr_set_param_int(fptr, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_REVENUE);
 			//libfptr_query_data(fptr);
 			//double revenue = libfptr_get_param_double(fptr, LIBFPTR_PARAM_SUM);
+			/* @v10.3.12 
 			P_Fptr10->SetParamIntProc(h, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_REVENUE);
 			P_Fptr10->QueryDataProc(h);
 			rBlk.Summator = P_Fptr10->GetParamDoubleProc(h, LIBFPTR_PARAM_SUM);
+			*/
+			// @v10.3.12 {
+			P_Fptr10->SetParamIntProc(h, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_CASH_SUM);
+			P_Fptr10->QueryDataProc(h);
+			rBlk.Summator = P_Fptr10->GetParamDoubleProc(h, LIBFPTR_PARAM_SUM);
+			// } @v10.3.12 
 			ok = 1;
 		}
 		else if(P_Disp) {
@@ -723,20 +738,14 @@ SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 					for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
 						switch(p_cur->Type) {
-							case json_t::tARRAY:
-								p_next = p_cur->P_Child;
-								break;
-							case json_t::tOBJECT:
-								p_next = p_cur->P_Child;
-								break;
+							case json_t::tARRAY: p_next = p_cur->P_Child; break;
+							case json_t::tOBJECT: p_next = p_cur->P_Child; break;
 							case json_t::tSTRING:
 								if(p_cur->P_Child) {
-									if(sstreqi_ascii(p_cur->Text, "AccessPassword")) {
+									if(sstreqi_ascii(p_cur->Text, "AccessPassword"))
 										P_Fptr10->AccessPassword = (temp_buf = p_cur->P_Child->Text).Unescape();
-									}
-									else if(sstreqi_ascii(p_cur->Text, "UserPassword")) {
+									else if(sstreqi_ascii(p_cur->Text, "UserPassword"))
 										P_Fptr10->UserPassword = (temp_buf = p_cur->P_Child->Text).Unescape();
-									}
 								}
 								break;
 						}
@@ -1850,6 +1859,13 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 	THROW(Connect(&stb));
 	THROW(AllowPrintOper_Fptr10());
 	if(P_Fptr10) {
+		P_Fptr10->SetParamDoubleProc(P_Fptr10->Handler, LIBFPTR_PARAM_SUM, R2(fabs(sum)));
+		if(isIncome) {
+			THROW(P_Fptr10->CashIncomeProc(P_Fptr10->Handler) == 0);
+		}
+		else {
+			THROW(P_Fptr10->CashOutcomeProc(P_Fptr10->Handler) == 0);
+		}
 	}
 	else if(P_Disp) {
 		THROW(SetProp(Mode, MODE_REGISTER));

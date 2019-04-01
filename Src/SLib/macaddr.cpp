@@ -266,7 +266,7 @@ int SLAPI GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr)
 								sin.sin_port             = htons(0);
 								sin.sin_addr.S_un.S_addr = inet_addr(ip);
 								memzero(host, sizeof(host));
-								getnameinfo((sockaddr*)&sin, sizeof(sin), host, sizeof(host), 0, 0, 0);
+								getnameinfo((sockaddr *)&sin, sizeof(sin), host, sizeof(host), 0, 0, 0);
 
 								// HOSTENT * p_hent = gethostbyaddr(ip, strlen(ip), AF_INET);
 								// if(p_hent)

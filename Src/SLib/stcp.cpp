@@ -142,7 +142,7 @@ sockaddr * SLAPI InetAddr::Get(sockaddr_in * pAddr) const
 	addr.sin_port   = htons((ushort)Port);
 	addr.sin_addr.s_addr = V4;
 	ASSIGN_PTR(pAddr, addr);
-	return (sockaddr *)pAddr;
+	return reinterpret_cast<sockaddr *>(pAddr);
 }
 
 int SLAPI InetAddr::Set(ulong addr, int port)
@@ -164,7 +164,7 @@ int SLAPI InetAddr::GetNameByAddr(const char * pIP, SString & aHost)
 		sin.sin_port             = htons(0);
 		sin.sin_addr.S_un.S_addr = inet_addr(ip);
 		memzero(host, sizeof(host));
-		if(getnameinfo((sockaddr*)&sin, sizeof(sin), host, sizeof(host), 0, 0, 0) == 0) {
+		if(getnameinfo(reinterpret_cast<const sockaddr *>(&sin), sizeof(sin), host, sizeof(host), 0, 0, 0) == 0) {
 			aHost = host;
 			ok = 1;
 		}
@@ -493,7 +493,7 @@ int SLAPI TcpSocket::Accept(TcpSocket * pCliSock, InetAddr * pCliAdr)
 	int    ok = 1;
 	struct sockaddr_in cli_addr;
 	int    addr_size = sizeof(cli_addr);
-	SOCKET cli_sock = ::accept(S, pCliAdr ? (sockaddr *)&cli_addr : 0, pCliAdr ? &addr_size : 0);
+	SOCKET cli_sock = ::accept(S, pCliAdr ? reinterpret_cast<sockaddr *>(&cli_addr) : 0, pCliAdr ? &addr_size : 0);
 	if(cli_sock != INVALID_SOCKET) {
 		pCliSock->Init(cli_sock);
 		if(pCliAdr)

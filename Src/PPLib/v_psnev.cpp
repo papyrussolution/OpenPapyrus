@@ -19,9 +19,7 @@ SLAPI AverageEventTimePrcssr::AverageEventTimePrcssr()
 int SLAPI AverageEventTimePrcssr::Add(long id1, long id2, LDATE dt, LTIME tm)
 {
 	uint   pos = 0;
-	LAssoc srch_ids;
-	srch_ids.Key = id1;
-	srch_ids.Val = id2;
+	LAssoc srch_ids(id1, id2);
 	if(List.lsearch(&srch_ids, &pos, PTR_CMPFUNC(_2long)) > 0) {
 		Item & r_item = List.at(pos);
 		if(r_item.FirstEv.d >= dt && r_item.FirstEv.t >= tm)
@@ -99,15 +97,13 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetPeriodInput(this, CTL_PSNEVFLT_PERIOD, &Data.Period);
 			{
 				PersonOpCtrlGroup::Rec op_rec(&Data.PsnOpList, Data.PrmrID, Data.ScndID);
-				PersonOpCtrlGroup * p_grp = (PersonOpCtrlGroup*)getGroup(GRP_PSNOP);
+				PersonOpCtrlGroup * p_grp = static_cast<PersonOpCtrlGroup *>(getGroup(GRP_PSNOP));
 				CALLPTRMEMB(p_grp, setData(this, &op_rec));
 			}
 			SetupStringCombo(this, CTLSEL_PSNEVFLT_SUBST, PPTXT_SUBSTPSNEVLIST, Data.Sgpe);
 			SetupSubstDateCombo(this, CTLSEL_PSNEVFLT_SUBSTDT, Data.Sgd);
-			// @v7.9.12 {
 			AddClusterAssoc(CTL_PSNEVFLT_FLAGS, 0, Data.fWithoutPair);
 			SetClusterData(CTL_PSNEVFLT_FLAGS, Data.Flags);
-			// } @v7.9.12
 			return 1;
 		}
 		int    getDTS(PersonEventFilt * pData)
@@ -117,7 +113,7 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			getCtrlData(CTLSEL_PSNEVFLT_SCND, &Data.ScndID);
 			{
 				PersonOpCtrlGroup::Rec op_rec;
-				PersonOpCtrlGroup * p_grp = (PersonOpCtrlGroup*)getGroup(GRP_PSNOP);
+				PersonOpCtrlGroup * p_grp = static_cast<PersonOpCtrlGroup *>(getGroup(GRP_PSNOP));
 				CALLPTRMEMB(p_grp, getData(this, &op_rec));
 				Data.PsnOpList = op_rec.PsnOpList;
 				if(Data.PsnOpList.GetCount() == 0)

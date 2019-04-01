@@ -1016,11 +1016,8 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 	PPID   warehouse_id = 0;
 	int    matrix_action = -1;
 	LAssoc subcode;
-	subcode.Key = subcode.Val = 0;
-
 	PPLoadText(PPTXT_IMPGOODS, wait_msg);
 	THROW_PP(in_tbl.isOpened(), PPERR_DBFOPFAULT);
-
 	if(GetHierarchyFields(&ini_file, &in_tbl, sect, PPINIPARAM_HIERARCHY, &fldn_hier_objcode, &fldn_hier_parentcode) > 0)
 		is_hier = 1;
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODE,      &fldn_code);

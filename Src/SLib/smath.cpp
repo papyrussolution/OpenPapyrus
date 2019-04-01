@@ -583,7 +583,7 @@ long SLAPI SHistogram::Put(double val)
 		if(val < LeftEdge)
 			bin_no = -1;
 		else {
-			bin_no = ((long)((val - LeftEdge) / Step)) + 1;
+			bin_no = static_cast<long>((val - LeftEdge) / Step) + 1;
 			uint   pos = 0;
 			if(!BinList.Search(bin_no, 0, &pos, 0)) {
 				long   last_bin = c ? BinList.at(c-1).Key : 0;

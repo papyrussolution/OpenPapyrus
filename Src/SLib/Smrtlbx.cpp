@@ -192,7 +192,7 @@ int SmartListBox::SearchColumnByIdent(long ident, uint * pPos) const
 	int    ok = 0;
 	uint   pos = 0;
 	for(uint i = 0; !ok && i < Columns.getCount(); i++) {
-		const ColumnDescr * p_item = (const ColumnDescr *)Columns.at(i);
+		const ColumnDescr * p_item = static_cast<const ColumnDescr *>(Columns.at(i));
 		if(p_item->Ident == ident) {
 			pos = i;
 			ok = 1;

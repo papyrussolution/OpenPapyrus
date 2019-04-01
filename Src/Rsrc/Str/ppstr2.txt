@@ -11430,6 +11430,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @selectquot_costbycontract                "Установить цены поступления по контрактным ценам поставщика"
 @selectquot_useforwholebill               "Использовать для всего документа"
 
+@selectcsess                              "Выбор кассовой сессии"
+@selectcsess_no                           "@{sessionno}"
+@selectcsess_date                         "Дата сессии"
+@selectcsess_extposnode                   "Дополнительный кассовый узел"
+
 @printrpt                                 "@{print}"
 @printrpt_dest                            ""
 @printrpt_dest_print                      "@{print}"

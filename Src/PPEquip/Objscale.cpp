@@ -653,7 +653,7 @@ int SLAPI CommLP15::SetConnection()
 		itoa(Data.Get_Delay, rcv_timeout, 10);
 		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, sstrleni(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = connect(SocketHandle, reinterpret_cast<const sockaddr *>(&sin), sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
 		THROW(CheckSync_16());
 	}
@@ -1284,7 +1284,7 @@ int SLAPI CasCL5000J::SetConnection()
 		itoa(Data.Get_Delay, rcv_timeout, 10);
 		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, sstrleni(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = connect(SocketHandle, reinterpret_cast<const sockaddr *>(&sin), sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected   = 1;
 		THROW(CheckSync());
 	}
@@ -3027,7 +3027,7 @@ int SLAPI DIGI::SetConnection()
 		itoa(Data.Get_Delay, rcv_timeout, 10);
 		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, sstrleni(send_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,  sstrleni(rcv_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP(connect(SocketHandle, (sockaddr*)&sin, sizeof(sin)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP(connect(SocketHandle, reinterpret_cast<const sockaddr *>(&sin), sizeof(sin)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		Connected = 1;
 	}
 	CATCH
@@ -3489,7 +3489,7 @@ int SLAPI Bizerba::SetConnection()
 		itoa(Data.Get_Delay, rcv_timeout, 10);
 		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, sstrleni(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = connect(SocketHandle, reinterpret_cast<const sockaddr *>(&sin), sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
 	}
 	else {

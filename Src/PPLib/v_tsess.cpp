@@ -102,9 +102,9 @@ PPBaseFilt * SLAPI PPViewTSession::CreateFilt(void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_TSESSION, &p_base_filt)) {
-		((TSessionFilt *)p_base_filt)->StatusFlags |= 0x000000ffL;
+		static_cast<TSessionFilt *>(p_base_filt)->StatusFlags |= 0x000000ffL;
 		if((reinterpret_cast<long>(extraPtr)) == TSESK_PLAN)
-			((TSessionFilt *)p_base_filt)->Flags |= TSessionFilt::fManufPlan;
+			static_cast<TSessionFilt *>(p_base_filt)->Flags |= TSessionFilt::fManufPlan;
 	}
 	return p_base_filt;
 }
@@ -138,7 +138,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_TSESSFILT_IDLE)) {
 				const long temp_long = GetClusterData(CTL_TSESSFILT_IDLE);
-				PrcTechCtrlGroup * p_grp = (PrcTechCtrlGroup *)getGroup(GRP_PRCTECH);
+				PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(GRP_PRCTECH));
 				CALLPTRMEMB(p_grp, setIdleStatus(this, BIN(temp_long > 0)));
 				clearEvent(event);
 			}

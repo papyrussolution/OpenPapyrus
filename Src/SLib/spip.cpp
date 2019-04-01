@@ -1,5 +1,5 @@
 // SPIP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019
 // Program Interface Paradigm
 //
 #include <slib.h>
@@ -34,14 +34,14 @@ static char * FASTCALL format_uuid_part(const uint8 * pData, size_t numBytes, in
 {
 	if(useLower)
 		switch(numBytes) {
-			case 2: sprintf(pBuf, "%04x", *(uint16 *)pData); break;
-			case 4: sprintf(pBuf, "%08x", *(uint32 *)pData); break;
+			case 2: sprintf(pBuf, "%04x", *reinterpret_cast<const uint16 *>(pData)); break;
+			case 4: sprintf(pBuf, "%08x", *reinterpret_cast<const uint32 *>(pData)); break;
 			case 1: sprintf(pBuf, "%02x", *pData); break;
 		}
 	else
 		switch(numBytes) {
-			case 2:	sprintf(pBuf, "%04X", *(uint16 *)pData); break;
-			case 4: sprintf(pBuf, "%08X", *(uint32 *)pData); break;
+			case 2:	sprintf(pBuf, "%04X", *reinterpret_cast<const uint16 *>(pData)); break;
+			case 4: sprintf(pBuf, "%08X", *reinterpret_cast<const uint32 *>(pData)); break;
 			case 1: sprintf(pBuf, "%02X", *pData); break;
 		}
 	return pBuf;
@@ -52,7 +52,7 @@ SString & S_GUID_Base::ToStr(long fmt__, SString & rBuf) const
 	char   temp_buf[64];
 	uint   i;
 	const  int use_lower = BIN(fmt__ & fmtLower);
-	const uint8 * p_data = (const uint8 *)Data;
+	const uint8 * p_data = reinterpret_cast<const uint8 *>(Data);
 	rBuf.Z();
 	switch(fmt__ & ~fmtLower) {
 		case fmtIDL:
@@ -127,12 +127,12 @@ int FASTCALL S_GUID_Base::FromStr(const char * pBuf)
 	}
 	if(t == 32) {
 		size_t i;
-		uint8 * p_data = (uint8 *)Data;
+		uint8 * p_data = reinterpret_cast<uint8 *>(Data);
 		for(i = 0; i < 16; i++)
 			p_data[i] = hextobyte(temp_buf + (i << 1));
 		for(i = 0; i < 4; i++)
-			*(uint16 *)(p_data+i*2) = swapw(*(uint16 *)(p_data+i*2));
-		*(uint32 *)p_data = swapdw(*(uint32 *)p_data);
+			*reinterpret_cast<uint16 *>(p_data+i*2) = swapw(*PTR16(p_data+i*2));
+		*reinterpret_cast<uint32 *>(p_data) = swapdw(*PTR32(p_data));
 	}
 	else {
 		memzero(Data, sizeof(Data));
@@ -192,7 +192,7 @@ SLAPI SVerT::SVerT(int j, int n, int r)
 
 SVerT::operator uint32() const
 {
-	return ((((uint32)V) << 16) | R);
+	return ((static_cast<uint32>(V) << 16) | R);
 }
 
 void SLAPI SVerT::Set(uint32 n)
@@ -203,9 +203,9 @@ void SLAPI SVerT::Set(uint32 n)
 
 int SLAPI SVerT::Get(int * pJ, int * pN, int * pR) const
 {
-	int j = (int)(V >> 8);
-	int n = (int)(V & 0x00ff);
-	int r = (int)R;
+	int j = static_cast<int>(V >> 8);
+	int n = static_cast<int>(V & 0x00ff);
+	int r = static_cast<int>(R);
 	ASSIGN_PTR(pJ, j);
 	ASSIGN_PTR(pN, n);
 	ASSIGN_PTR(pR, r);

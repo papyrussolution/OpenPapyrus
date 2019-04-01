@@ -2936,41 +2936,6 @@ int SLAPI GoodsCache::GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermL
 	return ok;
 }
 
-#if 0 // @v8.1.5 {
-
-int SLAPI GoodsCache::PutGtl(PPID grpID, const PPIDArray * pList, const PPIDArray * pUntermList)
-{
-	int    ok = 1;
-	uint   pos = 0;
-	GtlLock.WriteLock();
-	if(Gtl.lsearch(&grpID, &pos, CMPF_LONG)) {
-		if(pList) {
-			GroupTermList * p_item = Gtl.at(pos);
-			p_item->List = *pList;
-			p_item->List.sort();
-			p_item->UntermList = *pUntermList;
-			p_item->UntermList.sort();
-		}
-		else
-			Gtl.atFree(pos);
-	}
-	else if(pList) {
-		GroupTermList * p_item = new GroupTermList;
-		THROW_MEM(p_item);
-		p_item->GrpID = grpID;
-		p_item->List = *pList;
-		p_item->List.sort();
-		p_item->UntermList = *pUntermList;
-		p_item->UntermList.sort();
-		THROW_SL(Gtl.insert(p_item));
-	}
-	CATCHZOK
-	GtlLock.Unlock();
-	return ok;
-}
-
-#endif // } 0 @v8.1.5
-
 int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = 1;
@@ -3221,36 +3186,6 @@ int SLAPI GoodsCore::GetAltGroupFilt(PPID grpID, GoodsFilt * pFilt)
 	CATCHZOK
 	return ok;
 }
-
-#if 0 // @v8.6.4 @unused {
-int SLAPI GoodsCore::SearchByExt(const ClsdGoodsFilt * pFilt, PPID * pID, Goods2Tbl::Rec * pRec)
-{
-	int    ok = -1;
-	PPObjGoodsClass gc_obj;
-	PPGdsClsPacket gc_pack;
-	GoodsExtTbl::Key1 k;
-	MEMSZERO(k);
-	k.GoodsClsID = pFilt->GdsClsID;
-	k.KindID     = pFilt->KindID;
-	k.GradeID    = pFilt->GradeID;
-	k.AddObjID   = pFilt->AddObjID;
-	if(pFilt->GdsClsID &&  gc_obj.Fetch(pFilt->GdsClsID, &gc_pack) > 0) {
-		gc_pack.RealToExtDim(pFilt->DimX_Rng.low, PPGdsCls::eX, &k.X);
-		gc_pack.RealToExtDim(pFilt->DimY_Rng.low, PPGdsCls::eY, &k.Y);
-		gc_pack.RealToExtDim(pFilt->DimZ_Rng.low, PPGdsCls::eZ, &k.Z);
-	}
-	if(GeT.search(1, &k, spEq)) {
-		ASSIGN_PTR(pID, GeT.data.GoodsID);
-		if(pRec) {
-			if(Search(GeT.data.GoodsID, pRec) > 0)
-				ok = 1;
-		}
-		else
-			ok = 1;
-	}
-	return ok;
-}
-#endif // } 0 @v8.6.4 @unused
 
 int SLAPI GoodsCore::SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoodsID, Goods2Tbl::Rec * pRec)
 {

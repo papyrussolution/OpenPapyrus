@@ -1897,7 +1897,7 @@ int PPViewBrowser::SetTempGoodsGrp(PPID grpID)
 int PPViewBrowser::getCurHdr(void * pHdr)
 {
 	if(view) {
-		void * p_row = view->getCurItem();
+		const void * p_row = view->getCurItem();
 		if(p_row) {
 			if(pHdr)
 				*static_cast<long *>(pHdr) = *static_cast<const long *>(p_row);
@@ -1925,9 +1925,9 @@ int PPViewBrowser::Export()
 		SString temp_buf;
 		PPIDArray width_ary;
 		{
-			char   buf[64];
-			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
-			dec.Cat(buf);
+			TCHAR  li_buf[64];
+			::GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, li_buf, SIZEOFARRAY(li_buf));
+			dec.Cat(SUcSwitch(li_buf));
 		}
 		THROW_MEM(p_app = new ComExcelApp);
 		THROW(p_app->Init() > 0);
@@ -2038,9 +2038,9 @@ int PPViewBrowser::GetToolbarComboRect(RECT * pRect)
 	RECT   rect;
 	MEMSZERO(rect);
 	if(hwnd) {
-		DWORD  btns_sz    = (DWORD)::SendMessage(hwnd, (UINT)TB_GETBUTTONSIZE, 0, 0);
-		DWORD  btns_count = (DWORD)::SendMessage(hwnd, (UINT)TB_BUTTONCOUNT,   0, 0);
-		DWORD  padding    = (DWORD)::SendMessage(hwnd, (UINT)TB_GETPADDING,    0, 0);
+		DWORD  btns_sz    = static_cast<DWORD>(::SendMessage(hwnd, TB_GETBUTTONSIZE, 0, 0));
+		DWORD  btns_count = static_cast<DWORD>(::SendMessage(hwnd, TB_BUTTONCOUNT,   0, 0));
+		DWORD  padding    = static_cast<DWORD>(::SendMessage(hwnd, TB_GETPADDING,    0, 0));
 		RECT   tb_rect;
 		MEMSZERO(tb_rect);
 		rect.top    = 2;

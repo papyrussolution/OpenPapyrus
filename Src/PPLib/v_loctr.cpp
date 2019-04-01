@@ -197,7 +197,7 @@ IMPL_HANDLE_EVENT(LocTransfDialog)
 					ReceiptTbl::Rec lot_rec;
 					if(BillObj->SelectLotBySerial(sn_buf, 0, WarehouseID, &lot_rec) > 0) {
 						Data.GoodsID = lot_rec.GoodsID;
-						PalletCtrlGroup * p_plt_grp = (PalletCtrlGroup *)getGroup(grpPallet);
+						PalletCtrlGroup * p_plt_grp = static_cast<PalletCtrlGroup *>(getGroup(grpPallet));
 						CALLPTRMEMB(p_plt_grp, SetupGoods(this, Data.GoodsID));
 						Data.LotID = lot_rec.ID;
 						SetupGoodsAndLot();
@@ -364,7 +364,7 @@ public:
 		GoodsCtrlGroup::Rec goodscg_rec(Data.GoodsGrpID, Data.GoodsID, 0, 0);
 		setGroupData(grpGoods, &goodscg_rec);
 		if(Data.Mode == LocTransfFilt::modeDisposition) {
-			LocationCtrlGroup * p_loc_grp = (LocationCtrlGroup *)getGroup(grpLoc);
+			LocationCtrlGroup * p_loc_grp = static_cast<LocationCtrlGroup *>(getGroup(grpLoc));
 			if(p_loc_grp)
 				p_loc_grp->SetWarehouseCellMode(this, 0);
 		}
@@ -397,7 +397,7 @@ private:
 			long   prev_mode = Data.Mode;
 			GetClusterData(CTL_LOCTRFILT_MODE, &Data.Mode);
 			if(Data.Mode != prev_mode) {
-				LocationCtrlGroup * p_loc_grp = (LocationCtrlGroup *)getGroup(grpLoc);
+				LocationCtrlGroup * p_loc_grp = static_cast<LocationCtrlGroup *>(getGroup(grpLoc));
 				if(p_loc_grp)
 					p_loc_grp->SetWarehouseCellMode(this, (Data.Mode == LocTransfFilt::modeDisposition) ? 0 : 1);
 			}

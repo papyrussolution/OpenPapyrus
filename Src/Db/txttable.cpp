@@ -159,10 +159,7 @@ int TextDbFile::IsTerminalLine(const SString & rLine, uint fldNo) const
 	if(P.VertRecTerm.Empty() || P.VertRecTerm.Cmp("\\n", 0) == 0)
 		return BIN(rLine.Empty());
 	else {
-		uint   num_flds = 0;
-		if(P.VertRecTerm[0] == ':' && P.VertRecTerm.Last() == ':') {
-			num_flds = atoi(P.VertRecTerm.cptr()+1);
-		}
+		const uint num_flds = (P.VertRecTerm[0] == ':' && P.VertRecTerm.Last() == ':') ? atoi(P.VertRecTerm.cptr()+1) : 0;
 		if(num_flds > 0 && num_flds < 1000)
 			return (fldNo == num_flds) ? 2 : 0;
 		else

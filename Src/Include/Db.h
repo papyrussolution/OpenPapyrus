@@ -186,7 +186,7 @@ public:
 			// декларативных стурктурах вроде typedef. Функция SetupOffsets в этом случае не инициализирует
 			// поле F::InnerOffs и устанавливает RecSize в ноль.
 	};
-	SdRecord(long flags = 0);
+	explicit SdRecord(long flags = 0);
 	SdRecord(const SdRecord &);
 	~SdRecord();
 	SdRecord & FASTCALL operator = (const SdRecord &);
@@ -580,10 +580,7 @@ private:
 		int    FASTCALL IsRecTag(const char * pTag) const;
 		int    FASTCALL IsRecNode(const xmlNode * pNode) const;
 		const  xmlNode * FASTCALL GetHeadRecNode(const xmlNode * pNode) const;
-		const  Param & GetParam() const
-		{
-			return P;
-		}
+		const  Param & GetParam() const { return P; }
 		uint32 Pos;
 		uint32 NumRecs;
 		const xmlNode * P_CurRec;
@@ -614,7 +611,7 @@ private:
 class SoapDbFile {
 public:
 	struct Param {
-	    Param(const char * pRootTag = 0, const char * pHeadTag = 0, const char * pRecTag = 0);
+	    explicit Param(const char * pRootTag = 0, const char * pHeadTag = 0, const char * pRecTag = 0);
 		void   Init(const char * pRootTag, const char * pHeadTag, const char * pRecTag);
 
 		SString RootTag;
@@ -686,10 +683,7 @@ public:
 	int    GoToRecord(ulong recNo, int rel = relAbs);
 	int    GetRecord(const SdRecord & rRec, void * pDataBuf);
 	int    AppendRecord(const SdRecord & rRec, const void * pDataBuf);
-	const char * GetFileName() const
-	{
-		return FileName.cptr();
-	}
+	const char * GetFileName() const { return FileName.cptr(); }
 private:
 	int    Scan();
 	int    CheckParam(const SdRecord & rRec);

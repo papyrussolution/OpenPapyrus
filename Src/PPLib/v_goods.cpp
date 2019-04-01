@@ -4501,7 +4501,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	if(pF->Name == "?GetArCode") {
 		_RET_STR.Z();
 		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
-		PPObjGoods * p_obj = (PPObjGoods *)(Extra[0].Ptr);
+		PPObjGoods * p_obj = static_cast<PPObjGoods *>(Extra[0].Ptr);
 		if(p_blk)
 			p_blk->Obj.P_Tbl->GetArCode(_ARG_LONG(1), H.ID, _RET_STR, 0);
 	}

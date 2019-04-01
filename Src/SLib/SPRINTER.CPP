@@ -27,9 +27,9 @@ int   SLAPI SPrinter::endPage()         { return 1; }
 //
 SPrinting::SPrinting(HWND screenHwnd) : Top(2), PrinterDc(0), OldFont(0), PageStarted(0), DocStarted(0), OldColor(-1)
 {
-	HDC hdc = GetDC(screenHwnd);
-	ScreenDpiX = GetDeviceCaps(hdc, LOGPIXELSX);
-	ScreenDpiY = GetDeviceCaps(hdc, LOGPIXELSY);
+	HDC hdc = ::GetDC(screenHwnd);
+	ScreenDpiX = ::GetDeviceCaps(hdc, LOGPIXELSX);
+	ScreenDpiY = ::GetDeviceCaps(hdc, LOGPIXELSY);
 	ReleaseDC(screenHwnd, hdc);
 }
 

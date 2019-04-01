@@ -6612,13 +6612,16 @@ public:
 class FloatStack : public TSStack <float> {
 public:
 	SLAPI  FloatStack();
-	int    SLAPI pushPoint(FPoint p);
+	void   SLAPI pushPoint(FPoint p);
 	int    SLAPI popPoint(FPoint & rP);
 };
 //
 //
 //
 struct LAssoc {
+	SLAPI  LAssoc();
+	SLAPI  LAssoc(int32 key, int32 val);
+	SLAPI  LAssoc(const LAssoc & rS);
 	int    FASTCALL operator == (const LAssoc &) const;
 	int32  Key;
 	int32  Val;
@@ -7298,7 +7301,7 @@ public:
 	//
 	int    SLAPI GetBounds(STimeChunk * pBounds, int update) const;
 protected:
-	SLAPI  STimeChunkArray(size_t itemSize);
+	explicit SLAPI  STimeChunkArray(size_t itemSize);
 private:
 	int    SLAPI Helper_Intersect(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
 };

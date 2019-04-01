@@ -214,14 +214,12 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 						int    found = 0;
 						double base_cost = 0.0;
-						LAssoc srch;
 						_E   * p_e = 0, _e;
 						r_t.copyBufTo(&lot_rec);
 						MEMSZERO(_e);
-						srch.Key = lot_rec.LocID;
-						srch.Val = (Filt.Flags & PriceAnlzFilt::fDivideBySuppl) ? lot_rec.SupplID : Filt.SupplID;
+						LAssoc srch(lot_rec.LocID, (Filt.Flags & PriceAnlzFilt::fDivideBySuppl) ? lot_rec.SupplID : Filt.SupplID);
 						if(cost_ary.lsearch(&srch, &(pos = 0), PTR_CMPFUNC(_2long))) {
-							p_e = (_E*)cost_ary.at(pos);
+							p_e = static_cast<_E *>(cost_ary.at(pos));
 							found = 1;
 						}
 						if(lot_rec.Cost > 0.0) {
@@ -548,11 +546,9 @@ int SLAPI PPViewPriceAnlz::SetContractPrices()
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			uint   pos = 0;
 			double cost = 0.0;
-			LAssoc k;
-			k.Key = item.SupplID;
-			k.Val = item.GoodsID;
+			LAssoc k(item.SupplID, item.GoodsID);
 			if(suppl_cost_ary.lsearch(&k, &pos, PTR_CMPFUNC(_2long)) > 0) {
-				_E * p_e = (_E*)suppl_cost_ary.at(pos);
+				_E * p_e = static_cast<_E *>(suppl_cost_ary.at(pos));
 				p_e->Cost = (item.Cost < p_e->Cost) ? item.Cost : p_e->Cost;
 			}
 			else {

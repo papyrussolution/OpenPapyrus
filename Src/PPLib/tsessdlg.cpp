@@ -936,7 +936,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			detail();
 		else if(event.isCmd(cmSelOrder)) {
 			PPID   goods_id = 0;
-			PrcTechCtrlGroup * p_grp = (PrcTechCtrlGroup *)getGroup(GRP_PRCTECH);
+			PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(GRP_PRCTECH));
 			//PPID   sel_lot_id = Data.Rec.OrderLotID;
 			//ReceiptTbl::Rec sel_lot_rec;
 			if(p_grp && p_grp->getGoodsID(this, &goods_id) > 0) {
@@ -1038,7 +1038,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 		}
 		else if(event.isClusterClk(CTL_TSESS_IDLE)) {
 			GetClusterData(CTL_TSESS_IDLE, &Data.Rec.Flags);
-			PrcTechCtrlGroup * p_grp = (PrcTechCtrlGroup *)getGroup(GRP_PRCTECH);
+			PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(GRP_PRCTECH));
 			if(p_grp)
 				p_grp->setIdleStatus(this, BIN(Data.Rec.Flags & TSESF_IDLE));
 			setupCCheckButton();
@@ -1312,7 +1312,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		ptcg_rec.IdleStatus = BIN(Data.Rec.Flags & TSESF_IDLE);
 	}
 	{
-		PrcTechCtrlGroup * p_grp = (PrcTechCtrlGroup *)getGroup(GRP_PRCTECH);
+		PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(GRP_PRCTECH));
 		if(p_grp) {
 			if(!(Data.Rec.Flags & (TSESF_SUPERSESS|TSESF_PLAN)))
 				p_grp->enableSelUpLevel(0);

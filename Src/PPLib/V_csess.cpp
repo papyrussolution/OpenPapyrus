@@ -2609,7 +2609,7 @@ IMPL_HANDLE_EVENT(CSessExcAltGoodsDialog)
 		SetupLastLotCtrs(grp_rec.GoodsID, 0);
 	}
 	else if(event.isClusterClk(CTL_CSEXCAG_FLAGS)) {
-		GoodsCtrlGroup * p_grp = (GoodsCtrlGroup *)getGroup(GRP_GOODS);
+		GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(GRP_GOODS));
 		CALLPTRMEMB(p_grp, setFlagExistsOnly(this, getCtrlUInt16(CTL_CSEXCAG_FLAGS)));
 	}
 	else

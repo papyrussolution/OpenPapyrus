@@ -678,7 +678,10 @@ int SLAPI PPObjTimeSeries::Browse(void * extraPtr)
 										CatEq("Margin", r_s.Margin).Space().
 										CatEq("SpikeQuant", r_s.SpikeQuant).Space().
 										CatEq("SpreadAvg", r_s.SpreadAvg).Space().
-										CatEq("StakeThreshold", r_s.StakeThreshold).Space();
+										CatEq("TrendErrAvg", r_s.TrendErrAvg, MKSFMTD(0, 6, 0)).Space(). // @v10.3.12
+										CatEq("TrendErrLim", r_s.TrendErrLim, MKSFMTD(0, 1, 0)).Space() // @v10.3.12
+										// @v10.3.12 CatEq("StakeThreshold", r_s.StakeThreshold).Space()
+										;
 									temp_buf.Z().Cat(r_s.OptDeltaRange.low, MKSFMTD(0, 9, 0)).Dot().Dot().Cat(r_s.OptDeltaRange.upp, MKSFMTD(0, 9, 0));
 									line_buf.CatEq("OptDeltaRange", temp_buf).Space().
 										CatEq("OptDeltaCount", r_s.OptDeltaCount).Space();

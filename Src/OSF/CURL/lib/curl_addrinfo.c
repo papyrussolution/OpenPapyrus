@@ -135,7 +135,7 @@ int Curl_getaddrinfo_ex(const char * nodename, const char * servname, const stru
 		ca->ai_addr      = NULL;
 		ca->ai_canonname = NULL;
 		ca->ai_next      = NULL;
-		ca->ai_addr = (sockaddr *)SAlloc::M(ss_size);
+		ca->ai_addr = static_cast<sockaddr *>(SAlloc::M(ss_size));
 		if(!ca->ai_addr) {
 			error = EAI_MEMORY;
 			SAlloc::F(ca);
@@ -250,7 +250,7 @@ Curl_addrinfo * Curl_he2ai(const struct hostent * he, int port)
 		else
 #endif
 		ss_size = sizeof(struct sockaddr_in);
-		ai = (Curl_addrinfo *)SAlloc::C(1, sizeof(Curl_addrinfo));
+		ai = static_cast<Curl_addrinfo *>(SAlloc::C(1, sizeof(Curl_addrinfo)));
 		if(!ai) {
 			result = CURLE_OUT_OF_MEMORY;
 			break;
@@ -261,7 +261,7 @@ Curl_addrinfo * Curl_he2ai(const struct hostent * he, int port)
 			SAlloc::F(ai);
 			break;
 		}
-		ai->ai_addr = (sockaddr *)SAlloc::C(1, ss_size);
+		ai->ai_addr = static_cast<sockaddr *>(SAlloc::C(1, ss_size));
 		if(!ai->ai_addr) {
 			result = CURLE_OUT_OF_MEMORY;
 			SAlloc::F(ai->ai_canonname);

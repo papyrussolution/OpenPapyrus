@@ -5483,7 +5483,7 @@ static int EditPersonRel(PersonLink * pData)
 				enableCommand(cmPersonList, 0);
 			}
 			else {
-				PersonListCtrlGroup * p_grp = (PersonListCtrlGroup*)getGroup(GRP_PSNLIST);
+				PersonListCtrlGroup * p_grp = static_cast<PersonListCtrlGroup *>(getGroup(GRP_PSNLIST));
 				if(!p_grp)
 					addGroup(GRP_PSNLIST, new PersonListCtrlGroup(CTLSEL_PERSONLINK_SCND, CTLSEL_PERSONLINK_KIND, cmPersonList, OLW_CANINSERT));
 				/*

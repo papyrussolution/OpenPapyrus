@@ -2920,7 +2920,7 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 		DisableClusterItem(CTL_GTO_SHOWALL, 0, 0);
 		DisableClusterItem(CTL_GTO_SHOWALL, 1, 0);
 		DisableClusterItem(CTL_GTO_SHOWALL, 2, 0);
-		const GoodsFiltCtrlGroup * p_grp = (const GoodsFiltCtrlGroup *)getGroup(ctlgroupGoodsFilt);
+		const GoodsFiltCtrlGroup * p_grp = static_cast<const GoodsFiltCtrlGroup *>(getGroup(ctlgroupGoodsFilt));
 		if(!p_grp || !p_grp->IsGroupSelectionDisabled())
 			enableCommand(cmGoodsFilt, 1);
 	}

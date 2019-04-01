@@ -632,7 +632,6 @@ int ArticleDialog::setupList()
 int ArticleDialog::addItem(long * /*pPos*/, long * pID)
 {
 	LAssoc alias_subst;
-	MEMSZERO(alias_subst);
 	if(EditAliasSubst(P_Data, &alias_subst) > 0) {
 		if(P_Data->AddAliasSubst(alias_subst.Key, alias_subst.Val)) {
 			*pID = alias_subst.Key;
@@ -648,7 +647,7 @@ int ArticleDialog::addItem(long * /*pPos*/, long * pID)
 int ArticleDialog::editItem(long pos, long /*id*/)
 {
 	LAssoc alias_subst;
-	uint   p = (uint)pos;
+	uint   p = static_cast<uint>(pos);
 	if(P_Data->EnumAliasSubst(&p, &alias_subst.Key, &alias_subst.Val) > 0)
 		if(EditAliasSubst(P_Data, &alias_subst) > 0)
 			return P_Data->UpdateAliasSubst(alias_subst.Key, alias_subst.Val) ? 1 : PPErrorZ();

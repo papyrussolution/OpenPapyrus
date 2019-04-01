@@ -96,9 +96,7 @@ int SLAPI GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
 			if(List.SearchPair(goodsID, objID, 0))
 				ok = PPSetError(PPERR_DUPGOODSTOOBJASSOC);
 			else if((Flags & fDup) || List.CheckUnique(goodsID, 1)) {
-				LAssoc new_item;
-				new_item.Key = goodsID;
-				new_item.Val = objID;
+				LAssoc new_item(goodsID, objID);
 				ok = List.atInsert(pos, &new_item) ? 1 : PPSetErrorSLib();
 			}
 			else
@@ -390,7 +388,6 @@ int SLAPI PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	LAssoc assc;
-	MEMSZERO(assc);
 	while(EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, 1) > 0) {
 		uint pos = 0;
 		if(!P_Assoc->Add(assc.Key, assc.Val, &pos) || !P_Assoc->Save())
@@ -412,9 +409,7 @@ int SLAPI PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * p
 	if(pHdr && P_Assoc) {
 		PPID   obj_id = 0;
 		if(P_Assoc->Get(pHdr->GoodsID, &obj_id) > 0) {
-			LAssoc assc;
-			assc.Key = pHdr->GoodsID;
-			assc.Val = pHdr->ObjID;
+			LAssoc assc(pHdr->GoodsID, pHdr->ObjID);
 			while(ok < 0 && EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, 0) > 0) {
 				uint   pos = 0;
 				if(P_Assoc->SearchPair(assc.Key, assc.Val, &pos)) {

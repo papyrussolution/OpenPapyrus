@@ -3908,16 +3908,15 @@ int SLAPI PrcssrDebtRate::Run()
 				// дабы не "забивать" СУБД обширным чтением в рамках транзакции.
 				//
 				PPArticlePacket pack;
-				StopItem * p_si;
 				PPIDArray ar_list;
 				set_stop_list.sort(PTR_CMPFUNC(_2long));
 				reset_stop_list.sort(PTR_CMPFUNC(_2long));
 				for(i = 0; i < set_stop_list.getCount(); i++) {
-					const StopItem * p_si = (const StopItem *)set_stop_list.at(i);
+					const StopItem * p_si = static_cast<const StopItem *>(set_stop_list.at(i));
 					ar_list.addUnique(p_si->ArID);
 				}
 				for(i = 0; i < reset_stop_list.getCount(); i++) {
-					const StopItem * p_si = (const StopItem *)reset_stop_list.at(i);
+					const StopItem * p_si = static_cast<const StopItem *>(reset_stop_list.at(i));
 					ar_list.addUnique(p_si->ArID);
 				}
 				{
@@ -3925,9 +3924,7 @@ int SLAPI PrcssrDebtRate::Run()
 					THROW(tra);
 					for(i = 0; i < ar_list.getCount(); i++) {
 						const PPID ar_id = ar_list.get(i);
-						LAssoc p;
-						p.Key = ar_id;
-						p.Val = 0;
+						LAssoc p(ar_id, 0);
 						uint   set_pos = 0, reset_pos = 0;
 						const int _set = BIN(set_stop_list.bsearch(&p, &set_pos, PTR_CMPFUNC(_2long)));
 						const int _reset = BIN(reset_stop_list.bsearch(&p, &reset_pos, PTR_CMPFUNC(_2long)));
@@ -3935,7 +3932,7 @@ int SLAPI PrcssrDebtRate::Run()
 						if(ArObj.GetPacket(ar_id, &pack) > 0) {
 							int    do_turn_pack = 0;
 							if(_set) {
-								p_si = (StopItem *)set_stop_list.at(set_pos);
+								const StopItem * p_si = static_cast<const StopItem *>(set_stop_list.at(set_pos));
 								if(!(pack.Rec.Flags & ARTRF_STOPBILL)) {
 									pack.Rec.Flags |= ARTRF_STOPBILL;
 									PPFormatT(PPTXT_LOG_DEBTRATE_SETSTOP, &msg_buf, ar_id, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
@@ -3944,7 +3941,7 @@ int SLAPI PrcssrDebtRate::Run()
 								}
 							}
 							else {
-								p_si = (StopItem *)reset_stop_list.at(reset_pos);
+								const StopItem * p_si = static_cast<const StopItem *>(reset_stop_list.at(reset_pos));
 								if(pack.Rec.Flags & ARTRF_STOPBILL) {
 									pack.Rec.Flags &= ~ARTRF_STOPBILL;
 									PPFormatT(PPTXT_LOG_DEBTRATE_RESETSTOP, &msg_buf, ar_id, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
@@ -3957,9 +3954,7 @@ int SLAPI PrcssrDebtRate::Run()
 									const  PPID dd_id = debt_dim_list.get(j);
 									PPClientAgreement::DebtLimit * p_dl = pack.P_CliAgt->GetDebtDimEntry(dd_id);
 									uint   dset_pos = 0;
-									LAssoc p2;
-									p2.Key = ar_id;
-									p2.Val = dd_id;
+									LAssoc p2(ar_id, dd_id);
 									const int _cs = _set;
 									const int _ds = BIN(set_stop_list.bsearch(&p2, &dset_pos, PTR_CMPFUNC(_2long)));
 									const int _dx = BIN(p_dl);

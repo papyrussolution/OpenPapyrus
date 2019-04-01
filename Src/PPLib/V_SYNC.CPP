@@ -1,5 +1,5 @@
 // V_SYNC.CPP
-// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -34,8 +34,8 @@ int SLAPI ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
 {
 	int    ok = 1;
 	if(PPBaseFilt::Copy(pS, deep)) {
-		ObjIDList  = ((ObjSyncFilt *)pS)->ObjIDList;
-		CommIDList = ((ObjSyncFilt *)pS)->CommIDList;
+		ObjIDList  = static_cast<const ObjSyncFilt *>(pS)->ObjIDList;
+		CommIDList = static_cast<const ObjSyncFilt *>(pS)->CommIDList;
 	}
 	else
 		ok = 0;
@@ -44,7 +44,8 @@ int SLAPI ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
 
 int SLAPI ObjSyncFilt::IsEqual(const PPBaseFilt * pS, int deep) const
 {
-	return BIN(PPBaseFilt::IsEqual(pS, deep) && ObjIDList.IsEqual(&((ObjSyncFilt *)pS)->ObjIDList) && CommIDList.IsEqual(((ObjSyncFilt *)pS)->CommIDList));
+	return BIN(PPBaseFilt::IsEqual(pS, deep) && 
+		ObjIDList.IsEqual(&static_cast<const ObjSyncFilt *>(pS)->ObjIDList) && CommIDList.IsEqual(static_cast<const ObjSyncFilt *>(pS)->CommIDList));
 }
 //
 //

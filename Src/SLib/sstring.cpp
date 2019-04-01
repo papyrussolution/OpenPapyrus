@@ -6573,10 +6573,10 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
                 if(!ul)
 					h &= ~SNTOKSEQ_UTF8;
 				uint  pos = 0;
-				if(chr_list.Search((long)c, 0, &pos))
+				if(chr_list.Search(static_cast<long>(c), 0, &pos))
 					chr_list.at(pos).Val++;
 				else
-					chr_list.Add((long)c, 1, 0);
+					chr_list.Add(static_cast<long>(c), 1, 0);
 			}
 		}
 		chr_list.Sort();
@@ -6601,7 +6601,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 				is_lead_plus = 1;
 			const uint clc = chr_list.getCount();
 			for(; i < clc; i++) {
-				const uchar c = (uchar)chr_list.at(i).Key;
+				const uchar c = static_cast<uchar>(chr_list.at(i).Key);
 				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
 					h &= ~SNTOKSEQ_ASCII;
 				else {
@@ -6784,7 +6784,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 						h &= ~tf;
 					else {
 						uint   comma_chr_pos = 0;
-						const  uint comma_count = chr_list.Search((long)',', 0, &comma_chr_pos) ? chr_list.at(comma_chr_pos).Val : 0;
+						const  uint comma_count = chr_list.Search(static_cast<long>(','), 0, &comma_chr_pos) ? chr_list.at(comma_chr_pos).Val : 0;
 						uint   last_dec_ser = 0;
 						uint   j = stat.Len;
 						if(j) do {

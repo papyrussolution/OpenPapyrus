@@ -2746,7 +2746,7 @@ private:
 						filt.ManufID = goods_rec.ManufID;
 					}
 					{
-						GoodsCtrlGroup * p_grp = (GoodsCtrlGroup *)getGroup(GRP_GOODS1);
+						GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(GRP_GOODS1));
 						p_grp->setFilt(this, &filt);
 					}
 				}

@@ -520,7 +520,7 @@ void BillFiltDialog::SetupLocationCombo()
 {
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 	PPID   op_type_id = GetOpType(Data.OpID, 0);
-	LocationCtrlGroup * p_cgrp = (LocationCtrlGroup *)getGroup(GRP_LOC);
+	LocationCtrlGroup * p_cgrp = static_cast<LocationCtrlGroup *>(getGroup(GRP_LOC));
 	if(p_cgrp) {
 		if(op_type_id == PPOPT_DRAFTTRANSIT) {
 			PPIDArray loc_list;
