@@ -143,7 +143,7 @@ static uint32_t * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32
 static uint32_t * conical_get_scanline_wide(pixman_iter_t * iter, const uint32_t * mask)
 {
 	uint32_t * buffer = conical_get_scanline_narrow(iter, NULL);
-	pixman_expand_to_float((argb_t*)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
+	pixman_expand_to_float((argb_t *)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
 	return buffer;
 }
 

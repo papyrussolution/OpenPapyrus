@@ -40,7 +40,7 @@ typedef enum
 #if defined(_MSC_VER)
 
 /* Needed for EXCEPTION_ILLEGAL_INSTRUCTION */
-#include <windows.h>
+//#include <windows.h>
 
 extern int pixman_msvc_try_arm_neon_op ();
 extern int pixman_msvc_try_arm_simd_op ();

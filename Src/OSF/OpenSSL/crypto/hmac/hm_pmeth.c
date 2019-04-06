@@ -134,7 +134,7 @@ static int pkey_hmac_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		case EVP_PKEY_CTRL_SET_MAC_KEY:
 		    if((!p2 && p1 > 0) || (p1 < -1))
 			    return 0;
-		    if(!ASN1_OCTET_STRING_set(&hctx->ktmp, (const uchar*)p2, p1))
+		    if(!ASN1_OCTET_STRING_set(&hctx->ktmp, (const uchar *)p2, p1))
 			    return 0;
 		    break;
 

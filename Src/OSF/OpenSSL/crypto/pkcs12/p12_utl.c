@@ -70,7 +70,7 @@ uchar * OPENSSL_utf82uni(const char * asc, int asclen, uchar ** uni, int * unile
 	if(asclen == -1)
 		asclen = strlen(asc);
 	for(ulen = 0, i = 0; i < asclen; i += j) {
-		j = UTF8_getc((const uchar*)asc+i, asclen-i, &utf32chr);
+		j = UTF8_getc((const uchar *)asc+i, asclen-i, &utf32chr);
 		/*
 		 * Following condition is somewhat opportunistic is sense that
 		 * decoding failure is used as *indirect* indication that input
@@ -101,7 +101,7 @@ uchar * OPENSSL_utf82uni(const char * asc, int asclen, uchar ** uni, int * unile
 		return NULL;
 	/* re-run the loop writing down UTF-16 characters in big-endian order */
 	for(unitmp = ret, i = 0; i < asclen; i += j) {
-		j = UTF8_getc((const uchar*)asc+i, asclen-i, &utf32chr);
+		j = UTF8_getc((const uchar *)asc+i, asclen-i, &utf32chr);
 		if(utf32chr >= 0x10000) { /* pair if UTF-16 characters */
 			uint hi, lo;
 			utf32chr -= 0x10000;

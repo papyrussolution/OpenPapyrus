@@ -1891,7 +1891,7 @@ int CycleCtrlGroup::getData(TDialog * pDlg, void * pData)
     if(ok) {
 		pDlg->getCtrlData(CtlNumCycles, &rec.C.NumCycles);
 		if(pData)
-			*(Rec*)pData = rec;
+			*static_cast<Rec *>(pData) = rec;
     }
 	return ok;
 }
@@ -2009,6 +2009,27 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 	InitFile = (Flags & fbcgfPath) ? "*.*" : fname;
 }
 
+static const TCHAR * MakeOpenFileInitPattern(const StringSet & rPattern, STempBuffer & rResult)
+{
+	const size_t src_pattern_len = rPattern.getDataLen();
+	if(src_pattern_len == 0)
+		return 0;
+	else if(sizeof(TCHAR) == sizeof(wchar_t)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		rResult.Alloc(src_pattern_len + 64); // @safe(64)
+		size_t result_pos = 0;
+		for(uint ssp = 0; rPattern.get(&ssp, r_temp_buf);) {
+			memcpy(static_cast<wchar_t *>(rResult.vptr()) + result_pos, SUcSwitchW(r_temp_buf), r_temp_buf.Len() * sizeof(wchar_t));
+			result_pos += r_temp_buf.Len();
+			static_cast<wchar_t *>(rResult.vptr())[result_pos++] = 0;
+		}
+		static_cast<wchar_t *>(rResult.vptr())[result_pos++] = 0;
+		return static_cast<TCHAR *>(rResult.vptr());
+	}
+	else
+		return SUcSwitch(rPattern.getBuf());
+}
+
 int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 {
 	// @v10.2.1 const char * WrSubKey_Dialog = "Software\\Papyrus\\Dialog";
@@ -2018,6 +2039,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	SString temp_buf;
 	SString result_file_name;
 	SString reg_key_buf;
+	STempBuffer filter_buf(16);
 	reg_key_buf.Cat("FileBrowseLastPath").CatChar('(').Cat(pDlg->GetId()).CatDiv(',', 2).Cat(InputCtlId).CatChar(')');
 	RecentItemsStorage ris(reg_key_buf, 20, PTR_CMPFUNC(FilePathUtf8)); // @v10.2.1
 	StringSet ss_ris; // @v10.2.1
@@ -2030,7 +2052,8 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	memzero(&sofn, sizeof(sofn));
 	sofn.lStructSize = sizeof(sofn);
 	sofn.hwndOwner   = pDlg->H();
-	sofn.lpstrFilter = SUcSwitch(Patterns.getBuf()); // @unicodeproblem
+	// @v10.4.0 sofn.lpstrFilter = SUcSwitch(Patterns.getBuf()); // @unicodeproblem
+	sofn.lpstrFilter = MakeOpenFileInitPattern(Patterns, filter_buf); // @v10.4.0
 	sofn.lpstrFile   = file_name; // @unicodeproblem
 	sofn.nMaxFile    = SIZEOFARRAY(file_name);
 	sofn.lpstrTitle  = SUcSwitch(Title); // @unicodeproblem
@@ -2113,7 +2136,7 @@ void FileBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent &event)
 
 int FileBrowseCtrlGroup::getData(TDialog *, void * pData)
 {
-	return pData ? (*(Rec*)pData = Data, 1) : 0;
+	return pData ? (*static_cast<Rec *>(pData) = Data, 1) : 0;
 }
 
 int SLAPI PPOpenFile(uint strID, SString & rPath, long flags, HWND owner)
@@ -2129,24 +2152,26 @@ int SLAPI PPOpenFile(uint strID, SString & rPath, long flags, HWND owner)
 				ss_pat.add(pattern);
 			}
 		}
-		ok = PPOpenFile(rPath, ss_pat.getBuf(), flags, owner);
+		ok = PPOpenFile(rPath, ss_pat, flags, owner);
 	}
 	return ok;
 }
 
-int SLAPI PPOpenFile(SString & rPath, const char * pPatterns, long flags, HWND owner)
+int SLAPI PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND owner)
 {
 	int    ok = -1;
 	OPENFILENAME sofn;
 	TCHAR  file_name[MAXPATH];
 	SString  title_buf;
 	SString  dir, fname;
+	STempBuffer filter_buf(64);
 	SplitPath(rPath, dir, fname);
 	STRNSCPY(file_name, SUcSwitch(fname));
 	memzero(&sofn, sizeof(sofn));
 	sofn.lStructSize = sizeof(sofn);
 	sofn.hwndOwner   = NZOR(owner, GetForegroundWindow());
-	sofn.lpstrFilter = SUcSwitch(pPatterns); // @unicodeproblem
+	// @v10.4.0 sofn.lpstrFilter = SUcSwitch(rPatterns.getBuf()); // @unicodeproblem
+	sofn.lpstrFilter = MakeOpenFileInitPattern(rPatterns, filter_buf); // @v10.4.0
 	sofn.lpstrFile   = file_name; // @unicodeproblem
 	sofn.nMaxFile    = SIZEOFARRAY(file_name);
 	PPLoadString("fileopen", title_buf);
@@ -2171,6 +2196,7 @@ int SLAPI PPOpenDir(SString & rPath, const char * pTitle, HWND owner /*=0*/)
 	StringSet patterns;
 	SString   title;
 	SString result_file_name;
+	STempBuffer filter_buf(64);
 	(title = pTitle).Transf(CTRANSF_INNER_TO_OUTER);
 	{
 		SString temp_buf, name, patt;
@@ -2187,7 +2213,8 @@ int SLAPI PPOpenDir(SString & rPath, const char * pTitle, HWND owner /*=0*/)
 	MEMSZERO(sofn);
 	sofn.lStructSize = sizeof(sofn);
 	sofn.hwndOwner   = GetForegroundWindow();
-	sofn.lpstrFilter = SUcSwitch(patterns.getBuf()); // @unicodeproblem
+	// @v10.4.0 sofn.lpstrFilter = SUcSwitch(patterns.getBuf()); // @unicodeproblem
+	sofn.lpstrFilter = MakeOpenFileInitPattern(patterns, filter_buf); // @v10.4.0
 	sofn.lpstrFile   = file_name; // @unicodeproblem
 	sofn.nMaxFile    = SIZEOFARRAY(file_name);
 	sofn.lpstrTitle  = SUcSwitch(title); // @unicodeproblem
@@ -2252,7 +2279,7 @@ IMPL_HANDLE_EVENT(ExtOpenFileDlg)
 			SString path;
 			getCtrlString(CTL_OPENFILE_PATH, path);
 			path.SetIfEmpty(WaitFolder);
-			if(PPOpenFile(path, Patterns.getBuf(), 0, 0) > 0)
+			if(PPOpenFile(path, Patterns, 0, 0) > 0)
 				setCtrlString(CTL_OPENFILE_PATH, Data = path);
 
 		}
@@ -2338,7 +2365,7 @@ ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/ uint ct
 
 int ImageBrowseCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	if(!RVALUEPTR(Data, (Rec *)pData))
+	if(!RVALUEPTR(Data, static_cast<Rec *>(pData)))
 		Data.Path.Z();
 	pDlg->setCtrlString(CtlImage, Data.Path);
 	if(CmChgImage)
@@ -2352,7 +2379,7 @@ int ImageBrowseCtrlGroup::setData(TDialog * pDlg, void * pData)
 int ImageBrowseCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	if(pData)
-		*(Rec*)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 	return 1;
 }
 
@@ -2378,7 +2405,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			}
 		}
 		else
-			r = PPOpenFile(path, Patterns.getBuf(), 0, 0);
+			r = PPOpenFile(path, Patterns, 0, 0);
 		if(r > 0) {
 			Data.Flags |= Rec::fUpdated;
 			pDlg->setCtrlString(CtlImage, Data.Path = path);
@@ -2577,7 +2604,7 @@ int FASTCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint
 	ListBoxSelDlg * p_dlg = 0;
 	ListBoxDef * p_def = pAry ? new StrAssocListBoxDef(pAry, lbtDblClkNotify|lbtFocNotify) : 0;
 	if(p_def && CheckDialogPtrErr(&(p_dlg = new ListBoxSelDlg(p_def, dlgID)))) {
-		PPID id = (pID) ? *pID : 0;
+		PPID id = DEREFPTRORZ(pID);
 		p_dlg->setDTS(id);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(&id);
@@ -2648,7 +2675,7 @@ int  SLAPI AdvComboBoxSeldialog(const StrAssocArray * pAry, SString & rTitle, SS
 	int    ok = -1;
 	TDialog * p_dlg = 0;
 	if(pAry && CheckDialogPtrErr(&(p_dlg = new TDialog(DLG_ADVCBXSEL)))) {
-		PPID   id = (pID) ? *pID : 0;
+		PPID   id = DEREFPTRORZ(pID);
 		SString subtitle, label;
 		if(rTitle.Len())
 			p_dlg->setSubTitle(rTitle);
@@ -2879,11 +2906,12 @@ int EmbedDialog::Embed(TDialog * pDlg)
 	if(pDlg) {
 		THROW(CheckDialogPtr(&pDlg));
 		P_ChildDlg = pDlg;
+		HWND  hwnd_child = P_ChildDlg->H();
 		P_ChildDlg->destroyCtrl(STDCTL_OKBUTTON);
 		P_ChildDlg->destroyCtrl(STDCTL_CANCELBUTTON);
-		TView::SetWindowProp(P_ChildDlg->H(), GWL_STYLE, WS_CHILD);
-		TView::SetWindowProp(P_ChildDlg->H(), GWL_EXSTYLE, 0L);
-		SetParent(P_ChildDlg->H(), H());
+		TView::SetWindowProp(hwnd_child, GWL_STYLE, WS_CHILD);
+		TView::SetWindowProp(hwnd_child, GWL_EXSTYLE, 0L);
+		::SetParent(hwnd_child, H());
 		ok = 1;
 	}
 	CATCHZOK
@@ -3159,7 +3187,7 @@ void SLAPI LocationCtrlGroup::SetupInfo(TDialog * pDlg, PPID locID)
 
 int LocationCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec*)pData;
+	Data = *static_cast<Rec *>(pData);
 
 	SString temp_buf;
 	PPID   single_id = Data.LocList.GetSingle();
@@ -3199,7 +3227,7 @@ int LocationCtrlGroup::setData(TDialog * pDlg, void * pData)
 
 int LocationCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
-	Rec * p_rec = (Rec *)pData;
+	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.LocList.GetCount() <= 1) {
 		PPID   temp_id = pDlg->getCtrlLong(CtlselLoc);
 		PPObjLocation loc_obj;
@@ -3235,7 +3263,7 @@ int LocationCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 SCardSelExtra::SCardSelExtra(PPID serId) : WordSel_ExtraBlock(0, 0, 0, 0, 2), SerID(serId)
 {
-	SetTextMode(false); // @v8.4.8
+	SetTextMode(false);
 }
 
 StrAssocArray * SCardSelExtra::GetList(const char * pText)
@@ -3470,8 +3498,8 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 						if(p_locc->GetEAddr(temp_phone_list.get(i), &ea_rec) > 0) {
 							if(ea_rec.LinkObjType == PPOBJ_PERSON && ea_rec.LinkObjID > 0) {
 								psn_list.add(ea_rec.LinkObjID);
-								((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
-								phone_list.Add(ea_rec.LinkObjID, (const char *)phone_buf);
+								reinterpret_cast<const PPEAddr *>(ea_rec.Addr)->GetPhone(phone_buf.Z());
+								phone_list.Add(ea_rec.LinkObjID, phone_buf.cptr());
 							}
 						}
 					}
@@ -3587,7 +3615,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 					if(p_locc->GetEAddr(ea_id, &ea_rec) > 0) {
 						if(ea_rec.LinkObjType == PPOBJ_PERSON && LocalFlags & lfPerson && PsnObj.Fetch(ea_rec.LinkObjID, &psn_rec) > 0) {
 							eac_list.add(ea_rec.ID);
-							((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
+							reinterpret_cast<const PPEAddr *>(ea_rec.Addr)->GetPhone(phone_buf.Z());
 							(temp_name = phone_buf).Space().Cat(psn_rec.Name);
 							p_list->Add(ea_id, 0, temp_name);
 						}
@@ -3595,8 +3623,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 							PsnObj.LocObj.Fetch(ea_rec.LinkObjID, &loc_rec) > 0) {
 							if(!(LocalFlags & lfStandaloneLocOnly) || (loc_rec.Type == LOCTYP_ADDRESS && loc_rec.Flags & LOCF_STANDALONE)) {
 								eac_list.add(ea_rec.ID);
-								((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
-
+								reinterpret_cast<const PPEAddr *>(ea_rec.Addr)->GetPhone(phone_buf.Z());
 								temp_name = phone_buf;
 								name.Z();
 								if(name.Empty() && loc_rec.Name[0])
@@ -3629,7 +3656,7 @@ int PhoneSelExtra::Search(long id, SString & rBuf)
 	rBuf.Z();
 	EAddrTbl::Rec ea_rec;
 	if(PsnObj.LocObj.P_Tbl->GetEAddr(id, &ea_rec) > 0) {
-		((PPEAddr*)ea_rec.Addr)->GetPhone(rBuf);
+		reinterpret_cast<const PPEAddr *>(ea_rec.Addr)->GetPhone(rBuf);
 		ok = 1;
 	}
 	return ok;
@@ -3646,7 +3673,7 @@ int PhoneSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 			result_id = ea_list.get(0);
 			EAddrTbl::Rec ea_rec;
 			if(PsnObj.LocObj.P_Tbl->GetEAddr(result_id, &ea_rec) > 0) {
-				((PPEAddr*)ea_rec.Addr)->GetPhone(rBuf);
+				reinterpret_cast<const PPEAddr *>(ea_rec.Addr)->GetPhone(rBuf);
 				ok = 1;
 			}
 		}
@@ -3679,7 +3706,7 @@ int PersonCtrlGroup::setData(TDialog * pDlg, void * pData)
 			psn_combo_flags |= OLW_CANINSERT;
 		if(Flags & fLoadDefOnOpen)
 			psn_combo_flags |= OLW_LOADDEFONOPEN;
-		Data = *(Rec *)pData;
+		Data = *static_cast<Rec *>(pData);
 		PPID   person_id = (Data.Flags & Data.fAnonym) ? 0 :  Data.PersonID;
 		SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, person_id, psn_combo_flags, reinterpret_cast<void *>(Data.PsnKindID));
 		SetupAnonym(pDlg, Data.Flags & Data.fAnonym);
@@ -3705,7 +3732,7 @@ int PersonCtrlGroup::getData(TDialog * pDlg, void * pData)
 	if(CtlSCardCode)
 		pDlg->getCtrlData(CtlSCardCode, &Data.SCardID);
 	if(pData) {
-		*(Rec *)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 	}
 	return ok;
 }
@@ -3867,7 +3894,7 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 int PersonListCtrlGroup::setData(TDialog * pDlg, void * pRec)
 {
 	if(pRec)
-		Data = *(Rec*)pRec;
+		Data = *(Rec *)pRec;
 	else
 		Data.Init();
 	SetupPPObjCombo(pDlg, CtlselPsnKind, PPOBJ_PRSNKIND, Data.PsnKindID, 0, 0);
@@ -3889,7 +3916,7 @@ int PersonListCtrlGroup::getData(TDialog * pDlg, void * pRec)
 		if(psn_id)
 			Data.List.add(psn_id);
 	}
-	ASSIGN_PTR((Rec*)pRec, Data);
+	ASSIGN_PTR((Rec *)pRec, Data);
 	return 1;
 }
 
@@ -3998,7 +4025,7 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 int PersonListCtrlGroup::setData(TDialog * pDlg, void * pRec)
 {
 	if(pRec)
-		Data = *(Rec*)pRec;
+		Data = *static_cast<const Rec *>(pRec);
 	else
 		Data.Init();
 	SetupPPObjCombo(pDlg, CtlselPsnKind, PPOBJ_PRSNKIND, Data.PsnKindID, 0, 0);
@@ -4015,7 +4042,7 @@ int PersonListCtrlGroup::getData(TDialog * pDlg, void * pData)
 		if(id)
 			Data.List.addUnique(id);
 		Data.List.sort();
-		*(Rec *)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 		ok = 1;
 	}
 	return ok;
@@ -4141,7 +4168,7 @@ int SCardCtrlGroup::Setup(TDialog * pDlg, int event)
 int SCardCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = 1;
-	Rec  * p_data = (Rec *)pData;
+	Rec  * p_data = static_cast<Rec *>(pData);
 	RVALUEPTR(Data, p_data);
 	if(CtlselSCardSer)
 		SetupPPObjCombo(pDlg, CtlselSCardSer, PPOBJ_SCARDSERIES, Data.SCardSerList.getSingle(), OLW_LOADDEFONOPEN, 0);
@@ -4153,7 +4180,7 @@ int SCardCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	if(CtlSCard)
 		Data.SCardID = pDlg->getCtrlLong(CtlSCard);
-	ASSIGN_PTR((Rec *)pData, Data);
+	ASSIGN_PTR(static_cast<Rec *>(pData), Data);
 	return 1;
 }
 
@@ -4286,7 +4313,7 @@ int FiasAddressCtrlGroup::Setup(TDialog * pDlg, int event)
 int FiasAddressCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = 1;
-	Rec  * p_data = (Rec *)pData;
+	Rec  * p_data = static_cast<Rec *>(pData);
 	RVALUEPTR(Data, p_data);
 	Setup(pDlg, 1);
 	return ok;
@@ -4297,7 +4324,7 @@ int FiasAddressCtrlGroup::getData(TDialog * pDlg, void * pData)
 	if(CtlEdit) {
 		Data.TerminalFiasID = pDlg->getCtrlLong(CtlEdit);
 	}
-	ASSIGN_PTR((Rec *)pData, Data);
+	ASSIGN_PTR(static_cast<Rec *>(pData), Data);
 	return 1;
 }
 
@@ -4403,7 +4430,7 @@ void QuotKindCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 
 int QuotKindCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec*)pData;
+	Data = *static_cast<Rec *>(pData);
 	SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_QUOTKIND, Data.List.GetSingle(), 0, 0);
 	if(Data.List.GetCount() > 1) {
 		SetComboBoxListText(pDlg, Ctlsel);
@@ -4418,7 +4445,7 @@ int QuotKindCtrlGroup::setData(TDialog * pDlg, void * pData)
 
 int QuotKindCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
-	Rec * p_rec = (Rec*)pData;
+	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
 		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.FreeAll();
@@ -4500,7 +4527,7 @@ void StaffCalCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 
 int StaffCalCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec*)pData;
+	Data = *static_cast<Rec *>(pData);
 	SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_STAFFCAL, Data.List.GetSingle(), 0, 0);
 	if(Data.List.GetCount() > 1) {
 		SetComboBoxListText(pDlg, Ctlsel);
@@ -4515,7 +4542,7 @@ int StaffCalCtrlGroup::setData(TDialog * pDlg, void * pData)
 
 int StaffCalCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
-	Rec * p_rec = (Rec*)pData;
+	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
 		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.FreeAll();
@@ -4625,7 +4652,7 @@ void PersonOpCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 
 int PersonOpCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec*)pData;
+	Data = *static_cast<Rec *>(pData);
 	SetupPPObjCombo(pDlg, CtlselPsnOp, PPOBJ_PERSONOPKIND, Data.PsnOpList.GetSingle(), OLW_CANSELUPLEVEL, 0);
 	if(Data.PsnOpList.GetCount() > 1) {
 		SetComboBoxListText(pDlg, CtlselPsnOp);
@@ -4641,7 +4668,7 @@ int PersonOpCtrlGroup::setData(TDialog * pDlg, void * pData)
 
 int PersonOpCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
-	Rec * p_rec = (Rec*)pData;
+	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.PsnOpList.GetCount() <= 1) {
 		pDlg->getCtrlData(CtlselPsn1, &Data.PrmrID);
 		pDlg->getCtrlData(CtlselPsn2, &Data.ScndID);
@@ -4663,7 +4690,7 @@ int SpinCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	if(pDlg && pData) {
-		Data = *((Rec*)pData);
+		Data = *static_cast<Rec *>(pData);
 		Data.Value = (Data.Value > MaxVal) ? MaxVal : Data.Value;
 		Data.Value = (Data.Value < MinVal) ? MinVal : Data.Value;
 		pDlg->setCtrlLong(CtlEdit, Data.Value);
@@ -4680,7 +4707,7 @@ int SpinCtrlGroup::getData(TDialog * pDlg, void * pData)
 		Data.Value = pDlg->getCtrlLong(CtlEdit);
 		Data.Value = (Data.Value > MaxVal) ? MaxVal : Data.Value;
 		Data.Value = (Data.Value < MinVal) ? MinVal : Data.Value;
-		*((Rec*)pData) = Data;
+		*static_cast<Rec *>(pData) = Data;
 		ok = 1;
 	}
 	return ok;
@@ -4730,7 +4757,7 @@ int BrandCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	if(pDlg && pData) {
-		Data = *(Rec*)pData;
+		Data = *static_cast<Rec *>(pData);
 		SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_BRAND, Data.List.getSingle(), OLW_LOADDEFONOPEN, 0);
 		ok = Setup(pDlg);
 	}
@@ -4746,7 +4773,7 @@ int BrandCtrlGroup::getData(TDialog * pDlg, void * pData)
 		if(id)
 			Data.List.addUnique(id);
 		Data.List.sort();
-		*(Rec*)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 		ok = 1;
 	}
 	return ok;

@@ -1206,11 +1206,9 @@ static cairo_status_t _cairo_stroker_close_path(void * closure)
 		if(unlikely(status))
 			return status;
 	}
-
 	stroker->has_initial_sub_path = FALSE;
 	stroker->has_first_face = FALSE;
 	stroker->has_current_face = FALSE;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1256,67 +1254,36 @@ cairo_status_t _cairo_path_fixed_stroke_dashed_to_polygon(const cairo_path_fixed
     cairo_polygon_t * polygon)
 {
 	cairo_stroker_t stroker;
-	cairo_status_t status;
-
-	status = _cairo_stroker_init(&stroker, path, stroke_style,
-		ctm, ctm_inverse, tolerance,
-		polygon->limits, polygon->num_limits);
+	cairo_status_t status = _cairo_stroker_init(&stroker, path, stroke_style, ctm, ctm_inverse, tolerance, polygon->limits, polygon->num_limits);
 	if(unlikely(status))
 		return status;
-
 	stroker.add_external_edge = _cairo_polygon_add_external_edge,
 	stroker.closure = polygon;
-
-	status = _cairo_path_fixed_interpret(path,
-		_cairo_stroker_move_to,
-		stroker.dash.dashed ?
-		_cairo_stroker_line_to_dashed :
-		_cairo_stroker_line_to,
-		_cairo_stroker_curve_to,
-		_cairo_stroker_close_path,
-		&stroker);
-
+	status = _cairo_path_fixed_interpret(path, _cairo_stroker_move_to, stroker.dash.dashed ? _cairo_stroker_line_to_dashed : _cairo_stroker_line_to,
+		_cairo_stroker_curve_to, _cairo_stroker_close_path, &stroker);
 	if(unlikely(status))
 		goto BAIL;
-
 	/* Cap the start and end of the final sub path as needed */
 	status = _cairo_stroker_add_caps(&stroker);
-
 BAIL:
 	_cairo_stroker_fini(&stroker);
-
 	return status;
 }
 
-cairo_int_status_t _cairo_path_fixed_stroke_polygon_to_traps(const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * stroke_style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_traps_t * traps)
+cairo_int_status_t _cairo_path_fixed_stroke_polygon_to_traps(const cairo_path_fixed_t * path, const cairo_stroke_style_t * stroke_style,
+    const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_traps_t * traps)
 {
 	cairo_int_status_t status;
 	cairo_polygon_t polygon;
-
 	_cairo_polygon_init(&polygon, traps->limits, traps->num_limits);
-	status = _cairo_path_fixed_stroke_to_polygon(path,
-		stroke_style,
-		ctm,
-		ctm_inverse,
-		tolerance,
-		&polygon);
+	status = _cairo_path_fixed_stroke_to_polygon(path, stroke_style, ctm, ctm_inverse, tolerance, &polygon);
 	if(unlikely(status))
 		goto BAIL;
-
 	status = _cairo_polygon_status(&polygon);
 	if(unlikely(status))
 		goto BAIL;
-
-	status = _cairo_bentley_ottmann_tessellate_polygon(traps, &polygon,
-		CAIRO_FILL_RULE_WINDING);
-
+	status = _cairo_bentley_ottmann_tessellate_polygon(traps, &polygon, CAIRO_FILL_RULE_WINDING);
 BAIL:
 	_cairo_polygon_fini(&polygon);
-
 	return status;
 }

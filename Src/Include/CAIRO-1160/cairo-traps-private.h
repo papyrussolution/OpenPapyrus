@@ -79,7 +79,7 @@ cairo_private void _cairo_traps_extents(const cairo_traps_t * traps, cairo_box_t
 cairo_private cairo_int_status_t _cairo_traps_extract_region(cairo_traps_t  * traps, cairo_antialias_t antialias, cairo_region_t ** region);
 cairo_private cairo_bool_t _cairo_traps_to_boxes(cairo_traps_t * traps, cairo_antialias_t antialias, cairo_boxes_t * boxes);
 cairo_private cairo_status_t _cairo_traps_path(const cairo_traps_t * traps, cairo_path_fixed_t  * path);
-cairo_private cairo_int_status_t _cairo_rasterise_polygon_to_traps(cairo_polygon_t         * polygon, cairo_fill_rule_t fill_rule, cairo_antialias_t antialias, cairo_traps_t * traps);
+cairo_private cairo_int_status_t _cairo_rasterise_polygon_to_traps(cairo_polygon_t * polygon, cairo_fill_rule_t fill_rule, cairo_antialias_t antialias, cairo_traps_t * traps);
 
 CAIRO_END_DECLS
 

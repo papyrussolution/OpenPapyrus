@@ -281,11 +281,11 @@ static void emit_header(gif_dest_ptr dinfo, int num_colors, JSAMPARRAY colormap)
  */
 METHODDEF(void) start_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
-	gif_dest_ptr dest = (gif_dest_ptr)dinfo;
+	gif_dest_ptr dest = reinterpret_cast<gif_dest_ptr>(dinfo);
 	if(cinfo->quantize_colors)
 		emit_header(dest, cinfo->actual_number_of_colors, cinfo->colormap);
 	else
-		emit_header(dest, 256, (JSAMPARRAY)NULL);
+		emit_header(dest, 256, NULL);
 }
 /*
  * Write some pixel data.

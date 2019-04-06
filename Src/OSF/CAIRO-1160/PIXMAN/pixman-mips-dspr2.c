@@ -142,7 +142,7 @@ static pixman_bool_t mips_dspr2_fill(pixman_implementation_t * imp, uint32_t * b
 	switch(bpp) {
 		case 16:
 		    stride = stride * (int)sizeof(uint32_t) / 2;
-		    byte_line = (uint8_t*)(((uint16_t*)bits) + stride * y + x);
+		    byte_line = (uint8_t *)(((uint16_t*)bits) + stride * y + x);
 		    byte_width = width * 2;
 		    stride *= 2;
 
@@ -154,7 +154,7 @@ static pixman_bool_t mips_dspr2_fill(pixman_implementation_t * imp, uint32_t * b
 		    return TRUE;
 		case 32:
 		    stride = stride * (int)sizeof(uint32_t) / 4;
-		    byte_line = (uint8_t*)(((uint32_t*)bits) + stride * y + x);
+		    byte_line = (uint8_t *)(((uint32_t *)bits) + stride * y + x);
 		    byte_width = width * 4;
 		    stride *= 4;
 
@@ -192,9 +192,9 @@ static pixman_bool_t mips_dspr2_blt(pixman_implementation_t * imp,
 		case 16:
 		    src_stride = src_stride * (int)sizeof(uint32_t) / 2;
 		    dst_stride = dst_stride * (int)sizeof(uint32_t) / 2;
-		    src_bytes = (uint8_t*)(((uint16_t*)src_bits)
+		    src_bytes = (uint8_t *)(((uint16_t*)src_bits)
 			+ src_stride * (src_y) + (src_x));
-		    dst_bytes = (uint8_t*)(((uint16_t*)dst_bits)
+		    dst_bytes = (uint8_t *)(((uint16_t*)dst_bits)
 			+ dst_stride * (dest_y) + (dest_x));
 		    byte_width = width * 2;
 		    src_stride *= 2;
@@ -211,9 +211,9 @@ static pixman_bool_t mips_dspr2_blt(pixman_implementation_t * imp,
 		case 32:
 		    src_stride = src_stride * (int)sizeof(uint32_t) / 4;
 		    dst_stride = dst_stride * (int)sizeof(uint32_t) / 4;
-		    src_bytes = (uint8_t*)(((uint32_t*)src_bits)
+		    src_bytes = (uint8_t *)(((uint32_t *)src_bits)
 			+ src_stride * (src_y) + (src_x));
-		    dst_bytes = (uint8_t*)(((uint32_t*)dst_bits)
+		    dst_bytes = (uint8_t *)(((uint32_t *)dst_bits)
 			+ dst_stride * (dest_y) + (dest_x));
 		    byte_width = width * 4;
 		    src_stride *= 4;
@@ -385,9 +385,9 @@ static const pixman_fast_path_t mips_dspr2_fast_paths[] =
 static void mips_dspr2_combine_over_u(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
 	if(mask)
-		pixman_composite_over_8888_8888_8888_asm_mips(dest, (uint32_t*)src, (uint32_t*)mask, width);
+		pixman_composite_over_8888_8888_8888_asm_mips(dest, (uint32_t *)src, (uint32_t *)mask, width);
 	else
-		pixman_composite_over_8888_8888_asm_mips(dest, (uint32_t*)src, width);
+		pixman_composite_over_8888_8888_asm_mips(dest, (uint32_t *)src, width);
 }
 
 pixman_implementation_t * _pixman_implementation_create_mips_dspr2(pixman_implementation_t * fallback)

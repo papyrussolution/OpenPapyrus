@@ -394,7 +394,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 	}
 	else if(UiKind == UiItemKind::kRadiobutton) {
 		SImageBuffer img_buf;
-		HBITMAP h_bmp = (HBITMAP)LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
+		HBITMAP h_bmp = static_cast<HBITMAP>(::LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE|LR_SHARED));
 		if(img_buf.LoadBmp(0, h_bmp, 5, 13) > 0) {
 			FPoint fp((float)(b.a.x + _cxborder), (float)(b.a.y + _cyborder));
 			LMatrix2D mtx;

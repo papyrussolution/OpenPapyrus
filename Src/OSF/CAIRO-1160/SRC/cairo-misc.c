@@ -913,14 +913,14 @@ cairo_status_t _cairo_fopen(const char * filename, const char * mode, FILE ** fi
 #define WIN32_LEAN_AND_MEAN
 /* We require Windows 2000 features such as ETO_PDY */
 #if !defined(WINVER) || (WINVER < 0x0500)
-# define WINVER 0x0500
+	#define WINVER 0x0500
 #endif
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
-# define _WIN32_WINNT 0x0500
+	#define _WIN32_WINNT 0x0500
 #endif
 
-#include <windows.h>
-#include <io.h>
+//#include <windows.h>
+//#include <io.h>
 
 #if !_WIN32_WCE
 /* tmpfile() replacement for Windows.

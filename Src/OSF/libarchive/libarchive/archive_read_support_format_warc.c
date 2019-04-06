@@ -415,7 +415,7 @@ static int _warc_skip(struct archive_read * a)
 /* private routines */
 static void* deconst(const void * c)
 {
-	return (char*)0x1 + (((const char *)c) - (const char *)0x1);
+	return (char *)0x1 + (((const char *)c) - (const char *)0x1);
 }
 
 static char* xmemmem(const char * hay, const size_t haysize,

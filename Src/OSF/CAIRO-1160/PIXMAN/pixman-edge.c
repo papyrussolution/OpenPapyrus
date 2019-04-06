@@ -79,7 +79,7 @@
 	(((x) & ~(0xf << SHIFT_4(o))) | (((v) & 0xf) << SHIFT_4(o)))
 
 #define DEFINE_ALPHA(line, x)                                           \
-	uint8_t   *__ap = (uint8_t*)line + ((x) >> 1);                    \
+	uint8_t   *__ap = (uint8_t *)line + ((x) >> 1);                    \
 	int __ao = (x) & 1
 
 #define STEP_ALPHA      ((__ap += __ao), (__ao ^= 1))
@@ -161,7 +161,7 @@ static void rasterize_edges_8(pixman_image_t * image,
 	line = buf + pixman_fixed_to_int(y) * stride;
 
 	for(;;) {
-		uint8_t * ap = (uint8_t*)line;
+		uint8_t * ap = (uint8_t *)line;
 		pixman_fixed_t lx, rx;
 		int lxi, rxi;
 

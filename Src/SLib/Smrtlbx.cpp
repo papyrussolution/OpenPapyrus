@@ -948,14 +948,14 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							case CDDS_ITEMPREPAINT:
 								{
 									long   _top = 0; //def->_topItem();
-									long   item_pos = _top + (long)p_cd->nmcd.dwItemSpec;
+									long   item_pos = _top + p_cd->nmcd.dwItemSpec;
 									long   item_id = 0;
 									if((p_cd->nmcd.uItemState&CDIS_FOCUS) != CDIS_FOCUS) {
 										if(getID(item_pos, &item_id)) {
 											SColor bc, fc;
 											if(def->GetItemColor(item_id, &fc, &bc) > 0) {
-												p_cd->clrText = (COLORREF)fc;
-												p_cd->clrTextBk = (COLORREF)bc;
+												p_cd->clrText = static_cast<COLORREF>(fc);
+												p_cd->clrTextBk = static_cast<COLORREF>(bc);
 											}
 										}
 									}

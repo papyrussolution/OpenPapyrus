@@ -197,7 +197,7 @@ static const char * octet2str(const char * beg, const char * end)
 		buf = SAlloc::M(3 * n + 1);
 		if(buf)
 			for(n = 0; beg < end; n += 3)
-				snprintf(buf + n, 4, "%02x:", *(const uchar*)beg++);
+				snprintf(buf + n, 4, "%02x:", *(const uchar *)beg++);
 	}
 	return buf;
 }
@@ -226,7 +226,7 @@ static const char * int2str(const char * beg, const char * end)
 	if(*beg & 0x80)
 		val = ~val;
 	do
-		val = (val << 8) | *(const uchar*)beg++;
+		val = (val << 8) | *(const uchar *)beg++;
 	while(beg < end);
 	return curl_maprintf("%s%lx", (val < 0 || val >= 10) ? "0x" : "", val);
 }
@@ -284,14 +284,14 @@ static ssize_t utf8asn1str(char ** to, int type, const char * from, const char *
 			wc = 0;
 			switch(size) {
 				case 4:
-				    wc = (wc << 8) | *(const uchar*)from++;
-				    wc = (wc << 8) | *(const uchar*)from++;
+				    wc = (wc << 8) | *(const uchar *)from++;
+				    wc = (wc << 8) | *(const uchar *)from++;
 				// @fallthrough
 				case 2:
-				    wc = (wc << 8) | *(const uchar*)from++;
+				    wc = (wc << 8) | *(const uchar *)from++;
 				// @fallthrough
 				default: /* case 1: */
-				    wc = (wc << 8) | *(const uchar*)from++;
+				    wc = (wc << 8) | *(const uchar *)from++;
 			}
 			charsize = 1;
 			if(wc >= 0x00000080) {
@@ -361,7 +361,7 @@ static int encodeOID(char * buf, int n, const char * beg, const char * end)
 	   Return the converted string length, or -1 if an error occurs. */
 
 	/* Process the first two numbers. */
-	y = *(const uchar*)beg++;
+	y = *(const uchar *)beg++;
 	x = y / 40;
 	y -= x * 40;
 	i += encodeUint(buf + i, n - i, x);
@@ -379,7 +379,7 @@ static int encodeOID(char * buf, int n, const char * beg, const char * end)
 		do {
 			if(x & 0xFF000000)
 				return -1;
-			y = *(const uchar*)beg++;
+			y = *(const uchar *)beg++;
 			x = (x << 7) | (y & 0x7F);
 		} while(y & 0x80);
 		i += encodeUint(buf + i, n - i, x);
@@ -887,7 +887,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 	/* Version (always fits in less than 32 bits). */
 	version = 0;
 	for(ccp = cert.version.beg; ccp < cert.version.end; ccp++)
-		version = (version << 8) | *(const uchar*)ccp;
+		version = (version << 8) | *(const uchar *)ccp;
 	if(data->set.ssl.certinfo) {
 		ccp = curl_maprintf("%lx", version);
 		if(!ccp)

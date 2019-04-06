@@ -656,7 +656,7 @@ static cairo_status_t cairo_truetype_font_write_head_table(cairo_truetype_font_t
 	if(unlikely(status))
 		return _cairo_truetype_font_set_error(font, status);
 	/* set checkSumAdjustment to 0 for table checksum calculation */
-	*(uint32_t*)(buffer + 8) = 0;
+	*(uint32_t *)(buffer + 8) = 0;
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -815,8 +815,8 @@ static uint32_t cairo_truetype_font_calculate_checksum(cairo_truetype_font_t * f
 {
 	uint32_t checksum = 0;
 	char * data = (char *)_cairo_array_index(&font->output, 0);
-	uint32_t * p = (uint32_t*)(data + start);
-	uint32_t * padded_end = (uint32_t*)(data + ((end + 3) & ~3));
+	uint32_t * p = (uint32_t *)(data + start);
+	uint32_t * padded_end = (uint32_t *)(data + ((end + 3) & ~3));
 	while(p < padded_end)
 		checksum += be32_to_cpu(*p++);
 	return checksum;

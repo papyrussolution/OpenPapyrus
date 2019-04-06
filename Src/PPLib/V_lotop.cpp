@@ -424,13 +424,13 @@ int PPALDD_LotOps::InitData(PPFilt & rFilt, long rsrv)
 {
 	PPViewLotOp * p_v = 0;
 	if(rsrv) {
-		p_v = (PPViewLotOp*)rFilt.Ptr;
+		p_v = static_cast<PPViewLotOp *>(rFilt.Ptr);
 		Extra[1].Ptr = p_v;
 	}
 	else {
 		p_v = new PPViewLotOp;
 		Extra[0].Ptr = p_v;
-		p_v->Init_((LotOpFilt*)rFilt.Ptr);
+		p_v->Init_(static_cast<const LotOpFilt *>(rFilt.Ptr));
 	}
 	ReceiptTbl::Rec lot_rec;
 	p_v->GetLotRec(&lot_rec);

@@ -357,6 +357,7 @@ extern void jinit_memory_mgr(j_common_ptr cinfo);
 
 /* Utility routines in jutils.c */
 EXTERN(long) FASTCALL jdiv_round_up(long a, long b);
+EXTERN(JDIMENSION) FASTCALL jdiv_round_up_jd(long a, long b); // @sobolev
 EXTERN(long) FASTCALL jround_up(long a, long b);
 EXTERN(void) jcopy_sample_rows(JSAMPARRAY input_array, int source_row, JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols);
 EXTERN(void) jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row, JDIMENSION num_blocks);

@@ -203,7 +203,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
  * stat structure returned by DB.
  */
 #define	MAKE_STAT_LIST(s, v) do {					\
-	result = _SetListElemInt(interp, res, (s), (long)(v));		\
+	result = _SetListElemInt(interp, res, (s), static_cast<long>(v));		\
 	if(result != TCL_OK)						\
 		goto error;						\
 } while (0)

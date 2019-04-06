@@ -529,10 +529,10 @@ int SLAPI PPGdsClsPacket::RealToExtDim(double realVal, int dim, GoodsExtTbl::Rec
 {
 	int    ok = 1;
 	switch(dim) {
-		case PPGdsCls::eX: rExtRec.X = (long)(realVal * fpow10i(DimX.Scale)); break;
-		case PPGdsCls::eY: rExtRec.Y = (long)(realVal * fpow10i(DimY.Scale)); break;
-		case PPGdsCls::eZ: rExtRec.Z = (long)(realVal * fpow10i(DimZ.Scale)); break;
-		case PPGdsCls::eW: rExtRec.W = (long)(realVal * fpow10i(DimW.Scale)); break;
+		case PPGdsCls::eX: rExtRec.X = static_cast<long>(realVal * fpow10i(DimX.Scale)); break;
+		case PPGdsCls::eY: rExtRec.Y = static_cast<long>(realVal * fpow10i(DimY.Scale)); break;
+		case PPGdsCls::eZ: rExtRec.Z = static_cast<long>(realVal * fpow10i(DimZ.Scale)); break;
+		case PPGdsCls::eW: rExtRec.W = static_cast<long>(realVal * fpow10i(DimW.Scale)); break;
 		default: ok = 0; break;
 	}
 	return ok;

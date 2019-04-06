@@ -1757,7 +1757,7 @@ int SImageBuffer::TransformToBounds(TPoint size, const SViewPort * pVp)
 		uint8 * p_src2 = cairo_image_surface_get_data(p_surf);
 		cairo_transform(p_cr, (cairo_matrix_t *)&mtx);
 		{
-			cairo_surface_t * p_img_surf = (cairo_surface_t *)CreateSurface(dsysCairo);
+			cairo_surface_t * p_img_surf = static_cast<cairo_surface_t *>(CreateSurface(dsysCairo));
 			THROW(p_img_surf);
 			cairo_set_source_surface(p_cr, p_img_surf, 0, 0);
 			cairo_paint(p_cr);
@@ -2081,8 +2081,8 @@ void * SImageBuffer::TransformToIcon() const
 	//Select the bitmaps to DC
 
 	//HBITMAP hOldMainBitmap     = (HBITMAP)::SelectObject(hMainDC,    hBitmap);
-	HBITMAP hOldAndMaskBitmap  = (HBITMAP)::SelectObject(hAndMaskDC, hAndMaskBitmap);
-	HBITMAP hOldXorMaskBitmap  = (HBITMAP)::SelectObject(hXorMaskDC, hXorMaskBitmap);
+	HBITMAP hOldAndMaskBitmap  = static_cast<HBITMAP>(::SelectObject(hAndMaskDC, hAndMaskBitmap));
+	HBITMAP hOldXorMaskBitmap  = static_cast<HBITMAP>(::SelectObject(hXorMaskDC, hXorMaskBitmap));
 	//Scan each pixel of the souce bitmap and create the masks
 	//COLORREF MainBitPixel;
 

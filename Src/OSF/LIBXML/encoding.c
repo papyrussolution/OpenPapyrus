@@ -218,7 +218,7 @@ static int UTF16LEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 				break;
 			*out++ = ((c >> bits) & 0x3F) | 0x80;
 		}
-		processed = (const uchar*)in;
+		processed = (const uchar *)in;
 	}
 	*outlen = out - outstart;
 	*inlenb = processed - inb;
@@ -315,7 +315,7 @@ static int asciiToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
 			*inlen = processed - base;
 			return -1;
 		}
-		processed = (const uchar*)in;
+		processed = (const uchar *)in;
 	}
 	*outlen = out - outstart;
 	*inlen = processed - base;
@@ -811,7 +811,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 				break;
 			*out++ = ((c >> bits) & 0x3F) | 0x80;
 		}
-		processed = (const uchar*)in;
+		processed = (const uchar *)in;
 	}
 	*outlen = out - outstart;
 	*inlenb = processed - inb;
@@ -2318,7 +2318,7 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
 		 */
 		if((in->end - in->cur) > 0) {
 			uchar convbuf[32000];
-			const uchar * cur = (const uchar*)in->cur;
+			const uchar * cur = (const uchar *)in->cur;
 			int toconv = in->end - in->cur, written = 32000;
 			int ret;
 			if(handler->output) {

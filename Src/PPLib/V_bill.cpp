@@ -5265,7 +5265,7 @@ int SLAPI PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitPa
 		PPViewBill   view;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		THROW(view.Init_(&filt));
+		THROW(view.InitLocal(&filt)); // @v10.4.9 view.Init_-->view.InitLocal
 		for(view.InitIteration(OrdByDefault); view.NextIteration(&item) > 0; PPWaitPercent(view.GetCounter())) {
 			objid_ary.Add(PPOBJ_BILL, item.ID);
 		}

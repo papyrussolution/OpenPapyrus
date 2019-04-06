@@ -873,12 +873,12 @@ LTIME FASTCALL encodetime(int h, int m, int s, int ts)
 	return tm;
 }
 
-void FASTCALL decodetime(int * h, int * m, int * s, int * ts, void * tm)
+void FASTCALL decodetime(int * h, int * m, int * s, int * ts, const void * tm)
 {
-	ASSIGN_PTR(h,  ((char *)tm)[3]);
-	ASSIGN_PTR(m,  ((char *)tm)[2]);
-	ASSIGN_PTR(s,  ((char *)tm)[1]);
-	ASSIGN_PTR(ts, ((char *)tm)[0]);
+	ASSIGN_PTR(h,  static_cast<const char *>(tm)[3]);
+	ASSIGN_PTR(m,  static_cast<const char *>(tm)[2]);
+	ASSIGN_PTR(s,  static_cast<const char *>(tm)[1]);
+	ASSIGN_PTR(ts, static_cast<const char *>(tm)[0]);
 }
 
 long FASTCALL DiffTime(LTIME t1, LTIME t2, int dim)
@@ -1439,7 +1439,7 @@ int LDATE::encode(int d, int m, int y)
 		d_ = ANY_DAYITEM_VALUE;
 	}
 	else if(d & REL_DATE_MASK) {
-		shift = (int)(int16)LoWord(d);
+		shift = static_cast<int>(LoWord(d));
 		if(m == -1 && y == -1) {
 			v = MakeLong(shift, 0x8000);
 			return 1;
@@ -1455,7 +1455,7 @@ int LDATE::encode(int d, int m, int y)
 		}
 	}
 	else if(d & THRSMDAY_DATE_MASK) {
-		shift = (int)(int16)LoWord(d);
+		shift = static_cast<int>(LoWord(d));
 		if(shift >= 1 && shift <= 31) {
 			v = MakeLong(shift, 0x2000);
 			return 1;
@@ -1471,7 +1471,7 @@ int LDATE::encode(int d, int m, int y)
 		m_ = ANY_MONITEM_VALUE;
 	}
 	else if(m & REL_DATE_MASK) {
-		shift = (int)(int16)LoWord(m);
+		shift = static_cast<int>(LoWord(m));
 		if(shift < 0)
 			x = (shift <= -24) ? (0x40 | 24) : (0x40 | (-shift));
 		else if(shift > 0)
@@ -1486,7 +1486,7 @@ int LDATE::encode(int d, int m, int y)
 		y_ = ANY_YEARITEM_VALUE;
 	}
 	else if(y & REL_DATE_MASK) {
-		shift = (int)(int16)LoWord(y);
+		shift = static_cast<int>(LoWord(y));
 		if(shift < 0)
 			x = (shift <= -255) ? (0x0400 | 255) : (0x0400 | (-shift));
 		else if(shift > 0)
@@ -1497,7 +1497,7 @@ int LDATE::encode(int d, int m, int y)
 	}
 	else
 		y_ = y;
-	v = (ulong)MakeLong((m_ << 8) | d_, y_);
+	v = static_cast<ulong>(MakeLong((m_ << 8) | d_, y_));
 	return 1;
 }
 

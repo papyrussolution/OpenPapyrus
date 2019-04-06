@@ -245,7 +245,7 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result
 {
 	uint32_t * str32 = NULL;
 	int i;
-	const uchar * const ustr = (const uchar*)str;
+	const uchar * const ustr = (const uchar *)str;
 	const uchar * in = ustr;
 	int n_chars = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
@@ -371,7 +371,7 @@ cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16_t
 {
 	uint16_t * str16 = NULL;
 	int i;
-	const uchar * const ustr = (const uchar*)str;
+	const uchar * const ustr = (const uchar *)str;
 	const uchar * in = ustr;
 	int n16 = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {

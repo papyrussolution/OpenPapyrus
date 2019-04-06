@@ -10,7 +10,7 @@
 void FASTCALL ZDeleteWinGdiObject(void * pHandle)
 {
 	if(pHandle) {
-		HGDIOBJ * p_obj = (HGDIOBJ *)pHandle;
+		HGDIOBJ * p_obj = static_cast<HGDIOBJ *>(pHandle);
 		if(*p_obj) {
 			::DeleteObject(*p_obj);
 			*p_obj = 0;
@@ -239,10 +239,10 @@ HBITMAP FASTCALL TBitmapHash::Get(uint bmpId)
 	ENTER_CRITICAL_SECTION
 	uint   p = 0;
 	if(List.lsearch(&bmpId, &p, CMPF_LONG)) {
-		h = (HBITMAP)List.at(p).H;
+		h = static_cast<HBITMAP>(List.at(p).H);
 	}
 	else {
-		h = (HBITMAP)LoadImage(APPL->GetInst(), MAKEINTRESOURCE(bmpId), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+		h = static_cast<HBITMAP>(::LoadImage(APPL->GetInst(), MAKEINTRESOURCE(bmpId), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION));
 		// h = ::LoadBitmap(APPL->GetInst(), MAKEINTRESOURCE(bmpId));
 		if(h) {
 			Entry new_entry;
@@ -261,10 +261,10 @@ HBITMAP FASTCALL TBitmapHash::GetSystem(uint bmpId)
 	ENTER_CRITICAL_SECTION
 	uint   p = 0;
 	if(List.lsearch(&bmpId, &p, CMPF_LONG)) {
-		h = (HBITMAP)List.at(p).H;
+		h = static_cast<HBITMAP>(List.at(p).H);
 	}
 	else {
-		h = (HBITMAP)LoadImage(0, MAKEINTRESOURCE(bmpId), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE|LR_SHARED);
+		h = static_cast<HBITMAP>(::LoadImage(0, MAKEINTRESOURCE(bmpId), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE|LR_SHARED));
 		if(h) {
 			Entry new_entry;
 			new_entry.ID = bmpId;

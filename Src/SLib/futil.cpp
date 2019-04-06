@@ -384,7 +384,7 @@ void SLAPI decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME * dt)
 	dt->t = encodetime(fat_t.ft.hour, fat_t.ft.min, fat_t.ft.tsec * 2, 0);
 }
 
-void SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, LDATETIME * dt)
+void SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME * dt)
 {
 	int d, m, y, h, s, hs;
 	union {

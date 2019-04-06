@@ -195,7 +195,7 @@ int EVP_PBE_scrypt(const char * pass, size_t passlen, const uchar * salt, size_t
 	B = (uchar *)OPENSSL_malloc(allocsize);
 	if(B == NULL)
 		return 0;
-	X = (uint32_t*)(B + Blen);
+	X = (uint32_t *)(B + Blen);
 	T = X + 32 * r;
 	V = T + 32 * r;
 	if(PKCS5_PBKDF2_HMAC(pass, passlen, salt, saltlen, 1, EVP_sha256(), (int)Blen, B) == 0)

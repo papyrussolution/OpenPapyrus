@@ -761,7 +761,7 @@ static int header_bin_le(struct archive_read * a, struct cpio * cpio, struct arc
 		return ARCHIVE_FATAL;
 	}
 	/* Parse out binary fields. */
-	header = (const uchar*)h;
+	header = (const uchar *)h;
 	archive_entry_set_dev(entry, header[bin_dev_offset] + header[bin_dev_offset + 1] * 256);
 	archive_entry_set_ino(entry, header[bin_ino_offset] + header[bin_ino_offset + 1] * 256);
 	archive_entry_set_mode(entry, header[bin_mode_offset] + header[bin_mode_offset + 1] * 256);
@@ -794,7 +794,7 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio, struct arc
 	}
 
 	/* Parse out binary fields. */
-	header = (const uchar*)h;
+	header = (const uchar *)h;
 
 	archive_entry_set_dev(entry, header[bin_dev_offset] * 256 + header[bin_dev_offset + 1]);
 	archive_entry_set_ino(entry, header[bin_ino_offset] * 256 + header[bin_ino_offset + 1]);

@@ -191,7 +191,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 #endif
 	f = fdopen(FileHandle, "rb"); /* Make it into a stream: */
 	/*@-mustfreeonly@*/
-	p_giffile->Private = (void *)p_private;
+	p_giffile->Private = p_private;
 	p_private->FileHandle = FileHandle;
 	p_private->File = f;
 	p_private->FileState = FILE_STATE_READ;
@@ -472,9 +472,9 @@ int DGifGetImageDesc(GifFileType * GifFile)
 			return GIF_ERROR;
 		}
 	}
-	sp->RasterBits = (uint8 *)NULL;
+	sp->RasterBits = NULL;
 	sp->ExtensionBlockCount = 0;
-	sp->ExtensionBlocks = (ExtensionBlock*)NULL;
+	sp->ExtensionBlocks = NULL;
 	GifFile->ImageCount++;
 	Private->PixelCount = (long)GifFile->Image.Width * (long)GifFile->Image.Height;
 	// Reset decompress algorithm parameters
@@ -1324,12 +1324,12 @@ GifFileType * EGifOpenFileHandle(const int FileHandle, int * Error)
 		_setmode(FileHandle, O_BINARY); /* Make sure it is in binary mode. */
 #endif /* _WIN32 */
 		f = fdopen(FileHandle, "wb"); /* Make it into a stream: */
-		GifFile->Private = (void *)Private;
+		GifFile->Private = Private;
 		Private->FileHandle = FileHandle;
 		Private->File = f;
 		Private->FileState = FILE_STATE_WRITE;
 		Private->Write = (OutputFunc)0; /* No user write routine (MRB) */
-		GifFile->UserData = (void *)NULL; /* No user write handle (MRB) */
+		GifFile->UserData = NULL; // No user write handle (MRB) 
 		GifFile->Error = 0;
 	}
 	return GifFile;
@@ -1710,7 +1710,7 @@ int EGifPutExtension(GifFileType * GifFile, const int ExtCode, const int ExtLen,
 		return GIF_ERROR;
 	}
 	if(ExtCode == 0)
-		InternalWrite(GifFile, (GifByteType*)&ExtLen, 1);
+		InternalWrite(GifFile, (GifByteType *)&ExtLen, 1);
 	else {
 		Buf[0] = EXTENSION_INTRODUCER;
 		Buf[1] = ExtCode; /* Extension Label */
@@ -1757,7 +1757,7 @@ int EGifGCBToSavedExtension(const GraphicsControlBlock * GCB, GifFileType * GifF
 			return GIF_OK;
 		}
 	}
-	Len = EGifGCBToExtension(GCB, (GifByteType*)buf);
+	Len = EGifGCBToExtension(GCB, (GifByteType *)buf);
 	if(GifAddExtensionBlock(&GifFile->SavedImages[ImageIndex].ExtensionBlockCount, 
 		&GifFile->SavedImages[ImageIndex].ExtensionBlocks, GRAPHICS_EXT_FUNC_CODE, Len, (uint8 *)buf) == GIF_ERROR)
 		return GIF_ERROR;
@@ -2130,7 +2130,7 @@ void GifDrawBoxedText8x8(GifSavedImage * Image, const int x, const int y, const 
 		if(cp[0] == '\t')
 			leadspace = (TextWidth - strlen(++cp)) / 2;
 		GifDrawText8x8(Image, x + border + (leadspace * GIF_FONT_WIDTH), y + border + (GIF_FONT_HEIGHT * i++), cp, fg);
-		cp = strtok((char *)NULL, "\r\n");
+		cp = strtok(NULL, "\r\n");
 	} while(cp);
 	/* outline the box */
 	GifDrawBox(Image, x, y, border + TextWidth * GIF_FONT_WIDTH + border, border + LineCount * GIF_FONT_HEIGHT + border, fg);

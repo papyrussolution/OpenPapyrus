@@ -93,7 +93,7 @@ static cairo_status_t _cairo_filler_curve_to(void * closure, const cairo_point_t
 	return _cairo_spline_decompose(&spline, filler->tolerance);
 }
 
-cairo_status_t _cairo_path_fixed_fill_to_polygon(const cairo_path_fixed_t * path, double tolerance, cairo_polygon_t * polygon)
+cairo_status_t FASTCALL _cairo_path_fixed_fill_to_polygon(const cairo_path_fixed_t * path, double tolerance, cairo_polygon_t * polygon)
 {
 	cairo_filler_t filler;
 	cairo_status_t status;
@@ -108,8 +108,7 @@ cairo_status_t _cairo_path_fixed_fill_to_polygon(const cairo_path_fixed_t * path
 	filler.current_point.x = 0;
 	filler.current_point.y = 0;
 	filler.last_move_to = filler.current_point;
-	status = _cairo_path_fixed_interpret(path, _cairo_filler_move_to, _cairo_filler_line_to, 
-		_cairo_filler_curve_to, _cairo_filler_close, &filler);
+	status = _cairo_path_fixed_interpret(path, _cairo_filler_move_to, _cairo_filler_line_to, _cairo_filler_curve_to, _cairo_filler_close, &filler);
 	if(unlikely(status))
 		return status;
 	return _cairo_filler_close(&filler);

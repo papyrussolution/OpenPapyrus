@@ -63,7 +63,6 @@ static inline void _cairo_contour_remove_last_point(cairo_contour_t * contour)
 {
 	if(contour->chain.num_points == 0)
 		return;
-
 	if(--contour->tail->num_points == 0)
 		__cairo_contour_remove_last_chain(contour);
 }

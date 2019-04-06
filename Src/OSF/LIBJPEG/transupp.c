@@ -1051,8 +1051,8 @@ GLOBAL(boolean) jtransform_request_workspace(j_decompress_ptr srcinfo, jpeg_tran
 		/* Now adjust so that upper left corner falls at an iMCU boundary */
 		if(info->transform == JXFORM_WIPE) {
 			/* Ensure the effective wipe region will cover the requested */
-			info->drop_width = (JDIMENSION)jdiv_round_up((long)(info->crop_width + (xoffset % info->iMCU_sample_width)), (long)info->iMCU_sample_width);
-			info->drop_height = (JDIMENSION)jdiv_round_up((long)(info->crop_height + (yoffset % info->iMCU_sample_height)), (long)info->iMCU_sample_height);
+			info->drop_width = jdiv_round_up_jd((long)(info->crop_width + (xoffset % info->iMCU_sample_width)), (long)info->iMCU_sample_width);
+			info->drop_height = jdiv_round_up_jd((long)(info->crop_height + (yoffset % info->iMCU_sample_height)), (long)info->iMCU_sample_height);
 		}
 		else {
 			/* Ensure the effective crop region will cover the requested */
@@ -1146,8 +1146,8 @@ GLOBAL(boolean) jtransform_request_workspace(j_decompress_ptr srcinfo, jpeg_tran
 	 */
 	if(need_workspace) {
 		coef_arrays = (jvirt_barray_ptr*)(*srcinfo->mem->alloc_small)((j_common_ptr)srcinfo, JPOOL_IMAGE, SIZEOF(jvirt_barray_ptr) * info->num_components);
-		width_in_iMCUs = (JDIMENSION)jdiv_round_up((long)info->output_width, (long)info->iMCU_sample_width);
-		height_in_iMCUs = (JDIMENSION)jdiv_round_up((long)info->output_height, (long)info->iMCU_sample_height);
+		width_in_iMCUs = jdiv_round_up_jd((long)info->output_width, (long)info->iMCU_sample_width);
+		height_in_iMCUs = jdiv_round_up_jd((long)info->output_height, (long)info->iMCU_sample_height);
 		for(ci = 0; ci < info->num_components; ci++) {
 			compptr = srcinfo->comp_info + ci;
 			if(info->num_components == 1) {

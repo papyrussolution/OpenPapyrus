@@ -1292,7 +1292,7 @@ static void premultiply_argb(uint8_t * data,
 	int i;
 
 	while(height--) {
-		uint32_t * row = (uint32_t*)data;
+		uint32_t * row = (uint32_t *)data;
 
 		for(i = 0; i < width; i++) {
 			uint32_t p = row[i];

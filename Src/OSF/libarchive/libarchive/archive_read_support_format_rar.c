@@ -864,7 +864,7 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 				    return ARCHIVE_FATAL;
 			    }
 
-			    crc32_val = crc32(0, (const uchar*)p + 2, (unsigned)skip - 2);
+			    crc32_val = crc32(0, (const uchar *)p + 2, (unsigned)skip - 2);
 			    if((crc32_val & 0xffff) != archive_le16dec(p)) {
 				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 					"Header CRC error");
@@ -918,7 +918,7 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 					    return ARCHIVE_FATAL;
 				    }
 				    p = static_cast<const char *>(h);
-				    crc32_val = crc32(crc32_val, (const uchar*)p, (unsigned)did_read);
+				    crc32_val = crc32(crc32_val, (const uchar *)p, (unsigned)did_read);
 				    __archive_read_consume(a, did_read);
 				    skip -= did_read;
 			    }
@@ -1219,7 +1219,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid header size");
 		return ARCHIVE_FATAL;
 	}
-	crc32_val = crc32(0, (const uchar*)p + 2, 7 - 2);
+	crc32_val = crc32(0, (const uchar *)p + 2, 7 - 2);
 	__archive_read_consume(a, 7);
 	if(!(rar->file_flags & FHD_SOLID)) {
 		rar->compression_method = 0;
@@ -1453,7 +1453,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Mismatch of file parts split across multi-volume archive");
 		return ARCHIVE_FATAL;
 	}
-	rar->filename_save = (char*)SAlloc::R(rar->filename_save, filename_size + 1);
+	rar->filename_save = (char *)SAlloc::R(rar->filename_save, filename_size + 1);
 	memcpy(rar->filename_save, rar->filename, filename_size + 1);
 	rar->filename_save_size = filename_size;
 

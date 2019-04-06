@@ -16,11 +16,9 @@ int SLAPI __ReplacePersonNames()
 	PPObjPerson psn_obj;
 	PPObjArticle ar_obj;
 	long   counter = 0, part = 0;
-
 	char   buf[128];
 	SStrCollection strings;
 	PPWait(1);
-
 	FILE * stream = fopen("suppls.txt", "r");
 	if(stream == 0)
 		return 0;
@@ -6626,7 +6624,7 @@ int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
 static PPID Helper_DL600_GetRegister(PPID psnID, const char * pRegSymb, void * pExtra, int byDate, LDATE actualDate, RegisterTbl::Rec * pRegRec)
 {
 	PPID   reg_type_id = 0;
-	PPObjPerson * p_obj = (PPObjPerson *)pExtra;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(pExtra);
 	if(p_obj && PPObjRegisterType::GetByCode(pRegSymb, &reg_type_id) > 0) {
 		RegisterTbl::Rec reg_rec;
 		int r = byDate ? p_obj->GetRegister(psnID, reg_type_id, actualDate, &reg_rec) : p_obj->GetRegister(psnID, reg_type_id, &reg_rec);
@@ -6656,6 +6654,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		tReal,
 		tDate
 	} tag_type;
+	SString temp_buf;
 	SString tag_symb;
 	tag_type = tNone;
 	if(pF->Name == "?GetRegister") {
@@ -6691,9 +6690,8 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 0, ZERODATE, &reg_rec);
 		if(reg_type_id) {
 			PPObjRegisterType rt_obj;
-			SString format;
-			if(rt_obj.GetFormat(reg_type_id, format) > 0 && format.NotEmptyS())
-				PPObjRegister::Format(reg_rec, format, _RET_STR);
+			if(rt_obj.GetFormat(reg_type_id, temp_buf) > 0 && temp_buf.NotEmptyS())
+				PPObjRegister::Format(reg_rec, temp_buf, _RET_STR);
 		}
 	}
 	if(pF->Name == "?FormatRegisterD") {
@@ -6702,9 +6700,8 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec);
 		if(reg_type_id) {
 			PPObjRegisterType rt_obj;
-			SString format;
-			if(rt_obj.GetFormat(reg_type_id, format) > 0 && format.NotEmptyS())
-				PPObjRegister::Format(reg_rec, format, _RET_STR);
+			if(rt_obj.GetFormat(reg_type_id, temp_buf) > 0 && temp_buf.NotEmptyS())
+				PPObjRegister::Format(reg_rec, temp_buf, _RET_STR);
 		}
 	}
 	else if(pF->Name == "?GetBankAccount") {
@@ -6712,7 +6709,6 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
 		if(p_obj) {
 			PPID   ba_id = 0;
-			//BankAccountTbl::Rec ba_rec;
 			PPBankAccount ba_rec;
 			if(p_obj->GetSingleBnkAcct(H.ID, _ARG_LONG(1), &ba_id, &ba_rec) > 0)
 				_RET_INT = ba_id;
@@ -6741,13 +6737,27 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 			p_obj->P_Tbl->GetELinks(H.ID, &ela);
 			if(ela.getCount()) {
 				StringSet ss;
-				if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
+				if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0)
                     ss.get(0U, _RET_STR);
-				}
 			}
 		}
 	}
 	// } @v9.4.1
+	// @v10.4.0 {
+	else if(pF->Name == "?GetExtName") { 
+		temp_buf.Z();
+		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
+		if(p_obj) {
+			p_obj->GetExtName(H.ID, temp_buf);
+			if(temp_buf.Empty()) {
+				PersonTbl::Rec psn_rec;
+				if(p_obj->Fetch(H.ID, &psn_rec) > 0)
+					temp_buf = psn_rec.Name;
+			}
+		}
+		_RET_STR = temp_buf;
+	}
+	// } @v10.4.0 
 	else if(pF->Name == "?GetTag") {
 		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_PERSON, H.ID, _ARG_STR(1));
 	}

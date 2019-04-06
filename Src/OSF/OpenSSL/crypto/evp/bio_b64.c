@@ -344,7 +344,7 @@ static int b64_write(BIO * b, const char * in, int inl)
 					break;
 				}
 				n -= n % 3;
-				ctx->buf_len = EVP_EncodeBlock((uchar *)ctx->buf, (const uchar*)in, n);
+				ctx->buf_len = EVP_EncodeBlock((uchar *)ctx->buf, (const uchar *)in, n);
 				OPENSSL_assert(ctx->buf_len <= (int)sizeof(ctx->buf));
 				OPENSSL_assert(ctx->buf_len >= ctx->buf_off);
 				ret += n;

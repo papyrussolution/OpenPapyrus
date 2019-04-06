@@ -1820,7 +1820,7 @@ int PPALDD_Tech::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		TechTbl::Rec rec;
-		if(((PPObjTech *)(Extra[0].Ptr))->Search(rFilt.ID, &rec) > 0) {
+		if(static_cast<PPObjTech *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			STRNSCPY(H.Code, rec.Code);
 			H.PrcID    = rec.PrcID;

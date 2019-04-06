@@ -238,7 +238,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrosConfig * pCf
 		pCfg->Hdr.Size = s;
 		memcpy(buffer + p, &pCfg->Hdr, sizeof(pCfg->Hdr));
 		p += sizeof(pCfg->Hdr);
-		memcpy(buffer + p, (const char *)tail, tail.Len()+1);
+		memcpy(buffer + p, tail.cptr(), tail.Len()+1);
 		THROW(pRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, s, 0));
 		DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_ALBATROS, 0, 0, 0);
 	}

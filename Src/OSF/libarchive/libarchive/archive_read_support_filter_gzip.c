@@ -128,7 +128,7 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 	/* Start by looking at the first ten bytes of the header, which
 	 * is all fixed layout. */
 	len = 10;
-	p = (const uchar*)__archive_read_filter_ahead(filter, len, &avail);
+	p = (const uchar *)__archive_read_filter_ahead(filter, len, &avail);
 	if(p == NULL || avail == 0)
 		return 0;
 	/* We only support deflation- third byte must be 0x08. */
@@ -147,7 +147,7 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 
 	/* Optional extra data:  2 byte length plus variable body. */
 	if(header_flags & 4) {
-		p = (const uchar*)__archive_read_filter_ahead(filter, len + 2, &avail);
+		p = (const uchar *)__archive_read_filter_ahead(filter, len + 2, &avail);
 		if(p == NULL)
 			return 0;
 		len += ((int)p[len + 1] << 8) | (int)p[len];
@@ -159,7 +159,7 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 		do {
 			++len;
 			if(avail < len)
-				p = (const uchar*)__archive_read_filter_ahead(filter, len, &avail);
+				p = (const uchar *)__archive_read_filter_ahead(filter, len, &avail);
 			if(p == NULL)
 				return 0;
 		} while(p[len - 1] != 0);
@@ -170,14 +170,14 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 		do {
 			++len;
 			if(avail < len)
-				p = (const uchar*)__archive_read_filter_ahead(filter, len, &avail);
+				p = (const uchar *)__archive_read_filter_ahead(filter, len, &avail);
 			if(p == NULL)
 				return 0;
 		} while(p[len - 1] != 0);
 	}
 	/* Optional header CRC */
 	if((header_flags & 2)) {
-		p = (const uchar*)__archive_read_filter_ahead(filter, len + 2, &avail);
+		p = (const uchar *)__archive_read_filter_ahead(filter, len + 2, &avail);
 		if(p == NULL)
 			return 0;
 #if 0

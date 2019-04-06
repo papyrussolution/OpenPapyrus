@@ -8392,7 +8392,7 @@ void xmlXPathSubstringFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	CAST_TO_STRING;
 	CHECK_TYPE(XPATH_STRING);
 	str = valuePop(ctxt);
-	m = xmlUTF8Strlen((const uchar*)str->stringval);
+	m = xmlUTF8Strlen((const uchar *)str->stringval);
 
 	/*
 	 * If last pos not present, calculate last position

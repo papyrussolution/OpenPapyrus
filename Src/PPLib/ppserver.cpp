@@ -3174,7 +3174,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 				file_path = blk.Name;
 			if(fileExists(file_path)) {
 				if(SFile::Remove(file_path) <= 0) {
-					file_path = 0;
+					file_path.Z();
 					THROW_SL(0);
 				}
 			}
@@ -3241,8 +3241,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 	CATCH
 		rReply.SetError();
 		ret = cmdretError;
-		if(file_path.Len())
-			SFile::Remove(file_path);
+		SFile::Remove(file_path);
 	ENDCATCH
 	ZDELETE(p_f);
 	return ret;

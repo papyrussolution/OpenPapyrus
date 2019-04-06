@@ -387,8 +387,8 @@ static CURLcode pop3_perform_apop(struct connectdata * conn)
 	ctxt = Curl_MD5_init(Curl_DIGEST_MD5);
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;
-	Curl_MD5_update(ctxt, (const uchar*)pop3c->apoptimestamp, curlx_uztoui(sstrlen(pop3c->apoptimestamp)));
-	Curl_MD5_update(ctxt, (const uchar*)conn->passwd, curlx_uztoui(sstrlen(conn->passwd)));
+	Curl_MD5_update(ctxt, (const uchar *)pop3c->apoptimestamp, curlx_uztoui(sstrlen(pop3c->apoptimestamp)));
+	Curl_MD5_update(ctxt, (const uchar *)conn->passwd, curlx_uztoui(sstrlen(conn->passwd)));
 	// Finalise the digest 
 	Curl_MD5_final(ctxt, digest);
 	// Convert the calculated 16 octet digest into a 32 byte hex string 

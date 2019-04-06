@@ -11,7 +11,7 @@
 
 int OPENSSL_memcmp(const void * v1, const void * v2, size_t n)
 {
-	const uchar * c1 = (const uchar*)v1, * c2 = (const uchar*)v2;
+	const uchar * c1 = (const uchar *)v1, * c2 = (const uchar *)v2;
 	int ret = 0;
 	while(n && (ret = *c1 - *c2) == 0)
 		n--, c1++, c2++;
@@ -124,7 +124,7 @@ uchar * OPENSSL_hexstr2buf(const char * str, long * len)
 		CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-	for(p = (const uchar*)str, q = hexbuf; *p; ) {
+	for(p = (const uchar *)str, q = hexbuf; *p; ) {
 		ch = *p++;
 		if(ch == ':')
 			continue;

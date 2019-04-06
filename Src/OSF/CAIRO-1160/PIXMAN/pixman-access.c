@@ -49,13 +49,13 @@
 
 #ifdef WORDS_BIGENDIAN
 #define FETCH_1(img, l, o)                                                \
-	(((READ((img), ((uint32_t*)(l)) + ((o) >> 5))) >> (0x1f - ((o) & 0x1f))) & 0x1)
+	(((READ((img), ((uint32_t *)(l)) + ((o) >> 5))) >> (0x1f - ((o) & 0x1f))) & 0x1)
 #else
 #define FETCH_1(img, l, o)                                                \
-	((((READ((img), ((uint32_t*)(l)) + ((o) >> 5))) >> ((o) & 0x1f))) & 0x1)
+	((((READ((img), ((uint32_t *)(l)) + ((o) >> 5))) >> ((o) & 0x1f))) & 0x1)
 #endif
 
-#define FETCH_8(img, l, o)    (READ(img, (((uint8_t*)(l)) + ((o) >> 3))))
+#define FETCH_8(img, l, o)    (READ(img, (((uint8_t *)(l)) + ((o) >> 3))))
 
 #ifdef WORDS_BIGENDIAN
 #define FETCH_4(img, l, o)                                                \
@@ -67,63 +67,51 @@
 
 #ifdef WORDS_BIGENDIAN
 #define FETCH_24(img, l, o)                                              \
-	((READ(img, (((uint8_t*)(l)) + ((o) * 3) + 0)) << 16)    |       \
-	(READ(img, (((uint8_t*)(l)) + ((o) * 3) + 1)) << 8)     |       \
-	(READ(img, (((uint8_t*)(l)) + ((o) * 3) + 2)) << 0))
+	((READ(img, (((uint8_t *)(l)) + ((o) * 3) + 0)) << 16)    |       \
+	(READ(img, (((uint8_t *)(l)) + ((o) * 3) + 1)) << 8)     |       \
+	(READ(img, (((uint8_t *)(l)) + ((o) * 3) + 2)) << 0))
 #else
 #define FETCH_24(img, l, o)                                               \
-	((READ(img, (((uint8_t*)(l)) + ((o) * 3) + 0)) << 0)      |       \
-	(READ(img, (((uint8_t*)(l)) + ((o) * 3) + 1)) << 8)      |       \
-	(READ(img, (((uint8_t*)(l)) + ((o) * 3) + 2)) << 16))
+	((READ(img, (((uint8_t *)(l)) + ((o) * 3) + 0)) << 0)      |       \
+	(READ(img, (((uint8_t *)(l)) + ((o) * 3) + 1)) << 8)      |       \
+	(READ(img, (((uint8_t *)(l)) + ((o) * 3) + 2)) << 16))
 #endif
 
 /* Store macros */
 
 #ifdef WORDS_BIGENDIAN
 #define STORE_1(img, l, o, v)                                              \
-	do                                                                  \
-	{                                                                   \
-		uint32_t * __d = ((uint32_t*)(l)) + ((o) >> 5);                \
-		uint32_t __m, __v;                                              \
-                                                                        \
-		__m = 1 << (0x1f - ((o) & 0x1f));                               \
-		__v = (v) ? __m : 0;                                             \
-                                                                        \
+	do { \
+		uint32_t * __d = (reinterpret_cast<uint32_t *>(l)) + ((o) >> 5);                \
+		uint32_t __m = 1 << (0x1f - ((o) & 0x1f));                               \
+		uint32_t __v = (v) ? __m : 0;                                             \
 		WRITE((img), __d, (READ((img), __d) & ~__m) | __v);             \
-	}                                                                   \
-	while(0)
+	} while(0)
 #else
 #define STORE_1(img, l, o, v)                                              \
 	do { \
-		uint32_t * __d = ((uint32_t*)(l)) + ((o) >> 5);                \
-		uint32_t __m, __v;                                              \
-		__m = 1 << ((o) & 0x1f);                                        \
-		__v = (v) ? __m : 0;                                             \
+		uint32_t * __d = (reinterpret_cast<uint32_t *>(l)) + ((o) >> 5);                \
+		uint32_t __m = 1 << ((o) & 0x1f);                                        \
+		uint32_t __v = (v) ? __m : 0;                                             \
 		WRITE((img), __d, (READ((img), __d) & ~__m) | __v);             \
 	} while(0)
 #endif
 
-#define STORE_8(img, l, o, v)  (WRITE(img, (uint8_t*)(l) + ((o) >> 3), (v)))
+#define STORE_8(img, l, o, v)  (WRITE(img, static_cast<uint8_t *>(l) + ((o) >> 3), (v)))
 
 #ifdef WORDS_BIGENDIAN
 #define STORE_4(img, l, o, v)                                              \
 	do { \
 		int bo = 4 * (o);                                               \
 		int v4 = (v) & 0x0f;                                            \
-		STORE_8(img, l, bo, (                                          \
-			    bo & 4 ?                                           \
-			    (FETCH_8(img, l, bo) & 0xf0) | (v4) :             \
-			    (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4)));       \
+		STORE_8(img, l, bo, (bo & 4 ? (FETCH_8(img, l, bo) & 0xf0) | (v4) : (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4))); \
 	} while(0)
 #else
 #define STORE_4(img, l, o, v)                                              \
 	do { \
 		int bo = 4 * (o);                                               \
 		int v4 = (v) & 0x0f;                                            \
-		STORE_8(img, l, bo, (                                          \
-			    bo & 4 ?                                           \
-			    (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4) :        \
-			    (FETCH_8(img, l, bo) & 0xf0) | (v4)));            \
+		STORE_8(img, l, bo, (bo & 4 ? (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4) : (FETCH_8(img, l, bo) & 0xf0) | (v4))); \
 	} while(0)
 #endif
 
@@ -134,8 +122,7 @@
 		WRITE((img), __tmp++, ((v) & 0x00ff0000) >> 16);              \
 		WRITE((img), __tmp++, ((v) & 0x0000ff00) >>  8);              \
 		WRITE((img), __tmp++, ((v) & 0x000000ff) >>  0);              \
-	}                                                                  \
-	while(0)
+	} while(0)
 #else
 #define STORE_24(img, l, o, v)                                            \
 	do { \
@@ -143,8 +130,7 @@
 		WRITE((img), __tmp++, ((v) & 0x000000ff) >>  0);              \
 		WRITE((img), __tmp++, ((v) & 0x0000ff00) >>  8);              \
 		WRITE((img), __tmp++, ((v) & 0x00ff0000) >> 16);              \
-	}                                                                  \
-	while(0)
+	} while(0)
 #endif
 
 /*
@@ -155,22 +141,17 @@
 	bits_image_t *__bits_image = static_cast<bits_image_t *>(image); \
 	uint32_t * bits = __bits_image->bits;                                \
 	int stride = __bits_image->rowstride;                               \
-	int offset0 = stride < 0 ?                                          \
-	    ((-stride) >> 1) * ((__bits_image->height - 1) >> 1) - stride :     \
-	    stride * __bits_image->height;                                      \
-	int offset1 = stride < 0 ?                                          \
-	    offset0 + ((-stride) >> 1) * ((__bits_image->height) >> 1) :        \
-	    offset0 + (offset0 >> 2)
+	int offset0 = stride < 0 ? ((-stride) >> 1) * ((__bits_image->height - 1) >> 1) - stride : stride * __bits_image->height; \
+	int offset1 = stride < 0 ? offset0 + ((-stride) >> 1) * ((__bits_image->height) >> 1) : offset0 + (offset0 >> 2)
 
 /* Note no trailing semicolon on the above macro; if it's there, then
  * the typical usage of YV12_SETUP(image); will have an extra trailing ;
  * that some compilers will interpret as a statement -- and then any further
  * variable declarations will cause an error.
  */
-
-#define YV12_Y(line) ((uint8_t*)((bits) + (stride) * (line)))
-#define YV12_U(line) ((uint8_t*)((bits) + offset1 + ((stride) >> 1) * ((line) >> 1)))
-#define YV12_V(line) ((uint8_t*)((bits) + offset0 + ((stride) >> 1) * ((line) >> 1)))
+#define YV12_Y(line) ((uint8_t *)((bits) + (stride) * (line)))
+#define YV12_U(line) ((uint8_t *)((bits) + offset1 + ((stride) >> 1) * ((line) >> 1)))
+#define YV12_V(line) ((uint8_t *)((bits) + offset0 + ((stride) >> 1) * ((line) >> 1)))
 
 /* Misc. helpers */
 
@@ -183,7 +164,6 @@ static force_inline void get_shifts(pixman_format_code_t format, int * a, int * 
 		    *r = 0;
 		    *a = 0;
 		    break;
-
 		case PIXMAN_TYPE_ARGB:
 		case PIXMAN_TYPE_ARGB_SRGB:
 		    *b = 0;
@@ -191,7 +171,6 @@ static force_inline void get_shifts(pixman_format_code_t format, int * a, int * 
 		    *r = *g + PIXMAN_FORMAT_G(format);
 		    *a = *r + PIXMAN_FORMAT_R(format);
 		    break;
-
 		case PIXMAN_TYPE_ABGR:
 		    *r = 0;
 		    *g = *r + PIXMAN_FORMAT_R(format);
@@ -281,7 +260,7 @@ static force_inline uint32_t fetch_and_convert_pixel(const bits_image_t * image,
 		case 8: pixel = READ(image, bits + offset); break;
 		case 16: pixel = READ(image, ((uint16_t*)bits + offset)); break;
 		case 24: pixel = FETCH_24(image, bits, offset); break;
-		case 32: pixel = READ(image, ((uint32_t*)bits + offset)); break;
+		case 32: pixel = READ(image, ((uint32_t *)bits + offset)); break;
 		default: pixel = 0xffff00ff; break; // As ugly as possible to detect the bug 
 	}
 	return convert_pixel_to_a8r8g8b8(image, format, pixel);
@@ -296,7 +275,7 @@ static force_inline void convert_and_store_pixel(bits_image_t * image, uint8_t *
 		case 8: WRITE(image, (dest + offset), converted & 0xff); break;
 		case 16: WRITE(image, ((uint16_t*)dest + offset), converted & 0xffff); break;
 		case 24: STORE_24(image, dest, offset, converted); break;
-		case 32: WRITE(image, ((uint32_t*)dest + offset), converted); break;
+		case 32: WRITE(image, ((uint32_t *)dest + offset), converted); break;
 		default: *dest = 0x0; break;
 	}
 }
@@ -439,14 +418,14 @@ static void fetch_scanline_a8r8g8b8_sRGB_float(bits_image_t *  image, int x, int
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = bits + x;
 	const uint32_t * end = pixel + width;
-	argb_t * buffer = (argb_t*)b;
+	argb_t * buffer = reinterpret_cast<argb_t *>(b);
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		argb_t * argb = buffer;
 		argb->a = pixman_unorm_to_float((p >> 24) & 0xff, 8);
-		argb->r = to_linear [(p >> 16) & 0xff];
-		argb->g = to_linear [(p >>  8) & 0xff];
-		argb->b = to_linear [(p >>  0) & 0xff];
+		argb->r = to_linear[(p >> 16) & 0xff];
+		argb->g = to_linear[(p >>  8) & 0xff];
+		argb->b = to_linear[(p >>  0) & 0xff];
 		buffer++;
 	}
 }
@@ -457,7 +436,7 @@ static void fetch_scanline_a2r10g10b10_float(bits_image_t *  image, int x, int y
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = bits + x;
 	const uint32_t * end = pixel + width;
-	argb_t * buffer = (argb_t*)b;
+	argb_t * buffer = reinterpret_cast<argb_t *>(b);
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		uint64_t a = p >> 30;
@@ -474,17 +453,11 @@ static void fetch_scanline_a2r10g10b10_float(bits_image_t *  image, int x, int y
 
 /* Expects a float buffer */
 #ifndef PIXMAN_FB_ACCESSORS
-static void fetch_scanline_rgbf_float(bits_image_t * image,
-    int x,
-    int y,
-    int width,
-    uint32_t * b,
-    const uint32_t * mask)
+static void fetch_scanline_rgbf_float(bits_image_t * image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
-	const float * bits = (float *)image->bits + y * image->rowstride;
+	const float * bits = reinterpret_cast<float *>(image->bits) + y * image->rowstride;
 	const float * pixel = bits + x * 3;
-	argb_t * buffer = (argb_t*)b;
-
+	argb_t * buffer = reinterpret_cast<argb_t *>(b);
 	for(; width--; buffer++) {
 		buffer->r = *pixel++;
 		buffer->g = *pixel++;
@@ -511,9 +484,9 @@ static void fetch_scanline_rgbaf_float(bits_image_t * image, int x, int y, int w
 static void fetch_scanline_x2r10g10b10_float(bits_image_t * image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + y * image->rowstride;
-	const uint32_t * pixel = (uint32_t*)bits + x;
+	const uint32_t * pixel = (uint32_t *)bits + x;
 	const uint32_t * end = pixel + width;
-	argb_t * buffer = (argb_t*)b;
+	argb_t * buffer = reinterpret_cast<argb_t *>(b);
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		uint64_t r = (p >> 20) & 0x3ff;
@@ -533,7 +506,7 @@ static void fetch_scanline_a2b10g10r10_float(bits_image_t * image, int x, int y,
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = bits + x;
 	const uint32_t * end = pixel + width;
-	argb_t * buffer = (argb_t*)b;
+	argb_t * buffer = reinterpret_cast<argb_t *>(b);
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		uint64_t a = p >> 30;
@@ -552,9 +525,9 @@ static void fetch_scanline_a2b10g10r10_float(bits_image_t * image, int x, int y,
 static void fetch_scanline_x2b10g10r10_float(bits_image_t * image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + y * image->rowstride;
-	const uint32_t * pixel = (uint32_t*)bits + x;
+	const uint32_t * pixel = (uint32_t *)bits + x;
 	const uint32_t * end = pixel + width;
-	argb_t * buffer = (argb_t*)b;
+	argb_t * buffer = reinterpret_cast<argb_t *>(b);
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		uint64_t b = (p >> 20) & 0x3ff;
@@ -572,9 +545,9 @@ static void fetch_scanline_yuy2(bits_image_t * image, int x, int line, int width
 {
 	const uint32_t * bits = image->bits + image->rowstride * line;
 	for(int i = 0; i < width; i++) {
-		int16_t y = ((uint8_t*)bits)[(x + i) << 1] - 16;
-		int16_t u = ((uint8_t*)bits)[(((x + i) << 1) & - 4) + 1] - 128;
-		int16_t v = ((uint8_t*)bits)[(((x + i) << 1) & - 4) + 3] - 128;
+		int16_t y = ((uint8_t *)bits)[(x + i) << 1] - 16;
+		int16_t u = ((uint8_t *)bits)[(((x + i) << 1) & - 4) + 1] - 128;
+		int16_t v = ((uint8_t *)bits)[(((x + i) << 1) & - 4) + 3] - 128;
 		/* R = 1.164(Y - 16) + 1.596(V - 128) */
 		int32_t r = 0x012b27 * y + 0x019a2e * v;
 		/* G = 1.164(Y - 16) - 0.813(V - 128) - 0.391(U - 128) */
@@ -616,7 +589,7 @@ static void fetch_scanline_yv12(bits_image_t * image, int x, int line, int width
 #ifndef PIXMAN_FB_ACCESSORS
 static argb_t fetch_pixel_rgbf_float(bits_image_t * image, int offset, int line)
 {
-	float * bits = (float *)image->bits + line * image->rowstride;
+	float * bits = reinterpret_cast<float *>(image->bits) + line * image->rowstride;
 	argb_t argb;
 	argb.r = bits[offset * 3];
 	argb.g = bits[offset * 3 + 1];
@@ -627,7 +600,7 @@ static argb_t fetch_pixel_rgbf_float(bits_image_t * image, int offset, int line)
 
 static argb_t fetch_pixel_rgbaf_float(bits_image_t * image, int offset, int line)
 {
-	float * bits = (float *)image->bits + line * image->rowstride;
+	float * bits = reinterpret_cast<float *>(image->bits) + line * image->rowstride;
 	argb_t argb;
 	argb.r = bits[offset * 4];
 	argb.g = bits[offset * 4 + 1];
@@ -717,9 +690,9 @@ static uint32_t fetch_pixel_yuy2(bits_image_t * image, int offset, int line)
 	const uint32_t * bits = image->bits + image->rowstride * line;
 	int16_t y, u, v;
 	int32_t r, g, b;
-	y = ((uint8_t*)bits)[offset << 1] - 16;
-	u = ((uint8_t*)bits)[((offset << 1) & - 4) + 1] - 128;
-	v = ((uint8_t*)bits)[((offset << 1) & - 4) + 3] - 128;
+	y = ((uint8_t *)bits)[offset << 1] - 16;
+	u = ((uint8_t *)bits)[((offset << 1) & - 4) + 1] - 128;
+	v = ((uint8_t *)bits)[((offset << 1) & - 4) + 3] - 128;
 	/* R = 1.164(Y - 16) + 1.596(V - 128) */
 	r = 0x012b27 * y + 0x019a2e * v;
 	/* G = 1.164(Y - 16) - 0.813(V - 128) - 0.391(U - 128) */
@@ -754,7 +727,7 @@ static uint32_t fetch_pixel_yv12(bits_image_t * image, int offset, int line)
 #ifndef PIXMAN_FB_ACCESSORS
 static void store_scanline_rgbaf_float(bits_image_t *  image, int x, int y, int width, const uint32_t * v)
 {
-	float * bits = (float *)image->bits + image->rowstride * y + 4 * x;
+	float * bits = reinterpret_cast<float *>(image->bits) + image->rowstride * y + 4 * x;
 	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(; width; width--, values++) {
 		*bits++ = values->r;
@@ -766,7 +739,7 @@ static void store_scanline_rgbaf_float(bits_image_t *  image, int x, int y, int 
 
 static void store_scanline_rgbf_float(bits_image_t *  image, int x, int y, int width, const uint32_t * v)
 {
-	float * bits = (float *)image->bits + image->rowstride * y + 3 * x;
+	float * bits = reinterpret_cast<float *>(image->bits) + image->rowstride * y + 3 * x;
 	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(; width; width--, values++) {
 		*bits++ = values->r;
@@ -856,7 +829,7 @@ static void store_scanline_generic_float(bits_image_t *  image, int x, int y, in
 	if(!argb8_pixels)
 		return;
 	// Contract the scanline.  We could do this in place if values weren't const.
-	pixman_contract_from_float(argb8_pixels, (argb_t*)values, width);
+	pixman_contract_from_float(argb8_pixels, (argb_t *)values, width);
 	image->store_scanline_32(image, x, y, width, argb8_pixels);
 	SAlloc::F(argb8_pixels);
 }
@@ -873,7 +846,7 @@ static void fetch_scanline_generic_float(bits_image_t *  image, int x, int y, in
 static void fetch_scanline_a8r8g8b8_32_sRGB(bits_image_t * image, int x, int y, int width, uint32_t * buffer, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + y * image->rowstride;
-	const uint32_t * pixel = (uint32_t*)bits + x;
+	const uint32_t * pixel = (uint32_t *)bits + x;
 	const uint32_t * end = pixel + width;
 	while(pixel < end) {
 		uint8_t a, r, g, b;

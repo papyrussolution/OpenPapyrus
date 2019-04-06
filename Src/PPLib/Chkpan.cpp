@@ -3778,6 +3778,37 @@ int CheckPaneDialog::ConfirmPosPaymBank(double amount)
 	return yes;
 }
 
+int CPosProcessor::SearchSCardByCode(const char * pCode, PPIDArray & rScList)
+{
+	rScList.clear();
+	int    ok = -1;
+	SCardTbl::Rec sc_rec;
+	SString temp_buf = pCode;
+	if(PPObjSCard::PreprocessSCardCode(temp_buf) > 0 && ScObj.SearchCode(0, temp_buf, &sc_rec) > 0) {
+		rScList.add(sc_rec.ID);
+		ok = 1;
+	}
+	else {
+		PPEAddr::Phone::NormalizeStr(pCode, 0, temp_buf);
+		if(temp_buf.NotEmptyS()) {
+			PPIDArray phone_id_list;
+			PsnObj.LocObj.P_Tbl->SearchPhoneIndex(temp_buf, 0, phone_id_list);
+			for(uint i = 0; i < phone_id_list.getCount(); i++) {
+				const PPID ea_id = phone_id_list.get(i);
+				EAddrTbl::Rec ea_rec;
+				if(PsnObj.LocObj.P_Tbl->GetEAddr(ea_id, &ea_rec) > 0 && ea_rec.LinkObjType == PPOBJ_SCARD) {
+					if(ScObj.Search(ea_rec.LinkObjID, &sc_rec) > 0) {
+						rScList.add(sc_rec.ID);
+						ok = 2;
+					}
+				}
+			}
+		}
+	}
+	rScList.sortAndUndup();
+	return ok;
+}
+
 int CPosProcessor::RecognizeCode(int mode, const char * pCode, int autoInput)
 {
 	int    ok = -1;
@@ -3950,7 +3981,6 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				PPID   cip_id = 0;
 				PPID   goods_id = 0;
 				double qtty = 0.0;
-
 				StringSet ss;
 				temp_buf = Input;
 				temp_buf.Tokenize(":", ss);
@@ -4023,8 +4053,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							}
 							else {
 								if(ExtCashNodeID && ExtCnLocID) {
-									if(p_bobj->SelectLotFromSerialList(&lot_list, ExtCnLocID, &lot_id, &lot_rec) > 0 &&
-										BelongToExtCashNode(labs(lot_rec.GoodsID))) {
+									if(p_bobj->SelectLotFromSerialList(&lot_list, ExtCnLocID, &lot_id, &lot_rec) > 0 && BelongToExtCashNode(labs(lot_rec.GoodsID))) {
 										goods_id = labs(lot_rec.GoodsID);
 										price  = lot_rec.Price;
 										loc_id = ExtCnLocID;
@@ -4061,22 +4090,38 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						//
 						// Выбор карты
 						//
-						else if(PPObjSCard::PreprocessSCardCode(ss_code = code) > 0) {
-							char   card_code[64];
-							ss_code.CopyTo(card_code, sizeof(card_code));
-							if(card_code[0]) {
-								SCardTbl::Rec sc_rec;
-								if(ScObj.SearchCode(0, card_code, &sc_rec) > 0)
-									if(auto_input || !(CsObj.GetEqCfg().Flags & PPEquipConfig::fDisableManualSCardInput))
-										AcceptSCard(0, sc_rec.ID);
-									else
-										MessageError(PPERR_MANUALSCARDINPUTDISABLED, 0, eomBeep|eomStatusLine);
+						else {
+							// @v10.4.0 {
+							PPIDArray sc_id_list;
+							if(SearchSCardByCode(code, sc_id_list) > 0) {
+								assert(sc_id_list.getCount());
+								if(auto_input || !(CsObj.GetEqCfg().Flags & PPEquipConfig::fDisableManualSCardInput))
+									AcceptSCard(0, sc_id_list.get(0));
 								else
-									MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
+									MessageError(PPERR_MANUALSCARDINPUTDISABLED, 0, eomBeep|eomStatusLine);
 							}
+							else
+								MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
+							// } @v10.4.0 
+							/* @v10.4.0
+							if(PPObjSCard::PreprocessSCardCode(ss_code = code) > 0) {
+								char   card_code[64];
+								ss_code.CopyTo(card_code, sizeof(card_code));
+								if(card_code[0]) {
+									SCardTbl::Rec sc_rec;
+									if(ScObj.SearchCode(0, card_code, &sc_rec) > 0)
+										if(auto_input || !(CsObj.GetEqCfg().Flags & PPEquipConfig::fDisableManualSCardInput))
+											AcceptSCard(0, sc_rec.ID);
+										else
+											MessageError(PPERR_MANUALSCARDINPUTDISABLED, 0, eomBeep|eomStatusLine);
+									else
+										MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
+								}
+							}
+							else
+								MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
+							*/
 						}
-						else
-							MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
 					}
 					else
 						MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
@@ -10122,6 +10167,28 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 					//
 					// Выбор карты по коду, введенному в строке ввода
 					//
+					// @v10.4.0 {
+					if(GetInput() > 0) {
+						PPIDArray sc_id_list;
+						if(SearchSCardByCode(Input, sc_id_list) > 0) {
+							assert(sc_id_list.getCount());
+							if(UiFlags & uifAutoInput || !(CsObj.GetEqCfg().Flags & PPEquipConfig::fDisableManualSCardInput)) {
+								if(ScObj.Search(sc_id_list.get(0), &sc_rec) > 0) {
+									is_found = 1;
+								}
+								else {
+									// Это невозможно! Функция SearchSCardByCode уже нашла карту по этому идентификатору
+									MessageError(PPERR_SCARDNOTFOUND, Input, eomStatusLine | eomBeep);
+								}
+							}
+							else
+								MessageError(PPERR_MANUALSCARDINPUTDISABLED, 0, eomStatusLine | eomBeep);
+						}
+						else
+							MessageError(PPERR_SCARDNOTFOUND, Input, eomStatusLine | eomBeep);
+					}
+					// } @v10.4.0
+					/* @v10.4.0
 					GetInput();
 					temp_buf = Input;
 					if(PPObjSCard::PreprocessSCardCode(temp_buf) > 0) {
@@ -10137,6 +10204,7 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 						else
 							MessageError(PPERR_MANUALSCARDINPUTDISABLED, 0, eomStatusLine | eomBeep);
 					}
+					*/
 				}
 				else if(CSt.GetID() && ScObj.Search(CSt.GetID(), &sc_rec) > 0) {
 					//

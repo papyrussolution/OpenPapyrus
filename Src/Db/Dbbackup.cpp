@@ -677,14 +677,12 @@ int SLAPI DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, lo
 				SPathStruc ps;
 				SString tbl_name, dest_path, src_path;
 				TablePartsEnum tpe(0);
-
 				buf.Divide('=', tbl_name, dest_path);
 				dest_path.TrimRightChr('\xA');
 				dest_path.TrimRightChr('\xD');
 				SPathStruc::ReplaceExt(tbl_name, ".btr", 1);
 				dest_path.SetLastSlash().Cat(tbl_name);
 				src_path.CopyFrom(pDBPath).SetLastSlash().Cat(tbl_name);
-
 				for(tpe.Init(src_path); tpe.Next(spart) > 0;) {
 					if(fileExists(spart)) {
 						SPathStruc sp(spart);

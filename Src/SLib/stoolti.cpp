@@ -1,5 +1,5 @@
 // STOOLTI.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -62,7 +62,7 @@ int STooltip::Remove(long id)
 	ti.hwnd   = Parent;
 	ti.uId    = id;
 	ti.hinst  = TProgram::GetInst();
-	return BIN(SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti));
+	return BIN(SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&ti)));
 }
 
 #define MSGWND_CLOSETIMER 1L
@@ -119,21 +119,21 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 //static
 void FASTCALL SMessageWindow::DestroyByParent(HWND parent)
 {
-	EnumWindows(CloseTooltipWnd, (LPARAM)parent);
+	EnumWindows(CloseTooltipWnd, reinterpret_cast<LPARAM>(parent));
 	EnumChildWindows(parent, CloseTooltipWnd2, 0);
 }
 
 // static
 LRESULT CALLBACK ImgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	SMessageWindow * p_wnd = (SMessageWindow *)TView::GetWindowUserData(hWnd);
+	SMessageWindow * p_wnd = static_cast<SMessageWindow *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_PAINT:
 			{
 				PAINTSTRUCT ps;
-				::BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
+				::BeginPaint(hWnd, &ps);
 #ifdef STOOLTIP_USE_FIG
-				SDrawFigure * p_fig = (SDrawFigure *)p_wnd->GetImage();
+				SDrawFigure * p_fig = static_cast<SDrawFigure *>(p_wnd->GetImage());
 				if(p_fig) {
 					RECT rc;
 					::GetClientRect(hWnd, &rc);
@@ -166,7 +166,7 @@ LRESULT CALLBACK ImgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 #else
 				((SImage*)p_wnd->GetImage())->Draw(hWnd, 0);
 #endif
-				::EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
+				::EndPaint(hWnd, &ps);
 			}
 			return 0;
 	}
@@ -187,7 +187,7 @@ int SMessageWindow::SetFont(HWND hCtl)
 		ZDeleteWinGdiObject(&Font);
 		Font = CreateFontIndirect(&log_font);
 		if(Font)
-			SendMessage(hCtl, WM_SETFONT, (WPARAM)Font, TRUE);
+			::SendMessage(hCtl, WM_SETFONT, (WPARAM)Font, TRUE);
 	}
 	return 1;
 }

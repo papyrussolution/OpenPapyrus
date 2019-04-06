@@ -37,7 +37,7 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-backend-private.h"
 
 static cairo_status_t _cairo_gl_source_finish(void * abstract_surface)
 {

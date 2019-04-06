@@ -697,7 +697,7 @@ static void add_sub_edge(struct stroker * stroker, const cairo_point_t * p1, con
 
 static cairo_status_t move_to(void * closure, const cairo_point_t * point)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	/* Cap the start and end of the previous sub path as needed */
 	add_caps(stroker);
 	stroker->first_point = *point;
@@ -711,7 +711,7 @@ static cairo_status_t move_to(void * closure, const cairo_point_t * point)
 static cairo_status_t move_to_dashed(void * closure, const cairo_point_t * point)
 {
 	/* reset the dash pattern for new sub paths */
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 
 	_cairo_stroker_dash_start(&stroker->dash);
 	return move_to(closure, point);
@@ -719,7 +719,7 @@ static cairo_status_t move_to_dashed(void * closure, const cairo_point_t * point
 
 static cairo_status_t line_to(void * closure, const cairo_point_t * point)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_stroke_face_t start, end;
 	const cairo_point_t * p1 = &stroker->current_face.point;
 	const cairo_point_t * p2 = point;
@@ -747,7 +747,7 @@ static cairo_status_t line_to(void * closure, const cairo_point_t * point)
  */
 static cairo_status_t line_to_dashed(void * closure, const cairo_point_t * point)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	double mag, remain, step_length = 0;
 	double slope_dx, slope_dy;
 	double dx2, dy2;
@@ -850,7 +850,7 @@ static cairo_status_t spline_to(void * closure,
     const cairo_point_t * point,
     const cairo_slope_t * tangent)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_stroke_face_t face;
 
 	if((tangent->dx | tangent->dy) == 0) {
@@ -902,7 +902,7 @@ static cairo_status_t curve_to(void * closure,
     const cairo_point_t * c,
     const cairo_point_t * d)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_line_join_t line_join_save;
 	cairo_spline_t spline;
 	cairo_stroke_face_t face;
@@ -951,7 +951,7 @@ static cairo_status_t curve_to_dashed(void * closure,
     const cairo_point_t * c,
     const cairo_point_t * d)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_spline_t spline;
 	cairo_line_join_t line_join_save;
 	cairo_spline_add_point_func_t func;
@@ -999,7 +999,7 @@ static cairo_status_t _close_path(struct stroker * stroker)
 
 static cairo_status_t close_path(void * closure)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_status_t status;
 
 	status = line_to(stroker, &stroker->first_point);
@@ -1011,7 +1011,7 @@ static cairo_status_t close_path(void * closure)
 
 static cairo_status_t close_path_dashed(void * closure)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_status_t status;
 
 	status = line_to_dashed(stroker, &stroker->first_point);

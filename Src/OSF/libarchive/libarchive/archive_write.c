@@ -268,7 +268,7 @@ static int archive_write_client_open(struct archive_write_filter * f)
 	f->bytes_in_last_block = archive_write_get_bytes_in_last_block(f->archive);
 	buffer_size = f->bytes_per_block;
 	state = (struct archive_none *)SAlloc::C(1, sizeof(*state));
-	buffer = (char*)SAlloc::M(buffer_size);
+	buffer = (char *)SAlloc::M(buffer_size);
 	if(state == NULL || buffer == NULL) {
 		SAlloc::F(state);
 		SAlloc::F(buffer);
@@ -278,7 +278,7 @@ static int archive_write_client_open(struct archive_write_filter * f)
 	}
 
 	state->buffer_size = buffer_size;
-	state->buffer = (char*)buffer;
+	state->buffer = (char *)buffer;
 	state->next = state->buffer;
 	state->avail = state->buffer_size;
 	f->data = state;

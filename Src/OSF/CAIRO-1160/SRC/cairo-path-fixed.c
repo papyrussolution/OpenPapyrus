@@ -855,21 +855,21 @@ typedef struct cairo_path_flattener {
 
 static cairo_status_t _cpf_move_to(void * closure, const cairo_point_t * point)
 {
-	cpf_t * cpf = (cpf_t *)closure;
+	cpf_t * cpf = static_cast<cpf_t *>(closure);
 	cpf->current_point = *point;
 	return cpf->move_to(cpf->closure, point);
 }
 
 static cairo_status_t _cpf_line_to(void * closure, const cairo_point_t * point)
 {
-	cpf_t * cpf = (cpf_t *)closure;
+	cpf_t * cpf = static_cast<cpf_t *>(closure);
 	cpf->current_point = *point;
 	return cpf->line_to(cpf->closure, point);
 }
 
 static cairo_status_t _cpf_curve_to(void * closure, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3)
 {
-	cpf_t * cpf = (cpf_t *)closure;
+	cpf_t * cpf = static_cast<cpf_t *>(closure);
 	cairo_spline_t spline;
 	cairo_point_t * p0 = &cpf->current_point;
 	if(!_cairo_spline_init(&spline, (cairo_spline_add_point_func_t)cpf->line_to, cpf->closure, p0, p1, p2, p3)) {
@@ -881,7 +881,7 @@ static cairo_status_t _cpf_curve_to(void * closure, const cairo_point_t * p1, co
 
 static cairo_status_t _cpf_close_path(void * closure)
 {
-	cpf_t * cpf = (cpf_t *)closure;
+	cpf_t * cpf = static_cast<cpf_t *>(closure);
 	return cpf->close_path(cpf->closure);
 }
 

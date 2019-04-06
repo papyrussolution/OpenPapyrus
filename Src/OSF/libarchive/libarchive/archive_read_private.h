@@ -218,8 +218,8 @@ int	__archive_read_register_format(struct archive_read *a,
 		int (*has_encrypted_entries)(struct archive_read *));
 
 int __archive_read_get_bidder(struct archive_read *a, struct archive_read_filter_bidder **bidder);
-const void *__archive_read_ahead(struct archive_read *, size_t, ssize_t *);
-const void *__archive_read_filter_ahead(struct archive_read_filter *, size_t, ssize_t *);
+const void * __archive_read_ahead(struct archive_read *, size_t, ssize_t *);
+const void * FASTCALL __archive_read_filter_ahead(struct archive_read_filter *, size_t, ssize_t *);
 int64_t	__archive_read_seek(struct archive_read*, int64_t, int);
 int64_t	__archive_read_filter_seek(struct archive_read_filter *, int64_t, int);
 int64_t	FASTCALL __archive_read_consume(struct archive_read *, int64_t);

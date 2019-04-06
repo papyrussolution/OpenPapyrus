@@ -47,12 +47,12 @@
 //#include "cairo-clip-inline.h"
 //#include "cairo-compositor-private.h"
 //#include "cairo-image-surface-private.h"
-#include "cairo-pattern-inline.h"
+//#include "cairo-pattern-inline.h"
 //#include "cairo-region-private.h"
-#include "cairo-surface-observer-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-observer-private.h"
+//#include "cairo-surface-offset-private.h"
 //#include "cairo-surface-snapshot-private.h"
-#include "cairo-surface-subsurface-private.h"
+//#include "cairo-surface-subsurface-private.h"
 
 typedef cairo_int_status_t
 (* draw_func_t) (const cairo_mask_compositor_t * compositor,
@@ -131,7 +131,7 @@ struct blt_in {
 
 static void blt_in(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
 {
-	struct blt_in * info = (struct blt_in *)closure;
+	struct blt_in * info = static_cast<struct blt_in *>(closure);
 	cairo_color_t color;
 	cairo_rectangle_int_t rect;
 	if(coverage == 0xffff)
@@ -144,12 +144,8 @@ static void blt_in(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, u
 	info->compositor->fill_rectangles(info->dst, CAIRO_OPERATOR_IN, &color, &rect, 1);
 }
 
-static cairo_surface_t * create_composite_mask(const cairo_mask_compositor_t * compositor,
-    cairo_surface_t * dst,
-    void * draw_closure,
-    draw_func_t draw_func,
-    draw_func_t mask_func,
-    const cairo_composite_rectangles_t * extents)
+static cairo_surface_t * create_composite_mask(const cairo_mask_compositor_t * compositor, cairo_surface_t * dst,
+    void * draw_closure, draw_func_t draw_func, draw_func_t mask_func, const cairo_composite_rectangles_t * extents)
 {
 	cairo_int_status_t status;
 	struct blt_in info;
@@ -162,66 +158,43 @@ static cairo_surface_t * create_composite_mask(const cairo_mask_compositor_t * c
 		cairo_surface_destroy(surface);
 		return _cairo_int_surface_create_in_error(status);
 	}
-
 	if(!surface->is_clear) {
 		cairo_rectangle_int_t rect;
-
 		rect.x = rect.y = 0;
 		rect.width = extents->bounded.width;
 		rect.height = extents->bounded.height;
-
-		status = compositor->fill_rectangles(surface, CAIRO_OPERATOR_CLEAR,
-			CAIRO_COLOR_TRANSPARENT,
-			&rect, 1);
+		status = compositor->fill_rectangles(surface, CAIRO_OPERATOR_CLEAR, CAIRO_COLOR_TRANSPARENT, &rect, 1);
 		if(unlikely(status))
 			goto error;
 	}
-
 	if(mask_func) {
-		status = mask_func(compositor, surface, draw_closure,
-			CAIRO_OPERATOR_SOURCE, NULL, NULL,
-			extents->bounded.x, extents->bounded.y,
-			&extents->bounded, extents->clip);
+		status = mask_func(compositor, surface, draw_closure, CAIRO_OPERATOR_SOURCE, NULL, NULL,
+			extents->bounded.x, extents->bounded.y, &extents->bounded, extents->clip);
 		if(likely(status != CAIRO_INT_STATUS_UNSUPPORTED))
 			goto out;
 	}
-
 	/* Is it worth setting the clip region here? */
-	status = draw_func(compositor, surface, draw_closure,
-		CAIRO_OPERATOR_ADD, NULL, NULL,
-		extents->bounded.x, extents->bounded.y,
-		&extents->bounded, NULL);
+	status = draw_func(compositor, surface, draw_closure, CAIRO_OPERATOR_ADD, NULL, NULL,
+		extents->bounded.x, extents->bounded.y, &extents->bounded, NULL);
 	if(unlikely(status))
 		goto error;
-
 	info.compositor = compositor;
 	info.dst = surface;
 	for(i = 0; i < extents->clip->num_boxes; i++) {
 		cairo_box_t * b = &extents->clip->boxes[i];
-
-		if(!_cairo_fixed_is_integer(b->p1.x) ||
-		    !_cairo_fixed_is_integer(b->p1.y) ||
-		    !_cairo_fixed_is_integer(b->p2.x) ||
-		    !_cairo_fixed_is_integer(b->p2.y)) {
-			do_unaligned_box(blt_in, &info, b,
-			    extents->bounded.x,
-			    extents->bounded.y);
+		if(!_cairo_fixed_is_integer(b->p1.x) || !_cairo_fixed_is_integer(b->p1.y) || !_cairo_fixed_is_integer(b->p2.x) || !_cairo_fixed_is_integer(b->p2.y)) {
+			do_unaligned_box(blt_in, &info, b, extents->bounded.x, extents->bounded.y);
 		}
 	}
-
 	if(extents->clip->path != NULL) {
-		status = _cairo_clip_combine_with_surface(extents->clip, surface,
-			extents->bounded.x,
-			extents->bounded.y);
+		status = _cairo_clip_combine_with_surface(extents->clip, surface, extents->bounded.x, extents->bounded.y);
 		if(unlikely(status))
 			goto error;
 	}
-
 out:
 	compositor->release(surface);
 	surface->is_clear = FALSE;
 	return surface;
-
 error:
 	compositor->release(surface);
 	if(status != CAIRO_INT_STATUS_NOTHING_TO_DO) {
@@ -238,20 +211,19 @@ static cairo_status_t clip_and_composite_with_mask(const cairo_mask_compositor_t
     draw_func_t draw_func, draw_func_t mask_func, cairo_operator_t op, const cairo_pattern_t * pattern, const cairo_composite_rectangles_t* extents)
 {
 	cairo_surface_t * dst = extents->surface;
-	cairo_surface_t * mask, * src;
+	cairo_surface_t * src;
 	int src_x, src_y;
-	mask = create_composite_mask(compositor, dst, draw_closure, draw_func, mask_func, extents);
+	cairo_surface_t * mask = create_composite_mask(compositor, dst, draw_closure, draw_func, mask_func, extents);
 	if(unlikely(mask->status))
 		return mask->status;
 	if(pattern != NULL || dst->content != CAIRO_CONTENT_ALPHA) {
-		src = compositor->pattern_to_surface(dst, &extents->source_pattern.base, FALSE,
-			&extents->bounded, &extents->source_sample_area, &src_x, &src_y);
+		src = compositor->pattern_to_surface(dst, &extents->source_pattern.base, FALSE, &extents->bounded, &extents->source_sample_area, &src_x, &src_y);
 		if(unlikely(src->status)) {
 			cairo_surface_destroy(mask);
 			return src->status;
 		}
 		compositor->composite(dst, op, src, mask, extents->bounded.x + src_x, extents->bounded.y + src_y,
-		    0, 0, extents->bounded.x,      extents->bounded.y, extents->bounded.width,  extents->bounded.height);
+		    0, 0, extents->bounded.x, extents->bounded.y, extents->bounded.width,  extents->bounded.height);
 		cairo_surface_destroy(src);
 	}
 	else {

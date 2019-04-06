@@ -117,7 +117,7 @@ int CMAC_Init(CMAC_CTX * ctx, const void * key, size_t keylen,
 			return 0;
 		if(!EVP_CIPHER_CTX_set_key_length(ctx->cctx, keylen))
 			return 0;
-		if(!EVP_EncryptInit_ex(ctx->cctx, NULL, NULL, (const uchar*)key, zero_iv))
+		if(!EVP_EncryptInit_ex(ctx->cctx, NULL, NULL, (const uchar *)key, zero_iv))
 			return 0;
 		bl = EVP_CIPHER_CTX_block_size(ctx->cctx);
 		if(!EVP_Cipher(ctx->cctx, ctx->tbl, zero_iv, bl))
@@ -137,7 +137,7 @@ int CMAC_Init(CMAC_CTX * ctx, const void * key, size_t keylen,
 
 int CMAC_Update(CMAC_CTX * ctx, const void * in, size_t dlen)
 {
-	const uchar * data = (const uchar*)in;
+	const uchar * data = (const uchar *)in;
 	size_t bl;
 	if(ctx->nlast_block == -1)
 		return 0;

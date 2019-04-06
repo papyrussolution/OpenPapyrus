@@ -351,9 +351,9 @@ int SLAPI ObjSyncCore::_RcvObj(PPID obj, PPID id, PPCommSyncID commID, PPID dbid
 				LogRcvObjDiag(PPTXT_LOG_OBJSYNC_MISM_PRIV, obj, id, commID);
 			}
 			clearDataBuf();
-			data.ObjType = (short)obj;
+			data.ObjType = static_cast<short>(obj);
 			data.ObjID   = id;
-			data.DBID    = (short)NZOR(dbid, LConfig.DBDiv);
+			data.DBID    = static_cast<short>(NZOR(dbid, LConfig.DBDiv));
 			commID.Get(&data);
 			data.Dt      = pMoment ? pMoment->d : ZERODATE;
 			data.Tm      = pMoment ? pMoment->t : ZEROTIME;
@@ -385,16 +385,16 @@ int SLAPI ObjSyncCore::GetFreeCommonID(PPID objType, PPCommSyncID * pCommID)
 	int    ok = 1;
 	ObjSyncTbl::Key0 k0; // #0
 	PPID   div = LConfig.DBDiv & 0x0000ffffL;
-	k0.ObjType   = (short)objType;
-	k0.CommIdPfx = (short)(div + 1);
+	k0.ObjType   = static_cast<short>(objType);
+	k0.CommIdPfx = static_cast<short>(div + 1);
 	k0.CommID    = 0;
 	k0.DBID      = 0;
 	if(search(0, &k0, spLt)) {
-		pCommID->P = (short)div;
+		pCommID->P = static_cast<short>(div);
 		pCommID->I = (k0.ObjType == objType && k0.CommIdPfx == div) ? (k0.CommID+1) : 1;
 	}
 	else if(BTRNFOUND) {
-		pCommID->P = (short)div;
+		pCommID->P = static_cast<short>(div);
 		pCommID->I = 1;
 	}
 	else {
@@ -464,7 +464,7 @@ int SLAPI ObjSyncCore::RemoveByPrivateID(PPID objType, PPID objID, int use_ta)
 			if(rec.Flags & OBJSYNCF_DELETED) {
 				SString fmt_buf, add_buf, msg_buf;
 				PPLoadText(PPTXT_ERR_OBJSYNCALLREADYRMVD, fmt_buf);
-				msg_buf.Printf(fmt_buf, (const char *)add_buf.Cat(objType).CatDiv(';', 2).Cat(objID));
+				msg_buf.Printf(fmt_buf, add_buf.Cat(objType).CatDiv(';', 2).Cat(objID).cptr());
 				PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 			}
 			rec.Flags |= OBJSYNCF_DELETED;

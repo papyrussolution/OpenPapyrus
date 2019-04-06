@@ -87,7 +87,7 @@
 
 /* member offsets */
 #define CONTAINER_OF(type, member, data)                                \
-	((type*)(((uint8_t*)data) - offsetof(type, member)))
+	((type*)(((uint8_t *)data) - offsetof(type, member)))
 
 /* TLS */
 #if defined(PIXMAN_NO_TLS)
@@ -106,8 +106,8 @@
 
 #elif defined(__MINGW32__)
 
-#   define _NO_W32_PSEUDO_MODIFIERS
-#   include <windows.h>
+	#define _NO_W32_PSEUDO_MODIFIERS
+	#include <windows.h>
 
 #   define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                       \
 	static volatile int tls_ ## name ## _initialized = 0;               \

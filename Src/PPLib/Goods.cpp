@@ -1193,22 +1193,22 @@ int SLAPI GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, lo
 					GeT.copyBufTo(&rec);
 					if(gcDim == PPGdsCls::eX && rec.X) {
 						double val =  static_cast<double>(rec.X) / fpow10i((int)oldScale);
-						rec.X = (long)(val * fpow10i((int)newScale));
+						rec.X = static_cast<long>(val * fpow10i((int)newScale));
 						do_update = 1;
 					}
 					else if(gcDim == PPGdsCls::eY && rec.Y) {
 						double val =  static_cast<double>(rec.Y) / fpow10i((int)oldScale);
-						rec.Y = (long)(val * fpow10i((int)newScale));
+						rec.Y = static_cast<long>(val * fpow10i((int)newScale));
 						do_update = 1;
 					}
 					else if(gcDim == PPGdsCls::eZ && rec.Z) {
 						double val =  static_cast<double>(rec.Z) / fpow10i((int)oldScale);
-						rec.Z = (long)(val * fpow10i((int)newScale));
+						rec.Z = static_cast<long>(val * fpow10i((int)newScale));
 						do_update = 1;
 					}
 					else if(gcDim == PPGdsCls::eW && rec.W) {
 						double val =  static_cast<double>(rec.W) / fpow10i((int)oldScale);
-						rec.W = (long)(val * fpow10i((int)newScale));
+						rec.W = static_cast<long>(val * fpow10i((int)newScale));
 						do_update = 1;
 					}
 					if(do_update) {

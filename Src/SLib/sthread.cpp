@@ -50,13 +50,19 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 {
 	int    ok = 0;
 	if(timeout >= 0) {
-		ok = WaitForSingleObject(H, timeout);
+		ok = ::WaitForSingleObject(H, timeout);
 	}
 	else {
-		int    r = WaitForSingleObject(H, _CheckTimeout);
+		int    r = ::WaitForSingleObject(H, _CheckTimeout);
 		if(r < 0) {
-			; // @todo 
-			ok = WaitForSingleObject(H, INFINITE);
+			// @v10.4.0 {
+			{
+				SString temp_buf;
+				temp_buf.Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS).Space().Cat("SWaitableObject::Wait _CheckTimeout overflow");
+				SLS.LogMessage(0, temp_buf, 0); 
+			}
+			// } @v10.4.0
+			ok = ::WaitForSingleObject(H, INFINITE);
 		}
 		else
 			ok = r;

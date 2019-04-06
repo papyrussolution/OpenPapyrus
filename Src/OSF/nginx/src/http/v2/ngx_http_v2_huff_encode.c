@@ -171,7 +171,7 @@ static ngx_http_v2_huff_encode_code_t ngx_http_v2_huff_encode_table_lc[256] =
 	#define ngx_http_v2_huff_encode_buf(dst, buf) (*(uint64_t*)(dst) = (buf))
 #endif
 #else /* NGX_PTR_SIZE == 4 */
-	#define ngx_http_v2_huff_encode_buf(dst, buf) (*(uint32_t*)(dst) = htonl(buf))
+	#define ngx_http_v2_huff_encode_buf(dst, buf) (*(uint32_t *)(dst) = htonl(buf))
 #endif
 
 size_t ngx_http_v2_huff_encode(u_char * src, size_t len, u_char * dst, ngx_uint_t lower)

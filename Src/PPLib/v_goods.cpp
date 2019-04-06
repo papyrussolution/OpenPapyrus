@@ -4107,7 +4107,7 @@ int PPALDD_GoodsBasket::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	PPViewGoodsBasket * p_v = (PPViewGoodsBasket*)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
+	PPViewGoodsBasket * p_v = static_cast<PPViewGoodsBasket *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	uint   n = (uint)I.LineNo;
 	ILTI   item;
 	if(p_v->NextIteration(&item) > 0) {
@@ -4543,6 +4543,13 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 					sum_rest += rest;
 					sum_cost += rest * r_lot_rec.Cost;
 				}
+				// @v10.4.0 {
+				else {
+					const double qtty = fabs(r_lot_rec.Quantity);
+					sum_rest += qtty;
+					sum_cost += qtty * r_lot_rec.Cost;
+				}
+				// } @v10.4.0
 			}
 		}
 		_RET_DBL = (sum_rest > 0.0) ? (sum_cost / sum_rest) : 0.0;

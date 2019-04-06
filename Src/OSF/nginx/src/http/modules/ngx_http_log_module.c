@@ -976,7 +976,7 @@ process_formats:
 			return NGX_CONF_OK;
 		}
 		buffer = (ngx_http_log_buf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_log_buf_t));
-		if(buffer == NULL) {
+		if(!buffer) {
 			return NGX_CONF_ERROR;
 		}
 		buffer->start = (u_char *)ngx_pnalloc(cf->pool, size);

@@ -1377,8 +1377,8 @@ public:
 		if(fileExists(wait_file))
 			SFile::Remove(wait_file);
 		if(fileExists(s_path)) {
-			FILE * p_f = 0;
-			if((p_f = fopen(wait_file, "w")) != NULL) {
+			FILE * p_f = fopen(wait_file, "w");
+			if(p_f) {
 				SFile::ZClose(&p_f);
 			}
 			SFile::Remove(s_path);
@@ -1785,7 +1785,7 @@ public:
 		filt.SetupBrowseBillsType(filt.Bbt = bbtUndef);
 		if(pParam->GetAvailableSize() == 0) {
 			if((r = SelectorDialog(DLG_BBTSEL, CTL_BBTSEL_TYPE, &val)) > 0)
-				filt.SetupBrowseBillsType(filt.Bbt = (BrowseBillsType)val);
+				filt.SetupBrowseBillsType(filt.Bbt = static_cast<BrowseBillsType>(val));
 		}
 		else {
 			filt.Read(*pParam, 0);
@@ -1874,8 +1874,8 @@ public:
 		void Init()
 		{
 			Filt.Init(1, 0);
-			BillParam = 0;
-			BRowParam = 0;
+			BillParam.Z();
+			BRowParam.Z();
 			Flags = 0;
 		}
 		int Read(SBuffer & rBuf, long)
@@ -1912,7 +1912,6 @@ public:
 		GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &param, &HdrList, 1);
 		GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BROW, &param, &LineList, 1);
 	}
-
 	int    setDTS(const ExpBillsFilt *);
 	int    getDTS(ExpBillsFilt *);
 private:
@@ -1931,7 +1930,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 		else if(event.isClusterClk(CTL_BILLEXPFILT_BILLTYP)) {
 			long v = 0;
 			GetClusterData(CTL_BILLEXPFILT_BILLTYP, &v);
-			Data.Filt.SetupBrowseBillsType(Data.Filt.Bbt = (BrowseBillsType)v);
+			Data.Filt.SetupBrowseBillsType(Data.Filt.Bbt = static_cast<BrowseBillsType>(v));
 		}
 		else if(event.isCbSelected(CTLSEL_BILLEXPFILT_CFG)) {
 			long   hdr_id = getCtrlLong(CTLSEL_BILLEXPFILT_CFG);
@@ -1957,7 +1956,8 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 		}
 		// @vmiller {
 		else if(event.isClusterClk(CTL_BILLEXPFILT_FLAGS)) {
-			uint id = 0, p = 0;
+			long   id = 0; // @v10.4.0 uint-->long
+			uint   p = 0;
 			PPBillImpExpParam bill_param, brow_param;
 			GetClusterData(CTL_BILLEXPFILT_FLAGS, &Data.Flags);
 			disableCtrls((Data.Flags & ExpBillsFilt::fEdi), CTLSEL_IEBILLSEL_BROW, 0);
@@ -1977,18 +1977,18 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 					HdrList.Add(id, buf);
 				}
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0;
-				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
+				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0;
+				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, id, 0);
 			}
 			else {
 				HdrList.Z();
 				GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &bill_param, &HdrList, 1);
 				bill_param.Init();
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0;
-				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
-				id = (LineList.SearchByText(brow_param.Name, 1, &(p = 0)) > 0) ? (uint)LineList.Get(p).Id : 0;
-				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, &LineList, (long)id, 0);
+				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0;
+				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, id, 0);
+				id = (LineList.SearchByText(brow_param.Name, 1, &(p = 0)) > 0) ? LineList.Get(p).Id : 0;
+				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, &LineList, id, 0);
 			}
 		}
 		// } @vmiller
@@ -2041,12 +2041,12 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 		SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
 	}
 	// } @vmiller
-		AddClusterAssocDef(CTL_BILLEXPFILT_BILLTYP, 0, bbtGoodsBills);
-		AddClusterAssoc(CTL_BILLEXPFILT_BILLTYP,  1, bbtDraftBills);
-		SetClusterData(CTL_BILLEXPFILT_BILLTYP,  (long)Data.Filt.Bbt);
+	AddClusterAssocDef(CTL_BILLEXPFILT_BILLTYP, 0, bbtGoodsBills);
+	AddClusterAssoc(CTL_BILLEXPFILT_BILLTYP,  1, bbtDraftBills);
+	SetClusterData(CTL_BILLEXPFILT_BILLTYP,  (long)Data.Filt.Bbt);
 
-		AddClusterAssoc(CTL_BILLEXPFILT_FLAGS, 0, ExpBillsFilt::fEdi); // @vmiller
-		SetClusterData(CTL_BILLEXPFILT_FLAGS, Data.Flags); // @vmiller
+	AddClusterAssoc(CTL_BILLEXPFILT_FLAGS, 0, ExpBillsFilt::fEdi); // @vmiller
+	SetClusterData(CTL_BILLEXPFILT_FLAGS, Data.Flags); // @vmiller
 	return ok;
 }
 

@@ -1890,16 +1890,16 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 	H.ID = rFilt.ID;
 	TSessionTbl::Rec rec, super_rec;
 	SString temp_buf;
-	PPObjTSession * p_ses_obj = (PPObjTSession *)(Extra[0].Ptr);
+	PPObjTSession * p_ses_obj = static_cast<PPObjTSession *>(Extra[0].Ptr);
 	if(p_ses_obj->Search(rFilt.ID, &rec) > 0) {
 		H.ID = rec.ID;
 		H.ParentID = rec.ParentID;
 		H.Number   = rec.Num;
 		H.TechID   = rec.TechID;
 		H.PrcID    = rec.PrcID;
-		H.CCheckID = rec.CCheckID_; // @v8.3.0
-		H.SCardID  = rec.SCardID;   // @v8.3.0
-		H.LinkBillID = rec.LinkBillID; // @v8.3.0
+		H.CCheckID = rec.CCheckID_;
+		H.SCardID  = rec.SCardID;
+		H.LinkBillID = rec.LinkBillID;
 		H.StDt     = rec.StDt;
 		H.StTm     = rec.StTm;
 		timefmt(rec.StTm, TIMF_HMS, H.StTmTxt);
@@ -2206,7 +2206,7 @@ int32 DL6ICLS_PPViewTSession::Init(IUnknown* pFilt)
 	THROW_INVARG(pFilt);
 	THROW(GetInnerUUID("IPpyFilt_TSession", uuid));
 	THROW(SUCCEEDED(pFilt->QueryInterface(uuid, (void **)&p_ifc_filt)));
-	THROW(((PPViewTSession *)ExtraPtr)->Init_((const TSessionFilt *)GetExtraPtrByInterface(p_ifc_filt)));
+	THROW(static_cast<PPViewTSession *>(ExtraPtr)->Init_(static_cast<const TSessionFilt *>(GetExtraPtrByInterface(p_ifc_filt))));
 	CATCH
 		AppError = 1;
 	ENDCATCH
@@ -2216,14 +2216,14 @@ int32 DL6ICLS_PPViewTSession::Init(IUnknown* pFilt)
 
 int32 DL6ICLS_PPViewTSession::InitIteration(int32 order)
 {
-	return ((PPViewTSession *)ExtraPtr)->InitIteration(order);
+	return static_cast<PPViewTSession *>(ExtraPtr)->InitIteration(order);
 }
 
 int32 DL6ICLS_PPViewTSession::NextIteration(PPYVIEWITEM item)
 {
 	int    ok = -1;
 	SString temp_buf;
-	SPpyO_TSession * p_item = (SPpyO_TSession *)item;
+	SPpyO_TSession * p_item = static_cast<SPpyO_TSession *>(item);
 	TSessionViewItem inner_item;
 	if(IMPL_PPIFC_EXTPTR(PPViewTSession)->NextIteration(&inner_item) > 0) {
 		SString temp_buf;
@@ -2269,7 +2269,7 @@ int32 DL6ICLS_PPViewTSession::GetTotal(PPYVIEWTOTAL total)
 	IMPL_PPIFC_EXTPTRVAR(PPViewTSession);
 	if(p_ext && total) {
 		TSessionTotal inner_total;
-		SPpyVT_TSession * p_total = (SPpyVT_TSession *)total;
+		SPpyVT_TSession * p_total = static_cast<SPpyVT_TSession *>(total);
 		if(p_ext->CalcTotal(&inner_total)) {
 			p_total->Count    = inner_total.Count;
 			p_total->Duration = inner_total.Duration;

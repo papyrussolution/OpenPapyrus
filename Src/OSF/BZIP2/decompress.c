@@ -390,14 +390,16 @@ int32 BZ2_decompress(DState * s)
 				s->unzftab[uc] += es;
 				if(s->smallDecompress)
 					while(es > 0) {
-						if(nblock >= nblockMAX) RETURN(BZ_DATA_ERROR);
+						if(nblock >= nblockMAX) 
+							RETURN(BZ_DATA_ERROR);
 						s->ll16[nblock] = (uint16)uc;
 						nblock++;
 						es--;
 					}
 				else
 					while(es > 0) {
-						if(nblock >= nblockMAX) RETURN(BZ_DATA_ERROR);
+						if(nblock >= nblockMAX) 
+							RETURN(BZ_DATA_ERROR);
 						s->tt[nblock] = (uint32)uc;
 						nblock++;
 						es--;
@@ -407,14 +409,12 @@ int32 BZ2_decompress(DState * s)
 				continue;
 			}
 			else {
-				if(nblock >= nblockMAX) RETURN(BZ_DATA_ERROR);
-
+				if(nblock >= nblockMAX) 
+					RETURN(BZ_DATA_ERROR);
 				/*-- uc = MTF ( nextSym-1 ) --*/
 				{
 					int32 ii, jj, kk, pp, lno, off;
-					uint32 nn;
-					nn = (uint32)(nextSym - 1);
-
+					uint32 nn = (uint32)(nextSym - 1);
 					if(nn < MTFL_SIZE) {
 						/* avoid general-case expense */
 						pp = s->mtfbase[0];

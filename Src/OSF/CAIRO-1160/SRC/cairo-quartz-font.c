@@ -761,7 +761,7 @@ static cairo_int_status_t _cairo_quartz_load_truetype_table(void * abstract_font
 	if(!data)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	if(buffer == NULL) {
+	if(!buffer) {
 		*length = CFDataGetLength(data);
 		CFRelease(data);
 		return CAIRO_STATUS_SUCCESS;

@@ -147,8 +147,8 @@ static int lz4_reader_bid(struct archive_read_filter_bidder * self, struct archi
 	uint32_t number;
 	(void)self; /* UNUSED */
 	/* Minimal lz4 archive is 11 bytes. */
-	buffer = (const uchar*)__archive_read_filter_ahead(filter, 11, &avail);
-	if(buffer == NULL)
+	buffer = (const uchar *)__archive_read_filter_ahead(filter, 11, &avail);
+	if(!buffer)
 		return 0;
 
 	/* First four bytes must be LZ4 magic numbers. */

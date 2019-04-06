@@ -87,7 +87,7 @@ static cairo_int_status_t draw_image_boxes(void * _dst, cairo_image_surface_t * 
 			int y = _cairo_fixed_integer_part(b->p1.y);
 			int w = _cairo_fixed_integer_part(b->p2.x) - x;
 			int h = _cairo_fixed_integer_part(b->p2.y) - y;
-			if(dst->pixman_format != image->pixman_format || !pixman_blt((uint32_t*)image->data, (uint32_t*)dst->data,
+			if(dst->pixman_format != image->pixman_format || !pixman_blt((uint32_t *)image->data, (uint32_t *)dst->data,
 			    image->stride / sizeof(uint32_t), dst->stride / sizeof(uint32_t), PIXMAN_FORMAT_BPP(image->pixman_format),
 			    PIXMAN_FORMAT_BPP(dst->pixman_format), x + dx, y + dy, x, y, w, h)) {
 				pixman_image_composite32(PIXMAN_OP_SRC, image->pixman_image, NULL, dst->pixman_image,
@@ -189,7 +189,7 @@ static cairo_int_status_t fill_rectangles(void * _dst, cairo_operator_t op, cons
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(fill_reduces_to_source(op, color, dst, &pixel)) {
 		for(i = 0; i < num_rects; i++) {
-			pixman_fill((uint32_t*)dst->data, dst->stride / sizeof(uint32_t),
+			pixman_fill((uint32_t *)dst->data, dst->stride / sizeof(uint32_t),
 			    PIXMAN_FORMAT_BPP(dst->pixman_format), rects[i].x, rects[i].y, rects[i].width, rects[i].height, pixel);
 		}
 	}
@@ -220,7 +220,7 @@ static cairo_int_status_t fill_boxes(void * _dst, cairo_operator_t op, const cai
 				int y = _cairo_fixed_integer_part(chunk->base[i].p1.y);
 				int w = _cairo_fixed_integer_part(chunk->base[i].p2.x) - x;
 				int h = _cairo_fixed_integer_part(chunk->base[i].p2.y) - y;
-				pixman_fill((uint32_t*)dst->data, dst->stride / sizeof(uint32_t), PIXMAN_FORMAT_BPP(dst->pixman_format), x, y, w, h, pixel);
+				pixman_fill((uint32_t *)dst->data, dst->stride / sizeof(uint32_t), PIXMAN_FORMAT_BPP(dst->pixman_format), x, y, w, h, pixel);
 			}
 		}
 	}
@@ -787,7 +787,7 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst, cairo_operator_
 	}
 	else {
 		memzero(buf, i * info->extents.height);
-		mask = pixman_image_create_bits(format, info->extents.width, info->extents.height, (uint32_t*)buf, i);
+		mask = pixman_image_create_bits(format, info->extents.width, info->extents.height, (uint32_t *)buf, i);
 	}
 	if(unlikely(mask == NULL)) {
 		pixman_image_unref(white);
@@ -1437,11 +1437,11 @@ static cairo_status_t _fill32_spans(void * abstract_renderer, int y, int h,
 			if(spans[0].coverage) {
 				int len = spans[1].x - spans[0].x;
 				if(len > 32) {
-					pixman_fill((uint32_t*)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), r->bpp,
+					pixman_fill((uint32_t *)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), r->bpp,
 					    spans[0].x, y, len, 1, r->u.fill.pixel);
 				}
 				else {
-					uint32_t * d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
+					uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
 					while(len-- > 0)
 						*d++ = r->u.fill.pixel;
 				}
@@ -1453,7 +1453,7 @@ static cairo_status_t _fill32_spans(void * abstract_renderer, int y, int h,
 		do {
 			if(spans[0].coverage) {
 				if(spans[1].x - spans[0].x > 16) {
-					pixman_fill((uint32_t*)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), r->bpp,
+					pixman_fill((uint32_t *)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), r->bpp,
 					    spans[0].x, y, spans[1].x - spans[0].x, h,
 					    r->u.fill.pixel);
 				}
@@ -1461,7 +1461,7 @@ static cairo_status_t _fill32_spans(void * abstract_renderer, int y, int h,
 					int yy = y, hh = h;
 					do {
 						int len = spans[1].x - spans[0].x;
-						uint32_t * d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*yy + spans[0].x*4);
+						uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*yy + spans[0].x*4);
 						while(len-- > 0)
 							*d++ = r->u.fill.pixel;
 						yy++;
@@ -1486,7 +1486,7 @@ static cairo_status_t _fill_spans(void * abstract_renderer, int y, int h,
 
 	do {
 		if(spans[0].coverage) {
-			pixman_fill((uint32_t*)r->data, r->stride, r->bpp,
+			pixman_fill((uint32_t *)r->data, r->stride, r->bpp,
 			    spans[0].x, y,
 			    spans[1].x - spans[0].x, h,
 			    r->pixel);
@@ -1519,13 +1519,13 @@ static cairo_status_t _blit_spans(void * abstract_renderer, int y, int h,
 				int len = (spans[1].x - spans[0].x) * cpp;
 				switch(len) {
 					case 1:
-					    *(uint8_t*)d = *(uint8_t*)s;
+					    *(uint8_t *)d = *(uint8_t *)s;
 					    break;
 					case 2:
 					    *(uint16_t*)d = *(uint16_t*)s;
 					    break;
 					case 4:
-					    *(uint32_t*)d = *(uint32_t*)s;
+					    *(uint32_t *)d = *(uint32_t *)s;
 					    break;
 #if HAVE_UINT64_T
 					case 8:
@@ -1550,13 +1550,13 @@ static cairo_status_t _blit_spans(void * abstract_renderer, int y, int h,
 					int len = (spans[1].x - spans[0].x) * cpp;
 					switch(len) {
 						case 1:
-						    *(uint8_t*)dst = *(uint8_t*)src;
+						    *(uint8_t *)dst = *(uint8_t *)src;
 						    break;
 						case 2:
 						    *(uint16_t*)dst = *(uint16_t*)src;
 						    break;
 						case 4:
-						    *(uint32_t*)dst = *(uint32_t*)src;
+						    *(uint32_t *)dst = *(uint32_t *)src;
 						    break;
 #if HAVE_UINT64_T
 						case 8:
@@ -1839,14 +1839,14 @@ static cairo_status_t _fill_xrgb32_lerp_opaque_spans(void * abstract_renderer, i
 			uint8_t a = spans[0].coverage;
 			if(a) {
 				int len = spans[1].x - spans[0].x;
-				uint32_t * d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
+				uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
 				if(a == 0xff) {
 					if(len > 31) {
-						pixman_fill((uint32_t*)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), 32,
+						pixman_fill((uint32_t *)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), 32,
 						    spans[0].x, y, len, 1, r->u.fill.pixel);
 					}
 					else {
-						uint32_t * d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
+						uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
 						while(len-- > 0)
 							*d++ = r->u.fill.pixel;
 					}
@@ -1865,7 +1865,7 @@ static cairo_status_t _fill_xrgb32_lerp_opaque_spans(void * abstract_renderer, i
 			if(a) {
 				if(a == 0xff) {
 					if(spans[1].x - spans[0].x > 16) {
-						pixman_fill((uint32_t*)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), 32,
+						pixman_fill((uint32_t *)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), 32,
 						    spans[0].x, y, spans[1].x - spans[0].x, h,
 						    r->u.fill.pixel);
 					}
@@ -1873,7 +1873,7 @@ static cairo_status_t _fill_xrgb32_lerp_opaque_spans(void * abstract_renderer, i
 						int yy = y, hh = h;
 						do {
 							int len = spans[1].x - spans[0].x;
-							uint32_t * d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*yy + spans[0].x*4);
+							uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*yy + spans[0].x*4);
 							while(len-- > 0)
 								*d++ = r->u.fill.pixel;
 							yy++;
@@ -1884,7 +1884,7 @@ static cairo_status_t _fill_xrgb32_lerp_opaque_spans(void * abstract_renderer, i
 					int yy = y, hh = h;
 					do {
 						int len = spans[1].x - spans[0].x;
-						uint32_t * d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*yy + spans[0].x*4);
+						uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*yy + spans[0].x*4);
 						while(len-- > 0) {
 							*d = lerp8x4(r->u.fill.pixel, a, *d);
 							d++;
@@ -1958,7 +1958,7 @@ static cairo_status_t _fill_xrgb32_lerp_spans(void * abstract_renderer, int y, i
 			uint8_t a = mul8_8(spans[0].coverage, r->bpp);
 			if(a) {
 				int len = spans[1].x - spans[0].x;
-				uint32_t * d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
+				uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
 				while(len-- > 0) {
 					*d = lerp8x4(r->u.fill.pixel, a, *d);
 					d++;
@@ -1974,7 +1974,7 @@ static cairo_status_t _fill_xrgb32_lerp_spans(void * abstract_renderer, int y, i
 				int yy = y, hh = h;
 				do {
 					int len = spans[1].x - spans[0].x;
-					uint32_t * d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*yy + spans[0].x*4);
+					uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*yy + spans[0].x*4);
 					while(len-- > 0) {
 						*d = lerp8x4(r->u.fill.pixel, a, *d);
 						d++;
@@ -2001,8 +2001,8 @@ static cairo_status_t _blit_xrgb32_lerp_spans(void * abstract_renderer, int y, i
 		do {
 			uint8_t a = mul8_8(spans[0].coverage, r->bpp);
 			if(a) {
-				uint32_t * s = (uint32_t*)src + spans[0].x;
-				uint32_t * d = (uint32_t*)dst + spans[0].x;
+				uint32_t * s = (uint32_t *)src + spans[0].x;
+				uint32_t * d = (uint32_t *)dst + spans[0].x;
 				int len = spans[1].x - spans[0].x;
 				if(a == 0xff) {
 					if(len == 1)
@@ -2026,8 +2026,8 @@ static cairo_status_t _blit_xrgb32_lerp_spans(void * abstract_renderer, int y, i
 			if(a) {
 				int yy = y, hh = h;
 				do {
-					uint32_t * s = (uint32_t*)(r->u.blit.src_data + yy*r->u.blit.src_stride + spans[0].x * 4);
-					uint32_t * d = (uint32_t*)(r->u.blit.data + yy*r->u.blit.stride + spans[0].x * 4);
+					uint32_t * s = (uint32_t *)(r->u.blit.src_data + yy*r->u.blit.src_stride + spans[0].x * 4);
+					uint32_t * d = (uint32_t *)(r->u.blit.data + yy*r->u.blit.stride + spans[0].x * 4);
 					int len = spans[1].x - spans[0].x;
 					if(a == 0xff) {
 						if(len == 1)
@@ -2068,7 +2068,7 @@ static cairo_status_t _inplace_spans(void * abstract_renderer,
 		return CAIRO_STATUS_SUCCESS;
 	}
 
-	mask = (uint8_t*)pixman_image_get_data(r->mask);
+	mask = (uint8_t *)pixman_image_get_data(r->mask);
 	x1 = x0 = spans[0].x;
 	do {
 		int len = spans[1].x - spans[0].x;
@@ -2081,13 +2081,13 @@ static cairo_status_t _inplace_spans(void * abstract_renderer,
 				}
 				pixman_image_composite32((pixman_op_t)r->op, r->src, NULL, r->u.composite.dst,
 				    spans[0].x + r->u.composite.src_x, y + r->u.composite.src_y, 0, 0, spans[0].x, y, len, h);
-				mask = (uint8_t*)pixman_image_get_data(r->mask);
+				mask = (uint8_t *)pixman_image_get_data(r->mask);
 				x0 = spans[1].x;
 			}
 			else if(spans[0].coverage == 0x0 && x1 - x0 > r->u.composite.run_length) {
 				pixman_image_composite32((pixman_op_t)r->op, r->src, r->mask, r->u.composite.dst,
 				    x0 + r->u.composite.src_x, y + r->u.composite.src_y, 0, 0, x0, y, x1 - x0, h);
-				mask = (uint8_t*)pixman_image_get_data(r->mask);
+				mask = (uint8_t *)pixman_image_get_data(r->mask);
 				x0 = spans[1].x;
 			}
 			else {
@@ -2113,7 +2113,7 @@ static cairo_status_t _inplace_opacity_spans(void * abstract_renderer, int y, in
 	int x0, x1;
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-	mask = (uint8_t*)pixman_image_get_data(r->mask);
+	mask = (uint8_t *)pixman_image_get_data(r->mask);
 	x1 = x0 = spans[0].x;
 	do {
 		int len = spans[1].x - spans[0].x;
@@ -2123,7 +2123,7 @@ static cairo_status_t _inplace_opacity_spans(void * abstract_renderer, int y, in
 			if(m == 0 && x1 - x0 > r->u.composite.run_length) {
 				pixman_image_composite32((pixman_op_t)r->op, r->src, r->mask, r->u.composite.dst,
 				    x0 + r->u.composite.src_x, y + r->u.composite.src_y, 0, 0, x0, y, x1 - x0, h);
-				mask = (uint8_t*)pixman_image_get_data(r->mask);
+				mask = (uint8_t *)pixman_image_get_data(r->mask);
 				x0 = spans[1].x;
 			}
 			else {
@@ -2271,7 +2271,7 @@ static cairo_status_t _inplace_src_opacity_spans(void * abstract_renderer, int y
 		return CAIRO_STATUS_SUCCESS;
 
 	x0 = spans[0].x;
-	mask = (uint8_t*)pixman_image_get_data(r->mask);
+	mask = (uint8_t *)pixman_image_get_data(r->mask);
 	do {
 		int len = spans[1].x - spans[0].x;
 		uint8_t m = mul8_8(spans[0].coverage, r->bpp);
@@ -2302,7 +2302,7 @@ static cairo_status_t _inplace_src_opacity_spans(void * abstract_renderer, int y
 #endif
 			}
 
-			mask = (uint8_t*)pixman_image_get_data(r->mask);
+			mask = (uint8_t *)pixman_image_get_data(r->mask);
 			x0 = spans[1].x;
 		}
 		else {
@@ -2476,7 +2476,7 @@ static cairo_int_status_t inplace_renderer_init(cairo_image_span_renderer_t * r,
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			}
 		}
-		r->mask = pixman_image_create_bits(PIXMAN_a8, width, composite->unbounded.height, (uint32_t*)buf, 0);
+		r->mask = pixman_image_create_bits(PIXMAN_a8, width, composite->unbounded.height, (uint32_t *)buf, 0);
 		if(unlikely(r->mask == NULL)) {
 			pixman_image_unref(r->src);
 			if(buf != r->_buf)
@@ -2584,7 +2584,7 @@ static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t * _r
 		r->mask = pixman_image_create_bits(PIXMAN_a8,
 			r->u.mask.extents.width,
 			r->u.mask.extents.height,
-			(uint32_t*)r->_buf, r->u.mask.stride);
+			(uint32_t *)r->_buf, r->u.mask.stride);
 
 		r->base.render_rows = _cairo_image_spans_and_zero;
 		r->base.finish = _cairo_image_finish_spans_and_zero;
@@ -2592,7 +2592,7 @@ static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t * _r
 	if(unlikely(r->mask == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
-	r->u.mask.data = (uint8_t*)pixman_image_get_data(r->mask);
+	r->u.mask.data = (uint8_t *)pixman_image_get_data(r->mask);
 	r->u.mask.stride = pixman_image_get_stride(r->mask);
 
 	r->u.mask.extents.height += r->u.mask.extents.y;

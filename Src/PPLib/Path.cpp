@@ -1,5 +1,5 @@
 // PATH.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019
 // @codepage windows-1251
 // @Kernel
 //
@@ -9,18 +9,12 @@
 // PPPath
 //
 struct PathItem { // Variable length struct
-	SLAPI  PathItem(PPID pathID = 0, short flags = 0, const char * str = 0);
+	SLAPI  PathItem(PPID pathID, short flags, const char * str);
 	void * SLAPI operator new(size_t sz, const char * str = 0);
 	void   SLAPI operator delete(void *, const char *);
 	// @v9.4.8 int    SLAPI GetPath(char * buf, size_t bufSize) const;
-	SString & FASTCALL GetPath(SString & rBuf) const
-	{
-		return (rBuf = Path());
-	}
-	const  char * SLAPI Path() const
-	{
-		return (Size > sizeof(PathItem)) ? (char *)(this + 1) : 0;
-	}
+	SString & FASTCALL GetPath(SString & rBuf) const { return (rBuf = Path()); }
+	const  char * SLAPI Path() const { return (Size > sizeof(PathItem)) ? reinterpret_cast<const char *>(this + 1) : 0; }
 	PPID   ID;
 	int16  Flags;
 	uint16 Size;
@@ -108,10 +102,10 @@ int SLAPI PPPaths::Resize(size_t sz)
 	else {
 		const size_t prev_size = Size();
 		sz = (sz < sizeof(PathData)) ? sizeof(PathData) : sz;
-		P = (PathData*)SAlloc::R(P, sz);
+		P = static_cast<PathData *>(SAlloc::R(P, sz));
 		if(P) {
 			if(sz > prev_size)
-				memzero(((char *)P) + prev_size, sz - prev_size);
+				memzero(PTR8(P) + prev_size, sz - prev_size);
 			P->TailSize = sz - sizeof(PathData);
 		}
 		else
@@ -333,7 +327,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 		if(P->SecurObj < securType) {
 			P->Flags |= PATHF_INHERITED;
 			for(s = 0; s < P->TailSize; s += p->Size) {
-				p = (PathItem*)(((char *)(P + 1)) + s);
+				p = reinterpret_cast<PathItem *>(PTR8(P + 1) + s);
 				p->Flags |= PATHF_INHERITED;
 			}
 		}
@@ -345,7 +339,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 			PPPaths temp;
 			PPID   prev_type = (securType == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
 			THROW(p_ref->GetItem(securType, securID) > 0);
-			THROW(temp.Get(prev_type, ((PPSecur*)&p_ref->data)->ParentID)); // @recursion
+			THROW(temp.Get(prev_type, reinterpret_cast<const PPSecur *>(&p_ref->data)->ParentID)); // @recursion
 			uint prev_s = UINT_MAX;
 			for(s = 0; s < temp.P->TailSize; s += p->Size) {
 				//
@@ -356,7 +350,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 				else
 					prev_s = s;
 				// }
-				p = (PathItem*)(PTR8(temp.P + 1) + s);
+				p = reinterpret_cast<PathItem *>(PTR8(temp.P + 1) + s);
 				if(p->Path())
 					THROW(SetPath(p->ID, p->Path(), p->Flags | PATHF_INHERITED, 0));
 			}
@@ -418,6 +412,40 @@ int SLAPI PPPaths::Remove(PPID securType, PPID securID)
 	{ return PPRef->RemoveProperty(securType, securID, PPPRP_PATHS, 0); }
 int FASTCALL PPGetPath(PPID pathID, SString & rBuf)
 	{ return DS.GetPath(pathID, rBuf); }
+
+void SLAPI PPPaths::DumpToStr(SString & rBuf) const
+{
+	rBuf.Z();
+	if(P) {
+		for(uint s = 0; s < P->TailSize;) {
+			const PathItem * p = reinterpret_cast<const PathItem *>(PTR8(P + 1) + s);
+			if(rBuf.NotEmpty())
+				rBuf.Semicol();
+			switch(p->ID) {
+				case PPPATH_DRIVE: rBuf.Cat("DRIVE"); break;					
+				case PPPATH_ROOT: rBuf.Cat("ROOT"); break;
+				case PPPATH_BIN: rBuf.Cat("BIN"); break;
+				case PPPATH_DAT: rBuf.Cat("DAT"); break;
+				case PPPATH_SYS: rBuf.Cat("SYS"); break;
+				case PPPATH_IN: rBuf.Cat("IN"); break;
+				case PPPATH_OUT: rBuf.Cat("OUT"); break;
+				case PPPATH_LOG: rBuf.Cat("LOG"); break;
+				case PPPATH_WORKSPACE: rBuf.Cat("WORKSPACE"); break;
+				case PPPATH_TEMP: rBuf.Cat("TEMP"); break;
+				case PPPATH_REPORTDATA: rBuf.Cat("REPORTDATA"); break;
+				case PPPATH_TESTROOT: rBuf.Cat("TESTROOT"); break;
+				case PPPATH_SARTREDB: rBuf.Cat("SARTREDB"); break;
+				case PPPATH_SPII: rBuf.Cat("SPII"); break;
+				case PPPATH_DD: rBuf.Cat("DD"); break;
+				case PPPATH_LOCAL: rBuf.Cat("LOCAL"); break;
+				case PPPATH_PACK: rBuf.Cat("PACK"); break;
+				default: rBuf.CatChar('#').Cat(p->ID); break;
+			}
+			rBuf.CatChar('=').Cat(p->Path());
+			s += p->Size;
+		}
+	}
+}
 
 int FASTCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf)
 {

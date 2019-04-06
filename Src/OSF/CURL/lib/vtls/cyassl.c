@@ -475,7 +475,7 @@ static CURLcode cyassl_connect_step2(struct connectdata * conn, int sockindex)
 			failf(data, "SSL: failed retrieving public key from server certificate");
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
-		result = Curl_pin_peer_pubkey(data, pinnedpubkey, (const uchar*)pubkey->header, (size_t)(pubkey->end - pubkey->header));
+		result = Curl_pin_peer_pubkey(data, pinnedpubkey, (const uchar *)pubkey->header, (size_t)(pubkey->end - pubkey->header));
 		if(result) {
 			failf(data, "SSL: public key does not match pinned public key!");
 			return result;

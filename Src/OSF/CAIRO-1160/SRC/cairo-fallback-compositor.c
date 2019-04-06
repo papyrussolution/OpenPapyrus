@@ -42,7 +42,7 @@
 #pragma hdrstop
 //#include "cairo-compositor-private.h"
 //#include "cairo-image-surface-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-offset-private.h"
 
 /* high-level compositor interface */
 

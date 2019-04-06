@@ -2734,10 +2734,10 @@ int DivisionCtrlGroup::setData(TDialog * dlg, void * data)
 
 int DivisionCtrlGroup::getData(TDialog * dlg, void * data)
 {
-	((Rec*)data)->OrgID = dlg->getCtrlLong(CtlselOrg);
-	((Rec*)data)->DivID = dlg->getCtrlLong(CtlselDiv);
-	((Rec*)data)->StaffID = dlg->getCtrlLong(CtlselStaff);
-	((Rec*)data)->PostID = dlg->getCtrlLong(CtlselPost);
+	static_cast<Rec *>(data)->OrgID = dlg->getCtrlLong(CtlselOrg);
+	static_cast<Rec *>(data)->DivID = dlg->getCtrlLong(CtlselDiv);
+	static_cast<Rec *>(data)->StaffID = dlg->getCtrlLong(CtlselStaff);
+	static_cast<Rec *>(data)->PostID = dlg->getCtrlLong(CtlselPost);
 	return 1;
 }
 
@@ -2992,7 +2992,7 @@ const StrAssocArray * SLAPI LocationCache::GetFullEaList()
 						for(ulong id = 0; !err && FullEaList.DirtyTable.Enum(&id);) {
 							if(loc_obj.P_Tbl->GetEAddr(id, &ea_rec) > 0) {
 								phone_buf = 0;
-								((PPEAddr *)ea_rec.Addr)->GetPhone(phone_buf);
+								reinterpret_cast<const PPEAddr *>(ea_rec.Addr)->GetPhone(phone_buf);
 								if(phone_buf.NotEmpty()) {
 									if(!FullEaList.Add(ea_rec.ID, phone_buf, 1)) {
 										PPSetErrorSLib();

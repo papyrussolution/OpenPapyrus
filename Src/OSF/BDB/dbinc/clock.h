@@ -99,20 +99,20 @@ typedef struct {
 #undef timespecset
 #define	timespecset(vvp, sec, nsec)					\
 	do {								\
-		(vvp)->tv_sec = (__time64_t)(sec);				\
-		(vvp)->tv_nsec = (long)(nsec);				\
+		(vvp)->tv_sec = static_cast<__time64_t>(sec);				\
+		(vvp)->tv_nsec = static_cast<long>(nsec);				\
 	} while (0)
 
 #define	DB_TIMEOUT_TO_TIMESPEC(t, vvp)					\
 	do {								\
-		(vvp)->tv_sec = (__time64_t)((t) / 1000000);		\
-		(vvp)->tv_nsec = (long)(((t) % 1000000) * 1000);	\
+		(vvp)->tv_sec = static_cast<__time64_t>((t) / 1000000);		\
+		(vvp)->tv_nsec = static_cast<long>(((t) % 1000000) * 1000);	\
 	} while (0)
 
 #define	DB_TIMESPEC_TO_TIMEOUT(t, vvp, prec)				\
 	do {								\
-		t = (ulong)((vvp)->tv_sec * 1000000);			\
-		t += (ulong)((vvp)->tv_nsec / 1000);			\
+		t = static_cast<ulong>((vvp)->tv_sec * 1000000);			\
+		t += static_cast<ulong>((vvp)->tv_nsec / 1000);			\
 		/* Add in 1 usec for lost nsec precision if wanted. */	\
 		if(prec)						\
 			t++;						\

@@ -182,10 +182,6 @@ PPEgaisProcessor::ActInformItem::ActInformItem() : P(0)
 	AIdent[0] = 0;
 }
 
-PPEgaisProcessor::ActInform::ActInform()
-{
-}
-
 PPEgaisProcessor::RepealWb::RepealWb() : BillID(0), ReqTime(ZERODATETIME), Confirm(0)
 {
 }
@@ -2512,7 +2508,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 														//
 														n_pos.PutInner(SXml::nst("wa", "RealQuantity"), temp_buf.Z().Cat(real_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 														// @v10.3.6 {
-														if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V3) {
+														if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V3 && fabs(r_ti.Quantity_) != fabs(p_lti->Quantity_)) { // @v10.4.0 (&& fabs(r_ti.Quantity_) != fabs(p_lti->Quantity_))
 															const int do_send_with_waybillact_accepted_marks = 0;
 															if(do_send_with_waybillact_accepted_marks) {
 																uint mark_count = 0;
@@ -2534,13 +2530,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 															}
 															// @v10.3.9 {
 															else if(p_lti) {
-																PPLotExtCodeContainer::MarkSet link_ext_codes_set;
-																p_link_bp->XcL.Get(lti_pos+1, 0, link_ext_codes_set);
+																//PPLotExtCodeContainer::MarkSet link_ext_codes_set;
+																//p_link_bp->XcL.Get(/*lti_pos+1*/0, 0, link_ext_codes_set);
 																if(p_bp->XcL.Get(bi+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
 																	SXml::WNode w_m(_doc, SXml::nst("wa", "MarkInfo"));
 																	for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 																		if(ext_codes_set.GetByIdx(boxidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-																			if(!link_ext_codes_set.SearchCode(msentry.Num, 0)) {
+																			//if(!link_ext_codes_set.SearchCode(msentry.Num, 0)) {
+																			if(!p_link_bp->_VXcL.Search(msentry.Num, 0, 0)) {
 																				w_m.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
 																			}
 																		}
@@ -8221,7 +8218,6 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	GetMainOrgID(&preserve_main_org_id);
 	if(rParam.MainOrgID)
 		DS.SetMainOrgID(rParam.MainOrgID, 0);
-
 	{
 		GetUtmList(rParam.LocID, utm_list);
 		if(utm_list.getCount()) {
@@ -8514,9 +8510,8 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 				}
 				else {
 					SPathStruc ps(rParam.ParamString);
-					if(ps.Drv.Empty() && ps.Dir.Empty()) {
+					if(ps.Drv.Empty() && ps.Dir.Empty())
 						PPGetFilePath(PPPATH_IN, rParam.ParamString, temp_buf);
-					}
 					else
 						temp_buf = rParam.ParamString;
 					if(fileExists(temp_buf)) {

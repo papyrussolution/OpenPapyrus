@@ -1563,7 +1563,7 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 	ssize_t written;
 	const uchar * b;
 
-	b = (const uchar*)buff;
+	b = (const uchar *)buff;
 	while(s) {
 		written = write(iso9660->temp_fd, b, s);
 		if(written < 0) {
@@ -1667,7 +1667,7 @@ static ssize_t write_iso9660_data(struct archive_write * a, const void * buff, s
 		 * Make next extent.
 		 */
 		ws -= ts;
-		buff = (const void*)(((const uchar*)buff) + ts);
+		buff = (const void*)(((const uchar *)buff) + ts);
 		/* Make a content for next extent. */
 		con = (struct isofile::content * )SAlloc::C(1, sizeof(*con));
 		if(con == NULL) {
@@ -2301,7 +2301,7 @@ static inline void set_num_711(uchar * p, uchar value)
  */
 static inline void set_num_712(uchar * p, char value)
 {
-	*((char*)p) = value;
+	*((char *)p) = value;
 }
 
 /*
@@ -2557,7 +2557,7 @@ static inline struct extr_rec * extra_last_record(struct isoent * isoent) {
 	if(isoent->extr_rec_list.first == NULL)
 		return NULL;
 	return ((struct extr_rec *)(void*)
-	       ((char*)(isoent->extr_rec_list.last)
+	       ((char *)(isoent->extr_rec_list.last)
 	       - offsetof(struct extr_rec, next)));
 }
 
@@ -6023,7 +6023,7 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 		p[l] = 0;
 		p[l+1] = 0;
 
-		np->identifier = (char*)p;
+		np->identifier = (char *)p;
 		lt = l;
 		dot = p + l;
 		weight = 0;
@@ -6118,14 +6118,14 @@ static int isoent_cmp_iso9660_identifier(const struct isoent * p1, const struct 
 		while(l--)
 			if(0x20 != *s2++)
 				return (0x20
-				       - *(const uchar*)(s2 - 1));
+				       - *(const uchar *)(s2 - 1));
 	}
 	else if(p1->ext_off > p2->ext_off) {
 		s1 += l;
 		l = p1->ext_off - p2->ext_off;
 		while(l--)
 			if(0x20 != *s1++)
-				return (*(const uchar*)(s1 - 1)
+				return (*(const uchar *)(s1 - 1)
 				       - 0x20);
 	}
 	/* Compare File Name Extension */
@@ -6153,14 +6153,14 @@ static int isoent_cmp_iso9660_identifier(const struct isoent * p1, const struct 
 		while(l--)
 			if(0x20 != *s2++)
 				return (0x20
-				       - *(const uchar*)(s2 - 1));
+				       - *(const uchar *)(s2 - 1));
 	}
 	else if(p1->ext_len > p2->ext_len) {
 		s1 += l;
 		l = p1->ext_len - p2->ext_len;
 		while(l--)
 			if(0x20 != *s1++)
-				return (*(const uchar*)(s1 - 1)
+				return (*(const uchar *)(s1 - 1)
 				       - 0x20);
 	}
 	/* Compare File Version Number */
@@ -6189,8 +6189,8 @@ static int isoent_cmp_joliet_identifier(const struct isoent * p1, const struct i
 	int cmp;
 	int l;
 
-	s1 = (const uchar*)p1->identifier;
-	s2 = (const uchar*)p2->identifier;
+	s1 = (const uchar *)p1->identifier;
+	s2 = (const uchar *)p2->identifier;
 
 	/* Compare File Name */
 	l = p1->ext_off;
@@ -6204,14 +6204,14 @@ static int isoent_cmp_joliet_identifier(const struct isoent * p1, const struct i
 		l = p2->ext_off - p1->ext_off;
 		while(l--)
 			if(0 != *s2++)
-				return (-*(const uchar*)(s2 - 1));
+				return (-*(const uchar *)(s2 - 1));
 	}
 	else if(p1->ext_off > p2->ext_off) {
 		s1 += l;
 		l = p1->ext_off - p2->ext_off;
 		while(l--)
 			if(0 != *s1++)
-				return (*(const uchar*)(s1 - 1));
+				return (*(const uchar *)(s1 - 1));
 	}
 	/* Compare File Name Extension */
 	if(p1->ext_len == 0 && p2->ext_len == 0)
@@ -6237,14 +6237,14 @@ static int isoent_cmp_joliet_identifier(const struct isoent * p1, const struct i
 		l = p2->ext_len - p1->ext_len;
 		while(l--)
 			if(0 != *s2++)
-				return (-*(const uchar*)(s2 - 1));
+				return (-*(const uchar *)(s2 - 1));
 	}
 	else if(p1->ext_len > p2->ext_len) {
 		s1 += l;
 		l = p1->ext_len - p2->ext_len;
 		while(l--)
 			if(0 != *s1++)
-				return (*(const uchar*)(s1 - 1));
+				return (*(const uchar *)(s1 - 1));
 	}
 	/* Compare File Version Number */
 	/* No operation. The File Version Number is always one. */
@@ -6547,14 +6547,14 @@ static int _compare_path_table(const void * v1, const void * v2)
 		l = p2->ext_off - p1->ext_off;
 		while(l--)
 			if(0x20 != *s2++)
-				return (0x20 - *(const uchar*)(s2 - 1));
+				return (0x20 - *(const uchar *)(s2 - 1));
 	}
 	else if(p1->ext_off > p2->ext_off) {
 		s1 += l;
 		l = p1->ext_off - p2->ext_off;
 		while(l--)
 			if(0x20 != *s1++)
-				return (*(const uchar*)(s1 - 1) - 0x20);
+				return (*(const uchar *)(s1 - 1) - 0x20);
 	}
 	return 0;
 }
@@ -6574,8 +6574,8 @@ static int _compare_path_table_joliet(const void * v1, const void * v2)
 		return (cmp);
 
 	/* Compare identifier */
-	s1 = (const uchar*)p1->identifier;
-	s2 = (const uchar*)p2->identifier;
+	s1 = (const uchar *)p1->identifier;
+	s2 = (const uchar *)p2->identifier;
 	l = p1->ext_off;
 	if(l > p2->ext_off)
 		l = p2->ext_off;
@@ -6587,14 +6587,14 @@ static int _compare_path_table_joliet(const void * v1, const void * v2)
 		l = p2->ext_off - p1->ext_off;
 		while(l--)
 			if(0 != *s2++)
-				return (-*(const uchar*)(s2 - 1));
+				return (-*(const uchar *)(s2 - 1));
 	}
 	else if(p1->ext_off > p2->ext_off) {
 		s1 += l;
 		l = p1->ext_off - p2->ext_off;
 		while(l--)
 			if(0 != *s1++)
-				return (*(const uchar*)(s1 - 1));
+				return (*(const uchar *)(s1 - 1));
 	}
 	return 0;
 }
@@ -6611,7 +6611,7 @@ static inline struct isoent * path_table_last_entry(struct iso9660::vdd::path_ta
 {
 	if(pathtbl->first == NULL)
 		return NULL;
-	return (((struct isoent *)(void*)((char*)(pathtbl->last) - offsetof(struct isoent, ptnext))));
+	return (((struct isoent *)(void*)((char *)(pathtbl->last) - offsetof(struct isoent, ptnext))));
 }
 
 /*
@@ -6955,7 +6955,7 @@ static int make_boot_catalog(struct archive_write * a)
 	p[2] = p[3] = 0;
 	/* ID */
 	if(archive_strlen(&(iso9660->el_torito.id)) > 0)
-		strncpy((char*)p+4, iso9660->el_torito.id.s, 23);
+		strncpy((char *)p+4, iso9660->el_torito.id.s, 23);
 	p[27] = 0;
 	/* Checksum */
 	p[28] = p[29] = 0;
@@ -7276,7 +7276,7 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 	zstrm = &(iso9660->zisofs.stream);
 	zstrm->next_out = wb_buffptr(a);
 	zstrm->avail_out = (uInt)wb_remaining(a);
-	b = (const uchar*)buff;
+	b = (const uchar *)buff;
 	do {
 		avail = ZF_BLOCK_SIZE - zstrm->total_in;
 		if(s < avail) {

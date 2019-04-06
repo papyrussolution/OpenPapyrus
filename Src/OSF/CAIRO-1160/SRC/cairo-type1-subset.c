@@ -169,7 +169,7 @@ static const char * find_token(const char * buffer, const char * end, const char
 {
 	int i, length;
 	/* FIXME: find substring really must be find_token */
-	if(buffer == NULL)
+	if(!buffer)
 		return NULL;
 	length = strlen(token);
 	for(i = 0; buffer + i < end - length + 1; i++)
@@ -659,7 +659,7 @@ static cairo_status_t cairo_type1_font_subset_parse_charstring(cairo_type1_font_
 	uchar * charstring = static_cast<uchar *>(_cairo_malloc(encrypted_charstring_length));
 	if(unlikely(charstring == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	cairo_type1_font_subset_decrypt_charstring((const uchar*)encrypted_charstring, encrypted_charstring_length, charstring);
+	cairo_type1_font_subset_decrypt_charstring((const uchar *)encrypted_charstring, encrypted_charstring_length, charstring);
 	end = charstring + encrypted_charstring_length;
 	p = charstring + font->lenIV;
 	status = CAIRO_STATUS_SUCCESS;

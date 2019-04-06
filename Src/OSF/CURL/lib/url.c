@@ -3065,7 +3065,7 @@ CURLcode Curl_protocol_connect(struct connectdata * conn, bool * protocol_done)
  */
 /* @sobolev (replaced with sisascii)static bool is_ASCII_name(const char * hostname)
 {
-	const uchar * ch = (const uchar*)hostname;
+	const uchar * ch = (const uchar *)hostname;
 	while(*ch) {
 		if(*ch++ & 0x80)
 			return FALSE;

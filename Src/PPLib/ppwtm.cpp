@@ -423,7 +423,7 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 	switch(cmd) {
 		case cmdSetBounds:
 			{
-				TRect * p_rect = (TRect *)pExt;
+				const TRect * p_rect = static_cast<const TRect *>(pExt);
 				Tlo.SetBounds(FRect((float)p_rect->width(), (float)p_rect->height()));
 			}
 			ok = 1;
@@ -496,7 +496,6 @@ private:
 	virtual int GetTextLayout(STextLayout & rTl, int options) const;
 	virtual int HandleCommand(int cmd, void * pExt);
 	static int Refresh(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
-
 	int    RefreshBusyStatus(int force);
 
 	PPID   PrcID;     // @persistent
@@ -538,7 +537,7 @@ int WhatmanObjectProcessor::Refresh(int kind, const PPNotifyEvent * pEv, void * 
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evQuartz) {
-		WhatmanObjectProcessor * p_self = (WhatmanObjectProcessor *)procExtPtr;
+		WhatmanObjectProcessor * p_self = static_cast<WhatmanObjectProcessor *>(procExtPtr);
 		if(p_self) {
 			p_self->RefreshBusyStatus(0);
 			ok = 1;
@@ -633,12 +632,12 @@ int WhatmanObjectProcessor::Draw(TCanvas2 & rCanv)
 {
 	WhatmanObjectDrawFigure::Draw(rCanv);
 	TRect b = GetBounds();
-	const float _p = 8.0;
+	const float _p = 8.0f;
 	const float w = (float)b.width();
 	const float h = (float)b.height();
 	FPoint c((float)b.b.x - w/_p + w/(2*_p), (float)b.b.y - h/_p + h/(2*_p));
 	float r = (MIN(w/_p, h/_p)) / 2.0f;
-	rCanv.Arc(c, r, 0.0, (float)SMathConst::Pi2);
+	rCanv.Arc(c, r, 0.0, SMathConst::Pi2_f);
 	SColor clr;
 	if(BusyStatus == 1)
 		clr = SClrRed;
@@ -790,20 +789,17 @@ int WhatmanObjectBarcode::Draw(TCanvas2 & rCanv)
 		P.ColorFg = SClrDarkcyan;
 		P.ColorBg = SClrYellow;
 		if(PPBarcode::CreateImage(P)) {
-			{
-				LMatrix2D mtx;
-				rCanv.PushTransform();
-				SViewPort vp;
-				vp.a.SetZero();
-				vp.b = P.Buffer.GetDimF();
-				vp.ParX = SViewPort::parMid;
-				vp.ParY = SViewPort::parMax;
-				vp.Flags &= ~SViewPort::fEmpty;
-
-				rCanv.AddTransform(vp.GetMatrix(GetBounds(), mtx));
-				rCanv.Draw(&P.Buffer);
-				rCanv.PopTransform();
-			}
+			LMatrix2D mtx;
+			rCanv.PushTransform();
+			SViewPort vp;
+			vp.a.SetZero();
+			vp.b = P.Buffer.GetDimF();
+			vp.ParX = SViewPort::parMid;
+			vp.ParY = SViewPort::parMax;
+			vp.Flags &= ~SViewPort::fEmpty;
+			rCanv.AddTransform(vp.GetMatrix(GetBounds(), mtx));
+			rCanv.Draw(&P.Buffer);
+			rCanv.PopTransform();
 			r = 1;
 		}
 	}
@@ -930,7 +926,6 @@ private:
 	virtual int GetTextLayout(STextLayout & rTl, int options) const;
 	virtual int HandleCommand(int cmd, void * pExt);
 	static int Refresh(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
-
 	int    RefreshBusyStatus(int force);
 
 	long   TableNo;
@@ -1839,13 +1834,13 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 	}
 	else if(TVINFOPTR) {
 		if(event.isCmd(cmInit)) {
-			CreateBlock * p_blk = (CreateBlock *)TVINFOPTR;
+			CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
 			W.SetArea(getClientRect());
 			W.GetScrollRange(&Sb.Rx, &Sb.Ry);
 			Sb.SetupWindow(H());
 		}
 		else if(event.isCmd(cmPaint)) {
-			PaintEvent * p_pe = (PaintEvent *)TVINFOPTR;
+			PaintEvent * p_pe = static_cast<PaintEvent *>(TVINFOPTR);
 			if(p_pe->PaintType == PaintEvent::tPaint) {
 				MemLeakTracer mlt;
 				{
@@ -1909,7 +1904,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			}
 		}
 		else if(event.isCmd(cmMouse)) {
-			MouseEvent * p_me = (MouseEvent *)TVINFOPTR;
+			MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
 			int    obj_idx = 0, prev_idx = -1;
 			switch(p_me->Type) {
 				case MouseEvent::tRDown:
@@ -2028,7 +2023,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			}
 		}
 		else if(event.isCmd(cmScroll)) {
-			ScrollEvent * p_se = (ScrollEvent *)TVINFOPTR;
+			ScrollEvent * p_se = static_cast<ScrollEvent *>(TVINFOPTR);
 			if(oneof2(p_se->Dir, DIREC_VERT, DIREC_HORZ)) {
 				int    r = 0;
 				switch(p_se->Type) {
@@ -2148,7 +2143,7 @@ int PPWhatmanWindow::EditTool(uint objIdx)
 	int    ok = -1, r = 1;
 	TWhatmanObject * p_obj = 0;
 	if(St.Mode == modeToolbox) {
-		const ToolObject * p_tool_obj = (const ToolObject *)W.GetObjectC(objIdx);
+		const ToolObject * p_tool_obj = static_cast<const ToolObject *>(W.GetObjectC(objIdx));
 		if(p_tool_obj) {
 			uint pos = 0;
 			TWhatmanToolArray::Item item;
@@ -2174,7 +2169,7 @@ int PPWhatmanWindow::DeleteTool(uint objIdx)
 {
 	int    ok = -1;
 	if(St.Mode == modeToolbox) {
-		const ToolObject * p_obj = (const ToolObject *)W.GetObjectC(objIdx);
+		const ToolObject * p_obj = static_cast<const ToolObject *>(W.GetObjectC(objIdx));
 		if(p_obj) {
 			uint pos = 0;
 			if(Tools.SearchBySymb(p_obj->ToolSymb, &pos)) {
@@ -2240,7 +2235,6 @@ int PPWhatmanWindow::LoadTools(const char * pFileName)
 			param.Ap.LrGap = 8;
 			param.Ap.InnerGap = 5;
 			Tools.SetParam(param);
-
 			Rearrange();
 		}
 	}

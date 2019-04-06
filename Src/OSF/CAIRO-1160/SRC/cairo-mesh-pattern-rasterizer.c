@@ -441,7 +441,7 @@ static inline void draw_pixel(uchar * data, int width, int height, int stride, i
 		tr += tr >> 16;
 		tg += tg >> 16;
 		tb += tb >> 16;
-		*((uint32_t*)(data + y*(ptrdiff_t)stride + 4*x)) = ((ta << 16) & 0xff000000) | ((tr >> 8) & 0xff0000) | ((tg >> 16) & 0xff00) | (tb >> 24);
+		*((uint32_t *)(data + y*(ptrdiff_t)stride + 4*x)) = ((ta << 16) & 0xff000000) | ((tr >> 8) & 0xff0000) | ((tg >> 16) & 0xff00) | (tb >> 24);
 	}
 }
 

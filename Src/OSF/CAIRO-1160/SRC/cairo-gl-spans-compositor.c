@@ -49,19 +49,15 @@
 //#include "cairo-error-private.h"
 //#include "cairo-image-surface-private.h"
 #include "cairo-spans-compositor-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-backend-private.h"
 
 typedef struct _cairo_gl_span_renderer {
 	cairo_span_renderer_t base;
-
 	cairo_gl_composite_t setup;
 	double opacity;
-
 	cairo_gl_emit_span_t emit;
-
 	int xmin, xmax;
 	int ymin, ymax;
-
 	cairo_gl_context_t * ctx;
 } cairo_gl_span_renderer_t;
 

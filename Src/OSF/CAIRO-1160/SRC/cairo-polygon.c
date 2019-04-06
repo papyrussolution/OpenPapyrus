@@ -37,7 +37,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-boxes-private.h"
-#include "cairo-contour-private.h"
+//#include "cairo-contour-private.h"
 //#include "cairo-error-private.h"
 
 #define DEBUG_POLYGON 0
@@ -62,7 +62,7 @@
 	#define assert_last_edge_is_valid(p, l)
 #endif
 
-static void _cairo_polygon_add_edge(cairo_polygon_t * polygon, const cairo_point_t * p1, const cairo_point_t * p2, int dir);
+static void FASTCALL _cairo_polygon_add_edge(cairo_polygon_t * polygon, const cairo_point_t * p1, const cairo_point_t * p2, int dir);
 
 void _cairo_polygon_limit(cairo_polygon_t * polygon, const cairo_box_t * limits, int num_limits)
 {
@@ -74,21 +74,17 @@ void _cairo_polygon_limit(cairo_polygon_t * polygon, const cairo_box_t * limits,
 		for(n = 1; n < num_limits; n++) {
 			if(limits[n].p1.x < polygon->limit.p1.x)
 				polygon->limit.p1.x = limits[n].p1.x;
-
 			if(limits[n].p1.y < polygon->limit.p1.y)
 				polygon->limit.p1.y = limits[n].p1.y;
-
 			if(limits[n].p2.x > polygon->limit.p2.x)
 				polygon->limit.p2.x = limits[n].p2.x;
-
 			if(limits[n].p2.y > polygon->limit.p2.y)
 				polygon->limit.p2.y = limits[n].p2.y;
 		}
 	}
 }
 
-void _cairo_polygon_limit_to_clip(cairo_polygon_t * polygon,
-    const cairo_clip_t * clip)
+void _cairo_polygon_limit_to_clip(cairo_polygon_t * polygon, const cairo_clip_t * clip)
 {
 	if(clip)
 		_cairo_polygon_limit(polygon, clip->boxes, clip->num_boxes);
@@ -96,27 +92,19 @@ void _cairo_polygon_limit_to_clip(cairo_polygon_t * polygon,
 		_cairo_polygon_limit(polygon, 0, 0);
 }
 
-void _cairo_polygon_init(cairo_polygon_t * polygon,
-    const cairo_box_t * limits,
-    int num_limits)
+void FASTCALL _cairo_polygon_init(cairo_polygon_t * polygon, const cairo_box_t * limits, int num_limits)
 {
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(polygon, sizeof(cairo_polygon_t)));
-
 	polygon->status = CAIRO_STATUS_SUCCESS;
-
 	polygon->num_edges = 0;
-
 	polygon->edges = polygon->edges_embedded;
 	polygon->edges_size = ARRAY_LENGTH(polygon->edges_embedded);
-
 	polygon->extents.p1.x = polygon->extents.p1.y = INT32_MAX;
 	polygon->extents.p2.x = polygon->extents.p2.y = INT32_MIN;
-
 	_cairo_polygon_limit(polygon, limits, num_limits);
 }
 
-void _cairo_polygon_init_with_clip(cairo_polygon_t * polygon,
-    const cairo_clip_t * clip)
+void FASTCALL _cairo_polygon_init_with_clip(cairo_polygon_t * polygon, const cairo_clip_t * clip)
 {
 	if(clip)
 		_cairo_polygon_init(polygon, clip->boxes, clip->num_boxes);
@@ -193,7 +181,7 @@ cairo_status_t _cairo_polygon_init_box_array(cairo_polygon_t * polygon, cairo_bo
 	return polygon->status;
 }
 
-void _cairo_polygon_fini(cairo_polygon_t * polygon)
+void FASTCALL _cairo_polygon_fini(cairo_polygon_t * polygon)
 {
 	if(polygon->edges != polygon->edges_embedded)
 		SAlloc::F(polygon->edges);
@@ -379,21 +367,18 @@ static void _add_clipped_edge(cairo_polygon_t * polygon, const cairo_point_t * p
 					left_y = bot_y;
 				}
 				else {
-					left_y = _cairo_edge_compute_intersection_y_for_x(p1, p2,
-						limits->p1.x);
+					left_y = _cairo_edge_compute_intersection_y_for_x(p1, p2, limits->p1.x);
 					if(_cairo_edge_compute_intersection_x_for_y(p1, p2, left_y) < limits->p1.x)
 						left_y--;
 				}
 
 				left_y = MAX(left_y, top_y);
 				if(bot_y > left_y) {
-					_add_edge(polygon, &limits->p1, &bot_left,
-					    left_y, bot_y, dir);
+					_add_edge(polygon, &limits->p1, &bot_left, left_y, bot_y, dir);
 					assert_last_edge_is_valid(polygon, limits);
 					bot_y = left_y;
 				}
 			}
-
 			if(top_y != bot_y) {
 				_add_edge(polygon, p1, p2, top_y, bot_y, dir);
 				assert_last_edge_is_valid(polygon, limits);
@@ -402,28 +387,22 @@ static void _add_clipped_edge(cairo_polygon_t * polygon, const cairo_point_t * p
 	}
 }
 
-static void _cairo_polygon_add_edge(cairo_polygon_t * polygon,
-    const cairo_point_t * p1,
-    const cairo_point_t * p2,
-    int dir)
+static void FASTCALL _cairo_polygon_add_edge(cairo_polygon_t * polygon, const cairo_point_t * p1, const cairo_point_t * p2, int dir)
 {
 	/* drop horizontal edges */
 	if(p1->y == p2->y)
 		return;
-
 	if(p1->y > p2->y) {
-		const cairo_point_t * t;
-		t = p1, p1 = p2, p2 = t;
+		const cairo_point_t * t = p1;
+		p1 = p2;
+		p2 = t;
 		dir = -dir;
 	}
-
 	if(polygon->num_limits) {
 		if(p2->y <= polygon->limit.p1.y)
 			return;
-
 		if(p1->y >= polygon->limit.p2.y)
 			return;
-
 		_add_clipped_edge(polygon, p1, p2, p1->y, p2->y, dir);
 	}
 	else
@@ -455,39 +434,32 @@ cairo_status_t _cairo_polygon_add_line(cairo_polygon_t * polygon, const cairo_li
 	return polygon->status;
 }
 
-cairo_status_t _cairo_polygon_add_contour(cairo_polygon_t * polygon, const cairo_contour_t * contour)
+cairo_status_t FASTCALL _cairo_polygon_add_contour(cairo_polygon_t * polygon, const cairo_contour_t * contour)
 {
 	const struct _cairo_contour_chain * chain;
 	const cairo_point_t * prev = NULL;
 	int i;
-
 	if(contour->chain.num_points <= 1)
 		return CAIRO_INT_STATUS_SUCCESS;
-
 	prev = &contour->chain.points[0];
 	for(chain = &contour->chain; chain; chain = chain->next) {
 		for(i = 0; i < chain->num_points; i++) {
-			_cairo_polygon_add_edge(polygon, prev, &chain->points[i],
-			    contour->direction);
+			_cairo_polygon_add_edge(polygon, prev, &chain->points[i], contour->direction);
 			prev = &chain->points[i];
 		}
 	}
-
 	return polygon->status;
 }
 
 void _cairo_polygon_translate(cairo_polygon_t * polygon, int dx, int dy)
 {
-	int n;
-
 	dx = _cairo_fixed_from_int(dx);
 	dy = _cairo_fixed_from_int(dy);
-
 	polygon->extents.p1.x += dx;
 	polygon->extents.p2.x += dx;
 	polygon->extents.p1.y += dy;
 	polygon->extents.p2.y += dy;
-	for(n = 0; n < polygon->num_edges; n++) {
+	for(int n = 0; n < polygon->num_edges; n++) {
 		cairo_edge_t * e = &polygon->edges[n];
 		e->top += dy;
 		e->bottom += dy;

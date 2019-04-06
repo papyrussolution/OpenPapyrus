@@ -263,15 +263,12 @@ public:
 		HeaderRecCount = LinesRecCount = 0;
 		return ok;
 	}
-	int SLAPI Init(const char * pFile, uint headRecType, uint lineRecType, uint addLineRecType, const char * pHeadScheme, const char * pLineScheme, const char * pAddLineScheme,
-		/*const SupplExpFilt * pFilt,*/ const char * pSchemeName /*=0*/)
+	int SLAPI Init(const char * pFile, uint headRecType, uint lineRecType, uint addLineRecType, uint promoLineRecType,
+		const char * pHeadScheme, const char * pLineScheme, const char * pAddLineScheme, const char * pPromoLineScheme,
+		const char * pSchemeName)
 	{
 		int    ok = 1;
 		PPImpExpParam p;
-		/*
-		if(!RVALUEPTR(Filt, pFilt))
-			Filt.Init();
-		*/
 		FileName = pFile; // Инициализация FileName до вызова InitExportParam
 		if(headRecType) {
 			HeadRecType = headRecType;
@@ -288,9 +285,17 @@ public:
 			InitExportParam(p, addLineRecType);
 			AddLineRec = p.InrRec;
 		}
+		// @v10.4.0 {
+		if(promoLineRecType) {
+			PromoLineRecType = promoLineRecType;
+			InitExportParam(p, promoLineRecType);
+			PromoLineRec = p.InrRec;
+		}
+		// } @v10.4.0 
 		HeadScheme = pHeadScheme;
 		LineScheme = pLineScheme;
 		AddLineScheme = pAddLineScheme;
+		PromoLineScheme = pPromoLineScheme; // @v10.4.0
 		SchemeName = pSchemeName;
 		F.Close();
 		THROW_SL(F.Open(pFile, SFile::mWrite) > 0);
@@ -428,7 +433,12 @@ private:
 				THROW(WriteScheme(&AddLineRec, AddLineScheme));
 				F.WriteLine("</d>");
 			}
-			//if(sstrlen(Filt.AddScheme)) {
+			// @v10.4.0 {
+			if(PromoLineScheme.Len()) {
+				THROW(WriteScheme(&PromoLineRec, PromoLineScheme));
+				F.WriteLine("</d>");
+			}
+			// } @v10.4.0 
 			if(AddedRecType && AddedScheme.NotEmpty()) {
 				PPImpExpParam p;
 				InitExportParam(p, /*Filt.AddRecType*/AddedRecType);
@@ -539,22 +549,24 @@ private:
 	SString AddedScheme;
 	SString ClientCode;
 	bool   FlatStruc;
-
+	uint8  Reserve[3]; // @alignment
 	int    HeaderRecCount;
 	int    LinesRecCount;
 	int    FilesCount;
 	uint   HeadRecType;
 	uint   LineRecType;
 	uint   AddLineRecType;
-	//SupplExpFilt Filt;
+	uint   PromoLineRecType; // @v10.4.0
 	SString HeadScheme;
 	SString LineScheme;
 	SString AddLineScheme;
+	SString PromoLineScheme; // @v10.4.0
 	SString SchemeName;
 	SString FileName;
 	SdRecord HeadRec;
 	SdRecord LineRec;
 	SdRecord AddLineRec;
+	SdRecord PromoLineRec; // @v10.4.0
 	SFile  F;
 };
 
@@ -1274,6 +1286,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 	BillFilt filt;
 	PPIDArray loss_op_list, invrcpt_op_list, spoilage_loc_list;
 	TSVector <Sdr_BaltikaBillItemAttrs> items_attrs_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <Sdr_BaltikaBillPricePromo> promo_item_list; // @v10.3.11
 	BillViewItem item;
 	PPObjTag   obj_tag;
 	PPObjWorld obj_world;
@@ -1284,7 +1297,6 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		CurDict->GetDbUUID(&uuid);
 		uuid.ToStr(S_GUID::fmtIDL, db_uuid_text);
 	}
-
 	{
 		PPObjectTag tag_rec;
 		PPID   temp_id = 0;
@@ -1293,7 +1305,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 				order_number_tag_id = tag_rec.ID;
 		}
 		if(obj_tag.SearchBySymb("BALTIKA-PROMO-LABEL", &(temp_id = 0), &tag_rec) > 0) { // @v10.3.11
-			if(tag_rec.ObjTypeID == PPOBJ_BILL && tag_rec.TagDataType == OTTYP_STRING)
+			if(tag_rec.ObjTypeID == PPOBJ_BILL && oneof2(tag_rec.TagDataType, OTTYP_STRING, OTTYP_ENUM)) // @v10.4.0 OTTYP_ENUM
 				promo_tag_id = tag_rec.ID;
 		}
 	}
@@ -1322,7 +1334,8 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		soap_e.SetAddedScheme(PPREC_SUPPLDLVRADDR, "CRMExtClientAddressDef");
 	}
 	soap_e.SetClientCode(pClientCode);
-	THROW(soap_e.Init(path, PPREC_SUPPLBILL, PPREC_SUPPLBILLLINE, PPREC_BALTIKABILLITEMATTRS, "CRMDespatchParam", "CRMDespatch", "CRMDespatchParts", "CRMDespatchEx"));
+	THROW(soap_e.Init(path, PPREC_SUPPLBILL, PPREC_SUPPLBILLLINE, PPREC_BALTIKABILLITEMATTRS, PPREC_BALTIKABILLPRICEPROMO, 
+		"CRMDespatchParam", "CRMDespatch", "CRMDespatchParts", "CRMDiscount", "CRMDespatchEx"));
 	soap_e.SetMaxTransmitSize(P.MaxTransmitSize);
 	//
 	MEMSZERO(head_rec);
@@ -1362,7 +1375,6 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		PPTransferItem trfr_item;
 		PPBillPacket bpack;
 		TSVector <Sdr_SupplBillLine> items_list; // @v9.8.4 TSArray-->TSVector
-		TSVector <Sdr_BaltikaBillPricePromo> promo_item_list; // @v10.3.11
 		THROW(P_BObj->ExtractPacket(item.ID, &bpack));
 		PPObjBill::MakeCodeString(&bpack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, bill_text);
 		if(bpack.GetOrderList(ord_list) > 0) {
@@ -1706,16 +1718,6 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 						THROW(soap_e.AppendRecT(PPREC_SUPPLBILLLINE, &line_rec, sizeof(line_rec), is_first_item, 1, 0/*pSchemeName*/));
 					}
 				}
-				// @v10.3.11 {
-				if(promo_item_list.getCount()) {
-					for(uint promoidx = 0; promoidx < promo_item_list.getCount(); promoidx++) {
-						Sdr_BaltikaBillPricePromo promo_item_rec = promo_item_list.at(promoidx);
-						THROW(soap_e.AppendRecT(PPREC_BALTIKABILLPRICEPROMO, &promo_item_rec, sizeof(promo_item_rec), is_first_promo, 1, 0/*pSchemeName*/));
-						is_first_promo = 0;
-					}
-					soap_e.EndRecBlock();
-				}
-				// } @v10.3.11 
 			}
 		}
 		PPWaitPercent(v.GetCounter());
@@ -1768,6 +1770,16 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 			if(j > 0)
 				soap_e.EndRecBlock();
 		}
+		// @v10.3.11 {
+		if(promo_item_list.getCount()) {
+			for(uint promoidx = 0; promoidx < promo_item_list.getCount(); promoidx++) {
+				Sdr_BaltikaBillPricePromo promo_item_rec = promo_item_list.at(promoidx);
+				THROW(soap_e.AppendRecT(PPREC_BALTIKABILLPRICEPROMO, &promo_item_rec, sizeof(promo_item_rec), is_first_promo, 1, "CRMDiscount"/*pSchemeName*/));
+				is_first_promo = 0;
+			}
+			soap_e.EndRecBlock();
+		}
+		// } @v10.3.11 
 	}
 	CATCHZOK
 	soap_e.EndDocument(ok > 0 && count);

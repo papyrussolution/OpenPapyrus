@@ -86,12 +86,8 @@ cairo_bool_t _cairo_path_bounder_extents(const cairo_path_fixed_t * path, cairo_
 	cairo_path_bounder_t bounder;
 	cairo_status_t status;
 	bounder.has_extents = FALSE;
-	status = _cairo_path_fixed_interpret(path,
-		_cairo_path_bounder_move_to,
-		_cairo_path_bounder_line_to,
-		_cairo_path_bounder_curve_to,
-		_cairo_path_bounder_close_path,
-		&bounder);
+	status = _cairo_path_fixed_interpret(path, _cairo_path_bounder_move_to, _cairo_path_bounder_line_to,
+		_cairo_path_bounder_curve_to, _cairo_path_bounder_close_path, &bounder);
 	assert(!status);
 	if(bounder.has_extents)
 		*extents = bounder.extents;
@@ -136,11 +132,9 @@ void _cairo_path_fixed_approximate_stroke_extents(const cairo_path_fixed_t * pat
 			double min = _cairo_fixed_to_double(CAIRO_FIXED_EPSILON*2);
 			if(dx < min)
 				dx = min;
-
 			if(dy < min)
 				dy = min;
 		}
-
 		box_extents = path->extents;
 		box_extents.p1.x -= _cairo_fixed_from_double(dx);
 		box_extents.p1.y -= _cairo_fixed_from_double(dy);
@@ -155,17 +149,12 @@ void _cairo_path_fixed_approximate_stroke_extents(const cairo_path_fixed_t * pat
 	}
 }
 
-cairo_status_t _cairo_path_fixed_stroke_extents(const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * stroke_style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_rectangle_int_t * extents)
+cairo_status_t _cairo_path_fixed_stroke_extents(const cairo_path_fixed_t * path, const cairo_stroke_style_t * stroke_style, const cairo_matrix_t * ctm,
+    const cairo_matrix_t * ctm_inverse, double tolerance, cairo_rectangle_int_t * extents)
 {
 	cairo_polygon_t polygon;
 	cairo_status_t status;
 	cairo_stroke_style_t style;
-
 	/* When calculating extents for vector surfaces, ensure lines thinner
 	 * than one point are not optimized away. */
 	double min_line_width = _cairo_matrix_transformed_circle_major_axis(ctm_inverse, 1.0);
@@ -174,21 +163,14 @@ cairo_status_t _cairo_path_fixed_stroke_extents(const cairo_path_fixed_t * path,
 		style.line_width = min_line_width;
 		stroke_style = &style;
 	}
-
 	_cairo_polygon_init(&polygon, NULL, 0);
-	status = _cairo_path_fixed_stroke_to_polygon(path,
-		stroke_style,
-		ctm, ctm_inverse,
-		tolerance,
-		&polygon);
+	status = _cairo_path_fixed_stroke_to_polygon(path, stroke_style, ctm, ctm_inverse, tolerance, &polygon);
 	_cairo_box_round_to_rectangle(&polygon.extents, extents);
 	_cairo_polygon_fini(&polygon);
-
 	return status;
 }
 
-cairo_bool_t _cairo_path_fixed_extents(const cairo_path_fixed_t * path,
-    cairo_box_t * box)
+cairo_bool_t _cairo_path_fixed_extents(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
 	*box = path->extents;
 	return path->has_extents;

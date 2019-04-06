@@ -82,8 +82,8 @@ int SPrinting::StartDocument()
 		MEMSZERO(di);
 		di.cbSize = sizeof(DOCINFO);
 		di.lpszDocName  = _T("Document");
-		di.lpszOutput   = (LPTSTR)NULL;
-		di.lpszDatatype = (LPTSTR)NULL;
+		di.lpszOutput   = NULL;
+		di.lpszDatatype = NULL;
 		di.fwType = 0;
 		THROW(StartDoc(PrinterDc, &di) != SP_ERROR); // @unicodeproblem
 		DocStarted = 1;

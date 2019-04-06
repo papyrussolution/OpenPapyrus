@@ -552,7 +552,7 @@ int main(int argc, char * argv[])
 			(out_dir = argv[4]).RmvLastSlash().Cat("\\");
 			
 			(tmp_out_dir = out_dir).Cat(TEMP_DIR);
-			CreateDirectory(tmp_out_dir, NULL);
+			::CreateDirectory(SUcSwitch(tmp_out_dir), NULL);
 			//
 			// read tags assoc table 
 			//
@@ -582,7 +582,7 @@ int main(int argc, char * argv[])
 									out_fpath.Excise(pos, 5);
 								if(out_file.Compare(tmp_out_fpath, out_fpath, 0) <= 0)
 									copyFileByName(tmp_out_fpath, out_fpath);
-								DeleteFile(tmp_out_fpath);
+								::DeleteFile(SUcSwitch(tmp_out_fpath));
 							}
 						}
 					}
@@ -596,7 +596,7 @@ int main(int argc, char * argv[])
 								out_fpath.Excise(pos, 5);
 							if(out_file.Compare(tmp_out_fpath, out_fpath, 0) <= 0)
 								copyFileByName(tmp_out_fpath, out_fpath);
-							DeleteFile(tmp_out_fpath);
+							::DeleteFile(SUcSwitch(tmp_out_fpath));
 						}
 					}
 				}

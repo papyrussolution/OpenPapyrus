@@ -643,7 +643,7 @@ inline static struct cell * cell_list_alloc(struct cell_list * cells, struct cel
 	cell->next = tail->next;
 	tail->next = cell;
 	cell->x = x;
-	*(uint32_t*)&cell->uncovered_area = 0;
+	*(uint32_t *)&cell->uncovered_area = 0;
 	return cell;
 }
 

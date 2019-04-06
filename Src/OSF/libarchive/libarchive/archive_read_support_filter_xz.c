@@ -191,8 +191,8 @@ static int xz_bidder_bid(struct archive_read_filter_bidder * self,
 
 	(void)self; /* UNUSED */
 
-	buffer = (const uchar*)__archive_read_filter_ahead(filter, 6, &avail);
-	if(buffer == NULL)
+	buffer = (const uchar *)__archive_read_filter_ahead(filter, 6, &avail);
+	if(!buffer)
 		return 0;
 
 	/*
@@ -216,19 +216,16 @@ static int xz_bidder_bid(struct archive_read_filter_bidder * self,
  * LZMA checking instead of (or in addition to) compression_all() when
  * they have other evidence (file name, command-line option) to go on.
  */
-static int lzma_bidder_bid(struct archive_read_filter_bidder * self,
-    struct archive_read_filter * filter)
+static int lzma_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
 	const uchar * buffer;
 	ssize_t avail;
 	uint32_t dicsize;
 	uint64_t uncompressed_size;
 	int bits_checked;
-
 	(void)self; /* UNUSED */
-
-	buffer = (const uchar*)__archive_read_filter_ahead(filter, 14, &avail);
-	if(buffer == NULL)
+	buffer = (const uchar *)__archive_read_filter_ahead(filter, 14, &avail);
+	if(!buffer)
 		return 0;
 
 	/* First byte of raw LZMA stream is commonly 0x5d.
@@ -327,8 +324,8 @@ static int lzip_has_member(struct archive_read_filter * filter)
 	ssize_t avail;
 	int bits_checked;
 	int log2dic;
-	const uchar * buffer = (const uchar*)__archive_read_filter_ahead(filter, 6, &avail);
-	if(buffer == NULL)
+	const uchar * buffer = (const uchar *)__archive_read_filter_ahead(filter, 6, &avail);
+	if(!buffer)
 		return 0;
 	/*
 	 * Verify Header Magic Bytes : 4C 5A 49 50 (`LZIP')

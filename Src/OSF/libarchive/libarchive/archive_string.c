@@ -268,7 +268,7 @@ struct archive_string * FASTCALL archive_string_ensure(struct archive_string * a
 	if(new_length < s)
 		new_length = s;
 	/* Now we can reallocate the buffer. */
-	p = (char*)SAlloc::R(as->s, new_length);
+	p = (char *)SAlloc::R(as->s, new_length);
 	if(p == NULL) {
 		/* On failure, wipe the string and return NULL. */
 		archive_string_free(as);
@@ -401,7 +401,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		if(NULL == archive_wstring_ensure(dest, dest->length + length + 1))
 			return -1;
 		ws = dest->s + dest->length;
-		mp = (const uchar*)s;
+		mp = (const uchar *)s;
 		count = 0;
 		while(count < (int)length && *mp) {
 			*ws++ = (wchar_t)*mp++;
@@ -433,7 +433,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 			 */
 			count = (int)mbsnbytes(s, length);
 		}
-		u16.s = (char*)dest->s;
+		u16.s = (char *)dest->s;
 		u16.length = dest->length << 1;;
 		u16.buffer_length = dest->buffer_length;
 		if(sc->flag & SCONV_NORMALIZATION_C)
@@ -1916,7 +1916,7 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p,
 		return -1;
 
 	cd = sc->cd;
-	itp = (char*)(uintptr_t)_p;
+	itp = (char *)(uintptr_t)_p;
 	remaining = length;
 	outp = as->s + as->length;
 	avail = as->buffer_length - as->length - to_size;

@@ -820,7 +820,7 @@ int PPALDD_MrpTab::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjMrpTab * p_obj = (PPObjMrpTab *)(Extra[0].Ptr);
+		PPObjMrpTab * p_obj = static_cast<PPObjMrpTab *>(Extra[0].Ptr);
 		MrpTabTbl::Rec rec;
 		if(p_obj->Search(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;

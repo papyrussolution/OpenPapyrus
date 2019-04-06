@@ -39,7 +39,7 @@
 //#include "cairo-clip-inline.h"
 //#include "cairo-error-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-offset-private.h"
 
 /* A collection of routines to facilitate drawing to an alternate surface. */
 

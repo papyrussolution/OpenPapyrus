@@ -1656,8 +1656,7 @@ int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, 
 		THROW(cli.SendMsgToFile(&rMsg, file_name));
 		THROW(cli.SendMsgFromFile(&rMsg, file_name, cbProc, rMsgCounter));
 		if(!(CConfig.Flags & CCFLG_DEBUG))
-			if(file_name.NotEmptyS())
-				SFile::Remove(file_name);
+			SFile::Remove(file_name);
 	}
 	CATCHZOK
 	return ok;

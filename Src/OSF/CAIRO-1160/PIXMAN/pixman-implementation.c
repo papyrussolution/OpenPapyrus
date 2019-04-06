@@ -219,7 +219,7 @@ void _pixman_implementation_iter_init(pixman_implementation_t * imp, pixman_iter
 {
 	pixman_format_code_t format;
 	iter->image = image;
-	iter->buffer = (uint32_t*)buffer;
+	iter->buffer = (uint32_t *)buffer;
 	iter->x = x;
 	iter->y = y;
 	iter->width = width;

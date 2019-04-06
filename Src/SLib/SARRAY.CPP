@@ -1259,16 +1259,22 @@ int FASTCALL SCollection::Helper_CreateNewItem(void * pNewItem)
 //
 //
 //
-SLAPI LAssoc::LAssoc() : Key(0), Val(0)
+SLAPI LAssoc::LAssoc()
 {
+	Key = 0; 
+	Val = 0;
 }
 
-SLAPI LAssoc::LAssoc(int32 key, int32 val) : Key(key), Val(val)
+SLAPI LAssoc::LAssoc(int32 key, int32 val)
 {
+	Key = key;
+	Val = val;
 }
 
-SLAPI LAssoc::LAssoc(const LAssoc & rS) : Key(rS.Key), Val(rS.Val)
+SLAPI LAssoc::LAssoc(const LAssoc & rS) 
 {
+	Key = rS.Key;
+	Val = rS.Val;
 }
 
 int FASTCALL LAssoc::operator == (const LAssoc & s) const

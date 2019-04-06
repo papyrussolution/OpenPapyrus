@@ -205,7 +205,7 @@ static void dump_image(pixman_image_t * image, const char * title)
 		printf("%s is not an alpha mask\n", title);
 	printf("\n\n\n%s: \n", title);
 	for(i = 0; i < image->bits.height; ++i) {
-		uint8_t * line = (uint8_t*)&(image->bits.bits[i * image->bits.rowstride]);
+		uint8_t * line = (uint8_t *)&(image->bits.bits[i * image->bits.rowstride]);
 		for(j = 0; j < image->bits.width; ++j)
 			printf("%c", line[j] ? '#' : ' ');
 		printf("\n");

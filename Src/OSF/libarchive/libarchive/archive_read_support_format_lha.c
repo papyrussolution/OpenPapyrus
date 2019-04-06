@@ -1154,7 +1154,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			return (truncated_error(a));
 		*total_size += extdsize;
 
-		extdheader = (const uchar*)h;
+		extdheader = (const uchar *)h;
 		/* Get the extended header type. */
 		extdtype = extdheader[sizefield_length];
 		/* Calculate an extended data size. */
@@ -1668,7 +1668,7 @@ static void lha_crc16_init(void)
 
 static uint16_t lha_crc16(uint16_t crc, const void * pp, size_t len)
 {
-	const uchar * p = (const uchar*)pp;
+	const uchar * p = (const uchar *)pp;
 	const uint16_t * buff;
 	const union {
 		uint32_t i;
@@ -1720,7 +1720,7 @@ static uint16_t lha_crc16(uint16_t crc, const void * pp, size_t len)
 #undef bswap16
 	}
 
-	p = (const uchar*)buff;
+	p = (const uchar *)buff;
 	for(; len; len--) {
 		crc = (crc >> 8) ^ crc16tbl[0][(crc ^ *p++) & 0xff];
 	}

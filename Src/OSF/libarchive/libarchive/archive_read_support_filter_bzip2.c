@@ -128,8 +128,8 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
 	(void)self; /* UNUSED */
 
 	/* Minimal bzip2 archive is 14 bytes. */
-	buffer = (const uchar*)__archive_read_filter_ahead(filter, 14, &avail);
-	if(buffer == NULL)
+	buffer = (const uchar *)__archive_read_filter_ahead(filter, 14, &avail);
+	if(!buffer)
 		return 0;
 
 	/* First three bytes must be "BZh" */
@@ -276,7 +276,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated bzip2 input");
 			return ARCHIVE_FATAL;
 		}
-		state->stream.next_in = (char*)(uintptr_t)read_buf;
+		state->stream.next_in = (char *)(uintptr_t)read_buf;
 		state->stream.avail_in = ret;
 		/* There is no more data, return whatever we have. */
 		if(ret == 0) {

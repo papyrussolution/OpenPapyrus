@@ -1369,7 +1369,7 @@ int SLAPI PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 	int    try_reconnect = 2;
 	PPJobSrvClient * p_cli = 0;
 	PPBaseFilt * p_filt = 0;
-	OuterTitle = 0;
+	OuterTitle.Z();
 	ExecFlags = flags;
 	if(ImplementFlags & implUseServer && !(flags & exefDisable3Tier) && (p_cli = DS.GetClientSession(0)) != 0) {
 		while(try_reconnect) {
@@ -1410,15 +1410,29 @@ int SLAPI PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 		}
 	}
 	if(do_local) {
-		SString filt_desc;
+		THROW(InitLocal(pFilt)); // @v10.4.0
+		/* @v10.4.0 SString filt_desc;
 		pFilt->Describe(0, filt_desc);
 		Profile profile;
 		profile.Start(PPFILNAM_USERPROFILE_LOG, GetSymb(), filt_desc);
 		THROW(Init_(pFilt));
-		profile.Finish(PPFILNAM_USERPROFILE_LOG, GetSymb(), filt_desc);
+		profile.Finish(PPFILNAM_USERPROFILE_LOG, GetSymb(), filt_desc); */
 	}
 	CATCHZOK
 	delete p_filt;
+	return ok;
+}
+
+int SLAPI PPView::InitLocal(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	SString filt_desc;
+	pBaseFilt->Describe(0, filt_desc);
+	Profile profile;
+	profile.Start(PPFILNAM_USERPROFILE_LOG, GetSymb(), filt_desc);
+	THROW(Init_(pBaseFilt));
+	profile.Finish(PPFILNAM_USERPROFILE_LOG, GetSymb(), filt_desc);
+	CATCHZOK
 	return ok;
 }
 

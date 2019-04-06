@@ -334,7 +334,7 @@ static int archive_compressor_compress_write(struct archive_write_filter * f, co
 	const uchar * bp;
 	if(length == 0)
 		return ARCHIVE_OK;
-	bp = (const uchar*)buff;
+	bp = (const uchar *)buff;
 	if(state->in_count == 0) {
 		state->cur_code = *bp++;
 		++state->in_count;

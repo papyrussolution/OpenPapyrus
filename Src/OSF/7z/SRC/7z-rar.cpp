@@ -5289,7 +5289,7 @@ namespace NArchive {
 								s += ':';
 								if(flags & NLinkFlags::kTargetIsDir) {
 									s += 'D';
-									flags &= ~((uint64) NLinkFlags::kTargetIsDir);
+									flags &= ~((uint64)NLinkFlags::kTargetIsDir);
 								}
 								if(flags != 0) {
 									s += '_';
@@ -5369,25 +5369,21 @@ namespace NArchive {
 			link.NameOffset += offset;
 			return true;
 		}
-
 		bool CItem::Is_CopyLink() const
 		{
 			CLinkInfo link;
 			return FindExtra_Link(link) && link.Type == NLinkType::kFileCopy;
 		}
-
 		bool CItem::Is_HardLink() const
 		{
 			CLinkInfo link;
 			return FindExtra_Link(link) && link.Type == NLinkType::kHardLink;
 		}
-
 		bool CItem::Is_CopyLink_or_HardLink() const
 		{
 			CLinkInfo link;
 			return FindExtra_Link(link) && (link.Type == NLinkType::kFileCopy || link.Type == NLinkType::kHardLink);
 		}
-
 		void CItem::Link_to_Prop(unsigned linkType, NWindows::NCOM::CPropVariant &prop) const
 		{
 			CLinkInfo link;
@@ -5404,7 +5400,7 @@ namespace NArchive {
 					}
 				}
 				AString s;
-				s.SetFrom_CalcLen((const char *)(Extra + link.NameOffset), link.NameLen);
+				s.SetFrom_CalcLen(reinterpret_cast<const char *>(Extra + link.NameOffset), link.NameLen);
 				UString unicode;
 				if(ConvertUTF8ToUnicode(s, unicode))
 					prop = NItemName::GetOsPath(unicode);
@@ -5418,7 +5414,7 @@ namespace NArchive {
 			int offset = FindExtra(NExtraID::kSubdata, size);
 			if(offset < 0)
 				return false;
-			name.SetFrom_CalcLen((const char *)(Extra + (uint)offset), size);
+			name.SetFrom_CalcLen(reinterpret_cast<const char *>(Extra + (uint)offset), size);
 			return true;
 		}
 

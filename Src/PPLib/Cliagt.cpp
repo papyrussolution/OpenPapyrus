@@ -2056,7 +2056,7 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = rFilt.ID;
 		SString temp_buf;
 		ArticleTbl::Rec  ar_rec;
-		PPObjArticle * p_ar_obj = (PPObjArticle *)(Extra[0].Ptr);
+		PPObjArticle * p_ar_obj = static_cast<PPObjArticle *>(Extra[0].Ptr);
 		if(p_ar_obj->Search(rFilt.ID, &ar_rec) > 0) {
 			PPAccSheet acs_rec;
 			PPObjAccSheet acc_sheet_obj;

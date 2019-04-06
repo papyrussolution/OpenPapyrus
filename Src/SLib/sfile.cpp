@@ -982,7 +982,7 @@ backtrack:
 //static
 int FASTCALL SFile::Remove(const char * pFileName)
 {
-	return (::remove(pFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_DELETE, pFileName);
+	return isempty(pFileName) ? -1 : ((::remove(pFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_DELETE, pFileName));
 }
 
 //static
@@ -1027,7 +1027,7 @@ static void FASTCALL wftime_to_ldatetime(FILETIME * wt, LDATETIME * st)
 	decode_fat_datetime(d, t, st);
 }
 
-static void FASTCALL ldatetime_to_wftime(LDATETIME * st, FILETIME * wt)
+static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 {
 	uint16 d, t;
 	encode_fat_datetime(&d, &t, st);
@@ -1036,7 +1036,7 @@ static void FASTCALL ldatetime_to_wftime(LDATETIME * st, FILETIME * wt)
 }
 
 // static
-int SLAPI SFile::SetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif)
+int SLAPI SFile::SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
 {
 #ifdef __WIN32__
 	FILETIME w_cr_ft;
@@ -1045,7 +1045,7 @@ int SLAPI SFile::SetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess,
 	ldatetime_to_wftime(pCreation,   &w_cr_ft);
 	ldatetime_to_wftime(pLastAccess, &w_la_ft);
 	ldatetime_to_wftime(pLastModif,  &w_lm_ft);
-	return ::SetFileTime((HANDLE)fh, &w_cr_ft, &w_la_ft, &w_lm_ft) ? 1 : 0;
+	return ::SetFileTime(reinterpret_cast<HANDLE>(fh), &w_cr_ft, &w_la_ft, &w_lm_ft) ? 1 : 0;
 #else
 	struct ftime ftm;
 	int d, m, y, h, s, hs;

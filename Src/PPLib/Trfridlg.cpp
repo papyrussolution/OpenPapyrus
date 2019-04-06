@@ -2121,7 +2121,7 @@ int TrfrItemDialog::CheckPrice()
 	{
 		RealRange range;
 		if(GetPriceRestrictions(&range) > 0) {
-			if(range.CheckValEps(Item.NetPrice(), 1E-7)) { // @v10.2.12
+			if(!range.CheckValEps(Item.NetPrice(), 1E-7)) { // @v10.2.12 // @v10.4.0 @fix ()-->(!)
 				if(range.low > 0.0) {
 					msg.Z().Cat(range.low, SFMT_MONEY);
 					THROW_PP_S(Item.NetPrice() >= range.low, PPERR_PRICERESTRLOW, msg);

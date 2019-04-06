@@ -797,7 +797,7 @@ SFMTBRandom_reg:                                           ; Entry for register 
         cmp     edx, SFMT_N*16
         jnb     NeedGenerate
         
-; y = ((uint32_t*)state)[ix++];
+; y = ((uint32_t *)state)[ix++];
         mov     eax, dword [ecx+edx+CRandomSFMTA.STATE]
         add     edx, 4
         mov     [ecx+CRandomSFMTA.IX], edx

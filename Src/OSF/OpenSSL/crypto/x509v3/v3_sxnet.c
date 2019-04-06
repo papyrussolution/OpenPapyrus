@@ -159,7 +159,7 @@ int SXNET_add_id_INTEGER(SXNET ** psx, ASN1_INTEGER * zone, const char * user,
 	if(userlen == -1)
 		userlen = strlen(user);
 
-	if(!ASN1_OCTET_STRING_set(id->user, (const uchar*)user, userlen))
+	if(!ASN1_OCTET_STRING_set(id->user, (const uchar *)user, userlen))
 		goto err;
 	if(!sk_SXNETID_push(sx->ids, id))
 		goto err;

@@ -420,7 +420,7 @@ DBQ & __stdcall intrange(DBItem & i, const IntRange & rR)
 #define DRES           result->dval
 #define TRES           result->tval
 #define RPAR(no)       ((params[no].Tag == DBConst::rv) ? params[no].rval : params[no].lval)
-#define IPAR(no)       (long)(params[no].lval)
+#define IPAR(no)       static_cast<long>(params[no].lval)
 #define SPAR(no)       params[no].sptr
 #define DPAR(no)       params[no].dval
 #define TPAR(no)       params[no].tval

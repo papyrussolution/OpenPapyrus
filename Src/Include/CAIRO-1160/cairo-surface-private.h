@@ -45,7 +45,7 @@
 //#include "cairo-clip-private.h"
 //#include "cairo-surface-backend-private.h"
 
-typedef void (* cairo_surface_func_t) (cairo_surface_t *);
+typedef void (* cairo_surface_func_t)(cairo_surface_t *);
 
 struct cairo_surface_t {
 	const cairo_surface_backend_t * backend;

@@ -249,7 +249,7 @@ static cairo_int_status_t draw_image_boxes(void * _dst, cairo_image_surface_t * 
 				r.height = _cairo_fixed_integer_part(b->p2.y) - r.y;
 
 				if(shm->pixman_format != image->pixman_format ||
-				    !pixman_blt((uint32_t*)image->data, (uint32_t*)shm->data,
+				    !pixman_blt((uint32_t *)image->data, (uint32_t *)shm->data,
 				    image->stride / sizeof(uint32_t),
 				    shm->stride / sizeof(uint32_t),
 				    PIXMAN_FORMAT_BPP(image->pixman_format),
@@ -299,7 +299,7 @@ static cairo_int_status_t draw_image_boxes(void * _dst, cairo_image_surface_t * 
 					r.width  = _cairo_fixed_integer_part(b->p2.x) - r.x;
 					r.height = _cairo_fixed_integer_part(b->p2.y) - r.y;
 
-					if(!pixman_blt((uint32_t*)image->data, (uint32_t*)shm->data,
+					if(!pixman_blt((uint32_t *)image->data, (uint32_t *)shm->data,
 					    image->stride / sizeof(uint32_t),
 					    shm->stride / sizeof(uint32_t),
 					    PIXMAN_FORMAT_BPP(image->pixman_format),
@@ -1285,12 +1285,12 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 				    goto BAIL;
 			    }
 			    n = new;
-			    d = (uint32_t*)data;
+			    d = (uint32_t *)data;
 			    do {
 				    *n++ = bswap_32(*d);
 				    d++;
 			    } while(--c);
-			    data = (uint8_t*)new;
+			    data = (uint8_t *)new;
 		    }
 		    break;
 		default:

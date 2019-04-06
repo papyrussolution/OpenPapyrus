@@ -1048,8 +1048,8 @@ int main(int argc, char ** argv)
 					sa.bInheritHandle = TRUE;
 					sa.lpSecurityDescriptor = NULL;
 
-					HANDLE h_inp = ::CreateFile(temp_file_name,  GENERIC_READ,  FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-					HANDLE h_out = ::CreateFile(final_file_name, GENERIC_WRITE, FILE_SHARE_WRITE, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+					HANDLE h_inp = ::CreateFile(SUcSwitch(temp_file_name),  GENERIC_READ,  FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+					HANDLE h_out = ::CreateFile(SUcSwitch(final_file_name), GENERIC_WRITE, FILE_SHARE_WRITE, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 					uint   exit_code;
 					if(!__Execute(perl_cmd, h_inp, h_out, &exit_code)) {
 						error((msg_buf = "Fault execute command").Space().Cat(perl_cmd));

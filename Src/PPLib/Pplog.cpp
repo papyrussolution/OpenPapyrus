@@ -15,15 +15,9 @@ public:
 	{
 		ZDELETE(P_MsgLog);
 	}
-	virtual long SLAPI getRecsCount()
-	{
-		return P_MsgLog ? P_MsgLog->GetVisCount() : 0;
-	}
-	virtual void * FASTCALL getRow_(long r)
-	{
-		return P_MsgLog ? P_MsgLog->GetRow(r) : 0;
-	}
-	//
+	virtual long SLAPI getRecsCount() { return P_MsgLog ? P_MsgLog->GetVisCount() : 0; }
+	virtual void * FASTCALL getRow_(long r) { return P_MsgLog ? P_MsgLog->GetRow(r) : 0; }
+
 	TVMsgLog * P_MsgLog; // private. Don't use !
 };
 
@@ -75,32 +69,20 @@ private:
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw);
 	int    WMHCreate();
 	int    SLAPI LoadToolbar(uint tbId);
-	HWND   GetSciWnd() const
-	{
-		return HwndSci;
-	}
-	/*int    CallFunc(int msg, int param1, int param2)
-	{
-		return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, param1, param2) : 0;
-	}*/
+	HWND   GetSciWnd() const { return HwndSci; }
 	int    Resize();
 
 	static LPCTSTR WndClsName; // @global
-
 	enum {
 		sstLastKeyDownConsumed = 0x0001
 	};
 	long   SysState;
 	HWND   HwndSci;
-	//int    (*P_SciFn)(void *, int, int, int);
-	//void * P_SciPtr;
 	TVMsgLog * P_MsgLog;
 	TToolbar * P_Toolbar;
 	long   ToolBarWidth;
 	uint   ToolbarId;
 	WNDPROC OrgScintillaWndProc;
-	//SKeyAccelerator KeyAccel; // Ассоциации клавиатурных кодов с командами. {KeyDownCommand Key, long Val}
-	//SKeyAccelerator OuterKeyAccel; // Ассоциации клавиатурных кодов с командами, заданные из-вне: вливаются в KeyAccel
 };
 
 // static
@@ -168,10 +150,10 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 
 void LogListWindowSCI::Refresh(long item)
 {
-	SString temp_buf;
 	CallFunc(SCI_CLEARALL);
 	int   line_no_to_select = 0;
 	if(P_MsgLog) {
+		SString temp_buf;
 		for(long i = 0; i < P_MsgLog->GetVisCount(); i++) {
 			const char * p_buf = static_cast<const char *>(P_MsgLog->GetRow(i));
 			if(p_buf) {
@@ -189,12 +171,11 @@ void LogListWindowSCI::Refresh(long item)
 void LogListWindowSCI::Append()
 {
 	if(P_MsgLog) {
-		SString temp_buf;
 		long   vc = P_MsgLog->GetVisCount();
 		if(vc > 0) {
-			const char * p_buf = (const char *)P_MsgLog->GetRow(vc-1);
+			const char * p_buf = static_cast<const char *>(P_MsgLog->GetRow(vc-1));
 			if(p_buf) {
-				temp_buf = p_buf+sizeof(long);
+				SString temp_buf = p_buf+sizeof(long);
 				temp_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8).CRB();
 				CallFunc(SCI_SETREADONLY);
 				CallFunc(SCI_APPENDTEXT, (int)temp_buf.Len(), (int)temp_buf.cptr());
@@ -555,10 +536,8 @@ void SLAPI PPMsgLog::Destroy()
 		close(InStream);
 		InStream = -1;
 	}
-	if(FileName.NotEmpty())
-		SFile::Remove(FileName);
-	if(InFileName.NotEmpty())
-		SFile::Remove(InFileName);
+	SFile::Remove(FileName);
+	SFile::Remove(InFileName);
 	ZDELETE(P_Index);
 }
 
@@ -636,7 +615,7 @@ long SLAPI PPMsgLog::PutMessage(const char * pBody, long flags, const void * hea
 		_write(InStream, &st, sizeof(PPLogIdx));
 		_write(Stream, &hsize, sizeof(int16));
 		_write(Stream, head, hsize);
-		_write(Stream, (const char *)body, body.Len());
+		_write(Stream, body.cptr(), body.Len());
 		AllCount++;
 		rval = ImplPutMsg(body, flags);
 	}
@@ -1222,17 +1201,17 @@ SLAPI PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThre
 //virtual
 void PPLogMsgSession::Run()
 {
+	PPLogMsgItem msg_item;
+	SString diag_msg_buf;
 	if(P_Queue) {
 		PPSession::LoggerIntermediateBlock lb(DS);
-		PPLogMsgItem msg_item;
-		SString diag_msg_buf;
 		Evnt   stop_event(SLS.GetStopEventName(lb.TempBuf), Evnt::modeOpen);
 		for(int stop = 0; !stop;) {
 			uint   h_count = 0;
 			HANDLE h_list[32];
 			h_list[h_count++] = P_Queue->NonEmptyEv;
 			h_list[h_count++] = stop_event;
-			uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
+			uint   r = ::WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
 			int    do_check_queue = 0;
 			if(r == WAIT_OBJECT_0 + 0) { // NonEmptyEv
 				do_check_queue = 1;
@@ -1272,7 +1251,7 @@ void PPLogMsgSession::Run()
 						uint32  FalseNonEmptyEvSwitchCount; // Количество срабатываний события PPLogMsgQueue::NonEmptyEv при которых очередь была пуста
 					*/
 					P_Queue->GetStat(S);
-					diag_msg_buf.Z().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
+					diag_msg_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
                         CatEq("max count", S.MaxLenght).Space().CatEq("max size", S.MaxStrPoolSize).Space().
                         CatEq("false switch count", S.FalseNonEmptyEvSwitchCount);
 					DS.SetThreadNotification(PPSession::stntMessage, diag_msg_buf);
@@ -1280,6 +1259,18 @@ void PPLogMsgSession::Run()
 			}
 		}
 	}
+	/*
+	// @v10.4.0 {
+	diag_msg_buf.Z().Cat("PPLogMsgSession is out");
+	if(P_Queue) {
+		P_Queue->GetStat(S);
+		diag_msg_buf.Space().Cat(getcurdatetime_(), DATF_ISO8601, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
+			CatEq("max count", S.MaxLenght).Space().CatEq("max size", S.MaxStrPoolSize).Space().
+			CatEq("false switch count", S.FalseNonEmptyEvSwitchCount);
+	}
+	DS.SetThreadNotification(PPSession::stntMessage, diag_msg_buf);
+	// } @v10.4.0 
+	*/
 }
 
 //static
@@ -1304,11 +1295,11 @@ int SLAPI PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerInterm
 			ok = 0;
 	}
 	if(ok) {
-		int    added_size = rMsgItem.Prefix.Len() + rMsgItem.Text.Len();
+		const int added_size = rMsgItem.Prefix.Len() + rMsgItem.Text.Len();
 		if((max_file_size > 0) && (current_size + added_size) >= max_file_size*1024) {
 			int    num_dig = 3;
 			long   counter = 0;
-			rLb.NewFileName = 0;
+			rLb.NewFileName.Z();
 			rLb.TempBuf.Z(); // Используется для расширения файла
 			do {
 				if(counter >= (((int)fpow10i(num_dig))-1)) {
@@ -1451,7 +1442,7 @@ int PPALDD_LogList::InitData(PPFilt & rFilt, long rsrv)
 {
 	PPMsgLog * p_ml = 0;
 	if(rsrv) {
-		Extra[1].Ptr = p_ml = (PPMsgLog *)rFilt.Ptr;
+		Extra[1].Ptr = p_ml = static_cast<PPMsgLog *>(rFilt.Ptr);
 	}
 	else {
 		Extra[0].Ptr = p_ml = new PPMsgLog;

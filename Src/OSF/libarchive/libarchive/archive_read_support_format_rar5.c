@@ -569,7 +569,7 @@ static int run_filter(struct archive_read* a, struct filter_info* flt)
 	struct rar5* rar = get_context(a);
 	if(rar->cstate.filtered_buf)
 		SAlloc::F(rar->cstate.filtered_buf);
-	rar->cstate.filtered_buf = (uint8_t*)SAlloc::M(flt->block_length);
+	rar->cstate.filtered_buf = (uint8_t *)SAlloc::M(flt->block_length);
 	if(!rar->cstate.filtered_buf) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for "
 		    "filter data.");
@@ -1807,8 +1807,8 @@ static void init_unpack(struct rar5* rar)
 		SAlloc::F(rar->cstate.window_buf);
 	if(rar->cstate.filtered_buf)
 		SAlloc::F(rar->cstate.filtered_buf);
-	rar->cstate.window_buf = (uint8_t*)SAlloc::C(1, rar->cstate.window_size);
-	rar->cstate.filtered_buf = (uint8_t*)SAlloc::C(1, rar->cstate.window_size);
+	rar->cstate.window_buf = (uint8_t *)SAlloc::C(1, rar->cstate.window_size);
+	rar->cstate.filtered_buf = (uint8_t *)SAlloc::C(1, rar->cstate.window_size);
 	rar->cstate.write_ptr = 0;
 	rar->cstate.last_write_ptr = 0;
 	memzero(&rar->cstate.bd, sizeof(rar->cstate.bd));
@@ -2648,7 +2648,7 @@ static int merge_block(struct archive_read* a, ssize_t block_size,
 	 * which are using additional 2 or 4 bytes. Allocating the block size
 	 * by exact value would make bit reader perform reads from invalid memory
 	 * block when reading the last byte from the buffer. */
-	rar->vol.push_buf = (uint8_t*)SAlloc::M(block_size + 8);
+	rar->vol.push_buf = (uint8_t *)SAlloc::M(block_size + 8);
 	if(!rar->vol.push_buf) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a "
 		    "merge block buffer.");

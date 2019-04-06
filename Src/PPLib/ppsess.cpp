@@ -2072,9 +2072,9 @@ void SLAPI PPSession::ReleaseThread()
 #define MAX_GETTLA_TRY 5
 
 PPThreadLocalArea & SLAPI PPSession::GetTLA()
-	{ return *(PPThreadLocalArea *)SGetTls(TlsIdx); }
+	{ return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
 const PPThreadLocalArea & SLAPI PPSession::GetConstTLA() const
-	{ return *(PPThreadLocalArea *)SGetTls(TlsIdx); }
+	{ return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
 int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList)
 	{ return ThreadList.GetInfoList(type, rList); }
 int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo)
@@ -2086,9 +2086,9 @@ int PPSession::SetThreadNotification(int type, const void * pData)
 {
 	int    ok = -1;
 	if(type == stntMessage)
-		ok = ThreadList.SetMessage(GetConstTLA().GetThreadID(), 1, (const char *)pData);
+		ok = ThreadList.SetMessage(GetConstTLA().GetThreadID(), 1, static_cast<const char *>(pData));
 	else if(type == stntText)
-		ok = ThreadList.SetMessage(GetConstTLA().GetThreadID(), 0, (const char *)pData);
+		ok = ThreadList.SetMessage(GetConstTLA().GetThreadID(), 0, static_cast<const char *>(pData));
 	return ok;
 }
 
@@ -2757,7 +2757,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				pw[0] = 0;
 			}
 			else {
-				usr_rec = *(PPSecur*)&p_ref->data;
+				usr_rec = *reinterpret_cast<const PPSecur *>(&p_ref->data);
 				THROW(Reference::VerifySecur(&usr_rec, 0));
 				Reference::GetPassword(&usr_rec, pw, sizeof(pw));
 			}
@@ -2774,7 +2774,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
 					if(logmode == logmSystem) {
 						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)
-						decrypt((char *)memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
+						decrypt(memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
 						if(stricmp866(pw, pPassword) == 0)
 							pw_is_wrong = 0;
 					}
@@ -2851,18 +2851,6 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			r_lc.State |= CFGST_INITIATE;
 			if(empty_secur_base)
 				r_lc.State |= CFGST_EMPTYBASE;
-			/* @v8.6.1 @1 Блок перенесен ниже с целью оптимизации производительности (порядок создания объектов данных)
-			if(r_lc.MainOrg)
-				SetMainOrgID(r_lc.MainOrg, 1);
-			else if(r_cc.MainOrgID)
-				SetMainOrgID(r_cc.MainOrgID, 1);
-			if(r_lc.Location)
-				SetLocation(r_lc.Location);
-			if(r_lc.DBDiv) {
-				r_tla.CurDbDivName.Id = r_lc.DBDiv;
-				GetObjectName(PPOBJ_DBDIV, r_lc.DBDiv, r_tla.CurDbDivName);
-			}
-			*/
 			//
 			// Флаг ECF_FULLGOODSCACHE должен быть определен до создания экземпляра
 			// PPObjGoods (который создается внутри конструктора PPObjBill)
@@ -2873,7 +2861,6 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			//
 			SetupConfigByOps(); // Must be called before 'new PPObjBill'
 			THROW_MEM(BillObj = new PPObjBill(0));
-			// @v8.6.1 Блок перенесен из позиции @1 {
 			if(r_lc.MainOrg)
 				SetMainOrgID(r_lc.MainOrg, 1);
 			else if(r_cc.MainOrgID)
@@ -2884,7 +2871,6 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				r_tla.CurDbDivName.Id = r_lc.DBDiv;
 				GetObjectName(PPOBJ_DBDIV, r_lc.DBDiv, r_tla.CurDbDivName);
 			}
-			// } @v8.6.1
 			if(!(p_dict->GetCapability() & DbProvider::cSQL)) { // @debug
 				if(PPCheckDatabaseChain() == 0) {
 					SDelay(10000);
@@ -3459,15 +3445,22 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				}
 			}
 			r_tla.SetupPhoneServiceEventResponder(); // @v9.8.12
-			{
+			if(CConfig.Flags & CCFLG_DEBUG) { // @v10.4.0 (ранее информация о системном аккаунте выводилась всегда)
 				TCHAR  domain_user[128];
-				DWORD  duser_len = sizeof(domain_user);
+				DWORD  duser_len = SIZEOFARRAY(domain_user);
 				memzero(domain_user, sizeof(domain_user));
 				if(!::GetUserName(domain_user, &duser_len)) // @unicodeproblem
 					STRNSCPY(domain_user, _T("!undefined"));
 				PPLoadText(PPTXT_LOGININFO, temp_buf.Z());
 				msg_buf.Printf(temp_buf, domain_user);
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
+				// @v10.4.0 {
+				{
+					// Информация о текущих путях 
+					r_tla.Paths.DumpToStr(temp_buf);
+					PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
+				}
+				// } @v10.4.0 
 			}
 			r_tla.State |= PPThreadLocalArea::stAuth;
 			ufp.Commit();
@@ -3524,7 +3517,6 @@ int SLAPI PPSession::GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessD
 
 int SLAPI PPSession::Unregister()
 {
-	int    ok = 1;
 	WinRegKey reg_key;
 	SString uuid_buf;
 	SLS.GetSessUuid().ToStr(S_GUID::fmtIDL, uuid_buf);

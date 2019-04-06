@@ -252,7 +252,7 @@ static int enc_write(BIO * b, const char * in, int inl)
 		n = (inl > ENC_BLOCK_SIZE) ? ENC_BLOCK_SIZE : inl;
 		if(!EVP_CipherUpdate(ctx->cipher,
 			    ctx->buf, &ctx->buf_len,
-			    (const uchar*)in, n)) {
+			    (const uchar *)in, n)) {
 			BIO_clear_retry_flags(b);
 			ctx->ok = 0;
 			return 0;

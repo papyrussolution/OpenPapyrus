@@ -37,29 +37,19 @@
 #define CAIRO_PATTERN_INLINE_H
 
 //#include "cairo-pattern-private.h"
-
 //#include "cairo-list-inline.h"
 
 CAIRO_BEGIN_DECLS
+	static inline void _cairo_pattern_add_observer(cairo_pattern_t * pattern, cairo_pattern_observer_t * observer, void (*func)(cairo_pattern_observer_t *, cairo_pattern_t *, uint))
+	{
+		observer->notify = func;
+		cairo_list_add(&observer->link, &pattern->observers);
+	}
 
-static inline void
-_cairo_pattern_add_observer (cairo_pattern_t *pattern,
-			     cairo_pattern_observer_t *observer,
-			     void (*func) (cairo_pattern_observer_t *,
-					   cairo_pattern_t *,
-					   uint))
-{
-    observer->notify = func;
-    cairo_list_add (&observer->link, &pattern->observers);
-}
-
-static inline cairo_surface_t *
-_cairo_pattern_get_source (const cairo_surface_pattern_t *pattern,
-			   cairo_rectangle_int_t *extents)
-{
-    return _cairo_surface_get_source (pattern->surface, extents);
-}
-
+	static inline cairo_surface_t * _cairo_pattern_get_source(const cairo_surface_pattern_t * pattern, cairo_rectangle_int_t * extents)
+	{
+		return _cairo_surface_get_source(pattern->surface, extents);
+	}
 CAIRO_END_DECLS
 
 #endif /* CAIRO_PATTERN_INLINE_H */

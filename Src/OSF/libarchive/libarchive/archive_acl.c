@@ -917,7 +917,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 		separator = '\n';
 
 	/* Now, allocate the string and actually populate it. */
-	p = s = (char*)SAlloc::M(length * sizeof(char));
+	p = s = (char *)SAlloc::M(length * sizeof(char));
 	if(p == NULL) {
 		if(errno == ENOMEM)
 			__archive_errx(1, "No memory");

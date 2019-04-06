@@ -1545,7 +1545,6 @@ int PPBackupSystemFiles_Arc()
 		LDATE last_copy_dt;
 		SString buf, last_copy_path;
 		SFile f(lock_path, SFile::mWrite);
-
 		f.Close();
 		PPGetFileName(PPFILNAM_LASTBACKUP, fname);
 		(last_copy_path = backup_dir).SetLastSlash().Cat(fname);
@@ -1563,7 +1562,6 @@ int PPBackupSystemFiles_Arc()
 				SString path;
 				SString dest_dir;
 				SString dest_path;
-
 				fname = "PP.INI";
 				(path = bin_dir).SetLastSlash().Cat(fname);
 				(dest_path = dest_dir).SetLastSlash().Cat(fname);
@@ -1752,7 +1750,7 @@ void PPApp::login(int processCmdLine)
 			// станции отличается от сервера более чем на 1 секунду
 			//
 			SetDatetimeByServer(&ini_file, 0);
-			LDATE  dt = getcurdate_();
+			const LDATE dt = getcurdate_();
 			if(DS.CheckStateFlag(CFGST_DEMOMODE)) {
 				if(CONFIRM(PPCFM_REGISTRATION) && PPLicRegister() > 0)
 					DS.SetDemoMode(0);
@@ -1917,7 +1915,7 @@ void PPApp::login(int processCmdLine)
 			PPDesktop::RegWindowClass(TProgram::GetInst());
 			PPDesktop::Open(LConfig.DesktopID, 1); // @todo должна вызываться после того, как будут созданы основные окна.
 			if(!no_login)
-				RemoveMenu(GetMenu(H_MainWnd), (UINT)cmDBExit, MF_BYCOMMAND);
+				RemoveMenu(GetMenu(H_MainWnd), cmDBExit, MF_BYCOMMAND);
 			if(processCmdLine) {
 				if(GetStartUpPath(PPPATH_IN, arg_buf))
 					DS.SetPath(PPPATH_IN, arg_buf, 0, 1);

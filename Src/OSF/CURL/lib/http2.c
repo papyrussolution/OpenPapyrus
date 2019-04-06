@@ -1830,7 +1830,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 			    --nheader;
 			    continue;
 			case HEADERINST_TE_TRAILERS:
-			    nva[i].value = (uint8_t*)"trailers";
+			    nva[i].value = (uint8_t *)"trailers";
 			    nva[i].valuelen = sizeof("trailers") - 1;
 			    break;
 			default:

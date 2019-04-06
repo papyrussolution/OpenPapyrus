@@ -529,7 +529,7 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 		}
 	}
 
-	p = (const uchar*)buff;
+	p = (const uchar *)buff;
 	while(s) {
 		ws = write(zip->temp_fd, p, s);
 		if(ws < 0) {
@@ -552,7 +552,7 @@ static ssize_t compress_out(struct archive_write * a, const void * buff, size_t 
 		return 0;
 	if((zip->crc32flg & PRECODE_CRC32) && s)
 		zip->precode_crc32 = crc32(zip->precode_crc32, (const Bytef *)buff, (unsigned)s);
-	zip->stream.next_in = (const uchar*)buff;
+	zip->stream.next_in = (const uchar *)buff;
 	zip->stream.avail_in = s;
 	for(;;) {
 		/* Compress file data. */
@@ -1475,7 +1475,7 @@ static int file_new(struct archive_write * a, struct archive_entry * entry,
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A filename cannot be converted to UTF-16LE;You should disable making Joliet extension");
 		ret = ARCHIVE_WARN;
 	}
-	file->utf16name = (uint8_t*)SAlloc::M(u16len + 2);
+	file->utf16name = (uint8_t *)SAlloc::M(u16len + 2);
 	if(file->utf16name == NULL) {
 		SAlloc::F(file);
 		archive_set_error(&a->archive, ENOMEM,
@@ -1742,11 +1742,11 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	/* bzlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (char*)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in_lo32 = (uint32_t)(lastrm->total_in & 0xffffffff);
 	strm->total_in_hi32 = (uint32_t)(lastrm->total_in >> 32);
-	strm->next_out = (char*)lastrm->next_out;
+	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
 	strm->total_out_lo32 = (uint32_t)(lastrm->total_out & 0xffffffff);
 	strm->total_out_hi32 = (uint32_t)(lastrm->total_out >> 32);
@@ -1774,17 +1774,17 @@ static int compression_code_bzip2(struct archive * a,
 	/* bzlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (char*)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in_lo32 = (uint32_t)(lastrm->total_in & 0xffffffff);
 	strm->total_in_hi32 = (uint32_t)(lastrm->total_in >> 32);
-	strm->next_out = (char*)lastrm->next_out;
+	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
 	strm->total_out_lo32 = (uint32_t)(lastrm->total_out & 0xffffffff);
 	strm->total_out_hi32 = (uint32_t)(lastrm->total_out >> 32);
 	r = BZ2_bzCompress(strm,
 		(action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
-	lastrm->next_in = (const uchar*)strm->next_in;
+	lastrm->next_in = (const uchar *)strm->next_in;
 	lastrm->avail_in = strm->avail_in;
 	lastrm->total_in =
 	    (((uint64_t)(uint32_t)strm->total_in_hi32) << 32)
@@ -2051,7 +2051,7 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 		archive_set_error(a, ENOMEM, "Can't allocate memory for PPMd");
 		return ARCHIVE_FATAL;
 	}
-	strm->buff = (uint8_t*)SAlloc::M(32);
+	strm->buff = (uint8_t *)SAlloc::M(32);
 	if(strm->buff == NULL) {
 		SAlloc::F(strm);
 		archive_set_error(a, ENOMEM, "Can't allocate memory for PPMd");
@@ -2059,7 +2059,7 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 	}
 	strm->buff_ptr = strm->buff;
 	strm->buff_end = strm->buff + 32;
-	props = (uint8_t*)SAlloc::M(1+4);
+	props = (uint8_t *)SAlloc::M(1+4);
 	if(props == NULL) {
 		SAlloc::F(strm->buff);
 		SAlloc::F(strm);

@@ -2460,7 +2460,7 @@ int PPALDD_Project::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		ProjectTbl::Rec rec;
-		PPObjProject * p_prj_obj = (PPObjProject *)(Extra[0].Ptr);
+		PPObjProject * p_prj_obj = static_cast<PPObjProject *>(Extra[0].Ptr);
 		if(p_prj_obj->Search(rFilt.ID, &rec) > 0) {
 			SString full_name;
 			H.ID          = rec.ID;

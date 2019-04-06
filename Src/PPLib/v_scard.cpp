@@ -3274,7 +3274,7 @@ void PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 
-	DL600_SCardExt * p_ext = (DL600_SCardExt *)(Extra[0].Ptr);
+	DL600_SCardExt * p_ext = static_cast<DL600_SCardExt *>(Extra[0].Ptr);
 	SysJournalTbl::Rec sj_rec;
 	if(pF->Name == "?GetCreationEvent") {
 		long   sur_id = 0;

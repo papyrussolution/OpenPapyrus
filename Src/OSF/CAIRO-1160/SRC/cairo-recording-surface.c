@@ -397,7 +397,7 @@ static cairo_surface_t * _cairo_recording_surface_create_similar(void * abstract
 
 static cairo_status_t _cairo_recording_surface_finish(void * abstract_surface)
 {
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 	cairo_command_t ** elements;
 	int i, num_elements;
 
@@ -520,12 +520,12 @@ static cairo_surface_t * get_proxy(cairo_surface_t * proxy)
 
 static cairo_status_t _cairo_recording_surface_acquire_source_image(void * abstract_surface, cairo_image_surface_t ** image_out, void ** image_extra)
 {
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 	cairo_surface_t * image;
 	cairo_status_t status;
-	cairo_surface_t * proxy = _cairo_surface_has_snapshot((cairo_surface_t *)abstract_surface, &proxy_backend);
+	cairo_surface_t * proxy = _cairo_surface_has_snapshot(static_cast<cairo_surface_t *>(abstract_surface), &proxy_backend);
 	if(proxy != NULL) {
-		*image_out = (cairo_image_surface_t*)cairo_surface_reference(get_proxy(proxy));
+		*image_out = reinterpret_cast<cairo_image_surface_t *>(cairo_surface_reference(get_proxy(proxy)));
 		*image_extra = NULL;
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -534,9 +534,9 @@ static cairo_status_t _cairo_recording_surface_acquire_source_image(void * abstr
 	if(unlikely(image->status))
 		return image->status;
 	/* Handle recursion by returning future reads from the current image */
-	proxy = attach_proxy((cairo_surface_t *)abstract_surface, image);
+	proxy = attach_proxy(static_cast<cairo_surface_t *>(abstract_surface), image);
 	status = _cairo_recording_surface_replay(&surface->base, image);
-	detach_proxy((cairo_surface_t *)abstract_surface, proxy);
+	detach_proxy(static_cast<cairo_surface_t *>(abstract_surface), proxy);
 	if(unlikely(status)) {
 		cairo_surface_destroy(image);
 		return status;
@@ -595,7 +595,7 @@ static void _cairo_recording_surface_reset(cairo_recording_surface_t * surface)
 static cairo_int_status_t _cairo_recording_surface_paint(void * abstract_surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 	cairo_command_paint_t * command;
 	cairo_composite_rectangles_t composite;
 	TRACE((stderr, "%s: surface=%d\n", __FUNCTION__, surface->base.unique_id));
@@ -642,7 +642,7 @@ static cairo_int_status_t _cairo_recording_surface_mask(void * abstract_surface,
     const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 	cairo_command_mask_t * command;
 	cairo_composite_rectangles_t composite;
 	TRACE((stderr, "%s: surface=%d\n", __FUNCTION__, surface->base.unique_id));
@@ -693,7 +693,7 @@ static cairo_int_status_t _cairo_recording_surface_stroke(void * abstract_surfac
     const cairo_clip_t * clip)
 {
 	cairo_status_t status;
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 	cairo_command_stroke_t * command;
 	cairo_composite_rectangles_t composite;
 	TRACE((stderr, "%s: surface=%d\n", __FUNCTION__, surface->base.unique_id));
@@ -706,17 +706,12 @@ static cairo_int_status_t _cairo_recording_surface_stroke(void * abstract_surfac
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP_COMPOSITE;
 	}
-
-	status = _command_init(surface,
-		&command->header, CAIRO_COMMAND_STROKE, op,
-		&composite);
+	status = _command_init(surface, &command->header, CAIRO_COMMAND_STROKE, op, &composite);
 	if(unlikely(status))
 		goto CLEANUP_COMMAND;
-
 	status = _cairo_pattern_init_snapshot(&command->source.base, source);
 	if(unlikely(status))
 		goto CLEANUP_COMMAND;
-
 	status = _cairo_path_fixed_init_copy(&command->path, path);
 	if(unlikely(status))
 		goto CLEANUP_SOURCE;
@@ -757,7 +752,7 @@ static cairo_int_status_t _cairo_recording_surface_fill(void * abstract_surface,
     const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 	cairo_command_fill_t * command;
 	cairo_composite_rectangles_t composite;
 	TRACE((stderr, "%s: surface=%d\n", __FUNCTION__, surface->base.unique_id));
@@ -818,7 +813,7 @@ static cairo_int_status_t _cairo_recording_surface_show_text_glyphs(void * abstr
     const cairo_clip_t * clip)
 {
 	cairo_status_t status;
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 	cairo_command_show_text_glyphs_t * command;
 	cairo_composite_rectangles_t composite;
 
@@ -913,7 +908,7 @@ static cairo_int_status_t _cairo_recording_surface_tag(void * abstract_surface,
     const cairo_clip_t * clip)
 {
 	cairo_status_t status;
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 	cairo_command_tag_t * command;
 	cairo_composite_rectangles_t composite;
 	TRACE((stderr, "%s: surface=%d\n", __FUNCTION__, surface->base.unique_id));
@@ -1315,7 +1310,7 @@ static cairo_surface_t * _cairo_recording_surface_snapshot(void * abstract_other
 static cairo_bool_t _cairo_recording_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * rectangle)
 {
-	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
+	cairo_recording_surface_t * surface = static_cast<cairo_recording_surface_t *>(abstract_surface);
 
 	if(surface->unbounded)
 		return FALSE;

@@ -235,12 +235,12 @@ static ssize_t bid_get_line(struct archive_read_filter * filter,
 		if(nbytes_req < (size_t)*ravail + 160)
 			nbytes_req <<= 1;
 
-		*b = (const uchar*)__archive_read_filter_ahead(filter, nbytes_req, avail);
+		*b = (const uchar *)__archive_read_filter_ahead(filter, nbytes_req, avail);
 		if(*b == NULL) {
 			if(*ravail >= *avail)
 				return 0;
 			/* Reading bytes reaches the end of a stream. */
-			*b = (const uchar*)__archive_read_filter_ahead(filter, *avail, avail);
+			*b = (const uchar *)__archive_read_filter_ahead(filter, *avail, avail);
 			quit = 1;
 		}
 		*nbytes_read = *avail;
@@ -269,7 +269,7 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
 
 	(void)self; /* UNUSED */
 
-	b = (const uchar*)__archive_read_filter_ahead(filter, 1, &avail);
+	b = (const uchar *)__archive_read_filter_ahead(filter, 1, &avail);
 	if(b == NULL)
 		return 0;
 
@@ -437,7 +437,7 @@ static ssize_t uudecode_filter_read(struct archive_read_filter * self, const voi
 	uudecode = (struct uudecode *)self->data;
 
 read_more:
-	d = (const uchar*)__archive_read_filter_ahead(self->upstream, 1, &avail_in);
+	d = (const uchar *)__archive_read_filter_ahead(self->upstream, 1, &avail_in);
 	if(d == NULL && avail_in < 0)
 		return ARCHIVE_FATAL;
 	/* Quiet a code analyzer; make sure avail_in must be zero

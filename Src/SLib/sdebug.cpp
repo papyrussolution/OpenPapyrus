@@ -53,12 +53,11 @@ int SLAPI MemHeapTracer::CalcStat(Stat * pStat)
 //
 //
 //
-int SLAPI TraceFunc(const char * pFuncName, const char * pAddedMsg)
+void FASTCALL TraceFunc(const char * pFuncName, const char * pAddedMsg)
 {
 	SString text;
 	text = pFuncName;
 	if(pAddedMsg)
 		text.CatDiv(':', 1).Cat(pAddedMsg);
 	SLS.LogMessage(0, text, 0);
-	return 1;
 }

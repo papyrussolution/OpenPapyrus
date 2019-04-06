@@ -36,7 +36,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-error-private.h"
-#include "cairo-image-info-private.h"
+//#include "cairo-image-info-private.h"
 
 /* JPEG (image/jpeg)
  *

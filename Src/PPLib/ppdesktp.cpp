@@ -799,12 +799,12 @@ int PPDesktop::Paint()
 	HBITMAP h_bmp = 0;
 	HBITMAP h_old_bmp = 0;
 	HDC    h_dc_mem = 0;
-	HDC    h_dc = ::BeginPaint(H(), (LPPAINTSTRUCT)&ps);
+	HDC    h_dc = ::BeginPaint(H(), &ps);
 	TRect cli_rect = getClientRect();
 	if(use_buffer) {
 		h_dc_mem = CreateCompatibleDC(ps.hdc);
 		h_bmp = CreateCompatibleBitmap(ps.hdc, cli_rect.width(), cli_rect.height());
-		h_old_bmp = (HBITMAP)SelectObject(h_dc_mem, h_bmp);
+		h_old_bmp = static_cast<HBITMAP>(::SelectObject(h_dc_mem, h_bmp));
 		h_dc = h_dc_mem;
 	}
 	{

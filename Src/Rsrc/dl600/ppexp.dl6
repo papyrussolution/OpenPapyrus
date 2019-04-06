@@ -714,6 +714,7 @@ data Person {
 	string GetSingleEmail[64](); // @v9.4.1
 	string FormatRegister[256](string regCode[20]); // @v9.6.11
 	string FormatRegisterD[256](string regCode[20], date dt); // @v9.6.11
+	string GetExtName[256](); // @v10.4.0
 }
 //
 // Реквизиты персоналии, необходимые для печати некоторых форм
@@ -4874,9 +4875,9 @@ data CCheckView {
 		link   Article CcAgentID;   // @v9.3.0 Агент по чеку. При группировке, включающей в себя агента, это поле инициализируется!
 		double Amount;
 		double Discount;
-		double CashAmount; // @v8.4.9 Сумма оплаты наличными
-		double BnkAmount;  // @v8.4.9 Сумма оплаты через банк
-		double CCrdAmount; // @v8.4.9 Сумма оплаты корпоративной кредитной картой
+		double CashAmount; // Сумма оплаты наличными
+		double BnkAmount;  // Сумма оплаты через банк
+		double CCrdAmount; // Сумма оплаты корпоративной кредитной картой
 		long   GCount;
 		date   GDate;
 		double GPctPart;
@@ -4898,11 +4899,10 @@ data CCheckView {
 		GSCardOwner  = GSCardID.OwnerReqID.Name; // Наименование владельца карты (только для группировки по картам)
 		GoodsName1   = Goods1ID.Name;            // Наименование коррелирующего товара 1
 		GoodsName2   = Goods2ID.Name;            // Наименование коррелирующего товара 2
-
-		DlvrAddr  = CheckID.DlvrLocID.Addr;      // @v7.0.9 Адрес доставки
-		DlvrPhone = CheckID.DlvrLocID.Phone;     // @v7.0.9 Контактный телефон для доставки
-		OrderStartTxt = CheckID.OrderStartTxt;   // @v7.0.9 Время начала обслуживания по заказу (время доставки)
-		OrderEndTxt   = CheckID.OrderEndTxt;     // @v7.0.9 Время завершения обслуживания по заказу
+		DlvrAddr  = CheckID.DlvrLocID.Addr;      // Адрес доставки
+		DlvrPhone = CheckID.DlvrLocID.Phone;     // Контактный телефон для доставки
+		OrderStartTxt = CheckID.OrderStartTxt;   // Время начала обслуживания по заказу (время доставки)
+		OrderEndTxt   = CheckID.OrderEndTxt;     // Время завершения обслуживания по заказу
 		//
 		// Descr: Если отчет строится с группировкой, включающей серийный номер строки чека,
 		//   то эта функция вернет соответствующий строке серийный номер.

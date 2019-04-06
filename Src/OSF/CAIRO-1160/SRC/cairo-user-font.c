@@ -35,8 +35,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-user-font-private.h"
-#include "cairo-recording-surface-private.h"
+//#include "cairo-user-font-private.h"
+//#include "cairo-recording-surface-private.h"
 //#include "cairo-analysis-surface-private.h"
 //#include "cairo-error-private.h"
 /**
@@ -69,24 +69,18 @@ typedef struct _cairo_user_scaled_font_methods {
 
 typedef struct _cairo_user_font_face {
 	cairo_font_face_t base;
-
-	/* Set to true after first scaled font is created.  At that point,
-	 * the scaled_font_methods cannot change anymore. */
+	// Set to true after first scaled font is created.  At that point, the scaled_font_methods cannot change anymore.
 	cairo_bool_t immutable;
-
 	cairo_user_scaled_font_methods_t scaled_font_methods;
 } cairo_user_font_face_t;
 
 typedef struct _cairo_user_scaled_font {
 	cairo_scaled_font_t base;
-
 	cairo_text_extents_t default_glyph_extents;
-
 	/* space to compute extents in, and factors to convert back to user space */
 	cairo_matrix_t extent_scale;
 	double extent_x_scale;
 	double extent_y_scale;
-
 	/* multiplier for metrics hinting */
 	double snap_x_scale;
 	double snap_y_scale;
@@ -130,42 +124,26 @@ static cairo_int_status_t _cairo_user_scaled_glyph_init(void * abstract_font, ca
 		/* special case for 0 rank matrix (as in _cairo_scaled_font_init): empty surface */
 		if(!_cairo_matrix_is_scale_0(&scaled_font->base.scale)) {
 			cr = _cairo_user_scaled_font_create_recording_context(scaled_font, recording_surface);
-			status = face->scaled_font_methods.render_glyph((cairo_scaled_font_t*)scaled_font,
-				_cairo_scaled_glyph_index(scaled_glyph),
-				cr, &extents);
+			status = face->scaled_font_methods.render_glyph((cairo_scaled_font_t*)scaled_font, _cairo_scaled_glyph_index(scaled_glyph), cr, &extents);
 			if(status == CAIRO_INT_STATUS_SUCCESS)
 				status = cairo_status(cr);
-
 			cairo_destroy(cr);
-
 			if(unlikely(status)) {
 				cairo_surface_destroy(recording_surface);
 				return status;
 			}
 		}
-
-		_cairo_scaled_glyph_set_recording_surface(scaled_glyph,
-		    &scaled_font->base,
-		    recording_surface);
-
+		_cairo_scaled_glyph_set_recording_surface(scaled_glyph, &scaled_font->base, recording_surface);
 		/* set metrics */
-
 		if(extents.width == 0.) {
 			cairo_box_t bbox;
 			double x1, y1, x2, y2;
 			double x_scale, y_scale;
-
-			/* Compute extents.x/y/width/height from recording_surface,
-			 * in font space.
-			 */
-			status = _cairo_recording_surface_get_bbox((cairo_recording_surface_t*)recording_surface,
-				&bbox,
-				&scaled_font->extent_scale);
+			// Compute extents.x/y/width/height from recording_surface, in font space.
+			status = _cairo_recording_surface_get_bbox((cairo_recording_surface_t*)recording_surface, &bbox, &scaled_font->extent_scale);
 			if(unlikely(status))
 				return status;
-
 			_cairo_box_to_doubles(&bbox, &x1, &y1, &x2, &y2);
-
 			x_scale = scaled_font->extent_x_scale;
 			y_scale = scaled_font->extent_y_scale;
 			extents.x_bearing = x1 * x_scale;
@@ -173,17 +151,12 @@ static cairo_int_status_t _cairo_user_scaled_glyph_init(void * abstract_font, ca
 			extents.width     = (x2 - x1) * x_scale;
 			extents.height    = (y2 - y1) * y_scale;
 		}
-
 		if(scaled_font->base.options.hint_metrics != CAIRO_HINT_METRICS_OFF) {
 			extents.x_advance = _cairo_lround(extents.x_advance / scaled_font->snap_x_scale) * scaled_font->snap_x_scale;
 			extents.y_advance = _cairo_lround(extents.y_advance / scaled_font->snap_y_scale) * scaled_font->snap_y_scale;
 		}
-
-		_cairo_scaled_glyph_set_metrics(scaled_glyph,
-		    &scaled_font->base,
-		    &extents);
+		_cairo_scaled_glyph_set_metrics(scaled_glyph, &scaled_font->base, &extents);
 	}
-
 	if(info & CAIRO_SCALED_GLYPH_INFO_SURFACE) {
 		cairo_surface_t * surface;
 		cairo_format_t format;

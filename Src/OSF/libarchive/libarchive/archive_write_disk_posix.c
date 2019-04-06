@@ -1130,7 +1130,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 	ssize_t bytes_written, bytes_to_write;
 	uchar * b;
 
-	block_info = (uint32_t*)(a->resource_fork + RSRC_H_SIZE);
+	block_info = (uint32_t *)(a->resource_fork + RSRC_H_SIZE);
 	block_count = archive_le32dec(block_info++);
 	while(block_count--) {
 		data_pos = RSRC_H_SIZE + archive_le32dec(block_info++);
@@ -1407,7 +1407,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 		/* Get the position where we are going to set a bunch
 		 * of block info. */
 		a->decmpfs_block_info =
-		    (uint32_t*)(a->resource_fork + RSRC_H_SIZE);
+		    (uint32_t *)(a->resource_fork + RSRC_H_SIZE);
 		/* Set the block count to the resource fork. */
 		archive_le32enc(a->decmpfs_block_info++, block_count);
 		/* Get the position where we are going to set compressed

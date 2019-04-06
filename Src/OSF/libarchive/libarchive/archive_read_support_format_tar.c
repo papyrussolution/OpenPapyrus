@@ -875,7 +875,7 @@ static int checksum(struct archive_read * a, const void * h)
 	size_t i;
 
 	(void)a; /* UNUSED */
-	bytes = (const uchar*)h;
+	bytes = (const uchar *)h;
 	header = (const struct archive_entry_header_ustar *)h;
 
 	/* Checksum field must hold an octal number */
@@ -2628,7 +2628,7 @@ static int64_t tar_atol10(const char * p, size_t char_cnt)
 static int64_t tar_atol256(const char * _p, size_t char_cnt)
 {
 	uint64_t l;
-	const uchar * p = (const uchar*)_p;
+	const uchar * p = (const uchar *)_p;
 	uchar c, neg;
 
 	/* Extend 7-bit 2s-comp to 8-bit 2s-comp, decide sign. */
@@ -2751,7 +2751,7 @@ static char * base64_decode(const char * s, size_t len, size_t * out_len)
 	};
 	static uchar decode_table[128];
 	char * out, * d;
-	const uchar * src = (const uchar*)s;
+	const uchar * src = (const uchar *)s;
 
 	/* If the decode table is not yet initialized, prepare it. */
 	if(decode_table[digits[1]] != 1) {
@@ -2763,7 +2763,7 @@ static char * base64_decode(const char * s, size_t len, size_t * out_len)
 
 	/* Allocate enough space to hold the entire output. */
 	/* Note that we may not use all of this... */
-	out = (char*)SAlloc::M(len - len / 4 + 1);
+	out = (char *)SAlloc::M(len - len / 4 + 1);
 	if(out == NULL) {
 		*out_len = 0;
 		return NULL;
@@ -2817,7 +2817,7 @@ static char * url_decode(const char * in)
 	char * out, * d;
 	const char * s;
 
-	out = (char*)SAlloc::M(strlen(in) + 1);
+	out = (char *)SAlloc::M(strlen(in) + 1);
 	if(out == NULL)
 		return NULL;
 	for(s = in, d = out; *s != '\0';) {

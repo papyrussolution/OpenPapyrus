@@ -3101,12 +3101,13 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 					if(temp_buf.NotEmpty()) {
 						AccTurnCore * p_atc = atobj->P_Tbl;
 						for(int i = 0; ok < 0 && (r = p_atc->EnumByBill(bill_rec.ID, &i, 0)) > 0;) {
-							THROW(p_atc->AccRel.Search(p_atc->data.Acc) > 0);
-							if(IsAccBelongToList((Acct*)&p_atc->AccRel.data.Ac, 0, temp_buf))
+							AcctRelTbl::Rec acr_rec;
+							THROW(p_atc->AccRel.Search(p_atc->data.Acc, &acr_rec) > 0);
+							if(IsAccBelongToList(reinterpret_cast<const Acct *>(&acr_rec.Ac), 0, temp_buf))
 								ok = 1;
 							else {
-								THROW(p_atc->AccRel.Search(p_atc->data.CorrAcc) > 0);
-								if(IsAccBelongToList((Acct*)&p_atc->AccRel.data.Ac, 1, temp_buf))
+								THROW(p_atc->AccRel.Search(p_atc->data.CorrAcc, &acr_rec) > 0);
+								if(IsAccBelongToList(reinterpret_cast<const Acct *>(&acr_rec.Ac), 1, temp_buf))
 									ok = 1;
 							}
 						}
@@ -3130,7 +3131,7 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 			}
 			else if(op_type_id == PPOPT_INVENTORY)
 				ok = 1;
-			else if(oneof2(op_type_id, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) { // @v8.5.4 PPOPT_CORRECTION
+			else if(oneof2(op_type_id, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) {
 				if(CConfig.Flags2 & CCFLG2_SYNCLOT)
 					ok = 1;
 				else

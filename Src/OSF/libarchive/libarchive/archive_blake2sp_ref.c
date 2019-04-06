@@ -129,7 +129,7 @@ int blake2sp_init_key(blake2sp_state * S, size_t outlen, const void * key, size_
 
 int blake2sp_update(blake2sp_state * S, const void * pin, size_t inlen)
 {
-	const uchar * in = (const uchar*)pin;
+	const uchar * in = (const uchar *)pin;
 	size_t left = S->buflen;
 	size_t fill = sizeof( S->buf ) - left;
 	size_t i;
@@ -155,7 +155,7 @@ int blake2sp_update(blake2sp_state * S, const void * pin, size_t inlen)
 		size_t i = omp_get_thread_num();
 #endif
 		size_t inlen__ = inlen;
-		const uchar * in__ = (const uchar*)in;
+		const uchar * in__ = (const uchar *)in;
 		in__ += i * BLAKE2S_BLOCKBYTES;
 
 		while(inlen__ >= PARALLELISM_DEGREE * BLAKE2S_BLOCKBYTES) {
@@ -235,7 +235,7 @@ int blake2sp(void * out, size_t outlen, const void * in, size_t inlen, const voi
 		size_t i = omp_get_thread_num();
 #endif
 		size_t inlen__ = inlen;
-		const uchar * in__ = (const uchar*)in;
+		const uchar * in__ = (const uchar *)in;
 		in__ += i * BLAKE2S_BLOCKBYTES;
 
 		while(inlen__ >= PARALLELISM_DEGREE * BLAKE2S_BLOCKBYTES) {

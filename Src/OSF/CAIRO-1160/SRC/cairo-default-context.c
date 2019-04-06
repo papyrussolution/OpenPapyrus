@@ -1073,7 +1073,7 @@ cairo_status_t _cairo_default_context_init(cairo_default_context_t * cr, void * 
 	cr->gstate = &cr->gstate_tail[0];
 	cr->gstate_freelist = &cr->gstate_tail[1];
 	cr->gstate_tail[1].next = NULL;
-	return _cairo_gstate_init(cr->gstate, (cairo_surface_t *)target);
+	return _cairo_gstate_init(cr->gstate, static_cast<cairo_surface_t *>(target));
 }
 
 cairo_t * _cairo_default_context_create(void * target)

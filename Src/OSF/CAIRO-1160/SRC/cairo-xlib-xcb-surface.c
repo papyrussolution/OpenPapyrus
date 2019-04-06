@@ -48,7 +48,7 @@
 //#include "cairo-default-context-private.h"
 //#include "cairo-list-inline.h"
 //#include "cairo-image-surface-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-backend-private.h"
 #include <X11/Xlib-xcb.h>
 #include <X11/Xlibint.h>        /* For XESetCloseDisplay */
 

@@ -59,31 +59,28 @@ typedef struct cairo_path_count {
 
 static cairo_status_t _cpc_move_to(void * closure, const cairo_point_t * point)
 {
-	cpc_t * cpc = (cpc_t *)closure;
+	cpc_t * cpc = static_cast<cpc_t *>(closure);
 	cpc->count += 2;
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _cpc_line_to(void * closure, const cairo_point_t * point)
 {
-	cpc_t * cpc = (cpc_t *)closure;
+	cpc_t * cpc = static_cast<cpc_t *>(closure);
 	cpc->count += 2;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cpc_curve_to(void * closure,
-    const cairo_point_t * p1,
-    const cairo_point_t * p2,
-    const cairo_point_t * p3)
+static cairo_status_t _cpc_curve_to(void * closure, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3)
 {
-	cpc_t * cpc = (cpc_t *)closure;
+	cpc_t * cpc = static_cast<cpc_t *>(closure);
 	cpc->count += 4;
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _cpc_close_path(void * closure)
 {
-	cpc_t * cpc = (cpc_t *)closure;
+	cpc_t * cpc = static_cast<cpc_t *>(closure);
 	cpc->count += 1;
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -112,85 +109,62 @@ typedef struct cairo_path_populate {
 
 static cairo_status_t _cpp_move_to(void * closure, const cairo_point_t * point)
 {
-	cpp_t * cpp = (cpp_t *)closure;
+	cpp_t * cpp = static_cast<cpp_t *>(closure);
 	cairo_path_data_t * data = cpp->data;
 	double x = _cairo_fixed_to_double(point->x);
 	double y = _cairo_fixed_to_double(point->y);
 	_cairo_backend_to_user(cpp->cr, &x, &y);
 	data->header.type = CAIRO_PATH_MOVE_TO;
 	data->header.length = 2;
-
 	/* We index from 1 to leave room for data->header */
 	data[1].point.x = x;
 	data[1].point.y = y;
-
 	cpp->data += data->header.length;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cpp_line_to(void * closure,
-    const cairo_point_t * point)
+static cairo_status_t _cpp_line_to(void * closure, const cairo_point_t * point)
 {
-	cpp_t * cpp = (cpp_t *)closure;
+	cpp_t * cpp = static_cast<cpp_t *>(closure);
 	cairo_path_data_t * data = cpp->data;
-	double x, y;
-
-	x = _cairo_fixed_to_double(point->x);
-	y = _cairo_fixed_to_double(point->y);
-
+	double x = _cairo_fixed_to_double(point->x);
+	double y = _cairo_fixed_to_double(point->y);
 	_cairo_backend_to_user(cpp->cr, &x, &y);
-
 	data->header.type = CAIRO_PATH_LINE_TO;
 	data->header.length = 2;
-
 	/* We index from 1 to leave room for data->header */
 	data[1].point.x = x;
 	data[1].point.y = y;
-
 	cpp->data += data->header.length;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cpp_curve_to(void * closure,
-    const cairo_point_t * p1,
-    const cairo_point_t * p2,
-    const cairo_point_t * p3)
+static cairo_status_t _cpp_curve_to(void * closure, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3)
 {
-	cpp_t * cpp = (cpp_t *)closure;
+	cpp_t * cpp = static_cast<cpp_t *>(closure);
 	cairo_path_data_t * data = cpp->data;
 	double x1, y1;
 	double x2, y2;
 	double x3, y3;
-
 	x1 = _cairo_fixed_to_double(p1->x);
 	y1 = _cairo_fixed_to_double(p1->y);
 	_cairo_backend_to_user(cpp->cr, &x1, &y1);
-
 	x2 = _cairo_fixed_to_double(p2->x);
 	y2 = _cairo_fixed_to_double(p2->y);
 	_cairo_backend_to_user(cpp->cr, &x2, &y2);
-
 	x3 = _cairo_fixed_to_double(p3->x);
 	y3 = _cairo_fixed_to_double(p3->y);
 	_cairo_backend_to_user(cpp->cr, &x3, &y3);
-
 	data->header.type = CAIRO_PATH_CURVE_TO;
 	data->header.length = 4;
-
 	/* We index from 1 to leave room for data->header */
 	data[1].point.x = x1;
 	data[1].point.y = y1;
-
 	data[2].point.x = x2;
 	data[2].point.y = y2;
-
 	data[3].point.x = x3;
 	data[3].point.y = y3;
-
 	cpp->data += data->header.length;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

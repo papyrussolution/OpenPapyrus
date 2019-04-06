@@ -790,7 +790,7 @@ static cairo_xlib_shm_surface_t * _cairo_xlib_shm_surface_create(cairo_xlib_surf
 		goto cleanup_display;
 
 	image = pixman_image_create_bits(format, width, height,
-		(uint32_t*)shm->info->mem, stride);
+		(uint32_t *)shm->info->mem, stride);
 	if(image == NULL)
 		goto cleanup_info;
 

@@ -65,7 +65,7 @@
 //#include "cairo-region-private.h"
 //#include "cairo-scaled-font-private.h"
 //#include "cairo-surface-snapshot-private.h"
-#include "cairo-surface-subsurface-private.h"
+//#include "cairo-surface-subsurface-private.h"
 
 #include <X11/Xutil.h> /* for XDestroyImage */
 
@@ -437,7 +437,7 @@ static void _swap_ximage_3bytes(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint8_t * p = (uint8_t*)line;
+		uint8_t * p = (uint8_t *)line;
 		for(i = ximage->width; i; i--) {
 			uint8_t tmp;
 			tmp = p[2];
@@ -456,7 +456,7 @@ static void _swap_ximage_4bytes(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint32_t * p = (uint32_t*)line;
+		uint32_t * p = (uint32_t *)line;
 		for(i = ximage->width; i; i--) {
 			*p = bswap_32(*p);
 			p++;
@@ -472,7 +472,7 @@ static void _swap_ximage_nibbles(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint8_t * p = (uint8_t*)line;
+		uint8_t * p = (uint8_t *)line;
 		for(i = (ximage->width + 1) / 2; i; i--) {
 			*p = ((*p >> 4) & 0xf) | ((*p << 4) & ~0xf);
 			p++;
@@ -942,7 +942,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 
 		data = cairo_image_surface_get_data(&image->base);
 		rowstride = cairo_image_surface_get_stride(&image->base) >> 2;
-		row = (uint32_t*)data;
+		row = (uint32_t *)data;
 		x0 = extents->x + surface->base.device_transform.x0;
 		y0 = extents->y + surface->base.device_transform.y0;
 		for(y = 0, y_off = y0 % ARRAY_LENGTH(dither_pattern);
@@ -1244,7 +1244,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 		}
 
 		rowstride = image->stride >> 2;
-		row = (uint32_t*)image->data;
+		row = (uint32_t *)image->data;
 		x0 = dst_x + surface->base.device_transform.x0;
 		y0 = dst_y + surface->base.device_transform.y0;
 		for(y = 0, y_off = y0 % ARRAY_LENGTH(dither_pattern);
@@ -1259,20 +1259,20 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 				int a, r, g, b;
 
 				if(image_masks.bpp == 1)
-					in_pixel = !!(((uint8_t*)row)[x/8] & (1 << (x & 7)));
+					in_pixel = !!(((uint8_t *)row)[x/8] & (1 << (x & 7)));
 				else if(image_masks.bpp <= 8)
-					in_pixel = ((uint8_t*)row)[x];
+					in_pixel = ((uint8_t *)row)[x];
 				else if(image_masks.bpp <= 16)
 					in_pixel = ((uint16_t*)row)[x];
 				else if(image_masks.bpp <= 24)
 #ifdef WORDS_BIGENDIAN
-					in_pixel = ((uint8_t*)row)[3 * x] << 16 |
-					    ((uint8_t*)row)[3 * x + 1] << 8  |
-					    ((uint8_t*)row)[3 * x + 2];
+					in_pixel = ((uint8_t *)row)[3 * x] << 16 |
+					    ((uint8_t *)row)[3 * x + 1] << 8  |
+					    ((uint8_t *)row)[3 * x + 2];
 #else
-					in_pixel = ((uint8_t*)row)[3 * x]           |
-					    ((uint8_t*)row)[3 * x + 1] << 8  |
-					    ((uint8_t*)row)[3 * x + 2] << 16;
+					in_pixel = ((uint8_t *)row)[3 * x]           |
+					    ((uint8_t *)row)[3 * x + 1] << 8  |
+					    ((uint8_t *)row)[3 * x + 2] << 16;
 #endif
 				else
 					in_pixel = row[x];

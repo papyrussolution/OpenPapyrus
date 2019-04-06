@@ -215,7 +215,7 @@ size_t ngx_http_v2_huff_encode(u_char * src, size_t len, u_char * dst, ngx_uint_
 
 #if (NGX_HAVE_NONALIGNED)
 	#define ngx_http_v2_parse_uint16(p)  ntohs(*(uint16_t*)(p))
-	#define ngx_http_v2_parse_uint32(p)  ntohl(*(uint32_t*)(p))
+	#define ngx_http_v2_parse_uint32(p)  ntohl(*(uint32_t *)(p))
 #else
 	#define ngx_http_v2_parse_uint16(p)  ((p)[0] << 8 | (p)[1])
 	#define ngx_http_v2_parse_uint32(p)  ((uint32_t)(p)[0] << 24 | (p)[1] << 16 | (p)[2] << 8 | (p)[3])
@@ -225,7 +225,7 @@ size_t ngx_http_v2_huff_encode(u_char * src, size_t len, u_char * dst, ngx_uint_
 #define ngx_http_v2_parse_sid(p)     (ngx_http_v2_parse_uint32(p) & 0x7fffffff)
 #define ngx_http_v2_parse_window(p)  (ngx_http_v2_parse_uint32(p) & 0x7fffffff)
 #define ngx_http_v2_write_uint16_aligned(p, s) (*(uint16_t*)(p) = htons((uint16_t)(s)), (p) + sizeof(uint16_t))
-#define ngx_http_v2_write_uint32_aligned(p, s) (*(uint32_t*)(p) = htonl((uint32_t)(s)), (p) + sizeof(uint32_t))
+#define ngx_http_v2_write_uint32_aligned(p, s) (*(uint32_t *)(p) = htonl((uint32_t)(s)), (p) + sizeof(uint32_t))
 #if (NGX_HAVE_NONALIGNED)
 	#define ngx_http_v2_write_uint16  ngx_http_v2_write_uint16_aligned
 	#define ngx_http_v2_write_uint32  ngx_http_v2_write_uint32_aligned

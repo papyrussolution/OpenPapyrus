@@ -1581,7 +1581,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		else if(focused)
 			pen_color = _GetAssetColor(_assetCtrlFocusedBorderColor);//RGB(0x66, 0x33, 0xFF);
 		if(style & BS_BITMAP)
-			hbmp = (HBITMAP)SendMessage(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0);
+			hbmp = reinterpret_cast<HBITMAP>(::SendMessage(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0));
 		else if(p_btn) {
 			uint bmp_id = p_btn->GetBmpID();
 			if(!bmp_id) {
@@ -1707,7 +1707,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			out_r.left += (style & BS_BITMAP) ? 1 : 2;
 		}
 		if(style & BS_BITMAP)
-			hbmp = (HBITMAP)SendMessage(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0);
+			hbmp = reinterpret_cast<HBITMAP>(::SendMessage(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0));
 		else if(p_btn) {
 			uint bmp_id = p_btn->GetBmpID();
 			if(!bmp_id) {

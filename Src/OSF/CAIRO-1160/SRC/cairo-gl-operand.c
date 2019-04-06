@@ -48,32 +48,22 @@
 //#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
 //#include "cairo-image-surface-private.h"
-#include "cairo-surface-backend-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-offset-private.h"
 #include "cairo-surface-subsurface-inline.h"
 
-static cairo_int_status_t _cairo_gl_create_gradient_texture(cairo_gl_surface_t * dst,
-    const cairo_gradient_pattern_t * pattern,
-    cairo_gl_gradient_t ** gradient)
+static cairo_int_status_t _cairo_gl_create_gradient_texture(cairo_gl_surface_t * dst, const cairo_gradient_pattern_t * pattern, cairo_gl_gradient_t ** gradient)
 {
 	cairo_gl_context_t * ctx;
-	cairo_status_t status;
-
-	status = _cairo_gl_context_acquire(dst->base.device, &ctx);
+	cairo_status_t status = _cairo_gl_context_acquire(dst->base.device, &ctx);
 	if(unlikely(status))
 		return status;
-
 	status = _cairo_gl_gradient_create(ctx, pattern->n_stops, pattern->stops, gradient);
-
 	return _cairo_gl_context_release(ctx, status);
 }
 
-static cairo_status_t _cairo_gl_subsurface_clone_operand_init(cairo_gl_operand_t * operand,
-    const cairo_pattern_t * _src,
-    cairo_gl_surface_t * dst,
-    const cairo_rectangle_int_t * sample,
-    const cairo_rectangle_int_t * extents,
-    cairo_bool_t use_texgen)
+static cairo_status_t _cairo_gl_subsurface_clone_operand_init(cairo_gl_operand_t * operand, const cairo_pattern_t * _src,
+    cairo_gl_surface_t * dst, const cairo_rectangle_int_t * sample, const cairo_rectangle_int_t * extents, cairo_bool_t use_texgen)
 {
 	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t*)_src;
 	cairo_surface_pattern_t local_pattern;

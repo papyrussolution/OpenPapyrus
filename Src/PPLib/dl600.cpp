@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -22,8 +22,8 @@ int DlFunc::IsEqual(const DlFunc & rPat) const
 	THROW(c == rPat.ArgList.getCount());
 	if(c) do {
 		--c;
-		const Arg * p_arg = (const Arg *)ArgList.at(c);
-		const Arg * p_pat_arg = (const Arg *)rPat.ArgList.at(c);
+		const Arg * p_arg = static_cast<const Arg *>(ArgList.at(c));
+		const Arg * p_pat_arg = static_cast<const Arg *>(rPat.ArgList.at(c));
 		THROW(p_arg->TypID == p_pat_arg->TypID);
 		THROW(p_arg->Flags == p_pat_arg->Flags);
 	} while(c);
@@ -39,7 +39,7 @@ uint DlFunc::GetArgCount() const
 int DlFunc::GetArg(uint argN, Arg * pArg) const
 {
 	if(argN < ArgList.getCount()) {
-		ASSIGN_PTR(pArg, *(const Arg *)ArgList.at(argN));
+		ASSIGN_PTR(pArg, *static_cast<const Arg *>(ArgList.at(argN)));
 		return 1;
 	}
 	else
@@ -48,7 +48,7 @@ int DlFunc::GetArg(uint argN, Arg * pArg) const
 
 DLSYMBID DlFunc::GetArgType(uint argN) const
 {
-	return (argN < ArgList.getCount()) ? ((const Arg *)ArgList.at(argN))->TypID : 0;
+	return (argN < ArgList.getCount()) ? static_cast<const Arg *>(ArgList.at(argN))->TypID : 0;
 }
 
 int DlFunc::AddArg(uint typeId, const char * pName, uint argFlags)
@@ -68,7 +68,7 @@ int DlFunc::GetArgName(uint argN, SString & rArgName) const
 	int    ok = 1;
 	rArgName.Z();
 	if(argN < ArgList.getCount()) {
-		const Arg * p_arg = (const Arg *)ArgList.at(argN);
+		const Arg * p_arg = static_cast<const Arg *>(ArgList.at(argN));
 		ArgNamList.getnz(p_arg->NamePos, rArgName);
 	}
 	else
@@ -2493,7 +2493,7 @@ DlScope * SLAPI DlContext::Helper_GetScope(DLSYMBID id, const DlScope * pScope, 
 		SetError(PPERR_DL6_INVSCOPEKIND, pScope->Name);
 		pScope = 0;
 	}
-	return (DlScope *)pScope;
+	return const_cast<DlScope *>(pScope); // @badcast
 }
 
 DlScope * SLAPI DlContext::GetScope(DLSYMBID id, int kind)
@@ -2501,7 +2501,7 @@ DlScope * SLAPI DlContext::GetScope(DLSYMBID id, int kind)
 DlScope * SLAPI DlContext::GetCurScope()
 	{ return Helper_GetScope(CurScopeID, Sc.SearchByID(CurScopeID, 0), 0); }
 const DlScope * SLAPI DlContext::GetScope_Const(DLSYMBID id, int kind) const
-	{ return (const DlScope *)Helper_GetScope(id, Sc.SearchByID_Const(id, 0), kind); }
+	{ return static_cast<const DlScope *>(Helper_GetScope(id, Sc.SearchByID_Const(id, 0), kind)); }
 
 const  DlScope * SLAPI DlContext::GetScopeByName_Const(uint kind, const char * pName) const
 {

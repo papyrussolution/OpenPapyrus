@@ -44,7 +44,7 @@
 
 static cairo_status_t _cairo_surface_snapshot_finish(void * abstract_surface)
 {
-	cairo_surface_snapshot_t * surface = (cairo_surface_snapshot_t *)abstract_surface;
+	cairo_surface_snapshot_t * surface = static_cast<cairo_surface_snapshot_t *>(abstract_surface);
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(surface->clone != NULL) {
@@ -58,7 +58,7 @@ static cairo_status_t _cairo_surface_snapshot_finish(void * abstract_surface)
 
 static cairo_status_t _cairo_surface_snapshot_flush(void * abstract_surface, unsigned flags)
 {
-	cairo_surface_snapshot_t * surface = (cairo_surface_snapshot_t *)abstract_surface;
+	cairo_surface_snapshot_t * surface = static_cast<cairo_surface_snapshot_t *>(abstract_surface);
 	cairo_surface_t * target = _cairo_surface_snapshot_get_target(&surface->base);
 	cairo_status_t status = _cairo_surface_flush(target, flags);
 	cairo_surface_destroy(target);
@@ -67,7 +67,7 @@ static cairo_status_t _cairo_surface_snapshot_flush(void * abstract_surface, uns
 
 static cairo_surface_t * _cairo_surface_snapshot_source(void * abstract_surface, cairo_rectangle_int_t * extents)
 {
-	cairo_surface_snapshot_t * surface = (cairo_surface_snapshot_t *)abstract_surface;
+	cairo_surface_snapshot_t * surface = static_cast<cairo_surface_snapshot_t *>(abstract_surface);
 	return _cairo_surface_get_source(surface->target, extents); /* XXX racy */
 }
 
@@ -78,7 +78,7 @@ struct snapshot_extra {
 
 static cairo_status_t _cairo_surface_snapshot_acquire_source_image(void * abstract_surface, cairo_image_surface_t ** image_out, void ** extra_out)
 {
-	cairo_surface_snapshot_t * surface = (cairo_surface_snapshot_t *)abstract_surface;
+	cairo_surface_snapshot_t * surface = static_cast<cairo_surface_snapshot_t *>(abstract_surface);
 	cairo_status_t status;
 	struct snapshot_extra * extra = (struct snapshot_extra *)_cairo_malloc(sizeof(*extra));
 	if(unlikely(extra == NULL)) {
@@ -106,7 +106,7 @@ static void _cairo_surface_snapshot_release_source_image(void * abstract_surface
 
 static cairo_bool_t _cairo_surface_snapshot_get_extents(void * abstract_surface, cairo_rectangle_int_t * extents)
 {
-	cairo_surface_snapshot_t * surface = (cairo_surface_snapshot_t *)abstract_surface;
+	cairo_surface_snapshot_t * surface = static_cast<cairo_surface_snapshot_t *>(abstract_surface);
 	cairo_surface_t * target = _cairo_surface_snapshot_get_target(&surface->base);
 	cairo_bool_t bounded = _cairo_surface_get_extents(target, extents);
 	cairo_surface_destroy(target);

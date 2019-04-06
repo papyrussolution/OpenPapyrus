@@ -488,10 +488,7 @@ static CURLcode output_auth_headers(struct connectdata * conn,
 #ifndef CURL_DISABLE_CRYPTO_AUTH
 	if(authstatus->picked == CURLAUTH_DIGEST) {
 		auth = "Digest";
-		result = Curl_output_digest(conn,
-		    proxy,
-		    (const uchar*)request,
-		    (const uchar*)path);
+		result = Curl_output_digest(conn, proxy, (const uchar *)request, (const uchar *)path);
 		if(result)
 			return result;
 	}

@@ -343,7 +343,7 @@ typedef struct _pdf_path_info {
 
 static cairo_status_t _cairo_pdf_path_move_to(void * closure, const cairo_point_t * point)
 {
-	pdf_path_info_t * info = (pdf_path_info_t *)closure;
+	pdf_path_info_t * info = static_cast<pdf_path_info_t *>(closure);
 	double x = _cairo_fixed_to_double(point->x);
 	double y = _cairo_fixed_to_double(point->y);
 	info->last_move_to_point = *point;
@@ -355,7 +355,7 @@ static cairo_status_t _cairo_pdf_path_move_to(void * closure, const cairo_point_
 
 static cairo_status_t _cairo_pdf_path_line_to(void * closure, const cairo_point_t * point)
 {
-	pdf_path_info_t * info = (pdf_path_info_t *)closure;
+	pdf_path_info_t * info = static_cast<pdf_path_info_t *>(closure);
 	double x = _cairo_fixed_to_double(point->x);
 	double y = _cairo_fixed_to_double(point->y);
 	if(info->line_cap != CAIRO_LINE_CAP_ROUND && !info->has_sub_path && point->x == info->last_move_to_point.x && point->y == info->last_move_to_point.y) {
@@ -369,7 +369,7 @@ static cairo_status_t _cairo_pdf_path_line_to(void * closure, const cairo_point_
 
 static cairo_status_t _cairo_pdf_path_curve_to(void * closure, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d)
 {
-	pdf_path_info_t * info = (pdf_path_info_t *)closure;
+	pdf_path_info_t * info = static_cast<pdf_path_info_t *>(closure);
 	double bx = _cairo_fixed_to_double(b->x);
 	double by = _cairo_fixed_to_double(b->y);
 	double cx = _cairo_fixed_to_double(c->x);
@@ -387,7 +387,7 @@ static cairo_status_t _cairo_pdf_path_curve_to(void * closure, const cairo_point
 
 static cairo_status_t _cairo_pdf_path_close_path(void * closure)
 {
-	pdf_path_info_t * info = (pdf_path_info_t *)closure;
+	pdf_path_info_t * info = static_cast<pdf_path_info_t *>(closure);
 	if(info->line_cap != CAIRO_LINE_CAP_ROUND && !info->has_sub_path) {
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -441,32 +441,24 @@ static cairo_status_t _cairo_pdf_operators_emit_path(cairo_pdf_operators_t * pdf
 	return status;
 }
 
-cairo_int_status_t _cairo_pdf_operators_clip(cairo_pdf_operators_t * pdf_operators,
-    const cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule)
+cairo_int_status_t _cairo_pdf_operators_clip(cairo_pdf_operators_t * pdf_operators, const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule)
 {
 	const char * pdf_operator;
 	cairo_status_t status;
-
 	if(pdf_operators->in_text_object) {
 		status = _cairo_pdf_operators_end_text(pdf_operators);
 		if(unlikely(status))
 			return status;
 	}
-
 	if(!path->has_current_point) {
 		/* construct an empty path */
 		_cairo_output_stream_printf(pdf_operators->stream, "0 0 m ");
 	}
 	else {
-		status = _cairo_pdf_operators_emit_path(pdf_operators,
-			path,
-			&pdf_operators->cairo_to_pdf,
-			CAIRO_LINE_CAP_ROUND);
+		status = _cairo_pdf_operators_emit_path(pdf_operators, path, &pdf_operators->cairo_to_pdf, CAIRO_LINE_CAP_ROUND);
 		if(unlikely(status))
 			return status;
 	}
-
 	switch(fill_rule) {
 		default:
 		    ASSERT_NOT_REACHED;
@@ -477,47 +469,31 @@ cairo_int_status_t _cairo_pdf_operators_clip(cairo_pdf_operators_t * pdf_operato
 		    pdf_operator = "W*";
 		    break;
 	}
-
-	_cairo_output_stream_printf(pdf_operators->stream,
-	    "%s n\n",
-	    pdf_operator);
-
+	_cairo_output_stream_printf(pdf_operators->stream, "%s n\n", pdf_operator);
 	return _cairo_output_stream_get_status(pdf_operators->stream);
 }
 
 static int _cairo_pdf_line_cap(cairo_line_cap_t cap)
 {
 	switch(cap) {
-		case CAIRO_LINE_CAP_BUTT:
-		    return 0;
-		case CAIRO_LINE_CAP_ROUND:
-		    return 1;
-		case CAIRO_LINE_CAP_SQUARE:
-		    return 2;
-		default:
-		    ASSERT_NOT_REACHED;
-		    return 0;
+		case CAIRO_LINE_CAP_BUTT: return 0;
+		case CAIRO_LINE_CAP_ROUND: return 1;
+		case CAIRO_LINE_CAP_SQUARE: return 2;
+		default: ASSERT_NOT_REACHED; return 0;
 	}
 }
 
 static int _cairo_pdf_line_join(cairo_line_join_t join)
 {
 	switch(join) {
-		case CAIRO_LINE_JOIN_MITER:
-		    return 0;
-		case CAIRO_LINE_JOIN_ROUND:
-		    return 1;
-		case CAIRO_LINE_JOIN_BEVEL:
-		    return 2;
-		default:
-		    ASSERT_NOT_REACHED;
-		    return 0;
+		case CAIRO_LINE_JOIN_MITER: return 0;
+		case CAIRO_LINE_JOIN_ROUND: return 1;
+		case CAIRO_LINE_JOIN_BEVEL: return 2;
+		default: ASSERT_NOT_REACHED; return 0;
 	}
 }
 
-cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t * pdf_operators,
-    const cairo_stroke_style_t * style,
-    double scale)
+cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t * pdf_operators, const cairo_stroke_style_t * style, double scale)
 {
 	double * dash = style->dash;
 	int num_dashes = style->num_dashes;

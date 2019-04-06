@@ -522,17 +522,15 @@ TidyIterator TIDY_CALL tidyOptGetDocLinksList(TidyDoc ARG_UNUSED(tdoc), TidyOpti
 
 TidyOption TIDY_CALL tidyOptGetNextDocLinks(TidyDoc tdoc, TidyIterator* pos)
 {
-	const TidyOptionId* curr = (const TidyOptionId*)*pos;
+	const TidyOptionId * curr = (const TidyOptionId*)*pos;
 	TidyOption opt;
-
 	if(*curr == TidyUnknownOption) {
 		*pos = (TidyIterator)NULL;
 		return (TidyOption)0;
 	}
 	opt = tidyGetOption(tdoc, *curr);
 	curr++;
-	*pos = (*curr == TidyUnknownOption ) ?
-	    (TidyIterator)NULL : (TidyIterator)curr;
+	*pos = (*curr == TidyUnknownOption ) ? (TidyIterator)NULL : (TidyIterator)curr;
 	return opt;
 }
 

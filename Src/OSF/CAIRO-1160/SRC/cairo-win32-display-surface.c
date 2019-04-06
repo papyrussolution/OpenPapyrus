@@ -54,12 +54,12 @@
 //#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
 //#include "cairo-image-surface-inline.h"
-#include "cairo-paginated-private.h"
+//#include "cairo-paginated-private.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-win32-private.h"
 //#include "cairo-scaled-font-subsets-private.h"
-#include "cairo-surface-fallback-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-fallback-private.h"
+//#include "cairo-surface-backend-private.h"
 //#include <wchar.h>
 //#include <windows.h>
 
@@ -189,7 +189,7 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 		goto FAIL;
 	surface->is_dib = TRUE;
 	GdiFlush();
-	surface->saved_dc_bitmap = (HBITMAP)SelectObject(surface->win32.dc, surface->bitmap);
+	surface->saved_dc_bitmap = static_cast<HBITMAP>(::SelectObject(surface->win32.dc, surface->bitmap));
 	if(!surface->saved_dc_bitmap)
 		goto FAIL;
 	if(bitmap_info && num_palette > 2)
@@ -823,16 +823,13 @@ cairo_surface_t * cairo_win32_surface_create_with_dib(cairo_format_t format, int
  *
  * Since: 1.4
  **/
-cairo_surface_t * cairo_win32_surface_create_with_ddb(HDC hdc,
-    cairo_format_t format,
-    int width,
-    int height)
+cairo_surface_t * cairo_win32_surface_create_with_ddb(HDC hdc, cairo_format_t format, int width, int height)
 {
 	cairo_win32_display_surface_t * new_surf;
 	HBITMAP ddb;
-	HDC screen_dc, ddb_dc;
+	HDC    screen_dc = 0;
+	HDC    ddb_dc;
 	HBITMAP saved_dc_bitmap;
-
 	switch(format) {
 		default:
 /* XXX handle these eventually */
@@ -843,9 +840,8 @@ cairo_surface_t * cairo_win32_surface_create_with_ddb(HDC hdc,
 		case CAIRO_FORMAT_RGB24:
 		    break;
 	}
-
 	if(!hdc) {
-		screen_dc = GetDC(NULL);
+		screen_dc = ::GetDC(NULL);
 		hdc = screen_dc;
 	}
 	else {
@@ -867,8 +863,8 @@ cairo_surface_t * cairo_win32_surface_create_with_ddb(HDC hdc,
 		new_surf = (cairo_win32_display_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto FINISH;
 	}
-	saved_dc_bitmap = (HBITMAP)SelectObject(ddb_dc, ddb);
-	new_surf = (cairo_win32_display_surface_t*)cairo_win32_surface_create(ddb_dc);
+	saved_dc_bitmap = static_cast<HBITMAP>(::SelectObject(ddb_dc, ddb));
+	new_surf = reinterpret_cast<cairo_win32_display_surface_t *>(cairo_win32_surface_create(ddb_dc));
 	new_surf->bitmap = ddb;
 	new_surf->saved_dc_bitmap = saved_dc_bitmap;
 	new_surf->is_dib = FALSE;

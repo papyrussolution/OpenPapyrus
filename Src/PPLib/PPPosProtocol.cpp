@@ -5034,11 +5034,8 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		ok = 0;
 	ENDCATCH
 	DestroyReadBlock();
-	{
-		for(uint ssp = 0; to_remove_file_list.get(&ssp, temp_buf);) {
-			SFile::Remove(temp_buf);
-		}
-	}
+	for(uint ssp = 0; to_remove_file_list.get(&ssp, temp_buf);)
+		SFile::Remove(temp_buf);
 	return ok;
 }
 

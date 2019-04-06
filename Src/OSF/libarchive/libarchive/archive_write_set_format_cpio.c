@@ -420,11 +420,11 @@ static int format_octal(int64_t v, void * p, int digits)
 	int ret;
 	int64_t max = (((int64_t)1) << (digits * 3)) - 1;
 	if(v >= 0  &&  v <= max) {
-		format_octal_recursive(v, (char*)p, digits);
+		format_octal_recursive(v, (char *)p, digits);
 		ret = 0;
 	}
 	else {
-		format_octal_recursive(max, (char*)p, digits);
+		format_octal_recursive(max, (char *)p, digits);
 		ret = -1;
 	}
 	return ret;

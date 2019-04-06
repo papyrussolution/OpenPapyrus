@@ -5178,7 +5178,7 @@ static int http_post(struct soap * soap, const char * endpoint, const char * hos
 	{ 
 		strcpy(soap->tmpbuf, "Basic ");
 		sprintf(soap->tmpbuf+262, "%s:%s", soap->userid, soap->passwd);
-		soap_s2base64(soap, (const uchar*)(soap->tmpbuf+262), soap->tmpbuf+6, sstrleni(soap->tmpbuf+262)); }
+		soap_s2base64(soap, (const uchar *)(soap->tmpbuf+262), soap->tmpbuf+6, sstrleni(soap->tmpbuf+262)); }
 		if((err = soap->fposthdr(soap, "Authorization", soap->tmpbuf)))
 			return err;
 	}
@@ -5191,7 +5191,7 @@ static int http_post(struct soap * soap, const char * endpoint, const char * hos
 	{ 
 		strcpy(soap->tmpbuf, "Basic ");
 		sprintf(soap->tmpbuf+262, "%s:%s", soap->proxy_userid, soap->proxy_passwd);
-		soap_s2base64(soap, (const uchar*)(soap->tmpbuf+262), soap->tmpbuf+6, sstrleni(soap->tmpbuf+262)); }
+		soap_s2base64(soap, (const uchar *)(soap->tmpbuf+262), soap->tmpbuf+6, sstrleni(soap->tmpbuf+262)); }
 		if((err = soap->fposthdr(soap, "Proxy-Authorization", soap->tmpbuf)))
 			return err;
 	}

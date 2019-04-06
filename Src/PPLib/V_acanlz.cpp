@@ -2324,7 +2324,7 @@ int PPALDD_Article::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		ArticleTbl::Rec rec;
-		if(((PPObjArticle*)(Extra[0].Ptr))->Search(rFilt.ID, &rec) > 0) {
+		if(static_cast<PPObjArticle *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
 			H.ID      = rec.ID;
 			H.Number  = rec.Article;
 			H.SheetID = rec.AccSheetID;

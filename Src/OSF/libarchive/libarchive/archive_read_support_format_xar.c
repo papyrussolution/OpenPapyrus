@@ -1551,9 +1551,9 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 		    break;
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 		case BZIP2:
-		    xar->bzstream.next_in = (char*)(uintptr_t)b;
+		    xar->bzstream.next_in = (char *)(uintptr_t)b;
 		    xar->bzstream.avail_in = avail_in;
-		    xar->bzstream.next_out = (char*)outbuff;
+		    xar->bzstream.next_out = (char *)outbuff;
 		    xar->bzstream.avail_out = avail_out;
 		    r = BZ2_bzDecompress(&(xar->bzstream));
 		    switch(r) {
@@ -2514,7 +2514,7 @@ static void strappend_base64(struct xar * xar,
 	(void)xar; /* UNUSED */
 	len = 0;
 	out = buff;
-	b = (const uchar*)s;
+	b = (const uchar *)s;
 	while(l > 0) {
 		int n = 0;
 

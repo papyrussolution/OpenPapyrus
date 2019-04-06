@@ -2583,14 +2583,14 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann2 * ann,
 //
 FANN_EXTERNAL Fann2 * FANN_API fann_create_from_file(const char * configuration_file)
 {
-	Fann2 * ann;
+	Fann2 * ann = 0;
 	FILE * conf = fopen(configuration_file, "r");
-	if(!conf) {
+	if(!conf)
 		fann_error_2(NULL, FANN_E_CANT_OPEN_CONFIG_R, configuration_file);
-		return NULL;
+	else {
+		ann = fann_create_from_fd(conf, configuration_file);
+		fclose(conf);
 	}
-	ann = fann_create_from_fd(conf, configuration_file);
-	fclose(conf);
 	return ann;
 }
 
@@ -2811,14 +2811,14 @@ static int fann_save_internal_fd_2(Fann2 * ann, FILE * conf, const char * config
 // 
 static int fann_save_internal_2(Fann2 * ann, const char * configuration_file, uint save_as_fixed)
 {
-	int retval;
+	int    retval = -1;
 	FILE * conf = fopen(configuration_file, "w+");
-	if(!conf) {
+	if(!conf)
 		fann_error_2(reinterpret_cast<struct fann_error *>(ann), FANN_E_CANT_OPEN_CONFIG_W, configuration_file);
-		return -1;
+	else {
+		retval = fann_save_internal_fd_2(ann, conf, configuration_file, save_as_fixed);
+		fclose(conf);
 	}
-	retval = fann_save_internal_fd_2(ann, conf, configuration_file, save_as_fixed);
-	fclose(conf);
 	return retval;
 }
 // 

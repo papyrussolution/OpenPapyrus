@@ -87,7 +87,7 @@ void isaac_init(isaac_ctx * _ctx, const void * _seed, int _nseed)
 		isaac_mix(x);
 	if(_nseed>ISAAC_SEED_SZ_MAX) 
 		_nseed = ISAAC_SEED_SZ_MAX;
-	seed = (const uchar*)_seed;
+	seed = (const uchar *)_seed;
 	for(i = 0; i < (_nseed >> 2); i++) {
 		r[i] = seed[i<<2|3]<<24|seed[i<<2|2]<<16|seed[i<<2|1]<<8|seed[i<<2];
 	}

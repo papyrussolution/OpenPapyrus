@@ -398,7 +398,7 @@ int GoodsFiltCtrlGroup::getData(TDialog * pDlg, void * pData)
 			pDlg->getCtrlData(CtlselGoodsGrp, &Data.GoodsGrpID);
 		if(CtlselGoods)
 			pDlg->getCtrlData(CtlselGoods, &Data.GoodsID);
-		*(Rec*)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 		ok = 1;
 	}
 	CATCHZOK
@@ -2428,7 +2428,7 @@ int GoodsCtrlGroup::setFilt(TDialog * pDlg, const GoodsFilt * pFilt)
 int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 {
 	const PPID save_loc_id = LConfig.Location;
-	Rec  * p_rec = (Rec*)pData;
+	Rec  * p_rec = static_cast<Rec *>(pData);
 	PPID   grp_id = 0, prev_grp_level = 0;
 	int    disable_group_selection = 0;
 	PPObjGoods gobj;
@@ -2485,7 +2485,7 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 
 int GoodsCtrlGroup::getData(TDialog * dlg, void * pData)
 {
-	Rec * p_rec = (Rec*)pData;
+	Rec * p_rec = static_cast<Rec *>(pData);
 	dlg->getCtrlData(CtlselGrp,   &p_rec->GrpID);
 	dlg->getCtrlData(CtlselGoods, &p_rec->GoodsID);
 	return (p_rec->GoodsID == 0 && Flags & disableEmptyGoods) ? PPSetError(PPERR_GOODSNEEDED) : 1;

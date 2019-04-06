@@ -638,7 +638,7 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 	ssize_t ws;
 
 	xar = (struct xar *)a->format_data;
-	p = (const uchar*)buff;
+	p = (const uchar *)buff;
 	while(s) {
 		ws = write(xar->temp_fd, p, s);
 		if(ws < 0) {
@@ -672,7 +672,7 @@ static ssize_t xar_write_data(struct archive_write * a, const void * buff, size_
 		size = rsize = s;
 	}
 	else {
-		xar->stream.next_in = (const uchar*)buff;
+		xar->stream.next_in = (const uchar *)buff;
 		xar->stream.avail_in = s;
 		if(xar->bytes_remaining > s)
 			run = ARCHIVE_Z_RUN;
@@ -693,7 +693,7 @@ static ssize_t xar_write_data(struct archive_write * a, const void * buff, size_
 		/*
 		 * Get the path of a shell script if so.
 		 */
-		const uchar * b = (const uchar*)buff;
+		const uchar * b = (const uchar *)buff;
 
 		archive_string_empty(&(xar->cur_file->script));
 		if(rsize > 2 && b[0] == '#' && b[1] == '!') {
@@ -2497,11 +2497,11 @@ static int compression_init_encoder_bzip2(struct archive * a,
 	/* bzlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (char*)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in_lo32 = (uint32_t)(lastrm->total_in & 0xffffffff);
 	strm->total_in_hi32 = (uint32_t)(lastrm->total_in >> 32);
-	strm->next_out = (char*)lastrm->next_out;
+	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
 	strm->total_out_lo32 = (uint32_t)(lastrm->total_out & 0xffffffff);
 	strm->total_out_hi32 = (uint32_t)(lastrm->total_out >> 32);
@@ -2529,17 +2529,17 @@ static int compression_code_bzip2(struct archive * a,
 	/* bzlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (char*)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in_lo32 = (uint32_t)(lastrm->total_in & 0xffffffff);
 	strm->total_in_hi32 = (uint32_t)(lastrm->total_in >> 32);
-	strm->next_out = (char*)lastrm->next_out;
+	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
 	strm->total_out_lo32 = (uint32_t)(lastrm->total_out & 0xffffffff);
 	strm->total_out_hi32 = (uint32_t)(lastrm->total_out >> 32);
 	r = BZ2_bzCompress(strm,
 		(action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
-	lastrm->next_in = (const uchar*)strm->next_in;
+	lastrm->next_in = (const uchar *)strm->next_in;
 	lastrm->avail_in = strm->avail_in;
 	lastrm->total_in =
 	    (((uint64_t)(uint32_t)strm->total_in_hi32) << 32)
@@ -2915,7 +2915,7 @@ static int save_xattrs(struct archive_write * a, struct file * file)
 			SAlloc::F(heap);
 			return ARCHIVE_FATAL;
 		}
-		xar->stream.next_in = (const uchar*)value;
+		xar->stream.next_in = (const uchar *)value;
 		xar->stream.avail_in = size;
 		for(;;) {
 			r = compression_code(&(a->archive), &(xar->stream), ARCHIVE_Z_FINISH);

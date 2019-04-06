@@ -164,7 +164,7 @@ int  columnCount = 0;
 %union {
 	long   lval;
 	double dval;
-	LAssoc las_val;
+	LAssocBase las_val; // @v10.4.0 LAssoc-->LAssocBase (@noctr)
 	SColorBase scolor_val;
 	char   sval[256];
 	Rc2ToolbarItem tbi_val;

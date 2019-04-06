@@ -32,7 +32,6 @@
 #pragma hdrstop
 #if CAIRO_HAS_XCB_SURFACE // {
 #include "cairo-xcb-private.h"
-
 //#include "cairo-boxes-private.h"
 //#include "cairo-clip-inline.h"
 //#include "cairo-clip-private.h"
@@ -41,13 +40,13 @@
 //#include "cairo-image-surface-private.h"
 //#include "cairo-list-inline.h"
 //#include "cairo-region-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-offset-private.h"
 //#include "cairo-surface-snapshot-inline.h"
-#include "cairo-surface-subsurface-private.h"
+//#include "cairo-surface-subsurface-private.h"
 //#include "cairo-traps-private.h"
 //#include "cairo-recording-surface-inline.h"
-#include "cairo-paginated-private.h"
-#include "cairo-pattern-inline.h"
+//#include "cairo-paginated-private.h"
+//#include "cairo-pattern-inline.h"
 
 #define PIXMAN_MAX_INT ((pixman_fixed_1 >> 1) - pixman_fixed_e) /* need to ensure deltas also fit */
 
@@ -3488,21 +3487,12 @@ static cairo_int_status_t _cairo_xcb_surface_render_stroke_as_polygon(cairo_xcb_
 {
 	cairo_polygon_t polygon;
 	cairo_status_t status;
-
 	_cairo_polygon_init_with_clip(&polygon, extents->clip);
-	status = _cairo_path_fixed_stroke_to_polygon(path,
-		stroke_style,
-		ctm, ctm_inverse,
-		tolerance,
-		&polygon);
+	status = _cairo_path_fixed_stroke_to_polygon(path, stroke_style, ctm, ctm_inverse, tolerance, &polygon);
 	if(likely(status == CAIRO_STATUS_SUCCESS)) {
-		status = _composite_polygon(dst, op, source,
-			&polygon, antialias,
-			CAIRO_FILL_RULE_WINDING,
-			extents);
+		status = _composite_polygon(dst, op, source, &polygon, antialias, CAIRO_FILL_RULE_WINDING, extents);
 	}
 	_cairo_polygon_fini(&polygon);
-
 	return status;
 }
 
@@ -4360,12 +4350,12 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 			    }
 
 			    n = new;
-			    d = (uint32_t*)data;
+			    d = (uint32_t *)data;
 			    do {
 				    *n++ = bswap_32(*d);
 				    d++;
 			    } while(--c);
-			    data = (uint8_t*)new;
+			    data = (uint8_t *)new;
 		    }
 		    break;
 
@@ -4451,10 +4441,10 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xcb_surface_t * dst,
 		}
 
 		switch(width) {
-			case 1: *(uint8_t*)(buf + len) = glyphs[i].index; break;
+			case 1: *(uint8_t *)(buf + len) = glyphs[i].index; break;
 			case 2: *(uint16_t*)(buf + len) = glyphs[i].index; break;
 			default:
-			case 4: *(uint32_t*)(buf + len) = glyphs[i].index; break;
+			case 4: *(uint32_t *)(buf + len) = glyphs[i].index; break;
 		}
 		len += width;
 		elt->len++;

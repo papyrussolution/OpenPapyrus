@@ -2635,6 +2635,7 @@ PPINISECT_GLOBALSECURE                 "globalsecure"
 PPINISECT_DRV_TOGGLE                   "Toggle"
 PPINISECT_DRV_READER                   "Reader"
 PPINISECT_SELFBUILD                    "selfbuild"
+PPINISECT_TSSTAKE                      "tsstake"
 
 PPINIPARAM_SYS                         "sys"
 PPINIPARAM_DAT                         "dat"
@@ -2909,6 +2910,12 @@ PPINIPARAM_SARTREDB_MAXLOCKS_RO        "sartredb_maxlocks_ro"
 PPINIPARAM_SARTREDB_MAXLOCKOBJS        "sartredb_maxlockobjs"
 PPINIPARAM_SARTREDB_MAXLOCKOBJS_RO     "sartredb_maxlockobjs_ro"
 PPINIPARAM_SARTREDB_LOGBUFSIZE         "sartredb_logbufsize"
+PPINIPARAM_TSSTAKE_INPUTFRAMESIZE      "input_frame_size"
+PPINIPARAM_TSSTAKE_MAXDUCKQUANT        "max_duck_quant"
+PPINIPARAM_TSSTAKE_INITTRENDERRLIMIT   "init_trend_err_limit"
+PPINIPARAM_TSSTAKE_BESTSUBSETDIMESION  "best_subset_dimension"
+PPINIPARAM_TSSTAKE_BESTSUBSETMAXPHONY  "best_subset_max_phony_iters"
+PPINIPARAM_TSSTAKE_BESTSUBSETOPTCHUNK  "best_subset_opt_chunk"
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -4304,6 +4311,7 @@ PPTXT_LOG_OBJSYNC_RCVOLD          "Объект, соответствующий 
 PPTXT_LOG_OBJSYNC_RCVRECUR        "Обнаружена рекурсивная ссылка на объект {%s}"
 PPTXT_LOG_OBJSYNC_PACKETISEMPTY   "Пакет передачи данных '%s' не содержит ни одного объекта"
 PPTXT_LOG_OBJSYNC_RCVUNIRECUR     "Цепочка объединения объекта {%s} зациклена"
+PPTXT_LOG_OBJSYNC_TRANSMFILE      "Имя файла передачи данных: '%s'"
 
 PPTXT_LOG_LOTPRICEROUNDTEST_BEG   "Проверка округления цен лотов (cost, price)"
 PPTXT_LOG_LOTPRICEROUNDTEST_END   "Завершение проверки округления цен лотов"

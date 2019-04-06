@@ -45,7 +45,7 @@
 //#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
 //#include "cairo-image-surface-inline.h"
-#include "cairo-paginated-private.h"
+//#include "cairo-paginated-private.h"
 //#include "cairo-pattern-private.h"
 //#include "cairo-pixman-private.h"
 //#include "cairo-recording-surface-private.h"
@@ -53,7 +53,7 @@
 //#include "cairo-scaled-font-private.h"
 //#include "cairo-surface-snapshot-inline.h"
 //#include "cairo-surface-snapshot-private.h"
-//#include "cairo-surface-subsurface-private.h"
+////#include "cairo-surface-subsurface-private.h"
 
 /* Limit on the width / height of an image surface in pixels.  This is
  * mainly determined by coordinates of things sent to pixman at the
@@ -142,7 +142,7 @@ void _cairo_image_surface_init(cairo_image_surface_t * surface, pixman_image_t *
 	surface->pixman_image = pixman_image;
 	surface->pixman_format = pixman_format;
 	surface->format = _cairo_format_from_pixman_format(pixman_format);
-	surface->data = (uint8_t*)pixman_image_get_data(pixman_image);
+	surface->data = (uint8_t *)pixman_image_get_data(pixman_image);
 	surface->owns_data = FALSE;
 	surface->transparency = CAIRO_IMAGE_UNKNOWN;
 	surface->color = CAIRO_IMAGE_UNKNOWN_COLOR;
@@ -275,7 +275,7 @@ cairo_surface_t * FASTCALL _cairo_image_surface_create_with_pixman_format(uchar 
 	if(!_cairo_image_surface_is_size_valid(width, height)) {
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 	}
-	pixman_image = pixman_image_create_bits(pixman_format, width, height, (uint32_t*)data, stride);
+	pixman_image = pixman_image_create_bits(pixman_format, width, height, (uint32_t *)data, stride);
 	if(unlikely(pixman_image == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface = _cairo_image_surface_create_for_pixman_image(pixman_image, pixman_format);
@@ -892,7 +892,7 @@ static cairo_image_transparency_t _cairo_image_compute_transparency(cairo_image_
 		}
 		else if(image->format == CAIRO_FORMAT_A8) {
 			for(y = 0; y < image->height; y++) {
-				uint8_t * alpha = /*(uint8_t*)*/(image->data + y * image->stride);
+				uint8_t * alpha = /*(uint8_t *)*/(image->data + y * image->stride);
 				for(x = 0; x < image->width; x++, alpha++) {
 					if(*alpha > 0 && *alpha < 255)
 						return CAIRO_IMAGE_HAS_ALPHA;

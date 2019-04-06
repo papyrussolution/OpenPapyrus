@@ -1761,7 +1761,7 @@ int SLAPI CurrencyCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI CurrencyCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPCurrency * p_data_rec = (PPCurrency *)pDataRec;
+	PPCurrency * p_data_rec = static_cast<PPCurrency *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_CURRENCY;
@@ -2124,7 +2124,7 @@ int SLAPI PPObjGlobalUserAcc::Read(PPObjPack * p, PPID id, void * stream, ObjTra
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPGlobalUserAccPacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPGlobalUserAccPacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPGlobalUserAccPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
@@ -2139,7 +2139,7 @@ int SLAPI PPObjGlobalUserAcc::Write(PPObjPack * p, PPID * pID, void * stream, Ob
 {
 	int    ok = 1, ta = 0;
 	if(p && p->Data) {
-		PPGlobalUserAccPacket * p_pack = (PPGlobalUserAccPacket *)p->Data;
+		PPGlobalUserAccPacket * p_pack = static_cast<PPGlobalUserAccPacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -2177,7 +2177,7 @@ int SLAPI PPObjGlobalUserAcc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, 
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGlobalUserAccPacket * p_pack = (PPGlobalUserAccPacket * )p->Data;
+		PPGlobalUserAccPacket * p_pack = static_cast<PPGlobalUserAccPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON, &p_pack->Rec.PersonID, ary, replace));
 		THROW(p_pack->TagL.ProcessObjRefs(ary, replace));
 	}
@@ -2311,7 +2311,7 @@ int SLAPI PPObjGlobalUserAcc::CheckPassword(const char * pName, const char * pPa
 	SString pwd;
 	THROW_INVARG(pName && pPassword);
 	if(SearchByName(pName, &gua_id, &gua_rec) > 0) {
-		pwd = 0;
+		pwd.Z();
 		Reference::Decrypt(Reference::crymRef2, gua_rec.Password, sstrlen(gua_rec.Password), pwd);
 		if(pwd.CmpNC(pPassword) == 0) {
 			ASSIGN_PTR(pUserAcc, gua_rec);
@@ -2376,7 +2376,7 @@ int SLAPI PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char
 			glb_acc.LocalUserID = localUserID;
 			glb_acc.PersonID = personID;
 			THROW(EditItem(Obj, 0, &glb_acc, 0));
-			ID = ((ReferenceTbl::Rec*)&glb_acc)->ObjID;
+			ID = reinterpret_cast<const ReferenceTbl::Rec *>(&glb_acc)->ObjID;
 			if(p_scs_obj) {
 				PPSCardSerPacket scs_pack; // @v9.8.9 PPSCardSeries2 scs_rec --> PPSCardSerPacket scs_pack
 				//@v9.8.9 if(p_scs_obj->Fetch(cfg.SCardSerID, &scs_rec) > 0 && scs_rec.GetType() == scstCredit && scs_rec.CodeTempl) {

@@ -3566,23 +3566,23 @@ static void xmlRelaxNGComputeInterleaves(xmlRelaxNGDefinePtr def, xmlRelaxNGPars
 		if(tmp && *tmp) {
 			while(*tmp) {
 				if((*tmp)->type == XML_RELAXNG_TEXT) {
-					res = xmlHashAddEntry2(partitions->triage, reinterpret_cast<const xmlChar *>("#text"), NULL, (void *)(long)(i + 1));
+					res = xmlHashAddEntry2(partitions->triage, reinterpret_cast<const xmlChar *>("#text"), NULL, reinterpret_cast<void *>(i + 1));
 					if(res)
 						is_determinist = -1;
 				}
 				else if(((*tmp)->type == XML_RELAXNG_ELEMENT) && (*tmp)->name) {
 					if(isempty((*tmp)->ns))
-						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, NULL, (void *)(long)(i + 1));
+						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, NULL, reinterpret_cast<void *>(i + 1));
 					else
-						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, (*tmp)->ns, (void *)(long)(i + 1));
+						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, (*tmp)->ns, reinterpret_cast<void *>(i + 1));
 					if(res)
 						is_determinist = -1;
 				}
 				else if((*tmp)->type == XML_RELAXNG_ELEMENT) {
 					if(isempty((*tmp)->ns))
-						res = xmlHashAddEntry2(partitions->triage, reinterpret_cast<const xmlChar *>("#any"), NULL, (void *)(long)(i + 1));
+						res = xmlHashAddEntry2(partitions->triage, reinterpret_cast<const xmlChar *>("#any"), NULL, reinterpret_cast<void *>(i + 1));
 					else
-						res = xmlHashAddEntry2(partitions->triage, reinterpret_cast<const xmlChar *>("#any"), (*tmp)->ns, (void *)(long)(i + 1));
+						res = xmlHashAddEntry2(partitions->triage, reinterpret_cast<const xmlChar *>("#any"), (*tmp)->ns, reinterpret_cast<void *>(i + 1));
 					if((*tmp)->nameClass)
 						is_determinist = 2;
 					if(res != 0)

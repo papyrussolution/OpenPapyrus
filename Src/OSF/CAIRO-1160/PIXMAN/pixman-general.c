@@ -116,7 +116,7 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	uint8_t stack_scanline_buffer[3 * SCANLINE_BUFFER_LENGTH];
-	uint8_t * scanline_buffer = (uint8_t*)stack_scanline_buffer;
+	uint8_t * scanline_buffer = (uint8_t *)stack_scanline_buffer;
 	uint8_t * src_buffer, * mask_buffer, * dest_buffer;
 	pixman_iter_t src_iter, mask_iter, dest_iter;
 	pixman_combine_32_func_t compose;
@@ -135,7 +135,7 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		width_flag = ITER_WIDE;
 		Bpp = 16;
 	}
-#define ALIGN(addr) ((uint8_t*)((((uintptr_t)(addr)) + 15) & (~15)))
+#define ALIGN(addr) ((uint8_t *)((((uintptr_t)(addr)) + 15) & (~15)))
 	if(width <= 0 || _pixman_multiply_overflows_int(width, Bpp * 3))
 		return;
 	if(width * Bpp * 3 > sizeof(stack_scanline_buffer) - 15 * 3) {
@@ -186,7 +186,7 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		mask_iter.fini(&mask_iter);
 	if(dest_iter.fini)
 		dest_iter.fini(&dest_iter);
-	if(scanline_buffer != (uint8_t*)stack_scanline_buffer)
+	if(scanline_buffer != (uint8_t *)stack_scanline_buffer)
 		SAlloc::F(scanline_buffer);
 }
 

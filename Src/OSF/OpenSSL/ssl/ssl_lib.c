@@ -111,7 +111,7 @@ static int dane_ctx_enable(struct dane_ctx_st * dctx)
 	if(dctx->mdevp != NULL)
 		return 1;
 	mdevp = (const EVP_MD**)OPENSSL_zalloc(n * sizeof(*mdevp));
-	mdord = (uint8_t*)OPENSSL_zalloc(n * sizeof(*mdord));
+	mdord = (uint8_t *)OPENSSL_zalloc(n * sizeof(*mdord));
 	if(mdord == NULL || mdevp == NULL) {
 		OPENSSL_free(mdord);
 		OPENSSL_free((void *)mdevp); // @badcast
@@ -214,7 +214,7 @@ static int dane_mtype_set(struct dane_ctx_st * dctx, const EVP_MD * md, uint8_t 
 			return -1;
 		}
 		dctx->mdevp = mdevp;
-		mdord = (uint8_t*)OPENSSL_realloc(dctx->mdord, n * sizeof(*mdord));
+		mdord = (uint8_t *)OPENSSL_realloc(dctx->mdord, n * sizeof(*mdord));
 		if(mdord == NULL) {
 			SSLerr(SSL_F_DANE_MTYPE_SET, ERR_R_MALLOC_FAILURE);
 			return -1;

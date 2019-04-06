@@ -131,7 +131,7 @@ void * _cairo_freepool_alloc_from_new_pool(cairo_freepool_t * freepool)
 	pool->next = freepool->pools;
 	freepool->pools = pool;
 	pool->rem = poolsize - freepool->nodesize;
-	pool->data = (uint8_t*)(pool + 1) + freepool->nodesize;
+	pool->data = (uint8_t *)(pool + 1) + freepool->nodesize;
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(pool->data, pool->rem));
 	return pool + 1;
 }

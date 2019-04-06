@@ -42,58 +42,51 @@
 //#include "cairo-types-private.h"
 
 typedef enum {
-    TAG_LINK_INVALID = 0,
-    TAG_LINK_EMPTY,
-    TAG_LINK_DEST,
-    TAG_LINK_URI,
-    TAG_LINK_FILE,
+	TAG_LINK_INVALID = 0,
+	TAG_LINK_EMPTY,
+	TAG_LINK_DEST,
+	TAG_LINK_URI,
+	TAG_LINK_FILE,
 } cairo_tag_link_type_t;
 
 typedef struct _cairo_link_attrs {
-    cairo_tag_link_type_t link_type;
-    cairo_array_t rects;
-    char *dest;
-    char *uri;
-    char *file;
-    int page;
-    cairo_bool_t has_pos;
-    cairo_point_double_t pos;
+	cairo_tag_link_type_t link_type;
+	cairo_array_t rects;
+	char * dest;
+	char * uri;
+	char * file;
+	int page;
+	cairo_bool_t has_pos;
+	cairo_point_double_t pos;
 } cairo_link_attrs_t;
 
 typedef struct _cairo_dest_attrs {
-    char *name;
-    double x;
-    double y;
-    cairo_bool_t x_valid;
-    cairo_bool_t y_valid;
-    cairo_bool_t internal;
+	char * name;
+	double x;
+	double y;
+	cairo_bool_t x_valid;
+	cairo_bool_t y_valid;
+	cairo_bool_t internal;
 } cairo_dest_attrs_t;
 
 typedef struct _cairo_ccitt_params {
-    int columns;
-    int rows;
-    int k;
-    cairo_bool_t end_of_line;
-    cairo_bool_t encoded_byte_align;
-    cairo_bool_t end_of_block;
-    cairo_bool_t black_is_1;
-    int damaged_rows_before_error;
+	int columns;
+	int rows;
+	int k;
+	cairo_bool_t end_of_line;
+	cairo_bool_t encoded_byte_align;
+	cairo_bool_t end_of_block;
+	cairo_bool_t black_is_1;
+	int damaged_rows_before_error;
 } cairo_ccitt_params_t;
 
 typedef struct _cairo_eps_params {
-    cairo_box_double_t bbox;
+	cairo_box_double_t bbox;
 } cairo_eps_params_t;
 
-cairo_private cairo_int_status_t
-_cairo_tag_parse_link_attributes (const char *attributes, cairo_link_attrs_t *link_attrs);
-
-cairo_private cairo_int_status_t
-_cairo_tag_parse_dest_attributes (const char *attributes, cairo_dest_attrs_t *dest_attrs);
-
-cairo_private cairo_int_status_t
-_cairo_tag_parse_ccitt_params (const char *attributes, cairo_ccitt_params_t *dest_attrs);
-
-cairo_private cairo_int_status_t
-_cairo_tag_parse_eps_params (const char *attributes, cairo_eps_params_t *dest_attrs);
+cairo_private cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cairo_link_attrs_t * link_attrs);
+cairo_private cairo_int_status_t _cairo_tag_parse_dest_attributes(const char * attributes, cairo_dest_attrs_t * dest_attrs);
+cairo_private cairo_int_status_t _cairo_tag_parse_ccitt_params(const char * attributes, cairo_ccitt_params_t * dest_attrs);
+cairo_private cairo_int_status_t _cairo_tag_parse_eps_params(const char * attributes, cairo_eps_params_t * dest_attrs);
 
 #endif /* CAIRO_TAG_ATTRIBUTES_PRIVATE_H */

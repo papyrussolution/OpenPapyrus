@@ -1374,7 +1374,7 @@ static int zipx_xz_init(struct archive_read * a, struct zip * zip)
 	if(zip->uncompressed_buffer)
 		SAlloc::F(zip->uncompressed_buffer);
 	zip->uncompressed_buffer_size = 256 * 1024;
-	zip->uncompressed_buffer = (uint8_t*)SAlloc::M(zip->uncompressed_buffer_size);
+	zip->uncompressed_buffer = (uint8_t *)SAlloc::M(zip->uncompressed_buffer_size);
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "No memory for xz decompression");
 		return ARCHIVE_FATAL;
@@ -1472,7 +1472,7 @@ static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 	if(!zip->uncompressed_buffer) {
 		zip->uncompressed_buffer_size = 256 * 1024;
 		zip->uncompressed_buffer =
-		    (uint8_t*)SAlloc::M(zip->uncompressed_buffer_size);
+		    (uint8_t *)SAlloc::M(zip->uncompressed_buffer_size);
 
 		if(zip->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
@@ -1761,7 +1761,7 @@ static int zipx_ppmd8_init(struct archive_read * a, struct zip * zip)
 
 	zip->uncompressed_buffer_size = 256 * 1024;
 	zip->uncompressed_buffer =
-	    (uint8_t*)SAlloc::M(zip->uncompressed_buffer_size);
+	    (uint8_t *)SAlloc::M(zip->uncompressed_buffer_size);
 
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
@@ -1870,7 +1870,7 @@ static int zipx_bzip2_init(struct archive_read * a, struct zip * zip)
 	if(zip->uncompressed_buffer)
 		SAlloc::F(zip->uncompressed_buffer);
 	zip->uncompressed_buffer_size = 256 * 1024;
-	zip->uncompressed_buffer = (uint8_t*)SAlloc::M(zip->uncompressed_buffer_size);
+	zip->uncompressed_buffer = (uint8_t *)SAlloc::M(zip->uncompressed_buffer_size);
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "No memory for bzip2 decompression");
 		return ARCHIVE_FATAL;
@@ -1903,11 +1903,11 @@ static int zip_read_data_zipx_bzip2(struct archive_read * a, const void ** buff,
 	}
 	in_bytes = static_cast<long>(zipmin(zip->entry_bytes_remaining, bytes_avail));
 	/* Setup buffer boundaries. */
-	zip->bzstream.next_in = (char*)(uintptr_t)compressed_buff;
+	zip->bzstream.next_in = (char *)(uintptr_t)compressed_buff;
 	zip->bzstream.avail_in = in_bytes;
 	zip->bzstream.total_in_hi32 = 0;
 	zip->bzstream.total_in_lo32 = 0;
-	zip->bzstream.next_out = (char*)zip->uncompressed_buffer;
+	zip->bzstream.next_out = (char *)zip->uncompressed_buffer;
 	zip->bzstream.avail_out = zip->uncompressed_buffer_size;
 	zip->bzstream.total_out_hi32 = 0;
 	zip->bzstream.total_out_lo32 = 0;

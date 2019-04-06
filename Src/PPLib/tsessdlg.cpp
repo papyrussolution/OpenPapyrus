@@ -9,19 +9,10 @@
 static const int _TSesStatusTab[] = { TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED };
 
 PrcTechCtrlGroup::PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGoods,
-	uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods) : CtrlGroup()
+	uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods) : CtrlGroup(), CtlselPrc(ctlSelPrc), CtlselTech(ctlSelTech), 
+	CtlStGoods(ctlStGoods), CtlselAr(ctlSelAr), CtlselAr2(ctlSelAr2), CmdSelTechByGoods(cmdSelTechByGoods), CmdCreateGoods(cmdCreateGoods),
+	SelGoodsID(0), AutoGoodsGrpID(0), IdleStatus(0), Flags(0)
 {
-	CtlselPrc  = ctlSelPrc;
-	CtlselTech = ctlSelTech;
-	CtlStGoods = ctlStGoods;
-	CtlselAr   = ctlSelAr;
-	CtlselAr2  = ctlSelAr2;
-	CmdSelTechByGoods = cmdSelTechByGoods;
-	CmdCreateGoods = cmdCreateGoods;
-	SelGoodsID = 0;
-	AutoGoodsGrpID = 0;
-	IdleStatus = 0;
-	Flags = 0;
 	Flags |= fEnableSelUpLevel;
 }
 
@@ -194,7 +185,7 @@ int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 	int    ok = 1;
 	PPObjProcessor prc_obj;
 	if(pData) {
-		Data = *(Rec *)pData;
+		Data = *static_cast<Rec *>(pData);
 		IdleStatus = Data.IdleStatus;
 	}
 	{
@@ -232,7 +223,7 @@ int PrcTechCtrlGroup::getData(TDialog * pDlg, void * pData)
 	pDlg->getCtrlData(CtlselAr, &Data.ArID);
 	pDlg->getCtrlData(CtlselAr2, &Data.Ar2ID);
 	if(pData)
-		*((Rec *)pData) = Data;
+		*static_cast<Rec *>(pData) = Data;
 	return 1;
 }
 //

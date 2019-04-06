@@ -48,8 +48,8 @@
 //#include "cairo-error-private.h"
 //#include "cairo-image-surface-private.h"
 #include "cairo-spans-compositor-private.h"
-#include "cairo-surface-backend-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-offset-private.h"
 
 static cairo_int_status_t acquire(void * abstract_dst)
 {

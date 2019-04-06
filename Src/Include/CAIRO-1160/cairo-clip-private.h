@@ -97,7 +97,7 @@ cairo_private cairo_bool_t FASTCALL _cairo_clip_contains_box(const cairo_clip_t 
 cairo_private cairo_bool_t _cairo_clip_contains_extents(const cairo_clip_t * clip, const cairo_composite_rectangles_t * extents);
 cairo_private cairo_rectangle_list_t* _cairo_clip_copy_rectangle_list(const cairo_clip_t * clip, cairo_gstate_t * gstate);
 cairo_private cairo_rectangle_list_t * _cairo_rectangle_list_create_in_error(cairo_status_t status);
-cairo_private cairo_bool_t _cairo_clip_is_polygon(const cairo_clip_t * clip);
+cairo_private cairo_bool_t FASTCALL _cairo_clip_is_polygon(const cairo_clip_t * clip);
 cairo_private cairo_int_status_t _cairo_clip_get_polygon(const cairo_clip_t * clip, cairo_polygon_t * polygon, cairo_fill_rule_t * fill_rule, cairo_antialias_t * antialias);
 
 #endif /* CAIRO_CLIP_PRIVATE_H */

@@ -185,8 +185,8 @@ static char * FASTCALL inet_ntop6(const uchar * src, char * dst, size_t size)
 char * FASTCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t bufSize)
 {
 	switch(af) {
-		case AF_INET: return inet_ntop4((const uchar*)pSrc, pBuf, bufSize);
-		case AF_INET6: return inet_ntop6((const uchar*)pSrc, pBuf, bufSize);
+		case AF_INET: return inet_ntop4((const uchar *)pSrc, pBuf, bufSize);
+		case AF_INET6: return inet_ntop6((const uchar *)pSrc, pBuf, bufSize);
 		default: errno = EAFNOSUPPORT; return NULL;
 	}
 }

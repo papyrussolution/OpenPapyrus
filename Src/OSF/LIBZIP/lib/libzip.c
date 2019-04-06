@@ -5460,7 +5460,7 @@ static zip_cdir_t * _zip_find_central_dir(zip_t * za, uint64 len)
 	}
 	zip_error_set(&error, SLERR_ZIP_NOZIP, 0);
 	match = _zip_buffer_get(buffer, 0);
-	while((match = _zip_memmem(match, (size_t)(_zip_buffer_left(buffer)-(EOCDLEN-4)), (const uchar*)EOCD_MAGIC, 4)) != NULL) {
+	while((match = _zip_memmem(match, (size_t)(_zip_buffer_left(buffer)-(EOCDLEN-4)), (const uchar *)EOCD_MAGIC, 4)) != NULL) {
 		_zip_buffer_set_offset(buffer, (uint64)(match - _zip_buffer_data(buffer)));
 		if((cdirnew = _zip_read_cdir(za, buffer, (uint64)buf_offset, &error)) != NULL) {
 			if(cdir) {
@@ -5501,7 +5501,7 @@ static uchar * _zip_memmem(const uchar * big, size_t biglen, const uchar * littl
 	if((biglen < littlelen) || (littlelen == 0))
 		return NULL;
 	p = big-1;
-	while((p = (const uchar*)memchr(p+1, little[0], (size_t)(big-(p+1))+(size_t)(biglen-littlelen)+1)) != NULL) {
+	while((p = (const uchar *)memchr(p+1, little[0], (size_t)(big-(p+1))+(size_t)(biglen-littlelen)+1)) != NULL) {
 		if(memcmp(p+1, little+1, littlelen-1)==0)
 			return (uchar *)p;
 	}

@@ -169,8 +169,8 @@ static cairo_status_t _cairo_gl_gradient_render(const cairo_gl_context_t * ctx,
 	 * the neareset stop to the zeroth pixel centre in order to correctly
 	 * populate the border color. For completeness, do both edges.
 	 */
-	((uint32_t*)bytes)[0] = color_stop_to_pixel(&stops[0]);
-	((uint32_t*)bytes)[width-1] = color_stop_to_pixel(&stops[n_stops-1]);
+	((uint32_t *)bytes)[0] = color_stop_to_pixel(&stops[0]);
+	((uint32_t *)bytes)[width-1] = color_stop_to_pixel(&stops[n_stops-1]);
 
 	return CAIRO_STATUS_SUCCESS;
 }

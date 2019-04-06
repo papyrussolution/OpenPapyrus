@@ -651,14 +651,14 @@ uint32_t FASTCALL _pixman_image_get_solid(pixman_implementation_t * imp, pixman_
 		else if(image->bits.format == PIXMAN_x8r8g8b8)
 			result = image->bits.bits[0] | 0xff000000;
 		else if(image->bits.format == PIXMAN_a8)
-			result = (*(uint8_t*)image->bits.bits) << 24;
+			result = (*(uint8_t *)image->bits.bits) << 24;
 		else
 			goto otherwise;
 	}
 	else {
 		pixman_iter_t iter;
 otherwise:
-		_pixman_implementation_iter_init(imp, &iter, image, 0, 0, 1, 1, (uint8_t*)&result, (iter_flags_t)(ITER_NARROW | ITER_SRC), image->common.flags);
+		_pixman_implementation_iter_init(imp, &iter, image, 0, 0, 1, 1, (uint8_t *)&result, (iter_flags_t)(ITER_NARROW | ITER_SRC), image->common.flags);
 		result = *iter.get_scanline(&iter, NULL);
 		if(iter.fini)
 			iter.fini(&iter);

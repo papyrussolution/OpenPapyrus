@@ -72,7 +72,7 @@ static void blake2s_init0(blake2s_state * S)
 /* init2 xors IV with input parameter block */
 int blake2s_init_param(blake2s_state * S, const blake2s_param * P)
 {
-	const uchar * p = (const uchar*)( P );
+	const uchar * p = (const uchar *)( P );
 	size_t i;
 	blake2s_init0(S);
 	/* IV XOR ParamBlock */
@@ -205,7 +205,7 @@ static void blake2s_compress(blake2s_state * S, const uint8_t in[BLAKE2S_BLOCKBY
 
 int blake2s_update(blake2s_state * S, const void * pin, size_t inlen)
 {
-	const uchar * in = (const uchar*)pin;
+	const uchar * in = (const uchar *)pin;
 	if(inlen > 0) {
 		size_t left = S->buflen;
 		size_t fill = BLAKE2S_BLOCKBYTES - left;

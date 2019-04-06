@@ -2061,7 +2061,7 @@ int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNo
 #endif /* LIBXML_HTML_ENABLED */
 		    break;
 		default: {
-		    FILE * f = fopen((char *)filename, "w");
+		    FILE * f = fopen(filename, "w");
 		    if(f == NULL) {
 			    xmlGenericError(0, "Failed to write to %s\n", filename);
 			    return -1;
@@ -2150,7 +2150,7 @@ int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * P_Node ATTRIBUT
 	if(isempty(dtd))
 		res = xmlValidateDocument(&vctxt, ctxt->doc);
 	else {
-		xmlDtd * subset = xmlParseDTD(NULL, (xmlChar *)dtd);
+		xmlDtd * subset = xmlParseDTD(NULL, reinterpret_cast<const xmlChar *>(dtd));
 		if(subset) {
 			res = xmlValidateDtd(&vctxt, ctxt->doc, subset);
 			xmlFreeDtd(subset);
@@ -2176,73 +2176,66 @@ int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * P_Node ATTRIBUT
  */
 int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * tree, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
-	xmlNode * P_Node;
-	int indent = 0, i;
-	if(!ctxt)
+	int indent = 0;
+	if(!ctxt || !tree)
 		return -1;
-	if(tree == NULL)
-		return -1;
-	P_Node = tree;
-	while(P_Node) {
-		if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
+	for(xmlNode * p_node = tree; p_node;) {
+		if(oneof2(p_node->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
 			fprintf(ctxt->output, "/\n");
 		}
-		else if(P_Node->type == XML_ELEMENT_NODE) {
-			for(i = 0; i < indent; i++)
+		else if(p_node->type == XML_ELEMENT_NODE) {
+			for(int i = 0; i < indent; i++)
 				fprintf(ctxt->output, "  ");
-			if((P_Node->ns) && (P_Node->ns->prefix))
-				fprintf(ctxt->output, "%s:", P_Node->ns->prefix);
-			fprintf(ctxt->output, "%s\n", P_Node->name);
+			if(p_node->ns && p_node->ns->prefix)
+				fprintf(ctxt->output, "%s:", p_node->ns->prefix);
+			fprintf(ctxt->output, "%s\n", p_node->name);
 		}
 		else {
 		}
-
-		/*
-		 * Browse the full subtree, deep first
-		 */
-
-		if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
-			P_Node = ((xmlDoc *)P_Node)->children;
+		//
+		// Browse the full subtree, deep first
+		//
+		if(oneof2(p_node->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
+			p_node = reinterpret_cast<xmlDoc *>(p_node)->children;
 		}
-		else if(P_Node->children && (P_Node->type != XML_ENTITY_REF_NODE)) {
-			/* deep first */
-			P_Node = P_Node->children;
+		else if(p_node->children && (p_node->type != XML_ENTITY_REF_NODE)) {
+			// deep first 
+			p_node = p_node->children;
 			indent++;
 		}
-		else if((P_Node != tree) && P_Node->next) {
-			/* then siblings */
-			P_Node = P_Node->next;
+		else if(p_node != tree && p_node->next) {
+			// then siblings 
+			p_node = p_node->next;
 		}
-		else if(P_Node != tree) {
-			/* go up to parents->next if needed */
-			while(P_Node != tree) {
-				if(P_Node->parent) {
-					P_Node = P_Node->parent;
+		else if(p_node != tree) {
+			// go up to parents->next if needed 
+			while(p_node != tree) {
+				if(p_node->parent) {
+					p_node = p_node->parent;
 					indent--;
 				}
-				if((P_Node != tree) && P_Node->next) {
-					P_Node = P_Node->next;
+				if(p_node != tree && p_node->next) {
+					p_node = p_node->next;
 					break;
 				}
-				if(P_Node->parent == NULL) {
-					P_Node = NULL;
+				if(p_node->parent == NULL) {
+					p_node = NULL;
 					break;
 				}
-				if(P_Node == tree) {
-					P_Node = NULL;
+				if(p_node == tree) {
+					p_node = NULL;
 					break;
 				}
 			}
-			/* exit condition */
-			if(P_Node == tree)
-				P_Node = NULL;
+			// exit condition 
+			if(p_node == tree)
+				p_node = NULL;
 		}
 		else
-			P_Node = NULL;
+			p_node = NULL;
 	}
 	return 0;
 }
-
 /**
  * xmlShellPwd:
  * @ctxt:  the shell context

@@ -2460,13 +2460,12 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					break;
 				case PrnDlgAns::aPrepareDataAndExecCR:
 					{
-						//char   cr_path[MAXPATH];
 						SString cr_path_;
 						int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
 						if(is_there_cr) {
 							(temp_buf = cr_path_).Space().Cat(fn);
 							STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
-							strnzcpy(cmd_line, temp_buf, cmd_line.GetSize() / sizeof(TCHAR));
+							strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
 							STARTUPINFO si;
 							PROCESS_INFORMATION pi;
 							MEMSZERO(si);
@@ -2513,7 +2512,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 int FASTCALL PPAlddPrint(int rptId, PPFilt * pf, const PPReportEnv * pEnv)
 	{ return __PPAlddPrint(rptId, pf, 0, pEnv); }
 int FASTCALL PPAlddPrint(int rptId, PView * pview, const PPReportEnv * pEnv)
-	{ return __PPAlddPrint(rptId, (PPFilt*)pview, 1, pEnv); }
+	{ return __PPAlddPrint(rptId, reinterpret_cast<PPFilt *>(pview), 1, pEnv); }
 
 static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, long epFlags, SCodepageIdent cp, SString & rBuf)
 {

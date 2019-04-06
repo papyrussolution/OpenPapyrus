@@ -117,8 +117,8 @@ void ngx_md5_final(u_char result[16], ngx_md5_t * ctx)
 
 #if (NGX_HAVE_LITTLE_ENDIAN && NGX_HAVE_NONALIGNED)
 
-#define SET(n)      (*(uint32_t*) &p[n * 4])
-#define GET(n)      (*(uint32_t*) &p[n * 4])
+#define SET(n)      (*(uint32_t *) &p[n * 4])
+#define GET(n)      (*(uint32_t *) &p[n * 4])
 
 #else
 

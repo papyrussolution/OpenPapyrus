@@ -37,9 +37,9 @@
 #pragma hdrstop
 #if CAIRO_HAS_FONT_SUBSET
 
-#include "cairo-type3-glyph-surface-private.h"
+//#include "cairo-type3-glyph-surface-private.h"
 //#include "cairo-output-stream-private.h"
-#include "cairo-recording-surface-private.h"
+//#include "cairo-recording-surface-private.h"
 //#include "cairo-analysis-surface-private.h"
 //#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"

@@ -2922,7 +2922,7 @@ static struct file_info * heap_get_entry(struct heap_queue * heap)              
 
 static uint toi(const void * p, int n)
 {
-	const uchar * v = (const uchar*)p;
+	const uchar * v = (const uchar *)p;
 	if(n > 1)
 		return v[0] + 256 * toi(v + 1, n - 1);
 	if(n == 1)

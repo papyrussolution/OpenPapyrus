@@ -184,7 +184,7 @@
 # define _WIN32_WINNT 0x0500
 #endif
 
-# include <windows.h>
+//#include <windows.h>
 
   typedef CRITICAL_SECTION cairo_mutex_impl_t;
 

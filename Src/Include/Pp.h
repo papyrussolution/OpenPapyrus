@@ -2839,11 +2839,10 @@ public:
 	int    SLAPI Get(PPID securType, PPID securID);
 	int    SLAPI Put(PPID securType, PPID securID);
 	int    SLAPI Remove(PPID securType, PPID securID);
-	// @v9.4.8 int    SLAPI GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufSize) const;
 	int    SLAPI GetPath(PPID pathID, short * pFlags, SString & rBuf) const;
 	int    SLAPI SetPath(PPID pathID, const char * buf, short flags = 0, int replace = 1);
 	int    SLAPI Get(PPID obj, PPID id, PPID pathID, SString & rBuf);
-	// @v9.4.8 int    SLAPI Get(PPID obj, PPID id, PPID p, char * pBuf, size_t bufLen); // @obsolete
+	void   SLAPI DumpToStr(SString & rBuf) const;
 private:
 	size_t SLAPI Size() const;
 	int    SLAPI Resize(size_t);
@@ -14322,7 +14321,7 @@ public:
 	//
 	// Descr: Инициализирует экземпляр класса в соответствии с фильром pFilt.
 	//
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual const IterCounter & SLAPI GetCounter() const;
 	//
 	// Descr: Функция вызывается из функции PPViewBrowser::execute до запуска броузера если
@@ -14350,6 +14349,12 @@ public:
 	//
 	virtual int   SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	const  PPBaseFilt * SLAPI GetBaseFilt() const;
+	//
+	// Descr: Высокоуровневая helper-функция, реализующая инициализацию экземпляра PPView
+	//   фильтром pBaseFilt. Практически аналогична вызову ::Init_(pBaseFilt), но дополнительно
+	//   выводит в user-profile-log описание фильтра.
+	//
+	int    SLAPI InitLocal(const PPBaseFilt * pBaseFilt);
 	int    SLAPI GetOuterChangesStatus() const;
 	//
 	// Descr: Отправляет данные на экспорт в формате XML. Функция реализует тот же самый
@@ -16091,6 +16096,16 @@ public:
 
 class PrcssrTsStrategyAnalyze {
 public:
+	struct ModelParam {
+		SLAPI  ModelParam();
+		ModelParam & SLAPI Z();
+		LongArray InputFrameSizeList;
+		LongArray MaxDuckQuantList;
+		double InitTrendErrLimit; 
+		uint   BestSubsetDimention;
+		uint   BestSubsetMaxPhonyIters;
+		uint   BestSubsetOptChunk; // 3 || 7
+	};
 	SLAPI  PrcssrTsStrategyAnalyze();
 	SLAPI ~PrcssrTsStrategyAnalyze();
 	int    SLAPI InitParam(PPBaseFilt * pBaseFilt);
@@ -16098,6 +16113,7 @@ public:
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
 private:
+	int    SLAPI ReadModelParam(ModelParam & rMp);
 	PrcssrTsStrategyAnalyzeFilt P;
 };
 //
@@ -17197,7 +17213,7 @@ class PPViewBizScore : public PPView {
 public:
 	SLAPI  PPViewBizScore();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BizScoreViewItem *);
 private:
@@ -17274,7 +17290,7 @@ public:
 	SLAPI ~PPViewBizScoreVal();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BizScoreValViewItem *);
 	int    SLAPI CheckForFilt(const BizScoreTbl::Rec * pRec) const;
@@ -17450,7 +17466,7 @@ public:
 	SLAPI  PPViewGlobalUserAcc();
 	SLAPI ~PPViewGlobalUserAcc();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GlobalUserAccViewItem *);
 private:
@@ -20148,7 +20164,7 @@ class PPViewPhnSvcMonitor : public PPView {
 public:
 	SLAPI  PPViewPhnSvcMonitor();
 	SLAPI ~PPViewPhnSvcMonitor();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	//int    SLAPI InitIteration();
@@ -24129,7 +24145,7 @@ public:
 	};
 	SLAPI  PPViewStaffList();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(StaffListViewItem *);
 	int    FASTCALL CheckForFilt(const PPStaffEntry & rItem) const;
@@ -24189,7 +24205,7 @@ public:
 	SLAPI ~PPViewStaffPost();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(StaffPostViewItem *);
 private:
@@ -24631,7 +24647,7 @@ public:
 	SLAPI  PPViewStaffCal();
 	SLAPI ~PPViewStaffCal();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(StaffCalViewItem *);
 	int    SLAPI GetTimeGridItemText(PPID taskID, SString & rBuf);
@@ -24725,7 +24741,7 @@ public:
 	SLAPI  PPViewSalary();
 	virtual SLAPI ~PPViewSalary();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(SalaryViewItem *);
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
@@ -25019,10 +25035,9 @@ public:
 	SLAPI  PPViewPersonEvent();
 	SLAPI ~PPViewPersonEvent();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PersonEventViewItem *);
-	//
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -25243,7 +25258,7 @@ public:
 	SLAPI ~PPViewPerson();
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt *);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int   SLAPI ViewTotal();
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PersonViewItem *);
@@ -25604,7 +25619,7 @@ public:
 	SLAPI ~PPViewSysJournal();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(SysJournalViewItem *);
@@ -25683,7 +25698,7 @@ public:
 	SLAPI ~PPViewGtaJournal();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	//virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GtaJournalViewItem *);
@@ -25744,7 +25759,7 @@ public:
 	SLAPI  PPViewLogsMonitor();
 	SLAPI ~PPViewLogsMonitor();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *pFilt);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(LogsMonitorViewItem *);
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser *pBrw);
@@ -25798,7 +25813,7 @@ public:
 	SLAPI ~PPViewGeoTracking();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GeoTrackingViewItem *);
 	int    FASTCALL CheckRecForFilt(const GeoTrackTbl::Rec * pRec);
@@ -28264,7 +28279,7 @@ public:
 	};
 	SLAPI  PPViewGoods();
 	SLAPI ~PPViewGoods();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual const IterCounter & SLAPI GetCounter() const;
@@ -28422,7 +28437,7 @@ public:
 	SLAPI ~PPViewGoodsStruc();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  SLAPI ViewTotal();
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GoodsStrucViewItem *);
@@ -28504,7 +28519,7 @@ class PPViewGoodsToObjAssoc : public PPView {
 public:
 	SLAPI  PPViewGoodsToObjAssoc();
 	SLAPI ~PPViewGoodsToObjAssoc();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt * pFilt);
 	int    SLAPI InitIteration();
@@ -29081,7 +29096,7 @@ public:
 	SLAPI  PPViewQuot();
 	SLAPI ~PPViewQuot();
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  SLAPI GetTabTitle(long tabID, SString & rBuf);
 
 	const  StrAssocArray & SLAPI GetQuotKindList() const;
@@ -29543,7 +29558,7 @@ class PPViewQCert : public PPView {
 public:
 	SLAPI  PPViewQCert();
 	SLAPI ~PPViewQCert();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(QCertViewItem *);
@@ -31713,7 +31728,7 @@ public:
 	SLAPI ~PPViewLocTransf();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(LocTransfViewItem *);
 private:
@@ -32872,7 +32887,7 @@ public:
 	SLAPI  PPViewDvcLoadingStat();
 	SLAPI ~PPViewDvcLoadingStat();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(DvcLoadingStatViewItem *);
 private:
@@ -33322,7 +33337,7 @@ public:
 	SLAPI  PPViewProcessor();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ProcessorViewItem *);
 	int    SLAPI Transmit(PPID /*id*/);
@@ -33476,7 +33491,7 @@ public:
 	SLAPI  PPViewTech();
 	const  TechFilt * SLAPI GetFilt() const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(TechViewItem *);
 	//int    SLAPI ChangeFilt(int refreshOnly, BrowserWindow * pW);
@@ -34288,7 +34303,7 @@ public:
 	//
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(TSessionViewItem *);
 	int    SLAPI GetUhttStoreExtension(const TSessionTbl::Rec & rItem, PPViewTSession::UhttStoreExt & rExt);
@@ -34442,7 +34457,7 @@ public:
 	SLAPI  PPViewTSessAnlz();
 	SLAPI ~PPViewTSessAnlz();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(TSessAnlzViewItem *);
 	int    SLAPI GetItem(PPID __id, TSessAnlzViewItem *);
@@ -34560,7 +34575,7 @@ public:
 	SLAPI ~PPViewPrcBusy();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PrcBusyViewItem *);
 	int    SLAPI GetItem(PPID id, PrcBusyViewItem * pItem);
@@ -35006,7 +35021,6 @@ public:
 
 	SLAPI  PPObjectTransmit(TransmitMode, int syncCmp, int recoverTransmission);
 	SLAPI ~PPObjectTransmit();
-
 	int    SLAPI SetDestDbDivID(PPID);
 	int    SLAPI CreateTransmitPacket(long extra = 0);
 	int    SLAPI PostObject(PPID objType, PPID id, int otup /* PPOTUP_XXX */, int syncCmp);
@@ -35059,7 +35073,6 @@ private:
 	static int FASTCALL WriteConfig(const PPDBXchgConfig * pCfg, int use_ta);
 	static int FASTCALL LockReceiving(int unlock); // @<<PPObjectTransmit::ReceivePackets
 	static int FASTCALL CheckInHeader(const PPObjectTransmit::Header * pHdr, int checkVer);
-
 	PPObject * FASTCALL _GetObjectPtr(PPID objType);
 	int    SLAPI OpenInPacket(const char * pFileName, PPObjectTransmit::Header * = 0);
 	int    SLAPI CloseInPacket();
@@ -35137,7 +35150,6 @@ private:
 	ObjSyncQueueCore * P_Queue;
 	FILE * P_OutStream;
 	FILE * P_InStream;
-
 	PPObjDBDiv DObj;
 	TSCollection <DBDivPack> SrcDivPool;
 };
@@ -35758,9 +35770,9 @@ public:
 
 	SLAPI  PPViewBill();
 	SLAPI ~PPViewBill();
-	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
-	virtual int   SLAPI ViewTotal();
+	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
+	virtual int SLAPI ViewTotal();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	int    SLAPI EditFilt(BillFilt *, long) const;
 	int    SLAPI Browse(int modeless);
@@ -35916,7 +35928,7 @@ public:
 	SLAPI ~PPViewLinkedBill();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(LinkedBillViewItem * pItem);
 private:
@@ -35990,7 +36002,7 @@ public:
 	// LhBillID и RhBillID.
 	//
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GoodsBillCmpViewItem *);
 private:
@@ -36021,7 +36033,7 @@ public:
 	SLAPI  PPViewInventory();
 	SLAPI ~PPViewInventory();
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt * pFilt);
-	virtual int  SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI Print(const void *);
 	int    SLAPI SetOuterPack(PPBillPacket * pPack);
@@ -36159,7 +36171,7 @@ public:
 	SLAPI ~PPViewAccturn();
 
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 
 	int    SLAPI InitIteration();
@@ -36224,7 +36236,7 @@ public:
 	};
 	SLAPI  PPViewLotOp();
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(LotOpViewItem *);
 	int    SLAPI GetLotRec(ReceiptTbl::Rec *);
@@ -36398,7 +36410,7 @@ public:
 	//   Если extraParam == 1, то в фильтре устанавливается флаг LotFilt::fOrders.
 	//
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	int    SLAPI InitIteration(IterOrder = OrdByDefault);
 	int    FASTCALL NextIteration(LotViewItem *);
@@ -36493,7 +36505,7 @@ class PPViewLotExtCode : public PPView {
 public:
 	SLAPI  PPViewLotExtCode();
 	SLAPI ~PPViewLotExtCode();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt * pFilt);
 	int    SLAPI InitIteration();
@@ -36574,7 +36586,7 @@ public:
 	SLAPI ~PPViewAsset();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(IterOrder = OrdByDefault);
 	int    FASTCALL NextIteration(AssetViewItem *);
 	int    SLAPI GetItem(PPID lotID, AssetViewItem *);
@@ -36667,7 +36679,7 @@ public:
 	};
 	SLAPI  PPViewFreight();
 	SLAPI ~PPViewFreight();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	int    SLAPI InitIteration(IterOrder);
 	int    FASTCALL NextIteration(FreightViewItem *);
@@ -36988,7 +37000,7 @@ public:
 	SLAPI  PPViewPredictSales();
 	SLAPI ~PPViewPredictSales();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int aOrder = 0);
 	int    FASTCALL NextIteration(PredictSalesViewItem *);
 	int    SLAPI CalcTotal(PredictSalesTotal *);
@@ -37384,7 +37396,7 @@ public:
 	// Descr: Инициализирует выборку остатков товаров в соответствии с фильтром.
 	// ARG(pFilt     IN): Фильтр, определяющий расчет товарных остатков
 	//
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	//
 	// ARG(pOuterGsl IN): Если этот параметр не нулевой и фильтр pFilt предполагает
 	//   подстановку товара, то использование этого параметра позволит передать
@@ -37771,8 +37783,8 @@ public:
 	PPViewStockOpt();
 	~PPViewStockOpt();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
-	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(StockOptViewItem *);
 private:
@@ -37892,7 +37904,7 @@ public:
 	SLAPI ~PPViewGoodsTaxAnalyze();
 	const  BVATAccmArray * GetInOutVATList() const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(IterOrder = OrdByDefault);
 	int    FASTCALL NextIteration(GoodsTaxAnalyzeViewItem *);
 	void   SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
@@ -38037,7 +38049,7 @@ public:
 	SLAPI ~PPViewPriceList();
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(IterOrder);
 	int    FASTCALL NextIteration(PriceListViewItem *);
 	virtual int  SLAPI Print(const void * pHdr);
@@ -38264,7 +38276,7 @@ public:
 	SLAPI ~PPViewDebtTrnovr();
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	int    SLAPI InitIteration(IterOrder);
 	int    FASTCALL NextIteration(DebtTrnovrViewItem *);
@@ -38616,7 +38628,7 @@ public:
 	SLAPI ~PPViewDebtorStat();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(long ord);
 	int    FASTCALL NextIteration(DebtorStatViewItem * pItem);
 	int    FASTCALL CheckForFilt(const DebtStatTbl::Rec & rRec) const;
@@ -38736,7 +38748,7 @@ public:
 	const ShipmAnalyzeFilt * SLAPI GetFilt() const { return &Filt; }
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ShipmAnalyzeViewItem *);
@@ -38795,7 +38807,7 @@ public:
 	SLAPI  PPViewAccount();
 	SLAPI ~PPViewAccount();
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(AccountViewItem *);
@@ -38855,7 +38867,7 @@ public:
 	//
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(CurRateViewItem *);
 	int    SLAPI EditRecord(CurrencyRateTbl::Rec *, int isNew);
@@ -38917,7 +38929,7 @@ public:
 	SLAPI ~PPViewBalance();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BalanceViewItem *);
 private:
@@ -39115,7 +39127,7 @@ public:
 	};
 	SLAPI  PPViewAccAnlz();
 	SLAPI ~PPViewAccAnlz();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int SLAPI Browse(int modeless);
@@ -39239,7 +39251,7 @@ public:
 	SLAPI ~PPViewVatBook();
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int SLAPI Print(const void *);
 	virtual int SLAPI ViewTotal();
 	int    SLAPI InitIteration();
@@ -39374,8 +39386,8 @@ class PPViewOpGrouping : public PPView {
 public:
 	SLAPI  PPViewOpGrouping();
 	SLAPI ~PPViewOpGrouping();
-	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(OpGroupingViewItem *);
 	void   SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen);
@@ -39513,7 +39525,7 @@ public:
 	SLAPI  PPViewGoodsMov();
 	SLAPI ~PPViewGoodsMov();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(IterOrder);
 	int    FASTCALL NextIteration(GoodsMovViewItem *);
 	int    SLAPI GetIterationCount(long * pNumIterations, long * pLastCount);
@@ -39567,7 +39579,7 @@ public:
 	SLAPI  PPViewGoodsMov2();
 	SLAPI ~PPViewGoodsMov2();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	int    SLAPI InitIteration(IterOrder);
 	int    FASTCALL NextIteration(GoodsMov2ViewItem *);
@@ -39690,7 +39702,7 @@ public:
 	SLAPI ~PPViewCSess();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI ViewTotal();
 	virtual int  SLAPI Detail(const void *, PPViewBrowser * pBrw);
@@ -39775,7 +39787,7 @@ public:
 	SLAPI ~PPViewCSessExc();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(CSessExcViewItem *);
 private:
@@ -40026,7 +40038,7 @@ public:
 	SLAPI ~PPViewCCheck();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(CCheckViewItem *);
 	int    SLAPI CalcTotal(CCheckTotal *);
@@ -40130,7 +40142,7 @@ public:
 	SLAPI  PPViewObjSync();
 	SLAPI ~PPViewObjSync();
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	int    SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ObjSyncViewItem *);
 	int    SLAPI AddItem();
@@ -40189,7 +40201,7 @@ public:
 	SLAPI ~PPViewObjSyncCmp();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt * pFilt);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ObjSyncCmpViewItem *);
 	int    SLAPI CalcTotal(ObjSyncCmpTotal *);
@@ -40221,7 +40233,7 @@ public:
 	SLAPI  PPViewObjSyncQueue();
 	SLAPI ~PPViewObjSyncQueue();
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	int    SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ObjSyncQueueViewItem *);
 private:
@@ -40488,7 +40500,7 @@ public:
 	SLAPI ~PPViewTrfrAnlz();
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt *);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(IterOrder);
 	int    FASTCALL NextIteration(TrfrAnlzViewItem *);
 	int    SLAPI Export();
@@ -40880,7 +40892,7 @@ public:
 	SLAPI  PPViewGoodsOpAnalyze();
 	SLAPI ~PPViewGoodsOpAnalyze();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
 	int    SLAPI InitIteration(IterOrder);
 	int    FASTCALL NextIteration(GoodsOpAnalyzeViewItem *);
@@ -41059,7 +41071,7 @@ public:
 	SLAPI  PPViewSCard();
 	SLAPI ~PPViewSCard();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(SCardViewItem *);
@@ -41171,7 +41183,7 @@ public:
 	};
 	SLAPI  PPViewSCardOp();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(SCardOpViewItem *);
@@ -41227,7 +41239,7 @@ class PPViewUhttSCardOp : public PPView {
 public:
 	SLAPI  PPViewUhttSCardOp();
 	SLAPI ~PPViewUhttSCardOp();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(UhttSCardOpViewItem *);
 	int    SLAPI CalcTotal(UhttSCardOpViewItem *, int) const;
@@ -41256,7 +41268,7 @@ public:
 	SLAPI  PPViewArticle();
 	SLAPI ~PPViewArticle();
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ArticleViewItem *);
@@ -41696,7 +41708,7 @@ public:
 	//
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(SStatViewItem *);
 	int    SLAPI GetItem(PPID goodsID, SStatViewItem * pItem);
@@ -42170,7 +42182,7 @@ public:
 	SLAPI ~PPViewMrpLine();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(MrpLineViewItem *);
 	int    SLAPI CalcTotal(MrpLineTotal *);
@@ -42513,7 +42525,7 @@ public:
 	SLAPI  PPViewProject();
 	SLAPI ~PPViewProject();
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ProjectViewItem *);
 	int    SLAPI InitPrjTaskIterations(PPID prjID);
@@ -42690,7 +42702,7 @@ public:
 	SLAPI  PPViewPrjTask();
 	SLAPI ~PPViewPrjTask();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PrjTaskViewItem *);
 	int    SLAPI GetItem(PPID id, PrjTaskViewItem * pItem);
@@ -42801,7 +42813,7 @@ public:
 	SLAPI ~PPViewPriceAnlz();
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PriceAnlzViewItem *);
 	int    SLAPI GetTabTitle(PPID tabID, SString & rBuf);
@@ -42854,10 +42866,9 @@ public:
 
 	SLAPI  PPViewReport();
 	SLAPI ~PPViewReport();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ReportViewItem *);
 	int    SLAPI SaveChanges(int remove);
@@ -42866,7 +42877,6 @@ public:
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-
 	void   SLAPI MakeTempRec(const ReportViewItem *, TempReportTbl::Rec *);
 	int    SLAPI CheckForFilt(const ReportViewItem *);
 	int    SLAPI EditItem(PPID * pID);
@@ -42944,7 +42954,7 @@ public:
 	SLAPI  PPViewPersonRel();
 	SLAPI ~PPViewPersonRel();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PersonRelViewItem *);
 	int    SLAPI CheckForFilt(const PersonCore::RelationRecord * pRec);
@@ -42995,7 +43005,7 @@ public:
 	SLAPI  PPViewObjLikeness();
 	SLAPI ~PPViewObjLikeness();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ObjLikenessViewItem *);
 private:
@@ -43044,7 +43054,7 @@ public:
 	SLAPI  PPViewScale();
 	SLAPI ~PPViewScale();
 	virtual int    SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int    SLAPI Init_(const PPBaseFilt *);
+	virtual int    SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ScaleViewItem *);
@@ -43102,7 +43112,7 @@ public:
 	SLAPI ~PPViewBudget();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt *);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BudgetViewItem *);
 	int    SLAPI ViewTotal();
@@ -43145,7 +43155,7 @@ class PPViewBizScTempl : public PPView {
 public:
 	SLAPI  PPViewBizScTempl();
 	SLAPI ~PPViewBizScTempl();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BizScTemplViewItem * pItem);
@@ -43194,7 +43204,7 @@ public:
 	SLAPI  PPViewBizScValByTempl();
 	SLAPI ~PPViewBizScValByTempl();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BizScValByTemplViewItem *);
 private:
@@ -43254,7 +43264,7 @@ public:
 	SLAPI ~PPViewCheckOpJrnl();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int  SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(CheckOpJrnlViewItem *);
 	int    FASTCALL CheckRecForFilt(const CheckOpJrnlTbl::Rec * pRec);
@@ -43301,7 +43311,7 @@ public:
 	SLAPI  PPViewCashNode();
 	SLAPI ~PPViewCashNode();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(CashNodeViewItem *);
 private:
@@ -43356,7 +43366,7 @@ public:
 	SLAPI  PPViewPalm();
 	SLAPI ~PPViewPalm();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PalmViewItem *);
 private:
@@ -43399,7 +43409,7 @@ public:
 	SLAPI  PPViewServerStat();
 	SLAPI ~PPViewServerStat();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	//int    SLAPI InitIteration();
 	//int    FASTCALL NextIteration(ServerStatViewItem *);
 private:
@@ -43448,7 +43458,7 @@ public:
 	SLAPI ~PPViewTransport();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int aOrder = 0);
 	int    FASTCALL NextIteration(TransportViewItem *);
 private:
@@ -43499,7 +43509,7 @@ public:
 	SLAPI  PPViewAmountType();
 	SLAPI ~PPViewAmountType();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(AmountTypeViewItem *);
 private:
@@ -43548,7 +43558,7 @@ public:
 	SLAPI  PPViewRegisterType();
 	SLAPI ~PPViewRegisterType();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(RegTypeViewItem *);
 private:
@@ -43593,7 +43603,7 @@ public:
 	SLAPI  PPViewDialog();
 	SLAPI ~PPViewDialog();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(DialogViewItem * pItem);
 private:
@@ -43630,7 +43640,7 @@ public:
 	SLAPI  PPViewSpecSeries();
 	SLAPI ~PPViewSpecSeries();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(SpecSeriesViewItem *);
 	int    SLAPI ExportUhtt();
@@ -43670,7 +43680,7 @@ public:
 	SLAPI  PPViewDBDiv();
 	SLAPI ~PPViewDBDiv();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(DBDivViewItem *);
 	int    SLAPI ExportUhtt();
@@ -43705,7 +43715,7 @@ public:
 	PPViewDBMonitor();
 	~PPViewDBMonitor();
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(DBMonitorViewItem *);
 private:
@@ -43752,7 +43762,7 @@ public:
 	SLAPI  PPViewSuprWare();
 	SLAPI ~PPViewSuprWare();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI ViewTotal();
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(SuprWareViewItem * pItem);
@@ -43893,7 +43903,7 @@ public:
 	SLAPI  PPViewUserProfile();
 	SLAPI ~PPViewUserProfile();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(UserProfileViewItem * pItem);
 private:
@@ -43941,7 +43951,7 @@ class PPViewJob : public PPView {
 public:
 	SLAPI  PPViewJob();
 	SLAPI ~PPViewJob();
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(JobViewItem *);
@@ -44749,8 +44759,6 @@ public:
 	};
 
     struct ActInform {
-    	ActInform();
-
         SString ActRegId;
         SString ActNumber;
 		TSCollection <PPEgaisProcessor::ActInformItem> Items;
@@ -45229,7 +45237,7 @@ public:
 	SLAPI  PPViewVetisDocument();
 	SLAPI ~PPViewVetisDocument();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    SLAPI NextIteration(VetisDocumentViewItem * pItem);
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
@@ -48260,8 +48268,6 @@ struct TIDlgInitData {
 	char   Serial[32]; // Выбранный пользователем серийный номер
 	double Quantity;
 	RealRange QttyBounds;
-	//double MinQtty;
-	//double MaxQtty;
 };
 
 class ExtGoodsSelDialog : public TDialog {
@@ -48283,7 +48289,7 @@ public:
 		fUseLotSelOnExp  = 0x0200, // @v8.4.11 Если fExistsOnly, то выбирать из лотов
 		fSelectModifMode = 0x0400  // @v8.4.12 В диалог включается выбор знака операции (для модификации): расход/выход/рекомплектация
 	};
-	ExtGoodsSelDialog(PPID opID, PPID initGoodsGrpID = 0, long flags = 0);
+	explicit ExtGoodsSelDialog(PPID opID, PPID initGoodsGrpID = 0, long flags = 0);
 	~ExtGoodsSelDialog();
 	void   setSelectionByPrice(double price);
 	void   setSelectionByGroup();
@@ -48331,7 +48337,7 @@ private:
 //
 //
 struct PickLotParam {
-	PickLotParam(int mode);
+	explicit PickLotParam(int mode);
 
 	enum {
 		mByGoodsList = 1,
@@ -48437,7 +48443,7 @@ private:
 class PrcCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
-		SLAPI  Rec(PPID prcID = 0);
+		explicit SLAPI  Rec(PPID prcID = 0);
 
 		PPID   PrcID;
 	};
@@ -48482,14 +48488,17 @@ private:
 	void   setupGoodsName(TDialog *);
 	void   setupCreateGoodsButton(TDialog *);
 	void   selTechByGoods(TDialog *);
-
-	uint   CtlselPrc;
-	uint   CtlselTech;
-	uint   CtlStGoods;
-	uint   CtlselAr;
-	uint   CtlselAr2;
-	uint   CmdSelTechByGoods;
-	uint   CmdCreateGoods;
+	enum {
+		fEnableSelUpLevel = 0x0001,
+		fEnablePrcInsert  = 0x0002
+	};
+	const  uint CtlselPrc;
+	const  uint CtlselTech;
+	const  uint CtlStGoods;
+	const  uint CtlselAr;
+	const  uint CtlselAr2;
+	const  uint CmdSelTechByGoods;
+	const  uint CmdCreateGoods;
 	PPID   SelGoodsID;
 	PPID   AutoGoodsGrpID; // @!PrcTechCtrlGroup::setupCreateGoodsButton()
 		// ИД товарной группы, для которой по выбранному процессору
@@ -48500,12 +48509,7 @@ private:
 		//
 	Rec    Data;
 	int    IdleStatus;
-	enum {
-		fEnableSelUpLevel = 0x0001,
-		fEnablePrcInsert  = 0x0002
-	};
 	long   Flags;
-
 	PPObjGoods GObj;
 	PPObjTech  TecObj;
 };
@@ -49543,6 +49547,7 @@ public:
 	};
 
 	int    RecognizeCode(int mode, const char * pCode, int autoInput);
+	int    SearchSCardByCode(const char * pCode, PPIDArray & rScList);
 	int    Backend_RemoveRow(int rowNo);
 	int    Backend_SetRowQueue(int rowNo, int queue);
 	int    Backend_SetModifList(const SaModif & rList);
@@ -50990,7 +50995,7 @@ enum {
 	ofilfNExist = 0x0001 // Можно выбирать отсутствующие файлы
 };
 
-int    SLAPI PPOpenFile(SString & rPath, const char * pPatterns, long flags, HWND owner);
+int    SLAPI PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND owner);
 int    SLAPI PPOpenFile(uint strID, SString & rPath, long flags, HWND owner);
 int    SLAPI PPOpenDir(SString & rPath, const char * pTitle, HWND owner);
 //

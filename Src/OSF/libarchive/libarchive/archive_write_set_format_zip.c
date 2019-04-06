@@ -486,7 +486,7 @@ int archive_write_set_format_zip(struct archive * _a)
 
 static int is_all_ascii(const char * p)
 {
-	const uchar * pp = (const uchar*)p;
+	const uchar * pp = (const uchar *)p;
 	while(*pp) {
 		if(*pp++ > 127)
 			return 0;
@@ -647,7 +647,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		zip->entry_compressed_size = slink_size;
 		zip->entry_uncompressed_size = slink_size;
 		zip->entry_crc32 = zip->crc32func(zip->entry_crc32,
-			(const uchar*)slink, slink_size);
+			(const uchar *)slink, slink_size);
 		zip->entry_compression = COMPRESSION_STORE;
 		version_needed = 20;
 	}

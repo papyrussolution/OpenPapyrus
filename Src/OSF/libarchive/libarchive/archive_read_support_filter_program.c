@@ -187,7 +187,6 @@ static void free_state(struct program_bidder * state)
 		SAlloc::F(state);
 	}
 }
-
 /*
  * If we do have a signature, bid only if that matches.
  *
@@ -196,12 +195,11 @@ static void free_state(struct program_bidder * state)
  */
 static int program_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * upstream)
 {
-	struct program_bidder * state = (struct program_bidder *)self->data;
+	struct program_bidder * state = static_cast<struct program_bidder *>(self->data);
 	const char * p;
 	/* If we have a signature, use that to match. */
 	if(state->signature_len > 0) {
-		p = (const char *)__archive_read_filter_ahead(upstream,
-			state->signature_len, NULL);
+		p = static_cast<const char *>(__archive_read_filter_ahead(upstream, state->signature_len, NULL));
 		if(p == NULL)
 			return 0;
 		/* No match, so don't bid. */
@@ -209,7 +207,6 @@ static int program_bidder_bid(struct archive_read_filter_bidder * self, struct a
 			return 0;
 		return ((int)state->signature_len * 8);
 	}
-
 	/* Otherwise, bid once and then never bid again. */
 	if(state->inhibit)
 		return 0;
@@ -235,12 +232,10 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
 		close(state->child_stdout);
 		state->child_stdout = -1;
 	}
-
 	if(state->child != 0) {
 		/* Reap the child. */
 		do {
-			state->waitpid_return
-				= waitpid(state->child, &state->exit_status, 0);
+			state->waitpid_return = waitpid(state->child, &state->exit_status, 0);
 		} while(state->waitpid_return == -1 && errno == EINTR);
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		CloseHandle(state->child);
@@ -250,11 +245,9 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
 
 	if(state->waitpid_return < 0) {
 		/* waitpid() failed?  This is ugly. */
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Child process exited badly");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Child process exited badly");
 		return (ARCHIVE_WARN);
 	}
-
 #if !defined(_WIN32) || defined(__CYGWIN__)
 	if(WIFSIGNALED(state->exit_status)) {
 #ifdef SIGPIPE
@@ -267,9 +260,7 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
 		if(WTERMSIG(state->exit_status) == SIGPIPE)
 			return ARCHIVE_OK;
 #endif
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Child process exited with signal %d",
-		    WTERMSIG(state->exit_status));
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Child process exited with signal %d", WTERMSIG(state->exit_status));
 		return (ARCHIVE_WARN);
 	}
 #endif /* !_WIN32 || __CYGWIN__ */
@@ -286,15 +277,13 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
  */
 static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t buf_len)
 {
-	struct program_filter * state = (struct program_filter *)self->data;
+	struct program_filter * state = static_cast<struct program_filter *>(self->data);
 	ssize_t ret, requested, avail;
 	const char * p;
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	HANDLE handle = (HANDLE)_get_osfhandle(state->child_stdout);
 #endif
-
 	requested = buf_len > SSIZE_MAX ? SSIZE_MAX : buf_len;
-
 	for(;;) {
 		do {
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -307,10 +296,7 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 			 * this.  */
 			DWORD pipe_avail = -1;
 			int cnt = 2;
-
-			while(PeekNamedPipe(handle, NULL, 0, NULL,
-			    &pipe_avail, NULL) != 0 && pipe_avail == 0 &&
-			    cnt--)
+			while(PeekNamedPipe(handle, NULL, 0, NULL, &pipe_avail, NULL) != 0 && pipe_avail == 0 && cnt--)
 				Sleep(5);
 			if(pipe_avail == 0) {
 				ret = -1;
@@ -323,22 +309,17 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 
 		if(ret > 0)
 			return ret;
-		if(ret == 0 || (ret == -1 && errno == EPIPE))
-			/* Child has closed its output; reap the child
-			 * and return the status. */
+		if(ret == 0 || (ret == -1 && errno == EPIPE)) // Child has closed its output; reap the child and return the status. 
 			return (child_stop(self, state));
 		if(ret == -1 && errno != EAGAIN)
 			return -1;
-
 		if(state->child_stdin == -1) {
-			/* Block until child has some I/O ready. */
-			__archive_check_child(state->child_stdin,
-			    state->child_stdout);
+			// Block until child has some I/O ready. 
+			__archive_check_child(state->child_stdin, state->child_stdout);
 			continue;
 		}
-
 		/* Get some more data from upstream. */
-		p = (const char *)__archive_read_filter_ahead(self->upstream, 1, &avail);
+		p = static_cast<const char *>(__archive_read_filter_ahead(self->upstream, 1, &avail));
 		if(p == NULL) {
 			close(state->child_stdin);
 			state->child_stdin = -1;
@@ -382,15 +363,12 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 	char * out_buf;
 	const char * prefix = "Program: ";
 	pid_t child;
-	size_t l;
-
-	l = strlen(prefix) + strlen(cmd) + 1;
+	size_t l = strlen(prefix) + strlen(cmd) + 1;
 	state = (struct program_filter *)SAlloc::C(1, sizeof(*state));
-	out_buf = (char*)SAlloc::M(out_buf_len);
+	out_buf = (char *)SAlloc::M(out_buf_len);
 	if(state == NULL || out_buf == NULL ||
 	    archive_string_ensure(&state->description, l) == NULL) {
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate input data");
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate input data");
 		if(state != NULL) {
 			archive_string_free(&state->description);
 			SAlloc::F(state);
@@ -400,22 +378,16 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 	}
 	archive_strcpy(&state->description, prefix);
 	archive_strcat(&state->description, cmd);
-
 	self->code = ARCHIVE_FILTER_PROGRAM;
 	self->name = state->description.s;
-
 	state->out_buf = out_buf;
 	state->out_buf_len = out_buf_len;
-
-	child = __archive_create_child(cmd, &state->child_stdin,
-		&state->child_stdout);
+	child = __archive_create_child(cmd, &state->child_stdin, &state->child_stdout);
 	if(child == -1) {
 		SAlloc::F(state->out_buf);
 		archive_string_free(&state->description);
 		SAlloc::F(state);
-		archive_set_error(&self->archive->archive, EINVAL,
-		    "Can't initialize filter; unable to run program \"%s\"",
-		    cmd);
+		archive_set_error(&self->archive->archive, EINVAL, "Can't initialize filter; unable to run program \"%s\"", cmd);
 		return ARCHIVE_FATAL;
 	}
 #if defined(_WIN32) && !defined(__CYGWIN__)

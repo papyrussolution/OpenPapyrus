@@ -352,7 +352,7 @@ static int file_open(struct archive * a, void * client_data)
 		mine->block_size = new_block_size;
 	}
 	buffer = SAlloc::M(mine->block_size);
-	if(buffer == NULL) {
+	if(!buffer) {
 		archive_set_error(a, ENOMEM, "No memory");
 		goto fail;
 	}

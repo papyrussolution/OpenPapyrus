@@ -125,7 +125,7 @@ void SRngMT::Set(ulong seed)
 		// automatically modulo 2^32 (or a higher power of two), so we can
 		// safely ignore overflow.
 		//
-		#define LCG(x)	((69069 * x) + 1) & 0xffffffffUL
+		#define LCG(x)	(((69069 * (x)) + 1) & 0xffffffffUL)
 		for(i = 0; i < MT_PERIOD_PARAM; i++) {
 			Mt[i] = seed & 0xffff0000UL;
 			seed = LCG(seed);
@@ -135,7 +135,7 @@ void SRngMT::Set(ulong seed)
 	}
 	else if(Level == 1998) {
 		Mt[0] = seed & 0xffffffffUL;
-		#define LCG1998(n)	((69069 * n) & 0xffffffffUL)
+		#define LCG1998(n)	((69069 * (n)) & 0xffffffffUL)
 		for(i = 1; i < MT_PERIOD_PARAM; i++)
 			Mt[i] = LCG1998(Mt[i - 1]);
 	}

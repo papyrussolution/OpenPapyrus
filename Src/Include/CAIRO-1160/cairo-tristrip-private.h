@@ -44,48 +44,24 @@
 CAIRO_BEGIN_DECLS
 
 struct _cairo_tristrip {
-    cairo_status_t status;
-
-    /* XXX clipping */
-
-    const cairo_box_t *limits;
-    int num_limits;
-
-    int num_points;
-    int size_points;
-    cairo_point_t *points;
-    cairo_point_t  points_embedded[64];
+	cairo_status_t status;
+	/* XXX clipping */
+	const cairo_box_t * limits;
+	int num_limits;
+	int num_points;
+	int size_points;
+	cairo_point_t * points;
+	cairo_point_t points_embedded[64];
 };
 
-cairo_private void
-_cairo_tristrip_init (cairo_tristrip_t *strip);
-
-cairo_private void
-_cairo_tristrip_limit (cairo_tristrip_t	*strip,
-		       const cairo_box_t	*limits,
-		       int			 num_limits);
-
-cairo_private void
-_cairo_tristrip_init_with_clip (cairo_tristrip_t *strip,
-				const cairo_clip_t *clip);
-
-cairo_private void
-_cairo_tristrip_translate (cairo_tristrip_t *strip, int x, int y);
-
-cairo_private void
-_cairo_tristrip_move_to (cairo_tristrip_t *strip,
-			 const cairo_point_t *point);
-
-cairo_private void
-_cairo_tristrip_add_point (cairo_tristrip_t *strip,
-			   const cairo_point_t *point);
-
-cairo_private void
-_cairo_tristrip_extents (const cairo_tristrip_t *strip,
-			 cairo_box_t         *extents);
-
-cairo_private void
-_cairo_tristrip_fini (cairo_tristrip_t *strip);
+cairo_private void _cairo_tristrip_init(cairo_tristrip_t * strip);
+cairo_private void _cairo_tristrip_limit(cairo_tristrip_t * strip, const cairo_box_t * limits, int num_limits);
+cairo_private void _cairo_tristrip_init_with_clip(cairo_tristrip_t * strip, const cairo_clip_t * clip);
+cairo_private void _cairo_tristrip_translate(cairo_tristrip_t * strip, int x, int y);
+cairo_private void _cairo_tristrip_move_to(cairo_tristrip_t * strip, const cairo_point_t * point);
+cairo_private void _cairo_tristrip_add_point(cairo_tristrip_t * strip, const cairo_point_t * point);
+cairo_private void _cairo_tristrip_extents(const cairo_tristrip_t * strip, cairo_box_t * extents);
+cairo_private void _cairo_tristrip_fini(cairo_tristrip_t * strip);
 
 #define _cairo_tristrip_status(T) ((T)->status)
 

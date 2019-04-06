@@ -44,17 +44,17 @@ int CMS_signed_add1_attr(CMS_SignerInfo * si, X509_ATTRIBUTE * attr)
 
 int CMS_signed_add1_attr_by_OBJ(CMS_SignerInfo * si, const ASN1_OBJECT * obj, int type, const void * bytes, int len)
 {
-	return X509at_add1_attr_by_OBJ(&si->signedAttrs, obj, type, (const uchar*)bytes, len) ? 1 : 0;
+	return X509at_add1_attr_by_OBJ(&si->signedAttrs, obj, type, (const uchar *)bytes, len) ? 1 : 0;
 }
 
 int CMS_signed_add1_attr_by_NID(CMS_SignerInfo * si, int nid, int type, const void * bytes, int len)
 {
-	return X509at_add1_attr_by_NID(&si->signedAttrs, nid, type, (const uchar*)bytes, len) ? 1 : 0;
+	return X509at_add1_attr_by_NID(&si->signedAttrs, nid, type, (const uchar *)bytes, len) ? 1 : 0;
 }
 
 int CMS_signed_add1_attr_by_txt(CMS_SignerInfo * si, const char * attrname, int type, const void * bytes, int len)
 {
-	return X509at_add1_attr_by_txt(&si->signedAttrs, attrname, type, (const uchar*)bytes, len) ? 1 : 0;
+	return X509at_add1_attr_by_txt(&si->signedAttrs, attrname, type, (const uchar *)bytes, len) ? 1 : 0;
 }
 
 void * CMS_signed_get0_data_by_OBJ(CMS_SignerInfo * si, const ASN1_OBJECT * oid, int lastpos, int type)
@@ -94,17 +94,17 @@ int CMS_unsigned_add1_attr(CMS_SignerInfo * si, X509_ATTRIBUTE * attr)
 
 int CMS_unsigned_add1_attr_by_OBJ(CMS_SignerInfo * si, const ASN1_OBJECT * obj, int type, const void * bytes, int len)
 {
-	return X509at_add1_attr_by_OBJ(&si->unsignedAttrs, obj, type, (const uchar*)bytes, len) ? 1 : 0;
+	return X509at_add1_attr_by_OBJ(&si->unsignedAttrs, obj, type, (const uchar *)bytes, len) ? 1 : 0;
 }
 
 int CMS_unsigned_add1_attr_by_NID(CMS_SignerInfo * si, int nid, int type, const void * bytes, int len)
 {
-	return X509at_add1_attr_by_NID(&si->unsignedAttrs, nid, type, (const uchar*)bytes, len) ? 1 : 0;
+	return X509at_add1_attr_by_NID(&si->unsignedAttrs, nid, type, (const uchar *)bytes, len) ? 1 : 0;
 }
 
 int CMS_unsigned_add1_attr_by_txt(CMS_SignerInfo * si, const char * attrname, int type, const void * bytes, int len)
 {
-	return X509at_add1_attr_by_txt(&si->unsignedAttrs, attrname, type, (const uchar*)bytes, len) ? 1 : 0;
+	return X509at_add1_attr_by_txt(&si->unsignedAttrs, attrname, type, (const uchar *)bytes, len) ? 1 : 0;
 }
 
 void * CMS_unsigned_get0_data_by_OBJ(CMS_SignerInfo * si, ASN1_OBJECT * oid, int lastpos, int type)

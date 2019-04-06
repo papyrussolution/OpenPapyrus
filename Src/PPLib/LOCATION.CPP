@@ -1,5 +1,5 @@
 // LOCATION.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -15,9 +15,8 @@ IMPLEMENT_PPFILT_FACTORY(Location); SLAPI LocationFilt::LocationFilt(PPID locTyp
 	SetFlatChunk(offsetof(LocationFilt, ReserveStart),
 		offsetof(LocationFilt, Reserve)-offsetof(LocationFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchObjIdListFilt(offsetof(LocationFilt, ExtLocList));
-	SetBranchSString(offsetof(LocationFilt, ExtString)); // @v8.3.2
+	SetBranchSString(offsetof(LocationFilt, ExtString));
 	Init(1, 0);
-
 	LocType = locType;
 	Owner = ownerID;
 	Parent = parentID;
@@ -484,7 +483,7 @@ int SLAPI LocationCore::SearchPersonRef(PPID locType, PPID personID, PPID * pID)
 {
 	int    ok = -1;
 	LocationTbl::Key3 k;
-	k.Type    = (int16)locType;
+	k.Type    = static_cast<int16>(locType);
 	k.OwnerID = personID;
 	k.Counter = 0;
 	if(search(3, &k, spGe) && k.OwnerID == personID) {
@@ -641,7 +640,7 @@ int SLAPI LocationCore::DumpEaList(const char * pFileName)
 			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
 				PPObjID oid;
 				oid.Set(P_Eac->data.LinkObjType, P_Eac->data.LinkObjID);
-				((PPEAddr *)P_Eac->data.Addr)->GetPhone(phone_buf);
+				reinterpret_cast<const PPEAddr *>(P_Eac->data.Addr)->GetPhone(phone_buf);
 				;
 				line_buf.Z().Cat(P_Eac->data.ID).Tab().Cat(phone_buf).Tab().Cat(oid.ToStr(temp_buf));
 				GetObjectName(oid.Obj, oid.Id, temp_buf.Z());
@@ -665,7 +664,7 @@ int SLAPI LocationCore::GetFullEaList(StrAssocArray & rList)
 		q.select(P_Eac->ID, P_Eac->LinkObjType, P_Eac->LinkObjID, P_Eac->Addr, 0L);
 		MEMSZERO(k1);
 		for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
-			((PPEAddr *)P_Eac->data.Addr)->GetPhone(phone_buf);
+			reinterpret_cast<const PPEAddr *>(P_Eac->data.Addr)->GetPhone(phone_buf);
 			if(phone_buf.NotEmpty())
 				THROW_SL(rList.AddFast(P_Eac->data.ID, phone_buf));
 		}
@@ -1140,17 +1139,16 @@ int SLAPI EAddrCore::SearchLink(PPID objType, PPID objID, LongArray & rResult)
 int SLAPI EAddrCore::SearchPhone(const char * pPhone, long options, LongArray & rResult)
 {
 	rResult.clear();
-
 	int    ok = -1;
 	PPEAddr addr;
 	EAddrTbl::Key1 k1;
 	THROW(addr.SetPhone(pPhone));
 	MEMSZERO(k1);
 	memcpy(k1.Addr, &addr, sizeof(addr));
-	if(search(1, &k1, spGe) && *(PPEAddr *)data.Addr == addr) do {
+	if(search(1, &k1, spGe) && *reinterpret_cast<const PPEAddr *>(data.Addr) == addr) do {
 		THROW_SL(rResult.add(data.ID));
 		ok = 1;
-	} while(search(1, &k1, spNext) && *(PPEAddr *)data.Addr == addr);
+	} while(search(1, &k1, spNext) && *reinterpret_cast<const PPEAddr *>(data.Addr) == addr);
 	CATCHZOK
 	return ok;
 }
@@ -1166,7 +1164,7 @@ int SLAPI EAddrCore::SearchMaxLikePhone(const char * pPhonePattern, long options
 	MEMSZERO(k1);
 	for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
 		phone_buf = 0;
-		((PPEAddr *)data.Addr)->GetPhone(phone_buf);
+		reinterpret_cast<const PPEAddr *>(data.Addr)->GetPhone(phone_buf);
 		//if(phone_buf.CmpPrefix(pPhonePattern, 1) == 0) {
 		if(phone_buf.Search(pPhonePattern, 0, 1, 0)) {
 			THROW_SL(rResult.add(data.ID));

@@ -978,7 +978,7 @@ void QuantityCtrlGroup::SetupQuantity(TDialog * pDlg, uint master, int readFlds)
 
 int QuantityCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec *)pData;
+	Data = *static_cast<Rec *>(pData);
 	SetupQuantity(pDlg, 0, 0);
 	return 1;
 }
@@ -990,7 +990,7 @@ int QuantityCtrlGroup::getData(TDialog * pDlg, void * pData)
 		ReadFld(pDlg, 0, CtlPacks);
 		ReadFld(pDlg, 0, CtlQtty);
 	}
-	*(Rec *)pData = Data;
+	*static_cast<Rec *>(pData) = Data;
 	return 1;
 }
 

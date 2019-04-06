@@ -105,7 +105,7 @@ LOCAL(boolean) output_pass_setup(j_decompress_ptr cinfo)
 			}
 			/* Process some data */
 			last_scanline = cinfo->output_scanline;
-			(*cinfo->main->process_data)(cinfo, (JSAMPARRAY)NULL, &cinfo->output_scanline, (JDIMENSION)0);
+			(*cinfo->main->process_data)(cinfo, NULL, &cinfo->output_scanline, 0);
 			if(cinfo->output_scanline == last_scanline)
 				return FALSE;  /* No progress made, must suspend */
 		}

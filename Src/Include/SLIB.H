@@ -4540,7 +4540,7 @@ char * FASTCALL _datefmt(int d, int m, int y, int format, char *);
 void   FASTCALL encodedate(int, int, int, void *);
 void   FASTCALL decodedate(int *, int *, int *, const void *);
 void   SLAPI decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
-void   SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, LDATETIME *);
+void   SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
 int    FASTCALL checkdate(const void * pBinDate);
 //
 // Descr: Проверяет корректность даты dt. Если dt == ZERODATE и параметр zeroIsOk != 0,
@@ -4666,7 +4666,7 @@ int   FASTCALL GetDayOfWeekByText(const char * pText);
 // @v10.0.02 int   FASTCALL _encodetime(int h, int m, int s, int ts, void *, int);
 // @v10.0.02 int   FASTCALL _decodetime(int * h, int * m, int * s, int * ts, void *, int);
 void  FASTCALL encodetime(int h, int m, int s, int ts, void *);
-void  FASTCALL decodetime(int * h, int * m, int * s, int * ts, void *);
+void  FASTCALL decodetime(int * h, int * m, int * s, int * ts, const void *);
 LTIME FASTCALL encodetime(int h, int m, int s, int ts);
 /*
 	Result of difftime:
@@ -6618,13 +6618,16 @@ public:
 //
 //
 //
-struct LAssoc {
+struct LAssocBase { // @noctr
+	int32  Key;
+	int32  Val;
+};
+
+struct LAssoc : public LAssocBase {
 	SLAPI  LAssoc();
 	SLAPI  LAssoc(int32 key, int32 val);
 	SLAPI  LAssoc(const LAssoc & rS);
 	int    FASTCALL operator == (const LAssoc &) const;
-	int32  Key;
-	int32  Val;
 };
 
 class LAssocArray : public /*TSArray*/TSVector <LAssoc> {
@@ -8213,7 +8216,7 @@ public:
 	//   0 - ошибка
 	//
 	static int SLAPI GetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
-	static int SLAPI SetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
+	static int SLAPI SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
 	static int SLAPI IdentifyFormat(const char * pFileName);
 	static int SLAPI IsOpenedForWrite(const char * pFileName);
 	//
@@ -14036,7 +14039,7 @@ public:
 	int    SLAPI Dump(const char * pFileName, long flags);
 };
 
-int SLAPI TraceFunc(const char * pFuncName, const char * pAddedMsg);
+void FASTCALL TraceFunc(const char * pFuncName, const char * pAddedMsg);
 
 #ifdef _DEBUG
 	#define TRACE_FUNC()    TraceFunc(__FUNCTION__, 0)

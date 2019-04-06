@@ -50,8 +50,8 @@
 //#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
 //#include "cairo-region-private.h"
-#include "cairo-surface-inline.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-inline.h"
+//#include "cairo-surface-offset-private.h"
 
 #if !defined(AC_SRC_OVER)
 #define AC_SRC_OVER                 0x00
@@ -81,7 +81,7 @@ struct fill_box {
 
 static cairo_bool_t fill_box(cairo_box_t * box, void * closure)
 {
-	struct fill_box * fb = (struct fill_box *)closure;
+	struct fill_box * fb = static_cast<struct fill_box *>(closure);
 	RECT rect;
 	rect.left = _cairo_fixed_integer_part(box->p1.x);
 	rect.top = _cairo_fixed_integer_part(box->p1.y);
@@ -109,7 +109,7 @@ struct copy_box {
 
 static cairo_bool_t copy_box(cairo_box_t * box, void * closure)
 {
-	const struct copy_box * cb = (const struct copy_box *)closure;
+	const struct copy_box * cb = static_cast<const struct copy_box *>(closure);
 	int x = _cairo_fixed_integer_part(box->p1.x);
 	int y = _cairo_fixed_integer_part(box->p1.y);
 	int width  = _cairo_fixed_integer_part(box->p2.x - box->p1.x);
@@ -120,7 +120,7 @@ static cairo_bool_t copy_box(cairo_box_t * box, void * closure)
 
 static cairo_bool_t alpha_box(cairo_box_t * box, void * closure)
 {
-	const struct copy_box * cb = (const struct copy_box *)closure;
+	const struct copy_box * cb = static_cast<const struct copy_box *>(closure);
 	int x = _cairo_fixed_integer_part(box->p1.x);
 	int y = _cairo_fixed_integer_part(box->p1.y);
 	int width  = _cairo_fixed_integer_part(box->p2.x - box->p1.x);
@@ -139,19 +139,15 @@ struct upload_box {
 
 static cairo_bool_t upload_box(cairo_box_t * box, void * closure)
 {
-	const struct upload_box * cb = (const struct upload_box *)closure;
+	const struct upload_box * cb = static_cast<const struct upload_box *>(closure);
 	int x = _cairo_fixed_integer_part(box->p1.x);
 	int y = _cairo_fixed_integer_part(box->p1.y);
 	int width  = _cairo_fixed_integer_part(box->p2.x - box->p1.x);
 	int height = _cairo_fixed_integer_part(box->p2.y - box->p1.y);
 	int src_height = -cb->bi.bmiHeader.biHeight;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-	return StretchDIBits(cb->dst, x, y + height - 1, width, -height,
-		   x + cb->tx,  src_height - (y + cb->ty - 1),
-		   width, -height,
-		   cb->data, &cb->bi,
-		   DIB_RGB_COLORS, SRCCOPY);
+	return StretchDIBits(cb->dst, x, y + height - 1, width, -height, x + cb->tx,  src_height - (y + cb->ty - 1),
+		   width, -height, cb->data, &cb->bi, DIB_RGB_COLORS, SRCCOPY);
 }
 
 /* the mid-level: converts boxes into drawing operations */
@@ -163,7 +159,7 @@ static COLORREF color_to_rgb(const cairo_color_t * c)
 
 static cairo_int_status_t fill_boxes(cairo_win32_display_surface_t * dst, const cairo_pattern_t * src, cairo_boxes_t * boxes)
 {
-	const cairo_color_t * color = &((cairo_solid_pattern_t*)src)->color;
+	const cairo_color_t * color = &(reinterpret_cast<const cairo_solid_pattern_t *>(src)->color);
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	struct fill_box fb;
 	TRACE((stderr, "%s\n", __FUNCTION__));
@@ -175,15 +171,13 @@ static cairo_int_status_t fill_boxes(cairo_win32_display_surface_t * dst, const 
 		return _cairo_win32_print_gdi_error(__FUNCTION__);
 	if(!_cairo_boxes_for_each_box(boxes, fill_box, &fb))
 		status = CAIRO_INT_STATUS_UNSUPPORTED;
-
 	DeleteObject(fb.brush);
-
 	return status;
 }
 
 static cairo_bool_t source_contains_box(cairo_box_t * box, void * closure)
 {
-	struct check_box * data = (struct check_box *)closure;
+	const struct check_box * data = static_cast<const struct check_box *>(closure);
 	/* The box is pixel-aligned so the truncation is safe. */
 	return
 		_cairo_fixed_integer_part(box->p1.x) + data->tx >= data->limit.x &&
@@ -200,7 +194,7 @@ static cairo_status_t copy_boxes(cairo_win32_display_surface_t * dst, const cair
 	cairo_status_t status;
 	cairo_win32_surface_t * src;
 	TRACE((stderr, "%s\n", __FUNCTION__));
-	pattern = (const cairo_surface_pattern_t*)source;
+	pattern = reinterpret_cast<const cairo_surface_pattern_t *>(source);
 	surface = _cairo_surface_get_source(pattern->surface, &cb.limit);
 	if(surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
 		surface = to_image_surface(surface)->parent;
@@ -213,8 +207,7 @@ static cairo_status_t copy_boxes(cairo_win32_display_surface_t * dst, const cair
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	src = to_win32_surface(surface);
 	if(src->format != dst->win32.format && !(src->format == CAIRO_FORMAT_ARGB32 && dst->win32.format == CAIRO_FORMAT_RGB24)) {
-		/* forbid copy different surfaces unless it is from argb32 to
-		 * rgb (dropping alpha) */
+		// forbid copy different surfaces unless it is from argb32 to rgb (dropping alpha) 
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 	cb.dst = dst->win32.dc;
@@ -261,8 +254,7 @@ static cairo_status_t upload_boxes(cairo_win32_display_surface_t * dst, const ca
 	else
 		image = to_image_surface(surface);
 	status = CAIRO_INT_STATUS_UNSUPPORTED;
-	if(!(image->format == CAIRO_FORMAT_ARGB32 ||
-	    image->format == CAIRO_FORMAT_RGB24))
+	if(!(image->format == CAIRO_FORMAT_ARGB32 || image->format == CAIRO_FORMAT_RGB24))
 		goto err;
 	if(image->stride != 4*image->width)
 		goto err;

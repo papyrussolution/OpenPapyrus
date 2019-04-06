@@ -775,7 +775,7 @@ static void add_caps(struct stroker * stroker)
 
 static cairo_status_t move_to(void * closure, const cairo_point_t * point)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	/* Cap the start and end of the previous sub path as needed */
 	add_caps(stroker);
 	stroker->has_first_face = FALSE;
@@ -788,7 +788,7 @@ static cairo_status_t move_to(void * closure, const cairo_point_t * point)
 
 static cairo_status_t line_to(void * closure, const cairo_point_t * point)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_stroke_face_t start;
 	cairo_point_t * p1 = &stroker->current_face.point;
 	cairo_slope_t dev_slope;
@@ -837,7 +837,7 @@ static cairo_status_t spline_to(void * closure,
     const cairo_point_t * point,
     const cairo_slope_t * tangent)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_stroke_face_t face;
 
 	if(tangent->dx == 0 && tangent->dy == 0) {
@@ -917,7 +917,7 @@ static cairo_status_t curve_to(void * closure,
     const cairo_point_t * c,
     const cairo_point_t * d)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_spline_t spline;
 	cairo_stroke_face_t face;
 
@@ -959,7 +959,7 @@ static cairo_status_t curve_to(void * closure,
 
 static cairo_status_t close_path(void * closure)
 {
-	struct stroker * stroker = (struct stroker *)closure;
+	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_status_t status;
 
 	status = line_to(stroker, &stroker->first_point);

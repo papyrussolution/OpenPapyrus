@@ -37,7 +37,6 @@ public:
 	int    setDTS(const PPSecurPacket * pData)
 	{
 		Pack = *pData;
-
 		int    ok = 1;
 		ushort v  = 0;
 		PPSecur * p_secur = &Pack.Secur;
@@ -114,7 +113,7 @@ private:
 	int    getPathFld(TDialog *, long pathID, uint ctlID);
 
 	PPSecurPacket Pack;
-	char   Password[sizeof(((PPSecur*)0)->Password)];
+	char   Password[sizeof(reinterpret_cast<const PPSecur *>(0)->Password)];
 };
 
 void SecurDialog::getPassword()
@@ -213,20 +212,21 @@ IMPL_HANDLE_EVENT(SecurDialog)
 	}
 }
 
-static int SLAPI ValidateSecurData(TDialog * dlg, PPID objType, void * pData)
+static int SLAPI ValidateSecurData(TDialog * dlg, PPID objType, const void * pData)
 {
 	int    ok = 1;
-	PPID   temp_id = 0, rec_id = ((PPSecur*)pData)->ID;
-	const  char * p_name = strip(((PPSecur*)pData)->Name);
-	if(p_name[0] == 0)
+	PPID   temp_id = 0;
+	PPID   rec_id = reinterpret_cast<const PPSecur *>(pData)->ID;
+	SString name_buf = reinterpret_cast<const PPSecur *>(pData)->Name;
+	if(!name_buf.NotEmptyS())
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_SECURNAMENEEDED);
-	else if(objType == PPOBJ_USR && ((PPSecur*)pData)->ParentID == 0)
+	else if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur *>(pData)->ParentID == 0)
 		ok = PPErrorByDialog(dlg, CTL_USR_GRP, PPERR_USRMUSTBELONGTOGRP);
-	else if(PPRef->SearchName(objType, &temp_id, p_name) > 0 && rec_id != temp_id)
+	else if(PPRef->SearchName(objType, &temp_id, name_buf) > 0 && rec_id != temp_id)
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_DUPOBJNAME);
 	else {
-		if(objType == PPOBJ_USR && ((PPSecur *)pData)->ExpiryDate) {
-			if(!checkdate(((PPSecur *)pData)->ExpiryDate)) {
+		if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur *>(pData)->ExpiryDate) {
+			if(!checkdate(reinterpret_cast<const PPSecur *>(pData)->ExpiryDate)) {
 				ok = PPErrorByDialog(dlg, CTL_USR_EXPIRY, PPERR_SLIB);
 			}
 		}
@@ -376,9 +376,9 @@ public:
 	{
 		int    s = 0;
 		if(dir > 0)
-			s = setDTS((PPConfig *)pData);
+			s = setDTS(static_cast<const PPConfig *>(pData));
 		else if(dir < 0)
-			s = getDTS((PPConfig *)pData);
+			s = getDTS(static_cast<PPConfig *>(pData));
 		else
 			s = TDialog::TransmitData(dir, pData);
 		return s;
@@ -484,7 +484,7 @@ int CfgOptionsDialog::getDTS(PPConfig * pCfg)
 		getCtrlData(CTLSEL_CFGOPTIONS_MENU2, &Cfg.MenuID);
 		DS.GetTLA().Lc.DesktopID = Cfg.DesktopID;
 	}
-	Cfg.RealizeOrder = (short)GetClusterData(CTL_CFGOPTIONS_RLZORD);
+	Cfg.RealizeOrder = static_cast<short>(GetClusterData(CTL_CFGOPTIONS_RLZORD));
 	GetClusterData(CTL_CFGOPTIONS_FEFO, &Cfg.Flags);
 	GetClusterData(CTL_CFGOPTIONS_OPTIONS, &Cfg.Flags);
 	GetClusterData(CTL_CFGOPTIONS_STAFF,   &Cfg.Flags);
@@ -555,7 +555,7 @@ IMPL_HANDLE_EVENT(ActiveUserListDlg)
 		else if(TVCMD == cmSysJournalByObj) {
 			long pos = 0, user_id = 0, sess_id;
 			getSelection(&pos);
-			if(pos >= 0 && pos < (long)SyncAry.getCount()) {
+			if(pos >= 0 && pos < static_cast<long>(SyncAry.getCount())) {
 				sess_id = SyncAry.at(pos).ID;
 				user_id = SyncAry.at(pos).UserID;
 			}
@@ -647,7 +647,7 @@ int ActiveUserListDlg::setupList()
 				GetFirstHostByMACAddr(&p_item->MchnID, &addr);
 				addr.ToStr(InetAddr::fmtHost, host);
 			}
-			ss.add((const char *)host, 0);
+			ss.add(host, 0);
 			GetDtm(p_item->UserID, p_item->ID, &login_dtm, work_dtm_buf.Z());
 			ss.add(buf.Z().Cat(login_dtm), 0);
 			ss.add(work_dtm_buf, 0);

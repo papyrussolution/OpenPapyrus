@@ -400,11 +400,11 @@ int SLAPI ObjTransmContext::OutputAcceptObjErrMsg(PPID objType, PPID objID, cons
 int SLAPI ObjTransmContext::GetPrevRestoredObj(PPObjID * pOi) const
 {
 	int    ok = 0;
-	const PPObjectTransmit::RestoreObjBlock * p_rb = (const PPObjectTransmit::RestoreObjBlock *)P_Rb;
+	const PPObjectTransmit::RestoreObjBlock * p_rb = static_cast<const PPObjectTransmit::RestoreObjBlock *>(P_Rb);
 	if(p_rb) {
 		const uint pntr = p_rb->S.getPointer();
 		if(pntr > 1) {
-			const RestoreStackItem * p_rsi = (const RestoreStackItem *)p_rb->S.at(pntr-2);
+			const RestoreStackItem * p_rsi = static_cast<const RestoreStackItem *>(p_rb->S.at(pntr-2));
 			if(p_rsi) {
 				ASSIGN_PTR(pOi, p_rsi->Oi);
 				ok = 1;
@@ -432,7 +432,7 @@ int SLAPI ObjTransmContext::GetPrimaryObjID(PPID objType, PPID foreignID, PPID *
 	int    ok = -1, r;
 	PPID   prim_id = 0;
 	if(P_Rb && P_SrcDbDivPack) {
-		PPObjectTransmit::RestoreObjBlock * p_rb = (PPObjectTransmit::RestoreObjBlock *)P_Rb;
+		const PPObjectTransmit::RestoreObjBlock * p_rb = static_cast<const PPObjectTransmit::RestoreObjBlock *>(P_Rb);
 		PPObjectTransmit * p_ot = p_rb->P_Ot;
 		if(p_ot) {
 			const PPID src_db_div_id = P_SrcDbDivPack->Rec.ID;
@@ -663,7 +663,7 @@ PPObjectTransmit::IndexItem * SLAPI PPObjectTransmit::TmpTblRecToIdxItem(const O
 int SLAPI PPObjectTransmit::EnumObjectsByIndex(PPObjID * pObjId, ObjSyncQueueTbl::Rec * pRec)
 {
 	ObjSyncQueueTbl::Key1 k;
-	k.ObjType = (short)pObjId->Obj;
+	k.ObjType = static_cast<short>(pObjId->Obj);
 	k.ObjID   = pObjId->Id;
 	k.DBID    = MAXSHORT;
 	if(P_TmpIdxTbl->search(1, &k, spGt)) {
@@ -752,9 +752,9 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		if(oi.Obj && oi.Id && !exclude_obj_type_list.lsearch(oi.Obj)) {
 			ObjSyncQueueTbl::Key1 k1;
 			MEMSZERO(k1);
-			k1.ObjType = (short)oi.Obj;
+			k1.ObjType = static_cast<short>(oi.Obj);
 			k1.ObjID   = oi.Id;
-			k1.DBID    = (short)r_cfg.DBDiv;
+			k1.DBID    = static_cast<short>(r_cfg.DBDiv);
 			int    r = SearchByKey(P_TmpIdxTbl, 1, &k1, 0);
 			THROW(r);
 			if(r > 0)
@@ -772,7 +772,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 						break;
 					case PPOBJ_CSESSION:
 						{
-							PPObjCSession * p_csess_obj = (PPObjCSession *)_GetObjectPtr(oi.Obj);
+							PPObjCSession * p_csess_obj = static_cast<PPObjCSession *>(_GetObjectPtr(oi.Obj));
 							THROW(need_send = p_csess_obj->NeedTransmit(oi.Id, DestDbDivPack, &Ctx));
 							assert(need_send != NEED_SEND_NOOBJ);
 						}
@@ -821,8 +821,8 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 			transmit_flags &= ~(PPObjPack::fForceUpdate | PPObjPack::fUpdate);
 		if(RecoverTransmission)
 			transmit_flags |= PPObjPack::fRecover;
-		rec.DBID     = (short)r_cfg.DBDiv;
-		rec.ObjType  = (ushort)objType;
+		rec.DBID     = static_cast<short>(r_cfg.DBDiv);
+		rec.ObjType  = static_cast<ushort>(objType);
 		rec.ObjID    = objID;
 		rec.Flags    = transmit_flags;
 		rec.Priority = PPObjectTransmit::DefaultPriority;
@@ -878,10 +878,10 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		//
 		if(need_send && p_obj->GetName(objID, &obj_name) > 0) {
 			MEMSZERO(rec);
-			rec.DBID     = (short)r_cfg.DBDiv;
-			rec.ObjType  = (ushort)objType;
+			rec.DBID     = static_cast<short>(r_cfg.DBDiv);
+			rec.ObjType  = static_cast<ushort>(objType);
 			rec.ObjID    = objID;
-			rec.Flags    = (ushort)pack.Flags;
+			rec.Flags    = static_cast<ushort>(pack.Flags);
 			rec.ModDt    = pack.Mod.d;
 			rec.ModTm    = pack.Mod.t;
 			SETFLAG(Ctx.Flags, ObjTransmContext::fNotTrnsmLots, DestDbDivPack.Rec.Flags & DBDIVF_CONSOLID);
@@ -1958,7 +1958,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 	SString file_name, temp_file_name;
 	RECORDNUMBER obj_count = 0;
 	int    todo = BIN(P_TmpIdxTbl && P_TmpIdxTbl->getNumRecs(&obj_count));
-	uint   packet_type = SyncCmpTransmit ? PPOT_SYNCCMP : PPOT_OBJ;
+	const  uint packet_type = SyncCmpTransmit ? PPOT_SYNCCMP : PPOT_OBJ;
 	if(todo && obj_count) {
 		SString wait_msg;
 		PPObjID objid;
@@ -1968,6 +1968,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 		long   lpos;
 		S_GUID src_div_uuid;
 		THROW(MakeTransmitFileName(file_name, &src_div_uuid));
+		CALLPTRMEMB(Ctx.P_Logger, LogString(PPTXT_LOG_OBJSYNC_TRANSMFILE, file_name)); // @v10.4.0 diag
 		ThisDbDivPack.Rec.Uuid = src_div_uuid;
 		{
 			SString ext = "tmp";
@@ -1993,13 +1994,11 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 		Ctx.SCtx.Init(SSerializeContext::fSeparateDataStruct, getcurdate_());
 		if(!SyncCmpTransmit) {
 			//
-			// До начала транзакции создадим экземляры всех необходимых объектов данных (что бы не открывать таблицы
-			// внутри транзакции).
+			// До начала транзакции создадим экземляры всех необходимых объектов данных (что бы не открывать таблицы внутри транзакции).
 			//
 			for(MEMSZERO(objid); EnumObjectsByIndex(&objid, &rec) > 0;) {
 				if(!(rec.Flags & PPObjPack::fNoObj)) {
-					PPObject * p_obj = 0;
-					THROW(p_obj = _GetObjectPtr(objid.Obj));
+					THROW(_GetObjectPtr(objid.Obj));
 				}
 			}
 		}
@@ -2026,9 +2025,8 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 							pack.Data = 0;
 							pack.SrcVer = hdr.SwVer;
 							pack.Priority = PPObjectTransmit::DefaultPriority;
-
-							PPObject * p_obj = 0;
-							THROW(p_obj = _GetObjectPtr(objid.Obj));
+							PPObject * p_obj = _GetObjectPtr(objid.Obj);
+							THROW(p_obj);
 							SETFLAG(Ctx.Flags, ObjTransmContext::fNotTrnsmLots, DestDbDivPack.Rec.Flags & DBDIVF_CONSOLID);
 							Ctx.Extra = extra;
 							THROW(p_obj->Read(&pack, objid.Id, 0, &Ctx));
@@ -2065,7 +2063,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 						THROW(Write(P_OutStream, &idx_item, sizeof(idx_item)));
 					}
 					hdr.NameListOffs = ftell(P_OutStream);
-					uint32 name_list_size = (uint32)name_list.getDataLen();
+					const uint32 name_list_size = static_cast<uint32>(name_list.getDataLen());
 					THROW(Write(P_OutStream, &name_list_size, sizeof(name_list_size)));
 					THROW(Write(P_OutStream, name_list.getBuf(), name_list_size));
 				}
@@ -2090,10 +2088,8 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 	CATCH
 		ok = 0;
 		CloseOutPacket();
-		if(file_name.NotEmpty())
-			SFile::Remove(file_name);
-		if(temp_file_name.NotEmpty())
-			SFile::Remove(temp_file_name);
+		SFile::Remove(file_name);
+		SFile::Remove(temp_file_name);
 	ENDCATCH
 	return ok;
 }
@@ -2162,8 +2158,7 @@ int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTrans
 	ObjTransmitParam param;
 	PPObjectTransmit * p_ot = 0;
 	if(pParam || ObjTransmDialog(DLG_MODTRANSM, &param, OBJTRNSMDLGF_SEARCHDTTM) > 0) {
-		if(pParam)
-			param = *pParam;
+		RVALUEPTR(param, pParam);
 		SysJournalFilt   sj_flt;
 		PPViewSysJournal sj_view;
 		SysJournalViewItem sj_item;
@@ -2172,7 +2167,7 @@ int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTrans
 		PPWait(1);
 		THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, sync_cmp, BIN(pParam->Flags & pParam->fRecoverTransmission)));
 		THROW(p_ot->SetDestDbDivID(destDBDiv));
-		param.Since_.d = param.Since_.d.getactual(ZERODATE); // @v7.2.5
+		param.Since_.d = param.Since_.d.getactual(ZERODATE);
 		p_ot->Ctx.TransmitSince = param.Since_;
 		PPLoadText(PPTXT_PREPTRANSMOBJ, wait_msg);
 		sj_flt.Period.low = param.Since_.d;
@@ -2183,12 +2178,10 @@ int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTrans
 			sj_flt.ObjType = PPOBJ_SCARD;
 		}
 		else {
-			if(param.ObjList.Search(PPOBJ_BILL, 0) > 0) {
+			if(param.ObjList.Search(PPOBJ_BILL, 0) > 0)
 				sj_flt.ActionIDList.addzlist(PPACN_TURNBILL, PPACN_UPDBILL, PPACN_UPDBILLFREIGHT, PPACN_UPDBILLWLABEL, PPACN_BILLWROFF, PPACN_BILLWROFFUNDO, 0);
-			}
-			if(param.ObjList.Search(PPOBJ_QUOT, 0) > 0 || param.ObjList.Search(PPOBJ_QUOT2, 0) > 0 || param.ObjList.Search(PPOBJ_GOODS, 0) > 0) {
+			if(param.ObjList.Search(PPOBJ_QUOT, 0) > 0 || param.ObjList.Search(PPOBJ_QUOT2, 0) > 0 || param.ObjList.Search(PPOBJ_GOODS, 0) > 0)
 				sj_flt.ActionIDList.addzlist(PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2, PPACN_QUOTRMV2, 0);
-			}
 			if(p_ot->Ctx.Cfg.Flags & DBDXF_SENDCSESSION && param.ObjList.Search(PPOBJ_CSESSION, 0) > 0)
 				sj_flt.ActionIDList.add(PPACN_CSESSCLOSED);
 		}
@@ -2480,7 +2473,7 @@ int SLAPI PPObjectTransmit::TransmitBills(PPID destDBDiv, const BillTransmitPara
 		}
 		if(r > 0) {
 			int    is_suit = 1;
-			if((flt.OpID && flt.Ar2ID) && br.Object2 != flt.Ar2ID) // @v8.3.2
+			if((flt.OpID && flt.Ar2ID) && br.Object2 != flt.Ar2ID)
 				is_suit = 0;
 			else if((flt.OpID && flt.ArID) && br.Object != flt.ArID) // @v9.0.8
 				is_suit = 0;
@@ -2526,6 +2519,7 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 	else
 		ok = -1;
 	CATCHZOK
+	logger.Save(PPFILNAM_ERR_LOG, 0); // @v10.4.0
 	return ok;
 }
 
@@ -2545,7 +2539,7 @@ int PPObjectTransmit::Transmit(PPID dbDivID, const PPObjIDArray * pObjAry, const
 			for(uint i = 0; i < c; i++) {
 				const PPObjID & r_oid = pObjAry->at(i);
 				THROW(p_ot->PostObject(r_oid.Obj, r_oid.Id, pParam->UpdProtocol, sync_cmp));
-				PPWaitPercent((long)(i+1), (long)c, msg_buf);
+				PPWaitPercent((i+1), c, msg_buf);
 			}
 		}
 		THROW(p_ot->CreateTransmitPacket());
@@ -2930,7 +2924,8 @@ int ObjTranDialogExt::setDTS(const ObjTransmitParam * pParam, const PPBaseFilt *
 	ObjTranDialog::setDTS(pParam);
 	if(P_View && pFilt) {
 		P_Filt = P_View->CreateFilt(0);
-		(*P_Filt) = (*pFilt);
+		if(P_Filt)
+			(*P_Filt) = (*pFilt);
 	}
 	showCtrl(CTL_OBJTRANSM_FILT, BIN(P_View && pFilt));
 	return 1;

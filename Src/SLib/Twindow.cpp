@@ -1543,7 +1543,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					GetClientRect(hWnd, &cr);
 					h_dc_mem = CreateCompatibleDC(ps.hdc);
 					h_bmp = CreateCompatibleBitmap(ps.hdc, cr.right - cr.left, cr.bottom - cr.top);
-					h_old_bmp = (HBITMAP)SelectObject(h_dc_mem, h_bmp);
+					h_old_bmp = static_cast<HBITMAP>(::SelectObject(h_dc_mem, h_bmp));
 					use_draw_buf = 1;
 					pe.H_DeviceContext = h_dc_mem;
 				}

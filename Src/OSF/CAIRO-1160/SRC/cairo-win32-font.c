@@ -1279,8 +1279,8 @@ static cairo_surface_t * _compute_mask(cairo_surface_t * surface,
 			glyph->width, glyph->height);
 		if(likely(mask->base.status == CAIRO_STATUS_SUCCESS)) {
 			for(i = 0; i < glyph->height; i++) {
-				uint32_t * p = (uint32_t*)(glyph->data + i * glyph->stride);
-				uint32_t * q = (uint32_t*)(mask->data + i * mask->stride);
+				uint32_t * p = (uint32_t *)(glyph->data + i * glyph->stride);
+				uint32_t * q = (uint32_t *)(mask->data + i * mask->stride);
 				for(j = 0; j < glyph->width; j++) {
 					*q++ = 0xffffffff ^ (*p | ((*p & 0x0000ff00) << 16));
 					p++;
@@ -1295,8 +1295,8 @@ static cairo_surface_t * _compute_mask(cairo_surface_t * surface,
 		mask = (cairo_image_surface_t*)cairo_image_surface_create(CAIRO_FORMAT_A8, glyph->width, glyph->height);
 		if(likely(mask->base.status == CAIRO_STATUS_SUCCESS)) {
 			for(i = 0; i < glyph->height; i++) {
-				uint32_t * p = (uint32_t*)(glyph->data + i * glyph->stride);
-				uint8_t * q = (uint8_t*)(mask->data + i * mask->stride);
+				uint32_t * p = (uint32_t *)(glyph->data + i * glyph->stride);
+				uint8_t * q = (uint8_t *)(mask->data + i * mask->stride);
 				for(j = 0; j < glyph->width; j++)
 					*q++ = 255 - ((*p++ & 0x0000ff00) >> 8);
 			}

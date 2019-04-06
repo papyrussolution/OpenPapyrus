@@ -1542,10 +1542,10 @@ int PPALDD_StaffListView::InitData(PPFilt & rFilt, long rsrv)
 {
 	PPViewStaffList * p_v = 0;
 	if(rsrv)
-		Extra[1].Ptr = p_v = (PPViewStaffList *)rFilt.Ptr;
+		Extra[1].Ptr = p_v = static_cast<PPViewStaffList *>(rFilt.Ptr);
 	else {
 		Extra[0].Ptr = p_v = new PPViewStaffList;
-		p_v->Init_((StaffListFilt *)rFilt.Ptr);
+		p_v->Init_(static_cast<const StaffListFilt *>(rFilt.Ptr));
 	}
 	H.ExtAmt1ID = p_v->GetSalaryAmountType(1);
 	H.ExtAmt2ID = p_v->GetSalaryAmountType(2);

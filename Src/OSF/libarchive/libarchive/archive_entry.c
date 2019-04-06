@@ -1701,7 +1701,7 @@ static char * ae_fflagstostr(unsigned long bitset, unsigned long bitclear)
 
 	if(length == 0)
 		return NULL;
-	string = (char*)SAlloc::M(length);
+	string = (char *)SAlloc::M(length);
 	if(string == NULL)
 		return NULL;
 

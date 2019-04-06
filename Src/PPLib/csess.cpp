@@ -1,5 +1,5 @@
 // CSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -152,7 +152,7 @@ int SLAPI CSessionCore::GetIncompleteSessList(int grade, PPID cashNodeID, PPIDAr
 		MEMSZERO(k0);
 		p_k = &k0;
 	}
-	dbq = &(*dbq && this->Incomplete == (long)grade && this->Temporary == 0L);
+	dbq = &(*dbq && this->Incomplete == static_cast<long>(grade) && this->Temporary == 0L);
 	BExtQuery q(this, idx);
 	q.select(this->ID, 0L).where(*dbq);
 	for(q.initIteration(0, p_k, spFirst); ok && q.nextIteration() > 0;)

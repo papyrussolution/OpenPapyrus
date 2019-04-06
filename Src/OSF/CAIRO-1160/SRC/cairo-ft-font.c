@@ -1186,7 +1186,7 @@ static cairo_status_t _get_bitmap_surface(FT_Bitmap * bitmap,
 		    if(!_cairo_is_little_endian()) {
 			    /* Byteswap. */
 			    uint i, count = height * width;
-			    uint32_t * p = (uint32_t*)data;
+			    uint32_t * p = (uint32_t *)data;
 			    for(i = 0; i < count; i++)
 				    p[i] = be32_to_cpu(p[i]);
 		    }
@@ -2576,7 +2576,7 @@ static cairo_int_status_t _cairo_ft_load_truetype_table(void * abstract_font,
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	if(FT_IS_SFNT(face)) {
-		if(buffer == NULL)
+		if(!buffer)
 			*length = 0;
 
 		if(FT_Load_Sfnt_Table(face, tag, offset, buffer, length) == 0)

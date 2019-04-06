@@ -137,9 +137,9 @@ GLOBAL(void) jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
 	    ci++, compptr++) {
 		/* Size in samples, after IDCT scaling */
-		compptr->downsampled_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width *
+		compptr->downsampled_width = jdiv_round_up_jd((long)cinfo->image_width *
 		    (long)(compptr->h_samp_factor * compptr->DCT_h_scaled_size), (long)(cinfo->max_h_samp_factor * cinfo->block_size));
-		compptr->downsampled_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height *
+		compptr->downsampled_height = jdiv_round_up_jd((long)cinfo->image_height *
 		    (long)(compptr->v_samp_factor * compptr->DCT_v_scaled_size), (long)(cinfo->max_v_samp_factor * cinfo->block_size));
 	}
 

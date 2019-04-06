@@ -45,15 +45,11 @@ int FASTCALL StringSet::Alloc(size_t sz)
 
 int SLAPI StringSet::Init(const char * pDelim, size_t prealloc)
 {
-	int    ok = 1;
 	setDelim(pDelim);
 	P_Buf   = 0;
 	DataLen = 0;
 	Size    = 0;
-	if(prealloc) {
-		ok = Alloc(prealloc);
-	}
-	return ok;
+	return prealloc ? Alloc(prealloc) : 1;
 }
 
 SLAPI StringSet::StringSet(const char * pDelim/*, size_t prealloc*/)
@@ -216,12 +212,12 @@ int SLAPI StringSet::setBuf(const void * b, size_t len)
 			memcpy(P_Buf, b, len);
 			DataLen = len;
 			if(Delim[0]) {
-				const char * p = (const char *)memchr(P_Buf, 0, len);
+				const char * p = static_cast<const char *>(memchr(P_Buf, 0, len));
 				if(p)
 					DataLen = p-P_Buf+1;
 			}
 			else {
-				for(const char * p = P_Buf; (p = (const char *)memchr(p, 0, len)) != 0; p++)
+				for(const char * p = P_Buf; (p = static_cast<const char *>(memchr(p, 0, len))) != 0; p++)
 					if(p[1] == 0) {
 						DataLen = p-P_Buf+2;
 						break;
@@ -456,7 +452,7 @@ size_t FASTCALL StringSet::getLen(uint pos) const
 		if(Delim[0]) {
 			const char * c = strstr(P_Buf + pos, Delim);
 			if(c != 0)
-				len = (uint)(c - (P_Buf + pos));
+				len = static_cast<uint>(c - (P_Buf + pos));
 			else
 				len = sstrlen(P_Buf + pos);
 		}
@@ -474,7 +470,7 @@ int FASTCALL StringSet::get(uint * pos, char * str, size_t maxlen) const
 		if(Delim[0]) {
 			if((c = strstr(P_Buf + p, Delim)) != 0) {
 				delim_len = sstrlen(Delim);
-				len = (uint)(c - (P_Buf + p));
+				len = static_cast<uint>(c - (P_Buf + p));
 			}
 			else {
 				delim_len = 1;
@@ -519,7 +515,7 @@ int FASTCALL StringSet::get(uint * pPos, SString & s) const
 		if(Delim[0]) {
 			if((c = strstr(P_Buf + p, Delim)) != 0) {
 				delim_len = sstrlen(Delim);
-				len = (uint)(c - (P_Buf + p));
+				len = static_cast<uint>(c - (P_Buf + p));
 			}
 			else {
 				delim_len = 1;

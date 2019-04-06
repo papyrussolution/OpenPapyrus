@@ -97,7 +97,7 @@ typedef struct _cairo_win32_surface {
 	 */
 	int x_ofs, y_ofs;
 } cairo_win32_surface_t;
-#define to_win32_surface(S) ((cairo_win32_surface_t*)(S))
+#define to_win32_surface(S) (reinterpret_cast<cairo_win32_surface_t *>(S))
 
 typedef struct _cairo_win32_display_surface {
 	cairo_win32_surface_t win32;
@@ -118,7 +118,7 @@ typedef struct _cairo_win32_display_surface {
 	HRGN initial_clip_rgn;
 	cairo_bool_t had_simple_clip;
 } cairo_win32_display_surface_t;
-#define to_win32_display_surface(S) ((cairo_win32_display_surface_t*)(S))
+#define to_win32_display_surface(S) (reinterpret_cast<cairo_win32_display_surface_t *>(S))
 
 typedef struct _cairo_win32_printing_surface {
 	cairo_win32_surface_t win32;
@@ -134,19 +134,10 @@ typedef struct _cairo_win32_printing_surface {
 	HBRUSH brush, old_brush;
 	cairo_scaled_font_subsets_t * font_subsets;
 } cairo_win32_printing_surface_t;
-#define to_win32_printing_surface(S) ((cairo_win32_printing_surface_t*)(S))
+#define to_win32_printing_surface(S) (static_cast<cairo_win32_printing_surface_t *>(S))
 
-typedef BOOL (WINAPI *cairo_win32_alpha_blend_func_t)(HDC hdcDest,
-    int nXOriginDest,
-    int nYOriginDest,
-    int nWidthDest,
-    int hHeightDest,
-    HDC hdcSrc,
-    int nXOriginSrc,
-    int nYOriginSrc,
-    int nWidthSrc,
-    int nHeightSrc,
-    BLENDFUNCTION blendFunction);
+typedef BOOL (WINAPI *cairo_win32_alpha_blend_func_t)(HDC hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int hHeightDest,
+    HDC hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, BLENDFUNCTION blendFunction);
 
 typedef struct _cairo_win32_device {
 	cairo_device_t base;
@@ -155,8 +146,8 @@ typedef struct _cairo_win32_device {
 	cairo_win32_alpha_blend_func_t alpha_blend;
 } cairo_win32_device_t;
 
-#define to_win32_device(D) ((cairo_win32_device_t*)(D))
-#define to_win32_device_from_surface(S) to_win32_device(((cairo_surface_t*)(S))->device)
+#define to_win32_device(D) (reinterpret_cast<cairo_win32_device_t *>(D))
+#define to_win32_device_from_surface(S) to_win32_device(static_cast<cairo_surface_t *>(S)->device)
 
 cairo_private cairo_device_t * _cairo_win32_device_get(void);
 const cairo_compositor_t * _cairo_win32_gdi_compositor_get(void);
@@ -169,12 +160,12 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t 
 
 static inline void _cairo_matrix_to_win32_xform(const cairo_matrix_t * m, XFORM * xform)
 {
-	xform->eM11 = (FLOAT)m->xx;
-	xform->eM21 = (FLOAT)m->xy;
-	xform->eM12 = (FLOAT)m->yx;
-	xform->eM22 = (FLOAT)m->yy;
-	xform->eDx = (FLOAT)m->x0;
-	xform->eDy = (FLOAT)m->y0;
+	xform->eM11 = static_cast<FLOAT>(m->xx);
+	xform->eM21 = static_cast<FLOAT>(m->xy);
+	xform->eM12 = static_cast<FLOAT>(m->yx);
+	xform->eM22 = static_cast<FLOAT>(m->yy);
+	xform->eDx = static_cast<FLOAT>(m->x0);
+	xform->eDy = static_cast<FLOAT>(m->y0);
 }
 
 cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_surface_t * surface, const cairo_clip_t * clip);

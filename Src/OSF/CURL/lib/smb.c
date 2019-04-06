@@ -293,7 +293,7 @@ static CURLcode smb_recv_message(struct connectdata * conn, void ** msg)
 	if(smbc->got < sizeof(uint))
 		return CURLE_OK;
 
-	nbt_size = Curl_read16_be((const uchar*)
+	nbt_size = Curl_read16_be((const uchar *)
 	    (buf + sizeof(ushort))) +
 	    sizeof(uint);
 	if(smbc->got < nbt_size)
@@ -306,7 +306,7 @@ static CURLcode smb_recv_message(struct connectdata * conn, void ** msg)
 		if(nbt_size >= msg_size + sizeof(ushort)) {
 			/* Add the byte count */
 			msg_size += sizeof(ushort) +
-			    Curl_read16_le((const uchar*)&buf[msg_size]);
+			    Curl_read16_le((const uchar *)&buf[msg_size]);
 			if(nbt_size < msg_size)
 				return CURLE_READ_ERROR;
 		}
@@ -705,8 +705,7 @@ static CURLcode smb_request_state(struct connectdata * conn, bool * done)
 			    next_state = SMB_UPLOAD;
 		    }
 		    else {
-			    conn->data->req.size =
-			    smb_swap64(((struct smb_nt_create_response*)msg)->end_of_file);
+			    conn->data->req.size = smb_swap64(((struct smb_nt_create_response*)msg)->end_of_file);
 			    Curl_pgrsSetDownloadSize(conn->data, conn->data->req.size);
 			    next_state = SMB_DOWNLOAD;
 		    }
@@ -718,10 +717,8 @@ static CURLcode smb_request_state(struct connectdata * conn, bool * done)
 			    next_state = SMB_CLOSE;
 			    break;
 		    }
-		    len = Curl_read16_le(((const uchar*)msg) +
-		    sizeof(struct smb_header) + 11);
-		    off = Curl_read16_le(((const uchar*)msg) +
-		    sizeof(struct smb_header) + 13);
+		    len = Curl_read16_le(((const uchar *)msg) + sizeof(struct smb_header) + 11);
+		    off = Curl_read16_le(((const uchar *)msg) + sizeof(struct smb_header) + 13);
 		    if(len > 0) {
 			    if(off + sizeof(uint) + len > smbc->got) {
 				    failf(conn->data, "Invalid input packet");
@@ -749,8 +746,7 @@ static CURLcode smb_request_state(struct connectdata * conn, bool * done)
 			    next_state = SMB_CLOSE;
 			    break;
 		    }
-		    len = Curl_read16_le(((const uchar*)msg) +
-		    sizeof(struct smb_header) + 5);
+		    len = Curl_read16_le(((const uchar *)msg) + sizeof(struct smb_header) + 5);
 		    conn->data->req.bytecount += len;
 		    conn->data->req.offset += len;
 		    Curl_pgrsSetUploadCounter(conn->data, conn->data->req.bytecount);

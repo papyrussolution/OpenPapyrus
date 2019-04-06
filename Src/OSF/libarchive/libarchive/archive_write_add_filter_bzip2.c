@@ -149,7 +149,7 @@ static int archive_compressor_bzip2_options(struct archive_write_filter * f,
  * of ugly hackery to convert a const * pointer to a non-const pointer.
  */
 #define SET_NEXT_IN(st, src)                                     \
-	(st)->stream.next_in = (char*)(uintptr_t)(const void*)(src)
+	(st)->stream.next_in = (char *)(uintptr_t)(const void*)(src)
 static int drive_compressor(struct archive_write_filter *,
     struct private_data *, int finishing);
 
@@ -173,7 +173,7 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 				bs -= bs % bpb;
 		}
 		data->compressed_buffer_size = bs;
-		data->compressed = (char*)SAlloc::M(data->compressed_buffer_size);
+		data->compressed = (char *)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;

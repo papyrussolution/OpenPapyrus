@@ -226,6 +226,7 @@ static inline int cairo_const _cairo_isalpha(int c) { return (c >= 'a' && c <= '
 #include "cairo-path-fixed-private.h"
 #include "cairo-clip-private.h"
 #include "cairo-clip-inline.h"
+#include "cairo-surface-fallback-private.h"
 #include "cairo-surface-backend-private.h"
 #include "cairo-surface-private.h"
 #include "cairo-mutex-impl-private.h"
@@ -655,7 +656,7 @@ cairo_private cairo_bool_t _cairo_path_fixed_is_rectangle(const cairo_path_fixed
 cairo_private cairo_bool_t _cairo_path_fixed_in_fill(const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule,
     double tolerance, double x, double y);
 /* cairo-path-fill.c */
-cairo_private cairo_status_t _cairo_path_fixed_fill_to_polygon(const cairo_path_fixed_t * path, double tolerance, cairo_polygon_t * polygon);
+cairo_private cairo_status_t FASTCALL _cairo_path_fixed_fill_to_polygon(const cairo_path_fixed_t * path, double tolerance, cairo_polygon_t * polygon);
 cairo_private cairo_status_t _cairo_path_fixed_fill_rectilinear_to_polygon(const cairo_path_fixed_t * path, cairo_antialias_t antialias, cairo_polygon_t * polygon);
 cairo_private cairo_status_t _cairo_path_fixed_fill_rectilinear_to_boxes(const cairo_path_fixed_t * path,
     cairo_fill_rule_t fill_rule, cairo_antialias_t antialias, cairo_boxes_t * boxes);
@@ -927,16 +928,16 @@ cairo_private void _cairo_pen_find_active_cw_vertices(const cairo_pen_t * pen,
 cairo_private void _cairo_pen_find_active_ccw_vertices(const cairo_pen_t * pen, const cairo_slope_t * in, const cairo_slope_t * out, int * start, int * stop);
 
 /* cairo-polygon.c */
-cairo_private void _cairo_polygon_init(cairo_polygon_t * polygon, const cairo_box_t * boxes, int num_boxes);
-cairo_private void _cairo_polygon_init_with_clip(cairo_polygon_t * polygon, const cairo_clip_t * clip);
+cairo_private void FASTCALL _cairo_polygon_init(cairo_polygon_t * polygon, const cairo_box_t * boxes, int num_boxes);
+cairo_private void FASTCALL _cairo_polygon_init_with_clip(cairo_polygon_t * polygon, const cairo_clip_t * clip);
 cairo_private cairo_status_t _cairo_polygon_init_boxes(cairo_polygon_t * polygon, const cairo_boxes_t * boxes);
 cairo_private cairo_status_t _cairo_polygon_init_box_array(cairo_polygon_t * polygon, cairo_box_t * boxes, int num_boxes);
 cairo_private void _cairo_polygon_limit(cairo_polygon_t * polygon, const cairo_box_t * limits, int num_limits);
 cairo_private void _cairo_polygon_limit_to_clip(cairo_polygon_t * polygon, const cairo_clip_t * clip);
-cairo_private void _cairo_polygon_fini(cairo_polygon_t * polygon);
+cairo_private void FASTCALL _cairo_polygon_fini(cairo_polygon_t * polygon);
 cairo_private_no_warn cairo_status_t _cairo_polygon_add_line(cairo_polygon_t * polygon, const cairo_line_t * line, int top, int bottom, int dir);
 cairo_private_no_warn cairo_status_t _cairo_polygon_add_external_edge(void * polygon, const cairo_point_t * p1, const cairo_point_t * p2);
-cairo_private_no_warn cairo_status_t _cairo_polygon_add_contour(cairo_polygon_t * polygon, const cairo_contour_t * contour);
+cairo_private_no_warn cairo_status_t FASTCALL _cairo_polygon_add_contour(cairo_polygon_t * polygon, const cairo_contour_t * contour);
 cairo_private void _cairo_polygon_translate(cairo_polygon_t * polygon, int dx, int dy);
 cairo_private cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon, cairo_fill_rule_t fill_rule);
 cairo_private cairo_status_t _cairo_polygon_intersect(cairo_polygon_t * a, int winding_a, cairo_polygon_t * b, int winding_b);
@@ -1197,10 +1198,12 @@ CAIRO_END_DECLS
 #include "cairo-image-surface-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-path-private.h"
+#include "cairo-paginated-private.h"
 #include "cairo-pattern-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-recording-surface-private.h"
 #include "cairo-recording-surface-inline.h"
+#include "cairo-surface-offset-private.h"
 #include "cairo-surface-snapshot-private.h"
 #include "cairo-surface-inline.h"
 #include "cairo-surface-snapshot-inline.h"
@@ -1233,8 +1236,13 @@ CAIRO_END_DECLS
 #include "cairo-default-context-private.h"
 #include "cairo-surface-clipper-private.h"
 #include "cairo-surface-wrapper-private.h"
+#include "cairo-pdf-operators-private.h"
+#include "cairo-type3-glyph-surface-private.h"
 #include "cairo-scaled-font-subsets-private.h"
+#include "cairo-user-font-private.h"
+#include "cairo-image-info-private.h"
 #include "cairo-stroke-dash-private.h"
+#include "cairo-pattern-inline.h"
 
 #if HAVE_VALGRIND
 	#include <memcheck.h>

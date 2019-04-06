@@ -580,7 +580,7 @@ static int bid_entry(const char * p, ssize_t len, ssize_t nl, int * last_is_path
 	 * Skip the path-name which is quoted.
 	 */
 	for(; pp < pp_end; ++pp) {
-		if(!safe_char[*(const uchar*)pp]) {
+		if(!safe_char[*(const uchar *)pp]) {
 			if(*pp != ' ' && *pp != '\t' && *pp != '\r'
 			    && *pp != '\n')
 				f = 0;
@@ -607,7 +607,7 @@ static int bid_entry(const char * p, ssize_t len, ssize_t nl, int * last_is_path
 
 		slash = 0;
 		while(p <= --pb && *pb != ' ' && *pb != '\t') {
-			if(!safe_char[*(const uchar*)pb])
+			if(!safe_char[*(const uchar *)pb])
 				return -1;
 			name_len++;
 			/* The pathname should have a slash in this

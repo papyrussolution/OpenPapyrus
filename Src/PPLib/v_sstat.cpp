@@ -1101,7 +1101,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
-		PPViewSStat * p_view = (PPViewSStat *)p_brw->P_View;
+		PPViewSStat * p_view = static_cast<PPViewSStat *>(p_brw->P_View);
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
@@ -1408,14 +1408,12 @@ int SLAPI PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPack
 		const PPID suppl_deal_qk_id = (GetOpData(op_id, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL) ? DS.GetConstTLA().SupplDealQuotKindID : 0;
 		THROW(BillObj->CheckRights(PPR_INS));
 		THROW(pPack->CreateBlankByFilt(op_id, &flt, -1));
-		// @v8.6.9 {
 		if(autoOrder) {
 			SString temp_buf, memo_buf;
 			PPLoadString("autoorder", temp_buf);
 			memo_buf.Z().CatChar('#').Cat(temp_buf).Space().Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS);
 			STRNSCPY(pPack->Rec.Memo, memo_buf);
 		}
-		// } @v8.6.9
 		for(InitIteration(); NextIteration(&ss_item) > 0;) {
 			const PPID goods_id = ss_item.GoodsID;
 			if(!goods_id_list.lsearch(goods_id) && ss_item.SupplOrder != 0.0 && GObj.CheckSpecQuot(Filt.SupplID, goods_id, loc_id, 0)) {

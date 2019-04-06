@@ -116,7 +116,7 @@ void PalletCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 
 int PalletCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec *)pData;
+	Data = *static_cast<Rec *>(pData);
 	SetupPPObjCombo(pDlg, CtlselPalletType, PPOBJ_PALLET, Data.PalletTypeID, 0, 0);
 	SetupGoods(pDlg, Data.GoodsID);
 	pDlg->setCtrlUInt16(CtlPalletCount, (uint16)Data.PalletCount);
@@ -129,7 +129,7 @@ int PalletCtrlGroup::getData(TDialog * pDlg, void * pData)
 	Data.PalletTypeID = pDlg->getCtrlLong(CtlselPalletType);
 	Data.PalletCount = pDlg->getCtrlUInt16(CtlPalletCount);
 	Data.Qtty = pDlg->getCtrlReal(CtlQtty);
-	ASSIGN_PTR((Rec *)pData, Data);
+	ASSIGN_PTR(static_cast<Rec *>(pData), Data);
 	return 1;
 }
 

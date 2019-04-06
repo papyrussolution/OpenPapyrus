@@ -495,7 +495,7 @@ static int check_7zip_header_in_sfx(const char * p)
 		     * Magic Code, so we should do this in order not to
 		     * make a mis-detection.
 		     */
-		    if(crc32(0, (const uchar*)p + 12, 20)
+		    if(crc32(0, (const uchar *)p + 12, 20)
 			!= archive_le32dec(p + 8))
 			    return (6);
 		    /* Hit the header! */
@@ -1328,9 +1328,9 @@ static int decompress(struct archive_read * a, struct _7zip * zip, void * buff, 
 #endif
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 		case _7Z_BZ2:
-		    zip->bzstream.next_in = (char*)(uintptr_t)t_next_in;
+		    zip->bzstream.next_in = (char *)(uintptr_t)t_next_in;
 		    zip->bzstream.avail_in = t_avail_in;
-		    zip->bzstream.next_out = (char*)(uintptr_t)t_next_out;
+		    zip->bzstream.next_out = (char *)(uintptr_t)t_next_out;
 		    zip->bzstream.avail_out = t_avail_out;
 		    r = BZ2_bzDecompress(&(zip->bzstream));
 		    switch(r) {
@@ -2682,7 +2682,7 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 	}
 
 	/* CRC check. */
-	if(crc32(0, (const uchar*)p + 12, 20)
+	if(crc32(0, (const uchar *)p + 12, 20)
 	    != archive_le32dec(p + 8)) {
 		archive_set_error(&a->archive, -1, "Header CRC error");
 		return ARCHIVE_FATAL;

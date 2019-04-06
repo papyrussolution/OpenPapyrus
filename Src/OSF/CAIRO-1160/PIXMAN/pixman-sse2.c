@@ -2288,8 +2288,8 @@ static void sse2_composite_add_n_8888_8888_ca(pixman_implementation_t * imp, pix
 	mmx_src   = xmm_src;
 	while(height--) {
 		int w = width;
-		const uint32_t * pm = (uint32_t*)mask_line;
-		uint32_t * pd = (uint32_t*)dst_line;
+		const uint32_t * pm = (uint32_t *)mask_line;
+		uint32_t * pd = (uint32_t *)dst_line;
 		dst_line += dst_stride;
 		mask_line += mask_stride;
 		while(w && (uintptr_t)pd & 15) {
@@ -2362,8 +2362,8 @@ static void sse2_composite_over_n_8888_8888_ca(pixman_implementation_t * imp, pi
 	mmx_alpha = xmm_alpha;
 	while(height--) {
 		int w = width;
-		const uint32_t * pm = (uint32_t*)mask_line;
-		uint32_t * pd = (uint32_t*)dst_line;
+		const uint32_t * pm = (uint32_t *)mask_line;
+		uint32_t * pd = (uint32_t *)dst_line;
 
 		dst_line += dst_stride;
 		mask_line += mask_stride;
@@ -2817,7 +2817,7 @@ static void sse2_composite_over_n_8_8888(pixman_implementation_t * imp,
 		}
 
 		while(w >= 4) {
-			m = *((uint32_t*)mask);
+			m = *((uint32_t *)mask);
 
 			if(srca == 0xff && m == 0xffffffff) {
 				save_128_aligned((__m128i*)dst, xmm_def);
@@ -2891,7 +2891,7 @@ static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
 		uint16_t w;
 
 		stride = stride * (int)sizeof(uint32_t) / 1;
-		byte_line = (uint8_t*)(((uint8_t*)bits) + stride * y + x);
+		byte_line = (uint8_t *)(((uint8_t *)bits) + stride * y + x);
 		byte_width = width;
 		stride *= 1;
 
@@ -2901,7 +2901,7 @@ static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
 	}
 	else if(bpp == 16) {
 		stride = stride * (int)sizeof(uint32_t) / 2;
-		byte_line = (uint8_t*)(((uint16_t*)bits) + stride * y + x);
+		byte_line = (uint8_t *)(((uint16_t*)bits) + stride * y + x);
 		byte_width = 2 * width;
 		stride *= 2;
 
@@ -2909,7 +2909,7 @@ static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
 	}
 	else if(bpp == 32) {
 		stride = stride * (int)sizeof(uint32_t) / 4;
-		byte_line = (uint8_t*)(((uint32_t*)bits) + stride * y + x);
+		byte_line = (uint8_t *)(((uint32_t *)bits) + stride * y + x);
 		byte_width = 4 * width;
 		stride *= 4;
 	}
@@ -2926,7 +2926,7 @@ static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
 		w = byte_width;
 
 		if(w >= 1 && ((uintptr_t)d & 1)) {
-			*(uint8_t*)d = filler;
+			*(uint8_t *)d = filler;
 			w -= 1;
 			d += 1;
 		}
@@ -2938,7 +2938,7 @@ static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
 		}
 
 		while(w >= 4 && ((uintptr_t)d & 15)) {
-			*(uint32_t*)d = filler;
+			*(uint32_t *)d = filler;
 
 			w -= 4;
 			d += 4;
@@ -2984,7 +2984,7 @@ static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
 		}
 
 		while(w >= 4) {
-			*(uint32_t*)d = filler;
+			*(uint32_t *)d = filler;
 
 			w -= 4;
 			d += 4;
@@ -2997,7 +2997,7 @@ static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
 		}
 
 		if(w >= 1) {
-			*(uint8_t*)d = filler;
+			*(uint8_t *)d = filler;
 			w -= 1;
 			d += 1;
 		}
@@ -3051,7 +3051,7 @@ static void sse2_composite_src_n_8_8888(pixman_implementation_t * imp,
 		}
 
 		while(w >= 4) {
-			m = *((uint32_t*)mask);
+			m = *((uint32_t *)mask);
 
 			if(srca == 0xff && m == 0xffffffff) {
 				save_128_aligned((__m128i*)dst, xmm_def);
@@ -3154,7 +3154,7 @@ static void sse2_composite_over_n_8_0565(pixman_implementation_t * imp,
 			unpack_565_128_4x128(xmm_dst,
 			    &xmm_dst0, &xmm_dst1, &xmm_dst2, &xmm_dst3);
 
-			m = *((uint32_t*)mask);
+			m = *((uint32_t *)mask);
 			mask += 4;
 
 			if(m) {
@@ -3173,7 +3173,7 @@ static void sse2_composite_over_n_8_0565(pixman_implementation_t * imp,
 				    &xmm_dst0, &xmm_dst1);
 			}
 
-			m = *((uint32_t*)mask);
+			m = *((uint32_t *)mask);
 			mask += 4;
 
 			if(m) {
@@ -3399,7 +3399,7 @@ static void sse2_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
 		mask_line += mask_stride;
 		dst_line += dst_stride;
 		while(w && ((uintptr_t)dst & 15)) {
-			m = *(uint32_t*)mask;
+			m = *(uint32_t *)mask;
 			if(m) {
 				d = *dst;
 				mmx_mask = unpack_32_1x128(m);
@@ -3435,7 +3435,7 @@ static void sse2_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
 			mask += 8;
 		}
 		while(w) {
-			m = *(uint32_t*)mask;
+			m = *(uint32_t *)mask;
 			if(m) {
 				d = *dst;
 				mmx_mask = unpack_32_1x128(m);
@@ -3742,7 +3742,7 @@ static void sse2_composite_add_8_8(pixman_implementation_t * imp, pixman_composi
 		}
 
 		sse2_combine_add_u(imp, op,
-		    (uint32_t*)dst, (uint32_t*)src, NULL, w >> 2);
+		    (uint32_t *)dst, (uint32_t *)src, NULL, w >> 2);
 
 		/* Small tail */
 		dst += w & 0xfffc;
@@ -3847,7 +3847,7 @@ static void sse2_composite_add_n_8_8888(pixman_implementation_t * imp, pixman_co
 		}
 
 		while(w >= 4) {
-			uint32_t m = *(uint32_t*)mask;
+			uint32_t m = *(uint32_t *)mask;
 			if(m) {
 				__m128i xmm_mask_lo, xmm_mask_hi;
 				__m128i xmm_dst_lo, xmm_dst_hi;
@@ -3917,8 +3917,8 @@ static pixman_bool_t sse2_blt(pixman_implementation_t * imp,
 	if(src_bpp == 16) {
 		src_stride = src_stride * (int)sizeof(uint32_t) / 2;
 		dst_stride = dst_stride * (int)sizeof(uint32_t) / 2;
-		src_bytes = (uint8_t*)(((uint16_t*)src_bits) + src_stride * (src_y) + (src_x));
-		dst_bytes = (uint8_t*)(((uint16_t*)dst_bits) + dst_stride * (dest_y) + (dest_x));
+		src_bytes = (uint8_t *)(((uint16_t*)src_bits) + src_stride * (src_y) + (src_x));
+		dst_bytes = (uint8_t *)(((uint16_t*)dst_bits) + dst_stride * (dest_y) + (dest_x));
 		byte_width = 2 * width;
 		src_stride *= 2;
 		dst_stride *= 2;
@@ -3926,8 +3926,8 @@ static pixman_bool_t sse2_blt(pixman_implementation_t * imp,
 	else if(src_bpp == 32) {
 		src_stride = src_stride * (int)sizeof(uint32_t) / 4;
 		dst_stride = dst_stride * (int)sizeof(uint32_t) / 4;
-		src_bytes = (uint8_t*)(((uint32_t*)src_bits) + src_stride * (src_y) + (src_x));
-		dst_bytes = (uint8_t*)(((uint32_t*)dst_bits) + dst_stride * (dest_y) + (dest_x));
+		src_bytes = (uint8_t *)(((uint32_t *)src_bits) + src_stride * (src_y) + (src_x));
+		dst_bytes = (uint8_t *)(((uint32_t *)dst_bits) + dst_stride * (dest_y) + (dest_x));
 		byte_width = 4 * width;
 		src_stride *= 4;
 		dst_stride *= 4;
@@ -3952,7 +3952,7 @@ static pixman_bool_t sse2_blt(pixman_implementation_t * imp,
 		}
 
 		while(w >= 4 && ((uintptr_t)d & 15)) {
-			*(uint32_t*)d = *(uint32_t*)s;
+			*(uint32_t *)d = *(uint32_t *)s;
 
 			w -= 4;
 			s += 4;
@@ -3986,7 +3986,7 @@ static pixman_bool_t sse2_blt(pixman_implementation_t * imp,
 		}
 
 		while(w >= 4) {
-			*(uint32_t*)d = *(uint32_t*)s;
+			*(uint32_t *)d = *(uint32_t *)s;
 
 			w -= 4;
 			s += 4;
@@ -4059,7 +4059,7 @@ static void sse2_composite_over_x888_8_8888(pixman_implementation_t * imp, pixma
 		}
 
 		while(w >= 4) {
-			m = *(uint32_t*)mask;
+			m = *(uint32_t *)mask;
 			xmm_src = _mm_or_si128(
 				load_128_unaligned((__m128i*)src), mask_ff000000);
 
@@ -4166,7 +4166,7 @@ static void sse2_composite_over_8888_8_8888(pixman_implementation_t * imp, pixma
 			w--;
 		}
 		while(w >= 4) {
-			m = *(uint32_t*)mask;
+			m = *(uint32_t *)mask;
 			if(m) {
 				xmm_src = load_128_unaligned((__m128i*)src);
 				if(m == 0xffffffff && is_opaque(xmm_src)) {
@@ -4996,7 +4996,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32_t
 		__m128i xmm_dst, xmm_dst_lo, xmm_dst_hi;
 		__m128i xmm_mask, xmm_mask_lo, xmm_mask_hi;
 
-		m = *(uint32_t*)mask;
+		m = *(uint32_t *)mask;
 
 		if(m) {
 			BILINEAR_INTERPOLATE_FOUR_PIXELS(xmm_src);
@@ -5331,7 +5331,7 @@ static uint32_t * sse2_fetch_x8r8g8b8(pixman_iter_t * iter, const uint32_t * mas
 	int w = iter->width;
 	__m128i ff000000 = mask_ff000000;
 	uint32_t * dst = iter->buffer;
-	uint32_t * src = (uint32_t*)iter->bits;
+	uint32_t * src = (uint32_t *)iter->bits;
 
 	iter->bits += iter->stride;
 

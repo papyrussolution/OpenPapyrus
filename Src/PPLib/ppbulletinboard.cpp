@@ -471,7 +471,7 @@ void SLAPI TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 			f_out.WriteLine(line_buf.CR());
 		}
 	}
-#if 1 // {
+#if 0 // {
 	{
 		for(uint i = 0; i < rEnv.TL.getCount(); i++) {
 			const TsStakeEnvironment::Tick & r_tk = rEnv.TL.at(i);
@@ -864,7 +864,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 			}
 			{
 				double last_value = 0.0;
-				const  double avg_spread = rBlk.GetAverageSpread() * 1.08;
+				const  double avg_spread = rBlk.GetAverageSpread() * 1.1;
 				rBlk.T_.GetValue(rBlk.T_.GetCount()-1, vec_idx, &last_value);
 				// @v10.3.11 {
 				/* плохо работает
@@ -1033,7 +1033,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 						__adjusted_result_per_day = EvaluateCost(r_blk, is_sell, __volume) * rPse.ResultPerDay;
 						//Cfg.MinPerDayPotential
 						int use_it = 1;
-						if(_best_result_reverse.MaxResultIdx >= 0) { use_it = 0; }
+						// @v10.4.0 if(_best_result_reverse.MaxResultIdx >= 0) { use_it = 0; }
 						//if(__adjusted_result_per_day >= 10.0) { use_it = 0; }
 						if(use_it) {
 							rPse.Volume = __volume;
@@ -1208,7 +1208,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 				stk_symb = r_pse.R_Blk.T_.GetSymb();
 				const double cost = EvaluateCost(r_pse.R_Blk, LOGIC(r_s.BaseFlags & r_s.bfShort), r_pse.Volume);
 				if(cost > 0.0) {
-					const double avg_spread = r_pse.R_Blk.GetAverageSpread() * 1.08;
+					const double avg_spread = r_pse.R_Blk.GetAverageSpread() * 1.1;
 					const double sl = r_s.CalcSL(last_value, avg_spread);
 					const double tp = r_s.CalcTP(last_value, avg_spread);
 					const long trange_fmt = MKSFMTD(0, 10, NMBF_NOTRAILZ);

@@ -1038,8 +1038,8 @@ static void fast_composite_src_memcpy(pixman_implementation_t * imp,
 	src_stride = src_image->bits.rowstride * 4;
 	dst_stride = dest_image->bits.rowstride * 4;
 
-	src = (uint8_t*)src_image->bits.bits + src_y * src_stride + src_x * bpp;
-	dst = (uint8_t*)dest_image->bits.bits + dest_y * dst_stride + dest_x * bpp;
+	src = (uint8_t *)src_image->bits.bits + src_y * src_stride + src_x * bpp;
+	dst = (uint8_t *)dest_image->bits.bits + dest_y * dst_stride + dest_x * bpp;
 
 	while(height--) {
 		memcpy(dst, src, n_bytes);
@@ -1151,7 +1151,7 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 
 				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint16_t, src_stride,
 				    src_line_16, 1);
-				src_line = (uint32_t*)src_line_16;
+				src_line = (uint32_t *)src_line_16;
 
 				for(i = 0; i < src_width;) {
 					for(j = 0; j < src_image->bits.width; j++, i++)
@@ -1163,11 +1163,11 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 
 				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint8_t, src_stride,
 				    src_line_8, 1);
-				src_line = (uint32_t*)src_line_8;
+				src_line = (uint32_t *)src_line_8;
 
 				for(i = 0; i < src_width;) {
 					for(j = 0; j < src_image->bits.width; j++, i++)
-						((uint8_t*)extended_src)[i] = ((uint8_t*)src_line)[j];
+						((uint8_t *)extended_src)[i] = ((uint8_t *)src_line)[j];
 				}
 			}
 
@@ -1864,7 +1864,7 @@ static void pixman_fill8(uint32_t * bits,
     uint32_t filler)
 {
 	int byte_stride = stride * (int)sizeof(uint32_t);
-	uint8_t * dst = (uint8_t*)bits;
+	uint8_t * dst = (uint8_t *)bits;
 	uint8_t v = filler & 0xff;
 	int i;
 
@@ -2091,8 +2091,8 @@ static void fetch_horizontal(bits_image_t * image, line_t * line,
 			rrb = (right & 0x00ff00ff);
 			rb = (lrb << 8) + dist_x * (rrb - lrb);
 
-			*((uint32_t*)(line->buffer + i)) = ag;
-			*((uint32_t*)(line->buffer + i) + 1) = rb;
+			*((uint32_t *)(line->buffer + i)) = ag;
+			*((uint32_t *)(line->buffer + i) + 1) = rb;
 		}
 #else
 		{
@@ -2148,10 +2148,10 @@ static uint32_t * fast_fetch_bilinear_cover(pixman_iter_t * iter, const uint32_t
 		uint32_t bag, brb;
 		uint32_t a, r, g, b;
 
-		tag = *((uint32_t*)(line0->buffer + i));
-		trb = *((uint32_t*)(line0->buffer + i) + 1);
-		bag = *((uint32_t*)(line1->buffer + i));
-		brb = *((uint32_t*)(line1->buffer + i) + 1);
+		tag = *((uint32_t *)(line0->buffer + i));
+		trb = *((uint32_t *)(line0->buffer + i) + 1);
+		bag = *((uint32_t *)(line1->buffer + i));
+		brb = *((uint32_t *)(line1->buffer + i) + 1);
 
 		ta = tag >> 16;
 		ba = bag >> 16;
@@ -2535,7 +2535,7 @@ static force_inline void bits_image_fetch_separable_convolution_affine(pixman_im
 							repeat(repeat_mode, &rx, bits->width);
 							repeat(repeat_mode, &ry, bits->height);
 
-							row = (uint8_t*)bits->bits + bits->rowstride * 4 * ry;
+							row = (uint8_t *)bits->bits + bits->rowstride * 4 * ry;
 							pixel = convert_pixel(row, rx) | mask;
 						}
 						else {
@@ -2543,7 +2543,7 @@ static force_inline void bits_image_fetch_separable_convolution_affine(pixman_im
 								pixel = 0;
 							}
 							else {
-								row = (uint8_t*)bits->bits + bits->rowstride * 4 * ry;
+								row = (uint8_t *)bits->bits + bits->rowstride * 4 * ry;
 								pixel = convert_pixel(row, rx) | mask;
 							}
 						}
@@ -2642,8 +2642,8 @@ static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image
 			repeat(repeat_mode, &x2, width);
 			repeat(repeat_mode, &y2, height);
 
-			row1 = (uint8_t*)bits->bits + bits->rowstride * 4 * y1;
-			row2 = (uint8_t*)bits->bits + bits->rowstride * 4 * y2;
+			row1 = (uint8_t *)bits->bits + bits->rowstride * 4 * y1;
+			row2 = (uint8_t *)bits->bits + bits->rowstride * 4 * y2;
 
 			tl = convert_pixel(row1, x1) | mask;
 			tr = convert_pixel(row1, x2) | mask;
@@ -2674,7 +2674,7 @@ static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image
 				mask1 = 0;
 			}
 			else {
-				row1 = (uint8_t*)bits->bits + bits->rowstride * 4 * y1;
+				row1 = (uint8_t *)bits->bits + bits->rowstride * 4 * y1;
 				row1 += bpp / 8 * x1;
 
 				mask1 = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
@@ -2685,7 +2685,7 @@ static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image
 				mask2 = 0;
 			}
 			else {
-				row2 = (uint8_t*)bits->bits + bits->rowstride * 4 * y2;
+				row2 = (uint8_t *)bits->bits + bits->rowstride * 4 * y2;
 				row2 += bpp / 8 * x1;
 
 				mask2 = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
@@ -2774,7 +2774,7 @@ static force_inline void bits_image_fetch_nearest_affine(pixman_image_t * image,
 				repeat(repeat_mode, &y0, height);
 			}
 
-			row = (uint8_t*)bits->bits + bits->rowstride * 4 * y0;
+			row = (uint8_t *)bits->bits + bits->rowstride * 4 * y0;
 
 			buffer[i] = convert_pixel(row, x0) | mask;
 		}
@@ -2787,12 +2787,12 @@ next:
 
 static force_inline uint32_t convert_a8r8g8b8(const uint8_t * row, int x)
 {
-	return *(((uint32_t*)row) + x);
+	return *(((uint32_t *)row) + x);
 }
 
 static force_inline uint32_t convert_x8r8g8b8(const uint8_t * row, int x)
 {
-	return *(((uint32_t*)row) + x);
+	return *(((uint32_t *)row) + x);
 }
 
 static force_inline uint32_t convert_a8(const uint8_t * row, int x)

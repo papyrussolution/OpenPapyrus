@@ -74,15 +74,15 @@ static boolean read_text_integer(FILE * file, long * result, int * termchar)
 // 
 boolean read_quant_tables(j_compress_ptr cinfo, char * filename, boolean force_baseline)
 {
-	FILE * fp;
-	int tblno, i, termchar;
-	long val;
-	uint table[DCTSIZE2];
-	if((fp = fopen(filename, "r")) == NULL) {
+	int    i, termchar;
+	long   val;
+	uint   table[DCTSIZE2];
+	FILE * fp = fopen(filename, "r");
+	int    tblno = 0;
+	if(!fp) {
 		fprintf(stderr, "Can't open table file %s\n", filename);
 		return FALSE;
 	}
-	tblno = 0;
 	while(read_text_integer(fp, &val, &termchar)) { /* read 1st element of table */
 		if(tblno >= NUM_QUANT_TBLS) {
 			fprintf(stderr, "Too many tables in file %s\n", filename);
@@ -155,13 +155,13 @@ static boolean FASTCALL read_scan_integer(FILE * file, long * result, int * term
 //
 boolean read_scan_script(j_compress_ptr cinfo, char * filename)
 {
-	FILE * fp;
 	int scanno, ncomps, termchar;
 	long val;
 	jpeg_scan_info * scanptr;
 #define MAX_SCANS  100          /* quite arbitrary limit */
 	jpeg_scan_info scans[MAX_SCANS];
-	if((fp = fopen(filename, "r")) == NULL) {
+	FILE * fp = fopen(filename, "r");
+	if(!fp) {
 		fprintf(stderr, "Can't open scan definition file %s\n", filename);
 		return FALSE;
 	}
@@ -226,7 +226,7 @@ bogus:
 		 * NOTE: for cjpeg's use, JPOOL_IMAGE is the right lifetime for this data,
 		 * but if you want to compress multiple images you'd want JPOOL_PERMANENT.
 		 */
-		scanptr = (jpeg_scan_info*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, scanno * SIZEOF(jpeg_scan_info));
+		scanptr = static_cast<jpeg_scan_info *>((*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, scanno * SIZEOF(jpeg_scan_info)));
 		MEMCOPY(scanptr, scans, scanno * SIZEOF(jpeg_scan_info));
 		cinfo->scan_info = scanptr;
 		cinfo->num_scans = scanno;

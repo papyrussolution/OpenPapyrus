@@ -280,14 +280,14 @@ int SClipboard::CopyPaste(HWND hWnd, int copy, const char * pPath)
 	if(::OpenClipboard(hWnd)) {
 		if(copy) {
 			::EmptyClipboard();
-			MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char *)pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
+			MultiByteToWideChar(1251, MB_PRECOMPOSED, pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 			p_bmp = new Gdiplus::Bitmap(wstr);
 			p_bmp->GetHBITMAP(0, &h_bmp);
 			SetClipboardData(CF_BITMAP, h_bmp);
 			CloseClipboard();
 		}
 		else if(IsClipboardFormatAvailable(CF_DIB)) {
-			h_bmp = (HBITMAP)GetClipboardData(CF_BITMAP);
+			h_bmp = static_cast<HBITMAP>(::GetClipboardData(CF_BITMAP));
 			p_bmp = new Gdiplus::Bitmap(h_bmp, 0);
 			CloseClipboard();
 			CLSID enc_clsid;

@@ -28,25 +28,24 @@
 
 __FBSDID("$FreeBSD$");
 
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
+//#endif
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 //#include <stdio.h>
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
+//#endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 #if HAVE_ZSTD_H
-#include <zstd.h>
+	#include <zstd.h>
 #endif
 
 //#include "archive.h"
@@ -57,17 +56,17 @@ __FBSDID("$FreeBSD$");
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 
 struct private_data {
-	ZSTD_DStream	*dstream;
-	uchar	*out_block;
-	size_t		 out_block_size;
-	int64_t		 total_out;
-	char		 in_frame; /* True = in the middle of a zstd frame. */
-	char		 eof; /* True = found end of compressed data. */
+	ZSTD_DStream    * dstream;
+	uchar   * out_block;
+	size_t out_block_size;
+	int64_t total_out;
+	char in_frame;             /* True = in the middle of a zstd frame. */
+	char eof;             /* True = found end of compressed data. */
 };
 
 /* Zstd Filter. */
-static ssize_t	zstd_filter_read(struct archive_read_filter *, const void**);
-static int	zstd_filter_close(struct archive_read_filter *);
+static ssize_t  zstd_filter_read(struct archive_read_filter *, const void**);
+static int      zstd_filter_close(struct archive_read_filter *);
 #endif
 
 /*
@@ -76,22 +75,16 @@ static int	zstd_filter_close(struct archive_read_filter *);
  * messages.)  So the bid framework here gets compiled even if no zstd library
  * is available.
  */
-static int	zstd_bidder_bid(struct archive_read_filter_bidder *,
-		    struct archive_read_filter *);
-static int	zstd_bidder_init(struct archive_read_filter *);
+static int      zstd_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
+static int      zstd_bidder_init(struct archive_read_filter *);
 
-int
-archive_read_support_filter_zstd(struct archive *_a)
+int archive_read_support_filter_zstd(struct archive * _a)
 {
-	struct archive_read *a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder *bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_zstd");
-
-	if (__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
+	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read_filter_bidder * bidder;
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_zstd");
+	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "zstd";
 	bidder->bid = zstd_bidder_bid;
@@ -101,8 +94,7 @@ archive_read_support_filter_zstd(struct archive *_a)
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 	return ARCHIVE_OK;
 #else
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external zstd program for zstd decompression");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external zstd program for zstd decompression");
 	return (ARCHIVE_WARN);
 #endif
 }
@@ -110,25 +102,19 @@ archive_read_support_filter_zstd(struct archive *_a)
 /*
  * Test whether we can handle this data.
  */
-static int
-zstd_bidder_bid(struct archive_read_filter_bidder *self,
-    struct archive_read_filter *filter)
+static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
-	const uchar *buffer;
+	const uchar * buffer;
 	ssize_t avail;
 	unsigned prefix;
-
 	/* Zstd frame magic values */
 	const unsigned zstd_magic = 0xFD2FB528U;
-
-	(void) self; /* UNUSED */
-
-	buffer = (const uchar *)__archive_read_filter_ahead(filter, 4, &avail);
-	if (buffer == NULL)
+	(void)self;  /* UNUSED */
+	buffer = (const uchar*)__archive_read_filter_ahead(filter, 4, &avail);
+	if(buffer == NULL)
 		return 0;
-
 	prefix = archive_le32dec(buffer);
-	if (prefix == zstd_magic)
+	if(prefix == zstd_magic)
 		return (32);
 
 	return 0;
@@ -141,12 +127,9 @@ zstd_bidder_bid(struct archive_read_filter_bidder *self,
  * decompression directly.  We can, however, try to run "zstd -d"
  * in case that's available.
  */
-static int
-zstd_bidder_init(struct archive_read_filter *self)
+static int zstd_bidder_init(struct archive_read_filter * self)
 {
-	int r;
-
-	r = __archive_read_program(self, "zstd -d -qq");
+	int r = __archive_read_program(self, "zstd -d -qq");
 	/* Note: We set the format here even if __archive_read_program()
 	 * above fails.  We do, after all, know what the format is
 	 * even if we weren't able to read it. */
@@ -156,67 +139,53 @@ zstd_bidder_init(struct archive_read_filter *self)
 }
 
 #else
-
 /*
  * Initialize the filter object
  */
-static int
-zstd_bidder_init(struct archive_read_filter *self)
+static int zstd_bidder_init(struct archive_read_filter * self)
 {
-	struct private_data *state;
+	struct private_data * state;
 	const size_t out_block_size = ZSTD_DStreamOutSize();
-	void *out_block;
-	ZSTD_DStream *dstream;
-
+	void * out_block;
+	ZSTD_DStream * dstream;
 	self->code = ARCHIVE_FILTER_ZSTD;
 	self->name = "zstd";
-
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
-	out_block = (uchar *)SAlloc::M(out_block_size);
+	out_block = (uchar*)SAlloc::M(out_block_size);
 	dstream = ZSTD_createDStream();
-
-	if (state == NULL || out_block == NULL || dstream == NULL) {
+	if(state == NULL || out_block == NULL || dstream == NULL) {
 		SAlloc::F(out_block);
 		SAlloc::F(state);
 		ZSTD_freeDStream(dstream); /* supports free on NULL */
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate data for zstd decompression");
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for zstd decompression");
 		return ARCHIVE_FATAL;
 	}
-
 	self->data = state;
-
 	state->out_block_size = out_block_size;
 	state->out_block = out_block;
 	state->dstream = dstream;
 	self->read = zstd_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = zstd_filter_close;
-
 	state->eof = 0;
 	state->in_frame = 0;
-
 	return ARCHIVE_OK;
 }
 
-static ssize_t
-zstd_filter_read(struct archive_read_filter *self, const void **p)
+static ssize_t zstd_filter_read(struct archive_read_filter * self, const void ** p)
 {
-	struct private_data *state;
+	struct private_data * state;
 	size_t decompressed;
 	ssize_t avail_in;
 	ZSTD_outBuffer out;
 	ZSTD_inBuffer in;
-
 	state = (struct private_data *)self->data;
-
-	out = (ZSTD_outBuffer) { state->out_block, state->out_block_size, 0 };
-
+	out = (ZSTD_outBuffer) {state->out_block, state->out_block_size, 0 };
 	/* Try to fill the output buffer. */
-	while (out.pos < out.size && !state->eof) {
-		if (!state->in_frame) {
+	while(out.pos < out.size && !state->eof) {
+		if(!state->in_frame) {
 			const size_t ret = ZSTD_initDStream(state->dstream);
-			if (ZSTD_isError(ret)) {
+			if(ZSTD_isError(ret)) {
 				archive_set_error(&self->archive->archive,
 				    ARCHIVE_ERRNO_MISC,
 				    "Error initializing zstd decompressor: %s",
@@ -224,17 +193,17 @@ zstd_filter_read(struct archive_read_filter *self, const void **p)
 				return ARCHIVE_FATAL;
 			}
 		}
-		in.src = __archive_read_filter_ahead(self->upstream, 1,
-		    &avail_in);
-		if (avail_in < 0) {
+		in.src = __archive_read_filter_ahead(self->upstream, 1, &avail_in);
+		if(avail_in < 0) {
 			return avail_in;
 		}
-		if (in.src == NULL && avail_in == 0) {
-			if (!state->in_frame) {
+		if(in.src == NULL && avail_in == 0) {
+			if(!state->in_frame) {
 				/* end of stream */
 				state->eof = 1;
 				break;
-			} else {
+			}
+			else {
 				archive_set_error(&self->archive->archive,
 				    ARCHIVE_ERRNO_MISC,
 				    "Truncated zstd input");
@@ -248,7 +217,7 @@ zstd_filter_read(struct archive_read_filter *self, const void **p)
 			const size_t ret =
 			    ZSTD_decompressStream(state->dstream, &out, &in);
 
-			if (ZSTD_isError(ret)) {
+			if(ZSTD_isError(ret)) {
 				archive_set_error(&self->archive->archive,
 				    ARCHIVE_ERRNO_MISC,
 				    "Zstd decompression failed: %s",
@@ -266,7 +235,7 @@ zstd_filter_read(struct archive_read_filter *self, const void **p)
 
 	decompressed = out.pos;
 	state->total_out += decompressed;
-	if (decompressed == 0)
+	if(decompressed == 0)
 		*p = NULL;
 	else
 		*p = state->out_block;
@@ -276,10 +245,9 @@ zstd_filter_read(struct archive_read_filter *self, const void **p)
 /*
  * Clean up the decompressor.
  */
-static int
-zstd_filter_close(struct archive_read_filter *self)
+static int zstd_filter_close(struct archive_read_filter * self)
 {
-	struct private_data *state;
+	struct private_data * state;
 
 	state = (struct private_data *)self->data;
 

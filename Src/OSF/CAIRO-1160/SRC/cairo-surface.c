@@ -1807,7 +1807,7 @@ cairo_status_t _cairo_surface_acquire_source_image(cairo_surface_t * surface, ca
 
 cairo_status_t _cairo_surface_default_acquire_source_image(void * _surface, cairo_image_surface_t ** image_out, void   ** image_extra)
 {
-	cairo_surface_t * surface = (cairo_surface_t *)_surface;
+	cairo_surface_t * surface = static_cast<cairo_surface_t *>(_surface);
 	cairo_rectangle_int_t extents;
 	if(unlikely(!surface->backend->get_extents(surface, &extents)))
 		return _cairo_error(CAIRO_STATUS_INVALID_SIZE);

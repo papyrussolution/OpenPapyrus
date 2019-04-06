@@ -1120,7 +1120,7 @@ void SGeo::SinCosPair::Set_SinCosDX(double x)
 	// In order to minimize round-off errors, this function exactly reduces
 	// the argument to the range [-45, 45] before converting it to radians.
 	double r = fmod(x, 360.0);
-	int    q = (int)(floor(r / 90.0 + 0.5));
+	int    q = ffloori(r / 90.0 + 0.5);
 	r -= 90 * q;
 	// now abs(r) <= 45
 	r *= SMathConst::PiDiv180;

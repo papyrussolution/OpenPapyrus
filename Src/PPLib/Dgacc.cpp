@@ -304,7 +304,7 @@ void ArticleCtrlGroup::SetupOp(TDialog * pDlg)
 
 int ArticleCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec*)pData;
+	Data = *static_cast<Rec *>(pData);
 	SETIFZ(Data.AcsID, AccSheetID);
 	if(CtlselAcs)
 		SetupPPObjCombo(pDlg, CtlselAcs, PPOBJ_ACCSHEET, Data.AcsID, 0, 0);
@@ -314,7 +314,7 @@ int ArticleCtrlGroup::setData(TDialog * pDlg, void * pData)
 
 int ArticleCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
-	Rec * p_rec = (Rec*)pData;
+	Rec * p_rec = static_cast<Rec *>(pData);
 	if(CtlselAcs) {
 		pDlg->getCtrlData(CtlselAcs, &Data.AcsID);
 	}

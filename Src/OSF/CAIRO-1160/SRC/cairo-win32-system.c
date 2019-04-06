@@ -58,7 +58,7 @@
 # define _WIN32_WINNT 0x0500
 #endif
 
-#include <windows.h>
+//#include <windows.h>
 
 /* declare to avoid "no previous prototype for 'DllMain'" warning */
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved);

@@ -2397,14 +2397,13 @@ int PPALDD_SalaryByPost::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_SalaryByPost::InitIteration(long iterId, int sortId, long rsrv)
 {
-	PPViewSalary * p_v = (PPViewSalary *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
+	PPViewSalary * p_v = static_cast<PPViewSalary *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
 	p_v->InitIteration(sortId);
 	p_v->InitPostDateList();
 	return 1;
-
 	//INIT_PPVIEW_ALDD_ITER_ORD(Salary, sortId);
 }
 
@@ -2412,7 +2411,7 @@ int PPALDD_SalaryByPost::NextIteration(long iterId)
 {
 	int    r = 0;
 	IterProlog(iterId, 0);
-	PPViewSalary * p_v = (PPViewSalary *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
+	PPViewSalary * p_v = static_cast<PPViewSalary *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	SalaryViewItem item;
 	while((r = p_v->NextIteration(&item)) > 0) {
 		if(p_v->SetPostDateListItem(item.PostID, item.Beg) > 0) {
@@ -2436,12 +2435,12 @@ void PPALDD_SalaryByPost::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 
 	if(pF->Name == "?GetAmount") {
 		double amt = 0.0;
-		PPViewSalary * p_v = (PPViewSalary *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
+		PPViewSalary * p_v = static_cast<PPViewSalary *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 		if(p_v) {
 			PPID   charge_id = 0;
 			PPObjSalCharge charge_obj;
 			if(charge_obj.SearchBySymb(_ARG_STR(1), &charge_id) > 0) {
-				const SalaryFilt * p_filt = (SalaryFilt*)p_v->GetBaseFilt();
+				const SalaryFilt * p_filt = static_cast<const SalaryFilt *>(p_v->GetBaseFilt());
 				DateRange period;
 				period.Set(I.Beg, I.End);
 				p_v->Calc(I.PostID, charge_id, 0, period, &amt);

@@ -241,7 +241,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		}
 
 		/* Read the filename table into memory. */
-		st = (char*)SAlloc::M(entry_size);
+		st = (char *)SAlloc::M(entry_size);
 		if(st == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate filename table buffer");
 			return ARCHIVE_FATAL;
@@ -333,7 +333,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 			return ARCHIVE_FATAL;
 		}
 		/* Store it in the entry. */
-		p = (char*)SAlloc::M(bsd_name_length + 1);
+		p = (char *)SAlloc::M(bsd_name_length + 1);
 		if(p == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate fname buffer");
 			return ARCHIVE_FATAL;

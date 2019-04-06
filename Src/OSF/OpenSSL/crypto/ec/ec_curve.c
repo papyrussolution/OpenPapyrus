@@ -2870,7 +2870,7 @@ static EC_GROUP * ec_group_new_from_data(const ec_list_element curve)
 	data = curve.data;
 	seed_len = data->seed_len;
 	param_len = data->param_len;
-	params = (const uchar*)(data + 1); /* skip header */
+	params = (const uchar *)(data + 1); /* skip header */
 	params += seed_len;     /* skip seed */
 	if((p = BN_bin2bn(params + 0 * param_len, param_len, NULL)) == NULL
 	    || (a = BN_bin2bn(params + 1 * param_len, param_len, NULL)) == NULL

@@ -143,7 +143,7 @@ METHODDEF(void) post_process_prepass(j_decompress_ptr cinfo,
 	/* but we advance out_row_ctr so outer loop can tell when we're done. */
 	if(post->next_row > old_next_row) {
 		num_rows = post->next_row - old_next_row;
-		(*cinfo->cquantize->color_quantize)(cinfo, post->buffer + old_next_row, (JSAMPARRAY)NULL, (int)num_rows);
+		(*cinfo->cquantize->color_quantize)(cinfo, post->buffer + old_next_row, NULL, (int)num_rows);
 		*out_row_ctr += num_rows;
 	}
 	/* Advance if we filled the strip. */

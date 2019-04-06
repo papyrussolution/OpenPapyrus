@@ -39,18 +39,10 @@
 //#include "cairo-surface-observer-private.h"
 
 static inline cairo_surface_t * _cairo_surface_observer_get_target(cairo_surface_t * surface)
-{
-	return reinterpret_cast<cairo_surface_observer_t *>(surface)->target;
-}
-
+	{ return reinterpret_cast<cairo_surface_observer_t *>(surface)->target; }
 static inline cairo_bool_t _cairo_surface_is_observer(const cairo_surface_t * surface)
-{
-	return (surface->backend->type == static_cast<cairo_surface_type_t>(CAIRO_INTERNAL_SURFACE_TYPE_OBSERVER));
-}
-
+	{ return (surface->backend->type == static_cast<cairo_surface_type_t>(CAIRO_INTERNAL_SURFACE_TYPE_OBSERVER)); }
 static inline cairo_bool_t _cairo_device_is_observer(const cairo_device_t * device)
-{
-	return (device->backend->type == static_cast<cairo_device_type_t>(CAIRO_INTERNAL_DEVICE_TYPE_OBSERVER));
-}
+	{ return (device->backend->type == static_cast<cairo_device_type_t>(CAIRO_INTERNAL_DEVICE_TYPE_OBSERVER)); }
 
 #endif /* CAIRO_SURFACE_OBSERVER_INLINE_H */

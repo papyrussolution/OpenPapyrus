@@ -715,7 +715,7 @@ static int archive_write_pax_header(struct archive_write * a,
 
 		oname = archive_entry_pathname(entry_original);
 		name_length = strlen(oname);
-		name = (char*)SAlloc::M(name_length + 3);
+		name = (char *)SAlloc::M(name_length + 3);
 		if(name == NULL || extra == NULL) {
 			/* XXX error message */
 			archive_entry_free(extra);
@@ -1769,7 +1769,7 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 		if(pax->sparse_list == NULL)
 			return total;
 
-		p = ((const uchar*)buff) + total;
+		p = ((const uchar *)buff) + total;
 		ws = s - total;
 		if(ws > pax->sparse_list->remaining)
 			ws = (size_t)pax->sparse_list->remaining;
@@ -1793,7 +1793,7 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 
 static int has_non_ASCII(const char * _p)
 {
-	const uchar * p = (const uchar*)_p;
+	const uchar * p = (const uchar *)_p;
 
 	if(p == NULL)
 		return (1);
@@ -1820,7 +1820,7 @@ static char * url_encode(const char * in)
 			out_len++;
 	}
 
-	out = (char*)SAlloc::M(out_len + 1);
+	out = (char *)SAlloc::M(out_len + 1);
 	if(out == NULL)
 		return NULL;
 
@@ -1858,7 +1858,7 @@ static char * base64_encode(const char * s, size_t len)
 	char * d, * out;
 
 	/* 3 bytes becomes 4 chars, but round up and allow for trailing NUL */
-	out = (char*)SAlloc::M((len * 4 + 2) / 3 + 1);
+	out = (char *)SAlloc::M((len * 4 + 2) / 3 + 1);
 	if(out == NULL)
 		return NULL;
 	d = out;

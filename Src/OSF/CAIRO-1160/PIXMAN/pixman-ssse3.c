@@ -218,7 +218,7 @@ static uint32_t * ssse3_fetch_bilinear_cover(pixman_iter_t * iter, const uint32_
 		/* r0:  A1 R1 G1 B1 A0 R0 G0 B0 */
 		p = _mm_packus_epi16(r0, r0);
 		if(iter->width - i == 1) {
-			*(uint32_t*)(iter->buffer + i) = _mm_cvtsi128_si32(p);
+			*(uint32_t *)(iter->buffer + i) = _mm_cvtsi128_si32(p);
 			i++;
 		}
 		else {

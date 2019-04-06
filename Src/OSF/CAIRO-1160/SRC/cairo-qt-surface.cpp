@@ -49,8 +49,8 @@
 //#include "cairo-types-private.h"
 //#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-surface-backend-private.h"
-#include "cairo-surface-fallback-private.h"
+//#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-fallback-private.h"
 #include "cairo-ft.h"
 #include "cairo-qt.h"
 #include <memory>
@@ -567,7 +567,7 @@ static cairo_surface_t * map_qimage_to_image(QImage * qimg, const cairo_rectangl
 	pixman_image = pixman_image_create_bits(pixman_format,
 		extents->width,
 		extents->height,
-		(uint32_t*)data,
+		(uint32_t *)data,
 		qimg->bytesPerLine());
 	if(pixman_image == NULL) {
 		delete qimg;
@@ -851,7 +851,7 @@ struct PatternToBrushConverter {
 				}
 
 				if(isurf) {
-					mBrush = QBrush(QImage((const uchar*)isurf->data,
+					mBrush = QBrush(QImage((const uchar *)isurf->data,
 						isurf->width,
 						isurf->height,
 						isurf->stride,
@@ -1139,7 +1139,7 @@ static bool _cairo_qt_fast_fill(cairo_qt_surface_t * qs,
 		}
 		else if(spattern->surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
 			cairo_image_surface_t * p = (cairo_image_surface_t*)spattern->surface;
-			qsSrc_image = new QImage((const uchar*)p->data,
+			qsSrc_image = new QImage((const uchar *)p->data,
 				p->width,
 				p->height,
 				p->stride,

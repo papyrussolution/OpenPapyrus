@@ -56,7 +56,7 @@ void * ASN1_item_d2i_bio(const ASN1_ITEM * it, BIO * in, void * x)
 	int len = asn1_d2i_read_bio(in, &b);
 	if(len < 0)
 		goto err;
-	p = (const uchar*)b->data;
+	p = (const uchar *)b->data;
 	ret = ASN1_item_d2i((ASN1_VALUE**)x, &p, len, it);
 err:
 	BUF_MEM_free(b);

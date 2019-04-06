@@ -519,10 +519,10 @@ struct VetisUnit : public VetisNamedGenericVersioningEntity {
 };
 
 struct VetisPackingType : public VetisNamedGenericVersioningEntity {
-	VetisPackingType() : VetisNamedGenericVersioningEntity(), GlobalID(0)
+	VetisPackingType() : VetisNamedGenericVersioningEntity()
 	{
 	}
-	int    GlobalID; // PackingCodeType
+	SString GlobalID; // PackingCodeType
 };
 
 struct VetisPackaging {
@@ -717,7 +717,7 @@ struct VetisBatch {
 	};
 	long   Flags;
 	VetisBatchOrigin Origin;
-	//TSCollection <VetisPackage> PackageList;
+	TSCollection <VetisPackage> PackageList; // @v10.4.0
 	TSCollection <VetisNamedGenericVersioningEntity> PackingList;
 	VetisBusinessEntity * P_Owner;
 };
@@ -3023,6 +3023,8 @@ private:
 	int    SLAPI ParseProduct(xmlNode * pParentNode, VetisProduct & rResult);
 	int    SLAPI ParseSubProduct(xmlNode * pParentNode, VetisSubProduct & rResult);
 	int    SLAPI ParseProductItem(xmlNode * pParentNode, VetisProductItem & rResult);
+	int    SLAPI ParsePackingType(xmlNode * pParentNode, VetisPackingType & rResult);
+	int    SLAPI ParsePackage(xmlNode * pParentNode, VetisPackage & rResult);
 	int    SLAPI ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult);
 	int    SLAPI ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate & rResult);
 	int    SLAPI ParseUnit(xmlNode * pParentNode, VetisUnit & rResult);
@@ -3350,6 +3352,39 @@ int SLAPI PPVetisInterface::ParseNamedGenericVersioningEntity(xmlNode * pParentN
 	return ok;
 }
 
+int SLAPI PPVetisInterface::ParsePackingType(xmlNode * pParentNode, VetisPackingType & rResult)
+{
+	int    ok = 1;
+	SString temp_buf;
+	ParseNamedGenericVersioningEntity(pParentNode, rResult);
+	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+		if(SXml::GetContentByName(p_a, "globalID", temp_buf))
+			rResult.GlobalID = temp_buf;
+	}
+	return ok;
+}
+
+int SLAPI PPVetisInterface::ParsePackage(xmlNode * pParentNode, VetisPackage & rResult)
+{
+	int    ok = 1;
+	SString temp_buf;
+	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+		if(SXml::GetContentByName(p_a, "level", temp_buf)) {
+			rResult.Level = temp_buf.ToLong();
+		}
+		else if(SXml::GetContentByName(p_a, "packingType", temp_buf)) {
+			ParsePackingType(p_a, rResult.PackingType);
+		}
+		else if(SXml::GetContentByName(p_a, "quantity", temp_buf)) {
+			rResult.Quantity = temp_buf.ToLong();
+		}
+		else if(SXml::GetContentByName(p_a, "productMarks", temp_buf)) {
+
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPVetisInterface::ParseLocality(xmlNode * pParentNode, VetisAddress::VetisLocality & rResult)
 {
 	int    ok = 1;
@@ -3664,6 +3699,15 @@ int SLAPI PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResu
 		}
 		else if(SXml::IsName(p_a, "countryOfOrigin"))
 			ParseCountry(p_a, rResult.Origin.Country);
+		else if(SXml::IsName(p_a, "packageList")) { // @v10.4.0
+			for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+				if(SXml::IsName(p_p, "package")) {
+					VetisPackage * p_new_package = rResult.PackageList.CreateNewItem();
+					THROW_SL(p_new_package);
+					ParsePackage(p_p, *p_new_package);
+				}
+			}
+		}
 		else if(SXml::IsName(p_a, "packingList")) {
 			for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::IsName(p_p, "packingForm")) {

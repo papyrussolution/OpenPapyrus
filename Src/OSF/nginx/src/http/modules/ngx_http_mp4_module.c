@@ -1750,8 +1750,8 @@ static ngx_int_t ngx_http_mp4_update_stss_atom(ngx_http_mp4_file_t * mp4,
 	ngx_http_mp4_crop_stss_data(mp4, trak, 0);
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "sync sample entries:%uD", trak->sync_samples_entries);
 	if(trak->sync_samples_entries) {
-		entry = (uint32_t*)data->pos;
-		end = (uint32_t*)data->last;
+		entry = (uint32_t *)data->pos;
+		end = (uint32_t *)data->last;
 		start_sample = trak->start_sample;
 		while(entry < end) {
 			sample = ngx_mp4_get_32value(entry);
@@ -1791,8 +1791,8 @@ static void ngx_http_mp4_crop_stss_data(ngx_http_mp4_file_t * mp4, ngx_http_mp4_
 	}
 	data = trak->out[NGX_HTTP_MP4_STSS_DATA].buf;
 	entries = trak->sync_samples_entries;
-	entry = (uint32_t*)data->pos;
-	end = (uint32_t*)data->last;
+	entry = (uint32_t *)data->pos;
+	end = (uint32_t *)data->last;
 	while(entry < end) {
 		sample = ngx_mp4_get_32value(entry);
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "sync:%uD", sample);
@@ -2258,7 +2258,7 @@ static ngx_int_t ngx_http_mp4_update_stsz_atom(ngx_http_mp4_file_t * mp4, ngx_ht
 		}
 		entries -= trak->start_sample;
 		data->pos += trak->start_sample * sizeof(uint32_t);
-		end = (uint32_t*)data->pos;
+		end = (uint32_t *)data->pos;
 
 		for(pos = end - trak->start_chunk_samples; pos < end; pos++) {
 			trak->start_chunk_samples_size += ngx_mp4_get_32value(pos);
@@ -2271,7 +2271,7 @@ static ngx_int_t ngx_http_mp4_update_stsz_atom(ngx_http_mp4_file_t * mp4, ngx_ht
 			}
 			entries = trak->end_sample - trak->start_sample;
 			data->last = data->pos + entries * sizeof(uint32_t);
-			end = (uint32_t*)data->last;
+			end = (uint32_t *)data->last;
 			for(pos = end - trak->end_chunk_samples; pos < end; pos++) {
 				trak->end_chunk_samples_size += ngx_mp4_get_32value(pos);
 			}
@@ -2401,8 +2401,8 @@ static void ngx_http_mp4_adjust_stco_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp
 	 */
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stco atom adjustment");
 	data = trak->out[NGX_HTTP_MP4_STCO_DATA].buf;
-	entry = (uint32_t*)data->pos;
-	end = (uint32_t*)data->last;
+	entry = (uint32_t *)data->pos;
+	end = (uint32_t *)data->last;
 	while(entry < end) {
 		offset = ngx_mp4_get_32value(entry);
 		offset += adjustment;

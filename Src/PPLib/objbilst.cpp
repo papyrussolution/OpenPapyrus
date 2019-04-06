@@ -333,7 +333,7 @@ int PPALDD_BillStatus::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjBillStatus * p_obj = (PPObjBillStatus *)(Extra[0].Ptr);
+		PPObjBillStatus * p_obj = static_cast<PPObjBillStatus *>(Extra[0].Ptr);
 		PPBillStatus rec;
 		if(p_obj->Fetch(rFilt.ID, &rec) > 0) {
 			H.ID    = rec.ID;

@@ -4025,8 +4025,7 @@ int SLAPI PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFile
 	CATCH
 		if(p_result)
 			DestroyResult(reinterpret_cast<void **>(&p_result));
-		if(file_name_to_remove.NotEmpty())
-			SFile::Remove(file_name_to_remove);
+		SFile::Remove(file_name_to_remove);
 		ok = 0;
 	ENDCATCH
 	return ok;

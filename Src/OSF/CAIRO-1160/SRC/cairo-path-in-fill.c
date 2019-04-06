@@ -126,20 +126,17 @@ static void _cairo_in_fill_add_edge(cairo_in_fill_t * in_fill,
 	/* edge is entirely above or below, note the shortening rule */
 	if(p2->y <= in_fill->y || p1->y > in_fill->y)
 		return;
-
 	/* edge lies wholly to the right */
 	if(p1->x >= in_fill->x && p2->x >= in_fill->x)
 		return;
-
-	if((p1->x <= in_fill->x && p2->x <= in_fill->x) ||
-	    edge_compare_for_y_against_x(p1, p2, in_fill->y, in_fill->x) < 0) {
+	if((p1->x <= in_fill->x && p2->x <= in_fill->x) || edge_compare_for_y_against_x(p1, p2, in_fill->y, in_fill->x) < 0) {
 		in_fill->winding += dir;
 	}
 }
 
 static cairo_status_t _cairo_in_fill_move_to(void * closure, const cairo_point_t * point)
 {
-	cairo_in_fill_t * in_fill = (cairo_in_fill_t *)closure;
+	cairo_in_fill_t * in_fill = static_cast<cairo_in_fill_t *>(closure);
 	/* implicit close path */
 	if(in_fill->has_current_point) {
 		_cairo_in_fill_add_edge(in_fill, &in_fill->current_point, &in_fill->first_point);
@@ -152,7 +149,7 @@ static cairo_status_t _cairo_in_fill_move_to(void * closure, const cairo_point_t
 
 static cairo_status_t _cairo_in_fill_line_to(void * closure, const cairo_point_t * point)
 {
-	cairo_in_fill_t * in_fill = (cairo_in_fill_t *)closure;
+	cairo_in_fill_t * in_fill = static_cast<cairo_in_fill_t *>(closure);
 	if(in_fill->has_current_point)
 		_cairo_in_fill_add_edge(in_fill, &in_fill->current_point, point);
 	in_fill->current_point = *point;
@@ -160,15 +157,11 @@ static cairo_status_t _cairo_in_fill_line_to(void * closure, const cairo_point_t
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_in_fill_curve_to(void * closure,
-    const cairo_point_t * b,
-    const cairo_point_t * c,
-    const cairo_point_t * d)
+static cairo_status_t _cairo_in_fill_curve_to(void * closure, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d)
 {
-	cairo_in_fill_t * in_fill = (cairo_in_fill_t *)closure;
+	cairo_in_fill_t * in_fill = static_cast<cairo_in_fill_t *>(closure);
 	cairo_spline_t spline;
 	cairo_fixed_t top, bot, left;
-
 	/* first reject based on bbox */
 	bot = top = in_fill->current_point.y;
 	if(b->y < top) top = b->y;
@@ -192,19 +185,15 @@ static cairo_status_t _cairo_in_fill_curve_to(void * closure,
 	}
 
 	/* XXX Investigate direct inspection of the inflections? */
-	if(!_cairo_spline_init(&spline,
-	    (cairo_spline_add_point_func_t)_cairo_in_fill_line_to,
-	    in_fill,
-	    &in_fill->current_point, b, c, d)) {
+	if(!_cairo_spline_init(&spline, (cairo_spline_add_point_func_t)_cairo_in_fill_line_to, in_fill, &in_fill->current_point, b, c, d)) {
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	return _cairo_spline_decompose(&spline, in_fill->tolerance);
 }
 
 static cairo_status_t _cairo_in_fill_close_path(void * closure)
 {
-	cairo_in_fill_t * in_fill = (cairo_in_fill_t *)closure;
+	cairo_in_fill_t * in_fill = static_cast<cairo_in_fill_t *>(closure);
 	if(in_fill->has_current_point) {
 		_cairo_in_fill_add_edge(in_fill, &in_fill->current_point, &in_fill->first_point);
 		in_fill->has_current_point = FALSE;
@@ -212,8 +201,7 @@ static cairo_status_t _cairo_in_fill_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_bool_t _cairo_path_fixed_in_fill(const cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule, double tolerance, double x, double y)
+cairo_bool_t _cairo_path_fixed_in_fill(const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, double x, double y)
 {
 	cairo_in_fill_t in_fill;
 	cairo_status_t status;
@@ -227,7 +215,8 @@ cairo_bool_t _cairo_path_fixed_in_fill(const cairo_path_fixed_t * path,
 	if(in_fill.on_edge) {
 		is_inside = TRUE;
 	}
-	else switch(fill_rule) {
+	else 
+		switch(fill_rule) {
 			case CAIRO_FILL_RULE_EVEN_ODD: is_inside = in_fill.winding & 1; break;
 			case CAIRO_FILL_RULE_WINDING: is_inside = in_fill.winding != 0; break;
 			default: 

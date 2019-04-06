@@ -61,7 +61,7 @@ static void noop_init_solid_narrow(pixman_iter_t * iter, const pixman_iter_info_
 static void noop_init_solid_wide(pixman_iter_t * iter, const pixman_iter_info_t * info)
 {
 	pixman_image_t * image = iter->image;
-	argb_t * buffer = (argb_t*)iter->buffer;
+	argb_t * buffer = (argb_t *)iter->buffer;
 	argb_t * end = buffer + iter->width;
 	argb_t color;
 	if(iter->image->type == SOLID)

@@ -1140,7 +1140,7 @@ PrcCtrlGroup::PrcCtrlGroup(uint ctlSelPrc) : CtrlGroup()
 
 int PrcCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec *)pData;
+	Data = *static_cast<Rec *>(pData);
 	SetupPPObjCombo(pDlg, CtlSelPrc, PPOBJ_PROCESSOR, Data.PrcID, OLW_CANSELUPLEVEL, 0);
 	return 1;
 }
@@ -1149,7 +1149,7 @@ int PrcCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	pDlg->getCtrlData(CtlSelPrc, &Data.PrcID);
 	if(pData)
-		*(Rec *)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 	return 1;
 }
 //
@@ -2226,7 +2226,7 @@ int PPALDD_Processor::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		ProcessorTbl::Rec rec;
-		PPObjProcessor * p_prc_obj = (PPObjProcessor *)(Extra[0].Ptr);
+		PPObjProcessor * p_prc_obj = static_cast<PPObjProcessor *>(Extra[0].Ptr);
 		if(p_prc_obj->Search(rFilt.ID, &rec) > 0) {
 			H.ID       = rec.ID;
 			H.ParentID = rec.ParentID;

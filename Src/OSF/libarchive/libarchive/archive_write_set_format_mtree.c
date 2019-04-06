@@ -350,7 +350,7 @@ static void mtree_quote(struct archive_string * s, const char * str)
 	uchar c;
 
 	for(start = str; *str != '\0'; ++str) {
-		if(safe_char[*(const uchar*)str])
+		if(safe_char[*(const uchar *)str])
 			continue;
 		if(start != str)
 			archive_strncat(s, start, str - start);

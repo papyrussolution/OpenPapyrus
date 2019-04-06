@@ -544,7 +544,7 @@ void QCertCtrlGroup::setupQcNumber(TDialog * pDlg)
 
 int QCertCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	if(!RVALUEPTR(Data, (Rec *)pData))
+	if(!RVALUEPTR(Data, static_cast<Rec *>(pData)))
 		MEMSZERO(Data);
 	setupQcNumber(pDlg);
 	pDlg->setCtrlReadOnly(CtlInput, 1);
@@ -554,7 +554,7 @@ int QCertCtrlGroup::setData(TDialog * pDlg, void * pData)
 int QCertCtrlGroup::getData(TDialog * /*pDlg*/, void * pData)
 {
 	if(pData)
-		*(Rec*)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 	return 1;
 }
 

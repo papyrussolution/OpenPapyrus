@@ -59,7 +59,7 @@
 //#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
 //#include "cairo-region-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-offset-private.h"
 
 /* the low-level interface */
 
