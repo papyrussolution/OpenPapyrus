@@ -57,7 +57,7 @@ bool IsEntryStart(const StyleContext& sc)
 	return IsEntryStart(sc.chPrev, sc.ch);
 }
 
-void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_style*/, WordList* keywordlists[], Accessor& styler)
+void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_style*/, WordList* keywordlists[], Accessor & styler)
 {
 	WordList &EntryNames = *keywordlists[0];
 	bool fold_compact = styler.GetPropertyInt("fold.compact", 1) != 0;

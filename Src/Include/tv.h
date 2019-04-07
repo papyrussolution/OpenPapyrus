@@ -2584,7 +2584,7 @@ public:
 	};
 
 	//friend  BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
-	static  BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
+	static  INT_PTR CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 	static  void centerDlg(HWND);
 	int     SetCtrlFont(uint ctrlID, const char * pFontName, int height);
 	int     SetCtrlFont(uint ctlID, const SFontDescr & rFd);
@@ -3251,7 +3251,7 @@ class UiSearchTextBlock {
 public:
 	static int ExecDialog(HWND hWnd, uint ctlId, SString & rText, int isFirstLetter, WordSel_ExtraBlock * pBlk, int linkToList);
 private:
-	static BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK InputCtlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	UiSearchTextBlock(HWND h, uint ctlId, char * pText, int firstLetter, WordSel_ExtraBlock * pBlk, int linkToList);
 	~UiSearchTextBlock();
@@ -3595,7 +3595,6 @@ struct TDrawCtrlData {
 
 int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/);
 
-//BOOL    CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 BOOL    CALLBACK ListSearchDialogProc(HWND, UINT, WPARAM, LPARAM);
 BOOL    CALLBACK PropertySheetDialogProc(HWND, UINT, WPARAM, LPARAM);
 // @v9.8.12 (unused) BOOL    CALLBACK logListProc(HWND, UINT, WPARAM, LPARAM);
@@ -4126,7 +4125,7 @@ public:
 	HBRUSH   Brush;
 	WNDPROC PrevImgProc;
 private:
-	static BOOL CALLBACK Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	int    SetFont(HWND hCtl);
 
 	long   Cmd;

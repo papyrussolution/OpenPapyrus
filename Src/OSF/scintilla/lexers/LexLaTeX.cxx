@@ -100,7 +100,7 @@ static bool latexIsLetter(int ch)
 	return IsASCII(ch) && isalpha(ch);
 }
 
-static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor &styler) 
+static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor & styler) 
 {
 	while(i < l) {
 		if(styler.SafeGetCharAt(i) == '{') {
@@ -122,7 +122,7 @@ static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor &styler)
 	return false;
 }
 
-static bool latexNextNotBlankIs(Sci_Position i, Accessor &styler, char needle) 
+static bool latexNextNotBlankIs(Sci_Position i, Accessor & styler, char needle) 
 {
 	char ch;
 	while(i < styler.Length()) {
@@ -138,7 +138,7 @@ static bool latexNextNotBlankIs(Sci_Position i, Accessor &styler, char needle)
 	return false;
 }
 
-static bool latexLastWordIs(Sci_Position start, Accessor &styler, const char * needle) 
+static bool latexLastWordIs(Sci_Position start, Accessor & styler, const char * needle) 
 {
 	Sci_PositionU i = 0;
 	Sci_PositionU l = static_cast<Sci_PositionU>(sstrlen(needle));
@@ -152,7 +152,7 @@ static bool latexLastWordIs(Sci_Position start, Accessor &styler, const char * n
 	return (sstreq(s, needle) != 0);
 }
 
-static bool latexLastWordIsMathEnv(Sci_Position pos, Accessor &styler) 
+static bool latexLastWordIsMathEnv(Sci_Position pos, Accessor & styler) 
 {
 	Sci_Position i, j;
 	char s[32];

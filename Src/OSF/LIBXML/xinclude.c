@@ -422,7 +422,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 	// 
 	href = xmlXIncludeGetProp(ctxt, cur, XINCLUDE_HREF);
 	if(href == NULL) {
-		href = sstrdup(BAD_CAST ""); /* @@@@ href is now optional */
+		href = sstrdup(reinterpret_cast<const xmlChar *>("")); /* @@@@ href is now optional */
 		if(href == NULL)
 			return -1;
 	}
@@ -1803,7 +1803,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 	 */
 	href = xmlXIncludeGetProp(ctxt, cur, XINCLUDE_HREF);
 	if(href == NULL) {
-		href = sstrdup(BAD_CAST ""); /* @@@@ href is now optional */
+		href = sstrdup(reinterpret_cast<const xmlChar *>("")); /* @@@@ href is now optional */
 		if(href == NULL)
 			return -1;
 	}

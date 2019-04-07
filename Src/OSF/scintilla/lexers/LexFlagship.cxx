@@ -24,7 +24,7 @@ static bool FASTCALL IsAWordChar(int ch)
 }
 
 static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -319,7 +319,7 @@ static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, in
 }
 
 static void FoldFlagShipDoc(Sci_PositionU startPos, Sci_Position length, int,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	Sci_Position endPos = startPos + length;
 

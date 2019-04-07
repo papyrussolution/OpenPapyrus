@@ -49,13 +49,13 @@ ILexer * LexerModule::Create() const
 	return fnFactory ? fnFactory() : new LexerSimple(this);
 }
 
-void LexerModule::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, WordList * keywordlists[], Accessor &styler) const 
+void LexerModule::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, WordList * keywordlists[], Accessor & styler) const 
 {
 	if(fnLexer)
 		fnLexer(startPos, lengthDoc, initStyle, keywordlists, styler);
 }
 
-void LexerModule::Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, WordList * keywordlists[], Accessor &styler) const 
+void LexerModule::Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, WordList * keywordlists[], Accessor & styler) const 
 {
 	if(fnFolder) {
 		Sci_Position lineCurrent = styler.GetLine(startPos);

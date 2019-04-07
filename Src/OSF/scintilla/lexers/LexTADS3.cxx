@@ -542,7 +542,7 @@ static void ColouriseTADS3Number(StyleContext &sc)
 }
 
 static void ColouriseTADS3Doc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	int visibleChars = 0;
 	int bracketLevel = 0;
@@ -751,7 +751,7 @@ static bool FASTCALL IsSpaceEquivalent(const int ch, const int style)
 }
 
 static char peekAhead(Sci_PositionU startPos, Sci_PositionU endPos,
-    Accessor &styler)
+    Accessor & styler)
 {
 	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		int style = styler.StyleAt(i);
@@ -773,7 +773,7 @@ static char peekAhead(Sci_PositionU startPos, Sci_PositionU endPos,
 }
 
 static void FoldTADS3Doc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	Sci_PositionU endPos = startPos + length;
 	Sci_Position lineCurrent = styler.GetLine(startPos);

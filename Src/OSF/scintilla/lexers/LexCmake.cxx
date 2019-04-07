@@ -30,7 +30,7 @@ static bool isCmakeLetter(char ch)
 	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
 }
 
-static bool CmakeNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor &styler)
+static bool CmakeNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor & styler)
 {
 	Sci_Position nNextLine = -1;
 	for(Sci_PositionU i = start; i < end; i++) {
@@ -54,7 +54,7 @@ static bool CmakeNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accesso
 	return false;
 }
 
-static int calculateFoldCmake(Sci_PositionU start, Sci_PositionU end, int foldlevel, Accessor &styler, bool bElse)
+static int calculateFoldCmake(Sci_PositionU start, Sci_PositionU end, int foldlevel, Accessor & styler, bool bElse)
 {
 	// If the word is too long, it is not what we are looking for
 	if(end - start > 20)
@@ -80,7 +80,7 @@ static int calculateFoldCmake(Sci_PositionU start, Sci_PositionU end, int foldle
 	return newFoldlevel;
 }
 
-static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * keywordLists[], Accessor &styler)
+static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * keywordLists[], Accessor & styler)
 {
 	char word[100] = {0};
 	char lowercaseWord[100] = {0};
@@ -127,7 +127,7 @@ static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * 
 	return SCE_CMAKE_DEFAULT;
 }
 
-static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordLists[], Accessor &styler)
+static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordLists[], Accessor & styler)
 {
 	int state = SCE_CMAKE_DEFAULT;
 	if(startPos > 0)
@@ -320,7 +320,7 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 	styler.ColourTo(nLengthDoc-1, state);
 }
 
-static void FoldCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	// No folding enabled, no reason to continue...
 	if(styler.GetPropertyInt("fold") == 0)

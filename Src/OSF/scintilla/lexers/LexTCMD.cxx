@@ -20,7 +20,7 @@ static bool FASTCALL IsAlphabetic(int ch)
 	return IsASCII(ch) && isalpha(ch);
 }
 
-static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i)
 {
 	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
@@ -84,7 +84,7 @@ static void ColouriseTCMDLine(char * lineBuffer,
     Sci_PositionU startLine,
     Sci_PositionU endPos,
     WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	Sci_PositionU offset = 0;       // Line Buffer Offset
 	char wordBuffer[260];           // Word Buffer - large to catch long paths
@@ -406,7 +406,7 @@ ColorizeArg:
 	styler.ColourTo(endPos, SCE_TCMD_DEFAULT);
 }
 
-static void ColouriseTCMDDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle*/, WordList * keywordlists[], Accessor &styler)
+static void ColouriseTCMDDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle*/, WordList * keywordlists[], Accessor & styler)
 {
 	char lineBuffer[16384];
 
@@ -440,7 +440,7 @@ static void StrUpr(char * s)
 }
 
 // Folding support (for DO, IFF, SWITCH, TEXT, and command groups)
-static void FoldTCMDDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldTCMDDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	Sci_Position line = styler.GetLine(startPos);
 	int level = styler.LevelAt(line);

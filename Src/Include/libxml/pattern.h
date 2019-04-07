@@ -42,7 +42,7 @@ XMLPUBFUN int XMLCALL xmlPatternMatch(xmlPattern * comp, xmlNode * P_Node);
 
 /* streaming interfaces */
 typedef struct _xmlStreamCtxt xmlStreamCtxt;
-typedef xmlStreamCtxt *xmlStreamCtxtPtr;
+typedef xmlStreamCtxt * xmlStreamCtxtPtr;
 
 XMLPUBFUN int XMLCALL xmlPatternStreamable(xmlPattern * comp);
 XMLPUBFUN int XMLCALL xmlPatternMaxDepth(xmlPattern * comp);

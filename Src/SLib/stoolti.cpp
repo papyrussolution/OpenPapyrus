@@ -364,7 +364,7 @@ int SMessageWindow::Move()
 					SIZE size;
 					if(buf.Len() == 0)
 						buf.Space();
-					GetTextExtentPoint32(hdc, SUcSwitch(buf), buf.Len(), &size); // @unicodeproblem
+					GetTextExtentPoint32(hdc, SUcSwitch(buf), static_cast<int>(buf.Len()), &size); // @unicodeproblem
 					w = MAX(w, size.cx);
 					if(w > max_w) {
 						SplitBuf(hdc, buf, max_w, 10); // максимум 10 строчек для 1-ой подстроки
@@ -452,12 +452,12 @@ int SMessageWindow::DoCommand(TPoint p)
 }
 
 // static
-BOOL CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	SMessageWindow * p_win = static_cast<SMessageWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_INITDIALOG:
-			SetWindowLong(hWnd, GWLP_USERDATA, lParam);
+			SetWindowLong(hWnd, GWLP_USERDATA, static_cast<LONG>(lParam));
 			SetWindowLong(hWnd, DWLP_USER, 1013/*DLG_TOOLTIP*/);
 			break;
 		case WM_DESTROY:
@@ -469,7 +469,7 @@ BOOL CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 		case WM_LBUTTONDBLCLK:
 			if(p_win) {
 				TPoint p;
-				p_win->DoCommand(p.setwparam(lParam));
+				p_win->DoCommand(p.setwparam(static_cast<uint32>(lParam)));
 				DestroyWindow(hWnd);
 			}
 			break;
@@ -491,7 +491,7 @@ BOOL CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 				COLORREF text_color = (labs(p_win->Color - SClrBlack) > labs(p_win->Color - SClrWhite)) ? SClrBlack : SClrWhite;
 				canv.SetTextColor(text_color);
 				SetBkMode(hdc, TRANSPARENT);
-				return (BOOL)p_win->Brush;
+				return (INT_PTR)p_win->Brush;
 			}
 			break;
 		case WM_USER_MAINWND_MOVE_SIZE:

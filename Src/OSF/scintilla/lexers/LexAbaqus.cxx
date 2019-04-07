@@ -28,7 +28,7 @@ static bool FASTCALL IsASetChar(const int ch)
 }
 
 static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList*[] /* *keywordlists[] */,
-    Accessor &styler)
+    Accessor & styler)
 {
 	enum localState { KW_LINE_KW, KW_LINE_COMMA, KW_LINE_PAR, KW_LINE_EQ, KW_LINE_VAL, \
 			  DAT_LINE_VAL, DAT_LINE_COMMA,	\
@@ -357,7 +357,7 @@ static Sci_Position LineStart(Sci_Position line, const Accessor & styler)
 // 6  : block close keyword line
 // 7  : keyword line in error
 // 8  : comment line
-static int LineType(Sci_Position line, Accessor &styler)
+static int LineType(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = LineStart(line, styler);
 	Sci_Position eol_pos = LineEnd(line, styler);
@@ -429,7 +429,7 @@ static int LineType(Sci_Position line, Accessor &styler)
 	return 4;
 }
 
-static void FASTCALL SafeSetLevel(Sci_Position line, int level, Accessor &styler)
+static void FASTCALL SafeSetLevel(Sci_Position line, int level, Accessor & styler)
 {
 	if(line < 0)
 		return;
@@ -440,7 +440,7 @@ static void FASTCALL SafeSetLevel(Sci_Position line, int level, Accessor &styler
 		styler.SetLevel(line, level);
 }
 
-static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	Sci_Position startLine = styler.GetLine(startPos);
 	Sci_Position endLine   = styler.GetLine(startPos+length-1);

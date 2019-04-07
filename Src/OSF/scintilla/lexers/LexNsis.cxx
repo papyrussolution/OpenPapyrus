@@ -55,7 +55,7 @@ static bool isNsisLetter(char ch)
 	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
 }
 
-static bool NsisNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor &styler)
+static bool NsisNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor & styler)
 {
 	Sci_Position nNextLine = -1;
 	for(Sci_PositionU i = start; i < end; i++) {
@@ -90,7 +90,7 @@ static int NsisCmp(const char * s1, const char * s2, bool bIgnoreCase)
 	return bIgnoreCase ? CompareCaseInsensitive(s1, s2) : strcmp(s1, s2);
 }
 
-static int calculateFoldNsis(Sci_PositionU start, Sci_PositionU end, int foldlevel, Accessor &styler, bool bElse, bool foldUtilityCmd)
+static int calculateFoldNsis(Sci_PositionU start, Sci_PositionU end, int foldlevel, Accessor & styler, bool bElse, bool foldUtilityCmd)
 {
 	int style = styler.StyleAt(end);
 	// If the word is too long, it is not what we are looking for
@@ -158,7 +158,7 @@ static int calculateFoldNsis(Sci_PositionU start, Sci_PositionU end, int foldlev
 	return newFoldlevel;
 }
 
-static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * keywordLists[], Accessor &styler)
+static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * keywordLists[], Accessor & styler)
 {
 	bool bIgnoreCase = false;
 	if(styler.GetPropertyInt("nsis.ignorecase") == 1)
@@ -268,7 +268,7 @@ static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * k
 	return SCE_NSIS_DEFAULT;
 }
 
-static void ColouriseNsisDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordLists[], Accessor &styler)
+static void ColouriseNsisDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordLists[], Accessor & styler)
 {
 	int state = SCE_NSIS_DEFAULT;
 	if(startPos > 0)
@@ -512,7 +512,7 @@ static void ColouriseNsisDoc(Sci_PositionU startPos, Sci_Position length, int, W
 	styler.ColourTo(nLengthDoc-1, state);
 }
 
-static void FoldNsisDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldNsisDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	// No folding enabled, no reason to continue...
 	if(styler.GetPropertyInt("fold") == 0)

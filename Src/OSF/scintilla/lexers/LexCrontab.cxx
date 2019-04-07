@@ -17,7 +17,7 @@ using namespace Scintilla;
 #endif
 
 static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, int, WordList
-    * keywordLists[], Accessor &styler)
+    * keywordLists[], Accessor & styler)
 {
 	int state = SCE_NNCRONTAB_DEFAULT;
 	char chNext = styler[startPos];

@@ -135,7 +135,7 @@ int STimeChunkGrid::SetChunk(long rowID, long chunkID, long status, const STimeC
 		item.Chunk = *pChunk;
 		uint   pos = 0;
 		if(p_list->Get(chunkID, &pos, 0) > 0)
-			*(STimeChunkAssoc *)p_list->at(pos) = item;
+			*static_cast<STimeChunkAssoc *>(p_list->at(pos)) = item;
 		else
 			p_list->insert(&item);
 	}
@@ -159,7 +159,7 @@ int STimeChunkGrid::SetHolidayList(long rowID, const STimeChunkArray * pList)
 const STimeChunkArray * FASTCALL STimeChunkGrid::GetHolidayList(long rowID) const
 {
 	uint   pos = 0;
-	return HL.lsearch(&rowID, &pos, CMPF_LONG, offsetof(HolidayArray, Id)) ? (STimeChunkArray *)HL.at(pos) : 0;
+	return HL.lsearch(&rowID, &pos, CMPF_LONG, offsetof(HolidayArray, Id)) ? static_cast<const STimeChunkArray *>(HL.at(pos)) : 0;
 }
 
 int STimeChunkGrid::SetCollapseList(const STimeChunkArray * pList)
@@ -1926,7 +1926,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 			SRect  srect;
 			srect.setheightrel(upp_edge + P.PixRowMargin, P.PixRow);
 			for(uint k = 0; k < p_row->getCount(); k++) {
-				const  STimeChunkAssoc * p_chunk = (STimeChunkAssoc *)p_row->at(k);
+				const  STimeChunkAssoc * p_chunk = static_cast<const STimeChunkAssoc *>(p_row->at(k));
 				srect.Z();
 				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect) > 0) {
 					uint   day_n = 0;
@@ -1996,7 +1996,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 			const  RowState & r_rowst = GetRowState(p_row->Id);
 			const  uint row_full_height = (P.PixRow * NZOR(r_rowst.Order, 1)) + 2 * P.PixRowMargin;
 			for(uint k = 0; k < p_row->getCount(); k++) {
-				const  STimeChunkAssoc * p_chunk = (STimeChunkAssoc *)p_row->at(k);
+				const  STimeChunkAssoc * p_chunk = static_cast<const STimeChunkAssoc *>(p_row->at(k));
 				STimeChunk sect;
 				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect) > 0) {
 					long   o = 0;

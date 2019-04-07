@@ -194,7 +194,7 @@ static bool IsIdentifierContinue(int ch)
 	return (IsASCII(ch) && (isalnum(ch) || ch == '_')) || !IsASCII(ch);
 }
 
-static void ScanWhitespace(Accessor& styler, Sci_Position& pos, Sci_Position max)
+static void ScanWhitespace(Accessor & styler, Sci_Position& pos, Sci_Position max)
 {
 	while(IsWhitespace(styler.SafeGetCharAt(pos, '\0')) && pos < max) {
 		if(pos == styler.LineEnd(styler.GetLine(pos)))
@@ -204,19 +204,18 @@ static void ScanWhitespace(Accessor& styler, Sci_Position& pos, Sci_Position max
 	styler.ColourTo(pos-1, SCE_RUST_DEFAULT);
 }
 
-static void GrabString(char* s, Accessor& styler, Sci_Position start, Sci_Position len)
+static void GrabString(char* s, Accessor & styler, Sci_Position start, Sci_Position len)
 {
 	for(Sci_Position ii = 0; ii < len; ii++)
 		s[ii] = styler[ii + start];
 	s[len] = '\0';
 }
 
-static void ScanIdentifier(Accessor& styler, Sci_Position& pos, WordList * keywords)
+static void ScanIdentifier(Accessor & styler, Sci_Position& pos, WordList * keywords)
 {
 	Sci_Position start = pos;
 	while(IsIdentifierContinue(styler.SafeGetCharAt(pos, '\0')))
 		pos++;
-
 	if(styler.SafeGetCharAt(pos, '\0') == '!') {
 		pos++;
 		styler.ColourTo(pos - 1, SCE_RUST_MACRO);
@@ -241,7 +240,7 @@ static void ScanIdentifier(Accessor& styler, Sci_Position& pos, WordList * keywo
 }
 
 /* Scans a sequence of digits, returning true if it found any. */
-static bool ScanDigits(Accessor& styler, Sci_Position& pos, int base)
+static bool ScanDigits(Accessor & styler, Sci_Position& pos, int base)
 {
 	Sci_Position old_pos = pos;
 	for(;; ) {
@@ -255,14 +254,13 @@ static bool ScanDigits(Accessor& styler, Sci_Position& pos, int base)
 }
 
 /* Scans an integer and floating point literals. */
-static void ScanNumber(Accessor& styler, Sci_Position& pos)
+static void ScanNumber(Accessor & styler, Sci_Position& pos)
 {
 	int base = 10;
 	int c = styler.SafeGetCharAt(pos, '\0');
 	int n = styler.SafeGetCharAt(pos + 1, '\0');
 	bool error = false;
-	/* Scan the prefix, thus determining the base.
-	 * 10 is default if there's no prefix. */
+	// Scan the prefix, thus determining the base. 10 is default if there's no prefix. 
 	if(c == '0' && n == 'x') {
 		pos += 2;
 		base = 16;
@@ -395,7 +393,7 @@ static bool IsValidStringEscape(int c)
 	return IsValidCharacterEscape(c) || c == '\n' || c == '\r';
 }
 
-static bool ScanNumericEscape(Accessor &styler, Sci_Position& pos, Sci_Position num_digits, bool stop_asap)
+static bool ScanNumericEscape(Accessor & styler, Sci_Position& pos, Sci_Position num_digits, bool stop_asap)
 {
 	for(;; ) {
 		int c = styler.SafeGetCharAt(pos, '\0');
@@ -416,7 +414,7 @@ static bool ScanNumericEscape(Accessor &styler, Sci_Position& pos, Sci_Position 
 
 /* This is overly permissive for character literals in order to accept UTF-8 encoded
  * character literals. */
-static void ScanCharacterLiteralOrLifetime(Accessor &styler, Sci_Position& pos, bool ascii_only)
+static void ScanCharacterLiteralOrLifetime(Accessor & styler, Sci_Position& pos, bool ascii_only)
 {
 	pos++;
 	int c = styler.SafeGetCharAt(pos, '\0');
@@ -517,7 +515,7 @@ enum CommentState {
  * The rule for block-doc comments is as follows: /xxN and /x! (where x is an asterisk, N is a non-asterisk) start doc comments.
  * Otherwise it's a regular comment.
  */
-static void ResumeBlockComment(Accessor &styler, Sci_Position& pos, Sci_Position max, CommentState state, int level)
+static void ResumeBlockComment(Accessor & styler, Sci_Position& pos, Sci_Position max, CommentState state, int level)
 {
 	int c = styler.SafeGetCharAt(pos, '\0');
 	bool maybe_doc_comment = false;
@@ -575,7 +573,7 @@ static void ResumeBlockComment(Accessor &styler, Sci_Position& pos, Sci_Position
  * The rule for line-doc comments is as follows... ///N and //! (where N is a non slash) start doc comments.
  * Otherwise it's a normal line comment.
  */
-static void ResumeLineComment(Accessor &styler, Sci_Position& pos, Sci_Position max, CommentState state)
+static void ResumeLineComment(Accessor & styler, Sci_Position& pos, Sci_Position max, CommentState state)
 {
 	bool maybe_doc_comment = false;
 	int c = styler.SafeGetCharAt(pos, '\0');
@@ -605,7 +603,7 @@ static void ResumeLineComment(Accessor &styler, Sci_Position& pos, Sci_Position 
 		styler.ColourTo(pos - 1, SCE_RUST_COMMENTLINE);
 }
 
-static void ScanComments(Accessor &styler, Sci_Position& pos, Sci_Position max)
+static void ScanComments(Accessor & styler, Sci_Position& pos, Sci_Position max)
 {
 	pos++;
 	int c = styler.SafeGetCharAt(pos, '\0');
@@ -616,7 +614,7 @@ static void ScanComments(Accessor &styler, Sci_Position& pos, Sci_Position max)
 		ResumeBlockComment(styler, pos, max, UnknownComment, 1);
 }
 
-static void ResumeString(Accessor &styler, Sci_Position& pos, Sci_Position max, bool ascii_only)
+static void ResumeString(Accessor & styler, Sci_Position& pos, Sci_Position max, bool ascii_only)
 {
 	int c = styler.SafeGetCharAt(pos, '\0');
 	bool error = false;
@@ -674,7 +672,7 @@ static void ResumeString(Accessor &styler, Sci_Position& pos, Sci_Position max, 
 	styler.ColourTo(pos - 1, ascii_only ? SCE_RUST_BYTESTRING : SCE_RUST_STRING);
 }
 
-static void ResumeRawString(Accessor &styler, Sci_Position& pos, Sci_Position max, int num_hashes, bool ascii_only)
+static void ResumeRawString(Accessor & styler, Sci_Position& pos, Sci_Position max, int num_hashes, bool ascii_only)
 {
 	for(;; ) {
 		if(pos == styler.LineEnd(styler.GetLine(pos)))
@@ -705,7 +703,7 @@ static void ResumeRawString(Accessor &styler, Sci_Position& pos, Sci_Position ma
 	styler.ColourTo(pos - 1, ascii_only ? SCE_RUST_BYTESTRINGR : SCE_RUST_STRINGR);
 }
 
-static void ScanRawString(Accessor &styler, Sci_Position& pos, Sci_Position max, bool ascii_only)
+static void ScanRawString(Accessor & styler, Sci_Position& pos, Sci_Position max, bool ascii_only)
 {
 	pos++;
 	int num_hashes = 0;

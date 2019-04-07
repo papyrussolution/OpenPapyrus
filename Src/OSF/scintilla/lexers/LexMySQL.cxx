@@ -88,7 +88,7 @@ static void ForwardDefaultState(StyleContext& sc, int activeState)
 }
 
 static void ColouriseMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler, 127);
 	int activeState = (initStyle == SCE_MYSQL_HIDDENCOMMAND) ? HIDDENCOMMAND_STATE : initStyle & HIDDENCOMMAND_STATE;
@@ -286,7 +286,7 @@ static bool FASTCALL IsStreamCommentStyle(int style)
  * Code copied from StyleContext and modified to work here. Should go into Accessor as a
  * companion to Match()...
  */
-static bool MatchIgnoreCase(Accessor &styler, Sci_Position currentPos, const char * s)
+static bool MatchIgnoreCase(Accessor & styler, Sci_Position currentPos, const char * s)
 {
 	for(Sci_Position n = 0; *s; n++) {
 		if(*s != tolower(styler.SafeGetCharAt(currentPos + n)))
@@ -300,7 +300,7 @@ static bool MatchIgnoreCase(Accessor &styler, Sci_Position currentPos, const cha
 
 // Store both the current line's fold level and the next lines in the
 // level store to make it easy to pick up with each increment.
-static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
+static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;

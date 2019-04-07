@@ -24,7 +24,7 @@ static void ColouriseVHDLDoc(
     Sci_Position length,
     int initStyle,
     WordList *keywordlists[],
-    Accessor &styler);
+    Accessor & styler);
 
 /***************************************/
 static bool FASTCALL IsAWordChar(const int ch)
@@ -45,7 +45,7 @@ static bool FASTCALL IsABlank(uint ch)
 }
 
 /***************************************/
-static void ColouriseVHDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseVHDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &Keywords   = *keywordlists[0];
 	WordList &Operators  = *keywordlists[1];
@@ -158,7 +158,7 @@ static void ColouriseVHDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 }
 
 //=============================================================================
-static bool IsCommentLine(Sci_Position line, Accessor &styler)
+static bool IsCommentLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -173,7 +173,7 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler)
 	return false;
 }
 
-static bool IsCommentBlockStart(Sci_Position line, Accessor &styler)
+static bool IsCommentBlockStart(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -187,7 +187,7 @@ static bool IsCommentBlockStart(Sci_Position line, Accessor &styler)
 	return false;
 }
 
-static bool IsCommentBlockEnd(Sci_Position line, Accessor &styler)
+static bool IsCommentBlockEnd(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -209,7 +209,7 @@ static bool IsCommentStyle(char style)
 
 //=============================================================================
 // Folding the code
-static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, Accessor &styler)
+static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, Accessor & styler)
 {
 	// Decided it would be smarter to have the lexer have all keywords included. Therefore I
 	// don't check if the style for the keywords that I use to adjust the levels.
@@ -490,7 +490,7 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 
 //=============================================================================
 static void FoldVHDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	FoldNoBoxVHDLDoc(startPos, length, initStyle, styler);
 }

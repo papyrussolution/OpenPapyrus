@@ -28,8 +28,7 @@ static bool FASTCALL IsAnOperator(char ch)
 	return false;
 }
 
-static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	int stringStart = ' ';
 	WordList &processors = *keywordlists[0];
@@ -41,12 +40,10 @@ static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 	// Do not leak onto next line
 	initStyle = SCE_APDL_DEFAULT;
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	for(; sc.More(); sc.Forward()) {
 		// Determine if the current state should terminate.
 		if(sc.state == SCE_APDL_NUMBER) {
-			if(!(IsADigit(sc.ch) || sc.ch == '.' || (sc.ch == 'e' || sc.ch == 'E') ||
-				    ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E')))) {
+			if(!(IsADigit(sc.ch) || sc.ch == '.' || (sc.ch == 'e' || sc.ch == 'E') || ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E')))) {
 				sc.SetState(SCE_APDL_DEFAULT);
 			}
 		}
@@ -136,8 +133,7 @@ static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int in
  * 16 - hex digit
  * 32 - bin digit
  */
-static int character_classification[128] =
-{
+static int character_classification[128] = {
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  1,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	1,  2,  0,  2,  2,  2,  2,  2,  2,  2,  6,  2,  2,  2,  10, 6,
@@ -176,7 +172,7 @@ static int CheckAPDLFoldPoint(char const * token, int &level)
 }
 
 static void FoldAPDLDoc(Sci_PositionU startPos, Sci_Position length, int,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	Sci_Position line = styler.GetLine(startPos);
 	int level = styler.LevelAt(line);

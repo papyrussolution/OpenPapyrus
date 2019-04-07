@@ -373,6 +373,7 @@ public:
 	int    SLAPI SetTimeSeries(STimeSeries & rTs);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
 	int    SLAPI SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv, TsStakeEnvironment::StakeRequestBlock * pRet);
+	int    SLAPI SetTransactionNotification(const TsStakeEnvironment::TransactionNotification * pTan);
 	int    SLAPI SetVolumeParams(const char * pSymb, double volumeMin, double volumeMax, double volumeStep);
 	int    SLAPI Flash();
 	int    SLAPI FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, TsStakeEnvironment::StakeRequestBlock & rResult) const;
@@ -424,7 +425,10 @@ private:
 	SMtLock OpL; // Блокировка для операций, иных нежели штатные методы ObjCache
 	LDATETIME LastFlashDtm;
 	enum {
-		stConfigLoaded = 0x0001
+		stConfigLoaded = 0x0001,
+		stDataTestMode = 0x0002 // @v10.4.0 Режим тестирования данных. Отправляется запрос
+			// на большее количество значений и после получения результата тестируются внутренние
+			// последовательности.
 	};
 	long   State;
 	PPObjTimeSeries::Config Cfg;
@@ -565,6 +569,57 @@ int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
 			int    local_ok = 1;
 			rTs.Sort();
 			p_fblk->Make_T_Regular();
+#if 0 // @construction {			
+			if(State & stDataTestMode) {
+				uint   outer_vec_idx = 0;
+				uint   my_vec_idx = 0;
+				if(rTs.GetValueVecIndex("close", &outer_vec_idx) && p_fblk->T_.GetValueVecIndex("close", &my_vec_idx)) {
+					const uint outer_c = rTs.GetCount();
+					const uint my_c = p_fblk->T_.GetCount();
+					int   first_outer_x_idx = -1;
+					int   last_outer_x_idx = -1;
+					SUniTime ut;
+					SUniTime outer_ut;
+					for(uint midx = 0; midx < my_c; midx++) {
+						if(p_fblk->T_.GetTime(midx, &ut)) {
+							uint ii = 0;
+							const int  ser = rTs.SearchEntryBinary(ut, &ii);
+							if(ser > 0) {
+								if(first_outer_x_idx < 0)
+									first_outer_x_idx = static_cast<int>(ii);
+								last_outer_x_idx = static_cast<int>(ii);
+								//
+								double outer_val = 0.0;
+								double my_val = 0.0;
+								rTs.GetTime(ii, &outer_ut);
+								rTs.GetValue(ii, outer_vec_idx, &outer_val);
+								p_fblk->T_.GetValue(midx, my_vec_idx, &my_val);
+								if(!feqeps(my_val, outer_val, 1E-6)) {
+									// ...
+								}
+							}
+							else {
+								// ...
+							}
+						}
+					}
+					if(first_outer_x_idx >= 0) {
+						for(uint oidx = static_cast<uint>(first_outer_x_idx); oidx <= static_cast<uint>(last_outer_x_idx); oidx++) {
+							if(rTs.GetTime(oidx, &outer_ut)) {
+								uint ii = 0;
+								const int  ser = p_fblk->T_.SearchEntryBinary(outer_ut, &ii);
+								if(ser > 0) {
+									// ok
+								}
+								else {
+									// Отсутствующее значение
+								}
+							}
+						}
+					}
+				}
+			}
+#endif // } 0 @construction
 			local_ok = p_fblk->T_.AddItems(rTs, &apst);
 			p_fblk->Make_T_Actual();
 			EvaluateTrends(p_fblk, 0);
@@ -633,6 +688,7 @@ int SLAPI TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry
 				SETFLAG(new_entry.Flags, new_entry.fAllowLong, r_entry.Flags & PPObjTimeSeries::Config::efLong);
 				SETFLAG(new_entry.Flags, new_entry.fAllowShort, r_entry.Flags & PPObjTimeSeries::Config::efShort);
 				SETFLAG(new_entry.Flags, new_entry.fDisableStake, r_entry.Flags & PPObjTimeSeries::Config::efDisableStake);
+				SETFLAG(new_entry.Flags, new_entry.fTestPurpose, State & stDataTestMode);
 				STRNSCPY(new_entry.Ticker, ts_rec.Symb);
 				{
 					SUniTime last_utm;
@@ -645,10 +701,20 @@ int SLAPI TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry
 						p_blk->Flags &= ~TimeSeriesBlock::fNoConfig;
 					}
 					const uint tc = p_blk ? p_blk->T_.GetCount() : 0;
-					if(tc && p_blk->T_.GetTime(tc-1, &last_utm))
-						last_utm.Get(new_entry.LastValTime);
+					if(tc && p_blk->T_.GetTime(tc-1, &last_utm)) {
+						if(State & stDataTestMode) {
+							LDATETIME test_data_start_moment;
+							test_data_start_moment.Set(plusdate(getcurdate_(), -60), ZEROTIME);
+							last_utm.Get(test_data_start_moment);
+						}
+						else
+							last_utm.Get(new_entry.LastValTime);
+					}
 					else
 						new_entry.LastValTime.Z();
+					if(new_entry.Flags & new_entry.fTestPurpose) {
+						new_entry.ExtraCount = 10000;
+					}
 				}
 				rList.insert(&new_entry);
 			}
@@ -702,6 +768,40 @@ int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment *
 	if(ok > 0)
 		LogStateEnvironment(*pEnv); 
 	// } @debug
+	return ok;
+}
+
+int SLAPI TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::TransactionNotification * pTan)
+{
+	int    ok = 1;
+	SString log_msg;
+	SString temp_buf;
+	if(pTan) {
+		for(uint i = 0; i < pTan->L.getCount(); i++) {
+			const TsStakeEnvironment::TransactionNotification::Ta & r_ta = pTan->L.at(i);
+			log_msg.Z().Cat("TaNotification").CatDiv(':', 2).
+			CatEq("Time", temp_buf.Z().Cat(r_ta.NotifyTime, DATF_ISO8601, 0)).Space();
+			pTan->GetS(r_ta.SymbP, temp_buf);
+			log_msg.
+			CatEq("Symb", temp_buf).Space().
+			CatEq("Deal", r_ta.Deal).Space().
+			CatEq("Order", r_ta.Order).Space().
+			CatEq("TaType", r_ta.TaType).Space().
+			CatEq("OrdType", r_ta.OrdType).Space().
+			CatEq("OrdState", r_ta.OrdState).Space().
+			CatEq("DealType", r_ta.DealType).Space().
+			CatEq("OrdTypeTime", r_ta.OrdTypeTime).Space().
+			CatEq("Expiration", temp_buf.Z().Cat(r_ta.Expiration, DATF_ISO8601, 0)).Space().
+			CatEq("Price", r_ta.Price, MKSFMTD(0, 5, 0)).Space().
+			CatEq("PriceTrigger", r_ta.PriceTrigger, MKSFMTD(0, 5, 0)).Space().
+			CatEq("PriceSL", r_ta.PriceSL, MKSFMTD(0, 5, 0)).Space().
+			CatEq("PriceTP", r_ta.PriceTP, MKSFMTD(0, 5, 0)).Space().
+			CatEq("Volume", r_ta.Volume, MKSFMTD(0, 3, 0)).Space().
+			CatEq("Position", r_ta.Position).Space().
+			CatEq("PositionBy", r_ta.PositionBy);
+			PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
+		}
+	}
 	return ok;
 }
 	
@@ -1437,6 +1537,12 @@ int SLAPI PPObjTimeSeries::SetExternStakeEnvironment(const TsStakeEnvironment & 
 {
 	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 	return p_cache ? p_cache->SetCurrentStakeEnvironment(&rEnv, &rRet) : 0;
+}
+
+int SLAPI PPObjTimeSeries::SetExternTransactionNotification(const TsStakeEnvironment::TransactionNotification & rTa)
+{
+	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
+	return p_cache ? p_cache->SetTransactionNotification(&rTa) : 0;
 }
 
 int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal)

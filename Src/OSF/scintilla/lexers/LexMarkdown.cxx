@@ -133,7 +133,7 @@ static bool IsValidHrule(const Sci_PositionU endPos, StyleContext &sc) {
 }
 
 static void ColorizeMarkdownDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList **, Accessor &styler) {
+    WordList **, Accessor & styler) {
 	Sci_PositionU endPos = startPos + length;
 	int precharCount = 0;
 	// Don't advance on a new loop iteration and retry at the same position.

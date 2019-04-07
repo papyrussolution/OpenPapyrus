@@ -1732,8 +1732,8 @@ static const char * FASTCALL xmlRelaxNGDefName(xmlRelaxNGDefine * def)
 static xmlChar * xmlRelaxNGGetErrorString(xmlRelaxNGValidErr err, const xmlChar * arg1, const xmlChar * arg2)
 {
 	char msg[1000];
-	SETIFZ(arg1, BAD_CAST "");
-	SETIFZ(arg2, BAD_CAST "");
+	SETIFZ(arg1, reinterpret_cast<const xmlChar *>(""));
+	SETIFZ(arg2, reinterpret_cast<const xmlChar *>(""));
 	msg[0] = 0;
 	switch(err) {
 		case XML_RELAXNG_OK: return 0;
@@ -1869,7 +1869,6 @@ skip:
 	}
 	ctxt->errNr = 0;
 }
-
 /**
  * xmlRelaxNGAddValidError:
  * @ctxt:  the validation context
@@ -1921,12 +1920,9 @@ static void xmlRelaxNGAddValidError(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGValid
 		xmlRelaxNGValidErrorPush(ctxt, err, arg1, arg2, dup);
 	}
 }
-
-/************************************************************************
-*									*
-*			Type library hooks				*
-*									*
-************************************************************************/
+//
+// Type library hooks
+//
 static xmlChar * xmlRelaxNGNormalize(xmlRelaxNGValidCtxtPtr ctxt, const xmlChar * str);
 /**
  * xmlRelaxNGSchemaTypeHave:
@@ -1959,17 +1955,17 @@ static int xmlRelaxNGSchemaTypeHave(void * data ATTRIBUTE_UNUSED, const xmlChar 
  *
  * Returns 1 if yes, 0 if no and -1 in case of error.
  */
-static int xmlRelaxNGSchemaTypeCheck(void * data ATTRIBUTE_UNUSED, const xmlChar * type, const xmlChar * value, void ** result, xmlNode * P_Node)
+static int xmlRelaxNGSchemaTypeCheck(void * data ATTRIBUTE_UNUSED, const xmlChar * pType, const xmlChar * value, void ** result, xmlNode * P_Node)
 {
 	xmlSchemaTypePtr typ;
 	int ret;
-	if((type == NULL) || (value == NULL))
+	if(!pType || !value)
 		return -1;
-	typ = xmlSchemaGetPredefinedType(type, reinterpret_cast<const xmlChar *>("http://www.w3.org/2001/XMLSchema"));
+	typ = xmlSchemaGetPredefinedType(pType, reinterpret_cast<const xmlChar *>("http://www.w3.org/2001/XMLSchema"));
 	if(typ == NULL)
 		return -1;
 	ret = xmlSchemaValPredefTypeNode(typ, value, (xmlSchemaValPtr*)result, P_Node);
-	if(ret == 2)            /* special ID error code */
+	if(ret == 2) // special ID error code 
 		return (2);
 	if(ret == 0)
 		return 1;
@@ -2891,7 +2887,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParseValue(xmlRelaxNGParserCtxtPtr ctxt, xm
 		}
 	}
 	if(P_Node->children == NULL) {
-		def->value = sstrdup(BAD_CAST "");
+		def->value = sstrdup(reinterpret_cast<const xmlChar *>(""));
 	}
 	else if(((P_Node->children->type != XML_TEXT_NODE) && (P_Node->children->type != XML_CDATA_SECTION_NODE)) || P_Node->children->next) {
 		xmlRngPErr(ctxt, P_Node, XML_RNGP_TEXT_EXPECTED, "Expecting a single text value for <value>content\n", 0, 0);
@@ -5920,7 +5916,7 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 							SAlloc::F(ns);
 						}
 						else if(sstreq(cur->name, reinterpret_cast<const xmlChar *>("attribute"))) {
-							xmlSetProp(text, reinterpret_cast<const xmlChar *>("ns"), BAD_CAST "");
+							xmlSetProp(text, reinterpret_cast<const xmlChar *>("ns"), reinterpret_cast<const xmlChar *>(""));
 						}
 					}
 				}
@@ -5940,7 +5936,7 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 							P_Node = P_Node->parent;
 						}
 						if(ns == NULL) {
-							xmlSetProp(cur, reinterpret_cast<const xmlChar *>("ns"), BAD_CAST "");
+							xmlSetProp(cur, reinterpret_cast<const xmlChar *>("ns"), reinterpret_cast<const xmlChar *>(""));
 						}
 						else {
 							xmlSetProp(cur, reinterpret_cast<const xmlChar *>("ns"), ns);
@@ -6655,7 +6651,7 @@ static int xmlRelaxNGValidateCompiledContent(xmlRelaxNGValidCtxtPtr ctxt, xmlReg
 		/*
 		 * @todo get some of the names needed to exit the current state of exec
 		 */
-		VALID_ERR2(XML_RELAXNG_ERR_NOELEM, BAD_CAST "");
+		VALID_ERR2(XML_RELAXNG_ERR_NOELEM, reinterpret_cast<const xmlChar *>(""));
 		ret = -1;
 		if((ctxt->flags & FLAGS_IGNORABLE) == 0)
 			xmlRelaxNGDumpValidError(ctxt);
@@ -7001,7 +6997,7 @@ int xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTRI
 		/*
 		 * @todo get some of the names needed to exit the current state of exec
 		 */
-		VALID_ERR2(XML_RELAXNG_ERR_NOELEM, BAD_CAST "");
+		VALID_ERR2(XML_RELAXNG_ERR_NOELEM, reinterpret_cast<const xmlChar *>(""));
 		ret = -1;
 	}
 	else if(ret < 0) {
@@ -7340,7 +7336,7 @@ static int xmlRelaxNGValidateValue(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    oldvalue = ctxt->state->value;
 		    oldend = ctxt->state->endvalue;
 		    val = sstrdup(oldvalue);
-			SETIFZ(val, sstrdup(BAD_CAST ""));
+			SETIFZ(val, sstrdup(reinterpret_cast<const xmlChar *>("")));
 		    if(!val) {
 			    VALID_ERR(XML_RELAXNG_ERR_NOSTATE);
 			    return -1;
@@ -8742,60 +8738,52 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    break;
 	    }
 		case XML_RELAXNG_DEF:
-		case XML_RELAXNG_GROUP:
-		    ret = xmlRelaxNGValidateDefinitionList(ctxt, define->content);
-		    break;
-		case XML_RELAXNG_INTERLEAVE:
-		    ret = xmlRelaxNGValidateInterleave(ctxt, define);
-		    break;
-		case XML_RELAXNG_ATTRIBUTE:
-		    ret = xmlRelaxNGValidateAttribute(ctxt, define);
-		    break;
+		case XML_RELAXNG_GROUP: ret = xmlRelaxNGValidateDefinitionList(ctxt, define->content); break;
+		case XML_RELAXNG_INTERLEAVE: ret = xmlRelaxNGValidateInterleave(ctxt, define); break;
+		case XML_RELAXNG_ATTRIBUTE: ret = xmlRelaxNGValidateAttribute(ctxt, define); break;
 		case XML_RELAXNG_START:
 		case XML_RELAXNG_NOOP:
 		case XML_RELAXNG_REF:
 		case XML_RELAXNG_EXTERNALREF:
-		case XML_RELAXNG_PARENTREF:
-		    ret = xmlRelaxNGValidateDefinition(ctxt, define->content);
-		    break;
-		case XML_RELAXNG_DATATYPE: {
-		    xmlNode * child;
-		    xmlChar * content = NULL;
-		    child = P_Node;
-		    while(child) {
-			    if(child->type == XML_ELEMENT_NODE) {
-				    VALID_ERR2(XML_RELAXNG_ERR_DATAELEM, P_Node->parent->name);
-				    ret = -1;
-				    break;
-			    }
-			    else if(oneof2(child->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
-				    content = xmlStrcat(content, child->content);
-			    }
-			    /* @todo handle entities ... */
-			    child = child->next;
-		    }
-		    if(ret == -1) {
-			    SAlloc::F(content);
-			    break;
-		    }
-		    if(content == NULL) {
-			    content = sstrdup(BAD_CAST "");
-			    if(content == NULL) {
-				    xmlRngVErrMemory(ctxt, "validating\n");
-				    ret = -1;
-				    break;
-			    }
-		    }
-		    ret = xmlRelaxNGValidateDatatype(ctxt, content, define, ctxt->state->seq);
-		    if(ret == -1) {
-			    VALID_ERR2(XML_RELAXNG_ERR_DATATYPE, define->name);
-		    }
-		    else if(ret == 0) {
-			    ctxt->state->seq = NULL;
-		    }
-		    SAlloc::F(content);
-		    break;
-	    }
+		case XML_RELAXNG_PARENTREF: ret = xmlRelaxNGValidateDefinition(ctxt, define->content); break;
+		case XML_RELAXNG_DATATYPE: 
+			{
+				xmlChar * content = NULL;
+				xmlNode * child = P_Node;
+				while(child) {
+					if(child->type == XML_ELEMENT_NODE) {
+						VALID_ERR2(XML_RELAXNG_ERR_DATAELEM, P_Node->parent->name);
+						ret = -1;
+						break;
+					}
+					else if(oneof2(child->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
+						content = xmlStrcat(content, child->content);
+					}
+					/* @todo handle entities ... */
+					child = child->next;
+				}
+				if(ret == -1) {
+					SAlloc::F(content);
+					break;
+				}
+				if(content == NULL) {
+					content = sstrdup(reinterpret_cast<const xmlChar *>(""));
+					if(content == NULL) {
+						xmlRngVErrMemory(ctxt, "validating\n");
+						ret = -1;
+						break;
+					}
+				}
+				ret = xmlRelaxNGValidateDatatype(ctxt, content, define, ctxt->state->seq);
+				if(ret == -1) {
+					VALID_ERR2(XML_RELAXNG_ERR_DATATYPE, define->name);
+				}
+				else if(ret == 0) {
+					ctxt->state->seq = NULL;
+				}
+				SAlloc::F(content);
+				break;
+			}
 		case XML_RELAXNG_VALUE: {
 		    xmlChar * content = NULL;
 		    xmlChar * oldvalue;
@@ -8817,7 +8805,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    break;
 		    }
 		    if(content == NULL) {
-			    content = sstrdup(BAD_CAST "");
+			    content = sstrdup(reinterpret_cast<const xmlChar *>(""));
 			    if(content == NULL) {
 				    xmlRngVErrMemory(ctxt, "validating\n");
 				    ret = -1;
@@ -8862,7 +8850,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    break;
 		    }
 		    if(content == NULL) {
-			    content = sstrdup(BAD_CAST "");
+			    content = sstrdup(reinterpret_cast<const xmlChar *>(""));
 			    if(content == NULL) {
 				    xmlRngVErrMemory(ctxt, "validating\n");
 				    ret = -1;

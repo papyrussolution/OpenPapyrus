@@ -129,7 +129,7 @@ static void FASTCALL StringUpper(char * szString)
 }
 
 // Get the next word in uppercase from the current position (keyword lookahead)
-/*inline*/ bool GetNextWordUpper(Accessor &styler, Sci_PositionU uiStartPos, Sci_Position iLength, char * cWord)
+/*inline*/ bool GetNextWordUpper(Accessor & styler, Sci_PositionU uiStartPos, Sci_Position iLength, char * cWord)
 {
 	Sci_PositionU iIndex = 0;               // Buffer Index
 	// Loop through the remaining string from the current position

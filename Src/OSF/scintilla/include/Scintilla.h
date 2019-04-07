@@ -1693,7 +1693,7 @@ namespace Scintilla {
 		wsInconsistent=8 
 	};
 
-	typedef bool (*PFNIsCommentLeader)(Accessor &styler, Sci_Position pos, Sci_Position len);
+	typedef bool (*PFNIsCommentLeader)(Accessor & styler, Sci_Position pos, Sci_Position len);
 
 	class Accessor : public LexAccessor {
 	public:
@@ -1798,7 +1798,7 @@ namespace Scintilla {
 		int    starts[256];
 	};
 
-	typedef void (*LexerFunction)(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, WordList *keywordlists[], Accessor &styler);
+	typedef void (*LexerFunction)(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, WordList *keywordlists[], Accessor & styler);
 	typedef ILexer *(*LexerFactoryFunction)();
 	// 
 	// Descr: A LexerModule is responsible for lexing and folding a particular language.
@@ -1822,8 +1822,8 @@ namespace Scintilla {
 		int GetNumWordLists() const;
 		const char * GetWordListDescription(int index) const;
 		ILexer *Create() const;
-		virtual void Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler) const;
-		virtual void Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler) const;
+		virtual void Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler) const;
+		virtual void Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler) const;
 		friend class Catalogue;
 	};
 
@@ -1883,8 +1883,8 @@ namespace Scintilla {
 		void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess);
 		void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *);
 
-		virtual void Lexer(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess, Accessor &styler) = 0;
-		virtual void Folder(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess, Accessor &styler) = 0;
+		virtual void Lexer(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess, Accessor & styler) = 0;
+		virtual void Folder(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess, Accessor & styler) = 0;
 	};
 	//
 	// Shut up annoying Visual C++ warnings:

@@ -27,7 +27,7 @@ static bool FASTCALL IsGAPOperator(char ch)
 	return false;
 }
 
-static void GetRange(Sci_PositionU start, Sci_PositionU end, Accessor &styler, char * s, Sci_PositionU len)
+static void GetRange(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while((i < end - start + 1) && (i < len-1)) {
@@ -37,7 +37,7 @@ static void GetRange(Sci_PositionU start, Sci_PositionU end, Accessor &styler, c
 	s[i] = '\0';
 }
 
-static void ColouriseGAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseGAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords1 = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -198,7 +198,7 @@ static int ClassifyFoldPointGAP(const char* s)
 	return level;
 }
 
-static void FoldGAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,   WordList**, Accessor &styler)
+static void FoldGAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,   WordList**, Accessor & styler)
 {
 	Sci_PositionU endPos = startPos + length;
 	int visibleChars = 0;

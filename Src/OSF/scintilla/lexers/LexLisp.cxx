@@ -33,7 +33,7 @@ static bool FASTCALL isLispwordstart(char ch)
 	return IsASCII(ch) && ch != ';'  && !isspacechar(ch) && !isLispoperator(ch) && ch != '\n' && ch != '\r' &&  ch != '\"';
 }
 
-static void classifyWordLisp(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, const WordList &keywords_kw, Accessor &styler) 
+static void classifyWordLisp(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, const WordList &keywords_kw, Accessor & styler) 
 {
 	assert(end >= start);
 	char s[100];
@@ -64,7 +64,7 @@ static void classifyWordLisp(Sci_PositionU start, Sci_PositionU end, const WordL
 }
 
 static void ColouriseLispDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler) {
+    Accessor & styler) {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords_kw = *keywordlists[1];
 
@@ -238,7 +238,7 @@ static void ColouriseLispDoc(Sci_PositionU startPos, Sci_Position length, int in
 }
 
 static void FoldLispDoc(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[],
-    Accessor &styler) {
+    Accessor & styler) {
 	Sci_PositionU lengthDoc = startPos + length;
 	int visibleChars = 0;
 	Sci_Position lineCurrent = styler.GetLine(startPos);

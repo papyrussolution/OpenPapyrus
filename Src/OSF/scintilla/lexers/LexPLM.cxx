@@ -11,7 +11,7 @@
 using namespace Scintilla;
 #endif
 
-static void GetRange(Sci_PositionU start, Sci_PositionU end, Accessor &styler, char * s, Sci_PositionU len)
+static void GetRange(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while((i < end - start + 1) && (i < len-1)) {
@@ -21,7 +21,7 @@ static void GetRange(Sci_PositionU start, Sci_PositionU end, Accessor &styler, c
 	s[i] = '\0';
 }
 
-static void ColourisePlmDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColourisePlmDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	Sci_PositionU endPos = startPos + length;
 	int state = initStyle;
@@ -113,7 +113,7 @@ static void ColourisePlmDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	styler.ColourTo(endPos - 1, state);
 }
 
-static void FoldPlmDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
+static void FoldPlmDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;

@@ -17,21 +17,11 @@ using namespace Scintilla;
 /*
  * Interface
  */
+static void ColouriseDocument(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler);
 
-static void ColouriseDocument(
-    Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList *keywordlists[],
-    Accessor &styler);
-
-static const char * const adaWordListDesc[] = {
-"Keywords",
-0
-};
+static const char * const adaWordListDesc[] = { "Keywords", 0 };
 
 LexerModule lmAda(SCLEX_ADA, ColouriseDocument, "ada", NULL, adaWordListDesc);
-
 /*
  * Implementation
  */
@@ -43,11 +33,11 @@ static void ColouriseCharacter(StyleContext& sc, bool& apostropheStartsAttribute
 static void ColouriseComment(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseContext(StyleContext& sc, char chEnd, int stateEOL);
 static void ColouriseDelimiter(StyleContext& sc, bool& apostropheStartsAttribute);
-static void ColouriseLabel(StyleContext& sc, const WordList& keywords, bool& apostropheStartsAttribute);
+static void ColouriseLabel(StyleContext& sc, const WordList & keywords, bool& apostropheStartsAttribute);
 static void ColouriseNumber(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseString(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseWhiteSpace(StyleContext& sc, bool& apostropheStartsAttribute);
-static void ColouriseWord(StyleContext& sc, const WordList& keywords, bool& apostropheStartsAttribute);
+static void ColouriseWord(StyleContext& sc, const WordList & keywords, bool& apostropheStartsAttribute);
 
 static bool FASTCALL IsDelimiterCharacter(int ch);
 static bool FASTCALL IsSeparatorOrDelimiterCharacter(int ch);
@@ -102,7 +92,7 @@ static void ColouriseDelimiter(StyleContext& sc, bool& apostropheStartsAttribute
 	sc.ForwardSetState(SCE_ADA_DEFAULT);
 }
 
-static void ColouriseLabel(StyleContext& sc, const WordList& keywords, bool& apostropheStartsAttribute)
+static void ColouriseLabel(StyleContext& sc, const WordList & keywords, bool& apostropheStartsAttribute)
 {
 	apostropheStartsAttribute = false;
 	sc.SetState(SCE_ADA_LABEL);
@@ -179,7 +169,7 @@ static void ColouriseWhiteSpace(StyleContext& sc, bool& /*apostropheStartsAttrib
 	sc.ForwardSetState(SCE_ADA_DEFAULT);
 }
 
-static void ColouriseWord(StyleContext& sc, const WordList& keywords, bool& apostropheStartsAttribute)
+static void ColouriseWord(StyleContext& sc, const WordList & keywords, bool& apostropheStartsAttribute)
 {
 	apostropheStartsAttribute = true;
 	sc.SetState(SCE_ADA_IDENTIFIER);
@@ -204,19 +194,12 @@ static void ColouriseWord(StyleContext& sc, const WordList& keywords, bool& apos
 // ColouriseDocument
 //
 
-static void ColouriseDocument(Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList * keywordlists[],
-    Accessor &styler)
+static void ColouriseDocument(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 	bool apostropheStartsAttribute = (styler.GetLineState(lineCurrent) & 1) != 0;
-
 	while(sc.More()) {
 		if(sc.atLineEnd) {
 			// Go to the next line

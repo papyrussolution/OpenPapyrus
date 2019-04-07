@@ -56,25 +56,15 @@ using namespace Scintilla;
 	#include <windows.h>
 #endif
 
-static void ColouriseCamlDoc(
-    Sci_PositionU startPos, Sci_Position length,
-    int initStyle,
-    WordList *keywordlists[],
-    Accessor &styler);
-
-static void FoldCamlDoc(
-    Sci_PositionU startPos, Sci_Position length,
-    int initStyle,
-    WordList *keywordlists[],
-    Accessor &styler);
-
-static void InternalLexOrFold(int lexOrFold, Sci_PositionU startPos, Sci_Position length,
-    int initStyle, char * words[], WindowID window, char * props);
+static void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler);
+static void FoldCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler);
+static void InternalLexOrFold(int lexOrFold, Sci_PositionU startPos, Sci_Position length, int initStyle, char * words[], WindowID window, char * props);
 
 static const char* LexerName = "caml";
 
 #ifdef TRACE
-void Platform::DebugPrintf(const char * format, ...) {
+void Platform::DebugPrintf(const char * format, ...) 
+{
 	char buffer[2000];
 	va_list pArguments;
 	va_start(pArguments, format);
@@ -89,21 +79,22 @@ void Platform::DebugPrintf(const char *, ...) {
 
 #endif
 
-bool Platform::IsDBCSLeadByte(int codePage, char ch) {
+bool Platform::IsDBCSLeadByte(int codePage, char ch) 
+{
 	return ::IsDBCSLeadByteEx(codePage, ch) != 0;
 }
 
-long Platform::SendScintilla(WindowID w, uint msg, ulong wParam, long lParam) {
+long Platform::SendScintilla(WindowID w, uint msg, ulong wParam, long lParam) 
+{
 	return ::SendMessage(reinterpret_cast<HWND>(w), msg, wParam, lParam);
 }
 
-long Platform::SendScintillaPointer(WindowID w, uint msg, ulong wParam, void * lParam) {
-	return ::SendMessage(reinterpret_cast<HWND>(w), msg, wParam,
-	    reinterpret_cast<LPARAM>(lParam));
+long Platform::SendScintillaPointer(WindowID w, uint msg, ulong wParam, void * lParam) 
+{
+	return ::SendMessage(reinterpret_cast<HWND>(w), msg, wParam, reinterpret_cast<LPARAM>(lParam));
 }
 
-void EXT_LEXER_DECL Fold(uint lexer, Sci_PositionU startPos, Sci_Position length,
-    int initStyle, char * words[], WindowID window, char * props)
+void EXT_LEXER_DECL Fold(uint lexer, Sci_PositionU startPos, Sci_Position length, int initStyle, char * words[], WindowID window, char * props)
 {
 	// below useless evaluation(s) to supress "not used" warnings
 	lexer;
@@ -171,26 +162,20 @@ static void InternalLexOrFold(int foldOrLex, Sci_PositionU startPos, Sci_Positio
 static
 #endif  /* BUILD_AS_EXTERNAL_LEXER */
 
-void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
-    int initStyle,
-    WordList * keywordlists[],
-    Accessor &styler)
+void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	// initialize styler
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	Sci_PositionU chToken = 0;
 	int chBase = 0, chLit = 0;
-	WordList& keywords  = *keywordlists[0];
-	WordList& keywords2 = *keywordlists[1];
-	WordList& keywords3 = *keywordlists[2];
+	WordList & keywords  = *keywordlists[0];
+	WordList & keywords2 = *keywordlists[1];
+	WordList & keywords3 = *keywordlists[2];
 	const bool isSML = keywords.InList("andalso");
 	const int useMagic = styler.GetPropertyInt("lexer.caml.magic", 0);
-
 	// set up [initial] state info (terminating states that shouldn't "bleed")
 	const int state_ = sc.state & 0x0f;
-	if(state_ <= SCE_CAML_CHAR
-	    || (isSML && state_ == SCE_CAML_STRING))
+	if(state_ <= SCE_CAML_CHAR || (isSML && state_ == SCE_CAML_STRING))
 		sc.state = SCE_CAML_DEFAULT;
 	int nesting = (state_ >= SCE_CAML_COMMENT) ? (state_ - SCE_CAML_COMMENT) : 0;
 
@@ -200,7 +185,6 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 		int state2 = -1;                                // (ASSUME no state change)
 		Sci_Position chColor = sc.currentPos - 1; // (ASSUME standard coloring range)
 		bool advance = true;                    // (ASSUME scanner "eats" 1 char)
-
 		// step state machine
 		switch(sc.state & 0x0f) {
 			case SCE_CAML_DEFAULT:

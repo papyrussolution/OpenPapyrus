@@ -22,7 +22,7 @@
 using namespace Scintilla;
 #endif
 
-static void ColourisePODoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
+static void ColourisePODoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 	bool escaped = false;
@@ -142,7 +142,7 @@ static void ColourisePODoc(Sci_PositionU startPos, Sci_Position length, int init
 	sc.Complete();
 }
 
-static int FindNextNonEmptyLineState(Sci_PositionU startPos, Accessor &styler)
+static int FindNextNonEmptyLineState(Sci_PositionU startPos, Accessor & styler)
 {
 	Sci_PositionU length = styler.Length();
 	for(Sci_PositionU i = startPos; i < length; i++) {
@@ -153,7 +153,7 @@ static int FindNextNonEmptyLineState(Sci_PositionU startPos, Accessor &styler)
 	return 0;
 }
 
-static void FoldPODoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldPODoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	if(!styler.GetPropertyInt("fold"))
 		return;

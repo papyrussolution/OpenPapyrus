@@ -47,7 +47,7 @@ static bool FASTCALL IsABase85Char(const int ch)
 	return ((ch >= '!' && ch <= 'u') || ch == 'z');
 }
 
-static void ColourisePSDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColourisePSDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords1 = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -268,7 +268,7 @@ static void ColourisePSDoc(Sci_PositionU startPos, Sci_Position length, int init
 	sc.Complete();
 }
 
-static void FoldPSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldPSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	bool foldAtElse = styler.GetPropertyInt("fold.at.else", 0) != 0;

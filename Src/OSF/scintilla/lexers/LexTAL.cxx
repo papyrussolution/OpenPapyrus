@@ -33,7 +33,7 @@ inline bool isTALwordstart(char ch)
 
 static void getRange(Sci_PositionU start,
     Sci_PositionU end,
-    Accessor &styler,
+    Accessor & styler,
     char * s,
     Sci_PositionU len)
 {
@@ -50,7 +50,7 @@ static bool FASTCALL IsStreamCommentStyle(int style)
 	return oneof4(style, SCE_C_COMMENT, SCE_C_COMMENTDOC, SCE_C_COMMENTDOCKEYWORD, SCE_C_COMMENTDOCKEYWORDERROR);
 }
 
-static void ColourTo(Accessor &styler, Sci_PositionU end, uint attr, bool bInAsm)
+static void ColourTo(Accessor & styler, Sci_PositionU end, uint attr, bool bInAsm)
 {
 	if((bInAsm) &&
 	    (attr == SCE_C_OPERATOR || attr == SCE_C_NUMBER || attr == SCE_C_DEFAULT || attr == SCE_C_WORD || attr == SCE_C_IDENTIFIER)) {
@@ -64,14 +64,14 @@ static void ColourTo(Accessor &styler, Sci_PositionU end, uint attr, bool bInAsm
 static int classifyWordTAL(Sci_PositionU start,
     Sci_PositionU end,
     /*WordList &keywords*/ WordList * keywordlists[],
-    Accessor &styler,
+    Accessor & styler,
     bool bInAsm)
 {
 	int ret = 0;
 
-	WordList& keywords = *keywordlists[0];
-	WordList& builtins = *keywordlists[1];
-	WordList& nonreserved_keywords = *keywordlists[2];
+	WordList & keywords = *keywordlists[0];
+	WordList & builtins = *keywordlists[1];
+	WordList & nonreserved_keywords = *keywordlists[2];
 
 	char s[100];
 	getRange(start, end, styler, s, sizeof(s));
@@ -118,7 +118,7 @@ static int classifyFoldPointTAL(const char* s)
 }
 
 static void ColouriseTALDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	styler.StartAt(startPos);
 
@@ -283,7 +283,7 @@ static void ColouriseTALDoc(Sci_PositionU startPos, Sci_Position length, int ini
 }
 
 static void FoldTALDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldPreprocessor = styler.GetPropertyInt("fold.preprocessor") != 0;

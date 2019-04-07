@@ -60,7 +60,7 @@ static bool FASTCALL IsBinaryStart(const int ch, const int ch2, const int ch3, c
 	       (IsADigit(ch) && IsADigit(ch2) && ch3 == '#' && ch4 == '{' );
 }
 
-static void ColouriseRebolDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseRebolDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -288,7 +288,7 @@ static void ColouriseRebolDoc(Sci_PositionU startPos, Sci_Position length, int i
 }
 
 static void FoldRebolDoc(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	Sci_PositionU lengthDoc = startPos + length;
 	int visibleChars = 0;

@@ -149,7 +149,7 @@ static int GetSendKey(const char * szLine, char * szKey)
 //
 // Routine to check the last "none comment" character on a line to see if its a continuation
 //
-static bool IsContinuationLine(Sci_PositionU szLine, Accessor &styler)
+static bool IsContinuationLine(Sci_PositionU szLine, Accessor & styler)
 {
 	Sci_Position nsPos = styler.LineStart(szLine);
 	Sci_Position nePos = styler.LineStart(szLine+1) - 2;
@@ -173,7 +173,7 @@ static bool IsContinuationLine(Sci_PositionU szLine, Accessor &styler)
 
 //
 // syntax highlighting logic
-static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -595,7 +595,7 @@ static bool FASTCALL IsStreamCommentStyle(int style)
 //
 // Routine to find first none space on the current line and return its Style
 // needed for comment lines not starting on pos 1
-static int GetStyleFirstWord(Sci_PositionU szLine, Accessor &styler)
+static int GetStyleFirstWord(Sci_PositionU szLine, Accessor & styler)
 {
 	Sci_Position nsPos = styler.LineStart(szLine);
 	Sci_Position nePos = styler.LineStart(szLine+1) - 1;
@@ -606,7 +606,7 @@ static int GetStyleFirstWord(Sci_PositionU szLine, Accessor &styler)
 } // GetStyleFirstWord()
 
 //
-static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	Sci_Position endPos = startPos + length;
 	// get settings from the config files for folding comments and preprocessor lines

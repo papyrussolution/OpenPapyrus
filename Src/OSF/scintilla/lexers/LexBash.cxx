@@ -107,7 +107,7 @@ static int FASTCALL GlobScan(StyleContext &sc)
 }
 
 static void ColouriseBashDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList cmdDelimiter, bashStruct, bashStruct_in;
@@ -840,7 +840,7 @@ public:
 	sc.Complete();
 }
 
-static bool FASTCALL IsCommentLine(Sci_Position line, Accessor &styler)
+static bool FASTCALL IsCommentLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -854,7 +854,7 @@ static bool FASTCALL IsCommentLine(Sci_Position line, Accessor &styler)
 	return false;
 }
 
-static void FoldBashDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldBashDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;

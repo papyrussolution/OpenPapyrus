@@ -21,7 +21,7 @@ static bool FASTCALL IsAWordChar(int ch)
 }
 
 static void ColourisePowerShellDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -172,7 +172,7 @@ static void ColourisePowerShellDoc(Sci_PositionU startPos, Sci_Position length, 
 // level store to make it easy to pick up with each increment
 // and to make it possible to fiddle the current level for "} else {".
 static void FoldPowerShellDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;

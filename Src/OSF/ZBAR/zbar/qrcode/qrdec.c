@@ -1207,7 +1207,7 @@ static int qr_aff_line_step(const qr_aff * _aff, qr_line _l, int _v, int _du, in
 	int dv;
 	int n = _aff->fwd[0][_v]*_l[0]+_aff->fwd[1][_v]*_l[1];
 	int d = _aff->fwd[0][1-_v]*_l[0]+_aff->fwd[1][1-_v]*_l[1];
-	if(d<0) {
+	if(d < 0) {
 		n = -n;
 		d = -d;
 	}

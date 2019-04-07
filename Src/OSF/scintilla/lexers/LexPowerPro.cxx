@@ -48,7 +48,7 @@ static bool FASTCALL IsLineEndChar(uchar ch)
 	return (ch == 0x0a || ch == 0x0c || ch == 0x0d);
 }
 
-static bool IsContinuationLine(Sci_PositionU szLine, Accessor &styler)
+static bool IsContinuationLine(Sci_PositionU szLine, Accessor & styler)
 {
 	Sci_Position startPos = styler.LineStart(szLine);
 	Sci_Position endPos = styler.LineStart(szLine + 1) - 2;
@@ -68,7 +68,7 @@ static bool IsContinuationLine(Sci_PositionU szLine, Accessor &styler)
 
 // Routine to find first none space on the current line and return its Style
 // needed for comment lines not starting on pos 1
-static int GetStyleFirstWord(Sci_Position szLine, Accessor &styler)
+static int GetStyleFirstWord(Sci_Position szLine, Accessor & styler)
 {
 	Sci_Position startPos = styler.LineStart(szLine);
 	Sci_Position endPos = styler.LineStart(szLine + 1) - 1;
@@ -86,7 +86,7 @@ static int GetStyleFirstWord(Sci_Position szLine, Accessor &styler)
 //note:
 //		sample line (without quotes): "\tfunction asdf()
 //		currentPos will be the position of 'a'
-static bool IsFunction(Accessor &styler, Sci_PositionU currentPos)
+static bool IsFunction(Accessor & styler, Sci_PositionU currentPos)
 {
 	const char function[10] = "function "; //10 includes \0
 	uint numberOfCharacters = sizeof(function) - 1;
@@ -118,7 +118,7 @@ static bool IsFunction(Accessor &styler, Sci_PositionU currentPos)
 }
 
 static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler, bool caseSensitive)
+    Accessor & styler, bool caseSensitive)
 {
 	WordList &keywords  = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -374,7 +374,7 @@ static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, in
 	sc.Complete();
 }
 
-static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	//define the character sets
 	CharacterSet setWordStart(CharacterSet::setAlpha, "_@", 0x80, true);
@@ -622,7 +622,7 @@ static const char * const powerProWordLists[] = {
 };
 
 static void ColourisePowerProDocWrapper(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	ColourisePowerProDoc(startPos, length, initStyle, keywordlists, styler, false);
 }

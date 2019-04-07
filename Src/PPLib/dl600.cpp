@@ -425,14 +425,14 @@ void FASTCALL CtmExpr::Init(const CtmVar & v)
 	U.V = v;
 }
 
-void CtmExpr::InitUnaryOp(uint op, CtmExpr & a)
+void CtmExpr::InitUnaryOp(uint op, const CtmExpr & a)
 {
 	Init(kOp);
 	U.Op = op;
 	AddArg(a);
 }
 
-void CtmExpr::InitBinaryOp(uint op, CtmExpr & a1, CtmExpr & a2)
+void CtmExpr::InitBinaryOp(uint op, const CtmExpr & a1, const CtmExpr & a2)
 {
 	Init(kOp);
 	U.Op = op;
@@ -442,7 +442,7 @@ void CtmExpr::InitBinaryOp(uint op, CtmExpr & a1, CtmExpr & a2)
 
 // | '@' '(' T_TYPE ',' expr ')' { $$.InitRefOp($3.U.S, $5);
 
-void CtmExpr::InitRefOp(DLSYMBID type, CtmExpr & a1)
+void CtmExpr::InitRefOp(DLSYMBID type, const CtmExpr & a1)
 {
 	Init(kOp);
 	U.Ref.Op = dlopObjRef;
@@ -450,7 +450,7 @@ void CtmExpr::InitRefOp(DLSYMBID type, CtmExpr & a1)
 	AddArg(a1);
 }
 
-void CtmExpr::InitTypeConversion(CtmExpr & a, DLSYMBID toType)
+void CtmExpr::InitTypeConversion(const CtmExpr & a, DLSYMBID toType)
 {
 	Init(kOp);
 	U.Cvt.Op = dlopConvert;
@@ -472,13 +472,12 @@ int FASTCALL CtmExpr::InitVar(const CtmVar & rVar)
 	return 1;
 }
 
-int CtmExpr::InitFuncCall(const char * pFuncName, CtmExpr & a)
+void CtmExpr::InitFuncCall(const char * pFuncName, const CtmExpr & a)
 {
 	Init(kFuncName);
 	U.S = newStr(pFuncName);
 	if(a.Kind)
 		AddArg(a);
-	return 1;
 }
 
 void CtmExpr::Destroy()

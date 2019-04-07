@@ -491,6 +491,16 @@ enum VetisProductType {
 	vptDontReqPermit = 8 // 8 Продукция, не требующая разрешения.
 };
 
+enum VetisProductMarkingClass {
+	vpmcUNDEFINED = 0, 
+	vpmcBN, // Номер производственной партии
+	vpmcSSCC, // SSCC-код
+	vpmcEAN8,
+	vpmcEAN13,
+	vpmcEAN128,
+	vpmcBUNDLE // Маркировка вышестоящей групповой упаковки, например, паллеты. Может использоваться для поиска группы вет.сертификатов для партий, находящихся на данной паллете.
+};
+
 struct VetisProduct : public VetisNamedGenericVersioningEntity {
 	VetisProduct() : VetisNamedGenericVersioningEntity(), ProductType(vptUndef)
 	{
@@ -522,6 +532,18 @@ struct VetisPackingType : public VetisNamedGenericVersioningEntity {
 	VetisPackingType() : VetisNamedGenericVersioningEntity()
 	{
 	}
+	VetisPackingType & FASTCALL operator = (const VetisPackingType & rS)
+	{
+		VetisNamedGenericVersioningEntity::operator = (rS);
+		GlobalID = rS.GlobalID;
+		return *this;
+	}
+	VetisPackingType & Z()
+	{
+		VetisNamedGenericVersioningEntity::Z();
+		GlobalID.Z();
+		return *this;
+	}
 	SString GlobalID; // PackingCodeType
 };
 
@@ -550,14 +572,22 @@ struct VetisPackage {
 	VetisPackage & FASTCALL operator = (const VetisPackage & rS)
 	{
 		Level = rS.Level;
-		PackingType = rS.PackingType;
 		Quantity = rS.Quantity;
+		PackingType = rS.PackingType;
 		TSCollection_Copy(ProductMarks, rS.ProductMarks);
 		return *this;
 	}
+	VetisPackage & Z() 
+	{
+		Level = 0;
+		Quantity = 0;
+		PackingType.Z();
+		ProductMarks.freeAll();
+		return *this;
+	}
 	int    Level; // PackageLevelType
-	VetisPackingType PackingType;
 	int    Quantity;
+	VetisPackingType PackingType;
 	TSCollection <VetisProductMarks> ProductMarks;
 };
 
@@ -670,7 +700,7 @@ struct VetisBatch {
 		ProductMarkingList = rS.ProductMarkingList;
 		Flags = rS.Flags;
 		Origin = rS.Origin;
-		//TSCollection_Copy(PackageList, rS.PackageList);
+		TSCollection_Copy(PackageList, rS.PackageList); // @v10.4.0
 		TSCollection_Copy(PackingList, rS.PackingList);
 		ZDELETE(P_Owner);
 		if(rS.P_Owner) {
@@ -694,6 +724,7 @@ struct VetisBatch {
 		ProductMarkingList.Z();
 		Flags = 0;
 		Origin.Z();
+		PackageList.freeAll(); // @v10.4.0
 		PackingList.freeAll();
 		ZDELETE(P_Owner);
 		return *this;
@@ -3311,6 +3342,16 @@ static const SIntToSymbTabEntry VetisTranspStorageType_SymbTab[] = {
 	{ vtstVENTILATED, "VENTILATED" }
 };
 
+static const SIntToSymbTabEntry VetisProductMarkingClass_SymbTab[] = {
+	{ vpmcUNDEFINED, "UNDEFINED" },
+	{ vpmcBN, "BN" },
+	{ vpmcSSCC, "SSCC" },
+	{ vpmcEAN8, "EAN8" },
+	{ vpmcEAN13, "EAN13" },
+	{ vpmcEAN128, "EAN128" },
+	{ vpmcBUNDLE, "BUNDLE" }
+};
+
 int SLAPI PPVetisInterface::ParseGenericVersioningEntity(xmlNode * pParentNode, VetisGenericVersioningEntity & rResult)
 {
 	int    ok = 1;
@@ -3368,6 +3409,7 @@ int SLAPI PPVetisInterface::ParsePackage(xmlNode * pParentNode, VetisPackage & r
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString attr_buf;
 	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
 		if(SXml::GetContentByName(p_a, "level", temp_buf)) {
 			rResult.Level = temp_buf.ToLong();
@@ -3379,7 +3421,14 @@ int SLAPI PPVetisInterface::ParsePackage(xmlNode * pParentNode, VetisPackage & r
 			rResult.Quantity = temp_buf.ToLong();
 		}
 		else if(SXml::GetContentByName(p_a, "productMarks", temp_buf)) {
-
+			if(temp_buf.NotEmptyS()) {
+				VetisProductMarks * p_new_mark = rResult.ProductMarks.CreateNewItem();
+				p_new_mark->Item = temp_buf;
+				p_new_mark->Cls = vpmcUNDEFINED;
+				if(SXml::GetAttrib(p_a, "class", temp_buf)) {
+					p_new_mark->Cls = SIntToSymbTab_GetId(VetisProductMarkingClass_SymbTab, SIZEOFARRAY(VetisProductMarkingClass_SymbTab), temp_buf);
+				}
+			}
 		}
 	}
 	return ok;

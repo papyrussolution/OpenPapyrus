@@ -1932,6 +1932,7 @@ private:
 	size_t SLAPI Helper_ReceiveFilePart(const PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
 	CmdRet SLAPI SetTimeSeries(PPJobSrvReply & rReply);
 	CmdRet SLAPI SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply);
+	CmdRet SLAPI SetTimeSeriesTaNotification(PPJobSrvReply & rReply);
 	CmdRet SLAPI GetReqQuotes(PPJobSrvReply & rReply);
 
 	uint32 SuspendTimeout;     // Таймаут (ms) ожидания восстановления приостановленной сессии         //
@@ -2324,6 +2325,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_GETREQQUOTES: // @v10.2.4
 		case PPSCMD_SETTIMESERIESPROP: // @v10.2.5
 		case PPSCMD_SETTIMESERIESSTKENV: // @v10.2.10
+		case PPSCMD_TIMESERIESTANOTIFY: // @v10.4.0
 			ok = cmdretUnprocessed;
 			break;
 		// }
@@ -3266,6 +3268,30 @@ PPServerSession::CmdRet SLAPI PPServerSession::GetReqQuotes(PPJobSrvReply & rRep
 	return ret;
 }
 
+PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesTaNotification(PPJobSrvReply & rReply)
+{
+	CmdRet ret = cmdretOK;
+	uint32 size_to_read = 0;
+	size_t recv_size = 0;
+	TsStakeEnvironment::TransactionNotification tan;
+	THROW_SL(So.RecvBlock(&size_to_read, sizeof(size_to_read), &recv_size) > 0 && recv_size == sizeof(size_to_read));
+	{
+		SBuffer buffer;
+		SSerializeContext sctx;
+		THROW_SL(So.RecvBuf(buffer, size_to_read, &recv_size));
+		THROW(tan.Serialize(-1, buffer, &sctx));
+		{
+			PPObjTimeSeries ts_obj;
+			ts_obj.SetExternTransactionNotification(tan);
+		}
+	}
+	CATCH
+		rReply.SetError();
+		ret = cmdretError;
+	ENDCATCH
+	return ret;
+}
+
 PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply) // @construction
 {
 	CmdRet ret = cmdretOK;
@@ -3710,7 +3736,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			case PPSCMD_SETTIMESERIES: // @v10.2.3 @construction
 				ok = SetTimeSeries(rReply);
 				break;
-			case PPSCMD_SETTIMESERIESPROP: // @v10.2.5 @construction
+			case PPSCMD_SETTIMESERIESPROP: // @v10.2.5
 				{
 					pEv->GetParam(1, db_symb);
 					pEv->GetParam(2, name);
@@ -3724,8 +3750,11 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 						ok = cmdretOK;
 				}
 				break;
-			case PPSCMD_SETTIMESERIESSTKENV: // @v10.2.10 @construction
+			case PPSCMD_SETTIMESERIESSTKENV: // @v10.2.10
 				ok = SetTimeSeriesStakeEnvironment(rReply);
+				break;
+			case PPSCMD_TIMESERIESTANOTIFY: // @v10.4.0
+				ok = SetTimeSeriesTaNotification(rReply);
 				break;
 			case PPSCMD_GETDISPLAYINFO:
 				{

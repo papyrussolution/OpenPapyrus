@@ -11,7 +11,7 @@
 using namespace Scintilla;
 #endif
 
-static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor &styler, char * prevWord)
+static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor & styler, char * prevWord)
 {
 	char s[100] = "";
 	bool wordIsNumber = isdec(styler[start]) != 0;
@@ -33,7 +33,7 @@ static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, const WordLi
 	strcpy(prevWord, s);
 }
 
-static bool IsSolComment(Accessor &styler, Sci_Position pos, Sci_Position len)
+static bool IsSolComment(Accessor & styler, Sci_Position pos, Sci_Position len)
 {
 	if(len > 0) {
 		char c = styler[pos];
@@ -60,7 +60,7 @@ static bool IsSolWordStart(char ch)
 	return (iswordchar(ch) && !IsSolStringStart(ch));
 }
 
-static int GetSolStringState(Accessor &styler, Sci_Position i, Sci_Position * nextIndex)
+static int GetSolStringState(Accessor & styler, Sci_Position i, Sci_Position * nextIndex)
 {
 	char ch = styler.SafeGetCharAt(i);
 	char chNext = styler.SafeGetCharAt(i + 1);
@@ -85,7 +85,7 @@ static int GetSolStringState(Accessor &styler, Sci_Position i, Sci_Position * ne
 }
 
 static void ColouriseSolDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	Sci_Position lengthDoc = startPos + length;
 	char stringType = '\"';
@@ -253,7 +253,7 @@ static void ColouriseSolDoc(Sci_PositionU startPos, Sci_Position length, int ini
 }
 
 static void FoldSolDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	Sci_Position lengthDoc = startPos + length;
 

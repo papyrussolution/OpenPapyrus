@@ -30,7 +30,7 @@ static bool FASTCALL IsAnOther(const int ch)
 }
 
 static void ColouriseLoutDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -141,7 +141,7 @@ static void ColouriseLoutDoc(Sci_PositionU startPos, Sci_Position length, int in
 }
 
 static void FoldLoutDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	Sci_PositionU endPos = startPos + length;
 	int visibleChars = 0;

@@ -2547,7 +2547,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 		c = *cur;
 		*prefix = ret;
 		if(c == 0) {
-			return (xmlStrndup(BAD_CAST "", 0));
+			return (xmlStrndup(reinterpret_cast<const xmlChar *>(""), 0));
 		}
 		len = 0;
 		// Check that the first character is proper to start a new name
@@ -4325,7 +4325,7 @@ get_more:
 					}
 					SKIP(3);
 					if(ctxt->sax && ctxt->sax->comment && (!ctxt->disableSAX)) {
-						ctxt->sax->comment(ctxt->userData, buf ? buf : BAD_CAST "");
+						ctxt->sax->comment(ctxt->userData, buf ? buf : reinterpret_cast<const xmlChar *>(""));
 					}
 					SAlloc::F(buf);
 					if(ctxt->instate != XML_PARSER_EOF)
@@ -7587,7 +7587,7 @@ static const xmlChar * FASTCALL xmlParseQName(xmlParserCtxt * ctxt, const xmlCha
 			xmlNsErr(ctxt, XML_NS_ERR_QNAME, "Failed to parse QName '%s:'\n", p, 0, 0);
 			l = xmlParseNmtoken(ctxt);
 			if(l == NULL)
-				tmp = xmlBuildQName(BAD_CAST "", p, NULL, 0);
+				tmp = xmlBuildQName(reinterpret_cast<const xmlChar *>(""), p, NULL, 0);
 			else {
 				tmp = xmlBuildQName(l, p, NULL, 0);
 				SAlloc::F((char *)l);
@@ -7609,7 +7609,7 @@ static const xmlChar * FASTCALL xmlParseQName(xmlParserCtxt * ctxt, const xmlCha
 				*prefix = p;
 				return l;
 			}
-			tmp = xmlBuildQName(BAD_CAST "", l, NULL, 0);
+			tmp = xmlBuildQName(reinterpret_cast<const xmlChar *>(""), l, NULL, 0);
 			l = xmlDictLookupSL(ctxt->dict, tmp);
 			SAlloc::F(tmp);
 			*prefix = p;
@@ -10123,7 +10123,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 					     * sections
 					     */
 					    if((ctxt->input->cur - ctxt->input->base >= 9) && (!strncmp((const char *)&ctxt->input->cur[-9], "<![CDATA[", 9)))
-						    ctxt->sax->cdataBlock(ctxt->userData, BAD_CAST "", 0);
+						    ctxt->sax->cdataBlock(ctxt->userData, reinterpret_cast<const xmlChar *>(""), 0);
 				    }
 				    else if(ctxt->sax && (base > 0) && (!ctxt->disableSAX)) {
 					    if(ctxt->sax->cdataBlock)
@@ -10841,7 +10841,7 @@ void xmlStopParser(xmlParserCtxt * ctxt)
 		ctxt->errNo = XML_ERR_USER_STOP;
 		ctxt->disableSAX = 1;
 		if(ctxt->input) {
-			ctxt->input->cur = BAD_CAST "";
+			ctxt->input->cur = reinterpret_cast<const xmlChar *>("");
 			ctxt->input->base = ctxt->input->cur;
 		}
 	}

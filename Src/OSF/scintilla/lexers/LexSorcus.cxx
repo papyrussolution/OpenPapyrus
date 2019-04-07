@@ -24,7 +24,7 @@ static bool FASTCALL IsSorcusNumber(const int ch, const int prev_ch) { return LO
 //only = is a valid operator
 static bool FASTCALL IsSorcusOperator(const int ch) { return LOGIC(ch == '='); }
 
-static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &Command = *keywordlists[0];
 	WordList &Parameter = *keywordlists[1];

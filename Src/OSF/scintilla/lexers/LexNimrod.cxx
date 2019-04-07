@@ -21,7 +21,7 @@ static bool FASTCALL IsAWordChar(int ch)
 	return (ch >= 0x80) || isalnum(ch) || ch == '_';
 }
 
-static Sci_Position tillEndOfTripleQuote(Accessor &styler, Sci_Position pos, Sci_Position max)
+static Sci_Position tillEndOfTripleQuote(Accessor & styler, Sci_Position pos, Sci_Position max)
 {
 	/* search for """ */
 	for(;; ) {
@@ -42,7 +42,7 @@ static bool inline isNewLine(int ch)
 	return ch == CR || ch == LF;
 }
 
-static Sci_Position scanString(Accessor &styler, Sci_Position pos, Sci_Position max, bool rawMode)
+static Sci_Position scanString(Accessor & styler, Sci_Position pos, Sci_Position max, bool rawMode)
 {
 	for(;; ) {
 		if(pos >= max) return pos;
@@ -58,7 +58,7 @@ static Sci_Position scanString(Accessor &styler, Sci_Position pos, Sci_Position 
 	}
 }
 
-static Sci_Position scanChar(Accessor &styler, Sci_Position pos, Sci_Position max)
+static Sci_Position scanChar(Accessor & styler, Sci_Position pos, Sci_Position max)
 {
 	for(;; ) {
 		if(pos >= max) return pos;
@@ -75,7 +75,7 @@ static Sci_Position scanChar(Accessor &styler, Sci_Position pos, Sci_Position ma
 	}
 }
 
-static Sci_Position scanIdent(Accessor &styler, Sci_Position pos, const WordList &keywords)
+static Sci_Position scanIdent(Accessor & styler, Sci_Position pos, const WordList &keywords)
 {
 	char buf[100]; /* copy to lowercase and ignore underscores */
 	Sci_Position i = 0;
@@ -99,7 +99,7 @@ static Sci_Position scanIdent(Accessor &styler, Sci_Position pos, const WordList
 	return pos;
 }
 
-static Sci_Position scanNumber(Accessor &styler, Sci_Position pos)
+static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 {
 	char ch = styler.SafeGetCharAt(pos, '\0');
 	char ch2 = styler.SafeGetCharAt(pos+1, '\0');
@@ -183,7 +183,7 @@ static Sci_Position scanNumber(Accessor &styler, Sci_Position pos)
 /* rewritten from scratch, because I couldn't get rid of the bugs...
    (A character based approach sucks!)
  */
-static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	Sci_Position pos = startPos;
 	Sci_Position max = startPos + length;
@@ -273,7 +273,7 @@ static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int 
 	}
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler)
+static bool IsCommentLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -287,13 +287,13 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler)
 	return false;
 }
 
-static bool IsQuoteLine(Sci_Position line, Accessor &styler)
+static bool IsQuoteLine(Sci_Position line, Accessor & styler)
 {
 	int style = styler.StyleAt(styler.LineStart(line)) & 31;
 	return ((style == SCE_P_TRIPLE) || (style == SCE_P_TRIPLEDOUBLE));
 }
 
-static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/, WordList *[], Accessor &styler)
+static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/, WordList *[], Accessor & styler)
 {
 	const Sci_Position maxPos = startPos + length;
 	const Sci_Position maxLines = styler.GetLine(maxPos - 1); // Requested last line

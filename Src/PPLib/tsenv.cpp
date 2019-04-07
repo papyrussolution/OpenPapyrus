@@ -146,3 +146,22 @@ const TsStakeEnvironment::Tick * FASTCALL TsStakeEnvironment::SearchTickBySymb(c
 //
 //
 //
+SLAPI TsStakeEnvironment::TransactionNotification::TransactionNotification() : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
+{
+}
+
+int SLAPI TsStakeEnvironment::TransactionNotification::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	long   ver = Ver;
+	THROW_SL(pSCtx->Serialize(dir, ver, rBuf));
+	if(dir < 0 && ver < Ver) {
+		ok = -1;
+	}
+	else {
+		THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
+		THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	}
+	CATCHZOK
+	return ok;
+}

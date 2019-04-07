@@ -49,7 +49,7 @@ using namespace Scintilla;
 
 // Auxiliary functions:
 
-static bool FASTCALL endOfLine(Accessor &styler, Sci_PositionU i) {
+static bool FASTCALL endOfLine(Accessor & styler, Sci_PositionU i) {
 	return
 		(styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
@@ -107,7 +107,7 @@ static bool FASTCALL isMETAPOSTequal(int ch) {
 
 static int CheckMETAPOSTInterface(Sci_PositionU startPos,
     Sci_Position length,
-    Accessor &styler,
+    Accessor & styler,
     int defaultInterface) {
 	char lineBuffer[1024];
 	Sci_PositionU linePos = 0;
@@ -146,7 +146,7 @@ static void ColouriseMETAPOSTDoc(Sci_PositionU startPos,
     Sci_Position length,
     int,
     WordList * keywordlists[],
-    Accessor &styler) {
+    Accessor & styler) {
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
 
@@ -337,8 +337,8 @@ static const char * const metapostWordListDesc[] = {
 };
 
 static int classifyFoldPointMetapost(const char* s, WordList * keywordlists[]) {
-	WordList& keywordsStart = *keywordlists[3];
-	WordList& keywordsStop1 = *keywordlists[4];
+	WordList & keywordsStart = *keywordlists[3];
+	WordList & keywordsStop1 = *keywordlists[4];
 
 	if(keywordsStart.InList(s)) {
 		return 1;
@@ -349,7 +349,7 @@ static int classifyFoldPointMetapost(const char* s, WordList * keywordlists[]) {
 	return 0;
 }
 
-static int ParseMetapostWord(Sci_PositionU pos, Accessor &styler, char * word)
+static int ParseMetapostWord(Sci_PositionU pos, Accessor & styler, char * word)
 {
 	int length = 0;
 	char ch = styler.SafeGetCharAt(pos);
@@ -364,7 +364,7 @@ static int ParseMetapostWord(Sci_PositionU pos, Accessor &styler, char * word)
 	return length;
 }
 
-static void FoldMetapostDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordlists[], Accessor &styler)
+static void FoldMetapostDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordlists[], Accessor & styler)
 {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	Sci_PositionU endPos = startPos+length;

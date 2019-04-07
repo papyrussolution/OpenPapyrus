@@ -48,11 +48,8 @@ static int CountBits(int nBits)
 	return count;
 }
 
-static void getRange(Sci_PositionU start,
-    Sci_PositionU end,
-    Accessor &styler,
-    char * s,
-    Sci_PositionU len) {
+static void getRange(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len) 
+{
 	Sci_PositionU i = 0;
 	while((i < end - start + 1) && (i < len-1)) {
 		s[i] = static_cast<char>(tolower(styler[start + i]));
@@ -61,22 +58,18 @@ static void getRange(Sci_PositionU start,
 	s[i] = '\0';
 }
 
-static void ColourTo(Accessor &styler, Sci_PositionU end, uint attr) {
+static void ColourTo(Accessor & styler, Sci_PositionU end, uint attr) 
+{
 	styler.ColourTo(end, attr);
 }
 
-static int classifyWordCOBOL(Sci_PositionU start,
-    Sci_PositionU end,
-    /*WordList &keywords*/ WordList * keywordlists[],
-    Accessor &styler,
-    int nContainment,
-    bool * bAarea) {
+static int classifyWordCOBOL(Sci_PositionU start, Sci_PositionU end, /*WordList &keywords*/ WordList * keywordlists[],
+    Accessor & styler, int nContainment, bool * bAarea) 
+{
 	int ret = 0;
-
-	WordList& a_keywords = *keywordlists[0];
-	WordList& b_keywords = *keywordlists[1];
-	WordList& c_keywords = *keywordlists[2];
-
+	WordList & a_keywords = *keywordlists[0];
+	WordList & b_keywords = *keywordlists[1];
+	WordList & c_keywords = *keywordlists[2];
 	char s[100];
 	s[0] = '\0';
 	s[1] = '\0';
@@ -134,7 +127,7 @@ static int classifyWordCOBOL(Sci_PositionU start,
 	return ret;
 }
 
-static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) 
+static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
 {
 	styler.StartAt(startPos);
 	int state = initStyle;
@@ -307,7 +300,7 @@ static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int i
 }
 
 static void FoldCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[],
-    Accessor &styler) {
+    Accessor & styler) {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	Sci_PositionU endPos = startPos + length;
 	int visibleChars = 0;

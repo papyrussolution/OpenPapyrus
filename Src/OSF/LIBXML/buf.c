@@ -310,10 +310,10 @@ void FASTCALL xmlBufEmpty(xmlBuf * pBuf)
 		CHECK_COMPAT(pBuf)
 		pBuf->use = 0;
 		if(pBuf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) {
-			pBuf->content = BAD_CAST "";
+			pBuf->content = const_cast<xmlChar *>(reinterpret_cast<const xmlChar *>("")); // @badcast
 		}
-		else if((pBuf->alloc == XML_BUFFER_ALLOC_IO) && (pBuf->contentIO != NULL)) {
-			size_t start_buf = pBuf->content - pBuf->contentIO;
+		else if((pBuf->alloc == XML_BUFFER_ALLOC_IO) && pBuf->contentIO) {
+			const size_t start_buf = pBuf->content - pBuf->contentIO;
 			pBuf->size += start_buf;
 			pBuf->content = pBuf->contentIO;
 			pBuf->content[0] = 0;

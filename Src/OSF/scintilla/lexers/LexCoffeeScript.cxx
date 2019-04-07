@@ -70,7 +70,7 @@ static bool FollowsPostfixOperator(const StyleContext & sc, Accessor & styler)
 	return false;
 }
 
-static bool followsKeyword(const StyleContext & sc, Accessor &styler) 
+static bool followsKeyword(const StyleContext & sc, Accessor & styler) 
 {
 	Sci_Position pos = (Sci_Position)sc.currentPos;
 	Sci_Position currentLine = styler.GetLine(pos);
@@ -85,7 +85,7 @@ static bool followsKeyword(const StyleContext & sc, Accessor &styler)
 	return styler.StyleAt(pos) == SCE_COFFEESCRIPT_WORD;
 }
 
-static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) 
+static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -339,7 +339,7 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 	sc.Complete();
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler) {
+static bool IsCommentLine(Sci_Position line, Accessor & styler) {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
 	for(Sci_Position i = pos; i < eol_pos; i++) {
@@ -353,7 +353,7 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler) {
 }
 
 static void FoldCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int,
-    WordList *[], Accessor &styler) {
+    WordList *[], Accessor & styler) {
 	// A simplified version of FoldPyDoc
 	const Sci_Position maxPos = startPos + length;
 	const Sci_Position maxLines = styler.GetLine(maxPos - 1);             // Requested last line

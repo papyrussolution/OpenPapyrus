@@ -128,7 +128,7 @@ typedef enum {
 struct xmlSchemaVal;
 typedef xmlSchemaVal * xmlSchemaValPtr;
 typedef struct _xmlSchemaType xmlSchemaType;
-typedef xmlSchemaType *xmlSchemaTypePtr;
+typedef xmlSchemaType * xmlSchemaTypePtr;
 typedef struct _xmlSchemaFacet xmlSchemaFacet;
 typedef xmlSchemaFacet *xmlSchemaFacetPtr;
 /**
@@ -375,7 +375,7 @@ typedef struct _xmlSchemaTypeLink xmlSchemaTypeLink;
 typedef xmlSchemaTypeLink *xmlSchemaTypeLinkPtr;
 struct _xmlSchemaTypeLink {
     struct _xmlSchemaTypeLink *next;/* the next type link ... */
-    xmlSchemaTypePtr type;/* the linked type */
+    xmlSchemaType * type;/* the linked type */
 };
 
 /**

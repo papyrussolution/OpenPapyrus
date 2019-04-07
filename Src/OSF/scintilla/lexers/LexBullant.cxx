@@ -10,7 +10,7 @@
 using namespace Scintilla;
 #endif
 
-static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor &styler)
+static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor & styler)
 {
 	char s[100];
 	s[0] = '\0';
@@ -38,13 +38,10 @@ static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, const Wor
 	return lev;
 }
 
-static void ColouriseBullantDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+static void ColouriseBullantDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
-
 	styler.StartAt(startPos);
-
 	bool fold = styler.GetPropertyInt("fold") != 0;
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 	int levelPrev = styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;

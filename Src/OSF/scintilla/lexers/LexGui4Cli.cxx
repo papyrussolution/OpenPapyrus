@@ -51,7 +51,7 @@ inline bool isGCOperator(int ch)
 #define BUFFSIZE 500
 #define isFoldPoint(x)  ((styler.LevelAt(x) & SC_FOLDLEVELNUMBERMASK) == 1024)
 
-static void colorFirstWord(WordList * keywordlists[], Accessor &styler, StyleContext * sc, char * buff, Sci_Position length, int)
+static void colorFirstWord(WordList * keywordlists[], Accessor & styler, StyleContext * sc, char * buff, Sci_Position length, int)
 {
 	Sci_Position c = 0;
 	while(sc->More() && isSpaceOrNL(sc->ch)) {
@@ -101,7 +101,7 @@ static void colorFirstWord(WordList * keywordlists[], Accessor &styler, StyleCon
 
 // Main colorizing function called by Scintilla
 static void ColouriseGui4CliDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	styler.StartAt(startPos);
 
@@ -221,7 +221,7 @@ static void ColouriseGui4CliDoc(Sci_PositionU startPos, Sci_Position length, int
 
 // Main folding function called by Scintilla - (based on props (.ini) files function)
 static void FoldGui4Cli(Sci_PositionU startPos, Sci_Position length, int,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 

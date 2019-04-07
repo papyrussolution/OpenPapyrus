@@ -200,7 +200,7 @@ int SLAPI InetAddr::Set(const char * pHostName, int port)
 		if(r == 0)
 			for(addrinfo * p = p_ai; p != 0; p = p->ai_next) {
 				HostName = p->ai_canonname;
-				V4 = ((sockaddr_in *)p->ai_addr)->sin_addr.s_addr;
+				V4 = reinterpret_cast<const sockaddr_in *>(p->ai_addr)->sin_addr.s_addr;
 				ok = 1;
 				break;
 			}

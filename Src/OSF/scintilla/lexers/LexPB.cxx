@@ -57,7 +57,7 @@ static bool FASTCALL IsAWordStart(const int ch)
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 }
 
-static bool MatchUpperCase(Accessor &styler, Sci_Position pos, const char * s)   //Same as styler.Match() but uppercase
+static bool MatchUpperCase(Accessor & styler, Sci_Position pos, const char * s)   //Same as styler.Match() but uppercase
                                                                                  // comparison (a-z,A-Z and space only)
 {
 	char ch;
@@ -70,7 +70,7 @@ static bool MatchUpperCase(Accessor &styler, Sci_Position pos, const char * s)  
 	return true;
 }
 
-static void ColourisePBDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) {
+static void ColourisePBDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) {
 	WordList &keywords = *keywordlists[0];
 
 	styler.StartAt(startPos);
@@ -201,7 +201,7 @@ static void ColourisePBDoc(Sci_PositionU startPos, Sci_Position length, int init
 //GFA Basic which is dead now. After testing the feature of toggling FOR-NEXT loops, WHILE-WEND loops
 //and so on too I found this is more disturbing then helping (for me). So if You think in another way
 //you can (or must) write Your own toggling routine ;-)
-static void FoldPBDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldPBDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	// No folding enabled, no reason to continue...
 	if(styler.GetPropertyInt("fold") == 0)

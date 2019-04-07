@@ -19,7 +19,7 @@ inline int issmld(int c) { return isdec(c) || c == '_'; }
 	using namespace Scintilla;
 #endif
 
-static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 	int nesting = 0;
@@ -30,9 +30,9 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length, int ini
 
 	Sci_PositionU chToken = 0;
 	int chBase = 0, chLit = 0;
-	WordList& keywords  = *keywordlists[0];
-	WordList& keywords2 = *keywordlists[1];
-	WordList& keywords3 = *keywordlists[2];
+	WordList & keywords  = *keywordlists[0];
+	WordList & keywords2 = *keywordlists[1];
+	WordList & keywords3 = *keywordlists[2];
 	const int useMagic = styler.GetPropertyInt("lexer.caml.magic", 0);
 
 	while(sc.More()) {

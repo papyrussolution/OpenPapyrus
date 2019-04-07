@@ -41,7 +41,7 @@ static bool FASTCALL IsCsoundOperator(char ch)
 }
 
 static void ColouriseCsoundDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler) {
+    Accessor & styler) {
 	WordList &opcode = *keywordlists[0];
 	WordList &headerStmt = *keywordlists[1];
 	WordList &otherKeyword = *keywordlists[2];
@@ -155,7 +155,7 @@ static void ColouriseCsoundDoc(Sci_PositionU startPos, Sci_Position length, int 
 }
 
 static void FoldCsoundInstruments(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[],
-    Accessor &styler) {
+    Accessor & styler) {
 	Sci_PositionU lengthDoc = startPos + length;
 	int visibleChars = 0;
 	Sci_Position lineCurrent = styler.GetLine(startPos);

@@ -51,7 +51,7 @@ inline bool isAveOperator(char ch)
 	return false;
 }
 
-static void ColouriseAveDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) 
+static void ColouriseAveDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -157,7 +157,7 @@ static void ColouriseAveDoc(Sci_PositionU startPos, Sci_Position length, int ini
 }
 
 static void FoldAveDoc(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[],
-    Accessor &styler) {
+    Accessor & styler) {
 	Sci_PositionU lengthDoc = startPos + length;
 	int visibleChars = 0;
 	Sci_Position lineCurrent = styler.GetLine(startPos);

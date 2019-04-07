@@ -37,7 +37,7 @@ static bool FASTCALL IsAWordStart(uint ch)
 }
 
 static void ColouriseEiffelDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	WordList & keywords = *keywordlists[0];
 	StyleContext sc(startPos, length, initStyle, styler);
@@ -116,13 +116,13 @@ static void ColouriseEiffelDoc(Sci_PositionU startPos, Sci_Position length, int 
 	sc.Complete();
 }
 
-static bool IsEiffelComment(Accessor &styler, Sci_Position pos, Sci_Position len)
+static bool IsEiffelComment(Accessor & styler, Sci_Position pos, Sci_Position len)
 {
 	return len>1 && styler[pos]=='-' && styler[pos+1]=='-';
 }
 
 static void FoldEiffelDocIndent(Sci_PositionU startPos, Sci_Position length, int,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	Sci_Position lengthDoc = startPos + length;
 
@@ -166,7 +166,7 @@ static void FoldEiffelDocIndent(Sci_PositionU startPos, Sci_Position length, int
 }
 
 static void FoldEiffelDocKeyWords(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	Sci_PositionU lengthDoc = startPos + length;
 	int visibleChars = 0;

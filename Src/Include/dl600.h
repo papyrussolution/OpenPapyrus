@@ -623,13 +623,13 @@ public:
 	void   FASTCALL Init(int kind = 0);
 	void   FASTCALL Init(const CtmExprConst & c);
 	void   FASTCALL Init(const CtmVar & v);
-	void   InitUnaryOp(uint op, CtmExpr & a);
-	void   InitBinaryOp(uint op, CtmExpr & a1, CtmExpr & a2);
-	void   InitTypeConversion(CtmExpr & a, DLSYMBID toType);
-	void   InitRefOp(DLSYMBID type, CtmExpr & a1);
+	void   InitUnaryOp(uint op, const CtmExpr & a);
+	void   InitBinaryOp(uint op, const CtmExpr & a1, const CtmExpr & a2);
+	void   InitTypeConversion(const CtmExpr & a, DLSYMBID toType);
+	void   InitRefOp(DLSYMBID type, const CtmExpr & a1);
 	int    FASTCALL InitVar(const char * pName);
 	int    FASTCALL InitVar(const CtmVar &);
-	int    InitFuncCall(const char * pFuncName, CtmExpr & a);
+	void   InitFuncCall(const char * pFuncName, const CtmExpr & a);
 	void   Destroy();
 	int    FASTCALL IsResolved(int inDepth) const;
 	int    FASTCALL Append(const CtmExpr & a);

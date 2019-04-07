@@ -79,7 +79,7 @@ static bool FASTCALL IsAlNumSym(int ch)
  * \param  styler The styler
  */
 static void ColouriseMagikDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	styler.StartAt(startPos);
 
@@ -311,7 +311,7 @@ static inline int IsFoldingContainer(const WordList & keywordslist, char * keywo
  * \param  keywordslists The keywordslists, currently, number 5 is used
  * \param  styler The styler
  */
-static void FoldMagikDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordslists[], Accessor &styler)
+static void FoldMagikDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordslists[], Accessor & styler)
 {
 	bool compact = styler.GetPropertyInt("fold.compact") != 0;
 	WordList &foldingElements = *keywordslists[5];

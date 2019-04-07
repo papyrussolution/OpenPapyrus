@@ -12,7 +12,7 @@ using namespace Scintilla;
 #endif
 
 static void ColouriseAsyDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -150,7 +150,7 @@ static bool FASTCALL isASYidentifier(int ch)
 		((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));
 }
 
-static int ParseASYWord(Sci_PositionU pos, Accessor &styler, char * word)
+static int ParseASYWord(Sci_PositionU pos, Accessor & styler, char * word)
 {
 	int length = 0;
 	char ch = styler.SafeGetCharAt(pos);
@@ -165,7 +165,7 @@ static int ParseASYWord(Sci_PositionU pos, Accessor &styler, char * word)
 	return length;
 }
 
-static bool IsASYDrawingLine(Sci_Position line, Accessor &styler)
+static bool IsASYDrawingLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -186,7 +186,7 @@ static bool IsASYDrawingLine(Sci_Position line, Accessor &styler)
 }
 
 static void FoldAsyDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;

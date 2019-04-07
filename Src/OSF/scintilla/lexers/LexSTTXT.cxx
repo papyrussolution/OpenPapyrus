@@ -40,7 +40,7 @@ static void ClassifySTTXTWord(WordList * keywordlists[], StyleContext &sc)
 }
 
 static void ColouriseSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 	CharacterSet setWord(CharacterSet::setAlphaNum, "_", 0x80, true);
@@ -161,7 +161,7 @@ static void ColouriseSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int i
 
 static const char * const STTXTWordListDesc[] = { "Keywords", "Types", "Functions", "FB", "Local_Var", "Local_Pragma", 0 };
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler, bool type)
+static bool IsCommentLine(Sci_Position line, Accessor & styler, bool type)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eolPos = styler.LineStart(line + 1) - 1;
@@ -190,7 +190,7 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler, bool type)
 	return false;
 }
 
-static bool IsPragmaLine(Sci_Position line, Accessor &styler)
+static bool IsPragmaLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eolPos = styler.LineStart(line+1) - 1;
@@ -205,7 +205,7 @@ static bool IsPragmaLine(Sci_Position line, Accessor &styler)
 	return false;
 }
 
-static void GetRangeUpper(Sci_PositionU start, Sci_PositionU end, Accessor &styler, char * s, Sci_PositionU len)
+static void GetRangeUpper(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while((i < end - start + 1) && (i < len-1)) {
@@ -216,7 +216,7 @@ static void GetRangeUpper(Sci_PositionU start, Sci_PositionU end, Accessor &styl
 }
 
 static void ClassifySTTXTWordFoldPoint(int &levelCurrent, Sci_PositionU lastStart,
-    Sci_PositionU currentPos, Accessor &styler)
+    Sci_PositionU currentPos, Accessor & styler)
 {
 	char s[256];
 	GetRangeUpper(lastStart, currentPos, styler, s, sizeof(s));
@@ -240,7 +240,7 @@ static void ClassifySTTXTWordFoldPoint(int &levelCurrent, Sci_PositionU lastStar
 	}
 }
 
-static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
+static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldPreprocessor = styler.GetPropertyInt("fold.preprocessor") != 0;

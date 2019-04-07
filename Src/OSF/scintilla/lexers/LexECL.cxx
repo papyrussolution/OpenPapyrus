@@ -42,7 +42,7 @@ static bool FASTCALL IsSpaceEquiv(int state)
 }
 
 static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler) {
+    Accessor & styler) {
 	WordList &keywords0 = *keywordlists[0];
 	WordList &keywords1 = *keywordlists[1];
 	WordList &keywords2 = *keywordlists[2];
@@ -410,7 +410,7 @@ static bool MatchNoCase(Accessor & styler, Sci_PositionU & pos, const char * s)
 // level store to make it easy to pick up with each increment
 // and to make it possible to fiddle the current level for "} else {".
 static void FoldEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor &styler) {
+    WordList *[], Accessor & styler) {
 	bool foldComment = true;
 	bool foldPreprocessor = true;
 	bool foldCompact = true;

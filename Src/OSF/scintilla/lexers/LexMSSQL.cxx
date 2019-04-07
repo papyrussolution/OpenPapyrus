@@ -25,7 +25,7 @@ using namespace Scintilla;
 static char classifyWordSQL(Sci_PositionU start,
     Sci_PositionU end,
     WordList * keywordlists[],
-    Accessor &styler,
+    Accessor & styler,
     uint actualState,
     uint prevState)
 {
@@ -89,7 +89,7 @@ static char classifyWordSQL(Sci_PositionU start,
 }
 
 static void ColouriseMSSQLDoc(Sci_PositionU startPos, Sci_Position length,
-    int initStyle, WordList * keywordlists[], Accessor &styler)
+    int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	styler.StartAt(startPos);
 
@@ -279,7 +279,7 @@ static void ColouriseMSSQLDoc(Sci_PositionU startPos, Sci_Position length,
 	styler.ColourTo(lengthDoc - 1, state);
 }
 
-static void FoldMSSQLDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldMSSQLDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;

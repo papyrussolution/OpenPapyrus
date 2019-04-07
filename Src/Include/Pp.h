@@ -8656,7 +8656,7 @@ class ArticleCore : public ArticleTbl {
 public:
 	SLAPI  ArticleCore();
 	int    SLAPI Add(PPID * pID, void *, int use_ta);
-	int    SLAPI Update(PPID, void *, int use_ta);
+	int    SLAPI Update(PPID, const void * pRec, int use_ta);
 	int    SLAPI Remove(PPID, int use_ta);
 	int    SLAPI Search(PPID, void * = 0);
 	int    SLAPI SearchName(PPID accSheetID, const char * pName, void * = 0);
@@ -15775,9 +15775,11 @@ public:
 		long   Ver;
 	};
 	class TransactionNotification : public SStrGroup {
+	public:
 		SLAPI  TransactionNotification();
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		struct Ta {
+			LDATETIME NotifyTime; // Время регистрации извещения
 			uint   Deal;          // Тикет сделки 
 			uint   Order;         // Тикет ордера 
 			uint   SymbP;         // Символ инструмента 
@@ -15795,6 +15797,10 @@ public:
 			uint   Position;      // Тикет позиции 
 			uint   PositionBy;    // Тикет встречной позиции 
 		};
+
+		TSVector <Ta> L;
+	private:
+		long   Ver;
 	};
 
 	const Tick * FASTCALL SearchTickBySymb(const char * pSymb) const;
@@ -15871,13 +15877,16 @@ public:
 	};
 	struct QuoteReqEntry {
 		enum {
-			fAllowLong  = 0x0001,
-			fAllowShort = 0x0002,
-			fDisableStake = 0x0004
+			fAllowLong    = 0x0001,
+			fAllowShort   = 0x0002,
+			fDisableStake = 0x0004,
+			fTestPurpose  = 0x0008  // @v10.4.0 Специальный флаг, указывающий на то, что серверу требуются данные
+				// для тестирония текущих значений. 
 		};
 		PPID   TsID;
 		char   Ticker[32];
 		long   Flags;
+		long   ExtraCount; // @v10.4.9 Дополнительное количество значение, затребованное сервером (главным образом, для тестирования)
 		LDATETIME LastValTime;
 	};
 	struct StrategyResultValue { // @flat @persistent
@@ -16048,6 +16057,7 @@ public:
 	int    SLAPI SetExternTimeSeries(STimeSeries & rTs);
 	int    SLAPI SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal);
 	int    SLAPI SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet);
+	int    SLAPI SetExternTransactionNotification(const TsStakeEnvironment::TransactionNotification & rEnv);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
 	int    SLAPI Test(); // @experimental
 	//static int SLAPI CalcStrategyResult2(const DateTimeArray & rTmList, const RealArray & rValList, const Strategy & rS, uint valueIdx, StrategyResultValueEx & rV);
@@ -26521,7 +26531,7 @@ struct UhttGoodsArCodeIdent {
 class PPObjGoods : public PPObject {
 public:
 	//
-	// Descr; Результаты диагностики корректности рознчного штрихкода (EAN13, EAN8, UPCA, UPCE).
+	// Descr; Результаты диагностики корректности розничного штрихкода (EAN13, EAN8, UPCA, UPCE).
 	//
 	enum {
 		cddOk = 0,                  //

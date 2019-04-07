@@ -36,7 +36,7 @@ static void ColouriseAvsDoc(Sci_PositionU startPos,
     Sci_Position length,
     int initStyle,
     WordList * keywordlists[],
-    Accessor &styler) {
+    Accessor & styler) {
 	WordList &keywords = *keywordlists[0];
 	WordList &filters = *keywordlists[1];
 	WordList &plugins = *keywordlists[2];
@@ -226,7 +226,7 @@ static void FoldAvsDoc(Sci_PositionU startPos,
     Sci_Position length,
     int initStyle,
     WordList *[],
-    Accessor &styler) {
+    Accessor & styler) {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	Sci_PositionU endPos = startPos + length;

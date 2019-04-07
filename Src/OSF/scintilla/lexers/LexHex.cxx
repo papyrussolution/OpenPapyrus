@@ -114,37 +114,37 @@ using namespace Scintilla;
 static bool FASTCALL IsNewline(const int ch);
 //static int GetHexaNibble(char hd);
 static int GetHexaChar(char hd1, char hd2);
-static int GetHexaChar(Sci_PositionU pos, Accessor &styler);
+static int GetHexaChar(Sci_PositionU pos, Accessor & styler);
 static bool ForwardWithinLine(StyleContext &sc, Sci_Position nb = 1);
 //static bool PosInSameRecord(Sci_PositionU pos1, Sci_PositionU pos2, const Accessor & styler);
-static Sci_Position CountByteCount(Sci_PositionU startPos, Sci_Position uncountedDigits, Accessor &styler);
-static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl, Accessor &styler);
+static Sci_Position CountByteCount(Sci_PositionU startPos, Sci_Position uncountedDigits, Accessor & styler);
+static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl, Accessor & styler);
 
 // prototypes for file format specific helper functions
-static Sci_PositionU GetSrecRecStartPosition(Sci_PositionU pos, Accessor &styler);
-static int GetSrecByteCount(Sci_PositionU recStartPos, Accessor &styler);
-static Sci_Position CountSrecByteCount(Sci_PositionU recStartPos, Accessor &styler);
-//static int GetSrecAddressFieldSize(Sci_PositionU recStartPos, Accessor &styler);
-static int GetSrecAddressFieldType(Sci_PositionU recStartPos, Accessor &styler);
-static int GetSrecDataFieldType(Sci_PositionU recStartPos, Accessor &styler);
-static Sci_Position GetSrecRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor &styler);
-static int GetSrecChecksum(Sci_PositionU recStartPos, Accessor &styler);
-static int CalcSrecChecksum(Sci_PositionU recStartPos, Accessor &styler);
+static Sci_PositionU GetSrecRecStartPosition(Sci_PositionU pos, Accessor & styler);
+static int GetSrecByteCount(Sci_PositionU recStartPos, Accessor & styler);
+static Sci_Position CountSrecByteCount(Sci_PositionU recStartPos, Accessor & styler);
+//static int GetSrecAddressFieldSize(Sci_PositionU recStartPos, Accessor & styler);
+static int GetSrecAddressFieldType(Sci_PositionU recStartPos, Accessor & styler);
+static int GetSrecDataFieldType(Sci_PositionU recStartPos, Accessor & styler);
+static Sci_Position GetSrecRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor & styler);
+static int GetSrecChecksum(Sci_PositionU recStartPos, Accessor & styler);
+static int CalcSrecChecksum(Sci_PositionU recStartPos, Accessor & styler);
 
-static Sci_PositionU GetIHexRecStartPosition(Sci_PositionU pos, Accessor &styler);
-static int GetIHexByteCount(Sci_PositionU recStartPos, Accessor &styler);
-static Sci_Position CountIHexByteCount(Sci_PositionU recStartPos, Accessor &styler);
-static int GetIHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler);
-static int GetIHexDataFieldType(Sci_PositionU recStartPos, Accessor &styler);
-static int GetIHexRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor &styler);
-static int GetIHexChecksum(Sci_PositionU recStartPos, Accessor &styler);
-static int CalcIHexChecksum(Sci_PositionU recStartPos, Accessor &styler);
+static Sci_PositionU GetIHexRecStartPosition(Sci_PositionU pos, Accessor & styler);
+static int GetIHexByteCount(Sci_PositionU recStartPos, Accessor & styler);
+static Sci_Position CountIHexByteCount(Sci_PositionU recStartPos, Accessor & styler);
+static int GetIHexAddressFieldType(Sci_PositionU recStartPos, Accessor & styler);
+static int GetIHexDataFieldType(Sci_PositionU recStartPos, Accessor & styler);
+static int GetIHexRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor & styler);
+static int GetIHexChecksum(Sci_PositionU recStartPos, Accessor & styler);
+static int CalcIHexChecksum(Sci_PositionU recStartPos, Accessor & styler);
 
-static int GetTEHexDigitCount(Sci_PositionU recStartPos, Accessor &styler);
-static Sci_Position CountTEHexDigitCount(Sci_PositionU recStartPos, Accessor &styler);
-static int GetTEHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler);
-static int GetTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler);
-static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler);
+static int GetTEHexDigitCount(Sci_PositionU recStartPos, Accessor & styler);
+static Sci_Position CountTEHexDigitCount(Sci_PositionU recStartPos, Accessor & styler);
+static int GetTEHexAddressFieldType(Sci_PositionU recStartPos, Accessor & styler);
+static int GetTEHexChecksum(Sci_PositionU recStartPos, Accessor & styler);
+static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor & styler);
 
 static bool FASTCALL IsNewline(const int ch)
 {
@@ -195,7 +195,7 @@ static int GetHexaChar(char hd1, char hd2)
 	return hexValue;
 }
 
-static int GetHexaChar(Sci_PositionU pos, Accessor &styler)
+static int GetHexaChar(Sci_PositionU pos, Accessor & styler)
 {
 	char highNibble = styler.SafeGetCharAt(pos);
 	char lowNibble = styler.SafeGetCharAt(pos + 1);
@@ -230,7 +230,7 @@ static bool PosInSameRecord(Sci_PositionU pos1, Sci_PositionU pos2, const Access
 // Count the number of digit pairs from <startPos> till end of record, ignoring
 // <uncountedDigits> digits.
 // If the record is too short, a negative count may be returned.
-static Sci_Position CountByteCount(Sci_PositionU startPos, Sci_Position uncountedDigits, Accessor &styler)
+static Sci_Position CountByteCount(Sci_PositionU startPos, Sci_Position uncountedDigits, Accessor & styler)
 {
 	Sci_Position cnt;
 	Sci_PositionU pos = startPos;
@@ -252,7 +252,7 @@ static Sci_Position CountByteCount(Sci_PositionU startPos, Sci_Position uncounte
 // Calculate the checksum of the record.
 // <startPos> is the position of the first character of the starting digit
 // pair, <cnt> is the number of digit pairs.
-static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl, Accessor &styler)
+static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl, Accessor & styler)
 {
 	int cs = 0;
 	for(Sci_PositionU pos = startPos; pos < startPos + cnt; pos += 2) {
@@ -273,7 +273,7 @@ static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl
 
 // Get the position of the record "start" field (first character in line) in
 // the record around position <pos>.
-static Sci_PositionU GetSrecRecStartPosition(Sci_PositionU pos, Accessor &styler)
+static Sci_PositionU GetSrecRecStartPosition(Sci_PositionU pos, Accessor & styler)
 {
 	while(styler.SafeGetCharAt(pos) != 'S') {
 		pos--;
@@ -283,7 +283,7 @@ static Sci_PositionU GetSrecRecStartPosition(Sci_PositionU pos, Accessor &styler
 
 // Get the value of the "byte count" field, it counts the number of bytes in
 // the subsequent fields ("address", "data" and "checksum" fields).
-static int GetSrecByteCount(Sci_PositionU recStartPos, Accessor &styler)
+static int GetSrecByteCount(Sci_PositionU recStartPos, Accessor & styler)
 {
 	int val = GetHexaChar(recStartPos + 2, styler);
 	SETMAX(val, 0);
@@ -293,7 +293,7 @@ static int GetSrecByteCount(Sci_PositionU recStartPos, Accessor &styler)
 // Count the number of digit pairs for the "address", "data" and "checksum"
 // fields in this record. Has to be equal to the "byte count" field value.
 // If the record is too short, a negative count may be returned.
-static Sci_Position CountSrecByteCount(Sci_PositionU recStartPos, Accessor &styler)
+static Sci_Position CountSrecByteCount(Sci_PositionU recStartPos, Accessor & styler)
 {
 	return CountByteCount(recStartPos, 4, styler);
 }
@@ -316,7 +316,7 @@ static int GetSrecAddressFieldSize(Sci_PositionU recStartPos, Accessor & styler)
 }
 
 // Get the type of the "address" field content.
-static int GetSrecAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
+static int GetSrecAddressFieldType(Sci_PositionU recStartPos, Accessor & styler)
 {
 	switch(styler.SafeGetCharAt(recStartPos + 1)) {
 		case '0': return SCE_HEX_NOADDRESS;
@@ -334,7 +334,7 @@ static int GetSrecAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
 }
 
 // Get the type of the "data" field content.
-static int GetSrecDataFieldType(Sci_PositionU recStartPos, Accessor &styler)
+static int GetSrecDataFieldType(Sci_PositionU recStartPos, Accessor & styler)
 {
 	switch(styler.SafeGetCharAt(recStartPos + 1)) {
 		case '0':
@@ -354,7 +354,7 @@ static int GetSrecDataFieldType(Sci_PositionU recStartPos, Accessor &styler)
 // Get the required size of the "data" field. Useless for block header and
 // ordinary data records (type S0, S1, S2, S3), return the value calculated
 // from the "byte count" and "address field" size in this case.
-static Sci_Position GetSrecRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor &styler)
+static Sci_Position GetSrecRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor & styler)
 {
 	switch(styler.SafeGetCharAt(recStartPos + 1)) {
 		case '5':
@@ -368,14 +368,14 @@ static Sci_Position GetSrecRequiredDataFieldSize(Sci_PositionU recStartPos, Acce
 }
 
 // Get the value of the "checksum" field.
-static int GetSrecChecksum(Sci_PositionU recStartPos, Accessor &styler)
+static int GetSrecChecksum(Sci_PositionU recStartPos, Accessor & styler)
 {
 	int byteCount = GetSrecByteCount(recStartPos, styler);
 	return GetHexaChar(recStartPos + 2 + byteCount * 2, styler);
 }
 
 // Calculate the checksum of the record.
-static int CalcSrecChecksum(Sci_PositionU recStartPos, Accessor &styler)
+static int CalcSrecChecksum(Sci_PositionU recStartPos, Accessor & styler)
 {
 	Sci_Position byteCount = GetSrecByteCount(recStartPos, styler);
 	// sum over "byte count", "address" and "data" fields (6..510 digits)
@@ -384,7 +384,7 @@ static int CalcSrecChecksum(Sci_PositionU recStartPos, Accessor &styler)
 
 // Get the position of the record "start" field (first character in line) in
 // the record around position <pos>.
-static Sci_PositionU GetIHexRecStartPosition(Sci_PositionU pos, Accessor &styler)
+static Sci_PositionU GetIHexRecStartPosition(Sci_PositionU pos, Accessor & styler)
 {
 	while(styler.SafeGetCharAt(pos) != ':') {
 		pos--;
@@ -394,7 +394,7 @@ static Sci_PositionU GetIHexRecStartPosition(Sci_PositionU pos, Accessor &styler
 
 // Get the value of the "byte count" field, it counts the number of bytes in
 // the "data" field.
-static int GetIHexByteCount(Sci_PositionU recStartPos, Accessor &styler)
+static int GetIHexByteCount(Sci_PositionU recStartPos, Accessor & styler)
 {
 	int val = GetHexaChar(recStartPos + 1, styler);
 	SETMAX(val, 0);
@@ -404,13 +404,13 @@ static int GetIHexByteCount(Sci_PositionU recStartPos, Accessor &styler)
 // Count the number of digit pairs for the "data" field in this record. Has to
 // be equal to the "byte count" field value.
 // If the record is too short, a negative count may be returned.
-static Sci_Position CountIHexByteCount(Sci_PositionU recStartPos, Accessor &styler)
+static Sci_Position CountIHexByteCount(Sci_PositionU recStartPos, Accessor & styler)
 {
 	return CountByteCount(recStartPos, 11, styler);
 }
 
 // Get the type of the "address" field content.
-static int GetIHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
+static int GetIHexAddressFieldType(Sci_PositionU recStartPos, Accessor & styler)
 {
 	if(!PosInSameRecord(recStartPos, recStartPos + 7, styler)) {
 		// malformed (record too short)
@@ -430,7 +430,7 @@ static int GetIHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
 }
 
 // Get the type of the "data" field content.
-static int GetIHexDataFieldType(Sci_PositionU recStartPos, Accessor &styler)
+static int GetIHexDataFieldType(Sci_PositionU recStartPos, Accessor & styler)
 {
 	switch(GetHexaChar(recStartPos + 7, styler)) {
 		case 0x00: return SCE_HEX_DATA_ODD;
@@ -446,7 +446,7 @@ static int GetIHexDataFieldType(Sci_PositionU recStartPos, Accessor &styler)
 
 // Get the required size of the "data" field. Useless for an ordinary data
 // record (type 00), return the "byte count" in this case.
-static int GetIHexRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor &styler)
+static int GetIHexRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor & styler)
 {
 	switch(GetHexaChar(recStartPos + 7, styler)) {
 		case 0x01: return 0;
@@ -459,14 +459,14 @@ static int GetIHexRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor &sty
 }
 
 // Get the value of the "checksum" field.
-static int GetIHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
+static int GetIHexChecksum(Sci_PositionU recStartPos, Accessor & styler)
 {
 	int byteCount = GetIHexByteCount(recStartPos, styler);
 	return GetHexaChar(recStartPos + 9 + byteCount * 2, styler);
 }
 
 // Calculate the checksum of the record.
-static int CalcIHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
+static int CalcIHexChecksum(Sci_PositionU recStartPos, Accessor & styler)
 {
 	int byteCount = GetIHexByteCount(recStartPos, styler);
 	// sum over "byte count", "address", "type" and "data" fields (8..518 digits)
@@ -475,7 +475,7 @@ static int CalcIHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
 
 // Get the value of the "record length" field, it counts the number of digits in
 // the record excluding the percent.
-static int GetTEHexDigitCount(Sci_PositionU recStartPos, Accessor &styler)
+static int GetTEHexDigitCount(Sci_PositionU recStartPos, Accessor & styler)
 {
 	int val = GetHexaChar(recStartPos + 1, styler);
 	SETMAX(val, 0);
@@ -484,7 +484,7 @@ static int GetTEHexDigitCount(Sci_PositionU recStartPos, Accessor &styler)
 
 // Count the number of digits in this record. Has to
 // be equal to the "record length" field value.
-static Sci_Position CountTEHexDigitCount(Sci_PositionU recStartPos, Accessor &styler)
+static Sci_Position CountTEHexDigitCount(Sci_PositionU recStartPos, Accessor & styler)
 {
 	Sci_PositionU pos = recStartPos+1;
 	while(!IsNewline(styler.SafeGetCharAt(pos, '\n'))) {
@@ -494,7 +494,7 @@ static Sci_Position CountTEHexDigitCount(Sci_PositionU recStartPos, Accessor &st
 }
 
 // Get the type of the "address" field content.
-static int GetTEHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
+static int GetTEHexAddressFieldType(Sci_PositionU recStartPos, Accessor & styler)
 {
 	switch(styler.SafeGetCharAt(recStartPos + 3)) {
 		case '6': return SCE_HEX_DATAADDRESS;
@@ -505,13 +505,13 @@ static int GetTEHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
 }
 
 // Get the value of the "checksum" field.
-static int GetTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
+static int GetTEHexChecksum(Sci_PositionU recStartPos, Accessor & styler)
 {
 	return GetHexaChar(recStartPos+4, styler);
 }
 
 // Calculate the checksum of the record (excluding the checksum field).
-static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
+static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor & styler)
 {
 	Sci_PositionU pos = recStartPos +1;
 	Sci_PositionU length = GetTEHexDigitCount(recStartPos, styler);
@@ -531,7 +531,7 @@ static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
 	return cs & 0xFF;
 }
 
-static void ColouriseSrecDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
+static void ColouriseSrecDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 	while(sc.More()) {
@@ -622,7 +622,7 @@ static void ColouriseSrecDoc(Sci_PositionU startPos, Sci_Position length, int in
 	sc.Complete();
 }
 
-static void ColouriseIHexDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
+static void ColouriseIHexDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 	while(sc.More()) {
@@ -717,7 +717,7 @@ static void ColouriseIHexDoc(Sci_PositionU startPos, Sci_Position length, int in
 	sc.Complete();
 }
 
-static void FoldIHexDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldIHexDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	Sci_PositionU endPos = startPos + length;
 	Sci_Position lineCurrent = styler.GetLine(startPos);
@@ -754,7 +754,7 @@ static void FoldIHexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 	}
 }
 
-static void ColouriseTEHexDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
+static void ColouriseTEHexDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 	while(sc.More()) {

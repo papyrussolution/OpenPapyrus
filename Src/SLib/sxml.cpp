@@ -1,5 +1,5 @@
 // SXML.CPP
-// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -95,7 +95,7 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 			if(SpcSymbTab[i].Amp)
 				subst.CatChar('#').Cat(0x26).Semicol();
 			subst.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();
-			xmlTextWriterWriteDTDEntity((xmlTextWriter *)pWriter, 0, (const xmlChar *)SpcSymbTab[i].str, 0, 0, 0, subst.ucptr());
+			xmlTextWriterWriteDTDEntity((xmlTextWriter *)pWriter, 0, reinterpret_cast<const xmlChar *>(SpcSymbTab[i].str), 0, 0, 0, subst.ucptr());
 		}
 	}
 	else
@@ -169,7 +169,7 @@ SXml::WNode::WNode(xmlTextWriter * pWriter, const char * pName, const SString & 
 SXml::WNode::WNode(xmlTextWriter * pWriter, const char * pName, const char * pValue)
 {
 	if(Construct(pWriter, pName))
-		xmlTextWriterWriteString(Lx, (const xmlChar *)pValue);
+		xmlTextWriterWriteString(Lx, reinterpret_cast<const xmlChar *>(pValue));
 }
 
 SXml::WNode::~WNode()
@@ -182,8 +182,8 @@ int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
 {
 	int    ok = 1;
 	if(Lx && State & stStarted) {
-		xmlTextWriterStartAttribute(Lx, (const xmlChar *)pName);
-		xmlTextWriterWriteString(Lx, (const xmlChar *)pValue);
+		xmlTextWriterStartAttribute(Lx, reinterpret_cast<const xmlChar *>(pName));
+		xmlTextWriterWriteString(Lx, reinterpret_cast<const xmlChar *>(pValue));
 		xmlTextWriterEndAttribute(Lx);
 	}
 	else
@@ -198,8 +198,8 @@ int SXml::WNode::PutAttribSkipEmpty(const char * pName, const char * pValue)
 		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
 		r_temp_buf = pValue;
 		if(r_temp_buf.NotEmptyS()) {
-			xmlTextWriterStartAttribute(Lx, (const xmlChar *)pName);
-			xmlTextWriterWriteString(Lx, (const xmlChar *)pValue);
+			xmlTextWriterStartAttribute(Lx, reinterpret_cast<const xmlChar *>(pName));
+			xmlTextWriterWriteString(Lx, reinterpret_cast<const xmlChar *>(pValue));
 			xmlTextWriterEndAttribute(Lx);
 		}
 	}
@@ -314,7 +314,7 @@ int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & r
 	rResult.Z();
     if(pNode) {
 		for(const xmlAttr * p_attr = pNode->properties; p_attr; p_attr = p_attr->next) {
-			if(sstreqi_ascii((const char *)p_attr->name, pAttr)) {
+			if(sstreqi_ascii(reinterpret_cast<const char *>(p_attr->name), pAttr)) {
 				const xmlNode * p_children = p_attr->children;
 				if(p_children && p_children->type == XML_TEXT_NODE)
 					rResult.Set(p_children->content);
@@ -328,7 +328,7 @@ int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & r
 //static
 void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const char * pMsg, ...)
 {
-	SXmlValidationMessageList * p_this = (SXmlValidationMessageList *)pCtx;
+	SXmlValidationMessageList * p_this = static_cast<SXmlValidationMessageList *>(pCtx);
 	if(p_this) {
 		SString text;
 		va_list argptr;
@@ -341,7 +341,7 @@ void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const c
 //static
 void __cdecl SXmlValidationMessageList::SchemaValidityWarning(void * pCtx, const char * pMsg, ...)
 {
-	SXmlValidationMessageList * p_this = (SXmlValidationMessageList *)pCtx;
+	SXmlValidationMessageList * p_this = static_cast<SXmlValidationMessageList *>(pCtx);
 	if(p_this) {
 		SString text;
 		va_list argptr;
@@ -475,7 +475,7 @@ int SXmlSaxParser::ParseFile(const char * pFileName)
 
 		xmlFreeParserCtxt(P_SaxCtx);
 		THROW(P_SaxCtx = xmlCreateURLParserCtxt(pFileName, 0));
-		if(P_SaxCtx->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler)
+		if(P_SaxCtx->sax != reinterpret_cast<xmlSAXHandler *>(&xmlDefaultSAXHandler))
 			SAlloc::F(P_SaxCtx->sax);
 		P_SaxCtx->sax = &saxh;
 		xmlDetectSAX2(P_SaxCtx);
@@ -532,9 +532,12 @@ int SXmlSaxParser::Characters(const char * pS, size_t len)
 
 void SXmlSaxParser::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, StartDocument()); }
 void SXmlSaxParser::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, EndDocument()); }
-void SXmlSaxParser::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
-void SXmlSaxParser::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, EndElement((const char *)pName)); }
-void SXmlSaxParser::Scb_Characters(void * ptr, const uchar * pC, int len) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, Characters((const char *)pC, len)); }
+void SXmlSaxParser::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) 
+	{ CALLTYPEPTRMEMB(SXmlSaxParser, ptr, StartElement(reinterpret_cast<const char *>(pName), reinterpret_cast<const char **>(ppAttrList))); }
+void SXmlSaxParser::Scb_EndElement(void * ptr, const xmlChar * pName) 
+	{ CALLTYPEPTRMEMB(SXmlSaxParser, ptr, EndElement(reinterpret_cast<const char *>(pName))); }
+void SXmlSaxParser::Scb_Characters(void * ptr, const uchar * pC, int len) 
+	{ CALLTYPEPTRMEMB(SXmlSaxParser, ptr, Characters(reinterpret_cast<const char *>(pC), len)); }
 //
 //
 //

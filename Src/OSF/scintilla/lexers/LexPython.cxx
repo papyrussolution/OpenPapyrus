@@ -24,7 +24,7 @@ enum literalsAllowed { litNone = 0, litU = 1, litB = 2, litF = 4 };
 
 const int indicatorWhitespace = 1;
 
-bool IsPyComment(Accessor &styler, Sci_Position pos, Sci_Position len)
+bool IsPyComment(Accessor & styler, Sci_Position pos, Sci_Position len)
 {
 	return len > 0 && styler[pos] == '#';
 }
@@ -84,7 +84,7 @@ static int FASTCALL PopFromStateStack(int * stack, int stackSize)
 //
 // Return the state to use for the string starting at i; *nextIndex will be set to the first index following the quote(s) 
 //
-static int GetPyStringState(Accessor &styler, Sci_Position i, Sci_PositionU * nextIndex, literalsAllowed allowed)
+static int GetPyStringState(Accessor & styler, Sci_Position i, Sci_PositionU * nextIndex, literalsAllowed allowed)
 {
 	char ch = styler.SafeGetCharAt(i);
 	char chNext = styler.SafeGetCharAt(i + 1);
@@ -150,7 +150,7 @@ static int GetPyStringState(Accessor &styler, Sci_Position i, Sci_PositionU * ne
 	return (c == ccLl || c == ccLu || c == ccLt || c == ccLm || c == ccLo || c == ccNl);
 }
 
-static bool FASTCALL IsFirstNonWhitespace(Sci_Position pos, Accessor &styler)
+static bool FASTCALL IsFirstNonWhitespace(Sci_Position pos, Accessor & styler)
 {
 	Sci_Position line = styler.GetLine(pos);
 	Sci_Position start_pos = styler.LineStart(line);
@@ -725,7 +725,7 @@ void SCI_METHOD LexerPython::Lex(Sci_PositionU startPos, Sci_Position length, in
 	sc.Complete();
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler)
+static bool IsCommentLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -739,7 +739,7 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler)
 	return false;
 }
 
-static bool IsQuoteLine(Sci_Position line, Accessor &styler)
+static bool IsQuoteLine(Sci_Position line, Accessor & styler)
 {
 	int style = styler.StyleAt(styler.LineStart(line)) & 31;
 	return ((style == SCE_P_TRIPLE) || (style == SCE_P_TRIPLEDOUBLE));

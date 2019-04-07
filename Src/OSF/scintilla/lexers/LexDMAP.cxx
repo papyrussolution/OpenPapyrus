@@ -29,7 +29,7 @@ static bool FASTCALL IsAWordStart(const int ch)
 
 /***************************************/
 static void ColouriseDMAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler) 
+    WordList * keywordlists[], Accessor & styler) 
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -162,7 +162,7 @@ static int classifyFoldPointDMAP(const char* s, const char* prevWord) {
 
 // Folding the code
 static void FoldDMAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor &styler) {
+    WordList *[], Accessor & styler) {
 	//
 	// bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	// Do not know how to fold the comment at the moment.

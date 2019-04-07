@@ -63,7 +63,7 @@ static bool FASTCALL IsAWordChar(const int ch)
 }
 
 static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 	WordList &reservedWords = *keywordlists[0];
@@ -506,7 +506,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 	sc.Complete();
 }
 
-static int ClassifyErlangFoldPoint(Accessor &styler,
+static int ClassifyErlangFoldPoint(Accessor & styler,
     int styleNext,
     Sci_Position keyword_start
     )
@@ -531,7 +531,7 @@ static int ClassifyErlangFoldPoint(Accessor &styler,
 }
 
 static void FoldErlangDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList** /*keywordlists*/, Accessor &styler
+    WordList** /*keywordlists*/, Accessor & styler
     )
 {
 	Sci_PositionU endPos = startPos + length;

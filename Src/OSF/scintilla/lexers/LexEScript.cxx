@@ -24,7 +24,7 @@ static bool FASTCALL IsAWordStart(const int ch)
 }
 
 static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -169,7 +169,7 @@ static bool FASTCALL IsStreamCommentStyle(int style)
 	return oneof3(style, SCE_ESCRIPT_COMMENT, SCE_ESCRIPT_COMMENTDOC, SCE_ESCRIPT_COMMENTLINE);
 }
 
-static void FoldESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
+static void FoldESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	//~ bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	// Do not know how to fold the comment at the moment.

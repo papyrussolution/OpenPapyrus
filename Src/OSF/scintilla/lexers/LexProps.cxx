@@ -14,7 +14,7 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i)
 {
 	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
@@ -25,7 +25,7 @@ static bool FASTCALL isassignchar(uchar ch)
 }
 
 static void ColourisePropsLine(char * lineBuffer, Sci_PositionU lengthLine, Sci_PositionU startLine,
-    Sci_PositionU endPos, Accessor &styler, bool allowInitialSpaces)
+    Sci_PositionU endPos, Accessor & styler, bool allowInitialSpaces)
 {
 	Sci_PositionU i = 0;
 	if(allowInitialSpaces) {
@@ -69,7 +69,7 @@ static void ColourisePropsLine(char * lineBuffer, Sci_PositionU lengthLine, Sci_
 	}
 }
 
-static void ColourisePropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void ColourisePropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	char lineBuffer[1024];
 	styler.StartAt(startPos);
@@ -100,7 +100,7 @@ static void ColourisePropsDoc(Sci_PositionU startPos, Sci_Position length, int, 
 
 // adaption by ksc, using the "} else {" trick of 1.53
 // 030721
-static void FoldPropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldPropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 

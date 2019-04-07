@@ -139,7 +139,7 @@ static inline int CommentBlockStyleFromNestLevel(const uint nestLevel)
 // Mangled version of lexlib/Accessor.cxx IndentAmount.
 // Modified to treat comment blocks as whitespace
 // plus special case for commentline/preprocessor.
-static int HaskellIndentAmount(Accessor &styler, const Sci_Position line)
+static int HaskellIndentAmount(Accessor & styler, const Sci_Position line)
 {
 	// Determines the indentation level of the current line
 	// Comment blocks are treated as whitespace
@@ -339,7 +339,7 @@ class LexerHaskell : public ILexer {
 			}
 		}
 	}
-	bool LineContainsImport(const Sci_Position line, Accessor &styler) const
+	bool LineContainsImport(const Sci_Position line, Accessor & styler) const
 	{
 		if(options.foldImports) {
 			Sci_Position currentPos = styler.LineStart(line);
@@ -361,7 +361,7 @@ class LexerHaskell : public ILexer {
 			return false;
 		}
 	}
-	inline int IndentAmountWithOffset(Accessor &styler, const Sci_Position line) const
+	inline int IndentAmountWithOffset(Accessor & styler, const Sci_Position line) const
 	{
 		const int indent = HaskellIndentAmount(styler, line);
 		const int indentLevel = indent & SC_FOLDLEVELNUMBERMASK;

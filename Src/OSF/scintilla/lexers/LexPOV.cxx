@@ -46,7 +46,7 @@ static void ColourisePovDoc(Sci_PositionU startPos,
     Sci_Position length,
     int initStyle,
     WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	WordList &keywords1 = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -244,7 +244,7 @@ static void FoldPovDoc(Sci_PositionU startPos,
     Sci_Position length,
     int initStyle,
     WordList *[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldDirective = styler.GetPropertyInt("fold.directive") != 0;

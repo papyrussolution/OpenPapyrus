@@ -14,7 +14,7 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i)
 {
 	return (styler[i] == '\n') ||
 	       ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
@@ -24,7 +24,7 @@ static void ColouriseMakeLine(char * lineBuffer,
     Sci_PositionU lengthLine,
     Sci_PositionU startLine,
     Sci_PositionU endPos,
-    Accessor &styler)
+    Accessor & styler)
 {
 	Sci_PositionU i = 0;
 	Sci_Position lastNonSpace = -1;
@@ -107,7 +107,7 @@ static void ColouriseMakeLine(char * lineBuffer,
 	}
 }
 
-static void ColouriseMakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void ColouriseMakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	char lineBuffer[1024];
 	styler.StartAt(startPos);

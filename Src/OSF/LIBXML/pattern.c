@@ -1615,7 +1615,7 @@ error:
  */
 static xmlStreamCtxtPtr xmlNewStreamCtxt(xmlStreamCompPtr stream)
 {
-	xmlStreamCtxtPtr cur = (xmlStreamCtxtPtr)SAlloc::M(sizeof(xmlStreamCtxt));
+	xmlStreamCtxtPtr cur = (xmlStreamCtxt *)SAlloc::M(sizeof(xmlStreamCtxt));
 	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 	}

@@ -46,7 +46,7 @@ inline bool IsCssOperator(const int ch)
 }
 
 // look behind (from start of document to our start position) to determine current nesting level
-inline int NestingLevelLookBehind(Sci_PositionU startPos, Accessor &styler) 
+inline int NestingLevelLookBehind(Sci_PositionU startPos, Accessor & styler) 
 {
 	int ch;
 	int nestingLevel = 0;
@@ -60,7 +60,7 @@ inline int NestingLevelLookBehind(Sci_PositionU startPos, Accessor &styler)
 	return nestingLevel;
 }
 
-static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) 
+static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
 {
 	WordList &css1Props = *keywordlists[0];
 	WordList &pseudoClasses = *keywordlists[1];
@@ -513,7 +513,7 @@ static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	sc.Complete();
 }
 
-static void FoldCSSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler) {
+static void FoldCSSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler) {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	Sci_PositionU endPos = startPos + length;

@@ -62,7 +62,7 @@ static bool FASTCALL isSafeWordcharOrHigh(char ch)
 #define STYLE_MASK 63
 #define actual_style(style) (style & STYLE_MASK)
 
-static bool followsDot(Sci_PositionU pos, Accessor &styler)
+static bool followsDot(Sci_PositionU pos, Accessor & styler)
 {
 	styler.Flush();
 	for(; pos >= 1; --pos) {
@@ -91,10 +91,10 @@ static bool followsDot(Sci_PositionU pos, Accessor &styler)
 
 // Forward declarations
 static bool keywordIsAmbiguous(const char * prevWord);
-static bool keywordDoStartsLoop(Sci_Position pos, Accessor &styler);
-static bool keywordIsModifier(const char * word, Sci_Position pos, Accessor &styler);
+static bool keywordDoStartsLoop(Sci_Position pos, Accessor & styler);
+static bool keywordIsModifier(const char * word, Sci_Position pos, Accessor & styler);
 
-static int ClassifyWordRb(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor &styler, char * prevWord)
+static int ClassifyWordRb(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor & styler, char * prevWord)
 {
 	char s[MAX_KEYWORD_LENGTH];
 	Sci_PositionU i, j;
@@ -144,7 +144,7 @@ static int ClassifyWordRb(Sci_PositionU start, Sci_PositionU end, const WordList
 }
 
 //XXX Identical to Perl, put in common area
-static bool isMatch(Accessor &styler, Sci_Position lengthDoc, Sci_Position pos, const char * val)
+static bool isMatch(Accessor & styler, Sci_Position lengthDoc, Sci_Position pos, const char * val)
 {
 	if((pos + static_cast<int>(sstrlen(val))) >= lengthDoc) {
 		return false;
@@ -216,7 +216,7 @@ static void advance_char(Sci_Position &i, char &ch, char &chNext, char &chNext2)
 }
 
 // precondition: startPos points to one after the EOL char
-static bool currLineContainsHereDelims(Sci_Position &startPos, Accessor &styler)
+static bool currLineContainsHereDelims(Sci_Position &startPos, Accessor & styler)
 {
 	if(startPos <= 1)
 		return false;
@@ -328,7 +328,7 @@ static bool RE_CanFollowKeyword(const char * keyword)
 // Look at chars up to but not including endPos
 // Don't look at styles in case we're looking forward
 
-static int skipWhitespace(Sci_Position startPos, Sci_Position endPos, Accessor &styler)
+static int skipWhitespace(Sci_Position startPos, Sci_Position endPos, Accessor & styler)
 {
 	for(Sci_Position i = startPos; i < endPos; i++) {
 		if(!IsASpaceOrTab(styler[i])) {
@@ -345,7 +345,7 @@ static int skipWhitespace(Sci_Position startPos, Sci_Position endPos, Accessor &
 // iPrev points to the start of <<
 
 static bool sureThisIsHeredoc(Sci_Position iPrev,
-    Accessor &styler,
+    Accessor & styler,
     char * prevWord)
 {
 	// Not so fast, since Ruby's so dynamic.  Check the context
@@ -398,7 +398,7 @@ static bool haveTargetMatch(Sci_Position currPos,
     Sci_Position lengthDoc,
     Sci_Position targetStartPos,
     Sci_Position targetEndPos,
-    Accessor &styler)
+    Accessor & styler)
 {
 	if(lengthDoc - currPos < targetEndPos - targetStartPos) {
 		return false;
@@ -418,7 +418,7 @@ static bool haveTargetMatch(Sci_Position currPos,
 // @p min_pos should be a known expression start, e.g. the start of the line
 static Sci_Position findExpressionStart(Sci_Position pos,
     Sci_Position min_pos,
-    Accessor &styler)
+    Accessor & styler)
 {
 	int depth = 0;
 	for(; pos > min_pos; pos -= 1) {
@@ -459,7 +459,7 @@ static Sci_Position findExpressionStart(Sci_Position pos,
 // return true == yes, we have no heredocs
 
 static bool sureThisIsNotHeredoc(Sci_Position lt2StartPos,
-    Accessor &styler)
+    Accessor & styler)
 {
 	int prevStyle;
 	// Use full document, not just part we're styling
@@ -642,7 +642,7 @@ static bool sureThisIsNotHeredoc(Sci_Position lt2StartPos,
 static void synchronizeDocStart(Sci_PositionU &startPos,
     Sci_Position &length,
     int &initStyle,
-    Accessor &styler,
+    Accessor & styler,
     bool skipWhiteSpace = false)
 {
 	styler.Flush();
@@ -694,7 +694,7 @@ static void synchronizeDocStart(Sci_PositionU &startPos,
 }
 
 static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	// Lexer for Ruby often has to backtrack to start of current style to determine
 	// which characters are being used as quotes, how deeply nested is the
@@ -1573,7 +1573,7 @@ public:
 
 static void getPrevWord(Sci_Position pos,
     char * prevWord,
-    Accessor &styler,
+    Accessor & styler,
     int word_state)
 {
 	Sci_Position i;
@@ -1612,7 +1612,7 @@ static bool keywordIsAmbiguous(const char * prevWord)
 
 static bool keywordIsModifier(const char * word,
     Sci_Position pos,
-    Accessor &styler)
+    Accessor & styler)
 {
 	if(word[0] == 'd' && word[1] == 'o' && !word[2]) {
 		return keywordDoStartsLoop(pos, styler);
@@ -1729,7 +1729,7 @@ static bool keywordIsModifier(const char * word,
 // on the current line
 
 static bool keywordDoStartsLoop(Sci_Position pos,
-    Accessor &styler)
+    Accessor & styler)
 {
 	char ch;
 	int style;
@@ -1779,7 +1779,7 @@ static bool keywordDoStartsLoop(Sci_Position pos,
 	return false;
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler)
+static bool IsCommentLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -1848,7 +1848,7 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler)
  */
 
 static void FoldRbDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	const bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;

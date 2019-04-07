@@ -66,7 +66,7 @@ static int GetLotLineState(const std::string &line)
 	}
 }
 
-static void ColourizeLotDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void ColourizeLotDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
@@ -105,7 +105,7 @@ static void ColourizeLotDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 // sections (headed by a set line)
 // passes (contiguous pass results within a section)
 // fails (contiguous fail results within a section)
-static void FoldLotDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldLotDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 0) != 0;
 	Sci_PositionU endPos = startPos + length;

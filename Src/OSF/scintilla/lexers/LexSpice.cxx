@@ -16,7 +16,7 @@
 /*
  * Interface
  */
-static void ColouriseDocument(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler);
+static void ColouriseDocument(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler);
 
 static const char * const spiceWordListDesc[] = {
 "Keywords",            // SPICE command
@@ -35,7 +35,7 @@ static void ColouriseComment(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseDelimiter(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseNumber(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseWhiteSpace(StyleContext& sc, bool& apostropheStartsAttribute);
-static void ColouriseWord(StyleContext& sc, const WordList& keywords, const WordList& keywords2, const WordList& keywords3, bool& apostropheStartsAttribute);
+static void ColouriseWord(StyleContext& sc, const WordList & keywords, const WordList & keywords2, const WordList & keywords3, bool& apostropheStartsAttribute);
 
 static bool FASTCALL IsDelimiterCharacter(int ch);
 static bool FASTCALL IsSeparatorOrDelimiterCharacter(int ch);
@@ -85,7 +85,7 @@ static void ColouriseWhiteSpace(StyleContext& sc, bool&)
 	sc.ForwardSetState(SCE_SPICE_DEFAULT);
 }
 
-static void ColouriseWord(StyleContext& sc, const WordList& keywords, const WordList& keywords2, const WordList& keywords3, bool& apostropheStartsAttribute)
+static void ColouriseWord(StyleContext& sc, const WordList & keywords, const WordList & keywords2, const WordList & keywords3, bool& apostropheStartsAttribute)
 {
 	apostropheStartsAttribute = true;
 	sc.SetState(SCE_SPICE_IDENTIFIER);
@@ -122,7 +122,7 @@ static void ColouriseDocument(Sci_PositionU startPos,
     Sci_Position length,
     int initStyle,
     WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];

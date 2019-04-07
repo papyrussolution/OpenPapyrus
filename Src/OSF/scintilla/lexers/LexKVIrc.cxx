@@ -36,7 +36,7 @@ static bool FASTCALL IsAWordStart(int ch) {
    syntax highlighted */
 static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
     int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	/* Fetching style context */
 	StyleContext sc(startPos, length, initStyle, styler);
@@ -319,7 +319,7 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 }
 
 static void FoldKVIrcDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/,
-    WordList *[], Accessor &styler)
+    WordList *[], Accessor & styler)
 {
 	/* Based on CMake's folder */
 

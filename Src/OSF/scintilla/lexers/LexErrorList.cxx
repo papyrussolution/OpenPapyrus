@@ -34,7 +34,7 @@ static bool IsAlphabetic(int ch)
 	return IsASCII(ch) && isalpha(ch);
 }
 
-static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i)
 {
 	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
@@ -345,7 +345,7 @@ int StyleFromSequence(const char * seq)
 static void ColouriseErrorListLine(char * lineBuffer,
     Sci_PositionU lengthLine,
     Sci_PositionU endPos,
-    Accessor &styler,
+    Accessor & styler,
     bool valueSeparate,
     bool escapeSequences)
 {
@@ -395,7 +395,7 @@ static void ColouriseErrorListLine(char * lineBuffer,
 	}
 }
 
-static void ColouriseErrorListDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void ColouriseErrorListDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	char lineBuffer[10000];
 	styler.StartAt(startPos);

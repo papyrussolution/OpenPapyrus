@@ -16,7 +16,7 @@ using namespace Scintilla;
 
 static const char * const yamlWordListDesc[] = { "Keywords", 0 };
 
-static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i)
 {
 	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
@@ -56,7 +56,7 @@ static bool KeywordAtChar(char* lineBuffer, char* startComment, const WordList &
 #define YAML_STATE_TEXT                 (5 << YAML_STATE_BITSIZE)
 
 static void ColouriseYAMLLine(char * lineBuffer, Sci_PositionU currentLine, Sci_PositionU lengthLine, Sci_PositionU startLine, Sci_PositionU endPos,
-    const WordList &keywords, Accessor &styler)
+    const WordList &keywords, Accessor & styler)
 {
 	Sci_PositionU i = 0;
 	bool bInQuotes = false;
@@ -179,7 +179,7 @@ static void ColouriseYAMLLine(char * lineBuffer, Sci_PositionU currentLine, Sci_
 	styler.ColourTo(endPos, SCE_YAML_DEFAULT);
 }
 
-static void ColouriseYAMLDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordLists[], Accessor &styler)
+static void ColouriseYAMLDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordLists[], Accessor & styler)
 {
 	char lineBuffer[1024] = "";
 	styler.StartAt(startPos);
@@ -206,13 +206,13 @@ static void ColouriseYAMLDoc(Sci_PositionU startPos, Sci_Position length, int, W
 	}
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler)
+static bool IsCommentLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	return LOGIC(styler[pos] == '#');
 }
 
-static void FoldYAMLDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/, WordList *[], Accessor &styler)
+static void FoldYAMLDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/, WordList *[], Accessor & styler)
 {
 	const Sci_Position maxPos = startPos + length;
 	const Sci_Position maxLines = styler.GetLine(maxPos - 1);             // Requested last line

@@ -14,7 +14,7 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i) 
+static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i) 
 {
 	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
@@ -23,7 +23,7 @@ static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
 // Note that ColouriseDiffLine analyzes only the first DIFF_BUFFER_START_SIZE
 // characters of each line to classify the line.
 
-static void ColouriseDiffLine(char * lineBuffer, Sci_Position endLine, Accessor &styler) 
+static void ColouriseDiffLine(char * lineBuffer, Sci_Position endLine, Accessor & styler) 
 {
 	// It is needed to remember the current state to recognize starting
 	// comment lines before the first "diff " or "--- ". If a real
@@ -94,7 +94,7 @@ static void ColouriseDiffLine(char * lineBuffer, Sci_Position endLine, Accessor 
 	}
 }
 
-static void ColouriseDiffDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler) 
+static void ColouriseDiffDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler) 
 {
 	char lineBuffer[DIFF_BUFFER_START_SIZE] = "";
 	styler.StartAt(startPos);
@@ -123,7 +123,7 @@ static void ColouriseDiffDoc(Sci_PositionU startPos, Sci_Position length, int, W
 	}
 }
 
-static void FoldDiffDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler) 
+static void FoldDiffDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler) 
 {
 	Sci_Position curLine = styler.GetLine(startPos);
 	Sci_Position curLineStart = styler.LineStart(curLine);

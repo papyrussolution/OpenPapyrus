@@ -32,7 +32,7 @@ static void ColouriseLuaDoc(Sci_PositionU startPos,
     Sci_Position length,
     int initStyle,
     WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -371,7 +371,7 @@ static void ColouriseLuaDoc(Sci_PositionU startPos,
 	sc.Complete();
 }
 
-static void FoldLuaDoc(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[], Accessor &styler)
+static void FoldLuaDoc(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[], Accessor & styler)
 {
 	Sci_PositionU lengthDoc = startPos + length;
 	int visibleChars = 0;

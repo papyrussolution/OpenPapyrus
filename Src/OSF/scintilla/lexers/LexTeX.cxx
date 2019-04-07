@@ -55,7 +55,7 @@ using namespace Scintilla;
 
 // Auxiliary functions:
 
-static bool FASTCALL endOfLine(Accessor &styler, Sci_PositionU i) { return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n')); }
+static bool FASTCALL endOfLine(Accessor & styler, Sci_PositionU i) { return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n')); }
 static bool FASTCALL isTeXzero(int ch) { return (ch == '%'); }
 static bool FASTCALL isTeXone(int ch) { return (ch == '[') || (ch == ']') || (ch == '=') || (ch == '#') || (ch == '(') || (ch == ')') || (ch == '<') || (ch == '>') || (ch == '"'); }
 static bool FASTCALL isTeXtwo(int ch) { return (ch == '{') || (ch == '}') || (ch == '$'); }
@@ -69,7 +69,7 @@ static bool FASTCALL isWordChar(int ch) { return ((ch >= 'a') && (ch <= 'z')) ||
 
 // Interface determination
 
-static int CheckTeXInterface(Sci_PositionU startPos, Sci_Position length, Accessor &styler, int defaultInterface)
+static int CheckTeXInterface(Sci_PositionU startPos, Sci_Position length, Accessor & styler, int defaultInterface)
 {
 	char lineBuffer[1024];
 	Sci_PositionU linePos = 0;
@@ -120,7 +120,7 @@ static int CheckTeXInterface(Sci_PositionU startPos, Sci_Position length, Access
 	return defaultInterface;
 }
 
-static void ColouriseTeXDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordlists[], Accessor &styler)
+static void ColouriseTeXDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordlists[], Accessor & styler)
 {
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
@@ -235,7 +235,7 @@ static void ColouriseTeXDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 	sc.Complete();
 }
 
-static int ParseTeXCommand(Sci_PositionU pos, Accessor &styler, char * command)
+static int ParseTeXCommand(Sci_PositionU pos, Accessor & styler, char * command)
 {
 	Sci_Position length = 0;
 	char ch = styler.SafeGetCharAt(pos+1);
@@ -287,7 +287,7 @@ static int classifyFoldPointTeXUnpaired(const char* s)
 	return lev;
 }
 
-static bool IsTeXCommentLine(Sci_Position line, Accessor &styler)
+static bool IsTeXCommentLine(Sci_Position line, Accessor & styler)
 {
 	const Sci_Position pos = styler.LineStart(line);
 	const Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -303,7 +303,7 @@ static bool IsTeXCommentLine(Sci_Position line, Accessor &styler)
 
 // FoldTeXDoc: borrowed from VisualTeX with modifications
 
-static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	Sci_PositionU endPos = startPos+length;

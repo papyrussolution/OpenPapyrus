@@ -66,13 +66,13 @@ static inline unsigned IsOperator(const StyleContext & sc, const WordList & op)
 	return 0;
 }
 
-static bool FASTCALL IsEOL(Accessor &styler, Sci_PositionU curPos)
+static bool FASTCALL IsEOL(Accessor & styler, Sci_PositionU curPos)
 {
 	uint   ch = styler.SafeGetCharAt(curPos);
 	return ((ch == '\r' && styler.SafeGetCharAt(curPos + 1) == '\n') || (ch == '\n')) ? true : false;
 }
 
-static bool FASTCALL checkStatement(Accessor &styler, Sci_Position &curPos, const char * stt, bool spaceAfter = true)
+static bool FASTCALL checkStatement(Accessor & styler, Sci_Position &curPos, const char * stt, bool spaceAfter = true)
 {
 	int len = static_cast<int>(sstrlen(stt));
 	int i;
@@ -90,7 +90,7 @@ static bool FASTCALL checkStatement(Accessor &styler, Sci_Position &curPos, cons
 	return true;
 }
 
-static bool FASTCALL checkEndSemicolon(Accessor &styler, Sci_Position &curPos, Sci_Position endPos)
+static bool FASTCALL checkEndSemicolon(Accessor & styler, Sci_Position &curPos, Sci_Position endPos)
 {
 	const char * stt = "END";
 	int len = static_cast<int>(sstrlen(stt));
@@ -111,7 +111,7 @@ static bool FASTCALL checkEndSemicolon(Accessor &styler, Sci_Position &curPos, S
 	return true;
 }
 
-static bool FASTCALL checkKeyIdentOper(Accessor &styler, Sci_Position &curPos, Sci_Position endPos, const char * stt, const char etk)
+static bool FASTCALL checkKeyIdentOper(Accessor & styler, Sci_Position &curPos, Sci_Position endPos, const char * stt, const char etk)
 {
 	Sci_Position newPos = curPos;
 	if(!checkStatement(styler, newPos, stt) )
@@ -151,7 +151,7 @@ static bool FASTCALL checkKeyIdentOper(Accessor &styler, Sci_Position &curPos, S
 	return true;
 }
 
-static void FoldModulaDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+static void FoldModulaDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler)
 {
 	Sci_Position curLine = styler.GetLine(startPos);
 	int curLevel = SC_FOLDLEVELBASE;
@@ -287,14 +287,14 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
     Sci_Position length,
     int initStyle,
     WordList * wl[],
-    Accessor &styler)
+    Accessor & styler)
 {
-	WordList& keyWords              = *wl[0];
-	WordList& reservedWords = *wl[1];
-	WordList& operators     = *wl[2];
-	WordList& pragmaWords   = *wl[3];
-	WordList& escapeCodes   = *wl[4];
-	WordList& doxyKeys              = *wl[5];
+	WordList & keyWords              = *wl[0];
+	WordList & reservedWords = *wl[1];
+	WordList & operators     = *wl[2];
+	WordList & pragmaWords   = *wl[3];
+	WordList & escapeCodes   = *wl[4];
+	WordList & doxyKeys              = *wl[5];
 
 	const int BUFLEN = 128;
 

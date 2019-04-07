@@ -24,7 +24,7 @@ static bool IsAlphabetic(int ch)
 	return IsASCII(ch) && isalpha(ch);
 }
 
-static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i) 
+static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i) 
 {
 	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
@@ -46,7 +46,7 @@ static void ColouriseBatchLine(char * lineBuffer,
     Sci_PositionU startLine,
     Sci_PositionU endPos,
     WordList * keywordlists[],
-    Accessor &styler) {
+    Accessor & styler) {
 	Sci_PositionU offset = 0;       // Line Buffer Offset
 	Sci_PositionU cmdLoc;           // External Command / Program Location
 	char wordBuffer[81];            // Word Buffer - large to catch long paths
@@ -435,7 +435,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 	styler.ColourTo(endPos, SCE_BAT_DEFAULT);
 }
 
-static void ColouriseBatchDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle*/, WordList * keywordlists[], Accessor &styler) 
+static void ColouriseBatchDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle*/, WordList * keywordlists[], Accessor & styler) 
 {
 	char lineBuffer[1024];
 	styler.StartAt(startPos);

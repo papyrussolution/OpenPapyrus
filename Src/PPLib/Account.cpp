@@ -560,9 +560,9 @@ int SLAPI ArticleCore::Add(PPID * pID, void * b, int use_ta)
 	return AddObjRecByID(this, PPOBJ_ARTICLE, pID, b, use_ta);
 }
 
-int SLAPI ArticleCore::Update(PPID id, void * b, int use_ta)
+int SLAPI ArticleCore::Update(PPID id, const void * pRec, int use_ta)
 {
-	return UpdateByID(this, PPOBJ_ARTICLE, id, b, use_ta);
+	return UpdateByID(this, PPOBJ_ARTICLE, id, pRec, use_ta);
 }
 
 int SLAPI ArticleCore::Remove(PPID id, int use_ta)

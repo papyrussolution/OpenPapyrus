@@ -51,7 +51,7 @@ bool FASTCALL IsOperator(int ch)
 	return false;
 }
 
-static void FASTCALL GetTextSegment(Accessor &styler, Sci_PositionU start, Sci_PositionU end, char * s, size_t len)
+static void FASTCALL GetTextSegment(Accessor & styler, Sci_PositionU start, Sci_PositionU end, char * s, size_t len)
 {
 	Sci_PositionU i = 0;
 	for(; (i < end - start + 1) && (i < len-1); i++) {
@@ -60,7 +60,7 @@ static void FASTCALL GetTextSegment(Accessor &styler, Sci_PositionU start, Sci_P
 	s[i] = '\0';
 }
 
-static const char * GetNextWord(Accessor &styler, Sci_PositionU start, char * s, size_t sLen)
+static const char * GetNextWord(Accessor & styler, Sci_PositionU start, char * s, size_t sLen)
 {
 	Sci_PositionU i = 0;
 	for(; i < sLen-1; i++) {
@@ -75,7 +75,7 @@ static const char * GetNextWord(Accessor &styler, Sci_PositionU start, char * s,
 	return s;
 }
 
-static script_type segIsScriptingIndicator(Accessor &styler, Sci_PositionU start, Sci_PositionU end, script_type prevValue)
+static script_type segIsScriptingIndicator(Accessor & styler, Sci_PositionU start, Sci_PositionU end, script_type prevValue)
 {
 	char s[100];
 	GetTextSegment(styler, start, end, s, sizeof(s));
@@ -104,7 +104,7 @@ static script_type segIsScriptingIndicator(Accessor &styler, Sci_PositionU start
 	return prevValue;
 }
 
-static int PrintScriptingIndicatorOffset(Accessor &styler, Sci_PositionU start, Sci_PositionU end)
+static int PrintScriptingIndicatorOffset(Accessor & styler, Sci_PositionU start, Sci_PositionU end)
 {
 	int iResult = 0;
 	char s[100];
@@ -161,7 +161,7 @@ static int FASTCALL stateForPrintState(int stateToPrint)
 	return state;
 }
 
-static bool FASTCALL IsNumber(Sci_PositionU start, Accessor &styler)
+static bool FASTCALL IsNumber(Sci_PositionU start, Accessor & styler)
 {
 	return IsADigit(styler[start]) || (styler[start] == '.') || (styler[start] == '-') || (styler[start] == '#');
 }
@@ -229,7 +229,7 @@ static bool FASTCALL isCommentASPState(int state)
 	return bResult;
 }
 
-static void classifyAttribHTML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler)
+static void classifyAttribHTML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler)
 {
 	bool wordIsNumber = IsNumber(start, styler);
 	char chAttr = SCE_H_ATTRIBUTEUNKNOWN;
@@ -247,7 +247,7 @@ static void classifyAttribHTML(Sci_PositionU start, Sci_PositionU end, const Wor
 	styler.ColourTo(end, chAttr);
 }
 
-static int classifyTagHTML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler, bool &tagDontFold,
+static int classifyTagHTML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler, bool &tagDontFold,
     bool caseSensitive, bool isXml, bool allowScripts)
 {
 	char withSpace[30 + 2] = " ";
@@ -303,7 +303,7 @@ static int classifyTagHTML(Sci_PositionU start, Sci_PositionU end, const WordLis
 	return chAttr;
 }
 
-static void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler, script_mode inScriptType)
+static void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler, script_mode inScriptType)
 {
 	char s[30 + 1];
 	Sci_PositionU i = 0;
@@ -322,7 +322,7 @@ static void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end, const WordL
 	styler.ColourTo(end, statePrintForState(chAttr, inScriptType));
 }
 
-static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler, script_mode inScriptType)
+static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler, script_mode inScriptType)
 {
 	char chAttr = SCE_HB_IDENTIFIER;
 	bool wordIsNumber = IsADigit(styler[start]) || (styler[start] == '.');
@@ -345,7 +345,7 @@ static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, const WordLi
 		return SCE_HB_DEFAULT;
 }
 
-static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler, char * prevWord, script_mode inScriptType, bool isMako)
+static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler, char * prevWord, script_mode inScriptType, bool isMako)
 {
 	bool wordIsNumber = IsADigit(styler[start]);
 	char s[30 + 1];
@@ -371,7 +371,7 @@ static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, const WordL
 
 // Update the word colour to default or keyword
 // Called when in a PHP word
-static void classifyWordHTPHP(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler)
+static void classifyWordHTPHP(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler)
 {
 	char chAttr = SCE_HPHP_DEFAULT;
 	bool wordIsNumber = IsADigit(styler[start]) || (styler[start] == '.' && start+1 <= end && IsADigit(styler[start+1]));
@@ -387,7 +387,7 @@ static void classifyWordHTPHP(Sci_PositionU start, Sci_PositionU end, const Word
 	styler.ColourTo(end, chAttr);
 }
 
-static bool isWordHSGML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler)
+static bool isWordHSGML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler)
 {
 	char s[30 + 1];
 	Sci_PositionU i = 0;
@@ -398,7 +398,7 @@ static bool isWordHSGML(Sci_PositionU start, Sci_PositionU end, const WordList &
 	return keywords.InList(s);
 }
 
-static bool isWordCdata(Sci_PositionU start, Sci_PositionU end, Accessor &styler)
+static bool isWordCdata(Sci_PositionU start, Sci_PositionU end, Accessor & styler)
 {
 	char s[30 + 1];
 	Sci_PositionU i = 0;
@@ -476,7 +476,7 @@ static bool isPHPStringState(int state)
 }
 
 static Sci_Position FindPhpStringDelimiter(char * phpStringDelimiter, const int phpStringDelimiterSize, Sci_Position i,
-    const Sci_Position lengthDoc, Accessor &styler, bool &isSimpleString)
+    const Sci_Position lengthDoc, Accessor & styler, bool &isSimpleString)
 {
 	Sci_Position j;
 	const Sci_Position beginning = i - 1;
@@ -525,7 +525,7 @@ static Sci_Position FindPhpStringDelimiter(char * phpStringDelimiter, const int 
 	}
 }
 
-static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler, bool isXml)
+static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler, bool isXml)
 {
 	const WordList & keywords = *keywordlists[0];
 	const WordList & keywords2 = *keywordlists[1];
@@ -2074,19 +2074,19 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 	}
 }
 
-static void ColouriseXMLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseXMLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	// Passing in true because we're lexing XML
 	ColouriseHyperTextDoc(startPos, length, initStyle, keywordlists, styler, true);
 }
 
-static void ColouriseHTMLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColouriseHTMLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	// Passing in false because we're notlexing XML
 	ColouriseHyperTextDoc(startPos, length, initStyle, keywordlists, styler, false);
 }
 
-static void ColourisePHPScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
+static void ColourisePHPScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	if(startPos == 0)
 		initStyle = SCE_HPHP_DEFAULT;

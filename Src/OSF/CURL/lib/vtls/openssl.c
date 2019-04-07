@@ -2241,16 +2241,12 @@ static CURLcode ossl_connect_step2(struct connectdata * conn, int sockindex)
 static int asn1_object_dump(ASN1_OBJECT * a, char * buf, size_t len)
 {
 	int i, ilen;
-
 	ilen = (int)len;
 	if(ilen < 0)
 		return 1;  /* buffer too big */
-
 	i = i2t_ASN1_OBJECT(buf, ilen, a);
-
 	if(i >= ilen)
 		return 1;  /* buffer too small */
-
 	return 0;
 }
 
@@ -2262,11 +2258,7 @@ static int asn1_object_dump(ASN1_OBJECT * a, char * buf, size_t len)
 			break;							     \
 	} WHILE_FALSE
 
-static void pubkey_show(struct Curl_easy * data,
-    BIO * mem,
-    int num,
-    const char * type,
-    const char * name,
+static void pubkey_show(struct Curl_easy * data, BIO * mem, int num, const char * type, const char * name,
 #ifdef HAVE_OPAQUE_RSA_DSA_DH
     const
 #endif
@@ -2274,17 +2266,14 @@ static void pubkey_show(struct Curl_easy * data,
 {
 	char * ptr;
 	char namebuf[32];
-
 	snprintf(namebuf, sizeof(namebuf), "%s(%s)", type, name);
-
 	if(bn)
 		BN_print(mem, bn);
 	push_certinfo(namebuf, num);
 }
 
 #ifdef HAVE_OPAQUE_RSA_DSA_DH
-#define print_pubkey_BN(_type, _name, _num)		 \
-	pubkey_show(data, mem, _num, # _type, # _name, _name)
+#define print_pubkey_BN(_type, _name, _num) pubkey_show(data, mem, _num, # _type, # _name, _name)
 
 #else
 #define print_pubkey_BN(_type, _name, _num)    \
@@ -2295,13 +2284,10 @@ static void pubkey_show(struct Curl_easy * data,
 	} WHILE_FALSE
 #endif
 
-static int X509V3_ext(struct Curl_easy * data,
-    int certnum,
-    CONST_EXTS STACK_OF(X509_EXTENSION) * exts)
+static int X509V3_ext(struct Curl_easy * data, int certnum, CONST_EXTS STACK_OF(X509_EXTENSION) * exts)
 {
 	int i;
 	size_t j;
-
 	if((int)sk_X509_EXTENSION_num(exts) <= 0)
 		/* no extensions, bail out */
 		return 1;
@@ -2314,19 +2300,13 @@ static int X509V3_ext(struct Curl_easy * data,
 		char * ptr = buf;
 		char namebuf[128];
 		BIO * bio_out = BIO_new(BIO_s_mem());
-
 		if(!bio_out)
 			return 1;
-
 		obj = X509_EXTENSION_get_object(ext);
-
 		asn1_object_dump(obj, namebuf, sizeof(namebuf));
-
 		if(!X509V3_EXT_print(bio_out, ext, 0, 0))
 			ASN1_STRING_print(bio_out, (ASN1_STRING*)X509_EXTENSION_get_data(ext));
-
 		BIO_get_mem_ptr(bio_out, &biomem);
-
 		for(j = 0; j < (size_t)biomem->length; j++) {
 			const char * sep = "";
 			if(biomem->data[j] == '\n') {

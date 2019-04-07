@@ -1234,7 +1234,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 		}
 	}
 	else if(!ret) {
-		ret = xmlNewDocText(doc, BAD_CAST "");
+		ret = xmlNewDocText(doc, reinterpret_cast<const xmlChar *>(""));
 	}
 out:
 	xmlBufFree(buf);
@@ -4589,12 +4589,14 @@ void xmlNodeSetBase(xmlNode * cur, const xmlChar* uri)
 xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 {
 	xmlChar * oldbase = NULL;
-	xmlChar * base, * newbase;
-	if((cur == NULL) && (doc == NULL))
+	xmlChar * base;
+	xmlChar * newbase;
+	if(!cur && !doc)
 		return 0;
 	if(cur && (cur->type == XML_NAMESPACE_DECL))
 		return 0;
-	if(!doc) doc = cur->doc;
+	if(!doc) 
+		doc = cur->doc;
 	if(doc && (doc->type == XML_HTML_DOCUMENT_NODE)) {
 		cur = doc->children;
 		while(cur && cur->name) {
@@ -4656,7 +4658,6 @@ xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 	}
 	return (oldbase);
 }
-
 /**
  * xmlNodeBufGetContent:
  * @buffer:  a buffer
@@ -4674,7 +4675,8 @@ int xmlNodeBufGetContent(xmlBuffer * buffer, const xmlNode * cur)
 {
 	xmlBufPtr buf;
 	int ret;
-	if(!cur || (buffer == NULL)) return -1;
+	if(!cur || (buffer == NULL)) 
+		return -1;
 	buf = xmlBufFromBuffer(buffer);
 	ret = xmlBufGetNodeContent(buf, cur);
 	buffer = xmlBufBackToBuffer(buf);
@@ -4682,7 +4684,6 @@ int xmlNodeBufGetContent(xmlBuffer * buffer, const xmlNode * cur)
 		return -1;
 	return 0;
 }
-
 /**
  * xmlBufGetNodeContent:
  * @buf:  a buffer xmlBufPtr
@@ -4942,12 +4943,9 @@ void xmlNodeSetContent(xmlNode * cur, const xmlChar * content)
 		case XML_DOCB_DOCUMENT_NODE:
 #endif
 		    break;
-		case XML_NOTATION_NODE:
-		    break;
-		case XML_DTD_NODE:
-		    break;
-		case XML_NAMESPACE_DECL:
-		    break;
+		case XML_NOTATION_NODE: break;
+		case XML_DTD_NODE: break;
+		case XML_NAMESPACE_DECL: break;
 		case XML_ELEMENT_DECL:
 		    /* @todo !!! */
 		    break;
@@ -5172,7 +5170,7 @@ xmlNs ** xmlGetNsList(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlNode * P_Nod
 			cur = P_Node->nsDef;
 			while(cur) {
 				if(!ret) {
-					ret = (xmlNs **)SAlloc::M((maxns + 1) * sizeof(xmlNs *));
+					ret = static_cast<xmlNs **>(SAlloc::M((maxns + 1) * sizeof(xmlNs *)));
 					if(!ret) {
 						xmlTreeErrMemory("getting namespace list");
 						return 0;
@@ -5186,7 +5184,7 @@ xmlNs ** xmlGetNsList(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlNode * P_Nod
 				if(i >= nbns) {
 					if(nbns >= maxns) {
 						maxns *= 2;
-						ret = (xmlNs **)SAlloc::R(ret, (maxns + 1) * sizeof(xmlNs *));
+						ret = static_cast<xmlNs **>(SAlloc::R(ret, (maxns + 1) * sizeof(xmlNs *)));
 						if(!ret) {
 							xmlTreeErrMemory("getting namespace list");
 							return 0;
@@ -5220,7 +5218,7 @@ static xmlNs * FASTCALL xmlTreeEnsureXMLDecl(xmlDoc * doc)
 		if(doc->oldNs)
 			ns = doc->oldNs;
 		else {
-			ns = (xmlNs *)SAlloc::M(sizeof(xmlNs));
+			ns = static_cast<xmlNs *>(SAlloc::M(sizeof(xmlNs)));
 			if(ns == NULL) {
 				xmlTreeErrMemory("allocating the XML namespace");
 			}
@@ -5262,7 +5260,7 @@ xmlNs * FASTCALL xmlSearchNs(xmlDoc * doc, xmlNode * P_Node, const xmlChar * nam
 				// The XML-1.0 namespace is normally held on the root
 				// element. In this case exceptionally create it on the node element.
 				// 
-				cur = (xmlNs *)SAlloc::M(sizeof(xmlNs));
+				cur = static_cast<xmlNs *>(SAlloc::M(sizeof(xmlNs)));
 				if(!cur) {
 					xmlTreeErrMemory("searching namespace");
 				}
@@ -5359,7 +5357,7 @@ xmlNs * xmlSearchNsByHref(xmlDoc * doc, xmlNode * P_Node, const xmlChar * href)
 			 * element. In this case exceptionally create it on the
 			 * node element.
 			 */
-			cur = (xmlNs *)SAlloc::M(sizeof(xmlNs));
+			cur = static_cast<xmlNs *>(SAlloc::M(sizeof(xmlNs)));
 			if(!cur) {
 				xmlTreeErrMemory("searching namespace");
 				return 0;
@@ -6285,7 +6283,7 @@ void xmlBufferEmpty(xmlBuffer * buf)
 	if(buf && buf->content) {
 		buf->use = 0;
 		if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) {
-			buf->content = BAD_CAST "";
+			buf->content = const_cast<xmlChar *>(reinterpret_cast<const xmlChar *>("")); // @badcast
 		}
 		else if((buf->alloc == XML_BUFFER_ALLOC_IO) && buf->contentIO) {
 			size_t start_buf = buf->content - buf->contentIO;
@@ -7133,7 +7131,7 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMap ** map, xmlNode * P
 			if(!sourceDoc || !sourceDoc->dict || !xmlDictOwns(sourceDoc->dict, old)) \
 				SAlloc::F((char *)old); \
 		} else if((sourceDoc) && (sourceDoc->dict) && xmlDictOwns(sourceDoc->dict, str)) { \
-			str = BAD_CAST sstrdup(str); \
+			str = sstrdup(str); \
 		} \
 	}
 

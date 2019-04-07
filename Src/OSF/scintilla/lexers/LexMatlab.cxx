@@ -59,7 +59,7 @@ static int CheckKeywordFoldPoint(char * str)
 		return 0;
 }
 
-static bool IsSpaceToEOL(Sci_Position startPos, Accessor &styler)
+static bool IsSpaceToEOL(Sci_Position startPos, Accessor & styler)
 {
 	Sci_Position line = styler.GetLine(startPos);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -71,7 +71,7 @@ static bool IsSpaceToEOL(Sci_Position startPos, Accessor &styler)
 }
 
 static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler, bool (* IsCommentChar)(int), bool ismatlab)
+    WordList * keywordlists[], Accessor & styler, bool (* IsCommentChar)(int), bool ismatlab)
 {
 	WordList &keywords = *keywordlists[0];
 	styler.StartAt(startPos);
@@ -240,19 +240,19 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 }
 
 static void ColouriseMatlabDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	ColouriseMatlabOctaveDoc(startPos, length, initStyle, keywordlists, styler, IsMatlabCommentChar, true);
 }
 
 static void ColouriseOctaveDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	ColouriseMatlabOctaveDoc(startPos, length, initStyle, keywordlists, styler, IsOctaveCommentChar, false);
 }
 
 static void FoldMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor &styler,
+    WordList *[], Accessor & styler,
     bool (* IsComment)(int ch))
 {
 	Sci_PositionU endPos = startPos + length;
@@ -320,13 +320,13 @@ static void FoldMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length, int
 }
 
 static void FoldMatlabDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	FoldMatlabOctaveDoc(startPos, length, initStyle, keywordlists, styler, IsMatlabCommentChar);
 }
 
 static void FoldOctaveDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+    WordList * keywordlists[], Accessor & styler)
 {
 	FoldMatlabOctaveDoc(startPos, length, initStyle, keywordlists, styler, IsOctaveCommentChar);
 }

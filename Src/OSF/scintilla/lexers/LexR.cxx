@@ -41,7 +41,7 @@ static bool FASTCALL IsAnOperator(const int ch)
 }
 
 static void ColouriseRDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	WordList &keywords   = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -151,7 +151,7 @@ static void ColouriseRDoc(Sci_PositionU startPos, Sci_Position length, int initS
 // level store to make it easy to pick up with each increment
 // and to make it possible to fiddle the current level for "} else {".
 static void FoldRDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	bool foldAtElse = styler.GetPropertyInt("fold.at.else", 0) != 0;

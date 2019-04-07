@@ -353,22 +353,22 @@ int xmlNop(void);
 			/*
 			 * constructors can be either manual or from a string
 			 */
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpParse	(xmlExpCtxtPtr ctxt, const char *expr);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewAtom	(xmlExpCtxtPtr ctxt, const xmlChar *name, int len);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewOr	(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewSeq	(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewRange	(xmlExpCtxtPtr ctxt, xmlExpNodePtr subset, int min, int max);
+			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpParse(xmlExpCtxtPtr ctxt, const char *expr);
+			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar *name, int len);
+			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right);
+			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewSeq(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right);
+			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewRange(xmlExpCtxtPtr ctxt, xmlExpNodePtr subset, int min, int max);
 			/*
 			 * The really interesting APIs
 			 */
 			XMLPUBFUN int XMLCALL xmlExpIsNillable(xmlExpNodePtr expr);
-			XMLPUBFUN int XMLCALL xmlExpMaxToken	(xmlExpNodePtr expr);
+			XMLPUBFUN int XMLCALL xmlExpMaxToken(xmlExpNodePtr expr);
 			XMLPUBFUN int XMLCALL xmlExpGetLanguage(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar**langList, int len);
-			XMLPUBFUN int XMLCALL xmlExpGetStart	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar**tokList, int len);
+			XMLPUBFUN int XMLCALL xmlExpGetStart(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar**tokList, int len);
 			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpStringDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar *str, int len);
 			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpExpDerive	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
-			XMLPUBFUN int XMLCALL xmlExpSubsume	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
-			XMLPUBFUN void XMLCALL xmlExpDump	(xmlBuffer * buf, xmlExpNodePtr expr);
+			XMLPUBFUN int XMLCALL xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
+			XMLPUBFUN void XMLCALL xmlExpDump(xmlBuffer * buf, xmlExpNodePtr expr);
 		#endif // LIBXML_EXPR_ENABLED 
 		#ifdef __cplusplus
 		}

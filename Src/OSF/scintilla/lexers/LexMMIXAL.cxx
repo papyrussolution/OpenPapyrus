@@ -36,7 +36,7 @@ inline bool isMMIXALOperator(char ch)
 }
 
 static void ColouriseMMIXALDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+    Accessor & styler)
 {
 	WordList &opcodes = *keywordlists[0];
 	WordList &special_register = *keywordlists[1];

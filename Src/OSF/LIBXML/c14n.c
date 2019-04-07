@@ -332,8 +332,8 @@ static int xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns)
 		 * if the default namespace xmlns="" is not defined yet then
 		 * we do not want to print it out
 		 */
-		const xmlChar * prefix = ((ns == NULL) || (ns->prefix == NULL)) ? BAD_CAST "" : ns->prefix;
-		const xmlChar * href = ((ns == NULL) || (ns->href == NULL)) ? BAD_CAST "" : ns->href;
+		const xmlChar * prefix = ((ns == NULL) || (ns->prefix == NULL)) ? reinterpret_cast<const xmlChar *>("") : ns->prefix;
+		const xmlChar * href = ((ns == NULL) || (ns->href == NULL)) ? reinterpret_cast<const xmlChar *>("") : ns->href;
 		has_empty_ns = (xmlC14NStrEqual(prefix, NULL) && xmlC14NStrEqual(href, NULL));
 		if(cur->nsTab) {
 			int start = (has_empty_ns) ? 0 : cur->nsPrevStart;
@@ -362,8 +362,8 @@ static int xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns
 	 * if the default namespace xmlns="" is not defined yet then
 	 * we do not want to print it out
 	 */
-	prefix = ((ns == NULL) || (ns->prefix == NULL)) ? BAD_CAST "" : ns->prefix;
-	href = ((ns == NULL) || (ns->href == NULL)) ? BAD_CAST "" : ns->href;
+	prefix = ((ns == NULL) || (ns->prefix == NULL)) ? reinterpret_cast<const xmlChar *>("") : ns->prefix;
+	href = ((ns == NULL) || (ns->href == NULL)) ? reinterpret_cast<const xmlChar *>("") : ns->href;
 	has_empty_ns = (xmlC14NStrEqual(prefix, NULL) && xmlC14NStrEqual(href, NULL));
 	if(cur->nsTab) {
 		int start = 0;

@@ -1623,7 +1623,7 @@ xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
 		SAlloc::F(segment);
 	}
 	if(uri->opaque) {
-		segment = xmlURIEscapeStr(BAD_CAST uri->opaque, BAD_CAST "");
+		segment = xmlURIEscapeStr(BAD_CAST uri->opaque, reinterpret_cast<const xmlChar *>(""));
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, segment);
 		SAlloc::F(segment);
@@ -1951,7 +1951,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		goto done;
 	}
 	if(sstreq(bas->path, ref->path)) {
-		val = sstrdup(BAD_CAST "");
+		val = sstrdup(reinterpret_cast<const xmlChar *>(""));
 		goto done;
 	}
 	if(bas->path == NULL) {
@@ -2000,7 +2000,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		while((bptr[pos] == ref->path[pos]) && (bptr[pos] != 0))
 			pos++;
 		if(bptr[pos] == ref->path[pos]) {
-			val = sstrdup(BAD_CAST "");
+			val = sstrdup(reinterpret_cast<const xmlChar *>(""));
 			goto done; /* (I can't imagine why anyone would do this) */
 		}
 		/*

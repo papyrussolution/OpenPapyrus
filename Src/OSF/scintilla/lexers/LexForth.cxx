@@ -30,7 +30,7 @@ static bool FASTCALL IsASpaceChar(int ch)
 }
 
 static void ColouriseForthDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordLists[],
-    Accessor &styler) {
+    Accessor & styler) {
 	WordList &control = *keywordLists[0];
 	WordList &keyword = *keywordLists[1];
 	WordList &defword = *keywordLists[2];

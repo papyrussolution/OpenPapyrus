@@ -220,7 +220,7 @@ static xmlCatalogEntryPtr xmlNewCatalogEntry(xmlCatalogEntryType type, const xml
     const xmlChar * value, const xmlChar * URL, xmlCatalogPrefer prefer, xmlCatalogEntryPtr group) 
 {
 	xmlChar * normid = NULL;
-	xmlCatalogEntryPtr ret = (xmlCatalogEntryPtr)SAlloc::M(sizeof(xmlCatalogEntry));
+	xmlCatalogEntryPtr ret = (xmlCatalogEntry *)SAlloc::M(sizeof(xmlCatalogEntry));
 	if(!ret) {
 		xmlCatalogErrMemory("allocating catalog entry");
 	}
@@ -277,7 +277,6 @@ static void xmlFreeCatalogEntry(xmlCatalogEntryPtr ret)
 		}
 	}
 }
-
 /**
  * xmlFreeCatalogEntryList:
  * @ret:  a Catalog entry list
@@ -292,7 +291,6 @@ static void xmlFreeCatalogEntryList(xmlCatalogEntryPtr ret)
 		ret = next;
 	}
 }
-
 /**
  * xmlFreeCatalogHashEntryList:
  * @ret:  a Catalog entry list
@@ -315,7 +313,6 @@ static void xmlFreeCatalogHashEntryList(xmlCatalogEntryPtr catal)
 		xmlFreeCatalogEntry(catal);
 	}
 }
-
 /**
  * xmlCreateNewCatalog:
  * @type:  type of catalog
@@ -326,9 +323,9 @@ static void xmlFreeCatalogHashEntryList(xmlCatalogEntryPtr catal)
  *
  * Returns the xmlCatalogPtr or NULL in case of error
  */
-static xmlCatalogPtr xmlCreateNewCatalog(xmlCatalogType type, xmlCatalogPrefer prefer) 
+static xmlCatalog * xmlCreateNewCatalog(xmlCatalogType type, xmlCatalogPrefer prefer) 
 {
-	xmlCatalogPtr ret = (xmlCatalogPtr)SAlloc::M(sizeof(xmlCatalog));
+	xmlCatalog * ret = static_cast<xmlCatalog *>(SAlloc::M(sizeof(xmlCatalog)));
 	if(!ret) {
 		xmlCatalogErrMemory("allocating catalog");
 	}
@@ -343,7 +340,6 @@ static xmlCatalogPtr xmlCreateNewCatalog(xmlCatalogType type, xmlCatalogPrefer p
 	}
 	return ret;
 }
-
 /**
  * xmlFreeCatalog:
  * @catal:  a Catalog
@@ -358,13 +354,9 @@ void xmlFreeCatalog(xmlCatalogPtr catal)
 		SAlloc::F(catal);
 	}
 }
-
-/************************************************************************
-*									*
-*			Serializing Catalogs				*
-*									*
-************************************************************************/
-
+//
+// Serializing Catalogs
+//
 #ifdef LIBXML_OUTPUT_ENABLED
 /**
  * xmlCatalogDumpEntry:
@@ -420,7 +412,6 @@ static void xmlCatalogDumpEntry(xmlCatalogEntryPtr entry, FILE * out)
 		fprintf(out, "\n");
 	}
 }
-
 /**
  * xmlDumpXMLCatalogNode:
  * @catal:  top catalog entry
@@ -588,13 +579,9 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
-/************************************************************************
-*									*
-*			Converting SGML Catalogs to XML			*
-*									*
-************************************************************************/
-
+//
+// Converting SGML Catalogs to XML
+//
 /**
  * xmlCatalogConvertEntry:
  * @entry:  the entry
@@ -635,7 +622,6 @@ static void xmlCatalogConvertEntry(xmlCatalogEntryPtr entry, xmlCatalogPtr catal
 		prev->next = entry;
 	}
 }
-
 /**
  * xmlConvertSGMLCatalog:
  * @catal: the catalog
@@ -899,18 +885,13 @@ static xmlChar * xmlCatalogNormalizePublic(const xmlChar * pubID)
 	*q = 0;
 	return ret;
 }
-
-/************************************************************************
-*									*
-*			The XML Catalog parser				*
-*									*
-************************************************************************/
-
+//
+// The XML Catalog parser
+//
 static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const xmlChar * filename);
 static void xmlParseXMLCatalogNodeList(xmlNode * cur, xmlCatalogPrefer prefer, xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup);
 static xmlChar * xmlCatalogListXMLResolve(xmlCatalogEntryPtr catal, const xmlChar * pubID, const xmlChar * sysID);
 static xmlChar * xmlCatalogListXMLResolveURI(xmlCatalogEntryPtr catal, const xmlChar * URI);
-
 /**
  * xmlGetXMLCatalogEntryType:
  * @name:  the name
@@ -944,7 +925,6 @@ static xmlCatalogEntryType xmlGetXMLCatalogEntryType(const xmlChar * name)
 		type = XML_CATA_CATALOG;
 	return (type);
 }
-
 /**
  * xmlParseXMLCatalogOneNode:
  * @cur:  the XML node
@@ -960,7 +940,7 @@ static xmlCatalogEntryType xmlGetXMLCatalogEntryType(const xmlChar * name)
  *
  * Returns the new Catalog entry node or NULL in case of error.
  */
-static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNode * cur, xmlCatalogEntryType type, const xmlChar * name, 
+static xmlCatalogEntryPtr FASTCALL xmlParseXMLCatalogOneNode(xmlNode * cur, xmlCatalogEntryType type, const xmlChar * name, 
 	const xmlChar * attrName, const xmlChar * uriAttrName, xmlCatalogPrefer prefer, xmlCatalogEntryPtr cgroup) 
 {
 	int    ok = 1;
@@ -972,8 +952,7 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNode * cur, xmlCatalogEnt
 	if(attrName != NULL) {
 		nameValue = xmlGetProp(cur, attrName);
 		if(nameValue == NULL) {
-			xmlCatalogErr(ret, cur, XML_CATALOG_MISSING_ATTR,
-			    "%s entry lacks '%s'\n", name, attrName, 0);
+			xmlCatalogErr(ret, cur, XML_CATALOG_MISSING_ATTR, "%s entry lacks '%s'\n", name, attrName, 0);
 			ok = 0;
 		}
 	}
@@ -1175,7 +1154,6 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const 
 	xmlFreeDoc(doc);
 	return (parent);
 }
-
 /**
  * xmlFetchXMLCatalogFile:
  * @catal:  an existing but incomplete catalog entry
@@ -1184,9 +1162,9 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const 
  *
  * Returns 0 in case of success, -1 otherwise
  */
-static int xmlFetchXMLCatalogFile(xmlCatalogEntryPtr catal) 
+static int FASTCALL xmlFetchXMLCatalogFile(xmlCatalogEntry * catal) 
 {
-	xmlCatalogEntryPtr doc;
+	xmlCatalogEntry * doc;
 	if(catal == NULL)
 		return -1;
 	if(catal->URL == NULL)
@@ -1201,7 +1179,7 @@ static int xmlFetchXMLCatalogFile(xmlCatalogEntryPtr catal)
 		return 0;
 	}
 	if(xmlCatalogXMLFiles != NULL) {
-		doc = (xmlCatalogEntryPtr)xmlHashLookup(xmlCatalogXMLFiles, catal->URL);
+		doc = (xmlCatalogEntry *)xmlHashLookup(xmlCatalogXMLFiles, catal->URL);
 		if(doc) {
 			if(xmlDebugCatalogs)
 				xmlGenericError(0, "Found %s in file hash\n", catal->URL);
@@ -1235,13 +1213,9 @@ static int xmlFetchXMLCatalogFile(xmlCatalogEntryPtr catal)
 	xmlRMutexUnlock(xmlCatalogMutex);
 	return 0;
 }
-
-/************************************************************************
-*									*
-*			XML Catalog handling				*
-*									*
-************************************************************************/
-
+//
+// XML Catalog handling
+//
 /**
  * xmlAddXMLCatalog:
  * @catal:  top of an XML catalog
@@ -1300,13 +1274,12 @@ static int xmlAddXMLCatalog(xmlCatalogEntryPtr catal, const xmlChar * type, cons
 		cur->next = xmlNewCatalogEntry(typ, orig, replace, NULL, catal->prefer, 0);
 	if(doregister) {
 		catal->type = XML_CATA_CATALOG;
-		cur = (xmlCatalogEntryPtr)xmlHashLookup(xmlCatalogXMLFiles, catal->URL);
+		cur = (xmlCatalogEntry *)xmlHashLookup(xmlCatalogXMLFiles, catal->URL);
 		if(cur)
 			cur->children = catal->children;
 	}
 	return 0;
 }
-
 /**
  * xmlDelXMLCatalog:
  * @catal:  top of an XML catalog
@@ -1343,7 +1316,6 @@ static int xmlDelXMLCatalog(xmlCatalogEntryPtr catal, const xmlChar * value)
 	}
 	return ret;
 }
-
 /**
  * xmlCatalogXMLResolve:
  * @catal:  a catalog list
@@ -1757,7 +1729,6 @@ static xmlChar * xmlCatalogListXMLResolve(xmlCatalogEntryPtr catal, const xmlCha
 	}
 	return ret;
 }
-
 /**
  * xmlCatalogListXMLResolveURI:
  * @catal:  a catalog list
@@ -1803,13 +1774,9 @@ static xmlChar * xmlCatalogListXMLResolveURI(xmlCatalogEntryPtr catal, const xml
 	}
 	return ret;
 }
-
-/************************************************************************
-*									*
-*			The SGML Catalog parser				*
-*									*
-************************************************************************/
-
+//
+// The SGML Catalog parser
+//
 #define RAW * cur
 #define NEXT cur ++;
 #define SKIP(x) cur += x;
@@ -1904,7 +1871,6 @@ static const xmlChar * xmlParseSGMLCatalogPubid(const xmlChar * cur, xmlChar ** 
 	*id = buf;
 	return cur;
 }
-
 /**
  * xmlParseSGMLCatalogName:
  * @cur:  the current character
@@ -1974,7 +1940,6 @@ static xmlCatalogEntryType xmlGetSGMLCatalogEntryType(const xmlChar * name)
 		type = SGML_CATA_BASE;
 	return (type);
 }
-
 /**
  * xmlParseSGMLCatalog:
  * @catal:  the SGML Catalog
@@ -2180,7 +2145,7 @@ static const xmlChar * xmlCatalogGetSGMLPublic(xmlHashTable * catal, const xmlCh
 	normid = xmlCatalogNormalizePublic(pubID);
 	if(normid != NULL)
 		pubID = (*normid != 0 ? normid : NULL);
-	entry = (xmlCatalogEntryPtr)xmlHashLookup(catal, pubID);
+	entry = (xmlCatalogEntry *)xmlHashLookup(catal, pubID);
 	if(entry == NULL) {
 		SAlloc::F(normid);
 		return 0;
@@ -2192,7 +2157,6 @@ static const xmlChar * xmlCatalogGetSGMLPublic(xmlHashTable * catal, const xmlCh
 	SAlloc::F(normid);
 	return 0;
 }
-
 /**
  * xmlCatalogGetSGMLSystem:
  * @catal:  an SGML catalog hash
@@ -2204,17 +2168,13 @@ static const xmlChar * xmlCatalogGetSGMLPublic(xmlHashTable * catal, const xmlCh
  */
 static const xmlChar * xmlCatalogGetSGMLSystem(xmlHashTable * catal, const xmlChar * sysID) 
 {
-	xmlCatalogEntryPtr entry;
-	if(catal == NULL)
+	if(!catal)
 		return 0;
-	entry = (xmlCatalogEntryPtr)xmlHashLookup(catal, sysID);
-	if(entry == NULL)
-		return 0;
-	if(entry->type == SGML_CATA_SYSTEM)
-		return (entry->URL);
-	return 0;
+	else {
+		const xmlCatalogEntry * entry = static_cast<const xmlCatalogEntry *>(xmlHashLookup(catal, sysID));
+		return (entry && entry->type == SGML_CATA_SYSTEM) ? (entry->URL) : 0;
+	}
 }
-
 /**
  * xmlCatalogSGMLResolve:
  * @catal:  the SGML catalog
@@ -2240,13 +2200,9 @@ static const xmlChar * xmlCatalogSGMLResolve(xmlCatalogPtr catal, const xmlChar 
 		return ret;
 	return 0;
 }
-
-/************************************************************************
-*									*
-*			Specific Public interfaces			*
-*									*
-************************************************************************/
-
+//
+// Specific Public interfaces
+//
 /**
  * xmlLoadSGMLSuperCatalog:
  * @filename:  a file path
@@ -2277,7 +2233,6 @@ xmlCatalogPtr xmlLoadSGMLSuperCatalog(const char * filename)
 	}
 	return (catal);
 }
-
 /**
  * xmlLoadACatalog:
  * @filename:  a file path
@@ -2324,7 +2279,6 @@ xmlCatalogPtr xmlLoadACatalog(const char * filename)
 	SAlloc::F(content);
 	return (catal);
 }
-
 /**
  * xmlExpandCatalog:
  * @catal:  a catalog
@@ -2420,7 +2374,6 @@ xmlChar * xmlACatalogResolvePublic(xmlCatalogPtr catal, const xmlChar * pubID)
 	}
 	return ret;
 }
-
 /**
  * xmlACatalogResolve:
  * @catal:  a Catalog
@@ -2460,7 +2413,6 @@ xmlChar * xmlACatalogResolve(xmlCatalogPtr catal, const xmlChar * pubID, const x
 	}
 	return ret;
 }
-
 /**
  * xmlACatalogResolveURI:
  * @catal:  a Catalog
@@ -2622,13 +2574,9 @@ int xmlCatalogIsEmpty(xmlCatalogPtr catal)
 	}
 	return 0;
 }
-
-/************************************************************************
-*									*
-*   Public interfaces manipulating the global shared default catalog	*
-*									*
-************************************************************************/
-
+//
+// Public interfaces manipulating the global shared default catalog
+//
 /**
  * xmlInitializeCatalogData:
  *
@@ -3084,7 +3032,7 @@ void * xmlCatalogAddLocal(void * catalogs, const xmlChar * URL)
 	add = xmlNewCatalogEntry(XML_CATA_CATALOG, NULL, URL, NULL, xmlCatalogDefaultPrefer, 0);
 	if(add == NULL)
 		return (catalogs);
-	catal = (xmlCatalogEntryPtr)catalogs;
+	catal = (xmlCatalogEntry *)catalogs;
 	if(catal == NULL)
 		return (void *)add;
 	while(catal->next)
@@ -3121,7 +3069,7 @@ xmlChar * xmlCatalogLocalResolve(void * catalogs, const xmlChar * pubID, const x
 				xmlGenericError(0, "Local Resolve: sysID %s\n", sysID);
 			}
 		}
-		xmlCatalogEntryPtr catal = (xmlCatalogEntryPtr)catalogs;
+		xmlCatalogEntryPtr catal = (xmlCatalogEntry *)catalogs;
 		if(catal) {
 			ret = xmlCatalogListXMLResolve(catal, pubID, sysID);
 			if(ret == XML_CATAL_BREAK)
@@ -3150,7 +3098,7 @@ xmlChar * xmlCatalogLocalResolveURI(void * catalogs, const xmlChar * URI)
 		return 0;
 	if(xmlDebugCatalogs)
 		xmlGenericError(0, "Resolve URI %s\n", URI);
-	catal = (xmlCatalogEntryPtr)catalogs;
+	catal = (xmlCatalogEntry *)catalogs;
 	if(catal == NULL)
 		return 0;
 	ret = xmlCatalogListXMLResolveURI(catal, URI);
@@ -3194,7 +3142,6 @@ const xmlChar * xmlCatalogGetSystem(const xmlChar * sysID)
 	}
 	return xmlDefaultCatalog ? xmlCatalogGetSGMLSystem(xmlDefaultCatalog->sgml, sysID) : 0;
 }
-
 /**
  * xmlCatalogGetPublic:
  * @pubID:  the public ID string
