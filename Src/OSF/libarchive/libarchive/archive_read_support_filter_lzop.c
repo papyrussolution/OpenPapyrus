@@ -139,9 +139,7 @@ static int lzop_bidder_bid(struct archive_read_filter_bidder * self, struct arch
  */
 static int lzop_bidder_init(struct archive_read_filter * self)
 {
-	int r;
-
-	r = __archive_read_program(self, "lzop -d");
+	int r = __archive_read_program(self, "lzop -d");
 	/* Note: We set the format here even if __archive_read_program()
 	 * above fails.  We do, after all, know what the format is
 	 * even if we weren't able to read it. */

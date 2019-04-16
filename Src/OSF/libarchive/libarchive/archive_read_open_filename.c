@@ -28,28 +28,28 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_filename.c 201093 2009-12-28 02:28:44Z kientzle $");
 
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_SYS_STAT_H
+//#include <sys/stat.h>
+//#endif
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
 #ifdef HAVE_IO_H
-#include <io.h>
+	#include <io.h>
 #endif
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
+//#endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #include <sys/disk.h>
@@ -59,16 +59,15 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_filename.c 201093 2009
 #elif defined(__DragonFly__)
 #include <sys/diskslice.h>
 #endif
-
 //#include "archive.h"
 //#include "archive_private.h"
 //#include "archive_string.h"
 
 #ifndef O_BINARY
-#define O_BINARY 0
+	#define O_BINARY 0
 #endif
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
 
 struct read_file_data {

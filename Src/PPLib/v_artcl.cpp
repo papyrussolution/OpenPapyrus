@@ -942,7 +942,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				cq.push(dbc_long);
 				dbc_long.init("");
 				cq.push(dbc_long);
-				cq.push((DBFunc)PPDbqFuncPool::IdYesWordByFlag);
+				cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdYesWordByFlag));
 				p_q->addField(cq);          // #17
 			}
 			if(Filt.Flags & ArticleFilt::fCheckObj)
@@ -957,7 +957,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				alim.push(dbc_long);
 				dbc_long.init(AddedLimitTerm);
 				alim.push(dbc_long);
-				alim.push((DBFunc)PPDbqFuncPool::IdAddedCreditLimit);
+				alim.push(static_cast<DBFunc>(PPDbqFuncPool::IdAddedCreditLimit));
 				p_q->addField(alim);          // #19
 			}
 			else {
@@ -978,7 +978,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 					alim_dim[i].push(dbc_long);
 					dbc_long.init(AddedLimitTerm);
 					alim_dim[i].push(dbc_long);
-					alim_dim[i].push((DBFunc)PPDbqFuncPool::IdAddedCreditLimit);
+					alim_dim[i].push(static_cast<DBFunc>(PPDbqFuncPool::IdAddedCreditLimit));
 					p_q->addField(alim_dim[i]);
 				}
 				else {
@@ -991,7 +991,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 					cq_stop[i].push(dbc_long);
 					dbc_long.init("X\0");
 					cq_stop[i].push(dbc_long);
-					cq_stop[i].push((DBFunc)PPDbqFuncPool::IdYesWordByFlag);
+					cq_stop[i].push(static_cast<DBFunc>(PPDbqFuncPool::IdYesWordByFlag));
 					p_q->addField(cq_stop[i]);
 				}
 			}

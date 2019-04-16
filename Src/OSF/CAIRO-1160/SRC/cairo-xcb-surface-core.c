@@ -432,7 +432,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_for_pattern(cairo_xcb_surface_t * 
 				    case CAIRO_EXTEND_NONE:
 				    case CAIRO_EXTEND_REPEAT:
 					return _cairo_xcb_surface_pixmap(target,
-						   (cairo_surface_pattern_t*)pattern,
+						   (cairo_surface_pattern_t *)pattern,
 						   extents, tx, ty);
 
 				    default:

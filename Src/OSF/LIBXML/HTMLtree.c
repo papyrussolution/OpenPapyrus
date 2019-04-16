@@ -168,7 +168,7 @@ int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding)
 			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("head")))
 				break;
 			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("meta"))) {
-				head = cur->parent;
+				head = cur->P_ParentNode;
 				goto found_meta;
 			}
 		}
@@ -674,7 +674,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 		else if(cur->type == HTML_TEXT_NODE) {
 			if(cur->content) {
 				if((cur->name == (const xmlChar *)xmlStringText || cur->name != (const xmlChar *)xmlStringTextNoenc) &&
-					(!cur->parent || (!sstreqi_ascii(cur->parent->name, reinterpret_cast<const xmlChar *>("script")) && !sstreqi_ascii(cur->parent->name, reinterpret_cast<const xmlChar *>("style"))))) {
+					(!cur->P_ParentNode || (!sstreqi_ascii(cur->P_ParentNode->name, reinterpret_cast<const xmlChar *>("script")) && !sstreqi_ascii(cur->P_ParentNode->name, reinterpret_cast<const xmlChar *>("style"))))) {
 					xmlChar * buffer = xmlEncodeEntitiesReentrant(doc, cur->content);
 					if(buffer) {
 						xmlOutputBufferWriteString(buf, (const char *)buffer);
@@ -725,7 +725,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 			if(info && info->empty) {
 				xmlOutputBufferWriteString(buf, ">");
 				if(format && (!info->isinline) && cur->next) {
-					if(!oneof2(cur->next->type, HTML_TEXT_NODE, HTML_ENTITY_REF_NODE) && cur->parent && cur->parent->name && (cur->parent->name[0] != 'p')) /* p, pre, param */
+					if(!oneof2(cur->next->type, HTML_TEXT_NODE, HTML_ENTITY_REF_NODE) && cur->P_ParentNode && cur->P_ParentNode->name && (cur->P_ParentNode->name[0] != 'p')) /* p, pre, param */
 						xmlOutputBufferWriteString(buf, "\n");
 				}
 			}
@@ -743,7 +743,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 					xmlOutputBufferWriteString(buf, ">");
 				}
 				if(format && cur->next && info && !info->isinline) {
-					if(!oneof2(cur->next->type, HTML_TEXT_NODE, HTML_ENTITY_REF_NODE) && cur->parent && cur->parent->name && (cur->parent->name[0] != 'p')) /* p, pre, param */
+					if(!oneof2(cur->next->type, HTML_TEXT_NODE, HTML_ENTITY_REF_NODE) && cur->P_ParentNode && cur->P_ParentNode->name && (cur->P_ParentNode->name[0] != 'p')) /* p, pre, param */
 						xmlOutputBufferWriteString(buf, "\n");
 				}
 			}
@@ -770,7 +770,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 				xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->name));
 				xmlOutputBufferWriteString(buf, ">");
 				if(format && info && !info->isinline && cur->next) {
-					if(!oneof2(cur->next->type, HTML_TEXT_NODE, HTML_ENTITY_REF_NODE) && cur->parent && cur->parent->name && (cur->parent->name[0] != 'p')) /* p, pre, param */
+					if(!oneof2(cur->next->type, HTML_TEXT_NODE, HTML_ENTITY_REF_NODE) && cur->P_ParentNode && cur->P_ParentNode->name && (cur->P_ParentNode->name[0] != 'p')) /* p, pre, param */
 						xmlOutputBufferWriteString(buf, "\n");
 				}
 			}

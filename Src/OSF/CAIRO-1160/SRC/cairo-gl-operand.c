@@ -65,7 +65,7 @@ static cairo_int_status_t _cairo_gl_create_gradient_texture(cairo_gl_surface_t *
 static cairo_status_t _cairo_gl_subsurface_clone_operand_init(cairo_gl_operand_t * operand, const cairo_pattern_t * _src,
     cairo_gl_surface_t * dst, const cairo_rectangle_int_t * sample, const cairo_rectangle_int_t * extents, cairo_bool_t use_texgen)
 {
-	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t*)_src;
+	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t *)_src;
 	cairo_surface_pattern_t local_pattern;
 	cairo_surface_subsurface_t * sub;
 	cairo_gl_surface_t * surface;
@@ -147,7 +147,7 @@ static cairo_status_t _cairo_gl_subsurface_operand_init(cairo_gl_operand_t * ope
     const cairo_rectangle_int_t * extents,
     cairo_bool_t use_texgen)
 {
-	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t*)_src;
+	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t *)_src;
 	cairo_surface_subsurface_t * sub;
 	cairo_gl_surface_t * surface;
 	cairo_surface_attributes_t * attributes;
@@ -203,7 +203,7 @@ static cairo_status_t _cairo_gl_surface_operand_init(cairo_gl_operand_t * operan
     const cairo_rectangle_int_t * extents,
     cairo_bool_t use_texgen)
 {
-	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t*)_src;
+	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t *)_src;
 	cairo_gl_surface_t * surface;
 	cairo_surface_attributes_t * attributes;
 	cairo_int_status_t status;
@@ -259,7 +259,7 @@ static cairo_status_t _cairo_gl_pattern_texture_setup(cairo_gl_operand_t * opera
 	cairo_rectangle_int_t map_extents;
 
 	if(_src->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_t* src_surface = ((cairo_surface_pattern_t*)_src)->surface;
+		cairo_surface_t* src_surface = ((cairo_surface_pattern_t *)_src)->surface;
 		src_is_gl_surface = src_surface->type == CAIRO_SURFACE_TYPE_GL;
 	}
 

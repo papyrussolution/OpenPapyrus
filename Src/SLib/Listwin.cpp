@@ -187,9 +187,9 @@ IMPL_HANDLE_EVENT(ListWindow)
 				TMenuPopup menu;
 				SString item_text;
 				if(TbId == 0) {
-					SLS.LoadString("add", item_text);
+					SLS.LoadString_("add", item_text);
 					menu.Add(item_text.Transf(CTRANSF_INNER_TO_OUTER).Tab().Cat("Insert"), cmaInsert);
-					SLS.LoadString("edit", item_text);
+					SLS.LoadString_("edit", item_text);
 					menu.Add(item_text.Transf(CTRANSF_INNER_TO_OUTER).Tab().Cat("F11"), cmaEdit);
 				}
 				else {
@@ -436,7 +436,7 @@ int WordSelector::Refresh(const char * pText)
 			text = pText;
 		if((p_data = P_Blk->GetList(text)) && p_data->getCount()) {
 			if(P_Def) {
-				((StrAssocListBoxDef*)P_Def)->setArray(p_data);
+				static_cast<StrAssocListBoxDef *>(P_Def)->setArray(p_data);
 				setDef(P_Def);
 				MoveWindow(P_Blk->H_InputDlg, 0);
 			}

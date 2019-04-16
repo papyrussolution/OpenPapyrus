@@ -13,6 +13,46 @@ static int FASTCALL Impl_IsUnlimWoLot(long flags)
 		return BIN(flags & (PPTFR_UNLIM|PPTFR_ACK));
 }
 
+SLAPI PPTransferItem::FreightPackage::FreightPackage() : Ver(0), FreightPackageTypeID(0), Qtty(0.0)
+{
+}
+
+int SLAPI PPTransferItem::FreightPackage::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, Ver, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, FreightPackageTypeID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Qtty, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPTransferItem::FreightPackage::ToStr(SString & rBuf)
+{
+	int    ok = 1;
+	rBuf.Z();
+	SSerializeContext sctx;
+	SBuffer sbuf;
+	THROW(Serialize(+1, sbuf, &sctx));
+	rBuf.EncodeMime64(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize());
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPTransferItem::FreightPackage::FromStr(const SString & rBuf)
+{
+	int    ok = 1;
+	uint8  mime_buf[512];
+	size_t binary_size = 0;
+	SSerializeContext sctx;
+	SBuffer sbuf;
+	THROW_SL(rBuf.DecodeMime64(mime_buf, sizeof(mime_buf), &binary_size));
+	THROW_SL(sbuf.Write(mime_buf, binary_size));
+	THROW(Serialize(-1, sbuf, &sctx));
+	CATCHZOK
+	return ok;
+}
+
 SLAPI PPTransferItem::PPTransferItem()
 {
 	THISZERO();

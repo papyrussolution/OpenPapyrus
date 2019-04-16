@@ -5746,7 +5746,7 @@ int SLAPI PPDS_CrrBillStatus::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPBillStatus*)dataPtr;
+			Data = *(PPBillStatus *)dataPtr;
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;

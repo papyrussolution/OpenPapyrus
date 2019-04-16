@@ -43,7 +43,7 @@ INT_PTR CALLBACK ShortcutsWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam
 					POINT  p;
 					GetCursorPos(&p);
 					TMenuPopup menu;
-					SLS.LoadString("close", menu_text);
+					SLS.LoadString_("close", menu_text);
 					menu.Add(menu_text.Transf(CTRANSF_INNER_TO_OUTER), cmaDelete);
 					if(menu.Execute(hWnd, TMenuPopup::efRet) == cmaDelete) {
 						int    idx = 0;

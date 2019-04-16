@@ -571,7 +571,7 @@ STimeChunkBrowser::~STimeChunkBrowser()
 	if(BbState & bbsDataOwner)
 		delete P_Data;
 	for(uint i = 0; i < ColorBrushList.getCount(); i++) {
-		HBRUSH b = (HBRUSH)ColorBrushList.at(i).Val;
+		HBRUSH b = reinterpret_cast<HBRUSH>(ColorBrushList.at(i).Val);
 		ZDeleteWinGdiObject(&b);
 	}
 	ZDELETE(P_Tt);
@@ -1911,7 +1911,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 		STimeChunk sect;
 		LTIME  start_tm = view_time_bounds.Start.t;
 		LTIME  end_tm = view_time_bounds.Finish.t;
-		const  double vpix_per_sec = (double)pArea->PixPerHour / 3600.0;
+		const  double vpix_per_sec = static_cast<double>(pArea->PixPerHour) / 3600.0;
 		uint   last_i = 0;
 		if(P.SingleRowIdx >= 0 && P.SingleRowIdx < (long)dc) {
 			i = (uint)P.SingleRowIdx;
@@ -2257,13 +2257,13 @@ int STimeChunkBrowser::SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH *
 	HBRUSH b = 0;
 	long   val = 0;
 	if(pChunk->Status >= 0 && ChunkColorCache.Search(pChunk->Status, &val, 0) > 0) {
-		b = (HBRUSH)val;
+		b = reinterpret_cast<HBRUSH>(val);
 	}
 	else {
 		STimeChunkGrid::Color clr;
 		if(GetChunkColor(pChunk, &clr)) {
 			if(ColorBrushList.Search((long)clr.C, &val, 0) > 0)
-				b = (HBRUSH)val;
+				b = reinterpret_cast<HBRUSH>(val);
 			else {
 				b = ::CreateSolidBrush(clr.C);
 				ColorBrushList.Add((long)clr.C, (long)b, 0);
@@ -2447,8 +2447,7 @@ void STimeChunkBrowser::Paint()
 			TRect ir(x, y, a2.Right.b.x, y + a2.PixPerHour);
 			if(!hinterlace)
 				ir.a.y++;
-			canv.FillRect(ir, (HBRUSH)Ptb.Get((!hinterlace || (i % 2)) ? brushMain : brushInterleave));
-
+			canv.FillRect(ir, static_cast<HBRUSH>(Ptb.Get((!hinterlace || (i % 2)) ? brushMain : brushInterleave)));
 			canv.SelectObjectAndPush(Ptb.Get(penMainQuantSeparator));
 			canv.LineHorz(x, a2.Full.b.x, y + a2.PixPerHour/2);
 			canv.PopObject();
@@ -2471,7 +2470,7 @@ void STimeChunkBrowser::Paint()
 			// Заливка фона заголовка
 			//
 			TRect ir(a2.LeftHeader.a.x, a2.RightHeader.a.y, a2.RightHeader.b.x, a2.RightHeader.b.y);
-			canv.FillRect(ir, (HBRUSH)Ptb.Get(brushHeader));
+			canv.FillRect(ir, static_cast<HBRUSH>(Ptb.Get(brushHeader)));
 			canv.SetBkColor(Ptb.GetColor(colorHeader));
 		}
 		//
@@ -2504,7 +2503,7 @@ void STimeChunkBrowser::Paint()
 		// Сепаратор
 		//
 		if(a2.Separator.b.x) {
-			canv.FillRect(a2.Separator, (HBRUSH)Ptb.Get(brushHeader));
+			canv.FillRect(a2.Separator, static_cast<HBRUSH>(Ptb.Get(brushHeader)));
 		}
 		//
 		// Main area
@@ -2568,7 +2567,7 @@ void STimeChunkBrowser::Paint()
 			TRect ir(a2.Left.a.x, upp_edge, a2.Right.b.x, upp_edge + row_full_height);
 			if(!hinterlace)
 				ir.a.y++;
-			canv.FillRect(ir, (HBRUSH)Ptb.Get((!hinterlace || (i % 2)) ? brushMain : brushInterleave));
+			canv.FillRect(ir, static_cast<HBRUSH>(Ptb.Get((!hinterlace || (i % 2)) ? brushMain : brushInterleave)));
 			canv.SetBkColor(Ptb.GetColor((!hinterlace || (i % 2)) ? colorMain : colorInterleave));
 			if(!hinterlace) {
 				canv.SelectObjectAndPush(Ptb.Get(penDaySeparator));
@@ -2585,7 +2584,7 @@ void STimeChunkBrowser::Paint()
 			TRect ir(a2.Left.a.x, upp_edge, a2.Right.b.x, upp_edge + row_full_height);
 			if(!hinterlace)
 				ir.a.y++;
-			canv.FillRect(ir, (HBRUSH)Ptb.Get((!hinterlace || (i&2)) ? brushMain : brushInterleave));
+			canv.FillRect(ir, static_cast<HBRUSH>(Ptb.Get((!hinterlace || (i&2)) ? brushMain : brushInterleave)));
 			canv.SetBkColor(Ptb.GetColor((!hinterlace || (i&2)) ? colorMain : colorInterleave));
 		}
 		//
@@ -2603,7 +2602,7 @@ void STimeChunkBrowser::Paint()
 				// Заливка фона заголовка
 				//
 				TRect ir(a2.LeftHeader.a.x, a2.RightHeader.a.y, a2.RightHeader.b.x, a2.RightHeader.b.y);
-				canv.FillRect(ir, (HBRUSH)Ptb.Get(brushHeader));
+				canv.FillRect(ir, static_cast<HBRUSH>(Ptb.Get(brushHeader)));
 				canv.SetBkColor(Ptb.GetColor(colorHeader));
 			}
 			do {
@@ -2884,7 +2883,7 @@ void STimeChunkBrowser::Paint()
 		// Vertical separator
 		//
 		if(a2.Separator.b.x) {
-			canv.FillRect(a2.Separator, (HBRUSH)Ptb.Get(brushHeader));
+			canv.FillRect(a2.Separator, static_cast<HBRUSH>(Ptb.Get(brushHeader)));
 			//canv.Rectangle(a2.Separator);
 		}
 		if(St.Rsz.Kind == ResizeState::kSplit) {

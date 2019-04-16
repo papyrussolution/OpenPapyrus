@@ -1766,7 +1766,7 @@ struct __db {
 			pointer = NULL;                                 \
 			break;                                          \
 		}                                                       \
-		retdata = (uint8 *)(dbt)->data+*__p--;             \
+		retdata = (uint8 *)(dbt)->data + *__p--;             \
 		retdlen = *__p--;                                       \
 		pointer = __p;                                          \
 		if(retdlen == 0 && retdata == (uint8 *)(dbt)->data) \
@@ -1774,7 +1774,7 @@ struct __db {
 	} while(0)
 
  #define DB_MULTIPLE_KEY_NEXT(pointer, dbt, retkey, retklen, retdata, retdlen) do { \
-		uint32 * __p = (uint32 *)(pointer);                \
+		uint32 * __p = static_cast<uint32 *>(pointer);                \
 		if(*__p == static_cast<uint32>(-1)) {                            \
 			retdata = NULL;                                 \
 			retkey = NULL;                                  \
@@ -1875,7 +1875,7 @@ struct __db {
 
  #define DB_MULTIPLE_RECNO_RESERVE_NEXT(pointer, dbt, recno, writedata, writedlen) \
         do {                                                            \
-		uint32 * __p = (uint32 *)(pointer);                \
+		uint32 * __p = static_cast<uint32 *>(pointer); \
 		uint32 __off = ((pointer) == (uint8 *)(dbt)->data+(dbt)->ulen-sizeof(uint32)) ? 0 : __p[1]+__p[2]; \
 		if(((uint8 *)(dbt)->data+__off)+(writedlen) > (uint8 *)(__p-3))                              \
 			writedata = NULL;                               \

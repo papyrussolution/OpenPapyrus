@@ -1046,7 +1046,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			ret->children = xmlStringGetNodeList(ctxt->myDoc, value);
 			tmp = ret->children;
 			while(tmp) {
-				tmp->parent = reinterpret_cast<xmlNode *>(ret);
+				tmp->P_ParentNode = reinterpret_cast<xmlNode *>(ret);
 				if(tmp->next == NULL)
 					ret->last = tmp;
 				tmp = tmp->next;
@@ -1056,7 +1056,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			ret->children = xmlNewDocText(ctxt->myDoc, value);
 			ret->last = ret->children;
 			if(ret->children)
-				ret->children->parent = reinterpret_cast<xmlNode *>(ret);
+				ret->children->P_ParentNode = reinterpret_cast<xmlNode *>(ret);
 		}
 	}
 
@@ -1645,7 +1645,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 			ret->last = tmp;
 			if(tmp) {
 				tmp->doc = ret->doc;
-				tmp->parent = reinterpret_cast<xmlNode *>(ret);
+				tmp->P_ParentNode = reinterpret_cast<xmlNode *>(ret);
 			}
 		}
 		else {
@@ -1653,7 +1653,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 			tmp = ret->children;
 			while(tmp) {
 				tmp->doc = ret->doc;
-				tmp->parent = reinterpret_cast<xmlNode *>(ret);
+				tmp->P_ParentNode = reinterpret_cast<xmlNode *>(ret);
 				if(tmp->next == NULL)
 					ret->last = tmp;
 				tmp = tmp->next;
@@ -1666,7 +1666,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 		ret->last = tmp;
 		if(tmp) {
 			tmp->doc = ret->doc;
-			tmp->parent = reinterpret_cast<xmlNode *>(ret);
+			tmp->P_ParentNode = reinterpret_cast<xmlNode *>(ret);
 		}
 	}
 #ifdef LIBXML_VALID_ENABLED
@@ -2082,7 +2082,7 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 		if(lastChild) {
 			ctxt->P_Node->children = lastChild;
 			ctxt->P_Node->last = lastChild;
-			lastChild->parent = ctxt->P_Node;
+			lastChild->P_ParentNode = ctxt->P_Node;
 			lastChild->doc = ctxt->P_Node->doc;
 			ctxt->nodelen = len;
 			ctxt->nodemem = len + 1;

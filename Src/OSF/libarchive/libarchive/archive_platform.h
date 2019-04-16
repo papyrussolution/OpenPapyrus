@@ -179,7 +179,9 @@
 #else
 	#define	__LA_FALLTHROUGH
 #endif
-
+#ifdef HAVE_SYS_STAT_H
+	#include <sys/stat.h>
+#endif
 #include "archive.h"
 #include "archive_cmdline_private.h"
 #include "archive_string.h"

@@ -1267,7 +1267,7 @@ static cairo_xcb_picture_t * _cairo_xcb_picture_for_pattern(cairo_xcb_surface_t 
 
 		case CAIRO_PATTERN_TYPE_SURFACE:
 		    return _cairo_xcb_surface_picture(target,
-			       (cairo_surface_pattern_t*)pattern,
+			       (cairo_surface_pattern_t *)pattern,
 			       extents);
 		default:
 		    ASSERT_NOT_REACHED;

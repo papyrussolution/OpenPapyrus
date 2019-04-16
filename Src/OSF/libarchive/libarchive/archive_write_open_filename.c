@@ -27,34 +27,33 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_open_filename.c 191165 2009-04-17 00:39:35Z kientzle $");
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_SYS_STAT_H
+//#include <sys/stat.h>
+//#endif
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
+//#endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-
 //#include "archive.h"
 //#include "archive_private.h"
 //#include "archive_string.h"
 
 #ifndef O_BINARY
-#define O_BINARY 0
+	#define O_BINARY 0
 #endif
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
 
 struct write_file_data {
@@ -76,7 +75,6 @@ int archive_write_open_filename(struct archive * a, const char * filename)
 {
 	if(filename == NULL || filename[0] == '\0')
 		return (archive_write_open_fd(a, 1));
-
 	return (open_filename(a, 1, filename));
 }
 
@@ -84,7 +82,6 @@ int archive_write_open_filename_w(struct archive * a, const wchar_t * filename)
 {
 	if(filename == NULL || filename[0] == L'\0')
 		return (archive_write_open_fd(a, 1));
-
 	return (open_filename(a, 0, filename));
 }
 

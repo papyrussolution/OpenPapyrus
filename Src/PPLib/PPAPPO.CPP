@@ -476,6 +476,7 @@ int PPApp::processCommand(uint cmd)
 		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break; // @v8.4.1
 		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break; // @v8.5.5
 		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3 @experimental
+		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
 		// @v9.6.1 case cmAccArticle:           ViewArticle(0);                          break;
 		// @v9.6.1 case cmPerson:               ViewPerson(0);                           break;
 		case cmObjTag:               ShowTags_(PPOBJ_PERSON);                 break;

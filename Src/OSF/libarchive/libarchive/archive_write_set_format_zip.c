@@ -441,21 +441,15 @@ int archive_write_set_format_zip(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct zip * zip;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_zip");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_zip");
 	/* If another format was already registered, unregister it. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	zip = (struct zip *)SAlloc::C(1, sizeof(*zip));
 	if(zip == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate zip data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate zip data");
 		return ARCHIVE_FATAL;
 	}
-
 	/* "Unspecified" lets us choose the appropriate compression. */
 	zip->requested_compression = COMPRESSION_UNSPECIFIED;
 #ifdef HAVE_ZLIB_H

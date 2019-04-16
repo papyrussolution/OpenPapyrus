@@ -31,10 +31,8 @@
  * The Initial Developer of the Original Code is University of Southern
  * California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_H
 #define CAIRO_H
 

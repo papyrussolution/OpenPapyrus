@@ -411,7 +411,7 @@ private:
 int SLAPI AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	AccSheetData * p_cache_rec = (AccSheetData *)pEntry;
+	AccSheetData * p_cache_rec = static_cast<AccSheetData *>(pEntry);
 	PPObjAccSheet as_obj;
 	PPAccSheet rec;
 	if(as_obj.Search(id, &rec) > 0) {
@@ -429,8 +429,8 @@ int SLAPI AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPAccSheet * p_data_rec = (PPAccSheet *)pDataRec;
-	const AccSheetData * p_cache_rec = (const AccSheetData *)pEntry;
+	PPAccSheet * p_data_rec = static_cast<PPAccSheet *>(pDataRec);
+	const AccSheetData * p_cache_rec = static_cast<const AccSheetData *>(pEntry);
 	p_data_rec->Init();
 	p_data_rec->Tag   = PPOBJ_ACCSHEET;
 	p_data_rec->ID    = p_cache_rec->ID;

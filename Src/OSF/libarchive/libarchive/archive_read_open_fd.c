@@ -27,58 +27,54 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_fd.c 201103 2009-12-28 03:13:49Z kientzle $");
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_SYS_STAT_H
+//#include <sys/stat.h>
+//#endif
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
 #ifdef HAVE_IO_H
-#include <io.h>
+	#include <io.h>
 #endif
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
+//#endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-
 //#include "archive.h"
 
 struct read_fd_data {
-	int	 fd;
-	size_t	 block_size;
-	char	 use_lseek;
-	void	*buffer;
+	int fd;
+	size_t block_size;
+	char use_lseek;
+	void    * buffer;
 };
 
-static int	file_close(struct archive *, void *);
-static ssize_t	file_read(struct archive *, void *, const void **buff);
-static int64_t	file_seek(struct archive *, void *, int64_t request, int);
-static int64_t	file_skip(struct archive *, void *, int64_t request);
+static int      file_close(struct archive *, void *);
+static ssize_t  file_read(struct archive *, void *, const void ** buff);
+static int64_t  file_seek(struct archive *, void *, int64_t request, int);
+static int64_t  file_skip(struct archive *, void *, int64_t request);
 
-int
-archive_read_open_fd(struct archive *a, int fd, size_t block_size)
+int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 {
 	struct stat st;
-	struct read_fd_data *mine;
-	void *b;
-
+	struct read_fd_data * mine;
+	void * b;
 	archive_clear_error(a);
-	if (fstat(fd, &st) != 0) {
+	if(fstat(fd, &st) != 0) {
 		archive_set_error(a, errno, "Can't stat fd %d", fd);
 		return ARCHIVE_FATAL;
 	}
-
 	mine = (struct read_fd_data *)SAlloc::C(1, sizeof(*mine));
 	b = SAlloc::M(block_size);
-	if (mine == NULL || b == NULL) {
+	if(mine == NULL || b == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		SAlloc::F(mine);
 		SAlloc::F(b);
@@ -94,7 +90,7 @@ archive_read_open_fd(struct archive *a, int fd, size_t block_size)
 	 * way to determine if a device is a raw disk device, so we
 	 * only enable this optimization for regular files.
 	 */
-	if (S_ISREG(st.st_mode)) {
+	if(S_ISREG(st.st_mode)) {
 		archive_read_extract_set_skip_file(a, st.st_dev, st.st_ino);
 		mine->use_lseek = 1;
 	}
@@ -110,17 +106,15 @@ archive_read_open_fd(struct archive *a, int fd, size_t block_size)
 	return (archive_read_open1(a));
 }
 
-static ssize_t
-file_read(struct archive *a, void *client_data, const void **buff)
+static ssize_t file_read(struct archive * a, void * client_data, const void ** buff)
 {
-	struct read_fd_data *mine = (struct read_fd_data *)client_data;
+	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	ssize_t bytes_read;
-
 	*buff = mine->buffer;
-	for (;;) {
+	for(;;) {
 		bytes_read = read(mine->fd, mine->buffer, mine->block_size);
-		if (bytes_read < 0) {
-			if (errno == EINTR)
+		if(bytes_read < 0) {
+			if(errno == EINTR)
 				continue;
 			archive_set_error(a, errno, "Error reading fd %d",
 			    mine->fd);
@@ -129,41 +123,31 @@ file_read(struct archive *a, void *client_data, const void **buff)
 	}
 }
 
-static int64_t
-file_skip(struct archive *a, void *client_data, int64_t request)
+static int64_t file_skip(struct archive * a, void * client_data, int64_t request)
 {
-	struct read_fd_data *mine = (struct read_fd_data *)client_data;
+	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	int64_t skip = request;
 	int64_t old_offset, new_offset;
 	int skip_bits = sizeof(skip) * 8 - 1;  /* off_t is a signed type. */
-
-	if (!mine->use_lseek)
+	if(!mine->use_lseek)
 		return 0;
-
 	/* Reduce a request that would overflow the 'skip' variable. */
-	if (sizeof(request) > sizeof(skip)) {
-		int64_t max_skip =
-		    (((int64_t)1 << (skip_bits - 1)) - 1) * 2 + 1;
-		if (request > max_skip)
+	if(sizeof(request) > sizeof(skip)) {
+		int64_t max_skip = (((int64_t)1 << (skip_bits - 1)) - 1) * 2 + 1;
+		if(request > max_skip)
 			skip = max_skip;
 	}
-
 	/* Reduce request to the next smallest multiple of block_size */
 	request = (request / mine->block_size) * mine->block_size;
-	if (request == 0)
+	if(request == 0)
 		return 0;
-
-	if (((old_offset = lseek(mine->fd, 0, SEEK_CUR)) >= 0) &&
-	    ((new_offset = lseek(mine->fd, skip, SEEK_CUR)) >= 0))
+	if(((old_offset = lseek(mine->fd, 0, SEEK_CUR)) >= 0) && ((new_offset = lseek(mine->fd, skip, SEEK_CUR)) >= 0))
 		return (new_offset - old_offset);
-
 	/* If seek failed once, it will probably fail again. */
 	mine->use_lseek = 0;
-
 	/* Let libarchive recover with read+discard. */
-	if (errno == ESPIPE)
+	if(errno == ESPIPE)
 		return 0;
-
 	/*
 	 * There's been an error other than ESPIPE. This is most
 	 * likely caused by a programmer error (too large request)
@@ -172,39 +156,32 @@ file_skip(struct archive *a, void *client_data, int64_t request)
 	archive_set_error(a, errno, "Error seeking");
 	return -1;
 }
-
 /*
  * TODO: Store the offset and use it in the read callback.
  */
-static int64_t
-file_seek(struct archive *a, void *client_data, int64_t request, int whence)
+static int64_t file_seek(struct archive * a, void * client_data, int64_t request, int whence)
 {
-	struct read_fd_data *mine = (struct read_fd_data *)client_data;
+	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	int64_t r;
-
 	/* We use off_t here because lseek() is declared that way. */
 	/* See above for notes about when off_t is less than 64 bits. */
 	r = lseek(mine->fd, request, whence);
-	if (r >= 0)
+	if(r >= 0)
 		return r;
-
-	if (errno == ESPIPE) {
-		archive_set_error(a, errno,
-		    "A file descriptor(%d) is not seekable(PIPE)", mine->fd);
+	if(errno == ESPIPE) {
+		archive_set_error(a, errno, "A file descriptor(%d) is not seekable(PIPE)", mine->fd);
 		return ARCHIVE_FAILED;
-	} else {
+	}
+	else {
 		/* If the input is corrupted or truncated, fail. */
-		archive_set_error(a, errno,
-		    "Error seeking in a file descriptor(%d)", mine->fd);
+		archive_set_error(a, errno, "Error seeking in a file descriptor(%d)", mine->fd);
 		return ARCHIVE_FATAL;
 	}
 }
 
-static int
-file_close(struct archive *a, void *client_data)
+static int file_close(struct archive * a, void * client_data)
 {
-	struct read_fd_data *mine = (struct read_fd_data *)client_data;
-
+	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	(void)a; /* UNUSED */
 	SAlloc::F(mine->buffer);
 	SAlloc::F(mine);

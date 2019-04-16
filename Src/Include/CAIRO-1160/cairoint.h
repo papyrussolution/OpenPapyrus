@@ -773,7 +773,7 @@ cairo_private void _cairo_stroke_style_dash_approximate(const cairo_stroke_style
 
 /* cairo-surface.c */
 
-cairo_private cairo_bool_t _cairo_surface_has_mime_image(cairo_surface_t * surface);
+cairo_private cairo_bool_t _cairo_surface_has_mime_image(const cairo_surface_t * surface);
 cairo_private cairo_status_t _cairo_surface_copy_mime_data(cairo_surface_t * dst, cairo_surface_t * src);
 cairo_private_no_warn cairo_int_status_t FASTCALL _cairo_surface_set_error(cairo_surface_t * surface, cairo_int_status_t status);
 cairo_private void _cairo_surface_set_resolution(cairo_surface_t * surface, double x_res, double y_res);
@@ -1243,6 +1243,7 @@ CAIRO_END_DECLS
 #include "cairo-image-info-private.h"
 #include "cairo-stroke-dash-private.h"
 #include "cairo-pattern-inline.h"
+#include "cairo-rtree-private.h"
 
 #if HAVE_VALGRIND
 	#include <memcheck.h>

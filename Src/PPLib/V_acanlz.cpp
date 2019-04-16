@@ -1719,7 +1719,7 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				dbe_ar.init();
 				dbe_ar.push(rt->ArticleID);
 				dbe_ar.push(rt->AccID);
-				dbe_ar.push((DBFunc)PPDbqFuncPool::IdObjNameArByAcc);
+				dbe_ar.push(static_cast<DBFunc>(PPDbqFuncPool::IdObjNameArByAcc));
 				*/
 				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID); // @v9.6.1
 			}
@@ -1755,7 +1755,7 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				dbe_ar.init();
 				dbe_ar.push(rt->ArticleID);
 				dbe_ar.push(rt->AccID);
-				dbe_ar.push((DBFunc)PPDbqFuncPool::IdObjNameArByAcc);
+				dbe_ar.push(static_cast<DBFunc>(PPDbqFuncPool::IdObjNameArByAcc));
 				*/
 				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID); // @v9.6.1
 			}

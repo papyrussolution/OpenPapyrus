@@ -36,13 +36,13 @@ struct xmlLocationSet {
 	xmlXPathObjectPtr * locTab; // array of locations 
 };
 
-typedef xmlLocationSet * xmlLocationSetPtr;
+//typedef xmlLocationSet * xmlLocationSetPtr;
 // 
 // Handling of location sets.
 // 
-XMLPUBFUN xmlLocationSetPtr XMLCALL xmlXPtrLocationSetCreate(xmlXPathObject * val);
-XMLPUBFUN void XMLCALL xmlXPtrFreeLocationSet(xmlLocationSetPtr obj);
-XMLPUBFUN xmlLocationSetPtr XMLCALL xmlXPtrLocationSetMerge(xmlLocationSetPtr val1, xmlLocationSetPtr val2);
+XMLPUBFUN xmlLocationSet * XMLCALL xmlXPtrLocationSetCreate(xmlXPathObject * val);
+XMLPUBFUN void XMLCALL xmlXPtrFreeLocationSet(xmlLocationSet * obj);
+XMLPUBFUN xmlLocationSet * XMLCALL xmlXPtrLocationSetMerge(xmlLocationSet * val1, xmlLocationSet * val2);
 XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRange(xmlNode * start, int startindex, xmlNode * end, int endindex);
 XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangePoints(xmlXPathObjectPtr start, xmlXPathObjectPtr end);
 XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodePoint(xmlNode * start, xmlXPathObjectPtr end);
@@ -52,10 +52,10 @@ XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewLocationSetNodes(xmlNode * start, x
 XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr set);
 XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObjectPtr end);
 XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewCollapsedRange(xmlNode * start);
-XMLPUBFUN void XMLCALL xmlXPtrLocationSetAdd(xmlLocationSetPtr cur, xmlXPathObjectPtr val);
-XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrWrapLocationSet(xmlLocationSetPtr val);
-XMLPUBFUN void XMLCALL xmlXPtrLocationSetDel(xmlLocationSetPtr cur, xmlXPathObjectPtr val);
-XMLPUBFUN void XMLCALL xmlXPtrLocationSetRemove(xmlLocationSetPtr cur, int val);
+XMLPUBFUN void XMLCALL xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObjectPtr val);
+XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrWrapLocationSet(xmlLocationSet * val);
+XMLPUBFUN void XMLCALL xmlXPtrLocationSetDel(xmlLocationSet * cur, xmlXPathObjectPtr val);
+XMLPUBFUN void XMLCALL xmlXPtrLocationSetRemove(xmlLocationSet * cur, int val);
 /*
  * Functions.
  */

@@ -1255,8 +1255,7 @@ static CRYPT_KEY_PROV_INFO * capi_get_prov_info(CAPI_CTX * ctx, PCCERT_CONTEXT c
 	return pinfo;
 }
 
-static void capi_dump_prov_info(CAPI_CTX * ctx, BIO * out,
-    CRYPT_KEY_PROV_INFO * pinfo)
+static void capi_dump_prov_info(CAPI_CTX * ctx, BIO * out, CRYPT_KEY_PROV_INFO * pinfo)
 {
 	char * provname = NULL, * contname = NULL;
 	if(!pinfo) {
@@ -1269,10 +1268,8 @@ static void capi_dump_prov_info(CAPI_CTX * ctx, BIO * out,
 		goto err;
 
 	BIO_printf(out, "  Private Key Info:\n");
-	BIO_printf(out, "    Provider Name:  %s, Provider Type %lu\n", provname,
-	    pinfo->dwProvType);
-	BIO_printf(out, "    Container Name: %s, Key Type %lu\n", contname,
-	    pinfo->dwKeySpec);
+	BIO_printf(out, "    Provider Name:  %s, Provider Type %lu\n", provname, pinfo->dwProvType);
+	BIO_printf(out, "    Container Name: %s, Key Type %lu\n", contname, pinfo->dwKeySpec);
 err:
 	OPENSSL_free(provname);
 	OPENSSL_free(contname);

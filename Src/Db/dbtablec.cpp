@@ -329,13 +329,12 @@ int SLAPI DBTable::Init(DbProvider * pDbP)
 	P_Db = NZOR(pDbP, CurDict);
 	P_Stmt = 0;
 	P_OppStmt = 0;
-
 	handle  = 0;
 	flags   = 0;
 	tableID = 0;
 	ownrLvl = 0;
 	tableName[0] = 0;
-	fileName = 0;
+	fileName.Z();
 	indexes.setTableRef(offsetof(DBTable, indexes));
 	PageSize = 0;
 	LastLockedRow.SetZero();
@@ -470,7 +469,7 @@ int SLAPI DBTable::close()
 	}
 	if(handle) {
 		tableName[0] = 0;
-		fileName = 0;
+		fileName.Z();
 		fields.reset();
 		indexes.reset();
 		DBS.GetTLA().FreeTableEntry(handle);

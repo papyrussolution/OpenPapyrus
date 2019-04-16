@@ -625,7 +625,6 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 			long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_rec, 0);
 			_f |= CCheckCore::gglfUseFullCcPackets;
 			cc.GetSessTotal(NodeRec.CurSessID, _f, &cs_total, 0);
-
 			stat.AmtCash   = cs_total.Amount - cs_total.BnkAmount - cs_total.CSCardAmount;
 			stat.AmtBank   = cs_total.BnkAmount;
 			stat.AmtSCard  = cs_total.CSCardAmount;
@@ -635,8 +634,7 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 		}
 		if(sum == 0.0)  {
 			SyncGetSummator(&sum);
-			if(sum < 0.0)
-				sum = 0.0;
+			SETMAX(sum, 0.0);
 		}
 	}
 	else {

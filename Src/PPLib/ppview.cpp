@@ -1290,10 +1290,8 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 				ep.Sort = 0;
 				ep.Flags |= (DlRtm::ExportParam::fIsView|DlRtm::ExportParam::fInheritedTblNames);
 				ep.Flags &= ~DlRtm::ExportParam::fDiff_ID_ByScope;
-				// @v8.4.2 {
 				if(p_nf->Flags & PPNamedFilt::fDontWriteXmlDTD)
 					ep.Flags |= (DlRtm::ExportParam::fDontWriteXmlDTD|DlRtm::ExportParam::fDontWriteXmlTypes);
-				// } @v8.4.2
 				ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
 				THROW(p_rtm->ExportXML(ep, rResultFileName));
 			}

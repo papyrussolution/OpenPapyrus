@@ -29,10 +29,8 @@
  *
  * The Initial Developer of the Original Code is Intel Corporation
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_BACKEND_PRIVATE_H
 #define CAIRO_BACKEND_PRIVATE_H
 

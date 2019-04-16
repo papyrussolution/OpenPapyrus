@@ -3260,7 +3260,7 @@ xmlChar * xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar ** orig)
 			xmlChar tmp = *cur;
 			cur++;
 			xmlChar * name = xmlParseStringName(ctxt, &cur);
-			if((name == NULL) || (*cur != ';')) {
+			if(!name || (*cur != ';')) {
 				xmlFatalErrMsgInt(ctxt, XML_ERR_ENTITY_CHAR_ERROR, "EntityValue: '%c' forbidden except for entities references\n", tmp);
 			}
 			if((tmp == '%') && (ctxt->inSubset == 1) && (ctxt->inputNr == 1)) {
@@ -6311,14 +6311,14 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 						// Prune it directly in the generated document except for single text nodes.
 						// 
 						if(((list->type == XML_TEXT_NODE) && !list->next) || (ctxt->parseMode == XML_PARSE_READER)) {
-							list->parent = reinterpret_cast<xmlNode *>(ent);
+							list->P_ParentNode = reinterpret_cast<xmlNode *>(ent);
 							list = NULL;
 							ent->owner = 1;
 						}
 						else {
 							ent->owner = 0;
 							for(; list; list = list->next) {
-								list->parent = ctxt->P_Node;
+								list->P_ParentNode = ctxt->P_Node;
 								list->doc = ctxt->myDoc;
 								if(list->next == NULL)
 									ent->last = list;
@@ -6333,7 +6333,7 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 					else {
 						ent->owner = 1;
 						for(; list; list = list->next) {
-							list->parent = reinterpret_cast<xmlNode *>(ent);
+							list->P_ParentNode = reinterpret_cast<xmlNode *>(ent);
 							xmlSetTreeDoc(list, ent->doc);
 							if(list->next == NULL)
 								ent->last = list;
@@ -6480,7 +6480,7 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 					while(cur) {
 						next = cur->next;
 						cur->next = NULL;
-						cur->parent = NULL;
+						cur->P_ParentNode = NULL;
 						nw = xmlDocCopyNode(cur, ctxt->myDoc, 1);
 						if(nw) {
 							SETIFZ(nw->_private, cur->_private);
@@ -11320,7 +11320,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxt * ctx, const xmlChar * URL, const x
 			xmlNode * cur = newDoc->children->children;
 			*lst = cur;
 			while(cur) {
-				cur->parent = NULL;
+				cur->P_ParentNode = NULL;
 				cur = cur->next;
 			}
 			newDoc->children->children = NULL;
@@ -11486,7 +11486,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxt
 			xmlNode * cur = newDoc->children->children;
 			*list = cur;
 			while(cur) {
-				cur->parent = NULL;
+				cur->P_ParentNode = NULL;
 				cur = cur->next;
 			}
 			newDoc->children->children = NULL;
@@ -11704,8 +11704,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	}
 	if((lst != NULL) && (ret == XML_ERR_OK)) {
 		/*
-		 * Return the newly created nodeset after unlinking it from
-		 * they pseudo parent.
+		 * Return the newly created nodeset after unlinking it from they pseudo parent.
 		 */
 		xmlNode * cur = ctxt->myDoc->children->children;
 		*lst = cur;
@@ -11714,8 +11713,8 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 			if((oldctxt->validate) && (oldctxt->wellFormed) && (oldctxt->myDoc) && (oldctxt->myDoc->intSubset) && (cur->type == XML_ELEMENT_NODE)) {
 				oldctxt->valid &= xmlValidateElement(&oldctxt->vctxt, oldctxt->myDoc, cur);
 			}
-#endif /* LIBXML_VALID_ENABLED */
-			cur->parent = NULL;
+#endif
+			cur->P_ParentNode = NULL;
 			cur = cur->next;
 		}
 		ctxt->myDoc->children->children = NULL;
@@ -11793,7 +11792,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 		    return XML_ERR_INTERNAL_ERROR;
 	}
 	while(P_Node && !oneof3(P_Node->type, XML_ELEMENT_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE))
-		P_Node = P_Node->parent;
+		P_Node = P_Node->P_ParentNode;
 	if(!P_Node)
 		return XML_ERR_INTERNAL_ERROR;
 	doc = (P_Node->type == XML_ELEMENT_NODE) ? P_Node->doc : (xmlDoc *)P_Node;
@@ -11875,7 +11874,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 				}
 				ns = ns->next;
 			}
-			cur = cur->parent;
+			cur = cur->P_ParentNode;
 		}
 	}
 	if((ctxt->validate) || (ctxt->replaceEntities != 0)) {
@@ -11919,7 +11918,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 	}
 	*lst = cur;
 	while(cur) {
-		cur->parent = NULL;
+		cur->P_ParentNode = NULL;
 		cur = cur->next;
 	}
 	xmlUnlinkNode(fake);
@@ -12072,7 +12071,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 							*lst = cur;
 							while(cur) {
 								xmlSetTreeDoc(cur, doc);
-								cur->parent = NULL;
+								cur->P_ParentNode = NULL;
 								cur = cur->next;
 							}
 							newDoc->children->children = NULL;

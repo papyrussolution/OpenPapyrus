@@ -31,11 +31,8 @@
  * The Initial Developer of the Original Code is University of Southern
  * California.
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
- *	Andrea Canciani <ranma42@gmail.com>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>, Andrea Canciani <ranma42@gmail.com>
  */
-
 #ifndef CAIRO_ATOMIC_PRIVATE_H
 #define CAIRO_ATOMIC_PRIVATE_H
 

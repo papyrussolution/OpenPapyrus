@@ -416,15 +416,15 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 			for(uint i = 0; i < p_def->getCount(); i++) {
 				const BroColumn & r_col = p_def->at(i);
 				switch(r_col.Offs) {
-					case  2: rBlk.QttyPos = (long)i;  break;
-					case  3: rBlk.CostPos = (long)i;  break;
-					case  4: rBlk.PricePos = (long)i; break;
-					//case 23: link_qtty_col = (long)i; break;
-					case 27: rBlk.CodePos = (long)i; break;
-					case 28: rBlk.SerialPos = (long)i; break;
-					case 30: rBlk.QuotInfoPos = (long)i; break;
-					case 31: rBlk.OrdQttyPos = (long)i; break;
-					case 19: rBlk.ShippedQttyPos = (long)i; break;
+					case  2: rBlk.QttyPos = static_cast<long>(i);  break;
+					case  3: rBlk.CostPos = static_cast<long>(i);  break;
+					case  4: rBlk.PricePos = static_cast<long>(i); break;
+					//case 23: link_qtty_col = static_cast<long>(i); break;
+					case 27: rBlk.CodePos = static_cast<long>(i); break;
+					case 28: rBlk.SerialPos = static_cast<long>(i); break;
+					case 30: rBlk.QuotInfoPos = static_cast<long>(i); break;
+					case 31: rBlk.OrdQttyPos = static_cast<long>(i); break;
+					case 19: rBlk.ShippedQttyPos = static_cast<long>(i); break;
 				}
 			}
 			ok = rBlk.IsEmpty() ? -1 : 1;
@@ -3517,8 +3517,8 @@ int BillItemBrowser::editPackageData(LPackage * pPckg)
 		void   makeCode()
 		{
 			char   code[32];
-			memzero(code, sizeof(code));
-			PPID   pt_id = getCtrlLong(CTLSEL_PCKG_TYPE);
+			PTR32(code)[0] = 0;
+			const  PPID pt_id = getCtrlLong(CTLSEL_PCKG_TYPE);
 			P_BObj->GenPckgCode(pt_id, code, sizeof(code));
 			if(*strip(code))
 				setCtrlData(CTL_PCKG_CODE, code);

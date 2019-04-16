@@ -2457,6 +2457,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 76   "Штатное расписание"
 77   "@{account}"
 78   "Time Series"
+79   "@{obj_freightpackagetype}"
 100  "Динамические объекты"
 101  "Породы древесины"
 1001 "@{country}"
@@ -2916,6 +2917,7 @@ PPINIPARAM_TSSTAKE_INITTRENDERRLIMIT   "init_trend_err_limit"
 PPINIPARAM_TSSTAKE_BESTSUBSETDIMESION  "best_subset_dimension"
 PPINIPARAM_TSSTAKE_BESTSUBSETMAXPHONY  "best_subset_max_phony_iters"
 PPINIPARAM_TSSTAKE_BESTSUBSETOPTCHUNK  "best_subset_opt_chunk"
+PPINIPARAM_TSSTAKE_USEDATASINCE        "use_data_since"
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -3174,6 +3176,7 @@ PPFILNAM_NNTRAIN_LOG           "nntrain.log"
 PPFILNAM_EDIEXITE_LOG          "edi-exite.log"
 PPFILNAM_TSSTAKE_LOG           "tsstake.log"
 PPFILNAM_TSSTAKEPOTENTIAL_LOG  "tsstake-potential.log"
+PPFILNAM_TSTA_LOG              "tsta.log"
 
 #!} // dont_translate
 
@@ -4919,7 +4922,9 @@ PPTXT_SETTIMESERIESSTAT             "SetTimeSeries @zstr: append_count=@int upd-
 PPSSYM_SYMB "LINK;BILLNO;DATE;PAYDATE;AMOUNT,AMT;LOCATION,LOC;OBJECT,OBJ;PAYER;\
 AGENT;REGNAME;REGSN;REGNO;REGORG;TRADELIC;BILLMEMO;BILLOBJ2,OBJ2,EXTOBJ;GCNAME;GCKIND;GCGRADE;GCADDPROP;GCDIMX;GCDIMY;GCDIMZ;ALACC;ALAR;ALAMT;RCKN;\
 CLIENTADDR;GRNAME;PHPU;BRAND;CLIENT;PARENT;GCADD2PROP;GCDIMW;TSESS;PRC;TECH;MEMO;EXPIRY;AGTCODE;AGTDATE;AGTEXPIRY;\
-MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KPP;LOCCODE;DLVRLOCID;DUMMY;CSESS;POSNODE"
+MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KPP;LOCCODE;DLVRLOCID;DUMMY;CSESS;POSNODE;DLVRLOCTAG"
+// @v10.4.1 DLVRLOCTAG.tagsymb
+
 // Мнемоника сторон баланса (Дб|Кр)
 PPSSYM_ACCSIDE "0DBT,0DB,0D,0ДБТ,0ДБ,0Д,1CRD,1CR,1KRD,1KR,1C,1K,1КРД,1КР,1К"
 // Опции командной строки
@@ -5531,6 +5536,16 @@ DVCPARAM_VATAMOUNT18	"VATAMOUNT18" // @v10.0.0
 DVCPARAM_VATAMOUNT10	"VATAMOUNT10" // @v10.0.0
 DVCPARAM_VATAMOUNT00	"VATAMOUNT00" // @v10.0.0
 DVCPARAM_VATFREEAMOUNT	"VATFREEAMOUNT" // @v10.0.0
+DVCPARAM_PAYMCCRD       "PAYMCCRD" // @v10.4.1 Оплата корпоративной кредитной картой
+DVCPARAM_PAYMENTTERMTAG     "PAYMENTTERMTAG" // @v10.4.1
+DVCPARAM_PTT_UNDEF          "PTT_UNDEF"          //
+DVCPARAM_PTT_FULL_PREPAY    "PTT_FULL_PREPAY"    // Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
+DVCPARAM_PTT_PREPAY         "PTT_PREPAY"         // Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
+DVCPARAM_PTT_ADVANCE        "PTT_ADVANCE"        // Аванс
+DVCPARAM_PTT_FULLPAYMENT    "PTT_FULLPAYMENT"    // Полный расчет (Полная оплата, в том числе с учетом аванса (предварительной оплаты) в момент передачи предмета расчета)
+DVCPARAM_PTT_PARTIAL        "PTT_PARTIAL"        // Частичный расчет и кредит (Частичная оплата предмета расчета в момент его передачи с последующей оплатой в кредит)
+DVCPARAM_PTT_CREDITHANDOVER "PTT_CREDITHANDOVER" // Передача в кредит (Передача предмета расчета без его оплаты в момент его передачи с последующей оплатой в кредит)
+DVCPARAM_PTT_CREDIT         "PTT_CREDIT"         // Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -6300,6 +6315,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @obj_scardseries        "Серии персональных карт"
 @obj_scale              "Электронные весы"
 @obj_goodstax           "Налоговые группы"
+@obj_freightpackagetype "Тип транспортной упаковки"
 //
 // Наименования статусов задач и технологических сессий
 //
@@ -6645,6 +6661,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_locvetisuser                        "ВЕТИС пользователь-инициатор (location)"
 @rtag_goodstranpvantype                   "ВЕТИС Тип транспортного фургона"
 @rtag_orglineident                        "Оригинальный идентификатор строки документа"
+@rtag_locfreightpackage                   "Транспортная упаковка"
 //
 // Текстовые представления view и filter
 //
@@ -6770,6 +6787,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 //
 // Команды и popup-меню
 //
+@cmd_window                               "Окно"
+@cmd_menutree                             "Дерево меню"
+@cmd_toolpane                             "Панель инструментов"
 @cmd_viewlogsmon                          "Монитор журналов"
 @cmd_about                                "О программе"
 @cmd_accaggr                              "Группирующие счета"
@@ -7179,6 +7199,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 //@cmd_timeseriesnntrain                    "Обучение нейронной сети по временным сериям"
 @cmd_tsstrategyanalyze                    "@{tsstrategyanalyze}"
 @cmd_timeseriesconfig                     "Конфигурация временных серий"
+@cmd_freightpackagetype                   "Типы транспортной упаковки"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -9133,6 +9154,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodstype_gtf_rplc_price                 "Заменять стандартную сумму реализации"
 @goodstype_gtf_unlimited                  "Неограниченный ресурс"
 @goodstype_gtf_lookbackprices             "Применять фиксированные розничные цены"
+@goodstype_gtf_advancecert                "Авансовый сертификат"
 @goodstype_id                             "@{id}"
 @goodstype_name                           "@{appellation}"
 @goodstype_pricerestr                     "Ограничение товарных величин"

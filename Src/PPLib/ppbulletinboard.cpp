@@ -779,27 +779,52 @@ int SLAPI TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::
 	if(pTan) {
 		for(uint i = 0; i < pTan->L.getCount(); i++) {
 			const TsStakeEnvironment::TransactionNotification::Ta & r_ta = pTan->L.at(i);
-			log_msg.Z().Cat("TaNotification").CatDiv(':', 2).
-			CatEq("Time", temp_buf.Z().Cat(r_ta.NotifyTime, DATF_ISO8601, 0)).Space();
-			pTan->GetS(r_ta.SymbP, temp_buf);
-			log_msg.
-			CatEq("Symb", temp_buf).Space().
-			CatEq("Deal", r_ta.Deal).Space().
-			CatEq("Order", r_ta.Order).Space().
-			CatEq("TaType", r_ta.TaType).Space().
-			CatEq("OrdType", r_ta.OrdType).Space().
-			CatEq("OrdState", r_ta.OrdState).Space().
-			CatEq("DealType", r_ta.DealType).Space().
-			CatEq("OrdTypeTime", r_ta.OrdTypeTime).Space().
-			CatEq("Expiration", temp_buf.Z().Cat(r_ta.Expiration, DATF_ISO8601, 0)).Space().
-			CatEq("Price", r_ta.Price, MKSFMTD(0, 5, 0)).Space().
-			CatEq("PriceTrigger", r_ta.PriceTrigger, MKSFMTD(0, 5, 0)).Space().
-			CatEq("PriceSL", r_ta.PriceSL, MKSFMTD(0, 5, 0)).Space().
-			CatEq("PriceTP", r_ta.PriceTP, MKSFMTD(0, 5, 0)).Space().
-			CatEq("Volume", r_ta.Volume, MKSFMTD(0, 3, 0)).Space().
-			CatEq("Position", r_ta.Position).Space().
-			CatEq("PositionBy", r_ta.PositionBy);
-			PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
+			log_msg.Z().Cat("TaNotification").CatDiv(':', 2);
+			log_msg.CatEq("Time", temp_buf.Z().Cat(r_ta.NotifyTime, DATF_ISO8601, 0)).Space();
+			switch(r_ta.TaType) {
+				case TsStakeEnvironment::ttratOrderAdd:      temp_buf = "ORDER-ADD"; break;
+				case TsStakeEnvironment::ttratOrderUpdate:   temp_buf = "ORDER-UPD"; break;
+				case TsStakeEnvironment::ttratOrderDelete:   temp_buf = "ORDER-DEL"; break;
+				case TsStakeEnvironment::ttratHistoryAdd:    temp_buf = "HISTORY-ADD"; break;
+				case TsStakeEnvironment::ttratHistoryUpdate: temp_buf = "HISTORY-UPD"; break;
+				case TsStakeEnvironment::ttratHistoryDelete: temp_buf = "HISTORY-DEL"; break;
+				case TsStakeEnvironment::ttratDealAdd:       temp_buf = "DEAL-ADD"; break;
+				case TsStakeEnvironment::ttratDealUpdate:    temp_buf = "DEAL-UPD"; break;
+				case TsStakeEnvironment::ttratDealDelete:    temp_buf = "DEAL-DEL"; break;
+				case TsStakeEnvironment::ttratPosition:      temp_buf = "POSITION"; break;
+				case TsStakeEnvironment::ttratRequest:       temp_buf = "REQUEST"; break;
+				default: temp_buf.Z().CatChar('#').Cat(r_ta.TaType); break;
+			}
+			log_msg.Cat(temp_buf).Space();
+			//log_msg.CatEq("TaType", r_ta.TaType).Space();
+			pTan->GetS(r_ta.SymbP, temp_buf.Z());
+			if(temp_buf.NotEmpty())
+				log_msg.CatEq("Symb", temp_buf).Space();
+			if(r_ta.Deal)
+				log_msg.CatEq("Deal", r_ta.Deal).Space();
+			if(r_ta.Order)
+				log_msg.CatEq("Order", r_ta.Order).Space();
+			log_msg.CatEq("OrdType", r_ta.OrdType).Space();
+			log_msg.CatEq("OrdState", r_ta.OrdState).Space();
+			log_msg.CatEq("DealType", r_ta.DealType).Space();
+			log_msg.CatEq("OrdTypeTime", r_ta.OrdTypeTime).Space();
+			if(r_ta.Expiration.d.year() < 1980)
+				log_msg.CatEq("Expiration", temp_buf.Z().Cat(r_ta.Expiration, DATF_ISO8601, 0)).Space();
+			if(r_ta.Price > 0.0)
+				log_msg.CatEq("Price", r_ta.Price, MKSFMTD(0, 5, 0)).Space();
+			if(r_ta.PriceTrigger > 0.0)
+				log_msg.CatEq("PriceTrigger", r_ta.PriceTrigger, MKSFMTD(0, 5, 0)).Space();
+			if(r_ta.PriceSL > 0.0)
+			log_msg.CatEq("PriceSL", r_ta.PriceSL, MKSFMTD(0, 5, 0)).Space();
+			if(r_ta.PriceTP > 0.0)
+				log_msg.CatEq("PriceTP", r_ta.PriceTP, MKSFMTD(0, 5, 0)).Space();
+			if(r_ta.Volume > 0.0)
+				log_msg.CatEq("Volume", r_ta.Volume, MKSFMTD(0, 3, 0)).Space();
+			if(r_ta.Position)
+				log_msg.CatEq("Position", r_ta.Position).Space();
+			if(r_ta.PositionBy)
+				log_msg.CatEq("PositionBy", r_ta.PositionBy);
+			PPLogMessage(PPFILNAM_TSTA_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 		}
 	}
 	return ok;
@@ -1204,30 +1229,22 @@ double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool se
 	if(!isempty(rBlk.PPTS.CurrencySymb) && rBlk.GetLastValue(&last_value)) {
 		const SString symb = rBlk.T_.GetSymb();
 		const double margin = (sell ? rBlk.PPTS.SellMarg : rBlk.PPTS.BuyMarg);
+		cost = volume * margin;
 		if(!sstreqi_ascii(rBlk.PPTS.CurrencySymb, p_base_symb)) {
-			if(symb.CmpPrefix(p_base_symb, 1) == 0) {
-				//cost = volume * margin / last_value;
-				cost = volume * margin;
-			}
-			else {
-				/*
+			if(symb.CmpPrefix(p_base_symb, 1) != 0) {
 				int    reverse_rate = 0;
 				double last_cvt_value = 0.0;
 				const TimeSeriesBlock * p_cvt_blk = SearchRateConvertionBlock(rBlk.PPTS.CurrencySymb, &reverse_rate);
 				if(p_cvt_blk && p_cvt_blk->GetLastValue(&last_cvt_value) && last_cvt_value > 0.0) {
-					if(reverse_rate) {
-						cost = volume * margin * last_value / last_cvt_value;
-					}
-					else {
-						cost = volume * margin * last_value * last_cvt_value;
-					}
+					if(reverse_rate)
+						cost = cost / last_cvt_value;
+					else
+						cost = cost * last_cvt_value;
 				}
-				*/
-				cost = volume * margin;
 			}
 		}
 		else
-			cost = volume * margin * last_value;
+			cost *= last_value;
 	}
 	return cost;
 }

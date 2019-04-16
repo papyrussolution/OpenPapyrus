@@ -955,7 +955,7 @@ int SLAPI PPObjGoodsStruc::Browse(void * extraPtr)
 		virtual void extraProc(long id)
 		{
 			if(id) {
-				PPObjGoodsStruc * p_gsobj = (PPObjGoodsStruc *)P_Obj;
+				PPObjGoodsStruc * p_gsobj = static_cast<PPObjGoodsStruc *>(P_Obj);
 				PPGoodsStrucHeader gsh;
 				if(p_gsobj->Search(id, &gsh) > 0) {
 					PPObjGoods goods_obj;
@@ -2367,7 +2367,7 @@ int SLAPI PPObjGoodsStruc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 	int    ok = -1;
 	if(p && p->Data) {
 		uint   i;
-		PPGoodsStruc * p_gs = (PPGoodsStruc*)p->Data;
+		PPGoodsStruc * p_gs = static_cast<PPGoodsStruc *>(p->Data);
 		PPGoodsStrucItem * p_gsi;
 		for(i = 0; p_gs->Items.enumItems(&i, (void **)&p_gsi);)
 			THROW(ProcessObjRefInArray(PPOBJ_GOODS, &p_gsi->GoodsID, ary, replace));
@@ -3229,7 +3229,7 @@ int SLAPI GoodsStrucCache::GetSaGiftList(SaGiftArray * pList, int clear)
 int SLAPI GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	D * p_cache_rec = (D *)pEntry;
+	D * p_cache_rec = static_cast<D *>(pEntry);
 	PPObjGoodsStruc gs_obj;
 	PPGoodsStrucHeader rec;
 	if(gs_obj.Search(id, &rec) > 0) {
@@ -3250,8 +3250,8 @@ int SLAPI GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPGoodsStrucHeader * p_data_rec = (PPGoodsStrucHeader *)pDataRec;
-	const D * p_cache_rec = (const D *)pEntry;
+	PPGoodsStrucHeader * p_data_rec = static_cast<PPGoodsStrucHeader *>(pDataRec);
+	const D * p_cache_rec = static_cast<const D *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_GOODSSTRUC;

@@ -6,12 +6,7 @@
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
 	switch(dwReason) {
-		case DLL_PROCESS_ATTACH:
-			{
-				SString product_name = "Papyrus-Drv-Pirit";
-				SLS.Init(product_name, (HINSTANCE)hModule);
-			}
-			break;
+		case DLL_PROCESS_ATTACH: SLS.Init("Papyrus-Drv-Pirit", static_cast<HINSTANCE>(hModule)); break;
 		case DLL_THREAD_ATTACH: SLS.InitThread(); break;
 		case DLL_THREAD_DETACH: SLS.ReleaseThread(); break;
 		case DLL_PROCESS_DETACH: break;
@@ -130,7 +125,7 @@ struct Config {
 };
 
 struct CheckStruct {
-	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Tax(0), PaymCash(0.0), PaymCard(0.0), IncassAmt(0.0)
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Tax(0), PaymCash(0.0), PaymCard(0.0), IncassAmt(0.0)
 	{
 	}
 	void Clear()
@@ -140,6 +135,7 @@ struct CheckStruct {
 		Price = 0.0;
 		Department = 0;
 		Tax = 0;
+		Ptt = 0; // @v10.4.1
 		// @v9.9.4 if(Text.NotEmpty())
 		// @v9.9.4 	Text.Destroy();
 		Text.Z(); // @v9.9.4
@@ -155,6 +151,7 @@ struct CheckStruct {
 	double Price;
 	int    Department;
 	int    Tax;
+	int    Ptt; // @v10.4.1 // CCheckPacket::PaymentTermTag
 	SString Text;
 	SString Code; // @v9.5.7
 	double PaymCash;
@@ -164,7 +161,7 @@ struct CheckStruct {
 
 class PiritEquip {
 public:
-	SLAPI  PiritEquip() : SessID(0), LastError(0), FatalFlags(0), LastStatus(0), RetTknzr("\x1c")
+	PiritEquip() : SessID(0), LastError(0), FatalFlags(0), LastStatus(0), RetTknzr("\x1c")
 	{
 		// @v10.0.12 {
 		{
@@ -186,7 +183,7 @@ public:
 			}
 		}
 	}
-	SLAPI ~PiritEquip()
+	~PiritEquip()
 	{
 	}
 	int    RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize);
@@ -230,10 +227,8 @@ public:
 private:
 	class  OpLogBlock {
 	public:
-		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg)
+		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg), LogFileName(pLogFileName)
 		{
-			//LogFileName = 0/*pLogFileName*/; // @v9.7.1 pLogFileName-->0
-			LogFileName = pLogFileName;
 			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
 				SString line_buf;
 				line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
@@ -602,7 +597,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			// @v10.2.5 THROWERR(!(flag & 0x0010), PIRIT_ECRARCHOPENED); // Архив ЭКЛЗ закрыт
 			// @v10.2.5 THROWERR(!(flag & 0x0020), PIRIT_ECRNOTACTIVE); // ЭКЛЗ не активирована
 			// @v10.2.3 THROWERR(!(flag & 0x0080), PIRIT_ERRFMPASS); // Был введен неверный пароль доступа к ФП
-			THROWERR(!(flag & 0x0100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
+			// @v10.4.1 THROWERR(!(flag & 0x0100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
 			GetTaxTab(); // @v9.7.1
 		}
 		else if(cmd.IsEqiAscii("CHECKSESSOVER")){
@@ -935,6 +930,22 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				else if(s_param == "VATFREE") { // @v9.8.9
 					if(param_val.Empty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
 						is_vat_free = 1;
+				}
+				else if(s_param == "PAYMENTTERMTAG") { // @v10.4.1
+					if(param_val.IsEqiAscii("PTT_FULL_PREPAY"))
+						Check.Ptt = 1;
+					else if(param_val.IsEqiAscii("PTT_PREPAY"))
+						Check.Ptt = 2;
+					else if(param_val.IsEqiAscii("PTT_ADVANCE"))
+						Check.Ptt = 3;
+					else if(param_val.IsEqiAscii("PTT_FULLPAYMENT"))
+						Check.Ptt = 4;
+					else if(param_val.IsEqiAscii("PTT_PARTIAL"))
+						Check.Ptt = 5;
+					else if(param_val.IsEqiAscii("PTT_CREDITHANDOVER"))
+						Check.Ptt = 6;
+					else if(param_val.IsEqiAscii("PTT_CREDIT"))
+						Check.Ptt = 7;
 				}
 			}
 			{
@@ -1555,6 +1566,30 @@ int PiritEquip::RunCheck(int opertype)
 			// } new
 			break;
 		case 2: // Печать фискальной строки
+			/*
+				(Строка[0...224]) Название товара
+				(Строка[0..18]) Артикул или штриховой код товара/номер ТРК
+				(Дробное число) Количество товара в товарной позиции
+				(Дробное число) Цена товара по данному артикулу
+				(Целое число) Номер ставки налога
+				(Строка[0..4]) Номер товарной позиции
+				(Целое число 1..16) Номер секции
+				(Целое число) Пустой параметр
+				(Строка[0...38]) Пустой параметр
+				(Дробное число) Сумма скидки
+				(Целое число) Признак способа расчета
+					1 	Предоплата 100%
+					2 	Предоплата
+					3 	Аванс
+					4 	Полный расчет
+					5 	Частичный расчет и кредит
+					6 	Передача в кредит
+					7 	Оплата кредита
+				(Целое число) Признак предмета расчета
+				(Строка[3]) Код страны происхождения товара
+				(Строка[0...24]) Номер таможенной декларации
+				(Дробное число) Сумма акциза
+			*/
 			in_data.Z();
 			THROW(GetCurFlags(3, flag));
 			(str = Check.Text).Trim(220); // [0..224]
@@ -1569,6 +1604,10 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr((int)Check.Tax, in_data); // @v9.5.7 Номер налоговой ставки // @v9.7.1 0-->Check.Tax
 			CreateStr((int)0, in_data); // @v9.5.7 Номер товарной позиции
 			CreateStr(Check.Department, in_data); // @v9.5.7 Номер секции
+			CreateStr((int)0, in_data);    // @v10.4.1 пустой параметр (integer)
+			CreateStr("", in_data);        // @v10.4.1 пустой параметр (string)
+			CreateStr(0.0, in_data);       // @v10.4.1 скидка (real)
+			CreateStr(Check.Ptt, in_data); // @v10.4.1 признак способа расчета (integer)
 			{
 				// @v9.9.4 const int do_check_ret = 0;
 				const int do_check_ret = BIN(Check.Price == 0.0); // @v9.9.4

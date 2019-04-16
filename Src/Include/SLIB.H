@@ -10102,7 +10102,10 @@ private:
 class STimeSeries {
 public:
 	SLAPI  STimeSeries();
+	SLAPI  STimeSeries(const STimeSeries & rS);
 	SLAPI ~STimeSeries();
+	STimeSeries & FASTCALL operator = (const STimeSeries & rS);
+	int    FASTCALL Copy(const STimeSeries & rS);
 	void   FASTCALL SetSymb(const char * pSymb);
 	const char * FASTCALL GetSymb() const;
 	//
@@ -12695,7 +12698,7 @@ public:
 	int    SLAPI LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize = 0);
 	int    SLAPI InitGdiplus();
 	void   SLAPI ShutdownGdiplus();
-	int    SLAPI LoadString(const char * pSignature, SString & rBuf) const;
+	int    SLAPI LoadString_(const char * pSignature, SString & rBuf) const;
 	int    SLAPI ExpandString(SString & rBuf, int ctransf) const;
 	int    SLAPI SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf); // @>>this->LoadString
 	//

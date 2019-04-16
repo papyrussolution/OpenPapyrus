@@ -11,7 +11,7 @@ SRes SeqInStream_Read2(const ISeqInStream * stream, void * buf, size_t size, SRe
 		RINOK(ISeqInStream_Read(stream, buf, &processed));
 		if(processed == 0)
 			return errorType;
-		buf = (void *)((Byte *)buf + processed);
+		buf = (PTR8(buf) + processed);
 		size -= processed;
 	}
 	return SZ_OK;
@@ -54,7 +54,7 @@ SRes FASTCALL LookInStream_Read2(const ILookInStream * stream, void * buf, size_
 		RINOK(ILookInStream_Read(stream, buf, &processed));
 		if(processed == 0)
 			return errorType;
-		buf = (void *)((Byte *)buf + processed);
+		buf = (PTR8(buf) + processed);
 		size -= processed;
 	}
 	return SZ_OK;

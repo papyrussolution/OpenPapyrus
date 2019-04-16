@@ -6610,6 +6610,8 @@ cmd VetisDocument         { "@{cmd_vetisdocument}"                         none 
 cmd VetisInterchange      { "@{cmd_vetisinerchange}"                       none                   none cmVetisInterchange } // @v10.1.2
 cmd TimeSeriesSA          { "@{cmd_tsstrategyanalyze}"                     none                   none cmTimeSeriesSA } // @v10.1.4
 cmd TimeSeriesConfig      { "@{cmd_timeseriesconfig}"                      none                   none cmTimeSeriesConfig } // @v10.3.1
+cmd SendBillsWithFilt     { "@{cmd_sendbillsbyfilt}"                       none                   none cmSendBillsByFilt } // @v10.4.1
+cmd FreightPackageType    { "@{cmd_freightpackagetype}"                    none                   none cmFreightPackageType } // @v10.4.1
 //
 // -------------- Описания серверных задач
 //

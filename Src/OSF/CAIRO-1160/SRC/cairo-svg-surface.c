@@ -1807,7 +1807,7 @@ static cairo_status_t _cairo_svg_surface_emit_pattern(cairo_svg_surface_t * surf
 		case CAIRO_PATTERN_TYPE_SOLID:
 		    return _cairo_svg_surface_emit_solid_pattern(surface, reinterpret_cast<const cairo_solid_pattern_t *>(pattern), output, is_stroke);
 		case CAIRO_PATTERN_TYPE_SURFACE:
-		    return _cairo_svg_surface_emit_surface_pattern(surface, (cairo_surface_pattern_t*)pattern, output, is_stroke, parent_matrix);
+		    return _cairo_svg_surface_emit_surface_pattern(surface, (cairo_surface_pattern_t *)pattern, output, is_stroke, parent_matrix);
 		case CAIRO_PATTERN_TYPE_LINEAR:
 		    return _cairo_svg_surface_emit_linear_pattern(surface, (cairo_linear_pattern_t*)pattern, output, is_stroke, parent_matrix);
 		case CAIRO_PATTERN_TYPE_RADIAL:
@@ -2002,7 +2002,7 @@ static cairo_status_t _cairo_svg_surface_emit_paint(cairo_output_stream_t * outp
 {
 	cairo_status_t status;
 	if(source->type == CAIRO_PATTERN_TYPE_SURFACE && source->extend == CAIRO_EXTEND_NONE)
-		return _cairo_svg_surface_emit_composite_pattern(output, surface, op, (cairo_surface_pattern_t*)source,
+		return _cairo_svg_surface_emit_composite_pattern(output, surface, op, (cairo_surface_pattern_t *)source,
 			   invalid_pattern_id, mask_source ? &mask_source->matrix : NULL, extra_attributes);
 	_cairo_output_stream_printf(output,
 	    "<rect x=\"0\" y=\"0\" "

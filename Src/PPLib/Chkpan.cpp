@@ -4455,7 +4455,7 @@ void ComplexDinnerDialog::DrawListItem(TDrawItemData * pDrawItem)
 			RECT   rc = pDrawItem->ItemRect;
 			SString temp_buf;
 			if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
-				FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brOdd));
+				::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brOdd)));
 				pDrawItem->ItemAction = 0; // Мы перерисовали фон
 			}
 			else if(pDrawItem->ItemID != 0xffffffff) {
@@ -4463,7 +4463,7 @@ void ComplexDinnerDialog::DrawListItem(TDrawItemData * pDrawItem)
 				p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				if(pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED)) {
-					h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brSel));
+					h_br_def = static_cast<HBRUSH>(SelectObject(h_dc, Ptb.Get(brSel)));
 					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrFocus));
 					SInflateRect(rc, -1, -(1 + ListEntryGap / 4));
 					RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
@@ -4472,7 +4472,7 @@ void ComplexDinnerDialog::DrawListItem(TDrawItemData * pDrawItem)
 				else {
 					int  draw_odd = pDrawItem->ItemID % 2;
 					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrUnsel));
-					h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brUnsel));
+					h_br_def = static_cast<HBRUSH>(::SelectObject(h_dc, Ptb.Get(brUnsel)));
 					SInflateRect(rc, -1, -(1 + ListEntryGap / 4));
 					RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
 					rc.left += 4;
@@ -6180,12 +6180,12 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
 						if(Flags & fError) {
 							canv.SetTextColor(GetColorRef(SClrWhite));
-							p_dc->H_Br = (HBRUSH)Ptb.Get(brErrorBkg);
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brErrorBkg));
 							clearEvent(event);
 						}
 						else if(Flags & fPresent) {
 							canv.SetTextColor(GetColorRef(SClrWhite));
-							p_dc->H_Br = (HBRUSH)Ptb.Get(brPresentBkg);
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brPresentBkg));
 							clearEvent(event);
 						}
 					}
@@ -6194,7 +6194,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							TCanvas canv(p_dc->H_DC);
 							::SetBkMode(p_dc->H_DC, TRANSPARENT);
 							//canv.SetTextColor(GetColorRef(SClrWhite));
-							p_dc->H_Br = (HBRUSH)Ptb.Get(brOrderBkg);
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brOrderBkg));
 							clearEvent(event);
 						}
 					}
@@ -6202,7 +6202,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
 						for(uint i = 0; i < P.getCount(); i++) {
 							if(P.at(i).Flags & cifGift) {
-								p_dc->H_Br = (HBRUSH)Ptb.Get(brTotalGift);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brTotalGift));
 								clearEvent(event);
 								break;
 							}
@@ -6212,7 +6212,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
 						for(uint i = 0; i < P.getCount(); i++) {
 							if(P.at(i).Flags & cifGift && P.at(i).Discount != 0.0) {
-								p_dc->H_Br = (HBRUSH)Ptb.Get(brDiscountGift);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brDiscountGift));
 								clearEvent(event);
 								break;
 							}
@@ -6831,7 +6831,7 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 			SString temp_buf;
 			if(list_ctrl_id == CTL_CHKPAN_GDSLIST) {
 				if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
-					FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brOdd));
+					FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brOdd)));
 					pDrawItem->ItemAction = 0; // Мы перерисовали фон
 				}
 				else if(pDrawItem->ItemID != 0xffffffff) {
@@ -6839,29 +6839,29 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 					p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					if(pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED)) {
-						h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brSel));
+						h_br_def = static_cast<HBRUSH>(::SelectObject(h_dc, Ptb.Get(brSel)));
 						clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrFocus));
 						if(UiFlags & uifTSGGroupsAsButtons) {
 							SInflateRect(rc, -1, -(1 + GoodsListEntryGap / 4));
-							RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
+							::RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
 							rc.left += 4;
 						}
 						else
-							FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brSel));
+							::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brSel)));
 					}
 					else {
 						int  draw_odd = pDrawItem->ItemID % 2;
 						if(UiFlags & uifTSGGroupsAsButtons) {
 							clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrGrp));
-							h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brGrp));
+							h_br_def = static_cast<HBRUSH>(::SelectObject(h_dc, Ptb.Get(brGrp)));
 							SInflateRect(rc, -1, -(1 + GoodsListEntryGap / 4));
-							RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
+							::RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
 							rc.left += 4;
 						}
 						else {
-							h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(draw_odd ? brOdd : brEven));
+							h_br_def = static_cast<HBRUSH>(::SelectObject(h_dc, Ptb.Get(draw_odd ? brOdd : brEven)));
 							clr_prev = SetBkColor(h_dc, Ptb.GetColor(draw_odd ? clrOdd : clrEven));
-							FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(draw_odd ? brOdd : brEven));
+							::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(draw_odd ? brOdd : brEven)));
 						}
 					}
 					::DrawText(h_dc, SUcSwitch(temp_buf), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE); // @unicodeproblem
@@ -6871,7 +6871,7 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 				uint   level = 0;
 				if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
 					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrGrp));
-					FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brGrp));
+					::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brGrp)));
 					pDrawItem->ItemAction = 0; // Мы перерисовали фон
 				}
 				else if(pDrawItem->ItemID != 0xffffffff) {

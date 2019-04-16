@@ -280,7 +280,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 		}
 		dlg->changeBounds(r);
 		strip(buf);
-		if(!(flags & ldfDL600_Cvt) && buf[0] == '@' && SLS.LoadString(buf+1, temp_buf) > 0)
+		if(!(flags & ldfDL600_Cvt) && buf[0] == '@' && SLS.LoadString_(buf+1, temp_buf) > 0)
 			dlg->setTitle(temp_buf);
 		else
 			dlg->setTitle(buf);

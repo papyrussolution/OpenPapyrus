@@ -510,9 +510,7 @@ static int choose_filters(struct archive_read * a)
 			a->archive.compression_code = a->filter->code;
 			return ARCHIVE_OK;
 		}
-
-		filter
-			= (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
+		filter = (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
 		if(filter == NULL)
 			return ARCHIVE_FATAL;
 		filter->bidder = best_bidder;
@@ -525,11 +523,9 @@ static int choose_filters(struct archive_read * a)
 			return ARCHIVE_FATAL;
 		}
 	}
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-	    "Input requires too many filters for decoding");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Input requires too many filters for decoding");
 	return ARCHIVE_FATAL;
 }
-
 /*
  * Read header of next entry.
  */
@@ -737,8 +733,7 @@ la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 			read_buf = a->read_data_block;
 			a->read_data_is_posix_read = 1;
 			a->read_data_requested = s;
-			r = archive_read_data_block(a, &read_buf,
-				&a->read_data_remaining, &a->read_data_offset);
+			r = archive_read_data_block(a, &read_buf, &a->read_data_remaining, &a->read_data_offset);
 			a->read_data_block = (const char *)read_buf;
 			if(r == ARCHIVE_EOF)
 				return (bytes_read);
@@ -750,13 +745,10 @@ la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 			if(r < ARCHIVE_OK)
 				return r;
 		}
-
 		if(a->read_data_offset < a->read_data_output_offset) {
-			archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Encountered out-of-order sparse blocks");
+			archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT, "Encountered out-of-order sparse blocks");
 			return (ARCHIVE_RETRY);
 		}
-
 		/* Compute the amount of zero padding needed. */
 		if(a->read_data_output_offset + (int64_t)s <
 		    a->read_data_offset) {
@@ -764,19 +756,16 @@ la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 		}
 		else if(a->read_data_output_offset <
 		    a->read_data_offset) {
-			len = (size_t)(a->read_data_offset -
-			    a->read_data_output_offset);
+			len = (size_t)(a->read_data_offset - a->read_data_output_offset);
 		}
 		else
 			len = 0;
-
 		/* Add zeroes. */
 		memzero(dest, len);
 		s -= len;
 		a->read_data_output_offset += len;
 		dest += len;
 		bytes_read += len;
-
 		/* Copy data if there is any space left. */
 		if(s > 0) {
 			len = a->read_data_remaining;
@@ -857,8 +846,7 @@ la_int64_t archive_seek_data(struct archive * _a, int64_t offset, int whence)
 static int _archive_read_data_block(struct archive * _a, const void ** buff, size_t * size, int64_t * offset)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_read_data_block");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_block");
 	if(a->format->read_data == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format->read_data function registered");
 		return ARCHIVE_FATAL;
@@ -1064,9 +1052,7 @@ int __archive_read_register_format(struct archive_read * a,
 			return ARCHIVE_OK;
 		}
 	}
-
-	archive_set_error(&a->archive, ENOMEM,
-	    "Not enough slots for format registration");
+	archive_set_error(&a->archive, ENOMEM, "Not enough slots for format registration");
 	return ARCHIVE_FATAL;
 }
 /*
@@ -1075,9 +1061,8 @@ int __archive_read_register_format(struct archive_read * a,
  */
 int __archive_read_get_bidder(struct archive_read * a, struct archive_read_filter_bidder ** bidder)
 {
-	int i, number_slots;
-	number_slots = sizeof(a->bidders) / sizeof(a->bidders[0]);
-	for(i = 0; i < number_slots; i++) {
+	const int number_slots = sizeof(a->bidders) / sizeof(a->bidders[0]);
+	for(int i = 0; i < number_slots; i++) {
 		if(a->bidders[i].bid == NULL) {
 			memzero(a->bidders + i, sizeof(a->bidders[0]));
 			*bidder = (a->bidders + i);
@@ -1138,7 +1123,7 @@ int __archive_read_get_bidder(struct archive_read * a, struct archive_read_filte
  * Important:  This does NOT move the file pointer.  See
  * __archive_read_consume() below.
  */
-const void * __archive_read_ahead(struct archive_read * a, size_t min, ssize_t * avail)
+const void * FASTCALL __archive_read_ahead(struct archive_read * a, size_t min, ssize_t * avail)
 {
 	return (__archive_read_filter_ahead(a->filter, min, avail));
 }
@@ -1283,7 +1268,7 @@ int64_t FASTCALL __archive_read_consume(struct archive_read * a, int64_t request
 	return __archive_read_filter_consume(a->filter, request);
 }
 
-int64_t __archive_read_filter_consume(struct archive_read_filter * filter, int64_t request)
+int64_t FASTCALL __archive_read_filter_consume(struct archive_read_filter * filter, int64_t request)
 {
 	int64_t skipped;
 	if(request < 0)

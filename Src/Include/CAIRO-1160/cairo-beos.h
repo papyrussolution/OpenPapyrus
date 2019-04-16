@@ -32,7 +32,6 @@
  *
  * Contributor(s):
  */
-
 #ifndef CAIRO_BEOS_H
 #define CAIRO_BEOS_H
 

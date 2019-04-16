@@ -477,7 +477,7 @@ INT_PTR CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LP
 			if(p_win) {
 				SString menu_text;
 				TMenuPopup menu;
-				SLS.LoadString("close", menu_text);
+				SLS.LoadString_("close", menu_text);
 				menu.Add(menu_text.Transf(CTRANSF_INNER_TO_OUTER), cmaDelete);
 				if(menu.Execute(hWnd, TMenuPopup::efRet) == cmaDelete)
 					DestroyWindow(hWnd);

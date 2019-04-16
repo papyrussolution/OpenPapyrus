@@ -67,8 +67,8 @@ static int __lock_put_nolock(ENV * env, DB_LOCK * lock, int * runp, uint32 flags
 	// Check if locks have been globally turned off. 
 	if(!F_ISSET(env->dbenv, DB_ENV_NOLOCKING)) {
 		DB_LOCKTAB * lt = env->lk_handle;
-		DB_LOCKREGION * region = (DB_LOCKREGION * )lt->reginfo.primary;
-		struct __db_lock * lockp = (struct __db_lock * )R_ADDR(&lt->reginfo, lock->off);
+		DB_LOCKREGION * region = (DB_LOCKREGION *)lt->reginfo.primary;
+		struct __db_lock * lockp = (struct __db_lock *)R_ADDR(&lt->reginfo, lock->off);
 		DB_ASSERT(env, lock->gen == lockp->gen);
 		if(lock->gen != lockp->gen) {
 			__db_errx(env, __db_lock_invalid, "DB_LOCK->lock_put");
@@ -446,7 +446,7 @@ int __lock_get_internal(DB_LOCKTAB * lt, DB_LOCKER * sh_locker, uint32 flags, co
 again:
 	if(obj == NULL) {
 		DB_ASSERT(env, LOCK_ISSET(*lock));
-		lp = (struct __db_lock * )R_ADDR(&lt->reginfo, lock->off);
+		lp = (struct __db_lock *)R_ADDR(&lt->reginfo, lock->off);
 		DB_ASSERT(env, lock->gen == lp->gen);
 		sh_obj = SH_OFF_TO_PTR(lp, lp->obj, DB_LOCKOBJ);
 		ndx = sh_obj->indx;
@@ -688,7 +688,7 @@ again:
 		break;
 	    case UPGRADE:
 upgrade:
-			lp = (struct __db_lock * )R_ADDR(&lt->reginfo, lock->off);
+			lp = (struct __db_lock *)R_ADDR(&lt->reginfo, lock->off);
 		DB_ASSERT(env, lock->gen == lp->gen);
 		if(IS_WRITELOCK(lock_mode) && !IS_WRITELOCK(lp->mode))
 			sh_locker->nwrites++;
@@ -737,7 +737,7 @@ upgrade:
 				break;
 		    case UPGRADE:
 				/* The lock is already in the queue. */
-				newl = (struct __db_lock * )R_ADDR(&lt->reginfo, lock->off);
+				newl = (struct __db_lock *)R_ADDR(&lt->reginfo, lock->off);
 				break;
 		    default:
 				DB_ASSERT(env, 0);
@@ -961,9 +961,9 @@ int __lock_downgrade(ENV * env, DB_LOCK * lock, db_lockmode_t new_mode, uint32 f
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
 		return 0;
 	lt = env->lk_handle;
-	region = (DB_LOCKREGION * )lt->reginfo.primary;
+	region = (DB_LOCKREGION *)lt->reginfo.primary;
 	LOCK_SYSTEM_LOCK(lt, region);
-	lockp = (struct __db_lock * )R_ADDR(&lt->reginfo, lock->off);
+	lockp = (struct __db_lock *)R_ADDR(&lt->reginfo, lock->off);
 	if(lock->gen != lockp->gen) {
 		__db_errx(env, __db_lock_invalid, "lock_downgrade");
 		ret = EINVAL;
@@ -998,7 +998,7 @@ static int __lock_put_internal(DB_LOCKTAB * lt, struct __db_lock * lockp, uint32
 	int ret, state_changed;
 	COMPQUIET(env, 0);
 	env = lt->env;
-	region = (DB_LOCKREGION * )lt->reginfo.primary;
+	region = (DB_LOCKREGION *)lt->reginfo.primary;
 	ret = state_changed = 0;
 	if(!OBJ_LINKS_VALID(lockp)) {
 		/*
@@ -1085,7 +1085,7 @@ static int __lock_freelock(DB_LOCKTAB * lt, struct __db_lock * lockp, DB_LOCKER 
 	uint32 part_id;
 	int ret;
 	ENV * env = lt->env;
-	DB_LOCKREGION * region = (DB_LOCKREGION * )lt->reginfo.primary;
+	DB_LOCKREGION * region = (DB_LOCKREGION *)lt->reginfo.primary;
 	if(LF_ISSET(DB_LOCK_UNLINK)) {
 		SH_LIST_REMOVE(lockp, locker_links, __db_lock);
 		if(lockp->status == DB_LSTAT_HELD) {
@@ -1486,7 +1486,7 @@ static int __lock_trade(ENV * env, DB_LOCK * lock, DB_LOCKER * new_locker)
 {
 	int ret;
 	DB_LOCKTAB * lt = env->lk_handle;
-	struct __db_lock * lp = (struct __db_lock * )R_ADDR(&lt->reginfo, lock->off);
+	struct __db_lock * lp = (struct __db_lock *)R_ADDR(&lt->reginfo, lock->off);
 	/* If the lock is already released, simply return. */
 	if(lp->gen != lock->gen)
 		return DB_NOTFOUND;
@@ -1522,10 +1522,10 @@ int __lock_change(ENV * env, DB_LOCK * old_lock, DB_LOCK * new_lock)
 	int ret;
 	DB_LOCKTAB * lt = env->lk_handle;
 	DB_LOCKREGION * region = (DB_LOCKREGION *)lt->reginfo.primary;
-	struct __db_lock * old_lp = (struct __db_lock * )R_ADDR(&lt->reginfo, old_lock->off);
+	struct __db_lock * old_lp = (struct __db_lock *)R_ADDR(&lt->reginfo, old_lock->off);
 	DB_ASSERT(env, old_lp->gen == old_lock->gen);
 	old_obj = SH_OFF_TO_PTR(old_lp, old_lp->obj, DB_LOCKOBJ);
-	lp = (struct __db_lock * )R_ADDR(&lt->reginfo, new_lock->off);
+	lp = (struct __db_lock *)R_ADDR(&lt->reginfo, new_lock->off);
 	DB_ASSERT(env, lp->gen == new_lock->gen);
 	new_obj = SH_OFF_TO_PTR(lp, lp->obj, DB_LOCKOBJ);
 	/* Don't deadlock on partition mutexes, order the latches. */

@@ -252,19 +252,19 @@ static int SLAPI CreateVerRcFile2(const char * pInFileName, const char * pRcFile
 	{
 		assembly_n = ppb.AssemblyN+1;
 		temp_buf.Z().Cat(assembly_n);
-		WritePrivateProfileString("Version", "AssemblyVer", temp_buf, pInFileName);
+		WritePrivateProfileString(_T("Version"), _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(pInFileName));
 	}
 	if(!isempty(pInFileNameOpen) && fileExists(pInFileNameOpen)) {
 		int    min_maj, min_min, min_rev;
 		ppb.MinVer.Get(&min_maj, &min_min, &min_rev);
-		WritePrivateProfileString("Version", "MajorVer", temp_buf.Z().Cat(maj), pInFileNameOpen);
-		WritePrivateProfileString("Version", "MinorVer", temp_buf.Z().Cat(min), pInFileNameOpen);
-		WritePrivateProfileString("Version", "Revision", temp_buf.Z().Cat(rev), pInFileNameOpen);
-		WritePrivateProfileString("Version", "MinMajorVer", temp_buf.Z().Cat(min_maj), pInFileNameOpen);
-		WritePrivateProfileString("Version", "MinMinorVer", temp_buf.Z().Cat(min_min), pInFileNameOpen);
-		WritePrivateProfileString("Version", "MinRevision", temp_buf.Z().Cat(min_rev), pInFileNameOpen);
+		WritePrivateProfileString(_T("Version"), _T("MajorVer"), SUcSwitch(temp_buf.Z().Cat(maj)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(_T("Version"), _T("MinorVer"), SUcSwitch(temp_buf.Z().Cat(min)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(_T("Version"), _T("Revision"), SUcSwitch(temp_buf.Z().Cat(rev)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(_T("Version"), _T("MinMajorVer"), SUcSwitch(temp_buf.Z().Cat(min_maj)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(_T("Version"), _T("MinMinorVer"), SUcSwitch(temp_buf.Z().Cat(min_min)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(_T("Version"), _T("MinRevision"), SUcSwitch(temp_buf.Z().Cat(min_rev)), SUcSwitch(pInFileNameOpen));
 		temp_buf.Z().Cat(assembly_n);
-		WritePrivateProfileString("Version", "AssemblyVer", temp_buf, pInFileNameOpen);
+		WritePrivateProfileString(_T("Version"), _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(pInFileNameOpen));
 	}
 	{
 		SFile f_out(pRcFileName, SFile::mWrite);

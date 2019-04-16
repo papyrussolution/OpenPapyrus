@@ -1666,8 +1666,7 @@ static void InitTest()
 	// поле Addr таблицы EAddrTbl должен быть бинарно эквивалентен PPEAddr.
 	//
 	assert(sizeof(PPEAddr) == 16);
-	assert(sizeof(PPEAddr) == sizeof(((EAddrTbl::Rec *)0)->Addr));
-	//
+	assert(sizeof(PPEAddr) == sizeof(static_cast<const EAddrTbl::Rec *>(0)->Addr));
 	assert(sizeof(PPDynanicObjItem) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPStaffEntry) == sizeof(Reference2Tbl::Rec)); // @v9.0.3
 	assert(sizeof(PPAccount) == sizeof(Reference2Tbl::Rec)); // @v9.0.3
@@ -1678,7 +1677,7 @@ static void InitTest()
         a1.Sb = 5;
         a2.Ac = 20;
         a2.Sb = 0;
-        assert(*(long *)&a1 > *(long *)&a2);
+        assert(*reinterpret_cast<const long *>(&a1) > *reinterpret_cast<const long *>(&a2));
 	}
 	assert(sizeof(PPBankAccount) == sizeof(RegisterTbl::Rec)); // @v9.0.4
 	REF_TEST_RECSIZE(PPObjectTag);
@@ -1720,27 +1719,22 @@ static void InitTest()
 	REF_TEST_RECSIZE(PPStaffCal);
 	REF_TEST_RECSIZE(PPScale);
 	REF_TEST_RECSIZE(PPBhtTerminal);
-
 	REF_TEST_RECSIZE(PPSCardSeries);
 	REF_TEST_RECSIZE(PPDraftWrOff);
 	REF_TEST_RECSIZE(PPAdvBillKind);
 	REF_TEST_RECSIZE(PPGoodsBasket);
 	REF_TEST_RECSIZE(PPDraftCreateRule);
 	REF_TEST_RECSIZE(PPGoodsInfo);
-
 	assert(sizeof(PPBarcodePrinter_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
 	assert(sizeof(PPBarcodePrinter2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPInternetAccount_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
 	assert(sizeof(PPInternetAccount2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPAlbatrosCfgHdr) == offsetof(PropertyTbl::Rec, VT));
-
 	assert(sizeof(PersonCore::RelationRecord) == sizeof(ObjAssocTbl::Rec));
 	assert(sizeof(PPFreight) == offsetof(PropertyTbl::Rec, VT));
 	assert(sizeof(PPRFIDDevice) == sizeof(Reference2Tbl::Rec));
-
 	assert(sizeof(PPSmsAccount) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec));
-
 	assert(sizeof(PPGeoTrackingMode) == 8);
 	assert(sizeof(PPCycleFilt) == 4); // @v9.5.8
 	assert(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT)); // @v10.1.12
@@ -4685,7 +4679,7 @@ int SLAPI PPAdviseEventQueue::GetStat(PPAdviseEventQueue::Stat & rStat)
 {
 	int    ok = 1;
     SLck.Lock();
-    S.LivingTime = (int64)clock() - S.StartClock;
+    S.LivingTime = static_cast<int64>(clock()) - S.StartClock;
     rStat = S;
     SLck.Unlock();
     return ok;

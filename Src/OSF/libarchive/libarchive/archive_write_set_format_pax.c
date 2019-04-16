@@ -112,10 +112,7 @@ int archive_write_set_format_pax_restricted(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_pax_restricted");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_pax_restricted");
 	r = archive_write_set_format_pax(&a->archive);
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR_PAX_RESTRICTED;
 	a->archive.archive_format_name = "restricted POSIX pax interchange";
@@ -129,21 +126,15 @@ int archive_write_set_format_pax(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct pax * pax;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_pax");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_pax");
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	pax = (struct pax *)SAlloc::C(1, sizeof(*pax));
 	if(pax == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate pax data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate pax data");
 		return ARCHIVE_FATAL;
 	}
 	pax->flags = WRITE_LIBARCHIVE_XATTR | WRITE_SCHILY_XATTR;
-
 	a->format_data = pax;
 	a->format_name = "pax";
 	a->format_options = archive_write_pax_options;
@@ -157,20 +148,17 @@ int archive_write_set_format_pax(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_write_pax_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_pax_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct pax * pax = (struct pax *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
 	if(strcmp(key, "hdrcharset")  == 0) {
 		/*
 		 * The character-set we can use are defined in
 		 * IEEE Std 1003.1-2001
 		 */
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "pax: hdrcharset option needs a character-set name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: hdrcharset option needs a character-set name");
 		else if(strcmp(val, "BINARY") == 0 ||
 		    strcmp(val, "binary") == 0) {
 			/*

@@ -1,7 +1,7 @@
 // V_CMDP.CPP
 // Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
-//
-// Редактирование списка команд
+// @codepage UTF-8
+// Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєР° РєРѕРјР°РЅРґ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -844,18 +844,18 @@ int EditMenusDlg::addItem(long * pPos, long * pID)
 			PPCommandItem * p_newitem = 0;
 			if(IsDesktop) {
 				if(p_item && p_item->Kind == PPCommandItem::kGroup) {
-					new_desk = *(PPCommandGroup*)p_item;
+					new_desk = *static_cast<const PPCommandGroup *>(p_item);
 					new_desk.SetLogo(0);
 				}
 				new_desk.SetDbSymb(DbSymb);
-				p_newitem = (PPCommandItem *)&new_desk;
+				p_newitem = static_cast<PPCommandItem *>(&new_desk);
 			}
 			else {
 				if(p_item && p_item->Kind == PPCommandItem::kFolder)
-					new_menu = *(PPCommandFolder*)p_item;
+					new_menu = *static_cast<const PPCommandFolder *>(p_item);
 				else if(parent_id > DEFAULT_MENUS_OFFS)
 					MenuResToMenu(parent_id - DEFAULT_MENUS_OFFS, &new_menu);
-				p_newitem = (PPCommandItem*)&new_menu;
+				p_newitem = static_cast<PPCommandItem *>(&new_menu);
 			}
 			Data.GetUniqueID(&p_newitem->ID);
 			p_newitem->Name = name;
@@ -923,15 +923,13 @@ int EditMenusDlg::delItem(long pos, long id)
 
 int EditMenusDlg::IsMenuUsed(PPID obj, PPID menuID, int isDesktop)
 {
-	int used = isDesktop ? (LConfig.DesktopID == menuID ? 1 : 0) : 0;
+	Reference * p_ref = PPRef;
+	int    used = isDesktop ? (LConfig.DesktopID == menuID ? 1 : 0) : 0;
 	PPConfig cfg;
-	for(PPID id = 0; !used && PPRef->EnumItems(obj, &id) > 0;) {
+	for(PPID id = 0; !used && p_ref->EnumItems(obj, &id) > 0;) {
 		MEMSZERO(cfg);
-		if(PPRef->GetProperty(obj, id, PPPRP_CFG, &cfg, sizeof(cfg)) > 0)
-			if(isDesktop)
-				used = (cfg.DesktopID == menuID) ? 1 : 0;
-			else
-				used = (cfg.MenuID == menuID) ? 1 : 0;
+		if(p_ref->GetProperty(obj, id, PPPRP_CFG, &cfg, sizeof(cfg)) > 0)
+			used = isDesktop ? BIN(cfg.DesktopID == menuID) : BIN(cfg.MenuID == menuID);
 	}
 	return used;
 }
@@ -942,10 +940,10 @@ int EditMenusDlg::EditMenu(long id)
 	uint   pos = 0;
 	CommandsDialog * p_dlg = 0;
 	const PPCommandItem * p_item = Data.SearchByID(id, &pos);
-	PPCommandFolder * p_folder = (p_item && p_item->Kind == PPCommandItem::kFolder) ? (PPCommandFolder*)p_item->Dup() : 0;
+	PPCommandFolder * p_folder = (p_item && p_item->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_item->Dup()) : 0;
 	PPCommandGroup * p_menus = 0;
 	if(p_folder) {
-		p_menus = (PPCommandGroup*)Data.Dup();
+		p_menus = static_cast<PPCommandGroup *>(Data.Dup());
 		THROW(CheckDialogPtr(&(p_dlg = new CommandsDialog(p_menus, IsDesktop))));
 		p_dlg->setDTS(p_folder);
 		if(ExecView(p_dlg) == cmOK) {
@@ -1052,14 +1050,14 @@ int SelectMenu(long * pID, SString * pName, int selType, const PPCommandGroup * 
 // Load menus from resource
 //
 struct MITH {
-	unsigned versionNumber;
-	unsigned offset;
+	uint   versionNumber;
+	uint   offset;
 };
 
 struct MIT {
-	unsigned mtOption;
-	unsigned mtID;
-	char     mtString[256];
+	uint   mtOption;
+	uint   mtID;
+	char   mtString[256];
 };
 
 static int SLAPI readMIT(TVRez & rez, MIT & mit, long ofs)
@@ -1151,7 +1149,7 @@ HMENU SLAPI PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 		if(p_mgr && p_mgr->Load__(&menus) > 0) {
 			const PPCommandItem * p_item = menus.SearchByID(menuID, 0);
 			m = CreateMenu();
-			p_menu = (p_item && p_item->Kind == PPCommandItem::kFolder) ? (PPCommandFolder*)p_item->Dup() : 0;
+			p_menu = (p_item && p_item->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_item->Dup()) : 0;
 			if(p_menu && (p_items = new StrAssocArray) != 0 && p_menu->GetCommandList(p_items, 0)) {
 				ReadMenu(m, 0, p_menu, p_items);
 				not_found = 0;
@@ -1174,11 +1172,19 @@ HMENU SLAPI PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 	}
 	if(m) {
 		HMENU  h_popup = CreateMenu();
-		AppendMenu(m, MF_POPUP | MF_STRING, (UINT)h_popup, _T("О&кно"));
+		SString temp_buf;
+		PPLoadString("cmd_window", temp_buf);
+		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+		AppendMenu(m, MF_POPUP | MF_STRING, (UINT)h_popup, /*_T("Рћ&РєРЅРѕ")*/SUcSwitch(temp_buf));
 		UserInterfaceSettings uiset;
 		uiset.Restore();
-		::AppendMenu(h_popup, ((uiset.Flags & uiset.fShowLeftTree) ? MF_UNCHECKED : MF_CHECKED) | MF_STRING, cmShowTree, _T("&Дерево меню")); // @unicodeproblem
-		::AppendMenu(h_popup, MF_CHECKED | MF_STRING, cmShowToolbar, _T("&Панель инструментов")); // @unicodeproblem
+		PPLoadString("cmd_menutree", temp_buf);
+		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+		::AppendMenu(h_popup, ((uiset.Flags & uiset.fShowLeftTree) ? MF_UNCHECKED : MF_CHECKED)|MF_STRING, 
+			cmShowTree, /*_T("&Р”РµСЂРµРІРѕ РјРµРЅСЋ")*/SUcSwitch(temp_buf)); // @unicodeproblem
+		PPLoadString("cmd_toolpane", temp_buf);
+		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+		::AppendMenu(h_popup, MF_CHECKED | MF_STRING, cmShowToolbar, /*_T("&РџР°РЅРµР»СЊ РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРІ")*/SUcSwitch(temp_buf)); // @unicodeproblem
 	}
 	ASSIGN_PTR(pNotFound, not_found);
 	ZDELETE(p_items);
@@ -1194,7 +1200,7 @@ void MenuResToMenu(PPCommandFolder * pFold, LAssocArray * pCmdDescrs, TVRez * re
 			PPCommandFolder fold;
 			(fold.Name = mit.mtString).ToOem();
 			MenuResToMenu(&fold, pCmdDescrs, rez, length);
-			pFold->Add(-1, (PPCommandItem*)&fold);
+			pFold->Add(-1, static_cast<const PPCommandItem *>(&fold));
 		}
 		else if(!mit.mtOption && !mit.mtID && !mit.mtString[0])
 			pFold->AddSeparator(-1);
@@ -1205,7 +1211,7 @@ void MenuResToMenu(PPCommandFolder * pFold, LAssocArray * pCmdDescrs, TVRez * re
 			(cmd.Name = mit.mtString).ToOem();
 			if(pCmdDescrs->lsearch(&menu_cm, &pos, CMPF_LONG, sizeof(long)) > 0)
 				cmd.CmdID = pCmdDescrs->at(pos).Key;
-			pFold->Add(-1, (PPCommandItem*)&cmd);
+			pFold->Add(-1, static_cast<const PPCommandItem *>(&cmd));
 			if(mit.mtOption & MF_END)
 				return;
 		}

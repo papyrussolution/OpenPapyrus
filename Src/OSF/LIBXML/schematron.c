@@ -1307,7 +1307,7 @@ static xmlNode * xmlSchematronNextNode(xmlNode * cur)
 			return cur;
 	}
 	do {
-		cur = cur->parent;
+		cur = cur->P_ParentNode;
 		if(!cur) 
 			break;
 		if(cur->type == XML_DOCUMENT_NODE) 

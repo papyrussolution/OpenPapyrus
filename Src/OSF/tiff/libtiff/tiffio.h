@@ -288,8 +288,8 @@ extern int _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c);
 /*
 ** Stuff, related to tag handling and creating custom tags.
 */
-extern int TIFFGetTagListCount( TIFF * );
-extern uint32 TIFFGetTagListEntry( TIFF *, int tag_index );
+extern int TIFFGetTagListCount(TIFF *);
+extern uint32 TIFFGetTagListEntry(TIFF *, int tag_index);
     
 #define TIFF_ANY       TIFF_NOTYPE     /* for field descriptor searching */
 #define TIFF_VARIABLE  -1              /* marker for variable length tags */
@@ -412,8 +412,8 @@ extern int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int);
 extern int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*, int, int);
 #endif
 
-extern int TIFFReadRGBAStrip(TIFF*, uint32, uint32 * );
-extern int TIFFReadRGBATile(TIFF*, uint32, uint32, uint32 * );
+extern int TIFFReadRGBAStrip(TIFF*, uint32, uint32 *);
+extern int TIFFReadRGBATile(TIFF*, uint32, uint32, uint32 *);
 extern int TIFFReadRGBAStripExt(TIFF*, uint32, uint32 *, int stop_on_error );
 extern int TIFFReadRGBATileExt(TIFF*, uint32, uint32, uint32 *, int stop_on_error );
 extern int TIFFRGBAImageOK(TIFF*, char [1024]);

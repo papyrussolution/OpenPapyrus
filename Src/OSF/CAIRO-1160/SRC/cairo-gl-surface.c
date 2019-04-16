@@ -391,10 +391,9 @@ static cairo_bool_t _cairo_gl_surface_size_valid(cairo_gl_surface_t * surface, i
 	return _cairo_gl_surface_size_valid_for_context(ctx, width, height);
 }
 
-static cairo_surface_t * _cairo_gl_surface_create_scratch_for_texture(cairo_gl_context_t * ctx, cairo_content_t content, GLuint tex, int width,
-    int height)
+static cairo_surface_t * _cairo_gl_surface_create_scratch_for_texture(cairo_gl_context_t * ctx, cairo_content_t content, GLuint tex, int width, int height)
 {
-	cairo_gl_surface_t * surface = (cairo_gl_surface_t * )SAlloc::C(1, sizeof(cairo_gl_surface_t));
+	cairo_gl_surface_t * surface = (cairo_gl_surface_t *)SAlloc::C(1, sizeof(cairo_gl_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->tex = tex;
@@ -407,35 +406,24 @@ static cairo_surface_t * _cairo_gl_surface_create_scratch_for_texture(cairo_gl_c
 	glBindTexture(ctx->tex_target, surface->tex);
 	glTexParameteri(ctx->tex_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(ctx->tex_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
 	return &surface->base;
 }
 
-static cairo_surface_t * _create_scratch_internal(cairo_gl_context_t * ctx,
-    cairo_content_t content,
-    int width,
-    int height,
-    cairo_bool_t for_caching)
+static cairo_surface_t * _create_scratch_internal(cairo_gl_context_t * ctx, cairo_content_t content, int width, int height, cairo_bool_t for_caching)
 {
 	cairo_gl_surface_t * surface;
 	GLenum format;
 	GLuint tex;
-
 	glGenTextures(1, &tex);
-	surface = (cairo_gl_surface_t*)
-	    _cairo_gl_surface_create_scratch_for_texture(ctx, content,
-		tex, width, height);
+	surface = (cairo_gl_surface_t*)_cairo_gl_surface_create_scratch_for_texture(ctx, content, tex, width, height);
 	if(unlikely(surface->base.status))
 		return &surface->base;
-
 	surface->owns_tex = TRUE;
-
 	/* adjust the texture size after setting our real extents */
 	if(width < 1)
 		width = 1;
 	if(height < 1)
 		height = 1;
-
 	switch(content) {
 		default:
 		    ASSERT_NOT_REACHED;

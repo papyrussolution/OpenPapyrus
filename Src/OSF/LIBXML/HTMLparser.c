@@ -3715,7 +3715,7 @@ void htmlParseElement(htmlParserCtxt * ctxt)
 	}
 	failed = htmlParseStartTag(ctxt);
 	name = ctxt->name;
-	if((failed == -1) || (name == NULL)) {
+	if((failed == -1) || !name) {
 		if(CUR == '>')
 			NEXT;
 		return;
@@ -3842,7 +3842,7 @@ static void htmlParseElementInternal(htmlParserCtxt * ctxt)
 	}
 	failed = htmlParseStartTag(ctxt);
 	name = ctxt->name;
-	if((failed == -1) || (name == NULL)) {
+	if((failed == -1) || !name) {
 		if(CUR == '>')
 			NEXT;
 		return;
@@ -4840,7 +4840,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 			    }
 			    failed = htmlParseStartTag(ctxt);
 			    name = ctxt->name;
-			    if((failed == -1) || (name == NULL)) {
+			    if((failed == -1) || !name) {
 				    if(CUR == '>')
 					    NEXT;
 				    break;
@@ -5581,19 +5581,16 @@ htmlStatus htmlNodeStatus(const htmlNodePtr pNode, int legacy)
 		return HTML_INVALID;
 	switch(pNode->type) {
 		case XML_ELEMENT_NODE:
-		    return legacy ? ( htmlElementAllowedHere(htmlTagLookup(pNode->parent->name), pNode->name) ? HTML_VALID : HTML_INVALID ) :
-				htmlElementStatusHere(htmlTagLookup(pNode->parent->name), htmlTagLookup(pNode->name));
+		    return legacy ? ( htmlElementAllowedHere(htmlTagLookup(pNode->P_ParentNode->name), pNode->name) ? HTML_VALID : HTML_INVALID ) :
+				htmlElementStatusHere(htmlTagLookup(pNode->P_ParentNode->name), htmlTagLookup(pNode->name));
 		case XML_ATTRIBUTE_NODE:
-		    return htmlAttrAllowed(htmlTagLookup(pNode->parent->name), pNode->name, legacy);
+		    return htmlAttrAllowed(htmlTagLookup(pNode->P_ParentNode->name), pNode->name, legacy);
 		default: return HTML_NA;
 	}
 }
-
-/************************************************************************
-*									*
-*	New set (2.6.0) of simpler and more flexible APIs		*
-*									*
-************************************************************************/
+//
+// New set (2.6.0) of simpler and more flexible APIs
+//
 /**
  * @str:  a string
  *

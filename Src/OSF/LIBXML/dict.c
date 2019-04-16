@@ -836,7 +836,7 @@ const xmlChar * xmlDictExists(xmlDict * dict, const xmlChar * name, int len)
 	ulong key, okey, nbi = 0;
 	xmlDictEntry * insert;
 	uint l;
-	if((dict == NULL) || (name == NULL))
+	if((dict == NULL) || !name)
 		return 0;
 	l = (len < 0) ? sstrlen(name) : len;
 	if(((dict->limit > 0) && (l >= dict->limit)) || (l > INT_MAX / 2))

@@ -33,7 +33,7 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TD
 void ObjViewDialog::updateList(PPID id)
 {
 	if(P_List && P_List->def) {
-		long   cur = (id < 0) ? P_List->def->_curItem() : -1;
+		const long cur = (id < 0) ? P_List->def->_curItem() : -1;
 		P_List->setDef(P_Obj->Selector(ExtraPtr));
 		if(id < 0)
 			P_List->focusItem(cur);
@@ -68,9 +68,8 @@ void ObjViewDialog::removeItem()
 {
 	PPID   id = getCurrID();
 	if((Rt & PPR_DEL) && id) {
-		PPID   next_id = 0;
 		P_List->def->step(+1);
-		next_id = getCurrID();
+		PPID   next_id = getCurrID();
 		if(next_id == 0 || next_id == id) {
 			P_List->def->step(-2);
 			next_id = getCurrID();
@@ -312,9 +311,9 @@ int SLAPI PPObjReference::AddItem(PPID * pID, void * pBuf, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjReference::UpdateItem(PPID id, void * pBuf, int use_ta)
+int SLAPI PPObjReference::UpdateItem(PPID id, const void * pRec, int use_ta)
 {
-	return ref->UpdateItem(Obj, id, pBuf, 1, use_ta);
+	return ref->UpdateItem(Obj, id, pRec, 1, use_ta);
 }
 
 int SLAPI PPObjReference::Browse(void * extraPtr)
@@ -437,7 +436,8 @@ int SLAPI PPObjReference::CheckName(PPID id, const char * pName, int silent)
 
 int SLAPI PPObjReference::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, is_new = 0;
+	int    ok = cmCancel;
+	int    is_new = 0;
 	ReferenceTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
 	MEMSZERO(rec);
@@ -571,7 +571,7 @@ int SLAPI PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	THROW(p->Data);
 	if(stream == 0) {
 		PPID   same_id = 0;
-		ReferenceTbl::Rec * p_rec = (ReferenceTbl::Rec*)p->Data;
+		ReferenceTbl::Rec * p_rec = static_cast<ReferenceTbl::Rec *>(p->Data);
 		ok = 0; // !
 		if(*pID == 0) {
 			if(p_rec->ObjID < PP_FIRSTUSRREF) {
@@ -627,7 +627,7 @@ int SLAPI PPObjReference::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 	int    ok = 1;
 	if(IS_DYN_OBJTYPE(Obj)) {
 		if(p && p->Data) {
-			PPDynanicObjItem * p_rec = (PPDynanicObjItem *)p->Data;
+			PPDynanicObjItem * p_rec = static_cast<PPDynanicObjItem *>(p->Data);
 			//
 			// Очень необычный случай: при разрешении ссылки может измениться тип объекта
 			//
@@ -704,7 +704,7 @@ int SLAPI PPObjReference::MakeReserved(long flags)
 static int SLAPI UnitListFilt(void * rec, void * extraPtr)
 {
 	const long extra_flags = reinterpret_cast<long>(extraPtr);
-	return extra_flags ? ((((PPUnit*)rec)->Flags & extra_flags) == extra_flags) : 1;
+	return extra_flags ? ((static_cast<const PPUnit *>(rec)->Flags & extra_flags) == extra_flags) : 1;
 }
 
 SLAPI PPObjUnit::PPObjUnit(void * extraPtr) : PPObjReference(PPOBJ_UNIT, extraPtr)
@@ -724,17 +724,19 @@ int SLAPI PPObjUnit::Browse(void * extraPtr)
 		{
 			ObjViewDialog::handleEvent(event);
 			if(TVCOMMAND && TVCMD == cmUniteMaxLike && P_Obj) {
-				if(((PPObjUnit*)P_Obj)->UniteMaxLike() > 0)
+				if(static_cast<PPObjUnit *>(P_Obj)->UniteMaxLike() > 0)
 					updateList(-1);
 				clearEvent(event);
 			}
 		}
 	};
 	int    ok = cmCancel;
-	ObjUnitDialog * p_dlg = new ObjUnitDialog(this, extraPtr);
 	THROW(CheckRights(PPR_READ));
-	THROW(CheckDialogPtr(&p_dlg));
-	ok = ExecViewAndDestroy(p_dlg);
+	{
+		ObjUnitDialog * p_dlg = new ObjUnitDialog(this, extraPtr);
+		THROW(CheckDialogPtr(&p_dlg));
+		ok = ExecViewAndDestroy(p_dlg);
+	}
 	CATCHZOK
 	return ok;
 }
@@ -990,7 +992,8 @@ int SLAPI PPObjUnit::Fetch(PPID id, PPUnit * pRec)
 
 int SLAPI PPObjUnit::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, ok = 1, valid_data = 0;
+	int    ok = 1;
+	int    r = cmCancel, valid_data = 0;
 	PPUnit unit;
 	TDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
@@ -1232,7 +1235,7 @@ int SLAPI PPObjPersonCat::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	int    ok = 1;
 	THROW(p->Data);
 	if(stream == 0) {
-		PPPersonCat * p_rec = (PPPersonCat *)p->Data;
+		PPPersonCat * p_rec = static_cast<PPPersonCat *>(p->Data);
 		if(*pID || SearchByName(p_rec->Name, pID, 0) > 0) {
 			p_rec->ID = *pID;
 			int    r = EditItem(Obj, *pID, p_rec, 1);
@@ -1292,7 +1295,7 @@ int SLAPI PersonCatCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI PersonCatCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPPersonCat * p_data_rec = (PPPersonCat *)pDataRec;
+	PPPersonCat * p_data_rec = static_cast<PPPersonCat *>(pDataRec);
 	const ObjCacheEntry * p_cache_rec = pEntry;
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = ObjType;
@@ -1464,7 +1467,7 @@ int SLAPI ELinkKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI ELinkKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPELinkKind * p_data_rec = (PPELinkKind *)pDataRec;
+	PPELinkKind * p_data_rec = static_cast<PPELinkKind *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_ELINKKIND;
@@ -1643,7 +1646,7 @@ int SLAPI PPObjCurrency::AddItem(PPID * pID, PPCurrency * pCurrency, int use_ta)
 	return EditItem(PPOBJ_CURRENCY, *pID, pCurrency, use_ta);
 }
 
-StrAssocArray * SLAPI PPObjCurrency::CreateSelectorList(int asSymb, PPIDArray * pIncludeList, const PPIDArray * pExcludeList)
+StrAssocArray * SLAPI PPObjCurrency::CreateSelectorList(int asSymb, const PPIDArray * pIncludeList, const PPIDArray * pExcludeList)
 {
 	PPID   id = 0;
 	PPCurrency rec;
@@ -1846,7 +1849,7 @@ int SLAPI PPObjDynamicObjs::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 	int    ok = 1;
 	THROW(p->Data);
 	if(stream == 0) {
-		ReferenceTbl::Rec * p_rec = (ReferenceTbl::Rec*)p->Data;
+		ReferenceTbl::Rec * p_rec = static_cast<ReferenceTbl::Rec *>(p->Data);
 		PPID   same_id = 0;
 		int    done = 0;
 		if(*pID == 0) {
@@ -2129,7 +2132,7 @@ int SLAPI PPObjGlobalUserAcc::Read(PPObjPack * p, PPID id, void * stream, ObjTra
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, (PPGlobalUserAccPacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPGlobalUserAccPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -2462,7 +2465,7 @@ int SLAPI GlobalUserAccCache::GetConfig(PPGlobalUserAccConfig * pCfg, int enforc
 int SLAPI GlobalUserAccCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	GlobalUserAccData * p_cache_rec = (GlobalUserAccData *)pEntry;
+	GlobalUserAccData * p_cache_rec = static_cast<GlobalUserAccData *>(pEntry);
 	PPObjGlobalUserAcc gua_obj;
 	PPGlobalUserAcc rec;
 	if(gua_obj.Search(id, &rec) > 0) {
@@ -2483,8 +2486,8 @@ int SLAPI GlobalUserAccCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI GlobalUserAccCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPGlobalUserAcc * p_data_rec = (PPGlobalUserAcc *)pDataRec;
-	const GlobalUserAccData * p_cache_rec = (const GlobalUserAccData *)pEntry;
+	PPGlobalUserAcc * p_data_rec = static_cast<PPGlobalUserAcc *>(pDataRec);
+	const GlobalUserAccData * p_cache_rec = static_cast<const GlobalUserAccData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag         = PPOBJ_GLOBALUSERACC;
 	p_data_rec->ID          = p_cache_rec->ID;
@@ -2563,7 +2566,7 @@ int SLAPI PPObjSysAction::Search(PPID id, void * pRec)
 			rec.ObjType = Obj;
 			rec.ObjID = id;
 			temp_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
-			*((ReferenceTbl::Rec *)pRec) = rec;
+			*static_cast<ReferenceTbl::Rec *>(pRec) = rec;
 		}
 		ok = 1;
 	}
@@ -2623,7 +2626,7 @@ int SLAPI PPObjGtaAction::Search(PPID id, void * pRec)
 			rec.ObjType = Obj;
 			rec.ObjID = id;
 			temp_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
-			*((ReferenceTbl::Rec *)pRec) = rec;
+			*static_cast<ReferenceTbl::Rec *>(pRec) = rec;
 		}
 		ok = 1;
 	}
@@ -2820,15 +2823,12 @@ private:
 			if(Data.Sd.GetEntry(i, entry)) {
 				ss.clear();
 				switch(entry.Attr) {
-					case PPUhttStoreSelDescr::attrGroup:
-						PPLoadString("goodsgroup", temp_buf);
-						break;
-					case PPUhttStoreSelDescr::attrBrand:
-						PPLoadString("brand", temp_buf);
-						break;
-					case PPUhttStoreSelDescr::attrName:
-						PPLoadString("appellation", temp_buf);
-						break;
+					case PPUhttStoreSelDescr::attrGroup: PPLoadString("goodsgroup", temp_buf); break;
+					case PPUhttStoreSelDescr::attrBrand: PPLoadString("brand", temp_buf); break;
+					case PPUhttStoreSelDescr::attrName:  PPLoadString("appellation", temp_buf); break;
+					case PPUhttStoreSelDescr::attrCity: PPLoadString("city", temp_buf); break;
+					case PPUhttStoreSelDescr::attrProcessor: PPLoadString("processor", temp_buf); break;
+					case PPUhttStoreSelDescr::attrPeriod: PPLoadString("daterange", temp_buf); break;
 					case PPUhttStoreSelDescr::attrClass:
 						PPLoadString("class", temp_buf);
 						temp_buf.CatChar(':');
@@ -2853,15 +2853,6 @@ private:
 							else
 								temp_buf.Cat(ideqvalstr(entry.TagID, name_buf));
 						}
-						break;
-					case PPUhttStoreSelDescr::attrCity:
-						PPLoadString("city", temp_buf);
-						break;
-					case PPUhttStoreSelDescr::attrProcessor:
-						PPLoadString("processor", temp_buf);
-						break;
-					case PPUhttStoreSelDescr::attrPeriod:
-						PPLoadString("daterange", temp_buf);
 						break;
 				}
 				ss.add(temp_buf);
@@ -2931,13 +2922,10 @@ private:
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  2, PPUhttStoreSelDescr::attrBrand);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  3, PPUhttStoreSelDescr::attrTag);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  4, PPUhttStoreSelDescr::attrClass);
-
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  5, PPUhttStoreSelDescr::attrPeriod);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  6, PPUhttStoreSelDescr::attrProcessor);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  7, PPUhttStoreSelDescr::attrCity);
-
 				SetClusterData(CTL_UHTTSTSELITEM_ATTR, Data.Attr);
-
 				AddClusterAssoc(CTL_UHTTSTSELITEM_GCCLSF,  0, PPGdsCls::eX);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_GCCLSF,  1, PPGdsCls::eY);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_GCCLSF,  2, PPGdsCls::eZ);
@@ -2946,9 +2934,7 @@ private:
 				AddClusterAssoc(CTL_UHTTSTSELITEM_GCCLSF,  5, PPGdsCls::eGrade);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_GCCLSF,  6, PPGdsCls::eAdd);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_GCCLSF,  7, PPGdsCls::eAdd2);
-
 				SetupAttr();
-
 				setCtrlString(CTL_UHTTSTSELITEM_TITLE, Data.Title);
 				return ok;
 			}
@@ -3194,12 +3180,12 @@ int SLAPI PPObjUhttStore::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPUhttStorePacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPUhttStorePacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPUhttStorePacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, (PPUhttStorePacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPUhttStorePacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -3209,7 +3195,7 @@ int SLAPI PPObjUhttStore::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 {
 	int    ok = 1, ta = 0;
 	if(p && p->Data) {
-		PPUhttStorePacket * p_pack = (PPUhttStorePacket *)p->Data;
+		PPUhttStorePacket * p_pack = static_cast<PPUhttStorePacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -3247,7 +3233,7 @@ int SLAPI PPObjUhttStore::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPUhttStorePacket * p_pack = (PPUhttStorePacket * )p->Data;
+		PPUhttStorePacket * p_pack = static_cast<PPUhttStorePacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_LOCATION, &p_pack->Rec.LocID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON, &p_pack->Rec.PersonID, ary, replace));
 		THROW(p_pack->TagL.ProcessObjRefs(ary, replace));
@@ -3799,12 +3785,12 @@ int SLAPI PPObjEdiProvider::Read(PPObjPack * p, PPID id, void * stream, ObjTrans
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPEdiProviderPacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPEdiProviderPacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPEdiProviderPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, (PPEdiProviderPacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPEdiProviderPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -3814,7 +3800,7 @@ int SLAPI PPObjEdiProvider::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 {
 	int    ok = 1, r;
 	if(p && p->Data) {
-		PPEdiProviderPacket * p_pack = (PPEdiProviderPacket *)p->Data;
+		PPEdiProviderPacket * p_pack = static_cast<PPEdiProviderPacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -3872,7 +3858,7 @@ int SLAPI PPObjEdiProvider::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPEdiProviderPacket * p_pack = (PPEdiProviderPacket *)p->Data;
+		PPEdiProviderPacket * p_pack = static_cast<PPEdiProviderPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_GLOBALUSERACC, &p_pack->Rec.GuaID, ary, replace));
 	}
 	else
@@ -3889,3 +3875,75 @@ int SLAPI PPObjEdiProvider::SerializePacket(int dir, PPEdiProviderPacket * pPack
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+SLAPI PPObjFreightPackageType::PPObjFreightPackageType(void * extraPtr) : PPObjReference(PPOBJ_FREIGHTPACKAGETYPE, extraPtr)
+{
+}
+
+class FreightPackageTypeDialog : public TDialog {
+public:
+	FreightPackageTypeDialog() : TDialog(DLG_FPACKTYPE)
+	{
+	}
+	int    setDTS(const PPFreightPackageType * pData)
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		setCtrlLong(CTL_FPACKTYPE_ID, Data.ID);
+		setCtrlData(CTL_FPACKTYPE_NAME, Data.Name);
+		setCtrlData(CTL_FPACKTYPE_SYMB, Data.Symb);
+		AddClusterAssoc(CTL_FPACKTYPE_FLAGS, 0, PPFreightPackageType::fPassive);
+		SetClusterData(CTL_FPACKTYPE_FLAGS, Data.Flags);
+		return ok;
+	}
+	int    getDTS(PPFreightPackageType * pData)
+	{
+		int    ok = 1;
+		getCtrlData(CTL_FPACKTYPE_NAME, Data.Name);
+		getCtrlData(CTL_FPACKTYPE_SYMB, Data.Symb);
+		GetClusterData(CTL_FPACKTYPE_FLAGS, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+private:
+	PPFreightPackageType Data;
+};
+
+int SLAPI PPObjFreightPackageType::Edit(PPID * pID, void * extraPtr)
+{
+	int    ok = 1;
+	int    r = cmCancel, valid_data = 0;
+	PPFreightPackageType rec;
+	FreightPackageTypeDialog * dlg = 0;
+	THROW(CheckRightsModByID(pID));
+	if(*pID) {
+		THROW(Search(*pID, &rec) > 0);
+	}
+	else {
+		MEMSZERO(rec);
+	}
+	THROW(CheckDialogPtr(&(dlg = new FreightPackageTypeDialog)));
+	dlg->setDTS(&rec);
+	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
+		if(dlg->getDTS(&rec)) {
+			if(*pID)
+				*pID = rec.ID;
+			if(!CheckName(*pID, rec.Name, 0))
+				dlg->selectCtrl(CTL_FPACKTYPE_NAME);
+			else if(!CheckDupSymb(*pID, rec.Symb))
+				PPErrorByDialog(dlg, CTL_FPACKTYPE_SYMB);
+			else if(EditItem(Obj, *pID, &rec, 1)) {
+				Dirty(*pID);
+				valid_data = 1;
+			}
+			else
+				PPError();
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok ? r : 0;
+}
+

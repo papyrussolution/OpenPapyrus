@@ -1069,7 +1069,7 @@ cairo_surface_t * _cairo_xlib_source_create_for_pattern(cairo_surface_t * _dst,
 	}
 	if(pattern_is_supported(dst->display, pattern)) {
 		if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-			cairo_surface_pattern_t * spattern = (cairo_surface_pattern_t*)pattern;
+			cairo_surface_pattern_t * spattern = (cairo_surface_pattern_t *)pattern;
 			if(spattern->surface->type == CAIRO_SURFACE_TYPE_XLIB && _cairo_xlib_surface_same_screen(dst, unwrap_source(spattern)))
 				return native_source(dst, spattern, is_mask, extents, sample, src_x, src_y);
 			if(spattern->surface->type == CAIRO_SURFACE_TYPE_RECORDING)

@@ -631,7 +631,7 @@ static cairo_status_t upload_boxes(const cairo_mask_compositor_t * compositor, c
 	cairo_rectangle_int_t limit;
 	cairo_int_status_t status;
 	int tx, ty;
-	cairo_surface_t * src = _cairo_pattern_get_source((cairo_surface_pattern_t*)source, &limit);
+	cairo_surface_t * src = _cairo_pattern_get_source((cairo_surface_pattern_t *)source, &limit);
 	if(!(src->type == CAIRO_SURFACE_TYPE_IMAGE || src->type == dst->type))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 

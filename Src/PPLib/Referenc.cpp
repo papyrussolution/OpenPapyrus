@@ -356,7 +356,7 @@ int SLAPI Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction
 			k.ObjID   = id;
 			if(search(0, &k, spEq)) {
 				copyBufTo(&prev_rec);
-				new_rec = *(ReferenceTbl::Rec *)b;
+				new_rec = *static_cast<const ReferenceTbl::Rec *>(b);
 				new_rec.ObjType = obj;
 				new_rec.ObjID   = id;
 				if(!DBTable::GetFields().IsEqualRecords(&prev_rec, &new_rec)) {
@@ -1412,7 +1412,7 @@ const ObjRights * SLAPI PPRights::GetConstObjRights(PPID objType, ObjRights * pD
 	const ObjRights * p_result = 0;
 	if(P_Rt) {
 		for(uint s = 0; !p_result && s < P_Rt->ORTailSize;) {
-			const ObjRights * o = (ObjRights*)(PTR8(P_Rt + 1) + s);
+			const ObjRights * o = reinterpret_cast<const ObjRights *>(PTR8(P_Rt + 1) + s);
 			if(o->ObjType == objType)
 				p_result = o;
 			else
@@ -1434,7 +1434,7 @@ ObjRights * SLAPI PPRights::GetObjRights(PPID objType, int use_default) const
 	ObjRights * p_result = 0;
 	if(P_Rt) {
 		for(uint s = 0; !p_result && s < P_Rt->ORTailSize;) {
-			ObjRights * o = (ObjRights *)(PTR8(P_Rt + 1) + s);
+			ObjRights * o = reinterpret_cast<ObjRights *>(PTR8(P_Rt + 1) + s);
 			const uint osz = o->Size;
 			if(o->ObjType == objType) {
 				p_result = ObjRights::Create(objType, osz);
@@ -1480,7 +1480,7 @@ int SLAPI PPRights::SetObjRights(PPID objType, const ObjRights * rt, int replace
 		size_t s  = 0;
 		int    found = 0;
 		while(s < ts && !found) {
-			ObjRights * o = (ObjRights*)(cp + s);
+			ObjRights * o = reinterpret_cast<ObjRights *>(cp + s);
 			size_t os = o->Size;
 			if(o->ObjType == 0 || os == 0) {
 				//
@@ -1632,7 +1632,6 @@ int SLAPI PPRights::CheckBillDate(LDATE dt, int forRead) const
 	return ok;
 }
 
-//int SLAPI PPRights::AdjustBillPeriod(LDATE * pBeg, LDATE * pEnd) const
 int SLAPI PPRights::AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const
 {
 	int    ok = 1;
@@ -1640,12 +1639,12 @@ int SLAPI PPRights::AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const
 		DateRange r_bill_period;
 		DateRange in_period;
 		in_period = rPeriod;
-		in_period.Actualize(ZERODATE); // @v8.7.7
+		in_period.Actualize(ZERODATE);
 		LDATE b = in_period.low;
 		LDATE e = in_period.upp;
 		PPAccessRestriction accsr;
 		GetAccessRestriction(accsr).GetRBillPeriod(&r_bill_period);
-		r_bill_period.Actualize(ZERODATE); // @v8.7.7
+		r_bill_period.Actualize(ZERODATE);
 		if(r_bill_period.low)
 			b = MAX(b, r_bill_period.low);
 		if(r_bill_period.upp)
@@ -1808,20 +1807,17 @@ int SLAPI PPRights::CheckOpID(PPID opID, long rtflags) const
 
 int SLAPI PPRights::CheckLocID(PPID locID, long) const
 {
-	return (!(P_LocList && P_LocList->getCount()) || P_LocList->SearchItemByID(locID, 0)) ?
-		1 : PPSetError(PPERR_LOCNOTACCESSIBLE);
+	return (!(P_LocList && P_LocList->getCount()) || P_LocList->SearchItemByID(locID, 0)) ? 1 : PPSetError(PPERR_LOCNOTACCESSIBLE);
 }
 
 int SLAPI PPRights::CheckPosNodeID(PPID id, long flags) const
 {
-	return (!(P_PosList && P_PosList->getCount()) || P_PosList->SearchItemByID(id, 0)) ?
-		1 : PPSetError(PPERR_POSNODENOTACCESSIBLE);
+	return (!(P_PosList && P_PosList->getCount()) || P_PosList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_POSNODENOTACCESSIBLE);
 }
 
 int SLAPI PPRights::CheckQuotKindID(PPID id, long flags) const
 {
-	return (!(P_QkList && P_QkList->getCount()) || P_QkList->SearchItemByID(id, 0)) ?
-		1 : PPSetError(PPERR_QUOTKINDNOTACCESSIBLE);
+	return (!(P_QkList && P_QkList->getCount()) || P_QkList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_QUOTKINDNOTACCESSIBLE);
 }
 
 int SLAPI PPRights::CheckAccID(PPID accID, long rt) const
@@ -2208,7 +2204,6 @@ int SLAPI SelfTextRefCache::FetchText(const char * pText, PPID * pID)
 		uint   hval = 0;
 		uint   hpos = 0;
 		{
-			//TcRwl.ReadLock();
 			SRWLOCKER(TcRwl, SReadWriteLocker::Read);
 			if(TextCache.Search(pattern, &hval, &hpos)) {
 				_id = (long)hval;
@@ -2216,8 +2211,6 @@ int SLAPI SelfTextRefCache::FetchText(const char * pText, PPID * pID)
 			}
 			else {
 				if(P_T) {
-					//TcRwl.Unlock();
-					//TcRwl.WriteLock();
 					SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 					if(TextCache.Search(pattern, &hval, &hpos)) { // Повторная попытка после получения блокировки
 						_id = (long)hval;
@@ -2237,7 +2230,6 @@ int SLAPI SelfTextRefCache::FetchText(const char * pText, PPID * pID)
 				else
 					ok = -2;
 			}
-			//TcRwl.Unlock();
 		}
 	}
 	ASSIGN_PTR(pID, _id);
@@ -2468,7 +2460,7 @@ int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
 	readLobData(VT, temp_buf);
 	destroyLobData(VT); // @v10.2.11 @fix
 	const size_t actual_size = temp_buf.GetAvailableSize();
-	rBuf.CopyFromUtf8((const char *)temp_buf.GetBuf(0), actual_size);
+	rBuf.CopyFromUtf8(static_cast<const char *>(temp_buf.GetBuf(0)), actual_size);
 	return ok;
 }
 
@@ -2548,10 +2540,10 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 int SLAPI UnxTextRefCore::GetText(const TextRefIdent & rI, SString & rBuf)
 {
 	rBuf.Z();
-	SStringU temp_buf;
-	int    ok = Search(rI, temp_buf);
+	SStringU temp_buf_u;
+	int    ok = Search(rI, temp_buf_u);
 	if(ok > 0) {
-        temp_buf.CopyToUtf8(rBuf, 1);
+        temp_buf_u.CopyToUtf8(rBuf, 1);
 	}
 	return ok;
 }

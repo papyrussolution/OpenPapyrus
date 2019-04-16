@@ -3390,7 +3390,7 @@ private:
 				p_cache_rec->ArID  = q.ArID;
 				p_cache_rec->CurID = q.CurID;
 				p_cache_rec->MinQtty = q.MinQtty;
-				Quotation2Core::PeriodToPeriodIdx(&q.Period, &p_cache_rec->PeriodIdx); // @v7.3.5
+				Quotation2Core::PeriodToPeriodIdx(&q.Period, &p_cache_rec->PeriodIdx);
 			}
 		}
 		else
@@ -3399,14 +3399,14 @@ private:
 	}
 	virtual void SLAPI Quot2RelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
-		PPQuot * p_data_rec = (PPQuot *)pDataRec;
+		PPQuot * p_data_rec = static_cast<PPQuot *>(pDataRec);
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		p_data_rec->Kind = p_cache_rec->QuotKindID;
 		p_data_rec->LocID = p_cache_rec->LocID;
 		p_data_rec->ArID  = p_cache_rec->ArID;
 		p_data_rec->CurID = p_cache_rec->CurID;
 		p_data_rec->MinQtty = p_cache_rec->MinQtty;
-		Quotation2Core::PeriodIdxToPeriod(p_cache_rec->PeriodIdx, &p_data_rec->Period); // @v7.3.5
+		Quotation2Core::PeriodIdxToPeriod(p_cache_rec->PeriodIdx, &p_data_rec->Period);
 	}
 
 	Quotation2Core * P_Qc; // @notowned

@@ -499,7 +499,7 @@ DBQuery * SLAPI PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	{
 		dbe_duration.init();
 		dbe_duration.push(p_t->TmVal);
-		dbe_duration.push((DBFunc)PPDbqFuncPool::IdDurationToTime);
+		dbe_duration.push(static_cast<DBFunc>(PPDbqFuncPool::IdDurationToTime));
 	}
 	p_q = &select(
 		p_t->ID__,      // #0

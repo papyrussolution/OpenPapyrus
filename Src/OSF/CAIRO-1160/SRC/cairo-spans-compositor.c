@@ -403,7 +403,7 @@ static cairo_surface_t * unwrap_source(const cairo_pattern_t * pattern)
 {
 	cairo_rectangle_int_t limit;
 
-	return _cairo_pattern_get_source((cairo_surface_pattern_t*)pattern,
+	return _cairo_pattern_get_source((cairo_surface_pattern_t *)pattern,
 		   &limit);
 }
 

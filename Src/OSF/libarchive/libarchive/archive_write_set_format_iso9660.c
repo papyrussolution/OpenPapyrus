@@ -1654,22 +1654,18 @@ static ssize_t write_iso9660_data(struct archive_write * a, const void * buff, s
 		}
 
 		/* Write padding. */
-		if(wb_write_padding_to_temp(a,
-		    iso9660->cur_file->cur_content->size) != ARCHIVE_OK)
+		if(wb_write_padding_to_temp(a, iso9660->cur_file->cur_content->size) != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 
 		/* Compute the logical block number. */
-		iso9660->cur_file->cur_content->blocks = (int)
-		    ((iso9660->cur_file->cur_content->size
-		    + LOGICAL_BLOCK_SIZE -1) >> LOGICAL_BLOCK_BITS);
-
+		iso9660->cur_file->cur_content->blocks = (int)((iso9660->cur_file->cur_content->size + LOGICAL_BLOCK_SIZE -1) >> LOGICAL_BLOCK_BITS);
 		/*
 		 * Make next extent.
 		 */
 		ws -= ts;
 		buff = (const void*)(((const uchar *)buff) + ts);
 		/* Make a content for next extent. */
-		con = (struct isofile::content * )SAlloc::C(1, sizeof(*con));
+		con = (struct isofile::content *)SAlloc::C(1, sizeof(*con));
 		if(con == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate content data");
 			return ARCHIVE_FATAL;
@@ -1681,10 +1677,8 @@ static ssize_t write_iso9660_data(struct archive_write * a, const void * buff, s
 		iso9660->zisofs.block_offset = 0;
 #endif
 	}
-
 	if(iso9660->zisofs.detect_magic)
 		zisofs_detect_magic(a, buff, ws);
-
 	if(iso9660->zisofs.making) {
 		if(zisofs_write_to_temp(a, buff, ws) != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
@@ -1694,7 +1688,6 @@ static ssize_t write_iso9660_data(struct archive_write * a, const void * buff, s
 			return ARCHIVE_FATAL;
 		iso9660->cur_file->cur_content->size += ws;
 	}
-
 	return (s);
 }
 
@@ -1702,7 +1695,6 @@ static ssize_t iso9660_write_data(struct archive_write * a, const void * buff, s
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	ssize_t r;
-
 	if(iso9660->cur_file == NULL)
 		return 0;
 	if(archive_entry_filetype(iso9660->cur_file->entry) != AE_IFREG)

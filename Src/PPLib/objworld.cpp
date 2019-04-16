@@ -393,7 +393,7 @@ private:
 	{
 		if(parentID) {
 			void * extra_ptr = PPObjWorld::MakeExtraParam(WORLDOBJ_STREET, parentID, 0);
-			CheckExecAndDestroyDialog(new ObjWorldDialog((PPObjWorld *)P_Obj, extra_ptr), 1, 1);
+			CheckExecAndDestroyDialog(new ObjWorldDialog(static_cast<PPObjWorld *>(P_Obj), extra_ptr), 1, 1);
 		}
 	}
 };
@@ -1495,7 +1495,7 @@ public:
 int SLAPI WorldCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	WorldData * p_cache_rec = (WorldData *)pEntry;
+	WorldData * p_cache_rec = static_cast<WorldData *>(pEntry);
 	PPObjWorld w_obj;
 	WorldTbl::Rec rec;
 	if(w_obj.Search(id, &rec) > 0) {
@@ -1524,8 +1524,8 @@ int SLAPI WorldCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI WorldCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	WorldTbl::Rec * p_data_rec = (WorldTbl::Rec *)pDataRec;
-	const WorldData * p_cache_rec = (const WorldData *)pEntry;
+	WorldTbl::Rec * p_data_rec = static_cast<WorldTbl::Rec *>(pDataRec);
+	const WorldData * p_cache_rec = static_cast<const WorldData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	CPY_FLD(ID);

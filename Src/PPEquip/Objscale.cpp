@@ -5354,7 +5354,7 @@ public:
 int SLAPI ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	ScaleData * p_cache_rec = (ScaleData *)pEntry;
+	ScaleData * p_cache_rec = static_cast<ScaleData *>(pEntry);
 	PPObjScale sc_obj;
 	PPScale rec;
 	if(sc_obj.Search(id, &rec) > 0) {
@@ -5383,8 +5383,8 @@ int SLAPI ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI ScaleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPScale * p_data_rec = (PPScale *)pDataRec;
-	const ScaleData * p_cache_rec = (const ScaleData *)pEntry;
+	PPScale * p_data_rec = static_cast<PPScale *>(pDataRec);
+	const ScaleData * p_cache_rec = static_cast<const ScaleData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_SCALE;

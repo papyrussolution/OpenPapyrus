@@ -27,11 +27,11 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:27Z kientzle $");
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
+//#ifdef HAVE_SYS_STAT_H
+//#include <sys/stat.h>
+//#endif
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
 #if MAJOR_IN_MKDEV
 #include <sys/mkdev.h>

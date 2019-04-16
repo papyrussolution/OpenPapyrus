@@ -515,7 +515,6 @@ xmlXPathObjectPtr xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObjectPtr e
 }
 
 #define XML_RANGESET_DEFAULT    10
-
 /**
  * xmlXPtrLocationSetCreate:
  * @val:  an initial xmlXPathObjectPtr, or NULL
@@ -524,9 +523,9 @@ xmlXPathObjectPtr xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObjectPtr e
  *
  * Returns the newly created object.
  */
-xmlLocationSetPtr xmlXPtrLocationSetCreate(xmlXPathObject * val)
+xmlLocationSet * xmlXPtrLocationSetCreate(xmlXPathObject * val)
 {
-	xmlLocationSetPtr ret = (xmlLocationSetPtr)SAlloc::M(sizeof(xmlLocationSet));
+	xmlLocationSet * ret = (xmlLocationSet *)SAlloc::M(sizeof(xmlLocationSet));
 	if(!ret) {
 		xmlXPtrErrMemory("allocating locationset");
 	}
@@ -555,7 +554,7 @@ xmlLocationSetPtr xmlXPtrLocationSetCreate(xmlXPathObject * val)
  * add a new xmlXPathObjectPtr to an existing LocationSet
  * If the location already exist in the set @val is freed.
  */
-void xmlXPtrLocationSetAdd(xmlLocationSetPtr cur, xmlXPathObjectPtr val)
+void xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObjectPtr val)
 {
 	if(cur && val) {
 		/*
@@ -603,17 +602,15 @@ void xmlXPtrLocationSetAdd(xmlLocationSetPtr cur, xmlXPathObjectPtr val)
  *
  * Returns val1 once extended or NULL in case of error.
  */
-xmlLocationSetPtr xmlXPtrLocationSetMerge(xmlLocationSetPtr val1, xmlLocationSetPtr val2)
+xmlLocationSet * xmlXPtrLocationSetMerge(xmlLocationSet * val1, xmlLocationSet * val2)
 {
-	int i;
 	if(val1 == NULL) return 0;
 	if(val2 == NULL) return val1;
-
 	/*
 	 * !!!!! this can be optimized a lot, knowing that both
 	 *     val1 and val2 already have unicity of their values.
 	 */
-	for(i = 0; i < val2->locNr; i++)
+	for(int i = 0; i < val2->locNr; i++)
 		xmlXPtrLocationSetAdd(val1, val2->locTab[i]);
 	return val1;
 }
@@ -624,7 +621,7 @@ xmlLocationSetPtr xmlXPtrLocationSetMerge(xmlLocationSetPtr val1, xmlLocationSet
  *
  * Removes an xmlXPathObjectPtr from an existing LocationSet
  */
-void xmlXPtrLocationSetDel(xmlLocationSetPtr cur, xmlXPathObjectPtr val)
+void xmlXPtrLocationSetDel(xmlLocationSet * cur, xmlXPathObjectPtr val)
 {
 	if(cur && val) {
 		/*
@@ -645,7 +642,6 @@ void xmlXPtrLocationSetDel(xmlLocationSetPtr cur, xmlXPathObjectPtr val)
 		cur->locTab[cur->locNr] = NULL;
 	}
 }
-
 /**
  * xmlXPtrLocationSetRemove:
  * @cur:  the initial range set
@@ -653,7 +649,7 @@ void xmlXPtrLocationSetDel(xmlLocationSetPtr cur, xmlXPathObjectPtr val)
  *
  * Removes an entry from an existing LocationSet list.
  */
-void xmlXPtrLocationSetRemove(xmlLocationSetPtr cur, int val)
+void xmlXPtrLocationSetRemove(xmlLocationSet * cur, int val)
 {
 	if(cur) {
 		if(val < cur->locNr) {
@@ -670,7 +666,7 @@ void xmlXPtrLocationSetRemove(xmlLocationSetPtr cur, int val)
  *
  * Free the LocationSet compound (not the actual ranges !).
  */
-void xmlXPtrFreeLocationSet(xmlLocationSetPtr obj)
+void xmlXPtrFreeLocationSet(xmlLocationSet * obj)
 {
 	if(obj) {
 		if(obj->locTab) {
@@ -725,7 +721,7 @@ xmlXPathObjectPtr xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr set)
 		memzero(ret, sizeof(xmlXPathObject));
 		ret->type = XPATH_LOCATIONSET;
 		if(set) {
-			xmlLocationSetPtr newset = xmlXPtrLocationSetCreate(NULL);
+			xmlLocationSet * newset = xmlXPtrLocationSetCreate(NULL);
 			if(newset) {
 				for(int i = 0; i < set->nodeNr; i++)
 					xmlXPtrLocationSetAdd(newset, xmlXPtrNewCollapsedRange(set->PP_NodeTab[i]));
@@ -744,7 +740,7 @@ xmlXPathObjectPtr xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr set)
  *
  * Returns the newly created object.
  */
-xmlXPathObjectPtr xmlXPtrWrapLocationSet(xmlLocationSetPtr val)
+xmlXPathObjectPtr xmlXPtrWrapLocationSet(xmlLocationSet * val)
 {
 	xmlXPathObject * ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 	if(!ret)
@@ -1033,7 +1029,7 @@ static void xmlXPtrEvalFullXPtr(xmlXPathParserContextPtr ctxt, xmlChar * name)
 			xmlXPathObject * obj = ctxt->value;
 			switch(obj->type) {
 				case XPATH_LOCATIONSET: {
-				    xmlLocationSetPtr loc = (xmlLocationSetPtr)ctxt->value->user;
+				    xmlLocationSet * loc = (xmlLocationSet *)ctxt->value->user;
 				    if(loc && (loc->locNr > 0))
 					    return;
 				    break;
@@ -1081,7 +1077,7 @@ static void xmlXPtrEvalChildSeq(xmlXPathParserContextPtr ctxt, xmlChar * name)
 	 * XPointer don't allow by syntax to address in mutirooted trees
 	 * this might prove useful in some cases, warn about it.
 	 */
-	if((name == NULL) && (CUR == '/') && (NXT(1) != '1')) {
+	if(!name && (CUR == '/') && (NXT(1) != '1')) {
 		xmlXPtrErr(ctxt, XML_XPTR_CHILDSEQ_START, "warning: ChildSeq not starting by /1\n", 0);
 	}
 	if(name) {
@@ -1494,7 +1490,7 @@ xmlNode * xmlXPtrBuildNodeList(xmlXPathObject * obj)
 		    break;
 	    }
 		case XPATH_LOCATIONSET: {
-		    xmlLocationSetPtr set = (xmlLocationSetPtr)obj->user;
+		    xmlLocationSet * set = (xmlLocationSet *)obj->user;
 		    if(set == NULL)
 			    return 0;
 		    for(i = 0; i < set->locNr; i++) {
@@ -1623,8 +1619,8 @@ static void xmlXPtrOriginFunction(xmlXPathParserContextPtr ctxt, int nargs)
 static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
 	xmlXPathObjectPtr tmp, obj, point;
-	xmlLocationSetPtr newset = NULL;
-	xmlLocationSetPtr oldset = NULL;
+	xmlLocationSet * newset = NULL;
+	xmlLocationSet * oldset = NULL;
 	CHECK_ARITY(1);
 	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
@@ -1645,7 +1641,7 @@ static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		xmlXPathFreeObject(obj);
 		XP_ERROR(XPATH_MEMORY_ERROR);
 	}
-	oldset = (xmlLocationSetPtr)obj->user;
+	oldset = (xmlLocationSet *)obj->user;
 	if(oldset) {
 		int i;
 		for(i = 0; i < oldset->locNr; i++) {
@@ -1714,8 +1710,8 @@ static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
 	xmlXPathObjectPtr tmp, obj, point;
-	xmlLocationSetPtr newset = NULL;
-	xmlLocationSetPtr oldset = NULL;
+	xmlLocationSet * newset = NULL;
+	xmlLocationSet * oldset = NULL;
 	CHECK_ARITY(1);
 	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
@@ -1736,7 +1732,7 @@ static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		xmlXPathFreeObject(obj);
 		XP_ERROR(XPATH_MEMORY_ERROR);
 	}
-	oldset = (xmlLocationSetPtr)obj->user;
+	oldset = (xmlLocationSet *)obj->user;
 	if(oldset) {
 		int i;
 		for(i = 0; i < oldset->locNr; i++) {
@@ -1823,7 +1819,7 @@ static xmlXPathObjectPtr xmlXPtrCoveringRange(xmlXPathParserContextPtr ctxt, xml
 					    case XML_NOTATION_NODE:
 					    case XML_HTML_DOCUMENT_NODE: {
 						int indx = xmlXPtrGetIndex(P_Node);
-						P_Node = P_Node->parent;
+						P_Node = P_Node->P_ParentNode;
 						return (xmlXPtrNewRange(P_Node, indx - 1, P_Node, indx + 1));
 					}
 					    default:
@@ -1854,25 +1850,23 @@ static void xmlXPtrRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
 	int i;
 	xmlXPathObjectPtr set;
-	xmlLocationSetPtr oldset;
-	xmlLocationSetPtr newset;
+	xmlLocationSet * oldset;
+	xmlLocationSet * newset;
 	CHECK_ARITY(1);
 	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
 		set = valuePop(ctxt);
 	if(set->type == XPATH_NODESET) {
-		xmlXPathObjectPtr tmp;
-
 		/*
 		 * First convert to a location set
 		 */
-		tmp = xmlXPtrNewLocationSetNodeSet(set->nodesetval);
+		xmlXPathObjectPtr tmp = xmlXPtrNewLocationSetNodeSet(set->nodesetval);
 		xmlXPathFreeObject(set);
 		if(!tmp)
 			XP_ERROR(XPATH_MEMORY_ERROR)
 			set = tmp;
 	}
-	oldset = (xmlLocationSetPtr)set->user;
+	oldset = (xmlLocationSet *)set->user;
 	/*
 	 * The loop is to compute the covering range for each item and add it
 	 */
@@ -1957,7 +1951,6 @@ static xmlXPathObjectPtr xmlXPtrInsideRange(xmlXPathParserContextPtr ctxt, xmlXP
 	}
 	return 0;
 }
-
 /**
  * xmlXPtrRangeInsideFunction:
  * @ctxt:  the XPointer Parser context
@@ -1982,8 +1975,8 @@ static void xmlXPtrRangeInsideFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
 	int i;
 	xmlXPathObjectPtr set;
-	xmlLocationSetPtr oldset;
-	xmlLocationSetPtr newset;
+	xmlLocationSet * oldset;
+	xmlLocationSet * newset;
 	CHECK_ARITY(1);
 	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
@@ -1998,7 +1991,7 @@ static void xmlXPtrRangeInsideFunction(xmlXPathParserContextPtr ctxt, int nargs)
 			XP_ERROR(XPATH_MEMORY_ERROR)
 			set = tmp;
 	}
-	oldset = (xmlLocationSetPtr)set->user;
+	oldset = (xmlLocationSet *)set->user;
 	/*
 	 * The loop is to compute the covering range for each item and add it
 	 */
@@ -2029,7 +2022,7 @@ void xmlXPtrRangeToFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	const xmlChar * cur;
 	xmlXPathObjectPtr res, obj;
 	xmlXPathObjectPtr tmp;
-	xmlLocationSetPtr newset = NULL;
+	xmlLocationSet * newset = NULL;
 	xmlNodeSetPtr oldset;
 	int i;
 	if(!ctxt)
@@ -2114,7 +2107,7 @@ skip:           /* This label should only be needed if something is wrong! */
 		goto found;
 	}
 	do {
-		cur = cur->parent;
+		cur = cur->P_ParentNode;
 		if(level)
 			(*level)--;
 		if(!cur) 
@@ -2144,11 +2137,11 @@ found:
  *
  * Returns -1 in case of failure, 0 otherwise
  */
-static int xmlXPtrAdvanceChar(xmlNode ** P_Node, int * indx, int bytes)
+static int xmlXPtrAdvanceChar(xmlNode ** ppNode, int * indx, int bytes)
 {
 	int len;
-	if(P_Node && indx) {
-		xmlNode * cur = *P_Node;
+	if(ppNode && indx) {
+		xmlNode * cur = *ppNode;
 		if(cur && (cur->type != XML_NAMESPACE_DECL)) {
 			int pos = *indx;
 			while(bytes >= 0) {
@@ -2167,7 +2160,7 @@ static int xmlXPtrAdvanceChar(xmlNode ** P_Node, int * indx, int bytes)
 					}
 				}
 				if(!cur) {
-					*P_Node = NULL;
+					*ppNode = NULL;
 					*indx = 0;
 					return -1;
 				}
@@ -2177,7 +2170,7 @@ static int xmlXPtrAdvanceChar(xmlNode ** P_Node, int * indx, int bytes)
 					//
 					SETIFZ(pos, 1);
 					if(bytes == 0) {
-						*P_Node = cur;
+						*ppNode = cur;
 						*indx = pos;
 						return 0;
 					}
@@ -2201,7 +2194,7 @@ static int xmlXPtrAdvanceChar(xmlNode ** P_Node, int * indx, int bytes)
 						}
 						else if((pos + bytes) < len) {
 							pos += bytes;
-							*P_Node = cur;
+							*ppNode = cur;
 							*indx = pos;
 							return 0;
 						}
@@ -2528,8 +2521,8 @@ static void xmlXPtrStringRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	xmlNode * end = 0;
 	xmlNode * fend;
 	xmlXPathObjectPtr set;
-	xmlLocationSetPtr oldset;
-	xmlLocationSetPtr newset;
+	xmlLocationSet * oldset;
+	xmlLocationSet * newset;
 	xmlXPathObjectPtr string;
 	xmlXPathObjectPtr position = NULL;
 	xmlXPathObjectPtr number = NULL;
@@ -2574,7 +2567,7 @@ static void xmlXPtrStringRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 			XP_ERROR(XPATH_MEMORY_ERROR)
 			set = tmp;
 	}
-	oldset = (xmlLocationSetPtr)set->user;
+	oldset = (xmlLocationSet *)set->user;
 	/*
 	 * The loop is to search for each element in the location set
 	 * the list of location set corresponding to that search
@@ -2652,8 +2645,8 @@ void xmlXPtrEvalRangePredicate(xmlXPathParserContextPtr ctxt)
 	xmlXPathObjectPtr res;
 	xmlXPathObject * obj;
 	xmlXPathObject * tmp;
-	xmlLocationSetPtr newset = NULL;
-	xmlLocationSetPtr oldset;
+	xmlLocationSet * newset = NULL;
+	xmlLocationSet * oldset;
 	int i;
 	if(ctxt) {
 		SKIP_BLANKS;
@@ -2669,7 +2662,7 @@ void xmlXPtrEvalRangePredicate(xmlXPathParserContextPtr ctxt)
 		*/
 		CHECK_TYPE(XPATH_LOCATIONSET);
 		obj = valuePop(ctxt);
-		oldset = (xmlLocationSetPtr)obj->user;
+		oldset = (xmlLocationSet *)obj->user;
 		ctxt->context->P_Node = NULL;
 		if((oldset == NULL) || (oldset->locNr == 0)) {
 			ctxt->context->contextSize = 0;

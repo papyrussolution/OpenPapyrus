@@ -96,9 +96,8 @@ private:
 	HWND Label;
 };
 
-FindVers::FindVers(HWND list, const char* pPath, const char* pFileName) : SFindFile(pPath, pFileName)
+FindVers::FindVers(HWND list, const char* pPath, const char* pFileName) : SFindFile(pPath, pFileName), List(list)
 {
-	List = list;
 	Dlg = GetParent(List);
 	Label = GetDlgItem(Dlg, IDC_STATIC);
 }
@@ -108,8 +107,8 @@ int SLAPI FindVers::CallbackProc(const char* pPath, SDirEntry * pEntry)
 	MSG    msg;
 	char   buf[MAX_PATH + 30];
 	if(__Semaph) {
-		SetWindowText(Label, pPath);
-		if(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))	{
+		SetWindowTextA(Label, pPath);
+		if(PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
@@ -144,7 +143,7 @@ int FillVersList(HWND list, int byDiscs)
 	if(byDiscs) {
 		EnableWindow(GetDlgItem(GetParent(list), IDOK), FALSE);
 		EnableWindow(GetDlgItem(GetParent(list), cmFindVersions), FALSE);
-		SetWindowText(GetDlgItem(GetParent(list), IDCANCEL), "Стоп");
+		SetWindowText(GetDlgItem(GetParent(list), IDCANCEL), _T("Стоп"));
 		__Semaph = 1;
 		for(int i = 'A'; i <= 'Z'; i++) {
 			char path[MAXPATH];
@@ -152,8 +151,8 @@ int FillVersList(HWND list, int byDiscs)
 			path[1] = ':';
 			path[2] = '\\';
 			path[3] = 0;
-			uint drive_type = GetDriveType(path);
-			if (drive_type == DRIVE_FIXED || drive_type == DRIVE_REMOTE) {
+			uint drive_type = ::GetDriveType(SUcSwitch(path));
+			if(drive_type == DRIVE_FIXED || drive_type == DRIVE_REMOTE) {
 				FindVers param(list);
 				param.P_Path = path;
 				param.P_FileName = "ppw.exe";
@@ -161,7 +160,7 @@ int FillVersList(HWND list, int byDiscs)
 			}
 			SetWindowText(GetDlgItem(GetParent(list), IDC_STATIC), NULL);
 		}
-		SetWindowText(GetDlgItem(GetParent(list), IDCANCEL), "Отмена");
+		SetWindowText(GetDlgItem(GetParent(list), IDCANCEL), _T("Отмена"));
 		EnableWindow(GetDlgItem(GetParent(list), cmFindVersions), TRUE);
 	}
 	else {
@@ -217,11 +216,11 @@ BOOL CALLBACK DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 									uint pos = 0;
 									StringSet ss(',', buf);
 									ss.get(&pos, p_val->P_Path, MAXPATH);
-									pos = (uint)StrStrI(p_val->P_Path, "\\bin\\ppw.exe");
+									pos = (uint)StrStrI(SUcSwitch(p_val->P_Path), _T("\\bin\\ppw.exe"));
 									if(pos)
 										*(char*)pos = 0;
 									else {
-										pos = (uint)StrStrI(p_val->P_Path, "\\ppw.exe");
+										pos = (uint)StrStrI(SUcSwitch(p_val->P_Path), _T("\\ppw.exe"));
 										*(char*)pos = 0;
 									}
 									p_val->OK = 1;

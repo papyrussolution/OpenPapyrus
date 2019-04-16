@@ -99,7 +99,7 @@ int SLAPI PPObjTech::SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID)
 	MEMSZERO(k2);
 	k2.PrcID = prcID;
 	BExtQuery q(P_Tbl, 2);
-	q.selectAll().where(P_Tbl->PrcID == prcID && P_Tbl->Kind == (long)2);
+	q.selectAll().where(P_Tbl->PrcID == prcID && P_Tbl->Kind == 2L);
 	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 		if(goodsID == P_Tbl->data.GoodsID || goods_obj.BelongToGroup(goodsID, P_Tbl->data.GoodsID, 0) > 0) {
 			tech_id = P_Tbl->data.ID;
@@ -125,7 +125,7 @@ int SLAPI PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
 			MEMSZERO(k2);
 			k2.PrcID = prc_id;
 			BExtQuery q(P_Tbl, 2);
-			q.selectAll().where(P_Tbl->PrcID == prc_id && P_Tbl->Kind == (long)2);
+			q.selectAll().where(P_Tbl->PrcID == prc_id && P_Tbl->Kind == 2L);
 			for(q.initIteration(0, &k2, spGe); ok < 0 && q.nextIteration() > 0;) {
 				goods_id = P_Tbl->data.GoodsID;
 				ok = 1;
@@ -1398,7 +1398,7 @@ int SLAPI TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI TechCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	TechTbl::Rec * p_data_rec = (TechTbl::Rec *)pDataRec;
+	TechTbl::Rec * p_data_rec = static_cast<TechTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f

@@ -625,8 +625,32 @@ SLAPI STimeSeries::STimeSeries() : Ver(1), Id(0), State(0)
 	memzero(Reserve, sizeof(Reserve));
 }
 
+SLAPI STimeSeries::STimeSeries(const STimeSeries & rS) 
+{
+	Copy(rS);
+}
+
 SLAPI STimeSeries::~STimeSeries()
 {
+}
+
+STimeSeries & FASTCALL STimeSeries::operator = (const STimeSeries & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+int FASTCALL STimeSeries::Copy(const STimeSeries & rS)
+{
+	int    ok = 1;
+	Destroy();
+	Ver = rS.Ver;
+	Id = rS.Id;
+	State = rS.State;
+	Symb = rS.Symb;
+	T = rS.T;
+	TSCollection_Copy(VL, rS.VL);
+	return ok;
 }
 
 void FASTCALL STimeSeries::SetSymb(const char * pSymb)

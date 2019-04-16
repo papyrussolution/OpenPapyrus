@@ -740,7 +740,7 @@ static void _cairo_gstate_copy_transformed_pattern(cairo_gstate_t * gstate, cair
 	_cairo_gstate_copy_pattern(pattern, original);
 	/* apply device_transform first so that it is transformed by ctm_inverse */
 	if(original->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)original;
+		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)original;
 		cairo_surface_t * surface = surface_pattern->surface;
 		if(_cairo_surface_has_device_transform(surface))
 			_cairo_pattern_pretransform(pattern, &surface->device_transform);
@@ -777,7 +777,7 @@ static cairo_operator_t FASTCALL _reduce_op(cairo_gstate_t * gstate)
 			}
 		}
 		else if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-			const cairo_surface_pattern_t * surface = (cairo_surface_pattern_t*)pattern;
+			const cairo_surface_pattern_t * surface = (cairo_surface_pattern_t *)pattern;
 			if(surface->surface->is_clear && surface->surface->content & CAIRO_CONTENT_ALPHA)
 				op = CAIRO_OPERATOR_CLEAR;
 		}

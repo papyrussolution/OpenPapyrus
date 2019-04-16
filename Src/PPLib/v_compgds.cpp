@@ -114,7 +114,6 @@ DBQuery * SLAPI PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	uint   brw_id = BROWSER_SUPRWARE;
 	Goods2Tbl * p_tbl = new Goods2Tbl;
 	static DbqStringSubst type_subst(2);  // @global @threadsafe
-
     THROW(CheckTblPtr(p_tbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_group, PPDbqFuncPool::IdObjNameGoods, p_tbl->ID);
 	dbq = &(p_tbl->Kind == PPGDSK_SUPRWARE);
@@ -126,7 +125,7 @@ DBQuery * SLAPI PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		dbe_strexst.init();
 		dbe_strexst.push(p_tbl->Name);
 		dbe_strexst.push(dbc_substr);
-		dbe_strexst.push((DBFunc)PPDbqFuncPool::IdStrExistSubStr);
+		dbe_strexst.push(static_cast<DBFunc>(PPDbqFuncPool::IdStrExistSubStr));
 		dbq = &(*dbq && dbe_strexst == 1L);
 	}
 	dbe_brand = enumtoa(p_tbl->WrOffGrpID, 2, type_subst.Get(PPTXT_COMPGDS_TYPES));

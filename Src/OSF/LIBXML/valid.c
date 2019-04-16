@@ -6018,7 +6018,7 @@ int xmlValidGetValidElements(xmlNode * prev, xmlNode * next, const xmlChar ** na
 	vctxt.error = xmlNoValidityErr; /* this suppresses err/warn output */
 	nb_valid_elements = 0;
 	ref_node = prev ? prev : next;
-	parent = ref_node->parent;
+	parent = ref_node->P_ParentNode;
 	/*
 	 * Retrieves the parent element declaration
 	 */
@@ -6040,7 +6040,7 @@ int xmlValidGetValidElements(xmlNode * prev, xmlNode * next, const xmlChar ** na
 	test_node = xmlNewDocNode(ref_node->doc, NULL, reinterpret_cast<const xmlChar *>("<!dummy?>"), 0);
 	if(test_node == NULL)
 		return -1;
-	test_node->parent = parent;
+	test_node->P_ParentNode = parent;
 	test_node->prev = prev;
 	test_node->next = next;
 	name = test_node->name;

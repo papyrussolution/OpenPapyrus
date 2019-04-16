@@ -27,10 +27,8 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_BOXES_H
 #define CAIRO_BOXES_H
 
@@ -46,14 +44,12 @@ struct _cairo_boxes_t {
 	int num_limits;
 	int num_boxes;
 	uint is_pixel_aligned;
-
 	struct _cairo_boxes_chunk {
 		struct _cairo_boxes_chunk * next;
 		cairo_box_t * base;
 		int count;
 		int size;
 	} chunks, * tail;
-
 	cairo_box_t boxes_embedded[32];
 };
 

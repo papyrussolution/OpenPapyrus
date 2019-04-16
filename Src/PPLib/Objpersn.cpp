@@ -1207,7 +1207,7 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 	else {
 		if(p_array) {
 			p_array->SortByText();
-			((StrAssocListBoxDef *)pDef)->setArray(p_array);
+			static_cast<StrAssocListBoxDef *>(pDef)->setArray(p_array);
 		}
 		p_def = pDef;
 	}
@@ -2156,7 +2156,7 @@ int SLAPI PPObjPerson::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCont
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPPersonPacket);
-	PPPersonPacket * p_pack = (PPPersonPacket*)p->Data;
+	PPPersonPacket * p_pack = static_cast<PPPersonPacket *>(p->Data);
 	if(stream == 0) {
 		THROW(GetPacket(id, p_pack, 0) > 0);
 		if(GetConfig().Flags & PPPersonConfig::fSendAttachment) {
@@ -2197,7 +2197,7 @@ int SLAPI PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransm
 	int    ok = 1;
 	if(p && p->Data) {
 		SString msg_buf, fmt_buf;
-		PPPersonPacket * p_pack = (PPPersonPacket*)p->Data;
+		PPPersonPacket * p_pack = static_cast<PPPersonPacket *>(p->Data);
 		PPLocationPacket addr;
 		if(stream == 0) {
 			int    is_analog = 0;
@@ -2304,7 +2304,7 @@ int SLAPI PPObjPerson::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int rep
 	if(p && p->Data) {
 		uint   i;
 		PPLocationPacket addr;
-		PPPersonPacket * p_pack = (PPPersonPacket*)p->Data;
+		PPPersonPacket * p_pack = static_cast<PPPersonPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_PRSNSTATUS, &p_pack->Rec.Status, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_LOCATION,   &p_pack->Rec.MainLoc, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_LOCATION,   &p_pack->Rec.RLoc, ary, replace))
@@ -4783,7 +4783,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 							enableCommand(cmCashierPassword, 1);
 							enableCommand(cmOK, 1);
 						}
-						void setDTS(CashierInfo * pInfo)
+						void setDTS(const CashierInfo * pInfo)
 						{
 							if(pInfo)
 								CshrInfo = *pInfo;
@@ -5777,7 +5777,6 @@ int SLAPI PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * 
 			PPObjELinkKind elk_obj;
 			PPELinkKind elk_rec;
 			PPIDArray psn_id_list;
-
 			PropertyTbl::Key1 k1;
 			MEMSZERO(k1);
 			k1.ObjType = PPOBJ_PERSON;
@@ -5948,7 +5947,7 @@ private:
 int SLAPI PersonCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	PersonData * p_cache_rec = (PersonData *)pEntry;
+	PersonData * p_cache_rec = static_cast<PersonData *>(pEntry);
 	PPObjPerson psn_obj(SConstructorLite);
 	PersonTbl::Rec rec;
 	if(psn_obj.Search(id, &rec) > 0) {
@@ -5966,8 +5965,8 @@ int SLAPI PersonCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI PersonCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PersonTbl::Rec * p_data_rec = (PersonTbl::Rec *)pDataRec;
-	const PersonData * p_cache_rec = (const PersonData *)pEntry;
+	PersonTbl::Rec * p_data_rec = static_cast<PersonTbl::Rec *>(pDataRec);
+	const PersonData * p_cache_rec = static_cast<const PersonData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->ID       = p_cache_rec->ID;
 	p_data_rec->MainLoc  = p_cache_rec->MainLocID;
@@ -6024,7 +6023,7 @@ int FASTCALL SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PP
 		dlg->disableCtrl(ctlID, personKindID == 0);
 	//if(personKindID) {
 		PersonCtrlGroup * p_grp = 0;
-		if(!(p_grp = (PersonCtrlGroup*)dlg->getGroup(ctlID))) {
+		if(!(p_grp = static_cast<PersonCtrlGroup *>(dlg->getGroup(ctlID)))) {
 			p_grp = new PersonCtrlGroup(ctlID, 0, personKindID);
 			dlg->addGroup(ctlID, p_grp);
 		}
@@ -6142,7 +6141,7 @@ int SLAPI PPObjPersonKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPPersonKind * p_rec = (PPPersonKind *)p->Data;
+		PPPersonKind * p_rec = static_cast<PPPersonKind *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_REGISTERTYPE, &p_rec->CodeRegTypeID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_REGISTERTYPE, &p_rec->FolderRegTypeID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PRSNSTATUS,   &p_rec->DefStatusID, ary, replace));
@@ -6158,7 +6157,7 @@ int SLAPI PPObjPersonKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 	int    ok = 1;
 	THROW(p->Data);
 	if(stream == 0) {
-		PPPersonKind * p_rec = (PPPersonKind *)p->Data;
+		PPPersonKind * p_rec = static_cast<PPPersonKind *>(p->Data);
 		if(*pID || SearchByName(p_rec->Name, pID, 0) > 0) {
 			p_rec->ID = *pID;
 			int    r = EditItem(Obj, *pID, p_rec, 1);
@@ -6232,7 +6231,7 @@ int SLAPI PersonKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI PersonKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPPersonKind * p_data_rec = (PPPersonKind *)pDataRec;
+	PPPersonKind * p_data_rec = static_cast<PPPersonKind *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_PRSNKIND;

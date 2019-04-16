@@ -852,7 +852,7 @@ int SLAPI PPObjGoodsClass::Browse(void * extraPtr)
 		}
 		virtual int Print()
 		{
-			return P_Obj ? ((PPObjGoodsClass *)P_Obj)->Print(0) : 0;
+			return P_Obj ? static_cast<PPObjGoodsClass *>(P_Obj)->Print(0) : 0;
 		}
 	};
 	int    ok = 1;
@@ -891,7 +891,6 @@ public:
 		uint8  LotDimCount;    // 
 		uint8  Reserve[1];     // @alignment
 		PPID   LotDimUnitID;   // 
-
 		PPID   KindID;
 		PPID   GradeID;
 		PPID   AddPropID;
@@ -906,7 +905,7 @@ public:
 int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	GoodsClassData * p_cache_rec = (GoodsClassData *)pEntry;
+	GoodsClassData * p_cache_rec = static_cast<GoodsClassData *>(pEntry);
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket gc_pack;
 	if(gc_obj.GetPacket(id, &gc_pack) > 0) {
@@ -923,7 +922,6 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->DynGenMask     = static_cast<int16>(gc_pack.Rec.DynGenMask);
 		p_cache_rec->LotDimCount    = gc_pack.Rec.LotDimCount;
 		p_cache_rec->LotDimUnitID   = gc_pack.Rec.LotDimUnitID;
-
 		p_cache_rec->KindID     = gc_pack.PropKind.ItemsListID;
 		p_cache_rec->GradeID    = gc_pack.PropGrade.ItemsListID;
 		p_cache_rec->AddPropID  = gc_pack.PropAdd.ItemsListID;
@@ -950,8 +948,8 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPGdsClsPacket * p_data_pack = (PPGdsClsPacket *)pDataRec;
-	const GoodsClassData * p_cache_rec = (const GoodsClassData *)pEntry;
+	PPGdsClsPacket * p_data_pack = static_cast<PPGdsClsPacket *>(pDataRec);
+	const GoodsClassData * p_cache_rec = static_cast<const GoodsClassData *>(pEntry);
 	p_data_pack->Init();
 	p_data_pack->Rec.Tag         = PPOBJ_GOODSCLASS;
 	p_data_pack->Rec.ID          = p_cache_rec->ID;
@@ -967,7 +965,6 @@ void SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	p_data_pack->Rec.DynGenMask = (long)p_cache_rec->DynGenMask;
 	p_data_pack->Rec.LotDimCount  = p_cache_rec->LotDimCount;
 	p_data_pack->Rec.LotDimUnitID = p_cache_rec->LotDimUnitID;
-
 	p_data_pack->PropKind.ItemsListID  = p_cache_rec->KindID;
 	p_data_pack->PropGrade.ItemsListID = p_cache_rec->GradeID;
 	p_data_pack->PropAdd.ItemsListID   = p_cache_rec->AddPropID;

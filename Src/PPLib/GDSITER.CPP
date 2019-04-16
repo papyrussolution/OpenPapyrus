@@ -113,7 +113,7 @@ SLAPI GoodsIterator::GoodsIterator(PPID aGrp, int aOrder, PPIDArray * pDupDynGrp
 SLAPI GoodsIterator::GoodsIterator(int aOrder, PPIDArray * pDupDynGrpList /*=0*/)
 {
 	InitInstance(pDupDynGrpList);
-	Init((GoodsFilt*)0, aOrder);
+	Init(static_cast<const GoodsFilt *>(0), aOrder);
 }
 
 SLAPI GoodsIterator::~GoodsIterator()
@@ -125,10 +125,7 @@ SLAPI GoodsIterator::~GoodsIterator()
 	delete P_UhttsPack;
 }
 
-const IterCounter & SLAPI GoodsIterator::GetIterCounter() const
-{
-	return Counter;
-}
+const IterCounter & SLAPI GoodsIterator::GetIterCounter() const { return Counter; }
 
 int SLAPI GoodsIterator::Init(int aOrder)
 {

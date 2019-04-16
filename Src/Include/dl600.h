@@ -1389,7 +1389,7 @@ int  FASTCALL PPAlddPrint(int RptId, PView * pview, const PPReportEnv * pEnv = 0
 
 //int  SLAPI PPAlddPrint(int RptId, PPFilt * pf, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
 //int  SLAPI PPAlddPrint(int RptId, PView * pview, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
-// @v9.8.5 int  SLAPI PPAlddPrint(int RptId, DlRtm * );
+// @v9.8.5 int  SLAPI PPAlddPrint(int RptId, DlRtm *);
 // @v9.8.5 int  SLAPI PPAlddExport(DlRtm *, PPFilt *, int sort, int isView, char * pPath, const char * pDestPath = 0, int inheritedTblNames = 0);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf);
@@ -1480,7 +1480,7 @@ private:
 	R_##ifn=&SCoClass::Release
 #define ISUPERRINFO_METHOD_PTRS(ifn)        HRESULT (__stdcall SCoClass::*ISEI_##ifn)(REFIID)
 #define ISUPERRINFO_METHOD_PTRS_ASSIGN(ifn) ISEI_##ifn=&SCoClass::InterfaceSupportsErrorInfo
-#define IFACE_METHOD_PROLOG(cls) /*TRACE_FUNC();*/ cls * __tp = (cls *)((TabEntry *)this)->ThisPtr; __tp->AppError=0;
+#define IFACE_METHOD_PROLOG(cls) /*TRACE_FUNC();*/ cls * __tp = static_cast<cls *>(reinterpret_cast<TabEntry *>(this)->ThisPtr); __tp->AppError=0;
 //#define IFACE_METHOD_EPILOG return __tp->AppError ? MAKE_HRESULT(1, FACILITY_ITF, 0) : S_OK
 #define IFACE_METHOD_EPILOG /*TRACE_FUNC();*/ return __tp->Epilog()
 #define IMCI(func) __tp->func

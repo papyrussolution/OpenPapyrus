@@ -1322,7 +1322,7 @@ int SLAPI StaffListCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI StaffListCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPStaffEntry * p_data_rec = (PPStaffEntry *)pDataRec;
+	PPStaffEntry * p_data_rec = static_cast<PPStaffEntry *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -1393,7 +1393,7 @@ int SLAPI PersonPostCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PersonPostTbl::Rec * p_data_rec = (PersonPostTbl::Rec *)pDataRec;
+	PersonPostTbl::Rec * p_data_rec = static_cast<PersonPostTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f

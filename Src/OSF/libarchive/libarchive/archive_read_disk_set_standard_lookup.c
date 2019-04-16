@@ -206,13 +206,11 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 		cache->buff_size = nbuff_size;
 	}
 	if(r != 0) {
-		archive_set_error(cache->archive, errno,
-		    "Can't lookup user for id %d", (int)id);
+		archive_set_error(cache->archive, errno, "Can't lookup user for id %d", (int)id);
 		return NULL;
 	}
 	if(result == NULL)
 		return NULL;
-
 	return strdup(result->pw_name);
 }
 
@@ -221,12 +219,9 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 {
 	struct passwd   * result;
 	(void)cache; /* UNUSED */
-
 	result = getpwuid((uid_t)id);
-
 	if(result == NULL)
 		return NULL;
-
 	return strdup(result->pw_name);
 }
 
@@ -235,8 +230,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 static const char * lookup_gname(void * data, int64_t gid)
 {
 	struct name_cache * gname_cache = (struct name_cache *)data;
-	return (lookup_name(gname_cache,
-	       &lookup_gname_helper, (id_t)gid));
+	return (lookup_name(gname_cache, &lookup_gname_helper, (id_t)gid));
 }
 
 #if HAVE_GETGRGID_R
@@ -272,8 +266,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 		cache->buff_size = nbuff_size;
 	}
 	if(r != 0) {
-		archive_set_error(cache->archive, errno,
-		    "Can't lookup group for id %d", (int)id);
+		archive_set_error(cache->archive, errno, "Can't lookup group for id %d", (int)id);
 		return NULL;
 	}
 	if(result == NULL)

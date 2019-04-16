@@ -2434,8 +2434,8 @@ int SLAPI PPObjectTransmit::TransmitBills(PPID destDBDiv, const BillTransmitPara
 	int    is_generic_op = 0;
 	uint   gen_op_iterator = 0;
 	PPID   op_id = 0;
-	BillTbl::Rec     br;
-	PPIDArray        op_list;
+	BillTbl::Rec br;
+	PPIDArray op_list;
 	PPObjectTransmit * p_ot = 0;
 	BillTransmitParam flt;
 	RVALUEPTR(flt, pFilt);
@@ -2500,14 +2500,15 @@ int SLAPI PPObjectTransmit::TransmitBills(PPID destDBDiv, const BillTransmitPara
 int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray * pObjAry, const ObjTransmitParam * pParam)
 {
 	int    ok = 1;
-	PPLogger logger;
+	// @v10.4.1 PPLogger logger;
 	if(pDBDivAry && pObjAry) {
 		for(uint i = 0; i < pDBDivAry->getCount(); i++) {
 			PPWait(1);
 			int    r = Transmit(pDBDivAry->at(i), pObjAry, pParam);
 			if(!r) {
 				if(pDBDivAry->getCount() > 1) {
-					logger.LogLastError();
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER); // @v10.4.1
+					// @v10.4.1 logger.LogLastError();
 					ok = 0;
 				}
 				else
@@ -2519,7 +2520,7 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 	else
 		ok = -1;
 	CATCHZOK
-	logger.Save(PPFILNAM_ERR_LOG, 0); // @v10.4.0
+	// @v10.4.1 logger.Save(PPFILNAM_ERR_LOG, 0); // @v10.4.0
 	return ok;
 }
 
@@ -2529,7 +2530,7 @@ int PPObjectTransmit::Transmit(PPID dbDivID, const PPObjIDArray * pObjAry, const
 	int    ok = 0;
 	PPObjectTransmit * p_ot = 0;
 	if(pObjAry && dbDivID && pParam) {
-		int    sync_cmp = BIN(pParam->Flags & ObjTransmitParam::fSyncCmp);
+		const int sync_cmp = BIN(pParam->Flags & ObjTransmitParam::fSyncCmp);
 		THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, sync_cmp, BIN(pParam->Flags & pParam->fRecoverTransmission)));
 		THROW(p_ot->SetDestDbDivID(dbDivID));
 		{

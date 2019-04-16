@@ -2117,6 +2117,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         	for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(!seen_pos_list.lsearch(tidx) && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, r_ti.LotID, 0, 0, agi) > 0) {
+									LongArray local_pos_list;
 									double qtty = fabs(r_ti.Qtty());
 									double price = 0.0;
 									long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
@@ -2165,10 +2166,12 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 												qtty = total_qtty;
 												price = total_price;
 												seen_pos_list.add(fw_tidx);
+												local_pos_list.add(fw_tidx); // @v10.4.1
 											}
 										}
 									}
 									seen_pos_list.add(tidx);
+									local_pos_list.add(tidx); // @v10.4.1
 									//
 									SXml::WNode w_p(_doc, SXml::nst("wb", "Position"));
 									w_p.PutInner(SXml::nst("wb", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));
@@ -2191,31 +2194,47 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										if(doc_type == PPEDIOP_EGAIS_WAYBILL_V3) {
 											SXml::WNode w_s(_doc, SXml::nst("wb", "InformF2"));
 											w_s.PutInner(SXml::nst("ce", "F2RegId"), EncText(ref_b));
-											if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
-												SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
-												for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
-													if(ext_codes_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
-														SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
-														w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(msentry.Num));
-														{
-															SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
-															ext_codes_set.GetByBoxID(msentry.BoxID, ss);
-															for(uint ssp = 0; ss.get(&ssp, temp_buf);)
-																w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
-														}
-													}
+											//
+											// @v10.4.1 Уточнение выгрузки марок для случая, если несколько строк документа объединяются в одну
+											//
+											int    is_there_ext_codes = 0;
+											{
+												for(uint lpidx = 0; !is_there_ext_codes && lpidx < local_pos_list.getCount(); lpidx++) {
+													const int row_idx = local_pos_list.get(lpidx);
+													if(p_bp->XcL.Get(row_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount())
+														is_there_ext_codes = 1;
 												}
-												{
-													//
-													// В конце вставляем марки, не привязанные к боксам
-													//
-													ext_codes_set.GetByBoxID(0, ss);
-													if(ss.getCount()) {
-														SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
+											}
+											if(is_there_ext_codes) {
+												for(uint lpidx = 0; lpidx < local_pos_list.getCount(); lpidx++) {
+													const int row_idx = local_pos_list.get(lpidx);
+													if(p_bp->XcL.Get(row_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+														SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
+														for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
+															if(ext_codes_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
+																SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
+																w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(msentry.Num));
+																{
+																	SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
+																	ext_codes_set.GetByBoxID(msentry.BoxID, ss);
+																	for(uint ssp = 0; ss.get(&ssp, temp_buf);)
+																		w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
+																}
+															}
+														}
 														{
-															SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
-															for(uint ssp = 0; ss.get(&ssp, temp_buf);)
-																w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
+															//
+															// В конце вставляем марки, не привязанные к боксам
+															//
+															ext_codes_set.GetByBoxID(0, ss);
+															if(ss.getCount()) {
+																SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
+																{
+																	SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
+																	for(uint ssp = 0; ss.get(&ssp, temp_buf);)
+																		w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
+																}
+															}
 														}
 													}
 												}
@@ -3747,21 +3766,22 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 					temp_buf = full_name;
 				temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(pPack->Rec.Name, temp_buf);
-				if(inn.NotEmptyS()) {
-					RegisterTbl::Rec new_inn_reg;
-					MEMSZERO(new_inn_reg);
-					new_inn_reg.RegTypeID = PPREGT_TPID;
-					STRNSCPY(new_inn_reg.Num, inn);
-					new_inn_reg.ObjType = PPOBJ_PERSON;
-					pPack->Regs.insert(&new_inn_reg);
-				}
-				if(kpp.NotEmptyS()) {
-					RegisterTbl::Rec new_kpp_reg;
-					MEMSZERO(new_kpp_reg);
-					new_kpp_reg.RegTypeID = PPREGT_KPP;
-					STRNSCPY(new_kpp_reg.Num, kpp);
-					new_kpp_reg.ObjType = PPOBJ_PERSON;
-					pPack->Regs.insert(&new_kpp_reg);
+				{
+					RegisterTbl::Rec new_reg;
+					if(inn.NotEmptyS()) {
+						MEMSZERO(new_reg);
+						new_reg.RegTypeID = PPREGT_TPID;
+						STRNSCPY(new_reg.Num, inn);
+						new_reg.ObjType = PPOBJ_PERSON;
+						pPack->Regs.insert(&new_reg);
+					}
+					if(kpp.NotEmptyS()) {
+						MEMSZERO(new_reg);
+						new_reg.RegTypeID = PPREGT_KPP;
+						STRNSCPY(new_reg.Num, kpp);
+						new_reg.ObjType = PPOBJ_PERSON;
+						pPack->Regs.insert(&new_reg);
+					}
 				}
 				{
 					pPack->Loc.destroy();

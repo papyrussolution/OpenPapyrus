@@ -154,13 +154,9 @@ int archive_read_support_filter_compress(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_compress");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_compress");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "compress (.Z)";
 	bidder->bid = compress_bidder_bid;
@@ -169,18 +165,15 @@ int archive_read_support_filter_compress(struct archive * _a)
 	bidder->free = compress_bidder_free;
 	return ARCHIVE_OK;
 }
-
 /*
  * Test whether we can handle this data.
  * This logic returns zero if any part of the signature fails.
  */
-static int compress_bidder_bid(struct archive_read_filter_bidder * self,
-    struct archive_read_filter * filter)
+static int compress_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
 	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
-
 	(void)self; /* UNUSED */
 
 	/* Shortest valid compress file is 3 bytes. */

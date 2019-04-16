@@ -599,7 +599,7 @@ SLAPI PPObjCashNode::PPObjCashNode(void * extraPtr) : PPObjReference(PPOBJ_CASHN
 
 int SLAPI PPObjCashNode::DeleteObj(PPID id)
 {
-	const PPCashNode * p_cn_rec = (const PPCashNode *)&ref->data;
+	const PPCashNode * p_cn_rec = reinterpret_cast<const PPCashNode *>(&ref->data);
 	if(!(p_cn_rec->Flags & CASHF_DAYCLOSED) && p_cn_rec->CurDate)
 		return PPSetError(PPERR_DAYNOTCLOSED);
 	else
@@ -611,7 +611,7 @@ int  SLAPI PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	int    ok = 1;
 	if(p && p->Data) {
 		if(stream == 0) {
-			PPCashNode * p_rec = (PPCashNode *)p->Data;
+			PPCashNode * p_rec = static_cast<PPCashNode *>(p->Data);
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if((p_rec->ID && p_rec->ID < PP_FIRSTUSRREF) ||
@@ -649,7 +649,7 @@ int SLAPI PPObjCashNode::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 {
 	int    ok = -1;
 	if(p && p->Data) {
-		PPCashNode * p_rec = (PPCashNode *)p->Data; // PPCashNode2
+		PPCashNode * p_rec = static_cast<PPCashNode *>(p->Data); // PPCashNode2
 		ProcessObjRefInArray(PPOBJ_LOCATION, &p_rec->LocID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_QUOTKIND, &p_rec->ExtQuotID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_rec->GoodsGrpID, ary, replace);
@@ -2598,7 +2598,7 @@ int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPCashNode * p_data_rec = (PPCashNode *)pDataRec;
+	PPCashNode * p_data_rec = static_cast<PPCashNode *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld

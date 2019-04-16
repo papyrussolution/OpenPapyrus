@@ -122,7 +122,7 @@ StrAssocArray * WhatmanObjectRegTable::MakeStrAssocList() const
 		Item item;
 		if(Get(i, item)) {
 			const char * p_name = item.P_Name;
-			if(p_name && p_name[0] == '@' && SLS.LoadString(p_name+1, name_buf))
+			if(p_name && p_name[0] == '@' && SLS.LoadString_(p_name+1, name_buf))
 				p_name = name_buf;
 			p_list->Add(item.Id, NZOR(p_name, item.P_Symb));
 		}

@@ -1691,7 +1691,7 @@ static cairo_status_t _cairo_ps_surface_acquire_source_surface_from_pattern(cair
 	}
 	else if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
 		cairo_surface_t * surf = NULL;
-		*source_surface = ((cairo_surface_pattern_t*)pattern)->surface;
+		*source_surface = ((cairo_surface_pattern_t *)pattern)->surface;
 		surf = *source_surface;
 		*src_surface_bounded = _cairo_surface_get_extents(surf, src_surface_extents);
 		if(surf->type == CAIRO_SURFACE_TYPE_RECORDING) {
@@ -1905,7 +1905,7 @@ static cairo_bool_t pattern_supported(cairo_ps_surface_t * surface, const cairo_
 		    return _gradient_pattern_supported(surface, pattern);
 
 		case CAIRO_PATTERN_TYPE_SURFACE:
-		    return surface_pattern_supported((cairo_surface_pattern_t*)pattern);
+		    return surface_pattern_supported((cairo_surface_pattern_t *)pattern);
 
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
 		    return TRUE;
@@ -1924,7 +1924,7 @@ static cairo_bool_t mask_supported(cairo_ps_surface_t * surface,
 		return FALSE;
 
 	if(mask->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)mask;
+		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)mask;
 		if(surface_pattern->surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
 			/* check if mask if opaque or bilevel alpha */
 			if(_cairo_ps_surface_analyze_surface_pattern_transparency(surface, mask, extents) == CAIRO_INT_STATUS_SUCCESS) {
@@ -1961,7 +1961,7 @@ static cairo_int_status_t _cairo_ps_surface_analyze_operation(cairo_ps_surface_t
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)pattern;
+		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)pattern;
 
 		if(surface_pattern->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
 			if(pattern->extend == CAIRO_EXTEND_PAD) {
@@ -3507,7 +3507,7 @@ static cairo_status_t _cairo_ps_surface_paint_surface(cairo_ps_surface_t * surfa
 
 	if(pattern->extend == CAIRO_EXTEND_PAD &&
 	    pattern->type == CAIRO_PATTERN_TYPE_SURFACE &&
-	    ((cairo_surface_pattern_t*)pattern)->surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
+	    ((cairo_surface_pattern_t *)pattern)->surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
 		cairo_image_surface_t * img;
 
 		img = (cairo_image_surface_t*)source_surface;
@@ -3836,7 +3836,7 @@ static cairo_status_t _cairo_ps_surface_emit_surface_pattern(cairo_ps_surface_t 
 	cairo_matrix_init_identity(&ps_p2d);
 	cairo_matrix_multiply(&ps_p2d, &cairo_p2d, &ps_p2d);
 	cairo_matrix_translate(&ps_p2d, x_offset, y_offset);
-	if(((cairo_surface_pattern_t*)pattern)->surface->type != CAIRO_SURFACE_TYPE_RECORDING) {
+	if(((cairo_surface_pattern_t *)pattern)->surface->type != CAIRO_SURFACE_TYPE_RECORDING) {
 		cairo_matrix_translate(&ps_p2d, 0.0, pattern_extents.height);
 		cairo_matrix_scale(&ps_p2d, 1.0, -1.0);
 	}

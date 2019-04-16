@@ -875,7 +875,7 @@ int xmlTextWriterStartElementNS(xmlTextWriter * writer, const xmlChar * prefix, 
 	int count;
 	int sum = 0;
 	xmlChar * buf;
-	if((writer == NULL) || (name == NULL) || (*name == '\0'))
+	if((writer == NULL) || !name || (*name == '\0'))
 		return -1;
 	buf = NULL;
 	if(prefix != 0) {
@@ -1446,7 +1446,7 @@ int xmlTextWriterStartAttribute(xmlTextWriter * writer, const xmlChar * name)
 {
 	int count;
 	int sum = 0;
-	if((writer == NULL) || (name == NULL) || (*name == '\0'))
+	if((writer == NULL) || !name || (*name == '\0'))
 		return -1;
 	xmlLink * lk = xmlListFront(writer->nodes);
 	if(lk == 0)

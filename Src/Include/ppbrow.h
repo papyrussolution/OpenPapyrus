@@ -1446,6 +1446,8 @@
 #define PPCMD_VETISINTERCHANGE            1334
 #define PPCMD_TIMESERIESSA                1335
 #define PPCMD_TIMESERIESCONFIG            1336
+#define PPCMD_SENDBILLSWITHFILT           1337
+#define PPCMD_FREIGHTPACKAGETYPE          1338
 //
 // PPJOB definitions
 //

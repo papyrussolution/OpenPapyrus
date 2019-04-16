@@ -36,7 +36,7 @@ int TMenuPopup::Add(const char * pText, int cmd)
 	if(H) {
 		SString temp_buf;
 		if(pText[0] == '@') {
-			if(!SLS.LoadString(pText+1, temp_buf))
+			if(!SLS.LoadString_(pText+1, temp_buf))
 				temp_buf = pText+1;
 			else
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);

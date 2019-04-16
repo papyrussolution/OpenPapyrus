@@ -14,111 +14,109 @@
 // определен как ushort [].
 //
 static const ushort _Objects[] = {
-	(ushort)PPOBJ_CONFIG,       // ?
-	(ushort)PPOBJ_USRGRP,       // ?
-	(ushort)PPOBJ_USR,          // ?
-	(ushort)PPOBJ_UNIT,         // !
-	(ushort)PPOBJ_CURRATE,      // !
-	(ushort)PPOBJ_CITYSTATUS,   // !
-	(ushort)PPOBJ_PRSNKIND,     // !
-	(ushort)PPOBJ_PRSNSTATUS,   // !
-	(ushort)PPOBJ_STAFFRANK,    // !
-	(ushort)PPOBJ_BNKACCTYPE,   // !
-	(ushort)PPOBJ_PRICETYPE,    // !
-	(ushort)PPOBJ_AMOUNTTYPE,   // !
-	(ushort)PPOBJ_ACCSHEET,     // !
-	// @v8.6.4 (ushort)PPOBJ_COUNTRY,      // !
-	// @v8.6.4 (ushort)PPOBJ_REGION,       // !
-	// @v8.6.4 (ushort)PPOBJ_CITY,         // !
-	(ushort)PPOBJ_PERSON,       // !
-	(ushort)PPOBJ_ARTICLE,      // !
-	(ushort)PPOBJ_ACCOUNT_PRE9004, // @v9.0.4
-	(ushort)PPOBJ_ACCOUNT2,     // ! // @v9.0.4 PPOBJ_ACCOUNT-->PPOBJ_ACCOUNT2
-	(ushort)PPOBJ_GOODSGROUP,   // !
-	(ushort)PPOBJ_GOODS,        // !
-	(ushort)PPOBJ_LOCATION,     // !
-	(ushort)PPOBJ_OPRTYPE,      // !
-	(ushort)PPOBJ_OPRKIND,      // !
-	(ushort)PPOBJ_ACCTURN,      // ?
-	(ushort)PPOBJ_CASHNODE,     // ?
-	(ushort)PPOBJ_ACTION,       // ?
-	(ushort)PPOBJ_GTACTION,     // ?
-	(ushort)PPOBJ_BILL,
-	(ushort)PPOBJ_QCERT,        // !
-	// @v9.0.4 (ushort)PPOBJ_BACCT,        // ?
-	(ushort)PPOBJ_BCODESTRUC,   // !
-	(ushort)PPOBJ_DBDIV,
-	(ushort)PPOBJ_VATBOOK,
-	(ushort)PPOBJ_GOODSTYPE,    // !
-	(ushort)PPOBJ_GOODSSTRUC,   // !
-	(ushort)PPOBJ_FORMULA,
-	(ushort)PPOBJ_SCALE,
-	(ushort)PPOBJ_REGISTERTYPE,
-	(ushort)PPOBJ_REGISTER,
-	(ushort)PPOBJ_ELINKKIND,
-	(ushort)PPOBJ_QUOTKIND,
-	(ushort)PPOBJ_PERSONOPKIND,
-	(ushort)PPOBJ_PERSONEVENT,
-	(ushort)PPOBJ_TAG,
-	(ushort)PPOBJ_STAFFLIST_PRE9003,
-	(ushort)PPOBJ_STAFFLIST2,
-	(ushort)PPOBJ_GOODSTAX,
-	(ushort)PPOBJ_BCODEPRINTER,
-	(ushort)PPOBJ_CURRENCY,
-	(ushort)PPOBJ_CURRATETYPE,
-	(ushort)PPOBJ_OPCOUNTER,
-	(ushort)PPOBJ_GOODSCLASS,
-	(ushort)PPOBJ_WOODBREED,
-	(ushort)PPOBJ_PCKGTYPE,
-	(ushort)PPOBJ_TRANSPORT,
-	(ushort)PPOBJ_GOODSBASKET,
-	(ushort)PPOBJ_BHT,
-	(ushort)PPOBJ_SCARDSERIES,
-	(ushort)PPOBJ_SCARD,
-	(ushort)PPOBJ_STYLOPALM,
-	(ushort)PPOBJ_DRAFTWROFF,
-	(ushort)PPOBJ_ASSTWROFFGRP,
-	(ushort)PPOBJ_ADVBILLKIND,
-	(ushort)PPOBJ_CSESSION,
-	(ushort)PPOBJ_TRANSPMODEL,
-	(ushort)PPOBJ_INTERNETACCOUNT,
-	(ushort)PPOBJ_BRAND,
-	(ushort)PPOBJ_PERSONRELTYPE,
-	(ushort)PPOBJ_PRSNCATEGORY,
-	(ushort)PPOBJ_PROJECT,
-	(ushort)PPOBJ_MRPTAB,
-	(ushort)PPOBJ_PRJTASK,
-	(ushort)PPOBJ_DFCREATERULE,
-	(ushort)PPOBJ_DYNAMICOBJS,
-	(ushort)PPOBJ_BILLSTATUS,
-	(ushort)PPOBJ_PROCESSOR,
-	(ushort)PPOBJ_TECH,
-	(ushort)PPOBJ_TSESSION,
-	(ushort)PPOBJ_TOUCHSCREEN,
-	(ushort)PPOBJ_DATETIMEREP,
-	(ushort)PPOBJ_DUTYSCHED,
-	(ushort)PPOBJ_WORLD,
-	(ushort)PPOBJ_GOODSINFO,
-	(ushort)PPOBJ_SALCHARGE,
-	(ushort)PPOBJ_STAFFCAL,
-	(ushort)PPOBJ_NAMEDOBJASSOC,
-	(ushort)PPOBJ_BIZSCORE,
-	(ushort)PPOBJ_GLOBALUSERACC,
-	(ushort)PPOBJ_GOODSVALRESTR,
-	(ushort)PPOBJ_BUDGET,
-	(ushort)PPOBJ_BIZSCTEMPL,
-	(ushort)PPOBJ_PALLET,
-	(ushort)PPOBJ_RFIDDEVICE,
-	(ushort)PPOBJ_DEBTDIM,
-	(ushort)PPOBJ_EVENTTOKEN,
-	(ushort)PPOBJ_SMSPRVACCOUNT,
-	(ushort)PPOBJ_PHONESERVICE,
-	(ushort)PPOBJ_GENERICDEVICE, // @v7.8.0
-	(ushort)PPOBJ_LOT,           // @v8.0.3 @nonobject
-	(ushort)PPOBJ_CAFETABLE,     // @v8.4.1
-	(ushort)PPOBJ_EDIPROVIDER,   // @v8.5.5
-	(ushort)PPOBJ_USREXCLRIGHTS, // @v8.6.0
-	(ushort)PPOBJ_WORKBOOK       // @v9.3.8
+	PPOBJ_CONFIG,       // ?
+	PPOBJ_USRGRP,       // ?
+	PPOBJ_USR,          // ?
+	PPOBJ_UNIT,         // !
+	PPOBJ_CURRATE,      // !
+	PPOBJ_CITYSTATUS,   // !
+	PPOBJ_PRSNKIND,     // !
+	PPOBJ_PRSNSTATUS,   // !
+	PPOBJ_STAFFRANK,    // !
+	PPOBJ_BNKACCTYPE,   // !
+	PPOBJ_PRICETYPE,    // !
+	PPOBJ_AMOUNTTYPE,   // !
+	PPOBJ_ACCSHEET,     // !
+	PPOBJ_PERSON,       // !
+	PPOBJ_ARTICLE,      // !
+	PPOBJ_ACCOUNT_PRE9004, // @v9.0.4
+	PPOBJ_ACCOUNT2,     // ! // @v9.0.4 PPOBJ_ACCOUNT-->PPOBJ_ACCOUNT2
+	PPOBJ_GOODSGROUP,   // !
+	PPOBJ_GOODS,        // !
+	PPOBJ_LOCATION,     // !
+	PPOBJ_OPRTYPE,      // !
+	PPOBJ_OPRKIND,      // !
+	PPOBJ_ACCTURN,      // ?
+	PPOBJ_CASHNODE,     // ?
+	PPOBJ_ACTION,       // ?
+	PPOBJ_GTACTION,     // ?
+	PPOBJ_BILL,
+	PPOBJ_QCERT,        // !
+	// @v9.0.4 PPOBJ_BACCT,        // ?
+	PPOBJ_BCODESTRUC,   // !
+	PPOBJ_DBDIV,
+	PPOBJ_VATBOOK,
+	PPOBJ_GOODSTYPE,    // !
+	PPOBJ_GOODSSTRUC,   // !
+	PPOBJ_FORMULA,
+	PPOBJ_SCALE,
+	PPOBJ_REGISTERTYPE,
+	PPOBJ_REGISTER,
+	PPOBJ_ELINKKIND,
+	PPOBJ_QUOTKIND,
+	PPOBJ_PERSONOPKIND,
+	PPOBJ_PERSONEVENT,
+	PPOBJ_TAG,
+	PPOBJ_STAFFLIST_PRE9003,
+	PPOBJ_STAFFLIST2,
+	PPOBJ_GOODSTAX,
+	PPOBJ_BCODEPRINTER,
+	PPOBJ_CURRENCY,
+	PPOBJ_CURRATETYPE,
+	PPOBJ_OPCOUNTER,
+	PPOBJ_GOODSCLASS,
+	PPOBJ_WOODBREED,
+	PPOBJ_PCKGTYPE,
+	PPOBJ_TRANSPORT,
+	PPOBJ_GOODSBASKET,
+	PPOBJ_BHT,
+	PPOBJ_SCARDSERIES,
+	PPOBJ_SCARD,
+	PPOBJ_STYLOPALM,
+	PPOBJ_DRAFTWROFF,
+	PPOBJ_ASSTWROFFGRP,
+	PPOBJ_ADVBILLKIND,
+	PPOBJ_CSESSION,
+	PPOBJ_TRANSPMODEL,
+	PPOBJ_INTERNETACCOUNT,
+	PPOBJ_BRAND,
+	PPOBJ_PERSONRELTYPE,
+	PPOBJ_PRSNCATEGORY,
+	PPOBJ_PROJECT,
+	PPOBJ_MRPTAB,
+	PPOBJ_PRJTASK,
+	PPOBJ_DFCREATERULE,
+	PPOBJ_DYNAMICOBJS,
+	PPOBJ_BILLSTATUS,
+	PPOBJ_PROCESSOR,
+	PPOBJ_TECH,
+	PPOBJ_TSESSION,
+	PPOBJ_TOUCHSCREEN,
+	PPOBJ_DATETIMEREP,
+	PPOBJ_DUTYSCHED,
+	PPOBJ_WORLD,
+	PPOBJ_GOODSINFO,
+	PPOBJ_SALCHARGE,
+	PPOBJ_STAFFCAL,
+	PPOBJ_NAMEDOBJASSOC,
+	PPOBJ_BIZSCORE,
+	PPOBJ_GLOBALUSERACC,
+	PPOBJ_GOODSVALRESTR,
+	PPOBJ_BUDGET,
+	PPOBJ_BIZSCTEMPL,
+	PPOBJ_PALLET,
+	PPOBJ_RFIDDEVICE,
+	PPOBJ_DEBTDIM,
+	PPOBJ_EVENTTOKEN,
+	PPOBJ_SMSPRVACCOUNT,
+	PPOBJ_PHONESERVICE,
+	PPOBJ_GENERICDEVICE,
+	PPOBJ_LOT,           // @nonobject
+	PPOBJ_CAFETABLE,
+	PPOBJ_EDIPROVIDER,
+	PPOBJ_USREXCLRIGHTS,
+	PPOBJ_WORKBOOK,      // @v9.3.8
+	PPOBJ_FREIGHTPACKAGETYPE // @v10.4.1
 };
 
 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
@@ -141,7 +139,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_PRICETYPE   :
 		case PPOBJ_WOODBREED   :
 		case PPOBJ_EVENTTOKEN  :
-		case PPOBJ_CAFETABLE   : // @v8.4.1
+		case PPOBJ_CAFETABLE   : 
 		case PPOBJ_TRANSPMODEL : p = new PPObjReference(obj, extraPtr); break;
 		case PPOBJ_ACTION      : p = new PPObjSysAction(extraPtr); break;
 		case PPOBJ_GTACTION    : p = new PPObjGtaAction(extraPtr); break;
@@ -155,9 +153,6 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_BILLSTATUS  : p = new PPObjBillStatus(extraPtr); break;
 		case PPOBJ_ACCSHEET    : p = new PPObjAccSheet(extraPtr); break;
 		case PPOBJ_CASHNODE    : p = new PPObjCashNode(extraPtr); break;
-		// @v8.6.4 case PPOBJ_COUNTRY     : p = new PPObjCountry(reinterpret_cast<long>(extraPtr)); break;
-		// @v8.6.4 case PPOBJ_REGION      : p = new PPObjRegion(reinterpret_cast<long>(extraPtr)); break;
-		// @v8.6.4 case PPOBJ_CITY        : p = new PPObjCity(reinterpret_cast<long>(extraPtr)); break;
 		case PPOBJ_PERSON      : p = new PPObjPerson(extraPtr); break;
 		case PPOBJ_ARTICLE     : p = new PPObjArticle(extraPtr); break;
 		case PPOBJ_ACCOUNT_PRE9004:
@@ -235,6 +230,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_WORKBOOK    :  p = new PPObjWorkbook(extraPtr); break; // @Muxa
 		case PPOBJ_EDIPROVIDER :  p = new PPObjEdiProvider(extraPtr); break; // @v8.5.5
 		case PPOBJ_TIMESERIES  :  p = new PPObjTimeSeries(extraPtr); break; // @v10.2.3 @experimental
+		case PPOBJ_FREIGHTPACKAGETYPE: p = new PPObjFreightPackageType(extraPtr); break; // @v10.4.1
 		default                :
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);
@@ -763,12 +759,10 @@ int SLAPI PPObject::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 		if(ImplementFlags & implStrAssocMakeList) {
 			StrAssocArray * p_list = MakeStrAssocList(extraPtr);
 			if(p_list) {
-				if(ImplementFlags & implTreeSelector) {
-					((StdTreeListBoxDef *)pDef)->setArray(p_list);
-				}
-				else {
-					((StrAssocListBoxDef *)pDef)->setArray(p_list);
-				}
+				if(ImplementFlags & implTreeSelector)
+					static_cast<StdTreeListBoxDef *>(pDef)->setArray(p_list);
+				else
+					static_cast<StrAssocListBoxDef *>(pDef)->setArray(p_list);
 			}
 			else
 				ok = PPErrorZ();

@@ -129,22 +129,19 @@ void _cairo_stroke_style_max_join_distance_from_path(const cairo_stroke_style_t 
 		*dy = style_expansion * hypot(ctm->yy, ctm->yx);
 	}
 }
-
 /*
  * Computes the period of a dashed stroke style.
  * Returns 0 for non-dashed styles.
  */
 double _cairo_stroke_style_dash_period(const cairo_stroke_style_t * style)
 {
-	uint i;
 	double period = 0.0;
-	for(i = 0; i < style->num_dashes; i++)
+	for(uint i = 0; i < style->num_dashes; i++)
 		period += style->dash[i];
 	if(style->num_dashes & 1)
 		period *= 2.0;
 	return period;
 }
-
 /*
  * Coefficient of the linear approximation (minimizing square difference)
  * of the surface covered by round caps
@@ -175,7 +172,6 @@ double _cairo_stroke_style_dash_period(const cairo_stroke_style_t * style)
 double _cairo_stroke_style_dash_stroked(const cairo_stroke_style_t * style)
 {
 	double stroked, cap_scale;
-	uint i;
 	switch(style->line_cap) {
 		default: ASSERT_NOT_REACHED;
 		case CAIRO_LINE_CAP_BUTT:   cap_scale = 0.0; break;
@@ -186,57 +182,43 @@ double _cairo_stroke_style_dash_stroked(const cairo_stroke_style_t * style)
 	if(style->num_dashes & 1) {
 		/* Each dash element is used both as on and as off. The order in which they are summed is
 		 * irrelevant, so sum the coverage of one dash element, taken both on and off at each iteration */
-		for(i = 0; i < style->num_dashes; i++)
+		for(uint i = 0; i < style->num_dashes; i++)
 			stroked += style->dash[i] + cap_scale * MIN(style->dash[i], style->line_width);
 	}
 	else {
 		/* Even (0, 2, ...) dashes are on and simply counted for the coverage, odd dashes are off, thus
 		* their coverage is approximated based on the area covered by the caps of adjacent on dases. */
-		for(i = 0; i + 1 < style->num_dashes; i += 2)
+		for(uint i = 0; i + 1 < style->num_dashes; i += 2)
 			stroked += style->dash[i] + cap_scale * MIN(style->dash[i+1], style->line_width);
 	}
-
 	return stroked;
 }
-
 /*
  * Verifies if _cairo_stroke_style_dash_approximate should be used to generate
  * an approximation of the dash pattern in the specified style, when used for
  * stroking a path with the given CTM and tolerance.
  * Always %FALSE for non-dashed styles.
  */
-cairo_bool_t _cairo_stroke_style_dash_can_approximate(const cairo_stroke_style_t * style,
-    const cairo_matrix_t * ctm,
-    double tolerance)
+cairo_bool_t _cairo_stroke_style_dash_can_approximate(const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, double tolerance)
 {
-	double period;
-
 	if(!style->num_dashes)
 		return FALSE;
-
-	period = _cairo_stroke_style_dash_period(style);
+	const double period = _cairo_stroke_style_dash_period(style);
 	return _cairo_matrix_transformed_circle_major_axis(ctm, period) < tolerance;
 }
-
 /*
  * Create a 2-dashes approximation of a dashed style, by making the "on" and "off"
  * parts respect the original ratio.
  */
-void _cairo_stroke_style_dash_approximate(const cairo_stroke_style_t * style,
-    const cairo_matrix_t * ctm,
-    double tolerance,
-    double * dash_offset,
-    double * dashes,
-    uint * num_dashes)
+void _cairo_stroke_style_dash_approximate(const cairo_stroke_style_t * style, const cairo_matrix_t * ctm,
+    double tolerance, double * dash_offset, double * dashes, uint * num_dashes)
 {
 	double coverage, scale, offset;
 	cairo_bool_t on = TRUE;
 	uint i = 0;
-
 	coverage = _cairo_stroke_style_dash_stroked(style) / _cairo_stroke_style_dash_period(style);
 	coverage = MIN(coverage, 1.0);
 	scale = tolerance / _cairo_matrix_transformed_circle_major_axis(ctm, 1.0);
-
 	/* We stop searching for a starting point as soon as the
 	 * offset reaches zero.  Otherwise when an initial dash
 	 * segment shrinks to zero it will be skipped over. */
@@ -247,9 +229,7 @@ void _cairo_stroke_style_dash_approximate(const cairo_stroke_style_t * style,
 		if(++i == style->num_dashes)
 			i = 0;
 	}
-
 	*num_dashes = 2;
-
 	/*
 	 * We want to create a new dash pattern with the same relative coverage,
 	 * but composed of just 2 elements with total length equal to scale.
@@ -283,17 +263,14 @@ void _cairo_stroke_style_dash_approximate(const cairo_stroke_style_t * style,
 		    ASSERT_NOT_REACHED;
 		    dashes[0] = 0.0;
 		    break;
-
 		case CAIRO_LINE_CAP_BUTT:
 		    /* Simplified formula (substituting 0 for cap_scale): */
 		    dashes[0] = scale * coverage;
 		    break;
-
 		case CAIRO_LINE_CAP_ROUND:
 		    dashes[0] = MAX(scale * (coverage - ROUND_MINSQ_APPROXIMATION) / (1.0 - ROUND_MINSQ_APPROXIMATION),
 			    scale * coverage - ROUND_MINSQ_APPROXIMATION * style->line_width);
 		    break;
-
 		case CAIRO_LINE_CAP_SQUARE:
 		    /*
 		 * Special attention is needed to handle the case cap_scale == 1 (since the first solution

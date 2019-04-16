@@ -606,6 +606,24 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						else {
 							THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate))); // @v9.7.1
 						}
+						// @v10.4.1 {
+						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
+							uint   str_id = 0;
+							switch(sl_param.PaymTermTag) {
+								case CCheckPacket::pttFullPrepay: str_id = DVCPARAM_PTT_FULL_PREPAY; break;
+								case CCheckPacket::pttPrepay: str_id = DVCPARAM_PTT_PREPAY; break;
+								case CCheckPacket::pttAdvance: str_id = DVCPARAM_PTT_ADVANCE; break;
+								case CCheckPacket::pttFullPayment: str_id = DVCPARAM_PTT_FULLPAYMENT; break;
+								case CCheckPacket::pttPartial: str_id = DVCPARAM_PTT_PARTIAL; break;
+								case CCheckPacket::pttCreditHandOver: str_id = DVCPARAM_PTT_CREDITHANDOVER; break;
+								case CCheckPacket::pttCredit: str_id = DVCPARAM_PTT_CREDIT; break;
+							}
+							if(str_id) {
+								PPLoadString(PPSTR_ABDVCCMD, str_id, temp_buf);
+								THROW(ArrAdd(Arr_In, DVCPARAM_PAYMENTTERMTAG, temp_buf));
+							}
+						}
+						// } @v10.4.1 
 						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 						PROFILE_END
 						Flags |= sfOpenCheck;
@@ -649,7 +667,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 				}
 				Arr_In.Z();
-				running_total = fabs(running_total); // @v7.7.2
+				running_total = fabs(running_total);
 				CheckForRibbonUsing(SlipLineParam::fRegRegular|SlipLineParam::fRegJournal, Arr_In);
 				if(prn_total_sale) {
 					if(fiscal != 0.0) {
@@ -714,12 +732,10 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			const int is_al = BIN(r_al.getCount());
 			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? fiscal : 0.0);
 			const double amt_cash = (fiscal - amt_bnk);
-			if(amt_bnk > 0.0) {
-				THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk))
-			}
-			if(amt_cash > 0.0) {
-				THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash));
-			}
+			const double amt_ccrd = r_al.Get(CCAMTTYP_CRDCARD); // @v10.4.1
+			if(amt_bnk > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk)) }
+			if(amt_cash > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash)); }
+			if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); } // @v10.4.1
 		}
 		// Всегда закрываем чек
 		//if(fiscal != 0.0) {

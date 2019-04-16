@@ -1970,7 +1970,7 @@ int SLAPI CSessCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 
 void SLAPI CSessCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	CSessionTbl::Rec * p_data_rec = (CSessionTbl::Rec *)pDataRec;
+	CSessionTbl::Rec * p_data_rec = static_cast<CSessionTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f

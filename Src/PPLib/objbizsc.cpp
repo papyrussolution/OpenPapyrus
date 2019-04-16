@@ -804,7 +804,7 @@ DBQuery * SLAPI PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		dbe_descr.push(c_temp);
 		c_temp.init((long)BIZSCEXSTR_DESCR);
 		dbe_descr.push(c_temp);
-		dbe_descr.push((DBFunc)PPDbqFuncPool::IdPropSubStr);
+		dbe_descr.push(static_cast<DBFunc>(PPDbqFuncPool::IdPropSubStr));
 
 		dbe_formula.init();
 		c_temp.init(PPOBJ_BIZSCORE);
@@ -814,7 +814,7 @@ DBQuery * SLAPI PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		dbe_formula.push(c_temp);
 		c_temp.init((long)BIZSCEXSTR_FORMULA);
 		dbe_formula.push(c_temp);
-		dbe_formula.push((DBFunc)PPDbqFuncPool::IdPropSubStr);
+		dbe_formula.push(static_cast<DBFunc>(PPDbqFuncPool::IdPropSubStr));
 	}
 	dbq = &(t->ObjType == PPOBJ_BIZSCORE);
 	dbq = ppcheckfiltid(dbq, t->Val1, Filt.UserID);

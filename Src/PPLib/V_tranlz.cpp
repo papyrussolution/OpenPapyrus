@@ -2035,14 +2035,14 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 					dbe_cost.init();
 					dbe_cost.push(tat->Qtty);
 					dbe_cost.push(tat->Cost);
-					dbe_cost.push((DBFunc)PPDbqFuncPool::IdTaCost);
+					dbe_cost.push(static_cast<DBFunc>(PPDbqFuncPool::IdTaCost));
 				}
 				{
 					dbe_price.init();
 					dbe_price.push(tat->Qtty);
 					dbe_price.push(tat->Price);
 					dbe_price.push(tat->Discount);
-					dbe_price.push((DBFunc)PPDbqFuncPool::IdTaPrice);
+					dbe_price.push(static_cast<DBFunc>(PPDbqFuncPool::IdTaPrice));
 				}
 				if(oneof2(Filt.Sgg, sggSupplAgent, sggSuppl)) {
 					goods_as_ar = 1;
@@ -2095,7 +2095,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
                         if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
 							dbe_goodscode.init();
 							dbe_goodscode.push(tat->GoodsID);
-							dbe_goodscode.push((DBFunc)PPDbqFuncPool::IdGoodsSingleBarcode);
+							dbe_goodscode.push(static_cast<DBFunc>(PPDbqFuncPool::IdGoodsSingleBarcode));
 							q->addField(dbe_goodscode);  // #18 // @v9.3.5 #13-->#14 // @v9.4.10 14-->17 // @v10.3.5 #17-->18
                         }
                         else {
@@ -2111,7 +2111,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 						{
 							dbe_linkdate.init();
 							dbe_linkdate.push(tat->LinkBillID);
-							dbe_linkdate.push((DBFunc)PPDbqFuncPool::IdBillDate);
+							dbe_linkdate.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillDate));
 							q->addField(dbe_linkdate); // #20 @v10.0.03 // @v10.3.5 #19-->20
 						}
 					}
@@ -2181,7 +2181,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 			if(Filt.Sgg == sggNone && Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
 				dbe_goodscode.init();
 				dbe_goodscode.push(tgt->GoodsID);
-				dbe_goodscode.push((DBFunc)PPDbqFuncPool::IdGoodsSingleBarcode);
+				dbe_goodscode.push(static_cast<DBFunc>(PPDbqFuncPool::IdGoodsSingleBarcode));
 				q->addField(dbe_goodscode);  // #23 // @v9.3.5 #18-->19 // @v9.4.10 #19-->#22 // @v10.3.5 #22-->23
 			}
 			else {
@@ -2197,7 +2197,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 					else
 						dbe_rest.push(dbconst(NZOR(Filt.Period.upp, getcurdate_())));
 					dbe_rest.push(dbconst((const void *)&GctRestList));
-					dbe_rest.push((DBFunc)DynFuncGetAvgRest);
+					dbe_rest.push(static_cast<DBFunc>(DynFuncGetAvgRest));
 				}
 				else {
 					if(Filt.Grp == TrfrAnlzFilt::gGoodsDate)
@@ -2205,7 +2205,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 					else
 						dbe_rest.push(dbconst(NZOR(Filt.Period.upp, getcurdate_())));
 					dbe_rest.push(dbconst((const void *)&GctRestList));
-					dbe_rest.push((DBFunc)DynFuncGetRest);
+					dbe_rest.push(static_cast<DBFunc>(DynFuncGetRest));
 				}
 				q->addField(dbe_rest);      // #24 // @v9.3.5 #19-->20 // @v9.4.10 #20-->#23 // @v10.3.5 #23-->24
 			}
@@ -2228,7 +2228,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 					dbe_trnovr.push(tgt->Cost);
 				else */
 					dbe_trnovr.push(dbconst(0.0));
-				dbe_trnovr.push((DBFunc)DynFuncGetTrnovr);
+				dbe_trnovr.push(static_cast<DBFunc>(DynFuncGetTrnovr));
 				q->addField(dbe_trnovr);     // #25 @stub // @v9.3.5 #20-->21 // @v9.4.10 #21-->#24 // @v10.3.5 #24-->25
 			}
 			else {

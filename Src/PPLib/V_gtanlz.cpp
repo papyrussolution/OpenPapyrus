@@ -770,7 +770,7 @@ int FASTCALL PPViewGoodsTaxAnalyze::NextIteration(GoodsTaxAnalyzeViewItem * pIte
 	return -1;
 }
 
-DBQuery * SLAPI PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString * )
+DBQuery * SLAPI PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString *)
 {
 	uint   brw_id = Filt.HasCycleFlags() ? BROWSER_GOODSTAXANLZ_D : BROWSER_GOODSTAXANLZ;
 	TempGoodsTaxAnlzTbl * t = new TempGoodsTaxAnlzTbl(P_TempTbl->GetName());

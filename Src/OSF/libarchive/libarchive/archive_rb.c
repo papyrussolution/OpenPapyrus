@@ -45,7 +45,7 @@
 #define RB_FLAG_POSITION        0x2
 #define RB_FLAG_RED             0x1
 #define RB_FLAG_MASK            (RB_FLAG_POSITION|RB_FLAG_RED)
-#define RB_FATHER(rb)       ((struct archive_rb_node *)((rb)->rb_info & ~RB_FLAG_MASK))
+#define RB_FATHER(rb)           (reinterpret_cast<struct archive_rb_node *>((rb)->rb_info & ~RB_FLAG_MASK))
 #define RB_SET_FATHER(rb, father) ((void)((rb)->rb_info = (uintptr_t)(father)|((rb)->rb_info & RB_FLAG_MASK)))
 #define RB_SENTINEL_P(rb)       ((rb) == NULL)
 #define RB_LEFT_SENTINEL_P(rb)  RB_SENTINEL_P((rb)->rb_left)
@@ -99,11 +99,11 @@ struct archive_rb_node * __archive_rb_tree_find_node(struct archive_rb_tree * rb
 	return NULL;
 }
 
-struct archive_rb_node * __archive_rb_tree_find_node_geq(struct archive_rb_tree * rbt, const void * key)                           {
+struct archive_rb_node * __archive_rb_tree_find_node_geq(struct archive_rb_tree * rbt, const void * key)                           
+{
 	archive_rbto_compare_key_fn compare_key = rbt->rbt_ops->rbto_compare_key;
 	struct archive_rb_node * parent = rbt->rbt_root;
 	struct archive_rb_node * last = NULL;
-
 	while(!RB_SENTINEL_P(parent)) {
 		const signed int diff = (*compare_key)(parent, key);
 		if(diff == 0)
@@ -112,7 +112,6 @@ struct archive_rb_node * __archive_rb_tree_find_node_geq(struct archive_rb_tree 
 			last = parent;
 		parent = parent->rb_nodes[diff > 0];
 	}
-
 	return last;
 }
 
@@ -149,7 +148,6 @@ int __archive_rb_tree_insert_node(struct archive_rb_tree * rbt, struct archive_r
 	 */
 	parent = (struct archive_rb_node *)(void*)&rbt->rbt_root;
 	position = RB_DIR_LEFT;
-
 	/*
 	 * Find out where to place this new leaf.
 	 */
@@ -185,7 +183,6 @@ int __archive_rb_tree_insert_node(struct archive_rb_tree * rbt, struct archive_r
 	self->rb_left = parent->rb_nodes[position];
 	self->rb_right = parent->rb_nodes[position];
 	parent->rb_nodes[position] = self;
-
 	/*
 	 * Rebalance tree after insertion
 	 */
@@ -436,7 +433,6 @@ static void __archive_rb_tree_prune_blackred_branch(struct archive_rb_node * sel
 	father->rb_nodes[RB_POSITION(son)] = son;
 	RB_SET_FATHER(son, father);
 }
-
 /*
  *
  */
@@ -479,7 +475,6 @@ void __archive_rb_tree_remove_node(struct archive_rb_tree * rbt, struct archive_
 		__archive_rb_tree_prune_blackred_branch(self, which);
 		return;
 	}
-
 	/*
 	 * We invert these because we prefer to remove from the inside of
 	 * the tree.
@@ -545,10 +540,7 @@ static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree * rbt, st
 		 * Avoid an else here so that case 2a above can hit either
 		 * case 2b, 3, or 4.
 		 */
-		if(RB_RED_P(parent)
-		    && RB_BLACK_P(brother)
-		    && RB_BLACK_P(brother->rb_left)
-		    && RB_BLACK_P(brother->rb_right)) {
+		if(RB_RED_P(parent) && RB_BLACK_P(brother) && RB_BLACK_P(brother->rb_left) && RB_BLACK_P(brother->rb_right)) {
 			/*
 			 * We are black, our father is red, our brother and
 			 * both nephews are black.  Simply invert/exchange the

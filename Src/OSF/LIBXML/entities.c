@@ -44,7 +44,7 @@ static void FASTCALL xmlFreeEntity(xmlEntity * entity)
 {
 	if(entity) {
 		xmlDict * dict = entity->doc ? entity->doc->dict : 0;
-		if(entity->children && (entity->owner == 1) && (entity == (xmlEntity *)entity->children->parent))
+		if(entity->children && (entity->owner == 1) && (entity == (xmlEntity *)entity->children->P_ParentNode))
 			xmlFreeNodeList(entity->children);
 		if(dict) {
 			if(entity->name && !xmlDictOwns(dict, entity->name))

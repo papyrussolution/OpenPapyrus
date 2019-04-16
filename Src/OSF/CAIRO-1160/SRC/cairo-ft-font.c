@@ -2710,17 +2710,13 @@ static cairo_int_status_t _cairo_index_to_glyph_name(void * abstract_font,
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	error = FT_Get_Glyph_Name(face, glyph_index, buffer, sizeof buffer);
-
 	_cairo_ft_unscaled_font_unlock_face(unscaled);
-
 	if(error != FT_Err_Ok) {
 		/* propagate fatal errors from FreeType */
 		if(error == FT_Err_Out_Of_Memory)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
-
 	/* FT first numbers the glyphs in the order they are read from the
 	 * Type 1 font. Then if .notdef is not the first glyph, the first
 	 * glyph is swapped with .notdef to ensure that .notdef is at
@@ -2731,22 +2727,16 @@ static cairo_int_status_t _cairo_index_to_glyph_name(void * abstract_font,
 	 * glyph_names[glyph_index] is the name we are looking for. If not
 	 * we fall back to searching the entire array.
 	 */
-
-	if((long)glyph_index < num_glyph_names &&
-	    strcmp(glyph_names[glyph_index], buffer) == 0) {
+	if((long)glyph_index < num_glyph_names && strcmp(glyph_names[glyph_index], buffer) == 0) {
 		*glyph_array_index = glyph_index;
-
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	for(i = 0; i < num_glyph_names; i++) {
 		if(strcmp(glyph_names[i], buffer) == 0) {
 			*glyph_array_index = i;
-
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-
 	return CAIRO_INT_STATUS_UNSUPPORTED;
 }
 

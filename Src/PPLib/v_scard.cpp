@@ -2903,7 +2903,7 @@ DBQuery * SLAPI PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_extobj.init();
 		dbe_extobj.push(p_c->LinkObjType);
 		dbe_extobj.push(p_c->LinkObjID);
-		dbe_extobj.push((DBFunc)DynFuncExtObjName);
+		dbe_extobj.push(static_cast<DBFunc>(DynFuncExtObjName));
 	}
 	PPDbqFuncPool::InitObjNameFunc(dbe_sc_code, PPDbqFuncPool::IdObjCodeSCard, p_c->SCardID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_scowner_name, PPDbqFuncPool::IdSCardOwnerName, p_c->SCardID);
@@ -2911,17 +2911,15 @@ DBQuery * SLAPI PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_frzprd.init();
 		dbe_frzprd.push(p_c->FreezingStart);
 		dbe_frzprd.push(p_c->FreezingEnd);
-		dbe_frzprd.push((DBFunc)PPDbqFuncPool::IdDateRange);
+		dbe_frzprd.push(static_cast<DBFunc>(PPDbqFuncPool::IdDateRange));
 	}
 	dbq = ppcheckfiltid(dbq, p_c->SCardID, Filt.SCardID);
 	dbq = & (*dbq && daterange(p_c->Dt, &Filt.Period));
-	// @v8.2.8 {
 	if(Filt.SCardSerID) {
 		p_s = new SCardTbl;
 		dbq = & (*dbq && p_c->SCardID == p_s->ID && p_s->SeriesID == Filt.SCardSerID);
 	}
 	dbq = & (*dbq && realrange(p_c->Amount, Filt.AmtR.low, Filt.AmtR.upp));
-	// } @v8.2.8
 	q = & select(
 		p_c->SCardID,     // #0
 		p_c->Dt,          // #1

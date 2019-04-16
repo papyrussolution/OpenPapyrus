@@ -89,7 +89,7 @@ static int crl_set_issuers(X509_CRL * crl)
 				return 0;
 		}
 		rev->issuer = gens;
-		reason = (ASN1_ENUMERATED * )X509_REVOKED_get_ext_d2i(rev, NID_crl_reason, &j, 0);
+		reason = (ASN1_ENUMERATED *)X509_REVOKED_get_ext_d2i(rev, NID_crl_reason, &j, 0);
 		if(!reason && (j != -1)) {
 			crl->flags |= EXFLAG_INVALID;
 			return 1;

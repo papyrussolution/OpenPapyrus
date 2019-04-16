@@ -1607,9 +1607,9 @@ void FASTCALL PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & 
 	rDbe.push(rFld1);
 	rDbe.push(rFld2);
 	if(incDiv == 2)
-		rDbe.push((DBFunc)IdPercentAddendum);
+		rDbe.push(static_cast<DBFunc>(IdPercentAddendum));
 	else if(incDiv == 1)
-		rDbe.push((DBFunc)PPDbqFuncPool::IdPercentIncDiv);
+		rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercentIncDiv));
 	else
 		rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 }
@@ -1624,7 +1624,7 @@ void FASTCALL PPDbqFuncPool::InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStr
 		dbc_ptr.init(pSg);
 		rDbe.push(dbc_ptr);
 	}
-	rDbe.push((DBFunc)PPDbqFuncPool::IdStrByStrGroupPos);
+	rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdStrByStrGroupPos));
 }
 
 //static

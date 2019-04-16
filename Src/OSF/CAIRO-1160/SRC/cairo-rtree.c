@@ -36,7 +36,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-error-private.h"
-#include "cairo-rtree-private.h"
+//#include "cairo-rtree-private.h"
 
 cairo_rtree_node_t * _cairo_rtree_node_create(cairo_rtree_t * rtree, cairo_rtree_node_t * parent, int x, int y, int width, int height)
 {

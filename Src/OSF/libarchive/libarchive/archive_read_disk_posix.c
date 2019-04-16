@@ -527,8 +527,7 @@ int archive_read_disk_set_atime_restored(struct archive * _a)
 	return ARCHIVE_OK;
 #else
 	/* Display warning and unset flag */
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Cannot restore access time on this system");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Cannot restore access time on this system");
 	a->flags &= ~ARCHIVE_READDISK_RESTORE_ATIME;
 	return (ARCHIVE_WARN);
 #endif
@@ -1075,17 +1074,14 @@ static int setup_sparse(struct archive_read_disk * a, struct archive_entry * ent
 	struct tree * t = a->tree;
 	int64_t length, offset;
 	int i;
-
 	t->sparse_count = archive_entry_sparse_reset(entry);
 	if(t->sparse_count+1 > t->sparse_list_size) {
 		SAlloc::F(t->sparse_list);
 		t->sparse_list_size = t->sparse_count + 1;
-		t->sparse_list = SAlloc::M(sizeof(t->sparse_list[0]) *
-			t->sparse_list_size);
+		t->sparse_list = SAlloc::M(sizeof(t->sparse_list[0]) * t->sparse_list_size);
 		if(t->sparse_list == NULL) {
 			t->sparse_list_size = 0;
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate data");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate data");
 			a->archive.state = ARCHIVE_STATE_FATAL;
 			return ARCHIVE_FATAL;
 		}
@@ -1196,24 +1192,18 @@ int archive_read_disk_open_w(struct archive * _a, const wchar_t * pathname)
 static int _archive_read_disk_open(struct archive * _a, const char * pathname)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
 	if(a->tree != NULL)
-		a->tree = tree_reopen(a->tree, pathname,
-			a->flags & ARCHIVE_READDISK_RESTORE_ATIME);
+		a->tree = tree_reopen(a->tree, pathname, a->flags & ARCHIVE_READDISK_RESTORE_ATIME);
 	else
-		a->tree = tree_open(pathname, a->symlink_mode,
-			a->flags & ARCHIVE_READDISK_RESTORE_ATIME);
+		a->tree = tree_open(pathname, a->symlink_mode, a->flags & ARCHIVE_READDISK_RESTORE_ATIME);
 	if(a->tree == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate tar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate tar data");
 		a->archive.state = ARCHIVE_STATE_FATAL;
 		return ARCHIVE_FATAL;
 	}
 	a->archive.state = ARCHIVE_STATE_HEADER;
-
 	return ARCHIVE_OK;
 }
-
 /*
  * Return a current filesystem ID which is index of the filesystem entry
  * you've visited through archive_read_disk.
@@ -1239,21 +1229,15 @@ static int update_current_filesystem(struct archive_read_disk * a, int64_t dev)
 			return ARCHIVE_OK;
 		}
 	}
-
 	/*
 	 * This is the new filesystem which we have to generate a new ID for.
 	 */
 	fid = t->max_filesystem_id++;
 	if(t->max_filesystem_id > t->allocated_filesystem) {
-		size_t s;
-		void * p;
-
-		s = t->max_filesystem_id * 2;
-		p = SAlloc::R(t->filesystem_table,
-			s * sizeof(*t->filesystem_table));
+		size_t s = t->max_filesystem_id * 2;
+		void * p = SAlloc::R(t->filesystem_table, s * sizeof(*t->filesystem_table));
 		if(p == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate tar data");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate tar data");
 			return ARCHIVE_FATAL;
 		}
 		t->filesystem_table = (struct filesystem *)p;
@@ -1264,12 +1248,9 @@ static int update_current_filesystem(struct archive_read_disk * a, int64_t dev)
 	t->current_filesystem->dev = dev;
 	t->current_filesystem->allocation_ptr = NULL;
 	t->current_filesystem->buff = NULL;
-
-	/* Setup the current filesystem properties which depend on
-	 * platform specific. */
+	// Setup the current filesystem properties which depend on platform specific. 
 	return (setup_current_filesystem(a));
 }
-
 /*
  * Returns 1 if current filesystem is generated filesystem, 0 if it is not
  * or -1 if it is unknown.
@@ -1378,8 +1359,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 			tree_current_access_path(t), O_RDONLY | O_CLOEXEC);
 		__archive_ensure_cloexec_flag(fd);
 		if(fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "openat failed");
+			archive_set_error(&a->archive, errno, "openat failed");
 			return ARCHIVE_FAILED;
 		}
 		r = fstatfs(fd, &sfs);
@@ -1691,12 +1671,10 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		 * Get file system statistics on any directory
 		 * where current is.
 		 */
-		int fd = openat(tree_current_dir_fd(t),
-			tree_current_access_path(t), O_RDONLY | O_CLOEXEC);
+		int fd = openat(tree_current_dir_fd(t), tree_current_access_path(t), O_RDONLY | O_CLOEXEC);
 		__archive_ensure_cloexec_flag(fd);
 		if(fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "openat failed");
+			archive_set_error(&a->archive, errno, "openat failed");
 			return ARCHIVE_FAILED;
 		}
 		r = fstatvfs(fd, &sfs);
@@ -2403,22 +2381,16 @@ static int tree_target_is_same_as_parent(struct tree * t, const struct stat * st
 	}
 	return 0;
 }
-
 /*
  * Test whether the current file is symbolic link target and
  * on the other filesystem.
  */
 static int tree_current_is_symblic_link_target(struct tree * t)
 {
-	static const struct stat * lst, * st;
-
-	lst = tree_current_lstat(t);
-	st = tree_current_stat(t);
-	return (st != NULL && lst != NULL &&
-	       (int64_t)st->st_dev == t->current_filesystem->dev &&
-	       st->st_dev != lst->st_dev);
+	static const struct stat * lst = tree_current_lstat(t);
+	static const struct stat * st = tree_current_stat(t);
+	return (st != NULL && lst != NULL && (int64_t)st->st_dev == t->current_filesystem->dev && st->st_dev != lst->st_dev);
 }
-
 /*
  * Return the access path for the entry just returned from tree_next().
  */
@@ -2426,7 +2398,6 @@ static const char * tree_current_access_path(struct tree * t)
 {
 	return (t->basename);
 }
-
 /*
  * Return the full path for the entry just returned from tree_next().
  */
@@ -2434,7 +2405,6 @@ static const char * tree_current_path(struct tree * t)
 {
 	return (t->path.s);
 }
-
 /*
  * Terminate the traversal.
  */

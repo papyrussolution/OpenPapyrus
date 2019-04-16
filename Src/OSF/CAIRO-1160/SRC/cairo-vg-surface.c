@@ -990,7 +990,7 @@ static cairo_status_t setup_source(cairo_vg_context_t * context,
 			       (cairo_radial_pattern_t*)source);
 		case CAIRO_PATTERN_TYPE_SURFACE:
 		    return _vg_setup_surface_source(context,
-			       (cairo_surface_pattern_t*)source);
+			       (cairo_surface_pattern_t *)source);
 		default:
 		    ASSERT_NOT_REACHED;
 		    return CAIRO_INT_STATUS_UNSUPPORTED;

@@ -26,20 +26,19 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_link_resolver.c 201100 2009-12-28 03:05:31Z kientzle $");
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_SYS_STAT_H
+	//#include <sys/stat.h>
+//#endif
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 //#include <stdio.h>
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
-
+//#endif
 //#include "archive.h"
 //#include "archive_entry.h"
 
@@ -117,56 +116,39 @@ void archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver *
 	switch(fmtbase) {
 		case ARCHIVE_FORMAT_7ZIP:
 		case ARCHIVE_FORMAT_AR:
-		case ARCHIVE_FORMAT_ZIP:
-		    res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_OLD_CPIO;
-		    break;
+		case ARCHIVE_FORMAT_ZIP: res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_OLD_CPIO; break;
 		case ARCHIVE_FORMAT_CPIO:
 		    switch(fmt) {
 			    case ARCHIVE_FORMAT_CPIO_SVR4_NOCRC:
-			    case ARCHIVE_FORMAT_CPIO_SVR4_CRC:
-				res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_NEW_CPIO;
-				break;
-			    default:
-				res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_OLD_CPIO;
-				break;
+			    case ARCHIVE_FORMAT_CPIO_SVR4_CRC: res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_NEW_CPIO; break;
+			    default: res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_OLD_CPIO; break;
 		    }
 		    break;
-		case ARCHIVE_FORMAT_MTREE:
-		    res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_MTREE;
-		    break;
+		case ARCHIVE_FORMAT_MTREE: res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_MTREE; break;
 		case ARCHIVE_FORMAT_ISO9660:
 		case ARCHIVE_FORMAT_SHAR:
 		case ARCHIVE_FORMAT_TAR:
-		case ARCHIVE_FORMAT_XAR:
-		    res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_TAR;
-		    break;
-		default:
-		    res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_OLD_CPIO;
-		    break;
+		case ARCHIVE_FORMAT_XAR: res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_TAR; break;
+		default: res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_OLD_CPIO; break;
 	}
 }
 
 void archive_entry_linkresolver_free(struct archive_entry_linkresolver * res)
 {
 	struct links_entry * le;
-
 	if(res == NULL)
 		return;
-
 	while((le = next_entry(res, NEXT_ENTRY_ALL)) != NULL)
 		archive_entry_free(le->entry);
 	SAlloc::F(res->buckets);
 	SAlloc::F(res);
 }
 
-void archive_entry_linkify(struct archive_entry_linkresolver * res,
-    struct archive_entry ** e, struct archive_entry ** f)
+void archive_entry_linkify(struct archive_entry_linkresolver * res, struct archive_entry ** e, struct archive_entry ** f)
 {
 	struct links_entry * le;
 	struct archive_entry * t;
-
 	*f = NULL; /* Default: Don't return a second entry. */
-
 	if(*e == NULL) {
 		le = next_entry(res, NEXT_ENTRY_DEFERRED);
 		if(le != NULL) {
@@ -175,16 +157,12 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 		}
 		return;
 	}
-
 	/* If it has only one link, then we're done. */
 	if(archive_entry_nlink(*e) == 1)
 		return;
 	/* Directories, devices never have hardlinks. */
-	if(archive_entry_filetype(*e) == AE_IFDIR
-	    || archive_entry_filetype(*e) == AE_IFBLK
-	    || archive_entry_filetype(*e) == AE_IFCHR)
+	if(archive_entry_filetype(*e) == AE_IFDIR || archive_entry_filetype(*e) == AE_IFBLK || archive_entry_filetype(*e) == AE_IFCHR)
 		return;
-
 	switch(res->strategy) {
 		case ARCHIVE_ENTRY_LINKIFY_LIKE_TAR:
 		    le = find_entry(res, *e);
@@ -248,13 +226,12 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 	return;
 }
 
-static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
-    struct archive_entry * entry){
+static struct links_entry * find_entry(struct archive_entry_linkresolver * res, struct archive_entry * entry)
+{
 	struct links_entry      * le;
 	size_t hash, bucket;
 	dev_t dev;
 	int64_t ino;
-
 	/* Free a held entry. */
 	if(res->spare != NULL) {
 		archive_entry_free(res->spare->canonical);
@@ -262,17 +239,13 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
 		SAlloc::F(res->spare);
 		res->spare = NULL;
 	}
-
 	dev = archive_entry_dev(entry);
 	ino = archive_entry_ino64(entry);
 	hash = (size_t)(dev ^ ino);
-
 	/* Try to locate this entry in the links cache. */
 	bucket = hash & (res->number_buckets - 1);
 	for(le = res->buckets[bucket]; le != NULL; le = le->next) {
-		if(le->hash == hash
-		    && dev == archive_entry_dev(le->canonical)
-		    && ino == archive_entry_ino64(le->canonical)) {
+		if(le->hash == hash && dev == archive_entry_dev(le->canonical) && ino == archive_entry_ino64(le->canonical)) {
 			/*
 			 * Decrement link count each time and release
 			 * the entry if it hits zero.  This saves
@@ -298,10 +271,10 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
 	return NULL;
 }
 
-static struct links_entry * next_entry(struct archive_entry_linkresolver * res, int mode)                             {
+static struct links_entry * next_entry(struct archive_entry_linkresolver * res, int mode)                             
+{
 	struct links_entry      * le;
 	size_t bucket;
-
 	/* Free a held entry. */
 	if(res->spare != NULL) {
 		archive_entry_free(res->spare->canonical);
@@ -309,15 +282,12 @@ static struct links_entry * next_entry(struct archive_entry_linkresolver * res, 
 		SAlloc::F(res->spare);
 		res->spare = NULL;
 	}
-
 	/* Look for next non-empty bucket in the links cache. */
 	for(bucket = 0; bucket < res->number_buckets; bucket++) {
 		for(le = res->buckets[bucket]; le != NULL; le = le->next) {
-			if(le->entry != NULL &&
-			    (mode & NEXT_ENTRY_DEFERRED) == 0)
+			if(le->entry != NULL && (mode & NEXT_ENTRY_DEFERRED) == 0)
 				continue;
-			if(le->entry == NULL &&
-			    (mode & NEXT_ENTRY_PARTIAL) == 0)
+			if(le->entry == NULL && (mode & NEXT_ENTRY_PARTIAL) == 0)
 				continue;
 			/* Remove it from this hash bucket. */
 			if(le->next != NULL)
@@ -344,14 +314,11 @@ static struct links_entry * insert_entry(struct archive_entry_linkresolver * res
 	if(le == NULL)
 		return NULL;
 	le->canonical = archive_entry_clone(entry);
-
 	/* If the links cache is getting too full, enlarge the hash table. */
 	if(res->number_entries > res->number_buckets * 2)
 		grow_hash(res);
-
 	hash = (size_t)(archive_entry_dev(entry) ^ archive_entry_ino64(entry));
 	bucket = hash & (res->number_buckets - 1);
-
 	/* If we could allocate the entry, record it. */
 	if(res->buckets[bucket] != NULL)
 		res->buckets[bucket]->previous = le;
@@ -381,10 +348,8 @@ static void grow_hash(struct archive_entry_linkresolver * res)
 			/* Remove entry from old bucket. */
 			le = res->buckets[i];
 			res->buckets[i] = le->next;
-
 			/* Add entry to new bucket. */
 			bucket = le->hash & (new_size - 1);
-
 			if(new_buckets[bucket] != NULL)
 				new_buckets[bucket]->previous = le;
 			le->next = new_buckets[bucket];
@@ -397,11 +362,10 @@ static void grow_hash(struct archive_entry_linkresolver * res)
 	res->number_buckets = new_size;
 }
 
-struct archive_entry * archive_entry_partial_links(struct archive_entry_linkresolver * res,
-    uint * links){
+struct archive_entry * archive_entry_partial_links(struct archive_entry_linkresolver * res, uint * links)
+{
 	struct archive_entry    * e;
 	struct links_entry      * le;
-
 	/* Free a held entry. */
 	if(res->spare != NULL) {
 		archive_entry_free(res->spare->canonical);
@@ -409,18 +373,15 @@ struct archive_entry * archive_entry_partial_links(struct archive_entry_linkreso
 		SAlloc::F(res->spare);
 		res->spare = NULL;
 	}
-
 	le = next_entry(res, NEXT_ENTRY_PARTIAL);
 	if(le != NULL) {
 		e = le->canonical;
-		if(links != NULL)
-			*links = le->links;
+		ASSIGN_PTR(links, le->links);
 		le->canonical = NULL;
 	}
 	else {
 		e = NULL;
-		if(links != NULL)
-			*links = 0;
+		ASSIGN_PTR(links, 0);
 	}
 	return (e);
 }

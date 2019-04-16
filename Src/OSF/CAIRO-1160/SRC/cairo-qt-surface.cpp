@@ -814,7 +814,7 @@ struct PatternToBrushConverter {
 			mBrush = QBrush(color);
 		}
 		else if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-			cairo_surface_pattern_t * spattern = (cairo_surface_pattern_t*)pattern;
+			cairo_surface_pattern_t * spattern = (cairo_surface_pattern_t *)pattern;
 			cairo_surface_t * surface = spattern->surface;
 
 			if(surface->type == CAIRO_SURFACE_TYPE_QT) {
@@ -1130,7 +1130,7 @@ static bool _cairo_qt_fast_fill(cairo_qt_surface_t * qs,
 	std::auto_ptr<QImage> qsSrc_image_d;
 
 	if(source->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_pattern_t * spattern = (cairo_surface_pattern_t*)source;
+		cairo_surface_pattern_t * spattern = (cairo_surface_pattern_t *)source;
 		if(spattern->surface->type == CAIRO_SURFACE_TYPE_QT) {
 			cairo_qt_surface_t * p = (cairo_qt_surface_t*)spattern->surface;
 

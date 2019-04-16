@@ -781,7 +781,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 				dbe_objname.push(sj->ObjType);
 				dbe_objname.push(sj->ObjID);
 				dbe_objname.push(dbconst(static_cast<const void *>(this)));
-				dbe_objname.push((DBFunc)DynFuncObjNameFromList);
+				dbe_objname.push(static_cast<DBFunc>(DynFuncObjNameFromList));
 			}
 			else
 				dbe_objname.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -791,7 +791,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 				dbe_evvertext.push(sj->Dt);
 				dbe_evvertext.push(sj->Tm);
 				dbe_evvertext.push(dbconst(static_cast<const void *>(this)));
-				dbe_evvertext.push((DBFunc)DynFuncEvVerTextFromList);
+				dbe_evvertext.push(static_cast<DBFunc>(DynFuncEvVerTextFromList));
 			}
 			else
 				dbe_evvertext.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -1600,7 +1600,7 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 			dbe_objname.push(t->ObjType);
 			dbe_objname.push(t->ObjID);
 			dbe_objname.push(dbconst(this));
-			dbe_objname.push((DBFunc)DynFuncObjNameFromList);
+			dbe_objname.push(static_cast<DBFunc>(DynFuncObjNameFromList));
 		}
 		q = & select(
 			t->ObjType,   // #0

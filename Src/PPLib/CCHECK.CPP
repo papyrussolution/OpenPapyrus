@@ -618,7 +618,7 @@ IMPL_INVARIANT_C(CCheckPacket)
 	//
 	// Флаг CCHKF_INCORPCRD не может быть установлен если в чеке нет ссылки на карту.
 	//
-	S_ASSERT_P(!(Rec.Flags & CCHKF_INCORPCRD) || Rec.SCardID, pInvP);
+	// @v10.4.1 (кредитная карта может фигурировать в списке платежей) S_ASSERT_P(!(Rec.Flags & CCHKF_INCORPCRD) || Rec.SCardID, pInvP);
 	{
 		//
 		// Фискальная и нефискальная суммы чека должны в итоге давать полную сумму чеку.

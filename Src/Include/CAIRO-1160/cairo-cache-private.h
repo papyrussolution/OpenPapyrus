@@ -30,15 +30,10 @@
  *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributor(s):
- *    Keith Packard <keithp@keithp.com>
- *	Graydon Hoare <graydon@redhat.com>
- *	Carl Worth <cworth@cworth.org>
+ * Contributor(s): Keith Packard <keithp@keithp.com>, Graydon Hoare <graydon@redhat.com>, Carl Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_CACHE_PRIVATE_H
 #define CAIRO_CACHE_PRIVATE_H
-
 //#include "cairo-compiler-private.h"
 //#include "cairo-types-private.h"
 /**

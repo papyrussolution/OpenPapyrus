@@ -30,12 +30,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_all.c 174991
 //#include "archive.h"
 //#include "archive_private.h"
 
-int
-archive_read_support_format_all(struct archive *a)
+int archive_read_support_format_all(struct archive * a)
 {
-	archive_check_magic(a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_format_all");
-
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_all");
 	/* TODO: It would be nice to compute the ordering
 	 * here automatically so that people who enable just
 	 * a few formats can still get the benefits.  That
@@ -48,7 +45,6 @@ archive_read_support_format_all(struct archive *a)
 	 * If you implement the above, please return the list below
 	 * to alphabetic order.
 	 */
-
 	/*
 	 * These bidders are all pretty cheap; they just examine a
 	 * small initial part of the archive.  If one of these bids
@@ -63,7 +59,6 @@ archive_read_support_format_all(struct archive *a)
 	archive_read_support_format_tar(a);
 	archive_read_support_format_xar(a);
 	archive_read_support_format_warc(a);
-
 	/*
 	 * Install expensive bidders last.  By doing them last, we
 	 * increase the chance that a high bid from someone else will

@@ -538,7 +538,7 @@ DBQuery * SLAPI PPViewPaymPlan::CreateBrowserQuery(uint * pBrwId, SString * pSub
 			dbe_cycle.init();
 			dbe_cycle.push(t->Dt);
 			dbe_cycle.push(dbconst((long)&CycleList));
-			dbe_cycle.push((DBFunc)PPDbqFuncPool::IdFormatCycle);
+			dbe_cycle.push(static_cast<DBFunc>(PPDbqFuncPool::IdFormatCycle));
 		}
 		q = & select(
 			t->BillID, // #00

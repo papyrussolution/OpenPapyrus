@@ -410,7 +410,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 /*	    file = (const char *) node->doc->URL; */
 		}
 		for(i = 0; ((i < 10) && P_Node && (P_Node->type != XML_ELEMENT_NODE)); i++)
-			P_Node = P_Node->parent;
+			P_Node = P_Node->P_ParentNode;
 		if(!baseptr && P_Node && P_Node->doc && P_Node->doc->URL)
 			baseptr = P_Node;
 		if(P_Node && P_Node->type == XML_ELEMENT_NODE)
@@ -439,7 +439,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		int inclcount = 0;
 		while(prev) {
 			if(prev->prev == NULL)
-				prev = prev->parent;
+				prev = prev->P_ParentNode;
 			else {
 				prev = prev->prev;
 				if(prev->type == XML_XINCLUDE_START) {

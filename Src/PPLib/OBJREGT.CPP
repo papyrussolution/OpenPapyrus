@@ -341,7 +341,7 @@ public:
 int SLAPI RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	RegisterTypeData * p_cache_rec = (RegisterTypeData *)pEntry;
+	RegisterTypeData * p_cache_rec = static_cast<RegisterTypeData *>(pEntry);
 	PPRegisterType data_rec;
 	if((ok = PPRef->GetItem(PPOBJ_REGISTERTYPE, id, &data_rec)) > 0) {
 		#define CPY(f) p_cache_rec->f = data_rec.f
@@ -363,8 +363,8 @@ int SLAPI RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI RegisterTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPRegisterType2 * p_data_rec = (PPRegisterType *)pDataRec;
-	const RegisterTypeData * p_cache_rec = (const RegisterTypeData *)pEntry;
+	PPRegisterType2 * p_data_rec = static_cast<PPRegisterType *>(pDataRec);
+	const RegisterTypeData * p_cache_rec = static_cast<const RegisterTypeData *>(pEntry);
 	memzero(p_data_rec, sizeof(PPRegisterType));
 	p_data_rec->Tag = PPOBJ_REGISTERTYPE;
 	#define CPY(f) p_data_rec->f = p_cache_rec->f

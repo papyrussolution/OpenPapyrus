@@ -1677,7 +1677,7 @@ void * SLAPI PPObjWorkbook::CreateObjListWin(uint flags, void * extraPtr)
 			if(TVCMD != cmaInsert && TVCMD != cmTransmit)
 				PPObjListWindow::handleEvent(event);
 			if(P_Obj) {
-				PPObjWorkbook * p_wb_obj = (PPObjWorkbook *)P_Obj;
+				PPObjWorkbook * p_wb_obj = static_cast<PPObjWorkbook *>(P_Obj);
 				getResult(&current_id);
 				if(TVCOMMAND) {
 					switch(TVCMD) {
@@ -2660,7 +2660,7 @@ public:
 int SLAPI WorkbookCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Workbook2Data * p_cache_rec = (Workbook2Data *)pEntry;
+	Workbook2Data * p_cache_rec = static_cast<Workbook2Data *>(pEntry);
 	PPObjWorkbook wb_obj;
 	WorkbookTbl::Rec rec;
 	if(wb_obj.Search(id, &rec) > 0) {
@@ -2682,8 +2682,8 @@ int SLAPI WorkbookCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI WorkbookCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	WorkbookTbl::Rec * p_data_rec = (WorkbookTbl::Rec *)pDataRec;
-	const Workbook2Data * p_cache_rec = (const Workbook2Data *)pEntry;
+	WorkbookTbl::Rec * p_data_rec = static_cast<WorkbookTbl::Rec *>(pDataRec);
+	const Workbook2Data * p_cache_rec = static_cast<const Workbook2Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->ID       = p_cache_rec->ID;
 	p_data_rec->Rank     = p_cache_rec->Rank;

@@ -436,8 +436,7 @@ int archive_read_support_format_iso9660(struct archive * _a)
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_iso9660");
 	struct iso9660 * iso9660 = (struct iso9660 *)SAlloc::C(1, sizeof(*iso9660));
 	if(iso9660 == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate iso9660 data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate iso9660 data");
 		return ARCHIVE_FATAL;
 	}
 	iso9660->magic = ISO9660_MAGIC;
@@ -1021,15 +1020,11 @@ static int choose_volume(struct archive_read * a, struct iso9660 * iso9660)
 	if(skipsize < 0)
 		return ((int)skipsize);
 	iso9660->current_position = skipsize;
-
 	block = __archive_read_ahead(a, vd->size, NULL);
 	if(block == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Failed to read full block when scanning "
-		    "ISO9660 directory list");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to read full block when scanning ISO9660 directory list");
 		return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * While reading Root Directory, flag seenJoliet must be zero to
 	 * avoid converting special name 0x00(Current Directory) and
@@ -1063,9 +1058,7 @@ static int choose_volume(struct archive_read * a, struct iso9660 * iso9660)
 
 		block = __archive_read_ahead(a, vd->size, NULL);
 		if(block == NULL) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Failed to read full block when scanning "
-			    "ISO9660 directory list");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to read full block when scanning ISO9660 directory list");
 			return ARCHIVE_FATAL;
 		}
 		iso9660->seenJoliet = 0;
@@ -1188,38 +1181,26 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a, stru
 	if(file->number != -1 &&
 	    file->number == iso9660->previous_number) {
 		if(iso9660->seenJoliet) {
-			r = archive_entry_copy_hardlink_l(entry,
-				(const char *)iso9660->utf16be_previous_path,
-				iso9660->utf16be_previous_path_len,
-				iso9660->sconv_utf16be);
+			r = archive_entry_copy_hardlink_l(entry, (const char *)iso9660->utf16be_previous_path,
+				iso9660->utf16be_previous_path_len, iso9660->sconv_utf16be);
 			if(r != 0) {
 				if(errno == ENOMEM) {
-					archive_set_error(&a->archive, ENOMEM,
-					    "No memory for Linkname");
+					archive_set_error(&a->archive, ENOMEM, "No memory for Linkname");
 					return ARCHIVE_FATAL;
 				}
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Linkname cannot be converted "
-				    "from %s to current locale.",
-				    archive_string_conversion_charset_name(
-					    iso9660->sconv_utf16be));
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Linkname cannot be converted from %s to current locale.",
+				    archive_string_conversion_charset_name(iso9660->sconv_utf16be));
 				rd_r = ARCHIVE_WARN;
 			}
 		}
 		else
-			archive_entry_set_hardlink(entry,
-			    iso9660->previous_pathname.s);
+			archive_entry_set_hardlink(entry, iso9660->previous_pathname.s);
 		archive_entry_unset_size(entry);
 		iso9660->entry_bytes_remaining = 0;
 		return (rd_r);
 	}
-
-	if((file->mode & AE_IFMT) != AE_IFDIR &&
-	    file->offset < iso9660->current_position) {
-		int64_t r64;
-
-		r64 = __archive_read_seek(a, file->offset, SEEK_SET);
+	if((file->mode & AE_IFMT) != AE_IFDIR && file->offset < iso9660->current_position) {
+		int64_t r64 = __archive_read_seek(a, file->offset, SEEK_SET);
 		if(r64 != (int64_t)file->offset) {
 			/* We can't seek backwards to extract it, so issue
 			 * a warning.  Note that this can only happen if
@@ -1229,25 +1210,18 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a, stru
 			 * the entry. Such layouts are very unusual; most
 			 * ISO9660 writers lay out and record all directory
 			 * information first, then store all file bodies. */
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Ignoring out-of-order file @%jx (%s) %jd < %jd",
-			    (intmax_t)file->number,
-			    iso9660->pathname.s,
-			    (intmax_t)file->offset,
-			    (intmax_t)iso9660->current_position);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Ignoring out-of-order file @%jx (%s) %jd < %jd",
+			    (intmax_t)file->number, iso9660->pathname.s, (intmax_t)file->offset, (intmax_t)iso9660->current_position);
 			iso9660->entry_bytes_remaining = 0;
 			return (ARCHIVE_WARN);
 		}
 		iso9660->current_position = (uint64_t)r64;
 	}
-
 	/* Initialize zisofs variables. */
 	iso9660->entry_zisofs.pz = file->pz;
 	if(file->pz) {
 #ifdef HAVE_ZLIB_H
-		struct zisofs  * zisofs;
-
-		zisofs = &iso9660->entry_zisofs;
+		struct zisofs * zisofs = &iso9660->entry_zisofs;
 		zisofs->initialized = 0;
 		zisofs->pz_log2_bs = file->pz_log2_bs;
 		zisofs->pz_uncompressed_size = file->pz_uncompressed_size;
@@ -1258,22 +1232,17 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a, stru
 #endif
 		archive_entry_set_size(entry, file->pz_uncompressed_size);
 	}
-
 	iso9660->previous_number = file->number;
 	if(iso9660->seenJoliet) {
-		memcpy(iso9660->utf16be_previous_path, iso9660->utf16be_path,
-		    iso9660->utf16be_path_len);
+		memcpy(iso9660->utf16be_previous_path, iso9660->utf16be_path, iso9660->utf16be_path_len);
 		iso9660->utf16be_previous_path_len = iso9660->utf16be_path_len;
 	}
 	else
-		archive_strcpy(
-			&iso9660->previous_pathname, iso9660->pathname.s);
-
+		archive_strcpy(&iso9660->previous_pathname, iso9660->pathname.s);
 	/* Reset entry_bytes_remaining if the file is multi extent. */
 	iso9660->entry_content = file->contents.first;
 	if(iso9660->entry_content != NULL)
 		iso9660->entry_bytes_remaining = iso9660->entry_content->size;
-
 	if(archive_entry_filetype(entry) == AE_IFDIR) {
 		/* Overwrite nlinks by proper link number which is
 		 * calculated from number of sub directories. */
@@ -1281,7 +1250,6 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a, stru
 		/* Directory data has been read completely. */
 		iso9660->entry_bytes_remaining = 0;
 	}
-
 	if(rd_r != ARCHIVE_OK)
 		return (rd_r);
 	return ARCHIVE_OK;
@@ -1339,8 +1307,7 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 				SAlloc::F(zisofs->uncompressed_buffer);
 			zisofs->uncompressed_buffer = (uchar *)SAlloc::M(xsize);
 			if(zisofs->uncompressed_buffer == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "No memory for zisofs decompression");
+				archive_set_error(&a->archive, ENOMEM, "No memory for zisofs decompression");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -1373,9 +1340,7 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 			if(zisofs->header[13] != zisofs->pz_log2_bs)
 				err = 1;
 			if(err) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Illegal zisofs file body");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs file body");
 				return ARCHIVE_FATAL;
 			}
 			zisofs->header_passed = 1;
@@ -1414,12 +1379,9 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 	 */
 	if(zisofs->block_avail == 0) {
 		uint32_t bst, bed;
-
 		if(zisofs->block_off + 4 >= zisofs->block_pointers_size) {
 			/* There isn't a pair of offsets. */
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Illegal zisofs block pointers");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs block pointers");
 			return ARCHIVE_FATAL;
 		}
 		bst = archive_le32dec(
@@ -1427,17 +1389,13 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 		if(bst != zisofs->pz_offset + (bytes_read - avail)) {
 			/* TODO: Should we seek offset of current file
 			 * by bst ? */
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Illegal zisofs block pointers(cannot seek)");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs block pointers(cannot seek)");
 			return ARCHIVE_FATAL;
 		}
 		bed = archive_le32dec(
 			zisofs->block_pointers + zisofs->block_off + 4);
 		if(bed < bst) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Illegal zisofs block pointers");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs block pointers");
 			return ARCHIVE_FATAL;
 		}
 		zisofs->block_avail = bed - bst;
@@ -1449,8 +1407,7 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 		else
 			r = inflateInit(&zisofs->stream);
 		if(r != Z_OK) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Can't initialize zisofs decompression.");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't initialize zisofs decompression.");
 			return ARCHIVE_FATAL;
 		}
 		zisofs->stream_valid = 1;
@@ -1472,21 +1429,17 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 		else
 			zisofs->stream.avail_in = (uInt)avail;
 		zisofs->stream.next_out = zisofs->uncompressed_buffer;
-		zisofs->stream.avail_out =
-		    (uInt)zisofs->uncompressed_buffer_size;
-
+		zisofs->stream.avail_out = (uInt)zisofs->uncompressed_buffer_size;
 		r = inflate(&zisofs->stream, 0);
 		switch(r) {
 			case Z_OK: /* Decompressor made some progress.*/
 			case Z_STREAM_END: /* Found end of stream. */
 			    break;
 			default:
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-				"zisofs decompression failed (%d)", r);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "zisofs decompression failed (%d)", r);
 			    return ARCHIVE_FATAL;
 		}
-		uncompressed_size =
-		    zisofs->uncompressed_buffer_size - zisofs->stream.avail_out;
+		uncompressed_size = zisofs->uncompressed_buffer_size - zisofs->stream.avail_out;
 		avail -= zisofs->stream.next_in - p;
 		zisofs->block_avail -= (uint32_t)(zisofs->stream.next_in - p);
 	}
@@ -1505,18 +1458,14 @@ next_data:
 }
 
 #else /* HAVE_ZLIB_H */
-
-static int zisofs_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64_t * offset)
-{
-	(void)buff;/* UNUSED */
-	(void)size;/* UNUSED */
-	(void)offset;/* UNUSED */
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-	    "zisofs is not supported on this platform.");
-	return ARCHIVE_FAILED;
-}
-
+	static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
+	{
+		(void)buff;/* UNUSED */
+		(void)size;/* UNUSED */
+		(void)offset;/* UNUSED */
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "zisofs is not supported on this platform.");
+		return ARCHIVE_FAILED;
+	}
 #endif /* HAVE_ZLIB_H */
 
 static int archive_read_format_iso9660_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
@@ -1538,22 +1487,15 @@ static int archive_read_format_iso9660_read_data(struct archive_read * a, const 
 		}
 		/* Seek forward to the start of the entry. */
 		if(iso9660->current_position < iso9660->entry_content->offset) {
-			int64_t step;
-
-			step = iso9660->entry_content->offset -
-			    iso9660->current_position;
+			int64_t step = iso9660->entry_content->offset - iso9660->current_position;
 			step = __archive_read_consume(a, step);
 			if(step < 0)
 				return ((int)step);
-			iso9660->current_position =
-			    iso9660->entry_content->offset;
+			iso9660->current_position = iso9660->entry_content->offset;
 		}
 		if(iso9660->entry_content->offset < iso9660->current_position) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Ignoring out-of-order file (%s) %jd < %jd",
-			    iso9660->pathname.s,
-			    (intmax_t)iso9660->entry_content->offset,
-			    (intmax_t)iso9660->current_position);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Ignoring out-of-order file (%s) %jd < %jd",
+			    iso9660->pathname.s, (intmax_t)iso9660->entry_content->offset, (intmax_t)iso9660->current_position);
 			*buff = NULL;
 			*size = 0;
 			*offset = iso9660->entry_sparse_offset;
@@ -1563,11 +1505,9 @@ static int archive_read_format_iso9660_read_data(struct archive_read * a, const 
 	}
 	if(iso9660->entry_zisofs.pz)
 		return (zisofs_read_data(a, buff, size, offset));
-
 	*buff = __archive_read_ahead(a, 1, &bytes_read);
 	if(bytes_read == 0)
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Truncated input file");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Truncated input file");
 	if(*buff == NULL)
 		return ARCHIVE_FATAL;
 	if(bytes_read > iso9660->entry_bytes_remaining)
@@ -1596,8 +1536,7 @@ static int archive_read_format_iso9660_cleanup(struct archive_read * a)
 	SAlloc::F(iso9660->entry_zisofs.block_pointers);
 	if(iso9660->entry_zisofs.stream_valid) {
 		if(inflateEnd(&iso9660->entry_zisofs.stream) != Z_OK) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Failed to clean up zlib decompressor");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up zlib decompressor");
 			r = ARCHIVE_FATAL;
 		}
 	}
@@ -1631,8 +1570,7 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 	 * reclen but at least 34
 	 */
 	if(reclen == 0 || reclen < dr_len || dr_len < 34) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Invalid length of directory record");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid length of directory record");
 		return NULL;
 	}
 	name_len = (size_t)isodirrec[DR_name_len_offset];
@@ -1640,8 +1578,7 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 	fsize = toi(isodirrec + DR_size_offset, DR_size_size);
 	/* Sanity check that name_len doesn't exceed dr_len. */
 	if(dr_len - 33 < name_len || name_len == 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Invalid length of file identifier");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid length of file identifier");
 		return NULL;
 	}
 	/* Sanity check that location doesn't exceed volume block.
@@ -1654,33 +1591,27 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 	    (location + ((fsize + iso9660->logical_block_size -1)
 	    / iso9660->logical_block_size))
 	    > (uint32_t)iso9660->volume_block) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Invalid location of extent of file");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid location of extent of file");
 		return NULL;
 	}
 	/* Sanity check that location doesn't have a negative value
 	 * when the file is not empty. it's too large. */
 	if(fsize != 0 && location < 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Invalid location of extent of file");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid location of extent of file");
 		return NULL;
 	}
-
 	/* Sanity check that this entry does not create a cycle. */
 	offset = iso9660->logical_block_size * (uint64_t)location;
 	for(filep = parent; filep != NULL; filep = filep->parent) {
 		if(filep->offset == offset) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Directory structure contains loop");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Directory structure contains loop");
 			return NULL;
 		}
 	}
-
 	/* Create a new file entry and copy data from the ISO dir record. */
 	file = (struct file_info *)SAlloc::C(1, sizeof(*file));
 	if(file == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "No memory for file entry");
+		archive_set_error(&a->archive, ENOMEM, "No memory for file entry");
 		return NULL;
 	}
 	file->parent = parent;
@@ -1727,8 +1658,7 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 			name_len -= 2;
 #endif
 		if((file->utf16be_name = (uchar *)SAlloc::M(name_len)) == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "No memory for file name");
+			archive_set_error(&a->archive, ENOMEM, "No memory for file name");
 			goto fail;
 		}
 		memcpy(file->utf16be_name, p, name_len);
@@ -1736,16 +1666,13 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 	}
 	else {
 		/* Chop off trailing ';1' from files. */
-		if(name_len > 2 && p[name_len - 2] == ';' &&
-		    p[name_len - 1] == '1')
+		if(name_len > 2 && p[name_len - 2] == ';' && p[name_len - 1] == '1')
 			name_len -= 2;
 		/* Chop off trailing '.' from filenames. */
 		if(name_len > 1 && p[name_len - 1] == '.')
 			--name_len;
-
 		archive_strncpy(&file->name, (const char *)p, name_len);
 	}
-
 	flags = isodirrec[DR_flags_offset];
 	if(flags & 0x02)
 		file->mode = AE_IFDIR | 0700;
@@ -1836,13 +1763,9 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 	/* Tell file's parent how many children that parent has. */
 	if(parent != NULL && (flags & 0x02))
 		parent->subdirs++;
-
 	if(iso9660->seenRockridge) {
-		if(parent != NULL && parent->parent == NULL &&
-		    (flags & 0x02) && iso9660->rr_moved == NULL &&
-		    file->name.s &&
-		    (strcmp(file->name.s, "rr_moved") == 0 ||
-		    strcmp(file->name.s, ".rr_moved") == 0)) {
+		if(parent != NULL && parent->parent == NULL && (flags & 0x02) && iso9660->rr_moved == NULL && file->name.s &&
+		    (strcmp(file->name.s, "rr_moved") == 0 || strcmp(file->name.s, ".rr_moved") == 0)) {
 			iso9660->rr_moved = file;
 			file->rr_moved = 1;
 			file->rr_moved_has_re_only = 1;
@@ -1854,51 +1777,39 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 			 * Sanity check: file's parent is rr_moved.
 			 */
 			if(parent == NULL || parent->rr_moved == 0) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Invalid Rockridge RE");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid Rockridge RE");
 				goto fail;
 			}
 			/*
 			 * Sanity check: file does not have "CL" extension.
 			 */
 			if(file->cl_offset) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Invalid Rockridge RE and CL");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid Rockridge RE and CL");
 				goto fail;
 			}
 			/*
 			 * Sanity check: The file type must be a directory.
 			 */
 			if((flags & 0x02) == 0) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Invalid Rockridge RE");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid Rockridge RE");
 				goto fail;
 			}
 		}
 		else if(parent != NULL && parent->rr_moved)
 			file->rr_moved_has_re_only = 0;
-		else if(parent != NULL && (flags & 0x02) &&
-		    (parent->re || parent->re_descendant))
+		else if(parent != NULL && (flags & 0x02) && (parent->re || parent->re_descendant))
 			file->re_descendant = 1;
 		if(file->cl_offset) {
 			struct file_info * r;
-
 			if(parent == NULL || parent->parent == NULL) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Invalid Rockridge CL");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid Rockridge CL");
 				goto fail;
 			}
 			/*
 			 * Sanity check: The file type must be a regular file.
 			 */
 			if((flags & 0x02) != 0) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Invalid Rockridge CL");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid Rockridge CL");
 				goto fail;
 			}
 			parent->subdirs++;
@@ -1914,22 +1825,16 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 			 */
 			for(r = parent; r; r = r->parent) {
 				if(r->offset == file->cl_offset) {
-					archive_set_error(&a->archive,
-					    ARCHIVE_ERRNO_MISC,
-					    "Invalid Rockridge CL");
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid Rockridge CL");
 					goto fail;
 				}
 			}
-			if(file->cl_offset == file->offset ||
-			    parent->rr_moved) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Invalid Rockridge CL");
+			if(file->cl_offset == file->offset || parent->rr_moved) {
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid Rockridge CL");
 				goto fail;
 			}
 		}
 	}
-
 #if DEBUG
 	/* DEBUGGING: Warn about attributes I don't yet fully support. */
 	if((flags & ~0x02) != 0) {
@@ -2228,17 +2133,13 @@ static int read_CE(struct archive_read * a, struct iso9660 * iso9660)
 	while(heap->cnt && heap->reqs[0].offset == iso9660->current_position) {
 		b = (const uchar *)__archive_read_ahead(a, step, NULL);
 		if(b == NULL) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Failed to read full block when scanning "
-			    "ISO9660 directory list");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to read full block when scanning ISO9660 directory list");
 			return ARCHIVE_FATAL;
 		}
 		do {
 			file = heap->reqs[0].file;
 			if(file->ce_offset + file->ce_size > step) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Malformed CE information");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Malformed CE information");
 				return ARCHIVE_FATAL;
 			}
 			p = b + file->ce_offset;
@@ -2742,9 +2643,7 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 	return ((*pfile == NULL) ? ARCHIVE_EOF : ARCHIVE_OK);
 
 fatal_rr:
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Failed to connect 'CL' pointer to 'RE' rr_moved pointer of "
-	    "Rockridge extensions: current position = %jd, CL offset = %jd",
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to connect 'CL' pointer to 'RE' rr_moved pointer of Rockridge extensions: current position = %jd, CL offset = %jd",
 	    (intmax_t)iso9660->current_position, (intmax_t)file->cl_offset);
 	return ARCHIVE_FATAL;
 }
@@ -2833,15 +2732,13 @@ static int heap_add_entry(struct archive_read * a, struct heap_queue * heap,
 			new_size = 1024;
 		/* Overflow might keep us from growing the list. */
 		if(new_size <= heap->allocated) {
-			archive_set_error(&a->archive,
-			    ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		new_pending_files = (struct file_info **)
 		    SAlloc::M(new_size * sizeof(new_pending_files[0]));
 		if(new_pending_files == NULL) {
-			archive_set_error(&a->archive,
-			    ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		if(heap->allocated)

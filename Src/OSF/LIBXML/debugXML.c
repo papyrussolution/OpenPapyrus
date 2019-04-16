@@ -98,7 +98,7 @@ static int xmlNsCheckScope(xmlNode * pNode, xmlNs * ns)
 					return -2;
 			}
 		}
-		pNode = pNode->parent;
+		pNode = pNode->P_ParentNode;
 	}
 	// the xml namespace may be declared on the document node 
 	if(pNode && ((pNode->type == XML_DOCUMENT_NODE) || (pNode->type == XML_HTML_DOCUMENT_NODE))) {
@@ -218,7 +218,7 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 {
 	xmlDict * dict;
 	xmlDoc * doc = P_Node->doc;
-	if(P_Node->parent == NULL)
+	if(!P_Node->P_ParentNode)
 		xmlDebugErr(ctxt, XML_CHECK_NO_PARENT, "Node has no parent\n");
 	if(P_Node->doc == NULL) {
 		xmlDebugErr(ctxt, XML_CHECK_NO_DOC, "Node has no doc\n");
@@ -237,14 +237,14 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 		SETIFZ(ctxt->doc, doc);
 		SETIFZ(ctxt->dict, dict);
 	}
-	if(P_Node->parent && (P_Node->doc != P_Node->parent->doc) && !sstreq(P_Node->name, "pseudoroot"))
+	if(P_Node->P_ParentNode && (P_Node->doc != P_Node->P_ParentNode->doc) && !sstreq(P_Node->name, "pseudoroot"))
 		xmlDebugErr(ctxt, XML_CHECK_WRONG_DOC, "Node doc differs from parent's one\n");
 	if(P_Node->prev == NULL) {
 		if(P_Node->type == XML_ATTRIBUTE_NODE) {
-			if(P_Node->parent && (P_Node != (xmlNode *)P_Node->parent->properties))
+			if(P_Node->P_ParentNode && (P_Node != (xmlNode *)P_Node->P_ParentNode->properties))
 				xmlDebugErr(ctxt, XML_CHECK_NO_PREV, "Attr has no prev and not first of attr list\n");
 		}
-		else if(P_Node->parent && (P_Node->parent->children != P_Node))
+		else if(P_Node->P_ParentNode && (P_Node->P_ParentNode->children != P_Node))
 			xmlDebugErr(ctxt, XML_CHECK_NO_PREV, "Node has no prev and not first of parent list\n");
 	}
 	else {
@@ -252,13 +252,13 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 			xmlDebugErr(ctxt, XML_CHECK_WRONG_PREV, "Node prev->next : back link wrong\n");
 	}
 	if(P_Node->next == NULL) {
-		if(P_Node->parent && (P_Node->type != XML_ATTRIBUTE_NODE) && (P_Node->parent->last != P_Node) && (P_Node->parent->type == XML_ELEMENT_NODE))
+		if(P_Node->P_ParentNode && (P_Node->type != XML_ATTRIBUTE_NODE) && (P_Node->P_ParentNode->last != P_Node) && (P_Node->P_ParentNode->type == XML_ELEMENT_NODE))
 			xmlDebugErr(ctxt, XML_CHECK_NO_NEXT, "Node has no next and not last of parent list\n");
 	}
 	else {
 		if(P_Node->next->prev != P_Node)
 			xmlDebugErr(ctxt, XML_CHECK_WRONG_NEXT, "Node next->prev : forward link wrong\n");
-		if(P_Node->next->parent != P_Node->parent)
+		if(P_Node->next->P_ParentNode != P_Node->P_ParentNode)
 			xmlDebugErr(ctxt, XML_CHECK_WRONG_PARENT, "Node next->prev : forward link wrong\n");
 	}
 	if(P_Node->type == XML_ELEMENT_NODE) {
@@ -1762,8 +1762,8 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
 		}
 		else if(P_Node->type == XML_TEXT_NODE) {
 			if(xmlStrstr(P_Node->content, (xmlChar *)arg)) {
-				fprintf(ctxt->output, "%s : ", xmlGetNodePath(P_Node->parent));
-				xmlShellList(ctxt, NULL, P_Node->parent, 0);
+				fprintf(ctxt->output, "%s : ", xmlGetNodePath(P_Node->P_ParentNode));
+				xmlShellList(ctxt, NULL, P_Node->P_ParentNode, 0);
 			}
 		}
 		/*
@@ -1783,14 +1783,14 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
 		else {
 			/* go up to parents->next if needed */
 			while(P_Node) {
-				if(P_Node->parent) {
-					P_Node = P_Node->parent;
+				if(P_Node->P_ParentNode) {
+					P_Node = P_Node->P_ParentNode;
 				}
 				if(P_Node->next) {
 					P_Node = P_Node->next;
 					break;
 				}
-				if(P_Node->parent == NULL) {
+				if(P_Node->P_ParentNode == NULL) {
 					P_Node = NULL;
 					break;
 				}
@@ -2210,15 +2210,15 @@ int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * tree
 		else if(p_node != tree) {
 			// go up to parents->next if needed 
 			while(p_node != tree) {
-				if(p_node->parent) {
-					p_node = p_node->parent;
+				if(p_node->P_ParentNode) {
+					p_node = p_node->P_ParentNode;
 					indent--;
 				}
 				if(p_node != tree && p_node->next) {
 					p_node = p_node->next;
 					break;
 				}
-				if(p_node->parent == NULL) {
+				if(!p_node->P_ParentNode) {
 					p_node = NULL;
 					break;
 				}

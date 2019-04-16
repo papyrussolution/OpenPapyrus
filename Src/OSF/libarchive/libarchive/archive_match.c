@@ -719,38 +719,27 @@ static int match_list_unmatched_inclusions_next(struct archive_match * a, struct
 /*
  * Utility functions to manage inclusion timestamps.
  */
-int archive_match_include_time(struct archive * _a, int flag, time_t sec,
-    long nsec)
+int archive_match_include_time(struct archive * _a, int flag, time_t sec, long nsec)
 {
-	int r;
-
-	r = validate_time_flag(_a, flag, "archive_match_include_time");
+	int r = validate_time_flag(_a, flag, "archive_match_include_time");
 	if(r != ARCHIVE_OK)
 		return r;
-	return set_timefilter((struct archive_match *)_a, flag,
-		   sec, nsec, sec, nsec);
+	return set_timefilter((struct archive_match *)_a, flag, sec, nsec, sec, nsec);
 }
 
-int archive_match_include_date(struct archive * _a, int flag,
-    const char * datestr)
+int archive_match_include_date(struct archive * _a, int flag, const char * datestr)
 {
-	int r;
-
-	r = validate_time_flag(_a, flag, "archive_match_include_date");
+	int r = validate_time_flag(_a, flag, "archive_match_include_date");
 	if(r != ARCHIVE_OK)
 		return r;
 	return set_timefilter_date((struct archive_match *)_a, flag, datestr);
 }
 
-int archive_match_include_date_w(struct archive * _a, int flag,
-    const wchar_t * datestr)
+int archive_match_include_date_w(struct archive * _a, int flag, const wchar_t * datestr)
 {
-	int r;
-
-	r = validate_time_flag(_a, flag, "archive_match_include_date_w");
+	int r = validate_time_flag(_a, flag, "archive_match_include_date_w");
 	if(r != ARCHIVE_OK)
 		return r;
-
 	return set_timefilter_date_w((struct archive_match *)_a, flag, datestr);
 }
 
@@ -1515,26 +1504,22 @@ static int match_owner_name_wcs(struct archive_match * a, struct match_list * li
 }
 
 #endif
-
 /*
  * Test if entry is excluded by uid, gid, uname or gname.
  */
 static int owner_excluded(struct archive_match * a, struct archive_entry * entry)
 {
 	int r;
-
 	if(a->inclusion_uids.count) {
 		if(!match_owner_id(&(a->inclusion_uids),
 		    archive_entry_uid(entry)))
 			return (1);
 	}
-
 	if(a->inclusion_gids.count) {
 		if(!match_owner_id(&(a->inclusion_gids),
 		    archive_entry_gid(entry)))
 			return (1);
 	}
-
 	if(a->inclusion_unames.count) {
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		r = match_owner_name_wcs(a, &(a->inclusion_unames),

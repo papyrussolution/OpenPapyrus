@@ -4021,7 +4021,7 @@ class XmlZRepReader {
 public:
 	SLAPI  XmlZRepReader(const char * pPath);
 	SLAPI ~XmlZRepReader();
-	int    SLAPI Next(ZRep * );
+	int    SLAPI Next(ZRep *);
 private:
 	long   ZRepsCount;
 	xmlDoc  * P_Doc;

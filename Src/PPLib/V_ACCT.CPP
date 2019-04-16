@@ -335,7 +335,7 @@ DBQuery * SLAPI PPViewAccount::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	{
 		dbe_restr.init();
 		dbe_restr.push(a->ID);
-		dbe_restr.push((DBFunc)PPViewAccount::DynFuncCheckRights);
+		dbe_restr.push(static_cast<DBFunc>(PPViewAccount::DynFuncCheckRights));
 	}
 	dbe = & enumtoa(a->Kind, 3, acckind_subst.Get(PPTXT_ACCKIND));
 	dbq = &(a->CurID == 0L);

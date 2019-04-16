@@ -50,9 +50,8 @@
 
 /* Start of configuration for native Win32  */
 #ifndef MINGW_HAS_SECURE_API
-#define MINGW_HAS_SECURE_API 1
+	#define MINGW_HAS_SECURE_API 1
 #endif
-
 //#include <errno.h>
 #define	set_errno(val)	((errno)=val)
 #include <io.h>
@@ -75,118 +74,113 @@
 //#define	EFTYPE 7
 
 #if defined(__BORLANDC__)
-#pragma warn -8068	/* Constant out of range in comparison. */
-#pragma warn -8072	/* Suspicious pointer arithmetic. */
+	#pragma warn -8068	/* Constant out of range in comparison. */
+	#pragma warn -8072	/* Suspicious pointer arithmetic. */
 #endif
-
 #ifndef NULL
-#ifdef  __cplusplus
-#define	NULL    0
-#else
-#define	NULL    ((void *)0)
+	#ifdef  __cplusplus
+		#define	NULL    0
+	#else
+		#define	NULL    ((void *)0)
+	#endif
 #endif
-#endif
-
 /* Alias the Windows _function to the POSIX equivalent. */
 #define	close		_close
 #define	fcntl(fd, cmd, flg)	/* No operation. */
 #ifndef fileno
-#define	fileno		_fileno
+	#define	fileno		_fileno
 #endif
 #ifdef fstat
-#undef fstat
+	#undef fstat
 #endif
 #define	fstat		__la_fstat
 #if !defined(__BORLANDC__)
-#ifdef lseek
-#undef lseek
-#endif
-#define	lseek		_lseeki64
+	#ifdef lseek
+		#undef lseek
+	#endif
+	#define	lseek		_lseeki64
 #else
-#define	lseek		__la_lseek
-#define __LA_LSEEK_NEEDED
+	#define	lseek		__la_lseek
+	#define __LA_LSEEK_NEEDED
 #endif
 #define	lstat		__la_stat
 #define	open		__la_open
 #define	read		__la_read
 #if !defined(__BORLANDC__) && !defined(__WATCOMC__)
-#define setmode		_setmode
+	#define setmode		_setmode
 #endif
 #ifdef stat
-#undef stat
+	#undef stat
 #endif
 #define	stat(path,stref)		__la_stat(path,stref)
 #if !defined(__WATCOMC__)
-#if !defined(__BORLANDC__)
-#define	strdup		_strdup
-#endif
-#define	tzset		_tzset
-#if !defined(__BORLANDC__)
-#define	umask		_umask
-#endif
+	#if !defined(__BORLANDC__)
+		#define	strdup		_strdup
+	#endif
+	#define	tzset		_tzset
+	#if !defined(__BORLANDC__)
+		#define	umask		_umask
+	#endif
 #endif
 #define	waitpid		__la_waitpid
 #define	write		__la_write
 
 #if !defined(__WATCOMC__)
-
 #ifndef O_RDONLY
-#define	O_RDONLY	_O_RDONLY
-#define	O_WRONLY	_O_WRONLY
-#define	O_TRUNC		_O_TRUNC
-#define	O_CREAT		_O_CREAT
-#define	O_EXCL		_O_EXCL
-#define	O_BINARY	_O_BINARY
+	#define	O_RDONLY	_O_RDONLY
+	#define	O_WRONLY	_O_WRONLY
+	#define	O_TRUNC		_O_TRUNC
+	#define	O_CREAT		_O_CREAT
+	#define	O_EXCL		_O_EXCL
+	#define	O_BINARY	_O_BINARY
 #endif
-
 #ifndef _S_IFIFO
-  #define	_S_IFIFO        0010000   /* pipe */
+	#define	_S_IFIFO        0010000   /* pipe */
 #endif
 #ifndef _S_IFCHR
-  #define	_S_IFCHR        0020000   /* character special */
+	#define	_S_IFCHR        0020000   /* character special */
 #endif
 #ifndef _S_IFDIR
-  #define	_S_IFDIR        0040000   /* directory */
+	#define	_S_IFDIR        0040000   /* directory */
 #endif
 #ifndef _S_IFBLK
-  #define	_S_IFBLK        0060000   /* block special */
+	#define	_S_IFBLK        0060000   /* block special */
 #endif
 #ifndef _S_IFLNK
-  #define	_S_IFLNK        0120000   /* symbolic link */
+	#define	_S_IFLNK        0120000   /* symbolic link */
 #endif
 #ifndef _S_IFSOCK
-  #define	_S_IFSOCK       0140000   /* socket */
+	#define	_S_IFSOCK       0140000   /* socket */
 #endif
 #ifndef	_S_IFREG
-  #define	_S_IFREG        0100000   /* regular */
+	#define	_S_IFREG        0100000   /* regular */
 #endif
 #ifndef	_S_IFMT
-  #define	_S_IFMT         0170000   /* file type mask */
+	#define	_S_IFMT         0170000   /* file type mask */
 #endif
-
 #ifndef S_IFIFO
-#define	S_IFIFO     _S_IFIFO
+	#define	S_IFIFO     _S_IFIFO
 #endif
 //#define	S_IFCHR  _S_IFCHR
 //#define	S_IFDIR  _S_IFDIR
 #ifndef S_IFBLK
-#define	S_IFBLK     _S_IFBLK
+	#define	S_IFBLK     _S_IFBLK
 #endif
 #ifndef S_IFLNK
-#define	S_IFLNK     _S_IFLNK
+	#define	S_IFLNK     _S_IFLNK
 #endif
 #ifndef S_IFSOCK
-#define	S_IFSOCK    _S_IFSOCK
+	#define	S_IFSOCK    _S_IFSOCK
 #endif
 //#define	S_IFREG  _S_IFREG
 //#define	S_IFMT   _S_IFMT
 
 #ifndef S_ISBLK
-#define	S_ISBLK(m)	(((m) & S_IFMT) == S_IFBLK)	/* block special */
-#define	S_ISFIFO(m)	(((m) & S_IFMT) == S_IFIFO)	/* fifo or socket */
-#define	S_ISCHR(m)	(((m) & S_IFMT) == S_IFCHR)	/* char special */
-#define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)	/* directory */
-#define	S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)	/* regular file */
+	#define	S_ISBLK(m)	(((m) & S_IFMT) == S_IFBLK)	/* block special */
+	#define	S_ISFIFO(m)	(((m) & S_IFMT) == S_IFIFO)	/* fifo or socket */
+	#define	S_ISCHR(m)	(((m) & S_IFMT) == S_IFCHR)	/* char special */
+	#define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)	/* directory */
+	#define	S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)	/* regular file */
 #endif
 #define	S_ISLNK(m)  (((m) & S_IFMT) == S_IFLNK) /* Symbolic link */
 #define	S_ISSOCK(m) (((m) & S_IFMT) == S_IFSOCK) /* Socket */
@@ -289,8 +283,7 @@ extern wchar_t *__la_win_permissive_name(const char *name);
 extern wchar_t *__la_win_permissive_name_w(const wchar_t *wname);
 extern void __la_dosmaperr(unsigned long e);
 #define la_dosmaperr(e) __la_dosmaperr(e)
-extern struct archive_entry *__la_win_entry_in_posix_pathseparator(
-    struct archive_entry *);
+extern struct archive_entry *__la_win_entry_in_posix_pathseparator(struct archive_entry *);
 
 #if defined(HAVE_WCRTOMB) && defined(__BORLANDC__)
 typedef int mbstate_t;

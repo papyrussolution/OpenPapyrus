@@ -183,7 +183,7 @@ void TreeWindow::Setup(HMENU hMenu)
 {
 	SetupCmdList(hMenu, 0);
 	SString temp_buf;
-	SLS.LoadString("cmd_pl", temp_buf);
+	SLS.LoadString_("cmd_pl", temp_buf);
 	Insert(0, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), 0);
 }
 

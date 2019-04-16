@@ -1,5 +1,5 @@
 // OBJREG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -453,7 +453,7 @@ int SLAPI PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regType
 		r = EditDialog(&rec, 0, &loc_pack);
 	}
 	else {
-		r = EditDialog(&rec, 0, (psn_pack.Rec.ID ? &psn_pack : (PPPersonPacket *)0));
+		r = EditDialog(&rec, 0, (psn_pack.Rec.ID ? &psn_pack : static_cast<const PPPersonPacket *>(0)));
 	}
 	if(r > 0) {
 		THROW((*pID) ? P_Tbl->Update(*pID, &rec, 1) : P_Tbl->Add(pID, &rec, 1));
@@ -1035,7 +1035,7 @@ private:
 int SLAPI RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	RegisterData * p_cache_rec = (RegisterData *)pEntry;
+	RegisterData * p_cache_rec = static_cast<RegisterData *>(pEntry);
 	PPObjRegister reg_obj;
 	RegisterTbl::Rec rec;
 	if(reg_obj.Search(id, &rec) > 0) {
@@ -1061,8 +1061,8 @@ int SLAPI RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	RegisterTbl::Rec * p_data_rec = (RegisterTbl::Rec *)pDataRec;
-	const RegisterData * p_cache_rec = (const RegisterData *)pEntry;
+	RegisterTbl::Rec * p_data_rec = static_cast<RegisterTbl::Rec *>(pDataRec);
+	const RegisterData * p_cache_rec = static_cast<const RegisterData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	CPY_FLD(ID);

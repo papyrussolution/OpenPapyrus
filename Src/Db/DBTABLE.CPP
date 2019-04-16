@@ -56,12 +56,12 @@ char * SLAPI GetRusNCaseACS(char * b)
 
 DBFileSpec & SLAPI operator + (DBFileSpec & pf, DBIdxSpec & pi)
 {
-	DBFileSpec * tmp = (DBFileSpec *)catmem(&pf, sizeof(DBFileSpec) + pf.NumSeg * sizeof(DBIdxSpec), &pi, sizeof(DBIdxSpec));
-	tmp->NumSeg++;
+	DBFileSpec * p_tmp = static_cast<DBFileSpec *>(catmem(&pf, sizeof(DBFileSpec) + pf.NumSeg * sizeof(DBIdxSpec), &pi, sizeof(DBIdxSpec)));
+	p_tmp->NumSeg++;
 	if(!(pi.flags & XIF_SEG))
-		tmp->NumKeys++;
+		p_tmp->NumKeys++;
 	delete & pi;
-	return *tmp;
+	return *p_tmp;
 }
 //
 // } Utilities
@@ -185,21 +185,21 @@ int DBTable::Btr_ProcessLobOnReading()
 					size_t temp_buf_offs = 0;
 					*static_cast<RECORDNUMBER *>(temp_buf.vptr()) = pos;
 					temp_buf_offs += sizeof(RECORDNUMBER);
-					*(long *)(temp_buf.ucptr() + temp_buf_offs) = CHUNK_DIR_RAND;
+					*reinterpret_cast<long *>(PTR8(temp_buf.vptr()) + temp_buf_offs) = CHUNK_DIR_RAND;
 					temp_buf_offs += sizeof(long);
-					*(long *)(temp_buf.ucptr() + temp_buf_offs) = 1; // number of chunks
+					*reinterpret_cast<long *>(PTR8(temp_buf.vptr()) + temp_buf_offs) = 1; // number of chunks
 					temp_buf_offs += sizeof(long);
 					// chunk definition
-					*(long *)(temp_buf.ucptr() + temp_buf_offs) = rec_offs; // chunk offset
+					*reinterpret_cast<long *>(PTR8(temp_buf.vptr()) + temp_buf_offs) = rec_offs; // chunk offset
 					temp_buf_offs += sizeof(long);
-					*(long *)(temp_buf.ucptr() + temp_buf_offs) = chunk_size; // chunk length (buffer size - fixed header)
+					*reinterpret_cast<long *>(PTR8(temp_buf.vptr()) + temp_buf_offs) = chunk_size; // chunk length (buffer size - fixed header)
 					temp_buf_offs += sizeof(long);
-					*(long *)(temp_buf.ucptr() + temp_buf_offs) = 0; // data ptr (ignored for CHUNK_DIR_RAND)
+					*reinterpret_cast<long *>(PTR8(temp_buf.vptr()) + temp_buf_offs) = 0; // data ptr (ignored for CHUNK_DIR_RAND)
 					temp_buf_offs += sizeof(long);
 					assert(temp_buf_offs == fixed_header_size);
 					retBufLen = (RECORDSIZE)chunk_size;
 					index = -2;
-					tla.LastBtrErr = BTRV(B_GETDIRECT, FPB, (char *)temp_buf, (uint16 *)&retBufLen, k, WBTRVTAIL);
+					tla.LastBtrErr = BTRV(B_GETDIRECT, FPB, static_cast<char *>(temp_buf.vptr()), reinterpret_cast<uint16 *>(&retBufLen), k, WBTRVTAIL);
 					if(oneof2(tla.LastBtrErr, 0, BE_CHUNK_OFFSET_TOO_LONG)) {
 						THROW(lob_buffer.Write(temp_buf, retBufLen));
 					}
@@ -242,13 +242,13 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 		index = (int16)idx;
 	int    op = -1;
 	char   temp_buf[MAXKEYLEN];
-	char * p_buf = (char *)P_DBuf;
+	char * p_buf = static_cast<char *>(P_DBuf);
 	retBufLen = bufLen;
 	if(sf & sfDirect) {
-		*(RECORDNUMBER *)p_buf = *(DBRowId *)pKey;
+		*reinterpret_cast<RECORDNUMBER *>(p_buf) = *static_cast<const DBRowId *>(pKey);
 		op = B_GETDIRECT;
 		if(sf & sfForUpdate) {
-			if(r_dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.3
+			if(r_dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) {
 				if(r_dbcfg.NWaitLockTries > 0)
 					op += BL_SNGL_NWT;
 				else

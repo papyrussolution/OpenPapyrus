@@ -29,24 +29,23 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_mtree.c 201165 2009-12-29 05:52:13Z kientzle $");
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_SYS_STAT_H
+//#include <sys/stat.h>
+//#endif
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
 #include <stddef.h>
 /* #include <stdint.h> */ /* See archive_platform.h */
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
-
+//#endif
 //#include "archive.h"
 //#include "archive_entry.h"
 //#include "archive_private.h"

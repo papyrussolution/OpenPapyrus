@@ -187,6 +187,44 @@ struct xmlEnumeration {
 	const xmlChar * name; /* Enumeration name */
 };
 //typedef xmlEnumeration * xmlEnumerationPtr;
+
+struct XmlNodeBase { // @construction
+	void * _private;      // application data 
+	xmlElementType type;  // XML_DTD_NODE, must be second!
+	const xmlChar * name; // Name of the DTD 
+	xmlNode * children;   // the value of the property link 
+	xmlNode * last;       // last child link 
+	xmlNode * P_ParentNode; // child->parent link 
+	xmlNode * next;       // next sibling link 
+	xmlNode * prev;       // previous sibling link 
+	xmlDoc  * doc;        // the containing document
+};
+// 
+// Descr: An XML DTD, as defined by <!DOCTYPE ... There is actually one for
+//   the internal subset and for the external subset.
+// 
+//typedef struct _xmlDtd xmlDtd;
+struct xmlDtd : public XmlNodeBase {
+	//void * _private;      // application data
+	//xmlElementType type;  // XML_DTD_NODE, must be second !
+	//const xmlChar * name; // Name of the DTD 
+	//xmlNode * children; // the value of the property link
+	//xmlNode * last;   // last child link
+	//xmlDoc  * parent; // child->parent link // @sobolev @note здесь (xmlDoc * parent) в результате наслендования от XmlNodeBase превращается в (xmlNode * parent)
+	//xmlNode * next; // next sibling link 
+	//xmlNode * prev; // previous sibling link 
+	//xmlDoc  * doc;  // the containing document
+	// End of common part 
+	void * notations; /* Hash table for notations if any */
+	void * elements; /* Hash table for elements if any */
+	void * attributes; /* Hash table for attributes if any */
+	void * entities; /* Hash table for entities if any */
+	const xmlChar * ExternalID; /* External identifier for PUBLIC DTD */
+	const xmlChar * SystemID; /* URI for a SYSTEM or PUBLIC DTD */
+	void * pentities; /* Hash table for param entities if any */
+};
+
+//typedef xmlDtd * xmlDtdPtr;
 // 
 // Descr: An Attribute declaration in a DTD.
 // 
@@ -199,7 +237,7 @@ struct xmlAttribute {
 	xmlDtd  * parent;  /* -> DTD */
 	xmlNode * next;  /* next sibling link  */
 	xmlNode * prev;  /* previous sibling link  */
-	xmlDoc * doc;  /* the containing document */
+	xmlDoc  * doc;  /* the containing document */
 	struct xmlAttribute * nexth;  /* next in hash table */
 	xmlAttributeType atype;         /* The attribute type */
 	xmlAttributeDefault def;        /* the default */
@@ -311,44 +349,6 @@ struct xmlNs {
 	void * _private; /* application data */
 	xmlDoc * context;       /* normally an xmlDoc */
 };
-
-struct XmlNodeBase { // @construction
-	void * _private;      // application data 
-	xmlElementType type;  // XML_DTD_NODE, must be second!
-	const xmlChar * name; // Name of the DTD 
-	xmlNode * children;   // the value of the property link 
-	xmlNode * last;       // last child link 
-	xmlNode * parent;     // child->parent link 
-	xmlNode * next;       // next sibling link 
-	xmlNode * prev;       // previous sibling link 
-	xmlDoc  * doc;        // the containing document
-};
-// 
-// Descr: An XML DTD, as defined by <!DOCTYPE ... There is actually one for
-//   the internal subset and for the external subset.
-// 
-//typedef struct _xmlDtd xmlDtd;
-struct xmlDtd : public XmlNodeBase {
-	//void * _private;      // application data
-	//xmlElementType type;  // XML_DTD_NODE, must be second !
-	//const xmlChar * name; // Name of the DTD 
-	//xmlNode * children; // the value of the property link
-	//xmlNode * last;   // last child link
-	//xmlDoc  * parent; // child->parent link // @sobolev @note здесь (xmlDoc * parent) в результате наслендования от XmlNodeBase превращается в (xmlNode * parent)
-	//xmlNode * next; // next sibling link 
-	//xmlNode * prev; // previous sibling link 
-	//xmlDoc  * doc;  // the containing document
-	// End of common part 
-	void * notations; /* Hash table for notations if any */
-	void * elements; /* Hash table for elements if any */
-	void * attributes; /* Hash table for attributes if any */
-	void * entities; /* Hash table for entities if any */
-	const xmlChar * ExternalID; /* External identifier for PUBLIC DTD */
-	const xmlChar * SystemID; /* URI for a SYSTEM or PUBLIC DTD */
-	void * pentities; /* Hash table for param entities if any */
-};
-
-typedef xmlDtd * xmlDtdPtr;
 //
 // Descr: An attribute on an XML node.
 // 
@@ -603,7 +603,7 @@ XMLPUBFUN xmlNode * XMLCALL xmlNewText(const xmlChar * content);
 XMLPUBFUN xmlNode * XMLCALL xmlNewDocPI(xmlDoc * doc, const xmlChar * name, const xmlChar * content);
 XMLPUBFUN xmlNode * XMLCALL xmlNewPI(const xmlChar * name, const xmlChar * content);
 XMLPUBFUN xmlNode * XMLCALL xmlNewDocTextLen(xmlDoc * doc, const xmlChar * content, int len);
-XMLPUBFUN xmlNode * XMLCALL xmlNewTextLen(const xmlChar * content, int len);
+XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlNewTextLen(const xmlChar * content, int len);
 XMLPUBFUN xmlNode * XMLCALL xmlNewDocComment(xmlDoc * doc, const xmlChar * content);
 XMLPUBFUN xmlNode * XMLCALL xmlNewComment(const xmlChar * content);
 XMLPUBFUN xmlNode * XMLCALL xmlNewCDataBlock(xmlDoc * doc, const xmlChar * content, int len);
@@ -627,7 +627,7 @@ XMLPUBFUN xmlChar * XMLCALL xmlGetNodePath(const xmlNode * P_Node);
 #endif /* defined(LIBXML_TREE_ENABLED) || defined(LIBXML_DEBUG_ENABLED) */
 XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlDocGetRootElement(const xmlDoc * doc);
 XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlGetLastChild(const xmlNode * parent);
-XMLPUBFUN int XMLCALL xmlNodeIsText(const xmlNode * P_Node);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlNodeIsText(const xmlNode * P_Node);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlIsBlankNode(const xmlNode * P_Node);
 // 
 // Changing the structure.
@@ -647,7 +647,7 @@ XMLPUBFUN xmlNode * XMLCALL xmlAddChildList(xmlNode * parent, xmlNode * cur);
 	XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlAddPrevSibling(xmlNode * cur, xmlNode * elem);
 #endif
 XMLPUBFUN xmlNode * XMLCALL xmlAddSibling(xmlNode * cur, xmlNode * elem);
-XMLPUBFUN xmlNode * XMLCALL xmlAddNextSibling(xmlNode * cur, xmlNode * elem);
+XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlAddNextSibling(xmlNode * cur, xmlNode * elem);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlUnlinkNode(xmlNode * cur);
 XMLPUBFUN xmlNode * XMLCALL xmlTextMerge(xmlNode * first, xmlNode * second);
 XMLPUBFUN int XMLCALL xmlTextConcat(xmlNode * P_Node, const xmlChar * content, int len);
@@ -673,14 +673,14 @@ XMLPUBFUN xmlNs * XMLCALL xmlCopyNamespaceList(xmlNs * cur);
 	XMLPUBFUN xmlAttr * XMLCALL xmlSetProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value);
 	XMLPUBFUN xmlAttr * XMLCALL xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value);
 #endif
-XMLPUBFUN xmlChar * XMLCALL xmlGetNoNsProp(const xmlNode * P_Node, const xmlChar * name);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlGetNoNsProp(const xmlNode * P_Node, const xmlChar * name);
 XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlGetProp(const xmlNode * P_Node, const xmlChar * name);
 XMLPUBFUN xmlAttr * /*XMLCALL*/FASTCALL xmlHasProp(const xmlNode * P_Node, const xmlChar * name);
 XMLPUBFUN xmlAttr * XMLCALL xmlHasNsProp(const xmlNode * P_Node, const xmlChar * name, const xmlChar * nameSpace);
-XMLPUBFUN xmlChar * XMLCALL xmlGetNsProp(const xmlNode * P_Node, const xmlChar * name, const xmlChar * nameSpace);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlGetNsProp(const xmlNode * P_Node, const xmlChar * name, const xmlChar * nameSpace);
 XMLPUBFUN xmlNode * XMLCALL xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value);
 XMLPUBFUN xmlNode * XMLCALL xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int len);
-XMLPUBFUN xmlChar * XMLCALL xmlNodeListGetString(xmlDoc * doc, const xmlNode * list, int inLine);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlNodeListGetString(xmlDoc * doc, const xmlNode * list, int inLine);
 #ifdef LIBXML_TREE_ENABLED
 	XMLPUBFUN xmlChar * XMLCALL xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int inLine);
 #endif

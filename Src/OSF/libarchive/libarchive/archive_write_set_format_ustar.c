@@ -23,22 +23,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ustar.c 191579 2009-04-27 18:35:03Z kientzle $");
-
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 //#include <stdio.h>
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
-
+//#endif
 //#include "archive.h"
 //#include "archive_entry.h"
 //#include "archive_entry_locale.h"
@@ -52,7 +49,6 @@ struct ustar {
 	struct archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
-
 /*
  * Define structure of POSIX 'ustar' tar header.
  */
@@ -146,15 +142,12 @@ static const char template_header[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-static ssize_t  archive_write_ustar_data(struct archive_write * a, const void * buff,
-    size_t s);
+static ssize_t  archive_write_ustar_data(struct archive_write * a, const void * buff, size_t s);
 static int      archive_write_ustar_free(struct archive_write *);
 static int      archive_write_ustar_close(struct archive_write *);
 static int      archive_write_ustar_finish_entry(struct archive_write *);
-static int      archive_write_ustar_header(struct archive_write *,
-    struct archive_entry * entry);
-static int      archive_write_ustar_options(struct archive_write *,
-    const char *, const char *);
+static int      archive_write_ustar_header(struct archive_write *, struct archive_entry * entry);
+static int      archive_write_ustar_options(struct archive_write *, const char *, const char *);
 static int      format_256(int64_t, char *, int);
 static int      format_number(int64_t, char *, int size, int max, int strict);
 static int      format_octal(int64_t, char *, int);
@@ -166,26 +159,18 @@ int archive_write_set_format_ustar(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct ustar * ustar;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_ustar");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_ustar");
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	/* Basic internal sanity test. */
 	if(sizeof(template_header) != 512) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Internal: template_header wrong size: %zu should be 512",
-		    sizeof(template_header));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Internal: template_header wrong size: %zu should be 512", sizeof(template_header));
 		return ARCHIVE_FATAL;
 	}
-
 	ustar = (struct ustar *)SAlloc::C(1, sizeof(*ustar));
 	if(ustar == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate ustar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 		return ARCHIVE_FATAL;
 	}
 	a->format_data = ustar;
@@ -206,15 +191,11 @@ static int archive_write_ustar_options(struct archive_write * a, const char * ke
 {
 	struct ustar * ustar = (struct ustar *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
 	if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
-			ustar->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			ustar->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(ustar->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -222,7 +203,6 @@ static int archive_write_ustar_options(struct archive_write * a, const char * ke
 		}
 		return ret;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -233,17 +213,13 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 {
 	char buff[512];
 	int ret, ret2;
-	struct ustar * ustar;
 	struct archive_entry * entry_main;
 	struct archive_string_conv * sconv;
-
-	ustar = (struct ustar *)a->format_data;
-
+	struct ustar * ustar = (struct ustar *)a->format_data;
 	/* Setup default string conversion. */
 	if(ustar->opt_sconv == NULL) {
 		if(!ustar->init_default_conversion) {
-			ustar->sconv_default =
-			    archive_string_default_conversion_for_write(&(a->archive));
+			ustar->sconv_default = archive_string_default_conversion_for_write(&(a->archive));
 			ustar->init_default_conversion = 1;
 		}
 		sconv = ustar->sconv_default;
@@ -253,17 +229,12 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 
 	/* Sanity check. */
 	if(archive_entry_pathname(entry) == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can't record entry in tar file without pathname");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't record entry in tar file without pathname");
 		return ARCHIVE_FAILED;
 	}
-
 	/* Only regular files (not hardlinks) have data. */
-	if(archive_entry_hardlink(entry) != NULL ||
-	    archive_entry_symlink(entry) != NULL ||
-	    !(archive_entry_filetype(entry) == AE_IFREG))
+	if(archive_entry_hardlink(entry) != NULL || archive_entry_symlink(entry) != NULL || !(archive_entry_filetype(entry) == AE_IFREG))
 		archive_entry_set_size(entry, 0);
-
 	if(AE_IFDIR == archive_entry_filetype(entry)) {
 		const char * p;
 		size_t path_length;

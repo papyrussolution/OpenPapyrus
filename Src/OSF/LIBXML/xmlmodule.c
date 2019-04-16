@@ -89,7 +89,7 @@ xmlModulePtr xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 int xmlModuleSymbol(xmlModulePtr module, const char * name, void ** symbol)
 {
 	int rc = -1;
-	if((NULL == module) || (symbol == NULL) || (name == NULL)) {
+	if((NULL == module) || (symbol == NULL) || !name) {
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, NULL, NULL, 0, 0, "null parameter\n");
 		return rc;
 	}

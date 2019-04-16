@@ -527,7 +527,7 @@ int SLAPI PPObjGoodsBasket::Write(PPObjPack * pPack, PPID * pID, void * stream, 
 int SLAPI PPObjGoodsBasket::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		PPBasketPacket * p_pack= (PPBasketPacket*)p->Data;
+		PPBasketPacket * p_pack= static_cast<PPBasketPacket *>(p->Data);
 		ILTI * p_item = 0;
 		for(uint i = 0; p_pack->Lots.enumItems(&i, (void **)&p_item);)
 			if(!ProcessObjRefInArray(PPOBJ_GOODS, &p_item->GoodsID, ary, replace))
@@ -724,7 +724,7 @@ void * SLAPI PPObjGoodsBasket::CreateObjListWin(uint flags, void * extraPtr)
 								}
 								else if(!PPObjGoodsBasket::IsLocked(id)) {
 									bc.Lck.Lock(id);
-									if(((PPObjGoodsBasket *)P_Obj)->GetPacket(id, &bc.Pack)) {
+									if(static_cast<PPObjGoodsBasket *>(P_Obj)->GetPacket(id, &bc.Pack)) {
 										GoodsBasketDialog(bc, 1);
 										update = 2;
 									}
@@ -746,7 +746,7 @@ void * SLAPI PPObjGoodsBasket::CreateObjListWin(uint flags, void * extraPtr)
 		}
 		virtual int Transmit(PPID id)
 		{
-			return id ? ((PPObjGoodsBasket *)P_Obj)->Transfer(id) : -1;
+			return id ? static_cast<PPObjGoodsBasket *>(P_Obj)->Transfer(id) : -1;
 		}
 	};
 	return /*0; */ new PPObjGoodsBasketListWindow(this, flags, extraPtr);
@@ -774,7 +774,7 @@ private:
 			}
 			else if(!PPObjGoodsBasket::IsLocked(id)) {
 				bc.Lck.Lock(id);
-				if(((PPObjGoodsBasket *)P_Obj)->GetPacket(id, &bc.Pack)) {
+				if(static_cast<PPObjGoodsBasket *>(P_Obj)->GetPacket(id, &bc.Pack)) {
 					GoodsBasketDialog(bc, 1);
 					updateList(-1);
 				}
@@ -789,7 +789,7 @@ private:
 	{
 		ObjViewDialog::handleEvent(event);
 		if(event.isCmd(cmaTransfer))
-			((PPObjGoodsBasket *)P_Obj)->Transfer(getCurrID());
+			static_cast<PPObjGoodsBasket *>(P_Obj)->Transfer(getCurrID());
 		else if(event.isKeyDown(kbCtrlX))
 			PPObjGoodsBasket::ForceUnlock(getCurrID());
 		else
@@ -1102,15 +1102,8 @@ SLAPI PPViewGoodsBasket::~PPViewGoodsBasket()
 	DBRemoveTempFiles();
 }
 
-const IterCounter & SLAPI PPViewGoodsBasket::GetIterCounter() const
-{
-	return Counter;
-}
-
-const PPBasketPacket * SLAPI PPViewGoodsBasket::GetPacket() const
-{
-	return P_GBPacket;
-}
+const IterCounter & SLAPI PPViewGoodsBasket::GetIterCounter() const { return Counter; }
+const PPBasketPacket * SLAPI PPViewGoodsBasket::GetPacket() const { return P_GBPacket; }
 
 int SLAPI PPViewGoodsBasket::Init(int ord)
 {

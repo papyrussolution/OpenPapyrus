@@ -703,7 +703,7 @@ void TrfrItemDialog::editQCertData()
 void TrfrItemDialog::GenerateSerial()
 {
 	if(IsTaggedItem()) {
-		SString templt = (GObj.IsAsset(Item.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
+		const SString templt = (GObj.IsAsset(Item.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 		SString serial;
 		if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(Item.GoodsID), &P_Pack->LTagL/*SnL*/, templt, serial) > 0)
 			setCtrlString(CTL_LOT_SERIAL, serial);
@@ -1018,7 +1018,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 									getCtrlData(CTL_LOT_DISCOUNT, &ds);
 									if((pc-ds) < Item.Cost) {
 										::SetBkMode(p_dc->H_DC, TRANSPARENT);
-										p_dc->H_Br = (HBRUSH)Ptb.Get(brushPriceBelowCost);
+										p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushPriceBelowCost));
 										clearEvent(event);
 									}
 								}
@@ -1028,11 +1028,11 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 								SString temp_buf;
 								P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
 								if(temp_buf.NotEmpty()) {
-									p_dc->H_Br = (HBRUSH)Ptb.Get(brushVetisUuidExists);
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushVetisUuidExists));
 									clearEvent(event);
 								}
 								else if(GObj.CheckFlag(Item.GoodsID, GF_WANTVETISCERT)) {
-									p_dc->H_Br = (HBRUSH)Ptb.Get(brushVetisUuidAbsence);
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushVetisUuidAbsence));
 									clearEvent(event);
 								}
 							}
@@ -1132,7 +1132,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 			else if(isCurrCtlID(CTL_LOT_QUANTITY)) {
 				GoodsStockExt gse;
 				if(GObj.GetStockExt(Item.GoodsID, &gse, 1) > 0 && gse.Package > 0.0) {
-					double num_pckg = getCtrlReal(CTL_LOT_QUANTITY);
+					const double num_pckg = getCtrlReal(CTL_LOT_QUANTITY);
 					setCtrlReal(CTL_LOT_QUANTITY, num_pckg * gse.Package);
 					setupQuantity(CTL_LOT_QUANTITY, 1);
 					setupVatSum();
@@ -1141,8 +1141,8 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 		}
 		else if(TVKEY == kbF6) {
 			if(oneof2(i, CTL_LOT_COST, CTL_LOT_PRICE)) {
-				double _p   = getCtrlReal(i);
-				double qtty = getCtrlReal(CTL_LOT_QUANTITY);
+				const double _p   = getCtrlReal(i);
+				const double qtty = getCtrlReal(CTL_LOT_QUANTITY);
 				if(qtty) {
 					setCtrlReal(i, TR5(_p / qtty));
 					setupVatSum();
@@ -1151,7 +1151,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 		}
 		else if(TVKEY == kbF9) {
 			if(oneof3(i, CTL_LOT_COST, CTL_LOT_PRICE, CTL_LOT_QUANTITY)) {
-				double _arg = getCtrlReal(i);
+				const double _arg = getCtrlReal(i);
 				double result = 0.0;
 				if(PPGoodsCalculator(Item.GoodsID, 0, 1, _arg, &result) > 0 && result > 0) {
 					setCtrlReal(i, (i == CTL_LOT_QUANTITY) ? R6(result) : TR5(result));
@@ -2730,7 +2730,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 //
 //
 //
-IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2) 
+IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 	{ RET_CMPCASCADE2(static_cast<const SelLotBrowser::Entry *>(i1), static_cast<const SelLotBrowser::Entry *>(i2), Dt, OprNo); }
 
 //static
@@ -2863,7 +2863,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					{
 						ObjTagItem tag_item;
 						// @v10.3.8 if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0)
-						if(PPRef->Ot.GetTag(PPOBJ_LOT, p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0) { // @v10.3.8 
+						if(PPRef->Ot.GetTag(PPOBJ_LOT, p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0) { // @v10.3.8
 							tag_item.GetStr(temp_buf);
 						}
 						pBlk->Set(temp_buf);
@@ -3266,3 +3266,34 @@ int SLAPI SelectLot__(PPID locID, PPID goodsID, PPID excludeLotID, PPID * pLotID
 	return r;
 }
 #endif // } 0 @v9.3.6
+//
+//
+//
+int SLAPI PPTransferItem::FreightPackage::Edit(PPTransferItem::FreightPackage * pData)
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_FPACKAGE);
+	if(CheckDialogPtr(&dlg)) {
+		PPTransferItem::FreightPackage data;
+		RVALUEPTR(data, pData);
+        SetupPPObjCombo(dlg, CTLSEL_FPACKAGE_FPT, PPOBJ_FREIGHTPACKAGETYPE, data.FreightPackageTypeID, 0);
+        dlg->setCtrlReal(CTL_FPACKAGE_QTTY, data.Qtty);
+        while(ok < 0 && ExecView(dlg) == cmOK) {
+            data.FreightPackageTypeID = dlg->getCtrlLong(CTLSEL_FPACKAGE_FPT);
+            if(!data.FreightPackageTypeID)
+				PPErrorByDialog(dlg, CTLSEL_FPACKAGE_FPT);
+			else {
+				data.Qtty = dlg->getCtrlReal(CTL_FPACKAGE_QTTY);
+				if(data.Qtty <= 0.0 || data.Qtty > 1000000.0) {
+					PPErrorByDialog(dlg, CTL_FPACKAGE_QTTY);
+				}
+				else {
+					ASSIGN_PTR(pData, data);
+					ok = 1;
+				}
+			}
+        }
+	}
+	delete dlg;
+	return ok;
+}

@@ -179,7 +179,7 @@ int SLAPI EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly)
 		dlg->getCtrlData(CTLSEL_QCERT_REGORGAN, &rec.RegOrgan);
 		dlg->getCtrlData(CTL_QCERT_ETC,         rec.Etc);
 		dlg->getCtrlData(CTL_QCERT_PASSIVE, &(v = 0));
-		rec.Passive = (v & 0x01) ? 1 : 0;
+		rec.Passive = BIN(v & 0x01);
 		if(*strip(rec.Code) == 0)
 			PPErrorByDialog(dlg, CTL_QCERT_CODE, PPERR_QCCODENEEDED);
 		/*
@@ -285,7 +285,7 @@ int SLAPI PPObjQCert::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	THROW(p && p->Data);
 	if(stream == 0) {
 		int    done = 0;
-		QualityCertTbl::Rec * p_rec = (QualityCertTbl::Rec*)p->Data;
+		QualityCertTbl::Rec * p_rec = static_cast<QualityCertTbl::Rec *>(p->Data);
 		if(*pID == 0) {
 			p_rec->ID = 0;
 			strip(p_rec->Etc);
@@ -321,7 +321,7 @@ int SLAPI PPObjQCert::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 int SLAPI PPObjQCert::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		QualityCertTbl::Rec * r = (QualityCertTbl::Rec *)p->Data;
+		QualityCertTbl::Rec * r = static_cast<QualityCertTbl::Rec *>(p->Data);
 		return (ProcessObjRefInArray(PPOBJ_PERSON, &r->RegOrgan, ary, replace)) ? 1 : 0;
 	}
 	return -1;

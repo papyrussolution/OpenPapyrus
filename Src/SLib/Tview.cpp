@@ -381,7 +381,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		SString temp_buf = text_buf;
 		int   do_replace = 0;
 		if(temp_buf.C(0) == '@') {
-			SLS.LoadString(text_buf+1, temp_buf);
+			SLS.LoadString_(text_buf+1, temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			do_replace = 1;
 		}

@@ -168,7 +168,7 @@ int SLAPI PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnl
 	if(p_ini_file->IsValid()) {
 		// @construction (see comments below) SPathStruc ps;
 		StringSet entries;
-		p_ini_file->Get((uint)PPINISECT_PATH, (uint)PPINIPARAM_SYS, def_dict);
+		p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_SYS, def_dict);
 		p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_DAT, def_data);
 		p_ini_file->GetEntries(P_DbNameSect, &entries);
 		for(uint pos = 0; entries.get(&pos, entry_symb);) {

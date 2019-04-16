@@ -4640,7 +4640,7 @@ private:
 		}
 		virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 		{
-			PPBillExt * p_data_rec = (PPBillExt *)pDataRec;
+			PPBillExt * p_data_rec = static_cast<PPBillExt *>(pDataRec);
 			const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 			memzero(p_data_rec, sizeof(*p_data_rec));
 			if(!(p_cache_rec->F & ObjCacheEntry::fUndef)) {
@@ -4716,7 +4716,7 @@ private:
 		}
 		virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 		{
-			PPFreight * p_data_rec = (PPFreight *)pDataRec;
+			PPFreight * p_data_rec = static_cast<PPFreight *>(pDataRec);
 			const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 			memzero(p_data_rec, sizeof(*p_data_rec));
 			if(!(p_cache_rec->F & ObjCacheEntry::fUndef)) {
@@ -4813,7 +4813,7 @@ int SLAPI BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 
 void SLAPI BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	BillTbl::Rec * p_data_rec = (BillTbl::Rec *)pDataRec;
+	BillTbl::Rec * p_data_rec = static_cast<BillTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -5130,7 +5130,7 @@ int SLAPI LotCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 
 void SLAPI LotCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	BillTbl::Rec * p_data_rec = (BillTbl::Rec *)pDataRec;
+	BillTbl::Rec * p_data_rec = static_cast<BillTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -5646,9 +5646,8 @@ int SLAPI PPObjBill::GetExpendedPartOfReceipt(PPID lotID, const DateRange * pPer
 	if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
 		const double tolerance = 1.0e-9;
 		PPIDArray recur_list;
-		rBlk.Amount += fabs(lot_rec.Cost * lot_rec.Quantity); // @v8.2.0 fabs
+		rBlk.Amount += fabs(lot_rec.Cost * lot_rec.Quantity);
 		THROW(Helper_GetExpendedPartOfReceipt(lotID, DateIter(pPeriod), &paym_period, pOpList, rBlk, recur_list));
-		// @v8.2.0 {
 		if(fabs(rBlk.Payout) > rBlk.Amount)
 			rBlk.Payout = rBlk.Amount;
 		else if(fabs(rBlk.Payout) < tolerance)
@@ -5657,7 +5656,6 @@ int SLAPI PPObjBill::GetExpendedPartOfReceipt(PPID lotID, const DateRange * pPer
 			rBlk.Expend = rBlk.Amount;
 		else if(fabs(rBlk.Expend) < tolerance)
 			rBlk.Expend = 0.0;
-		// } @v8.2.0
 	}
 	CATCHZOK
 	return ok;
@@ -8368,15 +8366,16 @@ int SLAPI PPObjBill::__TurnPacket(PPBillPacket * pPack, PPIDArray * pList, int s
 }
 
 // static
-int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAssocArray & rResultList, SString * pFileTemplate)
+int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate)
 {
 	enum {
 		billsymbmodLink   = 0x40000000,
 		billsymbmodReckon = 0x20000000,
-		billsymbmodTSess  = 0x10000000
+		billsymbmodTSess  = 0x10000000,
 	};
 
 	// @INN_@DLVRLOCID_@BILLNO_@FGDATE.txt
+	// @DLVRLOCTAG.tagsymb
 	// 1001135228_7982_AB260_18042015.txt
 	int    ok = 1;
 	SString result_file_template;
@@ -8394,6 +8393,7 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
 			else { // *p == '@'
 				long   modif = 0;
 				long   sym  = st.Translate(p, &next);
+				long   ext_id = 0;
 				field_value = 0;
 				if(sym == 0) {
 					assert(next == 1); // Если подстановка не удалась, то PPSymbTranslator::Translate не должен сдвигать позицию
@@ -8403,36 +8403,64 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
 					p_text++;
 				}
 				else {
-					if(sym == PPSYM_LINK) {
-						if(p[next] == '.') {
-							modif = billsymbmodLink;
-							p += (next+1);
-							next = 0;
-							sym = st.Translate(p, &next);
-						}
-						else
-							sym = 0;
-					}
-					else if(sym == PPSYM_RECKON) {
-						if(p[next] == '.') {
-							modif = billsymbmodReckon;
-							p += (next+1);
-							next = 0;
-							sym = st.Translate(p, &next);
-						}
-						else
-							sym = 0;
-					}
-					else if(sym == PPSYM_TSESS) {
-						modif = billsymbmodTSess;
-						if(p[next] == '.') {
-							p += (next+1);
-							next = 0;
-							sym = st.Translate(p, &next);
-						}
-						else {
-							sym = 0;
-						}
+					switch(sym) {
+						case PPSYM_LINK:
+							if(p[next] == '.') {
+								modif = billsymbmodLink;
+								p += (next+1);
+								next = 0;
+								sym = st.Translate(p, &next); // @recursion
+							}
+							else
+								sym = 0;
+							break;
+						case PPSYM_RECKON:
+							if(p[next] == '.') {
+								modif = billsymbmodReckon;
+								p += (next+1);
+								next = 0;
+								sym = st.Translate(p, &next); // @recursion
+							}
+							else
+								sym = 0;
+							break;
+						case PPSYM_TSESS:
+							modif = billsymbmodTSess;
+							if(p[next] == '.') {
+								p += (next+1);
+								next = 0;
+								sym = st.Translate(p, &next); // @recursion
+							}
+							else 
+								sym = 0;
+							break;
+						case PPSYM_DLVRLOCTAG:
+							if(p[next] == '.') {
+								char   tag_symb[64];
+								p += (next+1);
+								const char * p2 = p;
+								PPObjTag tag_obj;
+								PPObjectTag tag_rec;
+								for(size_t tsp = 0; !ext_id && (tsp+1) < SIZEOFARRAY(tag_symb) && *p2;) {
+									tag_symb[tsp++] = *p2++;
+									tag_symb[tsp] = 0;
+									PPID   local_tag_id = 0;
+									if(tag_obj.FetchBySymb(tag_symb, &local_tag_id) > 0) {
+										if(tag_obj.Fetch(local_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOCATION) {
+											ext_id = local_tag_id;
+											p = p2;
+											next = 0;
+										}
+									}
+								}
+								if(ext_id)
+									sym = PPSYM_DLVRLOCTAG;
+								else
+									sym = 0;
+							}
+							else
+								sym = 0;
+							break;
 					}
 					{
                         const char * p_text_next = p[next] ? sstrchr(p_text, p[next]) : 0;
@@ -8448,7 +8476,7 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
                         p_text += fld_len;
 					}
 					if(sym) {
-						rResultList.Add(sym | modif, field_value);
+						rResultList.Add(sym | modif, ext_id, field_value);
 						result_file_template.CatChar('*');
 					}
 				}

@@ -28,10 +28,8 @@
  *
  * The Initial Developer of the Original Code is Keith Packard
  *
- * Contributor(s):
- *    Keith Packard <keithp@keithp.com>
+ * Contributor(s): Keith Packard <keithp@keithp.com>
  */
-
 #ifndef CAIRO_ANALYSIS_SURFACE_H
 #define CAIRO_ANALYSIS_SURFACE_H
 

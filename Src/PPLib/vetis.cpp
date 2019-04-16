@@ -2132,6 +2132,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 			if(rec.FromEntityID) {
 				GetEntity(rec.FromEntityID, sub_entity);
 				sub_entity.Get(r_crtc.Consignor.BusinessEntity);
+				r_crtc.Consignor.BusinessEntity.EntityID = sub_entity.ID; // @v10.4.1
 			}
 			if(rec.FromEnterpriseID) {
 				GetEntity(rec.FromEnterpriseID, sub_entity);
@@ -2140,6 +2141,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 			if(rec.ToEntityID) {
 				GetEntity(rec.ToEntityID, sub_entity);
 				sub_entity.Get(r_crtc.Consignee.BusinessEntity);
+				r_crtc.Consignee.BusinessEntity.EntityID = sub_entity.ID; // @v10.4.1
 			}
 			if(rec.ToEnterpriseID) {
 				GetEntity(rec.ToEnterpriseID, sub_entity);
@@ -2567,6 +2569,9 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVec
 				SString code_list_buf;
 				for(uint ssp = 0; r_bat.ProductMarkingList.get(&ssp, temp_buf);) {
 					code_list_buf.CatDivIfNotEmpty(';', 0).Cat(temp_buf);
+					if(code_list_buf.Len() > 1024) { // @v10.4.1
+						break;
+					}
 				}
 				if(code_list_buf.NotEmptyS()) {
 					temp_buf_u.CopyFromUtf8(code_list_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
@@ -6981,6 +6986,21 @@ int FASTCALL PPViewVetisDocument::RunInterchangeProcess(VetisDocumentFilt * pFil
 	return ok;
 }
 
+PPBaseFilt * SLAPI PPViewVetisDocument::CreateFilt(void * extraPtr) const
+{
+	VetisDocumentFilt * p_filt = new VetisDocumentFilt;
+	if(p_filt) {
+		p_filt->VDStatusFlags |= (1<<vetisdocstCREATED);
+		p_filt->VDStatusFlags |= (1<<vetisdocstCONFIRMED);
+		p_filt->VDStatusFlags |= (1<<vetisdocstWITHDRAWN);
+		p_filt->VDStatusFlags |= (1<<vetisdocstUTILIZED);
+		p_filt->VDStatusFlags |= (1<<vetisdocstFINALIZED);
+		p_filt->VDStatusFlags |= (1<<vetisdocstOUTGOING_PREPARING);
+		//p_filt->VDStatusFlags |= (1<<vetisdocstSTOCK);
+	}
+	return p_filt;
+}
+
 int SLAPI PPViewVetisDocument::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
@@ -7044,7 +7064,7 @@ static IMPL_DBE_PROC(dbqf_vetis_entitytextfld_ip)
 	}
 	else {
 		Reference * p_ref = PPRef;
-		PPID   entity_id = params[0].lval;
+		const PPID entity_id = params[0].lval;
 		VetisEntityCore * p_ec = reinterpret_cast<VetisEntityCore *>(params[1].ptrv);
 		SString temp_buf;
 		SStringU temp_buf_u;
@@ -7276,32 +7296,32 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 			cp.init(&EC.DT);
 			dbe_product_name.push(cp);
 		}
-		dbe_product_name.push((DBFunc)DynFuncProductItemTextFld);
+		dbe_product_name.push(static_cast<DBFunc>(DynFuncProductItemTextFld));
 	}
 	{
 		dbe_vetdform.init();
 		dbe_vetdform.push(t->VetisDocForm);
-		dbe_vetdform.push((DBFunc)DynFuncVetDForm);
+		dbe_vetdform.push(static_cast<DBFunc>(DynFuncVetDForm));
 	}
 	{
 		dbe_vetdtype.init();
 		dbe_vetdtype.push(t->VetisDocType);
-		dbe_vetdtype.push((DBFunc)DynFuncVetDType);
+		dbe_vetdtype.push(static_cast<DBFunc>(DynFuncVetDType));
 	}
 	{
 		dbe_vetdstatus.init();
 		dbe_vetdstatus.push(t->VetisDocStatus);
-		dbe_vetdstatus.push((DBFunc)DynFuncVetDStatus);
+		dbe_vetdstatus.push(static_cast<DBFunc>(DynFuncVetDStatus));
 	}
 	/*{
 		dbe_from.init();
 		dbe_from.push(t->FromEnterpriseID);
-		dbe_from.push((DBFunc)DynFuncEntityTextFld);
+		dbe_from.push(static_cast<DBFunc>(DynFuncEntityTextFld));
 	}
 	{
 		dbe_to.init();
 		dbe_to.push(t->ToEnterpriseID);
-		dbe_to.push((DBFunc)DynFuncEntityTextFld);
+		dbe_to.push(static_cast<DBFunc>(DynFuncEntityTextFld));
 	}*/
 	//
 	{
@@ -7313,7 +7333,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 			cp.init(&EC);
 			dbe_from.push(cp);
 		}
-		dbe_from.push((DBFunc)DynFuncBMembTextFld);
+		dbe_from.push(static_cast<DBFunc>(DynFuncBMembTextFld));
 	}
 	{
 		dbe_to.init();
@@ -7324,7 +7344,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 			cp.init(&EC);
 			dbe_to.push(cp);
 		}
-		dbe_to.push((DBFunc)DynFuncBMembTextFld);
+		dbe_to.push(static_cast<DBFunc>(DynFuncBMembTextFld));
 	}
 	{
 		dbe_stock.init();
@@ -7334,7 +7354,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 			cp.init(&EC);
 			dbe_stock.push(cp);
 		}
-		dbe_stock.push((DBFunc)DynFuncVetStockByDoc);
+		dbe_stock.push(static_cast<DBFunc>(DynFuncVetStockByDoc));
 	}
 	dbq = ppcheckfiltid(dbq, t->OrgDocEntityID, Filt.LinkVDocID); // @v10.1.12
 	dbq = & (*dbq && daterange(t->IssueDate, &Filt.Period));
@@ -7389,6 +7409,8 @@ int SLAPI PPViewVetisDocument::InitIteration()
 	P_IterQuery->selectAll();
 	dbq = & (*dbq && daterange(p_t->IssueDate, &Filt.Period));
 	dbq = & (*dbq && daterange(p_t->WayBillDate, &Filt.WayBillPeriod));
+	dbq = ppcheckfiltid(dbq, p_t->FromEntityID, FromEntityID); // @v10.4.1
+	dbq = ppcheckfiltid(dbq, p_t->ToEntityID, ToEntityID); // @v10.4.1
 	P_IterQuery->where(*dbq);
 	k0_ = k0;
 	Counter.Init(P_IterQuery->countIterations(0, &k0_, spGe));
@@ -7842,6 +7864,74 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 			}
 		}
 		else if(v == 3) { // актуализация текущих данных
+#if 0 // @v10.4.1 {
+			// @v10.4.1 {
+			VetisDocumentViewItem view_item;
+			LAssocArray doc_consignor_be_assoc_list;
+			LAssocArray doc_consignee_be_assoc_list;
+			VetisVetDocument doc_item;
+			for(InitIteration(); NextIteration(&view_item) > 0;) {
+				VetisEntityCore::Entity ent;
+				if(EC.Get(view_item.EntityID, doc_item) > 0) {
+					VetisCertifiedConsignment & r_crtc = doc_item.CertifiedConsignment;
+					if(!r_crtc.Consignor.BusinessEntity.EntityID) {
+						if(!r_crtc.Consignor.BusinessEntity.Guid.IsZero()) {
+							if(ifc.PeC.GetEntityByGuid(r_crtc.Consignor.BusinessEntity.Guid, ent) > 0) {
+								if(ent.Kind == VetisEntityCore::kBusinessEntity) {
+									doc_consignor_be_assoc_list.Add(view_item.EntityID, ent.ID);
+								}
+							}
+						}
+					}
+					if(!r_crtc.Consignee.BusinessEntity.EntityID) {
+						if(!r_crtc.Consignee.BusinessEntity.Guid.IsZero()) {
+							if(ifc.PeC.GetEntityByGuid(r_crtc.Consignee.BusinessEntity.Guid, ent) > 0) {
+								if(ent.Kind == VetisEntityCore::kBusinessEntity) {
+									doc_consignee_be_assoc_list.Add(view_item.EntityID, ent.ID);
+								}
+							}
+						}
+					}
+					//if(r_crtc.Consignee.BusinessEntity)
+					//EditVetisVetDocument(item);
+				}
+			}
+			if(doc_consignor_be_assoc_list.getCount() || doc_consignee_be_assoc_list.getCount()) {
+				PPIDArray doc_to_upd_list;
+				{
+					for(uint cridx = 0; cridx < doc_consignor_be_assoc_list.getCount(); cridx++) {
+						doc_to_upd_list.add(doc_consignor_be_assoc_list.at(cridx).Key);
+					}
+					for(uint ceidx = 0; ceidx < doc_consignee_be_assoc_list.getCount(); ceidx++) {
+						doc_to_upd_list.add(doc_consignee_be_assoc_list.at(ceidx).Key);
+					}
+					doc_to_upd_list.sortAndUndup();
+				}
+				PPTransaction tra(1);
+				THROW(tra);
+				for(uint docidx = 0; docidx < doc_to_upd_list.getCount(); docidx++) {
+					PPID   doc_id = doc_to_upd_list.get(docidx);
+					if(EC.Get(view_item.EntityID, doc_item) > 0) {
+						PPID   consignor_be_id = 0;
+						PPID   consignee_be_id = 0;
+						const int rr = doc_consignor_be_assoc_list.Search(doc_id, &consignor_be_id, 0);
+						const int er = doc_consignee_be_assoc_list.Search(doc_id, &consignee_be_id, 0);
+						assert(rr > 0 || consignor_be_id == 0);
+						assert(rr == 0 || consignor_be_id > 0);
+						assert(er > 0 || consignee_be_id == 0);
+						assert(er == 0 || consignee_be_id > 0);
+						if(consignor_be_id && !doc_item.CertifiedConsignment.Consignor.BusinessEntity.EntityID)
+							doc_item.CertifiedConsignment.Consignor.BusinessEntity.EntityID = consignor_be_id;
+						if(consignee_be_id && !doc_item.CertifiedConsignment.Consignee.BusinessEntity.EntityID)
+							doc_item.CertifiedConsignment.Consignee.BusinessEntity.EntityID = consignee_be_id;
+						PPID   local_entity_id = 0;
+						THROW(EC.Put(&local_entity_id, doc_item, /*pUreList*/0, 0));
+					}
+				}
+				THROW(tra.Commit());
+			}
+			// } @v10.4.1 
+#endif // } 0 @v10.4.1
 		}
 		if(ok > 0)
 			THROW(ifc.ProcessUnresolvedEntityList(ure_list));

@@ -1795,7 +1795,7 @@ int SLAPI PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI PsnOpKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPPsnOpKind * p_data_rec = (PPPsnOpKind *)pDataRec;
+	PPPsnOpKind * p_data_rec = static_cast<PPPsnOpKind *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld

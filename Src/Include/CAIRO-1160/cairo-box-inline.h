@@ -28,13 +28,10 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * Contributor(s):
- *	Andrea Canciani <ranma42@gmail.com>
+ * Contributor(s): Andrea Canciani <ranma42@gmail.com>
  */
-
 #ifndef CAIRO_BOX_H
 #define CAIRO_BOX_H
-
 //#include "cairo-types-private.h"
 //#include "cairo-compiler-private.h"
 //#include "cairo-fixed-private.h"

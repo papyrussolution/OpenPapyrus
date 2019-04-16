@@ -1587,7 +1587,7 @@ DBQuery * SLAPI PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		dbe_phqtty.push(p_tslt->Flags);
 		dbe_phqtty.push(p_tslt->Qtty);
 		dbe_phqtty.push(p_tslt->WtQtty);
-		dbe_phqtty.push((DBFunc)PPDbqFuncPool::IdTSesLnPhQtty);
+		dbe_phqtty.push(static_cast<DBFunc>(PPDbqFuncPool::IdTSesLnPhQtty));
 		q->addField(dbe_phqtty);       // #10
 	}
 	q->addField(dbe_flags);            // #11
@@ -1601,7 +1601,7 @@ DBQuery * SLAPI PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			dbe_datetime.init();
 			dbe_datetime.push(p_tst->StDt);
 			dbe_datetime.push(p_tst->StTm);
-			dbe_datetime.push((DBFunc)PPDbqFuncPool::IdDateTime);
+			dbe_datetime.push(static_cast<DBFunc>(PPDbqFuncPool::IdDateTime));
 			q->addField(dbe_datetime); // #15
 		}
 	}

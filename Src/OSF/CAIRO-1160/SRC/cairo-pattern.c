@@ -256,8 +256,8 @@ cairo_status_t FASTCALL _cairo_pattern_init_copy(cairo_pattern_t * pattern, cons
 		    *dst = *src;
 	    } break;
 		case CAIRO_PATTERN_TYPE_SURFACE: {
-		    cairo_surface_pattern_t * dst = (cairo_surface_pattern_t*)pattern;
-		    cairo_surface_pattern_t * src = (cairo_surface_pattern_t*)other;
+		    cairo_surface_pattern_t * dst = (cairo_surface_pattern_t *)pattern;
+		    cairo_surface_pattern_t * src = (cairo_surface_pattern_t *)other;
 		    VG(VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_surface_pattern_t)));
 		    *dst = *src;
 		    cairo_surface_reference(dst->surface);
@@ -326,7 +326,7 @@ cairo_status_t FASTCALL _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, 
 		return status;
 	// But we do let the surface snapshot stuff be as fancy as it would like to be.
 	if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)pattern;
+		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)pattern;
 		cairo_surface_t * surface = surface_pattern->surface;
 		surface_pattern->surface = _cairo_surface_snapshot(surface);
 		cairo_surface_destroy(surface);
@@ -344,7 +344,7 @@ void FASTCALL _cairo_pattern_fini(cairo_pattern_t * pattern)
 		case CAIRO_PATTERN_TYPE_SOLID:
 		    break;
 		case CAIRO_PATTERN_TYPE_SURFACE: {
-		    cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)pattern;
+		    cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)pattern;
 		    cairo_surface_destroy(surface_pattern->surface);
 	    } break;
 		case CAIRO_PATTERN_TYPE_LINEAR:
@@ -3540,7 +3540,7 @@ ulong _cairo_pattern_hash(const cairo_pattern_t * pattern)
 		case CAIRO_PATTERN_TYPE_LINEAR: return _cairo_linear_pattern_hash(hash, (cairo_linear_pattern_t*)pattern);
 		case CAIRO_PATTERN_TYPE_RADIAL: return _cairo_radial_pattern_hash(hash, (cairo_radial_pattern_t*)pattern);
 		case CAIRO_PATTERN_TYPE_MESH: return _cairo_mesh_pattern_hash(hash, (cairo_mesh_pattern_t*)pattern);
-		case CAIRO_PATTERN_TYPE_SURFACE: return _cairo_surface_pattern_hash(hash, (cairo_surface_pattern_t*)pattern);
+		case CAIRO_PATTERN_TYPE_SURFACE: return _cairo_surface_pattern_hash(hash, (cairo_surface_pattern_t *)pattern);
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: return _cairo_raster_source_pattern_hash(hash, (cairo_raster_source_pattern_t*)pattern);
 		default: 
 			ASSERT_NOT_REACHED;
@@ -3663,8 +3663,8 @@ cairo_bool_t _cairo_pattern_equal(const cairo_pattern_t * a, const cairo_pattern
 		    return _cairo_mesh_pattern_equal((cairo_mesh_pattern_t*)a,
 			       (cairo_mesh_pattern_t*)b);
 		case CAIRO_PATTERN_TYPE_SURFACE:
-		    return _cairo_surface_pattern_equal((cairo_surface_pattern_t*)a,
-			       (cairo_surface_pattern_t*)b);
+		    return _cairo_surface_pattern_equal((cairo_surface_pattern_t *)a,
+			       (cairo_surface_pattern_t *)b);
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
 		    return _cairo_raster_source_pattern_equal((cairo_raster_source_pattern_t*)a,
 			       (cairo_raster_source_pattern_t*)b);
@@ -3724,7 +3724,7 @@ cairo_status_t cairo_pattern_get_rgba(cairo_pattern_t * pattern, double * red, d
 cairo_status_t cairo_pattern_get_surface(cairo_pattern_t * pattern,
     cairo_surface_t ** surface)
 {
-	cairo_surface_pattern_t * spat = (cairo_surface_pattern_t*)pattern;
+	cairo_surface_pattern_t * spat = (cairo_surface_pattern_t *)pattern;
 
 	if(pattern->status)
 		return pattern->status;
@@ -4251,7 +4251,7 @@ void _cairo_debug_print_pattern(FILE * file, const cairo_pattern_t * pattern)
 		default:
 		case CAIRO_PATTERN_TYPE_SOLID: break;
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: _cairo_debug_print_raster_source_pattern(file, (cairo_raster_source_pattern_t*)pattern); break;
-		case CAIRO_PATTERN_TYPE_SURFACE: _cairo_debug_print_surface_pattern(file, (cairo_surface_pattern_t*)pattern); break;
+		case CAIRO_PATTERN_TYPE_SURFACE: _cairo_debug_print_surface_pattern(file, (cairo_surface_pattern_t *)pattern); break;
 		case CAIRO_PATTERN_TYPE_LINEAR: _cairo_debug_print_linear_pattern(file, (cairo_linear_pattern_t*)pattern); break;
 		case CAIRO_PATTERN_TYPE_RADIAL: _cairo_debug_print_radial_pattern(file, (cairo_radial_pattern_t*)pattern); break;
 		case CAIRO_PATTERN_TYPE_MESH: _cairo_debug_print_mesh_pattern(file, (cairo_mesh_pattern_t*)pattern); break;

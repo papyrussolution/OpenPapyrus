@@ -6162,7 +6162,7 @@ void xmlExpRef(xmlExpNodePtr exp)
  */
 xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len)
 {
-	if(!ctxt || (name == NULL))
+	if(!ctxt || !name)
 		return 0;
 	name = xmlDictLookup(ctxt->dict, name, len);
 	if(!name)

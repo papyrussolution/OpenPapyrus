@@ -218,7 +218,7 @@ int SmartListBox::AddColumn(int pos, const char * pTitle, uint width, uint forma
 			title.Transf(CTRANSF_OUTER_TO_INNER);
 			cf = STRF_OEM;
 		}
-		if(SLS.LoadString(title.ShiftLeft(), temp_buf) > 0) {
+		if(SLS.LoadString_(title.ShiftLeft(), temp_buf) > 0) {
 			title = temp_buf.Strip();
 			cf = STRF_OEM;
 		}
@@ -275,7 +275,7 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 	SString columns_buf = pColsBuf;
 	if(columns_buf.NotEmptyS()) {
 		SString cstr, citem, left, right, title_buf;
-		if(columns_buf.Strip().C(0) == '@' && SLS.LoadString(columns_buf.ShiftLeft(), cstr) > 0)
+		if(columns_buf.Strip().C(0) == '@' && SLS.LoadString_(columns_buf.ShiftLeft(), cstr) > 0)
 			columns_buf = cstr;
 		columns_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		StringSet columns_ss(';', columns_buf);

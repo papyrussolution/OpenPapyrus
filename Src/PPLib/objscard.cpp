@@ -1454,12 +1454,12 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 		int    EditRule(int ruleType)
 		{
 			PPSCardSerRule * p_rule = 0;
-			if(ruleType == PPSCardSerRule::rultCcAmountDisc)
-				p_rule = &Data.CcAmtDisRule;
-			else if(ruleType == PPSCardSerRule::rultDisc)
-				p_rule = &Data.Rule;
-			else if(ruleType == PPSCardSerRule::rultBonus)
-				p_rule = &Data.BonusRule;
+			switch(ruleType) {
+				case PPSCardSerRule::rultCcAmountDisc: p_rule = &Data.CcAmtDisRule; break;
+				case PPSCardSerRule::rultDisc: p_rule = &Data.Rule; break;
+				case PPSCardSerRule::rultBonus: p_rule = &Data.BonusRule; break;
+				default: break;
+			}
 			if(p_rule) {
 				DIALOG_PROC_BODY_P1(SCardRuleDlg, ruleType, p_rule);
 			}
@@ -1605,7 +1605,7 @@ int SLAPI PPObjSCardSeries::Read(PPObjPack * p, PPID id, void * stream, ObjTrans
 int SLAPI PPObjSCardSeries::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	PPSCardSerPacket * p_pack = p ? (PPSCardSerPacket *)p->Data : 0;
+	PPSCardSerPacket * p_pack = p ? static_cast<PPSCardSerPacket *>(p->Data) : 0;
 	if(p_pack)
 		if(stream == 0) {
 			p_pack->Rec.ID = *pID;
@@ -1628,7 +1628,7 @@ int SLAPI PPObjSCardSeries::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPSCardSerPacket * p_pack = (PPSCardSerPacket *)p->Data;
+		PPSCardSerPacket * p_pack = static_cast<PPSCardSerPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_QUOTKIND,   &p_pack->Rec.QuotKindID_s, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PRSNKIND,   &p_pack->Rec.PersonKindID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_pack->Rec.CrdGoodsGrpID, ary, replace));
@@ -1722,11 +1722,11 @@ int FASTCALL PPObjSCardSeriesListWindow::NextIteration(PPSCardSeries * pRec)
 {
 	int    ok = -1;
 	if(pRec && P_Def) {
-		const StrAssocArray * p_scs_ary = ((StrAssocListBoxDef *)P_Def)->getArray();
+		const StrAssocArray * p_scs_ary = static_cast<const StrAssocListBoxDef *>(P_Def)->getArray();
 		if(p_scs_ary && CurIterPos < p_scs_ary->getCount()) {
 			StrAssocArray::Item item = p_scs_ary->Get(CurIterPos++);
 			PPID   id = item.Id;
-			PPObjSCardSeries * p_sc_obj = (PPObjSCardSeries *)P_Obj;
+			PPObjSCardSeries * p_sc_obj = static_cast<PPObjSCardSeries *>(P_Obj);
 			if(p_sc_obj && p_sc_obj->Search(id, pRec) > 0)
 				ok = 1;
 		}
@@ -1740,7 +1740,7 @@ IMPL_HANDLE_EVENT(PPObjSCardSeriesListWindow)
 	PPObjListWindow::handleEvent(event);
 	if(P_Obj) {
 		PPID   current_id = 0;
-		PPObjSCardSeries * p_sc_obj = (PPObjSCardSeries *)P_Obj;
+		PPObjSCardSeries * p_sc_obj = static_cast<PPObjSCardSeries *>(P_Obj);
 		getResult(&current_id);
 		if(TVCOMMAND) {
 			switch(TVCMD) {
@@ -4048,7 +4048,7 @@ int SLAPI PPObjSCard::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 int SLAPI PPObjSCard::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	SCardTransmitPacket * p_pack = p ? (SCardTransmitPacket *)p->Data : 0;
+	SCardTransmitPacket * p_pack = p ? static_cast<SCardTransmitPacket *>(p->Data) : 0;
 	if(p_pack) {
 		if(stream == 0) {
 			THROW(ok = PutTransmitPacket(pID, p_pack, ((p->Flags & PPObjPack::fDispatcher) ? 0 : 1), pCtx, 1));
@@ -4068,7 +4068,7 @@ int SLAPI PPObjSCard::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 	int    ok = 1;
 	if(p && p->Data) {
 		uint   i;
-		SCardTransmitPacket * p_pack = (SCardTransmitPacket *)p->Data;
+		SCardTransmitPacket * p_pack = static_cast<SCardTransmitPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_SCARDSERIES, &p_pack->P.Rec.SeriesID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON, &p_pack->P.Rec.PersonID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_LOCATION, &p_pack->P.Rec.LocID, ary, replace)); // @v9.4.0
@@ -4238,7 +4238,7 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPSCardSeries * p_data_rec = (PPSCardSeries*)pDataRec;
+	PPSCardSeries * p_data_rec = static_cast<PPSCardSeries *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(PPSCardSeries));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
@@ -4407,7 +4407,7 @@ int SLAPI SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 
 void SLAPI SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	SCardTbl::Rec * p_data_rec = (SCardTbl::Rec *)pDataRec;
+	SCardTbl::Rec * p_data_rec = static_cast<SCardTbl::Rec *>(pDataRec);
 	if(p_data_rec) {
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		memzero(p_data_rec, sizeof(*p_data_rec));

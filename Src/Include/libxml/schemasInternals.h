@@ -292,7 +292,7 @@ struct _xmlSchemaWildcardNs {
  * A wildcard.
  */
 typedef struct _xmlSchemaWildcard xmlSchemaWildcard;
-typedef xmlSchemaWildcard *xmlSchemaWildcardPtr;
+typedef xmlSchemaWildcard * xmlSchemaWildcardPtr;
 struct _xmlSchemaWildcard {
     xmlSchemaTypeType type;        /* The kind of type */
     const xmlChar *id; /* Deprecated; not used */

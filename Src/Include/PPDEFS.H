@@ -403,27 +403,27 @@
 #define PPCFGOBJ_ALCREPORT        (PPOBJ_FIRST_CFG_OBJ + 32)
 #define PPCFGOBJ_TIMESERIES       (PPOBJ_FIRST_CFG_OBJ + 33) // @v10.3.1
 //
-#define PPOBJ_CONFIG         1L  // $(PPSecur) Конфигурация системы
+#define PPOBJ_CONFIG              1L  // $(PPSecur) Конфигурация системы
 	#define PPCFG_MAIN           1L
-#define PPOBJ_STATUS         2L  // @unused Текущее состояние
-#define PPOBJ_USRGRP         3L  // $(PPSecur) Группы пользователей (struct PPSecur)
+#define PPOBJ_STATUS              2L  // @unused Текущее состояние
+#define PPOBJ_USRGRP              3L  // $(PPSecur) Группы пользователей (struct PPSecur)
 	#define PPGRP_EVERYONE       1L
-#define PPOBJ_USR            4L  // $(PPSecur) Пользователи (struct PPSecur)
+#define PPOBJ_USR                 4L  // $(PPSecur) Пользователи (struct PPSecur)
 	#define PPUSR_MASTER         1L
 	// @v10.1.5 (unused) #define PPUSR_ADMIN          2L
 	// @v10.1.5 (unused) #define PPUSR_MANAGER        3L
-#define PPOBJ_UNIT           5L  // $ Единицы измерения (struct PPUnit)
+#define PPOBJ_UNIT                5L  // $ Единицы измерения (struct PPUnit)
 	#define PPUNT_KILOGRAM       1L
 	#define PPUNT_METRE          2L
 	#define PPUNT_SECOND         3L // Зарезервировано, но можно не выводить
 	#define PPUNT_LITER          4L
 	#define PPUNT_ITEM          21L
-#define PPOBJ_CURRATE        6L  // @unused # Просто строки
+#define PPOBJ_CURRATE             6L  // @unused # Просто строки
 	#define PPCUR_MAIN           1L // Основной курс. Что угодно, но "основное"
-#define PPOBJ_CITYSTATUS     7L  // $(PPWorldObjStatus) Статусы географических объектов
+#define PPOBJ_CITYSTATUS          7L  // $(PPWorldObjStatus) Статусы географических объектов
 	#define PPCTS_CITY           1L
 	#define PPCTS_STREET         2L
-#define PPOBJ_PRSNKIND       8L  // $ Виды персоналий
+#define PPOBJ_PRSNKIND            8L  // $ Виды персоналий
 	#define PPPRK_MAIN           1L // Главная организация (Владелец программы)
 	#define PPPRK_FILIAT         2L // Филиал главной организации
 	#define PPPRK_EMPL           3L // Персонал
@@ -444,7 +444,7 @@
 	#define PPPRK_CAPTAIN       15L // Командиры транспортных средств
 	#define PPPRK_DTO           16L // @v9.8.0 Оператораы передачи данных
 
-#define PPOBJ_PRSNSTATUS     9L  // $ Юридические статусы персоналий
+#define PPOBJ_PRSNSTATUS          9L  // $ Юридические статусы персоналий
 	#define PPPRS_PRIVATE        1L // Физическое лицо
 	#define PPPRS_FREE           2L // Частный предприниматель
 	#define PPPRS_PRIVENTR       3L // Частное предприятие
@@ -457,10 +457,10 @@
 	#define PPPRS_STATE         10L // Государственная организация //
 	#define PPPRS_LEGAL         11L // Юридическое лицо
 	#define PPPRS_COUNTRY       12L // Государство
-#define PPOBJ_STAFFRANK     10L  // #
+#define PPOBJ_STAFFRANK          10L  // #
 	#define PPSFR_DIRECTOR       1L // Первое лицо (Директор, Ген. Директор и тд)
 	#define PPSFR_ACCOUNTANT     2L // Главный бухгалтер
-#define PPOBJ_OPRTYPE       11L  // $ Типы операций *
+#define PPOBJ_OPRTYPE            11L  // $ Типы операций *
 	#define PPOPT_ACCTURN        1L // Бухгалтерский документ
 	#define PPOPT_GOODSRECEIPT   2L // Приход товара
 	#define PPOPT_GOODSEXPEND    3L // Расход товара
@@ -501,7 +501,7 @@
 	#define PPOPT_DRAFTTRANSIT  21L // @v7.2.7 Специальная категория драфт-документов, которые
 		// отражают транзакции и отчеты сторонних контрагентов, для обмена друг с другом посредством системы, но
 		// без посредничества главной организации.
-#define PPOBJ_OPRKIND       12L  // $ Виды операций
+#define PPOBJ_OPRKIND            12L  // $ Виды операций
 	#define PPOPK_GENERICACCTURN       1L // Общая бух. проводка
 	#define PPOPK_RECEIPT              2L // Прием товара от поставщика
 	#define PPOPK_SELL                 3L // Продажа товара именованному клиенту
@@ -541,9 +541,9 @@
 	#define OPKPRP_GENLIST2   (PP_MAXATURNTEMPLATES+8)  // ObjRestrictArray
 	#define OPKPRP_DIFFCNTRS  (PP_MAXATURNTEMPLATES+9)  // LAssocArray
 	#define OPKPRP_DEBTINVENT (PP_MAXATURNTEMPLATES+10) // PPDebtInventOpEx
-#define PPOBJ_ACCSHEET      13L  // $ Таблицы аналитических статей
+#define PPOBJ_ACCSHEET           13L  // $ Таблицы аналитических статей
 	#define PPACSH_UNASSIGNED 1000L // Специальный идентификатор
-#define PPOBJ_BNKACCTYPE    14L  // # Типы банковских счетов *
+#define PPOBJ_BNKACCTYPE         14L  // # Типы банковских счетов *
 	#define PPBAC_NOSTRO         1L // Корр. счет НОСТРО (только для банков)
 	#define PPBAC_LORO           2L // Корр. счет ЛОРО (только для банков)
 	#define PPBAC_CURRENT        3L // Расчетный счет
@@ -551,10 +551,10 @@
 	#define PPBAC_LOAN           5L // Кредитный счет
 	#define PPBAC_DEPOSIT        6L // Депозитный счет
 	#define PPBAC_SAVINGS        7L // Сберегательный счет
-#define PPOBJ_PRICETYPE     15L  // @unused Типы цен
+#define PPOBJ_PRICETYPE          15L  // @unused Типы цен
 	#define PPPRC_BUYING         1L // @unused Цена поступления //
 	#define PPPRC_SELLING        2L // @unused Цена реализациии //
-#define PPOBJ_AMOUNTTYPE    16L  // $ Типы сумм документов *
+#define PPOBJ_AMOUNTTYPE         16L  // $ Типы сумм документов *
 	//
 	// Extra records of PPOBJ_AMOUNTTYPE
 	#define AMTTPRP_FORMULA      1L // Строка формулы
@@ -588,8 +588,7 @@
 	#define PPAMT_CS_CSCARD     26L // @v6.6.12 Сумма кассовой сессии, оплаченная корпоративными кредитными картами
 	// Набор сумм по строкам расширения бухгалтерских документов
 	#define PPAMT_ADLN_MAIN     41L // Номинальная сумма строки расширения //
-
-#define PPOBJ_CASHNODE      17L  // $ Расчетные кассовые узлы
+#define PPOBJ_CASHNODE           17L  // $ Расчетные кассовые узлы
 	//
 	// Extra records of PPOBJ_CASHNODE
 	#define CNPRP_EXTRA          1L  // Дополнительная запись
@@ -602,7 +601,7 @@
 	#define CNPRP_EXTDEVICES     8L  // Дополнительные устройства
 	#define CNPRP_CTBLLIST       9L  // Список номеров столов
 	#define CNPRP_APNCORRLIST   10L  // @v9.6.5 Список корреспондирующих кассовых узлов (Async)
-#define PPOBJ_ACTION        18L  // # События, регистрируемые в системном журнале *
+#define PPOBJ_ACTION             18L  // # События, регистрируемые в системном журнале *
 	#define PPACN_LOGIN             1L
 	#define PPACN_LOGOUT            2L
 	#define PPACN_TURNBILL          3L
@@ -727,16 +726,16 @@
 // операций, принадлежащих одной группе, значение счетчика в остальных
 // операциях группы изменяется синхронно.
 //
-#define PPOBJ_COUNTGRP      19L  // @unused Использовался до версии 3.0.1
+#define PPOBJ_COUNTGRP           19L  // @unused Использовался до версии 3.0.1
 	#define PPCNT_ONE            1L
-#define PPOBJ_BCODESTRUC    20L  // $ Система внутренних штрих-кодов
-#define PPOBJ_DBDIV         21L  // $ Разделы базы данных
+#define PPOBJ_BCODESTRUC         20L  // $ Система внутренних штрих-кодов
+#define PPOBJ_DBDIV              21L  // $ Разделы базы данных
 	//
 	// Extra records of PPOBJ_DBDIV
 	#define DBDPRP_LOCLIST       1L
 	#define DBDPRP_ACCLIST       2L
 	#define DBDPRP_EXTSTRING     2L // @alias(DBDPRP_ACCLIST)
-#define PPOBJ_GOODSTYPE     22L  // $ Типы товаров
+#define PPOBJ_GOODSTYPE          22L  // $ Типы товаров
 	#define PPGT_DEFAULT         1L
 //
 // @v1.9.10
@@ -744,17 +743,17 @@
 // В принципе записи в таблице Reference для него существовать
 // могут, но любой тип проблемы жестко зашит в программу.
 //
-#define PPOBJ_PROBLEM       23L // @unused
-#define PPOBJ_GOODSSTRUC    24L // $ Структуры товаров
+#define PPOBJ_PROBLEM            23L // @unused
+#define PPOBJ_GOODSSTRUC         24L // $ Структуры товаров
 	//
 	// Extra records of PPOBJ_GOODSSTRUC
 	#define GSPRP_EXTITEMSTR     1L // Формулы для количества элементов структуры
-#define PPOBJ_FORMULA       25L // # Формулы
-#define PPOBJ_SCALE         26L // $ Электронные весы
+#define PPOBJ_FORMULA            25L // # Формулы
+#define PPOBJ_SCALE              26L // $ Электронные весы
 	//
 	// Extra record of PPOBJ_SCALE
 	#define SCLPRP_EXPPATHS      1L
-#define PPOBJ_REGISTERTYPE  27L // $ Типы регистрационных документов
+#define PPOBJ_REGISTERTYPE       27L // $ Типы регистрационных документов
 	#define PPREGT_PASSPORT      1 // Паспорт
 	#define PPREGT_REGFREE       2 // Свид частного предпринимателя //
 	#define PPREGT_TPID          3 // ИНН
@@ -781,7 +780,7 @@
 	//
 	// Extra records of PPOBJ_REGISTERTYPE
 	#define REGTPRP_FORMAT       1L // Формат вывода регистра
-#define PPOBJ_ELINKKIND     28L // $ Виды адресов электронной связи
+#define PPOBJ_ELINKKIND          28L // $ Виды адресов электронной связи
 //
 // Зарезервированные виды электронных адресов предназначены для совместимости
 // с прежними версиями программы. Они соответствуют полям старой таблицы
@@ -794,29 +793,29 @@
 	#define PPELK_EMAIL          5
 	#define PPELK_MOBILE         6
 	#define PPELK_WWW            7
-#define PPOBJ_QUOTKIND      29L // $ Виды котировок
+#define PPOBJ_QUOTKIND           29L // $ Виды котировок
 	#define PPQUOTK_BASE         1 // Базовая котировка
 	#define PPQUOTK_GIFT         2 // @v6.3.10 Подарочная котировка
-#define PPOBJ_PERSONOPKIND  30L // $ Вид персональной операции
+#define PPOBJ_PERSONOPKIND       30L // $ Вид персональной операции
 	//
 	// Extra records of PPOBJ_PERSONOPKIND
 	#define POKPRP_EXTRA         1L // Дополнительная запись
 	#define POKPRP_ALLOWEDTAGS   2L // Теги
 	#define POKPRP_FIRSTCLAUSE 100L // Действия над персоналиями [100..199]
 	#define POKPRP_LASTCLAUSE  199L
-#define PPOBJ_TAG           31L // $ Теги объектов
-#define PPOBJ_GOODSTAX      32L // $ Налоговые группы товаров
+#define PPOBJ_TAG                31L // $ Теги объектов
+#define PPOBJ_GOODSTAX           32L // $ Налоговые группы товаров
 	//
 	// Extra records of PPOBJ_GOODSTAX
 	#define GTGPRP_ENTRIES       1L
-#define PPOBJ_BCODEPRINTER  33L // $ Принтеры штрихкодов
+#define PPOBJ_BCODEPRINTER       33L // $ Принтеры штрихкодов
 	// Extra records of PPOBJ_OPRKIND
 	#define BCPPRP_PORTEX    1L // Расширенная строка порта вывода
-#define PPOBJ_CURRENCY      34L // Валюты
-#define PPOBJ_CURRATETYPE   35L // Типы валютных курсов
-#define PPOBJ_OPCOUNTER     36L // Счетчики документов
+#define PPOBJ_CURRENCY           34L // Валюты
+#define PPOBJ_CURRATETYPE        35L // Типы валютных курсов
+#define PPOBJ_OPCOUNTER          36L // Счетчики документов
 	#define PPOPCNTR_WORKBOOK    1L // Зарезервированных счетчик для символов обьектов PPObjWorkbook_Pre813
-#define PPOBJ_GOODSCLASS    37L // Отраслевые классы товаров
+#define PPOBJ_GOODSCLASS         37L // Отраслевые классы товаров
 	//
 	// Extra records of PPOBJ_GOODSCLASS
 	#define GDCPRP_PROPS         1L
@@ -825,8 +824,8 @@
 	#define GDCPRP_DIMZ          4L
 	#define GDCPRP_DIMW          5L
 	#define GDCPRP_FORMLIST     10L
-#define PPOBJ_GOODSBASKET   40L // $ Корзина товаров
-#define PPOBJ_BHT           41L // $ BHT-терминалы
+#define PPOBJ_GOODSBASKET        40L // $ Корзина товаров
+#define PPOBJ_BHT                41L // $ BHT-терминалы
 	//
 	// Extra record of PPOBJ_BHT
 	#define BHTPRP_GOODSFILT_    1L
@@ -834,7 +833,7 @@
 	#define BHTPRP_SBIICFG       3L
 	#define BHTPRP_SBIICFG2      4L // @v7.6.4
 	#define BHTPRP_GOODSFILT2    5L // @v8.6.4
-#define PPOBJ_SCARDSERIES   42L // $ Серия персональных карт
+#define PPOBJ_SCARDSERIES        42L // $ Серия персональных карт
 	//
 	// Extra record of PPOBJ_SCARDSERIES
 	#define SCARDSERIES_RULE       1L // Правило для серии персональных карт
@@ -844,80 +843,79 @@
 	#define SCARDSERIES_BONUSRULE  5L // Правило расчета бонусов
 	#define SCARDSERIES_QKLIST     6L // Список видов котировок, ассоциированных с серией
 	#define SCARDSERIES_EXT        7L // Блок расширения данных серии
-#define PPOBJ_STYLOPALM     43L // $ PDA Palm
+#define PPOBJ_STYLOPALM          43L // $ PDA Palm
 	//
 	// Extra records of PPOBJ_STYLOPALM
 	#define PLMPRP_PATH          1L
 	#define PLMPRP_LOCLIST       2L
 	#define PLMPRP_FTPPATH       3L
 	#define PLMPRP_QUOTKINDLIST  4L // @v9.5.5
-#define PPOBJ_ASSTWROFFGRP  44L // $ Группа списания активов
-#define PPOBJ_DRAFTWROFF    45L // $ Конфигурация списания драфт-документов
+#define PPOBJ_ASSTWROFFGRP       44L // $ Группа списания активов
+#define PPOBJ_DRAFTWROFF         45L // $ Конфигурация списания драфт-документов
 	//
 	// Extra record of PPOBJ_DRAFTWROFF
 	#define DWOPRP_ORDER         1L
-#define PPOBJ_ADVBILLKIND   46L // $ Виды первичных документов (например, для авансовых отчетов)
-#define PPOBJ_TRANSPMODEL   47L // # Модели транспортных средств
-#define PPOBJ_INTERNETACCOUNT   48L // $ Почтовые учетные записи
+#define PPOBJ_ADVBILLKIND        46L // $ Виды первичных документов (например, для авансовых отчетов)
+#define PPOBJ_TRANSPMODEL        47L // # Модели транспортных средств
+#define PPOBJ_INTERNETACCOUNT    48L // $ Почтовые учетные записи
 	//
 	// Extra record of PPOBJ_INTERNETACCOUNT
 	#define MACPRP_EXTRA         1L
-#define PPOBJ_PERSONRELTYPE 49L // $ Тип отношения между персоналиями
+#define PPOBJ_PERSONRELTYPE      49L // $ Тип отношения между персоналиями
 	#define PPPSNRELTYP_AFFIL        1 // Филиал-Головная организация //
 	#define PPPSNRELTYP_UHTTSUBORD   2 // Подчиненная персоналия-Управляющая персоналия  @uhtt
 	// @construction #define PPPSNRELTYP_AGENTOF      3 // @v10.2.3 привязка агента к контрагенту (чаще всего к поставщику)
 	//
 	// Extra record of PPOBJ_PERSONRELTYPE
 	#define PRTPRP_INHREGLIST    1L // @v4.5.2
-#define PPOBJ_PRSNCATEGORY  50L // # Категории персоналий
-#define PPOBJ_BILLSTATUS    51L // $ Статусы документов
-#define PPOBJ_TOUCHSCREEN   52L // $ TouchScreen
+#define PPOBJ_PRSNCATEGORY       50L // # Категории персоналий
+#define PPOBJ_BILLSTATUS         51L // $ Статусы документов
+#define PPOBJ_TOUCHSCREEN        52L // $ TouchScreen
 	#define TSCPRP_GRPLIST          1L // Список групп товаров
-#define PPOBJ_DUTYSCHED     53L // $ Расписания дежурств
+#define PPOBJ_DUTYSCHED          53L // $ Расписания дежурств
 	#define DSHPRP_LIST          1L // Список дежурств
 	#define DSHPRP_POINTLIST     2L // Список точек отсчета
-#define PPOBJ_DATETIMEREP   54L // $ Периодичность
-#define PPOBJ_LOCPRINTER    55L // $ Принтеры, привязанные к складам
-#define PPOBJ_SALCHARGE     56L // $ Схема начисления зарплаты
+#define PPOBJ_DATETIMEREP        54L // $ Периодичность
+#define PPOBJ_LOCPRINTER         55L // $ Принтеры, привязанные к складам
+#define PPOBJ_SALCHARGE          56L // $ Схема начисления зарплаты
 	#define SCPRP_FORMULA        1L // Формула начисления //
 	#define SCPPRP_GRPLIST       2L // Список элементов-членов группы
-#define PPOBJ_STAFFCAL      58L // $ Штатный календарь
+#define PPOBJ_STAFFCAL           58L // $ Штатный календарь
 	#define PPSTCAL_STANDARD    10L // Стандартный календарь.
-#define PPOBJ_NAMEDOBJASSOC 59L // $ Именованные ассоциации объектов
-#define PPOBJ_BIZSCORE      60L // Определители бизнес-показателей
+#define PPOBJ_NAMEDOBJASSOC      59L // $ Именованные ассоциации объектов
+#define PPOBJ_BIZSCORE           60L // Определители бизнес-показателей
 	#define BZSPRP_DESCR         1L // Описание показателя, совмещенное с формулой
-#define PPOBJ_GLOBALUSERACC 61L // Учетная запись глобального пользователя (внешнего по отношению
-	// к текущей базе данных)
-#define PPOBJ_GOODSVALRESTR 62L // @v6.4.10 Ограничения товарных величин
+#define PPOBJ_GLOBALUSERACC      61L // Учетная запись глобального пользователя (внешнего по отношению к текущей базе данных)
+#define PPOBJ_GOODSVALRESTR      62L // @v6.4.10 Ограничения товарных величин
 	#define GVRPROP_TEXT         1L // Формулы
 	#define GVRPROP_BAR          2L // Список ограничений по статьям документа
-#define PPOBJ_PALLET        63L // @v6.7.0 Складские паллеты
-#define PPOBJ_DEBTDIM       64L // @v7.0.0 Размерность расчета долгов по документам
+#define PPOBJ_PALLET             63L // @v6.7.0 Складские паллеты
+#define PPOBJ_DEBTDIM            64L // @v7.0.0 Размерность расчета долгов по документам
 	#define DBTDIMPRP_AGENTLIST  1L // Список агентов
-#define PPOBJ_EVENTTOKEN    65L // @v7.2.1 Специальный объект, используемый как уникальная метка для событий.
+#define PPOBJ_EVENTTOKEN         65L // @v7.2.1 Специальный объект, используемый как уникальная метка для событий.
 	#define PPEVTOK_CVTSCS9809   1L // @v9.8.9 Событие конвертации серий персональных карт v9.8.9
 	#define PPEVTOK_OBJHIST9811  2L // @v9.8.11 Событие переключения техники хранения версий объектов
-#define PPOBJ_SMSPRVACCOUNT 66L // @v7.2.9 Учетная запись провайдера рассылки SMS
+#define PPOBJ_SMSPRVACCOUNT      66L // @v7.2.9 Учетная запись провайдера рассылки SMS
 	//
 	// Extra record of PPOBJ_SMSPRVACCOUNT
 	#define SMACCPRP_EXTRA		 1L
-#define PPOBJ_PHONESERVICE  67L // @v7.3.1 Оборудование компьютерной телефонии
+#define PPOBJ_PHONESERVICE       67L // @v7.3.1 Оборудование компьютерной телефонии
 	#define PHNSVCPRP_TAIL       1L // Строковый "хвост" пакета телефонного сервиса
-#define PPOBJ_GTACTION      68L // @v7.3.8 # События, регистрируемые в журнале тарфицируемых операций глобальных аккаунтов
-#define PPOBJ_SENDSMS		69L // Отправка смс
+#define PPOBJ_GTACTION           68L // @v7.3.8 # События, регистрируемые в журнале тарфицируемых операций глобальных аккаунтов
+#define PPOBJ_SENDSMS		     69L // Отправка смс
 	//
 	// Extra record of PPOBJ_SENDSMS
 	#define SENDSMS_EXTRA		 1L
-#define PPOBJ_UHTTSTORE     70L // @v7.6.1 Интернет-магазин Universe-HTT
+#define PPOBJ_UHTTSTORE          70L // @v7.6.1 Интернет-магазин Universe-HTT
 	#define UHTTSPRP_SELECTORS   1L // @v7.9.6 Список селекторов
-#define PPOBJ_GENERICDEVICE 71L // @v7.8.0 Обобщенное устройство
+#define PPOBJ_GENERICDEVICE      71L // @v7.8.0 Обобщенное устройство
 	#define GENDVCPRP_EXTSTRDATA 2L // Строка дополнительных данных
-#define PPOBJ_WORKBOOK_PRE813   72L // @v7.9.2 элемент сайта
+#define PPOBJ_WORKBOOK_PRE813    72L // @v7.9.2 элемент сайта
 //
 // Функциональные единицы, являющиеся объектами замера производительности. Все значения являются зарезервированными
 // и их идентификаторы не могут быть изменены.
 //
-#define PPOBJ_USERPROFILE   73L // @v8.0.6
+#define PPOBJ_USERPROFILE        73L // @v8.0.6
 	#define USERPROFILEPPRP_FILEINFO  1L
 	#define USERPROFILEPPRP_FILEINFO2 2L
 
@@ -983,15 +981,16 @@
 	#define PPUPRF_TSEVALSTAKES      76 // @v10.3.3
 
 	#define PPUPRF_LAST              77 // @v10.3.3 75-->77
-#define PPOBJ_EDIPROVIDER	74L // Провайдеры EDI-обмена
+#define PPOBJ_EDIPROVIDER	     74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
-#define PPOBJ_USREXCLRIGHTS 75L // Исключения для пользовательских прав доступа при некоторых действиях
-#define PPOBJ_STAFFLIST2    76L // @v9.0.3 Штатное расписание (2-я версия объекта - записи перемещены из
+#define PPOBJ_USREXCLRIGHTS      75L // Исключения для пользовательских прав доступа при некоторых действиях
+#define PPOBJ_STAFFLIST2         76L // @v9.0.3 Штатное расписание (2-я версия объекта - записи перемещены из
 	// специализированной таблицы StaffList в Reference
-#define PPOBJ_ACCOUNT2      77L // Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
+#define PPOBJ_ACCOUNT2           77L // Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
 	// специализированной таблицы Account в Reference
-#define PPOBJ_TIMESERIES    78L // @v10.2.3 @experimental Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
+#define PPOBJ_TIMESERIES         78L // @v10.2.3 Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
 	#define TIMSERPRP_STAKEMODEL      1L // @v10.2.11
+#define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 Тип транспортной упаковки
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -1283,6 +1282,7 @@
 #define PPTAG_BILL_EDIORDRSPRCV     84L // @v10.2.11 Информация об ORDRSP, полученном в ответ на отправленный ORDER
 #define PPTAG_LOT_ORGLINEIDENT      85L // @v10.3.4 Оригинальный идентификатор строки документа. Используется в случае, если идент импортированного документа
 	// не может быть представлена целым числом [1..30000]
+#define PPTAG_LOT_FREIGHTPACKAGE    86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -10604,6 +10604,15 @@
 #define DLG_ATTACHBILL            1357
 	#define CTL_ATTACHBILL_SEL        (1 + WINDOWS_ID_BIAS)
 	#define CTL_ATTACHBILL_INFO       (2 + WINDOWS_ID_BIAS)
+#define DLG_FPACKTYPE             1358
+	#define CTL_FPACKTYPE_NAME        (1 + WINDOWS_ID_BIAS)
+	#define CTL_FPACKTYPE_SYMB        (2 + WINDOWS_ID_BIAS)
+	#define CTL_FPACKTYPE_ID          (3 + WINDOWS_ID_BIAS)
+	#define CTL_FPACKTYPE_FLAGS       (10 + WINDOWS_ID_BIAS)
+#define DLG_FPACKAGE              1359
+	#define CTL_FPACKAGE_FPT          (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_FPACKAGE_FPT       (2 + WINDOWS_ID_BIAS)
+	#define CTL_FPACKAGE_QTTY         (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

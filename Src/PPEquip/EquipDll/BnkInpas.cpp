@@ -318,7 +318,7 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	AsseptSAP(p_res);
 
 	// заданине Необходимых свойств in-объекта SAPacket
-	temp_buf.Z().Cat((long)R0(amount));
+	temp_buf.Z().Cat(R0i(amount));
 	p_req->SetProperty(Amount, temp_buf);
 	p_req->SetProperty(CurrencyCode, RUBLE);
 	p_req->SetProperty(OperationCode, INPAS_FUNC_PAY);
@@ -406,7 +406,7 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 	AsseptSAP(p_res);
 
 	// заданине Необходимых свойств in-объекта SAPacket
-	temp_buf.Z().Cat((long)R0(amount));
+	temp_buf.Z().Cat(R0i(amount));
 	p_req->SetProperty(Amount, temp_buf);
 	p_req->SetProperty(CurrencyCode, RUBLE);
 	p_req->SetProperty(OperationCode, INPAS_FUNC_REFUND);

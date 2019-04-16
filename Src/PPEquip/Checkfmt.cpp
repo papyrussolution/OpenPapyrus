@@ -17,6 +17,7 @@ void SLAPI SlipLineParam::Init()
 	Qtty = 0.0;
 	Price = 0.0;
 	VatRate = 0.0;
+	PaymTermTag = CCheckPacket::pttUndef; // @v10.4.1
 	DivID = 0;
 	FontSize = 0;
 	MEMSZERO(PictCoord);
@@ -28,75 +29,77 @@ void SLAPI SlipLineParam::Init()
 	Text.Z(); // @v9.5.7
 	Code.Z(); // @v9.5.7
 }
-
-class PPSlipFormatZone;
-
-struct PPSlipFormatEntry {
-	PPSlipFormatEntry();
-	~PPSlipFormatEntry();
-	enum {
-		fSpace       = 0x0001,
-		fAdjRight    = 0x0002,
-		fAdjLeft     = 0x0004,
-		fAdjCenter   = 0x0008,
-		fIfElse      = 0x0010, // Условный оператор. Условие определяется выражением {left(Text) Condition right(Text)}
-			// Здесь left(Text) и right(Text) - результаты разбиения текста на две части функцией SString::Divide(';')
-		fRegRibbon   = 0x0020, // Печать на регулярную ленту
-		fJRibbon     = 0x0040, // Печать на журнальную ленту
-		fFiscal      = 0x0080, // Фискальная строка отчета
-		fWrap        = 0x0100, // Признак разбиения строки (кол-во символов - в Condition)
-		fSignBarcode = 0x0200, // Элемент представляет отображение штрихкода подписи чека (BarcodeId != 0)
-		fItemBarcode = 0x0400, // Элемент представляет отображение штрихкода товара (BarcodeId != 0)
-			// @#{fSignBarcode^fItemBarcode}
-		fFakeCcQr    = 0x0800  // @v9.6.11 Элемент представляет фейковый QR-код ОФД по чеку
-	};
-	enum {
-		cEq = 1,
-		cNEq,
-		cGt,
-		cGe,
-		cLt,
-		cLe,
-
-		cElse // Специальное условие для терминальной "else" зоны
-	};
-	long   Flags;
-	//int    Condition;
-	int    WrapLen;
-	int    FontId;
-	int    PictId;
-	int    BarcodeId;
-	SString Text;
-	PPSlipFormatZone * P_ConditionZone;
-};
-
-class PPSlipFormatZone : public TSCollection <PPSlipFormatEntry> {
-public:
-	enum {
-		kInner = 0, // Внутренняя зона (вложенные операторы)
-		kHeader,
-		kFooter,
-		kDetail,
-		kPaymDetail
-	};
-	explicit PPSlipFormatZone(int kind) : TSCollection <PPSlipFormatEntry> (), Kind(kind), Condition(0), P_Next(0)
-	{
-		assert(oneof5(kind, kInner, kHeader, kFooter, kDetail, kPaymDetail));
-	}
-	~PPSlipFormatZone()
-	{
-		delete P_Next;
-	}
-	int    Kind;
-	int    Condition;
-	SString ConditionText;
-	PPSlipFormatZone * P_Next;
-};
 //
 //
 //
 class PPSlipFormat {
 public:
+	class Zone;
+
+	struct Entry {
+		Entry() : Flags(0), FontId(0), PictId(0), BarcodeId(0), P_ConditionZone(0), WrapLen(0)
+		{
+		}
+		~Entry()
+		{
+			delete P_ConditionZone;
+		}
+		enum {
+			fSpace       = 0x0001,
+			fAdjRight    = 0x0002,
+			fAdjLeft     = 0x0004,
+			fAdjCenter   = 0x0008,
+			fIfElse      = 0x0010, // Условный оператор. Условие определяется выражением {left(Text) Condition right(Text)}
+				// Здесь left(Text) и right(Text) - результаты разбиения текста на две части функцией SString::Divide(';')
+			fRegRibbon   = 0x0020, // Печать на регулярную ленту
+			fJRibbon     = 0x0040, // Печать на журнальную ленту
+			fFiscal      = 0x0080, // Фискальная строка отчета
+			fWrap        = 0x0100, // Признак разбиения строки (кол-во символов - в Condition)
+			fSignBarcode = 0x0200, // Элемент представляет отображение штрихкода подписи чека (BarcodeId != 0)
+			fItemBarcode = 0x0400, // Элемент представляет отображение штрихкода товара (BarcodeId != 0)
+				// @#{fSignBarcode^fItemBarcode}
+			fFakeCcQr    = 0x0800  // @v9.6.11 Элемент представляет фейковый QR-код ОФД по чеку
+		};
+		enum {
+			cEq = 1,
+			cNEq,
+			cGt,
+			cGe,
+			cLt,
+			cLe,
+
+			cElse // Специальное условие для терминальной "else" зоны
+		};
+		long   Flags;
+		int    WrapLen;
+		int    FontId;
+		int    PictId;
+		int    BarcodeId;
+		SString Text;
+		Zone * P_ConditionZone;
+	};
+	class Zone : public TSCollection <Entry> {
+	public:
+		enum {
+			kInner = 0, // Внутренняя зона (вложенные операторы)
+			kHeader,
+			kFooter,
+			kDetail,
+			kPaymDetail
+		};
+		explicit Zone(int kind) : TSCollection <Entry> (), Kind(kind), Condition(0), P_Next(0)
+		{
+			assert(oneof5(kind, kInner, kHeader, kFooter, kDetail, kPaymDetail));
+		}
+		~Zone()
+		{
+			delete P_Next;
+		}
+		int    Kind;
+		int    Condition;
+		SString ConditionText;
+		Zone * P_Next;
+	};
 	struct Iter {
 		Iter()
 		{
@@ -113,7 +116,7 @@ public:
 			int    zone_kind = -1;
 			if(P_Zone) {
 				zone_kind = P_Zone->Kind;
-				for(uint stk_ptr = Stack.getPointer(); stk_ptr && zone_kind == PPSlipFormatZone::kInner;) {
+				for(uint stk_ptr = Stack.getPointer(); stk_ptr && zone_kind == PPSlipFormat::Zone::kInner;) {
 					const SI * p_si = static_cast<const SI *>(Stack.at(--stk_ptr));
 					zone_kind = (p_si && p_si->P_Zone) ? p_si->P_Zone->Kind : -1;
 				}
@@ -135,22 +138,30 @@ public:
 		int16  DivID;         // Для строки чека (документа) - ИД отдела, в остальных случаях - 0
 		uint16 Reserve;       // @alignment
 		long   GoodsID;       // @v9.5.7
+		CCheckPacket::PaymentTermTag Ptt; // @v10.4.1 Признак способа расчета (определяется типом товара)
 		// @v9.5.7 char   PictPath[256];
 		char   Text[256];     // @v9.5.7
 		char   Code[32];      // @v9.5.7
 		RECT   PictCoord;
-
-		const  PPSlipFormatZone  * P_Zone;
-		const  PPSlipFormatEntry * P_Entry;
+		const  Zone * P_Zone;
+		const  Entry * P_Entry;
 		struct SI {
-			const PPSlipFormatZone * P_Zone;
+			const Zone * P_Zone;
 			long  EntryNo;
 		};
 		TSStack <SI> Stack; // @anchor
 	};
 
-	PPSlipFormat();
-	~PPSlipFormat();
+	PPSlipFormat() : LineNo(0), PageWidth(0), PageLength(0), LastPictId(0), Src(0),
+		P_CcPack(0), P_Od(0), RegTo(0), IsWrap(0), RunningTotal(0.0), CurZone(0), TextOutput(0), Flags(0)
+	{
+		PPLoadText(PPTXT_SLIPFMT_KEYW, VarString);
+		PPLoadText(PPTXT_SLIPFMT_METAVAR, MetavarList);
+	}
+	~PPSlipFormat()
+	{
+		delete P_Od;
+	}
 	int    Parse(const char * pFileName, const char * pFormatName);
 	int    GetFormList(const char * pFileName, StrAssocArray * pList, int getSlipDocForms);
 	void   SetSource(const CCheckPacket *);
@@ -168,9 +179,9 @@ private:
 
 	void   Helper_InitIteration();
 	int    NextToken(SFile & rFile, SString & rResult);
-	int    ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSlipFormatZone * pZone);
+	int    ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSlipFormat::Zone * pZone);
 	int    ParseCondition(SFile & rFile, SString & rTokResult, int * pCondition, SString & rText);
-	void   AddZone(PPSlipFormatZone * pZone);
+	void   AddZone(PPSlipFormat::Zone * pZone);
 	int    ResolveString(const Iter * pIter, const char * pExpr, SString & rResult, int * pSplitPos, int * pSplitChr);
 	int    CheckCondition(const Iter * pIter, const SString & rText, int condition);
 	int    GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec, CCheckPacket::LineExt * pExtRec = 0) const;
@@ -251,17 +262,30 @@ private:
 		PPObjCSession CsObj;
 	};
 	struct FontBlock { // @flat
+		FontBlock() : Id(0), Size(0), PageWidth(0)
+		{
+			PTR32(Face)[0] = 0;
+		}
 		int    Id;
 		int    Size;
 		int    PageWidth;
 		char   Face[64];
 	};
 	struct PictBlock { // @flat
+		PictBlock() : Id(0)
+		{
+			PTR32(Path)[0] = 0;
+			MEMSZERO(Coord);
+		}
 		int    Id;
 		char   Path[256];
 		RECT   Coord;
 	};
 	struct BarcodeBlock { // @flat
+		BarcodeBlock() : Id(0), Flags(0), BcStd(0), Width(0), Height(0)
+		{
+			PTR32(Code)[0] = 0;
+		}
 		enum {
 			fTextAbove = 0x0001,
 			fTextBelow = 0x0002
@@ -296,32 +320,11 @@ private:
 	SString LastFileName;
 	SString LastFormatName;
 	SStrScan Scan;
-	TSCollection <PPSlipFormatZone> ZoneList;
+	TSCollection <Zone> ZoneList;
 	TSVector <FontBlock> FontList; // @v9.8.5 TSArray-->TSVector
 	TSVector <PictBlock> PictList; // @v9.8.5 TSArray-->TSVector
 	TSVector <BarcodeBlock> BcList; // @v9.8.5 TSArray-->TSVector
 };
-
-PPSlipFormatEntry::PPSlipFormatEntry() : Flags(0), FontId(0), PictId(0), BarcodeId(0), P_ConditionZone(0), WrapLen(0)
-{
-}
-
-PPSlipFormatEntry::~PPSlipFormatEntry()
-{
-	delete P_ConditionZone;
-}
-
-PPSlipFormat::PPSlipFormat() : LineNo(0), PageWidth(0), PageLength(0), LastPictId(0), Src(0),
-	P_CcPack(0), P_Od(0), RegTo(0), IsWrap(0), RunningTotal(0.0), CurZone(0), TextOutput(0), Flags(0)
-{
-	PPLoadText(PPTXT_SLIPFMT_KEYW, VarString);
-	PPLoadText(PPTXT_SLIPFMT_METAVAR, MetavarList);
-}
-
-PPSlipFormat::~PPSlipFormat()
-{
-	delete P_Od;
-}
 
 void PPSlipFormat::SetSource(const CCheckPacket * pCcPack)
 {
@@ -360,14 +363,14 @@ int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
 	for(i = 0; !pIter->P_Zone && i < ZoneList.getCount(); i++) {
 		if(ZoneList.at(i)->Kind == zoneKind) {
 			pIter->P_Zone = ZoneList.at(i);
-			if(zoneKind == PPSlipFormatZone::kDetail) {
+			if(zoneKind == PPSlipFormat::Zone::kDetail) {
 				if(P_CcPack)
 					if(Src == srcCCheck)
 						pIter->SrcItemsCount = P_CcPack->GetCount();
 					else if(Src == srcGoodsBill)
 						pIter->SrcItemsCount = P_BillPack->GetTCount();
 			}
-			else if(zoneKind == PPSlipFormatZone::kPaymDetail) {
+			else if(zoneKind == PPSlipFormat::Zone::kPaymDetail) {
 				if(P_CcPack)
 					if(Src == srcCCheck)
 						pIter->SrcItemsCount = P_CcPack->AL_Const().getCount();
@@ -390,7 +393,7 @@ int PPSlipFormat::GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec,
 	int    ok = 0;
 	if(pIter && pIter->P_Zone) {
 		const int zone_kind = pIter->GetOuterZoneKind();
-		if(zone_kind == PPSlipFormatZone::kDetail) {
+		if(zone_kind == PPSlipFormat::Zone::kDetail) {
 			if(pIter->SrcItemNo < (long)P_CcPack->GetCount()) {
 				ASSIGN_PTR(pRec, P_CcPack->GetLine(pIter->SrcItemNo));
 				if(pExtItem)
@@ -407,7 +410,7 @@ int PPSlipFormat::GetCurCheckPaymItem(const Iter * pIter, CcAmountEntry * pPaymE
 	int    ok = 0;
 	if(pIter && pIter->P_Zone) {
 		const int zone_kind = pIter->GetOuterZoneKind();
-		if(zone_kind == PPSlipFormatZone::kPaymDetail) {
+		if(zone_kind == PPSlipFormat::Zone::kPaymDetail) {
 			const CcAmountList & r_al = P_CcPack->AL_Const();
 			if(pIter->SrcItemNo < (long)r_al.getCount()) {
 				ASSIGN_PTR(pPaymEntry, r_al.at(pIter->SrcItemNo));
@@ -547,7 +550,6 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 {
 	const CCheckPacket * p_ccp = P_CcPack;
 	const PPBillPacket * p_bp = P_BillPack;
-
 	int    ok = -1;
 	CCheckLineTbl::Rec cc_item;
 	CCheckPacket::LineExt ccext_item;
@@ -706,71 +708,54 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						rResult.Cat(P_SessInfo->Total.WORetAmount - P_SessInfo->Rec.Amount, SFMT_MONEY);
 					break;
 				case symbCashAmount:     // CASHAMOUNT
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(((cc_flags & CCHKF_BANKING) ? 0.0 : fabs(MONEYTOLDBL(p_ccp->Rec.Amount))), SFMT_MONEY);
-					}
-					else if(Src == srcGoodsBill) {
+					else if(Src == srcGoodsBill)
 						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
-					}
-					else {
+					else
 						rResult.Cat(P_SessInfo->Total.Amount - P_SessInfo->Total.BnkAmount, SFMT_MONEY);
-					}
 					break;
 				case symbRetCashAmount: // RETCASHAMOUNT
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(((!(cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : 0.0), SFMT_MONEY);
-					}
-					else if(Src == srcCSession) {
+					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.RetAmount - P_SessInfo->Total.RetBnkAmount, SFMT_MONEY);
-					}
 					break;
 				case symbRetBankAmount: // RETBANKAMOUNT
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat((((cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : 0.0), SFMT_MONEY);
-					}
-					else if(Src == srcCSession) {
+					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.RetBnkAmount, SFMT_MONEY);
-					}
 					break;
 				case symbCashCount:     // CHECKCASHCOUNT
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(BIN(!(cc_flags & CCHKF_BANKING) && !(cc_flags & CCHKF_RETURN)));
-					}
-					else if(Src == srcCSession) {
+					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.SaleCheckCount - P_SessInfo->Total.SaleBnkCount);
-					}
 					break;
 				case symbBankCount:     // CHECKBANKCOUNT
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(BIN((cc_flags & CCHKF_BANKING) && !(cc_flags & CCHKF_RETURN)));
-					}
-					else if(Src == srcCSession) {
+					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.SaleBnkCount);
-					}
 					break;
 				case symbRetCashCount:  // RETCASHCOUNT
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(BIN(!(cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)));
-					}
-					else if(Src == srcCSession) {
+					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.RetCheckCount - P_SessInfo->Total.RetBnkCount);
-					}
 					break;
 				case symbRetBankCount:  // RETBANKCOUNT
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(BIN((cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)));
-					}
-					else if(Src == srcCSession) {
+					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.RetBnkCount);
-					}
 					break;
 				case symbBankAmount:     // BANKAMOUNT
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(((p_ccp->Rec.Flags & CCHKF_BANKING) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : 0.0), SFMT_MONEY);
-					}
-					else if(Src == srcGoodsBill) {
+					else if(Src == srcGoodsBill)
 						rResult.Cat(0.0, SFMT_MONEY);
-					}
 					else
 						rResult.Cat(P_SessInfo->Total.BnkAmount, SFMT_MONEY);
 					break;
@@ -799,22 +784,18 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						rResult.Cat(P_SessInfo->Total.Amount-P_SessInfo->Total.FiscalAmount, SFMT_MONEY); // @v7.5.8 WORetAmount-->Amount-FiscalAmount
 					break;
 				case symbBringAmount:
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(((p_ccp->Rec.Flags & CCHKF_BANKING) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : p_ccp->_Cash), SFMT_MONEY);
-					}
-					else if(Src == srcGoodsBill) {
+					else if(Src == srcGoodsBill)
 						rResult.Cat(0.0);
-					}
 					else
 						rResult.Cat(0.0);
 					break;
 				case symbDeliveryAmount:
-					if(Src == srcCCheck) {
+					if(Src == srcCCheck)
 						rResult.Cat(((p_ccp->Rec.Flags & CCHKF_BANKING) ? 0.0 : p_ccp->_Cash - fabs(MONEYTOLDBL(p_ccp->Rec.Amount))), SFMT_MONEY);
-					}
-					else if(Src == srcGoodsBill) {
+					else if(Src == srcGoodsBill)
 						rResult.Cat(0.0);
-					}
 					else
 						rResult.Cat(0.0);
 					break;
@@ -903,9 +884,8 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 							temp_id = ti.GoodsID;
 					}
 					if(temp_id) {
-						PPObjGoods goods_obj;
 						Goods2Tbl::Rec goods_rec;
-						if(goods_obj.Fetch(temp_id, &goods_rec) > 0) {
+						if(P_Od->GObj.Fetch(temp_id, &goods_rec) > 0) {
 							if(GetGoodsNameR(goods_rec.ParentID, temp_buf) > 0)
 								rResult.Cat(temp_buf);
 						}
@@ -936,20 +916,18 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbPhQtty:
 					if(Src == srcCCheck) {
 						if(GetCurCheckItem(pIter, &cc_item)) {
-							PPObjGoods goods_obj;
 							PPID   ph_unit_id = 0;
 							double phuperu = 0.0;
-							if(goods_obj.GetPhUPerU(cc_item.GoodsID, &ph_unit_id, &phuperu) > 0 && phuperu > 0.0) {
+							if(P_Od->GObj.GetPhUPerU(cc_item.GoodsID, &ph_unit_id, &phuperu) > 0 && phuperu > 0.0) {
 								rResult.Cat(fabs(cc_item.Quantity * phuperu), MKSFMTD(0, 3, NMBF_NOTRAILZ));
 							}
 						}
 					}
 					else if(Src == srcGoodsBill) {
 						if(GetCurBillItem(pIter, &ti)) {
-							PPObjGoods goods_obj;
 							PPID   ph_unit_id = 0;
 							double phuperu = 0.0;
-							if(goods_obj.GetPhUPerU(labs(ti.GoodsID), &ph_unit_id, &phuperu) > 0 && phuperu > 0.0) {
+							if(P_Od->GObj.GetPhUPerU(labs(ti.GoodsID), &ph_unit_id, &phuperu) > 0 && phuperu > 0.0) {
 								rResult.Cat(fabs(ti.Quantity_ * phuperu), MKSFMTD(0, 3, NMBF_NOTRAILZ));
 							}
 						}
@@ -958,30 +936,27 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbPhUnit:
 					if(Src == srcCCheck) {
 						if(GetCurCheckItem(pIter, &cc_item)) {
-							PPObjGoods goods_obj;
 							PPUnit u_rec;
 							PPID   ph_unit_id = 0;
 							double phuperu = 0.0;
-							if(goods_obj.GetPhUPerU(cc_item.GoodsID, &ph_unit_id, &phuperu) > 0 && ph_unit_id) {
-								if(goods_obj.FetchUnit(ph_unit_id, &u_rec) > 0)
+							if(P_Od->GObj.GetPhUPerU(cc_item.GoodsID, &ph_unit_id, &phuperu) > 0 && ph_unit_id) {
+								if(P_Od->GObj.FetchUnit(ph_unit_id, &u_rec) > 0)
 									rResult.Cat(u_rec.Name);
 							}
 						}
 					}
 					else if(Src == srcGoodsBill) {
 						if(GetCurBillItem(pIter, &ti)) {
-							PPObjGoods goods_obj;
 							PPUnit u_rec;
 							PPID   ph_unit_id = 0;
 							double phuperu = 0.0;
-							if(goods_obj.GetPhUPerU(labs(ti.GoodsID), &ph_unit_id, &phuperu) > 0 && ph_unit_id) {
-								if(goods_obj.FetchUnit(ph_unit_id, &u_rec) > 0)
+							if(P_Od->GObj.GetPhUPerU(labs(ti.GoodsID), &ph_unit_id, &phuperu) > 0 && ph_unit_id) {
+								if(P_Od->GObj.FetchUnit(ph_unit_id, &u_rec) > 0)
 									rResult.Cat(u_rec.Name);
 							}
 						}
 					}
 					break;
-				// @v8.4.1 {
 				case symbPaymType:
 					if(Src == srcCCheck) {
 						CcAmountEntry paym_entry;
@@ -999,7 +974,6 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						}
 					}
 					break;
-				// } @v8.4.1
 				case symbPrice:
 					if(Src == srcCCheck) {
 						if(GetCurCheckItem(pIter, &cc_item))
@@ -1043,14 +1017,14 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbItemDisPct:
 					if(Src == srcCCheck) {
 						if(GetCurCheckItem(pIter, &cc_item)) {
-							double amt = fabs(fdiv100i(cc_item.Price) * cc_item.Quantity);
+							const double amt = fabs(fdiv100i(cc_item.Price) * cc_item.Quantity);
 							if(amt != 0.0)
 								rResult.Cat(100.0 * fabs(cc_item.Dscnt * cc_item.Quantity) / amt, MKSFMTD(0, 0, 0));
 						}
 					}
 					else if(Src == srcGoodsBill) {
 						if(GetCurBillItem(pIter, &ti)) {
-							double amt = fabs(ti.NetPrice() * ti.Quantity_);
+							const double amt = fabs(ti.NetPrice() * ti.Quantity_);
 							if(amt != 0.0)
 								rResult.Cat(100.0 * fabs(ti.Discount * ti.Quantity_) / amt, MKSFMTD(0, 1, 0));
 						}
@@ -1210,39 +1184,33 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbDlvrCity:
 					if(Src == srcCCheck) {
-						if(p_ccp->Rec.Flags & CCHKF_DELIVERY) {
-							if(P_Od) {
-								temp_buf.Z();
-								P_Od->PsnObj.LocObj.GetCity(p_ccp->Ext.AddrID, 0, &temp_buf, 1);
-								rResult.Cat(temp_buf);
-							}
+						if(p_ccp->Rec.Flags & CCHKF_DELIVERY && P_Od) {
+							temp_buf.Z();
+							P_Od->PsnObj.LocObj.GetCity(p_ccp->Ext.AddrID, 0, &temp_buf, 1);
+							rResult.Cat(temp_buf);
 						}
 					}
 					break;
 				case symbDlvrAddr:
 					if(Src == srcCCheck) {
-						if(p_ccp->Rec.Flags & CCHKF_DELIVERY) {
-							if(P_Od) {
-								LocationTbl::Rec loc_rec;
-								PPID   addr_id = p_ccp->Ext.AddrID;
-								if(P_Od->PsnObj.LocObj.Search(p_ccp->Ext.AddrID, &loc_rec) > 0) {
-									LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf.Z());
-									rResult.Cat(temp_buf);
-								}
+						if(p_ccp->Rec.Flags & CCHKF_DELIVERY && P_Od) {
+							LocationTbl::Rec loc_rec;
+							//PPID   addr_id = p_ccp->Ext.AddrID;
+							if(P_Od->PsnObj.LocObj.Search(p_ccp->Ext.AddrID, &loc_rec) > 0) {
+								LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf.Z());
+								rResult.Cat(temp_buf);
 							}
 						}
 					}
 					break;
 				case symbDlvrPhone:
 					if(Src == srcCCheck) {
-						if(p_ccp->Rec.Flags & CCHKF_DELIVERY) {
-							if(P_Od) {
-								LocationTbl::Rec loc_rec;
-								PPID   addr_id = p_ccp->Ext.AddrID;
-								if(P_Od->PsnObj.LocObj.Search(p_ccp->Ext.AddrID, &loc_rec) > 0) {
-									LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, temp_buf.Z());
-									rResult.Cat(temp_buf);
-								}
+						if(p_ccp->Rec.Flags & CCHKF_DELIVERY && P_Od) {
+							LocationTbl::Rec loc_rec;
+							//PPID   addr_id = p_ccp->Ext.AddrID;
+							if(P_Od->PsnObj.LocObj.Search(p_ccp->Ext.AddrID, &loc_rec) > 0) {
+								LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, temp_buf.Z());
+								rResult.Cat(temp_buf);
 							}
 						}
 					}
@@ -1341,7 +1309,7 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 			right = result;
 	}
 	switch(condition) {
-		case PPSlipFormatEntry::cEq:
+		case PPSlipFormat::Entry::cEq:
 			if(is_left_num && is_right_num)
 				c = BIN(left_num == right_num);
 			else if(is_right_num && right_num == 0)
@@ -1351,7 +1319,7 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 			else
 				c = BIN(left.CmpNC(right) == 0);
 			break;
-		case PPSlipFormatEntry::cNEq:
+		case PPSlipFormat::Entry::cNEq:
 			if(is_left_num && is_right_num)
 				c = BIN(left_num != right_num);
 			else if(is_right_num && right_num == 0)
@@ -1361,25 +1329,25 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 			else
 				c = BIN(left.CmpNC(right) != 0);
 			break;
-		case PPSlipFormatEntry::cGt:
+		case PPSlipFormat::Entry::cGt:
 			if(is_left_num && is_right_num)
 				c = BIN(left_num > right_num);
 			else
 				c = BIN(left.CmpNC(right) > 0);
 			break;
-		case PPSlipFormatEntry::cGe:
+		case PPSlipFormat::Entry::cGe:
 			if(is_left_num && is_right_num)
 				c = BIN(left_num >= right_num);
 			else
 				c = BIN(left.CmpNC(right) >= 0);
 			break;
-		case PPSlipFormatEntry::cLt:
+		case PPSlipFormat::Entry::cLt:
 			if(is_left_num && is_right_num)
 				c = BIN(left_num < right_num);
 			else
 				c = BIN(left.CmpNC(right) < 0);
 			break;
-		case PPSlipFormatEntry::cLe:
+		case PPSlipFormat::Entry::cLe:
 			if(is_left_num && is_right_num)
 				c = BIN(left_num <= right_num);
 			else
@@ -1439,7 +1407,7 @@ int PPSlipFormat::NextOuterIter(Iter * pIter)
 	++pIter->SrcItemNo;
 	int    ok = -1;
 	if(pIter->SrcItemNo < pIter->SrcItemsCount) {
-		if(Src == srcCCheck && (Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormatZone::kDetail) {
+		if(Src == srcCCheck && (Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormat::Zone::kDetail) {
 			CCheckLineTbl::Rec cc_item;
 			while(GetCurCheckItem(pIter, &cc_item) && (intmnytodbl(cc_item.Price) - cc_item.Dscnt) == 0.0) {
 				pIter->SrcItemNo++;
@@ -1468,16 +1436,17 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 		do {
 			pIter->DivID = 0;
 			pIter->Qtty = pIter->Price = 0.0;
-			const PPSlipFormatZone * p_zone = pIter->P_Zone;
+			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < (long)p_zone->getCount()) {
-				const PPSlipFormatEntry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
+				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
 				PPGoodsTaxEntry tax_entry;
 				if(P_CcPack) {
 					CCheckLineTbl::Rec cc_item;
 					PPTransferItem ti;
+					PPGoodsType gt_rec;
 					if(Src == srcCCheck) {
 						// @v10.1.0 {
-						if((Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormatZone::kDetail) {
+						if((Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormat::Zone::kDetail) {
 							while(GetCurCheckItem(pIter, &cc_item) && (intmnytodbl(cc_item.Price) - cc_item.Dscnt) == 0.0)
 								pIter->SrcItemNo++;
 						}
@@ -1494,12 +1463,17 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
 							// @v9.5.7 {
 							pIter->GoodsID = cc_item.GoodsID;
+							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
 								STRNSCPY(pIter->Code, temp_buf);
 								if(P_Od->GObj.FetchTax(pIter->GoodsID, P_CcPack->Rec.Dt, 0, &tax_entry) > 0)
 									pIter->VatRate = tax_entry.GetVatRate();
+								// @v10.4.1 {
+								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ADVANCECERT)
+									pIter->Ptt = CCheckPacket::pttAdvance;
+								// } @v10.4.1 
 							}
 							// } @v9.5.7
 						}
@@ -1511,6 +1485,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->VatRate = 0.0; // @v9.7.1
 							// @v9.5.7 {
 							pIter->GoodsID = labs(ti.GoodsID);
+							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
@@ -1519,22 +1494,26 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								if(P_Od->GObj.FetchTax(pIter->GoodsID, ti.Date, 0, &tax_entry) > 0)
 									pIter->VatRate = tax_entry.GetVatRate();
 								// } @v9.7.1
+								// @v10.4.1 {
+								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ADVANCECERT)
+									pIter->Ptt = CCheckPacket::pttAdvance;
+								// } @v10.4.1 
 							}
 							// } @v9.5.7
 						}
 					}
 				}
-				if(p_entry->Flags & PPSlipFormatEntry::fIfElse) {
-					PPSlipFormatZone * p_czone = p_entry->P_ConditionZone;
-					const  PPSlipFormatZone * p_branch_zone = 0;
+				if(p_entry->Flags & PPSlipFormat::Entry::fIfElse) {
+					PPSlipFormat::Zone * p_czone = p_entry->P_ConditionZone;
+					const  PPSlipFormat::Zone * p_branch_zone = 0;
 					if(p_czone) {
 						do {
-							int    c = CheckCondition(pIter, p_czone->ConditionText, p_czone->Condition);
+							const int c = CheckCondition(pIter, p_czone->ConditionText, p_czone->Condition);
 							if(c)
 								p_branch_zone = p_czone;
 							else {
 								p_czone = p_czone->P_Next;
-								if(p_czone && p_czone->Condition == PPSlipFormatEntry::cElse)
+								if(p_czone && p_czone->Condition == PPSlipFormat::Entry::cElse)
 									p_branch_zone = p_czone;
 							}
 						} while(p_czone && !p_branch_zone);
@@ -1551,7 +1530,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 						pIter->EntryNo++;
 					ok = NextIteration(pIter, rBuf); // @recursion
 				}
-				else if(p_entry->Flags & PPSlipFormatEntry::fSpace) {
+				else if(p_entry->Flags & PPSlipFormat::Entry::fSpace) {
 					if(p_entry->Text.Empty())
 						result.CatCharN(' ', PageWidth);
 					else {
@@ -1562,7 +1541,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					pIter->EntryNo++;
 					ok = 1;
 				}
-				else if(p_entry->Flags & PPSlipFormatEntry::fSignBarcode) {
+				else if(p_entry->Flags & PPSlipFormat::Entry::fSignBarcode) {
 					if(P_CcPack && P_CcPack->GetExtStrData(CCheckPacket::extssEgaisUrl, result) && result.NotEmptyS()) { // @v9.1.8 extssSign-->extssEgaisUrl
 					}
 					else
@@ -1571,7 +1550,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					pIter->EntryNo++;
 					ok = 1;
 				}
-				else if(p_entry->Flags & PPSlipFormatEntry::fFakeCcQr) {
+				else if(p_entry->Flags & PPSlipFormat::Entry::fFakeCcQr) {
 					int    split_pos = -1;
 					int    split_chr = ' ';
 					ResolveString(pIter, p_entry->Text, temp_buf, &split_pos, &split_chr);
@@ -1600,7 +1579,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					int    split_chr = ' ';
 					int    alignment = -1;
 					ResolveString(pIter, p_entry->Text, result, &split_pos, &split_chr);
-					if(p_entry->Flags & PPSlipFormatEntry::fWrap) {
+					if(p_entry->Flags & PPSlipFormat::Entry::fWrap) {
 						int    wrap_pos = -1;
 						SString buf = result;
 						if(IsWrap) {
@@ -1617,23 +1596,20 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 						else {
 							if(WrapText(buf, p_entry->WrapLen, result, temp_buf, &wrap_pos) > 0) {
 								IsWrap = 1;
-								if(split_pos >= 0) {
-									if(split_pos <= wrap_pos)
-										alignment = ADJ_LEFT;
-								}
+								if(split_pos >= 0 && split_pos <= wrap_pos)
+									alignment = ADJ_LEFT;
 							}
 						}
 					}
 					{
 						result.Transf(CTRANSF_INNER_TO_OUTER);
 						int    page_width = PageWidth;
-						FontBlock fb;
 						long   font_id = p_entry->FontId;
 						uint   font_pos = 0;
 						if(FontList.lsearch(&font_id, &font_pos, CMPF_LONG)) {
-							fb = FontList.at(font_pos);
-							if(fb.PageWidth > 0)
-								page_width = fb.PageWidth;
+							const FontBlock & r_fb = FontList.at(font_pos);
+							if(r_fb.PageWidth > 0)
+								page_width = r_fb.PageWidth;
 						}
 						else if(font_id == 2)
 							page_width = PageWidth / 2;
@@ -1641,12 +1617,12 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							SString left, right;
 							(left = result).Trim(split_pos);
 							(right = result).ShiftLeft(split_pos).Strip();
-							int    diff = (int)(page_width - right.Len() - 1);
+							const int diff = static_cast<int>(page_width - right.Len() - 1);
 							if(diff <= 0)
 								result = right;
 							else {
 								result = left;
-								int    ad = (int)result.Strip().Len();
+								const int ad = static_cast<int>(result.Strip().Len());
 								if(diff > ad)
 									result.CatCharN(split_chr, diff - ad);
 								result.Trim(diff).Space().Cat(right);
@@ -1657,11 +1633,11 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							int    adj = -1;
 							if(p_entry) {
 								if(alignment < 0) {
-									if(p_entry->Flags & PPSlipFormatEntry::fAdjLeft)
+									if(p_entry->Flags & PPSlipFormat::Entry::fAdjLeft)
 										adj = ADJ_LEFT;
-									else if(p_entry->Flags & PPSlipFormatEntry::fAdjRight)
+									else if(p_entry->Flags & PPSlipFormat::Entry::fAdjRight)
 										adj = ADJ_RIGHT;
-									else if(p_entry->Flags & PPSlipFormatEntry::fAdjCenter)
+									else if(p_entry->Flags & PPSlipFormat::Entry::fAdjCenter)
 										adj = ADJ_CENTER;
 								}
 								else
@@ -1691,7 +1667,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 	return ok;
 }
 
-void PPSlipFormat::AddZone(PPSlipFormatZone * pZone)
+void PPSlipFormat::AddZone(PPSlipFormat::Zone * pZone)
 {
 	ZoneList.insert(pZone);
 }
@@ -1789,24 +1765,12 @@ int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 				token = tokNumber;
 			}
 			else {
-				/* @v8.4.5
-				int    var_idx = -1;
-				token = Scan.GetIdent(rResult) ? tokIdent : 0;
-				THROW_PP_S(token == tokIdent,  PPERR_TOKENEXPECTED, "ident"); // @v8.4.1
-				if(PPSearchSubStr(VarString, &var_idx, rResult, 1) &&
-					(var_idx >= 0 && var_idx < (_tokLastWordToken-_tokFirstWordToken-1))) {
-					token = var_idx + _tokFirstWordToken + 1;
-				}
-				*/
-				// @v8.4.5 Возвращет код до v8.4.1 {
 				token = Scan.GetIdent(rResult) ? tokIdent : 0;
 				if(token == tokIdent) {
 					int    var_idx = -1;
-					if(PPSearchSubStr(VarString, &var_idx, rResult, 1) && (var_idx >= 0 && var_idx < (_tokLastWordToken-_tokFirstWordToken-1))) {
+					if(PPSearchSubStr(VarString, &var_idx, rResult, 1) && (var_idx >= 0 && var_idx < (_tokLastWordToken-_tokFirstWordToken-1)))
 						token = var_idx + _tokFirstWordToken + 1;
-					}
 				}
-				// } @v8.4.5 Возвращет код до v8.4.1
 			}
 			break;
 	}
@@ -1816,7 +1780,7 @@ int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 	return token;
 }
 
-int PPSlipFormat::ParseCondition(SFile & rFile, SString & rTokResult, /*PPSlipFormatEntry * pEntry*/int * pCondition, SString & rText)
+int PPSlipFormat::ParseCondition(SFile & rFile, SString & rTokResult, /*PPSlipFormat::Entry * pEntry*/int * pCondition, SString & rText)
 {
 	int    token = 0;
 	int    condition = 0;
@@ -1835,13 +1799,13 @@ int PPSlipFormat::ParseCondition(SFile & rFile, SString & rTokResult, /*PPSlipFo
 		THROW(token = NextToken(rFile, rTokResult));
 		{
 			switch(token) {
-				case tokEq:  condition = PPSlipFormatEntry::cEq; break;
-				case tokEq2: condition = PPSlipFormatEntry::cEq; break;
-				case tokNEq: condition = PPSlipFormatEntry::cNEq; break;
-				case tokLt:  condition = PPSlipFormatEntry::cLt; break;
-				case tokLe:  condition = PPSlipFormatEntry::cLe; break;
-				case tokGt:  condition = PPSlipFormatEntry::cGt; break;
-				case tokGe:  condition = PPSlipFormatEntry::cGe; break;
+				case tokEq:  condition = PPSlipFormat::Entry::cEq; break;
+				case tokEq2: condition = PPSlipFormat::Entry::cEq; break;
+				case tokNEq: condition = PPSlipFormat::Entry::cNEq; break;
+				case tokLt:  condition = PPSlipFormat::Entry::cLt; break;
+				case tokLe:  condition = PPSlipFormat::Entry::cLe; break;
+				case tokGt:  condition = PPSlipFormat::Entry::cGt; break;
+				case tokGe:  condition = PPSlipFormat::Entry::cGe; break;
 				default:
 					CALLEXCEPT_PP_S(PPERR_TOKENEXPECTED, "condition operator");
 			}
@@ -1862,27 +1826,27 @@ int PPSlipFormat::ParseCondition(SFile & rFile, SString & rTokResult, /*PPSlipFo
 	return token;
 }
 
-int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSlipFormatZone * pZone)
+int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSlipFormat::Zone * pZone)
 {
 	int    token = 0;
-	PPSlipFormatZone * p_zone = 0; // inner zone
+	PPSlipFormat::Zone * p_zone = 0; // inner zone
 	assert(pZone);
-	PPSlipFormatEntry * p_entry = 0;
+	PPSlipFormat::Entry * p_entry = 0;
 	do {
 		token = NextToken(rFile, rTokResult);
 		THROW(token);
 		if(token == tokString) {
-			THROW_MEM(p_entry = new PPSlipFormatEntry);
+			THROW_MEM(p_entry = new PPSlipFormat::Entry);
 			p_entry->Text   = rTokResult;
 			while((token = NextToken(rFile, rTokResult)) != tokEOL && token != tokEOF) {
 				THROW(token);
 				switch(token) {
-					case tokLeft:    p_entry->Flags |= PPSlipFormatEntry::fAdjLeft; break;
-					case tokRight:   p_entry->Flags |= PPSlipFormatEntry::fAdjRight; break;
-					case tokCenter:  p_entry->Flags |= PPSlipFormatEntry::fAdjCenter; break;
-					case tokFiscal:  p_entry->Flags |= PPSlipFormatEntry::fFiscal; break;
-					case tokRegular: p_entry->Flags |= PPSlipFormatEntry::fRegRibbon; break;
-					case tokJournal: p_entry->Flags |= PPSlipFormatEntry::fJRibbon; break;
+					case tokLeft:    p_entry->Flags |= PPSlipFormat::Entry::fAdjLeft; break;
+					case tokRight:   p_entry->Flags |= PPSlipFormat::Entry::fAdjRight; break;
+					case tokCenter:  p_entry->Flags |= PPSlipFormat::Entry::fAdjCenter; break;
+					case tokFiscal:  p_entry->Flags |= PPSlipFormat::Entry::fFiscal; break;
+					case tokRegular: p_entry->Flags |= PPSlipFormat::Entry::fRegRibbon; break;
+					case tokJournal: p_entry->Flags |= PPSlipFormat::Entry::fJRibbon; break;
 					case tokFont:
 						token = NextToken(rFile, rTokResult);
 						THROW_PP_S(token == tokEq, PPERR_TOKENEXPECTED, "=");
@@ -1891,7 +1855,7 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 						p_entry->FontId = (uint16)rTokResult.ToLong();
 						break;
 					case tokWrap:
-						p_entry->Flags |= PPSlipFormatEntry::fWrap;
+						p_entry->Flags |= PPSlipFormat::Entry::fWrap;
 						token = NextToken(rFile, rTokResult);
 						THROW_PP_S(token == tokEq, PPERR_TOKENEXPECTED, "=");
 						token = NextToken(rFile, rTokResult);
@@ -1906,8 +1870,8 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 			p_entry = 0;
 		}
 		else if(token == tokSpace) {
-			THROW_MEM(p_entry = new PPSlipFormatEntry);
-			p_entry->Flags |= PPSlipFormatEntry::fSpace;
+			THROW_MEM(p_entry = new PPSlipFormat::Entry);
+			p_entry->Flags |= PPSlipFormat::Entry::fSpace;
 			THROW(token = NextToken(rFile, rTokResult));
 			if(token == tokEq) {
 				THROW(token = NextToken(rFile, rTokResult));
@@ -1924,21 +1888,21 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 			SString condition_text;
 			assert(p_zone == 0);
 			ZDELETE(p_zone);
-			THROW_MEM(p_entry = new PPSlipFormatEntry);
-			p_entry->Flags |= PPSlipFormatEntry::fIfElse;
+			THROW_MEM(p_entry = new PPSlipFormat::Entry);
+			p_entry->Flags |= PPSlipFormat::Entry::fIfElse;
 			THROW(token = ParseCondition(rFile, rTokResult, &condition, condition_text));
-			p_zone = new PPSlipFormatZone(PPSlipFormatZone::kInner);
+			p_zone = new PPSlipFormat::Zone(PPSlipFormat::Zone::kInner);
 			THROW(token = ParseZone(rFile, rTokResult, tokIf, p_zone)); // @recursion
 			p_zone->Condition = condition;
 			p_zone->ConditionText = condition_text;
 			{
-				PPSlipFormatZone * p_condition_zone = p_zone;
+				PPSlipFormat::Zone * p_condition_zone = p_zone;
 				p_entry->P_ConditionZone = p_condition_zone;
 				p_zone = 0;
 				if(token == tokElseIf) {
 					do {
 						THROW(token = ParseCondition(rFile, rTokResult, &condition, condition_text));
-						p_zone = new PPSlipFormatZone(PPSlipFormatZone::kInner);
+						p_zone = new PPSlipFormat::Zone(PPSlipFormat::Zone::kInner);
 						THROW(token = ParseZone(rFile, rTokResult, tokIf, p_zone)); // @recursion
 						p_zone->Condition = condition;
 						p_zone->ConditionText = condition_text;
@@ -1948,9 +1912,9 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 					} while(token == tokElseIf);
 				}
 				if(token == tokElse) {
-					p_zone = new PPSlipFormatZone(PPSlipFormatZone::kInner);
+					p_zone = new PPSlipFormat::Zone(PPSlipFormat::Zone::kInner);
 					THROW(token = ParseZone(rFile, rTokResult, tokElse, p_zone)); // @recursion
-					p_zone->Condition = PPSlipFormatEntry::cElse;
+					p_zone->Condition = PPSlipFormat::Entry::cElse;
 					p_condition_zone->P_Next = p_zone;
 					p_zone = 0;
 				}
@@ -1979,7 +1943,7 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 			break; // @end_of_loop
 		}
 		else if(token == tokPicture) {
-			THROW_MEM(p_entry = new PPSlipFormatEntry);
+			THROW_MEM(p_entry = new PPSlipFormat::Entry);
 			p_entry->Text = rTokResult;
 			THROW_PP_S(NextToken(rFile, rTokResult) == tokEq, PPERR_TOKENEXPECTED, "=");
 			THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
@@ -1991,15 +1955,14 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 		else if(token == tokFakeCcQrCode) {
 			//https://receipt.taxcom.ru/AE2AAFC4/v01/show/?rnm={RN}&fn={FN}&i={DN}&fp={DH}
 			//fakeccqrcode="https://receipt.taxcom.ru/AE2AAFC4/v01/show/?rnm={RN}&fn={FN}&i={DN}&fp={DH}" 10, 10, 15, 15
-			THROW_MEM(p_entry = new PPSlipFormatEntry);
+			THROW_MEM(p_entry = new PPSlipFormat::Entry);
 			THROW_PP_S(NextToken(rFile, rTokResult) == tokEq, PPERR_TOKENEXPECTED, "=");
 			THROW_PP_S(NextToken(rFile, rTokResult) == tokString, PPERR_TOKENEXPECTED, "string");
 			p_entry->Text = rTokResult;
-			p_entry->Flags |= PPSlipFormatEntry::fFakeCcQr;
+			p_entry->Flags |= PPSlipFormat::Entry::fFakeCcQr;
 			p_entry->PictId = ++LastPictId;
 			{
 				PictBlock pb;
-				MEMSZERO(pb);
 				pb.Id = p_entry->PictId;
 				THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
 				pb.Coord.top = rTokResult.ToLong();
@@ -2018,12 +1981,11 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 		}
 		else if(token == tokBarcode) {
 			//tokBarcode,    // barcode = width height [textabove|textbelow|textnone]
-			THROW_MEM(p_entry = new PPSlipFormatEntry);
+			THROW_MEM(p_entry = new PPSlipFormat::Entry);
 		}
 		else if(token == tokSignBarcode) {
 			//tokSignBarcode // signbarcode = std width height [textabove|textbelow|textnone]
 			BarcodeBlock bb;
-			MEMSZERO(bb);
 			THROW_PP_S(NextToken(rFile, rTokResult) == tokIdent, PPERR_TOKENEXPECTED, "barcode standard");
 			THROW(bb.BcStd = PPBarcode::RecognizeStdName(rTokResult));
 			THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
@@ -2051,7 +2013,7 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 			THROW_SL(BcList.insert(&bb));
 			{
 				THROW_SL(p_entry = pZone->CreateNewItem());
-				p_entry->Flags |= PPSlipFormatEntry::fSignBarcode;
+				p_entry->Flags |= PPSlipFormat::Entry::fSignBarcode;
 				p_entry->BarcodeId = bb.Id;
 				p_entry = 0;
 			}
@@ -2124,7 +2086,7 @@ int PPSlipFormat::GetFormList(const char * pFileName, StrAssocArray * pList, int
 int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 {
 	int    ok = -1;
-	PPSlipFormatZone * p_zone = 0;
+	PPSlipFormat::Zone * p_zone = 0;
 	if(LastFileName.CmpNC(pFileName) == 0 && LastFormatName.CmpNC(pFormatName) == 0)
 		ok = 1;
 	else {
@@ -2172,21 +2134,20 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 				if(token == tokZone) {
 					do {
 						//
-						// В цикле забираем все подряд идущие зоны (ParseZone вернет нам
-						// идентификатор следующей лексемы)
+						// В цикле забираем все подряд идущие зоны (ParseZone вернет нам идентификатор следующей лексемы)
 						//
 						if(tok_result.IsEqiAscii("header"))
-							zone_kind = PPSlipFormatZone::kHeader;
+							zone_kind = PPSlipFormat::Zone::kHeader;
 						else if(tok_result.IsEqiAscii("footer"))
-							zone_kind = PPSlipFormatZone::kFooter;
+							zone_kind = PPSlipFormat::Zone::kFooter;
 						else if(tok_result.IsEqiAscii("detail"))
-							zone_kind = PPSlipFormatZone::kDetail;
+							zone_kind = PPSlipFormat::Zone::kDetail;
 						else if(tok_result.IsEqiAscii("paymdetail"))
-							zone_kind = PPSlipFormatZone::kPaymDetail; // @v8.4.1
+							zone_kind = PPSlipFormat::Zone::kPaymDetail;
 						else {
 							CALLEXCEPT_PP_S(PPERR_SLIPFMT_INVZONE, tok_result);
 						}
-						THROW_MEM(p_zone = new PPSlipFormatZone(zone_kind));
+						THROW_MEM(p_zone = new PPSlipFormat::Zone(zone_kind));
 						THROW(token = ParseZone(file, tok_result, 0, p_zone));
 						AddZone(p_zone);
 						p_zone = 0;
@@ -2256,8 +2217,6 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 					// font 2 = "Times New Roman" 14
 					//
 					FontBlock fb;
-					MEMSZERO(fb);
-
 					THROW_PP_S(NextToken(file, tok_result) == tokNumber, PPERR_TOKENEXPECTED, "number");
 					fb.Id = tok_result.ToLong();
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
@@ -2281,8 +2240,6 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 					// picture 2 = "c:\temp\image2.bmp" 20, 20, 10, 10
 					//
 					PictBlock pb;
-					MEMSZERO(pb);
-
 					THROW_PP_S(NextToken(file, tok_result) == tokNumber, PPERR_TOKENEXPECTED, "number");
 					pb.Id = tok_result.ToLong();
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
@@ -2397,14 +2354,14 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 		if(ok > 0) {
 			const long flags = CurIter.P_Entry->Flags;
 			sl_param.Font = CurIter.P_Entry->FontId;
-			if(flags & PPSlipFormatEntry::fItemBarcode)
+			if(flags & PPSlipFormat::Entry::fItemBarcode)
 				sl_param.Kind = sl_param.lkBarcode;
-			else if(flags & PPSlipFormatEntry::fSignBarcode)
+			else if(flags & PPSlipFormat::Entry::fSignBarcode)
 				sl_param.Kind = sl_param.lkSignBarcode;
 			sl_param.Text = CurIter.Text; // @v9.5.7
 			sl_param.Code = CurIter.Code; // @v9.5.7
 			{
-				long   font_id = sl_param.Font;
+				const  long font_id = sl_param.Font;
 				uint   font_pos = 0;
 				if(FontList.lsearch(&font_id, &font_pos, CMPF_LONG)) {
 					const FontBlock & r_fb = FontList.at(font_pos);
@@ -2413,7 +2370,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 				}
 			}
 			{
-				long   pict_id = CurIter.P_Entry->PictId;
+				const  long pict_id = CurIter.P_Entry->PictId;
 				uint   pict_pos = 0;
 				if(PictList.lsearch(&pict_id, &pict_pos, CMPF_LONG)) {
 					const PictBlock & r_pb = PictList.at(pict_pos);
@@ -2433,29 +2390,28 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
                     SETFLAG(sl_param.Flags, SlipLineParam::fBcTextBelow, r_bcb.fTextBelow);
 				}
 			}
-			SETFLAG(sl_param.Flags, SlipLineParam::fRegRegular, flags & (PPSlipFormatEntry::fRegRibbon|PPSlipFormatEntry::fFiscal));
-			SETFLAG(sl_param.Flags, SlipLineParam::fRegJournal, flags & (PPSlipFormatEntry::fJRibbon|PPSlipFormatEntry::fFiscal));
-			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormatEntry::fFiscal);
+			SETFLAG(sl_param.Flags, SlipLineParam::fRegRegular, flags & (PPSlipFormat::Entry::fRegRibbon|PPSlipFormat::Entry::fFiscal));
+			SETFLAG(sl_param.Flags, SlipLineParam::fRegJournal, flags & (PPSlipFormat::Entry::fJRibbon|PPSlipFormat::Entry::fFiscal));
+			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormat::Entry::fFiscal);
 			sl_param.Qtty  = CurIter.Qtty;
 			sl_param.Price = CurIter.Price;
 			sl_param.VatRate = CurIter.VatRate; // @v9.7.1
 			sl_param.DivID = CurIter.DivID;
+			sl_param.PaymTermTag = CurIter.Ptt; // @v10.4.1
 		}
 		else if(ok < 0) {
 			if(CurZone == 0)
-				InitIteration(CurZone = PPSlipFormatZone::kHeader, &CurIter);
-			else if(CurZone == PPSlipFormatZone::kHeader)
-				InitIteration(CurZone = PPSlipFormatZone::kDetail, &CurIter);
-			else if(CurZone == PPSlipFormatZone::kDetail) {
-				if(Src == srcCCheck) {
-					InitIteration(CurZone = PPSlipFormatZone::kPaymDetail, &CurIter);
-				}
-				else {
-					InitIteration(CurZone = PPSlipFormatZone::kFooter, &CurIter);
-				}
+				InitIteration(CurZone = PPSlipFormat::Zone::kHeader, &CurIter);
+			else if(CurZone == PPSlipFormat::Zone::kHeader)
+				InitIteration(CurZone = PPSlipFormat::Zone::kDetail, &CurIter);
+			else if(CurZone == PPSlipFormat::Zone::kDetail) {
+				if(Src == srcCCheck)
+					InitIteration(CurZone = PPSlipFormat::Zone::kPaymDetail, &CurIter);
+				else
+					InitIteration(CurZone = PPSlipFormat::Zone::kFooter, &CurIter);
 			}
-			else if(CurZone == PPSlipFormatZone::kPaymDetail) {
-				InitIteration(CurZone = PPSlipFormatZone::kFooter, &CurIter);
+			else if(CurZone == PPSlipFormat::Zone::kPaymDetail) {
+				InitIteration(CurZone = PPSlipFormat::Zone::kFooter, &CurIter);
 			}
 			else {
 				CurZone = 0;
@@ -2504,7 +2460,7 @@ SLTEST_R(PPSlipFormatLexer)
 		result._CATFLD((long)p_zone->Kind);
 		result.Cat("EntryList").Space().CatChar('{').CR();
 		for(uint j = 0; j < p_zone->getCount(); j++) {
-			PPSlipFormatEntry * p_entry = p_zone->at(j);
+			PPSlipFormat::Entry * p_entry = p_zone->at(j);
 			result._CATFLD((long)p_entry->Flags);
 			result._CATFLD((long)p_entry->FontId);
 			result._CATFLD(p_entry->Text);

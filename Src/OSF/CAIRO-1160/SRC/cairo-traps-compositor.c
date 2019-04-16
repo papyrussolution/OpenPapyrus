@@ -1073,7 +1073,7 @@ static cairo_status_t upload_boxes(const cairo_traps_compositor_t * compositor,
 
 	TRACE((stderr, "%s\n", __FUNCTION__));
 
-	src = _cairo_pattern_get_source((cairo_surface_pattern_t*)source,
+	src = _cairo_pattern_get_source((cairo_surface_pattern_t *)source,
 		&limit);
 	if(!(src->type == CAIRO_SURFACE_TYPE_IMAGE || src->type == dst->type))
 		return CAIRO_INT_STATUS_UNSUPPORTED;

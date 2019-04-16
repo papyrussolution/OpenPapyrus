@@ -223,7 +223,7 @@ int SLAPI PPObjSalCharge::Browse(void * extraPtr)
 			if(event.isCmd(cmTransmitCharry)) {
 				PPIDArray id_list, grp_id_list;
 				PPSalCharge rec;
-				for(PPID id = 0; ((PPObjReference *)P_Obj)->EnumItems(&id, &rec) > 0;) {
+				for(PPID id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, &rec) > 0;) {
 					if(rec.Flags & PPSalCharge::fGroup)
 						grp_id_list.add(id);
 					else
@@ -236,7 +236,7 @@ int SLAPI PPObjSalCharge::Browse(void * extraPtr)
 		}
 		virtual void extraProc(long id)
 		{
-			PPObjSalCharge * p_obj = (PPObjSalCharge *)P_Obj;
+			PPObjSalCharge * p_obj = static_cast<PPObjSalCharge *>(P_Obj);
 			if(p_obj) {
 				PPID   new_id = 0;
 				if(p_obj->Edit(&new_id, reinterpret_cast<void *>(-1000)) == cmOK)
@@ -1005,7 +1005,7 @@ int  SLAPI PPObjStaffCal::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	int    ok = 1;
 	PPStaffCalPacket * p_pack = 0;
 	THROW(p && p->Data);
-	p_pack = (PPStaffCalPacket*)p->Data;
+	p_pack = static_cast<PPStaffCalPacket *>(p->Data);
 	if(stream == 0) {
 		if(*pID == 0) {
 			PPID   same_id = 0;
@@ -1037,7 +1037,7 @@ int SLAPI PPObjStaffCal::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPStaffCalPacket * p_pack = (PPStaffCalPacket *)p->Data;
+		PPStaffCalPacket * p_pack = static_cast<PPStaffCalPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_STAFFCAL, &p_pack->Rec.LinkCalID, ary, replace));
 		if(p_pack->Rec.LinkObjType)
 			THROW(ProcessObjRefInArray(p_pack->Rec.LinkObjType, &p_pack->Rec.LinkObjID, ary, replace));
@@ -2348,7 +2348,7 @@ int SLAPI StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPStaffCal * p_data_rec = (PPStaffCal *)pDataRec;
+	PPStaffCal * p_data_rec = static_cast<PPStaffCal *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define FLD(f) p_data_rec->f = p_cache_rec->f

@@ -191,7 +191,7 @@ BOOL CALLBACK AuthDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM l
 			{	// пользователь нажал "OK" или "Cancel"?
 				case IDOK:
 				{	// получить логин и пароль
-					Account *pAccount = (Account*) GetWindowLong(hwndDlg, GWL_USERDATA);
+					Account * pAccount = (Account *)GetWindowLong(hwndDlg, GWL_USERDATA);
 					if(pAccount) {
 						pAccount->pUserName = new char[256];
 						GetDlgItemText(hwndDlg, IDC_USERNAME, pAccount->pUserName, 0x100);
@@ -649,8 +649,8 @@ EXPORT int Connect(const char *pServer, const char *pUserName, const char *pUser
 		P_conn->lastMsg		= sSUCCEED;
 	}
 	else { // copying local connection parameters for possible future re-connecting
-		char *p_msg = new char[0x100];
-		MessageBox(NULL, P_conn->lastMsg.CopyTo(p_msg, 0x100), sCONNECT_FAIL, MB_OK);
+		char * p_msg = new char[0x100];
+		::MessageBox(NULL, P_conn->lastMsg.CopyTo(p_msg, 0x100), sCONNECT_FAIL, MB_OK);
 		delete p_msg;
 		Release();
 	}

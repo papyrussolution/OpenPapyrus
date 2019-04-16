@@ -1365,7 +1365,7 @@ void SelAmtSymbDialog::updateList()
 	if(P_List) {
 		StrAssocArray * p_list = new StrAssocArray;
 		if(MakeList(p_list)) {
-			((StrAssocListBoxDef *)(P_List->def))->setArray(p_list);
+			static_cast<StrAssocListBoxDef *>(P_List->def)->setArray(p_list);
 			Draw_();
 		}
 		else

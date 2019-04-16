@@ -66,7 +66,6 @@ typedef enum {
 
 typedef struct _cairo_sub_font {
 	cairo_hash_entry_t base;
-
 	cairo_bool_t is_scaled;
 	cairo_bool_t is_composite;
 	cairo_bool_t is_user;
@@ -75,13 +74,11 @@ typedef struct _cairo_sub_font {
 	cairo_scaled_font_subsets_t * parent;
 	cairo_scaled_font_t * scaled_font;
 	uint font_id;
-
 	int current_subset;
 	int num_glyphs_in_current_subset;
 	int num_glyphs_in_latin_subset;
 	int max_glyphs_per_subset;
 	char latin_char_map[256];
-
 	cairo_hash_table_t * sub_font_glyphs;
 	struct _cairo_sub_font * next;
 } cairo_sub_font_t;
@@ -89,28 +86,23 @@ typedef struct _cairo_sub_font {
 struct _cairo_scaled_font_subsets {
 	cairo_subsets_type_t type;
 	cairo_bool_t use_latin_subset;
-
 	int max_glyphs_per_unscaled_subset_used;
 	cairo_hash_table_t * unscaled_sub_fonts;
 	cairo_sub_font_t * unscaled_sub_fonts_list;
 	cairo_sub_font_t * unscaled_sub_fonts_list_end;
-
 	int max_glyphs_per_scaled_subset_used;
 	cairo_hash_table_t * scaled_sub_fonts;
 	cairo_sub_font_t * scaled_sub_fonts_list;
 	cairo_sub_font_t * scaled_sub_fonts_list_end;
-
 	int num_sub_fonts;
 };
 
 typedef struct _cairo_sub_font_glyph {
 	cairo_hash_entry_t base;
-
 	uint subset_id;
 	uint subset_glyph_index;
 	double x_advance;
 	double y_advance;
-
 	cairo_bool_t is_latin;
 	int latin_character;
 	cairo_bool_t is_mapped;
@@ -127,9 +119,7 @@ typedef struct _cairo_sub_font_collection {
 	ulong * latin_to_subset_glyph_index;
 	uint max_glyph;
 	uint num_glyphs;
-
 	uint subset_id;
-
 	cairo_status_t status;
 	cairo_scaled_font_subset_callback_func_t font_subset_callback;
 	void * font_subset_callback_closure;
@@ -140,14 +130,9 @@ typedef struct _cairo_string_entry {
 	char * string;
 } cairo_string_entry_t;
 
-static cairo_status_t _cairo_sub_font_map_glyph(cairo_sub_font_t * sub_font,
-    ulong scaled_font_glyph_index,
-    const char * utf8,
-    int utf8_len,
-    cairo_scaled_font_subsets_glyph_t * subset_glyph);
+static cairo_status_t _cairo_sub_font_map_glyph(cairo_sub_font_t * sub_font, ulong scaled_font_glyph_index, const char * utf8, int utf8_len, cairo_scaled_font_subsets_glyph_t * subset_glyph);
 
-static void _cairo_sub_font_glyph_init_key(cairo_sub_font_glyph_t * sub_font_glyph,
-    ulong scaled_font_glyph_index)
+static void _cairo_sub_font_glyph_init_key(cairo_sub_font_glyph_t * sub_font_glyph, ulong scaled_font_glyph_index)
 {
 	sub_font_glyph->base.hash = scaled_font_glyph_index;
 }

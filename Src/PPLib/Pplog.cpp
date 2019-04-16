@@ -874,13 +874,13 @@ SLAPI PPLogger::PPLogger(long flags) : Flags(flags), P_Log(0)
 SLAPI PPLogger::~PPLogger()
 {
 	if(P_Log)
-		TVMsgLog::Delete_((TVMsgLog *)P_Log, BIN(CS_SERVER));
+		TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log), BIN(CS_SERVER));
 }
 
 void SLAPI PPLogger::Clear()
 {
 	if(P_Log)
-		TVMsgLog::Delete_((TVMsgLog *)P_Log);
+		TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log));
 }
 
 int FASTCALL PPLogger::Log(const char * pMsg)

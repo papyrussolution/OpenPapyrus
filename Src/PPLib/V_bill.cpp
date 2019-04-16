@@ -2488,7 +2488,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbe_arrvldate.init();
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightIssueDate, 0)) {
 					dbe_issuedate.push(bll->ID);
-					dbe_issuedate.push((DBFunc)PPDbqFuncPool::IdBillFrghtIssueDt);
+					dbe_issuedate.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillFrghtIssueDt));
 				}
 				else {
 					dbe_issuedate.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -2496,7 +2496,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				q->addField(dbe_issuedate); // #11
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightArrivalDate, 0)) {
 					dbe_arrvldate.push(bll->ID);
-					dbe_arrvldate.push((DBFunc)PPDbqFuncPool::IdBillFrghtArrvlDt);
+					dbe_arrvldate.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillFrghtArrvlDt));
 				}
 				else {
 					dbe_arrvldate.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -2508,7 +2508,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbe_agentname.init();
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliAgentName, 0)) {
 					dbe_agentname.push(bll->ID);
-					dbe_agentname.push((DBFunc)PPDbqFuncPool::IdBillAgentName);
+					dbe_agentname.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillAgentName));
 				}
 				else
 					dbe_agentname.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -2518,7 +2518,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbe_licreg.init();
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0) && P_Arp && bllt) {
 					dbe_licreg.push(bllt->LicRegID);
-					dbe_licreg.push((DBFunc)PPDbqFuncPool::IdRegisterText);
+					dbe_licreg.push(static_cast<DBFunc>(PPDbqFuncPool::IdRegisterText));
 				}
 				else
 					dbe_licreg.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -2528,7 +2528,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbe_dlvraddr.init();
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliDlvrAddr, 0)) {
 					dbe_dlvraddr.push(bll->ID);
-					dbe_dlvraddr.push((DBFunc)PPDbqFuncPool::IdBillFrghtDlvrAddr);
+					dbe_dlvraddr.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillFrghtDlvrAddr));
 				}
 				else
 					dbe_dlvraddr.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -2538,7 +2538,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbe_strgloc.init();
 				if(Filt.Bbt == bbtInventoryBills) {
 					dbe_strgloc.push(bll->ID);
-					dbe_strgloc.push((DBFunc)PPDbqFuncPool::IdBillFrghtStrgLoc);
+					dbe_strgloc.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillFrghtStrgLoc));
 				}
 				else
 					dbe_strgloc.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -2629,7 +2629,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				DBConst dbc_long;
 				dbc_long.init(Filt.CreatorID);
 				dbe_chkusr.push(dbc_long);
-				dbe_chkusr.push((DBFunc)PPDbqFuncPool::IdCheckUserID);
+				dbe_chkusr.push(static_cast<DBFunc>(PPDbqFuncPool::IdCheckUserID));
 				dbq = & (*dbq && dbe_chkusr == 1L);
 			}
 			else

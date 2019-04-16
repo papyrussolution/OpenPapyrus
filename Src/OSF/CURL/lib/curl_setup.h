@@ -327,7 +327,7 @@
 #    define stat(fname,stp)            _stat(fname, stp)
 #    define struct_stat                struct _stat
 #  endif
-#define LSEEK_ERROR                (long)-1
+#define LSEEK_ERROR                -1L
 #endif
 #ifndef struct_stat
 	#define struct_stat struct stat

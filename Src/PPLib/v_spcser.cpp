@@ -179,8 +179,7 @@ DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pS
 		DBConst dbc_long;
 		dbc_long.init((long)SPCSNEXSTR_GOODSNAME);
 		dbe_goods_name.push(dbc_long);
-
-		dbe_goods_name.push((DBFunc)PPViewSpecSeries::DynFuncSpcSnTextFld);
+		dbe_goods_name.push(static_cast<DBFunc>(PPViewSpecSeries::DynFuncSpcSnTextFld));
 	}
 	{
 		dbe_manuf_name.init();
@@ -191,8 +190,7 @@ DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pS
 		DBConst dbc_long;
 		dbc_long.init((long)SPCSNEXSTR_MANUFNAME);
 		dbe_manuf_name.push(dbc_long);
-
-		dbe_manuf_name.push((DBFunc)PPViewSpecSeries::DynFuncSpcSnTextFld);
+		dbe_manuf_name.push(static_cast<DBFunc>(PPViewSpecSeries::DynFuncSpcSnTextFld));
 	}
 	dbq = & (*dbq && daterange(t->InfoDate, &Filt.Period));
 	dbq = ppcheckfiltid(dbq, Tbl.GoodsID,  Filt.GoodsID);

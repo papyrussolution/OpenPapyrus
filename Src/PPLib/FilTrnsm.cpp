@@ -167,10 +167,6 @@ static int SLAPI IsRemovableDrive(const char drive)
 	int    ok = 0;
 	uint   drive_type = 0;
 	SString s_drive;
-	//char   str_drive[16];
-	//memzero(str_drive, sizeof(str_drive));
-	//sprintf(str_drive, "%c%c", drive, ':');
-	//setLastSlash(str_drive);
 	s_drive.CatChar(drive).CatChar(':').SetLastSlash().ToUpper();
 	drive_type = GetDriveType(SUcSwitch(s_drive)); // @unicodeproblem
 	if(oneof3(drive_type, DRIVE_REMOVABLE, DRIVE_CDROM, DRIVE_RAMDISK))
@@ -446,18 +442,16 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 	return ok;
 }
 
-int SLAPI PutFilesToEmail(const /*PPFileNameArray*/SFileEntryPool * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
+int SLAPI PutFilesToEmail(const SFileEntryPool * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
 {
 	StringSet ss_file_list;
 	SString file_path;
 	if(pFileList) {
-		//for(uint i = 0; pFileList->Enum(&i, 0, &file_path);) {
 		for(uint i = 0; i < pFileList->GetCount(); i++) {
 			if(pFileList->Get(i, 0, &file_path))
 				ss_file_list.add(file_path);
 		}
 	}
-	//return PutFilesToEmail((pFileList ? &ss_file_list : (const StringSet *)0), mailAccID, pDestAddr, pSubj, trnsmFlags);
 	return PutFilesToEmail2((pFileList ? &ss_file_list : (const StringSet *)0), mailAccID, pDestAddr, pSubj, trnsmFlags);
 }
 
@@ -612,7 +606,6 @@ static int SLAPI PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileLi
 	PPObjInternetAccount obj_acct;
 	PPInternetAccount acct;
 	PPID   ftp_acc_id = ftpAccID;
-
 	PPWait(1);
 	if(ftp_acc_id == 0) {
 		PPEquipConfig eq_cfg;
@@ -624,7 +617,6 @@ static int SLAPI PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileLi
 	(dest_dir = pDestAddr).ReplaceStr("ftp:", "", 1).SetLastSlash();
 	THROW(ftp.Init());
 	THROW(ftp.Connect(&acct));
-	//for(i = 0; pFileList->Enum(&i, 0, &file_path);) {
 	for(i = 0; i < pFileList->GetCount(); i++) {
 		if(pFileList->Get(i, 0, &file_path)) {
 			ps.Split(file_path);
@@ -855,22 +847,24 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 				}
 			} while(i);
 		}
-		// AHTOXA {
-		// Упаковка файлов перед отправкой
-		PPDBXchgConfig cfg;
-		THROW(PPObjectTransmit::ReadConfig(&cfg));
-		if(cfg.Flags & DBDXF_PACKFILES) {
-			THROW(PackTransmitFiles(/*&fary*/&fep, 1));
-		}
-		// } AHTOXA
-		if(IsEmailAddr(dest)) {
-			THROW(PutFilesToEmail(&fep, 0, dest, SUBJECTDBDIV, trnsmFlags));
-		}
-		else if(IsFtpAddr(dest)) {
-			THROW(PutFilesToFtp(&fep, 0, dest, trnsmFlags));
-		}
-		else {
-			THROW(PutFilesToDiskPath(&fep, dest, trnsmFlags));
+		if(fep.GetCount()) { // @v10.4.1
+			// AHTOXA {
+			// Упаковка файлов перед отправкой
+			PPDBXchgConfig cfg;
+			THROW(PPObjectTransmit::ReadConfig(&cfg));
+			if(cfg.Flags & DBDXF_PACKFILES) {
+				THROW(PackTransmitFiles(&fep, 1));
+			}
+			// } AHTOXA
+			if(IsEmailAddr(dest)) {
+				THROW(PutFilesToEmail(&fep, 0, dest, SUBJECTDBDIV, trnsmFlags));
+			}
+			else if(IsFtpAddr(dest)) {
+				THROW(PutFilesToFtp(&fep, 0, dest, trnsmFlags));
+			}
+			else {
+				THROW(PutFilesToDiskPath(&fep, dest, trnsmFlags));
+			}
 		}
 	}
 	else

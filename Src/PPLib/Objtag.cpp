@@ -489,7 +489,7 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 				PPID   obj_type_id = 0;
 				if(getResult(&id) > 0 && !ObjTagFilt::ObjTypeRootIdentToObjType(id, &obj_type_id)) {
 					PPObjectTag tag_rec;
-					if(((PPObjTag *)P_Obj)->Search(id, &tag_rec) > 0)
+					if(static_cast<PPObjTag *>(P_Obj)->Search(id, &tag_rec) > 0)
 						obj_type_id = tag_rec.ObjTypeID;
 				}
 				ObjTagFilt filt;
@@ -513,7 +513,7 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 							case cmaMore:
 								if(id) {
 									PPObjTagPacket pack;
-									if(((PPObjTag*)P_Obj)->GetPacket(id, &pack) > 0 && pack.Rec.TagDataType == OTTYP_ENUM) {
+									if(static_cast<PPObjTag *>(P_Obj)->GetPacket(id, &pack) > 0 && pack.Rec.TagDataType == OTTYP_ENUM) {
 										if(pack.Rec.TagEnumID) {
 											ShowObjects(pack.Rec.TagEnumID, 0);
 										}
@@ -524,7 +524,7 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 								{
 									PPIDArray id_list;
 									ReferenceTbl::Rec rec;
-									for(PPID item_id = 0; ((PPObjReference *)P_Obj)->EnumItems(&item_id, &rec) > 0;)
+									for(PPID item_id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&item_id, &rec) > 0;)
 										id_list.add(rec.ObjID);
 									if(!SendCharryObject(PPDS_CRROBJTAG, id_list))
 										PPError();
@@ -2421,6 +2421,21 @@ int FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const 
 	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_DIMENTIONS) {
 		ok = ReceiptCore::LotDimensions::EditTag(0, pItem);
 	}
+	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_FREIGHTPACKAGE) { // @v10.4.1
+		PPTransferItem::FreightPackage fp;
+		SString temp_buf;
+		pItem->GetStr(temp_buf);
+		if(temp_buf.NotEmptyS())
+			fp.FromStr(temp_buf);
+		if(PPTransferItem::FreightPackage::Edit(&fp) > 0) {
+			if(fp.ToStr(temp_buf)) {
+				pItem->SetStr(pItem->TagID, temp_buf);
+				ok = 1;
+			}
+			else
+				PPError();
+		}
+	}
 	else {
 		param.GetDlgID(pItem->TagDataType, &dlg_id);
 		THROW(CheckDialogPtr(&(dlg = new TagValDialog(dlg_id, pItem, objID))));
@@ -3106,7 +3121,7 @@ int SLAPI TagCache::DirtyTag(PPID objType, PPID objID, PPID tagID)
 int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	TagCacheEntry * p_rec = (TagCacheEntry*)pEntry;
+	TagCacheEntry * p_rec = static_cast<TagCacheEntry *>(pEntry);
 	PPObjectTag tag;
 	if(oneof2(id, PPTAG_LOT_CLB, PPTAG_LOT_SN)) {
 		p_rec->Flags       = OTF_NOZERO;
@@ -3187,8 +3202,8 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPObjectTag   * p_tag = (PPObjectTag*)pDataRec;
-	const TagCacheEntry * p_cr  = (const TagCacheEntry *)pEntry;
+	PPObjectTag   * p_tag = static_cast<PPObjectTag *>(pDataRec);
+	const TagCacheEntry * p_cr  = static_cast<const TagCacheEntry *>(pEntry);
 	memzero(p_tag, sizeof(PPObjectTag));
 	p_tag->Tag         = PPOBJ_TAG;
 	p_tag->ID          = p_cr->ID;

@@ -22,17 +22,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
-
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
-#ifdef HAVE_STDLIB_H
+//#endif
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-
+//#endif
 //#include "archive.h"
 //#include "archive_endian.h"
 //#include "archive_private.h"
@@ -45,47 +42,33 @@ struct rpm {
 	uchar header[16];
 	enum {
 		ST_LEAD,        /* Skipping 'Lead' section. */
-		ST_HEADER,      /* Reading 'Header' section;
-		                 * first 16 bytes. */
+		ST_HEADER,      /* Reading 'Header' section; first 16 bytes. */
 		ST_HEADER_DATA, /* Skipping 'Header' section. */
-		ST_PADDING,     /* Skipping padding data after the
-		                 * 'Header' section. */
+		ST_PADDING,     /* Skipping padding data after the 'Header' section. */
 		ST_ARCHIVE      /* Reading 'Archive' section. */
-	}                state;
-
+	} state;
 	int first_header;
 };
 
 #define RPM_LEAD_SIZE   96      /* Size of 'Lead' section. */
 
-static int      rpm_bidder_bid(struct archive_read_filter_bidder *,
-    struct archive_read_filter *);
+static int      rpm_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
 static int      rpm_bidder_init(struct archive_read_filter *);
-
-static ssize_t  rpm_filter_read(struct archive_read_filter *,
-    const void **);
+static ssize_t  rpm_filter_read(struct archive_read_filter *, const void **);
 static int      rpm_filter_close(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-/* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_rpm(struct archive * a)
-{
-	return archive_read_support_filter_rpm(a);
-}
-
+	/* Deprecated; remove in libarchive 4.0 */
+	int archive_read_support_compression_rpm(struct archive * a) { return archive_read_support_filter_rpm(a); }
 #endif
 
 int archive_read_support_filter_rpm(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_rpm");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_rpm");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "rpm";
 	bidder->bid = rpm_bidder_bid;
@@ -95,8 +78,7 @@ int archive_read_support_filter_rpm(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int rpm_bidder_bid(struct archive_read_filter_bidder * self,
-    struct archive_read_filter * filter)
+static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
 	const uchar * b;
 	ssize_t avail;
@@ -134,17 +116,14 @@ static int rpm_bidder_bid(struct archive_read_filter_bidder * self,
 static int rpm_bidder_init(struct archive_read_filter * self)
 {
 	struct rpm   * rpm;
-
 	self->code = ARCHIVE_FILTER_RPM;
 	self->name = "rpm";
 	self->read = rpm_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = rpm_filter_close;
-
 	rpm = (struct rpm *)SAlloc::C(sizeof(*rpm), 1);
 	if(rpm == NULL) {
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate data for rpm");
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for rpm");
 		return ARCHIVE_FATAL;
 	}
 	self->data = rpm;
@@ -154,14 +133,12 @@ static int rpm_bidder_init(struct archive_read_filter * self)
 
 static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** buff)
 {
-	struct rpm * rpm;
 	const uchar * b;
 	ssize_t avail_in, total;
 	size_t used, n;
 	uint32_t section;
 	uint32_t bytes;
-
-	rpm = (struct rpm *)self->data;
+	struct rpm * rpm = (struct rpm *)self->data;
 	*buff = NULL;
 	total = avail_in = 0;
 	b = NULL;
@@ -198,17 +175,10 @@ static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** 
 			    b += n;
 			    used += n;
 			    rpm->hpos += n;
-
 			    if(rpm->hpos == 16) {
-				    if(rpm->header[0] != 0x8e ||
-					rpm->header[1] != 0xad ||
-					rpm->header[2] != 0xe8 ||
-					rpm->header[3] != 0x01) {
+				    if(rpm->header[0] != 0x8e || rpm->header[1] != 0xad || rpm->header[2] != 0xe8 || rpm->header[3] != 0x01) {
 					    if(rpm->first_header) {
-						    archive_set_error(
-							    &self->archive->archive,
-							    ARCHIVE_ERRNO_FILE_FORMAT,
-							    "Unrecoginized rpm header");
+						    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unrecoginized rpm header");
 						    return ARCHIVE_FATAL;
 					    }
 					    rpm->state = rpm::ST_ARCHIVE;
@@ -270,10 +240,7 @@ static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** 
 
 static int rpm_filter_close(struct archive_read_filter * self)
 {
-	struct rpm * rpm;
-
-	rpm = (struct rpm *)self->data;
+	struct rpm * rpm = (struct rpm *)self->data;
 	SAlloc::F(rpm);
-
 	return ARCHIVE_OK;
 }

@@ -15,13 +15,9 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-
-/************************************************************************
-*                                                                      *
-*                Commodity functions to handle xmlChars                *
-*                                                                      *
-************************************************************************/
-
+//
+// Commodity functions to handle xmlChars
+//
 /**
  * xmlStrndup:
  * @cur:  the input xmlChar *
@@ -31,7 +27,7 @@
  *
  * Returns a new xmlChar * or NULL
  */
-xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len) 
+xmlChar * FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len) 
 {
 	xmlChar * ret = 0;
 	if(cur && len >= 0) {
@@ -274,7 +270,6 @@ int xmlStrcasecmp(const xmlChar * str1, const xmlChar * str2)
 	} while(*str2++ != 0);
 	return 0;
 }
-
 /**
  * xmlStrncasecmp:
  * @str1:  the first xmlChar *
@@ -285,7 +280,6 @@ int xmlStrcasecmp(const xmlChar * str1, const xmlChar * str2)
  *
  * Returns the integer result of the comparison
  */
-
 int xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len) 
 {
 	int tmp;
@@ -300,7 +294,6 @@ int xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len)
 	} while(*str2++ != 0);
 	return 0;
 }
-
 /**
  * xmlStrchr:
  * @str:  the xmlChar * array
@@ -384,7 +377,6 @@ const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val)
  *
  * Returns the xmlChar * for the first occurrence or NULL.
  */
-
 xmlChar * xmlStrsub(const xmlChar * str, int start, int len) 
 {
 	if(!str) 
@@ -562,7 +554,6 @@ int xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap)
 	buf[len-1] = 0; /* be safe ! */
 	return ret;
 }
-
 /************************************************************************
 *                                                                      *
 *              Generic UTF8 handling routines                          *
@@ -577,7 +568,6 @@ int xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap)
 * I hope we won't use values > 0xFFFF anytime soon !                   *
 *                                                                      *
 ************************************************************************/
-
 /**
  * xmlUTF8Size:
  * @utf: pointer to the UTF8 character
@@ -606,7 +596,6 @@ int xmlUTF8Size(const xmlChar * utf)
 	}
 	return -1;
 }
-
 /**
  * xmlUTF8Charcmp:
  * @utf1: pointer to first UTF8 char
@@ -661,7 +650,6 @@ int FASTCALL xmlUTF8Strlen(const xmlChar * utf)
 	}
 	return ret;
 }
-
 /**
  * xmlGetUTF8Char:
  * @utf:  a sequence of UTF-8 encoded bytes

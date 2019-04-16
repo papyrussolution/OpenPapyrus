@@ -159,7 +159,7 @@ void * FASTCALL _cairo_array_index(cairo_array_t * array, uint index)
 	if(index == 0 && array->num_elements == 0)
 		return NULL;
 	assert(index < array->num_elements);
-	return array->elements + index * array->element_size;
+	return (array->elements + index * array->element_size);
 }
 /**
  * _cairo_array_index_const:

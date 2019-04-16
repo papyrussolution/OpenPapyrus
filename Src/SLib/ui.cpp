@@ -98,7 +98,7 @@ int UiItemKind::Init(int kind)
 	}
 	if(p_text_sign) {
 		Id = kind;
-		SLS.LoadString(p_text_sign, Text);
+		SLS.LoadString_(p_text_sign, Text);
 	}
 	return ok;
 }

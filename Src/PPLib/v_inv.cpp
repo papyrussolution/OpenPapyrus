@@ -22,20 +22,9 @@ InventoryFilt & FASTCALL InventoryFilt::operator = (const InventoryFilt & rS)
 	return *this;
 }
 
-void FASTCALL InventoryFilt::SetSingleBillID(PPID billID)
-{
-	BillList.SetSingle(billID);
-}
-
-PPID SLAPI InventoryFilt::GetSingleBillID() const
-{
-	return BillList.GetSingle();
-}
-
-int SLAPI InventoryFilt::HasSubst() const
-{
-	return BIN(!!Sgb || Sgg);
-}
+void FASTCALL InventoryFilt::SetSingleBillID(PPID billID) { BillList.SetSingle(billID); }
+PPID SLAPI InventoryFilt::GetSingleBillID() const { return BillList.GetSingle(); }
+int  SLAPI InventoryFilt::HasSubst() const { return BIN(!!Sgb || Sgg); }
 
 int SLAPI InventoryFilt::Setup(PPID billID)
 {
@@ -64,15 +53,8 @@ int SLAPI PPViewInventory::SetOuterPack(PPBillPacket * pPack)
 	return 1;
 }
 
-int SLAPI PPViewInventory::GetZeroByDefaultStatus() const
-{
-	return BIN(Flags & fIsZeroByDefault);
-}
-
-int SLAPI PPViewInventory::GetUpdateStatus() const
-{
-	return BIN(Flags & fWasUpdated);
-}
+int SLAPI PPViewInventory::GetZeroByDefaultStatus() const { return BIN(Flags & fIsZeroByDefault); }
+int SLAPI PPViewInventory::GetUpdateStatus() const { return BIN(Flags & fWasUpdated); }
 
 class InventoryFiltDialog : public TDialog {
 public:
@@ -2023,14 +2005,14 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			dbe_diffqtty.init();
 			dbe_diffqtty.push(it->Flags);
 			dbe_diffqtty.push(it->DiffQtty);
-			dbe_diffqtty.push((DBFunc)PPDbqFuncPool::IdInventDiffQtty);
+			dbe_diffqtty.push(static_cast<DBFunc>(PPDbqFuncPool::IdInventDiffQtty));
 		}
 		PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, it->GoodsID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_barcode, PPDbqFuncPool::IdGoodsSingleBarcode, it->GoodsID);
 		{
 			dbe_strgloc.init();
 			dbe_strgloc.push(it->BillID);
-			dbe_strgloc.push((DBFunc)PPDbqFuncPool::IdBillFrghtStrgLoc);
+			dbe_strgloc.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillFrghtStrgLoc));
 		}
 		if(p_tord)
 			tbl_l[tbl_count++] = p_tord;

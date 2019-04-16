@@ -212,7 +212,6 @@ cairo_surface_type_t cairo_surface_get_type(const cairo_surface_t * surface)
 	 * surface. */
 	return surface->type;
 }
-
 /**
  * cairo_surface_get_content:
  * @surface: a #cairo_surface_t
@@ -229,7 +228,6 @@ cairo_content_t cairo_surface_get_content(const cairo_surface_t * surface)
 {
 	return surface->content;
 }
-
 /**
  * cairo_surface_status:
  * @surface: a #cairo_surface_t
@@ -266,11 +264,9 @@ static uint _cairo_surface_allocate_unique_id(void)
 		if(id == 0)
 			id = 1;
 	} while(!_cairo_atomic_uint_cmpxchg(&unique_id, old, id));
-
 	return id;
 #endif
 }
-
 /**
  * cairo_surface_get_device:
  * @surface: a #cairo_surface_t
@@ -397,7 +393,6 @@ static void _cairo_surface_copy_similar_properties(cairo_surface_t * surface, ca
 	}
 	cairo_surface_set_fallback_resolution(surface, other->x_fallback_resolution, other->y_fallback_resolution);
 }
-
 /**
  * cairo_surface_create_similar:
  * @other: an existing surface used to select the backend of the new surface
@@ -465,7 +460,6 @@ cairo_surface_t * cairo_surface_create_similar(cairo_surface_t * other, cairo_co
 	assert(surface->is_clear);
 	return surface;
 }
-
 /**
  * cairo_surface_create_similar_image:
  * @other: an existing surface used to select the preference of the new surface
@@ -555,7 +549,6 @@ cairo_image_surface_t * FASTCALL _cairo_surface_map_to_image(cairo_surface_t * s
 	SETIFZ(image, _cairo_image_surface_clone_subimage(surface, extents));
 	return image;
 }
-
 /**
  * _cairo_surface_unmap_image:
  * @surface: the surface passed to _cairo_surface_map_to_image().
@@ -617,7 +610,6 @@ destroy:
 	cairo_surface_destroy(&image->base);
 	return status;
 }
-
 /**
  * cairo_surface_map_to_image:
  * @surface: an existing surface used to extract the image from
@@ -646,51 +638,40 @@ destroy:
  *
  * Since: 1.12
  **/
-cairo_surface_t * cairo_surface_map_to_image(cairo_surface_t * surface,
-    const cairo_rectangle_int_t * extents)
+cairo_surface_t * cairo_surface_map_to_image(cairo_surface_t * surface, const cairo_rectangle_int_t * extents)
 {
 	cairo_rectangle_int_t rect;
 	cairo_image_surface_t * image;
 	cairo_status_t status;
-
 	if(unlikely(surface->status))
 		return _cairo_surface_create_in_error(surface->status);
 	if(unlikely(surface->finished))
 		return _cairo_surface_create_in_error(CAIRO_STATUS_SURFACE_FINISHED);
-
 	if(extents == NULL) {
 		if(unlikely(!surface->backend->get_extents(surface, &rect)))
 			return _cairo_surface_create_in_error(CAIRO_STATUS_INVALID_SIZE);
-
 		extents = &rect;
 	}
 	else {
 		cairo_rectangle_int_t surface_extents;
-
-		/* If this surface is bounded, we can't map parts
-		 * that are outside of it. */
+		// If this surface is bounded, we can't map parts that are outside of it. 
 		if(likely(surface->backend->get_extents(surface, &surface_extents))) {
 			if(unlikely(!_cairo_rectangle_contains_rectangle(&surface_extents, extents)))
 				return _cairo_surface_create_in_error(CAIRO_STATUS_INVALID_SIZE);
 		}
 	}
-
 	image = _cairo_surface_map_to_image(surface, extents);
-
 	status = image->base.status;
 	if(unlikely(status)) {
 		cairo_surface_destroy(&image->base);
 		return _cairo_surface_create_in_error(status);
 	}
-
 	if(image->format == CAIRO_FORMAT_INVALID) {
 		cairo_surface_destroy(&image->base);
 		image = _cairo_image_surface_clone_subimage(surface, extents);
 	}
-
 	return &image->base;
 }
-
 /**
  * cairo_surface_unmap_image:
  * @surface: the surface passed to cairo_surface_map_to_image().
@@ -706,11 +687,9 @@ cairo_surface_t * cairo_surface_map_to_image(cairo_surface_t * surface,
  *
  * Since: 1.12
  **/
-void cairo_surface_unmap_image(cairo_surface_t * surface,
-    cairo_surface_t * image)
+void cairo_surface_unmap_image(cairo_surface_t * surface, cairo_surface_t * image)
 {
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
-
 	if(unlikely(surface->status)) {
 		status = surface->status;
 		goto error;
@@ -768,7 +747,6 @@ cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * other, cairo_c
 	}
 	return surface;
 }
-
 /**
  * cairo_surface_reference:
  * @surface: a #cairo_surface_t
@@ -927,11 +905,9 @@ slim_hidden_def(cairo_surface_finish);
 void _cairo_surface_release_device_reference(cairo_surface_t * surface)
 {
 	assert(surface->owns_device);
-
 	cairo_device_destroy(surface->device);
 	surface->owns_device = FALSE;
 }
-
 /**
  * cairo_surface_get_user_data:
  * @surface: a #cairo_surface_t
@@ -946,16 +922,13 @@ void _cairo_surface_release_device_reference(cairo_surface_t * surface)
  *
  * Since: 1.0
  **/
-void * cairo_surface_get_user_data(cairo_surface_t * surface,
-    const cairo_user_data_key_t * key)
+void * cairo_surface_get_user_data(cairo_surface_t * surface, const cairo_user_data_key_t * key)
 {
 	/* Prevent reads of the array during teardown */
 	if(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count))
 		return NULL;
-
 	return _cairo_user_data_array_get_data(&surface->user_data, key);
 }
-
 /**
  * cairo_surface_set_user_data:
  * @surface: a #cairo_surface_t
@@ -974,21 +947,14 @@ void * cairo_surface_get_user_data(cairo_surface_t * surface,
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_surface_set_user_data(cairo_surface_t * surface,
-    const cairo_user_data_key_t * key,
-    void * user_data,
-    cairo_destroy_func_t destroy)
+cairo_status_t cairo_surface_set_user_data(cairo_surface_t * surface, const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy)
 {
 	if(CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
 		return surface->status;
-
 	if(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count))
 		return _cairo_error(CAIRO_STATUS_SURFACE_FINISHED);
-
-	return _cairo_user_data_array_set_data(&surface->user_data,
-		   key, user_data, destroy);
+	return _cairo_user_data_array_set_data(&surface->user_data, key, user_data, destroy);
 }
-
 /**
  * cairo_surface_get_mime_data:
  * @surface: a #cairo_surface_t
@@ -1002,21 +968,15 @@ cairo_status_t cairo_surface_set_user_data(cairo_surface_t * surface,
  *
  * Since: 1.10
  **/
-void cairo_surface_get_mime_data(cairo_surface_t * surface,
-    const char * mime_type,
-    const uchar ** data,
-    ulong * length)
+void cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_type, const uchar ** data, ulong * length)
 {
 	cairo_user_data_slot_t * slots;
 	int i, num_slots;
-
 	*data = NULL;
 	*length = 0;
-
 	/* Prevent reads of the array during teardown */
 	if(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count))
 		return;
-
 	/* The number of mime-types attached to a surface is usually small,
 	 * typically zero. Therefore it is quicker to do a strcmp() against
 	 * each key than it is to intern the string (i.e. compute a hash,
@@ -1054,34 +1014,28 @@ static const char * _cairo_surface_image_mime_types[] = {
 	CAIRO_MIME_TYPE_CCITT_FAX,
 };
 
-cairo_bool_t _cairo_surface_has_mime_image(cairo_surface_t * surface)
+cairo_bool_t _cairo_surface_has_mime_image(const cairo_surface_t * surface)
 {
-	cairo_user_data_slot_t * slots;
-	int i, j, num_slots;
-
 	/* Prevent reads of the array during teardown */
 	if(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count))
 		return FALSE;
-
 	/* The number of mime-types attached to a surface is usually small,
 	 * typically zero. Therefore it is quicker to do a strcmp() against
 	 * each key than it is to intern the string (i.e. compute a hash,
 	 * search the hash table, and do a final strcmp).
 	 */
-	num_slots = surface->mime_data.num_elements;
-	slots = (cairo_user_data_slot_t *)_cairo_array_index(&surface->mime_data, 0);
-	for(i = 0; i < num_slots; i++) {
+	const int num_slots = surface->mime_data.num_elements;
+	const cairo_user_data_slot_t * slots = (const cairo_user_data_slot_t *)_cairo_array_index_const(&surface->mime_data, 0);
+	for(int i = 0; i < num_slots; i++) {
 		if(slots[i].key != NULL) {
-			for(j = 0; j < ARRAY_LENGTH(_cairo_surface_image_mime_types); j++) {
-				if(strcmp((char *)slots[i].key, _cairo_surface_image_mime_types[j]) == 0)
+			for(int j = 0; j < ARRAY_LENGTH(_cairo_surface_image_mime_types); j++) {
+				if(strcmp(reinterpret_cast<const char *>(slots[i].key), _cairo_surface_image_mime_types[j]) == 0)
 					return TRUE;
 			}
 		}
 	}
-
 	return FALSE;
 }
-
 /**
  * CAIRO_MIME_TYPE_CCITT_FAX:
  *

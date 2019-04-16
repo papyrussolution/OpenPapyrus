@@ -383,7 +383,7 @@ void xmlSchemaInitTypes()
 		particle->maxOccurs = UNBOUNDED;
 		sequence->children = (xmlSchemaTreeItemPtr)particle;
 		/* The wildcard */
-		wild = (xmlSchemaWildcardPtr)SAlloc::M(sizeof(xmlSchemaWildcard));
+		wild = (xmlSchemaWildcard *)SAlloc::M(sizeof(xmlSchemaWildcard));
 		if(wild == NULL) {
 			xmlSchemaTypeErrMemory(NULL, "allocating wildcard component");
 			return;
@@ -396,7 +396,7 @@ void xmlSchemaInitTypes()
 		/*
 		 * Create the attribute wildcard.
 		 */
-		wild = (xmlSchemaWildcardPtr)SAlloc::M(sizeof(xmlSchemaWildcard));
+		wild = (xmlSchemaWildcard *)SAlloc::M(sizeof(xmlSchemaWildcard));
 		if(wild == NULL) {
 			xmlSchemaTypeErrMemory(NULL, "could not create an attribute wildcard on anyType");
 			return;
@@ -486,7 +486,7 @@ void xmlSchemaCleanupTypes()
 			/* Content type. */
 			particle = (xmlSchemaParticlePtr)xmlSchemaTypeAnyTypeDef->subtypes;
 			/* Wildcard. */
-			xmlSchemaFreeWildcard((xmlSchemaWildcardPtr)particle->children->children->children);
+			xmlSchemaFreeWildcard((xmlSchemaWildcard *)particle->children->children->children);
 			SAlloc::F((xmlSchemaParticlePtr)particle->children->children);
 			/* Sequence model group. */
 			SAlloc::F((xmlSchemaModelGroupPtr)particle->children);

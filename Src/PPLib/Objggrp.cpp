@@ -1626,7 +1626,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjTransport, PPTransport);
 int SLAPI PPObjTransport::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		PPTransport * p_pack = (PPTransport *)p->Data;
+		PPTransport * p_pack = static_cast<PPTransport *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_TRANSPMODEL, &p_pack->TrModelID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->OwnerID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_COUNTRY, &p_pack->CountryID, ary, replace);
@@ -1641,7 +1641,7 @@ int SLAPI PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	int    ok = -1;
 	PPTransport * p_pack = 0;
 	THROW_MEM(p->Data = new PPTransport);
-	p_pack = (PPTransport *)p->Data;
+	p_pack = static_cast<PPTransport *>(p->Data);
 	if(stream == 0) {
 		THROW(Get(id, p_pack) > 0);
 	}
@@ -1655,7 +1655,7 @@ int SLAPI PPObjTransport::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPTransport * p_pack = (PPTransport *)p->Data;
+		PPTransport * p_pack = static_cast<PPTransport *>(p->Data);
 		if(stream == 0) {
 			PPTransport temp_rec;
 			if((*pID || SearchByName(p_pack->Name, pID, 0) > 0) && Get(*pID, &temp_rec) > 0) {
@@ -2112,7 +2112,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjBrand, PPBrand);
 int SLAPI PPObjBrand::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		PPBrand * p_pack = (PPBrand *)p->Data;
+		PPBrand * p_pack = static_cast<PPBrand *>(p->Data);
 		return BIN(ProcessObjRefInArray(PPOBJ_PERSON, &p_pack->OwnerID,ary, replace));
 	}
 	return -1;
@@ -2123,7 +2123,7 @@ int SLAPI PPObjBrand::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	int    ok = -1;
 	PPBrand * p_pack = 0;
 	THROW_MEM(p->Data = new PPBrand);
-	p_pack = (PPBrand *)p->Data;
+	p_pack = static_cast<PPBrand *>(p->Data);
 	if(stream == 0) {
 		PPBrandPacket pack;
 		THROW(Get(id, &pack) > 0);
@@ -2139,7 +2139,7 @@ int SLAPI PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPBrand * p_pack = (PPBrand *)p->Data;
+		PPBrand * p_pack = static_cast<PPBrand *>(p->Data);
 		if(stream == 0) {
 			PPBrandPacket temp_pack;
 			if((*pID || SearchByName(p_pack->Name, pID, 0) > 0) && Get(*pID, &temp_pack) > 0) {

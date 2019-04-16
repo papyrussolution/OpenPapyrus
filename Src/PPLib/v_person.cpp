@@ -2047,7 +2047,7 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					DBConst dbc_long;
 					dbc_long.init(Filt.CityID);
 					cq.push(dbc_long);
-					cq.push((DBFunc)PPDbqFuncPool::IdWorldIsMemb);
+					cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdWorldIsMemb));
 					dbq = & (*dbq && cq == (long)1);
 				}
 			}

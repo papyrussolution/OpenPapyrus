@@ -189,7 +189,7 @@ static cairo_status_t _cairo_win32_printing_surface_acquire_image_pattern(cairo_
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE: 
 			{
-				cairo_surface_t * surf = ((cairo_surface_pattern_t*)pattern)->surface;
+				cairo_surface_t * surf = ((cairo_surface_pattern_t *)pattern)->surface;
 				status =  _cairo_surface_acquire_source_image(surf, &image, image_extra);
 				if(unlikely(status))
 					return status;
@@ -244,7 +244,7 @@ static void _cairo_win32_printing_surface_release_image_pattern(cairo_win32_prin
 	_cairo_pattern_fini(&image_pattern->base);
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE: {
-		    cairo_surface_pattern_t * surf_pat = (cairo_surface_pattern_t*)pattern;
+		    cairo_surface_pattern_t * surf_pat = (cairo_surface_pattern_t *)pattern;
 		    cairo_image_surface_t * image = (cairo_image_surface_t*)surf;
 		    _cairo_surface_release_source_image(surf_pat->surface, image, image_extra);
 	    } break;
@@ -305,7 +305,7 @@ static cairo_bool_t pattern_supported(cairo_win32_printing_surface_t * surface, 
 		case CAIRO_PATTERN_TYPE_LINEAR: return surface->win32.flags & CAIRO_WIN32_SURFACE_CAN_RECT_GRADIENT;
 		case CAIRO_PATTERN_TYPE_RADIAL:
 		case CAIRO_PATTERN_TYPE_MESH: return FALSE;
-		case CAIRO_PATTERN_TYPE_SURFACE: return surface_pattern_supported((cairo_surface_pattern_t*)pattern);
+		case CAIRO_PATTERN_TYPE_SURFACE: return surface_pattern_supported((cairo_surface_pattern_t *)pattern);
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: return TRUE;
 		default: ASSERT_NOT_REACHED; return FALSE;
 	}
@@ -899,7 +899,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_paint_pattern(cairo_win3
 		    break;
 
 		case CAIRO_PATTERN_TYPE_SURFACE: {
-		    cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)pattern;
+		    cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)pattern;
 
 		    if(_cairo_surface_is_recording(surface_pattern->surface))
 			    status = _cairo_win32_printing_surface_paint_recording_pattern(surface, surface_pattern);

@@ -45,29 +45,27 @@ __FBSDID("$FreeBSD$");
  *     entries like these, at the moment care is taken to skip them.
  *
  **/
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_SYS_STAT_H
+//#include <sys/stat.h>
+//#endif
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
-#ifdef HAVE_STDLIB_H
+//#endif
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
-#ifdef HAVE_LIMITS_H
+//#endif
+//#ifdef HAVE_LIMITS_H
 //#include <limits.h>
-#endif
-#ifdef HAVE_CTYPE_H
-#include <ctype.h>
-#endif
+//#endif
+//#ifdef HAVE_CTYPE_H
+	//#include <ctype.h>
+//#endif
 #ifdef HAVE_TIME_H
-#include <time.h>
+	#include <time.h>
 #endif
-
 //#include "archive.h"
 //#include "archive_entry.h"
 //#include "archive_private.h"
@@ -144,8 +142,7 @@ int archive_read_support_format_warc(struct archive * _a)
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_warc");
 	if((w = (struct warc_s *)SAlloc::C(1, sizeof(*w))) == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate warc data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate warc data");
 		return ARCHIVE_FATAL;
 	}
 	r = __archive_read_register_format(a, w, "warc", _warc_bid, NULL, _warc_rdhdr, _warc_read, _warc_skip, NULL, _warc_cleanup, NULL, NULL);
@@ -215,23 +212,18 @@ static int _warc_rdhdr(struct archive_read * a, struct archive_entry * entry)
 	time_t rtime;
 	/* mtime is the Last-Modified time which will be the entry's mtime */
 	time_t mtime;
-
 start_over:
 	/* just use read_ahead() they keep track of unconsumed
 	 * bits and bobs for us; no need to put an extra shift in
 	 * and reproduce that functionality here */
 	buf = (const char *)__archive_read_ahead(a, HDR_PROBE_LEN, &nrd);
-
 	if(nrd < 0) {
 		/* no good */
-		archive_set_error(
-			&a->archive, ARCHIVE_ERRNO_MISC,
-			"Bad record header");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Bad record header");
 		return ARCHIVE_FATAL;
 	}
 	else if(buf == NULL) {
-		/* there should be room for at least WARC/bla\r\n
-		 * must be EOF therefore */
+		// there should be room for at least WARC/bla\r\n must be EOF therefore 
 		return (ARCHIVE_EOF);
 	}
 	/* looks good so far, try and find the end of the header now */
@@ -240,51 +232,38 @@ start_over:
 		/* still no good, the header end might be beyond the
 		 * probe we've requested, but then again who'd cram
 		 * so much stuff into the header *and* be 28500-compliant */
-		archive_set_error(
-			&a->archive, ARCHIVE_ERRNO_MISC,
-			"Bad record header");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Bad record header");
 		return ARCHIVE_FATAL;
 	}
 	ver = _warc_rdver(buf, eoh - buf);
 	/* we currently support WARC 0.12 to 1.0 */
 	if(ver == 0U) {
-		archive_set_error(
-			&a->archive, ARCHIVE_ERRNO_MISC,
-			"Invalid record version");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid record version");
 		return ARCHIVE_FATAL;
 	}
 	else if(ver < 1200U || ver > 10000U) {
-		archive_set_error(
-			&a->archive, ARCHIVE_ERRNO_MISC,
-			"Unsupported record version: %u.%u",
-			ver / 10000, (ver % 10000) / 100);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Unsupported record version: %u.%u", ver / 10000, (ver % 10000) / 100);
 		return ARCHIVE_FATAL;
 	}
 	cntlen = _warc_rdlen(buf, eoh - buf);
 	if(cntlen < 0) {
 		/* nightmare!  the specs say content-length is mandatory
 		* so I don't feel overly bad stopping the reader here */
-		archive_set_error(
-			&a->archive, EINVAL,
-			"Bad content length");
+		archive_set_error(&a->archive, EINVAL, "Bad content length");
 		return ARCHIVE_FATAL;
 	}
 	rtime = _warc_rdrtm(buf, eoh - buf);
 	if(rtime == (time_t)-1) {
 		/* record time is mandatory as per WARC/1.0,
 		 * so just barf here, fast and loud */
-		archive_set_error(
-			&a->archive, EINVAL,
-			"Bad record time");
+		archive_set_error(&a->archive, EINVAL, "Bad record time");
 		return ARCHIVE_FATAL;
 	}
-
 	/* let the world know we're a WARC archive */
 	a->archive.archive_format = ARCHIVE_FORMAT_WARC;
 	if(ver != w->pver) {
 		/* stringify this entry's version */
-		archive_string_sprintf(&w->sver,
-		    "WARC/%u.%u", ver / 10000, (ver % 10000) / 100);
+		archive_string_sprintf(&w->sver, "WARC/%u.%u", ver / 10000, (ver % 10000) / 100);
 		/* remember the version */
 		w->pver = ver;
 	}

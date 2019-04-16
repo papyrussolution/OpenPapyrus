@@ -357,12 +357,12 @@ int SLAPI PPObjSecur::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPSecurPacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPSecurPacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPSecurPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, (PPSecurPacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPSecurPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -372,7 +372,7 @@ int SLAPI PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPSecurPacket * p_pack = (PPSecurPacket *)p->Data;
+		PPSecurPacket * p_pack = static_cast<PPSecurPacket *>(p->Data);
 		if(stream == 0) {
 			if(oneof2(p_pack->Secur.Tag, PPOBJ_USR, PPOBJ_USRGRP)) {
 				PPID   same_id = 0;
@@ -406,7 +406,7 @@ int SLAPI PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 int SLAPI PPObjSecur::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		PPSecurPacket * p_pack = (PPSecurPacket * )p->Data;
+		PPSecurPacket * p_pack = static_cast<PPSecurPacket *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_USRGRP,   &p_pack->Secur.ParentID,    ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Secur.PersonID,    ary, replace);
 		return 1;
@@ -774,16 +774,16 @@ int SLAPI UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPSecur * p_data_rec = (PPSecur *)pDataRec;
+	PPSecur * p_data_rec = static_cast<PPSecur *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = ObjType;
 	p_data_rec->ID    = p_cache_rec->ID;
 	p_data_rec->PersonID = p_cache_rec->PersonID;
 	p_data_rec->ParentID = p_cache_rec->ParentID;
-	p_data_rec->UerID = p_cache_rec->UerID; // @v8.6.1
+	p_data_rec->UerID = p_cache_rec->UerID;
 	p_data_rec->Flags = p_cache_rec->Flags;
-	p_data_rec->UerFlags = p_cache_rec->UerFlags; // @v8.6.1
+	p_data_rec->UerFlags = p_cache_rec->UerFlags;
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 }
 // }

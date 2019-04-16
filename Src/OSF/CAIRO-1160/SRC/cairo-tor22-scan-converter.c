@@ -639,7 +639,7 @@ inline static void cell_list_reset(struct cell_list * cells)
 
 inline static struct cell * cell_list_alloc(struct cell_list * cells, struct cell * tail, int x)
 {
-	struct cell * cell = (struct cell * )pool_alloc(cells->cell_pool.base, sizeof(struct cell));
+	struct cell * cell = (struct cell *)pool_alloc(cells->cell_pool.base, sizeof(struct cell));
 	cell->next = tail->next;
 	tail->next = cell;
 	cell->x = x;
@@ -1466,7 +1466,7 @@ static cairo_status_t _cairo_tor22_scan_converter_generate(void * converter, cai
 cairo_scan_converter_t * _cairo_tor22_scan_converter_create(int xmin, int ymin, int xmax, int ymax, cairo_fill_rule_t fill_rule, cairo_antialias_t antialias)
 {
 	cairo_status_t status;
-	cairo_tor22_scan_converter_t * self = (cairo_tor22_scan_converter_t * )_cairo_malloc(sizeof(struct _cairo_tor22_scan_converter));
+	cairo_tor22_scan_converter_t * self = (cairo_tor22_scan_converter_t *)_cairo_malloc(sizeof(struct _cairo_tor22_scan_converter));
 	if(unlikely(self == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;

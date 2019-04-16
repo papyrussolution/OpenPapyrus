@@ -1290,7 +1290,7 @@ private:
 			}
 			else if(event.isCmd(cmTransmitCharry)) {
 				PPIDArray id_list;
-				PPObjLocation & r_obj = *(PPObjLocation *)P_Obj;
+				PPObjLocation & r_obj = *static_cast<PPObjLocation *>(P_Obj);
 				StrAssocArray * p_list = r_obj.MakeList_(0);
 				if(p_list) {
 					for(uint i = 0; i < p_list->getCount(); i++) {
@@ -2545,7 +2545,7 @@ int SLAPI PPObjLocation::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPLocationPacket);
 	{
-		PPLocationPacket * p_pack = (PPLocationPacket *)p->Data;
+		PPLocationPacket * p_pack = static_cast<PPLocationPacket *>(p->Data);
 		if(stream == 0) {
 			THROW(GetPacket(id, p_pack) > 0);
 			if(p_pack->Type == LOCTYP_ADDRESS)
@@ -2565,7 +2565,7 @@ int SLAPI PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 {
 	int    ok = 1, r = 1;
 	if(p && p->Data) {
-		PPLocationPacket * p_pack = (PPLocationPacket *)p->Data;
+		PPLocationPacket * p_pack = static_cast<PPLocationPacket *>(p->Data);
 		if(stream == 0) {
 			PPID   same_id = 0;
 			LocationTbl::Rec same_rec;
@@ -2633,7 +2633,7 @@ int SLAPI PPObjLocation::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPLocationPacket * p_pack = (PPLocationPacket *)p->Data;
+		PPLocationPacket * p_pack = static_cast<PPLocationPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_LOCATION, &p_pack->ParentID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_WORLD,    &p_pack->CityID,   ary, replace));
 		{
@@ -3302,7 +3302,7 @@ PPID FASTCALL LocationCache::WarehouseToObj(PPID locID, int ignoreRights)
 int SLAPI LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	LocationData * p_cache_rec = (LocationData *)pEntry;
+	LocationData * p_cache_rec = static_cast<LocationData *>(pEntry);
 	PPObjLocation loc_obj(SConstructorLite);
 	LocationTbl::Rec rec;
 	if(loc_obj.Search(id, &rec) > 0) {
@@ -3335,8 +3335,8 @@ int SLAPI LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	LocationTbl::Rec * p_data_rec = (LocationTbl::Rec *)pDataRec;
-	const LocationData * p_cache_rec = (const LocationData *)pEntry;
+	LocationTbl::Rec * p_data_rec = static_cast<LocationTbl::Rec *>(pDataRec);
+	const LocationData * p_cache_rec = static_cast<const LocationData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->ID       = p_cache_rec->ID;
 	p_data_rec->ParentID = p_cache_rec->ParentID;

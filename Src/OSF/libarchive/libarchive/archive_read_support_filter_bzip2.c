@@ -35,9 +35,9 @@ __FBSDID("$FreeBSD$");
 //#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
 //#endif
-#ifdef HAVE_STRING_H
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
+//#endif
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
@@ -85,13 +85,9 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * reader;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_bzip2");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_bzip2");
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	reader->data = NULL;
 	reader->name = "bzip2";
 	reader->bid = bzip2_reader_bid;
@@ -101,17 +97,16 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 	return ARCHIVE_OK;
 #else
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external bzip2 program");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external bzip2 program");
 	return (ARCHIVE_WARN);
 #endif
 }
 
-static int bzip2_reader_free(struct archive_read_filter_bidder * self){
+static int bzip2_reader_free(struct archive_read_filter_bidder * self)
+{
 	(void)self; /* UNUSED */
 	return ARCHIVE_OK;
 }
-
 /*
  * Test whether we can handle this data.
  *
@@ -124,25 +119,20 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
 	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
-
 	(void)self; /* UNUSED */
-
 	/* Minimal bzip2 archive is 14 bytes. */
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 14, &avail);
 	if(!buffer)
 		return 0;
-
 	/* First three bytes must be "BZh" */
 	bits_checked = 0;
 	if(memcmp(buffer, "BZh", 3) != 0)
 		return 0;
 	bits_checked += 24;
-
 	/* Next follows a compression flag which must be an ASCII digit. */
 	if(buffer[3] < '1' || buffer[3] > '9')
 		return 0;
 	bits_checked += 5;
-
 	/* After BZh[1-9], there must be either a data block
 	 * which begins with 0x314159265359 or an end-of-data
 	 * marker of 0x177245385090. */
@@ -152,12 +142,10 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
 		bits_checked += 48;
 	else
 		return 0;
-
 	return (bits_checked);
 }
 
 #if !defined(HAVE_BZLIB_H) || !defined(BZ_CONFIG_ERROR)
-
 /*
  * If we don't have the library on this system, we can't actually do the
  * decompression.  We can, however, still detect compressed archives
@@ -165,9 +153,7 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
  */
 static int bzip2_reader_init(struct archive_read_filter * self)
 {
-	int r;
-
-	r = __archive_read_program(self, "bzip2 -d");
+	int r = __archive_read_program(self, "bzip2 -d");
 	/* Note: We set the format here even if __archive_read_program()
 	 * above fails.  We do, after all, know what the format is
 	 * even if we weren't able to read it. */
@@ -175,9 +161,7 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 	self->name = "bzip2";
 	return r;
 }
-
 #else
-
 /*
  * Setup the callbacks.
  */

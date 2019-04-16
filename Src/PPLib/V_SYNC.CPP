@@ -353,7 +353,7 @@ DBQuery * SLAPI PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_commid.init();
 		dbe_commid.push(t->CommIdPfx);
 		dbe_commid.push(t->CommID);
-		dbe_commid.push((DBFunc)PPDbqFuncPool::IdCommSyncId);
+		dbe_commid.push(static_cast<DBFunc>(PPDbqFuncPool::IdCommSyncId));
 	}
 	PPDbqFuncPool::InitLongFunc(dbe_objtitle, PPDbqFuncPool::IdObjTitle, t->ObjType);
 	q = & select(
@@ -672,7 +672,7 @@ DBQuery * SLAPI PPViewObjSyncCmp::CreateBrowserQuery(uint * pBrwId, SString * pS
 		dbe_commid.init();
 		dbe_commid.push(p_t->CommIdPfx);
 		dbe_commid.push(p_t->CommID);
-		dbe_commid.push((DBFunc)PPDbqFuncPool::IdCommSyncId);
+		dbe_commid.push(static_cast<DBFunc>(PPDbqFuncPool::IdCommSyncId));
 	}
 	q = & select(
 		p_t->ObjType,   // #0
@@ -872,7 +872,7 @@ DBQuery * SLAPI PPViewObjSyncQueue::CreateBrowserQuery(uint * pBrwId, SString * 
 		dbe_commid.init();
 		dbe_commid.push(p_t->CommIdPfx);
 		dbe_commid.push(p_t->CommID);
-		dbe_commid.push((DBFunc)PPDbqFuncPool::IdCommSyncId);
+		dbe_commid.push(static_cast<DBFunc>(PPDbqFuncPool::IdCommSyncId));
 	}
 	PPDbqFuncPool::InitLongFunc(dbe_objtitle, PPDbqFuncPool::IdObjTitle, p_t->ObjType);
 	q = &select(

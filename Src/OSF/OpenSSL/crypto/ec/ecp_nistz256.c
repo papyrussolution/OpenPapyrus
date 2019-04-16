@@ -1432,21 +1432,16 @@ __owur static int ecp_nistz256_get_affine(const EC_GROUP * group,
 static NISTZ256_PRE_COMP * ecp_nistz256_pre_comp_new(const EC_GROUP * group)
 {
 	NISTZ256_PRE_COMP * ret = NULL;
-
 	if(!group)
 		return NULL;
-
-	ret = (NISTZ256_PRE_COMP * )OPENSSL_zalloc(sizeof(*ret));
-
+	ret = (NISTZ256_PRE_COMP *)OPENSSL_zalloc(sizeof(*ret));
 	if(!ret) {
 		ECerr(EC_F_ECP_NISTZ256_PRE_COMP_NEW, ERR_R_MALLOC_FAILURE);
 		return ret;
 	}
-
 	ret->group = group;
 	ret->w = 6;             /* default */
 	ret->references = 1;
-
 	ret->lock = CRYPTO_THREAD_lock_new();
 	if(ret->lock == NULL) {
 		ECerr(EC_F_ECP_NISTZ256_PRE_COMP_NEW, ERR_R_MALLOC_FAILURE);

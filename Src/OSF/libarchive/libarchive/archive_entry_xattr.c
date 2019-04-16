@@ -25,28 +25,27 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 02:41:27Z kientzle $");
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
+//#ifdef HAVE_SYS_STAT_H
+	//#include <sys/stat.h>
+//#endif
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
-#ifdef HAVE_LIMITS_H
+//#ifdef HAVE_LIMITS_H
 //#include <limits.h>
-#endif
+//#endif
 #ifdef HAVE_LINUX_FS_H
-#include <linux/fs.h>   /* for Linux file flags */
+	#include <linux/fs.h>   /* for Linux file flags */
 #endif
 /*
  * Some Linux distributions have both linux/ext2_fs.h and ext2fs/ext2_fs.h.
  * As the include guards don't agree, the order of include is important.
  */
 #ifdef HAVE_LINUX_EXT2_FS_H
-#include <linux/ext2_fs.h>      /* for Linux file flags */
+	#include <linux/ext2_fs.h>      /* for Linux file flags */
 #endif
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
-#include <ext2fs/ext2_fs.h>     /* for Linux file flags */
+	#include <ext2fs/ext2_fs.h>     /* for Linux file flags */
 #endif
 #include <stddef.h>
 //#include <stdio.h>

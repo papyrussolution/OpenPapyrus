@@ -1738,14 +1738,14 @@ int ImportCls::ParseAperakResp()
 			p_node = p_node->next;
 		else {
 			xmlNode * p_node_2 = 0;
-			while(p_node && p_node->parent && !exit_while) {
-				p_node_2 = p_node->parent->next;
+			while(p_node && p_node->P_ParentNode && !exit_while) {
+				p_node_2 = p_node->P_ParentNode->next;
 				if(p_node_2) {
 					p_node = p_node_2;
 					exit_while = 1;
 				}
 				else
-					p_node = p_node->parent;
+					p_node = p_node->P_ParentNode;
 			}
 		}
 		exit_while = 0;
@@ -1855,14 +1855,14 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 			p_node = p_node->next;
 		else {
 			xmlNode * p_node_2 = 0;
-			while(p_node && p_node->parent && !exit_while) {
-				p_node_2 = p_node->parent->next;
+			while(p_node && p_node->P_ParentNode && !exit_while) {
+				p_node_2 = p_node->P_ParentNode->next;
 				if(p_node_2) {
 					p_node = p_node_2;
 					exit_while = 1;
 				}
 				else
-					p_node = p_node->parent;
+					p_node = p_node->P_ParentNode;
 			}
 		}
 		exit_while = 0;
@@ -2063,19 +2063,19 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 				p_node = p_node->next;
 			else {
 				xmlNode * p_node_2 = 0;
-				while(p_node && p_node->parent && !exit_while) {
-					p_node_2 = p_node->parent->next;
+				while(p_node && p_node->P_ParentNode && !exit_while) {
+					p_node_2 = p_node->P_ParentNode->next;
 					if(p_node_2) {
 						p_node = p_node_2;
 						exit_while = 1;
 					}
 					else
-						p_node = p_node->parent;
+						p_node = p_node->P_ParentNode;
 				}
 			}
 			exit_while = 0;
 			// Благодаря индексу считываем разные товарные позиции
-			if(p_node && (p_node->type == XML_READER_TYPE_ELEMENT)) {
+			if(p_node && p_node->type == XML_READER_TYPE_ELEMENT) {
 				if(sstreq(p_node->name, goods_segment) && p_node->children) {
 					if(index == (Itr.GetCount() + 1)) {
 						while(p_node && !sg26_end) {
@@ -2086,14 +2086,14 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 								p_node = p_node->next;
 							else {
 								xmlNode * p_node_2 = 0;
-								while(p_node && p_node->parent && !exit_while) {
-									p_node_2 = p_node->parent->next;
+								while(p_node && p_node->P_ParentNode && !exit_while) {
+									p_node_2 = p_node->P_ParentNode->next;
 									if(p_node_2) {
 										p_node = p_node_2;
 										exit_while = 1;
 									}
 									else
-										p_node = p_node->parent;
+										p_node = p_node->P_ParentNode;
 								}
 							}
 							if(p_node) {

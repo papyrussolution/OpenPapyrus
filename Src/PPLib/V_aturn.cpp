@@ -783,7 +783,7 @@ DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			DBConst c_temp;
 			c_temp.init((long)&Filt);
 			dbe_rel_restrict.push(c_temp);
-			dbe_rel_restrict.push((DBFunc)PPViewAccturn::DynFuncCheckRelRestrictions);
+			dbe_rel_restrict.push(static_cast<DBFunc>(PPViewAccturn::DynFuncCheckRelRestrictions));
 		}
 		q = & select(
 			at->Bill,               // #00

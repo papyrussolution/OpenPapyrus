@@ -3310,7 +3310,7 @@ TRIO_PUBLIC trio_pointer_t trio_register(trio_callback_t callback, const char * 
 			}
 			// Initialize 
 			def->callback = callback;
-			def->name = (name == NULL) ? NULL : trio_duplicate(name);
+			def->name = !name ? NULL : trio_duplicate(name);
 			def->next = NULL;
 			if(internalLeaveCriticalRegion)
 				internalLeaveCriticalRegion(NULL);

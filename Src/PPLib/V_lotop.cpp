@@ -1,5 +1,5 @@
 // V_LOTOP.CPP
-// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -127,7 +127,7 @@ DBQuery * SLAPI PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		dbe_price.push(trf->Cost);
 		dbe_price.push(trf->Price);
 		dbe_price.push(trf->Discount);
-		dbe_price.push((DBFunc)PPDbqFuncPool::IdTrfrPrice);
+		dbe_price.push(static_cast<DBFunc>(PPDbqFuncPool::IdTrfrPrice));
 	}
 	if(Filt.Flags & LotOpFilt::fZeroLotOps) {
 		brw_id = BROWSER_ZEROLOTOPS;

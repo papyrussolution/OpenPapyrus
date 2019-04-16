@@ -3007,7 +3007,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 	else {
 		if(p_array) {
 			p_array->SortByText();
-			((StrAssocListBoxDef *)pDef)->setArray(p_array);
+			static_cast<StrAssocListBoxDef *>(pDef)->setArray(p_array);
 		}
 		p_def = pDef;
 	}
@@ -3027,7 +3027,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 // virtual
 StrAssocArray * SLAPI PPObjGoods::MakeStrAssocList(void * extraPtr)
 {
-	StrAssocListBoxDef * p_def = (StrAssocListBoxDef*)PPObjGoods::Selector(extraPtr);
+	StrAssocListBoxDef * p_def = static_cast<StrAssocListBoxDef *>(PPObjGoods::Selector(extraPtr));
 	StrAssocArray * p_ret_list = 0;
 	if(p_def) {
 		p_ret_list = new StrAssocArray;
@@ -3522,7 +3522,7 @@ int SLAPI PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 {
 	if(p && p->Data) {
 		uint   i;
-		PPGoodsPacket * gp = (PPGoodsPacket*)p->Data;
+		PPGoodsPacket * gp = static_cast<PPGoodsPacket *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_GOODSGROUP, &gp->Rec.ParentID,    ary, replace);
 		ProcessObjRefInArray(PPOBJ_GOODSTYPE,  &gp->Rec.GoodsTypeID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_UNIT,       &gp->Rec.UnitID,      ary, replace);
@@ -3670,7 +3670,7 @@ int SLAPI PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPGoodsPacket);
-	PPGoodsPacket * gp = (PPGoodsPacket*)p->Data;
+	PPGoodsPacket * gp = static_cast<PPGoodsPacket *>(p->Data);
 	if(stream == 0) {
 		PPGoodsConfig cfg;
 		THROW(GetPacket(id, gp, 0) > 0);
@@ -3823,7 +3823,7 @@ int SLAPI PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGoodsPacket * gp = (PPGoodsPacket*)p->Data;
+		PPGoodsPacket * gp = static_cast<PPGoodsPacket *>(p->Data);
 		if(stream == 0) {
 			Goods2Tbl::Rec temp_rec;
 			if((*pID || SearchMaxLike(gp, pID) > 0) && Search(*pID, &temp_rec) > 0) {

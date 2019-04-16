@@ -305,7 +305,7 @@ static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode *
 				/* unroll to speed up freeing the document */
 				if(cur->type != XML_DTD_NODE) {
 					if(cur->children && (cur->type != XML_ENTITY_REF_NODE)) {
-						if(cur->children->parent == cur)
+						if(cur->children->P_ParentNode == cur)
 							xmlTextReaderFreeNodeList(reader, cur->children); // @recursion
 						cur->children = NULL;
 					}
@@ -361,7 +361,7 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 		return;
 	}
 	if(cur->children && (cur->type != XML_ENTITY_REF_NODE)) {
-		if(cur->children->parent == cur)
+		if(cur->children->P_ParentNode == cur)
 			xmlTextReaderFreeNodeList(reader, cur->children);
 		cur->children = NULL;
 	}
@@ -950,7 +950,7 @@ static void FASTCALL xmlTextReaderValidateEntity(xmlTextReader * reader)
 			continue;
 		}
 		do {
-			p_node = p_node->parent;
+			p_node = p_node->P_ParentNode;
 			if(p_node->type == XML_ELEMENT_NODE) {
 				xmlNode * tmp;
 				if(reader->entNr == 0) {
@@ -997,7 +997,7 @@ static xmlNode * FASTCALL xmlTextReaderGetSuccessor(xmlNode * cur)
 			return cur->next;
 		else {
 			do {
-				cur = cur->parent;
+				cur = cur->P_ParentNode;
 				if(!cur)
 					break;
 				if(cur->next)
@@ -1159,7 +1159,7 @@ get_next_node:
 	    ((oldstate == XML_TEXTREADER_BACKTRACK) || !reader->P_Node->children || (reader->P_Node->type == XML_ENTITY_REF_NODE) ||
 		    (reader->P_Node->children && (reader->P_Node->children->type == XML_TEXT_NODE) && !reader->P_Node->children->next) ||
 		    oneof3(reader->P_Node->type, XML_DTD_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) && (!reader->ctxt->P_Node ||
-		    (reader->ctxt->P_Node == reader->P_Node) || (reader->ctxt->P_Node == reader->P_Node->parent)) && (reader->ctxt->instate != XML_PARSER_EOF)) {
+		    (reader->ctxt->P_Node == reader->P_Node) || (reader->ctxt->P_Node == reader->P_Node->P_ParentNode)) && (reader->ctxt->instate != XML_PARSER_EOF)) {
 		val = xmlTextReaderPushData(reader);
 		if(val < 0) {
 			reader->mode = XML_TEXTREADER_MODE_ERROR;
@@ -1223,7 +1223,7 @@ get_next_node:
 #endif /* LIBXML_REGEXP_ENABLED */
 	if(reader->preserves > 0 && (reader->P_Node->extra & NODE_IS_SPRESERVED))
 		reader->preserves--;
-	reader->P_Node = reader->P_Node->parent;
+	reader->P_Node = reader->P_Node->P_ParentNode;
 	if(!reader->P_Node || (reader->P_Node->type == XML_DOCUMENT_NODE) ||
 #ifdef LIBXML_DOCB_ENABLED
 	    (reader->P_Node->type == XML_DOCB_DOCUMENT_NODE) ||
@@ -1629,12 +1629,12 @@ static int xmlTextReaderNextTree(xmlTextReader * reader)
 		reader->state = XML_TEXTREADER_START;
 		return 1;
 	}
-	if(reader->P_Node->parent != 0) {
-		if(reader->P_Node->parent->type == XML_DOCUMENT_NODE) {
+	if(reader->P_Node->P_ParentNode != 0) {
+		if(reader->P_Node->P_ParentNode->type == XML_DOCUMENT_NODE) {
 			reader->state = XML_TEXTREADER_END;
 			return 0;
 		}
-		reader->P_Node = reader->P_Node->parent;
+		reader->P_Node = reader->P_Node->P_ParentNode;
 		reader->depth--;
 		reader->state = XML_TEXTREADER_BACKTRACK;
 		/* Repeat process to move to sibling of parent node if present */
@@ -1687,13 +1687,13 @@ next_node:
 		goto found_node;
 	}
 
-	if(reader->P_Node->parent) {
-		if((reader->P_Node->parent->type == XML_DOCUMENT_NODE) || (reader->P_Node->parent->type == XML_HTML_DOCUMENT_NODE)) {
+	if(reader->P_Node->P_ParentNode) {
+		if((reader->P_Node->P_ParentNode->type == XML_DOCUMENT_NODE) || (reader->P_Node->P_ParentNode->type == XML_HTML_DOCUMENT_NODE)) {
 			reader->state = XML_TEXTREADER_END;
 			return 0;
 		}
 		else {
-			reader->P_Node = reader->P_Node->parent;
+			reader->P_Node = reader->P_Node->P_ParentNode;
 			reader->depth--;
 			reader->state = XML_TEXTREADER_BACKTRACK;
 			goto found_node;
@@ -3311,7 +3311,7 @@ xmlNode * xmlTextReaderPreserve(xmlTextReader * reader)
 				cur->extra |= NODE_IS_SPRESERVED;
 			}
 			reader->preserves++;
-			for(xmlNode * parent = cur->parent; parent; parent = parent->parent) {
+			for(xmlNode * parent = cur->P_ParentNode; parent; parent = parent->P_ParentNode) {
 				if(parent->type == XML_ELEMENT_NODE)
 					parent->extra |= NODE_IS_PRESERVED;
 			}

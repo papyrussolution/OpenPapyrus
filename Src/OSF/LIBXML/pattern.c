@@ -468,7 +468,7 @@ restart:
 			case XML_OP_ROOT:
 			    if(P_Node->type == XML_NAMESPACE_DECL)
 				    goto rollback;
-			    P_Node = P_Node->parent;
+			    P_Node = P_Node->P_ParentNode;
 			    if((P_Node->type == XML_DOCUMENT_NODE) ||
 #ifdef LIBXML_DOCB_ENABLED
 			    (P_Node->type == XML_DOCB_DOCUMENT_NODE) ||
@@ -543,7 +543,7 @@ restart:
 #endif
 			    (P_Node->type == XML_NAMESPACE_DECL))
 				    goto rollback;
-			    P_Node = P_Node->parent;
+			    P_Node = P_Node->P_ParentNode;
 			    if(!P_Node)
 				    goto rollback;
 			    if(!step->value)
@@ -584,7 +584,7 @@ restart:
 #endif
 			    (P_Node->type == XML_NAMESPACE_DECL))
 				    goto rollback;
-			    P_Node = P_Node->parent;
+			    P_Node = P_Node->P_ParentNode;
 			    while(P_Node) {
 				    if((P_Node->type == XML_ELEMENT_NODE) && (step->value[0] == P_Node->name[0]) && (sstreq(step->value, P_Node->name))) {
 					    /* Namespace test */
@@ -597,7 +597,7 @@ restart:
 							    break;
 					    }
 				    }
-				    P_Node = P_Node->parent;
+				    P_Node = P_Node->P_ParentNode;
 			    }
 			    if(!P_Node)
 				    goto rollback;
@@ -1712,7 +1712,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 		return -1;
 	while(stream) {
 		comp = stream->comp;
-		if((nodeType == XML_ELEMENT_NODE) && (name == NULL) && (ns == NULL)) {
+		if((nodeType == XML_ELEMENT_NODE) && !name && (ns == NULL)) {
 			/* We have a document node here (or a reset). */
 			stream->nbState = 0;
 			stream->level = 0;

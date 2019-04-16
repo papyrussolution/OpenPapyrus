@@ -1186,7 +1186,7 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttr * cur)
 				xmlFreeNode(cur->children);
 			cur->children = xmlNewText(cur->name);
 			if(cur->children)
-				cur->children->parent = (xmlNode *)cur;
+				cur->children->P_ParentNode = (xmlNode *)cur;
 		}
 		xmlAttrDumpOutput(ctxt, cur);
 		cur = cur->next;
@@ -1403,8 +1403,8 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 	}
 	if(cur->properties)
 		xhtmlAttrListDumpOutput(ctxt, cur->properties);
-	if((cur->type == XML_ELEMENT_NODE) && cur->parent && (cur->parent->parent == (xmlNode *)cur->doc) &&
-	    sstreq(cur->name, "head") && sstreq(cur->parent->name, "html")) {
+	if((cur->type == XML_ELEMENT_NODE) && cur->P_ParentNode && (cur->P_ParentNode->P_ParentNode == (xmlNode *)cur->doc) &&
+	    sstreq(cur->name, "head") && sstreq(cur->P_ParentNode->name, "html")) {
 		tmp = cur->children;
 		while(tmp) {
 			if(sstreq(tmp->name, "meta")) {

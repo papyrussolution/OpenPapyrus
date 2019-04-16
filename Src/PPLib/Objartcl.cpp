@@ -1052,7 +1052,7 @@ SLAPI PPObjArticle::PPObjArticle(void * extraPtr) : PPObject(PPOBJ_ARTICLE), Ext
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
-	RVALUEPTR(CurrFilt, (ArticleFilt *)ExtraPtr);
+	RVALUEPTR(CurrFilt, static_cast<ArticleFilt *>(ExtraPtr));
 }
 
 SLAPI PPObjArticle::~PPObjArticle()
@@ -1061,14 +1061,9 @@ SLAPI PPObjArticle::~PPObjArticle()
 }
 
 int SLAPI PPObjArticle::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
-
+	{ return SearchByID(P_Tbl, Obj, id, b); }
 int SLAPI PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
-{
-	return P_Tbl->SearchFreeNum(accSheetID, pID);
-}
+	{ return P_Tbl->SearchFreeNum(accSheetID, pID); }
 
 //static
 int SLAPI PPObjArticle::GetSearchingRegTypeID(PPID accSheetID, const char * pRegTypeCode, int useBillConfig, PPID * pRegTypeID)
@@ -1170,15 +1165,10 @@ int SLAPI PPObjArticle::DeleteObj(PPID id)
 
 // static
 int SLAPI PPObjArticle::PutAliasSubst(PPID arID, const LAssocArray * pList, int use_ta)
-{
-	return PPRef->PutPropArray(PPOBJ_ARTICLE, arID, ARTPRP_ALIASSUBST, pList, use_ta);
-}
-
+	{ return PPRef->PutPropArray(PPOBJ_ARTICLE, arID, ARTPRP_ALIASSUBST, pList, use_ta); }
 // static
 int SLAPI PPObjArticle::GetAliasSubst(PPID arID, LAssocArray * pList)
-{
-	return PPRef->GetPropArray(PPOBJ_ARTICLE, arID, ARTPRP_ALIASSUBST, pList);
-}
+	{ return PPRef->GetPropArray(PPOBJ_ARTICLE, arID, ARTPRP_ALIASSUBST, pList); }
 
 int SLAPI PPObjArticle::Helper_PutAgreement(PPID id, PPArticlePacket * pPack)
 {
@@ -1852,7 +1842,6 @@ int SLAPI PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 		}
 		if(ap->P_SupplAgt) {
 			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &ap->P_SupplAgt->DefAgentID, ary, replace));
-			//
 			THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &ap->P_SupplAgt->Ep.GoodsGrpID, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_OPRKIND,    &ap->P_SupplAgt->Ep.ExpendOp, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_OPRKIND,    &ap->P_SupplAgt->Ep.RcptOp, ary, replace));
@@ -1861,7 +1850,6 @@ int SLAPI PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 			THROW(ProcessObjRefInArray(PPOBJ_OPRKIND,    &ap->P_SupplAgt->Ep.MovInOp, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_OPRKIND,    &ap->P_SupplAgt->Ep.MovOutOp, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_QUOTKIND,   &ap->P_SupplAgt->Ep.PriceQuotID, ary, replace));
-			//
 			for(uint i = 0; i < ap->P_SupplAgt->OrderParamList.getCount(); i++) {
 				PPSupplAgreement::OrderParamEntry & r_entry = ap->P_SupplAgt->OrderParamList.at(i);
 				THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &r_entry.GoodsGrpID, ary, replace));
@@ -1964,15 +1952,13 @@ int SLAPI PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack, PPIDArra
 				const PPID id = ar_id_list.get(i);
 				if(Search(id, &ar_rec) > 0) {
 					THROW(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0);
-					{
-						int exists = pPack->Kinds.lsearch(acs_rec.ObjGroup);
-						if(!exists) {
-							if(pAbsentKinds) {
-								pAbsentKinds->add(acs_rec.ObjGroup);
-							}
-							else {
-								CALLEXCEPT_PP_S(PPERR_AR_INVLINKPERSONKIND, acs_rec.Name); // @v10.3.0 acs_rec.Name
-							}
+					const int exists = pPack->Kinds.lsearch(acs_rec.ObjGroup);
+					if(!exists) {
+						if(pAbsentKinds) {
+							pAbsentKinds->add(acs_rec.ObjGroup);
+						}
+						else {
+							CALLEXCEPT_PP_S(PPERR_AR_INVLINKPERSONKIND, acs_rec.Name); // @v10.3.0 acs_rec.Name
 						}
 					}
 				}
@@ -2065,14 +2051,11 @@ int SLAPI ArticleCache::IsSupplVatFree(PPID supplID)
 {
 	int    ok = -1;
 	if(supplID) {
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(IsVatFreeListInited) {
 			ok = VatFreeSupplList.bsearch(supplID) ? 1 : -1;
 		}
 		else {
-			//RwL.Unlock();
-			//RwL.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!IsVatFreeListInited) {
 				PPObjPerson  psn_obj;
@@ -2088,7 +2071,6 @@ int SLAPI ArticleCache::IsSupplVatFree(PPID supplID)
 					ok = 0;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -2130,7 +2112,7 @@ int SLAPI ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	ArticleTbl::Rec * p_data_rec = (ArticleTbl::Rec *)pDataRec;
+	ArticleTbl::Rec * p_data_rec = static_cast<ArticleTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->ID       = p_cache_rec->ID;
@@ -2457,7 +2439,7 @@ int  SLAPI PPObjDebtDim::Read(PPObjPack *p, PPID id, void * stream, ObjTransmCon
 int  SLAPI PPObjDebtDim::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	PPDebtDimPacket * p_pack = (PPDebtDimPacket *)p->Data;
+	PPDebtDimPacket * p_pack = static_cast<PPDebtDimPacket *>(p->Data);
 	THROW(p && p->Data);
 	if(stream == 0) {
 		int    is_new = 0;
@@ -2482,7 +2464,7 @@ int  SLAPI PPObjDebtDim::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPDebtDimPacket * p_pack = (PPDebtDimPacket*)p->Data;
+		PPDebtDimPacket * p_pack = static_cast<PPDebtDimPacket *>(p->Data);
 		int    do_replace_list = 0;
 		PPIDArray temp_list;
 		for(uint i = 0; i < p_pack->AgentList.GetCount(); i++) {
@@ -2635,7 +2617,7 @@ public:
 int SLAPI DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	DebtDimData * p_cache_rec = (DebtDimData *)pEntry;
+	DebtDimData * p_cache_rec = static_cast<DebtDimData *>(pEntry);
 	PPObjDebtDim dd_obj;
 	PPDebtDim rec;
 	if(dd_obj.Search(id, &rec) > 0) {
@@ -2655,8 +2637,8 @@ int SLAPI DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPDebtDim * p_data_rec = (PPDebtDim *)pDataRec;
-	const DebtDimData * p_cache_rec = (const DebtDimData *)pEntry;
+	PPDebtDim * p_data_rec = static_cast<PPDebtDim *>(pDataRec);
+	const DebtDimData * p_cache_rec = static_cast<const DebtDimData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_DEBTDIM;

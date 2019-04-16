@@ -1054,7 +1054,7 @@ static cairo_int_status_t _cairo_pdf_surface_acquire_source_image_from_pattern(c
 {
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE: {
-		    cairo_surface_pattern_t * surf_pat = (cairo_surface_pattern_t*)pattern;
+		    cairo_surface_pattern_t * surf_pat = (cairo_surface_pattern_t *)pattern;
 		    return _cairo_surface_acquire_source_image(surf_pat->surface, image, image_extra);
 	    } break;
 
@@ -1086,7 +1086,7 @@ static void _cairo_pdf_surface_release_source_image_from_pattern(cairo_pdf_surfa
 {
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE: {
-		    cairo_surface_pattern_t * surf_pat = (cairo_surface_pattern_t*)pattern;
+		    cairo_surface_pattern_t * surf_pat = (cairo_surface_pattern_t *)pattern;
 		    _cairo_surface_release_source_image(surf_pat->surface, image, image_extra);
 	    } break;
 
@@ -1232,7 +1232,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 			cairo_surface_get_device_offset(source_surface, &x, &y);
 		}
 		else {
-			cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)source_pattern;
+			cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)source_pattern;
 			source_surface = surface_pattern->surface;
 		}
 	}
@@ -4251,7 +4251,7 @@ static cairo_int_status_t _cairo_pdf_surface_paint_surface_pattern(cairo_pdf_sur
 
 	if(source->extend == CAIRO_EXTEND_PAD &&
 	    !(source->type == CAIRO_PATTERN_TYPE_SURFACE &&
-	    ((cairo_surface_pattern_t*)source)->surface->type == CAIRO_SURFACE_TYPE_RECORDING)) {
+	    ((cairo_surface_pattern_t *)source)->surface->type == CAIRO_SURFACE_TYPE_RECORDING)) {
 		status = _cairo_pdf_surface_add_padded_image_surface(surface,
 			source,
 			extents,
@@ -6419,7 +6419,7 @@ static cairo_bool_t _pattern_supported(const cairo_pattern_t * pattern)
 		    return TRUE;
 
 		case CAIRO_PATTERN_TYPE_SURFACE:
-		    return _surface_pattern_supported((cairo_surface_pattern_t*)pattern);
+		    return _surface_pattern_supported((cairo_surface_pattern_t *)pattern);
 
 		default:
 		    ASSERT_NOT_REACHED;
@@ -6481,7 +6481,7 @@ static cairo_int_status_t _cairo_pdf_surface_analyze_operation(cairo_pdf_surface
 
 	if(_pdf_operator_supported(op)) {
 		if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-			cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)pattern;
+			cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)pattern;
 
 			if(surface_pattern->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
 				if(pattern->extend == CAIRO_EXTEND_PAD) {
@@ -6515,7 +6515,7 @@ static cairo_int_status_t _cairo_pdf_surface_analyze_operation(cairo_pdf_surface
 	 * there is nothing painted underneath. */
 	if(op == CAIRO_OPERATOR_SOURCE) {
 		if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-			cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)pattern;
+			cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t *)pattern;
 
 			if(surface_pattern->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
 				if(_cairo_pattern_is_opaque(pattern, extents)) {
@@ -6612,12 +6612,12 @@ static cairo_int_status_t _cairo_pdf_surface_emit_combined_smask(cairo_pdf_surfa
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	if(source->type == CAIRO_PATTERN_TYPE_SURFACE &&
-	    ((cairo_surface_pattern_t*)source)->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
+	    ((cairo_surface_pattern_t *)source)->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 
 	if(mask->type == CAIRO_PATTERN_TYPE_SURFACE &&
-	    ((cairo_surface_pattern_t*)mask)->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
+	    ((cairo_surface_pattern_t *)mask)->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 
@@ -6772,7 +6772,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_stencil_mask(cairo_pdf_surface
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	if(mask->type == CAIRO_PATTERN_TYPE_SURFACE &&
-	    ((cairo_surface_pattern_t*)mask)->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
+	    ((cairo_surface_pattern_t *)mask)->surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 

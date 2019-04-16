@@ -871,7 +871,7 @@ int SLAPI SlSession::LogMessage(const char * pFileName, const char * pStr, ulong
 	return ok;
 }
 
-int SLAPI SlSession::LoadString(const char * pSignature, SString & rBuf) const
+int SLAPI SlSession::LoadString_(const char * pSignature, SString & rBuf) const
 {
 	LoadStringFunc f_ls = ExtraProcBlk.F_LoadString;
 	return f_ls ? f_ls(pSignature, rBuf) : 0;
@@ -964,7 +964,7 @@ int SLAPI SlSession::SubstString(const char * pSrcStr, int ansiCoding, SString &
 	int    ok = -1;
 	if(pSrcStr && pSrcStr[0] == '@' && !sstrchr(pSrcStr, ' ')) {
 		SString _text = pSrcStr;
-		if(LoadString(_text.ShiftLeft(1), rBuf) > 0) {
+		if(LoadString_(_text.ShiftLeft(1), rBuf) > 0) {
 			if(ansiCoding)
 				rBuf.Transf(CTRANSF_INNER_TO_OUTER);
 			ok = 1;

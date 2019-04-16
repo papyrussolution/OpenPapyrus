@@ -694,7 +694,7 @@ int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 }
 
 //virtual
-int PPImpExpParam::PreprocessImportFileName(const SString & rFileName, StrAssocArray & rResultList)
+int PPImpExpParam::PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList)
 {
 	return -1;
 }

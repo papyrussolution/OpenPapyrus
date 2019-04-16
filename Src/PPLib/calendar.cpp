@@ -557,7 +557,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 		HPEN   bg_pen = CreatePen(PS_SOLID, 1, RGB(127, 127, 127));
 		HPEN   old_bg_pen = (HPEN)SelectObject(hdc, bg_pen);
 		HBRUSH bg_br = CreateSolidBrush(C_BACKCOL);
-		HBRUSH old_bg_br = (HBRUSH)SelectObject(hdc, bg_br);
+		HBRUSH old_bg_br = static_cast<HBRUSH>(::SelectObject(hdc, bg_br));
 		Rectangle(hdc, Left - 2, Top - 1, Left + (y_br - y_bl), Top + C_CELLH * y_th / 13 * 7);
 		SelectObject(hdc, old_bg_pen);
 		SelectObject(hdc, old_bg_br);
@@ -909,7 +909,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		HPEN   pen = CreatePen(PS_SOLID, 3, C_BACKCOL);
 		HPEN   oldpen = (HPEN)SelectObject(hdc, pen);
 		HBRUSH br = CreateSolidBrush(C_BACKCOL);
-		HBRUSH oldbr = (HBRUSH)SelectObject(hdc, br);
+		HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 		Rectangle(hdc, x + 1, y, (c_j < 6) ? (x + c_cell_w - 1) : (x + c_cell_w - 2), y + c_cell_h - 2);
 		SelectObject(hdc, oldpen);
 		SelectObject(hdc, oldbr);
@@ -958,7 +958,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 							SetTextColor(hdc, 0);
 						}
 						oldpen = (HPEN)SelectObject(hdc, pen);
-						oldbr  = (HBRUSH)SelectObject(hdc, br);
+						oldbr  = static_cast<HBRUSH>(::SelectObject(hdc, br));
 						Rectangle(hdc, xx + 1, yy, (jj < 6) ? (xx + c_cell_w - 1) : (xx + c_cell_w - 2), yy + c_cell_h - 2);
 						SelectObject(hdc, oldpen);
 						SelectObject(hdc, oldbr);
@@ -989,7 +989,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		pen = CreatePen(PS_SOLID, 3, C_SELCOL);
 		oldpen = (HPEN)SelectObject(hdc, pen);
 		br = CreateSolidBrush(C_SELCOL);
-		oldbr = (HBRUSH)SelectObject(hdc, br);
+		oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 		Rectangle(hdc, x + 1, y, c_j < 6 ? x + c_cell_w - 1 : x + c_cell_w - 2, y + c_cell_h - 2);
 		SelectObject(hdc, oldpen);
 		SelectObject(hdc, oldbr);
@@ -1767,7 +1767,7 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 		wc.lpfnWndProc = static_cast<WNDPROC>(CalendarWndProc);
 		wc.style = CS_DBLCLKS;
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+		wc.hbrBackground = static_cast<HBRUSH>(::GetStockObject(LTGRAY_BRUSH));
 		::RegisterClassEx(&wc); // @unicodeproblem
 	}
 	c_hWnd = ::CreateWindow(p_classname, NULL, WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP,

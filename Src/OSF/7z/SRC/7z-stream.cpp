@@ -21,7 +21,7 @@ HRESULT ReadStream(ISequentialInStream * stream, void * data, size_t * processed
 		uint32 processedSizeLoc;
 		HRESULT res = stream->Read(data, curSize, &processedSizeLoc);
 		*processedSize += processedSizeLoc;
-		data = (void *)((Byte *)data + processedSizeLoc);
+		data = (PTR8(data) + processedSizeLoc);
 		size -= processedSizeLoc;
 		RINOK(res);
 		if(processedSizeLoc == 0)
@@ -50,7 +50,7 @@ HRESULT WriteStream(ISequentialOutStream * stream, const void * data, size_t siz
 		uint32 curSize = (size < kBlockSize) ? (uint32)size : kBlockSize;
 		uint32 processedSizeLoc;
 		HRESULT res = stream->Write(data, curSize, &processedSizeLoc);
-		data = (const void*)((const Byte*)data + processedSizeLoc);
+		data = (PTR8C(data) + processedSizeLoc);
 		size -= processedSizeLoc;
 		RINOK(res);
 		if(processedSizeLoc == 0)
@@ -250,7 +250,7 @@ STDMETHODIMP CCachedInStream::Read(void * data, uint32 size, uint32 * processedS
 			memcpy(data, p + offset, cur);
 			if(processedSize)
 				*processedSize += cur;
-			data = (void *)((const Byte*)data + cur);
+			data = (PTR8(data) + cur);
 			_pos += cur;
 			size -= cur;
 		}
@@ -1339,7 +1339,7 @@ STDMETHODIMP CStdOutFileStream::Write(const void * data, uint32 size, uint32 * p
 			res = ::WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), data, sizeTemp, (DWORD*)&realProcessedSize, NULL);
 			_size += realProcessedSize;
 			size -= realProcessedSize;
-			data = (const void*)((const Byte*)data + realProcessedSize);
+			data = (PTR8C(data) + realProcessedSize);
 			if(processedSize)
 				*processedSize += realProcessedSize;
 		}

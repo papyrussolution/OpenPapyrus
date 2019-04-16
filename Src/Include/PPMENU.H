@@ -517,5 +517,6 @@
 #define cmTimeSeriesSA                 622 // @v10.2.4 @experimental обучение нейронной сети по временным сериям
 #define cmCorrectZeroDebtDimRefs       623 // @v10.2.8 Обнуление висячих ссылок на долговые размерности
 #define cmTimeSeriesConfig             624 // @v10.3.1
+#define cmFreightPackageType           625 // @v10.4.1 Типы транспортной упаковки
 
 #endif /* __PPMENU_H */

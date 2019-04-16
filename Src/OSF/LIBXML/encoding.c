@@ -1050,7 +1050,7 @@ int xmlAddEncodingAlias(const char * name, const char * alias)
 {
 	int i;
 	char upper[100];
-	if((name == NULL) || (alias == NULL))
+	if(!name || (alias == NULL))
 		return -1;
 	for(i = 0; i < 99; i++) {
 		upper[i] = toupper(alias[i]);

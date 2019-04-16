@@ -1821,7 +1821,6 @@ index:
 	GoodsID, Dt, OprNo (unique mod);       // #3
 file:
 	"transfer.btr";
-	// @v6.7.5 balanced;
 	access=1;
 }
 //

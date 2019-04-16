@@ -2261,7 +2261,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					dbe_posnode.init();
 					dbe_posnode.push(cq->SessID);
 					dbe_posnode.push(cq->CashID);
-					dbe_posnode.push((DBFunc)DynFuncPosText);
+					dbe_posnode.push(static_cast<DBFunc>(DynFuncPosText));
 				}
 				p_q = & select(
 					cq->ID,           // #0
@@ -2294,7 +2294,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						{
 							dbe_addr_city.init();
 							dbe_addr_city.push(p_ext->AddrID);
-							dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
+							dbe_addr_city.push(static_cast<DBFunc>(PPDbqFuncPool::IdAddrCityName));
 						}
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
@@ -2324,7 +2324,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					dbe_posnode.init();
 					dbe_posnode.push(t->SessID);
 					dbe_posnode.push(t->CashID);
-					dbe_posnode.push((DBFunc)DynFuncPosText);
+					dbe_posnode.push(static_cast<DBFunc>(DynFuncPosText));
 				}
 				p_q = & select(
 					t->ID,              // #0
@@ -2355,7 +2355,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						{
 							dbe_addr_city.init();
 							dbe_addr_city.push(p_ext->AddrID);
-							dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
+							dbe_addr_city.push(static_cast<DBFunc>(PPDbqFuncPool::IdAddrCityName));
 						}
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
@@ -2418,14 +2418,14 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 							DBConst dbc_long;
 							dbc_long.init(NodeIdList.GetSingle());
 							dbe_checkposnode.push(dbc_long);
-							dbe_checkposnode.push((DBFunc)PPDbqFuncPool::IdCheckCsPosNode);
+							dbe_checkposnode.push(static_cast<DBFunc>(PPDbqFuncPool::IdCheckCsPosNode));
 							dbq = & (*dbq && dbe_checkposnode == 1L);
 						}
 						else {
 							DBConst dbc_ptr;
 							dbc_ptr.init(&NodeIdList.Get());
 							dbe_checkposnode.push(dbc_ptr);
-							dbe_checkposnode.push((DBFunc)PPDbqFuncPool::IdCheckCsPosNodeList);
+							dbe_checkposnode.push(static_cast<DBFunc>(PPDbqFuncPool::IdCheckCsPosNodeList));
 							dbq = & (*dbq && dbe_checkposnode == 1L);
 						}
 					}

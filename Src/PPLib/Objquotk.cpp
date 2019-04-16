@@ -1074,7 +1074,7 @@ int SLAPI PPObjQuotKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 {
 	int    ok = -1;
 	if(p && p->Data) {
-		PPQuotKindPacket * p_pack = (PPQuotKindPacket *)p->Data;
+		PPQuotKindPacket * p_pack = static_cast<PPQuotKindPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND,  &p_pack->Rec.OpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_ACCSHEET, &p_pack->Rec.AccSheetID, ary, replace));
 		ok = 1;
@@ -1096,12 +1096,12 @@ int SLAPI PPObjQuotKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPQuotKindPacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPQuotKindPacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPQuotKindPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, (PPQuotKindPacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPQuotKindPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -1111,7 +1111,7 @@ int SLAPI PPObjQuotKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPQuotKindPacket * p_pack = (PPQuotKindPacket *)p->Data;
+		PPQuotKindPacket * p_pack = static_cast<PPQuotKindPacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -1317,7 +1317,7 @@ int SLAPI QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPQuotKind * p_data_rec = (PPQuotKind *)pDataRec;
+	PPQuotKind * p_data_rec = static_cast<PPQuotKind *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld

@@ -98,7 +98,6 @@ struct archive {
 	unsigned current_codepage; /* Current ACP(ANSI CodePage). */
 	unsigned current_oemcp; /* Current OEMCP(OEM CodePage). */
 	struct archive_string_conv *sconv;
-
 	/*
 	 * Used by archive_read_data() to track blocks and copy
 	 * data to client buffers, filling gaps with zero bytes.
@@ -107,7 +106,6 @@ struct archive {
 	int64_t		  read_data_offset;
 	int64_t		  read_data_output_offset;
 	size_t		  read_data_remaining;
-
 	/*
 	 * Used by formats/filters to determine the amount of data
 	 * requested from a call to archive_read_data(). This is only

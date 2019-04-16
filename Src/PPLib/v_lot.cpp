@@ -2153,7 +2153,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	{
 		dbe_closedate.init();
 		dbe_closedate.push(rcp->CloseDate);
-		dbe_closedate.push((DBFunc)PPDbqFuncPool::IdLotCloseDate);
+		dbe_closedate.push(static_cast<DBFunc>(PPDbqFuncPool::IdLotCloseDate));
 	}
 	if(P_TempTbl) {
 		THROW(CheckTblPtr(tt = new TempLotTbl(P_TempTbl->GetName())));

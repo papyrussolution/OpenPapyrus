@@ -242,32 +242,19 @@ int archive_read_support_format_tar(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct tar * tar;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_format_tar");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_tar");
 	tar = (struct tar *)SAlloc::C(1, sizeof(*tar));
 	if(tar == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate tar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate tar data");
 		return ARCHIVE_FATAL;
 	}
 #ifdef HAVE_COPYFILE_H
 	/* Set this by default on Mac OS. */
 	tar->process_mac_extensions = 1;
 #endif
-
-	r = __archive_read_register_format(a, tar, "tar",
-		archive_read_format_tar_bid,
-		archive_read_format_tar_options,
-		archive_read_format_tar_read_header,
-		archive_read_format_tar_read_data,
-		archive_read_format_tar_skip,
-		NULL,
-		archive_read_format_tar_cleanup,
-		NULL,
-		NULL);
-
+	r = __archive_read_register_format(a, tar, "tar", archive_read_format_tar_bid, archive_read_format_tar_options,
+		archive_read_format_tar_read_header, archive_read_format_tar_read_data, archive_read_format_tar_skip,
+		NULL, archive_read_format_tar_cleanup, NULL, NULL);
 	if(r != ARCHIVE_OK)
 		SAlloc::F(tar);
 	return ARCHIVE_OK;
@@ -275,9 +262,7 @@ int archive_read_support_format_tar(struct archive * _a)
 
 static int archive_read_format_tar_cleanup(struct archive_read * a)
 {
-	struct tar * tar;
-
-	tar = (struct tar *)(a->format->data);
+	struct tar * tar = (struct tar *)(a->format->data);
 	gnu_clear_sparse_list(tar);
 	archive_string_free(&tar->acl_text);
 	archive_string_free(&tar->entry_pathname);
@@ -295,7 +280,6 @@ static int archive_read_format_tar_cleanup(struct archive_read * a)
 	(a->format->data) = NULL;
 	return ARCHIVE_OK;
 }
-
 /*
  * Validate number field
  *
@@ -415,13 +399,10 @@ static int archive_read_format_tar_bid(struct archive_read * a, int best_bid)
 	return (bid);
 }
 
-static int archive_read_format_tar_options(struct archive_read * a,
-    const char * key, const char * val)
+static int archive_read_format_tar_options(struct archive_read * a, const char * key, const char * val)
 {
-	struct tar * tar;
 	int ret = ARCHIVE_FAILED;
-
-	tar = (struct tar *)(a->format->data);
+	struct tar * tar = (struct tar *)(a->format->data);
 	if(strcmp(key, "compat-2x")  == 0) {
 		/* Handle UTF-8 filenames as libarchive 2.x */
 		tar->compat_2x = (val != NULL && val[0] != 0);
@@ -430,12 +411,9 @@ static int archive_read_format_tar_options(struct archive_read * a,
 	}
 	else if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "tar: hdrcharset option needs a character-set name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "tar: hdrcharset option needs a character-set name");
 		else {
-			tar->opt_sconv =
-			    archive_string_conversion_from_charset(
-				&a->archive, val, 0);
+			tar->opt_sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
 			if(tar->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -451,7 +429,6 @@ static int archive_read_format_tar_options(struct archive_read * a,
 		tar->read_concatenated_archives = (val != NULL && val[0] != 0);
 		return ARCHIVE_OK;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -478,14 +455,12 @@ static void tar_flush_unconsumed(struct archive_read * a, size_t * unconsumed)
 		*unconsumed = 0;
 	}
 }
-
 /*
  * The function invoked by archive_read_next_header().  This
  * just sets up a few things and then calls the internal
  * tar_read_header() function below.
  */
-static int archive_read_format_tar_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_tar_read_header(struct archive_read * a, struct archive_entry * entry)
 {
 	/*
 	 * When converting tar archives to cpio archives, it is
@@ -508,7 +483,6 @@ static int archive_read_format_tar_read_header(struct archive_read * a,
 	const wchar_t * wp;
 	int r;
 	size_t l, unconsumed = 0;
-
 	/* Assign default device/inode values. */
 	archive_entry_set_dev(entry, 1 + default_dev); /* Don't use zero. */
 	archive_entry_set_ino(entry, ++default_inode); /* Don't use zero. */
@@ -517,47 +491,37 @@ static int archive_read_format_tar_read_header(struct archive_read * a,
 		++default_dev;
 		default_inode = 0;
 	}
-
 	tar = (struct tar *)(a->format->data);
 	tar->entry_offset = 0;
 	gnu_clear_sparse_list(tar);
 	tar->realsize = -1; /* Mark this as "unset" */
 	tar->realsize_override = 0;
-
 	/* Setup default string conversion. */
 	tar->sconv = tar->opt_sconv;
 	if(tar->sconv == NULL) {
 		if(!tar->init_default_conversion) {
-			tar->sconv_default =
-			    archive_string_default_conversion_for_read(&(a->archive));
+			tar->sconv_default = archive_string_default_conversion_for_read(&(a->archive));
 			tar->init_default_conversion = 1;
 		}
 		tar->sconv = tar->sconv_default;
 	}
-
 	r = tar_read_header(a, tar, entry, &unconsumed);
-
 	tar_flush_unconsumed(a, &unconsumed);
-
 	/*
 	 * "non-sparse" files are really just sparse files with
 	 * a single block.
 	 */
 	if(tar->sparse_list == NULL) {
-		if(gnu_add_sparse_entry(a, tar, 0, tar->entry_bytes_remaining)
-		    != ARCHIVE_OK)
+		if(gnu_add_sparse_entry(a, tar, 0, tar->entry_bytes_remaining) != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 	}
 	else {
-		struct sparse_block * sb;
-
-		for(sb = tar->sparse_list; sb != NULL; sb = sb->next) {
+		for(struct sparse_block * sb = tar->sparse_list; sb != NULL; sb = sb->next) {
 			if(!sb->hole)
 				archive_entry_sparse_add_entry(entry,
 				    sb->offset, sb->remaining);
 		}
 	}
-
 	if(r == ARCHIVE_OK && archive_entry_filetype(entry) == AE_IFREG) {
 		/*
 		 * "Regular" entry with trailing '/' is really
@@ -580,32 +544,24 @@ static int archive_read_format_tar_read_header(struct archive_read * a,
 	return r;
 }
 
-static int archive_read_format_tar_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64_t * offset)
+static int archive_read_format_tar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
 {
 	ssize_t bytes_read;
-	struct tar * tar;
 	struct sparse_block * p;
-
-	tar = (struct tar *)(a->format->data);
-
+	struct tar * tar = (struct tar *)(a->format->data);
 	for(;;) {
 		/* Remove exhausted entries from sparse list. */
-		while(tar->sparse_list != NULL &&
-		    tar->sparse_list->remaining == 0) {
+		while(tar->sparse_list != NULL && tar->sparse_list->remaining == 0) {
 			p = tar->sparse_list;
 			tar->sparse_list = p->next;
 			SAlloc::F(p);
 		}
-
 		if(tar->entry_bytes_unconsumed) {
 			__archive_read_consume(a, tar->entry_bytes_unconsumed);
 			tar->entry_bytes_unconsumed = 0;
 		}
-
 		/* If we're at end of file, return EOF. */
-		if(tar->sparse_list == NULL ||
-		    tar->entry_bytes_remaining == 0) {
+		if(tar->sparse_list == NULL || tar->entry_bytes_remaining == 0) {
 			if(__archive_read_consume(a, tar->entry_padding) < 0)
 				return ARCHIVE_FATAL;
 			tar->entry_padding = 0;
@@ -614,13 +570,11 @@ static int archive_read_format_tar_read_data(struct archive_read * a,
 			*offset = tar->realsize;
 			return (ARCHIVE_EOF);
 		}
-
 		*buff = __archive_read_ahead(a, 1, &bytes_read);
 		if(bytes_read < 0)
 			return ARCHIVE_FATAL;
 		if(*buff == NULL) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Truncated tar archive");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Truncated tar archive");
 			return ARCHIVE_FATAL;
 		}
 		if(bytes_read > tar->entry_bytes_remaining)
@@ -635,7 +589,6 @@ static int archive_read_format_tar_read_data(struct archive_read * a,
 		tar->sparse_list->offset += bytes_read;
 		tar->entry_bytes_remaining -= bytes_read;
 		tar->entry_bytes_unconsumed = bytes_read;
-
 		if(!tar->sparse_list->hole)
 			return ARCHIVE_OK;
 		/* Current is hole data and skip this. */
@@ -645,14 +598,10 @@ static int archive_read_format_tar_read_data(struct archive_read * a,
 static int archive_read_format_tar_skip(struct archive_read * a)
 {
 	int64_t bytes_skipped;
-	int64_t request;
 	struct sparse_block * p;
-	struct tar* tar;
-
-	tar = (struct tar *)(a->format->data);
-
+	struct tar * tar = (struct tar *)(a->format->data);
 	/* Do not consume the hole of a sparse file. */
-	request = 0;
+	int64_t request = 0;
 	for(p = tar->sparse_list; p != NULL; p = p->next) {
 		if(!p->hole) {
 			if(p->remaining >= INT64_MAX - request) {
@@ -664,18 +613,14 @@ static int archive_read_format_tar_skip(struct archive_read * a)
 	if(request > tar->entry_bytes_remaining)
 		request = tar->entry_bytes_remaining;
 	request += tar->entry_padding + tar->entry_bytes_unconsumed;
-
 	bytes_skipped = __archive_read_consume(a, request);
 	if(bytes_skipped < 0)
 		return ARCHIVE_FATAL;
-
 	tar->entry_bytes_remaining = 0;
 	tar->entry_bytes_unconsumed = 0;
 	tar->entry_padding = 0;
-
 	/* Free the sparse list. */
 	gnu_clear_sparse_list(tar);
-
 	return ARCHIVE_OK;
 }
 
@@ -683,19 +628,16 @@ static int archive_read_format_tar_skip(struct archive_read * a)
  * This function recursively interprets all of the headers associated
  * with a single entry.
  */
-static int tar_read_header(struct archive_read * a, struct tar * tar,
-    struct archive_entry * entry, size_t * unconsumed)
+static int tar_read_header(struct archive_read * a, struct tar * tar, struct archive_entry * entry, size_t * unconsumed)
 {
 	ssize_t bytes;
 	int err;
 	const char * h;
 	const struct archive_entry_header_ustar * header;
 	const struct archive_entry_header_gnutar * gnuheader;
-
 	/* Loop until we find a workable header record. */
 	for(;;) {
 		tar_flush_unconsumed(a, unconsumed);
-
 		/* Read 512-byte header record */
 		h = (const char *)__archive_read_ahead(a, 512, &bytes);
 		if(bytes < 0)
@@ -705,23 +647,18 @@ static int tar_read_header(struct archive_read * a, struct tar * tar,
 			return (ARCHIVE_EOF);
 		}
 		if(bytes < 512) {   /* Short block at EOF; this is bad. */
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Truncated tar archive");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated tar archive");
 			return ARCHIVE_FATAL;
 		}
 		*unconsumed = 512;
-
 		/* Header is workable if it's not an end-of-archive mark. */
 		if(h[0] != 0 || !archive_block_is_null(h))
 			break;
-
 		/* Ensure format is set for archives with only null blocks. */
 		if(a->archive.archive_format_name == NULL) {
 			a->archive.archive_format = ARCHIVE_FORMAT_TAR;
 			a->archive.archive_format_name = "tar";
 		}
-
 		if(!tar->read_concatenated_archives) {
 			/* Try to consume a second all-null record, as well. */
 			tar_flush_unconsumed(a, unconsumed);
@@ -731,13 +668,10 @@ static int tar_read_header(struct archive_read * a, struct tar * tar,
 			archive_clear_error(&a->archive);
 			return (ARCHIVE_EOF);
 		}
-
 		/*
-		 * We're reading concatenated archives, ignore this block and
-		 * loop to get the next.
+		 * We're reading concatenated archives, ignore this block and loop to get the next.
 		 */
 	}
-
 	/*
 	 * Note: If the checksum fails and we return ARCHIVE_RETRY,
 	 * then the client is likely to just retry.  This is a very
@@ -750,7 +684,6 @@ static int tar_read_header(struct archive_read * a, struct tar * tar,
 		archive_set_error(&a->archive, EINVAL, "Damaged tar archive");
 		return (ARCHIVE_RETRY); /* Retryable: Invalid header */
 	}
-
 	if(++tar->header_recursion_depth > 32) {
 		tar_flush_unconsumed(a, unconsumed);
 		archive_set_error(&a->archive, EINVAL, "Too many special headers");

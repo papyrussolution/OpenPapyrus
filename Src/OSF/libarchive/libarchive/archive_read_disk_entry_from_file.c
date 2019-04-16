@@ -44,9 +44,9 @@ __FBSDID("$FreeBSD");
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
+//#ifdef HAVE_SYS_STAT_H
+//#include <sys/stat.h>
+//#endif
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
 #elif defined(HAVE_ATTR_XATTR_H)
@@ -128,17 +128,13 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct arch
 const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	const char * path = archive_entry_sourcepath(entry);
-	if(path == NULL || (a->tree != NULL &&
-	    a->tree_enter_working_dir(a->tree) != 0))
+	if(path == NULL || (a->tree != NULL && a->tree_enter_working_dir(a->tree) != 0))
 		path = archive_entry_pathname(entry);
 	if(path == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Couldn't determine path");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Couldn't determine path");
 	}
-	else if(fd != NULL && *fd < 0 && a->tree != NULL &&
-	    (a->follow_symlinks || archive_entry_filetype(entry) != AE_IFLNK)) {
-		*fd = a->open_on_current_dir(a->tree, path,
-			O_RDONLY | O_NONBLOCK);
+	else if(fd != NULL && *fd < 0 && a->tree != NULL && (a->follow_symlinks || archive_entry_filetype(entry) != AE_IFLNK)) {
+		*fd = a->open_on_current_dir(a->tree, path, O_RDONLY | O_NONBLOCK);
 	}
 	return (path);
 }
@@ -237,12 +233,10 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 		}
 		if(a->tree != NULL) {
 #ifdef HAVE_READLINKAT
-			lnklen = readlinkat(a->tree_current_dir_fd(a->tree),
-				path, linkbuffer, linkbuffer_len);
+			lnklen = readlinkat(a->tree_current_dir_fd(a->tree), path, linkbuffer, linkbuffer_len);
 #else
 			if(a->tree_enter_working_dir(a->tree) != 0) {
-				archive_set_error(&a->archive, errno,
-				    "Couldn't read link data");
+				archive_set_error(&a->archive, errno, "Couldn't read link data");
 				SAlloc::F(linkbuffer);
 				return ARCHIVE_FAILED;
 			}
@@ -252,8 +246,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 		else
 			lnklen = readlink(path, linkbuffer, linkbuffer_len);
 		if(lnklen < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Couldn't read link data");
+			archive_set_error(&a->archive, errno, "Couldn't read link data");
 			SAlloc::F(linkbuffer);
 			return ARCHIVE_FAILED;
 		}
@@ -321,8 +314,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	/* Short-circuit if there's nothing to do. */
 	have_attrs = copyfile(name, NULL, 0, copyfile_flags | COPYFILE_CHECK);
 	if(have_attrs == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Could not check extended attributes");
+		archive_set_error(&a->archive, errno, "Could not check extended attributes");
 		return (ARCHIVE_WARN);
 	}
 	if(have_attrs == 0)
@@ -338,8 +330,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	archive_strcat(&tempfile, "tar.md.XXXXXX");
 	tempfd = mkstemp(tempfile.s);
 	if(tempfd < 0) {
-		archive_set_error(&a->archive, errno,
-		    "Could not open extended attribute file");
+		archive_set_error(&a->archive, errno, "Could not open extended attribute file");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
@@ -350,27 +341,23 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	 * matter, it would be nice if fcopyfile() actually worked,
 	 * that would reduce the many open/close races here. */
 	if(copyfile(name, tempfile.s, 0, copyfile_flags | COPYFILE_PACK)) {
-		archive_set_error(&a->archive, errno,
-		    "Could not pack extended attributes");
+		archive_set_error(&a->archive, errno, "Could not pack extended attributes");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
 	if(fstat(tempfd, &copyfile_stat)) {
-		archive_set_error(&a->archive, errno,
-		    "Could not check size of extended attributes");
+		archive_set_error(&a->archive, errno, "Could not check size of extended attributes");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
 	buff = SAlloc::M(copyfile_stat.st_size);
 	if(buff == NULL) {
-		archive_set_error(&a->archive, errno,
-		    "Could not allocate memory for extended attributes");
+		archive_set_error(&a->archive, errno, "Could not allocate memory for extended attributes");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
 	if(copyfile_stat.st_size != read(tempfd, buff, copyfile_stat.st_size)) {
-		archive_set_error(&a->archive, errno,
-		    "Could not read extended attributes into memory");
+		archive_set_error(&a->archive, errno, "Could not read extended attributes into memory");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
@@ -448,18 +435,14 @@ static int setup_xattr(struct archive_read_disk * a,
 		size = getea(accpath, name, NULL, 0);
 #endif
 	}
-
 	if(size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't query extended attribute");
+		archive_set_error(&a->archive, errno, "Couldn't query extended attribute");
 		return (ARCHIVE_WARN);
 	}
-
 	if(size > 0 && (value = SAlloc::M(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
-
 	if(fd >= 0) {
 #if ARCHIVE_XATTR_LINUX
 		size = fgetxattr(fd, name, value, size);
@@ -487,28 +470,20 @@ static int setup_xattr(struct archive_read_disk * a,
 		size = getea(accpath, name, value, size);
 #endif
 	}
-
 	if(size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't read extended attribute");
+		archive_set_error(&a->archive, errno, "Couldn't read extended attribute");
 		return (ARCHIVE_WARN);
 	}
-
 	archive_entry_xattr_add_entry(entry, name, value, size);
-
 	SAlloc::F(value);
 	return ARCHIVE_OK;
 }
 
-static int setup_xattrs(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	char * list, * p;
-	const char * path;
 	ssize_t list_size;
-
-	path = NULL;
-
+	const char * path = NULL;
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, fd);
 		if(path == NULL)
@@ -542,23 +517,18 @@ static int setup_xattrs(struct archive_read_disk * a,
 		list_size = listea(path, NULL, 0);
 #endif
 	}
-
 	if(list_size == -1) {
 		if(errno == ENOTSUP || errno == ENOSYS)
 			return ARCHIVE_OK;
-		archive_set_error(&a->archive, errno,
-		    "Couldn't list extended attributes");
+		archive_set_error(&a->archive, errno, "Couldn't list extended attributes");
 		return (ARCHIVE_WARN);
 	}
-
 	if(list_size == 0)
 		return ARCHIVE_OK;
-
 	if((list = SAlloc::M(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
-
 	if(*fd >= 0) {
 #if ARCHIVE_XATTR_LINUX
 		list_size = flistxattr(*fd, list, list_size);
@@ -586,24 +556,17 @@ static int setup_xattrs(struct archive_read_disk * a,
 		list_size = listea(path, list, list_size);
 #endif
 	}
-
 	if(list_size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't retrieve extended attributes");
+		archive_set_error(&a->archive, errno, "Couldn't retrieve extended attributes");
 		SAlloc::F(list);
 		return (ARCHIVE_WARN);
 	}
-
 	for(p = list; (p - list) < list_size; p += strlen(p) + 1) {
 #if ARCHIVE_XATTR_LINUX
 		/* Linux: skip POSIX.1e ACL extended attributes */
-		if(strncmp(p, "system.", 7) == 0 &&
-		    (strcmp(p + 7, "posix_acl_access") == 0 ||
-		    strcmp(p + 7, "posix_acl_default") == 0))
+		if(strncmp(p, "system.", 7) == 0 && (strcmp(p + 7, "posix_acl_access") == 0 || strcmp(p + 7, "posix_acl_default") == 0))
 			continue;
-		if(strncmp(p, "trusted.SGI_", 12) == 0 &&
-		    (strcmp(p + 12, "ACL_DEFAULT") == 0 ||
-		    strcmp(p + 12, "ACL_FILE") == 0))
+		if(strncmp(p, "trusted.SGI_", 12) == 0 && (strcmp(p + 12, "ACL_DEFAULT") == 0 || strcmp(p + 12, "ACL_FILE") == 0))
 			continue;
 
 		/* Linux: xfsroot namespace is obsolete and unsupported */
@@ -693,10 +656,8 @@ static int setup_xattrs(struct archive_read_disk * a,
 		archive_set_error(&a->archive, errno, "Couldn't list extended attributes");
 		return (ARCHIVE_WARN);
 	}
-
 	if(list_size == 0)
 		return ARCHIVE_OK;
-
 	if((list = SAlloc::M(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return ARCHIVE_FATAL;
@@ -896,8 +857,7 @@ static int setup_sparse(struct archive_read_disk * a,
 #endif
 		*fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		if(*fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't open `%s'", path);
+			archive_set_error(&a->archive, errno, "Can't open `%s'", path);
 			return ARCHIVE_FAILED;
 		}
 		__archive_ensure_cloexec_flag(*fd);
@@ -930,8 +890,7 @@ static int setup_sparse(struct archive_read_disk * a,
 				}
 				break;
 			}
-			archive_set_error(&a->archive, errno,
-			    "lseek(SEEK_HOLE) failed");
+			archive_set_error(&a->archive, errno, "lseek(SEEK_HOLE) failed");
 			exit_sts = ARCHIVE_FAILED;
 			goto exit_setup_sparse;
 		}
@@ -942,8 +901,7 @@ static int setup_sparse(struct archive_read_disk * a,
 				if(off_e != (off_t)-1)
 					break; /* no more data */
 			}
-			archive_set_error(&a->archive, errno,
-			    "lseek(SEEK_DATA) failed");
+			archive_set_error(&a->archive, errno, "lseek(SEEK_DATA) failed");
 			exit_sts = ARCHIVE_FAILED;
 			goto exit_setup_sparse;
 		}

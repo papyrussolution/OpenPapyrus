@@ -1570,19 +1570,19 @@ DBQuery * SLAPI PPViewGeoTracking::CreateBrowserQuery(uint * pBrwId, SString * p
 		dbe_obj.init();
 		dbe_obj.push(t->ObjType);
 		dbe_obj.push(t->ObjID);
-		dbe_obj.push((DBFunc)PPDbqFuncPool::IdOidText);
+		dbe_obj.push(static_cast<DBFunc>(PPDbqFuncPool::IdOidText));
 	}
 	{
 		dbe_extobj.init();
 		dbe_extobj.push(t->ExtObjType);
 		dbe_extobj.push(t->ExtObjID);
-		dbe_extobj.push((DBFunc)PPDbqFuncPool::IdOidText);
+		dbe_extobj.push(static_cast<DBFunc>(PPDbqFuncPool::IdOidText));
 	}
 	{
 		dbe_dt.init();
 		dbe_dt.push(t->Dts2010);
 		dbe_dt.push(dbconst(base_date));
-		dbe_dt.push((DBFunc)PPDbqFuncPool::IdDateBase);
+		dbe_dt.push(static_cast<DBFunc>(PPDbqFuncPool::IdDateBase));
 	}
 	dbq = ppcheckfiltid(dbq, t->ObjType, Filt.Oi.Obj);
 	dbq = ppcheckfiltid(dbq, t->ObjID, Filt.Oi.Id);

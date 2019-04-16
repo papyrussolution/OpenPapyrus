@@ -1679,21 +1679,22 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 			size_t act_size = 0;
 			LB[LB.GetSize()-2] = 0;
 			while(Read(LB, LB.GetSize()-2, &act_size) && act_size) {
-				p = (char *)memchr(LB, '\n', act_size);
+				p = static_cast<char *>(memchr(LB.vptr(), '\n', act_size));
 				if(p) {
 					p[1] = 0;
 				}
 				else {
-					p = (char *)memchr(LB, 0x0D, act_size);
-					if(p && p[1] == 0x0A) {
-						p[2] = 0;
-					}
-					else {
-						p = 0;
+					p = static_cast<char *>(memchr(LB.vptr(), 0x0D, act_size));
+					// @v10.4.1 @fix 
+					if(p) {
+						if(p[1] == 0x0A)
+							p[2] = 0;
+						else
+							p[1] = 0;
 					}
 				}
 				if(p) {
-					const size_t _len = sstrlen((char *)LB);
+					const size_t _len = sstrlen(LB.cptr());
 					rBuf.CatN(LB, _len);
 					Seek64(last_pos + _len); // @v9.5.9
 					break;
@@ -2071,7 +2072,6 @@ int FileFormatRegBase::Helper_Register(int id, int mimeType, const char * pMimeS
 	SString new_mime_subtype;
 	SString temp_buf;
 	LongArray pos_list;
-
 	(new_ext = pExt).Strip();
 	(new_mime_subtype = pMimeSubtype).Strip();
 	if(new_ext.HasChr(';')) {

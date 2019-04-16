@@ -7090,12 +7090,9 @@ int __memp_free_freelist(DB_MPOOLFILE * dbmfp)
  */
 int __memp_get_freelist(DB_MPOOLFILE * dbmfp, uint32 * nelemp, db_pgno_t ** listp)
 {
-	DB_MPOOL * dbmp;
-	ENV * env;
-	MPOOLFILE * mfp;
-	env = dbmfp->env;
-	dbmp = env->mp_handle;
-	mfp = dbmfp->mfp;
+	ENV * env = dbmfp->env;
+	DB_MPOOL * dbmp = env->mp_handle;
+	MPOOLFILE * mfp = dbmfp->mfp;
 	if(mfp->free_size == 0) {
 		*nelemp = 0;
 		*listp = NULL;
@@ -7112,15 +7109,12 @@ int __memp_get_freelist(DB_MPOOLFILE * dbmfp, uint32 * nelemp, db_pgno_t ** list
  */
 int __memp_extend_freelist(DB_MPOOLFILE * dbmfp, uint32 count, db_pgno_t ** listp)
 {
-	DB_MPOOL * dbmp;
-	ENV * env;
-	MPOOLFILE * mfp;
 	int ret;
 	size_t size;
 	void * retp;
-	env = dbmfp->env;
-	dbmp = env->mp_handle;
-	mfp = dbmfp->mfp;
+	ENV * env = dbmfp->env;
+	DB_MPOOL * dbmp = env->mp_handle;
+	MPOOLFILE * mfp = dbmfp->mfp;
 	if(mfp->free_size == 0)
 		return EINVAL;
 	if(count*sizeof(db_pgno_t) > mfp->free_size) {
@@ -7159,4 +7153,3 @@ int __memp_set_last_pgno(DB_MPOOLFILE * dbmfp, db_pgno_t pgno)
 	}
 	return 0;
 }
-

@@ -1467,7 +1467,7 @@ static void _cairo_recording_surface_merge_source_attributes(cairo_recording_sur
 		surface->has_only_op_over = FALSE;
 
 	if(source->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_pattern_t * surf_pat = (cairo_surface_pattern_t*)source;
+		cairo_surface_pattern_t * surf_pat = (cairo_surface_pattern_t *)source;
 		cairo_surface_t * surf = surf_pat->surface;
 		cairo_surface_t * free_me = NULL;
 

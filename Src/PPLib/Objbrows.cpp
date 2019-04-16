@@ -285,7 +285,7 @@ int PPObjListWindow::Transmit(PPID)
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
 			PPWait(1);
-			for(id = 0; ((PPObjReference *)P_Obj)->EnumItems(&id, 0) > 0;)
+			for(id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, 0) > 0;)
 				objid_ary.Add(P_Obj->Obj, id);
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 			ok = 1;

@@ -135,7 +135,7 @@ void * SLAPI PPObjBillStatus::CreateObjListWin(uint flags, void * extraPtr)
 							{
 								PPIDArray id_list;
 								ReferenceTbl::Rec rec;
-								for(PPID item_id = 0; ((PPObjReference *)P_Obj)->EnumItems(&item_id, &rec) > 0;)
+								for(PPID item_id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&item_id, &rec) > 0;)
 									id_list.add(rec.ObjID);
 								if(!SendCharryObject(PPDS_CRRBILLSTATUS, id_list))
 									PPError();
@@ -188,7 +188,7 @@ int SLAPI PPObjBillStatus::Read(PPObjPack * p, PPID id, void * stream, ObjTransm
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPBillStatus);
 	if(stream == 0) {
-		THROW(Search(id, (PPBillStatus*)p->Data) > 0);
+		THROW(Search(id, static_cast<PPBillStatus *>(p->Data)) > 0);
 	}
 	else {
 		THROW(Serialize_(-1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
@@ -202,7 +202,7 @@ int SLAPI PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 	int    ok = 1;
 	if(p && p->Data) {
 		if(stream == 0) {
-			PPBillStatus * p_rec = (PPBillStatus *)p->Data;
+			PPBillStatus * p_rec = static_cast<PPBillStatus *>(p->Data);
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if(ref->SearchSymb(Obj, &same_id, p_rec->Symb, offsetof(PPBillStatus, Symb)) > 0) {
@@ -235,7 +235,7 @@ int SLAPI PPObjBillStatus::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 {
 	if(p && p->Data) {
 		PPID * p_id = 0;
-		PPBillStatus * p_pack = (PPBillStatus*)p->Data;
+		PPBillStatus * p_pack = static_cast<PPBillStatus *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_OPCOUNTER, &p_pack->CounterID,       ary, replace);
 		ProcessObjRefInArray(PPOBJ_OPRKIND,   &p_pack->RestrictOpID,    ary, replace);
 		return 1;
@@ -289,7 +289,7 @@ int SLAPI BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPBillStatus * p_data_rec = (PPBillStatus *)pDataRec;
+	PPBillStatus * p_data_rec = static_cast<PPBillStatus *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_BILLSTATUS;

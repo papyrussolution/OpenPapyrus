@@ -1,5 +1,5 @@
 // PPDBMAKE.CPP
-// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018
+// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -74,7 +74,6 @@ int SLAPI CreateByExample(const char * pPath)
 	DBTable * p_src_tbl = 0;
 	DbTableStat ts;
 	StrAssocArray tbl_list;
-
 	PPGetPath(PPPATH_DAT, pp);
 	pp.SetLastSlash();
 	PPWait(1);
@@ -104,10 +103,10 @@ int SLAPI CreateByExample(const char * pPath)
 				tbl_name = ts.TblName;
 				PPWaitMsg(tbl_name);
 				THROW_MEM(p_dst_tbl = new DBTable(tbl_name, dst_path));
-				THROW(p_dst_tbl->allocOwnBuffer(4096));
+				THROW(p_dst_tbl->allocOwnBuffer(SKILOBYTE(1024))); // @v10.4.1 4096-->SKILOBYTE(1024)
 				if(fileExists(src_path)) {
 					THROW_MEM(p_src_tbl = new DBTable(tbl_name));
-					THROW(p_src_tbl->allocOwnBuffer(4096));
+					THROW(p_src_tbl->allocOwnBuffer(SKILOBYTE(1024))); // @v10.4.1 4096-->SKILOBYTE(1024)
 					if(isNeededFile(tbl_name)) {
 						RECORDNUMBER rn, i = 0;
 						PPTransaction tra(1);

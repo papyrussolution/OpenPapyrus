@@ -27,7 +27,10 @@ int SLAPI PPObjGoodsType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 
 int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = 1,  r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPGoodsType rec;
 	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GDSTYP))));
@@ -50,6 +53,7 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 0, GTF_UNLIMITED);
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 1, GTF_AUTOCOMPL);
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 2, GTF_ASSETS);
+	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 3, GTF_ADVANCECERT); // @v10.4.1
 	dlg->SetClusterData(CTL_GDSTYP_UNLIM, rec.Flags);
 
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 0, GTF_RPLC_COST);
@@ -124,7 +128,7 @@ public:
 int SLAPI GoodsTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	GoodsTypeData * p_cache_rec = (GoodsTypeData *)pEntry;
+	GoodsTypeData * p_cache_rec = static_cast<GoodsTypeData *>(pEntry);
 	PPObjGoodsType gt_obj;
 	PPGoodsType rec;
 	if(gt_obj.Search(id, &rec) > 0) {
@@ -146,8 +150,8 @@ int SLAPI GoodsTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI GoodsTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPGoodsType * p_data_rec = (PPGoodsType *)pDataRec;
-	const GoodsTypeData * p_cache_rec = (const GoodsTypeData *)pEntry;
+	PPGoodsType * p_data_rec = static_cast<PPGoodsType *>(pDataRec);
+	const GoodsTypeData * p_cache_rec = static_cast<const GoodsTypeData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_GOODSTYPE;
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -168,19 +172,19 @@ IMPL_OBJ_FETCH(PPObjGoodsType, PPGoodsType, GoodsTypeCache);
 int FASTCALL PPObjGoodsType::IsUnlim(PPID id)
 {
 	PPGoodsType gt_rec;
-	return BIN(id && id != PPGT_DEFAULT && Fetch(id, &gt_rec) > 0 && gt_rec.Flags & (GTF_UNLIMITED | GTF_AUTOCOMPL));
+	return BIN(id && id != PPGT_DEFAULT && Fetch(id, &gt_rec) > 0 && gt_rec.Flags & (GTF_UNLIMITED|GTF_AUTOCOMPL));
 }
 
 int SLAPI PPObjGoodsType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGoodsType * r = (PPGoodsType *)p->Data;
-		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtCost,  ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtPrice, ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtDscnt, ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtCVat,  ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_GOODSVALRESTR, &r->PriceRestrID,  ary, replace)); // @v10.1.6
+		PPGoodsType * p_rec = static_cast<PPGoodsType *>(p->Data);
+		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_rec->AmtCost,  ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_rec->AmtPrice, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_rec->AmtDscnt, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_rec->AmtCVat,  ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_GOODSVALRESTR, &p_rec->PriceRestrID,  ary, replace)); // @v10.1.6
 	}
 	else
 		ok = -1;
@@ -238,20 +242,9 @@ SLAPI PPGoodsValRestrPacket::PPGoodsValRestrPacket()
 	MEMSZERO(Rec);
 }
 
-const ObjRestrictArray & PPGoodsValRestrPacket::GetBillArRestrictList() const
-{
-	return BillArRestr;
-}
-
-int SLAPI PPGoodsValRestrPacket::SetBillArRestr(PPID arID, long option)
-{
-	return BillArRestr.UpdateItemByID(arID, option);
-}
-
-int SLAPI PPGoodsValRestrPacket::RemoveBillArRestr(PPID arID)
-{
-	return BillArRestr.RemoveItemByID(arID);
-}
+const ObjRestrictArray & PPGoodsValRestrPacket::GetBillArRestrictList() const { return BillArRestr; }
+int SLAPI PPGoodsValRestrPacket::SetBillArRestr(PPID arID, long option) { return BillArRestr.UpdateItemByID(arID, option); }
+int SLAPI PPGoodsValRestrPacket::RemoveBillArRestr(PPID arID) { return BillArRestr.RemoveItemByID(arID); }
 //
 //
 //
@@ -260,14 +253,9 @@ PPObjGoodsValRestr::GvrArray::GvrArray() : TSVector <PPObjGoodsValRestr::GvrItem
 }
 
 int PPObjGoodsValRestr::GvrArray::TestGvrBillArPair(PPID gvrID, PPID arID) const
-{
-	return Helper_TestGvrBillArPair(gvrID, arID, 0);
-}
-
+	{ return Helper_TestGvrBillArPair(gvrID, arID, 0); }
 int PPObjGoodsValRestr::GvrArray::TestGvrBillExtArPair(PPID gvrID, PPID arID) const
-{
-	return Helper_TestGvrBillArPair(gvrID, arID, 1);
-}
+	{ return Helper_TestGvrBillArPair(gvrID, arID, 1); }
 
 int PPObjGoodsValRestr::GvrArray::Helper_TestGvrBillArPair(PPID gvrID, PPID arID, int what) const
 {
@@ -524,7 +512,7 @@ int SLAPI PPObjGoodsValRestr::TestFormula(const char * pFormula)
 	ti.Cost = 1.0;
 	ti.Price = 2.0;
 	GdsClsCalcExprContext ctx(&ti, &pack);
-	return PPCalcExpression(pFormula, &bound, &ctx) ? 1 : 0;
+	return BIN(PPCalcExpression(pFormula, &bound, &ctx));
 }
 
 int SLAPI PPObjGoodsValRestr::Edit(PPID * pID, void * extraPtr)
@@ -663,12 +651,12 @@ int  SLAPI PPObjGoodsValRestr::Read(PPObjPack * p, PPID id, void * stream, ObjTr
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPGoodsValRestrPacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPGoodsValRestrPacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPGoodsValRestrPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, (PPGoodsValRestrPacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPGoodsValRestrPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -679,7 +667,7 @@ int  SLAPI PPObjGoodsValRestr::Write(PPObjPack * p, PPID * pID, void * stream, O
 {
 	int    ok = 1, r;
 	if(p && p->Data) {
-		PPGoodsValRestrPacket * p_pack = (PPGoodsValRestrPacket *)p->Data;
+		PPGoodsValRestrPacket * p_pack = static_cast<PPGoodsValRestrPacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -744,7 +732,7 @@ int  SLAPI PPObjGoodsValRestr::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary,
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGoodsValRestrPacket * p_pack = (PPGoodsValRestrPacket *)p->Data;
+		PPGoodsValRestrPacket * p_pack = static_cast<PPGoodsValRestrPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_pack->Rec.ScpShipmOpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_pack->Rec.ScpRetOpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_pack->Rec.ScpShipmLimitOpID, ary, replace));
@@ -896,7 +884,7 @@ int FASTCALL GoodsValRestrCache::Dirty(PPID id)
 int SLAPI GoodsValRestrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	GoodsValRestrData * p_cache_rec = (GoodsValRestrData *)pEntry;
+	GoodsValRestrData * p_cache_rec = static_cast<GoodsValRestrData *>(pEntry);
 	PPObjGoodsValRestr gvr_obj;
 	PPGoodsValRestrPacket pack;
 	if(gvr_obj.GetPacket(id, &pack) > 0) {
@@ -923,8 +911,8 @@ int SLAPI GoodsValRestrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI GoodsValRestrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPGoodsValRestrPacket * p_data_pack = (PPGoodsValRestrPacket *)pDataRec;
-	const GoodsValRestrData * p_cache_rec = (const GoodsValRestrData *)pEntry;
+	PPGoodsValRestrPacket * p_data_pack = static_cast<PPGoodsValRestrPacket *>(pDataRec);
+	const GoodsValRestrData * p_cache_rec = static_cast<const GoodsValRestrData *>(pEntry);
 	MEMSZERO(p_data_pack->Rec);
 	p_data_pack->LowBoundFormula = 0;
 	p_data_pack->UppBoundFormula = 0;

@@ -560,7 +560,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 					POINT  p;
 					GetCursorPos(&p);
 					TMenuPopup menu;
-					SLS.LoadString("close", menu_text);
+					SLS.LoadString_("close", menu_text);
 					menu.Add(menu_text.Transf(CTRANSF_INNER_TO_OUTER), cmaDelete);
 					if(menu.Execute(hWnd, TMenuPopup::efRet) == cmaDelete) {
 						int    idx = 0;
@@ -1029,7 +1029,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.lpfnWndProc   = static_cast<WNDPROC>(MainWndProc);
 		wc.style         = CS_HREDRAW | CS_VREDRAW;
 		wc.hIcon         = H_Icon;
-		wc.hbrBackground = (HBRUSH)COLOR_GRAYTEXT;
+		wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_GRAYTEXT);
 		wc.cbClsExtra    = sizeof(long);
 		wc.cbWndExtra    = sizeof(long);
 		::RegisterClassEx(&wc); // @unicodeproblem
@@ -1494,7 +1494,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	else
 		draw_checkbox = 1;
 	SETIFZ(brush, CreateSolidBrush(brush_color));
-	old_brush = (HBRUSH)SelectObject(p_di->hDC, brush);
+	old_brush = static_cast<HBRUSH>(::SelectObject(p_di->hDC, brush));
 	SETIFZ(pen, CreatePen(PS_SOLID, 1, pen_color));
 	old_pen   = (HPEN)SelectObject(p_di->hDC, pen);
 	ok = Rectangle(p_di->hDC, elem_r.left, elem_r.top, elem_r.right, elem_r.bottom);
@@ -1622,7 +1622,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		draw_bitmap = BIN(hbmp);
 	}
 	SETIFZ(brush, CreateSolidBrush(brush_color));
-	old_brush = (HBRUSH)SelectObject(pDi->hDC, brush);
+	old_brush = static_cast<HBRUSH>(::SelectObject(pDi->hDC, brush));
 	SETIFZ(pen, CreatePen(PS_SOLID, 1, pen_color));
 	old_pen   = (HPEN)SelectObject(pDi->hDC, pen);
 	ok = RoundRect(pDi->hDC, elem_r.left, elem_r.top, elem_r.right, elem_r.bottom, ROUNDRECT_RADIUS * 2, ROUNDRECT_RADIUS * 2);
@@ -2260,7 +2260,7 @@ int DrawInputLine(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		HPEN   pen   = CreatePen(PS_SOLID, 1, pen_color);
 		HBRUSH brush = CreateSolidBrush(brush_color);
 		HPEN   old_pen   = (HPEN)SelectObject(pDi->hDC, pen);
-		HBRUSH old_brush = (HBRUSH)SelectObject(pDi->hDC, brush);
+		HBRUSH old_brush = static_cast<HBRUSH>(::SelectObject(pDi->hDC, brush));
 		// RoundRect(pDi->hDC, pDi->rcItem.left, pDi->rcItem.top, pDi->rcItem.right, pDi->rcItem.bottom, ROUNDRECT_RADIUS, ROUNDRECT_RADIUS);
 		{
 			HDC hdc = pDi->hDC;
@@ -2348,7 +2348,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		RECT   out_r;
 		if(p_item->Color) {
 			brush = CreateSolidBrush((COLORREF)p_item->Color);
-			old_brush = (HBRUSH)SelectObject(pDi->hDC, brush);
+			old_brush = static_cast<HBRUSH>(::SelectObject(pDi->hDC, brush));
 			pen = CreatePen(PS_SOLID, 1, p_item->Color);
 			old_pen = (HPEN)SelectObject(pDi->hDC, pen);
 		}
@@ -2472,10 +2472,10 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_ERASEBKGND:
 			if(oneof2(UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-				DRAWITEMSTRUCT * p_di = (DRAWITEMSTRUCT*)wParam;
+				DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(wParam);
 				HBRUSH brush = 0, old_brush = 0;
 				SETIFZ(brush, CreateSolidBrush(RGB(0xDD, 0xDD, 0xF1)));
-				old_brush = (HBRUSH)SelectObject(p_di->hDC, brush);
+				old_brush = static_cast<HBRUSH>(::SelectObject(p_di->hDC, brush));
 				FillRect(p_di->hDC, &p_di->rcItem, brush);
 				if(old_brush)
 					SelectObject(p_di->hDC, old_brush);

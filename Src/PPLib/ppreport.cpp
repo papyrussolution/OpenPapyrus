@@ -1205,11 +1205,11 @@ int SLAPI SReport::getNumCopies() const
 	return NumCopies;
 }
 
-static SString & GetTempFileName(const char * pFileName, SString & rDest)
+static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 {
-	char * t = getenv("TEMP");
+	const char * t = getenv("TEMP");
 	if(!t)
-		getenv("TMP");
+		t = getenv("TMP"); // @v10.4.1 @fix (getenv("TMP"))-->(t = getenv("TMP"))
 	return (rDest = t).SetLastSlash().Cat(pFileName);
 }
 
@@ -1222,9 +1222,8 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 	DBFCreateFld * flds=0;
 	SString dbfname;
 	int    flds_count = 0;
-
 	fldIDs->freeAll();
-	GetTempFileName(BODY_DBF_NAME, dbfname);
+	GetTempFileName_(BODY_DBF_NAME, dbfname);
 	rFileName = dbfname;
 	DbfTable  * dbf = new DbfTable(dbfname);
 	Field    ** dbf_fields_id=(Field **)SAlloc::M(sizeof(void *));
@@ -1310,10 +1309,9 @@ int SLAPI SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 	SString dbfname;
 	int    flds_count=0;
 	int    type;
-
 	// Creating dbf for variables
 	fldIDs->freeAll();
-	GetTempFileName(VAR_DBF_NAME, dbfname);
+	GetTempFileName_(VAR_DBF_NAME, dbfname);
 	rFileName = dbfname;
 	DbfTable * dbf = new DbfTable(dbfname);
 	flds = new DBFCreateFld[2];
@@ -1532,7 +1530,7 @@ static int SLAPI GetDataFilePath(int locN, const char * pPath, int isPrint, SStr
 	}
 	else {
 		const  char * p_fname = (locN == 0) ? BODY_DBF_NAME : VAR_DBF_NAME;
-		GetTempFileName(p_fname, rBuf);
+		GetTempFileName_(p_fname, rBuf);
 	}
 	return 1;
 }

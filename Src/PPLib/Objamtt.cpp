@@ -855,7 +855,7 @@ int SLAPI PPObjAmountType::Browse(void * extraPtr)
 			ObjViewDialog::handleEvent(event);
 			if(event.isCmd(cmTransmitCharry)) {
 				PPIDArray id_list;
-				for(PPID id = 0; ((PPObjReference *)P_Obj)->EnumItems(&id, 0) > 0;)
+				for(PPID id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, 0) > 0;)
 					id_list.add(id);
 				if(!SendCharryObject(PPDS_CRRAMOUNTTYPE, id_list))
 					PPError();

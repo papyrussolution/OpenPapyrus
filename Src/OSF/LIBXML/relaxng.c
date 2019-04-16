@@ -1288,7 +1288,7 @@ static int xmlRelaxNGRemoveRedefine(xmlRelaxNGParserCtxtPtr ctxt, const xmlChar 
 	tmp = target;
 	while(tmp) {
 		tmp2 = tmp->next;
-		if((name == NULL) && (IS_RELAXNG(tmp, "start"))) {
+		if(!name && (IS_RELAXNG(tmp, "start"))) {
 			found = 1;
 			xmlUnlinkNode(tmp);
 			xmlFreeNode(tmp);
@@ -2819,7 +2819,7 @@ static xmlChar * xmlRelaxNGGetDataTypeLibrary(xmlRelaxNGParserCtxtPtr ctxt ATTRI
 			return (escape);
 		}
 	}
-	P_Node = P_Node->parent;
+	P_Node = P_Node->P_ParentNode;
 	while(P_Node && (P_Node->type == XML_ELEMENT_NODE)) {
 		ret = xmlGetProp(P_Node, reinterpret_cast<const xmlChar *>("datatypeLibrary"));
 		if(ret) {
@@ -2834,7 +2834,7 @@ static xmlChar * xmlRelaxNGGetDataTypeLibrary(xmlRelaxNGParserCtxtPtr ctxt ATTRI
 			SAlloc::F(ret);
 			return (escape);
 		}
-		P_Node = P_Node->parent;
+		P_Node = P_Node->P_ParentNode;
 	}
 	return 0;
 }
@@ -3875,7 +3875,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGProcessExternalRef(xmlRelaxNGParserCtxtPtr 
 						if(ns) {
 							break;
 						}
-						tmp = tmp->parent;
+						tmp = tmp->P_ParentNode;
 					}
 					if(ns) {
 						xmlSetProp(root, reinterpret_cast<const xmlChar *>("ns"), ns);
@@ -4312,8 +4312,8 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParseNameClass(xmlRelaxNGParserCtxtPtr ctxt
 		val = xmlNodeGetContent(P_Node);
 		xmlRelaxNGNormExtSpace(val);
 		if(xmlValidateNCName(val, 0)) {
-			if(P_Node->parent)
-				xmlRngPErr(ctxt, P_Node, XML_RNGP_ELEMENT_NAME, "Element %s name '%s' is not an NCName\n", P_Node->parent->name, val);
+			if(P_Node->P_ParentNode)
+				xmlRngPErr(ctxt, P_Node, XML_RNGP_ELEMENT_NAME, "Element %s name '%s' is not an NCName\n", P_Node->P_ParentNode->name, val);
 			else
 				xmlRngPErr(ctxt, P_Node, XML_RNGP_ELEMENT_NAME, "name '%s' is not an NCName\n", val, 0);
 		}
@@ -4797,12 +4797,12 @@ static void xmlRelaxNGCombineStart(xmlRelaxNGParserCtxtPtr ctxt, xmlRelaxNGGramm
 		return;
 	cur = starts;
 	while(cur) {
-		if(!cur->P_Node || !cur->P_Node->parent || !sstreq(cur->P_Node->parent->name, "start")) {
+		if(!cur->P_Node || !cur->P_Node->P_ParentNode || !sstreq(cur->P_Node->P_ParentNode->name, "start")) {
 			combine = NULL;
 			xmlRngPErr(ctxt, cur->P_Node, XML_RNGP_START_MISSING, "Internal error: start element not found\n", 0, 0);
 		}
 		else {
-			combine = xmlGetProp(cur->P_Node->parent, reinterpret_cast<const xmlChar *>("combine"));
+			combine = xmlGetProp(cur->P_Node->P_ParentNode, reinterpret_cast<const xmlChar *>("combine"));
 		}
 		if(combine) {
 			if(sstreq(combine, "choice")) {
@@ -5767,9 +5767,9 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 			 * Simplification 4.1. Annotations
 			 */
 			if(!cur->ns || !sstreq(cur->ns->href, xmlRelaxNGNs)) {
-				if(cur->parent && (cur->parent->type == XML_ELEMENT_NODE) &&
-				    (sstreq(cur->parent->name, "name") || sstreq(cur->parent->name, "value") || sstreq(cur->parent->name, "param"))) {
-					xmlRngPErr(ctxt, cur, XML_RNGP_FOREIGN_ELEMENT, "element %s doesn't allow foreign elements\n", cur->parent->name, 0);
+				if(cur->P_ParentNode && (cur->P_ParentNode->type == XML_ELEMENT_NODE) &&
+				    (sstreq(cur->P_ParentNode->name, "name") || sstreq(cur->P_ParentNode->name, "value") || sstreq(cur->P_ParentNode->name, "param"))) {
+					xmlRngPErr(ctxt, cur, XML_RNGP_FOREIGN_ELEMENT, "element %s doesn't allow foreign elements\n", cur->P_ParentNode->name, 0);
 				}
 				p_delete = cur;
 				goto skip_children;
@@ -5782,17 +5782,17 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 					xmlNode * tmp;
 					xmlURIPtr uri;
 					xmlChar * ns = xmlGetProp(cur, reinterpret_cast<const xmlChar *>("ns"));
-					if(ns == NULL) {
-						tmp = cur->parent;
+					if(!ns) {
+						tmp = cur->P_ParentNode;
 						while(tmp && tmp->type == XML_ELEMENT_NODE) {
 							ns = xmlGetProp(tmp, reinterpret_cast<const xmlChar *>("ns"));
 							if(ns)
 								break;
-							tmp = tmp->parent;
+							tmp = tmp->P_ParentNode;
 						}
 					}
 					href = xmlGetProp(cur, reinterpret_cast<const xmlChar *>("href"));
-					if(href == NULL) {
+					if(!href) {
 						xmlRngPErr(ctxt, cur, XML_RNGP_MISSING_HREF, "xmlRelaxNGParse: externalRef has no href attribute\n", 0, 0);
 						SAlloc::F(ns);
 						p_delete = cur;
@@ -5861,13 +5861,13 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 					SAlloc::F(href);
 					SAlloc::F(base);
 					ns = xmlGetProp(cur, reinterpret_cast<const xmlChar *>("ns"));
-					if(ns == NULL) {
-						tmp = cur->parent;
+					if(!ns) {
+						tmp = cur->P_ParentNode;
 						while(tmp && tmp->type == XML_ELEMENT_NODE) {
 							ns = xmlGetProp(tmp, reinterpret_cast<const xmlChar *>("ns"));
 							if(ns)
 								break;
-							tmp = tmp->parent;
+							tmp = tmp->P_ParentNode;
 						}
 					}
 					incl = xmlRelaxNGLoadInclude(ctxt, URL, cur, ns);
@@ -5927,13 +5927,13 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 					 */
 					if(xmlHasProp(cur, reinterpret_cast<const xmlChar *>("ns")) == NULL) {
 						xmlChar * ns = NULL;
-						xmlNode * P_Node = cur->parent;
+						xmlNode * P_Node = cur->P_ParentNode;
 						while(P_Node && (P_Node->type == XML_ELEMENT_NODE)) {
 							ns = xmlGetProp(P_Node, reinterpret_cast<const xmlChar *>("ns"));
 							if(ns) {
 								break;
 							}
-							P_Node = P_Node->parent;
+							P_Node = P_Node->P_ParentNode;
 						}
 						if(ns == NULL) {
 							xmlSetProp(cur, reinterpret_cast<const xmlChar *>("ns"), reinterpret_cast<const xmlChar *>(""));
@@ -5980,13 +5980,13 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 					/*
 					 * 4.16
 					 */
-					if(cur->parent && sstreq(cur->parent->name, "anyName")) {
+					if(cur->P_ParentNode && sstreq(cur->P_ParentNode->name, "anyName")) {
 						ctxt->flags |= XML_RELAXNG_IN_ANYEXCEPT;
 						xmlRelaxNGCleanupTree(ctxt, cur);
 						ctxt->flags = oldflags;
 						goto skip_children;
 					}
-					else if(cur->parent && sstreq(cur->parent->name, "nsName")) {
+					else if(cur->P_ParentNode && sstreq(cur->P_ParentNode->name, "nsName")) {
 						ctxt->flags |= XML_RELAXNG_IN_NSEXCEPT;
 						xmlRelaxNGCleanupTree(ctxt, cur);
 						ctxt->flags = oldflags;
@@ -6035,8 +6035,8 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 					 * of cur->parent's list, since it's never going to be re-serialized
 					 * (bug 143738).
 					 */
-					if(cur->nsDef && cur->parent) {
-						xmlNs * parDef = (xmlNs *)&cur->parent->nsDef;
+					if(cur->nsDef && cur->P_ParentNode) {
+						xmlNs * parDef = (xmlNs *)&cur->P_ParentNode->nsDef;
 						while(parDef->next)
 							parDef = parDef->next;
 						parDef->next = cur->nsDef;
@@ -6052,8 +6052,8 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 		 */
 		else if(oneof2(cur->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 			if(IS_BLANK_NODE(cur)) {
-				if(cur->parent && cur->parent->type == XML_ELEMENT_NODE) {
-					if((!sstreq(cur->parent->name, "value")) && (!sstreq (cur->parent->name, "param")))
+				if(cur->P_ParentNode && cur->P_ParentNode->type == XML_ELEMENT_NODE) {
+					if((!sstreq(cur->P_ParentNode->name, "value")) && (!sstreq(cur->P_ParentNode->name, "param")))
 						p_delete = cur;
 				}
 				else {
@@ -6082,7 +6082,7 @@ skip_children:
 			continue;
 		}
 		do {
-			cur = cur->parent;
+			cur = cur->P_ParentNode;
 			if(!cur)
 				break;
 			if(cur == root) {
@@ -6618,7 +6618,7 @@ static int xmlRelaxNGValidateCompiledContent(xmlRelaxNGValidCtxtPtr ctxt, xmlReg
 				    break;
 			    ret = xmlRegExecPushString(exec, reinterpret_cast<const xmlChar *>("#text"), ctxt);
 			    if(ret < 0) {
-				    VALID_ERR2(XML_RELAXNG_ERR_TEXTWRONG, cur->parent->name);
+				    VALID_ERR2(XML_RELAXNG_ERR_TEXTWRONG, cur->P_ParentNode->name);
 			    }
 			    break;
 			case XML_ELEMENT_NODE:
@@ -7034,7 +7034,7 @@ int xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTR
 #ifdef DEBUG_PROGRESSIVE
 	xmlGenericError(0, "FullElem %s\n", elem->name);
 #endif
-	state = xmlRelaxNGNewValidState(ctxt, elem->parent);
+	state = xmlRelaxNGNewValidState(ctxt, elem->P_ParentNode);
 	if(state == NULL) {
 		return -1;
 	}
@@ -8752,7 +8752,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 				xmlNode * child = P_Node;
 				while(child) {
 					if(child->type == XML_ELEMENT_NODE) {
-						VALID_ERR2(XML_RELAXNG_ERR_DATAELEM, P_Node->parent->name);
+						VALID_ERR2(XML_RELAXNG_ERR_DATAELEM, P_Node->P_ParentNode->name);
 						ret = -1;
 						break;
 					}
@@ -8790,7 +8790,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    xmlNode * child = P_Node;
 		    while(child) {
 			    if(child->type == XML_ELEMENT_NODE) {
-				    VALID_ERR2(XML_RELAXNG_ERR_VALELEM, P_Node->parent->name);
+				    VALID_ERR2(XML_RELAXNG_ERR_VALELEM, P_Node->P_ParentNode->name);
 				    ret = -1;
 				    break;
 			    }
@@ -8835,7 +8835,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    xmlNode * child = P_Node;
 		    while(child) {
 			    if(child->type == XML_ELEMENT_NODE) {
-				    VALID_ERR2(XML_RELAXNG_ERR_LISTELEM, P_Node->parent->name);
+				    VALID_ERR2(XML_RELAXNG_ERR_LISTELEM, P_Node->P_ParentNode->name);
 				    ret = -1;
 				    break;
 			    }
@@ -9138,7 +9138,7 @@ static void xmlRelaxNGCleanPSVI(xmlNode * P_Node)
 			}
 			else {
 				do {
-					cur = cur->parent;
+					cur = cur->P_ParentNode;
 					if(!cur)
 						break;
 					if(cur == P_Node) {

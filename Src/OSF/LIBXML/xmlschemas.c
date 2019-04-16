@@ -1006,7 +1006,7 @@ static xmlNode * xmlSchemaGetComponentNode(xmlSchemaBasicItem * item)
 		case XML_SCHEMA_TYPE_COMPLEX:
 		case XML_SCHEMA_TYPE_SIMPLE: return (((xmlSchemaType *)item)->P_Node);
 		case XML_SCHEMA_TYPE_ANY:
-		case XML_SCHEMA_TYPE_ANY_ATTRIBUTE: return (((xmlSchemaWildcardPtr)item)->P_Node);
+		case XML_SCHEMA_TYPE_ANY_ATTRIBUTE: return (((xmlSchemaWildcard *)item)->P_Node);
 		case XML_SCHEMA_TYPE_PARTICLE:      return (((xmlSchemaParticlePtr)item)->P_Node);
 		case XML_SCHEMA_TYPE_SEQUENCE:
 		case XML_SCHEMA_TYPE_CHOICE:
@@ -1414,7 +1414,7 @@ static xmlChar* xmlSchemaFormatItemForReport(xmlChar ** buf, const xmlChar * ite
 			    break;
 			case XML_SCHEMA_TYPE_ANY:
 			case XML_SCHEMA_TYPE_ANY_ATTRIBUTE:
-			    *buf = sstrdup(xmlSchemaWildcardPCToString(((xmlSchemaWildcardPtr)item)->processContents));
+			    *buf = sstrdup(xmlSchemaWildcardPCToString(((xmlSchemaWildcard *)item)->processContents));
 			    *buf = xmlStrcat(*buf, reinterpret_cast<const xmlChar *>(" wildcard"));
 			    break;
 			case XML_SCHEMA_FACET_MININCLUSIVE:
@@ -1461,7 +1461,7 @@ static xmlChar* xmlSchemaFormatItemForReport(xmlChar ** buf, const xmlChar * ite
 	else
 		named = 0;
 	if(!named && itemNode) {
-		xmlNode * elem = (itemNode->type == XML_ATTRIBUTE_NODE) ? itemNode->parent : itemNode;
+		xmlNode * elem = (itemNode->type == XML_ATTRIBUTE_NODE) ? itemNode->P_ParentNode : itemNode;
 		*buf = sstrdup(reinterpret_cast<const xmlChar *>("Element '"));
 		if(elem->ns) {
 			*buf = xmlStrcat(*buf, xmlSchemaFormatQName(&str, elem->ns->href, elem->name));
@@ -1824,7 +1824,7 @@ static xmlChar * xmlSchemaFormatNodeForError(xmlChar ** msg, xmlSchemaAbstractCt
 		 * Work on tree nodes.
 		 */
 		if(P_Node->type == XML_ATTRIBUTE_NODE) {
-			xmlNode * elem = P_Node->parent;
+			xmlNode * elem = P_Node->P_ParentNode;
 			*msg = sstrdup(reinterpret_cast<const xmlChar *>("Element '"));
 			if(elem->ns)
 				*msg = xmlStrcat(*msg, xmlSchemaFormatQName(&str, elem->ns->href, elem->name));
@@ -3310,7 +3310,7 @@ static void FASTCALL xmlSchemaComponentListFree(xmlSchemaItemListPtr list)
 				case XML_SCHEMA_TYPE_ATTRIBUTEGROUP: xmlSchemaFreeAttributeGroup((xmlSchemaAttributeGroupPtr)item); break;
 				case XML_SCHEMA_TYPE_GROUP: xmlSchemaFreeModelGroupDef((xmlSchemaModelGroupDefPtr)item); break;
 				case XML_SCHEMA_TYPE_ANY:
-				case XML_SCHEMA_TYPE_ANY_ATTRIBUTE: xmlSchemaFreeWildcard((xmlSchemaWildcardPtr)item); break;
+				case XML_SCHEMA_TYPE_ANY_ATTRIBUTE: xmlSchemaFreeWildcard((xmlSchemaWildcard *)item); break;
 				case XML_SCHEMA_TYPE_IDC_KEY:
 				case XML_SCHEMA_TYPE_IDC_UNIQUE:
 				case XML_SCHEMA_TYPE_IDC_KEYREF: xmlSchemaFreeIDC((xmlSchemaIDCPtr)item); break;
@@ -4185,7 +4185,7 @@ static xmlSchemaNotationPtr xmlSchemaAddNotation(xmlSchemaParserCtxtPtr ctxt, xm
     const xmlChar * name, const xmlChar * nsName, xmlNode * P_Node ATTRIBUTE_UNUSED)
 {
 	xmlSchemaNotationPtr ret = NULL;
-	if(!ctxt || (schema == NULL) || (name == NULL))
+	if(!ctxt || (schema == NULL) || !name)
 		return 0;
 	ret = (xmlSchemaNotation *)SAlloc::M(sizeof(xmlSchemaNotation));
 	if(!ret) {
@@ -4303,7 +4303,7 @@ static xmlSchemaAttributeGroupPtr xmlSchemaAddAttributeGroupDefinition(xmlSchema
     xmlSchemaPtr schema ATTRIBUTE_UNUSED, const xmlChar * name, const xmlChar * nsName, xmlNode * P_Node)
 {
 	xmlSchemaAttributeGroupPtr ret = NULL;
-	if((pctxt == NULL) || (name == NULL))
+	if((pctxt == NULL) || !name)
 		return 0;
 	ret = (xmlSchemaAttributeGroupPtr)SAlloc::M(sizeof(xmlSchemaAttributeGroup));
 	if(!ret) {
@@ -4345,7 +4345,7 @@ static xmlSchemaAttributeGroupPtr xmlSchemaAddAttributeGroupDefinition(xmlSchema
 static xmlSchemaElementPtr xmlSchemaAddElement(xmlSchemaParserCtxtPtr ctxt, const xmlChar * name, const xmlChar * nsName, xmlNode * P_Node, int topLevel)
 {
 	xmlSchemaElementPtr ret = NULL;
-	if(!ctxt || (name == NULL))
+	if(!ctxt || !name)
 		return 0;
 	ret = (xmlSchemaElementPtr)SAlloc::M(sizeof(xmlSchemaElement));
 	if(!ret) {
@@ -4530,7 +4530,7 @@ static xmlSchemaParticlePtr xmlSchemaAddParticle(xmlSchemaParserCtxtPtr ctxt, xm
 static xmlSchemaModelGroupDefPtr xmlSchemaAddModelGroupDefinition(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, const xmlChar * name, const xmlChar * nsName, xmlNode * P_Node)
 {
 	xmlSchemaModelGroupDefPtr ret = NULL;
-	if(!ctxt || (schema == NULL) || (name == NULL))
+	if(!ctxt || (schema == NULL) || !name)
 		return 0;
 	ret = static_cast<xmlSchemaModelGroupDefPtr>(SAlloc::M(sizeof(xmlSchemaModelGroupDef)));
 	if(!ret) {
@@ -4579,7 +4579,7 @@ static xmlSchemaIDCPtr xmlSchemaAddIDC(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
     const xmlChar * name, const xmlChar * nsName, int category, xmlNode * P_Node)
 {
 	xmlSchemaIDCPtr ret = NULL;
-	if(!ctxt || (schema == NULL) || (name == NULL))
+	if(!ctxt || (schema == NULL) || !name)
 		return 0;
 	ret = (xmlSchemaIDCPtr)SAlloc::M(sizeof(xmlSchemaIDC));
 	if(!ret) {
@@ -4616,7 +4616,7 @@ static xmlSchemaWildcardPtr xmlSchemaAddWildcard(xmlSchemaParserCtxtPtr ctxt, xm
 	xmlSchemaWildcardPtr ret = NULL;
 	if(!ctxt || (schema == NULL))
 		return 0;
-	ret = (xmlSchemaWildcardPtr)SAlloc::M(sizeof(xmlSchemaWildcard));
+	ret = (xmlSchemaWildcard *)SAlloc::M(sizeof(xmlSchemaWildcard));
 	if(!ret) {
 		xmlSchemaPErrMemory(ctxt, "adding wildcard", 0);
 		return 0;
@@ -6631,7 +6631,7 @@ static xmlSchemaAnnotPtr xmlSchemaAddAnnotation(xmlSchemaAnnotItem * annItem, xm
 	    break;
 		case XML_SCHEMA_TYPE_ANY_ATTRIBUTE:
 		case XML_SCHEMA_TYPE_ANY: {
-		    xmlSchemaWildcardPtr item = (xmlSchemaWildcardPtr)annItem;
+		    xmlSchemaWildcardPtr item = (xmlSchemaWildcard *)annItem;
 		    ADD_ANNOTATION(annot)
 	    }
 	    break;
@@ -6639,7 +6639,7 @@ static xmlSchemaAnnotPtr xmlSchemaAddAnnotation(xmlSchemaAnnotItem * annItem, xm
 		case XML_SCHEMA_TYPE_IDC_KEY:
 		case XML_SCHEMA_TYPE_IDC_KEYREF:
 		case XML_SCHEMA_TYPE_IDC_UNIQUE: {
-		    xmlSchemaAnnotItem * item = (xmlSchemaAnnotItem * )annItem;
+		    xmlSchemaAnnotItem * item = (xmlSchemaAnnotItem *)annItem;
 		    ADD_ANNOTATION(annot)
 	    }
 	    break;
@@ -7842,7 +7842,7 @@ static void xmlSchemaCleanupDoc(xmlSchemaParserCtxtPtr ctxt, xmlNode * root)
 				continue;
 			}
 			do {
-				cur = cur->parent;
+				cur = cur->P_ParentNode;
 				if(!cur)
 					break;
 				if(cur == root) {
@@ -8054,7 +8054,7 @@ static int xmlSchemaParseSchemaTopLevel(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPt
 			child = child->next;
 		}
 		else {
-			xmlSchemaPContentErr(ctxt, XML_SCHEMAP_S4S_ELEM_NOT_ALLOWED, NULL, child->parent, child, NULL, 
+			xmlSchemaPContentErr(ctxt, XML_SCHEMAP_S4S_ELEM_NOT_ALLOWED, NULL, child->P_ParentNode, child, NULL, 
 				"((include | import | redefine | annotation)*, (((simpleType | complexType | group | attributeGroup) | element | attribute | notation), annotation*)*)");
 			child = child->next;
 		}
@@ -10454,7 +10454,7 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 		    xmlSchemaWildcardPtr wild;
 		    xmlSchemaWildcardNsPtr ns;
 
-		    wild = (xmlSchemaWildcardPtr)particle->children;
+		    wild = (xmlSchemaWildcard *)particle->children;
 
 		    start = pctxt->state;
 		    end = xmlAutomataNewState(pctxt->am);
@@ -11064,12 +11064,11 @@ static xmlSchemaType * xmlSchemaGetBuiltInTypeAncestor(xmlSchemaType * type)
  * and assignes them to dest.
  * Returns -1 on internal error, 0 otherwise.
  */
-static int xmlSchemaCloneWildcardNsConstraints(xmlSchemaParserCtxtPtr ctxt,
-    xmlSchemaWildcardPtr dest,
-    xmlSchemaWildcardPtr source)
+static int xmlSchemaCloneWildcardNsConstraints(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWildcardPtr dest, xmlSchemaWildcardPtr source)
 {
-	xmlSchemaWildcardNsPtr cur, tmp, last;
-
+	xmlSchemaWildcardNsPtr cur;
+	xmlSchemaWildcardNsPtr tmp;
+	xmlSchemaWildcardNsPtr last;
 	if((source == NULL) || (dest == NULL))
 		return -1;
 	dest->any = source->any;
@@ -11098,7 +11097,6 @@ static int xmlSchemaCloneWildcardNsConstraints(xmlSchemaParserCtxtPtr ctxt,
 		dest->negNsSet = NULL;
 	return 0;
 }
-
 /**
  * xmlSchemaUnionWildcards:
  * @ctxt:  the schema parser context
@@ -11471,7 +11469,6 @@ static int xmlSchemaIntersectWildcards(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWil
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaIsWildcardNsConstraintSubset:
  * @ctxt:  the schema parser context
@@ -11483,8 +11480,7 @@ static int xmlSchemaIntersectWildcards(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWil
  * Returns 0 if the namespace constraint of @sub is an intensional
  * subset of @super, 1 otherwise.
  */
-static int xmlSchemaCheckCOSNSSubset(xmlSchemaWildcardPtr sub,
-    xmlSchemaWildcardPtr super)
+static int xmlSchemaCheckCOSNSSubset(xmlSchemaWildcardPtr sub, xmlSchemaWildcardPtr super)
 {
 	/*
 	 * 1 super must be any.
@@ -14016,7 +14012,7 @@ static int xmlSchemaCheckRCaseNSCompat(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPar
 	 * with respect to the wildcard's {namespace constraint} as defined by
 	 * Wildcard allows Namespace Name ($3.10.4)."
 	 */
-	if(xmlSchemaCheckCVCWildcardNamespace((xmlSchemaWildcardPtr)b->children, ((xmlSchemaElementPtr)r->children)->targetNamespace) != 0)
+	if(xmlSchemaCheckCVCWildcardNamespace((xmlSchemaWildcard *)b->children, ((xmlSchemaElementPtr)r->children)->targetNamespace) != 0)
 		return 1;
 	/*
 	 * SPEC (2) "R's occurrence range is a valid restriction of B's
@@ -14079,7 +14075,7 @@ static int xmlSchemaCheckRCaseNSSubset(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPar
 	 * SPEC (2) "R's {namespace constraint} must be an intensional subset
 	 * of B's {namespace constraint} as defined by Wildcard Subset ($3.10.6)."
 	 */
-	if(xmlSchemaCheckCOSNSSubset((xmlSchemaWildcardPtr)r->children, (xmlSchemaWildcardPtr)b->children))
+	if(xmlSchemaCheckCOSNSSubset((xmlSchemaWildcard *)r->children, (xmlSchemaWildcard *)b->children))
 		return 1;
 	/*
 	 * SPEC (3) "Unless B is the content model wildcard of the `ur-type
@@ -14088,7 +14084,7 @@ static int xmlSchemaCheckRCaseNSSubset(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPar
 	 * stronger than skip."
 	 */
 	if(!isAnyTypeBase) {
-		if(((xmlSchemaWildcardPtr)r->children)->processContents < ((xmlSchemaWildcardPtr)b->children)->processContents)
+		if(((xmlSchemaWildcard *)r->children)->processContents < ((xmlSchemaWildcard *)b->children)->processContents)
 			return 1;
 	}
 	return 0;
@@ -21615,7 +21611,7 @@ internal_error:
 
 static int xmlSchemaValidateElemWildcard(xmlSchemaValidCtxt * vctxt, int * skip)
 {
-	xmlSchemaWildcardPtr wild = (xmlSchemaWildcardPtr)vctxt->inode->decl;
+	xmlSchemaWildcardPtr wild = (xmlSchemaWildcard *)vctxt->inode->decl;
 	// 
 	// The namespace of the element was already identified to be matching the wildcard.
 	// 
@@ -23413,7 +23409,7 @@ next_sibling:
 			if(p_node->next)
 				p_node = p_node->next;
 			else {
-				p_node = p_node->parent;
+				p_node = p_node->P_ParentNode;
 				goto leave_node;
 			}
 		}

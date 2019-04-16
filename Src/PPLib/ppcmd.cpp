@@ -257,16 +257,8 @@ PPCommandItem * SLAPI PPCommandItem::Dup() const
 }
 
 struct _kf_block {
-	_kf_block(const PPCommandItem * pItem)
+	_kf_block(const PPCommandItem * pItem) : Kind(pItem ? pItem->Kind : 0), Flags(pItem ? (pItem->Flags & ~PPCommandItem::fBkgndImageLoaded) : 0)
 	{
-		if(pItem) {
-			Kind = pItem->Kind;
-			Flags = (pItem->Flags & ~PPCommandItem::fBkgndImageLoaded);
-		}
-		else {
-			Kind = 0;
-			Flags = 0;
-		}
 	}
 	int16  Kind;
 	int16  Flags;
@@ -299,11 +291,10 @@ int SLAPI PPCommandItem::Read(SBuffer & rBuf, long)
 }
 
 // virtual
-int SLAPI PPCommandItem::SetUniqueID(long * pID)
+void SLAPI PPCommandItem::SetUniqueID(long * pID)
 {
 	ID = *pID;
 	(*pID)++;
-	return 1;
 }
 //
 //
@@ -394,13 +385,11 @@ int SLAPI PPCommandFolder::GetUniqueID(long * pID) const
 }
 
 // virtual
-int SLAPI PPCommandFolder::SetUniqueID(long * pID)
+void SLAPI PPCommandFolder::SetUniqueID(long * pID)
 {
 	PPCommandItem::SetUniqueID(pID);
-	for(uint i = 0; i < List.getCount(); i++) {
+	for(uint i = 0; i < List.getCount(); i++)
 		List.at(i)->SetUniqueID(pID);
-	}
-	return 1;
 }
 
 int FASTCALL PPCommandFolder::Copy(const PPCommandFolder & s)
@@ -3073,7 +3062,6 @@ IMPLEMENT_CMD_HDL_FACTORY(IMPORTBILLS);
 //
 //
 #if 0 // @construction {
-
 class CMD_HDL_CLS(IMPORTGOODS) : public PPCommandHandler {
 public:
 	SLAPI  CMD_HDL_CLS(IMPORTGOODS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
@@ -3122,7 +3110,6 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(IMPORTGOODS);
-
 #endif // } 0 @construction
 //
 //
@@ -3360,6 +3347,65 @@ public:
 
 IMPLEMENT_CMD_HDL_FACTORY(SENDBILLS);
 //
+//
+// @v10.4.1 {
+class CMD_HDL_CLS(SENDBILLSWITHFILT) : public PPCommandHandler {
+public:
+	SLAPI  CMD_HDL_CLS(SENDBILLSWITHFILT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		const size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
+		if(pParam) {
+			int    r = 1;
+			BillFilt filt;
+			ObjTransmitParam tr_param;
+			filt.SetupBrowseBillsType(filt.Bbt = bbtUndef);
+			if(pParam->GetAvailableSize() == 0) {
+				uint   val = 0;
+				if((r = SelectorDialog(DLG_BBTSEL, CTL_BBTSEL_TYPE, &val)) > 0)
+					filt.SetupBrowseBillsType(filt.Bbt = static_cast<BrowseBillsType>(val));
+			}
+			else {
+				filt.Read(*pParam, 0);
+				tr_param.Read(*pParam, 0);
+			}
+			if(r > 0 && ObjTransmDialogExt(DLG_OBJTRANSM, PPVIEW_BILL, &tr_param, &filt) > 0) {
+				THROW(filt.Write(pParam->Z(), 0));
+				THROW(tr_param.Write(*pParam, 0));
+				ok = 1;
+			}
+			else
+				pParam->SetRdOffs(preserve_offs);
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = 1;
+		if(pParam && pParam->GetAvailableSize()) {
+			BillFilt filt;
+			ObjTransmitParam tr_param;
+			THROW(filt.Read(*pParam, 0));
+			THROW(tr_param.Read(*pParam, 0));
+			THROW(PPViewBill::TransmitByFilt(&filt, &tr_param));
+		}
+		else {
+			THROW(PPViewBill::TransmitByFilt(0, 0));
+		}
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(SENDBILLSWITHFILT);
+// } @v10.4.1
 //
 //
 class CMD_HDL_CLS(EXPORTDBTBLTRANSFER) : public PPCommandHandler {

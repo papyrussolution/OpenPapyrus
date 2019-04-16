@@ -2298,10 +2298,8 @@ public:
 	static const char * DdfIndexFileName;
 
 	static BDictionary * SLAPI CreateBtrDictInstance(const char * pPath);
-
 	SLAPI  BDictionary(const char * pPath, const char * pDataPath = 0, const char * pTempPath = 0);
 	SLAPI ~BDictionary();
-
 	virtual int SLAPI GetDatabaseState(uint * pStateFlags);
 	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int SLAPI IsFileExists_(const char * pFileName);
@@ -2309,14 +2307,11 @@ public:
 	virtual int SLAPI CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int SLAPI DropFile(const char * pFileName);
 	virtual int SLAPI GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
-
 	virtual int SLAPI Login(const DbLoginBlock * pBlk, long options);
 	virtual int SLAPI Logout();
-
 	virtual int SLAPI StartTransaction();
 	virtual int SLAPI CommitWork();
 	virtual int SLAPI RollbackWork();
-
 	virtual int SLAPI Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword);
 	virtual int SLAPI Implement_Close(DBTable * pTbl);
 	virtual int SLAPI Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf);
@@ -2325,7 +2320,6 @@ public:
 	virtual int SLAPI Implement_DeleteRec(DBTable * pTbl);
 	virtual int SLAPI Implement_BExtInsert(BExtInsert * pBei);
 	virtual int SLAPI Implement_GetPosition(DBTable * pTbl, DBRowId * pPos);
-
 	virtual int SLAPI ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection);
 	virtual int SLAPI RecoverTable(BTBLID, BRecoverParam *);
 private:

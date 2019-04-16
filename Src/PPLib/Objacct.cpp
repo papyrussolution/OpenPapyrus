@@ -1330,7 +1330,7 @@ int SLAPI AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPAccount * p_data_rec = (PPAccount *)pDataRec;
+	PPAccount * p_data_rec = static_cast<PPAccount *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	CPY_FLD(ID);

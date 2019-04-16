@@ -1152,17 +1152,14 @@ static time_t parse_time(const char * p, size_t n)
 	return (t);
 }
 
-static int heap_add_entry(struct archive_read * a,
-    struct heap_queue * heap, struct xar_file * file)
+static int heap_add_entry(struct archive_read * a, struct heap_queue * heap, struct xar_file * file)
 {
 	uint64_t file_id, parent_id;
 	int hole, parent;
-
 	/* Expand our pending files list as necessary. */
 	if(heap->used >= heap->allocated) {
 		struct xar_file ** new_pending_files;
 		int new_size = heap->allocated * 2;
-
 		if(heap->allocated < 1024)
 			new_size = 1024;
 		/* Overflow might keep us from growing the list. */
@@ -2138,12 +2135,8 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 
 static void xml_end(void * userData, const char * name)
 {
-	struct archive_read * a;
-	struct xar * xar;
-
-	a = (struct archive_read *)userData;
-	xar = (struct xar *)(a->format->data);
-
+	struct archive_read * a = (struct archive_read *)userData;
+	struct xar * xar = (struct xar *)(a->format->data);
 #if DEBUG
 	fprintf(stderr, "xml_end:[%s]\n", name);
 #endif

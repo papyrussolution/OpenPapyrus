@@ -240,7 +240,7 @@ int SSrchPattern::Preprocess()
 				i = 0;
 			uint8 * p_coll = reinterpret_cast<uint8 *>(P_PreprocBuf) + i;
 			for(i = 0; i < 256;) {
-				DO8(p_coll[i++] = ToLower866(i));
+				DO8(p_coll[i] = ToLower866(i); i++;);
 			}
 			for(i = 0; i < len; i++)
 				P_Pat[i] = p_coll[P_Pat[i]];
@@ -433,7 +433,7 @@ int SSrchPattern::Search_GS(const char * pText, size_t start, size_t end, size_t
 int SSrchPattern::Search_BC(const char * pText, size_t start, size_t end, size_t * pPos) const
 {
 	const  uint8 * p_text = reinterpret_cast<const uint8 *>(pText);
-	int    minus_one = (int)(Len - 2);
+	int    minus_one = static_cast<int>(Len - 2);
 	size_t le = Len - 1;
 	uint8  last  = P_Pat[le];
 	uint8  first = P_Pat[0];

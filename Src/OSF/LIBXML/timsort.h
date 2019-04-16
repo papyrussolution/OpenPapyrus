@@ -22,10 +22,9 @@
     *OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
     *OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <string.h>
 #ifdef HAVE_STDINT_H
 	#include <stdint.h>
 #else
@@ -91,9 +90,7 @@ int compute_minrun(uint64_t);
 			}
 			return n;
 		}
-
 		/* }}} */
-
 		#define CLZ clzll
 	#endif
 #endif
@@ -313,7 +310,7 @@ typedef struct {
 static void TIM_SORT_RESIZE(TEMP_STORAGE_T * store, const /*size_t*/int64_t new_size)
 {
 	if(store->alloc < new_size) {
-		SORT_TYPE * tempstore = (SORT_TYPE*)realloc(store->storage, ((size_t)new_size) * sizeof(SORT_TYPE));
+		SORT_TYPE * tempstore = static_cast<SORT_TYPE *>(SAlloc::R(store->storage, ((size_t)new_size) * sizeof(SORT_TYPE)));
 		if(tempstore == NULL) {
 			fprintf(stderr, "Error allocating temporary storage for tim sort: need %lu bytes", (ulong)(sizeof(SORT_TYPE) * new_size));
 			exit(1);
@@ -330,16 +327,13 @@ static void TIM_SORT_MERGE(SORT_TYPE * dst, const TIM_SORT_RUN_T * stack, const 
 	const int64_t curr = stack[stack_curr - 2].start;
 	SORT_TYPE * storage;
 	int64_t i, j, k;
-
 	TIM_SORT_RESIZE(store, MIN(A, B));
 	storage = store->storage;
-
 	/* left merge */
 	if(A < B) {
 		memcpy(storage, &dst[curr], (size_t)(A * sizeof(SORT_TYPE)));
 		i = 0;
 		j = curr + A;
-
 		for(k = curr; k < curr + A + B; k++) {
 			if((i < A) && (j < curr + A + B)) {
 				if(SORT_CMP(storage[i], dst[j]) <= 0)

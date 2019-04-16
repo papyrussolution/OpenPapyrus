@@ -132,7 +132,7 @@ int AddProjectResource(Texc2h *const pTexc2h, SString const* ss_buf)
 		if(!is_exist) {
 			ss_buf->CopyTo(cbuf, ss_buf->Len() + 1);
 			cbuf[ss_buf->Len() + 1] = 0;
-			WritePrivateProfileSection("FILES", cbuf, pTexc2h->PrjFileName);
+			WritePrivateProfileSection(_T("FILES"), SUcSwitch(cbuf), SUcSwitch(pTexc2h->PrjFileName));
 			printf("Added into project: %s\n", cbuf);
 		}
 	}
@@ -603,7 +603,7 @@ int main(int argc, char * argv[])
 			}
 			in_file.Close();
 			out_file.Close();
-			RemoveDirectory(tmp_out_dir);
+			RemoveDirectory(SUcSwitch(tmp_out_dir));
 			{
 				//
 				// Создаем пустой файл empty_target.txt для того, чтобы компилятор понял, 

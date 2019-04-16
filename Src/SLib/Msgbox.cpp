@@ -55,7 +55,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 				uint   msg_idx = (p_param->Options & 0x03);
 				if(msg_idx >= SIZEOFARRAY(P_Titles))
 					msg_idx = 2; // "info"
-				SLS.LoadString(P_Titles[msg_idx], title_buf);
+				SLS.LoadString_(P_Titles[msg_idx], title_buf);
 				TView::SSetWindowText(hwndDlg, title_buf.Transf(CTRANSF_INNER_TO_OUTER));
 				HWND   h_prev_focus = 0;
 				uint   button_count = 0;
@@ -68,7 +68,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 						if(p_param->Options & (0x0100 << i)) {
 							int    id = CTL_WMSGBOX_FIRSTBUTTON + button_n[button_count-1][j++] - 1;
 							HWND   w_ctl = GetDlgItem(hwndDlg, id);
-							if(SLS.LoadString(button_list[i].P_Symb, title_buf) > 0) {
+							if(SLS.LoadString_(button_list[i].P_Symb, title_buf) > 0) {
 								TView::SSetWindowText(w_ctl, title_buf.Transf(CTRANSF_INNER_TO_OUTER));
 								long   wl = TView::GetWindowStyle(w_ctl);
 								TView::SetWindowProp(w_ctl, GWL_STYLE, wl|WS_VISIBLE);
@@ -88,7 +88,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 				SString title_buf;
 				TView::SGetWindowText(::GetDlgItem(hwndDlg, LOWORD(wParam)), temp_buf);
 				for(i = 0; i < SIZEOFARRAY(button_list); i++) {
-					if(SLS.LoadString(button_list[i].P_Symb, title_buf) > 0) {
+					if(SLS.LoadString_(button_list[i].P_Symb, title_buf) > 0) {
 						if(title_buf.Transf(CTRANSF_INNER_TO_OUTER) == temp_buf) {
 							EndDialog(hwndDlg, button_list[i].Cmd);
 							break;
@@ -110,7 +110,7 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 	HWND   hw_parent = APPL->H_TopOfStack;
 	if(!(aOptions & mfAll) && ((aOptions & 0xf) == mfInfo)) {
 		msg_flags |= (MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
-		SLS.LoadString(P_Titles[2], title_buf);
+		SLS.LoadString_(P_Titles[2], title_buf);
 		::MessageBox(hw_parent, SUcSwitch(ConvertMsgString(pMsg, temp_buf)), SUcSwitch(title_buf.Transf(CTRANSF_INNER_TO_OUTER)), msg_flags); // @unicodeproblem
 		SetForegroundWindow(hw_parent);
 		ret = cmOK;
@@ -126,7 +126,7 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 			msg_flags |= MB_DEFBUTTON1;
 		else
 			msg_flags |= MB_DEFBUTTON2;
-		SLS.LoadString(P_Titles[3], title_buf);
+		SLS.LoadString_(P_Titles[3], title_buf);
 		int    ok = ::MessageBox(hw_parent, SUcSwitch(ConvertMsgString(pMsg, temp_buf)), SUcSwitch(title_buf.Transf(CTRANSF_INNER_TO_OUTER)), msg_flags); // @unicodeproblem
 		::SetForegroundWindow(hw_parent);
 		ret = (ok == IDYES) ? cmYes : ((ok == IDCANCEL) ? cmCancel : cmNo);

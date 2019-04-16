@@ -932,7 +932,7 @@ static cairo_int_status_t _cairo_quartz_cairo_repeating_surface_pattern_to_quart
 	/* SURFACE is the only type we'll handle here */
 	assert(apattern->type == CAIRO_PATTERN_TYPE_SURFACE);
 
-	spattern = (cairo_surface_pattern_t*)apattern;
+	spattern = (cairo_surface_pattern_t *)apattern;
 	pat_surf = spattern->surface;
 
 	if(pat_surf->type != CAIRO_SURFACE_TYPE_RECORDING) {

@@ -2256,14 +2256,14 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 			p_node = p_node->next;
 		else {
 			xmlNode * p_node_2 = 0;
-			while(p_node && p_node->parent && !exit_while) {
-				p_node_2 = p_node->parent->next;
+			while(p_node && p_node->P_ParentNode && !exit_while) {
+				p_node_2 = p_node->P_ParentNode->next;
 				if(p_node_2) {
 					p_node = p_node_2;
 					exit_while = 1;
 				}
 				else
-					p_node = p_node->parent;
+					p_node = p_node->P_ParentNode;
 			}
 		}
 		exit_while = 0;
@@ -2438,14 +2438,14 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 				p_node = p_node->next;
 			else {
 				xmlNode * p_node_2 = 0;
-				while(p_node && p_node->parent && !exit_while) {
-					p_node_2 = p_node->parent->next;
+				while(p_node && p_node->P_ParentNode && !exit_while) {
+					p_node_2 = p_node->P_ParentNode->next;
 					if(p_node_2) {
 						p_node = p_node_2;
 						exit_while = 1;
 					}
 					else
-						p_node = p_node->parent;
+						p_node = p_node->P_ParentNode;
 				}
 			}
 			exit_while = 0;
@@ -2461,14 +2461,14 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 								p_node = p_node->next;
 							else {
 								xmlNode * p_node_2 = 0;
-								while(p_node && p_node->parent && !exit_while) {
-									p_node_2 = p_node->parent->next;
+								while(p_node && p_node->P_ParentNode && !exit_while) {
+									p_node_2 = p_node->P_ParentNode->next;
 									if(p_node_2) {
 										p_node = p_node_2;
 										exit_while = 1;
 									}
 									else
-										p_node = p_node->parent;
+										p_node = p_node->P_ParentNode;
 								}
 							}
 							if(p_node) {

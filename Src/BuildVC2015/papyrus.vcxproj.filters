@@ -361,6 +361,9 @@
     <ClInclude Include="..\Include\PPMENU.H">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\ATOL-DTO\libfptr10.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\PPMain\ppbrow-embed.rc" />

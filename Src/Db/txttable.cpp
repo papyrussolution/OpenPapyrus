@@ -111,7 +111,7 @@ int TextDbFile::Open(const char * pFileName, const Param * pParam, int readOnly)
 			THROW(cr_f.IsValid());
 		}
 	}
-	const long mode = readOnly ? (SFile::mRead|SFile::mBinary) : SFile::mReadWrite;
+	const long mode = readOnly ? (SFile::mRead|SFile::mBinary|SFile::mNoStd) : SFile::mReadWrite; // @v10.4.1 SFile::mNoStd
 	THROW(F.Open(pFileName, mode));
 	THROW(Scan());
 	SETFLAG(State, stReadOnly, readOnly);

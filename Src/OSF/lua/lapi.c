@@ -1136,7 +1136,7 @@ static const char * aux_upvalue(StkId fi, int n, TValue ** val, CClosure ** owne
 		    *val = f->upvals[n-1]->v;
 		    if(uv) *uv = f->upvals[n - 1];
 		    name = p->upvalues[n-1].name;
-		    return (name == NULL) ? "(*no name)" : getstr(name);
+		    return !name ? "(*no name)" : getstr(name);
 	    }
 		default: return NULL; /* not a closure */
 	}

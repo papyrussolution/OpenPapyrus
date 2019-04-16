@@ -183,7 +183,7 @@ IMPL_HANDLE_EVENT(LocTransfDialog)
 		if(p_dc && getCtrlHandle(CTL_LOCTRANSF_SERIAL) == p_dc->H_Ctl && State & stSerialUndef) {
 			::SetBkMode(p_dc->H_DC, TRANSPARENT);
 			::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-			p_dc->H_Br = (HBRUSH)Ptb.Get(brushIllSerial);
+			p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushIllSerial));
 		}
 		else
 			return;
@@ -810,7 +810,7 @@ DBQuery * SLAPI PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSu
 					DBConst dbc_long;
 					dbc_long.init((long)&CellList);
 					dbe_chkloc.push(dbc_long);
-					dbe_chkloc.push((DBFunc)DynCheckCellParent);
+					dbe_chkloc.push(static_cast<DBFunc>(DynCheckCellParent));
 					dbq = & (*dbq && dbe_chkloc == (long)1);
 				}
 			}

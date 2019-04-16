@@ -88,13 +88,9 @@ int archive_read_support_filter_gzip(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_gzip");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_gzip");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "gzip";
 	bidder->bid = gzip_bidder_bid;
@@ -105,12 +101,10 @@ int archive_read_support_filter_gzip(struct archive * _a)
 #if HAVE_ZLIB_H
 	return ARCHIVE_OK;
 #else
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external gzip program");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external gzip program");
 	return (ARCHIVE_WARN);
 #endif
 }
-
 /*
  * Read and verify the header.
  *
@@ -120,15 +114,12 @@ int archive_read_support_filter_gzip(struct archive * _a)
  */
 static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 {
-	const uchar * p;
-	ssize_t avail, len;
+	ssize_t avail;
 	int bits = 0;
 	int header_flags;
-
-	/* Start by looking at the first ten bytes of the header, which
-	 * is all fixed layout. */
-	len = 10;
-	p = (const uchar *)__archive_read_filter_ahead(filter, len, &avail);
+	// Start by looking at the first ten bytes of the header, which is all fixed layout. 
+	ssize_t len = 10;
+	const uchar * p = (const uchar *)__archive_read_filter_ahead(filter, len, &avail);
 	if(p == NULL || avail == 0)
 		return 0;
 	/* We only support deflation- third byte must be 0x08. */
@@ -273,44 +264,28 @@ static int consume_header(struct archive_read_filter * self)
 	if(len == 0)
 		return (ARCHIVE_EOF);
 	__archive_read_filter_consume(self->upstream, len);
-
 	/* Initialize CRC accumulator. */
 	state->crc = crc32(0L, NULL, 0);
-
 	/* Initialize compression library. */
-	state->stream.next_in = (uchar *)(uintptr_t)
-	    __archive_read_filter_ahead(self->upstream, 1, &avail);
+	state->stream.next_in = (uchar *)(uintptr_t)__archive_read_filter_ahead(self->upstream, 1, &avail);
 	state->stream.avail_in = (uInt)avail;
-	ret = inflateInit2(&(state->stream),
-		-15 /* Don't check for zlib header */);
-
+	ret = inflateInit2(&(state->stream), -15 /* Don't check for zlib header */);
 	/* Decipher the error code. */
 	switch(ret) {
 		case Z_OK:
 		    state->in_stream = 1;
 		    return ARCHIVE_OK;
 		case Z_STREAM_ERROR:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"invalid setup parameter");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid setup parameter");
 		    break;
 		case Z_MEM_ERROR:
-		    archive_set_error(&self->archive->archive, ENOMEM,
-			"Internal error initializing compression library: "
-			"out of memory");
+		    archive_set_error(&self->archive->archive, ENOMEM, "Internal error initializing compression library: out of memory");
 		    break;
 		case Z_VERSION_ERROR:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"invalid library version");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid library version");
 		    break;
 		default:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			" Zlib error %d", ret);
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: Zlib error %d", ret);
 		    break;
 	}
 	return ARCHIVE_FATAL;
@@ -318,10 +293,9 @@ static int consume_header(struct archive_read_filter * self)
 
 static int consume_trailer(struct archive_read_filter * self)
 {
-	struct private_data * state;
 	const uchar * p;
 	ssize_t avail;
-	state = (struct private_data *)self->data;
+	struct private_data * state = (struct private_data *)self->data;
 	state->in_stream = 0;
 	switch(inflateEnd(&(state->stream))) {
 		case Z_OK:
@@ -330,33 +304,26 @@ static int consume_trailer(struct archive_read_filter * self)
 		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up gzip decompressor");
 		    return ARCHIVE_FATAL;
 	}
-
 	/* GZip trailer is a fixed 8 byte structure. */
 	p = (const uchar *)__archive_read_filter_ahead(self->upstream, 8, &avail);
 	if(p == NULL || avail == 0)
 		return ARCHIVE_FATAL;
-
 	/* XXX TODO: Verify the length and CRC. */
 
 	/* We've verified the trailer, so consume it now. */
 	__archive_read_filter_consume(self->upstream, 8);
-
 	return ARCHIVE_OK;
 }
 
 static ssize_t gzip_filter_read(struct archive_read_filter * self, const void ** p)
 {
-	struct private_data * state;
 	size_t decompressed;
 	ssize_t avail_in;
 	int ret;
-
-	state = (struct private_data *)self->data;
-
+	struct private_data * state = (struct private_data *)self->data;
 	/* Empty our output buffer. */
 	state->stream.next_out = state->out_block;
 	state->stream.avail_out = (uInt)state->out_block_size;
-
 	/* Try to fill the output buffer. */
 	while(state->stream.avail_out > 0 && !state->eof) {
 		/* If we're not in a stream, read a header
@@ -388,12 +355,10 @@ static ssize_t gzip_filter_read(struct archive_read_filter * self, const void **
 		ret = inflate(&(state->stream), 0);
 		switch(ret) {
 			case Z_OK: /* Decompressor made some progress. */
-			    __archive_read_filter_consume(self->upstream,
-				avail_in - state->stream.avail_in);
+			    __archive_read_filter_consume(self->upstream, avail_in - state->stream.avail_in);
 			    break;
 			case Z_STREAM_END: /* Found end of stream. */
-			    __archive_read_filter_consume(self->upstream,
-				avail_in - state->stream.avail_in);
+			    __archive_read_filter_consume(self->upstream, avail_in - state->stream.avail_in);
 			    /* Consume the stream trailer; release the
 			     * decompression library. */
 			    ret = consume_trailer(self);

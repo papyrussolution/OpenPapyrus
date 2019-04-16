@@ -160,12 +160,9 @@ static void FASTCALL xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNodePtr P_Node, int error
 		ctxt->error = error;
 	__xmlRaiseError(0, 0, 0, ctxt, P_Node, XML_FROM_C14N, error, XML_ERR_ERROR, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
 }
-
-/************************************************************************
-*									*
-*		The implementation internals				*
-*									*
-************************************************************************/
+//
+// The implementation internals
+//
 #define XML_NAMESPACES_DEFAULT          16
 
 static int xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr P_Node, xmlNodePtr parent) 
@@ -179,7 +176,7 @@ static int xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr P_Node, xmlNod
 			memcpy(&ns, P_Node, sizeof(ns));
 			/* this is a libxml hack! check xpath.c for details */
 			if(parent && (parent->type == XML_ATTRIBUTE_NODE)) {
-				ns.next = (xmlNs *)parent->parent;
+				ns.next = (xmlNs *)parent->P_ParentNode;
 			}
 			else {
 				ns.next = (xmlNs *)parent;
@@ -507,7 +504,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
 		return -1;
 	}
 	/* check all namespaces */
-	for(n = cur; n; n = n->parent) {
+	for(n = cur; n; n = n->P_ParentNode) {
 		for(ns = n->nsDef; ns; ns = ns->next) {
 			tmp = xmlSearchNs(cur->doc, cur, ns->prefix);
 			if((tmp == ns) && !xmlC14NIsXmlNs(ns) && xmlC14NIsVisible(ctx, ns, cur)) {
@@ -826,12 +823,12 @@ static int xmlC14NPrintAttrs(const xmlAttr * attr, xmlC14NCtxPtr ctx)
 static xmlAttr * xmlC14NFindHiddenParentAttr(xmlC14NCtxPtr ctx, xmlNodePtr cur, const xmlChar * name, const xmlChar * ns)
 {
 	xmlAttr * res;
-	while(cur && (!xmlC14NIsVisible(ctx, cur, cur->parent))) {
+	while(cur && (!xmlC14NIsVisible(ctx, cur, cur->P_ParentNode))) {
 		res = xmlHasNsProp(cur, name, ns);
 		if(res) {
 			return res;
 		}
-		cur = cur->parent;
+		cur = cur->P_ParentNode;
 	}
 	return NULL;
 }
@@ -861,8 +858,8 @@ static xmlAttr * xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttr * xml_base_attr
 		return 0;
 	}
 	/* go up the stack until we find a node that we rendered already */
-	cur = xml_base_attr->parent->parent;
-	while(cur && (!xmlC14NIsVisible(ctx, cur, cur->parent))) {
+	cur = xml_base_attr->parent->P_ParentNode;
+	while(cur && (!xmlC14NIsVisible(ctx, cur, cur->P_ParentNode))) {
 		attr = xmlHasNsProp(cur, reinterpret_cast<const xmlChar *>("base"), XML_XML_NAMESPACE);
 		if(attr) {
 			/* get attr value */
@@ -899,7 +896,7 @@ static xmlAttr * xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttr * xml_base_attr
 			res = tmp_str2;
 		}
 		/* next */
-		cur = cur->parent;
+		cur = cur->P_ParentNode;
 	}
 	/* check if result uri is empty or not */
 	if((res == NULL) || sstreq(res, "")) {
@@ -998,9 +995,9 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 		    /*
 		     * Handle xml attributes
 		     */
-		    if(parent_visible && cur->parent && (!xmlC14NIsVisible(ctx, cur->parent, cur->parent->parent))) {
+		    if(parent_visible && cur->P_ParentNode && (!xmlC14NIsVisible(ctx, cur->P_ParentNode, cur->P_ParentNode->P_ParentNode))) {
 				// If XPath node-set is not specified then the parent is always visible!
-			    xmlNodePtr tmp = cur->parent;
+			    xmlNodePtr tmp = cur->P_ParentNode;
 			    while(tmp) {
 				    attr = tmp->properties;
 				    while(attr) {
@@ -1011,7 +1008,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 					    }
 					    attr = attr->next;
 				    }
-				    tmp = tmp->parent;
+				    tmp = tmp->P_ParentNode;
 			    }
 		    }
 		    /* done */
@@ -1101,17 +1098,17 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 		    // special processing for XML attribute kiks in only when we have invisible parents 
 		    if((parent_visible)) {
 			    // simple inheritance attributes - copy 
-				SETIFZ(xml_lang_attr, xmlC14NFindHiddenParentAttr(ctx, cur->parent, reinterpret_cast<const xmlChar *>("lang"), XML_XML_NAMESPACE));
+				SETIFZ(xml_lang_attr, xmlC14NFindHiddenParentAttr(ctx, cur->P_ParentNode, reinterpret_cast<const xmlChar *>("lang"), XML_XML_NAMESPACE));
 			    if(xml_lang_attr)
 				    xmlListInsert(list, xml_lang_attr);
-				SETIFZ(xml_space_attr, xmlC14NFindHiddenParentAttr(ctx, cur->parent, reinterpret_cast<const xmlChar *>("space"), XML_XML_NAMESPACE));
+				SETIFZ(xml_space_attr, xmlC14NFindHiddenParentAttr(ctx, cur->P_ParentNode, reinterpret_cast<const xmlChar *>("space"), XML_XML_NAMESPACE));
 			    if(xml_space_attr)
 				    xmlListInsert(list, xml_space_attr);
 				//
 			    // base uri attribute - fix up 
 				//
 				// if we don't have base uri attribute, check if we have a "hidden" one above 
-				SETIFZ(xml_base_attr, xmlC14NFindHiddenParentAttr(ctx, cur->parent, reinterpret_cast<const xmlChar *>("base"), XML_XML_NAMESPACE));
+				SETIFZ(xml_base_attr, xmlC14NFindHiddenParentAttr(ctx, cur->P_ParentNode, reinterpret_cast<const xmlChar *>("base"), XML_XML_NAMESPACE));
 			    if(xml_base_attr) {
 				    xml_base_attr = xmlC14NFixupBaseAttr(ctx, xml_base_attr);
 				    if(xml_base_attr) {
@@ -1302,13 +1299,11 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 {
 	int ret = 0;
 	int visible;
-
 	if(!ctx || (cur == NULL)) {
 		xmlC14NErrParam("processing node");
 		return -1;
 	}
-
-	visible = xmlC14NIsVisible(ctx, cur, cur->parent);
+	visible = xmlC14NIsVisible(ctx, cur, cur->P_ParentNode);
 	switch(cur->type) {
 		case XML_ELEMENT_NODE:
 		    ret = xmlC14NProcessElementNode(ctx, cur, visible);

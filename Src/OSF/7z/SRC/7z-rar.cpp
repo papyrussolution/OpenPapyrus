@@ -5552,7 +5552,7 @@ namespace NArchive {
 						SAlloc::F(_bufBase);
 						_buf = NULL;
 						_size = 0;
-						_bufBase = (Byte *)SAlloc::M(size + alignMask);
+						_bufBase = static_cast<Byte *>(SAlloc::M(size + alignMask));
 						if(_bufBase) {
 							_size = size;
 							// _buf = (Byte *)(((uintptr_t)_bufBase + alignMask) & ~(uintptr_t)alignMask);

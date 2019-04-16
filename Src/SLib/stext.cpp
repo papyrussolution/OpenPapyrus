@@ -1828,7 +1828,7 @@ int FASTCALL _koi8_to_866(int c)
 		return koi8tab[static_cast<size_t>(c)];
 	else
 		for(size_t i = 0; i < 256; i++)
-			if((int)koi8tab[i] == c)
+			if(koi8tab[i] == c)
 				return koi8tab[i];
 	return c;
 }

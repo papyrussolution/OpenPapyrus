@@ -146,7 +146,6 @@ int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 	int    ok = -1;
 	SString _file_spec;
 	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
-	//SString path;
 	{
 		InetUrl url;
 		const int urlpr = url.Parse(_file_spec);
@@ -163,7 +162,8 @@ int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 			SString templ = ps.Nam;
 			SString name = ps.Nam;
 			SString wildcard;
-			StrAssocArray result_list;
+			//StrAssocArray result_list;
+			PPImpExpParam::PtTokenList result_list;
 			if(PPObjBill::ParseText(name, templ, result_list, &wildcard) > 0) {
 				ps.Nam = wildcard;
 				ps.Merge(temp_buf);
@@ -205,7 +205,7 @@ int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 }
 
 //virtual
-int PPBillImpExpParam::PreprocessImportFileName(const SString & rFileName, StrAssocArray & rResultList)
+int PPBillImpExpParam::PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList)
 {
 	rResultList.Z();
 	int    ok = 1;
@@ -213,7 +213,7 @@ int PPBillImpExpParam::PreprocessImportFileName(const SString & rFileName, StrAs
 	SString templ = ps.Nam;
 	ps.Split(rFileName);
 	SString name = ps.Nam;
-	StrAssocArray result_list;
+	//StrAssocArray result_list;
 	ok = PPObjBill::ParseText(name, templ, rResultList, 0);
 	return ok;
 }
@@ -401,14 +401,13 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 	ImpExpParamDialog::setDTS(&Data);
 	SetupStringCombo(this, CTLSEL_IMPEXPBILH_PDFMT, PPTXT_PREDEFIMPEXPBILLFMT, Data.PredefFormat); // @v9.7.8
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 0, PPBillImpExpParam::fImpRowsFromSameFile);
-	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpRowsOnly); // @v8.4.8
+	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpRowsOnly);
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 2, PPBillImpExpParam::fRestrictByMatrix); // @v9.0.4
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 3, PPBillImpExpParam::fExpOneByOne); // @v9.3.10
 	SetClusterData(CTL_IMPEXPBILH_FLAGS, Data.Flags);
 
 	PPIDArray op_types;
-	op_types.addzlist(PPOPT_GOODSRECEIPT, /* @v8.4.6 {*/ PPOPT_GOODSEXPEND /*}*/,
-		PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_ACCTURN, PPOPT_GOODSORDER, 0L);
+	op_types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_ACCTURN, PPOPT_GOODSORDER, 0L);
 	SetupOprKindCombo(this, CTLSEL_IMPEXPBILH_IMPOP, Data.ImpOpID, 0, &op_types, 0);
 	setCtrlString(CTL_IMPEXPBILH_SRCHCODE1, Data.Object1SrchCode);
 	setCtrlString(CTL_IMPEXPBILH_SRCHCODE2, Data.Object2SrchCode);
@@ -642,13 +641,11 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fEgaisImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0);
 				disableCtrls((P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp), CTLSEL_IEBILLSEL_OP, 0L);
 				//
-				// @v8.9.0 {
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 0, PPBillImpExpBaseProcessBlock::fTestMode);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 1, PPBillImpExpBaseProcessBlock::fDontRemoveTags);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3); // @v9.9.9
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
 				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)); // @v9.9.9
-				// } @v8.9.0
 			}
 			else {
 				disableCtrls(1, CTLSEL_IEBILLSEL_OP, CTLSEL_IEBILLSEL_LOC, CTL_IEBILLSEL_PERIOD, 0L);
@@ -688,7 +685,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				}
 				GetClusterData(CTL_IEBILLSEL_FLAGS, &P_Data->Flags);
 				THROW(GetPeriodInput(this, CTL_IEBILLSEL_PERIOD, &P_Data->Period));
-				GetClusterData(CTL_IEBILLSEL_FLAGS, &P_Data->Flags); // @v8.9.0
+				GetClusterData(CTL_IEBILLSEL_FLAGS, &P_Data->Flags);
 			}
 			else {
 				GetClusterData(CTL_IEBILLSEL_FLAGS, &P_Data->Flags);
@@ -1664,7 +1661,7 @@ int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN
 	return ok;
 }
 
-int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const StrAssocArray * pFnFldList)
+int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const /*StrAssocArray*/PPImpExpParam::PtTokenList * pFnFldList)
 {
 	int    ok = 1;
 	long   count = 0;
@@ -1714,10 +1711,8 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 		if(mode == 1/*linkByLastInsBill*/)
 			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount() - 1).ID);
 		else if(mode == 2) {
-			// @v8.7.1 {
-			if(brow_.BillID[0] == 0)
+			if(isempty(brow_.BillID))
 				STRNSCPY(brow_.BillID, brow_.BillCode);
-			// } @v8.7.1
 			SETIFZ(brow_.BillDate, brow_.InvcDate); // @v9.8.5
 			SETIFZ(brow_.BillDate, brow_.DueDate); // @v9.8.5
 			SETIFZ(brow_.BillDate, brow_.PaymDate); // @v9.8.5
@@ -1893,7 +1888,7 @@ int SLAPI PPBillImporter::AddBillToList(Sdr_Bill * pBill, long extraBillId)
 	return ok;
 }
 
-int SLAPI PPBillImporter::AssignFnFieldToRecord(const StrAssocArray & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow)
+int SLAPI PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::PtTokenList & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow)
 {
 	int    ok = 1;
 	if(pRecHdr || pRecRow) {
@@ -1902,69 +1897,91 @@ int SLAPI PPBillImporter::AssignFnFieldToRecord(const StrAssocArray & rFldList, 
 		//
 		Sdr_Bill hdr_stub;
 		Sdr_BRow row_stub;
+		SString token_text;
         SETIFZ(pRecHdr, &hdr_stub);
         SETIFZ(pRecRow, &row_stub);
-		//
-		for(uint i = 0; i < rFldList.getCount(); i++) {
-			StrAssocArray::Item item = rFldList.at_WithoutParent(i);
-			LDATE dt = ZERODATE;
-			switch(item.Id) {
-				case PPSYM_BILLNO:
-                    STRNSCPY(pRecHdr->Code, item.Txt);
-                    STRNSCPY(pRecRow->BillCode, item.Txt);
-					break;
-				case PPSYM_DATE:
-					{
-                        strtodate(item.Txt, DATF_DMY, &dt);
-                        pRecHdr->Date = dt;
-                        pRecRow->BillDate = dt;
-					}
-					break;
-				case PPSYM_FGDATE:
-					{
-                        strtodate(item.Txt, DATF_DMY|DATF_CENTURY|DATF_NODIV, &dt);
-                        pRecHdr->Date = dt;
-                        pRecRow->BillDate = dt;
-					}
-					break;
-				case PPSYM_PAYDATE:
-					{
-                        strtodate(item.Txt, DATF_DMY, &dt);
-                        pRecHdr->PaymDate = dt;
-                        pRecRow->PaymDate = dt;
-					}
-					break;
-				case PPSYM_INVOICEDATE:
-					{
-                        strtodate(item.Txt, DATF_DMY, &dt);
-                        pRecHdr->InvoiceDate = dt;
-                        pRecRow->InvcDate = dt;
-					}
-					break;
-				case PPSYM_INVOICENO:
-					STRNSCPY(pRecHdr->InvoiceCode, item.Txt);
-					STRNSCPY(pRecRow->InvcCode, item.Txt);
-					break;
-				case PPSYM_LOCCODE:
-					STRNSCPY(pRecHdr->LocCode, item.Txt);
-					STRNSCPY(pRecRow->LocCode, item.Txt);
-					break;
-				case PPSYM_DLVRLOCCODE:
-					STRNSCPY(pRecHdr->DlvrAddrCode, item.Txt);
-					STRNSCPY(pRecRow->DlvrAddrCode, item.Txt);
-					break;
-				case PPSYM_DLVRLOCID:
-					pRecHdr->DlvrAddrID = atol(item.Txt);
-					pRecRow->DlvrAddrID = atol(item.Txt);
-					break;
-				case PPSYM_INN:
-					STRNSCPY(pRecHdr->INN, item.Txt);
-					STRNSCPY(pRecRow->INN, item.Txt);
-					break;
-				case PPSYM_DUMMY:
-					break;
-				default:
-					break;
+		for(uint i = 0; i < rFldList.GetCount(); i++) {
+			//StrAssocArray::Item item = rFldList.at_WithoutParent(i);
+			long   token_id = 0;
+			long   ext_id = 0;
+			if(rFldList.Get(i, &token_id, &ext_id, token_text)) {
+				LDATE dt = ZERODATE;
+				switch(token_id) {
+					case PPSYM_BILLNO:
+						STRNSCPY(pRecHdr->Code, token_text);
+						STRNSCPY(pRecRow->BillCode, token_text);
+						break;
+					case PPSYM_DATE:
+						{
+							strtodate(token_text, DATF_DMY, &dt);
+							pRecHdr->Date = dt;
+							pRecRow->BillDate = dt;
+						}
+						break;
+					case PPSYM_FGDATE:
+						{
+							strtodate(token_text, DATF_DMY|DATF_CENTURY|DATF_NODIV, &dt);
+							pRecHdr->Date = dt;
+							pRecRow->BillDate = dt;
+						}
+						break;
+					case PPSYM_PAYDATE:
+						{
+							strtodate(token_text, DATF_DMY, &dt);
+							pRecHdr->PaymDate = dt;
+							pRecRow->PaymDate = dt;
+						}
+						break;
+					case PPSYM_INVOICEDATE:
+						{
+							strtodate(token_text, DATF_DMY, &dt);
+							pRecHdr->InvoiceDate = dt;
+							pRecRow->InvcDate = dt;
+						}
+						break;
+					case PPSYM_INVOICENO:
+						STRNSCPY(pRecHdr->InvoiceCode, token_text);
+						STRNSCPY(pRecRow->InvcCode, token_text);
+						break;
+					case PPSYM_LOCCODE:
+						STRNSCPY(pRecHdr->LocCode, token_text);
+						STRNSCPY(pRecRow->LocCode, token_text);
+						break;
+					case PPSYM_DLVRLOCCODE:
+						STRNSCPY(pRecHdr->DlvrAddrCode, token_text);
+						STRNSCPY(pRecRow->DlvrAddrCode, token_text);
+						break;
+					case PPSYM_DLVRLOCID:
+						pRecHdr->DlvrAddrID = token_text.ToLong();
+						pRecRow->DlvrAddrID = token_text.ToLong();
+						break;
+					case PPSYM_DLVRLOCTAG: // @v10.4.1
+						if(!isempty(token_text)) {
+							PPObjTag tag_obj;
+							PPObjectTag tag_rec;
+							if(tag_obj.Fetch(ext_id, &tag_rec) > 0) {
+								if(tag_rec.ObjTypeID == PPOBJ_LOCATION) {
+									PPIDArray loc_list;
+									if(PPRef->Ot.SearchObjectsByStr(PPOBJ_LOCATION, tag_rec.ID, token_text, &loc_list) > 0) {
+										assert(loc_list.getCount() > 0);
+										if(loc_list.getCount()) {
+											pRecHdr->DlvrAddrID = loc_list.get(0);
+											pRecRow->DlvrAddrID = loc_list.get(0);
+										}
+									}
+								}
+							}
+						}
+						break;
+					case PPSYM_INN:
+						STRNSCPY(pRecHdr->INN, token_text);
+						STRNSCPY(pRecRow->INN, token_text);
+						break;
+					case PPSYM_DUMMY:
+						break;
+					default:
+						break;
+				}
 			}
 		}
 	}
@@ -2086,7 +2103,6 @@ int SLAPI PPBillImporter::ReadData()
 		THROW(imp_dll.FinishImpExp());
 	}
 	else if(h_r_eq_f == PPImpExpParam::dfXml && BillParam.FileName.IsEqNC(BRowParam.FileName) && !imp_rows_only) {
-		// @v8.6.4 const  int imp_rows_only = BIN(BillParam.Flags & PPBillImpExpParam::fImpRowsOnly);
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
 		for(uint ssp = 0; ss_files.get(&ssp, filename);) {
 			uint   p = 0;
@@ -2095,7 +2111,7 @@ int SLAPI PPBillImporter::ReadData()
 			StrAssocArray articles;
 			PPImpExp ie(&BillParam, 0);
 			PPImpExp * p_ie_row = 0;
-			StrAssocArray fn_fld_list;
+			/*StrAssocArray*/PPImpExpParam::PtTokenList fn_fld_list;
 			BillParam.PreprocessImportFileName(filename, fn_fld_list);
 			THROW(ie.OpenFileForReading(filename));
 			p_ie_row = &ie;
@@ -2129,15 +2145,13 @@ int SLAPI PPBillImporter::ReadData()
 		PPImpExp ie(&BillParam, 0);
 		PPImpExp ie_row(&BRowParam, 0);
 		SString bid;
-		BillsRows.freeAll(); // @v8.7.1
+		BillsRows.freeAll();
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
-		//for(uint fi = 0; file_list.Enum(&fi, 0, &filename.Z());) {
 		ss_files.sortAndUndup(); // @v9.9.1
 		for(uint ssp = 0, fi = 0; ss_files.get(&ssp, filename); fi++) {
-			StrAssocArray fn_fld_list;
+			/*StrAssocArray*/PPImpExpParam::PtTokenList fn_fld_list;
 			BillParam.PreprocessImportFileName(filename, fn_fld_list);
 			if(imp_rows_only) {
-				// @v8.7.1 BillsRows.freeAll();
 				SdrBillRowArray preserve_rows = BillsRows;
 				BillsRows.freeAll();
 				THROW(ie_row.OpenFileForReading(filename));
@@ -2193,9 +2207,9 @@ int SLAPI PPBillImporter::ReadData()
                             bill.Obj2No = r_row.Obj2No;
                             STRNSCPY(bill.AgentINN, r_row.AgentINN);
 							bill.AgentPersonID = r_row.AgentPersonID; // @v9.8.7
-							bill.DlvrAddrID = r_row.DlvrAddrID; // @v8.7.1
-							STRNSCPY(bill.DlvrAddrCode, r_row.DlvrAddrCode); // @v8.7.1
-                            STRNSCPY(bill.Memo, r_row.BillMemo); // @v8.6.0
+							bill.DlvrAddrID = r_row.DlvrAddrID;
+							STRNSCPY(bill.DlvrAddrCode, r_row.DlvrAddrCode);
+                            STRNSCPY(bill.Memo, r_row.BillMemo);
                             // @todo не все поля перенесены из r_row в bill
 							int    bidx_found = 0;
                             if(CheckBill(&bill)) {
@@ -2279,29 +2293,24 @@ int SLAPI PPBillImporter::ReadData()
 					ie_row.CloseFile();
 				}
 				Bills.sort(PTR_CMPFUNC(Pchar));
-				// @v8.4.7 {
 				if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles) {
 					ToRemoveFiles.add(filename);
 				}
-				// } @v8.4.7
 			}
 			ok = 1;
 		}
 		if(!imp_rows_from_same_file) {
-			if(GetOpType(BillParam.ImpOpID) != PPOPT_ACCTURN) { // @v8.4.10
+			if(GetOpType(BillParam.ImpOpID) != PPOPT_ACCTURN) {
 				THROW(BRowParam.PreprocessImportFileSpec(ss_files));
-				//for(uint fi = 0; file_list.Enum(&fi, 0, &filename);) {
 				for(uint ssp = 0; ss_files.get(&ssp, filename);) {
-					StrAssocArray fn_fld_list;
+					/*StrAssocArray*/PPImpExpParam::PtTokenList fn_fld_list;
 					BillParam.PreprocessImportFileName(filename, fn_fld_list);
 					THROW(ie_row.OpenFileForReading(filename));
 					THROW(ReadRows(&ie_row, 0, &fn_fld_list));
 					ie_row.CloseFile();
-					// @v8.4.7 {
 					if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles) {
 						ToRemoveFiles.add(filename);
 					}
-					// } @v8.4.7
 				}
 			}
 		}
@@ -3082,7 +3091,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 		}
 		if(ar_id || !acs_id) {
 			pPack->Rec.Object = ar_id;
-			const PPID psn_id = ObjectToPerson(ar_id, 0); // @v8.6.11
+			const PPID psn_id = ObjectToPerson(ar_id, 0);
 			if(op_rec.AccSheet2ID) {
 				ArticleTbl::Rec ar_rec;
 				PPID   obj2id = 0;
@@ -3098,7 +3107,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 			SETIFZ(pPack->Rec.LocID, LocID);
 			if(isempty(pBill->LocID) && !isempty(pBill->LocCode)) {
 				PPID loc_id = 0;
-				if(LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, pBill->LocCode, &loc_id) > 0) // @v8.6.11 @fix (!=0)-->(>0)
+				if(LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, pBill->LocCode, &loc_id) > 0)
 					pPack->Rec.LocID = loc_id;
 			}
 			if(!isempty(pBill->OrderBillID)) {
@@ -3854,7 +3863,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				PPID   country_id = 0;
 				PPCountryBlock mcb;
 				PsnObj.GetCountry(goods_rec.ManufID, &country_id, &mcb);
-				mcb.Name.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.ManufCountryName, sizeof(brow.ManufCountryName)); // @v8.2.4 ToChar()
+				mcb.Name.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.ManufCountryName, sizeof(brow.ManufCountryName));
 				mcb.Code.CopyTo(brow.ManufCountryOKSM, sizeof(brow.ManufCountryOKSM));
 			}
 			{

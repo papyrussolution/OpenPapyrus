@@ -574,7 +574,7 @@ static cairo_status_t _cairo_xml_emit_pattern(cairo_xml_t * xml, const char * so
 		case CAIRO_PATTERN_TYPE_SOLID: status = _cairo_xml_emit_solid(xml, reinterpret_cast<const cairo_solid_pattern_t *>(pattern)); break;
 		case CAIRO_PATTERN_TYPE_LINEAR: status = _cairo_xml_emit_linear(xml, (cairo_linear_pattern_t*)pattern); break;
 		case CAIRO_PATTERN_TYPE_RADIAL: status = _cairo_xml_emit_radial(xml, (cairo_radial_pattern_t*)pattern); break;
-		case CAIRO_PATTERN_TYPE_SURFACE: status = _cairo_xml_emit_surface(xml, (cairo_surface_pattern_t*)pattern); break;
+		case CAIRO_PATTERN_TYPE_SURFACE: status = _cairo_xml_emit_surface(xml, (cairo_surface_pattern_t *)pattern); break;
 		default:
 		    ASSERT_NOT_REACHED;
 		    status = CAIRO_INT_STATUS_UNSUPPORTED;
