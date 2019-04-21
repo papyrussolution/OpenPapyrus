@@ -5964,7 +5964,7 @@ int xmlUnsetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name)
  * Returns the attribute pointer.
  *
  */
-xmlAttr * xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value) 
+xmlAttr * FASTCALL xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value) 
 {
 	int len;
 	const xmlChar * nqname;
@@ -5979,9 +5979,9 @@ xmlAttr * xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * valu
 		xmlNs * ns = xmlSearchNs(pNode->doc, pNode, prefix);
 		SAlloc::F(prefix);
 		if(ns)
-			return (xmlSetNsProp(pNode, ns, nqname, value));
+			return xmlSetNsProp(pNode, ns, nqname, value);
 	}
-	return (xmlSetNsProp(pNode, NULL, name, value));
+	return xmlSetNsProp(pNode, NULL, name, value);
 }
 /**
  * xmlSetNsProp:
@@ -5995,12 +5995,11 @@ xmlAttr * xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * valu
  *
  * Returns the attribute pointer.
  */
-xmlAttr * xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value)
+xmlAttr * FASTCALL xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value)
 {
-	xmlAttr * prop;
 	if(ns && (ns->href == NULL))
 		return 0;
-	prop = xmlGetPropNodeInternal(P_Node, name, ns ? ns->href : NULL, 0);
+	xmlAttr * prop = xmlGetPropNodeInternal(P_Node, name, ns ? ns->href : NULL, 0);
 	if(prop) {
 		/*
 		 * Modify the attribute's value.

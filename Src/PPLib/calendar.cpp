@@ -1599,7 +1599,7 @@ static INT_PTR CALLBACK PeriodWndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					ss.setBuf(temp_buf, temp_buf.Len() + 1);
 					for(uint p = 0; ss.get(&p, temp_buf) > 0;)
-						SendDlgItemMessage(hWnd, CTL_CALENDAR_FASTPRD, CB_ADDSTRING, 0, (LPARAM)temp_buf.cptr());
+						SendDlgItemMessage(hWnd, CTL_CALENDAR_FASTPRD, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(temp_buf.cptr()));
 					// SendDlgItemMessage(hwndDlg, CTL_WPRINT_REPORT, CB_SETCURSEL, 0, 0);
 				}
 				TView::PreprocessWindowCtrlText(hWnd); // @v9.1.1

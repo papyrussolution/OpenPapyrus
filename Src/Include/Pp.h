@@ -2109,38 +2109,11 @@ public:
 
 	class PtTokenList : public SStrGroup {
 	public:
-		PtTokenList() : SStrGroup()
-		{
-		}
-		PtTokenList & Z()
-		{
-			L.clear();
-			ClearS();
-			return *this;
-		}
-		uint    GetCount() const { return L.getCount(); }
-		int     Add(long tokenId, long extID, const char * pText)
-		{
-			int    ok = 1;
-			InnerEntry entry;
-			entry.TokenId = tokenId;
-			entry.ExtID = extID;
-			AddS(pText, &entry.StrP);
-			L.insert(&entry);
-			return ok;
-		}
-		int     Get(uint pos, long * pTokenId, long * pExtID, SString & rText) const
-		{
-			int    ok = 0;
-			if(pos < L.getCount()) {
-				const InnerEntry & r_entry = L.at(pos);
-				ASSIGN_PTR(pTokenId, r_entry.TokenId);
-				ASSIGN_PTR(pExtID, r_entry.ExtID);
-				GetS(r_entry.StrP, rText);
-				ok = 1;
-			}
-			return ok;
-		}
+		PtTokenList();
+		PtTokenList & Z();
+		uint    GetCount() const;
+		int     Add(long tokenId, long extID, const char * pText);
+		int     Get(uint pos, long * pTokenId, long * pExtID, SString & rText) const;
 	private:
 		struct InnerEntry {
 			long   TokenId;
@@ -4673,7 +4646,7 @@ public:
 	//
 	// Descr: Сбрасывает кэш наименований товаров.
 	//
-	int    SLAPI ResetFullList();
+	void   SLAPI ResetFullList();
 	int    SLAPI SearchBarcode(const char * pCode, BarcodeTbl::Rec *);
 	int    SLAPI SearchByBarcode(const char * pCode, BarcodeTbl::Rec *, Goods2Tbl::Rec * pGoodsRec = 0);
 	int    SLAPI SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec);
@@ -7472,7 +7445,7 @@ enum {
     PPSYM_DUMMY,       // @dummy       Пустое значение
     PPSYM_CSESS,       // @v10.1.3 .csess       Списываемая этим документом кассовая сессия //
     PPSYM_POSNODE,     // @v10.1.3 @posnode     Наименование кассового узла
-	PPSYM_DLVRLOCTAG   // @v10.4.1 @dlvrloctag.tagsymb Символ тега, идентифицирующего адрес доставки 
+	PPSYM_DLVRLOCTAG   // @v10.4.1 @dlvrloctag.tagsymb Символ тега, идентифицирующего адрес доставки
 };
 //
 class PPSymbTranslator {
@@ -14138,13 +14111,10 @@ public:
 	int    SLAPI SerializePacket(int dir, CCheckPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx);
 	void   SLAPI WriteCCheckLogFile(const CCheckPacket * pPack, const CCheckLineTbl::Rec * pLineRec, int action /* CCheckCore::logXXX */, int use_ta);
 	void   SLAPI WriteCCheckLogFile(const CCheckTbl::Rec * pRec, int action /* CCheckCore::logXXX */, int use_ta);
-	//
-	//
-	//
 	int    SLAPI CorrectCCLineProblem01();
 
 	CCheckLineTbl Lines;
-	CCheckPaymTbl PaymT;    // @v7.6.1 Таблица платежей по чекам
+	CCheckPaymTbl PaymT;    // Таблица платежей по чекам
 	SCardCore     Cards;
 	CCheckLineExtTbl * P_LnExt; // Таблица расширения строк чеков private->public
 private:
@@ -15900,7 +15870,7 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
 	uint16 PeakAvgQuant;   // @v10.3.3
 	uint16 PeakAvgQuant_S; // @v10.3.3
-	char   Reserve[2];     // @reserve
+	uint16 TargetQuant;    // @v10.4.2 
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
@@ -15911,7 +15881,8 @@ public:
 		enum {
 			fTestMode      = 0x0001,
 			fUseStakeMode2 = 0x0002, // @v10.3.3
-			fUseStakeMode3 = 0x0004  // @v10.3.3
+			fUseStakeMode3 = 0x0004, // @v10.3.3
+			fAllowReverse  = 0x0008  // @v10.4.2 Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
 		};
 		enum {
 			efLong         = 0x0001,
@@ -15941,7 +15912,9 @@ public:
 			SLAPI  ExtBlock();
 			uint32 MaxAvgTimeSec; // @v10.3.3 Предельное среднее время в секундах
 			int32  TsFlashTimer;  // @v10.3.3 default(600) Период времени (секунд) по истечении которого необходимо сбросить накопленные серии в БД
-			uint8  Reserve[56];
+			int32  MinLossQuantForReverse;  // @v10.4.2 Минимальное количество квантов потерь для реверса ставки
+			int32  MinAgeSecondsForReverse; // @v10.4.2 Минимальный возраст ставки для реверса (в секундах)
+			uint8  Reserve[48]; // @v10.4.2 [56]-->[48]
 		};
 		ExtBlock   E;
 		TSVector <Entry> List;
@@ -16046,10 +16019,13 @@ public:
 			gbsfStakeMode2         = 0x0008,
 			gbsfStakeMode3         = 0x0010,
 			gbsfStakeMode4         = 0x0020,
-			gbsfCritProfitMultProb = 0x0040 // В качестве критерия сортировки применять произведение доходности на отношение win/stake.
+			gbsfCritProfitMultProb = 0x0040, // В качестве критерия сортировки применять произведение доходности на отношение win/stake.
 				// Если флаг не установлен, то - доходность.
+			gbsfCritProb           = 0x0080, // @v10.4.2 В качестве критерия сортировки применять отношение win/stake.
+			gbsfEliminateDups      = 0x0100  // @v10.4.1 Не включать в список дубликаты по StakeMode1 с идентичными
+				// диапазонами и InputFrameSize (игнорируется то из двух, кто имеет наименьший целевой критерий)
 		};
-		int    SLAPI GetBestSubset(long flags, uint maxCount, StrategyContainer & rScDest) const;
+		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest) const;
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	private:
 		uint32 Ver;
@@ -16189,6 +16165,8 @@ public:
 		uint   BestSubsetMaxPhonyIters;
 		uint   BestSubsetOptChunk; // 3 || 7
 		LDATE  UseDataSince;
+		uint   DefTargetQuant; // @v10.4.2
+		double MinWinRate; // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
 	};
 	SLAPI  PrcssrTsStrategyAnalyze();
 	SLAPI ~PrcssrTsStrategyAnalyze();
@@ -18367,7 +18345,6 @@ public:
 	static int SLAPI RegisterMachine(PPID, RegCashMachineFunc, int _sync, int _async);
 	static int SLAPI IsSyncCMT(PPID cmtID);
 	static int SLAPI IsAsyncCMT(PPID cmtID);
-
 	virtual SLAPI ~PPCashMachine();
 	virtual PPSyncCashSession  * SLAPI SyncInterface()  { return 0; }
 	virtual PPAsyncCashSession * SLAPI AsyncInterface() { return 0; }
@@ -31882,7 +31859,7 @@ private:
 //
 #define OPG_FORCEGOODS        0x00000200L //
 #define OPG_ADJPAYM           0x00000400L // For internal use
-#define OPG_STOREDAYLYRESTS   0x00000800L // @v9.1.3 При переборе строк Transfer GCTIterator сохраняет
+#define OPG_STOREDAILYRESTS   0x00000800L // @v9.1.3 При переборе строк Transfer GCTIterator сохраняет
 	// информацию о ежедневных остатках товаров с детализацией по складам.
 #define OPG_LABELONLY         0x00002000L //
 #define OPG_NOZEROEXCISE      0x00004000L // Перебирать только подакцизные товары
@@ -32133,7 +32110,7 @@ public:
 		int    SLAPI AddLine(PPID ccID, const Line & rLn);
 		int    SLAPI Finish(PPID ccID, PPID * pNewCcID);
 	private:
-		CCheckCore Cc;
+		// @v10.4.2 CCheckCore Cc;
 		PPObjCSession * P_CsObj;
 		PPObjCashNode CnObj;
 		PPObjLocation LocObj;
@@ -32325,7 +32302,6 @@ public:
 	static SString & FASTCALL MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf);
 	static int RightsToString(long rt, long opRt, SString & rBuf);
 	static int StringToRights(const char * pBuf, long * pRt, long * pOpRt);
-
 	explicit SLAPI PPObjCSession(void * extraPtr = 0);
 	SLAPI ~PPObjCSession();
 	virtual int  SLAPI Search(PPID id, void * b = 0);
@@ -32358,6 +32334,7 @@ private:
 	PPEquipConfig * P_EqCfg; // @!GetEqCfg()
 public:
 	TLP_MEMB(CSessionCore, P_Tbl);
+	TLP_MEMB(CCheckCore, P_Cc); // @v10.4.2
 	void * ExtraPtr;
 };
 //
@@ -39755,28 +39732,30 @@ public:
 	ObjIdListFilt NodeList;
 };
 
-class PPCSessExporter {
-public:
-	SLAPI  PPCSessExporter();
-	SLAPI ~PPCSessExporter();
-	int    SLAPI Init(const PPImpExpParam *, const PPImpExpParam *, const PPImpExpParam *);
-	int    SLAPI PutSess(PPID csessID, DateRange * pPeriod);
-	int    SLAPI PutSess(const PPIDArray * pSessArr, DateRange * pPeriod); // @vmiller
-private:
-	int SLAPI FillCSess(PPID csessID, Sdr_CSess * pCSessRec);
-	int SLAPI FillCheck(PPID checkID, Sdr_CSess * pCSessRec, Sdr_CChecks * pCCheckRec);
+#if 0 // @v10.4.2 {
+	class PPCSessExporter {
+	public:
+		SLAPI  PPCSessExporter();
+		SLAPI ~PPCSessExporter();
+		int    SLAPI Init(const PPImpExpParam *, const PPImpExpParam *, const PPImpExpParam *);
+		int    SLAPI PutSess(PPID csessID, DateRange * pPeriod);
+		int    SLAPI PutSess(const PPIDArray * pSessArr, DateRange * pPeriod); // @vmiller
+	private:
+		int SLAPI FillCSess(PPID csessID, Sdr_CSess * pCSessRec);
+		int SLAPI FillCheck(PPID checkID, Sdr_CSess * pCSessRec, Sdr_CChecks * pCCheckRec);
 
-	PPImpExpParam  CSessParam;
-	PPImpExpParam  CCheckParam;
-	PPImpExpParam  CCLineParam;
-	CCheckCore     CCTbl;
-	SCardCore      SCardTbl;
-	PPObjGoods     GObj;
-	PPObjCSession  CSObj;
-	PPImpExp * P_IECSess;
-	PPImpExp * P_IECCheck;
-	PPImpExp * P_IECCLine;
-};
+		PPImpExpParam  CSessParam;
+		PPImpExpParam  CCheckParam;
+		PPImpExpParam  CCLineParam;
+		// @v10.4.2 CCheckCore     CCTbl;
+		SCardCore      SCardTbl;
+		PPObjGoods     GObj;
+		PPObjCSession  CSObj;
+		PPImpExp * P_IECSess;
+		PPImpExp * P_IECCheck;
+		PPImpExp * P_IECCLine;
+	};
+#endif // } 0 @v10.4.2
 
 class PPViewCSess : public PPView {
 public:
@@ -39827,11 +39806,7 @@ public:
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	int    SLAPI IsNotDefaultOrder(int ord) const
-	{
-		return oneof8(ord, ordByID, ordByDtm_CashNode, ordByDtm_CashNumber, ordByDtm_SessNumber,
-			ordByCashNode_Dtm, ordByCashNumber_Dtm, ordBySessNumber, ordByAmount);
-	}
+	int    FASTCALL IsNotDefaultOrder(int ord) const;
 	int    SLAPI CreateOrderTable(long ord, TempOrderTbl ** ppTbl);
 	int    SLAPI InitCSessIteration();
 	int    SLAPI NextCSessIteration(CSessionTbl::Rec *);
@@ -39855,7 +39830,7 @@ private:
 	TempOrderTbl * P_TempOrd;
 	SArray * P_SessAmtAry;
 	PPObjCSession CsObj;
-	CCheckCore CC;
+	// @v10.4.2 CCheckCore CC;
 };
 //
 // PPViewCSessExc
@@ -41508,7 +41483,6 @@ public:
 	int    SLAPI Transfer(PPID);
 private:
 	static void SLAPI SetAddLockErrInfo(PPID mutexID);
-
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -41670,10 +41644,10 @@ private:
 	void   SLAPI GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col);
 	int    SLAPI ViewArticleInfo(const BrwHdr * pHdr, int what);
 
-	IterCounter   InnerCounter;
-	PPIDArray     BillList;
-	RPairArray    PaymList;
-	PPObjBill    * P_BObj;
+	IterCounter InnerCounter;
+	PPIDArray   BillList;
+	RPairArray  PaymList;
+	PPObjBill * P_BObj;
 	PPObjArticle ArObj;
 	PPObjPerson  PsnObj;
 	PPObjPerson::SubstParam Psp;

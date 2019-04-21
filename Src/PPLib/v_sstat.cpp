@@ -457,9 +457,9 @@ int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1, use_ta = 1;
 	SStatFilt prev_filt = Filt;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	Filt.Period.Actualize(ZERODATE); // @v8.6.9
-	Filt.RestDate = Filt.RestDate.getactual(ZERODATE); // @v8.6.9
-	CreatedBillList.clear(); // @v8.9.11
+	Filt.Period.Actualize(ZERODATE);
+	Filt.RestDate = Filt.RestDate.getactual(ZERODATE);
+	CreatedBillList.clear();
 	if(P_TempTbl && prev_filt.IsEqualExceptOrder(&Filt)) {
 		int create_ot = ((prev_filt.CountRange.low != Filt.CountRange.low || prev_filt.CountRange.upp != Filt.CountRange.upp) ||
 			(prev_filt.QttyAvgRange.low != Filt.QttyAvgRange.low || prev_filt.QttyAvgRange.upp != Filt.QttyAvgRange.upp) ||
@@ -483,7 +483,7 @@ int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 			gr_filt.LocList = Filt.LocList;
 			gr_filt.SupplID = Filt.SupplID;
 			gr_filt.Sgg = Filt.Sgg;
-			gr_filt.Flags |= (GoodsRestFilt::fNullRest|GoodsRestFilt::fWoSupplier|GoodsRestFilt::fForceNullRest); // @v8.6.6 GoodsRestFilt::fForceNullRest
+			gr_filt.Flags |= (GoodsRestFilt::fNullRest|GoodsRestFilt::fWoSupplier|GoodsRestFilt::fForceNullRest);
 			SETFLAG(gr_filt.Flags, GoodsRestFilt::fExtByArCode,      Filt.Flags & SStatFilt::fExtByArCode);
 			SETFLAG(gr_filt.Flags, GoodsRestFilt::fRestrictByArCode, Filt.Flags & SStatFilt::fRestrictByArCode);
 			if(Filt.Flags & SStatFilt::fUseInsurStock)
@@ -514,7 +514,7 @@ int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 							PPID   goods_id = 0;
 							if(p_tbl->getFieldValByName("GoodsID", &goods_id, 0)) {
 								GoodsRestViewItem gr_item;
-								const SStatFilt * p_filt = (const SStatFilt *)P_V->GetBaseFilt();
+								const SStatFilt * p_filt = static_cast<const SStatFilt *>(P_V->GetBaseFilt());
 								if(P_V->GetRestItem(goods_id, &p_filt->LocList, &gr_item) > 0) {
 									p_tbl->setFieldValByName("Rest",    &gr_item.Rest);
 									p_tbl->setFieldValByName("Predict", &gr_item.Predict);
@@ -792,7 +792,6 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 			PPIDArray subst_list, loc_list;
 			PPObjGoods::SubstBlock sgg_blk;
 			sgg_blk.ExclParentID = Filt.GoodsGrpID;
-
 			Gsl.Clear();
 			Gsl.SaveAssoc = 1;
 			if(Filt.LocList.IsExists())
@@ -868,7 +867,8 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 			Predictor::EvalParam ep(&Filt);
 			for(P_VGr->InitIteration(); P_VGr->NextIteration(&item) > 0; PPWaitPercent(P_VGr->GetCounter())) {
 				int    calc_ord_wo_stat = 0; // расчитывать заказ для товаров, по которым нет статистики.
-				double prediction = 0.0, order = 0.0;
+				double prediction = 0.0;
+				double order = 0.0;
 				//double ord_predict = 0.0;
 				//
 				// Два взаимоисключающих показателя: если min_stock_days == 0 используется min_stock_qtty

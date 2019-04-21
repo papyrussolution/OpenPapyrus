@@ -2423,11 +2423,11 @@ public:
 	int    SLAPI GetSingleBarcode(PPID goodsID, SString & rBuf); // @sync_w
 	const  TwoDimBarcodeFormatArray * GetBc2dSpec();
 	const  StrAssocArray * SLAPI GetFullList(); // @sync_w
-	int    ReleaseFullList(const StrAssocArray * pList);
+	void   ReleaseFullList(const StrAssocArray * pList);
 	//
 	// Descr: Сбрасывает содержимое кэша наименований товаров
 	//
-	int    ResetFullList(); // @sync_w
+	void   ResetFullList(); // @sync_w
 	int    SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pTransitComponentBuf); // @sync_w
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
@@ -2701,14 +2701,13 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 	return ok;
 }
 
-int GoodsCache::ResetFullList()
+void GoodsCache::ResetFullList()
 {
 	{
 		SRWLOCKER(FglLock, SReadWriteLocker::Write);
 		FullGoodsList.Inited = 0;
 		FullGoodsList.DirtyTable.Clear();
 	}
-	return 1;
 }
 
 const StrAssocArray * SLAPI GoodsCache::GetFullList()
@@ -2785,7 +2784,7 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 	return p_result;
 }
 
-int GoodsCache::ReleaseFullList(const StrAssocArray * pList)
+void GoodsCache::ReleaseFullList(const StrAssocArray * pList)
 {
 	if(pList && pList == &FullGoodsList) {
 		FglLock.Unlock_();
@@ -2793,7 +2792,6 @@ int GoodsCache::ReleaseFullList(const StrAssocArray * pList)
 		SLS.LockPop();
 		#endif
 	}
-	return 1;
 }
 
 int FASTCALL GoodsCache::Dirty(PPID id)
@@ -2973,9 +2971,11 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 					SETIFZ(p_cache_rec->TypeID, p_parent_entry->TypeID);
 				}
 				else {
-					THROW(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0);
-					SETIFZ(p_cache_rec->TaxGrpID, (short)grp_rec.TaxGrpID);
-					SETIFZ(p_cache_rec->TypeID, (short)grp_rec.GoodsTypeID);
+					// @v10.4.2 THROW(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0);
+					if(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0) { // @v10.4.2
+						SETIFZ(p_cache_rec->TaxGrpID, (short)grp_rec.TaxGrpID);
+						SETIFZ(p_cache_rec->TypeID, (short)grp_rec.GoodsTypeID);
+					}
 				}
 			}
 			if(p_cache_rec->UnitID) {
@@ -2986,20 +2986,22 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 			if(strcmp(rec.Name, rec.Abbr) == 0)
 				p_cache_rec->Flags |= GF_ABBREQNAME;
 		}
-		if(p_cache_rec->TypeID && oneof2(rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP)) { // @v8.2.1 (&& oneof2(rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP))
+		if(p_cache_rec->TypeID && oneof2(rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP)) {
 			PPObjGoodsType gt_obj;
 			PPGoodsType gt_rec;
-			THROW(gt_obj.Fetch(p_cache_rec->TypeID, &gt_rec) > 0);
-			if(p_cache_rec->TypeID != PPGT_DEFAULT)
-				p_cache_rec->Flags |= GF_ODD;
-			if(gt_rec.Flags & GTF_UNLIMITED)
-				p_cache_rec->Flags |= GF_UNLIM;
-			if(gt_rec.Flags & GTF_AUTOCOMPL)
-				p_cache_rec->Flags |= GF_AUTOCOMPL;
-			if(gt_rec.Flags & GTF_ASSETS)
-				p_cache_rec->Flags |= GF_ASSETS;
-			if(gt_rec.Flags & GTF_EXCLVAT)
-				p_cache_rec->Flags |= GF_EXCLVAT;
+			// @v10.4.2 THROW(gt_obj.Fetch(p_cache_rec->TypeID, &gt_rec) > 0);
+			if(gt_obj.Fetch(p_cache_rec->TypeID, &gt_rec) > 0) { // @v10.4.2 
+				if(p_cache_rec->TypeID != PPGT_DEFAULT)
+					p_cache_rec->Flags |= GF_ODD;
+				if(gt_rec.Flags & GTF_UNLIMITED)
+					p_cache_rec->Flags |= GF_UNLIM;
+				if(gt_rec.Flags & GTF_AUTOCOMPL)
+					p_cache_rec->Flags |= GF_AUTOCOMPL;
+				if(gt_rec.Flags & GTF_ASSETS)
+					p_cache_rec->Flags |= GF_ASSETS;
+				if(gt_rec.Flags & GTF_EXCLVAT)
+					p_cache_rec->Flags |= GF_EXCLVAT;
+			}
 		}
 		PutName(rec.Name, p_cache_rec);
 	}
@@ -3046,10 +3048,10 @@ void SLAPI GoodsCore::ReleaseFullList(const StrAssocArray * pList)
 	CALLPTRMEMB(p_cache, ReleaseFullList(pList));
 }
 
-int SLAPI GoodsCore::ResetFullList()
+void SLAPI GoodsCore::ResetFullList()
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS);
-	return p_cache ? p_cache->ResetFullList() : 0;
+	CALLPTRMEMB(p_cache, ResetFullList());
 }
 
 int FASTCALL GoodsCore::Fetch(PPID id, Goods2Tbl::Rec * pRec)

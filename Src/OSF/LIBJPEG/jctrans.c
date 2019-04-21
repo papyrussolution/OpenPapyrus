@@ -333,7 +333,7 @@ static void transencode_coef_controller(j_compress_ptr cinfo, jvirt_barray_ptr *
 	coef->whole_image = coef_arrays;
 	/* Allocate and pre-zero space for dummy DCT blocks. */
 	buffer = (JBLOCKROW)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, C_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
-	FMEMZERO((void FAR*)buffer, C_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
+	FMEMZERO(buffer, C_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
 	for(i = 0; i < C_MAX_BLOCKS_IN_MCU; i++) {
 		coef->dummy_buffer[i] = buffer + i;
 	}

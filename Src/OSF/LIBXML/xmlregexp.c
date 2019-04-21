@@ -6990,7 +6990,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 	 */
 	if(ctxt->tabSize == 0)
 		ctxt->tabSize = 40;
-	tab = (const xmlChar**)SAlloc::M(ctxt->tabSize * sizeof(const xmlChar *));
+	tab = (const xmlChar **)SAlloc::M(ctxt->tabSize * sizeof(const xmlChar *));
 	if(tab == NULL) {
 		return 0;
 	}
@@ -7000,7 +7000,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 	len = xmlExpGetStartInt(ctxt, sub, tab, ctxt->tabSize, 0);
 	while(len < 0) {
 		const xmlChar ** temp;
-		temp = (const xmlChar**)SAlloc::R((xmlChar**)tab, ctxt->tabSize * 2 *
+		temp = (const xmlChar **)SAlloc::R((xmlChar**)tab, ctxt->tabSize * 2 *
 		    sizeof(const xmlChar *));
 		if(temp == NULL) {
 			SAlloc::F((xmlChar**)tab);

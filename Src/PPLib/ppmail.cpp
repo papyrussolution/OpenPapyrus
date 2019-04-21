@@ -624,15 +624,15 @@ int AddrBookDialog::setupList()
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		PPID   psn_id = id_list.at(i);
 		PersonTbl::Rec psn_rec;
-		if(PsnObj.Fetch(psn_id, &psn_rec) > 0) { // @v6.2.2 Search-->Fetch
+		if(PsnObj.Fetch(psn_id, &psn_rec) > 0) {
 			PPELinkArray el_list;
 			StringSet ss(SLBColumnDelim);
-			ss.add(psn_rec.Name, 0);
+			ss.add(psn_rec.Name);
 			PsnObj.P_Tbl->GetELinks(psn_id, &el_list);
 			el_list.GetPhones(1, sub, ELNKRT_EMAIL);
-			ss.add(sub, 0);
+			ss.add(sub);
 			el_list.GetPhones(1, sub, ELNKRT_PHONE);
-			ss.add(sub, 0);
+			ss.add(sub);
 			if(!addStringToList(psn_id, ss.getBuf()))
 				ok = 0;
 		}

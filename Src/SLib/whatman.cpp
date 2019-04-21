@@ -1847,18 +1847,18 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 	else {
 		MEMSZERO(entry);
 		if(rItem.Symb.NotEmpty())
-			Pool.add(rItem.Symb, (uint *)&entry.SymbP);
+			Pool.add(rItem.Symb, &entry.SymbP);
 		if(rItem.Text.NotEmpty())
-			Pool.add(rItem.Text, (uint *)&entry.TextP);
+			Pool.add(rItem.Text, &entry.TextP);
 		if(rItem.WtmObjSymb.NotEmpty())
-			Pool.add(rItem.WtmObjSymb, (uint *)&entry.WtmObjSymbP);
+			Pool.add(rItem.WtmObjSymb, &entry.WtmObjSymbP);
 		if(rItem.FigPath.NotEmpty())
-			Pool.add(rItem.FigPath, (uint *)&entry.FigPathP);
+			Pool.add(rItem.FigPath, &entry.FigPathP);
 		if(rItem.PicPath.NotEmpty())
-			Pool.add(rItem.PicPath, (uint *)&entry.PicPathP);
+			Pool.add(rItem.PicPath, &entry.PicPathP);
 		if(rItem.ExtSize) {
 			temp_buf.Z().EncodeMime64(rItem.ExtData, rItem.ExtSize);
-			Pool.add(temp_buf, (uint *)&entry.ExtDataP);
+			Pool.add(temp_buf, &entry.ExtDataP);
 		}
 		THROW(UpdateFigures(rItem));
 		entry.FigSize = rItem.FigSize;

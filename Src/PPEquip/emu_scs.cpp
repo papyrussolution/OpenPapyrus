@@ -42,8 +42,9 @@ private:
 	SString PrinterPort;
 	HFONT  OldPrinterFont;
 	HDC    PrinterDC;
-	CCheckCore CCheckTbl;
-	CSessionCore CSessTbl;
+	PPObjCSession CsObj; // @v10.4.2
+	// @v10.4.2 CCheckCore CCheckTbl;
+	// @v10.4.2 CSessionCore CSessTbl;
 };
 
 class CM_SYNCSYM : public PPCashMachine {
@@ -525,12 +526,11 @@ int SLAPI SCS_SYNCSYM::CloseSession(PPID sessID)
 {
 	int    ok = -1;
 	CSessInfo cs_info;
-	if(sessID && CSessTbl.Search(sessID, &cs_info.Rec) > 0) {
-		long _f = CSessTbl.GetCcGroupingFlags(cs_info.Rec, 0);
-		_f |= CCheckCore::gglfUseFullCcPackets; // @v7.5.8
-		if(CCheckTbl.GetSessTotal(sessID, _f, &cs_info.Total, 0) > 0) {
+	if(sessID && CsObj.Search(sessID, &cs_info.Rec) > 0) {
+		long _f = CsObj.P_Tbl->GetCcGroupingFlags(cs_info.Rec, 0);
+		_f |= CCheckCore::gglfUseFullCcPackets;
+		if(CsObj.P_Cc->GetSessTotal(sessID, _f, &cs_info.Total, 0) > 0)
 			ok = PrintZReportCopy(&cs_info);
-		}
 	}
 	return ok;
 }

@@ -141,7 +141,7 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 				param.HdrOtrRec.Clear(); // @v10.1.11 @fix
 				if(param.ReadIni(&ini_file, section, 0)) {
 					if((kind == 1 && param.Direction == 0) || (kind == 2 && param.Direction == 1) || kind == 0)
-						pSectNames->add(section, 0);
+						pSectNames->add(section);
 				}
 				else {
 					if(pLogger)

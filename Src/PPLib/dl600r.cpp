@@ -1038,7 +1038,7 @@ int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, Str
 	for(uint j = 0; pScope->EnumInheritance(&j, &p_scope);) {
 		for(uint i = 0; p_scope->EnumFields(&i, &fld);) {
 			if(pDtd) {
-				pDtd->add(fld.Name, 0);
+				pDtd->add(fld.Name);
 			}
 			else {
 				fld.GetFieldDataFromBuf(buf, p_scope->GetDataC(0), fp);
@@ -1285,7 +1285,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 				for(uint j = 0; p_child->EnumInheritance(&j, &p_scope);) {
 					for(uint k = 0; p_scope->EnumFields(&k, &fld);) {
 						if(p_dtd)
-							p_dtd->add(fld.Name, 0);
+							p_dtd->add(fld.Name);
 						else {
 							XMLReplaceSpecSymb(GetBinaryTypeString(fld.T.Typ, 0, temp_buf, 0, 0), p_xml_entity_spec);
 							xmlTextWriterWriteElement(p_writer, fld.Name.ucptr(), temp_buf.ucptr());

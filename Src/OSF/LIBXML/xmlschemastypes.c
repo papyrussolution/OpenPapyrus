@@ -1995,7 +1995,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 						    *cptr = 0;
 						    cptr = cval;
 
-						    xmlSchemaParseUInt((const xmlChar**)&cptr,
+						    xmlSchemaParseUInt((const xmlChar **)&cptr,
 							    &v->value.decimal.lo,
 							    &v->value.decimal.mi,
 							    &v->value.decimal.hi);

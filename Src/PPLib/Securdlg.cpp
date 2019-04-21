@@ -638,19 +638,19 @@ int ActiveUserListDlg::setupList()
 			LDATETIME login_dtm;
 			PPSyncItem * p_item = &SyncAry.at(i);
 			ss.clear();
-			ss.add(p_item->Name, 0);
-			ss.add(buf.Z().Cat(p_item->ID), 0);
-			ss.add(buf.Z().Cat(p_item->ObjID), 0);
-			ss.add(p_item->MchnID.ToStr(buf.Z()), 0);
+			ss.add(p_item->Name);
+			ss.add(buf.Z().Cat(p_item->ID));
+			ss.add(buf.Z().Cat(p_item->ObjID));
+			ss.add(p_item->MchnID.ToStr(buf.Z()));
 			if(Options & ACTIVEUSERLIST_SHOWMACHINE){
 				InetAddr addr;
 				GetFirstHostByMACAddr(&p_item->MchnID, &addr);
 				addr.ToStr(InetAddr::fmtHost, host);
 			}
-			ss.add(host, 0);
+			ss.add(host);
 			GetDtm(p_item->UserID, p_item->ID, &login_dtm, work_dtm_buf.Z());
-			ss.add(buf.Z().Cat(login_dtm), 0);
-			ss.add(work_dtm_buf, 0);
+			ss.add(buf.Z().Cat(login_dtm));
+			ss.add(work_dtm_buf);
 			p_list->addItem(i, ss.getBuf());
 			if(SyncAry.lsearch(p_item, &pos, PTR_CMPFUNC(PPSyncItem)) <= 0)
 				uniq_macs++;

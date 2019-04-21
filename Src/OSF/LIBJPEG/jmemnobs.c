@@ -45,7 +45,7 @@ GLOBAL(void) jpeg_free_small(j_common_ptr cinfo, void * object, size_t sizeofobj
  */
 GLOBAL(void FAR *) jpeg_get_large(j_common_ptr cinfo, size_t sizeofobject)
 {
-	return (void FAR*)SAlloc::M(sizeofobject);
+	return (void *)SAlloc::M(sizeofobject);
 }
 
 GLOBAL(void) jpeg_free_large(j_common_ptr cinfo, void FAR * object, size_t sizeofobject)

@@ -472,9 +472,9 @@ void TSessionDialog::selectFreeEntry()
 			StringSet  ss(SLBColumnDelim);
 			SString sub;
 			for(uint i = 0; i < FreeList.getCount(); i++) {
-				PrcBusy & entry = *(PrcBusy *)FreeList.at(i);
+				const PrcBusy & entry = *static_cast<const PrcBusy *>(FreeList.at(i));
 				ss.clear();
-				ss.add(entry.ToStr(sub.Z()), 0);
+				ss.add(entry.ToStr(sub.Z()));
 				long   dur = entry.GetDuration();
 				sub.Z();
 				if(dur >= 0) {
@@ -482,11 +482,11 @@ void TSessionDialog::selectFreeEntry()
 					tm_dur.settotalsec(dur);
 					sub.Cat(tm_dur);
 				}
-				ss.add(sub, 0);
+				ss.add(sub);
 				sub.Z();
 				if(Capacity > 0 && dur > 0)
 					sub.Cat(Capacity * dur, MKSFMTD(0, 3, NMBF_NOTRAILZ | NMBF_NOZERO));
-				ss.add(sub, 0);
+				ss.add(sub);
 				THROW(addStringToList(i+1, ss.getBuf()));
 			}
 			CATCHZOK

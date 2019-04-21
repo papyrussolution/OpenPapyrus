@@ -2216,8 +2216,8 @@ int SLAPI PPSupplExchange_Baltika::GetSpoilageLocList(PPIDArray * pList)
 
 int SLAPI PPSupplExchange_Baltika::GetQtty(PPID goodsID, int calcByPhPerU, double * pQtty, double * pPrice)
 {
-	double qtty = (pQtty) ? *pQtty : 0;
-	double price = (pPrice) ? *pPrice : 0;
+	double qtty = DEREFPTRORZ(pQtty);
+	double price = DEREFPTRORZ(pPrice);
 	if(calcByPhPerU) {
 		double phuperu = 0.0;
 		PPGoodsPacket g_pack;
@@ -2243,7 +2243,7 @@ int SLAPI PPSupplExchange_Baltika::GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SSt
 {
 	rCode.Z();
 	int    ok = -1;
-	PPID   dlvr_addr_id = (pDlvrAddrID && *pDlvrAddrID) ? *pDlvrAddrID : 0;
+	PPID   dlvr_addr_id = DEREFPTRORZ(pDlvrAddrID);
 	if(dlvr_addr_id) {
 		LocationTbl::Rec loc_rec;
 		MEMSZERO(loc_rec);

@@ -469,9 +469,9 @@ int DutySchedDialog::setupList()
 	for(uint i = 0; ok && Data.List.enumItems(&i, (void **)&p_item);) {
 		StringSet ss(SLBColumnDelim);
 		GetObjectName(Data.Rec.ObjType, p_item->ObjID, sub);
-		ss.add(sub, 0);
+		ss.add(sub);
 		GetObjectName(PPOBJ_DATETIMEREP, p_item->DtrID, sub);
-		ss.add(sub, 0);
+		ss.add(sub);
 		if(!addStringToList(i, ss.getBuf()))
 			ok = 0;
 	}

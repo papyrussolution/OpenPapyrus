@@ -129,7 +129,7 @@ int FASTCALL GCTIterator::GCT_BillCache::CheckBillRec(const BillTbl::Rec * pRec)
 	else if((Filt.Flags & OPG_SKIPNOUPDLOTREST) && CheckOpFlags(pRec->OpID, OPKF_NOUPDLOTREST, 0))
 		return 0;
 	// } @v8.9.0
-	if(!Filt.DueDatePeriod.CheckDate(pRec->DueDate)) // @v10.0.04 
+	if(!Filt.DueDatePeriod.CheckDate(pRec->DueDate)) // @v10.0.04
 		return 0;
 	if(!Filt.SoftRestrict) {
 		if(!ArList.CheckID(pRec->Object))
@@ -497,7 +497,7 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 	// @v10.1.10 {
 	else if(Filt.Flags & OPG_OPENEDDRAFTONLY && IsDraftOp(rBillRec.OpID) && (rBillRec.Flags & BILLF_WRITEDOFF))
 		return 0;
-	// } @v10.1.10 
+	// } @v10.1.10
 	else if(!soft_restr && !ArList.CheckID(rBillRec.Object))
 		return 0;
 	else if(!Filt.BillList.CheckID(rBillRec.ID))
@@ -631,7 +631,7 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 		}
 	}
 	else {
-		if(!cpMode && Filt.Flags & OPG_STOREDAYLYRESTS) {
+		if(!cpMode && Filt.Flags & OPG_STOREDAILYRESTS) {
             if(P_GoodsRestList)
 				P_GoodsRestList->clear();
 			else

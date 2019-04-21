@@ -985,27 +985,21 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 		case FT_PIXEL_MODE_LCD:
 		    if(!bgr) {
 			    /* convert horizontal RGB into ARGB32 */
-
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch) {
 				    int x;
 				    uchar * src = srcLine;
 				    uint * dst = (uint *)dstLine;
-
 				    for(x = 0; x < width; x++, src += 3) {
-					    uint pix;
-
-					    pix = ((uint)src[0] << 16) |
+					    uint pix = ((uint)src[0] << 16) |
 						((uint)src[1] <<  8) |
 						((uint)src[2]      ) |
 						((uint)src[1] << 24);
-
 					    dst[x] = pix;
 				    }
 			    }
 		    }
 		    else {
 			    /* convert horizontal BGR into ARGB32 */
-
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch) {
 				    int x;
 				    uchar * src = srcLine;

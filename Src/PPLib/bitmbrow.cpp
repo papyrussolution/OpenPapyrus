@@ -77,7 +77,7 @@ public:
 	//
 	double FASTCALL GetLinkQtty(const PPTransferItem & rTi) const;
 	double FASTCALL GetOrderedQtty(const PPTransferItem & rTi) const;
-	int    SLAPI CalcShippedQtty(const BillGoodsBrwItem * pItem, BillGoodsBrwItemArray * pList, double * pVal);
+	int    SLAPI CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal);
 private:
 	DECL_HANDLE_EVENT;
 	void   addItem(int fromOrder = 0, TIDlgInitData * = 0, int sign = 0);
@@ -195,14 +195,14 @@ public:
 	BillGoodsBrwItemArray() : SArray(sizeof(BillGoodsBrwItem)), P_Item(0), HasUpp(0)
 	{
 	}
-	void   SetRest(long itemPos, double val)
+	void   SetRest(long itemPos, double val) const
 	{
 		if(GetItemByPos(itemPos)) {
 			P_Item->Rest = val;
 			P_Item->Flags |= BillGoodsBrwItem::fRestInited;
 		}
 	}
-	int    GetRest(long itemPos, double * pVal)
+	int    GetRest(long itemPos, double * pVal) const
 	{
 		int    ok = 1;
 		if(GetItemByPos(itemPos))
@@ -215,14 +215,14 @@ public:
 			ok = 0;
 		return ok;
 	}
-	void   SetOrderRest(long itemPos, double val)
+	void   SetOrderRest(long itemPos, double val) const
 	{
 		if(GetItemByPos(itemPos)) {
 			P_Item->OrderRest = val;
 			P_Item->Flags |= BillGoodsBrwItem::fOrdRestInited;
 		}
 	}
-	int    GetOrderRest(long itemPos, double * pVal)
+	int    GetOrderRest(long itemPos, double * pVal) const
 	{
 		int    ok = 1;
 		if(GetItemByPos(itemPos))
@@ -246,7 +246,7 @@ public:
 			ok = 0;
 		return ok;
 	}
-	int    GetCode(long itemPos, SString & rBuf)
+	int    GetCode(long itemPos, SString & rBuf) const
 	{
 		int    ok = 0;
 		if(GetItemByPos(itemPos))
@@ -258,7 +258,7 @@ public:
 				ok = -1;
 		return ok;
 	}
-	int    GetVat(long itemPos, double * pVatRate, double * pVatSum)
+	int    GetVat(long itemPos, double * pVatRate, double * pVatSum) const
 	{
 		int    ok = 1;
 		if(GetItemByPos(itemPos)) {
@@ -271,13 +271,13 @@ public:
 	}
 	int    HasUpp; // По крайней мере одна строка имеет не нулевую емкость упаковки
 private:
-	int    FASTCALL GetItemByPos(long itemPos)
+	int    FASTCALL GetItemByPos(long itemPos) const
 	{
 		uint   pos = 0;
 		P_Item = lsearch(&itemPos, &pos, CMPF_LONG) ? static_cast<BillGoodsBrwItem *>(at(pos)) : 0;
 		return BIN(P_Item);
 	}
-	BillGoodsBrwItem * P_Item; // Временный указатель
+	mutable BillGoodsBrwItem * P_Item; // Временный указатель
 	LAssocArray CodeStatusList;
 };
 
@@ -1075,7 +1075,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 	return p_packed_list;
 }
 
-int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, BillGoodsBrwItemArray * pList, double * pVal)
+int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal)
 {
 	int    ok = 1;
 	double real_val = 0.0;
@@ -1162,7 +1162,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				MEMSZERO(ClGoodsRec);
 			}
 			else {
-				p_ti = (const PPTransferItem *)&P_Pack->ConstTI(p_item->Pos);
+				p_ti = &P_Pack->ConstTI(p_item->Pos);
 				if(p_item->Pos != CurLine) {
 					if(GObj.Fetch(p_ti->GoodsID, &ClGoodsRec) <= 0) {
 						MEMSZERO(ClGoodsRec);

@@ -1021,8 +1021,8 @@ int ReportDlg::getDTS(ReportViewItem * pData)
 
 int SLAPI PPViewReport::EditItem(long * pID)
 {
-	int ok = -1, valid_data = 0;
-	long id = (pID) ? *pID : 0;
+	int    ok = -1, valid_data = 0;
+	long   id = DEREFPTRORZ(pID);
 	ReportViewItem item, prev_item;
 	ReportDlg * p_dlg = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
@@ -1031,7 +1031,6 @@ int SLAPI PPViewReport::EditItem(long * pID)
 	}
 	else {
 		id = 0;
-		MEMSZERO(item);
 		MEMSZERO(item);
 		item.Type = ReportFilt::rpttLocal;
 	}

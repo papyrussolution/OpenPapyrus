@@ -1176,7 +1176,7 @@ METHODDEF(void) start_pass_2_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 				cquantize->fserrors = (FSERRPTR)(*cinfo->mem->alloc_large)
 					    (reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, arraysize);
 			/* Initialize the propagated errors to zero. */
-			FMEMZERO((void FAR*)cquantize->fserrors, arraysize);
+			FMEMZERO(cquantize->fserrors, arraysize);
 			/* Make the error-limit table if we didn't already. */
 			if(cquantize->error_limiter == NULL)
 				init_error_limit(cinfo);
@@ -1186,7 +1186,7 @@ METHODDEF(void) start_pass_2_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 	/* Zero the histogram or inverse color map, if necessary */
 	if(cquantize->needs_zeroed) {
 		for(i = 0; i < HIST_C0_ELEMS; i++) {
-			FMEMZERO((void FAR*)histogram[i], HIST_C1_ELEMS*HIST_C2_ELEMS * SIZEOF(histcell));
+			FMEMZERO(histogram[i], HIST_C1_ELEMS*HIST_C2_ELEMS * SIZEOF(histcell));
 		}
 		cquantize->needs_zeroed = FALSE;
 	}

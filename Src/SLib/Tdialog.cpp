@@ -853,7 +853,7 @@ int TDialog::SetCtrlBitmap(uint ctlID, uint bmID)
 	int    ok = 0;
 	HBITMAP h_bm = APPL->FetchBitmap(bmID);
 	if(h_bm) {
-		SendDlgItemMessage(H(), ctlID, STM_SETIMAGE, IMAGE_BITMAP, (long)h_bm);
+		SendDlgItemMessage(H(), ctlID, STM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 		ok = 1;
 	}
 	return ok;

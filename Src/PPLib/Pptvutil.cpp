@@ -5,7 +5,6 @@
 #pragma hdrstop
 
 //int    modeless = GetModelessStatus();
-
 int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
 TView * SLAPI ValidView(TView * pView) { return APPL->validView(pView); }
 ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; } // @v9.0.4 TView-->TWindow
@@ -2352,8 +2351,8 @@ ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/ uint ct
 	StringSet ss(',', buf);
 	for(uint i = 0; ss.get(&i, buf) > 0;) {
 		if(buf.Divide(':', name, ext) > 0) {
-			Patterns.add(name, 0);
-			Patterns.add(ext, 0);
+			Patterns.add(name);
+			Patterns.add(ext);
 		}
 	}
 	{

@@ -670,8 +670,8 @@ XMLPUBFUN xmlNs * XMLCALL xmlCopyNamespaceList(xmlNs * cur);
 // Changing the content.
 // 
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED) ||	defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_HTML_ENABLED)
-	XMLPUBFUN xmlAttr * XMLCALL xmlSetProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value);
-	XMLPUBFUN xmlAttr * XMLCALL xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value);
+	XMLPUBFUN xmlAttr * /*XMLCALL*/FASTCALL xmlSetProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value);
+	XMLPUBFUN xmlAttr * /*XMLCALL*/FASTCALL xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value);
 #endif
 XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlGetNoNsProp(const xmlNode * P_Node, const xmlChar * name);
 XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlGetProp(const xmlNode * P_Node, const xmlChar * name);

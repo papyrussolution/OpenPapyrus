@@ -472,7 +472,7 @@ int SLAPI SIniFile::GetSections(StringSet * pSects)
 		if(pSects) {
 			SIniSectBuffer * p_sect = 0;
 			for(uint i = 0; P_IniBuf->EnumSections(&i, &p_sect) > 0;)
-				pSects->add(p_sect->Name, 0);
+				pSects->add(p_sect->Name);
 		}
 	}
 	else {
@@ -482,7 +482,7 @@ int SLAPI SIniFile::GetSections(StringSet * pSects)
 		do_close = BIN(opnr > 0);
 		for(File.Seek(0); File.ReadLine(line_buf);)
 			if(IsSection(line_buf, 0, &sect_name) > 0)
-				pSects->add(sect_name, 0);
+				pSects->add(sect_name);
 	}
 	CATCHZOK
 	if(do_close)
@@ -505,7 +505,7 @@ int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int sto
 						// (В буфере текст уже декодирован) DecodeText(val);
 						temp_buf.Eq().Cat(val);
 					}
-					pEntries->add(temp_buf, 0);
+					pEntries->add(temp_buf);
 				}
 			}
 		}

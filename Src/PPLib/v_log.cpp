@@ -68,10 +68,10 @@ int LogsDialog::setupList()
 		f.Open(buf, SFile::mRead);
 		f.CalcSize(&fsize);
 		buf.Z().Cat((double)fsize / 1024, MKSFMTD(10, 1, 0));
-		ss.add(buf, 0);
+		ss.add(buf);
 		f.GetDateTime(0, 0, &dtm);
 		buf.Z().Cat(dtm);
-		ss.add(buf, 0);
+		ss.add(buf);
 		if(!addStringToList(LogsAry.at(i).ID, ss.getBuf()))
 			ok = 0;
 	}

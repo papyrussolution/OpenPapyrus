@@ -53,7 +53,7 @@ void ListWindow::executeNM(HWND parent)
 	MoveWindow(0, 0);
 	if(DlgFlags & fLarge) {
 		P_Def->SetOption(lbtSelNotify, 1);
-		::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, (LPARAM)(40));
+		::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(40));
 	}
 }
 
@@ -120,7 +120,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 			MoveWindow(0, 0);
 		if(DlgFlags & fLarge) {
 			P_Def->SetOption(lbtSelNotify, 1);
-			::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, (LPARAM)40);
+			::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(40));
 		}
 		if(APPL->PushModalWindow(this, H())) {
 			ShowWindow(H(), SW_SHOW);

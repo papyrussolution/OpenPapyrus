@@ -302,6 +302,12 @@ int SLAPI PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
+int FASTCALL PPViewCSess::IsNotDefaultOrder(int ord) const
+{
+	return oneof8(ord, ordByID, ordByDtm_CashNode, ordByDtm_CashNumber, ordByDtm_SessNumber,
+		ordByCashNode_Dtm, ordByCashNumber_Dtm, ordBySessNumber, ordByAmount);
+}
+
 int SLAPI PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = 1;
@@ -655,18 +661,17 @@ int SLAPI PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 	if(ok == -2) {
 		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
-			case PPVCMD_ADDITEM:
-				ok = AddItem();
-				break;
-			case PPVCMD_EDITITEMSPC:
-				ok = EditItem(id);
-				break;
-			case PPVCMD_DELETEITEM:
-				ok = DeleteItem(id);
-				break;
-			case PPVCMD_VIEWDEFICIT:
-				ok = ViewExcesses(id);
-				break;
+			case PPVCMD_ADDITEM: ok = AddItem(); break;
+			case PPVCMD_EDITITEMSPC: ok = EditItem(id); break;
+			case PPVCMD_DELETEITEM: ok = DeleteItem(id); break;
+			case PPVCMD_VIEWDEFICIT: ok = ViewExcesses(id); break;
+			case PPVCMD_WROFFBILLS: ok = ViewBillsByPool(PPASS_CSESSBILLPOOL, id); break;
+			case PPVCMD_DFCTBILLS: ok = ViewBillsByPool(PPASS_CSDBILLPOOL, id); break;
+			case PPVCMD_CCHECKS: ok = ViewAllChecks(); break;
+			case PPVCMD_CLOSESESS: ok = CloseSession(); break;
+			case PPVCMD_WROFFSESS: ok = CompleteSession(id); break;
+			case PPVCMD_DORECOVER: ok = RecalcSession(id); break;
+			case PPVCMD_DETACH: ok = DetachSessFromSuperSess(id); break;
 			case PPVCMD_VIEWGOODSOPANLZ:
 				ok = -1;
 				ViewGoodsOpAnlz(id);
@@ -675,9 +680,6 @@ int SLAPI PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				ok = -1;
 				ViewGoodsTaxAnlz(id);
 				break;
-			case PPVCMD_WROFFBILLS:
-				ok = ViewBillsByPool(PPASS_CSESSBILLPOOL, id);
-				break;
 			case PPVCMD_WROFFDRAFT:
 				ok = -1;
 				if(id) {
@@ -685,9 +687,6 @@ int SLAPI PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					list.add(id);
 					WriteOffDrafts(&list);
 				}
-				break;
-			case PPVCMD_DFCTBILLS:
-				ok = ViewBillsByPool(PPASS_CSDBILLPOOL, id);
 				break;
 			case PPVCMD_WROFFBILLSALL:
 				ok = -1;
@@ -698,21 +697,6 @@ int SLAPI PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					if(GetBillList(0, flt.List) > 0 && !flt.List.IsEmpty())
 						::ViewGoodsBills(&flt, /*1*/0);
 				}
-				break;
-			case PPVCMD_CCHECKS:
-				ok = ViewAllChecks();
-				break;
-			case PPVCMD_CLOSESESS:
-				ok = CloseSession();
-				break;
-			case PPVCMD_WROFFSESS:
-				ok = CompleteSession(id);
-				break;
-			case PPVCMD_DORECOVER:
-				ok = RecalcSession(id);
-				break;
-			case PPVCMD_DETACH:
-				ok = DetachSessFromSuperSess(id);
 				break;
 			case PPVCMD_TRANSMIT:
 				ok = -1;
@@ -849,7 +833,7 @@ int SLAPI PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 					sa_entry = *reinterpret_cast<SessAmtEntry *>(P_SessAmtAry->at(pos));
 				else {
 					CSessTotal  cs_total;
-					CC.GetSessTotal(sess_id, CsObj.P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &cs_total, 0);
+					CsObj.P_Cc->GetSessTotal(sess_id, CsObj.P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &cs_total, 0);
 					sa_entry.SessID         = sess_id;
 					sa_entry.ChkCount       = cs_total.CheckCount;
 					sa_entry.WORetAmount    = cs_total.WORetAmount;
@@ -1157,7 +1141,7 @@ void SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
 	for(uint i = 0; CashNN.enumItems(&i, (void **)&p_id) > 0;) {
 		char buf[24];
 		ltoa(*p_id, buf, 10);
-		ss.add(buf, 0);
+		ss.add(buf);
 	}
 	ASSIGN_PTR(pBuf, ss.getBuf());
 }
@@ -1435,16 +1419,15 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 				ObjIdListFilt chk_list_, sess_list_;
 				PPIDArray chk_list;
 				sess_list_.Set(&sess_list);
-				THROW(CC.LoadChecksByList(&sess_list_, &cash_list, &chk_list_, &last_check_dtm));
+				THROW(CsObj.P_Cc->LoadChecksByList(&sess_list_, &cash_list, &chk_list_, &last_check_dtm));
 				chk_list_.Sort();
 				chk_list_.CopyTo(&chk_list);
-
 				uint cc_pos = chk_list.getCount();
 				if(cc_pos) do {
 					const  PPID cc_id = chk_list.get(--cc_pos);
 					int    to_del = 0;
 					CCheckTbl::Rec chk_rec;
-					if(CC.Search(cc_id, &chk_rec) > 0) {
+					if(CsObj.P_Cc->Search(cc_id, &chk_rec) > 0) {
 						// @v10.3.5 {
 						if(ret_sale_toggle == PPDraftCreateRule::fRetOnly && !(chk_rec.Flags & CCHKF_RETURN))
 							to_del = 1;
@@ -1456,7 +1439,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 						else if(rule.Rec.SCardSerID) {
 							SCardTbl::Rec sc_rec;
 							// @v10.3.6 {
-							if(CC.Cards.Search(chk_rec.SCardID, &sc_rec) > 0) {
+							if(CsObj.P_Cc->Cards.Search(chk_rec.SCardID, &sc_rec) > 0) {
 								if(sc_rec.SeriesID == rule.Rec.SCardSerID) {
 									if(rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer)
 										to_del = 1;
@@ -1491,10 +1474,10 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 						chk_list.atFree(cc_pos);
 				} while(cc_pos);
 				chk_list_.Set(&chk_list);
-				THROW(CC.LoadLinesByList(0, &chk_list_, &check_line_list));
+				THROW(CsObj.P_Cc->LoadLinesByList(0, &chk_list_, &check_line_list));
 			}
 			else {
-				THROW(CC.LoadLinesBySessList(0, &sess_list, &cash_list, &check_line_list, &last_check_dtm));
+				THROW(CsObj.P_Cc->LoadLinesBySessList(0, &sess_list, &cash_list, &check_line_list, &last_check_dtm));
 			}
 			PPID   def_loc_id = 0;
 			if(cn_obj.Search(csess_rec.CashNodeID, &cn_rec) > 0)
@@ -2136,7 +2119,7 @@ int SLAPI PPViewCSess::PosPrint(PPID curID)
 		if(PPObjCashNode::IsExtCashNode(cs_info.Rec.CashNodeID, &parent_node_id) && parent_node_id)
 			THROW(PPObjCashNode::Lock(parent_node_id));
 		THROW(p_cm = PPCashMachine::CreateInstance(cs_info.Rec.CashNodeID));
-		CC.GetSessTotal(curID, CsObj.P_Tbl->GetCcGroupingFlags(cs_info.Rec, 0) | CCheckCore::gglfUseFullCcPackets, &cs_info.Total, 0);
+		CsObj.P_Cc->GetSessTotal(curID, CsObj.P_Tbl->GetCcGroupingFlags(cs_info.Rec, 0) | CCheckCore::gglfUseFullCcPackets, &cs_info.Total, 0);
 		THROW(p_cm->SyncPrintZReportCopy(&cs_info));
 	}
 	CATCHZOKPPERR

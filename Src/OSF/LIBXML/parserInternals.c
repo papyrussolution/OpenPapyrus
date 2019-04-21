@@ -1381,7 +1381,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 
 	/* Allocate the Name stack */
 	if(ctxt->nameTab == NULL) {
-		ctxt->nameTab = (const xmlChar**)SAlloc::M(10 * sizeof(xmlChar *));
+		ctxt->nameTab = (const xmlChar **)SAlloc::M(10 * sizeof(xmlChar *));
 		ctxt->nameMax = 10;
 	}
 	if(ctxt->nameTab == NULL) {

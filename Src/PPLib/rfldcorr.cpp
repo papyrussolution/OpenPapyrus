@@ -667,10 +667,8 @@ int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 {
 	rList.clear();
 	int    ok = -1;
-
 	SString _file_spec;
 	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
-
 	SPathStruc ps(_file_spec);
 	SString wildcard, path;
 	(wildcard = ps.Nam).Dot().Cat(ps.Ext);
@@ -690,6 +688,43 @@ int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 	}
 	else
 		ok = 0;
+	return ok;
+}
+
+PPImpExpParam::PtTokenList::PtTokenList() : SStrGroup()
+{
+}
+
+PPImpExpParam::PtTokenList & PPImpExpParam::PtTokenList::Z()
+{
+	L.clear();
+	ClearS();
+	return *this;
+}
+
+uint PPImpExpParam::PtTokenList::GetCount() const { return L.getCount(); }
+
+int  PPImpExpParam::PtTokenList::Add(long tokenId, long extID, const char * pText)
+{
+	int    ok = 1;
+	InnerEntry entry;
+	entry.TokenId = tokenId;
+	entry.ExtID = extID;
+	AddS(pText, &entry.StrP);
+	L.insert(&entry);
+	return ok;
+}
+
+int PPImpExpParam::PtTokenList::Get(uint pos, long * pTokenId, long * pExtID, SString & rText) const
+{
+	int    ok = 0;
+	if(pos < L.getCount()) {
+		const InnerEntry & r_entry = L.at(pos);
+		ASSIGN_PTR(pTokenId, r_entry.TokenId);
+		ASSIGN_PTR(pExtID, r_entry.ExtID);
+		GetS(r_entry.StrP, rText);
+		ok = 1;
+	}
 	return ok;
 }
 
@@ -1210,16 +1245,9 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 }
 
 //virtual
-int PPImpExpParam::Edit()
-{
-	return -1;
-}
-
+int PPImpExpParam::Edit() { return -1; }
 //virtual
-int PPImpExpParam::Select()
-{
-	return -1;
-}
+int PPImpExpParam::Select() { return -1; }
 
 int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & rVal)
 {
@@ -2572,7 +2600,7 @@ int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pPara
 				const int r = pParam->ReadIni(&ini_file, section, 0);
 				if(r) {
 					if((kind == 1 && pParam->Direction == 0) || (kind == 2 && pParam->Direction == 1) || kind == 0)
-						pSectNames->add(section, 0);
+						pSectNames->add(section);
 				}
 				else
 					PPError();

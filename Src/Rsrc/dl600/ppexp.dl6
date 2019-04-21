@@ -756,8 +756,7 @@ data StaffCal {
 	string Symb[18];               // Символ. Для порожденных календарей (LinkCalID != 0) - пусто
 	link   DataObject LinkObjType; // Тип связанного объекта
 	long   Flags;                  // @flags
-	int16  fInherited;             // Календарь наследует элементы от родителя. То есть,
-		// такой календарь не может содержать собственных элементов.
+	int16  fInherited;             // Календарь наследует элементы от родителя. То есть, такой календарь не может содержать собственных элементов.
 	int16  Reserve;                // @alignment
 	link   StaffCal   LinkCalID;   // ИД родительского календаря //
 	long   LinkObjID;              // ИД связанного объекта
@@ -879,7 +878,7 @@ data Agreement {
 	link   Article  AgentID;       // Агент, закрепленный за клиентом/поставщиком
 	link   Article  ExtObjectID;   // @v7.5.9 Дополнительный объект для документов по этому соглашению
 	link   QuotKind QKindID;       // Вид котировки, закрепленный за клиентом
-	string Code[12];               // Номер соглашения //
+	string Code[24];               // Номер соглашения // @v10.4.2 [12]-->[24]
 	date   BegDt;                  // Начало действия //
 	date   Expiry;                 // Срок действия //
 	double MaxCredit;              // Максимальный кредит
@@ -913,7 +912,7 @@ data Article {
 	link   DebtDim GetDebtDim();
 }
 //
-//
+// @v10.4.2 Verification needed (из-за изменения длины поля Agreement.Code)
 //
 data ArticleView {
 	declare "Destroy"
@@ -976,10 +975,8 @@ data SCard {
 	time   UsageTmStart;           // @v7.9.7
 	time   UsageTmEnd;             // @v7.9.7
 	string UsageTmStr[16];         // @v7.9.7 Строковое представление ограничения времени использования (hh:mm)
-
 	int16  PeriodTerm;             // @v7.9.7 Тип периода длительности срока действия [1; 7; 30; 90; 180; 360] //
 	int16  PeriodCount;            // @v7.9.7 Количество периодов длительности срока действия //
-
 	double PDis;                   // Discount (percents)
 	double Overdraft;              // Maximum credit overdraft (for credit cards)
 	double Debit;                  // Приходы по карте (для кредитных карт)
@@ -1059,7 +1056,6 @@ data Bill {
 	link   BillStatus StatusID;    // Статус документа
 	link   Bill       LinkBillID;  // ИД связанного документа
 	link   User       UserID;      // Пользователь, создавший документ
-
 	date   Dt;                     //
 	string Code[24];               //
 	string Memo[128];              //
@@ -1069,16 +1065,13 @@ data Bill {
 	int16  fWL;                    // WL-метка
 	int16  Pad1;                   // @alignment
 	date   DueDate;                // @v7.8.6 Срок исполнения (заказа, заявки поставщику и т.д.)
-
 	double Amount;                 // Bill.Amount
 	double CostSum;                // PPAMT_BUYING
 	double PriceSum;               // PPAMT_SELLING
 	double Discount;               // PPAMT_DISCOUNT
-
 	double GenCostSum;             // PPAMT_BUYING   + replaced amount from GoodsType
 	double GenPriceSum;            // PPAMT_SELLING  + replaced amount from GoodsType
 	double GenDiscount;            // PPAMT_DISCOUNT + replaced amount from GoodsType
-
 	double ManPctDscnt;            // Manual percent discount on bill
 	double ManAbsDscnt;            // Manual absolute discount on bill
 	double Payment;                // PPAMT_PAYMENT
@@ -8382,14 +8375,12 @@ data GeoTracking {
 	long   FltObjID;
 	link   DataObject FltExtObjType;
 	long   FltExtObjID;
-
 	double LuLat; // Географическая широта левого верхнего угла
 	double LuLon; // Географическая долгота левого верхнего угла
 	double RbLat; // Географическая широта правого нижнего угла
 	double RbLon; // Географическая долгота правого нижнего угла
 
 	Period = formatperiod(FltBeg, FltEnd);
-
 	OrgName = Glb.MainOrgName;
 	CurDate = Glb.CurDate;
 

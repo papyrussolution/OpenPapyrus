@@ -704,7 +704,6 @@ int BizScTemplDialog::setupList()
 	TSArray <PPBizScTemplCell> cell_list;
 	SString types;
 	PPLoadText(PPTXT_BIZSCTI_TYPESTEXT, types);
-
 	if(GetSelList() == CTL_BIZSCT_LIST) {
 		p_list = &Data.Cols;
 		GetCurItem(CTL_BIZSCT_ROWS, 0, &row_id);
@@ -716,18 +715,16 @@ int BizScTemplDialog::setupList()
 		long id = 0;
 		SString temp_buf;
 		StringSet ss(SLBColumnDelim);
-
 		temp_buf.Z().Cat(i + 1);
-		ss.add(temp_buf, 0);
+		ss.add(temp_buf);
 		if(GetSelList() == CTL_BIZSCT_LIST) {
 			PPBizScTemplCol * p_item = (PPBizScTemplCol*)p_list->at(i);
-
 			id = p_item->Id;
-			ss.add(temp_buf = p_item->Name, 0);
+			ss.add(temp_buf = p_item->Name);
 			PPGetSubStr(types, p_item->Type, temp_buf.Z());
-			ss.add(temp_buf, 0);
+			ss.add(temp_buf);
 			temp_buf.Z().Cat(p_item->DtLow).Dot().Dot().Cat(p_item->DtUp);
-			ss.add(temp_buf, 0);
+			ss.add(temp_buf);
 			//
 			// Добавление инфо о ячейке
 			//
@@ -742,14 +739,13 @@ int BizScTemplDialog::setupList()
 				else
 					temp_buf = r_cell.Formula;
 			}
-			ss.add(temp_buf, 0);
+			ss.add(temp_buf);
 		}
 		else if(GetSelList() == CTL_BIZSCT_ROWS) {
 			PPBizScTemplRow * p_item = (PPBizScTemplRow*)p_list->at(i);
-
 			id = p_item->Id;
 			temp_buf = p_item->Name;
-			ss.add(temp_buf, 0);
+			ss.add(temp_buf);
 			if(p_item->BizScId) {
 				 PPBizScorePacket pack;
 				 BizScObj.Fetch(p_item->BizScId, &pack);
@@ -757,7 +753,7 @@ int BizScTemplDialog::setupList()
 			}
 			else
 				temp_buf = p_item->Formula;
-			ss.add(temp_buf, 0);
+			ss.add(temp_buf);
 		}
 		if(!addStringToList(id, ss.getBuf()))
 			ok = PPErrorZ();
@@ -778,13 +774,13 @@ TDialog * BizScTemplDialog::GetItemDialog(long itemPos, int edit)
 			p_dlg = new BizScTemplColDialog;
 			MEMSZERO(Item_.Col);
 			if(edit)
-				Item_.Col = *(PPBizScTemplCol*)p_list->at(itemPos);
+				Item_.Col = *static_cast<const PPBizScTemplCol *>(p_list->at(itemPos));
 		}
 		else if(GetSelList() == CTL_BIZSCT_ROWS) {
 			p_dlg = new BizScTemplRowDialog;
 			MEMSZERO(Item_.Row);
 			if(edit)
-				Item_.Row = *(PPBizScTemplRow*)p_list->at(itemPos);
+				Item_.Row = *static_cast<const PPBizScTemplRow *>(p_list->at(itemPos));
 		}
 	}
 	return p_dlg;
@@ -794,9 +790,9 @@ int BizScTemplDialog::SetItemDTS(TDialog * pDlg)
 {
 	int    ok = -1;
 	if(GetSelList() == CTL_BIZSCT_LIST)
-		ok = ((BizScTemplColDialog*)pDlg)->setDTS(&Item_.Col);
+		ok = static_cast<BizScTemplColDialog *>(pDlg)->setDTS(&Item_.Col);
 	else if(GetSelList() == CTL_BIZSCT_ROWS)
-		ok = ((BizScTemplRowDialog*)pDlg)->setDTS(&Item_.Row);
+		ok = static_cast<BizScTemplRowDialog *>(pDlg)->setDTS(&Item_.Row);
 	return ok;
 }
 
@@ -804,9 +800,9 @@ int BizScTemplDialog::GetItemDTS(TDialog * pDlg)
 {
 	int    ok = -1;
 	if(GetSelList() == CTL_BIZSCT_LIST)
-		ok = ((BizScTemplColDialog*)pDlg)->getDTS(&Item_.Col);
+		ok = static_cast<BizScTemplColDialog *>(pDlg)->getDTS(&Item_.Col);
 	else if(GetSelList() == CTL_BIZSCT_ROWS)
-		ok = ((BizScTemplRowDialog*)pDlg)->getDTS(&Item_.Row);
+		ok = static_cast<BizScTemplRowDialog *>(pDlg)->getDTS(&Item_.Row);
 	return ok;
 }
 

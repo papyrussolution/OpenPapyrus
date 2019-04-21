@@ -1,21 +1,21 @@
 // REPTDLG.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
 //
 //
 //
-class RepDaylyDialog : public TDialog {
+class RepDailyDialog : public TDialog {
 public:
-	RepDaylyDialog() : TDialog(DLG_REP_DAYLY)
+	RepDailyDialog() : TDialog(DLG_REP_DAYLY)
 	{
 	}
 	virtual int TransmitData(int dir, void * pData) // DateRepeating *
 	{
 		int    s = 0;
 		if(dir > 0) {
-			Data = *(DateRepeating *)pData;
+			Data = *static_cast<const DateRepeating *>(pData);
 			long   temp_quant_sec = Data.Dtl.D.QuantSec;
 			setCtrlData(CTL_REPEATING_NUMSECS, &temp_quant_sec);
 			setCtrlData(CTL_REPEATING_NUMPRD, &Data.Dtl.D.NumPrd);
@@ -31,7 +31,7 @@ public:
 			Data.Dtl.D.QuantSec = (Data.Dtl.D.QuantSec > 43200) ? 43200 : Data.Dtl.D.QuantSec; // макс период 12 часов = 43200 сек
 			Data.Dtl.D.NumPrd = (Data.Dtl.D.QuantSec != 0) ? 1 : Data.Dtl.D.NumPrd;
 			if(pData)
-				*(DateRepeating *)pData = Data;
+				*static_cast<DateRepeating *>(pData) = Data;
 			s = 1;
 		}
 		else
@@ -62,7 +62,7 @@ public:
 	{
 		int    s = 0;
 		if(dir > 0) {
-			Data = *(DateRepeating *)pData;
+			Data = *static_cast<const DateRepeating *>(pData);
 			long   weekdays = (long)Data.Dtl.W.Weekdays;
 			setCtrlData(CTL_REPEATING_NUMPRD, &Data.Dtl.W.NumPrd);
 			AddClusterAssoc(CTL_REPEATING_WEEKDAYS, 0, 0x0001);
@@ -82,7 +82,7 @@ public:
 			GetClusterData(CTL_REPEATING_WEEKDAYS, &weekdays);
 			Data.Dtl.W.Weekdays = (uint8)weekdays;
 			if(pData)
-				*(DateRepeating *)pData = Data;
+				*static_cast<DateRepeating *>(pData) = Data;
 			s = 1;
 		}
 		else
@@ -115,7 +115,7 @@ public:
 	{
 		int    s = 1;
 		if(dir > 0) {
-			Data = *(DateRepeating *)pData;
+			Data = *static_cast<const DateRepeating *>(pData);
 			Data.Prd = PRD_MONTH;
 			Data.GetMonthlyPeriod(&MonthCount, &MonthNo);
 			Kind = (long)Data.RepeatKind;
@@ -160,7 +160,7 @@ public:
 				Data.SetMonthly(MonthCount, MonthNo, WeekNo, DayOfWeek);
 			}
 			if(pData)
-				*(DateRepeating *)pData = Data;
+				*static_cast<DateRepeating *>(pData) = Data;
 		}
 		else
 			s = TDialog::TransmitData(dir, pData);
@@ -211,7 +211,6 @@ private:
 
 	DateRepeating Data;
 	long   PrevKind;
-
 	long   Kind;
 	int    MonthCount;
 	int    MonthNo;
@@ -288,7 +287,7 @@ public:
 	{
 		int    s = 1;
 		if(dir > 0) {
-			Data = *(DateRepeating *)pData;
+			Data = *static_cast<const DateRepeating *>(pData);
 			long   kind = (long)Data.RepeatKind;
 			PrevKind = kind;
 			SetupStringCombo(this, CTLSEL_REPEATING_DTLMON, PPTXT_MONTHES, Data.Dtl.AY.Month);
@@ -321,7 +320,7 @@ public:
 					Data.Dtl.AY.DayOfWeek = (uint8)temp_id;
 			}
 			if(pData)
-				*(DateRepeating *)pData = Data;
+				*static_cast<DateRepeating *>(pData) = Data;
 		}
 		else
 			s = TDialog::TransmitData(dir, pData);
@@ -394,7 +393,7 @@ public:
 	{
 		int    s = 1;
 		if(dir > 0) {
-			Data = *(DateRepeating *)pData;
+			Data = *static_cast<const DateRepeating *>(pData);
 			long   kind = (long)Data.RepeatKind;
 			setCtrlLong(CTL_REPEATING_NUMPRD, (long)Data.Dtl.RA.NumPrd);
 			AddClusterAssocDef(CTL_REPEATING_KIND,  0, PRD_DAY);
@@ -414,7 +413,7 @@ public:
 			GetClusterData(CTL_REPEATING_DTLAS, &v);
 			Data.Dtl.RA.AfterStart = (int16)v;
 			if(pData)
-				*(DateRepeating *)pData = Data;
+				*static_cast<DateRepeating *>(pData) = Data;
 		}
 		else
 			s = TDialog::TransmitData(dir, pData);
@@ -440,13 +439,12 @@ int FASTCALL RepAfterPrdDialog::valid(ushort cmd)
 //
 //
 //
-static int LogTest(PPLogger & rLogger, LDATE dt)
+static void LogTest(PPLogger & rLogger, LDATE dt)
 {
 	char   date_buf[32], log_buf[256];
 	datefmt(&dt, DATF_DMY|DATF_CENTURY, date_buf);
 	sprintf(log_buf, "%10s%20d", date_buf, dayofweek(&dt, 1));
 	rLogger.Log(log_buf);
-	return 1;
 }
 
 void RepeatingDialog::test()
@@ -465,13 +463,13 @@ RepeatingDialog::RepeatingDialog(uint options) : EmbedDialog(DLG_REPEATING)
 	Options  = options;
 	P_Data = (Options & fEditTime) ? (new DateTimeRepeating) : (new DateRepeating);
 	showCtrl(CTL_REPEATING_DURATION, Options & fEditDuration);
-	SetupTimePicker(this, CTL_REPEATING_RUNTIME, CTLTM_REPEATING_RUNTIME); // @v7.6.12
+	SetupTimePicker(this, CTL_REPEATING_RUNTIME, CTLTM_REPEATING_RUNTIME);
 }
 
 RepeatingDialog::~RepeatingDialog()
 {
 	if(Options & fEditTime)
-		delete (DateTimeRepeating*)P_Data;
+		delete static_cast<DateTimeRepeating *>(P_Data);
 	else
 		delete P_Data;
 }
@@ -496,12 +494,12 @@ int RepeatingDialog::embedChild(long prd)
 {
 	int    ok = 0;
 	switch(prd) {
-		case PRD_DAY:            ok = embedOneChild(new RepDaylyDialog);   break;
+		case PRD_DAY:            ok = embedOneChild(new RepDailyDialog);   break;
 		case PRD_WEEK:           ok = embedOneChild(new RepWeeklyDialog);  break;
 		case PRD_MONTH:          ok = embedOneChild(new RepMonthlyDialog); break;
 		case PRD_ANNUAL:         ok = embedOneChild(new RepAnnDialog);     break;
 		case PRD_REPEATAFTERPRD: ok = embedOneChild(new RepAfterPrdDialog); break;
-		default: Embed(0); ok = 1; break; // @v6.9.4
+		default: Embed(0); ok = 1; break;
 	}
 	return ok;
 }
@@ -518,8 +516,7 @@ IMPL_HANDLE_EVENT(RepeatingDialog)
 				else
 					P_Data->Init(prd, 1, ZERODATE);
 				embedChild(prd);
-				if(P_ChildDlg)
-					P_ChildDlg->TransmitData(+1, P_Data);
+				CALLPTRMEMB(P_ChildDlg, TransmitData(+1, P_Data));
 				PrevPrd = prd;
 			}
 		}
@@ -535,10 +532,10 @@ IMPL_HANDLE_EVENT(RepeatingDialog)
 int RepeatingDialog::setDTS(const DateRepeating * pData)
 {
 	if(Options & fEditTime) {
-		*(DateTimeRepeating*)P_Data = *(DateTimeRepeating*)pData;
-		if(((DateTimeRepeating*)P_Data)->Time == ZEROTIME)
-			getcurtime(&((DateTimeRepeating*)P_Data)->Time);
-		setCtrlData(CTL_REPEATING_RUNTIME, &((DateTimeRepeating*)P_Data)->Time);
+		*static_cast<DateTimeRepeating *>(P_Data) = *static_cast<const DateTimeRepeating *>(pData);
+		if(static_cast<const DateTimeRepeating *>(P_Data)->Time == ZEROTIME)
+			getcurtime(&static_cast<DateTimeRepeating *>(P_Data)->Time);
+		setCtrlData(CTL_REPEATING_RUNTIME, &static_cast<DateTimeRepeating *>(P_Data)->Time);
 	}
 	else {
 		HWND   hwnd = ::GetDlgItem(H(), CTL_REPEATING_RUNTIME);
@@ -551,8 +548,7 @@ int RepeatingDialog::setDTS(const DateRepeating * pData)
 		showCtrl(CTLTM_REPEATING_RUNTIME, 0);
 		*P_Data = *pData;
 	}
-	if(P_Data->Prd == 0)
-		P_Data->Prd = PRD_WEEK;
+	SETIFZ(P_Data->Prd, PRD_WEEK);
 	DisableClusterItem(CTL_REPEATING_PRD, 5, !(Options & fEditRepeatAfterItem));
 	AddClusterAssoc(CTL_REPEATING_PRD, 0, PRD_UNDEF);
 	AddClusterAssocDef(CTL_REPEATING_PRD, 1, PRD_DAY);
@@ -562,8 +558,7 @@ int RepeatingDialog::setDTS(const DateRepeating * pData)
 	AddClusterAssoc(CTL_REPEATING_PRD, 5, PRD_REPEATAFTERPRD); // Повторить задачу через определенный промежуток времени
 	SetClusterData(CTL_REPEATING_PRD, P_Data->Prd);
 	embedChild(P_Data->Prd);
-	if(P_ChildDlg)
-		P_ChildDlg->TransmitData(+1, P_Data);
+	CALLPTRMEMB(P_ChildDlg, TransmitData(+1, P_Data));
 	return 1;
 }
 
@@ -605,13 +600,12 @@ int RepeatingDialog::getDTS(DateRepeating * pData)
 			ok = PPErrorZ();
 	if(ok) {
 		if(Options & fEditTime) {
-			getCtrlData(CTL_REPEATING_RUNTIME, &((DateTimeRepeating*)P_Data)->Time);
+			getCtrlData(CTL_REPEATING_RUNTIME, &static_cast<DateTimeRepeating *>(P_Data)->Time);
 			if(pData)
-				*(DateTimeRepeating*)pData = *(DateTimeRepeating*)P_Data;
+				*static_cast<DateTimeRepeating *>(pData) = *static_cast<const DateTimeRepeating *>(P_Data);
 		}
 		else
 			ASSIGN_PTR(pData, *P_Data);
 	}
 	return ok;
 }
-

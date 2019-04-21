@@ -624,7 +624,7 @@ long SLAPI PPMsgLog::PutMessage(const char * pBody, long flags, const void * hea
 
 long SLAPI PPMsgLog::GetVisibleMessage(long nrow)
 {
-	return (Valid && nrow < GetVisCount()) ? *(long *)P_Index->at((uint)nrow) : 0;
+	return (Valid && nrow < GetVisCount()) ? *static_cast<const long *>(P_Index->at((uint)nrow)) : 0;
 }
 
 // static
@@ -714,7 +714,7 @@ long SLAPI PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * r
 	_read(Stream, hsize, sizeof(int16));
 	int    len = (int)(GetLogIdx(CurMsg).address - GetLogIdx(CurMsg-1).address) - sizeof(int16);
 	*rsize = _read(Stream, buff, len > bsize ? bsize : len); // exception was here!
-	char * bb = (char *)buff;
+	char * bb = static_cast<char *>(buff);
 	bb[((*rsize >= bsize) ? (*rsize - 1) : *rsize)] = 0;
 	return CurMsg;
 }

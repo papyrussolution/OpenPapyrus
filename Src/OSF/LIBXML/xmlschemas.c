@@ -6564,7 +6564,7 @@ static int xmlSchemaCheckCSelectorXPath(xmlSchemaParserCtxtPtr ctxt, xmlSchemaID
 			int i, count = 0;
 			for(i = 0; nsList[i]; i++)
 				count++;
-			nsArray = (const xmlChar**)SAlloc::M((count * 2 + 1) * sizeof(const xmlChar *));
+			nsArray = (const xmlChar **)SAlloc::M((count * 2 + 1) * sizeof(const xmlChar *));
 			if(nsArray == NULL) {
 				xmlSchemaPErrMemory(ctxt, "allocating a namespace array", 0);
 				SAlloc::F(nsList);
@@ -8902,7 +8902,7 @@ static int xmlSchemaParseIncludeOrRedefineAttrs(xmlSchemaParserCtxtPtr pctxt, xm
 	if(attr) {
 		xmlChar * base = NULL;
 		xmlChar * uri = NULL;
-		if(xmlSchemaPValAttrNode(pctxt, NULL, attr, xmlSchemaGetBuiltInType(XML_SCHEMAS_ANYURI), (const xmlChar**)schemaLocation) != 0)
+		if(xmlSchemaPValAttrNode(pctxt, NULL, attr, xmlSchemaGetBuiltInType(XML_SCHEMAS_ANYURI), (const xmlChar **)schemaLocation) != 0)
 			goto exit_error;
 		base = xmlNodeGetBase(P_Node->doc, P_Node);
 		if(base == NULL) {
@@ -22886,7 +22886,7 @@ static void xmlSchemaSAXHandleStartElementNs(void * ctx, const xmlChar * localna
 			 * Store prefix and namespace name.
 			 */
 			if(ielem->nsBindings == NULL) {
-				ielem->nsBindings = (const xmlChar**)SAlloc::M(10 * sizeof(const xmlChar *));
+				ielem->nsBindings = (const xmlChar **)SAlloc::M(10 * sizeof(const xmlChar *));
 				if(ielem->nsBindings == NULL) {
 					xmlSchemaVErrMemory(vctxt, "allocating namespace bindings for SAX validation", 0);
 					goto internal_error;
@@ -22896,7 +22896,7 @@ static void xmlSchemaSAXHandleStartElementNs(void * ctx, const xmlChar * localna
 			}
 			else if(ielem->sizeNsBindings <= ielem->nbNsBindings) {
 				ielem->sizeNsBindings *= 2;
-				ielem->nsBindings = (const xmlChar**)SAlloc::R((void *)ielem->nsBindings, ielem->sizeNsBindings * 2 * sizeof(const xmlChar *));
+				ielem->nsBindings = (const xmlChar **)SAlloc::R((void *)ielem->nsBindings, ielem->sizeNsBindings * 2 * sizeof(const xmlChar *));
 				if(ielem->nsBindings == NULL) {
 					xmlSchemaVErrMemory(vctxt, "re-allocating namespace bindings for SAX validation", 0);
 					goto internal_error;

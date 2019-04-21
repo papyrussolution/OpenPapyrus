@@ -74,15 +74,18 @@ int PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
 }
 
 TLP_IMPL(PPObjCSession, CSessionCore, P_Tbl);
+TLP_IMPL(PPObjCSession, CCheckCore, P_Cc); // @v10.4.2
 
 SLAPI PPObjCSession::PPObjCSession(void * extraPtr) : PPObject(PPOBJ_CSESSION), P_EqCfg(0), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
+	TLP_OPEN(P_Cc); // @v10.4.2
 }
 
 SLAPI PPObjCSession::~PPObjCSession()
 {
 	TLP_CLOSE(P_Tbl);
+	TLP_CLOSE(P_Cc); // @v10.4.2
 	delete P_EqCfg;
 }
 
@@ -109,16 +112,84 @@ SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, 
 
 int SLAPI PPObjCSession::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0;
+	class CSessDialog : public PPListDialog {
+	public:
+		CSessDialog(const CSessTotal & rTotal) : PPListDialog(DLG_CSESS, CTL_CSESS_AMTLIST, 0), R_Total(rTotal)
+		{
+			updateList(-1);
+		}
+	private:
+		virtual int  setupList()
+		{
+			int    ok = 1;
+			StringSet ss(SLBColumnDelim);
+			SString sub;
+			struct Entry {
+				double Value;
+				const char * P_TextSymb;
+			};
+			const Entry data_list[] = {
+				{ static_cast<double>(R_Total.CheckCount), "csesstotal_checkcount"      }, // "Количество чеков"
+				{ R_Total.Amount, "csesstotal_amount"          }, // "Сумма по чекам"
+				{ R_Total.Discount, "csesstotal_discount"        }, // "Скидка по чекам"
+				{ static_cast<double>(R_Total.AggrCount), "csesstotal_aggrcount"       }, // "Количество агрегирующих строк"
+				{ R_Total.AggrAmount, "csesstotal_aggramount"      }, // "Сумма по агрегирующим строкам"
+				{ R_Total.AggrRest, "csesstotal_aggrrest"        }, // "Сумма дефицита по агрегирующим строкам"
+				{ static_cast<double>(R_Total.WrOffBillCount), "csesstotal_wroffbillcount"  }, // "Количество документов списания"
+				{ R_Total.WrOffAmount, "csesstotal_wroffbillamount" }, // "Сумма документов списания"
+				{ R_Total.WrOffCost, "csesstotal_wroffcost"       }, // "Сумма документов списания в ценах поступления"
+				{ R_Total.Income, "csesstotal_income"          }, // "Доход"
+				{ R_Total.BnkAmount, "csesstotal_bnkamount"       }, // "Сумма безналичных оплат"
+				{ R_Total.RetAmount, "csesstotal_retamount"       }, // "Сумма возвратов"
+				{ R_Total.RetBnkAmount, "csesstotal_retbnkamount"    }, // "Сумма возвратов проведенных через банк"
+				{ R_Total.WORetAmount, "csesstotal_woretamount"     }, // "Сумма чеков без учета возвратов"
+				{ R_Total.WORetBnkAmount, "csesstotal_woretbnkamount"  }, // "Сумма безналичных оплат без учета возвратов"
+				{ R_Total.BnkDiscount, "csesstotal_bnkdiscount"     }, // "Сумма скидок по чекам оплаченных через банк"
+				{ R_Total.CSCardAmount, "csesstotal_cscardamount"    }, // "Сумма оплат по корпоративным картам"
+				{ R_Total.FiscalAmount, "csesstotal_fiscalamount"    }, // "Фискальная сумма чеков"
+				{ R_Total.AltRegAmount, "csesstotal_altregamount"    }, // "Сумма чеков проведенных через альтернативный регистратор"
+				{ static_cast<double>(R_Total.SaleCheckCount), "csesstotal_salecheckcount"  }, // "Количество чеков продаж"
+				{ static_cast<double>(R_Total.SaleBnkCount), "csesstotal_salebnkcount"    }, // "Количество чеков продаж оплаченных безналично"
+				{ static_cast<double>(R_Total.RetCheckCount), "csesstotal_retcheckcount"   }, // "Количество чеков возвратов"
+				{ static_cast<double>(R_Total.RetBnkCount), "csesstotal_retbnkcount"     }, // "Количество чеков возвратов оплаченных безналично"
+				{ static_cast<double>(R_Total.AltRegCount), "csesstotal_altregcount"     }, // "Количество чеков проведенных через альтернативный регистратор"
+			};
+			for(uint i = 0; i < SIZEOFARRAY(data_list); i++) {
+				const Entry & r_entry = data_list[i];
+				if(r_entry.Value != 0.0) {
+					ss.clear();
+					PPLoadString(r_entry.P_TextSymb, sub);
+					ss.add(sub);
+					long fmt = (ffrac(r_entry.Value) == 0.0) ? MKSFMTD(0, 0, 0) : MKSFMTD(0, 2, 0);
+					sub.Z().Cat(r_entry.Value, fmt);
+					ss.add(sub);
+					addStringToList(i+1, ss.getBuf());
+				}
+			}
+			return ok;
+		}
+		const CSessTotal & R_Total;
+	};
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	SString super_sess_text;
-	TDialog * dlg = 0;
+	CSessDialog * dlg = 0;
 	CSessionTbl::Rec rec;
+	CSessTotal total_blk;
 	if(*pID) {
+		PPIDArray sub_list;
 		THROW(Search(*pID, &rec) > 0);
+		P_Tbl->GetSubSessList(rec.ID, &sub_list);
+		sub_list.add(rec.ID);
+		sub_list.sortAndUndup();
+		for(uint i = 0; i < sub_list.getCount(); i++) {
+			const  PPID sess_id = sub_list.at(i);
+			THROW(P_Cc->GetSessTotal(sess_id, 0, &total_blk, 0));
+		}
 	}
 	else
 		MEMSZERO(rec);
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CSESS))));
+	THROW(CheckDialogPtr(&(dlg = new CSessDialog(total_blk))));
 	dlg->setCtrlData(CTL_CSESS_ID, &rec.ID);
 	dlg->setCtrlData(CTL_CSESS_SUPERSESSID, &rec.SuperSessID);
 	GetObjectName(PPOBJ_CSESSION, rec.SuperSessID, super_sess_text);
@@ -163,6 +234,7 @@ int SLAPI PPObjCSession::Edit(PPID * pID, void * extraPtr)
 		}
 	}
 	CATCHZOKPPERR
+	delete dlg; // @v10.4.2 @fix
 	return ok;
 }
 
@@ -175,7 +247,7 @@ int SLAPI PPObjCSession::Recalc(PPID sessID, int use_ta)
 	const  PPID ret_op_id = GetCashRetOp();
 	const  PPID wroff_acc_op_id = GetEqCfg().WrOffAccOpID;
 	CGoodsLine cgl;
-	CCheckCore cc;
+	// @v10.4.2 CCheckCore cc;
 	PPIDArray sub_list;
 	CSessionTbl::Rec sess_rec;
 	CSessTotal cs_total;
@@ -197,7 +269,7 @@ int SLAPI PPObjCSession::Recalc(PPID sessID, int use_ta)
 				}
 			}
 			THROW(cgl.CalcSessTotal(sess_id, &cs_total));
-			THROW(cc.GetSessTotal(sess_id, P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &cs_total, 0));
+			THROW(P_Cc->GetSessTotal(sess_id, P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &cs_total, 0));
 		}
 		THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->ID == sessID),
 			set(P_Tbl->Amount, dbconst(cs_total.Amount)).
@@ -261,7 +333,7 @@ int SLAPI PPObjCSession::Recover(const PPIDArray & rSessList)
 	PPObjBill * p_bobj = BillObj;
 	PPWait(1);
 	CGoodsLine cgl;
-	CCheckCore cc;
+	// @v10.4.2 CCheckCore cc;
 	SString added_msg_buf, temp_buf;
 	CSessionTbl::Rec sess_rec, sub_rec;
 	PPLogger logger;
@@ -288,7 +360,7 @@ int SLAPI PPObjCSession::Recover(const PPIDArray & rSessList)
 						cs_total.WrOffAmount += BR2((bill_rec.OpID == ret_op_id) ? -bill_rec.Amount : bill_rec.Amount);
 				}
 				THROW(cgl.CalcSessTotal(sess_id, &cs_total));
-				THROW(cc.GetSessTotal(sess_id, P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &sub_total, 0));
+				THROW(P_Cc->GetSessTotal(sess_id, P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &sub_total, 0));
 				cs_total.Add(&sub_total);
 				if(sess_id != outer_sess_id) {
 					THROW(r = VerifyAmounts(sess_id, sub_total, logger));
@@ -421,13 +493,12 @@ int SLAPI PPObjCSession::RemoveWrOffBills(PPID sessID, int use_ta)
 	return ok;
 }
 
-//int SLAPI PPObjCSession::Remove(PPID sessID, long, uint options)
 //virtual
 int  SLAPI PPObjCSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    ok = 1;
 	CGoodsLine cgl;
-	CCheckCore cc;
+	// @v10.4.2 CCheckCore cc;
 	PPIDArray sub_list;
 	CSessionTbl::Rec rec;
 	{
@@ -441,7 +512,7 @@ int  SLAPI PPObjCSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint
 			PPID   sess_id = sub_list.get(i);
 			THROW(RemoveWrOffBills(sess_id, 0)); // AHTOXA
 			THROW(cgl.RemoveSess(sess_id));
-			THROW(cc.RemoveSess(sess_id, 0));
+			THROW(P_Cc->RemoveSess(sess_id, 0));
 			THROW_DB(deleteFrom(P_Tbl, 0, P_Tbl->ID == sess_id));
 			THROW(RemoveSync(sess_id));
 		}
@@ -657,7 +728,7 @@ public:
 	uint32  ChecksCount; // @!CSessTransmitPacket::LoadSession
 private:
 	PPObjCSession SessObj;
-	CCheckCore Cc;
+	// @v10.4.2 CCheckCore Cc;
 	PPIDArray ChildIdList; // Подчиненные сессии (используется только для //
 		// форсирования передачи этих сессий вместе с суперсессией:
 		// 1. Функция LoadSession загружает этот список из БД
@@ -701,13 +772,13 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 			THROW(AddObjRecByID(SessObj.P_Tbl, SessObj.Obj, &sess_id, &Rec, 0));
 			for(i = 0; i < ChecksCount; i++) {
 				CCheckPacket pack;
-				THROW(Cc.SerializePacket(-1, &pack, Bs, &pCtx->SCtx));
+				THROW(SessObj.P_Cc->SerializePacket(-1, &pack, Bs, &pCtx->SCtx));
 				pack.Rec.ID = 0;
 				pack.Rec.SessID = sess_id;
 				pack.Rec.Flags |= CCHKF_NOTUSED;
 				if(accept_dup_time) {
 					CCheckTbl::Rec rec;
-					while(Cc.Search(pack.Rec.CashID, pack.Rec.Dt, pack.Rec.Tm, &rec) > 0) {
+					while(SessObj.P_Cc->Search(pack.Rec.CashID, pack.Rec.Dt, pack.Rec.Tm, &rec) > 0) {
 						if(pack.Rec.Code != rec.Code)
 							pack.Rec.Tm.addhs(10);
 						else
@@ -716,7 +787,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 				}
 				pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
 				pack.UpdFlags |= CCheckPacket::ufSkipUhtt;
-				if(!Cc.TurnCheck(&pack, 0)) {
+				if(!SessObj.P_Cc->TurnCheck(&pack, 0)) {
 					PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
 					CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
 					PPGetLastErrorMessage(1, err_msg_text);
@@ -745,7 +816,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 			THROW_SL(pCtx->SCtx.Serialize(-1, ChecksCount, Bs));
 			for(i = 0; i < ChecksCount; i++) {
 				CCheckPacket pack;
-				THROW(Cc.SerializePacket(-1, &pack, Bs, &pCtx->SCtx));
+				THROW(SessObj.P_Cc->SerializePacket(-1, &pack, Bs, &pCtx->SCtx));
 				{
 					const CcAmountList & r_al = pack.AL_Const();
 					if(r_al.getCount()) {
@@ -755,6 +826,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 								do_recover = 1;
 						}
 						if(do_recover) {
+							CCheckCore * p_cc = SessObj.P_Cc;
 							CCheckTbl::Key3 k3;
 							MEMSZERO(k3);
 							k3.SessID = *pID;
@@ -762,35 +834,35 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 							k3.Dt = pack.Rec.Dt;
 							k3.Tm = pack.Rec.Tm;
 							PPID   cc_id = 0;
-							if(Cc.search(3, &k3, spGe)) do {
-								if(labs(DiffTime(Cc.data.Tm, pack.Rec.Tm, 3)) < 10 && Cc.data.Code == pack.Rec.Code) {
-									cc_id = Cc.data.ID;
+							if(p_cc->search(3, &k3, spGe)) do {
+								if(labs(DiffTime(p_cc->data.Tm, pack.Rec.Tm, 3)) < 10 && p_cc->data.Code == pack.Rec.Code) {
+									cc_id = p_cc->data.ID;
 								}
-							} while(!cc_id && Cc.search(3, &k3, spGt));
+							} while(!cc_id && p_cc->search(3, &k3, spGt));
 							if(cc_id) {
 								const double epsilon = 1E-6;
 								CCheckPacket cc_pack;
-								if(Cc.LoadPacket(cc_id, 0, &cc_pack) > 0) {
+								if(p_cc->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 									SCardTbl::Rec sc_rec;
 									CCheckPaymTbl::Key0 cpk0;
 									MEMSZERO(cpk0);
 									cpk0.CheckID = cc_id;
-									if(Cc.PaymT.search(0, &cpk0, spGe) && Cc.PaymT.data.CheckID == cc_id) {
+									if(p_cc->PaymT.search(0, &cpk0, spGe) && p_cc->PaymT.data.CheckID == cc_id) {
 										uint k = 0;
 										do {
 											CcAmountEntry cc_ae;
-											const int16 rbc = Cc.PaymT.data.RByCheck;
-											cc_ae.Type = Cc.PaymT.data.PaymType;
-											cc_ae.Amount = intmnytodbl(Cc.PaymT.data.Amount);
-											cc_ae.AddedID = Cc.PaymT.data.SCardID;
+											const int16 rbc = p_cc->PaymT.data.RByCheck;
+											cc_ae.Type = p_cc->PaymT.data.PaymType;
+											cc_ae.Amount = intmnytodbl(p_cc->PaymT.data.Amount);
+											cc_ae.AddedID = p_cc->PaymT.data.SCardID;
 											if(cc_ae.AddedID && k < r_al.getCount()) {
 												const CcAmountEntry & r_ae = r_al.at(k);
 												if(r_ae.Type == cc_ae.Type && fabs(r_ae.Amount - cc_ae.Amount) < epsilon && r_ae.AddedID != cc_ae.AddedID) {
-													if(Cc.Cards.Search(r_ae.AddedID, &sc_rec) > 0) {
+													if(p_cc->Cards.Search(r_ae.AddedID, &sc_rec) > 0) {
 														cc_ae.AddedID = r_ae.AddedID;
 														{
-															Cc.PaymT.data.SCardID = r_ae.AddedID;
-															THROW_DB(Cc.PaymT.updateRec());
+															p_cc->PaymT.data.SCardID = r_ae.AddedID;
+															THROW_DB(p_cc->PaymT.updateRec());
 															//
 															// PPTXT_CCPAYMSCARDCORRECTED  "Скорректирована карта оплаты в чеке %s"
 															PPLoadText(PPTXT_CCPAYMSCARDCORRECTED, err_msg_fmt);
@@ -801,7 +873,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 												}
 											}
 											k++;
-										} while(Cc.PaymT.search(0, &cpk0, spNext) && Cc.PaymT.data.CheckID == cc_id);
+										} while(p_cc->PaymT.search(0, &cpk0, spNext) && p_cc->PaymT.data.CheckID == cc_id);
 									}
 								}
 							}
@@ -809,7 +881,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 								pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
 								pack.UpdFlags |= CCheckPacket::ufSkipUhtt;
 								CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
-								if(!Cc.TurnCheck(&pack, 0)) {
+								if(!p_cc->TurnCheck(&pack, 0)) {
 									PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
 									PPGetLastErrorMessage(1, err_msg_text);
 									msg_buf.Printf(err_msg_fmt, ccheck_code.cptr(), err_msg_text.cptr());
@@ -838,6 +910,7 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 {
 	int    ok = 1;
 	SBuffer temp_buf;
+	CCheckCore * p_cc = SessObj.P_Cc;
 	THROW(PPObject::ProcessObjListRefInArray(PPOBJ_CSESSION, ChildIdList, ary, replace));
 	PROFILE_START
 	Bs.SetRdOffs(0);
@@ -851,7 +924,7 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 	}
 	for(uint i = 0; i < ChecksCount; i++) {
 		CCheckPacket pack;
-		THROW(Cc.SerializePacket(-1, &pack, Bs, &pCtx->SCtx));
+		THROW(p_cc->SerializePacket(-1, &pack, Bs, &pCtx->SCtx));
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_SCARD,   &pack.Rec.SCardID, ary, replace));
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_PERSON,  &pack.Rec.UserID, ary, replace));
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_ARTICLE, &pack.Ext.SalerID,  ary, replace));
@@ -869,7 +942,7 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 			}
 		}
 		if(replace) {
-			THROW(Cc.SerializePacket(+1, &pack, temp_buf, &pCtx->SCtx));
+			THROW(p_cc->SerializePacket(+1, &pack, temp_buf, &pCtx->SCtx));
 		}
 	}
 	if(replace)
@@ -910,19 +983,20 @@ int SLAPI CSessTransmitPacket::LoadSession(PPID sessID, ObjTransmContext * pCtx)
 	Bs.Z();
 	if(SessObj.Search(sessID, &Rec) > 0) {
 		PPIDArray id_list;
+		CCheckCore * p_cc = SessObj.P_Cc;
 		CCheckTbl::Key3 k3;
 		MEMSZERO(k3);
 		k3.SessID = sessID;
-		while(Cc.search(3, &k3, spGt) && k3.SessID == sessID) {
-			id_list.add(Cc.data.ID);
+		while(p_cc->search(3, &k3, spGt) && k3.SessID == sessID) {
+			id_list.add(p_cc->data.ID);
 		}
 		ChecksCount = id_list.getCount();
 		THROW_SL(SessObj.P_Tbl->SerializeRecord(+1, &Rec, Bs, &pCtx->SCtx));
 		THROW_SL(pCtx->SCtx.Serialize(+1, ChecksCount, Bs));
 		for(uint i = 0; i < id_list.getCount(); i++) {
 			CCheckPacket cc_pack;
-			THROW(Cc.LoadPacket(id_list.get(i), 0, &cc_pack) > 0);
-			THROW(Cc.SerializePacket(+1, &cc_pack, Bs, &pCtx->SCtx));
+			THROW(p_cc->LoadPacket(id_list.get(i), 0, &cc_pack) > 0);
+			THROW(p_cc->SerializePacket(+1, &cc_pack, Bs, &pCtx->SCtx));
 		}
 		SessObj.P_Tbl->GetSubSessList(sessID, &ChildIdList);
 	}
@@ -2260,16 +2334,11 @@ private:
 	int    OneXmlOut;
 	PPObjCSession CsObj;
 	PPObjGoods GObj;
-	CCheckCore Cc;
+	// @v10.4.2 CCheckCore Cc;
 };
 
-SLAPI PrcssrCSessComplexExport::PrcssrCSessComplexExport()
+SLAPI PrcssrCSessComplexExport::PrcssrCSessComplexExport() : P_IeCSess(0), P_IeCCheck(0), P_IeCCLine(0),  P_IeCCPaym(0), OneXmlOut(0)
 {
-	P_IeCSess = 0;
-	P_IeCCheck = 0;
-	P_IeCCLine = 0;
-	P_IeCCPaym = 0;
-	OneXmlOut = 0;
 }
 
 SLAPI PrcssrCSessComplexExport::~PrcssrCSessComplexExport()

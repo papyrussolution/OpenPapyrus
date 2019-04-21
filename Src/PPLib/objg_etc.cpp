@@ -141,7 +141,7 @@ int SLAPI GoodsTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		FLD(AmtCVat);
 		FLD(Flags);
 		#undef FLD
-		ok = PutName(rec.Name, p_cache_rec);
+		/* @v10.4.2 ok =*/PutName(rec.Name, p_cache_rec);
 	}
 	else
 		ok = -1;

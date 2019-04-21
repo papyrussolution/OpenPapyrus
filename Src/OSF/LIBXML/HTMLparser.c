@@ -127,7 +127,7 @@ static int FASTCALL htmlnamePush(htmlParserCtxt * ctxt, const xmlChar * value)
 		ctxt->html = 10;
 	if(ctxt->nameNr >= ctxt->nameMax) {
 		ctxt->nameMax *= 2;
-		ctxt->nameTab = (const xmlChar**)SAlloc::R((xmlChar**)ctxt->nameTab, ctxt->nameMax * sizeof(ctxt->nameTab[0]));
+		ctxt->nameTab = (const xmlChar **)SAlloc::R((xmlChar**)ctxt->nameTab, ctxt->nameMax * sizeof(ctxt->nameTab[0]));
 		if(ctxt->nameTab == NULL) {
 			htmlErrMemory(ctxt, 0);
 			return 0;
@@ -3278,7 +3278,6 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 			}
 		}
 	}
-
 	/*
 	 * Now parse the attributes, it ends up with the ending
 	 *
@@ -3305,7 +3304,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 			 */
 			if(atts == NULL) {
 				maxatts = 22; /* allow for 10 attrs by default */
-				atts = (const xmlChar**)SAlloc::M(maxatts * sizeof(xmlChar *));
+				atts = (const xmlChar **)SAlloc::M(maxatts * sizeof(xmlChar *));
 				if(atts == NULL) {
 					htmlErrMemory(ctxt, 0);
 					SAlloc::F(attvalue);
@@ -3315,9 +3314,8 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 				ctxt->maxatts = maxatts;
 			}
 			else if(nbatts + 4 > maxatts) {
-				const xmlChar ** n;
 				maxatts *= 2;
-				n = (const xmlChar**)SAlloc::R((void *)atts, maxatts * sizeof(const xmlChar *));
+				const xmlChar ** n = (const xmlChar **)SAlloc::R((void *)atts, maxatts * sizeof(const xmlChar *));
 				if(n == NULL) {
 					htmlErrMemory(ctxt, 0);
 					SAlloc::F(attvalue);
@@ -3334,8 +3332,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 		}
 		else {
 			SAlloc::F(attvalue);
-			/* Dump the bogus attribute string up to the next blank or
-			 * the end of the tag. */
+			// Dump the bogus attribute string up to the next blank or the end of the tag. 
 			while((IS_CHAR_CH(CUR)) && !(IS_BLANK_CH(CUR)) && (CUR != '>') && ((CUR != '/') || (NXT(1) != '>')))
 				NEXT;
 		}
@@ -3346,7 +3343,6 @@ failed:
 			break;
 		}
 	}
-
 	/*
 	 * Handle specific association to the META tag
 	 */
@@ -4186,7 +4182,7 @@ static int htmlInitParserCtxt(htmlParserCtxt * ctxt)
 	ctxt->nodeMax = 10;
 	ctxt->P_Node = NULL;
 	// Allocate the Name stack 
-	ctxt->nameTab = (const xmlChar**)SAlloc::M(10 * sizeof(xmlChar *));
+	ctxt->nameTab = (const xmlChar **)SAlloc::M(10 * sizeof(xmlChar *));
 	if(ctxt->nameTab == NULL) {
 		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
 		ctxt->nameNr = 0;

@@ -903,7 +903,7 @@ int SLAPI Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & r
 					case tCodepage:
 						if(!Cp.FromStr(meta.Text)) {
 							PPGetMessage(mfError, PPERR_INVCODEPAGE, meta.Text, 1, temp_buf);
-							ErrMsgList.add(temp_buf, 0);
+							ErrMsgList.add(temp_buf);
 						}
 						break;
 					case tStart:

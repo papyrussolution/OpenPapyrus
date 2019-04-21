@@ -435,10 +435,8 @@
 	#define PPPRK_HOMEOFFICE     9L // Отделы|Управления внутренних дел
 	#define PPPRK_BUSADMIN      10L // Гос. службы, регистрирующие юр. лица
 	#define PPPRK_EMPLOYER      11L // Работодатель
-	#define PPPRK_UNKNOWN       12L // Неизвестный вид (если персоналия теряет
-		//  принадлежность ко всем видам, то приобретает принадлежность к виду
-		//  PPPRK_UNKNOWN. Приобретая любой вид кроме этого, персоналия //
-		//  теряет вид PPPRK_UNKNOWN).
+	#define PPPRK_UNKNOWN       12L // Неизвестный вид (если персоналия теряет принадлежность ко всем видам, то приобретает принадлежность к виду
+		//  PPPRK_UNKNOWN. Приобретая любой вид кроме этого, персоналия теряет вид PPPRK_UNKNOWN).
 	#define PPPRK_SHIPOWNER     13L // Владельцы транспортных средств
 	#define PPPRK_VESSELSAGENT  14L // Транспортные брокеры
 	#define PPPRK_CAPTAIN       15L // Командиры транспортных средств
@@ -6375,6 +6373,7 @@
 	#define CTL_CSESS_TEMP               (9 + WINDOWS_ID_BIAS)
 	#define CTL_CSESS_SUPERSESSTEXT      (10 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CSESS_DATE            (11 + WINDOWS_ID_BIAS) // @alena
+	#define CTL_CSESS_AMTLIST            (12 + WINDOWS_ID_BIAS)
 #define DLG_LOCVIEW               645 // @v4.6.4 Список просмотра складов
 	#define cmWareplaceList             101 // Места хранения, соответствующие складу
 	#define cmLocGoodsAssoc             102 // Ассоциации "товар-склад" или "товар-место хранения"
@@ -10579,6 +10578,7 @@
 	#define CTL_TIMSER_OPTMD          (16 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_OPTMDS         (17 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_AVGSPRD        (18 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_TGTQUANT       (19 + WINDOWS_ID_BIAS)
 #define DLG_TSSA                  1353 //
 	#define cmTsList                  101
 	#define CTL_TSSA_TS               (1 + WINDOWS_ID_BIAS)
@@ -10597,6 +10597,8 @@
 	#define CTL_TIMSERCFG_MINPOTENT   (5 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_LIST        (6 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_TSFLSHTMR   (7 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERCFG_RVRMLQ      (8 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERCFG_RVRMAS      (9 + WINDOWS_ID_BIAS)
 #define DLG_TIMSERCFGITEM         1356
 	#define CTL_TIMSERCFGITEM_FLAGS   (1 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFGITEM_TS      (2 + WINDOWS_ID_BIAS)

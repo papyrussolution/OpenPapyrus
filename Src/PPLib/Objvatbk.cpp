@@ -2865,7 +2865,7 @@ int SLAPI PPViewVatBook::Export()
 					left.Space().Cat(ver.ToStr(temp_buf));
 					n_file.PutAttrib("ВерсПрог", left);
 				}
-				n_file.PutAttrib("ВерсФорм", "5.04");
+				n_file.PutAttrib("ВерсФорм", "5.06"); // @v10.4.2 "5.04"-->"5.06"
 				{
 					SXml::WNode n_doc(p_writer, "Документ");
 					if(Filt.Kind == PPVTB_BUY) {

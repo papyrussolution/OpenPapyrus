@@ -134,10 +134,8 @@ err:
 static int i2d_x509_aux_internal(X509 * a, uchar ** pp)
 {
 	int length, tmplen;
-	uchar * start = pp != NULL ? *pp : NULL;
-
+	uchar * start = pp ? *pp : NULL;
 	OPENSSL_assert(pp == NULL || *pp != NULL);
-
 	/*
 	 * This might perturb *pp on error, but fixing that belongs in i2d_X509()
 	 * not here.  It should be that if a == NULL length is zero, but we check
@@ -146,7 +144,6 @@ static int i2d_x509_aux_internal(X509 * a, uchar ** pp)
 	length = i2d_X509(a, pp);
 	if(length <= 0 || a == NULL)
 		return length;
-
 	tmplen = i2d_X509_CERT_AUX(a->aux, pp);
 	if(tmplen < 0) {
 		if(start != NULL)
@@ -154,10 +151,8 @@ static int i2d_x509_aux_internal(X509 * a, uchar ** pp)
 		return tmplen;
 	}
 	length += tmplen;
-
 	return length;
 }
-
 /*
  * Serialize trusted certificate to *pp, or just return the required buffer
  * length if pp == NULL.

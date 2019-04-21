@@ -56,8 +56,7 @@
 static const TIFFFieldArray * _GetTiffFieldArray();
 static const TIFFFieldArray * _GetExifFieldArray();
 
-static const TIFFField
-    tiffFields[] = {
+static const TIFFField tiffFields[] = {
 	{ TIFFTAG_SUBFILETYPE, 1, 1, TIFF_LONG, 0, TIFF_SETGET_UINT32, TIFF_SETGET_UNDEFINED, FIELD_SUBFILETYPE, 1, 0, "SubfileType", NULL },
 	{ TIFFTAG_OSUBFILETYPE, 1, 1, TIFF_SHORT, 0, TIFF_SETGET_UNDEFINED, TIFF_SETGET_UNDEFINED, FIELD_SUBFILETYPE, 1, 0, "OldSubfileType", NULL },
 	{ TIFFTAG_IMAGEWIDTH, 1, 1, TIFF_LONG, 0, TIFF_SETGET_UINT32, TIFF_SETGET_UNDEFINED, FIELD_IMAGEDIMENSIONS, 0, 0, "ImageWidth", NULL },
@@ -224,8 +223,7 @@ static const TIFFField
 	/* begin pseudo tags */
 };
 
-static const TIFFField
-    exifFields[] = {
+static const TIFFField exifFields[] = {
 	{ EXIFTAG_EXPOSURETIME, 1, 1, TIFF_RATIONAL, 0, TIFF_SETGET_DOUBLE, TIFF_SETGET_UNDEFINED, FIELD_CUSTOM, 1, 0, "ExposureTime", NULL },
 	{ EXIFTAG_FNUMBER, 1, 1, TIFF_RATIONAL, 0, TIFF_SETGET_DOUBLE, TIFF_SETGET_UNDEFINED, FIELD_CUSTOM, 1, 0, "FNumber", NULL },
 	{ EXIFTAG_EXPOSUREPROGRAM, 1, 1, TIFF_SHORT, 0, TIFF_SETGET_UINT16, TIFF_SETGET_UNDEFINED, FIELD_CUSTOM, 1, 0, "ExposureProgram", NULL },
@@ -284,8 +282,8 @@ static const TIFFField
 	{ EXIFTAG_IMAGEUNIQUEID, 33, 33, TIFF_ASCII, 0, TIFF_SETGET_ASCII, TIFF_SETGET_UNDEFINED, FIELD_CUSTOM, 1, 0, "ImageUniqueID", NULL }
 };
 
-static const TIFFFieldArray tiffFieldArray = { tfiatImage, 0, SIZEOFARRAY(tiffFields), (TIFFField*)tiffFields };
-static const TIFFFieldArray exifFieldArray = { tfiatExif, 0, SIZEOFARRAY(exifFields), (TIFFField*)exifFields };
+static const TIFFFieldArray tiffFieldArray = { tfiatImage, 0, SIZEOFARRAY(tiffFields), (TIFFField *)tiffFields };
+static const TIFFFieldArray exifFieldArray = { tfiatExif, 0, SIZEOFARRAY(exifFields), (TIFFField *)exifFields };
 
 static const TIFFFieldArray * _GetTiffFieldArray() { return &tiffFieldArray; }
 static const TIFFFieldArray * _GetExifFieldArray() { return &exifFieldArray; }
@@ -304,15 +302,8 @@ static void * td_lfind(const void * key, const void * base, size_t * nmemb, size
 	return NULL;
 }
 
-const TIFFFieldArray* _TIFFGetFields(void)
-{
-	return (&tiffFieldArray);
-}
-
-const TIFFFieldArray* _TIFFGetExifFields(void)
-{
-	return (&exifFieldArray);
-}
+const TIFFFieldArray * _TIFFGetFields(void) { return (&tiffFieldArray); }
+const TIFFFieldArray* _TIFFGetExifFields(void) { return (&exifFieldArray); }
 
 void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
 {
@@ -336,8 +327,8 @@ void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
 
 static int tagCompare(const void* a, const void* b)
 {
-	const TIFFField* ta = *(const TIFFField**)a;
-	const TIFFField* tb = *(const TIFFField**)b;
+	const TIFFField * ta = *static_cast<const TIFFField * const *>(a);
+	const TIFFField * tb = *static_cast<const TIFFField * const *>(b);
 	/* NB: be careful of return values for 16-bit platforms */
 	if(ta->field_tag != tb->field_tag)
 		return (int)ta->field_tag - (int)tb->field_tag;
@@ -347,8 +338,8 @@ static int tagCompare(const void* a, const void* b)
 
 static int tagNameCompare(const void* a, const void* b)
 {
-	const TIFFField* ta = *(const TIFFField**)a;
-	const TIFFField* tb = *(const TIFFField**)b;
+	const TIFFField * ta = *static_cast<const TIFFField * const *>(a);
+	const TIFFField * tb = *static_cast<const TIFFField * const *>(b);
 	int ret = strcmp(ta->field_name, tb->field_name);
 	if(ret)
 		return ret;
@@ -364,24 +355,21 @@ int _TIFFMergeFields(TIFF* tif, const TIFFField info[], uint32 n)
 	uint32 i;
 	tif->tif_foundfield = NULL;
 	if(tif->tif_fields && tif->tif_nfields > 0) {
-		tif->tif_fields = (TIFFField**) _TIFFCheckRealloc(tif, tif->tif_fields, (tif->tif_nfields + n), sizeof(TIFFField *), reason);
+		tif->tif_fields = static_cast<TIFFField **>(_TIFFCheckRealloc(tif, tif->tif_fields, (tif->tif_nfields + n), sizeof(TIFFField *), reason));
 	}
 	else {
-		tif->tif_fields = (TIFFField**)_TIFFCheckMalloc(tif, n, sizeof(TIFFField *), reason);
+		tif->tif_fields = static_cast<TIFFField **>(_TIFFCheckMalloc(tif, n, sizeof(TIFFField *), reason));
 	}
 	if(!tif->tif_fields) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Failed to allocate fields array");
 		return 0;
 	}
-
 	/* tp = tif->tif_fields + tif->tif_nfields; */
 	for(i = 0; i < n; i++) {
-		const TIFFField * fip =
-		    TIFFFindField(tif, info[i].field_tag, TIFF_ANY);
-
+		const TIFFField * fip = TIFFFindField(tif, info[i].field_tag, TIFF_ANY);
 		/* only add definitions that aren't already present */
 		if(!fip) {
-			tif->tif_fields[tif->tif_nfields] = (TIFFField*)(info+i);
+			tif->tif_fields[tif->tif_nfields] = (TIFFField *)(info+i);
 			tif->tif_nfields++;
 		}
 	}
@@ -401,7 +389,6 @@ void _TIFFPrintFieldInfo(TIFF* tif, FILE* fd)
 			fip->field_passcount ? "TRUE" : "FALSE", fip->field_name);
 	}
 }
-
 /*
  * Return size of TIFFDataType in bytes
  */
@@ -412,28 +399,22 @@ int TIFFDataWidth(TIFFDataType type)
 		case TIFF_BYTE:
 		case TIFF_ASCII:
 		case TIFF_SBYTE:
-		case TIFF_UNDEFINED:
-		    return 1;
+		case TIFF_UNDEFINED: return 1;
 		case TIFF_SHORT:
-		case TIFF_SSHORT:
-		    return 2;
+		case TIFF_SSHORT: return 2;
 		case TIFF_LONG:
 		case TIFF_SLONG:
 		case TIFF_FLOAT:
-		case TIFF_IFD:
-		    return 4;
+		case TIFF_IFD: return 4;
 		case TIFF_RATIONAL:
 		case TIFF_SRATIONAL:
 		case TIFF_DOUBLE:
 		case TIFF_LONG8:
 		case TIFF_SLONG8:
-		case TIFF_IFD8:
-		    return 8;
-		default:
-		    return 0;     /* will return 0 for unknown types */
+		case TIFF_IFD8: return 8;
+		default: return 0;     /* will return 0 for unknown types */
 	}
 }
-
 /*
  * Return size of TIFFDataType in bytes.
  *
@@ -469,7 +450,7 @@ int _TIFFDataSize(TIFFDataType type)
 	}
 }
 
-const TIFFField* TIFFFindField(TIFF* tif, uint32 tag, TIFFDataType dt)
+const TIFFField * TIFFFindField(TIFF* tif, uint32 tag, TIFFDataType dt)
 {
 	TIFFField key = {0, 0, 0, TIFF_NOTYPE, 0, (TIFFSetGetFieldType)0, (TIFFSetGetFieldType)0, 0, 0, 0, NULL, NULL};
 	TIFFField * pkey = &key;
@@ -521,57 +502,28 @@ const TIFFField* TIFFFieldWithName(TIFF* tif, const char * field_name)
 	return (fip);
 }
 
-uint32 TIFFFieldTag(const TIFFField* fip)
-{
-	return fip->field_tag;
-}
-
-const char * TIFFFieldName(const TIFFField* fip)
-{
-	return fip->field_name;
-}
-
-TIFFDataType TIFFFieldDataType(const TIFFField* fip)
-{
-	return fip->field_type;
-}
-
-int TIFFFieldPassCount(const TIFFField* fip)
-{
-	return fip->field_passcount;
-}
-
-int TIFFFieldReadCount(const TIFFField* fip)
-{
-	return fip->field_readcount;
-}
-
-int TIFFFieldWriteCount(const TIFFField* fip)
-{
-	return fip->field_writecount;
-}
+uint32 TIFFFieldTag(const TIFFField* fip) { return fip->field_tag; }
+const char * TIFFFieldName(const TIFFField* fip) { return fip->field_name; }
+TIFFDataType TIFFFieldDataType(const TIFFField* fip) { return fip->field_type; }
+int TIFFFieldPassCount(const TIFFField* fip) { return fip->field_passcount; }
+int TIFFFieldReadCount(const TIFFField* fip) { return fip->field_readcount; }
+int TIFFFieldWriteCount(const TIFFField* fip) { return fip->field_writecount; }
 
 const TIFFField* _TIFFFindOrRegisterField(TIFF * tif, uint32 tag, TIFFDataType dt)
-
 {
-	const TIFFField * fld;
-
-	fld = TIFFFindField(tif, tag, dt);
+	const TIFFField * fld = TIFFFindField(tif, tag, dt);
 	if(fld == NULL) {
 		fld = _TIFFCreateAnonField(tif, tag, dt);
 		if(!_TIFFMergeFields(tif, fld, 1))
 			return NULL;
 	}
-
 	return fld;
 }
 
 TIFFField* _TIFFCreateAnonField(TIFF * tif, uint32 tag, TIFFDataType field_type)
 {
-	TIFFField * fld;
 	(void)tif;
-
-	fld = (TIFFField*)SAlloc::M(sizeof(TIFFField));
+	TIFFField * fld = static_cast<TIFFField *>(SAlloc::M(sizeof(TIFFField)));
 	if(fld == NULL)
 		return NULL;
 	memzero(fld, sizeof(TIFFField));
@@ -763,10 +715,10 @@ int TIFFMergeFieldInfo(TIFF* tif, const TIFFFieldInfo info[], uint32 n)
 	size_t nfields;
 	uint32 i;
 	if(tif->tif_nfieldscompat > 0) {
-		tif->tif_fieldscompat = (TIFFFieldArray*)_TIFFCheckRealloc(tif, tif->tif_fieldscompat, tif->tif_nfieldscompat + 1, sizeof(TIFFFieldArray), reason);
+		tif->tif_fieldscompat = static_cast<TIFFFieldArray *>(_TIFFCheckRealloc(tif, tif->tif_fieldscompat, tif->tif_nfieldscompat + 1, sizeof(TIFFFieldArray), reason));
 	}
 	else {
-		tif->tif_fieldscompat = (TIFFFieldArray*)_TIFFCheckMalloc(tif, 1, sizeof(TIFFFieldArray), reason);
+		tif->tif_fieldscompat = static_cast<TIFFFieldArray *>(_TIFFCheckMalloc(tif, 1, sizeof(TIFFFieldArray), reason));
 	}
 	if(!tif->tif_fieldscompat) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Failed to allocate fields array");
@@ -776,7 +728,7 @@ int TIFFMergeFieldInfo(TIFF* tif, const TIFFFieldInfo info[], uint32 n)
 	tif->tif_fieldscompat[nfields].type = tfiatOther;
 	tif->tif_fieldscompat[nfields].allocated_size = n;
 	tif->tif_fieldscompat[nfields].count = n;
-	tif->tif_fieldscompat[nfields].fields = (TIFFField*)_TIFFCheckMalloc(tif, n, sizeof(TIFFField), reason);
+	tif->tif_fieldscompat[nfields].fields = static_cast<TIFFField *>(_TIFFCheckMalloc(tif, n, sizeof(TIFFField), reason));
 	if(!tif->tif_fieldscompat[nfields].fields) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Failed to allocate fields array");
 		return -1;

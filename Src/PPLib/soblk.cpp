@@ -438,7 +438,6 @@ private:
 	};
 	int    OutFormat;
 	SString OutTemplate; // Ќаименование шаблона вывода резульатов в формате TDDO
-
 	PPObjGoods GObj;
 	PPObjGoodsGroup GgObj;
 	PPObjPerson PsnObj;
@@ -485,15 +484,8 @@ SelectObjectBlock::~SelectObjectBlock()
 	delete P_BSob;
 }
 
-int FASTCALL SelectObjectBlock::Parse(const char * pStr)
-{
-	return P_BSob->Parse(pStr);
-}
-
-int FASTCALL SelectObjectBlock::Execute(PPJobSrvReply & rReply)
-{
-	return P_BSob->Execute(rReply);
-}
+int FASTCALL SelectObjectBlock::Parse(const char * pStr) { return P_BSob->Parse(pStr); }
+int FASTCALL SelectObjectBlock::Execute(PPJobSrvReply & rReply) { return P_BSob->Execute(rReply); }
 
 //
 // CCHECKCREATE POSNODE.CODE(UHTT) LOCATION.CODE(wh01) SCARD.CODE(1111122) AMOUNT(1219.40)
@@ -526,6 +518,7 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 	PPID   cs_id = 0;
 	PPCashNode cn_rec;
 	LocationTbl::Rec loc_rec;
+	THROW_MEM(SETIFZ(P_CsObj, new PPObjCSession));
 	THROW(CnObj.Fetch(rHdr.PosNodeID, &cn_rec) > 0);
 	THROW(cn_rec.CashType == PPCMT_DISTRIB);
 	THROW(LocObj.Fetch(rHdr.LocID, &loc_rec) > 0);
@@ -535,15 +528,13 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 		PPObjSCardSeries scs_obj;
 		PPSCardSeries scs_rec;
 		SCardTbl::Rec sc_rec;
-		THROW(Cc.Cards.Search(rHdr.SCardID, &sc_rec) > 0);
+		THROW(P_CsObj->P_Cc->Cards.Search(rHdr.SCardID, &sc_rec) > 0);
 		THROW(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0);
 	}
 	THROW(IsValidIEEE(rHdr.Amount));
 	THROW(rHdr.Amount >= 0.0);
 	THROW(IsValidIEEE(rHdr.Discount));
 	THROW_SL(checkdate(rHdr.Dtm.d, 1));
-	SETIFZ(P_CsObj, new PPObjCSession);
-	THROW_MEM(P_CsObj);
 	{
 		PPTransaction tra(1);
 		CCheckTbl::Rec cc_rec;
@@ -569,7 +560,7 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 		THROW(tra);
 		{
 			CCheckTbl::Rec cc_code_rec;
-			if(Cc.GetLastCheckByCode(rHdr.PosNodeID, &cc_code_rec) > 0)
+			if(P_CsObj->P_Cc->GetLastCheckByCode(rHdr.PosNodeID, &cc_code_rec) > 0)
 				cc_rec.Code = cc_code_rec.Code + 1;
 			else
 				cc_rec.Code = 1;
@@ -600,12 +591,12 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 			cck1.Dt = cc_rec.Dt;
 			cck1.Tm = cc_rec.Tm;
 			cck1.CashID = cc_rec.CashID;
-			while(Cc.search(1, &cck1, spEq)) {
+			while(P_CsObj->P_Cc->search(1, &cck1, spEq)) {
 				cc_rec.Tm.v++;
 				cck1.Tm = cc_rec.Tm;
 			}
 		}
-		THROW(Cc.Add(&cc_id, &cc_rec, 0));
+		THROW(P_CsObj->P_Cc->Add(&cc_id, &cc_rec, 0));
 		THROW(tra.Commit());
 	}
 	CATCH
@@ -626,13 +617,14 @@ int SLAPI SelectObjectBlock::DistribCCheck::Finish(PPID ccID, PPID * pNewCcID)
 {
 	int    ok = 1;
 	PPID   cc_id = 0;
+	THROW_MEM(SETIFZ(P_CsObj, new PPObjCSession));
 	{
 		PPTransaction tra(1);
 		CCheckPacket cc_pack;
 		THROW(tra);
-		THROW(Cc.LoadPacket(ccID, 0, &cc_pack) > 0);
+		THROW(P_CsObj->P_Cc->LoadPacket(ccID, 0, &cc_pack) > 0);
 		THROW(cc_pack.Rec.Flags & CCHKF_SKIP);
-		THROW(Cc.RemovePacket(ccID, 0));
+		THROW(P_CsObj->P_Cc->RemovePacket(ccID, 0));
 		//
 		// SetupAmount следует использовать только в том случае, если сумма чека об€зана соответствовать
 		// суммам по строкам. Ќа начальном этапе распределенный чеки будут работать без строк, потому
@@ -641,7 +633,7 @@ int SLAPI SelectObjectBlock::DistribCCheck::Finish(PPID ccID, PPID * pNewCcID)
 		//cc_pack.SetupAmount(0, 0);
 		cc_pack.Rec.Flags &= ~CCHKF_SKIP;
 		cc_pack.Rec.ID = 0;
-		THROW(Cc.TurnCheck(&cc_pack, 0));
+		THROW(P_CsObj->P_Cc->TurnCheck(&cc_pack, 0));
 		THROW(tra.Commit());
 		cc_id = cc_pack.Rec.ID;
 	}

@@ -4072,7 +4072,8 @@ public:
 	void   FASTCALL setDelim(const char * pDelim);
 	uint   SLAPI getDelimLen() const;
 	uint   SLAPI getCount() const;
-	int    FASTCALL add(const char *, uint * pPos);
+	int    FASTCALL add(const char * pStr, uint * pPos);
+	int    FASTCALL add(const char * pStr, uint32 * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
 	//
 	// Descr: Функция добавляет в конец набора новую строку pStr.
 	//   Единственное отличие от add(const char *, uint *) только в отсутствии последнего параметра.

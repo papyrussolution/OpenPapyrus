@@ -227,7 +227,7 @@ SLAPI DlMacro::DlMacro() : S(";")
 int SLAPI DlMacro::Add(const char * pSymb, const char * pResult)
 {
 	SString buf;
-	S.add(buf.Cat(pSymb).Comma().Cat(pResult), 0);
+	S.add(buf.Cat(pSymb).Comma().Cat(pResult));
 	return 1;
 }
 
@@ -261,7 +261,7 @@ int DlContext::GetMacro(const char * pMacro, SString & rResult) const
 //
 int DlContext::AddStrucDeclare(const char * pDecl)
 {
-	CurDeclList.add(pDecl, 0);
+	CurDeclList.add(pDecl);
 	return 1;
 }
 
@@ -3077,7 +3077,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 			gen.Wr_Comment(fld_buf.Printf("Implementation of interface %s", cls_name.cptr()));
 			gen.Wr_Comment(0);
 			gen.Wr_IfDef(Make_USEIMPL_DefSymb(cls_name, fld_buf));
-			rSs.add(fld_buf, 0);
+			rSs.add(fld_buf);
 			//
 			// Таблица виртуальных функция класса (собственно, та таблица, которая будет возвращаться //
 			// клиенту при обращении к QueryInterface)

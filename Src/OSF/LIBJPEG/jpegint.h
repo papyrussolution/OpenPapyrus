@@ -318,7 +318,7 @@ struct jpeg_color_quantizer {
 	#define FMEMZERO(target, size)   memzero(target, size)
 #else                           /* 80x86 case */
 #ifdef USE_FMEM
-	#define FMEMZERO(target, size)   _fmemset((void FAR*)(target), 0, (size_t)(size))
+	#define FMEMZERO(target, size)   _fmemset((void *)(target), 0, (size_t)(size))
 #else
 	EXTERN(void) jzero_far(void FAR * target, size_t bytestozero);
 	#define FMEMZERO(target, size)   jzero_far(target, size)

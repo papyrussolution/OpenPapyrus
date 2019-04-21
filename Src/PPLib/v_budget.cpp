@@ -749,11 +749,11 @@ int BudgetItemsDialog::setupList()
 		StringSet ss(SLBColumnDelim);
 		buf.Z();
 		CALLPTRMEMB(P_Obj, FormatDate(r_rec.BudgetID, 0, r_rec.Dt, buf));
-		ss.add(buf, 0);
+		ss.add(buf);
 		buf.Z().Cat(r_rec.Amount, SFMT_MONEY);
-		ss.add(buf, 0);
+		ss.add(buf);
 		buf = r_rec.Memo;
-		ss.add(buf, 0);
+		ss.add(buf);
 		addStringToList(i+1, ss.getBuf());
 	}
 	return 1;
@@ -946,12 +946,11 @@ int SLAPI PPObjBudget::InitItemsCycleList(const BudgetItemTbl::Rec * pRec, Budge
 
 int SLAPI PPObjBudget::EditLine(PPID * pID, PPIDArray * pIdList, PPID budgetID, LDATE dt)
 {
-	int ok = -1, by_list = 0;
-	PPID sel_id = (pID) ? *pID : 0;
+	int    ok = -1, by_list = 0;
+	PPID   sel_id = DEREFPTRORZ(pID);
 	BudgetItemsList list;
 	BudgetItemTbl::Rec rec;
 	BudgetItemDialog * p_dlg = 0;
-
 	THROW_INVARG(pIdList);
 	MEMSZERO(rec);
 	if(pID && *pID) {

@@ -1831,10 +1831,10 @@ int64 SLAPI STimeChunk::GetDurationMs() const
 		return -1;
 }
 
-IMPL_CMPFUNC(STimeChunk, i1, i2) 
-{ 
-	return pExtraData ? static_cast<const STimeChunk *>(i2)->cmp(*static_cast<const STimeChunk *>(i1)) : 
-		static_cast<const STimeChunk *>(i1)->cmp(*static_cast<const STimeChunk *>(i2)); 
+IMPL_CMPFUNC(STimeChunk, i1, i2)
+{
+	return pExtraData ? static_cast<const STimeChunk *>(i2)->cmp(*static_cast<const STimeChunk *>(i1)) :
+		static_cast<const STimeChunk *>(i1)->cmp(*static_cast<const STimeChunk *>(i2));
 }
 //
 //
@@ -2079,7 +2079,7 @@ int SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 	rBuf.Z();
 	switch(Prd) {
 		case PRD_DAY:
-			rBuf.Cat("DAYLY");
+			rBuf.Cat("DAILY");
 			if(Dtl.D.NumPrd)
 				r.Buf.CatDiv('-', 1).Cat((long)Dtl.D.NumPrd);
 			if(Dtl.D.Quant) {
@@ -2152,7 +2152,7 @@ SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 	SString dowtxt;
 	switch(Prd) {
 		case PRD_DAY:
-			rBuf.Cat("DAYLY").CatDiv('-', 1);
+			rBuf.Cat("DAILY").CatDiv('-', 1);
 			if(Dtl.D.NumPrd)
 				rBuf.Cat((long)Dtl.D.NumPrd).CatDiv(';', 2);
 			if(Dtl.D.QuantSec) {
@@ -2894,17 +2894,17 @@ int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 	return ok;
 }
 
-static int FASTCALL IsSUniTimeCompatibleWithInnerStruc(uint8 signature) 
+static int FASTCALL IsSUniTimeCompatibleWithInnerStruc(uint8 signature)
 {
 	return oneof7(signature, SUniTime::indDefault, SUniTime::indMSec, SUniTime::indSec, SUniTime::indMin, SUniTime::indHr, SUniTime::indDay, SUniTime::indMon) ||
 		oneof7(signature, SUniTime::indQuart, SUniTime::indSmYr, SUniTime::indYr, SUniTime::indDYr, SUniTime::indSmCent, SUniTime::indCent, SUniTime::indMillennium);
 }
 //
 // Descr: Сравнивает точность представления времени с сигнатурами signature1 и signature2.
-// Note: Существуют специальные случаи, которые пока не рассматриваются. А именно: 
-//   -- точность одинакова, но одна из сигнатур предполагает хранение временной зоны; 
+// Note: Существуют специальные случаи, которые пока не рассматриваются. А именно:
+//   -- точность одинакова, но одна из сигнатур предполагает хранение временной зоны;
 //   -- сравнение точностей для типов значений, которые нельзя привести один к другому (indMillennium vs indMillenniumBC, например).
-//   
+//
 // Returns:
 //   0 - точность эквивалентна
 //  -1 - signature1 имеет меньшую точность (большую гранулярность), чем signature2
@@ -2925,17 +2925,17 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 {
 	int    ok = 1;
 	switch(signature) {
-		case SUniTime::indDefault: 
+		case SUniTime::indDefault:
 			break;
-		case SUniTime::indMSec: 
-		case SUniTime::indSec: 
+		case SUniTime::indMSec:
+		case SUniTime::indSec:
 			rT.MSc = 0;
 			break;
-		case SUniTime::indMin: 
+		case SUniTime::indMin:
 			rT.MSc = 0;
 			rT.Sc = 0;
 			break;
-		case SUniTime::indHr: 
+		case SUniTime::indHr:
 			rT.MSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;

@@ -363,7 +363,7 @@ PPBill::Agreement & FASTCALL PPBill::Agreement::operator = (const Agreement & rS
 
 int SLAPI PPBill::Agreement::IsEmpty() const
 {
-	return !(Flags || Expiry || MaxCredit > 0.0 || MaxDscnt != 0.0 || Dscnt != 0.0 || DefAgentID || 
+	return !(Flags || Expiry || MaxCredit > 0.0 || MaxDscnt != 0.0 || Dscnt != 0.0 || DefAgentID ||
 		DefQuotKindID || DefPayPeriod > 0 || RetLimPrd || RetLimPart || DefDlvrTerm > 0 || PctRet);
 }
 
@@ -1069,7 +1069,7 @@ int FASTCALL PPLotExtCodeContainer::IsEqual(const PPLotExtCodeContainer & rS) co
 		SString code_buf;
 		SString code_buf2;
 		// @v10.3.0 LongArray found_idx_list;
-		UintHashTable found_idx_list__; // @v10.3.0 
+		UintHashTable found_idx_list__; // @v10.3.0
 		for(uint i = 0; eq && i < _c; i++) {
 			const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
 			GetS(r_item.CodeP, code_buf);
@@ -1083,7 +1083,7 @@ int FASTCALL PPLotExtCodeContainer::IsEqual(const PPLotExtCodeContainer & rS) co
 						rS.GetS(r_item2.CodeP, code_buf2);
 						if(code_buf == code_buf2) {
 							// @v10.3.0 found_idx_list.add(j+1);
-							found_idx_list__.Add(j+1); // @v10.3.0 
+							found_idx_list__.Add(j+1); // @v10.3.0
 							is_found = 1;
 						}
 					}
@@ -1130,7 +1130,7 @@ int SLAPI PPLotExtCodeContainer::Helper_Add(int rowIdx, long boxId, int16 flags,
         InnerItem new_item;
         MEMSZERO(new_item);
         new_item.RowIdx = rowIdx;
-        new_item.Flags = flags; 
+        new_item.Flags = flags;
 		new_item.BoxId = boxId;
         AddS(pCode, &new_item.CodeP);
 		THROW_SL(insert(&new_item));
@@ -1396,7 +1396,7 @@ int SLAPI PPLotExtCodeContainer::ReplacePosition(int rowIdx, int newRowIdx)
 
 struct PPLotExtCodeContainer_Item_Before10209 { // @persistent
 	int16  RowIdx;
-	int16  Sign; 
+	int16  Sign;
 	uint   CodeP;
 };
 
@@ -1926,17 +1926,12 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				}
 			}
 		}
-		else // } @v10.1.12
+		else { // } @v10.1.12
 			if(Rec.Flags & BILLF_GEXPEND || oneof2(OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
-			{
 				int    ignore_stop = 0;
-				if(rRet.Flags & SetupObjectBlock::fEnableStop)
+				PPOprKind op_rec;
+				if((rRet.Flags & SetupObjectBlock::fEnableStop) || (GetOpData(Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_IGNORECLISTOP))
 					ignore_stop = 1;
-				else {
-					PPOprKind op_rec;
-					if(GetOpData(Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_IGNORECLISTOP)
-						ignore_stop = 1;
-				}
 				if(!ignore_stop) {
 					int    is_stopped = -1;
 					SString stop_err_addedmsg = ar_rec.Name;
@@ -2014,14 +2009,13 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 			const PPCommConfig & r_ccfg = CConfig;
 			for(uint i = 0; i < GetTCount(); i++) {
 				const PPTransferItem & r_ti = ConstTI(i);
-				THROW(CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject, 0));
+				THROW(CheckGoodsForRestrictions(static_cast<int>(i), r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject, 0));
 				if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
 					PPSupplDeal sd;
 					const QuotIdent qi(r_ti.LocID, 0, r_ti.CurID, arID);
 					goods_obj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
 					THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
-					if(invp_act == PPSupplAgreement::invpaRestrict &&
-						(OpTypeID == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
+					if(invp_act == PPSupplAgreement::invpaRestrict && (OpTypeID == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
 						THROW_PP_S(sd.CheckCost(r_ti.Cost), PPERR_SUPPLDEALVIOLATION, sd.Format(msg));
 					}
 				}

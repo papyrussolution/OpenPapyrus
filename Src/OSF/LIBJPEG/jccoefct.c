@@ -156,7 +156,7 @@ METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 						(*forward_DCT)(cinfo, compptr, input_buf[compptr->component_index], coef->MCU_buffer[blkn], ypos, xpos, (JDIMENSION)blockcnt);
 						if(blockcnt < compptr->MCU_width) {
 							/* Create some dummy blocks at the right edge of the image. */
-							FMEMZERO((void FAR*)coef->MCU_buffer[blkn + blockcnt], (compptr->MCU_width - blockcnt) * SIZEOF(JBLOCK));
+							FMEMZERO(coef->MCU_buffer[blkn + blockcnt], (compptr->MCU_width - blockcnt) * SIZEOF(JBLOCK));
 							for(bi = blockcnt; bi < compptr->MCU_width; bi++) {
 								coef->MCU_buffer[blkn+bi][0][0] = coef->MCU_buffer[blkn+bi-1][0][0];
 							}
@@ -164,7 +164,7 @@ METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 					}
 					else {
 						/* Create a row of dummy blocks at the bottom of the image. */
-						FMEMZERO((void FAR*)coef->MCU_buffer[blkn], compptr->MCU_width * SIZEOF(JBLOCK));
+						FMEMZERO(coef->MCU_buffer[blkn], compptr->MCU_width * SIZEOF(JBLOCK));
 						for(bi = 0; bi < compptr->MCU_width; bi++) {
 							coef->MCU_buffer[blkn+bi][0][0] = coef->MCU_buffer[blkn-1][0][0];
 						}
@@ -253,7 +253,7 @@ METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_bu
 			if(ndummy > 0) {
 				/* Create dummy blocks at the right edge of the image. */
 				thisblockrow += blocks_across; /* => first dummy block */
-				FMEMZERO((void FAR*)thisblockrow, ndummy * SIZEOF(JBLOCK));
+				FMEMZERO(thisblockrow, ndummy * SIZEOF(JBLOCK));
 				lastDC = thisblockrow[-1][0];
 				for(bi = 0; bi < ndummy; bi++) {
 					thisblockrow[bi][0] = lastDC;
@@ -271,7 +271,7 @@ METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_bu
 			for(block_row = block_rows; block_row < compptr->v_samp_factor; block_row++) {
 				thisblockrow = buffer[block_row];
 				lastblockrow = buffer[block_row-1];
-				FMEMZERO((void FAR*)thisblockrow, (size_t)(blocks_across * SIZEOF(JBLOCK)));
+				FMEMZERO(thisblockrow, (size_t)(blocks_across * SIZEOF(JBLOCK)));
 				for(MCUindex = 0; MCUindex < MCUs_across; MCUindex++) {
 					lastDC = lastblockrow[h_samp_factor-1][0];
 					for(bi = 0; bi < h_samp_factor; bi++) {
@@ -317,12 +317,9 @@ METHODDEF(boolean) compress_output(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 	 */
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];
-		buffer[ci] = (*cinfo->mem->access_virt_barray)
-			    (reinterpret_cast<j_common_ptr>(cinfo), coef->whole_image[compptr->component_index],
-		    coef->iMCU_row_num * compptr->v_samp_factor,
-		    (JDIMENSION)compptr->v_samp_factor, FALSE);
+		buffer[ci] = (*cinfo->mem->access_virt_barray)(reinterpret_cast<j_common_ptr>(cinfo), coef->whole_image[compptr->component_index],
+		    coef->iMCU_row_num * compptr->v_samp_factor, (JDIMENSION)compptr->v_samp_factor, FALSE);
 	}
-
 	/* Loop to process one whole iMCU row */
 	for(yoffset = coef->MCU_vert_offset; yoffset < coef->MCU_rows_per_iMCU_row; yoffset++) {
 		for(MCU_col_num = coef->mcu_ctr; MCU_col_num < cinfo->MCUs_per_row; MCU_col_num++) {

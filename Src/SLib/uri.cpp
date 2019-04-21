@@ -4141,19 +4141,19 @@ void UriUri::Destroy()
 		// Scheme 
 		if(Scheme.P_First) {
 			if(Scheme.P_First != Scheme.P_AfterLast)
-				SAlloc::F((char *)Scheme.P_First);
+				SAlloc::F(const_cast<char *>(Scheme.P_First));
 			Scheme.Clear();
 		}
 		// User info 
 		if(UserInfo.P_First) {
 			if(UserInfo.P_First != UserInfo.P_AfterLast)
-				SAlloc::F((char *)UserInfo.P_First);
+				SAlloc::F(const_cast<char *>(UserInfo.P_First));
 			UserInfo.Clear();
 		}
 		// Host data - IPvFuture 
 		if(HostData.ipFuture.P_First) {
 			if(HostData.ipFuture.Len())
-				SAlloc::F((char *)HostData.ipFuture.P_First);
+				SAlloc::F(const_cast<char *>(HostData.ipFuture.P_First));
 			HostData.ipFuture.Clear();
 			HostText.Clear();
 		}
@@ -4161,7 +4161,7 @@ void UriUri::Destroy()
 		if(HostText.P_First && !HostData.ip4 && !HostData.ip6) {
 			// Real regname 
 			if(HostText.Len())
-				SAlloc::F((char *)HostText.P_First);
+				SAlloc::F(const_cast<char *>(HostText.P_First));
 			HostText.Clear();
 		}
 	}
@@ -4170,7 +4170,7 @@ void UriUri::Destroy()
 	// Port text 
 	if(IsOwner && PortText.P_First) {
 		if(PortText.Len())
-			SAlloc::F((char *)PortText.P_First);
+			SAlloc::F(const_cast<char *>(PortText.P_First));
 		PortText.Clear();
 	}
 	// Path 
@@ -4179,7 +4179,7 @@ void UriUri::Destroy()
 		while(p_seg_walk) {
 			UriUri::PathSegment * const next = p_seg_walk->next;
 			if(IsOwner && p_seg_walk->text.P_First && p_seg_walk->text.Len() > 0)
-				SAlloc::F((char *)p_seg_walk->text.P_First);
+				SAlloc::F(const_cast<char *>(p_seg_walk->text.P_First));
 			delete p_seg_walk;
 			p_seg_walk = next;
 		}
@@ -4190,13 +4190,13 @@ void UriUri::Destroy()
 		// Query 
 		if(query.P_First) {
 			if(query.Len())
-				SAlloc::F((char *)query.P_First);
+				SAlloc::F(const_cast<char *>(query.P_First));
 			query.Clear();
 		}
 		// Fragment 
 		if(fragment.P_First) {
 			if(fragment.Len())
-				SAlloc::F((char *)fragment.P_First);
+				SAlloc::F(const_cast<char *>(fragment.P_First));
 			fragment.Clear();
 		}
 	}

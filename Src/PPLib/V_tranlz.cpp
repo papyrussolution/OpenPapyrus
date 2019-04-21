@@ -653,7 +653,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			SETFLAG(gct_filt.Flags, OPG_FORCEBILLCACHE, 1);
 			SETFLAG(gct_filt.Flags, OPG_BYZERODLVRADDR, Filt.Flags & TrfrAnlzFilt::fByZeroDlvrAddr);
 			SETFLAG(gct_filt.Flags, OPG_SKIPNOUPDLOTREST, 1);
-			SETFLAG(gct_filt.Flags, OPG_STOREDAYLYRESTS, Filt.Flags & TrfrAnlzFilt::fCalcRest); // @v9.1.3
+			SETFLAG(gct_filt.Flags, OPG_STOREDAILYRESTS, Filt.Flags & TrfrAnlzFilt::fCalcRest); // @v9.1.3
 			SETFLAG(gct_filt.Flags, OPG_OPENEDDRAFTONLY, Filt.Flags & TrfrAnlzFilt::fUnclosedDraftsOnly); // @v10.1.10
 			// @v9.4.10 {
 			if(GCTIterator::AnalyzeOp(Filt.OpID, 0) & (GCTIterator::aorfThereAreDrafts|GCTIterator::aorfThereAreOrders)) {
@@ -1102,7 +1102,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			if(GObj.P_Tbl->GetStockExt(goods_id, &gse, 1) > 0)
 				brutto = (gse.CalcBrutto(qtty) * sign);
 		}
-		// } @v10.3.4 
+		// } @v10.3.4
 		if(Flags & fAsGoodsCard && Filt.Flags & TrfrAnlzFilt::fGByDate) {
 			//
 			// ¬ случае расчета карточки товара с группировкой по дате price представл€ет
@@ -2089,7 +2089,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 						tat->LinkCost,  // #14 @v9.4.10
 						tat->LinkPrice, // #15 @v9.4.10
 						tat->ExtVal1,   // #16 @v9.3.5  // @v9.4.10 13-->16
-						tat->Brutto,    // #17 @v10.3.5 
+						tat->Brutto,    // #17 @v10.3.5
 						0L);
 					if(Filt.Sgg == sggNone) {
                         if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
@@ -2475,7 +2475,7 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 					if(p_q && p_q->getFieldPosByName("Brutto", &pos))
 						pBrw->InsColumn(-1, "@cargobrutto", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
 				}
-				// } @v10.3.5 
+				// } @v10.3.5
 			}
 		}
 		else {
@@ -2948,7 +2948,7 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupPPObjCombo(this, CTLSEL_GTO_PSNCAT, PPOBJ_PRSNCATEGORY, Data.PsnCatID, OLW_LOADDEFONOPEN|OLW_CANINSERT);
-	// @v10.1.6 SetupPPObjCombo(this, CTLSEL_GTO_CITY, PPOBJ_WORLD, Data.CityID, OLW_LOADDEFONOPEN, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0)); 
+	// @v10.1.6 SetupPPObjCombo(this, CTLSEL_GTO_CITY, PPOBJ_WORLD, Data.CityID, OLW_LOADDEFONOPEN, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 	SetupPPObjCombo(this, CTLSEL_GTO_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.1.6
 	{
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
@@ -3819,7 +3819,6 @@ PrcssrAlcReport::GoodsItem & PrcssrAlcReport::GoodsItem::Z()
 	EgaisCode.Z();
 	InformA.Z();
 	InformB.Z();
-
 	RefcInfA_ActualDate = ZERODATE;
 	RefcPr_ActualDate = ZERODATE;
 	RefcProductID = 0;
@@ -3832,7 +3831,6 @@ PrcssrAlcReport::GoodsItem & PrcssrAlcReport::GoodsItem::Z()
 	RefcEgaisCode.Z();
 	RefcManufCode.Z();
 	RefcImporterCode.Z();
-
 	return *this;
 }
 

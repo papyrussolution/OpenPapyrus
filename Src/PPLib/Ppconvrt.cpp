@@ -5090,8 +5090,8 @@ public:
 		int    ok = 1;
 		PropertyTbl * p_tbl = (PropertyTbl *)pNewTbl;
 		RECORDSIZE fix_rec_size = p_tbl->getRecSize();
-		PropertyTbl::Rec * p_rec = (PropertyTbl::Rec*)p_tbl->getDataBuf();
-		PropertyTbl::Rec * p_rec_old = (PropertyTbl::Rec*)pOldRec;
+		PropertyTbl::Rec * p_rec = (PropertyTbl::Rec *)p_tbl->getDataBuf();
+		PropertyTbl::Rec * p_rec_old = (PropertyTbl::Rec *)pOldRec;
 		PropertyTbl::Rec temp_rec = *p_rec_old;
 		if(p_rec_old->ObjType == PPOBJ_OPRKIND && p_rec_old->Prop > 0 && p_rec_old->Prop <= PP_MAXATURNTEMPLATES) {
 			PPAccTurnTempl::Convert_6407(&temp_rec);

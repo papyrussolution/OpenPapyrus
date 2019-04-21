@@ -4920,7 +4920,7 @@ static int SLAPI SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, 
 	PPObjSCard sc_obj;
 	CCheckTbl::Rec cc_rec;
 	TDialog * p_dlg = new TDialog(isDraft ? DLG_SCARDCHK : DLG_SCARDNUM);
-	CCheckCore cc_core;
+	// @v10.4.2 CCheckCore cc_core;
 	LDATE  dt = ZERODATE;
 	MEMSZERO(cc_rec);
 	THROW(CheckDialogPtr(&p_dlg));
@@ -4936,7 +4936,7 @@ static int SLAPI SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, 
 			SString added_msg;
 			SCardTbl::Rec sc_rec_;
 			PPSetAddedMsgString(added_msg.CatEq("Code", sc_code).Quot('[', ']'));
-			if(cc_core.Cards.SearchCode(0, sc_code, &sc_rec_) != 1)
+			if(sc_obj.SearchCode(0, sc_code, &sc_rec_) != 1)
 				PPError(PPERR_SCARDNOTFOUND, sc_code);
 			else if(sc_rec_.Flags & SCRDF_CLOSEDSRV)
 				PPError(PPERR_SCRDCLOSEDSRV);
@@ -4960,9 +4960,9 @@ static int SLAPI SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, 
 							CCheckTbl::Rec tmp_cc_rec;
 							MEMSZERO(tmp_cc_rec);
 							dttm.Set(dt, ZEROTIME);
-							if(cc_core.GetListByCard(sc_rec_.ID, &dttm, &chk_ary) > 0) {
+							if(sc_obj.P_CcTbl->GetListByCard(sc_rec_.ID, &dttm, &chk_ary) > 0) {
 								for(uint i = 0; i < chk_ary.getCount(); i++) {
-									THROW(cc_core.Search(chk_ary.at(i), &tmp_cc_rec));
+									THROW(sc_obj.P_CcTbl->Search(chk_ary.at(i), &tmp_cc_rec));
 									if(tmp_cc_rec.Code == chk_no && (!cash_no || tmp_cc_rec.CashID == cash_no) && (++chks_qtty == 1))
 										cc_rec = tmp_cc_rec;
 								}

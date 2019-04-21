@@ -1573,11 +1573,11 @@ int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, 
 		PPObjSCard sc_obj;
 		SCardTbl::Rec sc_rec;
 		if(op_type == PPOPT_DRAFTEXPEND && pChkRec && pChkRec->ID) {
-			CCheckCore cc_core;
+			// @v10.4.2 CCheckCore cc_core;
 			CCheckLineTbl::Rec cc_line;
 			MEMSZERO(cc_line);
 			pack.Rec.Dt = pChkRec->Dt;
-			for(int i = 0; cc_core.EnumLines(pChkRec->ID, &i, &cc_line) > 0;) {
+			for(int i = 0; sc_obj.P_CcTbl->EnumLines(pChkRec->ID, &i, &cc_line) > 0;) {
 				ReceiptTbl::Rec lot_rec;
 				PPTransferItem ti;
 				THROW(ti.Init(&pack.Rec));
@@ -8562,6 +8562,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 			size_t next = 1;
 			if(*p == '@') {
 				long   sym  = st.Translate(p, &next);
+				long   ext_id = 0; // @v10.4.2
 				if(sym == 0) {
 					rResult.CatChar(*p);
 					assert(next == 1); // Если подстановка не удалась, то PPSymbTranslator::Translate не должен сдвигать позицию
@@ -8571,85 +8572,114 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 					const  PPBillPacket * pk = pPack;
 					const TSessionTbl::Rec * p_tsess_rec = 0;
 					const CSessionTbl::Rec * p_csess_rec = 0;
-					if(sym == PPSYM_LINK) {
-						if(p[next] == '.' && pPack->Rec.LinkBillID) {
-							if(p_link_pack == 0) {
-								THROW_MEM(p_link_pack = new PPBillPacket);
-								THROW(ExtractPacketWithFlags(pPack->Rec.LinkBillID, p_link_pack, BPLD_SKIPTRFR));
+					switch(sym) {
+						case PPSYM_LINK:
+							if(p[next] == '.' && pPack->Rec.LinkBillID) {
+								if(p_link_pack == 0) {
+									THROW_MEM(p_link_pack = new PPBillPacket);
+									THROW(ExtractPacketWithFlags(pPack->Rec.LinkBillID, p_link_pack, BPLD_SKIPTRFR));
+								}
+								pk = p_link_pack;
+								p += (next+1);
+								next = 0;
+								sym = st.Translate(p, &next);
 							}
-							pk = p_link_pack;
-							p += (next+1);
-							next = 0;
-							sym = st.Translate(p, &next);
-						}
-						else
-							sym = 0;
-					}
-					else if(sym == PPSYM_RECKON) {
-						if(p[next] == '.' && pPack->PaymBillID) {
-							if(p_rckn_pack == 0) {
-								THROW_MEM(p_rckn_pack = new PPBillPacket);
-								THROW(ExtractPacketWithFlags(pPack->PaymBillID, p_rckn_pack, BPLD_SKIPTRFR));
+							else
+								sym = 0;
+							break;
+						case PPSYM_RECKON:
+							if(p[next] == '.' && pPack->PaymBillID) {
+								if(p_rckn_pack == 0) {
+									THROW_MEM(p_rckn_pack = new PPBillPacket);
+									THROW(ExtractPacketWithFlags(pPack->PaymBillID, p_rckn_pack, BPLD_SKIPTRFR));
+								}
+								pk = p_rckn_pack;
+								p += (next+1);
+								next = 0;
+								sym = st.Translate(p, &next);
 							}
-							pk = p_rckn_pack;
-							p += (next+1);
-							next = 0;
-							sym = st.Translate(p, &next);
-						}
-						else
-							sym = 0;
-					}
-					else if(sym == PPSYM_TSESS) {
-						if(pPack->CSessID && pPack->Rec.Flags & BILLF_TSESSWROFF) {
-							SETIFZ(p_tses_obj, new PPObjTSession);
-							THROW_MEM(p_tses_obj);
-							int r = p_tses_obj->Search(pPack->CSessID, &tsess_rec);
-							if(r > 0) {
-								if(p[next] == '.') {
-									p_tsess_rec = &tsess_rec;
-									p += (next+1);
-									next = 0;
-									sym = st.Translate(p, &next);
+							else
+								sym = 0;
+							break;
+						case PPSYM_TSESS:
+							if(pPack->CSessID && pPack->Rec.Flags & BILLF_TSESSWROFF) {
+								SETIFZ(p_tses_obj, new PPObjTSession);
+								THROW_MEM(p_tses_obj);
+								int r = p_tses_obj->Search(pPack->CSessID, &tsess_rec);
+								if(r > 0) {
+									if(p[next] == '.') {
+										p_tsess_rec = &tsess_rec;
+										p += (next+1);
+										next = 0;
+										sym = st.Translate(p, &next);
+									}
+									else {
+										p_tses_obj->MakeName(&tsess_rec, subst_buf.Z());
+										rResult.Cat(subst_buf);
+										sym = 0;
+									}
 								}
 								else {
-									p_tses_obj->MakeName(&tsess_rec, subst_buf.Z());
-									rResult.Cat(subst_buf);
 									sym = 0;
+									THROW(r);
 								}
 							}
-							else {
+							else
 								sym = 0;
-								THROW(r);
-							}
-						}
-						else
-							sym = 0;
-					}
-					else if(sym == PPSYM_CSESS) {
-						if(pPack->CSessID && pPack->Rec.Flags & BILLF_CSESSWROFF) {
-							SETIFZ(p_cses_obj, new PPObjCSession);
-							THROW_MEM(p_cses_obj);
-							int r = p_cses_obj->Search(pPack->CSessID, &csess_rec);
-							if(r > 0) {
-								if(p[next] == '.') {
-									p_csess_rec = &csess_rec;
-									p += (next+1);
-									next = 0;
-									sym = st.Translate(p, &next);
+							break;
+						case PPSYM_CSESS:
+							if(pPack->CSessID && pPack->Rec.Flags & BILLF_CSESSWROFF) {
+								SETIFZ(p_cses_obj, new PPObjCSession);
+								THROW_MEM(p_cses_obj);
+								int r = p_cses_obj->Search(pPack->CSessID, &csess_rec);
+								if(r > 0) {
+									if(p[next] == '.') {
+										p_csess_rec = &csess_rec;
+										p += (next+1);
+										next = 0;
+										sym = st.Translate(p, &next);
+									}
+									else {
+										PPObjCSession::MakeCodeString(&csess_rec, subst_buf.Z());
+										rResult.Cat(subst_buf);
+										sym = 0;
+									}
 								}
 								else {
-									PPObjCSession::MakeCodeString(&csess_rec, subst_buf.Z());
-									rResult.Cat(subst_buf);
 									sym = 0;
+									THROW(r);
 								}
 							}
-							else {
+							else
 								sym = 0;
-								THROW(r);
+							break;
+						case PPSYM_DLVRLOCTAG: // @v10.4.2
+							if(p[next] == '.') {
+								char   tag_symb[64];
+								p += (next+1);
+								const char * p2 = p;
+								PPObjTag tag_obj;
+								PPObjectTag tag_rec;
+								for(size_t tsp = 0; !ext_id && (tsp+1) < SIZEOFARRAY(tag_symb) && *p2;) {
+									tag_symb[tsp++] = *p2++;
+									tag_symb[tsp] = 0;
+									PPID   local_tag_id = 0;
+									if(tag_obj.FetchBySymb(tag_symb, &local_tag_id) > 0) {
+										if(tag_obj.Fetch(local_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOCATION) {
+											ext_id = local_tag_id;
+											p = p2;
+											next = 0;
+										}
+									}
+								}
+								if(ext_id)
+									sym = PPSYM_DLVRLOCTAG;
+								else
+									sym = 0;
 							}
-						}
-						else
-							sym = 0;
+							else
+								sym = 0;
+							break;
 					}
 					subst_buf.Z();
 					switch(sym) {
@@ -8690,6 +8720,10 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 						case PPSYM_DLVRLOCID:
 							if(pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
 								subst_buf.Cat(loc_rec.ID);
+							break;
+						case PPSYM_DLVRLOCTAG: // @v10.4.1
+							if(ext_id && pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
+								PPRef->Ot.GetTagStr(PPOBJ_LOCATION, pk->P_Freight->DlvrAddrID, ext_id, subst_buf);
 							break;
 						case PPSYM_INN:
 							{

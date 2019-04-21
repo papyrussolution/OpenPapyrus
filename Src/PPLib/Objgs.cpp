@@ -1377,7 +1377,7 @@ int GSDialog::setupList()
 		ss.add(sub.ToLower());
 		ss.add(sub.Z().Cat(t_qtty,  qtty_fmt));
 		ss.add(sub.Z().Cat(t_netto, qtty_fmt));
-		ss.add(0, 0);
+		ss.add(0);
 		ss.add(sub.Z().Cat(t_sum, money_fmt));
 		THROW(addStringToList(i+1, ss.getBuf()));
 	}
@@ -1883,8 +1883,8 @@ int GSExtDialog::setupList()
 	for(uint i = 0; Data.Childs.enumItems(&i, (void **)&p_item);) {
 		char   sub[128];
 		StringSet ss(SLBColumnDelim);
-		ss.add(STRNSCPY(sub, p_item->Rec.Name), 0);
-		ss.add(periodfmt(&p_item->Rec.Period, sub), 0);
+		ss.add(STRNSCPY(sub, p_item->Rec.Name));
+		ss.add(periodfmt(&p_item->Rec.Period, sub));
 		if(!addStringToList(i, ss.getBuf()))
 			return 0;
 	}

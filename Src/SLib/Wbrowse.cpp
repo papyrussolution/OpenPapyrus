@@ -781,9 +781,9 @@ int BrowserWindow::IsLastPage(uint viewHeight)
 int FASTCALL BrowserWindow::CellRight(const BroColumn & rC) const
 	{ return (ChrSz.x*rC.width + rC.x); }
 int FASTCALL BrowserWindow::GetRowHeightMult(long row) const
-	{ return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ? ((RowHeightInfo*)P_RowsHeightAry->at(row))->HeightMult : 1; }
+	{ return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ? static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(row))->HeightMult : 1; }
 int FASTCALL BrowserWindow::GetRowTop(long row) const
-	{ return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ? ((RowHeightInfo*)P_RowsHeightAry->at(row))->Top : (YCell * row); }
+	{ return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ? static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(row))->Top : (YCell * row); }
 
 void BrowserWindow::AdjustCursorsForHdr()
 {
@@ -2094,7 +2094,7 @@ int BrowserWindow::WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop)
 			recalc_heights = 0;
 	}
 	if(!recalc_heights) {
-		P_Def->getScrollData(&scrll_delta, (LPLONG)&VScrollPos);
+		P_Def->getScrollData(&scrll_delta, reinterpret_cast<long *>(&VScrollPos));
 		recalc_heights = scrll_delta ? 1 : 0;
 	}
 	//

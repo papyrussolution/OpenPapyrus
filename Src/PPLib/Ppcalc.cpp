@@ -177,7 +177,7 @@ int SLAPI PPCalcFuncList::ReadParams(uint16 funcID, const char * pStr, size_t * 
 			*p_dest = 0;
 			if(oneof2(p_entry->P_ParamTypeList[i], BTS_REAL, BTS_INT))
 				strip(param_buf);
-			pParamList->add(param_buf, 0);
+			pParamList->add(param_buf);
 			if(pStr[p] == ')' || pStr[p] == 0)
 				THROW_PP(i == (p_entry->ParamCount-1), PPERR_INVPPCFUNCPARCOUNT);
 		}

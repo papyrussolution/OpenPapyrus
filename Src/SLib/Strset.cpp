@@ -186,13 +186,13 @@ int SLAPI StringSet::Read(SFile & rFile, long)
 
 StringSet & FASTCALL StringSet::operator + (const char * s)
 {
-	add(s, 0);
+	add(s);
 	return *this;
 }
 
 StringSet & FASTCALL StringSet::operator += (const char * s)
 {
-	add(s, 0);
+	add(s);
 	return *this;
 }
 
@@ -337,7 +337,7 @@ int FASTCALL StringSet::add(const StringSet & rS)
 
 int FASTCALL StringSet::add(const char * pStr)
 {
-	return add(pStr, 0);
+	return add(pStr, static_cast<uint *>(0));
 }
 
 int FASTCALL StringSet::add(const char * pStr, uint * pPos)
@@ -636,14 +636,14 @@ int SLAPI SStrGroup::AddS(const char * pStr, uint32 * pPos)
 void * SLAPI SStrGroup::Pack_Start() const
 {
 	StringSet * p_handle = new StringSet;
-	CALLPTRMEMB(p_handle, add("$", 0));
+	CALLPTRMEMB(p_handle, add("$"));
 	return p_handle;
 }
 
 int SLAPI SStrGroup::Pack_Finish(void * pHandle)
 {
 	int    ok = 1;
-	StringSet * p_handle = (StringSet *)pHandle;
+	StringSet * p_handle = static_cast<StringSet *>(pHandle);
 	if(p_handle) {
 		Pool = *p_handle;
 		delete p_handle;

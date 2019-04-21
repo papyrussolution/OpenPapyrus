@@ -292,25 +292,19 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 		int list_start_index = 0;
 		uint * extension_len = NULL;
 		ushort* list_len = NULL;
-
 		/* The first four bytes will be an uint indicating number
 		   of bytes of data in the rest of the the buffer. */
 		extension_len = (uint *)(&alpn_buffer[cur]);
 		cur += sizeof(uint);
-
 		/* The next four bytes are an indicator that this buffer will contain
 		   ALPN data, as opposed to NPN, for example. */
-		*(uint *)&alpn_buffer[cur] =
-		    SecApplicationProtocolNegotiationExt_ALPN;
+		*(uint *)&alpn_buffer[cur] = SecApplicationProtocolNegotiationExt_ALPN;
 		cur += sizeof(uint);
-
 		/* The next two bytes will be an ushort indicating the number
 		   of bytes used to list the preferred protocols. */
 		list_len = (ushort *)(&alpn_buffer[cur]);
 		cur += sizeof(ushort);
-
 		list_start_index = cur;
-
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2) {
 			memcpy(&alpn_buffer[cur], NGHTTP2_PROTO_ALPN, NGHTTP2_PROTO_ALPN_LEN);
@@ -318,7 +312,6 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 			infof(data, "schannel: ALPN, offering %s\n", NGHTTP2_PROTO_VERSION_ID);
 		}
 #endif
-
 		alpn_buffer[cur++] = ALPN_HTTP_1_1_LENGTH;
 		memcpy(&alpn_buffer[cur], ALPN_HTTP_1_1, ALPN_HTTP_1_1_LENGTH);
 		cur += ALPN_HTTP_1_1_LENGTH;
@@ -338,15 +331,11 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 	InitSecBuffer(&inbuf, SECBUFFER_EMPTY, NULL, 0);
 	InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
 #endif
-
 	/* setup output buffer */
 	InitSecBuffer(&outbuf, SECBUFFER_EMPTY, NULL, 0);
 	InitSecBufferDesc(&outbuf_desc, &outbuf, 1);
-
 	/* setup request flags */
-	connssl->req_flags = ISC_REQ_SEQUENCE_DETECT | ISC_REQ_REPLAY_DETECT |
-	    ISC_REQ_CONFIDENTIALITY | ISC_REQ_ALLOCATE_MEMORY |
-	    ISC_REQ_STREAM;
+	connssl->req_flags = ISC_REQ_SEQUENCE_DETECT | ISC_REQ_REPLAY_DETECT|ISC_REQ_CONFIDENTIALITY | ISC_REQ_ALLOCATE_MEMORY |ISC_REQ_STREAM;
 
 	/* allocate memory for the security context handle */
 	connssl->ctxt = (struct curl_schannel_ctxt*)

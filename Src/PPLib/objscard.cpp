@@ -3773,7 +3773,7 @@ int SLAPI PPObjSCard::SelectCardFromReservePool(PPID * pPoolID, PPID destSeriesI
 {
 	int    ok = -1;
 	PPID   sc_id = 0;
-	PPID   pool_id = pPoolID ? *pPoolID : 0;
+	PPID   pool_id = DEREFPTRORZ(pPoolID);
 	PPID   dest_series_id = destSeriesID;
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries2 scs_rec;
@@ -4327,7 +4327,7 @@ public:
 	}
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
 	const  StrAssocArray * SLAPI GetFullList(); // @sync_w
-	int    FASTCALL ReleaseFullList(const StrAssocArray * pList);
+	void   FASTCALL ReleaseFullList(const StrAssocArray * pList);
 	int    SLAPI FetchExtText(PPID id, SString & rBuf)
 	{
 		return ExtBlk.Fetch(id, rBuf, 0);
@@ -4502,7 +4502,7 @@ const StrAssocArray * SLAPI SCardCache::GetFullList()
 	return p_result;
 }
 
-int FASTCALL SCardCache::ReleaseFullList(const StrAssocArray * pList)
+void FASTCALL SCardCache::ReleaseFullList(const StrAssocArray * pList)
 {
 	if(pList && pList == &FullCardList) {
 		FclLock.Unlock_();
@@ -4510,7 +4510,6 @@ int FASTCALL SCardCache::ReleaseFullList(const StrAssocArray * pList)
 		SLS.LockPop();
 		#endif
 	}
-	return 1;
 }
 
 int FASTCALL SCardCache::Dirty(PPID id)

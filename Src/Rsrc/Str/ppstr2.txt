@@ -2918,6 +2918,8 @@ PPINIPARAM_TSSTAKE_BESTSUBSETDIMESION  "best_subset_dimension"
 PPINIPARAM_TSSTAKE_BESTSUBSETMAXPHONY  "best_subset_max_phony_iters"
 PPINIPARAM_TSSTAKE_BESTSUBSETOPTCHUNK  "best_subset_opt_chunk"
 PPINIPARAM_TSSTAKE_USEDATASINCE        "use_data_since"
+PPINIPARAM_TSSTAKE_DEFTARGETQUANT      "def_target_quant"
+PPINIPARAM_TSSTAKE_MINWINRATE          "min_win_rate"
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -3002,7 +3004,7 @@ PPFILNAM_IE_CASH_LOG           "ie_cash.log"
 PPFILNAM_CURRESTERR_LOG        "curresterr.log"
 PPFILNAM_USERPROFILE_LOG       "userprofile.log"
 PPFILNAM_AUTOTRANSL_LOG        "autotranslate.log"
-PPFILNAM_RECOVER_LOG           "repair.txt"
+PPFILNAM_RECOVER_LOG           "dbrepair.log"
 PPFILNAM_LOTSUPPL_ERR          "lotsuppl.err"
 PPFILNAM_BARLABEL_LBL          "barlabel.lbl"
 PPFILNAM_TRFRANLZ_DBF          "trfranlz.dbf"
@@ -3595,7 +3597,7 @@ Adobe Acrobat:*.pdf,Microsoft Excel:*.xls;*.xlsm;*.xlsx,\
 446 "1,Ошибки,pperror.log;2,Ошибки выводимые на экран,pperrmsg.log;3,Информация,ppinfo.log;4,Создание/восстановление резервной копии,backup.log;\
 5,Формирование таблицы продаж,psales.log;6,Загрузка на весы,scale.log;7,Получение почты,dbxrecv.log;\
 8,Корректировка балансов,balance.log;9,Корректировка лотов,loterr.log;10,Корректировка поставщиков лотов,lotsuppl.err;\
-11,Корректировка кассовых чеков,cchkerr.log;12,Ремонт базы данных,repair.txt;13,Ремонт проводок,accturn.log;\
+11,Корректировка кассовых чеков,cchkerr.log;12,Ремонт базы данных,dbrepair.log;13,Ремонт проводок,accturn.log;\
 14,Восстановление отсутствующих лотов,abslots.log;15,Восстановление отсутствующих товаров,absgoods.log;\
 16,Загрузка асинхронного кассового узла,acs.log;17,Корректировка битых связей платежных документов,paymlink.log;\
 18,Профилирование,profile.log;19,Печать на штрих,shtrih.log;20,История версий,verhist.log;21,Отладка,debug.log;\
@@ -5630,7 +5632,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_rtquotkindlist    "48,L,@quotkind;8,L,Доступен"
 @lbt_phncpaneinfolist  "10,L,A;10,L,B" // placeholder
 @lbt_cfgvatbooklist    "44,L,@oprkind;4,L"
-@lbt_cfgtimser         "14,L,Symbol;10,L,Flags;40,L,Name"
+@lbt_cfgtimser         "14,L,@symbol;10,L,@flags;40,L,@appellation"
+@lbt_csessamtlist      "50,L,@appellation;15,R,@amount"
 
 @entmanagementsys        "Система управления предприятием"
 @pgmcopylic_owner        "Владелец лицензии"
@@ -8606,11 +8609,15 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgtimeseries_ftestmode                  "Тестовый режим"
 @cfgtimeseries_fusestakemode2             "Разрешено использовать режим ставок 2"
 @cfgtimeseries_fusestakemode3             "Разрешено использовать режим ставок 3"
+@cfgtimeseries_fallowreverse              "Разрешен реверс ставки"
 @cfgtimeseries_maxstakecount              "Максимальное количество ставок"
 @cfgtimeseries_availablelimitpart         "Доля доступного объема"
 @cfgtimeseries_availablelimitabs          "Абсолютный доступный объем"
 @cfgtimeseries_minperdaypotential         "Минимальный потенциал"
 @cfgtimeseries_tsflashtimer               "Периодичность сброса данных в БД (сек)"
+@cfgtimeseries_minlossquantforreverse     "Мин потери для реверса в квантах"
+@cfgtimeseries_minagesecondsforreverse    "Мин возраст для реверса в секундах"
+
 @cfgtimeseriesentry_ts                    "Временная серия"
 @cfgtimeseriesentry_flags                 "@{flags}"
 @cfgtimeseriesentry_eflong                "Long permitted"
@@ -11173,7 +11180,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @sstatfilt_qttyavgrange                   "Средние продажи (кол-во)"
 @sstatfilt_restdate                       "Дата расчета остатков"
 @sstatfilt_suppl                          "@{supplier}"
-@sstatfilt_uprestriction                  "Учитывать только то, что закончится в течении, дней"
+@sstatfilt_uprestriction                  "Учитывать только то, что закончится в течение, дней"
 
 @sstattotal                               "Итоги статистики спроса"
 @sstattotal_linescount                    "@{linecount}"
@@ -11795,6 +11802,31 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @dateadd_period                           "Период"
 @dateadd_periodcount                      "Количество периодов"
 @dateadd_result                           "Результат"
+
+@csesstotal_checkcount                    "Количество чеков"
+@csesstotal_amount                        "Сумма по чекам"
+@csesstotal_discount                      "Скидка по чекам"
+@csesstotal_aggrcount                     "Количество агрегирующих строк"
+@csesstotal_aggramount                    "Сумма по агрегирующим строкам"
+@csesstotal_aggrrest                      "Сумма дефицита по агрегирующим строкам"
+@csesstotal_wroffbillcount                "Количество документов списания"
+@csesstotal_wroffbillamount               "Сумма документов списания"
+@csesstotal_wroffcost                     "Сумма документов списания в ценах поступления"
+@csesstotal_income                        "Доход"
+@csesstotal_bnkamount                     "Сумма безналичных оплат"
+@csesstotal_retamount                     "Сумма возвратов"
+@csesstotal_retbnkamount                  "Сумма возвратов проведенных через банк"
+@csesstotal_woretamount                   "Сумма чеков без учета возвратов"
+@csesstotal_woretbnkamount                "Сумма безналичных оплат без учета возвратов"
+@csesstotal_bnkdiscount                   "Сумма скидок по чекам оплаченных через банк"
+@csesstotal_cscardamount                  "Сумма оплат по корпоративным картам"
+@csesstotal_fiscalamount                  "Фискальная сумма чеков"
+@csesstotal_altregamount                  "Сумма чеков проведенных через альтернативный регистратор"
+@csesstotal_salecheckcount                "Количество чеков продаж"
+@csesstotal_salebnkcount                  "Количество чеков продаж оплаченных безналично"
+@csesstotal_retcheckcount                 "Количество чеков возвратов"
+@csesstotal_retbnkcount                   "Количество чеков возвратов оплаченных безналично"
+@csesstotal_altregcount                   "Количество чеков проведенных через альтернативный регистратор"
 //
 // Элементы диалога DLG_SCARDVIEW
 //

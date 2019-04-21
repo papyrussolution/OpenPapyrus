@@ -1,5 +1,5 @@
 // XTAGPARS.CPP
-// Copyright (c) A.Starodub 2002, 2015, 2016
+// Copyright (c) A.Starodub 2002, 2015, 2016, 2019
 //
 #include <slib.h>
 
@@ -18,17 +18,16 @@ int SLAPI XTagParser::GetToken(const char * pCurTag, char * pTagBuf, size_t bufL
 {
 	int tok = tokErr;
 	if(P_Stream) {
-		char c;
-		long i = 0;
-		c = fgetc(P_Stream);
+		size_t i = 0;
+		char c = fgetc(P_Stream);
 		if(c == '<') {
 			while((c = fgetc(P_Stream)) != EOF && c != '>') {
-				if(!bufLen || i < (long)bufLen) {
+				if(!bufLen || i < bufLen) {
 					pTagBuf[i] = c;
 				}
 				i++;
 			}
-			if(!bufLen || i < (long)bufLen) {
+			if(!bufLen || i < bufLen) {
 				pTagBuf[i] = '\0';
 			}
 			if(c == '>') {
@@ -59,7 +58,7 @@ int SLAPI XTagParser::GetToken(const char * pCurTag, char * pTagBuf, size_t bufL
 		}
 		else
 			tok = tokEOF;
-		if(!bufLen || i < (long) bufLen) {
+		if(!bufLen || i < bufLen) {
 			pTagBuf[i] = '\0';
 		}
 	}

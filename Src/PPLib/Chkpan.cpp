@@ -5031,9 +5031,9 @@ int SplitSuspCheckDialog::removeItem()
 	SArray * p_ll = GetLeft();
 	if(p_lb && p_lb->getCurID(&id) && id && p_rl->lsearch(&id, &pos, CMPF_LONG, 0) > 0) {
 		uint lpos = 0;
-		ListItem * p_ritem = (ListItem *)p_rl->at(pos);
+		ListItem * p_ritem = static_cast<ListItem *>(p_rl->at(pos));
 		if(p_ll->lsearch(p_ritem, &lpos, CMPF_LONG, 0) > 0) {
-			ListItem * p_litem = (ListItem*)p_ll->at(lpos);
+			ListItem * p_litem = static_cast<ListItem *>(p_ll->at(lpos));
 			p_litem->Quantity += p_ritem->Quantity;
 		}
 		else {
@@ -5063,9 +5063,9 @@ int SplitSuspCheckDialog::SetupList(SArray * pList, SmartListBox * pListBox)
 		for(uint i = 0; pList->enumItems(&i, (void **)&p_item) > 0;) {
 			ss.clear();
 			GetGoodsName(p_item->GoodsID, temp_buf);
-			ss.add(temp_buf, 0);
-			ss.add(temp_buf.Z().Cat(p_item->Price), 0);
-			ss.add(temp_buf.Z().Cat(p_item->Quantity), 0);
+			ss.add(temp_buf);
+			ss.add(temp_buf.Z().Cat(p_item->Price));
+			ss.add(temp_buf.Z().Cat(p_item->Quantity));
 			if(!pListBox->addItem(p_item->LineNo, ss.getBuf()))
 				ok = (PPSetErrorSLib(), 0);
 		}

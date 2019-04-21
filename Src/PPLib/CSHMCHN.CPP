@@ -479,7 +479,7 @@ int SLAPI PPCashMachine::SyncCloseSession()
 			NodeRec.Flags   |= CASHF_DAYCLOSED;
 			NodeRec.Flags   &= ~CASHF_DAYSTARTED;
 			THROW(UpdateNode(0));
-			DS.LogAction(PPACN_CSESSCLOSED, PPOBJ_CSESSION, sess_id, 0, 0); // @v8.6.4
+			DS.LogAction(PPACN_CSESSCLOSED, PPOBJ_CSESSION, sess_id, 0, 0);
 			THROW(tra.Commit());
 			//
 			THROW(P_SyncIntrf->CloseSession(sess_id));
@@ -620,11 +620,11 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 		PPObjCSession cs_obj;
 		CSessionTbl::Rec cs_rec;
 		if(NodeRec.CurSessID && cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_rec) > 0) {
-			CCheckCore cc;
+			// @v10.4.2 CCheckCore cc;
 			CSessTotal cs_total;
 			long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_rec, 0);
 			_f |= CCheckCore::gglfUseFullCcPackets;
-			cc.GetSessTotal(NodeRec.CurSessID, _f, &cs_total, 0);
+			cs_obj.P_Cc->GetSessTotal(NodeRec.CurSessID, _f, &cs_total, 0);
 			stat.AmtCash   = cs_total.Amount - cs_total.BnkAmount - cs_total.CSCardAmount;
 			stat.AmtBank   = cs_total.BnkAmount;
 			stat.AmtSCard  = cs_total.CSCardAmount;
@@ -1152,10 +1152,10 @@ int SLAPI PPCashMachine::SyncPrintXReport()
 		if(SyncViewSessionStat(PPCashMachine::cssoXReport) == cmOK) {
 			PPWait(1);
 			if(cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_info.Rec) > 0) {
-				CCheckCore cc;
+				// @v10.4.2 CCheckCore cc;
 				long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_info.Rec, 0);
 				_f |= CCheckCore::gglfUseFullCcPackets;
-				r = cc.GetSessTotal(NodeRec.CurSessID, _f, &cs_info.Total, 0);
+				r = cs_obj.P_Cc->GetSessTotal(NodeRec.CurSessID, _f, &cs_info.Total, 0);
 			}
 			ok = SyncSetPrintErrCode(P_SyncIntrf->PrintXReport((r > 0) ? &cs_info : 0), 0);
 		}
@@ -1448,8 +1448,9 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 {
 	int    ok = -1, valid_data = 0;
 	LDATE  dt = getcurdate_();
-	CCheckCore    cc_core;
-	CSessionCore  cs_core;
+	PPObjCSession cs_obj; // @v10.4.2 
+	// @v10.4.2 CCheckCore    cc_core;
+	// @v10.4.2 CSessionCore  cs_core;
 	CSessInfo     cs_info;
 	MEMSZERO(cs_info);
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_SELSESNO_L : DLG_SELSESNO);
@@ -1464,12 +1465,12 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 		PPID   cn_id = v ? extCashNodeID : cashNodeID;
 		if(checkdate(dt, 1)) {
 			if(!sess_no)
-				cs_core.GetLastNumber(cn_id, cn_id, &sess_no);
+				cs_obj.P_Tbl->GetLastNumber(cn_id, cn_id, &sess_no);
 			PPID   sess_id = 0;
-			if(sess_no > 0 && cs_core.SearchByNumber(&sess_id, cn_id, cn_id, sess_no, dt) > 0 && cs_core.Search(sess_id, &cs_info.Rec) > 0) {
-				long   _f = cs_core.GetCcGroupingFlags(cs_info.Rec, 0);
+			if(sess_no > 0 && cs_obj.P_Tbl->SearchByNumber(&sess_id, cn_id, cn_id, sess_no, dt) > 0 && cs_obj.P_Tbl->Search(sess_id, &cs_info.Rec) > 0) {
+				long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_info.Rec, 0);
 				_f |= CCheckCore::gglfUseFullCcPackets;
-				cc_core.GetSessTotal(sess_id, _f, &cs_info.Total, 0);
+				cs_obj.P_Cc->GetSessTotal(sess_id, _f, &cs_info.Total, 0);
 				valid_data = ok = v ? 2 : 1;
 			}
 		}

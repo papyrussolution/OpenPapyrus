@@ -343,7 +343,7 @@ METHODDEF(void FAR *) alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeof
 	hdr_ptr->hdr.bytes_used = sizeofobject;
 	hdr_ptr->hdr.bytes_left = 0;
 	mem->large_list[pool_id] = hdr_ptr;
-	return (void FAR*)(hdr_ptr + 1); /* point to first data byte in pool */
+	return (void *)(hdr_ptr + 1); /* point to first data byte in pool */
 }
 /*
  * Creation of 2-D sample arrays.
@@ -611,11 +611,11 @@ static void do_sarray_io(j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writi
 		byte_count = rows * bytesperrow;
 		if(writing)
 			(*ptr->b_s_info.write_backing_store)(cinfo, &ptr->b_s_info,
-			    (void FAR*)ptr->mem_buffer[i],
+			    (void *)ptr->mem_buffer[i],
 			    file_offset, byte_count);
 		else
 			(*ptr->b_s_info.read_backing_store)(cinfo, &ptr->b_s_info,
-			    (void FAR*)ptr->mem_buffer[i],
+			    (void *)ptr->mem_buffer[i],
 			    file_offset, byte_count);
 		file_offset += byte_count;
 	}
@@ -640,9 +640,9 @@ static void do_barray_io(j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writi
 			break;
 		byte_count = rows * bytesperrow;
 		if(writing)
-			(*ptr->b_s_info.write_backing_store)(cinfo, &ptr->b_s_info, (void FAR*)ptr->mem_buffer[i], file_offset, byte_count);
+			(*ptr->b_s_info.write_backing_store)(cinfo, &ptr->b_s_info, (void *)ptr->mem_buffer[i], file_offset, byte_count);
 		else
-			(*ptr->b_s_info.read_backing_store)(cinfo, &ptr->b_s_info, (void FAR*)ptr->mem_buffer[i], file_offset, byte_count);
+			(*ptr->b_s_info.read_backing_store)(cinfo, &ptr->b_s_info, (void *)ptr->mem_buffer[i], file_offset, byte_count);
 		file_offset += byte_count;
 	}
 }
@@ -710,7 +710,7 @@ METHODDEF(JSAMPARRAY) access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr pt
 			undef_row -= ptr->cur_start_row; /* make indexes relative to buffer */
 			end_row -= ptr->cur_start_row;
 			while(undef_row < end_row) {
-				FMEMZERO((void FAR*)ptr->mem_buffer[undef_row], bytesperrow);
+				FMEMZERO(ptr->mem_buffer[undef_row], bytesperrow);
 				undef_row++;
 			}
 		}
@@ -788,7 +788,7 @@ METHODDEF(JBLOCKARRAY) access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr p
 			undef_row -= ptr->cur_start_row; /* make indexes relative to buffer */
 			end_row -= ptr->cur_start_row;
 			while(undef_row < end_row) {
-				FMEMZERO((void FAR*)ptr->mem_buffer[undef_row], bytesperrow);
+				FMEMZERO(ptr->mem_buffer[undef_row], bytesperrow);
 				undef_row++;
 			}
 		}
@@ -849,7 +849,7 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 	while(lhdr_ptr) {
 		large_pool_ptr next_lhdr_ptr = lhdr_ptr->hdr.next;
 		space_freed = lhdr_ptr->hdr.bytes_used + lhdr_ptr->hdr.bytes_left + SIZEOF(large_pool_hdr);
-		jpeg_free_large(cinfo, (void FAR*)lhdr_ptr, space_freed);
+		jpeg_free_large(cinfo, (void *)lhdr_ptr, space_freed);
 		mem->total_space_allocated -= space_freed;
 		lhdr_ptr = next_lhdr_ptr;
 	}

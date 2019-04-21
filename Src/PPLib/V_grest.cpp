@@ -912,7 +912,7 @@ double SLAPI PPViewGoodsRest::GetDraftRcptByLocList(PPID goodsID, const PPIDArra
 double SLAPI PPViewGoodsRest::EnumDraftRcpt(PPID goodsID, uint * pIdx, DraftRcptItem * pItem)
 {
 	int    ok = -1;
-	uint   pos = (pIdx) ? *pIdx : 0;
+	uint   pos = DEREFPTRORZ(pIdx);
 	DraftRcptItem item;
 	MEMSZERO(item);
 	for(; ok < 0 && DraftRcptList.lsearch(&goodsID, &pos, CMPF_LONG); pos++) {
@@ -962,7 +962,7 @@ double SLAPI PPViewGoodsRest::GetUncompleteSessQttyByLocList(PPID goodsID, const
 double SLAPI PPViewGoodsRest::EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, DraftRcptItem * pItem)
 {
 	int    ok = -1;
-	uint   pos = (pIdx) ? *pIdx : 0;
+	uint   pos = DEREFPTRORZ(pIdx);
 	DraftRcptItem item;
 	MEMSZERO(item);
 	for(; ok < 0 && UncompleteSessQttyList.lsearch(&goodsID, &pos, PTR_CMPFUNC(long)) > 0; pos++) {

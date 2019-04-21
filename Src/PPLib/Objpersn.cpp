@@ -824,7 +824,7 @@ int NewPersMarksDialog::setupList()
 			}
 		if(temp_buf.Empty())
 			temp_buf.CatChar('#').Cat("OBJ").Space().Cat(item.Obj);
-		ss.add(temp_buf, 0);
+		ss.add(temp_buf);
 		if(item.Obj == PPOBJ_PERSONOPKIND) {
 			PPPsnOpKind pok_rec;
 			MEMSZERO(pok_rec);

@@ -990,7 +990,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 			TaxGrpID    = 0;
 			Flags       = p_old_data->Flags;
 			GrpIDList.Set(0);
-   	    	c = (uint)((PropertyTbl::Rec*)p_buf)->Val2;
+   	    	c = (uint)((PropertyTbl::Rec *)p_buf)->Val2;
 			for(i = 0; i < c; i++)
 				GrpIDList.Add(*(PPID *)(((char *)p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
 		}

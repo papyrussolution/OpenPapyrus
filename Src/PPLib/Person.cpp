@@ -1440,7 +1440,7 @@ int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 			for(i = 0; ary->enumItems(&i, (void **)&entry);)
 				if(entry->KindID && *strip(entry->Addr))
 					sz += (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
-			THROW_MEM(b = (PropertyTbl::Rec*)SAlloc::C(1, sz));
+			THROW_MEM(b = (PropertyTbl::Rec *)SAlloc::C(1, sz));
 			b->Val2 = (int32)(sz - PROPRECFIXSIZE);
 			for(p = (char *)(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void **)&entry);)
 				if(entry->KindID && entry->Addr[0]) {

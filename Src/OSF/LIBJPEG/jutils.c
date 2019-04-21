@@ -140,7 +140,7 @@ GLOBAL(long) FASTCALL jround_up(long a, long b)
 #define FMEMCOPY(dest, src, size) MEMCOPY(dest, src, size)
 #else                           /* 80x86 case, define if we can */
 #ifdef USE_FMEM
-#define FMEMCOPY(dest, src, size) _fmemcpy((void FAR*)(dest), (const void FAR*)(src), (size_t)(size))
+#define FMEMCOPY(dest, src, size) _fmemcpy((void *)(dest), (const void FAR*)(src), (size_t)(size))
 #else
 /* This function is for use by the FMEMZERO macro defined in jpegint.h.
  * Do not call this function directly, use the FMEMZERO macro instead.
