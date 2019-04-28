@@ -275,7 +275,7 @@ static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_c
 		ngx_str_set(&cc->value, "max-age=315360000");
 		return NGX_OK;
 	}
-	e->value.data = (u_char *)ngx_pnalloc(r->pool, len);
+	e->value.data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(e->value.data == NULL) {
 		return NGX_ERROR;
 	}

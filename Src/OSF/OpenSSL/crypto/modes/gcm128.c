@@ -1048,9 +1048,8 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 				size_t j = GHASH_CHUNK;
 
 				while(j) {
-					size_t * out_t = (size_t*)out;
-					const size_t * in_t = (const size_t*)in;
-
+					size_t * out_t = reinterpret_cast<size_t *>(out);
+					const size_t * in_t = (const size_t *)in;
 					(*block)(ctx->Yi.c, ctx->EKi.c, key);
 					++ctr;
 					if(is_endian.little)
@@ -1075,8 +1074,8 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 				size_t j = i;
 
 				while(len >= 16) {
-					size_t * out_t = (size_t*)out;
-					const size_t * in_t = (const size_t*)in;
+					size_t * out_t = reinterpret_cast<size_t *>(out);
+					const size_t * in_t = (const size_t *)in;
 
 					(*block)(ctx->Yi.c, ctx->EKi.c, key);
 					++ctr;
@@ -1098,8 +1097,8 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 			}
 # else
 			while(len >= 16) {
-				size_t * out_t = (size_t*)out;
-				const size_t * in_t = (const size_t*)in;
+				size_t * out_t = static_cast<size_t *>(out);
+				const size_t * in_t = (const size_t *)in;
 
 				(*block)(ctx->Yi.c, ctx->EKi.c, key);
 				++ctr;
@@ -1234,9 +1233,8 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 				size_t j = GHASH_CHUNK;
 				GHASH(ctx, in, GHASH_CHUNK);
 				while(j) {
-					size_t * out_t = (size_t*)out;
-					const size_t * in_t = (const size_t*)in;
-
+					size_t * out_t = reinterpret_cast<size_t *>(out);
+					const size_t * in_t = (const size_t *)in;
 					(*block)(ctx->Yi.c, ctx->EKi.c, key);
 					++ctr;
 					if(is_endian.little)
@@ -1259,9 +1257,8 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 			if((i = (len & (size_t)-16))) {
 				GHASH(ctx, in, i);
 				while(len >= 16) {
-					size_t * out_t = (size_t*)out;
-					const size_t * in_t = (const size_t*)in;
-
+					size_t * out_t = reinterpret_cast<size_t *>(out);
+					const size_t * in_t = (const size_t *)in;
 					(*block)(ctx->Yi.c, ctx->EKi.c, key);
 					++ctr;
 					if(is_endian.little)
@@ -1281,8 +1278,8 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 			}
 # else
 			while(len >= 16) {
-				size_t * out_t = (size_t*)out;
-				const size_t * in_t = (const size_t*)in;
+				size_t * out_t = static_cast<size_t *>(out);
+				const size_t * in_t = (const size_t *)in;
 
 				(*block)(ctx->Yi.c, ctx->EKi.c, key);
 				++ctr;

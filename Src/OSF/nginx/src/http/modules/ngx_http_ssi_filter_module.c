@@ -882,8 +882,7 @@ tag_started:
 						ctx->param->key.data[0] = ch;
 						ctx->param->value.len = 0;
 						if(ctx->value_buf == NULL) {
-							ctx->param->value.data = (u_char *)ngx_pnalloc(r->pool,
-							ctx->value_len + 1);
+							ctx->param->value.data = (u_char *)ngx_pnalloc(r->pool, ctx->value_len + 1);
 							if(ctx->param->value.data == NULL) {
 								return NGX_ERROR;
 							}
@@ -1181,7 +1180,7 @@ static ngx_int_t ngx_http_ssi_evaluate_string(ngx_http_request_t * r, ngx_http_s
 			}
 			if(prefix) {
 				len = prefix + text->len;
-				data = (u_char *)ngx_pnalloc(r->pool, len);
+				data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 				if(data == NULL) {
 					return NGX_ERROR;
 				}

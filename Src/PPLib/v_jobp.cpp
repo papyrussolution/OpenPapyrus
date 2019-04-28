@@ -617,6 +617,38 @@ int SLAPI PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 			case PPVCMD_ADDITEM:
 				ok = AddItem(&update_id);
 				break;
+			case PPVCMD_ADDBYSAMPLE: // @v10.4.3
+				ok = -1;
+				if(job_id && P_Pool && CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0)) {
+					const PPJob * p_job = P_Pool->GetJob(job_id, (Filt.Flags & JobFilt::fForAllDb));
+					if(p_job) {
+						PPJob  new_job = *p_job;
+						PPID   new_id = 0;
+						new_job.ID = 0;
+						SString name_pattern = p_job->Name;
+						long   name_uniq_counter = 1;
+						int    is_there_dup_name = 0;
+						do {
+							(new_job.Name = name_pattern).Space().CatChar('#').Cat(++name_uniq_counter);
+							PPJob en_job;
+							for(PPID en_id = 0; !is_there_dup_name && P_Pool->Enum(&en_id, &en_job, 0);) {
+								if(en_job.Name.IsEqNC(new_job.Name))
+									is_there_dup_name = 1;
+							}
+						} while(is_there_dup_name);
+						int    local_ok = 1;
+						if(EditJobItem(&Mngr, P_Pool, &new_job) > 0) {
+							local_ok = P_Pool->PutJob(&new_id, &new_job);
+						}
+						if(local_ok > 0) {
+							update_id = job_id;
+							ok = 1;
+						}
+						else if(!local_ok)
+							PPError();
+					}
+				}
+				break;
 			case PPVCMD_EDITITEM:
 				ok = -1;
 				if(job_id && EditItem(job_id) > 0) {

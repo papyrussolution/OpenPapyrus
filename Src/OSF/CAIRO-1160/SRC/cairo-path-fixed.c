@@ -60,11 +60,9 @@ void FASTCALL _cairo_path_fixed_init(cairo_path_fixed_t * path)
 	path->buf.base.size_points = ARRAY_LENGTH(path->buf.points);
 	path->buf.base.op = path->buf.op;
 	path->buf.base.points = path->buf.points;
-
 	path->current_point.x = 0;
 	path->current_point.y = 0;
 	path->last_move_point = path->current_point;
-
 	path->has_current_point = FALSE;
 	path->needs_move_to = TRUE;
 	path->has_extents = FALSE;
@@ -73,29 +71,22 @@ void FASTCALL _cairo_path_fixed_init(cairo_path_fixed_t * path)
 	path->fill_is_rectilinear = TRUE;
 	path->fill_maybe_region = TRUE;
 	path->fill_is_empty = TRUE;
-
 	path->extents.p1.x = path->extents.p1.y = 0;
 	path->extents.p2.x = path->extents.p2.y = 0;
 }
 
-cairo_status_t _cairo_path_fixed_init_copy(cairo_path_fixed_t * path,
-    const cairo_path_fixed_t * other)
+cairo_status_t _cairo_path_fixed_init_copy(cairo_path_fixed_t * path, const cairo_path_fixed_t * other)
 {
 	cairo_path_buf_t * buf, * other_buf;
 	uint num_points, num_ops;
-
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(path, sizeof(cairo_path_fixed_t)));
-
 	cairo_list_init(&path->buf.base.link);
-
 	path->buf.base.op = path->buf.op;
 	path->buf.base.points = path->buf.points;
 	path->buf.base.size_ops = ARRAY_LENGTH(path->buf.op);
 	path->buf.base.size_points = ARRAY_LENGTH(path->buf.points);
-
 	path->current_point = other->current_point;
 	path->last_move_point = other->last_move_point;
-
 	path->has_current_point = other->has_current_point;
 	path->needs_move_to = other->needs_move_to;
 	path->has_extents = other->has_extents;
@@ -104,16 +95,11 @@ cairo_status_t _cairo_path_fixed_init_copy(cairo_path_fixed_t * path,
 	path->fill_is_rectilinear = other->fill_is_rectilinear;
 	path->fill_maybe_region = other->fill_maybe_region;
 	path->fill_is_empty = other->fill_is_empty;
-
 	path->extents = other->extents;
-
 	path->buf.base.num_ops = other->buf.base.num_ops;
 	path->buf.base.num_points = other->buf.base.num_points;
-	memcpy(path->buf.op, other->buf.base.op,
-	    other->buf.base.num_ops * sizeof(other->buf.op[0]));
-	memcpy(path->buf.points, other->buf.points,
-	    other->buf.base.num_points * sizeof(other->buf.points[0]));
-
+	memcpy(path->buf.op, other->buf.base.op, other->buf.base.num_ops * sizeof(other->buf.op[0]));
+	memcpy(path->buf.points, other->buf.points, other->buf.base.num_points * sizeof(other->buf.points[0]));
 	num_points = num_ops = 0;
 	for(other_buf = cairo_path_buf_next(cairo_path_head(other));
 	    other_buf != cairo_path_head(other);
@@ -121,29 +107,20 @@ cairo_status_t _cairo_path_fixed_init_copy(cairo_path_fixed_t * path,
 		num_ops    += other_buf->num_ops;
 		num_points += other_buf->num_points;
 	}
-
 	if(num_ops) {
 		buf = _cairo_path_buf_create(num_ops, num_points);
 		if(unlikely(buf == NULL)) {
 			_cairo_path_fixed_fini(path);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
-
-		for(other_buf = cairo_path_buf_next(cairo_path_head(other));
-		    other_buf != cairo_path_head(other);
-		    other_buf = cairo_path_buf_next(other_buf)) {
-			memcpy(buf->op + buf->num_ops, other_buf->op,
-			    other_buf->num_ops * sizeof(buf->op[0]));
+		for(other_buf = cairo_path_buf_next(cairo_path_head(other)); other_buf != cairo_path_head(other); other_buf = cairo_path_buf_next(other_buf)) {
+			memcpy(buf->op + buf->num_ops, other_buf->op, other_buf->num_ops * sizeof(buf->op[0]));
 			buf->num_ops += other_buf->num_ops;
-
-			memcpy(buf->points + buf->num_points, other_buf->points,
-			    other_buf->num_points * sizeof(buf->points[0]));
+			memcpy(buf->points + buf->num_points, other_buf->points, other_buf->num_points * sizeof(buf->points[0]));
 			buf->num_points += other_buf->num_points;
 		}
-
 		_cairo_path_fixed_add_buf(path, buf);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -151,24 +128,18 @@ ulong _cairo_path_fixed_hash(const cairo_path_fixed_t * path)
 {
 	ulong hash = _CAIRO_HASH_INIT_VALUE;
 	const cairo_path_buf_t * buf;
-	uint count;
-
-	count = 0;
+	uint count = 0;
 	cairo_path_foreach_buf_start(buf, path) {
-		hash = _cairo_hash_bytes(hash, buf->op,
-			buf->num_ops * sizeof(buf->op[0]));
+		hash = _cairo_hash_bytes(hash, buf->op, buf->num_ops * sizeof(buf->op[0]));
 		count += buf->num_ops;
 	} cairo_path_foreach_buf_end(buf, path);
 	hash = _cairo_hash_bytes(hash, &count, sizeof(count));
-
 	count = 0;
 	cairo_path_foreach_buf_start(buf, path) {
-		hash = _cairo_hash_bytes(hash, buf->points,
-			buf->num_points * sizeof(buf->points[0]));
+		hash = _cairo_hash_bytes(hash, buf->points, buf->num_points * sizeof(buf->points[0]));
 		count += buf->num_points;
 	} cairo_path_foreach_buf_end(buf, path);
 	hash = _cairo_hash_bytes(hash, &count, sizeof(count));
-
 	return hash;
 }
 
@@ -267,12 +238,12 @@ cairo_bool_t _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_p
 
 cairo_path_fixed_t * _cairo_path_fixed_create(void)
 {
-	cairo_path_fixed_t * path = (cairo_path_fixed_t *)_cairo_malloc(sizeof(cairo_path_fixed_t));
+	cairo_path_fixed_t * path = static_cast<cairo_path_fixed_t *>(_cairo_malloc(sizeof(cairo_path_fixed_t)));
 	if(!path) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
-		return NULL;
 	}
-	_cairo_path_fixed_init(path);
+	else
+		_cairo_path_fixed_init(path);
 	return path;
 }
 
@@ -555,24 +526,15 @@ static cairo_status_t FASTCALL _cairo_path_fixed_add(cairo_path_fixed_t * path, 
 		for(i = 0; i < num_points; i++) {
 			if(i != 0)
 				len += snprintf(buf + len, sizeof(buf), " ");
-			len += snprintf(buf + len, sizeof(buf), "(%f, %f)",
-				_cairo_fixed_to_double(points[i].x),
-				_cairo_fixed_to_double(points[i].y));
+			len += snprintf(buf + len, sizeof(buf), "(%f, %f)", _cairo_fixed_to_double(points[i].x), _cairo_fixed_to_double(points[i].y));
 		}
 		len += snprintf(buf + len, sizeof(buf), "]");
 
 #define STRINGIFYFLAG(x)  (path->x ? #x " " : "")
-		fprintf(stderr, "_cairo_path_fixed_add (%s, %s) [%s%s%s%s%s%s%s%s]\n",
-		    op_str[(int)op], buf,
-		    STRINGIFYFLAG(has_current_point),
-		    STRINGIFYFLAG(needs_move_to),
-		    STRINGIFYFLAG(has_extents),
-		    STRINGIFYFLAG(has_curve_to),
-		    STRINGIFYFLAG(stroke_is_rectilinear),
-		    STRINGIFYFLAG(fill_is_rectilinear),
-		    STRINGIFYFLAG(fill_is_empty),
-		    STRINGIFYFLAG(fill_maybe_region)
-		    );
+		fprintf(stderr, "_cairo_path_fixed_add (%s, %s) [%s%s%s%s%s%s%s%s]\n", op_str[(int)op], buf,
+		    STRINGIFYFLAG(has_current_point), STRINGIFYFLAG(needs_move_to), STRINGIFYFLAG(has_extents),
+		    STRINGIFYFLAG(has_curve_to), STRINGIFYFLAG(stroke_is_rectilinear), STRINGIFYFLAG(fill_is_rectilinear),
+		    STRINGIFYFLAG(fill_is_empty), STRINGIFYFLAG(fill_maybe_region));
 #undef STRINGIFYFLAG
 	}
 	_cairo_path_buf_add_op(buf, op);
@@ -597,8 +559,8 @@ static cairo_path_buf_t * _cairo_path_buf_create(int size_ops, int size_points)
 		buf->num_points = 0;
 		buf->size_ops = size_ops;
 		buf->size_points = size_points;
-		buf->op = (cairo_path_op_t*)(buf + 1);
-		buf->points = (cairo_point_t*)(buf->op + size_ops);
+		buf->op = (cairo_path_op_t *)(buf + 1);
+		buf->points = (cairo_point_t *)(buf->op + size_ops);
 	}
 	return buf;
 }

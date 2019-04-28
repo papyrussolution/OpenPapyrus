@@ -414,7 +414,7 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 		if(!buf) {
 			return NGX_CONF_ERROR;
 		}
-		buf->start = (u_char *)ngx_pnalloc(cf->pool, size);
+		buf->start = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
 		if(buf->start == NULL) {
 			return NGX_CONF_ERROR;
 		}

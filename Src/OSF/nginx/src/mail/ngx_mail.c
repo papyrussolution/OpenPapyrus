@@ -295,7 +295,7 @@ static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ng
 		addrs[i].conf.ssl = addr[i].opt.ssl;
 #endif
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
-		p = (u_char *)ngx_pnalloc(cf->pool, len);
+		p = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
 		if(!p) {
 			return NGX_ERROR;
 		}
@@ -329,7 +329,7 @@ static ngx_int_t ngx_mail_add_addrs6(ngx_conf_t * cf, ngx_mail_port_t * mport, n
 		addrs6[i].conf.ssl = addr[i].opt.ssl;
 #endif
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
-		p = (u_char *)ngx_pnalloc(cf->pool, len);
+		p = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
 		if(!p) {
 			return NGX_ERROR;
 		}

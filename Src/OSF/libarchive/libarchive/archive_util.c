@@ -76,20 +76,9 @@ int __archive_clean(struct archive * a)
 	return ARCHIVE_OK;
 }
 
-int archive_version_number(void)
-{
-	return (ARCHIVE_VERSION_NUMBER);
-}
-
-const char * archive_version_string(void)
-{
-	return (ARCHIVE_VERSION_STRING);
-}
-
-int archive_errno(struct archive * a)
-{
-	return (a->archive_error_number);
-}
+int archive_version_number(void) { return (ARCHIVE_VERSION_NUMBER); }
+const char * archive_version_string(void) { return (ARCHIVE_VERSION_STRING); }
+int archive_errno(const struct archive * a) { return (a->archive_error_number); }
 
 const char * archive_error_string(struct archive * a)
 {
@@ -99,46 +88,19 @@ const char * archive_error_string(struct archive * a)
 		return NULL;
 }
 
-int archive_file_count(struct archive * a)
-{
-	return (a->file_count);
-}
-
-int archive_format(struct archive * a)
-{
-	return (a->archive_format);
-}
-
-const char * archive_format_name(struct archive * a)
-{
-	return (a->archive_format_name);
-}
-
-int archive_compression(struct archive * a)
-{
-	return archive_filter_code(a, 0);
-}
-
-const char * archive_compression_name(struct archive * a)
-{
-	return archive_filter_name(a, 0);
-}
-
+int archive_file_count(const struct archive * a) { return (a->file_count); }
+int archive_format(const struct archive * a) { return (a->archive_format); }
+const char * archive_format_name(struct archive * a) { return (a->archive_format_name); }
+int archive_compression(struct archive * a) { return archive_filter_code(a, 0); }
+const char * archive_compression_name(struct archive * a) { return archive_filter_name(a, 0); }
 /*
  * Return a count of the number of compressed bytes processed.
  */
-la_int64_t archive_position_compressed(struct archive * a)
-{
-	return archive_filter_bytes(a, -1);
-}
-
+la_int64_t archive_position_compressed(struct archive * a) { return archive_filter_bytes(a, -1); }
 /*
  * Return a count of the number of uncompressed bytes processed.
  */
-la_int64_t archive_position_uncompressed(struct archive * a)
-{
-	return archive_filter_bytes(a, 0);
-}
+la_int64_t archive_position_uncompressed(struct archive * a) { return archive_filter_bytes(a, 0); }
 
 void archive_clear_error(struct archive * a)
 {
@@ -151,18 +113,19 @@ void archive_set_error(struct archive * a, int error_number, const char * fmt, .
 {
 	va_list ap;
 	a->archive_error_number = error_number;
-	if(fmt == NULL) {
+	if(!fmt) {
 		a->error = NULL;
-		return;
 	}
-	archive_string_empty(&(a->error_string));
-	va_start(ap, fmt);
-	archive_string_vsprintf(&(a->error_string), fmt, ap);
-	va_end(ap);
-	a->error = a->error_string.s;
+	else {
+		archive_string_empty(&(a->error_string));
+		va_start(ap, fmt);
+		archive_string_vsprintf(&(a->error_string), fmt, ap);
+		va_end(ap);
+		a->error = a->error_string.s;
+	}
 }
 
-void archive_copy_error(struct archive * dest, struct archive * src)
+void FASTCALL archive_copy_error(struct archive * dest, const struct archive * src)
 {
 	dest->archive_error_number = src->archive_error_number;
 	archive_string_copy(&dest->error_string, &src->error_string);

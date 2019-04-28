@@ -329,10 +329,8 @@ static void do_flip_h(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 		y_crop_blocks = y_crop_offset * compptr->v_samp_factor;
 		for(dst_blk_y = 0; dst_blk_y < compptr->height_in_blocks;
 		    dst_blk_y += compptr->v_samp_factor) {
-			dst_buffer = (*srcinfo->mem->access_virt_barray)((j_common_ptr)srcinfo, dst_coef_arrays[ci], dst_blk_y,
-			    (JDIMENSION)compptr->v_samp_factor, TRUE);
-			src_buffer = (*srcinfo->mem->access_virt_barray)((j_common_ptr)srcinfo, src_coef_arrays[ci],
-			    dst_blk_y + y_crop_blocks, (JDIMENSION)compptr->v_samp_factor, FALSE);
+			dst_buffer = (*srcinfo->mem->access_virt_barray)((j_common_ptr)srcinfo, dst_coef_arrays[ci], dst_blk_y, (JDIMENSION)compptr->v_samp_factor, TRUE);
+			src_buffer = (*srcinfo->mem->access_virt_barray)((j_common_ptr)srcinfo, src_coef_arrays[ci], dst_blk_y + y_crop_blocks, (JDIMENSION)compptr->v_samp_factor, FALSE);
 			for(offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
 				dst_row_ptr = dst_buffer[offset_y];
 				src_row_ptr = src_buffer[offset_y];
@@ -357,10 +355,8 @@ static void do_flip_h(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-static void do_flip_v(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
-    JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
-    jvirt_barray_ptr *src_coef_arrays,
-    jvirt_barray_ptr *dst_coef_arrays)
+static void do_flip_v(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
+    jvirt_barray_ptr *src_coef_arrays, jvirt_barray_ptr *dst_coef_arrays)
 /* Vertical flip */
 {
 	JDIMENSION MCU_rows, comp_height, dst_blk_x, dst_blk_y;

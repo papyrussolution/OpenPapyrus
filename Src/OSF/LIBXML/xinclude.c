@@ -8,7 +8,6 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -22,13 +21,9 @@
 		//#include <libxml/debugXML.h>
 	#endif
 #endif
-
-/************************************************************************
-*									*
-*			XInclude context handling			*
-*									*
-************************************************************************/
-
+// 
+// XInclude context handling
+// 
 /*
  * An XInclude context
  */
@@ -37,8 +32,8 @@ typedef xmlChar * xmlURL;
 typedef struct _xmlXIncludeRef xmlXIncludeRef;
 typedef xmlXIncludeRef * xmlXIncludeRefPtr;
 struct _xmlXIncludeRef {
-	xmlChar              * URI; /* the fully resolved resource URL */
-	xmlChar         * fragment; /* the fragment in the URI */
+	xmlChar * URI; /* the fully resolved resource URL */
+	xmlChar * fragment; /* the fragment in the URI */
 	xmlDoc * doc;         /* the parsed document */
 	xmlNode * ref;        /* the node making the reference in the source */
 	xmlNode * inc;        /* the included copy */
@@ -54,23 +49,19 @@ struct _xmlXIncludeCtxt {
 	int incNr;             /* number of includes */
 	int incMax;            /* size of includes tab */
 	xmlXIncludeRefPtr * incTab; /* array of included references */
-
 	int txtNr;             /* number of unparsed documents */
 	int txtMax;            /* size of unparsed documents tab */
 	xmlNode ** txtTab; /* array of unparsed text nodes */
-	xmlURL         * txturlTab; /* array of unparsed text URLs */
-
-	xmlChar *           url; /* the current URL processed */
+	xmlURL * txturlTab; /* array of unparsed text URLs */
+	xmlChar * url; /* the current URL processed */
 	int urlNr;             /* number of URLs stacked */
 	int urlMax;            /* size of URL stack */
 	xmlChar ** urlTab;     /* URL stack */
-
 	int nbErrors;          /* the number of errors detected */
 	int legacy;            /* using XINCLUDE_OLD_NS */
 	int parseFlags;        /* the flags used for parsing XML documents */
-	xmlChar *          base; /* the current xml:base */
-
-	void            * _private; /* application data */
+	xmlChar * base; /* the current xml:base */
+	void * _private; /* application data */
 };
 
 static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlNode * tree);
@@ -131,8 +122,7 @@ static void xmlXIncludeWarn(xmlXIncludeCtxtPtr ctxt, xmlNode * node, int error, 
  */
 static xmlChar * FASTCALL xmlXIncludeGetProp(xmlXIncludeCtxtPtr ctxt, xmlNode * cur, const xmlChar * name) 
 {
-	xmlChar * ret;
-	ret = xmlGetNsProp(cur, XINCLUDE_NS, name);
+	xmlChar * ret = xmlGetNsProp(cur, XINCLUDE_NS, name);
 	if(ret)
 		return ret;
 	if(ctxt->legacy != 0) {
@@ -143,7 +133,6 @@ static xmlChar * FASTCALL xmlXIncludeGetProp(xmlXIncludeCtxtPtr ctxt, xmlNode * 
 	ret = xmlGetProp(cur, name);
 	return ret;
 }
-
 /**
  * xmlXIncludeFreeRef:
  * @ref: the XInclude reference
@@ -168,7 +157,6 @@ static void xmlXIncludeFreeRef(xmlXIncludeRefPtr ref)
 		SAlloc::F(ref);
 	}
 }
-
 /**
  * xmlXIncludeNewRef:
  * @ctxt: the XInclude context
@@ -184,7 +172,7 @@ static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlCha
 #ifdef DEBUG_XINCLUDE
 	xmlGenericError(0, "New ref %s\n", URI);
 #endif
-	ret = (xmlXIncludeRefPtr)SAlloc::M(sizeof(xmlXIncludeRef));
+	ret = static_cast<xmlXIncludeRefPtr>(SAlloc::M(sizeof(xmlXIncludeRef)));
 	if(!ret) {
 		xmlXIncludeErrMemory(ctxt, ref, "growing XInclude context");
 		return 0;
@@ -199,8 +187,7 @@ static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlCha
 	ret->inc = NULL;
 	if(ctxt->incMax == 0) {
 		ctxt->incMax = 4;
-		ctxt->incTab = (xmlXIncludeRefPtr*)SAlloc::M(ctxt->incMax *
-		    sizeof(ctxt->incTab[0]));
+		ctxt->incTab = static_cast<xmlXIncludeRefPtr *>(SAlloc::M(ctxt->incMax * sizeof(ctxt->incTab[0])));
 		if(ctxt->incTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, ref, "growing XInclude context");
 			xmlXIncludeFreeRef(ret);
@@ -209,8 +196,7 @@ static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlCha
 	}
 	if(ctxt->incNr >= ctxt->incMax) {
 		ctxt->incMax *= 2;
-		ctxt->incTab = (xmlXIncludeRefPtr*)SAlloc::R(ctxt->incTab,
-		    ctxt->incMax * sizeof(ctxt->incTab[0]));
+		ctxt->incTab = static_cast<xmlXIncludeRefPtr *>(SAlloc::R(ctxt->incTab, ctxt->incMax * sizeof(ctxt->incTab[0])));
 		if(ctxt->incTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, ref, "growing XInclude context");
 			xmlXIncludeFreeRef(ret);
@@ -220,7 +206,6 @@ static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlCha
 	ctxt->incTab[ctxt->incNr++] = ret;
 	return ret;
 }
-
 /**
  * xmlXIncludeNewContext:
  * @doc:  an XML Document
@@ -236,7 +221,7 @@ xmlXIncludeCtxtPtr xmlXIncludeNewContext(xmlDoc * doc)
 	xmlGenericError(0, "New context\n");
 #endif
 	if(doc) {
-		ret = (xmlXIncludeCtxtPtr)SAlloc::M(sizeof(xmlXIncludeCtxt));
+		ret = static_cast<xmlXIncludeCtxtPtr>(SAlloc::M(sizeof(xmlXIncludeCtxt)));
 		if(!ret) {
 			xmlXIncludeErrMemory(NULL, (xmlNode *)doc, "creating XInclude context");
 		}
@@ -252,7 +237,6 @@ xmlXIncludeCtxtPtr xmlXIncludeNewContext(xmlDoc * doc)
 	}
 	return ret;
 }
-
 /**
  * xmlXIncludeURLPush:
  * @ctxt:  the parser context
@@ -271,7 +255,7 @@ static int xmlXIncludeURLPush(xmlXIncludeCtxtPtr ctxt, const xmlChar * value)
 	if(ctxt->urlTab == NULL) {
 		ctxt->urlMax = 4;
 		ctxt->urlNr = 0;
-		ctxt->urlTab = (xmlChar**)SAlloc::M(ctxt->urlMax * sizeof(ctxt->urlTab[0]));
+		ctxt->urlTab = static_cast<xmlChar **>(SAlloc::M(ctxt->urlMax * sizeof(ctxt->urlTab[0])));
 		if(ctxt->urlTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, NULL, "adding URL");
 			return -1;
@@ -279,7 +263,7 @@ static int xmlXIncludeURLPush(xmlXIncludeCtxtPtr ctxt, const xmlChar * value)
 	}
 	if(ctxt->urlNr >= ctxt->urlMax) {
 		ctxt->urlMax *= 2;
-		ctxt->urlTab = (xmlChar**)SAlloc::R(ctxt->urlTab, ctxt->urlMax * sizeof(ctxt->urlTab[0]));
+		ctxt->urlTab = static_cast<xmlChar **>(SAlloc::R(ctxt->urlTab, ctxt->urlMax * sizeof(ctxt->urlTab[0])));
 		if(ctxt->urlTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, NULL, "adding URL");
 			return -1;
@@ -563,7 +547,7 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, const x
 		 */
 		newctxt->incMax = ctxt->incMax;
 		newctxt->incNr = ctxt->incNr;
-		newctxt->incTab = (xmlXIncludeRefPtr*)SAlloc::M(newctxt->incMax * sizeof(newctxt->incTab[0]));
+		newctxt->incTab = static_cast<xmlXIncludeRefPtr *>(SAlloc::M(newctxt->incMax * sizeof(newctxt->incTab[0])));
 		if(newctxt->incTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, (xmlNode *)doc, "processing doc");
 			SAlloc::F(newctxt);

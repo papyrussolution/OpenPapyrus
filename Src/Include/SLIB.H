@@ -28,6 +28,10 @@
 	#include <sys\stat.h> // @v9.8.2
 	#include <tchar.h>
 	#include <wchar.h>
+	// @v10.4.3
+	#ifdef HAVE_UNISTD_H
+		#include <unistd.h>
+	#endif
 #endif
 //
 //#include <port.h>
@@ -2981,6 +2985,8 @@ struct SSzChunk { // @flat @noctr @novtbl
 struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	int    SLAPI IsZero() const;
 	int    FASTCALL IsEqual(const RealRange & rS) const;
+	int    FASTCALL LessThan(double v) const;
+	int    FASTCALL GreaterThan(double v) const;
 	double SLAPI GetDistance() const;
 	//
 	// Descr: Возвращает наименьшее значение из (low, upp)
@@ -4824,6 +4830,11 @@ public:
 	RECORDSIZE SLAPI getRecSize() const;
 	int    SLAPI setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
 	int    SLAPI IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
+	//
+	// Descr: Выводит значения полей записи pRec в строковый буфер rBuf.
+	//   Если pRec == 0, то в буфер выводятся наименования полей.
+	//
+	//void   SLAPI RecordToStr(const void * pRec, SString & rBuf) const;
 private:
 	uint   count;
 	BNField * fields;

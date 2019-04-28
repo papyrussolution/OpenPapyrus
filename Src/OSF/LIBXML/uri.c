@@ -485,12 +485,10 @@ static int FASTCALL xmlParse3986PathAbEmpty(xmlURIPtr uri, const char ** str)
 	}
 	if(uri) {
 		SAlloc::F(uri->path);
-		if(*str != cur) {
+		if(*str != cur)
 			uri->path = (uri->cleanup & 2) ? STRNDUP(*str, cur - *str) : xmlURIUnescapeString(*str, cur - *str, 0);
-		}
-		else {
+		else
 			uri->path = NULL;
-		}
 	}
 	*str = cur;
 	return 0;
@@ -2089,7 +2087,6 @@ done:
 	xmlFreeURI(bas);
 	return val;
 }
-
 /**
  * xmlCanonicPath:
  * @path:  the resource locator in a filesystem notation
@@ -2102,6 +2099,7 @@ done:
  * argument is NULL, the function returns NULL.
  */
 #define IS_WINDOWS_PATH(p) ((p) && (((p[0] >= 'a') && (p[0] <= 'z')) || ((p[0] >= 'A') && (p[0] <= 'Z'))) && (p[1] == ':') && ((p[2] == '/') || (p[2] == '\\')))
+
 xmlChar * xmlCanonicPath(const xmlChar * path)
 {
 /*
@@ -2180,7 +2178,7 @@ path_processing:
 	len = sstrlen(path);
 	if((len > 2) && IS_WINDOWS_PATH(path)) {
 		uri->scheme = sstrdup("file"); // make the scheme 'file' 
-		uri->path = (char *)SAlloc::M(len + 2); // allocate space for leading '/' + path + string terminator 
+		uri->path = static_cast<char *>(SAlloc::M(len + 2)); // allocate space for leading '/' + path + string terminator 
 		if(uri->path == NULL) {
 			xmlFreeURI(uri); // Guard agains 'out of memory' 
 			return 0;

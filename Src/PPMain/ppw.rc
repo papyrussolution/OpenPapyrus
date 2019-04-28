@@ -7147,7 +7147,7 @@ BEGIN
     CONTROL         "@cfgbill_bcf_autocomploutbyquot",50357,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,150,255,10
     CONTROL         "@cfgbill_bcf_paintshippedbills",54453,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,160,255,10
     CONTROL         "@cfgbill_bcf_ovrrdagtquot",58549,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,170,255,10
-    GROUPBOX        "Показывать коды в строках документов",CTL_BILLCFG_SHOWADDFLD,280,30,175,35,WS_GROUP
+    GROUPBOX        "@cfgbill_showcodesingbrows",CTL_BILLCFG_SHOWADDFLD,280,30,175,35,WS_GROUP
     CONTROL         "@barcode",5307,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,40,140,10
     CONTROL         "@serial",9403,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,50,140,10
     GROUPBOX        "",CTL_BILLCFG_FLAGS2,5,190,270,105,WS_GROUP
@@ -7161,9 +7161,9 @@ BEGIN
     CONTROL         "@cfgbill_bcf_picklots",33985,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,270,255,10
     CONTROL         "@cfgbill_bcf_inhserial",38081,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,280,255,10
     GROUPBOX        "@cfgbill_goodssubstmethod",CTL_BILLCFG_DEFICITSUBST,282,70,173,45,WS_GROUP
-    CONTROL         "Обобщенные товары",5310,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,290,80,155,10
-    CONTROL         "Подстановочные структуры",9406,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,290,90,155,10
-    CONTROL         "Не подставлять",13502,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,290,100,155,10
+    CONTROL         "@cfgbill_gsmgeneric",5310,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,290,80,155,10
+    CONTROL         "@cfgbill_gsmsubststruc",9406,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,290,90,155,10
+    CONTROL         "@cfgbill_gsmnone",13502,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,290,100,155,10
     GROUPBOX        "",IDC_STATIC,280,116,175,115
     LTEXT           "@cfgbill_sntemplt",4004,286,125,160,8
     EDITTEXT        CTL_BILLCFG_SNTEMPLT,286,134,80,13,ES_AUTOHSCROLL
@@ -7173,10 +7173,11 @@ BEGIN
     EDITTEXT        CTL_BILLCFG_SNRCNTR,286,185,80,13,ES_AUTOHSCROLL
     LTEXT           "@cfgbill_uniqserialsfx",4007,285,200,152,8
     EDITTEXT        CTL_BILLCFG_UNIQSNSFX,285,209,80,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "Расчет скидки...",4008,310,240,65,13
-    PUSHBUTTON      "Расценка...",4009,390,240,65,13
-    PUSHBUTTON      "Фильтр индикаторов тегов...",4010,310,260,145,13
-    PUSHBUTTON      "@but_addendum",STDCTL_MORE,390,280,65,13
+    PUSHBUTTON      "@{cfgbill_discountevaluation}...",4008,310,240,65,13
+    PUSHBUTTON      "@{cfgbill_valuation_s}...",4009,390,240,65,13
+    PUSHBUTTON      "@{cfgbill_tagindfilt}...",4010,310,260,145,13
+    PUSHBUTTON      "@{cfgbill_lottagindfilt}...",4011,310,280,145,13
+    PUSHBUTTON      "@but_addendum",STDCTL_MORE,390,300,65,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,165,300,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,225,300,50,13
 END
@@ -8237,7 +8238,7 @@ BEGIN
     CONTROL         "Не списана (5)",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,165,100,10
     CONTROL         "Не сгруппирована (10)",13496,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,175,95,10
     CONTROL         "@csession_temporary",5305,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,85,105,95,13
-    LTEXT           "Суммы",4008,245,5,180,8
+    LTEXT           "@amount_pl",4008,245,5,180,8
     CONTROL         "",CTL_CSESS_AMTLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,245,15,265,175
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,130,175,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,190,175,50,13
@@ -34816,6 +34817,11 @@ BEGIN
 END
 
 DLG_CSESS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_BILLCFG AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

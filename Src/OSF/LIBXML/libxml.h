@@ -764,7 +764,7 @@ int xmlNop(void);
 	int FASTCALL xmlBufMergeBuffer(xmlBuf * buf, xmlBuffer * buffer);
 	int FASTCALL xmlBufResetInput(xmlBuf * buf, xmlParserInput * input);
 	size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, const xmlParserInput * input);
-	int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInput * input, size_t base, size_t cur);
+	int FASTCALL xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInput * input, size_t base, size_t cur);
 	//
 	//#include "enc.h"
 	//

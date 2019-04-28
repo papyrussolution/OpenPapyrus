@@ -34,8 +34,7 @@ void CRYPTO_ofb128_encrypt(const uchar * in, uchar * out, size_t len, const void
 			while(len >= 16) {
 				(*block)(ivec, ivec, key);
 				for(; n < 16; n += sizeof(size_t))
-					*(size_t*)(out + n) =
-					    *(size_t*)(in + n) ^ *(size_t*)(ivec + n);
+					*(size_t *)(out + n) = *(size_t *)(in + n) ^ *(size_t *)(ivec + n);
 				len -= 16;
 				out += 16;
 				in += 16;

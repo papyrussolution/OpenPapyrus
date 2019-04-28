@@ -733,7 +733,7 @@ SLAPI PPLotFaultArray::PPLotFaultArray(PPID lotID, PPLogger & rLogger) : SVector
 
 PPLotFault & FASTCALL PPLotFaultArray::at(uint p) const
 {
-	return *(PPLotFault*)SVector::at(p); // @v9.8.10 SArray-->SVector
+	return *static_cast<PPLotFault *>(SVector::at(p)); // @v9.8.10 SArray-->SVector
 }
 
 int SLAPI PPLotFaultArray::AddFault(int fault, const ReceiptTbl::Rec * pRec, PPID childID, PPID parentID)
@@ -1308,7 +1308,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 										reval_list.LotCost = op_cost;
 									}
 									else {
-										RevalArray::Reval * p_rai = (RevalArray::Reval *)reval_list.at(reval_idx);
+										RevalArray::Reval * p_rai = static_cast<RevalArray::Reval *>(reval_list.at(reval_idx));
 										if(p_rai) {
 											//
 											// Для правильной инициализации ошибки необходимо извлечь
@@ -1338,7 +1338,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 										reval_list.LotPrice = op_price;
 									}
 									else {
-										RevalArray::Reval * p_rai = (RevalArray::Reval *)reval_list.at(reval_idx);
+										RevalArray::Reval * p_rai = static_cast<RevalArray::Reval *>(reval_list.at(reval_idx));
 										if(p_rai) {
 											//
 											// Для правильной инициализации ошибки необходимо извлечь
@@ -1465,7 +1465,6 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 						}
 					}
 				}
-				// @v8.8.1 {
 				if(flags & TLRF_REPAIRPACKUNCOND) {
 					if(pFaultList->HasFault(PPLotFault::PackDifferentGSE, &fault, &fault_pos)) {
                         if(gse_inited || goods_obj.GetStockExt(labs(lot_rec.GoodsID), &gse) > 0) {
@@ -1476,7 +1475,6 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
                         }
 					}
 				}
-				// } @v8.8.1
 			}
 			if(pFaultList->HasFault(PPLotFault::CyclicLink, &fault, &fault_pos)) {
 				if(fault.ChildLotID == lot_rec.ID && fault.ParentLotID == lot_rec.PrevLotID) {
@@ -1518,7 +1516,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 			// @v9.3.12 {
 			if(flags & TLRF_REPAIRCOST) {
 				if(pFaultList->HasFault(PPLotFault::FirstCost, &fault, &fault_pos)) {
-                    if(fault.ActualVal == 0.0 && fault.ValidVal > 0.0) {
+                    if(fault.ActualVal >= 0.0 && fault.ValidVal > 0.0) { // @v10.4.2 (fault.ActualVal == 0.0)-->(fault.ActualVal >= 0.0)
 						lot_rec.Cost = fault.ValidVal;
 						err_lot = 1;
                     }
@@ -1526,7 +1524,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 			}
 			if(flags & TLRF_REPAIRPRICE) {
 				if(pFaultList->HasFault(PPLotFault::FirstPrice, &fault, &fault_pos)) {
-					if(fault.ActualVal == 0.0 && fault.ValidVal > 0.0) {
+					if(fault.ActualVal >= 0.0 && fault.ValidVal > 0.0) { // @v10.4.2 (fault.ActualVal == 0.0)-->(fault.ActualVal >= 0.0)
 						lot_rec.Price = fault.ValidVal;
 						err_lot = 1;
                     }
@@ -2196,7 +2194,7 @@ private:
 	{
 		if(P_List) {
 			for(uint i = 0; i < P_List->getCount(); i++) {
-				BadTrfrEntry * p_entry = (BadTrfrEntry *)P_List->at(i);
+				const BadTrfrEntry * p_entry = static_cast<const BadTrfrEntry *>(P_List->at(i));
 				if(!p_entry->WasRemoved)
 					addStringToList(p_entry->N, p_entry->Descr);
 			}
@@ -2212,7 +2210,7 @@ int BadTrfrEntryListDialog::delItem(long pos, long id)
 	int    ok = -1;
 	if(P_List && pos >= 0 && pos < (long)P_List->getCount()) {
 		if(CONFIRM(PPCFM_DELETE)) {
-			const BadTrfrEntry * p_entry = (const BadTrfrEntry *)P_List->at(pos);
+			const BadTrfrEntry * p_entry = static_cast<const BadTrfrEntry *>(P_List->at(pos));
 			Transfer * p_trfr = BillObj->trfr;
 			THROW_DB(deleteFrom(p_trfr, 1, (p_trfr->Dt == p_entry->Dt && p_trfr->OprNo == p_entry->OprNo)));
 			ok = 1;
@@ -2907,7 +2905,7 @@ int SLAPI PrcssrReceiptPacking::Run()
 				uint   cppos = 0;
 				if(cp_transf_lot_list.bsearch(&rec.ID, &cppos, CMPF_LONG)) {
 					for(uint p = cppos; p < cp_transf_lot_list.getCount(); p++) {
-						const CpTransfLotKey * p_key = (const CpTransfLotKey *)cp_transf_lot_list.at(p);
+						const CpTransfLotKey * p_key = static_cast<const CpTransfLotKey *>(cp_transf_lot_list.at(p));
 						if(p_key && p_key->LotID == rec.ID) {
 							CpTransfTbl::Key0 k0;
 							k0.BillID = p_key->BillID;
@@ -2939,7 +2937,7 @@ int SLAPI PrcssrReceiptPacking::Run()
 				uint   tslp = 0;
 				if(tsesln_lot_list.bsearch(&rec.ID, &tslp, CMPF_LONG)) {
 					for(uint p = tslp; p < tsesln_lot_list.getCount(); p++) {
-						const TSessLineLotKey * p_key = (const TSessLineLotKey *)tsesln_lot_list.at(p);
+						const TSessLineLotKey * p_key = static_cast<const TSessLineLotKey *>(tsesln_lot_list.at(p));
 						if(p_key && p_key->LotID == rec.ID) {
 							TSessLineTbl::Key0 k0;
 							k0.TSessID = p_key->SessID;

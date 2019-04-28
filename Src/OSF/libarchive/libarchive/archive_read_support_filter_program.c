@@ -23,36 +23,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
 #ifdef HAVE_SYS_WAIT_H
-#  include <sys/wait.h>
+	#include <sys/wait.h>
 #endif
-#ifdef HAVE_ERRNO_H
-#  include <errno.h>
-#endif
-#ifdef HAVE_FCNTL_H
-#  include <fcntl.h>
-#endif
-#ifdef HAVE_LIMITS_H
-#  include <limits.h>
-#endif
-#ifdef HAVE_SIGNAL_H
-#  include <signal.h>
-#endif
-#ifdef HAVE_STDLIB_H
-#  include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-#  include <string.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#  include <unistd.h>
-#endif
-
+//#ifdef HAVE_ERRNO_H
+	//#include <errno.h>
+//#endif
+//#ifdef HAVE_FCNTL_H
+	//#include <fcntl.h>
+//#endif
+//#ifdef HAVE_LIMITS_H
+	//#include <limits.h>
+//#endif
+//#ifdef HAVE_SIGNAL_H
+	//#include <signal.h>
+//#endif
+//#ifdef HAVE_STDLIB_H
+	//#include <stdlib.h>
+//#endif
+//#ifdef HAVE_STRING_H
+	//#include <string.h>
+//#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include "archive.h"
 //#include "archive_private.h"
 //#include "archive_string.h"
@@ -69,8 +67,7 @@ int archive_read_support_compression_program(struct archive * a, const char * cm
 int archive_read_support_compression_program_signature(struct archive * a,
     const char * cmd, const void * signature, size_t signature_len)
 {
-	return archive_read_support_filter_program_signature(a,
-		   cmd, signature, signature_len);
+	return archive_read_support_filter_program_signature(a, cmd, signature, signature_len);
 }
 
 #endif
@@ -116,8 +113,7 @@ struct program_filter {
 	size_t out_buf_len;
 };
 
-static ssize_t  program_filter_read(struct archive_read_filter *,
-    const void **);
+static ssize_t  program_filter_read(struct archive_read_filter *, const void **);
 static int      program_filter_close(struct archive_read_filter *);
 static void     free_state(struct program_bidder *);
 
@@ -141,19 +137,16 @@ static int set_bidder_signature(struct archive_read_filter_bidder * bidder,
 	return ARCHIVE_OK;
 }
 
-int archive_read_support_filter_program_signature(struct archive * _a,
-    const char * cmd, const void * signature, size_t signature_len)
+int archive_read_support_filter_program_signature(struct archive * _a, const char * cmd, const void * signature, size_t signature_len)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
 	struct program_bidder * state;
-
 	/*
 	 * Get a bidder object from the read core.
 	 */
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/*
 	 * Allocate our private state.
 	 */
@@ -174,7 +167,6 @@ memerr:
 static int program_bidder_free(struct archive_read_filter_bidder * self)
 {
 	struct program_bidder * state = (struct program_bidder *)self->data;
-
 	free_state(state);
 	return ARCHIVE_OK;
 }

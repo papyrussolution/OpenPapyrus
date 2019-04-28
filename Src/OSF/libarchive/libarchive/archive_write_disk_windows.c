@@ -610,7 +610,7 @@ static struct archive_vtable * archive_write_disk_vtable(void)
 
 static int64_t _archive_write_disk_filter_bytes(struct archive * _a, int n)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	const struct archive_write_disk * a = reinterpret_cast<const struct archive_write_disk *>(_a);
 	(void)n; /* UNUSED */
 	if(n == -1 || n == 0)
 		return (a->total_bytes_written);
@@ -619,7 +619,7 @@ static int64_t _archive_write_disk_filter_bytes(struct archive * _a, int n)
 
 int archive_write_disk_set_options(struct archive * _a, int flags)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	a->flags = flags;
 	return ARCHIVE_OK;
 }
@@ -803,27 +803,22 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			fe->birthtime_nanos = fe->mtime_nanos;
 		}
 	}
-
 	if(a->deferred & TODO_ACLS) {
 		fe = current_fixup(a, archive_entry_pathname_w(entry));
 		archive_acl_copy(&fe->acl, archive_entry_acl(entry));
 	}
-
 	if(a->deferred & TODO_FFLAGS) {
 		fe = current_fixup(a, archive_entry_pathname_w(entry));
 		fe->fixup |= TODO_FFLAGS;
 		/* TODO: Complete this.. defer fflags from below. */
 	}
-
 	/*
 	 * On Windows, A creating sparse file requires a special mark.
 	 */
-	if(a->fh != INVALID_HANDLE_VALUE &&
-	    archive_entry_sparse_count(entry) > 0) {
+	if(a->fh != INVALID_HANDLE_VALUE && archive_entry_sparse_count(entry) > 0) {
 		int64_t base = 0, offset, length;
 		int i, cnt = archive_entry_sparse_reset(entry);
 		int sparse = 0;
-
 		for(i = 0; i < cnt; i++) {
 			archive_entry_sparse_next(entry, &offset, &length);
 			if(offset - base >= 4096) {
@@ -2204,8 +2199,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 			mode &= ~S_ISGID;
 		}
 		/* While we're here, double-check the UID. */
-		if(0 != a->uid
-		    && (a->todo & TODO_SUID)) {
+		if(0 != a->uid && (a->todo & TODO_SUID)) {
 			mode &= ~S_ISUID;
 		}
 		a->todo &= ~TODO_SGID_CHECK;

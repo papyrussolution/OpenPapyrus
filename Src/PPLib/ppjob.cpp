@@ -484,7 +484,7 @@ int SLAPI PPJobPool::CheckUniqueJob(const PPJob * pJob) const
 int SLAPI PPJobPool::Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb) const
 {
 	for(uint i = 0; i < getCount(); i++) {
-		PPJob * p_job = at(i);
+		const PPJob * p_job = at(i);
 		if((ignoreDbSymb || IsJobSuited(p_job)) && (p_job->ID > *pID)) {
 			ASSIGN_PTR(pJob, *p_job);
 			(*pID) = p_job->ID;
@@ -575,6 +575,7 @@ int SLAPI PPJobPool::PutJob(PPID * pID, const PPJob * pJob)
 		}
 		THROW_SL(insert(p_job));
 		ASSIGN_PTR(pID, p_job->ID);
+		ok = 1; // @v10.4.3 @fix
 	}
 	CATCHZOK
 	return ok;

@@ -2207,7 +2207,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char
 					THROW_SL(p_ftb->P_F->IsValid());
 					THROW_SL(p_ftb->P_F->Seek64(p_ftb->Offs));
 					// THROW_SL(p_ftb->P_F->ReadV(buf, buf.GetSize())); // надо считать оставшееся кол-во байтов
-					THROW_SL(p_ftb->P_F->Read(buf, buf.GetSize(), (size_t*)&blk.PartSize));
+					THROW_SL(p_ftb->P_F->Read(buf, buf.GetSize(), (size_t *)&blk.PartSize));
 					offs = p_ftb->P_F->Tell64();
 				}
 				buf.Alloc(blk.PartSize);

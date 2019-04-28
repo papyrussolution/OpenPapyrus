@@ -2917,9 +2917,11 @@ PPINIPARAM_TSSTAKE_INITTRENDERRLIMIT   "init_trend_err_limit"
 PPINIPARAM_TSSTAKE_BESTSUBSETDIMESION  "best_subset_dimension"
 PPINIPARAM_TSSTAKE_BESTSUBSETMAXPHONY  "best_subset_max_phony_iters"
 PPINIPARAM_TSSTAKE_BESTSUBSETOPTCHUNK  "best_subset_opt_chunk"
+PPINIPARAM_TSSTAKE_BESTSUBSETTF        "best_subset_trendfollowing"
 PPINIPARAM_TSSTAKE_USEDATASINCE        "use_data_since"
 PPINIPARAM_TSSTAKE_DEFTARGETQUANT      "def_target_quant"
 PPINIPARAM_TSSTAKE_MINWINRATE          "min_win_rate"
+PPINIPARAM_TSSTAKE_TARGETQUANT         "target_quant"
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -5562,7 +5564,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_auserlist         "32,L,@user;9,R,Cеанc;3,L,S;17,L,MAC-адрес;30,L,Имя компьютера;20,L,Время входа;20,L,Продолжительность сеанса"  // DLG_AUSERSLST
 @lbt_chkpan            "3,R,#;3,C,;70,L,@ware;16,L,@barcode;11,R,@price;10,R,@qtty;11,R,@amount;12,L,@series;9,R,@department;4,C,Q"   // DLG_CHKPAN
 @lbt_chkpan_ts         "4,R,#;3,C,;60,L,@ware;12,R,@price;12,R,@qtty;12,R,@amount;10,R,@department;4,C,Q"                             // DLG_CHKPAN_TS
-@lbt_chkpanv           "3,R,#;3,C,;40,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;12,L,@series"              // DLG_CHKPANV, DLG_CHKPANV_L
+@lbt_chkpanv           "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;15,L,@series" // DLG_CHKPANV, DLG_CHKPANV_L
 @lbt_objrights         "50,L,@objects;9,L,@flags"                                                                                        // DLG_RTCOMM
 @lbt_psnev_taglist     "20,L,@tag;60,L,@va"                                                                                    // DLG_PSNEVNT
 @lbt_accaggr           "60,L,Группируемые счета;6,L,@flags" // DLG_ACCAGGR
@@ -6126,6 +6128,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @paymentterm            "Срок оплаты"
 @counter                "Счетчик"
 @filter                 "Фильтр"
+@tagindfilt             "Фильтр индикаторов тегов"
 @directory              "Каталог"
 @file                   "Файл"
 @files                  "Файлы"
@@ -6482,6 +6485,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @wtmo_processor         "@{processor}"
 @wtmo_uictrl            "Элемент пользовательского интерфейса"
 @wtmo_barcode           "@{barcode}"
+@wtmo_layout            "Layout"
 //
 // Наименования видов объектов пользовательского интерфейса
 //
@@ -8014,12 +8018,16 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgbill_bcf_warnaddbillnoflt             "Предупреждать о вводе документа, не соответствующего фильтру"
 @cfgbill_bcf_warnagreement                "Предупреждать об отсутствии или просроченности соглашения"
 @cfgbill_bcf_warnmatclidebt               "Предупреждать о наличии у клиента просроченной задолженности"
+@cfgbill_showcodesingbrows                "Показывать коды в строках документов" // generic
 @cfgbill_cashnode                         "Кассовый узел для печати чеков по документам"
 @cfgbill_clcodeprfx                       "Префикс кода клиента"
 @cfgbill_clcoderegtype                    "Тип регистра персоналии"
 @cfgbill_contractregtype                  "Регистр договора с контрагентом"
 @cfgbill_flags                            "@{flags}"
 @cfgbill_goodssubstmethod                 "Подстановка дефицитного товара"
+@cfgbill_gsmgeneric                       "Обобщенные товары"
+@cfgbill_gsmsubststruc                    "Подстановочные структуры"
+@cfgbill_gsmnone                          "Не подставлять"
 @cfgbill_initstatus                       "Статус новых документов"
 @cfgbill_invsntemplt                      "Шаблон генерации инвентарного номера"
 @cfgbill_lnkfilescntr                     "Счетчик для генерации имен присоединенных файлов"
@@ -8029,16 +8037,19 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgbill_sncntr                           "Счетчик для генерации серийного номера"
 @cfgbill_snrcounter                       "Счетчик для генерации серийного номера лота"
 @cfgbill_sntemplt                         "Шаблон генерации серийного номера лота"
-@cfgbill_tagindfilt                       "Фильтр тегов окраски наименований"
+@cfgbill_tagindfilt                       "@{tagindfilt}"
+@cfgbill_lottagindfilt                    "Фильтр индикаторов тегов лотов"
 @cfgbill_tdiscalcmethod                   "Метод расчета скидки по документу"
 @cfgbill_tdiscalcprec                     "@{rounding}"
 @cfgbill_uniqserialsfx                    "Суффикс уникальности серийного номера"
 @cfgbill_valuation                        "Конфигурация расценки документов" // generic
+@cfgbill_valuation_s                      "Расценка" // generic
 @cfgbill_valuationquotkind                "@{quotkind}"
 @cfgbill_valuationrnddir                  "Направление округления при расценке"
 @cfgbill_valuationrndprec                 "@{roundprec}"
 @cfgbill_ver                              "@{version}"
 @cfgbill_ext                              "Дополнительные параметры конфигурации документов" // generic
+@cfgbill_discountevaluation               "Расчет скидки" // generic
 
 @cfgclibnkas_accsheet                     "@{accsheet}"
 @cfgclibnkas_addedtag                     "Установка соответствия вида операции"
@@ -8317,7 +8328,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfggoods_ownarcodecntr                   "@{counter}"
 @cfggoods_prop                            "@{properties}"
 @cfggoods_tag                             "@{tag}"
-@cfggoods_tagindfilt                      "Фильтр индикаторов тегов"
+@cfggoods_tagindfilt                      "@{tagindfilt}"
 @cfggoods_taregrp                         "Группа тары"
 @cfggoods_ver                             "@{version}"
 @cfggoods_wghtcntprefix                   "Префикс кода весового счетного товара"

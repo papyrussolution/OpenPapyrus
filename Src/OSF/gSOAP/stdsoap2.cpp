@@ -1955,7 +1955,7 @@ SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_push_block(struct soap * soap, str
 	}
 	else {
 		*(char **)p = b->ptr;
-		*(size_t*)(p+sizeof(char *)) = n;
+		*(size_t *)(p+sizeof(char *)) = n;
 		b->ptr = p;
 		b->size += n;
 		return p+sizeof(char *)+sizeof(size_t);
@@ -1969,7 +1969,7 @@ SOAP_FMAC1 void /*SOAP_FMAC2*/FASTCALL soap_pop_block(struct soap * soap, struct
 	if(b->ptr) {
 		DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Pop block\n"));
 		p = b->ptr;
-		b->size -= *(size_t*)(p+sizeof(char *));
+		b->size -= *(size_t *)(p+sizeof(char *));
 		b->ptr = *(char **)p;
 		SOAP_FREE(soap, p);
 	}
@@ -2143,8 +2143,8 @@ SOAP_FMAC1 size_t /*SOAP_FMAC2*/FASTCALL soap_size_block(struct soap * soap, str
 {
 	SETIFZ(b, soap->blist);
 	if(b->ptr) {
-		b->size -= *(size_t*)(b->ptr+sizeof(char *))-n;
-		*(size_t*)(b->ptr+sizeof(char *)) = n;
+		b->size -= *(size_t *)(b->ptr+sizeof(char *))-n;
+		*(size_t *)(b->ptr+sizeof(char *)) = n;
 	}
 	return b->size;
 }
@@ -2186,7 +2186,7 @@ SOAP_FMAC1 char * /*SOAP_FMAC2*/FASTCALL soap_next_block(struct soap * soap, str
 SOAP_FMAC1 size_t /*SOAP_FMAC2*/FASTCALL soap_block_size(struct soap * soap, struct soap_blist * b)
 {
 	SETIFZ(b, soap->blist);
-	return *(size_t*)(b->ptr+sizeof(char *));
+	return *(size_t *)(b->ptr+sizeof(char *));
 }
 
 SOAP_FMAC1 void /*SOAP_FMAC2*/FASTCALL soap_end_block(struct soap * soap, struct soap_blist * b)
@@ -6682,7 +6682,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_dealloc(struct soap * soap, void * p)
 				soap->error = SOAP_MOE;
 				return;
 			}
-			if(p == (void *)(*q-*(size_t*)(*q+sizeof(void *)))) {
+			if(p == (void *)(*q-*(size_t *)(*q+sizeof(void *)))) {
 				*q = **(char***)q;
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Freed data at %p\n", p));
 				SOAP_FREE(soap, p);
@@ -6707,7 +6707,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_dealloc(struct soap * soap, void * p)
 			      return;
 		      }
 		      soap->alist = *(void **)q;
-		      q -= *(size_t*)(q+sizeof(void *));
+		      q -= *(size_t *)(q+sizeof(void *));
 		      SOAP_FREE(soap, q);
 	      }
 		/* we must assume these were deallocated: */
@@ -6788,7 +6788,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_delegate_deletion(struct soap * soap, struct soa
 			return;
 		}
  #ifdef SOAP_MEM_DEBUG
-		p = (void *)(*q-*(size_t*)(*q+sizeof(void *)));
+		p = (void *)(*q-*(size_t *)(*q+sizeof(void *)));
 		h = soap_hash_ptr(p);
 		for(mp = &soap->mht[h]; *mp; mp = &(*mp)->next) {
 			if((*mp)->ptr == p) {
@@ -6835,7 +6835,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_unlink(struct soap * soap, const void * p)
 	struct soap_clist ** cp;
 	if(soap && p) {
 		for(q = (char **)&soap->alist; *q; q = *(char***)q) {
-			if(p == (void *)(*q- *(size_t*)(*q+sizeof(void *)))) {
+			if(p == (void *)(*q- *(size_t *)(*q+sizeof(void *)))) {
 				*q = **(char***)q;
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Unlinked data %p\n", p));
  #ifdef SOAP_MEM_DEBUG

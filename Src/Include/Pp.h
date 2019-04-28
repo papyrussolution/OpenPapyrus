@@ -5406,6 +5406,7 @@ public:
 	};
 
 	struct Header {
+		Header();
 		SString & FASTCALL ToStr(SString & rBuf) const;
 
 		int16  Zero;        // Два нулевых байта, позволяющие отличить структурированную бинарную команду от текстовой
@@ -6273,7 +6274,7 @@ protected:
 	//
 	virtual int SLAPI AddItem(const ObjCacheEntry * pEntry, uint * pPos);
 	int    FASTCALL PutName(const char * pName, ObjCacheEntry *);              // @<<(X:ObjCache)::FetchEntry
-	int    FASTCALL GetName(const ObjCacheEntry *, char * buf, size_t buflen) const; // @<<(X:ObjCache)::EntryToData
+	void   FASTCALL GetName(const ObjCacheEntry *, char * buf, size_t buflen) const; // @<<(X:ObjCache)::EntryToData
 	//
 	// Descr: реализация удаления элемента кэша с идентификатором id.
 	//   Если порожденный класс самостоятельно реализует
@@ -6295,7 +6296,6 @@ protected:
 	private:
 		const  int RdMode;
 		uint   CurPos;
-		//PPStringSetSCD Ss;
 		StringSet & R_Ss; // Инициализируется DS().AcquireRvlSsSCD()
 	};
 
@@ -6312,7 +6312,6 @@ protected:
 	};
 
 	StringSet Ss;
-	//SMtLock L;
 	ReadWriteLock RwL; // Блокировка "Один писатель - много читателей"
 	//
 	// Descr: Специализированный подкласс, реализующий кэширование объектов, хранящихся в
@@ -6357,6 +6356,9 @@ protected:
 	Stat   StatData;
 	SArray * P_Ary;
 	SString StatLogMsg;
+	mutable int EntryToDataFailed; // @v10.4.3 Специальный индикатор, позволяющий виртуальному методу EntryToData
+		// просигналить о том, что что-то пошло не так и надо обновить запись в кэше. Это - костыль, добавленный
+		// из-за того, что EntryToData - void-метод и весь обложен константными ограничениями.
 private:
 	int    FASTCALL Helper_Get(PPID id, void * pDataRec);
 
@@ -14839,10 +14841,8 @@ public:
 	//   Используется для перечисления задач в цикле.
 	// ARG(pID      IN/OUT): @#{vptr} Указатель на идентификатор задачи,
 	//   непосредственно предшествующий тому, который будет извлечен функцией.
-	//   Если требуемая задача найдена, то по этому указателю присваиваетс
-	//   значение идентификатора такой задачи.
-	// ARG(pJob        OUT): @#{vptr0} Указатель по которому будет присвоено
-	//   найденное задание.
+	//   Если требуемая задача найдена, то по этому указателю присваивается значение идентификатора такой задачи.
+	// ARG(pJob        OUT): @#{vptr0} Указатель по которому будет присвоено найденное задание.
 	// ARG(ignoreDbSymb IN): Если этот аргумент равен нулю, то перечисляются только
 	//   те задания, которые принадлежат базе данных с символом DbSymb. В противном
 	//   случае проверка на символ базы данных не осуществляется.
@@ -15870,7 +15870,7 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
 	uint16 PeakAvgQuant;   // @v10.3.3
 	uint16 PeakAvgQuant_S; // @v10.3.3
-	uint16 TargetQuant;    // @v10.4.2 
+	uint16 TargetQuant;    // @v10.4.2
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
@@ -16022,8 +16022,9 @@ public:
 			gbsfCritProfitMultProb = 0x0040, // В качестве критерия сортировки применять произведение доходности на отношение win/stake.
 				// Если флаг не установлен, то - доходность.
 			gbsfCritProb           = 0x0080, // @v10.4.2 В качестве критерия сортировки применять отношение win/stake.
-			gbsfEliminateDups      = 0x0100  // @v10.4.1 Не включать в список дубликаты по StakeMode1 с идентичными
+			gbsfEliminateDups      = 0x0100, // @v10.4.1 Не включать в список дубликаты по StakeMode1 с идентичными
 				// диапазонами и InputFrameSize (игнорируется то из двух, кто имеет наименьший целевой критерий)
+			gbsfTrendFollowing     = 0x0200  // @v10.4.3 Отбирать только стратегии, идущие вдоль тренда
 		};
 		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest) const;
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -16099,8 +16100,18 @@ public:
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	int    SLAPI PutPacket(PPID * pID, PPTimeSeries * pPack, int use_ta);
 	int    SLAPI GetPacket(PPID id, PPTimeSeries * pPack);
-	int    SLAPI PutStrategies(PPID id, StrategyContainer * pL, int use_ta);
-	int    SLAPI GetStrategies(PPID id, StrategyContainer & rL);
+	//
+	// Descr: Типы наборов стратегий
+	//
+	enum StrategySetType {
+		sstAll       = 0, // Все (отобранные по максимально широким критериям: как минимум не убыточные)
+		sstSelection = 1, // Отобранные из выборки sstAll путем последовательной отбраковки тех стратегий, которые в общей выборки снижают доходность.
+		//sstSelectionTrendFollowing = 2 // Отобранные из выборки sstAll путем последовательной отбраковки тех стратегий, которые в общей выборки снижают доходность,
+			// и с дополнительным ограничением на попутность тренда: тренд, которому соответствует стратегия должен соответствовать прожаже/покупке.
+	};
+	static SString & FASTCALL GetStrategySetTypeName(StrategySetType sst, SString & rBuf);
+	int    SLAPI PutStrategies(PPID id, StrategySetType sst, StrategyContainer * pL, int use_ta);
+	int    SLAPI GetStrategies(PPID id, StrategySetType sst, StrategyContainer & rL);
 	int    SLAPI SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta);
 	int    SLAPI GetTimeSeries(PPID id, STimeSeries & rTs);
 	int    SLAPI SetExternTimeSeries(STimeSeries & rTs);
@@ -16158,8 +16169,13 @@ public:
 	struct ModelParam {
 		SLAPI  ModelParam();
 		ModelParam & SLAPI Z();
+		enum {
+			fBestSubsetTrendFollowing = 0x0001
+		};
+		long   Flags;
 		LongArray InputFrameSizeList;
 		LongArray MaxDuckQuantList;
+		LongArray TargetQuantList; // @v10.4.3
 		double InitTrendErrLimit;
 		uint   BestSubsetDimention;
 		uint   BestSubsetMaxPhonyIters;
@@ -18365,7 +18381,6 @@ public:
 	int    SLAPI SyncViewSessionStat(long options);
 	int    SLAPI SyncGetSummator(double *);
 	int    SLAPI SyncPrintCheck(CCheckPacket *, int addSummator);
-	// @v10.0.0 int    SLAPI SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	int    SLAPI SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
 	int    SLAPI SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName);
 
@@ -29891,8 +29906,7 @@ struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	char   InvSnTemplt[16];    // Шаблон генерации инвентарных номеров основных средств
 	long   SnrCounter;         // Счетчик для генерации серийных номеров лотов и драфт документов @obsolete since @v5.0.0
 	PPID   InitStatusID;       // Статус, присваиваемый новым документам
-	PPID   SnCntrID;           // ->Ref(PPOBJ_OPCOUNTER) Счетчик для генерации серийных номеров
-		// (заменяет SnTempl и SnrCounter)
+	PPID   SnCntrID;           // ->Ref(PPOBJ_OPCOUNTER) Счетчик для генерации серийных номеров (заменяет SnTempl и SnrCounter)
 	PPID   ContractRegTypeID;  // @v8.4.0 Тип регистрационного документа договора с контрагентом
 	PPID   MnfCountryLotTagID; // @v8.4.11 Тип тега лота, определяющего страну происхождения товара
 	LDATE  LowDebtCalcDate;    // @v8.5.7
@@ -29907,9 +29921,6 @@ struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	int16  GoodsSubstMethod;   // Способ подстановки товаров вместо дефицитного.
 	PPID   LnkFilesCntrID;     // ->Ref(PPOBJ_OPCOUNTER) Счетчик для генерации имен присоединенных файлов
 	int16  ValuationRndDir;    // Направление округления при расценке
-	//
-	//
-	//
 	LDATE  SwitchedTDisCalcMethodDate;  // Дата, начиная с которой при расчете
 		// скидки по документу следует пользоваться методом, определяемым переключателем TDisCalcMethod.
 	enum {
@@ -29923,10 +29934,11 @@ struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	uint8  TDisCalcPrec;       // @#[0..5] Точность округления при расчете скидки
 	PPID   ValuationQuotKindID; // ->Ref(PPOBJ_QUOTKIND) Вид котировки для расценки приходных документов
 	double ValuationRndPrec;   // Точность округления при расценке
-	char   UniqSerialSfx[16];  // @v7.3.0 Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
-	SVerT  Ver;                // @anchor @v7.7.7 Версия, сформировавшая запись.
-	TagFilt TagIndFilt;        // @anchor @v7.7.7 Фильтр тегов, определяющий окраску номеров документов в отчетах
+	char   UniqSerialSfx[16];  // Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
+	SVerT  Ver;                // @anchor Версия, сформировавшая запись.
+	TagFilt TagIndFilt;        // @anchor Фильтр тегов, определяющий окраску номеров документов в отчетах
 	SString AddFilesFolder;    // Папка для автоматического присоединения файлов к документам. Строка хранится в реестре, а не в БД.
+	TagFilt LotTagIndFilt;     // @v10.4.3 Фильтр тегов, определяющий окраску лотов
 };
 //
 //
@@ -40582,7 +40594,7 @@ public:
 	int    SLAPI ViewGraph();
 	int    SLAPI GetBrwHdr(const void * pRow, BrwHdr *) const;
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
-	int    SLAPI SetAlcRepParam(const AlcReportParam * pParam);
+	void   SLAPI SetAlcRepParam(const AlcReportParam * pParam);
 	int    SLAPI NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep *);
 	int    SLAPI AllocInnerIterItem();
 	const TrfrAnlzViewItem * GetInnerIterItem() const;
@@ -40597,7 +40609,6 @@ private:
 	virtual int   SLAPI Print(const void *);
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	virtual int   SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-
 	int    SLAPI CreateTempTable();
 	int    SLAPI CreateOrderTable(IterOrder);
 	int    SLAPI Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt);
@@ -40622,7 +40633,6 @@ private:
 	int    SLAPI InitDlvrLocID(const BillTbl::Rec *, PPID * pDlvrLocID, TempTrfrGrpngTbl::Rec *);
 	int    SLAPI CalcInRest(PPID goodsID, double * pRest);
 	SString & SLAPI GetCtColumnTitle(int ct, SString & rBuf);
-
 	TagrCacheItem & FASTCALL GetCacheItem(uint pos) const;
 	int    SLAPI FlashCacheItems(uint count);
 	int    SLAPI FlashCacheItem(BExtInsert * pBei, const TagrCacheItem & rItem);
@@ -40657,7 +40667,6 @@ private:
 	CompFunc Cf;  // @*PPViewTrfrAnlz::Init_
 	long   GrpIdCounter;
 	long   LastCacheTouch;
-
 	const uint MaxCacheItems; // Максимальное количество элементов в кэше
 	const uint CacheDelta;    // Количество элементов, сбрасываемое из кэша в базу данных при переполнении кэша
 	AlcReportParam AlcRepParam; // Для алкогольной декларации
@@ -41007,7 +41016,6 @@ private:
 	int    SLAPI ViewGraph();
 
 	GoodsOpAnalyzeFilt Filt;
-
 	PPObjBill   * P_BObj;
 	PPObjGoods    GObj;
 	PPObjPerson   PsnObj;
@@ -49319,6 +49327,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	enum {

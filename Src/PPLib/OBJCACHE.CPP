@@ -92,7 +92,8 @@ int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * 
 //
 //
 //
-SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags) : ObjType(objType), EntrySize(entrySize), UnusedNameSpace(0), Flags(flags), LastPackNamesClock(0)
+SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags) : ObjType(objType), EntrySize(entrySize), UnusedNameSpace(0), 
+	Flags(flags), LastPackNamesClock(0), EntryToDataFailed(0)
 {
 	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, O_ARRAY);
 	PPLoadText(PPTXT_STATLOG_OBJCACHE, StatLogMsg);
@@ -126,14 +127,15 @@ int FASTCALL ObjCache::PutName(const char * pName, ObjCacheEntry * pEntry)
 	return ok;
 }
 
-int FASTCALL ObjCache::GetName(const ObjCacheEntry * pEntry, char * pBuf, size_t bufLen) const
+void FASTCALL ObjCache::GetName(const ObjCacheEntry * pEntry, char * pBuf, size_t bufLen) const
 {
-	uint   sp = pEntry->NameIdx;
-	if(sp)
-		Ss.get(&sp, pBuf, bufLen);
-	else if(pBuf)
-		pBuf[0] = 0;
-	return 1;
+	if(pBuf && pEntry) { // @v10.4.3
+		uint   sp = pEntry->NameIdx;
+		if(sp)
+			Ss.get(&sp, pBuf, bufLen);
+		else
+			pBuf[0] = 0;
+	}
 }
 
 int SLAPI ObjCache::PackNames()
@@ -284,11 +286,16 @@ int FASTCALL ObjCache::Helper_GetByPos(uint pos, void * pDataRec)
 {
 	int    ok = 1;
 	ObjCacheEntry * p_entry = SearchByPos(pos, 1);
-	if(p_entry)
+	if(p_entry) {
 		if(p_entry->F & ObjCacheEntry::fDirty)
 			ok = -1;
-		else
+		else {
+			EntryToDataFailed = 0; // @v10.4.3
 			EntryToData(p_entry, pDataRec);
+			if(EntryToDataFailed) // @v10.4.3
+				ok = -1;
+		}
+	}
 	else
 		ok = 0;
 	return ok;
@@ -537,7 +544,7 @@ ObjCacheEntry * FASTCALL ObjCacheHash::SearchByPos(uint pos, int incr) const
 {
 	ObjCacheEntry * p_entry = 0;
 	if(pos < MaxItems) {
-		p_entry = reinterpret_cast<ObjCacheEntry *>(((int8 *)P_Items) + pos * EntrySize);
+		p_entry = reinterpret_cast<ObjCacheEntry *>(PTR8(P_Items) + pos * EntrySize);
 		if(incr)
 			p_entry->Counter.Incr();
 	}

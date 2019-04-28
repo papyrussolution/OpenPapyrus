@@ -282,7 +282,7 @@ static ngx_int_t ngx_http_v2_header_filter(ngx_http_request_t * r)
 		}
 	}
 	tmp = (u_char *)ngx_palloc(r->pool, tmp_len);
-	pos = (u_char *)ngx_pnalloc(r->pool, len);
+	pos = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(pos == NULL || tmp == NULL) {
 		return NGX_ERROR;
 	}
@@ -334,7 +334,7 @@ static ngx_int_t ngx_http_v2_header_filter(ngx_http_request_t * r)
 		*pos++ = ngx_http_v2_inc_indexed(NGX_HTTP_V2_CONTENT_TYPE_INDEX);
 		if(r->headers_out.content_type_len == r->headers_out.content_type.len && r->headers_out.charset.len) {
 			len = r->headers_out.content_type.len + sizeof("; charset=") - 1 + r->headers_out.charset.len;
-			p = (u_char *)ngx_pnalloc(r->pool, len);
+			p = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 			if(!p) {
 				return NGX_ERROR;
 			}
@@ -459,7 +459,7 @@ static ngx_http_v2_out_frame_t * ngx_http_v2_create_trailers_frame(ngx_http_requ
 		return NGX_HTTP_V2_NO_TRAILERS;
 	}
 	tmp = (u_char *)ngx_palloc(r->pool, tmp_len);
-	pos = (u_char *)ngx_pnalloc(r->pool, len);
+	pos = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(pos == NULL || tmp == NULL) {
 		return NULL;
 	}

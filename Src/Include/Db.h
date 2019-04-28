@@ -1586,7 +1586,6 @@ struct DbTableStat {
 	long   ReqItems;       // Запрошенные элементы
 	long   RetItems;       // Инициализированные элементы
 	long   UnsupItem;      // Неподдерживаемые элементы
-
 	long   ID;
 	int    OwnerLevel;
 	long   Flags;          // XTF_XXX
@@ -1642,10 +1641,7 @@ public:
 	//
 	SLAPI  DBTable(const char * pTblName, const char * pFileName = 0, int openMode = omNormal, DbProvider * pDbP = 0);
 	SLAPI ~DBTable();
-	DbProvider * GetDb()
-	{
-		return P_Db;
-	}
+	DbProvider * GetDb() { return P_Db; }
 	int    SLAPI open(const char * pTblName, const char * pFileName = 0, int openMode = omNormal);
 	int    SLAPI close();
 	int    SLAPI IsOpened() const;
@@ -1656,11 +1652,9 @@ public:
 	int    SLAPI getFieldValByName(const char * pName, void * pVal, size_t * pSize) const;
 	int    SLAPI setFieldValByName(const char * pName, const void * pVal);
 	int    SLAPI putRecToString(SString &, int withFieldNames);
-
 	const  char * GetFileName() const { return OpenedFileName; }
 	int    FASTCALL HasNote(DBField * pLastFld) const;
 	int    FASTCALL HasLob(DBField * pLastFld) const;
-
 	void   FASTCALL setDataBuf(void * aBuf, RECORDSIZE aBufLen);
 	void * FASTCALL getDataBuf() { return static_cast<void *>(P_DBuf); } // @v10.3.5 (char *)-->(void *)
 	const  void * FASTCALL getDataBufConst() const{ return static_cast<const void *>(P_DBuf); } // @v10.3.5 (char *)-->(void *)
@@ -1679,7 +1673,6 @@ public:
 	int    SLAPI StoreAndTrimLob();
 	int    SLAPI RestoreLob();
 	DBRowId * getCurRowIdPtr(); // @realy private function
-
 	void   SLAPI clearDataBuf();
 	void   FASTCALL copyBufTo(void * pBuf) const;
 	void   FASTCALL copyBufFrom(const void * pBuf);
@@ -1763,7 +1756,6 @@ public:
 	//
 	RECORDSIZE FASTCALL getRecSize() const;
 	int    SLAPI GetFileStat(long reqItems, DbTableStat * pStat);
-
 	int    SLAPI SerializeSpec(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI SerializeRecord(int dir, void * pRec, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -1780,7 +1772,6 @@ public:
 	int    Btr_Implement_BExtInsert(BExtInsert * pBei); // really private
 	void   FASTCALL SetPageSize(uint newPageSize);
 	int    Debug_Output(SString & rBuf) const;
-
 	int    SLAPI GetHandle() const { return handle; }
 	BTBLID SLAPI GetTableID() const { return tableID; }
 	void   FASTCALL SetTableID(BTBLID _id);

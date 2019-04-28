@@ -403,7 +403,7 @@ private:
 				p_blk = p_local_blk;
 		}
 		if(p_blk) {
-			THROW(rTsObj.GetStrategies(tsID, p_blk->Strategies));
+			THROW(rTsObj.GetStrategies(tsID, PPObjTimeSeries::sstSelection, p_blk->Strategies));
 			p_blk->TrendList.freeAll();
 			THROW(EvaluateTrends(p_blk, 0));
 			{
@@ -1003,7 +1003,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 			double last_value = 0.0;
 			const  double avg_spread = rBlk.GetAverageSpread() * 1.1;
 			rBlk.T_.GetValue(rBlk.T_.GetCount()-1, vec_idx, &last_value);
-			if(pPse && (Cfg.Flags & Cfg.fAllowReverse) && external_target_quant > 0.0 && external_spike_quant > 0.0) {
+			if(pPse && external_target_quant > 0.0 && external_spike_quant > 0.0) {
 				// Если переданная функции наилучшая текущая стратегия является обратной к данной, то посмотрим не следует ли
 				// нам закрыть данную позицию дабы снизить потенциальные потери.
 				const PPObjTimeSeries::Strategy & r_s = pPse->R_Blk.Strategies.at(pPse->StrategyPos);
@@ -1023,14 +1023,15 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 					}
 					if(may_be_considered) {
 						if(rStk.Profit < 0.0) {
+							const double local_current_price = rStk.PriceCurrent;
 							const uint target_quant_for_stop = (Cfg.E.MinLossQuantForReverse > 0) ? static_cast<uint>(Cfg.E.MinLossQuantForReverse) : external_target_quant;
-							double vsl = PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(last_value, is_short, prec, target_quant_for_stop, external_spike_quant, avg_spread);
+							double vsl = PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(local_current_price, is_short, prec, target_quant_for_stop, external_spike_quant, avg_spread);
 							if(is_short) {
-								if(rStk.PriceCurrent > vsl)
+								if(local_current_price > vsl)
 									do_stop = 1;
 							}
 							else {
-								if(rStk.PriceCurrent < vsl)
+								if(local_current_price < vsl)
 									do_stop = 1;
 							}
 						}
@@ -1073,6 +1074,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 					do_stop = 0;
 			}
 			if(!do_stop) {
+				const uint extra_maxduck_quant = 12;
 				// @v10.3.11 {
 				/* плохо работает
 				int    use_extremal_tp = 0;
@@ -1080,7 +1082,6 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 					//
 					// Экспериментальная модификация SL в случае выигрыша до extra_maxduck_quant квантов
 					//
-					const uint extra_maxduck_quant = 12;
 					const double spike_quant = (external_spike_quant > 0.0) ? external_spike_quant : rBlk.PPTS.SpikeQuant;
 					if(spike_quant > 0.0) {
 						double current_diff = is_short ? (rStk.PriceOpen - last_value) : (last_value - rStk.PriceOpen);
@@ -1096,8 +1097,24 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 				}
 				*/
 				// } @v10.3.11
-				const double external_sl = (external_max_duck_quant > 0 && external_spike_quant > 0.0) ?
-					PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(last_value, is_short, prec, external_max_duck_quant, external_spike_quant, avg_spread) : 0.0;
+				uint   max_duck_quant_for_sl = external_max_duck_quant;
+				uint   sl_adj = 0;
+				// @20190424 {
+				if(rStk.Profit > 0.0) {
+					if(is_short) {
+						sl_adj = ffloori((rStk.PriceOpen - rStk.PriceCurrent) / (rStk.PriceCurrent * external_spike_quant));
+					}
+					else {
+						sl_adj = ffloori((rStk.PriceCurrent - rStk.PriceOpen) / (rStk.PriceCurrent * external_spike_quant));
+					}
+					if((sl_adj + extra_maxduck_quant) < max_duck_quant_for_sl)
+						max_duck_quant_for_sl -= sl_adj;
+					else
+						max_duck_quant_for_sl = extra_maxduck_quant;
+				}
+				// } @20190424 
+				const double external_sl = (max_duck_quant_for_sl > 0 && external_spike_quant > 0.0) ?
+					PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(last_value, is_short, prec, max_duck_quant_for_sl, external_spike_quant, avg_spread) : 0.0;
 				const double external_tp = (external_target_quant > 0 && external_spike_quant > 0.0) ?
 					PPObjTimeSeries::Strategy::CalcTP_withExternalFactors(rStk.PriceOpen, is_short, prec, external_target_quant, external_spike_quant, avg_spread) : 0.0;
 				//const PPObjTimeSeries::Strategy * p_st = (_best_result.MaxResultIdx >= 0) ? &rBlk.Strategies.at(_best_result.MaxResultIdx) : 0;
@@ -1135,6 +1152,9 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 							/*if(p_st && (!external_sl_used || !external_tp_used)) {
 								log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(*p_st, &_best_result, temp_buf));
 							}*/
+							if(sl_adj > 0) {
+								log_msg.Space().CatEq("sl_adj", sl_adj);
+							}
 							log_msg.Space().Cat(comment_buf);
 							PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 						}
@@ -1628,7 +1648,7 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSer
 	if(r > 0) {
 		const uint full_tsc = ts_full.GetCount();
 		ts_full.GetChunkRecentCount(MIN(10000, full_tsc), p_fblk->T_);
-		rTsObj.GetStrategies(id, p_fblk->Strategies);
+		rTsObj.GetStrategies(id, PPObjTimeSeries::sstSelection, p_fblk->Strategies);
 		THROW(EvaluateTrends(p_fblk, 0));
 	}
 	else {

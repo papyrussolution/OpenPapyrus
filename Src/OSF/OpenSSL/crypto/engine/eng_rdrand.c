@@ -25,7 +25,7 @@ static int get_random_bytes(uchar * buf, int num)
 		if((rnd = OPENSSL_ia32_rdrand()) == 0)
 			return 0;
 
-		*((size_t*)buf) = rnd;
+		*((size_t *)buf) = rnd;
 		buf += sizeof(size_t);
 		num -= sizeof(size_t);
 	}

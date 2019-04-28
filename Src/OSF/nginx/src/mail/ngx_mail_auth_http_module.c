@@ -567,7 +567,7 @@ static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s, ngx_mail_
 			ngx_inet_set_port(peer->sockaddr, (in_port_t)port);
 			len = ctx->addr.len + 1 + ctx->port.len;
 			peer->name.len = len;
-			peer->name.data = (u_char *)ngx_pnalloc(s->connection->pool, len);
+			peer->name.data = static_cast<u_char *>(ngx_pnalloc(s->connection->pool, len));
 			if(peer->name.data == NULL) {
 				ngx_destroy_pool(ctx->pool);
 				ngx_mail_session_internal_server_error(s);
@@ -1048,7 +1048,7 @@ static char * ngx_mail_auth_http_merge_conf(ngx_conf_t * cf, void * parent, void
 		for(i = 0; i < conf->headers->nelts; i++) {
 			len += header[i].key.len + 2 + header[i].value.len + 2;
 		}
-		p = (u_char *)ngx_pnalloc(cf->pool, len);
+		p = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
 		if(!p) {
 			return NGX_CONF_ERROR;
 		}

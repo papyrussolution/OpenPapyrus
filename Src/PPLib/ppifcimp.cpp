@@ -2003,7 +2003,7 @@ void LoginDialogParam::GetText(HWND hDlg, uint ctl, SString & rBuf)
 {
 	// @v9.1.5 char * p_buf = 0;
 	HWND hwnd_ctl = GetDlgItem(hDlg, ctl);
-	size_t buf_size = SendMessage(hwnd_ctl, (UINT)WM_GETTEXTLENGTH, (WPARAM)0, (LPARAM)0) + 1;
+	size_t buf_size = ::SendMessage(hwnd_ctl, (UINT)WM_GETTEXTLENGTH, (WPARAM)0, (LPARAM)0) + 1;
 	// @v9.1.5 p_buf = new char[buf_size];
 	// @v9.1.5 memzero(p_buf, buf_size);
 	// @v9.1.5 SendMessage(hwnd_ctl, (UINT)WM_GETTEXT, (WPARAM)buf_size, (LPARAM)p_buf);
@@ -2026,7 +2026,7 @@ void LoginDialogParam::SetupDBSelCombo(HWND hDlg)
 			pn.SetIfEmpty(n);
 			if(pn.NotEmptyS()) {
 				pn.Transf(CTRANSF_INNER_TO_OUTER);
-				SendDlgItemMessage(hDlg, CTLSEL_LOGIN_DB, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(pn.cptr()));
+				SendDlgItemMessage(hDlg, CTLSEL_LOGIN_DB, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(SUcSwitch(pn.cptr())));
 				if(i == entry_id)
 					SendDlgItemMessage(hDlg, CTLSEL_LOGIN_DB, CB_SETCURSEL, static_cast<WPARAM>(i-1), 0);
 			}
@@ -2051,19 +2051,19 @@ BOOL CALLBACK LoginDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				long   x = 0, y = 0;
 				RECT   parent_rect, rect;
 				HWND   parent = GetParent(hwndDlg);
-				SendDlgItemMessage(hwndDlg, CTLSEL_LOGIN_DB, CB_RESETCONTENT, (WPARAM)0,  (LPARAM)0);
+				::SendDlgItemMessage(hwndDlg, CTLSEL_LOGIN_DB, CB_RESETCONTENT, 0,  0);
 				if(parent) {
-					GetWindowRect(parent,  &parent_rect);
-					GetWindowRect(hwndDlg, &rect);
+					::GetWindowRect(parent,  &parent_rect);
+					::GetWindowRect(hwndDlg, &rect);
 					y  = (parent_rect.bottom - parent_rect.top) / 2 - (rect.bottom - rect.top) / 2;
 					x  = (parent_rect.right - parent_rect.left) / 2 - (rect.right - rect.left) / 2;
-					MoveWindow(hwndDlg, x, y, rect.right - rect.left, rect.bottom - rect.top, 0);
+					::MoveWindow(hwndDlg, x, y, rect.right - rect.left, rect.bottom - rect.top, 0);
 				}
 				TView::PreprocessWindowCtrlText(hwndDlg); // @v9.1.1
 				p_param = reinterpret_cast<LoginDialogParam *>(lParam);
 				if(p_param) {
 					TView::SetWindowUserData(hwndDlg, p_param);
-					SendDlgItemMessage(hwndDlg, CTL_LOGIN_PASSWORD, EM_SETPASSWORDCHAR, '*', 0);
+					::SendDlgItemMessage(hwndDlg, CTL_LOGIN_PASSWORD, EM_SETPASSWORDCHAR, '*', 0);
 					p_param->SetText(hwndDlg, CTL_LOGIN_NAME,     p_param->UserName);
 					p_param->SetText(hwndDlg, CTL_LOGIN_PASSWORD, p_param->Password);
 					p_param->SetupDBSelCombo(hwndDlg);
@@ -2102,7 +2102,6 @@ int32 DL6ICLS_PPSession::LoginDialog(PPYHWND pParent, SString * pDbName, SString
 	PPDbEntrySet2 dbes;
 	DbLoginBlock dlb;
 	LoginDialogParam param;
-
 	dbes.ReadFromProfile(&ini_file);
 	RVALUEPTR(param.UserName, pUserName);
 	RVALUEPTR(param.Password, pPassword);
@@ -7466,30 +7465,12 @@ int32 DL6ICLS_PPFiltTrfrAnlz::get_LocID()              { return static_cast<cons
 void  DL6ICLS_PPFiltTrfrAnlz::put_LocID(int32 value)   { TrfrAnlzFilt * p_filt = static_cast<TrfrAnlzFilt *>(ExtraPtr); p_filt->LocList.FreeAll(); p_filt->LocList.Add(value); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_SupplID()            { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, SupplID); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_SupplID(int32 value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, SupplID); }
-
-int32 DL6ICLS_PPFiltTrfrAnlz::get_ArID()
-{
-	//IMPL_PPIFC_GETPROP(TrfrAnlzFilt, ArID);
-	return static_cast<TrfrAnlzFilt *>(ExtraPtr)->ArList.GetSingle();
-}
-void  DL6ICLS_PPFiltTrfrAnlz::put_ArID(int32 value)
-{
-	//IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, ArID);
-	static_cast<TrfrAnlzFilt *>(ExtraPtr)->ArList.Add(value);
-}
+int32 DL6ICLS_PPFiltTrfrAnlz::get_ArID() { return static_cast<TrfrAnlzFilt *>(ExtraPtr)->ArList.GetSingle(); }
+void  DL6ICLS_PPFiltTrfrAnlz::put_ArID(int32 value) { static_cast<TrfrAnlzFilt *>(ExtraPtr)->ArList.Add(value); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_DlvrAddrID()         { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, DlvrAddrID); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_DlvrAddrID(int32 value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, DlvrAddrID); }
-
-int32 DL6ICLS_PPFiltTrfrAnlz::get_AgentID()
-{
-	// IMPL_PPIFC_GETPROP(TrfrAnlzFilt, AgentID);
-	return static_cast<TrfrAnlzFilt *>(ExtraPtr)->AgentList.GetSingle();
-}
-void  DL6ICLS_PPFiltTrfrAnlz::put_AgentID(int32 value)
-{
-	// IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, AgentID);
-	static_cast<TrfrAnlzFilt *>(ExtraPtr)->AgentList.Add(value);
-}
+int32 DL6ICLS_PPFiltTrfrAnlz::get_AgentID() { return static_cast<TrfrAnlzFilt *>(ExtraPtr)->AgentList.GetSingle(); }
+void  DL6ICLS_PPFiltTrfrAnlz::put_AgentID(int32 value) { static_cast<TrfrAnlzFilt *>(ExtraPtr)->AgentList.Add(value); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_PsnCatID()           { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, PsnCatID); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_PsnCatID(int32 value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, PsnCatID); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_CityID()              { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, CityID); }

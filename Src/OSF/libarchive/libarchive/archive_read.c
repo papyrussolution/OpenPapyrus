@@ -44,9 +44,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read.c 201157 2009-12-29 05:30:2
 //#ifdef HAVE_STRING_H
 	//#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include "archive.h"
 //#include "archive_entry.h"
 //#include "archive_private.h"

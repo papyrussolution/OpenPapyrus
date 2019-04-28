@@ -57,7 +57,7 @@ ngx_int_t ngx_http_complex_value(ngx_http_request_t * r, ngx_http_complex_value_
 			len += lcode(&e);
 		}
 		value->len = len;
-		value->data = (u_char *)ngx_pnalloc(r->pool, len);
+		value->data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 		if(value->data == NULL) {
 			return NGX_ERROR;
 		}
@@ -362,7 +362,7 @@ u_char * ngx_http_script_run(ngx_http_request_t * r, ngx_str_t * value,
 	}
 
 	value->len = len;
-	value->data = (u_char *)ngx_pnalloc(r->pool, len);
+	value->data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(value->data == NULL) {
 		return NULL;
 	}

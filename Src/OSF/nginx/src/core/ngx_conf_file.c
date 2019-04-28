@@ -831,7 +831,7 @@ const char * ngx_conf_set_num_slot(ngx_conf_t * cf, const ngx_command_t * cmd, v
 const char * ngx_conf_set_size_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char * p = static_cast<char *>(conf);
-	size_t * sp = (size_t*)(p + cmd->offset);
+	size_t * sp = (size_t *)(p + cmd->offset);
 	if(*sp != NGX_CONF_UNSET_SIZE) {
 		return "is duplicate";
 	}

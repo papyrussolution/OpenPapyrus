@@ -252,7 +252,7 @@ static ngx_int_t ngx_http_userid_set_uid(ngx_http_request_t * r, ngx_http_userid
 	if(conf->domain.len) {
 		len += conf->domain.len;
 	}
-	cookie = (u_char *)ngx_pnalloc(r->pool, len);
+	cookie = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(cookie == NULL) {
 		return NGX_ERROR;
 	}

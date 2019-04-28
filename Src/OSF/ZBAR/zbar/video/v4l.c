@@ -27,15 +27,15 @@
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
-#ifdef HAVE_SYS_STAT_H
+//#ifdef HAVE_SYS_STAT_H
 	//#include <sys/stat.h>
-#endif
-#ifdef HAVE_FCNTL_H
+//#endif
+//#ifdef HAVE_FCNTL_H
 	//#include <fcntl.h>
-#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 
 extern int _zbar_v4l1_probe(zbar_video_t*);
 extern int _zbar_v4l2_probe(zbar_video_t*);

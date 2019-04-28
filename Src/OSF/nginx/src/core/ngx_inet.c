@@ -888,7 +888,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 		u->addrs[i].sockaddr = (struct sockaddr *)sin;
 		u->addrs[i].socklen = rp->ai_addrlen;
 		len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
-		p = (u_char *)ngx_pnalloc(pool, len);
+		p = static_cast<u_char *>(ngx_pnalloc(pool, len));
 		if(!p) {
 			goto failed;
 		}
@@ -910,7 +910,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 		u->addrs[i].sockaddr = (struct sockaddr *)sin6;
 		u->addrs[i].socklen = rp->ai_addrlen;
 		len = NGX_INET6_ADDRSTRLEN + sizeof("[]:65535") - 1;
-		p = (u_char *)ngx_pnalloc(pool, len);
+		p = static_cast<u_char *>(ngx_pnalloc(pool, len));
 		if(!p) {
 			goto failed;
 		}
@@ -972,7 +972,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 			u->addrs[i].sockaddr = (struct sockaddr *)sin;
 			u->addrs[i].socklen = sizeof(struct sockaddr_in);
 			len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
-			p = (u_char *)ngx_pnalloc(pool, len);
+			p = static_cast<u_char *>(ngx_pnalloc(pool, len));
 			if(!p) {
 				return NGX_ERROR;
 			}

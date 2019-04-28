@@ -101,9 +101,9 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_STRING_H
 //#include <string.h>
 #endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #ifdef HAVE_UTIME_H
 #include <utime.h>
 #endif
@@ -1732,8 +1732,7 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 		size_t metadata_size;
 		metadata = archive_entry_mac_metadata(a->entry, &metadata_size);
 		if(metadata != NULL && metadata_size > 0) {
-			int r2 = set_mac_metadata(a, archive_entry_pathname(
-					a->entry), metadata, metadata_size);
+			int r2 = set_mac_metadata(a, archive_entry_pathname(a->entry), metadata, metadata_size);
 			if(r2 < ret) ret = r2;
 		}
 	}
@@ -1744,13 +1743,10 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 	 */
 	if(a->todo & TODO_ACLS) {
 		int r2;
-		r2 = archive_write_disk_set_acls(&a->archive, a->fd,
-			archive_entry_pathname(a->entry),
-			archive_entry_acl(a->entry),
-			archive_entry_mode(a->entry));
-		if(r2 < ret) ret = r2;
+		r2 = archive_write_disk_set_acls(&a->archive, a->fd, archive_entry_pathname(a->entry), archive_entry_acl(a->entry), archive_entry_mode(a->entry));
+		if(r2 < ret) 
+			ret = r2;
 	}
-
 finish_metadata:
 	/* If there's an fd, we can close it now. */
 	if(a->fd >= 0) {

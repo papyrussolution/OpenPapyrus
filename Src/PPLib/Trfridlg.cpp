@@ -887,7 +887,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 								vetis_view.SetOuterTitle(temp_buf);
 								//
 								if(vetis_view.Browse(0) > 0) {
-									VetisDocumentFilt * p_result_filt = (VetisDocumentFilt *)vetis_view.GetBaseFilt();
+									const VetisDocumentFilt * p_result_filt = static_cast<const VetisDocumentFilt *>(vetis_view.GetBaseFilt());
 									PPID vetis_doc_id = p_result_filt->Sel;
 									if(!!p_result_filt->SelLotUuid && vetis_doc_id) {
 										p_result_filt->SelLotUuid.ToStr(S_GUID::fmtIDL, temp_buf);
@@ -2889,6 +2889,32 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
+//static 
+int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	SelLotBrowser * p_brw = static_cast<SelLotBrowser *>(extraPtr);
+	if(p_brw && pData && pStyle) {
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(p_brw->getDef());
+		if(p_def && col >= 0 && col < p_def->getCount()) {
+			const SelLotBrowser::Entry * p_item = static_cast<const SelLotBrowser::Entry *>(pData);
+			const BroColumn & r_col = p_def->at(col);
+			if(r_col.OrgOffs == 0) {
+				const TagFilt & r_tag_filt = BillObj->GetConfig().LotTagIndFilt;
+				if(!r_tag_filt.IsEmpty()) {
+					SColor clr;
+					if(r_tag_filt.SelectIndicator(p_item->LotID, clr) > 0) {
+						pStyle->Color2 = static_cast<COLORREF>(clr);
+						pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags) : BrowserWindow(BROWSER_SELECTLOT, pAry), State(0), Flags(flags)
 {
 	PPID   single_goods_id = 0;
@@ -2897,7 +2923,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 	if(pAry) {
 		State |= stNoSerials;
 		for(uint i = 0; i < pAry->getCount(); i++) {
-			const Entry * p_entry = (const Entry *)pAry->at(i);
+			const Entry * p_entry = static_cast<const Entry *>(pAry->at(i));
 			if(!(State & stMultipleGoods) && p_entry->GoodsID) {
 				if(!single_goods_id)
 					single_goods_id = labs(p_entry->GoodsID);
@@ -2920,7 +2946,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 			}
 		}
 		{
-			int    at_pos = 0;
+			int    at_pos = 1; // @v10.4.3 0-->1 (в ресурс добавлен обязательный столбец идентификатора)
 			if(State & stMultipleGoods) {
 				PPLoadString("ware", temp_buf);
 				insertColumn(at_pos++, temp_buf, 9, MKSTYPE(S_ZSTRING, 128), 0, BCO_CAPLEFT|BCO_USERPROC);
@@ -2975,37 +3001,30 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 		setSubTitle(single_serial);
 	BrowserDef * p_def = getDef();
 	CALLPTRMEMB(p_def, SetUserProc(SelLotBrowser::GetDataForBrowser, this));
+	SetCellStyleFunc(SelLotBrowser::StyleFunc, this); // @v10.4.3
 }
 
 IMPL_HANDLE_EVENT(SelLotBrowser)
 {
-	const SelLotBrowser::Entry * p_entry = 0;
+	const SelLotBrowser::Entry * p_entry = static_cast<const SelLotBrowser::Entry *>(view->getCurItem());
 	BrowserWindow::handleEvent(event);
 	if(event.isCmd(cmaEdit)) {
 		if(IsInState(sfModal))
 			endModal(cmOK);
 	}
-	else if(event.isKeyDown(kbF3)) {
-		if(P_BObj->CheckRights(BILLRT_ACCSCOST)) {
-			p_entry = (const SelLotBrowser::Entry *)view->getCurItem();
-			if(p_entry && p_entry->LotID)
+	else if(p_entry && p_entry->LotID) {
+		if(event.isKeyDown(kbF3)) {
+			if(P_BObj->CheckRights(BILLRT_ACCSCOST))
 				ViewOpersByLot(p_entry->LotID, 0);
 		}
-	}
-	else if(event.isKeyDown(kbF4)) {
-		p_entry = (const SelLotBrowser::Entry *)view->getCurItem();
-		if(p_entry && p_entry->LotID)
+		else if(event.isKeyDown(kbF4))
 			P_BObj->EditLotExtData(p_entry->LotID);
-	}
-	else if(event.isKeyDown(kbCtrlF6)) {
-		p_entry = (const SelLotBrowser::Entry *)view->getCurItem();
-		if(p_entry && p_entry->LotID)
+		else if(event.isKeyDown(kbCtrlF6))
 			EditObjTagValList(PPOBJ_LOT, p_entry->LotID, 0);
-	}
-	else if(event.isKeyDown(kbCtrlF3)) {
-		p_entry = (const SelLotBrowser::Entry *)view->getCurItem();
-		if(p_entry)
+		else if(event.isKeyDown(kbCtrlF3))
 			P_BObj->EditLotSystemInfo(p_entry->LotID);
+		else
+			return;
 	}
 	else
 		return;
@@ -3020,7 +3039,6 @@ int TrfrItemDialog::addLotEntry(SArray * pAry, const ReceiptTbl::Rec * pLotRec)
 
 void TrfrItemDialog::selectLot()
 {
-	SelLotBrowser::Entry * p_sel;
 	int    r, found = 0;
 	uint   s = 0;
 	PPID   op_id = P_Pack->Rec.OpID;
@@ -3063,8 +3081,9 @@ void TrfrItemDialog::selectLot()
 			}
 		}
 		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, SelLotBrowser::fShowManufTime));
-		if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0)
-			if(p_sel->LotID != Item.LotID && !(Item.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) {
+		if(ExecView(p_brw) == cmOK) {
+			const SelLotBrowser::Entry * p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->view->getCurItem());
+			if(p_sel && p_sel->LotID != Item.LotID && !(Item.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) {
 				Item.LotID = p_sel->LotID;
 				Item.Cost  = 0.0;
 				Item.Price = 0.0;
@@ -3076,6 +3095,7 @@ void TrfrItemDialog::selectLot()
 				THROW(setupLot());
 				setupRest();
 			}
+		}
 	}
 	CATCH
 		if(p_brw == 0)
@@ -3156,7 +3176,7 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 		// @v9.4.5 {
 		if(!s && rParam.RetLotSerial.NotEmpty()) {
 			for(uint i = 0; !s && i < p_ary->getCount(); i++) {
-				const SelLotBrowser::Entry * p_entry = (const SelLotBrowser::Entry *)p_ary->at(i);
+				const SelLotBrowser::Entry * p_entry = static_cast<const SelLotBrowser::Entry *>(p_ary->at(i));
 				if(rParam.RetLotSerial.CmpNC(p_entry->Serial) == 0)
 					s = i+1;
 			}
@@ -3181,7 +3201,8 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 		if(rParam.Title.NotEmpty())
 			p_brw->setTitle(rParam.Title);
 		if(ExecView(p_brw) == cmOK) {
-			if((p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0) {
+			p_sel = static_cast<SelLotBrowser::Entry *>(p_brw->view->getCurItem());
+			if(p_sel) {
 				lotid = p_sel->LotID;
 				GetSerialNumberByLot(lotid, serial = 0, 1);
 				if(rParam.Flags & rParam.fFillLotRec && lotid)

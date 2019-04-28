@@ -4147,10 +4147,11 @@ table TempTrfrAnlz {       //
 	double LinkPrice;      // @v9.4.10 Сумма в ценах реализации в связанных докуменах (e.g. документах списания)
 	double ExtVal1;        // @v9.3.4
 index:
+	ID__ (unique); // @v10.4.3
 	Dt, OprNo (unique mod);
 	GoodsID, Dt, OprNo (unique mod);
 	ArticleID, Dt, OprNo (unique mod);
-	ID__ (unique);
+	// @v10.4.3 ID__ (unique);
 file:
 	"tmp_ta.btr";
 	temporary;

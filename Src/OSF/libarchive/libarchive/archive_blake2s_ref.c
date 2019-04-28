@@ -40,7 +40,7 @@ static const uint8_t blake2s_sigma[10][16] = {
 
 static void blake2s_set_lastnode(blake2s_state * S)
 {
-	S->f[1] = (uint32_t)-1;
+	S->f[1] = static_cast<uint32_t>(-1);
 }
 
 /* Some helper functions, not necessarily useful */
@@ -53,7 +53,7 @@ static void blake2s_set_lastblock(blake2s_state * S)
 {
 	if(S->last_node) 
 		blake2s_set_lastnode(S);
-	S->f[0] = (uint32_t)-1;
+	S->f[0] = static_cast<uint32_t>(-1);
 }
 
 static void blake2s_increment_counter(blake2s_state * S, const uint32_t inc)
@@ -65,14 +65,14 @@ static void blake2s_increment_counter(blake2s_state * S, const uint32_t inc)
 static void blake2s_init0(blake2s_state * S)
 {
 	size_t i;
-	memzero(S, sizeof( blake2s_state ) );
+	memzero(S, sizeof(blake2s_state));
 	for(i = 0; i < 8; ++i) S->h[i] = blake2s_IV[i];
 }
 
 /* init2 xors IV with input parameter block */
 int blake2s_init_param(blake2s_state * S, const blake2s_param * P)
 {
-	const uchar * p = (const uchar *)( P );
+	const uchar * p = reinterpret_cast<const uchar *>(P);
 	size_t i;
 	blake2s_init0(S);
 	/* IV XOR ParamBlock */
@@ -86,10 +86,9 @@ int blake2s_init_param(blake2s_state * S, const blake2s_param * P)
 int blake2s_init(blake2s_state * S, size_t outlen)
 {
 	blake2s_param P[1];
-
 	/* Move interval verification here? */
-	if( ( !outlen ) || ( outlen > BLAKE2S_OUTBYTES ) ) return -1;
-
+	if( ( !outlen ) || ( outlen > BLAKE2S_OUTBYTES ) ) 
+		return -1;
 	P->digest_length = (uint8_t)outlen;
 	P->key_length    = 0;
 	P->fanout        = 1;
@@ -166,15 +165,12 @@ static void blake2s_compress(blake2s_state * S, const uint8_t in[BLAKE2S_BLOCKBY
 	uint32_t m[16];
 	uint32_t v[16];
 	size_t i;
-
 	for(i = 0; i < 16; ++i) {
 		m[i] = load32(in + i * sizeof( m[i] ) );
 	}
-
 	for(i = 0; i < 8; ++i) {
 		v[i] = S->h[i];
 	}
-
 	v[ 8] = blake2s_IV[0];
 	v[ 9] = blake2s_IV[1];
 	v[10] = blake2s_IV[2];
@@ -183,7 +179,6 @@ static void blake2s_compress(blake2s_state * S, const uint8_t in[BLAKE2S_BLOCKBY
 	v[13] = S->t[1] ^ blake2s_IV[5];
 	v[14] = S->f[0] ^ blake2s_IV[6];
 	v[15] = S->f[1] ^ blake2s_IV[7];
-
 	ROUND(0);
 	ROUND(1);
 	ROUND(2);

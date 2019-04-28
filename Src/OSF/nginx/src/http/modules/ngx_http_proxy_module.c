@@ -631,7 +631,7 @@ static ngx_int_t ngx_http_proxy_create_key(ngx_http_request_t * r)
 	len = ctx->vars.uri.len + r->uri.len - loc_len + escape
 	    + sizeof("?") - 1 + r->args.len;
 
-	p = (u_char *)ngx_pnalloc(r->pool, len);
+	p = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -1167,7 +1167,7 @@ static ngx_int_t ngx_http_proxy_process_status_line(ngx_http_request_t * r)
 	u->headers_in.status_n = ctx->status.code;
 	len = ctx->status.end - ctx->status.start;
 	u->headers_in.status_line.len = len;
-	u->headers_in.status_line.data = (u_char *)ngx_pnalloc(r->pool, len);
+	u->headers_in.status_line.data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(u->headers_in.status_line.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -1667,7 +1667,7 @@ static ngx_int_t ngx_http_proxy_add_x_forwarded_for_variable(ngx_http_request_t 
 		return NGX_OK;
 	}
 	len += r->connection->addr_text.len;
-	p = (u_char *)ngx_pnalloc(r->pool, len);
+	p = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(!p) {
 		return NGX_ERROR;
 	}

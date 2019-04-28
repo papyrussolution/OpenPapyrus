@@ -1,5 +1,5 @@
 // PPSPROT.CPP
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -36,10 +36,11 @@ int FASTCALL PPJobSrvReply::FinishWriting(int hdrFlags)
 {
 	int    ok = 1;
 	if(State & stStructured) {
-		((Header *)Ptr(GetRdOffs()))->DataLen = (int32)GetAvailableSize();
-		((Header *)Ptr(GetRdOffs()))->Type = DataType;
+		Header * p_hdr = static_cast<Header *>(Ptr(GetRdOffs()));
+		p_hdr->DataLen = static_cast<int32>(GetAvailableSize());
+		p_hdr->Type = DataType;
 		if(hdrFlags)
-			((Header *)Ptr(GetRdOffs()))->Flags |= hdrFlags;
+			p_hdr->Flags |= hdrFlags;
 	}
 	else {
 		Write("\xD\xA", 2);
@@ -87,14 +88,15 @@ void SLAPI PPJobSrvReply::SetAck()
 //static
 const int16 PPJobSrvProtocol::CurrentProtocolVer = 1;
 
+PPJobSrvProtocol::Header::Header() : Zero(0), ProtocolVer(0), DataLen(0), Type(0), Flags(0)
+{
+}
+
 SString & FASTCALL PPJobSrvProtocol::Header::ToStr(SString & rBuf) const
 {
 	rBuf.Z();
 	if(Zero == 0) {
-		rBuf.CatEq("ProtocolVer", (long)ProtocolVer).CatDiv(';', 2).
-			CatEq("DataLen", DataLen).CatDiv(';', 2).
-			CatEq("Type", Type).CatDiv(';', 2).
-			Cat("Flags").Eq().CatHex(Flags);
+		rBuf.CatEq("ProtocolVer", (long)ProtocolVer).CatDiv(';', 2).CatEq("DataLen", DataLen).CatDiv(';', 2).CatEq("Type", Type).CatDiv(';', 2).Cat("Flags").Eq().CatHex(Flags);
 	}
 	else {
 		rBuf.CatChar(((char *)&Zero)[0]);
@@ -163,7 +165,7 @@ SString & FASTCALL PPJobSrvProtocol::ToStr(SString & rBuf) const
 	}
 	else {
 		size_t avl_sz = MIN(GetWrOffs(), 255);
-		rBuf.Z().CatN((const char *)GetBuf(), avl_sz);
+		rBuf.Z().CatN(static_cast<const char *>(GetBuf()), avl_sz);
 		rBuf.Chomp();
 	}
 	return rBuf;
@@ -270,7 +272,7 @@ int SLAPI PPJobSrvCmd::FinishWriting()
 {
 	int    ok = 1;
 	if(State & stStructured) {
-		((Header *)Ptr(GetRdOffs()))->DataLen = (int32)GetAvailableSize();
+		static_cast<Header *>(Ptr(GetRdOffs()))->DataLen = static_cast<int32>(GetAvailableSize());
 	}
 	else {
 		Write("\xD\xA", 2);

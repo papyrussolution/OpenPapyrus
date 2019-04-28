@@ -1247,7 +1247,6 @@ static int nsPush(xmlParserCtxt * ctxt, const xmlChar * prefix, const xmlChar * 
 	ctxt->nsTab[ctxt->nsNr++] = URL;
 	return (ctxt->nsNr);
 }
-
 /**
  * nsPop:
  * @ctxt: an XML parser context
@@ -1365,7 +1364,6 @@ xmlParserInput * inputPop(xmlParserCtxt * ctxt)
 	}
 	return ret;
 }
-
 /**
  * nodePush:
  * @ctxt:  an XML parser context
@@ -1432,10 +1430,9 @@ xmlNode * nodePop(xmlParserCtxt * ctxt)
 static int nameNsPush(xmlParserCtxt * ctxt, const xmlChar * value, const xmlChar * prefix, const xmlChar * URI, int nsNr)
 {
 	if(ctxt->nameNr >= ctxt->nameMax) {
-		const xmlChar ** tmp;
 		void ** tmp2;
 		ctxt->nameMax *= 2;
-		tmp = static_cast<const xmlChar **>(SAlloc::R((xmlChar**)ctxt->nameTab, ctxt->nameMax * sizeof(ctxt->nameTab[0])));
+		const xmlChar ** tmp = static_cast<const xmlChar **>(SAlloc::R((xmlChar **)ctxt->nameTab, ctxt->nameMax * sizeof(ctxt->nameTab[0])));
 		if(!tmp) {
 			ctxt->nameMax /= 2;
 			goto mem_error;
@@ -1479,7 +1476,6 @@ static const xmlChar * FASTCALL nameNsPop(xmlParserCtxt * ctxt)
 }
 
 #endif /* LIBXML_PUSH_ENABLED */
-
 /**
  * namePush:
  * @ctxt:  an XML parser context
@@ -1494,7 +1490,7 @@ int namePush(xmlParserCtxt * ctxt, const xmlChar * value)
 	if(!ctxt)
 		return -1;
 	if(ctxt->nameNr >= ctxt->nameMax) {
-		const xmlChar ** tmp = static_cast<const xmlChar **>(SAlloc::R((xmlChar**)ctxt->nameTab, ctxt->nameMax * 2 * sizeof(ctxt->nameTab[0])));
+		const xmlChar ** tmp = static_cast<const xmlChar **>(SAlloc::R((xmlChar **)ctxt->nameTab, ctxt->nameMax * 2 * sizeof(ctxt->nameTab[0])));
 		if(!tmp) {
 			goto mem_error;
 		}
@@ -10555,7 +10551,6 @@ static int xmlParseCheckTransition(const xmlParserCtxt * ctxt, const char * chun
 		return BIN(!do_find_rangl || memchr(chunk, '>', size));
 	}
 }
-
 /**
  * xmlParseChunk:
  * @ctxt:  an XML parser context
@@ -10567,7 +10562,7 @@ static int xmlParseCheckTransition(const xmlParserCtxt * ctxt, const char * chun
  *
  * Returns zero if no error, the xmlParserErrors otherwise.
  */
-int xmlParseChunk(xmlParserCtxt * ctxt, const char * chunk, int size, int terminate)
+int FASTCALL xmlParseChunk(xmlParserCtxt * ctxt, const char * chunk, int size, int terminate)
 {
 	int end_in_lf = 0;
 	int remain = 0;
@@ -10598,15 +10593,13 @@ xmldecl_done:
 		 */
 		if((ctxt->instate == XML_PARSER_START) && ctxt->input && ctxt->input->buf && ctxt->input->buf->encoder) {
 			uint len = 45;
-			if((xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, reinterpret_cast<const xmlChar *>("UTF-16"))) ||
-			    (xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, reinterpret_cast<const xmlChar *>("UTF16"))))
+			const xmlChar * p_inp_encoder_name = reinterpret_cast<const xmlChar *>(ctxt->input->buf->encoder->name);
+			if((xmlStrcasestr(p_inp_encoder_name, reinterpret_cast<const xmlChar *>("UTF-16"))) || (xmlStrcasestr(p_inp_encoder_name, reinterpret_cast<const xmlChar *>("UTF16"))))
 				len = 90;
-			else if((xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, reinterpret_cast<const xmlChar *>("UCS-4"))) ||
-			    (xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, reinterpret_cast<const xmlChar *>("UCS4"))))
+			else if((xmlStrcasestr(p_inp_encoder_name, reinterpret_cast<const xmlChar *>("UCS-4"))) || (xmlStrcasestr(p_inp_encoder_name, reinterpret_cast<const xmlChar *>("UCS4"))))
 				len = 180;
 			if(ctxt->input->buf->rawconsumed < len)
 				len -= ctxt->input->buf->rawconsumed;
-
 			/*
 			 * Change size for reading the initial declaration only
 			 * if size is greater than len. Otherwise, memmove in xmlBufferAdd
@@ -10616,9 +10609,8 @@ xmldecl_done:
 				remain = size - len;
 				size = len;
 			}
-			else {
+			else
 				remain = 0;
-			}
 		}
 		res = xmlParserInputBufferPush(ctxt->input->buf, size, chunk);
 		if(res < 0) {

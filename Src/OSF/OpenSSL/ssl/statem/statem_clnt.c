@@ -2003,7 +2003,6 @@ static int tls_construct_cke_psk_preamble(SSL * s, uchar ** p,
 	uchar * tmppsk = NULL;
 	char * tmpidentity = NULL;
 	size_t psklen = 0;
-
 	if(s->psk_client_callback == NULL) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, SSL_R_PSK_NO_CLIENT_CB);
 		*al = SSL_AD_INTERNAL_ERROR;
@@ -2011,26 +2010,22 @@ static int tls_construct_cke_psk_preamble(SSL * s, uchar ** p,
 	}
 	memzero(identity, sizeof(identity));
 	psklen = s->psk_client_callback(s, s->session->psk_identity_hint, identity, sizeof(identity) - 1, psk, sizeof(psk));
-
 	if(psklen > PSK_MAX_PSK_LEN) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, ERR_R_INTERNAL_ERROR);
 		*al = SSL_AD_HANDSHAKE_FAILURE;
 		goto err;
 	}
 	else if(psklen == 0) {
-		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE,
-		    SSL_R_PSK_IDENTITY_NOT_FOUND);
+		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, SSL_R_PSK_IDENTITY_NOT_FOUND);
 		*al = SSL_AD_HANDSHAKE_FAILURE;
 		goto err;
 	}
-
 	identitylen = strlen(identity);
 	if(identitylen > PSK_MAX_IDENTITY_LEN) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, ERR_R_INTERNAL_ERROR);
 		*al = SSL_AD_HANDSHAKE_FAILURE;
 		goto err;
 	}
-
 	tmppsk = (uchar *)OPENSSL_memdup(psk, psklen);
 	tmpidentity = OPENSSL_strdup(identity);
 	if(tmppsk == NULL || tmpidentity == NULL) {
@@ -2038,7 +2033,6 @@ static int tls_construct_cke_psk_preamble(SSL * s, uchar ** p,
 		*al = SSL_AD_INTERNAL_ERROR;
 		goto err;
 	}
-
 	OPENSSL_free(s->s3->tmp.psk);
 	s->s3->tmp.psk = tmppsk;
 	s->s3->tmp.psklen = psklen;
@@ -2050,15 +2044,12 @@ static int tls_construct_cke_psk_preamble(SSL * s, uchar ** p,
 	memcpy(*p, identity, identitylen);
 	*pskhdrlen = 2 + identitylen;
 	*p += identitylen;
-
 	ret = 1;
-
 err:
 	OPENSSL_cleanse(psk, psklen);
 	OPENSSL_cleanse(identity, sizeof(identity));
 	OPENSSL_clear_free(tmppsk, psklen);
 	OPENSSL_clear_free(tmpidentity, identitylen);
-
 	return ret;
 #else
 	SSLerr(SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, ERR_R_INTERNAL_ERROR);
@@ -2076,7 +2067,6 @@ static int tls_construct_cke_rsa(SSL * s, uchar ** p, int * len, int * al)
 	size_t enclen;
 	uchar * pms = NULL;
 	size_t pmslen = 0;
-
 	if(s->session->peer == NULL) {
 		/*
 		 * We should always have a server certificate with SSL_kRSA.
@@ -2084,13 +2074,11 @@ static int tls_construct_cke_rsa(SSL * s, uchar ** p, int * len, int * al)
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_RSA, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	pkey = X509_get0_pubkey(s->session->peer);
 	if(EVP_PKEY_get0_RSA(pkey) == NULL) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_RSA, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	pmslen = SSL_MAX_MASTER_KEY_LENGTH;
 	pms = (uchar *)OPENSSL_malloc(pmslen);
 	if(pms == NULL) {
@@ -2098,20 +2086,17 @@ static int tls_construct_cke_rsa(SSL * s, uchar ** p, int * len, int * al)
 		*al = SSL_AD_INTERNAL_ERROR;
 		return 0;
 	}
-
 	pms[0] = s->client_version >> 8;
 	pms[1] = s->client_version & 0xff;
 	if(RAND_bytes(pms + 2, pmslen - 2) <= 0) {
 		goto err;
 	}
-
 	q = *p;
 	/* Fix buf for TLS and beyond */
 	if(s->version > SSL3_VERSION)
 		*p += 2;
 	pctx = EVP_PKEY_CTX_new(pkey, 0);
-	if(pctx == NULL || EVP_PKEY_encrypt_init(pctx) <= 0
-	    || EVP_PKEY_encrypt(pctx, NULL, &enclen, pms, pmslen) <= 0) {
+	if(pctx == NULL || EVP_PKEY_encrypt_init(pctx) <= 0 || EVP_PKEY_encrypt(pctx, NULL, &enclen, pms, pmslen) <= 0) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_RSA, ERR_R_EVP_LIB);
 		goto err;
 	}
@@ -2128,21 +2113,17 @@ static int tls_construct_cke_rsa(SSL * s, uchar ** p, int * len, int * al)
 	if(s->options & SSL_OP_PKCS1_CHECK_2)
 		tmp_buf[0] = 0x70;
 # endif
-
 	/* Fix buf for TLS and beyond */
 	if(s->version > SSL3_VERSION) {
 		s2n(*len, q);
 		*len += 2;
 	}
-
 	s->s3->tmp.pms = pms;
 	s->s3->tmp.pmslen = pmslen;
-
 	return 1;
 err:
 	OPENSSL_clear_free(pms, pmslen);
 	EVP_PKEY_CTX_free(pctx);
-
 	return 0;
 #else
 	SSLerr(SSL_F_TLS_CONSTRUCT_CKE_RSA, ERR_R_INTERNAL_ERROR);
@@ -2156,9 +2137,8 @@ static int tls_construct_cke_dhe(SSL * s, uchar ** p, int * len, int * al)
 #ifndef OPENSSL_NO_DH
 	DH * dh_clnt = NULL;
 	const BIGNUM * pub_key;
-	EVP_PKEY * ckey = NULL, * skey = NULL;
-
-	skey = s->s3->peer_tmp;
+	EVP_PKEY * ckey = NULL;
+	EVP_PKEY * skey = s->s3->peer_tmp;
 	if(skey == NULL) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_DHE, ERR_R_INTERNAL_ERROR);
 		return 0;
@@ -2168,15 +2148,12 @@ static int tls_construct_cke_dhe(SSL * s, uchar ** p, int * len, int * al)
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_DHE, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	dh_clnt = EVP_PKEY_get0_DH(ckey);
-
 	if(dh_clnt == NULL || ssl_derive(s, ckey, skey) == 0) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_DHE, ERR_R_INTERNAL_ERROR);
 		EVP_PKEY_free(ckey);
 		return 0;
 	}
-
 	/* send off the data */
 	DH_get0_key(dh_clnt, &pub_key, 0);
 	*len = BN_num_bytes(pub_key);
@@ -2184,7 +2161,6 @@ static int tls_construct_cke_dhe(SSL * s, uchar ** p, int * len, int * al)
 	BN_bn2bin(pub_key, *p);
 	*len += 2;
 	EVP_PKEY_free(ckey);
-
 	return 1;
 #else
 	SSLerr(SSL_F_TLS_CONSTRUCT_CKE_DHE, ERR_R_INTERNAL_ERROR);
@@ -2198,36 +2174,29 @@ static int tls_construct_cke_ecdhe(SSL * s, uchar ** p, int * len, int * al)
 #ifndef OPENSSL_NO_EC
 	uchar * encodedPoint = NULL;
 	int encoded_pt_len = 0;
-	EVP_PKEY * ckey = NULL, * skey = NULL;
-
-	skey = s->s3->peer_tmp;
+	EVP_PKEY * ckey = NULL;
+	EVP_PKEY * skey = s->s3->peer_tmp;
 	if(skey == NULL) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_ECDHE, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	ckey = ssl_generate_pkey(skey);
 	if(ckey == NULL) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_ECDHE, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	if(ssl_derive(s, ckey, skey) == 0) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_ECDHE, ERR_R_EVP_LIB);
 		goto err;
 	}
-
 	/* Generate encoding of client key */
 	encoded_pt_len = EVP_PKEY_get1_tls_encodedpoint(ckey, &encodedPoint);
-
 	if(encoded_pt_len == 0) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_ECDHE, ERR_R_EC_LIB);
 		goto err;
 	}
-
 	EVP_PKEY_free(ckey);
 	ckey = NULL;
-
 	*len = encoded_pt_len;
 
 	/* length of encoded point */
@@ -2264,7 +2233,6 @@ static int tls_construct_cke_gost(SSL * s, uchar ** p, int * len, int * al)
 	int dgst_nid = NID_id_GostR3411_94;
 	uchar * pms = NULL;
 	size_t pmslen = 0;
-
 	if((s->s3->tmp.new_cipher->algorithm_auth & SSL_aGOST12) != 0)
 		dgst_nid = NID_id_GostR3411_2012_256;
 
@@ -2274,11 +2242,9 @@ static int tls_construct_cke_gost(SSL * s, uchar ** p, int * len, int * al)
 	peer_cert = s->session->peer;
 	if(!peer_cert) {
 		*al = SSL_AD_HANDSHAKE_FAILURE;
-		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_GOST,
-		    SSL_R_NO_GOST_CERTIFICATE_SENT_BY_PEER);
+		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_GOST, SSL_R_NO_GOST_CERTIFICATE_SENT_BY_PEER);
 		return 0;
 	}
-
 	pkey_ctx = EVP_PKEY_CTX_new(X509_get0_pubkey(peer_cert), 0);
 	if(pkey_ctx == NULL) {
 		*al = SSL_AD_INTERNAL_ERROR;
@@ -2469,24 +2435,18 @@ err:
 
 int tls_client_key_exchange_post_work(SSL * s)
 {
-	uchar * pms = NULL;
-	size_t pmslen = 0;
-
-	pms = s->s3->tmp.pms;
-	pmslen = s->s3->tmp.pmslen;
-
+	uchar * pms = s->s3->tmp.pms;
+	size_t pmslen = s->s3->tmp.pmslen;
 #ifndef OPENSSL_NO_SRP
 	/* Check for SRP */
 	if(s->s3->tmp.new_cipher->algorithm_mkey & SSL_kSRP) {
 		if(!srp_generate_client_master_secret(s)) {
-			SSLerr(SSL_F_TLS_CLIENT_KEY_EXCHANGE_POST_WORK,
-			    ERR_R_INTERNAL_ERROR);
+			SSLerr(SSL_F_TLS_CLIENT_KEY_EXCHANGE_POST_WORK, ERR_R_INTERNAL_ERROR);
 			goto err;
 		}
 		return 1;
 	}
 #endif
-
 	if(pms == NULL && !(s->s3->tmp.new_cipher->algorithm_mkey & SSL_kPSK)) {
 		ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
 		SSLerr(SSL_F_TLS_CLIENT_KEY_EXCHANGE_POST_WORK, ERR_R_MALLOC_FAILURE);
@@ -2502,29 +2462,19 @@ int tls_client_key_exchange_post_work(SSL * s)
 	}
 	pms = NULL;
 	pmslen = 0;
-
 #ifndef OPENSSL_NO_SCTP
 	if(SSL_IS_DTLS(s)) {
 		uchar sctpauthkey[64];
 		char labelbuffer[sizeof(DTLS1_SCTP_AUTH_LABEL)];
-
 		/*
-		 * Add new shared key for SCTP-Auth, will be ignored if no SCTP
-		 * used.
+		 * Add new shared key for SCTP-Auth, will be ignored if no SCTP used.
 		 */
-		memcpy(labelbuffer, DTLS1_SCTP_AUTH_LABEL,
-		    sizeof(DTLS1_SCTP_AUTH_LABEL));
-
-		if(SSL_export_keying_material(s, sctpauthkey,
-			    sizeof(sctpauthkey), labelbuffer,
-			    sizeof(labelbuffer), NULL, 0, 0) <= 0)
+		memcpy(labelbuffer, DTLS1_SCTP_AUTH_LABEL, sizeof(DTLS1_SCTP_AUTH_LABEL));
+		if(SSL_export_keying_material(s, sctpauthkey, sizeof(sctpauthkey), labelbuffer, sizeof(labelbuffer), NULL, 0, 0) <= 0)
 			goto err;
-
-		BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_ADD_AUTH_KEY,
-		    sizeof(sctpauthkey), sctpauthkey);
+		BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_ADD_AUTH_KEY, sizeof(sctpauthkey), sctpauthkey);
 	}
 #endif
-
 	return 1;
 err:
 	OPENSSL_clear_free(pms, pmslen);

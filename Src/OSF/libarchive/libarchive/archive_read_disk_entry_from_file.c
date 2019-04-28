@@ -81,17 +81,17 @@ __FBSDID("$FreeBSD");
  * As the include guards don't agree, the order of include is important.
  */
 #ifdef HAVE_LINUX_EXT2_FS_H
-#include <linux/ext2_fs.h>      /* for Linux file flags */
+	#include <linux/ext2_fs.h>      /* for Linux file flags */
 #endif
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
-#include <ext2fs/ext2_fs.h>     /* Linux file flags, broken on Cygwin */
+	#include <ext2fs/ext2_fs.h>     /* Linux file flags, broken on Cygwin */
 #endif
 #ifdef HAVE_PATHS_H
-#include <paths.h>
+	#include <paths.h>
 #endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 
 //#include "archive.h"
 //#include "archive_entry.h"

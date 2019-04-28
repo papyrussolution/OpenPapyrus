@@ -230,7 +230,7 @@ static char * ngx_http_v2_merge_loc_conf(ngx_conf_t * cf, void * parent, void * 
 
 static char * ngx_http_v2_recv_buffer_size(ngx_conf_t * cf, void * post, void * data)
 {
-	size_t * sp = (size_t*)data;
+	size_t * sp = static_cast<size_t *>(data);
 	if(*sp <= 2 * NGX_HTTP_V2_STATE_BUFFER_SIZE) {
 		return "value is too small";
 	}
@@ -239,7 +239,7 @@ static char * ngx_http_v2_recv_buffer_size(ngx_conf_t * cf, void * post, void * 
 
 static char * ngx_http_v2_pool_size(ngx_conf_t * cf, void * post, void * data)
 {
-	size_t * sp = (size_t*)data;
+	size_t * sp = static_cast<size_t *>(data);
 	if(*sp < NGX_MIN_POOL_SIZE) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the pool size must be no less than %uz", NGX_MIN_POOL_SIZE);
 		return NGX_CONF_ERROR;
@@ -253,7 +253,7 @@ static char * ngx_http_v2_pool_size(ngx_conf_t * cf, void * post, void * data)
 
 static char * ngx_http_v2_preread_size(ngx_conf_t * cf, void * post, void * data)
 {
-	size_t * sp = (size_t*)data;
+	size_t * sp = static_cast<size_t *>(data);
 	if(*sp > NGX_HTTP_V2_MAX_WINDOW) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the maximum body preread buffer size is %uz", NGX_HTTP_V2_MAX_WINDOW);
 		return NGX_CONF_ERROR;
@@ -274,7 +274,7 @@ static char * ngx_http_v2_streams_index_mask(ngx_conf_t * cf, void * post, void 
 
 static char * ngx_http_v2_chunk_size(ngx_conf_t * cf, void * post, void * data)
 {
-	size_t * sp = (size_t*)data;
+	size_t * sp = static_cast<size_t *>(data);
 	if(*sp == 0) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the http2 chunk size cannot be zero");
 		return NGX_CONF_ERROR;

@@ -136,13 +136,8 @@ int CustomDisplayEquip::RunOneCommand(const char * pCmd, const char * pInputData
 	return ok;
 }
 
-CustomDisplayEquip::CustomDisplayEquip()
+CustomDisplayEquip::CustomDisplayEquip() : Flags(0), LastError(0), Port(0), VerTab(VERT_CURPOS), Align(LEFT), Text("")
 {
-	LastError = 0;
-	Port = 0;
-	VerTab = VERT_CURPOS;
-	Align = LEFT;
-	Text = "";
 }
 
 CustomDisplayEquip::~CustomDisplayEquip()

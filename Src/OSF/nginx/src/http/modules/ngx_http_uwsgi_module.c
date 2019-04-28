@@ -912,7 +912,7 @@ static ngx_int_t ngx_http_uwsgi_process_status_line(ngx_http_request_t * r)
 	len = status->end - status->start;
 	u->headers_in.status_line.len = len;
 
-	u->headers_in.status_line.data = (u_char *)ngx_pnalloc(r->pool, len);
+	u->headers_in.status_line.data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(u->headers_in.status_line.data == NULL) {
 		return NGX_ERROR;
 	}

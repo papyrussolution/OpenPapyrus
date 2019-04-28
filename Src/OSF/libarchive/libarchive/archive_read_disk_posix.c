@@ -87,9 +87,9 @@ __FBSDID("$FreeBSD$");
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #ifdef HAVE_SYS_IOCTL_H
 	#include <sys/ioctl.h>
 #endif
@@ -1542,12 +1542,10 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		 * Get file system statistics on any directory
 		 * where current is.
 		 */
-		int fd = openat(tree_current_dir_fd(t),
-			tree_current_access_path(t), O_RDONLY | O_CLOEXEC);
+		int fd = openat(tree_current_dir_fd(t), tree_current_access_path(t), O_RDONLY | O_CLOEXEC);
 		__archive_ensure_cloexec_flag(fd);
 		if(fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "openat failed");
+			archive_set_error(&a->archive, errno, "openat failed");
 			return ARCHIVE_FAILED;
 		}
 #if defined(HAVE_FSTATVFS)

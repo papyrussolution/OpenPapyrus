@@ -987,7 +987,10 @@
 #define PPOBJ_ACCOUNT2           77L // Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
 	// специализированной таблицы Account в Reference
 #define PPOBJ_TIMESERIES         78L // @v10.2.3 Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
-	#define TIMSERPRP_STAKEMODEL      1L // @v10.2.11
+	#define TIMSERPRP_STAKEMODEL       1L // @v10.2.11
+	#define TIMSERPRP_STAKEMODEL_SEL   1L // @v10.4.3
+	#define TIMSERPRP_STAKEMODEL_ALL   2L // @v10.4.3
+	#define TIMSERPRP_STAKEMODEL_SELTF 3L // @v10.4.3
 #define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 Тип транспортной упаковки
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
@@ -5450,6 +5453,7 @@
 	#define cmBillCfgTDisMethod          101
 	#define cmBillCfgValuation           102
 	#define cmBillCfgExt                 103
+	#define cmLotTagIndFilt              104 // @v10.4.3
 	#define CTL_BILLCFG_OPPRFX           (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLCFG_CLPRFX           (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILLCFG_CLCODEREG        (3 + WINDOWS_ID_BIAS)

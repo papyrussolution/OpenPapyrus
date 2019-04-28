@@ -63,7 +63,7 @@ cairo_int_status_t __cairo_contour_add_point(cairo_contour_t * contour, const ca
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	next->size_points = tail->size_points*2;
 	next->num_points = 1;
-	next->points = (cairo_point_t*)(next+1);
+	next->points = (cairo_point_t *)(next+1);
 	next->next = NULL;
 	tail->next = next;
 	contour->tail = next;

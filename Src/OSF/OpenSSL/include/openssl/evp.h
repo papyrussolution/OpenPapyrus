@@ -863,7 +863,6 @@ void EVP_PKEY_asn1_set_security_bits(EVP_PKEY_ASN1_METHOD * ameth, int (* pkey_s
 #define EVP_PKEY_OP_ENCRYPT             (1<<8)
 #define EVP_PKEY_OP_DECRYPT             (1<<9)
 #define EVP_PKEY_OP_DERIVE              (1<<10)
-
 #define EVP_PKEY_OP_TYPE_SIG    (EVP_PKEY_OP_SIGN | EVP_PKEY_OP_VERIFY | EVP_PKEY_OP_VERIFYRECOVER | EVP_PKEY_OP_SIGNCTX | EVP_PKEY_OP_VERIFYCTX)
 #define EVP_PKEY_OP_TYPE_CRYPT  (EVP_PKEY_OP_ENCRYPT | EVP_PKEY_OP_DECRYPT)
 #define EVP_PKEY_OP_TYPE_NOGEN  (EVP_PKEY_OP_TYPE_SIG | EVP_PKEY_OP_TYPE_CRYPT | EVP_PKEY_OP_DERIVE)
@@ -871,32 +870,20 @@ void EVP_PKEY_asn1_set_security_bits(EVP_PKEY_ASN1_METHOD * ameth, int (* pkey_s
 #define EVP_PKEY_CTX_set_signature_md(ctx, md) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_MD, 0, (void *)md)
 #define EVP_PKEY_CTX_get_signature_md(ctx, pmd) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_GET_MD, 0, (void *)pmd)
 #define EVP_PKEY_CTX_set_mac_key(ctx, key, len) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_KEYGEN, EVP_PKEY_CTRL_SET_MAC_KEY, len, (void *)key)
-
 #define EVP_PKEY_CTRL_MD                1
 #define EVP_PKEY_CTRL_PEER_KEY          2
-
 #define EVP_PKEY_CTRL_PKCS7_ENCRYPT     3
 #define EVP_PKEY_CTRL_PKCS7_DECRYPT     4
-
 #define EVP_PKEY_CTRL_PKCS7_SIGN        5
-
 #define EVP_PKEY_CTRL_SET_MAC_KEY       6
-
 #define EVP_PKEY_CTRL_DIGESTINIT        7
-
-/* Used by GOST key encryption in TLS */
-#define EVP_PKEY_CTRL_SET_IV            8
-
+#define EVP_PKEY_CTRL_SET_IV            8 /* Used by GOST key encryption in TLS */
 #define EVP_PKEY_CTRL_CMS_ENCRYPT       9
 #define EVP_PKEY_CTRL_CMS_DECRYPT       10
 #define EVP_PKEY_CTRL_CMS_SIGN          11
-
 #define EVP_PKEY_CTRL_CIPHER            12
-
 #define EVP_PKEY_CTRL_GET_MD            13
-
 #define EVP_PKEY_ALG_CTRL               0x1000
-
 #define EVP_PKEY_FLAG_AUTOARGLEN        2
 /*
  * Method handles all operations: don't assume any digest related defaults.

@@ -144,7 +144,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 			size += 1 + ngx_mail_pop3_auth_methods_names[i].len;
 		}
 	}
-	p = (u_char *)ngx_pnalloc(cf->pool, size);
+	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -182,7 +182,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	size += sizeof("STLS" CRLF) - 1;
 
-	p = (u_char *)ngx_pnalloc(cf->pool, size);
+	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -212,7 +212,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		}
 	}
 
-	p = (u_char *)ngx_pnalloc(cf->pool, size);
+	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}

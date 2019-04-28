@@ -3311,7 +3311,7 @@ static ngx_int_t ngx_http_upstream_addr_variable(ngx_http_request_t * r, ngx_htt
 			len += 3;
 		}
 	}
-	p = (u_char *)ngx_pnalloc(r->pool, len);
+	p = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -3356,7 +3356,7 @@ static ngx_int_t ngx_http_upstream_status_variable(ngx_http_request_t * r, ngx_h
 		return NGX_OK;
 	}
 	len = r->upstream_states->nelts * (3 + 2);
-	p = (u_char *)ngx_pnalloc(r->pool, len);
+	p = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -3406,7 +3406,7 @@ static ngx_int_t ngx_http_upstream_response_time_variable(ngx_http_request_t * r
 		return NGX_OK;
 	}
 	len = r->upstream_states->nelts * (NGX_TIME_T_LEN + 4 + 2);
-	p = (u_char *)ngx_pnalloc(r->pool, len);
+	p = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -3466,7 +3466,7 @@ static ngx_int_t ngx_http_upstream_response_length_variable(ngx_http_request_t *
 		return NGX_OK;
 	}
 	len = r->upstream_states->nelts * (NGX_OFF_T_LEN + 2);
-	p = (u_char *)ngx_pnalloc(r->pool, len);
+	p = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(!p) {
 		return NGX_ERROR;
 	}

@@ -572,7 +572,7 @@ ngx_int_t ngx_http_core_find_config_phase(ngx_http_request_t * r, ngx_http_phase
 		}
 		else {
 			len = clcf->name.len + 1 + r->args.len;
-			p = (u_char *)ngx_pnalloc(r->pool, len);
+			p = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 			if(!p) {
 				ngx_http_clear_location(r);
 				ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
@@ -3307,7 +3307,7 @@ static char * ngx_http_core_lowat_check(ngx_conf_t * cf, void * post, void * dat
 
 static char * ngx_http_core_pool_size(ngx_conf_t * cf, void * post, void * data)
 {
-	size_t * sp = (size_t *)data;
+	size_t * sp = static_cast<size_t *>(data);
 	if(*sp < NGX_MIN_POOL_SIZE) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the pool size must be no less than %uz", NGX_MIN_POOL_SIZE);
 		return NGX_CONF_ERROR;

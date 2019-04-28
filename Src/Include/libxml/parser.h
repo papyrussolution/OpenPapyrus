@@ -803,7 +803,7 @@ XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateDocParserCtxt(const xmlChar * cur);
 	 * Interfaces for the Push mode.
 	 */
 	XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, const char * chunk, int size, const char * filename);
-	XMLPUBFUN int XMLCALL xmlParseChunk(xmlParserCtxt * ctxt, const char * chunk, int size, int terminate);
+	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlParseChunk(xmlParserCtxt * ctxt, const char * chunk, int size, int terminate);
 #endif /* LIBXML_PUSH_ENABLED */
 /*
  * Special I/O mode.

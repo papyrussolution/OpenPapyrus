@@ -1142,27 +1142,22 @@ static int64_t archive_read_format_rar_seek_data(struct archive_read * a, int64_
 			ret -= rar->dbo[i+1].start_offset - rar->dbo[i].end_offset;
 		}
 		ret -= rar->dbo[0].start_offset;
-
 		/* Always restart reading the file after a seek */
 		__archive_reset_read_data(&a->archive);
-
 		rar->bytes_unconsumed = 0;
 		rar->offset = 0;
-
 		/*
 		 * If a seek past the end of file was requested, return the requested
 		 * offset.
 		 */
 		if(ret == rar->unp_size && rar->offset_seek > rar->unp_size)
 			return rar->offset_seek;
-
 		/* Return the new offset */
 		rar->offset_seek = ret;
 		return rar->offset_seek;
 	}
 	else{
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Seeking of compressed RAR files is unsupported");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Seeking of compressed RAR files is unsupported");
 	}
 	return ARCHIVE_FAILED;
 }
@@ -1182,8 +1177,7 @@ static int archive_read_format_rar_cleanup(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int read_header(struct archive_read * a, struct archive_entry * entry,
-    char head_type)
+static int read_header(struct archive_read * a, struct archive_entry * entry, char head_type)
 {
 	const void * h;
 	const char * p, * endp;

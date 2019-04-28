@@ -1703,7 +1703,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 #endif /* defined(QUALIFIER_VARSIZE) */
 #if defined(QUALIFIER_SIZE_T) || defined(QUALIFIER_SIZE_T_UPPER)
 				    if(parameters[i].flags & FLAGS_SIZE_T)
-					    parameters[i].data.number.as_unsigned = (!argarray) ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), size_t) : (trio_uintmax_t)(*((size_t*)argarray[num]));
+					    parameters[i].data.number.as_unsigned = (!argarray) ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), size_t) : (trio_uintmax_t)(*((size_t *)argarray[num]));
 				    else
 #endif
 #if defined(QUALIFIER_PTRDIFF_T)
@@ -2628,7 +2628,7 @@ static int TrioFormatProcess(trio_class_t * data, const char * format, trio_para
 						    // 
 #if defined(QUALIFIER_SIZE_T) || defined(QUALIFIER_SIZE_T_UPPER)
 						    if(flags & FLAGS_SIZE_T)
-							    *(size_t*)pointer = (size_t)data->committed;
+							    *(size_t *)pointer = (size_t)data->committed;
 						    else
 #endif
 #if defined(QUALIFIER_PTRDIFF_T)
@@ -4438,7 +4438,7 @@ static int TrioScanProcess(trio_class_t * data, const char * format, trio_parame
 					    pointer = parameters[i].data.pointer;
 #if defined(QUALIFIER_SIZE_T) || defined(QUALIFIER_SIZE_T_UPPER)
 					    if(flags & FLAGS_SIZE_T)
-						    *(size_t*)pointer = (size_t)number;
+						    *(size_t *)pointer = (size_t)number;
 					    else
 #endif
 #if defined(QUALIFIER_PTRDIFF_T)
@@ -4525,7 +4525,7 @@ static int TrioScanProcess(trio_class_t * data, const char * format, trio_parame
 						    count--;  /* a character is read, but is not consumed yet */
 #if defined(QUALIFIER_SIZE_T) || defined(QUALIFIER_SIZE_T_UPPER)
 					    if(flags & FLAGS_SIZE_T)
-						    *(size_t*)pointer = (size_t)count;
+						    *(size_t *)pointer = (size_t)count;
 					    else
 #endif
 #if defined(QUALIFIER_PTRDIFF_T)

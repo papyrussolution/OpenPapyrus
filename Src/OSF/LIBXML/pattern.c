@@ -54,7 +54,6 @@
 #define XML_STREAM_FINAL_IS_ANY_NODE 1<<14
 #define XML_STREAM_FROM_ROOT 1<<15
 #define XML_STREAM_DESC 1<<16
-
 /*
  * XML_STREAM_ANY_NODE is used for comparison against
  * xmlElementType enums, to indicate a node of any type.
@@ -65,10 +64,7 @@
 #define XML_STREAM_XS_IDC(c) ((c)->flags & (XML_PATTERN_XSSEL | XML_PATTERN_XSFIELD))
 #define XML_STREAM_XS_IDC_SEL(c) ((c)->flags & XML_PATTERN_XSSEL)
 #define XML_STREAM_XS_IDC_FIELD(c) ((c)->flags & XML_PATTERN_XSFIELD)
-
-#define XML_PAT_COPY_NSNAME(c, r, nsname) \
-	r = ((c)->comp->dict) ? (xmlChar *)xmlDictLookupSL((c)->comp->dict, BAD_CAST nsname) : sstrdup(BAD_CAST nsname);
-
+#define XML_PAT_COPY_NSNAME(c, r, nsname) r = ((c)->comp->dict) ? const_cast<xmlChar *>(xmlDictLookupSL((c)->comp->dict, reinterpret_cast<const xmlChar *>(nsname))) : sstrdup(reinterpret_cast<const xmlChar *>(nsname));
 #define XML_PAT_FREE_STRING(c, r) if((c)->comp->dict == NULL) SAlloc::F(r);
 
 struct xmlStreamStep {
@@ -79,13 +75,13 @@ struct xmlStreamStep {
 };
 
 //typedef struct _xmlStreamStep xmlStreamStep;
-typedef xmlStreamStep * xmlStreamStepPtr;
+//typedef xmlStreamStep * xmlStreamStepPtr;
 
 struct xmlStreamComp {
 	xmlDict * dict;         /* the dictionary if any */
 	int nbStep;             /* number of steps in the automata */
 	int maxStep;            /* allocated number of steps */
-	xmlStreamStepPtr steps; /* the array of steps */
+	xmlStreamStep * steps; /* the array of steps */
 	int flags;
 };
 
@@ -141,7 +137,7 @@ struct xmlStepOp {
 };
 
 //typedef struct _xmlStepOp xmlStepOp;
-typedef xmlStepOp * xmlStepOpPtr;
+//typedef xmlStepOp * xmlStepOpPtr;
 
 #define PAT_FROM_ROOT   (1<<8)
 #define PAT_FROM_CUR    (1<<9)
@@ -171,13 +167,9 @@ struct xmlPatParserContext {
 
 //typedef struct _xmlPatParserContext xmlPatParserContext;
 typedef xmlPatParserContext * xmlPatParserContextPtr;
-
-/************************************************************************
-*									*
-*			Type functions					*
-*									*
-************************************************************************/
-
+// 
+// Type functions
+// 
 /**
  * xmlNewPattern:
  *
@@ -187,14 +179,14 @@ typedef xmlPatParserContext * xmlPatParserContextPtr;
  */
 static xmlPattern * xmlNewPattern()
 {
-	xmlPattern * cur = (xmlPattern *)SAlloc::M(sizeof(xmlPattern));
+	xmlPattern * cur = static_cast<xmlPattern *>(SAlloc::M(sizeof(xmlPattern)));
 	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
 	}
 	else {
 		memzero(cur, sizeof(xmlPattern));
 		cur->maxStep = 10;
-		cur->steps = (xmlStepOpPtr)SAlloc::M(cur->maxStep * sizeof(xmlStepOp));
+		cur->steps = static_cast<xmlStepOp *>(SAlloc::M(cur->maxStep * sizeof(xmlStepOp)));
 		if(cur->steps == NULL) {
 			SAlloc::F(cur);
 			ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
@@ -231,7 +223,7 @@ void xmlFreePattern(xmlPattern * comp)
 		if(comp->steps) {
 			if(comp->dict == NULL) {
 				for(int i = 0; i < comp->nbStep; i++) {
-					xmlStepOpPtr op = &comp->steps[i];
+					xmlStepOp * op = &comp->steps[i];
 					SAlloc::F((xmlChar *)op->value);
 					SAlloc::F((xmlChar *)op->value2);
 				}
@@ -389,7 +381,7 @@ static int xmlReversePattern(xmlPattern * comp)
 		comp->nbStep--;
 	}
 	if(comp->nbStep >= comp->maxStep) {
-		xmlStepOpPtr temp = static_cast<xmlStepOpPtr>(SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp)));
+		xmlStepOp * temp = static_cast<xmlStepOp *>(SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp)));
 		if(temp == NULL) {
 			ERROR(ctxt, NULL, NULL, "xmlReversePattern: realloc failed\n");
 			return -1;
@@ -454,7 +446,7 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * P_Node)
 static int xmlPatMatch(xmlPattern * comp, xmlNode * P_Node)
 {
 	int i;
-	xmlStepOpPtr step;
+	xmlStepOp * step;
 	xmlStepStates states = {0, 0, NULL}; /* // may require backtrack */
 	if(!comp || !P_Node)
 		return -1;
@@ -648,13 +640,9 @@ rollback:
 #endif
 	goto restart;
 }
-
-/************************************************************************
-*									*
-*			Dedicated parser for templates			*
-*									*
-************************************************************************/
-
+// 
+// Dedicated parser for templates
+// 
 #define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 #define CUR  (*ctxt->cur)
 #define SKIP(val) ctxt->cur += (val)
@@ -752,7 +740,6 @@ static xmlChar * xmlPatScanLiteral(xmlPatParserContextPtr ctxt)
  *
  * Returns the Name parsed or NULL
  */
-
 static xmlChar * xmlPatScanName(xmlPatParserContextPtr ctxt)
 {
 	const xmlChar * q, * cur;
@@ -771,7 +758,6 @@ static xmlChar * xmlPatScanName(xmlPatParserContextPtr ctxt)
 	CUR_PTR = cur;
 	return ret;
 }
-
 /**
  * xmlPatScanNCName:
  * @ctxt:  the XPath Parser context
@@ -1305,12 +1291,9 @@ error_unfinished:
 					return;
 				}
 
-/************************************************************************
-*									*
-*			The streaming code				*
-*									*
-************************************************************************/
-
+// 
+// The streaming code
+// 
 #ifdef DEBUG_STREAMING
 				static void xmlDebugStreamComp(xmlStreamCompPtr stream) 
 				{
@@ -1376,13 +1359,13 @@ error_unfinished:
 static xmlStreamCompPtr xmlNewStreamComp(int size)
 {
 	SETMAX(size, 4);
-	xmlStreamCompPtr cur = (xmlStreamCompPtr)SAlloc::M(sizeof(xmlStreamComp));
+	xmlStreamCompPtr cur = static_cast<xmlStreamComp *>(SAlloc::M(sizeof(xmlStreamComp)));
 	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 		return 0;
 	}
 	memzero(cur, sizeof(xmlStreamComp));
-	cur->steps = (xmlStreamStepPtr)SAlloc::M(size * sizeof(xmlStreamStep));
+	cur->steps = static_cast<xmlStreamStep *>(SAlloc::M(size * sizeof(xmlStreamStep)));
 	if(cur->steps == NULL) {
 		SAlloc::F(cur);
 		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
@@ -1403,11 +1386,11 @@ static xmlStreamCompPtr xmlNewStreamComp(int size)
  *
  * Returns -1 in case of error or the step index if successful
  */
-static int xmlStreamCompAddStep(xmlStreamCompPtr comp, const xmlChar * name, const xmlChar * ns, int nodeType, int flags)
+static int FASTCALL xmlStreamCompAddStep(xmlStreamCompPtr comp, const xmlChar * name, const xmlChar * ns, int nodeType, int flags)
 {
-	xmlStreamStepPtr cur;
+	xmlStreamStep * cur;
 	if(comp->nbStep >= comp->maxStep) {
-		cur = (xmlStreamStepPtr)SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStreamStep));
+		cur = static_cast<xmlStreamStep *>(SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStreamStep)));
 		if(!cur) {
 			ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 			return -1;
@@ -1422,7 +1405,6 @@ static int xmlStreamCompAddStep(xmlStreamCompPtr comp, const xmlChar * name, con
 	cur->nodeType = nodeType;
 	return (comp->nbStep - 1);
 }
-
 /**
  * xmlStreamCompile:
  * @comp: the precompiled pattern
@@ -1471,8 +1453,7 @@ static int xmlStreamCompile(xmlPattern * comp)
 				root = 1;
 				break;
 			case XML_OP_NS:
-				s = xmlStreamCompAddStep(stream, NULL, step.value,
-				XML_ELEMENT_NODE, flags);
+				s = xmlStreamCompAddStep(stream, NULL, step.value, XML_ELEMENT_NODE, flags);
 				if(s < 0)
 					goto error;
 				prevs = s;
@@ -1481,8 +1462,7 @@ static int xmlStreamCompile(xmlPattern * comp)
 			case XML_OP_ATTR:
 				flags |= XML_STREAM_STEP_ATTR;
 				prevs = -1;
-				s = xmlStreamCompAddStep(stream,
-				step.value, step.value2, XML_ATTRIBUTE_NODE, flags);
+				s = xmlStreamCompAddStep(stream, step.value, step.value2, XML_ATTRIBUTE_NODE, flags);
 				flags = 0;
 				if(s < 0)
 					goto error;
@@ -1499,19 +1479,13 @@ static int xmlStreamCompile(xmlPattern * comp)
 						* self::node() is the last node test and we had
 						* continuation somewhere beforehand.
 						*/
-					if((comp->nbStep == i + 1) &&
-					(flags & XML_STREAM_STEP_DESC)) {
-						/*
-							* Mark the special case where the
-							*expression resolves
-							* to any type of node.
-							*/
+					if((comp->nbStep == i + 1) && (flags & XML_STREAM_STEP_DESC)) {
+						/* Mark the special case where the expression resolves to any type of node. */
 						if(comp->nbStep == i + 1) {
 							stream->flags |= XML_STREAM_FINAL_IS_ANY_NODE;
 						}
 						flags |= XML_STREAM_STEP_NODE;
-						s = xmlStreamCompAddStep(stream, NULL, NULL,
-						XML_STREAM_ANY_NODE, flags);
+						s = xmlStreamCompAddStep(stream, NULL, NULL, XML_STREAM_ANY_NODE, flags);
 						if(s < 0)
 							goto error;
 						flags = 0;
@@ -1537,8 +1511,7 @@ static int xmlStreamCompile(xmlPattern * comp)
 					}
 				}
 				/* An element node. */
-				s = xmlStreamCompAddStep(stream, step.value, step.value2,
-				XML_ELEMENT_NODE, flags);
+				s = xmlStreamCompAddStep(stream, step.value, step.value2, XML_ELEMENT_NODE, flags);
 				if(s < 0)
 					goto error;
 				prevs = s;
@@ -1546,16 +1519,14 @@ static int xmlStreamCompile(xmlPattern * comp)
 				break;
 			case XML_OP_CHILD:
 				/* An element node child. */
-				s = xmlStreamCompAddStep(stream, step.value, step.value2,
-				XML_ELEMENT_NODE, flags);
+				s = xmlStreamCompAddStep(stream, step.value, step.value2, XML_ELEMENT_NODE, flags);
 				if(s < 0)
 					goto error;
 				prevs = s;
 				flags = 0;
 				break;
 			case XML_OP_ALL:
-				s = xmlStreamCompAddStep(stream, NULL, NULL,
-				XML_ELEMENT_NODE, flags);
+				s = xmlStreamCompAddStep(stream, NULL, NULL, XML_ELEMENT_NODE, flags);
 				if(s < 0)
 					goto error;
 				prevs = s;

@@ -414,8 +414,7 @@ const wchar_t * archive_entry_gname_w(struct archive_entry * entry)
 	return NULL;
 }
 
-int _archive_entry_gname_l(struct archive_entry * entry,
-    const char ** p, size_t * len, struct archive_string_conv * sc)
+int _archive_entry_gname_l(struct archive_entry * entry, const char ** p, size_t * len, struct archive_string_conv * sc)
 {
 	return (archive_mstring_get_mbs_l(&entry->ae_gname, p, len, sc));
 }
@@ -425,8 +424,7 @@ const char * archive_entry_hardlink(struct archive_entry * entry)
 	const char * p;
 	if((entry->ae_set & AE_SET_HARDLINK) == 0)
 		return NULL;
-	if(archive_mstring_get_mbs(
-		    entry->archive, &entry->ae_hardlink, &p) == 0)
+	if(archive_mstring_get_mbs(entry->archive, &entry->ae_hardlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -510,7 +508,7 @@ uint FASTCALL archive_entry_nlink(const struct archive_entry * entry)
 	return (entry->ae_stat.aest_nlink);
 }
 
-const char * archive_entry_pathname(struct archive_entry * entry)
+const char * FASTCALL archive_entry_pathname(struct archive_entry * entry)
 {
 	const char * p;
 	if(archive_mstring_get_mbs(entry->archive, &entry->ae_pathname, &p) == 0)
@@ -574,12 +572,12 @@ dev_t archive_entry_rdevminor(struct archive_entry * entry)
 		return minor(entry->ae_stat.aest_rdev);
 }
 
-la_int64_t archive_entry_size(struct archive_entry * entry)
+la_int64_t FASTCALL archive_entry_size(const struct archive_entry * entry)
 {
 	return (entry->ae_stat.aest_size);
 }
 
-int archive_entry_size_is_set(struct archive_entry * entry)
+int FASTCALL archive_entry_size_is_set(const struct archive_entry * entry)
 {
 	return (entry->ae_set & AE_SET_SIZE);
 }
@@ -587,8 +585,7 @@ int archive_entry_size_is_set(struct archive_entry * entry)
 const char * archive_entry_sourcepath(struct archive_entry * entry)
 {
 	const char * p;
-	if(archive_mstring_get_mbs(
-		    entry->archive, &entry->ae_sourcepath, &p) == 0)
+	if(archive_mstring_get_mbs(entry->archive, &entry->ae_sourcepath, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -609,8 +606,7 @@ const char * archive_entry_symlink(struct archive_entry * entry)
 	const char * p;
 	if((entry->ae_set & AE_SET_SYMLINK) == 0)
 		return NULL;
-	if(archive_mstring_get_mbs(
-		    entry->archive, &entry->ae_symlink, &p) == 0)
+	if(archive_mstring_get_mbs(entry->archive, &entry->ae_symlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -643,8 +639,7 @@ const wchar_t * archive_entry_symlink_w(struct archive_entry * entry)
 	return NULL;
 }
 
-int _archive_entry_symlink_l(struct archive_entry * entry,
-    const char ** p, size_t * len, struct archive_string_conv * sc)
+int _archive_entry_symlink_l(struct archive_entry * entry, const char ** p, size_t * len, struct archive_string_conv * sc)
 {
 	if((entry->ae_set & AE_SET_SYMLINK) == 0) {
 		*p = NULL;
@@ -689,8 +684,7 @@ const wchar_t * archive_entry_uname_w(struct archive_entry * entry)
 	return NULL;
 }
 
-int _archive_entry_uname_l(struct archive_entry * entry,
-    const char ** p, size_t * len, struct archive_string_conv * sc)
+int _archive_entry_uname_l(struct archive_entry * entry, const char ** p, size_t * len, struct archive_string_conv * sc)
 {
 	return (archive_mstring_get_mbs_l(&entry->ae_uname, p, len, sc));
 }
@@ -721,28 +715,23 @@ void archive_entry_set_filetype(struct archive_entry * entry, uint type)
 	entry->acl.mode |= AE_IFMT & type;
 }
 
-void archive_entry_set_fflags(struct archive_entry * entry,
-    unsigned long set, unsigned long clear)
+void archive_entry_set_fflags(struct archive_entry * entry, unsigned long set, unsigned long clear)
 {
 	archive_mstring_clean(&entry->ae_fflags_text);
 	entry->ae_fflags_set = set;
 	entry->ae_fflags_clear = clear;
 }
 
-const char * archive_entry_copy_fflags_text(struct archive_entry * entry,
-    const char * flags)
+const char * archive_entry_copy_fflags_text(struct archive_entry * entry, const char * flags)
 {
 	archive_mstring_copy_mbs(&entry->ae_fflags_text, flags);
-	return (ae_strtofflags(flags,
-	       &entry->ae_fflags_set, &entry->ae_fflags_clear));
+	return (ae_strtofflags(flags, &entry->ae_fflags_set, &entry->ae_fflags_clear));
 }
 
-const wchar_t * archive_entry_copy_fflags_text_w(struct archive_entry * entry,
-    const wchar_t * flags)
+const wchar_t * archive_entry_copy_fflags_text_w(struct archive_entry * entry, const wchar_t * flags)
 {
 	archive_mstring_copy_wcs(&entry->ae_fflags_text, flags);
-	return (ae_wcstofflags(flags,
-	       &entry->ae_fflags_set, &entry->ae_fflags_clear));
+	return (ae_wcstofflags(flags, &entry->ae_fflags_set, &entry->ae_fflags_clear));
 }
 
 void archive_entry_set_gid(struct archive_entry * entry, la_int64_t g)
@@ -773,16 +762,14 @@ void archive_entry_copy_gname_w(struct archive_entry * entry, const wchar_t * na
 
 int archive_entry_update_gname_utf8(struct archive_entry * entry, const char * name)
 {
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_gname, name) == 0)
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_gname, name) == 0)
 		return (1);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
 	return 0;
 }
 
-int _archive_entry_copy_gname_l(struct archive_entry * entry,
-    const char * name, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_gname_l(struct archive_entry * entry, const char * name, size_t len, struct archive_string_conv * sc)
 {
 	return (archive_mstring_copy_mbs_len_l(&entry->ae_gname, name, len, sc));
 }
@@ -843,21 +830,16 @@ int archive_entry_update_hardlink_utf8(struct archive_entry * entry, const char 
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
 		entry->ae_set &= ~AE_SET_HARDLINK;
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_hardlink, target) == 0)
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_hardlink, target) == 0)
 		return (1);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
 	return 0;
 }
 
-int _archive_entry_copy_hardlink_l(struct archive_entry * entry,
-    const char * target, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_hardlink_l(struct archive_entry * entry, const char * target, size_t len, struct archive_string_conv * sc)
 {
-	int r;
-
-	r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink,
-		target, len, sc);
+	int r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink, target, len, sc);
 	if(target != NULL && r == 0)
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
@@ -973,11 +955,9 @@ int archive_entry_update_link_utf8(struct archive_entry * entry, const char * ta
 {
 	int r;
 	if(entry->ae_set & AE_SET_SYMLINK)
-		r = archive_mstring_update_utf8(entry->archive,
-			&entry->ae_symlink, target);
+		r = archive_mstring_update_utf8(entry->archive, &entry->ae_symlink, target);
 	else
-		r = archive_mstring_update_utf8(entry->archive,
-			&entry->ae_hardlink, target);
+		r = archive_mstring_update_utf8(entry->archive, &entry->ae_hardlink, target);
 	if(r == 0)
 		return (1);
 	if(errno == ENOMEM)
@@ -985,17 +965,13 @@ int archive_entry_update_link_utf8(struct archive_entry * entry, const char * ta
 	return 0;
 }
 
-int _archive_entry_copy_link_l(struct archive_entry * entry,
-    const char * target, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_link_l(struct archive_entry * entry, const char * target, size_t len, struct archive_string_conv * sc)
 {
 	int r;
-
 	if(entry->ae_set & AE_SET_SYMLINK)
-		r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink,
-			target, len, sc);
+		r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink, target, len, sc);
 	else
-		r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink,
-			target, len, sc);
+		r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink, target, len, sc);
 	return r;
 }
 
@@ -1048,19 +1024,16 @@ void archive_entry_copy_pathname_w(struct archive_entry * entry, const wchar_t *
 
 int archive_entry_update_pathname_utf8(struct archive_entry * entry, const char * name)
 {
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_pathname, name) == 0)
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_pathname, name) == 0)
 		return (1);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
 	return 0;
 }
 
-int _archive_entry_copy_pathname_l(struct archive_entry * entry,
-    const char * name, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_pathname_l(struct archive_entry * entry, const char * name, size_t len, struct archive_string_conv * sc)
 {
-	return (archive_mstring_copy_mbs_len_l(&entry->ae_pathname,
-	       name, len, sc));
+	return (archive_mstring_copy_mbs_len_l(&entry->ae_pathname, name, len, sc));
 }
 
 void archive_entry_set_perm(struct archive_entry * entry, mode_t p)
@@ -1156,21 +1129,16 @@ int archive_entry_update_symlink_utf8(struct archive_entry * entry, const char *
 		entry->ae_set |= AE_SET_SYMLINK;
 	else
 		entry->ae_set &= ~AE_SET_SYMLINK;
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_symlink, linkname) == 0)
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_symlink, linkname) == 0)
 		return (1);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
 	return 0;
 }
 
-int _archive_entry_copy_symlink_l(struct archive_entry * entry,
-    const char * linkname, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_symlink_l(struct archive_entry * entry, const char * linkname, size_t len, struct archive_string_conv * sc)
 {
-	int r;
-
-	r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink,
-		linkname, len, sc);
+	int r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink, linkname, len, sc);
 	if(linkname != NULL && r == 0)
 		entry->ae_set |= AE_SET_SYMLINK;
 	else
@@ -1184,30 +1152,14 @@ void archive_entry_set_uid(struct archive_entry * entry, la_int64_t u)
 	entry->ae_stat.aest_uid = u;
 }
 
-void archive_entry_set_uname(struct archive_entry * entry, const char * name)
-{
-	archive_mstring_copy_mbs(&entry->ae_uname, name);
-}
-
-void archive_entry_set_uname_utf8(struct archive_entry * entry, const char * name)
-{
-	archive_mstring_copy_utf8(&entry->ae_uname, name);
-}
-
-void archive_entry_copy_uname(struct archive_entry * entry, const char * name)
-{
-	archive_mstring_copy_mbs(&entry->ae_uname, name);
-}
-
-void archive_entry_copy_uname_w(struct archive_entry * entry, const wchar_t * name)
-{
-	archive_mstring_copy_wcs(&entry->ae_uname, name);
-}
+void archive_entry_set_uname(struct archive_entry * entry, const char * name) { archive_mstring_copy_mbs(&entry->ae_uname, name); }
+void archive_entry_set_uname_utf8(struct archive_entry * entry, const char * name) { archive_mstring_copy_utf8(&entry->ae_uname, name); }
+void archive_entry_copy_uname(struct archive_entry * entry, const char * name) { archive_mstring_copy_mbs(&entry->ae_uname, name); }
+void archive_entry_copy_uname_w(struct archive_entry * entry, const wchar_t * name) { archive_mstring_copy_wcs(&entry->ae_uname, name); }
 
 int archive_entry_update_uname_utf8(struct archive_entry * entry, const char * name)
 {
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_uname, name) == 0)
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_uname, name) == 0)
 		return (1);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");

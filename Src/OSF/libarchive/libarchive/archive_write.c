@@ -22,11 +22,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:00Z kientzle $");
-
 /*
  * This file contains the "essential" portions of the write API, that
  * is, stuff that will essentially always be used by any client that
@@ -34,28 +32,26 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:
  * far as possible, separated out into separate files to reduce
  * needlessly bloating statically-linked clients.
  */
-
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+	#include <sys/wait.h>
 #endif
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
-#ifdef HAVE_LIMITS_H
+//#endif
+//#ifdef HAVE_LIMITS_H
 //#include <limits.h>
-#endif
+//#endif
 //#include <stdio.h>
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
-#include <time.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
+//#endif
+//#include <time.h>
+//#ifdef HAVE_UNISTD_H
+//#include <unistd.h>
+//#endif
 //#include "archive.h"
 //#include "archive_entry.h"
 //#include "archive_private.h"
@@ -80,10 +76,10 @@ struct archive_none {
 	char * next;
 };
 
-static struct archive_vtable * archive_write_vtable(void)                               {
+static struct archive_vtable * archive_write_vtable(void)                               
+{
 	static struct archive_vtable av;
 	static int inited = 0;
-
 	if(!inited) {
 		av.archive_close = _archive_write_close;
 		av.archive_filter_bytes = _archive_filter_bytes;
@@ -98,15 +94,13 @@ static struct archive_vtable * archive_write_vtable(void)                       
 	}
 	return (&av);
 }
-
 /*
  * Allocate, initialize and return an archive object.
  */
-struct archive * archive_write_new(void)                 {
-	struct archive_write * a;
+struct archive * archive_write_new(void)                 
+{
 	uchar * nulls;
-
-	a = (struct archive_write *)SAlloc::C(1, sizeof(*a));
+	struct archive_write * a = (struct archive_write *)SAlloc::C(1, sizeof(*a));
 	if(a == NULL)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_MAGIC;
@@ -130,7 +124,6 @@ struct archive * archive_write_new(void)                 {
 	a->nulls = nulls;
 	return (&a->archive);
 }
-
 /*
  * Set the block size.  Returns 0 if successful.
  */
@@ -161,7 +154,6 @@ int archive_write_set_bytes_in_last_block(struct archive * _a, int bytes)
 	a->bytes_in_last_block = bytes;
 	return ARCHIVE_OK;
 }
-
 /*
  * Return the value set above.  -1 indicates it has not been set.
  */
@@ -171,7 +163,6 @@ int archive_write_get_bytes_in_last_block(struct archive * _a)
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, "archive_write_get_bytes_in_last_block");
 	return (a->bytes_in_last_block);
 }
-
 /*
  * dev/ino of a file to be rejected.  Used to prevent adding
  * an archive to itself recursively.
@@ -185,7 +176,6 @@ int archive_write_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 	a->skip_file_ino = i;
 	return ARCHIVE_OK;
 }
-
 /*
  * Allocate and return the next filter structure.
  */

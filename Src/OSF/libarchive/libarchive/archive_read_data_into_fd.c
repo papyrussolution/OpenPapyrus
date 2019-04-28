@@ -33,9 +33,9 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_data_into_fd.c,v 1.16 2008/0
 //#ifdef HAVE_ERRNO_H
 //#include <errno.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include "archive.h"
 //#include "archive_private.h"
 

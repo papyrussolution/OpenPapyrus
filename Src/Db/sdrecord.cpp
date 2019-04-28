@@ -962,7 +962,7 @@ int SLAPI SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 			if(MaxRecSize == 0)
 				MaxRecSize = recSize;
 			else if(recSize != MaxRecSize) {
-				Flags &= fEqRec;
+				Flags &= ~fEqRec; // @v10.4.3 @fix fEqRec-->~fEqRec 
 				if(recSize > MaxRecSize)
 					MaxRecSize = recSize;
 			}
@@ -974,15 +974,8 @@ int SLAPI SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 	return ok;
 }
 
-int SLAPI SdRecordBuffer::IsEqRec() const
-{
-	return BIN(Flags & fEqRec);
-}
-
-uint SLAPI SdRecordBuffer::GetCount() const
-{
-	return P_Buf ? *PTR16(P_Buf) : 0;
-}
+int  SLAPI SdRecordBuffer::IsEqRec() const { return BIN(Flags & fEqRec); }
+uint SLAPI SdRecordBuffer::GetCount() const { return P_Buf ? *PTR16(P_Buf) : 0; }
 
 SBaseBuffer FASTCALL SdRecordBuffer::Get(uint recNo) const
 {

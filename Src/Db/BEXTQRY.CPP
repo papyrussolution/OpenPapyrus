@@ -423,7 +423,7 @@ __again:
 				P_Tbl->setIndex(index);
 				r = P_Tbl->getExtended(_Key, spMode);
 				P_Tbl->setBuffer(saved_buf);
-				ActCount = *reinterpret_cast<const uint16 *>(static_cast<char *>(Buf));
+				ActCount = *reinterpret_cast<const uint16 *>(Buf.cptr());
 				State &= ~stRejectLimit;
 				if(r == 0)
 					if(BTRNFOUND) {
@@ -610,7 +610,7 @@ char * SLAPI BExtQuery::getRecImage()
 			}
 		}
 		else {
-			if(n < *reinterpret_cast<const uint16 *>(static_cast<char *>(Buf))) {
+			if(n < *reinterpret_cast<const uint16 *>(Buf.cptr())) {
 				size_t offs = sizeof(BExtResultHeader);
 				if(State & stHasNote) {
 					p_ret = Buf + offs;

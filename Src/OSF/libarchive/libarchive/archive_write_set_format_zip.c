@@ -245,17 +245,14 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		 * This only affects regular files.
 		 */
 		if(val == NULL || val[0] == 0) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: compression option needs a compression name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: compression option needs a compression name", a->format_name);
 		}
 		else if(strcmp(val, "deflate") == 0) {
 #ifdef HAVE_ZLIB_H
 			zip->requested_compression = COMPRESSION_DEFLATE;
 			ret = ARCHIVE_OK;
 #else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "deflate compression not supported");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "deflate compression not supported");
 #endif
 		}
 		else if(strcmp(val, "store") == 0) {
@@ -279,8 +276,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			zip->deflate_compression_level = val[0] - '0';
 			return ARCHIVE_OK;
 #else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "deflate compression not supported");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "deflate compression not supported");
 #endif
 		}
 	}
@@ -297,9 +293,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 				ret = ARCHIVE_OK;
 			}
 			else {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "encryption not supported");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "encryption not supported");
 			}
 		}
 		else if(strcmp(val, "aes128") == 0) {
@@ -309,9 +303,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 				ret = ARCHIVE_OK;
 			}
 			else {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "encryption not supported");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "encryption not supported");
 			}
 		}
 		else if(strcmp(val, "aes256") == 0) {
@@ -321,15 +313,11 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 				ret = ARCHIVE_OK;
 			}
 			else {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "encryption not supported");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "encryption not supported");
 			}
 		}
 		else {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: unknown encryption '%s'",
-			    a->format_name, val);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: unknown encryption '%s'", a->format_name, val);
 		}
 		return ret;
 	}
@@ -360,9 +348,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		 * Set the character set used in translating filenames.
 		 */
 		if(val == NULL || val[0] == 0) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		}
 		else {
 			zip->opt_sconv = archive_string_conversion_to_charset(
@@ -506,8 +492,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	/* Ignore types of entries that we don't support. */
 	type = archive_entry_filetype(entry);
 	if(type != AE_IFREG && type != AE_IFDIR && type != AE_IFLNK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Filetype not supported");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Filetype not supported");
 		return ARCHIVE_FAILED;
 	}
 	;
@@ -520,8 +505,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		}
 		/* Reject entries if archive is > 4GB. */
 		if(zip->written_bytes > ZIP_4GB_MAX) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Archives > 4GB require Zip64 extensions");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Archives > 4GB require Zip64 extensions");
 			return ARCHIVE_FAILED;
 		}
 	}
@@ -575,8 +559,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	zip->entry = archive_entry_clone(entry);
 #endif
 	if(zip->entry == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate zip header data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate zip header data");
 		return ARCHIVE_FATAL;
 	}
 
@@ -588,13 +571,11 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 				return ARCHIVE_FATAL;
 			}
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Can't translate Pathname '%s' to %s", archive_entry_pathname(entry), archive_string_conversion_charset_name(sconv));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate Pathname '%s' to %s", archive_entry_pathname(entry), archive_string_conversion_charset_name(sconv));
 			ret2 = ARCHIVE_WARN;
 		}
 		if(len > 0)
 			archive_entry_set_pathname(zip->entry, p);
-
 		/*
 		 * There is no standard for symlink handling; we convert
 		 * it using the same character-set translation that we use
@@ -603,9 +584,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		if(type == AE_IFLNK) {
 			if(archive_entry_symlink_l(entry, &p, &len, sconv)) {
 				if(errno == ENOMEM) {
-					archive_set_error(&a->archive, ENOMEM,
-					    "Can't allocate memory "
-					    " for Symlink");
+					archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Symlink");
 					return ARCHIVE_FATAL;
 				}
 				/* No error if we can't convert. */
@@ -618,8 +597,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	/* If filename isn't ASCII and we can use UTF-8, set the UTF-8 flag. */
 	if(!is_all_ascii(archive_entry_pathname(zip->entry))) {
 		if(zip->opt_sconv != NULL) {
-			if(strcmp(archive_string_conversion_charset_name(
-				    zip->opt_sconv), "UTF-8") == 0)
+			if(strcmp(archive_string_conversion_charset_name(zip->opt_sconv), "UTF-8") == 0)
 				zip->entry_flags |= ZIP_ENTRY_FLAG_UTF8_NAME;
 #if HAVE_NL_LANGINFO
 		}
@@ -959,10 +937,8 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		zip->stream.opaque = Z_NULL;
 		zip->stream.next_out = zip->buf;
 		zip->stream.avail_out = (uInt)zip->len_buf;
-		if(deflateInit2(&zip->stream, zip->deflate_compression_level,
-		    Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't init deflate compressor");
+		if(deflateInit2(&zip->stream, zip->deflate_compression_level, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
+			archive_set_error(&a->archive, ENOMEM, "Can't init deflate compressor");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -1025,9 +1001,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 						    &zip->cctx,
 						    rb, re - rb, zip->buf, &l);
 					    if(ret < 0) {
-						    archive_set_error(&a->archive,
-							ARCHIVE_ERRNO_MISC,
-							"Failed to encrypt file");
+						    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to encrypt file");
 						    return ARCHIVE_FAILED;
 					    }
 					    archive_hmac_sha1_update(&zip->hctx,
@@ -1070,9 +1044,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 						    zip->buf, zip->len_buf,
 						    zip->buf, &outl);
 					    if(ret < 0) {
-						    archive_set_error(&a->archive,
-							ARCHIVE_ERRNO_MISC,
-							"Failed to encrypt file");
+						    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to encrypt file");
 						    return ARCHIVE_FAILED;
 					    }
 					    archive_hmac_sha1_update(&zip->hctx,
@@ -1092,8 +1064,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 #endif
 
 		default:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			"Invalid ZIP compression type");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid ZIP compression type");
 		    return ARCHIVE_FATAL;
 	}
 
@@ -1128,9 +1099,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 					&zip->cctx, zip->buf, remainder,
 					zip->buf, &outl);
 				if(ret < 0) {
-					archive_set_error(&a->archive,
-					    ARCHIVE_ERRNO_MISC,
-					    "Failed to encrypt file");
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to encrypt file");
 					return ARCHIVE_FAILED;
 				}
 				archive_hmac_sha1_update(&zip->hctx,
@@ -1212,8 +1181,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 		archive_le16enc(zip64 + 2, (uint16_t)(z - (zip64 + 4)));
 		zd = cd_alloc(zip, z - zip64);
 		if(zd == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate zip data");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate zip data");
 			return ARCHIVE_FATAL;
 		}
 		memcpy(zd, zip64, z - zip64);
@@ -1504,13 +1472,11 @@ static int init_traditional_pkware_encryption(struct archive_write * a)
 
 	passphrase = __archive_write_get_passphrase(a);
 	if(passphrase == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Encryption needs passphrase");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Encryption needs passphrase");
 		return ARCHIVE_FAILED;
 	}
 	if(archive_random(key, sizeof(key)-1) != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can't generate random number for encryption");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't generate random number for encryption");
 		return ARCHIVE_FATAL;
 	}
 	trad_enc_init(&zip->tctx, passphrase, strlen(passphrase));
@@ -1531,16 +1497,13 @@ static int init_traditional_pkware_encryption(struct archive_write * a)
 static int init_winzip_aes_encryption(struct archive_write * a)
 {
 	struct zip * zip = (struct zip *)a->format_data;
-	const char * passphrase;
 	size_t key_len, salt_len;
 	uint8_t salt[16 + 2];
 	uint8_t derived_key[MAX_DERIVED_KEY_BUF_SIZE];
 	int ret;
-
-	passphrase = __archive_write_get_passphrase(a);
+	const char * passphrase = __archive_write_get_passphrase(a);
 	if(passphrase == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Encryption needs passphrase");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Encryption needs passphrase");
 		return ARCHIVE_FAILED;
 	}
 	if(zip->entry_encryption == ENCRYPTION_WINZIP_AES128) {
@@ -1553,25 +1516,20 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 		key_len = 32;
 	}
 	if(archive_random(salt, salt_len) != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can't generate random number for encryption");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't generate random number for encryption");
 		return ARCHIVE_FATAL;
 	}
-	archive_pbkdf2_sha1(passphrase, strlen(passphrase),
-	    salt, salt_len, 1000, derived_key, key_len * 2 + 2);
-
+	archive_pbkdf2_sha1(passphrase, strlen(passphrase), salt, salt_len, 1000, derived_key, key_len * 2 + 2);
 	ret = archive_encrypto_aes_ctr_init(&zip->cctx, derived_key, key_len);
 	if(ret != 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Decryption is unsupported due to lack of crypto library");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Decryption is unsupported due to lack of crypto library");
 		return ARCHIVE_FAILED;
 	}
 	ret = archive_hmac_sha1_init(&zip->hctx, derived_key + key_len,
 		key_len);
 	if(ret != 0) {
 		archive_encrypto_aes_ctr_release(&zip->cctx);
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Failed to initialize HMAC-SHA1");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to initialize HMAC-SHA1");
 		return ARCHIVE_FAILED;
 	}
 

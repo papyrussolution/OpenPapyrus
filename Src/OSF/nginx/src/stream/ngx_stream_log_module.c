@@ -207,7 +207,7 @@ static ngx_int_t ngx_stream_log_handler(ngx_stream_session_t * s)
 			}
 		}
 alloc_line:
-		line = (u_char *)ngx_pnalloc(s->connection->pool, len);
+		line = static_cast<u_char *>(ngx_pnalloc(s->connection->pool, len));
 		if(line == NULL) {
 			return NGX_ERROR;
 		}
@@ -806,7 +806,7 @@ process_formats:
 		if(!buffer) {
 			return NGX_CONF_ERROR;
 		}
-		buffer->start = (u_char *)ngx_pnalloc(cf->pool, size);
+		buffer->start = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
 		if(buffer->start == NULL) {
 			return NGX_CONF_ERROR;
 		}
@@ -952,7 +952,7 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 				}
 				else {
 					op->run = ngx_stream_log_copy_long;
-					p = (u_char *)ngx_pnalloc(cf->pool, len);
+					p = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
 					if(!p) {
 						return NGX_CONF_ERROR;
 					}

@@ -35,7 +35,6 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-
 #include "libssh2_priv.h"
 #pragma hdrstop
 //#include "transport.h"
@@ -49,7 +48,7 @@
 		libssh2_sha1_ctx hash;						\
 		ulong len = 0;						\
 		if(!(value)) {						       \
-			value = (uchar *)LIBSSH2_ALLOC(session, reqlen + SHA_DIGEST_LENGTH); \
+			value = static_cast<uchar *>(LIBSSH2_ALLOC(session, reqlen + SHA_DIGEST_LENGTH)); \
 		}								\
 		if(value)						       \
 			while(len < (ulong)reqlen) {			   \
@@ -73,7 +72,7 @@
 		libssh2_sha256_ctx hash;					   \
 		ulong len = 0;						   \
 		if(!(value)) {							  \
-			value = (uchar *)LIBSSH2_ALLOC(session, reqlen + SHA256_DIGEST_LENGTH); \
+			value = static_cast<uchar *>(LIBSSH2_ALLOC(session, reqlen + SHA256_DIGEST_LENGTH)); \
 		}								   \
 		if(value)							  \
 			while(len < (ulong)reqlen) {			      \

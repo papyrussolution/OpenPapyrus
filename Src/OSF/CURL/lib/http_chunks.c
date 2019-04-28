@@ -99,7 +99,7 @@ CHUNKcode Curl_httpchunk_read(struct connectdata * conn, char * datap, ssize_t d
 	struct SingleRequest * k = &data->req;
 	size_t piece;
 	curl_off_t length = (curl_off_t)datalen;
-	size_t * wrote = (size_t*)wrotep;
+	size_t * wrote = (size_t *)wrotep;
 	*wrote = 0; /* nothing's written yet */
 	/* the original data is written to the client, but we go on with the
 	   chunk read process, to properly calculate the content length*/

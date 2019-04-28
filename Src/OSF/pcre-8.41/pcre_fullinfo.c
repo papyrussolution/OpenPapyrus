@@ -88,16 +88,16 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 		    *((unsigned long*)where) = re->options & PUBLIC_COMPILE_OPTIONS;
 		    break;
 		case PCRE_INFO_SIZE:
-		    *((size_t*)where) = re->size;
+		    *((size_t *)where) = re->size;
 		    break;
 		case PCRE_INFO_STUDYSIZE:
-		    *((size_t*)where) = (study == NULL) ? 0 : study->size;
+		    *((size_t *)where) = (study == NULL) ? 0 : study->size;
 		    break;
 		case PCRE_INFO_JITSIZE:
 #ifdef SUPPORT_JIT
-		    *((size_t*)where) = (extra_data && (extra_data->flags & PCRE_EXTRA_EXECUTABLE_JIT) != 0 && extra_data->executable_jit) ? PRIV(jit_get_size) (extra_data->executable_jit) : 0;
+		    *((size_t *)where) = (extra_data && (extra_data->flags & PCRE_EXTRA_EXECUTABLE_JIT) != 0 && extra_data->executable_jit) ? PRIV(jit_get_size) (extra_data->executable_jit) : 0;
 #else
-		    *((size_t*)where) = 0;
+		    *((size_t *)where) = 0;
 #endif
 		    break;
 		case PCRE_INFO_CAPTURECOUNT:

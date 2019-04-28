@@ -36,9 +36,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_check_magic.c 201089 2009-12-28 
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#if defined(_WIN32) && !defined(__CYGWIN__)
 	//#include <windows.h>
 	//#include <winbase.h>

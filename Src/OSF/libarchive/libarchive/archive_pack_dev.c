@@ -62,9 +62,9 @@ __RCSID("$NetBSD$");
 #ifdef HAVE_SYS_MKDEV_H
 	#include <sys/mkdev.h>
 #endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #include "archive_pack_dev.h"
 
 static pack_t pack_netbsd;
@@ -109,12 +109,11 @@ static const char tooManyFields[] = "too many fields for format";
 dev_t pack_native(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = apd_makedev(numbers[0], numbers[1]);
-		if((unsigned long)major(dev) != numbers[0])
+		if((ulong)major(dev) != numbers[0])
 			*error = iMajorError;
-		else if((unsigned long)minor(dev) != numbers[1])
+		else if((ulong)minor(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -125,12 +124,11 @@ dev_t pack_native(int n, unsigned long numbers[], const char ** error)
 static dev_t pack_netbsd(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = makedev_netbsd(numbers[0], numbers[1]);
-		if((unsigned long)major_netbsd(dev) != numbers[0])
+		if((ulong)major_netbsd(dev) != numbers[0])
 			*error = iMajorError;
-		else if((unsigned long)minor_netbsd(dev) != numbers[1])
+		else if((ulong)minor_netbsd(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -140,18 +138,16 @@ static dev_t pack_netbsd(int n, unsigned long numbers[], const char ** error)
 
 #define major_freebsd(x)        ((int32_t)(((x) & 0x0000ff00) >> 8))
 #define minor_freebsd(x)        ((int32_t)(((x) & 0xffff00ff) >> 0))
-#define makedev_freebsd(x, y)    ((dev_t)((((x) << 8) & 0x0000ff00) | \
-	(((y) << 0) & 0xffff00ff)))
+#define makedev_freebsd(x, y)    ((dev_t)((((x) << 8) & 0x0000ff00) | (((y) << 0) & 0xffff00ff)))
 
 static dev_t pack_freebsd(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = makedev_freebsd(numbers[0], numbers[1]);
-		if((unsigned long)major_freebsd(dev) != numbers[0])
+		if((ulong)major_freebsd(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_freebsd(dev) != numbers[1])
+		if((ulong)minor_freebsd(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -161,18 +157,16 @@ static dev_t pack_freebsd(int n, unsigned long numbers[], const char ** error)
 
 #define major_8_8(x)            ((int32_t)(((x) & 0x0000ff00) >> 8))
 #define minor_8_8(x)            ((int32_t)(((x) & 0x000000ff) >> 0))
-#define makedev_8_8(x, y)        ((dev_t)((((x) << 8) & 0x0000ff00) | \
-	(((y) << 0) & 0x000000ff)))
+#define makedev_8_8(x, y)        ((dev_t)((((x) << 8) & 0x0000ff00) | (((y) << 0) & 0x000000ff)))
 
 static dev_t pack_8_8(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = makedev_8_8(numbers[0], numbers[1]);
-		if((unsigned long)major_8_8(dev) != numbers[0])
+		if((ulong)major_8_8(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_8_8(dev) != numbers[1])
+		if((ulong)minor_8_8(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -182,18 +176,16 @@ static dev_t pack_8_8(int n, unsigned long numbers[], const char ** error)
 
 #define major_12_20(x)          ((int32_t)(((x) & 0xfff00000) >> 20))
 #define minor_12_20(x)          ((int32_t)(((x) & 0x000fffff) >>  0))
-#define makedev_12_20(x, y)      ((dev_t)((((x) << 20) & 0xfff00000) | \
-	(((y) <<  0) & 0x000fffff)))
+#define makedev_12_20(x, y)      ((dev_t)((((x) << 20) & 0xfff00000) | (((y) <<  0) & 0x000fffff)))
 
 static dev_t pack_12_20(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = makedev_12_20(numbers[0], numbers[1]);
-		if((unsigned long)major_12_20(dev) != numbers[0])
+		if((ulong)major_12_20(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_12_20(dev) != numbers[1])
+		if((ulong)minor_12_20(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -201,20 +193,18 @@ static dev_t pack_12_20(int n, unsigned long numbers[], const char ** error)
 	return (dev);
 }
 
-#define major_14_18(x)          ((int32_t)(((x) & 0xfffc0000) >> 18))
-#define minor_14_18(x)          ((int32_t)(((x) & 0x0003ffff) >>  0))
-#define makedev_14_18(x, y)      ((dev_t)((((x) << 18) & 0xfffc0000) | \
-	(((y) <<  0) & 0x0003ffff)))
+#define major_14_18(x)      (static_cast<int32_t>(((x) & 0xfffc0000) >> 18))
+#define minor_14_18(x)      (static_cast<int32_t>(((x) & 0x0003ffff) >>  0))
+#define makedev_14_18(x, y) (static_cast<dev_t>((((x) << 18) & 0xfffc0000) | (((y) <<  0) & 0x0003ffff)))
 
 static dev_t pack_14_18(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = makedev_14_18(numbers[0], numbers[1]);
-		if((unsigned long)major_14_18(dev) != numbers[0])
+		if((ulong)major_14_18(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_14_18(dev) != numbers[1])
+		if((ulong)minor_14_18(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -222,20 +212,18 @@ static dev_t pack_14_18(int n, unsigned long numbers[], const char ** error)
 	return (dev);
 }
 
-#define major_8_24(x)           ((int32_t)(((x) & 0xff000000) >> 24))
-#define minor_8_24(x)           ((int32_t)(((x) & 0x00ffffff) >>  0))
-#define makedev_8_24(x, y)       ((dev_t)((((x) << 24) & 0xff000000) | \
-	(((y) <<  0) & 0x00ffffff)))
+#define major_8_24(x)      (static_cast<int32_t>(((x) & 0xff000000) >> 24))
+#define minor_8_24(x)      (static_cast<int32_t>(((x) & 0x00ffffff) >>  0))
+#define makedev_8_24(x, y) (static_cast<dev_t>((((x) << 24) & 0xff000000) | (((y) <<  0) & 0x00ffffff)))
 
 static dev_t pack_8_24(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = makedev_8_24(numbers[0], numbers[1]);
-		if((unsigned long)major_8_24(dev) != numbers[0])
+		if((ulong)major_8_24(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_8_24(dev) != numbers[1])
+		if((ulong)minor_8_24(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -246,27 +234,25 @@ static dev_t pack_8_24(int n, unsigned long numbers[], const char ** error)
 #define major_12_12_8(x)        ((int32_t)(((x) & 0xfff00000) >> 20))
 #define unit_12_12_8(x)         ((int32_t)(((x) & 0x000fff00) >>  8))
 #define subunit_12_12_8(x)      ((int32_t)(((x) & 0x000000ff) >>  0))
-#define makedev_12_12_8(x, y, z)  ((dev_t)((((x) << 20) & 0xfff00000) | \
-	(((y) <<  8) & 0x000fff00) | \
-	(((z) <<  0) & 0x000000ff)))
+#define makedev_12_12_8(x, y, z)  ((dev_t)((((x) << 20) & 0xfff00000) | (((y) <<  8) & 0x000fff00) | (((z) <<  0) & 0x000000ff)))
 
 static dev_t pack_bsdos(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
 	if(n == 2) {
 		dev = makedev_12_20(numbers[0], numbers[1]);
-		if((unsigned long)major_12_20(dev) != numbers[0])
+		if((ulong)major_12_20(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_12_20(dev) != numbers[1])
+		if((ulong)minor_12_20(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else if(n == 3) {
 		dev = makedev_12_12_8(numbers[0], numbers[1], numbers[2]);
-		if((unsigned long)major_12_12_8(dev) != numbers[0])
+		if((ulong)major_12_12_8(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)unit_12_12_8(dev) != numbers[1])
+		if((ulong)unit_12_12_8(dev) != numbers[1])
 			*error = "invalid unit number";
-		if((unsigned long)subunit_12_12_8(dev) != numbers[2])
+		if((ulong)subunit_12_12_8(dev) != numbers[2])
 			*error = "invalid subunit number";
 	}
 	else
@@ -300,15 +286,13 @@ static const struct format {
 
 static int compare_format(const void * key, const void * element)
 {
-	const char * name = (const char *)key;
-	const struct format * p_format = (struct format *)element;
+	const char * name = static_cast<const char *>(key);
+	const struct format * p_format = static_cast<const struct format *>(element);
 	return strcmp(name, p_format->name);
 }
 
 pack_t * pack_find(const char * name)
 {
 	struct format * p_format = (struct format *)bsearch(name, formats, sizeof(formats)/sizeof(formats[0]), sizeof(formats[0]), compare_format);
-	if(p_format == 0)
-		return NULL;
-	return p_format->pack;
+	return p_format ? p_format->pack : 0;
 }

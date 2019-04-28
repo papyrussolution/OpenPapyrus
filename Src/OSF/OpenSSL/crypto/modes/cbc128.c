@@ -33,8 +33,8 @@ void CRYPTO_cbc128_encrypt(const uchar * in, uchar * out, size_t len, const void
 	else {
 		while(len >= 16) {
 			for(n = 0; n < 16; n += sizeof(size_t))
-				*(size_t*)(out + n) =
-				    *(size_t*)(in + n) ^ *(size_t*)(iv + n);
+				*(size_t *)(out + n) =
+				    *(size_t *)(in + n) ^ *(size_t *)(iv + n);
 			(*block)(out, out, key);
 			iv = out;
 			len -= 16;
@@ -82,7 +82,7 @@ void CRYPTO_cbc128_decrypt(const uchar * in, uchar * out, size_t len, const void
 		}
 		else if(16 % sizeof(size_t) == 0) { /* always true */
 			while(len >= 16) {
-				size_t * out_t = (size_t*)out, * iv_t = (size_t*)iv;
+				size_t * out_t = (size_t *)out, * iv_t = (size_t *)iv;
 				(*block)(in, out, key);
 				for(n = 0; n < 16 / sizeof(size_t); n++)
 					out_t[n] ^= iv_t[n];
@@ -111,8 +111,8 @@ void CRYPTO_cbc128_decrypt(const uchar * in, uchar * out, size_t len, const void
 		}
 		else if(16 % sizeof(size_t) == 0) { /* always true */
 			while(len >= 16) {
-				size_t c, * out_t = (size_t*)out, * ivec_t = (size_t*)ivec;
-				const size_t * in_t = (const size_t*)in;
+				size_t c, * out_t = (size_t *)out, * ivec_t = (size_t *)ivec;
+				const size_t * in_t = (const size_t *)in;
 				(*block)(in, tmp.c, key);
 				for(n = 0; n < 16 / sizeof(size_t); n++) {
 					c = in_t[n];

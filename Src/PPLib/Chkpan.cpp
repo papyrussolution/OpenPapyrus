@@ -7674,6 +7674,10 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							chk_pack.GetLineTextExt(1, CCheckPacket::lnextEgaisMark, temp_buf);
 							STRNSCPY(r_cur_item.EgaisMark, temp_buf);
 							// } @v10.2.6 
+							// @v10.4.3 {
+							chk_pack.GetLineTextExt(1, CCheckPacket::lnextSerial, temp_buf);
+							STRNSCPY(r_cur_item.Serial, temp_buf);
+							// } @v10.4.3 
 							P.CurPos = P.getCount();
 							SetupRowData(1);
 							SetupState(sLISTSEL_BUF);

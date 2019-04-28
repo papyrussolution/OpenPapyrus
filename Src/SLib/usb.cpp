@@ -807,6 +807,7 @@ int SRawInputData::Register(SRawInputInitArray * pRiia)
 
 SRawInputData::SRawInputData() : AllocatedSize(0), P_Buf(FixedBuffer)
 {
+	PTR32(FixedBuffer)[0] = 0;
 }
 
 SRawInputData::~SRawInputData()

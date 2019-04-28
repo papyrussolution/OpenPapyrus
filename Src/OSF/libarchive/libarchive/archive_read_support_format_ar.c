@@ -148,7 +148,6 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 	char * p, * st;
 	const void * b;
 	int r;
-
 	/* Verify the magic signature on the file header. */
 	if(strncmp(h + AR_fmag_offset, "`\n", 2) != 0) {
 		archive_set_error(&a->archive, EINVAL, "Incorrect file header signature");
@@ -278,8 +277,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		 * the entry with the wrong name.
 		 */
 		if(ar->strtab == NULL || number >= ar->strtab_size) {
-			archive_set_error(&a->archive, EINVAL,
-			    "Can't find long filename for GNU/SVR4 archive entry");
+			archive_set_error(&a->archive, EINVAL, "Can't find long filename for GNU/SVR4 archive entry");
 			archive_entry_copy_pathname(entry, filename);
 			/* Parse the time, owner, mode, size fields. */
 			ar_parse_common_header(ar, entry, h);
@@ -308,18 +306,14 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		 *   = Must be <= 1MB
 		 *   = Cannot be bigger than the entire entry
 		 */
-		if(number > SIZE_MAX - 1
-		    || number > 1024 * 1024
-		    || (int64_t)number > ar->entry_bytes_remaining) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Bad input file size");
+		if(number > SIZE_MAX - 1 || number > 1024 * 1024 || (int64_t)number > ar->entry_bytes_remaining) {
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Bad input file size");
 			return ARCHIVE_FATAL;
 		}
 		bsd_name_length = (size_t)number;
 		ar->entry_bytes_remaining -= bsd_name_length;
 		/* Adjust file size reported to client. */
 		archive_entry_set_size(entry, ar->entry_bytes_remaining);
-
 		if(*unconsumed) {
 			__archive_read_consume(a, *unconsumed);
 			*unconsumed = 0;
@@ -327,8 +321,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 
 		/* Read the long name into memory. */
 		if((b = __archive_read_ahead(a, bsd_name_length, NULL)) == NULL) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Truncated input file");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Truncated input file");
 			return ARCHIVE_FATAL;
 		}
 		/* Store it in the entry. */
@@ -428,24 +421,18 @@ static int FASTCALL ar_parse_common_header(struct ar * ar, struct archive_entry 
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_ar_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64_t * offset)
+static int archive_read_format_ar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
 {
 	ssize_t bytes_read;
-	struct ar * ar;
-
-	ar = (struct ar *)(a->format->data);
-
+	struct ar * ar = (struct ar *)(a->format->data);
 	if(ar->entry_bytes_unconsumed) {
 		__archive_read_consume(a, ar->entry_bytes_unconsumed);
 		ar->entry_bytes_unconsumed = 0;
 	}
-
 	if(ar->entry_bytes_remaining > 0) {
 		*buff = __archive_read_ahead(a, 1, &bytes_read);
 		if(bytes_read == 0) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Truncated ar archive");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Truncated ar archive");
 			return ARCHIVE_FATAL;
 		}
 		if(bytes_read < 0)

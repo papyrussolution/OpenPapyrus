@@ -692,7 +692,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			}
 			else {
 				THROW(P_TrAnlzTbl = CreateTempTrfrAnlzFile());
-				THROW_MEM(p_bei = new BExtInsert(P_TrAnlzTbl, 28*1024));
+				THROW_MEM(p_bei = new BExtInsert(P_TrAnlzTbl, SKILOBYTE(28)));
 			}
 			{
 				PPTransaction tra(ppDbDependTransaction, use_ta);
@@ -1748,8 +1748,28 @@ int SLAPI PPViewTrfrAnlz::InitIteration(IterOrder ord)
 	PrevOuterID = -2;
 	CurOuterID  = -1;
 	CurIterOrd = ord;
-	if(P_TrAnlzTbl)
+	if(P_TrAnlzTbl) {
 		PPInitIterCounter(Counter, P_TrAnlzTbl);
+		// @debug {
+		/*if(0) {
+			SString temp_buf;
+			temp_buf = P_TrAnlzTbl->GetFileName();
+			SPathStruc::ReplaceExt(temp_buf, "dump", 1);
+			SFile f_out(temp_buf, SFile::mWrite);
+			char   k0[MAXKEYLEN];
+			BExtQuery debug_q(P_TrAnlzTbl, 0);
+			debug_q.selectAll();
+			memzero(k0, sizeof(k0));
+			const BNFieldList & r_debug_fl = P_TrAnlzTbl->GetFields();
+			r_debug_fl.RecordToStr(0, temp_buf);
+			f_out.WriteLine(temp_buf.CR());
+			for(debug_q.initIteration(0, k0, spFirst); debug_q.nextIteration() > 0;) {
+				r_debug_fl.RecordToStr(&P_TrAnlzTbl->data, temp_buf);
+				f_out.WriteLine(temp_buf.CR());
+			}
+		}*/
+		// } @debug 
+	}
 	else if(P_TrGrpngTbl)
 		PPInitIterCounter(Counter, P_TrGrpngTbl);
 	else
@@ -1804,8 +1824,20 @@ int SLAPI PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 			P_IterQuery->initIteration(0, k0, spFirst);
 		}
 		r = P_IterQuery->nextIteration();
-		if(r > 0)
+		if(r > 0) {
+			// @debug {
+			/*if(0) {
+				SString temp_buf;
+				temp_buf = P_TrAnlzTbl->GetFileName();
+				SPathStruc::ReplaceExt(temp_buf, "dump", 1);
+				SFile f_out(temp_buf, SFile::mWrite|SFile::mAppend);
+				const BNFieldList & r_debug_fl = P_TrAnlzTbl->GetFields();
+				r_debug_fl.RecordToStr(&P_TrAnlzTbl->data, temp_buf);
+				f_out.WriteLine(temp_buf.CR());
+			}*/
+			// } @debug 
 			InitAppData(pItem);
+		}
 	}
 	else if(P_TrGrpngTbl) {
 		if(P_IterOrderQuery) {
@@ -2584,23 +2616,24 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			// Расчет смещения осуществляется в соответствии с установкой полей
 			// в функции  PPViewTrfrAnlz::CreateBrowserQuery
 			//
+			const uint _aggr_count = P_Ct->GetAggrCount();
 			if(oneof2(Filt.Grp, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsDate)) {
 				if(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)
-					r = (tab_idx > 1) ? P_Ct->GetTab((tab_idx-2) / P_Ct->GetAggrCount(), &tab_id) : 1;
+					r = (tab_idx > 1) ? P_Ct->GetTab((tab_idx-2) / _aggr_count, &tab_id) : 1;
 				else
-					r = (tab_idx > 0) ? P_Ct->GetTab((tab_idx-1) / P_Ct->GetAggrCount(), &tab_id) : 1;
+					r = (tab_idx > 0) ? P_Ct->GetTab((tab_idx-1) / _aggr_count, &tab_id) : 1;
 			}
 			else { //if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragentDate)
 				if(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)
-					r = (tab_idx > 2) ? P_Ct->GetTab((tab_idx-3) / P_Ct->GetAggrCount(), &tab_id) : 1;
+					r = (tab_idx > 2) ? P_Ct->GetTab((tab_idx-3) / _aggr_count, &tab_id) : 1;
 				else
-					r = (tab_idx > 1) ? P_Ct->GetTab((tab_idx-2) / P_Ct->GetAggrCount(), &tab_id) : 1;
+					r = (tab_idx > 1) ? P_Ct->GetTab((tab_idx-2) / _aggr_count, &tab_id) : 1;
 			}
 			ct_period = Filt.Period;
 			if(r > 0) {
 				if(Filt.CtKind == TrfrAnlzFilt::ctDate) {
 					LDATE dt;
-					dt.v = (ulong)tab_id;
+					dt.v = static_cast<ulong>(tab_id);
 					if(!checkdate(dt) || ExpandSubstDate(Filt.Sgd, dt, &ct_period) <= 0)
 						ct_period = Filt.Period;
 				}
@@ -3455,18 +3488,18 @@ int SLAPI PPViewTrfrAnlz::ViewTotal()
 	return -1;
 }
 
-int SLAPI PPViewTrfrAnlz::SetAlcRepParam(const AlcReportParam * pParam)
+void SLAPI PPViewTrfrAnlz::SetAlcRepParam(const AlcReportParam * pParam)
 {
 	if(!RVALUEPTR(AlcRepParam, pParam))
 		MEMSZERO(AlcRepParam);
-	return 1;
 }
 
 int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 {
 	int    ok = -1;
 	TrfrAnlzViewItem item;
-	if(NextIteration(&item) > 0) {
+	// @v10.4.3 Модификация if-->while с целья воспрепятствовать прерыванию процесса из-за ошибки в одной строке отчета
+	while(ok < 0 && NextIteration(&item) > 0) {
 		PPID   psn_id = 0, org_lot_id = 0;
 		SString temp_buf;
 		ReceiptTbl::Rec lot;
@@ -3477,64 +3510,66 @@ int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 		THROW(GObj.P_Tbl->GetExt(pItem->GoodsRec.ID, &pItem->GoodsExt));
 		pItem->Item = item;
 		// не будем извлекать пока что, так как billrec = bill packet pItem->BillRec;
-		THROW(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec));
-		// @v9.1.12 {
-		if(item.LotID == org_lot_id && GetOpType(item.OpID) == PPOPT_GOODSRECEIPT) {
-			BillTbl::Rec cor_bill_rec;
-			PPIDArray cor_bill_list;
-			for(DateIter diter; P_BObj->P_Tbl->EnumLinks(item.BillID, &diter, BLNK_CORRECTION, &cor_bill_rec) > 0;) {
-				cor_bill_list.add(cor_bill_rec.ID);
-			}
-			if(cor_bill_list.getCount()) {
-				PPBillPacket cor_bp;
-				for(uint i = 0; i < cor_bill_list.getCount(); i++) {
-					const PPID cor_bill_id = cor_bill_list.get(i);
-					THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
-					for(uint j = 0; j < cor_bp.GetTCount(); j++) {
-						const PPTransferItem & r_other = cor_bp.ConstTI(j);
-						if(r_other.LotID == item.LotID) {
-							pItem->Item.Qtty = r_other.Quantity_;
-							// @todo Здесь необходимо так же пересчитать физическое количество и суммы.
-							// Сразу это не сделано из-за того, что надо было быстро, а для алкогольной декларации это - не обязательно.
-							break;
+		// @v10.4.3 THROW(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec));
+		if(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec)) { // @v10.4.3 
+			// @v9.1.12 {
+			if(item.LotID == org_lot_id && GetOpType(item.OpID) == PPOPT_GOODSRECEIPT) {
+				BillTbl::Rec cor_bill_rec;
+				PPIDArray cor_bill_list;
+				for(DateIter diter; P_BObj->P_Tbl->EnumLinks(item.BillID, &diter, BLNK_CORRECTION, &cor_bill_rec) > 0;) {
+					cor_bill_list.add(cor_bill_rec.ID);
+				}
+				if(cor_bill_list.getCount()) {
+					PPBillPacket cor_bp;
+					for(uint i = 0; i < cor_bill_list.getCount(); i++) {
+						const PPID cor_bill_id = cor_bill_list.get(i);
+						THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
+						for(uint j = 0; j < cor_bp.GetTCount(); j++) {
+							const PPTransferItem & r_other = cor_bp.ConstTI(j);
+							if(r_other.LotID == item.LotID) {
+								pItem->Item.Qtty = r_other.Quantity_;
+								// @todo Здесь необходимо так же пересчитать физическое количество и суммы.
+								// Сразу это не сделано из-за того, что надо было быстро, а для алкогольной декларации это - не обязательно.
+								break;
+							}
 						}
 					}
 				}
 			}
+			// } @v9.1.12
+			{
+				ObjTagItem tag;
+				pItem->Flags = 0;
+				psn_id = ObjectToPerson(item.ArticleID);
+				pItem->PersonID = psn_id;
+				pItem->OrgLot_Prsn_SupplID = ObjectToPerson(pItem->OrgLotRec.SupplID);
+				if(AlcRepParam.ImpExpTag) {
+					if(TagObj.FetchTag(psn_id, AlcRepParam.ImpExpTag, &tag) > 0) {
+						tag.GetStr(temp_buf);
+						const long val = temp_buf.ToLong();
+						SETFLAG(pItem->Flags, pItem->fIsOptBuyer, (val == 1));
+						SETFLAG(pItem->Flags, pItem->fIsExport,   (val == 2));
+					}
+				}
+				if(AlcRepParam.ManufOptBuyerTag) {
+					if(TagObj.FetchTag(psn_id, AlcRepParam.ManufOptBuyerTag, &tag) > 0) {
+						tag.GetStr(temp_buf);
+						const long val = temp_buf.ToLong();
+						SETFLAG(pItem->Flags, pItem->fIsManuf,  (val == 1));
+						SETFLAG(pItem->Flags, pItem->fIsImport, (val == 2));
+					}
+				}
+				else {
+					if(AlcRepParam.ImportKindID) {
+        				SETFLAG(pItem->Flags, pItem->fIsImport, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ImportKindID));
+					}
+					if(AlcRepParam.ManufKindID) {
+						SETFLAG(pItem->Flags, pItem->fIsManuf, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ManufKindID));
+					}
+				}
+			}
+			ok = 1;
 		}
-		// } @v9.1.12
-		{
-			ObjTagItem tag;
-			pItem->Flags = 0;
-			psn_id = ObjectToPerson(item.ArticleID);
-			pItem->PersonID = psn_id;
-			pItem->OrgLot_Prsn_SupplID = ObjectToPerson(pItem->OrgLotRec.SupplID);
-			if(AlcRepParam.ImpExpTag) {
-				if(TagObj.FetchTag(psn_id, AlcRepParam.ImpExpTag, &tag) > 0) {
-					tag.GetStr(temp_buf);
-					const long val = temp_buf.ToLong();
-					SETFLAG(pItem->Flags, pItem->fIsOptBuyer, (val == 1));
-					SETFLAG(pItem->Flags, pItem->fIsExport,   (val == 2));
-				}
-			}
-			if(AlcRepParam.ManufOptBuyerTag) {
-				if(TagObj.FetchTag(psn_id, AlcRepParam.ManufOptBuyerTag, &tag) > 0) {
-					tag.GetStr(temp_buf);
-					const long val = temp_buf.ToLong();
-					SETFLAG(pItem->Flags, pItem->fIsManuf,  (val == 1));
-					SETFLAG(pItem->Flags, pItem->fIsImport, (val == 2));
-				}
-			}
-			else {
-				if(AlcRepParam.ImportKindID) {
-        			SETFLAG(pItem->Flags, pItem->fIsImport, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ImportKindID));
-				}
-				if(AlcRepParam.ManufKindID) {
-					SETFLAG(pItem->Flags, pItem->fIsManuf, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ManufKindID));
-				}
-			}
-		}
-		ok = 1;
 	}
 	CATCHZOK
 	return ok;

@@ -110,8 +110,7 @@ int archive_write_add_filter_zstd(struct archive * _a)
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Using external zstd program");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Using external zstd program");
 	return (ARCHIVE_WARN);
 #endif
 }
@@ -129,15 +128,12 @@ static int archive_compressor_zstd_free(struct archive_write_filter * f)
 	f->data = NULL;
 	return ARCHIVE_OK;
 }
-
 /*
  * Set write options.
  */
-static int archive_compressor_zstd_options(struct archive_write_filter * f, const char * key,
-    const char * value)
+static int archive_compressor_zstd_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 	if(strcmp(key, "compression-level") == 0) {
 		int level = atoi(value);
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
@@ -165,17 +161,13 @@ static int archive_compressor_zstd_options(struct archive_write_filter * f, cons
 static int archive_compressor_zstd_open(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	int ret;
-
-	ret = __archive_write_open_filter(f->next_filter);
+	int ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
 		return ret;
-
 	if(data->out.dst == NULL) {
 		size_t bs = ZSTD_CStreamOutSize(), bpb;
 		if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
-			/* Buffer size should be a multiple number of
-			 * the of bytes per block for performance. */
+			// Buffer size should be a multiple number of the of bytes per block for performance. 
 			bpb = archive_write_get_bytes_per_block(f->archive);
 			if(bpb > bs)
 				bs = bpb;
@@ -184,24 +176,18 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 		}
 		data->out.size = bs;
 		data->out.pos = 0;
-		data->out.dst
-			= (uchar *)SAlloc::M(data->out.size);
+		data->out.dst = (uchar *)SAlloc::M(data->out.size);
 		if(data->out.dst == NULL) {
-			archive_set_error(f->archive, ENOMEM,
-			    "Can't allocate data for compression buffer");
+			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	f->write = archive_compressor_zstd_write;
-
 	if(ZSTD_isError(ZSTD_initCStream(data->cstream,
 	    data->compression_level))) {
-		archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-		    "Internal error initializing zstd compressor object");
+		archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing zstd compressor object");
 		return ARCHIVE_FATAL;
 	}
-
 	return ARCHIVE_OK;
 }
 

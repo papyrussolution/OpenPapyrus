@@ -86,53 +86,104 @@ int SLAPI BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 //
 //
 //
+class WhatmanObjectLayout : public TWhatmanObject {
+public:
+	WhatmanObjectLayout() : TWhatmanObject("Layout")
+	{
+		Options |= (oMovable | oResizable | oMultSelectable);
+	}
+	~WhatmanObjectLayout()
+	{
+	}
+protected:
+	virtual TWhatmanObject * Dup() const
+	{
+		WhatmanObjectLayout * p_obj = new WhatmanObjectLayout();
+		CALLPTRMEMB(p_obj, Copy(*this));
+		return p_obj;
+	}
+	virtual int Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+	{
+		int    ok = 1;
+		//uint8  ind = 0;
+		THROW(TWhatmanObject::Serialize(dir, rBuf, pCtx));
+		if(dir > 0) {
+		}
+		else if(dir < 0) {
+		}
+		CATCHZOK
+		return ok;
+	}
+	virtual int Draw(TCanvas2 & rCanv)
+	{
+		int    ok = -1;
+		return ok;
+	}
+	virtual int HandleCommand(int cmd, void * pExt)
+	{
+		int    ok = -1;
+		switch(cmd) {
+			case cmdSetupByTool:
+				{
+					const TWhatmanToolArray::Item * p_item = static_cast<const TWhatmanToolArray::Item *>(pExt);
+					if(p_item && p_item->P_Owner) {
+						ok = 1;
+					}
+				}
+				break;
+			case cmdEditTool:
+				ok = BaseEditWhatmanToolItem(static_cast<TWhatmanToolArray::Item *>(pExt));
+				break;
+		}
+		return ok;
+	}
+	int    FASTCALL Copy(const WhatmanObjectLayout & rS)
+	{
+		int    ok = 1;
+		TWhatmanObject::Copy(rS);
+		return ok;
+	}
+};
+
+IMPLEMENT_WTMOBJ_FACTORY(Layout, "@wtmo_layout");
+
 class WhatmanObjectDrawFigure : public TWhatmanObject {
 public:
-	explicit WhatmanObjectDrawFigure(SDrawFigure * pFig = 0);
-	~WhatmanObjectDrawFigure();
+	explicit WhatmanObjectDrawFigure(SDrawFigure * pFig = 0) : TWhatmanObject("DrawFigure"), P_Fig(pFig)
+	{
+		Options |= (oMovable | oResizable | oMultSelectable);
+		if(P_Fig) {
+			FPoint sz = P_Fig->GetSize();
+			TRect b(0, 0, fceili(sz.X), fceili(sz.Y));
+			SetBounds(b);
+		}
+	}
+	~WhatmanObjectDrawFigure()
+	{
+		ZDELETE(P_Fig);
+	}
 protected:
+	explicit WhatmanObjectDrawFigure(const char * pSymb) : TWhatmanObject(pSymb), P_Fig(0)
+	{
+		Options |= (oMovable | oResizable);
+	}
 	virtual TWhatmanObject * Dup() const;
 	virtual int Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	virtual int Draw(TCanvas2 & rCanv);
 	virtual int HandleCommand(int cmd, void * pExt);
-protected:
-	explicit WhatmanObjectDrawFigure(const char * pSymb);
-	int    FASTCALL Copy(const WhatmanObjectDrawFigure & rS);
-
+	int    FASTCALL Copy(const WhatmanObjectDrawFigure & rS)
+	{
+		int    ok = 1;
+		TWhatmanObject::Copy(rS);
+		ZDELETE(P_Fig);
+		if(rS.P_Fig)
+			P_Fig = rS.P_Fig->Dup();
+		return ok;
+	}
 	SDrawFigure * P_Fig;
 };
 
 IMPLEMENT_WTMOBJ_FACTORY(DrawFigure, "@wtmo_drawfigure");
-
-WhatmanObjectDrawFigure::WhatmanObjectDrawFigure(SDrawFigure * pFig) : TWhatmanObject("DrawFigure"), P_Fig(pFig)
-{
-	Options |= (oMovable | oResizable | oMultSelectable);
-	if(P_Fig) {
-		FPoint sz = P_Fig->GetSize();
-		TRect b(0, 0, fceili(sz.X), fceili(sz.Y));
-		SetBounds(b);
-	}
-}
-
-WhatmanObjectDrawFigure::WhatmanObjectDrawFigure(const char * pSymb) : TWhatmanObject(pSymb), P_Fig(0)
-{
-	Options |= (oMovable | oResizable);
-}
-
-WhatmanObjectDrawFigure::~WhatmanObjectDrawFigure()
-{
-	ZDELETE(P_Fig);
-}
-
-int FASTCALL WhatmanObjectDrawFigure::Copy(const WhatmanObjectDrawFigure & rS)
-{
-	int    ok = 1;
-	TWhatmanObject::Copy(rS);
-	ZDELETE(P_Fig);
-	if(rS.P_Fig)
-		P_Fig = rS.P_Fig->Dup();
-	return ok;
-}
 
 TWhatmanObject * WhatmanObjectDrawFigure::Dup() const
 {

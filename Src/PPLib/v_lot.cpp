@@ -107,8 +107,7 @@ int SLAPI LotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		struct LotFilt_v1 : public PPBaseFilt {
 			SLAPI  LotFilt_v1() : PPBaseFilt(PPFILT_LOT, 0, 1)
 			{
-				SetFlatChunk(offsetof(LotFilt, ReserveStart),
-					offsetof(LotFilt, Reserve)-offsetof(LotFilt, ReserveStart)+sizeof(Reserve));
+				SetFlatChunk(offsetof(LotFilt, ReserveStart), offsetof(LotFilt, Reserve)-offsetof(LotFilt, ReserveStart)+sizeof(Reserve));
 				Init(1, 0);
 			}
 			uint8  ReserveStart[24];
@@ -281,7 +280,7 @@ PPBaseFilt * PPViewLot::CreateFilt(void * extraPtr) const
 {
 	LotFilt * p_filt = new LotFilt;
 	if(p_filt) {
-		if((reinterpret_cast<long>(extraPtr)) == 1)
+		if(reinterpret_cast<long>(extraPtr) == 1)
 			p_filt->Flags |= LotFilt::fOrders;
 		p_filt->Period.upp = LConfig.OperDate;
 	}
@@ -304,7 +303,7 @@ public:
 		SetupCalPeriod(CTLCAL_FLTLOT_OPERAT, CTL_FLTLOT_OPERAT);
 	}
 	int    setDTS(const LotFilt*);
-	int    getDTS(LotFilt*);
+	int    getDTS(LotFilt *);
 private:
 	DECL_HANDLE_EVENT;
 	LotFilt Data;
@@ -997,7 +996,7 @@ int SLAPI PPViewLot::Init_(const PPBaseFilt * pFilt)
 				SArray list(sizeof(WorldTbl::Rec));
 				w_obj.GetListByName(WORLDOBJ_COUNTRY, native_country_name, &list);
 				for(uint i = 0; i < list.getCount(); i++)
-					Itd.NativeCntryList.add(((WorldTbl::Rec *)list.at(i))->ID);
+					Itd.NativeCntryList.add(static_cast<const WorldTbl::Rec *>(list.at(i))->ID);
 			}
 		}
 		{
@@ -1307,7 +1306,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				break;
 			case PPVCMD_LOTEXTCODE:
 				if(lot_id) {
-					PPView::Execute(PPVIEW_LOTEXTCODE, 0, 0 /* modal */, (void *)lot_id);
+					PPView::Execute(PPVIEW_LOTEXTCODE, 0, 0 /* modal */, reinterpret_cast<void *>(lot_id));
 				}
 				break;
 			case PPVCMD_CHANGECLOSEPAR:
@@ -1882,7 +1881,7 @@ int SLAPI PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem
 			temp_buf.CopyTo(item.Serial, sizeof(item.Serial));
 	}
 	if(Filt.GoodsID || GObj.BelongToGroup(rLotRec.GoodsID, Filt.GoodsGrpID, 0) > 0) {
-		*(ReceiptTbl::Rec *)&item = rLotRec;
+		*static_cast<ReceiptTbl::Rec *>(&item) = rLotRec;
 		if(!Filt.Operation.IsZero()) {
 			const  LDATE low_date = Filt.Operation.low ? plusdate(Filt.Operation.low, -1) : ZERODATE;
 			if(Filt.Flags & LotFilt::fRestByPaym) {
@@ -2034,40 +2033,59 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
-		PPViewLot * p_view = (PPViewLot *)p_brw->P_View;
-		const LotFilt * p_filt = (const LotFilt *)p_view->GetBaseFilt();
-		const PPViewLot::BrwHdr * p_hdr = static_cast<const PPViewLot::BrwHdr *>(pData);
-		const long qtty_col = 4;
-		const long cost_col = p_filt->Operation.IsZero() ? 7 : 8;
-		const long price_col = p_filt->Operation.IsZero() ? 8 : 9;
-		if(p_hdr->SFlags && oneof3(col, qtty_col, cost_col, price_col)) {
-			if(col == qtty_col && p_hdr->SFlags & LOTSF_FIRST) {
-				pStyle->Color = GetColorRef(SClrBlue);
-				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-				ok = 1;
-			}
-			else if(col == cost_col) {
-				if(p_hdr->SFlags & LOTSF_COSTUP) {
-					pStyle->Color = GetColorRef(SClrGreen);
-					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-					ok = 1;
-				}
-				else if(p_hdr->SFlags & LOTSF_COSTDOWN) {
-					pStyle->Color = GetColorRef(SClrRed);
-					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-					ok = 1;
+		const  BrowserDef * p_def = p_brw->getDef();
+		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
+			PPViewLot * p_view = static_cast<PPViewLot *>(p_brw->P_View);
+			const LotFilt * p_filt = static_cast<const LotFilt *>(p_view->GetBaseFilt());
+			const PPViewLot::BrwHdr * p_hdr = static_cast<const PPViewLot::BrwHdr *>(pData);
+			const BroColumn & r_col = p_def->at(col);
+			// @v10.4.3 {
+			if(r_col.OrgOffs == 0) { // ID
+				const TagFilt & r_tag_filt = BillObj->GetConfig().LotTagIndFilt;
+				if(!r_tag_filt.IsEmpty()) {
+					SColor clr;
+					if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0) {
+						pStyle->Color2 = static_cast<COLORREF>(clr);
+						pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
+						ok = 1;
+					}
 				}
 			}
-			else if(col == price_col) {
-				if(p_hdr->SFlags & LOTSF_PRICEUP) {
-					pStyle->Color = GetColorRef(SClrGreen);
-					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-					ok = 1;
-				}
-				else if(p_hdr->SFlags & LOTSF_PRICEDOWN) {
-					pStyle->Color = GetColorRef(SClrRed);
-					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-					ok = 1;
+			else {
+			// } @v10.4.3 
+				const long qtty_col = 4;
+				const long cost_col = p_filt->Operation.IsZero() ? 7 : 8;
+				const long price_col = p_filt->Operation.IsZero() ? 8 : 9;
+				if(p_hdr->SFlags && oneof3(col, qtty_col, cost_col, price_col)) {
+					if(col == qtty_col && p_hdr->SFlags & LOTSF_FIRST) {
+						pStyle->Color = GetColorRef(SClrBlue);
+						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+						ok = 1;
+					}
+					else if(col == cost_col) {
+						if(p_hdr->SFlags & LOTSF_COSTUP) {
+							pStyle->Color = GetColorRef(SClrGreen);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+						else if(p_hdr->SFlags & LOTSF_COSTDOWN) {
+							pStyle->Color = GetColorRef(SClrRed);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+					}
+					else if(col == price_col) {
+						if(p_hdr->SFlags & LOTSF_PRICEUP) {
+							pStyle->Color = GetColorRef(SClrGreen);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+						else if(p_hdr->SFlags & LOTSF_PRICEDOWN) {
+							pStyle->Color = GetColorRef(SClrRed);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+					}
 				}
 			}
 		}
@@ -2081,19 +2099,15 @@ void SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 		if(Filt.Flags & LotFilt::fOrders) {
 			SString word;
 			pBrw->LoadToolbar(TOOLBAR_ORDLOTS);
-			//PPGetWord(PPWORD_ORDERER, 0, word);
 			PPLoadString("ordered", word);
 			pBrw->SetColumnTitle(3, word);
-			// @v9.1.8 PPGetWord(PPWORD_ORDERED, 0, word);
-			PPLoadString("orderer", word); // @v9.1.8
+			PPLoadString("orderer", word);
 			pBrw->SetColumnTitle(4, word);
-			if(Filt.Flags & LotFilt::fShowBillStatus) {
-				// @v9.1.11 pBrw->InsColumnWord(-1, PPWORD_STATUS, 15, 0, MKSFMT(10, 0), BCO_CAPLEFT);
-				pBrw->InsColumn(-1, "@status", 15, 0, MKSFMT(10, 0), BCO_CAPLEFT); // @v9.1.11
-			}
+			if(Filt.Flags & LotFilt::fShowBillStatus)
+				pBrw->InsColumn(-1, "@status", 15, 0, MKSFMT(10, 0), BCO_CAPLEFT);
 		}
 		{
-			DBQBrowserDef * p_def = (DBQBrowserDef *)pBrw->getDef();
+			DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pBrw->getDef());
 			const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
 			if(p_q) {
 				if(Filt.Flags & LotFilt::fShowSerialN) {
@@ -2102,8 +2116,8 @@ void SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 				if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
 					uint fld_no = P_TempTbl ? 16 : 13;
-					pBrw->InsColumn(-1, "@rtag_fsrarinfalotcode",   fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
-					pBrw->InsColumn(-1, "@rtag_fsrarinfblotcode",   fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
+					pBrw->InsColumn(-1, "@rtag_fsrarinfalotcode",  fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
+					pBrw->InsColumn(-1, "@rtag_fsrarinfblotcode",  fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 					pBrw->InsColumn(-1, "@rtag_fsrarlotgoodscode", fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 				}
 				else if(Filt.ExtViewAttr == LotFilt::exvaVetisTags) {
@@ -2130,14 +2144,10 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBE    dbe_goods;
 	DBE    dbe_closedate;
 	DBE    dbe_serial;
-
 	DBE    dbe_egais_ref_a;
 	DBE    dbe_egais_ref_b;
 	DBE    dbe_egais_prodcode;
-	//DBE    dbe_egais_manuf;
-	//DBE    dbe_egais_prodtypecode;
 	DBE    dbe_vetis_vdocuuid;
-
 	DBQ  * dbq = 0;
 	DBQuery * q = 0;
 	if(!P_TempTbl && IsTempTblNeeded())
@@ -2535,7 +2545,7 @@ int FASTCALL ViewLots(PPID goods, PPID loc, PPID suppl, PPID qcert, int modeless
 	return ::ViewLots(&flt, 0, modeless);
 }
 
-int FASTCALL ViewLots(const LotFilt * pFilt, int asOrders, int asModeless) { return PPView::Execute(PPVIEW_LOT, pFilt, asModeless, (void *)BIN(asOrders)); }
+int FASTCALL ViewLots(const LotFilt * pFilt, int asOrders, int asModeless) { return PPView::Execute(PPVIEW_LOT, pFilt, asModeless, reinterpret_cast<void *>(BIN(asOrders))); }
 //
 // Implementation of PPALDD_Lot
 //
@@ -2591,7 +2601,6 @@ void PPALDD_Lot::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_LONG(n) (*static_cast<const long *>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
-
 	_RET_INT = 0;
 	if(pF->Name == "?GetOrgLotID") {
 		PPID   org_lot_id = 0;
@@ -3104,7 +3113,7 @@ int SLAPI PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
 		LotExtCodeTbl::Key0 k0;
 		MEMSZERO(k0);
 		k0.LotID = *static_cast<const long *>(pHdr);
-		STRNSCPY(k0.Code, (const char *)(PTR8C(pHdr)+sizeof(long)));
+		STRNSCPY(k0.Code, reinterpret_cast<const char *>(PTR8C(pHdr)+sizeof(long)));
 		if(Tbl.search(0, &k0, spEq)) {
 			Tbl.copyBufTo(&rRec);
 			ok = 1;
@@ -3131,7 +3140,6 @@ DBQuery * SLAPI PPViewLotExtCode::CreateBrowserQuery(uint * pBrwId, SString * pS
 	fld_list[c++] = rcp->Dt;   // #2
 	fld_list[c++] = dbe_goods; // #3
 	dbq = &(t->LotID == Filt.LotID && t->LotID == rcp->ID);
-
 	q = &selectbycell(c, fld_list).from(t, rcp, 0L).where(*dbq);
 	THROW(CheckQueryPtr(q));
 	{

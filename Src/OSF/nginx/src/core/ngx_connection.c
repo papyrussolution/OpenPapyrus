@@ -47,7 +47,7 @@ ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockad
 				ls->addr_text_max_len = NGX_SOCKADDR_STRLEN;
 				break;
 		}
-		ls->addr_text.data = (u_char *)ngx_pnalloc(cf->pool, len);
+		ls->addr_text.data = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
 		if(ls->addr_text.data == NULL) {
 			return NULL;
 		}

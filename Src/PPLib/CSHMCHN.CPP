@@ -298,8 +298,7 @@ int SLAPI PPCashMachine::SyncOpenSession(LDATE * pDate)
 		PPTransaction tra(1);
 		THROW(tra);
 		THROW(GetNode() > 0);
-		THROW_PP((NodeRec.Flags & CASHF_DAYCLOSED) || NodeRec.CurDate == 0 ||
-			(NodeRec.Flags & CASHF_CHKPAN && !NodeRec.CurSessID), PPERR_DAYNOTCLOSED);
+		THROW_PP((NodeRec.Flags & CASHF_DAYCLOSED) || !NodeRec.CurDate || (NodeRec.Flags & CASHF_CHKPAN && !NodeRec.CurSessID), PPERR_DAYNOTCLOSED);
 		THROW_PP(NodeRec.CurDate <= dtm.d, PPERR_STARTBACKDATE);
 		NodeRec.Flags &= ~CASHF_DAYCLOSED;
 		if(NodeRec.Flags & CASHF_CHKPAN) {
@@ -542,7 +541,6 @@ private:
 
 void CashStatDialog::setup()
 {
-	TInputLine * il;
 	setCtrlReal(CTL_CASHDISP_BEGSUM, stat.BegSum);
 	setCtrlReal(CTL_CASHDISP_INCOME, stat.Income);
 	double v = stat.BegSum + stat.Income;
@@ -556,8 +554,10 @@ void CashStatDialog::setup()
 		setCtrlData(CTL_CASHDISP_CASHSUM, &stat.Cash);
 		v -= stat.Cash;
 	}
-	else if((il = static_cast<TInputLine *>(getCtrlView(CTL_CASHDISP_CASHSUM))) != 0)
-		il->setText("Error");
+	else {
+		TInputLine * il = static_cast<TInputLine *>(getCtrlView(CTL_CASHDISP_CASHSUM));
+		CALLPTRMEMB(il, setText("Error"));
+	}
 	setCtrlData(CTL_CASHDISP_DIFF, &v);
 	setCtrlReadOnly(CTL_CASHDISP_BEGSUM, 1);
 	setCtrlReadOnly(CTL_CASHDISP_INCOME, 1);
@@ -1056,23 +1056,6 @@ int SLAPI PPCashMachine::SyncCheckForSessionOver()
 	CATCHZOK
 	return ok;
 }
-
-/* @v10.0.0 int SLAPI PPCashMachine::SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN)
-{
-	int    ok = 1;
-	SyncPrintErrCode = 0;
-	THROW(GetSyncIntrf());
-	THROW(GetNode() > 0);
-	{
-		CmLocking cml(NodeRec);
-		THROW(cml);
-		NodeRec.Flags |= CASHF_LASTCHKCANCELLED;
-		THROW(UpdateNode(1));
-		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintCheckByBill(pPack, multiplier, departN), 1);
-	}
-	CATCHZOK
-	return ok;
-}*/
 
 int SLAPI PPCashMachine::SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName)
 {

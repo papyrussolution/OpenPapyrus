@@ -2857,7 +2857,6 @@ xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameDefault(xmlOutput
 	xmlOutputBufferCreateFilenameValue = func;
 	return old;
 }
-
 /**
  * xmlParserInputBufferPush:
  * @in:  a buffered parser input
@@ -2877,7 +2876,7 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 	int ret;
 	if(len < 0) 
 		return 0;
-	if((in == NULL) || (in->error)) 
+	if(!in || in->error) 
 		return -1;
 	if(in->encoder) {
 		uint use;
@@ -2887,7 +2886,7 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 		if(in->raw == NULL) {
 			in->raw = xmlBufCreate();
 		}
-		ret = xmlBufAdd(in->raw, (const xmlChar *)buf, len);
+		ret = xmlBufAdd(in->raw, reinterpret_cast<const xmlChar *>(buf), len);
 		if(ret != 0)
 			return -1;
 		/*
@@ -2904,7 +2903,7 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 	}
 	else {
 		nbchars = len;
-		ret = xmlBufAdd(in->buffer, (xmlChar *)buf, nbchars);
+		ret = xmlBufAdd(in->buffer, reinterpret_cast<const xmlChar *>(buf), nbchars);
 		if(ret != 0)
 			return -1;
 	}
@@ -2913,7 +2912,6 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 #endif
 	return (nbchars);
 }
-
 /**
  * endOfInput:
  *
@@ -2958,7 +2956,7 @@ int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 		in->error = XML_ERR_NO_MEMORY;
 		return -1;
 	}
-	buffer = (char *)xmlBufEnd(in->buffer);
+	buffer = reinterpret_cast<char *>(xmlBufEnd(in->buffer));
 	/*
 	 * Call the read method for this I/O type.
 	 */
@@ -2991,10 +2989,9 @@ int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 		 * Store the data in the incoming raw buffer
 		 */
 		SETIFZ(in->raw, xmlBufCreate());
-		res = xmlBufAdd(in->raw, (const xmlChar *)buffer, len);
+		res = xmlBufAdd(in->raw, reinterpret_cast<const xmlChar *>(buffer), len);
 		if(res != 0)
 			return -1;
-
 		/*
 		 * convert as much as possible to the parser reading buffer.
 		 */

@@ -1058,19 +1058,15 @@ static int _archive_read_disk_open_w(struct archive * _a, const wchar_t * pathna
 	if(a->tree != NULL)
 		a->tree = tree_reopen(a->tree, pathname, a->flags & ARCHIVE_READDISK_RESTORE_ATIME);
 	else
-		a->tree = tree_open(pathname, a->symlink_mode,
-			a->flags & ARCHIVE_READDISK_RESTORE_ATIME);
+		a->tree = tree_open(pathname, a->symlink_mode, a->flags & ARCHIVE_READDISK_RESTORE_ATIME);
 	if(a->tree == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate directory traversal data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate directory traversal data");
 		a->archive.state = ARCHIVE_STATE_FATAL;
 		return ARCHIVE_FATAL;
 	}
 	a->archive.state = ARCHIVE_STATE_HEADER;
-
 	return ARCHIVE_OK;
 }
-
 /*
  * Return a current filesystem ID which is index of the filesystem entry
  * you've visited through archive_read_disk.
@@ -1104,13 +1100,10 @@ static int update_current_filesystem(struct archive_read_disk * a, int64_t dev)
 	if(t->max_filesystem_id > t->allocated_filesystem) {
 		size_t s;
 		void * p;
-
 		s = t->max_filesystem_id * 2;
-		p = SAlloc::R(t->filesystem_table,
-			s * sizeof(*t->filesystem_table));
+		p = SAlloc::R(t->filesystem_table, s * sizeof(*t->filesystem_table));
 		if(p == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate tar data");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate tar data");
 			return ARCHIVE_FATAL;
 		}
 		t->filesystem_table = (struct filesystem *)p;
@@ -1176,8 +1169,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		SAlloc::F(path);
 		t->current_filesystem->remote = -1;
 		t->current_filesystem->bytesPerSector = 0;
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "GetVolumePathName failed: %d", (int)GetLastError());
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "GetVolumePathName failed: %d", (int)GetLastError());
 		return ARCHIVE_FAILED;
 	}
 	SAlloc::F(path);
@@ -1193,15 +1185,11 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		    t->current_filesystem->remote = 0;
 		    break;
 	}
-
-	if(!GetDiskFreeSpaceW(vol, NULL,
-	    &(t->current_filesystem->bytesPerSector), NULL, NULL)) {
+	if(!GetDiskFreeSpaceW(vol, NULL, &(t->current_filesystem->bytesPerSector), NULL, NULL)) {
 		t->current_filesystem->bytesPerSector = 0;
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "GetDiskFreeSpace failed: %d", (int)GetLastError());
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "GetDiskFreeSpace failed: %d", (int)GetLastError());
 		return ARCHIVE_FAILED;
 	}
-
 	return ARCHIVE_OK;
 }
 
@@ -1209,10 +1197,8 @@ static int close_and_restore_time(HANDLE h, struct tree * t, struct restore_time
 {
 	HANDLE handle;
 	int r = 0;
-
 	if(h == INVALID_HANDLE_VALUE && AE_IFLNK == rt->filetype)
 		return 0;
-
 	/* Close a file descriptor.
 	 * It will not be used for SetFileTime() because it has been opened
 	 * by a read only mode.
@@ -1869,18 +1855,15 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 	BY_HANDLE_FILE_INFORMATION bhfi;
 	DWORD fileAttributes = 0;
 	int r;
-
 	archive_clear_error(_a);
 	wname = archive_entry_sourcepath_w(entry);
 	if(wname == NULL)
 		wname = archive_entry_pathname_w(entry);
 	if(wname == NULL) {
-		archive_set_error(&a->archive, EINVAL,
-		    "Can't get a wide character version of the path");
+		archive_set_error(&a->archive, EINVAL, "Can't get a wide character version of the path");
 		return ARCHIVE_FAILED;
 	}
 	path = __la_win_permissive_name_w(wname);
-
 	if(st == NULL) {
 		/*
 		 * Get metadata through GetFileInformationByHandle().
@@ -1890,8 +1873,7 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 			r = GetFileInformationByHandle(h, &bhfi);
 			if(r == 0) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't GetFileInformationByHandle");
+				archive_set_error(&a->archive, errno, "Can't GetFileInformationByHandle");
 				return ARCHIVE_FAILED;
 			}
 			entry_copy_bhfi(entry, path, NULL, &bhfi);
@@ -1903,8 +1885,7 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 			h = FindFirstFileW(path, &findData);
 			if(h == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't FindFirstFileW");
+				archive_set_error(&a->archive, errno, "Can't FindFirstFileW");
 				return ARCHIVE_FAILED;
 			}
 			FindClose(h);
@@ -1922,20 +1903,16 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 			}
 			else
 				desiredAccess = GENERIC_READ;
-
-			h = CreateFileW(path, desiredAccess, FILE_SHARE_READ, NULL,
-				OPEN_EXISTING, flag, NULL);
+			h = CreateFileW(path, desiredAccess, FILE_SHARE_READ, NULL, OPEN_EXISTING, flag, NULL);
 			if(h == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't CreateFileW");
+				archive_set_error(&a->archive, errno, "Can't CreateFileW");
 				return ARCHIVE_FAILED;
 			}
 			r = GetFileInformationByHandle(h, &bhfi);
 			if(r == 0) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't GetFileInformationByHandle");
+				archive_set_error(&a->archive, errno, "Can't GetFileInformationByHandle");
 				CloseHandle(h);
 				return ARCHIVE_FAILED;
 			}

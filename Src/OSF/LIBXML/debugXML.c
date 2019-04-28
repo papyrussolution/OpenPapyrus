@@ -24,17 +24,8 @@
 //typedef xmlDebugCtxt * xmlDebugCtxtPtr;
 
 struct xmlDebugCtxt {
-	xmlDebugCtxt(FILE * pOutp)
+	xmlDebugCtxt(FILE * pOutp) : output(NZOR(pOutp, stdout)), depth(0), check(0), errors(0), doc(NULL), P_Node(NULL), dict(NULL), nodict(0), options(0)
 	{
-		depth = 0;
-		check = 0;
-		errors = 0;
-		output = NZOR(pOutp, stdout);
-		doc = NULL;
-		P_Node = NULL;
-		dict = NULL;
-		nodict = 0;
-		options = 0;
 		memset(shift, ' ', sizeof(shift)-1);
 		shift[sizeof(shift)-1] = 0;
 	}
@@ -67,11 +58,10 @@ static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * P_Node);
 	ctxt->shift[sizeof(ctxt->shift)-1] = 0;
 }*/
 
-static void xmlCtxtDumpCleanCtxt(xmlDebugCtxt * ctxt ATTRIBUTE_UNUSED)
+static void FASTCALL xmlCtxtDumpCleanCtxt(xmlDebugCtxt * ctxt ATTRIBUTE_UNUSED)
 {
 	/* remove the ATTRIBUTE_UNUSED when this is added */
 }
-
 /**
  * xmlNsCheckScope:
  * @node: the node
@@ -102,14 +92,14 @@ static int xmlNsCheckScope(xmlNode * pNode, xmlNs * ns)
 	}
 	// the xml namespace may be declared on the document node 
 	if(pNode && ((pNode->type == XML_DOCUMENT_NODE) || (pNode->type == XML_HTML_DOCUMENT_NODE))) {
-		xmlNs * oldNs = ((xmlDoc *)pNode)->oldNs;
+		xmlNs * oldNs = reinterpret_cast<xmlDoc *>(pNode)->oldNs;
 		if(oldNs == ns)
 			return 1;
 	}
 	return (-3);
 }
 
-static void xmlCtxtDumpSpaces(xmlDebugCtxt * ctxt)
+static void FASTCALL xmlCtxtDumpSpaces(xmlDebugCtxt * ctxt)
 {
 	if(!ctxt->check) {
 		if(ctxt->output && ctxt->depth > 0) {
@@ -152,23 +142,23 @@ static void FASTCALL xmlDebugErr3(xmlDebugCtxt * ctxt, int error, const char * m
  *
  * Report if a given namespace is is not in scope.
  */
-static void xmlCtxtNsCheckScope(xmlDebugCtxt * ctxt, xmlNode * P_Node, xmlNs * ns)
+static void xmlCtxtNsCheckScope(xmlDebugCtxt * ctxt, xmlNode * pNode, xmlNs * ns)
 {
-	int ret = xmlNsCheckScope(P_Node, ns);
+	int ret = xmlNsCheckScope(pNode, ns);
+	const char * p_ns_pfx = ns ? reinterpret_cast<const char *>(ns->prefix) : 0;
 	if(ret == -2) {
-		if(ns->prefix == NULL)
+		if(!p_ns_pfx)
 			xmlDebugErr(ctxt, XML_CHECK_NS_SCOPE, "Reference to default namespace not in scope\n");
 		else
-			xmlDebugErr3(ctxt, XML_CHECK_NS_SCOPE, "Reference to namespace '%s' not in scope\n", (char *)ns->prefix);
+			xmlDebugErr3(ctxt, XML_CHECK_NS_SCOPE, "Reference to namespace '%s' not in scope\n", p_ns_pfx);
 	}
 	if(ret == -3) {
-		if(ns->prefix == NULL)
+		if(!p_ns_pfx)
 			xmlDebugErr(ctxt, XML_CHECK_NS_ANCESTOR, "Reference to default namespace not on ancestor\n");
 		else
-			xmlDebugErr3(ctxt, XML_CHECK_NS_ANCESTOR, "Reference to namespace '%s' not on ancestor\n", (char *)ns->prefix);
+			xmlDebugErr3(ctxt, XML_CHECK_NS_ANCESTOR, "Reference to namespace '%s' not on ancestor\n", p_ns_pfx);
 	}
 }
-
 /**
  * xmlCtxtCheckString:
  * @ctxt: the debug context
@@ -181,12 +171,11 @@ static void xmlCtxtCheckString(xmlDebugCtxt * ctxt, const xmlChar * str)
 	if(str) {
 		if(ctxt->check) {
 			if(!xmlCheckUTF8(str)) {
-				xmlDebugErr3(ctxt, XML_CHECK_NOT_UTF8, "String is not UTF-8 %s", (const char *)str);
+				xmlDebugErr3(ctxt, XML_CHECK_NOT_UTF8, "String is not UTF-8 %s", reinterpret_cast<const char *>(str));
 			}
 		}
 	}
 }
-
 /**
  * xmlCtxtCheckName:
  * @ctxt: the debug context
@@ -214,13 +203,13 @@ static void xmlCtxtCheckName(xmlDebugCtxt * ctxt, const xmlChar * name)
 	}
 }
 
-static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * P_Node)
+static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * pNode)
 {
 	xmlDict * dict;
-	xmlDoc * doc = P_Node->doc;
-	if(!P_Node->P_ParentNode)
+	xmlDoc * doc = pNode->doc;
+	if(!pNode->P_ParentNode)
 		xmlDebugErr(ctxt, XML_CHECK_NO_PARENT, "Node has no parent\n");
-	if(P_Node->doc == NULL) {
+	if(pNode->doc == NULL) {
 		xmlDebugErr(ctxt, XML_CHECK_NO_DOC, "Node has no doc\n");
 		dict = NULL;
 	}
@@ -237,69 +226,69 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 		SETIFZ(ctxt->doc, doc);
 		SETIFZ(ctxt->dict, dict);
 	}
-	if(P_Node->P_ParentNode && (P_Node->doc != P_Node->P_ParentNode->doc) && !sstreq(P_Node->name, "pseudoroot"))
+	if(pNode->P_ParentNode && (pNode->doc != pNode->P_ParentNode->doc) && !sstreq(pNode->name, "pseudoroot"))
 		xmlDebugErr(ctxt, XML_CHECK_WRONG_DOC, "Node doc differs from parent's one\n");
-	if(P_Node->prev == NULL) {
-		if(P_Node->type == XML_ATTRIBUTE_NODE) {
-			if(P_Node->P_ParentNode && (P_Node != (xmlNode *)P_Node->P_ParentNode->properties))
+	if(pNode->prev == NULL) {
+		if(pNode->type == XML_ATTRIBUTE_NODE) {
+			if(pNode->P_ParentNode && (pNode != (xmlNode *)pNode->P_ParentNode->properties))
 				xmlDebugErr(ctxt, XML_CHECK_NO_PREV, "Attr has no prev and not first of attr list\n");
 		}
-		else if(P_Node->P_ParentNode && (P_Node->P_ParentNode->children != P_Node))
+		else if(pNode->P_ParentNode && (pNode->P_ParentNode->children != pNode))
 			xmlDebugErr(ctxt, XML_CHECK_NO_PREV, "Node has no prev and not first of parent list\n");
 	}
 	else {
-		if(P_Node->prev->next != P_Node)
+		if(pNode->prev->next != pNode)
 			xmlDebugErr(ctxt, XML_CHECK_WRONG_PREV, "Node prev->next : back link wrong\n");
 	}
-	if(P_Node->next == NULL) {
-		if(P_Node->P_ParentNode && (P_Node->type != XML_ATTRIBUTE_NODE) && (P_Node->P_ParentNode->last != P_Node) && (P_Node->P_ParentNode->type == XML_ELEMENT_NODE))
+	if(pNode->next == NULL) {
+		if(pNode->P_ParentNode && (pNode->type != XML_ATTRIBUTE_NODE) && (pNode->P_ParentNode->last != pNode) && (pNode->P_ParentNode->type == XML_ELEMENT_NODE))
 			xmlDebugErr(ctxt, XML_CHECK_NO_NEXT, "Node has no next and not last of parent list\n");
 	}
 	else {
-		if(P_Node->next->prev != P_Node)
+		if(pNode->next->prev != pNode)
 			xmlDebugErr(ctxt, XML_CHECK_WRONG_NEXT, "Node next->prev : forward link wrong\n");
-		if(P_Node->next->P_ParentNode != P_Node->P_ParentNode)
+		if(pNode->next->P_ParentNode != pNode->P_ParentNode)
 			xmlDebugErr(ctxt, XML_CHECK_WRONG_PARENT, "Node next->prev : forward link wrong\n");
 	}
-	if(P_Node->type == XML_ELEMENT_NODE) {
-		for(xmlNs * ns = P_Node->nsDef; ns; ns = ns->next)
-			xmlCtxtNsCheckScope(ctxt, P_Node, ns);
-		if(P_Node->ns)
-			xmlCtxtNsCheckScope(ctxt, P_Node, P_Node->ns);
+	if(pNode->type == XML_ELEMENT_NODE) {
+		for(xmlNs * ns = pNode->nsDef; ns; ns = ns->next)
+			xmlCtxtNsCheckScope(ctxt, pNode, ns);
+		if(pNode->ns)
+			xmlCtxtNsCheckScope(ctxt, pNode, pNode->ns);
 	}
-	else if(P_Node->type == XML_ATTRIBUTE_NODE) {
-		if(P_Node->ns)
-			xmlCtxtNsCheckScope(ctxt, P_Node, P_Node->ns);
+	else if(pNode->type == XML_ATTRIBUTE_NODE) {
+		if(pNode->ns)
+			xmlCtxtNsCheckScope(ctxt, pNode, pNode->ns);
 	}
-	if(!oneof7(P_Node->type, XML_ELEMENT_NODE, XML_ATTRIBUTE_NODE, XML_ELEMENT_DECL, XML_ATTRIBUTE_DECL, XML_DTD_NODE, XML_HTML_DOCUMENT_NODE, XML_DOCUMENT_NODE)) {
-		if(P_Node->content)
-			xmlCtxtCheckString(ctxt, (const xmlChar *)P_Node->content);
+	if(!oneof7(pNode->type, XML_ELEMENT_NODE, XML_ATTRIBUTE_NODE, XML_ELEMENT_DECL, XML_ATTRIBUTE_DECL, XML_DTD_NODE, XML_HTML_DOCUMENT_NODE, XML_DOCUMENT_NODE)) {
+		if(pNode->content)
+			xmlCtxtCheckString(ctxt, (const xmlChar *)pNode->content);
 	}
-	switch(P_Node->type) {
+	switch(pNode->type) {
 		case XML_ELEMENT_NODE:
 		case XML_ATTRIBUTE_NODE:
-		    xmlCtxtCheckName(ctxt, P_Node->name);
+		    xmlCtxtCheckName(ctxt, pNode->name);
 		    break;
 		case XML_TEXT_NODE:
-		    if((P_Node->name == xmlStringText) || (P_Node->name == xmlStringTextNoenc))
+		    if((pNode->name == xmlStringText) || (pNode->name == xmlStringTextNoenc))
 			    break;
 		    // some case of entity substitution can lead to this 
-		    if(ctxt->dict && (P_Node->name == xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("nbktext"), 7)))
+		    if(ctxt->dict && (pNode->name == xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("nbktext"), 7)))
 			    break;
-		    xmlDebugErr3(ctxt, XML_CHECK_WRONG_NAME, "Text node has wrong name '%s'", (const char *)P_Node->name);
+		    xmlDebugErr3(ctxt, XML_CHECK_WRONG_NAME, "Text node has wrong name '%s'", (const char *)pNode->name);
 		    break;
 		case XML_COMMENT_NODE:
-		    if(P_Node->name == xmlStringComment)
+		    if(pNode->name == xmlStringComment)
 			    break;
-		    xmlDebugErr3(ctxt, XML_CHECK_WRONG_NAME, "Comment node has wrong name '%s'", (const char *)P_Node->name);
+		    xmlDebugErr3(ctxt, XML_CHECK_WRONG_NAME, "Comment node has wrong name '%s'", (const char *)pNode->name);
 		    break;
 		case XML_PI_NODE:
-		    xmlCtxtCheckName(ctxt, P_Node->name);
+		    xmlCtxtCheckName(ctxt, pNode->name);
 		    break;
 		case XML_CDATA_SECTION_NODE:
-		    if(P_Node->name == NULL)
+		    if(pNode->name == NULL)
 			    break;
-		    xmlDebugErr3(ctxt, XML_CHECK_NAME_NOT_NULL, "CData section has non NULL name '%s'", (const char *)P_Node->name);
+		    xmlDebugErr3(ctxt, XML_CHECK_NAME_NOT_NULL, "CData section has non NULL name '%s'", (const char *)pNode->name);
 		    break;
 		case XML_ENTITY_REF_NODE:
 		case XML_ENTITY_NODE:
@@ -357,13 +346,13 @@ static void xmlCtxtDumpDtdNode(xmlDebugCtxt * ctxt, xmlDtd * dtd)
 	else {
 		if(!ctxt->check) {
 			if(dtd->name)
-				fprintf(ctxt->output, "DTD(%s)", (char *)dtd->name);
+				fprintf(ctxt->output, "DTD(%s)", reinterpret_cast<const char *>(dtd->name));
 			else
 				fprintf(ctxt->output, "DTD");
 			if(dtd->ExternalID)
-				fprintf(ctxt->output, ", PUBLIC %s", (char *)dtd->ExternalID);
+				fprintf(ctxt->output, ", PUBLIC %s", reinterpret_cast<const char *>(dtd->ExternalID));
 			if(dtd->SystemID)
-				fprintf(ctxt->output, ", SYSTEM %s", (char *)dtd->SystemID);
+				fprintf(ctxt->output, ", SYSTEM %s", reinterpret_cast<const char *>(dtd->SystemID));
 			fprintf(ctxt->output, "\n");
 		}
 		/*
@@ -415,9 +404,9 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 			xmlEnumeration * cur = attr->tree;
 			for(indx = 0; indx < 5; indx++) {
 				if(indx != 0)
-					fprintf(ctxt->output, "|%s", (char *)cur->name);
+					fprintf(ctxt->output, "|%s", reinterpret_cast<const char *>(cur->name));
 				else
-					fprintf(ctxt->output, " (%s", (char *)cur->name);
+					fprintf(ctxt->output, " (%s", reinterpret_cast<const char *>(cur->name));
 				cur = cur->next;
 				if(!cur)
 					break;

@@ -39,9 +39,9 @@ __FBSDID("$FreeBSD$");
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#if HAVE_LZMA_H
 	//#include <lzma.h>
 //#endif
@@ -525,12 +525,10 @@ static int lzip_init(struct archive_read_filter * self)
 
 static int lzip_tail(struct archive_read_filter * self)
 {
-	struct private_data * state;
 	const uchar * f;
 	ssize_t avail_in;
 	int tail;
-
-	state = (struct private_data *)self->data;
+	struct private_data * state = (struct private_data *)self->data;
 	if(state->lzip_ver == 0)
 		tail = 12;
 	else
@@ -539,31 +537,25 @@ static int lzip_tail(struct archive_read_filter * self)
 	if(f == NULL && avail_in < 0)
 		return ARCHIVE_FATAL;
 	if(f == NULL || avail_in < tail) {
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzip: Remaining data is less bytes");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Remaining data is less bytes");
 		return ARCHIVE_FAILED;
 	}
 
 	/* Check the crc32 value of the uncompressed data of the current
 	 * member */
 	if(state->crc32 != archive_le32dec(f)) {
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzip: CRC32 error");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: CRC32 error");
 		return ARCHIVE_FAILED;
 	}
-
 	/* Check the uncompressed size of the current member */
 	if((uint64_t)state->member_out != archive_le64dec(f + 4)) {
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzip: Uncompressed size error");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Uncompressed size error");
 		return ARCHIVE_FAILED;
 	}
-
 	/* Check the total size of the current member */
 	if(state->lzip_ver == 1 &&
 	    (uint64_t)state->member_in + tail != archive_le64dec(f + 12)) {
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzip: Member size error");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Member size error");
 		return ARCHIVE_FAILED;
 	}
 	__archive_read_filter_consume(self->upstream, tail);

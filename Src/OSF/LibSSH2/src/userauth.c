@@ -744,20 +744,12 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION * session
 	return rc;
 }
 
-int _libssh2_userauth_publickey(LIBSSH2_SESSION * session,
-    const char * username,
-    uint username_len,
-    const uchar * pubkeydata,
-    ulong pubkeydata_len,
-    LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC((*sign_callback)),
-    void * abstract)
+int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username, uint username_len,
+    const uchar * pubkeydata, ulong pubkeydata_len, LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC((*sign_callback)), void * abstract)
 {
-	uchar reply_codes[4] =
-	{ SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-	  SSH_MSG_USERAUTH_PK_OK, 0};
+	uchar reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_PK_OK, 0 };
 	int rc;
 	uchar * s;
-
 	if(session->userauth_pblc_state == libssh2_NB_state_idle) {
 		/*
 		 * The call to _libssh2_ntohu32 later relies on pubkeydata having at
@@ -775,11 +767,9 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session,
 		 */
 		if(!session->userauth_pblc_method) {
 			session->userauth_pblc_method_len = _libssh2_ntohu32(pubkeydata);
-
 			if(session->userauth_pblc_method_len > pubkeydata_len)
 				/* the method length simply cannot be longer than the entire
-				   passed in data, so we use this to detect crazy input
-				   data */
+				   passed in data, so we use this to detect crazy input data */
 				return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, "Invalid public key");
 			session->userauth_pblc_method = (uchar *)LIBSSH2_ALLOC(session, session->userauth_pblc_method_len);
 			if(!session->userauth_pblc_method) {
@@ -801,10 +791,7 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session,
 		 * authmethod(9)"publickey" + sig_included(1)'\0' + algmethod_len(4) +
 		 * publickey_len(4)
 		 */
-		session->userauth_pblc_packet_len =
-		    username_len + session->userauth_pblc_method_len + pubkeydata_len +
-		    45;
-
+		session->userauth_pblc_packet_len = username_len + session->userauth_pblc_method_len + pubkeydata_len + 45;
 		/*
 		 * Preallocate space for an overall length, method name again, and the
 		 * signature, which won't be any larger than the size of the

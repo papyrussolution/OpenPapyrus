@@ -816,7 +816,7 @@ static ngx_int_t ngx_http_gzip_filter_init(ngx_conf_t * cf)
 
 static char * ngx_http_gzip_window(ngx_conf_t * cf, void * post, void * data)
 {
-	size_t * np = (size_t *)data;
+	size_t * np = static_cast<size_t *>(data);
 	size_t wbits = 15;
 	for(size_t wsize = 32 * 1024; wsize > 256; wsize >>= 1) {
 		if(wsize == *np) {
@@ -830,7 +830,7 @@ static char * ngx_http_gzip_window(ngx_conf_t * cf, void * post, void * data)
 
 static char * ngx_http_gzip_hash(ngx_conf_t * cf, void * post, void * data)
 {
-	size_t * np = (size_t *)data;
+	size_t * np = static_cast<size_t *>(data);
 	size_t memlevel = 9;
 	for(size_t hsize = 128 * 1024; hsize > 256; hsize >>= 1) {
 		if(hsize == *np) {

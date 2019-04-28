@@ -36,13 +36,9 @@ static int htmlOmittedDefaultValue = 1;
 
 xmlChar * htmlDecodeEntities(htmlParserCtxt * ctxt, int len, xmlChar end, xmlChar end2, xmlChar end3);
 static void htmlParseComment(htmlParserCtxt * ctxt);
-
-/************************************************************************
-*									*
-*		Some factorized error routines				*
-*									*
-************************************************************************/
-
+// 
+// Some factorized error routines
+// 
 /**
  * htmlErrMemory:
  * @ctxt:  an HTML parser context
@@ -103,13 +99,9 @@ static void FASTCALL htmlParseErrInt(xmlParserCtxt * ctxt, xmlParserErrors error
 	if(ctxt)
 		ctxt->wellFormed = 0;
 }
-
-/************************************************************************
-*									*
-*	Parser stacks related functions and macros		*
-*									*
-************************************************************************/
-
+// 
+// Parser stacks related functions and macros
+// 
 /**
  * htmlnamePush:
  * @ctxt:  an HTML parser context
@@ -127,7 +119,7 @@ static int FASTCALL htmlnamePush(htmlParserCtxt * ctxt, const xmlChar * value)
 		ctxt->html = 10;
 	if(ctxt->nameNr >= ctxt->nameMax) {
 		ctxt->nameMax *= 2;
-		ctxt->nameTab = (const xmlChar **)SAlloc::R((xmlChar**)ctxt->nameTab, ctxt->nameMax * sizeof(ctxt->nameTab[0]));
+		ctxt->nameTab = static_cast<const xmlChar **>(SAlloc::R((xmlChar **)ctxt->nameTab, ctxt->nameMax * sizeof(ctxt->nameTab[0])));
 		if(ctxt->nameTab == NULL) {
 			htmlErrMemory(ctxt, 0);
 			return 0;
@@ -296,13 +288,11 @@ static xmlChar * htmlFindEncoding(xmlParserCtxt * ctxt)
 		return NULL;
 	if((ctxt->input->cur == NULL) || (ctxt->input->end == NULL))
 		return NULL;
-
 	start = ctxt->input->cur;
 	end = ctxt->input->end;
 	/* we also expect the input buffer to be zero terminated */
 	if(*end != 0)
 		return NULL;
-
 	cur = xmlStrcasestr(start, reinterpret_cast<const xmlChar *>("HTTP-EQUIV"));
 	if(!cur)
 		return NULL;
@@ -320,7 +310,6 @@ static xmlChar * htmlFindEncoding(xmlParserCtxt * ctxt)
 		return NULL;
 	return xmlStrndup(start, cur - start);
 }
-
 /**
  * htmlCurrentChar:
  * @ctxt:  the HTML parser context
@@ -424,7 +413,6 @@ static int FASTCALL htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 	*len = 1;
 	if((int)*ctxt->input->cur < 0x80)
 		return static_cast<int>(*ctxt->input->cur);
-
 	/*
 	 * Humm this is bad, do an automatic flow conversion
 	 */
@@ -583,7 +571,6 @@ static const char* const src_alt_attrs[] = { "src", "alt", NULL };
 static const char* const href_attrs[] = { "href", NULL };
 static const char* const clear_attrs[] = { "clear", NULL };
 static const char* const inline_p[] = { INLINE, "p", NULL };
-
 static const char* const flow_param[] = { FLOW, "param", NULL };
 static const char* const applet_attrs[] = { COREATTRS, "codebase", "archive", "alt", "name", "height", "width", "align", "hspace", "vspace", NULL };
 static const char* const area_attrs[] = { "shape", "coords", "href", "nohref", "tabindex", "accesskey", "onfocus", "onblur", NULL };
@@ -593,7 +580,6 @@ static const char* const body_contents[] = { FLOW, "ins", "del", NULL };
 static const char* const body_attrs[] = { ATTRS, "onload", "onunload", NULL };
 static const char* const body_depr[] = { "background", "bgcolor", "text", "link", "vlink", "alink", NULL };
 static const char* const button_attrs[] = { ATTRS, "name", "value", "type", "disabled", "tabindex", "accesskey", "onfocus", "onblur", NULL };
-
 static const char* const col_attrs[] = { ATTRS, "span", "width", CELLHALIGN, CELLVALIGN, NULL };
 static const char* const col_elt[] = { "col", NULL };
 static const char* const edit_attrs[] = { ATTRS, "datetime", "cite", NULL };
@@ -603,12 +589,9 @@ static const char* const compact_attr[] = { "compact", NULL };
 static const char* const label_attr[] = { "label", NULL };
 static const char* const fieldset_contents[] = { FLOW, "legend" };
 static const char* const font_attrs[] = { COREATTRS, I18N, "size", "color", "face", NULL };
-static const char* const form_contents[] =
-{ HEADING, LIST, INLINE, "pre", "p", "div", "center", "noscript", "noframes", "blockquote", "isindex", "hr", "table", "fieldset", "address",
-  NULL };
+static const char* const form_contents[] = { HEADING, LIST, INLINE, "pre", "p", "div", "center", "noscript", "noframes", "blockquote", "isindex", "hr", "table", "fieldset", "address", NULL };
 static const char* const form_attrs[] = { ATTRS, "method", "enctype", "accept", "name", "onsubmit", "onreset", "accept-charset", NULL };
-static const char* const frame_attrs[] =
-{ COREATTRS, "longdesc", "name", "src", "frameborder", "marginwidth", "marginheight", "noresize", "scrolling", NULL };
+static const char* const frame_attrs[] = { COREATTRS, "longdesc", "name", "src", "frameborder", "marginwidth", "marginheight", "noresize", "scrolling", NULL };
 static const char* const frameset_attrs[] = { COREATTRS, "rows", "cols", "onload", "onunload", NULL };
 static const char* const frameset_contents[] = { "frameset", "frame", "noframes", NULL };
 static const char* const head_attrs[] = { I18N, "profile", NULL };
@@ -616,15 +599,12 @@ static const char* const head_contents[] = { "title", "isindex", "base", "script
 static const char* const hr_depr[] = { "align", "noshade", "size", "width", NULL };
 static const char* const version_attr[] = { "version", NULL };
 static const char* const html_content[] = { "head", "body", "frameset", NULL };
-static const char* const iframe_attrs[] =
-{ COREATTRS, "longdesc", "name", "src", "frameborder", "marginwidth", "marginheight", "scrolling", "align", "height", "width", NULL };
+static const char* const iframe_attrs[] = { COREATTRS, "longdesc", "name", "src", "frameborder", "marginwidth", "marginheight", "scrolling", "align", "height", "width", NULL };
 static const char* const img_attrs[] = { ATTRS, "longdesc", "name", "height", "width", "usemap", "ismap", NULL };
-static const char* const embed_attrs[] =
-{ COREATTRS, "align", "alt", "border", "code", "codebase", "frameborder", "height", "hidden", "hspace", "name", "palette", "pluginspace",
+static const char* const embed_attrs[] = { COREATTRS, "align", "alt", "border", "code", "codebase", "frameborder", "height", "hidden", "hspace", "name", "palette", "pluginspace",
   "pluginurl", "src", "type", "units", "vspace", "width", NULL };
 static const char* const input_attrs[] =
-{ ATTRS, "type", "name", "value", "checked", "disabled", "readonly", "size", "maxlength", "src", "alt", "usemap", "ismap", "tabindex",
-  "accesskey", "onfocus", "onblur", "onselect", "onchange", "accept", NULL };
+{ ATTRS, "type", "name", "value", "checked", "disabled", "readonly", "size", "maxlength", "src", "alt", "usemap", "ismap", "tabindex", "accesskey", "onfocus", "onblur", "onselect", "onchange", "accept", NULL };
 static const char* const prompt_attrs[] = { COREATTRS, I18N, "prompt", NULL };
 static const char* const label_attrs[] = { ATTRS, "for", "accesskey", "onfocus", "onblur", NULL };
 static const char* const legend_attrs[] = { ATTRS, "accesskey", NULL };
@@ -639,10 +619,7 @@ static const char* const content_attr[] = { "content", NULL };
 static const char* const type_attr[] = { "type", NULL };
 static const char* const noframes_content[] = { "body", FLOW MODIFIER, NULL };
 static const char* const object_contents[] = { FLOW, "param", NULL };
-static const char* const object_attrs[] =
-{ ATTRS, "declare", "classid", "codebase", "data", "type", "codetype", "archive", "standby", "height", "width", "usemap", "name",
-  "tabindex",
-  NULL };
+static const char* const object_attrs[] = { ATTRS, "declare", "classid", "codebase", "data", "type", "codetype", "archive", "standby", "height", "width", "usemap", "name", "tabindex", NULL };
 static const char* const object_depr[] = { "align", "border", "hspace", "vspace", NULL };
 static const char* const ol_attrs[] = { "type", "compact", "start", NULL};
 static const char* const option_elt[] = { "option", NULL };
@@ -1846,7 +1823,7 @@ int htmlEncodeEntities(uchar* out, int * outlen, const uchar* in, int * inlen, i
  */
 static htmlParserInputPtr htmlNewInputStream(htmlParserCtxt * ctxt)
 {
-	htmlParserInputPtr input = (xmlParserInput *)SAlloc::M(sizeof(htmlParserInput));
+	htmlParserInputPtr input = static_cast<xmlParserInput *>(SAlloc::M(sizeof(htmlParserInput)));
 	if(!input)
 		htmlErrMemory(ctxt, "couldn't allocate a new input stream\n");
 	else {

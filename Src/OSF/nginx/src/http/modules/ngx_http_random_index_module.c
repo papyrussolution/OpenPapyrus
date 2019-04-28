@@ -170,7 +170,7 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 
 		name->len = len;
 
-		name->data = (u_char *)ngx_pnalloc(r->pool, len);
+		name->data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 		if(name->data == NULL) {
 			return ngx_http_random_index_error(r, &dir, &path);
 		}

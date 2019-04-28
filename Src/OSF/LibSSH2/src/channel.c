@@ -39,10 +39,10 @@
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
-#include <fcntl.h>
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
+//#include <fcntl.h>
 #ifdef HAVE_INTTYPES_H
 	#include <inttypes.h>
 #endif
@@ -54,7 +54,7 @@
 uint32 _libssh2_channel_nextid(LIBSSH2_SESSION * session)
 {
 	uint32 id = session->next_channel;
-	LIBSSH2_CHANNEL * channel = (LIBSSH2_CHANNEL *)_libssh2_list_first(&session->channels);
+	LIBSSH2_CHANNEL * channel = static_cast<LIBSSH2_CHANNEL *>(_libssh2_list_first(&session->channels));
 	while(channel) {
 		if(channel->local.id > id) {
 			id = channel->local.id;
@@ -237,16 +237,13 @@ channel_error:
 	session->open_state = libssh2_NB_state_idle;
 	return NULL;
 }
-
 /*
  * libssh2_channel_open_ex
  *
  * Establish a generic session channel
  */
 LIBSSH2_API LIBSSH2_CHANNEL * libssh2_channel_open_ex(LIBSSH2_SESSION * session, const char * type,
-    uint type_len,
-    uint window_size, uint packet_size,
-    const char * msg, uint msg_len)
+    uint type_len, uint window_size, uint packet_size, const char * msg, uint msg_len)
 {
 	LIBSSH2_CHANNEL * ptr;
 	if(!session)

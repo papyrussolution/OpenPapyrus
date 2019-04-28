@@ -22,34 +22,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
+//#endif
 
 #if !defined(HAVE_ARC4RANDOM_BUF) && (!defined(_WIN32) || defined(__CYGWIN__))
 
 #ifdef HAVE_FCNTL
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
-#ifdef HAVE_LIMITS_H
+//#ifdef HAVE_LIMITS_H
 //#include <limits.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
+	#include <sys/time.h>
 #endif
 #ifdef HAVE_PTHREAD_H
-#include <pthread.h>
+	#include <pthread.h>
 #endif
 
 static void arc4random_buf(void *, size_t);

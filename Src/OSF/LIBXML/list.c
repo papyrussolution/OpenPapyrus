@@ -32,13 +32,9 @@ struct xmlList {
 	void (* linkDeallocator)(xmlLink *);
 	int (* linkCompare)(const void *, const void*);
 };
-
-/************************************************************************
-*                                    *
-*                Interfaces                *
-*                                    *
-************************************************************************/
-
+//
+// Interfaces
+// 
 /**
  * xmlLinkDeallocator:
  * @l:  a list
@@ -61,8 +57,7 @@ static void FASTCALL xmlLinkDeallocator(xmlList * l, xmlLink * lk)
  *
  * Compares two arbitrary data
  *
- * Returns -1, 0 or 1 depending on whether data1 is greater equal or smaller
- *        than data0
+ * Returns -1, 0 or 1 depending on whether data1 is greater equal or smaller than data0
  */
 static int xmlLinkCompare(const void * data0, const void * data1)
 {
@@ -162,15 +157,15 @@ static xmlLink * xmlListLinkReverseSearch(xmlList * l, void * data)
  */
 xmlList * xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compare)
 {
-	xmlList * l;
-	if(NULL == (l = (xmlList *)SAlloc::M(sizeof(xmlList)))) {
+	xmlList * l = static_cast<xmlList *>(SAlloc::M(sizeof(xmlList)));
+	if(!l) {
 		xmlGenericError(0, "Cannot initialize memory for list");
 		return 0;
 	}
-	/* Initialize the list to NULL */
-	memzero(l, sizeof(xmlList));
+	memzero(l, sizeof(xmlList)); // Initialize the list to NULL 
 	/* Add the sentinel */
-	if(NULL ==(l->sentinel = (xmlLink *)SAlloc::M(sizeof(xmlLink)))) {
+	l->sentinel = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
+	if(!l->sentinel) {
 		xmlGenericError(0, "Cannot initialize memory for sentinel");
 		SAlloc::F(l);
 		return 0;
@@ -188,7 +183,6 @@ xmlList * xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compa
 		l->linkCompare = xmlLinkCompare;
 	return l;
 }
-
 /**
  * xmlListSearch:
  * @l:  a list
@@ -241,7 +235,7 @@ int FASTCALL xmlListInsert(xmlList * pList, void * data)
 	else {
 		xmlLink * lkPlace = xmlListLowerSearch(pList, data);
 		/* Add the new link */
-		xmlLink * lkNew = (xmlLink *)SAlloc::M(sizeof(xmlLink));
+		xmlLink * lkNew = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
 		if(lkNew == NULL) {
 			xmlGenericError(0, "Cannot initialize memory for new link");
 			return 1;
@@ -274,7 +268,7 @@ int xmlListAppend(xmlList * pList, void * data)
 		return 1;
 	lkPlace = xmlListHigherSearch(pList, data);
 	/* Add the new link */
-	lkNew = (xmlLink *)SAlloc::M(sizeof(xmlLink));
+	lkNew = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
 	if(lkNew == NULL) {
 		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 1;
@@ -426,12 +420,12 @@ xmlLink * xmlListEnd(xmlList * l)
  */
 int xmlListSize(xmlList * l)
 {
-	xmlLink * lk;
 	int count = 0;
 	if(l == NULL)
 		return -1;
 	/* @todo keep a counter in xmlList instead */
-	for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next, count++) ;
+	for(xmlLink * lk = l->sentinel->next; lk != l->sentinel; lk = lk->next, count++) 
+		;
 	return count;
 }
 // 
@@ -467,7 +461,7 @@ int FASTCALL xmlListPushFront(xmlList * l, void * data)
 		return 0;
 	lkPlace = l->sentinel;
 	// Add the new link 
-	lkNew = (xmlLink *)SAlloc::M(sizeof(xmlLink));
+	lkNew = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
 	if(lkNew == NULL) {
 		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 0;
@@ -479,7 +473,6 @@ int FASTCALL xmlListPushFront(xmlList * l, void * data)
 	lkNew->prev = lkPlace;
 	return 1;
 }
-
 /**
  * xmlListPushBack:
  * @l:  a list
@@ -497,7 +490,8 @@ int xmlListPushBack(xmlList * l, void * data)
 		return 0;
 	lkPlace = l->sentinel->prev;
 	/* Add the new link */
-	if(NULL ==(lkNew = (xmlLink *)SAlloc::M(sizeof(xmlLink)))) {
+	lkNew = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
+	if(!lkNew) {
 		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 0;
 	}

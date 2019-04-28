@@ -26,11 +26,9 @@
  *
  * $FreeBSD$
  */
-
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
-
 /*
  * TODO: A lot of stuff in here isn't actually used by libarchive and
  * can be trimmed out.  Note that this file is used by libarchive and
@@ -38,13 +36,11 @@
  * with many different Windows environments, including MinGW, Visual
  * Studio, and Cygwin.  Significant changes should be tested in all three.)
  */
-
 /*
  * TODO: Don't use off_t in here.  Use __int64 instead.  Note that
  * Visual Studio and the Windows SDK define off_t as 32 bits; Win32's
  * more modern file handling APIs all use __int64 instead of off_t.
  */
-
 #ifndef LIBARCHIVE_ARCHIVE_WINDOWS_H_INCLUDED
 #define	LIBARCHIVE_ARCHIVE_WINDOWS_H_INCLUDED
 
@@ -54,10 +50,10 @@
 #endif
 //#include <errno.h>
 #define	set_errno(val)	((errno)=val)
-#include <io.h>
+//#include <io.h>
 //#include <stdlib.h>   //brings in NULL
 #if defined(HAVE_STDINT_H)
-#include <stdint.h>
+	#include <stdint.h>
 #endif
 //#include <stdio.h>
 #include <fcntl.h>
@@ -65,12 +61,11 @@
 #include <process.h>
 #include <direct.h>
 #if defined(__MINGW32__) && defined(HAVE_UNISTD_H)
-/* Prevent build error from a type mismatch of ftruncate().
- * This unistd.h defines it as ftruncate(int, off_t). */
-#include <unistd.h>
+	// Prevent build error from a type mismatch of ftruncate(). This unistd.h defines it as ftruncate(int, off_t). 
+	#include <unistd.h>
 #endif
 #define NOCRYPT
-#include <windows.h>
+//#include <windows.h>
 //#define	EFTYPE 7
 
 #if defined(__BORLANDC__)

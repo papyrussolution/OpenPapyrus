@@ -151,14 +151,10 @@ SSzChunk & SSzChunk::SetRange(int begin, int end)
 	return *this;
 }
 
-int SSzChunk::operator !() const
-	{ return (Len <= 0); }
-int SSzChunk::operator == (const SSzChunk & rS) const
-	{ return (Begin == rS.Begin && Len == rS.Len); }
-int SSzChunk::GetEnd() const
-	{ return (Begin+Len-1); }
-int SSzChunk::IsEmpty() const
-	{ return BIN(Len <= 0); }
+int SSzChunk::operator !() const { return (Len <= 0); }
+int SSzChunk::operator == (const SSzChunk & rS) const { return (Begin == rS.Begin && Len == rS.Len); }
+int SSzChunk::GetEnd() const { return (Begin+Len-1); }
+int SSzChunk::IsEmpty() const { return BIN(Len <= 0); }
 //
 //
 //
@@ -169,16 +165,13 @@ RealRange & SLAPI RealRange::Z()
 	return *this;
 }
 
-RealRange & FASTCALL RealRange::operator = (const IntRange & rS)
-	{ return Set((double)rS.low, (double)rS.upp); }
-int FASTCALL RealRange::IsEqual(const RealRange & rS) const
-	{ return BIN(low == rS.low && upp == rS.upp); }
-int FASTCALL RealRange::operator != (const RealRange & rS) const
-	{ return !IsEqual(rS); }
-int SLAPI RealRange::IsZero() const
-	{ return BIN(low == 0.0 && upp == 0.0); }
-int SLAPI RealRange::CheckVal(double v) const
-	{ return BIN((low == 0.0 || v >= low) && (upp == 0.0 || v <= upp)); }
+RealRange & FASTCALL RealRange::operator = (const IntRange & rS) { return Set((double)rS.low, (double)rS.upp); }
+int FASTCALL RealRange::IsEqual(const RealRange & rS) const { return BIN(low == rS.low && upp == rS.upp); }
+int FASTCALL RealRange::LessThan(double v) const { return (low < v && upp < v); }
+int FASTCALL RealRange::GreaterThan(double v) const { return (low > v && upp > v); }
+int FASTCALL RealRange::operator != (const RealRange & rS) const { return !IsEqual(rS); }
+int SLAPI RealRange::IsZero() const { return BIN(low == 0.0 && upp == 0.0); }
+int SLAPI RealRange::CheckVal(double v) const { return BIN((low == 0.0 || v >= low) && (upp == 0.0 || v <= upp)); }
 
 int SLAPI RealRange::CheckValEps(double val, double eps) const
 {

@@ -36,28 +36,28 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_filename.c 201093 2009
 //#ifdef HAVE_ERRNO_H
 //#include <errno.h>
 //#endif
-#ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
-#endif
-#ifdef HAVE_IO_H
-	#include <io.h>
-#endif
+//#ifdef HAVE_FCNTL_H
+	//#include <fcntl.h>
+//#endif
+//#ifdef HAVE_IO_H
+	//#include <io.h>
+//#endif
 //#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
 //#endif
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
-#include <sys/disk.h>
+	#include <sys/disk.h>
 #elif defined(__NetBSD__) || defined(__OpenBSD__)
-#include <sys/disklabel.h>
-#include <sys/dkio.h>
+	#include <sys/disklabel.h>
+	#include <sys/dkio.h>
 #elif defined(__DragonFly__)
-#include <sys/diskslice.h>
+	#include <sys/diskslice.h>
 #endif
 //#include "archive.h"
 //#include "archive_private.h"
@@ -150,18 +150,15 @@ no_memory:
 	return ARCHIVE_FATAL;
 }
 
-int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename,
-    size_t block_size)
+int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, size_t block_size)
 {
-	struct read_file_data * mine = (struct read_file_data *)SAlloc::C(1,
-		sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t));
+	struct read_file_data * mine = (struct read_file_data *)SAlloc::C(1, sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t));
 	if(!mine) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
 	}
 	mine->fd = -1;
 	mine->block_size = block_size;
-
 	if(wfilename == NULL || wfilename[0] == L'\0') {
 		mine->filename_type = read_file_data::FNT_STDIN;
 	}
@@ -176,17 +173,13 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename,
 		 * filename to multi-byte one and use it.
 		 */
 		struct archive_string fn;
-
 		archive_string_init(&fn);
 		if(archive_string_append_from_wcs(&fn, wfilename,
 		    wcslen(wfilename)) != 0) {
 			if(errno == ENOMEM)
-				archive_set_error(a, errno,
-				    "Can't allocate memory");
+				archive_set_error(a, errno, "Can't allocate memory");
 			else
-				archive_set_error(a, EINVAL,
-				    "Failed to convert a wide-character"
-				    " filename to a multi-byte filename");
+				archive_set_error(a, EINVAL, "Failed to convert a wide-character filename to a multi-byte filename");
 			archive_string_free(&fn);
 			SAlloc::F(mine);
 			return ARCHIVE_FATAL;
@@ -204,7 +197,6 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename,
 	archive_read_set_close_callback(a, file_close);
 	archive_read_set_switch_callback(a, file_switch);
 	archive_read_set_seek_callback(a, file_seek);
-
 	return (archive_read_open1(a));
 }
 
@@ -247,8 +239,7 @@ static int file_open(struct archive * a, void * client_data)
 		fd = open(filename, O_RDONLY | O_BINARY | O_CLOEXEC);
 		__archive_ensure_cloexec_flag(fd);
 		if(fd < 0) {
-			archive_set_error(a, errno,
-			    "Failed to open '%s'", filename);
+			archive_set_error(a, errno, "Failed to open '%s'", filename);
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -265,26 +256,21 @@ static int file_open(struct archive * a, void * client_data)
 			}
 		}
 		if(fd < 0) {
-			archive_set_error(a, errno,
-			    "Failed to open '%S'", wfilename);
+			archive_set_error(a, errno, "Failed to open '%S'", wfilename);
 			return ARCHIVE_FATAL;
 		}
 #else
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Unexpedted operation in archive_read_open_filename");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unexpedted operation in archive_read_open_filename");
 		goto fail;
 #endif
 	}
 	if(fstat(fd, &st) != 0) {
 		if(mine->filename_type == read_file_data::FNT_WCS)
-			archive_set_error(a, errno, "Can't stat '%S'",
-			    wfilename);
+			archive_set_error(a, errno, "Can't stat '%S'", wfilename);
 		else
-			archive_set_error(a, errno, "Can't stat '%s'",
-			    filename);
+			archive_set_error(a, errno, "Can't stat '%s'", filename);
 		goto fail;
 	}
-
 	/*
 	 * Determine whether the input looks like a disk device or a
 	 * tape device.  The results are used below to select an I/O
@@ -400,14 +386,11 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 			if(errno == EINTR)
 				continue;
 			else if(mine->filename_type == read_file_data::FNT_STDIN)
-				archive_set_error(a, errno,
-				    "Error reading stdin");
+				archive_set_error(a, errno, "Error reading stdin");
 			else if(mine->filename_type == read_file_data::FNT_MBS)
-				archive_set_error(a, errno,
-				    "Error reading '%s'", mine->filename.m);
+				archive_set_error(a, errno, "Error reading '%s'", mine->filename.m);
 			else
-				archive_set_error(a, errno,
-				    "Error reading '%S'", mine->filename.w);
+				archive_set_error(a, errno, "Error reading '%S'", mine->filename.w);
 		}
 		return (bytes_read);
 	}
@@ -467,7 +450,6 @@ static int64_t file_skip_lseek(struct archive * a, void * client_data, int64_t r
 		archive_set_error(a, errno, "Error seeking in '%S'", mine->filename.w);
 	return -1;
 }
-
 /*
  * TODO: Implement another file_skip_XXXX that uses MTIO ioctls to
  * accelerate operation on tape drives.
@@ -501,8 +483,7 @@ static int64_t file_seek(struct archive * a, void * client_data, int64_t request
 	if(mine->filename_type == read_file_data::FNT_STDIN)
 		archive_set_error(a, errno, "Error seeking in stdin");
 	else if(mine->filename_type == read_file_data::FNT_MBS)
-		archive_set_error(a, errno, "Error seeking in '%s'",
-		    mine->filename.m);
+		archive_set_error(a, errno, "Error seeking in '%s'", mine->filename.m);
 	else
 		archive_set_error(a, errno, "Error seeking in '%S'", mine->filename.w);
 	return ARCHIVE_FATAL;

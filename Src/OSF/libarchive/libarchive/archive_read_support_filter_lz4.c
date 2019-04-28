@@ -38,11 +38,11 @@ __FBSDID("$FreeBSD$");
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+//#include <unistd.h>
+//#endif
 #ifdef HAVE_LZ4_H
-#include <lz4.h>
+	#include <lz4.h>
 #endif
 //#include "archive.h"
 //#include "archive_endian.h"
@@ -236,7 +236,6 @@ static int lz4_allocate_out_block(struct archive_read_filter * self)
 	struct private_data * state = (struct private_data *)self->data;
 	size_t out_block_size = state->flags.block_maximum_size;
 	void * out_block;
-
 	if(!state->flags.block_independence)
 		out_block_size += 64 * 1024;
 	if(state->out_block_size < out_block_size) {
@@ -244,8 +243,7 @@ static int lz4_allocate_out_block(struct archive_read_filter * self)
 		out_block = (uchar *)SAlloc::M(out_block_size);
 		state->out_block_size = out_block_size;
 		if(out_block == NULL) {
-			archive_set_error(&self->archive->archive, ENOMEM,
-			    "Can't allocate data for lz4 decompression");
+			archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for lz4 decompression");
 			return ARCHIVE_FATAL;
 		}
 		state->out_block = out_block;
@@ -260,14 +258,12 @@ static int lz4_allocate_out_block_for_legacy(struct archive_read_filter * self)
 	struct private_data * state = (struct private_data *)self->data;
 	size_t out_block_size = LEGACY_BLOCK_SIZE;
 	void * out_block;
-
 	if(state->out_block_size < out_block_size) {
 		SAlloc::F(state->out_block);
 		out_block = (uchar *)SAlloc::M(out_block_size);
 		state->out_block_size = out_block_size;
 		if(out_block == NULL) {
-			archive_set_error(&self->archive->archive, ENOMEM,
-			    "Can't allocate data for lz4 decompression");
+			archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for lz4 decompression");
 			return ARCHIVE_FATAL;
 		}
 		state->out_block = out_block;

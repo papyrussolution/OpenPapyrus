@@ -234,7 +234,7 @@ static ngx_int_t ngx_http_log_handler(ngx_http_request_t * r)
 			}
 		}
 alloc_line:
-		line = (u_char *)ngx_pnalloc(r->pool, len);
+		line = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 		if(line == NULL) {
 			return NGX_ERROR;
 		}
@@ -979,7 +979,7 @@ process_formats:
 		if(!buffer) {
 			return NGX_CONF_ERROR;
 		}
-		buffer->start = (u_char *)ngx_pnalloc(cf->pool, size);
+		buffer->start = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
 		if(buffer->start == NULL) {
 			return NGX_CONF_ERROR;
 		}
@@ -1136,7 +1136,7 @@ found:
 				}
 				else {
 					op->run = ngx_http_log_copy_long;
-					p = (u_char *)ngx_pnalloc(cf->pool, len);
+					p = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
 					if(!p) {
 						return NGX_CONF_ERROR;
 					}

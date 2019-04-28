@@ -675,7 +675,6 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 	/* Don't resize if we don't have to */
 	if(size < buf->size)
 		return 1;
-
 	/* figure out new size */
 	switch(buf->alloc) {
 		case XML_BUFFER_ALLOC_IO:
@@ -712,7 +711,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 		    newSize = size+10;
 		    break;
 	}
-	if((buf->alloc == XML_BUFFER_ALLOC_IO) && (buf->contentIO != NULL)) {
+	if((buf->alloc == XML_BUFFER_ALLOC_IO) && buf->contentIO) {
 		start_buf = buf->content - buf->contentIO;
 		if(start_buf > newSize) {
 			// move data back to start 
@@ -1144,7 +1143,7 @@ int FASTCALL xmlBufMergeBuffer(xmlBuf * buf, xmlBuffer * buffer)
  */
 int FASTCALL xmlBufResetInput(xmlBuf * buf, xmlParserInput * input)
 {
-	if((input == NULL) || (buf == NULL) || (buf->error))
+	if(!input || (buf == NULL) || (buf->error))
 		return -1;
 	CHECK_COMPAT(buf)
 	input->base = input->cur = buf->content;
@@ -1163,21 +1162,19 @@ int FASTCALL xmlBufResetInput(xmlBuf * buf, xmlParserInput * input)
 size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, const xmlParserInput * input)
 {
 	size_t base;
-	if((input == NULL) || (buf == NULL) || (buf->error))
+	if(!input || (buf == NULL) || (buf->error))
 		return -1;
 	CHECK_COMPAT(buf)
 	base = input->base - buf->content;
-	/*
-	 * We could do some pointer arythmetic checks but that's probably
-	 * sufficient.
-	 */
+	//
+	// We could do some pointer arythmetic checks but that's probably sufficient.
+	//
 	if(base > buf->size) {
 		xmlBufOverflowError(buf, "Input reference outside of the buffer");
 		base = 0;
 	}
 	return (base);
 }
-
 /**
  * xmlBufSetInputBaseCur:
  * @buf: an xmlBufPtr
@@ -1190,9 +1187,9 @@ size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, const xmlParserInput * input)
  *
  * Returns -1 in case of error, 0 otherwise
  */
-int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInput * input, size_t base, size_t cur)
+int FASTCALL xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInput * input, size_t base, size_t cur)
 {
-	if((input == NULL) || (buf == NULL) || (buf->error))
+	if(!input || !buf || buf->error)
 		return -1;
 	CHECK_COMPAT(buf)
 	input->base = &buf->content[base];

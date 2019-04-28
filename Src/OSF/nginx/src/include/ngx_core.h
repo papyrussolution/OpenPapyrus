@@ -1780,10 +1780,10 @@ char * ngx_resolver_strerror(ngx_int_t err);
 #define NGX_ANY_CONF         0x1F000000 // The directive might be specified on any configuration level
 
 #define NGX_CONF_UNSET       -1
-#define NGX_CONF_UNSET_UINT  (ngx_uint_t)-1
+#define NGX_CONF_UNSET_UINT  static_cast<ngx_uint_t>(-1)
 #define NGX_CONF_UNSET_PTR   (reinterpret_cast<void *>(-1))
-#define NGX_CONF_UNSET_SIZE  (size_t)-1
-#define NGX_CONF_UNSET_MSEC  (ngx_msec_t)-1
+#define NGX_CONF_UNSET_SIZE  static_cast<size_t>(-1)
+#define NGX_CONF_UNSET_MSEC  static_cast<ngx_msec_t>(-1)
 
 #define NGX_CONF_OK          NULL
 #define NGX_CONF_ERROR       (reinterpret_cast<char *>(-1))  // @sobolev (void *)-->(char *)

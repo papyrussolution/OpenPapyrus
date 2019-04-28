@@ -30,16 +30,16 @@
  */
 #include "tiffiop.h"
 #pragma hdrstop
-#ifdef HAVE_SYS_TYPES_H
+//#ifdef HAVE_SYS_TYPES_H
 	//#include <sys/types.h>
-#endif
+//#endif
 //#include <errno.h>
 #include <stdarg.h>
 //#include <stdlib.h>
 //#include <sys/stat.h>
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #ifdef HAVE_FCNTL_H
 	#include <fcntl.h>
 #endif

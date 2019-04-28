@@ -33,18 +33,18 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_write_open_file.c,v 1.19 2007/01/
 //#ifdef HAVE_ERRNO_H
 //#include <errno.h>
 //#endif
-#ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
-#endif
+//#ifdef HAVE_FCNTL_H
+	//#include <fcntl.h>
+//#endif
 //#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
 //#endif
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include "archive.h"
 
 struct write_FILE_data {
@@ -57,16 +57,13 @@ static ssize_t  file_write(struct archive *, void *, const void * buff, size_t);
 
 int archive_write_open_FILE(struct archive * a, FILE * f)
 {
-	struct write_FILE_data * mine;
-
-	mine = (struct write_FILE_data *)SAlloc::M(sizeof(*mine));
+	struct write_FILE_data * mine = (struct write_FILE_data *)SAlloc::M(sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
 	}
 	mine->f = f;
-	return (archive_write_open(a, mine,
-	       file_open, file_write, file_close));
+	return (archive_write_open(a, mine, file_open, file_write, file_close));
 }
 
 static int file_open(struct archive * a, void * client_data)

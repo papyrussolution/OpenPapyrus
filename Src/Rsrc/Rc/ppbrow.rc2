@@ -2036,6 +2036,7 @@ browser CHECKITEM_W2 south(73), 1, 1, "Строки чека {%s}", OWNER|GRID, 0
 //
 browser SELECTLOT north(43), 1, 0, "Приходы товара {%s}", OWNER|GRID, 0
 {
+	"@id",              0, long,        0, 0, BCO_USERPROC // @v10.4.3
 	"@date",            1, date, DATF_DMY, 8, BCO_USERPROC
 	"@supplier",        2, zstring(128), 0, 20, BCO_USERPROC
 	"@rest",            3, double, NMBF_NOTRAILZ, 7.5, BCO_USERPROC
@@ -6190,10 +6191,10 @@ browser JOB north(100), 1, 0, "Серверные задачи", OWNER|GRID, 0
 	"@dbsymb",            5,  zstring(64), 0,  20, BCO_USERPROC
 	"@jobitem_schedule",  3,  zstring(64), 0,  20, BCO_USERPROC
 	"@jobitem_nextjob",   4,  zstring(64), 0,  20, BCO_USERPROC
-
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         :  kbEnter,    TBBM_EDIT,            "Редактировать задачу\tEnter"
 		ADDITEM          :  kbIns,      TBBM_INSERT,          "Добавить задачу\tInsert"
+		ADDBYSAMPLE      :  kbAltF2,    TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2" // @v10.4.3
 		DELETEITEM       :  kbDel,      TBBM_DELETE,          "Удалить задачу\tDelete"
 		PRINT            :  kbF7,       TBBM_PRINT,           "Печать списка задач\tF7"
 		SAVE             :  kbCtrlS,    TBBM_SAVE,            "Сохранить изменения\tCtrlS"

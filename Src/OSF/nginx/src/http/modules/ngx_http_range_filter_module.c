@@ -348,7 +348,7 @@ static ngx_int_t ngx_http_range_multipart_header(ngx_http_request_t * r, ngx_htt
 	if(r->headers_out.content_type_len == r->headers_out.content_type.len && r->headers_out.charset.len) {
 		len += sizeof("; charset=") - 1 + r->headers_out.charset.len;
 	}
-	ctx->boundary_header.data = (u_char *)ngx_pnalloc(r->pool, len);
+	ctx->boundary_header.data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 	if(ctx->boundary_header.data == NULL) {
 		return NGX_ERROR;
 	}

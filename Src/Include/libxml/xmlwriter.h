@@ -52,7 +52,7 @@ XMLPUBFUN int XMLCALL xmlTextWriterWriteComment(xmlTextWriter * writer, const xm
 /*
  * Elements
  */
-XMLPUBFUN int XMLCALL xmlTextWriterStartElement(xmlTextWriter * writer, const xmlChar * name);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterStartElement(xmlTextWriter * writer, const xmlChar * name);
 XMLPUBFUN int XMLCALL xmlTextWriterStartElementNS(xmlTextWriter * writer, const xmlChar * prefix, const xmlChar * name, const xmlChar * namespaceURI);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterEndElement(xmlTextWriter * writer);
 XMLPUBFUN int XMLCALL xmlTextWriterFullEndElement(xmlTextWriter * writer);
@@ -80,7 +80,7 @@ XMLPUBFUN int XMLCALL xmlTextWriterWriteBinHex(xmlTextWriter * writer, const cha
 /*
  * Attributes
  */
-XMLPUBFUN int XMLCALL xmlTextWriterStartAttribute(xmlTextWriter * writer, const xmlChar * name);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterStartAttribute(xmlTextWriter * writer, const xmlChar * name);
 XMLPUBFUN int XMLCALL xmlTextWriterStartAttributeNS(xmlTextWriter * writer, const xmlChar * prefix, const xmlChar * name, const xmlChar * namespaceURI);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterEndAttribute(xmlTextWriter * writer);
 /*

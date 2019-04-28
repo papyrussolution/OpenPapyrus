@@ -38,9 +38,9 @@ __FBSDID("$FreeBSD$");
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#ifdef HAVE_BZLIB_H
 //#include <bzlib.h>
 //#endif

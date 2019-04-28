@@ -2223,7 +2223,7 @@ int SLAPI GoodsCore::GetGroupFilt(PPID grpID, GoodsFilt * pFilt)
 	if(ok > 0) {
 		if(pFilt && pFilt->P_SjF)
 			pFilt->P_SjF->Period.Actualize(ZERODATE);
-		pFilt->Setup(); // @v8.7.12
+		pFilt->Setup();
 	}
 	return ok;
 }
@@ -2625,7 +2625,7 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 					ext.Package  = temp.Package;
 					ext.MinShippmQtty = temp.MinShippmQtty;
 					ext.ExpiryPeriod = temp.ExpiryPeriod;
-					ext.GseFlags = temp.GseFlags; // @v8.6.4 @fix
+					ext.GseFlags = temp.GseFlags;
 					ext.MinStockList = temp.MinStockList;
 					ext.PltList = temp.PltList;
 					long   zero = 0;
@@ -2683,17 +2683,18 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 				SString temp_buf; // Рискованно пользоваться буфером rBuf: маловероятно, но он может быть
 					// одновременно использован другими потоками.
 				int    r = goods_obj.GetSingleBarcode(goodsID, temp_buf);
+				const  ulong ugoodsid = static_cast<ulong>(goodsID);
 				if(r > 0) {
 					SbcList.Add(goodsID, temp_buf, 1);
-					SbcList.ExcTable.Remove((ulong)goodsID);
+					SbcList.ExcTable.Remove(ugoodsid);
 					ok = 1;
 				}
 				else {
 					SbcList.Remove(goodsID);
-					SbcList.ExcTable.Add((ulong)goodsID);
+					SbcList.ExcTable.Add(ugoodsid);
 					ok = -1;
 				}
-				SbcList.DirtyTable.Remove((ulong)goodsID);
+				SbcList.DirtyTable.Remove(ugoodsid);
 				rBuf = temp_buf;
 			}
 		}
@@ -2954,8 +2955,9 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 		p_cache_rec->StrucID  = rec.StrucID;
 		p_cache_rec->Flags    = rec.Flags;
 		if(rec.Kind == PPGDSK_GOODS) {
+			Goods2Tbl::Rec grp_rec;
+			PPUnit unit_rec;
 			if(p_cache_rec->TaxGrpID == 0 || p_cache_rec->TypeID == 0) {
-				Goods2Tbl::Rec grp_rec;
 				//
 				// Здесь необходимо извлечь запись родительской группы товара, но одна трудность
 				// заставляет усложнить процедуру: так как сейчас мы изменяем кэш товаров, то
@@ -2978,11 +2980,8 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 					}
 				}
 			}
-			if(p_cache_rec->UnitID) {
-				PPUnit unit_rec;
-				if(goods_obj.FetchUnit(p_cache_rec->UnitID, &unit_rec) > 0 && unit_rec.Flags & PPUnit::IntVal)
-					p_cache_rec->Flags |= GF_INTVAL;
-			}
+			if(p_cache_rec->UnitID && goods_obj.FetchUnit(p_cache_rec->UnitID, &unit_rec) > 0 && unit_rec.Flags & PPUnit::IntVal)
+				p_cache_rec->Flags |= GF_INTVAL;
 			if(strcmp(rec.Name, rec.Abbr) == 0)
 				p_cache_rec->Flags |= GF_ABBREQNAME;
 		}
@@ -3007,7 +3006,7 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 	}
 	else
 		ok = -1;
-	CATCHZOK
+	// @v10.4.3 CATCHZOK
 	return ok;
 }
 
@@ -3031,6 +3030,13 @@ void SLAPI GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 		p_data_rec->StrucID  = p_cache_rec->StrucID;
 		p_data_rec->Flags    = p_cache_rec->Flags;
 		GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
+		// @v10.4.3 {
+		if(p_data_rec->Name[0] == 0) {
+			if(oneof5(p_data_rec->Kind, PPGDSK_GOODS, PPGDSK_GROUP, PPGDSK_BRAND, PPGDSK_BRANDGROUP, PPGDSK_SUPRWARE)) {
+				EntryToDataFailed = 1;
+			}
+		}
+		// } @v10.4.3 
 	}
 }
 //

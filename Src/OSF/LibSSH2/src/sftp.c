@@ -854,21 +854,13 @@ static LIBSSH2_SFTP_HANDLE * sftp_open(LIBSSH2_SFTP * sftp, const char * filenam
 			_libssh2_store_u32(&s, flags);
 			s += sftp_attr2bin(s, &attrs);
 		}
-
-		_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Sending %s open request",
-		    open_file ? "file" : "directory");
-
+		_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Sending %s open request", open_file ? "file" : "directory");
 		sftp->open_state = libssh2_NB_state_created;
 	}
-
 	if(sftp->open_state == libssh2_NB_state_created) {
-		rc = _libssh2_channel_write(channel, 0, sftp->open_packet+
-		    sftp->open_packet_sent,
-		    sftp->open_packet_len -
-		    sftp->open_packet_sent);
+		rc = _libssh2_channel_write(channel, 0, sftp->open_packet+sftp->open_packet_sent, sftp->open_packet_len - sftp->open_packet_sent);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
-			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-			    "Would block sending FXP_OPEN or FXP_OPENDIR command");
+			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block sending FXP_OPEN or FXP_OPENDIR command");
 			return NULL;
 		}
 		else if(rc < 0) {
@@ -878,30 +870,21 @@ static LIBSSH2_SFTP_HANDLE * sftp_open(LIBSSH2_SFTP * sftp, const char * filenam
 			sftp->open_state = libssh2_NB_state_idle;
 			return NULL;
 		}
-
-		/* bump the sent counter and remain in this state until the whole
-		   data is off */
+		/* bump the sent counter and remain in this state until the whole data is off */
 		sftp->open_packet_sent += rc;
-
 		if(sftp->open_packet_len == sftp->open_packet_sent) {
 			LIBSSH2_FREE(session, sftp->open_packet);
 			sftp->open_packet = NULL;
-
 			sftp->open_state = libssh2_NB_state_sent;
 		}
 	}
-
 	if(sftp->open_state == libssh2_NB_state_sent) {
 		size_t data_len;
 		uchar * data;
-		static const uchar fopen_responses[2] =
-		{ SSH_FXP_HANDLE, SSH_FXP_STATUS };
-		rc = sftp_packet_requirev(sftp, 2, fopen_responses,
-		    sftp->open_request_id, &data,
-		    &data_len);
+		static const uchar fopen_responses[2] = { SSH_FXP_HANDLE, SSH_FXP_STATUS };
+		rc = sftp_packet_requirev(sftp, 2, fopen_responses, sftp->open_request_id, &data, &data_len);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
-			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-			    "Would block waiting for status message");
+			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block waiting for status message");
 			return NULL;
 		}
 		sftp->open_state = libssh2_NB_state_idle;
@@ -909,32 +892,23 @@ static LIBSSH2_SFTP_HANDLE * sftp_open(LIBSSH2_SFTP * sftp, const char * filenam
 			_libssh2_error(session, rc, "Timeout waiting for status message");
 			return NULL;
 		}
-
 		/* OPEN can basically get STATUS or HANDLE back, where HANDLE implies
 		   a fine response while STATUS means error. It seems though that at
 		   times we get an SSH_FX_OK back in a STATUS, followed the "real"
 		   HANDLE so we need to properly deal with that. */
 		if(data[0] == SSH_FXP_STATUS) {
 			int badness = 1;
-
 			if(data_len < 9) {
-				_libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-				    "Too small FXP_STATUS");
+				_libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Too small FXP_STATUS");
 				LIBSSH2_FREE(session, data);
 				return NULL;
 			}
-
 			sftp->last_errno = _libssh2_ntohu32(data + 5);
-
 			if(LIBSSH2_FX_OK == sftp->last_errno) {
 				_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "got HANDLE FXOK!");
-
 				LIBSSH2_FREE(session, data);
-
 				/* silly situation, but check for a HANDLE */
-				rc = sftp_packet_require(sftp, SSH_FXP_HANDLE,
-				    sftp->open_request_id, &data,
-				    &data_len);
+				rc = sftp_packet_require(sftp, SSH_FXP_HANDLE, sftp->open_request_id, &data, &data_len);
 				if(rc == LIBSSH2_ERROR_EAGAIN) {
 					/* go back to sent state and wait for something else */
 					sftp->open_state = libssh2_NB_state_sent;
@@ -944,17 +918,13 @@ static LIBSSH2_SFTP_HANDLE * sftp_open(LIBSSH2_SFTP * sftp, const char * filenam
 					/* we got the handle so this is not a bad situation */
 					badness = 0;
 			}
-
 			if(badness) {
-				_libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-				    "Failed opening remote file");
-				_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "got FXP_STATUS %d",
-				    sftp->last_errno);
+				_libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Failed opening remote file");
+				_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "got FXP_STATUS %d", sftp->last_errno);
 				LIBSSH2_FREE(session, data);
 				return NULL;
 			}
 		}
-
 		if(data_len < 10) {
 			_libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Too small FXP_HANDLE");
 			LIBSSH2_FREE(session, data);
@@ -975,19 +945,13 @@ static LIBSSH2_SFTP_HANDLE * sftp_open(LIBSSH2_SFTP * sftp, const char * filenam
 		if(fp->handle_len > (data_len - 9))
 			/* do not reach beyond the end of the data we got */
 			fp->handle_len = data_len - 9;
-
 		memcpy(fp->handle, data + 9, fp->handle_len);
-
 		LIBSSH2_FREE(session, data);
-
 		/* add this file handle to the list kept in the sftp session */
 		_libssh2_list_add(&sftp->sftp_handles, &fp->node);
-
 		fp->sftp = sftp; /* point to the parent struct */
-
 		fp->u.file.offset = 0;
 		fp->u.file.offset_sent = 0;
-
 		_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Open command successful");
 		return fp;
 	}
@@ -1063,21 +1027,15 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 		       partially written to the buffer. */
 		    if(filep->data_left) {
 			    size_t copy = MIN(buffer_size, filep->data_left);
-
-			    memcpy(buffer, &filep->data[ filep->data_len - filep->data_left],
-			    copy);
-
+			    memcpy(buffer, &filep->data[ filep->data_len - filep->data_left], copy);
 			    filep->data_left -= copy;
 			    filep->offset += copy;
-
 			    if(!filep->data_left) {
 				    LIBSSH2_FREE(session, filep->data);
 				    filep->data = NULL;
 			    }
-
 			    return copy;
 		    }
-
 		    if(filep->eof) {
 			    return 0;
 		    }
@@ -1087,10 +1045,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 
 			    /* Number of bytes asked for that haven't been acked yet */
 			    size_t already = (size_t)(filep->offset_sent - filep->offset);
-
 			    size_t max_read_ahead = buffer_size*4;
 			    ulong recv_window;
-
 			    if(max_read_ahead > LIBSSH2_CHANNEL_WINDOW_DEFAULT*4)
 				    max_read_ahead = LIBSSH2_CHANNEL_WINDOW_DEFAULT*4;
 
@@ -1124,10 +1080,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 			    if(max_read_ahead > recv_window) {
 				    /* more data will be asked for than what the window currently
 				       allows, expand it! */
-
-				    rc = _libssh2_channel_receive_window_adjust(sftp->channel,
-				    max_read_ahead*8,
-				    1, NULL);
+				    rc = _libssh2_channel_receive_window_adjust(sftp->channel, max_read_ahead*8, 1, NULL);
 				    /* if this returns EAGAIN, we will get back to this function
 				       at next call */
 				    assert(rc != LIBSSH2_ERROR_EAGAIN || !filep->data_left);
@@ -1136,10 +1089,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 					    return rc;
 			    }
 		    }
-
 		    while(count > 0) {
 			    uchar * s;
-
 			    /* 25 = packet_len(4) + packet_type(1) + request_id(4) +
 			       handle_len(4) + offset(8) + count(4) */
 			    uint32 packet_len = (uint32)handle->handle_len + 25;
@@ -1156,9 +1107,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 			    chunk->len = size;
 			    chunk->lefttosend = packet_len;
 			    chunk->sent = 0;
-
 			    s = chunk->packet;
-
 			    _libssh2_store_u32(&s, packet_len - 4);
 			    *s++ = SSH_FXP_READ;
 			    request_id = sftp->request_id++;
@@ -1168,16 +1117,12 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 			    _libssh2_store_u64(&s, filep->offset_sent);
 			    filep->offset_sent += size; /* advance offset at once */
 			    _libssh2_store_u32(&s, size);
-
 			    /* add this new entry LAST in the list */
 			    _libssh2_list_add(&handle->packet_list, &chunk->node);
-			    count -= MIN(size, count); /* deduct the size we used, as we might
-			                                * have to create more packets */
-			    _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
-			    "read request id %d sent (offset: %d, size: %d)",
+			    count -= MIN(size, count); /* deduct the size we used, as we might have to create more packets */
+			    _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "read request id %d sent (offset: %d, size: %d)",
 			    request_id, (int)chunk->offset, (int)chunk->len);
 		    }
-
 		case libssh2_NB_state_sent:
 		    sftp->read_state = libssh2_NB_state_idle;
 		    /* move through the READ packets that haven't been sent and send as
@@ -2060,7 +2005,6 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE * handle)
 	uint32 packet_len = handle->handle_len + 13;
 	uchar * s, * data = NULL;
 	int rc = 0;
-
 	if(handle->close_state == libssh2_NB_state_idle) {
 		_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Closing handle");
 		s = handle->close_packet = (uchar *)LIBSSH2_ALLOC(session, packet_len);
@@ -2079,38 +2023,29 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE * handle)
 	}
 
 	if(handle->close_state == libssh2_NB_state_created) {
-		rc = _libssh2_channel_write(channel, 0, handle->close_packet,
-		    packet_len);
+		rc = _libssh2_channel_write(channel, 0, handle->close_packet, packet_len);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
 		else if((ssize_t)packet_len != rc) {
 			handle->close_state = libssh2_NB_state_idle;
-			rc = _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "Unable to send FXP_CLOSE command");
+			rc = _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_CLOSE command");
 		}
 		else
 			handle->close_state = libssh2_NB_state_sent;
-
 		LIBSSH2_FREE(session, handle->close_packet);
 		handle->close_packet = NULL;
 	}
-
 	if(handle->close_state == libssh2_NB_state_sent) {
-		rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
-		    handle->close_request_id, &data,
-		    &data_len);
+		rc = sftp_packet_require(sftp, SSH_FXP_STATUS, handle->close_request_id, &data, &data_len);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
 		else if(rc) {
-			_libssh2_error(session, rc,
-			    "Error waiting for status message");
+			_libssh2_error(session, rc, "Error waiting for status message");
 		}
-
 		handle->close_state = libssh2_NB_state_sent1;
 	}
-
 	if(!data) {
 		/* if it reaches this point with data unset, something unwanted
 		   happened for which we should have set an error code */

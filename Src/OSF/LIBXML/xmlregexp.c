@@ -421,14 +421,14 @@ static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 #ifdef DEBUG_COMPACTION
 		printf("Final: %d states\n", nbstates);
 #endif
-		stringMap = (xmlChar **)SAlloc::M(ret->nbAtoms * sizeof(char *));
+		stringMap = static_cast<xmlChar **>(SAlloc::M(ret->nbAtoms * sizeof(char *)));
 		if(stringMap == NULL) {
 			xmlRegexpErrMemory(ctxt, "compiling regexp");
 			SAlloc::F(stateRemap);
 			SAlloc::F(ret);
 			return 0;
 		}
-		stringRemap = (int *)SAlloc::M(ret->nbAtoms * sizeof(int));
+		stringRemap = static_cast<int *>(SAlloc::M(ret->nbAtoms * sizeof(int)));
 		if(stringRemap == NULL) {
 			xmlRegexpErrMemory(ctxt, "compiling regexp");
 			SAlloc::F(stringMap);
@@ -438,7 +438,7 @@ static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 		}
 		for(i = 0; i < ret->nbAtoms; i++) {
 			if((ret->atoms[i]->type == XML_REGEXP_STRING) && (ret->atoms[i]->quant == XML_REGEXP_QUANT_ONCE)) {
-				value = (xmlChar *)ret->atoms[i]->valuep;
+				value = static_cast<xmlChar *>(ret->atoms[i]->valuep);
 				for(j = 0; j < nbatoms; j++) {
 					if(sstreq(stringMap[j], value)) {
 						stringRemap[i] = j;
@@ -473,7 +473,7 @@ static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 #ifdef DEBUG_COMPACTION
 		printf("Final: %d atoms\n", nbatoms);
 #endif
-		transitions = (int *)SAlloc::M((nbstates + 1) * (nbatoms + 1) * sizeof(int));
+		transitions = static_cast<int *>(SAlloc::M((nbstates + 1) * (nbatoms + 1) * sizeof(int)));
 		if(transitions == NULL) {
 			SAlloc::F(stateRemap);
 			SAlloc::F(stringRemap);
@@ -483,8 +483,7 @@ static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 		}
 		memzero(transitions, (nbstates + 1) * (nbatoms + 1) * sizeof(int));
 		/*
-		 * Allocate the transition table. The first entry for each
-		 * state corresponds to the state type.
+		 * Allocate the transition table. The first entry for each state corresponds to the state type.
 		 */
 		transdata = NULL;
 		for(i = 0; i < ret->nbStates; i++) {
@@ -502,7 +501,7 @@ static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 					continue;
 				atomno = stringRemap[trans->atom->no];
 				if(trans->atom->data && (transdata == NULL)) {
-					transdata = (void **)SAlloc::M(nbstates * nbatoms * sizeof(void *));
+					transdata = static_cast<void **>(SAlloc::M(nbstates * nbatoms * sizeof(void *)));
 					if(transdata)
 						memzero(transdata, nbstates * nbatoms * sizeof(void *));
 					else {
@@ -574,7 +573,6 @@ static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 		}
 		ret->atoms = NULL;
 		ret->nbAtoms = 0;
-
 		ret->compact = transitions;
 		ret->transdata = transdata;
 		ret->stringMap = stringMap;
@@ -603,7 +601,7 @@ not_determ:
  */
 static xmlRegParserCtxt * xmlRegNewParserCtxt(const xmlChar * string)
 {
-	xmlRegParserCtxt * ret = (xmlRegParserCtxt *)SAlloc::M(sizeof(xmlRegParserCtxt));
+	xmlRegParserCtxt * ret = static_cast<xmlRegParserCtxt *>(SAlloc::M(sizeof(xmlRegParserCtxt)));
 	if(ret) {
 		memzero(ret, sizeof(xmlRegParserCtxt));
 		ret->string = sstrdup(string);
@@ -629,7 +627,7 @@ static xmlRegParserCtxt * xmlRegNewParserCtxt(const xmlChar * string)
  */
 static xmlRegRangePtr xmlRegNewRange(xmlRegParserCtxt * ctxt, int neg, xmlRegAtomType type, int start, int end)
 {
-	xmlRegRangePtr ret = (xmlRegRange *)SAlloc::M(sizeof(xmlRegRange));
+	xmlRegRangePtr ret = static_cast<xmlRegRange *>(SAlloc::M(sizeof(xmlRegRange)));
 	if(!ret) {
 		xmlRegexpErrMemory(ctxt, "allocating range");
 	}
@@ -691,7 +689,7 @@ static xmlRegRangePtr xmlRegCopyRange(xmlRegParserCtxt * ctxt, xmlRegRangePtr ra
  */
 static xmlRegAtom * FASTCALL xmlRegNewAtom(xmlRegParserCtxt * ctxt, xmlRegAtomType type)
 {
-	xmlRegAtom * ret = (xmlRegAtom *)SAlloc::M(sizeof(xmlRegAtom));
+	xmlRegAtom * ret = static_cast<xmlRegAtom *>(SAlloc::M(sizeof(xmlRegAtom)));
 	if(!ret) {
 		xmlRegexpErrMemory(ctxt, "allocating atom");
 	}
@@ -725,7 +723,6 @@ static void FASTCALL xmlRegFreeAtom(xmlRegAtom * atom)
 		SAlloc::F(atom);
 	}
 }
-
 /**
  * xmlRegCopyAtom:
  * @ctxt:  the regexp parser context
@@ -737,7 +734,7 @@ static void FASTCALL xmlRegFreeAtom(xmlRegAtom * atom)
  */
 static xmlRegAtom * xmlRegCopyAtom(xmlRegParserCtxt * ctxt, xmlRegAtom * atom)
 {
-	xmlRegAtom * ret = (xmlRegAtom *)SAlloc::M(sizeof(xmlRegAtom));
+	xmlRegAtom * ret = static_cast<xmlRegAtom *>(SAlloc::M(sizeof(xmlRegAtom)));
 	if(!ret) {
 		xmlRegexpErrMemory(ctxt, "copying atom");
 		return 0;
@@ -749,7 +746,7 @@ static xmlRegAtom * xmlRegCopyAtom(xmlRegParserCtxt * ctxt, xmlRegAtom * atom)
 	ret->max = atom->max;
 	if(atom->nbRanges > 0) {
 		int i;
-		ret->ranges = (xmlRegRange **)SAlloc::M(sizeof(xmlRegRange *) * atom->nbRanges);
+		ret->ranges = static_cast<xmlRegRange **>(SAlloc::M(sizeof(xmlRegRange *) * atom->nbRanges));
 		if(ret->ranges == NULL) {
 			xmlRegexpErrMemory(ctxt, "copying atom");
 			goto error;
@@ -769,7 +766,7 @@ error:
 
 static xmlRegStatePtr FASTCALL xmlRegNewState(xmlRegParserCtxt * ctxt)
 {
-	xmlRegStatePtr ret = (xmlRegStatePtr)SAlloc::M(sizeof(xmlRegState));
+	xmlRegStatePtr ret = static_cast<xmlRegStatePtr>(SAlloc::M(sizeof(xmlRegState)));
 	if(!ret) {
 		xmlRegexpErrMemory(ctxt, "allocating state");
 	}
@@ -6990,7 +6987,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 	 */
 	if(ctxt->tabSize == 0)
 		ctxt->tabSize = 40;
-	tab = (const xmlChar **)SAlloc::M(ctxt->tabSize * sizeof(const xmlChar *));
+	tab = static_cast<const xmlChar **>(SAlloc::M(ctxt->tabSize * sizeof(const xmlChar *)));
 	if(tab == NULL) {
 		return 0;
 	}
@@ -7000,10 +6997,9 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 	len = xmlExpGetStartInt(ctxt, sub, tab, ctxt->tabSize, 0);
 	while(len < 0) {
 		const xmlChar ** temp;
-		temp = (const xmlChar **)SAlloc::R((xmlChar**)tab, ctxt->tabSize * 2 *
-		    sizeof(const xmlChar *));
+		temp = static_cast<const xmlChar **>(SAlloc::R((xmlChar **)tab, ctxt->tabSize * 2 * sizeof(const xmlChar *)));
 		if(temp == NULL) {
-			SAlloc::F((xmlChar**)tab);
+			SAlloc::F((xmlChar **)tab);
 			return 0;
 		}
 		tab = temp;
@@ -7012,16 +7008,16 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 	}
 	for(i = 0; i < len; i++) {
 		tmp = xmlExpStringDeriveInt(ctxt, exp, tab[i]);
-		if((tmp == NULL) || (tmp == forbiddenExp)) {
+		if(!tmp || tmp == forbiddenExp) {
 			xmlExpFree(ctxt, ret);
-			SAlloc::F((xmlChar**)tab);
+			SAlloc::F((xmlChar **)tab);
 			return tmp;
 		}
 		tmp2 = xmlExpStringDeriveInt(ctxt, sub, tab[i]);
 		if((tmp2 == NULL) || (tmp2 == forbiddenExp)) {
 			xmlExpFree(ctxt, tmp);
 			xmlExpFree(ctxt, ret);
-			SAlloc::F((xmlChar**)tab);
+			SAlloc::F((xmlChar **)tab);
 			return tmp;
 		}
 		tmp3 = xmlExpExpDeriveInt(ctxt, tmp, tmp2);
@@ -7030,7 +7026,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 
 		if((tmp3 == NULL) || (tmp3 == forbiddenExp)) {
 			xmlExpFree(ctxt, ret);
-			SAlloc::F((xmlChar**)tab);
+			SAlloc::F((xmlChar **)tab);
 			return (tmp3);
 		}
 
@@ -7039,12 +7035,12 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		else {
 			ret = xmlExpHashGetEntry(ctxt, XML_EXP_OR, ret, tmp3, NULL, 0, 0);
 			if(!ret) {
-				SAlloc::F((xmlChar**)tab);
+				SAlloc::F((xmlChar **)tab);
 				return 0;
 			}
 		}
 	}
-	SAlloc::F((xmlChar**)tab);
+	SAlloc::F((xmlChar **)tab);
 	return ret;
 }
 

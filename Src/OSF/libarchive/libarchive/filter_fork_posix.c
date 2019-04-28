@@ -23,13 +23,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 
 /* This capability is only available on POSIX systems. */
-#if defined(HAVE_PIPE) && defined(HAVE_FCNTL) && \
-    (defined(HAVE_FORK) || defined(HAVE_VFORK) || defined(HAVE_POSIX_SPAWNP))
+#if defined(HAVE_PIPE) && defined(HAVE_FCNTL) && (defined(HAVE_FORK) || defined(HAVE_VFORK) || defined(HAVE_POSIX_SPAWNP))
 
 __FBSDID("$FreeBSD: head/lib/libarchive/filter_fork.c 182958 2008-09-12 05:33:00Z kientzle $");
 
@@ -73,8 +71,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/filter_fork.c 182958 2008-09-12 05:33:00
 
 #include "filter_fork.h"
 
-pid_t
-__archive_create_child(const char *cmd, int *child_stdin, int *child_stdout)
+pid_t __archive_create_child(const char * cmd, int * child_stdin, int * child_stdout)
 {
 	pid_t child;
 	int stdin_pipe[2], stdout_pipe[2], tmp;
@@ -82,26 +79,26 @@ __archive_create_child(const char *cmd, int *child_stdin, int *child_stdout)
 	posix_spawn_file_actions_t actions;
 	int r;
 #endif
-	struct archive_cmdline *cmdline;
+	struct archive_cmdline * cmdline;
 
 	cmdline = __archive_cmdline_allocate();
-	if (cmdline == NULL)
+	if(cmdline == NULL)
 		goto state_allocated;
-	if (__archive_cmdline_parse(cmdline, cmd) != ARCHIVE_OK)
+	if(__archive_cmdline_parse(cmdline, cmd) != ARCHIVE_OK)
 		goto state_allocated;
 
-	if (pipe(stdin_pipe) == -1)
+	if(pipe(stdin_pipe) == -1)
 		goto state_allocated;
-	if (stdin_pipe[0] == 1 /* stdout */) {
-		if ((tmp = dup(stdin_pipe[0])) == -1)
+	if(stdin_pipe[0] == 1 /* stdout */) {
+		if((tmp = dup(stdin_pipe[0])) == -1)
 			goto stdin_opened;
 		close(stdin_pipe[0]);
 		stdin_pipe[0] = tmp;
 	}
-	if (pipe(stdout_pipe) == -1)
+	if(pipe(stdout_pipe) == -1)
 		goto stdin_opened;
-	if (stdout_pipe[1] == 0 /* stdin */) {
-		if ((tmp = dup(stdout_pipe[1])) == -1)
+	if(stdout_pipe[1] == 0 /* stdin */) {
+		if((tmp = dup(stdout_pipe[1])) == -1)
 			goto stdout_opened;
 		close(stdout_pipe[1]);
 		stdout_pipe[1] = tmp;
@@ -110,37 +107,37 @@ __archive_create_child(const char *cmd, int *child_stdin, int *child_stdout)
 #if HAVE_POSIX_SPAWNP
 
 	r = posix_spawn_file_actions_init(&actions);
-	if (r != 0) {
+	if(r != 0) {
 		errno = r;
 		goto stdout_opened;
 	}
 	r = posix_spawn_file_actions_addclose(&actions, stdin_pipe[1]);
-	if (r != 0)
+	if(r != 0)
 		goto actions_inited;
 	r = posix_spawn_file_actions_addclose(&actions, stdout_pipe[0]);
-	if (r != 0)
+	if(r != 0)
 		goto actions_inited;
 	/* Setup for stdin. */
 	r = posix_spawn_file_actions_adddup2(&actions, stdin_pipe[0], 0);
-	if (r != 0)
+	if(r != 0)
 		goto actions_inited;
-	if (stdin_pipe[0] != 0 /* stdin */) {
+	if(stdin_pipe[0] != 0 /* stdin */) {
 		r = posix_spawn_file_actions_addclose(&actions, stdin_pipe[0]);
-		if (r != 0)
+		if(r != 0)
 			goto actions_inited;
 	}
 	/* Setup for stdout. */
 	r = posix_spawn_file_actions_adddup2(&actions, stdout_pipe[1], 1);
-	if (r != 0)
+	if(r != 0)
 		goto actions_inited;
-	if (stdout_pipe[1] != 1 /* stdout */) {
+	if(stdout_pipe[1] != 1 /* stdout */) {
 		r = posix_spawn_file_actions_addclose(&actions, stdout_pipe[1]);
-		if (r != 0)
+		if(r != 0)
 			goto actions_inited;
 	}
 	r = posix_spawnp(&child, cmdline->path, &actions, NULL,
 		cmdline->argv, NULL);
-	if (r != 0)
+	if(r != 0)
 		goto actions_inited;
 	posix_spawn_file_actions_destroy(&actions);
 
@@ -151,18 +148,18 @@ __archive_create_child(const char *cmd, int *child_stdin, int *child_stdout)
 #else
 	child = fork();
 #endif
-	if (child == -1)
+	if(child == -1)
 		goto stdout_opened;
-	if (child == 0) {
+	if(child == 0) {
 		close(stdin_pipe[1]);
 		close(stdout_pipe[0]);
-		if (dup2(stdin_pipe[0], 0 /* stdin */) == -1)
+		if(dup2(stdin_pipe[0], 0 /* stdin */) == -1)
 			_exit(254);
-		if (stdin_pipe[0] != 0 /* stdin */)
+		if(stdin_pipe[0] != 0 /* stdin */)
 			close(stdin_pipe[0]);
-		if (dup2(stdout_pipe[1], 1 /* stdout */) == -1)
+		if(dup2(stdout_pipe[1], 1 /* stdout */) == -1)
 			_exit(254);
-		if (stdout_pipe[1] != 1 /* stdout */)
+		if(stdout_pipe[1] != 1 /* stdout */)
 			close(stdout_pipe[1]);
 		execvp(cmdline->path, cmdline->argv);
 		_exit(254);
@@ -196,25 +193,21 @@ state_allocated:
 	return -1;
 }
 
-void
-__archive_check_child(int in, int out)
+void __archive_check_child(int in, int out)
 {
 #if defined(HAVE_POLL) && (defined(HAVE_POLL_H) || defined(HAVE_SYS_POLL_H))
 	struct pollfd fds[2];
-	int idx;
-
-	idx = 0;
-	if (in != -1) {
+	int idx = 0;
+	if(in != -1) {
 		fds[idx].fd = in;
 		fds[idx].events = POLLOUT;
 		++idx;
 	}
-	if (out != -1) {
+	if(out != -1) {
 		fds[idx].fd = out;
 		fds[idx].events = POLLIN;
 		++idx;
 	}
-
 	poll(fds, idx, -1); /* -1 == INFTIM, wait forever */
 #elif defined(HAVE_SELECT)
 	fd_set fds_in, fds_out, fds_error;
@@ -222,11 +215,11 @@ __archive_check_child(int in, int out)
 	FD_ZERO(&fds_in);
 	FD_ZERO(&fds_out);
 	FD_ZERO(&fds_error);
-	if (out != -1) {
+	if(out != -1) {
 		FD_SET(out, &fds_in);
 		FD_SET(out, &fds_error);
 	}
-	if (in != -1) {
+	if(in != -1) {
 		FD_SET(in, &fds_out);
 		FD_SET(in, &fds_error);
 	}

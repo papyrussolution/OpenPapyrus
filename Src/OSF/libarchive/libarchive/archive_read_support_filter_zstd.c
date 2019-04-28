@@ -41,9 +41,9 @@ __FBSDID("$FreeBSD$");
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #if HAVE_ZSTD_H
 	#include <zstd.h>
 #endif
@@ -186,10 +186,7 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
 		if(!state->in_frame) {
 			const size_t ret = ZSTD_initDStream(state->dstream);
 			if(ZSTD_isError(ret)) {
-				archive_set_error(&self->archive->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Error initializing zstd decompressor: %s",
-				    ZSTD_getErrorName(ret));
+				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Error initializing zstd decompressor: %s", ZSTD_getErrorName(ret));
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -204,35 +201,24 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
 				break;
 			}
 			else {
-				archive_set_error(&self->archive->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Truncated zstd input");
+				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Truncated zstd input");
 				return ARCHIVE_FATAL;
 			}
 		}
 		in.size = avail_in;
 		in.pos = 0;
-
 		{
-			const size_t ret =
-			    ZSTD_decompressStream(state->dstream, &out, &in);
-
+			const size_t ret = ZSTD_decompressStream(state->dstream, &out, &in);
 			if(ZSTD_isError(ret)) {
-				archive_set_error(&self->archive->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Zstd decompression failed: %s",
-				    ZSTD_getErrorName(ret));
+				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Zstd decompression failed: %s", ZSTD_getErrorName(ret));
 				return ARCHIVE_FATAL;
 			}
-
 			/* Decompressor made some progress */
 			__archive_read_filter_consume(self->upstream, in.pos);
-
 			/* ret guaranteed to be > 0 if frame isn't done yet */
 			state->in_frame = (ret != 0);
 		}
 	}
-
 	decompressed = out.pos;
 	state->total_out += decompressed;
 	if(decompressed == 0)

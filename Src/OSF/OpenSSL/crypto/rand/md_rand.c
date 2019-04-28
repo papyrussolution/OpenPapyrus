@@ -631,7 +631,7 @@ void rand_hw_xor(uchar * buf, size_t num)
 		rnd = OPENSSL_ia32_rdrand();
 		if(rnd == 0)
 			return;
-		*((size_t*)buf) ^= rnd;
+		*((size_t *)buf) ^= rnd;
 		buf += sizeof(size_t);
 		num -= sizeof(size_t);
 	}

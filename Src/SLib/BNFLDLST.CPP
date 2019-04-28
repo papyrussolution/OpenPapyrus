@@ -235,3 +235,22 @@ int SLAPI BNFieldList::IsEqualRecords(const void * pRec1, const void * pRec2, Lo
 	}
 	return eq;
 }
+
+/*void SLAPI BNFieldList::RecordToStr(const void * pRec, SString & rBuf) const
+{
+	rBuf.Z();
+	char   fld_val_buf[1024];
+	for(uint i = 0; i < count; i++) {
+		const BNField & r_fld = fields[i];
+		if(i)
+			rBuf.Tab();
+		if(!pRec) {
+			rBuf.Cat(r_fld.Name);
+		}
+		else {
+			PTR32(fld_val_buf)[0] = 0;
+			sttostr(r_fld.T, PTR8C(pRec)+r_fld.Offs, 0, fld_val_buf);
+			rBuf.Cat(fld_val_buf);
+		}
+	}
+}*/

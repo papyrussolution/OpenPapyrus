@@ -22,7 +22,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_open_filename.c 191165 2009-04-17 00:39:35Z kientzle $");
@@ -33,18 +32,18 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_open_filename.c 191165 200
 //#ifdef HAVE_ERRNO_H
 //#include <errno.h>
 //#endif
-#ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
-#endif
+//#ifdef HAVE_FCNTL_H
+	//#include <fcntl.h>
+//#endif
 //#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
 //#endif
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include "archive.h"
 //#include "archive_private.h"
 //#include "archive_string.h"
@@ -109,36 +108,29 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 		return ARCHIVE_FAILED;
 	}
 	mine->fd = -1;
-	return (archive_write_open(a, mine,
-	       file_open, file_write, file_close));
+	return (archive_write_open(a, mine, file_open, file_write, file_close));
 }
 
 static int file_open(struct archive * a, void * client_data)
 {
-	int flags;
-	struct write_file_data * mine;
 	struct stat st;
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	wchar_t * fullpath;
 #endif
-	const wchar_t * wcs;
-	const char * mbs;
-
-	mine = (struct write_file_data *)client_data;
-	flags = O_WRONLY | O_CREAT | O_TRUNC | O_BINARY | O_CLOEXEC;
-
+	struct write_file_data * mine = (struct write_file_data *)client_data;
+	int flags = O_WRONLY | O_CREAT | O_TRUNC | O_BINARY | O_CLOEXEC;
 	/*
 	 * Open the file.
 	 */
-	mbs = NULL; wcs = NULL;
+	const char * mbs = NULL; 
+	const wchar_t * wcs = NULL;
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	if(archive_mstring_get_wcs(a, &mine->filename, &wcs) != 0) {
 		if(errno == ENOMEM)
 			archive_set_error(a, errno, "No memory");
 		else {
 			archive_mstring_get_mbs(a, &mine->filename, &mbs);
-			archive_set_error(a, errno,
-			    "Can't convert '%s' to WCS", mbs);
+			archive_set_error(a, errno, "Can't convert '%s' to WCS", mbs);
 		}
 		return ARCHIVE_FATAL;
 	}
@@ -155,8 +147,7 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "No memory");
 		else {
 			archive_mstring_get_wcs(a, &mine->filename, &wcs);
-			archive_set_error(a, errno,
-			    "Can't convert '%S' to MBS", wcs);
+			archive_set_error(a, errno, "Can't convert '%S' to MBS", wcs);
 		}
 		return ARCHIVE_FATAL;
 	}
@@ -170,7 +161,6 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "Failed to open '%S'", wcs);
 		return ARCHIVE_FATAL;
 	}
-
 	if(fstat(mine->fd, &st) != 0) {
 		if(mbs != NULL)
 			archive_set_error(a, errno, "Couldn't stat '%s'", mbs);
@@ -178,13 +168,11 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "Couldn't stat '%S'", wcs);
 		return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Set up default last block handling.
 	 */
 	if(archive_write_get_bytes_in_last_block(a) < 0) {
-		if(S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode) ||
-		    S_ISFIFO(st.st_mode))
+		if(S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode) || S_ISFIFO(st.st_mode))
 			/* Pad last block when writing to device or FIFO. */
 			archive_write_set_bytes_in_last_block(a, 0);
 		else
@@ -203,13 +191,10 @@ static int file_open(struct archive * a, void * client_data)
 	return ARCHIVE_OK;
 }
 
-static ssize_t file_write(struct archive * a, void * client_data, const void * buff,
-    size_t length)
+static ssize_t file_write(struct archive * a, void * client_data, const void * buff, size_t length)
 {
-	struct write_file_data  * mine;
 	ssize_t bytesWritten;
-
-	mine = (struct write_file_data *)client_data;
+	struct write_file_data  * mine = (struct write_file_data *)client_data;
 	for(;;) {
 		bytesWritten = write(mine->fd, buff, length);
 		if(bytesWritten <= 0) {
@@ -225,12 +210,9 @@ static ssize_t file_write(struct archive * a, void * client_data, const void * b
 static int file_close(struct archive * a, void * client_data)
 {
 	struct write_file_data  * mine = (struct write_file_data *)client_data;
-
 	(void)a; /* UNUSED */
-
 	if(mine->fd >= 0)
 		close(mine->fd);
-
 	archive_mstring_clean(&mine->filename);
 	SAlloc::F(mine);
 	return ARCHIVE_OK;

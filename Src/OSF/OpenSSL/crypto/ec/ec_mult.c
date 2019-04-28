@@ -176,8 +176,8 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 		}
 	}
 	totalnum = num + numblocks;
-	wsize = (size_t*)OPENSSL_malloc(totalnum * sizeof wsize[0]);
-	wNAF_len = (size_t*)OPENSSL_malloc(totalnum * sizeof wNAF_len[0]);
+	wsize = (size_t *)OPENSSL_malloc(totalnum * sizeof wsize[0]);
+	wNAF_len = (size_t *)OPENSSL_malloc(totalnum * sizeof wNAF_len[0]);
 	wNAF = (signed char**)OPENSSL_malloc((totalnum + 1) * sizeof wNAF[0]); // includes space for pivot 
 	val_sub = (EC_POINT***)OPENSSL_malloc(totalnum * sizeof val_sub[0]);
 	/* Ensure wNAF is initialised in case we end up going to err */

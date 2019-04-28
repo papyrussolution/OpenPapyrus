@@ -502,7 +502,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 			    archive_set_error(&a->archive,
 				ARCHIVE_ERRNO_FILE_FORMAT,
 				"tar format cannot archive this (mode=0%lo)",
-				(unsigned long)archive_entry_mode(entry));
+				(ulong)archive_entry_mode(entry));
 			    ret = ARCHIVE_FAILED;
 		}
 	}

@@ -177,7 +177,7 @@ METHODDEF(JDIMENSION) get_8bit_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr s
 //
 METHODDEF(JDIMENSION) get_8bit_row (j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-	tga_source_ptr source = (tga_source_ptr) sinfo;
+	tga_source_ptr source = (tga_source_ptr)sinfo;
 	JDIMENSION col;
 	int t;
 	JSAMPROW ptr = source->pub.buffer[0];

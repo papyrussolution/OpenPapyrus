@@ -6584,7 +6584,7 @@ static int xmlSchemaCheckCSelectorXPath(xmlSchemaParserCtxtPtr ctxt, xmlSchemaID
 			selector->xpathComp = (void *)xmlPatterncompile(selector->xpath, NULL, XML_PATTERN_XSFIELD, nsArray);
 		else
 			selector->xpathComp = (void *)xmlPatterncompile(selector->xpath, NULL, XML_PATTERN_XSSEL, nsArray);
-		SAlloc::F((xmlChar**)nsArray);
+		SAlloc::F((xmlChar **)nsArray);
 		if(selector->xpathComp == NULL) {
 			xmlSchemaPCustomErr(ctxt, /* @todo Adjust error code? */ XML_SCHEMAP_S4S_ATTR_INVALID_VALUE, NULL, P_Node, "The XPath expression '%s' could not be compiled", selector->xpath);
 			return (XML_SCHEMAP_S4S_ATTR_INVALID_VALUE);
@@ -8955,7 +8955,7 @@ static int xmlSchemaParseIncludeOrRedefine(xmlSchemaParserCtxtPtr pctxt, xmlSche
 	 * Parse attributes. Note that the returned schemaLocation will
 	 * be already converted to an absolute URI.
 	 */
-	res = xmlSchemaParseIncludeOrRedefineAttrs(pctxt, schema, P_Node, (xmlChar**)(&schemaLocation), type);
+	res = xmlSchemaParseIncludeOrRedefineAttrs(pctxt, schema, P_Node, (xmlChar **)(&schemaLocation), type);
 	if(res != 0)
 		return res;
 	/*
@@ -20124,7 +20124,7 @@ static void xmlSchemaClearElemInfo(xmlSchemaValidCtxt * vctxt, xmlSchemaNodeInfo
 		ielem->regexCtxt = NULL;
 	}
 	if(ielem->nsBindings) {
-		SAlloc::F((xmlChar**)ielem->nsBindings);
+		SAlloc::F((xmlChar **)ielem->nsBindings);
 		ielem->nsBindings = NULL;
 		ielem->nbNsBindings = 0;
 		ielem->sizeNsBindings = 0;
@@ -24029,7 +24029,7 @@ int xmlSchemaValidateStream(xmlSchemaValidCtxt * ctxt, xmlParserInputBuffer * in
 	xmlParserCtxt * pctxt = NULL;
 	xmlParserInput * inputStream = NULL;
 	int ret;
-	if(!ctxt || (input == NULL))
+	if(!ctxt || !input)
 		return -1;
 	/*
 	 * prepare the parser

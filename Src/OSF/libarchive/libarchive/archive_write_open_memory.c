@@ -30,7 +30,6 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_write_open_memory.c,v 1.3 2007/01
 //#include <errno.h>
 //#include <stdlib.h>
 //#include <string.h>
-
 //#include "archive.h"
 
 struct write_memory_data {
@@ -51,9 +50,7 @@ static ssize_t  memory_write(struct archive *, void *, const void * buff, size_t
  */
 int archive_write_open_memory(struct archive * a, void * buff, size_t buffSize, size_t * used)
 {
-	struct write_memory_data * mine;
-
-	mine = (struct write_memory_data *)SAlloc::C(1, sizeof(*mine));
+	struct write_memory_data * mine = (struct write_memory_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -61,14 +58,12 @@ int archive_write_open_memory(struct archive * a, void * buff, size_t buffSize, 
 	mine->buff = (uchar *)buff;
 	mine->size = buffSize;
 	mine->client_size = used;
-	return (archive_write_open(a, mine,
-	       memory_write_open, memory_write, memory_write_close));
+	return (archive_write_open(a, mine, memory_write_open, memory_write, memory_write_close));
 }
 
 static int memory_write_open(struct archive * a, void * client_data)
 {
-	struct write_memory_data * mine;
-	mine = (struct write_memory_data *)client_data;
+	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	mine->used = 0;
 	if(mine->client_size != NULL)
 		*mine->client_size = mine->used;
@@ -77,7 +72,6 @@ static int memory_write_open(struct archive * a, void * client_data)
 		archive_write_set_bytes_in_last_block(a, 1);
 	return ARCHIVE_OK;
 }
-
 /*
  * Copy the data into the client buffer.
  * Note that we update mine->client_size on every write.
@@ -86,8 +80,7 @@ static int memory_write_open(struct archive * a, void * client_data)
  */
 static ssize_t memory_write(struct archive * a, void * client_data, const void * buff, size_t length)
 {
-	struct write_memory_data * mine;
-	mine = (struct write_memory_data *)client_data;
+	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	if(mine->used + length > mine->size) {
 		archive_set_error(a, ENOMEM, "Buffer exhausted");
 		return ARCHIVE_FATAL;
@@ -101,9 +94,8 @@ static ssize_t memory_write(struct archive * a, void * client_data, const void *
 
 static int memory_write_close(struct archive * a, void * client_data)
 {
-	struct write_memory_data * mine;
 	(void)a; /* UNUSED */
-	mine = (struct write_memory_data *)client_data;
+	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }

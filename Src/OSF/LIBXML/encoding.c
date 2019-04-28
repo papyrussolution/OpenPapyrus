@@ -1707,7 +1707,6 @@ int xmlCharEncFirstLineInput(xmlParserInputBuffer * input, int len)
 		ret = 0;
 	return ret;
 }
-
 /**
  * xmlCharEncInput:
  * @input: a parser input buffer

@@ -2523,15 +2523,12 @@ FAIL:
 	return status;
 }
 
-static ulong _cairo_ft_ucs4_to_index(void * abstract_font,
-    uint32_t ucs4)
+static ulong _cairo_ft_ucs4_to_index(void * abstract_font, uint32_t ucs4)
 {
 	cairo_ft_scaled_font_t * scaled_font = abstract_font;
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;
-	FT_Face face;
 	FT_UInt index;
-
-	face = _cairo_ft_unscaled_font_lock_face(unscaled);
+	FT_Face face = _cairo_ft_unscaled_font_lock_face(unscaled);
 	if(!face)
 		return 0;
 
@@ -2545,25 +2542,18 @@ static ulong _cairo_ft_ucs4_to_index(void * abstract_font,
 	return index;
 }
 
-static cairo_int_status_t _cairo_ft_load_truetype_table(void * abstract_font,
-    ulong tag,
-    long offset,
-    uchar * buffer,
-    ulong * length)
+static cairo_int_status_t _cairo_ft_load_truetype_table(void * abstract_font, ulong tag, long offset, uchar * buffer, ulong * length)
 {
 	cairo_ft_scaled_font_t * scaled_font = abstract_font;
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;
 	FT_Face face;
 	cairo_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
-
 	/* We don't support the FreeType feature of loading a table
 	 * without specifying the size since this may overflow our
 	 * buffer. */
 	assert(length != NULL);
-
 	if(_cairo_ft_scaled_font_is_vertical(&scaled_font->base))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 #if HAVE_FT_LOAD_SFNT_TABLE
 	face = _cairo_ft_unscaled_font_lock_face(unscaled);
 	if(!face)
@@ -2583,20 +2573,15 @@ static cairo_int_status_t _cairo_ft_load_truetype_table(void * abstract_font,
 	return status;
 }
 
-static cairo_int_status_t _cairo_ft_index_to_ucs4(void * abstract_font,
-    ulong index,
-    uint32_t * ucs4)
+static cairo_int_status_t _cairo_ft_index_to_ucs4(void * abstract_font, ulong index, uint32_t * ucs4)
 {
 	cairo_ft_scaled_font_t * scaled_font = abstract_font;
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;
-	FT_Face face;
 	FT_ULong charcode;
 	FT_UInt gindex;
-
-	face = _cairo_ft_unscaled_font_lock_face(unscaled);
+	FT_Face face = _cairo_ft_unscaled_font_lock_face(unscaled);
 	if(!face)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	*ucs4 = (uint32_t)-1;
 	charcode = FT_Get_First_Char(face, &gindex);
 	while(gindex != 0) {
@@ -2606,21 +2591,17 @@ static cairo_int_status_t _cairo_ft_index_to_ucs4(void * abstract_font,
 		}
 		charcode = FT_Get_Next_Char(face, charcode, &gindex);
 	}
-
 	_cairo_ft_unscaled_font_unlock_face(unscaled);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t _cairo_ft_is_synthetic(void * abstract_font,
-    cairo_bool_t * is_synthetic)
+static cairo_int_status_t _cairo_ft_is_synthetic(void * abstract_font, cairo_bool_t * is_synthetic)
 {
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_ft_scaled_font_t * scaled_font = abstract_font;
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;
 	FT_Face face;
 	FT_Error error;
-
 	if(scaled_font->ft_options.synth_flags != 0) {
 		*is_synthetic = TRUE;
 		return status;

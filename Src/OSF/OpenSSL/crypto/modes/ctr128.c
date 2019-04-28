@@ -44,7 +44,7 @@ static void ctr128_inc_aligned(uchar * counter)
 		return;
 	}
 
-	data = (size_t*)counter;
+	data = (size_t *)counter;
 	c = 1;
 	n = 16 / sizeof(size_t);
 	do {
@@ -68,17 +68,10 @@ static void ctr128_inc_aligned(uchar * counter)
  * implementation takes NO responsibility for checking that the counter
  * doesn't overflow into the rest of the IV when incremented.
  */
-void CRYPTO_ctr128_encrypt(const uchar * in, uchar * out,
-    size_t len, const void * key,
-    uchar ivec[16],
-    uchar ecount_buf[16], uint * num,
-    block128_f block)
+void CRYPTO_ctr128_encrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], uchar ecount_buf[16], uint * num, block128_f block)
 {
-	uint n;
 	size_t l = 0;
-
-	n = *num;
-
+	uint n = *num;
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
 	if(16 % sizeof(size_t) == 0) { /* always true actually */
 		do {
@@ -89,16 +82,14 @@ void CRYPTO_ctr128_encrypt(const uchar * in, uchar * out,
 			}
 
 # if defined(STRICT_ALIGNMENT)
-			if(((size_t)in | (size_t)out | (size_t)ecount_buf)
-			    % sizeof(size_t) != 0)
+			if(((size_t)in | (size_t)out | (size_t)ecount_buf) % sizeof(size_t) != 0)
 				break;
 # endif
 			while(len >= 16) {
 				(*block)(ivec, ecount_buf, key);
 				ctr128_inc_aligned(ivec);
 				for(n = 0; n < 16; n += sizeof(size_t))
-					*(size_t*)(out + n) =
-					    *(size_t*)(in + n) ^ *(size_t*)(ecount_buf + n);
+					*(size_t *)(out + n) = *(size_t *)(in + n) ^ *(size_t *)(ecount_buf + n);
 				len -= 16;
 				out += 16;
 				in += 16;

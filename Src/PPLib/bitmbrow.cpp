@@ -115,11 +115,9 @@ private:
 	int    isAllGoodsInPckg(PPID goodsID);
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-
 	enum {
 		cpdifRestrOnly = 0x0001
 	};
-
 	long   FASTCALL CalcPriceDevItem(long pos, long flags);
 	int    SLAPI GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
 	int    SLAPI UpdatePriceDevList(long pos, int op);
@@ -439,7 +437,7 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
 		BillItemBrowser::ColumnPosBlock posblk;
-		const BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pData);
+		const  BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pData);
 		long   pos = p_item->Pos;
 		const  LongArray & r_price_dev_list = p_brw->GetPriceDevList();
 		if(p_brw->GetColPos(posblk) > 0) {

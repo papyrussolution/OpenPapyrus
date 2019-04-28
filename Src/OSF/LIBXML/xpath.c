@@ -6203,26 +6203,26 @@ static int xmlXPathEqualNodeSets(xmlXPathObjectPtr arg1, xmlXPathObjectPtr arg2,
 				if(ns1->PP_NodeTab[i] == ns2->PP_NodeTab[j])
 					return 1;
 
-	values1 = (xmlChar**)SAlloc::M(ns1->nodeNr * sizeof(xmlChar *));
+	values1 = static_cast<xmlChar **>(SAlloc::M(ns1->nodeNr * sizeof(xmlChar *)));
 	if(values1 == NULL) {
 		xmlXPathErrMemory(NULL, "comparing nodesets");
 		return 0;
 	}
-	hashs1 = (uint *)SAlloc::M(ns1->nodeNr * sizeof(uint));
+	hashs1 = static_cast<uint *>(SAlloc::M(ns1->nodeNr * sizeof(uint)));
 	if(hashs1 == NULL) {
 		xmlXPathErrMemory(NULL, "comparing nodesets");
 		SAlloc::F(values1);
 		return 0;
 	}
 	memzero(values1, ns1->nodeNr * sizeof(xmlChar *));
-	values2 = (xmlChar**)SAlloc::M(ns2->nodeNr * sizeof(xmlChar *));
+	values2 = static_cast<xmlChar **>(SAlloc::M(ns2->nodeNr * sizeof(xmlChar *)));
 	if(values2 == NULL) {
 		xmlXPathErrMemory(NULL, "comparing nodesets");
 		SAlloc::F(hashs1);
 		SAlloc::F(values1);
 		return 0;
 	}
-	hashs2 = (uint *)SAlloc::M(ns2->nodeNr * sizeof(uint));
+	hashs2 = static_cast<uint *>(SAlloc::M(ns2->nodeNr * sizeof(uint)));
 	if(hashs2 == NULL) {
 		xmlXPathErrMemory(NULL, "comparing nodesets");
 		SAlloc::F(hashs1);
@@ -13506,7 +13506,7 @@ static xmlXPathCompExprPtr xmlXPathTryStreamCompile(xmlXPathContextPtr ctxt, con
 			}
 		}
 		stream = xmlPatterncompile(str, dict, XML_PATTERN_XPATH, &namespaces[0]);
-		SAlloc::F((xmlChar**)namespaces);
+		SAlloc::F((xmlChar **)namespaces);
 		if(stream && (xmlPatternStreamable(stream) == 1)) {
 			comp = xmlXPathNewCompExpr();
 			if(comp == NULL) {

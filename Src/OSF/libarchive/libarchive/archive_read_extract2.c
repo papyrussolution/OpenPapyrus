@@ -129,12 +129,10 @@ static int copy_data(struct archive * ar, struct archive * aw)
 		if(r < ARCHIVE_WARN)
 			r = ARCHIVE_WARN;
 		if(r < ARCHIVE_OK) {
-			archive_set_error(ar, archive_errno(aw),
-			    "%s", archive_error_string(aw));
+			archive_set_error(ar, archive_errno(aw), "%s", archive_error_string(aw));
 			return r;
 		}
 		if(extract->extract_progress)
-			(extract->extract_progress)
-				(extract->extract_progress_user_data);
+			(extract->extract_progress)(extract->extract_progress_user_data);
 	}
 }

@@ -671,7 +671,7 @@ static void xmlSchematronAddNamespace(xmlSchematronParserCtxtPtr ctxt, const xml
 {
 	if(ctxt->namespaces == NULL) {
 		ctxt->maxNamespaces = 10;
-		ctxt->namespaces = (const xmlChar **)SAlloc::M(ctxt->maxNamespaces * 2 * sizeof(const xmlChar *));
+		ctxt->namespaces = static_cast<const xmlChar **>(SAlloc::M(ctxt->maxNamespaces * 2 * sizeof(const xmlChar *)));
 		if(ctxt->namespaces == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser namespaces", 0);
 			return;
@@ -679,7 +679,7 @@ static void xmlSchematronAddNamespace(xmlSchematronParserCtxtPtr ctxt, const xml
 		ctxt->nbNamespaces = 0;
 	}
 	else if(ctxt->nbNamespaces + 2 >= ctxt->maxNamespaces) {
-		const xmlChar ** tmp = (const xmlChar **)SAlloc::R((xmlChar**)ctxt->namespaces, ctxt->maxNamespaces * 4 * sizeof(const xmlChar *));
+		const xmlChar ** tmp = static_cast<const xmlChar **>(SAlloc::R((xmlChar **)ctxt->namespaces, ctxt->maxNamespaces * 4 * sizeof(const xmlChar *)));
 		if(!tmp) {
 			xmlSchematronPErrMemory(NULL, "allocating parser namespaces", 0);
 			return;

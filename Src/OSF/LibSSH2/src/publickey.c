@@ -433,9 +433,7 @@ LIBSSH2_API int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY * pkey, const uchar *
 		if(pkey->version == 1) {
 			for(i = 0; i < num_attrs; i++) {
 				/* Search for a comment attribute */
-				if(attrs[i].name_len == (sizeof("comment") - 1) &&
-				    strncmp(attrs[i].name, "comment",
-					    sizeof("comment") - 1) == 0) {
+				if(attrs[i].name_len == (sizeof("comment") - 1) && strncmp(attrs[i].name, "comment", sizeof("comment") - 1) == 0) {
 					comment = (uchar *)attrs[i].value;
 					comment_len = attrs[i].value_len;
 					break;

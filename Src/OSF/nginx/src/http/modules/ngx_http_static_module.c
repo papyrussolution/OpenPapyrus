@@ -123,7 +123,7 @@ static ngx_int_t ngx_http_static_handler(ngx_http_request_t * r)
 			if(r->args.len) {
 				len += r->args.len + 1;
 			}
-			location = (u_char *)ngx_pnalloc(r->pool, len);
+			location = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
 			if(location == NULL) {
 				ngx_http_clear_location(r);
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;

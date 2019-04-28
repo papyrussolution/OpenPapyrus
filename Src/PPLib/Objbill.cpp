@@ -2873,14 +2873,12 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	long   SnrCounter;     // @obsolete since @v5.0.0
 	char   SnTemplt[16];   // @obsolete since @v5.0.0
 	char   InvSnTemplt[16];  //
-
 	int16  ValuationRndDir;    // Направление округления при расценке
 	int16  Reserve;            // @reserve
 	PPID   ValuationQuotKindID; // ->Ref(PPOBJ_QUOTKIND) Вид котировки для расценки приходных документов
 	float  ValuationRndPrec;   // Точность округления при расценке
 	char   UniqSerialSfx[16];  // Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
-	//
-	SVerT Ver;                // @anchor
+	SVerT  Ver;                // @anchor
 	PPID   ContractRegTypeID;  //
 	PPID   MnfCountryLotTagID; //
 	LDATE  LowDebtCalcDate;    //
@@ -2922,7 +2920,7 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		pCfg->InitStatusID = p_temp->InitStatusID;
 		STRNSCPY(pCfg->OpCodePrfx, p_temp->OpCodePrfx);
 		STRNSCPY(pCfg->ClCodePrfx, p_temp->ClCodePrfx);
-		STRNSCPY(pCfg->SnTemplt, p_temp->SnTemplt);                         // @obsolete since @v5.0.0
+		STRNSCPY(pCfg->SnTemplt, p_temp->SnTemplt); // @obsolete since @v5.0.0
 		STRNSCPY(pCfg->InvSnTemplt, p_temp->InvSnTemplt);
 		pCfg->SwitchedTDisCalcMethodDate = p_temp->SwitchedTDisCalcMethodDate;
 		pCfg->TDisCalcMethod = p_temp->TDisCalcMethod;
@@ -2939,27 +2937,29 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		pCfg->ValuationRndPrec = p_temp->ValuationRndPrec;
 		STRNSCPY(pCfg->UniqSerialSfx, p_temp->UniqSerialSfx);
 		pCfg->Ver = p_temp->Ver;
-		{
-			if(sz > fix_size) {
-				SBuffer ser_buf;
-				THROW_SL(ser_buf.Write(PTR8C(p_temp)+fix_size, sz - fix_size));
-				if(!pCfg->TagIndFilt.Read(ser_buf, 0)) {
-					pCfg->TagIndFilt.Init(1, 0);
+		if(sz > fix_size) {
+			SBuffer ser_buf;
+			THROW_SL(ser_buf.Write(PTR8C(p_temp)+fix_size, sz - fix_size));
+			if(!pCfg->TagIndFilt.Read(ser_buf, 0)) {
+				pCfg->TagIndFilt.Init(1, 0);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+			}
+			// @v10.4.3 {
+			if(pCfg->Ver.IsGt(10, 4, 2)) {
+				if(!pCfg->LotTagIndFilt.Read(ser_buf, 0)) {
+					pCfg->LotTagIndFilt.Init(1, 0);
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 				}
 			}
+			// } @v10.4.3 
 		}
 		{
-			//char * p_buf = 0;
 			size_t buf_size = 0;
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
 			if(reg_key.GetRecSize(BillAddFilesFolder, &buf_size) > 0 && buf_size > 0) {
 				SString param_buf;
-				//p_buf = new char[buf_size + 1];
-				//memzero(p_buf, buf_size + 1);
 				reg_key.GetString(BillAddFilesFolder, param_buf);
 				pCfg->AddFilesFolder.CopyFrom(param_buf);
-				//ZDELETEARRAY(p_buf);
 			}
 		}
 	}
@@ -2975,7 +2975,6 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 	__PPBillConfig * p_temp = 0;
 	STempBuffer temp_buf(0);
 	size_t sz = sizeof(__PPBillConfig);
-
 	THROW(CheckCfgRights(PPCFGOBJ_BILL, PPR_MOD, 0));
 	if(pCfg->TagIndFilt.IsEmpty()) {
 		p_temp = &temp;
@@ -2983,11 +2982,12 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 	else {
 		SBuffer ser_buf;
 		THROW(pCfg->TagIndFilt.Write(ser_buf, 0));
+		THROW(pCfg->LotTagIndFilt.Write(ser_buf, 0)); // @v10.4.3
 		sz += ser_buf.GetAvailableSize();
 		const  size_t offs = sizeof(__PPBillConfig);
 		THROW_SL(temp_buf.Alloc(sz));
-		THROW_SL(ser_buf.Read(static_cast<char *>(temp_buf)+offs, sz - offs));
-		p_temp = (__PPBillConfig *)(const char *)temp_buf;
+		THROW_SL(ser_buf.Read(PTR8(temp_buf.vptr())+offs, sz - offs));
+		p_temp = static_cast<__PPBillConfig *>(temp_buf.vptr());
 	}
 	memzero(p_temp, sizeof(__PPBillConfig));
 	{
@@ -3020,7 +3020,7 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 
 		p_temp->ValuationRndDir = pCfg->ValuationRndDir;
 		p_temp->ValuationQuotKindID = pCfg->ValuationQuotKindID;
-		p_temp->ValuationRndPrec = (float)pCfg->ValuationRndPrec;
+		p_temp->ValuationRndPrec = static_cast<float>(pCfg->ValuationRndPrec);
 		STRNSCPY(p_temp->UniqSerialSfx, pCfg->UniqSerialSfx);
 		p_temp->Ver = DS.GetVersion();
 		{
@@ -3220,6 +3220,12 @@ int SLAPI PPObjBill::EditConfig()
 				P_Cfg->TagIndFilt.Flags |= TagFilt::fColors; // @v9.8.6
 				EditTagFilt(PPOBJ_BILL, &P_Cfg->TagIndFilt);
 			}
+			// @v10.4.3 {
+			else if(event.isCmd(cmLotTagIndFilt)) {
+				P_Cfg->LotTagIndFilt.Flags |= TagFilt::fColors;
+				EditTagFilt(PPOBJ_LOT, &P_Cfg->LotTagIndFilt);
+			}
+			// } @v10.4.3 
 			else if(event.isCmd(cmaMore)) {
 				EditBillCfgAddendum(P_Cfg);
 			}
@@ -3264,7 +3270,6 @@ int SLAPI PPObjBill::EditConfig()
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS, 12, BCF_PAINTSHIPPEDBILLS);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS, 13, BCF_OVRRDAGTQUOT);
 	dlg->SetClusterData(CTL_BILLCFG_FLAGS, cfg.Flags);
-	//
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  0, BCF_CHECKRESERVEDORDERS);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  1, BCF_ORDPRICELOWPRIORITY);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  2, BCF_EXTOBJASMAINORG);
@@ -3274,13 +3279,10 @@ int SLAPI PPObjBill::EditConfig()
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  6, BCF_RETINHERITFREIGHT);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  7, BCF_PICKLOTS);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  8, BCF_INHSERIAL);
-
 	dlg->SetClusterData(CTL_BILLCFG_FLAGS2, cfg.Flags);
-
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 0, BCF_SHOWBARCODESINGBLINES);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 1, BCF_SHOWSERIALSINGBLINES);
 	dlg->SetClusterData(CTL_BILLCFG_SHOWADDFLD, cfg.Flags);
-
 	SetupPPObjCombo(dlg, CTLSEL_BILLCFG_CLCODEREG, PPOBJ_REGISTERTYPE, cfg.ClCodeRegTypeID, 0, 0);
 	//SetupPPObjCombo(dlg, CTLSEL_BILLCFG_CASHNODE, PPOBJ_CASHNODE, cfg.CashNodeID, 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_BILLCFG_INITST, PPOBJ_BILLSTATUS, cfg.InitStatusID, 0, 0);
@@ -3299,7 +3301,6 @@ int SLAPI PPObjBill::EditConfig()
 	dlg->setCtrlData(CTL_BILLCFG_SNTEMPLT, sn_buf);
 	dlg->setCtrlData(CTL_BILLCFG_INVSNTEMPLT, invsn_buf);
 	dlg->setCtrlData(CTL_BILLCFG_UNIQSNSFX, cfg.UniqSerialSfx);
-
 	dlg->AddClusterAssocDef(CTL_BILLCFG_DEFICITSUBST, 0, PPBillConfig::gsmGeneric);
 	dlg->AddClusterAssoc(CTL_BILLCFG_DEFICITSUBST, 1, PPBillConfig::gsmSubstStruc);
 	dlg->AddClusterAssoc(CTL_BILLCFG_DEFICITSUBST, 2, PPBillConfig::gsmNone);

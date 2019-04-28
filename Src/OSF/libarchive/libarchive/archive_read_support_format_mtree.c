@@ -1435,7 +1435,7 @@ static int parse_device(dev_t * pdev, struct archive * a, char * val)
 				    "Too many arguments");
 				return ARCHIVE_WARN;
 			}
-			numbers[argc++] = (unsigned long)mtree_atol(&p, 0);
+			numbers[argc++] = (ulong)mtree_atol(&p, 0);
 		}
 		if(argc < 2) {
 			archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT,

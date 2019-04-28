@@ -58,7 +58,7 @@ ngx_int_t ngx_stream_complex_value(ngx_stream_session_t * s, ngx_stream_complex_
 		len += lcode(&e);
 	}
 	value->len = len;
-	value->data = (u_char *)ngx_pnalloc(s->connection->pool, len);
+	value->data = static_cast<u_char *>(ngx_pnalloc(s->connection->pool, len));
 	if(value->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -285,7 +285,7 @@ u_char * ngx_stream_script_run(ngx_stream_session_t * s, ngx_str_t * value, void
 		len += lcode(&e);
 	}
 	value->len = len;
-	value->data = (u_char *)ngx_pnalloc(s->connection->pool, len);
+	value->data = static_cast<u_char *>(ngx_pnalloc(s->connection->pool, len));
 	if(value->data == NULL) {
 		return NULL;
 	}

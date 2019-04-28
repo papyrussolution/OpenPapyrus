@@ -89,7 +89,7 @@ ngx_stream_variable_t * ngx_stream_add_variable(ngx_conf_t * cf, ngx_str_t * nam
 		return NULL;
 	}
 	v->name.len = name->len;
-	v->name.data = (u_char *)ngx_pnalloc(cf->pool, name->len);
+	v->name.data = static_cast<u_char *>(ngx_pnalloc(cf->pool, name->len));
 	if(v->name.data == NULL) {
 		return NULL;
 	}
@@ -130,7 +130,7 @@ static ngx_stream_variable_t * ngx_stream_add_prefix_variable(ngx_conf_t * cf, n
 	v = (ngx_stream_variable_t *)ngx_array_push(&cmcf->prefix_variables);
 	if(v) {
 		v->name.len = name->len;
-		v->name.data = (u_char *)ngx_pnalloc(cf->pool, name->len);
+		v->name.data = static_cast<u_char *>(ngx_pnalloc(cf->pool, name->len));
 		if(v->name.data == NULL) {
 			return NULL;
 		}
@@ -173,7 +173,7 @@ ngx_int_t ngx_stream_get_variable_index(ngx_conf_t * cf, ngx_str_t * name)
 		return NGX_ERROR;
 	}
 	v->name.len = name->len;
-	v->name.data = (u_char *)ngx_pnalloc(cf->pool, name->len);
+	v->name.data = static_cast<u_char *>(ngx_pnalloc(cf->pool, name->len));
 	if(v->name.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -573,7 +573,7 @@ void * ngx_stream_map_find(ngx_stream_session_t * s, ngx_stream_map_t * map,
 	ngx_uint_t key;
 	size_t len = match->len;
 	if(len) {
-		low = (u_char *)ngx_pnalloc(s->connection->pool, len);
+		low = static_cast<u_char *>(ngx_pnalloc(s->connection->pool, len));
 		if(low == NULL) {
 			return NULL;
 		}

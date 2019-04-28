@@ -36,17 +36,14 @@ __FBSDID("$FreeBSD$");
 //#ifdef HAVE_STRING_H
 //#include <string.h>
 //#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include "archive.h"
 //#include "archive_private.h"
 //#include "archive_read_private.h"
 
-static const uchar grzip_magic[] = {
-	0x47, 0x52, 0x5a, 0x69, 0x70, 0x49, 0x49, 0x00,
-	0x02, 0x04, 0x3a, 0x29
-};
+static const uchar grzip_magic[] = { 0x47, 0x52, 0x5a, 0x69, 0x70, 0x49, 0x49, 0x00, 0x02, 0x04, 0x3a, 0x29 };
 
 static int      grzip_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
 static int      grzip_bidder_init(struct archive_read_filter *);
