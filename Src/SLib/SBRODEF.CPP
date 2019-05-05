@@ -227,8 +227,42 @@ uint SLAPI BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
 uint SLAPI BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
 void SLAPI BrowserDef::setViewHight(int newHight) { viewHight = newHight; }
 
+int SLAPI BrowserDef::GetCellData(const void * pRow, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
+{
+	int    ok = 0;
+	const char * p_src_data = static_cast<const char *>(pRow);
+	if(p_src_data && column >= 0 && column < static_cast<int>(getCount())) {
+		const  BroColumn & c = at(column);
+		int    r = 1;
+		char   dest_data[1024];
+		const  char * p_final_data = dest_data;
+		DpB.ExtraPtr = ExtraPtr;
+		DpB.ColumnN   = c.Offs;
+		DpB.TypeID    = c.T;
+		DpB.P_SrcData = p_src_data;
+		DpB.Color     = 0;
+		DpB.P_DestData = dest_data;
+		if(c.Options & BCO_USERPROC) {
+			if(UserProc)
+				r = UserProc(&DpB);
+			else if(c.UserProc)
+				r = c.UserProc(&DpB);
+			else
+				r = 0;
+		}
+		else
+			p_final_data = p_src_data + c.Offs;
+		TYPEID typ = DpB.TypeID;
+		memcpy(pDataBuf, p_final_data, MIN(dataBufLen, stsize(typ)));
+		ok = 1;
+	}
+	return ok;
+}
+
 int SLAPI BrowserDef::GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
 {
+	return GetCellData(getRow(row), column, pType, pDataBuf, dataBufLen); // @v10.4.4
+	/* @v10.4.4 
 	int    ok = 0;
 	TYPEID typ = 0;
 	char * p_src_data = static_cast<char *>(getRow(row));
@@ -257,6 +291,7 @@ int SLAPI BrowserDef::GetCellData(long row, int column, TYPEID * pType, void * p
 		ok = 1;
 	}
 	return ok;
+	*/
 }
 
 char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)

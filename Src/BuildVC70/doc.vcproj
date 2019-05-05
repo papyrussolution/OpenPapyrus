@@ -16,7 +16,7 @@
 			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="10"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -33,7 +33,7 @@
 			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="10"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -50,7 +50,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="10"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -67,7 +67,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="10"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -84,7 +84,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="10"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -101,7 +101,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="10"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

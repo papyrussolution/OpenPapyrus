@@ -6330,7 +6330,7 @@ namespace NArchive {
 					size_t offset = _db.NameOffsets[index];
 					size_t size = (_db.NameOffsets[index + 1] - offset) * 2;
 					if(size < ((uint32)1 << 31)) {
-						*data = (const void*)(_db.NamesBuf + offset * 2);
+						*data = (const void *)(_db.NamesBuf + offset * 2);
 						*dataSize = (uint32)size;
 						*propType = NPropDataType::kUtf16z;
 					}

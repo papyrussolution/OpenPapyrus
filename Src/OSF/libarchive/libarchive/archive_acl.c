@@ -672,41 +672,29 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 
 	if(want_type == ARCHIVE_ENTRY_ACL_TYPE_POSIX1E)
 		flags |= ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT;
-
 	length = archive_acl_text_len(acl, want_type, flags, 1, a, NULL);
-
 	if(length == 0)
 		return NULL;
-
 	if(flags & ARCHIVE_ENTRY_ACL_STYLE_SEPARATOR_COMMA)
 		separator = L',';
 	else
 		separator = L'\n';
-
 	/* Now, allocate the string and actually populate it. */
 	wp = ws = (wchar_t*)SAlloc::M(length * sizeof(wchar_t));
 	if(wp == NULL) {
 		if(errno == ENOMEM)
-			__archive_errx(1, "No memory");
+			__archive_errx_nomem(1);
 		return NULL;
 	}
 	count = 0;
-
 	if((want_type & ARCHIVE_ENTRY_ACL_TYPE_ACCESS) != 0) {
-		append_entry_w(&wp, NULL, ARCHIVE_ENTRY_ACL_TYPE_ACCESS,
-		    ARCHIVE_ENTRY_ACL_USER_OBJ, flags, NULL,
-		    acl->mode & 0700, -1);
+		append_entry_w(&wp, NULL, ARCHIVE_ENTRY_ACL_TYPE_ACCESS, ARCHIVE_ENTRY_ACL_USER_OBJ, flags, NULL, acl->mode & 0700, -1);
 		*wp++ = separator;
-		append_entry_w(&wp, NULL, ARCHIVE_ENTRY_ACL_TYPE_ACCESS,
-		    ARCHIVE_ENTRY_ACL_GROUP_OBJ, flags, NULL,
-		    acl->mode & 0070, -1);
+		append_entry_w(&wp, NULL, ARCHIVE_ENTRY_ACL_TYPE_ACCESS, ARCHIVE_ENTRY_ACL_GROUP_OBJ, flags, NULL, acl->mode & 0070, -1);
 		*wp++ = separator;
-		append_entry_w(&wp, NULL, ARCHIVE_ENTRY_ACL_TYPE_ACCESS,
-		    ARCHIVE_ENTRY_ACL_OTHER, flags, NULL,
-		    acl->mode & 0007, -1);
+		append_entry_w(&wp, NULL, ARCHIVE_ENTRY_ACL_TYPE_ACCESS, ARCHIVE_ENTRY_ACL_OTHER, flags, NULL, acl->mode & 0007, -1);
 		count += 3;
 	}
-
 	for(ap = acl->acl_head; ap != NULL; ap = ap->next) {
 		if((ap->type & want_type) == 0)
 			continue;
@@ -920,7 +908,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 	p = s = (char *)SAlloc::M(length * sizeof(char));
 	if(p == NULL) {
 		if(errno == ENOMEM)
-			__archive_errx(1, "No memory");
+			__archive_errx_nomem(1);
 		return NULL;
 	}
 	count = 0;

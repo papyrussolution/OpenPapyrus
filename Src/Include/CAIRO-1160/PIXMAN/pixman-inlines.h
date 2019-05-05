@@ -68,7 +68,7 @@ static force_inline pixman_bool_t repeat(pixman_repeat_t repeat, int * c, int si
 	else if(repeat == PIXMAN_REPEAT_PAD) {
 		*c = CLIP(*c, 0, size - 1);
 	}
-	else{ /* REFLECT */
+	else { /* REFLECT */
 		*c = MOD(*c, size * 2);
 		if(*c >= size)
 			*c = size * 2 - *c - 1;
@@ -196,12 +196,12 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 			*left_pad = *width;
 			*width = 0;
 		}
-		else{
+		else {
 			*left_pad = (int32_t)tmp;
 			*width -= (int32_t)tmp;
 		}
 	}
-	else{
+	else {
 		*left_pad = 0;
 	}
 	tmp = ((int64_t)unit_x - 1 - vx + max_vx) / unit_x - *left_pad;
@@ -212,7 +212,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 	else if(tmp >= *width) {
 		*right_pad = 0;
 	}
-	else{
+	else {
 		*right_pad = *width - (int32_t)tmp;
 		*width = (int32_t)tmp;
 	}

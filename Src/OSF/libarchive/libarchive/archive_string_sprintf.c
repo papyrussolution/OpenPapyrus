@@ -90,7 +90,7 @@ void archive_string_vsprintf(struct archive_string * as, const char * fmt,
 	const char * p, * p2;
 	const wchar_t * pw;
 	if(archive_string_ensure(as, 64) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx_nomem(1);
 	if(fmt == NULL) {
 		as->s[0] = 0;
 		return;
@@ -137,7 +137,7 @@ void archive_string_vsprintf(struct archive_string * as, const char * fmt,
 						pw = L"(null)";
 					if(archive_string_append_from_wcs(as, pw,
 					    wcslen(pw)) != 0 && errno == ENOMEM)
-						__archive_errx(1, "Out of memory");
+						__archive_errx_nomem(1);
 					break;
 				    default:
 					p2 = va_arg(ap, char *);
@@ -153,7 +153,7 @@ void archive_string_vsprintf(struct archive_string * as, const char * fmt,
 				    pw = L"(null)";
 			    if(archive_string_append_from_wcs(as, pw,
 				wcslen(pw)) != 0 && errno == ENOMEM)
-				    __archive_errx(1, "Out of memory");
+				    __archive_errx_nomem(1);
 			    break;
 			case 'o': case 'u': case 'x': case 'X':
 			    /* Common handling for unsigned integer formats. */

@@ -69,7 +69,7 @@ static void _wgl_acquire(void * abstract_ctx)
 	    _cairo_gl_surface_is_texture(ctx->base.current_target)) {
 		current_dc = ctx->dummy_dc;
 	}
-	else{
+	else {
 		cairo_wgl_surface_t * surface = (cairo_wgl_surface_t*)ctx->base.current_target;
 		current_dc = surface->dc;
 	}

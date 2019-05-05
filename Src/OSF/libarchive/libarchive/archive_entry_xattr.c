@@ -83,9 +83,9 @@ void archive_entry_xattr_add_entry(struct archive_entry * entry, const char * na
 {
 	struct ae_xattr * xp;
 	if((xp = (struct ae_xattr *)SAlloc::M(sizeof(struct ae_xattr))) == NULL)
-		__archive_errx(1, "Out of memory");
-	if((xp->name = strdup(name)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx_nomem(1);
+	if((xp->name = sstrdup(name)) == NULL)
+		__archive_errx_nomem(1);
 	if((xp->value = SAlloc::M(size)) != NULL) {
 		memcpy(xp->value, value, size);
 		xp->size = size;

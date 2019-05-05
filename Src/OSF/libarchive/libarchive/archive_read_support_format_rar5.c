@@ -22,7 +22,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 //#include "archive_endian.h"
@@ -53,11 +52,10 @@
 #define rar5_min(a, b) (((a) > (b)) ? (b) : (a))
 #define rar5_max(a, b) (((a) > (b)) ? (a) : (b))
 #define rar5_countof(X) ((const ssize_t)(sizeof(X) / sizeof(*X)))
-
 #if defined DEBUG
-#define DEBUG_CODE if(1)
+	#define DEBUG_CODE if(1)
 #else
-#define DEBUG_CODE if(0)
+	#define DEBUG_CODE if(0)
 #endif
 
 /* Real RAR5 magic number is:
@@ -82,17 +80,14 @@ struct file_header {
 	ssize_t unpacked_size;
 	int64_t last_offset;     /* Used in sanity checks. */
 	int64_t last_size;       /* Used in sanity checks. */
-
 	uint8_t solid : 1;       /* Is this a solid stream? */
 	uint8_t service : 1;     /* Is this file a service data? */
 	uint8_t eof : 1;         /* Did we finish unpacking the file? */
-
 	/* Optional time fields. */
 	uint64_t e_mtime;
 	uint64_t e_ctime;
 	uint64_t e_atime;
 	uint32_t e_unix_ns;
-
 	/* Optional hash fields. */
 	uint32_t stored_crc32;
 	uint32_t calculated_crc32;
@@ -117,7 +112,6 @@ struct filter_info {
 	int type;
 	int channels;
 	int pos_r;
-
 	int64_t block_start;
 	ssize_t block_length;
 	uint16_t width;
@@ -149,49 +143,27 @@ struct decode_table {
 };
 
 struct comp_state {
-	/* Flag used to specify if unpacker needs to reinitialize the uncompression
-	 * context. */
-	uint8_t initialized : 1;
-
-	/* Flag used when applying filters. */
-	uint8_t all_filters_applied : 1;
-
-	/* Flag used to skip file context reinitialization, used when unpacker is
-	 * skipping through different multivolume archives. */
-	uint8_t switch_multivolume : 1;
-
-	/* Flag used to specify if unpacker has processed the whole data block or
-	 * just a part of it. */
-	uint8_t block_parsing_finished : 1;
-
+	uint8_t initialized : 1; /* Flag used to specify if unpacker needs to reinitialize the uncompression context. */
+	uint8_t all_filters_applied : 1; /* Flag used when applying filters. */
+	uint8_t switch_multivolume : 1; /* Flag used to skip file context reinitialization, used when unpacker is skipping through different multivolume archives. */
+	uint8_t block_parsing_finished : 1; /* Flag used to specify if unpacker has processed the whole data block or just a part of it. */
 	int notused : 4;
-
 	int flags;               /* Uncompression flags. */
 	int method;              /* Uncompression algorithm method. */
 	int version;             /* Uncompression algorithm version. */
 	ssize_t window_size;     /* Size of window_buf. */
-	uint8_t* window_buf;     /* Circular buffer used during
-	                            decompression. */
+	uint8_t* window_buf;     /* Circular buffer used during decompression. */
 	uint8_t* filtered_buf;   /* Buffer used when applying filters. */
 	const uint8_t* block_buf; /* Buffer used when merging blocks. */
 	size_t window_mask;      /* Convenience field; window_size - 1. */
-	int64_t write_ptr;       /* This amount of data has been unpacked in
-	                            the window buffer. */
-	int64_t last_write_ptr;  /* This amount of data has been stored in
-	                            the output file. */
-	int64_t last_unstore_ptr; /* Counter of bytes extracted during
-	                             unstoring. This is separate from
-	                             last_write_ptr because of how SERVICE
-	                             base blocks are handled during skipping
-	                             in solid multiarchive archives. */
-	int64_t solid_offset;    /* Additional offset inside the window
-	                            buffer, used in unpacking solid
-	                            archives. */
+	int64_t write_ptr;       /* This amount of data has been unpacked in the window buffer. */
+	int64_t last_write_ptr;  /* This amount of data has been stored in the output file. */
+	int64_t last_unstore_ptr; /* Counter of bytes extracted during unstoring. This is separate from last_write_ptr because of how 
+							  SERVICE base blocks are handled during skipping in solid multiarchive archives. */
+	int64_t solid_offset;    /* Additional offset inside the window buffer, used in unpacking solid archives. */
 	ssize_t cur_block_size;  /* Size of current data block. */
 	int last_len;            /* Flag used in lzss decompression. */
-
 	/* Decode tables used during lzss uncompression. */
-
 #define HUFF_BC 20
 	struct decode_table bd;  /* huffman bit lengths */
 #define HUFF_NC 306
@@ -208,12 +180,8 @@ struct comp_state {
 	struct cdeque filters;
 	int64_t last_block_start; /* Used for sanity checking. */
 	ssize_t last_block_length; /* Used for sanity checking. */
-
-	/* Distance cache used during lzss uncompression. */
-	int dist_cache[4];
-
-	/* Data buffer stack. */
-	struct data_ready dready[2];
+	int dist_cache[4]; /* Distance cache used during lzss uncompression. */
+	struct data_ready dready[2]; /* Data buffer stack. */
 };
 
 /* Bit reader state. */
@@ -240,12 +208,10 @@ struct compressed_block_header {
 struct main_header {
 	/* Does the archive contain solid streams? */
 	uint8_t solid : 1;
-
 	/* If this a multi-file archive? */
 	uint8_t volume : 1;
 	uint8_t endarc : 1;
 	uint8_t notused : 5;
-
 	int vol_no;
 };
 
@@ -386,63 +352,42 @@ static void cdeque_pop_front_fast(struct cdeque* d, void** value) {
 
 /* Pops a front element of this circular deque object and returns its value.
  * This function performs bounds checking. */
-static int cdeque_pop_front(struct cdeque* d, void** value) {
+static int cdeque_pop_front(struct cdeque* d, void** value) 
+{
 	if(!d || !value)
 		return CDE_PARAM;
-
 	if(d->size == 0)
 		return CDE_OUT_OF_BOUNDS;
-
 	cdeque_pop_front_fast(d, value);
 	return CDE_OK;
 }
 
 /* Convenience function to cast filter_info** to void **. */
-static void** cdeque_filter_p(struct filter_info** f) {
-	return (void**)(size_t)f;
-}
+static void** cdeque_filter_p(struct filter_info** f) { return (void**)(size_t)f; }
 
 /* Convenience function to cast filter_info* to void *. */
-static void* cdeque_filter(struct filter_info* f) {
-	return (void**)(size_t)f;
-}
+static void* cdeque_filter(struct filter_info* f) { return (void**)(size_t)f; }
 
 /* Destroys this circular deque object. Deallocates the memory of the collection
  * buffer, but doesn't deallocate the memory of any pointer passed to this
  * deque as a value. */
-static void cdeque_free(struct cdeque* d) {
+static void cdeque_free(struct cdeque* d) 
+{
 	if(!d)
 		return;
-
 	if(!d->arr)
 		return;
-
 	SAlloc::F(d->arr);
-
 	d->arr = NULL;
 	d->beg_pos = -1;
 	d->end_pos = -1;
 	d->cap_mask = 0;
 }
 
-static inline
-uint8_t bf_bit_size(const struct compressed_block_header* hdr) {
-	return hdr->block_flags_u8 & 7;
-}
-
-static inline
-uint8_t bf_byte_count(const struct compressed_block_header* hdr) {
-	return (hdr->block_flags_u8 >> 3) & 7;
-}
-
-static inline
-uint8_t bf_is_table_present(const struct compressed_block_header* hdr) {
-	return (hdr->block_flags_u8 >> 7) & 1;
-}
-
-static inline struct rar5* get_context(struct archive_read* a) {
-	return (struct rar5*)a->format->data;
-}
+static inline uint8_t bf_bit_size(const struct compressed_block_header* hdr) { return hdr->block_flags_u8 & 7; }
+static inline uint8_t bf_byte_count(const struct compressed_block_header* hdr) { return (hdr->block_flags_u8 >> 3) & 7; }
+static inline uint8_t bf_is_table_present(const struct compressed_block_header* hdr) { return (hdr->block_flags_u8 >> 7) & 1; }
+static inline struct rar5* get_context(struct archive_read* a) { return (struct rar5*)a->format->data; }
 
 /* Convenience functions used by filter implementations. */
 
@@ -472,11 +417,10 @@ static void circular_memcpy(uint8_t* dst, uint8_t* window, const int mask, int64
 /* Allocates a new filter descriptor and adds it to the filter array. */
 static struct filter_info* add_new_filter(struct rar5* rar) 
 {
-	struct filter_info* f = (struct filter_info*)SAlloc::C(1, sizeof(struct filter_info));
+	struct filter_info* f = (struct filter_info *)SAlloc::C(1, sizeof(struct filter_info));
 	if(!f) {
 		return NULL;
 	}
-
 	cdeque_push_back(&rar->cstate.filters, cdeque_filter(f));
 	return f;
 }
@@ -538,28 +482,18 @@ static int run_arm_filter(struct rar5* rar, struct filter_info* flt)
 	ssize_t i = 0;
 	uint32_t offset;
 	const int mask = rar->cstate.window_mask;
-
-	circular_memcpy(rar->cstate.filtered_buf,
-	    rar->cstate.window_buf,
-	    rar->cstate.window_mask,
-	    rar->cstate.solid_offset + flt->block_start,
-	    rar->cstate.solid_offset + flt->block_start + flt->block_length);
-
+	circular_memcpy(rar->cstate.filtered_buf, rar->cstate.window_buf, rar->cstate.window_mask,
+	    rar->cstate.solid_offset + flt->block_start, rar->cstate.solid_offset + flt->block_start + flt->block_length);
 	for(i = 0; i < flt->block_length - 3; i += 4) {
-		uint8_t* b = &rar->cstate.window_buf[(rar->cstate.solid_offset +
-		    flt->block_start + i) & mask];
-
+		uint8_t* b = &rar->cstate.window_buf[(rar->cstate.solid_offset + flt->block_start + i) & mask];
 		if(b[3] == 0xEB) {
 			/* 0xEB = ARM's BL (branch + link) instruction. */
-			offset = read_filter_data(rar, (rar->cstate.solid_offset +
-				flt->block_start + i) & mask) & 0x00ffffff;
-
+			offset = read_filter_data(rar, (rar->cstate.solid_offset + flt->block_start + i) & mask) & 0x00ffffff;
 			offset -= (uint32_t)((i + flt->block_start) / 4);
 			offset = (offset & 0x00ffffff) | 0xeb000000;
 			write_filter_data(rar, i, offset);
 		}
 	}
-
 	return ARCHIVE_OK;
 }
 
@@ -571,8 +505,7 @@ static int run_filter(struct archive_read* a, struct filter_info* flt)
 		SAlloc::F(rar->cstate.filtered_buf);
 	rar->cstate.filtered_buf = (uint8_t *)SAlloc::M(flt->block_length);
 	if(!rar->cstate.filtered_buf) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for "
-		    "filter data.");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for filter data.");
 		return ARCHIVE_FATAL;
 	}
 	switch(flt->type) {
@@ -587,30 +520,22 @@ static int run_filter(struct archive_read* a, struct filter_info* flt)
 		case FILTER_ARM:
 		    ret = run_arm_filter(rar, flt);
 		    break;
-
 		default:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			"Unsupported filter type: 0x%02x", flt->type);
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported filter type: 0x%02x", flt->type);
 		    return ARCHIVE_FATAL;
 	}
-
 	if(ret != ARCHIVE_OK) {
 		/* Filter has failed. */
 		return ret;
 	}
-
 	if(ARCHIVE_OK != push_data_ready(a, rar, rar->cstate.filtered_buf,
 	    flt->block_length, rar->cstate.last_write_ptr)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-		    "Stack overflow when submitting unpacked data");
-
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Stack overflow when submitting unpacked data");
 		return ARCHIVE_FATAL;
 	}
-
 	rar->cstate.last_write_ptr += flt->block_length;
 	return ARCHIVE_OK;
 }
-
 /* The `push_data` function submits the selected data range to the user.
  * Next call of `use_data` will use the pointer, size and offset arguments
  * that are specified here. These arguments are pushed to the FIFO stack here,
@@ -646,26 +571,22 @@ static void push_data(struct archive_read* a, struct rar5* rar, const uint8_t* b
 
 /* Convenience function that submits the data to the user. It uses the
  * unpack window buffer as a source location. */
-static void push_window_data(struct archive_read* a, struct rar5* rar,
-    int64_t idx_begin, int64_t idx_end)
+static void push_window_data(struct archive_read* a, struct rar5* rar, int64_t idx_begin, int64_t idx_end)
 {
 	push_data(a, rar, rar->cstate.window_buf, idx_begin, idx_end);
 }
 
-static int apply_filters(struct archive_read* a) {
+static int apply_filters(struct archive_read* a) 
+{
 	struct filter_info* flt;
 	struct rar5* rar = get_context(a);
 	int ret;
-
 	rar->cstate.all_filters_applied = 0;
-
 	/* Get the first filter that can be applied to our data. The data needs to
 	 * be fully unpacked before the filter can be run. */
-	if(CDE_OK ==
-	    cdeque_front(&rar->cstate.filters, cdeque_filter_p(&flt))) {
+	if(CDE_OK == cdeque_front(&rar->cstate.filters, cdeque_filter_p(&flt))) {
 		/* Check if our unpacked data fully covers this filter's range. */
-		if(rar->cstate.write_ptr > flt->block_start &&
-		    rar->cstate.write_ptr >= flt->block_start + flt->block_length) {
+		if(rar->cstate.write_ptr > flt->block_start && rar->cstate.write_ptr >= flt->block_start + flt->block_length) {
 			/* Check if we have some data pending to be written right before
 			 * the filter's start offset. */
 			if(rar->cstate.last_write_ptr == flt->block_start) {
@@ -678,18 +599,14 @@ static int apply_filters(struct archive_read* a) {
 
 				/* Filter descriptor won't be needed anymore after it's used,
 				 * so remove it from the filter list and free its memory. */
-				(void)cdeque_pop_front(&rar->cstate.filters,
-				    cdeque_filter_p(&flt));
-
+				(void)cdeque_pop_front(&rar->cstate.filters, cdeque_filter_p(&flt));
 				SAlloc::F(flt);
 			}
 			else {
 				/* We can't run filters yet, dump the memory right before the
 				 * filter. */
-				push_window_data(a, rar, rar->cstate.last_write_ptr,
-				    flt->block_start);
+				push_window_data(a, rar, rar->cstate.last_write_ptr, flt->block_start);
 			}
-
 			/* Return 'filter applied or not needed' state to the caller. */
 			return ARCHIVE_RETRY;
 		}
@@ -699,19 +616,19 @@ static int apply_filters(struct archive_read* a) {
 	return ARCHIVE_OK;
 }
 
-static void dist_cache_push(struct rar5* rar, int value) {
+static void dist_cache_push(struct rar5* rar, int value) 
+{
 	int* q = rar->cstate.dist_cache;
-
 	q[3] = q[2];
 	q[2] = q[1];
 	q[1] = q[0];
 	q[0] = value;
 }
 
-static int dist_cache_touch(struct rar5* rar, int idx) {
+static int dist_cache_touch(struct rar5* rar, int idx) 
+{
 	int* q = rar->cstate.dist_cache;
 	int i, dist = q[idx];
-
 	for(i = idx; i > 0; i--)
 		q[i] = q[i - 1];
 
@@ -759,7 +676,7 @@ static void reset_file_context(struct rar5* rar)
 
 static inline int get_archive_read(struct archive* a, struct archive_read** ar)
 {
-	*ar = (struct archive_read*)a;
+	*ar = (struct archive_read *)a;
 	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_rar5");
 	return ARCHIVE_OK;
 }
@@ -769,7 +686,7 @@ static int read_ahead(struct archive_read* a, size_t how_many, const uint8_t** p
 	if(!ptr)
 		return 0;
 	ssize_t avail = -1;
-	*ptr = (const uint8_t*)__archive_read_ahead(a, how_many, &avail);
+	*ptr = (const uint8_t *)__archive_read_ahead(a, how_many, &avail);
 	if(*ptr == NULL) {
 		return 0;
 	}
@@ -1068,22 +985,17 @@ static int parse_file_extra_hash(struct archive_read* a, struct rar5* rar,
 	if(hash_type == BLAKE2sp) {
 		const uint8_t* p;
 		const int hash_size = sizeof(rar->file.blake2sp);
-
 		if(!read_ahead(a, hash_size, &p))
 			return ARCHIVE_EOF;
-
 		rar->file.has_blake2 = 1;
 		memcpy(&rar->file.blake2sp, p, hash_size);
-
 		if(ARCHIVE_OK != consume(a, hash_size)) {
 			return ARCHIVE_EOF;
 		}
-
 		*extra_data_size -= hash_size;
 	}
 	else {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Unsupported hash type (0x%02x)", (int)hash_type);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported hash type (0x%02x)", (int)hash_type);
 		return ARCHIVE_FATAL;
 	}
 
@@ -1219,9 +1131,7 @@ static int process_head_file_extra(struct archive_read* a,
 			case SUBDATA:
 			/* fallthrough */
 			default:
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				"Unknown extra field in file/service block: 0x%02x",
-				(int)extra_field_id);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unknown extra field in file/service block: 0x%02x", (int)extra_field_id);
 			    return ARCHIVE_FATAL;
 		}
 	}
@@ -1274,30 +1184,21 @@ static int process_head_file(struct archive_read* a, struct rar5* rar,
 	}
 	else {
 		rar->file.bytes_remaining = 0;
-
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "no data found in file/service block");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "no data found in file/service block");
 		return ARCHIVE_FATAL;
 	}
-
 	enum FILE_FLAGS {
-		DIRECTORY = 0x0001, UTIME = 0x0002, CRC32 = 0x0004,
-		UNKNOWN_UNPACKED_SIZE = 0x0008,
+		DIRECTORY = 0x0001, UTIME = 0x0002, CRC32 = 0x0004, UNKNOWN_UNPACKED_SIZE = 0x0008,
 	};
-
 	enum COMP_INFO_FLAGS {
 		SOLID = 0x0040,
 	};
-
 	if(!read_var_sized(a, &file_flags, NULL))
 		return ARCHIVE_EOF;
-
 	if(!read_var(a, &unpacked_size, NULL))
 		return ARCHIVE_EOF;
-
 	if(file_flags & UNKNOWN_UNPACKED_SIZE) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-		    "Files with unknown unpacked size are not supported");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Files with unknown unpacked size are not supported");
 		return ARCHIVE_FATAL;
 	}
 
@@ -1357,48 +1258,33 @@ static int process_head_file(struct archive_read* a, struct rar5* rar,
 	}
 	else {
 		/* Unknown host OS */
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Unsupported Host OS: 0x%02x", (int)host_os);
-
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported Host OS: 0x%02x", (int)host_os);
 		return ARCHIVE_FATAL;
 	}
-
 	if(!read_var_sized(a, &name_size, NULL))
 		return ARCHIVE_EOF;
-
 	if(!read_ahead(a, name_size, &p))
 		return ARCHIVE_EOF;
-
 	if(name_size > 2047) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Filename is too long");
-
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Filename is too long");
 		return ARCHIVE_FATAL;
 	}
-
 	if(name_size == 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "No filename specified");
-
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "No filename specified");
 		return ARCHIVE_FATAL;
 	}
-
 	memcpy(name_utf8_buf, p, name_size);
 	name_utf8_buf[name_size] = 0;
 	if(ARCHIVE_OK != consume(a, name_size)) {
 		return ARCHIVE_EOF;
 	}
-
 	if(extra_data_size > 0) {
 		int ret = process_head_file_extra(a, entry, rar, extra_data_size);
-
 		/* Sanity check. */
 		if(extra_data_size < 0) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-			    "File extra data size is not zero");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "File extra data size is not zero");
 			return ARCHIVE_FATAL;
 		}
-
 		if(ret != ARCHIVE_OK)
 			return ret;
 	}
@@ -1514,31 +1400,24 @@ static int process_head_main(struct archive_read* a, struct rar5* rar,
 		 * instead of returning EOF. */
 		return ARCHIVE_EOF;
 	}
-
 	if(extra_data_size == 0) {
 		/* Early return. */
 		return ARCHIVE_OK;
 	}
-
 	if(!read_var_sized(a, &extra_field_size, NULL)) {
 		return ARCHIVE_EOF;
 	}
-
 	if(!read_var_sized(a, &extra_field_id, NULL)) {
 		return ARCHIVE_EOF;
 	}
-
 	if(extra_field_size == 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Invalid extra field size");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid extra field size");
 		return ARCHIVE_FATAL;
 	}
-
 	enum MAIN_EXTRA {
 		// Just one attribute here.
 		LOCATOR = 0x01,
 	};
-
 	switch(extra_field_id) {
 		case LOCATOR:
 		    ret = process_main_locator_extra_block(a, rar);
@@ -1549,8 +1428,7 @@ static int process_head_main(struct archive_read* a, struct rar5* rar,
 
 		    break;
 		default:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			"Unsupported extra type (0x%02x)", (int)extra_field_id);
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported extra type (0x%02x)", (int)extra_field_id);
 		    return ARCHIVE_FATAL;
 	}
 
@@ -1621,42 +1499,30 @@ static int process_base_block(struct archive_read* a,
 			return ret;
 		}
 	}
-
 	/* Read the expected CRC32 checksum. */
 	if(!read_u32(a, &hdr_crc)) {
 		return ARCHIVE_EOF;
 	}
-
 	/* Read header size. */
 	if(!read_var_sized(a, &raw_hdr_size, &hdr_size_len)) {
 		return ARCHIVE_EOF;
 	}
-
 	/* Sanity check, maximum header size for RAR5 is 2MB. */
 	if(raw_hdr_size > (2 * 1024 * 1024)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Base block header is too large");
-
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Base block header is too large");
 		return ARCHIVE_FATAL;
 	}
-
 	hdr_size = raw_hdr_size + hdr_size_len;
-
-	/* Read the whole header data into memory, maximum memory use here is
-	 * 2MB. */
+	// Read the whole header data into memory, maximum memory use here is 2MB. 
 	if(!read_ahead(a, hdr_size, &p)) {
 		return ARCHIVE_EOF;
 	}
-
 	/* Verify the CRC32 of the header data. */
 	computed_crc = (uint32_t)crc32(0, p, (int)hdr_size);
 	if(computed_crc != hdr_crc) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Header CRC error");
-
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Header CRC error");
 		return ARCHIVE_FATAL;
 	}
-
 	/* If the checksum is OK, we proceed with parsing. */
 	if(ARCHIVE_OK != consume(a, hdr_size_len)) {
 		return ARCHIVE_EOF;
@@ -1699,8 +1565,7 @@ static int process_base_block(struct archive_read* a,
 		    ret = process_head_file(a, rar, entry, header_flags);
 		    return ret;
 		case HEAD_CRYPT:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			"Encryption is not supported");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Encryption is not supported");
 		    return ARCHIVE_FATAL;
 		case HEAD_ENDARC:
 		    rar->main.endarc = 1;
@@ -1728,8 +1593,7 @@ static int process_base_block(struct archive_read* a,
 		    return ARCHIVE_EOF;
 		default:
 		    if((header_flags & HFL_SKIP_IF_UNKNOWN) == 0) {
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				"Header type error");
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Header type error");
 			    return ARCHIVE_FATAL;
 		    }
 		    else {
@@ -1741,8 +1605,7 @@ static int process_base_block(struct archive_read* a,
 
 #if !defined WIN32
 	// Not reached.
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-	    "Internal unpacker error");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal unpacker error");
 	return ARCHIVE_FATAL;
 #endif
 }
@@ -2013,8 +1876,7 @@ static int parse_tables(struct archive_read* a, struct rar5* rar,
 
 	ret = create_decode_tables(bit_length, &rar->cstate.bd, HUFF_BC);
 	if(ret != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Decoding huffman tables failed");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Decoding huffman tables failed");
 		return ARCHIVE_FATAL;
 	}
 
@@ -2023,8 +1885,7 @@ static int parse_tables(struct archive_read* a, struct rar5* rar,
 
 		ret = decode_number(a, &rar->cstate.bd, p, &num);
 		if(ret != ARCHIVE_OK) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Decoding huffman tables failed");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Decoding huffman tables failed");
 			return ARCHIVE_FATAL;
 		}
 
@@ -2059,8 +1920,7 @@ static int parse_tables(struct archive_read* a, struct rar5* rar,
 				}
 			}
 			else {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Unexpected error when decoding huffman tables");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unexpected error when decoding huffman tables");
 				return ARCHIVE_FATAL;
 			}
 
@@ -2089,8 +1949,7 @@ static int parse_tables(struct archive_read* a, struct rar5* rar,
 
 	ret = create_decode_tables(&table[idx], &rar->cstate.ld, HUFF_NC);
 	if(ret != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Failed to create literal table");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Failed to create literal table");
 		return ARCHIVE_FATAL;
 	}
 
@@ -2098,8 +1957,7 @@ static int parse_tables(struct archive_read* a, struct rar5* rar,
 
 	ret = create_decode_tables(&table[idx], &rar->cstate.dd, HUFF_DC);
 	if(ret != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Failed to create distance table");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Failed to create distance table");
 		return ARCHIVE_FATAL;
 	}
 
@@ -2107,8 +1965,7 @@ static int parse_tables(struct archive_read* a, struct rar5* rar,
 
 	ret = create_decode_tables(&table[idx], &rar->cstate.ldd, HUFF_LDC);
 	if(ret != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Failed to create lower bits of distances table");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Failed to create lower bits of distances table");
 		return ARCHIVE_FATAL;
 	}
 
@@ -2116,8 +1973,7 @@ static int parse_tables(struct archive_read* a, struct rar5* rar,
 
 	ret = create_decode_tables(&table[idx], &rar->cstate.rd, HUFF_RC);
 	if(ret != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Failed to create repeating distances table");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Failed to create repeating distances table");
 		return ARCHIVE_FATAL;
 	}
 
@@ -2126,15 +1982,11 @@ static int parse_tables(struct archive_read* a, struct rar5* rar,
 
 /* Parses the block header, verifies its CRC byte, and saves the header
  * fields inside the `hdr` pointer. */
-static int parse_block_header(struct archive_read* a, const uint8_t* p,
-    ssize_t* block_size, struct compressed_block_header* hdr)
+static int parse_block_header(struct archive_read* a, const uint8_t* p, ssize_t* block_size, struct compressed_block_header* hdr)
 {
 	memcpy(hdr, p, sizeof(struct compressed_block_header));
-
 	if(bf_byte_count(hdr) > 2) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Unsupported block header size (was %d, max is 2)",
-		    bf_byte_count(hdr));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported block header size (was %d, max is 2)", bf_byte_count(hdr));
 		return ARCHIVE_FATAL;
 	}
 
@@ -2144,7 +1996,7 @@ static int parse_block_header(struct archive_read* a, const uint8_t* p,
 	switch(bf_byte_count(hdr)) {
 		/* 1-byte block size */
 		case 0:
-		    *block_size = *(const uint8_t*)&p[2];
+		    *block_size = *(const uint8_t *)&p[2];
 		    break;
 
 		/* 2-byte block size */
@@ -2174,13 +2026,9 @@ static int parse_block_header(struct archive_read* a, const uint8_t* p,
 	    ^ (uint8_t)(*block_size >> 16);
 
 	if(calculated_cksum != hdr->block_cksum) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Block checksum error: got 0x%02x, expected 0x%02x",
-		    hdr->block_cksum, calculated_cksum);
-
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Block checksum error: got 0x%02x, expected 0x%02x", hdr->block_cksum, calculated_cksum);
 		return ARCHIVE_FATAL;
 	}
-
 	return ARCHIVE_OK;
 }
 
@@ -2262,16 +2110,14 @@ static int parse_filter(struct archive_read* ar, const uint8_t* p) {
 	    block_length > 0x400000 ||
 	    filter_type > FILTER_ARM ||
 	    !is_valid_filter_block_start(rar, block_start)) {
-		archive_set_error(&ar->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid "
-		    "filter encountered");
+		archive_set_error(&ar->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid filter encountered");
 		return ARCHIVE_FATAL;
 	}
 
 	/* Allocate a new filter. */
 	struct filter_info* filt = add_new_filter(rar);
 	if(filt == NULL) {
-		archive_set_error(&ar->archive, ENOMEM, "Can't allocate memory for a "
-		    "filter descriptor.");
+		archive_set_error(&ar->archive, ENOMEM, "Can't allocate memory for a filter descriptor.");
 		return ARCHIVE_FATAL;
 	}
 
@@ -2402,24 +2248,15 @@ static int do_uncompress_block(struct archive_read* a, const uint8_t* p)
 		}
 		else if(num >= 262) {
 			uint16_t dist_slot;
-			int len = decode_code_length(rar, p, num - 262),
-			    dbits,
-			    dist = 1;
-
+			int len = decode_code_length(rar, p, num - 262), dbits, dist = 1;
 			if(len == -1) {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-				    "Failed to decode the code length");
-
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Failed to decode the code length");
 				return ARCHIVE_FATAL;
 			}
-
 			if(ARCHIVE_OK != decode_number(a, &rar->cstate.dd, p, &dist_slot)) {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-				    "Failed to decode the distance slot");
-
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Failed to decode the distance slot");
 				return ARCHIVE_FATAL;
 			}
-
 			if(dist_slot < 4) {
 				dbits = 0;
 				dist += dist_slot;
@@ -2444,13 +2281,8 @@ static int do_uncompress_block(struct archive_read* a, const uint8_t* p)
 						add = (add >> (36 - dbits)) << 4;
 						dist += add;
 					}
-
-					if(ARCHIVE_OK != decode_number(a, &rar->cstate.ldd, p,
-					    &low_dist)) {
-						archive_set_error(&a->archive,
-						    ARCHIVE_ERRNO_PROGRAMMER,
-						    "Failed to decode the distance slot");
-
+					if(ARCHIVE_OK != decode_number(a, &rar->cstate.ldd, p, &low_dist)) {
+						archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Failed to decode the distance slot");
 						return ARCHIVE_FATAL;
 					}
 
@@ -2517,32 +2349,26 @@ static int do_uncompress_block(struct archive_read* a, const uint8_t* p)
 			if(ARCHIVE_OK != decode_number(a, &rar->cstate.rd, p, &len_slot)) {
 				return ARCHIVE_FATAL;
 			}
-
 			len = decode_code_length(rar, p, len_slot);
 			rar->cstate.last_len = len;
-
 			if(ARCHIVE_OK != copy_string(a, len, dist))
 				return ARCHIVE_FATAL;
 
 			continue;
 		}
-
 		/* The program counter shouldn't reach here. */
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Unsupported block code: 0x%02x", num);
-
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported block code: 0x%02x", num);
 		return ARCHIVE_FATAL;
 	}
-
 	return ARCHIVE_OK;
 }
 
 /* Binary search for the RARv5 signature. */
-static int scan_for_signature(struct archive_read* a) {
+static int scan_for_signature(struct archive_read* a) 
+{
 	const uint8_t* p;
 	const int chunk_size = 512;
 	ssize_t i;
-
 	/* If we're here, it means we're on an 'unknown territory' data.
 	 * There's no indication what kind of data we're reading here. It could be
 	 * some text comment, any kind of binary data, digital sign, dragons, etc.
@@ -2650,8 +2476,7 @@ static int merge_block(struct archive_read* a, ssize_t block_size,
 	 * block when reading the last byte from the buffer. */
 	rar->vol.push_buf = (uint8_t *)SAlloc::M(block_size + 8);
 	if(!rar->vol.push_buf) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a "
-		    "merge block buffer.");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a merge block buffer.");
 		return ARCHIVE_FATAL;
 	}
 
@@ -2898,8 +2723,7 @@ static int push_data_ready(struct archive_read* a, struct rar5* rar,
 
 	/* Sanity check. */
 	if(offset != rar->file.last_offset + rar->file.last_size) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Sanity "
-		    "check error: output stream is not continuous");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Sanity check error: output stream is not continuous");
 		return ARCHIVE_FATAL;
 	}
 
@@ -2922,14 +2746,11 @@ static int push_data_ready(struct archive_read* a, struct rar5* rar,
 			return ARCHIVE_OK;
 		}
 	}
-
 	/* Program counter will reach this code if the `rar->cstate.data_ready`
 	 * stack will be filled up so that no new entries will be allowed. The
 	 * code shouldn't allow such situation to occur. So we treat this case
 	 * as an internal error. */
-
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Error: "
-	    "premature end of data_ready stack");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Error: premature end of data_ready stack");
 	return ARCHIVE_FATAL;
 }
 
@@ -3027,14 +2848,11 @@ static int do_uncompress_file(struct archive_read* a) {
 	if(cdeque_size(&rar->cstate.filters) > 0) {
 		/* Check if we can write something before hitting first filter. */
 		struct filter_info* flt;
-
 		/* Get the block_start offset from the first filter. */
 		if(CDE_OK != cdeque_front(&rar->cstate.filters, cdeque_filter_p(&flt))) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-			    "Can't read first filter");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Can't read first filter");
 			return ARCHIVE_FATAL;
 		}
-
 		max_end_pos = rar5_min(flt->block_start, rar->cstate.write_ptr);
 	}
 	else {
@@ -3042,7 +2860,6 @@ static int do_uncompress_file(struct archive_read* a) {
 		 * means we can just store the data without any postprocessing. */
 		max_end_pos = rar->cstate.write_ptr;
 	}
-
 	if(max_end_pos == rar->cstate.last_write_ptr) {
 		/* We can't write anything yet. The block uncompression function did
 		 * not generate enough data, and no filter can be applied. At the same
@@ -3098,29 +2915,22 @@ static int do_unstore_file(struct archive_read* a,
 			return ret;
 		}
 	}
-
 	size_t to_read = rar5_min(rar->file.bytes_remaining, 64 * 1024);
 	if(to_read == 0) {
 		return ARCHIVE_EOF;
 	}
-
 	if(!read_ahead(a, to_read, &p)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "I/O error "
-		    "when unstoring file");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "I/O error when unstoring file");
 		return ARCHIVE_FATAL;
 	}
-
 	if(ARCHIVE_OK != consume(a, to_read)) {
 		return ARCHIVE_EOF;
 	}
-
 	if(buf) *buf = p;
 	if(size) *size = to_read;
 	if(offset) *offset = rar->cstate.last_unstore_ptr;
-
 	rar->file.bytes_remaining -= to_read;
 	rar->cstate.last_unstore_ptr += to_read;
-
 	update_crc(rar, p, to_read);
 	return ARCHIVE_OK;
 }
@@ -3150,10 +2960,7 @@ static int do_unpack(struct archive_read* a, struct rar5* rar,
 			case BEST:
 			    return uncompress_file(a);
 			default:
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				"Compression method not supported: 0x%08x",
-				rar->cstate.method);
-
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Compression method not supported: 0x%08x", rar->cstate.method);
 			    return ARCHIVE_FATAL;
 		}
 	}
@@ -3204,27 +3011,21 @@ static int verify_checksums(struct archive_read* a) {
 
 			if(rar->file.calculated_crc32 != rar->file.stored_crc32) {
 				/* Checksums do not match; the unpacked file is corrupted. */
-
 				DEBUG_CODE {
-					printf("Checksum error: CRC32 (was: %08x, expected: %08x)\n",
-					    rar->file.calculated_crc32, rar->file.stored_crc32);
+					printf("Checksum error: CRC32 (was: %08x, expected: %08x)\n", rar->file.calculated_crc32, rar->file.stored_crc32);
 				}
 
 #ifndef DONT_FAIL_ON_CRC_ERROR
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Checksum error: CRC32");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Checksum error: CRC32");
 				return ARCHIVE_FATAL;
 #endif
 			}
 			else {
 				DEBUG_CODE {
-					printf("Checksum OK: CRC32 (%08x/%08x)\n",
-					    rar->file.stored_crc32,
-					    rar->file.calculated_crc32);
+					printf("Checksum OK: CRC32 (%08x/%08x)\n", rar->file.stored_crc32, rar->file.calculated_crc32);
 				}
 			}
 		}
-
 		if(rar->file.has_blake2 > 0) {
 			/* BLAKE2sp is an optional checksum algorithm that is added to
 			 * RARv5 archives when using the `-htb` switch during creation of
@@ -3244,9 +3045,7 @@ static int verify_checksums(struct archive_read* a) {
 
 			if(memcmp(&rar->file.blake2sp, b2_buf, 32) != 0) {
 #ifndef DONT_FAIL_ON_CRC_ERROR
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Checksum error: BLAKE2");
-
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Checksum error: BLAKE2");
 				return ARCHIVE_FATAL;
 #endif
 			}
@@ -3261,33 +3060,26 @@ static int verify_global_checksums(struct archive_read* a) {
 	return verify_checksums(a);
 }
 
-static int rar5_read_data(struct archive_read * a, const void ** buff,
-    size_t * size, int64_t * offset) {
+static int rar5_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset) 
+{
 	int ret;
 	struct rar5* rar = get_context(a);
-
 	if(!rar->skip_mode && (rar->cstate.last_write_ptr > rar->file.unpacked_size)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-		    "Unpacker has written too many bytes");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Unpacker has written too many bytes");
 		return ARCHIVE_FATAL;
 	}
-
 	ret = use_data(rar, buff, size, offset);
 	if(ret == ARCHIVE_OK) {
 		return ret;
 	}
-
 	if(rar->file.eof == 1) {
 		return ARCHIVE_EOF;
 	}
-
 	ret = do_unpack(a, rar, buff, size, offset);
 	if(ret != ARCHIVE_OK) {
 		return ret;
 	}
-
-	if(rar->file.bytes_remaining == 0 &&
-	    rar->cstate.last_write_ptr == rar->file.unpacked_size) {
+	if(rar->file.bytes_remaining == 0 && rar->cstate.last_write_ptr == rar->file.unpacked_size) {
 		/* If all bytes of current file were processed, run finalization.
 		 *
 		 * Finalization will check checksum against proper values. If
@@ -3425,29 +3217,14 @@ int archive_read_support_format_rar5(struct archive * _a)
 		archive_set_error(&ar->archive, ENOMEM, "Can't allocate rar5 data");
 		return ARCHIVE_FATAL;
 	}
-
 	if(ARCHIVE_OK != rar5_init(rar)) {
-		archive_set_error(&ar->archive, ENOMEM, "Can't allocate rar5 filter "
-		    "buffer");
+		archive_set_error(&ar->archive, ENOMEM, "Can't allocate rar5 filter buffer");
 		return ARCHIVE_FATAL;
 	}
-
-	ret = __archive_read_register_format(ar,
-		rar,
-		"rar5",
-		rar5_bid,
-		rar5_options,
-		rar5_read_header,
-		rar5_read_data,
-		rar5_read_data_skip,
-		rar5_seek_data,
-		rar5_cleanup,
-		rar5_capabilities,
-		rar5_has_encrypted_entries);
-
+	ret = __archive_read_register_format(ar, rar, "rar5", rar5_bid, rar5_options, rar5_read_header, rar5_read_data,
+		rar5_read_data_skip, rar5_seek_data, rar5_cleanup, rar5_capabilities, rar5_has_encrypted_entries);
 	if(ret != ARCHIVE_OK) {
 		(void)rar5_cleanup(ar);
 	}
-
 	return ret;
 }

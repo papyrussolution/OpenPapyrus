@@ -105,7 +105,7 @@ int archive_read_support_compression_xz(struct archive * a)
 
 int archive_read_support_filter_xz(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_xz");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
@@ -133,7 +133,7 @@ int archive_read_support_compression_lzma(struct archive * a)
 
 int archive_read_support_filter_lzma(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lzma");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
@@ -161,7 +161,7 @@ int archive_read_support_filter_lzma(struct archive * _a)
 
 int archive_read_support_filter_lzip(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lzip");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
@@ -273,25 +273,25 @@ static int lzma_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 		case 0x00004000:/* lzma of LZMA SDK option -d14. */
 		case 0x00008000:/* lzma of LZMA SDK option -d15. */
 		case 0x00010000:/* lzma of XZ Utils option -0 and -1.
-		                 * lzma of LZMA SDK option -d16. */
+		 * lzma of LZMA SDK option -d16. */
 		case 0x00020000:/* lzma of LZMA SDK option -d17. */
 		case 0x00040000:/* lzma of LZMA SDK option -d18. */
 		case 0x00080000:/* lzma of XZ Utils option -2.
-		                 * lzma of LZMA SDK option -d19. */
+		 * lzma of LZMA SDK option -d19. */
 		case 0x00100000:/* lzma of XZ Utils option -3.
-		                 * lzma of LZMA SDK option -d20. */
+		 * lzma of LZMA SDK option -d20. */
 		case 0x00200000:/* lzma of XZ Utils option -4.
-		                 * lzma of LZMA SDK option -d21. */
+		 * lzma of LZMA SDK option -d21. */
 		case 0x00400000:/* lzma of XZ Utils option -5.
-		                 * lzma of LZMA SDK option -d22. */
+		 * lzma of LZMA SDK option -d22. */
 		case 0x00800000:/* lzma of XZ Utils option -6.
-		                 * lzma of LZMA SDK option -d23. */
+		 * lzma of LZMA SDK option -d23. */
 		case 0x01000000:/* lzma of XZ Utils option -7.
-		                 * lzma of LZMA SDK option -d24. */
+		 * lzma of LZMA SDK option -d24. */
 		case 0x02000000:/* lzma of XZ Utils option -8.
-		                 * lzma of LZMA SDK option -d25. */
+		 * lzma of LZMA SDK option -d25. */
 		case 0x04000000:/* lzma of XZ Utils option -9.
-		                 * lzma of LZMA SDK option -d26. */
+		 * lzma of LZMA SDK option -d26. */
 		case 0x08000000:/* lzma of LZMA SDK option -d27. */
 		    bits_checked += 32;
 		    break;
@@ -478,7 +478,7 @@ static int lzip_init(struct archive_read_filter * self)
 	uint32_t dicsize;
 	int log2dic, ret;
 
-	state = (struct private_data *)self->data;
+	state = static_cast<struct private_data *>(self->data);
 	h = __archive_read_filter_ahead(self->upstream, 6, &avail_in);
 	if(h == NULL)
 		return ARCHIVE_FATAL;
@@ -528,7 +528,7 @@ static int lzip_tail(struct archive_read_filter * self)
 	const uchar * f;
 	ssize_t avail_in;
 	int tail;
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	if(state->lzip_ver == 0)
 		tail = 12;
 	else
@@ -580,7 +580,7 @@ static ssize_t xz_filter_read(struct archive_read_filter * self, const void ** p
 	size_t decompressed;
 	ssize_t avail_in;
 	int ret;
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	/* Empty our output buffer. */
 	state->stream.next_out = state->out_block;
 	state->stream.avail_out = state->out_block_size;
@@ -642,7 +642,7 @@ static ssize_t xz_filter_read(struct archive_read_filter * self, const void ** p
  */
 static int xz_filter_close(struct archive_read_filter * self)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	lzma_end(&(state->stream));
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);

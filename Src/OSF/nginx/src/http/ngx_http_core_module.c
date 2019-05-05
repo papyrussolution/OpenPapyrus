@@ -872,7 +872,7 @@ static ngx_int_t ngx_http_core_find_static_location(ngx_http_request_t * r, ngx_
 					}
 				}
 				// len < node->len 
-				if((len + 1) == (size_t)node->len && node->auto_redirect) {
+				if((len+1) == (size_t)node->len && node->auto_redirect) {
 					r->loc_conf = (node->exact) ? node->exact->loc_conf : node->inclusive->loc_conf;
 					rv = NGX_DONE;
 				}

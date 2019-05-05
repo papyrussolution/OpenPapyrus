@@ -188,7 +188,7 @@ char * Curl_copy_header_value(const char * header)
 		end--;
 	// get length of the type 
 	len = end - start + 1;
-	value = (char *)SAlloc::M(len + 1);
+	value = (char *)SAlloc::M(len+1);
 	if(!value)
 		return NULL;
 	memcpy(value, start, len);

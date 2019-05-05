@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <comdisp.h>
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
 //   Интерфейс к драйверу "Штрих-М-ФР-К"

@@ -87,7 +87,7 @@ static BOOL SetFilePointerEx_perso(HANDLE hFile,
 }
 
 struct fixup_entry {
-	struct fixup_entry      * next;
+	struct fixup_entry * next;
 	struct archive_acl acl;
 	mode_t mode;
 	int64_t atime;
@@ -100,7 +100,7 @@ struct fixup_entry {
 	unsigned long ctime_nanos;
 	unsigned long fflags_set;
 	int fixup;                      /* bitmask of what needs fixing */
-	wchar_t                 * name;
+	wchar_t * name;
 };
 
 /*
@@ -134,8 +134,8 @@ struct archive_write_disk {
 	struct archive archive;
 
 	mode_t user_umask;
-	struct fixup_entry      * fixup_list;
-	struct fixup_entry      * current_fixup;
+	struct fixup_entry * fixup_list;
+	struct fixup_entry * current_fixup;
 	int64_t user_uid;
 	int skip_file_set;
 	int64_t skip_file_dev;
@@ -144,10 +144,10 @@ struct archive_write_disk {
 
 	int64_t (* lookup_gid)(void * pPrivate, const char * gname, int64_t gid);
 	void (* cleanup_gid)(void * pPrivate);
-	void                    * lookup_gid_data;
+	void * lookup_gid_data;
 	int64_t (* lookup_uid)(void * pPrivate, const char * uname, int64_t uid);
 	void (* cleanup_uid)(void * pPrivate);
-	void                    * lookup_uid_data;
+	void * lookup_uid_data;
 
 	/*
 	 * Full path of last file to satisfy symlink checks.
@@ -160,11 +160,11 @@ struct archive_write_disk {
 	 * pst is null.
 	 */
 	BY_HANDLE_FILE_INFORMATION st;
-	BY_HANDLE_FILE_INFORMATION              * pst;
+	BY_HANDLE_FILE_INFORMATION   * pst;
 
 	/* Information about the object being restored right now. */
 	struct archive_entry    * entry; /* Entry being extracted. */
-	wchar_t                 * name; /* Name of entry, possibly edited. */
+	wchar_t * name; /* Name of entry, possibly edited. */
 	struct archive_wstring _name_data;   /* backing store for 'name' */
 	/* Tasks remaining for this object. */
 	int todo;
@@ -456,7 +456,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 	    wsp[2] == L'?' && wsp[3] == L'\\') {
 		archive_wstrncpy(&(a->_name_data), wsp, l);
 	}
-	else{
+	else {
 		archive_wstrncpy(&(a->_name_data), L"\\\\?\\", 4);
 		archive_wstrncat(&(a->_name_data), wsp, l);
 	}
@@ -846,15 +846,13 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		archive_entry_set_size(entry, 0);
 		a->filesize = 0;
 	}
-
 	return ret;
 }
 
 int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_set_skip_file");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_set_skip_file");
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
 	a->skip_file_ino = i;
@@ -867,22 +865,17 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 	uint64_t start_size = size;
 	DWORD bytes_written = 0;
 	ssize_t block_size = 0, bytes_to_write;
-
 	if(size == 0)
 		return ARCHIVE_OK;
-
 	if(a->filesize == 0 || a->fh == INVALID_HANDLE_VALUE) {
-		archive_set_error(&a->archive, 0,
-		    "Attempt to write to an empty file");
+		archive_set_error(&a->archive, 0, "Attempt to write to an empty file");
 		return (ARCHIVE_WARN);
 	}
-
 	if(a->flags & ARCHIVE_EXTRACT_SPARSE) {
 		/* XXX TODO XXX Is there a more appropriate choice here ? */
 		/* This needn't match the filesystem allocation size. */
 		block_size = 16*1024;
 	}
-
 	/* If this write would run beyond the file size, truncate it. */
 	if(a->filesize >= 0 && (int64_t)(a->offset + size) > a->filesize)
 		start_size = size = (size_t)(a->filesize - a->offset);
@@ -1082,36 +1075,26 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 	return ret;
 }
 
-int archive_write_disk_set_group_lookup(struct archive * _a,
-    void * private_data,
-    la_int64_t (*lookup_gid)(void * pPrivate, const char * gname, la_int64_t gid),
-    void (*cleanup_gid)(void * pPrivate))
+int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data,
+    la_int64_t (*lookup_gid)(void * pPrivate, const char * gname, la_int64_t gid), void (*cleanup_gid)(void * pPrivate))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_set_group_lookup");
-
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_set_group_lookup");
 	if(a->cleanup_gid != NULL && a->lookup_gid_data != NULL)
 		(a->cleanup_gid)(a->lookup_gid_data);
-
 	a->lookup_gid = lookup_gid;
 	a->cleanup_gid = cleanup_gid;
 	a->lookup_gid_data = private_data;
 	return ARCHIVE_OK;
 }
 
-int archive_write_disk_set_user_lookup(struct archive * _a,
-    void * private_data,
-    int64_t (*lookup_uid)(void * pPrivate, const char * uname, int64_t uid),
-    void (*cleanup_uid)(void * pPrivate))
+int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
+    int64_t (*lookup_uid)(void * pPrivate, const char * uname, int64_t uid), void (*cleanup_uid)(void * pPrivate))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_set_user_lookup");
-
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_set_user_lookup");
 	if(a->cleanup_uid != NULL && a->lookup_uid_data != NULL)
 		(a->cleanup_uid)(a->lookup_uid_data);
-
 	a->lookup_uid = lookup_uid;
 	a->cleanup_uid = cleanup_uid;
 	a->lookup_uid_data = private_data;
@@ -1121,8 +1104,7 @@ int archive_write_disk_set_user_lookup(struct archive * _a,
 int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_gid");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_gid");
 	if(a->lookup_gid)
 		return (a->lookup_gid)(a->lookup_gid_data, name, id);
 	return (id);
@@ -1131,8 +1113,7 @@ int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_
 int64_t archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_uid");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_uid");
 	if(a->lookup_uid)
 		return (a->lookup_uid)(a->lookup_uid_data, name, id);
 	return (id);
@@ -2146,7 +2127,6 @@ static int set_times(struct archive_write_disk * a, HANDLE h, int mode, const wc
 		goto settimes_failed;
 	CloseHandle(hw);
 	return ARCHIVE_OK;
-
 settimes_failed:
 	CloseHandle(hw);
 	archive_set_error(&a->archive, EINVAL, "Can't restore time");
@@ -2156,10 +2136,12 @@ settimes_failed:
 static int set_times_from_entry(struct archive_write_disk * a)
 {
 	time_t atime, birthtime, mtime, ctime_sec;
-	long atime_nsec, birthtime_nsec, mtime_nsec, ctime_nsec;
+	long atime_nsec = 0;
+	long birthtime_nsec = 0;
+	long mtime_nsec = 0;
+	long ctime_nsec = 0;
 	/* Suitable defaults. */
 	atime = birthtime = mtime = ctime_sec = a->start_time;
-	atime_nsec = birthtime_nsec = mtime_nsec = ctime_nsec = 0;
 	/* If no time was provided, we're done. */
 	if(!archive_entry_atime_is_set(a->entry) && !archive_entry_birthtime_is_set(a->entry) && !archive_entry_mtime_is_set(a->entry))
 		return ARCHIVE_OK;
@@ -2216,7 +2198,6 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		}
 		a->todo &= ~TODO_SUID_CHECK;
 	}
-
 	if(S_ISLNK(a->mode)) {
 #ifdef HAVE_LCHMOD
 		/*

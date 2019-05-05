@@ -88,7 +88,7 @@ static uint32_t radial_compute_color(double a, double b, double c, double inva, 
 			if(0 <= t && t <= pixman_fixed_1)
 				return _pixman_gradient_walker_pixel(walker, t);
 		}
-		else{
+		else {
 			if(t * dr >= mindr)
 				return _pixman_gradient_walker_pixel(walker, t);
 		}
@@ -237,7 +237,7 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 		unit.vector[1] = image->common.transform->matrix[1][0];
 		unit.vector[2] = image->common.transform->matrix[2][0];
 	}
-	else{
+	else {
 		unit.vector[0] = pixman_fixed_1;
 		unit.vector[1] = 0;
 		unit.vector[2] = 0;
@@ -310,7 +310,7 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 			++buffer;
 		}
 	}
-	else{
+	else {
 		/* projective */
 		/* Warning:
 		 * error propagation guarantees are much looser than in the affine case
@@ -344,7 +344,7 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 						&walker,
 						image->common.repeat);
 				}
-				else{
+				else {
 					*buffer = 0;
 				}
 			}

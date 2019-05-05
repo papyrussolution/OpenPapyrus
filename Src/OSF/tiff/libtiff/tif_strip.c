@@ -142,7 +142,7 @@ tmsize_t TIFFRawStripSize(TIFF* tif, uint32 strip)
 	uint64 m = TIFFRawStripSize64(tif, strip);
 	if(m == static_cast<uint64>(-1LL))
 		n = (tmsize_t)(-1);
-	else{
+	else {
 		n = (tmsize_t)m;
 		if((uint64)n!=m) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Integer overflow");
@@ -251,13 +251,13 @@ uint64 TIFFScanlineSize64(TIFF* tif)
 			samplingrow_size = TIFFhowmany_64(_TIFFMultiply64(tif, samplingrow_samples, td->td_bitspersample, module), 8);
 			scanline_size = (samplingrow_size/ycbcrsubsampling[1]);
 		}
-		else{
+		else {
 			uint64 scanline_samples;
 			scanline_samples = _TIFFMultiply64(tif, td->td_imagewidth, td->td_samplesperpixel, module);
 			scanline_size = TIFFhowmany_64(_TIFFMultiply64(tif, scanline_samples, td->td_bitspersample, module), 8);
 		}
 	}
-	else{
+	else {
 		scanline_size = TIFFhowmany_64(_TIFFMultiply64(tif, td->td_imagewidth, td->td_bitspersample, module), 8);
 	}
 	if(scanline_size == 0) {

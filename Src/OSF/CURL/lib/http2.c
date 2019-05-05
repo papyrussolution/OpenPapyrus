@@ -1165,7 +1165,7 @@ static int h2_process_pending_input(struct Curl_easy * data,
 	nread = httpc->inbuflen - httpc->nread_inbuf;
 	inbuf = httpc->inbuf + httpc->nread_inbuf;
 
-	rv = nghttp2_session_mem_recv(httpc->h2, (const uint8_t*)inbuf, nread);
+	rv = nghttp2_session_mem_recv(httpc->h2, (const uint8_t *)inbuf, nread);
 	if(rv < 0) {
 		failf(data,
 		    "h2_process_pending_input: nghttp2_session_mem_recv() returned "
@@ -1506,7 +1506,7 @@ static ssize_t http2_recv(struct connectdata * conn, int sockindex,
 			DEBUGF(infof(data, "Use data left in connection buffer, nread=%zd\n",
 				    nread));
 		}
-		rv = nghttp2_session_mem_recv(httpc->h2, (const uint8_t*)inbuf, nread);
+		rv = nghttp2_session_mem_recv(httpc->h2, (const uint8_t *)inbuf, nread);
 
 		if(nghttp2_is_fatal((int)rv)) {
 			failf(data, "nghttp2_session_mem_recv() returned %d:%s\n",
@@ -2056,7 +2056,7 @@ CURLcode Curl_http2_switched(struct connectdata * conn,
 		memcpy(httpc->inbuf, mem, nread);
 	httpc->inbuflen = nread;
 
-	nproc = nghttp2_session_mem_recv(httpc->h2, (const uint8_t*)httpc->inbuf,
+	nproc = nghttp2_session_mem_recv(httpc->h2, (const uint8_t *)httpc->inbuf,
 	    httpc->inbuflen);
 
 	if(nghttp2_is_fatal((int)nproc)) {

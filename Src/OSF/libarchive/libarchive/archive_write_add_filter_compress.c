@@ -52,25 +52,22 @@
  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_compress.c 201111 2009-12-28 03:33:05Z kientzle $");
 
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
-#ifdef HAVE_STDLIB_H
+//#endif
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
-
+//#endif
 //#include "archive.h"
 //#include "archive_private.h"
 //#include "archive_write_private.h"
@@ -89,8 +86,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_compress.c
 #define CLEAR   256             /* Table clear output code. */
 
 struct private_data {
-	int64_t in_count, out_count, checkpoint;
-
+	int64_t in_count;
+	int64_t out_count;
+	int64_t checkpoint;
 	int code_len;                   /* Number of bits/code. */
 	int cur_maxcode;                /* Maximum code, given n_bits. */
 	int max_maxcode;                /* Should NEVER generate this code. */
@@ -98,20 +96,16 @@ struct private_data {
 	unsigned short codetab [HSIZE];
 	int first_free;         /* First unused entry. */
 	int compress_ratio;
-
 	int cur_code, cur_fcode;
-
 	int bit_offset;
 	uchar bit_buf;
-
 	uchar   * compressed;
 	size_t compressed_buffer_size;
 	size_t compressed_offset;
 };
 
 static int archive_compressor_compress_open(struct archive_write_filter *);
-static int archive_compressor_compress_write(struct archive_write_filter *,
-    const void *, size_t);
+static int archive_compressor_compress_write(struct archive_write_filter *, const void *, size_t);
 static int archive_compressor_compress_close(struct archive_write_filter *);
 static int archive_compressor_compress_free(struct archive_write_filter *);
 
@@ -123,23 +117,19 @@ int archive_write_set_compression_compress(struct archive * a)
 }
 
 #endif
-
 /*
  * Add a compress filter to this write handle.
  */
 int archive_write_add_filter_compress(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_add_filter_compress");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_compress");
 	f->open = &archive_compressor_compress_open;
 	f->code = ARCHIVE_FILTER_COMPRESS;
 	f->name = "compress";
 	return ARCHIVE_OK;
 }
-
 /*
  * Setup callback.
  */
@@ -220,35 +210,27 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
  * fit in it exactly).  Use the VAX insv instruction to insert each
  * code in turn.  When the buffer fills up empty it and start over.
  */
-
-static const uchar rmask[9] =
-{0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff};
+static const uchar rmask[9] = {0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff};
 
 static int output_byte(struct archive_write_filter * f, uchar c)
 {
-	struct private_data * state = (struct private_data *)f->data;
-
+	struct private_data * state = static_cast<struct private_data *>(f->data);
 	state->compressed[state->compressed_offset++] = c;
 	++state->out_count;
-
 	if(state->compressed_buffer_size == state->compressed_offset) {
-		int ret = __archive_write_filter(f->next_filter,
-			state->compressed, state->compressed_buffer_size);
+		int ret = __archive_write_filter(f->next_filter, state->compressed, state->compressed_buffer_size);
 		if(ret != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 		state->compressed_offset = 0;
 	}
-
 	return ARCHIVE_OK;
 }
 
 static int output_code(struct archive_write_filter * f, int ocode)
 {
-	struct private_data * state = (struct private_data *)f->data;
+	struct private_data * state = static_cast<struct private_data *>(f->data);
 	int bits, ret, clear_flg, bit_offset;
-
 	clear_flg = ocode == CLEAR;
-
 	/*
 	 * Since ocode is always >= 8 bits, only need to mask the first
 	 * hunk on the left.
@@ -256,7 +238,6 @@ static int output_code(struct archive_write_filter * f, int ocode)
 	bit_offset = state->bit_offset % 8;
 	state->bit_buf |= (ocode << bit_offset) & 0xff;
 	output_byte(f, state->bit_buf);
-
 	bits = state->code_len - (8 - bit_offset);
 	ocode >>= 8 - bit_offset;
 	/* Get any 8 bit parts in the middle (<=1 for up to 16 bits). */
@@ -291,7 +272,6 @@ static int output_code(struct archive_write_filter * f, int ocode)
 		}
 		state->bit_buf = 0;
 		state->bit_offset = 0;
-
 		if(clear_flg) {
 			state->code_len = 9;
 			state->cur_maxcode = MAXCODE(state->code_len);
@@ -304,13 +284,12 @@ static int output_code(struct archive_write_filter * f, int ocode)
 				state->cur_maxcode = MAXCODE(state->code_len);
 		}
 	}
-
 	return ARCHIVE_OK;
 }
 
 static int output_flush(struct archive_write_filter * f)
 {
-	struct private_data * state = (struct private_data *)f->data;
+	struct private_data * state = static_cast<struct private_data *>(f->data);
 	int ret;
 	/* At EOF, write the rest of the buffer. */
 	if(state->bit_offset % 8) {
@@ -321,32 +300,29 @@ static int output_flush(struct archive_write_filter * f)
 	}
 	return ARCHIVE_OK;
 }
-
 /*
  * Write data to the compressed stream.
  */
 static int archive_compressor_compress_write(struct archive_write_filter * f, const void * buff, size_t length)
 {
-	struct private_data * state = (struct private_data *)f->data;
+	struct private_data * state = static_cast<struct private_data *>(f->data);
 	int i;
 	int ratio;
 	int c, disp, ret;
 	const uchar * bp;
 	if(length == 0)
 		return ARCHIVE_OK;
-	bp = (const uchar *)buff;
+	bp = static_cast<const uchar *>(buff);
 	if(state->in_count == 0) {
 		state->cur_code = *bp++;
 		++state->in_count;
 		--length;
 	}
-
 	while(length--) {
 		c = *bp++;
 		state->in_count++;
 		state->cur_fcode = (c << 16) + state->cur_code;
 		i = ((c << HSHIFT) ^ state->cur_code);  /* Xor hashing. */
-
 		if(state->hashtab[i] == state->cur_fcode) {
 			state->cur_code = state->codetab[i];
 			continue;
@@ -405,7 +381,7 @@ nomatch:
  */
 static int archive_compressor_compress_close(struct archive_write_filter * f)
 {
-	struct private_data * state = (struct private_data *)f->data;
+	struct private_data * state = static_cast<struct private_data *>(f->data);
 	int ret2;
 	int ret = output_code(f, state->cur_code);
 	if(ret != ARCHIVE_OK)

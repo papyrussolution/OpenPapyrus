@@ -3848,7 +3848,7 @@ private:
 	DBTable * P_Tbl;
 	DBQ     * P_Restrict;
 	DBTree  * P_Tree;
-	int    index;
+	int    Index_;
 	DBFieldList Fields;
 	union {
 		char * P_QBuf;

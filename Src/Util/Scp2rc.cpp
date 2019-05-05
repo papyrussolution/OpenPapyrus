@@ -1,10 +1,6 @@
 // SCP2RC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019
 //
-#include <stdlib.h>
-#include <stdio.h>
-#include <malloc.h>
-#include <string.h>
 #include <slib.h>
 
 #define __Dialog       0
@@ -25,7 +21,6 @@
 #define __Done        -1
 
 #define DEF_CTL_ID "control"
-
 /*
 TInputLine
 	Тип данных записывается в поле EXTRA[1] в формате:
@@ -675,9 +670,9 @@ static int __Execute(const char * pCmdLine, HANDLE hIn, HANDLE hOut, uint * pExi
 	}
 	MEMSZERO(pi);
 	SString temp_buf = pCmdLine;
-	STempBuffer cmd_line(temp_buf.Len()*2);
-	strnzcpy(cmd_line, temp_buf, cmd_line.GetSize());
-	int    r = ::CreateProcess(0, cmd_line, 0, 0, /*FALSE*/TRUE, 0, 0, (const char *)0, &si, &pi);
+	STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
+	strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
+	int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, /*FALSE*/TRUE, 0, 0, 0, &si, &pi);
 	if(r) {
 		WaitForSingleObject(pi.hProcess, INFINITE); // Wait until child process exits.
 		GetExitCodeProcess(pi.hProcess, &exit_code);

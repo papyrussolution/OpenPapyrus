@@ -73,13 +73,13 @@ struct private_data {
 
 	int64_t stream_size;
 	uint32_t dict_id;
-	char            * out_block;
+	char * out_block;
 	size_t out_block_size;
 
 	/* Bytes read but not yet consumed via __archive_read_consume() */
 	size_t unconsumed;
 	size_t decoded_size;
-	void            * xxh32_state;
+	void * xxh32_state;
 	char valid;             /* True = decompressor is initialized */
 	char eof;             /* True = found end of compressed data. */
 };
@@ -107,7 +107,7 @@ static ssize_t  lz4_filter_read_legacy_stream(struct archive_read_filter *, cons
 
 int archive_read_support_filter_lz4(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lz4");
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
@@ -211,29 +211,24 @@ static int lz4_reader_init(struct archive_read_filter * self)
 static int lz4_reader_init(struct archive_read_filter * self)
 {
 	struct private_data * state;
-
 	self->code = ARCHIVE_FILTER_LZ4;
 	self->name = "lz4";
-
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
 	if(state == NULL) {
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate data for lz4 decompression");
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for lz4 decompression");
 		return ARCHIVE_FATAL;
 	}
-
 	self->data = state;
 	state->stage = SELECT_STREAM;
 	self->read = lz4_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = lz4_filter_close;
-
 	return ARCHIVE_OK;
 }
 
 static int lz4_allocate_out_block(struct archive_read_filter * self)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	size_t out_block_size = state->flags.block_maximum_size;
 	void * out_block;
 	if(!state->flags.block_independence)
@@ -255,7 +250,7 @@ static int lz4_allocate_out_block(struct archive_read_filter * self)
 
 static int lz4_allocate_out_block_for_legacy(struct archive_read_filter * self)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	size_t out_block_size = LEGACY_BLOCK_SIZE;
 	void * out_block;
 	if(state->out_block_size < out_block_size) {
@@ -276,7 +271,7 @@ static int lz4_allocate_out_block_for_legacy(struct archive_read_filter * self)
  */
 static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** p)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	ssize_t ret;
 
 	if(state->eof) {
@@ -293,8 +288,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 		case READ_DEFAULT_STREAM:
 		case READ_LEGACY_STREAM:
 		    /* Reading a lz4 stream already failed. */
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC, "Invalid sequence.");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Invalid sequence.");
 		    return ARCHIVE_FATAL;
 		case READ_DEFAULT_BLOCK:
 		    ret = lz4_filter_read_default_stream(self, p);
@@ -307,18 +301,15 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 			    return ret;
 		    break;
 		default:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC, "Program error.");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Program error.");
 		    return ARCHIVE_FATAL;
 		    break;
 	}
 
 	while(state->stage == SELECT_STREAM) {
 		const char * read_buf;
-
 		/* Read a magic number. */
-		read_buf = __archive_read_filter_ahead(self->upstream, 4,
-			NULL);
+		read_buf = __archive_read_filter_ahead(self->upstream, 4, NULL);
 		if(read_buf == NULL) {
 			state->eof = 1;
 			*p = NULL;
@@ -353,23 +344,18 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 
 static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	const char * read_buf;
 	ssize_t bytes_remaining;
 	ssize_t descriptor_bytes;
 	uchar flag, bd;
 	uint chsum, chsum_verifier;
-
 	/* Make sure we have 2 bytes for flags. */
-	read_buf = __archive_read_filter_ahead(self->upstream, 2,
-		&bytes_remaining);
+	read_buf = __archive_read_filter_ahead(self->upstream, 2, &bytes_remaining);
 	if(read_buf == NULL) {
-		archive_set_error(&self->archive->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "truncated lz4 input");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated lz4 input");
 		return ARCHIVE_FATAL;
 	}
-
 	/*
 	   Parse flags.
 	 */
@@ -419,9 +405,7 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 		read_buf = __archive_read_filter_ahead(self->upstream,
 			descriptor_bytes, &bytes_remaining);
 		if(read_buf == NULL) {
-			archive_set_error(&self->archive->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "truncated lz4 input");
+			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated lz4 input");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -444,14 +428,13 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 	/* Success */
 	return ARCHIVE_OK;
 malformed_error:
-	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-	    "malformed lz4 data");
+	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "malformed lz4 data");
 	return ARCHIVE_FATAL;
 }
 
 static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, const void ** p)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	ssize_t compressed_size;
 	const char * read_buf;
 	ssize_t bytes_remaining;
@@ -557,8 +540,7 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 
 	/* Check if an error occurred in the decompression process. */
 	if(uncompressed_size < 0) {
-		archive_set_error(&(self->archive->archive),
-		    ARCHIVE_ERRNO_MISC, "lz4 decompression failed");
+		archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "lz4 decompression failed");
 		return ARCHIVE_FATAL;
 	}
 
@@ -568,22 +550,19 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 	return uncompressed_size;
 
 malformed_error:
-	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-	    "malformed lz4 data");
+	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "malformed lz4 data");
 	return ARCHIVE_FATAL;
 truncated_error:
-	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-	    "truncated lz4 input");
+	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated lz4 input");
 	return ARCHIVE_FATAL;
 }
 
 static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self, const void ** p)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	const char * read_buf;
 	ssize_t bytes_remaining;
 	ssize_t ret;
-
 	if(state->stage == SELECT_STREAM) {
 		state->stage = READ_DEFAULT_STREAM;
 		/* First, read a descriptor. */
@@ -615,9 +594,7 @@ static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self,
 				state->xxh32_state);
 			state->xxh32_state = NULL;
 			if(checksum != checksum_stream) {
-				archive_set_error(&self->archive->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "lz4 stream cheksum error");
+				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "lz4 stream cheksum error");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -630,7 +607,7 @@ static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self,
 
 static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, const void ** p)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	int compressed;
 	const char * read_buf;
 	ssize_t ret;
@@ -645,9 +622,7 @@ static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, 
 	if(read_buf == NULL) {
 		if(state->stage == SELECT_STREAM) {
 			state->stage = READ_LEGACY_STREAM;
-			archive_set_error(&self->archive->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "truncated lz4 input");
+			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated lz4 input");
 			return ARCHIVE_FATAL;
 		}
 		state->stage = SELECT_STREAM;
@@ -681,7 +656,7 @@ static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, 
 static int lz4_filter_close(struct archive_read_filter * self)
 {
 	int ret = ARCHIVE_OK;
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	SAlloc::F(state->xxh32_state);
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);

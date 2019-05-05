@@ -218,7 +218,7 @@ namespace NCompress {
 				else {
 					for(len = 0; ((bitField << len) & 0x8000) == 0; len++)
 						;
-					m_InBitStream.MovePos(len + 1);
+					m_InBitStream.MovePos(len+1);
 				}
 			}
 

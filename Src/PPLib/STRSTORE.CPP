@@ -651,7 +651,7 @@ int SLAPI StringStore2::RestoreState(const char * pFileName)
 
 int SLAPI StringStore2::TranslationWanted(const uchar * pOrgText) const
 {
-	const  uchar * p_notrasl_chars = (const uchar *)".,:; \t\n\r-_(){}[]<>!=$%^&\'\"*`@#\\/+~0123456789";
+	const  uchar * p_notrasl_chars = reinterpret_cast<const uchar *>(".,:; \t\n\r-_(){}[]<>!=$%^&\'\"*`@#\\/+~0123456789");
     int    yes = 0;
     const  size_t len = sstrlen(pOrgText);
     if(len) {
@@ -689,6 +689,18 @@ int SLAPI StringStore2::TranslationWanted(const uchar * pOrgText) const
 
 int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt);
 
+static void RecoverAutotranslatedString(SString & rBuf)
+{
+	rBuf.ReplaceStr("% s", "%s", 0);
+	rBuf.ReplaceStr("% ld", "%ld", 0);
+	rBuf.ReplaceStr("% lf", "%lf", 0);
+	rBuf.ReplaceStr("% d", "%d", 0);
+	rBuf.ReplaceStr("%. ", "%.", 0);
+	rBuf.ReplaceStr(":%", "% :", 0);
+	rBuf.ReplaceStr("\'%s \'", "\'%s\'", 0);
+	rBuf.ReplaceStr("@ {", "@{", 0);
+}
+
 int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
 {
 	EXCEPTVAR(ErrCode);
@@ -696,13 +708,11 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 	StrAssocArray file_lang_list;
 	SString ident_file_name; // Имя файла, хранящего соответствия символов и идентификаторов
 	SString temp_buf;
-
+	SString intr_at_text;
 	SPathStruc ps;
 	SString org_nam, org_ext;
-
 	PPAutoTranslSvc_Microsoft * p_at = 0;
 	int    at_auth_error = 0;
-
 	THROW_V(fileExists(pFileName), sc2eSrcFileNotFound);
 	THROW(InitParsing());
 	//THROW(s.ParseFile(pFileName));
@@ -780,9 +790,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 			StringStore2::ParseItem item;
 			StringStore2::ParseItem last_group;
 			StringStore2::ParseItem last_lang;
-
 			SetActiveLanguage(fl_item.Id);
-
 			const int local_auto_transl_lang = (fl_item.Id == 0) ? auto_transl_lang : 0;
 			long   last_string_id = 0;
 			long   last_string_lang = 0;
@@ -884,18 +892,69 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 										}*/
 									}
 								}
-								if(p_at && p_at->Request(slangRU, auto_transl_lang, org_text, auto_transl_string) > 0) {
-									auto_transl_string.ReplaceStr("% s", "%s", 0);
-									auto_transl_string.ReplaceStr("% ld", "%ld", 0);
-									auto_transl_string.ReplaceStr("% d", "%d", 0);
-									auto_transl_string.ReplaceStr("%. ", "%.", 0);
-									auto_transl_string.ReplaceStr(":%", "% :", 0);
-									auto_transl_string.ReplaceStr("\'%s \'", "\'%s\'", 0);
-									auto_transl_string.ReplaceStr("@ {", "@{", 0);
+								if(p_at) {
+									if(org_text.HasChr(';')) {
+										auto_transl_string.Z();
+										StringSet ss(';', org_text);
+										for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+											if(auto_transl_string.NotEmpty())
+												auto_transl_string.CatChar(';');
+											{
+												//
+												// Специальный препроцессинг префиксов "number," (e.g. "2,...;3,...")
+												//
+												size_t _dec_count = 0;
+												if(isdec(temp_buf.C(_dec_count))) {
+													do {
+														_dec_count++;
+													} while(isdec(temp_buf.C(_dec_count)));
+													if(temp_buf.C(_dec_count) == ',') {
+														for(uint cidx = 0; cidx <= _dec_count; cidx++)
+															auto_transl_string.CatChar(temp_buf.C(cidx));
+														temp_buf.ShiftLeft(_dec_count+1);
+													}
+												}
+											}
+											//
+											// Специальный препроцессинг подстановок (@symb or @{symb})
+											//
+											int    is_subst = 1;
+											if(temp_buf.C(0) == '@' && !temp_buf.HasChr(' ')) {
+												size_t c_first_pos = 1;
+												size_t c_last_pos = temp_buf.Len()-1;
+												if(temp_buf.C(c_first_pos) == '{' && temp_buf.C(c_last_pos) == '}') {
+													c_first_pos++;
+													c_last_pos--;
+												}
+												for(uint cidx = c_first_pos; is_subst && cidx <= c_last_pos; cidx++) {
+													const char c2 = temp_buf.C(cidx);
+													if(!isdec(c2) && !(c2 >= 'A' && c2 <= 'Z') && !(c2 >= 'a' && c2 <= 'z') && !oneof2(c2, '_', '-'))
+														is_subst = 0;
+												}
+											}
+											else
+												is_subst = 0;
+											if(is_subst) {
+												auto_transl_string.Cat(temp_buf);
+											}
+											else {
+												if(p_at->Request(slangRU, auto_transl_lang, temp_buf, intr_at_text) > 0) {
+													RecoverAutotranslatedString(intr_at_text);
+													auto_transl_string.Cat(intr_at_text);
+												}
+												else
+													auto_transl_string.Cat("error-autotranslation");
+											}
+										}
+									}
+									else if(p_at->Request(slangRU, auto_transl_lang, org_text, auto_transl_string) > 0) {
+										RecoverAutotranslatedString(auto_transl_string);
+									}
+									else
+										auto_transl_string = "error-autotranslation";
 								}
-								else {
-									auto_transl_string = "Error autotranslation";
-								}
+								else
+									auto_transl_string = "error-autotranslation";
 #endif
 								temp_buf.CatQStr(auto_transl_string);
 							}

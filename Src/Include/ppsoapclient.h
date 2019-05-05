@@ -1110,6 +1110,7 @@ struct SfaHeinekenDistributorDelivery {
 
 struct SfaHeinekenSalePointDelivery {
 	SString InnerOrderCode;
+	SString DistributorOrderID; // @v10.4.4 Для отправки приходных документов
 	int    InnerDlvrLocID;
 	int    ForeignLocID; // Склад @v10.0.08
 	SString DlvrLocName;
@@ -1137,6 +1138,7 @@ typedef SString * (*SFAHEINEKENSENDORDERSSTATUSES_PROC)(PPSoapClientSession & rS
 typedef SString * (*SFAHEINEKENSENDWAREHOUSEBALANCE_PROC)(PPSoapClientSession & rSess, const TSVector <SfaHeinekenWarehouseBalanceEntry> & rList);
 typedef SString * (*SFAHEINEKENSENDSELLOUT_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenInvoice> & rList);
 typedef SString * (*SFAHEINEKENDELETESELLOUT_PROC)(PPSoapClientSession & rSess, const SString & rCode, LDATE date);
+typedef SString * (*SFAHEINEKENSENDSELLIN_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenInvoice> & rList); // SfaHeineken_SendSellin
 typedef SString * (*SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenDebetEntry> & rList);
 //extern "C" __declspec(dllexport) SString * SfaHeineken_SendAllContragentDebet(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenDebetEntry> & rList) // DRP_SendAllContragentDebet
 //extern "C" __declspec(dllexport) SString * SfaHeineken_GetOrders(PPSoapClientSession & rSess, LDATE dt, int demo) // DRP_GetOrders

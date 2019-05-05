@@ -15,9 +15,7 @@ int (*pIsUncPath) (char*);
 size_t (*pGetServerName) (const char*, char*, size_t);
 int (*pGetLocalFromUnc) (const char*, char*, size_t);
 int (*pConnect) (const char*, const char*, const char*, const char*);
-int (*pWinSvcCreate) (
-	const char*, const char*, const char*, int, int, int, const char*, const char*, const char*,
-	const char*, const char*, int
+int (*pWinSvcCreate)(const char*, const char*, const char*, int, int, int, const char*, const char*, const char*, const char*, const char*, int
 );
 int (*pWinSvcDelete) (const char*, int);
 int (*pWinSvcStart) (const char*, int);
@@ -60,7 +58,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "\tWinSvcExists:\t" << pWinSvcExists << endl;
 			(FARPROC&) pWinSvcGetProperty = GetProcAddress(module, "WinSvcGetProperty");
 			cout << "\tWinSvcGetProperty:\t" << pWinSvcGetProperty << endl;
-			(FARPROC&) pWinRegGetStr = GetProcAddress(module, "WinRegGetStr");
+			(FARPROC&)pWinRegGetStr = GetProcAddress(module, "WinRegGetStr");
 			cout << "\tWinRegGetStr:\t" << pWinRegGetStr << endl;
 			(FARPROC&) pWinRegAddStr = GetProcAddress(module, "WinRegAddStr");
 			cout << "\tWinRegAddStr:\t" << pWinRegAddStr << endl;
@@ -76,7 +74,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "Input WMI server name:\t"; cin >> wmi_server;
 			cout << "LoginPasswordBox() returned: " << pLoginPasswordBox(win_user, win_pwd, 0x40) << endl;
 			cout << "Connect() returned: " << pConnect(wmi_server, win_user, win_pwd, NULL) << endl;
-			char msg[0x100]; pGetLastMsg(msg, 0x100);
+			char msg[0x100]; 
+			pGetLastMsg(msg, 0x100);
 			cout << msg << endl;
 			// converting from UNC path to local path on remote server test
 			char unc_path[0x100], s[0x100];
@@ -89,6 +88,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "Input display name for a new windows service:\t"; cin >> svc_display_name;
 			pLoginPasswordBox(win_user, win_pwd, 0x40);
 			cout << "WinSvcCreate:\t" << pWinSvcCreate(svc_name, svc_display_name, svc_path, 0x10, 1, 1, win_user, win_pwd, NULL, NULL, NULL, 1) << endl;
+
 			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, "message", MB_OK);
 			cout << "WinSvcStart:\t" << pWinSvcStart(svc_name, 1) << endl;
 			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, "message", MB_OK);

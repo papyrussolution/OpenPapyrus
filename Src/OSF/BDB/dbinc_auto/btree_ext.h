@@ -96,7 +96,7 @@ int __ram_writeback(DB *);
 int __bam_rsearch(DBC *, db_recno_t *, uint32, int, int *);
 int __bam_adjust(DBC *, int32);
 int FASTCALL __bam_nrecs(DBC *, db_recno_t *);
-db_recno_t __bam_total(DB *, PAGE *);
+db_recno_t FASTCALL __bam_total(const DB *, PAGE *);
 int __bam_get_root(DBC *, db_pgno_t, int, uint32, int *);
 int __bam_search(DBC *, db_pgno_t, const DBT *, uint32, int, db_recno_t *, int *);
 int FASTCALL __bam_stkrel(DBC *, uint32);

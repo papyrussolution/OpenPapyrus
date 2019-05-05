@@ -5478,6 +5478,8 @@
 	#define CTLSEL_BILLCFG_MNFLTAG       (22 + WINDOWS_ID_BIAS)
 	#define CTL_BILLCFG_LOWDEBTDATE      (23 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BILLCFG_LOWDEBTDATE   (24 + WINDOWS_ID_BIAS)
+	#define CTL_BILLCFG_WLED             (25 + WINDOWS_ID_BIAS)
+	#define CTL_BILLCFG_WLEF             (26 + WINDOWS_ID_BIAS)
 //                                514 // Occupied
 #define DLG_GFLTADVOPT            515 // GFADVOPT Дополнительные опции фильтра по товарам
 	#define CTL_GFLTADVOPT_LOTPERIOD     (1 + WINDOWS_ID_BIAS)

@@ -1664,7 +1664,7 @@ static long pem_to_der(const char * in, uchar ** out, size_t * outlen)
 	sep_end += 5;
 
 	len = cert_end - cert_start;
-	b64 = SAlloc::M(len + 1);
+	b64 = SAlloc::M(len+1);
 	if(!b64)
 		return -1;
 

@@ -80,7 +80,7 @@ static int      zstd_bidder_init(struct archive_read_filter *);
 
 int archive_read_support_filter_zstd(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_zstd");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
@@ -179,7 +179,7 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
 	ssize_t avail_in;
 	ZSTD_outBuffer out;
 	ZSTD_inBuffer in;
-	state = (struct private_data *)self->data;
+	state = static_cast<struct private_data *>(self->data);
 	out = (ZSTD_outBuffer) {state->out_block, state->out_block_size, 0 };
 	/* Try to fill the output buffer. */
 	while(out.pos < out.size && !state->eof) {
@@ -233,14 +233,10 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
  */
 static int zstd_filter_close(struct archive_read_filter * self)
 {
-	struct private_data * state;
-
-	state = (struct private_data *)self->data;
-
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	ZSTD_freeDStream(state->dstream);
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
-
 	return ARCHIVE_OK;
 }
 

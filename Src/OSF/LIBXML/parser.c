@@ -2783,7 +2783,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
 		return 0;
 	}
 	if((*ctxt->input->cur == '\n') && (ctxt->input->cur[-1] == '\r'))
-		return xmlDictLookup(ctxt->dict, ctxt->input->cur - (len + 1), len);
+		return xmlDictLookup(ctxt->dict, ctxt->input->cur - (len+1), len);
 	return xmlDictLookup(ctxt->dict, ctxt->input->cur - len, len);
 }
 
@@ -8875,7 +8875,7 @@ xmlChar * xmlParseEncName(xmlParserCtxt * ctxt)
 		cur = CUR;
 		while(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z')) ||
 		    ((cur >= '0') && (cur <= '9')) || (cur == '.') || (cur == '_') || (cur == '-')) {
-			if((len + 1) >= size) {
+			if((len+1) >= size) {
 				xmlChar * tmp;
 				size *= 2;
 				tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));

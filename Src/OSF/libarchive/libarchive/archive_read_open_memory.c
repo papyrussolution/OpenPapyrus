@@ -71,7 +71,7 @@ int archive_read_open_memory2(struct archive * a, const void * buff, size_t size
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
 	}
-	mine->start = mine->p = (const uchar *)buff;
+	mine->start = mine->p = static_cast<const uchar *>(buff);
 	mine->end = mine->start + size;
 	mine->read_size = read_size;
 	archive_read_set_open_callback(a, memory_read_open);

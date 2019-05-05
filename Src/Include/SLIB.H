@@ -420,6 +420,7 @@ class  SoapPacketStruc;
 class  SoapPacketArray;
 class  DBTable;
 struct _finddatai64_t;
+// @construction struct archive; // @v10.4.4
 //
 // Прототип функций сравнения и макросы для использования этих функций
 //
@@ -541,15 +542,17 @@ enum SCtrLite {
 // могут быть определены те или иные стандарты и классификаторы (например, кодовые страницы)
 //
 enum {
-	ssisUnkn    = 0,
-	ssisWindows = 1,
-	ssisMAC     = 2,
-	ssisIBM     = 3,
-	ssisAIX     = 4,
-	ssisJava    = 5,
-	ssisSolaris = 6,
-	ssisHPUX    = 7,
-	ssisGLibC   = 8
+	ssisUnkn    =  0,
+	ssisWindows =  1,
+	ssisMAC     =  2,
+	ssisIBM     =  3,
+	ssisAIX     =  4,
+	ssisJava    =  5,
+	ssisSolaris =  6,
+	ssisHPUX    =  7,
+	ssisGLibC   =  8,
+	ssisBSD     =  9, // @v10.4.4
+	ssisGNU     = 10  // @v10.4.4
 };
 //
 // Descr: Возвращает идентификатор системы программной инфраструктуры ssisXXX
@@ -6983,7 +6986,6 @@ public:
 	//   быстрее, чем предыдущая.
 	//
 	Item   FASTCALL at_WithoutParent(uint pos) const;
-
 	int    SLAPI AtFree(uint pos);
 	int    SLAPI Search(long id, uint * pPos) const;
 	int    FASTCALL Search(long id) const;
@@ -7120,7 +7122,6 @@ public:
 	//
 	uint   FASTCALL GetTextPos(uint idx) const;
 	int    SLAPI GetTextByPos(uint textPos, SString & rBuf) const;
-
 	int    FASTCALL Write(SBuffer & rBuf, long o) const;
 	int    FASTCALL Read(SBuffer & rBuf, long o);
 #ifndef _WIN32_WCE // {
@@ -7132,7 +7133,6 @@ public:
 	static int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
 protected:
 	CompFunc TextCmpProc; // @v9.5.9
-	//LAssocArray Assoc;
 	LAssocArray ParentList;
 private:
 	int    SLAPI Helper_RemoveRecursion(long parentId, LongArray & rRecurList, LongArray & rPassedList, LongArray * pBadList);
@@ -8477,14 +8477,43 @@ private:
 
 class SArchive {
 public:
+	//
+	// Descr: Базовые форматы архивов
+	//
+	enum {
+		afCPIO = 1,
+		afSHAR,
+		afTAR,
+		afISO9660,
+		afZIP,
+		afAR,
+		afAR_GNU,
+		afMTREE,
+		afRAW,
+		afXAR,
+		afLHA,
+		afCAB,
+		afRAR,
+		af7ZIP,
+		afWARC
+	};
 	enum {
 		tUnkn = 0,
-		tZip  = 1,
-		t7Z // @construction
+		tZip  = 1, // LibZIP
+		// @construction tLA   = 2  // @v10.4.4 LibArchive
+		//t7Z // @construction
+	};
+	//
+	// Descr: Дескриптор формата архива
+	//
+	struct Format {
+		int    BaseAf; // SArchive::afXXX
+		int    Sis;    // ssisXXX
+		int    Var;    // Вариация
 	};
 	SLAPI  SArchive();
 	SLAPI ~SArchive();
-	int    SLAPI Open(int type, const char * pName, int mode /*SFile::mXXX*/);
+	int    SLAPI Open(int type, const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
 	int    SLAPI Close();
 	int    SLAPI IsValid() const;
 	//
@@ -8512,10 +8541,25 @@ public:
     int    SLAPI AddEntry(const char * pSrcFileName, const char * pName, int flags);
     int    SLAPI AddEntries(const char * pMask, int flags);
 private:
+	// @v10.4.4
+#if 0 // @construction {
+	struct LaCbBlock {
+		LaCbBlock(SArchive * pMaster, size_t bufSize);
+		SArchive * P_Master;
+		SFile F;
+		STempBuffer Buf;
+	};
+	static SSIZE_T cdecl LaCbRead(struct archive * pA, void * pClientData, const void ** ppBuf);
+	static int64   cdecl LaCbSkip(struct archive * pA, void * pClientData, int64 request);
+	static int     cdecl LaCbOpen(struct archive * pA, void * pClientData);
+	static int     cdecl LaCbClose(struct archive * pA, void * pClientData);
+#endif // } 0 @construction
+	// } @v10.4.4
 	int    SLAPI Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
 
 	int    Type;
 	void * H;
+	// @construction LaCbBlock * P_Cb_Blk; // @v10.4.4
 };
 //
 // Descr: Тип функции, используемый для регистрации форматов файлов.

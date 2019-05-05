@@ -109,7 +109,7 @@ __FBSDID("$FreeBSD$");
 
 struct _7z_digests {
 	uchar   * defineds;
-	uint32_t        * digests;
+	uint32_t   * digests;
 };
 
 struct _7z_folder {
@@ -129,10 +129,10 @@ struct _7z_folder {
 	} * bindPairs;
 
 	uint64_t numPackedStreams;
-	uint64_t                * packedStreams;
+	uint64_t     * packedStreams;
 	uint64_t numInStreams;
 	uint64_t numOutStreams;
-	uint64_t                * unPackSize;
+	uint64_t     * unPackSize;
 	uchar digest_defined;
 	uint32_t digest;
 	uint64_t numUnpackStreams;
@@ -143,24 +143,24 @@ struct _7z_folder {
 
 struct _7z_coders_info {
 	uint64_t numFolders;
-	struct _7z_folder       * folders;
+	struct _7z_folder  * folders;
 	uint64_t dataStreamIndex;
 };
 
 struct _7z_pack_info {
 	uint64_t pos;
 	uint64_t numPackStreams;
-	uint64_t                * sizes;
+	uint64_t     * sizes;
 	struct _7z_digests digest;
 	/* Calculated from pos and numPackStreams. */
-	uint64_t                * positions;
+	uint64_t     * positions;
 };
 
 struct _7z_substream_info {
 	size_t unpack_streams;
-	uint64_t                * unpackSizes;
-	uchar           * digestsDefined;
-	uint32_t                * digests;
+	uint64_t     * unpackSizes;
+	uchar  * digestsDefined;
+	uint32_t     * digests;
 };
 
 struct _7z_stream_info {
@@ -172,17 +172,17 @@ struct _7z_stream_info {
 struct _7z_header_info {
 	uint64_t dataIndex;
 
-	uchar           * emptyStreamBools;
-	uchar           * emptyFileBools;
-	uchar           * antiBools;
-	uchar           * attrBools;
+	uchar  * emptyStreamBools;
+	uchar  * emptyFileBools;
+	uchar  * antiBools;
+	uchar  * attrBools;
 };
 
 struct _7zip_entry {
 	size_t name_len;
-	uchar           * utf16name;
+	uchar  * utf16name;
 #if defined(_WIN32) && !defined(__CYGWIN__) && defined(_DEBUG)
-	const wchar_t           * wname;
+	const wchar_t  * wname;
 #endif
 	uint32_t folderIndex;
 	uint32_t ssIndex;
@@ -220,9 +220,9 @@ struct _7zip {
 	/* List of entries */
 	size_t entries_remaining;
 	uint64_t numFiles;
-	struct _7zip_entry      * entries;
-	struct _7zip_entry      * entry;
-	uchar           * entry_names;
+	struct _7zip_entry * entries;
+	struct _7zip_entry * entry;
+	uchar  * entry_names;
 
 	/* entry_bytes_remaining is the number of bytes we expect. */
 	int64_t entry_offset;
@@ -236,8 +236,8 @@ struct _7zip {
 
 	/* Uncompressed buffer control.  */
 #define UBUFF_SIZE      (64 * 1024)
-	uchar           * uncompressed_buffer;
-	uchar           * uncompressed_buffer_pointer;
+	uchar  * uncompressed_buffer;
+	uchar  * uncompressed_buffer_pointer;
 	size_t uncompressed_buffer_size;
 	size_t uncompressed_buffer_bytes_remaining;
 
@@ -285,7 +285,7 @@ struct _7zip {
 		const uchar     * next_in;
 		int64_t avail_in;
 		int64_t total_in;
-		uchar           * next_out;
+		uchar  * next_out;
 		int64_t avail_out;
 		int64_t total_out;
 		int overconsumed;
@@ -304,10 +304,10 @@ struct _7zip {
 
 	/* Decoding BCJ2 data. */
 	size_t main_stream_bytes_remaining;
-	uchar           * sub_stream_buff[3];
+	uchar  * sub_stream_buff[3];
 	size_t sub_stream_size[3];
 	size_t sub_stream_bytes_remaining[3];
-	uchar           * tmp_stream_buff;
+	uchar  * tmp_stream_buff;
 	size_t tmp_stream_buff_size;
 	size_t tmp_stream_bytes_avail;
 	size_t tmp_stream_bytes_remaining;
@@ -387,7 +387,7 @@ static ssize_t          Bcj2_Decode(struct _7zip *, uint8_t *, size_t);
 
 int archive_read_support_format_7zip(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct _7zip * zip;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_7zip");
@@ -401,19 +401,9 @@ int archive_read_support_format_7zip(struct archive * _a)
 	 * any encrypted entries yet.
 	 */
 	zip->has_encrypted_entries = ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW;
-	r = __archive_read_register_format(a,
-		zip,
-		"7zip",
-		archive_read_format_7zip_bid,
-		NULL,
-		archive_read_format_7zip_read_header,
-		archive_read_format_7zip_read_data,
-		archive_read_format_7zip_read_data_skip,
-		NULL,
-		archive_read_format_7zip_cleanup,
-		archive_read_support_format_7zip_capabilities,
-		archive_read_format_7zip_has_encrypted_entries);
-
+	r = __archive_read_register_format(a, zip, "7zip", archive_read_format_7zip_bid, NULL, archive_read_format_7zip_read_header,
+		archive_read_format_7zip_read_data, archive_read_format_7zip_read_data_skip, NULL,
+		archive_read_format_7zip_cleanup, archive_read_support_format_7zip_capabilities, archive_read_format_7zip_has_encrypted_entries);
 	if(r != ARCHIVE_OK)
 		SAlloc::F(zip);
 	return ARCHIVE_OK;
@@ -422,8 +412,7 @@ int archive_read_support_format_7zip(struct archive * _a)
 static int archive_read_support_format_7zip_capabilities(struct archive_read * a)
 {
 	(void)a; /* UNUSED */
-	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA |
-	       ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
+	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA|ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 }
 
 static int archive_read_format_7zip_has_encrypted_entries(struct archive_read * _a)
@@ -2560,7 +2549,7 @@ static const uchar * header_bytes(struct archive_read * a, size_t rbytes)
 		if(bytes <= 0)
 			return NULL;
 		zip->header_bytes_remaining -= bytes;
-		p = (const uchar *)buff;
+		p = static_cast<const uchar *>(buff);
 	}
 	/* Update checksum */
 	zip->header_crc32 = crc32(zip->header_crc32, p, (unsigned)rbytes);

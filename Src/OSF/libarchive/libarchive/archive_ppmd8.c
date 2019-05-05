@@ -6,7 +6,6 @@
 #pragma hdrstop
 
 //#include <string.h>
-
 #include "archive_ppmd8_private.h"
 
 const Byte PPMD8_kExpEscape[16] = { 25, 14, 9, 7, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2 };
@@ -253,7 +252,7 @@ static void SpecialFreeUnit(CPpmd8 * p, void * ptr)
 {
 	if((Byte*)ptr != p->UnitsStart)
 		InsertNode(p, ptr, 0);
-	else{
+	else {
     #ifdef PPMD8_FREEZE_SUPPORT
 		*(UInt32*)ptr = EMPTY_NODE; /* it's used for (Flags == 0xFF) check in RemoveBinContexts */
     #endif
@@ -552,7 +551,7 @@ static void RestoreModel(CPpmd8 * p, CTX_PTR c1
   #endif
 	if(p->RestoreMethod == PPMD8_RESTORE_METHOD_RESTART || GetUsedMemory(p) < (p->Size >> 1))
 		RestartModel(p);
-	else{
+	else {
 		while(p->MaxContext->Suffix)
 			p->MaxContext = SUFFIX(p->MaxContext);
 		do {
@@ -592,7 +591,7 @@ static CTX_PTR CreateSuccessors(CPpmd8 * p, Bool skip, CPpmd_State * s1, CTX_PTR
 				c->SummFreq++;
 			}
 		}
-		else{
+		else {
 			s = ONE_STATE(c);
 			s->Freq = (Byte)(s->Freq + (!SUFFIX(c)->NumStats & (s->Freq < 24)));
 		}
@@ -612,7 +611,7 @@ static CTX_PTR CreateSuccessors(CPpmd8 * p, Bool skip, CPpmd_State * s1, CTX_PTR
 
 	if(c->NumStats == 0)
 		upState.Freq = ONE_STATE(c)->Freq;
-	else{
+	else {
 		UInt32 cf, s0;
 		CPpmd_State * s;
 		for(s = STATS(c); s->Symbol != upState.Symbol; s++);
@@ -628,7 +627,7 @@ static CTX_PTR CreateSuccessors(CPpmd8 * p, Bool skip, CPpmd_State * s1, CTX_PTR
 			c1 = (CTX_PTR)(p->HiUnit -= UNIT_SIZE);
 		else if(p->FreeList[0] != 0)
 			c1 = (CTX_PTR)RemoveNode(p, 0);
-		else{
+		else {
 			c1 = (CTX_PTR)AllocUnitsRare(p, 0);
 			if(!c1)
 				return NULL;
@@ -667,7 +666,7 @@ static CTX_PTR ReduceOrder(CPpmd8 * p, CPpmd_State * s1, CTX_PTR c)
 			s = s1;
 			s1 = NULL;
 		}
-		else{
+		else {
 			if(!c->Suffix) {
 	#ifdef PPMD8_FREEZE_SUPPORT
 				if(p->RestoreMethod > PPMD8_RESTORE_METHOD_FREEZE) {
@@ -691,7 +690,7 @@ static CTX_PTR ReduceOrder(CPpmd8 * p, CPpmd_State * s1, CTX_PTR c)
 					c->SummFreq += 2;
 				}
 			}
-			else{
+			else {
 				s = ONE_STATE(c);
 				s->Freq = (Byte)(s->Freq + (s->Freq < 32));
 			}
@@ -755,7 +754,7 @@ static void UpdateModel(CPpmd8 * p)
 			if(s->Freq < 32)
 				s->Freq++;
 		}
-		else{
+		else {
 			s = STATS(c);
 			if(s->Symbol != p->FoundState->Symbol) {
 				do {
@@ -780,7 +779,7 @@ static void UpdateModel(CPpmd8 * p)
 			SetSuccessor(p->FoundState, 0);
 			RESTORE_MODEL(c, CTX(fSuccessor));
 		}
-		else{
+		else {
 			SetSuccessor(p->FoundState, REF(cs));
 			p->MaxContext = cs;
 		}
@@ -849,7 +848,7 @@ static void UpdateModel(CPpmd8 * p)
 			}
 			c->SummFreq = (UInt16)(c->SummFreq + (3 * ns1 + 1 < ns));
 		}
-		else{
+		else {
 			CPpmd_State * s2 = (CPpmd_State*)AllocUnits(p, 0);
 			if(!s2) {
 				RESTORE_MODEL(c, CTX(fSuccessor));
@@ -869,7 +868,7 @@ static void UpdateModel(CPpmd8 * p)
 			cf = 1 + (cf > sf) + (cf >= 4 * sf);
 			c->SummFreq += 4;
 		}
-		else{
+		else {
 			cf = 4 + (cf > 9 * sf) + (cf > 12 * sf) + (cf > 15 * sf);
 			c->SummFreq = (UInt16)(c->SummFreq + cf);
 		}
@@ -971,7 +970,7 @@ CPpmd_See * Ppmd8_MakeEscFreq(CPpmd8 * p, unsigned numMasked1, UInt32 * escFreq)
 			*escFreq = r + (r == 0);
 		}
 	}
-	else{
+	else {
 		see = &p->DummySee;
 		*escFreq = 1;
 	}
@@ -983,7 +982,7 @@ static void NextContext(CPpmd8 * p)
 	CTX_PTR c = CTX(SUCCESSOR(p->FoundState));
 	if(p->OrderFall == 0 && (Byte*)c >= p->UnitsStart)
 		p->MinContext = p->MaxContext = c;
-	else{
+	else {
 		UpdateModel(p);
 		p->MinContext = p->MaxContext;
 	}
@@ -1108,7 +1107,7 @@ int Ppmd8_DecodeSymbol(CPpmd8 * p)
 			MASK((--s)->Symbol) = 0;
 		} while(--i);
 	}
-	else{
+	else {
 		UInt16 * prob = Ppmd8_GetBinSumm(p);
 		if(((p->Code / (p->Range >>= 14)) < *prob)) {
 			Byte symbol;

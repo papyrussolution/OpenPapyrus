@@ -2910,6 +2910,17 @@ int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, Brow
 					}
 				}
 			}
+			// @v10.4.4 {
+			else if(r_col.OrgOffs == 8) { // Expiry
+				const PPBillConfig & r_bcfg = BillObj->GetConfig();
+				if(r_bcfg.WarnLotExpirFlags & r_bcfg.wlefIndicator) {
+					if(checkdate(p_item->Expiry) && diffdate(p_item->Expiry, getcurdate_()) <= r_bcfg.WarnLotExpirDays) {
+						pStyle->Color = GetColorRef(SClrOrange);
+						ok = 1;
+					}
+				}
+			}
+			// } @v10.4.4 
 		}
 	}
 	return ok;

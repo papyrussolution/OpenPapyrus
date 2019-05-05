@@ -313,7 +313,7 @@ static cairo_surface_t * _cairo_xlib_surface_create_similar(void * abstract_src,
 			width, height,
 			xrender_format->depth);
 	}
-	else{
+	else {
 		Screen * screen = src->screen->screen;
 		int depth;
 
@@ -1194,7 +1194,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 
 		src_x = src_y = 0;
 	}
-	else{
+	else {
 		uint stride, rowstride;
 		int x, y, x0, y0, x_off, y_off;
 		uint32_t in_pixel, out_pixel, * row;

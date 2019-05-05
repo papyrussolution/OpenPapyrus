@@ -199,6 +199,10 @@
 #include "archive_write_private.h"
 #include "archive_platform_acl.h"
 #include "archive_read_disk_private.h"
+#include "archive_cryptor_private.h"
+#include "archive_hmac_private.h"
+#include "archive_random_private.h"
+#include "archive_options_private.h"
 #ifdef HAVE_WCHAR_H
 	#include <wchar.h>
 #endif

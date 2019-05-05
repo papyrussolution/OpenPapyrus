@@ -56,10 +56,9 @@ static void arc4random_buf(void *, size_t);
 #endif /* HAVE_ARC4RANDOM_BUF */
 
 //#include "archive.h"
-#include "archive_random_private.h"
-
+//#include "archive_random_private.h"
 #if defined(HAVE_WINCRYPT_H) && !defined(__CYGWIN__)
-#include <wincrypt.h>
+	#include <wincrypt.h>
 #endif
 
 #ifndef O_CLOEXEC

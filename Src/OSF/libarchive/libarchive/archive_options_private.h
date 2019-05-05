@@ -22,26 +22,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include "archive_platform.h"
+//#include "archive_platform.h"
 __FBSDID("$FreeBSD$");
 
 //#include "archive_private.h"
 
-typedef int (*option_handler)(struct archive *a,
-    const char *mod, const char *opt, const char *val);
-
-int
-_archive_set_option(struct archive *a,
-    const char *mod, const char *opt, const char *val,
-    int magic, const char *fn, option_handler use_option);
-
-int
-_archive_set_options(struct archive *a, const char *options,
-    int magic, const char *fn, option_handler use_option);
-
-int
-_archive_set_either_option(struct archive *a,
-    const char *m, const char *o, const char *v,
-    option_handler use_format_option, option_handler use_filter_option);
-
+typedef int (* option_handler)(struct archive * a, const char * mod, const char * opt, const char * val);
+int _archive_set_option(struct archive * a, const char * mod, const char * opt, const char * val, int magic, const char * fn, option_handler use_option);
+int _archive_set_options(struct archive * a, const char * options, int magic, const char * fn, option_handler use_option);
+int _archive_set_either_option(struct archive * a, const char * m, const char * o, const char * v, option_handler use_format_option, option_handler use_filter_option);

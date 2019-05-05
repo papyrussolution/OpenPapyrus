@@ -22,55 +22,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-
 //#include "archive_read_private.h"
-#include "archive_options_private.h"
+//#include "archive_options_private.h"
 
-static int      archive_set_format_option(struct archive * a,
-    const char * m, const char * o, const char * v);
-static int      archive_set_filter_option(struct archive * a,
-    const char * m, const char * o, const char * v);
-static int      archive_set_option(struct archive * a,
-    const char * m, const char * o, const char * v);
+static int archive_set_format_option(struct archive * a, const char * m, const char * o, const char * v);
+static int archive_set_filter_option(struct archive * a, const char * m, const char * o, const char * v);
+static int archive_set_option(struct archive * a, const char * m, const char * o, const char * v);
 
-int archive_read_set_format_option(struct archive * a, const char * m, const char * o,
-    const char * v)
-{
-	return _archive_set_option(a, m, o, v,
-		   ARCHIVE_READ_MAGIC, "archive_read_set_format_option",
-		   archive_set_format_option);
-}
-
-int archive_read_set_filter_option(struct archive * a, const char * m, const char * o,
-    const char * v)
-{
-	return _archive_set_option(a, m, o, v,
-		   ARCHIVE_READ_MAGIC, "archive_read_set_filter_option",
-		   archive_set_filter_option);
-}
-
-int archive_read_set_option(struct archive * a, const char * m, const char * o,
-    const char * v)
-{
-	return _archive_set_option(a, m, o, v,
-		   ARCHIVE_READ_MAGIC, "archive_read_set_option",
-		   archive_set_option);
-}
-
+int archive_read_set_format_option(struct archive * a, const char * m, const char * o, const char * v)
+	{ return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, "archive_read_set_format_option", archive_set_format_option); }
+int archive_read_set_filter_option(struct archive * a, const char * m, const char * o, const char * v)
+	{ return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, "archive_read_set_filter_option", archive_set_filter_option); }
+int archive_read_set_option(struct archive * a, const char * m, const char * o, const char * v)
+	{ return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, "archive_read_set_option", archive_set_option); }
 int archive_read_set_options(struct archive * a, const char * options)
-{
-	return _archive_set_options(a, options,
-		   ARCHIVE_READ_MAGIC, "archive_read_set_options",
-		   archive_set_option);
-}
+	{ return _archive_set_options(a, options, ARCHIVE_READ_MAGIC, "archive_read_set_options", archive_set_option); }
 
 static int archive_set_format_option(struct archive * _a, const char * m, const char * o, const char * v)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	size_t i;
 	int r, rv = ARCHIVE_WARN, matched_modules = 0;
 	for(i = 0; i < sizeof(a->formats)/sizeof(a->formats[0]); i++) {
@@ -83,32 +56,26 @@ static int archive_set_format_option(struct archive * _a, const char * m, const 
 				continue;
 			++matched_modules;
 		}
-
 		a->format = format;
 		r = format->options(a, o, v);
 		a->format = NULL;
-
 		if(r == ARCHIVE_FATAL)
 			return ARCHIVE_FATAL;
-
 		if(r == ARCHIVE_OK)
 			rv = ARCHIVE_OK;
 	}
-	/* If the format name didn't match, return a special code for
-	 * _archive_set_option[s]. */
+	// If the format name didn't match, return a special code for _archive_set_option[s]. 
 	if(m != NULL && matched_modules == 0)
 		return ARCHIVE_WARN - 1;
 	return (rv);
 }
 
-static int archive_set_filter_option(struct archive * _a, const char * m, const char * o,
-    const char * v)
+static int archive_set_filter_option(struct archive * _a, const char * m, const char * o, const char * v)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter * filter;
 	struct archive_read_filter_bidder * bidder;
 	int r, rv = ARCHIVE_WARN, matched_modules = 0;
-
 	for(filter = a->filter; filter != NULL; filter = filter->upstream) {
 		bidder = filter->bidder;
 		if(bidder == NULL)
@@ -121,26 +88,19 @@ static int archive_set_filter_option(struct archive * _a, const char * m, const 
 				continue;
 			++matched_modules;
 		}
-
 		r = bidder->options(bidder, o, v);
-
 		if(r == ARCHIVE_FATAL)
 			return ARCHIVE_FATAL;
-
 		if(r == ARCHIVE_OK)
 			rv = ARCHIVE_OK;
 	}
-	/* If the filter name didn't match, return a special code for
-	 * _archive_set_option[s]. */
+	// If the filter name didn't match, return a special code for _archive_set_option[s]. 
 	if(m != NULL && matched_modules == 0)
 		return ARCHIVE_WARN - 1;
 	return (rv);
 }
 
-static int archive_set_option(struct archive * a, const char * m, const char * o,
-    const char * v)
+static int archive_set_option(struct archive * a, const char * m, const char * o, const char * v)
 {
-	return _archive_set_either_option(a, m, o, v,
-		   archive_set_format_option,
-		   archive_set_filter_option);
+	return _archive_set_either_option(a, m, o, v, archive_set_format_option, archive_set_filter_option);
 }

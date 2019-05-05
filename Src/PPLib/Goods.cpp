@@ -2975,8 +2975,8 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 				else {
 					// @v10.4.2 THROW(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0);
 					if(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0) { // @v10.4.2
-						SETIFZ(p_cache_rec->TaxGrpID, (short)grp_rec.TaxGrpID);
-						SETIFZ(p_cache_rec->TypeID, (short)grp_rec.GoodsTypeID);
+						SETIFZ(p_cache_rec->TaxGrpID, static_cast<short>(grp_rec.TaxGrpID));
+						SETIFZ(p_cache_rec->TypeID, static_cast<short>(grp_rec.GoodsTypeID));
 					}
 				}
 			}

@@ -444,11 +444,6 @@ int FASTCALL SdRecord::Copy(const SdRecord & rSrc)
 	return ok;
 }
 
-void SdRecord::Clear()
-{
-	Init();
-}
-
 int FASTCALL SdRecord::Write_(SBuffer & rBuf) const
 {
 	int    ok = 1;
@@ -516,26 +511,12 @@ int SdRecord::GetDescription(SString & rDescr) const
 	return ok;
 }
 
-const SdRecord::F * FASTCALL SdRecord::GetC(uint pos) const
-{
-	return (F *)Items.at(pos);
-}
-
+void   SdRecord::Clear() { Init(); }
+const  SdRecord::F * FASTCALL SdRecord::GetC(uint pos) const { return static_cast<F *>(Items.at(pos)); }
 // private
-SdRecord::F * FASTCALL SdRecord::Get(uint pos) const
-{
-	return (F *)Items.at(pos);
-}
-
-uint SdRecord::GetCount() const
-{
-	return Items.getCount();
-}
-
-size_t SdRecord::GetRecSize() const
-{
-	return RecSize;
-}
+SdRecord::F * FASTCALL SdRecord::Get(uint pos) const { return static_cast<F *>(Items.at(pos)); }
+uint   SdRecord::GetCount() const { return Items.getCount(); }
+size_t SdRecord::GetRecSize() const { return RecSize; }
 
 void SdRecord::SetDataBuf(void * pBuf, size_t bufSize)
 {
@@ -574,7 +555,7 @@ int SdRecord::ClearDataBuf()
 const void * FASTCALL SdRecord::GetDataC(uint fldPos) const
 {
 	if(P_DataBuf && (fldPos < Items.getCount())) {
-		uint8 * p = (uint8 *)P_DataBuf;
+		uint8 * p = static_cast<uint8 *>(P_DataBuf);
 		return (p + Get(fldPos)->InnerOffs);
 	}
 	else
@@ -583,7 +564,7 @@ const void * FASTCALL SdRecord::GetDataC(uint fldPos) const
 
 void * FASTCALL SdRecord::GetData(uint fldPos) const
 {
-	return (void *)GetDataC(fldPos);
+	return const_cast<void *>(GetDataC(fldPos));
 }
 
 int SdRecord::ScanName(SStrScan & rScan, uint * pPos, uint excludePos) const
@@ -791,7 +772,7 @@ int FASTCALL SdRecord::GetFieldByPos(uint pos, SdbField * pFld) const
 	CALLPTRMEMB(pFld, Init());
 	if(pos < Items.getCount()) {
 		if(pFld) {
-			const F * p_item = (const F *)Items.at(pos);
+			const F * p_item = static_cast<const F *>(Items.at(pos));
 			pFld->ID  = p_item->ID;
 			pFld->T   = p_item->T;
 			pFld->T.Flags = p_item->T.Flags;
@@ -953,8 +934,8 @@ int SLAPI SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 {
 	int    ok = 0;
 	if(P_Buf && recSize < SKILOBYTE(32)) {
-		if((Pos+recSize+sizeof(uint16)) < MaxSize) { // @v6.2.2 +sizeof(uint16)
-			*PTR16(P_Buf+Pos) = (uint16)recSize;
+		if((Pos+recSize+sizeof(uint16)) < MaxSize) { 
+			*PTR16(P_Buf+Pos) = static_cast<uint16>(recSize);
 			Pos += sizeof(uint16);
 			memcpy(P_Buf+Pos, pRecData, recSize);
 			Pos += recSize;

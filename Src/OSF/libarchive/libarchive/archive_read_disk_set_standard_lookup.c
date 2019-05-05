@@ -211,7 +211,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 	}
 	if(result == NULL)
 		return NULL;
-	return strdup(result->pw_name);
+	return sstrdup(result->pw_name);
 }
 
 #else
@@ -222,7 +222,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 	result = getpwuid((uid_t)id);
 	if(result == NULL)
 		return NULL;
-	return strdup(result->pw_name);
+	return sstrdup(result->pw_name);
 }
 
 #endif
@@ -272,7 +272,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 	if(result == NULL)
 		return NULL;
 
-	return strdup(result->gr_name);
+	return sstrdup(result->gr_name);
 }
 
 #else
@@ -286,7 +286,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 	if(result == NULL)
 		return NULL;
 
-	return strdup(result->gr_name);
+	return sstrdup(result->gr_name);
 }
 
 #endif

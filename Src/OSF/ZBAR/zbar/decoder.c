@@ -434,7 +434,7 @@ int FASTCALL decode_e(uint e, uint s, uint n)
 // 
 // sort three like-colored elements and return ordering
 // 
-uint FASTCALL decode_sort3(zbar_decoder_t * dcode, int i0)
+uint FASTCALL decode_sort3(const zbar_decoder_t * dcode, int i0)
 {
 	const uint w0 = get_width(dcode, i0);
 	const uint w2 = get_width(dcode, i0 + 2);
@@ -457,7 +457,7 @@ uint FASTCALL decode_sort3(zbar_decoder_t * dcode, int i0)
 //
 // sort N like-colored elements and return ordering
 //
-uint FASTCALL decode_sortn(zbar_decoder_t * dcode, int n, int i0)
+uint FASTCALL decode_sortn(const zbar_decoder_t * dcode, int n, int i0)
 {
 	uint mask = 0, sort = 0;
 	for(int i = n - 1; i >= 0; i--) {

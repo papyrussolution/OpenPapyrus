@@ -34,15 +34,8 @@ LotFilt & FASTCALL LotFilt::operator = (const LotFilt & s)
 	return *this;
 }
 
-int SLAPI LotFilt::GetExtssData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
-int SLAPI LotFilt::PutExtssData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtString, pBuf);
-}
+int SLAPI LotFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int SLAPI LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
 //virtual
 int SLAPI LotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
@@ -507,10 +500,8 @@ private:
 int SLAPI PPViewLot::MovLotOps(PPID srcLotID)
 {
 	int    ok = -1;
-	//PPID   dest_id = 0;
 	ReceiptTbl::Rec lot_rec;
 	if(srcLotID && P_Tbl->Search(srcLotID, &lot_rec) > 0) {
-		//if(SelectLot(rec.LocID, rec.GoodsID, srcLotID, &dest_id, 0) > 0 && dest_id) {
 		PPObjBill::SelectLotParam slp(lot_rec.GoodsID, lot_rec.LocID, srcLotID, 0);
 		if(P_BObj->SelectLot2(slp) > 0) {
 			long   mlo_flags = 0;
@@ -2028,12 +2019,13 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 //
 //
 //
-static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+//static 
+int PPViewLot::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
-		const  BrowserDef * p_def = p_brw->getDef();
+		BrowserDef * p_def = p_brw->getDef();
 		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
 			PPViewLot * p_view = static_cast<PPViewLot *>(p_brw->P_View);
 			const LotFilt * p_filt = static_cast<const LotFilt *>(p_view->GetBaseFilt());
@@ -2041,7 +2033,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 			const BroColumn & r_col = p_def->at(col);
 			// @v10.4.3 {
 			if(r_col.OrgOffs == 0) { // ID
-				const TagFilt & r_tag_filt = BillObj->GetConfig().LotTagIndFilt;
+				const TagFilt & r_tag_filt = p_view->P_BObj->GetConfig().LotTagIndFilt;
 				if(!r_tag_filt.IsEmpty()) {
 					SColor clr;
 					if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0) {
@@ -2051,8 +2043,26 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 					}
 				}
 			}
-			else {
 			// } @v10.4.3 
+			// @v10.4.4 {
+			else if(r_col.OrgOffs == 10) { // Expiry
+				const PPBillConfig & r_bcfg = p_view->P_BObj->GetConfig();
+				if(r_bcfg.WarnLotExpirFlags & r_bcfg.wlefIndicator) {
+					TYPEID typ = 0;
+					union {
+						LDATE  Expiry;
+						uint8  Pad[512];
+					} dest_data;
+					if(p_def->GetCellData(pData, col, &typ, &dest_data, sizeof(dest_data))) {
+						if(checkdate(dest_data.Expiry) && diffdate(getcurdate_(), dest_data.Expiry) >= r_bcfg.WarnLotExpirDays) {
+							pStyle->Color = GetColorRef(SClrOrange);
+							ok = 1;
+						}
+					}
+				}
+			}
+			// } @v10.4.4 
+			else {
 				const long qtty_col = 4;
 				const long cost_col = p_filt->Operation.IsZero() ? 7 : 8;
 				const long price_col = p_filt->Operation.IsZero() ? 8 : 9;

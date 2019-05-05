@@ -16,7 +16,7 @@
 			OutputDirectory="..\..\PPY\BIN"
 			IntermediateDirectory="..\RSRC\RC"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			ManagedExtensions="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -72,7 +72,7 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 			OutputDirectory="..\..\PPY\BIN"
 			IntermediateDirectory="..\RSRC\RC"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			ManagedExtensions="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -125,7 +125,7 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 			OutputDirectory="..\..\PPY\BIN"
 			IntermediateDirectory="..\RSRC\RC"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			ManagedExtensions="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -181,7 +181,7 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 			OutputDirectory="..\..\PPY\BIN"
 			IntermediateDirectory="..\RSRC\RC"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			ManagedExtensions="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -237,7 +237,7 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 			OutputDirectory="..\..\PPY\BIN"
 			IntermediateDirectory="..\RSRC\RC"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			ManagedExtensions="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -293,7 +293,7 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 			OutputDirectory="..\..\PPY\BIN"
 			IntermediateDirectory="..\RSRC\RC"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			ManagedExtensions="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -1119,8 +1119,9 @@ XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
 						Description="$(InputFileName)"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
-"
-						Outputs="$(OutDir)\PPSTR.BIN"/>
+COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1129,8 +1130,9 @@ COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 						Description="$(InputFileName)"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
-"
-						Outputs="$(OutDir)\PPSTR.BIN"/>
+COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ServerDebug|Win32">
@@ -1139,8 +1141,9 @@ COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 						Description="$(InputFileName)"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
-"
-						Outputs="$(OutDir)\PPSTR.BIN"/>
+COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ServerRelease|Win32">
@@ -1149,8 +1152,9 @@ COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 						Description="$(InputFileName)"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
-"
-						Outputs="$(OutDir)\PPSTR.BIN"/>
+COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MtDllDebug|Win32">
@@ -1159,8 +1163,9 @@ COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 						Description="$(InputFileName)"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
-"
-						Outputs="$(OutDir)\PPSTR.BIN"/>
+COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MtDllRelease|Win32">
@@ -1169,8 +1174,20 @@ COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 						Description="$(InputFileName)"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
-"
-						Outputs="$(OutDir)\PPSTR.BIN"/>
+COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Universe-HTT|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="$(InputFileName)"
+						CommandLine="..\..\TOOLS\SC2C $(InputPath)
+COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
+COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
 				</FileConfiguration>
 			</File>
 			<Filter

@@ -137,7 +137,7 @@ static const char * _warc_find_eol(const char * buf, size_t bsz);
 
 int archive_read_support_format_warc(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct warc_s * w;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_warc");

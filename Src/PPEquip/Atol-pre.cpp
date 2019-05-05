@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <comdisp.h>
 //
 //   Èםעונפויס הכÿ נאבמעû ס ATOL_CARD
 //

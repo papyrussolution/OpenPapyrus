@@ -48,7 +48,7 @@ struct shar {
 	int end_of_line;
 	struct archive_entry    * entry;
 	int has_data;
-	char                    * last_dir;
+	char * last_dir;
 	/* Line buffer for uuencoded dump format */
 	char outbuff[45];
 	size_t outpos;
@@ -94,7 +94,7 @@ static void shar_quote(struct archive_string * buf, const char * str, int in_she
  */
 int archive_write_set_format_shar(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct shar * shar;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_shar");
 	/* If someone else was already registered, unregister them. */
@@ -126,7 +126,7 @@ int archive_write_set_format_shar(struct archive * _a)
  */
 int archive_write_set_format_shar_dump(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct shar * shar;
 	archive_write_set_format_shar(&a->archive);
 	shar = (struct shar *)a->format_data;
@@ -190,7 +190,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 
 	if(archive_entry_filetype(entry) != AE_IFDIR) {
 		/* Try to create the dir. */
-		p = strdup(name);
+		p = sstrdup(name);
 		pp = strrchr(p, '/');
 		/* If there is a / character, try to create the dir. */
 		if(pp != NULL) {
@@ -282,7 +282,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			    if(shar->last_dir != NULL)
 				    SAlloc::F(shar->last_dir);
 
-			    shar->last_dir = strdup(name);
+			    shar->last_dir = sstrdup(name);
 			    /* Trim a trailing '/'. */
 			    pp = strrchr(shar->last_dir, '/');
 			    if(pp != NULL && pp[1] == '\0')

@@ -346,7 +346,7 @@ static cairo_surface_t * gradient_source(cairo_xlib_surface_t * dst,
 	if(n_stops < sizeof(buf) / (sizeof(XFixed) + sizeof(XRenderColor))) {
 		stops = (XFixed*)buf;
 	}
-	else{
+	else {
 		stops =
 		    _cairo_malloc_ab(n_stops,
 			sizeof(XFixed) + sizeof(XRenderColor));
@@ -721,7 +721,7 @@ static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
 			_cairo_xlib_surface_ensure_picture(src);
 			return cairo_surface_reference(&src->base);
 		}
-		else{
+		else {
 			cairo_surface_pattern_t local_pattern = *pattern;
 			local_pattern.base.matrix.x0 += sub->extents.x;
 			local_pattern.base.matrix.y0 += sub->extents.y;

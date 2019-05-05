@@ -67,15 +67,15 @@ struct archive_write_program_data {
 #endif
 	int child_stdin, child_stdout;
 
-	char            * child_buf;
+	char * child_buf;
 	size_t child_buf_len, child_buf_avail;
-	char            * program_name;
+	char * program_name;
 };
 
 struct private_data {
 	struct archive_write_program_data * pdata;
 	struct archive_string description;
-	char            * cmd;
+	char * cmd;
 };
 
 static int archive_compressor_program_open(struct archive_write_filter *);
@@ -93,26 +93,19 @@ int archive_write_add_filter_program(struct archive * _a, const char * cmd)
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	static const char prefix[] = "Program: ";
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_add_filter_program");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_program");
 	f->data = SAlloc::C(1, sizeof(*data));
 	if(f->data == NULL)
 		goto memerr;
-	data = (struct private_data *)f->data;
-
-	data->cmd = strdup(cmd);
+	data = static_cast<struct private_data *>(f->data);
+	data->cmd = sstrdup(cmd);
 	if(data->cmd == NULL)
 		goto memerr;
-
 	data->pdata = __archive_write_program_allocate(cmd);
 	if(data->pdata == NULL)
 		goto memerr;
-
 	/* Make up a description string. */
-	if(archive_string_ensure(&data->description,
-	    strlen(prefix) + strlen(cmd) + 1) == NULL)
+	if(archive_string_ensure(&data->description, strlen(prefix) + strlen(cmd) + 1) == NULL)
 		goto memerr;
 	archive_strcpy(&data->description, prefix);
 	archive_strcat(&data->description, cmd);
@@ -133,7 +126,7 @@ memerr:
 
 static int archive_compressor_program_open(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 
 	return __archive_write_program_open(f, data->pdata, data->cmd);
 }
@@ -141,20 +134,20 @@ static int archive_compressor_program_open(struct archive_write_filter * f)
 static int archive_compressor_program_write(struct archive_write_filter * f,
     const void * buff, size_t length)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 
 	return __archive_write_program_write(f, data->pdata, buff, length);
 }
 
 static int archive_compressor_program_close(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	return __archive_write_program_close(f, data->pdata);
 }
 
 static int archive_compressor_program_free(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	if(data) {
 		SAlloc::F(data->cmd);
 		archive_string_free(&data->description);
@@ -175,7 +168,7 @@ struct archive_write_program_data * __archive_write_program_allocate(const char 
 		return (data);
 	data->child_stdin = -1;
 	data->child_stdout = -1;
-	data->program_name = strdup(program);
+	data->program_name = sstrdup(program);
 	return (data);
 }
 /*

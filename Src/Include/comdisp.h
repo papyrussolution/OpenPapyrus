@@ -1,5 +1,5 @@
 // COMDISP.H
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #ifndef __COMDISP_H // {
@@ -113,8 +113,7 @@ public:
 	SLAPI  ComExcelShapes();
 	SLAPI ~ComExcelShapes();
 	virtual int SLAPI Init(IDispatch * pIDisp);
-
-	int SLAPI PutPicture(const char * pPath, RECT * pRect);
+	int    SLAPI PutPicture(const char * pPath, RECT * pRect);
 private:
 	enum {
 		AddPicture = 1L,

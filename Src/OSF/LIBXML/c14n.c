@@ -540,7 +540,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
 	/*
 	 * print out all elements from list
 	 */
-	xmlListWalk(list, (xmlListWalker)xmlC14NPrintNamespaces, (const void*)ctx);
+	xmlListWalk(list, (xmlListWalker)xmlC14NPrintNamespaces, (const void *)ctx);
 
 	/*
 	 * Cleanup
@@ -703,7 +703,7 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, in
 	/*
 	 * print out all elements from list
 	 */
-	xmlListWalk(list, (xmlListWalker)xmlC14NPrintNamespaces, (const void*)ctx);
+	xmlListWalk(list, (xmlListWalker)xmlC14NPrintNamespaces, (const void *)ctx);
 	/*
 	 * Cleanup
 	 */
@@ -1125,7 +1125,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 	/*
 	 * print out all elements from list
 	 */
-	xmlListWalk(list, (xmlListWalker)xmlC14NPrintAttrs, (const void*)ctx);
+	xmlListWalk(list, (xmlListWalker)xmlC14NPrintAttrs, (const void *)ctx);
 	/*
 	 * Cleanup
 	 */

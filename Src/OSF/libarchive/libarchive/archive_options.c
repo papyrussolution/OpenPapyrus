@@ -22,16 +22,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
-
-#include "archive_options_private.h"
+//#endif
+//#include "archive_options_private.h"
 
 static const char * parse_option(char ** str, const char ** mod, const char ** opt, const char ** val);
 
@@ -87,7 +84,7 @@ int _archive_set_options(struct archive * a, const char * options, int magic, co
 	if(isempty(options))
 		return ARCHIVE_OK;
 	else {
-		char * data = strdup(options);
+		char * data = sstrdup(options);
 		if(!data) {
 			archive_set_error(a, ENOMEM, "Out of memory adding file to list");
 			return ARCHIVE_FATAL;

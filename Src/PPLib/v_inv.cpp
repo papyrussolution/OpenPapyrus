@@ -1901,7 +1901,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
-		PPViewInventory * p_view = (PPViewInventory *)p_brw->P_View;
+		PPViewInventory * p_view = static_cast<PPViewInventory *>(p_brw->P_View);
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
@@ -1916,7 +1916,7 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 			const  BrowserDef * p_def = pBrw->getDef();
 			if(col >= 0 && col < (long)p_def->getCount()) {
 				const BroColumn & r_col = p_def->at(col);
-				PPViewInventory::BrwHdr * p_hdr = (PPViewInventory::BrwHdr *)pData;
+				const PPViewInventory::BrwHdr * p_hdr = static_cast<const PPViewInventory::BrwHdr *>(pData);
 				if(r_col.OrgOffs == 1) { // ID
 					if(p_hdr->Flags & INVENTF_WRITEDOFF) {
 						pStyle->Color = GetColorRef(SClrDodgerblue);

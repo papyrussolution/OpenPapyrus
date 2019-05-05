@@ -59,7 +59,7 @@ static inline int check_width(uint cur, uint prev)
 	return (dw > prev);
 }
 
-static inline int encode6(zbar_decoder_t * dcode)
+static inline int encode6(const zbar_decoder_t * dcode)
 {
 	/* build edge signature of character */
 	uint s = dcode->s6;
@@ -110,7 +110,7 @@ static inline int validate_sig(int sig)
 	return ((sig0 | sig1) & 0x888);
 }
 
-static inline int decode6(zbar_decoder_t * dcode)
+static inline int decode6(const zbar_decoder_t * dcode)
 {
 	int    c = -1;
 	int    sig = encode6(dcode);
@@ -323,18 +323,12 @@ zbar_symbol_type_t _zbar_decode_code93(zbar_decoder_t * dcode)
 		return ZBAR_NONE;
 
 	dcode93->element = 0;
-
-	dbprintf(2, "      code93[%c%02d+%x]:",
-	    (dcode93->direction) ? '<' : '>',
-	    dcode93->character, dcode93->element);
-
+	dbprintf(2, "      code93[%c%02d+%x]:", (dcode93->direction) ? '<' : '>', dcode93->character, dcode93->element);
 	if(check_width(dcode->s6, dcode93->width))
 		return (decode_abort(dcode, "width var"));
-
 	c = decode6(dcode);
 	if(c < 0)
 		return (decode_abort(dcode, "aborted"));
-
 	if(c == 0x2f) {
 		if(!check_stop(dcode))
 			return ZBAR_NONE;

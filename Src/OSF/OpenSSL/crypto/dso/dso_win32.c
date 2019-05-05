@@ -345,7 +345,7 @@ static char * win32_joiner(DSO * dso, const struct file_st * file_split)
 		return NULL;
 	}
 
-	result = OPENSSL_malloc(len + 1);
+	result = OPENSSL_malloc(len+1);
 	if(result == NULL) {
 		DSOerr(DSO_F_WIN32_JOINER, ERR_R_MALLOC_FAILURE);
 		return NULL;
@@ -482,7 +482,7 @@ static char * win32_name_converter(DSO * dso, const char * filename)
 		translated = OPENSSL_malloc(len + 5);
 	else
 		/* We will simply duplicate filename */
-		translated = OPENSSL_malloc(len + 1);
+		translated = OPENSSL_malloc(len+1);
 	if(translated == NULL) {
 		DSOerr(DSO_F_WIN32_NAME_CONVERTER, DSO_R_NAME_TRANSLATION_FAILED);
 		return NULL;

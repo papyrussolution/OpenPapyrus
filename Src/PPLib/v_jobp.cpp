@@ -577,7 +577,7 @@ int SLAPI PPViewJob::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
-		JobViewItem * p_item = (JobViewItem*)pBlk->P_SrcData;
+		const  JobViewItem * p_item = static_cast<const JobViewItem *>(pBlk->P_SrcData);
 		int    r = 0;
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(p_item->ID); break; // @id

@@ -203,7 +203,7 @@ BOOL CALLBACK AuthDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM l
 				}
 				case IDCANCEL:
 				{	// не получить логин и пароль
-					Account *pAccount = (Account*) GetWindowLong(hwndDlg, GWL_USERDATA);
+					Account * pAccount = reinterpret_cast<Account *>(GetWindowLong(hwndDlg, GWL_USERDATA));
 					pAccount->pUserName = NULL;
 					pAccount->pPassWord = NULL;
 					EndDialog(hwndDlg, wParam);
@@ -327,11 +327,7 @@ EXPORT int LoginPasswordBox(char *pUserNameBuff, char *pPassWordBuff, size_t max
 {
 	Account account; account.pUserName = NULL; account.pPassWord = NULL;
 	size_t size = 0;
-	if(DialogBoxParam (
-			GetModuleHandle(sTHIS_DLLFILE), MAKEINTRESOURCE(authDlg),
-			0, (DLGPROC) AuthDialogProc, (LPARAM) &account
-		)
-	){
+	if(DialogBoxParam(GetModuleHandle(SUcSwitch(sTHIS_DLLFILE)), MAKEINTRESOURCE(authDlg), 0, reinterpret_cast<DLGPROC>(AuthDialogProc), reinterpret_cast<LPARAM>(&account))){
 		if(account.pUserName) {
 			size = strlen(account.pUserName);
 			size = MIN(size, maxLength);
@@ -593,21 +589,20 @@ EXPORT int Connect(const char *pServer, const char *pUserName, const char *pUser
 	// STEP#1: initialize COM library
 	P_conn->status = !BIN(CoInitializeEx(0, COINIT_APARTMENTTHREADED));
 	if(!P_conn->status)
-		MessageBox(NULL, sCOM_LIBFAIL, sCOM_ERROR, MB_OK);
+		::MessageBox(NULL, SUcSwitch(sCOM_LIBFAIL), SUcSwitch(sCOM_ERROR), MB_OK);
 	// STEP#2: initialize COM security
 	if(P_conn->status) {
 		HRESULT hr = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
 			RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
 		if(FAILED(hr) && hr!=RPC_E_TOO_LATE) { // "RPC_E_TOO_LATE" happens sometimes but isn't fatal
-			MessageBox(NULL, sCOM_SECFAIL, sCOM_ERROR, MB_OK);
+			::MessageBox(NULL, SUcSwitch(sCOM_SECFAIL), SUcSwitch(sCOM_ERROR), MB_OK);
 			P_conn->status = 0;
 		}
 	}
 	// STEP#3: obtain the initial locator to WMI on a particular host computer
-	if(P_conn->status && FAILED(CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER,
-			IID_IWbemLocator, (LPVOID *) &(P_conn->P_loc)))) {
+	if(P_conn->status && FAILED(CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *) &(P_conn->P_loc)))) {
 		P_conn->status = 0;
-		MessageBox(NULL, sWBEM_INSTFAIL, sCOM_ERROR, MB_OK);
+		::MessageBox(NULL, SUcSwitch(sWBEM_INSTFAIL), SUcSwitch(sCOM_ERROR), MB_OK);
 	}
 	// STEP#4: connect to the default namespace with the
 	// current user and obtain pointer P_svc to make IWbemServices calls
@@ -618,27 +613,22 @@ EXPORT int Connect(const char *pServer, const char *pUserName, const char *pUser
 		// не стоит подключаться локально с логином/паролем не по умолчанию, т.к. WMI при этом выдает ошибку
 		// поэтому проверить не только имя пользователя но еще и сервер
 		if(user_name.Empty() || server.Empty() || server.Cmp(".", 0)==0 || server.Cmp("localhost", 0)==0) {
-			P_conn->status = !CheckWbemFailure ( P_conn->P_loc->ConnectServer (
-					full_name_space, NULL, NULL, 0, NULL, 0, 0, &(P_conn->P_svc) ),
-				sCONNECTING );
+			P_conn->status = !CheckWbemFailure ( P_conn->P_loc->ConnectServer(full_name_space, NULL, NULL, 0, NULL, 0, 0, &(P_conn->P_svc)), sCONNECTING);
 		}
 		else { // подключение к удаленному сервису WMI с явно указанным логином/паролем
 			BSTR bs_user = NULL, bs_password = NULL;
 			user_name.CopyToOleStr(&bs_user);
 			user_password.CopyToOleStr(&bs_password);
-			P_conn->status = !CheckWbemFailure ( P_conn->P_loc->ConnectServer (
-					full_name_space, bs_user, bs_password, 0, NULL, 0, 0, &(P_conn->P_svc)),
-				sCONNECTING );
+			P_conn->status = !CheckWbemFailure(P_conn->P_loc->ConnectServer(full_name_space, bs_user, bs_password, 0, NULL, 0, 0, &(P_conn->P_svc)), sCONNECTING);
 			SysFreeString(bs_user);
 			SysFreeString(bs_password);
 		}
 		SysFreeString(full_name_space);
 	}
 	// STEP#5: set the IWbemServices proxy so that impersonation of the user (client) occurs
-	if(P_conn->status && P_conn->P_svc!=NULL && FAILED(CoSetProxyBlanket( P_conn->P_svc, RPC_C_AUTHN_WINNT,
-			RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE) )) {
+	if(P_conn->status && P_conn->P_svc && FAILED(CoSetProxyBlanket(P_conn->P_svc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE))) {
 		P_conn->status = 0;
-		MessageBox( NULL, sPROXY_FAIL, sCOM_ERROR, MB_OK );
+		::MessageBox(NULL, SUcSwitch(sPROXY_FAIL), SUcSwitch(sCOM_ERROR), MB_OK);
 	}
 	// done, checking
 	if(P_conn->status) {
@@ -649,9 +639,7 @@ EXPORT int Connect(const char *pServer, const char *pUserName, const char *pUser
 		P_conn->lastMsg		= sSUCCEED;
 	}
 	else { // copying local connection parameters for possible future re-connecting
-		char * p_msg = new char[0x100];
-		::MessageBox(NULL, P_conn->lastMsg.CopyTo(p_msg, 0x100), sCONNECT_FAIL, MB_OK);
-		delete p_msg;
+		::MessageBox(NULL, SUcSwitch(P_conn->lastMsg), SUcSwitch(sCONNECT_FAIL), MB_OK);
 		Release();
 	}
 	return P_conn->status;

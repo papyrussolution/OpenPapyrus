@@ -141,7 +141,7 @@ const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, st
 
 int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry * entry, int fd, const struct stat * st)
 {
-	struct archive_read_disk * a = (struct archive_read_disk *)_a;
+	struct archive_read_disk * a = reinterpret_cast<struct archive_read_disk *>(_a);
 	const char * path, * name;
 	struct stat s;
 	int initial_fd = fd;

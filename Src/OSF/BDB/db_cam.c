@@ -1802,9 +1802,9 @@ err:    for(; noldskey > 0; noldskey--, toldskeyp++)
 /*
  * __db_duperr()
  *	Error message: we don't currently support sorted duplicate duplicates.
- * PUBLIC: int __db_duperr __P((DB *, uint32));
+ * PUBLIC: int __db_duperr(DB *, uint32);
  */
-int __db_duperr(DB*dbp, uint32 flags)
+int __db_duperr(const DB * dbp, uint32 flags)
 {
 	/*
 	 * If we run into this error while updating a secondary index,

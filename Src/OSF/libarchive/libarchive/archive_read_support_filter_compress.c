@@ -98,7 +98,7 @@ struct private_data {
 
 	/* Output variables. */
 	size_t out_block_size;
-	void                    * out_block;
+	void * out_block;
 
 	/* Decompression status variables. */
 	int use_reset_code;
@@ -123,32 +123,26 @@ struct private_data {
 	 * a 65280-byte dictionary entry.  (Of course, 32640:1
 	 * compression could also be considered the "best" case. ;-)
 	 */
-	uchar           * stackp;
+	uchar  * stackp;
 	uchar stack[65300];
 };
 
-static int      compress_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int      compress_bidder_init(struct archive_read_filter *);
-static int      compress_bidder_free(struct archive_read_filter_bidder *);
-
-static ssize_t  compress_filter_read(struct archive_read_filter *, const void **);
-static int      compress_filter_close(struct archive_read_filter *);
-
-static int      getbits(struct archive_read_filter *, int n);
-static int      next_code(struct archive_read_filter *);
+static int compress_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
+static int compress_bidder_init(struct archive_read_filter *);
+static int compress_bidder_free(struct archive_read_filter_bidder *);
+static ssize_t compress_filter_read(struct archive_read_filter *, const void **);
+static int compress_filter_close(struct archive_read_filter *);
+static int getbits(struct archive_read_filter *, int n);
+static int next_code(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-/* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_compress(struct archive * a)
-{
-	return archive_read_support_filter_compress(a);
-}
-
+	// Deprecated; remove in libarchive 4.0 
+	int archive_read_support_compression_compress(struct archive * a) { return archive_read_support_filter_compress(a); }
 #endif
 
 int archive_read_support_filter_compress(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_compress");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
@@ -201,44 +195,34 @@ static int compress_bidder_init(struct archive_read_filter * self)
 	static const size_t out_block_size = 64 * 1024;
 	void * out_block;
 	int code;
-
 	self->code = ARCHIVE_FILTER_COMPRESS;
 	self->name = "compress (.Z)";
-
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
 	out_block = SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
 		SAlloc::F(out_block);
 		SAlloc::F(state);
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate data for %s decompression",
-		    self->name);
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for %s decompression", self->name);
 		return ARCHIVE_FATAL;
 	}
-
 	self->data = state;
 	state->out_block_size = out_block_size;
 	state->out_block = out_block;
 	self->read = compress_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = compress_filter_close;
-
 	/* XXX MOVE THE FOLLOWING OUT OF INIT() XXX */
-
 	(void)getbits(self, 8); /* Skip first signature byte. */
 	(void)getbits(self, 8); /* Skip second signature byte. */
-
 	/* Get compression parameters. */
 	code = getbits(self, 8);
 	if((code & 0x1f) > 16) {
-		archive_set_error(&self->archive->archive, -1,
-		    "Invalid compressed data");
+		archive_set_error(&self->archive->archive, -1, "Invalid compressed data");
 		return ARCHIVE_FATAL;
 	}
 	state->maxcode_bits = code & 0x1f;
 	state->maxcode = (1 << state->maxcode_bits);
 	state->use_reset_code = code & 0x80;
-
 	/* Initialize decompressor. */
 	state->free_ent = 256;
 	state->stackp = state->stack;
@@ -252,28 +236,23 @@ static int compress_bidder_init(struct archive_read_filter * self)
 		state->suffix[code] = code;
 	}
 	next_code(self);
-
 	return ARCHIVE_OK;
 }
-
 /*
  * Return a block of data from the decompression buffer.  Decompress more
  * as necessary.
  */
 static ssize_t compress_filter_read(struct archive_read_filter * self, const void ** pblock)
 {
-	struct private_data * state;
 	uchar * p, * start, * end;
 	int ret;
-
-	state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	if(state->end_of_stream) {
 		*pblock = NULL;
 		return 0;
 	}
 	p = start = (uchar *)state->out_block;
 	end = start + state->out_block_size;
-
 	while(p < end && !state->end_of_stream) {
 		if(state->stackp > state->stack) {
 			*p++ = *--state->stackp;
@@ -286,11 +265,9 @@ static ssize_t compress_filter_read(struct archive_read_filter * self, const voi
 				return ret;
 		}
 	}
-
 	*pblock = start;
 	return (p - start);
 }
-
 /*
  * Clean up the reader.
  */
@@ -299,19 +276,16 @@ static int compress_bidder_free(struct archive_read_filter_bidder * self)
 	self->data = NULL;
 	return ARCHIVE_OK;
 }
-
 /*
  * Close and release the filter.
  */
 static int compress_filter_close(struct archive_read_filter * self)
 {
-	struct private_data * state = (struct private_data *)self->data;
-
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
 	return ARCHIVE_OK;
 }
-
 /*
  * Process the next code and fill the stack with the expansion
  * of the code.  Returns ARCHIVE_FATAL if there is a fatal I/O or
@@ -319,16 +293,13 @@ static int compress_filter_close(struct archive_read_filter * self)
  */
 static int next_code(struct archive_read_filter * self)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	int code, newcode;
-
 	static int debug_buff[1024];
 	static unsigned debug_index;
-
 	code = newcode = getbits(self, state->bits);
 	if(code < 0)
 		return (code);
-
 	debug_buff[debug_index++] = code;
 	if(debug_index >= sizeof(debug_buff)/sizeof(debug_buff[0]))
 		debug_index = 0;
@@ -359,21 +330,16 @@ static int next_code(struct archive_read_filter * self)
 		state->oldcode = -1;
 		return (next_code(self));
 	}
-
-	if(code > state->free_ent
-	    || (code == state->free_ent && state->oldcode < 0)) {
+	if(code > state->free_ent || (code == state->free_ent && state->oldcode < 0)) {
 		/* An invalid code is a fatal error. */
-		archive_set_error(&(self->archive->archive), -1,
-		    "Invalid compressed data");
+		archive_set_error(&(self->archive->archive), -1, "Invalid compressed data");
 		return ARCHIVE_FATAL;
 	}
-
 	/* Special case for KwKwK string. */
 	if(code >= state->free_ent) {
 		*state->stackp++ = state->finbyte;
 		code = state->oldcode;
 	}
-
 	/* Generate output characters in reverse order. */
 	while(code >= 256) {
 		*state->stackp++ = state->suffix[code];
@@ -396,12 +362,10 @@ static int next_code(struct archive_read_filter * self)
 		else
 			state->section_end_code = (1 << state->bits) - 1;
 	}
-
 	/* Remember previous code. */
 	state->oldcode = newcode;
 	return ARCHIVE_OK;
 }
-
 /*
  * Return next 'n' bits from stream.
  *
@@ -409,7 +373,7 @@ static int next_code(struct archive_read_filter * self)
  */
 static int getbits(struct archive_read_filter * self, int n)
 {
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	int code;
 	ssize_t ret;
 	static const int mask[] = {

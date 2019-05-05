@@ -45,7 +45,7 @@ int FASTCALL SClipboard::Copy_Text(const char * pText, size_t len)
 	int    cb_has_been_openen = 0;
 	THROW(Helper_OpenClipboardForCopy(cb_has_been_openen));
 	{
-		HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(char) * (len + 1));
+		HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(char) * (len+1));
 		THROW_S(h_glb, SLERR_WINDOWS);
 		char * p_buf = static_cast<char *>(::GlobalLock(h_glb));
 		THROW_S(p_buf, SLERR_WINDOWS);
@@ -66,7 +66,7 @@ int FASTCALL SClipboard::Copy_TextUnicode(const wchar_t * pText, size_t len)
 	int    cb_has_been_openen = 0;
 	THROW(Helper_OpenClipboardForCopy(cb_has_been_openen));
 	{
-		HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(wchar_t) * (len + 1));
+		HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(wchar_t) * (len+1));
 		THROW_S(h_glb, SLERR_WINDOWS);
 		wchar_t * p_buf = static_cast<wchar_t *>(::GlobalLock(h_glb));
 		THROW_S(p_buf, SLERR_WINDOWS);

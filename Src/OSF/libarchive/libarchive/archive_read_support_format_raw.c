@@ -53,7 +53,7 @@ static int      archive_read_format_raw_read_header(struct archive_read *, struc
 int archive_read_support_format_raw(struct archive * _a)
 {
 	struct raw_info * info;
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_raw");
 	info = (struct raw_info *)SAlloc::C(1, sizeof(*info));

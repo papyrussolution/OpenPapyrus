@@ -31,7 +31,7 @@ xmlChar * FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
 {
 	xmlChar * ret = 0;
 	if(cur && len >= 0) {
-		ret = static_cast<xmlChar *>(SAlloc::M((len + 1) * sizeof(xmlChar)));
+		ret = static_cast<xmlChar *>(SAlloc::M((len+1) * sizeof(xmlChar)));
 		if(!ret) {
 			xmlErrMemory(NULL, 0);
 		}
@@ -77,7 +77,7 @@ xmlChar * xmlCharStrndup(const char * cur, int len)
 	int i;
 	xmlChar * ret;
 	if(!cur || (len < 0)) return 0;
-	ret = static_cast<xmlChar *>(SAlloc::M((len + 1) * sizeof(xmlChar)));
+	ret = static_cast<xmlChar *>(SAlloc::M((len+1) * sizeof(xmlChar)));
 	if(!ret) {
 		xmlErrMemory(NULL, 0);
 		return 0;
@@ -821,7 +821,7 @@ xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len)
 	i = xmlUTF8Strsize(utf, len);
 	ret = static_cast<xmlChar *>(SAlloc::M((i + 1) * sizeof(xmlChar)));
 	if(!ret) {
-		xmlGenericError(0, "malloc of %ld byte failed\n", (len + 1) * (long)sizeof(xmlChar));
+		xmlGenericError(0, "malloc of %ld byte failed\n", (len+1) * (long)sizeof(xmlChar));
 		return 0;
 	}
 	memcpy(ret, utf, i * sizeof(xmlChar));

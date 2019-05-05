@@ -4554,7 +4554,7 @@ int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
 			SArchive arc;
 			SString temp_buf;
 			SString to_arc_name;
-			THROW_SL(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite));
+			THROW_SL(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite, 0));
 			{
 				const int64 zec = arc.GetEntriesCount();
 				int   _found = 0;

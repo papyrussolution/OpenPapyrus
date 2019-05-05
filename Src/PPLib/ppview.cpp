@@ -3,10 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <comdisp.h>
-//
-//
-//
+
 //static
 DBQuery * PPView::CrosstabDbQueryStub = reinterpret_cast<DBQuery *>(0x0001);
 //
@@ -180,6 +177,7 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 			case PPVIEW_OPRKIND:        p_v = new PPViewOprKind();      break; // @v9.3.6
 			case PPVIEW_PHNSVCMONITOR:  p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
 			case PPVIEW_VETISDOCUMENT:  p_v = new PPViewVetisDocument(); break; // @v10.0.12
+			case PPVIEW_TIMESERIES:     p_v = new PPViewTimeSeries();    break; // @v10.4.4
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v && p_v->Symb.Empty()) {

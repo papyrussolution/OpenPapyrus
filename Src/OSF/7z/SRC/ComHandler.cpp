@@ -634,7 +634,7 @@ namespace NArchive {
 					res = NExtractArc::NOperationResult::kDataError;
 				else if(hres == E_NOTIMPL)
 					res = NExtractArc::NOperationResult::kUnsupportedMethod;
-				else{
+				else {
 					RINOK(hres);
 					if(inStream) {
 						RINOK(copyCoder->Code(inStream, outStream, NULL, NULL, progress));
@@ -682,7 +682,7 @@ namespace NArchive {
 						streamSpec->Vector.AddInReserved(sid + 1);
 						sid = _db.Fat[sid];
 					}
-					else{
+					else {
 						uint64 val = 0;
 						if(sid >= _db.MatSize || !_db.GetMiniCluster(sid, val) || val >= (uint64)1 << 32)
 							return S_FALSE;

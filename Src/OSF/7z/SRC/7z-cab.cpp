@@ -989,7 +989,7 @@ namespace NArchive {
 					}
 					realProcessed += numBytesToWrite;
 					ASSIGN_PTR(processedSize, realProcessed);
-					data = (const void*)((const Byte*)data + numBytesToWrite);
+					data = (const void *)((const Byte*)data + numBytesToWrite);
 					size -= numBytesToWrite;
 					m_RemainFileSize -= numBytesToWrite;
 					m_PosInFolder += numBytesToWrite;
@@ -1035,7 +1035,7 @@ namespace NArchive {
 						uint32 numBytesToWrite = MyMin(fileOffset - (uint32)m_PosInFolder, size);
 						realProcessed += numBytesToWrite;
 						ASSIGN_PTR(processedSize, realProcessed);
-						data = (const void*)((const Byte*)data + numBytesToWrite);
+						data = (const void *)((const Byte*)data + numBytesToWrite);
 						size -= numBytesToWrite;
 						m_PosInFolder += numBytesToWrite;
 					}

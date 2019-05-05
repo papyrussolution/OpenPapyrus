@@ -4975,7 +4975,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 				long   numrecs = 0;
 				P_IE->GetNumRecs(&numrecs);
 				cntr.SetTotal(numrecs);
-				for(uint i = 0; i < (uint)numrecs; i++) {
+				for(uint i = 0; i < static_cast<uint>(numrecs); i++) {
 					PPID   scs_id = 0;
 					PPID   sc_id = 0;
 					PPID   temp_id = 0;

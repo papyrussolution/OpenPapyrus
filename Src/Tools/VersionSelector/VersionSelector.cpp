@@ -1,7 +1,7 @@
 // VersonSelector.cpp : Defines the entry point for the application.
 //
 #include "VersionSelector.h"
-#include <errno.h>
+//#include <errno.h>
 #include <pp.h>
 #include <shlwapi.h>
 
@@ -17,25 +17,10 @@ int FillVersList(HWND list, int byDiscs);
 int PPErrCode;
 int __Semaph;
 
-int FASTCALL PPSetError(int errCode)
-{
-	return ((PPErrCode = errCode), 0);
-}
-
-int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
-{
-	return ((PPErrCode = errCode), 0);
-}
-
-int PPSetErrorNoMem()
-{
-	return ((PPErrCode = PPERR_NOMEM), 0);
-}
-
-int PPSetErrorSLib()
-{
-	return ((PPErrCode = PPERR_SLIB), 0);
-}
+int FASTCALL PPSetError(int errCode) { return ((PPErrCode = errCode), 0); }
+int FASTCALL PPSetError(int errCode, const char * pAddedMsg) { return ((PPErrCode = errCode), 0); }
+int PPSetErrorNoMem() { return ((PPErrCode = PPERR_NOMEM), 0); }
+int PPSetErrorSLib() { return ((PPErrCode = PPERR_SLIB), 0); }
 
 struct RetVal {
 	char * P_Path;
@@ -88,19 +73,17 @@ extern "C" int __declspec(dllexport) SelectVersion(HWND hWndOwner, char * pPath,
 
 struct FindVers : public SFindFile {
 public:
-	FindVers(HWND list, const char* pPath = 0, const char* pFileName = 0);
+	FindVers(HWND list, const char * pPath = 0, const char* pFileName = 0) : SFindFile(pPath, pFileName), List(list)
+	{
+		Dlg = ::GetParent(List);
+		Label = ::GetDlgItem(Dlg, IDC_STATIC);
+	}
 	virtual int SLAPI CallbackProc(const char* pPath, SDirEntry* pEntry);
 private:
 	HWND List;
 	HWND Dlg;
 	HWND Label;
 };
-
-FindVers::FindVers(HWND list, const char* pPath, const char* pFileName) : SFindFile(pPath, pFileName), List(list)
-{
-	Dlg = GetParent(List);
-	Label = GetDlgItem(Dlg, IDC_STATIC);
-}
 
 int SLAPI FindVers::CallbackProc(const char* pPath, SDirEntry * pEntry)
 {
@@ -139,11 +122,11 @@ int GetVersBuf(const char * pPath, char * pBuf, size_t bufSize)
 int FillVersList(HWND list, int byDiscs)
 {
 	uint i = 0;
-	SendMessage(list, (UINT)LB_RESETCONTENT, (WPARAM)0, (LPARAM)0);
+	::SendMessage(list, (UINT)LB_RESETCONTENT, 0, 0);
 	if(byDiscs) {
 		EnableWindow(GetDlgItem(GetParent(list), IDOK), FALSE);
 		EnableWindow(GetDlgItem(GetParent(list), cmFindVersions), FALSE);
-		SetWindowText(GetDlgItem(GetParent(list), IDCANCEL), _T("Стоп"));
+		::SetWindowText(GetDlgItem(GetParent(list), IDCANCEL), _T("Стоп"));
 		__Semaph = 1;
 		for(int i = 'A'; i <= 'Z'; i++) {
 			char path[MAXPATH];
@@ -158,7 +141,7 @@ int FillVersList(HWND list, int byDiscs)
 				param.P_FileName = "ppw.exe";
 				param.Run();
 			}
-			SetWindowText(GetDlgItem(GetParent(list), IDC_STATIC), NULL);
+			::SetWindowText(::GetDlgItem(GetParent(list), IDC_STATIC), NULL);
 		}
 		SetWindowText(GetDlgItem(GetParent(list), IDCANCEL), _T("Отмена"));
 		EnableWindow(GetDlgItem(GetParent(list), cmFindVersions), TRUE);
@@ -191,7 +174,7 @@ BOOL CALLBACK DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg) {
 		case WM_INITDIALOG:
-			SetWindowLong(hWnd, GWL_USERDATA, (long)lParam);
+			::SetWindowLong(hWnd, GWL_USERDATA, lParam);
 			FillVersList(GetDlgItem(hWnd, CTL_SELVERSION_LIST), 0);
 			__Semaph = 0;
 			return TRUE;
@@ -201,33 +184,33 @@ BOOL CALLBACK DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				int wmEvent = HIWORD(wParam); 
 				switch(wmId) {
 					case cmFindVersions:
-						FillVersList(GetDlgItem(hWnd, CTL_SELVERSION_LIST), 1);
+						FillVersList(::GetDlgItem(hWnd, CTL_SELVERSION_LIST), 1);
 						break;
 					case IDOK:
 						{
 							int    sel_item;
-							HWND   list = GetDlgItem(hWnd, CTL_SELVERSION_LIST);
-							if(list && SendMessage(list, LB_GETCOUNT, 0, 0)) {	
-								char   buf[MAXPATH];
-								RetVal * p_val = (RetVal*)GetWindowLong(hWnd, GWL_USERDATA);
+							HWND   list = ::GetDlgItem(hWnd, CTL_SELVERSION_LIST);
+							if(list && ::SendMessage(list, LB_GETCOUNT, 0, 0)) {	
+								TCHAR buf[1024];
+								RetVal * p_val = reinterpret_cast<RetVal *>(::GetWindowLong(hWnd, GWL_USERDATA));
 								if(p_val && p_val->P_Path) {
-									sel_item = (int)SendMessage(list, LB_GETCURSEL, 0, 0);
-									SendMessage(list, LB_GETTEXT, (WPARAM)sel_item, (LPARAM)(LPCTSTR)buf);
+									sel_item = (int)::SendMessage(list, LB_GETCURSEL, 0, 0);
+									::SendMessage(list, LB_GETTEXT, (WPARAM)sel_item, reinterpret_cast<LPARAM>(buf));
 									uint pos = 0;
-									StringSet ss(',', buf);
+									StringSet ss(',', SUcSwitch(buf));
 									ss.get(&pos, p_val->P_Path, MAXPATH);
 									pos = (uint)StrStrI(SUcSwitch(p_val->P_Path), _T("\\bin\\ppw.exe"));
 									if(pos)
-										*(char*)pos = 0;
+										*(char *)pos = 0;
 									else {
 										pos = (uint)StrStrI(SUcSwitch(p_val->P_Path), _T("\\ppw.exe"));
-										*(char*)pos = 0;
+										*(char *)pos = 0;
 									}
 									p_val->OK = 1;
 								}
 								else if(p_val)
 									p_val->OK = 0;
-								EndDialog(hWnd, LOWORD(wParam));
+								::EndDialog(hWnd, LOWORD(wParam));
 							}
 						}
 						break;
@@ -235,10 +218,10 @@ BOOL CALLBACK DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						if(__Semaph)
 							__Semaph = 0;
 						else {
-							RetVal * p_val = (RetVal *)GetWindowLong(hWnd, GWL_USERDATA);
+							RetVal * p_val = reinterpret_cast<RetVal *>(::GetWindowLong(hWnd, GWL_USERDATA));
 							if(p_val)
 								p_val->OK = -1;
-							EndDialog(hWnd, LOWORD(wParam));
+							::EndDialog(hWnd, LOWORD(wParam));
 							return TRUE;
 						}
 						break;

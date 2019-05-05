@@ -513,7 +513,7 @@ static force_inline void core_combine_over_u_sse2_mask(uint32_t *       pd,
 			if(is_opaque(_mm_and_si128(src, mask))) {
 				save_128_aligned((__m128i*)pd, src);
 			}
-			else{
+			else {
 				__m128i dst = load_128_aligned((__m128i*)pd);
 				__m128i dst_hi, dst_lo;
 
@@ -587,7 +587,7 @@ static force_inline void core_combine_over_u_sse2_no_mask(uint32_t *    pd,
 			if(is_opaque(src)) {
 				save_128_aligned((__m128i*)pd, src);
 			}
-			else{
+			else {
 				__m128i dst = load_128_aligned((__m128i*)pd);
 
 				unpack_128_2x128(src, &src_lo, &src_hi);
@@ -1328,7 +1328,7 @@ static void sse2_combine_saturate_u(pixman_implementation_t * imp,
 			if(pm)
 				pm++;
 		}
-		else{
+		else {
 			save_128_aligned((__m128i*)pd, _mm_adds_epu8(xmm_dst, xmm_src));
 
 			pd += 4;
@@ -2913,7 +2913,7 @@ static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
 		byte_width = 4 * width;
 		stride *= 4;
 	}
-	else{
+	else {
 		return FALSE;
 	}
 
@@ -3042,7 +3042,7 @@ static void sse2_composite_src_n_8_8888(pixman_implementation_t * imp,
 				*dst = pack_1x128_32(
 					pix_multiply_1x128(xmm_src, expand_pixel_8_1x128(m)));
 			}
-			else{
+			else {
 				*dst = 0;
 			}
 
@@ -3073,7 +3073,7 @@ static void sse2_composite_src_n_8_8888(pixman_implementation_t * imp,
 				save_128_aligned(
 					(__m128i*)dst, pack_2x128_128(xmm_mask_lo, xmm_mask_hi));
 			}
-			else{
+			else {
 				save_128_aligned((__m128i*)dst, _mm_setzero_si128());
 			}
 
@@ -3090,7 +3090,7 @@ static void sse2_composite_src_n_8_8888(pixman_implementation_t * imp,
 					pix_multiply_1x128(
 						xmm_src, expand_pixel_8_1x128(m)));
 			}
-			else{
+			else {
 				*dst = 0;
 			}
 
@@ -3932,7 +3932,7 @@ static pixman_bool_t sse2_blt(pixman_implementation_t * imp,
 		src_stride *= 4;
 		dst_stride *= 4;
 	}
-	else{
+	else {
 		return FALSE;
 	}
 
@@ -4066,7 +4066,7 @@ static void sse2_composite_over_x888_8_8888(pixman_implementation_t * imp, pixma
 			if(m == 0xffffffff) {
 				save_128_aligned((__m128i*)dst, xmm_src);
 			}
-			else{
+			else {
 				xmm_dst = load_128_aligned((__m128i*)dst);
 
 				xmm_mask = _mm_unpacklo_epi16(unpack_32_1x128(m), _mm_setzero_si128());
@@ -4100,7 +4100,7 @@ static void sse2_composite_over_x888_8_8888(pixman_implementation_t * imp, pixma
 				if(m == 0xff) {
 					*dst = s;
 				}
-				else{
+				else {
 					__m128i ma, md, ms;
 
 					d = *dst;
@@ -4153,7 +4153,7 @@ static void sse2_composite_over_8888_8_8888(pixman_implementation_t * imp, pixma
 				if(sa == 0xff && m == 0xff) {
 					*dst = s;
 				}
-				else{
+				else {
 					__m128i ms, md, ma, msa;
 					ma = expand_alpha_rev_1x128(load_32_1x128(m));
 					ms = unpack_32_1x128(s);
@@ -4172,7 +4172,7 @@ static void sse2_composite_over_8888_8_8888(pixman_implementation_t * imp, pixma
 				if(m == 0xffffffff && is_opaque(xmm_src)) {
 					save_128_aligned((__m128i*)dst, xmm_src);
 				}
-				else{
+				else {
 					xmm_dst = load_128_aligned((__m128i*)dst);
 					xmm_mask = _mm_unpacklo_epi16(unpack_32_1x128(m), _mm_setzero_si128());
 					unpack_128_2x128(xmm_src, &xmm_src_lo, &xmm_src_hi);
@@ -4199,7 +4199,7 @@ static void sse2_composite_over_8888_8_8888(pixman_implementation_t * imp, pixma
 				if(sa == 0xff && m == 0xff) {
 					*dst = s;
 				}
-				else{
+				else {
 					__m128i ms, md, ma, msa;
 					ma = expand_alpha_rev_1x128(load_32_1x128(m));
 					ms = unpack_32_1x128(s);
@@ -4312,7 +4312,7 @@ static void sse2_composite_over_8888_8888_8888(pixman_implementation_t * imp, pi
 				if(sa == 0xff && m == 0xff) {
 					*dst = s;
 				}
-				else{
+				else {
 					__m128i ms, md, ma, msa;
 					ma = expand_alpha_rev_1x128(load_32_1x128(m));
 					ms = unpack_32_1x128(s);
@@ -4331,7 +4331,7 @@ static void sse2_composite_over_8888_8888_8888(pixman_implementation_t * imp, pi
 				if(is_opaque(xmm_mask) && is_opaque(xmm_src)) {
 					save_128_aligned((__m128i*)dst, xmm_src);
 				}
-				else{
+				else {
 					xmm_dst = load_128_aligned((__m128i*)dst);
 					unpack_128_2x128(xmm_src, &xmm_src_lo, &xmm_src_hi);
 					unpack_128_2x128(xmm_mask, &xmm_mask_lo, &xmm_mask_hi);
@@ -4357,7 +4357,7 @@ static void sse2_composite_over_8888_8888_8888(pixman_implementation_t * imp, pi
 				if(sa == 0xff && m == 0xff) {
 					*dst = s;
 				}
-				else{
+				else {
 					__m128i ms, md, ma, msa;
 
 					ma = expand_alpha_rev_1x128(load_32_1x128(m));
@@ -4892,7 +4892,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8888_OVER(uint32_t *
 			if(is_opaque(xmm_src)) {
 				save_128_aligned((__m128i*)dst, xmm_src);
 			}
-			else{
+			else {
 				__m128i xmm_dst = load_128_aligned((__m128i*)dst);
 
 				unpack_128_2x128(xmm_src, &xmm_src_lo, &xmm_src_hi);
@@ -4970,7 +4970,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32_t
 			if(sa == 0xff && m == 0xff) {
 				*dst = pix1;
 			}
-			else{
+			else {
 				__m128i ms, md, ma, msa;
 
 				pix2 = *dst;
@@ -4983,7 +4983,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32_t
 				*dst = pack_1x128_32(in_over_1x128(&ms, &msa, &ma, &md));
 			}
 		}
-		else{
+		else {
 			BILINEAR_SKIP_ONE_PIXEL();
 		}
 
@@ -5004,7 +5004,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32_t
 			if(m == 0xffffffff && is_opaque(xmm_src)) {
 				save_128_aligned((__m128i*)dst, xmm_src);
 			}
-			else{
+			else {
 				xmm_dst = load_128_aligned((__m128i*)dst);
 
 				xmm_mask = _mm_unpacklo_epi16(unpack_32_1x128(m), _mm_setzero_si128());
@@ -5022,7 +5022,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32_t
 				save_128_aligned((__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
 			}
 		}
-		else{
+		else {
 			BILINEAR_SKIP_FOUR_PIXELS();
 		}
 
@@ -5043,7 +5043,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32_t
 			if(sa == 0xff && m == 0xff) {
 				*dst = pix1;
 			}
-			else{
+			else {
 				__m128i ms, md, ma, msa;
 
 				pix2 = *dst;
@@ -5056,7 +5056,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32_t
 				*dst = pack_1x128_32(in_over_1x128(&ms, &msa, &ma, &md));
 			}
 		}
-		else{
+		else {
 			BILINEAR_SKIP_ONE_PIXEL();
 		}
 

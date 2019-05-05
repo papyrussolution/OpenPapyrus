@@ -2882,7 +2882,9 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	PPID   ContractRegTypeID;  //
 	PPID   MnfCountryLotTagID; //
 	LDATE  LowDebtCalcDate;    //
-	uint8  Reserve2[20];       // @reserve
+	int16  WarnLotExpirDays;   // @v10.4.4 Количество дней до предупреждения об истечении срока годности лота
+	uint16 WarnLotExpirFlags;  // @v10.4.4 Опции действий при угрозе истечения срока годности лота 
+	uint8  Reserve2[16];       // @reserve @v10.4.4 [20]-->[16]
 };
 
 const char * BillAddFilesFolder = "BillAddFilesFolder";
@@ -2930,6 +2932,8 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		pCfg->ContractRegTypeID = p_temp->ContractRegTypeID;
 		pCfg->MnfCountryLotTagID = p_temp->MnfCountryLotTagID;
 		pCfg->LowDebtCalcDate = p_temp->LowDebtCalcDate;
+		pCfg->WarnLotExpirDays = p_temp->WarnLotExpirDays; // @v10.4.4
+		pCfg->WarnLotExpirFlags = p_temp->WarnLotExpirFlags; // @v10.4.4
 		pCfg->GoodsSubstMethod = p_temp->GoodsSubstMethod;
 		pCfg->LnkFilesCntrID = p_temp->LnkFilesCntrID;
 		pCfg->ValuationRndDir = p_temp->ValuationRndDir;
@@ -2976,7 +2980,7 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 	STempBuffer temp_buf(0);
 	size_t sz = sizeof(__PPBillConfig);
 	THROW(CheckCfgRights(PPCFGOBJ_BILL, PPR_MOD, 0));
-	if(pCfg->TagIndFilt.IsEmpty()) {
+	if(pCfg->TagIndFilt.IsEmpty() && pCfg->LotTagIndFilt.IsEmpty()) { // @v10.4.3 (&& pCfg->LotTagIndFilt.IsEmpty())
 		p_temp = &temp;
 	}
 	else {
@@ -3012,6 +3016,8 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 		p_temp->ContractRegTypeID = pCfg->ContractRegTypeID;
 		p_temp->MnfCountryLotTagID = pCfg->MnfCountryLotTagID;
 		p_temp->LowDebtCalcDate = pCfg->LowDebtCalcDate;
+		p_temp->WarnLotExpirDays = pCfg->WarnLotExpirDays; // @v10.4.4
+		p_temp->WarnLotExpirFlags = pCfg->WarnLotExpirFlags; // @v10.4.4
 		STRNSCPY(p_temp->InvSnTemplt, pCfg->InvSnTemplt);
 		STRNSCPY(p_temp->OpCodePrfx, pCfg->OpCodePrfx);
 		STRNSCPY(p_temp->ClCodePrfx, pCfg->ClCodePrfx);
@@ -3171,6 +3177,13 @@ public:
 		}
 		setCtrlData(CTL_BILLCFG_LOWDEBTDATE, &Data.LowDebtCalcDate);
 		setCtrlString(CTL_BILLCFG_FILESFOLDER, Data.AddFilesFolder);
+		// @v10.4.4 {
+		AddClusterAssoc(CTL_BILLCFG_WLEF, 0, Data.wlefIndicator);
+		AddClusterAssoc(CTL_BILLCFG_WLEF, 1, Data.wlefDisalbePosOp);
+		AddClusterAssoc(CTL_BILLCFG_WLEF, 2, Data.wlefDisableBillOp);
+		SetClusterData(CTL_BILLCFG_WLEF, Data.WarnLotExpirFlags);
+		setCtrlData(CTL_BILLCFG_WLED, &Data.WarnLotExpirDays);
+		// } @v10.4.4 
 		return ok;
 	}
 	int getDTS(PPBillConfig * pData)
@@ -3183,6 +3196,10 @@ public:
 		getCtrlData(sel = CTL_BILLCFG_LOWDEBTDATE,  &Data.LowDebtCalcDate);
 		THROW_SL(checkdate(Data.LowDebtCalcDate, 1));
 		getCtrlString(CTL_BILLCFG_FILESFOLDER, Data.AddFilesFolder);
+		// @v10.4.4 {
+		Data.WarnLotExpirFlags = static_cast<uint16>(GetClusterData(CTL_BILLCFG_WLEF));
+		getCtrlData(CTL_BILLCFG_WLED, &Data.WarnLotExpirDays);
+		// } @v10.4.4 
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			ok = PPErrorByDialog(this, sel);
@@ -4589,7 +4606,6 @@ public:
 	int    SLAPI GetCrBillEntry(long & rTempID, PPBillPacket * pPack); // @sync_w
 	int    SLAPI SetCrBillEntry(long tempID, const PPBillPacket * pPack);    // @sync_w
 	int    SLAPI GetPrjConfig(PPProjectConfig * pCfg, int enforce);    // @sync_w
-
 	const  StrAssocArray * SLAPI GetFullSerialList(); // @sync_w
 	void   ReleaseFullSerialList(const StrAssocArray * pList);
 	void   ResetFullSerialList(); // @sync_w
@@ -4762,7 +4778,6 @@ private:
 	BillFreightCache FreightCache;
 	TSCollection <CrBillEntry> CrBillList;
 	FslArray FullSerialList;
-
 	PPProjectConfig PrjCfg;   //
 	ReadWriteLock PrjCfgLock; // Блокировка конфигурации проектов
 };

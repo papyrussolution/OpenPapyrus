@@ -28,15 +28,15 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:14Z kientzle $");
 
-#ifdef HAVE_SYS_TYPES_H
-	#include <sys/types.h>
-#endif
+//#ifdef HAVE_SYS_TYPES_H
+	//#include <sys/types.h>
+//#endif
 //#ifdef HAVE_ERRNO_H
 //#include <errno.h>
 //#endif
-#ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
-#endif
+//#ifdef HAVE_FCNTL_H
+	//#include <fcntl.h>
+//#endif
 //#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
 //#endif
@@ -60,11 +60,11 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:1
 #endif
 //#include "archive.h"
 //#include "archive_private.h"
-#include "archive_random_private.h"
+//#include "archive_random_private.h"
 //#include "archive_string.h"
 
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
 
 static int archive_utility_string_sort_helper(char **, uint);
@@ -143,6 +143,11 @@ void FASTCALL __archive_errx(int retvalue, const char * msg)
 	(void)s; /* UNUSED */
 	exit(retvalue);
 }
+
+void FASTCALL __archive_errx_nomem(int retvalue)
+{
+	__archive_errx(retvalue, "Out of memory");
+}
 /*
  * Create a temporary file
  */
@@ -202,13 +207,11 @@ int __archive_mktemp(const char * tmpdir)
 		SAlloc::F(tmp);
 	}
 	else {
-		if(archive_wstring_append_from_mbs(&temp_name, tmpdir,
-		    strlen(tmpdir)) < 0)
+		if(archive_wstring_append_from_mbs(&temp_name, tmpdir, strlen(tmpdir)) < 0)
 			goto exit_tmpfile;
 		if(temp_name.s[temp_name.length-1] != L'/')
 			archive_wstrappend_wchar(&temp_name, L'/');
 	}
-
 	/* Check if temp_name is a directory. */
 	attr = GetFileAttributesW(temp_name.s);
 	if(attr == (DWORD)-1) {
@@ -239,27 +242,21 @@ int __archive_mktemp(const char * tmpdir)
 	archive_wstrcat(&temp_name, suffix);
 	ep = temp_name.s + archive_strlen(&temp_name);
 	xp = ep - wcslen(suffix);
-
 	if(!CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL,
 	    CRYPT_VERIFYCONTEXT)) {
 		la_dosmaperr(GetLastError());
 		goto exit_tmpfile;
 	}
-
 	for(;;) {
-		wchar_t * p;
 		HANDLE h;
-
 		/* Generate a random file name through CryptGenRandom(). */
-		p = xp;
-		if(!CryptGenRandom(hProv, (DWORD)(ep - p)*sizeof(wchar_t),
-		    (BYTE*)p)) {
+		wchar_t * p = xp;
+		if(!CryptGenRandom(hProv, (DWORD)(ep - p)*sizeof(wchar_t), (BYTE*)p)) {
 			la_dosmaperr(GetLastError());
 			goto exit_tmpfile;
 		}
 		for(; p < ep; p++)
 			*p = num[((DWORD)*p) % (sizeof(num)/sizeof(num[0]))];
-
 		SAlloc::F(ws);
 		ws = __la_win_permissive_name_w(temp_name.s);
 		if(ws == NULL) {
@@ -269,13 +266,8 @@ int __archive_mktemp(const char * tmpdir)
 		/* Specifies FILE_FLAG_DELETE_ON_CLOSE flag is to
 		 * delete this temporary file immediately when this
 		 * file closed. */
-		h = CreateFileW(ws,
-			GENERIC_READ | GENERIC_WRITE | DELETE,
-			0,/* Not share */
-			NULL,
-			CREATE_NEW,/* Create a new file only */
-			FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE,
-			NULL);
+		h = ::CreateFileW(ws, GENERIC_READ | GENERIC_WRITE | DELETE, 0/* Not share */, NULL,
+			CREATE_NEW/* Create a new file only */, FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE, NULL);
 		if(h == INVALID_HANDLE_VALUE) {
 			/* The same file already exists. retry with
 			 * a new filename. */
@@ -305,9 +297,7 @@ exit_tmpfile:
 
 static int get_tempdir(struct archive_string * temppath)
 {
-	const char * tmp;
-
-	tmp = getenv("TMPDIR");
+	const char * tmp = getenv("TMPDIR");
 	if(tmp == NULL)
 #ifdef _PATH_TMP
 		tmp = _PATH_TMP;
@@ -330,7 +320,6 @@ int __archive_mktemp(const char * tmpdir)
 {
 	struct archive_string temp_name;
 	int fd = -1;
-
 	archive_string_init(&temp_name);
 	if(tmpdir == NULL) {
 		if(get_tempdir(&temp_name) != ARCHIVE_OK)
@@ -475,7 +464,7 @@ static int archive_utility_string_sort_helper(char ** strings, uint n)
 			lesser = tmp;
 			lesser[lesser_count - 1] = strings[i];
 		}
-		else{
+		else {
 			greater_count++;
 			tmp = static_cast<char **>(SAlloc::R(greater, greater_count * sizeof(char *)));
 			if(!tmp) {
@@ -502,7 +491,6 @@ static int archive_utility_string_sort_helper(char ** strings, uint n)
 	for(i = 0; i < greater_count; i++)
 		strings[lesser_count + 1 + i] = greater[i];
 	SAlloc::F(greater);
-
 	return (retval1 < retval2) ? retval1 : retval2;
 }
 

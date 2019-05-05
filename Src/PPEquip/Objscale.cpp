@@ -3,7 +3,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <comdisp.h>
 #include <ipexport.h>
 #include <charry.h>
 //

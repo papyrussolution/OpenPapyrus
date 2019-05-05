@@ -25,19 +25,16 @@ typedef struct {
 
 static int pkey_dsa_init(EVP_PKEY_CTX * ctx)
 {
-	DSA_PKEY_CTX * dctx;
-	dctx = (DSA_PKEY_CTX*)OPENSSL_malloc(sizeof(*dctx));
+	DSA_PKEY_CTX * dctx = (DSA_PKEY_CTX*)OPENSSL_malloc(sizeof(*dctx));
 	if(dctx == NULL)
 		return 0;
 	dctx->nbits = 1024;
 	dctx->qbits = 160;
 	dctx->pmd = NULL;
 	dctx->md = NULL;
-
 	ctx->data = dctx;
 	ctx->keygen_info = dctx->gentmp;
 	ctx->keygen_info_count = 2;
-
 	return 1;
 }
 
@@ -57,19 +54,16 @@ static int pkey_dsa_copy(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)
 
 static void pkey_dsa_cleanup(EVP_PKEY_CTX * ctx)
 {
-	DSA_PKEY_CTX * dctx = (DSA_PKEY_CTX*)ctx->data;
+	DSA_PKEY_CTX * dctx = static_cast<DSA_PKEY_CTX *>(ctx->data);
 	OPENSSL_free(dctx);
 }
 
-static int pkey_dsa_sign(EVP_PKEY_CTX * ctx, uchar * sig,
-    size_t * siglen, const uchar * tbs,
-    size_t tbslen)
+static int pkey_dsa_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const uchar * tbs, size_t tbslen)
 {
 	int ret;
 	uint sltmp;
-	DSA_PKEY_CTX * dctx = (DSA_PKEY_CTX*)ctx->data;
+	DSA_PKEY_CTX * dctx = static_cast<DSA_PKEY_CTX *>(ctx->data);
 	DSA * dsa = ctx->pkey->pkey.dsa;
-
 	if(dctx->md) {
 		if(tbslen != (size_t)EVP_MD_size(dctx->md))
 			return 0;
@@ -90,7 +84,7 @@ static int pkey_dsa_sign(EVP_PKEY_CTX * ctx, uchar * sig,
 static int pkey_dsa_verify(EVP_PKEY_CTX * ctx, const uchar * sig, size_t siglen, const uchar * tbs, size_t tbslen)
 {
 	int ret;
-	DSA_PKEY_CTX * dctx = (DSA_PKEY_CTX*)ctx->data;
+	DSA_PKEY_CTX * dctx = static_cast<DSA_PKEY_CTX *>(ctx->data);
 	DSA * dsa = ctx->pkey->pkey.dsa;
 	if(dctx->md) {
 		if(tbslen != (size_t)EVP_MD_size(dctx->md))
@@ -106,7 +100,7 @@ static int pkey_dsa_verify(EVP_PKEY_CTX * ctx, const uchar * sig, size_t siglen,
 
 static int pkey_dsa_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 {
-	DSA_PKEY_CTX * dctx = (DSA_PKEY_CTX*)ctx->data;
+	DSA_PKEY_CTX * dctx = static_cast<DSA_PKEY_CTX *>(ctx->data);
 	switch(type) {
 		case EVP_PKEY_CTRL_DSA_PARAMGEN_BITS:
 		    if(p1 < 256)
@@ -180,7 +174,7 @@ static int pkey_dsa_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char *
 static int pkey_dsa_paramgen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 {
 	DSA * dsa = NULL;
-	DSA_PKEY_CTX * dctx = (DSA_PKEY_CTX*)ctx->data;
+	DSA_PKEY_CTX * dctx = static_cast<DSA_PKEY_CTX *>(ctx->data);
 	BN_GENCB * pcb;
 	int ret;
 	if(ctx->pkey_gencb) {

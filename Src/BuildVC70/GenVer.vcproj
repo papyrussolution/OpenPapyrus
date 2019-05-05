@@ -16,7 +16,7 @@
 			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			ManagedExtensions="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -78,7 +78,7 @@
 			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			ManagedExtensions="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"

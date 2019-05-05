@@ -24,10 +24,10 @@
  *
  * $FreeBSD: src/lib/libarchive/archive.h.in,v 1.50 2008/05/26 17:00:22 kientzle Exp $
  */
-
 #ifndef ARCHIVE_H_INCLUDED
 #define	ARCHIVE_H_INCLUDED
 
+#define LIBARCHIVE_STATIC // @sobolev
 /*
  * The version number is expressed as a single integer that makes it
  * easy to compare versions at build time: for version a.b.c, the
@@ -72,26 +72,25 @@
 		#endif
 	#endif
 #endif
-
 /* The la_ssize_t should match the type used in 'struct stat' */
 #if !defined(__LA_SSIZE_T_DEFINED)
-/* Older code relied on the __LA_SSIZE_T macro; after 4.0 we'll switch to the typedef exclusively. */
-# if ARCHIVE_VERSION_NUMBER < 4000000
-#define __LA_SSIZE_T la_ssize_t
-# endif
-#define __LA_SSIZE_T_DEFINED
-# if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
-#  if defined(_SSIZE_T_DEFINED) || defined(_SSIZE_T_)
-typedef ssize_t la_ssize_t;
-#  elif defined(_WIN64)
-typedef __int64 la_ssize_t;
-#  else
-typedef long la_ssize_t;
-#  endif
-# else
-# include <unistd.h>  /* ssize_t */
-typedef ssize_t la_ssize_t;
-# endif
+	/* Older code relied on the __LA_SSIZE_T macro; after 4.0 we'll switch to the typedef exclusively. */
+	# if ARCHIVE_VERSION_NUMBER < 4000000
+		#define __LA_SSIZE_T la_ssize_t
+	#endif
+	#define __LA_SSIZE_T_DEFINED
+	#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
+		#if defined(_SSIZE_T_DEFINED) || defined(_SSIZE_T_)
+			typedef ssize_t la_ssize_t;
+		#elif defined(_WIN64)
+			typedef __int64 la_ssize_t;
+		#else
+			typedef long la_ssize_t;
+		#endif
+	#else
+		#include <unistd.h>  /* ssize_t */
+		typedef ssize_t la_ssize_t;
+	#endif
 #endif
 #ifdef __ANDROID__
 	#include "android_lf.h" /* Large file support for Android */
@@ -102,41 +101,35 @@ typedef ssize_t la_ssize_t;
  * libarchive source should ever define __LIBARCHIVE_BUILD.
  */
 #if ((defined __WIN32__) || (defined _WIN32) || defined(__CYGWIN__)) && (!defined LIBARCHIVE_STATIC)
-# ifdef __LIBARCHIVE_BUILD
-#  ifdef __GNUC__
-#   define __LA_DECL	__attribute__((dllexport)) extern
-#  else
-#   define __LA_DECL	__declspec(dllexport)
-#  endif
-# else
-#  ifdef __GNUC__
-#   define __LA_DECL
-#  else
-#   define __LA_DECL	__declspec(dllimport)
-#  endif
-# endif
+	#ifdef __LIBARCHIVE_BUILD
+		#ifdef __GNUC__
+			#define __LA_DECL	__attribute__((dllexport)) extern
+		#else
+			#define __LA_DECL	__declspec(dllexport)
+		#endif
+		#else
+		#ifdef __GNUC__
+			#define __LA_DECL
+		#else
+			#define __LA_DECL	__declspec(dllimport)
+		#endif
+	#endif
 #else
-/* Static libraries or non-Windows needs no special declaration. */
-# define __LA_DECL
+	#define __LA_DECL // Static libraries or non-Windows needs no special declaration
 #endif
-
 #if defined(__GNUC__) && __GNUC__ >= 3 && !defined(__MINGW32__)
-#define	__LA_PRINTF(fmtarg, firstvararg) \
-	__attribute__((__format__ (__printf__, fmtarg, firstvararg)))
+	#define	__LA_PRINTF(fmtarg, firstvararg) __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
 #else
-#define	__LA_PRINTF(fmtarg, firstvararg)	/* nothing */
+	#define	__LA_PRINTF(fmtarg, firstvararg)	/* nothing */
 #endif
-
 #if defined(__GNUC__) && __GNUC__ >= 3 && __GNUC_MINOR__ >= 1
-# define __LA_DEPRECATED __attribute__((deprecated))
+	#define __LA_DEPRECATED __attribute__((deprecated))
 #else
-# define __LA_DEPRECATED
+	#define __LA_DEPRECATED
 #endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+/* @sobolev #ifdef __cplusplus
+	extern "C" {
+#endif */
 /*
  * The version number is provided as both a macro and a function.
  * The macro identifies the installed header; the function identifies
@@ -146,7 +139,6 @@ extern "C" {
  * strangeness.  Don't do that.
  */
 __LA_DECL int		archive_version_number(void);
-
 /*
  * Textual name/version of the library, useful for version displays.
  */
@@ -162,11 +154,9 @@ __LA_DECL const char *	archive_version_string(void);
  * libarchive was compiled.
  */
 __LA_DECL const char *	archive_version_details(void);
-
 /*
  * Returns NULL if libarchive was compiled without the associated library.
- * Otherwise, returns the version number that libarchive was compiled
- * against.
+ * Otherwise, returns the version number that libarchive was compiled against.
  */
 __LA_DECL const char *  archive_zlib_version(void);
 __LA_DECL const char *  archive_liblzma_version(void);
@@ -177,7 +167,6 @@ __LA_DECL const char *  archive_libzstd_version(void);
 /* Declare our basic types. */
 struct archive;
 struct archive_entry;
-
 /*
  * Error codes: Use archive_errno() and archive_error_string()
  * to retrieve details.  Unless specified otherwise, all functions
@@ -241,7 +230,6 @@ typedef int archive_switch_callback(struct archive *, void *_client_data1, void 
  * to do and give it up.
  */
 typedef const char *archive_passphrase_callback(struct archive *, void *_client_data);
-
 /*
  * Codes to identify various stream filters.
  */
@@ -260,21 +248,19 @@ typedef const char *archive_passphrase_callback(struct archive *, void *_client_
 #define	ARCHIVE_FILTER_GRZIP	12
 #define	ARCHIVE_FILTER_LZ4	13
 #define	ARCHIVE_FILTER_ZSTD	14
-
 #if ARCHIVE_VERSION_NUMBER < 4000000
-#define	ARCHIVE_COMPRESSION_NONE	ARCHIVE_FILTER_NONE
-#define	ARCHIVE_COMPRESSION_GZIP	ARCHIVE_FILTER_GZIP
-#define	ARCHIVE_COMPRESSION_BZIP2	ARCHIVE_FILTER_BZIP2
-#define	ARCHIVE_COMPRESSION_COMPRESS	ARCHIVE_FILTER_COMPRESS
-#define	ARCHIVE_COMPRESSION_PROGRAM	ARCHIVE_FILTER_PROGRAM
-#define	ARCHIVE_COMPRESSION_LZMA	ARCHIVE_FILTER_LZMA
-#define	ARCHIVE_COMPRESSION_XZ		ARCHIVE_FILTER_XZ
-#define	ARCHIVE_COMPRESSION_UU		ARCHIVE_FILTER_UU
-#define	ARCHIVE_COMPRESSION_RPM		ARCHIVE_FILTER_RPM
-#define	ARCHIVE_COMPRESSION_LZIP	ARCHIVE_FILTER_LZIP
-#define	ARCHIVE_COMPRESSION_LRZIP	ARCHIVE_FILTER_LRZIP
+	#define	ARCHIVE_COMPRESSION_NONE	ARCHIVE_FILTER_NONE
+	#define	ARCHIVE_COMPRESSION_GZIP	ARCHIVE_FILTER_GZIP
+	#define	ARCHIVE_COMPRESSION_BZIP2	ARCHIVE_FILTER_BZIP2
+	#define	ARCHIVE_COMPRESSION_COMPRESS	ARCHIVE_FILTER_COMPRESS
+	#define	ARCHIVE_COMPRESSION_PROGRAM	ARCHIVE_FILTER_PROGRAM
+	#define	ARCHIVE_COMPRESSION_LZMA	ARCHIVE_FILTER_LZMA
+	#define	ARCHIVE_COMPRESSION_XZ		ARCHIVE_FILTER_XZ
+	#define	ARCHIVE_COMPRESSION_UU		ARCHIVE_FILTER_UU
+	#define	ARCHIVE_COMPRESSION_RPM		ARCHIVE_FILTER_RPM
+	#define	ARCHIVE_COMPRESSION_LZIP	ARCHIVE_FILTER_LZIP
+	#define	ARCHIVE_COMPRESSION_LRZIP	ARCHIVE_FILTER_LRZIP
 #endif
-
 /*
  * Codes returned by archive_format.
  *
@@ -323,7 +309,6 @@ typedef const char *archive_passphrase_callback(struct archive *, void *_client_
 #define	ARCHIVE_FORMAT_RAR_V5			(ARCHIVE_FORMAT_RAR | 1)
 #define	ARCHIVE_FORMAT_7ZIP			0xE0000
 #define	ARCHIVE_FORMAT_WARC			0xF0000
-
 /*
  * Codes returned by archive_read_format_capabilities().
  *
@@ -335,7 +320,6 @@ typedef const char *archive_passphrase_callback(struct archive *, void *_client_
 #define ARCHIVE_READ_FORMAT_CAPS_NONE (0) /* no special capabilities */
 #define ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA (1<<0)  /* reader can detect encrypted data */
 #define ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA (1<<1)  /* reader can detect encryptable metadata (pathname, mtime, etc.) */
-
 /*
  * Codes returned by archive_read_has_encrypted_entries().
  *
@@ -347,7 +331,6 @@ typedef const char *archive_passphrase_callback(struct archive *, void *_client_
  */
 #define ARCHIVE_READ_FORMAT_ENCRYPTION_UNSUPPORTED -2
 #define ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW -1
-
 /*-
  * Basic outline for reading an archive:
  *   1) Ask archive_read_new for an archive reader object.
@@ -360,7 +343,7 @@ typedef const char *archive_passphrase_callback(struct archive *, void *_client_
  *      data for entries of interest.
  *   5) Call archive_read_free to end processing.
  */
-__LA_DECL struct archive	*archive_read_new(void);
+__LA_DECL struct archive * archive_read_new(void);
 
 /*
  * The archive_read_support_XXX calls enable auto-detect for this
@@ -485,13 +468,11 @@ __LA_DECL int archive_read_open_FILE(struct archive *, FILE *_file);
 __LA_DECL int archive_read_next_header(struct archive *, struct archive_entry **);
 /* Parses and returns next entry header using the archive_entry passed in */
 __LA_DECL int archive_read_next_header2(struct archive *, struct archive_entry *);
-
 /*
  * Retrieve the byte offset in UNCOMPRESSED data where last-read
  * header started.
  */
-__LA_DECL la_int64_t		 archive_read_header_position(struct archive *);
-
+__LA_DECL la_int64_t archive_read_header_position(struct archive *);
 /*
  * Returns 1 if the archive contains at least one encrypted entry.
  * If the archive format not support encryption at all
@@ -517,7 +498,7 @@ __LA_DECL int	archive_read_has_encrypted_entries(struct archive *);
  */
 __LA_DECL int  archive_read_format_capabilities(struct archive *);
 /* Read data from the body of an entry.  Similar to read(2). */
-__LA_DECL la_ssize_t		 archive_read_data(struct archive *, void *, size_t);
+__LA_DECL la_ssize_t archive_read_data(struct archive *, void *, size_t);
 /* Seek within the body of an entry.  Similar to lseek(2). */
 __LA_DECL la_int64_t archive_seek_data(struct archive *, la_int64_t, int);
 /*
@@ -535,7 +516,6 @@ __LA_DECL int archive_read_data_block(struct archive *a, const void **buff, size
  */
 __LA_DECL int archive_read_data_skip(struct archive *);
 __LA_DECL int archive_read_data_into_fd(struct archive *, int fd);
-
 /*
  * Set read options.
  */
@@ -553,8 +533,6 @@ __LA_DECL int archive_read_set_options(struct archive *_a, const char *opts);
  */
 __LA_DECL int archive_read_add_passphrase(struct archive *, const char *);
 __LA_DECL int archive_read_set_passphrase_callback(struct archive *, void *client_data, archive_passphrase_callback *);
-
-
 /*-
  * Convenience function to recreate the current entry (whose header
  * has just been read) on disk.
@@ -598,9 +576,9 @@ __LA_DECL int archive_read_set_passphrase_callback(struct archive *, void *clien
 #define ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS (0x10000) /* Default: Do not reject entries with absolute paths */
 #define	ARCHIVE_EXTRACT_CLEAR_NOCHANGE_FFLAGS	(0x20000) /* Default: Do not clear no-change flags when unlinking object */
 
-__LA_DECL int archive_read_extract(struct archive *, struct archive_entry *, int flags);
-__LA_DECL int archive_read_extract2(struct archive *, struct archive_entry *, struct archive * /* dest */);
-__LA_DECL void	 archive_read_extract_set_progress_callback(struct archive *, void (*_progress_func)(void *), void *_user_data);
+__LA_DECL int  archive_read_extract(struct archive *, struct archive_entry *, int flags);
+__LA_DECL int  archive_read_extract2(struct archive *, struct archive_entry *, struct archive * /* dest */);
+__LA_DECL void archive_read_extract_set_progress_callback(struct archive *, void (*_progress_func)(void *), void *_user_data);
 
 /* Record the dev/ino of a file that will not be written.  This is
  * generally set to the dev/ino of the archive being read. */
@@ -631,7 +609,7 @@ __LA_DECL int  archive_read_finish(struct archive *) __LA_DEPRECATED;
  *   5) archive_write_close to close the output
  *   6) archive_write_free to cleanup the writer and release resources
  */
-__LA_DECL struct archive	*archive_write_new(void);
+__LA_DECL struct archive * archive_write_new(void);
 __LA_DECL int archive_write_set_bytes_per_block(struct archive *, int bytes_per_block);
 __LA_DECL int FASTCALL archive_write_get_bytes_per_block(struct archive *);
 /* XXX This is badly misnamed; suggestions appreciated. XXX */
@@ -731,7 +709,6 @@ __LA_DECL int  archive_write_free(struct archive *);
 /* Synonym for archive_write_free() for backwards compatibility. */
 __LA_DECL int  archive_write_finish(struct archive *) __LA_DEPRECATED;
 #endif
-
 /*
  * Set write options.
  */
@@ -743,7 +720,6 @@ __LA_DECL int archive_write_set_filter_option(struct archive *_a, const char *m,
 __LA_DECL int archive_write_set_option(struct archive *_a, const char *m, const char *o, const char *v);
 /* Apply option string to both the format and the filter. */
 __LA_DECL int archive_write_set_options(struct archive *_a, const char *opts);
-
 /*
  * Set a encryption passphrase.
  */
@@ -754,8 +730,7 @@ __LA_DECL int archive_write_set_passphrase_callback(struct archive *, void *clie
  *
  * To create objects on disk:
  *   1) Ask archive_write_disk_new for a new archive_write_disk object.
- *   2) Set any global properties.  In particular, you probably
- *      want to set the options.
+ *   2) Set any global properties.  In particular, you probably want to set the options.
  *   3) For each entry:
  *      - construct an appropriate struct archive_entry structure
  *      - archive_write_header to create the file/dir/etc on disk
@@ -788,29 +763,22 @@ __LA_DECL int  archive_write_disk_set_options(struct archive *, int flags);
  * particular, these match the specifications of POSIX "pax" and old
  * POSIX "tar".
  */
-__LA_DECL int	 archive_write_disk_set_standard_lookup(struct archive *);
+__LA_DECL int archive_write_disk_set_standard_lookup(struct archive *);
 /*
  * If neither the default (naive) nor the standard (big) functions suit
  * your needs, you can write your own and register them.  Be sure to
  * include a cleanup function if you have allocated private data.
  */
-__LA_DECL int archive_write_disk_set_group_lookup(struct archive *,
-    void * /* private_data */,
-    la_int64_t (*)(void *, const char *, la_int64_t),
-    void (* /* cleanup */)(void *));
-__LA_DECL int archive_write_disk_set_user_lookup(struct archive *,
-    void * /* private_data */,
-    la_int64_t (*)(void *, const char *, la_int64_t),
-    void (* /* cleanup */)(void *));
+__LA_DECL int archive_write_disk_set_group_lookup(struct archive *, void * /* private_data */, la_int64_t (*)(void *, const char *, la_int64_t), void (* /* cleanup */)(void *));
+__LA_DECL int archive_write_disk_set_user_lookup(struct archive *, void * /* private_data */, la_int64_t (*)(void *, const char *, la_int64_t), void (* /* cleanup */)(void *));
 __LA_DECL la_int64_t archive_write_disk_gid(struct archive *, const char *, la_int64_t);
 __LA_DECL la_int64_t archive_write_disk_uid(struct archive *, const char *, la_int64_t);
-
 /*
  * ARCHIVE_READ_DISK API
  *
  * This is still evolving and somewhat experimental.
  */
-__LA_DECL struct archive *archive_read_disk_new(void);
+__LA_DECL struct archive * archive_read_disk_new(void);
 /* The names for symlink modes here correspond to an old BSD
  * command-line argument convention: -L, -P, -H */
 /* Follow all symlinks. */
@@ -830,14 +798,8 @@ __LA_DECL const char *archive_read_disk_uname(struct archive *, la_int64_t);
  * results for performance. */
 __LA_DECL int	archive_read_disk_set_standard_lookup(struct archive *);
 /* You can install your own lookups if you like. */
-__LA_DECL int	archive_read_disk_set_gname_lookup(struct archive *,
-    void * /* private_data */,
-    const char *(* /* lookup_fn */)(void *, la_int64_t),
-    void (* /* cleanup_fn */)(void *));
-__LA_DECL int	archive_read_disk_set_uname_lookup(struct archive *,
-    void * /* private_data */,
-    const char *(* /* lookup_fn */)(void *, la_int64_t),
-    void (* /* cleanup_fn */)(void *));
+__LA_DECL int	archive_read_disk_set_gname_lookup(struct archive *, void * /* private_data */, const char *(* /* lookup_fn */)(void *, la_int64_t), void (* /* cleanup_fn */)(void *));
+__LA_DECL int	archive_read_disk_set_uname_lookup(struct archive *, void * /* private_data */, const char *(* /* lookup_fn */)(void *, la_int64_t), void (* /* cleanup_fn */)(void *));
 /* Start traversal. */
 __LA_DECL int	archive_read_disk_open(struct archive *, const char *);
 __LA_DECL int	archive_read_disk_open_w(struct archive *, const wchar_t *);
@@ -866,7 +828,6 @@ __LA_DECL int  archive_read_disk_set_atime_restored(struct archive *); /* Reques
 #define	ARCHIVE_READDISK_NO_FFLAGS		(0x0040) /* Default: File flags are read from disk. */
 
 __LA_DECL int  archive_read_disk_set_behavior(struct archive *, int flags);
-
 /*
  * Set archive_match object that will be used in archive_read_disk to
  * know whether an entry should be skipped. The callback function
@@ -959,19 +920,13 @@ __LA_DECL int	archive_match_path_unmatched_inclusions_next_w(struct archive *, c
  */
 __LA_DECL int	archive_match_time_excluded(struct archive *, struct archive_entry *);
 /*
- * Flags to tell a matching type of time stamps. These are used for
- * following functions.
+ * Flags to tell a matching type of time stamps. These are used for following functions.
  */
-/* Time flag: mtime to be tested. */
-#define ARCHIVE_MATCH_MTIME	(0x0100)
-/* Time flag: ctime to be tested. */
-#define ARCHIVE_MATCH_CTIME	(0x0200)
-/* Comparison flag: Match the time if it is newer than. */
-#define ARCHIVE_MATCH_NEWER	(0x0001)
-/* Comparison flag: Match the time if it is older than. */
-#define ARCHIVE_MATCH_OLDER	(0x0002)
-/* Comparison flag: Match the time if it is equal to. */
-#define ARCHIVE_MATCH_EQUAL	(0x0010)
+#define ARCHIVE_MATCH_MTIME	(0x0100) /* Time flag: mtime to be tested. */
+#define ARCHIVE_MATCH_CTIME	(0x0200) /* Time flag: ctime to be tested. */
+#define ARCHIVE_MATCH_NEWER	(0x0001) /* Comparison flag: Match the time if it is newer than. */
+#define ARCHIVE_MATCH_OLDER	(0x0002) /* Comparison flag: Match the time if it is older than. */
+#define ARCHIVE_MATCH_EQUAL	(0x0010) /* Comparison flag: Match the time if it is equal to. */
 /* Set inclusion time. */
 __LA_DECL int	archive_match_include_time(struct archive *, int _flag, time_t _sec, long _nsec);
 /* Set inclusion time by a date string. */
@@ -986,8 +941,7 @@ __LA_DECL int	archive_match_exclude_entry(struct archive *, int _flag, struct ar
  * Test if a file is excluded by its uid ,gid, uname or gname.
  * The conditions are set by following functions.
  */
-__LA_DECL int	archive_match_owner_excluded(struct archive *,
-		    struct archive_entry *);
+__LA_DECL int	archive_match_owner_excluded(struct archive *, struct archive_entry *);
 /* Add inclusion uid, gid, uname and gname. */
 __LA_DECL int	archive_match_include_uid(struct archive *, la_int64_t);
 __LA_DECL int	archive_match_include_gid(struct archive *, la_int64_t);
@@ -1000,9 +954,9 @@ __LA_DECL int	archive_match_include_gname_w(struct archive *, const wchar_t *);
 /* Convenience function to sort a NULL terminated list of strings */
 __LA_DECL int archive_utility_string_sort(char **);
 
-#ifdef __cplusplus
+/* @sobolev #ifdef __cplusplus
 }
-#endif
+#endif*/
 
 /* These are meaningless outside of this header. */
 #undef __LA_DECL

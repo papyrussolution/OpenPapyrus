@@ -437,7 +437,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	#else
 		#define UPD_STATUS_PERIOD 5
 	#endif
-		IdleCmdUpdateStatusWin() : IdleCommand(UPD_STATUS_PERIOD), OnLogon(1)
+		IdleCmdUpdateStatusWin(long repeatPeriodSec) : IdleCommand(repeatPeriodSec/*UPD_STATUS_PERIOD*/), OnLogon(1)
 		{
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
@@ -449,7 +449,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	};
 	class IdleCmdQuitSession : public IdleCommand {
 	public:
-		IdleCmdQuitSession() : IdleCommand(10), Timer(-1)
+		IdleCmdQuitSession(long repeatPeriodSec) : IdleCommand(repeatPeriodSec/*10*/), Timer(-1)
 		{
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
@@ -773,7 +773,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	};
 	class IdleCmdUpdateBizScoreOnDesktop : public IdleCommand, private PPAdviseEventQueue::Client {
 	public:
-		IdleCmdUpdateBizScoreOnDesktop() : IdleCommand(30)
+		IdleCmdUpdateBizScoreOnDesktop(long repeatPeriodSec) : IdleCommand(repeatPeriodSec/*30*/)
 		{
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
@@ -825,7 +825,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	};
 	class IdleCmdUpdateCaches : public IdleCommand, private PPAdviseEventQueue::Client {
 	public:
-		IdleCmdUpdateCaches() : IdleCommand(30)
+		IdleCmdUpdateCaches(long repeatPeriodSec) : IdleCommand(repeatPeriodSec/*30*/)
 		{
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
@@ -931,15 +931,15 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	};
 
 	int    ok = 1;
-	IdleCmdList.insert(new IdleCmdUpdateStatusWin);
-	IdleCmdList.insert(new IdleCmdQuitSession);
-	IdleCmdList.insert(new IdleCmdUpdateCaches);
-	IdleCmdList.insert(new IdleCmdUpdateBizScoreOnDesktop);
-	IdleCmdList.insert(new IdleCmdUpdateObjList(5, PPOBJ_PRJTASK, PPAdviseBlock::evTodoChanged));
-	IdleCmdList.insert(new IdleCmdUpdateObjList(30, PPOBJ_BILL, PPAdviseBlock::evBillChanged));
-	IdleCmdList.insert(new IdleCmdUpdateObjList(5, PPOBJ_PERSONEVENT, PPAdviseBlock::evPsnEvChanged));
+	IdleCmdList.insert(new IdleCmdUpdateStatusWin(UPD_STATUS_PERIOD));
+	IdleCmdList.insert(new IdleCmdQuitSession(10));
+	IdleCmdList.insert(new IdleCmdUpdateCaches(10)); // @v10.4.4 30-->10
+	IdleCmdList.insert(new IdleCmdUpdateBizScoreOnDesktop(30));
+	IdleCmdList.insert(new IdleCmdUpdateObjList(25, PPOBJ_PRJTASK, PPAdviseBlock::evTodoChanged)); // @v10.4.4 5-->25
+	IdleCmdList.insert(new IdleCmdUpdateObjList(21, PPOBJ_BILL, PPAdviseBlock::evBillChanged)); // @v10.4.4 30-->21
+	IdleCmdList.insert(new IdleCmdUpdateObjList(23, PPOBJ_PERSONEVENT, PPAdviseBlock::evPsnEvChanged)); // @v10.4.4 5-->23
 	IdleCmdList.insert(new IdleCmdUpdateTSessList(30, PPAdviseBlock::evTSessChanged));
-	IdleCmdList.insert(new IdleCmdUpdateObjList(5,  -1, PPAdviseBlock::evSysJournalChanged));
+	IdleCmdList.insert(new IdleCmdUpdateObjList(27,  -1, PPAdviseBlock::evSysJournalChanged)); // @v10.4.4 5-->27
 	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged));
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
 	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0)); // @v9.8.12
@@ -1032,7 +1032,7 @@ int SLAPI PPThreadLocalArea::CreatePtr(uint idx, void * ptr)
 {
 	if(idx > PtrVectDim) {
 		uint   new_dim = ALIGNSIZE(idx, 6);
-		PtrEntry * p = (PtrEntry *)SAlloc::R(P_PtrVect, sizeof(PtrEntry) * new_dim);
+		PtrEntry * p = static_cast<PtrEntry *>(SAlloc::R(P_PtrVect, sizeof(PtrEntry) * new_dim));
 		if(p) {
 			memzero(p+PtrVectDim, sizeof(PtrEntry) * (new_dim - PtrVectDim));
 			P_PtrVect = p;
@@ -1249,7 +1249,6 @@ int FASTCALL PPSession::ThreadCollection::Add(const PPThread * pThread)
 {
 	int    ok = 1;
 	if(pThread) {
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		const uint   c = getCount();
 		for(uint i = 0; ok > 0 && i < c; i++)
@@ -1257,7 +1256,6 @@ int FASTCALL PPSession::ThreadCollection::Add(const PPThread * pThread)
 				ok = -1;
 		if(ok > 0)
 			ok = insert(pThread) ? 1 : PPSetErrorSLib();
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -1266,7 +1264,6 @@ int FASTCALL PPSession::ThreadCollection::Remove(ThreadID id)
 {
 	int    ok = -1;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		const uint   c = getCount();
 		for(uint i = 0; ok < 0 && i < c; i++) {
@@ -1274,7 +1271,6 @@ int FASTCALL PPSession::ThreadCollection::Remove(ThreadID id)
 			if(p_thread && p_thread->GetThreadID() == id)
 				ok = atFree(i) ? 1 : PPSetErrorSLib();
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -1299,10 +1295,8 @@ uint PPSession::ThreadCollection::GetCount()
 {
 	uint   c = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		c = getCount();
-		//RwL.Unlock();
 	}
 	return c;
 }
@@ -1311,7 +1305,6 @@ int FASTCALL PPSession::ThreadCollection::GetInfoList(int type, TSCollection <PP
 {
 	int    ok = 1;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		const  uint c = getCount();
 		for(uint i = 0; i < c; i++) {
@@ -1324,7 +1317,6 @@ int FASTCALL PPSession::ThreadCollection::GetInfoList(int type, TSCollection <PP
 				}
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -1372,7 +1364,6 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchById(ThreadID tId)
 {
 	PPThread * p_ret = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		const uint c = getCount();
 		for(uint i = 0; i < c; i++) {
@@ -1382,7 +1373,6 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchById(ThreadID tId)
 				break;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return p_ret;
 }
@@ -1391,7 +1381,6 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 {
 	PPThread * p_ret = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		const uint c = getCount();
 		for(uint i = 0; i < c; i++) {
@@ -1401,7 +1390,6 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 				break;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return p_ret;
 }
@@ -1410,7 +1398,6 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int kind)
 {
 	PPThread * p_ret = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		const uint c = getCount();
 		for(uint i = 0; i < c; i++) {
@@ -1420,7 +1407,6 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int kind)
 				break;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return p_ret;
 }
@@ -1429,7 +1415,6 @@ uint FASTCALL PPSession::ThreadCollection::GetCount(int kind)
 {
 	uint   result = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		const uint c = getCount();
 		for(uint i = 0; i < c; i++) {
@@ -1438,7 +1423,6 @@ uint FASTCALL PPSession::ThreadCollection::GetCount(int kind)
 				result++;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return result;
 }
@@ -1848,6 +1832,50 @@ static int PPGetDefaultEncrKey(SString & rBuf)
     return vi.GetDefaultEncrKey(rBuf);
 }
 
+//static 
+int FASTCALL PPSession::GetStartUpOption(int o, SString & rArgBuf)
+{
+	static const char * p_cmdl_symbols = "?,CASH,EXP,IMP,IN,OUT,BATCH,SYNCPUT,SYNCGET,DB,BACKUP,BILLCASH,PRC,"
+		"TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,"
+		"AUTOTRANSLATE,CONVERTCIPHER,PPINISUBST,UHTTGOODSTOGITHUBEXPORT,UILANG";
+	int    ok = 0;
+	//ENTER_CRITICAL_SECTION
+	/*if(!p_cmdl_symbols && o >= 0) {
+		if(!p_cmdl_symbols) {
+			p_cmdl_symbols = new SString;
+			PPLoadString(PPSTR_SYMB, PPSSYM_CMDLINEOP, *p_cmdl_symbols);
+		}
+	}*/
+	rArgBuf.Z();
+	SString sym;
+	if(p_cmdl_symbols) {
+		StringSet ss(',', p_cmdl_symbols);
+		for(int i = 1; !ok && i < _argc; i++) {
+			const char * arg = _argv[i];
+			if(arg[0] == '/' || arg[0] == '-') {
+				int   k = 0;
+				for(uint pos = 0; !ok && k <= o && ss.get(&pos, sym); k++) {
+					if(k == o) {
+						arg++;
+						size_t len = sym.Len();
+						if(strnicmp(arg, sym, len) == 0) {
+							if(arg[len] == ':')
+							   	len++;
+							(rArgBuf = arg+len).Strip();
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	/*if(o < 0) {
+		ZDELETE(p_cmdl_symbols);
+	}*/
+	//LEAVE_CRITICAL_SECTION
+	return ok;
+}
+
 int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 {
 	int    ok = 1;
@@ -1881,7 +1909,12 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 	PPDbqFuncPool::Register();
 	{
 		PPIniFile ini_file(0, 0, 0, 1); // @v10.3.11 useIniBuf=1
-		if(ini_file.GetParam("config", "uilanguage", temp_buf) > 0 && temp_buf.NotEmptyS()) {
+		if(GetStartUpOption(cmdlUiLang, temp_buf)) { // @v10.4.4
+			const int slang = RecognizeLinguaSymb(temp_buf, 0);
+			if(slang > 0)
+                SLS.SetUiLanguageId(slang, 0);
+		}
+		else if(ini_file.GetParam("config", "uilanguage", temp_buf) > 0 && temp_buf.NotEmptyS()) {
 			const int slang = RecognizeLinguaSymb(temp_buf, 0);
 			if(slang > 0)
                 SLS.SetUiLanguageId(slang, 0);
@@ -3167,13 +3200,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							virtual void Run()
 							{
 								const long purge_cycle = 3600;
-
+								const int  use_sj_scan_alg2 = 1;
 								SString msg_buf, temp_buf;
 								STimer timer_sj;  // Таймер для отмера времени до следующего просмотра системного журнала
 								STimer timer_phs; // Таймер для отмера времени до следующего опроса телефонного сервиса
 								LDATETIME last_purge_time = getcurdatetime_();
 								LDATETIME last_sj_time = ZERODATETIME;
 								LDATETIME last_phnsvc_time = ZERODATETIME;
+								DBRowId last_sj_rowid; // @v10.4.4								
 								PPAdviseEventVector temp_list;
 								PhnSvcChannelStatusPool chnl_status_list; // @v9.8.11
 								PhnSvcChannelStatus chnl_status; // @v9.8.11
@@ -3182,10 +3216,17 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								AsteriskAmiClient * p_phnsvc_cli = 0; // @v9.8.11
 								THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync)); // @v9.4.9 PPSession::odfDontInitSync
 								THROW_MEM(P_Sj = new SysJournal);
+								if(use_sj_scan_alg2) {
+									SysJournalTbl::Key0 sjk0;
+									sjk0.Dt = MAXDATE;
+									sjk0.Tm = MAXTIME;
+									if(P_Sj->search(0, &sjk0, spLast)) {
+										P_Sj->getPosition(&last_sj_rowid);
+									}
+								}
 								p_phnsvc_cli = CreatePhnSvcClient(0);
 								Since = getcurdatetime_();
 								for(int stop = 0; !stop;) {
-									//
 									enum {
 										doImmSj    = 0x0001,
 										doImmPhSvc = 0x0002
@@ -3197,7 +3238,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 									HANDLE h_list[32];
 									h_list[h_count++] = stop_event;
 									{
-										if(!last_sj_time) {
+										if(use_sj_scan_alg2 || !last_sj_time) {
 											(dtm = cdtm).addhs(CycleMs / 10);
 											timer_sj.Set(dtm, 0);
 										}
@@ -3315,41 +3356,52 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 													PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 													if(p_queue) {
 														SysJournalTbl::Key0 k0, k0_;
-														dtm = getcurdatetime_();
-														if(diffdatetime(dtm, last_purge_time, 3, 0) >= purge_cycle) {
-															p_queue->Purge();
-															last_purge_time = dtm;
+														if(use_sj_scan_alg2) {
+															while(P_Sj->search(0, &k0, spNext)) {
+																PPAdviseEvent ev;
+																ev = P_Sj->data;
+																temp_list.insert(&ev);
+																last_ev_dtm.Set(P_Sj->data.Dt, P_Sj->data.Tm);
+																P_Sj->getPosition(&last_sj_rowid);
+															}
 														}
-														k0.Dt = Since.d;
-														k0.Tm = Since.t;
-														k0_ = k0;
-														if(p_q)
-															p_q->resetEof();
-														else if(P_Sj->search(&k0_, spGt)) {
-															p_q = new BExtQuery(P_Sj, 0);
-															p_q->selectAll().where(P_Sj->Dt >= Since.d);
-															p_q->initIteration(0, &k0, spGt);
-														}
-														if(p_q) {
-															while(p_q->nextIteration() > 0) {
-																SysJournalTbl::Rec rec;
-																P_Sj->copyBufTo(&rec);
-																if(cmp(Since, rec.Dt, rec.Tm) < 0) {
-																	PPAdviseEvent ev;
-																	ev = rec;
-																	temp_list.insert(&ev);
-																	last_ev_dtm.Set(rec.Dt, rec.Tm);
+														else {
+															dtm = getcurdatetime_();
+															if(diffdatetime(dtm, last_purge_time, 3, 0) >= purge_cycle) {
+																p_queue->Purge();
+																last_purge_time = dtm;
+															}
+															k0.Dt = Since.d;
+															k0.Tm = Since.t;
+															k0_ = k0;
+															if(p_q)
+																p_q->resetEof();
+															else if(P_Sj->search(&k0_, spGt)) {
+																p_q = new BExtQuery(P_Sj, 0);
+																p_q->selectAll().where(P_Sj->Dt >= Since.d);
+																p_q->initIteration(0, &k0, spGt);
+															}
+															if(p_q) {
+																while(p_q->nextIteration() > 0) {
+																	SysJournalTbl::Rec rec;
+																	P_Sj->copyBufTo(&rec);
+																	if(cmp(Since, rec.Dt, rec.Tm) < 0) {
+																		PPAdviseEvent ev;
+																		ev = rec;
+																		temp_list.insert(&ev);
+																		last_ev_dtm.Set(rec.Dt, rec.Tm);
+																	}
 																}
 															}
-															p_queue->Push(temp_list);
-															if(!!last_ev_dtm)
-																Since = last_ev_dtm;
-															if(!BTROKORNFOUND) {
-																PPSetErrorDB();
-																PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-																PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_ASYNCEVQUEUESJFAULT, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-																BExtQuery::ZDelete(&p_q);
-															}
+														}
+														p_queue->Push(temp_list);
+														if(!!last_ev_dtm)
+															Since = last_ev_dtm;
+														if(!BTROKORNFOUND) {
+															PPSetErrorDB();
+															PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+															PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_ASYNCEVQUEUESJFAULT, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+															BExtQuery::ZDelete(&p_q);
 														}
 													}
 													{
@@ -3599,6 +3651,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 						PPACN_UPDBILLWLABEL,
 						PPACN_BILLWROFF,
 						PPACN_BILLWROFFUNDO,
+						PPACN_BILLSTATUSUPD, // @v10.4.4
 						0L);
 					p_comm_dirty_cache_ev_list->sort();
 					p_addendum_ev_list = new PPIDArray;

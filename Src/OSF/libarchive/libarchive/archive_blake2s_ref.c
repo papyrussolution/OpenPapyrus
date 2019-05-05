@@ -254,10 +254,10 @@ int blake2s(void * out, size_t outlen, const void * in, size_t inlen, const void
 	if(keylen > 0) {
 		if(blake2s_init_key(S, outlen, key, keylen) < 0) return -1;
 	}
-	else{
+	else {
 		if(blake2s_init(S, outlen) < 0) return -1;
 	}
-	blake2s_update(S, (const uint8_t*)in, inlen);
+	blake2s_update(S, (const uint8_t *)in, inlen);
 	blake2s_final(S, out, outlen);
 	return 0;
 }

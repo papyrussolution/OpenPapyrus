@@ -44,7 +44,7 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static void __db_init_meta(DB*, void *, db_pgno_t, uint32);
+static void __db_init_meta(const DB *, void *, db_pgno_t, uint32);
 #ifdef HAVE_FTRUNCATE
 static int __db_pglistcmp(const void *, const void *);
 static int __db_truncate_freelist(DBC*, DBMETA*, PAGE*, db_pgno_t*, uint32, uint32);
@@ -55,7 +55,7 @@ static int __db_truncate_freelist(DBC*, DBMETA*, PAGE*, db_pgno_t*, uint32, uint
  * a meta-data page (used instead of P_INIT).  We need to make sure that we
  * retain the page number and LSN of the existing page.
  */
-static void __db_init_meta(DB * dbp, void * p, db_pgno_t pgno, uint32 pgtype)
+static void __db_init_meta(const DB * dbp, void * p, db_pgno_t pgno, uint32 pgtype)
 {
 	DBMETA * meta = static_cast<DBMETA *>(p);
 	DB_LSN save_lsn = meta->Lsn;

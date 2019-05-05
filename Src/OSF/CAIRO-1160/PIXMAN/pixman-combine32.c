@@ -142,7 +142,7 @@ static void combine_src_u(pixman_implementation_t * imp, pixman_op_t op, uint32_
 	if(!mask) {
 		memcpy(dest, src, width * sizeof(uint32_t));
 	}
-	else{
+	else {
 		for(i = 0; i < width; ++i) {
 			uint32_t s = combine_mask(src, mask, i);
 			*(dest + i) = s;
@@ -168,7 +168,7 @@ static void combine_over_u(pixman_implementation_t * imp, pixman_op_t op, uint32
 			}
 		}
 	}
-	else{
+	else {
 		for(i = 0; i < width; ++i) {
 			uint32_t m = ALPHA_8(*(mask + i));
 			if(m == 0xFF) {

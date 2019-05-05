@@ -268,14 +268,12 @@ static const TrT TrList[] = {
 
 	{ "%/",  PPTextAnalyzer::Replacer::stOpContext,    0 }
 };
-
 /*
 
 %{
 %}%=brand
 
 */
-
 int SLAPI PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SStrScan & rScan, SString & rExtBuf) const
 {
 	const char cfront = rScan[0];
@@ -3115,7 +3113,6 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 			StringSet goods_text_list;
 			StringSet goods_code_list;
 			SString loctext;
-
 			StringSet pss(';', context+1);
 			SString temp_buf, left, right;
 			for(uint p = 0; pss.get(&p, temp_buf);) {
@@ -3161,7 +3158,6 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 						if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 							(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 							goods_text_list.add(temp_buf);
-
 							BarcodeArray bc_list;
 							goods_obj.ReadBarcodes(goods_id, bc_list);
 							for(uint i = 0; i < bc_list.getCount(); i++) {
@@ -3702,7 +3698,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 		else {
 			Token = result_str;
 			AuthTime = getcurdatetime_();
-			ExpirySec = 0;
+			ExpirySec = 10 * 60; // @v10.4.4 0-->(10 * 60)
 		}
 	}
 	/* @v9.6.9
@@ -3741,6 +3737,22 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 	return ok;
 }
 
+int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
+{
+	int   ok = 1;
+	SString key_buf;
+	PPVersionInfo vi = DS.GetVersionInfo();
+	vi.GetMsftTranslAcc(key_buf);
+	THROW_PP(key_buf.NotEmptyS(), PPERR_MSFTTRANSLKEY_INV);
+	{
+		SString ident, secret;
+		THROW_PP(key_buf.Divide(':', ident, secret) > 0, PPERR_MSFTTRANSLKEY_INV);
+		THROW(rAt.Auth(ident, secret));
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult)
 {
 	rResult.Z();
@@ -3759,7 +3771,8 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 		//
 		const LDATETIME ct = getcurdatetime_();
         const long sec = diffdatetimesec(ct, AuthTime);
-        if(sec > (long)((double)ExpirySec * 0.9)) {
+        if(sec > (ExpirySec * 9 / 10)) {
+			/* @v10.4.4 
 			//
 			// Функция Auth затрет AuthName и AuthSecret на входе.
 			// Потому необходимо скопировать эти значения во временные буферы _nam и _secr.
@@ -3767,6 +3780,8 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 			const SString _nam = AuthName;
 			const SString _secr = AuthSecret;
 			THROW(Auth(_nam, _secr));
+			*/
+			THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(*this)); // @v10.4.4
         }
 	}
 	THROW(GetLinguaCode(srcLang, temp_buf));
@@ -3823,22 +3838,6 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	}
 	CATCHZOK
 	xmlFreeDoc(p_doc);
-	return ok;
-}
-
-int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
-{
-	int   ok = 1;
-	SString key_buf;
-	PPVersionInfo vi = DS.GetVersionInfo();
-	vi.GetMsftTranslAcc(key_buf);
-	THROW_PP(key_buf.NotEmptyS(), PPERR_MSFTTRANSLKEY_INV);
-	{
-		SString ident, secret;
-		THROW_PP(key_buf.Divide(':', ident, secret) > 0, PPERR_MSFTTRANSLKEY_INV);
-		THROW(rAt.Auth(ident, secret));
-	}
-	CATCHZOK
 	return ok;
 }
 
@@ -4006,7 +4005,6 @@ int SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpP
 		int    cp_sis = 0;
 		SString cp_symb;
 		SString cp_version;
-
 		SFile  f_out((temp_buf = pCpPath).Strip().SetLastSlash().Cat("cp.log"), SFile::mWrite);
 		(base_path = pCpPath).Strip();
 		(temp_buf = base_path).SetLastSlash().Cat("*.xml");

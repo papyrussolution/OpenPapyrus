@@ -93,7 +93,7 @@ static int      FASTCALL ar_parse_common_header(struct ar * ar, struct archive_e
 
 int archive_read_support_format_ar(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct ar * ar;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_ar");
@@ -115,7 +115,7 @@ int archive_read_support_format_ar(struct archive * _a)
 
 static int archive_read_format_ar_cleanup(struct archive_read * a)
 {
-	struct ar * ar = (struct ar *)(a->format->data);
+	struct ar * ar = static_cast<struct ar *>(a->format->data);
 	if(ar->strtab)
 		SAlloc::F(ar->strtab);
 	SAlloc::F(ar);
@@ -373,7 +373,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 
 static int archive_read_format_ar_read_header(struct archive_read * a, struct archive_entry * entry)
 {
-	struct ar * ar = (struct ar*)(a->format->data);
+	struct ar * ar = static_cast<struct ar *>(a->format->data);
 	size_t unconsumed;
 	const void * header_data;
 	int ret;
@@ -424,7 +424,7 @@ static int FASTCALL ar_parse_common_header(struct ar * ar, struct archive_entry 
 static int archive_read_format_ar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
 {
 	ssize_t bytes_read;
-	struct ar * ar = (struct ar *)(a->format->data);
+	struct ar * ar = static_cast<struct ar *>(a->format->data);
 	if(ar->entry_bytes_unconsumed) {
 		__archive_read_consume(a, ar->entry_bytes_unconsumed);
 		ar->entry_bytes_unconsumed = 0;
@@ -466,7 +466,7 @@ static int archive_read_format_ar_read_data(struct archive_read * a, const void 
 
 static int archive_read_format_ar_skip(struct archive_read * a)
 {
-	struct ar * ar = (struct ar *)(a->format->data);
+	struct ar * ar = static_cast<struct ar *>(a->format->data);
 	int64_t bytes_skipped = __archive_read_consume(a, ar->entry_bytes_remaining + ar->entry_padding + ar->entry_bytes_unconsumed);
 	if(bytes_skipped < 0)
 		return ARCHIVE_FATAL;
@@ -479,7 +479,7 @@ static int archive_read_format_ar_skip(struct archive_read * a)
 static int ar_parse_gnu_filename_table(struct archive_read * a)
 {
 	char * p;
-	struct ar * ar = (struct ar*)(a->format->data);
+	struct ar * ar = static_cast<struct ar *>(a->format->data);
 	size_t size = ar->strtab_size;
 	for(p = ar->strtab; p < ar->strtab + size - 1; ++p) {
 		if(*p == '/') {

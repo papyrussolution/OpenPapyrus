@@ -515,11 +515,8 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 			failf(data, "schannel: unable to allocate memory");
 			return CURLE_OUT_OF_MEMORY;
 		}
-
 		/* copy received handshake data into input buffer */
-		memcpy(inbuf[0].pvBuffer, connssl->encdata_buffer,
-		    connssl->encdata_offset);
-
+		memcpy(inbuf[0].pvBuffer, connssl->encdata_buffer, connssl->encdata_offset);
 		host_name = Curl_convert_UTF8_to_tchar(hostname);
 		if(!host_name)
 			return CURLE_OUT_OF_MEMORY;

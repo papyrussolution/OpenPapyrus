@@ -67,7 +67,7 @@ static void gradient_walker_reset(pixman_gradient_walker_t * walker,
 		if((int32_t)pos & 0x10000)
 			x = 0x10000 - x;
 	}
-	else{
+	else {
 		x = pos;
 	}
 
@@ -136,7 +136,7 @@ static void gradient_walker_reset(pixman_gradient_walker_t * walker,
 		walker->g_b = (lg + rg) / 510.0f;
 		walker->b_b = (lb + rb) / 510.0f;
 	}
-	else{
+	else {
 		float w_rec = 1.0f / (rx - lx);
 		walker->a_b = (la * rx - ra * lx) * w_rec;
 		walker->r_b = (lr * rx - rr * lx) * w_rec * (1.0f/255.0f);

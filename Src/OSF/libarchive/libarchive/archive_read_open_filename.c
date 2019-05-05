@@ -93,14 +93,12 @@ static int64_t  file_seek(struct archive *, void *, int64_t request, int);
 static int64_t  file_skip(struct archive *, void *, int64_t request);
 static int64_t  file_skip_lseek(struct archive *, void *, int64_t request);
 
-int archive_read_open_file(struct archive * a, const char * filename,
-    size_t block_size)
+int archive_read_open_file(struct archive * a, const char * filename, size_t block_size)
 {
 	return (archive_read_open_filename(a, filename, block_size));
 }
 
-int archive_read_open_filename(struct archive * a, const char * filename,
-    size_t block_size)
+int archive_read_open_filename(struct archive * a, const char * filename, size_t block_size)
 {
 	const char * filenames[2];
 	filenames[0] = filename;
@@ -116,9 +114,9 @@ int archive_read_open_filenames(struct archive * a, const char ** filenames, siz
 		filename = *(filenames++);
 	archive_clear_error(a);
 	do {
-		if(filename == NULL)
+		if(!filename)
 			filename = "";
-		mine = (struct read_file_data *)SAlloc::C(1, sizeof(*mine) + strlen(filename));
+		mine = static_cast<struct read_file_data *>(SAlloc::C(1, sizeof(*mine) + strlen(filename)));
 		if(mine == NULL)
 			goto no_memory;
 		strcpy(mine->filename.m, filename);
@@ -143,7 +141,6 @@ int archive_read_open_filenames(struct archive * a, const char ** filenames, siz
 	archive_read_set_close_callback(a, file_close);
 	archive_read_set_switch_callback(a, file_switch);
 	archive_read_set_seek_callback(a, file_seek);
-
 	return (archive_read_open1(a));
 no_memory:
 	archive_set_error(a, ENOMEM, "No memory");
@@ -152,7 +149,7 @@ no_memory:
 
 int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, size_t block_size)
 {
-	struct read_file_data * mine = (struct read_file_data *)SAlloc::C(1, sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t));
+	struct read_file_data * mine = static_cast<struct read_file_data *>(SAlloc::C(1, sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t)));
 	if(!mine) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -203,7 +200,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 static int file_open(struct archive * a, void * client_data)
 {
 	struct stat st;
-	struct read_file_data * mine = (struct read_file_data *)client_data;
+	struct read_file_data * mine = static_cast<struct read_file_data *>(client_data);
 	void * buffer;
 	const char * filename = NULL;
 	const wchar_t * wfilename = NULL;
@@ -248,8 +245,7 @@ static int file_open(struct archive * a, void * client_data)
 		wfilename = mine->filename.w;
 		fd = _wopen(wfilename, O_RDONLY | O_BINARY);
 		if(fd < 0 && errno == ENOENT) {
-			wchar_t * fullpath;
-			fullpath = __la_win_permissive_name_w(wfilename);
+			wchar_t * fullpath = __la_win_permissive_name_w(wfilename);
 			if(fullpath != NULL) {
 				fd = _wopen(fullpath, O_RDONLY | O_BINARY);
 				SAlloc::F(fullpath);
@@ -296,32 +292,22 @@ static int file_open(struct archive * a, void * client_data)
 	}
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 	/* FreeBSD: if it supports DIOCGMEDIASIZE ioctl, it's disk-like. */
-	else if(S_ISCHR(st.st_mode) &&
-	    ioctl(fd, DIOCGMEDIASIZE, &mediasize) == 0 &&
-	    mediasize > 0) {
+	else if(S_ISCHR(st.st_mode) && ioctl(fd, DIOCGMEDIASIZE, &mediasize) == 0 && mediasize > 0) {
 		is_disk_like = 1;
 	}
 #elif defined(__NetBSD__) || defined(__OpenBSD__)
 	/* Net/OpenBSD: if it supports DIOCGDINFO ioctl, it's disk-like. */
-	else if((S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)) &&
-	    ioctl(fd, DIOCGDINFO, &dl) == 0 &&
-	    dl.d_partitions[DISKPART(st.st_rdev)].p_size > 0) {
+	else if((S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)) && ioctl(fd, DIOCGDINFO, &dl) == 0 && dl.d_partitions[DISKPART(st.st_rdev)].p_size > 0) {
 		is_disk_like = 1;
 	}
 #elif defined(__DragonFly__)
 	/* DragonFly BSD:  if it supports DIOCGPART ioctl, it's disk-like. */
-	else if(S_ISCHR(st.st_mode) &&
-	    ioctl(fd, DIOCGPART, &pi) == 0 &&
-	    pi.media_size > 0) {
+	else if(S_ISCHR(st.st_mode) && ioctl(fd, DIOCGPART, &pi) == 0 && pi.media_size > 0) {
 		is_disk_like = 1;
 	}
 #elif defined(__linux__)
 	/* Linux:  All block devices are disk-like. */
-	else if(S_ISBLK(st.st_mode) &&
-	    lseek(fd, 0, SEEK_CUR) == 0 &&
-	    lseek(fd, 0, SEEK_SET) == 0 &&
-	    lseek(fd, 0, SEEK_END) > 0 &&
-	    lseek(fd, 0, SEEK_SET) == 0) {
+	else if(S_ISBLK(st.st_mode) && lseek(fd, 0, SEEK_CUR) == 0 && lseek(fd, 0, SEEK_SET) == 0 && lseek(fd, 0, SEEK_END) > 0 && lseek(fd, 0, SEEK_SET) == 0) {
 		is_disk_like = 1;
 	}
 #endif
@@ -331,8 +317,7 @@ static int file_open(struct archive * a, void * client_data)
 	/* Use provided block_size as a guide so users have some control. */
 	if(is_disk_like) {
 		size_t new_block_size = 64 * 1024;
-		while(new_block_size < mine->block_size
-		    && new_block_size < 64 * 1024 * 1024)
+		while(new_block_size < mine->block_size && new_block_size < 64 * 1024 * 1024)
 			new_block_size *= 2;
 		mine->block_size = new_block_size;
 	}
@@ -363,7 +348,7 @@ fail:
 
 static ssize_t file_read(struct archive * a, void * client_data, const void ** buff)
 {
-	struct read_file_data * mine = (struct read_file_data *)client_data;
+	struct read_file_data * mine = static_cast<struct read_file_data *>(client_data);
 	ssize_t bytes_read;
 
 	/* TODO: If a recent lseek() operation has left us
@@ -418,7 +403,7 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
  */
 static int64_t file_skip_lseek(struct archive * a, void * client_data, int64_t request)
 {
-	struct read_file_data * mine = (struct read_file_data *)client_data;
+	struct read_file_data * mine = static_cast<struct read_file_data *>(client_data);
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	/* We use _lseeki64() on Windows. */
 	int64_t old_offset, new_offset;
@@ -457,22 +442,19 @@ static int64_t file_skip_lseek(struct archive * a, void * client_data, int64_t r
 
 static int64_t file_skip(struct archive * a, void * client_data, int64_t request)
 {
-	struct read_file_data * mine = (struct read_file_data *)client_data;
-
+	struct read_file_data * mine = static_cast<struct read_file_data *>(client_data);
 	/* Delegate skip requests. */
 	if(mine->use_lseek)
 		return (file_skip_lseek(a, client_data, request));
-
 	/* If we can't skip, return 0; libarchive will read+discard instead. */
 	return 0;
 }
-
 /*
  * TODO: Store the offset and use it in the read callback.
  */
 static int64_t file_seek(struct archive * a, void * client_data, int64_t request, int whence)
 {
-	struct read_file_data * mine = (struct read_file_data *)client_data;
+	struct read_file_data * mine = static_cast<struct read_file_data *>(client_data);
 	int64_t r;
 	/* We use off_t here because lseek() is declared that way. */
 	/* See above for notes about when off_t is less than 64 bits. */
@@ -491,7 +473,7 @@ static int64_t file_seek(struct archive * a, void * client_data, int64_t request
 
 static int file_close2(struct archive * a, void * client_data)
 {
-	struct read_file_data * mine = (struct read_file_data *)client_data;
+	struct read_file_data * mine = static_cast<struct read_file_data *>(client_data);
 	(void)a; /* UNUSED */
 	/* Only flush and close if open succeeded. */
 	if(mine->fd >= 0) {
@@ -527,7 +509,7 @@ static int file_close2(struct archive * a, void * client_data)
 
 static int file_close(struct archive * a, void * client_data)
 {
-	struct read_file_data * mine = (struct read_file_data *)client_data;
+	struct read_file_data * mine = static_cast<struct read_file_data *>(client_data);
 	file_close2(a, client_data);
 	SAlloc::F(mine);
 	return ARCHIVE_OK;

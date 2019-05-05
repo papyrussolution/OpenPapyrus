@@ -385,7 +385,7 @@ static CTX_PTR CreateSuccessors(CPpmd7 * p, Bool skip)
 
 	if(c->NumStats == 1)
 		upState.Freq = ONE_STATE(c)->Freq;
-	else{
+	else {
 		UInt32 cf, s0;
 		CPpmd_State * s;
 		for(s = STATS(c); s->Symbol != upState.Symbol; s++);
@@ -401,7 +401,7 @@ static CTX_PTR CreateSuccessors(CPpmd7 * p, Bool skip)
 			c1 = (CTX_PTR)(p->HiUnit -= UNIT_SIZE);
 		else if(p->FreeList[0] != 0)
 			c1 = (CTX_PTR)RemoveNode(p, 0);
-		else{
+		else {
 			c1 = (CTX_PTR)AllocUnitsRare(p, 0);
 			if(!c1)
 				return NULL;
@@ -437,7 +437,7 @@ static void UpdateModel(CPpmd7 * p)
 			if(s->Freq < 32)
 				s->Freq++;
 		}
-		else{
+		else {
 			CPpmd_State * s = STATS(c);
 			if(s->Symbol != p->FoundState->Symbol) {
 				do {
@@ -486,7 +486,7 @@ static void UpdateModel(CPpmd7 * p)
 			p->Text -= (p->MaxContext != p->MinContext);
 		}
 	}
-	else{
+	else {
 		SetSuccessor(p->FoundState, successor);
 		fSuccessor = REF(p->MinContext);
 	}
@@ -516,7 +516,7 @@ static void UpdateModel(CPpmd7 * p)
 			}
 			c->SummFreq = (UInt16)(c->SummFreq + (2 * ns1 < ns) + 2 * ((4 * ns1 <= ns) & (c->SummFreq <= 8 * ns1)));
 		}
-		else{
+		else {
 			CPpmd_State * s = (CPpmd_State*)AllocUnits(p, 0);
 			if(!s) {
 				RestartModel(p);
@@ -536,7 +536,7 @@ static void UpdateModel(CPpmd7 * p)
 			cf = 1 + (cf > sf) + (cf >= 4 * sf);
 			c->SummFreq += 3;
 		}
-		else{
+		else {
 			cf = 4 + (cf >= 9 * sf) + (cf >= 12 * sf) + (cf >= 15 * sf);
 			c->SummFreq = (UInt16)(c->SummFreq + cf);
 		}
@@ -628,7 +628,7 @@ static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, UInt32 * es
 			*escFreq = r + (r == 0);
 		}
 	}
-	else{
+	else {
 		see = &p->DummySee;
 		*escFreq = 1;
 	}
@@ -758,7 +758,7 @@ static UInt32 Range_DecodeBit_7z(void * pp, UInt32 size0)
 		symbol = 0;
 		p->Range = newBound;
 	}
-	else{
+	else {
 		symbol = 1;
 		p->Code -= newBound;
 		p->Range -= newBound;
@@ -775,7 +775,7 @@ static UInt32 Range_DecodeBit_RAR(void * pp, UInt32 size0)
 		bit = 0;
 		p->p.Decode(p, 0, size0);
 	}
-	else{
+	else {
 		bit = 1;
 		p->p.Decode(p, size0, PPMD_BIN_SCALE - size0);
 	}
@@ -837,7 +837,7 @@ static int Ppmd7_DecodeSymbol(CPpmd7 * p, IPpmd7_RangeDec * rc)
 			MASK((--s)->Symbol) = 0;
 		} while(--i);
 	}
-	else{
+	else {
 		UInt16 * prob = Ppmd7_GetBinSumm(p);
 		if(rc->DecodeBit(rc, *prob) == 0) {
 			Byte symbol;
@@ -1004,7 +1004,7 @@ static void Ppmd7_EncodeSymbol(CPpmd7 * p, CPpmd7z_RangeEnc * rc, int symbol)
 		} while(--i);
 		RangeEnc_Encode(rc, sum, p->MinContext->SummFreq - sum, p->MinContext->SummFreq);
 	}
-	else{
+	else {
 		UInt16 * prob = Ppmd7_GetBinSumm(p);
 		CPpmd_State * s = Ppmd7Context_OneState(p->MinContext);
 		if(s->Symbol == symbol) {
@@ -1014,7 +1014,7 @@ static void Ppmd7_EncodeSymbol(CPpmd7 * p, CPpmd7z_RangeEnc * rc, int symbol)
 			Ppmd7_UpdateBin(p);
 			return;
 		}
-		else{
+		else {
 			RangeEnc_EncodeBit_1(rc, *prob);
 			*prob = (UInt16)PPMD_UPDATE_PROB_1(*prob);
 			p->InitEsc = PPMD7_kExpEscape[*prob >> 10];

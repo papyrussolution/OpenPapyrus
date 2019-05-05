@@ -22,14 +22,12 @@
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
 
 #ifndef ARCHIVE_HMAC_PRIVATE_H_INCLUDED
 #define ARCHIVE_HMAC_PRIVATE_H_INCLUDED
-
 /*
  * On systems that do not support any recognized crypto libraries,
  * the archive_hmac.c file is expected to define no usable symbols.

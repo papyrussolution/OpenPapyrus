@@ -79,11 +79,11 @@ int FASTCALL decode_e(uint e, uint s, uint n);
 // 
 // sort three like-colored elements and return ordering
 // 
-uint FASTCALL decode_sort3(zbar_decoder_t * dcode, int i0);
+uint FASTCALL decode_sort3(const zbar_decoder_t * dcode, int i0);
 //
 // sort N like-colored elements and return ordering
 //
-uint FASTCALL decode_sortn(zbar_decoder_t * dcode, int n, int i0);
+uint FASTCALL decode_sortn(const zbar_decoder_t * dcode, int n, int i0);
 //
 // acquire shared state lock 
 //

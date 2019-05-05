@@ -29,8 +29,7 @@
 //#include <string.h>
 #endif
 //#include "archive.h"
-#include "archive_cryptor_private.h"
-
+//#include "archive_cryptor_private.h"
 /*
  * On systems that do not support any recognized crypto libraries,
  * this file will normally define no usable symbols.
@@ -40,7 +39,8 @@
  * be removed someday if this file gains another always-present
  * symbol definition.
  */
-int __libarchive_cryptor_build_hack(void) {
+int __libarchive_cryptor_build_hack(void) 
+{
 	return 0;
 }
 
@@ -88,7 +88,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
     size_t salt_len, unsigned rounds, uint8_t * derived_key,
     size_t derived_key_len) {
-	pbkdf2_hmac_sha1((unsigned)pw_len, (const uint8_t*)pw, rounds,
+	pbkdf2_hmac_sha1((unsigned)pw_len, (const uint8_t *)pw, rounds,
 	    salt_len, salt, derived_key_len, derived_key);
 	return 0;
 }

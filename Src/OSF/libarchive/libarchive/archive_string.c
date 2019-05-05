@@ -74,9 +74,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string.c 201095 2009-12-28 02:33
 #endif
 
 struct archive_string_conv {
-	struct archive_string_conv      * next;
-	char                            * from_charset;
-	char                            * to_charset;
+	struct archive_string_conv * next;
+	char   * from_charset;
+	char   * to_charset;
 	unsigned from_cp;
 	unsigned to_cp;
 	/* Set 1 if from_charset and to_charset are the same. */
@@ -101,7 +101,7 @@ struct archive_string_conv {
 #if HAVE_ICONV
 	iconv_t cd;
 	iconv_t cd_w;                         /* Use at archive_mstring on
-	                                       * Windows. */
+	      * Windows. */
 #endif
 	/* A temporary buffer for normalization. */
 	struct archive_string utftmp;
@@ -194,13 +194,13 @@ struct archive_string * archive_array_append(struct archive_string * as, const c
 void FASTCALL archive_string_concat(struct archive_string * dest, const struct archive_string * src)
 {
 	if(archive_string_append(dest, src->s, src->length) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx_nomem(1);
 }
 
 void FASTCALL archive_wstring_concat(struct archive_wstring * dest, const struct archive_wstring * src)
 {
 	if(archive_wstring_append(dest, src->s, src->length) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx_nomem(1);
 }
 
 void FASTCALL archive_string_free(struct archive_string * as)
@@ -268,7 +268,7 @@ struct archive_string * FASTCALL archive_string_ensure(struct archive_string * a
 	if(new_length < s)
 		new_length = s;
 	/* Now we can reallocate the buffer. */
-	p = (char *)SAlloc::R(as->s, new_length);
+	p = static_cast<char *>(SAlloc::R(as->s, new_length));
 	if(p == NULL) {
 		/* On failure, wipe the string and return NULL. */
 		archive_string_free(as);
@@ -289,7 +289,7 @@ struct archive_string * FASTCALL archive_string_ensure(struct archive_string * a
 struct archive_string * FASTCALL archive_strncat(struct archive_string * as, const void * _p, size_t n) 
 {
 	size_t s = 0;
-	const char * p = (const char *)_p;
+	const char * p = static_cast<const char *>(_p);
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
 	const char * pp = p;
 	while(s < n && *pp) {
@@ -297,7 +297,7 @@ struct archive_string * FASTCALL archive_strncat(struct archive_string * as, con
 		s++;
 	}
 	if((as = archive_string_append(as, p, s)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx_nomem(1);
 	return (as);
 }
 
@@ -311,7 +311,7 @@ struct archive_wstring * FASTCALL archive_wstrncat(struct archive_wstring * as, 
 		s++;
 	}
 	if((as = archive_wstring_append(as, p, s)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx_nomem(1);
 	return (as);
 }
 
@@ -335,14 +335,14 @@ struct archive_wstring * archive_wstrcat(struct archive_wstring * as, const wcha
 struct archive_string * FASTCALL archive_strappend_char(struct archive_string * as, char c) 
 {
 	if((as = archive_string_append(as, &c, 1)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx_nomem(1);
 	return (as);
 }
 
 struct archive_wstring * archive_wstrappend_wchar(struct archive_wstring * as, wchar_t c) 
 {
 	if((as = archive_wstring_append(as, &c, 1)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx_nomem(1);
 	return (as);
 }
 
@@ -775,38 +775,30 @@ int archive_string_append_from_wcs(struct archive_string * as,
  * and 'to' charset name from an archive object.
  * Return NULL if not found.
  */
-static struct archive_string_conv * find_sconv_object(struct archive * a, const char * fc,
-    const char * tc) {
+static struct archive_string_conv * find_sconv_object(struct archive * a, const char * fc, const char * tc) 
+{
 	struct archive_string_conv * sc;
-
 	if(a == NULL)
 		return NULL;
-
 	for(sc = a->sconv; sc != NULL; sc = sc->next) {
-		if(strcmp(sc->from_charset, fc) == 0 &&
-		    strcmp(sc->to_charset, tc) == 0)
+		if(strcmp(sc->from_charset, fc) == 0 && strcmp(sc->to_charset, tc) == 0)
 			break;
 	}
 	return (sc);
 }
-
 /*
  * Register a string object to an archive object.
  */
 static void add_sconv_object(struct archive * a, struct archive_string_conv * sc)
 {
-	struct archive_string_conv ** psc;
-
 	/* Add a new sconv to sconv list. */
-	psc = &(a->sconv);
+	struct archive_string_conv ** psc = &(a->sconv);
 	while(*psc != NULL)
 		psc = &((*psc)->next);
 	*psc = sc;
 }
 
-static void add_converter(struct archive_string_conv * sc, int (*converter)
-    (struct archive_string *, const void *, size_t,
-    struct archive_string_conv *))
+static void add_converter(struct archive_string_conv * sc, int (*converter)(struct archive_string *, const void *, size_t, struct archive_string_conv *))
 {
 	if(sc == NULL || sc->nconverter >= 2)
 		__archive_errx(1, "Programing error");
@@ -998,21 +990,16 @@ static const char * canonical_charset_name(const char * charset)
 		*p++ = c;
 	}
 	*p++ = '\0';
-
-	if(strcmp(cs, "UTF-8") == 0 ||
-	    strcmp(cs, "UTF8") == 0)
+	if(strcmp(cs, "UTF-8") == 0 || strcmp(cs, "UTF8") == 0)
 		return ("UTF-8");
-	if(strcmp(cs, "UTF-16BE") == 0 ||
-	    strcmp(cs, "UTF16BE") == 0)
+	if(strcmp(cs, "UTF-16BE") == 0 || strcmp(cs, "UTF16BE") == 0)
 		return ("UTF-16BE");
-	if(strcmp(cs, "UTF-16LE") == 0 ||
-	    strcmp(cs, "UTF16LE") == 0)
+	if(strcmp(cs, "UTF-16LE") == 0 || strcmp(cs, "UTF16LE") == 0)
 		return ("UTF-16LE");
-	if(strcmp(cs, "CP932") == 0)
+	if(strcmp(cs, "CP932") == 0) 
 		return ("CP932");
 	return (charset);
 }
-
 /*
  * Create a string conversion object.
  */
@@ -1022,12 +1009,12 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 	if(sc == NULL)
 		return NULL;
 	sc->next = NULL;
-	sc->from_charset = strdup(fc);
+	sc->from_charset = sstrdup(fc);
 	if(sc->from_charset == NULL) {
 		SAlloc::F(sc);
 		return NULL;
 	}
-	sc->to_charset = strdup(tc);
+	sc->to_charset = sstrdup(tc);
 	if(sc->to_charset == NULL) {
 		SAlloc::F(sc->from_charset);
 		SAlloc::F(sc);
@@ -1063,12 +1050,10 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 	/*
 	 * Check if "from charset" and "to charset" are the same.
 	 */
-	if(strcmp(fc, tc) == 0 ||
-	    (sc->from_cp != (unsigned)-1 && sc->from_cp == sc->to_cp))
+	if(strcmp(fc, tc) == 0 || (sc->from_cp != (unsigned)-1 && sc->from_cp == sc->to_cp))
 		sc->same = 1;
 	else
 		sc->same = 0;
-
 	/*
 	 * Mark if "from charset" or "to charset" are UTF-8 or UTF-16BE/LE.
 	 */
@@ -1394,7 +1379,6 @@ static unsigned make_codepage_from_charset(const char * charset)
 	}
 	return (cp);
 }
-
 /*
  * Return ANSI Code Page of current locale set by setlocale().
  */
@@ -1410,12 +1394,13 @@ static unsigned get_current_codepage(void)
 	p = strrchr(locale, '.');
 	if(p == NULL)
 		return (GetACP());
+	if(strcmp(p+1, "utf8") == 0)
+		return CP_UTF8;
 	cp = my_atoi(p+1);
-	if(cp <= 0)
+	if(static_cast<int>(cp) <= 0)
 		return (GetACP());
 	return (cp);
 }
-
 /*
  * Translation table between Locale Name and ACP/OEMCP.
  */
@@ -1584,7 +1569,7 @@ static const char * get_current_charset(struct archive * a)
 	else {
 		cur_charset = default_iconv_charset(a->current_code);
 		if(a->current_code == NULL) {
-			a->current_code = strdup(cur_charset);
+			a->current_code = sstrdup(cur_charset);
 			a->current_codepage = get_current_codepage();
 			a->current_oemcp = get_current_oemcp();
 		}
@@ -1625,59 +1610,55 @@ struct archive_string_conv * archive_string_conversion_from_charset(struct archi
  * for compatibility.
  */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-struct archive_string_conv * archive_string_default_conversion_for_read(struct archive * a) 
-{
-	const char * cur_charset = get_current_charset(a);
-	char oemcp[16];
-	/* NOTE: a check of cur_charset is unneeded but we need
-	 * that get_current_charset() has been surely called at
-	 * this time whatever C compiler optimized. */
-	if(cur_charset != NULL && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
-		return NULL; /* no conversion. */
-	_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
-	/* Make sure a null termination must be set. */
-	oemcp[sizeof(oemcp)-1] = '\0';
-	return (get_sconv_object(a, oemcp, cur_charset, SCONV_FROM_CHARSET));
-}
+	struct archive_string_conv * archive_string_default_conversion_for_read(struct archive * a) 
+	{
+		const char * cur_charset = get_current_charset(a);
+		char oemcp[16];
+		/* NOTE: a check of cur_charset is unneeded but we need
+		 * that get_current_charset() has been surely called at
+		 * this time whatever C compiler optimized. */
+		if(cur_charset != NULL && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
+			return NULL; /* no conversion. */
+		_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
+		/* Make sure a null termination must be set. */
+		oemcp[sizeof(oemcp)-1] = '\0';
+		return (get_sconv_object(a, oemcp, cur_charset, SCONV_FROM_CHARSET));
+	}
 
-struct archive_string_conv * archive_string_default_conversion_for_write(struct archive * a) 
-{
-	const char * cur_charset = get_current_charset(a);
-	char oemcp[16];
-	/* NOTE: a check of cur_charset is unneeded but we need
-	 * that get_current_charset() has been surely called at
-	 * this time whatever C compiler optimized. */
-	if(cur_charset != NULL && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
-		return NULL; /* no conversion. */
-	_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
-	/* Make sure a null termination must be set. */
-	oemcp[sizeof(oemcp)-1] = '\0';
-	return (get_sconv_object(a, cur_charset, oemcp, SCONV_TO_CHARSET));
-}
-
+	struct archive_string_conv * archive_string_default_conversion_for_write(struct archive * a) 
+	{
+		const char * cur_charset = get_current_charset(a);
+		char oemcp[16];
+		/* NOTE: a check of cur_charset is unneeded but we need
+		 * that get_current_charset() has been surely called at
+		 * this time whatever C compiler optimized. */
+		if(cur_charset != NULL && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
+			return NULL; /* no conversion. */
+		_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
+		/* Make sure a null termination must be set. */
+		oemcp[sizeof(oemcp)-1] = '\0';
+		return (get_sconv_object(a, cur_charset, oemcp, SCONV_TO_CHARSET));
+	}
 #else
-struct archive_string_conv * archive_string_default_conversion_for_read(struct archive * a) 
-{
-	(void)a; /* UNUSED */
-	return NULL;
-}
+	struct archive_string_conv * archive_string_default_conversion_for_read(struct archive * a) 
+	{
+		(void)a; /* UNUSED */
+		return NULL;
+	}
 
-struct archive_string_conv * archive_string_default_conversion_for_write(struct archive * a) 
-{
-	(void)a; /* UNUSED */
-	return NULL;
-}
-
+	struct archive_string_conv * archive_string_default_conversion_for_write(struct archive * a) 
+	{
+		(void)a; /* UNUSED */
+		return NULL;
+	}
 #endif
-
 /*
  * Dispose of all character conversion objects in the archive object.
  */
 void archive_string_conversion_free(struct archive * a)
 {
-	struct archive_string_conv * sc;
 	struct archive_string_conv * sc_next;
-	for(sc = a->sconv; sc != NULL; sc = sc_next) {
+	for(struct archive_string_conv * sc = a->sconv; sc != NULL; sc = sc_next) {
 		sc_next = sc->next;
 		free_sconv_object(sc);
 	}
@@ -1765,7 +1746,7 @@ static size_t mbsnbytes(const void * _p, size_t n)
 	const char * p, * pp;
 	if(_p == NULL)
 		return 0;
-	p = (const char *)_p;
+	p = static_cast<const char *>(_p);
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
 	s = 0;
 	pp = p;
@@ -1782,7 +1763,7 @@ static size_t utf16nbytes(const void * _p, size_t n)
 	const char * p, * pp;
 	if(_p == NULL)
 		return 0;
-	p = (const char *)_p;
+	p = static_cast<const char *>(_p);
 
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
 	s = 0;
@@ -1831,7 +1812,7 @@ int archive_strncat_l(struct archive_string * as, const void * _p, size_t n, str
 	 * If sc is NULL, we just make a copy.
 	 */
 	if(sc == NULL) {
-		if(archive_string_append(as, (const char *)_p, length) == NULL)
+		if(archive_string_append(as, static_cast<const char *>(_p), length) == NULL)
 			return -1; /* No memory */
 		return 0;
 	}
@@ -1868,7 +1849,6 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p, 
 	size_t avail, bs;
 	int return_value = 0; /* success */
 	int to_size, from_size;
-
 	if(sc->flag & SCONV_TO_UTF16)
 		to_size = 2;
 	else
@@ -1877,10 +1857,8 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p, 
 		from_size = 2;
 	else
 		from_size = 1;
-
 	if(archive_string_ensure(as, as->length + length*2+to_size) == NULL)
 		return -1;
-
 	cd = sc->cd;
 	itp = (char *)(uintptr_t)_p;
 	remaining = length;
@@ -1888,10 +1866,8 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p, 
 	avail = as->buffer_length - as->length - to_size;
 	while(remaining >= (size_t)from_size) {
 		size_t result = iconv(cd, &itp, &remaining, &outp, &avail);
-
 		if(result != (size_t)-1)
 			break; /* Conversion completed. */
-
 		if(errno == EILSEQ || errno == EINVAL) {
 			/*
 			 * If an output charset is UTF-8 or UTF-16BE/LE,
@@ -1904,17 +1880,13 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p, 
 					rbytes = sizeof(utf8_replacement_char);
 				else
 					rbytes = 2;
-
 				if(avail < rbytes) {
 					as->length = outp - as->s;
-					bs = as->buffer_length +
-					    (remaining * to_size) + rbytes;
-					if(NULL ==
-					    archive_string_ensure(as, bs))
+					bs = as->buffer_length + (remaining * to_size) + rbytes;
+					if(NULL == archive_string_ensure(as, bs))
 						return -1;
 					outp = as->s + as->length;
-					avail = as->buffer_length
-					    - as->length - to_size;
+					avail = as->buffer_length - as->length - to_size;
 				}
 				if(sc->flag & SCONV_TO_UTF8)
 					memcpy(outp, utf8_replacement_char, sizeof(utf8_replacement_char));
@@ -1960,14 +1932,12 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p, 
  * Translate a string from a some CodePage to an another CodePage by
  * Windows APIs, and copy the result. Return -1 if conversion fails.
  */
-static int strncat_in_codepage(struct archive_string * as,
-    const void * _p, size_t length, struct archive_string_conv * sc)
+static int strncat_in_codepage(struct archive_string * as, const void * _p, size_t length, struct archive_string_conv * sc)
 {
-	const char * s = (const char *)_p;
+	const char * s = static_cast<const char *>(_p);
 	struct archive_wstring aws;
 	size_t l;
 	int r, saved_flag;
-
 	archive_string_init(&aws);
 	saved_flag = sc->flag;
 	sc->flag &= ~(SCONV_NORMALIZATION_D | SCONV_NORMALIZATION_C);
@@ -1994,7 +1964,7 @@ static int strncat_in_codepage(struct archive_string * as,
  */
 static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * sc)
 {
-	const char * p = (const char *)_p;
+	const char * p = static_cast<const char *>(_p);
 	unsigned codepage;
 	DWORD mbflag = MB_ERR_INVALID_CHARS;
 
@@ -2020,7 +1990,7 @@ static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * s
  */
 static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * sc)
 {
-	const char * p = (const char *)_p;
+	const char * p = static_cast<const char *>(_p);
 	size_t r;
 #if HAVE_MBRTOWC
 	mbstate_t shift_state;
@@ -2066,7 +2036,7 @@ static int best_effort_strncat_in_locale(struct archive_string * as, const void 
 	 * And then this checks all copied MBS can be WCS if so returns 0.
 	 */
 	if(sc->same) {
-		if(archive_string_append(as, (const char *)_p, length) == NULL)
+		if(archive_string_append(as, static_cast<const char *>(_p), length) == NULL)
 			return -1; /* No memory */
 		return (invalid_mbs(_p, length, sc));
 	}
@@ -2078,13 +2048,13 @@ static int best_effort_strncat_in_locale(struct archive_string * as, const void 
 	 */
 
 	remaining = length;
-	itp = (const uint8_t*)_p;
+	itp = (const uint8_t *)_p;
 	while(*itp && remaining > 0) {
 		if(*itp > 127) {
 			// Non-ASCII: Substitute with suitable replacement
 			if(sc->flag & SCONV_TO_UTF8) {
 				if(archive_string_append(as, utf8_replacement_char, sizeof(utf8_replacement_char)) == NULL) {
-					__archive_errx(1, "Out of memory");
+					__archive_errx_nomem(1);
 				}
 			}
 			else {
@@ -2476,7 +2446,7 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 	if(archive_string_ensure(as, as->length + len + 1) == NULL)
 		return -1;
 
-	s = (const char *)_p;
+	s = static_cast<const char *>(_p);
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length -1;
 	do {
@@ -2595,7 +2565,7 @@ static int archive_string_append_unicode(struct archive_string * as, const void 
 	if(archive_string_ensure(as, as->length + len * tm + ts) == NULL)
 		return -1;
 
-	s = (const char *)_p;
+	s = static_cast<const char *>(_p);
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length - ts;
 	while((n = parse(&uc, s, len)) != 0) {
@@ -2662,7 +2632,7 @@ static uint32_t get_nfc(uint32_t uc, uint32_t uc2)
 }
 
 #define FDC_MAX 10      /* The maximum number of Following Decomposable
-	                 * Characters. */
+	 * Characters. */
 
 /*
  * Update first code point.
@@ -2759,7 +2729,7 @@ static uint32_t get_nfc(uint32_t uc, uint32_t uc2)
 static int archive_string_normalize_C(struct archive_string * as, const void * _p,
     size_t len, struct archive_string_conv * sc)
 {
-	const char * s = (const char *)_p;
+	const char * s = static_cast<const char *>(_p);
 	char * p, * endp;
 	uint32_t uc, uc2;
 	size_t w;
@@ -3078,7 +3048,7 @@ static int get_nfd(uint32_t * cp1, uint32_t * cp2, uint32_t uc)
 static int archive_string_normalize_D(struct archive_string * as, const void * _p,
     size_t len, struct archive_string_conv * sc)
 {
-	const char * s = (const char *)_p;
+	const char * s = static_cast<const char *>(_p);
 	char * p, * endp;
 	uint32_t uc, uc2;
 	size_t w;
@@ -3288,7 +3258,7 @@ static int strncat_from_utf8_libarchive2(struct archive_string * as, const void 
 	if(archive_string_ensure(as, as->length + len + 1) == NULL)
 		return -1;
 
-	s = (const char *)_p;
+	s = static_cast<const char *>(_p);
 	p = as->s + as->length;
 	end = as->s + as->buffer_length - MB_CUR_MAX -1;
 	while((n = _utf8_to_unicode(&unicode, s, len)) != 0) {
@@ -3362,7 +3332,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 		/*
 		 * "C" locale special process.
 		 */
-		u16 = (const char *)_p;
+		u16 = static_cast<const char *>(_p);
 		ll = 0;
 		for(b = 0; b < bytes; b += 2) {
 			uint16_t val;
@@ -3385,7 +3355,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 	archive_string_init(&tmp);
 	if(be) {
 		if(is_big_endian()) {
-			u16 = (const char *)_p;
+			u16 = static_cast<const char *>(_p);
 		}
 		else {
 			if(archive_string_ensure(&tmp, bytes+2) == NULL)
@@ -3400,7 +3370,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 	}
 	else {
 		if(!is_big_endian()) {
-			u16 = (const char *)_p;
+			u16 = static_cast<const char *>(_p);
 		}
 		else {
 			if(archive_string_ensure(&tmp, bytes+2) == NULL)
@@ -3458,7 +3428,7 @@ static int is_big_endian(void)
  */
 static int win_strncat_to_utf16(struct archive_string * as16, const void * _p, size_t length, struct archive_string_conv * sc, int bigendian)
 {
-	const char * s = (const char *)_p;
+	const char * s = static_cast<const char *>(_p);
 	char * u16;
 	size_t count, avail;
 
@@ -3554,7 +3524,7 @@ static int win_strncat_to_utf16le(struct archive_string * as16, const void * _p,
  */
 static int best_effort_strncat_from_utf16(struct archive_string * as, const void * _p, size_t bytes, struct archive_string_conv * sc, int be)
 {
-	const char * utf16 = (const char *)_p;
+	const char * utf16 = static_cast<const char *>(_p);
 	char * mbs;
 	uint32_t uc;
 	int n, ret;
@@ -3604,7 +3574,7 @@ static int best_effort_strncat_from_utf16le(struct archive_string * as, const vo
 static int best_effort_strncat_to_utf16(struct archive_string * as16, const void * _p,
     size_t length, struct archive_string_conv * sc, int bigendian)
 {
-	const char * s = (const char *)_p;
+	const char * s = static_cast<const char *>(_p);
 	char * utf16;
 	size_t remaining;
 	int ret;
@@ -3652,11 +3622,13 @@ static int best_effort_strncat_to_utf16le(struct archive_string * as16, const vo
  */
 void FASTCALL archive_mstring_clean(struct archive_mstring * aes)
 {
-	archive_wstring_free(&(aes->aes_wcs));
-	archive_string_free(&(aes->aes_mbs));
-	archive_string_free(&(aes->aes_utf8));
-	archive_string_free(&(aes->aes_mbs_in_locale));
-	aes->aes_set = 0;
+	if(aes) {
+		archive_wstring_free(&(aes->aes_wcs));
+		archive_string_free(&(aes->aes_mbs));
+		archive_string_free(&(aes->aes_utf8));
+		archive_string_free(&(aes->aes_mbs_in_locale));
+		aes->aes_set = 0;
+	}
 }
 
 void FASTCALL archive_mstring_copy(struct archive_mstring * dest, struct archive_mstring * src)
@@ -3846,24 +3818,28 @@ int archive_mstring_copy_utf8(struct archive_mstring * aes, const char * utf8)
 {
 	if(utf8 == NULL) {
 		aes->aes_set = 0;
+		return 0;
 	}
-	aes->aes_set = AES_SET_UTF8;
-	archive_string_empty(&(aes->aes_mbs));
-	archive_string_empty(&(aes->aes_wcs));
-	archive_strncpy(&(aes->aes_utf8), utf8, strlen(utf8));
-	return (int)strlen(utf8);
+	else {
+		aes->aes_set = AES_SET_UTF8;
+		archive_string_empty(&(aes->aes_mbs));
+		archive_string_empty(&(aes->aes_wcs));
+		archive_strncpy(&(aes->aes_utf8), utf8, strlen(utf8));
+		return (int)strlen(utf8);
+	}
 }
 
-int archive_mstring_copy_wcs_len(struct archive_mstring * aes, const wchar_t * wcs,
-    size_t len)
+int archive_mstring_copy_wcs_len(struct archive_mstring * aes, const wchar_t * wcs, size_t len)
 {
 	if(wcs == NULL) {
 		aes->aes_set = 0;
 	}
-	aes->aes_set = AES_SET_WCS; /* Only WCS form set. */
-	archive_string_empty(&(aes->aes_mbs));
-	archive_string_empty(&(aes->aes_utf8));
-	archive_wstrncpy(&(aes->aes_wcs), wcs, len);
+	else {
+		aes->aes_set = AES_SET_WCS; /* Only WCS form set. */
+		archive_string_empty(&(aes->aes_mbs));
+		archive_string_empty(&(aes->aes_utf8));
+		archive_wstrncpy(&(aes->aes_wcs), wcs, len);
+	}
 	return 0;
 }
 

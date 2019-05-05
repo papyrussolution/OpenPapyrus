@@ -7485,7 +7485,7 @@ SOAP_FMAC1 struct soap * SOAP_FMAC2 soap_copy_context(struct soap * copy, const 
 		copy->session = NULL;
  #endif
  #ifdef WITH_ZLIB
-		copy->d_stream = (z_stream*)SOAP_MALLOC(copy, sizeof(z_stream));
+		copy->d_stream = (z_stream *)SOAP_MALLOC(copy, sizeof(z_stream));
 		copy->d_stream->zalloc = Z_NULL;
 		copy->d_stream->zfree = Z_NULL;
 		copy->d_stream->opaque = Z_NULL;
@@ -7574,7 +7574,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_copy_stream(struct soap * copy, struct soap * so
 	copy->zlib_in = soap->zlib_in;
 	copy->zlib_out = soap->zlib_out;
 	if(!copy->d_stream)
-		copy->d_stream = (z_stream*)SOAP_MALLOC(copy, sizeof(z_stream));
+		copy->d_stream = (z_stream *)SOAP_MALLOC(copy, sizeof(z_stream));
 	if(copy->d_stream)
 		memcpy(copy->d_stream, soap->d_stream, sizeof(z_stream));
 	copy->z_crc = soap->z_crc;
@@ -7860,7 +7860,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_versioning(soap_init) (struct soap * soap, soap_
 	soap->zlib_state = SOAP_ZLIB_NONE;
 	soap->zlib_in = SOAP_ZLIB_NONE;
 	soap->zlib_out = SOAP_ZLIB_NONE;
-	soap->d_stream = (z_stream*)SOAP_MALLOC(soap, sizeof(z_stream));
+	soap->d_stream = (z_stream *)SOAP_MALLOC(soap, sizeof(z_stream));
 	soap->d_stream->zalloc = Z_NULL;
 	soap->d_stream->zfree = Z_NULL;
 	soap->d_stream->opaque = Z_NULL;

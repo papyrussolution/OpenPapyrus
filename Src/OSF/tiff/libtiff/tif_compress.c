@@ -250,7 +250,7 @@ TIFFCodec* TIFFGetConfiguredCODECs()
 				return NULL;
 			}
 			codecs = new_codecs;
-			memcpy(codecs + i - 1, (const void*)c, sizeof(TIFFCodec));
+			memcpy(codecs + i - 1, (const void *)c, sizeof(TIFFCodec));
 			i++;
 		}
 	}

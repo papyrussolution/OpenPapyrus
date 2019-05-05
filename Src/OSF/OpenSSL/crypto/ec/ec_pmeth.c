@@ -77,7 +77,7 @@ static int pkey_ec_copy(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)
 
 static void pkey_ec_cleanup(EVP_PKEY_CTX * ctx)
 {
-	EC_PKEY_CTX * dctx = (EC_PKEY_CTX*)ctx->data;
+	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	if(dctx) {
 		EC_GROUP_free(dctx->gen_group);
 		EC_KEY_free(dctx->co_key);
@@ -90,7 +90,7 @@ static int pkey_ec_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const 
 {
 	int ret, type;
 	uint sltmp;
-	EC_PKEY_CTX * dctx = (EC_PKEY_CTX*)ctx->data;
+	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	EC_KEY * ec = ctx->pkey->pkey.ec;
 
 	if(!sig) {
@@ -115,7 +115,7 @@ static int pkey_ec_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const 
 static int pkey_ec_verify(EVP_PKEY_CTX * ctx, const uchar * sig, size_t siglen, const uchar * tbs, size_t tbslen)
 {
 	int ret, type;
-	EC_PKEY_CTX * dctx = (EC_PKEY_CTX*)ctx->data;
+	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	EC_KEY * ec = ctx->pkey->pkey.ec;
 	if(dctx->md)
 		type = EVP_MD_type(dctx->md);
@@ -132,20 +132,18 @@ static int pkey_ec_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 	size_t outlen;
 	const EC_POINT * pubkey = NULL;
 	EC_KEY * eckey;
-	EC_PKEY_CTX * dctx = (EC_PKEY_CTX*)ctx->data;
+	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	if(!ctx->pkey || !ctx->peerkey) {
 		ECerr(EC_F_PKEY_EC_DERIVE, EC_R_KEYS_NOT_SET);
 		return 0;
 	}
 	eckey = dctx->co_key ? dctx->co_key : ctx->pkey->pkey.ec;
 	if(!key) {
-		const EC_GROUP * group;
-		group = EC_KEY_get0_group(eckey);
+		const EC_GROUP * group = EC_KEY_get0_group(eckey);
 		*keylen = (EC_GROUP_get_degree(group) + 7) / 8;
 		return 1;
 	}
 	pubkey = EC_KEY_get0_public_key(ctx->peerkey->pkey.ec);
-
 	/*
 	 * NB: unlike PKCS#3 DH, if *outlen is less than maximum size this is not
 	 * an error, the result is truncated.
@@ -160,7 +158,7 @@ static int pkey_ec_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 
 static int pkey_ec_kdf_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 {
-	EC_PKEY_CTX * dctx = (EC_PKEY_CTX*)ctx->data;
+	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	uchar * ktmp = NULL;
 	size_t ktmplen;
 	int rv = 0;
@@ -180,11 +178,9 @@ static int pkey_ec_kdf_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 	if(!pkey_ec_derive(ctx, ktmp, &ktmplen))
 		goto err;
 	/* Do KDF stuff */
-	if(!ECDH_KDF_X9_62(key, *keylen, ktmp, ktmplen,
-		    dctx->kdf_ukm, dctx->kdf_ukmlen, dctx->kdf_md))
+	if(!ECDH_KDF_X9_62(key, *keylen, ktmp, ktmplen, dctx->kdf_ukm, dctx->kdf_ukmlen, dctx->kdf_md))
 		goto err;
 	rv = 1;
-
 err:
 	OPENSSL_clear_free(ktmp, ktmplen);
 	return rv;
@@ -194,7 +190,7 @@ err:
 
 static int pkey_ec_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 {
-	EC_PKEY_CTX * dctx = (EC_PKEY_CTX*)ctx->data;
+	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	EC_GROUP * group;
 	switch(type) {
 		case EVP_PKEY_CTRL_EC_PARAMGEN_CURVE_NID:
@@ -354,7 +350,7 @@ static int pkey_ec_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * 
 static int pkey_ec_paramgen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 {
 	EC_KEY * ec = NULL;
-	EC_PKEY_CTX * dctx = (EC_PKEY_CTX*)ctx->data;
+	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	int ret = 0;
 	if(dctx->gen_group == NULL) {
 		ECerr(EC_F_PKEY_EC_PARAMGEN, EC_R_NO_PARAMETERS_SET);
@@ -374,7 +370,7 @@ static int pkey_ec_paramgen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 static int pkey_ec_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 {
 	EC_KEY * ec = NULL;
-	EC_PKEY_CTX * dctx = (EC_PKEY_CTX*)ctx->data;
+	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	if(ctx->pkey == NULL && dctx->gen_group == NULL) {
 		ECerr(EC_F_PKEY_EC_KEYGEN, EC_R_NO_PARAMETERS_SET);
 		return 0;

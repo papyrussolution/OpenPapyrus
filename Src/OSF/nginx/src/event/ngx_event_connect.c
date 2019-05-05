@@ -69,7 +69,7 @@ ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc)
 		if(pc->sockaddr->sa_family != AF_UNIX && port == 0) {
 			static int bind_address_no_port = 1;
 			if(bind_address_no_port) {
-				if(setsockopt(s, IPPROTO_IP, IP_BIND_ADDRESS_NO_PORT, (const void*)&bind_address_no_port, sizeof(int)) == -1) {
+				if(setsockopt(s, IPPROTO_IP, IP_BIND_ADDRESS_NO_PORT, (const void *)&bind_address_no_port, sizeof(int)) == -1) {
 					err = ngx_socket_errno;
 					if(err != NGX_EOPNOTSUPP && err != NGX_ENOPROTOOPT) {
 						ngx_log_error(NGX_LOG_ALERT, pc->log, err, "setsockopt(IP_BIND_ADDRESS_NO_PORT) failed, ignored");
@@ -84,7 +84,7 @@ ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc)
 #if (NGX_LINUX)
 		if(pc->type == SOCK_DGRAM && port != 0) {
 			int reuse_addr = 1;
-			if(setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const void*)&reuse_addr, sizeof(int)) == -1) {
+			if(setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const void *)&reuse_addr, sizeof(int)) == -1) {
 				ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, "setsockopt(SO_REUSEADDR) failed");
 				goto failed;
 			}
@@ -215,7 +215,7 @@ static ngx_int_t ngx_event_connect_set_transparent(ngx_peer_connection_t * pc, n
 {
 	int value = 1;
 #if defined(SO_BINDANY)
-	if(setsockopt(s, SOL_SOCKET, SO_BINDANY, (const void*)&value, sizeof(int)) == -1) {
+	if(setsockopt(s, SOL_SOCKET, SO_BINDANY, (const void *)&value, sizeof(int)) == -1) {
 		ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, "setsockopt(SO_BINDANY) failed");
 		return NGX_ERROR;
 	}
@@ -223,12 +223,12 @@ static ngx_int_t ngx_event_connect_set_transparent(ngx_peer_connection_t * pc, n
 	switch(pc->local->sockaddr->sa_family) {
 		case AF_INET:
 #if defined(IP_TRANSPARENT)
-		    if(setsockopt(s, IPPROTO_IP, IP_TRANSPARENT, (const void*)&value, sizeof(int)) == -1) {
+		    if(setsockopt(s, IPPROTO_IP, IP_TRANSPARENT, (const void *)&value, sizeof(int)) == -1) {
 			    ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, "setsockopt(IP_TRANSPARENT) failed");
 			    return NGX_ERROR;
 		    }
 #elif defined(IP_BINDANY)
-		    if(setsockopt(s, IPPROTO_IP, IP_BINDANY, (const void*)&value, sizeof(int)) == -1) {
+		    if(setsockopt(s, IPPROTO_IP, IP_BINDANY, (const void *)&value, sizeof(int)) == -1) {
 			    ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, "setsockopt(IP_BINDANY) failed");
 			    return NGX_ERROR;
 		    }
@@ -237,12 +237,12 @@ static ngx_int_t ngx_event_connect_set_transparent(ngx_peer_connection_t * pc, n
 #if (NGX_HAVE_INET6)
 		case AF_INET6:
 #if defined(IPV6_TRANSPARENT)
-		    if(setsockopt(s, IPPROTO_IPV6, IPV6_TRANSPARENT, (const void*)&value, sizeof(int)) == -1) {
+		    if(setsockopt(s, IPPROTO_IPV6, IPV6_TRANSPARENT, (const void *)&value, sizeof(int)) == -1) {
 			    ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, "setsockopt(IPV6_TRANSPARENT) failed");
 			    return NGX_ERROR;
 		    }
 #elif defined(IPV6_BINDANY)
-		    if(setsockopt(s, IPPROTO_IPV6, IPV6_BINDANY, (const void*)&value, sizeof(int)) == -1) {
+		    if(setsockopt(s, IPPROTO_IPV6, IPV6_BINDANY, (const void *)&value, sizeof(int)) == -1) {
 			    ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, "setsockopt(IPV6_BINDANY) failed");
 			    return NGX_ERROR;
 		    }

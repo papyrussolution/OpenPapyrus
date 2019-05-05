@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <comdisp.h>
 #include <atol-dto\libfptr10.h>
 
 //HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\ATOL\Drivers\10.0\KKT

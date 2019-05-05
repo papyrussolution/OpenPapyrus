@@ -85,7 +85,7 @@ static int setup_tbuf(RSA_PKEY_CTX * ctx, EVP_PKEY_CTX * pk)
 
 static void pkey_rsa_cleanup(EVP_PKEY_CTX * ctx)
 {
-	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX*)ctx->data;
+	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	if(rctx) {
 		BN_free(rctx->pub_exp);
 		OPENSSL_free(rctx->tbuf);
@@ -97,7 +97,7 @@ static void pkey_rsa_cleanup(EVP_PKEY_CTX * ctx)
 static int pkey_rsa_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const uchar * tbs, size_t tbslen)
 {
 	int ret;
-	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX*)ctx->data;
+	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	RSA * rsa = ctx->pkey->pkey.rsa;
 	if(rctx->md) {
 		if(tbslen != (size_t)EVP_MD_size(rctx->md)) {
@@ -155,7 +155,7 @@ static int pkey_rsa_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const
 static int pkey_rsa_verifyrecover(EVP_PKEY_CTX * ctx, uchar * rout, size_t * routlen, const uchar * sig, size_t siglen)
 {
 	int ret;
-	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX*)ctx->data;
+	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	if(rctx->md) {
 		if(rctx->pad_mode == RSA_X931_PADDING) {
 			if(!setup_tbuf(rctx, ctx))
@@ -195,7 +195,7 @@ static int pkey_rsa_verifyrecover(EVP_PKEY_CTX * ctx, uchar * rout, size_t * rou
 
 static int pkey_rsa_verify(EVP_PKEY_CTX * ctx, const uchar * sig, size_t siglen, const uchar * tbs, size_t tbslen)
 {
-	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX*)ctx->data;
+	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	RSA * rsa = ctx->pkey->pkey.rsa;
 	size_t rslen;
 	if(rctx->md) {
@@ -239,7 +239,7 @@ static int pkey_rsa_verify(EVP_PKEY_CTX * ctx, const uchar * sig, size_t siglen,
 static int pkey_rsa_encrypt(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, const uchar * in, size_t inlen)
 {
 	int ret;
-	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX*)ctx->data;
+	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	if(rctx->pad_mode == RSA_PKCS1_OAEP_PADDING) {
 		int klen = RSA_size(ctx->pkey->pkey.rsa);
 		if(!setup_tbuf(rctx, ctx))
@@ -259,28 +259,22 @@ static int pkey_rsa_encrypt(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, co
 static int pkey_rsa_decrypt(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, const uchar * in, size_t inlen)
 {
 	int ret;
-	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX*)ctx->data;
+	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	if(rctx->pad_mode == RSA_PKCS1_OAEP_PADDING) {
 		int i;
 		if(!setup_tbuf(rctx, ctx))
 			return -1;
-		ret = RSA_private_decrypt(inlen, in, rctx->tbuf,
-		    ctx->pkey->pkey.rsa, RSA_NO_PADDING);
+		ret = RSA_private_decrypt(inlen, in, rctx->tbuf, ctx->pkey->pkey.rsa, RSA_NO_PADDING);
 		if(ret <= 0)
 			return ret;
 		for(i = 0; i < ret; i++) {
 			if(rctx->tbuf[i])
 				break;
 		}
-		ret = RSA_padding_check_PKCS1_OAEP_mgf1(out, ret, rctx->tbuf + i,
-		    ret - i, ret,
-		    rctx->oaep_label,
-		    rctx->oaep_labellen,
-		    rctx->md, rctx->mgf1md);
+		ret = RSA_padding_check_PKCS1_OAEP_mgf1(out, ret, rctx->tbuf + i, ret - i, ret, rctx->oaep_label, rctx->oaep_labellen, rctx->md, rctx->mgf1md);
 	}
 	else
-		ret = RSA_private_decrypt(inlen, in, out, ctx->pkey->pkey.rsa,
-		    rctx->pad_mode);
+		ret = RSA_private_decrypt(inlen, in, out, ctx->pkey->pkey.rsa, rctx->pad_mode);
 	if(ret < 0)
 		return ret;
 	*outlen = ret;
@@ -318,9 +312,8 @@ static int check_padding_md(const EVP_MD * md, int padding)
 			case NID_mdc2:
 			case NID_ripemd160:
 			    return 1;
-
-			default:
-			    RSAerr(RSA_F_CHECK_PADDING_MD, RSA_R_INVALID_DIGEST);
+			default: 
+				RSAerr(RSA_F_CHECK_PADDING_MD, RSA_R_INVALID_DIGEST);
 			    return 0;
 		}
 	}
@@ -330,7 +323,7 @@ static int check_padding_md(const EVP_MD * md, int padding)
 
 static int pkey_rsa_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 {
-	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX*)ctx->data;
+	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	switch(type) {
 		case EVP_PKEY_CTRL_RSA_PADDING:
 		    if((p1 >= RSA_PKCS1_PADDING) && (p1 <= RSA_PKCS1_PSS_PADDING)) {
@@ -566,7 +559,7 @@ static int pkey_rsa_ctrl_str(EVP_PKEY_CTX * ctx,
 static int pkey_rsa_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 {
 	RSA * rsa = NULL;
-	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX*)ctx->data;
+	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	BN_GENCB * pcb;
 	int ret;
 	if(rctx->pub_exp == NULL) {

@@ -2038,7 +2038,7 @@ void ScintillaWin::Paste()
 				if(IsUnicodeMode()) {
 					uint bytes = static_cast<uint>(memUSelection.Size());
 					len = UTF8Length(uptr, bytes / 2);
-					putf.resize(len + 1);
+					putf.resize(len+1);
 					UTF8FromUTF16(uptr, bytes / 2, &putf[0], len);
 				}
 				else {
@@ -2046,7 +2046,7 @@ void ScintillaWin::Paste()
 					// Convert from Unicode to current Scintilla code page
 					UINT cpDest = CodePageOfDocument();
 					len = ::WideCharToMultiByte(cpDest, 0, uptr, -1, NULL, 0, NULL, NULL) - 1; // subtract 0 terminator
-					putf.resize(len + 1);
+					putf.resize(len+1);
 					::WideCharToMultiByte(cpDest, 0, uptr, -1, &putf[0], len + 1, 0, 0);
 				}
 				InsertPasteShape(&putf[0], len, pasteShape);

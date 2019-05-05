@@ -411,7 +411,7 @@
 	#define png_fixed_error(s1, s2) png_err(s1)
 #endif
 
-/* C allows up-casts from (void *) to any pointer and (const void*) to any
+/* C allows up-casts from (void *) to any pointer and (const void *) to any
  * pointer to a const object.  C++ regards this as a type error and requires an
  * explicit, static, cast and provides the static_cast<> rune to ensure that
  * const is not cast away.
@@ -425,7 +425,7 @@
 #define png_voidcast(type, value) (value)
 #define png_constcast(type, value) ((type)(value))
 #define png_aligncast(type, value) ((void *)(value))
-#define png_aligncastconst(type, value) ((const void*)(value))
+#define png_aligncastconst(type, value) ((const void *)(value))
 #endif /* __cplusplus */
 
 /* Some fixed point APIs are still required even if not exported because

@@ -6680,6 +6680,36 @@ public:
 		fInitPaths    = 0x0001, // Инициализировать пути (извлекает из pp.ini)
 		fDenyLogQueue = 0x0002  // Не инициализировать очередь журнальных сообщений (вывод прямо в файл)
 	};
+	enum {
+		cmdlHelp = 0,  // ?
+		cmdlCash,      // CASH
+		cmdlExport,    // EXP
+		cmdlImport,    // IMP
+		cmdlIn,        // IN
+		cmdlOut,       // OUT
+		cmdlBatch,     // BATCH
+		cmdlSyncPut,   // SYNCPUT
+		cmdlSyncGet,   // SYNCGET
+		cmdlDB,        // DB
+		cmdlBackup,    // BACKUP
+		cmdlBillCash,  // BILLCASH
+		cmdlPrc,       // PRC
+		cmdlTSess,     // TSESS
+		cmdlGoodsInfo, // GOODSINFO
+		cmdlVerHist,   // VERHIST
+		cmdlRecoverTransfer,  // RECOVERTRANSFER @temp
+		cmdlConvertRbcBnk,    // CONVERTRBCBNK
+		cmdlNoLogin,   // NOLOGIN
+		cmdlPPOS,      // PPOS
+		cmdlExportDialogs, // EXPORTDIALOGS
+		cmdlSelfBuild,     // SELFBUILD
+		cmdlSartrTest,     // SARTRTEST
+		cmdlAutoTranslate, // AUTOTRANSLATE
+		cmdlConvertCipher, // CONVERTCIPHER
+		cmdlPpIniSubst,     // PPINISUBST
+		cmdlUhttGoodsToGitHubExport, // UHTTGOODSTOGITHUBEXPORT
+		cmdlUiLang          // @v10.4.4 UILANG
+	};
 	static const char * P_JobLogin; // "$SYSSERVICE$"
 	static const char * P_EmptyBaseCreationLogin; // "$EMPTYBASECREATION$"
 
@@ -6906,6 +6936,7 @@ public:
 	int    FASTCALL PushLogMsgToQueue(const PPLogMsgItem & rItem);
 	int    SLAPI Log(const char * pFileName, const char * pStr, long options);
 	static int SLAPI Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerIntermediateBlock & rLb);
+	static int FASTCALL GetStartUpOption(int o, SString & rArgBuf);
 private:
 	int    SLAPI Helper_SetPath(int pathId, SString & rPath);
 	int    SLAPI MakeMachineID(MACAddr * pMachineID);
@@ -16119,6 +16150,7 @@ public:
 	int    SLAPI SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet);
 	int    SLAPI SetExternTransactionNotification(const TsStakeEnvironment::TransactionNotification & rEnv);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
+	int    SLAPI Export(PPID id);
 	int    SLAPI Test(); // @experimental
 	//static int SLAPI CalcStrategyResult2(const DateTimeArray & rTmList, const RealArray & rValList, const Strategy & rS, uint valueIdx, StrategyResultValueEx & rV);
 	//static int SLAPI TestStrategy2(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, const Strategy & rS, StrategyResultEntry & rResult);
@@ -16140,6 +16172,60 @@ public:
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
+};
+
+struct TimeSeriesFilt : public PPBaseFilt {
+	SLAPI  TimeSeriesFilt();
+
+	uint8  ReserveStart[128]; // @anchor
+	long   Flags;
+	long   SortOrd;
+	long   Reserve;          // @anchor
+};
+
+typedef PPTimeSeries TimeSeriesViewItem;
+
+class PPViewTimeSeries : public PPView {
+public:
+	struct BrwItem { // @persistent @store(Reference2Tbl)
+		BrwItem(const PPTimeSeries * pTs);
+		PPID   ID;             // @id
+		char   Name[48];       // @name @!refname
+		char   Symb[20];       //
+		double BuyMarg;
+		double SellMarg;
+		int16  Prec;
+		char   CurrencySymb[12];
+		double SpikeQuant;     //
+		double AvgSpread;      //
+		uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
+		uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
+		uint16 PeakAvgQuant;   // @v10.3.3
+		uint16 PeakAvgQuant_S; // @v10.3.3
+		uint16 TargetQuant;    // @v10.4.2
+		long   Flags;          //
+		long   CfgFlags;
+	};
+	SLAPI  PPViewTimeSeries();
+	SLAPI ~PPViewTimeSeries();
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
+	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    SLAPI InitIteration();
+	int    FASTCALL NextIteration(TimeSeriesViewItem *);
+	static int SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI MakeList();
+
+	SArray * P_DsList;
+	TimeSeriesFilt Filt;
+	PPObjTimeSeries Obj;
+	PPObjTimeSeries::Config Cfg;
 };
 //
 //
@@ -29935,6 +30021,16 @@ struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	PPID   ValuationQuotKindID; // ->Ref(PPOBJ_QUOTKIND) Вид котировки для расценки приходных документов
 	double ValuationRndPrec;   // Точность округления при расценке
 	char   UniqSerialSfx[16];  // Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
+	int16  WarnLotExpirDays;   // @v10.4.4 Количество дней до предупреждения об истечении срока годности лота (отрицательные значения - после даты истечения)
+	//
+	// Descr: Опции обработки ситуации с угрозой истечения срока годности лота
+	//
+	enum {
+		wlefIndicator     = 0x0001, // Просто индикация
+		wlefDisalbePosOp  = 0x0002, // Блокировка розничной продажи
+		wlefDisableBillOp = 0x0004  // Блокировка отгрузки клиентам
+	};
+	uint16 WarnLotExpirFlags;  // @v10.4.4 Опции действий при угрозе истечения срока годности лота
 	SVerT  Ver;                // @anchor Версия, сформировавшая запись.
 	TagFilt TagIndFilt;        // @anchor Фильтр тегов, определяющий окраску номеров документов в отчетах
 	SString AddFilesFolder;    // Папка для автоматического присоединения файлов к документам. Строка хранится в реестре, а не в БД.
@@ -36518,12 +36614,12 @@ public:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 private:
 	static int   CalcChildLots(const ReceiptTbl::Rec *, void * extraPtr);
+	static int   CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Print(const void *);
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
-
 	int    SLAPI IsTempTblNeeded() const;
 	int    SLAPI CreateTempTable();
 	int    SLAPI PutAllToBasket();
@@ -51545,7 +51641,6 @@ int    SLAPI ViewTrfrAnlz(const TrfrAnlzFilt *);
 int    SLAPI ViewSCard(const SCardFilt *, int _modeless);
 int    SLAPI ViewAddressBook();
 int    SLAPI SelectAddressFromBook(PPID * pSelPersonID, SString & rAddr);
-int    SLAPI ViewOprKind(OprKindFilt * pFilt); // AHTOXA
 int    SLAPI ViewBillDetails(PPBillPacket * pPack, long options, PPObjBill *);
 int    SLAPI ViewMrpTab(const MrpTabFilt *);
 int    SLAPI ViewDLSDetail(const DLSDetailFilt & rFilt);

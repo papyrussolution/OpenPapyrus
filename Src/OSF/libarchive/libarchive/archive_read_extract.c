@@ -40,7 +40,7 @@ int
 archive_read_extract(struct archive *_a, struct archive_entry *entry, int flags)
 {
 	struct archive_read_extract *extract;
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 
 	extract = __archive_read_get_extract(a);
 	if (extract == NULL)

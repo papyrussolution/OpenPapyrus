@@ -1896,13 +1896,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 						    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 						    break;
 					    }
-
 					    memcpy(sshc->readdir_line, sshc->readdir_longentry,
 					    sshc->readdir_currLen);
-					    if((sshc->readdir_attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) &&
-					    ((sshc->readdir_attrs.permissions & LIBSSH2_SFTP_S_IFMT) ==
-						    LIBSSH2_SFTP_S_IFLNK)) {
-						    sshc->readdir_linkPath = (char *)SAlloc::M(PATH_MAX + 1);
+					    if((sshc->readdir_attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) && ((sshc->readdir_attrs.permissions & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFLNK)) {
+						    sshc->readdir_linkPath = (char *)SAlloc::M(PATH_MAX+1);
 						    if(sshc->readdir_linkPath == NULL) {
 							    ZFREE(sshc->readdir_filename);
 							    ZFREE(sshc->readdir_longentry);
@@ -1910,7 +1907,6 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 							    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 							    break;
 						    }
-
 						    snprintf(sshc->readdir_linkPath, PATH_MAX, "%s%s", sftp_scp->path,
 						    sshc->readdir_filename);
 						    state(conn, SSH_SFTP_READDIR_LINK);
@@ -1930,8 +1926,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
 				    result = sftp_libssh2_error_to_CURLE(err);
 				    sshc->actualcode = result ? result : CURLE_SSH;
-				    failf(data, "Could not open remote file for reading: %s :: %d",
-				    sftp_libssh2_strerror(err),
+				    failf(data, "Could not open remote file for reading: %s :: %d", sftp_libssh2_strerror(err),
 				    libssh2_session_last_errno(sshc->ssh_session));
 				    ZFREE(sshc->readdir_filename);
 				    ZFREE(sshc->readdir_longentry);
@@ -1942,11 +1937,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			case SSH_SFTP_READDIR_LINK:
 			    sshc->readdir_len =
-			    libssh2_sftp_symlink_ex(sshc->sftp_session,
-			    sshc->readdir_linkPath,
-			    curlx_uztoui(sstrlen(sshc->readdir_linkPath)),
-			    sshc->readdir_filename,
-			    PATH_MAX, LIBSSH2_SFTP_READLINK);
+			    libssh2_sftp_symlink_ex(sshc->sftp_session, sshc->readdir_linkPath, curlx_uztoui(sstrlen(sshc->readdir_linkPath)), sshc->readdir_filename, PATH_MAX, LIBSSH2_SFTP_READLINK);
 			    if(sshc->readdir_len == LIBSSH2_ERROR_EAGAIN) {
 				    rc = LIBSSH2_ERROR_EAGAIN;
 				    break;
@@ -1955,8 +1946,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			    /* get room for the filename and extra output */
 			    sshc->readdir_totalLen += 4 + sshc->readdir_len;
-			    new_readdir_line = (char *)Curl_saferealloc(sshc->readdir_line,
-			    sshc->readdir_totalLen);
+			    new_readdir_line = (char *)Curl_saferealloc(sshc->readdir_line, sshc->readdir_totalLen);
 			    if(!new_readdir_line) {
 				    sshc->readdir_line = NULL;
 				    ZFREE(sshc->readdir_filename);
@@ -1966,26 +1956,13 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    break;
 			    }
 			    sshc->readdir_line = new_readdir_line;
-
-			    sshc->readdir_currLen += snprintf(sshc->readdir_line +
-			    sshc->readdir_currLen,
-			    sshc->readdir_totalLen -
-			    sshc->readdir_currLen,
-			    " -> %s",
-			    sshc->readdir_filename);
-
+			    sshc->readdir_currLen += snprintf(sshc->readdir_line + sshc->readdir_currLen, sshc->readdir_totalLen - sshc->readdir_currLen, " -> %s", sshc->readdir_filename);
 			    state(conn, SSH_SFTP_READDIR_BOTTOM);
 			    break;
 
 			case SSH_SFTP_READDIR_BOTTOM:
-			    sshc->readdir_currLen += snprintf(sshc->readdir_line +
-			    sshc->readdir_currLen,
-			    sshc->readdir_totalLen -
-			    sshc->readdir_currLen, "\n");
-			    result = Curl_client_write(conn, CLIENTWRITE_BODY,
-			    sshc->readdir_line,
-			    sshc->readdir_currLen);
-
+			    sshc->readdir_currLen += snprintf(sshc->readdir_line + sshc->readdir_currLen, sshc->readdir_totalLen - sshc->readdir_currLen, "\n");
+			    result = Curl_client_write(conn, CLIENTWRITE_BODY, sshc->readdir_line, sshc->readdir_currLen);
 			    if(!result) {
 				    /* output debug output if that is requested */
 				    if(data->set.verbose) {
@@ -2530,15 +2507,11 @@ static int ssh_perform_getsock(const struct connectdata * conn,
 #ifdef HAVE_LIBSSH2_SESSION_BLOCK_DIRECTION
 	int bitmap = GETSOCK_BLANK;
 	(void)numsocks;
-
 	sock[0] = conn->sock[FIRSTSOCKET];
-
 	if(conn->waitfor & KEEP_RECV)
 		bitmap |= GETSOCK_READSOCK(FIRSTSOCKET);
-
 	if(conn->waitfor & KEEP_SEND)
 		bitmap |= GETSOCK_WRITESOCK(FIRSTSOCKET);
-
 	return bitmap;
 #else
 	/* if we don't know the direction we can use the generic *_getsock()
@@ -2549,10 +2522,7 @@ static int ssh_perform_getsock(const struct connectdata * conn,
 
 /* Generic function called by the multi interface to figure out what socket(s)
    to wait for and for what actions during the DOING and PROTOCONNECT states*/
-static int ssh_getsock(struct connectdata * conn,
-    curl_socket_t * sock,                   /* points to numsocks number
-                                               of sockets */
-    int numsocks)
+static int ssh_getsock(struct connectdata * conn, curl_socket_t * sock/* points to numsocks*/, int numsocks/*number of sockets */)
 {
 #ifndef HAVE_LIBSSH2_SESSION_BLOCK_DIRECTION
 	(void)conn;
@@ -2584,13 +2554,11 @@ static void ssh_block2waitfor(struct connectdata * conn, bool block)
 		dir = libssh2_session_block_directions(sshc->ssh_session);
 		if(dir) {
 			/* translate the libssh2 define bits into our own bit defines */
-			conn->waitfor = ((dir&LIBSSH2_SESSION_BLOCK_INBOUND) ? KEEP_RECV : 0) |
-			    ((dir&LIBSSH2_SESSION_BLOCK_OUTBOUND) ? KEEP_SEND : 0);
+			conn->waitfor = ((dir&LIBSSH2_SESSION_BLOCK_INBOUND) ? KEEP_RECV : 0) | ((dir&LIBSSH2_SESSION_BLOCK_OUTBOUND) ? KEEP_SEND : 0);
 		}
 	}
 	if(!dir)
-		/* It didn't block or libssh2 didn't reveal in which direction, put back
-		   the original set */
+		// It didn't block or libssh2 didn't reveal in which direction, put back the original set 
 		conn->waitfor = sshc->orig_waitfor;
 }
 
@@ -2604,39 +2572,30 @@ static CURLcode ssh_multi_statemach(struct connectdata * conn, bool * done)
 {
 	struct ssh_conn * sshc = &conn->proto.sshc;
 	CURLcode result = CURLE_OK;
-	bool block; /* we store the status and use that to provide a ssh_getsock()
-	               implementation */
-
+	bool block; // we store the status and use that to provide a ssh_getsock() implementation 
 	result = ssh_statemach_act(conn, &block);
 	*done = (sshc->state == SSH_STOP) ? TRUE : FALSE;
 	ssh_block2waitfor(conn, block);
-
 	return result;
 }
 
-static CURLcode ssh_block_statemach(struct connectdata * conn,
-    bool duringconnect)
+static CURLcode ssh_block_statemach(struct connectdata * conn, bool duringconnect)
 {
 	struct ssh_conn * sshc = &conn->proto.sshc;
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
-
 	while((sshc->state != SSH_STOP) && !result) {
 		bool block;
 		time_t left;
 		struct timeval now = Curl_tvnow();
-
 		result = ssh_statemach_act(conn, &block);
 		if(result)
 			break;
-
 		if(Curl_pgrsUpdate(conn))
 			return CURLE_ABORTED_BY_CALLBACK;
-
 		result = Curl_speedcheck(data, now);
 		if(result)
 			break;
-
 		left = Curl_timeleft(data, NULL, duringconnect);
 		if(left < 0) {
 			failf(data, "Operation timed out");

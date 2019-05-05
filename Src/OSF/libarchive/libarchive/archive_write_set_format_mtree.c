@@ -196,7 +196,7 @@ struct mtree_writer {
 #define F_MODE          0x00000200              /* mode */
 #define F_NLINK         0x00000400              /* number of links */
 #define F_NOCHANGE      0x00000800              /* If owner/mode "wrong", do
-	                                         * not change */
+	        * not change */
 #define F_OPT           0x00001000              /* existence optional */
 #define F_RMD160        0x00002000              /* RIPEMD160 digest */
 #define F_SHA1          0x00004000              /* SHA-1 digest */
@@ -213,15 +213,15 @@ struct mtree_writer {
 #define F_SHA512        0x02000000              /* SHA-512 digest */
 #define F_INO           0x04000000              /* inode number */
 #define F_RESDEV        0x08000000              /* device ID on which the
-	                                         * entry resides */
+	        * entry resides */
 
 	/* Options */
 	int dironly;            /* If it is set, ignore all files except
-	                         * directory files, like mtree(8) -d option. */
+	     * directory files, like mtree(8) -d option. */
 	int indent;             /* If it is set, indent output data. */
 	int output_global_set;  /* If it is set, use /set keyword to set
-	                         * global values. When generating mtree
-	                         * classic format, it is set by default. */
+	     * global values. When generating mtree
+	     * classic format, it is set by default. */
 };
 
 #define DEFAULT_KEYS    (F_DEV | F_FLAGS | F_GID | F_GNAME | F_SLINK | F_MODE \
@@ -1312,8 +1312,7 @@ static int archive_write_mtree_options(struct archive_write * a, const char * ke
 			    keybit = F_SLINK;
 		    break;
 		case 'm':
-		    if(strcmp(key, "md5") == 0 ||
-			strcmp(key, "md5digest") == 0)
+		    if(strcmp(key, "md5") == 0 || strcmp(key, "md5digest") == 0)
 			    keybit = F_MD5;
 		    if(strcmp(key, "mode") == 0)
 			    keybit = F_MODE;
@@ -1326,23 +1325,17 @@ static int archive_write_mtree_options(struct archive_write * a, const char * ke
 		    if(strcmp(key, "resdevice") == 0) {
 			    keybit = F_RESDEV;
 		    }
-		    else if(strcmp(key, "ripemd160digest") == 0 ||
-			strcmp(key, "rmd160") == 0 ||
-			strcmp(key, "rmd160digest") == 0)
+		    else if(strcmp(key, "ripemd160digest") == 0 || strcmp(key, "rmd160") == 0 || strcmp(key, "rmd160digest") == 0)
 			    keybit = F_RMD160;
 		    break;
 		case 's':
-		    if(strcmp(key, "sha1") == 0 ||
-			strcmp(key, "sha1digest") == 0)
+		    if(strcmp(key, "sha1") == 0 || strcmp(key, "sha1digest") == 0)
 			    keybit = F_SHA1;
-		    if(strcmp(key, "sha256") == 0 ||
-			strcmp(key, "sha256digest") == 0)
+		    if(strcmp(key, "sha256") == 0 || strcmp(key, "sha256digest") == 0)
 			    keybit = F_SHA256;
-		    if(strcmp(key, "sha384") == 0 ||
-			strcmp(key, "sha384digest") == 0)
+		    if(strcmp(key, "sha384") == 0 || strcmp(key, "sha384digest") == 0)
 			    keybit = F_SHA384;
-		    if(strcmp(key, "sha512") == 0 ||
-			strcmp(key, "sha512digest") == 0)
+		    if(strcmp(key, "sha512") == 0 || strcmp(key, "sha512digest") == 0)
 			    keybit = F_SHA512;
 		    if(strcmp(key, "size") == 0)
 			    keybit = F_SIZE;
@@ -1380,7 +1373,7 @@ static int archive_write_mtree_options(struct archive_write * a, const char * ke
 
 static int archive_write_set_format_mtree_default(struct archive * _a, const char * fn)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct mtree_writer * mtree;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, fn);
 	if(a->format_free != NULL)
@@ -1425,7 +1418,7 @@ int archive_write_set_format_mtree_classic(struct archive * _a)
 	r = archive_write_set_format_mtree_default(_a,
 		"archive_write_set_format_mtree_classic");
 	if(r == ARCHIVE_OK) {
-		struct archive_write * a = (struct archive_write *)_a;
+		struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 		struct mtree_writer * mtree;
 
 		mtree = (struct mtree_writer *)a->format_data;
@@ -1507,7 +1500,7 @@ static void sum_update(struct mtree_writer * mtree, const void * buff, size_t n)
 		const uchar * p;
 		size_t nn;
 
-		for(nn = n, p = (const uchar *)buff; nn--; ++p)
+		for(nn = n, p = static_cast<const uchar *>(buff); nn--; ++p)
 			COMPUTE_CRC(mtree->crc, *p);
 		mtree->crc_len += n;
 	}

@@ -106,7 +106,7 @@ struct cpio {
  */
 int archive_write_set_format_cpio_newc(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct cpio * cpio;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_cpio_newc");
 	/* If someone else was already registered, unregister them. */

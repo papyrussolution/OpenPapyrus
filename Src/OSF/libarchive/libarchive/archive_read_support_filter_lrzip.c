@@ -56,7 +56,7 @@ static int lrzip_reader_free(struct archive_read_filter_bidder * self)
 
 int archive_read_support_filter_lrzip(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lrzip");
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)

@@ -6135,6 +6135,29 @@ browser DBDIV north(100), 1, 1, "@{dbdiv_pl}", OWNER|GRID, 0
 	}
 }
 
+browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
+{
+	"@id",           0, int32,       0, 10, BCO_USERPROC
+	"@symbol",       1, zstring(20), 0, 20, BCO_USERPROC
+	"@name",         2, zstring(48), 0, 30, BCO_USERPROC
+	"@currency",     3, zstring(20), 0, 10, BCO_USERPROC
+	"Prec",          4, int32,  NMBF_NOZERO, 6, BCO_USERPROC
+	"BuyMarg",       5, double, NMBF_NOZERO, 10.5, BCO_USERPROC
+	"SellMarg",      6, double, NMBF_NOZERO, 10.5, BCO_USERPROC
+	"SpikeQuant",    7, double, NMBF_NOZERO, 12.10, BCO_USERPROC
+	"AvgSpread",     8, double, NMBF_NOZERO, 12.10, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		ADDITEM        : kbIns,    TBBM_INSERT,  "@{add}\tInsert"
+		EDITITEM       : kbEnter,  TBBM_EDIT,    "@{edit}\tEnter"
+		DELETEITEM     : kbDel,    TBBM_DELETE,  "@{delete}\tDelete"
+		separator
+		CONFIG         : kbF8,     TBBM_CONFIG,  "@{config}\tF8"
+		separator
+		EXPORT         : kbCtrlR,  TBBM_EXPORT,  "@{export}\tCtrl-R"
+		REFRESH        : kbCtrlV,  TBBM_REFRESHVIEW, "@{refresh}\tCtrl-V"
+	}
+}
+
 browser DBMONITOR north(100), 2, 1, "Монитор базы данных", OWNER|GRID, 0
 {
 	"@filename",             0, zstring(256), 0, 25, BCO_USERPROC
@@ -6785,6 +6808,7 @@ filter PrcssrSartreParam       { "@{filter_prcssrsartre}" } // @v9.7.8
 view   PhnSvcMonitor           { "@{view_phnsvcmonitor}" } // @v9.9.10
 view   VetisDocument           { "@{view_vetisdocument}" } // @v10.0.12
 filter PrcssrTsStrategyAnalyze { "@{tsstrategyanalyze}"  } // @v10.2.11
+view   TimeSeries              { "@{view_timeseries}" } // @v10.4.4
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

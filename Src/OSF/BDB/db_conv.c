@@ -258,7 +258,7 @@ int __db_pgout(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
  *
  * PUBLIC: int __db_decrypt_pg __P((ENV *, DB *, PAGE *));
  */
-int __db_decrypt_pg(ENV * env, DB * dbp, PAGE * pagep)
+int __db_decrypt_pg(ENV * env, const DB * dbp, PAGE * pagep)
 {
 	size_t pg_len, pg_off;
 	uint8 * iv = NULL;
@@ -267,10 +267,8 @@ int __db_decrypt_pg(ENV * env, DB * dbp, PAGE * pagep)
 	if(F_ISSET(dbp, DB_AM_ENCRYPT)) {
 		DB_ASSERT(env, db_cipher != NULL);
 		DB_ASSERT(env, F_ISSET(dbp, DB_AM_CHKSUM));
-
 		pg_off = P_OVERHEAD(dbp);
 		DB_ASSERT(env, db_cipher->adj_size(pg_off) == 0);
-
 		switch(pagep->type) {
 		    case P_HASHMETA:
 		    case P_HEAPMETA:
@@ -282,12 +280,11 @@ int __db_decrypt_pg(ENV * env, DB * dbp, PAGE * pagep)
 			 * be at the same location.  Use BTMETA to get to it
 			 * for any meta type.
 			 */
-			iv = ((BTMETA *)pagep)->iv;
+			iv = reinterpret_cast<BTMETA *>(pagep)->iv;
 			pg_len = DBMETASIZE;
 			break;
 		    case P_INVALID:
-			if(IS_ZERO_LSN(LSN(pagep)) &&
-			   pagep->pgno == PGNO_INVALID) {
+			if(IS_ZERO_LSN(LSN(pagep)) && pagep->pgno == PGNO_INVALID) {
 				pg_len = 0;
 				break;
 			}
@@ -298,38 +295,30 @@ int __db_decrypt_pg(ENV * env, DB * dbp, PAGE * pagep)
 			break;
 		}
 		if(pg_len != 0)
-			ret = db_cipher->decrypt(env, db_cipher->data,
-				iv, (reinterpret_cast<uint8 *>(pagep))+pg_off,
-				pg_len-pg_off);
+			ret = db_cipher->decrypt(env, db_cipher->data, iv, (reinterpret_cast<uint8 *>(pagep))+pg_off, pg_len-pg_off);
 	}
 	return ret;
 }
-
 /*
  * __db_encrypt_and_checksum_pg --
  *	Utility function to encrypt and checksum a db page.
  *
- * PUBLIC: int __db_encrypt_and_checksum_pg
- * PUBLIC:     __P((ENV *, DB *, PAGE *));
+ * PUBLIC: int __db_encrypt_and_checksum_pg(ENV *, DB *, PAGE *);
  */
-int __db_encrypt_and_checksum_pg(ENV * env, DB * dbp, PAGE * pagep)
+int __db_encrypt_and_checksum_pg(ENV * env, const DB * dbp, PAGE * pagep)
 {
-	DB_CIPHER * db_cipher;
 	int ret;
 	size_t pg_off, pg_len, sum_len;
-	uint8 * chksum, * iv, * key;
-
-	chksum = iv = key = NULL;
-	db_cipher = env->crypto_handle;
+	uint8 * chksum = 0;
+	uint8 * iv = 0;
+	uint8 * key = 0;
+	DB_CIPHER * db_cipher = env->crypto_handle;
 	if(F_ISSET(dbp, DB_AM_ENCRYPT)) {
 		DB_ASSERT(env, db_cipher != NULL);
 		DB_ASSERT(env, F_ISSET(dbp, DB_AM_CHKSUM));
-
 		pg_off = P_OVERHEAD(dbp);
 		DB_ASSERT(env, db_cipher->adj_size(pg_off) == 0);
-
 		key = db_cipher->mac_key;
-
 		switch(pagep->type) {
 		    case P_HASHMETA:
 		    case P_HEAPMETA:
@@ -338,10 +327,9 @@ int __db_encrypt_and_checksum_pg(ENV * env, DB * dbp, PAGE * pagep)
 			/*
 			 * !!!
 			 * For all meta pages it is required that the iv
-			 * be at the same location.  Use BTMETA to get to it
-			 * for any meta type.
+			 * be at the same location.  Use BTMETA to get to it for any meta type.
 			 */
-			iv = ((BTMETA *)pagep)->iv;
+			iv = reinterpret_cast<BTMETA *>(pagep)->iv;
 			pg_len = DBMETASIZE;
 			break;
 		    default:
@@ -349,8 +337,7 @@ int __db_encrypt_and_checksum_pg(ENV * env, DB * dbp, PAGE * pagep)
 			pg_len = dbp->pgsize;
 			break;
 		}
-		if((ret = db_cipher->encrypt(env, db_cipher->data,
-			    iv, (reinterpret_cast<uint8 *>(pagep))+pg_off, pg_len-pg_off)) != 0)
+		if((ret = db_cipher->encrypt(env, db_cipher->data, iv, (reinterpret_cast<uint8 *>(pagep))+pg_off, pg_len-pg_off)) != 0)
 			return ret;
 	}
 	if(F_ISSET(dbp, DB_AM_CHKSUM)) {
@@ -365,7 +352,7 @@ int __db_encrypt_and_checksum_pg(ENV * env, DB * dbp, PAGE * pagep)
 			 * be at the same location.  Use BTMETA to get to it
 			 * for any meta type.
 			 */
-			chksum = ((BTMETA *)pagep)->chksum;
+			chksum = reinterpret_cast<BTMETA *>(pagep)->chksum;
 			sum_len = DBMETASIZE;
 			break;
 		    default:
@@ -387,7 +374,7 @@ int __db_encrypt_and_checksum_pg(ENV * env, DB * dbp, PAGE * pagep)
  */
 void __db_metaswap(PAGE * pg)
 {
-	uint8 * p = (uint8 *)pg;
+	uint8 * p = reinterpret_cast<uint8 *>(pg);
 	/* Swap the meta-data information. */
 	SWAP32(p);      /* lsn.file */
 	SWAP32(p);      /* lsn.offset */

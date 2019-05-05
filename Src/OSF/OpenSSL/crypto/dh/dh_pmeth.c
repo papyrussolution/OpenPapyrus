@@ -39,7 +39,7 @@ typedef struct {
 static int pkey_dh_init(EVP_PKEY_CTX * ctx)
 {
 	DH_PKEY_CTX * dctx;
-	dctx = (DH_PKEY_CTX*)OPENSSL_zalloc(sizeof(*dctx));
+	dctx = (DH_PKEY_CTX *)OPENSSL_zalloc(sizeof(*dctx));
 	if(dctx == NULL)
 		return 0;
 	dctx->prime_len = 1024;
@@ -56,7 +56,7 @@ static int pkey_dh_init(EVP_PKEY_CTX * ctx)
 
 static void pkey_dh_cleanup(EVP_PKEY_CTX * ctx)
 {
-	DH_PKEY_CTX * dctx = (DH_PKEY_CTX*)ctx->data;
+	DH_PKEY_CTX * dctx = static_cast<DH_PKEY_CTX *>(ctx->data);
 	if(dctx != NULL) {
 		OPENSSL_free(dctx->kdf_ukm);
 		ASN1_OBJECT_free(dctx->kdf_oid);
@@ -69,8 +69,8 @@ static int pkey_dh_copy(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)
 	DH_PKEY_CTX * dctx, * sctx;
 	if(!pkey_dh_init(dst))
 		return 0;
-	sctx = (DH_PKEY_CTX*)src->data;
-	dctx = (DH_PKEY_CTX*)dst->data;
+	sctx = (DH_PKEY_CTX *)src->data;
+	dctx = (DH_PKEY_CTX *)dst->data;
 	dctx->prime_len = sctx->prime_len;
 	dctx->subprime_len = sctx->subprime_len;
 	dctx->generator = sctx->generator;
@@ -95,7 +95,7 @@ static int pkey_dh_copy(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)
 
 static int pkey_dh_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 {
-	DH_PKEY_CTX * dctx = (DH_PKEY_CTX*)ctx->data;
+	DH_PKEY_CTX * dctx = static_cast<DH_PKEY_CTX *>(ctx->data);
 	switch(type) {
 		case EVP_PKEY_CTRL_DH_PARAMGEN_PRIME_LEN:
 		    if(p1 < 256)
@@ -201,7 +201,7 @@ static int pkey_dh_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * 
 		return EVP_PKEY_CTX_set_dh_paramgen_prime_len(ctx, len);
 	}
 	if(sstreq(type, "dh_rfc5114")) {
-		DH_PKEY_CTX * dctx = (DH_PKEY_CTX*)ctx->data;
+		DH_PKEY_CTX * dctx = static_cast<DH_PKEY_CTX *>(ctx->data);
 		int len;
 		len = atoi(value);
 		if(len < 0 || len > 3)
@@ -229,18 +229,10 @@ static int pkey_dh_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * 
 
 #ifndef OPENSSL_NO_DSA
 
-extern int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
-    const EVP_MD * evpmd,
-    const uchar * seed_in, size_t seed_len,
-    uchar * seed_out, int * counter_ret,
-    ulong * h_ret, BN_GENCB * cb);
-
-extern int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
-    const EVP_MD * evpmd,
-    const uchar * seed_in,
-    size_t seed_len, int idx,
-    uchar * seed_out, int * counter_ret,
-    ulong * h_ret, BN_GENCB * cb);
+extern int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits, const EVP_MD * evpmd, const uchar * seed_in, size_t seed_len,
+    uchar * seed_out, int * counter_ret, ulong * h_ret, BN_GENCB * cb);
+extern int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N, const EVP_MD * evpmd, const uchar * seed_in, size_t seed_len, int idx,
+    uchar * seed_out, int * counter_ret, ulong * h_ret, BN_GENCB * cb);
 
 static DSA * dsa_dh_generate(DH_PKEY_CTX * dctx, BN_GENCB * pcb)
 {
@@ -267,11 +259,9 @@ static DSA * dsa_dh_generate(DH_PKEY_CTX * dctx, BN_GENCB * pcb)
 			md = EVP_sha1();
 	}
 	if(dctx->use_dsa == 1)
-		rv = dsa_builtin_paramgen(ret, prime_len, subprime_len, md,
-		    NULL, 0, NULL, NULL, NULL, pcb);
+		rv = dsa_builtin_paramgen(ret, prime_len, subprime_len, md, NULL, 0, NULL, NULL, NULL, pcb);
 	else if(dctx->use_dsa == 2)
-		rv = dsa_builtin_paramgen2(ret, prime_len, subprime_len, md,
-		    NULL, 0, -1, NULL, NULL, NULL, pcb);
+		rv = dsa_builtin_paramgen2(ret, prime_len, subprime_len, md, NULL, 0, -1, NULL, NULL, NULL, pcb);
 	if(rv <= 0) {
 		DSA_free(ret);
 		return NULL;
@@ -284,30 +274,19 @@ static DSA * dsa_dh_generate(DH_PKEY_CTX * dctx, BN_GENCB * pcb)
 static int pkey_dh_paramgen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 {
 	DH * dh = NULL;
-	DH_PKEY_CTX * dctx = (DH_PKEY_CTX*)ctx->data;
+	DH_PKEY_CTX * dctx = static_cast<DH_PKEY_CTX *>(ctx->data);
 	BN_GENCB * pcb;
 	int ret;
 	if(dctx->rfc5114_param) {
 		switch(dctx->rfc5114_param) {
-			case 1:
-			    dh = DH_get_1024_160();
-			    break;
-
-			case 2:
-			    dh = DH_get_2048_224();
-			    break;
-
-			case 3:
-			    dh = DH_get_2048_256();
-			    break;
-
-			default:
-			    return -2;
+			case 1: dh = DH_get_1024_160(); break;
+			case 2: dh = DH_get_2048_224(); break;
+			case 3: dh = DH_get_2048_256(); break;
+			default: return -2;
 		}
 		EVP_PKEY_assign(pkey, EVP_PKEY_DHX, dh);
 		return 1;
 	}
-
 	if(ctx->pkey_gencb) {
 		pcb = BN_GENCB_new();
 		if(pcb == NULL)
@@ -336,8 +315,7 @@ static int pkey_dh_paramgen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 		BN_GENCB_free(pcb);
 		return 0;
 	}
-	ret = DH_generate_parameters_ex(dh,
-	    dctx->prime_len, dctx->generator, pcb);
+	ret = DH_generate_parameters_ex(dh, dctx->prime_len, dctx->generator, pcb);
 	BN_GENCB_free(pcb);
 	if(ret)
 		EVP_PKEY_assign_DH(pkey, dh);
@@ -363,12 +341,11 @@ static int pkey_dh_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 	return DH_generate_key(pkey->pkey.dh);
 }
 
-static int pkey_dh_derive(EVP_PKEY_CTX * ctx, uchar * key,
-    size_t * keylen)
+static int pkey_dh_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 {
 	int ret;
 	DH * dh;
-	DH_PKEY_CTX * dctx = (DH_PKEY_CTX*)ctx->data;
+	DH_PKEY_CTX * dctx = static_cast<DH_PKEY_CTX *>(ctx->data);
 	BIGNUM * dhpub;
 	if(!ctx->pkey || !ctx->peerkey) {
 		DHerr(DH_F_PKEY_DH_DERIVE, DH_R_KEYS_NOT_SET);

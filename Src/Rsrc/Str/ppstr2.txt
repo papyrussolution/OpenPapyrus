@@ -4933,7 +4933,7 @@ MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KP
 PPSSYM_ACCSIDE "0DBT,0DB,0D,0ДБТ,0ДБ,0Д,1CRD,1CR,1KRD,1KR,1C,1K,1КРД,1КР,1К"
 // Опции командной строки
 PPSSYM_CMDLINEOP "?,CASH,EXP,IMP,IN,OUT,BATCH,SYNCPUT,SYNCGET,DB,BACKUP,BILLCASH,PRC,\
-TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,AUTOTRANSLATE,CONVERTCIPHER,PPINISUBST,UHTTGOODSTOGITHUBEXPORT"
+TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,AUTOTRANSLATE,CONVERTCIPHER,PPINISUBST,UHTTGOODSTOGITHUBEXPORT,UILANG"
 // Наименования параметров импорта/экспорта
 PPSSYM_IMPEXPPAR "FILENAME,FILE;IMPEXP;FORMAT;ORIENTATION,ORIENT;CODEPAGE;OEMTEXT,OEM;QUOTSTR;\
 FIELDDIV,FLDDIV,DIV;FIXEDFIELDS;FIELDEQVAL,FLDEQVAL;FORMULA;ROOTTAG;RECTAG;FLDNAMEREC;\
@@ -6261,6 +6261,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @viewonly               "Только просмотр"
 @addendumfields         "Дополнительные поля"
 @addendumfieldstoload   "Дополнительные поля для загрузки"
+@timeseries             "Временная серия"
+@timeseries_p           "Временные серии"
 
 @cafetable              "Стол"
 @creditlimit            "Макс кредит"
@@ -6774,6 +6776,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_billitem_order                      "Строки товарного заказа"
 @view_phnsvcmonitor                       "Монитор состояний телефонного сервера"
 @view_vetisdocument                       "Ветеринарные документы ВЕТИС"
+@view_timeseries                          "@{timeseries_p}"
 
 @filter_cashnodepane                      "Фильтр кассовой панели"
 @filter_prcssrwroffdraftparam             "Параметры списания драфт-документов"
@@ -7202,7 +7205,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_dump                                 "Дамп данных"
 @cmd_vetisdocument                        "@{view_vetisdocument}"
 @cmd_vetisinerchange                      "@{vetisinterchange}"
-@cmd_timeseries                           "Временные серии"
+@cmd_timeseries                           "@{timeseries_p}"
 //@cmd_timeseriesnntrain                    "Обучение нейронной сети по временным сериям"
 @cmd_tsstrategyanalyze                    "@{tsstrategyanalyze}"
 @cmd_timeseriesconfig                     "Конфигурация временных серий"

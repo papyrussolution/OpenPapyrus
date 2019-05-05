@@ -46,23 +46,23 @@ __FBSDID("$FreeBSD$");
 //#include "archive_string.h"
 
 struct match {
-	struct match            * next;
+	struct match * next;
 	int matches;
 	struct archive_mstring pattern;
 };
 
 struct match_list {
-	struct match            * first;
-	struct match            ** last;
+	struct match * first;
+	struct match    ** last;
 	int count;
 	int unmatched_count;
-	struct match            * unmatched_next;
+	struct match * unmatched_next;
 	int unmatched_eof;
 };
 
 struct match_file {
 	struct archive_rb_node node;
-	struct match_file       * next;
+	struct match_file  * next;
 	struct archive_mstring pathname;
 	int flag;
 	time_t mtime_sec;
@@ -72,7 +72,7 @@ struct match_file {
 };
 
 struct entry_list {
-	struct match_file       * first;
+	struct match_file  * first;
 	struct match_file       ** last;
 	int count;
 };
@@ -80,7 +80,7 @@ struct entry_list {
 struct id_array {
 	size_t size;                  /* Allocated size */
 	size_t count;
-	int64_t                 * ids;
+	int64_t * ids;
 };
 
 #define PATTERN_IS_SET          1
@@ -1033,13 +1033,11 @@ static int set_timefilter_pathname_wcs(struct archive_match * a, int timetype, c
 /*
  * Call back functions for archive_rb.
  */
-static int cmp_node_mbs(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int cmp_node_mbs(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	struct match_file * f1 = (struct match_file *)(uintptr_t)n1;
 	struct match_file * f2 = (struct match_file *)(uintptr_t)n2;
 	const char * p1, * p2;
-
 	archive_mstring_get_mbs(NULL, &(f1->pathname), &p1);
 	archive_mstring_get_mbs(NULL, &(f2->pathname), &p2);
 	if(p1 == NULL)
@@ -1053,20 +1051,17 @@ static int cmp_key_mbs(const struct archive_rb_node * n, const void * key)
 {
 	struct match_file * f = (struct match_file *)(uintptr_t)n;
 	const char * p;
-
 	archive_mstring_get_mbs(NULL, &(f->pathname), &p);
 	if(p == NULL)
 		return -1;
 	return (strcmp(p, (const char *)key));
 }
 
-static int cmp_node_wcs(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int cmp_node_wcs(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	struct match_file * f1 = (struct match_file *)(uintptr_t)n1;
 	struct match_file * f2 = (struct match_file *)(uintptr_t)n2;
 	const wchar_t * p1, * p2;
-
 	archive_mstring_get_wcs(NULL, &(f1->pathname), &p1);
 	archive_mstring_get_wcs(NULL, &(f2->pathname), &p2);
 	if(p1 == NULL)

@@ -570,20 +570,22 @@
 	#define HELP_BROWSER_GLOBALUSERACC                263
 #define BROWSER_DBDIV                        264 // @{dbdiv_pl}
 	#define HELP_BROWSER_DBDIV                        264
-#define BROWSER_DBMONITOR                    265 // Монитор базы данных
-	#define HELP_BROWSER_DBMONITOR                    265
-#define BROWSER_SUPRWARE                     266 // Базовые товары и компоненты
-	#define HELP_BROWSER_SUPRWARE                     266
-#define BROWSER_USERPROFILE                  267 // Профайлер пользовательских функций
-	#define HELP_BROWSER_USERPROFILE                  267
-#define BROWSER_JOB                          268 // Серверные задачи
-	#define HELP_BROWSER_JOB                          268
-#define BROWSER_PHNSVCMONITOR                269 // @{view_phnsvcmonitor}
-	#define HELP_BROWSER_PHNSVCMONITOR                269
-#define BROWSER_TSSTKENVMONITOR              270 // TSSTKENVMONITOR
-	#define HELP_BROWSER_TSSTKENVMONITOR              270
-#define BROWSER_VETISDOCUMENT                271 // @{view_vetisdocument}
-	#define HELP_BROWSER_VETISDOCUMENT                271
+#define BROWSER_TIMESERIES                   265 // @{timeseries_p}
+	#define HELP_BROWSER_TIMESERIES                   265
+#define BROWSER_DBMONITOR                    266 // Монитор базы данных
+	#define HELP_BROWSER_DBMONITOR                    266
+#define BROWSER_SUPRWARE                     267 // Базовые товары и компоненты
+	#define HELP_BROWSER_SUPRWARE                     267
+#define BROWSER_USERPROFILE                  268 // Профайлер пользовательских функций
+	#define HELP_BROWSER_USERPROFILE                  268
+#define BROWSER_JOB                          269 // Серверные задачи
+	#define HELP_BROWSER_JOB                          269
+#define BROWSER_PHNSVCMONITOR                270 // @{view_phnsvcmonitor}
+	#define HELP_BROWSER_PHNSVCMONITOR                270
+#define BROWSER_TSSTKENVMONITOR              271 // TSSTKENVMONITOR
+	#define HELP_BROWSER_TSSTKENVMONITOR              271
+#define BROWSER_VETISDOCUMENT                272 // @{view_vetisdocument}
+	#define HELP_BROWSER_VETISDOCUMENT                272
 
 //
 // PPVIEW COMMAND definitions
@@ -1810,6 +1812,9 @@
 	#define PPFILT_VETISDOCUMENT               1151
 	#define PPVIEWITEM_VETISDOCUMENT               1152
 #define PPFILT_PRCSSRTSSTRATEGYANALYZE     1161
+#define PPVIEW_TIMESERIES                  1170
+	#define PPFILT_TIMESERIES                  1171
+	#define PPVIEWITEM_TIMESERIES                  1172
 //
 // RECORD definitions
 //

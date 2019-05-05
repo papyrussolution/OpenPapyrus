@@ -22,16 +22,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
-
-#ifdef HAVE_STRING_H
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
+//#endif
 //#include "archive.h"
-#include "archive_hmac_private.h"
-
+//#include "archive_hmac_private.h"
 /*
  * On systems that do not support any recognized crypto libraries,
  * the archive_hmac.c file is expected to define no usable symbols.
@@ -41,7 +38,8 @@
  * be removed someday if this file gains another always-present
  * symbol definition.
  */
-int __libarchive_hmac_build_hack(void) {
+int __libarchive_hmac_build_hack(void) 
+{
 	return 0;
 }
 

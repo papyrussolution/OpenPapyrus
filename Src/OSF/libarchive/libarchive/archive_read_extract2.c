@@ -74,7 +74,7 @@ static int archive_read_extract_cleanup(struct archive_read * a)
 
 int archive_read_extract2(struct archive * _a, struct archive_entry * entry, struct archive * ad)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	int r, r2;
 	/* Set up for this particular entry. */
 	if(a->skip_file_set)
@@ -102,7 +102,7 @@ int archive_read_extract2(struct archive * _a, struct archive_entry * entry, str
 
 void archive_read_extract_set_progress_callback(struct archive * _a, void (*progress_func)(void *), void * user_data)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_extract * extract = __archive_read_get_extract(a);
 	if(extract != NULL) {
 		extract->extract_progress = progress_func;

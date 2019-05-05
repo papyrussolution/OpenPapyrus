@@ -2217,7 +2217,6 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 								ideqvalstr(obj_id, buf);
 						}
 						break;
-					// @v8.2.8 {
 					case tokSCard:
 						obj_id = va_arg(pArgList, PPID);
 						{
@@ -2246,7 +2245,6 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 						obj_id = va_arg(pArgList, PPID);
 						buf.Cat(GetObjectTitle(obj_id, temp_buf.Z()));
 						break;
-					// } @v8.2.8
 					case tokPPErr:
 						PPGetMessage(mfError, va_arg(pArgList, int), 0, 1, temp_buf);
 						buf.Cat(temp_buf);

@@ -4,12 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//@v9.9.5 #include <process.h>
-//#include <stdio.h>
-//@v9.9.5 #include <shlwapi.h>
-//@v9.9.5 #include <comdisp.h>
-
-// TInputLine setMaxLen
 
 // Prototype
 int SLAPI EditCurTransitBill(PPBillPacket *);

@@ -1445,7 +1445,7 @@ static cairo_image_surface_t * _cairo_quartz_surface_map_to_image(void * abstrac
 	else if(bpp == 8 && color_comps == 1) {
 		format = CAIRO_FORMAT_A1;
 	}
-	else{
+	else {
 		return _cairo_image_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 

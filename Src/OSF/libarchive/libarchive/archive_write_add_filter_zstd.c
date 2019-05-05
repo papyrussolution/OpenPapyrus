@@ -76,7 +76,7 @@ static int drive_compressor(struct archive_write_filter *,
  */
 int archive_write_add_filter_zstd(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_zstd");
@@ -117,7 +117,7 @@ int archive_write_add_filter_zstd(struct archive * _a)
 
 static int archive_compressor_zstd_free(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 	ZSTD_freeCStream(data->cstream);
 	SAlloc::F(data->out.dst);
@@ -133,7 +133,7 @@ static int archive_compressor_zstd_free(struct archive_write_filter * f)
  */
 static int archive_compressor_zstd_options(struct archive_write_filter * f, const char * key, const char * value)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	if(strcmp(key, "compression-level") == 0) {
 		int level = atoi(value);
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
@@ -160,7 +160,7 @@ static int archive_compressor_zstd_options(struct archive_write_filter * f, cons
  */
 static int archive_compressor_zstd_open(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	int ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
 		return ret;
@@ -197,7 +197,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 static int archive_compressor_zstd_write(struct archive_write_filter * f, const void * buff,
     size_t length)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	int ret;
 
 	/* Update statistics */
@@ -214,7 +214,7 @@ static int archive_compressor_zstd_write(struct archive_write_filter * f, const 
  */
 static int archive_compressor_zstd_close(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	int r1, r2;
 
 	/* Finish zstd frame */
@@ -277,7 +277,7 @@ static int drive_compressor(struct archive_write_filter * f,
 
 static int archive_compressor_zstd_open(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	struct archive_string as;
 	int r;
 
@@ -293,14 +293,14 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 static int archive_compressor_zstd_write(struct archive_write_filter * f, const void * buff,
     size_t length)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 
 	return __archive_write_program_write(f, data->pdata, buff, length);
 }
 
 static int archive_compressor_zstd_close(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 
 	return __archive_write_program_close(f, data->pdata);
 }

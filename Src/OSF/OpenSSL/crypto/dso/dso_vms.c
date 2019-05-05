@@ -462,7 +462,7 @@ malloc_err:
 static char * vms_name_converter(DSO * dso, const char * filename)
 {
 	int len = strlen(filename);
-	char * not_translated = OPENSSL_malloc(len + 1);
+	char * not_translated = OPENSSL_malloc(len+1);
 	if(not_translated != NULL)
 		strcpy(not_translated, filename);
 	return (not_translated);

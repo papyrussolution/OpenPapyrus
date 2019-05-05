@@ -51,7 +51,7 @@ __FBSDID("$FreeBSD$");
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 struct private_data {
 	bz_stream stream;
-	char            * out_block;
+	char * out_block;
 	size_t out_block_size;
 	char valid;             /* True = decompressor is initialized */
 	char eof;             /* True = found end of compressed data. */
@@ -83,7 +83,7 @@ int archive_read_support_compression_bzip2(struct archive * a)
 
 int archive_read_support_filter_bzip2(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_bzip2");
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
@@ -175,8 +175,7 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
 	out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate data for bzip2 decompression");
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for bzip2 decompression");
 		SAlloc::F(out_block);
 		SAlloc::F(state);
 		return ARCHIVE_FATAL;
@@ -199,7 +198,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 	const char * read_buf;
 	ssize_t ret;
 
-	state = (struct private_data *)self->data;
+	state = static_cast<struct private_data *>(self->data);
 
 	if(state->eof) {
 		*p = NULL;
@@ -227,10 +226,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 
 			/* If init fails, try low-memory algorithm instead. */
 			if(ret == BZ_MEM_ERROR)
-				ret = BZ2_bzDecompressInit(&(state->stream),
-					0 /* library verbosity */,
-					1 /* do use low-mem algo */);
-
+				ret = BZ2_bzDecompressInit(&(state->stream), 0 /* library verbosity */, 1 /* do use low-mem algo */);
 			if(ret != BZ_OK) {
 				const char * detail = NULL;
 				int err = ARCHIVE_ERRNO_MISC;
@@ -246,10 +242,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 					    detail = "mis-compiled library";
 					    break;
 				}
-				archive_set_error(&self->archive->archive, err,
-				    "Internal error initializing decompressor%s%s",
-				    detail == NULL ? "" : ": ",
-				    detail);
+				archive_set_error(&self->archive->archive, err, "Internal error initializing decompressor%s%s", detail == NULL ? "" : ": ", detail);
 				return ARCHIVE_FATAL;
 			}
 			state->valid = 1;
@@ -292,8 +285,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 			    }
 			    break;
 			default: /* Return an error. */
-			    archive_set_error(&self->archive->archive,
-				ARCHIVE_ERRNO_MISC, "bzip decompression failed");
+			    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "bzip decompression failed");
 			    return ARCHIVE_FATAL;
 		}
 	}
@@ -304,20 +296,17 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 static int bzip2_filter_close(struct archive_read_filter * self)
 {
 	int ret = ARCHIVE_OK;
-	struct private_data * state = (struct private_data *)self->data;
+	struct private_data * state = static_cast<struct private_data *>(self->data);
 	if(state->valid) {
 		switch(BZ2_bzDecompressEnd(&state->stream)) {
 			case BZ_OK:
 			    break;
 			default:
-			    archive_set_error(&self->archive->archive,
-				ARCHIVE_ERRNO_MISC,
-				"Failed to clean up decompressor");
+			    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up decompressor");
 			    ret = ARCHIVE_FATAL;
 		}
 		state->valid = 0;
 	}
-
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
 	return ret;

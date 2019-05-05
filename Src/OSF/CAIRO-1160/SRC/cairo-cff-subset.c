@@ -790,7 +790,7 @@ static cairo_int_status_t cairo_cff_font_read_name(cairo_cff_font_t * font)
 				len -= 7;
 			}
 		}
-		font->ps_name = (char *)_cairo_malloc(len + 1);
+		font->ps_name = (char *)_cairo_malloc(len+1);
 		if(unlikely(font->ps_name == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 

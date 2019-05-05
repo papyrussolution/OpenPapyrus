@@ -1209,7 +1209,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 				break;
 			if(len > MAX_FONT_NAME_LENGTH)
 				break;
-			str = static_cast<char *>(_cairo_malloc(len + 1));
+			str = static_cast<char *>(_cairo_malloc(len+1));
 			if(str == NULL)
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(str, ((char *)name) + be16_to_cpu(name->strings_offset) + be16_to_cpu(record->offset), len);

@@ -571,7 +571,7 @@ typedef enum {
 */
 
 /* for NULL pointers
-   #define null ((const void*)0)
+   #define null ((const void *)0)
    extern void* null;
 */
 #if defined(DMALLOC)

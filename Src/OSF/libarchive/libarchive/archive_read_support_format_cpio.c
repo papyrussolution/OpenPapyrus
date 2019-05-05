@@ -163,12 +163,12 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_cpio.c 20116
 #define afiol_header_size 116
 
 struct links_entry {
-	struct links_entry      * next;
-	struct links_entry      * previous;
+	struct links_entry * next;
+	struct links_entry * previous;
 	uint links;
 	dev_t dev;
 	int64_t ino;
-	char                    * name;
+	char * name;
 };
 
 #define CPIO_MAGIC   0x13141516
@@ -176,7 +176,7 @@ struct cpio {
 	int magic;
 	int (* read_header)(struct archive_read *, struct cpio *,
 	    struct archive_entry *, size_t *, size_t *);
-	struct links_entry       * links_head;
+	struct links_entry  * links_head;
 	int64_t entry_bytes_remaining;
 	int64_t entry_bytes_unconsumed;
 	int64_t entry_offset;
@@ -210,7 +210,7 @@ static int      record_hardlink(struct archive_read * a, struct cpio * cpio, str
 
 int archive_read_support_format_cpio(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_cpio");
 	struct cpio * cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
@@ -303,12 +303,9 @@ static int archive_read_format_cpio_options(struct archive_read * a, const char 
 	}
 	else if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "cpio: hdrcharset option needs a character-set name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "cpio: hdrcharset option needs a character-set name");
 		else {
-			cpio->opt_sconv =
-			    archive_string_conversion_from_charset(
-				&a->archive, val, 0);
+			cpio->opt_sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
 			if(cpio->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -316,7 +313,6 @@ static int archive_read_format_cpio_options(struct archive_read * a, const char 
 		}
 		return ret;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -628,22 +624,14 @@ static int find_odc_header(struct archive_read * a)
 		while(p + odc_header_size <= q) {
 			switch(p[5]) {
 				case '7':
-				    if((memcmp("070707", p, 6) == 0
-					&& is_octal(p, odc_header_size))
-					|| (memcmp("070727", p, 6) == 0
-					&& is_afio_large(p, q - p))) {
+				    if((memcmp("070707", p, 6) == 0 && is_octal(p, odc_header_size)) || (memcmp("070727", p, 6) == 0 && is_afio_large(p, q - p))) {
 					    skip = p - (const char *)h;
 					    __archive_read_consume(a, skip);
 					    skipped += skip;
 					    if(p[4] == '2')
-						    a->archive.archive_format =
-							ARCHIVE_FORMAT_CPIO_AFIO_LARGE;
+						    a->archive.archive_format = ARCHIVE_FORMAT_CPIO_AFIO_LARGE;
 					    if(skipped > 0) {
-						    archive_set_error(&a->archive,
-							0,
-							"Skipped %d bytes before "
-							"finding valid header",
-							(int)skipped);
+						    archive_set_error(&a->archive, 0, "Skipped %d bytes before finding valid header", (int)skipped);
 						    return (ARCHIVE_WARN);
 					    }
 					    return ARCHIVE_OK;
@@ -887,7 +875,7 @@ static int64_t atol16(const char * p, unsigned char_cnt)
 
 static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry)
 {
-	struct links_entry      * le;
+	struct links_entry * le;
 	dev_t dev;
 	int64_t ino;
 	if(archive_entry_nlink(entry) <= 1)
@@ -929,7 +917,7 @@ static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct a
 	le->dev = dev;
 	le->ino = ino;
 	le->links = archive_entry_nlink(entry) - 1;
-	le->name = strdup(archive_entry_pathname(entry));
+	le->name = sstrdup(archive_entry_pathname(entry));
 	if(le->name == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory adding file to list");
 		return ARCHIVE_FATAL;

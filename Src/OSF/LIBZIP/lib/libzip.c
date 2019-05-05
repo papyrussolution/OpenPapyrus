@@ -2,13 +2,12 @@
 //
 //#define _ZIP_COMPILING_DEPRECATED
 #include "zipint.h"
-
-#ifdef HAVE_STRINGS_H
-	#include <strings.h>
-#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_STRINGS_H
+	//#include <strings.h>
+//#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include <sys/types.h>
 //#include <sys/stat.h>
 #ifdef _WIN32
@@ -35,7 +34,7 @@
 //
 zip_t * _zip_new(zip_error_t * error)
 {
-	zip_t * za = (zip_t*)SAlloc::M(sizeof(zip_t));
+	zip_t * za = static_cast<zip_t *>(SAlloc::M(sizeof(zip_t)));
 	if(!za) {
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 	}
@@ -415,7 +414,7 @@ zip_buffer_t * FASTCALL _zip_buffer_new(uint8 * data, size_t size)
 	const bool free_data = (data == NULL);
 	zip_buffer_t * buffer = 0;
 	if(SETIFZ(data, (uint8 *)SAlloc::M(size))) {
-		buffer = (zip_buffer_t*)SAlloc::M(sizeof(*buffer));
+		buffer = static_cast<zip_buffer_t *>(SAlloc::M(sizeof(*buffer)));
 		if(!buffer) {
 			if(free_data)
 				SAlloc::F(data);

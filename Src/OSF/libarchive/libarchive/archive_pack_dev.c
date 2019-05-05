@@ -263,8 +263,8 @@ static dev_t pack_bsdos(int n, unsigned long numbers[], const char ** error)
 /* list of formats and pack functions */
 /* this list must be sorted lexically */
 static const struct format {
-	const char      * name;
-	pack_t          * pack;
+	const char * name;
+	pack_t * pack;
 } formats[] = {
 	{"386bsd",  pack_8_8},
 	{"4bsd",    pack_8_8},

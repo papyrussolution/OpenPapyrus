@@ -95,7 +95,7 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 		unit.vector[1] = image->common.transform->matrix[1][0];
 		unit.vector[2] = image->common.transform->matrix[2][0];
 	}
-	else{
+	else {
 		unit.vector[0] = pixman_fixed_1;
 		unit.vector[1] = 0;
 		unit.vector[2] = 0;
@@ -111,7 +111,7 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 			t = 0;
 			inc = 0;
 		}
-		else{
+		else {
 			double invden = pixman_fixed_1 * (double)pixman_fixed_1 / (l * (double)v.vector[2]);
 			double v2 = v.vector[2] * (1. / pixman_fixed_1);
 			t = static_cast<pixman_fixed_32_32_t>(((dx * v.vector[0] + dy * v.vector[1]) - (dx * linear->p1.x + dy * linear->p1.y) * v2) * invden);
@@ -123,7 +123,7 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 			while(buffer < end)
 				*buffer++ = color;
 		}
-		else{
+		else {
 			int i = 0;
 			while(buffer < end) {
 				if(!mask || *mask++) {
@@ -135,7 +135,7 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 			}
 		}
 	}
-	else{
+	else {
 		/* projective transformation */
 		double t = 0.0;
 		while(buffer < end) {
@@ -173,7 +173,7 @@ void _pixman_linear_gradient_iter_init(pixman_image_t * image, pixman_iter_t * i
 			linear_get_scanline_wide(iter, NULL);
 		iter->get_scanline = _pixman_iter_get_scanline_noop;
 	}
-	else{
+	else {
 		if(iter->iter_flags & ITER_NARROW)
 			iter->get_scanline = linear_get_scanline_narrow;
 		else

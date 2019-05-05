@@ -67,7 +67,7 @@ static force_inline void combine_inner(pixman_bool_t component,
 			dest[i + 3] = combine_c(sa, sb, da, db);
 		}
 	}
-	else{
+	else {
 		for(i = 0; i < 4 * n_pixels; i += 4) {
 			float sa, sr, sg, sb;
 			float ma, mr, mg, mb;
@@ -95,7 +95,7 @@ static force_inline void combine_inner(pixman_bool_t component,
 
 				sa = ma;
 			}
-			else{
+			else {
 				ma = mask[i + 0];
 
 				sa *= ma;
@@ -539,11 +539,11 @@ static force_inline float blend_soft_light(float sa, float s, float da, float d)
 		else
 			return d * sa - d * (da - d) * (sa - 2 * s) / da;
 	}
-	else{
+	else {
 		if(FLOAT_IS_ZERO(da)) {
 			return d * sa;
 		}
-		else{
+		else {
 			if(4 * d <= da)
 				return d * sa + (2 * s - sa) * d * ((16 * d / da - 12) * d / da + 3);
 			else
@@ -725,7 +725,7 @@ static void clip_color(rgb_t * color, float a)
 			color->g = 0.0f;
 			color->b = 0.0f;
 		}
-		else{
+		else {
 			color->r = l + (((color->r - l) * l) / t);
 			color->g = l + (((color->g - l) * l) / t);
 			color->b = l + (((color->b - l) * l) / t);
@@ -738,7 +738,7 @@ static void clip_color(rgb_t * color, float a)
 			color->g = a;
 			color->b = a;
 		}
-		else{
+		else {
 			color->r = l + (((color->r - l) * (a - l) / t));
 			color->g = l + (((color->g - l) * (a - l) / t));
 			color->b = l + (((color->b - l) * (a - l) / t));
@@ -770,31 +770,31 @@ static void set_sat(rgb_t * src, float sat)
 				mid = &(src->g);
 				min = &(src->b);
 			}
-			else{
+			else {
 				mid = &(src->b);
 				min = &(src->g);
 			}
 		}
-		else{
+		else {
 			max = &(src->b);
 			mid = &(src->r);
 			min = &(src->g);
 		}
 	}
-	else{
+	else {
 		if(src->r > src->b) {
 			max = &(src->g);
 			mid = &(src->r);
 			min = &(src->b);
 		}
-		else{
+		else {
 			min = &(src->r);
 
 			if(src->g > src->b) {
 				max = &(src->g);
 				mid = &(src->b);
 			}
-			else{
+			else {
 				max = &(src->b);
 				mid = &(src->g);
 			}
@@ -806,7 +806,7 @@ static void set_sat(rgb_t * src, float sat)
 	if(FLOAT_IS_ZERO(t)) {
 		*mid = *max = 0.0f;
 	}
-	else{
+	else {
 		*mid = ((*mid - *min) * sat) / t;
 		*max = sat;
 	}

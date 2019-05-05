@@ -7047,7 +7047,7 @@ static xmlChar * xmlRelaxNGNormalize(xmlRelaxNGValidCtxtPtr ctxt, const xmlChar 
 		while(*tmp != 0)
 			tmp++;
 		len = tmp - str;
-		ret = static_cast<xmlChar *>(SAlloc::M((len + 1) * sizeof(xmlChar)));
+		ret = static_cast<xmlChar *>(SAlloc::M((len+1) * sizeof(xmlChar)));
 		if(!ret) {
 			xmlRngVErrMemory(ctxt, "validating\n");
 			return 0;

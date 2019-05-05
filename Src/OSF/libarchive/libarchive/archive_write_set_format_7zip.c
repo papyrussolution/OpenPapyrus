@@ -98,19 +98,19 @@ enum la_zaction {
  * A stream object of universal compressor.
  */
 struct la_zstream {
-	const uint8_t           * next_in;
+	const uint8_t  * next_in;
 	size_t avail_in;
 	uint64_t total_in;
 
-	uint8_t                 * next_out;
+	uint8_t * next_out;
 	size_t avail_out;
 	uint64_t total_out;
 
 	uint32_t prop_size;
-	uint8_t                 * props;
+	uint8_t * props;
 
 	int valid;
-	void                    * real_stream;
+	void * real_stream;
 	int (* code) (struct archive * a,
 	    struct la_zstream * lastrm,
 	    enum la_zaction action);
@@ -126,24 +126,24 @@ struct ppmd_stream {
 	CPpmd7 ppmd7_context;
 	CPpmd7z_RangeEnc range_enc;
 	IByteOut byteout;
-	uint8_t                 * buff;
-	uint8_t                 * buff_ptr;
-	uint8_t                 * buff_end;
+	uint8_t * buff;
+	uint8_t * buff_ptr;
+	uint8_t * buff_end;
 	size_t buff_bytes;
 };
 
 struct coder {
 	unsigned codec;
 	size_t prop_size;
-	uint8_t                 * props;
+	uint8_t * props;
 };
 
 struct file {
 	struct archive_rb_node rbnode;
 
-	struct file             * next;
+	struct file  * next;
 	unsigned name_len;
-	uint8_t                 * utf16name;/* UTF16-LE name. */
+	uint8_t * utf16name;/* UTF16-LE name. */
 	uint64_t size;
 	unsigned flg;
 #define MTIME_IS_SET    (1<<0)
@@ -171,7 +171,7 @@ struct _7zip {
 	int temp_fd;
 	uint64_t temp_offset;
 
-	struct file             * cur_file;
+	struct file  * cur_file;
 	size_t total_number_entry;
 	size_t total_number_nonempty_entry;
 	size_t total_number_empty_entry;
@@ -287,7 +287,7 @@ int archive_write_set_format_7zip(struct archive * _a)
 	static const struct archive_rb_tree_ops rb_ops = {
 		file_cmp_node, file_cmp_key
 	};
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct _7zip * zip;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_7zip");
 	/* If another format was already registered, unregister it. */
@@ -334,17 +334,10 @@ int archive_write_set_format_7zip(struct archive * _a)
 
 static int _7z_options(struct archive_write * a, const char * key, const char * value)
 {
-	struct _7zip * zip;
-
-	zip = (struct _7zip *)a->format_data;
-
+	struct _7zip * zip = (struct _7zip *)a->format_data;
 	if(strcmp(key, "compression") == 0) {
 		const char * name = NULL;
-
-		if(value == NULL || strcmp(value, "copy") == 0 ||
-		    strcmp(value, "COPY") == 0 ||
-		    strcmp(value, "store") == 0 ||
-		    strcmp(value, "STORE") == 0)
+		if(value == NULL || strcmp(value, "copy") == 0 || strcmp(value, "COPY") == 0 || strcmp(value, "store") == 0 || strcmp(value, "STORE") == 0)
 			zip->opt_compression = _7Z_COPY;
 		else if(strcmp(value, "deflate") == 0 ||
 		    strcmp(value, "DEFLATE") == 0)
@@ -353,62 +346,44 @@ static int _7z_options(struct archive_write * a, const char * key, const char * 
 #else
 			name = "deflate";
 #endif
-		else if(strcmp(value, "bzip2") == 0 ||
-		    strcmp(value, "BZIP2") == 0)
+		else if(strcmp(value, "bzip2") == 0 || strcmp(value, "BZIP2") == 0)
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 			zip->opt_compression = _7Z_BZIP2;
 #else
 			name = "bzip2";
 #endif
-		else if(strcmp(value, "lzma1") == 0 ||
-		    strcmp(value, "LZMA1") == 0)
+		else if(strcmp(value, "lzma1") == 0 || strcmp(value, "LZMA1") == 0)
 #if HAVE_LZMA_H
 			zip->opt_compression = _7Z_LZMA1;
 #else
 			name = "lzma1";
 #endif
-		else if(strcmp(value, "lzma2") == 0 ||
-		    strcmp(value, "LZMA2") == 0)
+		else if(strcmp(value, "lzma2") == 0 || strcmp(value, "LZMA2") == 0)
 #if HAVE_LZMA_H
 			zip->opt_compression = _7Z_LZMA2;
 #else
 			name = "lzma2";
 #endif
-		else if(strcmp(value, "ppmd") == 0 ||
-		    strcmp(value, "PPMD") == 0 ||
-		    strcmp(value, "PPMd") == 0)
+		else if(strcmp(value, "ppmd") == 0 || strcmp(value, "PPMD") == 0 || strcmp(value, "PPMd") == 0)
 			zip->opt_compression = _7Z_PPMD;
 		else {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Unknown compression name: `%s'",
-			    value);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown compression name: `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		if(name != NULL) {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "`%s' compression not supported "
-			    "on this platform",
-			    name);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "`%s' compression not supported on this platform", name);
 			return ARCHIVE_FAILED;
 		}
 		return ARCHIVE_OK;
 	}
 	if(strcmp(key, "compression-level") == 0) {
-		if(value == NULL ||
-		    !(value[0] >= '0' && value[0] <= '9') ||
-		    value[1] != '\0') {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Illegal value `%s'",
-			    value);
+		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0') {
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Illegal value `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		zip->opt_compression_level = value[0] - '0';
 		return ARCHIVE_OK;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -417,35 +392,28 @@ static int _7z_options(struct archive_write * a, const char * key, const char * 
 
 static int _7z_write_header(struct archive_write * a, struct archive_entry * entry)
 {
-	struct _7zip * zip;
 	struct file * file;
 	int r;
-
-	zip = (struct _7zip *)a->format_data;
+	struct _7zip * zip = (struct _7zip *)a->format_data;
 	zip->cur_file = NULL;
 	zip->entry_bytes_remaining = 0;
-
 	if(zip->sconv == NULL) {
-		zip->sconv = archive_string_conversion_to_charset(
-			&a->archive, "UTF-16LE", 1);
+		zip->sconv = archive_string_conversion_to_charset(&a->archive, "UTF-16LE", 1);
 		if(zip->sconv == NULL)
 			return ARCHIVE_FATAL;
 	}
-
 	r = file_new(a, entry, &file);
 	if(r < ARCHIVE_WARN) {
 		file_free(file);
 		return r;
 	}
 	if(file->size == 0 && file->dir) {
-		if(!__archive_rb_tree_insert_node(&(zip->rbtree),
-		    (struct archive_rb_node *)file)) {
+		if(!__archive_rb_tree_insert_node(&(zip->rbtree), (struct archive_rb_node *)file)) {
 			/* We have already had the same file. */
 			file_free(file);
 			return ARCHIVE_OK;
 		}
 	}
-
 	if(file->flg & MTIME_IS_SET)
 		zip->total_number_time_defined[MTIME]++;
 	if(file->flg & CTIME_IS_SET)
@@ -494,7 +462,7 @@ static int _7z_write_header(struct archive_write * a, struct archive_entry * ent
 	 */
 	if(archive_entry_filetype(entry) == AE_IFLNK) {
 		ssize_t bytes;
-		const void * p = (const void*)archive_entry_symlink(entry);
+		const void * p = (const void *)archive_entry_symlink(entry);
 		bytes = compress_out(a, p, (size_t)file->size, ARCHIVE_Z_RUN);
 		if(bytes < 0)
 			return ((int)bytes);
@@ -529,7 +497,7 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 		}
 	}
 
-	p = (const uchar *)buff;
+	p = static_cast<const uchar *>(buff);
 	while(s) {
 		ws = write(zip->temp_fd, p, s);
 		if(ws < 0) {
@@ -552,7 +520,7 @@ static ssize_t compress_out(struct archive_write * a, const void * buff, size_t 
 		return 0;
 	if((zip->crc32flg & PRECODE_CRC32) && s)
 		zip->precode_crc32 = crc32(zip->precode_crc32, (const Bytef *)buff, (unsigned)s);
-	zip->stream.next_in = (const uchar *)buff;
+	zip->stream.next_in = static_cast<const uchar *>(buff);
 	zip->stream.avail_in = s;
 	for(;;) {
 		/* Compress file data. */
@@ -1635,7 +1603,7 @@ static int compression_init_encoder_deflate(struct archive * a, struct la_zstrea
 	/* zlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (Bytef *)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (Bytef *)(uintptr_t)(const void *)lastrm->next_in;
 	strm->avail_in = (uInt)lastrm->avail_in;
 	strm->total_in = (uLong)lastrm->total_in;
 	strm->next_out = lastrm->next_out;
@@ -1663,11 +1631,11 @@ static int compression_code_deflate(struct archive * a,
 	z_stream * strm;
 	int r;
 
-	strm = (z_stream*)lastrm->real_stream;
+	strm = (z_stream *)lastrm->real_stream;
 	/* zlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (Bytef *)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (Bytef *)(uintptr_t)(const void *)lastrm->next_in;
 	strm->avail_in = (uInt)lastrm->avail_in;
 	strm->total_in = (uLong)lastrm->total_in;
 	strm->next_out = lastrm->next_out;
@@ -1699,7 +1667,7 @@ static int compression_end_deflate(struct archive * a, struct la_zstream * lastr
 	z_stream * strm;
 	int r;
 
-	strm = (z_stream*)lastrm->real_stream;
+	strm = (z_stream *)lastrm->real_stream;
 	r = deflateEnd(strm);
 	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
@@ -1742,7 +1710,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	/* bzlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (char *)(uintptr_t)(const void *)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in_lo32 = (uint32_t)(lastrm->total_in & 0xffffffff);
 	strm->total_in_hi32 = (uint32_t)(lastrm->total_in >> 32);
@@ -1770,11 +1738,11 @@ static int compression_code_bzip2(struct archive * a,
 	bz_stream * strm;
 	int r;
 
-	strm = (bz_stream*)lastrm->real_stream;
+	strm = (bz_stream *)lastrm->real_stream;
 	/* bzlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (char *)(uintptr_t)(const void *)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in_lo32 = (uint32_t)(lastrm->total_in & 0xffffffff);
 	strm->total_in_hi32 = (uint32_t)(lastrm->total_in >> 32);
@@ -1815,7 +1783,7 @@ static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 	bz_stream * strm;
 	int r;
 
-	strm = (bz_stream*)lastrm->real_stream;
+	strm = (bz_stream *)lastrm->real_stream;
 	r = BZ2_bzCompressEnd(strm);
 	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
@@ -1944,7 +1912,7 @@ static int compression_code_lzma(struct archive * a,
 	lzma_stream * strm;
 	int r;
 
-	strm = (lzma_stream*)lastrm->real_stream;
+	strm = (lzma_stream *)lastrm->real_stream;
 	strm->next_in = lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in = lastrm->total_in;
@@ -1987,7 +1955,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 	lzma_stream * strm;
 
 	(void)a; /* UNUSED */
-	strm = (lzma_stream*)lastrm->real_stream;
+	strm = (lzma_stream *)lastrm->real_stream;
 	lzma_end(strm);
 	SAlloc::F(strm);
 	lastrm->valid = 0;

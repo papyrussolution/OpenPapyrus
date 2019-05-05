@@ -2376,9 +2376,9 @@ xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char * URI, xm
 #if defined(ZLIB_VERNUM) && ZLIB_VERNUM >= 0x1230
 			ret->compressed = !gzdirect((gzFile)context);
 #else
-			if(((z_stream*)context)->avail_in > 4) {
+			if(((z_stream *)context)->avail_in > 4) {
 				char * cptr, buff4[4];
-				cptr = (char *)((z_stream*)context)->next_in;
+				cptr = (char *)((z_stream *)context)->next_in;
 				if(gzread(context, buff4, 4) == 4) {
 					if(strncmp(buff4, cptr, 4) == 0)
 						ret->compressed = 0;

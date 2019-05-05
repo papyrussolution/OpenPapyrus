@@ -1857,8 +1857,8 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 #endif
 
 #if !defined (get16bits)
-#define get16bits(d) ((((uint32_t)(((const uint8_t*)(d))[1])) << 8)		\
-	    +(uint32_t)(((const uint8_t*)(d))[0]))
+#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)		\
+	    +(uint32_t)(((const uint8_t *)(d))[0]))
 #endif
 #define HASH_SFH(key, keylen, num_bkts, hashv, bkt)				     \
 	do {										 \
@@ -1945,7 +1945,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 
 #define HASH_MUR(key, keylen, num_bkts, hashv, bkt)			   \
 	do {								       \
-		const uint8_t * _mur_data = (const uint8_t*)(key);		      \
+		const uint8_t * _mur_data = (const uint8_t *)(key);		      \
 		const int _mur_nblocks = (keylen) / 4;				     \
 		uint32_t _mur_h1 = 0xf88D5353;					     \
 		uint32_t _mur_c1 = 0xcc9e2d51;					     \
@@ -1964,7 +1964,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 			_mur_h1 = MUR_ROTL32(_mur_h1, 13);				    \
 			_mur_h1 = _mur_h1*5+0xe6546b64;					   \
 		}								     \
-		_mur_tail = (const uint8_t*)(_mur_data + _mur_nblocks*4);	     \
+		_mur_tail = (const uint8_t *)(_mur_data + _mur_nblocks*4);	     \
 		_mur_k1 = 0;							       \
 		switch((keylen) & 3) {						     \
 			case 3: _mur_k1 ^= _mur_tail[2] << 16;				   \

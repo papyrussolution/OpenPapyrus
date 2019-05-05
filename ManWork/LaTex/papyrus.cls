@@ -1,5 +1,5 @@
 % PAPYURS.CLS
-% Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2017
+% Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2017, 2019
 % Правила оформления документации на систему Papyrus
 %
 % Большая часть заимствуется из book.cls с необходимыми модификациями.
@@ -376,6 +376,7 @@
 \newcommand\ppymenu[1]{{\sffamily\upshape\footnotesize #1\index{#1}}}
 
 \newcommand\ppybrand{\sffamily\upshape{Papyrus}}
+\newcommand\obsolete[1]{\sffamily\small [устарело] #1}
 
 \newcommand\trademark[1]{{\sffamily\small #1\texttrademark}}
 

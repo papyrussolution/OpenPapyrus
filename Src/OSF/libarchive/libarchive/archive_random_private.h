@@ -22,15 +22,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
 
 #ifndef ARCHIVE_RANDOM_PRIVATE_H_INCLUDED
 #define ARCHIVE_RANDOM_PRIVATE_H_INCLUDED
 
-/* Random number generator. */
+// Random number generator. 
 int archive_random(void *buf, size_t nbytes);
 
 #endif /* ARCHIVE_RANDOM_PRIVATE_H_INCLUDED */

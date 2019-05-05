@@ -519,7 +519,7 @@ STDMETHODIMP COutMemStream::Write(const void * data, uint32 size, uint32 * proce
 			memcpy(p, data, curSize);
 			if(processedSize != 0)
 				*processedSize += (uint32)curSize;
-			data = (const void*)((const Byte*)data + curSize);
+			data = (const void *)((const Byte*)data + curSize);
 			size -= (uint32)curSize;
 			_curBlockPos += curSize;
 			uint64 pos64 = GetPos();

@@ -8,7 +8,6 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <comdisp.h>
 
 SLAPI ComDispInterface::ComDispInterface() : P_ParamsAry(0), P_Disp(0), HRes(S_OK)
 {
@@ -23,7 +22,6 @@ SLAPI ComDispInterface::~ComDispInterface()
 int SLAPI ComDispInterface::Init(const char * pProgID, int inProcServer /*=1*/)
 {
 	ProgIdent = pProgID;
-
 	int    ok = 1;
 	uint   cls_ctx = inProcServer ? CLSCTX_INPROC_SERVER : CLSCTX_LOCAL_SERVER;
 	CLSID  cls_id;

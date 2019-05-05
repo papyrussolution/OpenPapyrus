@@ -358,7 +358,7 @@ static int archive_compressor_xz_open(struct archive_write_filter * f)
 static int archive_compressor_xz_options(struct archive_write_filter * f,
     const char * key, const char * value)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	if(strcmp(key, "compression-level") == 0) {
 		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') ||
 		    value[1] != '\0')
@@ -398,7 +398,7 @@ static int archive_compressor_xz_options(struct archive_write_filter * f,
 static int archive_compressor_xz_write(struct archive_write_filter * f,
     const void * buff, size_t length)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	int ret;
 
 	/* Update statistics */
@@ -420,7 +420,7 @@ static int archive_compressor_xz_write(struct archive_write_filter * f,
  */
 static int archive_compressor_xz_close(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	int r1;
 	int ret = drive_compressor(f, data, 1);
 	if(ret == ARCHIVE_OK) {
@@ -440,7 +440,7 @@ static int archive_compressor_xz_close(struct archive_write_filter * f)
 
 static int archive_compressor_xz_free(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	SAlloc::F(data->compressed);
 	SAlloc::F(data);
 	f->data = NULL;

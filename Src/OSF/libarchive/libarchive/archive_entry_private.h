@@ -66,7 +66,6 @@ struct ae_sparse {
  */
 struct archive_entry {
 	struct archive *archive;
-
 	/*
 	 * Note that ae_stat.st_mode & AE_IFMT  can be  0!
 	 *
@@ -75,7 +74,6 @@ struct archive_entry {
 	 * hardlinks without marking the type of the underlying
 	 * object.
 	 */
-
 	/*
 	 * We have a "struct aest" for holding file metadata rather than just
 	 * a "struct stat" because on some platforms the "struct stat" has
@@ -89,7 +87,6 @@ struct archive_entry {
 	 */
 	void *stat;
 	int  stat_valid; /* Set to 0 whenever a field in aest changes. */
-
 	struct aest {
 		int64_t		aest_atime;
 		uint32_t	aest_atime_nsec;
@@ -112,16 +109,15 @@ struct archive_entry {
 		 * preserving information in those cases where no
 		 * conversion is actually required.
 		 */
-		int		aest_dev_is_broken_down;
-		dev_t		aest_dev;
-		dev_t		aest_devmajor;
-		dev_t		aest_devminor;
-		int		aest_rdev_is_broken_down;
-		dev_t		aest_rdev;
-		dev_t		aest_rdevmajor;
-		dev_t		aest_rdevminor;
+		int   aest_dev_is_broken_down;
+		dev_t aest_dev;
+		dev_t aest_devmajor;
+		dev_t aest_devminor;
+		int   aest_rdev_is_broken_down;
+		dev_t aest_rdev;
+		dev_t aest_rdevmajor;
+		dev_t aest_rdevminor;
 	} ae_stat;
-
 	int ae_set; /* bitmap of fields that are currently set */
 #define	AE_SET_HARDLINK	1
 #define	AE_SET_SYMLINK	2
@@ -132,22 +128,19 @@ struct archive_entry {
 #define	AE_SET_SIZE	64
 #define	AE_SET_INO	128
 #define	AE_SET_DEV	256
-
 	/*
 	 * Use aes here so that we get transparent mbs<->wcs conversions.
 	 */
 	struct archive_mstring ae_fflags_text;	/* Text fflags per fflagstostr(3) */
-	unsigned long ae_fflags_set;		/* Bitmap fflags */
-	unsigned long ae_fflags_clear;
+	ulong  ae_fflags_set;  /* Bitmap fflags */
+	ulong  ae_fflags_clear;
 	struct archive_mstring ae_gname;		/* Name of owning group */
 	struct archive_mstring ae_hardlink;	/* Name of target for hardlink */
 	struct archive_mstring ae_pathname;	/* Name of entry */
 	struct archive_mstring ae_symlink;		/* symlink contents */
 	struct archive_mstring ae_uname;		/* Name of owner */
-
 	/* Not used within libarchive; useful for some clients. */
 	struct archive_mstring ae_sourcepath;	/* Path this entry is sourced from. */
-
 #define AE_ENCRYPTION_NONE 0
 #define AE_ENCRYPTION_DATA 1
 #define AE_ENCRYPTION_METADATA 2
@@ -164,7 +157,7 @@ struct archive_entry {
 	struct ae_sparse *sparse_tail;
 	struct ae_sparse *sparse_p;
 	/* Miscellaneous. */
-	char		 strmode[12];
+	char   strmode[12];
 };
 
 #endif /* ARCHIVE_ENTRY_PRIVATE_H_INCLUDED */

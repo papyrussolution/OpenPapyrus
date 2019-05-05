@@ -2123,7 +2123,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						if(!r_tag_filt.IsEmpty()) {
 							SColor clr;
 							if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0) {
-								pStyle->Color2 = (COLORREF)clr;
+								pStyle->Color2 = static_cast<COLORREF>(clr);
 								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 								ok = 1;
 							}
@@ -5412,6 +5412,10 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 	int    ok = -1, update = 0;
 	if(pEv) {
 		if(kind == PPAdviseBlock::evBillChanged) {
+			// @v10.4.4 {
+			if(pEv->ObjID && oneof4(pEv->Action, PPACN_UPDBILL, PPACN_RMVBILL, PPACN_BILLSTATUSUPD, PPACN_UPDBILLFREIGHT))
+				P_BObj->Dirty(pEv->ObjID);
+			// } @v10.4.4 
 			if(pEv->IsFinish() && UpdateBillList.getCount())
 				update = 1;
 			else
@@ -8358,7 +8362,7 @@ int PPALDD_BillTotal::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	BillTotalPrintData * p_data = static_cast<BillTotalPrintData *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	AmtEntry * p_item;
-	uint   n = (uint)I.LineNo;
+	uint   n = static_cast<uint>(I.LineNo);
 	if(p_data->P_Total->Amounts.enumItems(&n, (void **)&p_item) > 0) {
 		I.LineNo = n;
 		I.AmtTypeID = p_item->AmtTypeID;

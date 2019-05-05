@@ -66,7 +66,7 @@ static ossl_inline void blake2b_init0(BLAKE2B_CTX * S)
 static void blake2b_init_param(BLAKE2B_CTX * S, const BLAKE2B_PARAM * P)
 {
 	size_t i;
-	const uint8_t * p = (const uint8_t*)(P);
+	const uint8_t * p = (const uint8_t *)(P);
 	blake2b_init0(S);
 
 	/* The param struct is carefully hand packed, and should be 64 bytes on

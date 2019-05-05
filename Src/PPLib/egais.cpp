@@ -5232,7 +5232,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 									}
 								}
 								const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
-								if(wroff_qtty >= 0.0) { // @v10.4.3 (wroff_qtty >= 1.0)-->(wroff_qtty >= 0.0)
+								if(wroff_qtty > 0.0) { // @v10.4.3 (wroff_qtty >= 1.0)-->(wroff_qtty > 0.0)
 									if(!p_wroff_bp) {
 										THROW_MEM(p_wroff_bp = new PPBillPacket);
 										THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));

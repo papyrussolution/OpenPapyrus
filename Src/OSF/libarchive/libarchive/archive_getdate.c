@@ -538,7 +538,7 @@ static int phrase(struct gdstate * gds)
  */
 static struct LEXICON {
 	size_t abbrev;
-	const char      * name;
+	const char * name;
 	int type;
 	time_t value;
 } const TimeWords[] = {
@@ -761,7 +761,7 @@ static time_t DSTcorrect(time_t Start, time_t Future)
 static time_t RelativeDate(time_t Start, time_t zone, int dstmode,
     time_t DayOrdinal, time_t DayNumber)
 {
-	struct tm       * tm;
+	struct tm  * tm;
 	time_t t, now;
 
 	t = Start - zone;
@@ -776,7 +776,7 @@ static time_t RelativeDate(time_t Start, time_t zone, int dstmode,
 
 static time_t RelativeMonth(time_t Start, time_t Timezone, time_t RelMonth)
 {
-	struct tm       * tm;
+	struct tm  * tm;
 	time_t Month;
 	time_t Year;
 

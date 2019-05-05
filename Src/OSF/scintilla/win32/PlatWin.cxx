@@ -2256,7 +2256,7 @@ PRectangle ListBoxX::GetDesiredRect()
 	SelectFont(hdc, oldFont);
 	::ReleaseDC(lb, hdc);
 
-	int widthDesired = smax(textSize.cx, (len + 1) * tm.tmAveCharWidth);
+	int widthDesired = smax(textSize.cx, (len+1) * tm.tmAveCharWidth);
 	if(width < widthDesired)
 		width = widthDesired;
 

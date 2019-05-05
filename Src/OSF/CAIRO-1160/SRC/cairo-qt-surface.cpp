@@ -1128,38 +1128,26 @@ static bool _cairo_qt_fast_fill(cairo_qt_surface_t * qs,
 	QImage * qsSrc_image = NULL;
 	QPixmap * qsSrc_pixmap = NULL;
 	std::auto_ptr<QImage> qsSrc_image_d;
-
 	if(source->type == CAIRO_PATTERN_TYPE_SURFACE) {
 		cairo_surface_pattern_t * spattern = (cairo_surface_pattern_t *)source;
 		if(spattern->surface->type == CAIRO_SURFACE_TYPE_QT) {
 			cairo_qt_surface_t * p = (cairo_qt_surface_t*)spattern->surface;
-
 			qsSrc_image = p->image;
 			qsSrc_pixmap = p->pixmap;
 		}
 		else if(spattern->surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
 			cairo_image_surface_t * p = (cairo_image_surface_t*)spattern->surface;
-			qsSrc_image = new QImage((const uchar *)p->data,
-				p->width,
-				p->height,
-				p->stride,
-				_qimage_format_from_cairo_format(p->format));
+			qsSrc_image = new QImage((const uchar *)p->data, p->width, p->height, p->stride, _qimage_format_from_cairo_format(p->format));
 			qsSrc_image_d.reset(qsSrc_image);
 		}
 	}
-
 	if(!qsSrc_image && !qsSrc_pixmap)
 		return false;
-
 	// We can only drawTiledPixmap; there's no drawTiledImage
-	if(!qsSrc_pixmap &&
-	    (source->extend == CAIRO_EXTEND_REPEAT ||
-	    source->extend == CAIRO_EXTEND_REFLECT)) {
+	if(!qsSrc_pixmap && (source->extend == CAIRO_EXTEND_REPEAT || source->extend == CAIRO_EXTEND_REFLECT)) {
 		return false;
 	}
-
 	QMatrix sourceMatrix = _qmatrix_from_cairo_matrix(source->matrix);
-
 	// We can draw this faster by clipping and calling drawImage/drawPixmap.
 	// Use our own clipping function so that we can get the
 	// region handling to end up with the fastest possible clip.

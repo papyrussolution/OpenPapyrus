@@ -328,7 +328,7 @@ int SLAPI DBTable::step(int sp)
 	int    err = BTRV(cmd[sp], FPB, static_cast<char *>(P_DBuf), (uint16 *)&retBufLen, 0, WBTRVTAIL_ZZ);
 	BtrError = err;
 	if(retBufLen < bufLen)
-		((char *)P_DBuf)[retBufLen] = 0;
+		PTR8(P_DBuf)[retBufLen] = 0;
 	Btr_ProcessLobOnReading();
 	InitErrFileName();
 	return BIN(err == 0 || err == BE_UBUFLEN);
@@ -350,7 +350,7 @@ int SLAPI DBTable::stepExtended(int srchMode, int lock)
 	assert(srchMode == spNext || srchMode == spPrev);
 	int    op = ((srchMode == spNext) ? B_STEPNEXTEXT : B_STEPPREVEXT) + lock;
 	retBufLen = bufLen;
-	return Ret(BTRV(op, FPB, static_cast<char *>(P_DBuf), (uint16 *)&retBufLen, 0, WBTRVTAIL_ZZ));
+	return Ret(BTRV(op, FPB, static_cast<char *>(P_DBuf), reinterpret_cast<uint16 *>(&retBufLen), 0, WBTRVTAIL_ZZ));
 }
 
 int FASTCALL DBTable::Btr_Implement_GetPosition(DBRowId * pPos)

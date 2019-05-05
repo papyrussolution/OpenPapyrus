@@ -448,7 +448,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
-		PPViewPersonEvent * p_view = (PPViewPersonEvent *)p_brw->P_View;
+		PPViewPersonEvent * p_view = static_cast<PPViewPersonEvent *>(p_brw->P_View);
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
@@ -461,7 +461,7 @@ int SLAPI PPViewPersonEvent::CellStyleFunc_(const void * pData, long col, int pa
 		const  BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
-			PPViewPersonEvent::BrwHdr * p_hdr = (PPViewPersonEvent::BrwHdr *)pData;
+			const PPViewPersonEvent::BrwHdr * p_hdr = static_cast<const PPViewPersonEvent::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 5) { // OprKind
 				if(p_hdr->Flags & PSNEVF_FORCEPAIR) {
 					pStyle->Color2 = GetColorRef(SClrViolet);

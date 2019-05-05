@@ -375,7 +375,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 			Group * g = &groups[i];
 			g->band   = rez->getUINT();
 			if((len = rez->getUINT()) != 0) {
-				THROW_MEM(g->fields = (int16 *)SAlloc::M(sizeof(int16) * (len + 1)));
+				THROW_MEM(g->fields = (int16 *)SAlloc::M(sizeof(int16) * (len+1)));
 				g->fields[0] = len;
 				for(j = 1; j <= len; j++)
 					g->fields[j] = (int16)rez->getUINT();
@@ -396,7 +396,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 			b->group   = rez->getUINT();
 			b->options = rez->getUINT();
 			if((len = rez->getUINT()) != 0) {
-				THROW_MEM(b->fields = (int16 *)SAlloc::M(sizeof(int16) * (len + 1)));
+				THROW_MEM(b->fields = (int16 *)SAlloc::M(sizeof(int16) * (len+1)));
 				b->fields[0] = len;
 				for(j = 1; j <= len; j++)
 					b->fields[j] = (int16)rez->getUINT();

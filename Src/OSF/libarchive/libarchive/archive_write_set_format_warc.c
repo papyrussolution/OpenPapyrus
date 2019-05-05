@@ -24,35 +24,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 //#include <stdio.h>
-#ifdef HAVE_STDLIB_H
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
-#ifdef HAVE_TIME_H
-#include <time.h>
-#endif
-
+//#endif
+//#ifdef HAVE_TIME_H
+//#include <time.h>
+//#endif
 //#include "archive.h"
 //#include "archive_entry.h"
 //#include "archive_entry_locale.h"
 //#include "archive_private.h"
-#include "archive_random_private.h"
+//#include "archive_random_private.h"
 //#include "archive_write_private.h"
 
 struct warc_s {
 	uint omit_warcinfo : 1;
-
 	time_t now;
 	mode_t typ;
 	uint rng;
@@ -60,30 +57,19 @@ struct warc_s {
 	uint64_t populz;
 };
 
-static const char warcinfo[] =
-    "software: libarchive/" ARCHIVE_VERSION_ONLY_STRING "\r\n"
-    "format: WARC file version 1.0\r\n";
+static const char warcinfo[] = "software: libarchive/" ARCHIVE_VERSION_ONLY_STRING "\r\nformat: WARC file version 1.0\r\n";
 
 typedef enum {
 	WT_NONE,
-	/* warcinfo */
-	WT_INFO,
-	/* metadata */
-	WT_META,
-	/* resource */
-	WT_RSRC,
-	/* request, unsupported */
-	WT_REQ,
-	/* response, unsupported */
-	WT_RSP,
-	/* revisit, unsupported */
-	WT_RVIS,
-	/* conversion, unsupported */
-	WT_CONV,
-	/* continuation, unsupported at the moment */
-	WT_CONT,
-	/* invalid type */
-	LAST_WT
+	WT_INFO, /* warcinfo */
+	WT_META, /* metadata */
+	WT_RSRC, /* resource */
+	WT_REQ, /* request, unsupported */
+	WT_RSP, /* response, unsupported */
+	WT_RVIS, /* revisit, unsupported */
+	WT_CONV, /* conversion, unsupported */
+	WT_CONT, /* continuation, unsupported at the moment */
+	LAST_WT /* invalid type */
 } warc_type_t;
 
 typedef struct {
@@ -116,7 +102,7 @@ static int _gen_uuid(warc_uuid_t * tgt);
  */
 int archive_write_set_format_warc(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct warc_s * w;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_warc");
 	/* If another format was already registered, unregister it. */

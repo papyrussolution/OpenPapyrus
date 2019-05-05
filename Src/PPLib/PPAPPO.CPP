@@ -917,84 +917,13 @@ int PPApp::processCommand(uint cmd)
 	return 1;
 }
 
-enum {
-	cmdlHelp = 0,  // ?
-	cmdlCash,      // CASH
-	cmdlExport,    // EXP
-	cmdlImport,    // IMP
-	cmdlIn,        // IN
-	cmdlOut,       // OUT
-	cmdlBatch,     // BATCH
-	cmdlSyncPut,   // SYNCPUT
-	cmdlSyncGet,   // SYNCGET
-	cmdlDB,        // DB
-	cmdlBackup,    // BACKUP
-	cmdlBillCash,  // BILLCASH
-	cmdlPrc,       // PRC
-	cmdlTSess,     // TSESS
-	cmdlGoodsInfo, // GOODSINFO
-	cmdlVerHist,   // VERHIST
-	cmdlRecoverTransfer,  // RECOVERTRANSFER @temp
-	cmdlConvertRbcBnk,    // CONVERTRBCBNK
-	cmdlNoLogin,   // NOLOGIN
-	cmdlPPOS,      // PPOS
-	cmdlExportDialogs, // EXPORTDIALOGS
-	cmdlSelfBuild,     // SELFBUILD
-	cmdlSartrTest,     // SARTRTEST
-	cmdlAutoTranslate, // AUTOTRANSLATE
-	cmdlConvertCipher, // CONVERTCIPHER
-	cmdlPpIniSubst,     // PPINISUBST
-	cmdlUhttGoodsToGitHubExport // UHTTGOODSTOGITHUBEXPORT
-};
-
-static int FASTCALL GetStartUpOption(int o, SString & rArgBuf)
-{
-	static SString * p_cmdl_symbols = 0;
-	int    ok = 0;
-	ENTER_CRITICAL_SECTION
-	if(!p_cmdl_symbols && o >= 0) {
-		if(!p_cmdl_symbols) {
-			p_cmdl_symbols = new SString;
-			PPLoadString(PPSTR_SYMB, PPSSYM_CMDLINEOP, *p_cmdl_symbols);
-		}
-	}
-	rArgBuf.Z();
-	SString sym;
-	if(p_cmdl_symbols) {
-		StringSet ss(',', *p_cmdl_symbols);
-		for(int i = 1; !ok && i < _argc; i++) {
-			const char * arg = _argv[i];
-			if(arg[0] == '/' || arg[0] == '-') {
-				int   k = 0;
-				for(uint pos = 0; !ok && k <= o && ss.get(&pos, sym); k++) {
-					if(k == o) {
-						arg++;
-						size_t len = sym.Len();
-						if(strnicmp(arg, sym, len) == 0) {
-							if(arg[len] == ':')
-							   	len++;
-							(rArgBuf = arg+len).Strip();
-							ok = 1;
-						}
-					}
-				}
-			}
-		}
-	}
-	if(o < 0) {
-		ZDELETE(p_cmdl_symbols);
-	}
-	LEAVE_CRITICAL_SECTION
-	return ok;
-}
-
 static int SLAPI GetStartUpPath(PPID pi, SString & rArgBuf)
 {
 	int    ok = 0;
 	if(pi == PPPATH_IN)
-		ok = GetStartUpOption(cmdlIn, rArgBuf);
+		ok = PPSession::GetStartUpOption(PPSession::cmdlIn, rArgBuf);
 	else if(pi == PPPATH_OUT)
-		ok = GetStartUpOption(cmdlOut, rArgBuf);
+		ok = PPSession::GetStartUpOption(PPSession::cmdlOut, rArgBuf);
 	else
 		rArgBuf.Z();
 	return ok;
@@ -1348,7 +1277,7 @@ int SLAPI PPVerHistory::Log()
 {
 	int    ok = -1;
 	SString arg_buf;
-	if(GetStartUpOption(cmdlVerHist, arg_buf) && arg_buf.NotEmptyS()) {
+	if(PPSession::GetStartUpOption(PPSession::cmdlVerHist, arg_buf) && arg_buf.NotEmptyS()) {
 		SString data_path, log_path;
 		PPIniFile  ini_file;
 		PPID   dbentry_id = 0;
@@ -1558,7 +1487,7 @@ int PPBackupSystemFiles_Arc()
 			SString arc_file_name;
 			// NB: archive file name will be created without extention (this is a protection against crypto-viruses)
 			(arc_file_name = backup_dir).SetLastSlash().Cat("bu").CatChar('-').Cat(cur_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(cur_dtm.t, TIMF_HMS|TIMF_NODIV);
-			if(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite)) {
+			if(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite, 0)) {
 				long start = 1;
 				SString path;
 				SString dest_dir;
@@ -1715,8 +1644,8 @@ void PPApp::login(int processCmdLine)
 	int    do_quit = 0;
 	SString arg_buf;
 	SString msg_buf, temp_buf;
-	const  int no_login = GetStartUpOption(cmdlNoLogin, arg_buf);
-	const  int is_batch = GetStartUpOption(cmdlBatch, arg_buf);
+	const  int no_login = PPSession::GetStartUpOption(PPSession::cmdlNoLogin, arg_buf);
+	const  int is_batch = PPSession::GetStartUpOption(PPSession::cmdlBatch, arg_buf);
 	//Test_KeywordListGenerator(); // @debug
 	{
 		// Test VERSEL.DLL
@@ -1762,17 +1691,17 @@ void PPApp::login(int processCmdLine)
 			StatusWinChange(1);
 		}
 	}
-	else if(GetStartUpOption(cmdlConvertRbcBnk, arg_buf)) {
+	else if(PPSession::GetStartUpOption(PPSession::cmdlConvertRbcBnk, arg_buf)) {
 		if(!ConvertRbcBnk(arg_buf))
 			PPError();
 		TView::messageCommand(this, cmQuit);
 	}
-	else if(GetStartUpOption(cmdlExportDialogs, arg_buf)) {
+	else if(PPSession::GetStartUpOption(PPSession::cmdlExportDialogs, arg_buf)) {
 		PPGetFilePath(PPPATH_BIN, "ppdlg.dl6", temp_buf);
 		ExportDialogs(temp_buf);
 		TView::messageCommand(this, cmQuit);
 	}
-	else if(GetStartUpOption(cmdlAutoTranslate, arg_buf)) {
+	else if(PPSession::GetStartUpOption(PPSession::cmdlAutoTranslate, arg_buf)) {
 		SString src_file_path, auto_transl_lang;
 		arg_buf.Divide(';', src_file_path, auto_transl_lang);
 		src_file_path.Strip();
@@ -1784,7 +1713,7 @@ void PPApp::login(int processCmdLine)
 		}
 		TView::messageCommand(this, cmQuit);
 	}
-	else if(GetStartUpOption(cmdlConvertCipher, arg_buf)) {
+	else if(PPSession::GetStartUpOption(PPSession::cmdlConvertCipher, arg_buf)) {
 		class CvtCipherDialog : public TDialog {
 		public:
 			CvtCipherDialog() : TDialog(DLG_CVTCIPHER)
@@ -1852,7 +1781,7 @@ void PPApp::login(int processCmdLine)
 		}
 		pw[0] = 0;
 		dbes.ReadFromProfile(&ini_file);
-		if(GetStartUpOption(cmdlDB, arg_buf)) {
+		if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
 			dbentry_id = dbes.GetBySymb(arg_buf, 0);
 			if(dbentry_id <= 0) {
 				PPError();
@@ -1922,35 +1851,35 @@ void PPApp::login(int processCmdLine)
 					DS.SetPath(PPPATH_IN, arg_buf, 0, 1);
 				if(GetStartUpPath(PPPATH_OUT, arg_buf))
 					DS.SetPath(PPPATH_OUT, arg_buf, 0, 1);
-				if(GetStartUpOption(cmdlImport, arg_buf))
+				if(PPSession::GetStartUpOption(PPSession::cmdlImport, arg_buf))
 					ProcessImportJob(arg_buf);
-				if(GetStartUpOption(cmdlExport, arg_buf))
+				if(PPSession::GetStartUpOption(PPSession::cmdlExport, arg_buf))
 					ProcessExportJob(arg_buf);
-				if(GetStartUpOption(cmdlSyncGet, arg_buf))
+				if(PPSession::GetStartUpOption(PPSession::cmdlSyncGet, arg_buf))
 					PPObjectTransmit::ReceivePackets(0);
-				if(GetStartUpOption(cmdlSyncPut, arg_buf))
+				if(PPSession::GetStartUpOption(PPSession::cmdlSyncPut, arg_buf))
 					PPObjectTransmit::TransmitBillsByDBDivList(0);
-				if(GetStartUpOption(cmdlUhttGoodsToGitHubExport, arg_buf)) { // @v10.1.6
+				if(PPSession::GetStartUpOption(PPSession::cmdlUhttGoodsToGitHubExport, arg_buf)) { // @v10.1.6
 					ExportUhttForGitHub();
 				}
 				{
 					PPID   _id  = 0;
-					if(GetStartUpOption(cmdlSelfBuild, arg_buf))
+					if(PPSession::GetStartUpOption(PPSession::cmdlSelfBuild, arg_buf))
 						SelfBuild();
-					else if(GetStartUpOption(cmdlCash, arg_buf)) {
+					else if(PPSession::GetStartUpOption(PPSession::cmdlCash, arg_buf)) {
 						arg_buf.Transf(CTRANSF_OUTER_TO_INNER);
 						if(GetCashNodeIDByName(&_id, arg_buf))
 							ViewCashBills(_id);
 						else
 							PPError();
 					}
-					else if(GetStartUpOption(cmdlPrc, arg_buf)) {
+					else if(PPSession::GetStartUpOption(PPSession::cmdlPrc, arg_buf)) {
 						if(GetPrcIDByName(&_id, arg_buf))
 							ExecPrcPane(_id);
 						else
 							PPError();
 					}
-					else if(GetStartUpOption(cmdlTSess, arg_buf)) {
+					else if(PPSession::GetStartUpOption(PPSession::cmdlTSess, arg_buf)) {
 						if(GetPrcIDByName(&_id, arg_buf)) {
 							TSessionFilt filt;
 							filt.PrcID = _id;
@@ -1960,14 +1889,14 @@ void PPApp::login(int processCmdLine)
 						else
 							PPError();
 					}
-					else if(GetStartUpOption(cmdlGoodsInfo, arg_buf)) {
+					else if(PPSession::GetStartUpOption(PPSession::cmdlGoodsInfo, arg_buf)) {
 						if(GetGoodsInfoIDByName(&_id, arg_buf)) {
 							InfoKioskPaneFilt ik_filt;
 							ik_filt.InfoKioskID = _id;
 							ViewGoodsInfo(&ik_filt);
 						}
 					}
-					if(GetStartUpOption(cmdlBillCash, arg_buf)) {
+					if(PPSession::GetStartUpOption(PPSession::cmdlBillCash, arg_buf)) {
 						if(GetCashNodeIDByName(&_id, arg_buf))
 							DS.SetDefBillCashID(_id);
 						else
@@ -1988,7 +1917,7 @@ void PPApp::login(int processCmdLine)
 		else if(!no_login)
 			TView::messageCommand(this, cmQuit);
 	}
-	GetStartUpOption(-1, arg_buf); // @v9.0.2 Очищаем внутренний буфер функции
+	PPSession::GetStartUpOption(-1, arg_buf); // @v9.0.2 Очищаем внутренний буфер функции
 }
 
 int PPApp::InitDeskTop()

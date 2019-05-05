@@ -854,7 +854,7 @@ namespace NWindows {
 						return false;
 					if(processedLoc == 0)
 						return true;
-					data = (const void*)((const uchar *)data + processedLoc);
+					data = (const void *)((const uchar *)data + processedLoc);
 					size -= processedLoc;
 				} while(size > 0);
 				return true;

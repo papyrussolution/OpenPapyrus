@@ -892,7 +892,7 @@ cairo_status_t _cairo_gl_surface_draw_image(cairo_gl_surface_t * dst,
 
 			data_start = data_start_gles2;
 		}
-		else{
+		else {
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 			if(ctx->gl_flavor == CAIRO_GL_FLAVOR_DESKTOP ||
 			    ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3)

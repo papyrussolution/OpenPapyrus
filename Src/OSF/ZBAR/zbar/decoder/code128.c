@@ -182,28 +182,23 @@ static inline uchar calc_check(uchar c)
 	return ((c < 0x67) ? 0x20 : 0x10);
 }
 
-static inline int8 decode6(zbar_decoder_t * dcode)
+static inline int8 decode6(const zbar_decoder_t * dcode)
 {
 	int sig;
 	int8 c, chk;
 	uint bars;
-
 	/* build edge signature of character */
 	uint s = dcode->code128.s6;
-
 	dbprintf(2, " s=%d", s);
 	if(s < 5)
 		return -1;
 	/* calculate similar edge measurements */
-	sig = (get_color(dcode) == ZBAR_BAR)
-	    ? ((decode_e(get_width(dcode, 0) + get_width(dcode, 1), s, 11) << 12) |
+	sig = (get_color(dcode) == ZBAR_BAR) ? ((decode_e(get_width(dcode, 0) + get_width(dcode, 1), s, 11) << 12) |
 	    (decode_e(get_width(dcode, 1) + get_width(dcode, 2), s, 11) << 8) |
-	    (decode_e(get_width(dcode, 2) + get_width(dcode, 3), s, 11) << 4) |
-	    (decode_e(get_width(dcode, 3) + get_width(dcode, 4), s, 11)))
-	    : ((decode_e(get_width(dcode, 5) + get_width(dcode, 4), s, 11) << 12) |
+	    (decode_e(get_width(dcode, 2) + get_width(dcode, 3), s, 11) << 4) | (decode_e(get_width(dcode, 3) + get_width(dcode, 4), s, 11))) : 
+		((decode_e(get_width(dcode, 5) + get_width(dcode, 4), s, 11) << 12) |
 	    (decode_e(get_width(dcode, 4) + get_width(dcode, 3), s, 11) << 8) |
-	    (decode_e(get_width(dcode, 3) + get_width(dcode, 2), s, 11) << 4) |
-	    (decode_e(get_width(dcode, 2) + get_width(dcode, 1), s, 11)));
+	    (decode_e(get_width(dcode, 3) + get_width(dcode, 2), s, 11) << 4) | (decode_e(get_width(dcode, 2) + get_width(dcode, 1), s, 11)));
 	if(sig < 0)
 		return -1;
 	dbprintf(2, " sig=%04x", sig);
@@ -219,7 +214,6 @@ static inline int8 decode6(zbar_decoder_t * dcode)
 	dbprintf(2, " bars=%d chk=%d", bars, chk);
 	if((chk - 7) > (int)bars || (int)bars > (chk + 7))
 		return -1;
-
 	return (c & 0x7f);
 }
 

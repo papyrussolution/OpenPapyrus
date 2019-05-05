@@ -1419,7 +1419,7 @@ err:
  * __db_associate_foreign_arg --
  *	DB->associate_foreign argument checking.
  */
-static int __db_associate_foreign_arg(DB * fdbp, DB * dbp, int (*callback)__P((DB*, const DBT*, DBT*, const DBT*, int *)), uint32 flags)
+static int __db_associate_foreign_arg(DB * fdbp, DB * dbp, int (*callback)(DB*, const DBT*, DBT*, const DBT*, int *), uint32 flags)
 {
 	ENV * env = fdbp->env;
 	if(F_ISSET(fdbp, DB_AM_SECONDARY)) {
@@ -1448,7 +1448,6 @@ static int __db_associate_foreign_arg(DB * fdbp, DB * dbp, int (*callback)__P((D
 	}
 	return 0;
 }
-
 /*
  * __db_sync_pp --
  *	DB->sync pre/post processing.

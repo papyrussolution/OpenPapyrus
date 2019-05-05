@@ -94,22 +94,17 @@ struct cpio {
 #define c_namesize_size 6
 #define c_filesize_offset 65
 #define c_filesize_size 11
-
 /*
  * Set output format to 'cpio' format.
  */
 int archive_write_set_format_cpio(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct cpio * cpio;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_cpio");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_cpio");
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
@@ -128,20 +123,15 @@ int archive_write_set_format_cpio(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_write_cpio_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_cpio_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct cpio * cpio = (struct cpio *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
 	if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
-			cpio->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			cpio->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(cpio->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -149,13 +139,11 @@ static int archive_write_cpio_options(struct archive_write * a, const char * key
 		}
 		return ret;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
 	return (ARCHIVE_WARN);
 }
-
 /*
  * Ino values are as long as 64 bits on some systems; cpio format
  * only allows 18 bits and relies on the ino values to identify hardlinked
@@ -175,7 +163,6 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 	int64_t ino = archive_entry_ino64(entry);
 	int ino_new;
 	size_t i;
-
 	/*
 	 * If no index number was given, don't assign one.  In
 	 * particular, this handles the end-of-archive marker
@@ -184,7 +171,6 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 	 */
 	if(ino == 0)
 		return 0;
-
 	/* Don't store a mapping if we don't need to. */
 	if(archive_entry_nlink(entry) < 2) {
 		return (int)(++cpio->ino_next);
@@ -216,14 +202,11 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 
 static struct archive_string_conv * get_sconv(struct archive_write * a)
 {
-	struct archive_string_conv * sconv;
 	struct cpio * cpio = (struct cpio *)a->format_data;
-	sconv = cpio->opt_sconv;
+	struct archive_string_conv * sconv = cpio->opt_sconv;
 	if(sconv == NULL) {
 		if(!cpio->init_default_conversion) {
-			cpio->sconv_default =
-			    archive_string_default_conversion_for_write(
-				&(a->archive));
+			cpio->sconv_default = archive_string_default_conversion_for_write(&(a->archive));
 			cpio->init_default_conversion = 1;
 		}
 		sconv = cpio->sconv_default;
@@ -235,23 +218,18 @@ static int archive_write_cpio_header(struct archive_write * a, struct archive_en
 {
 	const char * path;
 	size_t len;
-
 	if(archive_entry_filetype(entry) == 0) {
 		archive_set_error(&a->archive, -1, "Filetype required");
 		return ARCHIVE_FAILED;
 	}
-
-	if(archive_entry_pathname_l(entry, &path, &len, get_sconv(a)) != 0
-	    && errno == ENOMEM) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory for Pathname");
+	if(archive_entry_pathname_l(entry, &path, &len, get_sconv(a)) != 0 && errno == ENOMEM) {
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 		return ARCHIVE_FATAL;
 	}
 	if(len == 0 || path == NULL || path[0] == '\0') {
 		archive_set_error(&a->archive, -1, "Pathname required");
 		return ARCHIVE_FAILED;
 	}
-
 	if(!archive_entry_size_is_set(entry) || archive_entry_size(entry) < 0) {
 		archive_set_error(&a->archive, -1, "Size required");
 		return ARCHIVE_FAILED;

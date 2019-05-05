@@ -197,7 +197,7 @@ static void rasterize_edges_8(pixman_image_t * image,
 				WRITE(image, ap + lxi,
 				    clip255(READ(image, ap + lxi) + rxs - lxs));
 			}
-			else{
+			else {
 				WRITE(image, ap + lxi,
 				    clip255(READ(image, ap + lxi) + N_X_FRAC(8) - lxs));
 
@@ -212,7 +212,7 @@ static void rasterize_edges_8(pixman_image_t * image,
 						fill_end = rxi;
 						fill_size++;
 					}
-					else{
+					else {
 						if(lxi >= fill_end || rxi < fill_start) {
 							/* We're beyond what we saved, just fill it */
 							ADD_SATURATE_8(ap + fill_start,
@@ -222,7 +222,7 @@ static void rasterize_edges_8(pixman_image_t * image,
 							fill_end = rxi;
 							fill_size = 1;
 						}
-						else{
+						else {
 							/* Update fill_start */
 							if(lxi > fill_start) {
 								ADD_SATURATE_8(ap + fill_start,
@@ -251,7 +251,7 @@ static void rasterize_edges_8(pixman_image_t * image,
 						}
 					}
 				}
-				else{
+				else {
 					ADD_SATURATE_8(ap + lxi, N_X_FRAC(8), rxi - lxi);
 				}
 
@@ -266,7 +266,7 @@ static void rasterize_edges_8(pixman_image_t * image,
 					MEMSET_WRAPPED(image, ap + fill_start,
 					    0xff, fill_end - fill_start);
 				}
-				else{
+				else {
 					ADD_SATURATE_8(ap + fill_start, fill_size * N_X_FRAC(8),
 					    fill_end - fill_start);
 				}
@@ -279,7 +279,7 @@ static void rasterize_edges_8(pixman_image_t * image,
 			RENDER_EDGE_STEP_SMALL(r);
 			y += STEP_Y_SMALL(8);
 		}
-		else{
+		else {
 			RENDER_EDGE_STEP_BIG(l);
 			RENDER_EDGE_STEP_BIG(r);
 			y += STEP_Y_BIG(8);
@@ -288,7 +288,7 @@ static void rasterize_edges_8(pixman_image_t * image,
 					MEMSET_WRAPPED(image, ap + fill_start,
 					    0xff, fill_end - fill_start);
 				}
-				else{
+				else {
 					ADD_SATURATE_8(ap + fill_start, fill_size * N_X_FRAC(8),
 					    fill_end - fill_start);
 				}

@@ -109,7 +109,7 @@ struct program_filter {
 	int waitpid_return;
 	int child_stdin, child_stdout;
 
-	char            * out_buf;
+	char * out_buf;
 	size_t out_buf_len;
 };
 
@@ -139,7 +139,7 @@ static int set_bidder_signature(struct archive_read_filter_bidder * bidder,
 
 int archive_read_support_filter_program_signature(struct archive * _a, const char * cmd, const void * signature, size_t signature_len)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct archive_read_filter_bidder * bidder;
 	struct program_bidder * state;
 	/*
@@ -153,7 +153,7 @@ int archive_read_support_filter_program_signature(struct archive * _a, const cha
 	state = (struct program_bidder *)SAlloc::C(1, sizeof(*state));
 	if(state == NULL)
 		goto memerr;
-	state->cmd = strdup(cmd);
+	state->cmd = sstrdup(cmd);
 	if(state->cmd == NULL)
 		goto memerr;
 
@@ -389,41 +389,32 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 		SAlloc::F(state->out_buf);
 		archive_string_free(&state->description);
 		SAlloc::F(state);
-		archive_set_error(&self->archive->archive, EINVAL,
-		    "Can't initialize filter; unable to run program \"%s\"",
-		    cmd);
+		archive_set_error(&self->archive->archive, EINVAL, "Can't initialize filter; unable to run program \"%s\"", cmd);
 		return ARCHIVE_FATAL;
 	}
 #else
 	state->child = child;
 #endif
-
 	self->data = state;
 	self->read = program_filter_read;
 	self->skip = NULL;
 	self->close = program_filter_close;
-
 	/* XXX Check that we can read at least one byte? */
 	return ARCHIVE_OK;
 }
 
 static int program_bidder_init(struct archive_read_filter * self)
 {
-	struct program_bidder   * bidder_state;
-
-	bidder_state = (struct program_bidder *)self->bidder->data;
+	struct program_bidder   * bidder_state = (struct program_bidder *)self->bidder->data;
 	return (__archive_read_program(self, bidder_state->cmd));
 }
 
 static ssize_t program_filter_read(struct archive_read_filter * self, const void ** buff)
 {
-	struct program_filter * state;
 	ssize_t bytes;
 	size_t total;
 	char * p;
-
-	state = (struct program_filter *)self->data;
-
+	struct program_filter * state = (struct program_filter *)self->data;
 	total = 0;
 	p = state->out_buf;
 	while(state->child_stdout != -1 && total < state->out_buf_len) {

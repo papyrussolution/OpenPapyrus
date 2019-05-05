@@ -48,8 +48,8 @@ int FASTCALL BExtQuery::SlToBeqLink(int s)
 
 void SLAPI BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 {
-	P_Tbl    = pTbl;
-	index    = idx;
+	P_Tbl = pTbl;
+	Index_ = idx;
 	P_Restrict = 0;
 	P_Tree     = 0;
 	P_QBuf     = 0;
@@ -89,8 +89,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 {
 	int    ok = 1;
 	Generator_SQL sg(sqlstORA, 0);
-	pSg->Reset().Tok(Generator_SQL::tokSelect).
-		HintBegin().HintIndex(*P_Tbl, 0, index, BIN(reverse)).HintEnd();
+	pSg->Reset().Tok(Generator_SQL::tokSelect).HintBegin().HintIndex(*P_Tbl, 0, Index_, BIN(reverse)).HintEnd();
 	const uint c = Fields.GetCount();
 	if(c) {
 		for(uint i = 0; i < c; i++) {
@@ -109,7 +108,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 		// этого индекса.
 		//
 		//BNKey  key = P_Tbl->indexes[index];
-		BNKey  key = P_Tbl->GetIndices()[index];
+		BNKey  key = P_Tbl->GetIndices()[Index_];
 		int    ns = key.getNumSeg();
 		size_t offs = 0;
 		char   temp[512];
@@ -118,8 +117,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 		pSg->LPar();
 		for(int i = 0; i < ns; i++) {
 			int fldid = key.getFieldID(i);
-			//const BNField fld = P_Tbl->indexes.field(index, i);
-			const BNField fld = P_Tbl->GetIndices().field(index, i);
+			const BNField fld = P_Tbl->GetIndices().field(Index_, i);
 			if(i > 0) { // НЕ первый сегмент
 				pSg->Tok(Generator_SQL::tokAnd).Sp();
 				if(initSpMode != spEq)
@@ -165,8 +163,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 				//
 				pSg->Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
 				for(int j = 0; j < i; j++) {
-					//const BNField fld2 = P_Tbl->indexes.field(index, j);
-					const BNField fld2 = P_Tbl->GetIndices().field(index, j);
+					const BNField fld2 = P_Tbl->GetIndices().field(Index_, j);
 					if(j > 0)
 						pSg->Tok(Generator_SQL::tokAnd).Sp();
 					if(key.getFlags(j) & XIF_ACS)
@@ -174,8 +171,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 					else
 						pSg->Text(fld2.Name);
 					pSg->_Symb(_NE_);
-					//sttostr(fld2.T, PTR8(pInitKey) + P_Tbl->indexes.getSegOffset(index, j), COMF_SQL, temp);
-					sttostr(fld2.T, PTR8C(pInitKey) + P_Tbl->GetIndices().getSegOffset(index, j), COMF_SQL, temp);
+					sttostr(fld2.T, PTR8C(pInitKey) + P_Tbl->GetIndices().getSegOffset(Index_, j), COMF_SQL, temp);
 					pSg->Text(temp);
 					pSg->Sp();
 				}
@@ -274,7 +270,8 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 	RecSize = 0;
 	Cur = 0;
 	State &= ~stEOF;
-	P_Tbl->setIndex(index);
+	if(Index_ >= 0) // @v10.4.4
+		P_Tbl->setIndex(Index_);
 	int    ok = 1, sp;
 	const  uint fields_count = Fields.GetCount();
 	BExtTail * p_tail = 0;
@@ -309,7 +306,6 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 					RecSize += P_Tbl->GetFields()[i].size();
 			}
 			THROW_V(Buf.Alloc(RecSize), BE_NOMEM);
-			//
 			if(fields_count) {
 				THROW(P_Stmt->BindData(+1, MaxRecs, Fields, Buf, P_Tbl->getLobBlock()));
 			}
@@ -359,9 +355,6 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		THROW_V(P_QBuf = static_cast<char *>(SAlloc::R(P_QBuf, P_QHead->bufLen + tailLen)), BE_NOMEM);
 		memcpy(P_QBuf + TailOfs, p_tail, tailLen);
 		P_QHead->bufLen += tailLen;
-		//
-		//
-		//
 		if(pInitKey) {
 			memcpy(_Key, pInitKey, MAXKEYLEN);
 			sp = initSpMode;
@@ -375,7 +368,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		}
 		else {
 			State &= ~stPosSaved; // Не следует пытаться восстанавливать позицию
-			ok = _search(((spMode == spFirst) ? spNext : spPrev), UC_sign);
+			ok = _search(((spMode == spFirst) ? spNext : spPrev), (Index_ < 0) ? EG_sign : UC_sign);
 		}
 	}
 	CATCHZOK
@@ -413,15 +406,20 @@ __again:
 			//
 			// Если до этого текущая позиция записи была сохранена, то восстанавливаем ее
 			//
-			if(State & stPosSaved && !P_Tbl->getDirect(index, 0, Position) && BtrError != BE_UBUFLEN) {
+			if(State & stPosSaved && !P_Tbl->getDirect(Index_, 0, Position) && BtrError != BE_UBUFLEN) {
 				P_Tbl->setBuffer(saved_buf);
 				r = 0;
 			}
 			else {
 				memcpy(Buf, P_QBuf, P_QHead->bufLen);
 				P_Tbl->setDataBuf(Buf, static_cast<RECORDSIZE>(Buf.GetSize()));
-				P_Tbl->setIndex(index);
-				r = P_Tbl->getExtended(_Key, spMode);
+				if(Index_ < 0) { // @v10.4.4
+					r = P_Tbl->stepExtended(spMode);
+				}
+				else {
+					P_Tbl->setIndex(Index_);
+					r = P_Tbl->getExtended(_Key, spMode);
+				}
 				P_Tbl->setBuffer(saved_buf);
 				ActCount = *reinterpret_cast<const uint16 *>(Buf.cptr());
 				State &= ~stRejectLimit;

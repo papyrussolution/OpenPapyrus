@@ -753,18 +753,14 @@ inline static void full_step(struct edge * e)
  * This function depends on being called with all edges from the
  * active list in the order they appear on the list (i.e. with
  * non-decreasing x-coordinate.)  */
-static void cell_list_render_edge(struct cell_list * cells,
-    struct edge * edge,
-    int sign)
+static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, int sign)
 {
 	struct quorem x1, x2;
 	grid_scaled_x_t fx1, fx2;
 	int ix1, ix2;
-
 	x1 = edge->x;
 	full_step(edge);
 	x2 = edge->x;
-
 	/* Step back from the sample location (half-subrow) to the pixel origin */
 	if(edge->dy) {
 		x1.quo -= edge->dxdy.quo / 2;
@@ -789,12 +785,9 @@ static void cell_list_render_edge(struct cell_list * cells,
 			x2.rem -= edge->dy;
 		}
 	}
-
 	GRID_X_TO_INT_FRAC(x1.quo, ix1, fx1);
 	GRID_X_TO_INT_FRAC(x2.quo, ix2, fx2);
-
 	cell_list_maybe_rewind(cells, MIN(ix1, ix2));
-
 	/* Edge is entirely within a column? */
 	if(ix1 == ix2) {
 		/* We always know that ix1 is >= the cell list cursor in this
@@ -804,35 +797,26 @@ static void cell_list_render_edge(struct cell_list * cells,
 		cell->uncovered_area += sign*(fx1 + fx2)*GRID_Y;
 		return;
 	}
-
 	/* Orient the edge left-to-right. */
 	if(ix2 < ix1) {
 		struct quorem tx;
-		int t;
-
-		t = ix1;
+		int t = ix1;
 		ix1 = ix2;
 		ix2 = t;
-
 		t = fx1;
 		fx1 = fx2;
 		fx2 = t;
-
 		tx = x1;
 		x1 = x2;
 		x2 = tx;
 	}
-
-	/* Add coverage for all pixels [ix1,ix2] on this row crossed
-	 * by the edge. */
+	// Add coverage for all pixels [ix1,ix2] on this row crossed by the edge.
 	{
 		struct cell_pair pair;
 		struct quorem y;
 		int64_t tmp, dx;
 		int y_last;
-
 		dx = (x2.quo - x1.quo) * edge->dy + (x2.rem - x1.rem);
-
 		tmp = (ix1 + 1) * GRID_X * edge->dy;
 		tmp -= x1.quo * edge->dy + x1.rem;
 		tmp *= GRID_Y;
@@ -855,12 +839,10 @@ static void cell_list_render_edge(struct cell_list * cells,
 		 * The left edge touches cells past the starting cell of the
 		 * right edge.  Fortunately such cases are rare.
 		 */
-
 		pair = cell_list_find_pair(cells, ix1, ix1+1);
 		pair.cell1->uncovered_area += sign*y.quo*(GRID_X + fx1);
 		pair.cell1->covered_height += sign*y.quo;
 		y_last = y.quo;
-
 		if(ix1+1 < ix2) {
 			struct cell * cell = pair.cell2;
 			struct quorem dydx_full;
@@ -891,16 +873,13 @@ static void polygon_init(struct polygon * polygon, jmp_buf * jmp)
 {
 	polygon->ymin = polygon->ymax = 0;
 	polygon->y_buckets = polygon->y_buckets_embedded;
-	pool_init(polygon->edge_pool.base, jmp,
-	    8192 - sizeof(struct _pool_chunk),
-	    sizeof(polygon->edge_pool.embedded));
+	pool_init(polygon->edge_pool.base, jmp, 8192 - sizeof(struct _pool_chunk), sizeof(polygon->edge_pool.embedded));
 }
 
 static void polygon_fini(struct polygon * polygon)
 {
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
 		SAlloc::F(polygon->y_buckets);
-
 	pool_fini(polygon->edge_pool.base);
 }
 

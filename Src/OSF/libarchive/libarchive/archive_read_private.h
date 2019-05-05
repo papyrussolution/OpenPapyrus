@@ -58,13 +58,11 @@ struct archive_read_filter_bidder {
 	/* Name of the filter */
 	const char *name;
 	/* Taste the upstream filter to see if we handle this. */
-	int (*bid)(struct archive_read_filter_bidder *,
-	    struct archive_read_filter *);
+	int (*bid)(struct archive_read_filter_bidder *, struct archive_read_filter *);
 	/* Initialize a newly-created filter. */
 	int (*init)(struct archive_read_filter *);
 	/* Set an option for the filter bidder. */
-	int (*options)(struct archive_read_filter_bidder *,
-	    const char *key, const char *value);
+	int (*options)(struct archive_read_filter_bidder *, const char *key, const char *value);
 	/* Release the bidder's configuration data. */
 	int (*free)(struct archive_read_filter_bidder *);
 };
@@ -95,10 +93,8 @@ struct archive_read_filter {
 	int (*sswitch)(struct archive_read_filter *self, uint iindex);
 	/* My private data. */
 	void *data;
-
 	const char	*name;
 	int		 code;
-
 	/* Used by reblocking logic. */
 	char		*buffer;
 	size_t		 buffer_size;
@@ -112,7 +108,6 @@ struct archive_read_filter {
 	char		 closed;
 	char		 fatal;
 };
-
 /*
  * The client looks a lot like a filter, so we just wrap it here.
  *
@@ -145,15 +140,14 @@ struct archive_read_passphrase {
 
 struct archive_read_extract {
 	struct archive *ad; /* archive_write_disk object */
-
 	/* Progress function invoked during extract. */
-	void			(*extract_progress)(void *);
-	void			 *extract_progress_user_data;
+	void (*extract_progress)(void *);
+	void * extract_progress_user_data;
 };
 
 struct archive_read {
-	struct archive	archive;
-	struct archive_entry	*entry;
+	struct archive archive;
+	struct archive_entry * entry;
 	/* Dev/ino of the archive being read/written. */
 	int		  skip_file_set;
 	int64_t		  skip_file_dev;
@@ -173,7 +167,7 @@ struct archive_read {
 	 * than having the supervisor hand them a block of data to examine.
 	 */
 	struct archive_format_descriptor {
-		void	 *data;
+		void * data;
 		const char *name;
 		int	(*bid)(struct archive_read *, int best_bid);
 		int	(*options)(struct archive_read *, const char *key, const char *value);
@@ -184,9 +178,8 @@ struct archive_read {
 		int	(*cleanup)(struct archive_read *);
 		int	(*format_capabilties)(struct archive_read *);
 		int	(*has_encrypted_entries)(struct archive_read *);
-	}	formats[16];
-	struct archive_format_descriptor	*format; /* Active format. */
-
+	} formats[16];
+	struct archive_format_descriptor * format; /* Active format. */
 	/*
 	 * Various information needed by archive_extract.
 	 */

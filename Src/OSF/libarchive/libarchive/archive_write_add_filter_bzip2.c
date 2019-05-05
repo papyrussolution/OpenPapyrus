@@ -60,7 +60,7 @@ struct private_data {
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 	bz_stream stream;
 	int64_t total_in;
-	char            * compressed;
+	char * compressed;
 	size_t compressed_buffer_size;
 #else
 	struct archive_write_program_data * pdata;
@@ -80,7 +80,7 @@ static int archive_compressor_bzip2_write(struct archive_write_filter *,
  */
 int archive_write_add_filter_bzip2(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_bzip2");
@@ -108,23 +108,18 @@ int archive_write_add_filter_bzip2(struct archive * _a)
 		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Using external bzip2 program");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Using external bzip2 program");
 	return (ARCHIVE_WARN);
 #endif
 }
-
 /*
  * Set write options.
  */
-static int archive_compressor_bzip2_options(struct archive_write_filter * f,
-    const char * key, const char * value)
+static int archive_compressor_bzip2_options(struct archive_write_filter * f, const char * key, const char * value)
 {
-	struct private_data * data = (struct private_data *)f->data;
-
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	if(strcmp(key, "compression-level") == 0) {
-		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') ||
-		    value[1] != '\0')
+		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0')
 			return (ARCHIVE_WARN);
 		data->compression_level = value[0] - '0';
 		/* Make '0' be a synonym for '1'. */
@@ -134,7 +129,6 @@ static int archive_compressor_bzip2_options(struct archive_write_filter * f,
 			data->compression_level = 1;
 		return ARCHIVE_OK;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -148,17 +142,15 @@ static int archive_compressor_bzip2_options(struct archive_write_filter * f,
  * Yuck.  bzlib.h is not const-correct, so I need this one bit
  * of ugly hackery to convert a const * pointer to a non-const pointer.
  */
-#define SET_NEXT_IN(st, src)                                     \
-	(st)->stream.next_in = (char *)(uintptr_t)(const void*)(src)
-static int drive_compressor(struct archive_write_filter *,
-    struct private_data *, int finishing);
+#define SET_NEXT_IN(st, src) (st)->stream.next_in = (char *)(uintptr_t)(const void *)(src)
 
+static int drive_compressor(struct archive_write_filter *, struct private_data *, int finishing);
 /*
  * Setup callback.
  */
 static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	int ret = __archive_write_open_filter(f->next_filter);
 	if(ret != 0)
 		return ret;
@@ -194,38 +186,27 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 	/* Override the error message if we know what really went wrong. */
 	switch(ret) {
 		case BZ_PARAM_ERROR:
-		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"invalid setup parameter");
+		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid setup parameter");
 		    break;
 		case BZ_MEM_ERROR:
-		    archive_set_error(f->archive, ENOMEM,
-			"Internal error initializing compression library: "
-			"out of memory");
+		    archive_set_error(f->archive, ENOMEM, "Internal error initializing compression library: out of memory");
 		    break;
 		case BZ_CONFIG_ERROR:
-		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"mis-compiled library");
+		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: mis-compiled library");
 		    break;
 	}
-
 	return ARCHIVE_FATAL;
 }
-
 /*
  * Write data to the compressed stream.
  *
  * Returns ARCHIVE_OK if all data written, error otherwise.
  */
-static int archive_compressor_bzip2_write(struct archive_write_filter * f,
-    const void * buff, size_t length)
+static int archive_compressor_bzip2_write(struct archive_write_filter * f, const void * buff, size_t length)
 {
-	struct private_data * data = (struct private_data *)f->data;
-
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	/* Update statistics */
 	data->total_in += length;
-
 	/* Compress input data to output buffer */
 	SET_NEXT_IN(data, buff);
 	data->stream.avail_in = length;
@@ -233,46 +214,38 @@ static int archive_compressor_bzip2_write(struct archive_write_filter * f,
 		return ARCHIVE_FATAL;
 	return ARCHIVE_OK;
 }
-
 /*
  * Finish the compression.
  */
 static int archive_compressor_bzip2_close(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
-	int ret, r1;
-
+	struct private_data * data = static_cast<struct private_data *>(f->data);
+	int r1;
 	/* Finish compression cycle. */
-	ret = drive_compressor(f, data, 1);
+	int ret = drive_compressor(f, data, 1);
 	if(ret == ARCHIVE_OK) {
 		/* Write the last block */
-		ret = __archive_write_filter(f->next_filter,
-			data->compressed,
-			data->compressed_buffer_size - data->stream.avail_out);
+		ret = __archive_write_filter(f->next_filter, data->compressed, data->compressed_buffer_size - data->stream.avail_out);
 	}
-
 	switch(BZ2_bzCompressEnd(&(data->stream))) {
 		case BZ_OK:
 		    break;
 		default:
-		    archive_set_error(f->archive, ARCHIVE_ERRNO_PROGRAMMER,
-			"Failed to clean up compressor");
+		    archive_set_error(f->archive, ARCHIVE_ERRNO_PROGRAMMER, "Failed to clean up compressor");
 		    ret = ARCHIVE_FATAL;
 	}
-
 	r1 = __archive_write_close_filter(f->next_filter);
 	return (r1 < ret ? r1 : ret);
 }
 
 static int archive_compressor_bzip2_free(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	SAlloc::F(data->compressed);
 	SAlloc::F(data);
 	f->data = NULL;
 	return ARCHIVE_OK;
 }
-
 /*
  * Utility function to push input data through compressor, writing
  * full output blocks as necessary.
@@ -280,16 +253,12 @@ static int archive_compressor_bzip2_free(struct archive_write_filter * f)
  * Note that this handles both the regular write case (finishing ==
  * false) and the end-of-archive case (finishing == true).
  */
-static int drive_compressor(struct archive_write_filter * f,
-    struct private_data * data, int finishing)
+static int drive_compressor(struct archive_write_filter * f, struct private_data * data, int finishing)
 {
 	int ret;
-
 	for(;;) {
 		if(data->stream.avail_out == 0) {
-			ret = __archive_write_filter(f->next_filter,
-				data->compressed,
-				data->compressed_buffer_size);
+			ret = __archive_write_filter(f->next_filter, data->compressed, data->compressed_buffer_size);
 			if(ret != ARCHIVE_OK) {
 				/* TODO: Handle this write failure */
 				return ARCHIVE_FATAL;
@@ -297,14 +266,10 @@ static int drive_compressor(struct archive_write_filter * f,
 			data->stream.next_out = data->compressed;
 			data->stream.avail_out = data->compressed_buffer_size;
 		}
-
 		/* If there's nothing to do, we're done. */
 		if(!finishing && data->stream.avail_in == 0)
 			return ARCHIVE_OK;
-
-		ret = BZ2_bzCompress(&(data->stream),
-			finishing ? BZ_FINISH : BZ_RUN);
-
+		ret = BZ2_bzCompress(&(data->stream), finishing ? BZ_FINISH : BZ_RUN);
 		switch(ret) {
 			case BZ_RUN_OK:
 			    /* In non-finishing case, did compressor
@@ -319,11 +284,7 @@ static int drive_compressor(struct archive_write_filter * f,
 			    return ARCHIVE_OK;
 			default:
 			    /* Any other return value indicates an error */
-			    archive_set_error(f->archive,
-				ARCHIVE_ERRNO_PROGRAMMER,
-				"Bzip2 compression failed;"
-				" BZ2_bzCompress() returned %d",
-				ret);
+			    archive_set_error(f->archive, ARCHIVE_ERRNO_PROGRAMMER, "Bzip2 compression failed; BZ2_bzCompress() returned %d", ret);
 			    return ARCHIVE_FATAL;
 		}
 	}
@@ -333,7 +294,7 @@ static int drive_compressor(struct archive_write_filter * f,
 
 static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 	struct archive_string as;
 	int r;
 
@@ -355,21 +316,21 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 static int archive_compressor_bzip2_write(struct archive_write_filter * f, const void * buff,
     size_t length)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 
 	return __archive_write_program_write(f, data->pdata, buff, length);
 }
 
 static int archive_compressor_bzip2_close(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 
 	return __archive_write_program_close(f, data->pdata);
 }
 
 static int archive_compressor_bzip2_free(struct archive_write_filter * f)
 {
-	struct private_data * data = (struct private_data *)f->data;
+	struct private_data * data = static_cast<struct private_data *>(f->data);
 
 	__archive_write_program_free(data->pdata);
 	SAlloc::F(data);

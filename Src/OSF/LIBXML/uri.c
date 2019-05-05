@@ -1413,7 +1413,7 @@ char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target)
 		if(len < 0) 
 			return 0;
 		if(target == NULL) {
-			ret = (char *)SAlloc::M(len + 1);
+			ret = (char *)SAlloc::M(len+1);
 			if(!ret) {
 				xmlURIErrMemory("unescaping URI value\n");
 				return 0;

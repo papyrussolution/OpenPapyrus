@@ -3064,7 +3064,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	else
 #endif
 	len = strlen((const char *)path);
-	state->path = static_cast<char *>(SAlloc::M(len + 1));
+	state->path = static_cast<char *>(SAlloc::M(len+1));
 	if(state->path == NULL) {
 		SAlloc::F(state);
 		return NULL;

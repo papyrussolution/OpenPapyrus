@@ -57,7 +57,7 @@ static ossl_inline void blake2s_init0(BLAKE2S_CTX * S)
 /* init2 xors IV with input parameter block */
 static void blake2s_init_param(BLAKE2S_CTX * S, const BLAKE2S_PARAM * P)
 {
-	const uint8_t * p = (const uint8_t*)(P);
+	const uint8_t * p = (const uint8_t *)(P);
 	size_t i;
 
 	/* The param struct is carefully hand packed, and should be 32 bytes on

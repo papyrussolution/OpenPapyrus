@@ -1237,7 +1237,7 @@ static int FASTCALL HasImages(const void * pData)
 		long   ID;
 		long   Flags;
 	};
-	return pData ? BIN(((Goods_ *)pData)->Flags & GF_HASIMAGES) : 0;
+	return pData ? BIN(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES) : 0;
 }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
@@ -1245,7 +1245,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr); // @v9.5.5
 	if(p_brw) {
-		PPViewGoods * p_view = (PPViewGoods *)p_brw->P_View; // @v9.5.5
+		PPViewGoods * p_view = static_cast<PPViewGoods *>(p_brw->P_View); // @v9.5.5
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;

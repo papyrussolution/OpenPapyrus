@@ -27,13 +27,12 @@
 
 __FBSDID("$FreeBSD$");
 
-#ifdef HAVE_STRING_H
-#  include <string.h>
-#endif
-#ifdef HAVE_STDLIB_H
-#  include <stdlib.h>
-#endif
-
+//#ifdef HAVE_STRING_H
+	//#include <string.h>
+//#endif
+//#ifdef HAVE_STDLIB_H
+	//#include <stdlib.h>
+//#endif
 //#include "archive.h"
 //#include "archive_cmdline_private.h"
 //#include "archive_string.h"
@@ -44,7 +43,6 @@ static int cmdline_add_arg(struct archive_cmdline *, const char *);
 static ssize_t extract_quotation(struct archive_string * as, const char * p)
 {
 	const char * s;
-
 	for(s = p + 1; *s;) {
 		if(*s == '\\') {
 			if(s[1] != '\0') {
@@ -69,9 +67,7 @@ static ssize_t extract_quotation(struct archive_string * as, const char * p)
 static ssize_t get_argument(struct archive_string * as, const char * p)
 {
 	const char * s = p;
-
 	archive_string_empty(as);
-
 	/* Skip beginning space characters. */
 	while(*s != '\0' && *s == ' ')
 		s++;
@@ -100,7 +96,6 @@ static ssize_t get_argument(struct archive_string * as, const char * p)
 	}
 	return ((ssize_t)(s - p));
 }
-
 /*
  * Set up command line arguments.
  * Returns ARCHIVE_OK if everything okey.
@@ -114,9 +109,7 @@ int __archive_cmdline_parse(struct archive_cmdline * data, const char * cmd)
 	const char * p;
 	ssize_t al;
 	int r;
-
 	archive_string_init(&as);
-
 	/* Get first argument as a command path. */
 	al = get_argument(&as, cmd);
 	if(al < 0) {
@@ -139,7 +132,6 @@ int __archive_cmdline_parse(struct archive_cmdline * data, const char * cmd)
 	if(r != ARCHIVE_OK)
 		goto exit_function;
 	cmd += al;
-
 	for(;;) {
 		al = get_argument(&as, cmd);
 		if(al < 0) {
@@ -160,20 +152,18 @@ exit_function:
 	archive_string_free(&as);
 	return r;
 }
-
 /*
  * Set the program path.
  */
 static int cmdline_set_path(struct archive_cmdline * data, const char * path)
 {
-	char * newptr = (char *)SAlloc::R(data->path, strlen(path) + 1);
+	char * newptr = static_cast<char *>(SAlloc::R(data->path, strlen(path) + 1));
 	if(newptr == NULL)
 		return ARCHIVE_FATAL;
 	data->path = newptr;
 	strcpy(data->path, path);
 	return ARCHIVE_OK;
 }
-
 /*
  * Add a argument for the program.
  */
@@ -182,11 +172,11 @@ static int cmdline_add_arg(struct archive_cmdline * data, const char * arg)
 	char ** newargv;
 	if(data->path == NULL)
 		return ARCHIVE_FAILED;
-	newargv = (char **)SAlloc::R(data->argv, (data->argc + 2) * sizeof(char *));
+	newargv = static_cast<char **>(SAlloc::R(data->argv, (data->argc + 2) * sizeof(char *)));
 	if(newargv == NULL)
 		return ARCHIVE_FATAL;
 	data->argv = newargv;
-	data->argv[data->argc] = strdup(arg);
+	data->argv[data->argc] = sstrdup(arg);
 	if(data->argv[data->argc] == NULL)
 		return ARCHIVE_FATAL;
 	/* Set the terminator of argv. */
@@ -198,7 +188,6 @@ struct archive_cmdline * __archive_cmdline_allocate(void)
 {
 	return (struct archive_cmdline *)SAlloc::C(1, sizeof(struct archive_cmdline));
 }
-
 /*
  * Release the resources.
  */

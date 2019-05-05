@@ -368,7 +368,7 @@ char * UI_construct_prompt(UI * ui, const char * object_desc,
 			len += sizeof(prompt2) - 1 + strlen(object_name);
 		len += sizeof(prompt3) - 1;
 
-		prompt = (char *)OPENSSL_malloc(len + 1);
+		prompt = (char *)OPENSSL_malloc(len+1);
 		if(prompt == NULL)
 			return NULL;
 		OPENSSL_strlcpy(prompt, prompt1, len + 1);

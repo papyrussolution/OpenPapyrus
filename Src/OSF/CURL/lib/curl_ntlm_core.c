@@ -146,7 +146,7 @@ static void setup_des_key(const uchar * key_56, struct des_ctx * des)
 	/* Set the key parity to odd */
 	Curl_des_set_odd_parity((uchar *)key, sizeof(key));
 	/* Set the key */
-	des_set_key(des, (const uint8_t*)key);
+	des_set_key(des, (const uint8_t *)key);
 }
 
 #elif defined(USE_GNUTLS)

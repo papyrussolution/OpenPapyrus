@@ -56,7 +56,7 @@ signed char * bn_compute_wNAF(const BIGNUM * scalar, int w, size_t * ret_len)
 	}
 
 	len = BN_num_bits(scalar);
-	r = (signed char*)OPENSSL_malloc(len + 1); /*
+	r = (signed char*)OPENSSL_malloc(len+1); /*
 	                                            * Modified wNAF may be one digit longer than binary representation
 	                                            * (*ret_len will be set to the actual length, i.e. at most
 	                                            * BN_num_bits(scalar) + 1)

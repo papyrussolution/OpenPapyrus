@@ -74,7 +74,7 @@ struct lzh_dec {
 	int w_size;
 	int w_mask;
 	/* Window buffer, which is a loop buffer. */
-	uchar           * w_buff;
+	uchar  * w_buff;
 	/* The insert position to the window. */
 	int w_pos;
 	/* The position where we can copy decoded code from the window. */
@@ -117,12 +117,12 @@ struct lzh_dec {
 		int tree_used;
 		int tree_avail;
 		/* Direct access table. */
-		uint16_t        * tbl;
+		uint16_t   * tbl;
 		/* Binary tree table for extra bits over the direct access. */
 		struct htree_t {
 			uint16_t left;
 			uint16_t right;
-		}               * tree;
+		}    * tree;
 	}                        lt, pt;
 
 	int blocks_avail;
@@ -142,7 +142,7 @@ struct lzh_stream {
 	const uchar     * ref_ptr;
 	int avail_out;
 	int64_t total_out;
-	struct lzh_dec          * ds;
+	struct lzh_dec * ds;
 };
 
 struct lha {
@@ -254,7 +254,7 @@ static int      lzh_decode_huffman_tree(struct huffman *, unsigned, int);
 
 int archive_read_support_format_lha(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	struct lha * lha;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_lha");
@@ -1543,7 +1543,7 @@ static time_t lha_win_time(uint64_t wintime, long * ns)
 
 static uchar lha_calcsum(uchar sum, const void * pp, int offset, size_t size)
 {
-	uchar const * p = (uchar const*)pp;
+	uchar const * p = static_cast<uchar const *>(pp);
 	p += offset;
 	for(; size > 0; --size)
 		sum += *p++;
@@ -1627,8 +1627,7 @@ static uint16_t lha_crc16(uint16_t crc, const void * pp, size_t len)
 #undef CRC16W
 #undef bswap16
 	}
-
-	p = (const uchar *)buff;
+	p = reinterpret_cast<const uchar *>(buff);
 	for(; len; len--) {
 		crc = (crc >> 8) ^ crc16tbl[0][(crc ^ *p++) & 0xff];
 	}

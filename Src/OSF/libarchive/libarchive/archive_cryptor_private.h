@@ -39,12 +39,11 @@
 int __libarchive_cryptor_build_hack(void);
 
 #ifdef __APPLE__
-# include <AvailabilityMacros.h>
-# if MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-#  define ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
-# endif
+	#include <AvailabilityMacros.h>
+	#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+		#define ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
+	#endif
 #endif
-
 #ifdef ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
 #include <CommonCrypto/CommonCryptor.h>
 #include <CommonCrypto/CommonKeyDerivation.h>
@@ -116,15 +115,12 @@ typedef struct {
 #endif
 
 /* defines */
-#define archive_pbkdf2_sha1(pw, pw_len, salt, salt_len, rounds, dk, dk_len) __archive_cryptor.pbkdf2sha1(pw, \
-	    pw_len, salt, salt_len, rounds, dk, dk_len)
+#define archive_pbkdf2_sha1(pw, pw_len, salt, salt_len, rounds, dk, dk_len) __archive_cryptor.pbkdf2sha1(pw, pw_len, salt, salt_len, rounds, dk, dk_len)
 #define archive_decrypto_aes_ctr_init(ctx, key, key_len) __archive_cryptor.decrypto_aes_ctr_init(ctx, key, key_len)
-#define archive_decrypto_aes_ctr_update(ctx, in, in_len, out, out_len) __archive_cryptor.decrypto_aes_ctr_update(ctx, \
-	    in, in_len, out, out_len)
+#define archive_decrypto_aes_ctr_update(ctx, in, in_len, out, out_len) __archive_cryptor.decrypto_aes_ctr_update(ctx, in, in_len, out, out_len)
 #define archive_decrypto_aes_ctr_release(ctx) __archive_cryptor.decrypto_aes_ctr_release(ctx)
 #define archive_encrypto_aes_ctr_init(ctx, key, key_len) __archive_cryptor.encrypto_aes_ctr_init(ctx, key, key_len)
-#define archive_encrypto_aes_ctr_update(ctx, in, in_len, out, out_len) __archive_cryptor.encrypto_aes_ctr_update(ctx, \
-	    in, in_len, out, out_len)
+#define archive_encrypto_aes_ctr_update(ctx, in, in_len, out, out_len) __archive_cryptor.encrypto_aes_ctr_update(ctx, in, in_len, out, out_len)
 #define archive_encrypto_aes_ctr_release(ctx) __archive_cryptor.encrypto_aes_ctr_release(ctx)
 
 /* Minimal interface to cryptographic functionality for internal use in

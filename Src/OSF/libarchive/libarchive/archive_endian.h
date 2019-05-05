@@ -56,7 +56,7 @@
 
 static inline uint16_t archive_be16dec(const void * pp)
 {
-	uchar const * p = (uchar const*)pp;
+	uchar const * p = static_cast<uchar const *>(pp);
 	/* Store into unsigned temporaries before left shifting, to avoid
 	   promotion to signed int and then left shifting into the sign bit,
 	   which is undefined behaviour. */
@@ -67,7 +67,7 @@ static inline uint16_t archive_be16dec(const void * pp)
 
 static inline uint32_t archive_be32dec(const void * pp)
 {
-	uchar const * p = (uchar const*)pp;
+	uchar const * p = static_cast<uchar const *>(pp);
 	/* Store into unsigned temporaries before left shifting, to avoid
 	   promotion to signed int and then left shifting into the sign bit,
 	   which is undefined behaviour. */
@@ -80,13 +80,13 @@ static inline uint32_t archive_be32dec(const void * pp)
 
 static inline uint64_t archive_be64dec(const void * pp)
 {
-	uchar const * p = (uchar const*)pp;
+	uchar const * p = static_cast<uchar const *>(pp);
 	return (((uint64_t)archive_be32dec(p) << 32) | archive_be32dec(p + 4));
 }
 
 static inline uint16_t archive_le16dec(const void * pp)
 {
-	uchar const * p = (uchar const*)pp;
+	uchar const * p = static_cast<uchar const *>(pp);
 	/* Store into unsigned temporaries before left shifting, to avoid
 	   promotion to signed int and then left shifting into the sign bit,
 	   which is undefined behaviour. */
@@ -97,7 +97,7 @@ static inline uint16_t archive_le16dec(const void * pp)
 
 static inline uint32_t archive_le32dec(const void * pp)
 {
-	uchar const * p = (uchar const*)pp;
+	uchar const * p = static_cast<uchar const *>(pp);
 	/* Store into unsigned temporaries before left shifting, to avoid
 	   promotion to signed int and then left shifting into the sign bit,
 	   which is undefined behaviour. */
@@ -110,20 +110,20 @@ static inline uint32_t archive_le32dec(const void * pp)
 
 static inline uint64_t archive_le64dec(const void * pp)
 {
-	uchar const * p = (uchar const*)pp;
+	uchar const * p = static_cast<uchar const *>(pp);
 	return (((uint64_t)archive_le32dec(p + 4) << 32) | archive_le32dec(p));
 }
 
 static inline void archive_be16enc(void * pp, uint16_t u)
 {
-	uchar * p = (uchar *)pp;
+	uchar * p = static_cast<uchar *>(pp);
 	p[0] = (u >> 8) & 0xff;
 	p[1] = u & 0xff;
 }
 
 static inline void archive_be32enc(void * pp, uint32_t u)
 {
-	uchar * p = (uchar *)pp;
+	uchar * p = static_cast<uchar *>(pp);
 	p[0] = (u >> 24) & 0xff;
 	p[1] = (u >> 16) & 0xff;
 	p[2] = (u >> 8) & 0xff;
@@ -132,21 +132,21 @@ static inline void archive_be32enc(void * pp, uint32_t u)
 
 static inline void archive_be64enc(void * pp, uint64_t u)
 {
-	uchar * p = (uchar *)pp;
+	uchar * p = static_cast<uchar *>(pp);
 	archive_be32enc(p, (uint32_t)(u >> 32));
 	archive_be32enc(p + 4, (uint32_t)(u & 0xffffffff));
 }
 
 static inline void archive_le16enc(void * pp, uint16_t u)
 {
-	uchar * p = (uchar *)pp;
+	uchar * p = static_cast<uchar *>(pp);
 	p[0] = u & 0xff;
 	p[1] = (u >> 8) & 0xff;
 }
 
 static inline void archive_le32enc(void * pp, uint32_t u)
 {
-	uchar * p = (uchar *)pp;
+	uchar * p = static_cast<uchar *>(pp);
 	p[0] = u & 0xff;
 	p[1] = (u >> 8) & 0xff;
 	p[2] = (u >> 16) & 0xff;
@@ -155,7 +155,7 @@ static inline void archive_le32enc(void * pp, uint32_t u)
 
 static inline void archive_le64enc(void * pp, uint64_t u)
 {
-	uchar * p = (uchar *)pp;
+	uchar * p = static_cast<uchar *>(pp);
 	archive_le32enc(p, (uint32_t)(u & 0xffffffff));
 	archive_le32enc(p + 4, (uint32_t)(u >> 32));
 }

@@ -115,8 +115,8 @@ static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)
 	/* Free the cache slot for a new entry. */
 	if(b->name != NULL)
 		SAlloc::F(b->name);
-	b->name = strdup(gname);
-	/* Note: If strdup fails, that's okay; we just won't cache. */
+	b->name = sstrdup(gname);
+	/* Note: If sstrdup fails, that's okay; we just won't cache. */
 	b->hash = h;
 #if HAVE_GRP_H
 #  if HAVE_GETGRNAM_R
@@ -184,8 +184,8 @@ static int64_t lookup_uid(void * private_data, const char * uname, int64_t uid)
 	/* Free the cache slot for a new entry. */
 	if(b->name != NULL)
 		SAlloc::F(b->name);
-	b->name = strdup(uname);
-	/* Note: If strdup fails, that's okay; we just won't cache. */
+	b->name = sstrdup(uname);
+	/* Note: If sstrdup fails, that's okay; we just won't cache. */
 	b->hash = h;
 #if HAVE_PWD_H
 #  if HAVE_GETPWNAM_R

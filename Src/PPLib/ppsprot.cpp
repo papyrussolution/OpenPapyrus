@@ -99,8 +99,8 @@ SString & FASTCALL PPJobSrvProtocol::Header::ToStr(SString & rBuf) const
 		rBuf.CatEq("ProtocolVer", (long)ProtocolVer).CatDiv(';', 2).CatEq("DataLen", DataLen).CatDiv(';', 2).CatEq("Type", Type).CatDiv(';', 2).Cat("Flags").Eq().CatHex(Flags);
 	}
 	else {
-		rBuf.CatChar(((char *)&Zero)[0]);
-		rBuf.CatChar(((char *)&Zero)[1]);
+		rBuf.CatChar(reinterpret_cast<const char *>(&Zero)[0]);
+		rBuf.CatChar(reinterpret_cast<const char *>(&Zero)[1]);
 	}
 	return rBuf;
 }
@@ -140,18 +140,18 @@ int SLAPI PPJobSrvProtocol::StartReading(SString * pRepString)
 		THROW_PP(H.DataLen == avl_sz, PPERR_JOBSRV_MISSMATCHREPLYSIZE);
 		if(H.Flags & hfRepError) {
 			if(H.Type == htGenericText)
-				ErrText.CatN((const char *)Ptr(GetRdOffs()), GetAvailableSize());
+				ErrText.CatN(static_cast<const char *>(Ptr(GetRdOffs())), GetAvailableSize());
 		}
 	}
 	else {
 		MEMSZERO(H);
 		H.Flags  |= hfSlString;
-		H.DataLen = (int32)avl_sz;
+		H.DataLen = static_cast<int32>(avl_sz);
 		if(TestSpecToken(P_TokErr))
 			H.Flags |= hfRepError;
 		else if(TestSpecToken(P_TokAck))
 			H.Flags |= hfAck;
-		CALLPTRMEMB(pRepString, CatN((const char *)Ptr(GetRdOffs()), avl_sz));
+		CALLPTRMEMB(pRepString, CatN(static_cast<const char *>(Ptr(GetRdOffs())), avl_sz));
 		ok = 2;
 	}
 	CATCHZOK

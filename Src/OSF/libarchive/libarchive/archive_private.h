@@ -54,18 +54,18 @@
 #define	ARCHIVE_STATE_ANY	(0xFFFFU & ~ARCHIVE_STATE_FATAL)
 
 struct archive_vtable {
-	int	(*archive_close)(struct archive *);
-	int	(*archive_free)(struct archive *);
-	int	(*archive_write_header)(struct archive *, struct archive_entry *);
-	int	(*archive_write_finish_entry)(struct archive *);
-	ssize_t	(*archive_write_data)(struct archive *, const void *, size_t);
-	ssize_t	(*archive_write_data_block)(struct archive *, const void *, size_t, int64_t);
-	int	(*archive_read_next_header)(struct archive *, struct archive_entry **);
-	int	(*archive_read_next_header2)(struct archive *, struct archive_entry *);
-	int	(*archive_read_data_block)(struct archive *, const void **, size_t *, int64_t *);
-	int	(*archive_filter_count)(struct archive *);
+	int    (*archive_close)(struct archive *);
+	int    (*archive_free)(struct archive *);
+	int    (*archive_write_header)(struct archive *, struct archive_entry *);
+	int    (*archive_write_finish_entry)(struct archive *);
+	ssize_t (*archive_write_data)(struct archive *, const void *, size_t);
+	ssize_t (*archive_write_data_block)(struct archive *, const void *, size_t, int64_t);
+	int    (*archive_read_next_header)(struct archive *, struct archive_entry **);
+	int    (*archive_read_next_header2)(struct archive *, struct archive_entry *);
+	int    (*archive_read_data_block)(struct archive *, const void **, size_t *, int64_t *);
+	int    (*archive_filter_count)(struct archive *);
 	int64_t (*archive_filter_bytes)(struct archive *, int);
-	int	(*archive_filter_code)(struct archive *, int);
+	int    (*archive_filter_code)(struct archive *, int);
 	const char * (*archive_filter_name)(struct archive *, int);
 };
 
@@ -85,34 +85,34 @@ struct archive {
 	 * archive object.
 	 */
 	struct archive_vtable *vtable;
-	int		  archive_format;
+	int    archive_format;
 	const char	 *archive_format_name;
-	int	  compression_code;	/* Currently active compression. */
+	int    compression_code;	/* Currently active compression. */
 	const char *compression_name;
 	/* Number of file entries processed. */
-	int		  file_count;
-	int		  archive_error_number;
-	const char	 *error;
+	int    file_count;
+	int    archive_error_number;
+	const  char * error;
 	struct archive_string	error_string;
-	char *current_code;
-	unsigned current_codepage; /* Current ACP(ANSI CodePage). */
-	unsigned current_oemcp; /* Current OEMCP(OEM CodePage). */
+	char * current_code;
+	uint   current_codepage; /* Current ACP(ANSI CodePage). */
+	uint   current_oemcp; /* Current OEMCP(OEM CodePage). */
 	struct archive_string_conv *sconv;
 	/*
 	 * Used by archive_read_data() to track blocks and copy
 	 * data to client buffers, filling gaps with zero bytes.
 	 */
-	const char	 *read_data_block;
-	int64_t		  read_data_offset;
-	int64_t		  read_data_output_offset;
-	size_t		  read_data_remaining;
+	const char * read_data_block;
+	int64_t read_data_offset;
+	int64_t read_data_output_offset;
+	size_t read_data_remaining;
 	/*
 	 * Used by formats/filters to determine the amount of data
 	 * requested from a call to archive_read_data(). This is only
 	 * useful when the format/filter has seek support.
 	 */
-	char		  read_data_is_posix_read;
-	size_t		  read_data_requested;
+	char   read_data_is_posix_read;
+	size_t read_data_requested;
 };
 //
 // Check magic value and state; return (ARCHIVE_FATAL) if it isn't valid. 
@@ -126,6 +126,7 @@ int	FASTCALL __archive_check_magic(struct archive *, uint magic, uint state, con
 	} while (0)
 
 void FASTCALL __archive_errx(int retvalue, const char *msg) __LA_DEAD;
+void FASTCALL __archive_errx_nomem(int retvalue);
 void __archive_ensure_cloexec_flag(int fd);
 int	 __archive_mktemp(const char *tmpdir);
 int	 __archive_clean(struct archive *);
@@ -134,11 +135,11 @@ void __archive_reset_read_data(struct archive *);
 #define	err_combine(a,b)	((a) < (b) ? (a) : (b))
 
 #if defined(__BORLANDC__) || (defined(_MSC_VER) &&  _MSC_VER <= 1300)
-# define	ARCHIVE_LITERAL_LL(x)	x##i64
-# define	ARCHIVE_LITERAL_ULL(x)	x##ui64
+	#define	ARCHIVE_LITERAL_LL(x)	x##i64
+	#define	ARCHIVE_LITERAL_ULL(x)	x##ui64
 #else
-# define	ARCHIVE_LITERAL_LL(x)	x##ll
-# define	ARCHIVE_LITERAL_ULL(x)	x##ull
+	#define	ARCHIVE_LITERAL_LL(x)	x##ll
+	#define	ARCHIVE_LITERAL_ULL(x)	x##ull
 #endif
 
 #endif

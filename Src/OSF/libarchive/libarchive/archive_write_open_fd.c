@@ -53,13 +53,13 @@ struct write_fd_data {
 	int fd;
 };
 
-static int      file_close(struct archive *, void *);
-static int      file_open(struct archive *, void *);
-static ssize_t  file_write(struct archive *, void *, const void * buff, size_t);
+static int file_close(struct archive *, void *);
+static int file_open(struct archive *, void *);
+static ssize_t file_write(struct archive *, void *, const void * buff, size_t);
 
 int archive_write_open_fd(struct archive * a, int fd)
 {
-	struct write_fd_data * mine = (struct write_fd_data *)SAlloc::M(sizeof(*mine));
+	struct write_fd_data * mine = static_cast<struct write_fd_data *>(SAlloc::M(sizeof(*mine)));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -79,13 +79,11 @@ static int file_open(struct archive * a, void * client_data)
 		archive_set_error(a, errno, "Couldn't stat fd %d", mine->fd);
 		return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * If this is a regular file, don't add it to itself.
 	 */
 	if(S_ISREG(st.st_mode))
 		archive_write_set_skip_file(a, st.st_dev, st.st_ino);
-
 	/*
 	 * If client hasn't explicitly set the last block handling,
 	 * then set it here.
@@ -94,21 +92,19 @@ static int file_open(struct archive * a, void * client_data)
 		/* If the output is a block or character device, fifo,
 		 * or stdout, pad the last block, otherwise leave it
 		 * unpadded. */
-		if(S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode) ||
-		    S_ISFIFO(st.st_mode) || (mine->fd == 1))
+		if(S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode) || S_ISFIFO(st.st_mode) || (mine->fd == 1))
 			/* Last block will be fully padded. */
 			archive_write_set_bytes_in_last_block(a, 0);
 		else
 			archive_write_set_bytes_in_last_block(a, 1);
 	}
-
 	return ARCHIVE_OK;
 }
 
 static ssize_t file_write(struct archive * a, void * client_data, const void * buff, size_t length)
 {
 	ssize_t bytesWritten;
-	struct write_fd_data    * mine = (struct write_fd_data *)client_data;
+	struct write_fd_data    * mine = static_cast<struct write_fd_data *>(client_data);
 	for(;;) {
 		bytesWritten = write(mine->fd, buff, length);
 		if(bytesWritten <= 0) {
@@ -123,7 +119,7 @@ static ssize_t file_write(struct archive * a, void * client_data, const void * b
 
 static int file_close(struct archive * a, void * client_data)
 {
-	struct write_fd_data    * mine = (struct write_fd_data *)client_data;
+	struct write_fd_data * mine = static_cast<struct write_fd_data *>(client_data);
 	(void)a; /* UNUSED */
 	SAlloc::F(mine);
 	return ARCHIVE_OK;

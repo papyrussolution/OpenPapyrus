@@ -110,7 +110,7 @@
 #define	stat(path,stref)		__la_stat(path,stref)
 #if !defined(__WATCOMC__)
 	#if !defined(__BORLANDC__)
-		#define	strdup		_strdup
+		#define	sstrdup		_strdup
 	#endif
 	#define	tzset		_tzset
 	#if !defined(__BORLANDC__)

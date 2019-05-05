@@ -22,7 +22,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_write_open_file.c,v 1.19 2007/01/09 08:05:56 kientzle Exp $");
@@ -48,7 +47,7 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_write_open_file.c,v 1.19 2007/01/
 //#include "archive.h"
 
 struct write_FILE_data {
-	FILE            * f;
+	FILE * f;
 };
 
 static int      file_close(struct archive *, void *);
@@ -57,7 +56,7 @@ static ssize_t  file_write(struct archive *, void *, const void * buff, size_t);
 
 int archive_write_open_FILE(struct archive * a, FILE * f)
 {
-	struct write_FILE_data * mine = (struct write_FILE_data *)SAlloc::M(sizeof(*mine));
+	struct write_FILE_data * mine = static_cast<struct write_FILE_data *>(SAlloc::M(sizeof(*mine)));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -76,7 +75,7 @@ static int file_open(struct archive * a, void * client_data)
 static ssize_t file_write(struct archive * a, void * client_data, const void * buff, size_t length)
 {
 	size_t bytesWritten;
-	struct write_FILE_data * mine = (struct write_FILE_data *)client_data;
+	struct write_FILE_data * mine = static_cast<struct write_FILE_data *>(client_data);
 	for(;;) {
 		bytesWritten = fwrite(buff, 1, length, mine->f);
 		if(bytesWritten <= 0) {
@@ -91,7 +90,7 @@ static ssize_t file_write(struct archive * a, void * client_data, const void * b
 
 static int file_close(struct archive * a, void * client_data)
 {
-	struct write_FILE_data * mine = (struct write_FILE_data *)client_data;
+	struct write_FILE_data * mine = static_cast<struct write_FILE_data *>(client_data);
 	(void)a; /* UNUSED */
 	SAlloc::F(mine);
 	return ARCHIVE_OK;

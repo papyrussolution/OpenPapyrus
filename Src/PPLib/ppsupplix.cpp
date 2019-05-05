@@ -5153,10 +5153,8 @@ int SLAPI SapEfes::SendInvoices()
 	BillTbl::Rec bill_rec;
 	PPSoapClientSession sess;
 	SapEfesCallHeader sech;
-
 	TSCollection <SapEfesBillStatus> * p_result = 0;
 	TSCollection <SapEfesBillPacket> outp_packet;
-
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
@@ -5410,6 +5408,7 @@ public:
 	int    SLAPI ReceiveOrders();
 	int    SLAPI SendStocks();
 	int    SLAPI SendSales();
+	int    SLAPI SendReceipts();
 	int    SLAPI SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
 	int    SLAPI SendDebts();
 private:
@@ -5624,7 +5623,6 @@ private:
 	SString UserName;
 	SString Password;
 	SString SalesOrg;
-	//
 	SString LastMsg;
 	PPLogger & R_Logger;
 };
@@ -6038,7 +6036,16 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					// TSCollection <SfaHeinekenSalePointDelivery> DistributorSalePointDeliveryList; // Если доставка вне заказа из системы Jeans, по торговой точке, остсутствующей в системе Jeans
 					SfaHeinekenSalePointDelivery * p_o = p_new_entry->DistributorSalePointDeliveryList.CreateNewItem();
 					THROW_SL(p_o);
-					(p_o->InnerOrderCode = inner_order_code).Transf(CTRANSF_INNER_TO_UTF8);
+					if(outerDocType == 6) {
+						PPObjTag tag_obj;
+						PPID   rordn_tag_id = 0;
+						if(tag_obj.FetchBySymb("HEINEKEN-RORDN", &rordn_tag_id) > 0 && pack.BTagL.GetItemStr(rordn_tag_id, temp_buf) > 0)
+							(p_o->DistributorOrderID = temp_buf).Transf(CTRANSF_INNER_TO_UTF8);
+						else
+							p_o->DistributorOrderID = "HRORD-000"; // @stub
+					}
+					else
+						(p_o->InnerOrderCode = inner_order_code).Transf(CTRANSF_INNER_TO_UTF8);
 					p_o->InnerDlvrLocID = dlvr_addr_id;
 					p_o->ForeignLocID = foreign_warehouse_id; // @v10.0.08
 					{
@@ -6171,6 +6178,53 @@ int SLAPI SfaHeineken::SendDebts()
 	}
 	sess.Setup(SvcUrl, UserName, Password);
 	if(list.getCount()) {
+		p_result = func(sess, list);
+		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SfaHeineken::SendReceipts()
+{
+	int    ok = -1;
+	PPSoapClientSession sess;
+	SString temp_buf;
+	SString msg_buf;
+	SString * p_result = 0;
+	TSCollection <SfaHeinekenInvoice> list;
+	TSCollection <SfaHeinekenInvoice> to_delete_list;
+	SFAHEINEKENSENDSELLIN_PROC func = 0; // SfaHeineken_SendSellin
+	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
+	{
+		PPFormatT(PPTXT_LOG_SUPPLIX_EXPBILL_S, &msg_buf, temp_buf.cptr(), P.SupplID);
+		PPWaitMsg(msg_buf);
+	}
+	THROW(State & stInited);
+	THROW(State & stEpDefined);
+	THROW(P_Lib);
+	THROW_SL(func = reinterpret_cast<SFAHEINEKENSENDSELLIN_PROC>(P_Lib->GetProcAddr("SfaHeineken_SendSellin")));
+    {
+		PPAlbatrosConfig acfg;
+		PPAlbatrosCfgMngr::Get(&acfg);
+		PPOprKind op_rec;
+		if(acfg.Hdr.EdiDesadvOpID && GetOpData(acfg.Hdr.EdiDesadvOpID, &op_rec) > 0) {
+			if(op_rec.OpTypeID == PPOPT_DRAFTRECEIPT) {
+				PPObjOprKind op_obj;
+				PPDraftOpEx doe;
+				if(op_obj.GetDraftExData(op_rec.ID, &doe) > 0 && doe.WrOffOpID) {
+					THROW(Helper_MakeBillList(doe.WrOffOpID, 6, list, to_delete_list));
+				}
+			}
+            else if(op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
+				THROW(Helper_MakeBillList(acfg.Hdr.EdiDesadvOpID, 6, list, to_delete_list));
+            }
+		}
+    }
+	if(list.getCount()) {
+		sess.Setup(SvcUrl, UserName, Password);
 		p_result = func(sess, list);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		DestroyResult(reinterpret_cast<void **>(&p_result));
@@ -6739,6 +6793,12 @@ int SLAPI PrcssrSupplInterchange::Run()
 				if(!cli.SendDebts())
 					logger.LogLastError();
 			}
+			// @v10.4.4 {
+			if(actions & SupplInterchangeFilt::opExportBills) {
+				if(!cli.SendReceipts())
+					logger.LogLastError();
+			}
+			// } @v10.4.4 
 			cli.GetLogFileName(log_file_name);
 			PPWait(0);
 		}

@@ -3290,15 +3290,11 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    nid = EC_GROUP_get_curve_name(group);
 		    if(nid == NID_undef)
 			    return 0;
-		    return tls1_set_curves(&ctx->tlsext_ellipticcurvelist,
-			    &ctx->tlsext_ellipticcurvelist_length,
-			    &nid, 1);
+		    return tls1_set_curves(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, &nid, 1);
 	    }
 		    /* break; */
 #endif                          /* !OPENSSL_NO_EC */
-		case SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG:
-		    ctx->tlsext_servername_arg = parg;
-		    break;
+		case SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG: ctx->tlsext_servername_arg = parg; break;
 		case SSL_CTRL_SET_TLSEXT_TICKET_KEYS:
 		case SSL_CTRL_GET_TLSEXT_TICKET_KEYS:
 	    {
@@ -3313,49 +3309,22 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    return 0;
 		    }
 		    if(cmd == SSL_CTRL_SET_TLSEXT_TICKET_KEYS) {
-			    memcpy(ctx->tlsext_tick_key_name, keys,
-				    sizeof(ctx->tlsext_tick_key_name));
-			    memcpy(ctx->tlsext_tick_hmac_key,
-				    keys + sizeof(ctx->tlsext_tick_key_name),
-				    sizeof(ctx->tlsext_tick_hmac_key));
-			    memcpy(ctx->tlsext_tick_aes_key,
-				    keys + sizeof(ctx->tlsext_tick_key_name) +
-				    sizeof(ctx->tlsext_tick_hmac_key),
-				    sizeof(ctx->tlsext_tick_aes_key));
+			    memcpy(ctx->tlsext_tick_key_name, keys, sizeof(ctx->tlsext_tick_key_name));
+			    memcpy(ctx->tlsext_tick_hmac_key, keys + sizeof(ctx->tlsext_tick_key_name), sizeof(ctx->tlsext_tick_hmac_key));
+			    memcpy(ctx->tlsext_tick_aes_key, keys + sizeof(ctx->tlsext_tick_key_name) + sizeof(ctx->tlsext_tick_hmac_key), sizeof(ctx->tlsext_tick_aes_key));
 		    }
 		    else {
-			    memcpy(keys, ctx->tlsext_tick_key_name,
-				    sizeof(ctx->tlsext_tick_key_name));
-			    memcpy(keys + sizeof(ctx->tlsext_tick_key_name),
-				    ctx->tlsext_tick_hmac_key,
-				    sizeof(ctx->tlsext_tick_hmac_key));
-			    memcpy(keys + sizeof(ctx->tlsext_tick_key_name) +
-				    sizeof(ctx->tlsext_tick_hmac_key),
-				    ctx->tlsext_tick_aes_key,
-				    sizeof(ctx->tlsext_tick_aes_key));
+			    memcpy(keys, ctx->tlsext_tick_key_name, sizeof(ctx->tlsext_tick_key_name));
+			    memcpy(keys + sizeof(ctx->tlsext_tick_key_name), ctx->tlsext_tick_hmac_key, sizeof(ctx->tlsext_tick_hmac_key));
+			    memcpy(keys + sizeof(ctx->tlsext_tick_key_name) + sizeof(ctx->tlsext_tick_hmac_key), ctx->tlsext_tick_aes_key, sizeof(ctx->tlsext_tick_aes_key));
 		    }
 		    return 1;
 	    }
-
-		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_TYPE:
-		    return ctx->tlsext_status_type;
-
-		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_TYPE:
-		    ctx->tlsext_status_type = larg;
-		    break;
-
-		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB_ARG:
-		    ctx->tlsext_status_arg = parg;
-		    return 1;
-
-		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB_ARG:
-		    *(void **)parg = ctx->tlsext_status_arg;
-		    break;
-
-		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB:
-		    *(int (**)(SSL*, void*))parg = ctx->tlsext_status_cb;
-		    break;
-
+		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_TYPE: return ctx->tlsext_status_type;
+		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_TYPE: ctx->tlsext_status_type = larg; break;
+		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB_ARG: ctx->tlsext_status_arg = parg; return 1;
+		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB_ARG: *(void **)parg = ctx->tlsext_status_arg; break;
+		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB: *(int (**)(SSL*, void*))parg = ctx->tlsext_status_cb; break;
 #ifndef OPENSSL_NO_SRP
 		case SSL_CTRL_SET_TLS_EXT_SRP_USERNAME:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;
@@ -3388,36 +3357,17 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 #endif
 
 #ifndef OPENSSL_NO_EC
-		case SSL_CTRL_SET_CURVES:
-		    return tls1_set_curves(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (int *)parg, larg);
-
-		case SSL_CTRL_SET_CURVES_LIST:
-		    return tls1_set_curves_list(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (const char *)parg);
+		case SSL_CTRL_SET_CURVES: return tls1_set_curves(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (int *)parg, larg);
+		case SSL_CTRL_SET_CURVES_LIST: return tls1_set_curves_list(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (const char *)parg);
 #endif
-		case SSL_CTRL_SET_SIGALGS:
-		    return tls1_set_sigalgs(ctx->cert, (const int*)parg, larg, 0);
-
-		case SSL_CTRL_SET_SIGALGS_LIST:
-		    return tls1_set_sigalgs_list(ctx->cert, (const char *)parg, 0);
-
-		case SSL_CTRL_SET_CLIENT_SIGALGS:
-		    return tls1_set_sigalgs(ctx->cert, (const int*)parg, larg, 1);
-
-		case SSL_CTRL_SET_CLIENT_SIGALGS_LIST:
-		    return tls1_set_sigalgs_list(ctx->cert, (const char *)parg, 1);
-
-		case SSL_CTRL_SET_CLIENT_CERT_TYPES:
-		    return ssl3_set_req_cert_type(ctx->cert, (uchar *)parg, larg);
-
-		case SSL_CTRL_BUILD_CERT_CHAIN:
-		    return ssl_build_cert_chain(NULL, ctx, larg);
-
-		case SSL_CTRL_SET_VERIFY_CERT_STORE:
-		    return ssl_cert_set_cert_store(ctx->cert, (X509_STORE*)parg, 0, larg);
-
-		case SSL_CTRL_SET_CHAIN_CERT_STORE:
-		    return ssl_cert_set_cert_store(ctx->cert, (X509_STORE*)parg, 1, larg);
-
+		case SSL_CTRL_SET_SIGALGS: return tls1_set_sigalgs(ctx->cert, (const int*)parg, larg, 0);
+		case SSL_CTRL_SET_SIGALGS_LIST: return tls1_set_sigalgs_list(ctx->cert, (const char *)parg, 0);
+		case SSL_CTRL_SET_CLIENT_SIGALGS: return tls1_set_sigalgs(ctx->cert, (const int*)parg, larg, 1);
+		case SSL_CTRL_SET_CLIENT_SIGALGS_LIST: return tls1_set_sigalgs_list(ctx->cert, (const char *)parg, 1);
+		case SSL_CTRL_SET_CLIENT_CERT_TYPES: return ssl3_set_req_cert_type(ctx->cert, (uchar *)parg, larg);
+		case SSL_CTRL_BUILD_CERT_CHAIN: return ssl_build_cert_chain(NULL, ctx, larg);
+		case SSL_CTRL_SET_VERIFY_CERT_STORE: return ssl_cert_set_cert_store(ctx->cert, (X509_STORE*)parg, 0, larg);
+		case SSL_CTRL_SET_CHAIN_CERT_STORE: return ssl_cert_set_cert_store(ctx->cert, (X509_STORE*)parg, 1, larg);
 		/* A Thawte special :-) */
 		case SSL_CTRL_EXTRA_CHAIN_CERT:
 		    if(ctx->extra_certs == NULL) {
@@ -3431,7 +3381,6 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    return 0;
 		    }
 		    break;
-
 		case SSL_CTRL_GET_EXTRA_CHAIN_CERTS:
 		    if(ctx->extra_certs == NULL && larg == 0)
 			    *(STACK_OF(X509) **)parg = ctx->cert->key->chain;
@@ -3449,23 +3398,16 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    return ssl_cert_set1_chain(NULL, ctx, (STACK_OF(X509) *)parg);
 		    else
 			    return ssl_cert_set0_chain(NULL, ctx, (STACK_OF(X509) *)parg);
-
 		case SSL_CTRL_CHAIN_CERT:
 		    if(larg)
 			    return ssl_cert_add1_chain_cert(NULL, ctx, (X509*)parg);
 		    else
 			    return ssl_cert_add0_chain_cert(NULL, ctx, (X509*)parg);
-
 		case SSL_CTRL_GET_CHAIN_CERTS:
 		    *(STACK_OF(X509) **)parg = ctx->cert->key->chain;
 		    break;
-
-		case SSL_CTRL_SELECT_CURRENT_CERT:
-		    return ssl_cert_select_current(ctx->cert, (X509*)parg);
-
-		case SSL_CTRL_SET_CURRENT_CERT:
-		    return ssl_cert_set_current(ctx->cert, larg);
-
+		case SSL_CTRL_SELECT_CURRENT_CERT: return ssl_cert_select_current(ctx->cert, (X509*)parg);
+		case SSL_CTRL_SET_CURRENT_CERT: return ssl_cert_set_current(ctx->cert, larg);
 		default:
 		    return 0;
 	}
@@ -4044,9 +3986,7 @@ int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey)
 	if(privkey == NULL || pubkey == NULL)
 		return 0;
 	pctx = EVP_PKEY_CTX_new(privkey, 0);
-	if(EVP_PKEY_derive_init(pctx) <= 0
-	    || EVP_PKEY_derive_set_peer(pctx, pubkey) <= 0
-	    || EVP_PKEY_derive(pctx, NULL, &pmslen) <= 0) {
+	if(EVP_PKEY_derive_init(pctx) <= 0 || EVP_PKEY_derive_set_peer(pctx, pubkey) <= 0 || EVP_PKEY_derive(pctx, NULL, &pmslen) <= 0) {
 		goto err;
 	}
 	pms = (uchar *)OPENSSL_malloc(pmslen);
@@ -4085,5 +4025,4 @@ EVP_PKEY * ssl_dh_to_pkey(DH * dh)
 	}
 	return ret;
 }
-
 #endif

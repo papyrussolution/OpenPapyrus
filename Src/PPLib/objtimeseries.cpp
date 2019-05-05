@@ -636,8 +636,324 @@ int SLAPI PPObjTimeSeries::GetTimeSeries(PPID id, STimeSeries & rTs)
 	return ref->UtrC.Search(tri, rTs);
 }
 
+IMPLEMENT_PPFILT_FACTORY(TimeSeries); SLAPI TimeSeriesFilt::TimeSeriesFilt() : PPBaseFilt(PPFILT_TIMESERIES, 0, 0)
+{
+	SetFlatChunk(offsetof(TimeSeriesFilt, ReserveStart),
+		offsetof(TimeSeriesFilt, Reserve)-offsetof(TimeSeriesFilt, ReserveStart)+sizeof(Reserve));
+	Init(1, 0);
+}
+
+SLAPI PPViewTimeSeries::PPViewTimeSeries() : PPView(&Obj, &Filt, PPVIEW_TIMESERIES), P_DsList(0)
+{
+	ImplementFlags |= (implBrowseArray|implOnAddSetupPos|implDontEditNullFilter);
+}
+
+SLAPI PPViewTimeSeries::~PPViewTimeSeries()
+{
+	ZDELETE(P_DsList);
+}
+
+int SLAPI PPViewTimeSeries::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	BExtQuery::ZDelete(&P_IterQuery);
+	Obj.ReadConfig(&Cfg);
+	Counter.Init();
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPViewTimeSeries::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	return -1;
+}
+
+int SLAPI PPViewTimeSeries::InitIteration()
+{
+	return 0;
+}
+
+int FASTCALL PPViewTimeSeries::NextIteration(TimeSeriesViewItem *)
+{
+	return 0;
+}
+
+//static 
+int FASTCALL PPViewTimeSeries::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewTimeSeries * p_v = static_cast<PPViewTimeSeries *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+
+PPViewTimeSeries::BrwItem::BrwItem(const PPTimeSeries * pTs)
+{
+	if(pTs) {
+		ID = pTs->ID;
+		STRNSCPY(Name, pTs->Name);
+		STRNSCPY(Symb, pTs->Symb);
+		STRNSCPY(CurrencySymb, pTs->CurrencySymb);
+		BuyMarg = pTs->BuyMarg;
+		SellMarg = pTs->SellMarg;
+		Prec = pTs->Prec;
+		SpikeQuant = pTs->SpikeQuant;
+		AvgSpread = pTs->AvgSpread;
+		OptMaxDuck = pTs->OptMaxDuck;
+		OptMaxDuck_S = pTs->OptMaxDuck_S;
+		PeakAvgQuant = pTs->PeakAvgQuant;
+		PeakAvgQuant_S = pTs->PeakAvgQuant_S;
+		TargetQuant = pTs->TargetQuant;
+		Flags = pTs->Flags;
+		CfgFlags = 0;
+	}
+	else {
+		THISZERO();
+	}
+}
+
+int SLAPI PPViewTimeSeries::MakeList()
+{
+	int    ok = 1;
+	PPTimeSeries item;
+	if(P_DsList)
+		P_DsList->clear();
+	else
+		P_DsList = new SArray(sizeof(BrwItem));
+	for(SEnum en = Obj.Enum(0); en.Next(&item) > 0;) {
+		BrwItem new_item(&item);
+		const PPObjTimeSeries::Config::Entry * p_ce = Cfg.SearchEntry(item.ID);
+		if(p_ce)
+			new_item.CfgFlags = p_ce->Flags;
+		THROW_SL(P_DsList->insert(&new_item));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPViewTimeSeries::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+		int    r = 0;
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set(p_item->ID); break; // @id
+			case 1: pBlk->Set(p_item->Symb); break; // @symb
+			case 2: pBlk->Set(p_item->Name); break; // @name
+			case 3: pBlk->Set(p_item->CurrencySymb); break;
+			case 4: pBlk->Set(static_cast<long>(p_item->Prec)); break;
+			case 5: pBlk->Set(p_item->BuyMarg); break;
+			case 6: pBlk->Set(p_item->SellMarg); break;
+			case 7: pBlk->Set(p_item->SpikeQuant); break;
+			case 8: pBlk->Set(p_item->AvgSpread); break;
+		}
+	}
+	return ok;
+}
+
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewTimeSeries * p_view = static_cast<PPViewTimeSeries *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+
+int SLAPI PPViewTimeSeries::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(pBrw && pData && pCellStyle && col >= 0) {
+		BrowserDef * p_def = pBrw->getDef();
+		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
+			const BroColumn & r_col = p_def->at(col);
+			if(col == 0) { // id
+				const long cfg_flags = static_cast<const BrwItem *>(pData)->CfgFlags;
+				if(cfg_flags & PPObjTimeSeries::Config::efDisableStake) {
+					pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+					pCellStyle->Color = GetColorRef(SClrGrey);
+					ok = 1;
+				}
+				if(cfg_flags & PPObjTimeSeries::Config::efLong && cfg_flags & PPObjTimeSeries::Config::efShort) {
+					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
+					pCellStyle->RightFigColor = GetColorRef(SClrOrange);
+					ok = 1;
+				}
+				else if(cfg_flags & PPObjTimeSeries::Config::efLong) {
+					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
+					pCellStyle->RightFigColor = GetColorRef(SClrGreen);
+					ok = 1;
+				}
+				else if(cfg_flags & PPObjTimeSeries::Config::efShort) {
+					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
+					pCellStyle->RightFigColor = GetColorRef(SClrRed);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+void SLAPI PPViewTimeSeries::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewTimeSeries::GetDataForBrowser, this);
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
+}
+
+SArray * SLAPI PPViewTimeSeries::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	uint   brw_id = BROWSER_TIMESERIES;
+	SArray * p_array = 0;
+	PPTimeSeries ds_item;
+	THROW(MakeList());
+	p_array = new SArray(*P_DsList);
+	CATCH
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, brw_id);
+	return p_array;
+}
+
+int SLAPI PPViewTimeSeries::OnExecBrowser(PPViewBrowser *)
+{
+	return -1;
+}
+
+int SLAPI PPViewTimeSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	const  PPID preserve_id = id;
+	if(ok == -2) {
+		switch(ppvCmd) {
+			case PPVCMD_CONFIG:
+				ok = -1;
+				if(PPObjTimeSeries::EditConfig(0) > 0) {
+					PPObjTimeSeries::ReadConfig(&Cfg);
+					ok = 1;
+				}
+				break;
+			case PPVCMD_EXPORT:
+				ok = -1;
+				Obj.Export(id);
+				break;
+			case PPVCMD_REFRESH:
+				ok = 1;
+				break;
+		}
+	}
+	if(ok > 0) {
+		MakeList();
+		if(pBrw) {
+			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+			if(p_def) {
+				SArray * p_array = new SArray(*P_DsList);
+				p_def->setArray(p_array, 0, 1);
+				pBrw->setRange(p_array->getCount());
+				uint   temp_pos = 0;
+				long   update_pos = -1;
+				if(preserve_id > 0 && P_DsList->lsearch(&preserve_id, &temp_pos, CMPF_LONG))
+					update_pos = temp_pos;
+				if(update_pos >= 0)
+					pBrw->go(update_pos);
+				else if(update_pos == MAXLONG)
+					pBrw->go(p_array->getCount()-1);
+			}
+			pBrw->Update();
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPObjTimeSeries::Export(PPID id)
+{
+	int   ok = 1;
+	PPTimeSeries ts_rec;
+	if(Search(id, &ts_rec) > 0) {
+		SString temp_buf;
+		SString file_name;
+		SString line_buf;
+		temp_buf.Z().Cat("ts-raw").CatChar('-').Cat(ts_rec.Symb).Dot().Cat("txt").ToLower();
+		PPGetFilePath(PPPATH_OUT, temp_buf, file_name);
+		SFile f_out(file_name, SFile::mWrite);
+		if(f_out.IsValid()) {
+			STimeSeries ts;
+			StrategyContainer scontainer;
+			if(GetTimeSeries(id, ts) > 0) {
+				const uint tsc = ts.GetCount();
+				uint vec_idx = 0;
+				if(ts.GetValueVecIndex("close", &vec_idx)) {
+					LDATETIME t_prev = ZERODATETIME;
+					for(uint j = 0; j < tsc; j++) {
+						LDATETIME t = ZERODATETIME;
+						double v = 0;
+						SUniTime ut;
+						ts.GetTime(j, &ut);
+						ut.Get(t);
+						ts.GetValue(j, vec_idx, &v);
+						long td = j ? diffdatetimesec(t, t_prev) : 0;
+						line_buf.Z().Cat(t, DATF_ISO8601, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
+						f_out.WriteLine(line_buf.CR());
+						t_prev = t;
+					}
+				}
+				const PPObjTimeSeries::StrategySetType sst_list[] = { PPObjTimeSeries::sstAll, PPObjTimeSeries::sstSelection };
+				for(uint sst_idx = 0; sst_idx < SIZEOFARRAY(sst_list); sst_idx++) {
+					if(GetStrategies(id, sst_list[sst_idx], scontainer) > 0) {
+						PPObjTimeSeries::GetStrategySetTypeName(sst_list[sst_idx], line_buf);
+						f_out.WriteLine(line_buf.CR());
+						for(uint i = 0; i < scontainer.getCount(); i++) {
+							const Strategy & r_s = scontainer.at(i);
+							line_buf.Z().
+								CatEq("ID", r_s.ID).Space().
+								CatEq("InputFrameSize", r_s.InputFrameSize).Space().
+								CatEq("Prec", static_cast<long>(r_s.Prec)).Space().
+								//CatEq("TargetQuant", r_s.TargetQuant).Space().
+								CatEq("MaxDuckQuant", r_s.MaxDuckQuant).Space().
+								CatEq("PeakAvgQuant", static_cast<long>(r_s.PeakAvgQuant)).Space().
+								CatEq("PeakMaxQuant", static_cast<long>(r_s.PeakMaxQuant)).Space().
+								CatEq("BottomAvgQuant", static_cast<long>(r_s.BottomAvgQuant)).Space().
+								CatEq("StakeMode", static_cast<long>(r_s.StakeMode)).Space().
+								CatEq("BaseFlags", r_s.BaseFlags).Space().
+								CatEq("Margin", r_s.Margin).Space().
+								CatEq("SpikeQuant", r_s.SpikeQuant).Space().
+								CatEq("SpreadAvg", r_s.SpreadAvg).Space().
+								CatEq("TrendErrAvg", r_s.TrendErrAvg, MKSFMTD(0, 6, 0)).Space(). // @v10.3.12
+								CatEq("TrendErrLim", r_s.TrendErrLim, MKSFMTD(0, 1, 0)).Space() // @v10.3.12
+								// @v10.3.12 CatEq("StakeThreshold", r_s.StakeThreshold).Space()
+								;
+							temp_buf.Z().Cat(r_s.OptDeltaRange.low, MKSFMTD(0, 9, 0)).Dot().Dot().Cat(r_s.OptDeltaRange.upp, MKSFMTD(0, 9, 0));
+							line_buf.CatEq("OptDeltaRange", temp_buf).Space().
+								CatEq("OptDeltaCount", r_s.OptDeltaCount).Space();
+							line_buf.CatEq("OptDelta2Stride", r_s.OptDelta2Stride).Space();
+							temp_buf.Z().Cat(r_s.OptDelta2Range.low, MKSFMTD(0, 9, 0)).Dot().Dot().Cat(r_s.OptDelta2Range.upp, MKSFMTD(0, 9, 0));
+							line_buf.CatEq("OptDelta2Range", temp_buf).Space().
+								CatEq("OptDelta2Count", r_s.OptDelta2Count).Space().
+								CatEq("StakeCloseMode", r_s.StakeCloseMode).Space().
+								CatEq("StakeCount", r_s.StakeCount).Space().
+								CatEq("V.Result", r_s.V.Result, MKSFMTD(0, 8, 0)).Space().
+								CatEq("V.TmCount", r_s.V.TmCount).Space().
+								CatEq("V.TmSec", r_s.V.TmSec);
+							f_out.WriteLine(line_buf.CR());
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPObjTimeSeries::Browse(void * extraPtr)
 {
+	return PPView::Execute(PPVIEW_TIMESERIES, 0, 1, 0);
+#if 0 // @v10.4.4 {
 	class TsViewDialog : public ObjViewDialog {
 	public:
 		TsViewDialog(PPObjTimeSeries * pObj) : ObjViewDialog(DLG_TSVIEW, pObj, 0)
@@ -735,6 +1051,7 @@ int SLAPI PPObjTimeSeries::Browse(void * extraPtr)
 			ok = 0;
 		return ok;
 	}
+#endif // } 
 }
 
 int SLAPI PPObjTimeSeries::Test() // @experimental
@@ -982,8 +1299,9 @@ static int SLAPI FindOptimalFactorRange(CalcFactorRangeResult_Func cfrrFunc, con
 	assert(oneof3(useInitialSplitting, 4, 5, 6));
 	if(_c > 1 && oneof3(useInitialSplitting, 4, 5, 6)) {
 		const  double total_sum = cfrrFunc(rList, 0, _c-1);
-		const uint sf_step = 144; // @20190417 50-->48 // @20190426 48-->144
-		const uint sf_limit = sf_step * 5; // @20190413 (<=1000)-->(<=1200) // @20190421 (*25)-->(*30) // @20190425 (*30)-->(*40) // @20190426 40-->5
+		const uint sf_step = 288; // @20190417 50-->48 // @20190426 48-->144 // @20190429 144-->288
+		const uint sf_limit = sf_step * 3; // @20190413 (<=1000)-->(<=1200) // @20190421 (*25)-->(*30) // @20190425 (*30)-->(*40) // @20190426 40-->5
+			// @20190429 (*5)-->(*3)
 		for(uint sfdelta = sf_step; sfdelta <= sf_limit; sfdelta += sf_step) {
 			int    do_break = 0; // Сигнал для выхода из функции из-за того, что приемлемых значений больше нет
 			// (must be done by caller) rList.sort(PTR_CMPFUNC(double));

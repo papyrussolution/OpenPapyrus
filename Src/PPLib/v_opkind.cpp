@@ -421,7 +421,7 @@ int SLAPI PPViewOprKind::ViewLinkOps(PPID opID)
 	OprKindFilt filt;
 	//filt.Init();
 	filt.LinkOpID = opID;
-	return ViewOprKind(&filt);
+	return PPView::Execute(PPVIEW_OPRKIND, &filt, 1, 0);
 }
 
 int SLAPI PPViewOprKind::ViewBills(PPID opID)
@@ -452,11 +452,6 @@ int SLAPI PPViewOprKind::ViewBills(PPID opID)
 		// @v9.7.10 ::ViewGoodsBills(&flt, 1);
 	}
 	return -1;
-}
-
-int SLAPI ViewOprKind(OprKindFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_OPRKIND, pFilt, 1, 0);
 }
 //
 // Implementation of PPALDD_OprKindList

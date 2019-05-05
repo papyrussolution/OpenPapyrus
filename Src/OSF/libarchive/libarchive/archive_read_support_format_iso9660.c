@@ -44,7 +44,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_iso9660.c 20
 //#ifdef HAVE_ZLIB_H
 //#include <zlib.h>
 //#endif
-
 //#include "archive.h"
 //#include "archive_endian.h"
 //#include "archive_entry.h"
@@ -225,11 +224,9 @@ struct zisofs {
 	int pz;
 	int pz_log2_bs;              /* Log2 of block size */
 	uint64_t pz_uncompressed_size;
-
 	int initialized;
 	uchar   * uncompressed_buffer;
 	size_t uncompressed_buffer_size;
-
 	uint32_t pz_offset;
 	uchar header[16];
 	size_t header_avail;
@@ -240,7 +237,6 @@ struct zisofs {
 	size_t block_pointers_avail;
 	size_t block_off;
 	uint32_t block_avail;
-
 	z_stream stream;
 	int stream_valid;
 };
@@ -261,10 +257,10 @@ struct content {
 
 /* In-memory storage for a directory record. */
 struct file_info {
-	struct file_info        * use_next;
-	struct file_info        * parent;
-	struct file_info        * next;
-	struct file_info        * re_next;
+	struct file_info   * use_next;
+	struct file_info   * parent;
+	struct file_info   * next;
+	struct file_info   * re_next;
 	int subdirs;
 	uint64_t key;                   /* Heap Key.			*/
 	uint64_t offset;                /* Offset on disk.		*/
@@ -305,7 +301,7 @@ struct file_info {
 	} contents;
 
 	struct {
-		struct file_info        * first;
+		struct file_info   * first;
 		struct file_info        ** last;
 	} rede_files;
 };
@@ -334,7 +330,7 @@ struct iso9660 {
 		struct read_ce_req {
 			uint64_t offset;        /* Offset of CE on disk. */
 			struct file_info * file;
-		}               * reqs;
+		}    * reqs;
 
 		int cnt;
 		int allocated;
@@ -343,15 +339,15 @@ struct iso9660 {
 	int64_t previous_number;
 	struct archive_string previous_pathname;
 
-	struct file_info                * use_files;
+	struct file_info     * use_files;
 	struct heap_queue pending_files;
 	struct {
-		struct file_info        * first;
+		struct file_info   * first;
 		struct file_info        ** last;
 	}       cache_files;
 
 	struct {
-		struct file_info        * first;
+		struct file_info   * first;
 		struct file_info        ** last;
 	}       re_files;
 
@@ -431,10 +427,10 @@ static struct file_info * heap_get_entry(struct heap_queue * heap);
 
 int archive_read_support_format_iso9660(struct archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_iso9660");
-	struct iso9660 * iso9660 = (struct iso9660 *)SAlloc::C(1, sizeof(*iso9660));
+	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(SAlloc::C(1, sizeof(*iso9660)));
 	if(iso9660 == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate iso9660 data");
 		return ARCHIVE_FATAL;
@@ -448,20 +444,9 @@ int archive_read_support_format_iso9660(struct archive * _a)
 	iso9660->opt_support_joliet = 1;
 	/* Enable to support Rock Ridge extensions by default.	*/
 	iso9660->opt_support_rockridge = 1;
-
-	r = __archive_read_register_format(a,
-		iso9660,
-		"iso9660",
-		archive_read_format_iso9660_bid,
-		archive_read_format_iso9660_options,
-		archive_read_format_iso9660_read_header,
-		archive_read_format_iso9660_read_data,
-		archive_read_format_iso9660_read_data_skip,
-		NULL,
-		archive_read_format_iso9660_cleanup,
-		NULL,
-		NULL);
-
+	r = __archive_read_register_format(a, iso9660, "iso9660", archive_read_format_iso9660_bid, archive_read_format_iso9660_options,
+		archive_read_format_iso9660_read_header, archive_read_format_iso9660_read_data, archive_read_format_iso9660_read_data_skip,
+		NULL, archive_read_format_iso9660_cleanup, NULL, NULL);
 	if(r != ARCHIVE_OK) {
 		SAlloc::F(iso9660);
 		return r;
@@ -582,36 +567,29 @@ static int isBootRecord(struct iso9660 * iso9660, const uchar * h)
 static int isVolumePartition(struct iso9660 * iso9660, const uchar * h)
 {
 	int32_t location;
-
 	/* Type of the Volume Partition Descriptor must be 3. */
 	if(h[0] != 3)
 		return 0;
-
 	/* Volume Descriptor Version must be 1. */
 	if(h[6] != 1)
 		return 0;
 	/* Unused Field */
 	if(h[7] != 0)
 		return 0;
-
 	location = archive_le32dec(h + 72);
-	if(location <= SYSTEM_AREA_BLOCK ||
-	    location >= iso9660->volume_block)
+	if(location <= SYSTEM_AREA_BLOCK || location >= iso9660->volume_block)
 		return 0;
 	if((uint32_t)location != archive_be32dec(h + 76))
 		return 0;
-
 	return (1);
 }
 
 static int isVDSetTerminator(struct iso9660 * iso9660, const uchar * h)
 {
 	(void)iso9660; /* UNUSED */
-
 	/* Type of the Volume Descriptor Set Terminator must be 255. */
 	if(h[0] != 255)
 		return 0;
-
 	/* Volume Descriptor Version must be 1. */
 	if(h[6] != 1)
 		return 0;
@@ -877,22 +855,16 @@ static int isPVD(struct iso9660 * iso9660, const uchar * h)
 	/* Reserved field must be 0. */
 	if(!isNull(iso9660, h, PVD_reserved5_offset, PVD_reserved5_size))
 		return 0;
-
-	/* XXX TODO: Check other values for sanity; reject more
-	 * malformed PVDs. XXX */
-
+	/* XXX TODO: Check other values for sanity; reject more malformed PVDs. XXX */
 	/* Read Root Directory Record in Volume Descriptor. */
 	p = h + PVD_root_directory_record_offset;
 	if(p[DR_length_offset] != 34)
 		return 0;
-
 	if(!iso9660->primary.location) {
 		iso9660->logical_block_size = logical_block_size;
 		iso9660->volume_block = volume_block;
-		iso9660->volume_size =
-		    logical_block_size * (uint64_t)volume_block;
-		iso9660->primary.location =
-		    archive_le32dec(p + DR_extent_offset);
+		iso9660->volume_size = logical_block_size * (uint64_t)volume_block;
+		iso9660->primary.location = archive_le32dec(p + DR_extent_offset);
 		iso9660->primary.size = archive_le32dec(p + DR_size_offset);
 	}
 
@@ -990,13 +962,10 @@ static int read_children(struct archive_read * a, struct file_info * parent)
 				return ARCHIVE_FATAL;
 		}
 	}
-
 	__archive_read_consume(a, skip_size);
-
 	/* Read data which recorded by RRIP "CE" extension. */
 	if(read_CE(a, iso9660) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	return ARCHIVE_OK;
 }
 
@@ -1423,7 +1392,7 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 		uncompressed_size = zisofs->uncompressed_buffer_size;
 	}
 	else {
-		zisofs->stream.next_in = (Bytef *)(uintptr_t)(const void*)p;
+		zisofs->stream.next_in = (Bytef *)(uintptr_t)(const void *)p;
 		if(avail > zisofs->block_avail)
 			zisofs->stream.avail_in = zisofs->block_avail;
 		else
@@ -2439,7 +2408,7 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 {
 	struct file_info * file;
 	struct {
-		struct file_info        * first;
+		struct file_info   * first;
 		struct file_info        ** last;
 	}       empty_files;
 
@@ -2705,9 +2674,9 @@ static inline void cache_add_entry(struct iso9660 * iso9660, struct file_info * 
 	iso9660->cache_files.last = &(file->next);
 }
 
-static inline struct file_info * cache_get_entry(struct iso9660 * iso9660)                                  {
+static inline struct file_info * cache_get_entry(struct iso9660 * iso9660)                                  
+{
 	struct file_info * file;
-
 	if((file = iso9660->cache_files.first) != NULL) {
 		iso9660->cache_files.first = file->next;
 		if(iso9660->cache_files.first == NULL)
@@ -2717,17 +2686,14 @@ static inline struct file_info * cache_get_entry(struct iso9660 * iso9660)      
 	return (file);
 }
 
-static int heap_add_entry(struct archive_read * a, struct heap_queue * heap,
-    struct file_info * file, uint64_t key)
+static int heap_add_entry(struct archive_read * a, struct heap_queue * heap, struct file_info * file, uint64_t key)
 {
 	uint64_t file_key, parent_key;
 	int hole, parent;
-
 	/* Expand our pending files list as necessary. */
 	if(heap->used >= heap->allocated) {
 		struct file_info ** new_pending_files;
 		int new_size = heap->allocated * 2;
-
 		if(heap->allocated < 1024)
 			new_size = 1024;
 		/* Overflow might keep us from growing the list. */
@@ -2735,15 +2701,13 @@ static int heap_add_entry(struct archive_read * a, struct heap_queue * heap,
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
-		new_pending_files = (struct file_info **)
-		    SAlloc::M(new_size * sizeof(new_pending_files[0]));
+		new_pending_files = static_cast<struct file_info **>(SAlloc::M(new_size * sizeof(new_pending_files[0])));
 		if(new_pending_files == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		if(heap->allocated)
-			memcpy(new_pending_files, heap->files,
-			    heap->allocated * sizeof(new_pending_files[0]));
+			memcpy(new_pending_files, heap->files, heap->allocated * sizeof(new_pending_files[0]));
 		if(heap->files != NULL)
 			SAlloc::F(heap->files);
 		heap->files = new_pending_files;

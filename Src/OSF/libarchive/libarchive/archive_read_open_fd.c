@@ -22,7 +22,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_fd.c 201103 2009-12-28 03:13:49Z kientzle $");
@@ -72,7 +71,7 @@ int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 		archive_set_error(a, errno, "Can't stat fd %d", fd);
 		return ARCHIVE_FATAL;
 	}
-	mine = (struct read_fd_data *)SAlloc::C(1, sizeof(*mine));
+	mine = static_cast<struct read_fd_data *>(SAlloc::C(1, sizeof(*mine)));
 	b = SAlloc::M(block_size);
 	if(mine == NULL || b == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
@@ -97,7 +96,6 @@ int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 #if defined(__CYGWIN__) || defined(_WIN32)
 	setmode(mine->fd, O_BINARY);
 #endif
-
 	archive_read_set_read_callback(a, file_read);
 	archive_read_set_skip_callback(a, file_skip);
 	archive_read_set_seek_callback(a, file_seek);
@@ -108,7 +106,7 @@ int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 
 static ssize_t file_read(struct archive * a, void * client_data, const void ** buff)
 {
-	struct read_fd_data * mine = (struct read_fd_data *)client_data;
+	struct read_fd_data * mine = static_cast<struct read_fd_data *>(client_data);
 	ssize_t bytes_read;
 	*buff = mine->buffer;
 	for(;;) {
@@ -116,8 +114,7 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 		if(bytes_read < 0) {
 			if(errno == EINTR)
 				continue;
-			archive_set_error(a, errno, "Error reading fd %d",
-			    mine->fd);
+			archive_set_error(a, errno, "Error reading fd %d", mine->fd);
 		}
 		return (bytes_read);
 	}
@@ -125,7 +122,7 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 
 static int64_t file_skip(struct archive * a, void * client_data, int64_t request)
 {
-	struct read_fd_data * mine = (struct read_fd_data *)client_data;
+	struct read_fd_data * mine = static_cast<struct read_fd_data *>(client_data);
 	int64_t skip = request;
 	int64_t old_offset, new_offset;
 	int skip_bits = sizeof(skip) * 8 - 1;  /* off_t is a signed type. */
@@ -161,7 +158,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
  */
 static int64_t file_seek(struct archive * a, void * client_data, int64_t request, int whence)
 {
-	struct read_fd_data * mine = (struct read_fd_data *)client_data;
+	struct read_fd_data * mine = static_cast<struct read_fd_data *>(client_data);
 	int64_t r;
 	/* We use off_t here because lseek() is declared that way. */
 	/* See above for notes about when off_t is less than 64 bits. */
@@ -181,7 +178,7 @@ static int64_t file_seek(struct archive * a, void * client_data, int64_t request
 
 static int file_close(struct archive * a, void * client_data)
 {
-	struct read_fd_data * mine = (struct read_fd_data *)client_data;
+	struct read_fd_data * mine = static_cast<struct read_fd_data *>(client_data);
 	(void)a; /* UNUSED */
 	SAlloc::F(mine->buffer);
 	SAlloc::F(mine);

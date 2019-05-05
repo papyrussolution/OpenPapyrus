@@ -2693,7 +2693,7 @@ void OprKindDialog::editPoolOptions()
 //
 int SLAPI PPObjOprKind::Browse(void * extraPtr)
 {
-	return ViewOprKind(0);
+	return PPView::Execute(PPVIEW_OPRKIND, 0, 1, 0);
 }
 
 // virtual

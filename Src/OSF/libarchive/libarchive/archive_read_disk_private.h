@@ -54,28 +54,23 @@ struct archive_read_disk {
 	 * sets this true, 'P' sets it false, 'H' changes it as we traverse.
 	 */
 	char follow_symlinks;     /* Either 'L' or 'P'. */
-	/* Directory traversals. */
-	struct tree * tree;
+	struct tree * tree; // Directory traversals
 	int (* open_on_current_dir)(struct tree*, const char *, int);
 	int (* tree_current_dir_fd)(struct tree*);
 	int (* tree_enter_working_dir)(struct tree*);
-	/* Bitfield with ARCHIVE_READDISK_* tunables */
-	int flags;
+	int flags; // Bitfield with ARCHIVE_READDISK_* tunables 
 	const char * (* lookup_gname)(void * pPrivate, int64_t gid);
 	void (* cleanup_gname)(void * pPrivate);
-	void     * lookup_gname_data;
+	void * lookup_gname_data;
 	const char * (* lookup_uname)(void * pPrivate, int64_t uid);
 	void (* cleanup_uname)(void * pPrivate);
-	void     * lookup_uname_data;
+	void * lookup_uname_data;
 	int (* metadata_filter_func)(struct archive *, void *, struct archive_entry *);
-	void    * metadata_filter_data;
-
-	/* ARCHIVE_MATCH object. */
-	struct archive  * matching;
-	/* Callback function, this will be invoked when ARCHIVE_MATCH
-	 * archive_match_*_excluded_ae return true. */
+	void * metadata_filter_data;
+	struct archive  * matching; // ARCHIVE_MATCH object.
+	// Callback function, this will be invoked when ARCHIVE_MATCH archive_match_*_excluded_ae return true.
 	void (* excluded_cb_func)(struct archive *, void *, struct archive_entry *);
-	void    * excluded_cb_data;
+	void * excluded_cb_data;
 };
 
 const char * archive_read_disk_entry_setup_path(struct archive_read_disk *, struct archive_entry *, int *);

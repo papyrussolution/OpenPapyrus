@@ -77,15 +77,15 @@ static int               archive_write_pax_free(struct archive_write *);
 static int               archive_write_pax_finish_entry(struct archive_write *);
 static int               archive_write_pax_header(struct archive_write *, struct archive_entry *);
 static int               archive_write_pax_options(struct archive_write *, const char *, const char *);
-static char             * base64_encode(const char * src, size_t len);
-static char             * build_gnu_sparse_name(char * dest, const char * src);
-static char             * build_pax_attribute_name(char * dest, const char * src);
-static char             * build_ustar_entry_name(char * dest, const char * src, size_t src_length, const char * insert);
-static char             * format_int(char * dest, int64_t);
+static char  * base64_encode(const char * src, size_t len);
+static char  * build_gnu_sparse_name(char * dest, const char * src);
+static char  * build_pax_attribute_name(char * dest, const char * src);
+static char  * build_ustar_entry_name(char * dest, const char * src, size_t src_length, const char * insert);
+static char  * format_int(char * dest, int64_t);
 static int               has_non_ASCII(const char *);
 static void              sparse_list_clear(struct pax *);
 static int               sparse_list_add(struct pax *, int64_t, int64_t);
-static char             * url_encode(const char * in);
+static char  * url_encode(const char * in);
 /*
  * Set output format to 'restricted pax' format.
  *
@@ -95,7 +95,7 @@ static char             * url_encode(const char * in);
  */
 int archive_write_set_format_pax_restricted(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	int r;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_pax_restricted");
 	r = archive_write_set_format_pax(&a->archive);
@@ -109,7 +109,7 @@ int archive_write_set_format_pax_restricted(struct archive * _a)
  */
 int archive_write_set_format_pax(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct pax * pax;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_pax");
 	if(a->format_free != NULL)
@@ -144,8 +144,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 		 */
 		if(val == NULL || val[0] == 0)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: hdrcharset option needs a character-set name");
-		else if(strcmp(val, "BINARY") == 0 ||
-		    strcmp(val, "binary") == 0) {
+		else if(strcmp(val, "BINARY") == 0 || strcmp(val, "binary") == 0) {
 			/*
 			 * Specify binary mode. We will not convert
 			 * filenames, uname and gname to any charsets.
@@ -1682,7 +1681,7 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 		if(pax->sparse_list == NULL)
 			return total;
 
-		p = ((const uchar *)buff) + total;
+		p = (static_cast<const uchar *>(buff)) + total;
 		ws = s - total;
 		if(ws > pax->sparse_list->remaining)
 			ws = (size_t)pax->sparse_list->remaining;

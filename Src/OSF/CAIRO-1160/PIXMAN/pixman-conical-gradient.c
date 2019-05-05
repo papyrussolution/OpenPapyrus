@@ -105,7 +105,7 @@ static uint32_t * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32
 			ry += cy;
 		}
 	}
-	else{
+	else {
 		while(buffer < end) {
 			double x, y;
 
@@ -116,7 +116,7 @@ static uint32_t * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32
 					x = rx / rz;
 					y = ry / rz;
 				}
-				else{
+				else {
 					x = y = 0.;
 				}
 

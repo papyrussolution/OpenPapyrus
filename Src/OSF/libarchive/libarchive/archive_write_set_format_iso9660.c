@@ -149,11 +149,11 @@ struct ctl_extr_rec {
 
 struct isofile {
 	/* Used for managing struct isofile list. */
-	struct isofile          * allnext;
-	struct isofile          * datanext;
+	struct isofile * allnext;
+	struct isofile * datanext;
 	/* Used for managing a hardlinked struct isofile list. */
-	struct isofile          * hlnext;
-	struct isofile          * hardlink_target;
+	struct isofile * hlnext;
+	struct isofile * hardlink_target;
 	struct archive_entry    * entry;
 	/*
 	 * Used for making a directory tree.
@@ -197,8 +197,8 @@ struct isofile {
 struct isoent {
 	/* Keep `rbnode' at the first member of struct isoent. */
 	struct archive_rb_node rbnode;
-	struct isofile          * file;
-	struct isoent           * parent;
+	struct isofile * file;
+	struct isoent  * parent;
 	/* A list of children.(use chnext) */
 	struct {
 		struct isoent   * first;
@@ -213,11 +213,11 @@ struct isoent {
 		int cnt;
 	}                        subdirs;
 	/* A sorted list of sub directories. */
-	struct isoent           ** children_sorted;
+	struct isoent   ** children_sorted;
 	/* Used for managing struct isoent list. */
-	struct isoent           * chnext;
-	struct isoent           * drnext;
-	struct isoent           * ptnext;
+	struct isoent  * chnext;
+	struct isoent  * drnext;
+	struct isoent  * ptnext;
 	/*
 	 * Used for making a Directory Record.
 	 */
@@ -244,7 +244,7 @@ struct isoent {
 	 *   on primary, mb_len and id_len are always the same.
 	 *   on joliet, mb_len and id_len are different.
 	 */
-	char                    * identifier;
+	char * identifier;
 	int ext_off;
 	int ext_len;
 	int id_len;
@@ -253,8 +253,8 @@ struct isoent {
 	 * Used for making a Rockridge extension.
 	 * This is a part of Directory Records.
 	 */
-	struct isoent           * rr_parent;
-	struct isoent           * rr_child;
+	struct isoent  * rr_parent;
+	struct isoent  * rr_child;
 	/* Extra Record.(which we call in this source file)
 	 * A maximum size of the Directory Record is 254.
 	 * so, if generated RRIP data of a file cannot into a Directory
@@ -693,9 +693,9 @@ struct iso9660 {
 		} vdd_type;
 
 		struct path_table {
-			struct isoent           * first;
-			struct isoent           ** last;
-			struct isoent           ** sorted;
+			struct isoent  * first;
+			struct isoent   ** last;
+			struct isoent   ** sorted;
 			int cnt;
 		} * pathtbl;
 
@@ -737,7 +737,7 @@ struct iso9660 {
 		 * but if not, we use uncompressed file and remove
 		 * the copy of the compressed file.
 		 */
-		uint32_t        * block_pointers;
+		uint32_t   * block_pointers;
 		size_t block_pointers_allocated;
 		int block_pointers_cnt;
 		int block_pointers_idx;
@@ -830,10 +830,10 @@ struct idr {
 	struct idrent {
 		struct archive_rb_node rbnode;
 		/* Used in wait_list. */
-		struct idrent           * wnext;
-		struct idrent           * avail;
+		struct idrent  * wnext;
+		struct idrent  * avail;
 
-		struct isoent           * isoent;
+		struct isoent  * isoent;
 		int weight;
 		int noff;
 		int rename_num;
@@ -842,8 +842,8 @@ struct idr {
 	struct archive_rb_tree rbtree;
 
 	struct {
-		struct idrent           * first;
-		struct idrent           ** last;
+		struct idrent  * first;
+		struct idrent   ** last;
 	} wait_list;
 
 	int pool_size;
@@ -962,7 +962,7 @@ static int      zisofs_free(struct archive_write *);
 
 int archive_write_set_format_iso9660(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct iso9660 * iso9660;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_iso9660");
 	/* If another format was already registered, unregister it. */
@@ -1339,16 +1339,13 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 			    return ARCHIVE_OK;
 		    }
 		    if(strcmp(key, "publisher") == 0) {
-			    r = get_str_opt(a,
-				    &(iso9660->publisher_identifier),
-				    PUBLISHER_IDENTIFIER_SIZE, key, value);
+			    r = get_str_opt(a, &(iso9660->publisher_identifier), PUBLISHER_IDENTIFIER_SIZE, key, value);
 			    iso9660->opt.publisher = r == ARCHIVE_OK;
 			    return r;
 		    }
 		    break;
 		case 'r':
-		    if(strcmp(key, "rockridge") == 0 ||
-			strcmp(key, "Rockridge") == 0) {
+		    if(strcmp(key, "rockridge") == 0 || strcmp(key, "Rockridge") == 0) {
 			    if(value == NULL)
 				    iso9660->opt.rr = OPT_RR_DISABLED;
 			    else if(strcmp(value, "1") == 0)
@@ -1364,8 +1361,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    break;
 		case 'v':
 		    if(strcmp(key, "volume-id") == 0) {
-			    r = get_str_opt(a, &(iso9660->volume_identifier),
-				    VOLUME_IDENTIFIER_SIZE, key, value);
+			    r = get_str_opt(a, &(iso9660->volume_identifier), VOLUME_IDENTIFIER_SIZE, key, value);
 			    iso9660->opt.volume_id = r == ARCHIVE_OK;
 			    return r;
 		    }
@@ -1502,7 +1498,7 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	ssize_t written;
-	const uchar * b = (const uchar *)buff;
+	const uchar * b = static_cast<const uchar *>(buff);
 	while(s) {
 		written = write(iso9660->temp_fd, b, s);
 		if(written < 0) {
@@ -1598,7 +1594,7 @@ static ssize_t write_iso9660_data(struct archive_write * a, const void * buff, s
 		 * Make next extent.
 		 */
 		ws -= ts;
-		buff = (const void*)(((const uchar *)buff) + ts);
+		buff = (const void *)((static_cast<const uchar *>(buff)) + ts);
 		/* Make a content for next extent. */
 		con = (struct isofile::content *)SAlloc::C(1, sizeof(*con));
 		if(con == NULL) {
@@ -2683,7 +2679,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			if(bp != NULL) {
 				bp[3] = length;
 				bp[5] = 0x01;/* Alternate Name continues
-				              * in next "NM" field */
+				   * in next "NM" field */
 				memcpy(bp+6, nm, length - 5);
 				bp += length;
 			}
@@ -2944,8 +2940,8 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 					 */
 					bp[3] = length;
 					bp[5] = 0x01;/* This Symbolic Link
-					              * continues in next
-					              * "SL" field */
+					   * continues in next
+					   * "SL" field */
 					bp += length;
 				}
 				extra_tell_used_size(&ctl, length);
@@ -4772,22 +4768,17 @@ static void isofile_connect_hardlink_files(struct iso9660 * iso9660)
 	}
 }
 
-static int isofile_hd_cmp_node(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int isofile_hd_cmp_node(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	const struct hardlink * h1 = (const struct hardlink *)n1;
 	const struct hardlink * h2 = (const struct hardlink *)n2;
-
-	return (strcmp(archive_entry_pathname(h1->file_list.first->entry),
-	       archive_entry_pathname(h2->file_list.first->entry)));
+	return (strcmp(archive_entry_pathname(h1->file_list.first->entry), archive_entry_pathname(h2->file_list.first->entry)));
 }
 
 static int isofile_hd_cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	const struct hardlink * h = (const struct hardlink *)n;
-
-	return (strcmp(archive_entry_pathname(h->file_list.first->entry),
-	       (const char *)key));
+	return (strcmp(archive_entry_pathname(h->file_list.first->entry), (const char *)key));
 }
 
 static void isofile_init_hardlinks(struct iso9660 * iso9660)
@@ -4795,7 +4786,6 @@ static void isofile_init_hardlinks(struct iso9660 * iso9660)
 	static const struct archive_rb_tree_ops rb_ops = {
 		isofile_hd_cmp_node, isofile_hd_cmp_key,
 	};
-
 	__archive_rb_tree_init(&(iso9660->hardlink_rbtree), &rb_ops);
 }
 
@@ -7043,7 +7033,7 @@ static void zisofs_detect_magic(struct archive_write * a, const void * buff, siz
 
 	if(iso9660->zisofs.magic_cnt == 0 && s >= (size_t)magic_max)
 		/* It's unnecessary we copy buffer. */
-		magic_buff = (const uchar *)buff;
+		magic_buff = static_cast<const uchar *>(buff);
 	else {
 		if(iso9660->zisofs.magic_cnt < magic_max) {
 			size_t l;
@@ -7124,7 +7114,7 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 	zstrm = &(iso9660->zisofs.stream);
 	zstrm->next_out = wb_buffptr(a);
 	zstrm->avail_out = (uInt)wb_remaining(a);
-	b = (const uchar *)buff;
+	b = static_cast<const uchar *>(buff);
 	do {
 		avail = ZF_BLOCK_SIZE - zstrm->total_in;
 		if(s < avail) {
@@ -7137,7 +7127,7 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 		if(iso9660->zisofs.remaining <= 0)
 			flush = Z_FINISH;
 
-		zstrm->next_in = (Bytef *)(uintptr_t)(const void*)b;
+		zstrm->next_in = (Bytef *)(uintptr_t)(const void *)b;
 		zstrm->avail_in = (uInt)avail;
 
 		/*
@@ -7475,7 +7465,7 @@ static ssize_t zisofs_extract(struct archive_write * a, struct zisofs_extract * 
 		}
 	}
 	else {
-		zisofs->stream.next_in = (Bytef *)(uintptr_t)(const void*)p;
+		zisofs->stream.next_in = (Bytef *)(uintptr_t)(const void *)p;
 		if(avail > zisofs->block_avail)
 			zisofs->stream.avail_in = zisofs->block_avail;
 		else

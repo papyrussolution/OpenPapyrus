@@ -405,7 +405,7 @@
 /* #undef HAVE_STDINT_H */ /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDLIB_H 1 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STRCHR 1 /* Define to 1 if you have the `sstrchr' function. */
-#define HAVE_STRDUP 1 /* Define to 1 if you have the `strdup' function. */
+#define HAVE_STRDUP 1 /* Define to 1 if you have the `sstrdup' function. */
 #define HAVE_STRERROR 1 /* Define to 1 if you have the `strerror' function. */
 /* #undef HAVE_STRERROR_R */ /* Define to 1 if you have the `strerror_r' function. */
 #define HAVE_STRFTIME 1 /* Define to 1 if you have the `strftime' function. */

@@ -48,15 +48,11 @@ static char * filename = NULL;
  */
 static char * xmlShellReadline(const char * prompt) {
 #ifdef HAVE_LIBREADLINE
-	char * line_read;
-
 	/* Get a line from the user. */
-	line_read = readline(prompt);
-
+	char * line_read = readline(prompt);
 	/* If the line has any text in it, save it on the history. */
 	if(line_read && *line_read)
 		add_history(line_read);
-
 	return (line_read);
 #else
 	char line_read[501];
@@ -68,7 +64,7 @@ static char * xmlShellReadline(const char * prompt) {
 		return 0;
 	line_read[500] = 0;
 	len = sstrlen(line_read);
-	ret = (char *)malloc(len + 1);
+	ret = static_cast<char *>(SAlloc::M(len+1));
 	if(ret) {
 		memcpy(ret, line_read, len + 1);
 	}

@@ -145,7 +145,7 @@ static /*inline*/ int FASTCALL check_width(uint w0, uint w1)
 // evaluate previous N (>= 2) widths as auxiliary pattern,
 // using preceding 4 as character width
 //
-static /*inline*/ int8 FASTCALL aux_end(zbar_decoder_t * dcode, uchar fwd)
+static /*inline*/ int8 FASTCALL aux_end(const zbar_decoder_t * dcode, uchar fwd)
 {
 	int8 code, i;
 	/* reference width from previous character */
@@ -286,9 +286,7 @@ static /*inline*/ zbar_symbol_type_t FASTCALL ean_part_end4(ean_pass_t * pass, u
 	uchar par = ((pass->raw[1] & 0x10) >> 1 | (pass->raw[2] & 0x10) >> 2 | (pass->raw[3] & 0x10) >> 3 | (pass->raw[4] & 0x10) >> 4);
 	dbprintf(2, " par=%x", par);
 	if(par && par != 0xf)
-		/* invalid parity combination */
-		return ZBAR_NONE;
-
+		return ZBAR_NONE; /* invalid parity combination */
 	if(!par == fwd) {
 		/* reverse sampled digits */
 		uchar tmp = pass->raw[1];
@@ -329,18 +327,9 @@ static /*inline*/ char FASTCALL ean_part_end5(ean_decoder_t * ean, ean_pass_t * 
 static /*inline*/ zbar_symbol_type_t ean_part_end7(ean_decoder_t * ean, ean_pass_t * pass, uchar fwd)
 {
 	/* calculate parity index */
-	uchar par = ((fwd) ? ((pass->raw[1] & 0x10) << 1 |
-		    (pass->raw[2] & 0x10) |
-		    (pass->raw[3] & 0x10) >> 1 |
-		    (pass->raw[4] & 0x10) >> 2 |
-		    (pass->raw[5] & 0x10) >> 3 |
-		    (pass->raw[6] & 0x10) >> 4)
-	    : ((pass->raw[1] & 0x10) >> 4 |
-		    (pass->raw[2] & 0x10) >> 3 |
-		    (pass->raw[3] & 0x10) >> 2 |
-		    (pass->raw[4] & 0x10) >> 1 |
-		    (pass->raw[5] & 0x10) |
-		    (pass->raw[6] & 0x10) << 1));
+	uchar par = ((fwd) ? ((pass->raw[1] & 0x10) << 1 | (pass->raw[2] & 0x10) | (pass->raw[3] & 0x10) >> 1 | (pass->raw[4] & 0x10) >> 2 |
+		(pass->raw[5] & 0x10) >> 3 | (pass->raw[6] & 0x10) >> 4) : ((pass->raw[1] & 0x10) >> 4 |
+		(pass->raw[2] & 0x10) >> 3 | (pass->raw[3] & 0x10) >> 2 | (pass->raw[4] & 0x10) >> 1 | (pass->raw[5] & 0x10) | (pass->raw[6] & 0x10) << 1));
 	/* lookup parity combination */
 	pass->raw[0] = parity_decode[par >> 1];
 	if(par & 1)
@@ -361,14 +350,9 @@ static /*inline*/ zbar_symbol_type_t ean_part_end7(ean_decoder_t * ean, ean_pass
 			pass->raw[7 - i] = tmp;
 		}
 	}
-
 	dbprintf(2, "\n");
-	dbprintf(1, "decode=%x%x%x%x%x%x%x(%02x)\n",
-	    pass->raw[0] & 0xf, pass->raw[1] & 0xf,
-	    pass->raw[2] & 0xf, pass->raw[3] & 0xf,
-	    pass->raw[4] & 0xf, pass->raw[5] & 0xf,
-	    pass->raw[6] & 0xf, par);
-
+	dbprintf(1, "decode=%x%x%x%x%x%x%x(%02x)\n", pass->raw[0] & 0xf, pass->raw[1] & 0xf,
+	    pass->raw[2] & 0xf, pass->raw[3] & 0xf, pass->raw[4] & 0xf, pass->raw[5] & 0xf, pass->raw[6] & 0xf, par);
 	if(TEST_CFG(ean->ean13_config, ZBAR_CFG_ENABLE)) {
 		if(!par)
 			return (zbar_symbol_type_t)(ZBAR_EAN13|EAN_RIGHT);

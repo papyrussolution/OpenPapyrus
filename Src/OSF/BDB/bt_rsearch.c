@@ -407,7 +407,7 @@ err:
  *
  * PUBLIC: db_recno_t __bam_total __P((DB *, PAGE *));
  */
-db_recno_t __bam_total(DB * dbp, PAGE * h)
+db_recno_t FASTCALL __bam_total(const DB * dbp, PAGE * h)
 {
 	db_indx_t indx;
 	db_recno_t nrecs = 0;

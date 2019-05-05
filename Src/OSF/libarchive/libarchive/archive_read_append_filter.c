@@ -40,7 +40,7 @@ int archive_read_append_filter(struct archive * _a, int code)
 	char str[20];
 	struct archive_read_filter_bidder * bidder;
 	struct archive_read_filter * filter;
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 
 	r2 = (ARCHIVE_OK);
 	switch(code) {
@@ -142,7 +142,7 @@ int archive_read_append_filter_program_signature(struct archive * _a, const char
 	int r, number_bidders, i;
 	struct archive_read_filter_bidder * bidder;
 	struct archive_read_filter * filter;
-	struct archive_read * a = (struct archive_read *)_a;
+	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	if(archive_read_support_filter_program_signature(_a, cmd, signature, signature_len) != (ARCHIVE_OK))
 		return ARCHIVE_FATAL;
 	number_bidders = sizeof(a->bidders) / sizeof(a->bidders[0]);

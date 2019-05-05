@@ -3186,7 +3186,6 @@ public:
 	virtual int    SLAPI GetFrameState();
 	int    SLAPI setArray(StrAssocArray *);
 	int    SLAPI GetStringByID(long id, SString & rBuf);
-
 	int    SLAPI GoByID(long id);
 	int    FASTCALL HasChild(long id) const;
 	int    SLAPI GetListByParent(long parentId, LongArray & rList) const;
@@ -3625,7 +3624,6 @@ public:
 	int    GetCurrPos() const;
 	HWND   H() const;
 	HWND   GetToolbarHWND() const;
-
 	uint   getItemsCount() const;
 	const  ToolbarItem & getItem(uint idx/* 0.. */) const;
 	const  ToolbarItem & getItemByID(uint /* 0.. */);
@@ -3635,16 +3633,13 @@ public:
 	int    Show();
 	int    Hide();
 	LRESULT OnMainSize(int rightSpace = 0);
-
 	int    SaveUserSettings(uint typeID);
 	int    RestoreUserSettings(uint typeID, ToolbarList * pTbList);
-
 	int    TranslateKeyCode(ushort keyCode, uint * pCmd) const;
 private:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 	static LRESULT CALLBACK ToolbarProc(HWND, UINT, WPARAM, LPARAM);
 	static INT_PTR CALLBACK TuneToolsDlgProc(HWND, UINT, WPARAM, LPARAM);
-
 	// Message Callback functions {
 	LRESULT OnMoving(WPARAM, LPARAM);
 	LRESULT OnLButtonDown(WPARAM, LPARAM);
@@ -3795,12 +3790,10 @@ private:
 class ShortcutsWindow {
 public:
 	static INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
 	ShortcutsWindow();
 	~ShortcutsWindow();
 	HWND   Create(HWND parentWnd);
 	void   Destroy();
-
 	void   SelItem(void * ptr);
 	void   AddItem(const char * pTitle, void * ptr);
 	void   UpdateItem(const char * pTitle, void * ptr);
@@ -3838,14 +3831,12 @@ public:
 	void   Show(int show);
 	void   MoveChilds(const RECT & rRect);
 	void   Insert(long cmd, const char * pTitle, ListWindow * pLw);
-
 	int    TranslateKeyCode(ushort keyCode, uint * pCmd) const;
 
 	HWND   Hwnd;
 private:
 	ListWindowItem * GetListWinByCmd(long cmd, uint * pPos);
 	ListWindowItem * GetListWinByHwnd(HWND hWnd, uint * pPos);
-
 	void   MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList);
 	void   SetupCmdList(HMENU hMenu, HTREEITEM hP);
 	void   CloseItem(HWND hWnd);
@@ -3935,11 +3926,9 @@ public:
 	TRect  SLAPI MakeCenterRect(int width, int height) const;
 	HWND   GetFrameWindow() const;
 	void   NotifyFrame(int post);
-
 	int    PushModalWindow(TWindow * pV, HWND h);
 	int    PopModalWindow(TWindow * pV, HWND * pH);
 	int    TestWindowForEndModal(TWindow * pV);
-
 	int    IsTreeVisible() const;
 	void   GetTreeRect(RECT & rRect);
 	HWND   GetTreeHWND() const;
@@ -4039,7 +4028,6 @@ private:
 	//int    InitDeskTop(); // Pattern. Must be defined in derived class and called from constructor.
 	static LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
 	static BOOL    CALLBACK CloseWndProc(HWND, UINT, WPARAM, LPARAM);
-
 	SString & MakeModalStackDebugText(SString & rBuf) const;
 	int    DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi);
@@ -4141,7 +4129,7 @@ private:
 //
 //
 //
-#define MIN_COLUMN_WIDTH  8 // @v6.2.10 2-->8
+#define MIN_COLUMN_WIDTH        8
 #define CLASSNAME_DESKTOPWINDOW "PPYDESKTOPWINDOW"
 
 struct SBrowserDataProcBlock {
@@ -4229,7 +4217,6 @@ public:
 	virtual int   SLAPI refresh();
 	virtual int   SLAPI search(const void * pPattern, CompFunc, int srchMode, int srchCol);
 	virtual int   SLAPI search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
-
 	BroColumn & FASTCALL at(uint) const;
 	void   SLAPI initOffset(int);
 	int    SLAPI addColumn(const BroColumn *, int = UNDEF);
@@ -4239,6 +4226,7 @@ public:
 	const  BroGroup * SLAPI groupOf(uint column, uint * pGrpPos = 0) const;
 	uint   SLAPI groupWidth(uint group, uint atColumn) const;
 	uint   SLAPI groupWidth(const BroGroup *, uint atColumn) const;
+	int    SLAPI GetCellData(const void * pRow, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	int    SLAPI GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	char * SLAPI getText(long row, int column, char * pBuf);
 	//

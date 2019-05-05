@@ -256,7 +256,7 @@ namespace NArchive {
 			G64(96, HeapCommit);
 			pos = 108;
 		}
-		else{
+		else {
 			// G32(24, BaseOfData32);
 			G32(28, ImageBase);
 			G32(72, StackReserve);
@@ -694,7 +694,7 @@ namespace NArchive {
 			case kpidShortComment:
 				if(!_versionShortString.IsEmpty())
 					prop = _versionShortString;
-				else{
+				else {
 					PAIR_TO_PROP(g_MachinePairs, _header.Machine, prop);
 				}
 				break;
@@ -858,7 +858,7 @@ namespace NArchive {
 				case kpidPackSize: prop = (uint64)item.Size; break;
 			}
 		}
-		else{
+		else {
 			const CSection &item = _sections[mixItem.SectionIndex];
 			switch(propID) {
 				case kpidPath: prop = MultiByteToUnicodeString(item.Name); break;
@@ -2219,7 +2219,7 @@ namespace NArchive {
 					RINOK(WriteStream(outStream, _buf + offset, item.Size));
 				}
 			}
-			else{
+			else {
 				currentItemSize = sect.GetSizeExtract();
 				if(!testMode && !outStream)
 					continue;
@@ -2260,7 +2260,7 @@ namespace NArchive {
 			const CByteBuffer &item = _versionFiles[mixItem.VersionIndex];
 			referenceBuf->Buf.CopyFrom(item, item.Size());
 		}
-		else{
+		else {
 			const CResItem &item = _items[mixItem.ResourceIndex];
 			size_t offset = item.Offset - sect.Va;
 			if(!CheckItem(sect, item, offset))

@@ -24,11 +24,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 /*
  * Development supported by Google Summer of Code 2008.
  */
-
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_zip.c 201168 2009-12-29 06:15:32Z kientzle $");
@@ -49,13 +47,13 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_zip.c 201168 20
 //#include <zlib.h>
 //#endif
 //#include "archive.h"
-#include "archive_cryptor_private.h"
+//#include "archive_cryptor_private.h"
 //#include "archive_endian.h"
 //#include "archive_entry.h"
 //#include "archive_entry_locale.h"
-#include "archive_hmac_private.h"
+//#include "archive_hmac_private.h"
 //#include "archive_private.h"
-#include "archive_random_private.h"
+//#include "archive_random_private.h"
 //#include "archive_write_private.h"
 //#ifndef HAVE_ZLIB_H
 //#include "archive_crc32.h"
@@ -74,9 +72,9 @@ enum compression {
 };
 
 #ifdef HAVE_ZLIB_H
-#define COMPRESSION_DEFAULT     COMPRESSION_DEFLATE
+	#define COMPRESSION_DEFAULT     COMPRESSION_DEFLATE
 #else
-#define COMPRESSION_DEFAULT     COMPRESSION_STORE
+	#define COMPRESSION_DEFAULT     COMPRESSION_STORE
 #endif
 
 enum encryption {
@@ -386,7 +384,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 
 int archive_write_zip_set_compression_deflate(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	int ret = ARCHIVE_FAILED;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_zip_set_compression_deflate");
 	if(a->archive.archive_format != ARCHIVE_FORMAT_ZIP) {
@@ -408,7 +406,7 @@ int archive_write_zip_set_compression_deflate(struct archive * _a)
 
 int archive_write_zip_set_compression_store(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct zip * zip = (struct zip *)a->format_data;
 	int ret = ARCHIVE_FAILED;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_zip_set_compression_deflate");
@@ -425,7 +423,7 @@ int archive_write_zip_set_compression_store(struct archive * _a)
 
 int archive_write_set_format_zip(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct zip * zip;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_zip");
 	/* If another format was already registered, unregister it. */
@@ -984,7 +982,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 	switch(zip->entry_compression) {
 		case COMPRESSION_STORE:
 		    if(zip->tctx_valid || zip->cctx_valid) {
-			    const uint8_t * rb = (const uint8_t*)buff;
+			    const uint8_t * rb = (const uint8_t *)buff;
 			    const uint8_t * const re = rb + s;
 
 			    while(rb < re) {

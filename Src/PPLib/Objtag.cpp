@@ -1972,6 +1972,10 @@ int TagFiltDialog::EditItem(long * pPos)
 			int    replace_dup_factor = 1;
 			if(Data.Flags & Data.fColors) { // @v9.8.6
 				replace_dup_factor = -1;
+				// @v10.4.4 {
+				if(!is_new)
+					THROW_SL(Data.TagsRestrict.AtFree(*pPos));
+				// } @v10.4.4 
 			}
 			else {
 				uint   fp = 0;

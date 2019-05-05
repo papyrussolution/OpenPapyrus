@@ -372,7 +372,7 @@ void AString::ReAlloc2(unsigned newLimit)
 void AString::SetStartLen(unsigned len)
 {
 	_chars = 0;
-	_chars = MY_STRING_NEW_char(len + 1);
+	_chars = MY_STRING_NEW_char(len+1);
 	_len = len;
 	_limit = len;
 }
@@ -488,7 +488,7 @@ AString & AString::operator=(const char * s)
 {
 	uint len = sstrlen(s);
 	if(len > _limit) {
-		char * newBuf = MY_STRING_NEW_char(len + 1);
+		char * newBuf = MY_STRING_NEW_char(len+1);
 		MY_STRING_DELETE(_chars);
 		_chars = newBuf;
 		_limit = len;
@@ -503,7 +503,7 @@ AString &AString::operator=(const AString &s)
 	if(!(&s == this)) {
 		uint len = s._len;
 		if(len > _limit) {
-			char * newBuf = MY_STRING_NEW_char(len + 1);
+			char * newBuf = MY_STRING_NEW_char(len+1);
 			MY_STRING_DELETE(_chars);
 			_chars = newBuf;
 			_limit = len;
@@ -559,7 +559,7 @@ void FASTCALL AString::SetFromWStr_if_Ascii(const wchar_t * s)
 		}
 	}
 	if(len > _limit) {
-		char * newBuf = MY_STRING_NEW_char(len + 1);
+		char * newBuf = MY_STRING_NEW_char(len+1);
 		MY_STRING_DELETE(_chars);
 		_chars = newBuf;
 		_limit = len;
@@ -583,7 +583,7 @@ void FASTCALL AString::SetFromWStr_if_Ascii(const wchar_t * s)
    }
    if(len > _limit)
    {
-    char *newBuf = MY_STRING_NEW_char(len + 1);
+    char *newBuf = MY_STRING_NEW_char(len+1);
     MY_STRING_DELETE(_chars);
     _chars = newBuf;
     _limit = len;
@@ -646,7 +646,7 @@ void AString::Add_UInt32(uint32 v)
 void AString::SetFrom(const char * s, unsigned len) // no check
 {
 	if(len > _limit) {
-		char * newBuf = MY_STRING_NEW_char(len + 1);
+		char * newBuf = MY_STRING_NEW_char(len+1);
 		MY_STRING_DELETE(_chars);
 		_chars = newBuf;
 		_limit = len;
@@ -986,7 +986,7 @@ void UString::ReAlloc2(unsigned newLimit)
 void UString::SetStartLen(unsigned len)
 {
 	_chars = 0;
-	_chars = MY_STRING_NEW_wchar_t(len + 1);
+	_chars = MY_STRING_NEW_wchar_t(len+1);
 	_len = len;
 	_limit = len;
 }
@@ -1148,7 +1148,7 @@ UString &UString::operator=(const wchar_t * s)
 {
 	uint len = sstrlen(s);
 	if(len > _limit) {
-		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len + 1);
+		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len+1);
 		MY_STRING_DELETE(_chars);
 		_chars = newBuf;
 		_limit = len;
@@ -1164,7 +1164,7 @@ UString &UString::operator=(const UString &s)
 		return *this;
 	uint len = s._len;
 	if(len > _limit) {
-		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len + 1);
+		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len+1);
 		MY_STRING_DELETE(_chars);
 		_chars = newBuf;
 		_limit = len;
@@ -1177,7 +1177,7 @@ UString &UString::operator=(const UString &s)
 void UString::SetFrom(const wchar_t * s, unsigned len) // no check
 {
 	if(len > _limit) {
-		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len + 1);
+		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len+1);
 		MY_STRING_DELETE(_chars);
 		_chars = newBuf;
 		_limit = len;
@@ -1192,7 +1192,7 @@ void UString::SetFromBstr(BSTR s)
 {
 	uint len = ::SysStringLen(s);
 	if(len > _limit) {
-		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len + 1);
+		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len+1);
 		MY_STRING_DELETE(_chars);
 		_chars = newBuf;
 		_limit = len;
@@ -1206,7 +1206,7 @@ UString &UString::operator=(const char * s)
 {
 	uint len = sstrlen(s);
 	if(len > _limit) {
-		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len + 1);
+		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len+1);
 		MY_STRING_DELETE(_chars);
 		_chars = newBuf;
 		_limit = len;
@@ -1512,7 +1512,7 @@ void UString2::ReAlloc2(unsigned newLimit)
 void UString2::SetStartLen(unsigned len)
 {
 	_chars = 0;
-	_chars = MY_STRING_NEW_wchar_t(len + 1);
+	_chars = MY_STRING_NEW_wchar_t(len+1);
 	_len = len;
 }
 
@@ -1560,7 +1560,7 @@ UString2 & UString2::operator=(const wchar_t * s)
 {
 	uint len = sstrlen(s);
 	if(len > _len) {
-		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len + 1);
+		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len+1);
 		if(_chars)
 			MY_STRING_DELETE(_chars);
 		_chars = newBuf;
@@ -1574,7 +1574,7 @@ void UString2::SetFromAscii(const char * s)
 {
 	uint len = sstrlen(s);
 	if(len > _len) {
-		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len + 1);
+		wchar_t * newBuf = MY_STRING_NEW_wchar_t(len+1);
 		if(_chars)
 			MY_STRING_DELETE(_chars);
 		_chars = newBuf;
@@ -1591,7 +1591,7 @@ UString2 & UString2::operator=(const UString2 &s)
 	if(!(&s == this)) {
 		uint len = s._len;
 		if(len > _len) {
-			wchar_t * newBuf = MY_STRING_NEW_wchar_t(len + 1);
+			wchar_t * newBuf = MY_STRING_NEW_wchar_t(len+1);
 			if(_chars)
 				MY_STRING_DELETE(_chars);
 			_chars = newBuf;

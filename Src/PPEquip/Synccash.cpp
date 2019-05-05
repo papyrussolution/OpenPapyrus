@@ -4,7 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <comdisp.h>
 
 #define DEF_STRLEN             36   // Длина строки
 #define DEF_DRAWER_NUMBER		0	// Номер денежного ящика

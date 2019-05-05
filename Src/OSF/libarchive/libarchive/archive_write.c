@@ -129,7 +129,7 @@ struct archive * archive_write_new(void)
  */
 int archive_write_set_bytes_per_block(struct archive * _a, int bytes_per_block)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_bytes_per_block");
 	a->bytes_per_block = bytes_per_block;
 	return ARCHIVE_OK;
@@ -139,7 +139,7 @@ int archive_write_set_bytes_per_block(struct archive * _a, int bytes_per_block)
  */
 int FASTCALL archive_write_get_bytes_per_block(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, "archive_write_get_bytes_per_block");
 	return (a->bytes_per_block);
 }
@@ -149,7 +149,7 @@ int FASTCALL archive_write_get_bytes_per_block(struct archive * _a)
  */
 int archive_write_set_bytes_in_last_block(struct archive * _a, int bytes)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, "archive_write_set_bytes_in_last_block");
 	a->bytes_in_last_block = bytes;
 	return ARCHIVE_OK;
@@ -159,7 +159,7 @@ int archive_write_set_bytes_in_last_block(struct archive * _a, int bytes)
  */
 int archive_write_get_bytes_in_last_block(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, "archive_write_get_bytes_in_last_block");
 	return (a->bytes_in_last_block);
 }
@@ -169,7 +169,7 @@ int archive_write_get_bytes_in_last_block(struct archive * _a)
  */
 int archive_write_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, "archive_write_set_skip_file");
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
@@ -181,7 +181,7 @@ int archive_write_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
  */
 struct archive_write_filter * __archive_write_allocate_filter(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct archive_write_filter * f = (struct archive_write_filter *)SAlloc::C(1, sizeof(*f));
 	f->archive = _a;
 	if(a->filter_first == NULL)
@@ -405,7 +405,7 @@ static int archive_write_client_close(struct archive_write_filter * f)
 int archive_write_open(struct archive * _a, void * client_data, archive_open_callback * opener, archive_write_callback * writer,
     archive_close_callback * closer)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct archive_write_filter * client_filter;
 	int ret, r1;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_open");
@@ -434,7 +434,7 @@ int archive_write_open(struct archive * _a, void * client_data, archive_open_cal
  */
 static int _archive_write_close(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	int r = ARCHIVE_OK, r1 = ARCHIVE_OK;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_close");
 	if(a->archive.state == ARCHIVE_STATE_NEW || a->archive.state == ARCHIVE_STATE_CLOSED)
@@ -463,7 +463,7 @@ static int _archive_write_close(struct archive * _a)
 
 static int _archive_write_filter_count(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct archive_write_filter * p = a->filter_first;
 	int count = 0;
 	while(p) {
@@ -475,7 +475,7 @@ static int _archive_write_filter_count(struct archive * _a)
 
 void __archive_write_filters_free(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	int r = ARCHIVE_OK, r1;
 
 	while(a->filter_first != NULL) {
@@ -501,7 +501,7 @@ void __archive_write_filters_free(struct archive * _a)
  */
 static int _archive_write_free(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	int r = ARCHIVE_OK, r1;
 	if(_a == NULL)
 		return ARCHIVE_OK;
@@ -517,7 +517,7 @@ static int _archive_write_free(struct archive * _a)
 	}
 	__archive_write_filters_free(_a);
 	/* Release various dynamic buffers. */
-	SAlloc::F((void*)(uintptr_t)(const void*)a->nulls);
+	SAlloc::F((void*)(uintptr_t)(const void *)a->nulls);
 	archive_string_free(&a->archive.error_string);
 	if(a->passphrase != NULL) {
 		/* A passphrase should be cleaned. */
@@ -535,7 +535,7 @@ static int _archive_write_free(struct archive * _a)
  */
 static int _archive_write_header(struct archive * _a, struct archive_entry * entry)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	int ret, r2;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_DATA | ARCHIVE_STATE_HEADER, "archive_write_header");
 	archive_clear_error(&a->archive);
@@ -581,7 +581,7 @@ static int _archive_write_header(struct archive * _a, struct archive_entry * ent
 
 static int _archive_write_finish_entry(struct archive * _a)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	int ret = ARCHIVE_OK;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_finish_entry");
 	if(a->archive.state & ARCHIVE_STATE_DATA && a->format_finish_entry != NULL)
@@ -594,7 +594,7 @@ static int _archive_write_finish_entry(struct archive * _a)
  */
 static ssize_t _archive_write_data(struct archive * _a, const void * buff, size_t s)
 {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	const size_t max_write = INT_MAX;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_DATA, "archive_write_data");
 	/* In particular, this catches attempts to pass negative values. */
@@ -605,7 +605,7 @@ static ssize_t _archive_write_data(struct archive * _a, const void * buff, size_
 }
 
 static struct archive_write_filter * filter_lookup(struct archive * _a, int n)                                      {
-	struct archive_write * a = (struct archive_write *)_a;
+	struct archive_write * a = reinterpret_cast<struct archive_write *>(_a);
 	struct archive_write_filter * f = a->filter_first;
 	if(n == -1)
 		return a->filter_last;

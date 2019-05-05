@@ -1161,11 +1161,11 @@ REPEAT:
 
 				cairo_test_copy_file(test_filename, fail_filename);
 			}
-			else{ /* success */
+			else { /* success */
 				cairo_test_copy_file(test_filename, pass_filename);
 			}
 		}
-		else{ /* success */
+		else { /* success */
 			cairo_test_copy_file(test_filename, pass_filename);
 		}
 
@@ -1189,7 +1189,7 @@ REPEAT:
 					    image_out_path)) {
 					ret = CAIRO_TEST_XFAILURE;
 				}
-				else{
+				else {
 					ref_image =
 					    cairo_image_surface_create_from_png(image_out_path);
 					if(cairo_surface_status(ref_image) == CAIRO_STATUS_SUCCESS) {

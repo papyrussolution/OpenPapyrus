@@ -35,7 +35,7 @@ static int pkey_tls1_prf_init(EVP_PKEY_CTX * ctx)
 
 static void pkey_tls1_prf_cleanup(EVP_PKEY_CTX * ctx)
 {
-	TLS1_PRF_PKEY_CTX * kctx = (TLS1_PRF_PKEY_CTX *)ctx->data;
+	TLS1_PRF_PKEY_CTX * kctx = static_cast<TLS1_PRF_PKEY_CTX *>(ctx->data);
 	OPENSSL_clear_free(kctx->sec, kctx->seclen);
 	OPENSSL_cleanse(kctx->seed, kctx->seedlen);
 	OPENSSL_free(kctx);
@@ -43,7 +43,7 @@ static void pkey_tls1_prf_cleanup(EVP_PKEY_CTX * ctx)
 
 static int pkey_tls1_prf_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 {
-	TLS1_PRF_PKEY_CTX * kctx = (TLS1_PRF_PKEY_CTX *)ctx->data;
+	TLS1_PRF_PKEY_CTX * kctx = static_cast<TLS1_PRF_PKEY_CTX *>(ctx->data);
 	switch(type) {
 		case EVP_PKEY_CTRL_TLS_MD:
 		    kctx->md = (EVP_MD *)p2;
@@ -76,15 +76,14 @@ static int pkey_tls1_prf_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 	}
 }
 
-static int pkey_tls1_prf_ctrl_str(EVP_PKEY_CTX * ctx,
-    const char * type, const char * value)
+static int pkey_tls1_prf_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * value)
 {
 	if(!value) {
 		KDFerr(KDF_F_PKEY_TLS1_PRF_CTRL_STR, KDF_R_VALUE_MISSING);
 		return 0;
 	}
 	if(strcmp(type, "md") == 0) {
-		TLS1_PRF_PKEY_CTX * kctx = (TLS1_PRF_PKEY_CTX *)ctx->data;
+		TLS1_PRF_PKEY_CTX * kctx = static_cast<TLS1_PRF_PKEY_CTX *>(ctx->data);
 		const EVP_MD * md = EVP_get_digestbyname(value);
 		if(md == NULL) {
 			KDFerr(KDF_F_PKEY_TLS1_PRF_CTRL_STR, KDF_R_INVALID_DIGEST);
@@ -106,7 +105,7 @@ static int pkey_tls1_prf_ctrl_str(EVP_PKEY_CTX * ctx,
 
 static int pkey_tls1_prf_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 {
-	TLS1_PRF_PKEY_CTX * kctx = (TLS1_PRF_PKEY_CTX *)ctx->data;
+	TLS1_PRF_PKEY_CTX * kctx = static_cast<TLS1_PRF_PKEY_CTX *>(ctx->data);
 	if(kctx->md == NULL || kctx->sec == NULL || kctx->seedlen == 0) {
 		KDFerr(KDF_F_PKEY_TLS1_PRF_DERIVE, KDF_R_MISSING_PARAMETER);
 		return 0;
@@ -144,21 +143,15 @@ const EVP_PKEY_METHOD tls1_prf_pkey_meth = {
 	pkey_tls1_prf_ctrl_str
 };
 
-static int tls1_prf_P_hash(const EVP_MD * md,
-    const uchar * sec, size_t sec_len,
-    const uchar * seed, size_t seed_len,
-    uchar * out, size_t olen)
+static int tls1_prf_P_hash(const EVP_MD * md, const uchar * sec, size_t sec_len, const uchar * seed, size_t seed_len, uchar * out, size_t olen)
 {
-	int chunk;
 	EVP_MD_CTX * ctx = NULL, * ctx_tmp = NULL, * ctx_init = NULL;
 	EVP_PKEY * mac_key = NULL;
 	uchar A1[EVP_MAX_MD_SIZE];
 	size_t A1_len;
 	int ret = 0;
-
-	chunk = EVP_MD_size(md);
+	int chunk = EVP_MD_size(md);
 	OPENSSL_assert(chunk >= 0);
-
 	ctx = EVP_MD_CTX_new();
 	ctx_tmp = EVP_MD_CTX_new();
 	ctx_init = EVP_MD_CTX_new();
@@ -215,10 +208,7 @@ err:
 	return ret;
 }
 
-static int tls1_prf_alg(const EVP_MD * md,
-    const uchar * sec, size_t slen,
-    const uchar * seed, size_t seed_len,
-    uchar * out, size_t olen)
+static int tls1_prf_alg(const EVP_MD * md, const uchar * sec, size_t slen, const uchar * seed, size_t seed_len, uchar * out, size_t olen)
 {
 	if(EVP_MD_type(md) == NID_md5_sha1) {
 		size_t i;
@@ -239,7 +229,6 @@ static int tls1_prf_alg(const EVP_MD * md,
 	}
 	if(!tls1_prf_P_hash(md, sec, slen, seed, seed_len, out, olen))
 		return 0;
-
 	return 1;
 }
 
