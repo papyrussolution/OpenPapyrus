@@ -1074,7 +1074,7 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 			*pInd = 1;
 		}
 		else {
-			long   lv = (long)v;
+			long   lv = static_cast<long>(v);
 			if((double)lv == v) {
 				//
 				// Целочисленное значение

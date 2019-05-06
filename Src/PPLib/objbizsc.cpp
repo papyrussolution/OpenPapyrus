@@ -1193,7 +1193,8 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 		// Прием данных из xml файла, если он существует.
 		//
 		{
-			SString str_guid, rpt_name;
+			SString str_guid;
+			SString rpt_name;
 			user_acc.LocalDbUuid.ToStr(S_GUID::fmtIDL, str_guid);
 			bizsc_path.Cat(str_guid).SetLastSlash();
 			SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
@@ -1207,7 +1208,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 				THROW(LoadSdRecord(PPREC_BIZSCOREVAL, &imp_exp_par.InrRec));
 				imp_exp_par.Direction  = 1;
 				imp_exp_par.DataFormat = PPImpExpParam::dfXml;
-				imp_exp_par.XdfParam.RootTag = (const char *)rpt_name;
+				imp_exp_par.XdfParam.RootTag = rpt_name;
 				imp_exp_par.XdfParam.RecTag  = "Iter";
 				imp_exp_par.FileName.CopyFrom(bizsc_path);
 				imp_exp_par.OtrRec = imp_exp_par.InrRec;

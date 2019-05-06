@@ -39,7 +39,7 @@ int FASTCALL DbThreadLocalArea::DbRegList::AddEntry(void * pTbl, void * pSupplem
 		Tab.insert(&ptr);
 		OpenCount++;
 		SETMAX(OpenPeak, OpenCount);
-		h = (int)Tab.getCount();
+		h = static_cast<int>(Tab.getCount());
 	}
 	if(h && pSupplementPtr) {
 		Ht.Add(pSupplementPtr, h, 0);
@@ -50,8 +50,8 @@ int FASTCALL DbThreadLocalArea::DbRegList::AddEntry(void * pTbl, void * pSupplem
 
 int FASTCALL DbThreadLocalArea::DbRegList::FreeEntry(int handle, void * pSupplementPtr)
 {
-	assert(handle > 0 && handle <= (int)Tab.getCount());
-	if(handle > 0 && handle <= (int)Tab.getCount()) {
+	assert(handle > 0 && handle <= static_cast<int>(Tab.getCount()));
+	if(handle > 0 && handle <= static_cast<int>(Tab.getCount())) {
 		OpenCount--;
 		Tab.at(handle-1) = 0;
 		if(pSupplementPtr) {
@@ -66,16 +66,16 @@ int FASTCALL DbThreadLocalArea::DbRegList::FreeEntry(int handle, void * pSupplem
 
 void * FASTCALL DbThreadLocalArea::DbRegList::GetPtr(int handle) const
 {
-	assert(handle > 0 && handle <= (int)Tab.getCount());
-	return (handle > 0 && handle <= (int)Tab.getCount()) ? Tab.at(handle-1) : 0;
+	assert(handle > 0 && handle <= static_cast<int>(Tab.getCount()));
+	return (handle > 0 && handle <= static_cast<int>(Tab.getCount())) ? Tab.at(handle-1) : 0;
 }
 
 void * FASTCALL DbThreadLocalArea::DbRegList::GetBySupplementPtr(const void * pSupplementPtr) const
 {
 	uint   ht_val = 0;
 	if(Ht.Search(pSupplementPtr, &ht_val, 0)) {
-		assert(ht_val > 0 && ht_val <= (int)Tab.getCount());
-		return (ht_val > 0 && ht_val <= (int)Tab.getCount()) ? Tab.at(ht_val-1) : 0;
+		assert(ht_val > 0 && ht_val <= static_cast<int>(Tab.getCount()));
+		return (ht_val > 0 && ht_val <= static_cast<int>(Tab.getCount())) ? Tab.at(ht_val-1) : 0;
 	}
 	else
 		return 0;

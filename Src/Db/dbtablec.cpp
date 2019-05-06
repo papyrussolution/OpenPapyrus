@@ -553,7 +553,7 @@ int SLAPI DBTable::putRecToString(SString & rBuf, int withFieldNames)
 int DBTable::allocOwnBuffer(int size)
 {
 	int    ok = 1;
-	RECORDSIZE rec_size = (size < 0) ? fields.getRecSize() : (RECORDSIZE)size;
+	RECORDSIZE rec_size = (size < 0) ? fields.getRecSize() : static_cast<RECORDSIZE>(size);
 	if(P_DBuf && State & sOwnDataBuf) {
 		ZFREE(P_DBuf);
 	}
@@ -727,7 +727,7 @@ int SLAPI DBTable::GetLobField(uint n, DBField * pFld) const
 
 void FASTCALL DBTable::destroyLobData(DBField fld)
 {
-	SLob * p_fld_data = (SLob *)fld.getValuePtr();
+	SLob * p_fld_data = static_cast<SLob *>(fld.getValuePtr());
 	p_fld_data->DestroyPtr();
 }
 
@@ -737,7 +737,7 @@ int DBTable::readLobData(DBField fld, SBuffer & rBuf) const
 	size_t sz;
 	if(LobB.GetSize((uint)fld.fld, &sz) > 0) {
 		if(sz) {
-			SLob * p_fld_data = (SLob *)fld.getValuePtr();
+			SLob * p_fld_data = static_cast<SLob *>(fld.getValuePtr());
 			const void * ptr = p_fld_data->GetRawDataPtr();
 			if(ptr) {
 				rBuf.Write(ptr, sz);
@@ -758,7 +758,7 @@ int DBTable::writeLobData(DBField fld, const void * pBuf, size_t dataSize, int f
 	THROW(r = LobB.GetSize((uint)fld.fld, &sz));
 	if(r > 0) {
 		size_t flat_size = fld.getField().size();
-		SLob * p_fld_data = (SLob *)fld.getValuePtr();
+		SLob * p_fld_data = static_cast<SLob *>(fld.getValuePtr());
 		void * ptr = p_fld_data->GetRawDataPtr();
 		STempBuffer temp_buf(0);
 		if(ptr == pBuf && (dataSize > flat_size || forceCanonical)) {
@@ -792,11 +792,11 @@ int SLAPI DBTable::StoreAndTrimLob()
 			if(oneof2(GETSTYPE(r_fld.T), S_BLOB, S_CLOB)) {
 				uint   lob_pos = 0;
 				THROW_DS(LobB.SearchPos(i, &lob_pos));
-				DBLobItem * p_lob_item = (DBLobItem *)LobB.at(lob_pos);
+				DBLobItem * p_lob_item = static_cast<DBLobItem *>(LobB.at(lob_pos));
 				uint32 lob_sz = p_lob_item->Size;
 				LobB.Storage.Write(lob_sz);
 				if(lob_sz) {
-					SLob * p_lob = (SLob *)(PTR8(P_DBuf)+r_fld.Offs);
+					SLob * p_lob = reinterpret_cast<SLob *>(PTR8(P_DBuf)+r_fld.Offs);
 					THROW_DS(p_lob->Serialize(+1, stsize(r_fld.T), &p_lob_item->StrgInd, LobB.Storage));
 					p_lob->Empty();
 					p_lob_item->Size = 0;
@@ -819,11 +819,11 @@ int SLAPI DBTable::RestoreLob()
 			if(oneof2(GETSTYPE(r_fld.T), S_BLOB, S_CLOB)) {
 				uint   lob_pos = 0;
 				THROW_DS(LobB.SearchPos(i, &lob_pos));
-				DBLobItem * p_lob_item = (DBLobItem *)LobB.at(lob_pos);
+				DBLobItem * p_lob_item = static_cast<DBLobItem *>(LobB.at(lob_pos));
 				uint32 lob_sz = 0;
 				THROW(LobB.Storage.Read(lob_sz));
 				if(lob_sz) {
-					SLob * p_lob = (SLob *)(PTR8(P_DBuf)+r_fld.Offs);
+					SLob * p_lob = reinterpret_cast<SLob *>(PTR8(P_DBuf)+r_fld.Offs);
 					THROW_DS(p_lob->Serialize(-1, stsize(r_fld.T), &p_lob_item->StrgInd, LobB.Storage));
 				}
 				p_lob_item->Size = lob_sz;

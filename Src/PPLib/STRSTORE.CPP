@@ -708,6 +708,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 	StrAssocArray file_lang_list;
 	SString ident_file_name; // Имя файла, хранящего соответствия символов и идентификаторов
 	SString temp_buf;
+	SString final_line_buf;
 	SString intr_at_text;
 	SPathStruc ps;
 	SString org_nam, org_ext;
@@ -863,18 +864,18 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
                             temp_buf.Z().Cat("\t//#org").Space().Cat(org_text).CR();
                             f_at.WriteLine(temp_buf);
                             //
-                            temp_buf.Z();
+							final_line_buf.Z();
                             if(item.CodeSymb.NotEmpty() && item.CodeSymb != P_StrSt_EmptyCodeSymb) {
-								temp_buf.Cat(item.CodeSymb);
+								final_line_buf.Cat(item.CodeSymb);
                             }
 							else if(item.Signature.NotEmpty()) {
-								temp_buf.CatChar('@').Cat(item.Signature);
+								final_line_buf.CatChar('@').Cat(item.Signature);
 							}
 							else {
 								THROW_V(item.Code != 0, sc2eStrNotIdentified);
-								temp_buf.Cat(item.Code);
+								final_line_buf.Cat(item.Code);
 							}
-							temp_buf.Space();
+							final_line_buf.Space();
 							{
 #ifdef SC2C // {
 								auto_transl_string = org_text;
@@ -956,9 +957,9 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 								else
 									auto_transl_string = "error-autotranslation";
 #endif
-								temp_buf.CatQStr(auto_transl_string);
+								final_line_buf.CatQStr(auto_transl_string);
 							}
-							f_at.WriteLine(temp_buf.CR());
+							f_at.WriteLine(final_line_buf.CR());
 						}
 					}
 				}

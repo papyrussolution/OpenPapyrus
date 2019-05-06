@@ -100,7 +100,7 @@ static ngx_int_t ngx_stream_upstream_get_least_conn_peer(ngx_peer_connection_t *
 	    peer;
 	    peer = peer->next, i++) {
 		n = i / (8 * sizeof(uintptr_t));
-		m = (uintptr_t)1 << i % (8 * sizeof(uintptr_t));
+		m = static_cast<uintptr_t>(1) << i % (8 * sizeof(uintptr_t));
 
 		if(rrp->tried[n] & m) {
 			continue;
@@ -152,7 +152,7 @@ static ngx_int_t ngx_stream_upstream_get_least_conn_peer(ngx_peer_connection_t *
 		    peer;
 		    peer = peer->next, i++) {
 			n = i / (8 * sizeof(uintptr_t));
-			m = (uintptr_t)1 << i % (8 * sizeof(uintptr_t));
+			m = static_cast<uintptr_t>(1) << i % (8 * sizeof(uintptr_t));
 
 			if(rrp->tried[n] & m) {
 				continue;
@@ -201,7 +201,7 @@ static ngx_int_t ngx_stream_upstream_get_least_conn_peer(ngx_peer_connection_t *
 	best->conns++;
 	rrp->current = best;
 	n = p / (8 * sizeof(uintptr_t));
-	m = (uintptr_t)1 << p % (8 * sizeof(uintptr_t));
+	m = static_cast<uintptr_t>(1) << p % (8 * sizeof(uintptr_t));
 	rrp->tried[n] |= m;
 	ngx_stream_upstream_rr_peers_unlock(peers);
 	return NGX_OK;

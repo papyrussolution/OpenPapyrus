@@ -216,7 +216,7 @@ int DBTable::Btr_ProcessLobOnReading()
 				//
 				size_t sz;
 				if(LobB.GetSize((uint)last_fld.fld, &sz) > 0)
-					if(((SLob *)last_fld.getValuePtr())->EnsureUnstructured() > 0)
+					if(static_cast<SLob *>(last_fld.getValuePtr())->EnsureUnstructured() > 0)
 						bad_structured = 1;
 			}
 			//THROW(writeLobData(last_fld, p_lob_data, retBufLen - FixRecSize));
@@ -325,7 +325,7 @@ int SLAPI DBTable::step(int sp)
 {
 	static const int cmd[] = {B_STEPFIRST, B_STEPLAST, -1, -1, -1, -1, -1, B_STEPDIRECT, B_STEPPREV};
 	retBufLen = bufLen;
-	int    err = BTRV(cmd[sp], FPB, static_cast<char *>(P_DBuf), (uint16 *)&retBufLen, 0, WBTRVTAIL_ZZ);
+	int    err = BTRV(cmd[sp], FPB, static_cast<char *>(P_DBuf), reinterpret_cast<uint16 *>(&retBufLen), 0, WBTRVTAIL_ZZ);
 	BtrError = err;
 	if(retBufLen < bufLen)
 		PTR8(P_DBuf)[retBufLen] = 0;
@@ -339,7 +339,7 @@ int SLAPI DBTable::getExtended(void * key, int srchMode, int lock)
 	assert(srchMode == spNext || srchMode == spPrev);
 	int    op = ((srchMode == spNext) ? B_GETNEXTEXT : B_GETPREVEXT) + lock;
 	retBufLen = bufLen;
-	int    err = BTRV(op, FPB, static_cast<char *>(P_DBuf), (uint16 *)&retBufLen, static_cast<char *>(key), WBTRVTAIL);
+	int    err = BTRV(op, FPB, static_cast<char *>(P_DBuf), reinterpret_cast<uint16 *>(&retBufLen), static_cast<char *>(key), WBTRVTAIL);
 	if(err == BE_FILTERLIMIT)
 		err = BE_EOF;
 	return Ret(err);
@@ -409,7 +409,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 			tail_len++;
 		retBufLen = (RECORDSIZE)(FixRecSize + tail_len);
 	}
-	int result = Ret(BTRV(B_INSERT, FPB, p_data_buf, (uint16 *)&retBufLen, (char *)pKeyBuf, WBTRVTAIL));
+	int result = Ret(BTRV(B_INSERT, FPB, p_data_buf, reinterpret_cast<uint16 *>(&retBufLen), static_cast<char *>(pKeyBuf), WBTRVTAIL));
 	if(result) {
 		if(do_use_chunk_op) {
 			size_t rest_size = lob_buffer.GetAvailableSize();

@@ -119,9 +119,20 @@ const void * SLAPI WinRegValue::GetBinary(size_t * pDataLen) const
 	return P_Buf;
 }
 
-const char * SLAPI WinRegValue::GetString() const
+/*const char * SLAPI WinRegValue::GetString() const
 {
 	return (Type == REG_SZ) ? static_cast<const char *>(P_Buf) : 0;
+}*/
+
+int SLAPI WinRegValue::GetString(SString & rBuf) const
+{
+	int    ok = 0;
+	rBuf.Z();
+	if(Type == REG_SZ) {
+		rBuf = SUcSwitch(static_cast<const TCHAR *>(P_Buf));
+		ok = 1;
+	}
+	return ok;
 }
 
 int SLAPI WinRegValue::PutDWord(uint32 val)

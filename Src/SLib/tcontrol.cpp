@@ -1448,7 +1448,7 @@ int TCluster::getDataAssoc(long * pVal)
 	long   val = *pVal;
 	TransmitData(-1, &v);
 	if(Kind == RADIOBUTTONS) {
-		if(ValAssoc.Search((long)v, &val, 0) || ValAssoc.Search(-1, &val, 0)) {
+		if(ValAssoc.Search(static_cast<long>(v), &val, 0) || ValAssoc.Search(-1, &val, 0)) {
 			*pVal = val;
 			ok = 1;
 		}

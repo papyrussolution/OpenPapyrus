@@ -255,7 +255,7 @@ int PPStockOpt::Test()
 			PPStockOpt::Item item;
 			if(goods_tab.GetRow(i, row)) {
 				if(row.Get(0, v))
-					item.GoodsID = (long)v;
+					item.GoodsID = static_cast<long>(v);
 				if(row.Get(1, v))
 					item.Cost = v;
 				if(row.Get(2, v))

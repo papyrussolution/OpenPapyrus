@@ -93,14 +93,14 @@ DBConst FASTCALL dbconst(long v)
 DBConst FASTCALL dbconst(int16 v)
 {
 	DBConst c;
-	c.init((long)v);
+	c.init(static_cast<long>(v));
 	return c;
 }
 
 DBConst FASTCALL dbconst(uint16 v)
 {
 	DBConst c;
-	c.init((long)v);
+	c.init(static_cast<long>(v));
 	return c;
 }
 

@@ -154,43 +154,30 @@ static ngx_int_t ngx_http_upstream_get_hash_peer(ngx_peer_connection_t * pc, voi
 
 		hp->hash += hash;
 		hp->rehash++;
-
 		w = hp->hash % hp->rrp.peers->total_weight;
 		peer = hp->rrp.peers->peer;
 		p = 0;
-
 		while(w >= peer->weight) {
 			w -= peer->weight;
 			peer = peer->next;
 			p++;
 		}
-
 		n = p / (8 * sizeof(uintptr_t));
-		m = (uintptr_t)1 << p % (8 * sizeof(uintptr_t));
-
+		m = static_cast<uintptr_t>(1) << p % (8 * sizeof(uintptr_t));
 		if(hp->rrp.tried[n] & m) {
 			goto next;
 		}
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-		    "get hash peer, value:%uD, peer:%ui", hp->hash, p);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get hash peer, value:%uD, peer:%ui", hp->hash, p);
 		if(peer->down) {
 			goto next;
 		}
-
-		if(peer->max_fails
-		    && peer->fails >= peer->max_fails
-		    && now - peer->checked <= peer->fail_timeout) {
+		if(peer->max_fails && peer->fails >= peer->max_fails && now - peer->checked <= peer->fail_timeout) {
 			goto next;
 		}
-
 		if(peer->max_conns && peer->conns >= peer->max_conns) {
 			goto next;
 		}
-
 		break;
-
 next:
 
 		if(++hp->tries > 20) {
@@ -204,17 +191,12 @@ next:
 	pc->sockaddr = peer->sockaddr;
 	pc->socklen = peer->socklen;
 	pc->name = &peer->name;
-
 	peer->conns++;
-
 	if(now - peer->checked > peer->fail_timeout) {
 		peer->checked = now;
 	}
-
 	ngx_http_upstream_rr_peers_unlock(hp->rrp.peers);
-
 	hp->rrp.tried[n] |= m;
-
 	return NGX_OK;
 }
 
@@ -233,46 +215,33 @@ static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream
 		uint32_t value;
 		u_char byte[4];
 	} prev_hash;
-
 	if(ngx_http_upstream_init_round_robin(cf, us) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	us->peer.init = ngx_http_upstream_init_chash_peer;
-
 	peers = (ngx_http_upstream_rr_peers_t*)us->peer.data;
 	npoints = peers->total_weight * 160;
-
-	size = sizeof(ngx_http_upstream_chash_points_t)
-	    + sizeof(ngx_http_upstream_chash_point_t) * (npoints - 1);
-
+	size = sizeof(ngx_http_upstream_chash_points_t) + sizeof(ngx_http_upstream_chash_point_t) * (npoints - 1);
 	points = (ngx_http_upstream_chash_points_t *)ngx_palloc(cf->pool, size);
 	if(points == NULL) {
 		return NGX_ERROR;
 	}
-
 	points->number = 0;
-
 	for(peer = peers->peer; peer; peer = peer->next) {
 		server = &peer->server;
-
 		/*
 		 * Hash expression is compatible with Cache::Memcached::Fast:
 		 * crc32(HOST \0 PORT PREV_HASH).
 		 */
-
-		if(server->len >= 5
-		    && ngx_strncasecmp(server->data, (u_char *)"unix:", 5) == 0) {
+		if(server->len >= 5 && ngx_strncasecmp(server->data, (u_char *)"unix:", 5) == 0) {
 			host = server->data + 5;
 			host_len = server->len - 5;
 			port = NULL;
 			port_len = 0;
 			goto done;
 		}
-
 		for(j = 0; j < server->len; j++) {
 			c = server->data[server->len - j - 1];
-
 			if(c == ':') {
 				host = server->data;
 				host_len = server->len - j - 1;
@@ -280,37 +249,28 @@ static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream
 				port_len = j;
 				goto done;
 			}
-
 			if(c < '0' || c > '9') {
 				break;
 			}
 		}
-
 		host = server->data;
 		host_len = server->len;
 		port = NULL;
 		port_len = 0;
-
 done:
-
 		ngx_crc32_init(base_hash);
 		ngx_crc32_update(&base_hash, host, host_len);
 		ngx_crc32_update(&base_hash, (u_char *)"", 1);
 		ngx_crc32_update(&base_hash, port, port_len);
-
 		prev_hash.value = 0;
 		npoints = peer->weight * 160;
-
 		for(j = 0; j < npoints; j++) {
 			hash = base_hash;
-
 			ngx_crc32_update(&hash, prev_hash.byte, 4);
 			ngx_crc32_final(hash);
-
 			points->point[points->number].hash = hash;
 			points->point[points->number].server = server;
 			points->number++;
-
 #if (NGX_HAVE_LITTLE_ENDIAN)
 			prev_hash.value = hash;
 #else
@@ -447,7 +407,7 @@ static ngx_int_t ngx_http_upstream_get_chash_peer(ngx_peer_connection_t * pc, vo
 		    peer;
 		    peer = peer->next, i++) {
 			n = i / (8 * sizeof(uintptr_t));
-			m = (uintptr_t)1 << i % (8 * sizeof(uintptr_t));
+			m = static_cast<uintptr_t>(1) << i % (8 * sizeof(uintptr_t));
 
 			if(hp->rrp.tried[n] & m) {
 				continue;
@@ -518,7 +478,7 @@ found:
 	ngx_http_upstream_rr_peers_unlock(hp->rrp.peers);
 
 	n = best_i / (8 * sizeof(uintptr_t));
-	m = (uintptr_t)1 << best_i % (8 * sizeof(uintptr_t));
+	m = static_cast<uintptr_t>(1) << best_i % (8 * sizeof(uintptr_t));
 
 	hp->rrp.tried[n] |= m;
 

@@ -1174,11 +1174,11 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	{
 		THROW(tsl_par.Retranslate(iefRootTag, symb_buf));
-		THROW(pFile->AppendParam(pSect, symb_buf, XdfParam.RootTag, 0));
+		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = XdfParam.RootTag).Transf(CTRANSF_OUTER_TO_INNER), 0));
 		THROW(tsl_par.Retranslate(iefRecTag, symb_buf));
-		THROW(pFile->AppendParam(pSect, symb_buf, XdfParam.RecTag, 0));
+		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = XdfParam.RecTag).Transf(CTRANSF_OUTER_TO_INNER), 0));
 		THROW(tsl_par.Retranslate(iefHdrTag, symb_buf));
-		THROW(pFile->AppendParam(pSect, symb_buf, XdfParam.HdrTag, 0));
+		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = XdfParam.HdrTag).Transf(CTRANSF_OUTER_TO_INNER), 0));
 		THROW(tsl_par.Retranslate(iefUseDTD, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fUseDTD)));
 		THROW(tsl_par.Retranslate(iefUtf8Codepage, symb_buf));
@@ -1191,12 +1191,12 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 					THROW(tsl_par.Retranslate(iefHdrFormula, symb_buf));
 					(temp_buf = symb_buf).Space().CatParStr(fld.Formula);
 					fld.PutToString(3, fld_buf);
-					THROW(pFile->AppendParam(pSect, temp_buf, fld_buf, 0));
+					THROW(pFile->AppendParam(pSect, temp_buf, fld_buf.Transf(CTRANSF_OUTER_TO_INNER), 0));
 				}
 				else {
 					THROW_SL(HdrInrRec.GetFieldByID(fld.ID, 0, &inner_fld));
 					fld.PutToString(3, fld_buf);
-					THROW(pFile->AppendParam(pSect, inner_fld.Name, fld_buf, 1));
+					THROW(pFile->AppendParam(pSect, inner_fld.Name, fld_buf.Transf(CTRANSF_OUTER_TO_INNER), 1));
 				}
 		}
 	}
@@ -1207,12 +1207,12 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 				temp_buf = symb_buf;
 				temp_buf.Space().CatParStr(fld.Formula);
 				fld.PutToString(3, fld_buf);
-				THROW(pFile->AppendParam(pSect, temp_buf, fld_buf, 0));
+				THROW(pFile->AppendParam(pSect, temp_buf, fld_buf.Transf(CTRANSF_OUTER_TO_INNER), 0));
 			}
 			else {
 				THROW_SL(InrRec.GetFieldByID(fld.ID, 0, &inner_fld));
 				fld.PutToString(3, fld_buf);
-				THROW(pFile->AppendParam(pSect, inner_fld.Name, fld_buf, 1));
+				THROW(pFile->AppendParam(pSect, inner_fld.Name, fld_buf.Transf(CTRANSF_OUTER_TO_INNER), 1));
 			}
 	}
 	// Excel Params {
@@ -1234,7 +1234,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		THROW(tsl_par.Retranslate(iefSheetNum, symb_buf));
 		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf.Z().Cat(XlsdfParam.SheetNum), 1));
 		THROW(tsl_par.Retranslate(iefSheetName, symb_buf));
-		THROW(pFile->AppendParam(pSect, symb_buf, XlsdfParam.SheetName_, 1));
+		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = XlsdfParam.SheetName_).Transf(CTRANSF_OUTER_TO_INNER), 1));
 		THROW(tsl_par.Retranslate(iefEndStr, symb_buf));
 		THROW(pFile->AppendParam(pSect, symb_buf, XlsdfParam.EndStr_, 1));
 	}
@@ -1361,17 +1361,15 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 				case iefFieldEqVal: SETFLAG(TdfParam.Flags, TextDbFile::fFldEqVal, val.ToLong()); break;
 				case iefFooterLine: footer_line = val; break;
 				case iefFormula: THROW(ParseFormula(0, par, val)); break;
-				case iefHdrFormula:
-					THROW(ParseFormula(1, par, val));
-					break;
-				case iefRootTag: XdfParam.RootTag = val; break;
-				case iefRecTag: XdfParam.RecTag = val; break;
-				case iefHdrTag: XdfParam.HdrTag = val; break;
+				case iefHdrFormula: THROW(ParseFormula(1, par, val)); break;
+				case iefRootTag: (XdfParam.RootTag = val).Transf(CTRANSF_INNER_TO_OUTER); break;
+				case iefRecTag: (XdfParam.RecTag = val).Transf(CTRANSF_INNER_TO_OUTER); break;
+				case iefHdrTag: (XdfParam.HdrTag = val).Transf(CTRANSF_INNER_TO_OUTER); break;
 				case iefUseDTD: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUseDTD, val.ToLong()); break;
 				case iefUtf8Codepage: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, val.ToLong()); break;
 				case iefSubRec: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fHaveSubRec, val.ToLong()); break;
 				case iefSheetNum: XlsdfParam.SheetNum = val.ToLong(); break;
-				case iefSheetName: XlsdfParam.SheetName_ = val; break;
+				case iefSheetName: (XlsdfParam.SheetName_ = val).Transf(CTRANSF_INNER_TO_OUTER); break;
 				case iefEndStr: XlsdfParam.EndStr_ = val; break;
 				case iefXlsFldNameRec: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fFldNameRec, val.ToLong()); break;
 				case iefXlsQuotStr: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fQuotText, val.ToLong()); break;

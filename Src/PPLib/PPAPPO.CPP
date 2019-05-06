@@ -1071,6 +1071,7 @@ static int SLAPI StoreLastBinPath()
 	static const char * WrParam_BinPath = "BinPath"; // @global @threadsafe
 
 	SString path, param;
+	SString temp_buf;
 	PPGetPath(PPPATH_BIN, path);
 	path.RmvLastSlash();
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
@@ -1080,7 +1081,7 @@ static int SLAPI StoreLastBinPath()
 		const size_t prfx_len = sstrlen(WrParam_BinPath);
 		if(strnicmp(param, WrParam_BinPath, prfx_len) == 0) {
 			last_path_idx = MAX(atoi(param+prfx_len), last_path_idx);
-			if(path.CmpNC(reg_val.GetString()) == 0)
+			if(reg_val.GetString(temp_buf) && path.CmpNC(temp_buf) == 0)
 				return -1;
 		}
 	}

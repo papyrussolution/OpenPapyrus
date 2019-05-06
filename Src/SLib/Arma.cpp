@@ -400,7 +400,7 @@ static int SLAPI TestQueue()
 	printf("\n");
 	SQueue q(sizeof(double), 10);
 	for(double v = 0.0; v < 10000.0; v += 1.0) {
-		if(((long)v) % 5 == 0) {
+		if((static_cast<long>(v)) % 5 == 0) {
 			q.pop();
 			q.pop();
 		}

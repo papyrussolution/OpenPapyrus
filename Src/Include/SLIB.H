@@ -11791,7 +11791,8 @@ public:
 	uint   SLAPI  GetType() const { return Type; }
 	uint32 SLAPI  GetDWord() const;
 	const  void * SLAPI GetBinary(size_t * pDataLen) const;
-	const  char * SLAPI GetString() const;
+	//const  char * SLAPI GetString() const;
+	int    SLAPI  GetString(SString & rBuf) const;
 	int    SLAPI  PutDWord(uint32);
 	int    SLAPI  PutBinary(const void * pBuf, size_t dataSize);
 	int    SLAPI  PutString(const char * pStr);

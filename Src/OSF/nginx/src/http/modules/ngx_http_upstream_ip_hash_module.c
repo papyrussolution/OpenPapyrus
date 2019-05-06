@@ -145,7 +145,7 @@ static ngx_int_t ngx_http_upstream_get_ip_hash_peer(ngx_peer_connection_t * pc, 
 		}
 
 		n = p / (8 * sizeof(uintptr_t));
-		m = (uintptr_t)1 << p % (8 * sizeof(uintptr_t));
+		m = static_cast<uintptr_t>(1) << p % (8 * sizeof(uintptr_t));
 
 		if(iphp->rrp.tried[n] & m) {
 			goto next;

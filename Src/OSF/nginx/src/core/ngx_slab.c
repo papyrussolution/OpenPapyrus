@@ -200,9 +200,9 @@ void * ngx_slab_alloc_locked(ngx_slab_pool_t * pool, size_t size)
 			}
 		}
 		else { /* shift > ngx_slab_exact_shift */
-			mask = ((uintptr_t)1 << (ngx_pagesize >> shift)) - 1;
+			mask = (static_cast<uintptr_t>(1) << (ngx_pagesize >> shift)) - 1;
 			mask <<= NGX_SLAB_MAP_SHIFT;
-			for(m = (uintptr_t)1 << NGX_SLAB_MAP_SHIFT, i = 0; m &mask; m <<= 1, i++) {
+			for(m = static_cast<uintptr_t>(1) << NGX_SLAB_MAP_SHIFT, i = 0; m &mask; m <<= 1, i++) {
 				if(page->slab & m) {
 					continue;
 				}
@@ -234,7 +234,7 @@ void * ngx_slab_alloc_locked(ngx_slab_pool_t * pool, size_t size)
 			for(i = 0; i < (n + 1) / (8 * sizeof(uintptr_t)); i++) {
 				bitmap[i] = NGX_SLAB_BUSY;
 			}
-			m = ((uintptr_t)1 << ((n + 1) % (8 * sizeof(uintptr_t)))) - 1;
+			m = (static_cast<uintptr_t>(1) << ((n + 1) % (8 * sizeof(uintptr_t)))) - 1;
 			bitmap[i] = m;
 			map = (ngx_pagesize >> shift) / (8 * sizeof(uintptr_t));
 			for(i = i + 1; i < map; i++) {
@@ -260,7 +260,7 @@ void * ngx_slab_alloc_locked(ngx_slab_pool_t * pool, size_t size)
 			goto done;
 		}
 		else { /* shift > ngx_slab_exact_shift */
-			page->slab = ((uintptr_t)1 << NGX_SLAB_MAP_SHIFT) | shift;
+			page->slab = (static_cast<uintptr_t>(1) << NGX_SLAB_MAP_SHIFT) | shift;
 			page->next = &slots[slot];
 			page->prev = (uintptr_t)&slots[slot] | NGX_SLAB_BIG;
 			slots[slot].next = page;
@@ -325,7 +325,7 @@ void ngx_slab_free_locked(ngx_slab_pool_t * pool, void * p)
 			    goto wrong_chunk;
 		    }
 		    n = ((uintptr_t)p & (ngx_pagesize - 1)) >> shift;
-		    m = (uintptr_t)1 << (n % (8 * sizeof(uintptr_t)));
+		    m = static_cast<uintptr_t>(1) << (n % (8 * sizeof(uintptr_t)));
 		    n /= 8 * sizeof(uintptr_t);
 		    bitmap = (uintptr_t*)((uintptr_t)p & ~((uintptr_t)ngx_pagesize - 1));
 		    if(bitmap[n] & m) {
@@ -343,7 +343,7 @@ void ngx_slab_free_locked(ngx_slab_pool_t * pool, void * p)
 				    n = 1;
 			    }
 			    i = n / (8 * sizeof(uintptr_t));
-			    m = ((uintptr_t)1 << (n % (8 * sizeof(uintptr_t)))) - 1;
+			    m = (static_cast<uintptr_t>(1) << (n % (8 * sizeof(uintptr_t)))) - 1;
 			    if(bitmap[i] & ~m) {
 				    goto done;
 			    }
@@ -359,7 +359,7 @@ void ngx_slab_free_locked(ngx_slab_pool_t * pool, void * p)
 		    }
 		    goto chunk_already_free;
 		case NGX_SLAB_EXACT:
-		    m = (uintptr_t)1 << (((uintptr_t)p & (ngx_pagesize - 1)) >> ngx_slab_exact_shift);
+		    m = static_cast<uintptr_t>(1) << (((uintptr_t)p & (ngx_pagesize - 1)) >> ngx_slab_exact_shift);
 		    size = ngx_slab_exact_size;
 		    if((uintptr_t)p & (size - 1)) {
 			    goto wrong_chunk;
@@ -388,7 +388,7 @@ void ngx_slab_free_locked(ngx_slab_pool_t * pool, void * p)
 		    if((uintptr_t)p & (size - 1)) {
 			    goto wrong_chunk;
 		    }
-		    m = (uintptr_t)1 << ((((uintptr_t)p & (ngx_pagesize - 1)) >> shift) + NGX_SLAB_MAP_SHIFT);
+		    m = static_cast<uintptr_t>(1) << ((((uintptr_t)p & (ngx_pagesize - 1)) >> shift) + NGX_SLAB_MAP_SHIFT);
 		    if(slab & m) {
 			    slot = shift - pool->min_shift;
 			    if(page->next == NULL) {

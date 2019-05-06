@@ -123,7 +123,7 @@ TYPEID FASTCALL bt2st(int baseType)
 		case BTS_REAL:   return MKSTYPE(S_FLOAT, 8);
 		case BTS_DATE:   return MKSTYPE(S_DATE, 4);
 		case BTS_TIME:   return MKSTYPE(S_TIME, 4);
-		case BTS_BOOL:   return MKSTYPE(S_BOOL, 4); // @v8.1.2
+		case BTS_BOOL:   return MKSTYPE(S_BOOL, 4);
 		default:         return 0;
 	}
 }
@@ -347,11 +347,11 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 	rScan.Skip();
 	SString text = rScan;
 	SString temp_buf;
-	for(uint i = 0; i < sizeof(TypeNameList) / sizeof(TypeName); i++) {
+	for(uint i = 0; i < SIZEOFARRAY(TypeNameList); i++) {
 		StringSet ss(',', TypeNameList[i].P_Names);
 		for(uint p = 0; ss.get(&p, temp_buf);) {
 			if(text.CmpPrefix(temp_buf, 1) == 0) {
-				char next2 = text[temp_buf.Len()];
+				uchar next2 = static_cast<uchar>(text[temp_buf.Len()]);
 				if(!isalnum(next2) && next2 != '_') {
 					rScan.SetLen(temp_buf.Len());
 					return TypeNameList[i].Typ;

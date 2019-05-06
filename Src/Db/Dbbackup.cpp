@@ -389,7 +389,7 @@ int SLAPI DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, B
 	}
 	// check total size criteria
 	if(!use_compression) {
-		double diff = (double)(rCP.TotalSize - cp.TotalSize) * 100;
+		double diff = static_cast<double>((rCP.TotalSize - cp.TotalSize) * 100);
 		diff = (diff < 0) ? -diff : diff;
 		THROW_V(cp.TotalSize && (diff / (double)cp.TotalSize) <= 30, SDBERR_BU_COPYINVALID);
 	}

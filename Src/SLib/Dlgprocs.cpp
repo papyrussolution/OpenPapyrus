@@ -205,7 +205,7 @@ INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 			if(p_dlg) {
 				if((v = p_dlg->P_Last) != 0)  // @todo Практически всегда, за редкими исключениями, 0. Из-за того, что p_dlg->P_Last обнуляется раньше, чем уничтожается данное окно. Требуется исправить.
 					do {
-						if(((long)v) == 0xddddddddL)
+						if(reinterpret_cast<long>(v) == 0xddddddddL)
 							break;
 						v->handleWindowsMessage(uMsg, wParam, lParam);
 					} while((v = v->prev()) != p_dlg->P_Last);

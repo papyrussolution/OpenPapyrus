@@ -4519,7 +4519,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 				if(Cfg.CategoryClsDim && (goods_ext_rec.GoodsID || GObj.P_Tbl->GetExt(goodsID, &goods_ext_rec) > 0)) {
 					if(gc_pack.Rec.ID || GcObj.Fetch(goods_rec.GdsClsID, &gc_pack) > 0) {
 						if(gc_pack.GetExtDim(&goods_ext_rec, Cfg.CategoryClsDim, &v) > 0 && v > 0.0) {
-							rItem.CategoryCode.Z().Cat((long)v);
+							rItem.CategoryCode.Z().Cat(static_cast<long>(v));
 							rItem.StatusFlags |= GoodsItem::stCategoryCodeByClsDim;
 						}
 					}

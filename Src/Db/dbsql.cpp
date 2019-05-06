@@ -661,7 +661,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H);
 					ProcessError(OCILobAssign(Env, Err, (const OCILobLocator *)(lob_loc), reinterpret_cast<OCILobLocator **>(&ocilob.H)));
 				}
-				LobWrite(ocilob, pBind->Typ, (SLob *)pBind->P_Data, lob_sz);
+				LobWrite(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), lob_sz);
 			}
 			else if(action == 1) {
 				OD ocilob = *(OD *)pStmt->GetBindOuterPtr(pBind, count);

@@ -377,7 +377,7 @@ static ngx_http_upstream_rr_peer_t * ngx_http_upstream_get_peer(ngx_http_upstrea
 #endif
 	for(peer = rrp->peers->peer, i = 0; peer; peer = peer->next, i++) {
 		n = i / (8 * sizeof(uintptr_t));
-		m = (uintptr_t)1 << i % (8 * sizeof(uintptr_t));
+		m = static_cast<uintptr_t>(1) << i % (8 * sizeof(uintptr_t));
 		if(rrp->tried[n] & m) {
 			continue;
 		}
@@ -405,7 +405,7 @@ static ngx_http_upstream_rr_peer_t * ngx_http_upstream_get_peer(ngx_http_upstrea
 	}
 	rrp->current = best;
 	n = p / (8 * sizeof(uintptr_t));
-	m = (uintptr_t)1 << p % (8 * sizeof(uintptr_t));
+	m = static_cast<uintptr_t>(1) << p % (8 * sizeof(uintptr_t));
 	rrp->tried[n] |= m;
 	best->current_weight -= total;
 	if(now - best->checked > best->fail_timeout) {

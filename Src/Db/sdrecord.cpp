@@ -194,7 +194,7 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
-	ReList * p_re_list = (ReList *)pData;
+	ReList * p_re_list = static_cast<ReList *>(pData);
 	int    tok = 0, prev_tok = 0;
 	long   tok_val = 0;
 	SString tok_buf;
@@ -208,7 +208,7 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 			if(T.Typ)
 				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
 			else
-				T.Typ = (TYPEID)tok_val;
+				T.Typ = static_cast<TYPEID>(tok_val);
 		}
 		else if(tok == TOK_SYMB) {
 			if(prev_tok == TOK_SLASH)

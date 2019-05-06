@@ -246,6 +246,7 @@ int SLAPI SGetAudioVolume(int decibels, double * pVolume); // @debug
 int SLAPI SSetAudioVolume(int decibels, double volume); // @debug
 int SLAPI ReformatIceCat(const char * pFileName);
 // @experimental void SLAPI ExploreIEEE754();
+extern "C" int __declspec(dllexport) SelectVersion(HWND hWndOwner, char * pPath, long flags); // @debug
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -272,6 +273,22 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 				PPSetError(PPERR_CRYSTAL_REPORT);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_LASTERR);
 			}
+			// @debug {
+#if 0 // {
+			{
+				//extern "C" int __declspec(dllexport) SelectVersion(HWND hWndOwner, char * pPath, long flags)
+				SDynLibrary sv_lib("d:\\papyrus\\src\\build\\versel.dll");
+				if(sv_lib.IsValid()) {
+					char sel_ver_result[1024];
+					int (* SelectVersionFunc)(HWND hWndOwner, char * pPath, long flags) = 0;
+					SelectVersionFunc = reinterpret_cast<int (*)(HWND, char *, long)>(sv_lib.GetProcAddr("SelectVersion"));
+					if(SelectVersionFunc) {
+						SelectVersionFunc(0, sel_ver_result, 0);
+					}
+				}
+			}
+#endif // } 0
+			// } @debug 
 			DS.Register();
 			DS.SetMenu(MENU_DEFAULT);
 			PPApp app(hInst, SLS.GetAppName(), SLS.GetAppName());

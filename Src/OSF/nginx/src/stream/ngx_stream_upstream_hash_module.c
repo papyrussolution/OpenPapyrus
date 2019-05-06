@@ -155,7 +155,7 @@ static ngx_int_t ngx_stream_upstream_get_hash_peer(ngx_peer_connection_t * pc, v
 		}
 
 		n = p / (8 * sizeof(uintptr_t));
-		m = (uintptr_t)1 << p % (8 * sizeof(uintptr_t));
+		m = static_cast<uintptr_t>(1) << p % (8 * sizeof(uintptr_t));
 
 		if(hp->rrp.tried[n] & m) {
 			goto next;
@@ -402,7 +402,7 @@ static ngx_int_t ngx_stream_upstream_get_chash_peer(ngx_peer_connection_t * pc, 
 		total = 0;
 		for(peer = hp->rrp.peers->peer, i = 0; peer; peer = peer->next, i++) {
 			n = i / (8 * sizeof(uintptr_t));
-			m = (uintptr_t)1 << i % (8 * sizeof(uintptr_t));
+			m = static_cast<uintptr_t>(1) << i % (8 * sizeof(uintptr_t));
 			if(hp->rrp.tried[n] & m) {
 				continue;
 			}
@@ -458,7 +458,7 @@ static ngx_int_t ngx_stream_upstream_get_chash_peer(ngx_peer_connection_t * pc, 
 	ngx_stream_upstream_rr_peers_unlock(hp->rrp.peers);
 
 	n = best_i / (8 * sizeof(uintptr_t));
-	m = (uintptr_t)1 << best_i % (8 * sizeof(uintptr_t));
+	m = static_cast<uintptr_t>(1) << best_i % (8 * sizeof(uintptr_t));
 
 	hp->rrp.tried[n] |= m;
 
