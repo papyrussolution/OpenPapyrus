@@ -2568,6 +2568,8 @@ public:
 		PPID   ParentID;
 		long   Flags;
 		long   ExtFlags;
+		uint16 Speciality; // @v10.4.5
+		uint16 Reserve;    // @v10.4.5 @alignment
 	};
 };
 
@@ -2585,6 +2587,7 @@ int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(ParentID);
 		CPY_FLD(Flags);
 		CPY_FLD(ExtFlags);
+		CPY_FLD(Speciality); // @v10.4.5
 #undef CPY_FLD
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -2610,6 +2613,7 @@ void SLAPI CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	CPY_FLD(ParentID);
 	CPY_FLD(Flags);
 	CPY_FLD(ExtFlags);
+	CPY_FLD(Speciality); // @v10.4.5
 #undef CPY_FLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));

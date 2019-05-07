@@ -3105,29 +3105,38 @@ int SLAPI CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, D
 	return ok;
 }
 
-int SLAPI CCheckCore::GetListByLineExtss(int lnextss /*CCheckPacket::lnextXXX*/, const char * pText, PPIDArray & rCcList)
+int SLAPI CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
 {
 	int    ok = -1;
 	rCcList.clear();
+	CALLPTRMEMB(pSentList, Clear());
 	SString temp_buf;
 	SString target_buf;
 	UnxTextRefCore & r_utrc = PPRef->UtrC;
 	TextRefEnumItem iter_item;
 	StrAssocArray text_by_row_list;
+	PPExtStrContainer sc;
 	for(SEnum en = r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT); en.Next(&iter_item) > 0;) {
 		// @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), text_by_row_list);
-		CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), 0, &text_by_row_list); // @v10.3.9 
+		CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), &sc, &text_by_row_list); // @v10.3.9 
 		uint   pos = 0;
 		for(uint i = 0; i < text_by_row_list.getCount(); i++) {
 			StrAssocArray::Item item = text_by_row_list.at_WithoutParent(i);
 			temp_buf = item.Txt;
-			if(PPGetExtStrData(lnextss, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
+			if(PPGetExtStrData(CCheckPacket::lnextEgaisMark, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
 				rCcList.add(iter_item.O.Id);
+				if(pSentList) {
+					if(sc.GetExtStrData(CCheckPacket::extssEgaisUrl, temp_buf))
+						pSentList->insert(1);
+					else
+						pSentList->insert(0);
+				}
 				ok = 1;
 				break;
 			}
 		}
 	}
+	assert(!pSentList || pSentList->getCount() == rCcList.getCount());
 	return ok;
 }
 

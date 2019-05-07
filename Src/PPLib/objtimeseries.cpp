@@ -930,11 +930,11 @@ int SLAPI PPObjTimeSeries::Export(PPID id)
 								;
 							temp_buf.Z().Cat(r_s.OptDeltaRange.low, MKSFMTD(0, 9, 0)).Dot().Dot().Cat(r_s.OptDeltaRange.upp, MKSFMTD(0, 9, 0));
 							line_buf.CatEq("OptDeltaRange", temp_buf).Space().
-								CatEq("OptDeltaCount", r_s.OptDeltaCount).Space();
+								CatEq("OptDeltaCount", r_s.OptDeltaRange.Count).Space();
 							line_buf.CatEq("OptDelta2Stride", r_s.OptDelta2Stride).Space();
 							temp_buf.Z().Cat(r_s.OptDelta2Range.low, MKSFMTD(0, 9, 0)).Dot().Dot().Cat(r_s.OptDelta2Range.upp, MKSFMTD(0, 9, 0));
 							line_buf.CatEq("OptDelta2Range", temp_buf).Space().
-								CatEq("OptDelta2Count", r_s.OptDelta2Count).Space().
+								CatEq("OptDelta2Count", r_s.OptDelta2Range.Count).Space().
 								CatEq("StakeCloseMode", r_s.StakeCloseMode).Space().
 								CatEq("StakeCount", r_s.StakeCount).Space().
 								CatEq("V.Result", r_s.V.Result, MKSFMTD(0, 8, 0)).Space().
@@ -1240,15 +1240,37 @@ struct StrategyOptEntry {
 	double Result2;
 };
 
-static double CalcFactorRangeResultSum(const TSVector <StrategyOptEntry> & rList, uint firstIdx, uint lastIdx)
+static double CalcFactorRangeResultSum(const TSVector <StrategyOptEntry> & rList, uint firstIdx, uint lastIdx) // CalcFactorRangeResult_Func
 {
 	return rList.sumDouble(offsetof(StrategyOptEntry, Result1), firstIdx, lastIdx);
 }
 
-static double CalcFactorRangeResult_R1DivR2(const TSVector <StrategyOptEntry> & rList, uint firstIdx, uint lastIdx)
+static double CalcFactorRangeResult_R1DivR2(const TSVector <StrategyOptEntry> & rList, uint firstIdx, uint lastIdx) // CalcFactorRangeResult_Func
 {
 	double s1 = rList.sumDouble(offsetof(StrategyOptEntry, Result1), firstIdx, lastIdx);
 	double s2 = rList.sumDouble(offsetof(StrategyOptEntry, Result2), firstIdx, lastIdx);
+	return fdivnz(s1, s2) /* * (lastIdx - firstIdx + 1) */;
+}
+
+static double CalcFactorRangeResult2Sum(const TSVector <StrategyOptEntry> & rList, const TSVector <IntRange> & rPosRangeList) // CalcFactorRangeResult2_Func
+{
+	double result = 0.0;
+	for(uint i = 0; i < rPosRangeList.getCount(); i++) {
+		const IntRange & r_range = rPosRangeList.at(i);
+		result += rList.sumDouble(offsetof(StrategyOptEntry, Result1), r_range.low, r_range.upp);
+	}
+	return result;
+}
+
+static double CalcFactorRangeResult2_R1DivR2(const TSVector <StrategyOptEntry> & rList, const TSVector <IntRange> & rPosRangeList) // CalcFactorRangeResult2_Func
+{
+	double s1 = 0.0;
+	double s2 = 0.0;
+	for(uint i = 0; i < rPosRangeList.getCount(); i++) {
+		const IntRange & r_range = rPosRangeList.at(i);
+		s1 += rList.sumDouble(offsetof(StrategyOptEntry, Result1), r_range.low, r_range.upp);
+		s2 += rList.sumDouble(offsetof(StrategyOptEntry, Result2), r_range.low, r_range.upp);
+	}
 	return fdivnz(s1, s2) /* * (lastIdx - firstIdx + 1) */;
 }
 
@@ -1270,6 +1292,7 @@ static double CalcFactorRangeResult_R1DivR2(const TSVector <StrategyOptEntry> & 
 }*/
 
 typedef double (* CalcFactorRangeResult_Func)(const TSVector <StrategyOptEntry> & rList, uint firstIdx, uint lastIdx);
+typedef double (* CalcFactorRangeResult2_Func)(const TSVector <StrategyOptEntry> & rList, const TSVector <IntRange> & rPosRangeList);
 //
 // useInitialSplitting:
 //   0 - первая итерация, как и последующие, делит список на две равные части
@@ -1280,13 +1303,14 @@ typedef double (* CalcFactorRangeResult_Func)(const TSVector <StrategyOptEntry> 
 //   5 - последовательное сканирование всего диапазона фреймами для нахождения максимального (только положительные значения)
 //   6 - последовательное сканирование всего диапазона фреймами для нахождения максимального (только отрицательные значения)
 //
-static int SLAPI FindOptimalFactorRange(CalcFactorRangeResult_Func cfrrFunc, const TSVector <StrategyOptEntry> & rList, int useInitialSplitting, RealRange & rR, uint32 & rRangeCount, double & rResult)
+static int SLAPI FindOptimalFactorRange(CalcFactorRangeResult_Func cfrrFunc, const TSVector <StrategyOptEntry> & rList, int useInitialSplitting, 
+	/*RealRange & rR, uint32 & rRangeCount, double & rResult*/PPObjTimeSeries::OptimalFactorRange & rR)
 {
 	int    ok = -1;
 	const  uint _c = rList.getCount();
 	rR.Z();
-	rRangeCount = 0;
-	rResult = 0.0;
+	//rRangeCount = 0;
+	//rResult = 0.0;
 	// interval_exp_direction: 0 - не раздвигать интервалы, 1 - только расширять, 2 - только сжимать, 3 - расширять и сжимать
 	const  int  interval_exp_direction = 1; // @20190402 // @20190413 (3 : 3)-->(3 : 1) // @20190421 (3 : 1)-->(2 : 1)
 	const  uint maxprobe = 1; // @v10.3.5 20-->30 // @v10.3.6 30-->100 // @v10.3.8 100-->200 // @v10.3.9 200-->50 // @20190413 50-->15 // @20190421 15-->24
@@ -1423,10 +1447,207 @@ static int SLAPI FindOptimalFactorRange(CalcFactorRangeResult_Func cfrrFunc, con
 		}
 		if(_sfd_max_result > 0.0) {
 			rR.Set(rList.at(_sfd_max_loidx).Factor, rList.at(_sfd_max_upidx).Factor);
-			rResult = _sfd_max_result;
-			rRangeCount = (_sfd_max_upidx - _sfd_max_loidx + 1);
+			rR.Result = _sfd_max_result;
+			rR.Count = (_sfd_max_upidx - _sfd_max_loidx + 1);
 			if(_sfd_max_loidx > 0 || _sfd_max_upidx < (_c-1))
 				ok = 1;
+		}
+	}
+	return ok;
+}
+
+static int FASTCALL IsTherIntRangeIntersection(const TSVector <IntRange> & rList, const IntRange & rR)
+{
+	for(uint i = 0; i < rList.getCount(); i++) {
+		if(rR.Intersect(rList.at(i), 0))
+			return 1;
+	}
+	return 0;
+}
+
+static int SLAPI FindOptimalFactorRange2(CalcFactorRangeResult2_Func cfrrFunc, const TSVector <StrategyOptEntry> & rList, int useInitialSplitting, 
+	TSVector<PPObjTimeSeries::OptimalFactorRange> & rRc)
+{
+	int    ok = -1;
+	const  uint _c = rList.getCount();
+	rRc.clear();
+	// interval_exp_direction: 0 - не раздвигать интервалы, 1 - только расширять, 2 - только сжимать, 3 - расширять и сжимать
+	const  int  interval_exp_direction = 1; // @20190402 // @20190413 (3 : 3)-->(3 : 1) // @20190421 (3 : 1)-->(2 : 1)
+	const  uint maxprobe = 1; // @v10.3.5 20-->30 // @v10.3.6 30-->100 // @v10.3.8 100-->200 // @v10.3.9 200-->50 // @20190413 50-->15 // @20190421 15-->24
+		// @20190426 24-->1
+	//const  uint sfdelta  = 100; // @v10.4.0 Шаг итерации при последовательном поиске оптимального диапазона (useInitialSplitting == 4)
+	double _sfd_max_result = 0.0;
+	uint   _sfd_max_loidx = 0;
+	uint   _sfd_max_upidx = 0;
+	uint   _sfd_best = 0;
+	assert(oneof3(useInitialSplitting, 4, 5, 6));
+	if(_c > 1 && oneof3(useInitialSplitting, 4, 5, 6)) {
+		TSVector <IntRange> pos_range_list;
+		TSVector <IntRange> work_pos_range_list;
+		IntRange work_range;
+		work_range.Set(0, _c-1);
+		work_pos_range_list.clear();
+		work_pos_range_list.insert(&work_range);
+		const  double total_sum = cfrrFunc(rList, work_pos_range_list);
+		const uint sf_step = 288; // @20190417 50-->48 // @20190426 48-->144 // @20190429 144-->288
+		const uint sf_limit = sf_step * 3; // @20190413 (<=1000)-->(<=1200) // @20190421 (*25)-->(*30) // @20190425 (*30)-->(*40) // @20190426 40-->5
+			// @20190429 (*5)-->(*3)
+		for(int do_next_iter = 1; do_next_iter;) {
+			do_next_iter = 0;
+			for(uint sfdelta = sf_step; sfdelta <= sf_limit; sfdelta += sf_step) {
+				int    do_break = 0; // Сигнал для выхода из функции из-за того, что приемлемых значений больше нет
+				// (must be done by caller) rList.sort(PTR_CMPFUNC(double));
+				double prev_result = total_sum;
+				uint   lo_idx = 0;
+				uint   up_idx = _c-1;
+				uint   iter_no = 0;
+				double _max_result = 0.0;
+				uint   _max_sfidx = 0;
+				uint   _max_sfidx_up = 0;
+				uint   _first_idx = 0;
+				uint   _last_idx = _c-1;
+				if(oneof2(useInitialSplitting, 5, 6)) {
+					if(rList.at(0).Factor >= 0.0 && useInitialSplitting == 6) {
+						_last_idx = 0;
+						do_break = 1; // nothing to do
+					}
+					else if(rList.at(_c-1).Factor <= 0.0 && useInitialSplitting == 5) {
+						_last_idx = 0;
+						do_break = 1; // nothing to do
+					}
+					else {
+						for(uint i = 0; i < _c; i++) {
+							const StrategyOptEntry & r_entry = rList.at(i);
+							if(useInitialSplitting == 5 && r_entry.Factor > 0.0) {
+								_first_idx = i;
+								break;
+							}
+							else if(useInitialSplitting == 6 && r_entry.Factor >= 0.0) {
+								assert(i > 0);
+								_last_idx = i-1;
+								break;
+							}
+						}
+					}
+				}
+				for(uint sfidx = _first_idx; sfidx < (_last_idx-sfdelta); sfidx += (sfdelta*1/16)) {
+					uint sfidx_up = MIN(sfidx+sfdelta-1, _last_idx);
+					if(sfidx_up > sfidx) {
+						work_range.Set(sfidx, sfidx_up);
+						if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
+							work_pos_range_list = pos_range_list;
+							work_pos_range_list.insert(&work_range);
+							const double _result = cfrrFunc(rList, work_pos_range_list);
+							if(_result > _max_result) {
+								_max_result = _result;
+								_max_sfidx = sfidx;
+								_max_sfidx_up = sfidx_up;
+							}
+						}
+					}
+					else
+						break;
+				}
+				if(_max_result > 0.0) {
+					lo_idx = _max_sfidx;
+					up_idx = _max_sfidx_up;
+				}
+				if(!do_break) {
+					if(interval_exp_direction & 1) { // расширять интервал
+						while(lo_idx > 0) {
+							int done = 0;
+							for(uint probedeep = 1; !done && probedeep <= maxprobe && probedeep <= lo_idx; probedeep++) { // @v10.3.12 @fix (probedeep > lo_idx)-->(probedeep <= lo_idx)
+								work_range.Set(lo_idx-probedeep, up_idx);
+								if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
+									work_pos_range_list = pos_range_list;
+									work_pos_range_list.insert(&work_range);
+									const double temp_result = cfrrFunc(rList, work_pos_range_list);
+									if(prev_result < temp_result) {
+										prev_result = temp_result;
+										lo_idx -= probedeep;
+										done = 1;
+									}
+								}
+							}
+							if(!done)
+								break;
+						}
+						while((up_idx+1) < _c) {
+							int done = 0;
+							for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx+probedeep) < _c; probedeep++) {
+								work_range.Set(lo_idx, up_idx+probedeep);
+								if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
+									work_pos_range_list = pos_range_list;
+									work_pos_range_list.insert(&work_range);
+									const double temp_result = cfrrFunc(rList, work_pos_range_list);
+									if(prev_result < temp_result) {
+										prev_result = temp_result;
+										up_idx += probedeep;
+										done = 1;
+									}
+								}
+							}
+							if(!done)
+								break;
+						}
+					}
+					if(interval_exp_direction & 2) { // сжимать интервал
+						while(lo_idx < up_idx) { // Сдвигаем нижнюю границу вверх
+							int done = 0;
+							for(uint probedeep = 1; !done && probedeep <= maxprobe && (lo_idx+probedeep) <= up_idx; probedeep++) {
+								work_range.Set(lo_idx+probedeep, up_idx);
+								if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
+									work_pos_range_list = pos_range_list;
+									work_pos_range_list.insert(&work_range);
+									const double temp_result = cfrrFunc(rList, work_pos_range_list);
+									if(prev_result < temp_result) {
+										prev_result = temp_result;
+										lo_idx += probedeep;
+										done = 1;
+									}
+								}
+							}
+							if(!done)
+								break;
+						}
+						while(lo_idx < up_idx) { // Сдвигаем верхнюю границу вниз
+							int done = 0;
+							for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx) >= (lo_idx+probedeep); probedeep++) {
+								work_range.Set(lo_idx, up_idx-probedeep);
+								if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
+									work_pos_range_list = pos_range_list;
+									work_pos_range_list.insert(&work_range);
+									const double temp_result = cfrrFunc(rList, work_pos_range_list);
+									if(prev_result < temp_result) {
+										prev_result = temp_result;
+										up_idx -= probedeep;
+										done = 1;
+									}
+								}
+							}
+							if(!done)
+								break;
+						}
+					}
+					if(_sfd_max_result < prev_result) {
+						_sfd_max_result = prev_result;
+						_sfd_max_loidx = lo_idx;
+						_sfd_max_upidx = up_idx;
+						_sfd_best = sfdelta;
+					}
+				}
+			}
+			if(_sfd_max_result > 0.0 && (_sfd_max_loidx > 0 || _sfd_max_upidx < (_c-1))) {
+				work_range.Set(_sfd_max_loidx, _sfd_max_upidx);
+				PPObjTimeSeries::OptimalFactorRange new_range;
+				new_range.Set(rList.at(_sfd_max_loidx).Factor, rList.at(_sfd_max_upidx).Factor);
+				new_range.Result = _sfd_max_result;
+				new_range.Count = (_sfd_max_upidx - _sfd_max_loidx + 1);
+				pos_range_list.insert(&work_range);
+				rRc.insert(&new_range);
+				do_next_iter = 1;
+				ok = 1;
+			}
 		}
 	}
 	return ok;
@@ -1496,7 +1717,7 @@ PPObjTimeSeries::StrategyResultValueEx & SLAPI PPObjTimeSeries::StrategyResultVa
 }
 
 SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry() : Strategy(),
-	LastResultIdx(0), OptDeltaResult(0.0), OptDelta2Result(0), SumPeak(0.0), SumBottom(0.0), MaxPeak(0.0), TotalSec(0)
+	LastResultIdx(0), /*OptDeltaResult(0.0), OptDelta2Result(0),*/ SumPeak(0.0), SumBottom(0.0), MaxPeak(0.0), TotalSec(0)
 {
 	PTR32(Symb)[0] = 0;
 }
@@ -1518,8 +1739,8 @@ SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeS
 	StakeThreshold = rS.StakeThreshold;
 	OptDeltaRange = rS.OptDeltaRange;
 	OptDelta2Range = rS.OptDelta2Range;
-	OptDeltaCount = rS.OptDeltaCount;
-	OptDelta2Count = rS.OptDelta2Count;
+	// @v10.4.5 OptDeltaCount = rS.OptDeltaCount;
+	// @v10.4.5 OptDelta2Count = rS.OptDelta2Count;
 	PeakAvgQuant = rS.PeakAvgQuant;
 	BottomAvgQuant = rS.BottomAvgQuant;
 	PeakMaxQuant = rS.PeakMaxQuant;
@@ -1544,8 +1765,8 @@ SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeS
 	StakeThreshold = rTnnp.StakeThreshold;
 	OptDeltaRange = rTnnp.OptDeltaRange;
 	OptDelta2Range = rTnnp.OptDelta2Range;
-	OptDeltaCount = rTnnp.OptDeltaCount;
-	OptDelta2Count = rTnnp.OptDelta2Count;
+	// @v10.4.5 OptDeltaCount = rTnnp.OptDeltaCount;
+	// @v10.4.5 OptDelta2Count = rTnnp.OptDelta2Count;
 	PeakAvgQuant = rTnnp.PeakAvgQuant;
 	BottomAvgQuant = rTnnp.BottomAvgQuant;
 	PeakMaxQuant = rTnnp.PeakMaxQuant;
@@ -1848,18 +2069,19 @@ static int SLAPI FindOptimalFactorRange_SecondKind(/*const RealArray & rTrendLis
 				THROW_SL(so_list.insert(&entry));
 			}
 		}
-		RealRange opt_range;
-		uint32 opt_count;
-		double opt_result;
+		//RealRange opt_range;
+		//uint32 opt_count;
+		//double opt_result;
+		PPObjTimeSeries::OptimalFactorRange opt_range;
 		so_list.sort(PTR_CMPFUNC(double));
 		//const int initial_splitting = 1;
 		//const int initial_splitting = (rSre.BaseFlags & rSre.bfShort) ? 3 : 2;
 		const int initial_splitting = 0;
-		FindOptimalFactorRange(CalcFactorRangeResultSum, so_list, initial_splitting, opt_range, opt_count, opt_result);
-		if(max_result < opt_result) {
-			max_result = opt_result;
-			rSre.OptDelta2Result = opt_result;
-			rSre.OptDelta2Count = opt_count;
+		FindOptimalFactorRange(CalcFactorRangeResultSum, so_list, initial_splitting, opt_range);
+		if(max_result < opt_range.Result) {
+			max_result = opt_range.Result;
+			// @v10.4.5 rSre.OptDelta2Result = opt_range.Result;
+			// @v10.4.5 rSre.OptDelta2Count = opt_range.Count;
 			rSre.OptDelta2Range = opt_range;
 			rSre.OptDelta2Stride = stride;
 			ok = 1;
@@ -2062,7 +2284,7 @@ static int SLAPI TsTestStrategy2(const DateTimeArray & rTmList, const RealArray 
 					initial_splitting = 4;
 				// } @20190417
 				FindOptimalFactorRange(do_opt_by_revvelocity ? CalcFactorRangeResult_R1DivR2 : CalcFactorRangeResultSum, 
-					so_list, initial_splitting, rSre.OptDeltaRange, rSre.OptDeltaCount, rSre.OptDeltaResult);
+					so_list, initial_splitting, rSre.OptDeltaRange/*, rSre.OptDeltaCount, rSre.OptDeltaResult*/);
 				PROFILE_END
 			}
 			if(oneof2(rSre.StakeMode, 0, 1) && (options & tstsofroMode2)) {
@@ -2319,12 +2541,25 @@ int SLAPI PPObjTimeSeries::FindOptimalFactor(const DateTimeArray & rTmList, cons
 	return ok;
 }
 
+PPObjTimeSeries::OptimalFactorRange::OptimalFactorRange() : Count(0), Result(0.0)
+{
+	RealRange::Z();
+}
+
+PPObjTimeSeries::OptimalFactorRange & PPObjTimeSeries::OptimalFactorRange::Z()
+{
+	RealRange::Z();
+	Count = 0;
+	Result = 0.0;
+	return *this;
+}
+
 SLAPI PPObjTimeSeries::Strategy::Strategy() : InputFrameSize(0), Prec(0), TargetQuant(0), MaxDuckQuant(0), OptDelta2Stride(0), StakeMode(0),
-	BaseFlags(0), Margin(0.0), SpikeQuant(0.0), StakeThreshold(0.0), SpreadAvg(0.0), OptDeltaCount(0), OptDelta2Count(0), StakeCount(0), WinCount(0),
+	BaseFlags(0), Margin(0.0), SpikeQuant(0.0), StakeThreshold(0.0), SpreadAvg(0.0), /*OptDeltaCount(0), OptDelta2Count(0),*/ StakeCount(0), WinCount(0),
 	StakeCloseMode(0), PeakAvgQuant(0), BottomAvgQuant(0), PeakMaxQuant(0), ID(0), TrendErrAvg(0.0), TrendErrLim(0.0)
 {
-	OptDeltaRange.SetVal(0.0);
-	OptDelta2Range.SetVal(0.0);
+	// @v10.4.5 OptDeltaRange.SetVal(0.0);
+	// @v10.4.5 OptDelta2Range.SetVal(0.0);
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -2334,7 +2569,8 @@ void SLAPI PPObjTimeSeries::Strategy::Reset()
 	MaxDuckQuant = 0;
 }
 
-SLAPI PPObjTimeSeries::StrategyContainer::StrategyContainer() : TSVector <Strategy>(), Ver(2), StorageTm(ZERODATETIME), LastValTm(ZERODATETIME)
+SLAPI PPObjTimeSeries::StrategyContainer::StrategyContainer() : TSVector <Strategy>(), 
+	Ver(3), StorageTm(ZERODATETIME), LastValTm(ZERODATETIME) // @v10.4.5 Ver(2)-->(3)
 {
 }
 
@@ -2856,25 +3092,25 @@ SString & SLAPI PPObjTimeSeries::StrategyOutput(const PPObjTimeSeries::StrategyR
 		{
 			if(pSre->StakeMode != 2) {
 				rBuf.Cat(pSre->OptDeltaRange, MKSFMTD(0, 12, 0)).
-					CatChar('/').Cat(pSre->OptDeltaCount).CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1);
+					CatChar('/').Cat(pSre->OptDeltaRange.Count).CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1);
 			}
 			else
 				rBuf.Cat("---");
 			rBuf.Space();
 			if(pSre->StakeMode == 0)
-				rBuf.Cat(pSre->OptDeltaResult, MKSFMTD(15, 5, 0));
+				rBuf.Cat(pSre->OptDeltaRange.Result, MKSFMTD(15, 5, 0));
 			else
 				rBuf.Cat("---");
 			rBuf.Space();
 			if(pSre->StakeMode != 1) {
 				rBuf.Cat(pSre->OptDelta2Range, MKSFMTD(0, 12, 0)).Space().
-				Cat(pSre->OptDelta2Stride).CatChar('/').Cat(pSre->OptDelta2Count).CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1);
+				Cat(pSre->OptDelta2Stride).CatChar('/').Cat(pSre->OptDelta2Range.Count).CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1);
 			}
 			else
 				rBuf.Cat("---");
 			rBuf.Space();
 			if(pSre->StakeMode == 0)
-				rBuf.Cat(pSre->OptDelta2Result, MKSFMTD(15, 5, 0));
+				rBuf.Cat(pSre->OptDelta2Range.Result, MKSFMTD(15, 5, 0));
 			else
 				rBuf.Cat("---");
 			rBuf.Space();
@@ -3422,10 +3658,10 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 														f_out.Flush();
 														{
 															tnnp2.OptDeltaRange = sre.OptDeltaRange;
-															tnnp2.OptDeltaCount = sre.OptDeltaCount;
+															// @v10.4.5 tnnp2.OptDeltaCount = sre.OptDeltaCount;
 															tnnp2.OptDelta2Range =  sre.OptDelta2Range;
 															tnnp2.OptDelta2Stride = sre.OptDelta2Stride;
-															tnnp2.OptDelta2Count = sre.OptDelta2Count;
+															// @v10.4.5 tnnp2.OptDelta2Count = sre.OptDelta2Count;
 															tnnp2.PeakAvgQuant = sre.PeakAvgQuant;
 															tnnp2.BottomAvgQuant = sre.BottomAvgQuant;
 															tnnp2.PeakMaxQuant = sre.PeakMaxQuant;
@@ -3478,10 +3714,10 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 														f_out.Flush();
 														{
 															tnnp2.OptDeltaRange = sre.OptDeltaRange;
-															tnnp2.OptDeltaCount = sre.OptDeltaCount;
+															// @v10.4.5 tnnp2.OptDeltaCount = sre.OptDeltaCount;
 															tnnp2.OptDelta2Range =  sre.OptDelta2Range;
 															tnnp2.OptDelta2Stride = sre.OptDelta2Stride;
-															tnnp2.OptDelta2Count = sre.OptDelta2Count;
+															// @v10.4.5 tnnp2.OptDelta2Count = sre.OptDelta2Count;
 															tnnp2.PeakAvgQuant = sre.PeakAvgQuant;
 															tnnp2.BottomAvgQuant = sre.BottomAvgQuant;
 															tnnp2.PeakMaxQuant = sre.PeakMaxQuant;

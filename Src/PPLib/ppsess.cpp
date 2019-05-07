@@ -1832,7 +1832,7 @@ static int PPGetDefaultEncrKey(SString & rBuf)
     return vi.GetDefaultEncrKey(rBuf);
 }
 
-//static 
+//static
 int FASTCALL PPSession::GetStartUpOption(int o, SString & rArgBuf)
 {
 	static const char * p_cmdl_symbols = "?,CASH,EXP,IMP,IN,OUT,BATCH,SYNCPUT,SYNCGET,DB,BACKUP,BILLCASH,PRC,"
@@ -3200,14 +3200,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							virtual void Run()
 							{
 								const long purge_cycle = 3600;
-								const int  use_sj_scan_alg2 = 1;
+								const int  use_sj_scan_alg2 = 0;
 								SString msg_buf, temp_buf;
 								STimer timer_sj;  // Таймер для отмера времени до следующего просмотра системного журнала
 								STimer timer_phs; // Таймер для отмера времени до следующего опроса телефонного сервиса
 								LDATETIME last_purge_time = getcurdatetime_();
 								LDATETIME last_sj_time = ZERODATETIME;
 								LDATETIME last_phnsvc_time = ZERODATETIME;
-								DBRowId last_sj_rowid; // @v10.4.4								
+								DBRowId last_sj_rowid; // @v10.4.4
 								PPAdviseEventVector temp_list;
 								PhnSvcChannelStatusPool chnl_status_list; // @v9.8.11
 								PhnSvcChannelStatus chnl_status; // @v9.8.11
@@ -3502,11 +3502,11 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
 				// @v10.4.0 {
 				{
-					// Информация о текущих путях 
+					// Информация о текущих путях
 					r_tla.Paths.DumpToStr(temp_buf);
 					PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
 				}
-				// } @v10.4.0 
+				// } @v10.4.0
 			}
 			r_tla.State |= PPThreadLocalArea::stAuth;
 			ufp.Commit();
@@ -3652,10 +3652,11 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 						PPACN_BILLWROFF,
 						PPACN_BILLWROFFUNDO,
 						PPACN_BILLSTATUSUPD, // @v10.4.4
+						PPACN_UPDBILLFREIGHT, // @v10.4.5
 						0L);
 					p_comm_dirty_cache_ev_list->sort();
 					p_addendum_ev_list = new PPIDArray;
-					p_addendum_ev_list->addzlist(PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD, 
+					p_addendum_ev_list->addzlist(PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD,
 						PPACN_CONFIGUPDATED, PPACN_TSSTRATEGYUPD, 0L); // @v10.3.2 PPACN_CONFIGUPDATED // @v10.3.11 PPACN_TSSTRATEGYUPD
 					p_addendum_ev_list->sort();
 					p_ev_list = new PPIDArray;

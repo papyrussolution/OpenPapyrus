@@ -3848,11 +3848,15 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				MEMSZERO(goods_rec);
 			(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.GoodsName, sizeof(brow.GoodsName));
 			if(use_ar_code) {
-				if(GObj.P_Tbl->GetArCode(pPack->Rec.Object, goods_id, temp_buf, 0) > 0)
+				if(GObj.P_Tbl->GetArCode(pPack->Rec.Object, goods_id, temp_buf, 0) > 0) {
+					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5
 					temp_buf.CopyTo(brow.ArCode, sizeof(brow.ArCode));
+				}
 				// @v9.1.11 {
-				if(GObj.P_Tbl->GetArCode(0, goods_id, temp_buf, 0) > 0)
+				if(GObj.P_Tbl->GetArCode(0, goods_id, temp_buf, 0) > 0) {
+					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5
 					temp_buf.CopyTo(brow.ArCodeOwn, sizeof(brow.ArCodeOwn));
+				}
 				// } @v9.1.11
 			}
 			if(GObj.ReadBarcodes(goods_id, bcd_ary) > 0) {

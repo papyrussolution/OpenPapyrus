@@ -8531,14 +8531,42 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 										// @v10.1.1 {
 										if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
 											PPIDArray cc_list;
+											BitArray sent_list;
 											CCheckCore & r_cc = GetCc();
 											int    cc_even = 0;
 											temp_buf.Z();
-											if(r_cc.GetListByLineExtss(CCheckPacket::lnextEgaisMark, egais_mark, cc_list) > 0) {
+											if(r_cc.GetListByEgaisMark(egais_mark, cc_list, &sent_list) > 0) {
 												for(uint j = 0; j < cc_list.getCount(); j++) {
 													const PPID cc_id = cc_list.get(j);
 													CCheckTbl::Rec cc_rec;
 													if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
+														// @v10.4.5 {
+														int   take_in_attention = 0;
+														CSessionTbl::Rec cs_rec;
+														PPCashNode cn_rec;
+														if(sent_list.get(j)) {
+															take_in_attention = 1;
+														}
+														else if(cc_rec.SessID) {
+															//
+															// Специальный случай: рестораны - вскрытие тары. Формируют отложенные чеки с отсканированными
+															// марками с бутылок. Повтор однозначно блокируется невзирая на продажи-возвраты (cc_even = 1)
+															//
+															if(CsObj.Fetch(cc_rec.SessID, &cs_rec) > 0 && CnObj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0 && cn_rec.Speciality == cn_rec.spCafe) {
+																take_in_attention = 1;
+																cc_even = 1;
+																break;
+															}
+														}
+														// } @v10.4.5 
+														if(take_in_attention) {
+															CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+															if(cc_rec.Flags & CCHKF_RETURN)
+																cc_even--;
+															else
+																cc_even++;
+														}
+														/* @v10.4.5
 														if(!(cc_rec.Flags & CCHKF_SKIP) || cc_rec.SessID) { // @v10.1.12
 															// @v10.1.8 if(j == (cc_list.getCount()-1))
 															if(!(CnFlags & CASHF_SKIPUNPRINTEDCHECKS) || (cc_rec.Flags & CCHKF_PRINTED)) { // @v10.2.3
@@ -8548,7 +8576,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 																else
 																	cc_even++;
 															}
-														}
+														}*/
 													}
 												}
 											}

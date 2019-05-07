@@ -13952,12 +13952,13 @@ public:
 	//
 	// Descr: Возвращает список чеков, по крайней мере одна строка которых содержит текст расширения lnextss
 	//   эквивалентный pText.
+	//   
 	// Returns:
 	//   >0 - найден по крайней мере один чек
 	//   <0 - не найдено ни одного чека
 	//   0  - ошибка
 	//
-	int    SLAPI GetListByLineExtss(int lnextss /*CCheckPacket::lnextXXX*/, const char * pText, PPIDArray & rCcList);
+	int    SLAPI GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList);
 	//
 	// Descr: Возвращает список идентификаторов чеков, обслуживающих чек заказа orderCheckID.
 	// Note: В подавляющем большинстве случаев список  будет либо пустым, либо будет содержать
@@ -15982,6 +15983,12 @@ public:
 		double Bottom; // Минимальное значение, которого достигла котировка в течении сессии
 		uint   LastPoint; // Точка ряда, на которой алгоритм TsCalcStrategyResult2 закончил работу
 	};
+	struct OptimalFactorRange : public RealRange {
+		OptimalFactorRange();
+		OptimalFactorRange & Z();
+		uint32 Count; // Количество элементов исходного ряда, входящих в диапазон при тестировании
+		double Result;
+	};
 	struct Strategy { // @flat @persistent
 		static double SLAPI CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant, double averageSpreadForAdjustment);
 		static double SLAPI CalcTP_withExternalFactors(double stakeBase, bool isShort, int prec, uint targetQuant, double spikeQuant, double averageSpreadForAdjustment);
@@ -16010,10 +16017,8 @@ public:
 		double SpikeQuant;       // Минимальный квант относительного изменения котировки для дискретизации параметров
 		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
 		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
-		RealRange OptDeltaRange;
-		RealRange OptDelta2Range;
-		uint32 OptDeltaCount;    // Количество элементов исходного ряда, входящих в диапазон OptDeltaRange при тестировании
-		uint32 OptDelta2Count;   // Количество элементов исходного ряда, входящих в диапазон OptDelta2Range при тестировании
+		OptimalFactorRange OptDeltaRange;
+		OptimalFactorRange OptDelta2Range;
 		uint32 StakeCount;       // Количество ставок при тестировании
 		uint32 WinCount;         // Количество выигрышей в результате тестирования
 		StrategyResultValue V;   // Результат тестирования
@@ -16095,8 +16100,8 @@ public:
 		char   Symb[32];
 		uint   LastResultIdx; // Последний индекс в тестируемом ряду, по которому еще можно получить адекватный результат
 			// (далее ряд обрывается раньше, чем можно оценить результат ставки).
-		double OptDeltaResult;
-		double OptDelta2Result;
+		// @v10.4.5 (included into Strategy::OptDeltaRange) double OptDeltaResult;
+		// @v10.4.5 (included into Strategy::OptDelta2Range) double OptDelta2Result;
 		double SumPeak;          // @v10.3.3
 		double SumBottom;        // @v10.3.3
 		double MaxPeak;          // @v10.3.3

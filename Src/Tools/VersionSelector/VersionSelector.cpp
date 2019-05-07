@@ -19,7 +19,8 @@ int PPSetErrorNoMem() { return ((PPErrCode = PPERR_NOMEM), 0); }
 int PPSetErrorSLib() { return ((PPErrCode = PPERR_SLIB), 0); }
 
 struct RetVal {
-	char * P_Path;
+	//char * P_Path;
+	SString Path;
 	int    OK;
 };
 
@@ -50,7 +51,7 @@ extern "C" int __declspec(dllexport) SelectVersion(HWND hWndOwner, char * pPath,
 	RetVal * p_val = new RetVal;
 	*pPath = 0;
 	if(p_val) {
-		p_val->P_Path = pPath;
+		p_val->Path = pPath;
 		p_val->OK = -1;
 		// @debug {
 		{
@@ -61,6 +62,7 @@ extern "C" int __declspec(dllexport) SelectVersion(HWND hWndOwner, char * pPath,
 		}
 		// } @debug 
 		DialogBoxParam(SLS.GetHInst(), MAKEINTRESOURCE(DLGW_SELVERSION), hWndOwner, DialogProc, reinterpret_cast<LPARAM>(p_val));
+		strcpy(pPath, p_val->Path);
 		return p_val->OK;
 	}
 	else
@@ -193,19 +195,29 @@ static BOOL CALLBACK DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 							if(list && ::SendMessage(list, LB_GETCOUNT, 0, 0)) {	
 								TCHAR buf[1024];
 								RetVal * p_val = reinterpret_cast<RetVal *>(::GetWindowLong(hWnd, GWL_USERDATA));
-								if(p_val && p_val->P_Path) {
+								if(p_val) {
 									sel_item = (int)::SendMessage(list, LB_GETCURSEL, 0, 0);
 									::SendMessage(list, LB_GETTEXT, static_cast<WPARAM>(sel_item), reinterpret_cast<LPARAM>(buf));
-									uint pos = 0;
+									size_t pos = 0;
 									StringSet ss(',', SUcSwitch(buf));
-									ss.get(&pos, p_val->P_Path, MAXPATH);
-									pos = (uint)StrStrI(SUcSwitch(p_val->P_Path), _T("\\bin\\ppw.exe"));
-									if(pos)
-										*(char *)pos = 0;
-									else {
-										pos = (uint)StrStrI(SUcSwitch(p_val->P_Path), _T("\\ppw.exe"));
-										*(char *)pos = 0;
+									ss.get(&pos, p_val->Path);
+									//p_val->Path.StrStr("\\bin\\ppw.exe");
+									if(p_val->Path.Search("\\bin\\ppw.exe", 0, 1, &pos)) {
+										p_val->Path.Trim(pos);
 									}
+									else if(p_val->Path.Search("\\ppw.exe", 0, 1, &pos)) {
+										p_val->Path.Trim(pos);
+									}
+									/*
+									TCHAR * p_term = StrStrI(SUcSwitch(p_val->P_Path), _T("\\bin\\ppw.exe"));
+									if(p_term)
+										*p_term = 0;
+									else {
+										p_term = StrStrI(SUcSwitch(p_val->P_Path), _T("\\ppw.exe"));
+										if(p_term)
+											*p_term = 0;
+									}
+									*/
 									p_val->OK = 1;
 								}
 								else if(p_val)
