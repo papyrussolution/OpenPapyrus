@@ -134,7 +134,6 @@ static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & r
 				// символ распознаетс€ как тип данных. ¬ этом случае считаем, что
 				// первым по пор€дку идет символ, а за ним тип данных.
 				//
-				//
 				long   lv;
 				SString temp_symb;
 				SStrScan temp_scan = rScan;

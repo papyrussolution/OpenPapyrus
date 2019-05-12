@@ -503,41 +503,34 @@ typedef struct {
 } Rng;
 
 VAR   const RngType * Rng_Mt_19937;
+VAR   uint RngDefaultSeed;
+VAR   const RngType * RngDefault;
 
 const RngType ** RngTypesSetup();
-
-VAR   const RngType * RngDefault;
-VAR   uint RngDefaultSeed;
-
-Rng * RngAlloc (const RngType * pT);
-
-void   RngFree (Rng * pR);
-
-void   RngSet (const Rng * pR, uint seed);
-uint   RngMax (const Rng * pR);
-uint   RngMin (const Rng * pR);
-const  char * RngName (const Rng * pR);
-size_t RngSize (const Rng * pR);
-void * RngState (const Rng * pR);
-const  RngType * RngEnvSetup ();
+Rng * RngAlloc(const RngType * pT);
+void   RngFree(Rng * pR);
+void   RngSet(const Rng * pR, uint seed);
+uint   RngMax(const Rng * pR);
+uint   RngMin(const Rng * pR);
+const  char * RngName(const Rng * pR);
+size_t RngSize(const Rng * pR);
+void * RngState(const Rng * pR);
+const  RngType * RngEnvSetup();
 uint   RngGet(const Rng * pR);
-
-double RngUniform (const Rng * pR);
-double RngUniformPos (const Rng * pR);
-uint   RngUniformInt (const Rng * pR, uint n);
+double RngUniform(const Rng * pR);
+double RngUniformPos(const Rng * pR);
+uint   RngUniformInt(const Rng * pR, uint n);
 
 #ifdef HAVE_INLINE //{
 
 extern inline uint RngGet (const Rng * pR);
 extern inline uint RngGet (const Rng * pR) {return (pR->P_Type->P_Get) (pR->P_State);}
-
 extern inline double RngUniform (const Rng * pR);
 extern inline double RngUniform (const Rng * pR) {return (pR->P_Type->P_GetDouble) (pR->P_State);}
-
 extern inline double RngUniformPos (const Rng * pR);
 extern inline double RngUniformPos (const Rng * pR)
 {
-	double x ;
+	double x;
 	do {
 		x = (pR->P_Type->P_GetDouble) (pR->P_State) ;
 	}
@@ -572,11 +565,8 @@ static void MtSet (void * p_state, uint s);
 #define N 624   //Period parameters
 #define M 397
 
-//most significant w-r bits
-static const ulong UPPER_MASK = 0x80000000UL;
-
-//least significant r bits
-static const ulong LOWER_MASK = 0x7fffffffUL;
+static const ulong UPPER_MASK = 0x80000000UL; //most significant w-r bits
+static const ulong LOWER_MASK = 0x7fffffffUL; //least significant r bits
 
 typedef struct {
 	unsigned long mt[N];
@@ -585,13 +575,11 @@ typedef struct {
 
 static inline uint MtGet(void * p_vstate)
 {
-	MtStateT * p_state = (MtStateT *) p_vstate;
+	MtStateT * p_state = static_cast<MtStateT *>(p_vstate);
 	unsigned long k ;
 	ulong * const mt = p_state->mt;
-
-	#define MAGIC_RNG(y) (((y)&0x1) ? 0x9908b0dfUL : 0)
-
-	if (p_state->mti >= N) {
+#define MAGIC_RNG(y) (((y)&0x1) ? 0x9908b0dfUL : 0)
+	if(p_state->mti >= N) {
 		//generate N words at one time
 		int kk = 0;
 		for(kk = 0; kk < N - M; kk++) {
@@ -622,9 +610,9 @@ static double MtGetDouble (void * p_vstate) {return MtGet (p_vstate) / 429496729
 
 static void MtSet(void * p_vstate, uint s)
 {
-	MtStateT * p_state = (MtStateT *) p_vstate;
+	MtStateT * p_state = static_cast<MtStateT *>(p_vstate);
 	int i;
-	if (s == 0)
+	if(s == 0)
 		s = 4357;   //the default seed is 4357
 	p_state->mt[0]= s & 0xffffffffUL;
 	for (i = 1; i < N; i++) {
@@ -634,8 +622,7 @@ static void MtSet(void * p_vstate, uint s)
 	p_state->mti = i;
 }
 
-static const RngType MtType =
-{
+static const RngType MtType = {
 	"Mt_19937",			//name
 	0xffffffffUL,		//RAND_MAX
 	0,					//RAND_MIN
@@ -651,10 +638,11 @@ const RngType * Rng_Mt_19937 = &MtType;
 const RngType * RngDefault = &MtType;
 uint RngDefaultSeed = 0;
 
-void RngSet (const Rng * pR, uint seed) {(pR->P_Type->P_Set) (pR->P_State, seed);}
+void RngSet(const Rng * pR, uint seed) {(pR->P_Type->P_Set) (pR->P_State, seed);}
+
 Rng * RngAlloc(const RngType * pT)
 {
-	Rng * pR = (Rng *)malloc(sizeof(Rng));
+	Rng * pR = static_cast<Rng *>(malloc(sizeof(Rng)));
 	/*if (pR == 0) {
 		ERROR_VAL ("failed to allocate space for rng struct", ENOMEM, 0);
     };*/

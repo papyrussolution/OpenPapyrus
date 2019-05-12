@@ -68,7 +68,7 @@ int STimeChunkGrid::GetChunksByTime(const STimeChunk & rRange, STimeChunkAssocAr
 	for(uint i = 0; i < getCount(); i++) {
 		const STimeChunkAssocArray * p_row = at(i);
 		for(uint j = 0; j < p_row->getCount(); j++) {
-			const STimeChunkAssoc * p_item = (const STimeChunkAssoc *)p_row->at(j);
+			const STimeChunkAssoc * p_item = static_cast<const STimeChunkAssoc *>(p_row->at(j));
 			STimeChunk intersection;
 			if(p_item->Chunk.Intersect(rRange, &intersection) > 0) {
 				const long _dur = intersection.GetDuration();
@@ -311,7 +311,6 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 				if(!p_view->IsInState(sfModal)) {
 					APPL->P_DeskTop->remove(p_view);
 					delete p_view;
-					//SetWindowLong(hWnd, GWLP_USERDATA, 0);
 					TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0));
 				}
 			}
@@ -2477,7 +2476,6 @@ void STimeChunkBrowser::Paint()
 		// Заголовок (дни)
 		//
 		canv.SetTextColor(Ptb.GetColor(colorWhiteText));
-
 		x = left_edge;
 		y = a2.Full.a.y;
 		for(long quant = St.ScrollX; ; quant++) {
@@ -2704,7 +2702,6 @@ void STimeChunkBrowser::Paint()
 						const int x = ra.Key;
 						LDATE dt;
 						dt.v = ra.Val;
-
 						canv.LineVert(x, y, y-5);
 						GetDayOfWeekText(4, dayofweek(&dt, 1), dow_buf);
 						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);

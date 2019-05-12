@@ -5,7 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <process.h>
+//#include <process.h>
 //
 // AMC-100
 //
@@ -18,14 +18,14 @@ public:
 	virtual int SLAPI EnableCashKeyb(int);
 private:
 	// @v10.3.9 virtual int SLAPI InitChannel();
-	int SLAPI PutLine(char * b, FILE *);
-	int SLAPI MakeHeader(char * fn, CCheckPacket *, uint flags);
-	int SLAPI MakeFooter(char * fn, CCheckPacket *, uint flags);
-	int SLAPI MakeBody(char * fn, CCheckPacket *, uint flags);
-	int SLAPI MakeExecFileName(char * fn, uint flags);
-	int SLAPI Exec(char * exc, char * hdr, char * bdy, char * ftr, uint flags);
-	int SLAPI ExecKLD(int param, int forceRedraw);
-	int SLAPI OpenBox();
+	void   SLAPI PutLine(const char * b, FILE *);
+	int    SLAPI MakeHeader(char * fn, CCheckPacket *, uint flags);
+	int    SLAPI MakeFooter(char * fn, CCheckPacket *, uint flags);
+	int    SLAPI MakeBody(char * fn, CCheckPacket *, uint flags);
+	int    SLAPI MakeExecFileName(char * fn, uint flags);
+	int    SLAPI Exec(char * exc, char * hdr, char * bdy, char * ftr, uint flags);
+	int    SLAPI ExecKLD(int param, int forceRedraw);
+	int    SLAPI OpenBox();
 };
 
 class CM_AMC100 : public PPCashMachine {
@@ -56,11 +56,10 @@ SLAPI SCS_AMC100::~SCS_AMC100()
 
 // @v10.3.9 int SLAPI SCS_AMC100::InitChannel() { return 1; }
 
-int SLAPI SCS_AMC100::PutLine(char * b, FILE * f)
+void SLAPI SCS_AMC100::PutLine(const char * b, FILE * f)
 {
 	fputs(b, f);
 	fputc('\n', f);
-	return 1;
 }
 
 static FILE * opentemp(int firstLetter, char * buf)
@@ -115,7 +114,7 @@ int SLAPI SCS_AMC100::MakeFooter(char * fn, CCheckPacket *, uint)
 	buf[18] = 0;
 	PutLine(buf, f);
 	buf[0] = 'W';
-	memset(stpcpy(buf + 1, "ëèÄëàÅé"), ' ', 10);
+	memset(stpcpy(buf + 1, "—œ¿—»¡Œ"), ' ', 10);
 	buf[18] = 0;
 	PutLine(buf, f);
 	SFile::ZClose(&f);
@@ -340,12 +339,12 @@ int SLAPI SCS_AMC200::MakeFooter(char * fn, CCheckPacket *, uint)
 {
 	int    ok = 1;
 	FILE * f = opentemp('F', fn);
-	char buf[20];
+	char   buf[20];
 	buf[0] = '1';
 	buf[1] = 0;
 	PutLine(buf, f);
 	buf[0] = '2';
-	strnzcpy(buf+1, "ëèÄëàÅé", 9);
+	strnzcpy(buf+1, "—œ¿—»¡Œ", 9);
 	PutLine(buf, f);
 	SFile::ZClose(&f);
 	return ok;

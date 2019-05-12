@@ -119,11 +119,6 @@ const void * SLAPI WinRegValue::GetBinary(size_t * pDataLen) const
 	return P_Buf;
 }
 
-/*const char * SLAPI WinRegValue::GetString() const
-{
-	return (Type == REG_SZ) ? static_cast<const char *>(P_Buf) : 0;
-}*/
-
 int SLAPI WinRegValue::GetString(SString & rBuf) const
 {
 	int    ok = 0;
@@ -314,7 +309,10 @@ int SLAPI WinRegKey::PutString(const char * pParam, const char * pBuf)
 {
 	if(Key == 0)
 		return 0;
-	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, (LPBYTE)pBuf, (DWORD)(sstrlen(pBuf) + 1)); // @unicodeproblem
+	const  TCHAR * p_buf_to_store = SUcSwitch(pBuf);
+	DWORD  size_to_store = (sstrlen(pBuf) + 1) * sizeof(TCHAR);
+	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, reinterpret_cast<const BYTE *>(p_buf_to_store), size_to_store); // @v10.4.5 
+	// @v10.4.5 LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, (LPBYTE)pBuf, (DWORD)(sstrlen(pBuf) + 1));
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 

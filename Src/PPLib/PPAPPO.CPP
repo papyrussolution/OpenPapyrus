@@ -1639,6 +1639,7 @@ int SLAPI PreprocessCmdLine()
 int SLAPI ExecuteLuaScript(const char * pScriptText);
 int SLAPI ExecuteLuaScriptFile(const char * pFileName);
 int SLAPI ExportUhttForGitHub();
+int SLAPI ParseWinRcForNativeText();
 
 void PPApp::login(int processCmdLine)
 {
@@ -1865,8 +1866,13 @@ void PPApp::login(int processCmdLine)
 				}
 				{
 					PPID   _id  = 0;
-					if(PPSession::GetStartUpOption(PPSession::cmdlSelfBuild, arg_buf))
-						SelfBuild();
+					if(PPSession::GetStartUpOption(PPSession::cmdlSelfBuild, arg_buf)) {
+						if(arg_buf.IsEqiAscii("parsewinrcfornativetext")) {
+							ParseWinRcForNativeText();
+						}
+						else
+							SelfBuild();
+					}
 					else if(PPSession::GetStartUpOption(PPSession::cmdlCash, arg_buf)) {
 						arg_buf.Transf(CTRANSF_OUTER_TO_INNER);
 						if(GetCashNodeIDByName(&_id, arg_buf))
@@ -1929,20 +1935,25 @@ int PPApp::InitDeskTop()
 int PPApp::InitMenuBar()
 {
 	const  PPConfig & r_cfg = LConfig;
-	int    from_rc = (r_cfg.MenuID && !PPMaster) ? 0 : 1;
+	const  int is_master = BIN(PPMaster);
+	int    from_rc = (r_cfg.MenuID && !is_master) ? 0 : 1;
 	HMENU  m;
-	if(r_cfg.Menu || r_cfg.MenuID || PPMaster) {
+	if(r_cfg.Menu || r_cfg.MenuID || is_master) {
 		int not_found = 0;
-		if((m = PPLoadMenu(P_SlRez, from_rc ? r_cfg.Menu : r_cfg.MenuID, from_rc, &not_found)) == 0 || not_found) {
-			if(PPMaster) {
+		m = PPLoadMenu(P_SlRez, from_rc ? r_cfg.Menu : r_cfg.MenuID, from_rc, &not_found);
+		if(!m || not_found) {
+			if(is_master) {
 				DS.GetTLA().Lc.Menu = 1;
 				if(m)
-					DestroyMenu(m);
-				if((m = PPLoadMenu(P_SlRez, r_cfg.Menu, 1, &not_found)) == 0 || not_found) {
-					if(m)
-						DestroyMenu(m);
+					::DestroyMenu(m);
+				m = PPLoadMenu(P_SlRez, r_cfg.Menu, 1, &not_found);
+				if(!m || not_found) {
+					if(m) {
+						::DestroyMenu(m);
+						m = 0; // @v10.4.5
+					}
 					DS.SetMenu(MENU_MASTER);
-					m =	LoadMenu(TProgram::GetInst(), MAKEINTRESOURCE(r_cfg.Menu));
+					// @v10.4.5 (¬строенные в windows-ресурс меню упразднены) m = ::LoadMenu(TProgram::GetInst(), MAKEINTRESOURCE(r_cfg.Menu));
 				}
 			}
 			if(!m)
@@ -1951,7 +1962,7 @@ int PPApp::InitMenuBar()
 		DestroyMenu(GetMenu(H_MainWnd));
 		SetMenu(H_MainWnd, m);
 	}
-	PostMessage(H_MainWnd, WM_USER, 0, 0);
+	::PostMessage(H_MainWnd, WM_USER, 0, 0);
 	return 1;
 }
 

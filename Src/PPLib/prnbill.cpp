@@ -5,13 +5,11 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI PrintBillImages(const PPBillPacket * pPack, int prnFlags);
+static const char * BillMultiplePrintCfg              = "BillMultiplePrintCfg";
+static const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";
+static const char * BillMultiplePrintOnlyPriceChanged = "BillMultiplePrintOnlyPriceChanged";
 
-const char * BillMultiplePrintCfg              = "BillMultiplePrintCfg";
-const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";
-const char * BillMultiplePrintOnlyPriceChanged = "BillMultiplePrintOnlyPriceChanged";
-
-#define BILL_FORM_COUNT 13 // @v8.1.3 12-->13
+#define BILL_FORM_COUNT 13
 
 static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPID oprType, int * pDivCopiesFlag, int * pOnlyPriceChangedFlag)
 {
@@ -42,10 +40,6 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 		}
 		long   GetNumCopies(uint ctl)
 		{
-			//char   num_text[16];
-			//memzero(num_text, sizeof(num_text));
-			//::GetWindowText(GetDlgItem(H(), ctl), num_text, 2); // @unicodeproblem
-			//return atol(num_text);
 			SString temp_buf;
 			TView::SGetWindowText(GetDlgItem(H(), ctl), temp_buf);
 			return temp_buf.ToLong();
@@ -175,7 +169,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 				DELETE_CLUSTER_ITEM(clu, 3);
 			if(!(f & OPKF_PRT_INVOICE)) {
 				DELETE_CLUSTER_ITEM(clu, 2);
-				DELETE_CLUSTER_ITEM(clu, 12); // @v8.1.3
+				DELETE_CLUSTER_ITEM(clu, 12);
 			}
 			if(!(f & OPKF_PRT_QCERT))
 				DELETE_CLUSTER_ITEM(clu, 1);
@@ -197,10 +191,8 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 		LAssocArray rpt_info_list;
 		v = 1;
 		if(p_clu) {
-			//char   buf[512];
 			SString sbuf;
 			WinRegKey key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
-			//memzero(buf, sizeof(buf));
 			temp_buf.Z();
 			key.GetString(BillMultiplePrintCfg, temp_buf);
 			StringSet ss(';', temp_buf);
@@ -271,7 +263,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 				else {
 					for(uint c = 0; c < BILL_FORM_COUNT; c++)
 						if(((uint16)v >> c) & 0x0001)
-							rSelAry.Add((PPID)(c + 1), ((MultiPrintDialog*)dlg)->GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c), 0);
+							rSelAry.Add((PPID)(c + 1), static_cast<MultiPrintDialog *>(dlg)->GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c), 0);
 				}
 			}
 			else {
@@ -302,6 +294,61 @@ static int SLAPI PrintInvoice(PPBillPacket * pPack, int prnflags)
 	PPFilt pf(pPack);
 	ok = PPAlddPrint(REPORT_INVOICE, &pf, &env);
 	pPack->Rec.Flags &= ~BILLF_PRINTINVOICE;
+	return ok;
+}
+
+static int SLAPI IsPriceChanged(const PPTransferItem * pTi, long procFlags)
+{
+	int price_chng = 1; // Цена изменилась по отношению к предыдущему лоту. Если не установлен флаг pfPrintChangedPriceOnly, то игнорируется.
+	if(procFlags & PPBillPacket::pfPrintChangedPriceOnly) {
+		//
+		// Будем печатать только те товары, цены на которые изменились.
+		//
+		PPObjBill * p_bobj = BillObj;
+		ReceiptCore * p_rcpt = (p_bobj && p_bobj->trfr) ? &p_bobj->trfr->Rcpt : 0;
+		if(p_rcpt) {
+			ReceiptTbl::Rec prev_rec, rec;
+			if(p_rcpt->Search(pTi->LotID, &rec) > 0) {
+				int r = p_rcpt->GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec);
+				price_chng = BIN(r <= 0 || rec.Price != prev_rec.Price);
+				if(!price_chng) {
+					double prev_rest = 0.0;
+					p_bobj->trfr->GetRest(prev_rec.ID, rec.Dt, rec.OprNo, &prev_rest, 0);
+					if(prev_rest <= 0.0)
+						price_chng = 1;
+				}
+			}
+		}
+	}
+	return price_chng;
+}
+
+static int SLAPI PrintBillImages(const PPBillPacket * pPack, int prnFlags)
+{
+	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
+	SString path;
+	SPrinting prn(APPL->H_MainWnd);
+	PPTransferItem * p_ti = 0;
+	THROW_SL(prn.Init(0));
+	for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
+		PPID org_lot_id = 0L;
+		if(p_bobj->trfr->Rcpt.SearchOrigin(p_ti->LotID, &org_lot_id, 0, 0) > 0) {
+			ObjTagList tag_list;
+			p_bobj->GetTagListByLot(org_lot_id, 1, &tag_list);
+			const uint tag_count = tag_list.GetCount();
+			if(IsPriceChanged(p_ti, pPack->ProcessFlags) > 0) {
+				for(uint j = 0; j < tag_count; j++) {
+					const ObjTagItem * p_item = tag_list.GetItemByPos(j);
+					if(p_item && p_item->TagDataType == OTTYP_IMAGE) {
+						if(p_item->GetStr(path = 0) > 0 && path.NotEmptyS() && fileExists(path))
+							THROW(prn.PrintImage(path));
+					}
+				}
+			}
+		}
+	}
+	CATCHZOKPPERR
 	return ok;
 }
 
@@ -608,55 +655,4 @@ int SLAPI PrintCashOrder(PPBillPacket * pPack, int pay_rcv, int prnflags)
 	return PPAlddPrint(rpt_id, &pf, &env);
 }
 
-static int SLAPI IsPriceChanged(const PPTransferItem * pTi, long procFlags)
-{
-	int price_chng = 1; // Цена изменилась по отношению к предыдущему лоту. Если не установлен флаг pfPrintChangedPriceOnly, то игнорируется.
-	if(procFlags & PPBillPacket::pfPrintChangedPriceOnly) {
-		//
-		// Будем печатать только те товары, цены на которые изменились.
-		//
-		ReceiptCore * p_rcpt = (BillObj && BillObj->trfr) ? &BillObj->trfr->Rcpt : 0;
-		if(p_rcpt) {
-			ReceiptTbl::Rec prev_rec, rec;
-			if(p_rcpt->Search(pTi->LotID, &rec) > 0) {
-				int r = p_rcpt->GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec);
-				price_chng = BIN(r <= 0 || rec.Price != prev_rec.Price);
-				if(!price_chng) {
-					double prev_rest = 0.0;
-					BillObj->trfr->GetRest(prev_rec.ID, rec.Dt, rec.OprNo, &prev_rest, 0);
-					if(prev_rest <= 0.0)
-						price_chng = 1;
-				}
-			}
-		}
-	}
-	return price_chng;
-}
 
-int SLAPI PrintBillImages(const PPBillPacket * pPack, int prnFlags)
-{
-	int    ok = 1;
-	SString path;
-	SPrinting prn(APPL->H_MainWnd);
-	PPTransferItem * p_ti = 0;
-	THROW_SL(prn.Init(0));
-	for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
-		PPID org_lot_id = 0L;
-		if(BillObj->trfr->Rcpt.SearchOrigin(p_ti->LotID, &org_lot_id, 0, 0) > 0) {
-			ObjTagList tag_list;
-			BillObj->GetTagListByLot(org_lot_id, 1, &tag_list);
-			const uint tag_count = tag_list.GetCount();
-			if(IsPriceChanged(p_ti, pPack->ProcessFlags) > 0) {
-				for(uint j = 0; j < tag_count; j++) {
-					const ObjTagItem * p_item = tag_list.GetItemByPos(j);
-					if(p_item && p_item->TagDataType == OTTYP_IMAGE) {
-						if(p_item->GetStr(path = 0) > 0 && path.NotEmptyS() && fileExists(path))
-							THROW(prn.PrintImage(path));
-					}
-				}
-			}
-		}
-	}
-	CATCHZOKPPERR
-	return ok;
-}

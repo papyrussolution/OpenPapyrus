@@ -1,5 +1,6 @@
 // HOLIDAYS.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -58,13 +59,13 @@ private:
 			clearEvent(event);
 		}
 	}
-	int    setupDate();
+	void   setupDate();
 
 	LDATE  Dt;
 	int    PrevKind;
 };
 
-int HldDialog::setupDate()
+void HldDialog::setupDate()
 {
 	int    kind = (getCtrlUInt16(CTL_HOLIDAY_KIND) + 1);
 	long   dw = dayofweek(&Dt, 1);
@@ -101,7 +102,6 @@ int HldDialog::setupDate()
 	disableCtrl(CTLSEL_HOLIDAY_DAYOFWEEK, kind != 3);
 	disableCtrls(kind == 3, CTL_HOLIDAY_DATE, CTLCAL_HOLIDAY_DATE, 0);
 	PrevKind = kind;
-	return 1;
 }
 
 int HldDialog::setDTS(LDATE dt, PPID locID)
@@ -266,7 +266,7 @@ int HolidaysDialog::delItem(long /*pos*/, long id)
 {
 	int    ok = -1;
 	PPID   loc_id = 0;
-	LDATE dt = *(LDATE *)&id;
+	LDATE  dt = *reinterpret_cast<const LDATE *>(&id);
 	THROW(CheckCfgRights(PPCFGOBJ_PREDICTHOLYDAYS, PPR_MOD, 0));
 	getCtrlData(CTLSEL_HOLIDAYS_LOC, &loc_id);
 	THROW((ok = P_Driver->SetHoliday(loc_id, dt, 1)) > 0)
@@ -286,7 +286,7 @@ int SLAPI EditHolidays()
 		THROW(CheckCfgRights(PPCFGOBJ_PREDICTHOLYDAYS, PPR_MOD, 0));
 		if(t.Finish(0, 1)) {
 			ok = 1;
-			// @todo Перенести эту строку в функцию PredictSalesCore::Finish
+			// @todo РџРµСЂРµРЅРµСЃС‚Рё СЌС‚Сѓ СЃС‚СЂРѕРєСѓ РІ С„СѓРЅРєС†РёСЋ PredictSalesCore::Finish
 			DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_PREDICTHOLYDAYS, 0, 0, 1);
 		}
 		else
@@ -296,4 +296,3 @@ int SLAPI EditHolidays()
 	delete dlg;
 	return ok;
 }
-

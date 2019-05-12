@@ -1,5 +1,6 @@
 // PPDRVAPI.CPP
-// Copyright (c) A.Sobolev 2013, 2017, 2018
+// Copyright (c) A.Sobolev 2013, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <ppdrvapi.h>
 
@@ -34,7 +35,7 @@ int PPDrvSession::ImplementDllMain(HANDLE hModule, DWORD dwReason)
 }
 
 SLAPI PPDrvSession::PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc,
-	uint verMajor, uint verMinor, uint errMsgCount, const PPDrvSession::TextTableEntry * pErrMsgTab) :
+	uint verMajor, uint verMinor, uint errMsgCount, const SIntToSymbTabEntry * pErrMsgTab) :
 	Name(pName), Proc(proc), VerMajor(verMajor), VerMinor(verMinor)
 {
 	Id = 1;
@@ -44,14 +45,13 @@ SLAPI PPDrvSession::PPDrvSession(const char * pName, PPDrv_CreateInstanceProc pr
 	InitThread();
 #endif
 	{
-		DefineErrText(PPBaseDriver::serrNotInited, "Интерфейс драйвера не инициализирован");
-		DefineErrText(PPBaseDriver::serrInvCommand, "Недопустимая команда");
-		DefineErrText(PPBaseDriver::serrNoMem, "Недостаточно памяти");
-		DefineErrText(PPBaseDriver::serrNotEnoughRetBufLen, "Недостаточен размер буфера возвращаемого результата");
+		DefineErrText(PPBaseDriver::serrNotInited, "РРЅС‚РµСЂС„РµР№СЃ РґСЂР°Р№РІРµСЂР° РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ");
+		DefineErrText(PPBaseDriver::serrInvCommand, "РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РєРѕРјР°РЅРґР°");
+		DefineErrText(PPBaseDriver::serrNoMem, "РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїР°РјСЏС‚Рё");
+		DefineErrText(PPBaseDriver::serrNotEnoughRetBufLen, "РќРµРґРѕСЃС‚Р°С‚РѕС‡РµРЅ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ СЂРµР·СѓР»СЊС‚Р°С‚Р°");
 	}
-	if(errMsgCount && pErrMsgTab) {
+	if(errMsgCount && pErrMsgTab)
 		DefineErrTextTable(errMsgCount, pErrMsgTab);
-	}
 }
 
 #define SIGN_PPDRVTLA 0x7D08E312L
@@ -127,7 +127,7 @@ int SLAPI PPDrvSession::InitThread()
 int SLAPI PPDrvSession::ReleaseThread()
 {
 #ifdef _MT
-	PPDrvThreadLocalArea * p_tla = (PPDrvThreadLocalArea *)TlsGetValue(TlsIdx);
+	PPDrvThreadLocalArea * p_tla = static_cast<PPDrvThreadLocalArea *>(TlsGetValue(TlsIdx));
 	if(p_tla) {
 		delete p_tla;
 		TlsSetValue(TlsIdx, 0);
@@ -137,34 +137,31 @@ int SLAPI PPDrvSession::ReleaseThread()
 	return 1;
 }
 
-PPDrvThreadLocalArea & SLAPI PPDrvSession::GetTLA() { return *(PPDrvThreadLocalArea *)TlsGetValue(TlsIdx); }
-const PPDrvThreadLocalArea & SLAPI PPDrvSession::GetConstTLA() const { return *(PPDrvThreadLocalArea *)TlsGetValue(TlsIdx); }
+PPDrvThreadLocalArea & SLAPI PPDrvSession::GetTLA() { return *static_cast<PPDrvThreadLocalArea *>(TlsGetValue(TlsIdx)); }
+const PPDrvThreadLocalArea & SLAPI PPDrvSession::GetConstTLA() const { return *static_cast<const PPDrvThreadLocalArea *>(TlsGetValue(TlsIdx)); }
 PPBaseDriver * PPDrvSession::GetI() { return GetTLA().I; }
 void PPDrvSession::SetErrCode(int errCode) { GetTLA().LastErr = errCode; }
 int PPDrvSession::GetLastErr() { return GetConstTLA().LastErr; }
 
-int PPDrvSession::DefineErrText(int errCode, const char * pText)
+void PPDrvSession::DefineErrText(int errCode, const char * pText)
 {
 	ErrText.Add(errCode, pText, 1);
-	return 1;
 }
 
-int PPDrvSession::DefineErrTextTable(uint numEntries, const TextTableEntry * pTab)
+void PPDrvSession::DefineErrTextTable(uint numEntries, const SIntToSymbTabEntry * pTab)
 {
-	int    ok = 1;
-	if(pTab) {
-		for(uint i = 0; i < numEntries; i++) {
-			ErrText.Add(pTab[i].Code, pTab[i].P_Text, 1);
-		}
-	}
-	return ok;
+	if(pTab)
+		for(uint i = 0; i < numEntries; i++)
+			ErrText.Add(pTab[i].Id, pTab[i].P_Symb, 1);
 }
 
 int PPDrvSession::GetErrText(int errCode, SString & rBuf)
 {
 	if(errCode < 0)
 		errCode = GetConstTLA().LastErr;
-	return ErrText.GetText(errCode, rBuf);
+	int    ok = ErrText.GetText(errCode, rBuf);
+	rBuf.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
+	return ok;
 }
 
 void PPDrvSession::SetLogFileName(const char * pFileName)

@@ -853,7 +853,7 @@ int TDialog::SetCtrlBitmap(uint ctlID, uint bmID)
 	int    ok = 0;
 	HBITMAP h_bm = APPL->FetchBitmap(bmID);
 	if(h_bm) {
-		SendDlgItemMessage(H(), ctlID, STM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
+		::SendDlgItemMessage(H(), ctlID, STM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 		ok = 1;
 	}
 	return ok;
@@ -873,9 +873,9 @@ int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 
 void TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
 {
-	SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(H(), buddyCtlID)), 0);
-	SendDlgItemMessage(H(), ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
-	SendDlgItemMessage(H(), ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
+	::SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(H(), buddyCtlID)), 0);
+	::SendDlgItemMessage(H(), ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
+	::SendDlgItemMessage(H(), ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
 }
 //
 //
@@ -941,7 +941,7 @@ int __cdecl TDialog::SetCtrlsFont(const char * pFontName, int height, ...)
 			ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
 			if(ok > 0)
 				while((ctrl_id = va_arg(vl, long)) != 0)
-					SendMessage(GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+					::SendMessage(GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 		}
 	}
 	va_end(vl);
@@ -954,7 +954,7 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
     HWND  ctrl_wnd = GetDlgItem(H(), ctrlID);
 	if(ctrl_wnd) {
 		if(!ToolTipsWnd) {
-			ToolTipsWnd = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+			ToolTipsWnd = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
 				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, ctrl_wnd, NULL, TProgram::GetInst(), 0);
 			SetWindowPos(ToolTipsWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 		}
@@ -985,7 +985,6 @@ int TDialog::SaveUserSettings()
 	RECT   rect;
 	WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_DlgUserSetting, 0);
 	ltoa(resourceID, param, 10);
-
 	// version, left, top
 	char   ver[32], temp_buf[32];
 	uint   pos = 0;

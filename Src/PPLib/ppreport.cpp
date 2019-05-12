@@ -25,13 +25,7 @@ static int FindExeByExt2(const char * pExt, SString & rResult, const char * pAdd
 	rResult.Z();
 	int    ok = 0;
 	if(pExt) {
-		//TCHAR  tbuf[MAXPATH];
-		//char * p_chr = 0;
 		SString temp_buf;
-		//DWORD  v_type = REG_SZ ;
-		//DWORD  bufsize = SIZEOFARRAY(tbuf);
-		//
-		//tbuf[0] = 0;
 		SString val_buf;
 		WinRegKey reg_key(HKEY_CLASSES_ROOT, pExt, 1);
 		if(reg_key.GetString(0, val_buf) > 0) {
@@ -66,56 +60,6 @@ static int FindExeByExt2(const char * pExt, SString & rResult, const char * pAdd
 	}
 	return ok;
 }
-
-#if 0 // @v10.3.11 {
-static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, const char * pAddedSearchString)
-{
-	//
-	// @todo Перестроить функцию с использованием WinRegKey
-	//
-	int    ok = 0;
-	TCHAR  tbuf[MAXPATH];
-	char * p_chr = 0;
-	SString temp_buf;
-	DWORD  v_type = REG_SZ ;
-	DWORD  bufsize = SIZEOFARRAY(tbuf);
-	if(pExe) {
-		tbuf[0] = 0;
-		if(SHGetValue(HKEY_CLASSES_ROOT, SUcSwitch(pExt), NULL, &v_type, tbuf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
-			v_type = REG_SZ;
-			bufsize = MAXPATH;
-			if(pAddedSearchString && stricmp(pAddedSearchString, tbuf) == 0 &&
-				SHGetValue(HKEY_CLASSES_ROOT, tbuf, NULL, &v_type, tbuf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
-				v_type = REG_SZ;
-				bufsize = MAXPATH;
-				strip(tbuf);
-				while((p_chr = sstrchr(tbuf, ' ')) != NULL)
-					strcpy(p_chr, p_chr + 1);
-			}
-			temp_buf.Z().CatChar('\\').Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
-			strcat(tbuf, temp_buf);
-			if(SHGetValue(HKEY_CLASSES_ROOT, tbuf, NULL, &v_type, tbuf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
-				strip(tbuf);
-				if(tbuf[0] == '"') {
-					strcpy(tbuf, tbuf + 1);
-					if((p_chr = sstrchr(tbuf, '"')) != NULL)
-						strcpy(p_chr, p_chr + 1);
-				}
-				if((p_chr = sstrchr(tbuf, '.')) != NULL)
-					if((p_chr = sstrchr(p_chr, ' ')) != NULL)
-						*p_chr = 0;
-				if(buflen > sstrlen(tbuf)) {
-					strcpy(pExe, tbuf);
-					ok = 1;
-				}
-				else
-					pExe[0] = 0;
-			}
-		}
-	}
-	return ok;
-}
-#endif // } 0 @v10.3.11
 //
 //
 //

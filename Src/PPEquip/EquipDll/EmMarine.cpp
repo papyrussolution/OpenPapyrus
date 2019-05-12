@@ -1,5 +1,6 @@
 // EMMEARINE.CPP
-// Работа со считывателями карт по EM Marine по протоколу Wiegand26
+// @codepage UTF-8
+// Р Р°Р±РѕС‚Р° СЃРѕ СЃС‡РёС‚С‹РІР°С‚РµР»СЏРјРё РєР°СЂС‚ РїРѕ EM Marine РїРѕ РїСЂРѕС‚РѕРєРѕР»Сѓ Wiegand26
 //
 #include <ppdrvapi.h>
 
@@ -8,12 +9,12 @@ extern PPDrvSession DRVS;
 #define EXPORT	extern "C" __declspec (dllexport)
 #define THROWERR(expr,val)     { if(!(expr)) { DRVS.SetErrCode(val); goto __scatch; } }
 
-// Коды ошибок
-#define RDRERR_OPENPORTFAILED  400 // Ошибка открытия порта
-#define RDRERR_WRITEPORTFAILED 401 // Ошибка записи в порт
-#define RDRERR_READPORTFAILED  402 // Ошибка чтения из порта
-#define RDRERR_NOREPLY         403 // Устройство не отвечает
-#define RDRERR_INVREPLY        404 // Неверный ответ устройства
+// РљРѕРґС‹ РѕС€РёР±РѕРє
+#define RDRERR_OPENPORTFAILED  400 // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РїРѕСЂС‚Р°
+#define RDRERR_WRITEPORTFAILED 401 // РћС€РёР±РєР° Р·Р°РїРёСЃРё РІ РїРѕСЂС‚
+#define RDRERR_READPORTFAILED  402 // РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РёР· РїРѕСЂС‚Р°
+#define RDRERR_NOREPLY         403 // РЈСЃС‚СЂРѕР№СЃС‚РІРѕ РЅРµ РѕС‚РІРµС‡Р°РµС‚
+#define RDRERR_INVREPLY        404 // РќРµРІРµСЂРЅС‹Р№ РѕС‚РІРµС‚ СѓСЃС‚СЂРѕР№СЃС‚РІР°
 
 class PPDrvReader : public PPBaseDriver {
 public:
@@ -38,23 +39,23 @@ public:
 	int    Connect(int port);
 	int    Listen(SString & rOutput);
 private:
+	int    Disconnect();
+	int    CardCodeToString(const uint8 * pCardCode, SString & rBuf) const;
+	uint8  CalcCheckCode(const uint8 * pBuf, size_t dataLen) const;
+
 	HANDLE Handle;
 	SCommPort CommPort;
 	long   State;
 	long   ReEmmId;
 	SStrScan Scan;
-
-	int    Disconnect();
-	int    CardCodeToString(const uint8 * pCardCode, SString & rBuf) const;
-	uint8  CalcCheckCode(const uint8 * pBuf, size_t dataLen) const;
 };
 
-static PPDrvSession::TextTableEntry _ErrMsgTab[] = {
-	{ RDRERR_OPENPORTFAILED,  "Ошибка открытия порта" },
-	{ RDRERR_WRITEPORTFAILED, "Ошибка записи в порт" },
-	{ RDRERR_READPORTFAILED,  "Ошибка чтения из порта" },
-	{ RDRERR_NOREPLY,         "Устройство не отвечает" },
-	{ RDRERR_INVREPLY,        "Неверный ответ устройства" }
+static const SIntToSymbTabEntry _ErrMsgTab[] = {
+	{ RDRERR_OPENPORTFAILED,  "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РїРѕСЂС‚Р°" },
+	{ RDRERR_WRITEPORTFAILED, "РћС€РёР±РєР° Р·Р°РїРёСЃРё РІ РїРѕСЂС‚" },
+	{ RDRERR_READPORTFAILED,  "РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РёР· РїРѕСЂС‚Р°" },
+	{ RDRERR_NOREPLY,         "РЈСЃС‚СЂРѕР№СЃС‚РІРѕ РЅРµ РѕС‚РІРµС‡Р°РµС‚" },
+	{ RDRERR_INVREPLY,        "РќРµРІРµСЂРЅС‹Р№ РѕС‚РІРµС‚ СѓСЃС‚СЂРѕР№СЃС‚РІР°" }
 };
 
 PPDRV_INSTANCE_ERRTAB(Reader, 1, 0, PPDrvReader, _ErrMsgTab);
@@ -75,9 +76,9 @@ int PPDrvReader::CardCodeToString(const uint8 * pCardCode, SString & rBuf) const
 }
 //
 // Returns:
-//   -1 - если соединение было установлено раньше
-//    0 - ошибка
-//    1 - соединение успешно установлено
+//   -1 - РµСЃР»Рё СЃРѕРµРґРёРЅРµРЅРёРµ Р±С‹Р»Рѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ СЂР°РЅСЊС€Рµ
+//    0 - РѕС€РёР±РєР°
+//    1 - СЃРѕРµРґРёРЅРµРЅРёРµ СѓСЃРїРµС€РЅРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ
 int PPDrvReader::Connect(int portNum)
 {
 	int    ok = 1;
@@ -115,9 +116,9 @@ int PPDrvReader::Disconnect()
 }
 //
 // Returns:
-//   -1 - нет входящих данных
-//    0 - ошибка
-//    1 - данные успешно считаны
+//   -1 - РЅРµС‚ РІС…РѕРґСЏС‰РёС… РґР°РЅРЅС‹С…
+//    0 - РѕС€РёР±РєР°
+//    1 - РґР°РЅРЅС‹Рµ СѓСЃРїРµС€РЅРѕ СЃС‡РёС‚Р°РЅС‹
 //
 int PPDrvReader::Listen(SString & rOutput)
 {
@@ -133,7 +134,7 @@ int PPDrvReader::Listen(SString & rOutput)
 		data_buf[data_size++] = (uint8)chr;
 	//THROWERR(data_size, RDRERR_NOREPLY);
 	rOutput.Z();
-	// Номер карты получается в виде 16-ой строки. Переводим в 10-ую. Символы берем попарно.
+	// РќРѕРјРµСЂ РєР°СЂС‚С‹ РїРѕР»СѓС‡Р°РµС‚СЃСЏ РІ РІРёРґРµ 16-РѕР№ СЃС‚СЂРѕРєРё. РџРµСЂРµРІРѕРґРёРј РІ 10-СѓСЋ. РЎРёРјРІРѕР»С‹ Р±РµСЂРµРј РїРѕРїР°СЂРЅРѕ.
 	if(data_size) {
 		int    all_are_hex = 1;
 		int    all_are_ascii = 1;
@@ -159,13 +160,13 @@ int PPDrvReader::Listen(SString & rOutput)
 			for(i = 0; i < data_size; i++)
 				temp_buf.CatChar(data_buf[i]);
 			DRVS.Log((msg_buf = "EmMarine driver readed HEX:").Space().Cat(temp_buf), 0xffff);
-			i = 2; // Первые два байта (служебные пропускаем).
+			i = 2; // РџРµСЂРІС‹Рµ РґРІР° Р±Р°Р№С‚Р° (СЃР»СѓР¶РµР±РЅС‹Рµ РїСЂРѕРїСѓСЃРєР°РµРј).
 			while(i < (data_size-1) && data_buf[i] == '0' && data_buf[i+1] == '0')
-				i += 2; // Пропускаем так же нули
+				i += 2; // РџСЂРѕРїСѓСЃРєР°РµРј С‚Р°Рє Р¶Рµ РЅСѓР»Рё
 			uint32 value = 0;
 			//
-			// Нам надо забрать 6 байт каждый из который представляет hex-полубайт.
-			// Пример: F6ED7B
+			// РќР°Рј РЅР°РґРѕ Р·Р°Р±СЂР°С‚СЊ 6 Р±Р°Р№С‚ РєР°Р¶РґС‹Р№ РёР· РєРѕС‚РѕСЂС‹Р№ РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ hex-РїРѕР»СѓР±Р°Р№С‚.
+			// РџСЂРёРјРµСЂ: F6ED7B
 			//
 			int    c = 16;
 			while(c >= 0 && i < (data_size-1)) {
@@ -240,7 +241,7 @@ int PPDrvReader::ProcessCommand(const SString & rCmd, const char * pInputData, S
 	}
 	else if(rCmd == "RELEASE") {
 	}
-	else { // Если дана неизвестная  команда, то сообщаем об этом
+	else { // Р•СЃР»Рё РґР°РЅР° РЅРµРёР·РІРµСЃС‚РЅР°СЏ  РєРѕРјР°РЅРґР°, С‚Рѕ СЃРѕРѕР±С‰Р°РµРј РѕР± СЌС‚РѕРј
 		DRVS.SetErrCode(serrInvCommand);
 		err = 1;
 	}

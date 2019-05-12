@@ -861,7 +861,6 @@ INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wPar
 	switch(message) {
 		case WM_INITDIALOG:
 			p_param = new TuneToolsDialog(hWnd, reinterpret_cast<TToolbar *>(lParam));
-			//SetWindowLong(hWnd, GWLP_USERDATA, (long)p_param);
 			TView::SetWindowProp(hWnd, GWLP_USERDATA, p_param);
 			EnumChildWindows(hWnd, SetupCtrlTextProc, 0); // @v9.4.5
 			return 1;
@@ -885,8 +884,7 @@ INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wPar
 		case WM_DESTROY:
 			p_param = static_cast<TuneToolsDialog *>(TView::GetWindowUserData(hWnd));
 			delete p_param;
-			//SetWindowLong(hWnd, GWLP_USERDATA, 0);
-			TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
+			TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0));
 			break;
 	}
 	return 0;

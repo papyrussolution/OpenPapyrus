@@ -2922,6 +2922,8 @@ PPINIPARAM_TSSTAKE_USEDATASINCE        "use_data_since"
 PPINIPARAM_TSSTAKE_DEFTARGETQUANT      "def_target_quant"
 PPINIPARAM_TSSTAKE_MINWINRATE          "min_win_rate"
 PPINIPARAM_TSSTAKE_TARGETQUANT         "target_quant"
+PPINIPARAM_TSSTAKE_OPTRANGETARGET      "opt_range_target"
+PPINIPARAM_TSSTAKE_OPTRANGEMULTI       "opt_range_multi"
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -3181,6 +3183,7 @@ PPFILNAM_EDIEXITE_LOG          "edi-exite.log"
 PPFILNAM_TSSTAKE_LOG           "tsstake.log"
 PPFILNAM_TSSTAKEPOTENTIAL_LOG  "tsstake-potential.log"
 PPFILNAM_TSTA_LOG              "tsta.log"
+PPFILNAM_DEBUG_AEQ_LOG         "debug-aeq.log"
 
 #!} // dont_translate
 
@@ -3201,14 +3204,16 @@ PPTXT_CMT "6,Эмулятор (синхронный);\
 15,Атол без АТОЛ-CARD;\
 2,Електроника-92-Аквариус-Ф;\
 1,ОКА-500.1;\
-3,АМС-100Ф;\
-8,АМС-200Ф;\
+3,Unused;\
+8,Unused;\
 4,ЭКР-4110Ф;\
 13,Unused;\
 20,Unused;\
 7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф);\
 501,Дрим Кас"
 // @v9.5.1 13,Кристалл-АЗС-->13,Unused
+// @v10.4.5 3,АМС-100Ф-->3,Unused
+// @v10.4.5 8,АМС-200Ф-->8,Unused
 
 //99 Список типов принтеров штрихкодов
 PPTXT_BCPT /!/ "1,ZEBRA;2,DATAMAX;3,ELTRON;4,WINDOWS"
@@ -5670,6 +5675,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bydefault               "По умолчанию"
 @attention               "Внимание!"
 @connectedto             "Связанные с"
+@codepage_oem            "OEM-кодировка"
 
 @whatprint               "Что печатать"
 @whatadd                 "Что добавить"
@@ -5678,6 +5684,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @exit                    "Выход"
 @rights                  "Права"
 @analogs                 "Аналоги"
+@thank                   "Спасибо"
 @options                 "Опции"
 @zero                    "Ноль"
 @processing              "Обработка"
@@ -7514,7 +7521,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bcodeprinter_port                        "@{outport}"
 @bcodeprinter_printertype                 "Тип принтера"
 @bcodeprinter_tag                         "@{tag}"
-@bcodeprinter_cpoem                       "OEM-кодировка"
+@bcodeprinter_cpoem                       "@{codepage_oem}"
 
 @bcodelabelprintparam                     "Печать товарной этикетки"
 @bcodelabelprintparam_currentitemonly     "Текущая строка"
@@ -8783,7 +8790,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @dbdiv_id                                 "@{id}"
 @dbdiv_intrrcptopr                        "Операция межскладского прихода"
 @dbdiv_name                               "@{appellation}"
-@dbdiv_outcounter                         "Счетчик"
+@dbdiv_outcounter                         "@{counter}"
 @dbdiv_symb                               "@{symbol}"
 @dbdiv_tag                                "@{tag}"
 @dbdiv_uuid                               "UUID"
@@ -9421,7 +9428,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_initstatus                       "Статус новых документов"
 @oprkind_linkop                           "Связанная операция"
 @oprkind_name                             "@{appellation}"
-@oprkind_opcounter                        "Счетчик"
+@oprkind_opcounter                        "@{counter}"
 @oprkind_options                          "Опции вида операций" // generic
 @oprkind_opkf_attachfiles                 "@{attachfiles}"
 @oprkind_opkf_advacc                      "Ввод расширенной информации"

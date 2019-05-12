@@ -26,11 +26,9 @@
 #define PRNMODE_AFTER_NO_PAPER		0x02	// Ожидание команды печати после режима 2
 #define PRNMODE_PRINT				0x04	// Режим печати
 #define FRMODE_OPEN_CHECK			0x08	// Чек открыт
-
 //
 //   Коды возврата при операциях печати
 //
-
 #define RESCODE_NO_ERROR			  0
 #define RESCODE_UNKNOWNCOMMAND		301		// Неизвестная команда
 #define RESCODE_NO_CONNECTION		303		// Соединение не установлено

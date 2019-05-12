@@ -3152,7 +3152,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						class PPAdviseEventCollectorSjSession : public PPThread {
 						public:
 							SLAPI PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, const PPPhoneServicePacket * pPhnSvcPack, long cycleMs) :
-								PPThread(PPThread::kEventCollector, 0, 0), CycleMs((cycleMs > 0) ? cycleMs : 29989), CyclePhnSvcMs(1500), LB(rLB), P_Sj(0)
+								PPThread(PPThread::kEventCollector, 0, 0), CycleMs((cycleMs > 0) ? cycleMs : 29989), /*CyclePhnSvcMs(1500),*/ LB(rLB), P_Sj(0)
 							{
 								RVALUEPTR(StartUp_PhnSvcPack, pPhnSvcPack);
 							}
@@ -3199,14 +3199,16 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							}
 							virtual void Run()
 							{
+								const int  do_debug_log = 0; // @debug
 								const long purge_cycle = 3600;
 								const int  use_sj_scan_alg2 = 0;
 								SString msg_buf, temp_buf;
 								STimer timer_sj;  // Таймер для отмера времени до следующего просмотра системного журнала
 								STimer timer_phs; // Таймер для отмера времени до следующего опроса телефонного сервиса
 								LDATETIME last_purge_time = getcurdatetime_();
-								LDATETIME last_sj_time = ZERODATETIME;
-								LDATETIME last_phnsvc_time = ZERODATETIME;
+								//LDATETIME last_sj_time = ZERODATETIME;
+								//LDATETIME last_phnsvc_time = ZERODATETIME;
+								LDATETIME last_ev_time = ZERODATETIME;
 								DBRowId last_sj_rowid; // @v10.4.4
 								PPAdviseEventVector temp_list;
 								PhnSvcChannelStatusPool chnl_status_list; // @v9.8.11
@@ -3237,116 +3239,46 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 									uint   h_count = 0;
 									HANDLE h_list[32];
 									h_list[h_count++] = stop_event;
-									{
-										if(use_sj_scan_alg2 || !last_sj_time) {
-											(dtm = cdtm).addhs(CycleMs / 10);
+									//
+									if(!last_ev_time) {
+										(dtm = cdtm).addhs(CycleMs / 10);
+										timer_sj.Set(dtm, 0);
+									}
+									else {
+										(dtm = last_ev_time).addhs(CycleMs / 10);
+										if(cmp(dtm, cdtm) <= 0)
+											do_immediate |= doImmSj;
+										else
 											timer_sj.Set(dtm, 0);
-										}
-										else {
-											(dtm = last_sj_time).addhs(CycleMs / 10);
-											if(cmp(dtm, cdtm) <= 0)
-												do_immediate |= doImmSj;
-											else
-												timer_sj.Set(dtm, 0);
-										}
-										h_list[h_count++] = timer_sj;
 									}
-									if(p_phnsvc_cli) {
-										if(!last_phnsvc_time) {
-											(dtm = cdtm).addhs(CyclePhnSvcMs / 10);
-											timer_phs.Set(dtm, 0);
-										}
-										else {
-											(dtm = last_phnsvc_time).addhs(CyclePhnSvcMs / 10);
-											if(cmp(dtm, cdtm) <= 0)
-												do_immediate |= doImmPhSvc;
-											else
-												timer_phs.Set(dtm, 0);
-										}
-										h_list[h_count++] = timer_phs;
-									}
+									h_list[h_count++] = timer_sj;
 									do {
 										uint   r = 0;
-										if(do_immediate & doImmSj) {
-											do_immediate &= ~doImmSj;
+										/*
+										if(do_immediate & doImmSj) { do_immediate &= ~doImmSj; r = (WAIT_OBJECT_0 + 1); }
+										else if(do_immediate & doImmPhSvc) { do_immediate &= ~doImmPhSvc; r = (WAIT_OBJECT_0 + 2); }
+										*/
+										if(do_immediate & (doImmSj|doImmPhSvc)) {
+											if(do_debug_log) {
+												PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "do_immediate", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+											}
+											do_immediate &= ~(doImmSj|doImmPhSvc);
 											r = (WAIT_OBJECT_0 + 1);
-										}
-										else if(do_immediate & doImmPhSvc) {
-											do_immediate &= ~doImmPhSvc;
-											r = (WAIT_OBJECT_0 + 2);
 										}
 										else
 											r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
 										switch(r) {
 											case (WAIT_OBJECT_0 + 0): // stop event
+												if(do_debug_log) {
+													PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "StopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+												}
 												stop = 1; // quit loop
 												break;
 											case WAIT_TIMEOUT:
 												// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
 												// Предполагается, что это событие крайне маловероятно!
-												break;
-											case (WAIT_OBJECT_0 + 2): // timer_phsvc event
-												if(p_phnsvc_cli) {
-													PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
-													if(p_queue) {
-														temp_list.Clear();
-														int gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
-														if(!gcs_ret) {
-															PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
-															p_phnsvc_cli = CreatePhnSvcClient(p_phnsvc_cli);
-															if(p_phnsvc_cli)
-																gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
-														}
-														if(gcs_ret && chnl_status_list.GetCount()) {
-															for(uint si = 0; si < chnl_status_list.GetCount(); si++) {
-																chnl_status_list.Get(si, chnl_status);
-																int32   local_action = 0;
-																if(chnl_status.State == PhnSvcChannelStatus::stUp) {
-																	if(PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalUpChannelSymb, chnl_status.Channel) > 0)
-																		local_action = PPEVNT_PHNC_UP;
-																}
-																else if(chnl_status.State == PhnSvcChannelStatus::stRinging) {
-																	if(PhnSvcLocalScanChannelSymb.Empty() ||
-																		PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalScanChannelSymb, chnl_status.Channel) > 0)
-																		local_action = PPEVNT_PHNS_RINGING;
-																}
-																if(local_action) {
-																	// @v10.2.3 {
-																	/*
-																	SString outer_caller_id = chnl_status.CallerId;
-																	if(chnl_status.BridgeId.NotEmpty()) {
-																		PhnSvcChannelStatusPool bp;
-																		PhnSvcChannelStatus local_status;
-																		chnl_status_list.GetListWithSameBridge(chnl_status.BridgeId, -1, bp);
-																		for(uint i = 0; i < bp.GetCount(); i++) {
-																			if(bp.Get(i, local_status) && !local_status.Channel.IsEqiAscii(chnl_status.Channel)) {
-																				outer_caller_id = local_status.CallerId;
-																				break;
-																			}
-																		}
-																	}
-																	*/
-																	// } @v10.2.3
-																	PPAdviseEvent ev;
-																	ev.Action = local_action;
-																	ev.Oid.Set(PPOBJ_PHONESERVICE, StartUp_PhnSvcPack.Rec.ID); // @v10.0.02
-																	ev.Dtm = getcurdatetime_();
-																	ev.Priority = chnl_status.Priority;
-																	ev.Duration = chnl_status.Seconds;
-																	temp_list.AddS(chnl_status.Channel, &ev.ChannelP);
-																	temp_list.AddS(chnl_status.CallerId, &ev.CallerIdP);
-																	temp_list.AddS(chnl_status.ConnectedLineNum, &ev.ConnectedLineNumP);
-																	temp_list.AddS(chnl_status.Context, &ev.ContextP); // @v9.9.12
-																	temp_list.AddS(chnl_status.Exten, &ev.ExtenP); // @v9.9.12
-																	temp_list.AddS(chnl_status.BridgeId, &ev.BridgeP); // @v10.0.02
-																	//temp_list.AddS(outer_caller_id, &ev.OuterCallerIdP); // @v10.2.3
-																	temp_list.insert(&ev);
-																}
-															}
-															p_queue->Push(temp_list);
-														}
-													}
-													last_phnsvc_time = getcurdatetime_();
+												if(do_debug_log) {
+													PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "TimeOut", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 												}
 												break;
 											case (WAIT_OBJECT_0 + 1): // timer_sj event
@@ -3356,21 +3288,34 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 													PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 													if(p_queue) {
 														SysJournalTbl::Key0 k0, k0_;
+														dtm = getcurdatetime_();
+														if(diffdatetime(dtm, last_purge_time, 3, 0) >= purge_cycle) {
+															p_queue->Purge();
+															last_purge_time = dtm;
+														}
 														if(use_sj_scan_alg2) {
-															while(P_Sj->search(0, &k0, spNext)) {
-																PPAdviseEvent ev;
-																ev = P_Sj->data;
-																temp_list.insert(&ev);
-																last_ev_dtm.Set(P_Sj->data.Dt, P_Sj->data.Tm);
-																P_Sj->getPosition(&last_sj_rowid);
+															if(!last_sj_rowid) {
+																k0.Dt = MAXDATE;
+																k0.Tm = MAXTIME;
+																if(P_Sj->search(0, &k0, spLast)) {
+																	PPAdviseEvent ev;
+																	ev = P_Sj->data;
+																	temp_list.insert(&ev);
+																	last_ev_dtm.Set(P_Sj->data.Dt, P_Sj->data.Tm);
+																	P_Sj->getPosition(&last_sj_rowid);
+																}
+															}
+															else {
+																while(P_Sj->search(0, &k0, spNext)) {
+																	PPAdviseEvent ev;
+																	ev = P_Sj->data;
+																	temp_list.insert(&ev);
+																	last_ev_dtm.Set(P_Sj->data.Dt, P_Sj->data.Tm);
+																	P_Sj->getPosition(&last_sj_rowid);
+																}
 															}
 														}
 														else {
-															dtm = getcurdatetime_();
-															if(diffdatetime(dtm, last_purge_time, 3, 0) >= purge_cycle) {
-																p_queue->Purge();
-																last_purge_time = dtm;
-															}
 															k0.Dt = Since.d;
 															k0.Tm = Since.t;
 															k0_ = k0;
@@ -3394,6 +3339,62 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																}
 															}
 														}
+														if(p_phnsvc_cli) {
+															int gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
+															if(!gcs_ret) {
+																PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
+																p_phnsvc_cli = CreatePhnSvcClient(p_phnsvc_cli);
+																if(p_phnsvc_cli)
+																	gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
+															}
+															if(gcs_ret && chnl_status_list.GetCount()) {
+																for(uint si = 0; si < chnl_status_list.GetCount(); si++) {
+																	chnl_status_list.Get(si, chnl_status);
+																	int32   local_action = 0;
+																	if(chnl_status.State == PhnSvcChannelStatus::stUp) {
+																		if(PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalUpChannelSymb, chnl_status.Channel) > 0)
+																			local_action = PPEVNT_PHNC_UP;
+																	}
+																	else if(chnl_status.State == PhnSvcChannelStatus::stRinging) {
+																		if(PhnSvcLocalScanChannelSymb.Empty() ||
+																			PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalScanChannelSymb, chnl_status.Channel) > 0)
+																			local_action = PPEVNT_PHNS_RINGING;
+																	}
+																	if(local_action) {
+																		// @v10.2.3 {
+																		/*
+																		SString outer_caller_id = chnl_status.CallerId;
+																		if(chnl_status.BridgeId.NotEmpty()) {
+																			PhnSvcChannelStatusPool bp;
+																			PhnSvcChannelStatus local_status;
+																			chnl_status_list.GetListWithSameBridge(chnl_status.BridgeId, -1, bp);
+																			for(uint i = 0; i < bp.GetCount(); i++) {
+																				if(bp.Get(i, local_status) && !local_status.Channel.IsEqiAscii(chnl_status.Channel)) {
+																					outer_caller_id = local_status.CallerId;
+																					break;
+																				}
+																			}
+																		}
+																		*/
+																		// } @v10.2.3
+																		PPAdviseEvent ev;
+																		ev.Action = local_action;
+																		ev.Oid.Set(PPOBJ_PHONESERVICE, StartUp_PhnSvcPack.Rec.ID); // @v10.0.02
+																		ev.Dtm = getcurdatetime_();
+																		ev.Priority = chnl_status.Priority;
+																		ev.Duration = chnl_status.Seconds;
+																		temp_list.AddS(chnl_status.Channel, &ev.ChannelP);
+																		temp_list.AddS(chnl_status.CallerId, &ev.CallerIdP);
+																		temp_list.AddS(chnl_status.ConnectedLineNum, &ev.ConnectedLineNumP);
+																		temp_list.AddS(chnl_status.Context, &ev.ContextP); // @v9.9.12
+																		temp_list.AddS(chnl_status.Exten, &ev.ExtenP); // @v9.9.12
+																		temp_list.AddS(chnl_status.BridgeId, &ev.BridgeP); // @v10.0.02
+																		//temp_list.AddS(outer_caller_id, &ev.OuterCallerIdP); // @v10.2.3
+																		temp_list.insert(&ev);
+																	}
+																}
+															}
+														}
 														p_queue->Push(temp_list);
 														if(!!last_ev_dtm)
 															Since = last_ev_dtm;
@@ -3403,6 +3404,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 															PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_ASYNCEVQUEUESJFAULT, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 															BExtQuery::ZDelete(&p_q);
 														}
+													}
+													if(do_debug_log) {
+														(temp_buf = "TimerSjEvent").Space().CatEq("use_sj_scan_alg2", static_cast<long>(use_sj_scan_alg2));
+														if(!p_queue)
+															temp_buf.Space().Cat("Queue is zero");
+														else
+															temp_buf.Space().CatEq("QueueAddendum", temp_list.getCount());
+														PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 													}
 													{
 														dtm = getcurdatetime_();
@@ -3414,11 +3423,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 														if(cmp(Since, dtm) > 0)
 															Since = dtm;
 														// } @v9.8.12
-														last_sj_time = dtm;
+														last_ev_time = dtm;
 													}
 												}
 												break;
 											case WAIT_FAILED:
+												if(do_debug_log) {
+													PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "QueueFailed", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+												}
 												// error
 												break;
 										}
@@ -3434,7 +3446,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								DBS.CloseDictionary();
 							}
 							const long CycleMs;
-							const long CyclePhnSvcMs;
+							//const long CyclePhnSvcMs;
 							LDATETIME Since;
 							DbLoginBlock LB;
 							SysJournal * P_Sj;
@@ -4775,7 +4787,7 @@ int FASTCALL PPAdviseEventQueue::Push(const PPAdviseEventVector & rList)
 	}
 	{
 		SLck.Lock();
-		S.LivingTime = (int64)clock() - S.StartClock;
+		S.LivingTime = static_cast<int64>(clock()) - S.StartClock;
 		S.Push_Count++;
 		SETMAX(S.MaxLength, ql);
 		SLck.Unlock();

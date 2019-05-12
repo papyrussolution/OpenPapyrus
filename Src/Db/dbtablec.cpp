@@ -119,7 +119,7 @@ int SLob::SetStructured()
 		return -1;
 }
 
-void FASTCALL SLob::Init(uint32 descriptor)
+void FASTCALL SLob::Init(void * descriptor)
 {
 	DestroyPtr();
 	THISZERO();
@@ -152,7 +152,7 @@ int FASTCALL SLob::InitPtr(uint32 sz)
 	DestroyPtr();
 	if(sz) {
 		SetStructured();
-		Buf.H.H = (uint32)SAlloc::M(sz);
+		Buf.H.H = SAlloc::M(sz);
 		if(!Buf.H.H) {
 			Buf.H.PtrSize = 0;
 			ok = 0;

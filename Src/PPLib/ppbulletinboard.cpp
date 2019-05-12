@@ -942,7 +942,7 @@ int FASTCALL TimeSeriesCache::IsStrategySuited(const PPObjTimeSeries::Strategy &
 		else if(rS.StakeMode == 3)
 			yes = 1;
 		*/
-		if(oneof4(rS.StakeMode, 1, 2, 3, 4)) // @v10.3.9 (4)
+		if(oneof3(rS.StakeMode, 1, 2, 3)) // @v10.3.9 (4) // @v10.4.5 -(4)
 			yes = 1;
 	}
 	return yes;

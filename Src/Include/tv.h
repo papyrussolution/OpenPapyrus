@@ -1087,17 +1087,14 @@ public:
     	oprIN,
     	oprOUT,
     	oprATOP,
-
     	oprDEST,
     	oprDEST_OVER,
     	oprDEST_IN,
     	oprDEST_OUT,
     	oprDEST_ATOP,
-
     	oprXOR,
     	oprADD,
     	oprSATURATE,
-
     	oprMULTIPLY,
     	oprSCREEN,
     	oprOVERLAY,
@@ -1211,6 +1208,7 @@ public:
 	int    FASTCALL Draw(const SDrawText * pText);
 	int    FASTCALL Draw(const SDrawImage * pImg);
 	int    FASTCALL Draw(const SDrawGroup * pDraw);
+	int    FASTCALL Draw(const SDrawRef * pRef);
 
 	enum {
 		edgeRaisedInner = 0x0001,
@@ -1283,6 +1281,10 @@ private:
 	int    FASTCALL Implement_Stroke(int preserve);
 	int    SLAPI Implement_Fill(SPaintToolBox * pTb, int paintObjIdent, int preserve);
 	int    SLAPI Implement_StrokeAndFill(SPaintToolBox * pTb, int penIdent, int brushIdent);
+	enum {
+		dfoDrawSymbol = 0x0001 // Опция обеспечивающая отрисовку фигуры с признаком SDrawFigure::fSymbolGroup
+	};
+	int    FASTCALL Implement_DrawFigure(const SDrawFigure * pDraw, long options);
 
 	Surface S;
 	SRegion Scope;   // Границы области отрисовки между вызовами BeginScope() и EndScope()
@@ -2779,7 +2781,7 @@ public:
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	int    setupCombo(ComboBox *);
+	void   setupCombo(ComboBox *);
 	void   setFormat(long fmt);
 	long   getFormat() const { return format; }
 	void   setType(TYPEID typ);
@@ -4103,7 +4105,7 @@ public:
 	SMessageWindow();
 	~SMessageWindow();
 	int    Open(SString & rText, const char * pImgPath, HWND parent, long cmd, long timer, COLORREF color, long flags, long extra);
-	int    Destroy();
+	void   Destroy();
 	int    Paint();
 	int    Move();
 	int    DoCommand(TPoint p);

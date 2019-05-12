@@ -1,5 +1,6 @@
 // SARTRE_IMP.CPP
 // Copyright (c) A.Sobolev 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -46,8 +47,8 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 		while(*p != ' ' && *p != '\t' && *p != 0)
 			temp_buf.CatChar(*p++);
 		//
-		int    prev_case = 0;  // Предыдущий токен обозначал падеж
-		int    prev_compr = 0; // Предыдущий токен - сравнительная степень прилагательного SRADJCMP_COMPARATIVE
+		int    prev_case = 0;  // РџСЂРµРґС‹РґСѓС‰РёР№ С‚РѕРєРµРЅ РѕР±РѕР·РЅР°С‡Р°Р» РїР°РґРµР¶
+		int    prev_compr = 0; // РџСЂРµРґС‹РґСѓС‰РёР№ С‚РѕРєРµРЅ - СЃСЂР°РІРЅРёС‚РµР»СЊРЅР°СЏ СЃС‚РµРїРµРЅСЊ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ SRADJCMP_COMPARATIVE
 		do {
 			while(oneof3(*p, ' ', '\t', ','))
 				p++;
@@ -55,22 +56,23 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 			while(*p != ' ' && *p != '\t' && *p != ',' && *p != 0)
 				temp_buf.CatChar(*p++);
 			if(temp_buf.NotEmpty()) {
-				if(temp_buf == "сравн")
+				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // @v10.4.5 (module has been translated to utf-8)
+				if(temp_buf == "СЃСЂР°РІРЅ")
 					rForm.SetTag(SRWG_ADJCMP, prev_compr = SRADJCMP_COMPARATIVE);
 				else {
-					if(temp_buf == "им")
+					if(temp_buf == "РёРј")
 						rForm.SetTag(SRWG_CASE, prev_case = SRCASE_NOMINATIVE);
-					else if(temp_buf == "рд")
+					else if(temp_buf == "СЂРґ")
 						rForm.SetTag(SRWG_CASE, prev_case = SRCASE_GENITIVE);
-					else if(temp_buf == "дт")
+					else if(temp_buf == "РґС‚")
 						rForm.SetTag(SRWG_CASE, prev_case = SRCASE_DATIVE);
-					else if(temp_buf == "вн")
+					else if(temp_buf == "РІРЅ")
 						rForm.SetTag(SRWG_CASE, prev_case = SRCASE_ACCUSATIVE);
-					else if(temp_buf == "тв")
+					else if(temp_buf == "С‚РІ")
 						rForm.SetTag(SRWG_CASE, prev_case = SRCASE_INSTRUMENT);
-					else if(temp_buf == "пр")
+					else if(temp_buf == "РїСЂ")
 						rForm.SetTag(SRWG_CASE, prev_case = SRCASE_PREPOSITIONAL);
-					else if(temp_buf == "зв")
+					else if(temp_buf == "Р·РІ")
 						rForm.SetTag(SRWG_CASE, prev_case = SRCASE_VOCATIVE);
 					else if(temp_buf == "2") {
 						if(prev_case == SRCASE_GENITIVE)
@@ -82,9 +84,9 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 						else if(prev_case == SRCASE_PREPOSITIONAL)
 							rForm.SetTag(SRWG_CASE, SRCASE_PREPOSITIONAL2);
 						else if(prev_compr == SRADJCMP_COMPARATIVE)
-							rForm.SetTag(SRWG_ADJCMP, SRADJCMP_COMPARATIVE2); // 2-я стравнительная степень прилагательного
+							rForm.SetTag(SRWG_ADJCMP, SRADJCMP_COMPARATIVE2); // 2-СЏ СЃС‚СЂР°РІРЅРёС‚РµР»СЊРЅР°СЏ СЃС‚РµРїРµРЅСЊ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ
 						else {
-							ok = 0; // Неверное определение "второго" падежа или 2-й сравнительной степени прилагательного
+							ok = 0; // РќРµРІРµСЂРЅРѕРµ РѕРїСЂРµРґРµР»РµРЅРёРµ "РІС‚РѕСЂРѕРіРѕ" РїР°РґРµР¶Р° РёР»Рё 2-Р№ СЃСЂР°РІРЅРёС‚РµР»СЊРЅРѕР№ СЃС‚РµРїРµРЅРё РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ
 							break;
 						}
 						prev_case = 0;
@@ -92,133 +94,133 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 					}
 					else {
 						prev_case = 0;
-						if(temp_buf == "П")
+						if(temp_buf == "Рџ")
 							rForm.SetTag(SRWG_CLASS, SRWC_ADJECTIVE);
-						else if(temp_buf == "КР_ПРИЛ") {
+						else if(temp_buf == "РљР _РџР РР›") {
 							rForm.SetTag(SRWG_CLASS, SRWC_ADJECTIVE);
 							rForm.SetTag(SRWG_SHORT, SRSHORT_BREV);
 						}
-						else if(temp_buf == "С")
+						else if(temp_buf == "РЎ")
 							rForm.SetTag(SRWG_CLASS, SRWC_NOUN);
-						else if(temp_buf == "Г")
+						else if(temp_buf == "Р“")
 							rForm.SetTag(SRWG_CLASS, SRWC_VERB);
-						else if(temp_buf == "МС")
+						else if(temp_buf == "РњРЎ")
 							rForm.SetTag(SRWG_CLASS, SRWC_PRONOUN);
-						else if(temp_buf == "МС-П")
+						else if(temp_buf == "РњРЎ-Рџ")
 							rForm.SetTag(SRWG_CLASS, SRWC_PRONOUNPOSS);
-						else if(temp_buf == "МС-П")
+						else if(temp_buf == "РњРЎ-Рџ")
 							rForm.SetTag(SRWG_CLASS, SRWC_PRONOUNPOSS);
-						else if(temp_buf == "МС-ПРЕДК")
-							rForm.SetTag(SRWG_CLASS, SRWC_PRAEDICPRO); // Местоимение-предикатив
-						else if(temp_buf == "ЧИСЛ")
+						else if(temp_buf == "РњРЎ-РџР Р•Р”Рљ")
+							rForm.SetTag(SRWG_CLASS, SRWC_PRAEDICPRO); // РњРµСЃС‚РѕРёРјРµРЅРёРµ-РїСЂРµРґРёРєР°С‚РёРІ
+						else if(temp_buf == "Р§РРЎР›")
 							rForm.SetTag(SRWG_CLASS, SRWC_NUMERAL);
-						else if(temp_buf == "ЧИСЛ-П")
+						else if(temp_buf == "Р§РРЎР›-Рџ")
 							rForm.SetTag(SRWG_CLASS, SRWC_NUMERALORD);
-						else if(temp_buf == "Н")
+						else if(temp_buf == "Рќ")
 							rForm.SetTag(SRWG_CLASS, SRWC_ADVERB);
-						else if(temp_buf == "ПРЕДК")
+						else if(temp_buf == "РџР Р•Р”Рљ")
 							rForm.SetTag(SRWG_CLASS, SRWC_PRAEDIC);
-						else if(temp_buf == "ПРЕДЛ")
+						else if(temp_buf == "РџР Р•Р”Р›")
 							rForm.SetTag(SRWG_CLASS, SRWC_PREPOSITION);
-						else if(temp_buf == "ПОСЛ")
+						else if(temp_buf == "РџРћРЎР›")
 							rForm.SetTag(SRWG_CLASS, SRWC_POSTPOSITION);
-						else if(temp_buf == "СОЮЗ")
+						else if(temp_buf == "РЎРћР®Р—")
 							rForm.SetTag(SRWG_CLASS, SRWC_CONJUNCTION);
-						else if(temp_buf == "МЕЖД")
+						else if(temp_buf == "РњР•Р–Р”")
 							rForm.SetTag(SRWG_CLASS, SRWC_INTERJECTION);
-						else if(temp_buf == "ВВОДН")
+						else if(temp_buf == "Р’Р’РћР”Рќ")
 							rForm.SetTag(SRWG_CLASS, SRWC_PARENTH);
-						else if(temp_buf == "ЧАСТ")
+						else if(temp_buf == "Р§РђРЎРў")
 							rForm.SetTag(SRWG_CLASS, SRWC_PARTICLE);
-						else if(temp_buf == "РАЗРЫВ_СОЮЗ")
+						else if(temp_buf == "Р РђР—Р Р«Р’_РЎРћР®Р—")
 							rForm.SetTag(SRWG_CLASS, SRWC_CONJUNCTION);
-						else if(temp_buf == "прч")
+						else if(temp_buf == "РїСЂС‡")
 							rForm.SetTag(SRWG_CLASS, SRWC_PARTICIPLE);
-						else if(temp_buf == "ПРИЧАСТИЕ")
+						else if(temp_buf == "РџР РР§РђРЎРўРР•")
 							rForm.SetTag(SRWG_CLASS, SRWC_PARTICIPLE);
-						else if(temp_buf == "КР_ПРИЧАСТИЕ") {
+						else if(temp_buf == "РљР _РџР РР§РђРЎРўРР•") {
 							rForm.SetTag(SRWG_CLASS, SRWC_PARTICIPLE);
 							rForm.SetTag(SRWG_SHORT, SRSHORT_BREV);
 						}
-						else if(temp_buf == "дпр")
+						else if(temp_buf == "РґРїСЂ")
 							rForm.SetTag(SRWG_CLASS, SRWC_GPARTICIPLE);
-						else if(temp_buf == "ДЕЕПРИЧАСТИЕ")
+						else if(temp_buf == "Р”Р•Р•РџР РР§РђРЎРўРР•")
 							rForm.SetTag(SRWG_CLASS, SRWC_GPARTICIPLE);
-						else if(temp_buf == "ФРАЗ")
+						else if(temp_buf == "Р¤Р РђР—")
 							rForm.SetTag(SRWG_CLASS, SRWC_PHRAS);
-						else if(temp_buf == "ед")
+						else if(temp_buf == "РµРґ")
 							rForm.SetTag(SRWG_COUNT, SRCNT_SINGULAR);
-						else if(temp_buf == "мн") {
+						else if(temp_buf == "РјРЅ") {
 							int c = rForm.GetTag(SRWG_COUNT);
 							if(c == SRCNT_PLURAL) {
 								//
-								// Если дескриптор множественного числа повторяется дважды, то это означает,
-								// что существительное pluralia tantum (всегда во множественном числе).
+								// Р•СЃР»Рё РґРµСЃРєСЂРёРїС‚РѕСЂ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕРіРѕ С‡РёСЃР»Р° РїРѕРІС‚РѕСЂСЏРµС‚СЃСЏ РґРІР°Р¶РґС‹, С‚Рѕ СЌС‚Рѕ РѕР·РЅР°С‡Р°РµС‚,
+								// С‡С‚Рѕ СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРµ pluralia tantum (РІСЃРµРіРґР° РІРѕ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕРј С‡РёСЃР»Рµ).
 								//
 								rForm.RemoveTag(SRWG_COUNT);
 								rForm.SetTag(SRWG_TANTUM, SRTANTUM_PLURAL);
 							}
 							else if(c) {
-								ok = 0; // @err Дважды повторяется дескриптом числа словоформы
+								ok = 0; // @err Р”РІР°Р¶РґС‹ РїРѕРІС‚РѕСЂСЏРµС‚СЃСЏ РґРµСЃРєСЂРёРїС‚РѕРј С‡РёСЃР»Р° СЃР»РѕРІРѕС„РѕСЂРјС‹
 								break;
 							}
 							else
 								rForm.SetTag(SRWG_COUNT, SRCNT_PLURAL);
 						}
-						else if(temp_buf == "дфст")
+						else if(temp_buf == "РґС„СЃС‚")
 							rForm.SetTag(SRWG_TANTUM, SRTANTUM_SINGULAR);
-						else if(temp_buf == "мр")
+						else if(temp_buf == "РјСЂ")
 							rForm.SetTag(SRWG_GENDER, SRGENDER_MASCULINE);
-						else if(temp_buf == "жр")
+						else if(temp_buf == "Р¶СЂ")
 							rForm.SetTag(SRWG_GENDER, SRGENDER_FEMININE);
-						else if(temp_buf == "ср")
+						else if(temp_buf == "СЃСЂ")
 							rForm.SetTag(SRWG_GENDER, SRGENDER_NEUTER);
-						else if(temp_buf == "мр-жр")
+						else if(temp_buf == "РјСЂ-Р¶СЂ")
 							rForm.SetTag(SRWG_GENDER, SRGENDER_COMMON);
-						else if(temp_buf == "фам")
+						else if(temp_buf == "С„Р°Рј")
 							rForm.SetTag(SRWG_PROPERNAME, SRPROPN_FAMILYNAME);
-						else if(temp_buf == "имя")
+						else if(temp_buf == "РёРјСЏ")
 							rForm.SetTag(SRWG_PROPERNAME, SRPROPN_PERSONNAME);
-						else if(temp_buf == "отч")
+						else if(temp_buf == "РѕС‚С‡")
 							rForm.SetTag(SRWG_PROPERNAME, SRPROPN_PATRONYMIC);
-						else if(temp_buf == "орг")
+						else if(temp_buf == "РѕСЂРі")
 							rForm.SetTag(SRWG_PROPERNAME, SRPROPN_ORG);
-						else if(temp_buf == "пвл")
+						else if(temp_buf == "РїРІР»")
 							rForm.SetTag(SRWG_MOOD, SRMOOD_IMPERATIVE);
-						else if(temp_buf == "инф")
+						else if(temp_buf == "РёРЅС„")
 							rForm.SetTag(SRWG_ASPECT, SRASPECT_INFINITIVE);
-						else if(temp_buf == "ИНФИНИТИВ")
+						else if(temp_buf == "РРќР¤РРќРРўРР’")
 							rForm.SetTag(SRWG_ASPECT, SRASPECT_INFINITIVE);
-						else if(temp_buf == "1л")
+						else if(temp_buf == "1Р»")
 							rForm.SetTag(SRWG_PERSON, SRPERSON_FIRST);
-						else if(temp_buf == "2л")
+						else if(temp_buf == "2Р»")
 							rForm.SetTag(SRWG_PERSON, SRPERSON_SECOND);
-						else if(temp_buf == "3л")
+						else if(temp_buf == "3Р»")
 							rForm.SetTag(SRWG_PERSON, SRPERSON_THIRD);
-						else if(temp_buf == "кр")
+						else if(temp_buf == "РєСЂ")
 							rForm.SetTag(SRWG_SHORT, SRSHORT_BREV);
-						else if(temp_buf == "нст")
+						else if(temp_buf == "РЅСЃС‚")
 							rForm.SetTag(SRWG_TENSE, SRTENSE_PRESENT);
-						else if(temp_buf == "буд")
+						else if(temp_buf == "Р±СѓРґ")
 							rForm.SetTag(SRWG_TENSE, SRTENSE_FUTURE);
-						else if(temp_buf == "прш")
+						else if(temp_buf == "РїСЂС€")
 							rForm.SetTag(SRWG_TENSE, SRTENSE_PAST);
-						else if(temp_buf == "дст")
+						else if(temp_buf == "РґСЃС‚")
 							rForm.SetTag(SRWG_VOICE, SRVOICE_ACTIVE);
-						else if(temp_buf == "стр")
+						else if(temp_buf == "СЃС‚СЂ")
 							rForm.SetTag(SRWG_VOICE, SRVOICE_PASSIVE);
-						else if(temp_buf == "од") {
+						else if(temp_buf == "РѕРґ") {
 							//
-							// В исходном файле может быть одновременно указаны тэги SRANIM_ANIMATE и SRANIM_INANIMATE.
-							// Наша техника определения словоформ предполагает, что одушевленность в этом случае
-							// не определена. Т.е. форма подходит как к одушевленным, так и неодушевленным вариантам.
+							// Р’ РёСЃС…РѕРґРЅРѕРј С„Р°Р№Р»Рµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ СѓРєР°Р·Р°РЅС‹ С‚СЌРіРё SRANIM_ANIMATE Рё SRANIM_INANIMATE.
+							// РќР°С€Р° С‚РµС…РЅРёРєР° РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃР»РѕРІРѕС„РѕСЂРј РїСЂРµРґРїРѕР»Р°РіР°РµС‚, С‡С‚Рѕ РѕРґСѓС€РµРІР»РµРЅРЅРѕСЃС‚СЊ РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ
+							// РЅРµ РѕРїСЂРµРґРµР»РµРЅР°. Рў.Рµ. С„РѕСЂРјР° РїРѕРґС…РѕРґРёС‚ РєР°Рє Рє РѕРґСѓС€РµРІР»РµРЅРЅС‹Рј, С‚Р°Рє Рё РЅРµРѕРґСѓС€РµРІР»РµРЅРЅС‹Рј РІР°СЂРёР°РЅС‚Р°Рј.
 							//
 							if(rForm.GetTag(SRWG_ANIMATE) == SRANIM_INANIMATE)
 								rForm.RemoveTag(SRWG_ANIMATE);
 							else
 								rForm.SetTag(SRWG_ANIMATE, SRANIM_ANIMATE);
 						}
-						else if(temp_buf == "но") {
+						else if(temp_buf == "РЅРѕ") {
 							//
 							// See comment above
 							//
@@ -227,45 +229,45 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 							else
 								rForm.SetTag(SRWG_ANIMATE, SRANIM_INANIMATE);
 						}
-						else if(temp_buf == "св")
+						else if(temp_buf == "СЃРІ")
 							rForm.SetTag(SRWG_ASPECT, SRASPECT_PERFECTIVE);
-						else if(temp_buf == "нс")
+						else if(temp_buf == "РЅСЃ")
 							rForm.SetTag(SRWG_ASPECT, SRASPECT_IMPERFECTIVE);
-						else if(temp_buf == "безл")
+						else if(temp_buf == "Р±РµР·Р»")
 							rForm.SetTag(SRWG_VALENCY, SRVALENCY_AVALENT);
-						else if(temp_buf == "пе")
+						else if(temp_buf == "РїРµ")
 							rForm.SetTag(SRWG_VALENCY, SRVALENCY_TRANSITIVE);
-						else if(temp_buf == "нп")
+						else if(temp_buf == "РЅРї")
 							rForm.SetTag(SRWG_VALENCY, SRVALENCY_INTRANSITIVE);
-						else if(temp_buf == "арх")
+						else if(temp_buf == "Р°СЂС…")
 							rForm.SetTag(SRWG_USAGE, SRWU_ARCHAIC);
-						else if(temp_buf == "жарг")
+						else if(temp_buf == "Р¶Р°СЂРі")
 							rForm.SetTag(SRWG_USAGE, SRWU_VULGAR);
-						else if(temp_buf == "разг")
+						else if(temp_buf == "СЂР°Р·Рі")
 							rForm.SetTag(SRWG_USAGE, SRWU_SPOKEN);
-						else if(temp_buf == "кач")
+						else if(temp_buf == "РєР°С‡")
 							rForm.SetTag(SRWG_ADJCAT, SRADJCAT_QUALIT);
-						else if(temp_buf == "притяж")
+						else if(temp_buf == "РїСЂРёС‚СЏР¶")
 							rForm.SetTag(SRWG_ADJCAT, SRADJCAT_POSSESSIVE);
-						else if(temp_buf == "прев")
+						else if(temp_buf == "РїСЂРµРІ")
 							rForm.SetTag(SRWG_ADJCMP, SRADJCMP_SUPERLATIVE);
-						else if(temp_buf == "вопр")
+						else if(temp_buf == "РІРѕРїСЂ")
 							rForm.SetTag(SRWG_ADVERBCAT, SRADVCAT_INTERROGATIVE);
-						else if(temp_buf == "относ")
+						else if(temp_buf == "РѕС‚РЅРѕСЃ")
 							rForm.SetTag(SRWG_ADVERBCAT, SRADVCAT_RELATIVE);
-						else if(temp_buf == "указат")
+						else if(temp_buf == "СѓРєР°Р·Р°С‚")
 							rForm.SetTag(SRWG_ADVERBCAT, SRADVCAT_POINTING);
 						else if(temp_buf == "0")
 							rForm.SetTag(SRWG_INVARIABLE, 1);
-						else if(temp_buf == "лок")
+						else if(temp_buf == "Р»РѕРє")
 							rForm.SetTag(SRWG_LOCAT, 1);
-						else if(temp_buf == "опч")
+						else if(temp_buf == "РѕРїС‡")
 							rForm.SetTag(SRWG_ERROR, 1);
-						else if(temp_buf == "аббр")
+						else if(temp_buf == "Р°Р±Р±СЂ")
 							rForm.SetTag(SRWG_ABBR, SRABBR_ABBR);
 						else if(temp_buf == "*") {
 							//
-							// Общая словообразовательная граммема.
+							// РћР±С‰Р°СЏ СЃР»РѕРІРѕРѕР±СЂР°Р·РѕРІР°С‚РµР»СЊРЅР°СЏ РіСЂР°РјРјРµРјР°.
 							//
 						}
 						else {
@@ -397,7 +399,7 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 			xp 1 ORDNUM
 			yc 1 POSS plsq
 			yd 1 POSS plsgs
-				//Специальное существительное заглушка, номер кода используется!
+				//РЎРїРµС†РёР°Р»СЊРЅРѕРµ СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРµ Р·Р°РіР»СѓС€РєР°, РЅРѕРјРµСЂ РєРѕРґР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ!
 			xx 1 NOUN prop sg pl
 
 			// type ancodes
@@ -412,20 +414,20 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 		while(*p != ' ' && *p != '\t' && *p != 0)
 			temp_buf.CatChar(*p++);
 		rAncode = temp_buf;
-		if(rAncode == "ga") { // Географическое наименование
+		if(rAncode == "ga") { // Р“РµРѕРіСЂР°С„РёС‡РµСЃРєРѕРµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ
 			rForm.SetTag(SRWG_CLASS, SRWC_NOUN);
 			rForm.SetTag(SRWG_PROPERNAME, SRPROPN_GEO);
 		}
-		else if(rAncode == "ad") { // Прилагательное обозначающее принадлежность к национальности
+		else if(rAncode == "ad") { // РџСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ РѕР±РѕР·РЅР°С‡Р°СЋС‰РµРµ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ Рє РЅР°С†РёРѕРЅР°Р»СЊРЅРѕСЃС‚Рё
 			rForm.SetTag(SRWG_CLASS, SRWC_ADJECTIVE);
 			rForm.SetTag(SRWG_ADJCAT, SRADJCAT_NATION);
 		}
-		else if(rAncode == "da") { // Возвратное местоимение ед.ч.
+		else if(rAncode == "da") { // Р’РѕР·РІСЂР°С‚РЅРѕРµ РјРµСЃС‚РѕРёРјРµРЅРёРµ РµРґ.С‡.
 			rForm.SetTag(SRWG_CLASS, SRWC_PRONOUN);
 			rForm.SetTag(SRWG_PRONOUN, SRPRON_REFL);
 			rForm.SetTag(SRWG_COUNT, SRCNT_SINGULAR);
 		}
-		else if(rAncode == "db") { // Возвратное местоимение мн.ч.
+		else if(rAncode == "db") { // Р’РѕР·РІСЂР°С‚РЅРѕРµ РјРµСЃС‚РѕРёРјРµРЅРёРµ РјРЅ.С‡.
 			rForm.SetTag(SRWG_CLASS, SRWC_PRONOUN);
 			rForm.SetTag(SRWG_PRONOUN, SRPRON_REFL);
 			rForm.SetTag(SRWG_COUNT, SRCNT_PLURAL);
@@ -439,12 +441,12 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 			rForm.SetTag(SRWG_POSSESSIVE,  1);
 			rForm.SetTag(SRWG_PREDICATIVE, 1);
 		}
-		else if(rAncode == "ec") { // Указательное местоимение ед.ч.
+		else if(rAncode == "ec") { // РЈРєР°Р·Р°С‚РµР»СЊРЅРѕРµ РјРµСЃС‚РѕРёРјРµРЅРёРµ РµРґ.С‡.
 			rForm.SetTag(SRWG_CLASS, SRWC_PRONOUNPOSS);
 			rForm.SetTag(SRWG_PRONOUN, SRPRON_DEMONSTR);
 			rForm.SetTag(SRWG_COUNT, SRCNT_SINGULAR);
 		}
-		else if(rAncode == "ed") { // Указательное местоимение мн.ч.
+		else if(rAncode == "ed") { // РЈРєР°Р·Р°С‚РµР»СЊРЅРѕРµ РјРµСЃС‚РѕРёРјРµРЅРёРµ РјРЅ.С‡.
 			rForm.SetTag(SRWG_CLASS, SRWC_PRONOUNPOSS);
 			rForm.SetTag(SRWG_PRONOUN, SRPRON_DEMONSTR);
 			rForm.SetTag(SRWG_COUNT, SRCNT_PLURAL);
@@ -455,10 +457,10 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 		else if(rAncode == "yd") { // possessive group (POSS plsgs)
 			rForm.SetTag(SRWG_CLASS, SRWC_POSSESSIVEGROUP);
 		}
-		else if(rAncode == "ve") { // ing-форма глагола
+		else if(rAncode == "ve") { // ing-С„РѕСЂРјР° РіР»Р°РіРѕР»Р°
 			rForm.SetTag(SRWG_CLASS, SRWC_GERUND);
 		}
-		else if(rAncode == "tf") { // ing-форма глагола to be
+		else if(rAncode == "tf") { // ing-С„РѕСЂРјР° РіР»Р°РіРѕР»Р° to be
 			rForm.SetTag(SRWG_CLASS, SRWC_GERUND);
 			rForm.SetTag(SRWG_TOBE, 1);
 		}
@@ -469,8 +471,8 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 			while(*p != ' ' && *p != '\t' && *p != 0)
 				temp_buf.CatChar(*p++);
 			//
-			int    prev_case = 0;  // Предыдущий токен обозначал падеж
-			int    prev_compr = 0; // Предыдущий токен - сравнительная степень прилагательного SRADJCMP_COMPARATIVE
+			int    prev_case = 0;  // РџСЂРµРґС‹РґСѓС‰РёР№ С‚РѕРєРµРЅ РѕР±РѕР·РЅР°С‡Р°Р» РїР°РґРµР¶
+			int    prev_compr = 0; // РџСЂРµРґС‹РґСѓС‰РёР№ С‚РѕРєРµРЅ - СЃСЂР°РІРЅРёС‚РµР»СЊРЅР°СЏ СЃС‚РµРїРµРЅСЊ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ SRADJCMP_COMPARATIVE
 			do {
 				while(*p == ' ' || *p == '\t' || *p == ',') p++;
 				temp_buf.Z();
@@ -501,13 +503,13 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 						rForm.SetTag(SRWG_CLASS, SRWC_VERB);
 						rForm.SetTag(SRWG_MODAL, 1);
 					}
-					else if(temp_buf == "PART") // Частица
+					else if(temp_buf == "PART") // Р§Р°СЃС‚РёС†Р°
 						rForm.SetTag(SRWG_CLASS, SRWC_PARTICLE);
 					else if(temp_buf == "PREP")
 						rForm.SetTag(SRWG_CLASS, SRWC_PREPOSITION);
-					else if(temp_buf == "PRON") // Не изменяемые местоимения-существительные (all, anybody, etc)
+					else if(temp_buf == "PRON") // РќРµ РёР·РјРµРЅСЏРµРјС‹Рµ РјРµСЃС‚РѕРёРјРµРЅРёСЏ-СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅС‹Рµ (all, anybody, etc)
 						rForm.SetTag(SRWG_CLASS, SRWC_PRONOUN);
-					else if(temp_buf == "VBE") { // Специальный случай - глагол "to be"
+					else if(temp_buf == "VBE") { // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№ - РіР»Р°РіРѕР» "to be"
 						rForm.SetTag(SRWG_CLASS, SRWC_VERB);
 						rForm.SetTag(SRWG_TOBE, 1);
 					}
@@ -518,8 +520,8 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 					else if(temp_buf == "f")
 						rForm.SetTag(SRWG_GENDER, SRGENDER_FEMININE);
 					else if(temp_buf == "fut")
-						rForm.SetTag(SRWG_TENSE, SRTENSE_FUTURE); // Будущая форма (вероятно, только для to be)
-					else if(temp_buf == "if") // Вопросительная форма глагола to be
+						rForm.SetTag(SRWG_TENSE, SRTENSE_FUTURE); // Р‘СѓРґСѓС‰Р°СЏ С„РѕСЂРјР° (РІРµСЂРѕСЏС‚РЅРѕ, С‚РѕР»СЊРєРѕ РґР»СЏ to be)
+					else if(temp_buf == "if") // Р’РѕРїСЂРѕСЃРёС‚РµР»СЊРЅР°СЏ С„РѕСЂРјР° РіР»Р°РіРѕР»Р° to be
 						rForm.SetTag(SRWG_QUEST, 1);
 					else if(temp_buf == "inf")
 						rForm.SetTag(SRWG_ASPECT, SRASPECT_INFINITIVE);
@@ -531,31 +533,31 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 						rForm.SetTag(SRWG_PROPERNAME, SRPROPN_PERSONNAME);
 					else if(temp_buf == "org")
 						rForm.SetTag(SRWG_PROPERNAME, SRPROPN_ORG);
-					else if(temp_buf == "narr") { // Нарицательное существительное
-						// (не учитываем - считаем все не собственные существительные нарицательными)
+					else if(temp_buf == "narr") { // РќР°СЂРёС†Р°С‚РµР»СЊРЅРѕРµ СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРµ
+						// (РЅРµ СѓС‡РёС‚С‹РІР°РµРј - СЃС‡РёС‚Р°РµРј РІСЃРµ РЅРµ СЃРѕР±СЃС‚РІРµРЅРЅС‹Рµ СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅС‹Рµ РЅР°СЂРёС†Р°С‚РµР»СЊРЅС‹РјРё)
 					}
 					else if(temp_buf == "nom")
-						rForm.SetTag(SRWG_CASE, SRCASE_NOMINATIVE); // Именительный падеж
+						rForm.SetTag(SRWG_CASE, SRCASE_NOMINATIVE); // РРјРµРЅРёС‚РµР»СЊРЅС‹Р№ РїР°РґРµР¶
 					else if(temp_buf == "obj")
-						rForm.SetTag(SRWG_CASE, SRCASE_OBJECTIVE); // Объектный падеж местоимений
+						rForm.SetTag(SRWG_CASE, SRCASE_OBJECTIVE); // РћР±СЉРµРєС‚РЅС‹Р№ РїР°РґРµР¶ РјРµСЃС‚РѕРёРјРµРЅРёР№
 					else if(temp_buf == "pasa")
-						rForm.SetTag(SRWG_TENSE, SRTENSE_PAST); // Past Indefinite (2-я форма глагола)
+						rForm.SetTag(SRWG_TENSE, SRTENSE_PAST); // Past Indefinite (2-СЏ С„РѕСЂРјР° РіР»Р°РіРѕР»Р°)
 					else if(temp_buf == "pers")
 						rForm.SetTag(SRWG_PRONOUN, SRPRON_PERSONAL);
 					else if(temp_buf == "pl")
 						rForm.SetTag(SRWG_COUNT, SRCNT_PLURAL);
 					else if(temp_buf == "pp")
-						rForm.SetTag(SRWG_TENSE, SRTENSE_PASTPARTICIPLE); // Past Participle (3-я форма глагола)
+						rForm.SetTag(SRWG_TENSE, SRTENSE_PASTPARTICIPLE); // Past Participle (3-СЏ С„РѕСЂРјР° РіР»Р°РіРѕР»Р°)
 					else if(temp_buf == "poss")
 						rForm.SetTag(SRWG_POSSESSIVE, 1);
-					else if(temp_buf == "pred") // предикатив (форма притяжательных местоимений, напр.:yours)
+					else if(temp_buf == "pred") // РїСЂРµРґРёРєР°С‚РёРІ (С„РѕСЂРјР° РїСЂРёС‚СЏР¶Р°С‚РµР»СЊРЅС‹С… РјРµСЃС‚РѕРёРјРµРЅРёР№, РЅР°РїСЂ.:yours)
 						rForm.SetTag(SRWG_PREDICATIVE, 1);
-					else if(temp_buf == "attr") { // @unused атрибутив (форма притяжательных местоимений, напр.:your);
+					else if(temp_buf == "attr") { // @unused Р°С‚СЂРёР±СѓС‚РёРІ (С„РѕСЂРјР° РїСЂРёС‚СЏР¶Р°С‚РµР»СЊРЅС‹С… РјРµСЃС‚РѕРёРјРµРЅРёР№, РЅР°РїСЂ.:your);
 					}
 					else if(temp_buf == "prop")
 						rForm.SetTag(SRWG_PROPERNAME, SRPROPN_PERSONNAME);
 					else if(temp_buf == "prsa")
-						rForm.SetTag(SRWG_TENSE, SRTENSE_PRESENT); // Present (1-я форма глагола)
+						rForm.SetTag(SRWG_TENSE, SRTENSE_PRESENT); // Present (1-СЏ С„РѕСЂРјР° РіР»Р°РіРѕР»Р°)
 					else if(temp_buf == "sg")
 						rForm.SetTag(SRWG_COUNT, SRCNT_SINGULAR);
 					else if(temp_buf == "sup")
@@ -570,7 +572,7 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 						rForm.SetTag(SRWG_PERSON, SRPERSON_SECOND);
 					else if(temp_buf == "3")
 						rForm.SetTag(SRWG_PERSON, SRPERSON_THIRD);
-					/* покрывается случаями "yc", "yd" обработанными выше
+					/* РїРѕРєСЂС‹РІР°РµС‚СЃСЏ СЃР»СѓС‡Р°СЏРјРё "yc", "yd" РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹РјРё РІС‹С€Рµ
 					else if(temp_buf == "POSS") {
 					}
 					else if(temp_buf == "plsgs") {
@@ -578,15 +580,15 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 					else if(temp_buf == "plsq") {
 					}
 					*/
-					/* покрывается случаями "ve", "tf" обработанными выше
+					/* РїРѕРєСЂС‹РІР°РµС‚СЃСЏ СЃР»СѓС‡Р°СЏРјРё "ve", "tf" РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹РјРё РІС‹С€Рµ
 					else if(temp_buf == "ing") {
 					}
 					*/
-					/* покрывается случаями "da", "db" обработанными выше
+					/* РїРѕРєСЂС‹РІР°РµС‚СЃСЏ СЃР»СѓС‡Р°СЏРјРё "da", "db" РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹РјРё РІС‹С€Рµ
 					else if(temp_buf == "ref") {
 					}
 					*/
-					/* покрывается случаями "ec", "ed" обработанными выше
+					/* РїРѕРєСЂС‹РІР°РµС‚СЃСЏ СЃР»СѓС‡Р°СЏРјРё "ec", "ed" РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹РјРё РІС‹С€Рµ
 					else if(temp_buf == "dem") {
 					}
 					*/
@@ -607,8 +609,8 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 	int    ok = 1, r;
 	if(oneof2(rParam.LangID, slangRU, slangEN)) {
 		SymbHashTable anc_tab(4096, 0);
-		LAssocArray fm_assoc; // Список ассоциаций индекса модели с идентификатором модели в базе данных
-		LAssocArray pfx_assoc; // Список ассоциаций индекса приставки с идентификатором приставки в базе данных
+		LAssocArray fm_assoc; // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ РёРЅРґРµРєСЃР° РјРѕРґРµР»Рё СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РјРѕРґРµР»Рё РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
+		LAssocArray pfx_assoc; // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ РёРЅРґРµРєСЃР° РїСЂРёСЃС‚Р°РІРєРё СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РїСЂРёСЃС‚Р°РІРєРё РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
 		SString line_buf, ancode, temp_buf;
 		SString item_buf, afx_buf, anc_buf, pfx_buf, word_buf;
 
@@ -634,7 +636,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 			THROW(tra);
 			{
 				//
-				// Импортируем список словоформ
+				// РРјРїРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє СЃР»РѕРІРѕС„РѕСЂРј
 				//
 				SrWordForm form;
 				while(anc_file.ReadLine(line_buf)) {
@@ -660,7 +662,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 					}
 				}
 				//
-				// Находим или создаем дескриптор базовой словоформы для основы слова
+				// РќР°С…РѕРґРёРј РёР»Рё СЃРѕР·РґР°РµРј РґРµСЃРєСЂРёРїС‚РѕСЂ Р±Р°Р·РѕРІРѕР№ СЃР»РѕРІРѕС„РѕСЂРјС‹ РґР»СЏ РѕСЃРЅРѕРІС‹ СЃР»РѕРІР°
 				//
 				{
 					form.Clear();
@@ -682,15 +684,15 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 			//
 			{
 				//
-				// Импортируем список моделей окончаний (FlexiaModel)
+				// РРјРїРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє РјРѕРґРµР»РµР№ РѕРєРѕРЅС‡Р°РЅРёР№ (FlexiaModel)
 				//
 				if(fm_file.ReadLine(line_buf)) {
 					const long fm_count = line_buf.ToLong();
 					SrFlexiaModel model, model_test;
 					THROW(fm_count > 0);
 					//
-					// В следующем цикле индекс i выступает одновременно в качестве идентификатора, используемого
-					// для идентификации модели при описании леммы слова.
+					// Р’ СЃР»РµРґСѓСЋС‰РµРј С†РёРєР»Рµ РёРЅРґРµРєСЃ i РІС‹СЃС‚СѓРїР°РµС‚ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РІ РєР°С‡РµСЃС‚РІРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°, РёСЃРїРѕР»СЊР·СѓРµРјРѕРіРѕ
+					// РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РјРѕРґРµР»Рё РїСЂРё РѕРїРёСЃР°РЅРёРё Р»РµРјРјС‹ СЃР»РѕРІР°.
 					//
 					for(long i = 0; i < fm_count; i++) {
 						THROW(fm_file.ReadLine(line_buf));
@@ -756,14 +758,14 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 			}
 			{
 				//
-				// Импортируем список моделей ударений (AccentModel)
+				// РРјРїРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє РјРѕРґРµР»РµР№ СѓРґР°СЂРµРЅРёР№ (AccentModel)
 				//
 				if(fm_file.ReadLine(line_buf)) {
 					long   am_count = line_buf.ToLong();
 					THROW(am_count > 0);
 					for(long i = 0; i < am_count; i++) {
 						//
-						// Пока просто сканируем строки с моделями, но не акцептируем их в базу данных
+						// РџРѕРєР° РїСЂРѕСЃС‚Рѕ СЃРєР°РЅРёСЂСѓРµРј СЃС‚СЂРѕРєРё СЃ РјРѕРґРµР»СЏРјРё, РЅРѕ РЅРµ Р°РєС†РµРїС‚РёСЂСѓРµРј РёС… РІ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…
 						//
 						THROW(fm_file.ReadLine(line_buf));
 					}
@@ -771,14 +773,14 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 			}
 			{
 				//
-				// Пропускаем журнал сессий
+				// РџСЂРѕРїСѓСЃРєР°РµРј Р¶СѓСЂРЅР°Р» СЃРµСЃСЃРёР№
 				//
 				if(fm_file.ReadLine(line_buf)) {
 					long   sess_count = line_buf.ToLong();
 					THROW(sess_count > 0);
 					for(long i = 0; i < sess_count; i++) {
 						//
-						// Пока просто сканируем строки с моделями, но не акцептируем их в базу данных
+						// РџРѕРєР° РїСЂРѕСЃС‚Рѕ СЃРєР°РЅРёСЂСѓРµРј СЃС‚СЂРѕРєРё СЃ РјРѕРґРµР»СЏРјРё, РЅРѕ РЅРµ Р°РєС†РµРїС‚РёСЂСѓРµРј РёС… РІ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…
 						//
 						THROW(fm_file.ReadLine(line_buf));
 					}
@@ -786,7 +788,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 			}
 			{
 				//
-				// Импортируем список приставок
+				// РРјРїРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє РїСЂРёСЃС‚Р°РІРѕРє
 				//
 				if(fm_file.ReadLine(line_buf)) {
 					line_buf.Chomp().Strip();
@@ -802,11 +804,11 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 				}
 			}
 			{
-				// АВИАПРОМ 32 20 6 Уэ -
-				// 1 - основа слова, 2 - индекс FlexiaModel, 3 - индекс AccentModel, 4 - индекс сессии, 5 - базовый ancode, 6 - индекс приставки
+				// РђР’РРђРџР РћРњ 32 20 6 РЈСЌ -
+				// 1 - РѕСЃРЅРѕРІР° СЃР»РѕРІР°, 2 - РёРЅРґРµРєСЃ FlexiaModel, 3 - РёРЅРґРµРєСЃ AccentModel, 4 - РёРЅРґРµРєСЃ СЃРµСЃСЃРёРё, 5 - Р±Р°Р·РѕРІС‹Р№ ancode, 6 - РёРЅРґРµРєСЃ РїСЂРёСЃС‚Р°РІРєРё
 
 				//
-				// Наконец, импортируем основы слов с правилами преобразования //
+				// РќР°РєРѕРЅРµС†, РёРјРїРѕСЂС‚РёСЂСѓРµРј РѕСЃРЅРѕРІС‹ СЃР»РѕРІ СЃ РїСЂР°РІРёР»Р°РјРё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ //
 				//
 				if(fm_file.ReadLine(line_buf)) {
 					TSVector <SrWordAssoc> test_wa_list; // @v9.8.4 TSArray-->TSVector
@@ -840,15 +842,15 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 								if(scan.Skip().SearchChar(' ')) {
 									scan.Get(item_buf);
 									scan.IncrLen(1);
-									// accent_model_id - пока пропускаем
+									// accent_model_id - РїРѕРєР° РїСЂРѕРїСѓСЃРєР°РµРј
 									if(scan.Skip().SearchChar(' ')) {
 										scan.Get(item_buf);
 										scan.IncrLen(1);
-										// индекс сессии - пропускаем
+										// РёРЅРґРµРєСЃ СЃРµСЃСЃРёРё - РїСЂРѕРїСѓСЃРєР°РµРј
 										if(scan.Skip().SearchChar(' ')) {
 											scan.Get(item_buf);
 											scan.IncrLen(1);
-											item_buf.Strip(); // базовый ancode
+											item_buf.Strip(); // Р±Р°Р·РѕРІС‹Р№ ancode
 											uint   anc_id = 0;
 											if(!(item_buf == "-") && anc_tab.Search(item_buf, &anc_id, 0) > 0)
 												wa.BaseFormID = anc_id;
@@ -899,7 +901,7 @@ int TestImport_Words_MySpell()
 	{
 		SFile  in_file("\\PAPYRUS\\Src\\SARTR\\data\\RU_RU-W.DIC", SFile::mRead);
 		THROW(in_file.IsValid());
-		if(in_file.ReadLine(line_buf)) { // Первая строка содержит количество строк в словаре
+		if(in_file.ReadLine(line_buf)) { // РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° СЃРѕРґРµСЂР¶РёС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ СЃР»РѕРІР°СЂРµ
 			long   _count = line_buf.ToLong();
 			long   line_no = 0;
 			SString word, sfx_idx, temp_buf;
@@ -983,7 +985,7 @@ public:
 		int    Close(int ifNeeded);
 		int    IsClosed() const;
 		//
-		// Descr: Извлекает идентификатор языка либо из данного элемента, либо, если здесь он не определен - из родительского.
+		// Descr: РР·РІР»РµРєР°РµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЏР·С‹РєР° Р»РёР±Рѕ РёР· РґР°РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°, Р»РёР±Рѕ, РµСЃР»Рё Р·РґРµСЃСЊ РѕРЅ РЅРµ РѕРїСЂРµРґРµР»РµРЅ - РёР· СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ.
 		//
 		int    GetLangID() const;
 		Operator * CreateNext();
@@ -1007,19 +1009,19 @@ public:
 		}
 
 		enum {
-			fClosed   = 0x0001, // Оператор закрыт (то есть считана полная конструкция оператора).
-			fAccepted = 0x0002, // Оператор учтен в базе данных вызовом SrConceptParser::PostprocessOpList(Operator *)
-			fAbbr     = 0x0004, // this - оператор аббревиатуры
-			fAbbrDot  = 0x0008  // this - оператор аббревиатуры с опциональной точкой в конце
+			fClosed   = 0x0001, // РћРїРµСЂР°С‚РѕСЂ Р·Р°РєСЂС‹С‚ (С‚Рѕ РµСЃС‚СЊ СЃС‡РёС‚Р°РЅР° РїРѕР»РЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ РѕРїРµСЂР°С‚РѕСЂР°).
+			fAccepted = 0x0002, // РћРїРµСЂР°С‚РѕСЂ СѓС‡С‚РµРЅ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С… РІС‹Р·РѕРІРѕРј SrConceptParser::PostprocessOpList(Operator *)
+			fAbbr     = 0x0004, // this - РѕРїРµСЂР°С‚РѕСЂ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂС‹
+			fAbbrDot  = 0x0008  // this - РѕРїРµСЂР°С‚РѕСЂ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂС‹ СЃ РѕРїС†РёРѕРЅР°Р»СЊРЅРѕР№ С‚РѕС‡РєРѕР№ РІ РєРѕРЅС†Рµ
 		};
 		SrConceptParser & R_Master; // @anchor
 		CONCEPTID  CID;
-		CONCEPTID  InstanceOf; // Концепция this является экземпляром концепции SubclassOf
-		CONCEPTID  SubclassOf; // Концепция this является подклассом концепции SubclassOf
-		NGID   AbbrOf;         // Лексема this является аббревиатурой AbbrOf
-		int    CrType;         // Концепция this имеет тип CrType
+		CONCEPTID  InstanceOf; // РљРѕРЅС†РµРїС†РёСЏ this СЏРІР»СЏРµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂРѕРј РєРѕРЅС†РµРїС†РёРё SubclassOf
+		CONCEPTID  SubclassOf; // РљРѕРЅС†РµРїС†РёСЏ this СЏРІР»СЏРµС‚СЃСЏ РїРѕРґРєР»Р°СЃСЃРѕРј РєРѕРЅС†РµРїС†РёРё SubclassOf
+		NGID   AbbrOf;         // Р›РµРєСЃРµРјР° this СЏРІР»СЏРµС‚СЃСЏ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂРѕР№ AbbrOf
+		int    CrType;         // РљРѕРЅС†РµРїС†РёСЏ this РёРјРµРµС‚ С‚РёРї CrType
 		LEXID  CLexID;
-		int32  WaIdOfCLex;     // Ид ассоциации словоформ для CLexID, созданный или найденный при идентификации.
+		int32  WaIdOfCLex;     // РРґ Р°СЃСЃРѕС†РёР°С†РёРё СЃР»РѕРІРѕС„РѕСЂРј РґР»СЏ CLexID, СЃРѕР·РґР°РЅРЅС‹Р№ РёР»Рё РЅР°Р№РґРµРЅРЅС‹Р№ РїСЂРё РёРґРµРЅС‚РёС„РёРєР°С†РёРё.
 		NGID   NgID__;
 		int16  LangID;
 		int16  Flags;
@@ -1064,8 +1066,8 @@ public:
 		//tokTypeHDate,       // #hdate
 		tokTypeUniTime,     // #unitime
 		tokTypeHPeriod,     // #hperiod
-		tokEqAbbrev,        // @v9.8.12 =$ кг=$килограмм
-		tokEqAbbrevDot,     // @v9.8.12 =. ул=.улица    ул или ул.
+		tokEqAbbrev,        // @v9.8.12 =$ РєРі=$РєРёР»РѕРіСЂР°РјРј
+		tokEqAbbrevDot,     // @v9.8.12 =. СѓР»=.СѓР»РёС†Р°    СѓР» РёР»Рё СѓР».
 	};
 
 	static int FASTCALL _IsWordbreakChar(int c);
@@ -1162,7 +1164,7 @@ int SrConceptParser::Operator::GetLangID() const
 	if(LangID)
 		lid = LangID;
 	else if(P_Parent)
-		lid = P_Parent->LangID; // Здесь рекурсии нет - если для родителя язык не определен, то все!
+		lid = P_Parent->LangID; // Р—РґРµСЃСЊ СЂРµРєСѓСЂСЃРёРё РЅРµС‚ - РµСЃР»Рё РґР»СЏ СЂРѕРґРёС‚РµР»СЏ СЏР·С‹Рє РЅРµ РѕРїСЂРµРґРµР»РµРЅ, С‚Рѕ РІСЃРµ!
 	else if(P_Prev)
 		lid = P_Prev->GetLangID(); // @recursion
 	return lid;
@@ -1242,7 +1244,7 @@ int SrConceptParser::_ReadLine()
 //static
 int FASTCALL SrConceptParser::_IsWordbreakChar(int c)
 {
-	static const char * p_wb = " \t{}[]()<>,.;:!@#%^&*=+`~'?№/|\\";
+	static const char * p_wb = " \t{}[]()<>,.;:!@#%^&*=+`~'?в„–/|\\";
 	return (c == 0 || sstrchr(p_wb, c));
 }
 
@@ -1364,13 +1366,13 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 					uc = Scan.GetUtf8(temp_buf);
 				}
 				if(uc == 0) {
-					tok = tokUnkn; // @error Не завершенное, обрамленное кавычками, слово.
+					tok = tokUnkn; // @error РќРµ Р·Р°РІРµСЂС€РµРЅРЅРѕРµ, РѕР±СЂР°РјР»РµРЅРЅРѕРµ РєР°РІС‹С‡РєР°РјРё, СЃР»РѕРІРѕ.
 				}
 				else if(rExtBuf.NotEmpty()) {
 					tok = tokWord;
 				}
 				else {
-					tok = tokUnkn; // @error Пустое слово, обрамленное кавычками
+					tok = tokUnkn; // @error РџСѓСЃС‚РѕРµ СЃР»РѕРІРѕ, РѕР±СЂР°РјР»РµРЅРЅРѕРµ РєР°РІС‹С‡РєР°РјРё
 				}
 			}
 			break;
@@ -1440,7 +1442,7 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 								uc = Scan.GetUtf8(temp_buf);
 							}
 							if(uc == 1) {
-								Scan.Offs -= uc; // Откатываем указатель Scan на разделитель слов.
+								Scan.Offs -= uc; // РћС‚РєР°С‚С‹РІР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ Scan РЅР° СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃР»РѕРІ.
 							}
 							if(rExtBuf.NotEmpty())
 								tok = tokWord;
@@ -1468,8 +1470,8 @@ int SrConceptParser::PostprocessOpList(Operator * pRoot)
 				int    _done = 0;
 				if(p_current->WaIdOfCLex) {
 					//
-					// Если при разборе оператора мы создали упрощенный набор тегов лексемы, то в нем
-					// и попытаемся указать что речь идет об аббревиатуре.
+					// Р•СЃР»Рё РїСЂРё СЂР°Р·Р±РѕСЂРµ РѕРїРµСЂР°С‚РѕСЂР° РјС‹ СЃРѕР·РґР°Р»Рё СѓРїСЂРѕС‰РµРЅРЅС‹Р№ РЅР°Р±РѕСЂ С‚РµРіРѕРІ Р»РµРєСЃРµРјС‹, С‚Рѕ РІ РЅРµРј
+					// Рё РїРѕРїС‹С‚Р°РµРјСЃСЏ СѓРєР°Р·Р°С‚СЊ С‡С‚Рѕ СЂРµС‡СЊ РёРґРµС‚ РѕР± Р°Р±Р±СЂРµРІРёР°С‚СѓСЂРµ.
 					//
 					SrWordAssoc ex_wa;
 					THROW(R_Db.P_WaT->Search(p_current->WaIdOfCLex, &ex_wa) > 0);
@@ -1498,7 +1500,7 @@ int SrConceptParser::PostprocessOpList(Operator * pRoot)
 				}
 				else {
 					//
-					// Пытаемся выяснить, не является ли лексема уже той аббревиатурой, которую мы хотим установить
+					// РџС‹С‚Р°РµРјСЃСЏ РІС‹СЏСЃРЅРёС‚СЊ, РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р»Рё Р»РµРєСЃРµРјР° СѓР¶Рµ С‚РѕР№ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂРѕР№, РєРѕС‚РѕСЂСѓСЋ РјС‹ С…РѕС‚РёРј СѓСЃС‚Р°РЅРѕРІРёС‚СЊ
 					//
 					R_Db.P_WaT->Search(p_current->CLexID, ex_wa_list);
 					for(uint i = 0; i < ex_wa_list.getCount(); i++) {
@@ -1509,8 +1511,8 @@ int SrConceptParser::PostprocessOpList(Operator * pRoot)
 				}
 				if(!_done) {
 					//
-					// После всех стараний выяснилось, что лексема не определена как аббревиатура нашей ngram'ы.
-					// Что ж - создаем SrWordAssoc в котором укажем сей факт.
+					// РџРѕСЃР»Рµ РІСЃРµС… СЃС‚Р°СЂР°РЅРёР№ РІС‹СЏСЃРЅРёР»РѕСЃСЊ, С‡С‚Рѕ Р»РµРєСЃРµРјР° РЅРµ РѕРїСЂРµРґРµР»РµРЅР° РєР°Рє Р°Р±Р±СЂРµРІРёР°С‚СѓСЂР° РЅР°С€РµР№ ngram'С‹.
+					// Р§С‚Рѕ Р¶ - СЃРѕР·РґР°РµРј SrWordAssoc РІ РєРѕС‚РѕСЂРѕРј СѓРєР°Р¶РµРј СЃРµР№ С„Р°РєС‚.
 					//
 					SrWordAssoc wa;
 					wa.WordID = p_current->CLexID;
@@ -1581,9 +1583,9 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 		int    tok = titem.Id;
 		temp_buf = titem.Txt;
 		//
-		// (свойство, свойство, ..., свойство)
+		// (СЃРІРѕР№СЃС‚РІРѕ, СЃРІРѕР№СЃС‚РІРѕ, ..., СЃРІРѕР№СЃС‚РІРѕ)
 		//
-		// Варианты свойства:
+		// Р’Р°СЂРёР°РЅС‚С‹ СЃРІРѕР№СЃС‚РІР°:
 		// prop_symb = :concept               // #1
 		// prop_symb =:concept                // #2
 		// prop_symb = word1 word2 ... wordN  // #3
@@ -1612,7 +1614,7 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 			THROW_PP_S(_IsIdent(temp_buf), PPERR_SR_C_PROPIDEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			ident_buf = temp_buf;
 			{
-				THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF); // Неожиданное завершение файла
+				THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF); // РќРµРѕР¶РёРґР°РЅРЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ С„Р°Р№Р»Р°
 				titem = rTokList.at_WithoutParent(i++);
 				tok = titem.Id;
 				temp_buf = titem.Txt;
@@ -1658,7 +1660,7 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 					}
 				}
 				else {
-					; // @error Символ 'ident_buf'  не является идентификатором свойства
+					; // @error РЎРёРјРІРѕР» 'ident_buf'  РЅРµ СЏРІР»СЏРµС‚СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј СЃРІРѕР№СЃС‚РІР°
 				}
 			}
 			else if(tok == tokExprOf) { // #2
@@ -1706,10 +1708,10 @@ int SrConceptParser::Run(const char * pFileName)
 		THROW(tra);
 		if(_ReadLine()) {
 			int    tok = 0;
-			int    prev_tok = 0; // Токен, непосредственно предшествующий текущему
+			int    prev_tok = 0; // РўРѕРєРµРЅ, РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РёР№ С‚РµРєСѓС‰РµРјСѓ
 			int    lbrace_count = 0;
 			LongArray ngram;
-			LongArray walist_of_ngram; // @#{walist_of_ngram.getCount() == ngram.getCount()} Список ассоциаций словоформ, соответствующих списку ngram
+			LongArray walist_of_ngram; // @#{walist_of_ngram.getCount() == ngram.getCount()} РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ СЃР»РѕРІРѕС„РѕСЂРј, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… СЃРїРёСЃРєСѓ ngram
 			Int64Array _clist;
 			Int64Array _hlist;
 			do {
@@ -1750,27 +1752,27 @@ int SrConceptParser::Run(const char * pFileName)
 					} while(tok == tokWord);
 					assert(ngram.getCount() == walist_of_ngram.getCount());
 					//
-					// Если ngram содержит единственное слово и current->CLexID не занят предыдущей частью оператора,
-					// то присваиваем p_current->CLexID ид этого слова, а p_current->WaIdOfCLex - ассоциированную SrWordAssoc.
-					// Все это нужно для определения аббревиатур
+					// Р•СЃР»Рё ngram СЃРѕРґРµСЂР¶РёС‚ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРµ СЃР»РѕРІРѕ Рё current->CLexID РЅРµ Р·Р°РЅСЏС‚ РїСЂРµРґС‹РґСѓС‰РµР№ С‡Р°СЃС‚СЊСЋ РѕРїРµСЂР°С‚РѕСЂР°,
+					// С‚Рѕ РїСЂРёСЃРІР°РёРІР°РµРј p_current->CLexID РёРґ СЌС‚РѕРіРѕ СЃР»РѕРІР°, Р° p_current->WaIdOfCLex - Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅСѓСЋ SrWordAssoc.
+					// Р’СЃРµ СЌС‚Рѕ РЅСѓР¶РЅРѕ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂ
 					//
 					if(ngram.getCount() == 1 && !p_current->CLexID) {
 						p_current->CLexID = ngram.get(0);
 						p_current->WaIdOfCLex = walist_of_ngram.get(0);
 					}
 					//
-					// Так как преобразование ngram в p_current->NgID__ нужно не всегда, отложим
-					// принятие решения об этом до момента, когда это выяснится (обработаем по сигналу can_use_ngram)
+					// РўР°Рє РєР°Рє РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ ngram РІ p_current->NgID__ РЅСѓР¶РЅРѕ РЅРµ РІСЃРµРіРґР°, РѕС‚Р»РѕР¶РёРј
+					// РїСЂРёРЅСЏС‚РёРµ СЂРµС€РµРЅРёСЏ РѕР± СЌС‚РѕРј РґРѕ РјРѕРјРµРЅС‚Р°, РєРѕРіРґР° СЌС‚Рѕ РІС‹СЏСЃРЅРёС‚СЃСЏ (РѕР±СЂР°Р±РѕС‚Р°РµРј РїРѕ СЃРёРіРЅР°Р»Сѓ can_use_ngram)
 					//
 					can_use_ngram = 1;
 				}
 				if(oneof2(tok, tokEqAbbrev, tokEqAbbrevDot)) {
 					// LEX=$NGRAM
-					// кг=$килограмм
-					// "с/м"=$свеже-мороженый
+					// РєРі=$РєРёР»РѕРіСЂР°РјРј
+					// "СЃ/Рј"=$СЃРІРµР¶Рµ-РјРѕСЂРѕР¶РµРЅС‹Р№
 					THROW_PP(p_current->CLexID, PPERR_SR_C_NWORDBEFOREABBR);
-					//// До следующего токена сохраним текущее значение p_current->CLexID в p_current->AbbrOf
-					//// после получения очередной NG поменяем все местами.
+					//// Р”Рѕ СЃР»РµРґСѓСЋС‰РµРіРѕ С‚РѕРєРµРЅР° СЃРѕС…СЂР°РЅРёРј С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ p_current->CLexID РІ p_current->AbbrOf
+					//// РїРѕСЃР»Рµ РїРѕР»СѓС‡РµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕР№ NG РїРѕРјРµРЅСЏРµРј РІСЃРµ РјРµСЃС‚Р°РјРё.
 					//p_current->AbbrOf = p_current->CLexID;
 					//p_current->CLexID = 0;
 					p_current->SetAbbr(tok == tokEqAbbrevDot);
@@ -1840,7 +1842,7 @@ int SrConceptParser::Run(const char * pFileName)
 								else if(prev_tok == tokWord) {
 									if(p_current->NgID__ && !p_current->CID) {
 										_clist.clear();
-										int   _cisdone = 0; // Концепция уже является членом иерархии, в которую входит cid
+										int   _cisdone = 0; // РљРѕРЅС†РµРїС†РёСЏ СѓР¶Рµ СЏРІР»СЏРµС‚СЃСЏ С‡Р»РµРЅРѕРј РёРµСЂР°СЂС…РёРё, РІ РєРѕС‚РѕСЂСѓСЋ РІС…РѕРґРёС‚ cid
 										if(R_Db.GetNgConceptList(p_current->NgID__, R_Db.ngclAnonymOnly, _clist) > 0) {
 											assert(_clist.getCount());
 											for(uint ci = 0; !_cisdone && ci < _clist.getCount(); ci++) {
@@ -1898,7 +1900,7 @@ int SrConceptParser::Run(const char * pFileName)
 								else if(prev_tok == tokWord) {
 									if(p_current->NgID__ && !p_current->CID) {
 										_clist.clear();
-										int   _cisdone = 0; // Концепция уже является членом иерархии, в которую входит cid
+										int   _cisdone = 0; // РљРѕРЅС†РµРїС†РёСЏ СѓР¶Рµ СЏРІР»СЏРµС‚СЃСЏ С‡Р»РµРЅРѕРј РёРµСЂР°СЂС…РёРё, РІ РєРѕС‚РѕСЂСѓСЋ РІС…РѕРґРёС‚ cid
 										if(R_Db.GetNgConceptList(p_current->NgID__, R_Db.ngclAnonymOnly, _clist) > 0) {
 											assert(_clist.getCount());
 											for(uint ci = 0; !_cisdone && ci < _clist.getCount(); ci++) {
@@ -1927,9 +1929,9 @@ int SrConceptParser::Run(const char * pFileName)
 								temp_token_list.Z();
 								for(int do_get_next_prop = 1; do_get_next_prop;) {
 									//
-									// (свойство, свойство, ..., свойство)
+									// (СЃРІРѕР№СЃС‚РІРѕ, СЃРІРѕР№СЃС‚РІРѕ, ..., СЃРІРѕР№СЃС‚РІРѕ)
 									//
-									// Варианты свойства:
+									// Р’Р°СЂРёР°РЅС‚С‹ СЃРІРѕР№СЃС‚РІР°:
 									// prop_symb = :concept               // #1
 									// prop_symb =:concept                // #2
 									// prop_symb = word1 word2 ... wordN  // #3
@@ -1939,7 +1941,7 @@ int SrConceptParser::Run(const char * pFileName)
 									// #type                              // #7
 									//
 									do_get_next_prop = 0;
-									THROW(_SkipSpaces(&tok, temp_buf)); // @error Неожиданное завершение файла
+									THROW(_SkipSpaces(&tok, temp_buf)); // @error РќРµРѕР¶РёРґР°РЅРЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ С„Р°Р№Р»Р°
 									temp_token_list.Add(tok, temp_buf, -1);
 									if(tok == tokConcept) { // #4
 										// @construction temp_token_list.Add(tok, temp_buf, -1);
@@ -1987,9 +1989,9 @@ int SrConceptParser::Run(const char * pFileName)
 								}
 								{
 									//
-									// Так как присвоение свойств требует правильной идентификации иерархии объектов
-									// придется акцептировать разобранные компоненты в базу данных, предварительно
-									// закрыв оператор.
+									// РўР°Рє РєР°Рє РїСЂРёСЃРІРѕРµРЅРёРµ СЃРІРѕР№СЃС‚РІ С‚СЂРµР±СѓРµС‚ РїСЂР°РІРёР»СЊРЅРѕР№ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РёРµСЂР°СЂС…РёРё РѕР±СЉРµРєС‚РѕРІ
+									// РїСЂРёРґРµС‚СЃСЏ Р°РєС†РµРїС‚РёСЂРѕРІР°С‚СЊ СЂР°Р·РѕР±СЂР°РЅРЅС‹Рµ РєРѕРјРїРѕРЅРµРЅС‚С‹ РІ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…, РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ
+									// Р·Р°РєСЂС‹РІ РѕРїРµСЂР°С‚РѕСЂ.
 									//
 									Operator * p_pc = p_current;
 									if(p_current->Close(1) > 0) {
@@ -2338,13 +2340,13 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 					//int    coupled_gender = 0;
 					if(specialProcessing) {
 						//
-						// Специальная обработка файла русских фамилий.
-						// Так как в исходном файле пол фамилии часто не указан, то полагаемся на
-						// правило, что если идут одна за другой две почти одинаковых фамилии, отличающиеся
-						// только тем, что у второй на конце русская 'а', то первая фамилия мужская, вторая - женская.
-						// Например:
-						//   Иванов
-						//   Иванова
+						// РЎРїРµС†РёР°Р»СЊРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° С„Р°Р№Р»Р° СЂСѓСЃСЃРєРёС… С„Р°РјРёР»РёР№.
+						// РўР°Рє РєР°Рє РІ РёСЃС…РѕРґРЅРѕРј С„Р°Р№Р»Рµ РїРѕР» С„Р°РјРёР»РёРё С‡Р°СЃС‚Рѕ РЅРµ СѓРєР°Р·Р°РЅ, С‚Рѕ РїРѕР»Р°РіР°РµРјСЃСЏ РЅР°
+						// РїСЂР°РІРёР»Рѕ, С‡С‚Рѕ РµСЃР»Рё РёРґСѓС‚ РѕРґРЅР° Р·Р° РґСЂСѓРіРѕР№ РґРІРµ РїРѕС‡С‚Рё РѕРґРёРЅР°РєРѕРІС‹С… С„Р°РјРёР»РёРё, РѕС‚Р»РёС‡Р°СЋС‰РёРµСЃСЏ
+						// С‚РѕР»СЊРєРѕ С‚РµРј, С‡С‚Рѕ Сѓ РІС‚РѕСЂРѕР№ РЅР° РєРѕРЅС†Рµ СЂСѓСЃСЃРєР°СЏ 'Р°', С‚Рѕ РїРµСЂРІР°СЏ С„Р°РјРёР»РёСЏ РјСѓР¶СЃРєР°СЏ, РІС‚РѕСЂР°СЏ - Р¶РµРЅСЃРєР°СЏ.
+						// РќР°РїСЂРёРјРµСЂ:
+						//   РРІР°РЅРѕРІ
+						//   РРІР°РЅРѕРІР°
 						//
 						SStringU this_name_u;
 						SStringU prev_name_u;
@@ -2354,7 +2356,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 								this_name_u.CopyFromUtf8(entry.Name);
 								if(prev_name_u.Len() && this_name_u.CmpPrefix(prev_name_u) == 0) {
 									if((prev_name_u.Len()+1) == this_name_u.Len()) {
-										if(this_name_u.Last() == L'а') { // русская 'а' unicode
+										if(this_name_u.Last() == L'Р°') { // СЂСѓСЃСЃРєР°СЏ 'Р°' unicode
 											if(!list.GetGender(prev_name_pos))
 												list.SetGender(prev_name_pos, SRGENDER_MASCULINE);
 											if(!entry.Gender)
@@ -2524,7 +2526,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	LongArray family_list;
 	LongArray generic_name_list;
 	LongArray genus_list;
-	TSVector <BioTaxonomyCPropEntry> cprop_list; // Мы сначала построим список свойств концепций а потом, на отдельной фазе, занесем его в БД
+	TSVector <BioTaxonomyCPropEntry> cprop_list; // РњС‹ СЃРЅР°С‡Р°Р»Р° РїРѕСЃС‚СЂРѕРёРј СЃРїРёСЃРѕРє СЃРІРѕР№СЃС‚РІ РєРѕРЅС†РµРїС†РёР№ Р° РїРѕС‚РѕРј, РЅР° РѕС‚РґРµР»СЊРЅРѕР№ С„Р°Р·Рµ, Р·Р°РЅРµСЃРµРј РµРіРѕ РІ Р‘Р”
 	enum {
 		taxstatusUnkn = 0,
 		taxstatusAcceptedName, // "accepted name"
@@ -2568,7 +2570,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		int   IsExtinct;
 	};
 	uint   last_symb_id = 0;
-	uint   total_line_count = 0; // Рассчитывается на фазе phasePreprocess
+	uint   total_line_count = 0; // Р Р°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ РЅР° С„Р°Р·Рµ phasePreprocess
 	SString name_buf;
 	SString concept_symb_buf;
 	SString parent_concept_symb_buf;
@@ -2580,7 +2582,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	BioTaxonomyEntry entry;
 
 	StringSet words_to_append;
-	LongArray taxon_symb_to_append; // gbif-идентификаторы таксонов, которые должны быть добавлены в БД
+	LongArray taxon_symb_to_append; // gbif-РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ С‚Р°РєСЃРѕРЅРѕРІ, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РґРѕР±Р°РІР»РµРЅС‹ РІ Р‘Р”
 
 	CONCEPTID cid_biotaxonomy_category = 0;
 	CONCEPTID cid_biotaxonomy_kingdom = 0;
@@ -2612,7 +2614,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	{
 		SrWordForm wordform;
 		BDbTransaction local_tra(rDb, 1);
-		wordform.SetTag(SRWG_LANGUAGE, slangLA); // Вся импортируемая био-таксономия на латинском языке
+		wordform.SetTag(SRWG_LANGUAGE, slangLA); // Р’СЃСЏ РёРјРїРѕСЂС‚РёСЂСѓРµРјР°СЏ Р±РёРѕ-С‚Р°РєСЃРѕРЅРѕРјРёСЏ РЅР° Р»Р°С‚РёРЅСЃРєРѕРј СЏР·С‹РєРµ
 		THROW(rDb.ResolveWordForm(wordform, &wordform_id));
 		THROW_DB(local_tra.Commit(1));
 	}
@@ -2640,8 +2642,8 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 			line_buf.Chomp();
 			ss.clear();
 			ss.setBuf(line_buf);
-			if(line_no == 1) { // Строка заголовков
-				THROW(ss.getCount() >= 31); // Проверка на то, что это - наш файл
+			if(line_no == 1) { // РЎС‚СЂРѕРєР° Р·Р°РіРѕР»РѕРІРєРѕРІ
+				THROW(ss.getCount() >= 31); // РџСЂРѕРІРµСЂРєР° РЅР° С‚Рѕ, С‡С‚Рѕ СЌС‚Рѕ - РЅР°С€ С„Р°Р№Р»
 			}
 			else {
 				const char * p_notassigned_text = "not assigned";
@@ -2812,7 +2814,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						if(entry.ParentNameUsageID) {
 							SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcGBIF, &entry.ParentNameUsageID, sizeof(entry.ParentNameUsageID), parent_concept_symb_buf);
 							const int rcr = rDb.SearchConcept(parent_concept_symb_buf, &parent_cid);
-							assert(rcr > 0); // Все концепции уже были созданы на фазе 1
+							assert(rcr > 0); // Р’СЃРµ РєРѕРЅС†РµРїС†РёРё СѓР¶Рµ Р±С‹Р»Рё СЃРѕР·РґР°РЅС‹ РЅР° С„Р°Р·Рµ 1
 						}
 						else
 							parent_concept_symb_buf.Z();
@@ -2824,7 +2826,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							if(rDb.FetchWord(temp_buf, &word_id) > 0) {
 							}
 							else {
-								// Все слова созданы на фазе 1. Так что здесь - ошибка
+								// Р’СЃРµ СЃР»РѕРІР° СЃРѕР·РґР°РЅС‹ РЅР° С„Р°Р·Рµ 1. РўР°Рє С‡С‚Рѕ Р·РґРµСЃСЊ - РѕС€РёР±РєР°
 							}
 							assert(word_id);
 							ngram.add(word_id);
@@ -2842,11 +2844,11 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							int    skip_instance = 0;
 							int    skip_subclass = 0;
 							const int rcr = rDb.SearchConcept(concept_symb_buf, &cid);
-							assert(rcr > 0); // Все концепции уже были созданы на фазе 1
+							assert(rcr > 0); // Р’СЃРµ РєРѕРЅС†РµРїС†РёРё СѓР¶Рµ Р±С‹Р»Рё СЃРѕР·РґР°РЅС‹ РЅР° С„Р°Р·Рµ 1
 							THROW(rDb.P_CNgT->Set(cid, ngram_id));
 							items_per_tx++;
 							THROW(RechargeTransaction(p_ta, items_per_tx, max_items_per_tx));
-							// если rcr == 1, то концепция существовала до вызова ResolveConcept
+							// РµСЃР»Рё rcr == 1, С‚Рѕ РєРѕРЅС†РµРїС†РёСЏ СЃСѓС‰РµСЃС‚РІРѕРІР°Р»Р° РґРѕ РІС‹Р·РѕРІР° ResolveConcept
 							/*if(rDb.GetConceptPropList(cid, cpl) > 0) {
 								for(uint pidx = 0; pidx < cpl.GetCount(); pidx++) {
 									if(cpl.GetByPos(pidx, cp)) {
@@ -2856,7 +2858,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 												if(_val == cid_instance_of)
 													skip_instance = 1;
 												else {
-													; // @todo сообщение (мы нашли таксон, который по имени соответствует более чем одной категории таксонов)
+													; // @todo СЃРѕРѕР±С‰РµРЅРёРµ (РјС‹ РЅР°С€Р»Рё С‚Р°РєСЃРѕРЅ, РєРѕС‚РѕСЂС‹Р№ РїРѕ РёРјРµРЅРё СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ Р±РѕР»РµРµ С‡РµРј РѕРґРЅРѕР№ РєР°С‚РµРіРѕСЂРёРё С‚Р°РєСЃРѕРЅРѕРІ)
 												}
 											}
 										}
@@ -2865,7 +2867,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 												if(_val == parent_cid)
 													skip_subclass = 1;
 												else {
-													; // @todo сообщение (мы нашли таксон, который по имени соответствует более чем одному родительскому таксону)
+													; // @todo СЃРѕРѕР±С‰РµРЅРёРµ (РјС‹ РЅР°С€Р»Рё С‚Р°РєСЃРѕРЅ, РєРѕС‚РѕСЂС‹Р№ РїРѕ РёРјРµРЅРё СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ Р±РѕР»РµРµ С‡РµРј РѕРґРЅРѕРјСѓ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРјСѓ С‚Р°РєСЃРѕРЅСѓ)
 												}
 											}
 										}
@@ -2919,7 +2921,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						assert(oneof2(rwr, 2, 0));
 						THROW(rwr);
 						assert(word_id);
-						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
+						if(rwr == 2) { // Р‘С‹Р»Рѕ СЃРѕР·РґР°РЅРѕ РЅРѕРІРѕРµ СЃР»РѕРІРѕ - РґРѕР±Р°РІРёРј Рє РЅРµРјСѓ РёР·РІРµСЃС‚РЅС‹Рµ РЅР°Рј РїСЂРёР·РЅР°РєРё (РїРѕРєР° С‚РѕР»СЊРєРѕ СЏР·С‹Рє)
 							if(!temp_buf.IsDigit()) { // @v10.2.0
 								THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
 								items_per_tx++;
@@ -2932,7 +2934,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 				THROW_DB(p_ta->Commit(1));
 			}
 			{
-				LongArray symb_list; // Список ид символов концепций в том же порядке, что и taxon_symb_to_append
+				LongArray symb_list; // РЎРїРёСЃРѕРє РёРґ СЃРёРјРІРѕР»РѕРІ РєРѕРЅС†РµРїС†РёР№ РІ С‚РѕРј Р¶Рµ РїРѕСЂСЏРґРєРµ, С‡С‚Рѕ Рё taxon_symb_to_append
 				const uint tsc = taxon_symb_to_append.getCount();
 				{
 					uint  items_per_tx = 0;
@@ -3100,12 +3102,12 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 	{
 		SString exchange_symb;
 		uint   line_count = 0;
-		CONCEPTID cid_genusrerum = 0; // форма собственности предприятия
-		CONCEPTID cid_sector = 0;     //:negotiumtaxonomy_sector::negotiumtaxonomy_category    // сектор бизнеса
-		CONCEPTID cid_indust = 0;    //:negotiumtaxonomy_industria::negotiumtaxonomy_category // сектор индустрии
-		CONCEPTID cid_ripae = 0; // класс "банк" (::negotiumtaxonomy_coeptis)
-		CONCEPTID cid_commutationem = 0; // класс "биржа" (::negotium_coeptis_commutationem)
-		CONCEPTID cid_coeptis = 0; // класс "предприятие"
+		CONCEPTID cid_genusrerum = 0; // С„РѕСЂРјР° СЃРѕР±СЃС‚РІРµРЅРЅРѕСЃС‚Рё РїСЂРµРґРїСЂРёСЏС‚РёСЏ
+		CONCEPTID cid_sector = 0;     //:negotiumtaxonomy_sector::negotiumtaxonomy_category    // СЃРµРєС‚РѕСЂ Р±РёР·РЅРµСЃР°
+		CONCEPTID cid_indust = 0;    //:negotiumtaxonomy_industria::negotiumtaxonomy_category // СЃРµРєС‚РѕСЂ РёРЅРґСѓСЃС‚СЂРёРё
+		CONCEPTID cid_ripae = 0; // РєР»Р°СЃСЃ "Р±Р°РЅРє" (::negotiumtaxonomy_coeptis)
+		CONCEPTID cid_commutationem = 0; // РєР»Р°СЃСЃ "Р±РёСЂР¶Р°" (::negotium_coeptis_commutationem)
+		CONCEPTID cid_coeptis = 0; // РєР»Р°СЃСЃ "РїСЂРµРґРїСЂРёСЏС‚РёРµ"
 		CONCEPTID cid_ticker = 0;
 		CONCEPTID cid_exchange = 0;
 		const CONCEPTID prop_instance = rDb.GetReservedConcept(rDb.rcInstance);
@@ -3117,7 +3119,7 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 		STokenizer::Item titem;
 		STokenizer::ResultPosition rp;
 		STokenizer::ResultPosition last_rp;
-		STokenizer tknz(STokenizer::Param(STokenizer::fEachDelim|STokenizer::fDivAlNum, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")); // "-" здесь не является разделителем
+		STokenizer tknz(STokenizer::Param(STokenizer::fEachDelim|STokenizer::fDivAlNum, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")); // "-" Р·РґРµСЃСЊ РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЂР°Р·РґРµР»РёС‚РµР»РµРј
 		THROW(rDb.SearchConcept("negotiumtaxonomy_genusrerum", &cid_genusrerum));
 		THROW(rDb.SearchConcept("negotiumtaxonomy_sector", &cid_sector));
 		THROW(rDb.SearchConcept("negotiumtaxonomy_industria", &cid_indust));
@@ -3229,7 +3231,7 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 						if(temp_buf.CmpSuffix("(the)", 1) == 0) {
 							(entry.Name = "the").Space().Cat(temp_buf.Trim(temp_buf.Len()-5).Strip());
 						}
-						else if(temp_buf.CmpSuffix("(th", 1) == 0) { // иногда встречается такая ошибка в исходном тексте
+						else if(temp_buf.CmpSuffix("(th", 1) == 0) { // РёРЅРѕРіРґР° РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ С‚Р°РєР°СЏ РѕС€РёР±РєР° РІ РёСЃС…РѕРґРЅРѕРј С‚РµРєСЃС‚Рµ
 							(entry.Name = "the").Space().Cat(temp_buf.Trim(temp_buf.Len()-3).Strip());
 						}
 						else
@@ -3259,7 +3261,7 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 						}
 						//
 						{
-							CONCEPTID ent_cid = 0; // ид концепции, соответствующей предприятию
+							CONCEPTID ent_cid = 0; // РёРґ РєРѕРЅС†РµРїС†РёРё, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµР№ РїСЂРµРґРїСЂРёСЏС‚РёСЋ
 							CONCEPTID instance_of_cid = 0;
 							CONCEPTID last_fc = 0;
 							CONCEPTID fc = 0;
@@ -3277,7 +3279,7 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 									line_out_buf.CatChar('(').Cat(fc).CatChar(')');
 									last_fc = fc;
 									last_rp = rp;
-									if((rp.Start+rp.Count) == (idx_first+idx_count)) // искомая форма собственности - в конце строки: можно заканчивать.
+									if((rp.Start+rp.Count) == (idx_first+idx_count)) // РёСЃРєРѕРјР°СЏ С„РѕСЂРјР° СЃРѕР±СЃС‚РІРµРЅРЅРѕСЃС‚Рё - РІ РєРѕРЅС†Рµ СЃС‚СЂРѕРєРё: РјРѕР¶РЅРѕ Р·Р°РєР°РЅС‡РёРІР°С‚СЊ.
 										fc = 0;
 									else {
 										srch_idx_count = idx_count - (srch_idx_first-idx_first+1);
@@ -3386,11 +3388,11 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 
 #if 0 // {
 //
-// Descr: Функция одноразового использования для формирования файлов
+// Descr: Р¤СѓРЅРєС†РёСЏ РѕРґРЅРѕСЂР°Р·РѕРІРѕРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ С„Р°Р№Р»РѕРІ
 //   country-intl.csv currency-intl.csv locale-intl.csv language-intl.csv
-//   содержащих наименования государств, валют, локалей и языков на очень многих языках.
-//   Формируется из репозитория https://github.com/umpirsky/country-list.git
-//   в котором добрый человек сложил все необходимые для этого данные.
+//   СЃРѕРґРµСЂР¶Р°С‰РёС… РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РіРѕСЃСѓРґР°СЂСЃС‚РІ, РІР°Р»СЋС‚, Р»РѕРєР°Р»РµР№ Рё СЏР·С‹РєРѕРІ РЅР° РѕС‡РµРЅСЊ РјРЅРѕРіРёС… СЏР·С‹РєР°С….
+//   Р¤РѕСЂРјРёСЂСѓРµС‚СЃСЏ РёР· СЂРµРїРѕР·РёС‚РѕСЂРёСЏ https://github.com/umpirsky/country-list.git
+//   РІ РєРѕС‚РѕСЂРѕРј РґРѕР±СЂС‹Р№ С‡РµР»РѕРІРµРє СЃР»РѕР¶РёР» РІСЃРµ РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР»СЏ СЌС‚РѕРіРѕ РґР°РЅРЅС‹Рµ.
 //
 int SLAPI PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
 {
@@ -3416,7 +3418,7 @@ int SLAPI PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
                     SFile f_in(temp_buf, SFile::mRead);
                     if(f_in.IsValid()) {
 						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
-                            if(line_count) { // Первая строка - заголовок полей
+                            if(line_count) { // РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° - Р·Р°РіРѕР»РѕРІРѕРє РїРѕР»РµР№
 								temp_buf.Chomp().Strip();
 								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
 									code_buf.Strip().StripQuotes().Strip();
@@ -3459,7 +3461,7 @@ int SLAPI PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
                     SFile f_in(temp_buf, SFile::mRead);
                     if(f_in.IsValid()) {
 						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
-                            if(line_count) { // Первая строка - заголовок полей
+                            if(line_count) { // РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° - Р·Р°РіРѕР»РѕРІРѕРє РїРѕР»РµР№
 								temp_buf.Chomp().Strip();
 								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
 									code_buf.Strip().StripQuotes().Strip();
@@ -3502,7 +3504,7 @@ int SLAPI PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
                     SFile f_in(temp_buf, SFile::mRead);
                     if(f_in.IsValid()) {
 						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
-                            if(line_count) { // Первая строка - заголовок полей
+                            if(line_count) { // РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° - Р·Р°РіРѕР»РѕРІРѕРє РїРѕР»РµР№
 								temp_buf.Chomp().Strip();
 								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
 									code_buf.Strip().StripQuotes().Strip();
@@ -3545,7 +3547,7 @@ int SLAPI PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
                     SFile f_in(temp_buf, SFile::mRead);
                     if(f_in.IsValid()) {
 						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
-                            if(line_count) { // Первая строка - заголовок полей
+                            if(line_count) { // РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° - Р·Р°РіРѕР»РѕРІРѕРє РїРѕР»РµР№
 								temp_buf.Chomp().Strip();
 								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
 									code_buf.Strip().StripQuotes().Strip();
@@ -3577,7 +3579,7 @@ int SLAPI PrcssrSartre::Run()
 	{
 		char * p_loc = setlocale(LC_CTYPE, "rus_rus.1251");
 		//
-		// Извлекает из текстовых файлов базы данных geonames концепции и записывает их в результирующий файл
+		// РР·РІР»РµРєР°РµС‚ РёР· С‚РµРєСЃС‚РѕРІС‹С… С„Р°Р№Р»РѕРІ Р±Р°Р·С‹ РґР°РЅРЅС‹С… geonames РєРѕРЅС†РµРїС†РёРё Рё Р·Р°РїРёСЃС‹РІР°РµС‚ РёС… РІ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ С„Р°Р№Р»
 		// Process_geonames("/PAPYRUS/Universe-HTT/DATA/GEO/geonames.org", "\\PAPYRUS\\Src\\SARTR\\data\\concept-geonames.txt");
 		/*{
 			BDbDatabase * p_rcv_db = new BDbDatabase(p_db_path, 0, BDbDatabase::oRecover);
@@ -3585,7 +3587,7 @@ int SLAPI PrcssrSartre::Run()
 		}*/
 		if(P.Flags & P.fImportFlexia) {
 			SrDatabase db;
-			THROW(db.Open(0, SrDatabase::oWriteStatOnClose)); // @todo Режим открытия
+			THROW(db.Open(0, SrDatabase::oWriteStatOnClose)); // @todo Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ
 			{
 				SrImportParam impp;
 				impp.InputKind = impp.inpFlexiaModel;
@@ -3615,7 +3617,7 @@ int SLAPI PrcssrSartre::Run()
 		}
 		if(P.Flags & P.fImportConcepts) {
 			SrDatabase db;
-			THROW(db.Open(0, SrDatabase::oWriteStatOnClose)); // @todo Режим открытия
+			THROW(db.Open(0, SrDatabase::oWriteStatOnClose)); // @todo Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ
 			{
 				SrConceptParser parser(db);
 				(src_file_name = P.SrcPath).SetLastSlash().Cat("concept.txt");
@@ -3629,7 +3631,7 @@ int SLAPI PrcssrSartre::Run()
 		}
 		if(P.Flags & P.fImportHumNames) {
 			//
-			// Одноразовый вызов для формирования файла country-intl.csv содержащего наименования государств на многих языках.
+			// РћРґРЅРѕСЂР°Р·РѕРІС‹Р№ РІС‹Р·РѕРІ РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ С„Р°Р№Р»Р° country-intl.csv СЃРѕРґРµСЂР¶Р°С‰РµРіРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РіРѕСЃСѓРґР°СЂСЃС‚РІ РЅР° РјРЅРѕРіРёС… СЏР·С‹РєР°С….
 			// PreprocessCountryNames("D:/DEV/Resource/Data/Geo/REPO-GIT/country-list/data");
 			// PreprocessCurrencyNames("D:/DEV/Resource/Data/Geo/REPO-GIT/currency-list/data");
 			// PreprocessLocaleNames("D:/DEV/Resource/Data/Geo/REPO-GIT/locale-list/data");
@@ -3696,7 +3698,7 @@ int SLAPI PrcssrSartre::TestSearchWords()
 	if(p_db) {
 		PPGetPath(PPPATH_TESTROOT, temp_buf);
 		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("sartre_test_words.txt");
-		SFile in_file(temp_buf, SFile::mRead); // Данные в файле в кодировке UTF-8
+		SFile in_file(temp_buf, SFile::mRead); // Р”Р°РЅРЅС‹Рµ РІ С„Р°Р№Р»Рµ РІ РєРѕРґРёСЂРѕРІРєРµ UTF-8
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestSearchWords.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		{
@@ -3721,9 +3723,9 @@ int SLAPI PrcssrSartre::TestSearchWords()
 		}
 		out_file.WriteLine(0);
 		{
-			const char * p_word = "Я"; /*"ТЕХНОЛОГИЧЕСКАЯ";*/ /*"КОНСТАНТИНОВИЧУ";*/
+			const char * p_word = "РЇ"; /*"РўР•РҐРќРћР›РћР“РР§Р•РЎРљРђРЇ";*/ /*"РљРћРќРЎРўРђРќРўРРќРћР’РР§РЈ";*/
 			SrWordForm wf;
-			(temp_buf = p_word).ToUtf8();
+			(temp_buf = p_word)/* @v10.4.5 .ToUtf8()*/;
 			info_list.clear();
 			wf.SetTag(SRWG_CASE, SRCASE_DATIVE);
 			wf.SetTag(SRWG_COUNT, SRCNT_PLURAL);
@@ -3748,15 +3750,15 @@ int PrcssrSartre::TestConcept()
 	if(p_db) {
 		PPGetPath(PPPATH_TESTROOT, temp_buf);
 		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("sartre_test_concepts.txt");
-		SFile in_file(temp_buf, SFile::mRead); // Данные в файле в кодировке UTF-8
+		SFile in_file(temp_buf, SFile::mRead); // Р”Р°РЅРЅС‹Рµ РІ С„Р°Р№Р»Рµ РІ РєРѕРґРёСЂРѕРІРєРµ UTF-8
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestConcept.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		StringSet tok_list;
 		TSVector <SrWordInfo> info_list;
-		Int64Array abbr_concept_list; // Список концепций, сопоставленных с аббревиатурой
+		Int64Array abbr_concept_list; // РЎРїРёСЃРѕРє РєРѕРЅС†РµРїС†РёР№, СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅС‹С… СЃ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂРѕР№
 		Int64Array clist, hlist;
 		LongArray ng;
-		SrNGram ng_abbr; // N-gram сопоставленная с аббревиатурой
+		SrNGram ng_abbr; // N-gram СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅР°СЏ СЃ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂРѕР№
 		while(in_file.ReadLine(line_buf)) {
 			line_buf.Chomp().Strip();
 			if(line_buf.NotEmpty()) {
@@ -4036,7 +4038,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 				if(entry.FeatureClass[0] && entry.FeatureCode[0]) {
 					_CatSartrEntityPrefix("geoloct", out_buf).Cat(entry.FeatureClass).CatChar('_').Cat(entry.FeatureCode).CatDiv(',', 2);
 				}
-				if(entry.CountryCode[0] && entry.CountryCode[2] == 0) { // Код государства должен быть двузначным
+				if(entry.CountryCode[0] && entry.CountryCode[2] == 0) { // РљРѕРґ РіРѕСЃСѓРґР°СЂСЃС‚РІР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РґРІСѓР·РЅР°С‡РЅС‹Рј
 					_CatSartrEntityPrefix("statu", out_buf).Cat(entry.CountryCode).CatDiv(',', 2);
 				}
 				out_buf.CatEq("latitude", entry.Latitude).CatDiv(',', 2).CatEq("longitude", entry.Longitude);
@@ -4055,7 +4057,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 			SFile inf(in_file_name, SFile::mRead);
 			THROW(inf.IsValid());
 			//
-			// Прежде всего проверим, что файл отсортирован по идентификатору geoname (2-е поле)
+			// РџСЂРµР¶РґРµ РІСЃРµРіРѕ РїСЂРѕРІРµСЂРёРј, С‡С‚Рѕ С„Р°Р№Р» РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ geoname (2-Рµ РїРѕР»Рµ)
 			//
 			while(sorted && inf.ReadLine(line_buf)) {
 				rec_count++;
@@ -4124,7 +4126,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 							}
 						}
 						if(!was_en) {
-							// ’ 2018, 2019
+							// вЂ™ 2018, 2019
 							for(i = 0; i < temp_list.getCount(); i++) {
 								const GeoNameAlt & r_entry = temp_list.at(i);
 								if(r_entry.LinguaCode[0] == 0) {
@@ -4184,7 +4186,7 @@ int SLAPI ImportSartre()
 	{
 		char * p_loc = setlocale(LC_CTYPE, "rus_rus.1251");
 		//
-		// Извлекает из текстовых файлов базы данных geonames концепции и записывает их в результирующий файл
+		// РР·РІР»РµРєР°РµС‚ РёР· С‚РµРєСЃС‚РѕРІС‹С… С„Р°Р№Р»РѕРІ Р±Р°Р·С‹ РґР°РЅРЅС‹С… geonames РєРѕРЅС†РµРїС†РёРё Рё Р·Р°РїРёСЃС‹РІР°РµС‚ РёС… РІ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ С„Р°Р№Р»
 		// Process_geonames("/PAPYRUS/Universe-HTT/DATA/GEO/geonames.org", "\\PAPYRUS\\Src\\SARTR\\data\\concept-geonames.txt");
 		/*{
 			BDbDatabase * p_rcv_db = new BDbDatabase(p_db_path, 0, BDbDatabase::oRecover);
@@ -4243,7 +4245,7 @@ int main(int argc, char * argv[])
 	SLS.Init("SARTR");
 	char * p_loc = setlocale(LC_CTYPE, "rus_rus.1251");
 	//
-	// Извлекает из текстовых файлов базы данных geonames концепции и записывает их в результирующий файл
+	// РР·РІР»РµРєР°РµС‚ РёР· С‚РµРєСЃС‚РѕРІС‹С… С„Р°Р№Р»РѕРІ Р±Р°Р·С‹ РґР°РЅРЅС‹С… geonames РєРѕРЅС†РµРїС†РёРё Рё Р·Р°РїРёСЃС‹РІР°РµС‚ РёС… РІ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ С„Р°Р№Р»
 	// Process_geonames("/PAPYRUS/Universe-HTT/DATA/GEO/geonames.org", "\\PAPYRUS\\Src\\SARTR\\data\\concept-geonames.txt");
 	/*{
 		BDbDatabase * p_rcv_db = new BDbDatabase(p_db_path, 0, BDbDatabase::oRecover);
@@ -4633,7 +4635,7 @@ int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan, uint * pLen)
 int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int untilChr)
 {
 	int    ok = -1;
-	uint   seq_count = 0; // Количество последовательных операндов (их соединяем операцией &)
+	uint   seq_count = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹С… РѕРїРµСЂР°РЅРґРѕРІ (РёС… СЃРѕРµРґРёРЅСЏРµРј РѕРїРµСЂР°С†РёРµР№ &)
 	SString temp_buf;
 	ExprStack stack_temp;
 	uint   operand_len = 0;
@@ -4643,15 +4645,15 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		rScan.Incr(operand_len);
 		if(rScan[0] == '/') {
 			rScan.Incr();
-			THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_VARSYMBEXPECTED); // @err После '/' ожидается идент переменной
+			THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_VARSYMBEXPECTED); // @err РџРѕСЃР»Рµ '/' РѕР¶РёРґР°РµС‚СЃСЏ РёРґРµРЅС‚ РїРµСЂРµРјРµРЅРЅРѕР№
 			AddS(temp_buf, &item.VarP);
 		}
 		else {
-			THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_CONCEPTIDEXPECTED); // @err Ожидается идент концепции
+			THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_CONCEPTIDEXPECTED); // @err РћР¶РёРґР°РµС‚СЃСЏ РёРґРµРЅС‚ РєРѕРЅС†РµРїС†РёРё
 			AddS(temp_buf, &item.SymbP);
 			if(rScan[0] == '/') {
 				rScan.Incr();
-				THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_VARSYMBEXPECTED); // @err После '/' ожидается идент переменной
+				THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_VARSYMBEXPECTED); // @err РџРѕСЃР»Рµ '/' РѕР¶РёРґР°РµС‚СЃСЏ РёРґРµРЅС‚ РїРµСЂРµРјРµРЅРЅРѕР№
 				AddS(temp_buf, &item.VarP);
 			}
 		}
@@ -4666,7 +4668,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 			ss.add(temp_buf.ToLower());
 			ScanSkip(rScan);
 		}
-		THROW_PP(rScan.Is(']'), PPERR_SR_S_RBRACKEXPECTED); // @err Ожидается ]
+		THROW_PP(rScan.Is(']'), PPERR_SR_S_RBRACKEXPECTED); // @err РћР¶РёРґР°РµС‚СЃСЏ ]
 		rScan.Incr();
 		{
 			ExprItem item(kMorph);
@@ -4677,7 +4679,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 	}
 	else if(k == kRule) { // rule
 		rScan.Incr(operand_len);
-		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_RULEIDEXPECTED); // @err Ожидается идент правила
+		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_RULEIDEXPECTED); // @err РћР¶РёРґР°РµС‚СЃСЏ РёРґРµРЅС‚ РїСЂР°РІРёР»Р°
 		{
 			ExprItem item(kRule);
 			AddS(temp_buf, &item.SymbP);
@@ -4685,7 +4687,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		}
 	}
 	else if(k == kLiteral) { // literal
-		THROW_PP(rScan.GetQuotedString(temp_buf), PPERR_SR_S_LITERAL); // @err Ошибка считывания литерала
+		THROW_PP(rScan.GetQuotedString(temp_buf), PPERR_SR_S_LITERAL); // @err РћС€РёР±РєР° СЃС‡РёС‚С‹РІР°РЅРёСЏ Р»РёС‚РµСЂР°Р»Р°
 		{
 			ExprItem item(kLiteral);
 			AddS(temp_buf, &item.SymbP);
@@ -4703,9 +4705,9 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 			op_item.Op = opOneof;
 			TSVector <ExprItem> arg_list; // @v9.8.6 TSArray-->TSVector
 			//
-			// Чтобы аргументы в стеке были в том же порядке, в каком их перечислили, сначала
-			// вставим их во временный массив arg_list а потом из этого массива задом-на-перед
-			// затолкаем в стек.
+			// Р§С‚РѕР±С‹ Р°СЂРіСѓРјРµРЅС‚С‹ РІ СЃС‚РµРєРµ Р±С‹Р»Рё РІ С‚РѕРј Р¶Рµ РїРѕСЂСЏРґРєРµ, РІ РєР°РєРѕРј РёС… РїРµСЂРµС‡РёСЃР»РёР»Рё, СЃРЅР°С‡Р°Р»Р°
+			// РІСЃС‚Р°РІРёРј РёС… РІРѕ РІСЂРµРјРµРЅРЅС‹Р№ РјР°СЃСЃРёРІ arg_list Р° РїРѕС‚РѕРј РёР· СЌС‚РѕРіРѕ РјР°СЃСЃРёРІР° Р·Р°РґРѕРј-РЅР°-РїРµСЂРµРґ
+			// Р·Р°С‚РѕР»РєР°РµРј РІ СЃС‚РµРє.
 			//
             do {
 				inner_scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine);
@@ -4742,8 +4744,8 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		int   op = 0;
 		if(next_k)
 			op = opAnd;
-		else if(rScan.Is('(')) { // Далее: сложный операнд () после неявной операции AND
-			// Символ не "съедаем" - он нужен рекурентному вызову ParseExpression следующему далее
+		else if(rScan.Is('(')) { // Р”Р°Р»РµРµ: СЃР»РѕР¶РЅС‹Р№ РѕРїРµСЂР°РЅРґ () РїРѕСЃР»Рµ РЅРµСЏРІРЅРѕР№ РѕРїРµСЂР°С†РёРё AND
+			// РЎРёРјРІРѕР» РЅРµ "СЃСЉРµРґР°РµРј" - РѕРЅ РЅСѓР¶РµРЅ СЂРµРєСѓСЂРµРЅС‚РЅРѕРјСѓ РІС‹Р·РѕРІСѓ ParseExpression СЃР»РµРґСѓСЋС‰РµРјСѓ РґР°Р»РµРµ
 			op = opAnd;
 		}
 		else if(rScan.Is('&')) {
@@ -4812,9 +4814,9 @@ int SLAPI SrSyntaxRuleSet::Parse(const SString & rS)
 			scan.Incr();
 			non_terminal_rule = 1;
 		}
-		THROW_PP(scan.GetIdent(temp_buf), PPERR_SR_S_RULEIDEXPECTED); // @err Ожидается идент правила
+		THROW_PP(scan.GetIdent(temp_buf), PPERR_SR_S_RULEIDEXPECTED); // @err РћР¶РёРґР°РµС‚СЃСЏ РёРґРµРЅС‚ РїСЂР°РІРёР»Р°
 		ScanSkip(scan);
-		THROW_PP(scan.Is("="), PPERR_SR_S_EQEXPECTED); // @err Ожидается '='
+		THROW_PP(scan.Is("="), PPERR_SR_S_EQEXPECTED); // @err РћР¶РёРґР°РµС‚СЃСЏ '='
 		scan.Incr();
 		THROW_PP(SearchRuleByName(temp_buf) == 0, PPERR_SR_RULENAMEEXISTS);
 		ScanSkip(scan);
@@ -4866,7 +4868,7 @@ int SLAPI SrSyntaxRuleSet::ResolveSyntaxRules(SrDatabase & rDb)
 													if(r_ei.VarItemRef < 0)
 														r_ei.VarItemRef = (int)n;
 													else {
-														// Не однозначность!
+														// РќРµ РѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ!
 													}
 												}
 											}
@@ -4983,12 +4985,12 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					rB.SetupRule((SrSyntaxRuleSet::Rule *)p_sti->RSymb);
 					ok = __ResolveExprRule(rB, 0); // @recursion
 					//
-					// Мы не будем (пока) учитывать в списке успешных разборов внутреннии вызовы вложенных выражений.
-					// То есть, мы при успешном сопоставлении очищаем список rB.MatchList (при неуспешном он будет
-					// секвестирован в конце функции).
+					// РњС‹ РЅРµ Р±СѓРґРµРј (РїРѕРєР°) СѓС‡РёС‚С‹РІР°С‚СЊ РІ СЃРїРёСЃРєРµ СѓСЃРїРµС€РЅС‹С… СЂР°Р·Р±РѕСЂРѕРІ РІРЅСѓС‚СЂРµРЅРЅРёРё РІС‹Р·РѕРІС‹ РІР»РѕР¶РµРЅРЅС‹С… РІС‹СЂР°Р¶РµРЅРёР№.
+					// РўРѕ РµСЃС‚СЊ, РјС‹ РїСЂРё СѓСЃРїРµС€РЅРѕРј СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёРё РѕС‡РёС‰Р°РµРј СЃРїРёСЃРѕРє rB.MatchList (РїСЂРё РЅРµСѓСЃРїРµС€РЅРѕРј РѕРЅ Р±СѓРґРµС‚
+					// СЃРµРєРІРµСЃС‚РёСЂРѕРІР°РЅ РІ РєРѕРЅС†Рµ С„СѓРЅРєС†РёРё).
 					//
 					if(ok > 0) {
-						rB.PopInnerState(1 /* dont't restore text idx */); // При успешном разрешении восстанавливать индекс текста не надо - это наш результат.
+						rB.PopInnerState(1 /* dont't restore text idx */); // РџСЂРё СѓСЃРїРµС€РЅРѕРј СЂР°Р·СЂРµС€РµРЅРёРё РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РёРЅРґРµРєСЃ С‚РµРєСЃС‚Р° РЅРµ РЅР°РґРѕ - СЌС‚Рѕ РЅР°С€ СЂРµР·СѓР»СЊС‚Р°С‚.
 						assert(rB.TextIdx > 0);
 						CONCEPTID inh_concept_id = 0;
 						for(uint i = preserve_match_p; i < rB.GetMatchList().getCount(); i++) {
@@ -4997,7 +4999,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 								if(!inh_concept_id)
 									inh_concept_id = r_me.ConceptId;
 								else {
-									inh_concept_id = 0; // Неоднозначность - не наследуем концепцию
+									inh_concept_id = 0; // РќРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ - РЅРµ РЅР°СЃР»РµРґСѓРµРј РєРѕРЅС†РµРїС†РёСЋ
 									break;
 								}
 							}
@@ -5045,7 +5047,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 		case SrSyntaxRuleSet::kConceptSubclass:
 			if(!unrollStackOnly) {
 				CONCEPTID  target_cid = p_sti->RSymb;
-				if(target_cid == 0 && p_sti->VarItemRef >= 0) { // Ссылка на другой операнд
+				if(target_cid == 0 && p_sti->VarItemRef >= 0) { // РЎСЃС‹Р»РєР° РЅР° РґСЂСѓРіРѕР№ РѕРїРµСЂР°РЅРґ
 					assert(p_sti->VarItemRef < (int)r_st.getCount());
 					for(uint mi = 0; mi < rB.GetMatchList().getCount(); mi++) {
 						const MatchEntry & r_me = rB.GetMatchList().at(mi);
@@ -5060,23 +5062,23 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					SrNGram sng_local;
 					uint   tidx = rB.TextIdx;
 					TSVector <NGID> ng_list; // @v9.8.4 TSArray-->TSVect
-					Int64Array concept_list; // Список концепций, соответствующих отдельной N-грамме
-					Int64Array concept_hier_list; // Иерархия отдельной концепции
+					Int64Array concept_list; // РЎРїРёСЃРѕРє РєРѕРЅС†РµРїС†РёР№, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… РѕС‚РґРµР»СЊРЅРѕР№ N-РіСЂР°РјРјРµ
+					Int64Array concept_hier_list; // РРµСЂР°СЂС…РёСЏ РѕС‚РґРµР»СЊРЅРѕР№ РєРѕРЅС†РµРїС†РёРё
 					LEXID  word_id = 0;
 					rB.GetTextItemWithAdvance(tidx);
 					if(rB.TItemBuf.Token == STokenizer::tokWord && rB.R_Db.FetchWord(rB.TItemBuf.Text, &word_id) > 0) {
 						sng.WordIdList.add(word_id);
 						TSVector <SrWordAssoc> wa_list;
 						TSVector <SrWordInfo> wi_list;
-						TSVector <NGID> abbr_ng_list; // Список N-грамм, соответствующих аббревиатуре word_id (если это-таки аббревиатура)
+						TSVector <NGID> abbr_ng_list; // РЎРїРёСЃРѕРє N-РіСЂР°РјРј, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… Р°Р±Р±СЂРµРІРёР°С‚СѓСЂРµ word_id (РµСЃР»Рё СЌС‚Рѕ-С‚Р°РєРё Р°Р±Р±СЂРµРІРёР°С‚СѓСЂР°)
 						rB.R_Db.GetBaseWordInfo(word_id, 0, 0, wa_list, wi_list);
 						for(uint wiidx = 0; wiidx < wi_list.getCount(); wiidx++) {
 							const SrWordInfo & r_wi = wi_list.at(wiidx);
 							if(r_wi.AbbrExpID && rB.R_Db.P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
 								if(TryNgForConcept(rB, r_wi.AbbrExpID, p_sti, target_cid, tidx) > 0) {
 									ok = 1;
-									// Мы нашли соответствие по аббревиатуре. Пропускаем последующую точку, если она есть.
-									// Здесь неточность: точку надо пропускать только если аббревиатура это предполагает, но пока так.
+									// РњС‹ РЅР°С€Р»Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РїРѕ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂРµ. РџСЂРѕРїСѓСЃРєР°РµРј РїРѕСЃР»РµРґСѓСЋС‰СѓСЋ С‚РѕС‡РєСѓ, РµСЃР»Рё РѕРЅР° РµСЃС‚СЊ.
+									// Р—РґРµСЃСЊ РЅРµС‚РѕС‡РЅРѕСЃС‚СЊ: С‚РѕС‡РєСѓ РЅР°РґРѕ РїСЂРѕРїСѓСЃРєР°С‚СЊ С‚РѕР»СЊРєРѕ РµСЃР»Рё Р°Р±Р±СЂРµРІРёР°С‚СѓСЂР° СЌС‚Рѕ РїСЂРµРґРїРѕР»Р°РіР°РµС‚, РЅРѕ РїРѕРєР° С‚Р°Рє.
 									if(rB.R_T.Get(rB.TextIdx, rB.TItemBuf) && rB.TItemBuf.Text == ".") {
 										rB.TextIdx++;
 									}
@@ -5088,7 +5090,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 							for(uint i = 0; i < ng_list.getCount(); i++) {
 								SrNGram * p_ng = sng_list.CreateNewItem();
 								THROW_SL(p_ng);
-								THROW(rB.R_Db.P_NgT->Search(ng_list.at(i), p_ng) > 0); // Не может такого быть, что этой n-граммы не было (мы только что ее нашли)
+								THROW(rB.R_Db.P_NgT->Search(ng_list.at(i), p_ng) > 0); // РќРµ РјРѕР¶РµС‚ С‚Р°РєРѕРіРѕ Р±С‹С‚СЊ, С‡С‚Рѕ СЌС‚РѕР№ n-РіСЂР°РјРјС‹ РЅРµ Р±С‹Р»Рѕ (РјС‹ С‚РѕР»СЊРєРѕ С‡С‚Рѕ РµРµ РЅР°С€Р»Рё)
 							}
 							sng_list.SortByLength();
 							const  uint local_preserve_tidx = tidx;
@@ -5098,7 +5100,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 								THROW(p_ng->WordIdList.get(0) == word_id);
 								int    is_match = 1;
 								tidx = local_preserve_tidx; // @v9.9.11
-								for(uint j = 1 /*! 0-й элемент уже проверен*/; is_match && j < p_ng->WordIdList.getCount(); j++) {
+								for(uint j = 1 /*! 0-Р№ СЌР»РµРјРµРЅС‚ СѓР¶Рµ РїСЂРѕРІРµСЂРµРЅ*/; is_match && j < p_ng->WordIdList.getCount(); j++) {
 									const LEXID ng_word_id = p_ng->WordIdList.get(j);
 									if(rB.R_T.Get(++tidx, rB.TItemBuf)) {
 										if(rB.TItemBuf.Token == STokenizer::tokWord) {

@@ -16000,7 +16000,7 @@ public:
 		double SLAPI GetWinCountRate() const;
 		enum {
 			bfShort      = 0x0001, // Стратегия для short-торговли
-			bfOptRanges4 = 0x0002  // Оптимальные диапазоны OptDeltaRange и OptDelta2Range сформированы для StakeMode=4
+			// @v10.4.5 bfOptRanges4 = 0x0002  // Оптимальные диапазоны OptDeltaRange и OptDelta2Range сформированы для StakeMode=4
 		};
 		enum {
 			clsmodFullMaxDuck = 0,
@@ -16054,7 +16054,7 @@ public:
 			gbsfStakeMode1         = 0x0004,
 			gbsfStakeMode2         = 0x0008,
 			gbsfStakeMode3         = 0x0010,
-			gbsfStakeMode4         = 0x0020,
+			// @v10.4.5 gbsfStakeMode4         = 0x0020,
 			gbsfCritProfitMultProb = 0x0040, // В качестве критерия сортировки применять произведение доходности на отношение win/stake.
 				// Если флаг не установлен, то - доходность.
 			gbsfCritProb           = 0x0080, // @v10.4.2 В качестве критерия сортировки применять отношение win/stake.
@@ -16261,7 +16261,9 @@ public:
 		SLAPI  ModelParam();
 		ModelParam & SLAPI Z();
 		enum {
-			fBestSubsetTrendFollowing = 0x0001
+			fBestSubsetTrendFollowing = 0x0001,
+			fOptRangeTarget_Velocity  = 0x0002, // Целевая функция при определении оптимального сектора - скорость (иначе - объем)
+			fOptRangeMulti            = 0x0004  // Для каждого триплета {frame; sl; tp} подбираются несколько оптимальных секторов (иначе - единственный)
 		};
 		long   Flags;
 		LongArray InputFrameSizeList;

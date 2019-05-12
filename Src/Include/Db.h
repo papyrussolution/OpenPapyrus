@@ -62,7 +62,7 @@ enum SqlServerType {
 //
 class SLob { // @persistent @noctr @novtbl size=32
 public:
-	void   FASTCALL Init(uint32 descriptor);
+	void   FASTCALL Init(void * descriptor);
 	int    FASTCALL InitPtr(uint32 sz);
 	int    IsPtr() const;
 	//
@@ -96,7 +96,7 @@ private:
 	};
 	struct Hdr {
 		uint32 Signature[4];
-		uint32 H;
+		void * H; // @v10.4.5 uint32-->void *
 		uint32 RdPos;
 		int32  Flags;     // SLob::hfXXX
 		uint32 PtrSize;   // Если Flags & hfPtr, то PtrSize - размер области памяти,

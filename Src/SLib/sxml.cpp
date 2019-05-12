@@ -606,26 +606,20 @@ class XmlWriter {
 public:
 	XmlWriter(const char *);
 	~XmlWriter();
-
 	int    Open(const char *);
 	int    Close();
-
 	int    PutLine(const char *, int newLine = 0);
-
 	int    PutHeader(int encoding = 0);
 	int    PutDtdDocType(const char *);
 	int    PutDtdEntity(const char * pName, const char * pVal);
 	int    PutDtdElementHdr(const char *);
 	int    PutDtdElementFtr(const char *);
 	int    PutDtdElement(const char *, int dtdElemType);
-
 	int    PutTag(const char *, int closed);
-
 	int    PutString(const char * pTag, const char * pVal);
 	int    PutInt(const char * pTag, long);
 	int    PutReal(const char * pTag, double);
 	int    PutDate(const char * pTag, LDATE);
-
 	int    PutDtdList(const XmlList *);
 private:
 	FILE * Stream;
@@ -635,9 +629,7 @@ enum XmlStrId {
 	xmlsHeader = 0
 };
 
-const char * XmlStrings[] = {
-	"<?xml version=\"1.0\" encoding=\"Windows-1251\"?>",
-};
+const char * XmlStrings[] = { "<?xml version=\"1.0\" encoding=\"Windows-1251\"?>", };
 
 XmlWriter::XmlWriter(const char * pFileName)
 {

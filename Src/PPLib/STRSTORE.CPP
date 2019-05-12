@@ -1,6 +1,6 @@
 // STRSTORE.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8 // @v10.4.5
 //
 #include <pp.h>
 #pragma hdrstop
@@ -9,8 +9,8 @@
 uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
 //
 // Testing command line params:
-//   регулярная компиляция (sc2s): D:\Papyrus\Src\Rsrc\Str\ppstr2.txt
-//   автоперевод (papyrus):        /autotranslate:D:\Papyrus\Src\Rsrc\Str\ppstr2.txt;en
+//   СЂРµРіСѓР»СЏСЂРЅР°СЏ РєРѕРјРїРёР»СЏС†РёСЏ (sc2s): D:\Papyrus\Src\Rsrc\Str\ppstr2.txt
+//   Р°РІС‚РѕРїРµСЂРµРІРѕРґ (papyrus):        /autotranslate:D:\Papyrus\Src\Rsrc\Str\ppstr2.txt;en
 //
 //
 static const char * P_StrSt_EmptyCodeSymb = ".N.";
@@ -141,7 +141,7 @@ int SLAPI StringStore2::Load(const char * pFileName, int selfTest)
 					uint   hval = 0;
 					uint   hpos = 0;
 					assert(P_SignatureHash->Search(item.Txt, &hval, &hpos));
-					assert((long)hval == item.Id);
+					assert(static_cast<long>(hval) == item.Id);
             	}
             }
             for(uint j = 0; j < StrList.getCount(); j++) {
@@ -171,8 +171,8 @@ int SLAPI StringStore2::CreateHash(int doTest)
 	int    ok = -1;
 	if(!P_SignatureHash) {
 		const uint slc = SignatureList.getCount();
-		if(slc > 16) { // Если количество сигнатур не больше 16 то нет смысла городить огород с хэшем
-			// Размер хэша должен быть точно больше количества сигнатур и при этом должен быть простым числом
+		if(slc > 16) { // Р•СЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРіРЅР°С‚СѓСЂ РЅРµ Р±РѕР»СЊС€Рµ 16 С‚Рѕ РЅРµС‚ СЃРјС‹СЃР»Р° РіРѕСЂРѕРґРёС‚СЊ РѕРіРѕСЂРѕРґ СЃ С…СЌС€РµРј
+			// Р Р°Р·РјРµСЂ С…СЌС€Р° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚РѕС‡РЅРѕ Р±РѕР»СЊС€Рµ РєРѕР»РёС‡РµСЃС‚РІР° СЃРёРіРЅР°С‚СѓСЂ Рё РїСЂРё СЌС‚РѕРј РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїСЂРѕСЃС‚С‹Рј С‡РёСЃР»РѕРј
 			size_t hash_size = slc+1;
 			while(!IsPrime((ulong)hash_size))
 				hash_size++;
@@ -284,16 +284,16 @@ SymbHashTable * SLAPI StringStore2::LoadStringHash(int group) const
 const SymbHashTable * FASTCALL StringStore2::GetStringHash(int group) // @nonconst @cs
 {
 	//
-	// Если не удалось загрузить хэш-таблицу, то мы все равно вставляем в список PhgL
-	// нулевой указатель с идентификатором группы group, дабы при следующем
-	// обращении не тратить время на попытку.
+	// Р•СЃР»Рё РЅРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С…СЌС€-С‚Р°Р±Р»РёС†Сѓ, С‚Рѕ РјС‹ РІСЃРµ СЂР°РІРЅРѕ РІСЃС‚Р°РІР»СЏРµРј РІ СЃРїРёСЃРѕРє PhgL
+	// РЅСѓР»РµРІРѕР№ СѓРєР°Р·Р°С‚РµР»СЊ СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РіСЂСѓРїРїС‹ group, РґР°Р±С‹ РїСЂРё СЃР»РµРґСѓСЋС‰РµРј
+	// РѕР±СЂР°С‰РµРЅРёРё РЅРµ С‚СЂР°С‚РёС‚СЊ РІСЂРµРјСЏ РЅР° РїРѕРїС‹С‚РєСѓ.
 	//
 	const SymbHashTable * p_result = 0;
 	int    _found = 0;
 	ENTER_CRITICAL_SECTION
 	//
-	// Увы, поиск в списке тоже под защитой критической секции. Это меньшее зло
-	// чем Read-Write-блокировка.
+	// РЈРІС‹, РїРѕРёСЃРє РІ СЃРїРёСЃРєРµ С‚РѕР¶Рµ РїРѕРґ Р·Р°С‰РёС‚РѕР№ РєСЂРёС‚РёС‡РµСЃРєРѕР№ СЃРµРєС†РёРё. Р­С‚Рѕ РјРµРЅСЊС€РµРµ Р·Р»Рѕ
+	// С‡РµРј Read-Write-Р±Р»РѕРєРёСЂРѕРІРєР°.
 	//
 	for(uint i = 0; !_found && i < PhgL.getCount(); i++) {
 		const PreloadedHashGroupEntry * p_entry = PhgL.at(i);
@@ -308,7 +308,6 @@ const SymbHashTable * FASTCALL StringStore2::GetStringHash(int group) // @noncon
 		if(p_new_entry) {
 			p_new_entry->Group = group;
 			p_new_entry->P_Tab = p_new_tab;
-			//
 			p_result = p_new_entry->P_Tab;
 		}
 		else
@@ -446,78 +445,39 @@ const StringStore2::LangStrCollItem * FASTCALL StringStore2::GetList(int slang) 
 
 enum {
 	sc2eUsage            = PPERR_SC2_USAGE,             // Usage: SC2C inputFileName
-	sc2eGrpCodeLimit     = PPERR_SC2_GRPCODELIMIT,      // Превышение максимального значения кода группы (0x7fff-1)
-	sc2eStrCodeLimit     = PPERR_SC2_STRCODELIMIT,      // Превышение максимального значения кода строки (0x7ffff-1)
-	sc2eDupSignature     = PPERR_SC2_DUPSIGNATURE,      // Дублирование сигнатуры строки
-	sc2eDupStrCode       = PPERR_SC2_DUPSTRCODE,        // Дублирование кода строки
-	sc2eDupStrSymb       = PPERR_SC2_DUPSTRSYMB,        // Дублирование символа строки
-	sc2eGrpSuccNotFound  = PPERR_SC2_GRPSUCCNOTFOUND,   // Не найдена групповая последовательность
-	sc2eSrcFileOpenFault = PPERR_SC2_SRCFILEOPENFAULT,  // Ошибка открытия исходного файла
-	sc2eUnfinStrWrap     = PPERR_SC2_UNFINSTRWRAP,      // Перенос строки не завершен
-	sc2eUnexpEndOfStr    = PPERR_SC2_UNEXPENDOFSTR,     // Строка должна оканчиваться либо символом '\' либо '"'
-	sc2eStxGrp01         = PPERR_SC2_STXGRP01,          // Ошибка в определении группы строк (ожидается ']')
-	sc2eStxGrp02         = PPERR_SC2_STXGRP02,          // Ошибка в определении группы строк [symb=number]
-	sc2eStxEqAfterCode   = PPERR_SC2_STXEQAFTERCODE,    // Числовое значение не должно предшествовать символу '='
-	sc2eStxStrSymbStart  = PPERR_SC2_STXSTRSYMBSTART,   // Символ строки должен начинаться с прописной латинской буквы или '_'
-	sc2eStxStrSymbChr    = PPERR_SC2_STXSTRSYMBCHR,     // Символ строки должен содержать либо прописные латинские буквы либо цифры либо '_'
-	sc2eStxStr01         = PPERR_SC2_STXSTR01,          // Ошибка в определении строки (symb=number)
-	sc2eInvSlashX        = PPERR_SC2_INVSLASHX,         // Не оконченная конструкция '\x00'
-	sc2eInvSlashDigit    = PPERR_SC2_INVSLASHDIGIT,     // Не оконченная конструкция '\000'
-	sc2eStxLangGrp01     = PPERR_SC2_STXLANGGRP01,      // Ошибка в определении группы языка (ожидается '/')
-	sc2eInvLangSymb      = PPERR_SC2_INVLANGSYMB,       // Не допустимый символ языка
-	sc2eLangDescrDup     = PPERR_SC2_LANGDESCRDUP,      // Дублирование определения языка для одной строки
-	sc2eStrNotIdent      = PPERR_SC2_STRNOTIDENT,       // Строка не идентифицирована (нет определителя и не задан язык)
-	sc2eSrcFileNotFound  = PPERR_SC2_SRCFILENOTFOUND,   // Исходный файл не найден
-	sc2eSrcFileHasHyphen = PPERR_SC2_SRCFILEHASHYPHEN,  // Имя исходного файла не должно содержать дефисов
-	sc2eCodeSymbConflict = PPERR_SC2_CODESYMBCONFLICT,  // Конфликт между символьными идентификаторами строк
-	sc2eDupStrById       = PPERR_SC2_DUPSTRBYID,        // Дублирование строки по значению идентификатора
-	sc2eStrNotIdentified = PPERR_SC2_STRNOTIDENTIED,    // Строка не имеет идентификации
-	sc2eSavedSymbNEqGrp  = PPERR_SC2_SAVEDSYMBNEQGRP,   // При восстановлении сохраненного идентификатора символа строки возник конфликт групп
+	sc2eGrpCodeLimit     = PPERR_SC2_GRPCODELIMIT,      // РџСЂРµРІС‹С€РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕРґР° РіСЂСѓРїРїС‹ (0x7fff-1)
+	sc2eStrCodeLimit     = PPERR_SC2_STRCODELIMIT,      // РџСЂРµРІС‹С€РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕРґР° СЃС‚СЂРѕРєРё (0x7ffff-1)
+	sc2eDupSignature     = PPERR_SC2_DUPSIGNATURE,      // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРіРЅР°С‚СѓСЂС‹ СЃС‚СЂРѕРєРё
+	sc2eDupStrCode       = PPERR_SC2_DUPSTRCODE,        // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РєРѕРґР° СЃС‚СЂРѕРєРё
+	sc2eDupStrSymb       = PPERR_SC2_DUPSTRSYMB,        // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРјРІРѕР»Р° СЃС‚СЂРѕРєРё
+	sc2eGrpSuccNotFound  = PPERR_SC2_GRPSUCCNOTFOUND,   // РќРµ РЅР°Р№РґРµРЅР° РіСЂСѓРїРїРѕРІР°СЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
+	sc2eSrcFileOpenFault = PPERR_SC2_SRCFILEOPENFAULT,  // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°
+	sc2eUnfinStrWrap     = PPERR_SC2_UNFINSTRWRAP,      // РџРµСЂРµРЅРѕСЃ СЃС‚СЂРѕРєРё РЅРµ Р·Р°РІРµСЂС€РµРЅ
+	sc2eUnexpEndOfStr    = PPERR_SC2_UNEXPENDOFSTR,     // РЎС‚СЂРѕРєР° РґРѕР»Р¶РЅР° РѕРєР°РЅС‡РёРІР°С‚СЊСЃСЏ Р»РёР±Рѕ СЃРёРјРІРѕР»РѕРј '\' Р»РёР±Рѕ '"'
+	sc2eStxGrp01         = PPERR_SC2_STXGRP01,          // РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє (РѕР¶РёРґР°РµС‚СЃСЏ ']')
+	sc2eStxGrp02         = PPERR_SC2_STXGRP02,          // РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє [symb=number]
+	sc2eStxEqAfterCode   = PPERR_SC2_STXEQAFTERCODE,    // Р§РёСЃР»РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РЅРµ РґРѕР»Р¶РЅРѕ РїСЂРµРґС€РµСЃС‚РІРѕРІР°С‚СЊ СЃРёРјРІРѕР»Сѓ '='
+	sc2eStxStrSymbStart  = PPERR_SC2_STXSTRSYMBSTART,   // РЎРёРјРІРѕР» СЃС‚СЂРѕРєРё РґРѕР»Р¶РµРЅ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ РїСЂРѕРїРёСЃРЅРѕР№ Р»Р°С‚РёРЅСЃРєРѕР№ Р±СѓРєРІС‹ РёР»Рё '_'
+	sc2eStxStrSymbChr    = PPERR_SC2_STXSTRSYMBCHR,     // РЎРёРјРІРѕР» СЃС‚СЂРѕРєРё РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ Р»РёР±Рѕ РїСЂРѕРїРёСЃРЅС‹Рµ Р»Р°С‚РёРЅСЃРєРёРµ Р±СѓРєРІС‹ Р»РёР±Рѕ С†РёС„СЂС‹ Р»РёР±Рѕ '_'
+	sc2eStxStr01         = PPERR_SC2_STXSTR01,          // РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё СЃС‚СЂРѕРєРё (symb=number)
+	sc2eInvSlashX        = PPERR_SC2_INVSLASHX,         // РќРµ РѕРєРѕРЅС‡РµРЅРЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ '\x00'
+	sc2eInvSlashDigit    = PPERR_SC2_INVSLASHDIGIT,     // РќРµ РѕРєРѕРЅС‡РµРЅРЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ '\000'
+	sc2eStxLangGrp01     = PPERR_SC2_STXLANGGRP01,      // РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЏР·С‹РєР° (РѕР¶РёРґР°РµС‚СЃСЏ '/')
+	sc2eInvLangSymb      = PPERR_SC2_INVLANGSYMB,       // РќРµ РґРѕРїСѓСЃС‚РёРјС‹Р№ СЃРёРјРІРѕР» СЏР·С‹РєР°
+	sc2eLangDescrDup     = PPERR_SC2_LANGDESCRDUP,      // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЏР·С‹РєР° РґР»СЏ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё
+	sc2eStrNotIdent      = PPERR_SC2_STRNOTIDENT,       // РЎС‚СЂРѕРєР° РЅРµ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅР° (РЅРµС‚ РѕРїСЂРµРґРµР»РёС‚РµР»СЏ Рё РЅРµ Р·Р°РґР°РЅ СЏР·С‹Рє)
+	sc2eSrcFileNotFound  = PPERR_SC2_SRCFILENOTFOUND,   // РСЃС…РѕРґРЅС‹Р№ С„Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ
+	sc2eSrcFileHasHyphen = PPERR_SC2_SRCFILEHASHYPHEN,  // РРјСЏ РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° РЅРµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РґРµС„РёСЃРѕРІ
+	sc2eCodeSymbConflict = PPERR_SC2_CODESYMBCONFLICT,  // РљРѕРЅС„Р»РёРєС‚ РјРµР¶РґСѓ СЃРёРјРІРѕР»СЊРЅС‹РјРё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°РјРё СЃС‚СЂРѕРє
+	sc2eDupStrById       = PPERR_SC2_DUPSTRBYID,        // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё РїРѕ Р·РЅР°С‡РµРЅРёСЋ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°
+	sc2eStrNotIdentified = PPERR_SC2_STRNOTIDENTIED,    // РЎС‚СЂРѕРєР° РЅРµ РёРјРµРµС‚ РёРґРµРЅС‚РёС„РёРєР°С†РёРё
+	sc2eSavedSymbNEqGrp  = PPERR_SC2_SAVEDSYMBNEQGRP,   // РџСЂРё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРё СЃРѕС…СЂР°РЅРµРЅРЅРѕРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃРёРјРІРѕР»Р° СЃС‚СЂРѕРєРё РІРѕР·РЅРёРє РєРѕРЅС„Р»РёРєС‚ РіСЂСѓРїРї
 };
-
-#ifdef SC2C // {
-
-struct Sc2ErrMsg {
-	int    Code;
-	const char * P_Msg;
-};
-
-static const Sc2ErrMsg ErrMsgList[] = {
-	{ PPERR_SC2_USAGE,                  "Usage: SC2C inputFileName" },
-	{ PPERR_SC2_GRPCODELIMIT,           "Превышение максимального значения кода группы (0x7fff-1)" },
-	{ PPERR_SC2_STRCODELIMIT,           "Превышение максимального значения кода строки (0x7ffff-1)" },
-	{ PPERR_SC2_DUPSIGNATURE,           "Дублирование сигнатуры строки" },
-	{ PPERR_SC2_DUPSTRCODE,             "Дублирование кода строки" },
-	{ PPERR_SC2_DUPSTRSYMB,             "Дублирование символа строки" },
-	{ PPERR_SC2_GRPSUCCNOTFOUND,        "Не найдена групповая последовательность" },
-	{ PPERR_SC2_SRCFILEOPENFAULT,       "Ошибка открытия исходного файла '%s'" },
-	{ PPERR_SC2_UNFINSTRWRAP,           "Перенос строки не завершен" },
-	{ PPERR_SC2_UNEXPENDOFSTR,          "Строка должна оканчиваться либо символом '\\' либо '\"'" },
-	{ PPERR_SC2_STXGRP01,               "Ошибка в определении группы строк (ожидается ']')" },
-	{ PPERR_SC2_STXGRP02,               "Ошибка в определении группы строк [symb=number]" },
-	{ PPERR_SC2_STXEQAFTERCODE,         "Числовое значение не должно предшествовать символу '='" },
-	{ PPERR_SC2_STXSTRSYMBSTART,        "Символ строки должен начинаться с прописной латинской буквы или '_'" },
-	{ PPERR_SC2_STXSTRSYMBCHR,          "Символ строки должен содержать либо прописные латинские буквы либо цифры либо '_'" },
-	{ PPERR_SC2_STXSTR01,               "Ошибка в определении строки (symb=number)" },
-	{ PPERR_SC2_INVSLASHX,              "Не законченная конструкция '\x00'" },
-	{ PPERR_SC2_INVSLASHDIGIT,          "Не законченная конструкция '\000'" },
-	{ PPERR_SC2_STXLANGGRP01,           "Ошибка в определении группы языка (ожидается '/')" },
-	{ PPERR_SC2_INVLANGSYMB,            "Не допустимый символ языка" },
-	{ PPERR_SC2_LANGDESCRDUP,           "Дублирование определения языка для одной строки" },
-	{ PPERR_SC2_STRNOTIDENT,            "Строка не идентифицирована (нет определителя и не задан язык)" },
-	{ PPERR_SC2_SRCFILENOTFOUND,        "Исходный файл не найден" },
-	{ PPERR_SC2_SRCFILEHASHYPHEN,       "Имя исходного файла не должно содержать дефисов" },
-	{ PPERR_SC2_CODESYMBCONFLICT,       "Конфликт между символьными идентификаторами строк" },
-	{ PPERR_SC2_DUPSTRBYID,             "Дублирование строки по значению идентификатора" },
-	{ PPERR_SC2_STRNOTIDENTIED,         "Строка не имеет идентификации" },
-	{ PPERR_SC2_SAVEDSYMBNEQGRP,        "При восстановлении сохраненного идентификатора символа '%s' возник конфликт групп" }
-};
-
-#endif // } SC2C
 
 int SLAPI StringStore2::Error(int errCode, long flags)
 {
-	SString msg_buf, temp_buf(4);
+	SString msg_buf;
+	SString temp_buf(4);
 	SString ess_msg_buf;
 	char   stub[32];
 	stub[0] = 0;
@@ -528,12 +488,51 @@ int SLAPI StringStore2::Error(int errCode, long flags)
 		line = P_Pb->Line;
 	}
 #ifdef SC2C // {
+	/*struct Sc2ErrMsg {
+		int    Code;
+		const char * P_Msg;
+	};*/
+	static const SIntToSymbTabEntry ErrMsgList[] = {
+		{ PPERR_SC2_USAGE,                  "Usage: SC2C inputFileName" },
+		{ PPERR_SC2_GRPCODELIMIT,           "РџСЂРµРІС‹С€РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕРґР° РіСЂСѓРїРїС‹ (0x7fff-1)" },
+		{ PPERR_SC2_STRCODELIMIT,           "РџСЂРµРІС‹С€РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕРґР° СЃС‚СЂРѕРєРё (0x7ffff-1)" },
+		{ PPERR_SC2_DUPSIGNATURE,           "Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРіРЅР°С‚СѓСЂС‹ СЃС‚СЂРѕРєРё" },
+		{ PPERR_SC2_DUPSTRCODE,             "Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РєРѕРґР° СЃС‚СЂРѕРєРё" },
+		{ PPERR_SC2_DUPSTRSYMB,             "Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРјРІРѕР»Р° СЃС‚СЂРѕРєРё" },
+		{ PPERR_SC2_GRPSUCCNOTFOUND,        "РќРµ РЅР°Р№РґРµРЅР° РіСЂСѓРїРїРѕРІР°СЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ" },
+		{ PPERR_SC2_SRCFILEOPENFAULT,       "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° '%s'" },
+		{ PPERR_SC2_UNFINSTRWRAP,           "РџРµСЂРµРЅРѕСЃ СЃС‚СЂРѕРєРё РЅРµ Р·Р°РІРµСЂС€РµРЅ" },
+		{ PPERR_SC2_UNEXPENDOFSTR,          "РЎС‚СЂРѕРєР° РґРѕР»Р¶РЅР° РѕРєР°РЅС‡РёРІР°С‚СЊСЃСЏ Р»РёР±Рѕ СЃРёРјРІРѕР»РѕРј '\\' Р»РёР±Рѕ '\"'" },
+		{ PPERR_SC2_STXGRP01,               "РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє (РѕР¶РёРґР°РµС‚СЃСЏ ']')" },
+		{ PPERR_SC2_STXGRP02,               "РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє [symb=number]" },
+		{ PPERR_SC2_STXEQAFTERCODE,         "Р§РёСЃР»РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РЅРµ РґРѕР»Р¶РЅРѕ РїСЂРµРґС€РµСЃС‚РІРѕРІР°С‚СЊ СЃРёРјРІРѕР»Сѓ '='" },
+		{ PPERR_SC2_STXSTRSYMBSTART,        "РЎРёРјРІРѕР» СЃС‚СЂРѕРєРё РґРѕР»Р¶РµРЅ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ РїСЂРѕРїРёСЃРЅРѕР№ Р»Р°С‚РёРЅСЃРєРѕР№ Р±СѓРєРІС‹ РёР»Рё '_'" },
+		{ PPERR_SC2_STXSTRSYMBCHR,          "РЎРёРјРІРѕР» СЃС‚СЂРѕРєРё РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ Р»РёР±Рѕ РїСЂРѕРїРёСЃРЅС‹Рµ Р»Р°С‚РёРЅСЃРєРёРµ Р±СѓРєРІС‹ Р»РёР±Рѕ С†РёС„СЂС‹ Р»РёР±Рѕ '_'" },
+		{ PPERR_SC2_STXSTR01,               "РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё СЃС‚СЂРѕРєРё (symb=number)" },
+		{ PPERR_SC2_INVSLASHX,              "РќРµ Р·Р°РєРѕРЅС‡РµРЅРЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ '\x00'" },
+		{ PPERR_SC2_INVSLASHDIGIT,          "РќРµ Р·Р°РєРѕРЅС‡РµРЅРЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ '\000'" },
+		{ PPERR_SC2_STXLANGGRP01,           "РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЏР·С‹РєР° (РѕР¶РёРґР°РµС‚СЃСЏ '/')" },
+		{ PPERR_SC2_INVLANGSYMB,            "РќРµ РґРѕРїСѓСЃС‚РёРјС‹Р№ СЃРёРјРІРѕР» СЏР·С‹РєР°" },
+		{ PPERR_SC2_LANGDESCRDUP,           "Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЏР·С‹РєР° РґР»СЏ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё" },
+		{ PPERR_SC2_STRNOTIDENT,            "РЎС‚СЂРѕРєР° РЅРµ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅР° (РЅРµС‚ РѕРїСЂРµРґРµР»РёС‚РµР»СЏ Рё РЅРµ Р·Р°РґР°РЅ СЏР·С‹Рє)" },
+		{ PPERR_SC2_SRCFILENOTFOUND,        "РСЃС…РѕРґРЅС‹Р№ С„Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ" },
+		{ PPERR_SC2_SRCFILEHASHYPHEN,       "РРјСЏ РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° РЅРµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РґРµС„РёСЃРѕРІ" },
+		{ PPERR_SC2_CODESYMBCONFLICT,       "РљРѕРЅС„Р»РёРєС‚ РјРµР¶РґСѓ СЃРёРјРІРѕР»СЊРЅС‹РјРё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°РјРё СЃС‚СЂРѕРє" },
+		{ PPERR_SC2_DUPSTRBYID,             "Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё РїРѕ Р·РЅР°С‡РµРЅРёСЋ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°" },
+		{ PPERR_SC2_STRNOTIDENTIED,         "РЎС‚СЂРѕРєР° РЅРµ РёРјРµРµС‚ РёРґРµРЅС‚РёС„РёРєР°С†РёРё" },
+		{ PPERR_SC2_SAVEDSYMBNEQGRP,        "РџСЂРё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРё СЃРѕС…СЂР°РЅРµРЅРЅРѕРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃРёРјРІРѕР»Р° '%s' РІРѕР·РЅРёРє РєРѕРЅС„Р»РёРєС‚ РіСЂСѓРїРї" }
+	};
+	// @v10.4.5 {
+	SIntToSymbTab_GetSymb(ErrMsgList, SIZEOFARRAY(ErrMsgList), errCode, temp_buf);
+	temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
+	// } @v10.4.5 
+	/* @v10.4.5
 	for(size_t i = 0; i < SIZEOFARRAY(ErrMsgList); i++) {
 		if(ErrMsgList[i].Code == errCode) {
 			temp_buf = ErrMsgList[i].P_Msg;
 			break;
 		}
-	}
+	}*/
 #else
 	PPLoadString(PPMSG_ERROR, errCode, temp_buf);
 #endif
@@ -662,8 +661,8 @@ int SLAPI StringStore2::TranslationWanted(const uchar * pOrgText) const
 				while(p[0] && p[0] != '}')
 					p++;
 				if(p[0] == 0) {
-					// Специальный случай - без этого проверка в головном цикле сбойнет и цикл уйдет за пределы '\0'
-					// Такая ситуация - ошибочна - не закрытая справа конструкция @{...}
+					// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№ - Р±РµР· СЌС‚РѕРіРѕ РїСЂРѕРІРµСЂРєР° РІ РіРѕР»РѕРІРЅРѕРј С†РёРєР»Рµ СЃР±РѕР№РЅРµС‚ Рё С†РёРєР» СѓР№РґРµС‚ Р·Р° РїСЂРµРґРµР»С‹ '\0'
+					// РўР°РєР°СЏ СЃРёС‚СѓР°С†РёСЏ - РѕС€РёР±РѕС‡РЅР° - РЅРµ Р·Р°РєСЂС‹С‚Р°СЏ СЃРїСЂР°РІР° РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ @{...}
 					break;
 				}
 			}
@@ -677,7 +676,7 @@ int SLAPI StringStore2::TranslationWanted(const uchar * pOrgText) const
 					uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
 					if(((size_t)(p - pOrgText) + extra) < len) {
 						if(SUnicode::IsLegalUtf8(p, extra+1)) {
-							yes = 1; // валидный utf8 символ - считаем что перевод нужен
+							yes = 1; // РІР°Р»РёРґРЅС‹Р№ utf8 СЃРёРјРІРѕР» - СЃС‡РёС‚Р°РµРј С‡С‚Рѕ РїРµСЂРµРІРѕРґ РЅСѓР¶РµРЅ
 						}
 					}
 				}
@@ -706,7 +705,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 	EXCEPTVAR(ErrCode);
 	int    ok = 1;
 	StrAssocArray file_lang_list;
-	SString ident_file_name; // Имя файла, хранящего соответствия символов и идентификаторов
+	SString ident_file_name; // РРјСЏ С„Р°Р№Р»Р°, С…СЂР°РЅСЏС‰РµРіРѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ СЃРёРјРІРѕР»РѕРІ Рё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
 	SString temp_buf;
 	SString final_line_buf;
 	SString intr_at_text;
@@ -769,13 +768,13 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 			ps.Ext = org_ext;
 			ps.Merge(auto_transl_file);
 			//
-			// При необходимости автоперевода мы в первую очередь должны будем разобрать файл с тем
-			// языком, на который будет осуществляться перевод для того, чтобы при переводе
-			// можно было выяснять есть у нас перевод какой-то строки или нет.
-			// Контекст проблемы: после автоперевода результат доводится в ручную и складывается
-			// в регулярный файл строк на нужном языке.
-			// Что бы, не дай бог, не перезаписать результаты ручной правки мы будет переводить
-			// только строки, которые не были переведены ранее.
+			// РџСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё Р°РІС‚РѕРїРµСЂРµРІРѕРґР° РјС‹ РІ РїРµСЂРІСѓСЋ РѕС‡РµСЂРµРґСЊ РґРѕР»Р¶РЅС‹ Р±СѓРґРµРј СЂР°Р·РѕР±СЂР°С‚СЊ С„Р°Р№Р» СЃ С‚РµРј
+			// СЏР·С‹РєРѕРј, РЅР° РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЊСЃСЏ РїРµСЂРµРІРѕРґ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїСЂРё РїРµСЂРµРІРѕРґРµ
+			// РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РІС‹СЏСЃРЅСЏС‚СЊ РµСЃС‚СЊ Сѓ РЅР°СЃ РїРµСЂРµРІРѕРґ РєР°РєРѕР№-С‚Рѕ СЃС‚СЂРѕРєРё РёР»Рё РЅРµС‚.
+			// РљРѕРЅС‚РµРєСЃС‚ РїСЂРѕР±Р»РµРјС‹: РїРѕСЃР»Рµ Р°РІС‚РѕРїРµСЂРµРІРѕРґР° СЂРµР·СѓР»СЊС‚Р°С‚ РґРѕРІРѕРґРёС‚СЃСЏ РІ СЂСѓС‡РЅСѓСЋ Рё СЃРєР»Р°РґС‹РІР°РµС‚СЃСЏ
+			// РІ СЂРµРіСѓР»СЏСЂРЅС‹Р№ С„Р°Р№Р» СЃС‚СЂРѕРє РЅР° РЅСѓР¶РЅРѕРј СЏР·С‹РєРµ.
+			// Р§С‚Рѕ Р±С‹, РЅРµ РґР°Р№ Р±РѕРі, РЅРµ РїРµСЂРµР·Р°РїРёСЃР°С‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚С‹ СЂСѓС‡РЅРѕР№ РїСЂР°РІРєРё РјС‹ Р±СѓРґРµС‚ РїРµСЂРµРІРѕРґРёС‚СЊ
+			// С‚РѕР»СЊРєРѕ СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂС‹Рµ РЅРµ Р±С‹Р»Рё РїРµСЂРµРІРµРґРµРЅС‹ СЂР°РЅРµРµ.
 			//
 			for(uint fli = 0; fli < file_lang_list.getCount(); fli++) {
 				StrAssocArray::Item fl_item = file_lang_list.Get(fli);
@@ -800,7 +799,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 			P_Pb->InFileName = fl_item.Txt;
 			SFile f_in(P_Pb->InFileName, SFile::mRead);
 			ErrAddedMsg = P_Pb->InFileName;
-			THROW_V(f_in.IsValid(), sc2eSrcFileOpenFault); // @str Ошибка открытия исходного файла
+			THROW_V(f_in.IsValid(), sc2eSrcFileOpenFault); // @str РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°
             if(local_auto_transl_lang) {
 				THROW(f_at.Open(auto_transl_file, SFile::mWrite));
             }
@@ -850,7 +849,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 						last_string_lang = item.SLang;
 						if(!dont_translate && local_auto_transl_lang && ActiveLanguage == 0) {
 							//
-							// Непосредственно до вызова функции автоперевода проверим нет ли уже готового перевода нашей строки
+							// РќРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РґРѕ РІС‹Р·РѕРІР° С„СѓРЅРєС†РёРё Р°РІС‚РѕРїРµСЂРµРІРѕРґР° РїСЂРѕРІРµСЂРёРј РЅРµС‚ Р»Рё СѓР¶Рµ РіРѕС‚РѕРІРѕРіРѕ РїРµСЂРµРІРѕРґР° РЅР°С€РµР№ СЃС‚СЂРѕРєРё
 							//
 							const LangStrCollItem * p_coll_item = GetList(auto_transl_lang);
 							if(p_coll_item && p_coll_item->List.Search(last_string_id))
@@ -902,7 +901,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 												auto_transl_string.CatChar(';');
 											{
 												//
-												// Специальный препроцессинг префиксов "number," (e.g. "2,...;3,...")
+												// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РїСЂРµРїСЂРѕС†РµСЃСЃРёРЅРі РїСЂРµС„РёРєСЃРѕРІ "number," (e.g. "2,...;3,...")
 												//
 												size_t _dec_count = 0;
 												if(isdec(temp_buf.C(_dec_count))) {
@@ -917,7 +916,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 												}
 											}
 											//
-											// Специальный препроцессинг подстановок (@symb or @{symb})
+											// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РїСЂРµРїСЂРѕС†РµСЃСЃРёРЅРі РїРѕРґСЃС‚Р°РЅРѕРІРѕРє (@symb or @{symb})
 											//
 											int    is_subst = 1;
 											if(temp_buf.C(0) == '@' && !temp_buf.HasChr(' ')) {
@@ -967,7 +966,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 					f_at.WriteLine(line_buf);
 				}
 			}
-			THROW_V(!(item.Flags & StringStore2::ParseItem::fNextLine), sc2eUnfinStrWrap); // @str Перенос строки не завершен
+			THROW_V(!(item.Flags & StringStore2::ParseItem::fNextLine), sc2eUnfinStrWrap); // @str РџРµСЂРµРЅРѕСЃ СЃС‚СЂРѕРєРё РЅРµ Р·Р°РІРµСЂС€РµРЅ
 		}
 		if(!(flags & cfTranslateOnly)) {
 			THROW(StoreState(ident_file_name));
@@ -1008,11 +1007,11 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 #if 0 // {
 		//
 		// TEST
-		// Считываем созданный бинарный файл, затем записываем его в файл с тем же именем и
-		// расширением .TEST и сравниваем оригинальный файл с новым: они должны совпасть байт-в-байт.
+		// РЎС‡РёС‚С‹РІР°РµРј СЃРѕР·РґР°РЅРЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ С„Р°Р№Р», Р·Р°С‚РµРј Р·Р°РїРёСЃС‹РІР°РµРј РµРіРѕ РІ С„Р°Р№Р» СЃ С‚РµРј Р¶Рµ РёРјРµРЅРµРј Рё
+		// СЂР°СЃС€РёСЂРµРЅРёРµРј .TEST Рё СЃСЂР°РІРЅРёРІР°РµРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ С„Р°Р№Р» СЃ РЅРѕРІС‹Рј: РѕРЅРё РґРѕР»Р¶РЅС‹ СЃРѕРІРїР°СЃС‚СЊ Р±Р°Р№С‚-РІ-Р±Р°Р№С‚.
 		//
-		// Начиная с версии 9.0.8 такой простой трюк не работает из-за того, что подробные описания строк
-		// теперь хранятся в файле и считываются только по запросу
+		// РќР°С‡РёРЅР°СЏ СЃ РІРµСЂСЃРёРё 9.0.8 С‚Р°РєРѕР№ РїСЂРѕСЃС‚РѕР№ С‚СЂСЋРє РЅРµ СЂР°Р±РѕС‚Р°РµС‚ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РїРѕРґСЂРѕР±РЅС‹Рµ РѕРїРёСЃР°РЅРёСЏ СЃС‚СЂРѕРє
+		// С‚РµРїРµСЂСЊ С…СЂР°РЅСЏС‚СЃСЏ РІ С„Р°Р№Р»Рµ Рё СЃС‡РёС‚С‹РІР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РїРѕ Р·Р°РїСЂРѕСЃСѓ
 		//
 		{
 			StringStore2 test_s;
@@ -1214,7 +1213,7 @@ int SLAPI StringStore2::AddString(long group, StringStore2::ParseItem & rItem, l
 	uint   pos = 0;
 	long   code_str = 0;
 	SString temp_buf;
-	THROW_V(group < 0x7fff, sc2eGrpCodeLimit); // @str Превышение максимального значения кода группы
+	THROW_V(group < 0x7fff, sc2eGrpCodeLimit); // @str РџСЂРµРІС‹С€РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕРґР° РіСЂСѓРїРїС‹
 	if(rItem.CodeSymb.NotEmpty()) {
 		if(P_Pb->StrSymbList.SearchByText(rItem.CodeSymb, 0, &(pos = 0))) {
 			temp_buf = P_Pb->StrSymbList.Get(pos).Txt;
@@ -1239,7 +1238,7 @@ int SLAPI StringStore2::AddString(long group, StringStore2::ParseItem & rItem, l
 					P_Pb->LastAutoCodeList.at(pos).Val = c;
                 }
 			}
-			THROW_V(rItem.Code < 0x7ffff, sc2eStrCodeLimit); // @str Превышение максимального значения кода строки
+			THROW_V(rItem.Code < 0x7ffff, sc2eStrCodeLimit); // @str РџСЂРµРІС‹С€РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕРґР° СЃС‚СЂРѕРєРё
 			code_str = MakeLong(rItem.Code, group);
 			THROW(P_Pb->StrSymbList.Add(code_str, rItem.CodeSymb));
 		}
@@ -1261,7 +1260,7 @@ int SLAPI StringStore2::AddString(long group, StringStore2::ParseItem & rItem, l
 		}
 		else {
 			THROW_V(rItem.Code != 0, sc2eStrNotIdentified);
-			THROW_V(rItem.Code < 0x7ffff, sc2eStrCodeLimit); // @str Превышение максимального значения кода строки
+			THROW_V(rItem.Code < 0x7ffff, sc2eStrCodeLimit); // @str РџСЂРµРІС‹С€РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕРґР° СЃС‚СЂРѕРєРё
 			code_str = MakeLong(rItem.Code, group);
 		}
 	}
@@ -1290,7 +1289,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 		#!{ - start no translate scope
 		#!} - end no translate scope
 
-		[hgroup:hash] // Суффикс :hash определяет хэширующую группу с символом "hgroup".
+		[hgroup:hash] // РЎСѓС„С„РёРєСЃ :hash РѕРїСЂРµРґРµР»СЏРµС‚ С…СЌС€РёСЂСѓСЋС‰СѓСЋ РіСЂСѓРїРїСѓ СЃ СЃРёРјРІРѕР»РѕРј "hgroup".
 
 		[PPSTR_SOMEGROUP]
 		1 "Some String 01"
@@ -1298,10 +1297,10 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 		PPSTG_SOMESTRING02 /nt/ "Some String 02"
 		PPSTG_SOMESTRING03=3 "Some String 03"
 		@symb01 "Some String By Signature 'symb01'"
-		@symb01<ru> "Некоторая строка по сигнатуре 'symb01'"
+		@symb01<ru> "РќРµРєРѕС‚РѕСЂР°СЏ СЃС‚СЂРѕРєР° РїРѕ СЃРёРіРЅР°С‚СѓСЂРµ 'symb01'"
 		@symb02=1002 "Some String By Signature 'symb02'"
 		#{
-			Описание для последнего определения строки.
+			РћРїРёСЃР°РЅРёРµ РґР»СЏ РїРѕСЃР»РµРґРЅРµРіРѕ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃС‚СЂРѕРєРё.
 		#}
 	*/
 	EXCEPTVAR(ErrCode);
@@ -1321,7 +1320,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 			}
 			else {
 				THROW_V(left.Last() == '\"', sc2eUnexpEndOfStr);
-					// @str Строка должна оканчиваться либо символом '\' либо '"'
+					// @str РЎС‚СЂРѕРєР° РґРѕР»Р¶РЅР° РѕРєР°РЅС‡РёРІР°С‚СЊСЃСЏ Р»РёР±Рѕ СЃРёРјРІРѕР»РѕРј '\' Р»РёР±Рѕ '"'
 			}
 			left.TrimRight();
 			rItem.Str.Cat(left);
@@ -1364,11 +1363,11 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 				rItem.Scope = rItem.scopeNoTranslate;
 			}
 			else if(TempBuf.C(0) == '[') {
-				THROW_V(TempBuf.Last() == ']', sc2eStxGrp01); // @str Ошибка в определении группы строк (ожидается ']')
+				THROW_V(TempBuf.Last() == ']', sc2eStxGrp01); // @str РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє (РѕР¶РёРґР°РµС‚СЃСЏ ']')
 				TempBuf.TrimRight().ShiftLeft(1).Strip();
 				if(TempBuf.C(0) == '/') {
 					int    slang = 0;
-					THROW_V(TempBuf.Last() == '/', sc2eStxLangGrp01); // @str Ошибка в определении группы языка (ожидается '/')
+					THROW_V(TempBuf.Last() == '/', sc2eStxLangGrp01); // @str РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЏР·С‹РєР° (РѕР¶РёРґР°РµС‚СЃСЏ '/')
 					TempBuf.TrimRight().ShiftLeft(1).Strip();
 					if(TempBuf == "0" || TempBuf.IsEqiAscii("default"))
 						slang = 0;
@@ -1384,7 +1383,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 					if(TempBuf.Divide('=', left, right) > 0) {
 						rItem.GroupSymb = left.Strip();
 						rItem.Group = right.Strip().ToLong();
-						THROW_V(rItem.Group > 0, sc2eStxGrp02); // @str Ошибка в определении группы строк [symb=number]
+						THROW_V(rItem.Group > 0, sc2eStxGrp02); // @str РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє [symb=number]
 					}
 					else if(TempBuf.ToLong() != 0) {
 						rItem.Group = TempBuf.ToLong();
@@ -1408,14 +1407,14 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 			}
 			else if(TempBuf.SearchChar('\"', &pos)) {
 				rItem.Kind = StringStore2::ParseItem::kString;
-				TempBuf.Sub(pos+1 /* кавычку пропускаем */, TempBuf.Len(), rItem.Str);
+				TempBuf.Sub(pos+1 /* РєР°РІС‹С‡РєСѓ РїСЂРѕРїСѓСЃРєР°РµРј */, TempBuf.Len(), rItem.Str);
 				//
-				// Разбор идентификации строки {
+				// Р Р°Р·Р±РѕСЂ РёРґРµРЅС‚РёС„РёРєР°С†РёРё СЃС‚СЂРѕРєРё {
 				//
-				TempBuf.Trim(pos).Strip(); // @v9.6.4 @fix TempBuf.Strip(pos).Strip()-->TempBuf.Trim(pos).Strip() @todo Необходима провека
+				TempBuf.Trim(pos).Strip(); // @v9.6.4 @fix TempBuf.Strip(pos).Strip()-->TempBuf.Trim(pos).Strip() @todo РќРµРѕР±С…РѕРґРёРјР° РїСЂРѕРІРµРєР°
 				rScan.Set(TempBuf, 0);
 				int    slang = -1;
-				int    is_ident = 0; // Признак того, что строка идентифицирована
+				int    is_ident = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ СЃС‚СЂРѕРєР° РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅР°
 				double symb_val = 0.0;
 				if(rScan[0] == '/') {
 					rScan.Incr();
@@ -1424,7 +1423,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 						temp_buf.CatChar(rScan[0]);
 						rScan.Incr();
 					}
-					THROW_V(rScan.Is('/'), sc2eStxLangGrp01); // @str Ошибка в определении группы языка (ожидается '/')
+					THROW_V(rScan.Is('/'), sc2eStxLangGrp01); // @str РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЏР·С‹РєР° (РѕР¶РёРґР°РµС‚СЃСЏ '/')
 					if(temp_buf == "!")
 						rItem.Flags |= rItem.fNoTranslate;
 					else if(temp_buf == "0" || temp_buf.IsEqiAscii("default"))
@@ -1451,13 +1450,13 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 					int  c = rScan[0];
 					if((c >= 'A' && c <= 'Z') || c == '_') {
 						// THROW_V((c >= 'A' && c <= 'Z') || c == '_', sc2eStxStrSymbStart);
-							// @str Символ строки должен начинаться с прописной латинской буквы или '_'
+							// @str РЎРёРјРІРѕР» СЃС‚СЂРѕРєРё РґРѕР»Р¶РµРЅ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ РїСЂРѕРїРёСЃРЅРѕР№ Р»Р°С‚РёРЅСЃРєРѕР№ Р±СѓРєРІС‹ РёР»Рё '_'
 						temp_buf.CatChar(c);
 						rScan.Incr();
 						while((c = rScan[0]) != 0) {
 							if(!oneof5(c, ' ', '\t', '/', '=', '\"')) {
 								THROW_V((c >= 'A' && c <= 'Z') || isdec(c) || c == '_', sc2eStxStrSymbChr);
-									// @str Символ строки должен содержать либо прописные латинские буквы либо цифры либо '_'
+									// @str РЎРёРјРІРѕР» СЃС‚СЂРѕРєРё РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ Р»РёР±Рѕ РїСЂРѕРїРёСЃРЅС‹Рµ Р»Р°С‚РёРЅСЃРєРёРµ Р±СѓРєРІС‹ Р»РёР±Рѕ С†РёС„СЂС‹ Р»РёР±Рѕ '_'
 								temp_buf.CatChar(c);
 								rScan.Incr();
 							}
@@ -1469,7 +1468,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 						if(rScan[0] == '=') {
 							rScan.Incr();
 							rScan.Skip();
-							THROW_V(rScan.GetDigits(temp_buf), sc2eStxStr01); // @str Ошибка в определении строки (symb=number)
+							THROW_V(rScan.GetDigits(temp_buf), sc2eStxStr01); // @str РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё СЃС‚СЂРѕРєРё (symb=number)
 							rItem.Code = temp_buf.Strip().ToLong();
 						}
 						is_ident = 1;
@@ -1482,7 +1481,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 						temp_buf.CatChar(rScan[0]);
 						rScan.Incr();
 					}
-					THROW_V(rScan.Is('/'), sc2eStxLangGrp01); // @str Ошибка в определении группы языка (ожидается '/')
+					THROW_V(rScan.Is('/'), sc2eStxLangGrp01); // @str РћС€РёР±РєР° РІ РѕРїСЂРµРґРµР»РµРЅРёРё РіСЂСѓРїРїС‹ СЏР·С‹РєР° (РѕР¶РёРґР°РµС‚СЃСЏ '/')
 					THROW_V(slang == -1, sc2eLangDescrDup);
 					if(temp_buf == "!")
 						rItem.Flags |= rItem.fNoTranslate;
@@ -1503,7 +1502,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 				}
 				else {
 					THROW_V(rItem.Str.Last() == '\"', sc2eUnexpEndOfStr);
-						// @str Строка должна оканчиваться либо символом '\' либо '"'
+						// @str РЎС‚СЂРѕРєР° РґРѕР»Р¶РЅР° РѕРєР°РЅС‡РёРІР°С‚СЊСЃСЏ Р»РёР±Рѕ СЃРёРјРІРѕР»РѕРј '\' Р»РёР±Рѕ '"'
 				}
 				rItem.Str.TrimRight();
 				{
@@ -1549,7 +1548,6 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 }
 
 #if 0 // @v8.9.10 {
-
 int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrcFileName)
 {
 	int    ok = 1;
@@ -1562,7 +1560,7 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 		/*
 		STRINGTABLE
 		BEGIN
-    		IDS_STRING371           "Тестовая строка в ресурсе"
+    		IDS_STRING371           "РўРµСЃС‚РѕРІР°СЏ СЃС‚СЂРѕРєР° РІ СЂРµСЃСѓСЂСЃРµ"
     		IDS_STRING372           "Yet another test string"
 		END
 		*/
@@ -1576,7 +1574,7 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 		ps.Split(pFileName);
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 		gen.Wr_Comment(temp_buf.ToUpper());
-		temp_buf.Printf("This file was generated by SC2C.EXE from '%s'", (const char *)pSrcFileName);
+		temp_buf.Printf("This file was generated by SC2C.EXE from '%s'", pSrcFileName);
 		gen.Wr_Comment(temp_buf);
 		gen.Wr_Comment(0);
 		//
@@ -1619,7 +1617,6 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 	CATCHZOK
 	return ok;
 }
-
 #endif // } 0 @v8.9.10
 
 int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * pSrcFileName)
@@ -1631,18 +1628,12 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 	SPathStruc ps;
 	Generator_CPP gen(pFileName);
 	THROW(gen.IsValid());
-	//
-	//
-	//
 	ps.Split(pFileName);
 	ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 	gen.Wr_Comment(temp_buf.ToUpper());
-	temp_buf.Printf("This file was generated by SC2C.EXE from '%s'", (const char *)pSrcFileName);
+	temp_buf.Printf("This file was generated by SC2C.EXE from '%s'", pSrcFileName);
 	gen.Wr_Comment(temp_buf);
 	gen.Wr_Comment(0);
-	//
-	//
-	//
 	/*P_Pb->*/GrpSymbList.SortByID();
 	P_Pb->StrSymbList.SortByID();
 	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
@@ -1676,26 +1667,24 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 }
 
 #ifdef SC2C // {
-
-int main(int argc, char * argv[])
-{
-	int    r = 0;
-	if(argc < 2) {
-		printf("Usage: s2c filename\n");
-		r = -1;
-	}
-	else {
-		StringStore2 s;
-		SString auto_transl_lang;
-		long   flags = 0;
-		if(argc > 2) {
-			auto_transl_lang = argv[2];
-			flags |= s.cfTranslateOnly;
+	int main(int argc, char * argv[])
+	{
+		int    r = 0;
+		if(argc < 2) {
+			printf("Usage: s2c filename\n");
+			r = -1;
 		}
-		r = s.Compile(argv[1], flags, auto_transl_lang) ? 0 : 1;
+		else {
+			StringStore2 s;
+			SString auto_transl_lang;
+			long   flags = 0;
+			if(argc > 2) {
+				auto_transl_lang = argv[2];
+				flags |= s.cfTranslateOnly;
+			}
+			r = s.Compile(argv[1], flags, auto_transl_lang) ? 0 : 1;
+		}
+		return r;
 	}
-	return r;
-}
-
 #endif // } SC2C
 

@@ -1,6 +1,6 @@
 // BNKSBERBANK.CPP
-//
-// Библиотека для работы с терминалами, обслуживающими карты Сбербанка
+// @codepage UTF-8
+// Р‘РёР±Р»РёРѕС‚РµРєР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С‚РµСЂРјРёРЅР°Р»Р°РјРё, РѕР±СЃР»СѓР¶РёРІР°СЋС‰РёРјРё РєР°СЂС‚С‹ РЎР±РµСЂР±Р°РЅРєР°
 //
 #include <ppdrvapi.h>
 
@@ -9,51 +9,46 @@ extern PPDrvSession DRVS;
 #define EXPORT	extern "C" __declspec (dllexport)
 #define THROWERR(expr,val)     { if(!(expr)) { DRVS.SetErrCode(val); goto __scatch; } }
 
-// Номера операций
-#define SBRBNK_FUNC_PAY           1 // Оплата
-#define SBRBNK_FUNC_REFUND        3 // Возврат/отмена оплаты
-#define SBRBNK_FUNC_CLOSEDAY      7 // Закрытие дня
+// РќРѕРјРµСЂР° РѕРїРµСЂР°С†РёР№
+#define SBRBNK_FUNC_PAY           1 // РћРїР»Р°С‚Р°
+#define SBRBNK_FUNC_REFUND        3 // Р’РѕР·РІСЂР°С‚/РѕС‚РјРµРЅР° РѕРїР»Р°С‚С‹
+#define SBRBNK_FUNC_CLOSEDAY      7 // Р—Р°РєСЂС‹С‚РёРµ РґРЅСЏ
 
-// Типы карт
-#define SBRBNK_CRDTYPE_OPER      0 // Выбор типа осуществляется оператором из меню терминала
+// РўРёРїС‹ РєР°СЂС‚
+#define SBRBNK_CRDTYPE_OPER      0 // Р’С‹Р±РѕСЂ С‚РёРїР° РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РѕРїРµСЂР°С‚РѕСЂРѕРј РёР· РјРµРЅСЋ С‚РµСЂРјРёРЅР°Р»Р°
 #define SBRBNK_CRDTYPE_VISA      1 // Visa
 #define SBRBNK_CRDTYPE_MASTERCRD 2 // Eurocard/Mastercard
 #define SBRBNK_CRDTYPE_MAESTRO   3 // Cirrus/Maestro
-#define SBRBNK_CRDTYPE_INT     101 // Международные карты с микропроцессором
-// Могут быть определены дополнительные типы карт
+#define SBRBNK_CRDTYPE_INT     101 // РњРµР¶РґСѓРЅР°СЂРѕРґРЅС‹Рµ РєР°СЂС‚С‹ СЃ РјРёРєСЂРѕРїСЂРѕС†РµСЃСЃРѕСЂРѕРј
+// РњРѕРіСѓС‚ Р±С‹С‚СЊ РѕРїСЂРµРґРµР»РµРЅС‹ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ С‚РёРїС‹ РєР°СЂС‚
 
-// Коды ошибок банковской библиотеки
-#define SBRBNK_ERR_OK        0 // Операция выполнена успешно
+// РљРѕРґС‹ РѕС€РёР±РѕРє Р±Р°РЅРєРѕРІСЃРєРѕР№ Р±РёР±Р»РёРѕС‚РµРєРё
+#define SBRBNK_ERR_OK        0 // РћРїРµСЂР°С†РёСЏ РІС‹РїРѕР»РЅРµРЅР° СѓСЃРїРµС€РЅРѕ
 
-// Коды ошибок данной библиотеки
-#define SBRBNK_ERR_NOTCONNECTED     6002 // Соединение не установлено
-#define SBRBNK_ERR_PAY              6003 // Ошибка операции оплаты
-#define SBRBNK_ERR_REFUND           6004 // Ошибка операции возврата
-#define SBRBNK_ERR_CLOSEDAY         6005 // Ошибка операции закрытия дня
+// РљРѕРґС‹ РѕС€РёР±РѕРє РґР°РЅРЅРѕР№ Р±РёР±Р»РёРѕС‚РµРєРё
+#define SBRBNK_ERR_NOTCONNECTED     6002 // РЎРѕРµРґРёРЅРµРЅРёРµ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ
+#define SBRBNK_ERR_PAY              6003 // РћС€РёР±РєР° РѕРїРµСЂР°С†РёРё РѕРїР»Р°С‚С‹
+#define SBRBNK_ERR_REFUND           6004 // РћС€РёР±РєР° РѕРїРµСЂР°С†РёРё РІРѕР·РІСЂР°С‚Р°
+#define SBRBNK_ERR_CLOSEDAY         6005 // РћС€РёР±РєР° РѕРїРµСЂР°С†РёРё Р·Р°РєСЂС‹С‚РёСЏ РґРЅСЏ
 
 struct AuthAnswerSt {
-	int    TType;        // IN: Тип транзакции
-	ulong  Amount_;      // IN: Сумма в копейках
-	char   Rcode[3];     // OUT: Код результата авторизации
-	char   AMessage[16]; // OUT: Словесное пояснение результата
-	int    CType;        // OUT: Тип карты 
-	char * P_Check;      // OUT: Образ чека, должен освобождаться GlobalFree в вызывающей программе
+	int    TType;        // IN: РўРёРї С‚СЂР°РЅР·Р°РєС†РёРё
+	ulong  Amount_;      // IN: РЎСѓРјРјР° РІ РєРѕРїРµР№РєР°С…
+	char   Rcode[3];     // OUT: РљРѕРґ СЂРµР·СѓР»СЊС‚Р°С‚Р° Р°РІС‚РѕСЂРёР·Р°С†РёРё
+	char   AMessage[16]; // OUT: РЎР»РѕРІРµСЃРЅРѕРµ РїРѕСЏСЃРЅРµРЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚Р°
+	int    CType;        // OUT: РўРёРї РєР°СЂС‚С‹ 
+	char * P_Check;      // OUT: РћР±СЂР°Р· С‡РµРєР°, РґРѕР»Р¶РµРЅ РѕСЃРІРѕР±РѕР¶РґР°С‚СЊСЃСЏ GlobalFree РІ РІС‹Р·С‹РІР°СЋС‰РµР№ РїСЂРѕРіСЂР°РјРјРµ
 };
 
 typedef int (__cdecl * CardAuthProc)(char *, AuthAnswerSt *);
 typedef int (__cdecl * CloseDayProc)(struct AuthAnswerSt * pAuthAns);
 typedef int (__cdecl * TestPinpadProc)();
-//typedef int (__cdecl * GlobalFreeProc) (); // Освобождает поле Check, если оно вернулось непустым
+//typedef int (__cdecl * GlobalFreeProc) (); // РћСЃРІРѕР±РѕР¶РґР°РµС‚ РїРѕР»Рµ Check, РµСЃР»Рё РѕРЅРѕ РІРµСЂРЅСѓР»РѕСЃСЊ РЅРµРїСѓСЃС‚С‹Рј
 
 class PPDrvSberTrmnl : public PPBaseDriver {
 public:
-	PPDrvSberTrmnl()
+	PPDrvSberTrmnl() : LogNum(0), P_Lib(0), CardAuth(0), CloseDay(0), TestPinpad(0)
 	{
-		LogNum = 0;
-		P_Lib = 0;
-		CardAuth = 0;
-		CloseDay = 0;
-		TestPinpad = 0;
 		//GlobalFree = 0;
 		SString file_name;
 		getExecPath(file_name);
@@ -64,13 +59,13 @@ public:
 		Release(); 
 	}
 	int    ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
-	int    Init(const char * pLibPath); // Инициализация библиотеки Сбербанка
+	int    Init(const char * pLibPath); // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±РёР±Р»РёРѕС‚РµРєРё РЎР±РµСЂР±Р°РЅРєР°
 	int    Connect();
 	int    Disconnect();
 	int    Release();
 	int    Pay(double amount, SString & rSlip);
 	int    Refund(double amount, SString & rSlip);
-	/*int    GetSessReport(SString & rCheck);*/ // Итоги дня	
+	/*int    GetSessReport(SString & rCheck);*/ // РС‚РѕРіРё РґРЅСЏ	
 private:
 	long   LogNum;
 	SString SlipFileName;
@@ -82,8 +77,8 @@ private:
 
 	class  OpLogBlock {
 	public:
-		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg) //конструктор. на вход идут 3 строки 
-		{																															//+ время с  начала работы программы (в тактах)
+		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg) //РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ. РЅР° РІС…РѕРґ РёРґСѓС‚ 3 СЃС‚СЂРѕРєРё 
+		{																															//+ РІСЂРµРјСЏ СЃ  РЅР°С‡Р°Р»Р° СЂР°Р±РѕС‚С‹ РїСЂРѕРіСЂР°РјРјС‹ (РІ С‚Р°РєС‚Р°С…)
 			LogFileName = 0/*pLogFileName*/; // @v9.7.1 pLogFileName-->0
 			LogFileName = pLogFileName;
 			if (LogFileName.NotEmpty() && Op.NotEmpty()) {
@@ -104,17 +99,17 @@ private:
 			}
 		}
 		const long StartClk;
-		SString LogFileName; //строки
+		SString LogFileName; //СЃС‚СЂРѕРєРё
 		SString Op;
 		SString ExtMsg;
 	};
 };
 
-static PPDrvSession::TextTableEntry _ErrMsgTab[] = {
-	{SBRBNK_ERR_NOTCONNECTED,      "Соединение не установлено"},
-	{SBRBNK_ERR_PAY,               "Ошибка операции оплаты"},
-	{SBRBNK_ERR_REFUND,            "Ошибка операции возврата"},
-	{SBRBNK_ERR_CLOSEDAY,          "Ошибка операции закрытия дня"}
+static const SIntToSymbTabEntry _ErrMsgTab[] = {
+	{SBRBNK_ERR_NOTCONNECTED,      "РЎРѕРµРґРёРЅРµРЅРёРµ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ"},
+	{SBRBNK_ERR_PAY,               "РћС€РёР±РєР° РѕРїРµСЂР°С†РёРё РѕРїР»Р°С‚С‹"},
+	{SBRBNK_ERR_REFUND,            "РћС€РёР±РєР° РѕРїРµСЂР°С†РёРё РІРѕР·РІСЂР°С‚Р°"},
+	{SBRBNK_ERR_CLOSEDAY,          "РћС€РёР±РєР° РѕРїРµСЂР°С†РёРё Р·Р°РєСЂС‹С‚РёСЏ РґРЅСЏ"}
 };
 
 PPDRV_INSTANCE_ERRTAB(SberTrmnl, 1, 0, PPDrvSberTrmnl, _ErrMsgTab);
@@ -131,8 +126,8 @@ int PPDrvSberTrmnl::Release()
 	return 1;
 }
 
-// Параметры для подключения смотрит в конфиге
-// Чтбы проверить наличие соединения, запросим список терминалов/валют
+// РџР°СЂР°РјРµС‚СЂС‹ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ СЃРјРѕС‚СЂРёС‚ РІ РєРѕРЅС„РёРіРµ
+// Р§С‚Р±С‹ РїСЂРѕРІРµСЂРёС‚СЊ РЅР°Р»РёС‡РёРµ СЃРѕРµРґРёРЅРµРЅРёСЏ, Р·Р°РїСЂРѕСЃРёРј СЃРїРёСЃРѕРє С‚РµСЂРјРёРЅР°Р»РѕРІ/РІР°Р»СЋС‚
 int PPDrvSberTrmnl::Connect()
 {
 	OpLogBlock __oplb("Bnk_emul.log", "Connect", 0);
@@ -169,7 +164,7 @@ int PPDrvSberTrmnl::ProcessCommand(const SString & rCmd, const char * pInputData
 		THROW(Connect());
 	}
 	else if (rCmd == "SETCONFIG") {
-		// Запомним логический номер терминала
+		// Р—Р°РїРѕРјРЅРёРј Р»РѕРіРёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ С‚РµСЂРјРёРЅР°Р»Р°
 		LogNum = (pb.Get("LOGNUM", value) > 0) ? value.ToLong() : 0;
 	}
 	else if (rCmd == "DISCONNECT") {
@@ -179,7 +174,7 @@ int PPDrvSberTrmnl::ProcessCommand(const SString & rCmd, const char * pInputData
 		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0;
 		THROW(Pay(amount, rOutput));
 	}
-	else { // Если дана неизвестная  команда, то сообщаем об этом
+	else { // Р•СЃР»Рё РґР°РЅР° РЅРµРёР·РІРµСЃС‚РЅР°СЏ  РєРѕРјР°РЅРґР°, С‚Рѕ СЃРѕРѕР±С‰Р°РµРј РѕР± СЌС‚РѕРј
 		DRVS.SetErrCode(serrInvCommand);
 		err = 1;
 	}

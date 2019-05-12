@@ -1,5 +1,6 @@
 // PPLOG.CPP
 // Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -43,13 +44,13 @@ protected:
 
 	LogListBoxDef * def;
 	HFONT  hf;
-	int    StopExec; // Признак остановки цикла исполнения //
+	int    StopExec; // РџСЂРёР·РЅР°Рє РѕСЃС‚Р°РЅРѕРІРєРё С†РёРєР»Р° РёСЃРїРѕР»РЅРµРЅРёСЏ //
 	WNDPROC PrevLogListProc;
 };
 
 #endif // } USE_LOGLISTWINDOWSCI
 //
-// Новый вариант окна отображения сообщений (на платформе Scintilla)
+// РќРѕРІС‹Р№ РІР°СЂРёР°РЅС‚ РѕРєРЅР° РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёР№ (РЅР° РїР»Р°С‚С„РѕСЂРјРµ Scintilla)
 //
 class LogListWindowSCI : public TWindow, public SScEditorBase {
 public:
@@ -125,7 +126,7 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 	//
 	SString temp_buf;
 	RECT   parent, r;
-	//StopExec = 0; // Признак остановки цикла исполнения //
+	//StopExec = 0; // РџСЂРёР·РЅР°Рє РѕСЃС‚Р°РЅРѕРІРєРё С†РёРєР»Р° РёСЃРїРѕР»РЅРµРЅРёСЏ //
 	//PrevLogListProc = 0;
 	(temp_buf = "LOG WINDOW").Transf(CTRANSF_INNER_TO_OUTER);
 	APPL->GetClientRect(&parent);
@@ -318,7 +319,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 		case WM_CREATE:
 			p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
 			if(TWindow::IsMDIClientWindow(p_init_data->hwndParent)) {
-				p_view = (LogListWindowSCI *)(static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams))->lParam;
+				p_view = reinterpret_cast<LogListWindowSCI *>((static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams))->lParam);
 				//p_view->BbState |= bbsIsMDI;
 			}
 			else {
@@ -327,17 +328,14 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			}
 			if(p_view) {
 				p_view->HW = hWnd;
-				// @v9.1.11 ::SetWindowLong(hWnd, GWLP_USERDATA, (LONG)p_view);
-				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view); // @v9.1.11
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
 				::SetFocus(hWnd);
 				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0L);
 				p_view->WMHCreate();
 				::PostMessage(hWnd, WM_PAINT, 0, 0);
 				{
-					//char   cap[256];
-					//::GetWindowText(hWnd, cap, sizeof(cap));
 					SString temp_buf;
-					TView::SGetWindowText(hWnd, temp_buf); // @v9.1.5
+					TView::SGetWindowText(hWnd, temp_buf);
 					APPL->AddItemToMenu(temp_buf, p_view);
 				}
 				::ShowWindow(p_view->HwndSci, SW_SHOW);
@@ -1031,7 +1029,7 @@ LogListWindow::LogListWindow(TRect & rct, LogListBoxDef * aDef, const char * pTi
 
 	SString temp_buf;
 	RECT   parent, r;
-	StopExec = 0; // Признак остановки цикла исполнения //
+	StopExec = 0; // РџСЂРёР·РЅР°Рє РѕСЃС‚Р°РЅРѕРІРєРё С†РёРєР»Р° РёСЃРїРѕР»РЅРµРЅРёСЏ //
 	PrevLogListProc = 0;
 	(temp_buf = pTitle).Transf(CTRANSF_INNER_TO_OUTER);
 	APPL->GetClientRect(&parent);
@@ -1062,7 +1060,7 @@ SString & LogListWindow::GetString(int pos, SString & rBuf, int oem) const
 			rBuf.Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	else
-		rBuf.Space() = 0; // Чтобы быть уверенным в том, что буфер не будет нулевым
+		rBuf.Space() = 0; // Р§С‚РѕР±С‹ Р±С‹С‚СЊ СѓРІРµСЂРµРЅРЅС‹Рј РІ С‚РѕРј, С‡С‚Рѕ Р±СѓС„РµСЂ РЅРµ Р±СѓРґРµС‚ РЅСѓР»РµРІС‹Рј
 	return rBuf;
 }
 
@@ -1218,7 +1216,7 @@ void PPLogMsgSession::Run()
 			}
 			else if(r == WAIT_OBJECT_0 + 1) { // stop event // @v9.1.12 @fix (+2)-->(+1)
 				stop = 1; // quit loop
-				do_check_queue = 1; // @v9.1.12 Перед завершением сбросим все, что есть в очереди
+				do_check_queue = 1; // @v9.1.12 РџРµСЂРµРґ Р·Р°РІРµСЂС€РµРЅРёРµРј СЃР±СЂРѕСЃРёРј РІСЃРµ, С‡С‚Рѕ РµСЃС‚СЊ РІ РѕС‡РµСЂРµРґРё
 			}
 			else if(r == WAIT_FAILED) {
 				// error
@@ -1240,15 +1238,15 @@ void PPLogMsgSession::Run()
 				}
 				if(!stop) {
 					/*
-						uint32  PushCount;       // Количество запросов Push
-						uint32  PopCount;        // Количество запросов Pop
-						uint32  MaxLenght;       // Максимальное количество сообщений в очереди
-						size_t  MaxStrPoolSize;  // Максимальный объем пула строк
-						uint32  NonEmptyEvCount; // Количество установок события NonEmptyEv
+						uint32  PushCount;       // РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїСЂРѕСЃРѕРІ Push
+						uint32  PopCount;        // РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїСЂРѕСЃРѕРІ Pop
+						uint32  MaxLenght;       // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕРѕР±С‰РµРЅРёР№ РІ РѕС‡РµСЂРµРґРё
+						size_t  MaxStrPoolSize;  // РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РѕР±СЉРµРј РїСѓР»Р° СЃС‚СЂРѕРє
+						uint32  NonEmptyEvCount; // РљРѕР»РёС‡РµСЃС‚РІРѕ СѓСЃС‚Р°РЅРѕРІРѕРє СЃРѕР±С‹С‚РёСЏ NonEmptyEv
 
-						uint32  MaxSingleOutputCount;       // Максимальное количество сообщений в очереди обработанное по одному событию PPLogMsgQueue::NonEmptyEv
-						uint32  OutputCount;                // Количество выведенных сообщений
-						uint32  FalseNonEmptyEvSwitchCount; // Количество срабатываний события PPLogMsgQueue::NonEmptyEv при которых очередь была пуста
+						uint32  MaxSingleOutputCount;       // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕРѕР±С‰РµРЅРёР№ РІ РѕС‡РµСЂРµРґРё РѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРµ РїРѕ РѕРґРЅРѕРјСѓ СЃРѕР±С‹С‚РёСЋ PPLogMsgQueue::NonEmptyEv
+						uint32  OutputCount;                // РљРѕР»РёС‡РµСЃС‚РІРѕ РІС‹РІРµРґРµРЅРЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№
+						uint32  FalseNonEmptyEvSwitchCount; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃСЂР°Р±Р°С‚С‹РІР°РЅРёР№ СЃРѕР±С‹С‚РёСЏ PPLogMsgQueue::NonEmptyEv РїСЂРё РєРѕС‚РѕСЂС‹С… РѕС‡РµСЂРµРґСЊ Р±С‹Р»Р° РїСѓСЃС‚Р°
 					*/
 					P_Queue->GetStat(S);
 					diag_msg_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
@@ -1300,7 +1298,7 @@ int SLAPI PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerInterm
 			int    num_dig = 3;
 			long   counter = 0;
 			rLb.NewFileName.Z();
-			rLb.TempBuf.Z(); // Используется для расширения файла
+			rLb.TempBuf.Z(); // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СЂР°СЃС€РёСЂРµРЅРёСЏ С„Р°Р№Р»Р°
 			do {
 				if(counter >= (((int)fpow10i(num_dig))-1)) {
 					num_dig++;
@@ -1323,7 +1321,7 @@ int SLAPI PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerInterm
 			SFile::ZClose(&f);
 			if(rMsgItem.DupFileName.NotEmpty()) {
 				//
-				// Запись в дублирующий файл
+				// Р—Р°РїРёСЃСЊ РІ РґСѓР±Р»РёСЂСѓСЋС‰РёР№ С„Р°Р№Р»
 				//
 				f = fopen(rMsgItem.DupFileName, "a+");
 				if(f) {

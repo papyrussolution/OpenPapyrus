@@ -1306,7 +1306,7 @@
 //
 #define PPCMT_OKA500          1L // ОКА 500.1
 #define PPCMT_EL92AQ          2L // Электроника-92-Аквариус-Ф (И.Николаев)
-#define PPCMT_AMC100          3L // AMC-100Ф (Драйвер ЗАО ШАНС)
+// @v10.4.5 #define PPCMT_AMC100          3L // AMC-100Ф (Драйвер ЗАО ШАНС)
 #define PPCMT_ECR930          4L // ЭКР-4110
 #define PPCMT_SMUKM30         5L // IPC-POS (СуперМаг УКМ Сервис-Плюс)
 #define PPCMT_SYNCSYM         6L // Эмулятор синхронного кассового аппарата
@@ -1575,8 +1575,8 @@
 // Menus
 //
 #define MENU_MASTER                   1
-#define MENU_ADMIN                    2
-#define MENU_MANAGER                  3
+// @v10.4.5 #define MENU_ADMIN                    2
+// @v10.4.5 #define MENU_MANAGER                  3
 #define MENU_DEFAULT        MENU_MASTER
 #define MENU_SYSTEM                   4 // Конверторы, корректоры и т.д.
 #define MENU_NOLOGIN                103 // Меню без авторизации в базе данных

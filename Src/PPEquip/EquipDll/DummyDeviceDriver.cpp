@@ -1,5 +1,5 @@
 // DummyDeviceDriver.cpp
-// Copyright (c) A.Sobolev 2013, 2017
+// Copyright (c) A.Sobolev 2013, 2017, 2019
 //
 #include <ppdrvapi.h>
 
@@ -14,7 +14,7 @@ public:
 	virtual int ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
 };
 
-static PPDrvSession::TextTableEntry _ErrMsgTab[] = {
+static const SIntToSymbTabEntry _ErrMsgTab[] = {
 	{ PPDrvDummy::errNone, "No Error" }
 };
 

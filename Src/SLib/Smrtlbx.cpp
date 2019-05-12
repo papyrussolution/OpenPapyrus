@@ -967,7 +967,6 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								break;
 							}
 					}
-					//SetWindowLong(Parent, DWL_MSGRESULT, result);
 					TView::SetWindowProp(Parent, DWLP_MSGRESULT, result);
 				}
 				else
@@ -1270,7 +1269,6 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 		case WM_DESTROY:
 			{
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
-				//SetWindowLong(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWLP_WNDPROC, (long)p_slb->PrevInputCtlProc);
 				TView::SetWindowProp(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWLP_WNDPROC, p_slb->PrevInputCtlProc);
 			}
 			break;

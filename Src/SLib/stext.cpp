@@ -846,7 +846,9 @@ static const SSisIdent P_SisIdentList[] = {
 	{ ssisJava, "java" },
 	{ ssisSolaris, "solaris" },
 	{ ssisHPUX, "hpux" },
-	{ ssisGLibC, "glibc" }
+	{ ssisGLibC, "glibc" },
+	{ ssisBSD, "bsd" }, // @v10.4.5
+	{ ssisGNU, "gnu" }  // @v10.4.5
 };
 
 int FASTCALL RecognizeSisSymb(const char * pSymb)

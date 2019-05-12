@@ -1,5 +1,6 @@
 // STCP.CPP
 // Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -216,8 +217,8 @@ int SLAPI InetAddr::Set(const char * pHostName, int port)
 	return ok;
 }
 //
-// @v7.3.0 При большом размере буфера чтения не стабильно принимаются значительные по объему данные без терминатора
-// и без информации о требуемом размере чтения (т.е. сколько-есть).
+// @v7.3.0 РџСЂРё Р±РѕР»СЊС€РѕРј СЂР°Р·РјРµСЂРµ Р±СѓС„РµСЂР° С‡С‚РµРЅРёСЏ РЅРµ СЃС‚Р°Р±РёР»СЊРЅРѕ РїСЂРёРЅРёРјР°СЋС‚СЃСЏ Р·РЅР°С‡РёС‚РµР»СЊРЅС‹Рµ РїРѕ РѕР±СЉРµРјСѓ РґР°РЅРЅС‹Рµ Р±РµР· С‚РµСЂРјРёРЅР°С‚РѕСЂР°
+// Рё Р±РµР· РёРЅС„РѕСЂРјР°С†РёРё Рѕ С‚СЂРµР±СѓРµРјРѕРј СЂР°Р·РјРµСЂРµ С‡С‚РµРЅРёСЏ (С‚.Рµ. СЃРєРѕР»СЊРєРѕ-РµСЃС‚СЊ).
 //
 size_t TcpSocket::DefaultReadFrame  = 8192;
 size_t TcpSocket::DefaultWriteFrame = 8192;
@@ -952,7 +953,7 @@ int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
 int InetUrl::Parse(const char * pUrl)
 {
 	// http://<host>:<port>/<context>
-	// <схема>://<логин>:<пароль>@<хост>:<порт>/<URL-путь>?<параметры>#<якорь>
+	// <СЃС…РµРјР°>://<Р»РѕРіРёРЅ>:<РїР°СЂРѕР»СЊ>@<С…РѕСЃС‚>:<РїРѕСЂС‚>/<URL-РїСѓС‚СЊ>?<РїР°СЂР°РјРµС‚СЂС‹>#<СЏРєРѕСЂСЊ>
 	//
 	// Divisors: :, :/, ://, :\, :\\, /, \, ?, #, @
 
@@ -975,13 +976,13 @@ int InetUrl::Parse(const char * pUrl)
 		int    _done = 0;
 		{
 			//
-			// Сначала разберем специальные случаи, которые не обрабатываются функцией UriParseUri
+			// РЎРЅР°С‡Р°Р»Р° СЂР°Р·Р±РµСЂРµРј СЃРїРµС†РёР°Р»СЊРЅС‹Рµ СЃР»СѓС‡Р°Рё, РєРѕС‚РѕСЂС‹Рµ РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ С„СѓРЅРєС†РёРµР№ UriParseUri
 			// Note:
-			//   Этот блок требует значительных уточнений, в том числе касательно очень специальных случаев
-			//   вроде \\.\COM1
+			//   Р­С‚РѕС‚ Р±Р»РѕРє С‚СЂРµР±СѓРµС‚ Р·РЅР°С‡РёС‚РµР»СЊРЅС‹С… СѓС‚РѕС‡РЅРµРЅРёР№, РІ С‚РѕРј С‡РёСЃР»Рµ РєР°СЃР°С‚РµР»СЊРЅРѕ РѕС‡РµРЅСЊ СЃРїРµС†РёР°Р»СЊРЅС‹С… СЃР»СѓС‡Р°РµРІ
+			//   РІСЂРѕРґРµ \\.\COM1
 			//
 			if(_url[1] == ':' && IsLetterASCII(_url[0])) {
-				// Путь файловой системы
+				// РџСѓС‚СЊ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
 				Protocol = GetSchemeId("file");
 				TermList.Add(cScheme, "file", 1);
 				TermList.Add(cPath, _url, 1);
@@ -989,15 +990,15 @@ int InetUrl::Parse(const char * pUrl)
 				_done = 1;
 			}
 			else if(oneof2(_url[0], '/', '\\') && oneof2(_url[1], '/', '\\')) {
-				// Путь файловой системы
+				// РџСѓС‚СЊ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
 				Protocol = GetSchemeId("file");
 				TermList.Add(cScheme, "file", 1);
 				TermList.Add(cPath, _url, 1);
 				State &= ~stEmpty;
 				_done = 1;
 			}
-			else if(oneof2(_url[0], '/', '\\')) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
-				// Путь файловой системы
+			else if(oneof2(_url[0], '/', '\\')) { // РЎРѕРјРЅРёС‚РµР»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№, РЅРѕ РїСѓС‚Рё С‚РёРїР° "/abc/catalog/x.bin" СЂРµР°Р»СЊРЅРѕСЃС‚СЊ
+				// РџСѓС‚СЊ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
 				Protocol = GetSchemeId("file");
 				TermList.Add(cScheme, "file", 1);
 				TermList.Add(cPath, _url, 1);
@@ -1005,7 +1006,7 @@ int InetUrl::Parse(const char * pUrl)
 				_done = 1;
 			}
 			else if(_url.CmpPrefix("file:", 1) == 0 && oneof2(_url[5], '/', '\\') && oneof2(_url[6], '/', '\\') && oneof2(_url[7], '/', '\\')) {
-				// Путь файловой системы, начиная с _url[8]
+				// РџСѓС‚СЊ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹, РЅР°С‡РёРЅР°СЏ СЃ _url[8]
 				Protocol = GetSchemeId("file");
 				TermList.Add(cScheme, "file", 1);
 				TermList.Add(cPath, _url+8, 1);
@@ -1612,7 +1613,7 @@ int SLAPI SMailMessage::ProcessInputLine(ParserBlock & rBlk, const SString & rLi
 				rBlk.P_B->LineNo_Start = rBlk.LineNo;
 			}
 		}
-		else { // Лидирующие "--" могут быть просто текстом (но только если мы в rBlk.stBody или rBlk.stMimePartBody
+		else { // Р›РёРґРёСЂСѓСЋС‰РёРµ "--" РјРѕРіСѓС‚ Р±С‹С‚СЊ РїСЂРѕСЃС‚Рѕ С‚РµРєСЃС‚РѕРј (РЅРѕ С‚РѕР»СЊРєРѕ РµСЃР»Рё РјС‹ РІ rBlk.stBody РёР»Рё rBlk.stMimePartBody
 			if(oneof2(rBlk.State, rBlk.stBody, rBlk.stMimePartBody)) {
 				THROW(DecodeMimeStringToBuffer(rLineBuf, rBlk.P_B->ContentTransfEnc, rBlk.P_B->Data));
 			}
@@ -2108,9 +2109,9 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 		GetField(fldSubj, temp_buf);
 		/*if(temp_buf == SUBJECTDBDIV) {
 			//
-			// Специальный случай: так как кодировка в UTF8 введена с версии 7.6.3, которая не предполагает
-			// обновлений во всех разделах, то дабы более старые версии могли принять почту из 7.6.3 и выше,
-			// не будем кодировать SUBJECTDBDIV ($PpyDbDivTransmission$)
+			// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: С‚Р°Рє РєР°Рє РєРѕРґРёСЂРѕРІРєР° РІ UTF8 РІРІРµРґРµРЅР° СЃ РІРµСЂСЃРёРё 7.6.3, РєРѕС‚РѕСЂР°СЏ РЅРµ РїСЂРµРґРїРѕР»Р°РіР°РµС‚
+			// РѕР±РЅРѕРІР»РµРЅРёР№ РІРѕ РІСЃРµС… СЂР°Р·РґРµР»Р°С…, С‚Рѕ РґР°Р±С‹ Р±РѕР»РµРµ СЃС‚Р°СЂС‹Рµ РІРµСЂСЃРёРё РјРѕРіР»Рё РїСЂРёРЅСЏС‚СЊ РїРѕС‡С‚Сѓ РёР· 7.6.3 Рё РІС‹С€Рµ,
+			// РЅРµ Р±СѓРґРµРј РєРѕРґРёСЂРѕРІР°С‚СЊ SUBJECTDBDIV ($PpyDbDivTransmission$)
 			//
 		}
 		else*/ {
@@ -2249,8 +2250,8 @@ SMailMessage::Boundary * SLAPI SMailMessage::AttachFile(Boundary * pB, int forma
 		SETIFZ(pB, &B);
 		if(pB->Children.getCount() == 0) {
 			//
-			// Если в boundary нет ни одного дочернего элемента, то необходимо создать
-			// текстовый дочерний boundary иначе наш attachment может быть не верно истолкован
+			// Р•СЃР»Рё РІ boundary РЅРµС‚ РЅРё РѕРґРЅРѕРіРѕ РґРѕС‡РµСЂРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р°, С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ СЃРѕР·РґР°С‚СЊ
+			// С‚РµРєСЃС‚РѕРІС‹Р№ РґРѕС‡РµСЂРЅРёР№ boundary РёРЅР°С‡Рµ РЅР°С€ attachment РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµ РІРµСЂРЅРѕ РёСЃС‚РѕР»РєРѕРІР°РЅ
 			//
 			THROW(AttachContent(pB, SFileFormat::Txt, cpUTF8, "", 0));
 		}
@@ -2271,7 +2272,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::AttachFile(Boundary * pB, int forma
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 			AddS(temp_buf, &p_result->Cd.NameP);
 			p_result->Cd.FileNameP = p_result->Cd.NameP;
-			p_result->Ct.NameP = p_result->Cd.NameP; // В Content-Type тоже надо имя вставить
+			p_result->Ct.NameP = p_result->Cd.NameP; // Р’ Content-Type С‚РѕР¶Рµ РЅР°РґРѕ РёРјСЏ РІСЃС‚Р°РІРёС‚СЊ
 		}
 		p_result->Cd.Type = ContentDispositionBlock::tAttachment;
 	}
@@ -2309,7 +2310,7 @@ int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString 
 		}
 		else if(temp_buf.SearchChar('<', &ang_pos)) {
 			//
-			// Предполагаем, что имя получателя (name_buf) задано в UTF8
+			// РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ РёРјСЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ (name_buf) Р·Р°РґР°РЅРѕ РІ UTF8
 			//
 			temp_buf.Sub(0, ang_pos, name_buf);
 			temp_buf.Sub(ang_pos, temp_buf.Len()-ang_pos, addr_buf);
@@ -2429,7 +2430,7 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		}
 		rBuf.Write(out_buf.ucptr(), out_buf.Len());
 		//
-		// Переключаемся на следующую фазу
+		// РџРµСЂРµРєР»СЋС‡Р°РµРјСЃСЏ РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ С„Р°Р·Сѓ
 		//
 		Phase = phsBoundaryHeader;
 		P_Cb = &R_Msg.B;
@@ -2546,7 +2547,7 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		R_Msg.GetS(P_Cb->ContentDescrP, temp_buf);
 		if(temp_buf.NotEmptyS())
 			out_buf.Cat("Content-Description").CatDiv(':', 2).Cat(temp_buf).CRB();
-		out_buf.CRB(); // Перевод каретки перед содержанием
+		out_buf.CRB(); // РџРµСЂРµРІРѕРґ РєР°СЂРµС‚РєРё РїРµСЂРµРґ СЃРѕРґРµСЂР¶Р°РЅРёРµРј
 		rBuf.Write(out_buf.ucptr(), out_buf.Len());
 		//
 		Phase = phsBoundaryBody;
@@ -2561,10 +2562,10 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 			const size_t avail_size = P_Cb->Data.GetAvailableSize();
 			if(RdDataOff < avail_size) {
 				//
-				// Note: Из буфера P_Cb->Data мы здесь читаем не меняя позиции его внутреннего указателя чтения
-				// для того, чтобы сохранить константность объекта.
+				// Note: РР· Р±СѓС„РµСЂР° P_Cb->Data РјС‹ Р·РґРµСЃСЊ С‡РёС‚Р°РµРј РЅРµ РјРµРЅСЏСЏ РїРѕР·РёС†РёРё РµРіРѕ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ СѓРєР°Р·Р°С‚РµР»СЏ С‡С‚РµРЅРёСЏ
+				// РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СЃРѕС…СЂР°РЅРёС‚СЊ РєРѕРЅСЃС‚Р°РЅС‚РЅРѕСЃС‚СЊ РѕР±СЉРµРєС‚Р°.
 				//
-				int    is_broken = 0; // Признак того, что процесс чтения был искусственно прерван
+				int    is_broken = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРѕС†РµСЃСЃ С‡С‚РµРЅРёСЏ Р±С‹Р» РёСЃРєСѓСЃСЃС‚РІРµРЅРЅРѕ РїСЂРµСЂРІР°РЅ
 				const uint8 * p_src_buf = PTR8C(P_Cb->Data.GetBuf(P_Cb->Data.GetRdOffs()));
 				while(!is_broken && RdDataOff < avail_size) {
 					const size_t actual_size = MIN((avail_size-RdDataOff), 57);
@@ -2590,7 +2591,7 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 			}
 			{
 				size_t actual_size = 0;
-				int    is_broken = 0; // Признак того, что процесс чтения был искусственно прерван
+				int    is_broken = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРѕС†РµСЃСЃ С‡С‚РµРЅРёСЏ Р±С‹Р» РёСЃРєСѓСЃСЃС‚РІРµРЅРЅРѕ РїСЂРµСЂРІР°РЅ
 				int    rr = 0;
 				while(!is_broken && (rr = P_InStream->Read(mime_buf, 57, &actual_size)) > 0) {
 					temp_buf.EncodeMime64(mime_buf, actual_size).CRB();
@@ -2643,7 +2644,7 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 				do_close_boundary = 1;
 			}
 			if(do_close_boundary && P_Cb->P_Parent) {
-				out_buf.Z(); // Пустая строка не нужна - перевод каретки не добавляем
+				out_buf.Z(); // РџСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР° РЅРµ РЅСѓР¶РЅР° - РїРµСЂРµРІРѕРґ РєР°СЂРµС‚РєРё РЅРµ РґРѕР±Р°РІР»СЏРµРј
 				R_Msg.GetS(P_Cb->P_Parent->Ct.BoundaryP, temp_buf);
 				if(temp_buf.NotEmptyS())
 					out_buf.Cat("--").Cat(temp_buf).Cat("--").CRB();
@@ -3572,7 +3573,7 @@ int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rE
 		drwxr-xr-x   1 ftp      ftp             0 Aug 07 16:49 test
 
 		-rw-r--r--   1 ftp      ftp             0 Aug 07 16:51 file-ascii.txt
-		-rw-r--r--   1 ftp      ftp             0 Aug 07 16:52 file-cp1251-русские буквы.txt
+		-rw-r--r--   1 ftp      ftp             0 Aug 07 16:52 file-cp1251-СЂСѓСЃСЃРєРёРµ Р±СѓРєРІС‹.txt
 	*/
 	int    ok = 1;
 	SString temp_buf;
@@ -4028,7 +4029,7 @@ int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & r
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0));
-	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, 0))); // По умолчанию cURL применяет retr.
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, 0))); // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ cURL РїСЂРёРјРµРЅСЏРµС‚ retr.
 	{
 		SBuffer reply_buf;
 		SFile reply_stream(reply_buf, SFile::mWrite);
@@ -4061,7 +4062,7 @@ int ScURL::Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN)
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
-	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "DELE"))); // Номер сообщения в пути (see above)
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "DELE"))); // РќРѕРјРµСЂ СЃРѕРѕР±С‰РµРЅРёСЏ РІ РїСѓС‚Рё (see above)
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_NOBODY, 1L)));
 	THROW(Execute());
 	CATCHZOK
@@ -4194,7 +4195,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
         THROW(oneof8(prot_src, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protPOP3, InetUrl::protPOP3S));
         THROW(oneof8(prot_dest, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protSMTP, InetUrl::protSMTPS));
 		THROW(prot_src == InetUrl::protFile || prot_dest == InetUrl::protFile);
-		if(prot_src == InetUrl::protFile) { // Отправка локального файла
+		if(prot_src == InetUrl::protFile) { // РћС‚РїСЂР°РІРєР° Р»РѕРєР°Р»СЊРЅРѕРіРѕ С„Р°Р№Р»Р°
 			SString local_path_src;
 			url_src.GetComponent(InetUrl::cPath, 0, local_path_src);
 			ResultItem ri;
@@ -4258,7 +4259,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
                 }
 			}
 		}
-		else if(prot_dest == InetUrl::protFile) { // Получение файла в локальный каталог
+		else if(prot_dest == InetUrl::protFile) { // РџРѕР»СѓС‡РµРЅРёРµ С„Р°Р№Р»Р° РІ Р»РѕРєР°Р»СЊРЅС‹Р№ РєР°С‚Р°Р»РѕРі
 			SString local_path_dest;
 			SString filt_filename;
 			url_dest.GetComponent(InetUrl::cPath, 0, local_path_dest);
@@ -4375,7 +4376,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
                 }
 				{
 					LAssocArray mail_list;
-					SPathStruc ps_src; // Структура имени исходного файла (в письме)
+					SPathStruc ps_src; // РЎС‚СЂСѓРєС‚СѓСЂР° РёРјРµРЅРё РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° (РІ РїРёСЃСЊРјРµ)
 					THROW(curl.Pop3List(url_src, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, mail_list));
 					{
 						SString _progress_src;
@@ -4534,13 +4535,13 @@ static void SLAPI Test_MakeEmailMessage(SMailMessage & rMsg)
 	SString path;
 	SString temp_buf;
 	SBuffer data_buf;
-	temp_buf.Z().Cat("Соболев Антон").Space().CatChar('<').Cat("soobolev@yandex.ru").CatChar('>').Transf(CTRANSF_OUTER_TO_UTF8);
+	temp_buf.Z().Cat("РЎРѕР±РѕР»РµРІ РђРЅС‚РѕРЅ").Space().CatChar('<').Cat("soobolev@yandex.ru").CatChar('>').Transf(CTRANSF_OUTER_TO_UTF8);
 	rMsg.SetField(rMsg.fldFrom, temp_buf);
-	temp_buf.Z().Cat("Соболев Антон").Space().CatChar('<').Cat("sobolev@petroglif.ru").CatChar('>');
-	temp_buf.Comma().Cat("Папирус Сольюшн").Space().CatChar('<').Cat("papyrussolution@gmail.com").CatChar('>');
-	temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+	temp_buf.Z().Cat("РЎРѕР±РѕР»РµРІ РђРЅС‚РѕРЅ").Space().CatChar('<').Cat("sobolev@petroglif.ru").CatChar('>');
+	temp_buf.Comma().Cat("РџР°РїРёСЂСѓСЃ РЎРѕР»СЊСЋС€РЅ").Space().CatChar('<').Cat("papyrussolution@gmail.com").CatChar('>');
+	// @v10.4.5 temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 	rMsg.SetField(rMsg.fldTo, temp_buf);
-	temp_buf.Z().Cat("Тестовое письмо для проверки правильности формирования сообщения. Вот!").Transf(CTRANSF_OUTER_TO_UTF8);
+	temp_buf.Z().Cat("РўРµСЃС‚РѕРІРѕРµ РїРёСЃСЊРјРѕ РґР»СЏ РїСЂРѕРІРµСЂРєРё РїСЂР°РІРёР»СЊРЅРѕСЃС‚Рё С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ. Р’РѕС‚!")/* @v10.4.5 .Transf(CTRANSF_OUTER_TO_UTF8)*/;
 	rMsg.SetField(rMsg.fldSubj, temp_buf);
 	{
 		{

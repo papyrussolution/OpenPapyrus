@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -50,8 +50,7 @@ public:
 		}
 		SString & GetVerLabel(SString & rBuf) const
 		{
-			rBuf.Z().Cat(Ver.Major).Dot().Cat(Ver.Minor).Dot().CatLongZ(Ver.Revision, 2).
-				CatChar('(').Cat(Ver.Asm).CatChar(')');
+			rBuf.Z().Cat(Ver.Major).Dot().Cat(Ver.Minor).Dot().CatLongZ(Ver.Revision, 2).CatChar('(').Cat(Ver.Asm).CatChar(')');
 			return rBuf;
 		}
 		BuildVer Ver;            // Собираемая версия //
@@ -81,7 +80,6 @@ public:
 	int	   SLAPI Run();
 	int    SLAPI Build();
 	int    SLAPI BuildLocalDl600(const char * pPath);
-	//
 	Param::ConfigEntry * SLAPI SetupParamByEntryIdx(Param * pParam);
 private:
 	static int CopyProgressProc(const SDataMoveProgressInfo * scfd); // SDataMoveProgressProc
@@ -796,4 +794,63 @@ int SLAPI BuildLocalDL600()
 {
 	PrcssrBuild prc;
 	return prc.BuildLocalDl600(0);
+}
+
+int SLAPI ParseWinRcForNativeText()
+{
+	int    ok = 1;
+	SString line_buf;
+	SString out_line_buf;
+	SString temp_buf;
+	SString build_root_path;
+	SString src_file_name;
+	PPIniFile ini_file;
+	ini_file.Get(PPINISECT_SELFBUILD, PPINIPARAM_BUILDROOT, temp_buf.Z());
+	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDROOT);
+	THROW_SL(fileExists(temp_buf));
+	build_root_path = temp_buf;
+	//
+	ini_file.Get(PPINISECT_SELFBUILD, PPINIPARAM_BUILDSRC, temp_buf.Z());
+	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDSRC);
+	(src_file_name = build_root_path).SetLastSlash().Cat(temp_buf);
+	THROW_SL(fileExists(src_file_name));
+	src_file_name.SetLastSlash().Cat("ppmain\\ppw.rc");
+	{
+		SFile  f_in(src_file_name, SFile::mRead);
+		if(f_in.IsValid()) {
+			SPathStruc ps(src_file_name);
+			ps.Nam.CatChar('-').Cat("nativetext");
+			ps.Ext = "tsv";
+			ps.Merge(temp_buf);
+			SFile  f_out(temp_buf, SFile::mWrite);
+			uint   line_no = 0;
+			while(f_in.ReadLine(line_buf)) {
+				line_buf.Chomp();
+				line_no++;
+				SStrScan scan(line_buf);
+				while(scan.SearchChar('\"')) {
+					scan.IncrLen();
+					if(scan.GetQuotedString(temp_buf)) {
+						temp_buf.Strip();
+						int    is_native_text = 0;
+						for(uint cidx = 0; !is_native_text && cidx < temp_buf.Len(); cidx++) {
+							uchar c = static_cast<uchar>(temp_buf.C(cidx));
+							if(c > 127)
+								is_native_text = 1;
+						}
+						if(is_native_text) {
+							out_line_buf.Z().Cat(temp_buf).Tab().Cat(line_no).CR().Transf(CTRANSF_OUTER_TO_UTF8);
+							f_out.WriteLine(out_line_buf);
+						}
+					}
+					else
+						scan.Incr();
+				}
+			}
+		}
+	}
+	CATCH
+		ok = PPErrorZ();
+	ENDCATCH
+	return ok;
 }

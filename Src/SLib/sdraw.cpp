@@ -211,7 +211,7 @@ template <class F> SDrawFigure * DupDrawFigure(const SDrawFigure * pThis)
 {
 	F * p_dup = new F;
 	if(p_dup)
-		p_dup->Copy((F &)*pThis);
+		p_dup->Copy(static_cast<const F &>(*pThis));
 	else
 		SLS.SetError(SLERR_NOMEM);
 	return p_dup;
@@ -220,7 +220,7 @@ template <class F> SDrawFigure * DupDrawFigure(const SDrawFigure * pThis)
 // static
 int FASTCALL SDrawFigure::CheckKind(int kind)
 {
-	if(oneof5(kind, kShape, kPath, kGroup, kImage, kText))
+	if(oneof6(kind, kShape, kPath, kGroup, kImage, kText, kRef)) // @v10.4.5 kRef
 		return 1;
 	else {
 		SString msg_buf;
@@ -285,8 +285,9 @@ SDrawFigure * SDrawFigure::Unserialize(SBuffer & rBuf, SSerializeContext * pCtx)
 		case kImage: p_instance = new SDrawImage; break;
 		case kText:  p_instance = new SDrawText; break;
 		case kGroup:
-			p_instance = (flags & SDrawFigure::fDraw) ? new SDraw : new SDrawGroup;
+			p_instance = (flags & SDrawFigure::fDraw) ? new SDraw : new SDrawGroup(0, (flags & SDrawFigure::fSymbolGroup) ? SDrawGroup::dgtSymbol : SDrawGroup::dgtOrdinary);
 			break;
+		case kRef: p_instance = new SDrawRef; break; // @v10.4.5
 		default:
 			#define Invalid_DrawFigure_Kind 0
 			assert(Invalid_DrawFigure_Kind);
@@ -411,6 +412,28 @@ SDrawImage * SDrawFigure::DupToImage(TPoint size, const SViewPort * pVp, const c
 	return p_fig;
 }
 
+const SDrawFigure * SDrawFigure::SearchRef(const char * pSid) const
+{
+	const SDrawFigure * p_result = 0;
+	if(Sid.IsEqiAscii(pSid))
+		p_result = this;
+	else {
+		const SDrawFigure * p_root = 0;
+		for(const SDrawFigure * p_par = P_Parent; p_par; p_par = p_par->P_Parent) {
+			p_root = p_par;
+		}
+		SETIFZ(p_root, this);
+		assert(p_root);
+		if(p_root) {
+			if(p_root->Kind == kGroup && !(p_root->Flags & fSymbolGroup)) {
+				const SDrawGroup * p_group = static_cast<const SDrawGroup *>(p_root);
+				p_result = p_group->Find(pSid, 1);
+			}
+		}
+	}
+	return p_result;
+}
+
 void SDrawFigure::SetStyle(int identPen, int identBrush, long flags)
 {
 	IdPen = identPen;
@@ -473,6 +496,32 @@ SDrawFigure * SDrawShape::Dup() const { return DupDrawFigure <SDrawShape> (this)
 //
 //
 //
+SDrawRef::SDrawRef(const char * pSid) : SDrawFigure(kRef, pSid)
+{
+}
+
+SDrawFigure * SDrawRef::Dup() const { return DupDrawFigure <SDrawRef> (this); }
+
+int SDrawRef::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	int    ok = 1;
+	THROW(SDrawFigure::Serialize(dir, rBuf, pCtx));
+	THROW(pCtx->Serialize(dir, Ref, rBuf));
+	THROW(pCtx->Serialize(dir, Origin, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+int FASTCALL SDrawRef::Copy(const SDrawRef & rS)
+{
+	int    ok = SDrawFigure::Copy(rS);
+	Ref = rS.Ref;
+	Origin = rS.Origin;
+	return ok;
+}
+//
+//
+//
 SDrawText::SDrawText(const char * pSid) : SDrawFigure(kText, pSid), IdFont(0), Begin(0.0f)
 {
 }
@@ -503,8 +552,10 @@ SDrawFigure * SDrawText::Dup() const { return DupDrawFigure <SDrawText> (this); 
 //
 //
 //
-SDrawGroup::SDrawGroup(const char * pSid) : SDrawFigure(kGroup, pSid)
+SDrawGroup::SDrawGroup(const char * pSid, int dgt) : SDrawFigure(kGroup, pSid)
 {
+	if(dgt == dgtSymbol)
+		Flags |= SDrawFigure::fSymbolGroup;
 }
 
 SDrawFigure * SDrawGroup::Dup() const { return DupDrawFigure <SDrawGroup> (this); }
@@ -1028,17 +1079,17 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 	return ok;
 }
 
-SDraw::SDraw() : SDrawGroup(0), P_Tb(0)
+SDraw::SDraw() : SDrawGroup(0, SDrawGroup::dgtOrdinary), P_Tb(0)
 {
 	Flags |= fDraw;
 }
 
-SDraw::SDraw(const char * pSid) : SDrawGroup(pSid), P_Tb(0)
+SDraw::SDraw(const char * pSid) : SDrawGroup(pSid, SDrawGroup::dgtOrdinary), P_Tb(0)
 {
 	Flags |= fDraw;
 }
 
-SDraw::SDraw(const char * pSid, SPaintToolBox * pOuterTb) : SDrawGroup(pSid)
+SDraw::SDraw(const char * pSid, SPaintToolBox * pOuterTb) : SDrawGroup(pSid, SDrawGroup::dgtOrdinary)
 {
 	Flags |= fDraw;
 	if(pOuterTb) {

@@ -2340,9 +2340,9 @@ int DrawInputLine(HWND hwnd, DRAWITEMSTRUCT * pDi)
 int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = -1;
-	TStatusWin::StItem * p_item = (TStatusWin::StItem*)(pDi->itemData);
+	TStatusWin::StItem * p_item = reinterpret_cast<TStatusWin::StItem *>(pDi->itemData);
 	if(p_item) {
-		int    hotlight = (pDi->itemState & ODS_HOTLIGHT) ? 1 : 0;
+		int    hotlight = BIN(pDi->itemState & ODS_HOTLIGHT);
 		HBRUSH brush = 0, old_brush = 0;
 		HPEN   pen = 0, old_pen = 0;
 		RECT   out_r;
@@ -2350,7 +2350,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			brush = CreateSolidBrush((COLORREF)p_item->Color);
 			old_brush = static_cast<HBRUSH>(::SelectObject(pDi->hDC, brush));
 			pen = CreatePen(PS_SOLID, 1, p_item->Color);
-			old_pen = (HPEN)SelectObject(pDi->hDC, pen);
+			old_pen = static_cast<HPEN>(::SelectObject(pDi->hDC, pen));
 		}
 		out_r = pDi->rcItem;
 		if(!hotlight) {
@@ -2389,7 +2389,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				SetCursor(arrow_cursor);
 			}
 			SetTextColor(pDi->hDC, p_item->TextColor);
-			old_font = (HFONT)SelectObject(pDi->hDC, font);
+			old_font = static_cast<HFONT>(::SelectObject(pDi->hDC, font));
 			InflateRect(&out_r, -1, -1);
 			::DrawText(pDi->hDC, SUcSwitch(p_item->str), sstrleni(p_item->str), &out_r, text_out_fmt); // @unicodeproblem
 			if(old_font)
@@ -2496,7 +2496,7 @@ int TProgram::CloseAllBrowsers()
 			hw = GetNextWindow(hw, GW_HWNDNEXT);
 		if(hw) {
 			if(hw != APPL->H_Desktop) {
-				TBaseBrowserWindow * p_brw = (TBaseBrowserWindow *)TView::GetWindowUserData(hw);
+				TBaseBrowserWindow * p_brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
 				p_brw->endModal(cmCancel);
 			}
 			else

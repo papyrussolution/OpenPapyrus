@@ -1,5 +1,6 @@
 // SSVG.CPP
 // Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -92,7 +93,7 @@ private:
 		SPaintObj::Pen Pen;
 		SPaintObj::Brush Brush;
 		SColor GradientColor;
-		float  Opacity; // Îáùàÿ (íå)ïðîçðà÷íîñòü ýëåìåíòà.
+		float  Opacity; // ÐžÐ±Ñ‰Ð°Ñ (Ð½Ðµ)Ð¿Ñ€Ð¾Ð·Ñ€Ð°Ñ‡Ð½Ð¾ÑÑ‚ÑŒ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð°.
 		long   Flags;
 		int    IdPen;
 		int    IdBrush;
@@ -138,7 +139,7 @@ private:
 	SString SymbPrefix;
 	SString TempBuf;  // @allocreuse
 	SDraw * P_Result; // @notowned
-	long   ReScpNumber; // Èäåíòèôèêàòîð ðåãóëÿðíîãî âûðàæåíèÿ, ïðåäñòàâëÿþùåãî ÷èñëî áåç îáÿçàòåëüíîé âåäóùåé öèôðû (äîïóñòèìû òî÷êà, + èëè -)
+	long   ReScpNumber; // Ð˜Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ñ€ÐµÐ³ÑƒÐ»ÑÑ€Ð½Ð¾Ð³Ð¾ Ð²Ñ‹Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ, Ð¿Ñ€ÐµÐ´ÑÑ‚Ð°Ð²Ð»ÑÑŽÑ‰ÐµÐ³Ð¾ Ñ‡Ð¸ÑÐ»Ð¾ Ð±ÐµÐ· Ð¾Ð±ÑÐ·Ð°Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ð¹ Ð²ÐµÐ´ÑƒÑ‰ÐµÐ¹ Ñ†Ð¸Ñ„Ñ€Ñ‹ (Ð´Ð¾Ð¿ÑƒÑÑ‚Ð¸Ð¼Ñ‹ Ñ‚Ð¾Ñ‡ÐºÐ°, + Ð¸Ð»Ð¸ -)
 };
 
 SSvg::StyleBlock::StyleBlock()
@@ -471,8 +472,7 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 			_GetUSize(rVal, DIREC_UNKN, rBlk.Pen.W__);
 			break;
 		default:
-			// @v8.9.9 ok = -1;
-			ok |= psirUnknOccured; // @v8.9.9
+			ok |= psirUnknOccured;
 			break;
 	}
 	return ok;
@@ -602,13 +602,11 @@ int SSvg::_GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigA
 					style_flags |= SDrawFigure::fNullBrush; 
 				}
 				else { // } @v9.7.10 
-					// @v8.9.9 {
 					if(!rA.IdBrush) {
 						color_id = p_tb->CreateColor(0, SColor(SClrBlack)); // @v9.1.9 SClrBlack-->SColor(SClrBlack)
 						if(color_id != 0)
 							rA.IdBrush = color_id;
 					}
-					// } @v8.9.9
 				}
 			}
 			CALLPTRMEMB(pFig, SetStyle(rA.IdPen, rA.IdBrush, style_flags));
@@ -632,7 +630,14 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 		int    token = (p_node->type == XML_ELEMENT_NODE) ? GetToken((const char *)p_node->name) : 0;
 		uint32 coord_ready = 0;
 		switch(token) {
-			case tSymbol: // @todo
+			case tSymbol: // @v10.4.5
+				{
+					SDrawGroup * p_group = new SDrawGroup(0, SDrawGroup::dgtSymbol);
+					THROW_S(p_group, SLERR_NOMEM);
+					GetAttrList(p_node, attr_list);
+					THROW(_GetCommonFigAttrAndInsert(attr_list, cfa, p_group, &rGroup));
+					ParsePrimitivs(p_node, *p_group, rTempScan); // @recursion
+				}
 				break;
 			case tGroup:
 				{
@@ -834,7 +839,29 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 			case tDefs:
 				ParsePrimitivs(p_node, rGroup, rTempScan); // @recursion
 				break;
-			case tUse:
+			case tUse: // @v10.4.5
+				{
+					SDrawRef * p_ref = new SDrawRef;
+					FPoint sz;
+					GetAttrList(p_node, attr_list);
+					if(attr_list.GetText(tHRef, temp_buf)) {
+						p_ref->Ref = temp_buf.Strip();
+					}
+					else if(attr_list.GetText(tX, temp_buf)) {
+						p_ref->Origin.X = temp_buf.ToFloat();
+					}
+					else if(attr_list.GetText(tY, temp_buf)) {
+						p_ref->Origin.Y = temp_buf.ToFloat();
+					}
+					/*else if(attr_list.GetText(tWidth, temp_buf)) {
+						sz.X = temp_buf.ToFloat();
+					}
+					else if(attr_list.GetText(tHeight, temp_buf)) {
+						sz.Y = temp_buf.ToFloat();
+					}*/
+					p_ref->SetSize(sz);
+					THROW(_GetCommonFigAttrAndInsert(attr_list, cfa, p_ref, &rGroup));
+				}
 				break;
 			case tText:
 				break;
@@ -987,7 +1014,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 						}
 					}
 					//
-					// Ñîõðàíÿåì ãðàäèåíò
+					// Ð¡Ð¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ð³Ñ€Ð°Ð´Ð¸ÐµÐ½Ñ‚
 					//
 					if(p_tb) {
 						int ident = p_tb->CreateDynIdent(MakePaintObjSymb(sid.Strip()));

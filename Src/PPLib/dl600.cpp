@@ -1726,7 +1726,7 @@ DLSYMBID FASTCALL DlContext::SearchUuid(const S_GUID_Base & rUuid) const
 		SString msg_buf;
 		SetError(PPERR_UUIDNFOUND, rUuid.ToStr(S_GUID::fmtIDL, msg_buf).Quot('[', ']'));
 	}
-	return (DLSYMBID)key;
+	return static_cast<DLSYMBID>(key);
 }
 
 int SLAPI DlContext::GetUuidByScopeID(DLSYMBID scopeID, S_GUID * pUuid) const

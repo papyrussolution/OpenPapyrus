@@ -1,61 +1,59 @@
 // NMBTOTXT.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2002, 2004, 2006, 2007, 2016, 2017
+// Copyright (c) A.Sobolev 1996-2000, 2002, 2004, 2006, 2007, 2016, 2017, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
-#if 0
+#if 0 // {
+	static const char * digit_word[] = {
+		"–æ–¥–∏–Ω", "–æ–¥–Ω–∞",
+		"–¥–≤–∞", "–¥–≤–µ",
+		"—Ç—Ä–∏",
+		"—á–µ—Ç—ã—Ä–µ",
+		"–ø—è—Ç—å",
+		"—à–µ—Å—Ç—å",
+		"—Å–µ–º—å",
+		"–≤–æ—Å–µ–º—å",
+		"–¥–µ–≤—è—Ç—å",		// count 11
+		"–¥–µ—Å—è—Ç—å",
+		"–æ–¥–∏–Ω–Ω–∞–¥—Ü–∞—Ç—å",
+		"–¥–≤–µ–Ω–∞–¥—Ü–∞—Ç—å",
+		"—Ç—Ä–∏–Ω–∞–¥—Ü–∞—Ç—å",
+		"—á–µ—Ç—ã—Ä–Ω–∞–¥—Ü–∞—Ç—å",
+		"–ø—è—Ç–Ω–∞–¥—Ü–∞—Ç—å",
+		"—à–µ—Å—Ç–Ω–∞–¥—Ü–∞—Ç—å",
+		"—Å–µ–º–Ω–∞–¥—Ü–∞—Ç—å",
+		"–≤–æ—Å–µ–º–Ω–∞–¥—Ü–∞—Ç—å",
+		"–¥–µ–≤—è—Ç–Ω–∞–¥—Ü–∞—Ç—å",		// count 10
+		"–¥–≤–∞–¥—Ü–∞—Ç—å",
+		"—Ç—Ä–∏–¥—Ü–∞—Ç—å",
+		"—Å–æ—Ä–æ–∫",
+		"–ø—è—Ç—å–¥–µ—Å—è—Ç",
+		"—à–µ—Å—Ç—å–¥–µ—Å—è—Ç",
+		"—Å–µ–º—å–¥–µ—Å—è—Ç",
+		"–≤–æ—Å–µ–º—å–¥–µ—Å—è—Ç",
+		"–¥–µ–≤—è–Ω–æ—Å—Ç–æ",		// count 8
+		"—Å—Ç–æ",
+		"–¥–≤–µ—Å—Ç–∏",
+		"—Ç—Ä–∏—Å—Ç–∞",
+		"—á–µ—Ç—ã—Ä–µ—Å—Ç–∞",
+		"–ø—è—Ç—å—Å–æ—Ç",
+		"—à–µ—Å—Ç—å—Å–æ—Ç",
+		"—Å–µ–º—å—Å–æ—Ç",
+		"–≤–æ—Å–µ–º—å—Å–æ—Ç",
+		"–¥–µ–≤—è—Ç—å—Å–æ—Ç",		// count 9
+		/* 38 */
+		"–º–∏–ª–ª–∏–∞—Ä–¥", "–º–∏–ª–ª–∏–∞—Ä–¥–∞", "–º–∏–ª–ª–∏–∞—Ä–¥–æ–≤",
+		"–º–∏–ª–ª–∏–æ–Ω", "–º–∏–ª–ª–∏–æ–Ω–∞", "–º–∏–ª–ª–∏–æ–Ω–æ–≤",
+		"—Ç—ã—Å—è—á–∞", "—Ç—ã—Å—è—á–∏", "—Ç—ã—Å—è—á"
+	};
 
-static const char * digit_word[] = {
-	"Æ§®≠", "Æ§≠†",
-	"§¢†", "§¢•",
-	"‚‡®",
-	"Á•‚Î‡•",
-	"ØÔ‚Ï",
-	"Ë•·‚Ï",
-	"·•¨Ï",
-	"¢Æ·•¨Ï",
-	"§•¢Ô‚Ï",		// count 11
-	"§•·Ô‚Ï",
-	"Æ§®≠≠†§Ê†‚Ï",
-	"§¢•≠†§Ê†‚Ï",
-	"‚‡®≠†§Ê†‚Ï",
-	"Á•‚Î‡≠†§Ê†‚Ï",
-	"ØÔ‚≠†§Ê†‚Ï",
-	"Ë•·‚≠†§Ê†‚Ï",
-	"·•¨≠†§Ê†‚Ï",
-	"¢Æ·•¨≠†§Ê†‚Ï",
-	"§•¢Ô‚≠†§Ê†‚Ï",		// count 10
-	"§¢†§Ê†‚Ï",
-	"‚‡®§Ê†‚Ï",
-	"·Æ‡Æ™",
-	"ØÔ‚Ï§•·Ô‚",
-	"Ë•·‚Ï§•·Ô‚",
-	"·•¨Ï§•·Ô‚",
-	"¢Æ·•¨Ï§•·Ô‚",
-	"§•¢Ô≠Æ·‚Æ",		// count 8
-	"·‚Æ",
-	"§¢•·‚®",
-	"‚‡®·‚†",
-	"Á•‚Î‡•·‚†",
-	"ØÔ‚Ï·Æ‚",
-	"Ë•·‚Ï·Æ‚",
-	"·•¨Ï·Æ‚",
-	"¢Æ·•¨Ï·Æ‚",
-	"§•¢Ô‚Ï·Æ‚",		// count 9
-	/* 38 */
-	"¨®´´®†‡§", "¨®´´®†‡§†", "¨®´´®†‡§Æ¢",
-	"¨®´´®Æ≠", "¨®´´®Æ≠†", "¨®´´®Æ≠Æ¢",
-	"‚Î·ÔÁ†", "‚Î·ÔÁ®", "‚Î·ÔÁ"
-};
+	static const char *currency_word[] = { "—Ä—É–±–ª—å", "—Ä—É–±–ª—è", "—Ä—É–±–ª–µ–π", "–∫–æ–ø–µ–π–∫–∞", "–∫–æ–ø–µ–π–∫–∏", "–∫–æ–ø–µ–µ–∫" };
+	static const char * curr_word[] = {"—Ä—É–±", "–∫–æ–ø"};
+#endif // } 0
 
-static const char *currency_word[] = {
-	"‡„°´Ï", "‡„°´Ô", "‡„°´•©", "™ÆØ•©™†", "™ÆØ•©™®", "™ÆØ••™" };
-static const char * curr_word[] = {"‡„°", "™ÆØ"};
-
-#endif // 0
-
-static const char * zero_word = "≠Æ´Ï";
+// @v10.4.5 static const char * zero_word = "–Ω–æ–ª—å";
 
 static void SLAPI ParseNumber(double nmb, int parts[])
 {
@@ -105,27 +103,30 @@ static int _fastcall sfx_form(int n)
 
 char * SLAPI numbertotext(double nmb, long fmt, char * pBuf)
 {
-	SString digit_words;
-	int    n, i, parts[10];
+	SString temp_buf;
+	int    n, i;
+	int    parts[10];
 	char * p = pBuf;
 	pBuf[0] = 0;
 	if(!(fmt & NTTF_NOZERO) || R2(nmb) != 0) {
 		ParseNumber(nmb, parts);
-		if(round(nmb, 0/*2*/) == 0) {
-			p = stpcpy(p, zero_word);
+		if(round(nmb, 0/*2*/) == 0.0) {
+			PPLoadString("zero", temp_buf);
+			p = stpcpy(p, temp_buf);
 			parts[3] = 0;
 		}
 		else {
-			PPLoadText(PPTXT_NUMBERWORDS, digit_words);
-			for(i = 0; i < 4; i++)
+			PPLoadText(PPTXT_NUMBERWORDS, temp_buf);
+			for(i = 0; i < 4; i++) {
 				if((n = parts[i]) != 0) {
-					BelowThousandToText(n, i == 2 || (fmt & NTTF_FEMIN), digit_words, p);
+					BelowThousandToText(n, i == 2 || (fmt & NTTF_FEMIN), temp_buf, p);
 					if(p == pBuf)
 						trimleft(p);
 					p += sstrlen(p);
 					if(i < 3)
-						p = CopyDigitWord(digit_words, p, 38 + i * 3 + sfx_form(n));
+						p = CopyDigitWord(temp_buf, p, 38 + i * 3 + sfx_form(n));
 				}
+			}
 		}
 		i = (fmt & NTTF_DECCURR) ? 1 : 0;
 		if(fmt & NTTF_ABBRCURR) {

@@ -760,25 +760,24 @@ ComboBox * TInputLine::GetCombo() { return P_Combo; }
 void TInputLine::setMaxLen(int newMaxLen)
 {
 	maxLen = newMaxLen;
-	SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, (maxLen > 0) ? (maxLen-1) : 0, 0);
+	::SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, (maxLen > 0) ? (maxLen-1) : 0, 0);
 }
 
 void TInputLine::selectAll(int enable)
 {
-	SendDlgItemMessage(Parent, Id, EM_SETSEL, enable ? 0 : -1, -1);
+	::SendDlgItemMessage(Parent, Id, EM_SETSEL, enable ? 0 : -1, -1);
 }
 
-int TInputLine::setupCombo(ComboBox * pCombo)
+void TInputLine::setupCombo(ComboBox * pCombo)
 {
 	P_Combo = pCombo;
 	CALLPTRMEMB(pCombo, SetLink(this));
-	return 1;
 }
 
 void TInputLine::disableDeleteSelection(int _disable)
 {
 	SETFLAG(InlSt, stDisableDelSel, _disable);
-	SendDlgItemMessage(Parent, Id, EM_SETSEL, -1, -1);
+	::SendDlgItemMessage(Parent, Id, EM_SETSEL, -1, -1);
 }
 
 void TInputLine::Implement_Draw()
@@ -789,9 +788,9 @@ void TInputLine::Implement_Draw()
 	(text_buf = Data).Transf(CTRANSF_INNER_TO_OUTER); // @v9.1.5
 	TView::SSetWindowText(GetDlgItem(Parent, Id), text_buf); // @v9.1.5
 	if(IsInState(sfSelected))
-		SendDlgItemMessage(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
+		::SendDlgItemMessage(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
 	if(InlSt & stDisableDelSel)
-		SendDlgItemMessage(Parent, Id, WM_KEYDOWN, VK_END, 0);
+		::SendDlgItemMessage(Parent, Id, WM_KEYDOWN, VK_END, 0);
 }
 
 void TInputLine::setType(TYPEID typ)
@@ -807,8 +806,8 @@ void TInputLine::setFormat(long f)
 		TransmitData(-1, buf);
 		format = f;
 		setMaxLen(SFMTLEN(format));
-		if((format & STRF_PASSWORD))
-			SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
+		if(format & STRF_PASSWORD)
+			::SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
 		TransmitData(+1, buf);
 	}
 }
@@ -1029,7 +1028,7 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			break;
 		*/
 	}
-	return CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
+	return ::CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
 TCluster::TCluster(const TRect & bounds, int aClusterKind, const StringSet * pStrings) : TView(bounds), Value(0), Sel(0), Kind(aClusterKind), DisableMask(0)
@@ -1056,8 +1055,7 @@ TCluster::~TCluster()
 	if(PrevWindowProc)
 		for(int i = 0; i < 33; i++) {
 			HWND   h_wnd = GetDlgItem(Parent, MAKE_BUTTON_ID(Id, i+1));
-			// @v9.1.11 SetWindowLong(h_wnd, GWLP_WNDPROC, (long)PrevWindowProc);
-			TView::SetWindowProp(h_wnd, GWLP_WNDPROC, PrevWindowProc); // @v9.1.11
+			TView::SetWindowProp(h_wnd, GWLP_WNDPROC, PrevWindowProc);
 		}
 }
 

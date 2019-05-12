@@ -13185,17 +13185,19 @@ public:
 		kPath,      // Путь
 		kImage,     // Растровое изображение
 		kGroup,     // Контейнер содержащие произвольные фигуры (в т.ч. и группы)
-		kExtern,    // Объект, испольузющий внешнее описание SDrawFigure
+		// @v10.4.5 kExtern,    // Объект, использующий внешнее описание SDrawFigure
+		kRef,       // @v10.4.5 Фигура, правила отрисовки которой определяются ссылкой на иной объект в контейнера.
+			// Кроме собственно ссылки содержит ряд атрибутов, определяющий отрисовку данного экземпляра.
 		kText       // Текст
 	};
 	enum {
 		fOuterToolbox = 0x0001, // Объект использует внешний SPaintToolBox. Используется порожденными классами.
 		fDraw         = 0x0002, // Устанавливается классом SDraw для того,
-			// чтобы члены контейнера могли распознать его как родителя,
-			// имеющего специфические атрибуты (SPaintToolBox, например).
-		fDefinedSize  = 0x0004, // @!{SDrawFigure::SetSize} Размер элемента определен из-вне
-			// (то есть, он не должен рассчитываться).
-		fNullBrush    = 0x0008  // @v9.7.10 Без заливки (IdBrush игнорируется)
+			// чтобы члены контейнера могли распознать его как родителя, имеющего специфические атрибуты (SPaintToolBox, например).
+		fDefinedSize  = 0x0004, // @!{SDrawFigure::SetSize} Размер элемента определен из-вне (то есть, он не должен рассчитываться).
+		fNullBrush    = 0x0008, // @v9.7.10 Без заливки (IdBrush игнорируется)
+		fSymbolGroup  = 0x0010  // @v10.4.5 Флаг устанавливается у экземпляров вида kGroup, которые сами по себе не отрисовываются
+			// непосредственно, однако могут быть использованы как образцы для отрисовки по ссылке.
 	};
 
 	virtual ~SDrawFigure();
@@ -13225,6 +13227,7 @@ public:
 	SPaintToolBox * GetToolBox() const;
 	int    TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) const;
 	SDrawImage * DupToImage(TPoint size, const SViewPort * pVp, const char * pSid);
+	const  SDrawFigure * SearchRef(const char * pSymb) const;
 protected:
 	SDrawFigure(int kind, const char * pSid);
 	int    FASTCALL Copy(const SDrawFigure &);
@@ -13249,6 +13252,17 @@ public:
 	int    FASTCALL Copy(const SDrawShape & rS);
 
 	FShape S;
+};
+
+class SDrawRef : public SDrawFigure { // @persistent @store(SSerializeContext)
+public:
+	explicit SDrawRef(const char * pSid = 0);
+	virtual SDrawFigure * Dup() const;
+	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    FASTCALL Copy(const SDrawRef & rS);
+
+	SString Ref; // Текст, идентифицирующий объект для отрисовки
+	FPoint Origin;
 };
 
 class SDrawText : public SDrawFigure { // @persistent @store(SSerializeContext)
@@ -13341,7 +13355,11 @@ private:
 
 class SDrawGroup : public SDrawFigure, private TSCollection <SDrawFigure> { // @persistent @store(SSerializeContext)
 public:
-	explicit SDrawGroup(const char * pSid = 0);
+	enum {
+		dgtOrdinary = 0,
+		dgtSymbol   = 1
+	};
+	explicit SDrawGroup(const char * pSid = 0, int dgt = dgtOrdinary);
 	virtual SDrawFigure * Dup() const;
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL Copy(const SDrawGroup & rS);

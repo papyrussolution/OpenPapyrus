@@ -3569,7 +3569,7 @@ BEGIN
     EDITTEXT        CTL_BIZSCORE_FORMULA,10,100,300,13,ES_AUTOHSCROLL
     LTEXT           "@bizscore_bounds",4007,90,120,116,8
     EDITTEXT        CTL_BIZSCORE_BOUNDS,210,120,100,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "Тест",STDCTL_TESTBUTTON,15,145,50,13
+    PUSHBUTTON      "@test",STDCTL_TESTBUTTON,15,145,50,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,195,180,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,255,180,50,13
     LTEXT           "",CTL_BIZSCORE_TESTLINE,70,145,240,10,0,WS_EX_STATICEDGE
@@ -3636,7 +3636,7 @@ BEGIN
     LTEXT           "@formula",4004,5,50,32,8
     EDITTEXT        CTL_BIZSCTC_FORMULA,5,60,235,13,ES_AUTOHSCROLL
     LTEXT           "",CTL_BIZSCTC_TESTLINE,5,85,64,13,0,WS_EX_STATICEDGE
-    PUSHBUTTON      "Тест",4005,75,85,55,13
+    PUSHBUTTON      "@test",4005,75,85,55,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,135,85,55,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,195,85,55,13
 END
@@ -3679,7 +3679,7 @@ BEGIN
     LTEXT           "@formula",4005,5,60,32,8
     EDITTEXT        CTL_BIZSCTR_FORMULA,5,70,275,13,ES_AUTOHSCROLL
     LTEXT           "",CTL_BIZSCTR_TESTLINE,5,90,90,13,0,WS_EX_STATICEDGE
-    PUSHBUTTON      "Тест",4006,105,90,55,13
+    PUSHBUTTON      "@test",4006,105,90,55,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,165,90,55,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,225,90,55,13
 END
@@ -6788,14 +6788,14 @@ BEGIN
     LTEXT           "Соответствие кодов платежей",4003,10,60,112,8
     EDITTEXT        CTL_IMPEXPCLIBNK_PMCODES,10,70,220,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,10,90,100,35,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,100,75,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,100,75,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,110,75,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,120,95,95,13
     GROUPBOX        "",CTL_IMPEXP_DIR,10,124,100,35,WS_GROUP
     CONTROL         "@export",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,135,75,10
     CONTROL         "@import",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,145,75,10
     GROUPBOX        "",CTL_IMPEXP_FLAGS,120,110,170,35,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,125,120,163,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,125,120,163,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,125,130,163,10
     CONTROL         "Определять плательщика по знаку суммы",5350,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,120,150,160,13
     PUSHBUTTON      "@but_fldcorr",CTL_IMPEXP_BUT_FLDCORR,120,165,95,13
@@ -6814,12 +6814,12 @@ BEGIN
     LTEXT           "@appellation",4001,5,5,120,8
     EDITTEXT        CTL_IMPEXP_NAME,5,15,205,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,40,100,55,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,90,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,90,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,90,10
     CONTROL         "XML",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,90,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,80,90,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,110,45,100,13
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,110,60,92,13
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,110,60,92,13
     GROUPBOX        "",CTL_IMPEXP_DIR,5,100,100,33,WS_GROUP
     CONTROL         "@export",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,110,85,10
     CONTROL         "@import",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,120,85,10
@@ -6847,13 +6847,13 @@ BEGIN
     LTEXT           "@appellation",4001,5,5,220,8
     EDITTEXT        CTL_IMPEXP_NAME,5,15,280,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,160,100,55,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,170,75,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,170,75,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,180,75,10
     CONTROL         "XML",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,190,75,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,200,75,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,215,165,75,13
     GROUPBOX        "",CTL_IMPEXP_FLAGS,110,200,180,35,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,210,83,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,210,83,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,220,130,10
     GROUPBOX        "",CTL_IMPEXP_DIR,110,160,100,40,WS_GROUP
     CONTROL         "@export",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,115,170,75,10
@@ -10935,13 +10935,13 @@ BEGIN
     LTEXT           "@appellation",4001,5,5,195,8
     EDITTEXT        CTL_IMPEXP_NAME,5,15,205,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,30,100,53,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,40,90,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,40,90,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,90,10
     CONTROL         "XML",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,90,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,90,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,110,35,100,13
     GROUPBOX        "",CTL_IMPEXP_FLAGS,110,50,145,33,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,60,83,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,60,83,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,130,10
     GROUPBOX        "",CTL_IMPEXP_DIR,5,85,100,35,WS_GROUP
     CONTROL         "@export",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,95,75,10
@@ -10977,13 +10977,13 @@ BEGIN
     LTEXT           "@appellation",4001,5,5,130,8
     EDITTEXT        CTL_IMPEXP_NAME,5,15,205,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,40,100,55,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,75,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,75,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,75,10
     CONTROL         "XML",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,75,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,80,75,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,110,45,100,13
     GROUPBOX        "",CTL_IMPEXP_FLAGS,110,60,155,33,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,83,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,83,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,80,142,10
     GROUPBOX        "",CTL_IMPEXP_DIR,5,100,100,33,WS_GROUP
     CONTROL         "@export",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,110,90,10
@@ -13792,7 +13792,7 @@ BEGIN
     EDITTEXT        CTL_REPEATING_DURATION,261,110,50,13,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,195,130,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,261,130,50,13
-    PUSHBUTTON      "Тест",STDCTL_TESTBUTTON,5,130,50,13
+    PUSHBUTTON      "@test",STDCTL_TESTBUTTON,5,130,50,13
     PUSHBUTTON      "",CTLTM_REPEATING_RUNTIME,150,110,13,13,BS_BITMAP | NOT WS_TABSTOP
 END
 
@@ -15518,7 +15518,7 @@ BEGIN
     LTEXT           "SubCode (offs,len)",4010,305,60,76,8
     EDITTEXT        CTL_IMPEXPGOODS_SUBCODE,305,70,120,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,160,100,53,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,170,90,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,170,90,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,180,90,10
     CONTROL         "Xml",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,190,90,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,200,90,10
@@ -15527,7 +15527,7 @@ BEGIN
     CONTROL         "@import",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,115,180,70,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,305,240,85,13
     GROUPBOX        "",CTL_IMPEXP_FLAGS,110,200,172,33,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,210,163,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,210,163,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,220,163,10
     PUSHBUTTON      "@but_fldcorr",CTL_IMPEXP_BUT_FLDCORR,395,240,85,13
     GROUPBOX        "",CTL_IMPEXPGOODS_FLAGS,305,140,175,95,WS_GROUP
@@ -16600,7 +16600,7 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,185,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,185,45,60,13
     PUSHBUTTON      "@but_sysj",4001,185,80,60,13
-    PUSHBUTTON      "Тест",4002,185,115,60,13
+    PUSHBUTTON      "@test",4002,185,115,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,185,190,60,13
 END
 
@@ -18332,7 +18332,7 @@ BEGIN
     PUSHBUTTON      "@{options}...",STDCTL_MORE,300,50,70,13
     PUSHBUTTON      "Опции &печати...",4009,300,75,70,13
     PUSHBUTTON      "Доп су&ммы...",4010,300,100,70,13
-    PUSHBUTTON      "&Счетчик...",4011,300,130,70,13
+    PUSHBUTTON      "@{counter}...",4011,300,130,70,13
     PUSHBUTTON      "@{extension}...",4012,75,165,70,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,165,165,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,225,165,50,13
@@ -18384,7 +18384,7 @@ BEGIN
     PUSHBUTTON      "@{options}...",STDCTL_MORE,5,170,60,13
     PUSHBUTTON      "Опции &печати...",4012,5,190,60,13
     PUSHBUTTON      "Доп су&ммы...",4013,5,210,60,13
-    PUSHBUTTON      "&Счетчик...",4014,5,230,60,13
+    PUSHBUTTON      "@{counter}...",4014,5,230,60,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,265,260,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,321,260,50,13
     GROUPBOX        "",IDC_STATIC,191,70,180,95
@@ -18451,7 +18451,7 @@ BEGIN
     PUSHBUTTON      "@{options}...",STDCTL_MORE,235,135,65,13
     PUSHBUTTON      "Опции &печати...",4012,320,135,65,13
     PUSHBUTTON      "Доп су&ммы...",4013,235,160,65,13
-    PUSHBUTTON      "&Счетчик...",4014,320,160,65,13
+    PUSHBUTTON      "@{counter}...",4014,320,160,65,13
     CONTROL         "",CTL_OPRKIND_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,15,185,370,75
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,15,265,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,80,265,60,13
@@ -19029,7 +19029,7 @@ BEGIN
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,185,45,60,13
     PUSHBUTTON      "@but_sysj",4001,185,80,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,185,190,60,13
-    PUSHBUTTON      "Тест",4002,185,125,60,13
+    PUSHBUTTON      "@test",4002,185,125,60,13
 END
 
 DLG_PLINE DIALOGEX 36, 8, 317, 250
@@ -19230,7 +19230,7 @@ BEGIN
     CONTROL         "Сессии по номерам",17586,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,80,195,10
     CONTROL         "Сессии по идентификаторам",21682,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,90,195,10
     CONTROL         "Справочники",25778,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,100,195,10
-    CONTROL         "Тест",29874,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,110,195,10
+    CONTROL         "@test",29874,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,110,195,10
     LTEXT           "Номера сессий",4002,10,135,155,8
     EDITTEXT        CTL_POSNQUERY_SESSL,10,145,210,13,ES_AUTOHSCROLL
     LTEXT           "Период сессий",4003,10,165,100,8
@@ -21166,7 +21166,7 @@ BEGIN
     EDITTEXT        CTL_RFIDDEV_GETTIMEOUT,315,120,35,13,ES_AUTOHSCROLL
     LTEXT           "@rfiddevice_put_numtries",4015,190,135,104,8
     EDITTEXT        CTL_RFIDDEV_PUTTRIES,315,135,35,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "Тест",4016,10,160,50,13
+    PUSHBUTTON      "@test",4016,10,160,50,13
     LTEXT           "",CTL_RFIDDEV_ST_INFO,65,160,130,10,0,WS_EX_STATICEDGE
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,200,160,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,265,160,50,13
@@ -27617,7 +27617,7 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,106,47,59,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,106,63,59,13
     PUSHBUTTON      "Сканировать...",4002,105,100,59,13
-    PUSHBUTTON      "Тест...",4003,105,120,59,13
+    PUSHBUTTON      "@{test}...",4003,105,120,59,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,75,205,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,130,205,50,13
     GROUPBOX        "",IDC_STATIC,5,35,175,165
@@ -27674,13 +27674,13 @@ BEGIN
     LTEXT           "@appellation",4001,5,5,205,8
     EDITTEXT        CTL_IMPEXP_NAME,5,15,205,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,40,100,55,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,55,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,55,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,30,10
     CONTROL         "XML",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,30,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,80,35,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,110,45,100,13
     GROUPBOX        "",CTL_IMPEXP_FLAGS,110,60,140,35,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,130,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,130,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,80,130,10
     GROUPBOX        "",CTL_IMPEXP_DIR,5,100,100,35,WS_GROUP
     CONTROL         "@export",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,110,80,10
@@ -27764,7 +27764,7 @@ BEGIN
     LTEXT           "@appellation",4001,5,5,205,8
     EDITTEXT        CTL_IMPEXP_NAME,5,15,205,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,30,100,53,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,40,85,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,40,85,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,85,10
     CONTROL         "XML",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,85,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,80,10
@@ -27776,7 +27776,7 @@ BEGIN
     CONTROL         "@import",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,270,30,85,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,110,35,100,13
     GROUPBOX        "",CTL_IMPEXP_FLAGS,265,45,135,33,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,55,125,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,55,125,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,271,65,125,10
     PUSHBUTTON      "@but_fldcorr",CTL_IMPEXP_BUT_FLDCORR,300,85,100,13
     GROUPBOX        "",CTL_IMPEXPBILH_FLAGS,5,115,190,60,WS_GROUP
@@ -27942,13 +27942,13 @@ BEGIN
     LTEXT           "@appellation",4001,5,5,135,8
     EDITTEXT        CTL_IMPEXP_NAME,5,15,205,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,40,100,55,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,90,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,90,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,90,10
     CONTROL         "XML",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,90,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,80,90,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,110,45,100,13
     GROUPBOX        "",CTL_IMPEXP_FLAGS,110,60,160,33,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,130,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,130,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,80,145,10
     GROUPBOX        "",CTL_IMPEXP_DIR,5,100,100,33,WS_GROUP
     CONTROL         "@export",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,110,90,10
@@ -27972,13 +27972,13 @@ BEGIN
     LTEXT           "@appellation",4001,5,5,52,8
     EDITTEXT        CTL_IMPEXP_NAME,5,15,205,13,ES_AUTOHSCROLL
     GROUPBOX        "@outerdataformat",CTL_IMPEXP_FORMAT,5,40,100,55,WS_GROUP
-    CONTROL         "Текстовый",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,75,10
+    CONTROL         "Text",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,75,10
     CONTROL         "DBF",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,75,10
     CONTROL         "XML",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,75,10
     CONTROL         "Excel",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,80,75,10
     PUSHBUTTON      "@but_impexpfp",CTL_IMPEXP_BUT_TXTDB,110,45,100,13
     GROUPBOX        "",CTL_IMPEXP_FLAGS,110,60,150,33,WS_GROUP
-    CONTROL         "OEM-кодировка",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,135,10
+    CONTROL         "@codepage_oem",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,70,135,10
     CONTROL         "@removefilesafterimport",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,115,80,135,10
     GROUPBOX        "",CTL_IMPEXP_DIR,5,100,100,33,WS_GROUP
     CONTROL         "@export",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,9,110,75,10
@@ -28764,416 +28764,6 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_CLIPSIBLINGS
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",1014,"SysTabControl32",TCS_BOTTOM | TCS_TOOLTIPS | WS_BORDER,0,0,285,15
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-4 MENU
-BEGIN
-    POPUP "&Конверторы"
-    BEGIN
-        MENUITEM "Конвертация 2.2.9...",        cmConvert229
-        MENUITEM "Конвертация 2.5.3...",        cmConvert253
-        MENUITEM "Конвертация 2.7.0...",        cmConvert270
-        MENUITEM "Конвертация 3.0.0...",        cmConvert300
-        MENUITEM "Конвертация 3.0.1...",        cmConvert301
-    END
-    POPUP "&Правка"
-    BEGIN
-        MENUITEM "Корректировка остатков в проводках...", cmCorrectAccTurnRest
-        MENUITEM "Корректировка лотов...",      cmCorrectLot
-        MENUITEM "Корректировка признаков закрытия лотов...", cmCorrectLotsCloseTags
-        MENUITEM "Пересчет проводок по документам...", cmRecalcBillTurns
-        MENUITEM "Проверка сумм по документам...", cmCheckBillAmounts
-        MENUITEM "Корректировка &зеркальных товарных проводок...", cmCorrectTrfrRvrs
-        MENUITEM "Корректировка &платежей по документам...", cmCorrectBillPaym
-        MENUITEM "Корректировка &балансов...",  cmCorrectBalance
-        MENUITEM "Корректировка текущих товарных остатков...", cmCorrectCurRest
-        MENUITEM "Удаление неиспользуемых сочетаний AcctRel...", cmRemoveEmptyAcctRels
-        MENUITEM "Корректировка поставщиков по лотам", cmCorrectLotSuppl
-        MENUITEM "Обнуление висячих ссылок на сертификаты в лотах", cmCorrectZeroQCertRefs
-        MENUITEM "Корректировка проблемы @v2.4.2", cmRecover_v242
-        MENUITEM "Восстановление отсутсвующих лотов", cmCorrectAbsenceLots
-    END
-    POPUP "&Разное"
-    BEGIN
-        MENUITEM "&Автосинхронизация...",       cmSelfSync
-        MENUITEM "&Передать сертификаты...",    cmTransmitQCert
-        MENUITEM "&Передать товары...",         cmTransmitGoods
-        MENUITEM "&Создание зарезервированных объектов", cmCreateReservedObjs
-        MENUITEM SEPARATOR
-        MENUITEM "Усечение базы данных...",     cmDatabaseCutting
-        MENUITEM SEPARATOR
-        MENUITEM "Сохранить баланс...",         cmSaveBalance
-        MENUITEM "Восстановить баланс...",      cmRestoreBalance
-    END
-    POPUP "&Выход"
-    BEGIN
-        MENUITEM "Выход",                       cmQuit
-    END
-END
-
-1 MENU
-BEGIN
-    POPUP "&Справочники"
-    BEGIN
-        MENUITEM "О программе...",              cmAbout
-        MENUITEM "Текущее состояние...",        cmViewStatus
-        MENUITEM SEPARATOR
-        POPUP "&География"
-        BEGIN
-            MENUITEM "&Государства...",             cmCountry
-            MENUITEM SEPARATOR
-            MENUITEM "&Статусы населенных пунктов...", cmCityStatus
-        END
-        POPUP "&Персоналии"
-        BEGIN
-            MENUITEM "&Персоналии...",              cmPerson
-            MENUITEM SEPARATOR
-            MENUITEM "&Виды персоналий...",         cmPersonKind
-            MENUITEM "&Юридические статусы...",     cmPersonStatus
-            MENUITEM "Типы &банковских счетов...",  cmBnkAccType
-            MENUITEM "Типы &регистрационных документов...", cmRegisterType
-            MENUITEM "Виды электронных &адресов...", cmELinkKind
-            MENUITEM "&Теги персоналий...",         cmObjTag
-            MENUITEM SEPARATOR
-            MENUITEM "Виды персональных &операций...", cmPersonOpKind
-            MENUITEM "Персональные оп&ерации...",   cmPersonEvent
-            MENUITEM SEPARATOR
-            MENUITEM "Подразделения",               cmDivision
-            MENUITEM "&Штатное расписание",         cmStaffList
-            MENUITEM "&Кадры...",                   cmStaff
-            MENUITEM SEPARATOR
-            MENUITEM "Объединить персоналии",       cmReplacePerson
-        END
-        POPUP "&Товары"
-        BEGIN
-            MENUITEM "&Группы товаров...",          cmGoodsGroup
-            MENUITEM "&Товары...",                  cmGoods
-            MENUITEM "Име&нованные структуры товаров...", cmNamedGoodsStruc
-            MENUITEM SEPARATOR
-            MENUITEM "&Единицы измерения...",       cmUnit
-            MENUITEM "Структура &штрих-кодов...",   cmBarCodeStruc
-            MENUITEM "Т&ипы товаров...",            cmGoodsType
-            MENUITEM "На&логовые группы...",        cmGoodsTax
-            MENUITEM "Виды &котировок товаров...",  cmQuotKind
-            MENUITEM SEPARATOR
-            MENUITEM "&Склады...",                  cmLocation
-            MENUITEM "Серти&фикаты...",             cmViewQCert
-            MENUITEM SEPARATOR
-            MENUITEM "&Объединить товары",          cmReplaceGoods
-            MENUITEM "Объединить налоговые группы", cmReplaceGoodsTaxGrp
-        END
-        POPUP "&Бухгалтерия"
-        BEGIN
-            MENUITEM "&Аналитические таблицы...",   cmAccSheet
-            MENUITEM "&План счетов...",             cmAccPlan
-            MENUITEM "&Валюты...",                  cmCurrency
-            MENUITEM "&Типы валютных курсов...",    cmCurRateType
-            MENUITEM "Валютные &курсы...",          cmViewCurRates
-        END
-        POPUP "&Операции"
-        BEGIN
-            MENUITEM "Виды &операций...",           cmOprKind
-            MENUITEM SEPARATOR
-            MENUITEM "&Типы операций...",           cmOprType
-            MENUITEM "&Счетчики операций...",       cmOpCounter
-            MENUITEM "&Формулы...",                 cmFormula
-            MENUITEM "Типы &сумм документа...",     cmAmountType
-            MENUITEM SEPARATOR
-            MENUITEM "Сбросить счетчики операций",  cmResetOpCounters
-        END
-        POPUP "Обору&дование"
-        BEGIN
-            MENUITEM "&Кассы...",                   cmCashNode
-            MENUITEM "&Весы...",                    cmScale
-            MENUITEM "&Принтеры штрихкодов...",     cmBarcodePrinter
-        END
-        POPUP "&Админ"
-        BEGIN
-            MENUITEM "&Системные события...",       cmAction
-            MENUITEM "&Разделы базы данных...",     cmDBDiv
-            MENUITEM "Создание файлов для WIN32 отчетов...", cmMakeCRptFiles
-        END
-        MENUITEM SEPARATOR
-        MENUITEM "&Выход",                      cmQuit
-    END
-    POPUP "&Операции"
-    BEGIN
-        MENUITEM "&Опись проводок...",          cmAccTurnList
-        MENUITEM "&Бухгалтерские документы...", cmAccturnBillList
-        MENUITEM "&Валютная переоценка...",     cmCurReval
-        MENUITEM SEPARATOR
-        MENUITEM "&Текущая конфигурация...",    cmSelectLocation
-        MENUITEM SEPARATOR
-        MENUITEM "Товарные &документы...",      cmGoodsBillList
-        MENUITEM "Товарные &заказы...",         cmGoodsOrder
-        MENUITEM "&Инвентаризация...",          cmInventory
-        MENUITEM "&Пулы документов...",         cmPoolBillList
-        MENUITEM SEPARATOR
-        MENUITEM "&Книга продаж/покупок...",    cmVATBook
-        MENUITEM SEPARATOR
-        MENUITEM "Уни&фикация цен...",          cmUnifyGoodsPrice
-        MENUITEM "Изменение котировок...",      cmUpdateQuots
-        MENUITEM SEPARATOR
-        MENUITEM "Начисление &ренты...",        cmAutoCharge
-    END
-    POPUP "Обору&дование"
-    BEGIN
-        MENUITEM "Ка&ссовый узел...",           cmCashNodePanel
-        MENUITEM SEPARATOR
-        MENUITEM "&Данные для весов...",        cmScalePrepareData
-        MENUITEM "&Загрузка весов...",          cmScaleTransmitData
-    END
-    POPUP "О&тчетность"
-    BEGIN
-        MENUITEM "&Анализ счета...",            cmAccAnalyze
-        MENUITEM "Кассовая к&нига...",          cmCashBook
-        MENUITEM "&Балансы...",                 cmBalance
-        MENUITEM SEPARATOR
-        MENUITEM "Пра&йс-лист...",              cmPriceList
-        MENUITEM "&Лоты...",                    cmViewLots
-        MENUITEM "Анализ &заказов...",          cmViewOrdLots
-        MENUITEM "Анал&из товарных операций...", cmTrfrAnalyze
-        MENUITEM "Анализ отгр&узки...",         cmShipmAnalyze
-        MENUITEM "О&статки товаров...",         cmGoodsRest
-        POPUP "&Расчеты с дебиторами и кредиторами"
-        BEGIN
-            MENUITEM "Долги по покупателям...",     cmSellTrnovr
-            MENUITEM "Долги по поставщикам...",     cmDebtSupplTrnovr
-            MENUITEM "Обороты по &поставщикам...",  cmSupplTrnovr
-        END
-        MENUITEM SEPARATOR
-        MENUITEM "&Товарооборот...",            cmGoodsTurnover
-        MENUITEM "Нало&говый анализ товарооборота...", cmGoodsGrpRlz
-        MENUITEM "&Движение товаров...",        cmGoodsMov
-        MENUITEM "Группировка товарных &операций...", cmGoodsOprGrouping
-        MENUITEM "Товарный отчет по опера&ции...", cmGoodsOper
-    END
-    POPUP "&Админ"
-    BEGIN
-        MENUITEM "&Настройки...",               cmCommConfig
-        MENUITEM "&Конфигурация...",            cmEditConfig
-        MENUITEM "Согла&шение с клиентами...",  cmDefaultCliAgt
-        POPUP "&Прочии конфигурации"
-        BEGIN
-            MENUITEM "Конфигурация справочника &товаров...", cmGoodsCfg
-            MENUITEM "Конфигурация книги продаж...", cmVATBookSellCfg
-            MENUITEM "Конфигурация книги покупок...", cmVATBookBuyCfg
-            MENUITEM "Конфигурация экспорта Monarch...", cmExpMonarchCfg
-            MENUITEM "Конфигурация принтера...",    cmPrinterCfg
-            MENUITEM "Конфигурация обмена данными...", cmDBXchgCfg
-        END
-        MENUITEM "&Группы и пользователи...",   cmGroups_n_Users
-        MENUITEM "@{cmd_updatepassword}...",    cmUpdatePassword
-        MENUITEM "&Системный журнал...",        cmViewSysJ
-        MENUITEM SEPARATOR
-        POPUP "Ко&рректировка"
-        BEGIN
-            MENUITEM "Корректировка соответствий Article - AcctRel", cmCorrectAccrelArRefs
-            MENUITEM "Корректировка остатков в проводках...", cmCorrectAccTurnRest
-            MENUITEM "Пересчет проводок по документам...", cmRecalcBillTurns
-            MENUITEM "Проверка сумм по документам...", cmCheckBillAmounts
-            MENUITEM "Корректировка &платежей по документам...", cmCorrectBillPaym
-            MENUITEM "Корректировка &балансов...",  cmCorrectBalance
-            MENUITEM "Корректировка текущих товарных остатков...", cmCorrectCurRest
-        END
-        MENUITEM SEPARATOR
-        MENUITEM "Передать документы",          cmSendBills
-        MENUITEM "Принять почту",               cmReceivePackets
-    END
-    POPUP "Окно"
-    BEGIN
-        MENUITEM "Дерево меню",                 cmShowTree
-    END
-END
-
-10 MENU
-BEGIN
-    POPUP "&Справочники"
-    BEGIN
-        MENUITEM "О программе...",              cmAbout
-        MENUITEM "Текущее состояние...",        cmViewStatus
-        MENUITEM SEPARATOR
-        POPUP "&География"
-        BEGIN
-            MENUITEM "&Государства...",             cmCountry
-            MENUITEM SEPARATOR
-            MENUITEM "&Статусы населенных пунктов...", cmCityStatus
-        END
-        POPUP "&Персоналии"
-        BEGIN
-            MENUITEM "&Персоналии...",              cmPerson
-            MENUITEM SEPARATOR
-            MENUITEM "&Виды персоналий...",         cmPersonKind
-            MENUITEM "&Юридические статусы...",     cmPersonStatus
-            MENUITEM "Типы &банковских счетов...",  cmBnkAccType
-            MENUITEM "Типы &регистрационных документов...", cmRegisterType
-            MENUITEM "Виды электронных &адресов...", cmELinkKind
-            MENUITEM "&Теги персоналий...",         cmObjTag
-            MENUITEM SEPARATOR
-            MENUITEM "Виды персональных &операций...", cmPersonOpKind
-            MENUITEM "Персональные оп&ерации...",   cmPersonEvent
-            MENUITEM SEPARATOR
-            MENUITEM "Подразделения",               cmDivision
-            MENUITEM SEPARATOR
-            MENUITEM "Объединить персоналии",       cmReplacePerson
-        END
-        POPUP "&Бухгалтерия"
-        BEGIN
-            MENUITEM "&Аналитические таблицы...",   cmAccSheet
-            MENUITEM "&План счетов...",             cmAccPlan
-        END
-        POPUP "&Операции"
-        BEGIN
-            MENUITEM "Виды &операций...",           cmOprKind
-            MENUITEM SEPARATOR
-            MENUITEM "&Типы операций...",           cmOprType
-            MENUITEM "&Счетчики операций...",       cmOpCounter
-            MENUITEM "&Формулы...",                 cmFormula
-            MENUITEM "Типы &сумм документа...",     cmAmountType
-            MENUITEM SEPARATOR
-            MENUITEM "Сбросить счетчики операций",  cmResetOpCounters
-        END
-        POPUP "&Админ"
-        BEGIN
-            MENUITEM "&Системные события...",       cmAction
-            MENUITEM "&Разделы базы данных...",     cmDBDiv
-        END
-        MENUITEM SEPARATOR
-        MENUITEM "&Выход",                      cmQuit
-    END
-    POPUP "&Кадры"
-    BEGIN
-        MENUITEM "&Персоналии...",              cmPerson
-        MENUITEM "&Кадры...",                   cmStaff
-        MENUITEM "&Персональные операции...",   cmPersonEvent
-    END
-    POPUP "&Админ"
-    BEGIN
-        MENUITEM "&Настройки...",               cmCommConfig
-        MENUITEM "&Конфигурация...",            cmEditConfig
-        MENUITEM "Согла&шение с клиентами...",  cmDefaultCliAgt
-        POPUP "&Прочии конфигурации"
-        BEGIN
-            MENUITEM "Конфигурация справочника &товаров", cmGoodsCfg
-            MENUITEM "Конфигурация книги продаж",   cmVATBookSellCfg
-            MENUITEM "Конфигурация книги покупок",  cmVATBookBuyCfg
-            MENUITEM "Конфигурация экспорта Monarch", cmExpMonarchCfg
-            MENUITEM "Конфигурация принтера",       cmPrinterCfg
-            MENUITEM "Конфигурация обмена данными", cmDBXchgCfg
-        END
-        MENUITEM "&Группы и пользователи...",   cmGroups_n_Users
-        MENUITEM "@{cmd_updatepassword}...",    cmUpdatePassword
-        MENUITEM "&Системный журнал...",        cmViewSysJ
-        MENUITEM SEPARATOR
-        POPUP "Ко&рректировка"
-        BEGIN
-            MENUITEM "Корректировка остатков в проводках...", cmCorrectAccTurnRest
-            MENUITEM "Пересчет проводок по документам...", cmRecalcBillTurns
-            MENUITEM "Проверка сумм по документам...", cmCheckBillAmounts
-            MENUITEM "Корректировка &платежей по документам...", cmCorrectBillPaym
-            MENUITEM "Корректировка &балансов...",  cmCorrectBalance
-            MENUITEM "Корректировка текущих товарных остатков...", cmCorrectCurRest
-        END
-        MENUITEM SEPARATOR
-        MENUITEM "Передать документы",          cmSendBills
-        MENUITEM "Принять почту",               cmReceivePackets
-    END
-    POPUP "Окно"
-    BEGIN
-        MENUITEM "Дерево меню",                 cmShowTree
-    END
-END
-
-101 MENU
-BEGIN
-    POPUP "&Справочники"
-    BEGIN
-        MENUITEM "&Государства...",             cmCountry
-        MENUITEM "&Персоналии...",              cmAnotherPerson
-        MENUITEM SEPARATOR
-        MENUITEM "&Аналитические таблицы...",   cmAccSheet
-        MENUITEM "План &счетов...",             cmAccPlan
-        MENUITEM SEPARATOR
-        MENUITEM "Группы &товаров...",          cmGoodsGroup
-        MENUITEM "Скла&ды...",                  cmLocation
-        MENUITEM SEPARATOR
-        POPUP "Про&чие"
-        BEGIN
-            MENUITEM "&Единицы измерения...",       cmUnit
-            MENUITEM SEPARATOR
-            MENUITEM "&Статусы населенных пунктов...", cmCityStatus
-            MENUITEM SEPARATOR
-            MENUITEM "&Виды персоналий...",         cmPersonKind
-            MENUITEM "&Юридические статусы...",     cmPersonStatus
-            MENUITEM SEPARATOR
-            MENUITEM "Типы с&умм документа...",     cmAmountType
-            MENUITEM "&Типы операций...",           cmOprType
-            MENUITEM "Виды &операций...",           cmOprKind
-        END
-        MENUITEM SEPARATOR
-        MENUITEM "&Выход",                      cmQuit
-    END
-    POPUP "&Операции"
-    BEGIN
-        MENUITEM "&Опись проводок...",          cmAccTurnList
-        MENUITEM "&Анализ счета...",            cmAccAnalyze
-        MENUITEM "Кассовая к&нига...",          cmCashBook
-        MENUITEM "&Балансы...",                 cmBalance
-        MENUITEM SEPARATOR
-        MENUITEM "Текущая конфигурация...",     cmSelectLocation
-        MENUITEM SEPARATOR
-        MENUITEM "Товарные &документы...",      cmGoodsBillList
-        MENUITEM "Касса...",                    cmCashBillList
-        MENUITEM "&Лоты...",                    cmViewLots
-        MENUITEM "Анал&из товарных операций...", cmTrfrAnalyze
-        MENUITEM "О&статки товаров...",         cmGoodsRest
-        MENUITEM "Обороты по &поставщикам...",  cmSupplTrnovr
-        MENUITEM "Ведомость дол&жников...",     cmSellTrnovr
-        MENUITEM SEPARATOR
-        MENUITEM "&Товарооборот...",            cmGoodsTurnover
-        MENUITEM "Реализация по &группам товаров...", cmGoodsGrpRlz
-        MENUITEM "Движение товаров...",         cmGoodsMov
-        MENUITEM "Группировка товарных операций...", cmGoodsOprGrouping
-        MENUITEM "Товарный отчет по операции...", cmGoodsOper
-    END
-    POPUP "Окно"
-    BEGIN
-        MENUITEM "Дерево меню",                 cmShowTree
-    END
-END
-
-102 MENU
-BEGIN
-    POPUP "&Справочники"
-    BEGIN
-        MENUITEM "&Аналитические таблицы...",   cmAccSheet
-        MENUITEM "План &счетов...",             cmAccPlan
-        MENUITEM SEPARATOR
-        MENUITEM "Группы &товаров...",          cmGoodsGroup
-        MENUITEM "&Кассы...",                   cmCashNode
-        MENUITEM SEPARATOR
-        MENUITEM "&Выход",                      cmQuit
-    END
-    POPUP "&Операции"
-    BEGIN
-        MENUITEM "&Касса...",                   cmCashBillList
-        MENUITEM "&Закрыть кассовый день...",   cmCloseCashDay
-        MENUITEM SEPARATOR
-        MENUITEM "Товарные &документы...",      cmGoodsBillList
-        MENUITEM "&Лоты...",                    cmViewLots
-        MENUITEM "Анал&из товарных операций...", cmTrfrAnalyze
-        MENUITEM "О&статки товаров...",         cmGoodsRest
-    END
-    POPUP "Окно"
-    BEGIN
-        MENUITEM "Дерево меню",                 cmShowTree
-    END
 END
 
 

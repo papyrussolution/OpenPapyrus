@@ -1,5 +1,6 @@
 // SDATE.CPP
 // Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8 // @v10.4.5
 //
 #include <slib.h>
 #include <tv.h>
@@ -32,8 +33,8 @@ static const struct { char div, ord; } fmtParams[] = {
 	{47,0}, // DATF_MDY
 	{47,1}, // DATF_DMY
 	{47,2}, // DATF_YMD
-	{45,2}, // DATF_SQL то же, что ISO8601 но с префиксом DATE и в апострофах: DATE 'YYYY-MM-DD'
-	{20,1}, // DATF_INTERNET (формальный подход не сработает - структура сложная)
+	{45,2}, // DATF_SQL С‚Рѕ Р¶Рµ, С‡С‚Рѕ ISO8601 РЅРѕ СЃ РїСЂРµС„РёРєСЃРѕРј DATE Рё РІ Р°РїРѕСЃС‚СЂРѕС„Р°С…: DATE 'YYYY-MM-DD'
+	{20,1}, // DATF_INTERNET (С„РѕСЂРјР°Р»СЊРЅС‹Р№ РїРѕРґС…РѕРґ РЅРµ СЃСЂР°Р±РѕС‚Р°РµС‚ - СЃС‚СЂСѓРєС‚СѓСЂР° СЃР»РѕР¶РЅР°СЏ)
 	{45,2}  // DATF_ISO8601
 };
 
@@ -204,7 +205,7 @@ int FASTCALL DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay
 		if(day == 0) {
 			_year--;
 			mon = 12;
-			day = (y == 4 || hy == 4) ? 30 : 31; // Граничная проблема: конец четверки годов или 400-летия
+			day = (y == 4 || hy == 4) ? 30 : 31; // Р“СЂР°РЅРёС‡РЅР°СЏ РїСЂРѕР±Р»РµРјР°: РєРѕРЅРµС† С‡РµС‚РІРµСЂРєРё РіРѕРґРѕРІ РёР»Рё 400-Р»РµС‚РёСЏ
 		}
 		else if(IsLeapYear(_year)) {
 			mon = LeapYearDayToMonth[day-1];
@@ -235,15 +236,6 @@ int FASTCALL dayspermonth(int month, int year)
 	}
 	return dpm;
 }
-
-static const char * monthNames[NUM_MONTHES] = {
-	"Январ[ь|я]", "Феврал[ь|я]", "Март[|а]", "Апрел[ь|я]", "Ма[й|я]", "Июн[ь|я]",
-	"Июл[ь|я]", "Август[|а]", "Сентябр[ь|я]", "Октябр[ь|я]", "Ноябр[ь|я]", "Декабр[ь|я]"
-};
-static const char * P_WeekDays = {
-	"Monday,Mo,Понедельник,Пнд;Tuesday,Tu,Вторник,Вт;Wednesday,We,Среда,Ср;Thursday,Th,Четверг,Чтв;"
-	"Friday,Fr,Пятница,Птн;Saturday,Sa,Суббота,Сбт;Sunday,Su,Воскресенье,Вскр"
-};
 
 static char * FASTCALL extractVarPart(const char * word, char * buf)
 {
@@ -304,13 +296,14 @@ static char * getWordForm(const char * pattern, long fmt, char * pBuf)
 	return strcpy(pBuf, temp);
 }
 
+#if 0 // @v10.4.5 {
 static char * FASTCALL getMonthText(int mon, long fmt, char * pBuf)
 {
 	if(pBuf)
 		if(mon >= 1 && mon <= 12) {
-			getWordForm(monthNames[mon-1], fmt, pBuf);
+			getWordForm(P_MonthNames[mon-1], fmt, pBuf);
 			if(mon == 5 && fmt & MONF_SHORT) {
-				pBuf[2] = 'й';
+				pBuf[2] = 'Р№';
 				pBuf[3] = 0;
 			}
 			if(fmt & MONF_OEM)
@@ -320,6 +313,7 @@ static char * FASTCALL getMonthText(int mon, long fmt, char * pBuf)
 			pBuf[0] = 0;
 	return pBuf;
 }
+#endif // } @v10.4.5
 //
 //
 //
@@ -383,29 +377,44 @@ static SString & _getWordForm(const char * pPattern, long fmt, SString & rBuf)
 
 SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf)
 {
+	static const char * p_month_names[NUM_MONTHES] = {
+		"РЇРЅРІР°СЂ[СЊ|СЏ]", "Р¤РµРІСЂР°Р»[СЊ|СЏ]", "РњР°СЂС‚[|Р°]", "РђРїСЂРµР»[СЊ|СЏ]", "РњР°[Р№|СЏ]", "РСЋРЅ[СЊ|СЏ]",
+		"РСЋР»[СЊ|СЏ]", "РђРІРіСѓСЃС‚[|Р°]", "РЎРµРЅС‚СЏР±СЂ[СЊ|СЏ]", "РћРєС‚СЏР±СЂ[СЊ|СЏ]", "РќРѕСЏР±СЂ[СЊ|СЏ]", "Р”РµРєР°Р±СЂ[СЊ|СЏ]"
+	};
 	rBuf.Z();
 	if(mon >= 1 && mon <= 12) {
-		_getWordForm(monthNames[mon-1], fmt, rBuf);
+		_getWordForm(p_month_names[mon-1], fmt, rBuf);
 		if(mon == 5 && fmt & MONF_SHORT) {
-			rBuf.Trim(2).CatChar('й');
+			rBuf.Trim(2).CatChar('Р№');
 		}
 		if(fmt & MONF_OEM) {
-			rBuf.ToOem();
+			// @v10.4.5 rBuf.ToOem();
+			rBuf.Transf(CTRANSF_UTF8_TO_INNER); // @v10.4.5
+		}
+		else {
+			rBuf.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
 		}
 	}
 	return rBuf;
 }
 
+static const char * P_WeekDays = {
+	"Monday,Mo,РџРѕРЅРµРґРµР»СЊРЅРёРє,РџРЅРґ;Tuesday,Tu,Р’С‚РѕСЂРЅРёРє,Р’С‚;Wednesday,We,РЎСЂРµРґР°,РЎСЂ;Thursday,Th,Р§РµС‚РІРµСЂРі,Р§С‚РІ;"
+	"Friday,Fr,РџСЏС‚РЅРёС†Р°,РџС‚РЅ;Saturday,Sa,РЎСѓР±Р±РѕС‚Р°,РЎР±С‚;Sunday,Su,Р’РѕСЃРєСЂРµСЃРµРЅСЊРµ,Р’СЃРєСЂ"
+};
+
 int FASTCALL GetDayOfWeekByText(const char * pText)
 {
 	SString temp_buf;
+	SString pattern = pText;
+	pattern.Transf(CTRANSF_INNER_TO_UTF8); // @v10.4.5
 	StringSet ss(';', P_WeekDays);
 	int    dow = 0;
 	for(uint i = 0; ss.get(&i, temp_buf);) {
 		++dow;
 		StringSet ss2(',', temp_buf);
 		for(uint j = 0; ss2.get(&j, temp_buf);)
-			if(temp_buf.CmpNC(pText) == 0)
+			if(temp_buf.CmpNC(pattern) == 0)
 				return dow;
 	}
 	return 0;
@@ -417,6 +426,7 @@ int FASTCALL GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & r
 	if(dayOfWeek >= 1 && dayOfWeek <= 7 && options >= 1 && options <= 4) {
 		rBuf.GetSubFrom(P_WeekDays, ';', dayOfWeek-1);
 		rBuf.GetSubFrom(rBuf, ',', options-1);
+		rBuf.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
 		return 1;
 	}
 	else
@@ -458,7 +468,7 @@ static long FASTCALL _datetol360(const void * dt, int format)
 	return (360L * y + getDays360(m, 0) + d);
 }
 //
-// Преобразование даты в формате Clarion
+// РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РґР°С‚С‹ РІ С„РѕСЂРјР°С‚Рµ Clarion
 //
 #ifdef USE_DF_CLARION
 
@@ -504,17 +514,17 @@ void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 	char   tmp[64];
 	switch(format) {
 		case DF_BTRIEVE:
-			((LDATE *)pBuf)->encode(day, mon, year);
+			static_cast<LDATE *>(pBuf)->encode(day, mon, year);
 			break;
 #ifndef _WIN32_WCE
 		case DF_DOS:
-			((SDosDate *)pBuf)->da_day  = day;
-			((SDosDate *)pBuf)->da_mon  = mon;
-			((SDosDate *)pBuf)->da_year = year;
+			static_cast<SDosDate *>(pBuf)->da_day  = day;
+			static_cast<SDosDate *>(pBuf)->da_mon  = mon;
+			static_cast<SDosDate *>(pBuf)->da_year = year;
 			break;
 #endif
 		case DF_FAT:
-			*(uint *)pBuf = (((year - 1980) << 9) | (mon << 5) | day);
+			*static_cast<uint *>(pBuf) = (((year - 1980) << 9) | (mon << 5) | day);
 			break;
 		case DF_XBASE:
 			sprintf(tmp, "%04d%02d%02d", year, mon, day);
@@ -528,9 +538,9 @@ void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 				dt.da_day  = day;
 				dt.da_mon  = mon;
 				dt.da_year = year;
-				*(long *)pBuf = CLADateToLong(&dt);
+				*static_cast<long *>(pBuf) = CLADateToLong(&dt);
 #else
-				*(long *)pBuf = 0;
+				*static_cast<long *>(pBuf) = 0;
 				const int clarion_date_format_not_supported = 0
 				assert(clarion_date_format_not_supported);
 				//formatNotSupported("Clarion");
@@ -653,7 +663,7 @@ void SLAPI _plusperiod(void * dest, int prd, int numperiods, int format, int _36
 int FASTCALL _dayofweek(const void * pDate, int format)
 {
 	char   beg[32];
-	_encodedate(1, 1, 1970, beg, format); /* 1/1/1970 - —ҐвўҐаЈ (4) */
+	_encodedate(1, 1, 1970, beg, format); // 1/1/1970 - Thu (4)
 	return (int)((4 + _diffdate(pDate, beg, format, 0) % 7) % 7);
 }
 
@@ -962,7 +972,7 @@ LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)
 	else if(dim == 4)
 		hs += plus;
 	//
-	// Нормализуем величины в случае, если они выходят за допустимые пределы
+	// РќРѕСЂРјР°Р»РёР·СѓРµРј РІРµР»РёС‡РёРЅС‹ РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РѕРЅРё РІС‹С…РѕРґСЏС‚ Р·Р° РґРѕРїСѓСЃС‚РёРјС‹Рµ РїСЂРµРґРµР»С‹
 	//
 	s    += (hs / 100); if(hs < 0) { s--;    hs = 100 + hs%100; } else hs %= 100;
 	m    += (s  / 60);  if(s  < 0) { m--;    s  = 60  + s%60;   } else s  %= 60;
@@ -1148,7 +1158,7 @@ int FASTCALL WorkDate::IsEqual(LDATE dt) const
 //
 static LDATETIME FarMoment;
 //
-// Descr: Специализированный класс для автоматической инициализации FarMoment
+// Descr: РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РєР»Р°СЃСЃ РґР»СЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё FarMoment
 //
 static const struct InitFarMoment { InitFarMoment() { FarMoment.d.v = MAXLONG; FarMoment.t.v = 0; } } IFM;
 
@@ -1360,7 +1370,7 @@ time_t SLAPI LDATE::GetTimeT() const
 		_t.tm_year = year()-1900;
 		_t.tm_mon = month()-1; // @v10.0.02 @fix (-1)
 		_t.tm_mday = day();
-		_t.tm_hour = 12; // @v10.0.03 дабы смещение временного пояса не меняло дату, устанавливаем время полдня.
+		_t.tm_hour = 12; // @v10.0.03 РґР°Р±С‹ СЃРјРµС‰РµРЅРёРµ РІСЂРµРјРµРЅРЅРѕРіРѕ РїРѕСЏСЃР° РЅРµ РјРµРЅСЏР»Рѕ РґР°С‚Сѓ, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІСЂРµРјСЏ РїРѕР»РґРЅСЏ.
 		_t.tm_min = 0;
 		_t.tm_sec = 0;
 		return (sizeof(time_t) == 8) ? (time_t)_mktime64(&_t) : mktime(&_t);
@@ -1914,11 +1924,11 @@ int SLAPI DateRepeating::DayOfWeekNo(LDATE dt, int weekNo, int dayOfWeek, LDATE 
 			ok = 1;
 		}
 		else if(weekNo > 0 && weekNo < 5) {
-			temp_dt = plusdate(temp_dt, 7-dow+1 + (weekNo-1) * 7); // temp_dt - понедельник требуемой недели
+			temp_dt = plusdate(temp_dt, 7-dow+1 + (weekNo-1) * 7); // temp_dt - РїРѕРЅРµРґРµР»СЊРЅРёРє С‚СЂРµР±СѓРµРјРѕР№ РЅРµРґРµР»Рё
 			temp_dt = plusdate(temp_dt, dayOfWeek - 1);
 			ok = 1;
 		}
-		else { // последняя неделя //
+		else { // РїРѕСЃР»РµРґРЅСЏСЏ РЅРµРґРµР»СЏ //
 			temp_dt = encodedate(dt.dayspermonth(), dt.month(), dt.year());
 			do {
 				if(dayofweek(&temp_dt, 1) == dayOfWeek)
@@ -2900,15 +2910,15 @@ static int FASTCALL IsSUniTimeCompatibleWithInnerStruc(uint8 signature)
 		oneof7(signature, SUniTime::indQuart, SUniTime::indSmYr, SUniTime::indYr, SUniTime::indDYr, SUniTime::indSmCent, SUniTime::indCent, SUniTime::indMillennium);
 }
 //
-// Descr: Сравнивает точность представления времени с сигнатурами signature1 и signature2.
-// Note: Существуют специальные случаи, которые пока не рассматриваются. А именно:
-//   -- точность одинакова, но одна из сигнатур предполагает хранение временной зоны;
-//   -- сравнение точностей для типов значений, которые нельзя привести один к другому (indMillennium vs indMillenniumBC, например).
+// Descr: РЎСЂР°РІРЅРёРІР°РµС‚ С‚РѕС‡РЅРѕСЃС‚СЊ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РІСЂРµРјРµРЅРё СЃ СЃРёРіРЅР°С‚СѓСЂР°РјРё signature1 Рё signature2.
+// Note: РЎСѓС‰РµСЃС‚РІСѓСЋС‚ СЃРїРµС†РёР°Р»СЊРЅС‹Рµ СЃР»СѓС‡Р°Рё, РєРѕС‚РѕСЂС‹Рµ РїРѕРєР° РЅРµ СЂР°СЃСЃРјР°С‚СЂРёРІР°СЋС‚СЃСЏ. Рђ РёРјРµРЅРЅРѕ:
+//   -- С‚РѕС‡РЅРѕСЃС‚СЊ РѕРґРёРЅР°РєРѕРІР°, РЅРѕ РѕРґРЅР° РёР· СЃРёРіРЅР°С‚СѓСЂ РїСЂРµРґРїРѕР»Р°РіР°РµС‚ С…СЂР°РЅРµРЅРёРµ РІСЂРµРјРµРЅРЅРѕР№ Р·РѕРЅС‹;
+//   -- СЃСЂР°РІРЅРµРЅРёРµ С‚РѕС‡РЅРѕСЃС‚РµР№ РґР»СЏ С‚РёРїРѕРІ Р·РЅР°С‡РµРЅРёР№, РєРѕС‚РѕСЂС‹Рµ РЅРµР»СЊР·СЏ РїСЂРёРІРµСЃС‚Рё РѕРґРёРЅ Рє РґСЂСѓРіРѕРјСѓ (indMillennium vs indMillenniumBC, РЅР°РїСЂРёРјРµСЂ).
 //
 // Returns:
-//   0 - точность эквивалентна
-//  -1 - signature1 имеет меньшую точность (большую гранулярность), чем signature2
-//  +1 - signature1 имеет большую точность (меньшую гранулярность), чем signature2
+//   0 - С‚РѕС‡РЅРѕСЃС‚СЊ СЌРєРІРёРІР°Р»РµРЅС‚РЅР°
+//  -1 - signature1 РёРјРµРµС‚ РјРµРЅСЊС€СѓСЋ С‚РѕС‡РЅРѕСЃС‚СЊ (Р±РѕР»СЊС€СѓСЋ РіСЂР°РЅСѓР»СЏСЂРЅРѕСЃС‚СЊ), С‡РµРј signature2
+//  +1 - signature1 РёРјРµРµС‚ Р±РѕР»СЊС€СѓСЋ С‚РѕС‡РЅРѕСЃС‚СЊ (РјРµРЅСЊС€СѓСЋ РіСЂР°РЅСѓР»СЏСЂРЅРѕСЃС‚СЊ), С‡РµРј signature2
 //
 static int FASTCALL CmpSUniTimePrecisions(uint8 signature1, uint8 signature2)
 {
@@ -3070,7 +3080,7 @@ int FASTCALL SUniTime::Compare(const SUniTime & rS, int * pQualification) const
 			}
 		}
 		else {
-			// Результат не определен (мы не можем пока сопоставить такие значения)
+			// Р РµР·СѓР»СЊС‚Р°С‚ РЅРµ РѕРїСЂРµРґРµР»РµРЅ (РјС‹ РЅРµ РјРѕР¶РµРј РїРѕРєР° СЃРѕРїРѕСЃС‚Р°РІРёС‚СЊ С‚Р°РєРёРµ Р·РЅР°С‡РµРЅРёСЏ)
 		}
 	}
 	ASSIGN_PTR(pQualification, qualification);
@@ -3192,8 +3202,8 @@ int64  SUniTime::ToInt64() const { return *(int64 *)D; }
 int    SUniTime::FromInt64(int64 v)
 {
 	int    ok = 1;
-	// @todo Необходимо проверить валидность устанавливаемого значение v.
-	// Если оно не валидно, то вернуть 0.
+	// @todo РќРµРѕР±С…РѕРґРёРјРѕ РїСЂРѕРІРµСЂРёС‚СЊ РІР°Р»РёРґРЅРѕСЃС‚СЊ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёРµ v.
+	// Р•СЃР»Рё РѕРЅРѕ РЅРµ РІР°Р»РёРґРЅРѕ, С‚Рѕ РІРµСЂРЅСѓС‚СЊ 0.
 	//uint64 value;
 	//uint signature = SUniTime_Decode((const uint8 *)&v, &value);
 	memcpy(D, &v, sizeof(D));
@@ -3348,7 +3358,7 @@ SLTEST_R(LDATE)
 		{"@-10",              "28/10/2007"},
 		{"@+365",             "6/11/2008"},
 		{"11 .9.@",           "11/9/2007"},
-		{"11. @-1",           "11/10/getcurdate_().year()"}, // *[9] месяц берется относительно даты rel, год - из текущей системной даты
+		{"11. @-1",           "11/10/getcurdate_().year()"}, // *[9] РјРµСЃСЏС† Р±РµСЂРµС‚СЃСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РґР°С‚С‹ rel, РіРѕРґ - РёР· С‚РµРєСѓС‰РµР№ СЃРёСЃС‚РµРјРЅРѕР№ РґР°С‚С‹
 		{"@-1.@-1.@-10",      "6/10/1997"},
 		{"@-3.@+2.@+2",       "4/1/2010"},
 		{"^10",               "1/10/2007"},
@@ -3382,7 +3392,7 @@ SLTEST_R(LDATE)
 		LDATETIME test_val, cvt_val;
 		strtodatetime(r_item.In, &test_val, DATF_DMY, TIMF_HMS);
 		//
-		// Проверяем конвертацию из даты в строку
+		// РџСЂРѕРІРµСЂСЏРµРј РєРѕРЅРІРµСЂС‚Р°С†РёСЋ РёР· РґР°С‚С‹ РІ СЃС‚СЂРѕРєСѓ
 		//
 		datetimefmt(test_val, DATF_DMY, TIMF_HMS, cvt_buf, sizeof(cvt_buf));
 		strtodatetime(cvt_buf, &cvt_val, DATF_DMY, TIMF_HMS);
@@ -3412,7 +3422,7 @@ SLTEST_R(LDATE)
 			LDATE test_val, pattern_val, cvt_val;
 			strtodate(r_item.In,  DATF_DMY, &test_val);
 			//
-			// Проверяем конвертацию из даты в строку
+			// РџСЂРѕРІРµСЂСЏРµРј РєРѕРЅРІРµСЂС‚Р°С†РёСЋ РёР· РґР°С‚С‹ РІ СЃС‚СЂРѕРєСѓ
 			//
 			datefmt(&test_val, DATF_DMY, cvt_buf);
 			strtodate(cvt_buf,  DATF_DMY, &cvt_val);
@@ -3547,11 +3557,12 @@ SLTEST_R(LDATE)
 		SString mon_buf;
 		for(i = 1; i <= 12; i++) {
 			/*
-				#define MONF_SHORT     0x0001 // Сокращенная форма
-				#define MONF_CASENOM   0x0002 // Полная форма (именительный падеж)
-				#define MONF_CASEGEN   0x0004 // Полная форма (родительный падеж)
+				#define MONF_SHORT     0x0001 // РЎРѕРєСЂР°С‰РµРЅРЅР°СЏ С„РѕСЂРјР°
+				#define MONF_CASENOM   0x0002 // РџРѕР»РЅР°СЏ С„РѕСЂРјР° (РёРјРµРЅРёС‚РµР»СЊРЅС‹Р№ РїР°РґРµР¶)
+				#define MONF_CASEGEN   0x0004 // РџРѕР»РЅР°СЏ С„РѕСЂРјР° (СЂРѕРґРёС‚РµР»СЊРЅС‹Р№ РїР°РґРµР¶)
 				#define MONF_OEM       0x0080 // OEM-coding
 			*/
+#if 0 // @v10.4.5 {
 			{
 				long fmt = MONF_SHORT;
 				getMonthText(i, fmt, txt_mon);
@@ -3576,6 +3587,7 @@ SLTEST_R(LDATE)
 				SGetMonthText(i, fmt, mon_buf);
 				SLTEST_CHECK_EQ(mon_buf, txt_mon);
 			}
+#endif // } 0 @v10.4.5
 		}
 	}
 	{

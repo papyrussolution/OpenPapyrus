@@ -3030,7 +3030,7 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 		STRNSCPY(p_temp->UniqSerialSfx, pCfg->UniqSerialSfx);
 		p_temp->Ver = DS.GetVersion();
 		{
-			char reg_buf[10];
+			char reg_buf[32];
 			memzero(reg_buf, sizeof(reg_buf));
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
 			reg_key.PutString(BillAddFilesFolder, (pCfg->AddFilesFolder.Len() == 0) ? reg_buf : pCfg->AddFilesFolder);
@@ -3139,11 +3139,9 @@ static int SLAPI EditBillCfgValuationParam(PPBillConfig * pData)
 				PPErrorByDialog(dlg, CTL_SELQUOT2_KIND, PPERR_STRICTMODE_QKNEEDED);
 			}
 			else {
-				long   temp_long = 0;
 				dlg->getCtrlData(CTL_SELQUOT2_PREC,        &param.RoundPrec);
 				dlg->GetClusterData(CTL_SELQUOT2_ROUNDVAT, &param.Flags);
-				dlg->GetClusterData(CTL_SELQUOT2_ROUND, &temp_long);
-				param.RoundDir = (int16)temp_long;
+				param.RoundDir = static_cast<int16>(dlg->GetClusterData(CTL_SELQUOT2_ROUND));
 				param.Get(*pData);
 				ok = 1;
 			}
@@ -3158,13 +3156,15 @@ static int SLAPI EditBillCfgValuationParam(PPBillConfig * pData)
 #define GRP_FILESFOLD 1
 
 class BillConfigAddednumDialog : public TDialog {
+	typedef PPBillConfig DlgDataType;
+	DlgDataType Data;
 public:
 	BillConfigAddednumDialog() : TDialog(DLG_BILLCFGEXT)
 	{
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_BILLCFG_FILESFOLD, CTL_BILLCFG_FILESFOLDER, GRP_FILESFOLD, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		SetupCalDate(CTLCAL_BILLCFG_LOWDEBTDATE, CTL_BILLCFG_LOWDEBTDATE);
 	}
-	int setDTS(const PPBillConfig * pData)
+	int setDTS(const DlgDataType * pData)
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -3186,7 +3186,7 @@ public:
 		// } @v10.4.4 
 		return ok;
 	}
-	int getDTS(PPBillConfig * pData)
+	int getDTS(DlgDataType * pData)
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -3206,8 +3206,6 @@ public:
 		ENDCATCH
 		return ok;
 	}
-private:
-	PPBillConfig Data;
 };
 
 static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConfigAddednumDialog, pData); }

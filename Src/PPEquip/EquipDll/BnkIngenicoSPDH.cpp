@@ -1,4 +1,5 @@
-// Dll для работы с банковским терминалом INGENICO по протоколу SPDH (банк ВТБ)
+// Dll РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р±Р°РЅРєРѕРІСЃРєРёРј С‚РµСЂРјРёРЅР°Р»РѕРј INGENICO РїРѕ РїСЂРѕС‚РѕРєРѕР»Сѓ SPDH (Р±Р°РЅРє Р’РўР‘)
+// @codepage UTF-8 // @v10.4.5
 //
 #pragma hdrstop
 #include <slib.h>
@@ -9,34 +10,34 @@
 
 int	ErrorCode = 0;
 int LastError = 0;
-int AddError = 0; // Код ошибки, раскрывающий глобальную ошибку из LastError
-				// используется при INGVTB_NOTINITED, INGVTB_NOTCONNECTED
+int AddError = 0; // РљРѕРґ РѕС€РёР±РєРё, СЂР°СЃРєСЂС‹РІР°СЋС‰РёР№ РіР»РѕР±Р°Р»СЊРЅСѓСЋ РѕС€РёР±РєСѓ РёР· LastError
+				// РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё INGVTB_NOTINITED, INGVTB_NOTCONNECTED
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 
-// Коды команд
-#define OPER_PAY			1	// ОПЛАТА
-#define OPER_REFUND			3	// ВОЗВРАТ
-#define OPER_CLOSESESS		11	// ЗАКРЫТИЕ СМЕНЫ
-#define OPER_CLOSEDAY		12	// ЗАКРЫТИЕ ДНЯ
-#define OPER_TESTCONNECT	96	// ТЕСТ СВЯЗИ
+// РљРѕРґС‹ РєРѕРјР°РЅРґ
+#define OPER_PAY			1	// РћРџР›РђРўРђ
+#define OPER_REFUND			3	// Р’РћР—Р’Р РђРў
+#define OPER_CLOSESESS		11	// Р—РђРљР Р«РўРР• РЎРњР•РќР«
+#define OPER_CLOSEDAY		12	// Р—РђРљР Р«РўРР• Р”РќРЇ
+#define OPER_TESTCONNECT	96	// РўР•РЎРў РЎР’РЇР—Р
 
-// Коды ошибок
-#define INGVTB_NOTENOUGHPARAM	300	// Не достаточно параметров для работы устройства
-#define INGVTB_UNCNKOWNCOMMAND	301	// Передана неизвестная команда
-#define INGVTB_NOTINITED		302	// Ошибка инициализации
-#define INGVTB_NOTCONNECTED		303	// Соединение не установлено
+// РљРѕРґС‹ РѕС€РёР±РѕРє
+#define INGVTB_NOTENOUGHPARAM	300	// РќРµ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ СЂР°Р±РѕС‚С‹ СѓСЃС‚СЂРѕР№СЃС‚РІР°
+#define INGVTB_UNCNKOWNCOMMAND	301	// РџРµСЂРµРґР°РЅР° РЅРµРёР·РІРµСЃС‚РЅР°СЏ РєРѕРјР°РЅРґР°
+#define INGVTB_NOTINITED		302	// РћС€РёР±РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
+#define INGVTB_NOTCONNECTED		303	// РЎРѕРµРґРёРЅРµРЅРёРµ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ
 
-#define	INGVTB_NOTENOUGHMEM		400 // Не достаточный размер выходного буфера
-#define INGVTB_DLLFILENOTFOUND	401 // Файл arccom.dll не найден
-#define INGVTB_INIFILENOTFOUND	402 // Файл cashreg.ini не найден
-#define INGVTB_CHECKFILENOTFOUND	403 // Файл check.out не найден
-#define INGVTB_NODLLPATH		404 // Не указан путь к файлу arccom.dll
-#define INGVTB_TRANSERR			405 // Ошибка транзакции
+#define	INGVTB_NOTENOUGHMEM		400 // РќРµ РґРѕСЃС‚Р°С‚РѕС‡РЅС‹Р№ СЂР°Р·РјРµСЂ РІС‹С…РѕРґРЅРѕРіРѕ Р±СѓС„РµСЂР°
+#define INGVTB_DLLFILENOTFOUND	401 // Р¤Р°Р№Р» arccom.dll РЅРµ РЅР°Р№РґРµРЅ
+#define INGVTB_INIFILENOTFOUND	402 // Р¤Р°Р№Р» cashreg.ini РЅРµ РЅР°Р№РґРµРЅ
+#define INGVTB_CHECKFILENOTFOUND	403 // Р¤Р°Р№Р» check.out РЅРµ РЅР°Р№РґРµРЅ
+#define INGVTB_NODLLPATH		404 // РќРµ СѓРєР°Р·Р°РЅ РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ arccom.dll
+#define INGVTB_TRANSERR			405 // РћС€РёР±РєР° С‚СЂР°РЅР·Р°РєС†РёРё
 
-struct ErrMessage {
+/*struct ErrMessage {
 	uint Id;
 	const char * P_Msg;
-};
+};*/
 
 enum {
 	lnProcCode = 7,
@@ -65,8 +66,7 @@ enum {
 	lnTVR=80
 };
 
-struct UserAuthIntSt
-{
+struct UserAuthIntSt {
 	UserAuthIntSt()
 	{
 		Clear();
@@ -103,34 +103,34 @@ struct UserAuthIntSt
 	}
 	int	handle;
 	int abg_id;
-	int operType; //[in] Код операции (кассовый)
-	char track2[lnTrack2]; //[in] Трек2
+	int operType; //[in] РљРѕРґ РѕРїРµСЂР°С†РёРё (РєР°СЃСЃРѕРІС‹Р№)
+	char track2[lnTrack2]; //[in] РўСЂРµРє2
 	char pan[lnPan]; //[out] PAN
-	char expiry[lnExpiry]; //[out] Expiry Date ГГММ
-	char pay_acc[lnPan]; //не используется
-	char additional_payment_data[80]; //не используется
-	char amount[lnAmount]; //[in] Сумма в копейках
-	char original_amount[lnAmount]; //[in]Оригинальная сумма в копейках
-	char currency[lnCurrency]; //[in] Код валюты
-	char terminalID[lnTerminalID]; //[out] ID терминала
-	char rrn[lnRetrievalReference]; //[in][out] Ссылка (заполнять только для тех операций, для котопрых 
-		//она нужна, в остальных случаях должна быть пуста)
-	char authCode[lnAuthIdentResponse]; //[in][out] Код авторизации
-	char responseCode[lnResponseCode]; //[out] Код ответа
-	char cardType[lnCardType]; //[out] Название типа карты
-	char date[lnDate]; //[out] Дата транзакции
-	char time[lnTime]; //[out] Время транзакции
-	char payment_data[lnPayData]; //не используется
-	char data_to_print[lnPayData]; //не используется
-	char home_operator[lnPayData]; //не используется
-	char received_text_message[lnReceivedTextMsg];//не используется
-	char text_message[lnReceivedTextMsg]; //[out] Расшифровкаа
+	char expiry[lnExpiry]; //[out] Expiry Date Р“Р“РњРњ
+	char pay_acc[lnPan]; //РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+	char additional_payment_data[80]; //РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+	char amount[lnAmount]; //[in] РЎСѓРјРјР° РІ РєРѕРїРµР№РєР°С…
+	char original_amount[lnAmount]; //[in]РћСЂРёРіРёРЅР°Р»СЊРЅР°СЏ СЃСѓРјРјР° РІ РєРѕРїРµР№РєР°С…
+	char currency[lnCurrency]; //[in] РљРѕРґ РІР°Р»СЋС‚С‹
+	char terminalID[lnTerminalID]; //[out] ID С‚РµСЂРјРёРЅР°Р»Р°
+	char rrn[lnRetrievalReference]; //[in][out] РЎСЃС‹Р»РєР° (Р·Р°РїРѕР»РЅСЏС‚СЊ С‚РѕР»СЊРєРѕ РґР»СЏ С‚РµС… РѕРїРµСЂР°С†РёР№, РґР»СЏ РєРѕС‚РѕРїСЂС‹С… 
+		//РѕРЅР° РЅСѓР¶РЅР°, РІ РѕСЃС‚Р°Р»СЊРЅС‹С… СЃР»СѓС‡Р°СЏС… РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїСѓСЃС‚Р°)
+	char authCode[lnAuthIdentResponse]; //[in][out] РљРѕРґ Р°РІС‚РѕСЂРёР·Р°С†РёРё
+	char responseCode[lnResponseCode]; //[out] РљРѕРґ РѕС‚РІРµС‚Р°
+	char cardType[lnCardType]; //[out] РќР°Р·РІР°РЅРёРµ С‚РёРїР° РєР°СЂС‚С‹
+	char date[lnDate]; //[out] Р”Р°С‚Р° С‚СЂР°РЅР·Р°РєС†РёРё
+	char time[lnTime]; //[out] Р’СЂРµРјСЏ С‚СЂР°РЅР·Р°РєС†РёРё
+	char payment_data[lnPayData]; //РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+	char data_to_print[lnPayData]; //РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+	char home_operator[lnPayData]; //РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+	char received_text_message[lnReceivedTextMsg];//РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+	char text_message[lnReceivedTextMsg]; //[out] Р Р°СЃС€РёС„СЂРѕРІРєР°Р°
 	char AID[lnAID]; //[out]EMV AID
 	char ApplicationLabel[lnApplicationLabel]; //[out]EMV ApplicationLabel
 	char TVR[lnTVR]; //[out]EMV TVR
-	int system_res; //не используется
-	// ТОЛЬКО ДЛЯ МОДУЛЯ АРКУС2 С ФУНКЦИОНАЛОМ HRS
-	// char enc_data[64]; //[in][out] шифрованные данные карты(PAN)
+	int system_res; //РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+	// РўРћР›Р¬РљРћ Р”Р›РЇ РњРћР”РЈР›РЇ РђР РљРЈРЎ2 РЎ Р¤РЈРќРљР¦РРћРќРђР›РћРњ HRS
+	// char enc_data[64]; //[in][out] С€РёС„СЂРѕРІР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РєР°СЂС‚С‹(PAN)
 };
 
 typedef int (__cdecl * ProcDll)(UserAuthIntSt *);
@@ -146,40 +146,27 @@ public:
 	int Disconnect();
 	int SetCfg();
 	int GetLastErrorText(char * pBuf, size_t bufSize);
-	int Pay(); // Оплата
-	int Refund(); // Возврат
-	int GetSessReport(char * pZCheck, size_t bufSize); // Отчет об операциях за день
+	int Pay(); // РћРїР»Р°С‚Р°
+	int Refund(); // Р’РѕР·РІСЂР°С‚
+	int GetSessReport(char * pZCheck, size_t bufSize); // РћС‚С‡РµС‚ РѕР± РѕРїРµСЂР°С†РёСЏС… Р·Р° РґРµРЅСЊ
 
-	SString IniPath; // Путь к файлу ini\cashreg.ini
-	SString OutPath; // Путь к файлу check.out
+	SString IniPath; // РџСѓС‚СЊ Рє С„Р°Р№Р»Сѓ ini\cashreg.ini
+	SString OutPath; // РџСѓС‚СЊ Рє С„Р°Р№Р»Сѓ check.out
 private:
 	int Port;
-	SString Amount; // Сумма оплаты/возврата
+	SString Amount; // РЎСѓРјРјР° РѕРїР»Р°С‚С‹/РІРѕР·РІСЂР°С‚Р°
 	SString LogNum;
-	SString TransErrStr; // Описание ошибки транзакции
-	SString LastStr; // Содержит строку, которая не поместилась в выходной буфер
+	SString TransErrStr; // РћРїРёСЃР°РЅРёРµ РѕС€РёР±РєРё С‚СЂР°РЅР·Р°РєС†РёРё
+	SString LastStr; // РЎРѕРґРµСЂР¶РёС‚ СЃС‚СЂРѕРєСѓ, РєРѕС‚РѕСЂР°СЏ РЅРµ РїРѕРјРµСЃС‚РёР»Р°СЃСЊ РІ РІС‹С…РѕРґРЅРѕР№ Р±СѓС„РµСЂ
 	UserAuthIntSt Transaction;
 };
 
 static BnkIngVTB * P_BnkIngVtb = 0;
 
-ErrMessage ErrMsg[] = {
-	{INGVTB_NOTENOUGHPARAM,		"Не достаточно параметров для работы устройства"},
-	{INGVTB_UNCNKOWNCOMMAND,	"Передана неизвестная команда"},
-	{INGVTB_NOTINITED,			"Ошибка инициализации"},
-	{INGVTB_NOTCONNECTED,		"Соединение не установлено"},
-	{INGVTB_NOTENOUGHMEM,		"Не достаточный размер выходного буфера"},
-	{INGVTB_DLLFILENOTFOUND,	"Файл arccom.dll не найден"},
-	{INGVTB_INIFILENOTFOUND,	"Файл cashreg.ini не найден"},
-	{INGVTB_CHECKFILENOTFOUND,	"Файл check.out не найден"},
-	{INGVTB_NODLLPATH,			"Не указан путь к файлу arccom.dll"}
-};
-
 int	FASTCALL SetError(int errCode);
 int	FASTCALL SetError(char * pErrCode);
 int	FASTCALL SetAddError(int errCode);
 int GetLastErrorText(char * pBuf, size_t bufSize);
-
 int FASTCALL SetError(int errCode) { ErrorCode = errCode; return 1; }
 int FASTCALL SetError(SString & rErrCode) { ErrorCode = rErrCode.ToLong(); return 1; }
 int	FASTCALL SetAddError(int errCode) { AddError = errCode; return 1; };
@@ -209,7 +196,7 @@ EXPORT int RunCommand(const char * pCmd, const char * pInputData, char * pOutput
 		THROW(Release())
 	else if(P_BnkIngVtb)
 		ok = P_BnkIngVtb->RunOneCommand(pCmd, pInputData, pOutputData, outSize);
-	else if(sstreqi_ascii(pCmd, "GETLASTERRORTEXT")) { // При ошибке иницииализации
+	else if(sstreqi_ascii(pCmd, "GETLASTERRORTEXT")) { // РџСЂРё РѕС€РёР±РєРµ РёРЅРёС†РёРёР°Р»РёР·Р°С†РёРё
 		ok = GetLastErrorText(pOutputData, outSize);
 	}
 	CATCH
@@ -270,7 +257,7 @@ int BnkIngVTB::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 	else if(sstreqi_ascii(pCmd, "GETLASTERRORTEXT")) {
 		ok = BnkIngVTB::GetLastErrorText(pOutputData, outSize);
 	}
-	else { // Если дана неизвестная  команда, то сообщаем об этом
+	else { // Р•СЃР»Рё РґР°РЅР° РЅРµРёР·РІРµСЃС‚РЅР°СЏ  РєРѕРјР°РЅРґР°, С‚Рѕ СЃРѕРѕР±С‰Р°РµРј РѕР± СЌС‚РѕРј
 		THROWERR(0, INGVTB_UNCNKOWNCOMMAND);
 	}
 	CATCH
@@ -286,7 +273,6 @@ int Init(const char * pLibName)
 {
 	int    ok = 1;
 	SPathStruc path_struct;
-
 	THROWERR_ADD(pLibName, INGVTB_NODLLPATH);
 	P_Lib = new SDynLibrary(pLibName);
 	THROWERR_ADD(P_Lib && P_Lib->IsValid(), INGVTB_DLLFILENOTFOUND);
@@ -315,7 +301,6 @@ int Init(const char * pLibName)
 		path_struct.Dir.ReplaceStr("INI\\", "\\", 1);
 		P_BnkIngVtb->OutPath.Z().Cat(path_struct.Drv).CatChar(':').Cat(path_struct.Dir).Cat(/*"cheq.out"*/r_str);
 	}
-
 	CATCH
 		ZDELETE(P_Lib);
 		ZDELETE(P_BnkIngVtb);
@@ -327,19 +312,17 @@ int Init(const char * pLibName)
 int Release() 
 {	
 	ProcessOw = 0;
-	if(P_BnkIngVtb)
-		ZDELETE(P_BnkIngVtb);
-	if(P_Lib)
-		ZDELETE(P_Lib);
+	ZDELETE(P_BnkIngVtb);
+	ZDELETE(P_Lib);
 	return 1;
 }
 
 BnkIngVTB::BnkIngVTB()
 {
 	LastError = 0;
-	IniPath = 0;
-	OutPath = 0;
-	LogNum = 0;
+	IniPath.Z();
+	OutPath.Z();
+	LogNum.Z();
 	Transaction.Clear();
 }
 
@@ -353,7 +336,7 @@ int BnkIngVTB::Connect()
 	size_t pos = 0;
 	int    tell = 0;
 	SString r_str, w_str;
-	// Меняем в файле настроек номер порта
+	// РњРµРЅСЏРµРј РІ С„Р°Р№Р»Рµ РЅР°СЃС‚СЂРѕРµРє РЅРѕРјРµСЂ РїРѕСЂС‚Р°
 	/*SFile file(IniPath, SFile::mRead);
 	THROWERR_ADD(file.IsValid(), INGVTB_INIFILENOTFOUND);
 	while(!exit && (file.ReadLine(r_str) > 0)) {
@@ -374,17 +357,13 @@ int BnkIngVTB::Connect()
 	Transaction.Clear();
 	Transaction.operType = OPER_TESTCONNECT;
 	result = ProcessOw(&Transaction);
-
 	r_str.Z().Cat(P_BnkIngVtb->Transaction.responseCode);
 	r_str.Z().Cat(P_BnkIngVtb->Transaction.text_message);
 	r_str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
 	r_str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
 	TransErrStr.Z().Cat(P_BnkIngVtb->Transaction.text_message);
-	
 	THROWERR_ADD(result == 0, INGVTB_TRANSERR);
-	CATCH
-		ok = 0;
-	ENDCATCH;
+	CATCHZOK
 	return ok;
 }
 
@@ -405,7 +384,7 @@ int BnkIngVTB::Pay()
 	P_BnkIngVtb->Transaction.Clear();
 	memcpy(P_BnkIngVtb->Transaction.terminalID, P_BnkIngVtb->LogNum, lnTerminalID);
 	P_BnkIngVtb->Transaction.operType = OPER_PAY;
-	memcpy(P_BnkIngVtb->Transaction.currency, "810", lnCurrency); // тип валюты: рубли
+	memcpy(P_BnkIngVtb->Transaction.currency, "810", lnCurrency); // С‚РёРї РІР°Р»СЋС‚С‹: СЂСѓР±Р»Рё
 	memcpy(P_BnkIngVtb->Transaction.amount, P_BnkIngVtb->Amount, lnAmount);
 	result = ProcessOw(&P_BnkIngVtb->Transaction);
 
@@ -416,11 +395,8 @@ int BnkIngVTB::Pay()
 	str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
 	str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
 	TransErrStr.Z().Cat(P_BnkIngVtb->Transaction.text_message);
-
 	THROWERR(result == 0, INGVTB_TRANSERR);
-	CATCH
-		ok = 0;
-	ENDCATCH;
+	CATCHZOK
 	return ok;
 }
 	
@@ -431,7 +407,7 @@ int BnkIngVTB::Refund()
 	P_BnkIngVtb->Transaction.Clear();
 	memcpy(P_BnkIngVtb->Transaction.terminalID, P_BnkIngVtb->LogNum, lnTerminalID);
 	P_BnkIngVtb->Transaction.operType = OPER_REFUND;
-	memcpy(P_BnkIngVtb->Transaction.currency, "810", lnCurrency); // тип валюты: рубли
+	memcpy(P_BnkIngVtb->Transaction.currency, "810", lnCurrency); // С‚РёРї РІР°Р»СЋС‚С‹: СЂСѓР±Р»Рё
 	memcpy(P_BnkIngVtb->Transaction.amount, P_BnkIngVtb->Amount, lnAmount);
 	result = ProcessOw(&P_BnkIngVtb->Transaction);
 
@@ -444,16 +420,15 @@ int BnkIngVTB::Refund()
 	TransErrStr.Z().Cat(P_BnkIngVtb->Transaction.text_message);
 
 	THROWERR(result == 0, INGVTB_TRANSERR);
-	CATCH
-		ok = 0;
-	ENDCATCH;
+	CATCHZOK
 	return ok;
 }
 
 int BnkIngVTB::GetSessReport(char * pZCheck, size_t bufSize)
 {
-	int ok = 0, result = 0;
-	int64 file_size = 0;
+	int    ok = 0;
+	int    result = 0;
+	int64  file_size = 0;
 	size_t pos = 0;
 	SString str;
 	SFile file(OutPath, SFile::mRead);
@@ -461,13 +436,11 @@ int BnkIngVTB::GetSessReport(char * pZCheck, size_t bufSize)
 	memcpy(P_BnkIngVtb->Transaction.terminalID, P_BnkIngVtb->LogNum, lnTerminalID);
 	P_BnkIngVtb->Transaction.operType = OPER_CLOSEDAY;
 	result = ProcessOw(&P_BnkIngVtb->Transaction);
-
 	str.Z().Cat(P_BnkIngVtb->Transaction.responseCode);
 	str.Z().Cat(P_BnkIngVtb->Transaction.text_message);
 	str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
 	str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
 	TransErrStr.Z().Cat(P_BnkIngVtb->Transaction.text_message);
-
 	THROWERR(result == 0, INGVTB_TRANSERR);
 	THROWERR(file.IsValid(), INGVTB_CHECKFILENOTFOUND);
 	file.CalcSize(&file_size);
@@ -476,7 +449,7 @@ int BnkIngVTB::GetSessReport(char * pZCheck, size_t bufSize)
 	else {
 		while(file.ReadLine(str) > 0) {
 			for(size_t i = 0; i < str.Len(); i++) {
-				if((str.C(i) > 0) && (str.C(i) < 32)) // Отсекаем управляющие символы, кроме конца строки, пробела, перевода строки
+				if((str.C(i) > 0) && (str.C(i) < 32)) // РћС‚СЃРµРєР°РµРј СѓРїСЂР°РІР»СЏСЋС‰РёРµ СЃРёРјРІРѕР»С‹, РєСЂРѕРјРµ РєРѕРЅС†Р° СЃС‚СЂРѕРєРё, РїСЂРѕР±РµР»Р°, РїРµСЂРµРІРѕРґР° СЃС‚СЂРѕРєРё
 					if(str.C(i) != '\n')
 						str.Excise(i, 1);
 			}
@@ -490,38 +463,45 @@ int BnkIngVTB::GetSessReport(char * pZCheck, size_t bufSize)
 	return ok;
 }
 
+static const /*ErrMessage*/SIntToSymbTabEntry ErrMsg[] = {
+	{ INGVTB_NOTENOUGHPARAM,    "РќРµ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ СЂР°Р±РѕС‚С‹ СѓСЃС‚СЂРѕР№СЃС‚РІР°" },
+	{ INGVTB_UNCNKOWNCOMMAND,	"РџРµСЂРµРґР°РЅР° РЅРµРёР·РІРµСЃС‚РЅР°СЏ РєРѕРјР°РЅРґР°" },
+	{ INGVTB_NOTINITED,			"РћС€РёР±РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё" },
+	{ INGVTB_NOTCONNECTED,		"РЎРѕРµРґРёРЅРµРЅРёРµ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ" },
+	{ INGVTB_NOTENOUGHMEM,		"РќРµ РґРѕСЃС‚Р°С‚РѕС‡РЅС‹Р№ СЂР°Р·РјРµСЂ РІС‹С…РѕРґРЅРѕРіРѕ Р±СѓС„РµСЂР°" },
+	{ INGVTB_DLLFILENOTFOUND,	"Р¤Р°Р№Р» arccom.dll РЅРµ РЅР°Р№РґРµРЅ" },
+	{ INGVTB_INIFILENOTFOUND,	"Р¤Р°Р№Р» cashreg.ini РЅРµ РЅР°Р№РґРµРЅ" },
+	{ INGVTB_CHECKFILENOTFOUND,	"Р¤Р°Р№Р» check.out РЅРµ РЅР°Р№РґРµРЅ" },
+	{ INGVTB_NODLLPATH,			"РќРµ СѓРєР°Р·Р°РЅ РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ arccom.dll" }
+};
+
 int BnkIngVTB::GetLastErrorText(char * pBuf, size_t bufSize)
 {
-	int  ok = 0, exit = 0;
+	int  ok = 0;
 	SString msg;
 	if(LastError == INGVTB_TRANSERR)
 		msg.Z().Cat(TransErrStr);
 	else {
-		for(uint i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
-			if(LastError == ErrMsg[i].Id) {
-				msg.Z().Cat(ErrMsg[i].P_Msg);
-				break;
-			}
-		}
+		SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), LastError, msg);
+		msg.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
 	}
 	if(msg.Empty())
-		msg.Cat("Error ").Cat(LastError);
+		msg.Cat("Error").Space().Cat(LastError);
 	if(AddError) {
 		if(AddError == INGVTB_TRANSERR)
-			msg.Cat(": ").Cat(TransErrStr);
+			msg.CatDiv(':', 2).Cat(TransErrStr);
 		else {
-			for(uint i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
-				if(AddError == ErrMsg[i].Id) {
-					msg.Cat(": ").Cat(ErrMsg[i].P_Msg);
-					exit = 1;
-					break;
-				}
+			SString temp_buf;
+			msg.CatDiv(':', 2);
+			if(SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), AddError, temp_buf)) {
+				temp_buf.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
+				msg.Cat(temp_buf);
 			}
-			if(!exit)
-				msg.Cat(": ").Cat("Error ").Cat(AddError);
+			else
+				msg.Cat("Error").Space().Cat(AddError);
 		}
 	}
-	if(msg.Len() + 1 > bufSize) {
+	if((msg.Len() + 1) > bufSize) {
 		LastStr.Z().Cat(msg);
 		ok = 2;
 	}
@@ -534,26 +514,18 @@ int BnkIngVTB::GetLastErrorText(char * pBuf, size_t bufSize)
 
 int GetLastErrorText(char * pBuf, size_t bufSize)
 {
-	int  ok = 0, exit = 0;
+	int  ok = 0;
 	SString msg;
-	for(uint i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
-		if(LastError == ErrMsg[i].Id) {
-			msg.Z().Cat(ErrMsg[i].P_Msg);
-			break;
-		}
-	}
+	SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), LastError, msg);
 	if(msg.Empty())
-		msg.Cat("Error ").Cat(LastError);
+		msg.Cat("Error").Space().Cat(LastError);
 	if(AddError) {
-		for(uint i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
-			if(AddError == ErrMsg[i].Id) {
-				msg.Cat(": ").Cat(ErrMsg[i].P_Msg);
-				exit = 1;
-				break;
-			}
-		}
-		if(!exit)
-			msg.Cat(": ").Cat("Error ").Cat(AddError);
+		SString temp_buf;
+		msg.CatDiv(':', 2);
+		if(SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), AddError, temp_buf))
+			msg.Cat(temp_buf);
+		else
+			msg.Cat("Error").Space().Cat(AddError);
 	}
 	if(msg.Len() + 1 > bufSize)
 		ok = 2;

@@ -1,5 +1,6 @@
 // STYPE.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -315,35 +316,34 @@ size_t STypEx::GetBinSize() const
 //
 //
 //
-struct TypeName {
-	TYPEID Typ;
-	const  char * P_Names;
-	const  char * P_NativeName;
-};
-
-static const TypeName TypeNameList[] = {
-	{0, "undefined,undef", "Не определенный"},
-	{MKSTYPE(S_ZSTRING, 0), "string,zstring,char,C",  "Строка"},
-	{MKSTYPE(S_INT, 1),     "int8",                   "Целое"},
-	{MKSTYPE(S_INT, 2),     "int16,short",            "Целое"},
-	{MKSTYPE(S_INT, 4),     "int32,integer,long,int", "Целое"},
-	{MKSTYPE(S_UINT, 1),    "uint8,uchar",            "Целое без знака"},
-	{MKSTYPE(S_UINT, 2),    "uint16,unsigned short",  "Целое без знака"},
-	{MKSTYPE(S_UINT, 4),    "uint32,ulong,uint,unsigned long,unsigned int", "Целое без знака"},
-	{MKSTYPE(S_FLOAT, 4),   "float",                "Число"},
-	{MKSTYPE(S_FLOAT, 8),   "real,double,N",        "Число"},
-	{MKSTYPE(S_FLOAT, 10),  "long double",          "Число"},
-	{T_DATE,                "date,LDATE,D",         "Дата"},
-	{T_TIME,                "time,LTIME,T",         "Время"},
-	{T_DATETIME,            "datetime,LDATETIME",   "Дата-Время"},
-	{T_VARIANT,             "variant,VARIANT",      "VB variant"},
-	{T_IPOINT2,             "ipoint2",              "Точка 2D"},
-	{T_FPOINT2,             "fpoint2",              "Точка 2D"},
-	{T_BOOL,                "boolean,bool,logical", "Логический"}
-};
-
 TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 {
+	struct TypeName {
+		TYPEID Typ;
+		const  char * P_Names;
+		const  char * P_NativeName;
+	};
+
+	static const TypeName TypeNameList[] = {
+		{0, "undefined,undef", "РќРµ РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№"},
+		{MKSTYPE(S_ZSTRING, 0), "string,zstring,char,C",  "РЎС‚СЂРѕРєР°"},
+		{MKSTYPE(S_INT, 1),     "int8",                   "Р¦РµР»РѕРµ"},
+		{MKSTYPE(S_INT, 2),     "int16,short",            "Р¦РµР»РѕРµ"},
+		{MKSTYPE(S_INT, 4),     "int32,integer,long,int", "Р¦РµР»РѕРµ"},
+		{MKSTYPE(S_UINT, 1),    "uint8,uchar",            "Р¦РµР»РѕРµ Р±РµР· Р·РЅР°РєР°"},
+		{MKSTYPE(S_UINT, 2),    "uint16,unsigned short",  "Р¦РµР»РѕРµ Р±РµР· Р·РЅР°РєР°"},
+		{MKSTYPE(S_UINT, 4),    "uint32,ulong,uint,unsigned long,unsigned int", "Р¦РµР»РѕРµ Р±РµР· Р·РЅР°РєР°"},
+		{MKSTYPE(S_FLOAT, 4),   "float",                "Р§РёСЃР»Рѕ"},
+		{MKSTYPE(S_FLOAT, 8),   "real,double,N",        "Р§РёСЃР»Рѕ"},
+		{MKSTYPE(S_FLOAT, 10),  "long double",          "Р§РёСЃР»Рѕ"},
+		{T_DATE,                "date,LDATE,D",         "Р”Р°С‚Р°"},
+		{T_TIME,                "time,LTIME,T",         "Р’СЂРµРјСЏ"},
+		{T_DATETIME,            "datetime,LDATETIME",   "Р”Р°С‚Р°-Р’СЂРµРјСЏ"},
+		{T_VARIANT,             "variant,VARIANT",      "VB variant"},
+		{T_IPOINT2,             "ipoint2",              "РўРѕС‡РєР° 2D"},
+		{T_FPOINT2,             "fpoint2",              "РўРѕС‡РєР° 2D"},
+		{T_BOOL,                "boolean,bool,logical", "Р›РѕРіРёС‡РµСЃРєРёР№"}
+	};
 	rScan.Skip();
 	SString text = rScan;
 	SString temp_buf;
@@ -382,18 +382,14 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 				type_text = "int16";
 			else if(sz == 4)
 				type_text = "int32";
-			// @v8.0.9 {
 			else if(sz == 8)
 				type_text = "int64";
-			// } @v8.0.9
 			else
 				(type_text = "int_invalid_size_").Cat(sz);
 			break;
-		// @v8.1.2 {
 		case S_LOGICAL:
 			type_text = "bool";
 			break;
-		// } @v8.1.2
 		case S_UINT:
 			if(sz == 1)
 				type_text = "uint8";
@@ -401,10 +397,8 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 				type_text = "uint16";
 			else if(sz == 4)
 				type_text = "uint32";
-			// @v8.0.9 {
 			else if(sz == 8)
 				type_text = "uint64";
-			// } @v8.0.9
 			else
 				(type_text = "uint_invalid_size_").Cat(sz);
 			break;
@@ -532,25 +526,18 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 
 SString & FASTCALL GetBaseTypeString(int baseTyp, long flags, SString & rBuf)
 {
-	if(baseTyp == BTS_STRING)
-		rBuf = (flags & BTSF_NATIVE) ? "Строка" : "string";
-	else if(baseTyp == BTS_INT)
-		rBuf = (flags & BTSF_NATIVE) ? "Целое число" : "integer";
-	else if(baseTyp == BTS_REAL)
-		rBuf = (flags & BTSF_NATIVE) ? "Число" : "real";
-	else if(baseTyp == BTS_DATE)
-		rBuf = (flags & BTSF_NATIVE) ? "Дата" : "date";
-	else if(baseTyp == BTS_TIME)
-		rBuf = (flags & BTSF_NATIVE) ? "Время" : "time";
-	else if(baseTyp == BTS_POINT2)
-		rBuf = (flags & BTSF_NATIVE) ? "Точка 2D" : "point2d";
-	// @v8.1.2 {
-	else if(baseTyp == BTS_BOOL)
-		rBuf = (flags & BTSF_NATIVE) ? "Логический" : "bool";
-	// } @v8.1.2
-	else
-		rBuf = (flags & BTSF_NATIVE) ? "Не определенный" : "undefined";
-	if(flags & BTSF_OEM)
-		rBuf.ToOem();
+	switch(baseTyp) {
+		case BTS_STRING: rBuf = (flags & BTSF_NATIVE) ? "РЎС‚СЂРѕРєР°" : "string"; break;
+		case BTS_INT: rBuf = (flags & BTSF_NATIVE) ? "Р¦РµР»РѕРµ С‡РёСЃР»Рѕ" : "integer"; break;
+		case BTS_REAL: rBuf = (flags & BTSF_NATIVE) ? "Р§РёСЃР»Рѕ" : "real"; break;
+		case BTS_DATE: rBuf = (flags & BTSF_NATIVE) ? "Р”Р°С‚Р°" : "date"; break;
+		case BTS_TIME: rBuf = (flags & BTSF_NATIVE) ? "Р’СЂРµРјСЏ" : "time"; break;
+		case BTS_POINT2: rBuf = (flags & BTSF_NATIVE) ? "РўРѕС‡РєР° 2D" : "point2d"; break;
+		case BTS_BOOL: rBuf = (flags & BTSF_NATIVE) ? "Р›РѕРіРёС‡РµСЃРєРёР№" : "bool"; break;
+		default: rBuf = (flags & BTSF_NATIVE) ? "РќРµ РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№" : "undefined";
+	}
+	if(flags & BTSF_NATIVE) {
+		rBuf.Transf((flags & BTSF_OEM) ? CTRANSF_UTF8_TO_INNER : CTRANSF_UTF8_TO_OUTER);
+	}
 	return rBuf;
 }

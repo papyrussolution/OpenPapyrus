@@ -1,5 +1,6 @@
 // TXTANLZ.CPP
 // Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -134,7 +135,7 @@ int PPTextAnalyzer::Replacer::BuildSrcIndex()
 	SrcListIndex.clear();
 	{
 		//
-		// Операторы stOpTo, stOpSignal следуют с наивысшим приоритетом
+		// РћРїРµСЂР°С‚РѕСЂС‹ stOpTo, stOpSignal СЃР»РµРґСѓСЋС‚ СЃ РЅР°РёРІС‹СЃС€РёРј РїСЂРёРѕСЂРёС‚РµС‚РѕРј
 		//
 		for(uint i = 0; i < SrcList.getCount(); i++) {
 			const SrcItem * p_src_item = SrcList.at(i);
@@ -144,7 +145,7 @@ int PPTextAnalyzer::Replacer::BuildSrcIndex()
 	}
 	{
 		//
-		// Операторы изменения регистра (stOpLower, stOpUpper, stOpCapital) следуют с меньшим приоритетом
+		// РћРїРµСЂР°С‚РѕСЂС‹ РёР·РјРµРЅРµРЅРёСЏ СЂРµРіРёСЃС‚СЂР° (stOpLower, stOpUpper, stOpCapital) СЃР»РµРґСѓСЋС‚ СЃ РјРµРЅСЊС€РёРј РїСЂРёРѕСЂРёС‚РµС‚РѕРј
 		//
 		for(uint i = 0; i < SrcList.getCount(); i++) {
 			const SrcItem * p_src_item = SrcList.at(i);
@@ -299,7 +300,7 @@ int SLAPI PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SSt
 						rExtBuf.Z();
 						if(rScan.SearchChar('.')) {
 							rScan.Get(rExtBuf);
-							rScan.IncrLen(1); // (1): не забыть пропустить точку '.'
+							rScan.IncrLen(1); // (1): РЅРµ Р·Р°Р±С‹С‚СЊ РїСЂРѕРїСѓСЃС‚РёС‚СЊ С‚РѕС‡РєСѓ '.'
 						}
 					}
 					else if(term == PPTextAnalyzer::Replacer::stOpPragma) {
@@ -380,12 +381,12 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 	uint   idx = idxFirst;
 	FindItem fi_common;
 	FindItem fi_grp;
-	// по отдельным полям инициализировать FindItem быстрее чем MEMSZERO(fi_common);
+	// РїРѕ РѕС‚РґРµР»СЊРЅС‹Рј РїРѕР»СЏРј РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ FindItem Р±С‹СЃС‚СЂРµРµ С‡РµРј MEMSZERO(fi_common);
 	fi_common.GrpIdx = 0;
 	fi_common.IdxFirst = idxFirst;
 	fi_common.IdxLast = 0;
 	//
-	// по отдельным полям инициализировать FindItem быстрее чем MEMSZERO(fi_grp);
+	// РїРѕ РѕС‚РґРµР»СЊРЅС‹Рј РїРѕР»СЏРј РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ FindItem Р±С‹СЃС‚СЂРµРµ С‡РµРј MEMSZERO(fi_grp);
 	fi_grp.GrpIdx = 0;
 	fi_grp.IdxFirst = 0;
 	fi_grp.IdxLast = 0;
@@ -396,9 +397,9 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 		const Replacer::Term & r_term = rBlk.P_Item->List.at(termIdx++);
 		if(idx <= idxLast) {
 			//
-			// Вызов STokenizer::Get() достаточно дорогой (в контексте высоких требований к быстродействию данной функции).
-			// По этому, хотя здесь вызов STokenizer::Get() наибоее логичен, мы будем вызывать или не вызывать Get (либо Get_WithoutText)
-			// в каждом конкретном случае (switch case) отдельно.
+			// Р’С‹Р·РѕРІ STokenizer::Get() РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґРѕСЂРѕРіРѕР№ (РІ РєРѕРЅС‚РµРєСЃС‚Рµ РІС‹СЃРѕРєРёС… С‚СЂРµР±РѕРІР°РЅРёР№ Рє Р±С‹СЃС‚СЂРѕРґРµР№СЃС‚РІРёСЋ РґР°РЅРЅРѕР№ С„СѓРЅРєС†РёРё).
+			// РџРѕ СЌС‚РѕРјСѓ, С…РѕС‚СЏ Р·РґРµСЃСЊ РІС‹Р·РѕРІ STokenizer::Get() РЅР°РёР±РѕРµРµ Р»РѕРіРёС‡РµРЅ, РјС‹ Р±СѓРґРµРј РІС‹Р·С‹РІР°С‚СЊ РёР»Рё РЅРµ РІС‹Р·С‹РІР°С‚СЊ Get (Р»РёР±Рѕ Get_WithoutText)
+			// РІ РєР°Р¶РґРѕРј РєРѕРЅРєСЂРµС‚РЅРѕРј СЃР»СѓС‡Р°Рµ (switch case) РѕС‚РґРµР»СЊРЅРѕ.
 			// Get(idx, rBlk.Item_);
 			//
 			if(!(rBlk.State & rBlk.stTest)) {
@@ -547,8 +548,8 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 					{
 						int    local_ok = 0;
 						//
-						// Особый случай: %$ или конец образца после %* не будет правильно распознана локальным
-						// циклом. Более того, специальной обработкой мы значительно ускорим процесс.
+						// РћСЃРѕР±С‹Р№ СЃР»СѓС‡Р°Р№: %$ РёР»Рё РєРѕРЅРµС† РѕР±СЂР°Р·С†Р° РїРѕСЃР»Рµ %* РЅРµ Р±СѓРґРµС‚ РїСЂР°РІРёР»СЊРЅРѕ СЂР°СЃРїРѕР·РЅР°РЅР° Р»РѕРєР°Р»СЊРЅС‹Рј
+						// С†РёРєР»РѕРј. Р‘РѕР»РµРµ С‚РѕРіРѕ, СЃРїРµС†РёР°Р»СЊРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРѕР№ РјС‹ Р·РЅР°С‡РёС‚РµР»СЊРЅРѕ СѓСЃРєРѕСЂРёРј РїСЂРѕС†РµСЃСЃ.
 						//
 						if(termIdx == (termLast+1)) {
 							idx = idxLast+1;
@@ -562,7 +563,7 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 						else if(Helper_FindReplacerSrcItem(rBlk, termIdx, termLast, idx+1, idxLast, &idx)) {
 							local_ok = 1;
 						}
-						rBlk.NextPos = 0; // Нельзя вводить в заблуждение вызывающую функцию
+						rBlk.NextPos = 0; // РќРµР»СЊР·СЏ РІРІРѕРґРёС‚СЊ РІ Р·Р°Р±Р»СѓР¶РґРµРЅРёРµ РІС‹Р·С‹РІР°СЋС‰СѓСЋ С„СѓРЅРєС†РёСЋ
 						if(!local_ok)
 							ok = 0;
 					}
@@ -571,14 +572,14 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 				case Replacer::stCortege:
 					{
 						//
-						// Рекурсивный блок поиска совпадения для одного из элементов кортежа.
+						// Р РµРєСѓСЂСЃРёРІРЅС‹Р№ Р±Р»РѕРє РїРѕРёСЃРєР° СЃРѕРІРїР°РґРµРЅРёСЏ РґР»СЏ РѕРґРЅРѕРіРѕ РёР· СЌР»РµРјРµРЅС‚РѕРІ РєРѕСЂС‚РµР¶Р°.
 						//
 						const LongArray * p_clist = rBlk.R.SearchCortege(r_term.Id);
 						assert(p_clist);
 						int    local_ok = 0;
 						FindBlock * p_local_fb = rBlk.GetRecursiveBlock();
 						if(p_local_fb) {
-							p_local_fb->State |= rBlk.stTest; // Нас не интересуют группы внутри элемента кортежа
+							p_local_fb->State |= rBlk.stTest; // РќР°СЃ РЅРµ РёРЅС‚РµСЂРµСЃСѓСЋС‚ РіСЂСѓРїРїС‹ РІРЅСѓС‚СЂРё СЌР»РµРјРµРЅС‚Р° РєРѕСЂС‚РµР¶Р°
 							for(uint i = 0; !local_ok && i < p_clist->getCount(); i++) {
 								const Replacer::SrcItem * p_si = rBlk.R.SrcList.at(p_clist->get(i));
 								const uint si_c = p_si->List.getCount();
@@ -605,7 +606,7 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 						int    local_ok = 0;
 						FindBlock * p_local_fb = rBlk.GetRecursiveBlock();
 						if(p_local_fb) {
-							p_local_fb->State |= rBlk.stTest; // Нас не интересуют группы при поиске контекста
+							p_local_fb->State |= rBlk.stTest; // РќР°СЃ РЅРµ РёРЅС‚РµСЂРµСЃСѓСЋС‚ РіСЂСѓРїРїС‹ РїСЂРё РїРѕРёСЃРєРµ РєРѕРЅС‚РµРєСЃС‚Р°
 
 							const Replacer::SrcItem * p_si = rBlk.P_Item;
 							const uint si_c = r_term.Id;
@@ -636,14 +637,14 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 										ok = 0;
 								}
 								//
-								// Следующий оператор обеспечивает выход из цикла поиска. В общем случае, это - не правильно.
-								// Теоретически, после сложного выражения может следовать цепочка поиска, которой должен
-								// удовлетворять суффикс текста после выражения. Из-за выхода такое условие проверено не будет.
-								// Для полной реализации необходимо знать точку окончания выражения, сейчас мы ее не знаем-
-								// нам известна только длина левого терма, длина же правого - четко не определена.
-								// @todo Необходимо при разборе выражения устанавливать описанную длину правого подвыражения.
+								// РЎР»РµРґСѓСЋС‰РёР№ РѕРїРµСЂР°С‚РѕСЂ РѕР±РµСЃРїРµС‡РёРІР°РµС‚ РІС‹С…РѕРґ РёР· С†РёРєР»Р° РїРѕРёСЃРєР°. Р’ РѕР±С‰РµРј СЃР»СѓС‡Р°Рµ, СЌС‚Рѕ - РЅРµ РїСЂР°РІРёР»СЊРЅРѕ.
+								// РўРµРѕСЂРµС‚РёС‡РµСЃРєРё, РїРѕСЃР»Рµ СЃР»РѕР¶РЅРѕРіРѕ РІС‹СЂР°Р¶РµРЅРёСЏ РјРѕР¶РµС‚ СЃР»РµРґРѕРІР°С‚СЊ С†РµРїРѕС‡РєР° РїРѕРёСЃРєР°, РєРѕС‚РѕСЂРѕР№ РґРѕР»Р¶РµРЅ
+								// СѓРґРѕРІР»РµС‚РІРѕСЂСЏС‚СЊ СЃСѓС„С„РёРєСЃ С‚РµРєСЃС‚Р° РїРѕСЃР»Рµ РІС‹СЂР°Р¶РµРЅРёСЏ. РР·-Р·Р° РІС‹С…РѕРґР° С‚Р°РєРѕРµ СѓСЃР»РѕРІРёРµ РїСЂРѕРІРµСЂРµРЅРѕ РЅРµ Р±СѓРґРµС‚.
+								// Р”Р»СЏ РїРѕР»РЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё РЅРµРѕР±С…РѕРґРёРјРѕ Р·РЅР°С‚СЊ С‚РѕС‡РєСѓ РѕРєРѕРЅС‡Р°РЅРёСЏ РІС‹СЂР°Р¶РµРЅРёСЏ, СЃРµР№С‡Р°СЃ РјС‹ РµРµ РЅРµ Р·РЅР°РµРј-
+								// РЅР°Рј РёР·РІРµСЃС‚РЅР° С‚РѕР»СЊРєРѕ РґР»РёРЅР° Р»РµРІРѕРіРѕ С‚РµСЂРјР°, РґР»РёРЅР° Р¶Рµ РїСЂР°РІРѕРіРѕ - С‡РµС‚РєРѕ РЅРµ РѕРїСЂРµРґРµР»РµРЅР°.
+								// @todo РќРµРѕР±С…РѕРґРёРјРѕ РїСЂРё СЂР°Р·Р±РѕСЂРµ РІС‹СЂР°Р¶РµРЅРёСЏ СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РѕРїРёСЃР°РЅРЅСѓСЋ РґР»РёРЅСѓ РїСЂР°РІРѕРіРѕ РїРѕРґРІС‹СЂР°Р¶РµРЅРёСЏ.
 								//
-								termIdx = termLast+1; // Завершаем поиск.
+								termIdx = termLast+1; // Р—Р°РІРµСЂС€Р°РµРј РїРѕРёСЃРє.
 							}
 						}
 					}
@@ -662,7 +663,7 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 					for(uint i = 0; i < plc; i++) {
 						const uint p = p_pos_list->get(i);
 						//
-						// Позиции, где встречается токен r_term.Id в индексе должны быть упорядочены
+						// РџРѕР·РёС†РёРё, РіРґРµ РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ С‚РѕРєРµРЅ r_term.Id РІ РёРЅРґРµРєСЃРµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ СѓРїРѕСЂСЏРґРѕС‡РµРЅС‹
 						//
 						assert(i == 0 || static_cast<long>(p) > p_pos_list->get(i-1));
 						//
@@ -682,8 +683,8 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 		}
 		else {
 			//
-			// Текст кончился, однако, могут остаться опциональные компоненты сравнения,
-			// которым окончание текста удовлетворяет.
+			// РўРµРєСЃС‚ РєРѕРЅС‡РёР»СЃСЏ, РѕРґРЅР°РєРѕ, РјРѕРіСѓС‚ РѕСЃС‚Р°С‚СЊСЃСЏ РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Рµ РєРѕРјРїРѕРЅРµРЅС‚С‹ СЃСЂР°РІРЅРµРЅРёСЏ,
+			// РєРѕС‚РѕСЂС‹Рј РѕРєРѕРЅС‡Р°РЅРёРµ С‚РµРєСЃС‚Р° СѓРґРѕРІР»РµС‚РІРѕСЂСЏРµС‚.
 			//
 			if(!oneof4(r_term.Type, Replacer::stEnd, Replacer::stSpaceMul, Replacer::stDotOpt, Replacer::stHyphenOpt))
 				ok = 0;
@@ -755,10 +756,10 @@ int FASTCALL PPTextAnalyzer::TextIndex::Add_(uint position, int textId)
 		}
 		else {
 			//
-			// Дабы на тратить время на распределение и освобождение памяти
-			// метод PPTextAnalyzer::TextIndex::Reset не разрушает L,
-			// а лишь обнуляет индексы слов и соответствующие списки позиций.
-			// По этому здесь сначала попробуем найти свободный элемент и использовать его.
+			// Р”Р°Р±С‹ РЅР° С‚СЂР°С‚РёС‚СЊ РІСЂРµРјСЏ РЅР° СЂР°СЃРїСЂРµРґРµР»РµРЅРёРµ Рё РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ РїР°РјСЏС‚Рё
+			// РјРµС‚РѕРґ PPTextAnalyzer::TextIndex::Reset РЅРµ СЂР°Р·СЂСѓС€Р°РµС‚ L,
+			// Р° Р»РёС€СЊ РѕР±РЅСѓР»СЏРµС‚ РёРЅРґРµРєСЃС‹ СЃР»РѕРІ Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ СЃРїРёСЃРєРё РїРѕР·РёС†РёР№.
+			// РџРѕ СЌС‚РѕРјСѓ Р·РґРµСЃСЊ СЃРЅР°С‡Р°Р»Р° РїРѕРїСЂРѕР±СѓРµРј РЅР°Р№С‚Рё СЃРІРѕР±РѕРґРЅС‹Р№ СЌР»РµРјРµРЅС‚ Рё РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµРіРѕ.
 			//
 			long   zero_text_id = 0;
 			if(L.lsearch(&zero_text_id, &p, CMPF_LONG)) {
@@ -881,7 +882,7 @@ int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPT
 								if(r_term.Id) {
 									GetTextById(r_term.Id, rBlk.TempBuf);
 									//
-									// При первой вставке включаем форсированный пробел между предыдущим и вставляемым словами
+									// РџСЂРё РїРµСЂРІРѕР№ РІСЃС‚Р°РІРєРµ РІРєР»СЋС‡Р°РµРј С„РѕСЂСЃРёСЂРѕРІР°РЅРЅС‹Р№ РїСЂРѕР±РµР» РјРµР¶РґСѓ РїСЂРµРґС‹РґСѓС‰РёРј Рё РІСЃС‚Р°РІР»СЏРµРјС‹Рј СЃР»РѕРІР°РјРё
 									//
 									if(last_token == tokWord) {
 										if(r_term.Tok == tokWord)
@@ -899,7 +900,7 @@ int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPT
 									for(uint k = p_fbigi->IdxFirst; k <= p_fbigi->IdxLast; k++) {
 										Get(k, rBlk.Item_);
 										//
-										// При первой вставке включаем форсированный пробел между предыдущим и вставляемым словами
+										// РџСЂРё РїРµСЂРІРѕР№ РІСЃС‚Р°РІРєРµ РІРєР»СЋС‡Р°РµРј С„РѕСЂСЃРёСЂРѕРІР°РЅРЅС‹Р№ РїСЂРѕР±РµР» РјРµР¶РґСѓ РїСЂРµРґС‹РґСѓС‰РёРј Рё РІСЃС‚Р°РІР»СЏРµРјС‹Рј СЃР»РѕРІР°РјРё
 										//
 										if(last_token == tokWord) {
 											if(rBlk.Item_.Token == tokWord)
@@ -920,7 +921,7 @@ int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPT
 								last_inserted_token = tokDelim;
 								break;
 							case Replacer::stEmpty:
-								// ничего не вставляем
+								// РЅРёС‡РµРіРѕ РЅРµ РІСЃС‚Р°РІР»СЏРµРј
 								break;
 						}
 					}
@@ -938,14 +939,14 @@ int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPT
 					Get(i, rBlk.Item_);
 					rBuf.Cat(rBlk.Item_.Text.SetCase(ccas));
 				}
-				last_inserted_token = 0; // Форсированный пробел после замены регистра точно не нужен
+				last_inserted_token = 0; // Р¤РѕСЂСЃРёСЂРѕРІР°РЅРЅС‹Р№ РїСЂРѕР±РµР» РїРѕСЃР»Рµ Р·Р°РјРµРЅС‹ СЂРµРіРёСЃС‚СЂР° С‚РѕС‡РЅРѕ РЅРµ РЅСѓР¶РµРЅ
 			}
 			si = r_fbi.IdxLast+1; // r_fbi.IdxFirst+1
 			nexti = r_fbi.IdxLast+1;
 			ok = 1;
 			if(p_src_item->Flags & Replacer::SrcItem::fContext) {
 				//
-				// Для контекста повторную обработку делать нельзя - бесконечный цикл
+				// Р”Р»СЏ РєРѕРЅС‚РµРєСЃС‚Р° РїРѕРІС‚РѕСЂРЅСѓСЋ РѕР±СЂР°Р±РѕС‚РєСѓ РґРµР»Р°С‚СЊ РЅРµР»СЊР·СЏ - Р±РµСЃРєРѕРЅРµС‡РЅС‹Р№ С†РёРєР»
 				//
 				break;
 			}
@@ -955,7 +956,7 @@ int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPT
 				for(i = nexti; i <= fi; i++) {
 					Get(i, rBlk.Item_);
 					//
-					// После вставки включаем форсированный пробел между вставленным и следующим словами
+					// РџРѕСЃР»Рµ РІСЃС‚Р°РІРєРё РІРєР»СЋС‡Р°РµРј С„РѕСЂСЃРёСЂРѕРІР°РЅРЅС‹Р№ РїСЂРѕР±РµР» РјРµР¶РґСѓ РІСЃС‚Р°РІР»РµРЅРЅС‹Рј Рё СЃР»РµРґСѓСЋС‰РёРј СЃР»РѕРІР°РјРё
 					//
 					if(last_inserted_token == tokWord) {
 						if(rBlk.Item_.Token == tokWord)
@@ -1190,7 +1191,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 {
 	int    ok = 1;
 	int    single_op = 0;
-	int    do_close_cluster = 0; // В строке встретилась команда закрытия кластера. После обработки хвоста строки следует акцептировать содержимое кластера.
+	int    do_close_cluster = 0; // Р’ СЃС‚СЂРѕРєРµ РІСЃС‚СЂРµС‚РёР»Р°СЃСЊ РєРѕРјР°РЅРґР° Р·Р°РєСЂС‹С‚РёСЏ РєР»Р°СЃС‚РµСЂР°. РџРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё С…РІРѕСЃС‚Р° СЃС‚СЂРѕРєРё СЃР»РµРґСѓРµС‚ Р°РєС†РµРїС‚РёСЂРѕРІР°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РєР»Р°СЃС‚РµСЂР°.
 	int    cortege_id = 0;
 	SString temp_buf, term_ext_buf;
 	Item   item_;
@@ -1396,7 +1397,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 		}
 	}
 	THROW_PP(grp_stack.getPointer() == 0, PPERR_TXA_PARMISM);
-	temp_buf.Strip(1); // хвостовые (1) пробелы убираем
+	temp_buf.Strip(1); // С…РІРѕСЃС‚РѕРІС‹Рµ (1) РїСЂРѕР±РµР»С‹ СѓР±РёСЂР°РµРј
 	if(temp_buf.NotEmpty()) {
 		uint   j;
 		uint   idx_first = 0, idx_count = 0;
@@ -1427,7 +1428,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 			case 0:
 				THROW_PP(rReplacer.GetState() & Replacer::psCluster, PPERR_TXA_NOOPOUTOFCLUSTER);
 				if(or_list.getCount()) {
-					assert(or_list.getCount() > 1); // Случай единственного терма в or_list должен быть обработан как ошибка выше
+					assert(or_list.getCount() > 1); // РЎР»СѓС‡Р°Р№ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ С‚РµСЂРјР° РІ or_list РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅ РєР°Рє РѕС€РёР±РєР° РІС‹С€Рµ
 					for(uint i = 0; i < or_list.getCount(); i++) {
 						THROW(p_src = rReplacer.MakeSrcItem(p_src, single_op, target_idx, or_list.at(i)->List, or_list.at(i)->GL));
 						THROW(rReplacer.AddClusterItem(p_src));
@@ -1447,13 +1448,13 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 				if(!target_idx) {
 					rReplacer.TargetList.insert(p_target);
 					target_idx = rReplacer.TargetList.getCount();
-					assert(rReplacer.SearchTarget(p_target->List) == target_idx); // Проверим инвариант
+					assert(rReplacer.SearchTarget(p_target->List) == target_idx); // РџСЂРѕРІРµСЂРёРј РёРЅРІР°СЂРёР°РЅС‚
 				}
 				else {
 					ZDELETE(p_target);
 				}
 				if(or_list.getCount()) {
-					assert(or_list.getCount() > 1); // Случай единственного терма в or_list должен быть обработан как ошибка выше
+					assert(or_list.getCount() > 1); // РЎР»СѓС‡Р°Р№ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ С‚РµСЂРјР° РІ or_list РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅ РєР°Рє РѕС€РёР±РєР° РІС‹С€Рµ
 					for(uint i = 0; i < or_list.getCount(); i++) {
 						assert(p_src == 0);
 						THROW(p_src = rReplacer.MakeSrcItem(p_src, Replacer::stOpTo, target_idx, or_list.at(i)->List, or_list.at(i)->GL));
@@ -1485,7 +1486,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 						THROW_SL(p_target = rReplacer.TargetList.CreateNewItem());
 						p_target->List = p_current_chain->List;
 						target_idx = rReplacer.TargetList.getCount();
-						assert(rReplacer.SearchTarget(p_current_chain->List) == target_idx); // Проверим инвариант
+						assert(rReplacer.SearchTarget(p_current_chain->List) == target_idx); // РџСЂРѕРІРµСЂРёРј РёРЅРІР°СЂРёР°РЅС‚
 						p_target = 0;
 					}
 				}
@@ -1507,7 +1508,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 					rReplacer.P_Cluster->freeAll();
 				}
 				else if(or_list.getCount()) {
-					assert(or_list.getCount() > 1); // Случай единственного терма в or_list должен быть обработан как ошибка выше
+					assert(or_list.getCount() > 1); // РЎР»СѓС‡Р°Р№ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ С‚РµСЂРјР° РІ or_list РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅ РєР°Рє РѕС€РёР±РєР° РІС‹С€Рµ
 					for(uint i = 0; i < or_list.getCount(); i++) {
 						THROW(p_src = rReplacer.MakeSrcItem(p_src, single_op, target_idx, or_list.at(i)->List, or_list.at(i)->GL));
 						THROW_SL(rReplacer.SrcList.insert(p_src));
@@ -1518,9 +1519,9 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 					}
 				}
 				else {
-					assert(p_src != 0); // Все случаи, когда p_src == 0 && or_list.getCount() == 0 должны быть уже обработаны выше
+					assert(p_src != 0); // Р’СЃРµ СЃР»СѓС‡Р°Рё, РєРѕРіРґР° p_src == 0 && or_list.getCount() == 0 РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ СѓР¶Рµ РѕР±СЂР°Р±РѕС‚Р°РЅС‹ РІС‹С€Рµ
 					//
-					// Необходимо только уточнить индекс цели и вставить объект в контейнер
+					// РќРµРѕР±С…РѕРґРёРјРѕ С‚РѕР»СЊРєРѕ СѓС‚РѕС‡РЅРёС‚СЊ РёРЅРґРµРєСЃ С†РµР»Рё Рё РІСЃС‚Р°РІРёС‚СЊ РѕР±СЉРµРєС‚ РІ РєРѕРЅС‚РµР№РЅРµСЂ
 					//
 					p_src->TargetIdx = target_idx;
 					THROW_SL(rReplacer.SrcList.insert(p_src));
@@ -1533,7 +1534,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 		}
 	}
 	//
-	// Отладочная проверка инвариантов
+	// РћС‚Р»Р°РґРѕС‡РЅР°СЏ РїСЂРѕРІРµСЂРєР° РёРЅРІР°СЂРёР°РЅС‚РѕРІ
 	//
 	for(uint i = 0; i < rReplacer.SrcList.getCount(); i++) {
 		const Replacer::SrcItem * p_item = rReplacer.SrcList.at(i);
@@ -1598,11 +1599,11 @@ int SLAPI PPTextAnalyzer::ParseReplacerFile(const char * pFileName, Replacer & r
 #if 0 // {
 
 %z%>%_
-д/%w%>для #1
-д\%w%>для #1
-лореаль%>l'oreal
-помада губная%<помада для губ%|губная помада
-сто рецептов красоты%K
+Рґ/%w%>РґР»СЏ #1
+Рґ\%w%>РґР»СЏ #1
+Р»РѕСЂРµР°Р»СЊ%>l'oreal
+РїРѕРјР°РґР° РіСѓР±РЅР°СЏ%<РїРѕРјР°РґР° РґР»СЏ РіСѓР±%|РіСѓР±РЅР°СЏ РїРѕРјР°РґР°
+СЃС‚Рѕ СЂРµС†РµРїС‚РѕРІ РєСЂР°СЃРѕС‚С‹%K
 
 #endif // } 0
 
@@ -1638,7 +1639,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 	LongArray brand_list;
 	SString ident;
 	SString text;
-	SString norm_code; // Нормализованное представление штрихкода
+	SString norm_code; // РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ С€С‚СЂРёС…РєРѕРґР°
 	SString temp_buf;
 	SString fmt_buf;
 	StringSet code_list;
@@ -1648,7 +1649,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 	Goods2Tbl::Rec parent_rec;
 	GoodsCore * p_tbl = goods_obj.P_Tbl;
 	long    iter_total = 0;
-	StatBase sb_tokens; // Статистика по количеству токенов в наименованиях
+	StatBase sb_tokens; // РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ С‚РѕРєРµРЅРѕРІ РІ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏС…
 	PPGetFilePath(PPPATH_LOG, "pptextanalyzer-nn.log", temp_buf);
 	SFile   f_out(temp_buf, SFile::mWrite);
 	PPWait(1);
@@ -1698,15 +1699,15 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 	group_list.sortAndUndup();
 	brand_list.sortAndUndup();
 	{
-		STokenizer::Reset(0 /* Внутренний символьный хэш не очищается */);
+		STokenizer::Reset(0 /* Р’РЅСѓС‚СЂРµРЅРЅРёР№ СЃРёРјРІРѕР»СЊРЅС‹Р№ С…СЌС€ РЅРµ РѕС‡РёС‰Р°РµС‚СЃСЏ */);
 		//
-		size_t inp_token_limit = 0; // Количество токенов, которые будут использоваться как входы для сети
+		size_t inp_token_limit = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРєРµРЅРѕРІ, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РєР°Рє РІС…РѕРґС‹ РґР»СЏ СЃРµС‚Рё
 		//inp_token_limit = max_inp_tokens;
 		const double stddev = sb_tokens.GetStdDev();
 		inp_token_limit = MIN((size_t)(sb_tokens.GetExp() + 3 * stddev), (size_t)sb_tokens.GetMax());
 		//
 		const size_t max_barcode_input_digits = 7;
-		const size_t input_count = inp_token_limit + 1 + 1; // 1 - бренд или группа, 1 - часть штрихкода
+		const size_t input_count = inp_token_limit + 1 + 1; // 1 - Р±СЂРµРЅРґ РёР»Рё РіСЂСѓРїРїР°, 1 - С‡Р°СЃС‚СЊ С€С‚СЂРёС…РєРѕРґР°
 		const size_t output_count = group_list.getCount();
 		const float learning_rate = 0.06f;
 		//uint   layers[] = { input_count, output_count * 4, output_count };
@@ -1960,11 +1961,11 @@ int SLAPI PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, c
 		}
 		{
 			//
-			// Обработка ведется в последовательности, определенной индексом Replacer::SrcListIndex
-			// Необходимость индексации обусловлена тем, что сначала следует сделать собственно замены, а уже
-			// в последнюю очередь - изменение регистров символов.
-			// Построение индекса осуществляется фукнцией Replacer::BuildSrcIndex, которая вызывается после
-			// разбора файла правил в функции PPTextAnalyzer::ParseReplacerFile(const char *, Replacer &)
+			// РћР±СЂР°Р±РѕС‚РєР° РІРµРґРµС‚СЃСЏ РІ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё, РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ РёРЅРґРµРєСЃРѕРј Replacer::SrcListIndex
+			// РќРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РёРЅРґРµРєСЃР°С†РёРё РѕР±СѓСЃР»РѕРІР»РµРЅР° С‚РµРј, С‡С‚Рѕ СЃРЅР°С‡Р°Р»Р° СЃР»РµРґСѓРµС‚ СЃРґРµР»Р°С‚СЊ СЃРѕР±СЃС‚РІРµРЅРЅРѕ Р·Р°РјРµРЅС‹, Р° СѓР¶Рµ
+			// РІ РїРѕСЃР»РµРґРЅСЋСЋ РѕС‡РµСЂРµРґСЊ - РёР·РјРµРЅРµРЅРёРµ СЂРµРіРёСЃС‚СЂРѕРІ СЃРёРјРІРѕР»РѕРІ.
+			// РџРѕСЃС‚СЂРѕРµРЅРёРµ РёРЅРґРµРєСЃР° РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ С„СѓРєРЅС†РёРµР№ Replacer::BuildSrcIndex, РєРѕС‚РѕСЂР°СЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РїРѕСЃР»Рµ
+			// СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° РїСЂР°РІРёР» РІ С„СѓРЅРєС†РёРё PPTextAnalyzer::ParseReplacerFile(const char *, Replacer &)
 			//
 			for(i = 0; i < rRpl.SrcListIndex.getCount(); i++) {
 				const uint src_pos = static_cast<uint>(rRpl.SrcListIndex.get(i));
@@ -1984,8 +1985,8 @@ int SLAPI PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, c
 						rResult = temp_buf;
 						CALLPTRMEMB(pDebugFile, WriteLine(temp_buf.Insert(0, "\t").CR()));
 						//
-						// При повторной обработке текста не передаем p_resource дабы не возникала
-						// путаница между оригинальым текстом и промежуточным результатом.
+						// РџСЂРё РїРѕРІС‚РѕСЂРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРµ С‚РµРєСЃС‚Р° РЅРµ РїРµСЂРµРґР°РµРј p_resource РґР°Р±С‹ РЅРµ РІРѕР·РЅРёРєР°Р»Р°
+						// РїСѓС‚Р°РЅРёС†Р° РјРµР¶РґСѓ РѕСЂРёРіРёРЅР°Р»СЊС‹Рј С‚РµРєСЃС‚РѕРј Рё РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹Рј СЂРµР·СѓР»СЊС‚Р°С‚РѕРј.
 						//
 						THROW_SL(RunSString(0, 0, rResult, &idx_first, &idx_count));
 						THROW(IndexText(*p_fb, idx_first, idx_first+idx_count-1));
@@ -2770,8 +2771,8 @@ class PPKeywordListGenerator : SStrGroup {
 public:
 	struct RunStatEntry { // @flat
 		uint   WordP;
-		uint   Count;     // Количество элементов, встретившихся в тексте
-		uint   WordCount; // Количество слов в элементе
+		uint   Count;     // РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ, РІСЃС‚СЂРµС‚РёРІС€РёС…СЃСЏ РІ С‚РµРєСЃС‚Рµ
+		uint   WordCount; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃР»РѕРІ РІ СЌР»РµРјРµРЅС‚Рµ
 	};
 	struct RunStat : public SStrGroup, public TSVector <PPKeywordListGenerator::RunStatEntry> { // @v9.8.4 TSArray-->TSVector
 		RunStat();
@@ -3044,11 +3045,11 @@ int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * p
 						GetRandomWord(temp_buf);
 					}
 					else if(special == spcGroup) {
-						assert(pGrpText); // Выше мы уже убедились, что pGrpText != 0
+						assert(pGrpText); // Р’С‹С€Рµ РјС‹ СѓР¶Рµ СѓР±РµРґРёР»РёСЃСЊ, С‡С‚Рѕ pGrpText != 0
 						temp_buf = pGrpText ? *pGrpText : static_cast<const char *>(0);
 					}
 					else if(special == spcLoc) {
-						assert(pLoc); // Выше мы уже убедились, что pLoc != 0
+						assert(pLoc); // Р’С‹С€Рµ РјС‹ СѓР¶Рµ СѓР±РµРґРёР»РёСЃСЊ, С‡С‚Рѕ pLoc != 0
 						temp_buf = pLoc ? *pLoc : static_cast<const char *>(0);
 					}
 					if(temp_buf.NotEmpty()) {
@@ -3065,11 +3066,11 @@ int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * p
 							GetRandomWord(temp_buf);
 						}
 						else if(special == spcGroup) {
-							assert(pGrpText); // Выше мы уже убедились, что pGrpText != 0
+							assert(pGrpText); // Р’С‹С€Рµ РјС‹ СѓР¶Рµ СѓР±РµРґРёР»РёСЃСЊ, С‡С‚Рѕ pGrpText != 0
 							temp_buf = pGrpText ? *pGrpText : static_cast<const char *>(0);
 						}
 						else if(special == spcLoc) {
-							assert(pLoc); // Выше мы уже убедились, что pLoc != 0
+							assert(pLoc); // Р’С‹С€Рµ РјС‹ СѓР¶Рµ СѓР±РµРґРёР»РёСЃСЊ, С‡С‚Рѕ pLoc != 0
 							temp_buf = pLoc ? *pLoc : static_cast<const char *>(0);
 						}
 						if(temp_buf.NotEmpty()) {
@@ -3196,21 +3197,21 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 							for(uint i = 0; i < _c; i++) {
 								{
 									//
-									// Текст ключевого слова
+									// РўРµРєСЃС‚ РєР»СЋС‡РµРІРѕРіРѕ СЃР»РѕРІР°
 									//
 									(temp_buf = wb_pack.Rec.Name).Strip().Transf(CTRANSF_INNER_TO_OUTER);
 									ss.add(temp_buf, &(ss_pos = 0));
 									ss_pos_list.add(ss_pos);
 								}
 								//
-								// Наименование локали (города)
+								// РќР°РёРјРµРЅРѕРІР°РЅРёРµ Р»РѕРєР°Р»Рё (РіРѕСЂРѕРґР°)
 								//
 								if(loctext.NotEmpty()) {
 									ss.add(loctext, &(ss_pos = 0));
 									ss_pos_list.add(ss_pos);
 								}
 								//
-								// Все синонимы один-за-другим
+								// Р’СЃРµ СЃРёРЅРѕРЅРёРјС‹ РѕРґРёРЅ-Р·Р°-РґСЂСѓРіРёРј
 								//
 								for(uint sp = 0; synss.get(&sp, temp_buf);) {
 									ss.add(temp_buf, &(ss_pos = 0));
@@ -3218,7 +3219,7 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 								}
 								/*
 								//
-								// Снова наименование локали (города)
+								// РЎРЅРѕРІР° РЅР°РёРјРµРЅРѕРІР°РЅРёРµ Р»РѕРєР°Р»Рё (РіРѕСЂРѕРґР°)
 								//
 								if(loctext.NotEmpty()) {
 									ss.add(loctext, &(ss_pos = 0));
@@ -3597,7 +3598,7 @@ int SLAPI Test_KeywordListGenerator()
 					f_out.WriteLine(temp_buf.CR());
 				}
 				{
-					context_buf.Z().CatChar('@').CatEq("kws", wb_rec.Symb).Semicol().CatEq("locn", "чебоксары");
+					context_buf.Z().CatChar('@').CatEq("kws", wb_rec.Symb).Semicol().CatEq("locn", (temp_buf = "С‡РµР±РѕРєСЃР°СЂС‹").Transf(CTRANSF_UTF8_TO_OUTER));
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
 						temp_buf.Z().Cat(context_buf).Tab().Cat(word_buf);
 					}
@@ -3766,16 +3767,16 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	SString log_buf;
 	if(Token.NotEmpty() && !!AuthTime && ExpirySec > 0) {
 		//
-		// Проверка истечения срока действия токена.
-		// Если время истекает, то повторяем авторизацию.
+		// РџСЂРѕРІРµСЂРєР° РёСЃС‚РµС‡РµРЅРёСЏ СЃСЂРѕРєР° РґРµР№СЃС‚РІРёСЏ С‚РѕРєРµРЅР°.
+		// Р•СЃР»Рё РІСЂРµРјСЏ РёСЃС‚РµРєР°РµС‚, С‚Рѕ РїРѕРІС‚РѕСЂСЏРµРј Р°РІС‚РѕСЂРёР·Р°С†РёСЋ.
 		//
 		const LDATETIME ct = getcurdatetime_();
         const long sec = diffdatetimesec(ct, AuthTime);
         if(sec > (ExpirySec * 9 / 10)) {
 			/* @v10.4.4 
 			//
-			// Функция Auth затрет AuthName и AuthSecret на входе.
-			// Потому необходимо скопировать эти значения во временные буферы _nam и _secr.
+			// Р¤СѓРЅРєС†РёСЏ Auth Р·Р°С‚СЂРµС‚ AuthName Рё AuthSecret РЅР° РІС…РѕРґРµ.
+			// РџРѕС‚РѕРјСѓ РЅРµРѕР±С…РѕРґРёРјРѕ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ СЌС‚Рё Р·РЅР°С‡РµРЅРёСЏ РІРѕ РІСЂРµРјРµРЅРЅС‹Рµ Р±СѓС„РµСЂС‹ _nam Рё _secr.
 			//
 			const SString _nam = AuthName;
 			const SString _secr = AuthSecret;

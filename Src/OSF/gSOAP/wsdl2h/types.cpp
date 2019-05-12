@@ -212,7 +212,7 @@ int Types::read(const char * file)
 					if(*def == '$') {
 						const char * t = modtypemap[s];
 						if(t) {
-							char * r = (char *)emalloc(strlen(t)+strlen(def)+1);
+							char * r = static_cast<char *>(emalloc(strlen(t)+strlen(def)+1));
 							strcpy(r, t);
 							strcat(r, def);
 							free((void *)modtypemap[s]);
@@ -465,7 +465,7 @@ const char * Types::nsprefix(const char * prefix, const char * URI)
 			else
 				n = ++syms[s];
 			if(n != 1 || !prefix || !*prefix || *prefix == '_') {
-				char * t = (char *)emalloc(strlen(s)+16);
+				char * t = static_cast<char *>(emalloc(strlen(s)+16));
 				sprintf(t, "%s%lu", s, (unsigned long)n);
 				s = t;
 			}
@@ -475,7 +475,7 @@ const char * Types::nsprefix(const char * prefix, const char * URI)
 		}
 		// if *prefix == '_', then add prefix string to s
 		if(prefix && *prefix == '_') {
-			char * t = (char *)emalloc(strlen(s)+2);
+			char * t = static_cast<char *>(emalloc(strlen(s)+2));
 			*t = '_';
 			strcpy(t+1, s);
 			s = t;
@@ -507,7 +507,7 @@ const char * Types::fname(const char * prefix, const char * URI, const char * qn
 		if(qname[0] == '"' && qname[1] == '"')
 			s = NULL;
 		else if(*qname == '"') {
-			t = (char *)emalloc(s-qname-1);
+			t = static_cast<char *>(emalloc(s-qname-1));
 			strncpy(t, qname+1, s-qname-2);
 			t[s-qname-2] = '\0';
 			URI = t;
@@ -517,7 +517,7 @@ const char * Types::fname(const char * prefix, const char * URI, const char * qn
 			URI = NULL;
 		}
 		else {
-			t = (char *)emalloc(s-qname+1);
+			t = static_cast<char *>(emalloc(s-qname+1));
 		      strncpy(t, qname, s-qname);
 		      t[s-qname] = '\0';
 		      s = t;
@@ -596,13 +596,13 @@ const char * Types::fname(const char * prefix, const char * URI, const char * qn
 		*t = '\0';
 	}
 	if(isalpha(*buf) || *buf == '_' || *buf == ':') {
-		t = (char *)emalloc(strlen(buf)+1);
+		t = static_cast<char *>(emalloc(strlen(buf)+1));
 		strcpy(t, buf);
 	}
 	else {
-		t = (char *)emalloc(strlen(buf)+2);
-	      *t = '_';
-	      strcpy(t+1, buf); 
+		t = static_cast<char *>(emalloc(strlen(buf)+2));
+      *t = '_';
+      strcpy(t+1, buf); 
 	}
 	if(lookup == LOOKUP) {
 		qnames[Pair(p, name)] = t;
@@ -658,7 +658,7 @@ const char * Types::tnameptr(bool flag, const char * prefix, const char * URI, c
 		if(!strncmp(s, "char*", 5))
 			return "char**";
 		if(!strchr(s, '*')) {
-			char * r = (char *)emalloc(strlen(s)+2);
+			char * r = static_cast<char *>(emalloc(strlen(s)+2));
 			strcpy(r, s);
 			strcat(r, "*");
 			return r;
@@ -692,7 +692,7 @@ const char * Types::pname(bool flag, const char * prefix, const char * URI, cons
 				      break;
 		      }
 		      if(!r) { // already pointer?
-			      char * p = (char *)emalloc(strlen(s)+2);
+			      char * p = static_cast<char *>(emalloc(strlen(s)+2));
 			      strcpy(p, s);
 			      strcat(p, "*");
 			      s = p;
@@ -752,7 +752,7 @@ const char * Types::deftname(enum Type type, const char * pointer, bool is_point
 	strcat(buf, t);
 	if(pointer)
 		strcat(buf, pointer);
-	s = (char *)emalloc(strlen(buf)+1);
+	s = static_cast<char *>(emalloc(strlen(buf)+1));
 	strcpy(s, buf);
 	usetypemap[t] = s;
 	if(pointer || is_pointer)
@@ -772,7 +772,7 @@ const char * Types::ename(const char * type, const char * value, bool isqname)
 		if(!eflag && type && *type) { // Add prefix to enum
 			if(!*s || (s[0] == '_' && s[1] == '\0'))
 				s = "_x0000";
-			char * buf = (char *)emalloc(strlen(type)+strlen(s)+3);
+			char * buf = static_cast<char *>(emalloc(strlen(type)+strlen(s)+3));
 			// _xXXXX is OK here
 			if(s[0] == '_' && s[1] != 'x' && strncmp(s, "_USCORE", 7))
 				sprintf(buf, "%s_%s", type, s);
@@ -808,7 +808,7 @@ const char * Types::sname(const char * URI, const char * name)
 		size_t len = 0;
 		for(VectorOfString::const_iterator i = scope.begin(); i != scope.end(); ++i)
 			len += strlen(*i)+1;
-		t = (char *)emalloc(len+strlen(name)+1);
+		t = static_cast<char *>(emalloc(len+strlen(name)+1));
 		*t = '\0';
 		for(VectorOfString::const_iterator j = scope.begin(); j != scope.end(); ++j) {
 			strcat(t, *j);
@@ -820,12 +820,12 @@ const char * Types::sname(const char * URI, const char * name)
 	}
 	else if(URI) {
 		s = nsprefix(NULL, URI);
-		t = (char *)emalloc(strlen(s)+16);
+		t = static_cast<char *>(emalloc(strlen(s)+16));
 		sprintf(t, "_%s__struct_%d", s, snum++);
 		s = t;
 	}
 	else {
-		t = (char *)emalloc(16);
+		t = static_cast<char *>(emalloc(16));
 	      sprintf(t, "struct_%d", snum++);
 	      s = t; 
 	}
@@ -841,7 +841,7 @@ const char * Types::uname(const char * URI)
 		size_t len = 0;
 		for(VectorOfString::const_iterator i = scope.begin(); i != scope.end(); ++i)
 			len += strlen(*i)+1;
-		t = (char *)emalloc(len+6);
+		t = static_cast<char *>(emalloc(len+6));
 		strcpy(t, "union");
 		for(VectorOfString::const_iterator j = scope.begin(); j != scope.end(); ++j) {
 			strcat(t, "-");
@@ -852,12 +852,12 @@ const char * Types::uname(const char * URI)
 	}
 	else if(URI) {
 		s = nsprefix(NULL, URI);
-		t = (char *)emalloc(strlen(s)+16);
+		t = static_cast<char *>(emalloc(strlen(s)+16));
 		sprintf(t, "_%s__union_%d", s, unum++);
 		s = t;
 	}
 	else {
-		t = (char *)emalloc(16);
+		t = static_cast<char *>(emalloc(16));
 	      sprintf(t, "_union_%d", unum++);
 	      s = t; 
 	}
@@ -873,7 +873,7 @@ const char * Types::gname(const char * URI, const char * name)
 		size_t len = 0;
 		for(VectorOfString::const_iterator i = scope.begin(); i != scope.end(); ++i)
 			len += strlen(*i)+1;
-		t = (char *)emalloc(len+strlen(name)+1);
+		t = static_cast<char *>(emalloc(len+strlen(name)+1));
 		*t = '\0';
 		for(VectorOfString::const_iterator j = scope.begin(); j != scope.end(); ++j) {
 			strcat(t, *j);
@@ -885,12 +885,12 @@ const char * Types::gname(const char * URI, const char * name)
 	}
 	else if(URI) {
 		s = nsprefix(NULL, URI);
-		t = (char *)emalloc(strlen(s)+16);
+		t = static_cast<char *>(emalloc(strlen(s)+16));
 		sprintf(t, "_%s__enum_%d", s, gnum++);
 		s = t;
 	}
 	else {
-		t = (char *)emalloc(16);
+		t = static_cast<char *>(emalloc(16));
 	      sprintf(t, "enum_%d", gnum++);
 	      s = t; 
 	}
@@ -2128,7 +2128,7 @@ void Types::gen(const char * URI, const xs__seqchoice & sequence)
 		fprintf(stream, ">\n");
 		document(sequence.annotation);
 		s = sname(URI, "sequence");
-		t = (char *)emalloc(strlen(s)+2);
+		t = static_cast<char *>(emalloc(strlen(s)+2));
 		strcpy(t, "_");
 		strcat(t, s);
 		s = strstr(s, "__");
@@ -2754,7 +2754,7 @@ void Types::gen_soap_array(const char * name, const char * t, const char * item,
 {
 	char * tmp = NULL, * dims = NULL, size[8];
 	if(type) {
-		tmp = (char *)emalloc(strlen(type)+1);
+		tmp = static_cast<char *>(emalloc(strlen(type)+1));
 		strcpy(tmp, type);
 	}
 	*size = '\0';
@@ -2987,9 +2987,11 @@ static const char * fill(char * t, int n, const char * s, int e)
 	i = n-i;
 	if(i == 0)
 		*t = '\0';
-	else {while(isspace(*--t) && i--)
+	else {
+		while(isspace(*--t) && i--)
 		      ;
-	      t[1] = '\0'; }
+      t[1] = '\0'; 
+	}
 	return s;
 }
 
@@ -3008,20 +3010,28 @@ static const char * utf8(char * t, const char * s)
 		c1 = (unsigned char)*++s;
 		if(c1 < 0x80)
 			s--;
-		else {c1 &= 0x3F;
-		      if(c < 0xE0)
-			      c = ((c&0x1F)<<6)|c1;
-		      else {c2 = (unsigned char)*++s&0x3F;
-			    if(c < 0xF0)
-				    c = ((c&0x0F)<<12)|(c1<<6)|c2;
-			    else {c3 = (unsigned char)*++s&0x3F;
-				  if(c < 0xF8)
-					  c = ((c&0x07)<<18)|(c1<<12)|(c2<<6)|c3;
-				  else {c4 = (unsigned char)*++s&0x3F;
-					if(c < 0xFC)
-						c = ((c&0x03)<<24)|(c1<<18)|(c2<<12)|(c3<<6)|c4;
-					else
-						c = ((c&0x01)<<30)|(c1<<24)|(c2<<18)|(c3<<12)|(c4<<6)|*++s&0x3F; }}}}
+		else {
+			c1 &= 0x3F;
+			if(c < 0xE0)
+				c = ((c&0x1F)<<6)|c1;
+			else {
+				c2 = (unsigned char)*++s&0x3F;
+				if(c < 0xF0)
+					c = ((c&0x0F)<<12)|(c1<<6)|c2;
+				else {
+					c3 = (unsigned char)*++s&0x3F;
+					if(c < 0xF8)
+						c = ((c&0x07)<<18)|(c1<<12)|(c2<<6)|c3;
+					else {
+						c4 = (unsigned char)*++s&0x3F;
+						if(c < 0xFC)
+							c = ((c&0x03)<<24)|(c1<<18)|(c2<<12)|(c3<<6)|c4;
+						else
+							c = ((c&0x01)<<30)|(c1<<24)|(c2<<18)|(c3<<12)|(c4<<6)|*++s&0x3F; 
+					}
+				}
+			}
+		}
 	}
 	sprintf(t, "_x%.4x", c);
 	return s;
@@ -3037,9 +3047,9 @@ static const char * cstring(const char * s)
 			n++;
 		else if(*r < 32)
 			n += 3;
-	r = t = (char *)emalloc(n+1);
+	r = t = static_cast<char *>(emalloc(n+1));
 	for(; *s; s++) {
-		if(*s == '"' || *s == '\\')                 {
+		if(*s == '"' || *s == '\\') {
 			*t++ = '\\';
 			*t++ = *s;
 		}
@@ -3071,7 +3081,7 @@ static const char * xstring(const char * s)
 		else if(*r == '\\')
 			n += 1;
 	}
-	r = t = (char *)emalloc(n+1);
+	r = t = static_cast<char *>(emalloc(n+1));
 	for(; *s; s++) {
 		if(*s < 32 || *s >= 127)                 {
 			sprintf(t, "&#%.2x;", (unsigned char)*s);
@@ -3170,14 +3180,14 @@ void * emalloc(size_t size)
 
 char * estrdup(const char * s)
 {
-	char * t = (char *)emalloc(strlen(s)+1);
+	char * t = static_cast<char *>(emalloc(strlen(s)+1));
 	strcpy(t, s);
 	return t;
 }
 
 char * estrdupf(const char * s)
 {
-	char * t = (char *)emalloc(strlen(s)+1);
+	char * t = static_cast<char *>(emalloc(strlen(s)+1));
 	char * p;
 	for(p = t; *s; p++, s++) {
 		if(s[0] == '/' && s[1] == '*') {

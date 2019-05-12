@@ -1,5 +1,6 @@
 // PPARRAY.CPP
 // Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8 // @v10.4.5
 // @Kernel
 //
 #include <pp.h>
@@ -190,7 +191,7 @@ void SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 		if(Cycle == PRD_DAY)
 			temp_buf.Cat(dt, DATF_DMY | DATF_CENTURY);
 		else if(Cycle == PRD_WEEK)
-			temp_buf.Cat(pos+1).Cat("-я нед.");
+			temp_buf.Cat(pos+1).Cat("-СЏ РЅРµРґ.");
 		else if(Cycle == PRD_MONTH) {
 			if(dt.day() == 1) {
 				SString month_txt;
@@ -198,11 +199,11 @@ void SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 				temp_buf.Cat(/*getMonthText(dt.month(), MONF_SHORT, month_txt)*/month_txt).Space().Cat(dt.year());
 			}
 			else
-				temp_buf.Cat(pos+1).Cat("-й мес");
+				temp_buf.Cat(pos+1).Cat("-Р№ РјРµСЃ");
 		}
 		else if(Cycle == PRD_QUART) {
 			decodedate(&d, &m, &y, &period.low);
-			if(d == 1 && (m == 1 || m == 4 || m == 7 || m == 10)) {
+			if(d == 1 && oneof4(m, 1, 4, 7, 10)) {
 				int    q = (dt.month()-1) / 3;
 				if(q == 0)
 					temp_buf.CatChar('I');
@@ -215,24 +216,24 @@ void SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 				temp_buf.Space().Cat(dt.year());
 			}
 			else
-				temp_buf.Cat(pos+1).Cat("-й кв.");
+				temp_buf.Cat(pos+1).Cat("-Р№ РєРІ.");
 		}
 		else if(Cycle == PRD_SEMIAN) {
 			decodedate(&d, &m, &y, &period.low);
 			if(d == 1 && (m == 1 || m == 7))
-				temp_buf.Cat(((dt.month()-1) / 6) + 1).Cat("-е полугод").Space().Cat(dt.year());
+				temp_buf.Cat(((dt.month()-1) / 6) + 1).Cat("-Рµ РїРѕР»СѓРіРѕРґ").Space().Cat(dt.year());
 			else
-				temp_buf.Cat(pos+1).Cat("-е полугод.");
+				temp_buf.Cat(pos+1).Cat("-Рµ РїРѕР»СѓРіРѕРґ.");
 		}
 		else if(Cycle == PRD_ANNUAL) {
 			decodedate(&d, &m, &y, &period.low);
 			if(d == 1 && m == 1)
 				temp_buf.Cat(y);
 			else
-				temp_buf.Cat(pos+1).Cat("-й год");
+				temp_buf.Cat(pos+1).Cat("-Р№ РіРѕРґ");
 		}
 	}
-	temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+	temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // @v10.4.5 CTRANSF_OUTER_TO_INNER-->CTRANSF_UTF8_TO_INNER
 	strnzcpy(pBuf, temp_buf, bufLen);
 }
 
@@ -290,18 +291,11 @@ int SLAPI ObjRestrictArray::Merge(const ObjRestrictArray * pS, long options)
             freeAll();
             ok = 100;
 		}
-		else {
+		else
 			Helper_MergeItems(pS);
-		}
     }
-    else {
-		if(pS == 0 || pS->getCount() == 0) {
-			ok = 1;
-		}
-		else {
-			Helper_MergeItems(pS);
-		}
-    }
+    else if(SVectorBase::GetCount(pS))
+		Helper_MergeItems(pS);
     return ok;
 }
 

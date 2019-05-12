@@ -1,5 +1,5 @@
 // PPDRVAPI.H
-// Copyright (c) A.Sobolev 2013
+// Copyright (c) A.Sobolev 2013, 2019
 //
 #include <slib.h>
 
@@ -49,14 +49,14 @@ private:
 
 class PPDrvSession {
 public:
+	/* @v10.4.5 The SIntToSymbTabEntry should be used from now on.
 	struct TextTableEntry {
 		int    Code;
 		const char * P_Text;
-	};
+	};*/
 	int    ImplementDllMain(HANDLE hModule, DWORD dwReason);
 
-	PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc, uint verMajor, uint verMinor,
-		uint errMsgCount, const PPDrvSession::TextTableEntry * pErrMsgTab);
+	PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc, uint verMajor, uint verMinor, uint errMsgCount, const SIntToSymbTabEntry * pErrMsgTab);
 	~PPDrvSession();
 	int    SLAPI Init(HINSTANCE hInst);
 	int    SLAPI InitThread();
@@ -68,7 +68,7 @@ public:
 	// Descr: Задает таблицу с соответствием текст сообщения об ошибке с кодами.
 	//   Элементы таблицы должны соответствовать структуре TextTableEntry.
 	//
-	int    DefineErrTextTable(uint numEntries, const TextTableEntry * pTab);
+	void   DefineErrTextTable(uint numEntries, const SIntToSymbTabEntry * pTab);
 	int    GetLastErr();
 	int    GetErrText(int errCode, SString & rBuf);
 	void   SetErrCode(int errCode);
@@ -80,10 +80,9 @@ public:
 		logfThreadId = 0x0004
 	};
 	int    Log(const char * pMsg, long flags);
-
 	int    Helper_ProcessCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize);
 private:
-	int    DefineErrText(int errCode, const char * pText);
+	void   DefineErrText(int errCode, const char * pText);
 	int    CreateI();
 
 	const  SString Name;
@@ -94,7 +93,6 @@ private:
 	long   Id;
 	ACount LastThread;
 	ACount DllRef;         // Счетчик активных клиентов для DLL-сервера
-
 	SCriticalSection::Data Cs_Log; // Критическая секция защиты записи в Log и собственно переменной LogFileName
 	SString LogFileName;
 	StrAssocArray ErrText;

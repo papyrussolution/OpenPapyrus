@@ -1258,7 +1258,24 @@ int FASTCALL TCanvas2::Draw(const SDrawGroup * pDraw)
 	return ok;
 }
 
-int FASTCALL TCanvas2::Draw(const SDrawFigure * pDraw)
+int FASTCALL TCanvas2::Draw(const SDrawRef * pRef)
+{
+	int    ok = -1;
+	DrawingProcFrame __frame(this, pRef);
+	if(pRef) {
+		SString temp_buf = pRef->Ref;
+		if(temp_buf.NotEmpty()) {
+			temp_buf.ShiftLeftChr('#');
+			const SDrawFigure * p_symbol = pRef->SearchRef(temp_buf);
+			if(p_symbol) {
+				ok = Implement_DrawFigure(p_symbol, dfoDrawSymbol);
+			}
+		}
+	}
+	return ok;
+}
+
+int FASTCALL TCanvas2::Implement_DrawFigure(const SDrawFigure * pDraw, long options)
 {
 	int    ok = 1;
 	if(pDraw) {
@@ -1266,7 +1283,14 @@ int FASTCALL TCanvas2::Draw(const SDrawFigure * pDraw)
 			case SDrawFigure::kShape: THROW(Draw(static_cast<const SDrawShape *>(pDraw))); break;
 			case SDrawFigure::kPath:  THROW(Draw(static_cast<const SDrawPath *>(pDraw)));  break;
 			case SDrawFigure::kText:  THROW(Draw(static_cast<const SDrawText *>(pDraw)));  break;
-			case SDrawFigure::kGroup: THROW(Draw(static_cast<const SDrawGroup *>(pDraw))); break;
+			case SDrawFigure::kGroup: 
+				{
+					const SDrawGroup * p_grp = static_cast<const SDrawGroup *>(pDraw);
+					if(p_grp && ((options & dfoDrawSymbol) || !(p_grp->GetFlags() & SDrawFigure::fSymbolGroup)))
+						THROW(Draw(p_grp)); 
+				}
+				break;
+			case SDrawFigure::kRef: THROW(Draw(static_cast<const SDrawRef *>(pDraw))); break;
 			case SDrawFigure::kImage: THROW(Draw(static_cast<const SDrawImage *>(pDraw))); break;
 			default: ok = -1; break;
 		}
@@ -1275,6 +1299,11 @@ int FASTCALL TCanvas2::Draw(const SDrawFigure * pDraw)
 		ok = -1;
 	CATCHZOK
 	return ok;
+}
+
+int FASTCALL TCanvas2::Draw(const SDrawFigure * pDraw)
+{
+	return Implement_DrawFigure(pDraw, 0);
 }
 
 int SLAPI TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc_flag, int sweep_flag, FPoint toPoint)

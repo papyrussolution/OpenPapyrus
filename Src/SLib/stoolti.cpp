@@ -106,13 +106,13 @@ BOOL CALLBACK FindWindowByID(HWND hwnd, LPARAM lParam)
 static BOOL CALLBACK CloseTooltipWnd(HWND hwnd, LPARAM lParam)
 {
 	if(!lParam || ::GetParent(hwnd) == reinterpret_cast<HWND>(lParam))
-		SendMessage(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, (WPARAM)0, (LPARAM)0);
+		::SendMessage(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, 0, 0);
 	return TRUE;
 }
 
 static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 {
-	SendMessage(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, (WPARAM)0, (LPARAM)0);
+	::SendMessage(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, 0, 0);
 	return TRUE;
 }
 
@@ -209,8 +209,8 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 	HWnd = APPL->CreateDlg(1013/*DLG_TOOLTIP*/, hwnd_parent, SMessageWindow::Proc, reinterpret_cast<LPARAM>(this));
 	::GetCursorPos(&PrevMouseCoord);
 	if(HWnd) {
-		HWND   h_ctl = GetDlgItem(HWnd, 1201/*CTL_TOOLTIP_TEXT*/);
-		HWND   h_img = GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
+		HWND   h_ctl = ::GetDlgItem(HWnd, 1201/*CTL_TOOLTIP_TEXT*/);
+		HWND   h_img = ::GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
 		double img_height = 0.0;
 		double img_width = 0.0;
 		if(Text.Len() == 0) {
@@ -300,7 +300,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 		Move();
 		::ShowWindow(HWnd, SW_SHOWNORMAL);
 		::UpdateWindow(HWnd);
-		::SetTimer(HWnd, MSGWND_CLOSETIMER,  ((timer > 0) ? timer : 60000), (TIMERPROC) NULL);
+		::SetTimer(HWnd, MSGWND_CLOSETIMER,  ((timer > 0) ? timer : 60000), static_cast<TIMERPROC>(0));
 		// SetCapture(HWnd);
 		ok = 1;
 	}
@@ -309,16 +309,15 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 	return ok;
 }
 
-int SMessageWindow::Destroy()
+void SMessageWindow::Destroy()
 {
 	if(P_Image) {
 		HWND h_img = GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
-		// @v9.1.11 SetWindowLong(h_img, GWLP_WNDPROC, (long)PrevImgProc);
-		TView::SetWindowProp(h_img, GWLP_WNDPROC, PrevImgProc); // @v9.1.11
+		TView::SetWindowProp(h_img, GWLP_WNDPROC, PrevImgProc);
 #ifdef STOOLTIP_USE_FIG
-		delete (SDrawFigure *)P_Image;
+		delete static_cast<SDrawFigure *>(P_Image);
 #else
-		delete (SImage *)P_Image;
+		delete static_cast<SImage *>(P_Image);
 #endif
 	}
 	HWnd  = 0;
@@ -327,7 +326,6 @@ int SMessageWindow::Destroy()
 	Extra = 0;
 	ZDeleteWinGdiObject(&Brush);
 	ZDeleteWinGdiObject(&Font);
-	return 1;
 }
 
 int SMessageWindow::Move()
@@ -462,8 +460,7 @@ INT_PTR CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LP
 			break;
 		case WM_DESTROY:
 			KillTimer(hWnd, MSGWND_CLOSETIMER);
-			// @v9.1.11 SetWindowLong(hWnd, GWLP_USERDATA, 0L);
-			TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0)); // @v9.1.11
+			TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0));
 			ZDELETE(p_win);
 			break;
 		case WM_LBUTTONDBLCLK:

@@ -844,7 +844,8 @@ int SLAPI PPObjGoodsBasket::Select(PPID * pID, const char * pMsg)
 int SLAPI PPObjGoodsBasket::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	int    valid_data = 0, is_locked = 0;
+	int    valid_data = 0;
+	int    is_locked = 0;
 	PPObjGoods goods_obj; // Загружаем объект для того, чтобы во вложенных вызовах он был открыт
 	PPGoodsBasket  org_rec;
 	PPID   org_id = 0;

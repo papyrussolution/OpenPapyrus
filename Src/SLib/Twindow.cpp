@@ -1,6 +1,6 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// WIN32
+// @codepage UTF-8
 // Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
@@ -262,11 +262,10 @@ SLAPI TWindow::~TWindow()
 	delete P_Lmp;
 	if(HW) {
 		//
-		// Обнуляем ссылку на this в системной структуре окна во
-		// избежании попытки повторного удаления оконной процедурой.
+		// РћР±РЅСѓР»СЏРµРј СЃСЃС‹Р»РєСѓ РЅР° this РІ СЃРёСЃС‚РµРјРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ РѕРєРЅР° РІРѕ
+		// РёР·Р±РµР¶Р°РЅРёРё РїРѕРїС‹С‚РєРё РїРѕРІС‚РѕСЂРЅРѕРіРѕ СѓРґР°Р»РµРЅРёСЏ РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂРѕР№.
 		//
-		//SetWindowLong(hWnd, GWLP_USERDATA, 0);
-		TView::SetWindowUserData(HW, (void *)0);
+		TView::SetWindowUserData(HW, static_cast<void *>(0));
 	}
 }
 
@@ -278,7 +277,7 @@ void TWindow::endModal(ushort command)
 	}
 	else {
 		::DestroyWindow(H());
-		// После вызова DestroyWindow экземпляр this разрушается: никаких действий с ним далее проводить нельзя.
+		// РџРѕСЃР»Рµ РІС‹Р·РѕРІР° DestroyWindow СЌРєР·РµРјРїР»СЏСЂ this СЂР°Р·СЂСѓС€Р°РµС‚СЃСЏ: РЅРёРєР°РєРёС… РґРµР№СЃС‚РІРёР№ СЃ РЅРёРј РґР°Р»РµРµ РїСЂРѕРІРѕРґРёС‚СЊ РЅРµР»СЊР·СЏ.
 	}
 }
 
@@ -300,7 +299,7 @@ static bool searchItem(TView * v, void * ptr)
 
 TView * FASTCALL TWindow::getCtrlView(ushort ctlID)
 {
-	// Функция вызывается очень часто потому ради скорости исполнения развернута {
+	// Р¤СѓРЅРєС†РёСЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РѕС‡РµРЅСЊ С‡Р°СЃС‚Рѕ РїРѕС‚РѕРјСѓ СЂР°РґРё СЃРєРѕСЂРѕСЃС‚Рё РёСЃРїРѕР»РЅРµРЅРёСЏ СЂР°Р·РІРµСЂРЅСѓС‚Р° {
 	if(ctlID) {
 		TView * p_temp = P_Last;
 		if(p_temp) {
@@ -686,7 +685,7 @@ void TWindow::showLocalMenu()
 		for(uint i = 0; Toolbar.enumItems(&i, &item);) {
 			if(item.KeyCode != TV_MENUSEPARATOR)
 				menu.Add(item.ToolTipText, item.KeyCode);
-			else if(i < Toolbar.getItemsCount()) // Последний разделитель не заносим
+			else if(i < Toolbar.getItemsCount()) // РџРѕСЃР»РµРґРЅРёР№ СЂР°Р·РґРµР»РёС‚РµР»СЊ РЅРµ Р·Р°РЅРѕСЃРёРј
 				menu.AddSeparator();
 		}
 		menu.Execute(HW);
@@ -876,7 +875,7 @@ SRectLayout::Item & SRectLayout::Item::SetLeft(int size, int pct)
 {
 	Left.Set(0, SRectLayout::dfAbs|SRectLayout::dfGravity);
 	if(pct)
-		Right.Set(size * 100, SRectLayout::dfRel); // Сотые доли от размера контейнера
+		Right.Set(size * 100, SRectLayout::dfRel); // РЎРѕС‚С‹Рµ РґРѕР»Рё РѕС‚ СЂР°Р·РјРµСЂР° РєРѕРЅС‚РµР№РЅРµСЂР°
 	else
 		Right.Set(size, SRectLayout::dfAbs);
 	Top.Set(0, SRectLayout::dfAbs);
@@ -1583,8 +1582,8 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				pe.Rect = p_view->getClientRect();
 				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				//
-				// Если получатель очистил фон, он должен акцептировть сообщение.
-				// Windows ожидает получить в этом случае !0.
+				// Р•СЃР»Рё РїРѕР»СѓС‡Р°С‚РµР»СЊ РѕС‡РёСЃС‚РёР» С„РѕРЅ, РѕРЅ РґРѕР»Р¶РµРЅ Р°РєС†РµРїС‚РёСЂРѕРІС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ.
+				// Windows РѕР¶РёРґР°РµС‚ РїРѕР»СѓС‡РёС‚СЊ РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ !0.
 				//
 				return p_ret ? 1 : 0;
 			}

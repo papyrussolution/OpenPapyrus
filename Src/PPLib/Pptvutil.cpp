@@ -1430,7 +1430,6 @@ int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID, uint /*flags*/)
 {
 	int    ok = 1;
-	//int    list_count = 0;
 	int    str_id = 0;
 	StrAssocArray * p_list = 0;
 	int    ini_sect_id = PPAbstractDevice::GetDrvIniSectByDvcClass(dvcClass, &str_id, 0);
@@ -1453,7 +1452,9 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 						id = (idx+1);
 						txt_buf = item_buf;
 					}
-					THROW_SL(p_list->Add(id, txt_buf));
+					if(!txt_buf.IsEqiAscii("Unused")) { // @v10.4.5
+						THROW_SL(p_list->Add(id, txt_buf));
+					}
 				}
 				//list_count = p_list->getCount();
 			}
@@ -2015,7 +2016,7 @@ static const TCHAR * MakeOpenFileInitPattern(const StringSet & rPattern, STempBu
 		return 0;
 	else if(sizeof(TCHAR) == sizeof(wchar_t)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
-		rResult.Alloc(src_pattern_len + 64); // @safe(64)
+		rResult.Alloc((src_pattern_len * sizeof(TCHAR)) + 64); // @safe(64) // @v10.4.5 @fix (* sizeof(TCHAR))
 		size_t result_pos = 0;
 		for(uint ssp = 0; rPattern.get(&ssp, r_temp_buf);) {
 			memcpy(static_cast<wchar_t *>(rResult.vptr()) + result_pos, SUcSwitchW(r_temp_buf), r_temp_buf.Len() * sizeof(wchar_t));
@@ -5891,12 +5892,9 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 			TimeButtonWndEx * p_cbwe = (TimeButtonWndEx *)TView::GetWindowUserData(hWnd);
 			switch(message) {
 				case WM_DESTROY:
-					//SetWindowLong(hWnd, GWLP_USERDATA, 0);
-					TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
-					if(p_cbwe->PrevWndProc) {
-						//SetWindowLong(hWnd, GWLP_WNDPROC, (long)p_cbwe->PrevWndProc);
+					TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0));
+					if(p_cbwe->PrevWndProc)
 						TView::SetWindowProp(hWnd, GWLP_WNDPROC, p_cbwe->PrevWndProc);
-					}
 					delete p_cbwe;
 					return 0;
 				case WM_LBUTTONUP:

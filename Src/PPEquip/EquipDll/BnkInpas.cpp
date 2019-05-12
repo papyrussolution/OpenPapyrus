@@ -1,6 +1,7 @@
 // BNKINPAS.CPP
-// Библиотека для работы с терминалами INPAS, обслуживающими карты
-
+// @codepage UTF-8
+// Р‘РёР±Р»РёРѕС‚РµРєР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С‚РµСЂРјРёРЅР°Р»Р°РјРё INPAS, РѕР±СЃР»СѓР¶РёРІР°СЋС‰РёРјРё РєР°СЂС‚С‹
+//
 #include <ppdrvapi.h>
 #include <slib.h>
 #include <comdisp.h>
@@ -9,14 +10,14 @@ extern PPDrvSession DRVS;
 
 #define THROWERR(expr,val)     { if(!(expr)) { DRVS.SetErrCode(val); goto __scatch; } }
 
-#define TIMEOUT                  180000  // Время на операцию в тысячных долях секунды
-#define RUBLE                    643     // Код рубля
+#define TIMEOUT                  180000  // Р’СЂРµРјСЏ РЅР° РѕРїРµСЂР°С†РёСЋ РІ С‚С‹СЃСЏС‡РЅС‹С… РґРѕР»СЏС… СЃРµРєСѓРЅРґС‹
+#define RUBLE                    643     // РљРѕРґ СЂСѓР±Р»СЏ
 
-// Номера операций
-#define INPAS_FUNC_INIT          26      // Инициализация устройства
-#define INPAS_FUNC_PAY           1       // Оплата
-#define INPAS_FUNC_REFUND        4       // Возврат/отмена оплаты
-#define INPAS_FUNC_CLOSEDAY      59      // Закрытие дня
+// РќРѕРјРµСЂР° РѕРїРµСЂР°С†РёР№
+#define INPAS_FUNC_INIT          26      // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СѓСЃС‚СЂРѕР№СЃС‚РІР°
+#define INPAS_FUNC_PAY           1       // РћРїР»Р°С‚Р°
+#define INPAS_FUNC_REFUND        4       // Р’РѕР·РІСЂР°С‚/РѕС‚РјРµРЅР° РѕРїР»Р°С‚С‹
+#define INPAS_FUNC_CLOSEDAY      59      // Р—Р°РєСЂС‹С‚РёРµ РґРЅСЏ
 
 class PPDrvINPASTrmnl : public PPBaseDriver {
 public:
@@ -34,73 +35,73 @@ public:
 	int	   GetSessReport(SString & rCheck);
 private:
 	enum {
-		InitResources = 1,          // Метод класса DualConnectorInterface
-		Exchange,                   // Метод класса DualConnectorInterface
-		FreeResources,              // Метод класса DualConnectorInterface
-		SetChannelTerminalParam,	// Метод класса DualConnectorInterface
-		Release,                    // Метод класса ISAPacket
-		ErrorCode,                  // Св-во объекта класса DualConnectorInterface
-		ErrorDescription,           // Св-во объекта класса DualConnectorInterface
-		Amount,                     // Св-во объекта класса ISAPacket
-		AdditionalAmount,           // Св-во объекта класса ISAPacket
-		CurrencyCode,               // Св-во объекта класса ISAPacket
-		DateTimeHost,               // Св-во объекта класса ISAPacket
-		CardEntryMode,              // Св-во объекта класса ISAPacket
-		PINCodingMode,              // Св-во объекта класса ISAPacket
-		PAN,                        // Св-во объекта класса ISAPacket
-		CardExpiryDate,             // Св-во объекта класса ISAPacket
-		TRACK2,                     // Св-во объекта класса ISAPacket
-		AuthorizationCode,          // Св-во объекта класса ISAPacket
-		ReferenceNumber,            // Св-во объекта класса ISAPacket
-		ResponseCodeHost,           // Св-во объекта класса ISAPacket
-		PinBlock,                   // Св-во объекта класса ISAPacket
-		PinKey,                     // Св-во объекта класса ISAPacket
-		WorkKey,                    // Св-во объекта класса ISAPacket
-		TextResponse,               // Св-во объекта класса ISAPacket
-		TerminalDateTime,           // Св-во объекта класса ISAPacket
-		TrxID,                      // Св-во объекта класса ISAPacket
-		OperationCode,              // Св-во объекта класса ISAPacket
-		TerminalTrxID,              // Св-во объекта класса ISAPacket
-		TerminalID,                 // Св-во объекта класса ISAPacket
-		MerchantID,                 // Св-во объекта класса ISAPacket
-		DebitAmount,                // Св-во объекта класса ISAPacket
-		DebitCount,                 // Св-во объекта класса ISAPacket
-		CreditAmount,               // Св-во объекта класса ISAPacket
-		CreditCount,                // Св-во объекта класса ISAPacket
-		OrigOperation,              // Св-во объекта класса ISAPacket
-		MAC,                        // Св-во объекта класса ISAPacket
-		Status,                     // Св-во объекта класса ISAPacket
-		AdminTrack2,                // Св-во объекта класса ISAPacket
-		AdminPinBlock,              // Св-во объекта класса ISAPacket
-		AdminPAN,                   // Св-во объекта класса ISAPacket
-		AdminCardExpiryDate,        // Св-во объекта класса ISAPacket
-		AdminCardEntryMode,         // Св-во объекта класса ISAPacket
-		VoidDebitAmount,            // Св-во объекта класса ISAPacket
-		VoidDebitCount,             // Св-во объекта класса ISAPacket
-		VoidCreditAmount,           // Св-во объекта класса ISAPacket
-		VoidCreditCount,            // Св-во объекта класса ISAPacket
-		ProcessingFlag,             // Св-во объекта класса ISAPacket
-		HostTrxID,                  // Св-во объекта класса ISAPacket
-		RecipientAddress,           // Св-во объекта класса ISAPacket
-		CardWaitTimeout,            // Св-во объекта класса ISAPacket
-		DeviceSerNumber,            // Св-во объекта класса ISAPacket
-		CommandMode,                // Св-во объекта класса ISAPacket
-		CommandMode2,               // Св-во объекта класса ISAPacket
-		CommandResult,              // Св-во объекта класса ISAPacket
-		FileData,                   // Св-во объекта класса ISAPacket
-		MessageED,                  // Св-во объекта класса ISAPacket
-		CashierRequest,             // Св-во объекта класса ISAPacket
-		CashierResponse,            // Св-во объекта класса ISAPacket
-		AccountType,                // Св-во объекта класса ISAPacket
-		CommodityCode,              // Св-во объекта класса ISAPacket
-		PaymentDetails,             // Св-во объекта класса ISAPacket
-		ProviderCode,               // Св-во объекта класса ISAPacket
-		Acquirer,                   // Св-во объекта класса ISAPacket
-		AdditionalData,             // Св-во объекта класса ISAPacket
-		ModelNo,                    // Св-во объекта класса ISAPacket
-		ReceiptData,                // Св-во объекта класса ISAPacket
-		TermResponseCode,           // Св-во объекта класса ISAPacket
-		SlipNumber,                 // Св-во объекта класса ISAPacket
+		InitResources = 1,          // РњРµС‚РѕРґ РєР»Р°СЃСЃР° DualConnectorInterface
+		Exchange,                   // РњРµС‚РѕРґ РєР»Р°СЃСЃР° DualConnectorInterface
+		FreeResources,              // РњРµС‚РѕРґ РєР»Р°СЃСЃР° DualConnectorInterface
+		SetChannelTerminalParam,	// РњРµС‚РѕРґ РєР»Р°СЃСЃР° DualConnectorInterface
+		Release,                    // РњРµС‚РѕРґ РєР»Р°СЃСЃР° ISAPacket
+		ErrorCode,                  // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° DualConnectorInterface
+		ErrorDescription,           // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° DualConnectorInterface
+		Amount,                     // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AdditionalAmount,           // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CurrencyCode,               // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		DateTimeHost,               // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CardEntryMode,              // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		PINCodingMode,              // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		PAN,                        // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CardExpiryDate,             // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		TRACK2,                     // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AuthorizationCode,          // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		ReferenceNumber,            // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		ResponseCodeHost,           // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		PinBlock,                   // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		PinKey,                     // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		WorkKey,                    // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		TextResponse,               // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		TerminalDateTime,           // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		TrxID,                      // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		OperationCode,              // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		TerminalTrxID,              // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		TerminalID,                 // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		MerchantID,                 // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		DebitAmount,                // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		DebitCount,                 // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CreditAmount,               // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CreditCount,                // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		OrigOperation,              // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		MAC,                        // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		Status,                     // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AdminTrack2,                // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AdminPinBlock,              // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AdminPAN,                   // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AdminCardExpiryDate,        // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AdminCardEntryMode,         // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		VoidDebitAmount,            // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		VoidDebitCount,             // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		VoidCreditAmount,           // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		VoidCreditCount,            // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		ProcessingFlag,             // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		HostTrxID,                  // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		RecipientAddress,           // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CardWaitTimeout,            // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		DeviceSerNumber,            // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CommandMode,                // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CommandMode2,               // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CommandResult,              // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		FileData,                   // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		MessageED,                  // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CashierRequest,             // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CashierResponse,            // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AccountType,                // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		CommodityCode,              // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		PaymentDetails,             // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		ProviderCode,               // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		Acquirer,                   // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		AdditionalData,             // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		ModelNo,                    // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		ReceiptData,                // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		TermResponseCode,           // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
+		SlipNumber,                 // РЎРІ-РІРѕ РѕР±СЉРµРєС‚Р° РєР»Р°СЃСЃР° ISAPacket
 	};
 	void AsseptDC(ComDispInterface * pNameDCObj) 
 	{
@@ -182,32 +183,32 @@ private:
 	SString SlipLogFileName;
 };
 
-// перечисление статусов
+// РїРµСЂРµС‡РёСЃР»РµРЅРёРµ СЃС‚Р°С‚СѓСЃРѕРІ
 static SIntToSymbTabEntry _StatusMsgTab_SAP[] = {
-	{0,		"Неопределённый статус"},
-	{1,		"Одобрено"},
-	{16,	"Отказано"},
-	{17,	"Выполнено в OFFLINE"},
-	{34,	"Нет соединения"},
-	{53,	"Операция прервана"}
+	{0,		"РќРµРѕРїСЂРµРґРµР»С‘РЅРЅС‹Р№ СЃС‚Р°С‚СѓСЃ"},
+	{1,		"РћРґРѕР±СЂРµРЅРѕ"},
+	{16,	"РћС‚РєР°Р·Р°РЅРѕ"},
+	{17,	"Р’С‹РїРѕР»РЅРµРЅРѕ РІ OFFLINE"},
+	{34,	"РќРµС‚ СЃРѕРµРґРёРЅРµРЅРёСЏ"},
+	{53,	"РћРїРµСЂР°С†РёСЏ РїСЂРµСЂРІР°РЅР°"}
 };
 
-// перечисление ошибок
-static PPDrvSession::TextTableEntry _ErrMsgTab_DC[] = { 
-	{0,		"ошибок устройства не найдено"},
-	{1,		"истёк таймаут операции"},
-	{2,		"ошибка создания LOG файла"},
-	{3,		"общая ошибка"},
-	{4,		"ошибка данных запроса"},
-	{6,		"не найден файл конфигурации"},
-	{7,		"ошибка формата файла конфигурации"},
-	{8,		"ошибка параметров логирования"},
-	{9,		"ошибка в параметрах терминала"},
-	{10,	"ошибка настройки устройства на COM порт"},
-	{11,	"ошибка в выходных параметрах"},
-	{12,	"ошибка при передаче образа чека"},
-	{13,	"ошибка установки связи с устройством"},
-	{14,	"ошибка в параметрах настройки интерфейса взаимодействия с пользователем"}
+// РїРµСЂРµС‡РёСЃР»РµРЅРёРµ РѕС€РёР±РѕРє
+static const SIntToSymbTabEntry _ErrMsgTab_DC[] = { 
+	{0,		"РѕС€РёР±РѕРє СѓСЃС‚СЂРѕР№СЃС‚РІР° РЅРµ РЅР°Р№РґРµРЅРѕ"},
+	{1,		"РёСЃС‚С‘Рє С‚Р°Р№РјР°СѓС‚ РѕРїРµСЂР°С†РёРё"},
+	{2,		"РѕС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ LOG С„Р°Р№Р»Р°"},
+	{3,		"РѕР±С‰Р°СЏ РѕС€РёР±РєР°"},
+	{4,		"РѕС€РёР±РєР° РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°"},
+	{6,		"РЅРµ РЅР°Р№РґРµРЅ С„Р°Р№Р» РєРѕРЅС„РёРіСѓСЂР°С†РёРё"},
+	{7,		"РѕС€РёР±РєР° С„РѕСЂРјР°С‚Р° С„Р°Р№Р»Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё"},
+	{8,		"РѕС€РёР±РєР° РїР°СЂР°РјРµС‚СЂРѕРІ Р»РѕРіРёСЂРѕРІР°РЅРёСЏ"},
+	{9,		"РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С… С‚РµСЂРјРёРЅР°Р»Р°"},
+	{10,	"РѕС€РёР±РєР° РЅР°СЃС‚СЂРѕР№РєРё СѓСЃС‚СЂРѕР№СЃС‚РІР° РЅР° COM РїРѕСЂС‚"},
+	{11,	"РѕС€РёР±РєР° РІ РІС‹С…РѕРґРЅС‹С… РїР°СЂР°РјРµС‚СЂР°С…"},
+	{12,	"РѕС€РёР±РєР° РїСЂРё РїРµСЂРµРґР°С‡Рµ РѕР±СЂР°Р·Р° С‡РµРєР°"},
+	{13,	"РѕС€РёР±РєР° СѓСЃС‚Р°РЅРѕРІРєРё СЃРІСЏР·Рё СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј"},
+	{14,	"РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С… РЅР°СЃС‚СЂРѕР№РєРё РёРЅС‚РµСЂС„РµР№СЃР° РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј"}
 };
 
 PPDRV_INSTANCE_ERRTAB(InpasTrmnl, 1, 0, PPDrvINPASTrmnl, _ErrMsgTab_DC);
@@ -215,10 +216,9 @@ PPDRV_INSTANCE_ERRTAB(InpasTrmnl, 1, 0, PPDrvINPASTrmnl, _ErrMsgTab_DC);
 int PPDrvINPASTrmnl::Init(SString & rCheck)
 {
 	int    ok = 1;
-	SString msg_ok, buf_ok;    // переменные, необходимые для вывода инф-ии в логи в случае успеха
-	int result_dc = 0;         // принимает код ошибки из p_dclink
-	int result_sar = 1;        // принимает значение свойства Status из p_res
-
+	SString msg_ok, buf_ok;    // РїРµСЂРµРјРµРЅРЅС‹Рµ, РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР»СЏ РІС‹РІРѕРґР° РёРЅС„-РёРё РІ Р»РѕРіРё РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р°
+	int result_dc = 0;         // РїСЂРёРЅРёРјР°РµС‚ РєРѕРґ РѕС€РёР±РєРё РёР· p_dclink
+	int result_sar = 1;        // РїСЂРёРЅРёРјР°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЃРІРѕР№СЃС‚РІР° Status РёР· p_res
 	ComDispInterface * p_req = 0;
 	ComDispInterface * p_res = 0;
 	ComDispInterface * p_dclink = new ComDispInterface;
@@ -227,7 +227,7 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 	AsseptDC(p_dclink);
 	p_dclink->CallMethod(InitResources);
 
-	// определение указателей на in-объект и out-объект SAPacket
+	// РѕРїСЂРµРґРµР»РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° in-РѕР±СЉРµРєС‚ Рё out-РѕР±СЉРµРєС‚ SAPacket
 	p_req = new ComDispInterface;
 	p_res = new ComDispInterface;
 	THROW(p_dclink);
@@ -236,30 +236,30 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 	AsseptSAP(p_req);
 	AsseptSAP(p_res);
 
-	// заданине Необходимых свойств in-объекта SAPacket
+	// Р·Р°РґР°РЅРёРЅРµ РќРµРѕР±С…РѕРґРёРјС‹С… СЃРІРѕР№СЃС‚РІ in-РѕР±СЉРµРєС‚Р° SAPacket
 	p_req->SetProperty(OperationCode, INPAS_FUNC_INIT);
 
-	// Передача параметров метода Exchange
+	// РџРµСЂРµРґР°С‡Р° РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР° Exchange
 	p_dclink->SetParam(p_req);
 	p_dclink->SetParam(p_res);
 	p_dclink->SetParam(TIMEOUT);
-	// вызов метода Exchange класса DCLink
+	// РІС‹Р·РѕРІ РјРµС‚РѕРґР° Exchange РєР»Р°СЃСЃР° DCLink
 	p_dclink->CallMethod(Exchange);
 
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
 
-	THROWERR(result_sar == 1, result_dc);									  // Если не 1, значит ошибка. Отправляемся в обработку исключений
-	{																		  //   Надо доработать обработку исключений. 
-		char slip_ch[1024];                // массив для чека
+	THROWERR(result_sar == 1, result_dc);									  // Р•СЃР»Рё РЅРµ 1, Р·РЅР°С‡РёС‚ РѕС€РёР±РєР°. РћС‚РїСЂР°РІР»СЏРµРјСЃСЏ РІ РѕР±СЂР°Р±РѕС‚РєСѓ РёСЃРєР»СЋС‡РµРЅРёР№
+	{																		  //   РќР°РґРѕ РґРѕСЂР°Р±РѕС‚Р°С‚СЊ РѕР±СЂР°Р±РѕС‚РєСѓ РёСЃРєР»СЋС‡РµРЅРёР№. 
+		char slip_ch[1024];                // РјР°СЃСЃРёРІ РґР»СЏ С‡РµРєР°
 		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
 		rCheck = slip_ch;
 	}
-	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
+	// Р•СЃР»Рё РЅРµС‚ РѕС€РёР±РѕРє, РІ Р»РѕРіРё РёРґРµС‚ РѕС‚С‡РµС‚ РѕР± СѓСЃРїРµС€РЅРѕРј РІС‹РїРѕР»РЅРµРЅРёРё РѕРїРµСЂР°С†РёРё
 	msg_ok.Cat("operation Init completed");
 	DRVS.Log(msg_ok, 0xffff);
 
-	// выдает информацию о ошибках в логи
+	// РІС‹РґР°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РѕС€РёР±РєР°С… РІ Р»РѕРіРё
 	CATCH
 		ok = 0;
 		{
@@ -273,7 +273,7 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 			DRVS.Log(msg, 0xffff);
 		}
 	ENDCATCH;
-	// Освобождение ресурсов
+	// РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ СЂРµСЃСѓСЂСЃРѕРІ
 	p_req->CallMethod(Release);
 	p_res->CallMethod(Release);
 	p_dclink->CallMethod(FreeResources);
@@ -292,13 +292,13 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 	return ok;
 }
 
-// оплата
+// РѕРїР»Р°С‚Р°
 int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 {
 	int    ok = 1;
-	SString msg_ok, buf_ok;            // переменные, необходимые для вывода инф-ии в логи в случае успеха
-	int result_dc = 0;                 // принимает код ошибки из p_dclink
-	int result_sar = 1;	               // принимает значение свойства Status из p_res
+	SString msg_ok, buf_ok;            // РїРµСЂРµРјРµРЅРЅС‹Рµ, РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР»СЏ РІС‹РІРѕРґР° РёРЅС„-РёРё РІ Р»РѕРіРё РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р°
+	int result_dc = 0;                 // РїСЂРёРЅРёРјР°РµС‚ РєРѕРґ РѕС€РёР±РєРё РёР· p_dclink
+	int result_sar = 1;	               // РїСЂРёРЅРёРјР°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЃРІРѕР№СЃС‚РІР° Status РёР· p_res
 	SString temp_buf;
 	ComDispInterface * p_req = 0;
 	ComDispInterface * p_res = 0;
@@ -308,7 +308,7 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	AsseptDC(p_dclink);
 	p_dclink->CallMethod(InitResources);
 
-	// определение указателей на in-объект и out-объект SAPacket
+	// РѕРїСЂРµРґРµР»РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° in-РѕР±СЉРµРєС‚ Рё out-РѕР±СЉРµРєС‚ SAPacket
 	p_req = new ComDispInterface;
 	p_res = new ComDispInterface;
 	THROW(p_dclink);
@@ -317,25 +317,25 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	AsseptSAP(p_req);
 	AsseptSAP(p_res);
 
-	// заданине Необходимых свойств in-объекта SAPacket
+	// Р·Р°РґР°РЅРёРЅРµ РќРµРѕР±С…РѕРґРёРјС‹С… СЃРІРѕР№СЃС‚РІ in-РѕР±СЉРµРєС‚Р° SAPacket
 	temp_buf.Z().Cat(R0i(amount));
 	p_req->SetProperty(Amount, temp_buf);
 	p_req->SetProperty(CurrencyCode, RUBLE);
 	p_req->SetProperty(OperationCode, INPAS_FUNC_PAY);
 	
-	// Передача параметров метода Exchange
+	// РџРµСЂРµРґР°С‡Р° РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР° Exchange
 	p_dclink->SetParam(p_req);
 	p_dclink->SetParam(p_res);
 	p_dclink->SetParam(TIMEOUT);
-	// вызов метода Exchange класса DCLink
+	// РІС‹Р·РѕРІ РјРµС‚РѕРґР° Exchange РєР»Р°СЃСЃР° DCLink
 	p_dclink->CallMethod(Exchange);
 	
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
-																		 // Если не 1 значит ошибка. Отправляемся в обработку исключений
-	THROWERR(result_sar == 1, result_dc); 								 //   Надо доработать обработку исключений. 
+																		 // Р•СЃР»Рё РЅРµ 1 Р·РЅР°С‡РёС‚ РѕС€РёР±РєР°. РћС‚РїСЂР°РІР»СЏРµРјСЃСЏ РІ РѕР±СЂР°Р±РѕС‚РєСѓ РёСЃРєР»СЋС‡РµРЅРёР№
+	THROWERR(result_sar == 1, result_dc); 								 //   РќР°РґРѕ РґРѕСЂР°Р±РѕС‚Р°С‚СЊ РѕР±СЂР°Р±РѕС‚РєСѓ РёСЃРєР»СЋС‡РµРЅРёР№. 
 	{
-		char slip_ch[1024]; // массив для чека
+		char slip_ch[1024]; // РјР°СЃСЃРёРІ РґР»СЏ С‡РµРєР°
 		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
 		rSlip = slip_ch;
 	}
@@ -346,11 +346,11 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 		SLS.LogMessage(SlipLogFileName, rSlip, 8192);
 	}
 	// } @v10.2.0 
-	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
+	// Р•СЃР»Рё РЅРµС‚ РѕС€РёР±РѕРє, РІ Р»РѕРіРё РёРґРµС‚ РѕС‚С‡РµС‚ РѕР± СѓСЃРїРµС€РЅРѕРј РІС‹РїРѕР»РЅРµРЅРёРё РѕРїРµСЂР°С†РёРё
 	msg_ok.Cat("operation Pay completed");
 	DRVS.Log(msg_ok, 0xffff);
 
-	// выдает информацию о ошибках в логи
+	// РІС‹РґР°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РѕС€РёР±РєР°С… РІ Р»РѕРіРё
 	CATCH
 		{
 			SString msg, buf, rcode;
@@ -364,7 +364,7 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 		}
 		ok = 0;
 	ENDCATCH;
-	// Освобождение ресурсов
+	// РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ СЂРµСЃСѓСЂСЃРѕРІ
 	if(p_res) {
 		p_res->CallMethod(Release);
 		delete p_res;
@@ -380,13 +380,13 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	return ok;
 }
 
-// Возврат
+// Р’РѕР·РІСЂР°С‚
 int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 {
 	int    ok = 1;
-	SString msg_ok, buf_ok;     // переменные, необходимые для вывода инф-ии в логи в случае успеха
-	int    result_dc = 0;          // принимает код ошибки из p_dclink
-	int    result_sar = 1;         // принимает значение свойства Status из p_res
+	SString msg_ok, buf_ok;     // РїРµСЂРµРјРµРЅРЅС‹Рµ, РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР»СЏ РІС‹РІРѕРґР° РёРЅС„-РёРё РІ Р»РѕРіРё РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р°
+	int    result_dc = 0;          // РїСЂРёРЅРёРјР°РµС‚ РєРѕРґ РѕС€РёР±РєРё РёР· p_dclink
+	int    result_sar = 1;         // РїСЂРёРЅРёРјР°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЃРІРѕР№СЃС‚РІР° Status РёР· p_res
 	SString temp_buf;
 	ComDispInterface * p_req = 0;
 	ComDispInterface * p_res = 0;
@@ -396,7 +396,7 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 	AsseptDC(p_dclink);
 	p_dclink->CallMethod(InitResources);
 
-	// определение указателей на in-объект и out-объект SAPacket
+	// РѕРїСЂРµРґРµР»РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° in-РѕР±СЉРµРєС‚ Рё out-РѕР±СЉРµРєС‚ SAPacket
 	p_req = new ComDispInterface;
 	p_res = new ComDispInterface;
 	THROW(p_dclink);
@@ -405,25 +405,25 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 	AsseptSAP(p_req);
 	AsseptSAP(p_res);
 
-	// заданине Необходимых свойств in-объекта SAPacket
+	// Р·Р°РґР°РЅРёРЅРµ РќРµРѕР±С…РѕРґРёРјС‹С… СЃРІРѕР№СЃС‚РІ in-РѕР±СЉРµРєС‚Р° SAPacket
 	temp_buf.Z().Cat(R0i(amount));
 	p_req->SetProperty(Amount, temp_buf);
 	p_req->SetProperty(CurrencyCode, RUBLE);
 	p_req->SetProperty(OperationCode, INPAS_FUNC_REFUND);
 
-	// Передача параметров метода Exchange
+	// РџРµСЂРµРґР°С‡Р° РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР° Exchange
 	p_dclink->SetParam(p_req);
 	p_dclink->SetParam(p_res);
 	p_dclink->SetParam(TIMEOUT);
-	// вызов метода Exchange класса DCLink
+	// РІС‹Р·РѕРІ РјРµС‚РѕРґР° Exchange РєР»Р°СЃСЃР° DCLink
 	p_dclink->CallMethod(Exchange);
 
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
-	// Если не 1, значит ошибка. Отправляемся в обработку исключений
-	THROWERR(result_sar == 1, result_dc); //   Надо доработать обработку исключений. 
+	// Р•СЃР»Рё РЅРµ 1, Р·РЅР°С‡РёС‚ РѕС€РёР±РєР°. РћС‚РїСЂР°РІР»СЏРµРјСЃСЏ РІ РѕР±СЂР°Р±РѕС‚РєСѓ РёСЃРєР»СЋС‡РµРЅРёР№
+	THROWERR(result_sar == 1, result_dc); //   РќР°РґРѕ РґРѕСЂР°Р±РѕС‚Р°С‚СЊ РѕР±СЂР°Р±РѕС‚РєСѓ РёСЃРєР»СЋС‡РµРЅРёР№. 
 	{
-		char slip_ch[1024];                // массив для чека
+		char slip_ch[1024];                // РјР°СЃСЃРёРІ РґР»СЏ С‡РµРєР°
 		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
 		rSlip = slip_ch;
 	}
@@ -434,10 +434,10 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 		SLS.LogMessage(SlipLogFileName, rSlip, 8192);
 	}
 	// } @v10.2.0 
-	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
+	// Р•СЃР»Рё РЅРµС‚ РѕС€РёР±РѕРє, РІ Р»РѕРіРё РёРґРµС‚ РѕС‚С‡РµС‚ РѕР± СѓСЃРїРµС€РЅРѕРј РІС‹РїРѕР»РЅРµРЅРёРё РѕРїРµСЂР°С†РёРё
 	msg_ok.Cat("operation Refund completed");
 	DRVS.Log(msg_ok, 0xffff);
-	// выдает информацию о ошибках в логи
+	// РІС‹РґР°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РѕС€РёР±РєР°С… РІ Р»РѕРіРё
 	CATCH
 		{
 			SString msg, buf, rcode;
@@ -451,7 +451,7 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 		}
 		ok = 0;
 	ENDCATCH;
-	// Освобождение ресурсов
+	// РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ СЂРµСЃСѓСЂСЃРѕРІ
 	if(p_res) {
 		p_res->CallMethod(Release);	
 		delete p_res;
@@ -470,9 +470,9 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 {
 	int    ok = 1;
-	SString msg_ok, buf_ok;    // переменные, необходимые для вывода инф-ии в логи в случае успеха
-	int result_dc = 0;         // принимает код ошибки из p_dclink
-	int result_sar = 1001;     // принимает значение свойства Status из p_res
+	SString msg_ok, buf_ok;    // РїРµСЂРµРјРµРЅРЅС‹Рµ, РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР»СЏ РІС‹РІРѕРґР° РёРЅС„-РёРё РІ Р»РѕРіРё РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р°
+	int result_dc = 0;         // РїСЂРёРЅРёРјР°РµС‚ РєРѕРґ РѕС€РёР±РєРё РёР· p_dclink
+	int result_sar = 1001;     // РїСЂРёРЅРёРјР°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЃРІРѕР№СЃС‚РІР° Status РёР· p_res
 
 	ComDispInterface * p_req = 0;
 	ComDispInterface * p_res = 0;
@@ -481,7 +481,7 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 	p_dclink->Init("DualConnector.DCLink");
 	AsseptDC(p_dclink);
 	p_dclink->CallMethod(InitResources);
-	// определение указателей на in-объект и out-объект SAPacket
+	// РѕРїСЂРµРґРµР»РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° in-РѕР±СЉРµРєС‚ Рё out-РѕР±СЉРµРєС‚ SAPacket
 	p_req = new ComDispInterface;
 	p_res = new ComDispInterface;
 	THROW(p_dclink);
@@ -490,28 +490,28 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 	AsseptSAP(p_req);
 	AsseptSAP(p_res);
 	
-	// заданине Необходимых свойств in-объекта SAPacket
+	// Р·Р°РґР°РЅРёРЅРµ РќРµРѕР±С…РѕРґРёРјС‹С… СЃРІРѕР№СЃС‚РІ in-РѕР±СЉРµРєС‚Р° SAPacket
 	p_req->SetProperty(OperationCode, INPAS_FUNC_CLOSEDAY);
 
-	// Передача параметров метода Exchange
+	// РџРµСЂРµРґР°С‡Р° РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР° Exchange
 	p_dclink->SetParam(p_req);
 	p_dclink->SetParam(p_res);
 	p_dclink->SetParam(TIMEOUT);
-	// Вызов метода Exchange класса DCLink
+	// Р’С‹Р·РѕРІ РјРµС‚РѕРґР° Exchange РєР»Р°СЃСЃР° DCLink
 	p_dclink->CallMethod(Exchange);
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
-	THROWERR(result_sar == 1, result_dc); // Если не 1, значит ошибка. Отправляемся в обработку исключений  
-	{																 //   Надо доработать обработку исключений. 
-		char slip_ch[1024];				   // Массив для чека					   
+	THROWERR(result_sar == 1, result_dc); // Р•СЃР»Рё РЅРµ 1, Р·РЅР°С‡РёС‚ РѕС€РёР±РєР°. РћС‚РїСЂР°РІР»СЏРµРјСЃСЏ РІ РѕР±СЂР°Р±РѕС‚РєСѓ РёСЃРєР»СЋС‡РµРЅРёР№  
+	{																 //   РќР°РґРѕ РґРѕСЂР°Р±РѕС‚Р°С‚СЊ РѕР±СЂР°Р±РѕС‚РєСѓ РёСЃРєР»СЋС‡РµРЅРёР№. 
+		char slip_ch[1024];				   // РњР°СЃСЃРёРІ РґР»СЏ С‡РµРєР°					   
 		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
 		rCheck = slip_ch;
 	}
-	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
+	// Р•СЃР»Рё РЅРµС‚ РѕС€РёР±РѕРє, РІ Р»РѕРіРё РёРґРµС‚ РѕС‚С‡РµС‚ РѕР± СѓСЃРїРµС€РЅРѕРј РІС‹РїРѕР»РЅРµРЅРёРё РѕРїРµСЂР°С†РёРё
 	msg_ok.Cat("operation GetSessReport completed");
 	DRVS.Log(msg_ok, 0xffff);
 
-	// Выдает информацию о ошибках в логи
+	// Р’С‹РґР°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РѕС€РёР±РєР°С… РІ Р»РѕРіРё
 	CATCH
 		{
 			SString msg, buf, rcode;
@@ -525,7 +525,7 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 		}
 		ok = 0;
 	ENDCATCH;
-	// Освобождение ресурсов
+	// РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ СЂРµСЃСѓСЂСЃРѕРІ
 	if(p_res) {
 		p_res->CallMethod(Release);
 		delete p_res;
@@ -559,7 +559,7 @@ int PPDrvINPASTrmnl::ProcessCommand(const SString & rCmd, const char * pInputDat
 		THROW(Refund(amount, rOutput)); // @v10.3.3 @fix THROW
 	}
 	else if(rCmd == "GETBANKREPORT") {
-		// Получаем отчет по операциям за день (грубо говоря, закрытие сессии)
+		// РџРѕР»СѓС‡Р°РµРј РѕС‚С‡РµС‚ РїРѕ РѕРїРµСЂР°С†РёСЏРј Р·Р° РґРµРЅСЊ (РіСЂСѓР±Рѕ РіРѕРІРѕСЂСЏ, Р·Р°РєСЂС‹С‚РёРµ СЃРµСЃСЃРёРё)
 		GetSessReport(rOutput);
 	}
 	CATCH
