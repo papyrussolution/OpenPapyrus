@@ -132,7 +132,7 @@ int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 		// @vmiller {
 		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0) {
 			if(s == 1) {
-				ASSIGN_PTR(pPos, 14); // Соответствует типу SYNCCASH // @v9.1.8 16-->15 // @v9.7.9 15-->14
+				ASSIGN_PTR(pPos, 12); // Соответствует типу SYNCCASH // @v9.1.8 16-->15 // @v9.7.9 15-->14 // @v10.4.5 14-->12
 				return 1;
 			}
 		}

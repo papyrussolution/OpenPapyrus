@@ -1099,8 +1099,9 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 				// } @v10.3.11
 				uint   max_duck_quant_for_sl = external_max_duck_quant;
 				uint   sl_adj = 0;
+				int    do_use_accelerated_sl = 0; // @v10.4.5
 				// @20190424 {
-				if(rStk.Profit > 0.0) {
+				if(do_use_accelerated_sl && rStk.Profit > 0.0) {
 					if(is_short) {
 						sl_adj = ffloori((rStk.PriceOpen - rStk.PriceCurrent) / (rStk.PriceCurrent * external_spike_quant));
 					}
