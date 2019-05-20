@@ -978,10 +978,13 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 11, GCF_USEBRANDINGSELEXTDLG);
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 12, GCF_AUTOPREFBARCODE);
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 13, GCF_DONTDELFROMMTXGOODSINOPENORD);
-	AddClusterAssoc(CTL_GDSCFG_FLAGS, 14, GCF_SHOWGSTRUCPRICE);
-
+	// @v10.4.6 (see below) AddClusterAssoc(CTL_GDSCFG_FLAGS, 14, GCF_SHOWGSTRUCPRICE);
 	SetClusterData(CTL_GDSCFG_FLAGS, Data.Flags);
-
+	// @v10.4.6 {
+	AddClusterAssoc(CTL_GDSCFG_FLAGS2, 0, GCF_SHOWGSTRUCPRICE);
+	AddClusterAssoc(CTL_GDSCFG_FLAGS2, 1, GCF_BANSTRUCCDONDECOMPL);
+	SetClusterData(CTL_GDSCFG_FLAGS2, Data.Flags);
+	// } @v10.4.6 
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 0, GCF_XCHG_DONTRCVTAXGRPUPD);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 1, GCF_XCHG_RCVSTRUCUPD);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 2, GCF_XCHG_SENDGENGOODSCONTENT);
@@ -1038,6 +1041,7 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	getCtrlData(CTLSEL_GDSCFG_GMTXRESTR, &Data.MtxRestrQkID);
 	getCtrlData(CTLSEL_GDSCFG_BCPGUATAG, &Data.BcPrefixGuaTagID);
 	GetClusterData(CTL_GDSCFG_FLAGS, &Data.Flags);
+	GetClusterData(CTL_GDSCFG_FLAGS2, &Data.Flags); // @v10.4.6
 	GetClusterData(CTL_GDSCFG_XCHG_FLAGS, &Data.Flags);
 	sel = CTL_GDSCFG_ACGIT;
 	THROW_PP(Data.ACGI_Threshold >= 0 && Data.ACGI_Threshold <= 1461, PPERR_USERINPUT);

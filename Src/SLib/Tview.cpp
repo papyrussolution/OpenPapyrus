@@ -1124,7 +1124,7 @@ static _KeySymb KeySymbList[] = {
 int FASTCALL KeyDownCommand::SetChar(uint chr)
 {
 	int    ok = 1;
-	short r = VkKeyScan(chr);
+	short r = VkKeyScanA(chr); // @v10.4.6 VkKeyScan-->VkKeyScanA
 	if(r == -1) {
 		ok = 0;
 	}

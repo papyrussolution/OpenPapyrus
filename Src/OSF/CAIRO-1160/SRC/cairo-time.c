@@ -31,7 +31,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-time-private.h"
+//#include "cairo-time-private.h"
 #if HAVE_CLOCK_GETTIME
 	#if defined(CLOCK_MONOTONIC_RAW)
 		#define CAIRO_CLOCK CLOCK_MONOTONIC_RAW
@@ -151,8 +151,8 @@ cairo_time_t _cairo_time_get(void)
 
 int _cairo_time_cmp(const void * a, const void * b)
 {
-	const cairo_time_t * ta = (const cairo_time_t *)a;
-	const cairo_time_t * tb = (const cairo_time_t *)b;
+	const cairo_time_t * ta = static_cast<const cairo_time_t *>(a);
+	const cairo_time_t * tb = static_cast<const cairo_time_t *>(b);
 	return _cairo_int64_cmp(*ta, *tb);
 }
 
@@ -172,12 +172,5 @@ static double _cairo_time_s_per_tick(void)
 	return s;
 }
 
-double _cairo_time_to_s(cairo_time_t t)
-{
-	return _cairo_int64_to_double(t) * _cairo_time_s_per_tick();
-}
-
-cairo_time_t _cairo_time_from_s(double t)
-{
-	return _cairo_double_to_int64(t * _cairo_time_ticks_per_sec());
-}
+double _cairo_time_to_s(cairo_time_t t) { return _cairo_int64_to_double(t) * _cairo_time_s_per_tick(); }
+cairo_time_t _cairo_time_from_s(double t) { return _cairo_double_to_int64(t * _cairo_time_ticks_per_sec()); }

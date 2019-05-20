@@ -565,7 +565,7 @@ public:
 protected:
 	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && typ == MKSTYPE(S_INT, 4) && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+		return (pVal && typ == MKSTYPE(S_INT, 4) && P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
 	}
 	PPViewDebtTrnovr * P_V;
 };
@@ -4808,18 +4808,16 @@ int PPALDD_DebtorStat::NextIteration(long iterId)
 void PPALDD_DebtorStat::Destroy() { DESTROY_PPVIEW_ALDD(DebtorStat); }
 
 #if SLTEST_RUNNING
-
-SLTEST_R(DebtGammaProb)
-{
-	double eta = 328.0342;
-	double K = 0.0813;
-	double sum = 0.0;
-	for(uint x = 1; x < 1000; x++) {
-		double prob = (GammaIncompleteP(K, x/eta) - GammaIncompleteP(K, (x-1)/eta));
-		sum += prob;
+	SLTEST_R(DebtGammaProb)
+	{
+		double eta = 328.0342;
+		double K = 0.0813;
+		double sum = 0.0;
+		for(uint x = 1; x < 1000; x++) {
+			double prob = (GammaIncompleteP(K, x/eta) - GammaIncompleteP(K, (x-1)/eta));
+			sum += prob;
+		}
+		SLTEST_CHECK_EQ(sum, 1.0);
+		return 1;
 	}
-	SLTEST_CHECK_EQ(sum, 1.0);
-	return 1;
-}
-
 #endif

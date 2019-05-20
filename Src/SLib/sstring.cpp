@@ -2312,7 +2312,7 @@ SString & FASTCALL SString::Cat(const SString & s)
 	const size_t add_len = s.Len();
 	if(add_len) {
 		const size_t new_len = (L ? L : 1) + add_len;
-		if(new_len <= Size || Alloc(new_len)) { // @v8.1.11 (new_len <= Size ||)
+		if(new_len <= Size || Alloc(new_len)) {
 			memcpy(P_Buf+Len(), s.P_Buf, s.L);
 			L = new_len;
 		}

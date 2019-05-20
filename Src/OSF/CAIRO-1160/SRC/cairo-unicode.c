@@ -45,33 +45,27 @@
 //#include "cairo-error-private.h"
 
 #define UTF8_COMPUTE(Char, Mask, Len)                                         \
-	if(Char < 128)                                                             \
-	{                                                                         \
+	if(Char < 128) { \
 		Len = 1;                                                                \
 		Mask = 0x7f;                                                            \
 	}                                                                         \
-	else if((Char & 0xe0) == 0xc0)                                             \
-	{                                                                         \
+	else if((Char & 0xe0) == 0xc0) { \
 		Len = 2;                                                                \
 		Mask = 0x1f;                                                            \
 	}                                                                         \
-	else if((Char & 0xf0) == 0xe0)                                             \
-	{                                                                         \
+	else if((Char & 0xf0) == 0xe0) { \
 		Len = 3;                                                                \
 		Mask = 0x0f;                                                            \
 	}                                                                         \
-	else if((Char & 0xf8) == 0xf0)                                             \
-	{                                                                         \
+	else if((Char & 0xf8) == 0xf0) { \
 		Len = 4;                                                                \
 		Mask = 0x07;                                                            \
 	}                                                                         \
-	else if((Char & 0xfc) == 0xf8)                                             \
-	{                                                                         \
+	else if((Char & 0xfc) == 0xf8) { \
 		Len = 5;                                                                \
 		Mask = 0x03;                                                            \
 	}                                                                         \
-	else if((Char & 0xfe) == 0xfc)                                             \
-	{                                                                         \
+	else if((Char & 0xfe) == 0xfc) { \
 		Len = 6;                                                                \
 		Mask = 0x01;                                                            \
 	}                                                                         \
@@ -87,10 +81,8 @@
 
 #define UTF8_GET(Result, Chars, Count, Mask, Len)                             \
 	(Result) = (Chars)[0] & (Mask);                                             \
-	for((Count) = 1; (Count) < (Len); ++(Count))                               \
-	{                                                                         \
-		if(((Chars)[(Count)] & 0xc0) != 0x80)                                  \
-		{                                                                     \
+	for((Count) = 1; (Count) < (Len); ++(Count)) { \
+		if(((Chars)[(Count)] & 0xc0) != 0x80) { \
 			(Result) = -1;                                                      \
 			break;                                                              \
 		}                                                                     \
@@ -189,10 +181,8 @@ static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
 	}
 	if(UTF8_LENGTH(wc) != len)
 		return static_cast<uint32_t>(-1);
-
 	return wc;
 }
-
 /**
  * _cairo_utf8_get_char_validated:
  * @p: a UTF-8 string

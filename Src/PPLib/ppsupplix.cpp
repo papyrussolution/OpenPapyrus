@@ -6016,7 +6016,7 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				SfaHeinekenInvoice * p_new_entry = rList.CreateNewItem();
 				THROW_SL(p_new_entry);
 				p_new_entry->Code = bill_code;
-				p_new_entry->Dt = pack.Rec.Dt;
+				p_new_entry->Dt = checkdate(pack.Ext.InvoiceDate) ? pack.Ext.InvoiceDate : pack.Rec.Dt;
 				if(is_own_order) {
 					// TSCollection <SfaHeinekenOrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
 					SfaHeinekenOrderDelivery * p_o = p_new_entry->OrderList.CreateNewItem();

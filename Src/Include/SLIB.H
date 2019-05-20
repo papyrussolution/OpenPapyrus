@@ -5817,7 +5817,11 @@ struct SIntToSymbTabEntry {
 //   >0 - искомый элемент найден
 //   0  - искомый элемент не найден (к аргументу rSymb применен метод SString::Z())
 //
-int FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb);
+int    FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb);
+//
+// Descr: Возвращает true если таблица pTab содержит элемент с полем Id == id. В противном случае - false.
+//
+bool   FASTCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize, int id);
 //
 // Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
 //   P_Symb равное параметру pSymb (сравнение осуществляется функцией sstreqi_ascii).
@@ -5828,7 +5832,7 @@ int FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSi
 //   в противном случае 0.
 //   Если pSymb == 0 || pSymb[0] == 0, то возвращает 0.
 //
-int FASTCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb);
+int   FASTCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb);
 //
 // Dynamic Array structures
 //

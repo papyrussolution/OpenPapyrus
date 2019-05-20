@@ -401,7 +401,7 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 	ImpExpParamDialog::setDTS(&Data);
 	SetupStringCombo(this, CTLSEL_IMPEXPBILH_PDFMT, PPTXT_PREDEFIMPEXPBILLFMT, Data.PredefFormat); // @v9.7.8
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 0, PPBillImpExpParam::fImpRowsFromSameFile);
-	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpRowsOnly);
+	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpExpRowsOnly);
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 2, PPBillImpExpParam::fRestrictByMatrix); // @v9.0.4
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 3, PPBillImpExpParam::fExpOneByOne); // @v9.3.10
 	SetClusterData(CTL_IMPEXPBILH_FLAGS, Data.Flags);
@@ -2003,7 +2003,7 @@ int SLAPI PPBillImporter::ReadData()
 	const int h_r_eq_f = (BillParam.DataFormat == BRowParam.DataFormat) ? BillParam.DataFormat : -1;
 	const int imp_rows_from_same_file = BIN(BillParam.Flags & PPBillImpExpParam::fImpRowsFromSameFile &&
 		oneof4(h_r_eq_f, PPImpExpParam::dfText, PPImpExpParam::dfDbf, PPImpExpParam::dfExcel, PPImpExpParam::dfXml));
-	const  int imp_rows_only = BIN(imp_rows_from_same_file && BillParam.Flags & PPBillImpExpParam::fImpRowsOnly);
+	const  int imp_rows_only = BIN(imp_rows_from_same_file && BillParam.Flags & PPBillImpExpParam::fImpExpRowsOnly);
 	if(BillParam.BaseFlags & PPImpExpParam::bfDLL) {
 		int    obj_id = 0, sess_id = 0;
 		Sdr_BRow brow;
@@ -3828,11 +3828,13 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			THROW(pImpExpDll->InitExportIter(sessId, obj_id));
 		}
 		else {
-			BillExpExprEvalContext expr_ctx(pPack, P_IEBill->GetParamConst().InrRec);
-			P_IEBill->SetExprContext(&expr_ctx);
-			THROW(BillRecToBill(pPack, &bill));
-			THROW(P_IEBill->AppendRecord(&bill, sizeof(bill)));
-			P_IEBRow->Push(&BRowParam);
+			if(!(BillParam.Flags & BillParam.fImpExpRowsOnly)) { // @v10.4.6
+				BillExpExprEvalContext expr_ctx(pPack, P_IEBill->GetParamConst().InrRec);
+				P_IEBill->SetExprContext(&expr_ctx);
+				THROW(BillRecToBill(pPack, &bill));
+				THROW(P_IEBill->AppendRecord(&bill, sizeof(bill)));
+				P_IEBRow->Push(&BRowParam);
+			}
 		}
 		for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
 			const PPID goods_id = labs(p_ti->GoodsID);

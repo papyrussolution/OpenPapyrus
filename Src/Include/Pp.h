@@ -4333,6 +4333,7 @@ private:
 #define GCF_XCHG_SENDATTACHMENT          0x00400000L  // Передавать в другие разделы привязанные к товарам файлы (обычно, изображения)
 #define GCF_IGNOREFOLDERMATRIX           0x00800000L  // Игнорировать значения товарной матрицы, установленные для товарных групп верхнего уровня
 #define GCF_XCHG_RCVSTRUCFROMDDONLY      0x01000000L  // @v10.2.1 Принимать изменения товарных стуктур только из диспетчерского раздела
+#define GCF_BANSTRUCCDONDECOMPL          0x02000000L  // @v10.4.6 Запрет на общий множитель для декомплектующих структур
 
 struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	SLAPI  PPGoodsConfig();
@@ -9904,7 +9905,7 @@ public:
 //
 #define PCUG_USERCHOICE        0 // Предлагать диалог выбора способа обработки
 #define PCUG_BALANCE           1 // Сбалансировать количество результирующего продукта
-#define PCUG_ASGOODSAS         2 // Включить в комплект столько комплектующих, сколько есть в наличии
+#define PCUG_ASGOODAS          2 // Включить в комплект столько комплектующих, сколько есть в наличии
 #define PCUG_EXCLUDE           3 // Полностью исключить недостающий комплектующий товар
 #define PCUG_CANCEL            4 // Отменить операцию комплектации
 
@@ -13952,7 +13953,7 @@ public:
 	//
 	// Descr: Возвращает список чеков, по крайней мере одна строка которых содержит текст расширения lnextss
 	//   эквивалентный pText.
-	//   
+	//
 	// Returns:
 	//   >0 - найден по крайней мере один чек
 	//   <0 - не найдено ни одного чека
@@ -14654,8 +14655,6 @@ public:
 
 	long   CmdID;          // Идентификатор дескриптора команды (PPCommandDescr)
 	TPoint P;
-	//uint16 X;
-	//uint16 Y;
 	char   Reserve[28];    // @reserve
 	SBuffer Param;
 };
@@ -16033,6 +16032,23 @@ public:
 			// [0..]. 0 - не использовать ограничение, 1.0 - ограничение равно TrendErrAvg, 1.05 - (1.05 * TrendErrAvg)
 		uint8  Reserve[4];
 	};
+	struct TrendEntry {
+		SLAPI  TrendEntry(uint stride, uint nominalCount);
+		const  uint Stride;
+		const  uint NominalCount;
+		double ErrAvg; // @v10.3.12 Средняя ошибка регрессии
+		RealArray TL;
+		RealArray ErrL; // @v10.3.12 Ошибки регрессии
+	};
+	struct BestStrategyBlock {
+		SLAPI  BestStrategyBlock();
+		void   SLAPI SetResult(double localResult, uint strategyIdx, double tv, double tv2);
+
+		double MaxResult;
+		int    MaxResultIdx;
+		double TvForMaxResult;
+		double Tv2ForMaxResult;
+	};
 	class StrategyContainer : public TSVector <Strategy> {
 	public:
 		SLAPI  StrategyContainer();
@@ -16064,10 +16080,34 @@ public:
 		};
 		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest) const;
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		struct IndexEntry1 {
+			struct Range : public RealRange {
+				Range(const RealRange & rR, uint idx);
+				uint   Idx; // Позиция стратегии в контейнере
+			};
+			IndexEntry1();
+			uint   Stride; // @firstmember Шаг тренда
+			TSVector <Range> RangeList; // Упорядоченный по возрастанию список диапазонов
+		};
+		int    SLAPI CreateIndex1(TSCollection <IndexEntry1> & rIndex) const;
+		//
+		// Descr: Критерии подбора стратегии
+		//
+		enum {
+			selcritVelocity = 1, // По скорости выигрыша
+			selcritWinRatio = 2, // По отношению числа выигрышей к ставкам
+			selcritfSkipAmbiguous = 0x0100, // Флаг, блокирующий выбор стратегии, если существует хотя бы одна иная стратегия с противоположным направлением
+			selcritfSkipShort     = 0x0200, // Флаг, блокирующий выбор коротких стратегий
+			selcritfSkipLong      = 0x0400  // Флаг, блокирующий выбор длинных стратегий
+		};
+
+		int    SLAPI Select(const TSCollection <TrendEntry> & rTrendList, int lastTrendIdx, long criterion, 
+			const TSCollection <IndexEntry1> * pIndex, BestStrategyBlock & rBsb, LongArray * pAllSuitedPosList) const;
 	private:
 		uint32 Ver;
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
+		long   State; // @transient
 	};
 	struct TrainNnParam : public Strategy {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
@@ -16100,29 +16140,10 @@ public:
 		char   Symb[32];
 		uint   LastResultIdx; // Последний индекс в тестируемом ряду, по которому еще можно получить адекватный результат
 			// (далее ряд обрывается раньше, чем можно оценить результат ставки).
-		// @v10.4.5 (included into Strategy::OptDeltaRange) double OptDeltaResult;
-		// @v10.4.5 (included into Strategy::OptDelta2Range) double OptDelta2Result;
 		double SumPeak;          // @v10.3.3
 		double SumBottom;        // @v10.3.3
 		double MaxPeak;          // @v10.3.3
 		uint64 TotalSec;         // @v10.3.4 Общее время тесте (для симуляции контейнеров стратегий)
-	};
-	struct TrendEntry {
-		SLAPI  TrendEntry(uint stride, uint nominalCount);
-		const  uint Stride;
-		const  uint NominalCount;
-		double ErrAvg; // @v10.3.12 Средняя ошибка регрессии
-		RealArray TL;
-		RealArray ErrL; // @v10.3.12 Ошибки регрессии
-	};
-	struct BestStrategyBlock {
-		SLAPI  BestStrategyBlock();
-		void   SLAPI SetResult(double localResult, uint strategyIdx, double tv, double tv2);
-
-		double MaxResult;
-		int    MaxResultIdx;
-		double TvForMaxResult;
-		double Tv2ForMaxResult;
 	};
 
 	static int SLAPI EditConfig(const PPObjTimeSeries::Config * pCfg);
@@ -16172,8 +16193,8 @@ public:
 		const IntRange & rMdRange, int mdStep, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
 	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
 	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, uint stride);
-	static int SLAPI MatchStrategy(const PPObjTimeSeries::TrendEntry * pTrendEntry, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
-	static int SLAPI MatchStrategy(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
+	static int SLAPI MatchStrategy(const PPObjTimeSeries::TrendEntry * pTrendEntry, int lastIdx, const Strategy & rS, double & rResult, double & rWinRatio, double & rTv, double & rTv2);
+	static int SLAPI MatchStrategy(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rWinRatio, double & rTv, double & rTv2);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
@@ -16262,10 +16283,17 @@ public:
 		ModelParam & SLAPI Z();
 		enum {
 			fBestSubsetTrendFollowing = 0x0001,
-			fOptRangeTarget_Velocity  = 0x0002, // Целевая функция при определении оптимального сектора - скорость (иначе - объем)
-			fOptRangeMulti            = 0x0004  // Для каждого триплета {frame; sl; tp} подбираются несколько оптимальных секторов (иначе - единственный)
+			//fOptRangeTarget_Velocity  = 0x0002, // Целевая функция при определении оптимального сектора - скорость (иначе - объем)
+			fOptRangeMulti            = 0x0004, // Для каждого триплета {frame; sl; tp} подбираются несколько оптимальных секторов (иначе - единственный)
+			//fOptRangeTarget_WinRatio  = 0x0008, // Целевая функция при определении оптимального сектора - вероятность выигрыша (иначе - объем или скорость)
+		};
+		enum {
+			tcAmount = 0,
+			tcVelocity = 1,
+			tcWinRatio = 2
 		};
 		long   Flags;
+		long   OptTargetCriterion; // @v10.4.6
 		LongArray InputFrameSizeList;
 		LongArray MaxDuckQuantList;
 		LongArray TargetQuantList; // @v10.4.3
@@ -30267,7 +30295,7 @@ class PPBillImpExpParam : public PPImpExpParam {
 public:
 	enum {
 		fImpRowsFromSameFile = 0x0001,
-		fImpRowsOnly         = 0x0002, // @v8.4.8
+		fImpExpRowsOnly      = 0x0002, // Импортировать/экспортировать только файл строк
 		//fSignBill = 0x0002
 		fRestrictByMatrix    = 0x0004, // @v9.0.4
 		fExpOneByOne         = 0x0008  // @v9.3.10 Экспортировать документы по-одному в каждом файле

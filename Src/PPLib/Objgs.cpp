@@ -53,7 +53,14 @@ int    SLAPI PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Childs.
 int    SLAPI PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
 int    SLAPI PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
 int    SLAPI PPGoodsStruc::CanReduce() const { return (Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1) ? 1 : 0; }
-double SLAPI PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
+double SLAPI PPGoodsStruc::GetDenom() const 
+{ 
+	if(Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) { 
+		return Rec.CommDenom;
+	}
+	else
+		return 1.0; 
+}
 int    SLAPI PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
 SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
 	{ return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1); }
@@ -539,28 +546,11 @@ int SLAPI PPGoodsStruc::GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID pare
 int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
 {
 	uint   p = DEREFPTRORZ(pPos);
-	// @v10.0.07 {
 	int    ok = GetItemExt(p, pItem, parentGoodsID, srcQtty, pQtty);
 	if(ok > 0) {
 		p++;
 		ASSIGN_PTR(pPos, p);
 	}
-	// } @v10.0.07
-	/* @v10.0.07
-	int    ok = -1;
-	if(p < Items.getCount()) {
-		double qtty = 0.0;
-		PPGoodsStrucItem item = Items.at(p);
-		item.GetQtty(srcQtty / GetDenom(), &qtty);
-		THROW(SubstVariedProp(parentGoodsID, &item));
-		ASSIGN_PTR(pItem, item);
-		ASSIGN_PTR(pQtty, qtty);
-		p++;
-		ASSIGN_PTR(pPos, p);
-		ok = 1;
-	}
-	CATCHZOK
-	*/
 	return ok;
 }
 
@@ -1152,15 +1142,14 @@ int GSDialog::getDTS(PPGoodsStruc * pData)
 {
 	int    ok = 1;
 	uint   sel = 0, i;
-	char   buf[64];
-	buf[0] = 0;
-	getCtrlData(sel = CTL_GSTRUC_NAME, buf);
-	if(*strip(buf) == 0) {
+	SString temp_buf;
+	getCtrlString(sel = CTL_GSTRUC_NAME, temp_buf);
+	if(!temp_buf.NotEmptyS()) {
 		THROW_PP(!(Data.Rec.Flags & GSF_NAMED), PPERR_NAMENEEDED);
 	}
 	else if(!(Data.Rec.Flags & GSF_CHILD))
 		Data.Rec.Flags |= GSF_NAMED;
-	STRNSCPY(Data.Rec.Name, buf);
+	STRNSCPY(Data.Rec.Name, temp_buf);
 	getCtrlData(CTLSEL_GSTRUC_VAROBJ, &Data.Rec.VariedPropObjType);
 	//
 	// Если структура переведена в расширенный режим, то забирать данные
@@ -1173,6 +1162,12 @@ int GSDialog::getDTS(PPGoodsStruc * pData)
 		GetClusterData(CTL_GSTRUC_KIND, &kind);
 		GetClusterData(CTL_GSTRUC_FLAGS, &Data.Rec.Flags);
 		Data.SetKind(kind);
+		// @v10.4.6 {
+		if(GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
+			if((Data.Rec.Flags & GSF_DECOMPL) && !(Data.Rec.Flags & GSF_COMPL))
+				Data.Rec.CommDenom = 1.0;
+		}
+		// } @v10.4.6 
 		for(i = 0; i < Data.Items.getCount(); i++)
 			Data.Items.at(i).Flags &= ~0x8000L;
 		if(Data.Rec.Flags & GSF_PRESENT) {
@@ -1228,6 +1223,11 @@ void GSDialog::setupCtrls()
 	showCtrl(CTLSEL_GSTRUC_GIFTQK,    (Data.Rec.Flags & GSF_PRESENT));
 	showCtrl(CTL_GSTRUC_GIFTLIMIT,    (Data.Rec.Flags & GSF_PRESENT));
 	SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
+	// @v10.4.6 {
+	if(GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
+		disableCtrl(CTL_GSTRUC_COMMDENOM, (Data.Rec.Flags & GSF_DECOMPL) && !(Data.Rec.Flags & GSF_COMPL));
+	}
+	// } @v10.4.6 
 }
 
 IMPL_HANDLE_EVENT(GSDialog)

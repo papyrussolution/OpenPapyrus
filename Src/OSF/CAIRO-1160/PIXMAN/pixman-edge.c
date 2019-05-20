@@ -26,7 +26,7 @@
 #endif
 //#include <string.h>
 //#include "pixman-private.h"
-#include "pixman-accessor.h"
+//#include "pixman-accessor.h"
 /*
  * Step across a small sample grid gap
  */
@@ -34,8 +34,7 @@
 	{                                                                   \
 		edge->x += edge->stepx_small;                                   \
 		edge->e += edge->dx_small;                                      \
-		if(edge->e > 0)                                                \
-		{                                                               \
+		if(edge->e > 0) { \
 			edge->e -= edge->dy;                                        \
 			edge->x += edge->signdx;                                    \
 		}                                                               \
@@ -48,35 +47,29 @@
 	{                                                                   \
 		edge->x += edge->stepx_big;                                     \
 		edge->e += edge->dx_big;                                        \
-		if(edge->e > 0)                                                \
-		{                                                               \
+		if(edge->e > 0) { \
 			edge->e -= edge->dy;                                        \
 			edge->x += edge->signdx;                                    \
 		}                                                               \
 	}
 
 #ifdef PIXMAN_FB_ACCESSORS
-#define PIXMAN_RASTERIZE_EDGES pixman_rasterize_edges_accessors
+	#define PIXMAN_RASTERIZE_EDGES pixman_rasterize_edges_accessors
 #else
-#define PIXMAN_RASTERIZE_EDGES pixman_rasterize_edges_no_accessors
+	#define PIXMAN_RASTERIZE_EDGES pixman_rasterize_edges_no_accessors
 #endif
-
 /*
  * 4 bit alpha
  */
-
 #define N_BITS  4
 #define RASTERIZE_EDGES rasterize_edges_4
-
 #ifndef WORDS_BIGENDIAN
-#define SHIFT_4(o)      ((o) << 2)
+	#define SHIFT_4(o)      ((o) << 2)
 #else
-#define SHIFT_4(o)      ((1 - (o)) << 2)
+	#define SHIFT_4(o)      ((1 - (o)) << 2)
 #endif
-
 #define GET_4(x, o)      (((x) >> SHIFT_4(o)) & 0xf)
-#define PUT_4(x, o, v)                                                  \
-	(((x) & ~(0xf << SHIFT_4(o))) | (((v) & 0xf) << SHIFT_4(o)))
+#define PUT_4(x, o, v)   (((x) & ~(0xf << SHIFT_4(o))) | (((v) & 0xf) << SHIFT_4(o)))
 
 #define DEFINE_ALPHA(line, x)                                           \
 	uint8_t   *__ap = (uint8_t *)line + ((x) >> 1);                    \
@@ -98,11 +91,9 @@
 #undef DEFINE_ALPHA
 #undef RASTERIZE_EDGES
 #undef N_BITS
-
 /*
  * 1 bit alpha
  */
-
 #define N_BITS 1
 #define RASTERIZE_EDGES rasterize_edges_1
 
@@ -144,34 +135,24 @@ static force_inline uint8_t clip255(int x)
  *  |================|
  * fill_start       fill_end
  */
-static void rasterize_edges_8(pixman_image_t * image,
-    pixman_edge_t * l,
-    pixman_edge_t * r,
-    pixman_fixed_t t,
-    pixman_fixed_t b)
+static void rasterize_edges_8(pixman_image_t * image, pixman_edge_t * l, pixman_edge_t * r, pixman_fixed_t t, pixman_fixed_t b)
 {
 	pixman_fixed_t y = t;
-	uint32_t * line;
 	int fill_start = -1, fill_end = -1;
 	int fill_size = 0;
 	uint32_t * buf = (image)->bits.bits;
 	int stride = (image)->bits.rowstride;
 	int width = (image)->bits.width;
-
-	line = buf + pixman_fixed_to_int(y) * stride;
-
+	uint32_t * line = buf + pixman_fixed_to_int(y) * stride;
 	for(;;) {
 		uint8_t * ap = (uint8_t *)line;
 		pixman_fixed_t lx, rx;
 		int lxi, rxi;
-
 		/* clip X */
 		lx = l->x;
 		if(lx < 0)
 			lx = 0;
-
 		rx = r->x;
-
 		if(pixman_fixed_to_int(rx) >= width) {
 			/* Use the last pixel of the scanline, covered 100%.
 			 * We can't use the first pixel following the scanline,
@@ -305,42 +286,22 @@ static void rasterize_edges_8(pixman_image_t * image,
 #ifndef PIXMAN_FB_ACCESSORS
 static
 #endif
-void PIXMAN_RASTERIZE_EDGES(pixman_image_t * image,
-    pixman_edge_t * l,
-    pixman_edge_t * r,
-    pixman_fixed_t t,
-    pixman_fixed_t b)
+void PIXMAN_RASTERIZE_EDGES(pixman_image_t * image, pixman_edge_t * l, pixman_edge_t * r, pixman_fixed_t t, pixman_fixed_t b)
 {
-	switch(PIXMAN_FORMAT_BPP(image->bits.format))
-	{
-		case 1:
-		    rasterize_edges_1(image, l, r, t, b);
-		    break;
-
-		case 4:
-		    rasterize_edges_4(image, l, r, t, b);
-		    break;
-
-		case 8:
-		    rasterize_edges_8(image, l, r, t, b);
-		    break;
-
-		default:
-		    break;
+	switch(PIXMAN_FORMAT_BPP(image->bits.format)) {
+		case 1: rasterize_edges_1(image, l, r, t, b); break;
+		case 4: rasterize_edges_4(image, l, r, t, b); break;
+		case 8: rasterize_edges_8(image, l, r, t, b); break;
+		default: break;
 	}
 }
 
 #ifndef PIXMAN_FB_ACCESSORS
 
-PIXMAN_EXPORT void pixman_rasterize_edges(pixman_image_t * image,
-    pixman_edge_t * l,
-    pixman_edge_t * r,
-    pixman_fixed_t t,
-    pixman_fixed_t b)
+PIXMAN_EXPORT void pixman_rasterize_edges(pixman_image_t * image, pixman_edge_t * l, pixman_edge_t * r, pixman_fixed_t t, pixman_fixed_t b)
 {
 	return_if_fail(image->type == BITS);
 	return_if_fail(PIXMAN_FORMAT_TYPE(image->bits.format) == PIXMAN_TYPE_A);
-
 	if(image->bits.read_func || image->bits.write_func)
 		pixman_rasterize_edges_accessors(image, l, r, t, b);
 	else

@@ -159,7 +159,7 @@
 	#define HELP_BROWSER_ORDGOODSITEM_W2               60
 #define BROWSER_ORDERITEM_W2                  61 // @{view_billitem_order} {%s}
 	#define HELP_BROWSER_ORDERITEM_W2                  61
-#define BROWSER_CHECKITEM_W2                  62 // Строки чека {%s}
+#define BROWSER_CHECKITEM_W2                  62 // @{poscheckline_pl} {%s}
 	#define HELP_BROWSER_CHECKITEM_W2                  62
 #define BROWSER_SELECTLOT                     63 // Приходы товара {%s}
 	#define HELP_BROWSER_SELECTLOT                     63

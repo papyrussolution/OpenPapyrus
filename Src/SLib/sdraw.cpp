@@ -1786,7 +1786,7 @@ void * SImageBuffer::CreateSurface(SDrawSystem sys) const
 {
 	void * p_result = 0;
 	if(sys == dsysCairo) {
-		p_result = cairo_image_surface_create_for_data((uchar *)P_Buf, CAIRO_FORMAT_ARGB32, GetDim().x, GetDim().y, F.GetStride(GetDim().x));
+		p_result = cairo_image_surface_create_for_data(reinterpret_cast<uchar *>(P_Buf), CAIRO_FORMAT_ARGB32, GetDim().x, GetDim().y, F.GetStride(GetDim().x));
 	}
 	return p_result;
 }
@@ -1806,7 +1806,7 @@ int SImageBuffer::TransformToBounds(TPoint size, const SViewPort * pVp)
 		THROW(p_surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.x, size.y));
 		THROW(p_cr = cairo_create(p_surf));
 		uint8 * p_src2 = cairo_image_surface_get_data(p_surf);
-		cairo_transform(p_cr, (cairo_matrix_t *)&mtx);
+		cairo_transform(p_cr, reinterpret_cast<const cairo_matrix_t *>(&mtx));
 		{
 			cairo_surface_t * p_img_surf = static_cast<cairo_surface_t *>(CreateSurface(dsysCairo));
 			THROW(p_img_surf);
@@ -2453,7 +2453,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 			}
 			{
 				const size_t width_and = (((width)+31)>>5)<<2;
-				uint32 * p_data = (uint32 *)GetData();
+				uint32 * p_data = (uint32 *)(GetData());
 				const uint _s = GetWidth() * GetHeight();
 				THROW(rF.ReadV(line_buf, width_and * height));
 				total_rc_size += (width_and * height);

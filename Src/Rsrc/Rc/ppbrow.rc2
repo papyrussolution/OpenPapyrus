@@ -913,7 +913,7 @@ toolbar export LIST_DEFAULT TB_FIRST_TOOLBAR {
 	cmaInsert,         "@{add}\tInsert",             TBBM_INSERT
 	cmaDelete,         "@{delete}\tDelete",          TBBM_DELETE
 	separator
-	cmUniteObj,        "Объединить",                 TBBM_UNITE
+	cmUniteObj,        "@{selsuspcheck_merge}",      TBBM_UNITE
 	separator
 	cmTransmit,        "@{dotransmit_short}",        TBBM_SENDOBJ
 	separator
@@ -927,7 +927,7 @@ toolbar export LIST_BRAND TB_FIRST_TOOLBAR {
 	separator
 	cmaMore,           "@{cmd_goods}",               TBBM_GOODSVIEW2
 	separator
-	cmUniteObj,        "Объединить",                 TBBM_UNITE
+	cmUniteObj,        "@{selsuspcheck_merge}",      TBBM_UNITE
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
 }
@@ -2022,7 +2022,7 @@ browser ORDERITEM_W2 south(73), 1, 1, "@{view_billitem_order} {%s}", OWNER|GRID,
 //
 // Строки чековых документов
 //
-browser CHECKITEM_W2 south(73), 1, 1, "Строки чека {%s}", OWNER|GRID, 0
+browser CHECKITEM_W2 south(73), 1, 1, "@{poscheckline_pl} {%s}", OWNER|GRID, 0
 {
 	"#",         0, int32,        0,  4, BCO_USERPROC
 	"@ware",     1, zstring(128), 0, 25, BCO_USERPROC
@@ -3364,9 +3364,9 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 	"Ед.изм.",             4, notype, 0, 4
 	"Упаковка",            5, notype, NMBF_NOZERO, 6
 	"@price",              6, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
-	"Доп цена 1",          7, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
-	"Доп цена 2",          8, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
-	"Доп цена 3",          9, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
+	"@{addendumprice} 1",  7, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
+	"@{addendumprice} 2",  8, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
+	"@{addendumprice} 3",  9, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
 	"@memo",              10, notype, 0, 30
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    TBBM_EDIT,             "@{doeditrow}\tEnter"
@@ -5592,9 +5592,9 @@ browser OBJLIKENESS north(100), 1, 1, "Сравнение объектов {%s}", OWNER|GRID, 0
 	"@{name} 2",      5, notype, 0, 30
 	"Совпадение (%)", 3, notype, NMBF_NOZERO, 20.2
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM1 : kbF2,     TBBM_NOICON, "Редактировать объект1\tF2"
-		EDITITEM2 : kbAltF2, TBBM_NOICON, "Редактировать объект2\tCtrl-F2"
-		UNITE:      kbCtrlU,  TBBM_UNITE,  "Объединить\tCtrl-U"
+		EDITITEM1 : kbF2,     TBBM_NOICON, "Редактировать объект 1\tF2"
+		EDITITEM2 : kbAltF2,  TBBM_NOICON, "Редактировать объект 2\tCtrl-F2"
+		UNITE:      kbCtrlU,  TBBM_UNITE,  "@{selsuspcheck_merge}\tCtrl-U"
 		separator
 		PRINT     : kbF7,     TBBM_PRINT,  "@{print}\tF7"
 	}
@@ -7416,7 +7416,7 @@ record WorldObj {
 	StatusAbbr zstring(32) "Статус (сокращенный идентификатор)";
 	Code       zstring(20) "Составной код объекта (ССРРРГГГППП[УУУУ]АА)";
 	ParentCode zstring(20) "Код родительского объекта";
-	PhoneCode  zstring(20) "Телефонный код";
+	PhoneCode  zstring(20) "@{dialingcode}";
 	ZIP        zstring(12) "Почтовый индекс объекта";
 }
 
@@ -7424,9 +7424,9 @@ record PriceList {
 	GoodsID       long                "@{goodsid}";
 	AltGrpPLU     long                "PLU для альтернативной группы";
 	Price         double format(10.2) "@{price}";
-	AddPrice1     double format(10.2) "Дополнительная цена 1";
-	AddPrice2     double format(10.2) "Дополнительная цена 2";
-	AddPrice3     double format(10.2) "Дополнительная цена 3";
+	AddPrice1     double format(10.2) "@{addendumprice} 1";
+	AddPrice2     double format(10.2) "@{addendumprice} 2";
+	AddPrice3     double format(10.2) "@{addendumprice} 3";
 	UnitPerPack   double format(10.3) "@{unitperpack}";
 	MinShippmQtty double format(10.3) "Минимальное количество для отгрузки";
 	ShippmMult    double format(10.3) "Кратность отгружаемого количества";

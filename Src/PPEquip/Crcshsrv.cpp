@@ -830,7 +830,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 				uint   sg_pos = 0;
 				PPID   sub_grp_id = 0;
 				if(ggobj.BelongToGroup(prev_gds_info.ID, EqCfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
-					_SalesGrpEntry * p_sentry = (_SalesGrpEntry*)sales_grp_list.at(sg_pos);
+					_SalesGrpEntry * p_sentry = static_cast<_SalesGrpEntry *>(sales_grp_list.at(sg_pos));
 					p_writer->StartElement("sale-group");
 					p_writer->AddAttrib("id", sub_grp_id);
 					p_writer->PutElement("name", p_sentry->GrpName);
@@ -944,7 +944,8 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	uint   max_dis_count = max_dis_list.getCount();
 	PPLoadText(PPTXT_MAXDISEXPORT, iter_msg);
 	for(i = 0; i < max_dis_count; i++) {
-		const char * p_subj_type = "GOOD", * p_type = "MAX_DISCOUNT_PERCENT";
+		const char * p_subj_type = "GOOD";
+		const char * p_type = "MAX_DISCOUNT_PERCENT";
 		SString restr_id;
 		_MaxDisEntry * p_entry = static_cast<_MaxDisEntry *>(max_dis_list.at(i));
 		(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
@@ -960,6 +961,12 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		p_writer->PutElement("till-time", end_dtm.t);
 		p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
 		p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
+		// @v10.4.6 {
+		if(store_index.NotEmpty()) {
+			//<shop-indices>2</shop-indices>
+			p_writer->PutElement("shop-indices", store_index);
+		}
+		// } @v10.4.6 
 		p_writer->EndElement(); // </max-discount-restriction>
 		PPWaitPercent(i + 1, max_dis_count, iter_msg);
 	}

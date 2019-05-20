@@ -764,20 +764,20 @@ int EditMenusDlg::LoadCfg(long id)
 				p_desk->SetLogo(rec.Path);
 			}
 		}
-		rec.Path = 0;
+		rec.Path.Z();
 		color_rec.C = 0;
 		flags    = 0;
 		PrevID   = id;
 		if(p_desk = Data.GetDesktop(id)) {
 			rec.Path = p_desk->GetLogo();
-			flags    = (long)p_desk->Flags;
+			flags    = static_cast<long>(p_desk->Flags);
 			color_rec.C = p_desk->Icon.ToLong();
 		}
 		setGroupData(GRP_IMG, &rec);
 		SetClusterData(CTL_MENULIST_FLAGS, flags);
 		{
 			color_rec.SetupStdColorList();
- 			color_rec.C = (color_rec.C == 0) ? (long)PPDesktop::GetDefaultBgColor() : color_rec.C;
+ 			color_rec.C = (color_rec.C == 0) ? static_cast<long>(PPDesktop::GetDefaultBgColor()) : color_rec.C;
 			setGroupData(GRP_BKGND, &color_rec);
 		}
 	}
@@ -796,7 +796,7 @@ int EditMenusDlg::setDTS(const PPCommandGroup * pData)
 	PPID   cur_id = 0;
 	RVALUEPTR(Data, pData);
 	AddClusterAssoc(CTL_MENULIST_GRPFLAGS, 0, PPCommandItem::fNotUseDefDesktop);
-	SetClusterData(CTL_MENULIST_GRPFLAGS, (long)Data.Flags);
+	SetClusterData(CTL_MENULIST_GRPFLAGS, static_cast<long>(Data.Flags));
 	AddClusterAssoc(CTL_MENULIST_FLAGS, 0, PPCommandItem::fBkgndGradient);
 	if(InitID)
 		updateList(InitID, 0);
@@ -810,7 +810,7 @@ int EditMenusDlg::setDTS(const PPCommandGroup * pData)
 int EditMenusDlg::getDTS(PPCommandGroup * pData)
 {
 	LoadCfg(0);
-	Data.Flags = (int16)GetClusterData(CTL_MENULIST_GRPFLAGS);
+	Data.Flags = static_cast<int16>(GetClusterData(CTL_MENULIST_GRPFLAGS));
 	ASSIGN_PTR(pData, Data);
 	return 1;
 }
@@ -925,9 +925,8 @@ int EditMenusDlg::IsMenuUsed(PPID obj, PPID menuID, int isDesktop)
 {
 	Reference * p_ref = PPRef;
 	int    used = isDesktop ? (LConfig.DesktopID == menuID ? 1 : 0) : 0;
-	PPConfig cfg;
 	for(PPID id = 0; !used && p_ref->EnumItems(obj, &id) > 0;) {
-		MEMSZERO(cfg);
+		PPConfig cfg;
 		if(p_ref->GetProperty(obj, id, PPPRP_CFG, &cfg, sizeof(cfg)) > 0)
 			used = isDesktop ? BIN(cfg.DesktopID == menuID) : BIN(cfg.MenuID == menuID);
 	}
@@ -1017,11 +1016,12 @@ int SLAPI EditMenusFromFile()
 int SelectMenu(long * pID, SString * pName, int selType, const PPCommandGroup * pGrp)
 {
 	int    ok = -1;
-	int    is_desktop = BIN(oneof2(selType, SELTYPE_DESKTOP, SELTYPE_DESKTOPTEMPL));
+	const  int is_desktop = BIN(oneof2(selType, SELTYPE_DESKTOP, SELTYPE_DESKTOPTEMPL));
 	SString db_symb, buf, left, right;
 	StrAssocArray ary;
 	THROW(PPCommandFolder::GetMenuList(pGrp, &ary, is_desktop));
 	if(selType == SELTYPE_MENUTEMPL) {
+		TVRez * p_rez = P_SlRez;
 		uint   locm_id = 0;
 		PPLoadText(PPTXT_DEFAULTMENUS, buf);
 		StringSet ss(';', buf);
@@ -1029,9 +1029,9 @@ int SelectMenu(long * pID, SString * pName, int selType, const PPCommandGroup * 
 			buf.Divide(',', left, right);
 			ary.Add(left.ToLong() + DEFAULT_MENUS_OFFS, right);
 		}
-		fseek(P_SlRez->getStream(), 0, SEEK_SET);
-		for(ulong pos = 0; P_SlRez->enumResources(0x04, &locm_id, &pos) > 0;) {
-			long _id = (long)locm_id + DEFAULT_MENUS_OFFS;
+		fseek(p_rez->getStream(), 0, SEEK_SET);
+		for(ulong pos = 0; p_rez->enumResources(0x04, &locm_id, &pos) > 0;) {
+			long _id = static_cast<long>(locm_id) + DEFAULT_MENUS_OFFS;
 			if(ary.GetText(_id, buf) <= 0)
 				ary.Add(_id, buf.Z().Cat(_id - DEFAULT_MENUS_OFFS));
 		}
@@ -1111,25 +1111,21 @@ void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandFolder * pMenu, StrAssocAr
 				if(p_item) {
 					char   name_buf[256];
 					name = p_item->Name;
-					// @v9.2.8 {
-					if(name.C(0) == '@') {
-						if(PPLoadString(name.ShiftLeft(), temp_buf) > 0)
-							name = temp_buf;
-					}
-					// } @v9.2.8
+					if(name.C(0) == '@' && PPLoadString(name.ShiftLeft(), temp_buf) > 0)
+						name = temp_buf;
 					name.Transf(CTRANSF_INNER_TO_OUTER);
 					name.CopyTo(name_buf, sizeof(name_buf));
 					if(p_item->Kind == PPCommandItem::kFolder) {
 						HMENU h_pop_menu = CreateMenu();
-						AppendMenu(hm, MF_POPUP|MF_STRING, reinterpret_cast<UINT_PTR>(h_pop_menu), SUcSwitch(name_buf)); // @unicodeproblem
+						::AppendMenu(hm, MF_POPUP|MF_STRING, reinterpret_cast<UINT_PTR>(h_pop_menu), SUcSwitch(name_buf)); // @unicodeproblem
 						ReadMenu(h_pop_menu, p_item->ID, pMenu, pItems); // @recursion
 					}
 					else if(p_item->Kind == PPCommandItem::kSeparator)
-						AppendMenu(hm, MF_SEPARATOR, 0, 0);
+						::AppendMenu(hm, MF_SEPARATOR, 0, 0);
 					else {
 						PPCommandDescr descr;
 						descr.LoadResource(static_cast<const PPCommand *>(p_item)->CmdID);
-						AppendMenu(hm, MF_STRING, static_cast<UINT_PTR>(descr.MenuCm), SUcSwitch(name_buf)); // @unicodeproblem
+						::AppendMenu(hm, MF_STRING, static_cast<UINT_PTR>(descr.MenuCm), SUcSwitch(name_buf)); // @unicodeproblem
 					}
 				}
 			}

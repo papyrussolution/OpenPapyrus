@@ -333,7 +333,6 @@ static void SLAPI _extractFormFromVarPart(const char * vp, int n /*[1..]*/, SStr
 {
 	const char * c = vp;
 	const char * p = vp;
-	//char  * b = buf;
 	for(int i = 0; i < n && ((c = p), p = sstrchr(p, '|')) != 0;) {
 		i++;
 		p++;
@@ -341,8 +340,6 @@ static void SLAPI _extractFormFromVarPart(const char * vp, int n /*[1..]*/, SStr
 	while(*c && !(p && *c == '|')) {
 		rBuf.CatChar(*c++);
 	}
-	//*b = 0;
-	//return b;
 }
 
 static const char * SLAPI _selectVarPart(const char * word, int n, SString & rBuf)
@@ -357,7 +354,9 @@ static SString & _getWordForm(const char * pPattern, long fmt, SString & rBuf)
 {
 	rBuf.Z();
 	if(fmt & MONF_SHORT) {
-		rBuf.CatN(pPattern, 3);
+		SStringU temp_buf_u;
+		temp_buf_u.CopyFromUtf8(pPattern, sstrlen(pPattern));
+		temp_buf_u.Trim(3).CopyToUtf8(rBuf, 1);
 	}
 	else {
 		const char * p = pPattern;
@@ -385,7 +384,11 @@ SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf)
 	if(mon >= 1 && mon <= 12) {
 		_getWordForm(p_month_names[mon-1], fmt, rBuf);
 		if(mon == 5 && fmt & MONF_SHORT) {
-			rBuf.Trim(2).CatChar('й');
+			SStringU temp_buf_u;
+			temp_buf_u.CopyFromUtf8(rBuf, rBuf.Len());
+			temp_buf_u.Trim(2).CopyToUtf8(rBuf, 1);
+			rBuf.Cat("й");
+			//rBuf.Trim(2).Cat("й");
 		}
 		if(fmt & MONF_OEM) {
 			// @v10.4.5 rBuf.ToOem();

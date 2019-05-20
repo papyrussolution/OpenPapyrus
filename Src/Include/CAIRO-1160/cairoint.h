@@ -65,6 +65,7 @@
 //#include <stdio.h>
 #include "cairo.h"
 #include <pixman-private.h>
+#include <pixman-accessor.h>
 //#include <pixman.h>
 #include "cairo-compiler-private.h"
 #include "cairo-error-private.h"

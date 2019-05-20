@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -321,9 +321,9 @@ private:
 	SString LastFormatName;
 	SStrScan Scan;
 	TSCollection <Zone> ZoneList;
-	TSVector <FontBlock> FontList; // @v9.8.5 TSArray-->TSVector
-	TSVector <PictBlock> PictList; // @v9.8.5 TSArray-->TSVector
-	TSVector <BarcodeBlock> BcList; // @v9.8.5 TSArray-->TSVector
+	TSVector <FontBlock> FontList;
+	TSVector <PictBlock> PictList;
+	TSVector <BarcodeBlock> BcList;
 };
 
 void PPSlipFormat::SetSource(const CCheckPacket * pCcPack)
@@ -554,6 +554,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 	CCheckLineTbl::Rec cc_item;
 	CCheckPacket::LineExt ccext_item;
 	PersonTbl::Rec psn_rec;
+	SCardTbl::Rec sc_rec;
 	PPTransferItem ti;
 	StringSet ss(';', MetavarList);
 	rResult.Z();
@@ -765,9 +766,8 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						p_ccp->HasNonFiscalAmount(&fiscal, &nonfiscal);
 						rResult.Cat(fiscal, SFMT_MONEY);
 					}
-					else if(Src == srcGoodsBill) {
+					else if(Src == srcGoodsBill)
 						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
-					}
 					else
 						rResult.Cat(P_SessInfo->Total.FiscalAmount, SFMT_MONEY); // @v7.5.8 WORetAmount-->FiscalAmount
 					break;
@@ -777,9 +777,8 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						p_ccp->HasNonFiscalAmount(&fiscal, &nonfiscal);
 						rResult.Cat(nonfiscal, SFMT_MONEY);
 					}
-					else if(Src == srcGoodsBill) {
+					else if(Src == srcGoodsBill)
 						rResult.Cat(0.0, SFMT_MONEY);
-					}
 					else
 						rResult.Cat(P_SessInfo->Total.Amount-P_SessInfo->Total.FiscalAmount, SFMT_MONEY); // @v7.5.8 WORetAmount-->Amount-FiscalAmount
 					break;
@@ -801,20 +800,13 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbSCard:
 					temp_id = GetSCardID(pIter);
-					if(temp_id) {
-						SCardTbl::Rec sc_rec;
-						if(P_Od->ScObj.Search(temp_id, &sc_rec) > 0)
-							rResult.Cat(sc_rec.Code);
-					}
+					if(temp_id && P_Od->ScObj.Search(temp_id, &sc_rec) > 0)
+						rResult.Cat(sc_rec.Code);
 					break;
 				case symbSCardOwner:
 					temp_id = GetSCardID(pIter);
-					if(temp_id) {
-						SCardTbl::Rec sc_rec;
-						PersonTbl::Rec psn_rec;
-						if(P_Od->ScObj.Search(temp_id, &sc_rec) > 0 && sc_rec.PersonID && P_Od->PsnObj.Fetch(sc_rec.PersonID, &psn_rec) > 0)
-							rResult.Cat(psn_rec.Name);
-					}
+					if(temp_id && P_Od->ScObj.Search(temp_id, &sc_rec) > 0 && sc_rec.PersonID && P_Od->PsnObj.Fetch(sc_rec.PersonID, &psn_rec) > 0)
+						rResult.Cat(psn_rec.Name);
 					break;
 				case symbIsCreditSCard:
 					temp_id = GetSCardID(pIter);
@@ -1437,7 +1429,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->DivID = 0;
 			pIter->Qtty = pIter->Price = 0.0;
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
-			if(pIter->EntryNo < (long)p_zone->getCount()) {
+			if(pIter->EntryNo < static_cast<long>(p_zone->getCount())) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
 				PPGoodsTaxEntry tax_entry;
 				if(P_CcPack) {

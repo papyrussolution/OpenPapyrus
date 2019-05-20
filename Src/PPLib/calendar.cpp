@@ -611,8 +611,8 @@ void TDateCalendar::OnPaint(HWND hWnd)
 		//
 		SelectObject(hdc, white_pen);
 		MoveToEx(hdc, Left - 1, Top - m_diff_y + m_cell_h * 2 + 3, 0);
-		LineTo  (hdc, Left - 1, Top - m_diff_y - 2);
-		LineTo  (hdc, Left + (y_br - y_bl), Top - m_diff_y - 2);
+		LineTo(hdc, Left - 1, Top - m_diff_y - 2);
+		LineTo(hdc, Left + (y_br - y_bl), Top - m_diff_y - 2);
 		SelectObject(hdc, oldpen);
 
 		ZDeleteWinGdiObject(&black_pen);

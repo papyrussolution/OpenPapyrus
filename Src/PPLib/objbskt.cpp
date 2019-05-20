@@ -955,16 +955,13 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 				if(oneof2(R_Data.SelPrice, 0, 1))
 					R_Data.SelPrice = 2;
 			}
-			if(R_Data.SelPrice == 1)
-				v = 0;
-			else if(R_Data.SelPrice == 2)
-				v = 1;
-			else if(R_Data.SelPrice == 3)
-				v = 2;
-			else if(R_Data.SelPrice == 4)
-				v = 3;
-			else
-				v = 0;
+			switch(R_Data.SelPrice) {
+				case 1: v = 0; break;
+				case 2: v = 1; break;
+				case 3: v = 2; break;
+				case 4: v = 3; break;
+				default: v = 0; break;
+			}
 			setCtrlUInt16(CTL_GBDATA_SELPRICE, v);
 			disableCtrl(CTL_GBDATA_SELPRICE, BIN(R_Data.Flags & SelBasketParam::fNotSelPrice));
 			AddClusterAssocDef(CTL_GBDATA_REPLACE, 0, 1);
@@ -983,16 +980,13 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 			int    ok = 1;
 			R_Data.BasketID = getCtrlLong(CTLSEL_GBDATA_NAMEDSTRUC);
 			ushort v = getCtrlUInt16(CTL_GBDATA_SELPRICE);
-			if(v == 0)
-				R_Data.SelPrice = 1;
-			else if(v == 1)
-				R_Data.SelPrice = 2;
-			else if(v == 2)
-				R_Data.SelPrice = 3;
-			else if(v == 3)
-				R_Data.SelPrice = 4;
-			else
-				R_Data.SelPrice = 1;
+			switch(v) {
+				case 0: R_Data.SelPrice = 1; break;
+				case 1: R_Data.SelPrice = 2; break;
+				case 2: R_Data.SelPrice = 3; break;
+				case 3: R_Data.SelPrice = 4; break;
+				default: R_Data.SelPrice = 1; break;
+			}
 			GetClusterData(CTL_GBDATA_REPLACE, &R_Data.SelReplace);
 			GetClusterData(CTL_GBDATA_SELGOODSREST, &R_Data.Flags);
 			if(PPObjGoodsBasket::IsPrivate(R_Data.BasketID) || R_Data.Lck.Lock(R_Data.BasketID)) {
@@ -2222,7 +2216,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				r = -1;
 			else
 				r = (fabs(ilti.Rest) > 0.0) ? ProcessUnsuffisientGoods(ilti.GoodsID, pugpNoBalance) : -1;
-			if(r == PCUG_ASGOODSAS || r == -1) {
+			if(r == PCUG_ASGOODAS || r == -1) {
 				int * p_i;
 				for(uint j = 0; one_goods_rows.enumItems(&j, (void **)&p_i);) {
 					PPTransferItem & r_ti = pPack->TI((uint)*p_i);

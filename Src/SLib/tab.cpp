@@ -18,6 +18,16 @@ int FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSi
 	return ok;
 }
 
+bool FASTCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize, int id)
+{
+	bool   yes = 0;
+	for(uint i = 0; !yes && i < tabSize; i++) {
+		if(pTab[i].Id == id)
+			yes = 1;
+	}
+	return yes;
+}
+
 int FASTCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb)
 {
 	if(!isempty(pSymb)) {
@@ -60,7 +70,7 @@ int SLAPI ai_tab(const void * tbl, int req, int def)
 //
 //
 //
-#define STAB_ROW_SIGN 0x54425257
+#define STAB_ROW_SIGN 0x54425257U
 
 SLAPI STab::Row::Row() : Set("^\001"), Sign(STAB_ROW_SIGN)
 {

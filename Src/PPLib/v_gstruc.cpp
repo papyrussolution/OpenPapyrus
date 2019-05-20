@@ -460,6 +460,22 @@ int SLAPI PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int pai
 				pStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
 				ok = 1;
 			}
+			// @v10.4.6 {
+			else if(r_col.OrgOffs == 6) { // common denomitator
+				if(GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
+					if(p_item->GStrucID && p_item->StrucEntryP < StrucList.getCount()) {
+						const StrucEntry & r_struc_entry = StrucList.at(p_item->StrucEntryP);
+						if((r_struc_entry.Flags & GSF_DECOMPL) && !(r_struc_entry.Flags & GSF_COMPL)) {
+							if(r_struc_entry.CommDenom != 0.0 && r_struc_entry.CommDenom != 1.0) {
+								pStyle->RightFigColor = GetColorRef(SClrBrown);
+								pStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
+								ok = 1;
+							}
+						}
+					}
+				}
+			}
+			// } @v10.4.6 
 		}
 	}
 	return ok;

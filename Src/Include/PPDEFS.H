@@ -3544,6 +3544,7 @@
 	#define CTL_GDSCFG_IGNFLDMTX         (26 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCFG_DEFGOODS          (27 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSCFG_DEFGOODS       (28 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCFG_FLAGS2            (29 + WINDOWS_ID_BIAS)
 #define DLG_PRNSELLTO             264 // Опции печати ведомости должников
 	#define CTL_PRNSELLTO_FLAGS          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNSELLTO_ORDER          (2 + WINDOWS_ID_BIAS)
@@ -10905,113 +10906,111 @@
 #define PPERR_INVPERIODINPUT       66 // Неправильный ввод периода
 #define PPERR_ACCNEEDED            67 // Необходимо ввести (выбрать) счет
 #define PPERR_PASSNOTIDENT         68 // Два ввода пароля не совпадают
-#define PPERR_TOOFEWFILES          76
-#define PPERR_NOPERSBYLOT          77 // На указанную дату по лоту операций не было
-#define PPERR_FWLOTRESTBOUND       78
-#define PPERR_LOTRESTBOUND         79
-#define PPERR_INVCODETEMPLATE      80
-#define PPERR_OPRTYPENEEDED        81 // Необходимо выбрать тип операции
-#define PPERR_ATTMUSTBEFIX         82 // Шаблон проводки с выражением суммы должен быть фиксированным по балансовым счетам
-#define PPERR_NOGOODS              83 // Товара '%s' на складе нет
-#define PPERR_INVQTTY              84 // Количество товара должно быть (> 0)
-#define PPERR_GOODSNEEDED          85 // Необходимо выбрать товар
-#define PPERR_AMTNOTPRESENT        86 // Требуемая выражением сумма не установлена для документа
-#define PPERR_ILLVAR               87 // Неизвестная переменная '%s' в выражении
-#define PPERR_INVEXPR              88 // Ошибка в выражении '%s'
-#define PPERR_AMTEXPRNEEDED        89 // Шаблон бух. проводки для товарной операции должен содержать выражение для суммы
-#define PPERR_UNABLESUBSTOBJ       90 // Невозможно подставить объект в шаблон проводки
-#define PPERR_OBJNASGNTOSHEET      91 // Заданный объект не присвоен таблице аналитических статей
-#define PPERR_ACCSLESSACCS         92 // Попытка установить уровень доступа к объекту ниже собственного уровня //
-#define PPERR_PRIMOBJNEXISTS       93 // Невозможно найти первичный объект (либо в конфигурации задана неверная таблица складов, либо активный склад в этой таблице отсутствует)
-#define PPERR_ABBRNEEDED          103 // Необходимо ввести сокращенное название
-#define PPERR_NOBILLS             104 // БД не содержит ни одного документа
-#define PPERR_INVDISCOUNT         105 // Скидка не может быть больше цены
-#define PPERR_EMPTYGOODSLIST      106 // Товарный документ должен содержать хотя бы одну строчку
-#define PPERR_LNKBILLDT           107 // Зависимый документ (%s) должен следовать позже основного
-#define PPERR_BILLHASLINKS        108 // Документ нельзя удалить пока существуют зависимые от него документы
-#define PPERR_BILLOBJNEEDED       109 // В документе необходимо указать контрагента
-#define PPERR_UPDCHILDLOT         110 // Попытка модифицировать лот, имеющий родител
-#define PPERR_DELPARENTLOT        111 // Попытка удалить лот, имеющий потомков
-#define PPERR_UNMATCHTRFRRVRS     112 // Некомплементарная товарная проводка
-#define PPERR_LOSTTRFRRVRS        113 // Висячая товарная проводка
-#define PPERR_MAINORGNFOUND       114 // Не найдена запись главной организации
-#define PPERR_BILLHASNTAT         115 // Документ не содержит ни одной бух.проводки
-#define PPERR_LOCNFOUND           116 // Не найден идентификатор позиции (Location)
-#define PPERR_EXTRAPAYM           117 // Переплата не допускаетс
-#define PPERR_ACCHASNTSHEET       118 // Счет не имеет аналитических статей
-#define PPERR_LOTQTTYCORRUPT      119 // Неверное значение начального количества по лоту
-#define PPERR_TRFRESTCORRUPT      120 // Неверный остаток после операции
-#define PPERR_LOTCLFCORRUPT       121 // Ошибочная установка флага Closed по лоту
-#define PPERR_OPENIMPORTFILE      122 // Ошибка открытия исходного файла для импорта
-#define PPERR_REVALDETECTED       123 // При попытке изменить цену поступления или реализации по лоту
-	// обнаружена операция переоценки по этому лоту
-#define PPERR_FWREVAL             124 // Попытка форвардной переоценки
-#define PPERR_DUPREVAL            125 // Вторая переоценка по одному лоту за день
-#define PPERR_INVOPRKIND          126 // Недопустимый вид операции (зависит от контекста)
-#define PPERR_ZEROREVAL           127 // При переоценке введены прежние цены
-#define PPERR_UNMATCHEDUBILLS     128 // Попытка объединить несовместимые документы (%s)
-#define PPERR_UNITERETAIL         129 // Объединять можно только документы розничной продажи
-#define PPERR_RMVCHECKEDBILL      130 // Попытка удалить документ, по которому пробит чек
-#define PPERR_DAYCLOSED           131 // Попытка закрыть уже закрытый день
-#define PPERR_DAYISEMPTY          132 // За день никаких проводок не было
-#define PPERR_DAYNOTCLOSED        133
-#define PPERR_STARTBACKDATE       134 // @<<PPCashMachine::SyncOpenSession (+)
-#define PPERR_BILLCHECKED         135 // По документу уже был пробит чек
-#define PPERR_CASHDEVINIT         136 // Ошибка инициализации кассового аппарата
-#define PPERR_CASHDEVDISP         137 // Ошибка вывода на дисплей кассового аппарата
-#define PPERR_CASHDEVPRINT        138 // Ошибка печати чека
-#define PPERR_CASHDEVADD          139 // Ошибка добавления суммы в кассовом аппарате
-#define PPERR_BILLNSAVED          140 // Документ не проведен (нельзя печатать чек)
-#define PPERR_REVALWOSUPPL        141 // При переоценке цены поступления должен быть указан поставщик
-#define PPERR_CASHCORRVAL         142 // Слагаемое для корректировки кассы должно быть больше нуля //
-#define PPERR_CASHNODE_LOCKED     143 // Кассовый узел заблокирован другим пользователем (%s)
-#define PPERR_TRFCOSTCORRUPT      144
-#define PPERR_TRFPRICECORRUPT     145
-#define PPERR_DESTGGRPNEXISTS     146 // Заданная товарная группа не существует
-#define PPERR_UNKNOWNCASHNAME     147 // В командной строке задано неизвестное имя кассового узла '%s'
-#define PPERR_SHADOWIDFAULT       148 // Сбой идентификаторов документа в теневых строках (очень нехорошая ошибка)
-#define PPERR_LOGICLOCKFAULT      149
-#define PPERR_INVRTCHKSUM         150 // Неверное значение контрольной суммы в записе прав доступа
-#define PPERR_INVLOGINDAY         151 // Запрещенный для входа в систему день недели
-#define PPERR_INVLOGINTM          152 // Запрещенное для входа в систему время дня //
-#define PPERR_PASSMINLEN          153 // Недостаточна длина пароля //
-#define PPERR_BILLDATERANGE       154 // Дата документа выходит за заданные администратором границы
-#define PPERR_NORTOPENCASH        155 // Недостаточно прав для открытия кассовой сессии
-#define PPERR_NORTCLOSECASH       156 // Недостаточно прав для закрытия кассовой сессии
-#define PPERR_TOOHIGHACCS         157 // Нельзя назначать уровень доступа < собственного
-#define PPERR_QCCODENEEDED        158 // Необходимо ввести код сертификата качества
-#define PPERR_QCEXPIRYNEEDED      159 // Нет даты окончания срока сертификата качества либо дата введена неправильно
-#define PPERR_DISITEMAMT          160 // Сумма элемента списка скидок должна быть больше нуля //
-#define PPERR_PERCENTINPUT        161 // Процент должен быть в пределах 0..100
-#define PPERR_BANKNEEDED          162 // Необходимо указать банк
-#define PPERR_BACCTYPENEEDED      163 // Необходимо указать тип банковского счета
-#define PPERR_INCOMPBACCTYPE      164 // Несовместимый тип банковского счета (ЛОРО и НОСТРО только для банков)
-#define PPERR_DUPCNTGRPID         165 // Операция может принадлежать только одной группе по счетчику
-#define PPERR_BARCODENEEDED       166 // Необходимо указать штрихкод
-#define PPERR_INVUNITPPACK        167 // Неверное количество единиц товара в упаковке
-#define PPERR_DUPUPPONBARCODE     168 // Дублирование емкости упаковки штрихкодов одного товара
-#define PPERR_BL_BARCODE2GOODS    169 // Висячая ссылка на товар в записи штрихкода
-#define PPERR_BARCODENFOUND       170 // Штрихкод '%s' не найден
-#define PPERR_DUPBARCODE          171 // Дублирование штрихкода
-#define PPERR_DBFCRFAULT          172 // Ошибка создания DBF файла '%s'
-#define PPERR_DBFOPFAULT          173 // Ошибка открытия DBF файла '%s'
-#define PPERR_DBFWRFAULT          174 // Ошибка записи в DBF файл '%s'
-#define PPERR_RESFAULT            175 // Ошибка загрузки ресурса
-#define PPERR_INVBARCODE          176 // Неправильный ввод штрих-кода
-#define PPERR_CMTNEEDED           177 // Необходимо указать тип кассового устройства
-#define PPERR_CHKBYCODENFOUND     178 // Не найден чек по коду во входном файле (EL92AQ)
-#define PPERR_CASHFUNCNSUPP       179 // Функция кассовой сессии не поддерживается //
-#define PPERR_INVCMT              180 // Недопустимый тип кассовой машины
-#define PPERR_OPENCASHFAULT       181 // Ошибка открытия кассовой сессии
-#define PPERR_BALCORRUPT_DBT      182 // Неправильный остаток в записи баланса по дебету
-#define PPERR_BALCORRUPT_CRD      183 // Неправильный остаток в записи баланса по кредиту
-#define PPERR_BALCORRUPT_ABS      184 // Отсутствует баланс за дату, на которую были проводки
-#define PPERR_BALCORRUPT_OK       185 // По счету XXX ошибок нет
-#define PPERR_BALCORRUPT_EXREC    186 // Лишняя запись в балансе
-#define PPERR_CRESTCORRUPT_NEQ    187 // Неверный остаток в CurRest
-#define PPERR_CRESTCORRUPT_ABS    188 // Отсутствует запись в CurRest
-#define PPERR_CRESTCORRUPT_EXREC  189 // Лишняя запись в CurRest
-
+// @v10.4.6 #define PPERR_TOOFEWFILES          76
+// @v10.4.6 #define PPERR_NOPERSBYLOT          77 // На указанную дату по лоту операций не было
+// @v10.4.6 #define PPERR_FWLOTRESTBOUND       78
+// @v10.4.6 #define PPERR_LOTRESTBOUND         79
+// @v10.4.6 #define PPERR_INVCODETEMPLATE      80
+// @v10.4.6 #define PPERR_OPRTYPENEEDED        81 // Необходимо выбрать тип операции
+// @v10.4.6 #define PPERR_ATTMUSTBEFIX         82 // Шаблон проводки с выражением суммы должен быть фиксированным по балансовым счетам
+// @v10.4.6 #define PPERR_NOGOODS              83 // Товара '%s' на складе нет
+// @v10.4.6 #define PPERR_INVQTTY              84 // Количество товара должно быть (> 0)
+// @v10.4.6 #define PPERR_GOODSNEEDED          85 // Необходимо выбрать товар
+// @v10.4.6 #define PPERR_AMTNOTPRESENT        86 // Требуемая выражением сумма не установлена для документа
+// @v10.4.6 #define PPERR_ILLVAR               87 // Неизвестная переменная '%s' в выражении
+// @v10.4.6 #define PPERR_INVEXPR              88 // Ошибка в выражении '%s'
+// @v10.4.6 #define PPERR_AMTEXPRNEEDED        89 // Шаблон бух. проводки для товарной операции должен содержать выражение для суммы
+// @v10.4.6 #define PPERR_UNABLESUBSTOBJ       90 // Невозможно подставить объект в шаблон проводки
+// @v10.4.6 #define PPERR_OBJNASGNTOSHEET      91 // Заданный объект не присвоен таблице аналитических статей
+// @v10.4.6 #define PPERR_ACCSLESSACCS         92 // Попытка установить уровень доступа к объекту ниже собственного уровня //
+// @v10.4.6 #define PPERR_PRIMOBJNEXISTS       93 // Невозможно найти первичный объект (либо в конфигурации задана неверная таблица складов, либо активный склад в этой таблице отсутствует)
+// @v10.4.6 #define PPERR_ABBRNEEDED          103 // Необходимо ввести сокращенное название
+// @v10.4.6 #define PPERR_NOBILLS             104 // БД не содержит ни одного документа
+// @v10.4.6 #define PPERR_INVDISCOUNT         105 // Скидка не может быть больше цены
+// @v10.4.6 #define PPERR_EMPTYGOODSLIST      106 // Товарный документ должен содержать хотя бы одну строчку
+// @v10.4.6 #define PPERR_LNKBILLDT           107 // Зависимый документ (%s) должен следовать позже основного
+// @v10.4.6 #define PPERR_BILLHASLINKS        108 // Документ нельзя удалить пока существуют зависимые от него документы
+// @v10.4.6 #define PPERR_BILLOBJNEEDED       109 // В документе необходимо указать контрагента
+// @v10.4.6 #define PPERR_UPDCHILDLOT         110 // Попытка модифицировать лот, имеющий родител
+// @v10.4.6 #define PPERR_DELPARENTLOT        111 // Попытка удалить лот, имеющий потомков
+// @v10.4.6 #define PPERR_UNMATCHTRFRRVRS     112 // Некомплементарная товарная проводка
+// @v10.4.6 #define PPERR_LOSTTRFRRVRS        113 // Висячая товарная проводка
+// @v10.4.6 #define PPERR_MAINORGNFOUND       114 // Не найдена запись главной организации
+// @v10.4.6 #define PPERR_BILLHASNTAT         115 // Документ не содержит ни одной бух.проводки
+// @v10.4.6 #define PPERR_LOCNFOUND           116 // Не найден идентификатор позиции (Location)
+// @v10.4.6 #define PPERR_EXTRAPAYM           117 // Переплата не допускаетс
+// @v10.4.6 #define PPERR_ACCHASNTSHEET       118 // Счет не имеет аналитических статей
+// @v10.4.6 #define PPERR_LOTQTTYCORRUPT      119 // Неверное значение начального количества по лоту
+// @v10.4.6 #define PPERR_TRFRESTCORRUPT      120 // Неверный остаток после операции
+// @v10.4.6 #define PPERR_LOTCLFCORRUPT       121 // Ошибочная установка флага Closed по лоту
+// @v10.4.6 #define PPERR_OPENIMPORTFILE      122 // Ошибка открытия исходного файла для импорта
+// @v10.4.6 #define PPERR_REVALDETECTED       123 // При попытке изменить цену поступления или реализации по лоту обнаружена операция переоценки по этому лоту
+// @v10.4.6 #define PPERR_FWREVAL             124 // Попытка форвардной переоценки
+// @v10.4.6 #define PPERR_DUPREVAL            125 // Вторая переоценка по одному лоту за день
+// @v10.4.6 #define PPERR_INVOPRKIND          126 // Недопустимый вид операции (зависит от контекста)
+// @v10.4.6 #define PPERR_ZEROREVAL           127 // При переоценке введены прежние цены
+// @v10.4.6 #define PPERR_UNMATCHEDUBILLS     128 // Попытка объединить несовместимые документы (%s)
+// @v10.4.6 #define PPERR_UNITERETAIL         129 // Объединять можно только документы розничной продажи
+// @v10.4.6 #define PPERR_RMVCHECKEDBILL      130 // Попытка удалить документ, по которому пробит чек
+// @v10.4.6 #define PPERR_DAYCLOSED           131 // Попытка закрыть уже закрытый день
+// @v10.4.6 #define PPERR_DAYISEMPTY          132 // За день никаких проводок не было
+// @v10.4.6 #define PPERR_DAYNOTCLOSED        133
+// @v10.4.6 #define PPERR_STARTBACKDATE       134 // @<<PPCashMachine::SyncOpenSession (+)
+// @v10.4.6 #define PPERR_BILLCHECKED         135 // По документу уже был пробит чек
+// @v10.4.6 #define PPERR_CASHDEVINIT         136 // Ошибка инициализации кассового аппарата
+// @v10.4.6 #define PPERR_CASHDEVDISP         137 // Ошибка вывода на дисплей кассового аппарата
+// @v10.4.6 #define PPERR_CASHDEVPRINT        138 // Ошибка печати чека
+// @v10.4.6 #define PPERR_CASHDEVADD          139 // Ошибка добавления суммы в кассовом аппарате
+// @v10.4.6 #define PPERR_BILLNSAVED          140 // Документ не проведен (нельзя печатать чек)
+// @v10.4.6 #define PPERR_REVALWOSUPPL        141 // При переоценке цены поступления должен быть указан поставщик
+// @v10.4.6 #define PPERR_CASHCORRVAL         142 // Слагаемое для корректировки кассы должно быть больше нуля //
+// @v10.4.6 #define PPERR_CASHNODE_LOCKED     143 // Кассовый узел заблокирован другим пользователем (%s)
+// @v10.4.6 #define PPERR_TRFCOSTCORRUPT      144
+// @v10.4.6 #define PPERR_TRFPRICECORRUPT     145
+// @v10.4.6 #define PPERR_DESTGGRPNEXISTS     146 // Заданная товарная группа не существует
+// @v10.4.6 #define PPERR_UNKNOWNCASHNAME     147 // В командной строке задано неизвестное имя кассового узла '%s'
+// @v10.4.6 #define PPERR_SHADOWIDFAULT       148 // Сбой идентификаторов документа в теневых строках (очень нехорошая ошибка)
+// @v10.4.6 #define PPERR_LOGICLOCKFAULT      149
+// @v10.4.6 #define PPERR_INVRTCHKSUM         150 // Неверное значение контрольной суммы в записе прав доступа
+// @v10.4.6 #define PPERR_INVLOGINDAY         151 // Запрещенный для входа в систему день недели
+// @v10.4.6 #define PPERR_INVLOGINTM          152 // Запрещенное для входа в систему время дня //
+// @v10.4.6 #define PPERR_PASSMINLEN          153 // Недостаточна длина пароля //
+// @v10.4.6 #define PPERR_BILLDATERANGE       154 // Дата документа выходит за заданные администратором границы
+// @v10.4.6 #define PPERR_NORTOPENCASH        155 // Недостаточно прав для открытия кассовой сессии
+// @v10.4.6 #define PPERR_NORTCLOSECASH       156 // Недостаточно прав для закрытия кассовой сессии
+// @v10.4.6 #define PPERR_TOOHIGHACCS         157 // Нельзя назначать уровень доступа < собственного
+// @v10.4.6 #define PPERR_QCCODENEEDED        158 // Необходимо ввести код сертификата качества
+// @v10.4.6 #define PPERR_QCEXPIRYNEEDED      159 // Нет даты окончания срока сертификата качества либо дата введена неправильно
+// @v10.4.6 #define PPERR_DISITEMAMT          160 // Сумма элемента списка скидок должна быть больше нуля //
+// @v10.4.6 #define PPERR_PERCENTINPUT        161 // Процент должен быть в пределах 0..100
+// @v10.4.6 #define PPERR_BANKNEEDED          162 // Необходимо указать банк
+// @v10.4.6 #define PPERR_BACCTYPENEEDED      163 // Необходимо указать тип банковского счета
+// @v10.4.6 #define PPERR_INCOMPBACCTYPE      164 // Несовместимый тип банковского счета (ЛОРО и НОСТРО только для банков)
+// @v10.4.6 #define PPERR_DUPCNTGRPID         165 // Операция может принадлежать только одной группе по счетчику
+// @v10.4.6 #define PPERR_BARCODENEEDED       166 // Необходимо указать штрихкод
+// @v10.4.6 #define PPERR_INVUNITPPACK        167 // Неверное количество единиц товара в упаковке
+// @v10.4.6 #define PPERR_DUPUPPONBARCODE     168 // Дублирование емкости упаковки штрихкодов одного товара
+// @v10.4.6 #define PPERR_BL_BARCODE2GOODS    169 // Висячая ссылка на товар в записи штрихкода
+// @v10.4.6 #define PPERR_BARCODENFOUND       170 // Штрихкод '%s' не найден
+// @v10.4.6 #define PPERR_DUPBARCODE          171 // Дублирование штрихкода
+// @v10.4.6 #define PPERR_DBFCRFAULT          172 // Ошибка создания DBF файла '%s'
+// @v10.4.6 #define PPERR_DBFOPFAULT          173 // Ошибка открытия DBF файла '%s'
+// @v10.4.6 #define PPERR_DBFWRFAULT          174 // Ошибка записи в DBF файл '%s'
+// @v10.4.6 #define PPERR_RESFAULT            175 // Ошибка загрузки ресурса
+// @v10.4.6 #define PPERR_INVBARCODE          176 // Неправильный ввод штрих-кода
+// @v10.4.6 #define PPERR_CMTNEEDED           177 // Необходимо указать тип кассового устройства
+// @v10.4.6 #define PPERR_CHKBYCODENFOUND     178 // Не найден чек по коду во входном файле (EL92AQ)
+// @v10.4.6 #define PPERR_CASHFUNCNSUPP       179 // Функция кассовой сессии не поддерживается //
+// @v10.4.6 #define PPERR_INVCMT              180 // Недопустимый тип кассовой машины
+// @v10.4.6 #define PPERR_OPENCASHFAULT       181 // Ошибка открытия кассовой сессии
+// @v10.4.6 #define PPERR_BALCORRUPT_DBT      182 // Неправильный остаток в записи баланса по дебету
+// @v10.4.6 #define PPERR_BALCORRUPT_CRD      183 // Неправильный остаток в записи баланса по кредиту
+// @v10.4.6 #define PPERR_BALCORRUPT_ABS      184 // Отсутствует баланс за дату, на которую были проводки
+// @v10.4.6 #define PPERR_BALCORRUPT_OK       185 // По счету XXX ошибок нет
+// @v10.4.6 #define PPERR_BALCORRUPT_EXREC    186 // Лишняя запись в балансе
+// @v10.4.6 #define PPERR_CRESTCORRUPT_NEQ    187 // Неверный остаток в CurRest
+// @v10.4.6 #define PPERR_CRESTCORRUPT_ABS    188 // Отсутствует запись в CurRest
+// @v10.4.6 #define PPERR_CRESTCORRUPT_EXREC  189 // Лишняя запись в CurRest
 #define PPERR_NQUOTID             221 // лот не яляется котировкой (внутренний сбой или ошибка в БД)
 #define PPERR_BACKQUOT            222 // Котировка задним числом не допустима
 #define PPERR_QUOTNEEDED          223 // Отсутствует котировка для заданного товара
@@ -12073,44 +12072,7 @@
 #define PPTXT_PRCPAN_HINT14               357 // Выход из состояния ввода срока годности = Escape
 
 #define PPTXT_PRCPAN_IDLECONT             369 // Продолжительность простоя //
-
-#define PPTXT_SCARDCODETEMPL              370 // Шаблон номеров карт
 // @v9.2.5 (автомат) #define PPTXT_CFGNAMES                    371 // Названия конфигураций
-#define PPTXT_WAIT_TURNBILLTRFR           372 // Сохранение строк документа
-#define PPTXT_WAIT_RMVBILLTRFR            373 // Удаление строк документа
-#define PPTXT_DYNGENGSTRUC                374 // Структура принадлежит динамическому обобщению
-#define PPTXT_PUTFILETOFTP                375 // Загрузка файла %s на ftp сервер
-#define PPTXT_GETFILEFROMFTP              376 // Загрузка файла %s с ftp сервера
-#define PPTXT_ERRACCEPTPROJECT            377 // Ошибка акцепта проекта
-#define PPTXT_ERRACCEPTPRJTASK            378 // Ошибка акцепта задачи
-#define PPTXT_ADDSESSBYPRC                379 // Заголовок окна ввода кода процессора для новой сессии
-#define PPTXT_SEARCHARTICLE               380 // Заголовок окна поиска аналитической статьи по номеру регистра
-#define PPTXT_SEARCHPERSON                381 // Заголовок окна поиска персоналии по номеру регистра
-#define PPTXT_WAIT_SEARCHUNLINKEDPAYMS    382 // Поиск оплат с висячими ссылками
-#define PPTXT_LOG_BHTTSESS_CREATED        383 // Техн сессия '%s' создана
-#define PPTXT_LOG_BHTTSESS_USED           384 // Использована техн сессия '%s'
-#define PPTXT_LOG_BHTTSESS_CLOSED         385 // Техн сессия '%s' закрыта
-#define PPTXT_PRCWROFFLOCKED              388 // Списание сессий по процессору '%s' заблокировано
-#define PPTXT_LNKFILESDIR                 389 // Подпапка для присоединенных файлов
-#define PPTXT_LNKFILESEXTS                390 // Типы файлов подходящие для присоединения к документам
-#define PPTXT_LOG_ZEROLINKCCLINE          391 // Висячие строки чеков %s
-#define PPTXT_INPUTDESCR                  392 // Введите описание файла
-#define PPTXT_LOG_ASSTWROF_NOWROFFGRP     393 // У основного средства '%s' не указана группа списания //
-#define PPTXT_LOG_ASSTWROF_OUTOFEXPL      394 // Основное средство '%s:%s' не введено в эксплуатацию  //
-#define PPTXT_LAB_PRCPAN_MAINGOODS        395 // "Основной товар;Связанный документ"
-#define PPTXT_LOG_INVMRPSUBT              396 // Недопустимая замена в MRP-таблице ('%s' --> '%s')
-#define PPTXT_TOUCHSCREEN                 397 // Список типов TouchScreen
-#define PPTXT_CHKPAN_TOOLTIPS             398 // Строки для ToolTips в кассовой панели
-#define PPTXT_SUCCRCVRTBL                 399 // Таблица %s восстановлена успешно
-#define PPTXT_DEFAULTMENUS                400 // Идентификаторы и названия меню
-#define PPTXT_CMDPOOLSEL                  401 // Строки, подставляемые в диалоги выбора рабочих столов и меню
-#define PPTXT_SELCASHNODES                402 // Заголовок диалога выбора кассовых узлов
-#define PPTXT_FTPSENDSUCCESS              403 // Файл %s успешно отправлен на FTP
-#define PPTXT_FTPRCVSUCCESS               404 // Файл %s успешно принят с FTP
-#define PPTXT_FTPSPIISENDSTART            405 // Отправка данных Palm на FTP [palm=%s]
-#define PPTXT_FTPSPIIRCVSTART             406 // Получение данных Palm с FTP [palm=%s]
-#define PPTXT_FTPSPIIDATANOTREADY         407 // Данные Palm на FTP неготовы, повторите попытку позже
-#define PPTXT_LAB_TXTDBPARAM_DIV          408 // "Строка-разделитель полей;Строка-разделитель записей"
 #define PPTXT_IMPEXPPARAM                 409
 	#define IMPEXPPAR_FILENAME                  0  // Имя файла импорта/экспорта
 	#define IMPEXPPAR_IMPEXP                    1  // (import,imp;export,exp)

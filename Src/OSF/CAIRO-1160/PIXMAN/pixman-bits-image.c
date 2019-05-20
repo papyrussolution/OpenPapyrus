@@ -655,7 +655,7 @@ static uint32_t * create_bits(pixman_format_code_t format, int width, int height
 		return (uint32_t *)SAlloc::M(buf_size);
 }
 
-pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32_t *  bits, int rowstride, pixman_bool_t clear)
+pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride, pixman_bool_t clear)
 {
 	uint32_t * free_me = NULL;
 	if(PIXMAN_FORMAT_BPP(format) == 128)
@@ -683,7 +683,7 @@ pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code
 	return TRUE;
 }
 
-static pixman_image_t * create_bits_image_internal(pixman_format_code_t format, int width, int height, uint32_t *  bits, int rowstride_bytes, pixman_bool_t clear)
+static pixman_image_t * create_bits_image_internal(pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride_bytes, pixman_bool_t clear)
 {
 	/* must be a whole number of uint32_t's
 	 */
@@ -700,7 +700,7 @@ static pixman_image_t * create_bits_image_internal(pixman_format_code_t format, 
 }
 
 /* If bits is NULL, a buffer will be allocated and initialized to 0 */
-PIXMAN_EXPORT pixman_image_t * pixman_image_create_bits(pixman_format_code_t format, int width, int height, uint32_t *  bits, int rowstride_bytes)
+PIXMAN_EXPORT pixman_image_t * pixman_image_create_bits(pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride_bytes)
 {
 	return create_bits_image_internal(format, width, height, bits, rowstride_bytes, TRUE);
 }

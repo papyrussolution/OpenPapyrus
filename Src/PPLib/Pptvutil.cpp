@@ -2678,7 +2678,7 @@ int  SLAPI AdvComboBoxSeldialog(const StrAssocArray * pAry, SString & rTitle, SS
 		PPID   id = DEREFPTRORZ(pID);
 		SString subtitle, label;
 		if(rTitle.Len())
-			p_dlg->setSubTitle(rTitle);
+			p_dlg->setSubTitle(rTitle); // @v10.4.6 setSubTitle-->setTitle
 		if(rLabel.Len())
 			p_dlg->setLabelText(CTL_CBXSEL_COMBO, rLabel);
 		SetupStrAssocCombo(p_dlg, CTLSEL_CBXSEL_COMBO, pAry, id, flags);

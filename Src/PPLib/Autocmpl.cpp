@@ -518,7 +518,8 @@ int PuglDialog::setupList()
 
 int SLAPI ProcessUnsuffisientList(uint dlgID, PUGL * pList)
 {
-	int    ret = PCUG_CANCEL, valid_data = 0;
+	int    ret = PCUG_CANCEL;
+	int    valid_data = 0;
 	PuglDialog * dlg = new PuglDialog(NZOR(dlgID, DLG_MSGNCMPL3));
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pList);
@@ -558,12 +559,12 @@ int SLAPI ProcessUnsuffisientGoods(PPID goods, PUGP param)
 			}
 			else if(param == pugpFull) {
 				if(v == 0)      v = PCUG_BALANCE;
-				else if(v == 1) v = PCUG_ASGOODSAS;
+				else if(v == 1) v = PCUG_ASGOODAS;
 				else if(v == 2) v = PCUG_EXCLUDE;
 				else            v = PCUG_CANCEL;
 			}
 			else {
-				if(v == 0)      v = PCUG_ASGOODSAS;
+				if(v == 0)      v = PCUG_ASGOODAS;
 				else if(v == 1) v = PCUG_EXCLUDE;
 				else            v = PCUG_CANCEL;
 			}
@@ -821,7 +822,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 			if(r == 0) {
 				p_deficit_list->ClearActions();
 				p_deficit_list->AddAction(PCUG_BALANCE);
-				p_deficit_list->AddAction(PCUG_ASGOODSAS);
+				p_deficit_list->AddAction(PCUG_ASGOODAS);
 				p_deficit_list->AddAction(PCUG_EXCLUDE);
 				p_deficit_list->AddAction(PCUG_CANCEL);
 				p_deficit_list->OPcug = PCUG_CANCEL;

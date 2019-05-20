@@ -518,6 +518,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	int    ok = 1;
 	int    chk_no = 0;
 	int    is_format = 0;
+	const  int do_separate_nonfiscal_items = 0; // @v10.4.6
 	SString buf;
 	SString input;
 	SString param_name;
@@ -534,9 +535,10 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;
-		double fiscal = 0.0;
-		double nonfiscal = 0.0;
-		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
+		double real_fiscal = 0.0;
+		double real_nonfiscal = 0.0;
+		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
+		const double _fiscal = do_separate_nonfiscal_items ? real_fiscal : (real_fiscal + real_nonfiscal);
 		THROW(Connect());
 		// @v10.1.0 if(flags & PRNCHK_LASTCHKANNUL) {
 			THROW(AnnulateCheck());
@@ -557,12 +559,12 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 				P_SlipFmt->InitIteration(pPack);
 				P_SlipFmt->NextIteration(line_buf, &sl_param);
 				is_format = 1;
-				if(sdc_param.PageWidth > (uint)CheckStrLen)
+				if(sdc_param.PageWidth > static_cast<uint>(CheckStrLen))
 					WriteLogFile_PageWidthOver(p_format_name);
 				RibbonParam = 0;
 				Arr_In.Z();
 				CheckForRibbonUsing(sdc_param.RegTo, Arr_In);
-				if(fiscal != 0.0) {
+				if(_fiscal != 0.0) {
 					PROFILE_START_S("DVCCMD_OPENCHECK")
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
@@ -643,12 +645,9 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							ArrAdd(Arr_In, DVCPARAM_TYPE, temp_buf);
 							ArrAdd(Arr_In, DVCPARAM_WIDTH,  sl_param.BarcodeWd);
 							ArrAdd(Arr_In, DVCPARAM_HEIGHT, sl_param.BarcodeHt);
-							if(sl_param.Flags & sl_param.fBcTextBelow) {
-								ArrAdd(Arr_In, DVCPARAM_LABEL, "below");
-							}
-							else if(sl_param.Flags & sl_param.fBcTextAbove) {
-								ArrAdd(Arr_In, DVCPARAM_LABEL, "above");
-							}
+							const char * p_label_place = (sl_param.Flags & sl_param.fBcTextBelow) ? "below" : ((sl_param.Flags & sl_param.fBcTextAbove) ? "above" : 0);
+							if(p_label_place)
+								ArrAdd(Arr_In, DVCPARAM_LABEL, p_label_place);
 							THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf));
 							THROW(ExecPrintOper(DVCCMD_PRINTBARCODE, Arr_In, Arr_Out));
 							PROFILE_END
@@ -667,7 +666,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 				running_total = fabs(running_total);
 				CheckForRibbonUsing(SlipLineParam::fRegRegular|SlipLineParam::fRegJournal, Arr_In);
 				if(prn_total_sale) {
-					if(fiscal != 0.0) {
+					if(_fiscal != 0.0) {
 						PROFILE_START_S("DVCCMD_PRINTFISCAL")
 						if(!pPack->GetCount()) {
 							THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
@@ -678,10 +677,10 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 						else /*if(fiscal != 0.0)*/ {
 							THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
-							THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, fiscal));
+							THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, _fiscal));
 							THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 							Flags |= sfOpenCheck;
-							running_total += fiscal;
+							running_total += _fiscal;
 						}
 						PROFILE_END
 					}
@@ -727,9 +726,9 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		{
 			const CcAmountList & r_al = pPack->AL_Const();
 			const int is_al = BIN(r_al.getCount());
-			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? fiscal : 0.0);
-			const double amt_cash = (fiscal - amt_bnk);
-			const double amt_ccrd = r_al.Get(CCAMTTYP_CRDCARD); // @v10.4.1
+			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
+			const double amt_cash = do_separate_nonfiscal_items ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+			const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
 			if(amt_bnk > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk)) }
 			if(amt_cash > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash)); }
 			if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); } // @v10.4.1
@@ -747,7 +746,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 				DestrStr(buf, param_name, param_val);
 				if(param_name.IsEqiAscii("CHECKNUM"))
-					pPack->Rec.Code = (int32)param_val.ToInt64();
+					pPack->Rec.Code = static_cast<int32>(param_val.ToInt64());
 			}
 		}
 		ErrCode = SYNCPRN_NO_ERROR;

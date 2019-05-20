@@ -296,7 +296,7 @@ int SLAPI createDir(const char * pPath)
 		if(*p == '\\') {
 			if(p[1] == '\\')
 				path.CatChar(*p++);
-			else if(path.NotEmpty()) { // @v8.7.2 if(path.NotEmpty())
+			else if(path.NotEmpty()) {
 				int    is_root = 0;
 				if(path[0] == path[1] && path[0] == '\\' && !sstrchr(path+2, '\\'))
 					is_root = 1;

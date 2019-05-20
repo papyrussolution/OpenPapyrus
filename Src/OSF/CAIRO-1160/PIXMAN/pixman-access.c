@@ -32,8 +32,8 @@
 //#include <string.h>
 //#include <assert.h>
 //#include <math.h>
-#include "pixman-accessor.h"
-#include "pixman-private.h"
+//#include "pixman-accessor.h"
+//#include "pixman-private.h"
 
 #define CONVERT_RGB24_TO_Y15(s)                                         \
 	(((((s) >> 16) & 0xff) * 153 +                                      \

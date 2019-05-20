@@ -333,7 +333,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					if(p_used_loc_list) {
 						PsnAttrViewItem vi;
 						for(SEnum en = PsnObj.LocObj.P_Tbl->Enum(LOCTYP_ADDRESS, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
-							if(!p_used_loc_list->Has((ulong)loc_rec.ID)) {
+							if(!p_used_loc_list->Has(static_cast<ulong>(loc_rec.ID))) {
 								MEMSZERO(vi);
 								if(CreateAddrRec(loc_rec.ID, 0, "@haddress", &vi) > 0) {
 									THROW_DB(P_TempPsn->insertRecBuf(&vi));
@@ -483,12 +483,15 @@ int SLAPI PPViewPerson::OpenClientDir(PPID PersonId)
 		}
 		if(ok) {
 			ok = 0;
-			char   full_path_to_expl[MAXPATH];
-			full_path_to_expl[0] = '\0';
-			if(GetWindowsDirectory((LPTSTR)full_path_to_expl, sizeof(full_path_to_expl))) {
-				setLastSlash(full_path_to_expl);
-				strcat(full_path_to_expl, "explorer.exe");
-				spawnl(_P_NOWAIT, full_path_to_expl, cl_dir_name.cptr(), cl_dir_name.cptr(), 0);
+			TCHAR full_path_to_expl[MAXPATH];
+			PTR32(full_path_to_expl)[0] = 0;
+			if(GetWindowsDirectory(full_path_to_expl, sizeof(full_path_to_expl))) {
+				SString final_path;
+				final_path = SUcSwitch(full_path_to_expl);
+				final_path.SetLastSlash().Cat("explorer.exe");
+				//setLastSlash(full_path_to_expl);
+				//strcat(full_path_to_expl, "explorer.exe");
+				spawnl(_P_NOWAIT, /*full_path_to_expl*/final_path, cl_dir_name.cptr(), cl_dir_name.cptr(), 0);
 				ok = 1;
 			}
 			//HKEY expl_key;
