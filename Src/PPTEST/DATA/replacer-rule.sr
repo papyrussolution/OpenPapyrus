@@ -106,7 +106,6 @@ cott%(%D02%)%%%%%>cott%1%%
 100%%%zõëîï%.%>cott100%%
 100%zõë%.%>cott100%%
 
-
 %(%d%)%zñì3%>%1ìë
 %(%d%)%zöâ%.%>%1öâ
 %(%d%)-öâ%.%>%1öâ
@@ -122,6 +121,7 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%d%)%zsec%.%>%1sec
 %(%d%)%zltr%.%>%1l
 %(%d%)%zlt%.%>%1l
+%(%d%)%zct%.%>%1ct
 %(%d%)%zoz%.%>%1oz
 %(%d%)%zfl%.%zoz%.%>%1floz
 %(%d%)%zì%.%>%1ì
@@ -140,6 +140,7 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%f%)%s%zãáèò/ñ%.%>%1gbit/s
 %(%f%)%s%zãáèò/ñåê%.%>%1gbit/s
 %(%f%)%s%zãbit/s%>%1gbit/s
+%(%f%)%zlb%.%>%1lb
 
 %^%(%f%)z%_%>%1oz%_
 %(%f%)z%$%>%1oz
@@ -533,6 +534,7 @@ cheese%<chse%|chese
 chicken%<chkn%|chckn%|chcken%|chickn
 children%<chldrn
 choco-pie%<choco pie%|÷îêîïàé%|÷îêî ïàé%|÷îêî-ïàé%|choco pai%|choko pie%|ñhoco-pie
+cigarillo%<cigrlo%|cigrllo%|cigarillos
 classroom%<clssrm%|clsrm%|classrm
 cologne%<clgn%|clgne%|colgne%|colgn
 connector%<connctr%|cnnctr
@@ -1696,6 +1698,7 @@ hair spray%<hairspray%|h/spray%|h/spr
 filter%<fltr%|filtr
 furnace air filter%<filter furn%|furn filt%|filter air furnc
 inc%<inc.
+ltd%<ltd.
 pasta%<psta
 brush%<brsh
 shower%<shwr%|showr
@@ -3926,6 +3929,8 @@ dmgm
 ñøà
 ñññð
 ãîñò
+ltd
+llc
 %}%A
 
 %{
@@ -3934,6 +3939,7 @@ a4
 a5
 a6
 a7
+america
 conditioner
 shampoo
 duru

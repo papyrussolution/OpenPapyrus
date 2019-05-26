@@ -1962,7 +1962,7 @@ struct WtHeader {
 #define WTA_SIGN 0x00415457
 #define WTM_SIGN 0x004D5457
 #define WTA_VER  0
-#define WTM_VER  0
+#define WTM_VER  1 // @v10.4.7 0-->1
 
 static int StoreWtBuffer(const char * pFileName, const SBuffer & rBuf, uint32 sign, uint32 ver)
 {

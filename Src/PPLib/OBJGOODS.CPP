@@ -442,13 +442,13 @@ int SLAPI PPObjGoods::Unlock(PPID id)
 	return ok;
 }
 
-void SLAPI PPObjGoods::InitInstance(SCtrLite sctr, void * extraPtr)
+void SLAPI PPObjGoods::InitInstance(SCtrLite sctr, PPID kind, void * extraPtr)
 {
 	Sctr = sctr;
 	P_Cfg = 0;
 	TLP_OPEN(P_Tbl);
 	ExtraPtr = extraPtr;
-	Kind = PPGDSK_GOODS;
+	Kind = NZOR(kind, PPGDSK_GOODS);
 	P_PsnObj = 0;
 	EcoSel = 0;
 	DoObjVer = BIN(CConfig.Flags & CCFLG_USEHISTGOODS);
@@ -467,21 +467,21 @@ void PPObjGoods::InitConfig()
 }
 
 // Protected constructor
-SLAPI PPObjGoods::PPObjGoods(PPID objType, void * extraPtr) : PPObject(objType)
+SLAPI PPObjGoods::PPObjGoods(PPID objType, PPID kind, void * extraPtr) : PPObject(objType)
 {
-	InitInstance(SConstructorDef, extraPtr);
+	InitInstance(SConstructorDef, kind, extraPtr);
 	InitConfig();
 }
 
 SLAPI PPObjGoods::PPObjGoods(void * extraPtr) : PPObject(PPOBJ_GOODS)
 {
-	InitInstance(SConstructorDef, extraPtr);
+	InitInstance(SConstructorDef, PPGDSK_GOODS, extraPtr);
 	InitConfig();
 }
 
 SLAPI PPObjGoods::PPObjGoods(SCtrLite sctr) : PPObject(PPOBJ_GOODS)
 {
-	InitInstance(sctr, 0);
+	InitInstance(sctr, PPGDSK_GOODS, 0);
 	if(Sctr != SConstructorLite) {
 		InitConfig();
 	}

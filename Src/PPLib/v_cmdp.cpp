@@ -1194,7 +1194,7 @@ void MenuResToMenu(PPCommandFolder * pFold, LAssocArray * pCmdDescrs, TVRez * re
 	while(readMIT(*rez, mit, length)) {
 		if(mit.mtOption & MF_POPUP) {
 			PPCommandFolder fold;
-			(fold.Name = mit.mtString).ToOem();
+			(fold.Name = mit.mtString).Transf(CTRANSF_OUTER_TO_INNER);
 			MenuResToMenu(&fold, pCmdDescrs, rez, length);
 			pFold->Add(-1, static_cast<const PPCommandItem *>(&fold));
 		}
@@ -1204,7 +1204,7 @@ void MenuResToMenu(PPCommandFolder * pFold, LAssocArray * pCmdDescrs, TVRez * re
 			uint pos = 0;
 			long menu_cm = mit.mtID;
 			PPCommand cmd;
-			(cmd.Name = mit.mtString).ToOem();
+			(cmd.Name = mit.mtString).Transf(CTRANSF_OUTER_TO_INNER);
 			if(pCmdDescrs->lsearch(&menu_cm, &pos, CMPF_LONG, sizeof(long)) > 0)
 				cmd.CmdID = pCmdDescrs->at(pos).Key;
 			pFold->Add(-1, static_cast<const PPCommandItem *>(&cmd));

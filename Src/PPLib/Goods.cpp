@@ -1076,19 +1076,40 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 	return ok;
 }
 
-int SLAPI GoodsCore::GetListByBrandList(const PPIDArray * pBrandList, PPIDArray * pGoodsList)
+int SLAPI GoodsCore::GetListByBrandList(const PPIDArray & rBrandList, PPIDArray & rGoodsList)
 {
+	rGoodsList.clear();
 	int    ok = 1;
-	BExtQuery q(this, 2, 48);
-	q.select(this->ID, this->BrandID, 0L).where(this->Kind == PPGDSK_GOODS);
-	Goods2Tbl::Key2 k2;
-	MEMSZERO(k2);
-	k2.Kind = PPGDSK_GOODS;
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
-		if(!pBrandList || pBrandList->bsearch(data.BrandID, 0) > 0)
-			THROW_SL(pGoodsList->addUnique(data.ID));
+	int    idx = 2;
+	union {
+		Goods2Tbl::Key2 k2;
+		Goods2Tbl::Key3 k3;
+	} k;
+	const PPID single_brand_id = (rBrandList.getCount() == 1) ? rBrandList.get(0) : 0;
+	DBQ * dbq = &(this->Kind == PPGDSK_GOODS);
+	MEMSZERO(k);
+	if(single_brand_id) {
+		dbq = &(*dbq && this->BrandID == single_brand_id);
+		idx = 3;
+		k.k3.Kind = PPGDSK_GOODS;
+		k.k3.BrandID = single_brand_id;
+	}
+	else {
+		idx = 2;
+		k.k2.Kind = PPGDSK_GOODS;
+	}
+	BExtQuery q(this, idx, 48);
+	q.select(this->ID, this->BrandID, 0L).where(*dbq);
+	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		if(single_brand_id && data.BrandID == single_brand_id) {
+			THROW_SL(rGoodsList.add(data.ID));
+		}
+		else if(rBrandList.bsearch(data.BrandID, 0) > 0) {
+			THROW_SL(rGoodsList.add(data.ID));
+		}
 	}
 	CATCHZOK
+	rGoodsList.sortAndUndup();
 	return ok;
 }
 

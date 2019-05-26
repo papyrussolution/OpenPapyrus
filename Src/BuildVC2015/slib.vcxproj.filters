@@ -151,6 +151,7 @@
     <ClCompile Include="..\SLib\dconvstr.c" />
     <ClCompile Include="..\SLib\sfann2.cpp" />
     <ClCompile Include="..\SLib\sclipboard.cpp" />
+    <ClCompile Include="..\SLib\tlayout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

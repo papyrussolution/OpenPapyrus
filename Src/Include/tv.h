@@ -2000,6 +2000,116 @@ private:
 //
 //
 //
+typedef uint32_t lay_id;
+#if LAY_FLOAT == 1
+	typedef float lay_scalar;
+#else
+	typedef int16_t lay_scalar;
+#endif
+
+#define LAY_INVALID_ID UINT_MAX // UINT32_MAX
+//
+// GCC and Clang allow us to create vectors based on a type with the
+// vector_size extension. This will allow us to access individual components of
+// the vector via indexing operations.
+//
+#if defined(__GNUC__) || defined(__clang__)
+	// Using floats for coordinates takes up more space than using int16. 128 bits
+	// for a four-component vector.
+	#ifdef LAY_FLOAT
+		typedef float lay_vec4 __attribute__ ((__vector_size__(16), aligned(4)));
+		typedef float lay_vec2 __attribute__ ((__vector_size__(8), aligned(4)));
+		// Integer version uses 64 bits for a four-component vector.
+	#else
+		typedef int16_t lay_vec4 __attribute__ ((__vector_size__(8), aligned(2)));
+		typedef int16_t lay_vec2 __attribute__ ((__vector_size__(4), aligned(2)));
+	#endif // LAY_FLOAT
+	//
+	// Note that we're not actually going to make any explicit use of any
+	// platform's SIMD instructions -- we're just using the vector extension for
+	// more convenient syntax. Therefore, we can specify more relaxed alignment
+	// requirements. See the end of this file for some notes about this.
+
+	// MSVC doesn't have the vetor_size attribute, but we want convenient indexing
+	// operators for our layout logic code. Therefore, we force C++ compilation in
+	// MSVC, and use C++ operator overloading.
+#elif defined(_MSC_VER)
+	struct lay_vec4 {
+		lay_scalar xyzw[4];
+		const lay_scalar & operator[](int index) const { return xyzw[index]; }
+		lay_scalar & operator[](int index) { return xyzw[index]; }
+	};
+
+	struct lay_vec2 {
+		lay_scalar xy[2];
+		const lay_scalar & operator[](int index) const { return xy[index]; }
+		lay_scalar & operator[](int index) { return xy[index]; }
+	};
+#endif // __GNUC__/__clang__ or _MSC_VER
+
+class TLayout {
+public:
+	enum {
+		fPlaceHolder = 0x0000
+	};
+	struct EntryBlock { // @persistent
+		EntryBlock();
+		int32  Id; // -1 - undefined
+		TPoint Sz;
+		TRect  Margins;
+		uint32 ContainFlags;
+		uint32 BehaveFlags;
+		uint8  Reserve[16];
+	};
+	struct Item {
+		uint32 flags;
+		uint32 first_child;
+		uint32 next_sibling;
+		lay_vec4 margins;
+		lay_vec2 size;
+	};
+	struct Context { // lay_context
+		Context();
+		//
+		// Descr: Get the pointer to an item in the buffer by its id. Don't keep this around --
+		//   it will become invalid as soon as any reallocation occurs. Just store the id
+		//   instead (it's smaller, anyway, and the lookup cost will be nothing.)
+		//
+		const Item * FASTCALL GetItemC(lay_id id) const;
+		Item * FASTCALL GetItem(lay_id id);
+
+		Item * items;
+		lay_vec4 * rects;
+		uint   capacity;
+		uint   count;
+	};
+
+	TLayout();
+	~TLayout();
+	lay_id CreateItem();
+	void   SetItemSize(lay_id itemId, lay_vec2 size);
+	void   SetItemSizeXy(lay_id item, lay_scalar width, lay_scalar height);
+	void   Run();
+	lay_id GetLastChild(lay_id parent) const;
+	lay_vec2 GetItemSize(lay_id item) const;
+private:
+	void   RunItem(lay_id itemId);
+	void   CalcSize(lay_id itemId, int dim);
+	void   Arrange(lay_id itemId, int dim);
+	void   ArrangeStacked(lay_id itemId, int dim, bool wrap);
+	lay_scalar CalcOverlayedSize(lay_id item, int dim) const;
+	lay_scalar CalcStackedSize(lay_id item, int dim) const;
+	lay_scalar CalcWrappedStackedSize(lay_id item, int dim) const;
+	lay_scalar CalcWrappedOverlayedSize(lay_id item, int dim) const;
+	void   ArrangeOverlay(lay_id item, int dim) const;
+	lay_scalar ArrangeWrappedOverlaySqueezed(lay_id item, int dim);
+	void   ArrangeOverlaySqueezedRange(int dim, lay_id start_item, lay_id end_item, lay_scalar offset, lay_scalar space);
+	Context Ctx;
+	//void * P_Ctx;
+};
+//
+//
+//
 struct TArrangeParam { // @persistent
 	TArrangeParam();
 	TArrangeParam & Init(int dir = DIREC_HORZ);
@@ -2111,7 +2221,6 @@ private:
 	int32  Flags;
 	TPoint PicSize;
 	TArrangeParam Ap;
-
 	StringSet Pool; // Контейнер строковых констант (символы, описания, пути к файлам и т.д.)
 	SDrawGroup Dg;  // Контейнер для иконок и фигур.
 	//
@@ -2290,6 +2399,8 @@ protected:
 	long   State;       // @transient
 private:
 	TRect  Bounds;
+	TLayout::EntryBlock Le; // @v10.4.7 Параметры объекта как элемента layout
+	uint32 LayoutId;    // @v10.4.7 Идент элемента раскладки для динамического расчета позиции. 0 - undef  
 	TWhatman * P_Owner; // @transient
 };
 //
@@ -2336,11 +2447,9 @@ public:
 
 	explicit TWhatman(TWindow * pOwnerWin);
 	~TWhatman();
-
 	TPoint FASTCALL TransformPointToScreen(TPoint p) const;
 	FPoint FASTCALL TransformPointToScreen(FPoint p) const;
 	TPoint FASTCALL TransformScreenToPoint(TPoint p) const;
-
 	TWindow * GetOwnerWindow() const;
 	const  Param & GetParam() const;
 	int    SetParam(const Param &);
@@ -2402,7 +2511,6 @@ public:
 	const  TWhatmanObject * FASTCALL GetObjectC(int idx) const;
 	int    FASTCALL InvalidateObjScope(const TWhatmanObject * pObj);
 	int    GetObjTextLayout(const TWhatmanObject * pObj, STextLayout & rTl, int options);
-
 	int    Draw(TCanvas2 & rCanv);
 	//
 	// Descr: Отрисовывает объект pObj на полотне rCanv с применение
@@ -2418,7 +2526,7 @@ public:
 	//
 	int    ResizeObject(TWhatmanObject * pObj, int dir, TPoint toPoint, TRect * pResult);
 	int    SetArea(const TRect & rArea);
-	const TRect & GetArea() const;
+	const  TRect & GetArea() const;
 	//
 	// ARG(mode):
 	//   1 - start point

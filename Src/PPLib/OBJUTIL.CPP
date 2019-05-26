@@ -1491,7 +1491,7 @@ int FASTCALL ShowObjects(PPID obj, void * extraPtr)
 {
 	int    ok = 0;
 	PPObject * ppobj = GetPPObject(obj, extraPtr);
-	PPObjListWindow * p_lw = ppobj ? (PPObjListWindow*)ppobj->CreateObjListWin(OLW_CANEDIT|OLW_CANINSERT|OLW_CANDELETE, extraPtr) : 0;
+	PPObjListWindow * p_lw = ppobj ? static_cast<PPObjListWindow *>(ppobj->CreateObjListWin(OLW_CANEDIT|OLW_CANINSERT|OLW_CANDELETE, extraPtr)) : 0;
 	SString obj_title;
 	if(!p_lw || APPL->AddListToTree(static_cast<PPApp *>(APPL)->LastCmd, (const char *)GetObjectTitle(obj, obj_title).Transf(CTRANSF_INNER_TO_OUTER), p_lw) <= 0) {
 		ok = 0;

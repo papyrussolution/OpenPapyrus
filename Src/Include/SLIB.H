@@ -10247,6 +10247,7 @@ public:
 		uint   SpreadSum;
 		uint   SpreadCount;
 		uint64 TmProfile; // Время выполнения функции
+		int    UpdCountVecIdx; // @v10.4.7 (>=0) : индекс единственного вектора, по которому требуется статистика изменений 
 	};
 
 	int    SLAPI AddItems(const STimeSeries & rSrc, AppendStat * pStat);

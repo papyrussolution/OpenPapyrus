@@ -539,11 +539,16 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		double real_nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
 		const double _fiscal = do_separate_nonfiscal_items ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const CcAmountList & r_al = pPack->AL_Const();
+		const int is_al = BIN(r_al.getCount());
+		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
+		const double amt_cash = do_separate_nonfiscal_items ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
 		THROW(Connect());
 		// @v10.1.0 if(flags & PRNCHK_LASTCHKANNUL) {
 			THROW(AnnulateCheck());
 		// @v10.1.0 }
-		if(flags & PRNCHK_RETURN && !(flags & PRNCHK_BANKING)) {
+		if(flags & PRNCHK_RETURN && amt_cash != 0.0) { // @v10.4.7 !(flags & PRNCHK_BANKING) --> (amt_cash != 0.0)
 			int    is_cash;
 			THROW(is_cash = CheckForCash(amt));
 			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
@@ -723,12 +728,13 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		}
 		Arr_In.Z();
-		{
-			const CcAmountList & r_al = pPack->AL_Const();
-			const int is_al = BIN(r_al.getCount());
-			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
-			const double amt_cash = do_separate_nonfiscal_items ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
-			const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
+		// @v10.4.7 @fix {
+		if(flags & PRNCHK_RETURN) {
+			if(amt_bnk < 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, -amt_bnk)) }
+			if(amt_cash < 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, -amt_cash)); }
+			if(amt_ccrd < 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, -amt_ccrd)); } // @v10.4.1
+		}
+		else /* } @v10.4.7 @fix */ {
 			if(amt_bnk > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk)) }
 			if(amt_cash > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash)); }
 			if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); } // @v10.4.1

@@ -4597,10 +4597,11 @@ public:
 		// @>>ExtStrSrch
 	int    SLAPI GetListBySubstring(const char * pSubstr, StrAssocArray * pList, int skipPassive, int srchByExtStr = 0);
 	//
-	// Descr: Возвращает список товаров по списку брендов
-	// Note: Список pBrandList должен быть отсортирован
+	// Descr: Возвращает список товаров по списку брендов.
+	//   Экземпляр rGoodsList предварительно очищается. В конце работы функция сортирует его вызовом rGoodsList.sortAndUndup()
+	// Note: Список rBrandList должен быть отсортирован.
 	//
-	int    SLAPI GetListByBrandList(const PPIDArray * pBrandList, PPIDArray * pGoodsList);
+	int    SLAPI GetListByBrandList(const PPIDArray & rBrandList, PPIDArray & rGoodsList);
 	int    SLAPI PutStockExt(PPID id, const GoodsStockExt * pData, int use_ta);
 	int    SLAPI GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/);
 	int    SLAPI GetExt(PPID, GoodsExtTbl::Rec *);
@@ -15913,7 +15914,8 @@ public:
 			fTestMode      = 0x0001,
 			fUseStakeMode2 = 0x0002, // @v10.3.3
 			fUseStakeMode3 = 0x0004, // @v10.3.3
-			fAllowReverse  = 0x0008  // @v10.4.2 Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
+			fAllowReverse  = 0x0008, // @v10.4.2 Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
+			fVerifMode     = 0x0010  // @v10.4.7 Режим верификации данных      
 		};
 		enum {
 			efLong         = 0x0001,
@@ -15986,6 +15988,7 @@ public:
 		OptimalFactorRange();
 		OptimalFactorRange & Z();
 		uint32 Count; // Количество элементов исходного ряда, входящих в диапазон при тестировании
+		uint   Opt2Stride; // @v10.4.7
 		double Result;
 	};
 	struct Strategy { // @flat @persistent
@@ -16301,6 +16304,9 @@ public:
 		uint   BestSubsetDimention;
 		uint   BestSubsetMaxPhonyIters;
 		uint   BestSubsetOptChunk; // 3 || 7
+		uint   OptRangeStep; // @v10.4.7
+		uint   OptRangeStepMkPart; // @v10.4.7
+		uint   OptRangeMultiLimit; // @v10.4.7
 		LDATE  UseDataSince;
 		uint   DefTargetQuant; // @v10.4.2
 		double MinWinRate; // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
@@ -25500,6 +25506,7 @@ private:
 	int    SLAPI EditTempRec(PPID, int use_ta);
 	int    SLAPI CreateLikenessTable();
 	int    SLAPI CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, const char * pAddrKindText, PsnAttrViewItem * pItem);
+	int    SLAPI UpdateList();
 	int    SLAPI UpdateHungedAddr(PPID addrID);
 	int    SLAPI RemoveHangedAddr();
 	int    SLAPI Recover();
@@ -26790,7 +26797,7 @@ public:
 	// non-static
 	int    SLAPI WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles, int use_ta);
 
-	SLAPI  PPObjGoods(void * extraPtr = 0);
+	explicit SLAPI PPObjGoods(void * extraPtr = 0);
 	SLAPI ~PPObjGoods();
 	virtual int  SLAPI Search(PPID id, void * b = 0);
 	virtual int  SLAPI Browse(void * extraPtr);
@@ -26806,7 +26813,6 @@ public:
 	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
 	virtual int SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
-
 	const  PPGoodsConfig & SLAPI GetConfig() const;
 	//
 	// Результирующие флаги функции IsPacketEq
@@ -26815,7 +26821,6 @@ public:
 		pefCodeEq       = 0x0001, // Список кодов не изменился //
 		pefRecFlagsOnly = 0x0002  // Во всем пакете изменились только флаги
 	};
-
 	int    SLAPI IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket & rS2, long options, long * pResultFlags);
 	int    SLAPI Edit(PPID *, GoodsPacketKind, long parentID, long clsID, const char * bcode);
 	int    SLAPI EditClsdGoods(PPGoodsPacket *, int modifyOnlyExtRec);
@@ -27262,15 +27267,13 @@ public:
 		SLAPI  SubstBlock();
         PPID   ExclParentID;
         PPID   LocID;
-        LDATE  Dt;           // @v8.3.3 Дата актуальности. Требуется в некоторых ситуациях
+        LDATE  Dt;           // Дата актуальности. Требуется в некоторых ситуациях
 			// (например, подстановка по ставке НДС). Если Dt == 0, то полагается равной текущей системной дате.
-		PPID   LotID;        // @v8.3.4 Ид лота. Если !0, то для подстановки характеристики лота
+		PPID   LotID;        // Ид лота. Если !0, то для подстановки характеристики лота
 			// функция SubstGoods будет получать непосредственно из этого лота (без оглядки на SupplID, LotTaxGrpID и Dt)
-		const  ReceiptTbl::Rec * P_LotRec; // @v8.3.4 Запись лота. Если !0, то используется с приоритетом
-			// по сравнению с LotID
+		const  ReceiptTbl::Rec * P_LotRec; // Запись лота. Если !0, то используется с приоритетом по сравнению с LotID
 	};
 	int    SLAPI SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const SubstBlock * pBlk, GoodsSubstList *);
-	//int    SLAPI SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods, PPID exclParentID, PPID supplID, PPID locID, GoodsSubstList *);
 	int    SLAPI GetSubstText(PPID id, SubstGrpGoods, const GoodsSubstList *, SString & rBuf);
 	int    SLAPI ReplaceName(PPGoodsPacket *, const PPGoodsReplaceNameParam *);
 	int    SLAPI ShowGoodsAsscInfo(PPID goodsID);
@@ -27314,7 +27317,7 @@ public:
 	PPObjGoodsStruc GSObj;
 	PPObjGoodsTax   GTxObj;
 protected:
-	SLAPI  PPObjGoods(PPID objType, void * extraPtr);
+	SLAPI  PPObjGoods(PPID objType, PPID kind, void * extraPtr);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
@@ -27329,7 +27332,7 @@ private:
 
 	SLAPI  PPObjGoods(SCtrLite);
 	virtual const char * SLAPI GetNamePtr();
-	void   SLAPI InitInstance(SCtrLite sctr, void * extraPtr);
+	void   SLAPI InitInstance(SCtrLite sctr, PPID kind, void * extraPtr);
 	void   SLAPI InitConfig();
 	int    SLAPI MakeReplaceStr(const PPGoodsPacket *, const PPGoodsReplaceNameParam *, const char * pFragment, SString &);
 	int    SLAPI Helper_ReplaceName(const PPGoodsPacket *, const PPGoodsReplaceNameParam *, char *, size_t);
@@ -27591,7 +27594,7 @@ struct GoodsGroupRecoverParam {
 		fDelTempAltGrp = 0x0002  // Удалять временные альтернативные группы
 	};
 	//
-	// Descr: Действие над пустыми группами
+	// Descr: Действия над пустыми группами
 	//
 	enum {
 		egaNone = 0,     // Ничего не делать
@@ -27601,7 +27604,7 @@ struct GoodsGroupRecoverParam {
 	};
 	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
 	PPID   EgaFolderID;
-	long   Ega;
+	long   Ega;           // egaXXX Действие над пустыми товарными группами 
 	long   Flags;
 };
 //
@@ -27867,9 +27870,11 @@ public:
 	virtual int SLAPI IsEmpty() const;
 
 	enum {
-		fSubName = 0x0001
+		fSubName        = 0x0001,
+		fShowGoodsCount = 0x0002 // @v10.4.7
 	};
-	uint8  ReserveStart[32];  // @anchor
+	uint8  ReserveStart[28];  // @anchor
+	long   Order;             // @v10.4.7
 	long   Flags;
 	SString SrchStr;          // @anchor Строка, содержащаяся в имени
 	ObjIdListFilt ParentList;
@@ -27921,6 +27926,43 @@ private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+};
+//
+//
+//
+typedef PPBrand BrandViewItem;
+
+class PPViewBrand : public PPView {
+public:
+	struct BrwItem { // @persistent @store(Reference2Tbl)
+		explicit BrwItem(const PPBrand * pS);
+		PPID   ID;
+		PPID   OwnerID;
+		long   Flags;
+		char   Name[128];
+		char   OwnerName[128];
+		long   ViewFlags;
+		uint   LinkGoodsCount;
+	};
+	SLAPI  PPViewBrand();
+	SLAPI ~PPViewBrand();
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
+	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    SLAPI InitIteration();
+	int    FASTCALL NextIteration(BrandViewItem *);
+	static int SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI MakeList();
+
+	SArray * P_DsList;
+	BrandFilt Filt;
+	PPObjBrand Obj;
 };
 //
 // @vmiller {

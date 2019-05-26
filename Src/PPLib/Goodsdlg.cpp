@@ -3588,7 +3588,6 @@ int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 	SString temp_buf;
 	BrandCtrlGroup::Rec brand_grp_rec(Data.BrandList.IsExists() ? &Data.BrandList.Get() : 0);
 	PersonListCtrlGroup::Rec brandowner_grp_rec(PPPRK_MANUF, Data.BrandOwnerList.IsExists() ? &Data.BrandOwnerList.Get() : 0);
-
 	setGroupData(ctlgroupBrand, &brand_grp_rec);
 	setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);

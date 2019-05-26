@@ -178,6 +178,7 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 			case PPVIEW_PHNSVCMONITOR:  p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
 			case PPVIEW_VETISDOCUMENT:  p_v = new PPViewVetisDocument(); break; // @v10.0.12
 			case PPVIEW_TIMESERIES:     p_v = new PPViewTimeSeries();    break; // @v10.4.4
+			case PPVIEW_BRAND:          p_v = new PPViewBrand();         break; // @v10.4.7
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v && p_v->Symb.Empty()) {

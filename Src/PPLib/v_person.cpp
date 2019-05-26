@@ -561,6 +561,163 @@ int SLAPI PPViewPerson::EditDlvrAddrExtFlds(PPID id)
 	return ok;
 }
 
+struct UpdPersonListParam {
+	UpdPersonListParam() : Action(acnAcqKind), ExtObj(0)
+	{
+	}
+	enum {
+		acnAcqKind    = 1,
+		acnRevokeKind = 2,
+		acnRemoveAll  = 3
+	};
+	long    Action;
+	PPID    ExtObj;
+};
+
+class UpdPersonListParamDialog : public TDialog {
+	typedef UpdPersonListParam DlgDataType;
+	DlgDataType Data;
+public:
+	UpdPersonListParamDialog() : TDialog(DLG_UPDPLIST)
+	{
+	}
+	int setDTS(const DlgDataType * pData)
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		AddClusterAssocDef(CTL_UPDPLIST_WHAT, 0, Data.acnAcqKind);
+		AddClusterAssocDef(CTL_UPDPLIST_WHAT, 1, Data.acnRevokeKind);
+		AddClusterAssocDef(CTL_UPDPLIST_WHAT, 2, Data.acnRemoveAll);
+		SetClusterData(CTL_UPDPLIST_WHAT, Data.Action);
+		SetupControls(0);
+		return ok;
+	}
+	int getDTS(DlgDataType * pData)
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GetClusterData(CTL_UPDPLIST_WHAT, &Data.Action);
+		if(oneof2(Data.Action, Data.acnAcqKind, Data.acnRevokeKind)) {
+			getCtrlData(sel = CTLSEL_UPDPLIST_EXTOBJ, &Data.ExtObj);
+			THROW_PP(Data.ExtObj && SearchObject(PPOBJ_PRSNKIND, Data.ExtObj, 0) > 0, PPERR_PSNKINDNEEDED);
+			THROW_PP(Data.ExtObj != PPPRK_MAIN || PPMaster, PPERR_UNCHANGABLEPERSONKIND);
+		}
+		else {
+			SString answ;
+			SString yes_str;
+			getCtrlString(sel = CTL_UPDPLIST_YES, answ);
+			PPLoadString("yes", yes_str);
+			THROW_PP(stricmp866(answ, yes_str) == 0, PPERR_STRICTCONFIRMTEXTIGNORED);
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			ok = PPErrorByDialog(this, sel);
+		ENDCATCH
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_UPDPLIST_WHAT)) {
+			const long preserve_acn = Data.Action;
+			GetClusterData(CTL_UPDPLIST_WHAT, &Data.Action);
+			if(Data.Action != preserve_acn) {
+				SetupControls(1);
+			}
+			clearEvent(event);
+		}
+		else
+			return;
+	}
+	void SetupControls(int initZero)
+	{
+		SString label_buf;
+		if(oneof2(Data.Action, Data.acnAcqKind, Data.acnRevokeKind)) {
+			PPLoadString("psnkind", label_buf);
+			if(initZero)
+				Data.ExtObj = 0;
+			SetupPPObjCombo(this, CTLSEL_UPDPLIST_EXTOBJ, PPOBJ_PRSNKIND, Data.ExtObj, 0);
+			disableCtrl(CTL_UPDPLIST_YES, 1);
+		}
+		else {
+			PPLoadString("updpersonlist_extobj", label_buf);
+			disableCtrl(CTL_UPDPLIST_YES, 0);
+		}
+		setLabelText(CTL_UPDPLIST_EXTOBJ, label_buf);
+	}
+};
+
+int SLAPI PPViewPerson::UpdateList()
+{
+	int    ok = -1;
+	UpdPersonListParam param;
+	THROW(PsnObj.CheckRights(PSNRT_MULTUPD));
+	if(PPDialogProcBody <UpdPersonListParamDialog, UpdPersonListParam>(&param) > 0) {
+		if(oneof3(param.Action, UpdPersonListParam::acnAcqKind, UpdPersonListParam::acnRevokeKind, UpdPersonListParam::acnRemoveAll)) {
+			PersonViewItem item;
+			PPIDArray id_list;
+			PPLogger logger;
+			PPWait(1);
+			for(InitIteration(); NextIteration(&item) > 0; ) {
+				id_list.add(item.ID);
+			}
+			id_list.sortAndUndup();
+			const uint cnt = id_list.getCount();
+			if(cnt) {
+				switch(param.Action) {
+					case UpdPersonListParam::acnAcqKind:
+						{
+							PPTransaction tra(1);
+							THROW(tra);
+							for(uint i = 0; i < cnt; i++) {
+								const PPID _id = id_list.get(i);
+								if(!PsnObj.P_Tbl->AddKind(_id, param.ExtObj, 0)) {
+									logger.LogLastError();
+								}
+								PPWaitPercent(i+1, cnt);
+							}
+							THROW(tra.Commit());
+						}
+						break;
+					case UpdPersonListParam::acnRevokeKind:
+						{
+							PPTransaction tra(1);
+							THROW(tra);
+							for(uint i = 0; i < cnt; i++) {
+								const PPID _id = id_list.get(i);
+								if(!PsnObj.P_Tbl->RemoveKind(_id, param.ExtObj, 0)) {
+									logger.LogLastError();
+								}
+								PPWaitPercent(i+1, cnt);
+							}
+							THROW(tra.Commit());
+						}
+						break;
+					case UpdPersonListParam::acnRemoveAll:
+						THROW(PsnObj.CheckRights(PPR_DEL));
+						{
+							PPTransaction tra(1);
+							THROW(tra);
+							for(uint i = 0; i < cnt; i++) {
+								const PPID _id = id_list.get(i);
+								if(!PsnObj.RemoveObjV(_id, 0, 0, 0)) {
+									logger.LogLastError();
+								}
+								PPWaitPercent(i+1, cnt);
+							}
+							THROW(tra.Commit());
+						}
+						break;
+				}
+			}
+			PPWait(0);
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 int SLAPI PPViewPerson::DeleteItem(PPID id)
 {
 	int    ok = -1;
@@ -2541,7 +2698,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_DELETEITEM:
 				if(Filt.AttribType == PPPSNATTR_HANGEDADDR) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
+					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id && CONFIRM(PPCFM_DELETE)) {
 						if(!PsnObj.LocObj.PutRecord(&loc_id, 0, 1) || !UpdateHungedAddr(loc_id))
 							PPError();
@@ -2555,12 +2712,13 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 			case PPVCMD_DELETEALL:
 				ok = -1;
 				if(!oneof2(Filt.AttribType, PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
-					ok = DeleteItem(0);
+					// @v10.4.7 ok = DeleteItem(0);
+					ok = UpdateList(); // @v10.4.7
 				}
 				break;
 			case PPVCMD_EDITITEM:
 				if(oneof2(Filt.AttribType, PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
+					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id) {
 						if(PsnObj.LocObj.Edit(&loc_id, 0) > 0) {
 							if(!UpdateHungedAddr(loc_id))
@@ -3049,7 +3207,7 @@ int PPALDD_PersonCat::InitData(PPFilt & rFilt, long rsrv)
 		if(pc_obj.Fetch(rFilt.ID, &pc_rec) > 0) {
 			H.ID = pc_rec.ID;
 			STRNSCPY(H.Name, pc_rec.Name);
-			STRNSCPY(H.Code, pc_rec.Symb); // @v6.2.1
+			STRNSCPY(H.Code, pc_rec.Symb);
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}

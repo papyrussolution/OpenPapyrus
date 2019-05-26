@@ -169,6 +169,7 @@ public:
 		AddClusterAssoc(CTL_TIMSERCFG_FLAGS, 1, PPObjTimeSeries::Config::fUseStakeMode2); // @v10.3.3
 		AddClusterAssoc(CTL_TIMSERCFG_FLAGS, 2, PPObjTimeSeries::Config::fUseStakeMode3); // @v10.3.3
 		AddClusterAssoc(CTL_TIMSERCFG_FLAGS, 3, PPObjTimeSeries::Config::fAllowReverse); // @v10.4.2
+		AddClusterAssoc(CTL_TIMSERCFG_FLAGS, 4, PPObjTimeSeries::Config::fVerifMode); // @v10.4.7
 		SetClusterData(CTL_TIMSERCFG_FLAGS, Data.Flags);
 		updateList(-1);
 		return ok;
@@ -1141,6 +1142,13 @@ struct StrategyOptEntry {
 	double Result2;
 };
 
+IMPL_CMPFUNC(PPObjTimeSeries_OptimalFactorRange_Result, p1, p2)
+{
+	const PPObjTimeSeries::OptimalFactorRange * p_i1 = static_cast<const PPObjTimeSeries::OptimalFactorRange *>(p1);
+	const PPObjTimeSeries::OptimalFactorRange * p_i2 = static_cast<const PPObjTimeSeries::OptimalFactorRange *>(p2);
+	return CMPSIGN(p_i1->Result, p_i2->Result);
+}
+
 static double CalcFactorRangeResultSum(const TSVector <StrategyOptEntry> & rList, uint firstIdx, uint lastIdx) // CalcFactorRangeResult_Func
 {
 	return rList.sumDouble(offsetof(StrategyOptEntry, Result1), firstIdx, lastIdx);
@@ -1224,8 +1232,7 @@ typedef double (* CalcFactorRangeResult2_Func)(const TSVector <StrategyOptEntry>
 //   5 - последовательное сканирование всего диапазона фреймами для нахождения максимального (только положительные значения)
 //   6 - последовательное сканирование всего диапазона фреймами для нахождения максимального (только отрицательные значения)
 //
-static int SLAPI FindOptimalFactorRange(/*CalcFactorRangeResult_Func cfrrFunc*/const PrcssrTsStrategyAnalyze::ModelParam & rMp, 
-	const TSVector <StrategyOptEntry> & rList, int useInitialSplitting, PPObjTimeSeries::OptimalFactorRange & rR)
+static int SLAPI FindOptimalFactorRange(const PrcssrTsStrategyAnalyze::ModelParam & rMp, const TSVector <StrategyOptEntry> & rList, int useInitialSplitting, PPObjTimeSeries::OptimalFactorRange & rR)
 {
 	int    ok = -1;
 	CalcFactorRangeResult_Func cfrrFunc = 0; //(rMp.Flags & rMp.fOptRangeTarget_Velocity) ? CalcFactorRangeResult_R1DivR2 : CalcFactorRangeResultSum;
@@ -1252,7 +1259,12 @@ static int SLAPI FindOptimalFactorRange(/*CalcFactorRangeResult_Func cfrrFunc*/c
 	assert(oneof3(useInitialSplitting, 4, 5, 6));
 	if(_c > 1 && oneof3(useInitialSplitting, 4, 5, 6)) {
 		const  double total_sum = cfrrFunc(rList, 0, _c-1);
-		const uint sf_step = 288; // @20190417 50-->48 // @20190426 48-->144 // @20190429 144-->288
+		//const uint sf_step = 288; // @20190417 50-->48 // @20190426 48-->144 // @20190429 144-->288
+		uint sf_step = 0;
+		if(rMp.OptRangeStepMkPart > 0 && rMp.OptRangeStepMkPart <= 1000000)
+			sf_step = ffloori(static_cast<double>(_c) * static_cast<double>(rMp.OptRangeStepMkPart) / 1000000.0);
+		else
+			sf_step = (rMp.OptRangeStep > 0) ? rMp.OptRangeStep : 288;
 		const uint sf_limit = sf_step * 3; // @20190413 (<=1000)-->(<=1200) // @20190421 (*25)-->(*30) // @20190425 (*30)-->(*40) // @20190426 40-->5
 			// @20190429 (*5)-->(*3)
 		for(uint sfdelta = sf_step; sfdelta <= sf_limit; sfdelta += sf_step) {
@@ -1423,74 +1435,81 @@ static int SLAPI FindOptimalFactorRange2(const PrcssrTsStrategyAnalyze::ModelPar
 		work_pos_range_list.clear();
 		work_pos_range_list.insert(&work_range);
 		const  double total_sum = cfrrFunc(rList, work_pos_range_list);
-		const uint sf_step = 288; // @20190417 50-->48 // @20190426 48-->144 // @20190429 144-->288
-		const uint sf_limit = sf_step * 3; // @20190413 (<=1000)-->(<=1200) // @20190421 (*25)-->(*30) // @20190425 (*30)-->(*40) // @20190426 40-->5
-			// @20190429 (*5)-->(*3)
-		for(int do_next_iter = 1; do_next_iter;) {
-			do_next_iter = 0;
-			double _sfd_max_result = 0.0;
-			uint   _sfd_max_loidx = 0;
-			uint   _sfd_max_upidx = 0;
-			uint   _sfd_best = 0;
-			for(uint sfdelta = sf_step; sfdelta <= sf_limit; sfdelta += sf_step) {
-				int    do_break = 0; // Сигнал для выхода из функции из-за того, что приемлемых значений больше нет
-				// (must be done by caller) rList.sort(PTR_CMPFUNC(double));
-				double prev_result = total_sum;
-				uint   lo_idx = 0;
-				uint   up_idx = _c-1;
-				uint   iter_no = 0;
-				double _max_result = 0.0;
-				uint   _max_sfidx = 0;
-				uint   _max_sfidx_up = 0;
-				uint   _first_idx = 0;
-				uint   _last_idx = _c-1;
-				if(oneof2(useInitialSplitting, 5, 6)) {
-					if(rList.at(0).Factor >= 0.0 && useInitialSplitting == 6) {
-						_last_idx = 0;
-						do_break = 1; // nothing to do
-					}
-					else if(rList.at(_c-1).Factor <= 0.0 && useInitialSplitting == 5) {
-						_last_idx = 0;
-						do_break = 1; // nothing to do
-					}
-					else {
-						for(uint i = 0; i < _c; i++) {
-							const StrategyOptEntry & r_entry = rList.at(i);
-							if(useInitialSplitting == 5 && r_entry.Factor > 0.0) {
-								_first_idx = i;
-								break;
-							}
-							else if(useInitialSplitting == 6 && r_entry.Factor >= 0.0) {
-								assert(i > 0);
-								_last_idx = i-1;
-								break;
-							}
-						}
-					}
-				}
-				for(uint sfidx = _first_idx; sfidx < (_last_idx-sfdelta); sfidx += (sfdelta*1/16)) {
-					uint sfidx_up = MIN(sfidx+sfdelta-1, _last_idx);
-					if(sfidx_up > sfidx) {
-						work_range.Set(sfidx, sfidx_up);
-						if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
-							work_pos_range_list = pos_range_list;
-							work_pos_range_list.insert(&work_range);
-							const double _result = cfrrFunc(rList, work_pos_range_list);
-							if(_result > _max_result) {
-								_max_result = _result;
-								_max_sfidx = sfidx;
-								_max_sfidx_up = sfidx_up;
-							}
-						}
-					}
-					else
+		uint   _first_idx = 0;
+		uint   _last_idx = _c-1;
+		int    do_break = 0; // Сигнал для выхода из функции из-за того, что приемлемых значений больше нет
+		if(oneof2(useInitialSplitting, 5, 6)) {
+			if(rList.at(0).Factor >= 0.0 && useInitialSplitting == 6) {
+				_last_idx = 0;
+				do_break = 1; // nothing to do
+			}
+			else if(rList.at(_c-1).Factor <= 0.0 && useInitialSplitting == 5) {
+				_last_idx = 0;
+				do_break = 1; // nothing to do
+			}
+			else {
+				for(uint i = 0; i < _c; i++) {
+					const StrategyOptEntry & r_entry = rList.at(i);
+					if(useInitialSplitting == 5 && r_entry.Factor > 0.0) {
+						_first_idx = i;
 						break;
+					}
+					else if(useInitialSplitting == 6 && r_entry.Factor >= 0.0) {
+						assert(i > 0);
+						_last_idx = i-1;
+						break;
+					}
 				}
-				if(_max_result > 0.0) {
-					lo_idx = _max_sfidx;
-					up_idx = _max_sfidx_up;
-				}
-				if(!do_break) {
+			}
+		}
+		if(!do_break) {
+			const uint _real_item_count = (_last_idx - _first_idx + 1);
+			// @v10.4.7 const uint sf_step = 288; // @20190417 50-->48 // @20190426 48-->144 // @20190429 144-->288
+			uint   sf_step = 0;
+			if(rMp.OptRangeStepMkPart > 0 && rMp.OptRangeStepMkPart <= 1000000)
+				sf_step = ffloori(static_cast<double>(_real_item_count) * static_cast<double>(rMp.OptRangeStepMkPart) / 1000000.0);
+			else
+				sf_step = (rMp.OptRangeStep > 0) ? rMp.OptRangeStep : 288;
+			const uint sf_limit = sf_step * 3; // @20190413 (<=1000)-->(<=1200) // @20190421 (*25)-->(*30) // @20190425 (*30)-->(*40) // @20190426 40-->5
+				// @20190429 (*5)-->(*3)
+			const uint max_range_count = (rMp.OptRangeMultiLimit > 0) ? rMp.OptRangeMultiLimit : 6;
+			for(int do_next_iter = 1; do_next_iter;) {
+				do_next_iter = 0;
+				double _sfd_max_result = 0.0;
+				uint   _sfd_max_loidx = 0;
+				uint   _sfd_max_upidx = 0;
+				uint   _sfd_best = 0;
+				for(uint sfdelta = sf_step; sfdelta <= sf_limit; sfdelta += sf_step) {
+					// (must be done by caller) rList.sort(PTR_CMPFUNC(double));
+					double prev_result = total_sum;
+					uint   lo_idx = 0;
+					uint   up_idx = _c-1;
+					uint   iter_no = 0;
+					double _max_result = 0.0;
+					uint   _max_sfidx = 0;
+					uint   _max_sfidx_up = 0;
+					for(uint sfidx = _first_idx; sfidx < (_last_idx-sfdelta); sfidx += (sfdelta*1/16)) {
+						uint sfidx_up = MIN(sfidx+sfdelta-1, _last_idx);
+						if(sfidx_up > sfidx) {
+							work_range.Set(sfidx, sfidx_up);
+							if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
+								work_pos_range_list = pos_range_list;
+								work_pos_range_list.insert(&work_range);
+								const double _result = cfrrFunc(rList, work_pos_range_list);
+								if(_result > _max_result) {
+									_max_result = _result;
+									_max_sfidx = sfidx;
+									_max_sfidx_up = sfidx_up;
+								}
+							}
+						}
+						else
+							break;
+					}
+					if(_max_result > 0.0) {
+						lo_idx = _max_sfidx;
+						up_idx = _max_sfidx_up;
+					}
 					if(interval_exp_direction & 1) { // расширять интервал
 						while(lo_idx > 0) {
 							int done = 0;
@@ -1574,45 +1593,46 @@ static int SLAPI FindOptimalFactorRange2(const PrcssrTsStrategyAnalyze::ModelPar
 						_sfd_best = sfdelta;
 					}
 				}
-			}
-			if(_sfd_max_result > 0.0 && (_sfd_max_loidx > 0 || _sfd_max_upidx < (_c-1))) {
-				int   do_reckon = 0;
-				if(total_max_result == 0) {
-					total_max_result = _sfd_max_result;
-					do_reckon = 1;
-				}
-				else {
-					//if(rMp.Flags & rMp.fOptRangeTarget_Velocity) {
-					if(rMp.OptTargetCriterion == rMp.tcVelocity) {
-						if((_sfd_max_result / total_max_result) >= 0.5) {
-							// total_max_result не обновляем: нам нужен самый первый результат в качестве такового, ибо он - максимальный (следующие меньше)
-							do_reckon = 1;
-						}
-					}
-					else if(rMp.OptTargetCriterion == rMp.tcWinRatio) {
-						//if(_sfd_max_result >= 0.65/*total_max_result*/) {
-						if((total_max_result / _sfd_max_result) <= 1.1) {
-							// total_max_result не обновляем: нам нужен самый первый результат в качестве такового, ибо он - максимальный (следующие меньше)
-							do_reckon = 1;
-						}
+				if(_sfd_max_result > 0.0 && (_sfd_max_loidx > 0 || _sfd_max_upidx < (_c-1))) {
+					int   do_reckon = 0;
+					if(total_max_result == 0) {
+						total_max_result = _sfd_max_result;
+						do_reckon = 1;
 					}
 					else {
-						if(_sfd_max_result > total_max_result && (_sfd_max_result / total_max_result) >= 1.1) {
+						//if(rMp.Flags & rMp.fOptRangeTarget_Velocity) {
+						if(max_range_count)
+							do_reckon = 1;
+						else if(rMp.OptTargetCriterion == rMp.tcVelocity) {
+							if((_sfd_max_result / total_max_result) >= 0.5) {
+								// total_max_result не обновляем: нам нужен самый первый результат в качестве такового, ибо он - максимальный (следующие меньше)
+								do_reckon = 1;
+							}
+						}
+						else if(rMp.OptTargetCriterion == rMp.tcWinRatio) {
+							//if(_sfd_max_result >= 0.65/*total_max_result*/) {
+							if((total_max_result / _sfd_max_result) <= 1.1) {
+								// total_max_result не обновляем: нам нужен самый первый результат в качестве такового, ибо он - максимальный (следующие меньше)
+								do_reckon = 1;
+							}
+						}
+						else if(_sfd_max_result > total_max_result && (_sfd_max_result / total_max_result) >= 1.1) {
 							total_max_result = _sfd_max_result;
 							do_reckon = 1;
 						}
 					}
-				}
-				if(do_reckon) {
-					work_range.Set(_sfd_max_loidx, _sfd_max_upidx);
-					PPObjTimeSeries::OptimalFactorRange new_range;
-					new_range.Set(rList.at(_sfd_max_loidx).Factor, rList.at(_sfd_max_upidx).Factor);
-					new_range.Result = _sfd_max_result;
-					new_range.Count = (_sfd_max_upidx - _sfd_max_loidx + 1);
-					pos_range_list.insert(&work_range);
-					rRc.insert(&new_range);
-					do_next_iter = 1;
-					ok = 1;
+					if(do_reckon) {
+						work_range.Set(_sfd_max_loidx, _sfd_max_upidx);
+						PPObjTimeSeries::OptimalFactorRange new_range;
+						new_range.Set(rList.at(_sfd_max_loidx).Factor, rList.at(_sfd_max_upidx).Factor);
+						new_range.Result = _sfd_max_result;
+						new_range.Count = (_sfd_max_upidx - _sfd_max_loidx + 1);
+						pos_range_list.insert(&work_range);
+						rRc.insert(&new_range);
+						if(!max_range_count || rRc.getCount() < max_range_count)
+							do_next_iter = 1;
+						ok = 1;
+					}
 				}
 			}
 		}
@@ -2194,7 +2214,7 @@ static int SLAPI TsTestStrategy2(const PrcssrTsStrategyAnalyze::ModelParam & rMp
 		if(pOptResultList && options & (tstsofroMode1|tstsofroMode2)) {
 			const uint  first_correl_idx = ifs;
 			TSVector <StrategyOptEntry> so_list;
-			if(rSre.StakeMode == 0) {
+			if(rSre.StakeMode == 0 && (options & tstsofroMode1)) {
 				PROFILE_START
 				so_list.clear();
 				for(uint i = 0; i <= rSre.LastResultIdx; i++) {
@@ -2203,15 +2223,16 @@ static int SLAPI TsTestStrategy2(const PrcssrTsStrategyAnalyze::ModelParam & rMp
 						if(local_result != 0.0) { // @v10.3.9
 							const double trend_err = rTe.ErrL.at(i); // @v10.3.12
 							if(trend_err_limit <= 0.0 || (trend_err > 0.0 && trend_err <= trend_err_limit)) { // @v10.3.12
+								const double local_factor = rTe.TL.at(i);
 								if(oneof2(rMp.OptTargetCriterion, rMp.tcVelocity, rMp.tcWinRatio)) {
 									const double local_addendum = result_addendum_list.at(i);
 									if(rMp.OptTargetCriterion == rMp.tcWinRatio || local_addendum > 0.0) {
-										StrategyOptEntry entry(rTe.TL.at(i), local_result, local_addendum);
+										StrategyOptEntry entry(local_factor, local_result, local_addendum);
 										THROW_SL(so_list.insert(&entry));
 									}
 								}
 								else {
-									StrategyOptEntry entry(rTe.TL.at(i), local_result);
+									StrategyOptEntry entry(local_factor, local_result);
 									THROW_SL(so_list.insert(&entry));
 								}
 							}
@@ -2255,7 +2276,6 @@ static int SLAPI TsTestStrategy2(const PrcssrTsStrategyAnalyze::ModelParam & rMp
 				}
 				PROFILE_END
 			}
-#if 0 // {
 			if(oneof2(rSre.StakeMode, 0, 1) && (options & tstsofroMode2)) {
 				//THROW(FindOptimalFactorRange_SecondKind(rTe, result_list, rSre));
 				//static int SLAPI FindOptimalFactorRange_SecondKind(const PPObjTimeSeries::TrendEntry & rTe, const RealArray & rResultList, PPObjTimeSeries::StrategyResultEntry & rSre)
@@ -2265,26 +2285,87 @@ static int SLAPI TsTestStrategy2(const PrcssrTsStrategyAnalyze::ModelParam & rMp
 				const uint min_stride = ifs / 16; // @v10.3.10 3-->ifs / 16
 				const uint max_stride = ifs / 4;
 				double max_result = 0.0;
+				//IMPL_CMPFUNC(PPObjTimeSeries_OptimalFactorRange_Result, p1, p2)
+				TSVector<PPObjTimeSeries::OptimalFactorRange> overall_ofr_list;
 				for(uint stride = min_stride; stride <= max_stride; stride++) { // @v10.3.9 (stride = 1)-->(stride = 3)
 					so_list.clear();
 					for(uint i = 0; i <= rSre.LastResultIdx; i++) {
 						if(i >= (/*first_correl_idx*/ifs+stride)) {
-							StrategyOptEntry entry(rTe.TL.StrideDifference(i, stride), result_list.at(i));
-							THROW_SL(so_list.insert(&entry));
+							const double local_result = result_list.at(i);
+							if(local_result != 0.0) {
+								const double trend_err = rTe.ErrL.at(i); // @v10.4.7
+								if(trend_err_limit <= 0.0 || (trend_err > 0.0 && trend_err <= trend_err_limit)) { // @v10.4.7
+									const double local_factor = rTe.TL.StrideDifference(i, stride);
+									if(oneof2(rMp.OptTargetCriterion, rMp.tcVelocity, rMp.tcWinRatio)) {
+										const double local_addendum = result_addendum_list.at(i);
+										if(rMp.OptTargetCriterion == rMp.tcWinRatio || local_addendum > 0.0) {
+											StrategyOptEntry entry(local_factor, local_result, local_addendum);
+											THROW_SL(so_list.insert(&entry));
+										}
+									}
+									else {
+										StrategyOptEntry entry(local_factor, local_result);
+										THROW_SL(so_list.insert(&entry));
+									}
+								}
+							}
 						}
 					}
 					PPObjTimeSeries::OptimalFactorRange opt_range;
 					so_list.sort(PTR_CMPFUNC(double));
+					/* @v10.4.7
 					const int initial_splitting = 4;
 					FindOptimalFactorRange(rMp, so_list, initial_splitting, opt_range);
 					if(max_result < opt_range.Result) {
 						max_result = opt_range.Result;
 						rSre.OptDelta2Range = opt_range;
 						rSre.OptDelta2Stride = stride;
+					}*/
+					// @v10.4.7 {
+					{
+						int initial_splitting = 4;
+						if(options & tstsofroPositive)
+							initial_splitting = 5;
+						else if(options & tstsofroNegative)
+							initial_splitting = 6;
+						else
+							initial_splitting = 4;
+						TSVector<PPObjTimeSeries::OptimalFactorRange> ofr_list;
+						if(rMp.Flags & rMp.fOptRangeMulti) {
+							FindOptimalFactorRange2(rMp, so_list, initial_splitting, ofr_list);
+						}
+						else {
+							PPObjTimeSeries::OptimalFactorRange ofr;
+							FindOptimalFactorRange(rMp, so_list, initial_splitting, ofr/*rSre.OptDeltaRange*/);
+							ofr_list.insert(&ofr);
+						}
+						for(uint ofridx = 0; ofridx < ofr_list.getCount(); ofridx++) {
+							PPObjTimeSeries::OptimalFactorRange & r_ofr = ofr_list.at(ofridx);
+							r_ofr.Opt2Stride = stride;
+							overall_ofr_list.insert(&r_ofr);
+						}
 					}
+					// } @v10.4.7
+				}
+				{
+					overall_ofr_list.sort(PTR_CMPFUNC(PPObjTimeSeries_OptimalFactorRange_Result));
+					const uint max_range_count = (rMp.OptRangeMultiLimit > 0) ? rMp.OptRangeMultiLimit : 6;
+					uint ofridx = overall_ofr_list.getCount();
+					uint result_count = 0;
+					if(ofridx) do {
+						PPObjTimeSeries::OptimalFactorRange & r_ofr = overall_ofr_list.at(--ofridx);
+						PPObjTimeSeries::StrategyResultEntry sre_temp(rS, rS.StakeMode/*stake_mode*/);
+						sre_temp.OptDeltaRange.Z();// = r_ofr;
+						sre_temp.OptDelta2Range = r_ofr;
+						sre_temp.OptDelta2Stride = r_ofr.Opt2Stride;
+						sre_temp.PeakAvgQuant = rSre.PeakAvgQuant;
+						sre_temp.BottomAvgQuant = rSre.BottomAvgQuant;
+						sre_temp.PeakMaxQuant = rSre.PeakMaxQuant;
+						pOptResultList->insert(&sre_temp);
+						result_count++;
+					} while(ofridx && result_count < max_range_count);
 				}
 			}
-#endif // } 0
 		}
 	}
 	CATCHZOK
@@ -2536,7 +2617,7 @@ int SLAPI PPObjTimeSeries::FindOptimalFactor(const DateTimeArray & rTmList, cons
 	return ok;
 }
 
-PPObjTimeSeries::OptimalFactorRange::OptimalFactorRange() : Count(0), Result(0.0)
+PPObjTimeSeries::OptimalFactorRange::OptimalFactorRange() : Count(0), Result(0.0), Opt2Stride(0)
 {
 	RealRange::Z();
 }
@@ -2544,6 +2625,7 @@ PPObjTimeSeries::OptimalFactorRange::OptimalFactorRange() : Count(0), Result(0.0
 PPObjTimeSeries::OptimalFactorRange & PPObjTimeSeries::OptimalFactorRange::Z()
 {
 	RealRange::Z();
+	Opt2Stride = 0;
 	Count = 0;
 	Result = 0.0;
 	return *this;
@@ -3324,7 +3406,8 @@ static int TuneStrategyTP(const PrcssrTsStrategyAnalyze::ModelParam & rMp, const
 }
 
 SLAPI PrcssrTsStrategyAnalyze::ModelParam::ModelParam() : Flags(0), OptTargetCriterion(tcAmount), InitTrendErrLimit(0.0), 
-	BestSubsetDimention(0), BestSubsetMaxPhonyIters(0), BestSubsetOptChunk(0), UseDataSince(ZERODATE), DefTargetQuant(0), MinWinRate(0.0)
+	BestSubsetDimention(0), BestSubsetMaxPhonyIters(0), BestSubsetOptChunk(0), UseDataSince(ZERODATE), DefTargetQuant(0), MinWinRate(0.0),
+	OptRangeStep(0), OptRangeStepMkPart(0), OptRangeMultiLimit(0)
 {
 }
 
@@ -3340,6 +3423,9 @@ PrcssrTsStrategyAnalyze::ModelParam & SLAPI PrcssrTsStrategyAnalyze::ModelParam:
 	UseDataSince = ZERODATE;
 	DefTargetQuant = 0;
 	MinWinRate = 0.0;
+	OptRangeStep = 0; // @v10.4.7
+	OptRangeStepMkPart = 0; // @v10.4.7
+	OptRangeMultiLimit = 0; // @v10.4.7
 	return *this;
 }
 
@@ -3397,6 +3483,25 @@ int SLAPI PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 	if(rMp.DefTargetQuant == 0 || rMp.DefTargetQuant > 200)
 		rMp.DefTargetQuant = 18;
 	// } @v10.4.2
+	// @v10.4.7 {
+	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_OPTRANGE_STEP, temp_buf) > 0) {
+		rMp.OptRangeStep = static_cast<uint>(temp_buf.ToLong());
+	}
+	if(rMp.OptRangeStep > 1000000)
+		rMp.OptRangeStep = 0;
+	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_OPTRANGE_STEPMKPART, temp_buf) > 0) {
+		rMp.OptRangeStepMkPart = static_cast<uint>(temp_buf.ToLong());
+	}
+	if(rMp.OptRangeStepMkPart > 100000) {
+		rMp.OptRangeStepMkPart = 0;
+	}
+	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_OPTRANGEMULTI_LIMIT, temp_buf) > 0) {
+		rMp.OptRangeMultiLimit = static_cast<uint>(temp_buf.ToLong());
+	}
+	if(rMp.OptRangeMultiLimit > 100)
+		rMp.OptRangeMultiLimit = 0;
+	// } @v10.4.7
+
 	// @v10.4.1 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_USEDATASINCE, temp_buf) > 0)
 		strtodate(temp_buf.Strip(), DATF_DMY, &rMp.UseDataSince);
@@ -3580,6 +3685,16 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 					msg_buf.Cat("velocity");
 				else 
 					msg_buf.Cat("amount");
+			}
+			{
+				msg_buf.CR();
+				msg_buf.CatEq("opt_range_multi", (model_param.Flags & model_param.fOptRangeMulti) ? "true" : "false");
+				msg_buf.CR();
+				msg_buf.CatEq("opt_range_multi_limit", model_param.OptRangeMultiLimit);
+				msg_buf.CR();
+				msg_buf.CatEq("opt_range_step", model_param.OptRangeStep);
+				msg_buf.CR();
+				msg_buf.CatEq("opt_range_stepmkpart", model_param.OptRangeStepMkPart);
 			}
 			msg_buf.CR();
 			msg_buf.CatEq("min_win_rate", model_param.MinWinRate, MKSFMTD(0, 2, 0));
@@ -3790,6 +3905,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 											const PPObjTimeSeries::TrendEntry * p_trend_entry = PPObjTimeSeries::SearchTrendEntry(trend_list_set, input_frame_size);
 											assert(p_trend_entry);
 											assert(p_trend_entry->Stride == input_frame_size); // @paranoic
+											const int process_stake_mode_2 = 0;
 											// opt_factor_side:
 											// 0 - оптимизировать только в положительной области
 											// 1 - оптимизировать только в отрицательной области
@@ -3812,46 +3928,82 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 												target_quant_list.sortAndUndup();
 												for(uint tqidx = 0; tqidx < target_quant_list.getCount(); tqidx++) {
 													tnnp2.TargetQuant = static_cast<uint16>(target_quant_list.at(tqidx));
-													PPObjTimeSeries::StrategyResultEntry sre(tnnp2, 0);
-													int    tstso = tstsofroMode1;
-													if(opt_factor_side == 0)
-														tstso |= tstsofroPositive;
-													else if(opt_factor_side == 1)
-														tstso |= tstsofroNegative;
-													THROW(TsTestStrategy2(model_param, ts_tm_list, ts_val_list, *p_trend_entry, tnnp2, tstso, sre, &sr_raw_list));
-													for(uint srridx = 0; srridx < sr_raw_list.getCount(); srridx++) {
-														PPObjTimeSeries::StrategyResultEntry & r_sr_raw = sr_raw_list.at(srridx);
-														PPObjTimeSeries::StrategyResultEntry sre_test(r_sr_raw, 1/*stake_mode*/);
-														STRNSCPY(sre_test.Symb, ts_rec.Symb);
-														/*
-														f_out.WriteLine(msg_buf.Z().Cat((opt_factor_side == 0) ? "I0+" : ((opt_factor_side == 1) ? "I0-" : "I0*")).Space().
-															Cat(PPObjTimeSeries::StrategyOutput(&sre_test, temp_buf)).CR());
-														f_out.Flush();
-														*/
-														THROW(TsTestStrategy2(model_param, ts_tm_list, ts_val_list, *p_trend_entry, /*tnnp2*/r_sr_raw, tstso, sre_test, 0));
-														sre_test.ID = ++last_strategy_id;
-														{
-															// "Symb" "Dir" "OFS" "Frame" "Duck" "Target" "RPD" "WinRt" "StkCnt" "AvgTm" "RngLo" "RngUp"
-															msg_buf.Z().Cat(ts_rec.Symb).Semicol();
-																msg_buf.Cat((stake_side == 1) ? "sale" : "buy").Semicol();
-																msg_buf.Cat((opt_factor_side == 0) ? "M1+" : ((opt_factor_side == 1) ? "M1-" : "M1*")).Semicol();
-																msg_buf.Cat(sre_test.InputFrameSize).Semicol();
-																msg_buf.Cat(sre_test.MaxDuckQuant).Semicol();
-																msg_buf.Cat(sre_test.TargetQuant).Semicol();
-																msg_buf.Cat(sre_test.V.GetResultPerDay(), MKSFMTD(9, 6, 0)).Semicol();
-																msg_buf.Cat(sre_test.GetWinCountRate(), MKSFMTD(15, 5, 0)).Semicol();
-																msg_buf.Cat(sre_test.StakeCount).Semicol();
-																msg_buf.Cat(sre_test.V.TmSec).Semicol();
-																msg_buf.Cat(sre_test.OptDeltaRange.low, MKSFMTD(0, 12, 0)).Semicol();
-																msg_buf.Cat(sre_test.OptDeltaRange.upp, MKSFMTD(0, 12, 0));
-															f_dump.WriteLine(msg_buf.CR());
+													{
+														PPObjTimeSeries::StrategyResultEntry sre(tnnp2, 0);
+														int    tstso = tstsofroMode1;
+														if(opt_factor_side == 0)
+															tstso |= tstsofroPositive;
+														else if(opt_factor_side == 1)
+															tstso |= tstsofroNegative;
+														THROW(TsTestStrategy2(model_param, ts_tm_list, ts_val_list, *p_trend_entry, tnnp2, tstso, sre, &sr_raw_list));
+														for(uint srridx = 0; srridx < sr_raw_list.getCount(); srridx++) {
+															PPObjTimeSeries::StrategyResultEntry & r_sr_raw = sr_raw_list.at(srridx);
+															PPObjTimeSeries::StrategyResultEntry sre_test(r_sr_raw, 1/*stake_mode*/);
+															STRNSCPY(sre_test.Symb, ts_rec.Symb);
+															THROW(TsTestStrategy2(model_param, ts_tm_list, ts_val_list, *p_trend_entry, r_sr_raw, tstso, sre_test, 0));
+															sre_test.ID = ++last_strategy_id;
+															{
+																// "Symb" "Dir" "OFS" "Frame" "Duck" "Target" "RPD" "WinRt" "StkCnt" "AvgTm" "RngLo" "RngUp"
+																msg_buf.Z().Cat(ts_rec.Symb).Semicol();
+																	msg_buf.Cat((stake_side == 1) ? "sale" : "buy").Semicol();
+																	msg_buf.Cat((opt_factor_side == 0) ? "M1+" : ((opt_factor_side == 1) ? "M1-" : "M1*")).Semicol();
+																	msg_buf.Cat(sre_test.InputFrameSize).Semicol();
+																	msg_buf.Cat(sre_test.MaxDuckQuant).Semicol();
+																	msg_buf.Cat(sre_test.TargetQuant).Semicol();
+																	msg_buf.Cat(sre_test.V.GetResultPerDay(), MKSFMTD(9, 6, 0)).Semicol();
+																	msg_buf.Cat(sre_test.GetWinCountRate(), MKSFMTD(15, 5, 0)).Semicol();
+																	msg_buf.Cat(sre_test.StakeCount).Semicol();
+																	msg_buf.Cat(sre_test.V.TmSec).Semicol();
+																	msg_buf.Cat(sre_test.OptDeltaRange.low, MKSFMTD(0, 12, 0)).Semicol();
+																	msg_buf.Cat(sre_test.OptDeltaRange.upp, MKSFMTD(0, 12, 0));
+																f_dump.WriteLine(msg_buf.CR());
+															}
+															f_out.WriteLine(msg_buf.Z().Cat((opt_factor_side == 0) ? "M1+" : ((opt_factor_side == 1) ? "M1-" : "M1*")).Space().
+																Cat(PPObjTimeSeries::StrategyOutput(&sre_test, temp_buf)).CR());
+															if(sre_test.StakeCount > 0) {
+																THROW_SL(scontainer.insert(dynamic_cast <PPObjTimeSeries::Strategy *>(&sre_test)));
+															}
+															f_out.Flush();
 														}
-														f_out.WriteLine(msg_buf.Z().Cat((opt_factor_side == 0) ? "M1+" : ((opt_factor_side == 1) ? "M1-" : "M1*")).Space().
-															Cat(PPObjTimeSeries::StrategyOutput(&sre_test, temp_buf)).CR());
-														if(sre_test.StakeCount > 0) {
-															THROW_SL(scontainer.insert(dynamic_cast <PPObjTimeSeries::Strategy *>(&sre_test)));
+													}
+													if(process_stake_mode_2) {
+														PPObjTimeSeries::StrategyResultEntry sre(tnnp2, 0);
+														int    tstso = tstsofroMode2;
+														if(opt_factor_side == 0)
+															tstso |= tstsofroPositive;
+														else if(opt_factor_side == 1)
+															tstso |= tstsofroNegative;
+														THROW(TsTestStrategy2(model_param, ts_tm_list, ts_val_list, *p_trend_entry, tnnp2, tstso, sre, &sr_raw_list));
+														for(uint srridx = 0; srridx < sr_raw_list.getCount(); srridx++) {
+															PPObjTimeSeries::StrategyResultEntry & r_sr_raw = sr_raw_list.at(srridx);
+															PPObjTimeSeries::StrategyResultEntry sre_test(r_sr_raw, 2/*stake_mode*/);
+															STRNSCPY(sre_test.Symb, ts_rec.Symb);
+															THROW(TsTestStrategy2(model_param, ts_tm_list, ts_val_list, *p_trend_entry, r_sr_raw, tstso, sre_test, 0));
+															sre_test.ID = ++last_strategy_id;
+															{
+																// "Symb" "Dir" "OFS" "Frame" "Duck" "Target" "RPD" "WinRt" "StkCnt" "AvgTm" "RngLo" "RngUp"
+																msg_buf.Z().Cat(ts_rec.Symb).Semicol();
+																	msg_buf.Cat((stake_side == 1) ? "sale" : "buy").Semicol();
+																	msg_buf.Cat((opt_factor_side == 0) ? "M2+" : ((opt_factor_side == 1) ? "M2-" : "M2*")).Semicol();
+																	msg_buf.Cat(sre_test.InputFrameSize).Semicol();
+																	msg_buf.Cat(sre_test.MaxDuckQuant).Semicol();
+																	msg_buf.Cat(sre_test.TargetQuant).Semicol();
+																	msg_buf.Cat(sre_test.V.GetResultPerDay(), MKSFMTD(9, 6, 0)).Semicol();
+																	msg_buf.Cat(sre_test.GetWinCountRate(), MKSFMTD(15, 5, 0)).Semicol();
+																	msg_buf.Cat(sre_test.StakeCount).Semicol();
+																	msg_buf.Cat(sre_test.V.TmSec).Semicol();
+																	msg_buf.Cat(sre_test.OptDelta2Stride).Semicol();
+																	msg_buf.Cat(sre_test.OptDelta2Range.low, MKSFMTD(0, 12, 0)).Semicol();
+																	msg_buf.Cat(sre_test.OptDelta2Range.upp, MKSFMTD(0, 12, 0));
+																f_dump.WriteLine(msg_buf.CR());
+															}
+															f_out.WriteLine(msg_buf.Z().Cat((opt_factor_side == 0) ? "M2+" : ((opt_factor_side == 1) ? "M2-" : "M2*")).Space().
+																Cat(PPObjTimeSeries::StrategyOutput(&sre_test, temp_buf)).CR());
+															if(sre_test.StakeCount > 0) {
+																THROW_SL(scontainer.insert(dynamic_cast <PPObjTimeSeries::Strategy *>(&sre_test)));
+															}
+															f_out.Flush();
 														}
-														f_out.Flush();
 													}
 												}
 											}

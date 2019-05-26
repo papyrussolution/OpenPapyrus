@@ -1204,6 +1204,9 @@
 				RelativePath="..\SLib\test-openssl.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\tlayout.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\Toolbar.cpp">
 			</File>
 			<File

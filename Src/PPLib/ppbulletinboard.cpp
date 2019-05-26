@@ -582,6 +582,11 @@ int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
 				}
 			}
 #endif // } 0 @construction
+			uint   upd_stat_vec_idx = 0;
+			if(p_fblk->T_.GetValueVecIndex("close", &upd_stat_vec_idx))
+				apst.UpdCountVecIdx = static_cast<int>(upd_stat_vec_idx);
+			else
+				apst.UpdCountVecIdx = -1;
 			local_ok = p_fblk->T_.AddItems(rTs, &apst);
 			p_fblk->Make_T_Actual();
 			EvaluateTrends(p_fblk, 0);
@@ -653,9 +658,13 @@ int SLAPI TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry
 				SETFLAG(new_entry.Flags, new_entry.fTestPurpose, State & stDataTestMode);
 				STRNSCPY(new_entry.Ticker, ts_rec.Symb);
 				{
+					int    is_first_call = 0;
 					SUniTime last_utm;
 					TimeSeriesBlock * p_blk = SearchBlockBySymb(ts_rec.Symb, 0);
-					SETIFZ(p_blk, InitBlock(ts_obj, ts_rec.Symb));
+					if(!p_blk) {
+						is_first_call = 1;
+						p_blk = InitBlock(ts_obj, ts_rec.Symb);
+					}
 					if(p_blk) {
 						SETFLAG(p_blk->Flags, TimeSeriesBlock::fLong,  r_entry.Flags & PPObjTimeSeries::Config::efLong);
 						SETFLAG(p_blk->Flags, TimeSeriesBlock::fShort, r_entry.Flags & PPObjTimeSeries::Config::efShort);
@@ -664,7 +673,10 @@ int SLAPI TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry
 					}
 					const uint tc = p_blk ? p_blk->T_.GetCount() : 0;
 					if(tc && p_blk->T_.GetTime(tc-1, &last_utm)) {
-						if(State & stDataTestMode) {
+						if(is_first_call && (Cfg.Flags & Cfg.fVerifMode)) {
+							new_entry.LastValTime.Z();
+						}
+						else if(State & stDataTestMode) {
 							LDATETIME test_data_start_moment;
 							test_data_start_moment.Set(plusdate(getcurdate_(), -60), ZEROTIME);
 							last_utm.Get(test_data_start_moment);
@@ -1002,18 +1014,20 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 						may_be_considered = 1;
 					if(may_be_considered) {
 						const double local_current_price = rStk.PriceCurrent;
+						const double local_open_price = rStk.PriceOpen;
 						const uint target_quant_for_stop = (Cfg.E.MinLossQuantForReverse > 0) ? static_cast<uint>(Cfg.E.MinLossQuantForReverse) : scb.TargetQuant;
-						double vsl = PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(local_current_price, is_short, prec, target_quant_for_stop, scb.SpikeQuant, avg_spread);
+						//double vsl = PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(local_open_price, is_short, prec, target_quant_for_stop, scb.SpikeQuant, avg_spread);
+						double vsl = ((rStk.SL + rStk.PriceOpen) / 2.0);
 						if(scb.Flags & scb.fReverse) {
 							do_stop = 1;
 						}
 						else if(rStk.Profit < 0.0) {
 							if(is_short) {
-								if(local_current_price > vsl)
+								if(local_current_price >= vsl)
 									do_stop = 1;
 							}
 							else {
-								if(local_current_price < vsl)
+								if(local_current_price <= vsl)
 									do_stop = 1;
 							}
 						}
@@ -1647,6 +1661,33 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSer
 	if(r > 0) {
 		const uint full_tsc = ts_full.GetCount();
 		ts_full.GetChunkRecentCount(MIN(10000, full_tsc), p_fblk->T_);
+		if(0) { // @debug
+			SString temp_buf;
+			SString file_name;
+			SString line_buf;
+			temp_buf.Z().Cat("ts-raw-work").CatChar('-').Cat(ts_rec.Symb).Dot().Cat("txt").ToLower();
+			PPGetFilePath(PPPATH_OUT, temp_buf, file_name);
+			SFile f_out(file_name, SFile::mWrite);
+			if(f_out.IsValid()) {
+				const uint tsc = p_fblk->T_.GetCount();
+				uint vec_idx = 0;
+				if(p_fblk->T_.GetValueVecIndex("close", &vec_idx)) {
+					LDATETIME t_prev = ZERODATETIME;
+					for(uint j = 0; j < tsc; j++) {
+						LDATETIME t = ZERODATETIME;
+						double v = 0;
+						SUniTime ut;
+						p_fblk->T_.GetTime(j, &ut);
+						ut.Get(t);
+						p_fblk->T_.GetValue(j, vec_idx, &v);
+						long td = j ? diffdatetimesec(t, t_prev) : 0;
+						line_buf.Z().Cat(t, DATF_ISO8601, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
+						f_out.WriteLine(line_buf.CR());
+						t_prev = t;
+					}
+				}
+			}
+		}
 		rTsObj.GetStrategies(id, PPObjTimeSeries::sstSelection, p_fblk->Strategies);
 		p_fblk->Strategies.CreateIndex1(p_fblk->StratIndex);
 		THROW(EvaluateTrends(p_fblk, 0));

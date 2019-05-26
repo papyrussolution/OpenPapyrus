@@ -745,7 +745,7 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbCtrlF4,  "Подбор по серийному номеру\tCtrl-F4",   TBBM_SERIAL
 	kbF5,      "Подбор по цене\tF5",                    TBBM_PRICE
 	kbF6,      "Добавить из заказа\tF6",                TBBM_ADDTIFROMORD
-	kbF8,      "Добавить из корзины\tF8",               TBBM_ADDTISFROMBASKET
+	kbF8,      "@{dogetfrombasket}\tF8",                TBBM_ADDTISFROMBASKET
 	kbCtrlF8,  "@{doputtobasket}\tCtrl-F8",             TBBM_ADDTISTOBASKET
 	separator
 	kbCtrlL,   "Печать этикетки\tCtrl-L",               TBBM_BARLABEL
@@ -770,7 +770,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	UNITEOBJ       : kbCtrlU,     TBBM_UNITE,            "@{unite_goods}\tCtrl-U"
 	separator
 	ADDTOBASKET    : kbCtrlF4,    TBBM_BASKET,           "@{doputtobasket}\tCtrl-F4"
-	ADDFROMBASKET  : kbCtrlF5,    TBBM_ADDTISFROMBASKET, "Добавить из корзины\tCtrl-F5"
+	ADDFROMBASKET  : kbCtrlF5,    TBBM_ADDTISFROMBASKET, "@{dogetfrombasket}\tCtrl-F5"
 	separator
 	TAGS           : kbF2,        TBBM_TAGS,             "@{tags}\tF2"
 	TAGSALL        : kbShiftF6,   TBBM_TAGSALL,          "@{doupdatetags}\tShift-F6"
@@ -1414,6 +1414,27 @@ browser TRANSPORT north(100), 3, 0, "@{view_transport}", OWNER|GRID, 0
 	}
 }
 
+browser BRAND north(100), 3, 0, "@{view_brand}", OWNER|GRID, 0
+{
+	"@id",              0, int32,        ALIGN_RIGHT, 10, BCO_USERPROC
+	"@appellation",     1, zstring(128), 0, 50, BCO_USERPROC
+	"@owner",           2, zstring(128), 0, 50, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM                : kbEnter, TBBM_EDIT,         "@{edit}\tEnter"
+		ADDITEM                 : kbIns,   TBBM_INSERT,       "@{add}\tInsert"
+		DELETEITEM              : kbDel,   TBBM_DELETE,       "@{delete}\tDelete"
+		UNITEOBJ                : kbCtrlU, TBBM_UNITE,        "@{cmd_replacebrand}\tCtrl-U"
+		VIEWGOODS               : kbF5,    TBBM_GOODS,        "Товары, связанные с брэндом\tF5"
+		PRINT                   : kbF7,    TBBM_PRINT,        "Печать\tF7"
+		TOTAL                   : kbF9,    TBBM_SIGM,         "@{totals}\tF9"
+		separator
+		SYSJ                    : kbCtrlJ, TBBM_SYSJ,         "@{view_sysjournal}\tCtrl-J"
+		TRANSMIT                : kbCtrlH, TBBM_SENDOBJ,      "@{dotransmit}\tCtrl-H"
+		separator
+		CHANGEFILT              : kbCtrlV, TBBM_FILTER,       "@{filter}\tCtrl-V"
+	}
+}
+
 browser ATURNLIST north(100), 1, 0, "Опись проводок {%s}", OWNER|GRID, 0
 {
 	"@date",    1, notype, DATF_DMY, 8
@@ -1816,7 +1837,7 @@ browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 		SELECTBYNAME  : kbF4,      TBBM_ABC,       "Поиск по наименованию\tF4"
 		PRINT         : kbF7,      TBBM_PRINT,     "@{print}\tF7"
 		EDITGOODS     : kbShiftF2, TBBM_GOODS,     "@{ware}\tShift-F2"
-		ADDFROMBASKET : kbAltF8,   TBBM_ADDTISFROMBASKET, "Добавить из корзины\tAlt-F8"
+		ADDFROMBASKET : kbAltF8,   TBBM_ADDTISFROMBASKET, "@{dogetfrombasket}\tAlt-F8"
 		ADDTOBASKET   : kbCtrlF8,  TBBM_ADDTISTOBASKET,   "@{doputtobasket}\tCtrl-F8"
 		separator
 		BUILD         : kbF8,      TBBM_REFRESH,   "Автозаполнение инвентарной ведомости\tF8"
@@ -2895,7 +2916,7 @@ browser GOODSMOV north(100), 3, 1, "@{view_goodsmov} {%s}", OWNER|GRID, 0
 {
 	"@ware",     1, notype, 0, 30
 	"@barcode", 14, notype, 0, 12
-	group "Остаток на начало" {
+	group "@inrest" {
 		"@qtty",  2, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 7.3
 		"@amount",   3, notype, NMBF_NOZERO, 10.2
 	}
@@ -2915,7 +2936,7 @@ browser GOODSMOV north(100), 3, 1, "@{view_goodsmov} {%s}", OWNER|GRID, 0
 		"@qtty", 10, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 7.3
 		"@amount",  11, notype, NMBF_NOZERO, 10.2
 	}
-	group "Остаток на конец" {
+	group "@outrest" {
 		"@qtty", 12, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 7.3
 		"@amount",  13, notype, NMBF_NOZERO, 10.2
 	}
@@ -4686,7 +4707,7 @@ browser SSTAT_SORD_CT north(100), 3, 1, "Расчет заказа поставщику {%s}", OWNER|G
 	}
 }
 
-browser FREIGHT north(100), 2, 1, "Фрахт", OWNER|GRID, 0
+browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 {
 	"@shipped",         12, notype, 0, 2
 	"@billdate",         1, notype, DATF_DMY, 8
@@ -4723,7 +4744,7 @@ browser FREIGHT north(100), 2, 1, "Фрахт", OWNER|GRID, 0
 	}
 }
 
-browser FREIGHT_LAGG north(100), 2, 1, "Фрахт", OWNER|GRID, 0
+browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 {
 	"@shipped",        12, notype, 0, 2
 	"@billdate",        1, notype, DATF_DMY, 8
@@ -6865,10 +6886,10 @@ record CliBnkData {
 	TaxPaymType      zstring(8)   "Тип бюджетного платежа";
 	VatSum           double       format(8.2)  "@{vatamount}";
 	PurposePlusVat   zstring(250) "Поле примечание с присоединенным к нему текстом по НДС";
-	CorrName         zstring(16)  "Не используется";
-	CorrBIC          zstring(16)  "Не используется";
-	CorrINN          zstring(16)  "Не используется";
-	CorrPerson       zstring(16)  "Не используется";
+	CorrName         zstring(16)  "@{notused}";
+	CorrBIC          zstring(16)  "@{notused}";
+	CorrINN          zstring(16)  "@{notused}";
+	CorrPerson       zstring(16)  "@{notused}";
 	PaymMethod       int16        format(4)    "Вид платежа";
 	AddedAssocTag    int16        format(4)    "Дополнительный признак ассоциации вида операции";
 	AgentName        zstring(48)  "Наименование агента по документу";
@@ -6897,7 +6918,7 @@ record SpecSeries {
 }
 
 record Bill {
-	ID            zstring(32)  "Ид документа";
+	ID            zstring(32)  "@{billid}";
 	Code          zstring(24)  "@{billno}";
 	Date          date         "@{date}";
 	OpID          long         "Ид вида операции";
@@ -6926,7 +6947,7 @@ record Bill {
 	BaseAmount    double       format(8.2) "@{baseamount}";
 	VatSum        double       format(8.2) "Сумма НДС в номинальных ценах";
 	Memo          zstring(160) "Примечание";
-	LocID         zstring(32)  "Ид склада";
+	LocID         zstring(32)  "@{warehouseid}";
 	LocName       zstring(48)  "Наименование склада";
 	LocCode       zstring(16)  "Код склада";
 	City          zstring(48)  "Город склада";
@@ -6959,14 +6980,14 @@ record Bill {
 }
 
 record BRow {
-	BillID        zstring(32)  "Ид документа";
+	BillID        zstring(32)  "@{billid}";
 	LineId        long         "Уникальный ид строки (для внутреннего использования)"; // @v8.5.1
 	LineNo        long         "Номер строки";                 // @v8.1.2
 	GoodsID       long         "@{goodsid}";
-	LotID         long         "Ид лота";                      // @v7.4.11
+	LotID         long         "@{lotid}";                      // @v7.4.11
 	GoodsName     zstring(128) "@{goodsname}";
 	UnitName      zstring(48)  "@{munit}";
-	PhUnitName    zstring(48)  "Физическая единица измерения";
+	PhUnitName    zstring(48)  "@{munit_ph}";
 	UnitCode      zstring(20)  "Код единицы измерения";        // @v8.1.1
 	Barcode       zstring(24)  "@{barcode}";                   // @v8.9.12 (16)-->(24)
 	ArCode        zstring(24)  "@{goodsarcode}";               // @v8.9.12 (16)-->(24)
@@ -7018,7 +7039,7 @@ record BRow {
 	BaseAmount    double       format(8.2) "Базовая сумма документа";
 	BillVatSum    double       format(8.2) "Сумма НДС документа в номинальных ценах";
 	BillMemo      zstring(160)    "Примечание к документу";
-	LocID         zstring(32)     "Ид склада";
+	LocID         zstring(32)     "@{warehouseid}";
 	LocName       zstring(48)     "Наименование склада";
 	LocCode       zstring(16)     "Код склада";
 	City          zstring(48)     "Город склада";
@@ -7088,7 +7109,7 @@ record Barcodes {
 }
 
 record QuotKinds {
-	QuotKindID   long         format(10)   "ИД вида котировки";
+	QuotKindID   long         format(10)   "@{quotkindid}";
 	QuotKindName zstring(48)  "Наименование вида котировки"; // @v8.9.12 (32)-->(48)
 	DefDiscount  double       format(10.2) "Скидка по умолчанию";
 	BeginDate    date         "Дата начала действия";
@@ -7103,7 +7124,7 @@ record QuotKinds {
 
 record Quots {
 	Article      long         format(10)   "@{goodsarcode}";
-	QuotKindID   long         format(10)   "ИД вида котировки";
+	QuotKindID   long         format(10)   "@{quotkindid}";
 	Quot         double       format(10.2) "@{quote}";
 }
 
@@ -7115,7 +7136,7 @@ record SCard {
 	OwnerCode    zstring(32)  "Код владельца карты";
 	IssueDate    date         "Дата выпуска";
 	Expiry       date         "Дата окончания действия";
-	QuotKindID   long         format(10)   "ИД вида котировки";
+	QuotKindID   long         format(10)   "@{quotkindid}";
 	QuotKindSymb zstring(20)  "Символ вида котировки";
 	PercentDis   double       "Процент скидки";
 	MaxCredit    double       "Максимальный кредит по карте";
@@ -7128,7 +7149,7 @@ record SCard {
 }
 
 record CSessComplex {
-	StoreID      long         format(8)    "Ид склада";
+	StoreID      long         format(8)    "@{warehouseid}";
 	PosNodeID    long         format(8)    "Ид кассового узла";
 	PosN         long         format(8)    "@{posnodeno}";
 	SessN        long         format(8)    "@{sessionno}";
@@ -7495,7 +7516,7 @@ record SBIISampleBill {
 }
 
 record SBIISampleBillRow {
-	BillID  long                 "Ид документа";
+	BillID  long                 "@{billid}";
 	GoodsID long                 "@{goodsid}";
 	Serial  zstring(16)          "@{serial}";
 	Qtty    double format(10.4)  "@{qtty}";
@@ -7509,7 +7530,7 @@ record SBIIBill {
 	ID       long                  "@{id}";
 	SampleID long                  "Ид документа образца";
 	Date     date                  "@{date}";
-	Time     zstring(6)            "Время создания";
+	Time     zstring(6)            "@{creationtime}";
 	Article  long                  "@{contractor}";
 	OpID     long                  "@{op_pl}";
 	Code     zstring(16)           "@{billno}";
@@ -7518,23 +7539,23 @@ record SBIIBill {
 }
 
 record SBIIBillRow {
-	BillID   long                  "Ид документа";
+	BillID   long                  "@{billid}";
 	GoodsID  long                  "@{goodsid}";
 	StorageP long                  "@{storageplace}";
 	Number   long                  "@{number}";
 	Serial   zstring(16)           "Серийный номер/штрихкод";
 	Expiry   date                  "@{expirationdate}";
-	Time     zstring(6)            "Время создания";
+	Time     zstring(6)            "@{creationtime}";
 	Qtty     double format(10.4)   "@{qtty}";
 	Cost     double format(10.2)   "@{price}";
 }
 
 record QuotVal {
-    QuotKindID   long format(10)  "ИД вида котировки";
+    QuotKindID   long format(10)  "@{quotkindid}";
     QuotKindSymb zstring(20)      "Символ вида котировки";
 	GoodsID      long  format(10) "@{goodsid}";
 	GoodsCode    zstring(32)      "@{goodscode}";
-	LocID        long  format(10) "ИД склада";
+	LocID        long  format(10) "@{warehouseid}";
 	LocCode      zstring(20)      "Символ склада";
 	CurrencyID   long  format(10) "ИД валюты";
 	CurrencySymb zstring(20)      "Символ валюты";
@@ -7749,7 +7770,7 @@ record PalmGoods {
 	ParentID     long         format(10)   "Родительская группа";
 	Expiry       date         "@{expirationdate}";
 	BrandID      long         format(10)   "@{brand}";
-	BrandOwnerID long         format(10)   "Владелец бренда";
+	BrandOwnerID long         format(10)   "@{brandowner}";
 	MinOrd       double       format(13.2) "Минимальный заказ";
 	MultMinOrd   long         format(1)    "Кратность минимального заказа (0-нет,1-да)";
 }
@@ -7772,7 +7793,7 @@ record PalmClient {
 
 record PalmDlvrAddr {
 	ID          long          format(10) "@{id}";
-	ClientID    long          format(10) "Ид клиента";
+	ClientID    long          format(10) "@{clientid}";
 	AddrString  zstring(128)  "@{address}";
 }
 
@@ -7783,7 +7804,7 @@ record PalmQuotKind {
 
 record PalmBrand {
 	BrandID        long          format(10) "Ид бренда";
-	BrandName      zstring(64)   "Наимевание бренда";
+	BrandName      zstring(64)   "Наименование бренда";
 	BrandOwnerID   long          format(10) "Ид владельца бренда";
 	BrandOwnerName zstring(64)   "Наименование владельца бренда";
 }
@@ -7798,15 +7819,15 @@ record PalmWarehouse {
 
 record PalmQuot {
 	GoodsID       long           format(10)   "@{goodsid}";
-	QuotKindID    long           format(10)   "Ид вида котировки";
-	ClientID      long           format(10)   "Ид клиента";
+	QuotKindID    long           format(10)   "@{quotkindid}";
+	ClientID      long           format(10)   "@{clientid}";
 	Price         double         format(13.2) "@{price}";
 }
 
 record PalmCliDebt {
-	ClientID      long           "Ид клиента";
+	ClientID      long           "@{clientid}";
 	AgentID       long           "Ид агента";
-	BillID        long           "Ид документа";
+	BillID        long           "@{billid}";
 	BillDt        date           "@{billdate}";
 	BillCode      zstring(16)    "@{billno}";
 	BillAmt       double         format(13.2) "@{billamount}";
@@ -7814,7 +7835,7 @@ record PalmCliDebt {
 }
 
 record SBIIBillRowWithCells {
-	BillID        long                "Ид документа";
+	BillID        long                "@{billid}";
 	GoodsID       long                "@{goodsid}";
 	Serial        zstring(16)         "@{serial}";
 	Qtty          double format(10.3) "Количество товара";
@@ -7826,9 +7847,9 @@ record SBIIBillRowWithCells {
 }
 
 record Lot {
-	ID            long                "Ид лота";
-	BillID        long                "Ид документа";
-	LocID         long                "Ид склада";
+	ID            long                "@{lotid}";
+	BillID        long                "@{billid}";
+	LocID         long                "@{warehouseid}";
 	Dt            date                "Дата поступления лота";
 	OprNo         long                "Номер операции за день";
 	Closed        int16               "Признак нулевого текущего остатка по лоту";
@@ -8285,7 +8306,7 @@ reportstub ShrtGoodsMovCost	{ dl600data=GoodsMov,			"Упрощенная ведомость движен
 reportstub ShrtGoodsMovP	{ dl600data=GoodsMov,			"Упрощенная ведомость движения товаров со средними ценами"}
 reportstub ShrtGoodsMov		{ dl600data=GoodsMov,			"Упрощенная ведомость движения товаров"}
 reportstub FreightLaggLoc	{ dl600data=FreightList,		"Фрахт с локацией по каждой позиции"}
-reportstub FreightLagg		{ dl600data=FreightList,		"Фрахт"}
+reportstub FreightLagg		{ dl600data=FreightList,		"@{freight}"}
 reportstub DebtTrnovr_Ct	{ dl600data=DebtTrnovr,			"Долговая ведомость (кросстаб)"}
 reportstub DebtTrnovr_ExpiryPart { dl600data=DebtTrnovr,	"Долговая ведомость (Доля просроченных долгов)"}
 reportstub DebtTrnovr_Turnover { dl600data=DebtTrnovr,		"Долговая ведомость (Оборачиваемость дебиторской задолженности)"}

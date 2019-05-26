@@ -1263,7 +1263,7 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 		if(col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
-				if(((Goods_ *)pData)->Flags & GF_HASIMAGES) {
+				if(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES) {
 					pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 					pCellStyle->Color = GetColorRef(SClrGreen);
 					ok = 1;
@@ -1271,7 +1271,7 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 			}
 			else if(col == 1) { // name
 				{
-					if(((Goods_ *)pData)->Flags & GF_GENERIC) {
+					if(static_cast<const Goods_ *>(pData)->Flags & GF_GENERIC) {
 						pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
 						pCellStyle->RightFigColor = GetColorRef(SClrOrange);
 						ok = 1;
@@ -1281,7 +1281,7 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 					const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 					if(!r_tag_filt.IsEmpty()) {
 						SColor clr;
-						if(r_tag_filt.SelectIndicator(((Goods_ *)pData)->ID, clr) > 0) {
+						if(r_tag_filt.SelectIndicator(static_cast<const Goods_ *>(pData)->ID, clr) > 0) {
 							pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 							pCellStyle->Color2 = (COLORREF)clr;
 							ok = 1;

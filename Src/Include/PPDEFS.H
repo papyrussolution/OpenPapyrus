@@ -10622,6 +10622,18 @@
 	#define CTL_FPACKAGE_FPT          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FPACKAGE_FPT       (2 + WINDOWS_ID_BIAS)
 	#define CTL_FPACKAGE_QTTY         (3 + WINDOWS_ID_BIAS)
+#define DLG_BRANDFILT             1360
+	#define CTL_BRANDFILT_OWNER       (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BRANDFILT_OWNER    (2 + WINDOWS_ID_BIAS)
+	#define CTL_BRANDFILT_NAMESTR     (3 + WINDOWS_ID_BIAS)
+	#define CTL_BRANDFILT_FLAGS       (4 + WINDOWS_ID_BIAS)
+	#define CTL_BRANDFILT_ORDER       (5 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BRANDFILT_ORDER    (6 + WINDOWS_ID_BIAS)
+#define DLG_UPDPLIST              1361
+	#define CTL_UPDPLIST_WHAT         (1 + WINDOWS_ID_BIAS)
+	#define CTL_UPDPLIST_EXTOBJ       (2 + WINDOWS_ID_BIAS)
+	#define CTLSEL_UPDPLIST_EXTOBJ    (3 + WINDOWS_ID_BIAS)
+	#define CTL_UPDPLIST_YES          (4 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -11058,44 +11070,43 @@
 // @v10.3.9 #define PPERR_SCALE_INVIP         289 // Неверный сетевой IP весов
 // @v10.3.9 #define PPERR_SCALE_INITMTDLL     290 // Ошибка инициализации драйвера весов Mettler Toledo %s
 // @v10.3.9 #define PPERR_SCALE_PORTOPENFAULT 291 // Ошибка открытия порта обмена с весами\n%s
-#define PPERR_REGPKINDNEEDED      301 // Необходимо задать вид регистрирующей организации
-#define PPERR_DIVOWNERNEEDED      302 // Необходимо задать организацию-владельца подразделения //
-#define PPERR_INVLOCTYP           303 // Недопустимое значение типа локации
-#define PPERR_PERSONSTATUSNEEDED  305 // Необходимо задать статус персоналии
-#define PPERR_REGTPERSON          306 // Недопустимый тип регистра для заданной персоналии
-#define PPERR_ELINKKINDNEEDED     307 // Необходимо задать вид электронного адреса
-#define PPERR_ELINKADDRNEEDED     308 // Необходимо задать электронный адрес
-#define PPERR_UPDWROFFINV         309 // Нельзя модифицировать списанную строку инвентаризации
-#define PPERR_UNDEFINVWROPS       310 // Не определены операции списания для инвентаризации
-#define PPERR_INVUNIFYPCT         311 // Недопустимый диапазон процента переоценки
-#define PPERR_INVTOOWRITEDOFF     312 // Недопустимое изменение списанной инвентаризации
-#define PPERR_UNABLEOPENHLP       313 // Не удается открыть файл подсказки
-#define PPERR_PAIREQTHIS          314 // Операция не может быть парной для самой себя //
-#define PPERR_UNDEFPEOP           315 // Неопределенная персональная операция //
-#define PPERR_REPLZEROOBJ         316 // Нельзя заменять пустые или несуществующие объекты
-#define PPERR_INVTAGDATATYPE      317 // Недопустимый тип данных тега
-#define PPERR_COSTREVALPCTNEEDED  318 // Необходимо указать процент переоценки цены поступления //
-#define PPERR_CANTMOVREVALOP      320 // Невозможно перенести переоценку на другой лот
-#define PPERR_CANTMOVRCPTOP       321 // Невозможно перенести образующую операцию лота
-#define PPERR_INCOMPATLOTS        322 // Несовместимые лоты для переноса операций
-#define PPERR_LOTLOOP             323 // Обнаружена циклическая зависимость между лотами
-#define PPERR_UNDEFRENTPERIOD     324 // Неопределенный период ренты
-#define PPERR_INVCHARGEOP         325 // Недопустимая операция начисления //
-#define PPERR_ITERNOTINITED       326 // Internal error: iterator not initialized
-#define PPERR_DUPSYMB             327 // Дублирование символа объекта
-#define PPERR_NOVACANCY           328 // Не осталось свободных вакансий в штатном расписании
-#define PPERR_INVPOKEVG           329 // Недопустимая группа доп значений в виде персональной операции
-#define PPERR_UNDEFPOKEVTAG       330 // Неопределен дополнительный тег персональной операции
-#define PPERR_DUPPOKEVTAG         331 // Дополнительный тег персональной операции не должен быть дублируемым
-#define PPERR_INVTAGID            332 // Недопустимый ИД тега
-#define PPERR_INVPOCLAUSESUBJ     333 // Недопустимый субъект персонального действия //
-#define PPERR_DUPREGISTER         334 // Дублирование уникального регистрационного документа
-#define PPERR_INADMISSPOVERB      335 // Недопустимое действие по персональной операции
-#define PPERR_PSNKINDNEEDED       336 // Необходимо задать вид персоналии
-#define PPERR_PSNTAGNEEDED        337 // Необходимо задать тег персоналии
-#define PPERR_PRMRPSNNEEDED       338 // Необходимо задать первичную персоналию
-#define PPERR_INVPOCLAUSEVERB     339 // Недопустимый тип персонального действия //
-
+// @v10.4.7 #define PPERR_REGPKINDNEEDED      301 // Необходимо задать вид регистрирующей организации
+// @v10.4.7 #define PPERR_DIVOWNERNEEDED      302 // Необходимо задать организацию-владельца подразделения //
+// @v10.4.7 #define PPERR_INVLOCTYP           303 // Недопустимое значение типа локации
+// @v10.4.7 #define PPERR_PERSONSTATUSNEEDED  305 // Необходимо задать статус персоналии
+// @v10.4.7 #define PPERR_REGTPERSON          306 // Недопустимый тип регистра для заданной персоналии
+// @v10.4.7 #define PPERR_ELINKKINDNEEDED     307 // Необходимо задать вид электронного адреса
+// @v10.4.7 #define PPERR_ELINKADDRNEEDED     308 // Необходимо задать электронный адрес
+// @v10.4.7 #define PPERR_UPDWROFFINV         309 // Нельзя модифицировать списанную строку инвентаризации
+// @v10.4.7 #define PPERR_UNDEFINVWROPS       310 // Не определены операции списания для инвентаризации
+// @v10.4.7 #define PPERR_INVUNIFYPCT         311 // Недопустимый диапазон процента переоценки
+// @v10.4.7 #define PPERR_INVTOOWRITEDOFF     312 // Недопустимое изменение списанной инвентаризации
+// @v10.4.7 #define PPERR_UNABLEOPENHLP       313 // Не удается открыть файл подсказки
+// @v10.4.7 #define PPERR_PAIREQTHIS          314 // Операция не может быть парной для самой себя //
+// @v10.4.7 #define PPERR_UNDEFPEOP           315 // Неопределенная персональная операция //
+// @v10.4.7 #define PPERR_REPLZEROOBJ         316 // Нельзя заменять пустые или несуществующие объекты
+// @v10.4.7 #define PPERR_INVTAGDATATYPE      317 // Недопустимый тип данных тега
+// @v10.4.7 #define PPERR_COSTREVALPCTNEEDED  318 // Необходимо указать процент переоценки цены поступления //
+// @v10.4.7 #define PPERR_CANTMOVREVALOP      320 // Невозможно перенести переоценку на другой лот
+// @v10.4.7 #define PPERR_CANTMOVRCPTOP       321 // Невозможно перенести образующую операцию лота
+// @v10.4.7 #define PPERR_INCOMPATLOTS        322 // Несовместимые лоты для переноса операций
+// @v10.4.7 #define PPERR_LOTLOOP             323 // Обнаружена циклическая зависимость между лотами
+// @v10.4.7 #define PPERR_UNDEFRENTPERIOD     324 // Неопределенный период ренты
+// @v10.4.7 #define PPERR_INVCHARGEOP         325 // Недопустимая операция начисления //
+// @v10.4.7 #define PPERR_ITERNOTINITED       326 // Internal error: iterator not initialized
+// @v10.4.7 #define PPERR_DUPSYMB             327 // Дублирование символа объекта
+// @v10.4.7 #define PPERR_NOVACANCY           328 // Не осталось свободных вакансий в штатном расписании
+// @v10.4.7 #define PPERR_INVPOKEVG           329 // Недопустимая группа доп значений в виде персональной операции
+// @v10.4.7 #define PPERR_UNDEFPOKEVTAG       330 // Неопределен дополнительный тег персональной операции
+// @v10.4.7 #define PPERR_DUPPOKEVTAG         331 // Дополнительный тег персональной операции не должен быть дублируемым
+// @v10.4.7 #define PPERR_INVTAGID            332 // Недопустимый ИД тега
+// @v10.4.7 #define PPERR_INVPOCLAUSESUBJ     333 // Недопустимый субъект персонального действия //
+// @v10.4.7 #define PPERR_DUPREGISTER         334 // Дублирование уникального регистрационного документа
+// @v10.4.7 #define PPERR_INADMISSPOVERB      335 // Недопустимое действие по персональной операции
+// @v10.4.7 #define PPERR_PSNKINDNEEDED       336 // Необходимо задать вид персоналии
+// @v10.4.7 #define PPERR_PSNTAGNEEDED        337 // Необходимо задать тег персоналии
+// @v10.4.7 #define PPERR_PRMRPSNNEEDED       338 // Необходимо задать первичную персоналию
+// @v10.4.7 #define PPERR_INVPOCLAUSEVERB     339 // Недопустимый тип персонального действия //
 #define PPERR_VIEWBYFILTISEMPTY   411 // Фильтр дает пустую выборку
 #define PPERR_CANTRMVSUBSESS      412 // Нельзя удалять подчиненную кассовую сессию
 #define PPERR_ACCNGEN             413 // Счет не является группирующим

@@ -808,7 +808,7 @@ int SLAPI STimeSeries::SearchEntryBinary(const SUniTime & rUt, uint * pIdx) cons
 }
 
 SLAPI STimeSeries::AppendStat::AppendStat() : AppendCount(0), UpdCount(0), SrcFldsCount(0), 
-	IntersectFldsCount(0), TmProfile(0), SpreadSum(0), SpreadCount(0)
+	IntersectFldsCount(0), TmProfile(0), SpreadSum(0), SpreadCount(0), UpdCountVecIdx(-1)
 {
 }
 
@@ -861,18 +861,19 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 					const LAssoc & r_asc = src_to_this_vl_assoc_list.at(k);
 					double val = 0.0;
 					THROW(rSrc.GetValue(j, r_asc.Key-1, &val));
+					const long local_vec_idx = (r_asc.Val-1);
 					if(ser > 0) {
 						double ex_val = 0.0;
-						THROW(GetValue(ii, r_asc.Val-1, &ex_val));
+						THROW(GetValue(ii, local_vec_idx, &ex_val));
 						if(ex_val != val) {
-							THROW(SetValue(ii, r_asc.Val-1, val));
+							THROW(SetValue(ii, local_vec_idx, val));
 							mod = 2;
-							if(pStat)
+							if(pStat && (pStat->UpdCountVecIdx < 0 || pStat->UpdCountVecIdx == local_vec_idx))
 								pStat->UpdCount++;
 						}
 					}
 					else {
-						THROW(SetValue(ii, r_asc.Val-1, val));
+						THROW(SetValue(ii, local_vec_idx, val));
 						if(p_src_spread_vec) {
 							assert(pStat != 0); // Иначе p_src_spread_vec был бы нулевым (see above)
 							const void * p_value_buf = p_src_spread_vec->at(j);
@@ -889,9 +890,9 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 				}
 				assert(mod == 1 || ser > 0);
 				if(pStat) {
-					if(mod == 2)
+					/*if(mod == 2)
 						pStat->UpdCount++;
-					else if(mod == 1)
+					else*/ if(mod == 1)
 						pStat->AppendCount++;
 				}
 				ok = 1;

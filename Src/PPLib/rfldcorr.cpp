@@ -308,11 +308,11 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			Data.FldDiv = 0;
 			SString temp_buf;
 			getCtrlString(CTL_TXTDBPARAM_DIV, temp_buf);
-			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			// @v10.4.7 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			if(orient) {
 				Data.VertRecTerm = temp_buf;
 				getCtrlString(CTL_TXTDBPARAM_FOOTER, temp_buf);
-				Data.FooterLine = temp_buf.Strip()/*.Transf(CTRANSF_INNER_TO_OUTER)*/;
+				Data.FooterLine = temp_buf.Strip(); //.Transf(CTRANSF_INNER_TO_OUTER);
 			}
 			else {
 				Data.FldDiv = temp_buf;
