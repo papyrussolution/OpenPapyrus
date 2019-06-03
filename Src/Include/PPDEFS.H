@@ -10634,6 +10634,17 @@
 	#define CTL_UPDPLIST_EXTOBJ       (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_UPDPLIST_EXTOBJ    (3 + WINDOWS_ID_BIAS)
 	#define CTL_UPDPLIST_YES          (4 + WINDOWS_ID_BIAS)
+#define DLG_WOLAYOUT              1362 // WhatmanObjectLayout
+	#define CTL_WOLAYOUT_SYMB         (1 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYOUT_FLAGS        (2 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYOUT_LAY          (3 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYOUT_ADJ          (4 + WINDOWS_ID_BIAS)
+#define DLG_LAYOENTRY             1363 // Параметры члена 2-d раскладки
+	#define CTL_LAYOENTRY_SIZE        (1 + WINDOWS_ID_BIAS)
+	#define CTL_LAYOENTRY_MARG        (2 + WINDOWS_ID_BIAS)
+	#define CTL_LAYOENTRY_GRAVITY     (3 + WINDOWS_ID_BIAS)
+	#define CTL_LAYOENTRY_PARENT      (4 + WINDOWS_ID_BIAS)
+	#define CTLSEL_LAYOENTRY_PARENT   (5 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

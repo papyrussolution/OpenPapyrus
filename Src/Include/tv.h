@@ -2054,19 +2054,38 @@ public:
 	};
 	struct EntryBlock { // @persistent
 		EntryBlock();
-		int32  Id; // -1 - undefined
+		enum {
+			cfWrap = 0x0001
+		};
+		enum {
+			bfLeft   = 0x0001,
+			bfTop    = 0x0002,
+			bfRight  = 0x0004,
+			bfBottom = 0x0008,
+			bfHFill  = (bfLeft|bfRight),
+			bfVFill  = (bfTop|bfBottom),
+			bfFill   = (bfLeft|bfRight|bfTop|bfBottom)
+		};
 		TPoint Sz;
 		TRect  Margins;
-		uint32 ContainFlags;
-		uint32 BehaveFlags;
+		int16  ContainerDirection;  // DIREC_UNKN(free) || DIREC_HORZ || DIREC_VERT
+		int16  ContainerAdjustment; // ADJ_LEFT || ADJ_RIGHT || ADJ_CENTER || ADJ_ALIGN
+		uint16 ContainerFlags;      // cfXXX 
+		uint16 BehaveFlags;         //  
 		uint8  Reserve[16];
 	};
 	struct Item {
-		uint32 flags;
-		uint32 first_child;
-		uint32 next_sibling;
-		lay_vec4 margins;
-		lay_vec2 size;
+		Item() : Flags(0), FirstChild(0), NextSibling(0), Handle(0)
+		{
+			MEMSZERO(Margins);
+			MEMSZERO(Size);
+		}
+		uint32 Flags;
+		uint32 FirstChild;
+		uint32 NextSibling;
+		lay_vec4 Margins;
+		lay_vec2 Size;
+		void * Handle;
 	};
 	struct Context { // lay_context
 		Context();
@@ -2075,11 +2094,11 @@ public:
 		//   it will become invalid as soon as any reallocation occurs. Just store the id
 		//   instead (it's smaller, anyway, and the lookup cost will be nothing.)
 		//
-		const Item * FASTCALL GetItemC(lay_id id) const;
-		Item * FASTCALL GetItem(lay_id id);
+		const Item * FASTCALL GetItemC(lay_id idx) const;
+		Item * FASTCALL GetItem(lay_id idx);
 
-		Item * items;
-		lay_vec4 * rects;
+		Item * P_Items;
+		lay_vec4 * P_Rects;
 		uint   capacity;
 		uint   count;
 	};
@@ -2087,11 +2106,25 @@ public:
 	TLayout();
 	~TLayout();
 	lay_id CreateItem();
-	void   SetItemSize(lay_id itemId, lay_vec2 size);
+	//
+	// Descr: Вставляет newItemId последним элементом родительского объъекта parentId.
+	//
+	int    Insert(lay_id parentId, lay_id newItemId);
+	//
+	// Descr: Вставляет newItemId первым элементом родительского объъекта parentId.
+	//
+	int    Push(lay_id parentIdx, lay_id newItemIdx);
+	int    Append(lay_id earlierIdx, lay_id laterIdx);
+	void   SetContainOptions(lay_id itemIdx, uint flags);
+	void   SetBehaveOptions(lay_id itemIdx, uint flags);
+	void   SetItemSize(lay_id itemIdx, lay_vec2 size);
 	void   SetItemSizeXy(lay_id item, lay_scalar width, lay_scalar height);
+	int    SetItemMargins(lay_id itemIdx, const TRect & rM);
 	void   Run();
-	lay_id GetLastChild(lay_id parent) const;
-	lay_vec2 GetItemSize(lay_id item) const;
+	lay_id GetLastChild(lay_id parentIdx) const;
+	lay_vec2 GetItemSize(lay_id itemIdx) const;
+	int    GetItemSize(lay_id itemIdx, lay_scalar * pX, lay_scalar * pY) const;
+	int    GetItemMargins(lay_id itemIdx, TRect * pM) const;
 private:
 	void   RunItem(lay_id itemId);
 	void   CalcSize(lay_id itemId, int dim);
@@ -2104,8 +2137,9 @@ private:
 	void   ArrangeOverlay(lay_id item, int dim) const;
 	lay_scalar ArrangeWrappedOverlaySqueezed(lay_id item, int dim);
 	void   ArrangeOverlaySqueezedRange(int dim, lay_id start_item, lay_id end_item, lay_scalar offset, lay_scalar space);
+	int    AppendByPtr(Item * pEarlier, lay_id laterId, Item * pLater);
+
 	Context Ctx;
-	//void * P_Ctx;
 };
 //
 //
@@ -2373,6 +2407,9 @@ public:
 	int    Redraw();
 	TWhatman * GetOwner() const;
 	TWindow * GetOwnerWindow() const;
+	const  SString & GetSymb() const;
+	const  TLayout::EntryBlock & GetLayoutBlock() const;
+	void   SetLayoutBlock(const TLayout::EntryBlock * pBlk);
 
 	enum {
 		stCurrent  = 0x0001,
@@ -2382,8 +2419,7 @@ public:
 		oMovable        = 0x0001, // Объект может перемещаться пользователем
 		oResizable      = 0x0002, // Пользователь может менять размер объекта
 		oDraggable      = 0x0004, // Объект используется для Drag'n'Drop обмена
-		oBackground     = 0x0008, // Фоновый объект. Такой объект может быть только
-			// один. Его размер равен размеру ватмана.
+		oBackground     = 0x0008, // Фоновый объект. Такой объект может быть только один. Его размер равен размеру ватмана.
 			// При добавлении нового объекта с этим признаком, предыдущий уничтожается.
 		oSelectable     = 0x0010, // Объект может быть выбран в окне, режим которого предполагает
 			// выбор некоторого объекта.
@@ -2399,8 +2435,8 @@ protected:
 	long   State;       // @transient
 private:
 	TRect  Bounds;
+	SString LayoutContainerIdent; // @v10.4.8 Символ родительского объекта типа Layout
 	TLayout::EntryBlock Le; // @v10.4.7 Параметры объекта как элемента layout
-	uint32 LayoutId;    // @v10.4.7 Идент элемента раскладки для динамического расчета позиции. 0 - undef  
 	TWhatman * P_Owner; // @transient
 };
 //
@@ -2442,7 +2478,8 @@ public:
 		toolPenRule,
 		toolBrushRule,
 		toolPenGrid,
-		toolPenSubGrid
+		toolPenSubGrid,
+		toolPenLayoutBorder     // @v10.4.8
 	};
 
 	explicit TWhatman(TWindow * pOwnerWin);
@@ -2463,7 +2500,7 @@ public:
 	// Returns:
 	//   >0 - объект перемещен на передний план.
 	//   <0 - функция ничего не сделала либо потому, что индекс idx выходит
-	//     за границы списк ObjList либо потому, что в списке всего один элемент.
+	//     за границы списка ObjList либо потому, что в списке всего один элемент.
 	//
 	int    BringObjToFront(int idx);
 	//
@@ -2539,6 +2576,7 @@ public:
 	void   GetScrollRange(IntRange * pX, IntRange * pY) const;
 	TPoint GetScrollDelta() const;
 	int    SetTool(int toolId, int paintObjIdent);
+	int    GetTool(int toolId) const;
 	int    ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Store(const char * pFileName);
@@ -2606,6 +2644,7 @@ private:
 	int    TidBrushRule;
 	int    TidPenGrid;
 	int    TidPenSubGrid;
+	int    TidPenLayoutBorder; // @v10.4.8
 };
 //
 //

@@ -200,8 +200,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					SysJournal * p_sj = DS.GetTLA().P_SysJ;
 					local_list.clear();
 					Filt.P_SjF->Period.Actualize(ZERODATE);
-					THROW(p_sj->GetObjListByEventPeriod(PPOBJ_PERSON, Filt.P_SjF->UserID,
-						&Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, local_list));
+					THROW(p_sj->GetObjListByEventPeriod(PPOBJ_PERSON, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, local_list));
 					if(use_list)
 						id_list.intersect(&local_list);
 					else {

@@ -28,9 +28,9 @@ void lay_reserve_items_capacity(TLayout::Context * ctx, lay_id count)
 	if(count >= ctx->capacity) {
 		ctx->capacity = count;
 		const size_t item_size = sizeof(TLayout::Item) + sizeof(lay_vec4);
-		ctx->items = static_cast<TLayout::Item *>(SAlloc::R(ctx->items, ctx->capacity * item_size));
-		const TLayout::Item * past_last = ctx->items + ctx->capacity;
-		ctx->rects = (lay_vec4 *)past_last;
+		ctx->P_Items = static_cast<TLayout::Item *>(SAlloc::R(ctx->P_Items, ctx->capacity * item_size));
+		const TLayout::Item * past_last = ctx->P_Items + ctx->capacity;
+		ctx->P_Rects = (lay_vec4 *)past_last;
 	}
 }
 
@@ -49,8 +49,8 @@ void lay_reset_context(TLayout::Context * ctx)
 void lay_clear_item_break(TLayout::Context * ctx, lay_id item)
 {
 	assert(ctx != NULL);
-	TLayout::Item * pitem = ctx->GetItem(item);
-	pitem->flags = pitem->flags & ~LAY_BREAK;
+	TLayout::Item * p_item = ctx->GetItem(item);
+	p_item->FirstChild = p_item->FirstChild & ~LAY_BREAK;
 }
 
 lay_id lay_items_count(TLayout::Context * ctx)
@@ -65,24 +65,27 @@ lay_id lay_items_capacity(TLayout::Context * ctx)
 	return ctx->capacity;
 }
 
-static LAY_FORCE_INLINE void lay_append_by_ptr(TLayout::Item * LAY_RESTRICT pearlier, lay_id later, TLayout::Item * LAY_RESTRICT plater)
+//static LAY_FORCE_INLINE void lay_append_by_ptr(TLayout::Item * LAY_RESTRICT pearlier, lay_id later, TLayout::Item * LAY_RESTRICT plater)
+int TLayout::AppendByPtr(Item * pEarlier, lay_id laterId, Item * pLater)
 {
-	plater->next_sibling = pearlier->next_sibling;
-	plater->flags |= LAY_ITEM_INSERTED;
-	pearlier->next_sibling = later;
+	int    ok = 1;
+	pLater->NextSibling = pEarlier->NextSibling;
+	pLater->Flags |= LAY_ITEM_INSERTED;
+	pEarlier->NextSibling = laterId;
+	return ok;
 }
 
 //lay_id lay_last_child(const TLayout::Context * ctx, lay_id parent)
 lay_id TLayout::GetLastChild(lay_id parentId) const
 {
 	const TLayout::Item * pparent = Ctx.GetItemC(parentId);
-	lay_id child = pparent->first_child;
+	lay_id child = pparent->FirstChild;
 	if(child == LAY_INVALID_ID) 
 		return LAY_INVALID_ID;
 	const TLayout::Item * pchild = Ctx.GetItemC(child);
 	lay_id result = child;
 	for(;; ) {
-		lay_id next = pchild->next_sibling;
+		lay_id next = pchild->NextSibling;
 		if(next == LAY_INVALID_ID) 
 			break;
 		result = next;
@@ -91,76 +94,92 @@ lay_id TLayout::GetLastChild(lay_id parentId) const
 	return result;
 }
 
-void lay_append(TLayout::Context * ctx, lay_id earlier, lay_id later)
+int TLayout::Append(lay_id earlierId, lay_id laterId) // void lay_append(TLayout::Context * ctx, lay_id earlier, lay_id later)
 {
-	assert(later != 0); // Must not be root item
-	assert(earlier != later); // Must not be same item id
-	TLayout::Item * LAY_RESTRICT pearlier = ctx->GetItem(earlier);
-	TLayout::Item * LAY_RESTRICT plater = ctx->GetItem(later);
-	lay_append_by_ptr(pearlier, later, plater);
+	int    ok = 1;
+	assert(laterId != 0); // Must not be root item
+	assert(earlierId != laterId); // Must not be same item id
+	TLayout::Item * LAY_RESTRICT pearlier = Ctx.GetItem(earlierId);
+	TLayout::Item * LAY_RESTRICT plater = Ctx.GetItem(laterId);
+	AppendByPtr(pearlier, laterId, plater);
+	return ok;
 }
 
-void lay_insert(TLayout::Context * ctx, lay_id parent, lay_id child)
+int TLayout::Insert(lay_id parentId, lay_id newItemId) //void lay_insert(TLayout::Context * ctx, lay_id parent, lay_id child)
 {
-	assert(child != 0); // Must not be root item
-	assert(parent != child); // Must not be same item id
-	TLayout::Item * LAY_RESTRICT pparent = ctx->GetItem(parent);
-	TLayout::Item * LAY_RESTRICT pchild = ctx->GetItem(child);
-	assert(!(pchild->flags & LAY_ITEM_INSERTED));
+	int    ok = 1;
+	assert(newItemId != 0); // Must not be root item
+	assert(parentId != newItemId); // Must not be same item id
+	TLayout::Item * LAY_RESTRICT pparent = Ctx.GetItem(parentId);
+	TLayout::Item * LAY_RESTRICT pchild = Ctx.GetItem(newItemId);
+	assert(!(pchild->Flags & LAY_ITEM_INSERTED));
 	// Parent has no existing children, make inserted item the first child.
-	if(pparent->first_child == LAY_INVALID_ID) {
-		pparent->first_child = child;
-		pchild->flags |= LAY_ITEM_INSERTED;
+	if(pparent->FirstChild == LAY_INVALID_ID) {
+		pparent->FirstChild = newItemId;
+		pchild->Flags |= LAY_ITEM_INSERTED;
 		// Parent has existing items, iterate to find the last child and append the
 		// inserted item after it.
 	}
 	else {
-		lay_id next = pparent->first_child;
-		TLayout::Item * LAY_RESTRICT pnext = ctx->GetItem(next);
+		lay_id next = pparent->FirstChild;
+		TLayout::Item * LAY_RESTRICT pnext = Ctx.GetItem(next);
 		for(;; ) {
-			next = pnext->next_sibling;
+			next = pnext->NextSibling;
 			if(next == LAY_INVALID_ID) 
 				break;
-			pnext = ctx->GetItem(next);
+			pnext = Ctx.GetItem(next);
 		}
-		lay_append_by_ptr(pnext, child, pchild);
+		AppendByPtr(pnext, newItemId, pchild);
 	}
+	return ok;
 }
 
-void lay_push(TLayout::Context * ctx, lay_id parent, lay_id new_child)
+int TLayout::Push(lay_id parentId, lay_id newItemId) //void lay_push(TLayout::Context * ctx, lay_id parent, lay_id new_child)
 {
-	assert(new_child != 0); // Must not be root item
-	assert(parent != new_child); // Must not be same item id
-	TLayout::Item * LAY_RESTRICT pparent = ctx->GetItem(parent);
-	lay_id old_child = pparent->first_child;
-	TLayout::Item * LAY_RESTRICT pchild = ctx->GetItem(new_child);
-	assert(!(pchild->flags & LAY_ITEM_INSERTED));
-	pparent->first_child = new_child;
-	pchild->flags |= LAY_ITEM_INSERTED;
-	pchild->next_sibling = old_child;
+	int    ok = 1;
+	assert(newItemId != 0); // Must not be root item
+	assert(parentId != newItemId); // Must not be same item id
+	TLayout::Item * LAY_RESTRICT pparent = Ctx.GetItem(parentId);
+	lay_id old_child = pparent->FirstChild;
+	TLayout::Item * LAY_RESTRICT pchild = Ctx.GetItem(newItemId);
+	assert(!(pchild->Flags & LAY_ITEM_INSERTED));
+	pparent->FirstChild = newItemId;
+	pchild->Flags |= LAY_ITEM_INSERTED;
+	pchild->NextSibling = old_child;
+	return ok;
 }
 
 //lay_vec2 lay_get_size(TLayout::Context * ctx, lay_id item)
 lay_vec2 TLayout::GetItemSize(lay_id itemId) const
 {
 	const TLayout::Item * pitem = Ctx.GetItemC(itemId);
-	return pitem->size;
+	return pitem->Size;
 }
 
-void lay_get_size_xy(TLayout::Context * ctx, lay_id item, lay_scalar * x, lay_scalar * y)
+//void lay_get_size_xy(TLayout::Context * ctx, lay_id item, lay_scalar * x, lay_scalar * y)
+int TLayout::GetItemSize(lay_id itemId, lay_scalar * pX, lay_scalar * pY) const
 {
-	const TLayout::Item * pitem = ctx->GetItemC(item);
-	lay_vec2 size = pitem->size;
-	*x = size[0];
-	*y = size[1];
+	int    ok = 1;
+	const TLayout::Item * p_item = Ctx.GetItemC(itemId);
+	if(p_item) {
+		lay_vec2 size = p_item->Size;
+		*pX = size[0];
+		*pY = size[1];
+	}
+	else {
+		*pX = 0;
+		*pY = 0;
+		ok = 0;
+	}
+	return ok;
 }
 
 //void lay_set_size(TLayout::Context * ctx, lay_id item, lay_vec2 size)
 void TLayout::SetItemSize(lay_id itemId, lay_vec2 size)
 {
 	TLayout::Item * pitem = Ctx.GetItem(itemId);
-	pitem->size = size;
-	uint32_t flags = pitem->flags;
+	pitem->Size = size;
+	uint32 flags = pitem->Flags;
 	if(size[0] == 0)
 		flags &= ~LAY_ITEM_HFIXED;
 	else
@@ -169,46 +188,52 @@ void TLayout::SetItemSize(lay_id itemId, lay_vec2 size)
 		flags &= ~LAY_ITEM_VFIXED;
 	else
 		flags |= LAY_ITEM_VFIXED;
-	pitem->flags = flags;
+	pitem->Flags = flags;
 }
 
 //void lay_set_size_xy(TLayout::Context * ctx, lay_id item, lay_scalar width, lay_scalar height)
-void TLayout::SetItemSizeXy(lay_id itemId, lay_scalar width, lay_scalar height)
+void TLayout::SetItemSizeXy(lay_id itemIdx, lay_scalar width, lay_scalar height)
 {
-	TLayout::Item * pitem = Ctx.GetItem(itemId);
-	pitem->size[0] = width;
-	pitem->size[1] = height;
-	// Kinda redundant, whatever
-	uint32_t flags = pitem->flags;
-	if(width == 0)
-		flags &= ~LAY_ITEM_HFIXED;
-	else
-		flags |= LAY_ITEM_HFIXED;
-	if(height == 0)
-		flags &= ~LAY_ITEM_VFIXED;
-	else
-		flags |= LAY_ITEM_VFIXED;
-	pitem->flags = flags;
+	TLayout::Item * p_item = Ctx.GetItem(itemIdx);
+	if(p_item) {
+		p_item->Size[0] = width;
+		p_item->Size[1] = height;
+		// Kinda redundant, whatever
+		uint32 flags = p_item->Flags;
+		if(width == 0)
+			flags &= ~LAY_ITEM_HFIXED;
+		else
+			flags |= LAY_ITEM_HFIXED;
+		if(height == 0)
+			flags &= ~LAY_ITEM_VFIXED;
+		else
+			flags |= LAY_ITEM_VFIXED;
+		p_item->Flags = flags;
+	}
 }
 
-void lay_set_behave(TLayout::Context * ctx, lay_id item, uint32_t flags)
+//void lay_set_behave(TLayout::Context * ctx, lay_id item, uint32 flags)
+void TLayout::SetBehaveOptions(lay_id itemIdx, uint flags)
 {
 	assert((flags & LAY_ITEM_LAYOUT_MASK) == flags);
-	TLayout::Item * pitem = ctx->GetItem(item);
-	pitem->flags = (pitem->flags & ~LAY_ITEM_LAYOUT_MASK) | flags;
+	TLayout::Item * p_item = Ctx.GetItem(itemIdx);
+	if(p_item)
+		p_item->Flags = (p_item->Flags & ~LAY_ITEM_LAYOUT_MASK) | flags;
 }
 
-void lay_set_contain(TLayout::Context * ctx, lay_id item, uint32_t flags)
+//void lay_set_contain(TLayout::Context * ctx, lay_id item, uint32 flags)
+void TLayout::SetContainOptions(lay_id itemId, uint flags)
 {
 	assert((flags & LAY_ITEM_BOX_MASK) == flags);
-	TLayout::Item * pitem = ctx->GetItem(item);
-	pitem->flags = (pitem->flags & ~LAY_ITEM_BOX_MASK) | flags;
+	TLayout::Item * p_item = Ctx.GetItem(itemId);
+	if(p_item)
+		p_item->Flags = (p_item->Flags & ~LAY_ITEM_BOX_MASK) | flags;
 }
 
-void lay_set_margins(TLayout::Context * ctx, lay_id item, lay_vec4 ltrb)
+/*void lay_set_margins(TLayout::Context * ctx, lay_id item, lay_vec4 ltrb)
 {
 	TLayout::Item * pitem = ctx->GetItem(item);
-	pitem->margins = ltrb;
+	pitem->Margins = ltrb;
 }
 
 void lay_set_margins_ltrb(TLayout::Context * ctx, lay_id item, lay_scalar l, lay_scalar t, lay_scalar r, lay_scalar b)
@@ -219,26 +244,56 @@ void lay_set_margins_ltrb(TLayout::Context * ctx, lay_id item, lay_scalar l, lay
 	// Alternative, uses rax and left-shift
 	//pitem->margins = (lay_vec4){l, t, r, b};
 	// Fewest instructions, but uses more addressed writes?
-	pitem->margins[0] = l;
-	pitem->margins[1] = t;
-	pitem->margins[2] = r;
-	pitem->margins[3] = b;
+	pitem->Margins[0] = l;
+	pitem->Margins[1] = t;
+	pitem->Margins[2] = r;
+	pitem->Margins[3] = b;
+}*/
+
+int TLayout::SetItemMargins(lay_id itemIdx, const TRect & rM)
+{
+	int    ok = 1;
+	TLayout::Item * p_item = Ctx.GetItem(itemIdx);
+	if(p_item) {
+		p_item->Margins[0] = rM.a.x;
+		p_item->Margins[1] = rM.a.y;
+		p_item->Margins[2] = rM.b.x;
+		p_item->Margins[3] = rM.b.y;
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
-lay_vec4 lay_get_margins(TLayout::Context * ctx, lay_id item)
+int TLayout::GetItemMargins(lay_id itemIdx, TRect * pM) const
 {
-	return ctx->GetItem(item)->margins;
+	int    ok = 1;
+	const TLayout::Item * p_item = Ctx.GetItemC(itemIdx);
+	if(p_item) {
+		pM->a.x = p_item->Margins[0];
+		pM->a.y = p_item->Margins[1];
+		pM->b.x = p_item->Margins[2];
+		pM->b.y = p_item->Margins[3];
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+/*lay_vec4 lay_get_margins(TLayout::Context * ctx, lay_id item)
+{
+	return ctx->GetItem(item)->Margins;
 }
 
 void lay_get_margins_ltrb(TLayout::Context * ctx, lay_id item, lay_scalar * l, lay_scalar * t, lay_scalar * r, lay_scalar * b)
 {
 	TLayout::Item * pitem = ctx->GetItem(item);
-	lay_vec4 margins = pitem->margins;
+	lay_vec4 margins = pitem->Margins;
 	*l = margins[0];
 	*t = margins[1];
 	*r = margins[2];
 	*b = margins[3];
-}
+}*/
 
 //static LAY_FORCE_INLINE lay_scalar lay_calc_wrapped_overlayed_size(TLayout::Context * ctx, lay_id item, int dim)
 lay_scalar TLayout::CalcWrappedOverlayedSize(lay_id item, int dim) const
@@ -247,19 +302,19 @@ lay_scalar TLayout::CalcWrappedOverlayedSize(lay_id item, int dim) const
 	const TLayout::Item * LAY_RESTRICT pitem = Ctx.GetItemC(item);
 	lay_scalar need_size = 0;
 	lay_scalar need_size2 = 0;
-	lay_id child = pitem->first_child;
+	lay_id child = pitem->FirstChild;
 	while(child != LAY_INVALID_ID) {
-		const TLayout::Item * pchild = Ctx.GetItemC(child);
-		lay_vec4 rect = Ctx.rects[child];
-		if(pchild->flags & LAY_BREAK) {
+		const TLayout::Item * p_child = Ctx.GetItemC(child);
+		lay_vec4 rect = Ctx.P_Rects[child];
+		if(p_child->Flags & LAY_BREAK) {
 			need_size2 += need_size;
 			need_size = 0;
 		}
-		lay_scalar child_size = rect[dim] + rect[2 + dim] + pchild->margins[wdim];
+		lay_scalar child_size = rect[dim] + rect[2 + dim] + p_child->Margins[wdim];
 		need_size = lay_scalar_max(need_size, child_size);
-		child = pchild->next_sibling;
+		child = p_child->NextSibling;
 	}
-	return need_size2 + need_size;
+	return (need_size2 + need_size);
 }
 //
 // Equivalent to uiComputeWrappedStackedSize
@@ -271,23 +326,23 @@ lay_scalar TLayout::CalcWrappedStackedSize(lay_id item, int dim) const
 	const TLayout::Item * LAY_RESTRICT pitem = Ctx.GetItemC(item);
 	lay_scalar need_size = 0;
 	lay_scalar need_size2 = 0;
-	lay_id child = pitem->first_child;
+	lay_id child = pitem->FirstChild;
 	while(child != LAY_INVALID_ID) {
 		const TLayout::Item * pchild = Ctx.GetItemC(child);
-		lay_vec4 rect = Ctx.rects[child];
-		if(pchild->flags & LAY_BREAK) {
+		lay_vec4 rect = Ctx.P_Rects[child];
+		if(pchild->Flags & LAY_BREAK) {
 			need_size2 = lay_scalar_max(need_size2, need_size);
 			need_size = 0;
 		}
-		need_size += rect[dim] + rect[2 + dim] + pchild->margins[wdim];
-		child = pchild->next_sibling;
+		need_size += rect[dim] + rect[2 + dim] + pchild->Margins[wdim];
+		child = pchild->NextSibling;
 	}
 	return lay_scalar_max(need_size2, need_size);
 }
 //
 //
 //
-TLayout::EntryBlock::EntryBlock() : Id(-1), ContainFlags(0), BehaveFlags(0)
+TLayout::EntryBlock::EntryBlock() : ContainerDirection(DIREC_UNKN), ContainerAdjustment(ADJ_LEFT), ContainerFlags(0), BehaveFlags(0)
 {
 	Sz = 0;
 	memzero(Reserve, sizeof(Reserve));
@@ -301,27 +356,27 @@ TLayout::TLayout()
 TLayout::~TLayout()
 {
 	//lay_destroy_context(&Ctx);
-	if(Ctx.items) {
-		SAlloc::F(Ctx.items);
-		Ctx.items = NULL;
-		Ctx.rects = NULL;
+	if(Ctx.P_Items) {
+		SAlloc::F(Ctx.P_Items);
+		Ctx.P_Items = NULL;
+		Ctx.P_Items = NULL;
 	}
 }
 
-TLayout::Context::Context() : items(0), rects(0), capacity(0), count(0)
+TLayout::Context::Context() : P_Items(0), P_Rects(0), capacity(0), count(0)
 {
 }
 
-TLayout::Item * FASTCALL TLayout::Context::GetItem(lay_id itemId) // TLayout::Item * lay_get_item(const TLayout::Context * ctx, lay_id id)
+TLayout::Item * FASTCALL TLayout::Context::GetItem(lay_id itemIdx) // TLayout::Item * lay_get_item(const TLayout::Context * ctx, lay_id id)
 {
-	assert(itemId != LAY_INVALID_ID && itemId < count);
-	return (items + itemId);
+	assert(itemIdx != LAY_INVALID_ID && itemIdx < count);
+	return (P_Items + itemIdx);
 }
 
 const TLayout::Item * FASTCALL TLayout::Context::GetItemC(lay_id itemId) const // TLayout::Item * lay_get_item(const TLayout::Context * ctx, lay_id id)
 {
 	assert(itemId != LAY_INVALID_ID && itemId < count);
-	return (items + itemId);
+	return (P_Items + itemId);
 }
 
 lay_id TLayout::CreateItem() // lay_id lay_item(TLayout::Context * ctx)
@@ -330,52 +385,51 @@ lay_id TLayout::CreateItem() // lay_id lay_item(TLayout::Context * ctx)
 	if(idx >= Ctx.capacity) {
 		Ctx.capacity = (Ctx.capacity < 1) ? 32 : (Ctx.capacity * 4);
 		const size_t item_size = sizeof(TLayout::Item) + sizeof(lay_vec4);
-		Ctx.items = (TLayout::Item *)SAlloc::R(Ctx.items, Ctx.capacity * item_size);
-		const TLayout::Item * past_last = Ctx.items + Ctx.capacity;
-		Ctx.rects = (lay_vec4 *)past_last;
+		Ctx.P_Items = static_cast<TLayout::Item *>(SAlloc::R(Ctx.P_Items, Ctx.capacity * item_size));
+		Ctx.P_Rects = reinterpret_cast<lay_vec4 *>(Ctx.P_Items + Ctx.capacity);
 	}
 	TLayout::Item * p_item = Ctx.GetItem(idx);
 	// We can either do this here, or when creating/resetting buffer
 	memzero(p_item, sizeof(TLayout::Item));
-	p_item->first_child = LAY_INVALID_ID;
-	p_item->next_sibling = LAY_INVALID_ID;
+	p_item->FirstChild = LAY_INVALID_ID;
+	p_item->NextSibling = LAY_INVALID_ID;
 	// hmm
-	memzero(&Ctx.rects[idx], sizeof(lay_vec4));
+	memzero(&Ctx.P_Rects[idx], sizeof(lay_vec4));
 	return idx;
 }
 //
 // @todo restrict item ptrs correctly
 //
 //static LAY_FORCE_INLINE lay_scalar lay_calc_overlayed_size(TLayout::Context * ctx, lay_id item, int dim)
-lay_scalar TLayout::CalcOverlayedSize(lay_id itemId, int dim) const
+lay_scalar TLayout::CalcOverlayedSize(lay_id itemIdx, int dim) const
 {
 	const int wdim = dim + 2;
-	const TLayout::Item * LAY_RESTRICT pitem = Ctx.GetItemC(itemId);
+	const TLayout::Item * LAY_RESTRICT p_item = Ctx.GetItemC(itemIdx);
 	lay_scalar need_size = 0;
-	lay_id child = pitem->first_child;
+	lay_id child = p_item->FirstChild;
 	while(child != LAY_INVALID_ID) {
 		const TLayout::Item * pchild = Ctx.GetItemC(child);
-		lay_vec4 rect = Ctx.rects[child];
+		lay_vec4 rect = Ctx.P_Rects[child];
 		// width = start margin + calculated width + end margin
-		lay_scalar child_size = rect[dim] + rect[2 + dim] + pchild->margins[wdim];
+		lay_scalar child_size = rect[dim] + rect[2 + dim] + pchild->Margins[wdim];
 		need_size = lay_scalar_max(need_size, child_size);
-		child = pchild->next_sibling;
+		child = pchild->NextSibling;
 	}
 	return need_size;
 }
 
 //static LAY_FORCE_INLINE lay_scalar lay_calc_stacked_size(TLayout::Context * ctx, lay_id item, int dim)
-lay_scalar TLayout::CalcStackedSize(lay_id item, int dim) const
+lay_scalar TLayout::CalcStackedSize(lay_id itemIdx, int dim) const
 {
 	const int wdim = dim + 2;
-	const TLayout::Item * LAY_RESTRICT pitem = Ctx.GetItemC(item);
+	const TLayout::Item * LAY_RESTRICT p_item = Ctx.GetItemC(itemIdx);
 	lay_scalar need_size = 0;
-	lay_id child = pitem->first_child;
+	lay_id child = p_item->FirstChild;
 	while(child != LAY_INVALID_ID) {
 		const TLayout::Item * pchild = Ctx.GetItemC(child);
-		lay_vec4 rect = Ctx.rects[child];
-		need_size += rect[dim] + rect[2 + dim] + pchild->margins[wdim];
-		child = pchild->next_sibling;
+		lay_vec4 rect = Ctx.P_Rects[child];
+		need_size += rect[dim] + rect[2 + dim] + pchild->Margins[wdim];
+		child = pchild->NextSibling;
 	}
 	return need_size;
 }
@@ -383,26 +437,26 @@ lay_scalar TLayout::CalcStackedSize(lay_id item, int dim) const
 void TLayout::CalcSize(lay_id itemId, int dim)
 {
 	TLayout::Item * pitem = Ctx.GetItem(itemId);
-	lay_id child = pitem->first_child;
+	lay_id child = pitem->FirstChild;
 	while(child != LAY_INVALID_ID) {
 		// NOTE: this is recursive and will run out of stack space if items are
 		// nested too deeply.
 		CalcSize(child, dim); // @recursion
 		TLayout::Item * pchild = Ctx.GetItem(child);
-		child = pchild->next_sibling;
+		child = pchild->NextSibling;
 	}
 	// Set the mutable rect output data to the starting input data
-	Ctx.rects[itemId][dim] = pitem->margins[dim];
+	Ctx.P_Rects[itemId][dim] = pitem->Margins[dim];
 	// If we have an explicit input size, just set our output size (which other
 	// calc_size and arrange procedures will use) to it.
-	if(pitem->size[dim] != 0) {
-		Ctx.rects[itemId][2 + dim] = pitem->size[dim];
+	if(pitem->Size[dim] != 0) {
+		Ctx.P_Rects[itemId][2 + dim] = pitem->Size[dim];
 		return;
 	}
 	// Calculate our size based on children items. Note that we've already
 	// called lay_calc_size on our children at this point.
 	lay_scalar cal_size;
-	switch(pitem->flags & LAY_ITEM_BOX_MODEL_MASK) {
+	switch(pitem->Flags & LAY_ITEM_BOX_MODEL_MASK) {
 		case LAY_COLUMN|LAY_WRAP:
 		    // flex model
 		    if(dim) // direction
@@ -420,7 +474,7 @@ void TLayout::CalcSize(lay_id itemId, int dim)
 		case LAY_COLUMN:
 		case LAY_ROW:
 		    // flex model
-		    if((pitem->flags & 1) == (uint32_t)dim) // direction
+		    if((pitem->Flags & 1) == (uint32)dim) // direction
 			    cal_size = CalcStackedSize(itemId, dim);
 		    else
 			    cal_size = CalcOverlayedSize(itemId, dim);
@@ -432,36 +486,36 @@ void TLayout::CalcSize(lay_id itemId, int dim)
 	}
 	// Set our output data size. Will be used by parent calc_size procedures.,
 	// and by arrange procedures.
-	Ctx.rects[itemId][2 + dim] = cal_size;
+	Ctx.P_Rects[itemId][2 + dim] = cal_size;
 }
 
 //static LAY_FORCE_INLINE void lay_arrange_stacked(TLayout::Context * ctx, lay_id item, int dim, bool wrap)
-void TLayout::ArrangeStacked(lay_id itemId, int dim, bool wrap)
+void TLayout::ArrangeStacked(lay_id itemIdx, int dim, bool wrap)
 {
 	const int wdim = dim + 2;
-	TLayout::Item * pitem = Ctx.GetItem(itemId);
-	const uint32_t item_flags = pitem->flags;
-	lay_vec4 rect = Ctx.rects[itemId];
+	TLayout::Item * p_item = Ctx.GetItem(itemIdx);
+	const uint32 item_flags = p_item->Flags;
+	lay_vec4 rect = Ctx.P_Rects[itemIdx];
 	lay_scalar space = rect[2 + dim];
 	float max_x2 = (float)(rect[dim] + space);
-	lay_id start_child = pitem->first_child;
+	lay_id start_child = p_item->FirstChild;
 	while(start_child != LAY_INVALID_ID) {
 		lay_scalar used = 0;
-		uint32_t count = 0; // count of fillers
-		uint32_t squeezed_count = 0; // count of squeezable elements
-		uint32_t total = 0;
-		bool hardbreak = false;
+		uint32 count = 0; // count of fillers
+		uint32 squeezed_count = 0; // count of squeezable elements
+		uint32 total = 0;
+		bool   hardbreak = false;
 		// first pass: count items that need to be expanded,
 		// and the space that is used
-		lay_id child = start_child;
+		lay_id child_idx = start_child;
 		lay_id end_child = LAY_INVALID_ID;
-		while(child != LAY_INVALID_ID) {
-			TLayout::Item * pchild = Ctx.GetItem(child);
-			const uint32_t child_flags = pchild->flags;
-			const uint32_t flags = (child_flags & LAY_ITEM_LAYOUT_MASK) >> dim;
-			const uint32_t fflags = (child_flags & LAY_ITEM_FIXED_MASK) >> dim;
-			const lay_vec4 child_margins = pchild->margins;
-			lay_vec4 child_rect = Ctx.rects[child];
+		while(child_idx != LAY_INVALID_ID) {
+			TLayout::Item * pchild = Ctx.GetItem(child_idx);
+			const uint32 child_flags = pchild->Flags;
+			const uint32 flags = (child_flags & LAY_ITEM_LAYOUT_MASK) >> dim;
+			const uint32 fflags = (child_flags & LAY_ITEM_FIXED_MASK) >> dim;
+			const lay_vec4 child_margins = pchild->Margins;
+			lay_vec4 child_rect = Ctx.P_Rects[child_idx];
 			lay_scalar extend = used;
 			if((flags & LAY_HFILL) == LAY_HFILL) {
 				++count;
@@ -474,15 +528,15 @@ void TLayout::ArrangeStacked(lay_id itemId, int dim, bool wrap)
 			}
 			// wrap on end of line or manual flag
 			if(wrap && (total && ((extend > space) || (child_flags & LAY_BREAK)))) {
-				end_child = child;
+				end_child = child_idx;
 				hardbreak = (child_flags & LAY_BREAK) == LAY_BREAK;
 				// add marker for subsequent queries
-				pchild->flags = child_flags | LAY_BREAK;
+				pchild->Flags = child_flags | LAY_BREAK;
 				break;
 			}
 			else {
 				used = extend;
-				child = pchild->next_sibling;
+				child_idx = pchild->NextSibling;
 			}
 			++total;
 		}
@@ -531,15 +585,15 @@ void TLayout::ArrangeStacked(lay_id itemId, int dim, bool wrap)
 		float x = (float)rect[dim];
 		float x1;
 		// second pass: distribute and rescale
-		child = start_child;
-		while(child != end_child) {
+		child_idx = start_child;
+		while(child_idx != end_child) {
 			lay_scalar ix0, ix1;
-			TLayout::Item * pchild = Ctx.GetItem(child);
-			const uint32_t child_flags = pchild->flags;
-			const uint32_t flags = (child_flags & LAY_ITEM_LAYOUT_MASK) >> dim;
-			const uint32_t fflags = (child_flags & LAY_ITEM_FIXED_MASK) >> dim;
-			const lay_vec4 child_margins = pchild->margins;
-			lay_vec4 child_rect = Ctx.rects[child];
+			TLayout::Item * pchild = Ctx.GetItem(child_idx);
+			const uint32 child_flags = pchild->Flags;
+			const uint32 flags = (child_flags & LAY_ITEM_LAYOUT_MASK) >> dim;
+			const uint32 fflags = (child_flags & LAY_ITEM_FIXED_MASK) >> dim;
+			const lay_vec4 child_margins = pchild->Margins;
+			lay_vec4 child_rect = Ctx.P_Rects[child_idx];
 			x += (float)child_rect[dim] + extra_margin;
 			if((flags & LAY_HFILL) == LAY_HFILL) // grow
 				x1 = x + filler;
@@ -555,9 +609,9 @@ void TLayout::ArrangeStacked(lay_id itemId, int dim, bool wrap)
 				ix1 = (lay_scalar)x1;
 			child_rect[dim] = ix0; // pos
 			child_rect[dim + 2] = ix1 - ix0; // size
-			Ctx.rects[child] = child_rect;
+			Ctx.P_Rects[child_idx] = child_rect;
 			x = x1 + (float)child_margins[wdim];
-			child = pchild->next_sibling;
+			child_idx = pchild->NextSibling;
 			extra_margin = spacer;
 		}
 		start_child = end_child;
@@ -565,19 +619,19 @@ void TLayout::ArrangeStacked(lay_id itemId, int dim, bool wrap)
 }
 
 //static LAY_FORCE_INLINE void lay_arrange_overlay(TLayout::Context * ctx, lay_id item, int dim)
-void TLayout::ArrangeOverlay(lay_id itemId, int dim) const
+void TLayout::ArrangeOverlay(lay_id itemIdx, int dim) const
 {
 	const int wdim = dim + 2;
-	const TLayout::Item * pitem = Ctx.GetItemC(itemId);
-	const lay_vec4 rect = Ctx.rects[itemId];
+	const TLayout::Item * pitem = Ctx.GetItemC(itemIdx);
+	const lay_vec4 rect = Ctx.P_Rects[itemIdx];
 	const lay_scalar offset = rect[dim];
 	const lay_scalar space = rect[2 + dim];
-	lay_id child = pitem->first_child;
+	lay_id child = pitem->FirstChild;
 	while(child != LAY_INVALID_ID) {
 		const TLayout::Item * pchild = Ctx.GetItemC(child);
-		const uint32_t b_flags = (pchild->flags & LAY_ITEM_LAYOUT_MASK) >> dim;
-		const lay_vec4 child_margins = pchild->margins;
-		lay_vec4 child_rect = Ctx.rects[child];
+		const uint32 b_flags = (pchild->Flags & LAY_ITEM_LAYOUT_MASK) >> dim;
+		const lay_vec4 child_margins = pchild->Margins;
+		lay_vec4 child_rect = Ctx.P_Rects[child];
 		switch(b_flags & LAY_HFILL) {
 			case LAY_HCENTER:
 			    child_rect[dim] += (space - child_rect[2 + dim]) / 2 - child_margins[wdim];
@@ -592,21 +646,21 @@ void TLayout::ArrangeOverlay(lay_id itemId, int dim) const
 			    break;
 		}
 		child_rect[dim] += offset;
-		Ctx.rects[child] = child_rect;
-		child = pchild->next_sibling;
+		Ctx.P_Rects[child] = child_rect;
+		child = pchild->NextSibling;
 	}
 }
 
 //static LAY_FORCE_INLINE void lay_arrange_overlay_squeezed_range(TLayout::Context * ctx, int dim, lay_id start_item, lay_id end_item, lay_scalar offset, lay_scalar space)
-void TLayout::ArrangeOverlaySqueezedRange(int dim, lay_id start_item, lay_id end_item, lay_scalar offset, lay_scalar space)
+void TLayout::ArrangeOverlaySqueezedRange(int dim, lay_id startItemIdx, lay_id endItemIdx, lay_scalar offset, lay_scalar space)
 {
 	int wdim = dim + 2;
-	lay_id item = start_item;
-	while(item != end_item) {
+	lay_id item = startItemIdx;
+	while(item != endItemIdx) {
 		const TLayout::Item * pitem = Ctx.GetItemC(item);
-		const uint32_t b_flags = (pitem->flags & LAY_ITEM_LAYOUT_MASK) >> dim;
-		const lay_vec4 margins = pitem->margins;
-		lay_vec4 rect = Ctx.rects[item];
+		const uint32 b_flags = (pitem->Flags & LAY_ITEM_LAYOUT_MASK) >> dim;
+		const lay_vec4 margins = pitem->Margins;
+		lay_vec4 rect = Ctx.P_Rects[item];
 		lay_scalar min_size = lay_scalar_max(0, space - rect[dim] - margins[wdim]);
 		switch(b_flags & LAY_HFILL) {
 			case LAY_HCENTER:
@@ -625,79 +679,79 @@ void TLayout::ArrangeOverlaySqueezedRange(int dim, lay_id start_item, lay_id end
 			    break;
 		}
 		rect[dim] += offset;
-		Ctx.rects[item] = rect;
-		item = pitem->next_sibling;
+		Ctx.P_Rects[item] = rect;
+		item = pitem->NextSibling;
 	}
 }
 
 //static LAY_FORCE_INLINE lay_scalar lay_arrange_wrapped_overlay_squeezed(TLayout::Context * ctx, lay_id item, int dim)
-lay_scalar TLayout::ArrangeWrappedOverlaySqueezed(lay_id itemId, int dim)
+lay_scalar TLayout::ArrangeWrappedOverlaySqueezed(lay_id itemIdx, int dim)
 {
 	const int wdim = dim + 2;
-	const TLayout::Item * pitem = Ctx.GetItemC(itemId);
-	lay_scalar offset = Ctx.rects[itemId][dim];
+	const TLayout::Item * pitem = Ctx.GetItemC(itemIdx);
+	lay_scalar offset = Ctx.P_Rects[itemIdx][dim];
 	lay_scalar need_size = 0;
-	lay_id child = pitem->first_child;
+	lay_id child = pitem->FirstChild;
 	lay_id start_child = child;
 	while(child != LAY_INVALID_ID) {
-		const TLayout::Item * pchild = Ctx.GetItemC(child);
-		if(pchild->flags & LAY_BREAK) {
+		const TLayout::Item * p_child = Ctx.GetItemC(child);
+		if(p_child->Flags & LAY_BREAK) {
 			ArrangeOverlaySqueezedRange(dim, start_child, child, offset, need_size);
 			offset += need_size;
 			start_child = child;
 			need_size = 0;
 		}
-		const lay_vec4 rect = Ctx.rects[child];
-		lay_scalar child_size = rect[dim] + rect[2 + dim] + pchild->margins[wdim];
+		const lay_vec4 rect = Ctx.P_Rects[child];
+		lay_scalar child_size = rect[dim] + rect[2 + dim] + p_child->Margins[wdim];
 		need_size = lay_scalar_max(need_size, child_size);
-		child = pchild->next_sibling;
+		child = p_child->NextSibling;
 	}
 	ArrangeOverlaySqueezedRange(dim, start_child, LAY_INVALID_ID, offset, need_size);
 	offset += need_size;
 	return offset;
 }
 
-void TLayout::Arrange(lay_id item, int dim)
+void TLayout::Arrange(lay_id itemIdx, int dim)
 {
-	TLayout::Item * pitem = Ctx.GetItem(item);
-	const uint32_t flags = pitem->flags;
+	TLayout::Item * pitem = Ctx.GetItem(itemIdx);
+	const uint32 flags = pitem->Flags;
 	switch(flags & LAY_ITEM_BOX_MODEL_MASK) {
-		case LAY_COLUMN | LAY_WRAP:
+		case LAY_COLUMN|LAY_WRAP:
 		    if(dim != 0) {
-			    ArrangeStacked(item, 1, true);
-			    lay_scalar offset = ArrangeWrappedOverlaySqueezed(item, 0);
-			    Ctx.rects[item][2 + 0] = offset - Ctx.rects[item][0];
+			    ArrangeStacked(itemIdx, 1, true);
+			    lay_scalar offset = ArrangeWrappedOverlaySqueezed(itemIdx, 0);
+			    Ctx.P_Rects[itemIdx][2 + 0] = offset - Ctx.P_Rects[itemIdx][0];
 		    }
 		    break;
-		case LAY_ROW | LAY_WRAP:
+		case LAY_ROW|LAY_WRAP:
 		    if(dim == 0)
-			    ArrangeStacked(item, 0, true);
+			    ArrangeStacked(itemIdx, 0, true);
 		    else {
 			    // discard return value
-			    ArrangeWrappedOverlaySqueezed(item, 1);
+			    ArrangeWrappedOverlaySqueezed(itemIdx, 1);
 			}
 		    break;
 		case LAY_COLUMN:
 		case LAY_ROW:
-		    if((flags & 1) == (uint32_t)dim) {
-			    ArrangeStacked(item, dim, false);
+		    if((flags & 1) == (uint32)dim) {
+			    ArrangeStacked(itemIdx, dim, false);
 		    }
 		    else {
-			    const lay_vec4 rect = Ctx.rects[item];
-			    ArrangeOverlaySqueezedRange(dim, pitem->first_child, LAY_INVALID_ID, rect[dim], rect[2 + dim]);
+			    const lay_vec4 rect = Ctx.P_Rects[itemIdx];
+			    ArrangeOverlaySqueezedRange(dim, pitem->FirstChild, LAY_INVALID_ID, rect[dim], rect[2 + dim]);
 		    }
 		    break;
 		default:
-		    ArrangeOverlay(item, dim);
+		    ArrangeOverlay(itemIdx, dim);
 		    break;
 	}
-	lay_id child = pitem->first_child;
-	while(child != LAY_INVALID_ID) {
+	lay_id child_idx = pitem->FirstChild;
+	while(child_idx != LAY_INVALID_ID) {
 		// NOTE: this is recursive and will run out of stack space if items are
 		// nested too deeply.
-		Arrange(child, dim); // @recursion
-		TLayout::Item * pchild = Ctx.GetItem(child);
-		child = pchild->next_sibling;
+		Arrange(child_idx, dim); // @recursion
+		TLayout::Item * p_child = Ctx.GetItem(child_idx);
+		child_idx = p_child->NextSibling;
 	}
 }
 

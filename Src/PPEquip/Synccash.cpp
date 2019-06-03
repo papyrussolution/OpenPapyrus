@@ -489,13 +489,14 @@ int SLAPI SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrect
 	}
 	else {
 		if(pFc->VatRate > 0) {
-			THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, pFc->Reason));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, pFc->VatRate));
 		}
 		else {
-			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT18, pFc->AmtVat18));
-			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT10, pFc->AmtVat10));
-			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT00, pFc->AmtVat00));
-			THROW(ArrAdd(Arr_In, DVCPARAM_VATFREEAMOUNT, pFc->AmtNoVat));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT20, fabs(pFc->AmtVat20))); // @v10.4.8
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT18, fabs(pFc->AmtVat18)));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT10, fabs(pFc->AmtVat10)));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT00, fabs(pFc->AmtVat00)));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATFREEAMOUNT, fabs(pFc->AmtNoVat)));
 		}
 	}
 	THROW(ExecPrintOper(DVCCMD_CHECKCORRECTION, Arr_In, Arr_Out));
@@ -518,7 +519,6 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	int    ok = 1;
 	int    chk_no = 0;
 	int    is_format = 0;
-	const  int do_separate_nonfiscal_items = 0; // @v10.4.6
 	SString buf;
 	SString input;
 	SString param_name;
@@ -538,11 +538,11 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		double real_fiscal = 0.0;
 		double real_nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
-		const double _fiscal = do_separate_nonfiscal_items ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
 		const int is_al = BIN(r_al.getCount());
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
-		const double amt_cash = do_separate_nonfiscal_items ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
 		THROW(Connect());
 		// @v10.1.0 if(flags & PRNCHK_LASTCHKANNUL) {

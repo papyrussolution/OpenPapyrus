@@ -395,6 +395,25 @@ class  RetailPriceExtractor;
 typedef long PPID;
 typedef LongArray PPIDArray;
 //
+// Descr: Блок константных параметров, которые инициализируются единожды при запуске процесса,
+//   и не могут меняться в течении жизни процесса.
+//   Мотивацией для ввода этого блока является большое число всевозможных константных флагов и значений
+//   разбросанных по всему проекту - их надо собрать в одном месте.
+//
+class PPConstParam {
+public:
+	SLAPI  PPConstParam() : UseAdvEvQueue(1), Flags(/*fDoSeparateNonFiscalCcItems*/)
+	{
+	}
+	enum {
+		fDoSeparateNonFiscalCcItems = 0x0001
+	};
+	const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
+	const uint32 Flags;
+};
+
+extern const PPConstParam _PPConst;
+//
 // Descr: Утилитный класс, используемый как базовый для классов, имеющих
 //   строки расширения, идентифицируемые целочисленными значениями.
 //
@@ -5168,7 +5187,6 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	PPID   RetailOp;          // Операция розничной продажи
 	PPID   RetailRetOp;       // Операция розничного возврата
 	PPID   IntrReceiptOp;     // Операция межскладского прихода
-
 	int16  FRRL_Days;         // Порог включения блокировки пересчета
 		// форвардных остатков при проводке документов задним числом.
 		// Если (LConfig.OperDate - BillDate) >= FRRL_Days, то включается FRRL.
@@ -7480,7 +7498,9 @@ enum {
     PPSYM_DUMMY,       // @dummy       Пустое значение
     PPSYM_CSESS,       // @v10.1.3 .csess       Списываемая этим документом кассовая сессия //
     PPSYM_POSNODE,     // @v10.1.3 @posnode     Наименование кассового узла
-	PPSYM_DLVRLOCTAG   // @v10.4.1 @dlvrloctag.tagsymb Символ тега, идентифицирующего адрес доставки
+	PPSYM_DLVRLOCTAG,  // @v10.4.1 @dlvrloctag.tagsymb Символ тега, идентифицирующего адрес доставки
+	PPSYM_DUEDATE,     // @v10.4.8 @duedate Дата исполнения документа
+	PPSYM_FGDUEDATE    // @v10.4.8 @fgduedate Дата исполнения документа в 'плоском' представлении (25032015)
 };
 //
 class PPSymbTranslator {
@@ -15915,7 +15935,7 @@ public:
 			fUseStakeMode2 = 0x0002, // @v10.3.3
 			fUseStakeMode3 = 0x0004, // @v10.3.3
 			fAllowReverse  = 0x0008, // @v10.4.2 Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
-			fVerifMode     = 0x0010  // @v10.4.7 Режим верификации данных      
+			fVerifMode     = 0x0010  // @v10.4.7 Режим верификации данных
 		};
 		enum {
 			efLong         = 0x0001,
@@ -16005,8 +16025,8 @@ public:
 			// @v10.4.5 bfOptRanges4 = 0x0002  // Оптимальные диапазоны OptDeltaRange и OptDelta2Range сформированы для StakeMode=4
 		};
 		enum {
-			clsmodFullMaxDuck = 0,
-			clsmodAdjustLoss  = 1
+			clsmodFullMaxDuck = 0, // 
+			clsmodAdjustLoss  = 1  // 
 		};
 		uint32 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
 		int16  Prec;             // Точность представления значений (количество знаков после десятичной точки)
@@ -16104,7 +16124,7 @@ public:
 			selcritfSkipLong      = 0x0400  // Флаг, блокирующий выбор длинных стратегий
 		};
 
-		int    SLAPI Select(const TSCollection <TrendEntry> & rTrendList, int lastTrendIdx, long criterion, 
+		int    SLAPI Select(const TSCollection <TrendEntry> & rTrendList, int lastTrendIdx, long criterion,
 			const TSCollection <IndexEntry1> * pIndex, BestStrategyBlock & rBsb, LongArray * pAllSuitedPosList) const;
 	private:
 		uint32 Ver;
@@ -18522,6 +18542,7 @@ public:
 		double AmtBank;    // @#{>=0} Сумма электронного платежа
 		double AmtPrepay;  // @#{>=0} Сумма предоплатой
 		double AmtPostpay; // @#{>=0} Сумма постоплатой
+		double AmtVat20;   // @v10.4.8 Сумма налога по ставке 20%
 		double AmtVat18;   // Сумма налога по ставке 18%
 		double AmtVat10;   // Сумма налога по ставке 10%
 		double AmtVat00;   // Сумма расчета по ставке 0%
@@ -27604,7 +27625,7 @@ struct GoodsGroupRecoverParam {
 	};
 	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
 	PPID   EgaFolderID;
-	long   Ega;           // egaXXX Действие над пустыми товарными группами 
+	long   Ega;           // egaXXX Действие над пустыми товарными группами
 	long   Flags;
 };
 //
@@ -50635,6 +50656,7 @@ public:
 		curResizeNESW,
 		curResizeNWSE,
 		curOdious, // @debug
+		penLayoutBorder, // @v10.4.8
 
 		anchorLastTool // Значение для выравнивания идентификаторов инструментов в производных окнах
 	};

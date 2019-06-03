@@ -1488,12 +1488,13 @@ static int SLAPI FindOptimalFactorRange2(const PrcssrTsStrategyAnalyze::ModelPar
 					double _max_result = 0.0;
 					uint   _max_sfidx = 0;
 					uint   _max_sfidx_up = 0;
-					for(uint sfidx = _first_idx; sfidx < (_last_idx-sfdelta); sfidx += (sfdelta*1/16)) {
+					for(uint sfidx = _first_idx; sfidx < (_last_idx-sfdelta); sfidx += 3/*(sfdelta*1/16)*/) {
 						uint sfidx_up = MIN(sfidx+sfdelta-1, _last_idx);
 						if(sfidx_up > sfidx) {
 							work_range.Set(sfidx, sfidx_up);
 							if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
-								work_pos_range_list = pos_range_list;
+								// @v10.4.8 work_pos_range_list = pos_range_list;
+								work_pos_range_list.clear(); // @v10.4.8
 								work_pos_range_list.insert(&work_range);
 								const double _result = cfrrFunc(rList, work_pos_range_list);
 								if(_result > _max_result) {
@@ -1516,7 +1517,8 @@ static int SLAPI FindOptimalFactorRange2(const PrcssrTsStrategyAnalyze::ModelPar
 							for(uint probedeep = 1; !done && probedeep <= maxprobe && probedeep <= lo_idx; probedeep++) { // @v10.3.12 @fix (probedeep > lo_idx)-->(probedeep <= lo_idx)
 								work_range.Set(lo_idx-probedeep, up_idx);
 								if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
-									work_pos_range_list = pos_range_list;
+									// @v10.4.8 work_pos_range_list = pos_range_list;
+									work_pos_range_list.clear(); // @v10.4.8
 									work_pos_range_list.insert(&work_range);
 									const double temp_result = cfrrFunc(rList, work_pos_range_list);
 									if(prev_result < temp_result) {
@@ -1534,7 +1536,8 @@ static int SLAPI FindOptimalFactorRange2(const PrcssrTsStrategyAnalyze::ModelPar
 							for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx+probedeep) < _c; probedeep++) {
 								work_range.Set(lo_idx, up_idx+probedeep);
 								if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
-									work_pos_range_list = pos_range_list;
+									// @v10.4.8 work_pos_range_list = pos_range_list;
+									work_pos_range_list.clear(); // @v10.4.8
 									work_pos_range_list.insert(&work_range);
 									const double temp_result = cfrrFunc(rList, work_pos_range_list);
 									if(prev_result < temp_result) {
@@ -1554,7 +1557,8 @@ static int SLAPI FindOptimalFactorRange2(const PrcssrTsStrategyAnalyze::ModelPar
 							for(uint probedeep = 1; !done && probedeep <= maxprobe && (lo_idx+probedeep) <= up_idx; probedeep++) {
 								work_range.Set(lo_idx+probedeep, up_idx);
 								if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
-									work_pos_range_list = pos_range_list;
+									// @v10.4.8 work_pos_range_list = pos_range_list;
+									work_pos_range_list.clear(); // @v10.4.8
 									work_pos_range_list.insert(&work_range);
 									const double temp_result = cfrrFunc(rList, work_pos_range_list);
 									if(prev_result < temp_result) {
@@ -1572,7 +1576,8 @@ static int SLAPI FindOptimalFactorRange2(const PrcssrTsStrategyAnalyze::ModelPar
 							for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx) >= (lo_idx+probedeep); probedeep++) {
 								work_range.Set(lo_idx, up_idx-probedeep);
 								if(!IsTherIntRangeIntersection(pos_range_list, work_range)) {
-									work_pos_range_list = pos_range_list;
+									// @v10.4.8 work_pos_range_list = pos_range_list;
+									work_pos_range_list.clear(); // @v10.4.8
 									work_pos_range_list.insert(&work_range);
 									const double temp_result = cfrrFunc(rList, work_pos_range_list);
 									if(prev_result < temp_result) {
@@ -1881,6 +1886,7 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 		const  double mdv = (rS.MaxDuckQuant * rS.SpikeQuant);
 		const  int is_short = BIN(rS.BaseFlags & rS.bfShort);
 		const  int prec = rS.Prec;
+		const  int adjust_sl = BIN(rS.StakeCloseMode == rS.clsmodAdjustLoss); // @v10.4.8
 		{
 			const double spread_adjustment = 1.1; // Поправка запаса прочности для размера комиссии
 			const double spread = (rS.Prec > 0 && rS.SpreadAvg > 0.0) ? (rS.SpreadAvg * fpow10i(-rS.Prec) * spread_adjustment) : 0.0;
@@ -1895,7 +1901,7 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 					const double value_with_spread = (value + spread);
 					const double stake_delta = -((value - stake_value) / stake_value);
 					rV.Result = -((value_with_spread - stake_value) / stake_value) / margin;
-					SETMAX(bottom, value); // @v10.3.2
+					SETMAX(bottom, value);
 					if(value >= sl) {
 						ok = 2;
 						break;
@@ -1908,7 +1914,8 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 						assert(bottom <= org_sl);
 						if(peak > value) {
 							peak = value;
-							sl = Implement_CalcSL_Short(mdv, prec, peak);
+							if(adjust_sl) // @v10.4.8
+								sl = Implement_CalcSL_Short(mdv, prec, peak);
 						}
 						k++;
 					}
@@ -1923,7 +1930,7 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 					const double value_with_spread = (value - spread);
 					const double stake_delta = ((value - stake_value) / stake_value);
 					rV.Result = ((value_with_spread - stake_value) / stake_value) / margin;
-					SETMIN(bottom, value); // @v10.3.2
+					SETMIN(bottom, value);
 					if(value <= sl) {
 						ok = 2;
 						break;
@@ -1936,7 +1943,8 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 						assert(bottom >= org_sl);
 						if(peak < value) {
 							peak = value;
-							sl = Implement_CalcSL_Long(mdv, prec, peak);
+							if(adjust_sl) // @v10.4.8
+								sl = Implement_CalcSL_Long(mdv, prec, peak);
 						}
 						k++;
 					}
@@ -2831,11 +2839,30 @@ int SLAPI PPObjTimeSeries::StrategyContainer::Select(const TSCollection <TrendEn
 	return ok;
 }
 
+struct StrategyCritEntry {
+	StrategyCritEntry(uint idx) : Idx(idx), Crit1(0.0), Crit2(0.0)
+	{
+	}
+	uint   Idx;
+	double Crit1;
+	double Crit2;
+};
+
+static IMPL_CMPFUNC(StrategyCritEntry, i1, i2)
+{
+	const StrategyCritEntry * p1 = static_cast<const StrategyCritEntry *>(i1);
+	const StrategyCritEntry * p2 = static_cast<const StrategyCritEntry *>(i2);
+	int   si = 0;
+	CMPCASCADE2(si, p2, p1, Crit1, Crit2); // Нам нужно чтобы большие значения были вверху (потому (p2, p1) вместо (p1, p2))
+	return si;
+}
+
 int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest) const
 {
 	rScDest.clear();
 	int    ok = 1;
-	RAssocArray range_list;
+	//RAssocArray range_list;
+	TSArray <StrategyCritEntry> range_list_;
 	const uint _c = getCount();
 	for(uint i = 0; i < _c; i++) {
 		const Strategy & r_item = at(i);
@@ -2853,25 +2880,37 @@ int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset(long flags, uint max
 				}
 			}
 			if(!skip) {
-				double crit = 0.0;
-				if(flags & gbsfCritProb)
-					crit = r_item.GetWinCountRate();
-				else if(flags & gbsfCritProfitMultProb)
-					crit = result * r_item.GetWinCountRate();
-				else
-					crit = result;
+				double crit1 = 0.0;
+				double crit2 = 0.0;
+				if(flags & gbsfCritProb) {
+					crit1 = r_item.GetWinCountRate();
+					crit2 = result;
+				}
+				else if(flags & gbsfCritProfitMultProb) {
+					crit1 = result * r_item.GetWinCountRate();
+				}
+				else {
+					crit1 = result;
+				}
 				if(((r_item.BaseFlags & r_item.bfShort) && (flags & gbsfShort)) || (!(r_item.BaseFlags & r_item.bfShort) && (flags & gbsfLong))) {
 					if((r_item.StakeMode == 1 && flags & gbsfStakeMode1) || (r_item.StakeMode == 2 && flags & gbsfStakeMode2) || (r_item.StakeMode == 3 && flags & gbsfStakeMode3)) {
-						THROW_SL(range_list.Add(i+1, crit));
+						//THROW_SL(range_list.Add(i+1, crit));
+						StrategyCritEntry crit_entry(i+1);
+						crit_entry.Crit1 = crit1;
+						crit_entry.Crit2 = crit2;
+						THROW_SL(range_list_.insert(&crit_entry));
 					}
 				}
 			}
 		}
 	}
-	range_list.SortByValRev();
-	for(uint ridx = 0; ridx < range_list.getCount() && rScDest.getCount() < maxCount; ridx++) {
-		const RAssoc & r_range_item = range_list.at(ridx);
-		const uint pos = static_cast<uint>(r_range_item.Key-1);
+	//range_list.SortByValRev();
+	range_list_.sort(PTR_CMPFUNC(StrategyCritEntry));
+	for(uint ridx = 0; ridx < range_list_.getCount() && rScDest.getCount() < maxCount; ridx++) {
+		//const RAssoc & r_range_item = range_list.at(ridx);
+		const StrategyCritEntry & r_range_item_ = range_list_.at(ridx);
+		//const uint pos = static_cast<uint>(r_range_item.Key-1);
+		const uint pos = static_cast<uint>(r_range_item_.Idx-1);
 		assert(pos < _c);
 		const Strategy & r_item = at(pos);
 		// @v10.4.1 {

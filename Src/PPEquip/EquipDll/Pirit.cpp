@@ -768,16 +768,17 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				LDATE  Dt;
 				char   DocNo[32];
 				char   DocMemo[64];
+				double Vat20Amt; // @v10.4.8
 				double Vat18Amt;
 				double Vat10Amt;
 				double Vat0Amt;
 				double VatFreeAmt;
 				double Vat18_118Amt;
 				double Vat10_110Amt;
-				//
 				int    IsVatFree;
 				double VatRate;
 			};
+			int    is_there_vatamt = 0;
 			CheckCorrectionBlock blk;
 			STRNSCPY(blk.OperName, CshrName);
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
@@ -810,14 +811,42 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 						blk.IsVatFree = 1;
 				}
 				//
-				else if(s_param == "VATAMOUNT18")
+				else if(s_param == "VATAMOUNT20") {
+					blk.Vat20Amt = R2(param_val.ToReal());
+					if(blk.Vat20Amt != 0.0)
+						is_there_vatamt = 1;
+				}
+				else if(s_param == "VATAMOUNT18") {
 					blk.Vat18Amt = R2(param_val.ToReal());
-				else if(s_param == "VATAMOUNT10")
+					if(blk.Vat18Amt != 0.0)
+						is_there_vatamt = 1;
+				}
+				else if(s_param == "VATAMOUNT10") {
 					blk.Vat10Amt = R2(param_val.ToReal());
-				else if(s_param == "VATAMOUNT00" || s_param == "VATAMOUNT0")
+					if(blk.Vat10Amt != 0.0)
+						is_there_vatamt = 1;
+				}
+				else if(s_param == "VATAMOUNT00" || s_param == "VATAMOUNT0") {
 					blk.Vat0Amt = R2(param_val.ToReal());
-				else if(s_param == "VATFREEAMOUNT")
+					if(blk.Vat0Amt != 0.0)
+						is_there_vatamt = 1;
+				}
+				else if(s_param == "VATFREEAMOUNT") {
 					blk.VatFreeAmt = R2(param_val.ToReal());
+					if(blk.VatFreeAmt != 0.0)
+						is_there_vatamt = 1;
+				}
+			}
+			if(!is_there_vatamt) {
+				const double _amount = blk.BankAmt + blk.CashAmt;
+				if(blk.VatRate == 20.0)
+					blk.Vat20Amt = _amount;
+				else if(blk.VatRate == 18.0)
+					blk.Vat18Amt = _amount;
+				else if(blk.VatRate == 10.0)
+					blk.Vat10Amt = _amount;
+				else if(blk.VatRate == 0.0)
+					blk.Vat0Amt = _amount;
 			}
 			if(!checkdate(blk.Dt))
 				blk.Dt = getcurdate_();
@@ -891,13 +920,15 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					CreateStr(0.0, in_data);
 				}
 				else {
-					CreateStr(fabs(blk.Vat18Amt), in_data);
+					// @v10.4.8 CreateStr(fabs(blk.Vat18Amt), in_data);
+					CreateStr(fabs(blk.Vat20Amt), in_data); // @v10.4.8 
 					CreateStr(fabs(blk.Vat10Amt), in_data);
 					CreateStr(fabs(blk.Vat0Amt), in_data);
 					CreateStr(fabs(blk.VatFreeAmt), in_data);
 					CreateStr(fabs(blk.Vat18_118Amt), in_data);
 					CreateStr(fabs(blk.Vat10_110Amt), in_data);
 				}
+				CreateStr("", in_data); // @v10.4.8 Дополнительный реквизит чека (БСО)
 				//
 				THROW(ExecCmd("58", in_data, out_data, r_error));
 			}

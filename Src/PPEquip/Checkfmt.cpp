@@ -764,7 +764,10 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					if(Src == srcCCheck) {
 						double fiscal, nonfiscal;
 						p_ccp->HasNonFiscalAmount(&fiscal, &nonfiscal);
-						rResult.Cat(fiscal, SFMT_MONEY);
+						if(_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) // @v10.4.8
+							rResult.Cat(fiscal, SFMT_MONEY);
+						else
+							rResult.Cat(fiscal + nonfiscal, SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill)
 						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
@@ -775,7 +778,10 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					if(Src == srcCCheck) {
 						double fiscal, nonfiscal;
 						p_ccp->HasNonFiscalAmount(&fiscal, &nonfiscal);
-						rResult.Cat(nonfiscal, SFMT_MONEY);
+						if(_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) // @v10.4.8
+							rResult.Cat(nonfiscal, SFMT_MONEY);
+						else
+							rResult.Cat(0.0, SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill)
 						rResult.Cat(0.0, SFMT_MONEY);

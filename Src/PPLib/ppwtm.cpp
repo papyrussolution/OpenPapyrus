@@ -83,6 +83,21 @@ int SLAPI BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 	delete dlg;
 	return ok;
 }
+
+class LayoutEntryDialog : public TDialog {
+	typedef TLayout::EntryBlock DlgDataType;
+	DlgDataType Data;
+public:
+	LayoutEntryDialog() : TDialog(DLG_LAYOENTRY)
+	{
+	}
+	int setDTS(const DlgDataType * pData)
+	{
+	}
+	int getDTS(DlgDataType * pData)
+	{
+	}
+};
 //
 //
 //
@@ -107,6 +122,7 @@ protected:
 		int    ok = 1;
 		//uint8  ind = 0;
 		THROW(TWhatmanObject::Serialize(dir, rBuf, pCtx));
+		THROW(pCtx->Serialize(dir, ContainerIdent, rBuf));
 		if(dir > 0) {
 		}
 		else if(dir < 0) {
@@ -116,8 +132,10 @@ protected:
 	}
 	virtual int Draw(TCanvas2 & rCanv)
 	{
-		int    ok = -1;
-		return ok;
+		TRect b = GetBounds();
+		const TWhatman * p_wtm = GetOwner();
+		rCanv.Rect(b.grow(-1, -1), p_wtm ? p_wtm->GetTool(TWhatman::toolPenLayoutBorder) : 0, 0);
+		return 1;
 	}
 	virtual int HandleCommand(int cmd, void * pExt)
 	{
@@ -134,6 +152,60 @@ protected:
 			case cmdEditTool:
 				ok = BaseEditWhatmanToolItem(static_cast<TWhatmanToolArray::Item *>(pExt));
 				break;
+			case cmdEdit:
+				{
+					class WoLayoutDialog : public TDialog {
+						typedef WhatmanObjectLayout DlgDataType;
+						DlgDataType Data;
+					public:
+						WoLayoutDialog() : TDialog(DLG_WOLAYOUT)
+						{
+						}
+						int    setDTS(const DlgDataType * pData)
+						{
+							int    ok = 1;
+							RVALUEPTR(Data, pData);
+							setCtrlString(CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
+							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 0, DIREC_UNKN);
+							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 1, DIREC_HORZ);
+							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 2, DIREC_VERT);
+							SetClusterData(CTL_WOLAYOUT_LAY, Data.GetLayoutBlock().ContainerDirection);
+							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 0, ADJ_LEFT);
+							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 1, ADJ_RIGHT);
+							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 2, ADJ_CENTER);
+							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 3, ADJ_ALIGN);
+							SetClusterData(CTL_WOLAYOUT_ADJ, Data.GetLayoutBlock().ContainerAdjustment);
+							AddClusterAssoc(CTL_WOLAYOUT_FLAGS, 0, TLayout::EntryBlock::cfWrap);
+							SetClusterData(CTL_WOLAYOUT_FLAGS, Data.GetLayoutBlock().ContainerFlags);
+							return ok;
+						}
+						int    getDTS(DlgDataType * pData)
+						{
+							int    ok = 1;
+							TLayout::EntryBlock lb = Data.GetLayoutBlock();
+							getCtrlString(CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
+							lb.ContainerDirection = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_LAY));
+							lb.ContainerAdjustment = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_ADJ));
+							lb.ContainerFlags = static_cast<uint16>(GetClusterData(CTL_WOLAYOUT_FLAGS));
+							Data.SetLayoutBlock(&lb);
+							ASSIGN_PTR(pData, Data);
+							return ok;
+						}
+					};
+					WoLayoutDialog * dlg = new WoLayoutDialog();
+					if(CheckDialogPtrErr(&dlg)) {
+						dlg->setDTS(this);
+						if(ExecView(dlg) == cmOK) {
+							if(dlg->getDTS(this)) {
+								ok = 1;
+							}
+						}
+					}
+					else
+						ok = 0;
+					delete dlg;
+				}
+				break;
 		}
 		return ok;
 	}
@@ -141,8 +213,10 @@ protected:
 	{
 		int    ok = 1;
 		TWhatmanObject::Copy(rS);
+		ContainerIdent = rS.ContainerIdent;
 		return ok;
 	}
+	SString ContainerIdent; // Идентификатор контейнера для ссылки на него вложенных элементов
 };
 
 IMPLEMENT_WTMOBJ_FACTORY(Layout, "@wtmo_layout");
@@ -1378,6 +1452,7 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), w
 
 	Tb.CreatePen(penGrid, SPaintObj::psDash, 1.0f, SColor(0.7f));
 	Tb.CreatePen(penSubGrid, SPaintObj::psDot, 1.0f, SColor(0.7f));
+	Tb.CreatePen(penLayoutBorder, SPaintObj::psDot, 1.0f, SColor(SClrGreen)); // @v10.4.8
 
 	W.SetTool(TWhatman::toolPenObjBorder, penObjBorder);
 	W.SetTool(TWhatman::toolPenObjBorderSel, penObjBorderSel);
@@ -1389,6 +1464,7 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), w
 	W.SetTool(TWhatman::toolBrushRule, brRule);
 	W.SetTool(TWhatman::toolPenGrid, penGrid);
 	W.SetTool(TWhatman::toolPenSubGrid, penSubGrid);
+	W.SetTool(TWhatman::toolPenLayoutBorder, penLayoutBorder); // @v10.4.8
 	if(St.Mode == modeToolbox) {
 		TWhatmanToolArray::Param param;
 		Tools.GetParam(param);

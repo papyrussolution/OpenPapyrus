@@ -781,7 +781,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	VIEWSUPPLQUOT  : kbCtrlW,     TBBM_SUPPLQUOTS,       "@{qkcls_suppldeal}\tCtrl-W"
 	VIEWGOODSMATRIX: kbCtrlM,     TBBM_MATRIX,           "@{goodsmatrix}\tCtrl-M"
 	VIEWGOODSAGGR  : kbCtrlI,     TBBM_MEMBERSHIP,       "Членство в агрегациях\tCtrl-I"
-	DETAIL         : kbF11,       TBBM_GENGOODS,         "Обобщение\tF11"
+	DETAIL         : kbF11,       TBBM_GENGOODS,         "@{generalization}\tF11"
 	separator
 	EDITARCODES    : kbF6,        TBBM_ARCODE,           "@{codebyar_pl}\tF6"
 	MOVARCODES     : kbCtrlF6,    TBBM_NOICON,           "Перенести коды на другую статью\tCtrl-F6"

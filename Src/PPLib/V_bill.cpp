@@ -8133,8 +8133,50 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			return DlRtm::NextIteration(iterId);
 		}
 		else {
-			I.recNo = 0;
-			PPWaitPercent(p_v->GetCounter());
+			// @v10.4.8 @erik {
+			if(GetOpType(item.OpID) == PPOPT_PAYMENT) {
+				double cost = 0.0;
+				double old_cost = 0.0;
+				double price = 0.0;
+				double old_price = 0.0;
+				double qtty  = 0.0;
+				double old_qtty = 0.0;
+				double coefnt_cost_price = 0.0;
+				I.GoodsID  = 0;
+				I.LotID    = 0;
+				BillTbl::Rec link_bill_rec;
+				if(item.LinkBillID && p_bobj->Search(item.LinkBillID, &link_bill_rec) > 0 && link_bill_rec.Amount != 0.0) {
+					PPBillPacket link_bpack;
+					if(p_bobj->ExtractPacket(item.LinkBillID, &link_bpack) > 0) {
+						qtty = item.Amount / link_bpack.Rec.Amount;
+						cost = link_bpack.Amounts.Get(PPAMT_BUYING, link_bpack.Rec.CurID);
+						price = link_bpack.Amounts.Get(PPAMT_SELLING, link_bpack.Rec.CurID);
+						coefnt_cost_price = cost / price;
+						I.Cost = item.Amount * coefnt_cost_price;
+						I.OldCost = 0.0;
+						I.Price = item.Amount;
+						I.OldPrice = 0.0;
+						I.CurPrice = qtty;
+						I.Quantity = 1.0; //один раз оплата
+						I.OldQtty = 0.0;
+					}
+				}
+				else {
+					I.Cost     = cost;
+					I.OldCost  = old_cost;
+					I.Price    = price;
+					I.OldPrice = old_price;
+					I.CurPrice = 0.0;
+					I.Quantity = 0.0;
+					I.OldQtty  = 0.0;
+				}
+				return DlRtm::NextIteration(iterId);
+			}
+			// } @v10.4.8 @erik
+			else {
+				I.recNo = 0;
+				PPWaitPercent(p_v->GetCounter());
+			}
 		}
 	}
 	return -1;

@@ -996,7 +996,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 			StakeCommentBlock scb;
 			scb.ParseText(comment_buf);
 			double last_value = 0.0;
-			const  double avg_spread = rBlk.GetAverageSpread() * 1.1;
+			const  double avg_spread = rBlk.GetAverageSpread() * 2.0; // @20190603 1.1-->2.0
 			rBlk.T_.GetValue(rBlk.T_.GetCount()-1, vec_idx, &last_value);
 			if(pPse && scb.TargetQuant > 0.0 && scb.SpikeQuant > 0.0) {
 				// Если переданная функции наилучшая текущая стратегия является обратной к данной, то посмотрим не следует ли
@@ -1109,7 +1109,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 				// } @v10.3.11
 				uint   max_duck_quant_for_sl = scb.MaxDuckQuant;
 				uint   sl_adj = 0;
-				int    do_use_accelerated_sl = 1; // @v10.4.5 // @v10.4.6 0--1
+				int    do_use_accelerated_sl = 0; // @v10.4.5 // @v10.4.6 0-->1 // @20190526 1-->0
 				// @20190424 {
 				if(do_use_accelerated_sl && rStk.Profit > 0.0) {
 					if(is_short) {
@@ -1124,6 +1124,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 						max_duck_quant_for_sl = extra_maxduck_quant;
 				}
 				// } @20190424 
+				const int    allow_stake_upd = 0;
 				const double external_sl = (max_duck_quant_for_sl > 0 && scb.SpikeQuant > 0.0) ?
 					PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(last_value, is_short, prec, max_duck_quant_for_sl, scb.SpikeQuant, avg_spread) : 0.0;
 				const double external_tp = (scb.TargetQuant > 0 && scb.SpikeQuant > 0.0) ?
@@ -1145,8 +1146,11 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 					const bool do_update_sl = (rStk.SL <= 0.0 && eff_sl > 0.0) ? true : (is_short ? (eff_sl < rStk.SL) : (eff_sl > rStk.SL));
 					const bool do_update_tp = (rStk.TP <= 0.0 && eff_tp > 0.0) ? true : (is_short ? (eff_tp > rStk.TP) : (eff_tp < rStk.TP));
 					if(do_update_sl || do_update_tp) {
-						{
-							log_msg.Z().Cat("StakeUpd").CatDiv(':', 2).
+						if(allow_stake_upd) { // @20190603
+							log_msg.Z().Cat("StakeUpd");
+							if(!allow_stake_upd)
+								log_msg.Space().CatParStr("disabled");
+							log_msg.CatDiv(':', 2).
 								Cat(stk_symb).CatChar('-').
 								Cat(is_short ? "S" : "B").CatChar('/').
 								Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
@@ -1169,17 +1173,19 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 							log_msg.Space().Cat(comment_buf);
 							PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 						}
-						TsStakeEnvironment::StakeRequestBlock::Req req;
-						req.Ticket = rStk.Ticket;
-						req.Action = TsStakeEnvironment::traSLTP;
-						req.Type = rStk.Type;
-						req.TsID = rBlk.PPTS.ID;
-						rResult.AddS(stk_symb, &req.SymbolP);
-						req.Volume = 0;
-						req.SL = do_update_sl ? eff_sl : rStk.SL;
-						req.TP = do_update_tp ? eff_tp : rStk.TP;
-						THROW_SL(rResult.L.insert(&req));
-						ok = 1;
+						if(allow_stake_upd) {
+							TsStakeEnvironment::StakeRequestBlock::Req req;
+							req.Ticket = rStk.Ticket;
+							req.Action = TsStakeEnvironment::traSLTP;
+							req.Type = rStk.Type;
+							req.TsID = rBlk.PPTS.ID;
+							rResult.AddS(stk_symb, &req.SymbolP);
+							req.Volume = 0;
+							req.SL = do_update_sl ? eff_sl : rStk.SL;
+							req.TP = do_update_tp ? eff_tp : rStk.TP;
+							THROW_SL(rResult.L.insert(&req));
+							ok = 1;
+						}
 					}
 				}
 			}
@@ -1457,9 +1463,10 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 					stk_symb = r_pse.R_Blk.T_.GetSymb();
 					const double cost = EvaluateCost(r_pse.R_Blk, LOGIC(r_s.BaseFlags & r_s.bfShort), r_pse.Volume);
 					if(cost > 0.0) {
-						const double avg_spread = r_pse.R_Blk.GetAverageSpread() * 1.1;
-						const double sl = r_s.CalcSL(last_value, avg_spread);
-						const double tp = r_s.CalcTP(last_value, avg_spread);
+						const double avg_spread_sl = r_pse.R_Blk.GetAverageSpread() * 2.0; // @20190602 1.1-->1.2 // @20190603 1.2-->2.0
+						const double avg_spread_tp = r_pse.R_Blk.GetAverageSpread() * 2.0; // @20190603 1.1-->2.0
+						const double sl = r_s.CalcSL(last_value, avg_spread_sl);
+						const double tp = r_s.CalcTP(last_value, avg_spread_tp);
 						const long trange_fmt = MKSFMTD(0, 10, NMBF_NOTRAILZ);
 						log_msg.Z().Cat("Stake").CatDiv(':', 2).
 							Cat(stk_symb).CatChar('-').

@@ -244,6 +244,18 @@ int    TWhatmanObject::Draw(TCanvas2 & rCanv) { return -1; }
 const  TWhatmanObject::TextParam & TWhatmanObject::GetTextOptions() const { return TextOptions; }
 TWhatman * TWhatmanObject::GetOwner() const { return P_Owner; }
 TWindow  * TWhatmanObject::GetOwnerWindow() const { return P_Owner ? P_Owner->GetOwnerWindow() : 0; }
+const SString & TWhatmanObject::GetSymb() const { return Symb; }
+
+const TLayout::EntryBlock & TWhatmanObject::GetLayoutBlock() const { return Le; }
+
+void TWhatmanObject::SetLayoutBlock(const TLayout::EntryBlock * pBlk)
+{
+	if(pBlk) {
+		Le = *pBlk;
+	}
+	else {
+	}
+}
 
 int TWhatmanObject::Setup(const TWhatmanToolArray::Item * pWtaItem)
 {
@@ -831,9 +843,28 @@ int TWhatman::SetTool(int toolId, int paintObjIdent)
 		case toolBrushRule:  TidBrushRule = paintObjIdent; break;
 		case toolPenGrid:    TidPenGrid = paintObjIdent; break;
 		case toolPenSubGrid: TidPenSubGrid = paintObjIdent; break;
+		case toolPenLayoutBorder: TidPenLayoutBorder = paintObjIdent; break; // @v10.4.8
 		default: ok = 0; break;
 	}
 	return ok;
+}
+
+int TWhatman::GetTool(int toolId) const
+{
+	switch(toolId) {
+		case toolPenObjBorder:    return TidPenObjBorder;
+		case toolPenObjBorderSel: return TidPenObjBorderSel;
+		case toolPenObjBorderCur: return TidPenObjBorderCur;
+		case toolPenObjRszSq:     return TidPenObjRszSq;
+		case toolBrushObjRszSq:   return TidBrushObjRszSq;
+		case toolPenObjNonmovBorder: return TidPenObjNonmovBorder;
+		case toolPenRule:    return TidPenRule;
+		case toolBrushRule:  return TidBrushRule;
+		case toolPenGrid:    return TidPenGrid;
+		case toolPenSubGrid: return TidPenSubGrid;
+		case toolPenLayoutBorder: return TidPenLayoutBorder; // @v10.4.8
+	}
+	return 0;
 }
 
 int TWhatman::SetArea(const TRect & rArea)

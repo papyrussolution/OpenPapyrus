@@ -380,6 +380,7 @@ SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf)
 		"Январ[ь|я]", "Феврал[ь|я]", "Март[|а]", "Апрел[ь|я]", "Ма[й|я]", "Июн[ь|я]",
 		"Июл[ь|я]", "Август[|а]", "Сентябр[ь|я]", "Октябр[ь|я]", "Ноябр[ь|я]", "Декабр[ь|я]"
 	};
+	//"Январ[ь|я],Феврал[ь|я],Март[|а],Апрел[ь|я],Ма[й|я],Июн[ь|я],Июл[ь|я],Август[|а],Сентябр[ь|я],Октябр[ь|я],Ноябр[ь|я],Декабр[ь|я]"
 	rBuf.Z();
 	if(mon >= 1 && mon <= 12) {
 		_getWordForm(p_month_names[mon-1], fmt, rBuf);
@@ -1702,11 +1703,11 @@ int CALDATE::IsDate(LDATE dt) const
 	int    d, m, y;
 	decodedate(&d, &m, &y, this);
 	if(d >= 1 && d <= 7 && !m && !y) // day of week
-		return (d == dayofweek(this, 1)) ? 1 : 0;
+		return BIN(d == dayofweek(this, 1));
 	else if(d && m && !y) // calendar date
-		return (d == dt.day() && m == dt.month()) ? 1 : 0;
+		return BIN(d == dt.day() && m == dt.month());
 	else // simple date
-		return (dt == *this) ? 1 : 0;
+		return BIN(dt == *this);
 }
 
 SString & CALDATE::Format(int options, SString & rBuf) const

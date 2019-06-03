@@ -1,5 +1,5 @@
 % DEVELOP.TEX
-% Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015
+% Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2019
 % Part of project Papyrus
 % Разработка программной системы: принципы и реализация %
 %
@@ -260,12 +260,20 @@
 \section{Строковые типы}
 
 \subsection{SString}
+Основной класс для представления multibyte-строк в системе.
 
 \subsection{SStringU}
 
 \section{Другие типы данных}
 
 \chapter{Базовые структуры данных}
+
+\section{Базовый вектор SVectorBase}
+Базовый класс, от которого порождены все остальные векторные классы. Реализует механизмы работы сплошного 
+непрерывного вектора с плоскими элементами одинакового размера, доступ к которым осуществляется по индексу 
+позиции в диапазоне [0..count-1].
+Никаких виртуальных методов этот класс не декларирует. В результате он лишен механизма разрушения сложных
+элементов.
 
 \section{Массив (SArray)}
 
@@ -276,6 +284,447 @@
 \section{Набор строк (StringSet)}
 
 \chapter{Доступ к базам данных}
+
+\chapter{Объекты данных (классы семейства PPObject)}
+
+\begin{description}
+	\item[PPOBJ\_CONFIG] ObjID=1      class PPObjSecur              
+	Конфигурация системы
+	\item[PPOBJ\_STATUS] ObjID=2      class PPObjSecur              
+	Текущее состояние
+	\item[PPOBJ\_USRGRP] ObjID=3      class PPObjSecur              
+	Группы пользователей
+	\item[PPOBJ\_USR] ObjID=4      class PPObjSecur              
+	Пользователи
+	\item[PPOBJ\_UNIT] ObjID=5      class PPObjUnit               
+	Единицы измерения
+	\item[PPOBJ\_CURRATE] ObjID=6      class PPObjCurRateType        
+	Типы валютных курсов      
+	\item[PPOBJ\_CITYSTATUS] ObjID=7      class PPObjWorldObjStatus     
+	Статусы населенных пунктов        
+	\item[PPOBJ\_PRSNKIND] ObjID=8      class PPObjPersonKind         
+	Виды персоналий       
+	\item[PPOBJ\_PRSNSTATUS] ObjID=9      class PPObjPersonStatus       
+	Юридические статусы персоналий        
+	\item[PPOBJ\_STAFFRANK] ObjID=10     class PPObjReference          
+	\item[PPOBJ\_OPRTYPE] ObjID=11     class PPObjOprType            
+	Типы операций
+	\item[PPOBJ\_OPRKIND] ObjID=12     class PPObjOprKind            
+	Виды операций       
+	\item[PPOBJ\_ACCSHEET] ObjID=13     class PPObjAccSheet           
+	Таблицы аналитических статей        
+	\item[PPOBJ\_BNKACCTYPE] ObjID=14     class PPObjReference          
+	Типы банковских счетов
+	\item[PPOBJ\_PRICETYPE] ObjID=15     сlass PPObjReference          unused 
+	Типы цен 
+	\item[PPOBJ\_AMOUNTTYPE] ObjID=16     class PPObjAmountType         
+	Типы сумм документов
+	\item[PPOBJ\_CASHNODE] ObjID=17     class PPObjCashNode           
+	Расчетные кассовые узлы     
+	\item[PPOBJ\_ACTION] ObjID=18     class PPObjReference          
+	События, регистрируемые в системном журнале
+	\item[PPOBJ\_COUNTGRP] ObjID=19                                   unused
+	\item[PPOBJ\_BCODESTRUC] ObjID=20     class PObjBarCodeStruc        
+	Система внутренних штрих-кодов     
+	\item[PPOBJ\_DBDIV] ObjID=21     class PPObjDBDiv              
+	Разделы базы данных        
+	\item[PPOBJ\_GOODSTYPE] ObjID=22     class PPObjGoodsType          
+	Типы товаров       
+	\item[PPOBJ\_PROBLEM] ObjID=23                                   unused
+	\item[PPOBJ\_GOODSSTRUC] ObjID=24     class PObjGoodsStruc          
+	Структуры товаров      
+	\item[PPOBJ\_FORMULA] ObjID=25     class PPObjFormula            
+	Формулы        
+	\item[PPOBJ\_SCALE] ObjID=26     class PPObjScale              
+	Электронные весы       
+	\item[PPOBJ\_ELINKKIND] ObjID=28     class PPObjELinkKind          
+	Виды адресов электронной связи     
+	\item[PPOBJ\_REGISTERTYPE] ObjID=27     class PPObjRegisterType       
+	Типы регистрационных документов        
+	\item[PPOBJ\_QUOTKIND] ObjID=29     class PPObjQuotKind           
+	Виды котировок     
+	\item[PPOBJ\_PERSONOPKIND] ObjID=30     class PPObjPsnOpKind          
+	Вид персональной операции      
+	\item[PPOBJ\_TAG] ObjID=31     class PPObjTag                
+	Тэги объектов      
+	\item[PPOBJ\_GOODSTAX] ObjID=32     class PPObjGoodsTax           
+	Налоговые группы товаров       
+	\item[PPOBJ\_BCODEPRINTER] ObjID=33     class PPObjBarcodePrinter     
+	Принтеры штрихкодов        
+	\item[PPOBJ\_CURRENCY] ObjID=34     class PPObjCurrency           
+	Валюты     
+	\item[PPOBJ\_CURRATETYPE] ObjID=35     class PPObjCurRateType        
+	Типы валютных курсов       
+	\item[PPOBJ\_OPCOUNTER] ObjID=36     class PPObjOpCounter          
+	Счетчики документов     
+	\item[PPOBJ\_GOODSCLASS] ObjID=37     class PPObjGoodsClass         
+	Отраслевые классы товаров       
+	\item[PPOBJ\_GOODSBASKET] ObjID=40     class PPObjGoodsBasket        
+	Корзина товаров     
+	\item[PPOBJ\_BHT] ObjID=41     class PPObjBHT                
+	BHT-терминалы       
+	\item[PPOBJ\_SCARDSERIES] ObjID=42     class PPObjSCardSeries        
+	Серия персональных карт
+	\item[PPOBJ\_STYLOPALM] ObjID=43     class PPObjStyloPalm          
+	PDA Palm        
+	\item[PPOBJ\_ASSTWROFFGRP] ObjID=44     class PPObjAssetWrOffGrp      
+	Группа списания активов     
+	\item[PPOBJ\_DRAFTWROFF] ObjID=45     class PPObjDraftWrOff         
+	Конфигурация списания драфт-документов      
+	\item[PPOBJ\_ADVBILLKIND] ObjID=46     class PPObjAdvBillKind        
+	Виды первичных документов (например, для авансовых отчетов)
+	\item[PPOBJ\_TRANSPMODEL] ObjID=47     class PPObjReference          
+	Модели транспортных средств     
+	\item[PPOBJ\_INTERNETACCOUNT] ObjID=48     class PPObjInternetAccount    
+	Почтовые учетные записи     
+	\item[PPOBJ\_PERSONRELTYPE] ObjID=49     class PPObjPersonRelType      
+	Тип отношения между персоналиями        
+	\item[PPOBJ\_PRSNCATEGORY] ObjID=50     class PPObjReference          
+	Категории персоналий        
+	\item[PPOBJ\_BILLSTATUS] ObjID=51     class PPObjBillStatus         
+	Статусы документов      
+	\item[PPOBJ\_TOUCHSCREEN] ObjID=52     class PPObjTouchScreen        
+	TouchScreen     
+	\item[PPOBJ\_DUTYSCHED] ObjID=53     class PPObjDutySched          
+	Расписания дежурств      
+	\item[PPOBJ\_DATETIMEREP] ObjID=54     class PPObjDateTimeRep        
+	Периодичность        
+	\item[PPOBJ\_LOCPRINTER] ObjID=55     class PPObjLocPrinter         
+	Принтеры, привязанные к складам      
+	\item[PPOBJ\_SALCHARGE] ObjID=56     class PPObjSalCharge          
+	Схема начисления зарплаты        
+	\item[PPOBJ\_STAFFCAL] ObjID=58     class PPObjStaffCal           
+	Штатный календарь        
+	\item[PPOBJ\_NAMEDOBJASSOC] ObjID=59     class PPObjNamedObjAssoc      
+	Именованные ассоциации объектов
+	\item[PPOBJ\_BIZSCORE] ObjID=60     class PPObjBizScore           
+	Определители бизнес-показателей
+	\item[PPOBJ\_GLOBALUSERACC] ObjID=61     class PPObjGlobalUserAcc      
+	Учетная запись глобального пользователя (внешнего по отношению к текущей базе данных)
+	\item[PPOBJ\_GOODSVALRESTR] ObjID=62     class PPObjGoodsValRestr      
+	Ограничения товарных величин
+	\item[PPOBJ\_PALLET] ObjID=63     class PPObjPallet             
+	Складские паллеты
+	\item[PPOBJ\_DEBTDIM] ObjID=64     class PPObjDebtDim            
+	Размерность расчета долгов по документам
+	\item[PPOBJ\_EVENTTOKEN] ObjID=65                                   
+	Специальный объект, используемый как уникальная метка для событий.
+	\item[PPOBJ\_SMSPRVACCOUNT] ObjID=66     class PPObjSmsAccount         
+	Учетная запись провайдера рассылки SMS
+	\item[PPOBJ\_PHONESERVICE] ObjID=67     class PPObjPhoneService       
+	Оборудование компьютерной телефонии
+	\item[PPOBJ\_GTACTION] ObjID=68     class PPObjGtaAction          
+	События, регистрируемые в журнале тарфицируемых операций глобальных аккаунтов
+	\item[PPOBJ\_SENDSMS] ObjID=69                                   
+	Отправка смс
+	\item[PPOBJ\_UHTTSTORE] ObjID=70     class PPObjUhttStore          
+	Интернет-магазин Universe-HTT
+	\item[PPOBJ\_GENERICDEVICE] ObjID=71     class PPObjGenericDevice  
+	Обобщенное устройство
+	\item[PPOBJ\_WORKBOOK\_PRE813] ObjID=72                             
+	Элемент сайта
+	\item[PPOBJ\_USERPROFILE] ObjID=73
+	\item[PPOBJ\_EDIPROVIDER	] ObjID=74     class PPObjEdiProvider        
+	Провайдеры EDI-обмена
+	\item[PPOBJ\_USREXCLRIGHTS] ObjID=75                                   
+	Исключения для пользовательских прав доступа при некоторых действиях
+	\item[PPOBJ\_STAFFLIST2] ObjID=76                                   
+	Штатное расписание (2-я версия объекта - записи перемещены из
+	\item[PPOBJ\_ACCOUNT2] ObjID=77                                   
+	Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
+	\item[PPOBJ\_TIMESERIES] ObjID=78     class PPObjTimeSeries         
+	Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
+	\item[PPOBJ\_FREIGHTPACKAGETYPE] ObjID=79     class PPObjFreightPackageType 
+	Тип транспортной упаковки
+	\item[PPOBJ\_DYNAMICOBJS] ObjID=100    class PPObjDynamicObjs        
+	Список динамических объектов     
+	\item[PPOBJ\_WOODBREED] ObjID=101    class PPObjReference          
+	Породы древесины     
+	\item[PPOBJ\_SLVP] ObjID=102                                  
+	Поправки объемов бревен      
+	\item[PPOBJ\_UNASSIGNED] ObjID=1000         
+	\item[PPOBJ\_COUNTRY] ObjID=1001   class PPObjCountry            
+	Государства      
+	\item[PPOBJ\_REGION] ObjID=1002   class PPObjRegion             
+	Регионы      
+	\item[PPOBJ\_CITY] ObjID=1003   class PPObjCity               
+	Населенные пункты        
+	\item[PPOBJ\_PERSON] ObjID=1004   class PPObjPerson             
+	Персоналии       
+	\item[PPOBJ\_BACCT] ObjID=1005   class PPObjBnkAcct            
+	Банковские счета        
+	\item[PPOBJ\_ARTICLE] ObjID=1006   class PPObjArticle            
+	Статьи аналитического учета     
+	\item[PPOBJ\_ACCOUNT] ObjID=1007   class PPObjAccount            
+	Бухгалтерские счета (балансовые)        
+	\item[PPOBJ\_GOODSGROUP] ObjID=1008   class PPObjGoodsGroup         
+	Группы товаров      
+	\item[PPOBJ\_GOODS] ObjID=1009   class PPObjGoods              
+	Товары      
+	\item[PPOBJ\_LOCATION] ObjID=1010   class PPObjLocation           
+	Локации. Адреса, склады.
+	\item[PPOBJ\_BILL] ObjID=1011   class PPObjBill               
+	Документы       
+	\item[PPOBJ\_ACCTURN] ObjID=1012   class PPObjAccTurn            
+	Бухгалтерские проводки        
+	\item[PPOBJ\_QCERT] ObjID=1013   class PPObjQCert              
+	Сертификаты качества      
+	\item[PPOBJ\_PRICELIST] ObjID=1014                                 
+	Прайс-листы        
+	\item[PPOBJ\_VATBOOK] ObjID=1015   class PPObjVATBook            
+	Книги продаж и покупок        
+	\item[PPOBJ\_REGISTER] ObjID=1017   class PPObjRegister           
+	Регистрационные документы     
+	\item[PPOBJ\_PERSONEVENT] ObjID=1018   class PPObjPersonEvent        
+	Персональные события      
+	\item[PPOBJ\_INVENTORY] ObjID=1019                                 
+	Инвентаризаци        
+	\item[PPOBJ\_STAFFLIST] ObjID=1021   class PPObjStaffList          
+	Штатное расписание        
+	\item[PPOBJ\_LOT] ObjID=1022                                 
+	Лоты      
+	\item[PPOBJ\_CSESSION] ObjID=1023   class PPObjCSession           
+	Кассовые сессии       
+	\item[PPOBJ\_ACCTREL] ObjID=1024                                 
+	Бухгалтерские связки     
+	\item[PPOBJ\_OBJASSOC] ObjID=1025                                 
+	Ассоциации объектов      
+	\item[PPOBJ\_PACKAGE] ObjID=1026                                 
+	Товарные пакеты      
+	\item[PPOBJ\_PCKGTYPE] ObjID=1027   class PPObjPckgType           
+	Types of goods packages      
+	\item[PPOBJ\_TRANSPORT] ObjID=1028   class PPObjTransport          
+	Транспортные средства        
+	\item[PPOBJ\_QUOT] ObjID=1039   class PPObjQuotKind           
+	Котировки        
+	\item[PPOBJ\_GOODSREST] ObjID=1030                                 
+	Остатки товаров (синхронизируется)      
+	\item[PPOBJ\_SCARD] ObjID=1031   class PPObjSCard              
+	Пластиковые карточки     
+	\item[PPOBJ\_CCHECK] ObjID=1032                                 
+	Кассовые чеки       
+	\item[PPOBJ\_PROJECT] ObjID=1033   class PPObjProject            
+	Проекты      
+	\item[PPOBJ\_BRAND] ObjID=1034   class PPObjBrand              
+	Брэнды       
+	\item[PPOBJ\_MRPTAB] ObjID=1035   class PPObjMrpTab             
+	MRP-таблицы      
+	\item[PPOBJ\_PRJTASK] ObjID=1036   class PPObjPrjTask            
+	Задачи по проекту        
+	\item[PPOBJ\_PROCESSOR] ObjID=1037   class PPObjProcessor          
+	Процессоры        
+	\item[PPOBJ\_TECH] ObjID=1038   class PPObjTech               
+	Технологии      
+	\item[PPOBJ\_TSESSION] ObjID=1039   class PPObjTSession           
+	Процессорные сессии     
+	\item[PPOBJ\_DFCREATERULE] ObjID=1040   class PPObjDraftCreateRule    
+	Правила для создания драфт документа        
+	\item[PPOBJ\_BILLSYMB] ObjID=1041                                 
+	Символы формул сумм документов (используется только для организации кэша)
+	\item[PPOBJ\_DBXCHG] ObjID=1042                                 
+	Обмен данными между разделами      
+	\item[PPOBJ\_WORLD] ObjID=1043   class PPObjWorld              
+	Географические объекты         
+	\item[PPOBJ\_GOODSINFO] ObjID=1044   class PPObjGoodsInfo          
+	\item[PPOBJ\_PERSONPOST] ObjID=1045                                 
+	Должностные назначения
+	\item[PPOBJ\_BUDGET] ObjID=1054   class PPObjBudget             
+	Бюджеты
+	\item[PPOBJ\_BIZSCTEMPL] ObjID=1055   class PPObjBizScTempl         
+	Шаблоны бизнес показателей
+	\item[PPOBJ\_RFIDDEVICE] ObjID=1057   class PPObjRFIDDevice         
+	rfid устройства
+	\item[PPOBJ\_SPECSERIES] ObjID=1058   
+	\item[PPOBJ\_EADDR] ObjID=1059
+	\item[PPOBJ\_COMPGOODS] ObjID=1065  
+	Товары с составляющими
+	\item[PPOBJ\_WORKBOOK] ObjID=1066   class PPObjWorkbook           
+	рабочие книги (замещает PPOBJ\_WORKBOOK\_PRE813)
+	\item[PPOBJ\_KEYWORD] ObjID=1067    
+	Ключевые слова
+	\item[PPOBJ\_FIAS] ObjID=1069       
+	Объект, управляющий данными справочника адресов России ФИАС. Не является полноправным PPObject'ом
+\end{description}
+
+\chapter{Контроллеры анализа данных (классы семейства PPView)}
+
+\begin{description}
+	\item[class PPView]
+	Базовый класс для реализации механизмов контроллера анализа данных.
+	\item[class PPViewStaffList]          
+	Штатное расписание. Дополнительный объект: Организация и подразделение.
+	\item[class PPViewStaffPost]          
+	Штатные назначения. Дополнительный объект: Сотрудник, организация и подразделение.
+	\item[class PPViewSalary]             
+	Зарплата. Дополнительный объект: Персоналия.
+	\item[class PPViewPersonEvent]                                         
+	Персональные события. Выбранный период.
+	\item[class PPViewPerson]             
+	Персоналии. Поле “SrchStr” фильтра
+	\item[class PPViewSysJournal]         
+	Системный журнал. Выбранный период.
+	\item[class PPViewGoods]              
+	Товары. Выбранный период и поле “SrchStr” фильтра.
+	\item[class PPViewGoodsStruc]         
+	Структура товаров.                см. PPViewGoods
+	\item[class PPViewQuot]               
+	Котировки. Диапазон значений котировки.
+	\item[class PPViewQCert]              
+	Сертификат качества. Строка, содержащаяся в коде и внутренний код
+	\item[class PPViewInventory]          
+	Инвентаризация. Диапазон значений, флаги фильтра в двоичном представлении.
+	\item[class PPViewDvcLoadingStat]                                      
+	Выбранный период.
+	\item[class PPViewDLSDetail]           
+	\item[class PPViewProcessor]          
+	Процессоры.
+	\item[class PPViewTech]               
+	Технологии.
+	\item[class PPViewTSession]          
+	Технологические сессии. Выбранный период; ID суперсессии
+	\item[class PPViewTSessAnlz]          
+	Анализ технологических сессий. Выбранный период.
+	\item[class PPViewTSessLine]          
+	Строки технологических сессий. Период начала сессии, кол-во в списке
+	\item[class PPViewBill]               
+	Документы. Период; период оплаты;
+	\item[class PPViewAccturn]
+	Бухгалтерские проводки. Выбранный период, диапазон значений (поле фильтра “AmtR”)
+	\item[class PPViewLot]                
+	Лоты. Период поступления; операционный период; серийный номер; диапазоны цен поступления и реализации
+	\item[class PPViewAsset]              
+	Основные средства.
+	\item[class PPViewPredictSales]            
+	\item[class PPViewGoodsRest]          
+	Остатки товаров. Период прогноза.
+	\item[class PPViewGoodsTaxAnalyze]        
+	\item[class PPViewPriceList]          
+	Прайс-лист. Период прихода товаров.
+	\item[class PPViewDebtTrnovr]         
+	Долговая ведомость.
+	\item[class PPViewShipmAnalyze]           
+	Анализ отгрузки.
+	\item[class PPViewAccount]            
+	Бухгалтерские счета.
+	\item[class PPViewCurRate]         
+	\item[class PPViewBalance]            
+	Бухгалтерский баланс.
+	\item[class PPViewAccAnlz]            
+	Анализ бухгалтерского счета.                     Выбранный период
+	\item[class PPViewVatBook]            
+	Книга продаж/покупок.
+	\item[class PPViewTrfrAnlz]            
+	Анализ товарных операций.
+	\item[class PPViewOpGrouping]          
+	Группировка товарных операций.
+	\item[class PPViewGoodsMov]           
+	Движение товаров. Выбранный период.
+	\item[class PPViewCSess]           
+	\item[class PPViewCSessExc]            
+	\item[class PPViewCCheck]             
+	Кассовые чеки. Выбранный период.
+	\item[class PPViewObjSync]         
+	\item[class PPViewTrfrAnlz]            
+	\item[class PPViewGoodsOpAnalyze]     
+	Группировка товарных операций. Выбранный период; период для сравнения; кол-во товаров в списке; кол-во документов в списке.
+	\item[class PPViewSCard]              
+	Персональные карты.
+	\item[class PPViewSCardOp]            
+	Операция по персональной карте.
+	\item[class PPViewArticle]            
+	Статьи аналитического учета.
+	\item[class PPViewGoodsBasket]        
+	Корзина товаров.
+	\item[class PPViewGoodsTrnovr]         
+	Товарооборот.
+	\item[class PPViewPaymPlan]           
+	План продаж.
+	\item[class PPViewSStat]           
+	Статистика продаж.
+	\item[class PPViewOprKind]            
+	Виды операций.
+	\item[class PPViewMrpTab]            
+	MRP-таблицы.
+	\item[class PPViewMrpLine]            
+	Строки MRP-таблиц.
+	\item[class PPViewPrjTask]         
+	Задачи.
+	\item[class PPViewProject]            
+	Проекты.      
+	\item[class PPViewPriceAnlz]          
+	Анализ цен.
+	\item[class PPViewRptInfo]         
+	\item[class PPViewPersonRel]           
+	\item[class PPViewLogsMonitor]        
+	Монитор журналов. Список файлов журналов, не более 3х.
+	\item[class PPViewAmountType]         
+	Типы сумм документов.
+	\item[class PPViewBizScore]
+	\item[class PPViewBizScoreVal]
+	\item[class PPViewBizScTempl]
+	\item[class PPViewBizScValByTempl]
+	\item[class PPViewBrand]              
+	Бренды.
+	\item[class PPViewBrowser]            
+	Класс, реализующий отображение таблицы контроллера анализа данных.
+	\item[class PPViewBudget]             
+	Бюджеты.
+	\item[class PPViewCashNode]           
+	Кассовые узелы.
+	\item[class PPViewCheckOpJrnl]
+	\item[class PPViewDBDiv]
+	\item[class PPViewDBMonitor]
+	\item[class PPViewDebtorStat]         
+	Анализ Статистика по должникам.
+	\item[class PPViewDialog]             
+	\item[class PPViewDisplayExtList]     
+	Список дополнительных полей для вывода.
+	\item[class PPViewFreight]            
+	Фрахты.
+	\item[class PPViewGeoTracking]        
+	Гео-трекинг.
+	\item[class PPViewGlobalUserAcc]      
+	Глобальнае учетные записи.
+	\item[class PPViewGoodsBillCmp]
+	\item[class PPViewGoodsMov2]
+	\item[class PPViewGoodsToObjAssoc]
+	\item[class PPViewGtaJournal]
+	\item[class PPViewJob]
+	\item[class PPViewLinkedBill]         
+	Документы, связанные с каким-либо конкретным иным документов.
+	\item[class PPViewLocTransf]
+	\item[class PPViewLotExtCode]         
+	Дополнительные коды по лотам.
+	\item[class PPViewLotOp]              
+	Операции по лоту.
+	\item[class PPViewObjLikeness]
+	\item[class PPViewObjSyncCmp]
+	\item[class PPViewObjSyncQueue]
+	\item[class PPViewPalm]
+	\item[class PPViewPhnSvcMonitor]
+	\item[class PPViewPrcBusy]
+	\item[class PPViewRegisterType]        
+	Тип регистрационных документов.
+	\item[class PPViewReport]              
+	Отчеты.
+	\item[class PPViewScale]
+	Электронные весы.
+	\item[class PPViewServerStat]          
+	Статистика сервера Papyrus.
+	\item[class PPViewSpecSeries]          
+	Специальные серии.
+	\item[class PPViewStaffCal]            
+	\item[class PPViewStockOpt]
+	\item[class PPViewSuprWare]
+	\item[class PPViewTimeSeries]
+	\item[class PPViewTransport]           
+	Транспортные средства.
+	\item[class PPViewUhttSCardOp]
+	\item[class PPViewUserProfile]         
+	Профили пользовательских функций.
+	\item[class PPViewVetisDocument]
+	Ветеринарные документы Ветис Меркурий.
+\end{description}
 
 \chapter{Соображения по вопросу неотрицательности товарных остатков}
 

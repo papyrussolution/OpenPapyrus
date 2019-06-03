@@ -242,7 +242,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
@@ -286,7 +286,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
@@ -331,7 +331,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
@@ -375,7 +375,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\DEVELOP\bzip2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -418,7 +418,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\DEVELOP\bzip2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -461,7 +461,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\DEVELOP\bzip2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -502,7 +502,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
@@ -546,7 +546,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
@@ -591,7 +591,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
@@ -635,7 +635,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\DEVELOP\bzip2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -678,7 +678,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\DEVELOP\bzip2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -721,7 +721,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\DEVELOP\bzip2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

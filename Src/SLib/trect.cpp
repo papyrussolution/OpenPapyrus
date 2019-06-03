@@ -1658,12 +1658,12 @@ int UiRelRect::IsEmpty() const
 //
 SRegion::SRegion()
 {
-	H = (void *)0;
+	H = static_cast<void *>(0);
 }
 
 SRegion::SRegion(const TRect & rR) 
 {
-	H = (void *)::CreateRectRgn(rR.a.x, rR.a.y, rR.b.x, rR.b.y);
+	H = static_cast<void *>(::CreateRectRgn(rR.a.x, rR.a.y, rR.b.x, rR.b.y));
 }
 
 SRegion::~SRegion()
@@ -1674,8 +1674,8 @@ SRegion::~SRegion()
 void SRegion::Destroy()
 {
 	if(!!H) {
-		::DeleteObject((HRGN)(void *)H);
-		H = (void *)0;
+		::DeleteObject(static_cast<HRGN>(static_cast<void *>(H)));
+		H = static_cast<void *>(0);
 	}
 }
 
@@ -1689,8 +1689,8 @@ SRegion & FASTCALL SRegion::operator = (const SRegion & rS)
 	Destroy();
 	if(!!rS) {
 		HRGN h_rgn = CreateRectRgn(0, 0, 1, 1);
-		if(CombineRgn(h_rgn, h_rgn, (HRGN)(void *)rS.H, RGN_COPY)) {
-			H = (void *)h_rgn;
+		if(CombineRgn(h_rgn, h_rgn, static_cast<HRGN>(static_cast<void *>(rS.H)), RGN_COPY)) {
+			H = static_cast<void *>(h_rgn);
 		}
 	}
 	return *this;
@@ -1700,7 +1700,7 @@ int FASTCALL SRegion::operator == (const SRegion & rS) const
 {
 	int    c = 0;
 	if(!!H && !!rS.H) {
-		c = BIN(EqualRgn((HRGN)(void *)H, (HRGN)(void *)rS.H));
+		c = BIN(EqualRgn(static_cast<HRGN>(static_cast<void *>(H)), static_cast<HRGN>(static_cast<void *>(rS.H))));
 	}
 	else if(!H && !rS.H)
 		c = 1;
@@ -1712,7 +1712,7 @@ TRect SRegion::GetBounds() const
 	TRect r;
 	if(H) {
 		RECT r_;
-		if(GetRgnBox((HRGN)(void *)H, &r_))
+		if(GetRgnBox(static_cast<HRGN>(static_cast<void *>(H)), &r_))
 			r = r_;
 	}
 	return r;
@@ -1730,12 +1730,12 @@ int SRegion::Add(const SRegion & rS, int combine)
 	if(!!rS) {
 		if(!H) {
 			HRGN h_rgn = CreateRectRgn(0, 0, 1, 1);
-			ok = ::CombineRgn(h_rgn, (HRGN)(void *)rS.H, 0, RGN_COPY);
+			ok = ::CombineRgn(h_rgn, static_cast<HRGN>(static_cast<void *>(rS.H)), 0, RGN_COPY);
 			if(ok)
-				H = (void *)h_rgn;
+				H = static_cast<void *>(h_rgn);
 		}
 		else if(oneof6(combine, SCOMBINE_NONE, SCOMBINE_AND, SCOMBINE_OR, SCOMBINE_XOR, SCOMBINE_COPY, SCOMBINE_DIFF)) {
-			HRGN h_prev = (HRGN)(void *)H;
+			HRGN h_prev = static_cast<HRGN>(static_cast<void *>(H));
 			int  _c;
 			switch(combine) {
 				case SCOMBINE_AND: _c = RGN_AND; break;
@@ -1744,7 +1744,7 @@ int SRegion::Add(const SRegion & rS, int combine)
 				case SCOMBINE_DIFF: _c = RGN_DIFF; break;
 				case SCOMBINE_COPY: _c = RGN_COPY; break;
 			}
-			ok = ::CombineRgn(h_prev, (HRGN)(void *)rS.H, h_prev, _c);
+			ok = ::CombineRgn(h_prev, static_cast<HRGN>(static_cast<void *>(rS.H)), h_prev, _c);
 			if(!ok) {
 				SLS.SetOsError(0);
 			}

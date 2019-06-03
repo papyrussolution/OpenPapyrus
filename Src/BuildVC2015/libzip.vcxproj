@@ -242,7 +242,7 @@
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -281,7 +281,7 @@
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -320,7 +320,7 @@
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -352,7 +352,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -384,7 +384,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -416,7 +416,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -454,7 +454,7 @@
       <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
@@ -490,7 +490,7 @@
       <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
@@ -526,7 +526,7 @@
       <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -555,7 +555,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
@@ -584,7 +584,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -613,7 +613,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)libzip.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

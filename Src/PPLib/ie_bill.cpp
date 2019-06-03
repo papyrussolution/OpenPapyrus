@@ -84,14 +84,14 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 		if(extraPtr) {
 			const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(extraPtr);
 			PPObjBill * p_bobj = BillObj;
-			ps.Nam.Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.11 
+			ps.Nam.Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.11
 			if(p_bobj && p_bobj->SubstText(p_pack, ps.Nam, temp_buf) == 2) {
 				// @v10.3.11 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				ps.Nam = temp_buf;
 				use_ps = 1;
 				ok = 100;
 			}
-			ps.Nam.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.11 
+			ps.Nam.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.11
 		}
 		char   cntr[128];
 		uint   cn = 0;
@@ -654,7 +654,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3); // @v9.9.9
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
 				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)); // @v9.9.9
-				SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0, 
+				SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0,
 					reinterpret_cast<void *>(PPObjInternetAccount::filtfMail)/*INETACCT_ONLYMAIL*/);
 				{
 					EmailCtrlGroup::Rec grp_rec(&P_Data->Tp.AddrList);
@@ -1918,11 +1918,29 @@ int SLAPI PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpP
 							pRecRow->BillDate = dt;
 						}
 						break;
+					case PPSYM_DUEDATE: // @v10.4.8
+						{
+							strtodate(token_text, DATF_DMY, &dt);
+							if(checkdate(dt)) {
+								pRecHdr->DueDate = dt;
+								pRecRow->DueDate = dt;
+							}
+						}
+						break;
 					case PPSYM_FGDATE:
 						{
 							strtodate(token_text, DATF_DMY|DATF_CENTURY|DATF_NODIV, &dt);
 							pRecHdr->Date = dt;
 							pRecRow->BillDate = dt;
+						}
+						break;
+					case PPSYM_FGDUEDATE: // @v10.4.8
+						{
+							strtodate(token_text, DATF_DMY|DATF_CENTURY|DATF_NODIV, &dt);
+							if(checkdate(dt)) {
+								pRecHdr->DueDate = dt;
+								pRecRow->DueDate = dt;
+							}
 						}
 						break;
 					case PPSYM_PAYDATE:
@@ -1996,7 +2014,6 @@ int SLAPI PPBillImporter::ReadData()
 	_err_buf[0] = 0;
 	ImpExpDll imp_dll;
 	SString err_msg, path, wildcard, filename, temp_buf;
-	//PPFileNameArray file_list;
 	StringSet ss_files;
 	Sdr_Bill bill;
 	SPathStruc ps;
@@ -3341,7 +3358,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 												else if(r_rsp_ti.Cost != r_org_ti.Cost)
 													prices_equal = 0;
 											}
-											else 
+											else
 												all_equal = 0;
 										}
 										for(uint j = 0; !exc_items && j < p_bp->GetTCount(); j++) {

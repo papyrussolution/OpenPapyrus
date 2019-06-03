@@ -6638,11 +6638,18 @@ int EditVetisVetDocument(VetisVetDocument & rData)
 			text_buf.CatDivIfNotEmpty(';', 2).Cat(temp_buf);
 		}
 		dlg->setCtrlString(CTL_VETVDOC_TOSI, text_buf);
+		// @v10.4.8 {
+		text_buf.Z();
 		if(r_crtc.Consignee.Enterprise.Name.NotEmpty())
+			text_buf.CatDivIfNotEmpty(';', 2).Cat(r_crtc.Consignee.Enterprise.Name);
+		if(r_crtc.Consignee.BusinessEntity.Name.NotEmpty())
+			text_buf.CatDivIfNotEmpty(';', 2).Cat(r_crtc.Consignee.Enterprise.Name);
+		dlg->setCtrlString(CTL_VETVDOC_TONAM, text_buf);
+		// } @v10.4.8 
+		/* @v10.4.8 if(r_crtc.Consignee.Enterprise.Name.NotEmpty())
 			dlg->setCtrlString(CTL_VETVDOC_TONAM, r_crtc.Consignee.Enterprise.Name);
 		else
-			dlg->setCtrlString(CTL_VETVDOC_TONAM, r_crtc.Consignee.BusinessEntity.Name);
-
+			dlg->setCtrlString(CTL_VETVDOC_TONAM, r_crtc.Consignee.BusinessEntity.Name); */
 		text_buf.Z();
 		if(!!r_crtc.Batch.Product.Guid) {
 			temp_buf.Z().Cat(r_crtc.Batch.Product.Guid, S_GUID::fmtIDL|S_GUID::fmtLower);
@@ -7031,10 +7038,14 @@ int SLAPI PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
 				FromEntityID = -1;
 		}
 		if(Filt.ToPersonID) {
-			if(p_ref->Ot.GetTagGuid(PPOBJ_PERSON, Filt.ToPersonID, PPTAG_PERSON_VETISUUID, guid) > 0 && EC.GetEntityByGuid(guid, ent) > 0)
-				ToEntityID = ent.ID;
-			else
-				ToEntityID = -1;
+			if(p_ref->Ot.GetTagGuid(PPOBJ_PERSON, Filt.ToPersonID, PPTAG_PERSON_VETISUUID, guid) > 0 && EC.GetEntityByGuid(guid, ent) > 0) {
+				// @v10.4.8 ToEntityID = ent.ID;
+				ToEnterpriseID = ent.ID; // @v10.4.8
+			}
+			else {
+				// @v10.4.8 ToEntityID = -1;
+				ToEnterpriseID = -1; // @v10.4.8
+			}
 		}
 	}
 	CATCHZOK
@@ -7094,12 +7105,13 @@ static IMPL_DBE_PROC(dbqf_vetis_businessmembtextfld_iip)
 		const VetisEntityCore * p_ec = static_cast<const VetisEntityCore *>(params[2].ptrval);
 		SString temp_buf;
 		SStringU temp_buf_u;
-		if(bent_id) {
-			TextRefIdent tri(PPOBJ_VETISENTITY, bent_id, PPTRPROP_NAME);
+		// @v10.4.8 Поменял приоритет: сначала пытаемся получить имя enterprise затем entity (до этого было наоборот)
+		if(enterprise_id) {
+			TextRefIdent tri(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_NAME);
 			p_ref->TrT.Search(tri, temp_buf_u);
 		}
-		if(!temp_buf_u.Len() && enterprise_id) {
-			TextRefIdent tri(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_NAME);
+		if(!temp_buf_u.Len() && bent_id) {
+			TextRefIdent tri(PPOBJ_VETISENTITY, bent_id, PPTRPROP_NAME);
 			p_ref->TrT.Search(tri, temp_buf_u);
 		}
 		if(temp_buf_u.Len()) {
@@ -7362,7 +7374,8 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 	if(Filt.GetStatusList(status_list) > 0)
 		dbq = & (*dbq && ppidlist(t->VetisDocStatus, &status_list));
 	dbq = ppcheckfiltid(dbq, t->FromEntityID, FromEntityID);
-	dbq = ppcheckfiltid(dbq, t->ToEntityID, ToEntityID);
+	// @v10.4.8 dbq = ppcheckfiltid(dbq, t->ToEntityID, ToEntityID);
+	dbq = ppcheckfiltid(dbq, t->ToEnterpriseID, ToEnterpriseID); // @v10.4.8 
 	q = &select(
 		t->EntityID,          //  #0
 		t->Flags,             //  #1

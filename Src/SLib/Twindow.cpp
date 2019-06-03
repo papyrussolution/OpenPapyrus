@@ -556,7 +556,7 @@ int FASTCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 		}
 		// @v9.4.5 {
 		else if(ctrl_subsign == TV_SUBSIGN_STATIC) {
-			((TStaticText *)p_v)->setText(s);
+			static_cast<TStaticText *>(p_v)->setText(s);
 		}
 		// } @v9.4.5 
 	}
@@ -607,7 +607,7 @@ void SLAPI TWindow::setCtrlOption(ushort ctlID, ushort flags, int s)
 int SLAPI TWindow::getStaticText(ushort ctlID, SString & rBuf)
 {
 	int    ok = 1;
-	TStaticText * p_st = (TStaticText*)getCtrlView(ctlID);
+	TStaticText * p_st = static_cast<TStaticText *>(getCtrlView(ctlID));
 	if(p_st)
 		p_st->getText(rBuf);
 	else {
@@ -620,7 +620,7 @@ int SLAPI TWindow::getStaticText(ushort ctlID, SString & rBuf)
 int SLAPI TWindow::setStaticText(ushort ctlID, const char * pText)
 {
 	int    ok = 1;
-	TStaticText * p_st = (TStaticText*)getCtrlView(ctlID);
+	TStaticText * p_st = static_cast<TStaticText *>(getCtrlView(ctlID));
 	if(p_st)
 		p_st->setText(pText);
 	else
@@ -729,8 +729,7 @@ HWND TWindow::showToolbar()
 	*/
 
 	HIMAGELIST himl = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 16, 64);
- 	SendMessage(h_tool_bar, CCM_SETVERSION, (WPARAM) 5, 0);
-
+ 	::SendMessage(h_tool_bar, CCM_SETVERSION, 5, 0);
 	ToolbarItem item;
 	for(uint i = 0; Toolbar.enumItems(&i, &item);) {
 		if(!(item.Flags & ToolbarItem::fHidden)) {
@@ -824,8 +823,8 @@ int TWindow::invalidateRect(const TRect & rRect, int erase)
 
 int TWindow::invalidateRegion(const SRegion & rRgn, int erase)
 {
-	const SHandle * p_hdl = (SHandle *)&rRgn; // @trick
-	const HRGN h_rgn = (HRGN)(void *)*p_hdl;
+	const SHandle * p_hdl = reinterpret_cast<const SHandle *>(&rRgn); // @trick
+	const HRGN h_rgn = static_cast<HRGN>(static_cast<void *>(*p_hdl));
 	return ::InvalidateRgn(HW, h_rgn, erase);
 }
 
@@ -1411,14 +1410,14 @@ int TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEve
 //static
 LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	TWindowBase * p_view = (TWindowBase *)TView::GetWindowUserData(hWnd);
+	TWindowBase * p_view = static_cast<TWindowBase *>(TView::GetWindowUserData(hWnd));
 	LPCREATESTRUCT p_init_data;
 	switch(message) {
 		case WM_HELP:
 			{
 				HelpEvent he;
 				MEMSZERO(he);
-				const HELPINFO * p_hi = (const HELPINFO *)lParam;
+				const HELPINFO * p_hi = reinterpret_cast<const HELPINFO *>(lParam);
 				if(p_hi) {
 					if(p_hi->iContextType == HELPINFO_MENUITEM)
 						he.ContextType = HelpEvent::ctxtMenu;
@@ -1538,7 +1537,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				HDC    h_dc_mem = 0;
 				HBITMAP h_bmp = 0;
 				HBITMAP h_old_bmp = 0;
-				if(((TWindowBase *)p_view)->WbCapability & wbcDrawBuffer) {
+				if(static_cast<const TWindowBase *>(p_view)->WbCapability & wbcDrawBuffer) {
 					GetClientRect(hWnd, &cr);
 					h_dc_mem = CreateCompatibleDC(ps.hdc);
 					h_bmp = CreateCompatibleBitmap(ps.hdc, cr.right - cr.left, cr.bottom - cr.top);

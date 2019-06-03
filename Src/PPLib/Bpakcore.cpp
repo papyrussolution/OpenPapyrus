@@ -2677,8 +2677,11 @@ int SLAPI PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 		case PPOPT_GOODSEXPEND:
 			{
 				PPFreight freight;
+				PPBillExt extra_data;
 				if(P_BObj->P_Tbl->GetFreight(sampleBillID, &freight) > 0)
 					SetFreight(&freight);
+				if(P_BObj->P_Tbl->GetExtraData(sampleBillID, &extra_data) > 0)
+					Ext.AgentID = extra_data.AgentID;
 			}
 			break;
 	}

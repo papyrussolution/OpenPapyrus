@@ -544,7 +544,7 @@ static char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLas
 						break;
 					default:
 						{ // Percent encode 
-							const uchar code =(uchar)read[0];
+							const uchar code = static_cast<uchar>(read[0]);
 							write[0] = _UT('%');
 							write[1] = UriHexToLetter(code>>4);
 							write[2] = UriHexToLetter(code&0x0f);
@@ -683,7 +683,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 				write[0] = _UT('=');
 				write++;
 				afterValue = UriEscapeEx(value, value+valueLen, write, spaceToPlus, normalizeBreaks);
-				write +=(afterValue-write);
+				write += (afterValue-write);
 			}
 		}
 		queryList = queryList->next;

@@ -12,7 +12,8 @@
 //
 //
 //
-#define USE_ADVEVQUEUE 1
+// @v10.4.8 (replaced with _PPConst.UseAdvEvQueue) #define USE_ADVEVQUEUE 1
+const PPConstParam _PPConst;
 //
 //
 //
@@ -833,43 +834,6 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 			return DS.DirtyDbCache(DBS.GetDbPathID(), this);
 		}
 	};
-#if USE_ADVEVQUEUE==2
-	class IdleCmdTestAdvEvQueue : public IdleCommand, private PPAdviseEventQueue::Client {
-	public:
-		IdleCmdTestAdvEvQueue() : IdleCommand(10)
-		{
-		}
-		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
-		{
-			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
-			if(p_queue) {
-				if(p_queue->Get(Marker, EvqList) > 0) {
-					SString msg_buf, temp_buf;
-					for(uint i = 0; i < EvqList.getCount(); i++) {
-						/*
-							int64  Ident;
-							LDATETIME Dtm;
-							int32  Action;
-							PPObjID Oid;
-							int32  UserID;
-							int32  SjExtra;
-							long   Flags;
-						*/
-                        PPAdviseEvent & r_ev = EvqList.at(i);
-                        (msg_buf = "AdviseEvent").CatDiv(':', 2).CatEq("Ident", r_ev.Ident).Space().CatEq("Dtm", r_ev.Dtm).Space().
-							CatEq("Action", r_ev.Action).Space();
-						r_ev.Oid.ToStr(0, temp_buf.Z());
-						msg_buf.CatEq("Oid", temp_buf).Space().CatEq("UserID", r_ev.UserID).Space().
-							CatEq("SjExtra", r_ev.SjExtra).Space().CatEq("Flags", r_ev.Flags);
-						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_THREADINFO);
-						Marker = r_ev.Ident;
-					}
-				}
-			}
-			return -1;
-		}
-	};
-#endif // } USE_ADVEVQUEUE==2
 	class IdleCmdUpdateLogsMon : public IdleCommand {
 	public:
 		IdleCmdUpdateLogsMon(long refreshPeriod, PPID objTypeID, PPID notifyID) : IdleCommand(refreshPeriod), ObjTypeID(objTypeID), NotifyID(notifyID)
@@ -944,9 +908,46 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
 	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0)); // @v9.8.12
 	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged)); // @v10.3.1
-#if USE_ADVEVQUEUE==2
-	IdleCmdList.insert(new IdleCmdTestAdvEvQueue); // @debug
-#endif
+// @v10.4.8 #if USE_ADVEVQUEUE==2
+	if(_PPConst.UseAdvEvQueue == 2) { // @v10.4.8 
+		class IdleCmdTestAdvEvQueue : public IdleCommand, private PPAdviseEventQueue::Client {
+		public:
+			IdleCmdTestAdvEvQueue() : IdleCommand(10)
+			{
+			}
+			virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
+			{
+				PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
+				if(p_queue) {
+					if(p_queue->Get(Marker, EvqList) > 0) {
+						SString msg_buf, temp_buf;
+						for(uint i = 0; i < EvqList.getCount(); i++) {
+							/*
+								int64  Ident;
+								LDATETIME Dtm;
+								int32  Action;
+								PPObjID Oid;
+								int32  UserID;
+								int32  SjExtra;
+								long   Flags;
+							*/
+							PPAdviseEvent & r_ev = EvqList.at(i);
+							(msg_buf = "AdviseEvent").CatDiv(':', 2).CatEq("Ident", r_ev.Ident).Space().CatEq("Dtm", r_ev.Dtm).Space().
+								CatEq("Action", r_ev.Action).Space();
+							r_ev.Oid.ToStr(temp_buf);
+							msg_buf.CatEq("Oid", temp_buf).Space().CatEq("UserID", r_ev.UserID).Space().
+								CatEq("SjExtra", r_ev.SjExtra).Space().CatEq("Flags", r_ev.Flags);
+							PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_THREADINFO);
+							Marker = r_ev.Ident;
+						}
+					}
+				}
+				return -1;
+			}
+		};
+		IdleCmdList.insert(new IdleCmdTestAdvEvQueue); // @debug
+	}
+// @v10.4.8 #endif
 	return ok;
 }
 
@@ -1527,22 +1528,16 @@ static int _TestSymbols()
 		_TestSymbVar(st, PPSYM_BILLNO,         "BILLNO");
 		_TestSymbVar(st, PPSYM_DATE,           "DATE");
 		_TestSymbVar(st, PPSYM_PAYDATE,        "PAYDATE");
-
 		_TestSymbVar(st, PPSYM_AMOUNT,         "AMOUNT");
 		_TestSymbVar(st, PPSYM_AMOUNT,         "AMT");
-
 		_TestSymbVar(st, PPSYM_LOCCODE,        "LOCCODE");
-
 		_TestSymbVar(st, PPSYM_LOCATION,       "LOCATION");
 		_TestSymbVar(st, PPSYM_LOCATION,       "LOC");
-
 		_TestSymbVar(st, PPSYM_BILLOBJ2,       "BILLOBJ2");
 		_TestSymbVar(st, PPSYM_BILLOBJ2,       "OBJ2");
 		_TestSymbVar(st, PPSYM_BILLOBJ2,       "EXTOBJ");
-
 		_TestSymbVar(st, PPSYM_OBJECT,         "OBJECT");
 		_TestSymbVar(st, PPSYM_OBJECT,         "OBJ");
-
 		_TestSymbVar(st, PPSYM_PAYER,          "PAYER");
 		_TestSymbVar(st, PPSYM_AGENT,          "AGENT");
 		_TestSymbVar(st, PPSYM_REGNAM,         "REGNAME");
@@ -1589,6 +1584,8 @@ static int _TestSymbols()
 		_TestSymbVar(st, PPSYM_FGDATE,         "FGDATE");
 		_TestSymbVar(st, PPSYM_INN,            "INN");
 		_TestSymbVar(st, PPSYM_KPP,            "KPP");
+		_TestSymbVar(st, PPSYM_DUEDATE,        "DUEDATE"); // @v10.4.8
+		_TestSymbVar(st, PPSYM_FGDUEDATE,      "FGDUEDATE"); // @v10.4.8
 	}
 	/*
 	{
@@ -3455,35 +3452,37 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							PPPhoneServicePacket StartUp_PhnSvcPack; // @v9.8.11
 							PhnSvcChannelStatusPool PhnSvcStP; // @v9.8.11
 						};
-#if USE_ADVEVQUEUE
-						int    cycle_ms = 0;
-						const PPPhoneServicePacket * p_phnsvc_pack = 0; // @v9.8.11
-						PPPhoneServicePacket ps_pack; // @v9.8.11
-						// @v10.0.04 {
-						{
-							PPEquipConfig eq_cfg;
-							ReadEquipConfig(&eq_cfg);
-							if(eq_cfg.PhnSvcID) {
-								PPObjPhoneService ps_obj(0);
-								if(ps_obj.GetPacket(eq_cfg.PhnSvcID, &ps_pack) > 0)
-									r_tla.DefPhnSvcID = eq_cfg.PhnSvcID;
+// @v10.4.8 #if USE_ADVEVQUEUE
+						if(_PPConst.UseAdvEvQueue) { // @v10.4.8 
+							int    cycle_ms = 0;
+							const PPPhoneServicePacket * p_phnsvc_pack = 0; // @v9.8.11
+							PPPhoneServicePacket ps_pack; // @v9.8.11
+							// @v10.0.04 {
+							{
+								PPEquipConfig eq_cfg;
+								ReadEquipConfig(&eq_cfg);
+								if(eq_cfg.PhnSvcID) {
+									PPObjPhoneService ps_obj(0);
+									if(ps_obj.GetPacket(eq_cfg.PhnSvcID, &ps_pack) > 0)
+										r_tla.DefPhnSvcID = eq_cfg.PhnSvcID;
+								}
 							}
+							// } @v10.0.04
+							ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADVISEEVENTCOLLECTORPERIOD, &cycle_ms);
+							if(cycle_ms <= 0 || cycle_ms > 600000)
+								cycle_ms = 5113;
+							// @v9.8.11 {
+							if(r_tla.DefPhnSvcID) { // Пакет ps_pack инициализирован выше (r_tla.DefPhnSvcID != 0 - однозначно свидетельствует об этом)
+								UserInterfaceSettings ui_cfg;
+								if(ui_cfg.Restore() > 0 && ui_cfg.Flags & ui_cfg.fPollVoipService)
+									p_phnsvc_pack = &ps_pack;
+							}
+							// } @v9.8.11
+							PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, p_phnsvc_pack, cycle_ms);
+							p_evc->Start(0);
+							r_tla.P_AeqThrd = p_evc;
 						}
-						// } @v10.0.04
-						ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADVISEEVENTCOLLECTORPERIOD, &cycle_ms);
-						if(cycle_ms <= 0 || cycle_ms > 600000)
-							cycle_ms = 5113;
-						// @v9.8.11 {
-						if(r_tla.DefPhnSvcID) { // Пакет ps_pack инициализирован выше (r_tla.DefPhnSvcID != 0 - однозначно свидетельствует об этом)
-							UserInterfaceSettings ui_cfg;
-							if(ui_cfg.Restore() > 0 && ui_cfg.Flags & ui_cfg.fPollVoipService)
-								p_phnsvc_pack = &ps_pack;
-						}
-						// } @v9.8.11
-						PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, p_phnsvc_pack, cycle_ms);
-						p_evc->Start(0);
-						r_tla.P_AeqThrd = p_evc;
-#endif // USE_ADVEVQUEUE
+// @v10.4.8 #endif // USE_ADVEVQUEUE
 					}
 					int    r = 0;
 					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_3TIER, &r) > 0 && r) {

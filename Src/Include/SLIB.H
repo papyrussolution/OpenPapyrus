@@ -246,11 +246,12 @@
 #define SCOMBINE_COPY         4
 #define SCOMBINE_DIFF         5
 //
-// Descr: Направления выравнивания строк
+// Descr: Направления выравнивания //
 //
 #define ADJ_LEFT              0 // По левому краю
 #define ADJ_RIGHT             1 // По правому краю
 #define ADJ_CENTER            2 // По центру
+#define ADJ_ALIGN             3 // @v10.4.8 Выравнивание по всему направлению (по длине или высоте) с внутренней набивкой пространством между элементами
 //
 // Descr: Сторона "набивки" строк
 //
@@ -10903,7 +10904,8 @@ public:
 	int    FASTCALL operator == (const TRect& r) const;
 	int    FASTCALL operator != (const TRect& r) const;
 
-	TPoint a, b;
+	TPoint a;
+	TPoint b;
 };
 //
 // Descr: Геометрический регион. Представляет собой комбинацию геометрических

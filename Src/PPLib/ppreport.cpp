@@ -82,8 +82,7 @@ SLAPI PrnDlgAns::~PrnDlgAns()
 static TVRez * SLAPI PPOpenReportResource()
 {
 	SString path;
-	long   EXT = 0x00534552L; // "RES"
-	makeExecPathFileName("PPRPT", (const char *)&EXT, path);
+	makeExecPathFileName("PPRPT", "RES", path);
 	TVRez * p_rez = new TVRez(path, 0 /* useIndex */);
 	if(p_rez == 0)
 		PPSetErrorNoMem();
@@ -282,11 +281,11 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 	TextLen = len = rez->getUINT();
 	if(len)
 		len++;
-	THROW_MEM(P_Text = (char *)SAlloc::R(P_Text, len));
+	THROW_MEM(P_Text = static_cast<char *>(SAlloc::R(P_Text, len)));
 	for(i = 0; i < (len / 2); i++)
-		((int16 *)P_Text)[i] = rez->getUINT();
+		reinterpret_cast<int16 *>(P_Text)[i] = rez->getUINT();
 	fldCount = rez->getUINT();
-	THROW_MEM(fields = (Field *)SAlloc::R(fields, sizeof(Field) * fldCount));
+	THROW_MEM(fields = static_cast<Field *>(SAlloc::R(fields, sizeof(Field) * fldCount)));
 	for(i = 0; i < fldCount; i++) {
 		fields[i].id      = rez->getUINT();
 		fields[i].name    = rez->getUINT(); // @
@@ -301,7 +300,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 		fields[i].lastval = 0;
 	}
 	if((agrCount = rez->getUINT()) != 0) {
-		THROW_MEM(agrs = (Aggr *)SAlloc::R(agrs, sizeof(Aggr) * agrCount));
+		THROW_MEM(agrs = static_cast<Aggr *>(SAlloc::R(agrs, sizeof(Aggr) * agrCount)));
 		for(i = 0; i < agrCount; i++) {
 			Aggr * a = &agrs[i];
 			a->fld   = rez->getUINT();
@@ -314,12 +313,12 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 	else
 		ZFREE(agrs);
 	if((grpCount = rez->getUINT()) != 0) {
-		THROW_MEM(groups = (Group *)SAlloc::R(groups, sizeof(Group) * grpCount));
+		THROW_MEM(groups = static_cast<Group *>(SAlloc::R(groups, sizeof(Group) * grpCount)));
 		for(i = 0; i < grpCount; i++) {
 			Group * g = &groups[i];
 			g->band   = rez->getUINT();
 			if((len = rez->getUINT()) != 0) {
-				THROW_MEM(g->fields = (int16 *)SAlloc::M(sizeof(int16) * (len+1)));
+				THROW_MEM(g->fields = static_cast<int16 *>(SAlloc::M(sizeof(int16) * (len+1))));
 				g->fields[0] = len;
 				for(j = 1; j <= len; j++)
 					g->fields[j] = (int16)rez->getUINT();
@@ -332,7 +331,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 	else
 		ZFREE(groups);
 	if((bandCount = rez->getUINT()) != 0) {
-		THROW_MEM(bands = (Band *)SAlloc::R(bands, sizeof(Band) * bandCount));
+		THROW_MEM(bands = static_cast<Band *>(SAlloc::R(bands, sizeof(Band) * bandCount)));
 		for(i = 0; i < bandCount; i++) {
 			Band * b   = &bands[i];
 			b->kind    = rez->getUINT();
@@ -340,7 +339,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 			b->group   = rez->getUINT();
 			b->options = rez->getUINT();
 			if((len = rez->getUINT()) != 0) {
-				THROW_MEM(b->fields = (int16 *)SAlloc::M(sizeof(int16) * (len+1)));
+				THROW_MEM(b->fields = static_cast<int16 *>(SAlloc::M(sizeof(int16) * (len+1))));
 				b->fields[0] = len;
 				for(j = 1; j <= len; j++)
 					b->fields[j] = (int16)rez->getUINT();
@@ -544,7 +543,7 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 					case 2: // FormatTypes[2] == UXFCommaSeparatedType
 					case 3: // FormatTypes[3] == UXFTabSeparatedType
 						{
-							UXFCommaTabSeparatedOptions * p_options = (UXFCommaTabSeparatedOptions*)options.formatOptions;
+							UXFCommaTabSeparatedOptions * p_options = static_cast<UXFCommaTabSeparatedOptions *>(options.formatOptions);
 							p_options->useReportDateFormat = 0;
 							if(ss.get(&i, buf) > 0)
 								p_options->useReportDateFormat = buf.ToLong();
@@ -556,7 +555,7 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 					case 4: // FormatTypes[4] == UXFCharSeparatedType
 						{
 							char host_buf[128];
-							UXFCharSeparatedOptions * p_options = (UXFCharSeparatedOptions*)options.formatOptions;
+							UXFCharSeparatedOptions * p_options = static_cast<UXFCharSeparatedOptions *>(options.formatOptions);
 							p_options->useReportDateFormat = 0;
 							if(ss.get(&i, buf) > 0)
 								p_options->useReportDateFormat = buf.ToLong();
@@ -578,7 +577,7 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 						break;
 					case 6: // FormatTypes[6] == UXFXls7ExtType
 						{
-							UXFXlsOptions * p_options = (UXFXlsOptions*)options.formatOptions;
+							UXFXlsOptions * p_options = static_cast<UXFXlsOptions *>(options.formatOptions);
 							p_options->bColumnHeadings = 0;
 							if(ss.get(&i, buf) > 0)
 								p_options->bColumnHeadings = buf.ToLong();
@@ -598,7 +597,7 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 						break;
 					case 7: // FormatTypes[7] == UXFPdfType
 						{
-							UXFPdfOptions * p_options = (UXFPdfOptions*)options.formatOptions;
+							UXFPdfOptions * p_options = static_cast<UXFPdfOptions *>(options.formatOptions);
 							p_options->UsePageRange = false;
 						}
 						break;
@@ -625,11 +624,11 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 						switch(idx) {
 							case 0: // DestinationTypes[0] == UXDApplicationType
 								options.destinationOptions = new UXDApplicationOptions;
-								((UXDApplicationOptions*)options.destinationOptions)->structSize = UXDApplicationOptionsSize;
+								static_cast<UXDApplicationOptions *>(options.destinationOptions)->structSize = UXDApplicationOptionsSize;
 								break;
 							case 1: // DestinationTypes[1] == UXDDiskType
 								options.destinationOptions = new UXDDiskOptions;
-								((UXDDiskOptions*)options.destinationOptions)->structSize = UXDDiskOptionsSize;
+								static_cast<UXDDiskOptions *>(options.destinationOptions)->structSize = UXDDiskOptionsSize;
 								break;
 							default:
 								options.destinationOptions = 0;
@@ -655,11 +654,11 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 						switch(idx) {
 							case 0: // DestinationTypes[0] == UXDApplicationType
 								if(options.destinationOptions)
-									((UXDApplicationOptions*)options.destinationOptions)->fileName = newStr(buf);
+									static_cast<UXDApplicationOptions *>(options.destinationOptions)->fileName = newStr(buf);
 								break;
 							case 1: // DestinationTypes[1] == UXDDiskType
 								if(options.destinationOptions)
-									((UXDDiskOptions*)options.destinationOptions)->fileName = newStr(buf);
+									static_cast<UXDDiskOptions *>(options.destinationOptions)->fileName = newStr(buf);
 								break;
 							case 2: // DestinationTypes[1] == UXDMapi
 								break;
@@ -1170,7 +1169,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 	GetTempFileName_(BODY_DBF_NAME, dbfname);
 	rFileName = dbfname;
 	DbfTable  * dbf = new DbfTable(dbfname);
-	Field    ** dbf_fields_id=(Field **)SAlloc::M(sizeof(void *));
+	Field    ** dbf_fields_id = static_cast<Field **>(SAlloc::M(sizeof(void *)));
 	for(int type = 0; type < (sizeof(row_band_types)/sizeof(int)); type++) {
 		f = 0;
 		for(b = searchBand(row_band_types[type], 0); enumFields(&f, b, &i);) {
@@ -1181,7 +1180,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 					if(strcmp(flds[di].Name, p_fld_name) == 0)
 						used = 1;
 				if(!used) {
-					flds = (DBFCreateFld *)SAlloc::R(flds, sizeof(DBFCreateFld)*(1+flds_count));
+					flds = static_cast<DBFCreateFld *>(SAlloc::R(flds, sizeof(DBFCreateFld)*(1+flds_count)));
 					fldIDs->insert(f);
 					TYPEID tp = GETSTYPE(f->type);
 					switch(tp) {
@@ -1214,7 +1213,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 		}
 	}
 	if(flds_count == 0) {
-		flds = (DBFCreateFld *)SAlloc::R(flds, sizeof(DBFCreateFld));
+		flds = static_cast<DBFCreateFld *>(SAlloc::R(flds, sizeof(DBFCreateFld)));
 		flds[flds_count].Init("dummy", 'C', 5, 0);
 		fldIDs->insert(f);
 		flds_count++;
@@ -1231,7 +1230,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 					break;
 				}
 			if(!used) {
-				flds = (DBFCreateFld *)SAlloc::R(flds, sizeof(DBFCreateFld)*(1+flds_count));
+				flds = static_cast<DBFCreateFld *>(SAlloc::R(flds, sizeof(DBFCreateFld)*(1+flds_count)));
 				flds[flds_count].Init(p_fld_name, 'C', SFMTLEN(f->format), 0);
 				fldIDs->insert(f);
 				flds_count++;
@@ -1270,7 +1269,7 @@ int SLAPI SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 						used = 1;
 				if(!used) {
 					int    fl = 0;
-					flds = (DBFCreateFld *)SAlloc::R(flds,sizeof(DBFCreateFld)*(1+flds_count));
+					flds = static_cast<DBFCreateFld *>(SAlloc::R(flds,sizeof(DBFCreateFld)*(1+flds_count)));
 					if(GETSTYPE(f->type) == S_ZSTRING) {
 						fl = GETSSIZE(f->type);
 						fl = (fl > 0 && fl < 256) ? fl : 255;
@@ -1285,7 +1284,7 @@ int SLAPI SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 		}
 	}
 	if(flds_count == 0) {
-		flds = (DBFCreateFld *)SAlloc::R(flds, sizeof(DBFCreateFld));
+		flds = static_cast<DBFCreateFld *>(SAlloc::R(flds, sizeof(DBFCreateFld)));
 		flds[flds_count].Init("dummy", 'C', 5, 0);
 		fldIDs->insert(f);
 		flds_count++;
@@ -1315,7 +1314,7 @@ int SLAPI SReport::prepareData()
 			Count++;
 			int    fldn = 1;
 			for(di = 0; di < fld_ids.getCount(); di++) {
-				f = (Field*)fld_ids.at(di);
+				f = static_cast<Field *>(fld_ids.at(di));
 				if(f->type != 0) {
 					char buf[256];
 					int c;
@@ -1336,21 +1335,21 @@ int SLAPI SReport::prepareData()
 							switch (GETSTYPE(f->type)) {
 								case S_INT:
 									if(_s == 1)
-										rec.put(di+1, (long)*(int8 *)f->data);
+										rec.put(di+1, (long)*static_cast<const int8 *>(f->data));
 									else if(_s == 2)
-										rec.put(di+1, (long)*(int16 *)f->data);
+										rec.put(di+1, (long)*static_cast<const int16 *>(f->data));
 									else if(_s == 4)
-										rec.put(di+1, (long)*(int32 *)f->data);
+										rec.put(di+1, (long)*static_cast<int32 *>(f->data));
 									break;
 								case S_FLOAT:
 									if(_s == 4)
-										rec.put(di+1, (double)*(float *)f->data);
+										rec.put(di+1, (double)*static_cast<const float *>(f->data));
 									else if(_s == 8)
-										rec.put(di+1, *(double *)f->data);
+										rec.put(di+1, *static_cast<const double *>(f->data));
 									break;
 								case S_DEC:
 								case S_MONEY: {
-										double _dbl_temp = dectobin((char *)f->data, (int16)GETSSIZED(f->type),
+										double _dbl_temp = dectobin(static_cast<const char *>(f->data), (int16)GETSSIZED(f->type),
 											(int16)GETSPRECD(f->type));
 										rec.put(di+1, _dbl_temp);
 									}
@@ -1370,7 +1369,7 @@ int SLAPI SReport::prepareData()
 									rec.put(di+1, buf);
 									break;
 								case S_ZSTRING:
-									rec.put(di+1, (char *)f->data);
+									rec.put(di+1, static_cast<const char *>(f->data));
 									break;
 							}
 						}
@@ -1399,11 +1398,11 @@ int SLAPI SReport::prepareData()
 		char buf[256];
 		DbfRecord rec(dbf);
 		for(di = 0; di < fld_ids.getCount(); di++) {
-			f = (Field*)fld_ids.at(di);
+			f = static_cast<Field *>(fld_ids.at(di));
 			if(f->type != 0) {
 				if(f->data)
 					if(GETSTYPE(f->type) == S_ZSTRING)
-						STRNSCPY(buf, (char *)f->data);
+						STRNSCPY(buf, static_cast<const char *>(f->data));
 					else
 						sttostr(f->type, f->data, f->format, buf);
 				else {
@@ -1671,7 +1670,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 				if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
 					#ifndef MODELESS_REPORT_PREVIEW
 					EnableWindow(APPL->H_TopOfStack, 1);
-					((PreviewEventParam *)pUserData)->StopPreview++;
+					static_cast<PreviewEventParam *>(pUserData)->StopPreview++;
 					#endif
 				}
 				return TRUE;
@@ -1871,7 +1870,7 @@ int SLAPI SReport::checkval(int16 *flds, char **ptr)
 			s = 0;
 			for(i = 1; i <= flds[0]; i++)
 				s += stsize(fields[flds[i] - 1].type);
-			(*ptr) = (char *)SAlloc::M(s);
+			(*ptr) = static_cast<char *>(SAlloc::M(s));
 		}
 		else
 			r = 0;
@@ -1904,8 +1903,8 @@ int SLAPI SReport::printDetail()
 	int     ok = 1, i, c;
 	Band  * b;
 	Field * f = 0;
-	if(!(PrnOptions & SPRN_SKIPGRPS))
-		for(i = 0; i < grpCount; i++)
+	if(!(PrnOptions & SPRN_SKIPGRPS)) {
+		for(i = 0; i < grpCount; i++) {
 			if((c = checkval(groups[i].fields, &groups[i].lastval)) > 0) {
 				// Значение изменилось
 				THROW(printGroupHead(GROUP_FOOT, i));
@@ -1914,7 +1913,9 @@ int SLAPI SReport::printDetail()
 			else if(c < 0) { // Первая запись
 				THROW(printGroupHead(GROUP_HEAD, i));
 			}
-	for(b = searchBand(DETAIL_BODY, 0); enumFields(&f, b, &i);)
+		}
+	}
+	for(b = searchBand(DETAIL_BODY, 0); enumFields(&f, b, &i);) {
 		if(f->type == 0) {
 			const char * p, * t;
 			p = t = P_Text+f->offs;
@@ -1934,6 +1935,7 @@ int SLAPI SReport::printDetail()
 		}
 		else
 			THROW(printDataField(f));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -2093,7 +2095,6 @@ int SLAPI EditDefaultPrinterCfg()
 	PPID   loc_prn_id = 0;
 	PPPrinterCfg cfg;
 	TDialog  * dlg = new TDialog(DLG_PRNCFG);
-
 	THROW(CheckDialogPtr(&dlg));
 	THROW(PPGetPrinterCfg(PPOBJ_CONFIG, PPCFG_MAIN, &cfg));
 	SetupStringCombo(dlg, CTLSEL_PRNCFG_PRINTER, PPTXT_PRNTYPE, cfg.PrnCmdSet);
@@ -2183,7 +2184,7 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 			PPWait(1);
 			if(rpt_name.NotEmptyS()) {
 				uint      pos = 0;
-				SReport rpt((char *)0);
+				SReport rpt(static_cast<const char *>(0));
 				StringSet ss;
 				SStrCollection ss_col;
 				SString data_path;
@@ -2344,7 +2345,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				}
 				THROW(t.Process(data_name, temp_buf, ep, 0, result));
                 {
-                	size_t sz = result.GetAvailableSize();
+                	const size_t sz = result.GetAvailableSize();
 					SFile f_out(out_file_name, SFile::mWrite);
 					THROW_SL(f_out.IsValid());
 					THROW_SL(f_out.Write(result.GetBuf(), sz));

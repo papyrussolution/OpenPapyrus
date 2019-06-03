@@ -312,7 +312,6 @@ int WhatmanObjectUiCtrl::CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTl
 			int    tool_text_pen_id = rTb.CreateColor(0, SColor(SClrBlack));
 			int    tool_text_brush_id = 0; // @v10.2.2 SPaintToolBox::rbr3DFace-->0
 			int    tid_cs = rTb.CreateCStyle(0, TidFont, tool_text_pen_id, tool_text_brush_id);
-
 			SParaDescr pd;
 			if(adj == ADJ_CENTER)
 				pd.Flags |= SParaDescr::fJustCenter;
@@ -350,7 +349,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		rCanv.Rect(rc_cap, 0, brWindowFrame);
 		if(CreateTextLayout(r_tb, tlo, ADJ_CENTER) > 0) {
 			FRect fb(rc_cap);
-			fb.Grow((float)-_cxborder, (float)-_cyborder);
+			fb.Grow(static_cast<float>(-_cxborder), static_cast<float>(-_cyborder));
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
 			rCanv.DrawTextLayout(&tlo);
@@ -361,7 +360,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		rCanv.Rect(b, 0, SPaintToolBox::rbr3DFace);
 		if(CreateTextLayout(r_tb, tlo, ADJ_CENTER) > 0) {
 			FRect fb(b);
-			fb.Grow((float)-_cxborder, (float)-_cyborder);
+			fb.Grow(static_cast<float>(-_cxborder), static_cast<float>(-_cyborder));
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
 			rCanv.DrawTextLayout(&tlo);
@@ -396,7 +395,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		SImageBuffer img_buf;
 		HBITMAP h_bmp = static_cast<HBITMAP>(::LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE|LR_SHARED));
 		if(img_buf.LoadBmp(0, h_bmp, 5, 13) > 0) {
-			FPoint fp((float)(b.a.x + _cxborder), (float)(b.a.y + _cyborder));
+			FPoint fp(static_cast<float>(b.a.x + _cxborder), static_cast<float>(b.a.y + _cyborder));
 			LMatrix2D mtx;
 			rCanv.PushTransform();
 			rCanv.AddTransform(mtx.InitTranslate(fp));
@@ -415,9 +414,9 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 	}
 	else if(UiKind == UiItemKind::kCheckbox) {
 		SImageBuffer img_buf;
-		HBITMAP h_bmp = static_cast<HBITMAP>(::LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_SHARED));
+		HBITMAP h_bmp = static_cast<HBITMAP>(::LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE|LR_SHARED));
 		if(img_buf.LoadBmp(0, h_bmp, 1, 13) > 0) {
-			FPoint fp((float)(b.a.x + _cxborder), (float)(b.a.y + _cyborder));
+			FPoint fp(static_cast<float>(b.a.x + _cxborder), static_cast<float>(b.a.y + _cyborder));
 			LMatrix2D mtx;
 			rCanv.PushTransform();
 			rCanv.AddTransform(mtx.InitTranslate(fp));
@@ -451,7 +450,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 	else if(UiKind == UiItemKind::kStatic) {
 		if(CreateTextLayout(r_tb, tlo) > 0) {
 			FRect fb(b);
-			fb.Grow((float)-_cxborder, (float)-_cyborder);
+			fb.Grow(static_cast<float>(-_cxborder), static_cast<float>(-_cyborder));
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
 			rCanv.DrawTextLayout(&tlo);
@@ -460,7 +459,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 	else if(UiKind == UiItemKind::kLabel) {
 		if(CreateTextLayout(r_tb, tlo) > 0) {
 			FRect fb(b);
-			fb.Grow((float)-_cxborder, (float)-_cyborder);
+			fb.Grow(static_cast<float>(-_cxborder), static_cast<float>(-_cyborder));
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
 			rCanv.DrawTextLayout(&tlo);
@@ -528,7 +527,7 @@ int UiWtmToolDialog::setDTS(const TWhatmanToolArray::Item * pData)
 	Data = *pData;
 	WhatmanObjectUiCtrl::ToolItemExtData tied;
 	if(Data.ExtSize >= sizeof(WhatmanObjectUiCtrl::ToolItemExtData))
-		tied = *(WhatmanObjectUiCtrl::ToolItemExtData *)Data.ExtData;
+		tied = *reinterpret_cast<const WhatmanObjectUiCtrl::ToolItemExtData *>(Data.ExtData);
 	else
 		MEMSZERO(tied);
 	setCtrlString(CTL_WTMTOOL_NAME, Data.Text);

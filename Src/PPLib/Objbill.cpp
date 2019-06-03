@@ -988,15 +988,27 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 					fc.AmtCash = pack.Amounts.Get(PPAMT_CS_CASH, 0);
 					fc.AmtBank = pack.Amounts.Get(PPAMT_CS_BANK, 0);
 					if((fc.AmtBank * fc.AmtCash) >= 0.0) {
-						if((fc.AmtCash+fc.AmtBank) != 0.0) {
+						const double _amount = (fc.AmtCash+fc.AmtBank);
+						if(_amount != 0.0) {
 							const  int is_vat_free = BIN(cn_obj.IsVatFree(param.PosNodeID) > 0);
 							if(is_vat_free) {
 								fc.Flags |= fc.fVatFree;
 							}
 							else if(prepay_goods_id) {
 								PPGoodsTaxEntry gtx;
-								if(GObj.GTxObj.Fetch(prepay_goods_rec.TaxGrpID, pack.Rec.Dt, pack.Rec.OpID, &gtx) > 0)
+								if(GObj.GTxObj.Fetch(prepay_goods_rec.TaxGrpID, pack.Rec.Dt, pack.Rec.OpID, &gtx) > 0) {
 									fc.VatRate = gtx.GetVatRate();
+									if(fc.VatRate == 20.0)
+										fc.AmtVat20 = _amount;
+									else if(fc.VatRate == 18.0)
+										fc.AmtVat18 = _amount;
+									else if(fc.VatRate == 10.0)
+										fc.AmtVat18 = _amount;
+									else if(fc.VatRate == 0.0)
+										fc.AmtVat00 = _amount;
+									else // @default
+										fc.AmtVat20 = _amount;
+								}
 							}
 							ok = p_cm->SyncPrintFiscalCorrection(&fc);
 						}
@@ -1697,12 +1709,12 @@ int SLAPI PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 	const PPConfig & r_cfg = LConfig;
 	const  PPID preserve_loc = r_cfg.Location;
 
-	int    r = 1, ok = 1, res = cmCancel;
+	int    ok = 1;
+	int    r = 1, res = cmCancel;
 	PPID   op_type = 0;
 	PPOprKind    op_rec;
 	PPBillPacket pack;
 	const AddBlock blk(pBlk);
-
 	ASSIGN_PTR(pBillID, 0L);
 	THROW(CheckRights(PPR_INS));
 	THROW(Lock(blk.LinkBillID));
@@ -2883,7 +2895,7 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	PPID   MnfCountryLotTagID; //
 	LDATE  LowDebtCalcDate;    //
 	int16  WarnLotExpirDays;   // @v10.4.4 Количество дней до предупреждения об истечении срока годности лота
-	uint16 WarnLotExpirFlags;  // @v10.4.4 Опции действий при угрозе истечения срока годности лота 
+	uint16 WarnLotExpirFlags;  // @v10.4.4 Опции действий при угрозе истечения срока годности лота
 	uint8  Reserve2[16];       // @reserve @v10.4.4 [20]-->[16]
 };
 
@@ -2955,7 +2967,7 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 				}
 			}
-			// } @v10.4.3 
+			// } @v10.4.3
 		}
 		{
 			size_t buf_size = 0;
@@ -3183,7 +3195,7 @@ public:
 		AddClusterAssoc(CTL_BILLCFG_WLEF, 2, Data.wlefDisableBillOp);
 		SetClusterData(CTL_BILLCFG_WLEF, Data.WarnLotExpirFlags);
 		setCtrlData(CTL_BILLCFG_WLED, &Data.WarnLotExpirDays);
-		// } @v10.4.4 
+		// } @v10.4.4
 		return ok;
 	}
 	int getDTS(DlgDataType * pData)
@@ -3199,7 +3211,7 @@ public:
 		// @v10.4.4 {
 		Data.WarnLotExpirFlags = static_cast<uint16>(GetClusterData(CTL_BILLCFG_WLEF));
 		getCtrlData(CTL_BILLCFG_WLED, &Data.WarnLotExpirDays);
-		// } @v10.4.4 
+		// } @v10.4.4
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			ok = PPErrorByDialog(this, sel);
@@ -3240,7 +3252,7 @@ int SLAPI PPObjBill::EditConfig()
 				P_Cfg->LotTagIndFilt.Flags |= TagFilt::fColors;
 				EditTagFilt(PPOBJ_LOT, &P_Cfg->LotTagIndFilt);
 			}
-			// } @v10.4.3 
+			// } @v10.4.3
 			else if(event.isCmd(cmaMore)) {
 				EditBillCfgAddendum(P_Cfg);
 			}
@@ -5938,7 +5950,7 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 				}
 			}
 		}
-		// } @v10.3.0 
+		// } @v10.3.0
 	}
 	pPack->BTagL.Destroy();
 	THROW(GetTagList(pPack->Rec.ID, &pPack->BTagL));
@@ -6176,7 +6188,7 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 			}
 		}
 		THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_VALXCL, cbuf, 0));
-		// } @v10.3.0 
+		// } @v10.3.0
 	}
 	CATCHZOK
 	delete p_tag_obj;
@@ -8445,7 +8457,7 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, PPImp
 								next = 0;
 								sym = st.Translate(p, &next); // @recursion
 							}
-							else 
+							else
 								sym = 0;
 							break;
 						case PPSYM_DLVRLOCTAG:
@@ -8699,7 +8711,14 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 					switch(sym) {
 						case PPSYM_BILLNO: BillCore::GetCode(subst_buf = pk->Rec.Code); break;
 						case PPSYM_DATE: subst_buf.Cat(pk->Rec.Dt, DATF_DMY); break;
+						case PPSYM_DUEDATE: // @v10.4.8
+							if(checkdate(pk->Rec.DueDate))
+								subst_buf.Cat(pk->Rec.DueDate, DATF_DMY);
+							break;
 						case PPSYM_FGDATE: subst_buf.Cat(pk->Rec.Dt, DATF_DMY|DATF_CENTURY|DATF_NODIV); break;
+						case PPSYM_FGDUEDATE: // @v10.4.8
+							subst_buf.Cat(pk->Rec.DueDate, DATF_DMY|DATF_CENTURY|DATF_NODIV);
+							break;
 						case PPSYM_PAYDATE:
 							{
 								LDATE dt = ZERODATE;

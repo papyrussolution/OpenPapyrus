@@ -42,7 +42,7 @@
 #endif
 /*
 typedef struct TLayout::Item {
-	uint32_t flags;
+	uint32 flags;
 	lay_id   first_child;
 	lay_id   next_sibling;
 	lay_vec4 margins;
@@ -287,13 +287,13 @@ LAY_EXPORT void lay_get_size_xy(TLayout::Context * ctx, lay_id item, lay_scalar 
 // example, setting LAY_COLUMN will make an item behave as if it were a column
 // -- it will lay out its children vertically.
 //
-LAY_EXPORT void lay_set_contain(TLayout::Context * ctx, lay_id item, uint32_t flags);
+LAY_EXPORT void lay_set_contain(TLayout::Context * ctx, lay_id item, uint32 flags);
 //
 // Set the flags on an item which determines how it behaves as a child inside of
 // a parent item. For example, setting LAY_VFILL will make an item try to fill
 // up all available vertical space inside of its parent.
 //
-LAY_EXPORT void lay_set_behave(TLayout::Context * ctx, lay_id item, uint32_t flags);
+LAY_EXPORT void lay_set_behave(TLayout::Context * ctx, lay_id item, uint32 flags);
 //
 // Get the margins that were set by lay_set_margins. The _ltrb version writes
 // the output values to the specified addresses instead of returning the values
@@ -317,15 +317,15 @@ LAY_EXPORT void lay_set_margins_ltrb(TLayout::Context * ctx, lay_id item, lay_sc
 LAY_STATIC_INLINE lay_id lay_first_child(const TLayout::Context * ctx, lay_id id)
 {
 	const TLayout::Item * pitem = ctx->GetItemC(id);
-	return pitem->first_child;
+	return pitem->FirstChild;
 }
 //
 // Get the id of the next sibling of an item, if any. Returns LAY_INVALID_ID if there is no next sibling.
 //
 LAY_STATIC_INLINE lay_id lay_next_sibling(const TLayout::Context * ctx, lay_id id)
 {
-	const TLayout::Item * pitem = ctx->GetItemC(id);
-	return pitem->next_sibling;
+	const TLayout::Item * p_item = ctx->GetItemC(id);
+	return p_item->NextSibling;
 }
 //
 // Returns the calculated rectangle of an item. This is only valid after calling
@@ -336,7 +336,7 @@ LAY_STATIC_INLINE lay_id lay_next_sibling(const TLayout::Context * ctx, lay_id i
 LAY_STATIC_INLINE lay_vec4 lay_get_rect(const TLayout::Context * ctx, lay_id id)
 {
 	assert(id != LAY_INVALID_ID && id < ctx->count);
-	return ctx->rects[id];
+	return ctx->P_Rects[id];
 }
 //
 // The same as lay_get_rect, but writes the x,y positions and width,height
@@ -345,7 +345,7 @@ LAY_STATIC_INLINE lay_vec4 lay_get_rect(const TLayout::Context * ctx, lay_id id)
 LAY_STATIC_INLINE void lay_get_rect_xywh(const TLayout::Context * ctx, lay_id id, lay_scalar * x, lay_scalar * y, lay_scalar * width, lay_scalar * height)
 {
 	assert(id != LAY_INVALID_ID && id < ctx->count);
-	lay_vec4 rect = ctx->rects[id];
+	lay_vec4 rect = ctx->P_Rects[id];
 	*x = rect[0];
 	*y = rect[1];
 	*width = rect[2];

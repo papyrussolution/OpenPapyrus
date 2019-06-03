@@ -3284,7 +3284,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 10,АР-Погашение задолженности по исполнительному документу"
 190 "3,ПЕ-уплата пени;4,ПЦ-уплата процентов;9,0-Остальные случаи;1,НС-уплата налога или сбора;2,АВ-уплата аванса или предоплата;\
 5,СА-налоговые санкции;6,АШ-административные штрафы;7,ИШ-иные штрафы;8,ВЗ-взнос"
-191 "1,Январь;2,Февраль;3,Март;4,Апрель;5,Май;6,Июнь;7,Июль;8,Август;9,Сентябрь;10,Октябрь;11,Ноябрь;12,Декабрь"
+191 "1,@{month_jan};2,@{month_feb};3,@{month_mar};4,@{month_apr};5,@{month_may};6,@{month_jun};7,@{month_jul};8,@{month_aug};9,@{month_sep};10,@{month_oct};11,@{month_nov};12,@{month_dec}"
 192 "Ошибка акцепта карты (%ld %s): %s"
 193 "<1>Условия хранения и срок годности<2>Стандарт<4>Состав<5>Энергетическая ценность<6>Способ использования (приготовления)"
 194 "По умолчанию остаток нулевой;По умолчанию остаток равен учетному"
@@ -3298,7 +3298,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 202 "Загрузка данных из интернета, файл: %s"
 203 "Разбор файла %s"
 204 "Ошибка акцепта корзины (%ld %s): %s"
-205 "@{altgroup};@{structure};Обобщение"
+205 "@{altgroup};@{structure};@{generalization}"
 
 206 /!/ "filename;codepage;format;bankcode;impexp;header;end;parvaldiv;CliBnkFlags;PaymMethodTransl"
 /* @v9.5.2 (unused)
@@ -4343,7 +4343,7 @@ PPTXT_LOG_JOBEXPBILL_DONE         "Job '@{exportbills}': экспорт заве
 PPTXT_LOG_EXPBILL_ITEM            "@{export}: экспортирован документ '@zstr'"
 PPTXT_LOG_DISPINVOKEFAULT         "Ошибка вызова Dispatch-метода '@zstr': @zstr"
 
-PPTXT_SUBSTGOODSLIST              "1,Обобщение;2,@{group};3,@{manufacturer};4,@{goodsclass_fusedimx};5,@{goodsclass_fusedimy};\
+PPTXT_SUBSTGOODSLIST              "1,@{generalization};2,@{group};3,@{manufacturer};4,@{goodsclass_fusedimx};5,@{goodsclass_fusedimy};\
 	6,@{goodsclass_fusedimz};7,Вид;8,Сортность;9,@{classifier};10,Вид/Сортность;\
 	11,@{supplier};12,@{brand};13,Вид/Сортность/@{classifier};14,Вид/@{classifier}/Сортность;\
 	15,@{supplagent};16,@{warehouse};17,Владелец торговой марки;18,@{vatrate};19,Ставка НДС в ценах поступления;20,Категория алкогольной продукции;\
@@ -4919,8 +4919,8 @@ PPTXT_SETTIMESERIESSTAT             "SetTimeSeries @zstr: append_count=@int upd-
 PPSSYM_SYMB "LINK;BILLNO;DATE;PAYDATE;AMOUNT,AMT;LOCATION,LOC;OBJECT,OBJ;PAYER;\
 AGENT;REGNAME;REGSN;REGNO;REGORG;TRADELIC;BILLMEMO;BILLOBJ2,OBJ2,EXTOBJ;GCNAME;GCKIND;GCGRADE;GCADDPROP;GCDIMX;GCDIMY;GCDIMZ;ALACC;ALAR;ALAMT;RCKN;\
 CLIENTADDR;GRNAME;PHPU;BRAND;CLIENT;PARENT;GCADD2PROP;GCDIMW;TSESS;PRC;TECH;MEMO;EXPIRY;AGTCODE;AGTDATE;AGTEXPIRY;\
-MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KPP;LOCCODE;DLVRLOCID;DUMMY;CSESS;POSNODE;DLVRLOCTAG"
-// @v10.4.1 DLVRLOCTAG.tagsymb
+MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KPP;LOCCODE;DLVRLOCID;DUMMY;CSESS;POSNODE;DLVRLOCTAG;DUEDATE;FGDUEDATE"
+// @v10.4.1 DLVRLOCTAG.tagsymb // @v10.4.8 DUEDATE FGDUEDATE
 
 // Мнемоника сторон баланса (Дб|Кр)
 PPSSYM_ACCSIDE "0DBT,0DB,0D,0ДБТ,0ДБ,0Д,1CRD,1CR,1KRD,1KR,1C,1K,1КРД,1КР,1К"
@@ -5532,6 +5532,7 @@ DVCPARAM_DATE	        "DATE" // @v10.0.0
 DVCPARAM_VATAMOUNT18	"VATAMOUNT18" // @v10.0.0
 DVCPARAM_VATAMOUNT10	"VATAMOUNT10" // @v10.0.0
 DVCPARAM_VATAMOUNT00	"VATAMOUNT00" // @v10.0.0
+DVCPARAM_VATAMOUNT20    "VATAMOUNT20" // @v10.4.8
 DVCPARAM_VATFREEAMOUNT	"VATFREEAMOUNT" // @v10.0.0
 DVCPARAM_PAYMCCRD       "PAYMCCRD" // @v10.4.1 Оплата корпоративной кредитной картой
 DVCPARAM_PAYMENTTERMTAG     "PAYMENTTERMTAG" // @v10.4.1
@@ -5652,7 +5653,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rejected                "Отклонен"
 @doreject                "Отклонить"
 @disaccord               "Расхождение"
-
+@generalization          "Обобщение"
 @alcohol                 "Алкоголь"
 
 @new_fem                 "Новая"
@@ -5885,6 +5886,32 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @friday            "Пятница"
 @saturday          "Суббота"
 @sunday            "Воскресенье"
+
+@month_jan         "Январь"
+@month_feb         "Февраль"
+@month_mar         "Март"
+@month_apr         "Апрель"
+@month_may         "Май"
+@month_jun         "Июнь"
+@month_jul         "Июль"
+@month_aug         "Август"
+@month_sep         "Сентябрь"
+@month_oct         "Октябрь"
+@month_nov         "Ноябрь"
+@month_dec         "Декабрь"
+
+@month_jan_s       "Янв"
+@month_feb_s       "Фев"
+@month_mar_s       "Мар"
+@month_apr_s       "Апр"
+@month_may_s       "Май"
+@month_jun_s       "Июн"
+@month_jul_s       "Июл"
+@month_aug_s       "Авг"
+@month_sep_s       "Сен"
+@month_oct_s       "Окт"
+@month_nov_s       "Ноя"
+@month_dec_s       "Дек"
 
 @id                "ИД"
 @code              "Код"
@@ -6608,7 +6635,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @roptype_goodsmodif                       "Модификация товара"
 @roptype_inventory                        "@{inventory}"
 @roptype_charge                           "Начисление ренты"
-@roptype_generic                          "Обобщение"
+@roptype_generic                          "@{generalization}"
 @roptype_goodsack                         "Подтверждение"
 @roptype_pool                             "Пул документов"
 @roptype_cashsess                         "@{csession}"
@@ -7647,7 +7674,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bill_extension                           "Расширение данных документа" // Группа атрибутов документа (агент, плательщик, и т.д.)
 @billprelude                              "Выберите вид операции нового документа" // Заголовок диалога, предшествующего вводу нового документа
 @billupdattributes                        "Изменение атрибутов документа" // Операция массового изменения некоторых атрибутов документов
-@billupdattributes_modcodestart           "Изменить нумерацию начинаю со счетчика"
+@billupdattributes_modcodestart           "Изменить нумерацию, начиная со счетчика"
 
 @total_bill                               "Итоги по документам"
 @total_bill_count                         "Количество документов"
@@ -12081,6 +12108,43 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @maintenancefunction_dump                 "Дамп"
 @maintenancefunction_cfgbuckup            "Настройка копирования"
 @maintenancefunction_cfgdb                "Настройка базы данных"
+
+@whatmanparam                             "Параметры ватмана"
+@whatmanparam_name                        "@{appellation}"
+@whatmanparam_symb                        "@{symbol}"
+@whatmanparam_unit                        "@{munit}"
+@whatmanparam_unitfactor                  "Множитель единиц измерения"
+@whatmanparam_flags                       "@{flags}"
+@whatmanparam_frule                       ""
+@whatmanparam_fgrid                       ""
+@whatmanparam_fdisablemoveobj             ""
+@whatmanparam_fdisablereszobj             ""
+@whatmanparam_fsnaptogrid                 "Ограничивать сеткой"
+@whatmanparam_foneclickactivation         "Активация объекта одним кликом мыши"
+
+@tlayout                                  "Layout"
+@tlayout_layout                           "Раскладка"
+@tlayout_layout_free                      "Свободная"
+@tlayout_layout_horizontal                "По строкам"
+@tlayout_layout_vertical                  "По колонкам"
+@tlayout_adjustment                       "Выравнивание"
+@tlayout_adjustment_begin                 "По начальной позиции"
+@tlayout_adjustment_end                   "По конечной позиции"
+@tlayout_adjustment_center                "По середине"
+@tlayout_adjustment_align                 "По ширине"
+@tlayout_flags                            "@{flags}"
+@tlayout_flags_wrap                       "Перенос"
+@tlayout_parentsymb                       "Символ родительского контейнера"
+@tlayout_sizeline                         "Размеры (ширина, высота)"
+@tlayout_marginline                       "Поля (левое, верхнее, правое, нижнее)"
+@tlayout_gravity                          "Gravity"
+@tlayout_graviti_left                     "Налево"
+@tlayout_graviti_right                    "Направо"
+@tlayout_graviti_up                       "Вверх"
+@tlayout_graviti_down                     "Вниз"
+@tlayout_graviti_fillhorz                 "Заполнить по горизонтали"
+@tlayout_graviti_fillvert                 "Заполнить по вертикали"
+@tlayout_graviti_fill                     "Заполнить по всей области"
 
 @cmdgroup                                 ""
 @cmdgroup_menu                            "Редактирование списка меню"
