@@ -3338,6 +3338,17 @@ int SLAPI PPObjStyloPalm::CreateQkList(ExportBlock & rBlk)
 	return ok;
 }
 
+struct StyloPalmGoodsEntry {
+	StyloPalmGoodsEntry(PPID goodsID) : GoodsID(goodsID), Rest(0.0), Cost(0.0), Price(0.0), UnitPerPack(0.0)
+	{
+	}
+	PPID   GoodsID;
+	double Rest;
+	double Cost;
+	double Price;
+	double UnitPerPack;
+};
+
 int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & rBlk)
 {
 	int    ok = -1;
@@ -3349,8 +3360,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	PPImpExp * p_ie_loc   = 0;
 	PPImpExp * p_ie_quots = 0;
 	Goods2Tbl::Rec goods_rec;
-	GoodsRestFilt   gr_filt;
-	GoodsRestViewItem gr_item;
+	TSVector <StyloPalmGoodsEntry> goods_list;
 	SETIFZ(rBlk.P_GrView, new PPViewGoodsRest);
 	THROW_MEM(rBlk.P_GrView);
 	THROW(p_goods_tbl = Palm_CreateDbfTable(PPFILNAM_PALM_GOODS, DBFS_PALM_GOODS));
@@ -3364,81 +3374,172 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 		THROW(p_ie_quots->OpenFileForWriting(0, 1));
 	}
 	if(!(pPack->Rec.Flags & PLMF_BLOCKED)) {
-		gr_filt.LocList = pPack->LocList;
-		gr_filt.GoodsGrpID = pPack->Rec.GoodsGrpID;
-		gr_filt.CalcMethod = GoodsRestParam::pcmLastLot;
-		gr_filt.WaitMsgID  = PPTXT_WAIT_GOODSREST;
-		PPSetAddedMsgString(p_qk_tbl->getName());
-		for(i = 0; i < rBlk.QkList.getCount(); i++) {
-			StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
-			DbfRecord drec_qk(p_qk_tbl);
-			drec_qk.empty();
-			drec_qk.put(1, r_item.Id);
-			drec_qk.put(2, (long)(i+1));
-			drec_qk.put(3, r_item.Txt);
-			THROW_PP(p_qk_tbl->appendRec(&drec_qk), PPERR_DBFWRFAULT);
-		}
-		THROW(rBlk.P_GrView->Init_(&gr_filt));
-		PPLoadText(PPTXT_WAIT_PALMEXPGOODS, wait_msg);
-		for(rBlk.P_GrView->InitIteration(); rBlk.P_GrView->NextIteration(&gr_item) > 0;) {
-			PPWaitPercent(rBlk.P_GrView->GetCounter(), wait_msg);
-			if(rBlk.P_GObj->Fetch(gr_item.GoodsID, &goods_rec) > 0) {
-				THROW(grp_list.addUnique(goods_rec.ParentID));
-				DbfRecord drec_goods(p_goods_tbl);
-				drec_goods.empty();
-				drec_goods.put(1, gr_item.GoodsID);
-				drec_goods.put(2, gr_item.GoodsName);
-				rBlk.P_GObj->FetchSingleBarcode(gr_item.GoodsID, temp_buf); // @v8.6.4 GetSingleBarcode-->FetchSingleBarcode
-				drec_goods.put(3, temp_buf);
-				drec_goods.put(4, gr_item.UnitPerPack);
-				drec_goods.put(5, gr_item.Price);
-				drec_goods.put(6, gr_item.Rest);
-				drec_goods.put(7, goods_rec.ParentID);
-				drec_goods.put(9, goods_rec.BrandID);
-				if(goods_rec.BrandID && (pPack->Rec.Flags & PLMF_EXPBRAND)) {
-					PPBrand brand_rec;
-					MEMSZERO(brand_rec);
-					if(rBlk.P_BrObj->Fetch(goods_rec.BrandID, &brand_rec) > 0)
-						drec_goods.put(10, brand_rec.OwnerID);
-				}
-				//
-				// Минимальный заказ
-				//
-				{
-					GoodsStockExt stock;
-					if(rBlk.P_GObj->GetStockExt(goods_rec.ID, &stock, 1) > 0) { // @v8.6.4 use_cache 0-->1
-						drec_goods.put(11, stock.MinShippmQtty);
-						drec_goods.put(12, BIN(stock.GseFlags & GoodsStockExt::fMultMinShipm));
-					}
-				}
-				for(i = 0; i < PALM_MAX_QUOT && i < rBlk.QkList.getCount(); i++) {
-					StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
-					QuotIdent qi(QIDATE(getcurdate_()), gr_filt.LocList.GetSingle(), r_item.Id);
-					double quot = 0.0;
-					if(rBlk.P_GObj->GetQuotExt(gr_item.GoodsID, qi, gr_item.Cost, gr_item.Price, &quot, 1) > 0) {
-						drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
-						{
-							Sdr_PalmQuot quot_rec;
-							MEMSZERO(quot_rec);
-							quot_rec.GoodsID    = gr_item.GoodsID;
-							quot_rec.QuotKindID = r_item.Id;
-							quot_rec.ClientID   = 0;
-							quot_rec.Price      = quot;
-							THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
-						}
-					}
-				}
-				PPSetAddedMsgString(p_goods_tbl->getName());
-				THROW_PP(p_goods_tbl->appendRec(&drec_goods), PPERR_DBFWRFAULT);
+		const PPID single_loc_id = pPack->LocList.GetSingle();
+		{
+			PPSetAddedMsgString(p_qk_tbl->getName());
+			for(i = 0; i < rBlk.QkList.getCount(); i++) {
+				StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
+				DbfRecord drec_qk(p_qk_tbl);
+				drec_qk.empty();
+				drec_qk.put(1, r_item.Id);
+				drec_qk.put(2, static_cast<long>(i+1));
+				drec_qk.put(3, r_item.Txt);
+				THROW_PP(p_qk_tbl->appendRec(&drec_qk), PPERR_DBFWRFAULT);
 			}
 		}
 		{
-			struct NameEntry {
+			/*if(Flags & BTC_ONLYUNLIMGOODS) {
+				PPObjGoodsType gt_obj;
+				PPGoodsType gt_rec;
+				if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) <= 0 || !(gt_rec.Flags & (GTF_UNLIMITED|GTF_QUASIUNLIM)))
+					r = -1;
+			}*/
+			PPIDArray gt_quasi_unlim_list;
+			{
+				PPObjGoodsType gt_obj;
+				PPGoodsType gt_rec;
+				for(SEnum en = gt_obj.Enum(0); en.Next(&gt_rec) > 0;) {
+					if(gt_rec.Flags & (GTF_QUASIUNLIM|GTF_UNLIMITED)) 
+						gt_quasi_unlim_list.add(gt_rec.ID);
+				}
+			}
+			GoodsRestFilt gr_filt;
+			gr_filt.LocList = pPack->LocList;
+			gr_filt.GoodsGrpID = pPack->Rec.GoodsGrpID;
+			gr_filt.CalcMethod = GoodsRestParam::pcmLastLot;
+			if(gt_quasi_unlim_list.getCount())
+				gr_filt.Flags |= GoodsRestFilt::fNullRest;
+			gr_filt.WaitMsgID  = PPTXT_WAIT_GOODSREST;
+			THROW(rBlk.P_GrView->Init_(&gr_filt));
+			PPLoadText(PPTXT_WAIT_PALMEXPGOODS, wait_msg);
+			GoodsRestViewItem gr_item;
+			for(rBlk.P_GrView->InitIteration(); rBlk.P_GrView->NextIteration(&gr_item) > 0;) {
+				PPWaitPercent(rBlk.P_GrView->GetCounter(), wait_msg);
+				if(rBlk.P_GObj->Fetch(gr_item.GoodsID, &goods_rec) > 0) {
+					if(gr_item.Rest > 0.0 || gt_quasi_unlim_list.lsearch(goods_rec.GoodsTypeID)) {
+						StyloPalmGoodsEntry goods_entry(gr_item.GoodsID);
+						goods_entry.Rest = gr_item.Rest;
+						goods_entry.Cost = gr_item.Cost;
+						goods_entry.Price = gr_item.Price;
+						goods_entry.UnitPerPack = gr_item.UnitPerPack;
+						goods_list.insert(&goods_entry);
+					}
+					/* @v10.4.9
+					THROW(grp_list.addUnique(goods_rec.ParentID));
+					DbfRecord drec_goods(p_goods_tbl);
+					drec_goods.empty();
+					drec_goods.put(1, gr_item.GoodsID);
+					drec_goods.put(2, gr_item.GoodsName);
+					rBlk.P_GObj->FetchSingleBarcode(gr_item.GoodsID, temp_buf);
+					drec_goods.put(3, temp_buf);
+					drec_goods.put(4, gr_item.UnitPerPack);
+					drec_goods.put(5, gr_item.Price);
+					drec_goods.put(6, gr_item.Rest);
+					drec_goods.put(7, goods_rec.ParentID);
+					drec_goods.put(9, goods_rec.BrandID);
+					if(goods_rec.BrandID && (pPack->Rec.Flags & PLMF_EXPBRAND)) {
+						PPBrand brand_rec;
+						MEMSZERO(brand_rec);
+						if(rBlk.P_BrObj->Fetch(goods_rec.BrandID, &brand_rec) > 0)
+							drec_goods.put(10, brand_rec.OwnerID);
+					}
+					//
+					// Минимальный заказ
+					//
+					{
+						GoodsStockExt stock;
+						if(rBlk.P_GObj->GetStockExt(goods_rec.ID, &stock, 1) > 0) {
+							drec_goods.put(11, stock.MinShippmQtty);
+							drec_goods.put(12, BIN(stock.GseFlags & GoodsStockExt::fMultMinShipm));
+						}
+					}
+					for(i = 0; i < PALM_MAX_QUOT && i < rBlk.QkList.getCount(); i++) {
+						StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
+						QuotIdent qi(QIDATE(getcurdate_()), single_loc_id, r_item.Id);
+						double quot = 0.0;
+						if(rBlk.P_GObj->GetQuotExt(gr_item.GoodsID, qi, gr_item.Cost, gr_item.Price, &quot, 1) > 0) {
+							drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
+							{
+								Sdr_PalmQuot quot_rec;
+								MEMSZERO(quot_rec);
+								quot_rec.GoodsID    = gr_item.GoodsID;
+								quot_rec.QuotKindID = r_item.Id;
+								quot_rec.ClientID   = 0;
+								quot_rec.Price      = quot;
+								THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
+							}
+						}
+					}
+					PPSetAddedMsgString(p_goods_tbl->getName());
+					THROW_PP(p_goods_tbl->appendRec(&drec_goods), PPERR_DBFWRFAULT);
+					*/
+				}
+			}
+		}
+		// @v10.4.9 {
+		{
+			for(uint glidx = 0; glidx < goods_list.getCount(); glidx++) {
+				const StyloPalmGoodsEntry & r_goods_entry = goods_list.at(glidx);
+				if(rBlk.P_GObj->Fetch(r_goods_entry.GoodsID, &goods_rec) > 0) {
+					THROW(grp_list.add(goods_rec.ParentID));
+					DbfRecord drec_goods(p_goods_tbl);
+					drec_goods.empty();
+					drec_goods.put(1, r_goods_entry.GoodsID);
+					drec_goods.put(2, goods_rec.Name);
+					rBlk.P_GObj->FetchSingleBarcode(r_goods_entry.GoodsID, temp_buf);
+					drec_goods.put(3, temp_buf);
+					drec_goods.put(4, r_goods_entry.UnitPerPack);
+					drec_goods.put(5, r_goods_entry.Price);
+					drec_goods.put(6, r_goods_entry.Rest);
+					drec_goods.put(7, goods_rec.ParentID);
+					drec_goods.put(9, goods_rec.BrandID);
+					if(goods_rec.BrandID && (pPack->Rec.Flags & PLMF_EXPBRAND)) {
+						PPBrand brand_rec;
+						MEMSZERO(brand_rec);
+						if(rBlk.P_BrObj->Fetch(goods_rec.BrandID, &brand_rec) > 0)
+							drec_goods.put(10, brand_rec.OwnerID);
+					}
+					//
+					// Минимальный заказ
+					//
+					{
+						GoodsStockExt stock;
+						if(rBlk.P_GObj->GetStockExt(goods_rec.ID, &stock, 1) > 0) {
+							drec_goods.put(11, stock.MinShippmQtty);
+							drec_goods.put(12, BIN(stock.GseFlags & GoodsStockExt::fMultMinShipm));
+						}
+					}
+					for(i = 0; i < PALM_MAX_QUOT && i < rBlk.QkList.getCount(); i++) {
+						StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
+						QuotIdent qi(QIDATE(getcurdate_()), single_loc_id, r_item.Id);
+						double quot = 0.0;
+						if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
+							drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
+							{
+								Sdr_PalmQuot quot_rec;
+								MEMSZERO(quot_rec);
+								quot_rec.GoodsID    = r_goods_entry.GoodsID;
+								quot_rec.QuotKindID = r_item.Id;
+								quot_rec.ClientID   = 0;
+								quot_rec.Price      = quot;
+								THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
+							}
+						}
+					}
+					PPSetAddedMsgString(p_goods_tbl->getName());
+					THROW_PP(p_goods_tbl->appendRec(&drec_goods), PPERR_DBFWRFAULT);
+				}
+			}
+			grp_list.sortAndUndup();
+		}
+		// } @v10.4.9
+		{
+			struct NameEntry { // @flat
 				char   Name[64];
 				PPID   ID;
 				PPID   ParentID;
 			};
-			SArray name_list(sizeof(NameEntry));
+			SVector name_list(sizeof(NameEntry)); // @v10.4.9 SArray-->SVector
 			if(rBlk.P_GgList) {
 				for(uint i = 0; i < rBlk.P_GgList->getCount(); i++) {
 					const ExportBlock::GoodsGrpEntry & r_eb_entry = rBlk.P_GgList->at(i);

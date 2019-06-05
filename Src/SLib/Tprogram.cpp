@@ -93,7 +93,7 @@ int TStatusWin::Update()
 			//
 			::SendMessage(hw, SB_SETICON, i, reinterpret_cast<LPARAM>(h_icon));
 			::DestroyIcon(h_icon); // @2
-			::SendMessage(hw, SB_SETTIPTEXT, i, reinterpret_cast<LPARAM>(temp_buf.cptr()));
+			::SendMessage(hw, SB_SETTIPTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr()))); // @v10.4.9 @fix SUcSwitch
 		}
 		else {
 			COLORREF color = Items.at(i).Color;
@@ -232,7 +232,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 						t_i.rect        = rc_item;
 						t_i.hinst       = TProgram::GetInst();
 						t_i.lpszText    = 0;
-						SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
+						::SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 						count--;
 						break;
 					}
@@ -253,7 +253,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
 							t_i.lpszText    = 0;
-							SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
+							::SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 					}
 				}
@@ -328,7 +328,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
 							t_i.lpszText    = 0;
-							SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
+							::SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 					}
 				}
@@ -2340,16 +2340,16 @@ int DrawInputLine(HWND hwnd, DRAWITEMSTRUCT * pDi)
 int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = -1;
-	TStatusWin::StItem * p_item = reinterpret_cast<TStatusWin::StItem *>(pDi->itemData);
+	const TStatusWin::StItem * p_item = reinterpret_cast<const TStatusWin::StItem *>(pDi->itemData);
 	if(p_item) {
 		int    hotlight = BIN(pDi->itemState & ODS_HOTLIGHT);
 		HBRUSH brush = 0, old_brush = 0;
 		HPEN   pen = 0, old_pen = 0;
 		RECT   out_r;
 		if(p_item->Color) {
-			brush = CreateSolidBrush((COLORREF)p_item->Color);
+			brush = ::CreateSolidBrush((COLORREF)p_item->Color);
 			old_brush = static_cast<HBRUSH>(::SelectObject(pDi->hDC, brush));
-			pen = CreatePen(PS_SOLID, 1, p_item->Color);
+			pen = ::CreatePen(PS_SOLID, 1, p_item->Color);
 			old_pen = static_cast<HPEN>(::SelectObject(pDi->hDC, pen));
 		}
 		out_r = pDi->rcItem;

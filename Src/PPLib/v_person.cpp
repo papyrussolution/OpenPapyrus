@@ -368,6 +368,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 				P_Ct->SetTable(P_TempPsn, P_TempPsn->TabID);
 				P_Ct->AddIdxField(P_TempPsn->ID);
 				P_Ct->AddInheritedFixField(P_TempPsn->Name);
+				//P_Ct->AddInheritedFixField(P_TempPsn->RAddressP); // @erik добавить позже   
 				P_Ct->AddAggrField(P_TempPsn->RegNumber);
 				THROW(P_Ct->Create(use_ta));
 			}
@@ -2101,6 +2102,14 @@ void SLAPI PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->InsColumn(-1, "FIAS HOUSE", 9, 0, MKSFMT(32, 0), 0);
 			}
 		}
+		//@erik 02.06.2019{
+//		if (P_Ct && Filt.AttribType == PPPSNATTR_ALLADDR) {
+//			BrowserDef * p_def = pBrw->getDef();
+//			if (p_def) {
+//				pBrw->InsColumn(-1, "Address", 3, 0, MKSFMT(32, 0), 0);
+//			}
+//		}
+		//@erik}
 		pBrw->SetCellStyleFunc(CellStyleFunc, this);
 	}
 }

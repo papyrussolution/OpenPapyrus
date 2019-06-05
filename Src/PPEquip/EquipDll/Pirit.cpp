@@ -1621,7 +1621,7 @@ int PiritEquip::RunCheck(int opertype)
 					// @v10.4.6 {
 					in_data.Z();
 					if(Check.PaymCCrdCard != 0) {
-						CreateStr(14, in_data); // Тип оплаты
+						CreateStr(13, in_data); // Тип оплаты // @v10.4.9 14-->13
 						FormatPaym(Check.PaymCCrdCard, str);
 						CreateStr(str, in_data);
 						CreateStr("", in_data);

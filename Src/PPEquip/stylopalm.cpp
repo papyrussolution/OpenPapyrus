@@ -44,20 +44,12 @@ void PalmConfig::ToHostRec()
 	OrdCode = ntohl(OrdCode);
 	Shift   = ntohl(Shift);
 	Flags   = ntohl(Flags);
-	TmLastXchg.d.v = (ulong)ntohl(TmLastXchg.d.v);
-	TmClient.d.v   = (ulong)ntohl(TmClient.d.v);
-	TmGoods.d.v    = (ulong)ntohl(TmGoods.d.v);
-	TmCliDebt.d.v  = (ulong)ntohl(TmCliDebt.d.v);
-	TmCliSell.d.v  = (ulong)ntohl(TmCliSell.d.v);
-	TmToDo.d.v     = (ulong)ntohl(TmToDo.d.v);
-	/*
-	TmLastXchg.t.v = (ulong)ntohl(TmLastXchg.t.v);
-	TmClient.t.v   = (ulong)ntohl(TmClient.t.v);
-	TmGoods.t.v    = (ulong)ntohl(TmGoods.t.v);
-	TmCliDebt.t.v  = (ulong)ntohl(TmCliDebt.t.v);
-	TmCliSell.t.v  = (ulong)ntohl(TmCliSell.t.v);
-	TmToDo.t.v     = (ulong)ntohl(TmToDo.t.v);
-	*/
+	TmLastXchg.d.v = static_cast<ulong>(ntohl(TmLastXchg.d.v));
+	TmClient.d.v   = static_cast<ulong>(ntohl(TmClient.d.v));
+	TmGoods.d.v    = static_cast<ulong>(ntohl(TmGoods.d.v));
+	TmCliDebt.d.v  = static_cast<ulong>(ntohl(TmCliDebt.d.v));
+	TmCliSell.d.v  = static_cast<ulong>(ntohl(TmCliSell.d.v));
+	TmToDo.d.v     = static_cast<ulong>(ntohl(TmToDo.d.v));
 	RecvBufSize = ntohl(RecvBufSize);
 	SendBufSize = ntohl(SendBufSize);
 }
@@ -76,14 +68,6 @@ void PalmConfig::ToPalmRec()
 	TmCliDebt.d.v  = htonl(TmCliDebt.d.v);
 	TmCliSell.d.v  = htonl(TmCliSell.d.v);
 	TmToDo.d.v     = htonl(TmToDo.d.v);
-	/*
-	TmLastXchg.t.v = htonl(TmLastXchg.t.v);
-	TmClient.t.v   = htonl(TmClient.t.v);
-	TmGoods.t.v    = htonl(TmGoods.t.v);
-	TmCliDebt.t.v  = htonl(TmCliDebt.t.v);
-	TmCliSell.t.v  = htonl(TmCliSell.t.v);
-	TmToDo.t.v     = htonl(TmToDo.t.v);
-	*/
 	SendBufSize    = htonl(SendBufSize);
 	RecvBufSize    = htonl(RecvBufSize);
 }
@@ -97,7 +81,7 @@ int PalmConfig::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char *)pBuf;
+			char * p_buf = static_cast<char *>(pBuf);
 			size_t bytes = 0;
 			memcpy(p_buf + bytes,                             &Size,           sizeof(Size));
 			memcpy(p_buf + (bytes += sizeof(Size)),           &Ver,            sizeof(Ver));
