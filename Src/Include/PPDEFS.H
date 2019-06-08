@@ -1729,6 +1729,7 @@
 #define STDCTL_QKLISTBUTTON       158 // @v9.5.5  Кнопка выбора списка видов котировок
 #define STDCTL_FILTERBUTTON       159 // @v9.7.10 Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
 #define STDCTL_VERIFYBUTTON       160 // @v10.1.5 Кнопка "Верифицировать"
+#define STDCTL_LAYOUTBUTTON       161 // @v10.4.9 Кнопка "Layout"
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -1801,6 +1802,7 @@
 #define cmLinkedBill             1168 // @v10.2.2 команда стала общей (ранее принадлежала только диалогу DLG_ATWROFF)
 #define cmCopyToClipboard        1169
 #define cmCopyToClipboardAll     1170
+#define cmLayoutEntry            1171 // @v10.4.9
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)

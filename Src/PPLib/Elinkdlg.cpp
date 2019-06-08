@@ -1,6 +1,7 @@
 // ELINKDLG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
+// Р”РёР°Р»РѕРіРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ СЌР»РµРєС‚СЂРѕРЅРЅС‹С… Р°РґСЂРµСЃРѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,47 +9,10 @@
 int SLAPI EditELink(PPELink * pLink)
 {
 	class ELinkDialog : public TDialog {
-	public:
-		ELinkDialog() : TDialog(DLG_ELINK)
-		{
-		}
-		int    setDTS(const PPELink * pData)
-		{
-			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_ELINK_KIND, PPOBJ_ELINKKIND, Data.KindID, OLW_CANINSERT, 0);
-			setCtrlData(CTL_ELINK_ADDR, Data.Addr);
-			return 1;
-		}
-		int    getDTS(PPELink * pData)
-		{
-			int    ok = 1;
-			getCtrlData(CTLSEL_ELINK_KIND, &Data.KindID);
-			getCtrlData(CTL_ELINK_ADDR, Data.Addr);
-			if(Data.KindID == 0)
-				ok = PPErrorByDialog(this, CTLSEL_ELINK_KIND, PPERR_ELINKKINDNEEDED);
-			else if(*strip(Data.Addr) == 0)
-				ok = PPErrorByDialog(this, CTL_ELINK_ADDR, PPERR_ELINKADDRNEEDED);
-			else {
-				PPELinkKind elk_rec;
-				if(ElkObj.Fetch(Data.KindID, &elk_rec) > 0) {
-					if(elk_rec.Type == ELNKRT_EMAIL) {
-						STokenRecognizer tr;
-						SNaturalTokenArray nta;
-						tr.Run((const uchar *)Data.Addr, -1, nta, 0);
-						if(nta.Has(SNTOK_EMAIL) == 0.0f) {
-							PPSetError(PPERR_INVEMAILADDR, Data.Addr);
-							ok = PPErrorByDialog(this, CTL_ELINK_ADDR);
-						}
-					}
-				}
-				else 
-					ok = PPErrorByDialog(this, CTLSEL_ELINK_KIND);
-			}
-			if(ok)
-				ASSIGN_PTR(pData, Data);
-			return ok;
-		}
-	private:
+		typedef PPELink DlgDataType;
+		DlgDataType Data;
+		PPObjELinkKind ElkObj;
+
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
@@ -84,8 +48,46 @@ int SLAPI EditELink(PPELink * pLink)
 				return;
 			clearEvent(event);
 		}
-		PPELink Data;
-		PPObjELinkKind ElkObj;
+	public:
+		ELinkDialog() : TDialog(DLG_ELINK)
+		{
+		}
+		int    setDTS(const DlgDataType * pData)
+		{
+			RVALUEPTR(Data, pData);
+			SetupPPObjCombo(this, CTLSEL_ELINK_KIND, PPOBJ_ELINKKIND, Data.KindID, OLW_CANINSERT, 0);
+			setCtrlData(CTL_ELINK_ADDR, Data.Addr);
+			return 1;
+		}
+		int    getDTS(DlgDataType * pData)
+		{
+			int    ok = 1;
+			getCtrlData(CTLSEL_ELINK_KIND, &Data.KindID);
+			getCtrlData(CTL_ELINK_ADDR, Data.Addr);
+			if(Data.KindID == 0)
+				ok = PPErrorByDialog(this, CTLSEL_ELINK_KIND, PPERR_ELINKKINDNEEDED);
+			else if(*strip(Data.Addr) == 0)
+				ok = PPErrorByDialog(this, CTL_ELINK_ADDR, PPERR_ELINKADDRNEEDED);
+			else {
+				PPELinkKind elk_rec;
+				if(ElkObj.Fetch(Data.KindID, &elk_rec) > 0) {
+					if(elk_rec.Type == ELNKRT_EMAIL) {
+						STokenRecognizer tr;
+						SNaturalTokenArray nta;
+						tr.Run(reinterpret_cast<const uchar *>(Data.Addr), -1, nta, 0);
+						if(nta.Has(SNTOK_EMAIL) == 0.0f) {
+							PPSetError(PPERR_INVEMAILADDR, Data.Addr);
+							ok = PPErrorByDialog(this, CTL_ELINK_ADDR);
+						}
+					}
+				}
+				else 
+					ok = PPErrorByDialog(this, CTLSEL_ELINK_KIND);
+			}
+			if(ok)
+				ASSIGN_PTR(pData, Data);
+			return ok;
+		}
 	};
 	int    r = cmCancel;
 	ELinkDialog * dlg = new ELinkDialog;
@@ -104,28 +106,26 @@ int SLAPI EditELink(PPELink * pLink)
 }
 
 class ELinkListDialog : public PPListDialog {
+	typedef PPELinkArray DlgDataType;
+	DlgDataType Data;
+	PPObjELinkKind elkobj;
 public:
-	ELinkListDialog::ELinkListDialog(PPELinkArray * pArray) : PPListDialog(DLG_ELNKLST, CTL_ELNKLST_LIST)
+	ELinkListDialog::ELinkListDialog(DlgDataType * pArray) : PPListDialog(DLG_ELNKLST, CTL_ELNKLST_LIST)
 	{
 		Data.copy(*pArray);
 		updateList(-1);
 	}
-	int    getDTS(PPELinkArray *);
+	int    getDTS(DlgDataType * pData)
+	{
+		CALLPTRMEMB(pData, copy(Data));
+		return 1;
+	}
 private:
 	virtual int setupList();
 	virtual int addItem(long * pos, long * id);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
-
-	PPELinkArray   Data;
-	PPObjELinkKind elkobj;
 };
-
-int ELinkListDialog::getDTS(PPELinkArray * pData)
-{
-	CALLPTRMEMB(pData, copy(Data));
-	return 1;
-}
 
 int ELinkListDialog::setupList()
 {
@@ -216,14 +216,14 @@ static int SLAPI OrderELinkArray(PPELinkArray * ary, SArray * kinds)
 {
 	int    ok = 1;
 	//
-	// Алгоритм сортировки массива ELinkArray следующий:
-	// 1. Виды электронной связи (kinds) отсортированы по предпочтительности
-	// 2. Заменяем идентификаторы вида связи на порядковый номер этого
-	//    вида в массиве kinds (критерий сортировки) в массиве ary.
-	//    Если вид связи не является валидным значением, то вместо
-	//    замены просто прибавляем к нему смещение 1000
-	// 3. Сортируем массив ary согласно сортировке массива kinds
-	// 4. Делаем обратную замену идентификаторов
+	// РђР»РіРѕСЂРёС‚Рј СЃРѕСЂС‚РёСЂРѕРІРєРё РјР°СЃСЃРёРІР° ELinkArray СЃР»РµРґСѓСЋС‰РёР№:
+	// 1. Р’РёРґС‹ СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ СЃРІСЏР·Рё (kinds) РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅС‹ РїРѕ РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅРѕСЃС‚Рё
+	// 2. Р—Р°РјРµРЅСЏРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РІРёРґР° СЃРІСЏР·Рё РЅР° РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ СЌС‚РѕРіРѕ
+	//    РІРёРґР° РІ РјР°СЃСЃРёРІРµ kinds (РєСЂРёС‚РµСЂРёР№ СЃРѕСЂС‚РёСЂРѕРІРєРё) РІ РјР°СЃСЃРёРІРµ ary.
+	//    Р•СЃР»Рё РІРёРґ СЃРІСЏР·Рё РЅРµ СЏРІР»СЏРµС‚СЃСЏ РІР°Р»РёРґРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј, С‚Рѕ РІРјРµСЃС‚Рѕ
+	//    Р·Р°РјРµРЅС‹ РїСЂРѕСЃС‚Рѕ РїСЂРёР±Р°РІР»СЏРµРј Рє РЅРµРјСѓ СЃРјРµС‰РµРЅРёРµ 1000
+	// 3. РЎРѕСЂС‚РёСЂСѓРµРј РјР°СЃСЃРёРІ ary СЃРѕРіР»Р°СЃРЅРѕ СЃРѕСЂС‚РёСЂРѕРІРєРµ РјР°СЃСЃРёРІР° kinds
+	// 4. Р”РµР»Р°РµРј РѕР±СЂР°С‚РЅСѓСЋ Р·Р°РјРµРЅСѓ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
 	//
 	uint   i, kp;
 	for(i = 0; i < ary->getCount(); i++)
@@ -235,7 +235,7 @@ static int SLAPI OrderELinkArray(PPELinkArray * ary, SArray * kinds)
 	for(i = 0; i < ary->getCount(); i++) {
 		long & tk = ary->at(i).KindID;
 		if(tk < 1000L)
-			tk = ((PPELinkKind*)kinds->at((uint)tk))->ID;
+			tk = static_cast<const PPELinkKind *>(kinds->at((uint)tk))->ID;
 		else
 			tk -= 1000L;
 	}
@@ -270,7 +270,7 @@ int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
 				if(p_item->KindID == PPELK_EMAIL && p_item->Addr[0]) {
 					STokenRecognizer tr;
 					SNaturalTokenArray nta;
-					tr.Run((const uchar *)p_item->Addr, -1, nta, 0);
+					tr.Run(reinterpret_cast<const uchar *>(p_item->Addr), -1, nta, 0);
 					THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, p_item->Addr);
 				}
 			}

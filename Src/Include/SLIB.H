@@ -2441,6 +2441,7 @@ private:
 #define SLERR_LIBXML                           456 // Ошибка библиотеки libxml
 #define SLERR_DUPSYMBWITHUNEQID                457 // Дублирование символа '%s' элемента с отличным идентификатором
 #define SLERR_INVIMAGESIZE                     458 // @v9.9.4 Недопустимый размер изображения ([1..30000], [1..30000])
+#define SLERR_WTM_DUPLAYOUTSYMB                459 // @v10.4.9 Дублирование символа layout
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -10248,7 +10249,7 @@ public:
 		uint   SpreadSum;
 		uint   SpreadCount;
 		uint64 TmProfile; // Время выполнения функции
-		int    UpdCountVecIdx; // @v10.4.7 (>=0) : индекс единственного вектора, по которому требуется статистика изменений 
+		int    UpdCountVecIdx; // @v10.4.7 (>=0) : индекс единственного вектора, по которому требуется статистика изменений
 	};
 
 	int    SLAPI AddItems(const STimeSeries & rSrc, AppendStat * pStat);
@@ -10285,7 +10286,7 @@ public:
 		long   Flags;
 	};
 
-	int    SLAPI AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, 
+	int    SLAPI AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList,
 		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const;
 	int    SLAPI Repair(const char * pCriticalVecSymb);
 	//

@@ -84,26 +84,137 @@ int SLAPI BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 	return ok;
 }
 
+struct LayoutEntryDialogBlock : public TLayout::EntryBlock {
+	LayoutEntryDialogBlock(const TLayout::EntryBlock * pS)
+	{
+		Setup(pS);
+	}
+	void Setup(const TLayout::EntryBlock * pS)
+	{
+		if(pS)
+			*static_cast<TLayout::EntryBlock *>(this) = *pS;
+	}
+	SString LayoutSymb;
+};
+
 class LayoutEntryDialog : public TDialog {
-	typedef TLayout::EntryBlock DlgDataType;
+	typedef LayoutEntryDialogBlock DlgDataType;
 	DlgDataType Data;
 public:
-	LayoutEntryDialog() : TDialog(DLG_LAYOENTRY)
+	LayoutEntryDialog(const TWhatman * pWtm) : TDialog(DLG_LAYOENTRY), P_Wtm(pWtm), Data(0)
 	{
 	}
 	int setDTS(const DlgDataType * pData)
 	{
+		int    ok = 1;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		if(P_Wtm) {
+			long    init_parent_id = 0;
+			StrAssocArray layout_symb_list;
+			P_Wtm->GetLayoutSymbList(layout_symb_list);
+			if(Data.LayoutSymb.NotEmpty()) {
+				uint pos = 0;
+				if(layout_symb_list.SearchByText(Data.LayoutSymb, 0, &pos)) {
+					init_parent_id = layout_symb_list.Get(pos).Id;
+				}
+			}
+			SetupStrAssocCombo(this, CTLSEL_LAYOENTRY_PARENT, &layout_symb_list, init_parent_id, 0, 0, 0);
+		}
+		Data.SizeToString(temp_buf);
+		setCtrlString(CTL_LAYOENTRY_SIZE, temp_buf);
+		Data.MarginsToString(temp_buf);
+		setCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
+		AddClusterAssocDef(CTL_LAYOENTRY_GRAVITY, 0, Data.bfLeft);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 1, Data.bfRight);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 2, Data.bfTop);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 3, Data.bfBottom);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 4, Data.bfHFill);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 5, Data.bfVFill);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 6, Data.bfFill);
+		long bf = (Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
+		SetClusterData(CTL_LAYOENTRY_GRAVITY, bf);
+		return ok;
 	}
 	int getDTS(DlgDataType * pData)
 	{
+		int    ok = 1;
+		uint   sel = 0;
+		long   bf = 0;
+		SString temp_buf;
+		getCtrlString(sel = CTL_LAYOENTRY_SIZE, temp_buf);
+		THROW_PP(Data.SizeFromString(temp_buf), PPERR_USERINPUT);
+		getCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
+		THROW_PP(Data.MarginsFromString(temp_buf), PPERR_USERINPUT);
+		GetClusterData(CTL_LAYOENTRY_GRAVITY, &bf);
+		Data.BehaveFlags &= ~(Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
+		Data.BehaveFlags |= bf;
+		{
+			long   parent_id = getCtrlLong(CTLSEL_LAYOENTRY_PARENT);
+			if(parent_id) {
+				StrAssocArray layout_symb_list;
+				P_Wtm->GetLayoutSymbList(layout_symb_list);
+				uint pos = 0;
+				if(layout_symb_list.Search(parent_id, &pos)) {
+					Data.LayoutSymb = layout_symb_list.Get(pos).Txt;
+				}
+			}
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			PPErrorByDialog(this, sel);
+		ENDCATCH
+		return ok;
 	}
+	const TWhatman * P_Wtm;
+};
+
+class WhatmanObjectBaseDialog : public TDialog {
+public:
+	WhatmanObjectBaseDialog(uint dlgId) : TDialog(dlgId), P_Wtm(0), Data(0)
+	{
+	}
+	int    setRef(TWhatmanObject * pData)
+	{
+		if(pData) {
+			Data.Setup(&pData->GetLayoutBlock());
+			Data.LayoutSymb = pData->GetLayoutContainerIdent();
+			P_Wtm = pData->GetOwner();
+		}
+		return 1;
+	}
+	int    updateRef(TWhatmanObject * pData)
+	{
+		int    ok = 1;
+		if(pData) {
+			pData->SetLayoutBlock(&Data);
+			pData->SetLayoutContainerIdent(Data.LayoutSymb);
+		}
+		return ok;
+	}
+protected:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmLayoutEntry)) {
+			EditLayoutEntry(&Data);
+		}
+	}
+	int  EditLayoutEntry(LayoutEntryDialogBlock * pData)
+	{
+		//PPDialogProcBody <LayoutEntryDialog, TLayout::EntryBlock> (&Le);
+		DIALOG_PROC_BODY_P1(LayoutEntryDialog, P_Wtm, pData);
+	}
+	//TLayout::EntryBlock Le;
+	LayoutEntryDialogBlock Data;
+	const TWhatman * P_Wtm;
 };
 //
 //
 //
-class WhatmanObjectLayout : public TWhatmanObject {
+class WhatmanObjectLayout : public WhatmanObjectLayoutBase {
 public:
-	WhatmanObjectLayout() : TWhatmanObject("Layout")
+	WhatmanObjectLayout() : WhatmanObjectLayoutBase()
 	{
 		Options |= (oMovable | oResizable | oMultSelectable);
 	}
@@ -111,25 +222,6 @@ public:
 	{
 	}
 protected:
-	virtual TWhatmanObject * Dup() const
-	{
-		WhatmanObjectLayout * p_obj = new WhatmanObjectLayout();
-		CALLPTRMEMB(p_obj, Copy(*this));
-		return p_obj;
-	}
-	virtual int Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
-	{
-		int    ok = 1;
-		//uint8  ind = 0;
-		THROW(TWhatmanObject::Serialize(dir, rBuf, pCtx));
-		THROW(pCtx->Serialize(dir, ContainerIdent, rBuf));
-		if(dir > 0) {
-		}
-		else if(dir < 0) {
-		}
-		CATCHZOK
-		return ok;
-	}
 	virtual int Draw(TCanvas2 & rCanv)
 	{
 		TRect b = GetBounds();
@@ -154,17 +246,18 @@ protected:
 				break;
 			case cmdEdit:
 				{
-					class WoLayoutDialog : public TDialog {
+					class WoLayoutDialog : public WhatmanObjectBaseDialog {
 						typedef WhatmanObjectLayout DlgDataType;
 						DlgDataType Data;
 					public:
-						WoLayoutDialog() : TDialog(DLG_WOLAYOUT)
+						WoLayoutDialog() : WhatmanObjectBaseDialog(DLG_WOLAYOUT)
 						{
 						}
 						int    setDTS(const DlgDataType * pData)
 						{
 							int    ok = 1;
 							RVALUEPTR(Data, pData);
+							WhatmanObjectBaseDialog::setRef(&Data); // @v10.4.9
 							setCtrlString(CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
 							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 0, DIREC_UNKN);
 							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 1, DIREC_HORZ);
@@ -182,20 +275,33 @@ protected:
 						int    getDTS(DlgDataType * pData)
 						{
 							int    ok = 1;
+							uint   sel = 0;
+							const SString preserve_symb = pData ? pData->ContainerIdent : 0;
 							TLayout::EntryBlock lb = Data.GetLayoutBlock();
-							getCtrlString(CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
+							getCtrlString(sel = CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
+							if(pData) {
+								pData->ContainerIdent = Data.ContainerIdent;
+							}
+							const TWhatman * p_wtm = Data.GetOwner();
+							THROW_SL(!p_wtm || p_wtm->CheckUniqLayoutSymb(pData));
 							lb.ContainerDirection = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_LAY));
 							lb.ContainerAdjustment = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_ADJ));
 							lb.ContainerFlags = static_cast<uint16>(GetClusterData(CTL_WOLAYOUT_FLAGS));
 							Data.SetLayoutBlock(&lb);
+							WhatmanObjectBaseDialog::updateRef(&Data); // @v10.4.9
 							ASSIGN_PTR(pData, Data);
+							CATCH
+								if(pData)
+									pData->ContainerIdent = preserve_symb;
+								ok = PPErrorByDialog(this, sel);
+							ENDCATCH
 							return ok;
 						}
 					};
 					WoLayoutDialog * dlg = new WoLayoutDialog();
 					if(CheckDialogPtrErr(&dlg)) {
 						dlg->setDTS(this);
-						if(ExecView(dlg) == cmOK) {
+						while(ok < 0 && ExecView(dlg) == cmOK) {
 							if(dlg->getDTS(this)) {
 								ok = 1;
 							}
@@ -209,14 +315,6 @@ protected:
 		}
 		return ok;
 	}
-	int    FASTCALL Copy(const WhatmanObjectLayout & rS)
-	{
-		int    ok = 1;
-		TWhatmanObject::Copy(rS);
-		ContainerIdent = rS.ContainerIdent;
-		return ok;
-	}
-	SString ContainerIdent; // Идентификатор контейнера для ссылки на него вложенных элементов
 };
 
 IMPLEMENT_WTMOBJ_FACTORY(Layout, "@wtmo_layout");
@@ -328,6 +426,8 @@ int WhatmanObjectDrawFigure::HandleCommand(int cmd, void * pExt)
 		case cmdEditTool:
 			ok = BaseEditWhatmanToolItem((TWhatmanToolArray::Item *)pExt);
 			break;
+		/*case cmdEdit:
+			break;*/
 	}
 	return ok;
 }
@@ -492,7 +592,7 @@ int WhatmanObjectBackground::HandleCommand(int cmd, void * pExt)
 			}
 			break;
 		case cmdEditTool:
-			ok = EditTool((TWhatmanToolArray::Item *)pExt);
+			ok = EditTool(static_cast<TWhatmanToolArray::Item *>(pExt));
 			break;
 	}
 	return ok;
@@ -549,7 +649,7 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 		case cmdSetBounds:
 			{
 				const TRect * p_rect = static_cast<const TRect *>(pExt);
-				Tlo.SetBounds(FRect((float)p_rect->width(), (float)p_rect->height()));
+				Tlo.SetBounds(FRect(static_cast<float>(p_rect->width()), static_cast<float>(p_rect->height())));
 			}
 			ok = 1;
 			break;
@@ -566,7 +666,7 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 			break;
 		case cmdEdit:
 			{
-				TDialog * dlg = new TDialog(DLG_WOTEXT);
+				WhatmanObjectBaseDialog * dlg = new WhatmanObjectBaseDialog(DLG_WOTEXT);
 				if(CheckDialogPtrErr(&dlg)) {
 					SString text;
 					Tlo.GetText().CopyToUtf8(text, 0);
@@ -575,9 +675,11 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 					if(p_il) {
 						p_il->setMaxLen(2048);
 						dlg->setCtrlString(CTL_WOTEXT_TEXT, text);
+						dlg->setRef(this); // @v10.4.9
 						if(ExecView(dlg) == cmOK) {
 							dlg->getCtrlString(CTL_WOTEXT_TEXT, text);
 							Tlo.SetText(text);
+							dlg->updateRef(this); // @v10.4.9
 							ok = 1;
 						}
 					}
@@ -818,11 +920,13 @@ int WhatmanObjectProcessor::HandleCommand(int cmd, void * pExt)
 {
 	int    ok = -1;
 	if(cmd == cmdEdit) {
-		TDialog * dlg = new TDialog(DLG_WOPRC);
+		WhatmanObjectBaseDialog * dlg = new WhatmanObjectBaseDialog(DLG_WOPRC);
 		if(CheckDialogPtrErr(&dlg)) {
 			SetupPPObjCombo(dlg, CTLSEL_WOPRC_PRC, PPOBJ_PROCESSOR, PrcID, OLW_CANINSERT, 0);
+			dlg->setRef(this); // @v10.4.9
 			if(ExecView(dlg) == cmOK) {
 				SetPrc(dlg->getCtrlLong(CTLSEL_WOPRC_PRC));
+				dlg->updateRef(this); // @v10.4.9
 				ok = 1;
 			}
 		}
@@ -938,9 +1042,9 @@ int WhatmanObjectBarcode::GetTextLayout(STextLayout & rTlo, int options) const
 	return -1;
 }
 
-class WoBarcodeParamDialog : public TDialog {
+class WoBarcodeParamDialog : public WhatmanObjectBaseDialog {
 public:
-	WoBarcodeParamDialog() : TDialog(DLG_WOBARCODE)
+	WoBarcodeParamDialog() : WhatmanObjectBaseDialog(DLG_WOBARCODE)
 	{
 	}
 	int    setDTS(const PPBarcode::BarcodeImageParam * pData)
@@ -1022,9 +1126,11 @@ int WhatmanObjectBarcode::HandleCommand(int cmd, void * pExt)
 	if(cmd == cmdEdit) {
 		WoBarcodeParamDialog * dlg = new WoBarcodeParamDialog();
 		if(CheckDialogPtrErr(&dlg)) {
+			dlg->setRef(this); // @v10.4.9
 			dlg->setDTS(&P);
 			if(ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(&P)) {
+					dlg->updateRef(this); // @v10.4.9
 					ok = 1;
 				}
 			}
@@ -1179,10 +1285,12 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 {
 	int    ok = -1;
 	if(cmd == cmdEdit) {
-		TDialog * dlg = new TDialog(DLG_WOCAFETBL);
+		WhatmanObjectBaseDialog * dlg = new WhatmanObjectBaseDialog(DLG_WOCAFETBL);
 		if(CheckDialogPtrErr(&dlg)) {
+			dlg->setRef(this); // @v10.4.9
 			dlg->setCtrlLong(CTL_WOCAFETBL_N, TableNo);
 			if(ExecView(dlg) == cmOK) {
+				dlg->updateRef(this); // @v10.4.9
 				TableNo = dlg->getCtrlLong(CTL_WOCAFETBL_N);
 				ok = 1;
 			}

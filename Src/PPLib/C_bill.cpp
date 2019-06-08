@@ -1,24 +1,24 @@
 // C_BILL.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-// Корректировка документов
+// @codepage UTF-8
+// РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РґРѕРєСѓРјРµРЅС‚РѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
 
 // @v9.4.0 @construction {
 //
-// Descr: Унифицированная структура для проверки и корректировки документов
+// Descr: РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РїСЂРѕРІРµСЂРєРё Рё РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
 //
 struct BillRecoverParam {
     enum {
 		fRecalcAccturns  = 0x0001,
-		fCheckAmounts    = 0x0002, // Проверять суммы по документам
-		fCheckPayments   = 0x0004, // Проверять оплаты
+		fCheckAmounts    = 0x0002, // РџСЂРѕРІРµСЂСЏС‚СЊ СЃСѓРјРјС‹ РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј
+		fCheckPayments   = 0x0004, // РџСЂРѕРІРµСЂСЏС‚СЊ РѕРїР»Р°С‚С‹
 		fNoRecalcAmounts = 0x0008, // BillRecalcParam
 		fRecalcTrfrs     = 0x0010, // BillRecalcParam
-		fSearchAbsence   = 0x0020, // Искать потерянные документы
-		fCheckOrderLinks = 0x0040  // Проверять привязку строк документов к заказам
+		fSearchAbsence   = 0x0020, // РСЃРєР°С‚СЊ РїРѕС‚РµСЂСЏРЅРЅС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹
+		fCheckOrderLinks = 0x0040  // РџСЂРѕРІРµСЂСЏС‚СЊ РїСЂРёРІСЏР·РєСѓ СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ Рє Р·Р°РєР°Р·Р°Рј
     };
     long   Flags;
     SString LogFileName;
@@ -26,9 +26,9 @@ struct BillRecoverParam {
 // } @v9.4.0
 
 struct BillRecalcParam {
-	SLAPI  BillRecalcParam()
+	SLAPI  BillRecalcParam() : OpID(0), Flags(0)
 	{
-		THISZERO();
+		Period.Z();
 	}
 	enum {
 		fNoRecalcAmounts = 0x0001,
@@ -43,13 +43,17 @@ struct BillRecalcParam {
 class PrcssrAbsentBill {
 public:
 	struct AbsentEntry {
+		AbsentEntry()
+		{
+			THISZERO();
+		}
 		enum {
 			fIntrexpnd = 0x0001,
 			fRetOnRcpt = 0x0002,
 			fMaybeRet  = 0x0004,
 			fPlus      = 0x0008,
 			fMinus     = 0x0010,
-			fByAccTurn = 0x0020  // Отсутствие документа обнаружено по бух проводке
+			fByAccTurn = 0x0020  // РћС‚СЃСѓС‚СЃС‚РІРёРµ РґРѕРєСѓРјРµРЅС‚Р° РѕР±РЅР°СЂСѓР¶РµРЅРѕ РїРѕ Р±СѓС… РїСЂРѕРІРѕРґРєРµ
 		};
 		PPID   ID;
 		PPID   OpTypeID;
@@ -59,6 +63,10 @@ public:
 		long   Flags;
 	};
 	struct Param {
+		Param()
+		{
+			Period.Z();
+		}
 		DateRange Period;
 	};
 	SLAPI  PrcssrAbsentBill();
@@ -120,13 +128,18 @@ int SLAPI PPObjBill::GatherPayments()
 				THROW(P_Tbl->GetAmount(bill_id, PPAMT_PAYMENT, cur_id, &paym));
 				THROW(P_Tbl->CalcPayment(bill_id, 1, 0, cur_id, &real_paym));
 				real_paym = R6(real_paym);
+				// @v10.4.9 {
+				if(amt < 0.0) {
+					real_paym = -real_paym;
+				}
+				// } @v10.4.9 
 				SETFLAG(f, BILLF_PAYOUT, R2(real_paym - amt) >= 0);
 				if(paym != real_paym || f != f1 || real_paym != omt_paymamt) {
 					PPObjBill::MakeCodeString(&rec, 1, bill_name);
 					PPTransaction tra(1);
 					THROW(tra);
 					if(paym != real_paym) {
-						//"Неверная сумма оплаты по документу '%s' (факт=%.2lf, правильно=%.2lf)"
+						//"РќРµРІРµСЂРЅР°СЏ СЃСѓРјРјР° РѕРїР»Р°С‚С‹ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ '%s' (С„Р°РєС‚=%.2lf, РїСЂР°РІРёР»СЊРЅРѕ=%.2lf)"
 						msg_buf.Printf(PPLoadTextS(PPTXT_LOG_INVBILLPAYMAMOUNT, fmt_buf), bill_name.cptr(), paym, real_paym);
 						logger.Log(msg_buf);
 						AmtEntry ae(PPAMT_PAYMENT, cur_id, real_paym);
@@ -134,12 +147,12 @@ int SLAPI PPObjBill::GatherPayments()
 					}
 					if(f != f1 || real_paym != omt_paymamt) {
 						if(f != f1) {
-							//"Неверно установлен признак 'оплачено' по документу '%s' (факт=%d, правильно=%d)"
+							//"РќРµРІРµСЂРЅРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїСЂРёР·РЅР°Рє 'РѕРїР»Р°С‡РµРЅРѕ' РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ '%s' (С„Р°РєС‚=%d, РїСЂР°РІРёР»СЊРЅРѕ=%d)"
 							msg_buf.Printf(PPLoadTextS(PPTXT_LOG_INVBILLPAYMFLAG, fmt_buf), bill_name.cptr(), BIN(f1 & BILLF_PAYOUT), BIN(f & BILLF_PAYOUT));
 							logger.Log(msg_buf);
 						}
 						if(real_paym != omt_paymamt) {
-							//"Неверная включенная сумма оплаты по документу '%s' (факт=%.2lf, правильно=%.2lf)"
+							//"РќРµРІРµСЂРЅР°СЏ РІРєР»СЋС‡РµРЅРЅР°СЏ СЃСѓРјРјР° РѕРїР»Р°С‚С‹ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ '%s' (С„Р°РєС‚=%.2lf, РїСЂР°РІРёР»СЊРЅРѕ=%.2lf)"
 							msg_buf.Printf(PPLoadTextS(PPTXT_LOG_INVBILLOMTPAYMAMT, fmt_buf), bill_name.cptr(), omt_paymamt, real_paym);
 							logger.Log(msg_buf);
 						}
@@ -234,7 +247,8 @@ static int SLAPI RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
 
 int SLAPI RecalcBillTurns(int checkAmounts)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	PPObjBill * p_bobj = BillObj;
 	int    frrl_tag = 0, r;
 	PPLogger logger;
@@ -291,7 +305,6 @@ int SLAPI RecalcBillTurns(int checkAmounts)
 
 SLAPI PrcssrAbsentBill::PrcssrAbsentBill() : P_BObj(BillObj), P_List(0)
 {
-	MEMSZERO(P);
 }
 
 SLAPI PrcssrAbsentBill::~PrcssrAbsentBill()
@@ -333,7 +346,6 @@ int SLAPI PrcssrAbsentBill::ScanAccturn(SArray * pList)
 		p_at->copyBufTo(&rec);
 		if(P_BObj->Search(rec.Bill) <= 0) {
 			AbsentEntry entry;
-			MEMSZERO(entry);
 			entry.ID    = rec.Bill;
 			entry.Dt    = rec.Dt;
 			entry.Flags |= AbsentEntry::fByAccTurn;
@@ -371,7 +383,6 @@ int SLAPI PrcssrAbsentBill::ScanTransfer(SArray * pList)
 		trfr->copyBufTo(&rec);
 		if(P_BObj->Search(rec.BillID) <= 0) {
 			AbsentEntry entry;
-			MEMSZERO(entry);
 			entry.ID    = rec.BillID;
 			entry.Dt    = rec.Dt;
 			entry.LocID = rec.LocID;

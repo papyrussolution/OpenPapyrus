@@ -1043,7 +1043,7 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 			AddClusterAssoc(CTL_DFRULE_RETSALTGGL, 2, PPDraftCreateRule::fRetOnly);
 			SetClusterData(CTL_DFRULE_RETSALTGGL, ret_sale_toggle);
 		}
-		// } @v10.3.5 
+		// } @v10.3.5
 		SetupPPObjCombo(this, CTLSEL_DFRULE_SCARDSER, PPOBJ_SCARDSERIES, Data.Rec.SCardSerID, OLW_CANEDIT, 0);
 	}
 	setupCtrls();
@@ -1105,7 +1105,7 @@ int DraftCreateRuleDialog::getDTS(PPDfCreateRulePacket * pData)
 			Data.Rec.Flags &= ~(PPDraftCreateRule::fRetOnly|PPDraftCreateRule::fSalesOnly);
 			Data.Rec.Flags |= ret_sale_toggle;
 		}
-		// } @v10.3.5 
+		// } @v10.3.5
 		getCtrlData(CTLSEL_DFRULE_SCARDSER, &Data.Rec.SCardSerID);
 	}
 	ASSIGN_PTR(pData, Data);
@@ -1433,7 +1433,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 							to_del = 1;
 						else if(ret_sale_toggle == PPDraftCreateRule::fSalesOnly && (chk_rec.Flags & CCHKF_RETURN))
 							to_del = 1;
-						// } @v10.3.5 
+						// } @v10.3.5
 						else if((rule.Rec.Flags & PPDraftCreateRule::fWoSCard) && chk_rec.SCardID)
 							to_del = 1;
 						else if(rule.Rec.SCardSerID) {
@@ -1453,7 +1453,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 								if(!(rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer))
 									to_del = 1;
 							}
-							// } @v10.3.6 
+							// } @v10.3.6
 							/* @v10.3.6
 							MEMSZERO(sc_rec);
 							CC.Cards.Search(chk_rec.SCardID, &sc_rec);
@@ -1838,7 +1838,7 @@ int SLAPI PPViewCSess::CloseSession()
 	else {
 		THROW(PPCashMachine::AsyncCloseSession2(single_cn_id, 0)); // @v10.1.1
 		ok = 1;
-		/* @v10.1.1 
+		/* @v10.1.1
 		p_acs = p_cm->AsyncInterface();
 		if(p_acs) {
 			ZDELETE(p_acs);
@@ -1861,7 +1861,7 @@ int SLAPI PPViewCSess::CompleteSession(PPID sessID)
 	if(CsObj.Search(sessID, &sess_rec) > 0 && sess_rec.CashNodeID) {
 		PPObjCashNode cn_obj;
 		PPCashNode cn_rec;
-		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF); // @v8.6.1
+		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF);
 		THROW(cn_obj.Search(sess_rec.CashNodeID, &cn_rec) > 0);
 		if(cn_rec.CashType == PPCMT_CASHNGROUP) {
 			CSessGrouping csg;
@@ -1979,7 +1979,7 @@ int SLAPI PPViewCSess::Transmit(PPID id, int transmitKind)
 	}
 	else {
 		ObjTransmitParam param;
-		if(id) 
+		if(id)
 			param.Flags |= param.fQueryInmassTransmission;
 		if(id && ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 			CSessViewItem item;

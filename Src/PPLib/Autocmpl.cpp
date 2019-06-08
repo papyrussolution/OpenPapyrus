@@ -1,5 +1,5 @@
 // AUTOCMPL.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Автоматическая комплектация //
 //
@@ -94,11 +94,10 @@ PUGL & FASTCALL PUGL::operator = (const PUGL & rS)
 	return *this;
 }
 
-int FASTCALL PUGL::SetHeader(const BillTbl::Rec * pBillRec)
+void FASTCALL PUGL::SetHeader(const BillTbl::Rec * pBillRec)
 {
 	LocID = pBillRec ? pBillRec->LocID : 0;
 	Dt    = pBillRec ? pBillRec->Dt : ZERODATE;
-	return 1;
 }
 
 int SLAPI PUGL::SearchGoods(PPID goodsID, uint * pPos, PUGI * pItem) const
@@ -354,19 +353,16 @@ private:
 					PPErrorByDialog(dlg, sel, PPERR_USERINPUT);
 				else {
 					item.Qtty = dlg->getCtrlReal(sel = CTL_PUGLSPLI_QTTY);
-					if(item.Qtty <= 0.0) {
+					if(item.Qtty <= 0.0)
 						PPErrorByDialog(dlg, sel, PPERR_USERINPUT);
-					}
-					else if(item.Unit == item.uPct && item.Qtty > 100.0) {
+					else if(item.Unit == item.uPct && item.Qtty > 100.0)
 						PPErrorByDialog(dlg, sel, PPERR_USERINPUT);
-					}
 					else {
-						if(*pSupplSubstPos >= 0) {
+						if(*pSupplSubstPos >= 0)
 							Data.SupplSubstList.at(*pSupplSubstPos) = item;
-						}
 						else {
 							THROW_SL(Data.SupplSubstList.insert(&item));
-							*pSupplSubstPos = (int)(Data.SupplSubstList.getCount()-1);
+							*pSupplSubstPos = static_cast<int>(Data.SupplSubstList.getCount()-1);
 						}
 						ok = 1;
 					}

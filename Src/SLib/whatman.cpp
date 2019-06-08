@@ -257,6 +257,9 @@ void TWhatmanObject::SetLayoutBlock(const TLayout::EntryBlock * pBlk)
 	}
 }
 
+const SString & TWhatmanObject::GetLayoutContainerIdent() const { return LayoutContainerIdent; }
+void  TWhatmanObject::SetLayoutContainerIdent(const char * pIdent) { (LayoutContainerIdent = pIdent).Strip(); }
+
 int TWhatmanObject::Setup(const TWhatmanToolArray::Item * pWtaItem)
 {
 	int    ok = 1;
@@ -379,6 +382,43 @@ int TWhatmanObject::Redraw()
 			ok = 1;
 		}
 	}
+	return ok;
+}
+
+WhatmanObjectLayoutBase::WhatmanObjectLayoutBase() : TWhatmanObject("Layout")
+{
+}
+	
+WhatmanObjectLayoutBase::~WhatmanObjectLayoutBase()
+{
+}
+	
+TWhatmanObject * WhatmanObjectLayoutBase::Dup() const
+{
+	WhatmanObjectLayoutBase * p_obj = new WhatmanObjectLayoutBase();
+	CALLPTRMEMB(p_obj, Copy(*this));
+	return p_obj;
+}
+	
+int WhatmanObjectLayoutBase::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	int    ok = 1;
+	//uint8  ind = 0;
+	THROW(TWhatmanObject::Serialize(dir, rBuf, pCtx));
+	THROW(pCtx->Serialize(dir, ContainerIdent, rBuf));
+	if(dir > 0) {
+	}
+	else if(dir < 0) {
+	}
+	CATCHZOK
+	return ok;
+}
+
+int FASTCALL WhatmanObjectLayoutBase::Copy(const WhatmanObjectLayoutBase & rS)
+{
+	int    ok = 1;
+	TWhatmanObject::Copy(rS);
+	ContainerIdent = rS.ContainerIdent;
 	return ok;
 }
 
@@ -545,6 +585,47 @@ int TWhatman::RemoveObject(int idx)
 		ObjList.atFree(idx);
 		ok = 1;
 	}
+	return ok;
+}
+
+int TWhatman::CheckUniqLayoutSymb(const TWhatmanObject * pObj) const
+{
+	int    ok = 1;
+	if(pObj) {
+		const WhatmanObjectLayoutBase * p_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(pObj);
+		if(p_layout_obj->GetContainerIdent().NotEmpty()) {
+			for(uint i = 0; ok && i < ObjList.getCount(); i++) {
+				const TWhatmanObject * p_iter_obj = ObjList.at(i);
+				if(p_iter_obj && p_iter_obj != pObj && p_iter_obj->Symb.IsEqiAscii("Layout")) {
+					const WhatmanObjectLayoutBase * p_iter_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(p_iter_obj);
+					if(p_iter_layout_obj->GetContainerIdent() == p_layout_obj->GetContainerIdent()) {
+						SLS.SetError(SLERR_WTM_DUPLAYOUTSYMB, p_layout_obj->GetContainerIdent());
+						ok = 0;
+					}
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int TWhatman::GetLayoutSymbList(StrAssocArray & rList) const
+{
+	rList.Z();
+	int    ok = -1;
+	for(uint i = 0; i < ObjList.getCount(); i++) {
+		const TWhatmanObject * p_iter_obj = ObjList.at(i);
+		if(p_iter_obj && p_iter_obj->Symb.IsEqiAscii("Layout")) {
+			const WhatmanObjectLayoutBase * p_iter_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(p_iter_obj);
+			if(p_iter_layout_obj->GetContainerIdent().NotEmpty()) {
+				rList.Add(i+1, p_iter_layout_obj->GetContainerIdent());
+			}
+		}
+	}
+	if(rList.getCount())
+		ok = 1;
 	return ok;
 }
 

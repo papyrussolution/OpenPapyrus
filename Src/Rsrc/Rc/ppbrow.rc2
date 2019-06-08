@@ -6097,7 +6097,7 @@ browser DIALOG north(100), 1, 1, "Диалоги", OWNER|GRID, 0
 	"@id",                  -1, int32,        0,  8
 	"@symbol",              -1, zstring(64),  0, 25
 	"@series",              -1, zstring(64),  0, 25
-	"Текст",                -1, zstring(128), 0, 50
+	"@text",                -1, zstring(128), 0, 50
 }
 
 browser SPECSERIES north(100), 1, 1, "Специальные серии", OWNER|GRID, 0
@@ -7566,7 +7566,7 @@ record QuotVal {
 	DateUpp      date             "Дата окончания периода действия";
 	Value        double format(15.5) "@{quot_valuegeneric}";
 	ValueFlags   long   format(10) "Флаги значения котировки";
-	ValueText    zstring(32)       "Текстовое предствавление значения котировки";
+	ValueText    zstring(32)       "Текстовое представление значения котировки";
 }
 
 record Goods2 {

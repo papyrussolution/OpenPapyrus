@@ -45,7 +45,7 @@ int FASTCALL PayableBillList::AddBill(const BillTbl::Rec * pBillRec)
 		item.Dt     = pBillRec->Dt;
 		item.CurID  = pBillRec->CurID;
 		item.Amount = BR2(pBillRec->Amount);
-		item.PaymAmt = BR2(pBillRec->PaymAmount); // @v8.5.8
+		item.PaymAmt = BR2(pBillRec->PaymAmount);
 		return insert(&item) ? 1 : PPSetErrorSLib();
 	}
 	else
@@ -394,7 +394,7 @@ int SLAPI PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID 
 			if(!paydt_needed || Filt.ExpiryPeriod.CheckDate(paydt)) {
 				if(Filt.CycleKind == DebtTrnovrFilt::ckPayments)
 					t->CalcPaymentSieve(p_item->ID, p_item->CurID, &CycleSieve, &paym_list, &paym);
-				else if(UseOmtPaymAmt && !by_links) // @v8.5.8
+				else if(UseOmtPaymAmt && !by_links)
 					paym = p_item->PaymAmt;
 				else
 					t->CalcPayment(p_item->ID, by_links, p_paym_period, p_item->CurID, &paym);

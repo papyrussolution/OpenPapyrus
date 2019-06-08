@@ -3557,7 +3557,7 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 		PPID   goods_id = goodsId ? goodsId : (P.HasCur() ? P.GetCur().GoodsID : 0);
 		if(goods_id) {
 			PPID   assc = PPASS_GOODS2WAREPLACE;
-			SString out_msg, loc_name, tag_name;
+			SString out_msg, loc_name, tag_name, tag_value; //@erik v10.4.9{add tag_value}
 			GoodsToObjAssoc gtoa(assc, PPOBJ_LOCATION);
 			if(gtoa.IsValid() && gtoa.Load()) {
 				PPID   loc_id = 0;
@@ -3576,13 +3576,22 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 				for(uint pos = 0; !found && (p_item = tag_list.EnumItems(&pos));) {
 					PPObjTagPacket tag_pack;
 					if(obj_tag.GetPacket(p_item->TagID, &tag_pack) > 0 && tag_pack.Rec.Flags & OTF_NOTICEINCASHPANE) {
+						tag_value = p_item->Val.PStr; //@erik v10.4.9
 						tag_name = tag_pack.Rec.Name;
 						found = 1;
 					}
 				}
 			}
-			if(tag_name.Len())
-				(out_msg = tag_name).CR().CR();
+			//@erik v10.4.9{ 
+			if (tag_name.Len()) {
+				if (tag_value.Len()) {
+					(out_msg = (tag_name.CatChar(':'))).CR();
+					(out_msg.Cat(tag_value)).CR().CR(); 
+				}
+				else {
+					(out_msg = tag_name).CR().CR();
+				}
+			}//}@erik
 			if(loc_name.Len()) {
 				SString buf;
 				PPLoadStringS("storageplace", buf).CatChar(':');

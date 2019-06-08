@@ -195,7 +195,7 @@ int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 			{
 				STokenRecognizer tr;
 				SNaturalTokenArray nta;
-				tr.Run((const uchar *)Data.DestAddr, -1, nta, 0);
+				tr.Run(reinterpret_cast<const uchar *>(Data.DestAddr), -1, nta, 0);
 				THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, Data.DestAddr);
 			}
 			getCtrlData(CTL_MAILCHRY_FLAGS, &(v = 0));

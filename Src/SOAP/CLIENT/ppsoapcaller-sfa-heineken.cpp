@@ -155,6 +155,27 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_DeleteSellout(PPSoapClien
 	return p_result;
 }
 
+extern "C" __declspec(dllexport) SString * SfaHeineken_DeleteSellin(PPSoapClientSession & rSess, const SString & rCode, LDATE date) // DRP_DeleteSellIn
+{
+	SString * p_result = 0;
+	SString temp_buf;
+	DRPServiceSoapProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	_ns1__DRP_USCOREDeleteSellIn param;
+	_ns1__DRP_USCOREDeleteSellInResponse resp;
+	gSoapClientInit(&proxi, 0, 0);
+	param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);
+	param._USCOREpass = GetDynamicParamString(rSess.GetPassword(), arg_str_pool);
+	param._USCOREinvoiceNum = GetDynamicParamString(rCode, arg_str_pool);
+	param._USCOREinvoiceDate = GetDynamicParamString(temp_buf.Z().Cat(date, DATF_ISO8601|DATF_CENTURY), arg_str_pool);
+	THROW(PreprocessCall(proxi, rSess, proxi.DRP_USCOREDeleteSellIn(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+	p_result = PreprocessAnyResult(resp.DRP_USCOREDeleteSellInResult->__any);
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
 //DRP_SendSellin
 extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellin(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenInvoice> & rList)
 {

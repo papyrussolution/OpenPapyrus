@@ -348,6 +348,140 @@ TLayout::EntryBlock::EntryBlock() : ContainerDirection(DIREC_UNKN), ContainerAdj
 	memzero(Reserve, sizeof(Reserve));
 }
 
+SString & TLayout::EntryBlock::SizeToString(SString & rBuf) const
+{
+	rBuf.Z();
+	if(!Sz.IsZero()) {
+		if(Sz.x == Sz.y)
+			rBuf.Cat(Sz.x);			
+		else
+			rBuf.Cat(Sz.x).Comma().Cat(Sz.y);
+	}
+	return rBuf;
+}
+
+int TLayout::EntryBlock::SizeFromString(const char * pBuf)
+{
+	int    ok = 1;
+	SString temp_buf = pBuf;
+	temp_buf.Strip();
+	StringSet ss;
+	temp_buf.Tokenize(",;", ss);
+	const uint _c = ss.getCount();
+	if(oneof3(_c, 0, 1, 2)) {
+		if(_c == 0) {
+			Sz = 0;
+			ok = -1;
+		}
+		else {
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
+			uint tokn = 0;
+			for(uint ssp = 0; ok && ss.get(&ssp, temp_buf);) {
+				temp_buf.Strip();
+				tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
+				if(nta.Has(SNTOK_NUMERIC_DOT)) {
+					tokn++;
+					double v = temp_buf.ToReal();
+					assert(oneof2(tokn, 1, 2));
+					if(tokn == 1) {
+						if(_c == 1) 
+							Sz = static_cast<int16>(v);
+						else // _c == 2
+							Sz.x = static_cast<int16>(v);
+					}
+					else if(tokn == 2)
+						Sz.y = static_cast<int16>(v);
+				}
+				else
+					ok = 0;
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+SString & TLayout::EntryBlock::MarginsToString(SString & rBuf) const
+{
+	rBuf.Z();
+	if(!Margins.IsEmpty()) {
+		if(Margins.a.x == Margins.b.x && Margins.a.y == Margins.b.y) {
+			if(Margins.a.x == Margins.a.y)
+				rBuf.Cat(Margins.a.x);
+			else
+				rBuf.Cat(Margins.a.x).Comma().Cat(Margins.a.y);
+		}
+		else
+			rBuf.Cat(Margins.a.x).Comma().Cat(Margins.a.y).Comma().Cat(Margins.b.x).Comma().Cat(Margins.b.y);
+	}
+	return rBuf;
+}
+
+int TLayout::EntryBlock::MarginsFromString(const char * pBuf)
+{
+	int    ok = 1;
+	SString temp_buf = pBuf;
+	temp_buf.Strip();
+	StringSet ss;
+	temp_buf.Tokenize(",;", ss);
+	const uint _c = ss.getCount();
+	if(oneof4(_c, 0, 1, 2, 4)) {
+		if(_c == 0) {
+			Margins.set(0, 0, 0, 0);
+			ok = -1;
+		}
+		else {
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
+			uint tokn = 0;
+			for(uint ssp = 0; ok && ss.get(&ssp, temp_buf);) {
+				temp_buf.Strip();
+				tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
+				if(nta.Has(SNTOK_NUMERIC_DOT)) {
+					tokn++;
+					double v = temp_buf.ToReal();
+					const int iv = static_cast<int>(v);
+					assert(oneof4(tokn, 1, 2, 3, 4));
+					if(tokn == 1) {
+						if(_c == 1) {
+							 Margins.set(iv, iv, iv, iv);
+						}
+						else if(_c == 2) { 
+							Margins.a.x = iv;
+							Margins.b.x = iv;
+						}
+						else { // _c == 4
+							Margins.a.x = iv;
+						}
+					}
+					else if(tokn == 2) {
+						if(_c == 2) {
+							Margins.a.y = iv;
+							Margins.b.y = iv;
+						}
+						else { // _c == 4
+							Margins.a.y = iv;
+						}
+					}
+					else if(tokn == 3) {
+						Margins.b.x = iv;
+					}
+					else if(tokn == 4) {
+						Margins.b.y = iv;
+					}
+				}
+				else
+					ok = 0;
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 TLayout::TLayout()
 {
 	//lay_init_context(&Ctx);

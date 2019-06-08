@@ -2054,6 +2054,10 @@ public:
 	};
 	struct EntryBlock { // @persistent
 		EntryBlock();
+		SString & SizeToString(SString & rBuf) const;
+		int    SizeFromString(const char * pBuf);
+		SString & MarginsToString(SString & rBuf) const;
+		int    MarginsFromString(const char * pBuf);
 		enum {
 			cfWrap = 0x0001
 		};
@@ -2410,6 +2414,8 @@ public:
 	const  SString & GetSymb() const;
 	const  TLayout::EntryBlock & GetLayoutBlock() const;
 	void   SetLayoutBlock(const TLayout::EntryBlock * pBlk);
+	const  SString & GetLayoutContainerIdent() const;
+	void   SetLayoutContainerIdent(const char * pIdent);
 
 	enum {
 		stCurrent  = 0x0001,
@@ -2438,6 +2444,23 @@ private:
 	SString LayoutContainerIdent; // @v10.4.8 Символ родительского объекта типа Layout
 	TLayout::EntryBlock Le; // @v10.4.7 Параметры объекта как элемента layout
 	TWhatman * P_Owner; // @transient
+};
+//
+// Descr: Базовый класс для реализации Layout. Создан для того, чтобы предоставить классу TWhatman
+//   доступ к частичной имплементации Layout. Полная имплементация должна быть предоставлена
+//   на более высоком уровне.
+//
+class WhatmanObjectLayoutBase : public TWhatmanObject {
+public:
+	const SString & GetContainerIdent() const { return ContainerIdent; }
+protected:
+	WhatmanObjectLayoutBase();
+	~WhatmanObjectLayoutBase();
+	virtual TWhatmanObject * Dup() const;
+	virtual int Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    FASTCALL Copy(const WhatmanObjectLayoutBase & rS);
+
+	SString ContainerIdent; // Идентификатор контейнера для ссылки на него вложенных элементов
 };
 //
 // Descr: Ватман. Контейнер, содержащий объекты TWhatmanObject, которые могут отрисовываться на
@@ -2494,6 +2517,8 @@ public:
 	int    InsertObject(TWhatmanObject * pObj, int beforeIdx = -1);
 	int    EditObject(int objIdx);
 	int    RemoveObject(int idx);
+	int    CheckUniqLayoutSymb(const TWhatmanObject * pObj) const;
+	int    GetLayoutSymbList(StrAssocArray & rList) const;
 	//
 	// Descr: Перемещает объект с индексом idx на передний план.
 	//   То есть, объект становится последним в списке ObjList.

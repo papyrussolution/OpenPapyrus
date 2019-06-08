@@ -5973,7 +5973,13 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 		pack.BTagL.GetItemStr(bill_ack_tag_id, bill_ack_tag_value);
 		BillCore::GetCode(bill_code = pack.Rec.Code);
 		bill_code.Transf(CTRANSF_INNER_TO_UTF8);
-		if(ti_pos_list.getCount() && bill_ack_tag_value.Empty()) {
+		if(strstr(pack.Rec.Memo, "#heineken-delete")) {
+			SfaHeinekenInvoice * p_new_entry = rToDeleteList.CreateNewItem();
+			THROW_SL(p_new_entry);
+			p_new_entry->Code = bill_code;
+			p_new_entry->Dt = pack.Rec.Dt;
+		}
+		else if(ti_pos_list.getCount() && bill_ack_tag_value.Empty()) {
 			PPIDArray order_id_list;
 			PPBillPacket order_pack;
 			int    is_own_order = 0;
@@ -6197,6 +6203,7 @@ int SLAPI SfaHeineken::SendReceipts()
 	TSCollection <SfaHeinekenInvoice> list;
 	TSCollection <SfaHeinekenInvoice> to_delete_list;
 	SFAHEINEKENSENDSELLIN_PROC func = 0; // SfaHeineken_SendSellin
+	SFAHEINEKENDELETESELLIN_PROC func_delete = 0;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
 	{
 		PPFormatT(PPTXT_LOG_SUPPLIX_EXPBILL_S, &msg_buf, temp_buf.cptr(), P.SupplID);
@@ -6230,6 +6237,20 @@ int SLAPI SfaHeineken::SendReceipts()
 		DestroyResult(reinterpret_cast<void **>(&p_result));
 		ok = 1;
 	}
+	// @v10.4.9 {
+	if(to_delete_list.getCount()) {
+		sess.Setup(SvcUrl, UserName, Password);
+		THROW_SL(func_delete = reinterpret_cast<SFAHEINEKENDELETESELLIN_PROC>(P_Lib->GetProcAddr("SfaHeineken_DeleteSellin")));
+		for(uint i = 0; i < to_delete_list.getCount(); i++) {
+			const SfaHeinekenInvoice * p_item = to_delete_list.at(i);
+			if(p_item && p_item->Code.NotEmpty() && checkdate(p_item->Dt)) {
+				p_result = func_delete(sess, p_item->Code, p_item->Dt);
+				THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
+			}
+		}
+	}
+	// } @v10.4.9 
 	CATCHZOK
 	return ok;
 }

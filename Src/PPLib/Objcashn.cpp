@@ -1,6 +1,6 @@
 // OBJCASHN.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -131,8 +131,8 @@ int SLAPI PPGenCashNode::DrvVerFromStr(const char * pS)
 		if(nta.Has(SNTOK_SOFTWAREVER) > 0.0f) {
 			SString major, minor;
 			temp_buf.Divide('.', major, minor);
-			DrvVerMajor = (int16)major.ToLong();
-			DrvVerMinor = (int16)minor.ToLong();
+			DrvVerMajor = static_cast<int16>(major.ToLong());
+			DrvVerMinor = static_cast<int16>(minor.ToLong());
 		}
 		else {
 			ok = PPSetError(PPERR_INVVERSIONTEXT, pS);
@@ -242,26 +242,23 @@ const PPGenCashNode::PosIdentEntry * FASTCALL PPAsyncCashNode::SearchPosIdentEnt
 
 struct __PPExtDevices {     // @persistent
 	PPID   Tag;             // Const = PPOBJ_CASHNODE
-	PPID   CashNodeID;      // ИД кассового узла
+	PPID   CashNodeID;      // РР” РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
 	PPID   Prop;            // Const = CNPRP_EXTDEVICES
-	PPID   TouchScreenID;   // ИД TouchScreen
-	PPID   ExtCashNodeID;   // ИД дополнительного кассового узла @todo{Перенести поле в PPCashNode2}
-	long   CustDispType;    // Тип дисплея покупателя //
-	char   CustDispPort[8]; // Порт дисплея покупателя (COM)
+	PPID   TouchScreenID;   // РР” TouchScreen
+	PPID   ExtCashNodeID;   // РР” РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° @todo{РџРµСЂРµРЅРµСЃС‚Рё РїРѕР»Рµ РІ PPCashNode2}
+	long   CustDispType;    // РўРёРї РґРёСЃРїР»РµСЏ РїРѕРєСѓРїР°С‚РµР»СЏ //
+	char   CustDispPort[8]; // РџРѕСЂС‚ РґРёСЃРїР»РµСЏ РїРѕРєСѓРїР°С‚РµР»СЏ (COM)
 	uint16 CustDispFlags;	// flXXX
-
-	// @v9.7.10 PPID   PapyrusNodeID;   // ИД кассового узла Папирус
+	// @v9.7.10 PPID   PapyrusNodeID;   // РР” РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° РџР°РїРёСЂСѓСЃ
 	PPID   AlternateRegID;  // @v9.7.10
-	PPID   ScaleID;         // ИД весов
-	int16  ClearCDYTimeout; // Таймаут очистки дисплея покупателя после печати чека
-	int16  EgaisMode;       // @v9.0.9 Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
+	PPID   ScaleID;         // РР” РІРµСЃРѕРІ
+	int16  ClearCDYTimeout; // РўР°Р№РјР°СѓС‚ РѕС‡РёСЃС‚РєРё РґРёСЃРїР»РµСЏ РїРѕРєСѓРїР°С‚РµР»СЏ РїРѕСЃР»Рµ РїРµС‡Р°С‚Рё С‡РµРєР°
+	int16  EgaisMode;       // @v9.0.9 Р РµР¶РёРј СЂР°Р±РѕС‚С‹ СЃ РЈРўРњ Р•Р“РђРРЎ. 0 - РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ, 1 - РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ, 2 - С‚РµСЃС‚РѕРІС‹Р№ СЂРµР¶РёРј
 	PPID   PhnSvcID;        //
-
-	long   BnkTermType;		// Тип банковского терминала
-	uint16 BnkTermLogNum;	// Логический номер банковского терминала
+	long   BnkTermType;		// РўРёРї Р±Р°РЅРєРѕРІСЃРєРѕРіРѕ С‚РµСЂРјРёРЅР°Р»Р°
+	uint16 BnkTermLogNum;	// Р›РѕРіРёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р±Р°РЅРєРѕРІСЃРєРѕРіРѕ С‚РµСЂРјРёРЅР°Р»Р°
 	uint16 BnkTermFlags;	// btfXXX
-	char   BnkTermPort[8];	// Порт банковского терминала (COM)
-
+	char   BnkTermPort[8];	// РџРѕСЂС‚ Р±Р°РЅРєРѕРІСЃРєРѕРіРѕ С‚РµСЂРјРёРЅР°Р»Р° (COM)
 	char   Reserve2[12];    // @reserve
 	long   Reserve3[1];     // @reserve
 	char   ExtStrBuf[758];  // @anchor
@@ -269,12 +266,12 @@ struct __PPExtDevices {     // @persistent
 
 struct __PosNodeExt {       // @persistent
 	PPID   Tag;             // Const = PPOBJ_CASHNODE
-	PPID   CashNodeID;      // ИД кассового узла
+	PPID   CashNodeID;      // РР” РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
 	PPID   Prop;            // Const = CNPRP_EXTRA
 	uint8  Reserve[56];     // @reserve @v9.7.5 [60]-->[56]
 	int32  ScfFlags;        // @v9.7.5
-	uint16 ScfDaysPeriod;       // Параметр фильтрации отложенных чеков
-	int16  ScfDlvrItemsShowTag; // Параметр фильтрации отложенных чеков
+	uint16 ScfDaysPeriod;       // РџР°СЂР°РјРµС‚СЂ С„РёР»СЊС‚СЂР°С†РёРё РѕС‚Р»РѕР¶РµРЅРЅС‹С… С‡РµРєРѕРІ
+	int16  ScfDlvrItemsShowTag; // РџР°СЂР°РјРµС‚СЂ С„РёР»СЊС‚СЂР°С†РёРё РѕС‚Р»РѕР¶РµРЅРЅС‹С… С‡РµРєРѕРІ
 	uint16 BonusMaxPart;    //
 	uint16 Reserve3;        // @alignment
 	int32  Reserve2;        // @reserve
@@ -314,7 +311,7 @@ SString & SLAPI PPSyncCashNode::CTblListToString(SString & rBuf) const
 			rBuf.CatDivIfNotEmpty(',', 2).Cat(temp_list.get(i));
 			uint j = i+1;
 			//
-			// Пропускаем одинаковые номера
+			// РџСЂРѕРїСѓСЃРєР°РµРј РѕРґРёРЅР°РєРѕРІС‹Рµ РЅРѕРјРµСЂР°
 			//
 			while(j < c && temp_list.get(j) == temp_list.get(j-1)) {
 				j++;
@@ -558,7 +555,7 @@ PPID SLAPI PPObjCashNode::Select(PPID locID, int syncGroup, int * pIsSingle, int
 }
 
 //static
-const int PPObjCashNode::SubstCTblID = 999; // Специализированный идентификатор стола, применяемый для замещения не определенного списка столов. =999
+const int PPObjCashNode::SubstCTblID = 999; // РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚РѕР»Р°, РїСЂРёРјРµРЅСЏРµРјС‹Р№ РґР»СЏ Р·Р°РјРµС‰РµРЅРёСЏ РЅРµ РѕРїСЂРµРґРµР»РµРЅРЅРѕРіРѕ СЃРїРёСЃРєР° СЃС‚РѕР»РѕРІ. =999
 
 //static
 int  SLAPI PPObjCashNode::GetCafeTableName(int ctblN, SString & rBuf)
@@ -630,11 +627,11 @@ int  SLAPI PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 					ASSIGN_PTR(pID, ref->data.ObjID);
 				}
 				else {
-					; // Не изменяем существующий в разделе объект
+					; // РќРµ РёР·РјРµРЅСЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РІ СЂР°Р·РґРµР»Рµ РѕР±СЉРµРєС‚
 				}
 			}
 			else {
-				; // Не изменяем существующий в разделе объект
+				; // РќРµ РёР·РјРµРЅСЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РІ СЂР°Р·РґРµР»Рµ РѕР±СЉРµРєС‚
 			}
 		}
 		else {
@@ -1018,7 +1015,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 					p_ed->BnkTermFlags = p_scn->BnkTermFlags;
 					p_ed->PhnSvcID     = p_scn->PhnSvcID;
 					STRNSCPY(p_ed->BnkTermPort, p_scn->BnkTermPort);
-					p_scn->ExtString.CopyTo(p_ed->ExtStrBuf, 0); // Размер буфера p_ed точно отмерен для того, чтобы вместить p_scn->ExtString: см. выше
+					p_scn->ExtString.CopyTo(p_ed->ExtStrBuf, 0); // Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° p_ed С‚РѕС‡РЅРѕ РѕС‚РјРµСЂРµРЅ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РІРјРµСЃС‚РёС‚СЊ p_scn->ExtString: СЃРј. РІС‹С€Рµ
 					if(p_ed->TouchScreenID || p_ed->ExtCashNodeID || p_ed->CustDispType || p_ed->BnkTermType ||
 						/*p_ed->PapyrusNodeID*/p_ed->AlternateRegID || p_ed->ScaleID || p_ed->PhnSvcID || p_ed->ExtStrBuf[0] || p_ed->EgaisMode) {
 						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, p_ed, ed_size, 0));
@@ -1244,7 +1241,7 @@ int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 	SPrinting::GetListOfPrinters(&prn_list);
 	p_list->Z();
 	//
-	// Перемещаем принтер по умолчанию на верх списка
+	// РџРµСЂРµРјРµС‰Р°РµРј РїСЂРёРЅС‚РµСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РЅР° РІРµСЂС… СЃРїРёСЃРєР°
 	//
 	for(uint j = 0; j < prn_list.getCount(); j++) {
 		if(prn_list.at(j).Flags & SPrinting::PrnInfo::fDefault) {

@@ -2076,7 +2076,7 @@ int SLAPI SelectObjTag(PPID * pTagID, const PPIDArray * pAllowedTags, ObjTagFilt
 union TagDlgVal {
 	ushort b;
 	double n;
-	char   s[sizeof(((const ObjTagTbl::Rec *)0)->StrVal)];
+	char   s[sizeof(static_cast<const ObjTagTbl::Rec *>(0)->StrVal)];
 	long   l;
 	LDATETIME dtm;
 	//LDATE  dt;

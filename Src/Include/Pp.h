@@ -10143,7 +10143,7 @@ public:
 	};
 	SLAPI  PUGL();
 	PUGL & FASTCALL operator = (const PUGL & s);
-	int    FASTCALL SetHeader(const BillTbl::Rec *);
+	void   FASTCALL SetHeader(const BillTbl::Rec *);
 	int    SLAPI Add(const ILTI * pItem, PPID locID, uint itemPos, LDATE = ZERODATE);
 	int    SLAPI Add(const PUGI *, LDATE = ZERODATE);
 	int    SLAPI Add__(const PUGL *);

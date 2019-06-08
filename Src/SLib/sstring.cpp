@@ -6669,7 +6669,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 					h &= ~(SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR);
 			}
 			if(SNTOKSEQ_DECLAT) {
-				if(h & (SNTOKSEQ_LAT|SNTOKSEQ_DEC))
+				if(!(h & (SNTOKSEQ_LAT|SNTOKSEQ_DEC)))
 					h &= ~SNTOKSEQ_DECLAT;
 			}
 			{

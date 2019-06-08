@@ -2287,7 +2287,7 @@ protected:
 					buf_to_copy.Cat(temp_buf).CRB();
 					ms.GetByBoxID(msentry.BoxID, ss);
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						temp_buf.Insert(0, " ");
+						//temp_buf.Insert(0, " "); @erik	 v10.4.9
 						buf_to_copy.Cat(temp_buf).CRB();
 					}
 				}
