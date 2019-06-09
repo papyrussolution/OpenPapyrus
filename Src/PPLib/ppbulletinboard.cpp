@@ -1237,22 +1237,6 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 			if(!(r_blk.Flags & r_blk.fLong))
 				sel_criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
 			PPObjTimeSeries::BestStrategyBlock _best_result;
-#if 0 // {
-			for(uint sidx = 0; sidx < r_blk.Strategies.getCount(); sidx++) {
-				const PPObjTimeSeries::Strategy & r_s = r_blk.Strategies.at(sidx);
-				if(((r_s.BaseFlags & r_s.bfShort) && (r_blk.Flags & r_blk.fShort)) || (!(r_s.BaseFlags & r_s.bfShort) && (r_blk.Flags & r_blk.fLong))) {
-					double cr = 0.0;
-					double winratio = 0.0;
-					double _tv = 0.0; // Трендовое значение (вычисление зависит от модели)
-					double _tv2 = 0.0; // Второе трендовое значение (вычисляется для комбинированной модели)
-					if(IsStrategySuited(r_s) && PPObjTimeSeries::MatchStrategy(r_blk.TrendList, -1, r_s, cr, winratio, _tv, _tv2)) {
-						_best_result.SetResult(/*cr*/winratio, sidx, _tv, _tv2); // @20190515 cr-->winratio
-						matched_strategies_idx_list.add(static_cast<long>(sidx));
-					}
-				}
-			}
-			if(_best_result.MaxResultIdx >= 0) {
-#endif // } 0
 			if(r_blk.Strategies.Select(r_blk.TrendList, -1, sel_criterion, &r_blk.StratIndex, _best_result, &matched_strategies_idx_list) > 0) {
 				// @20190515 assert(_best_result.MaxResult >= Cfg.MinPerDayPotential);
 				assert(_best_result.MaxResultIdx >= 0 && _best_result.MaxResultIdx < static_cast<int>(r_blk.Strategies.getCount()));

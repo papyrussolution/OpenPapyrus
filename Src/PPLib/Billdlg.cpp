@@ -1221,9 +1221,9 @@ int SLAPI PPLinkFilesArray::RemoveByAry(const PPLinkFilesArray * pAry)
 	for(long i = getCount(); i > 0; i--) {
 		uint   pos = 0;
 		int   found = 0;
-		PPLinkFile * p_flink = at(i - 1);
+		PPLinkFile * p_flink = at(i-1);
 		if(!pAry || pAry->lsearch(p_flink, &pos, PTR_CMPFUNC(PPLinkFile)) <= 0 || p_flink->Id != pAry->at(pos)->Id)
-			Remove(i - 1);
+			Remove(i-1);
 	}
 	RVALUEPTR(*this, pAry);
 	return 1;

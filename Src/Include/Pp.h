@@ -16040,7 +16040,7 @@ public:
 		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
 		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
 		OptimalFactorRange OptDeltaRange;
-		OptimalFactorRange OptDelta2Range;
+		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
 		uint32 StakeCount;       // Количество ставок при тестировании
 		uint32 WinCount;         // Количество выигрышей в результате тестирования
 		StrategyResultValue V;   // Результат тестирования
@@ -16053,7 +16053,7 @@ public:
 		double TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
 			// Эта величина умножается на TrendErrAvg для получения абсолютного значения лимита.
 			// [0..]. 0 - не использовать ограничение, 1.0 - ограничение равно TrendErrAvg, 1.05 - (1.05 * TrendErrAvg)
-		uint8  Reserve[4];
+		uint32 MainFrameSize;    // @v10.4.9 Длина периода магистрального тренда
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
@@ -16216,8 +16216,8 @@ public:
 		const IntRange & rMdRange, int mdStep, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
 	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
 	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, uint stride);
-	static int SLAPI MatchStrategy(const PPObjTimeSeries::TrendEntry * pTrendEntry, int lastIdx, const Strategy & rS, double & rResult, double & rWinRatio, double & rTv, double & rTv2);
-	static int SLAPI MatchStrategy(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rWinRatio, double & rTv, double & rTv2);
+	static int SLAPI MatchStrategy(const PPObjTimeSeries::TrendEntry * pTrendEntry, const PPObjTimeSeries::TrendEntry * pMainTrendEntry, 
+		int lastIdx, const Strategy & rS, double & rResult, double & rWinRatio, double & rTv, double & rTv2);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
@@ -16317,7 +16317,7 @@ public:
 		};
 		long   Flags;
 		long   OptTargetCriterion; // @v10.4.6
-		LongArray InputFrameSizeList;
+		LongArray InputFrameSizeList; // Список не включает период магистрального тренда
 		LongArray MaxDuckQuantList;
 		LongArray TargetQuantList; // @v10.4.3
 		double InitTrendErrLimit;
@@ -16329,6 +16329,8 @@ public:
 		uint   OptRangeMultiLimit; // @v10.4.7
 		LDATE  UseDataSince;
 		uint   DefTargetQuant; // @v10.4.2
+		uint   MainFrameSize;  // @v10.4.9 Длительность магистрального тренда
+		uint   MainFrameRangeCount; // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
 		double MinWinRate; // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
 	};
 	SLAPI  PrcssrTsStrategyAnalyze();
