@@ -1,5 +1,6 @@
 // PPMAIL.CPP
 // Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -176,7 +177,7 @@ int PPInternetAccount::NotEmpty()
 int SLAPI PPInternetAccount::GetExtField(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtStr, rBuf); }
 int SLAPI PPInternetAccount::SetExtField(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtStr, pBuf); }
 
-#define POP3_PW_SIZE 20 // @attention èçìåíåíèå çíà÷åíèÿ òðåáóåò êîíâåðòàöèè õðàíèìîãî ïàðîëÿ
+#define POP3_PW_SIZE 20 // @attention Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ñ‚Ñ€ÐµÐ±ÑƒÐµÑ‚ ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð°Ñ†Ð¸Ð¸ Ñ…Ñ€Ð°Ð½Ð¸Ð¼Ð¾Ð³Ð¾ Ð¿Ð°Ñ€Ð¾Ð»Ñ
 
 int SLAPI PPInternetAccount::SetPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
@@ -905,16 +906,16 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 				file_name = 0;
 				if(p_out) {
 					//
-					// Äî ýòîãî ñîõðàíÿëñÿ ïðåäûäóùèé ïðèñîåäèíåííûé ôàéë.
-					// Çàêðûâàåì åãî handler.
+					// Ð”Ð¾ ÑÑ‚Ð¾Ð³Ð¾ ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐ»ÑÑ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¹ Ð¿Ñ€Ð¸ÑÐ¾ÐµÐ´Ð¸Ð½ÐµÐ½Ð½Ñ‹Ð¹ Ñ„Ð°Ð¹Ð».
+					// Ð—Ð°ÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼ ÐµÐ³Ð¾ handler.
 					//
 					if(boundary)
 						ok = 1;
 					SFile::ZClose(&p_out);
 				}
-				if(bound_kind == 1) // Äàëüøå (îïÿòü) ñëåäóåò ïðèñîåäèíåííûé ôàéë
+				if(bound_kind == 1) // Ð”Ð°Ð»ÑŒÑˆÐµ (Ð¾Ð¿ÑÑ‚ÑŒ) ÑÐ»ÐµÐ´ÑƒÐµÑ‚ Ð¿Ñ€Ð¸ÑÐ¾ÐµÐ´Ð¸Ð½ÐµÐ½Ð½Ñ‹Ð¹ Ñ„Ð°Ð¹Ð»
 					boundary = 1;
-				else                // Âñå ïðèñîåäèíåííûå ôàéëû çàêîí÷èëèñü
+				else                // Ð’ÑÐµ Ð¿Ñ€Ð¸ÑÐ¾ÐµÐ´Ð¸Ð½ÐµÐ½Ð½Ñ‹Ðµ Ñ„Ð°Ð¹Ð»Ñ‹ Ð·Ð°ÐºÐ¾Ð½Ñ‡Ð¸Ð»Ð¸ÑÑŒ
 					boundary = 0;
 			}
 			else if(boundary) {
@@ -922,7 +923,7 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 				size_t out_buf_len;
 				if(GetField(P_LineBuf, PPMAILFLD_CONTENTCOD, disp) > 0) {
 					if(disp.CmpNC("base64") != 0)
-						boundary = 0; // Åñëè òèï êîäèðîâêè îòëè÷àåòñÿ îò base64, òî íå ïðèíèìàåì ýòó ïîëîñó.
+						boundary = 0; // Ð•ÑÐ»Ð¸ Ñ‚Ð¸Ð¿ ÐºÐ¾Ð´Ð¸Ñ€Ð¾Ð²ÐºÐ¸ Ð¾Ñ‚Ð»Ð¸Ñ‡Ð°ÐµÑ‚ÑÑ Ð¾Ñ‚ base64, Ñ‚Ð¾ Ð½Ðµ Ð¿Ñ€Ð¸Ð½Ð¸Ð¼Ð°ÐµÐ¼ ÑÑ‚Ñƒ Ð¿Ð¾Ð»Ð¾ÑÑƒ.
 				}
 				else {
 #if 0 // @v8.2.2 {
@@ -1252,7 +1253,6 @@ int SLAPI PPMailPop3::GetMsg(long msgN, SMailMessage * pMsg, const char * pFileN
 	FILE * p_out = 0;
 	SString line_buf, temp_buf;
 	IterCounter bytes_counter;
-
 	pMsg->Init();
 	PPSetAddedMsgString(pFileName);
 	THROW_PP((p_out = fopen(pFileName, "wt")) != NULL, PPERR_CANTOPENFILE);
@@ -1476,9 +1476,9 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 	{
 		if(pMsg->GetField(SMailMessage::fldSubj, temp_buf) == SUBJECTDBDIV) {
 			//
-			// Ñïåöèàëüíûé ñëó÷àé: òàê êàê êîäèðîâêà â UTF8 ââåäåíà ñ âåðñèè 7.6.3, êîòîðàÿ íå ïðåäïîëàãàåò
-			// îáíîâëåíèé âî âñåõ ðàçäåëàõ, òî äàáû áîëåå ñòàðûå âåðñèè ìîãëè ïðèíÿòü ïî÷òó èç 7.6.3 è âûøå,
-			// íå áóäåì êîäèðîâàòü SUBJECTDBDIV ($PpyDbDivTransmission$)
+			// Ð¡Ð¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹ ÑÐ»ÑƒÑ‡Ð°Ð¹: Ñ‚Ð°Ðº ÐºÐ°Ðº ÐºÐ¾Ð´Ð¸Ñ€Ð¾Ð²ÐºÐ° Ð² UTF8 Ð²Ð²ÐµÐ´ÐµÐ½Ð° Ñ Ð²ÐµÑ€ÑÐ¸Ð¸ 7.6.3, ÐºÐ¾Ñ‚Ð¾Ñ€Ð°Ñ Ð½Ðµ Ð¿Ñ€ÐµÐ´Ð¿Ð¾Ð»Ð°Ð³Ð°ÐµÑ‚
+			// Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ð¹ Ð²Ð¾ Ð²ÑÐµÑ… Ñ€Ð°Ð·Ð´ÐµÐ»Ð°Ñ…, Ñ‚Ð¾ Ð´Ð°Ð±Ñ‹ Ð±Ð¾Ð»ÐµÐµ ÑÑ‚Ð°Ñ€Ñ‹Ðµ Ð²ÐµÑ€ÑÐ¸Ð¸ Ð¼Ð¾Ð³Ð»Ð¸ Ð¿Ñ€Ð¸Ð½ÑÑ‚ÑŒ Ð¿Ð¾Ñ‡Ñ‚Ñƒ Ð¸Ð· 7.6.3 Ð¸ Ð²Ñ‹ÑˆÐµ,
+			// Ð½Ðµ Ð±ÑƒÐ´ÐµÐ¼ ÐºÐ¾Ð´Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ SUBJECTDBDIV ($PpyDbDivTransmission$)
 			//
 		}
 		else {
@@ -1769,7 +1769,6 @@ public:
 private:
 	int SLAPI Check(PPInternetAccount * pAccount, PPLogger * pLogger);
 	int SLAPI ResolveAuthType(const char * pAuthType, uint16 * pOutAuthType);
-
 	PPImpExpParam ImpExpParam;
 	PPObjInternetAccount MAcctObj;
 };
@@ -1817,10 +1816,13 @@ int PPEmailAcctsImporter::Import(PPLogger * pLogger, int useTa)
 				if(pLogger) {
 					SString msg, buf2;
 					PPLoadText(PPTXT_MAILACCOUNTIMPOTED, buf2);
-					buf.Printf("Name=%s, SMTP=%s, POP3=%s, From=%s, User=%s",
-						account_rec.Name, account_rec.SmtpServer, account_rec.Pop3Server, account_rec.FromAddress, account_rec.RcvName);
+					buf.Z().CatEq("Name", account_rec.Name).
+						CatDiv(',', 2).CatEq("SMTP", account_rec.SmtpServer).
+						CatDiv(',', 2).CatEq("POP3", account_rec.Pop3Server).
+						CatDiv(',', 2).CatEq("From", account_rec.FromAddress).
+						CatDiv(',', 2).CatEq("User", account_rec.RcvName);
 					msg.Printf(buf2, buf.cptr());
-					CALLPTRMEMB(pLogger, Log(buf));
+					CALLPTRMEMB(pLogger, Log(msg)); // @v10.4.10 @fix Log(buf)-->Log(msg)
 				}
 				imported++;
 			}

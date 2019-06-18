@@ -1000,14 +1000,14 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 								if(getCtrlHandle(CTL_LOT_COST) == p_dc->H_Ctl) {
 									::SetBkMode(p_dc->H_DC, TRANSPARENT);
 									::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-									p_dc->H_Br = (HBRUSH)Ptb.Get(brushChangedCost);
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushChangedCost));
 									clearEvent(event);
 								}
 							}
 							if(getCtrlHandle(CTL_LOT_PRICE) == p_dc->H_Ctl) {
 								if(Item.Flags & PPTFR_QUOT) {
 									::SetBkMode(p_dc->H_DC, TRANSPARENT);
-									p_dc->H_Br = (HBRUSH)Ptb.Get(P_BObj->CheckRights(BILLOPRT_CANCELQUOT) ? brushQuotedPrice : brushQuotedPriceNoCancel);
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(P_BObj->CheckRights(BILLOPRT_CANCELQUOT) ? brushQuotedPrice : brushQuotedPriceNoCancel));
 									clearEvent(event);
 								}
 								else if(oneof4(OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_GOODSRECEIPT)) {
@@ -1240,7 +1240,7 @@ void TrfrItemDialog::calcOrderRest()
 		const  PPTransferItem * oi = 0;
 		if(P_OrderItem && ItemNo >= 0 && P_Pack->SearchShLot(P_OrderItem->LotID, &pos)) {
 			oi = P_OrderItem;
-			i = (int)pos;
+			i = static_cast<int>(pos);
 		}
 		else if(Item.Flags & PPTFR_ORDER) {
 			oi = &Item;
@@ -1277,7 +1277,7 @@ int TrfrItemDialog::isAllowZeroPrice()
 
 int TrfrItemDialog::checkQuantityForIntVal()
 {
-	TView * v = getCtrlView(CTL_LOT_QUANTITY);
+	const TView * v = getCtrlView(CTL_LOT_QUANTITY);
 	if(v && !v->IsInState(sfDisabled) && GObj.CheckFlag(Item.GoodsID, GF_INTVAL) && ffrac(R6(Item.Quantity_)) != 0.0)
 		return PPSetError(PPERR_INTVALUNIT);
 	else
@@ -2539,7 +2539,7 @@ int TrfrItemDialog::setupLot()
 	}
 	else
 	   	Rest = (Item.Flags & (PPTFR_RECEIPT | PPTFR_UNLIM)) ? Item.Quantity_ : 0.0;
-	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT))
+	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT) && (Item.Flags & PPTFR_RECEIPT)) // @v10.4.10 (Item.Flags & PPTFR_RECEIPT)
 		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), &Item.QCert);
 	setCtrlLong(CTLSEL_LOT_QCERT, Item.QCert);
 	{
@@ -2896,7 +2896,7 @@ int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, Brow
 	SelLotBrowser * p_brw = static_cast<SelLotBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(p_brw->getDef());
-		if(p_def && col >= 0 && col < p_def->getCount()) {
+		if(p_def && col >= 0 && col < static_cast<long>(p_def->getCount())) {
 			const SelLotBrowser::Entry * p_item = static_cast<const SelLotBrowser::Entry *>(pData);
 			const BroColumn & r_col = p_def->at(col);
 			if(r_col.OrgOffs == 0) {
@@ -3034,6 +3034,9 @@ IMPL_HANDLE_EVENT(SelLotBrowser)
 			EditObjTagValList(PPOBJ_LOT, p_entry->LotID, 0);
 		else if(event.isKeyDown(kbCtrlF3))
 			P_BObj->EditLotSystemInfo(p_entry->LotID);
+		else if(event.isKeyDown(kbCtrlA)) { // @v10.4.10
+
+		}
 		else
 			return;
 	}

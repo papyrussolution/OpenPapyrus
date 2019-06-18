@@ -36,8 +36,7 @@ int SLAPI PPViewLotOp::InitIteration()
 	period.Z();
 	AdjustPeriodToRights(period, 0);
 	if(Filt.Flags & LotOpFilt::fZeroLotOps)
-		dbq = & (p_tt->LotID == 0L && daterange(p_tt->Dt, &period) &&
-			(p_tt->Flags & PPTFR_RECEIPT) == PPTFR_RECEIPT);
+		dbq = & (p_tt->LotID == 0L && daterange(p_tt->Dt, &period) && (p_tt->Flags & PPTFR_RECEIPT) == PPTFR_RECEIPT);
 	else {
 		ReceiptTbl::Rec lot_rec;
 		THROW(GetLotRec(&lot_rec) > 0);
@@ -449,7 +448,7 @@ int PPALDD_LotOps::NextIteration(PPIterID iterId)
 	I.BillID   = item.BillID;
 	I.CurID    = item.CurID;
 	I.Dt       = item.Dt;
-	I.OprNo    = (short)item.OprNo;
+	I.OprNo    = static_cast<short>(item.OprNo);
 	I.Qtty     = item.Quantity;
 	I.Rest     = item.Rest;
 	I.Cost     = TR5(item.Cost);

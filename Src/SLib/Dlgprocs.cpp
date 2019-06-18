@@ -1,25 +1,10 @@
 // DLGPROCS.CPP
 // Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-
-#if 0 // {
-struct __ITabEntry {
-	int    a;
-	int    b;
-};
-
-static int FASTCALL i_tab_limited(const __ITabEntry * pTbl, int req, uint count)
-{
-	for(uint i = 0; i < count; i++) {
-		if(pTbl[i].a == req)
-			return pTbl[i].b;
-	}
-	return 0;
-}
-#endif // } 0
 
 struct __KeyAssoc {
 	uint32 Vk;
@@ -180,7 +165,7 @@ INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 		case WM_INITDIALOG:
 			if(lParam) {
 				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
-				p_dlg = (TDialog *)lParam;
+				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;
 				TView::messageCommand(p_dlg, cmInit);
 				SetupCtrlTextProc(p_dlg->H(), 0);
@@ -203,7 +188,7 @@ INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 		case WM_DESTROY:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				if((v = p_dlg->P_Last) != 0)  // @todo Практически всегда, за редкими исключениями, 0. Из-за того, что p_dlg->P_Last обнуляется раньше, чем уничтожается данное окно. Требуется исправить.
+				if((v = p_dlg->P_Last) != 0)  // @todo РџСЂР°РєС‚РёС‡РµСЃРєРё РІСЃРµРіРґР°, Р·Р° СЂРµРґРєРёРјРё РёСЃРєР»СЋС‡РµРЅРёСЏРјРё, 0. РР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ p_dlg->P_Last РѕР±РЅСѓР»СЏРµС‚СЃСЏ СЂР°РЅСЊС€Рµ, С‡РµРј СѓРЅРёС‡С‚РѕР¶Р°РµС‚СЃСЏ РґР°РЅРЅРѕРµ РѕРєРЅРѕ. РўСЂРµР±СѓРµС‚СЃСЏ РёСЃРїСЂР°РІРёС‚СЊ.
 					do {
 						if(reinterpret_cast<long>(v) == 0xddddddddL)
 							break;
@@ -346,7 +331,7 @@ INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 				event.mouse.WhereY = HIWORD(lParam);
 				p_dlg->handleEvent(event);
 			}
-			break; // @v10.3.2 @fix (отсутствовал break)
+			break; // @v10.3.2 @fix (РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°Р» break)
 		case WM_VKEYTOITEM:
 			if(PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam) == -1) {
 				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));

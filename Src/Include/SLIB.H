@@ -6984,7 +6984,6 @@ public:
 	uint   SLAPI getPointer() const;
 	uint   SLAPI setPointer(uint p);
 	uint   SLAPI incPointer();
-	//Item   FASTCALL at(uint pos) const;
 	Item   FASTCALL Get(uint pos) const;
 	//
 	// Descr: То же, что и StrAssocArray::at, только не пытается инициализировать
@@ -12513,7 +12512,6 @@ protected:
 	void   SLAPI Reset(void * pInitData = 0, int withForce = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
 	int    SLAPI InitStartupSignal();
 	int    SLAPI SignalStartup();
-
 	void   SLAPI SetIdleState();
 	void   SLAPI ResetIdleState();
 

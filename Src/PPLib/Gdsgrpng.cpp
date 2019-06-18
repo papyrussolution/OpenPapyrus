@@ -1096,7 +1096,8 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 					GoodsRestParam gp;
 					PPOprKind      op_rec;
 					gp.CalcMethod = GoodsRestParam::pcmSum;
-					gp.LocList    = filt.LocList.Get();
+					// @v10.4.10 @fix gp.LocList    = filt.LocList.Get();
+					filt.LocList.Get(gp.LocList); // @v10.4.10 @fix
 					gp.GoodsID    = filt.GoodsID;
 					gp.SupplID    = filt.SupplID;
 					gp.AgentID    = filt.SupplAgentID;

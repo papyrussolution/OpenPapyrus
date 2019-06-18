@@ -139,7 +139,7 @@ Symbol * gensym(const char * base)
  */
 Table * mktable(Table * table)
 {
-	Table * p = (Table *)emalloc(sizeof(Table));
+	Table * p = reinterpret_cast<Table *>(emalloc(sizeof(Table)));
 	p->sym = lookup("/*?*/");
 	p->list = (Entry *)0;
 	p->level = (table == (Table *)0) ? INTERNAL : (Level)(table->level+1);
@@ -151,7 +151,7 @@ Table * mktable(Table * table)
  */
 Tnode * mkmethod(Tnode * ret, Table * args)
 {
-	FNinfo * fn = (FNinfo *)emalloc(sizeof(FNinfo));
+	FNinfo * fn = reinterpret_cast<FNinfo *>(emalloc(sizeof(FNinfo)));
 	fn->ret = ret;
 	fn->args = args;
 	return mktype(Tfun, fn, 0);
@@ -208,7 +208,7 @@ again:
 			goto again;
 		}
 	}
-	p = (Entry *)emalloc(sizeof(Entry));
+	p = reinterpret_cast<Entry *>(emalloc(sizeof(Entry)));
 	p->sym = sym;
 	p->tag = NULL;
 	p->info.typ = NULL;
@@ -498,7 +498,7 @@ Tnode * mktype(Type type, void * ref, int width)
 			}
 		}
 	}
-	p = (Tnode *)emalloc(sizeof(Tnode));     /* install new type */
+	p = reinterpret_cast<Tnode *>(emalloc(sizeof(Tnode))); // install new type 
 	p->type = type;
 	p->ref = ref;
 	p->id = lookup("/*?*/");
@@ -528,7 +528,7 @@ Tnode * mktype(Type type, void * ref, int width)
 
 Tnode * mksymtype(Tnode * typ, Symbol * sym)
 {
-	Tnode * p = (Tnode *)emalloc(sizeof(Tnode));     /* install new type */
+	Tnode * p = reinterpret_cast<Tnode *>(emalloc(sizeof(Tnode))); // install new type 
 	p->type = typ->type;
 	p->ref = typ->ref;
 	p->id = (typ->id == lookup("/*?*/")) ? sym : typ->id;
@@ -553,13 +553,14 @@ Tnode * mksymtype(Tnode * typ, Symbol * sym)
 Tnode * mktemplate(Tnode * typ, Symbol * id)
 {
 	Tnode * p;
-	for(p = Tptr[Ttemplate]; p; p = p->next)
+	for(p = Tptr[Ttemplate]; p; p = p->next) {
 		if(p->ref == typ && p->id == id && p->transient == transient) {
 			if(imported && !p->imported)
 				p->imported = imported;
-			return p;       /* type alrady exists in table */
+			return p; // type alrady exists in table 
 		}
-	p = (Tnode *)emalloc(sizeof(Tnode));     /* install new type */
+	}
+	p = reinterpret_cast<Tnode *>(emalloc(sizeof(Tnode))); // install new type 
 	p->type = Ttemplate;
 	p->ref = typ;
 	p->id = id;

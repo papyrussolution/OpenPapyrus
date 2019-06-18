@@ -1,6 +1,7 @@
 // SECURDLG.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
+// Диалоги редактирования пользователей, групп, прав доступа.
 //
 #include <pp.h>
 #pragma hdrstop
@@ -278,13 +279,13 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 			} while(p_ref->SearchName(obj, &temp_id, temp_buf, &temp_rec) > 0);
 			if(temp_buf.Len() < sizeof(spack.Secur.Name))
 				STRNSCPY(spack.Secur.Name, temp_buf);
-			else {
+			else
 				spack.Secur.Name[0] = 0;
-			}
 		}
 		else {
 			if(param.Flags & PPObjSecur::ExtraParam::fSelectNewType) {
 				uint   v = 0;
+				obj = 0; // @v10.4.0
 				if(SelectorDialog(DLG_SELNEWSEC, CTL_SELNEWSEC_SEL, &v) > 0) {
 					switch(v) {
 						case 0: obj = PPOBJ_USR; break;
@@ -293,24 +294,26 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 					}
 				}
 			}
-			spack.Secur.Tag = obj;
-			if(obj == PPOBJ_USRGRP) {
-				parent_obj = PPOBJ_CONFIG;
-				spack.Secur.ParentID = PPCFG_MAIN;
-			}
-			else if(obj == PPOBJ_USREXCLRIGHTS) {
-				parent_obj = PPOBJ_CONFIG;
-				spack.Secur.ParentID = PPCFG_MAIN;
-			}
-			else if(obj == PPOBJ_USR && param.ParentID) {
-				parent_obj = PPOBJ_USRGRP;
-				spack.Secur.ParentID = param.ParentID;
-			}
-			if(parent_obj && spack.Secur.ParentID) {
-				THROW(DS.FetchConfig(parent_obj, spack.Secur.ParentID, &spack.Config));
-				THROW(spack.Rights.Get(parent_obj, spack.Secur.ParentID));
-				spack.Config.Tag = obj;
-				spack.Config.ObjID = 0;
+			if(obj) {
+				spack.Secur.Tag = obj;
+				if(obj == PPOBJ_USRGRP) {
+					parent_obj = PPOBJ_CONFIG;
+					spack.Secur.ParentID = PPCFG_MAIN;
+				}
+				else if(obj == PPOBJ_USREXCLRIGHTS) {
+					parent_obj = PPOBJ_CONFIG;
+					spack.Secur.ParentID = PPCFG_MAIN;
+				}
+				else if(obj == PPOBJ_USR && param.ParentID) {
+					parent_obj = PPOBJ_USRGRP;
+					spack.Secur.ParentID = param.ParentID;
+				}
+				if(parent_obj && spack.Secur.ParentID) {
+					THROW(DS.FetchConfig(parent_obj, spack.Secur.ParentID, &spack.Config));
+					THROW(spack.Rights.Get(parent_obj, spack.Secur.ParentID));
+					spack.Config.Tag = obj;
+					spack.Config.ObjID = 0;
+				}
 			}
 		}
 	}

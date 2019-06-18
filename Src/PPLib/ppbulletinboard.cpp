@@ -339,7 +339,10 @@ public:
 	int    SLAPI FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, 
 		PotentialStakeEntry * pPse, TsStakeEnvironment::StakeRequestBlock & rResult) const;
 	int    SLAPI FindOptimalStrategyForStake(const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const;
-	double SLAPI EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume) const;
+	enum {
+		ecfTrickChf = 0x0001 // Специальный флаг, предписывающий увеличивать плечо для CHF-пар на форексе
+	};
+	double SLAPI EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume, uint flags) const;
 	int    SLAPI EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult) const;
 	double SLAPI EvaluateUsedMargin() const;
 private:
@@ -1262,7 +1265,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 				rPse.StrategyPos = static_cast<uint>(_best_result.MaxResultIdx);
 				// @20190515 rPse.ResultPerDay = _best_result.MaxResult;
 				rPse.ResultPerDay = r_s.V.GetResultPerDay(); // @20190515
-				const double min_cost = EvaluateCost(r_blk, is_sell, r_blk.VolumeMin);
+				const double min_cost = EvaluateCost(r_blk, is_sell, r_blk.VolumeMin, ecfTrickChf); // @v10.4.10 ecfTrickChf
 				double __volume = 0.0;
 				double __adjusted_result_per_day = 0.0;
 				double __arrange_crit_value = 0.0;
@@ -1272,7 +1275,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 					__volume = R0(r_blk.VolumeStep * sc);
 					SETMIN(__volume, r_blk.VolumeMax);
 					if(__volume > 0.0) {
-						__adjusted_result_per_day = EvaluateCost(r_blk, is_sell, __volume) * rPse.ResultPerDay;
+						__adjusted_result_per_day = EvaluateCost(r_blk, is_sell, __volume, ecfTrickChf) * rPse.ResultPerDay; // @v10.4.10 ecfTrickChf
 						__arrange_crit_value = __adjusted_result_per_day;
 						//Cfg.MinPerDayPotential
 						int use_it = 1;
@@ -1326,14 +1329,21 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 	return ok;
 }
 
-double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume) const
+double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume, uint flags) const
 {
 	const char * p_base_symb = "USD";
 	double cost = 0.0;
 	double last_value = 0.0;
 	if(!isempty(rBlk.PPTS.CurrencySymb) && rBlk.GetLastValue(&last_value)) {
 		const SString symb = rBlk.T_.GetSymb();
-		const double margin = (sell ? rBlk.PPTS.SellMarg : rBlk.PPTS.BuyMarg);
+		double temp_margin = (sell ? rBlk.PPTS.SellMarg : rBlk.PPTS.BuyMarg);
+		// @v10.4.10 {
+		if(flags & ecfTrickChf && symb.Len() == 6 && (symb.CmpPrefix("CHF", 1) == 0 || symb.CmpSuffix("CHF", 1) == 0)) {
+			if(temp_margin > 0.005)
+				temp_margin = 0.005;
+		}
+		// } @v10.4.10 
+		const double margin = temp_margin;
 		if(!sstreqi_ascii(rBlk.PPTS.CurrencySymb, p_base_symb)) {
 			if(symb.CmpPrefix(p_base_symb, 1) == 0) {
 				//cost = volume * margin / last_value;
@@ -1373,7 +1383,7 @@ double SLAPI TimeSeriesCache::EvaluateUsedMargin() const
 		const TimeSeriesBlock * p_blk = SearchBlockBySymb(stk_symb, 0);
 		if(p_blk) {
 			const bool is_short = (r_stk.Type == TsStakeEnvironment::ordtSell);
-			double stk_cost = EvaluateCost(*p_blk, is_short, r_stk.VolumeInit);
+			double stk_cost = EvaluateCost(*p_blk, is_short, r_stk.VolumeInit, ecfTrickChf); // @v10.4.10 ecfTrickChf
 			evaluated_used_margin += stk_cost;
 		}
 	}
@@ -1445,7 +1455,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 				if(r_pse.R_Blk.GetLastValue(&last_value)) {
 					const PPObjTimeSeries::Strategy & r_s = r_pse.R_Blk.Strategies.at(r_pse.StrategyPos);
 					stk_symb = r_pse.R_Blk.T_.GetSymb();
-					const double cost = EvaluateCost(r_pse.R_Blk, LOGIC(r_s.BaseFlags & r_s.bfShort), r_pse.Volume);
+					const double cost = EvaluateCost(r_pse.R_Blk, LOGIC(r_s.BaseFlags & r_s.bfShort), r_pse.Volume, 0);
 					if(cost > 0.0) {
 						const double avg_spread_sl = r_pse.R_Blk.GetAverageSpread() * 2.0; // @20190602 1.1-->1.2 // @20190603 1.2-->2.0
 						const double avg_spread_tp = r_pse.R_Blk.GetAverageSpread() * 2.0; // @20190603 1.1-->2.0

@@ -7197,12 +7197,11 @@ static void FillBrand(const SPpyO_Brand * pInner, PPBrand * pOuter)
 int32 DL6ICLS_PPObjBrand::Search(int32 id, PPYOBJREC pRec)
 {
 	int    ok = 0;
-	PPObjBrand * p_obj = (PPObjBrand *)ExtraPtr;
+	PPObjBrand * p_obj = static_cast<PPObjBrand *>(ExtraPtr);
 	if(p_obj) {
 		PPBrand rec;
-		MEMSZERO(rec);
 		ok = p_obj->Fetch(id, &rec);
-		FillBrand(&rec, (SPpyO_Brand *)pRec);
+		FillBrand(&rec, static_cast<SPpyO_Brand *>(pRec));
 	}
 	SetAppError(ok);
 	return ok;

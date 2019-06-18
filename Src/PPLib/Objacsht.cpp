@@ -1,5 +1,6 @@
 // OBJACSHT.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -69,10 +70,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    setupAssoc();
-	PPID   groupObjType() const
-	{
-		return (Data.Assoc == PPOBJ_PERSON) ? PPOBJ_PRSNKIND : 0;
-	}
+	PPID   groupObjType() const { return (Data.Assoc == PPOBJ_PERSON) ? PPOBJ_PRSNKIND : 0; }
 	void   getAssocData();
 	void   checkLink();
 	PPAccSheet Data;
@@ -82,7 +80,7 @@ IMPL_HANDLE_EVENT(AccSheetDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isClusterClk(CTL_ACCSHEET_ASSOC)) {
-		PPID   old_assoc = Data.Assoc;
+		const PPID old_assoc = Data.Assoc;
 		GetClusterData(CTL_ACCSHEET_ASSOC, &Data.Assoc);
 		if(Data.Assoc != old_assoc) {
 			SETFLAG(Data.Flags, ACSHF_AUTOCREATART, oneof2(Data.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION));
@@ -96,16 +94,16 @@ IMPL_HANDLE_EVENT(AccSheetDialog)
 void AccSheetDialog::checkLink()
 {
 	if(!DS.CheckExtFlag(ECF_AVERAGE) || !PPMaster) {
-		int    r;
 		PPID   tmp_id = 0;
 		ArticleFilt ar_filt;
 		ar_filt.AccSheetID = Data.ID;
 		ar_filt.Ft_Closed = 0;
 		PPObjArticle arobj(&ar_filt/*(void *)Data.ID*/);
-		if((r = arobj.GetFreeArticle(&tmp_id, Data.ID)) == 0)
+		const int r = arobj.GetFreeArticle(&tmp_id, Data.ID);
+		if(!r)
 			PPError();
 		else {
-			int has_link = (r < 0 || tmp_id == 1) ? 0 : 1;
+			const int has_link = (r < 0 || tmp_id == 1) ? 0 : 1;
 			disableCtrl(CTLSEL_ACCSHEET_GROUP, has_link);
 		}
 	}
@@ -138,7 +136,7 @@ int AccSheetDialog::setupAssoc()
 //
 SLAPI PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, extraPtr)
 {
-	FiltProc = 0;
+	// @v10.4.10 (Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÐµÐ½Ð½Ð¾ÑÑ‚ÑŒ ctr PPObjReference) FiltProc = 0;
 }
 
 //virtual
@@ -393,12 +391,12 @@ int SLAPI PPObjAccSheet::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 class AccSheetCache : public ObjCache {
 public:
 	struct AccSheetData : public ObjCacheEntry {
-		PPID   BinArID;       // Ñòàòüÿ äëÿ ñáðîñà îñòàòêîâ ïî çàêðûâàåìûì ñòàòüÿì
-		PPID   CodeRegTypeID; // ÈÄ òèïà ðåãèñòðàöèîííîãî äîêóìåíòà, èäåíòèôèöèðóþùåãî
-			// ïåðñîíàëèþ, ñîîòâåòñòâóþùóþ ñòàòüå.
+		PPID   BinArID;       // Ð¡Ñ‚Ð°Ñ‚ÑŒÑ Ð´Ð»Ñ ÑÐ±Ñ€Ð¾ÑÐ° Ð¾ÑÑ‚Ð°Ñ‚ÐºÐ¾Ð² Ð¿Ð¾ Ð·Ð°ÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼Ñ‹Ð¼ ÑÑ‚Ð°Ñ‚ÑŒÑÐ¼
+		PPID   CodeRegTypeID; // Ð˜Ð” Ñ‚Ð¸Ð¿Ð° Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ð¾Ð½Ð½Ð¾Ð³Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°, Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€ÑƒÑŽÑ‰ÐµÐ³Ð¾
+			// Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸ÑŽ, ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰ÑƒÑŽ ÑÑ‚Ð°Ñ‚ÑŒÐµ.
 		long   Flags;         // ACSHF_XXX
-		long   Assoc;         // @#{0L, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT} Àññîöèèðîâàííûé îáúåêò
-		long   ObjGroup;      // Ïîäãðóïïà àññîöèèðîâàííûõ îáúåêòîâ
+		long   Assoc;         // @#{0L, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT} ÐÑÑÐ¾Ñ†Ð¸Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ð¹ Ð¾Ð±ÑŠÐµÐºÑ‚
+		long   ObjGroup;      // ÐŸÐ¾Ð´Ð³Ñ€ÑƒÐ¿Ð¿Ð° Ð°ÑÑÐ¾Ñ†Ð¸Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ñ… Ð¾Ð±ÑŠÐµÐºÑ‚Ð¾Ð²
 	};
 	SLAPI AccSheetCache() : ObjCache(PPOBJ_ACCSHEET, sizeof(AccSheetData))
 	{

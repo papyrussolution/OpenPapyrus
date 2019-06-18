@@ -846,10 +846,8 @@ CmLocking::~CmLocking()
 		PPObjCashNode::Unlock(R_NodeRec.ID);
 }
 
-int CmLocking::operator !() const
-{
-	return BIN(Flags & fError);
-}
+int CmLocking::operator !() const { return BIN(Flags & fError); }
+int CmLocking::IsForeignLocking() const { return BIN(Flags & fForeignLocking); }
 //
 //
 //

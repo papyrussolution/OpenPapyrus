@@ -128,7 +128,6 @@ static void soap_init_logs(struct soap *);
 #endif
 #ifdef SOAP_DEBUG
 	static void soap_close_logfile(struct soap *, int);
-	static void soap_set_logfile(struct soap *, int, const char *);
 #endif
 #ifdef SOAP_MEM_DEBUG
 static void soap_init_mht(struct soap *);
@@ -6670,8 +6669,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_dealloc(struct soap * soap, void * p)
 	if(soap_check_state(soap))
 		return;
 	if(p) {
-		char ** q;
-		for(q = reinterpret_cast<char **>(&soap->alist); *q; q = *(char***)q) {
+		for(char ** q = reinterpret_cast<char **>(&soap->alist); *q; q = *(char***)q) {
 			if(*(ushort *)(char *)(*q-sizeof(ushort)) != (ushort)SOAP_CANARY) {
  #ifdef SOAP_MEM_DEBUG
 				fprintf(stderr, "Data corruption in dynamic allocation (see logs)\n");
@@ -6917,7 +6915,7 @@ SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_id_lookup(struct soap * soap, cons
 		DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Resolving level %u pointers to href='%s'\n", ip->level, id));
 		while(ip->level > k) {
 			void * s, ** r = &ip->link;
-			q = (void **)ip->link;
+			q = static_cast<void **>(ip->link);
 			while(q) {
 				*r = soap_malloc(soap, sizeof(void *));
 				if(!*r)
@@ -6933,9 +6931,9 @@ SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_id_lookup(struct soap * soap, cons
 			ip->level = ip->level-1;
 			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Descending one level...\n"));
 		}
-		q = (void **)ip->link;
+		q = static_cast<void **>(ip->link);
 		ip->link = p;
-		*p = (void *)q;
+		*p = static_cast<void *>(q);
 	}
 	else {
 		DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Forwarded href='%s' type=%d location=%p (%u bytes)\n", id, t, p, (uint)n));
@@ -6948,9 +6946,10 @@ SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_id_lookup(struct soap * soap, cons
 		      k--;
 		      DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Descending one level...\n"));
 	      }
-	      q = (void **)ip->link;
+	      q = static_cast<void **>(ip->link);
 	      ip->link = p;
-	      *p = (void *)q; }
+	      *p = static_cast<void *>(q); 
+	}
 	return p;
 }
 
@@ -6981,7 +6980,7 @@ SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_id_forward(struct soap * soap, con
 		return NULL;
 	}
 	if(fcopy || n < sizeof(void *) || *href != '#') {
-		struct soap_flist * fp = (struct soap_flist*)SOAP_MALLOC(soap, sizeof(struct soap_flist));
+		struct soap_flist * fp = static_cast<struct soap_flist *>(SOAP_MALLOC(soap, sizeof(struct soap_flist)));
 		if(!fp) {
 			soap->error = SOAP_EOM;
 			return NULL;
@@ -7121,7 +7120,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_end_send(struct soap * soap)
 					    deflateEnd(soap->d_stream);
 					    return soap->error;
 				    }
-				    soap->d_stream->next_out = (Byte *)soap->z_buf;
+				    soap->d_stream->next_out = reinterpret_cast<Byte *>(soap->z_buf);
 				    soap->d_stream->avail_out = SOAP_BUFLEN;
 			    }
 			} while(r == Z_OK);
@@ -7351,9 +7350,9 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_free_temp(struct soap * soap)
 
 static void FASTCALL soap_free_ns(struct soap * soap)
 {
-	struct soap_nlist * np, * nq;
+	struct soap_nlist * nq;
 	DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Free namespace stack\n"));
-	for(np = soap->nlist; np; np = nq) {
+	for(struct soap_nlist * np = soap->nlist; np; np = nq) {
 		nq = np->next;
 		SOAP_FREE(soap, np);
 	}
@@ -7361,13 +7360,13 @@ static void FASTCALL soap_free_ns(struct soap * soap)
 }
 
 #if !defined(WITH_LEAN) || defined(SOAP_DEBUG)
-static void soap_init_logs(struct soap * soap)
-{
-	for(int i = 0; i < SOAP_MAXLOGS; i++) {
-		soap->logfile[i] = NULL;
-		soap->fdebug[i] = NULL;
+	static void soap_init_logs(struct soap * soap)
+	{
+		for(int i = 0; i < SOAP_MAXLOGS; i++) {
+			soap->logfile[i] = NULL;
+			soap->fdebug[i] = NULL;
+		}
 	}
-}
 #endif
 #endif
 
@@ -7403,23 +7402,22 @@ static void soap_set_logfile(struct soap * soap, int i, const char * logfile)
 	s = soap->logfile[i];
 	soap->logfile[i] = logfile;
 	SOAP_FREE(soap, (void *)s);
-	if(logfile)
-		if((t = (char *)SOAP_MALLOC(soap, sstrlen(logfile)+1)))
+	if(logfile) {
+		t = static_cast<char *>(SOAP_MALLOC(soap, sstrlen(logfile)+1));
+		if(t)
 			strcpy(t, logfile);
+	}
 	soap->logfile[i] = t;
 }
 
-SOAP_FMAC1 void SOAP_FMAC2 soap_set_recv_logfile(struct soap * soap, const char * logfile)
-	{ soap_set_logfile(soap, SOAP_INDEX_RECV, logfile); }
-SOAP_FMAC1 void SOAP_FMAC2 soap_set_sent_logfile(struct soap * soap, const char * logfile)
-	{ soap_set_logfile(soap, SOAP_INDEX_SENT, logfile); }
-SOAP_FMAC1 void SOAP_FMAC2 soap_set_test_logfile(struct soap * soap, const char * logfile)
-	{ soap_set_logfile(soap, SOAP_INDEX_TEST, logfile); }
+SOAP_FMAC1 void SOAP_FMAC2 soap_set_recv_logfile(struct soap * soap, const char * logfile) { soap_set_logfile(soap, SOAP_INDEX_RECV, logfile); }
+SOAP_FMAC1 void SOAP_FMAC2 soap_set_sent_logfile(struct soap * soap, const char * logfile) { soap_set_logfile(soap, SOAP_INDEX_SENT, logfile); }
+SOAP_FMAC1 void SOAP_FMAC2 soap_set_test_logfile(struct soap * soap, const char * logfile) { soap_set_logfile(soap, SOAP_INDEX_TEST, logfile); }
 #endif
 
 #ifndef PALM_1
 SOAP_FMAC1 struct soap * SOAP_FMAC2 soap_copy(const struct soap * soap)
-	{ return soap_copy_context((struct soap*)malloc(sizeof(struct soap)), soap); }
+	{ return soap_copy_context(static_cast<struct soap *>(malloc(sizeof(struct soap))), soap); }
 
 SOAP_FMAC1 struct soap * SOAP_FMAC2 soap_copy_context(struct soap * copy, const struct soap * soap)
 {
@@ -7485,7 +7483,7 @@ SOAP_FMAC1 struct soap * SOAP_FMAC2 soap_copy_context(struct soap * copy, const 
 		copy->session = NULL;
  #endif
  #ifdef WITH_ZLIB
-		copy->d_stream = (z_stream *)SOAP_MALLOC(copy, sizeof(z_stream));
+		copy->d_stream = static_cast<z_stream *>(SOAP_MALLOC(copy, sizeof(z_stream)));
 		copy->d_stream->zalloc = Z_NULL;
 		copy->d_stream->zfree = Z_NULL;
 		copy->d_stream->opaque = Z_NULL;
@@ -7507,7 +7505,7 @@ SOAP_FMAC1 struct soap * SOAP_FMAC2 soap_copy_context(struct soap * copy, const 
  #endif
 		copy->plugins = NULL;
 		for(p = soap->plugins; p; p = p->next) {
-			struct soap_plugin * q = (struct soap_plugin*)SOAP_MALLOC(copy, sizeof(struct soap_plugin));
+			struct soap_plugin * q = static_cast<struct soap_plugin *>(SOAP_MALLOC(copy, sizeof(struct soap_plugin)));
 			if(!q)
 				return NULL;
 			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Copying plugin '%s'\n", p->id));
@@ -7574,7 +7572,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_copy_stream(struct soap * copy, struct soap * so
 	copy->zlib_in = soap->zlib_in;
 	copy->zlib_out = soap->zlib_out;
 	if(!copy->d_stream)
-		copy->d_stream = (z_stream *)SOAP_MALLOC(copy, sizeof(z_stream));
+		copy->d_stream = static_cast<z_stream *>(SOAP_MALLOC(copy, sizeof(z_stream)));
 	if(copy->d_stream)
 		memcpy(copy->d_stream, soap->d_stream, sizeof(z_stream));
 	copy->z_crc = soap->z_crc;
@@ -7584,7 +7582,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_copy_stream(struct soap * copy, struct soap * so
 	copy->z_buflen = soap->z_buflen;
 	copy->z_level = soap->z_level;
 	if(soap->z_buf && soap->zlib_state != SOAP_ZLIB_NONE) {
-		copy->z_buf = (char *)SOAP_MALLOC(copy, SOAP_BUFLEN);
+		copy->z_buf = static_cast<char *>(SOAP_MALLOC(copy, SOAP_BUFLEN));
 		if(copy->z_buf)
 			memcpy(copy->z_buf, soap->z_buf, SOAP_BUFLEN);
 	}
@@ -7601,7 +7599,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_copy_stream(struct soap * copy, struct soap * so
 		for(nq = soap->nlist; nq; nq = nq->next) {
 			struct soap_nlist * nr = np;
 			size_t n = sizeof(struct soap_nlist)+sstrlen(nq->id);
-			np = (struct soap_nlist*)SOAP_MALLOC(copy, n);
+			np = static_cast<struct soap_nlist *>(SOAP_MALLOC(copy, n));
 			if(!np)
 				break;
 			memcpy(np, nq, n);
@@ -7637,10 +7635,10 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_copy_stream(struct soap * copy, struct soap * so
 	for(tq = soap->attributes; tq; tq = tq->next) {
 		struct soap_attribute * tr = tp;
 		size_t n = sizeof(struct soap_attribute)+sstrlen(tq->name);
-		tp = (struct soap_attribute*)SOAP_MALLOC(copy, n);
+		tp = static_cast<struct soap_attribute *>(SOAP_MALLOC(copy, n));
 		memcpy(tp, tq, n);
 		if(tp->size) {
-			tp->value = (char *)SOAP_MALLOC(copy, tp->size);
+			tp->value = static_cast<char *>(SOAP_MALLOC(copy, tp->size));
 			if(tp->value)
 				strcpy(tp->value, tq->value);
 		}
@@ -7692,9 +7690,54 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_versioning(soap_init) (struct soap * soap, soap_
 	soap_set_sent_logfile(soap, "SENTLOG");
 	soap_set_recv_logfile(soap, "RECVLOG");
   #else
-	soap_set_test_logfile(soap, "TEST.log");
-	soap_set_sent_logfile(soap, "SENT.log");
-	soap_set_recv_logfile(soap, "RECV.log");
+	{
+		int    log_options = 0; // 0x01 - sent, 0x02 - recv, 0x04 - test
+		SString log_path;
+		SString temp_buf;
+		SString exe_path;
+		getExecPath(exe_path);
+		(temp_buf = exe_path).SetLastSlash().Cat("PP.INI");
+		if(fileExists(temp_buf)) {
+			SIniFile ini_file(temp_buf, 0, 0, 1);
+			ini_file.GetParam("path", "log", temp_buf);
+			if(temp_buf.NotEmptyS() && IsDirectory(temp_buf))
+				log_path = temp_buf;
+			if(ini_file.GetParam("config", "gsoap_log", temp_buf) && temp_buf.NotEmptyS()) {
+				if(temp_buf.IsEqiAscii("all")) 
+					log_options |= (0x01 | 0x02 | 0x04);
+				else {
+					if(temp_buf.Search("sent", 0, 1, 0))
+						log_options |= 0x01;
+					if(temp_buf.Search("recv", 0, 1, 0) || temp_buf.Search("rcv", 0, 1, 0))
+						log_options |= 0x02;
+					if(temp_buf.Search("test", 0, 1, 0))
+						log_options |= 0x04;
+				}
+			}
+		}
+		if(log_options == 0) {
+			soap_set_test_logfile(soap, 0);
+			soap_set_sent_logfile(soap, 0);
+			soap_set_recv_logfile(soap, 0);
+		}
+		else {
+			if(log_path.Empty())
+				log_path = exe_path;
+			if(log_path.NotEmptyS()) {
+				soap_set_sent_logfile(soap, (log_options & 0x01) ? (temp_buf = log_path).SetLastSlash().Cat("gsoap-sent.log").cptr() : 0);
+				soap_set_recv_logfile(soap, (log_options & 0x02) ? (temp_buf = log_path).SetLastSlash().Cat("gsoap-recv.log").cptr() : 0);
+				soap_set_test_logfile(soap, (log_options & 0x04) ? (temp_buf = log_path).SetLastSlash().Cat("gsoap-test.log").cptr() : 0);
+			}
+			else {
+				soap_set_sent_logfile(soap, (log_options & 0x01) ? (temp_buf = "gsoap-sent.log").cptr() : 0);
+				soap_set_recv_logfile(soap, (log_options & 0x02) ? (temp_buf = "gsoap-recv.log").cptr() : 0);
+				soap_set_test_logfile(soap, (log_options & 0x04) ? (temp_buf = "gsoap-test.log").cptr() : 0);
+			}
+		}
+		//soap_set_test_logfile(soap, "TEST.log");
+		//soap_set_sent_logfile(soap, "SENT.log");
+		//soap_set_recv_logfile(soap, "RECV.log");
+	}
   #endif
  #endif
 	soap->version = 0;
@@ -14051,38 +14094,33 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_sprint_fault(struct soap * soap, char * buf, s
 #endif
 #endif
 
-/******************************************************************************/
 #ifndef PALM_1
- #ifndef WITH_NOSTDLIB
-SOAP_FMAC1 void SOAP_FMAC2 soap_print_fault_location(struct soap * soap, FILE * fd)
-{
-  #ifndef WITH_LEAN
-	int i, j, c1, c2;
-	if(soap->error && soap->error != SOAP_STOP && soap->bufidx <= soap->buflen && soap->buflen > 0 && soap->buflen <= SOAP_BUFLEN) {
-		i = (int)soap->bufidx-1;
-		SETMAX(i, 0);
-		c1 = soap->buf[i];
-		soap->buf[i] = '\0';
-		if((int)soap->buflen >= i+1024)
-			j = i+1023;
-		else
-			j = (int)soap->buflen-1;
-		c2 = soap->buf[j];
-		soap->buf[j] = '\0';
-		fprintf(fd, "%s%c\n<!-- ** HERE ** -->\n", soap->buf, c1);
-		if(soap->bufidx < soap->buflen)
-			fprintf(fd, "%s\n", soap->buf+soap->bufidx);
-		soap->buf[i] = (char)c1;
-		soap->buf[j] = (char)c2;
+#ifndef WITH_NOSTDLIB
+	SOAP_FMAC1 void SOAP_FMAC2 soap_print_fault_location(struct soap * soap, FILE * fd)
+	{
+	  #ifndef WITH_LEAN
+		if(soap->error && soap->error != SOAP_STOP && soap->bufidx <= soap->buflen && soap->buflen > 0 && soap->buflen <= SOAP_BUFLEN) {
+			int i = (int)soap->bufidx-1;
+			SETMAX(i, 0);
+			int c1 = soap->buf[i];
+			soap->buf[i] = '\0';
+			const int j = (static_cast<int>(soap->buflen) >= i+1024) ? (i+1023) : (static_cast<int>(soap->buflen)-1);
+			int c2 = soap->buf[j];
+			soap->buf[j] = '\0';
+			fprintf(fd, "%s%c\n<!-- ** HERE ** -->\n", soap->buf, c1);
+			if(soap->bufidx < soap->buflen)
+				fprintf(fd, "%s\n", soap->buf+soap->bufidx);
+			soap->buf[i] = (char)c1;
+			soap->buf[j] = (char)c2;
+		}
+	  #endif
 	}
-  #endif
-}
- #endif
+#endif
 
 SOAP_FMAC1 int SOAP_FMAC2 soap_register_plugin_arg(struct soap * soap, int (* fcreate)(struct soap *, struct soap_plugin *, void *), void * arg)
 {
 	int r;
-	struct soap_plugin * p = (struct soap_plugin*)SOAP_MALLOC(soap, sizeof(struct soap_plugin));
+	struct soap_plugin * p = static_cast<struct soap_plugin *>(SOAP_MALLOC(soap, sizeof(struct soap_plugin)));
 	if(!p)
 		return soap->error = SOAP_EOM;
 	else {

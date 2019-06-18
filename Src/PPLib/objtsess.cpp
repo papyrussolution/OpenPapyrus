@@ -1,5 +1,6 @@
 // OBJTSESS.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -61,8 +62,8 @@ public:
 	int    Ta;
 private:
 	enum {
-		fProperSess = 0x0001, // Сессия создана этим сеансом обмена с терминалом
-		fSwitchable = 0x0002  // Процессор, с которым связан элемент, допускает переключение
+		fProperSess = 0x0001, // РЎРµСЃСЃРёСЏ СЃРѕР·РґР°РЅР° СЌС‚РёРј СЃРµР°РЅСЃРѕРј РѕР±РјРµРЅР° СЃ С‚РµСЂРјРёРЅР°Р»РѕРј
+		fSwitchable = 0x0002  // РџСЂРѕС†РµСЃСЃРѕСЂ, СЃ РєРѕС‚РѕСЂС‹Рј СЃРІСЏР·Р°РЅ СЌР»РµРјРµРЅС‚, РґРѕРїСѓСЃРєР°РµС‚ РїРµСЂРµРєР»СЋС‡РµРЅРёРµ
 	};
 	struct PSE { // @flat
 		PPID   SessID;
@@ -125,23 +126,23 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 	PPID   ID;              // Const=PPCFG_MAIN
 	PPID   Prop;            // Const=PPPRP_TSESSCFG
 	long   Flags;           // PPTSessConfig::fXXX
-	PPID   IdleAccSheetID;  // ->Ref(PPOBJ_ACCSHEET) @v4.9.12 Таблица статей видов простоев процессоров
-	long   MinIdleCont;     // Минимальная продолжительность простоя (sec). Если простой меньше,
-		// этой величины, то он не регистрируется (сессия простоя удаляется).
-	LTIME  InitTime;        // @v5.0.6 Время, задаваемое в новых техн сессиях по умолчанию. Используется //
-		// также как расчетное время для сессий, учитывающих товар по времени (гостиницы)
-	long   RoundPeriod;     // @v5.0.6 Период округления (в большую сторону) для сессий, учитывающих
-		// товар по времени
-	long   ViewRefreshPeriod; // @v5.0.8 Период обновления таблиц техн сессий и строк техн сессий (sec)
-	long   TimeChunkBrowserQuant; // @5.6.2 Квант времени (сек) во временной диаграмме
+	PPID   IdleAccSheetID;  // ->Ref(PPOBJ_ACCSHEET) @v4.9.12 РўР°Р±Р»РёС†Р° СЃС‚Р°С‚РµР№ РІРёРґРѕРІ РїСЂРѕСЃС‚РѕРµРІ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
+	long   MinIdleCont;     // РњРёРЅРёРјР°Р»СЊРЅР°СЏ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ РїСЂРѕСЃС‚РѕСЏ (sec). Р•СЃР»Рё РїСЂРѕСЃС‚РѕР№ РјРµРЅСЊС€Рµ,
+		// СЌС‚РѕР№ РІРµР»РёС‡РёРЅС‹, С‚Рѕ РѕРЅ РЅРµ СЂРµРіРёСЃС‚СЂРёСЂСѓРµС‚СЃСЏ (СЃРµСЃСЃРёСЏ РїСЂРѕСЃС‚РѕСЏ СѓРґР°Р»СЏРµС‚СЃСЏ).
+	LTIME  InitTime;        // @v5.0.6 Р’СЂРµРјСЏ, Р·Р°РґР°РІР°РµРјРѕРµ РІ РЅРѕРІС‹С… С‚РµС…РЅ СЃРµСЃСЃРёСЏС… РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ //
+		// С‚Р°РєР¶Рµ РєР°Рє СЂР°СЃС‡РµС‚РЅРѕРµ РІСЂРµРјСЏ РґР»СЏ СЃРµСЃСЃРёР№, СѓС‡РёС‚С‹РІР°СЋС‰РёС… С‚РѕРІР°СЂ РїРѕ РІСЂРµРјРµРЅРё (РіРѕСЃС‚РёРЅРёС†С‹)
+	long   RoundPeriod;     // @v5.0.6 РџРµСЂРёРѕРґ РѕРєСЂСѓРіР»РµРЅРёСЏ (РІ Р±РѕР»СЊС€СѓСЋ СЃС‚РѕСЂРѕРЅСѓ) РґР»СЏ СЃРµСЃСЃРёР№, СѓС‡РёС‚С‹РІР°СЋС‰РёС…
+		// С‚РѕРІР°СЂ РїРѕ РІСЂРµРјРµРЅРё
+	long   ViewRefreshPeriod; // @v5.0.8 РџРµСЂРёРѕРґ РѕР±РЅРѕРІР»РµРЅРёСЏ С‚Р°Р±Р»РёС† С‚РµС…РЅ СЃРµСЃСЃРёР№ Рё СЃС‚СЂРѕРє С‚РµС…РЅ СЃРµСЃСЃРёР№ (sec)
+	long   TimeChunkBrowserQuant; // @5.6.2 РљРІР°РЅС‚ РІСЂРµРјРµРЅРё (СЃРµРє) РІРѕ РІСЂРµРјРµРЅРЅРѕР№ РґРёР°РіСЂР°РјРјРµ
 	long   ColorPlannedStatus;
 	long   ColorPendingStatus;
 	long   ColorInProgressStatus;
 	long   ColorClosedStatus;
 	long   ColorCanceledStatus;
 	SVerT Ver;
-	uint16 ExtStrSize;        // Размер "хвоста" под строки расширения. Общий размер записи, хранимой в БД
-		// равен sizeof(PPTSessionConfig) + ExtStrSiz
+	uint16 ExtStrSize;        // Р Р°Р·РјРµСЂ "С…РІРѕСЃС‚Р°" РїРѕРґ СЃС‚СЂРѕРєРё СЂР°СЃС€РёСЂРµРЅРёСЏ. РћР±С‰РёР№ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё, С…СЂР°РЅРёРјРѕР№ РІ Р‘Р”
+		// СЂР°РІРµРЅ sizeof(PPTSessionConfig) + ExtStrSiz
 	uint16 SmsConfigPos;
 	PPID   DefTimeTechID;
 	char   Reserve[12];
@@ -681,7 +682,7 @@ int SLAPI PPObjTSession::SearchByGuid(const S_GUID_Base & rUuid, TSessionTbl::Re
 		LDATETIME max_dtm = ZERODATETIME;
 		PPID  _id = 0;
 		//
-		// Следующий цикл решает параноидальную проблему существования нескольких документов с одинаковым UUID'ом
+		// РЎР»РµРґСѓСЋС‰РёР№ С†РёРєР» СЂРµС€Р°РµС‚ РїР°СЂР°РЅРѕРёРґР°Р»СЊРЅСѓСЋ РїСЂРѕР±Р»РµРјСѓ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ РЅРµСЃРєРѕР»СЊРєРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ СЃ РѕРґРёРЅР°РєРѕРІС‹Рј UUID'РѕРј
 		//
 		for(uint i = 0; i < id_list.getCount(); i++) {
 			TSessionTbl::Rec temp_rec;
@@ -690,14 +691,14 @@ int SLAPI PPObjTSession::SearchByGuid(const S_GUID_Base & rUuid, TSessionTbl::Re
 				LDATETIME _dtm;
 				_dtm.Set(temp_rec.StDt, temp_rec.StTm);
 				if(cmp(_dtm, max_dtm) > 0) {
-					ok = !!max_dtm ? 2 : 1; // Найдено более одной сессии - код возврата 2 сигнализирует о том.
+					ok = !!max_dtm ? 2 : 1; // РќР°Р№РґРµРЅРѕ Р±РѕР»РµРµ РѕРґРЅРѕР№ СЃРµСЃСЃРёРё - РєРѕРґ РІРѕР·РІСЂР°С‚Р° 2 СЃРёРіРЅР°Р»РёР·РёСЂСѓРµС‚ Рѕ С‚РѕРј.
 					_id = temp_id;
 					_rec = temp_rec;
 					max_dtm = _dtm;
 				}
 			}
 			else if(!_id) {
-				ok = -2; // Сигнализирует о существовании висячей записи тега.
+				ok = -2; // РЎРёРіРЅР°Р»РёР·РёСЂСѓРµС‚ Рѕ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРё РІРёСЃСЏС‡РµР№ Р·Р°РїРёСЃРё С‚РµРіР°.
 			}
 		}
 	}
@@ -870,8 +871,8 @@ int SLAPI PPObjTSession::IsProcessorBusy(PPID prcID, PPID tsesID, int kind, cons
 			ideqvalstr(prcID, msg_buf);
 		msg_buf.Semicol().Cat(dtm);
 		if(loaded_sess_id && Search(loaded_sess_id, &loaded_rec) > 0) {
-			msg_buf.CR().Cat(loaded_rec.Num).CatDiv('-', 1).Cat(*(LDATETIME *)&loaded_rec.StDt).
-				CatCharN('.', 2).Cat(*(LDATETIME *)&loaded_rec.FinDt);
+			msg_buf.CR().Cat(loaded_rec.Num).CatDiv('-', 1).Cat(*reinterpret_cast<const LDATETIME *>(&loaded_rec.StDt)).
+				CatCharN('.', 2).Cat(*reinterpret_cast<const LDATETIME *>(&loaded_rec.FinDt));
 		}
 		PPSetError(PPERR_PRCISBUSY, msg_buf);
 		ASSIGN_PTR(pTSessID, loaded_sess_id);
@@ -1075,8 +1076,8 @@ int SLAPI PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl
 					if(!pOprNo || *pOprNo == 0) {
 						if(pRec->Serial[0]) {
 							//
-							// Проследим, чтобы строка остатка в течении одной сессии по одному серийному номеру
-							// была единственной
+							// РџСЂРѕСЃР»РµРґРёРј, С‡С‚РѕР±С‹ СЃС‚СЂРѕРєР° РѕСЃС‚Р°С‚РєР° РІ С‚РµС‡РµРЅРёРё РѕРґРЅРѕР№ СЃРµСЃСЃРёРё РїРѕ РѕРґРЅРѕРјСѓ СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ
+							// Р±С‹Р»Р° РµРґРёРЅСЃС‚РІРµРЅРЅРѕР№
 							//
 							TSessLineTbl::Rec rest_rec;
 							if(P_Tbl->SearchSerial(pRec->Serial, pRec->TSessID, 0, TSessionCore::sserRest, &rest_rec) > 0)
@@ -1084,8 +1085,8 @@ int SLAPI PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl
 						}
 						else {
 							//
-							// @todo Проследить за тем, чтобы без серийного номера для одного товара
-							// в течении одной сессии была только одна строка остатка
+							// @todo РџСЂРѕСЃР»РµРґРёС‚СЊ Р·Р° С‚РµРј, С‡С‚РѕР±С‹ Р±РµР· СЃРµСЂРёР№РЅРѕРіРѕ РЅРѕРјРµСЂР° РґР»СЏ РѕРґРЅРѕРіРѕ С‚РѕРІР°СЂР°
+							// РІ С‚РµС‡РµРЅРёРё РѕРґРЅРѕР№ СЃРµСЃСЃРёРё Р±С‹Р»Р° С‚РѕР»СЊРєРѕ РѕРґРЅР° СЃС‚СЂРѕРєР° РѕСЃС‚Р°С‚РєР°
 							//
 						}
 					}
@@ -1433,7 +1434,7 @@ int SLAPI PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 						if(sub_ses_rec.TechID) {
 							PPID   sub_ses_id = 0;
 							//
-							// Рассчитываем и устанавливаем планируемое время работы, а так же планируемое время окончания сессии
+							// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїР»Р°РЅРёСЂСѓРµРјРѕРµ РІСЂРµРјСЏ СЂР°Р±РѕС‚С‹, Р° С‚Р°Рє Р¶Рµ РїР»Р°РЅРёСЂСѓРµРјРѕРµ РІСЂРµРјСЏ РѕРєРѕРЅС‡Р°РЅРёСЏ СЃРµСЃСЃРёРё
 							//
 							THROW(SetPlannedTiming(&sub_ses_rec));
 							if(sub_ses_rec.PlannedTiming > 0) {
@@ -1470,7 +1471,7 @@ int SLAPI PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 					if(gs_obj.Fetch(tec_struc_id, &gs_rec) > 0 && gs_rec.Flags & GSF_PARTITIAL) {
 						const double qtty = (tses_rec.ActQtty != 0.0) ? tses_rec.ActQtty : tses_rec.PlannedQtty;
 						//
-						// Функция CompleteStruc изменяет знак в количестве. Поэтому здесь умножает количество на -1
+						// Р¤СѓРЅРєС†РёСЏ CompleteStruc РёР·РјРµРЅСЏРµС‚ Р·РЅР°Рє РІ РєРѕР»РёС‡РµСЃС‚РІРµ. РџРѕСЌС‚РѕРјСѓ Р·РґРµСЃСЊ СѓРјРЅРѕР¶Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РЅР° -1
 						//
 						goods_qtty_list.Add(tec_goods_id, -1.0 * fgetwsign(qtty, tec_rec.Sign));
 						goods_id_list.addUnique(tec_goods_id);
@@ -1497,8 +1498,8 @@ int SLAPI PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 							ok = 1;
 					}
 					//
-					// Списание расходов на перенастройку
-					// (До некоторой поры расходы на перенастройку списываем только по основному товару сессии)
+					// РЎРїРёСЃР°РЅРёРµ СЂР°СЃС…РѕРґРѕРІ РЅР° РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєСѓ
+					// (Р”Рѕ РЅРµРєРѕС‚РѕСЂРѕР№ РїРѕСЂС‹ СЂР°СЃС…РѕРґС‹ РЅР° РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєСѓ СЃРїРёСЃС‹РІР°РµРј С‚РѕР»СЊРєРѕ РїРѕ РѕСЃРЅРѕРІРЅРѕРјСѓ С‚РѕРІР°СЂСѓ СЃРµСЃСЃРёРё)
 					//
 					if(goods_id == tec_goods_id) {
 						THROW(r = GetPrevSession(tses_rec, &prev_sess_rec));
@@ -1774,19 +1775,19 @@ int SLAPI PPObjTSession::Helper_SetSessionState(TSessionTbl::Rec * pRec, int new
 	// 0 -> TSESST_INPROCESS
 	//
 	// TSESST_PLANNED -> TSESST_PENDING
-	// TSESST_PLANNED -> TSESST_INPROCESS   Проверяет наличие сессий со статусом TSESST_INPROCESS для //
-	//        процессора. Устанавливается время начала сессии
-	// @v5.0.12 TSESST_PLANNED -> TSESST_CLOSED      Устанавливает уровень завершенности в 10
+	// TSESST_PLANNED -> TSESST_INPROCESS   РџСЂРѕРІРµСЂСЏРµС‚ РЅР°Р»РёС‡РёРµ СЃРµСЃСЃРёР№ СЃРѕ СЃС‚Р°С‚СѓСЃРѕРј TSESST_INPROCESS РґР»СЏ //
+	//        РїСЂРѕС†РµСЃСЃРѕСЂР°. РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІСЂРµРјСЏ РЅР°С‡Р°Р»Р° СЃРµСЃСЃРёРё
+	// @v5.0.12 TSESST_PLANNED -> TSESST_CLOSED      РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ СѓСЂРѕРІРµРЅСЊ Р·Р°РІРµСЂС€РµРЅРЅРѕСЃС‚Рё РІ 10
 	// TSESST_PLANNED -> TSESST_CANCELED
 	//
-	// TSESST_PENDING -> TSESST_INPROCESS   Устанавливается время начала сессии
-	// @v5.0.12 TSESST_PENDING -> TSESST_CLOSED      Устанавливает уровень завершенности в 10
+	// TSESST_PENDING -> TSESST_INPROCESS   РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІСЂРµРјСЏ РЅР°С‡Р°Р»Р° СЃРµСЃСЃРёРё
+	// @v5.0.12 TSESST_PENDING -> TSESST_CLOSED      РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ СѓСЂРѕРІРµРЅСЊ Р·Р°РІРµСЂС€РµРЅРЅРѕСЃС‚Рё РІ 10
 	// TSESST_PENDING -> TSESST_CANCELED
 	//
-	// TSESST_INPROCESS -> TSESST_CLOSED    Устанавливается время окончания сессии и уровень завершенности в 10
+	// TSESST_INPROCESS -> TSESST_CLOSED    РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІСЂРµРјСЏ РѕРєРѕРЅС‡Р°РЅРёСЏ СЃРµСЃСЃРёРё Рё СѓСЂРѕРІРµРЅСЊ Р·Р°РІРµСЂС€РµРЅРЅРѕСЃС‚Рё РІ 10
 	//
-	// TSESST_CLOSED   переходы недопустимы если в процессоре не установлен флаг PRCF_ALLOWCANCELAFTERCLOSE
-	// TSESST_CANCELED переходы недопустимы
+	// TSESST_CLOSED   РїРµСЂРµС…РѕРґС‹ РЅРµРґРѕРїСѓСЃС‚РёРјС‹ РµСЃР»Рё РІ РїСЂРѕС†РµСЃСЃРѕСЂРµ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі PRCF_ALLOWCANCELAFTERCLOSE
+	// TSESST_CANCELED РїРµСЂРµС…РѕРґС‹ РЅРµРґРѕРїСѓСЃС‚РёРјС‹
 
 	int    ok = 1;
 	const  int idle = BIN(pRec->Flags & TSESF_IDLE);
@@ -1886,31 +1887,31 @@ int SLAPI PPObjTSession::CheckSuperSessLink(const TSessionTbl::Rec * pRec, PPID 
 	if(superSessID) {
 		TSessionTbl::Rec super_rec;
 		//
-		// Суперсессию нельзя делать дочерней сессей (присваивать ей ссылку на суперсессию)
+		// РЎСѓРїРµСЂСЃРµСЃСЃРёСЋ РЅРµР»СЊР·СЏ РґРµР»Р°С‚СЊ РґРѕС‡РµСЂРЅРµР№ СЃРµСЃСЃРµР№ (РїСЂРёСЃРІР°РёРІР°С‚СЊ РµР№ СЃСЃС‹Р»РєСѓ РЅР° СЃСѓРїРµСЂСЃРµСЃСЃРёСЋ)
 		//
 		THROW_PP(!(pRec->Flags & TSESF_SUPERSESS), PPERR_CHILDCANTBESUPERSESS);
 		if(pRec->ParentID != superSessID)
 			//
-			// Нельзя переприсваивать закрытую или отмененную сессию другой суперсессии
+			// РќРµР»СЊР·СЏ РїРµСЂРµРїСЂРёСЃРІР°РёРІР°С‚СЊ Р·Р°РєСЂС‹С‚СѓСЋ РёР»Рё РѕС‚РјРµРЅРµРЅРЅСѓСЋ СЃРµСЃСЃРёСЋ РґСЂСѓРіРѕР№ СЃСѓРїРµСЂСЃРµСЃСЃРёРё
 			//
 			THROW_PP(pRec->Status != TSESST_CLOSED && pRec->Status != TSESST_CANCELED, PPERR_INVCHILDTSESSSTATUS);
 		//
-		// Проверка идентификатора суперсессии:
-		// 1. Запись по этому идентификатору должна существовать
-		// 2. Запись суперсессии должна иметь признак TSESF_SUPERSESS
+		// РџСЂРѕРІРµСЂРєР° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃСѓРїРµСЂСЃРµСЃСЃРёРё:
+		// 1. Р—Р°РїРёСЃСЊ РїРѕ СЌС‚РѕРјСѓ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ РґРѕР»Р¶РЅР° СЃСѓС‰РµСЃС‚РІРѕРІР°С‚СЊ
+		// 2. Р—Р°РїРёСЃСЊ СЃСѓРїРµСЂСЃРµСЃСЃРёРё РґРѕР»Р¶РЅР° РёРјРµС‚СЊ РїСЂРёР·РЅР°Рє TSESF_SUPERSESS
 		//
 		THROW(Search(superSessID, &super_rec) > 0);
 		ASSIGN_PTR(pSuperSessRec, super_rec);
 		THROW_PP(pRec->Flags & TSESF_SUBSESS || super_rec.Flags & TSESF_SUPERSESS, PPERR_PARENTISNTSUPERSESS);
 		if(pRec->ParentID != superSessID)
 			//
-			// Отмененной суперсессии нельзя присваивать дочернюю сессию
+			// РћС‚РјРµРЅРµРЅРЅРѕР№ СЃСѓРїРµСЂСЃРµСЃСЃРёРё РЅРµР»СЊР·СЏ РїСЂРёСЃРІР°РёРІР°С‚СЊ РґРѕС‡РµСЂРЅСЋСЋ СЃРµСЃСЃРёСЋ
 			//
  			THROW_PP(super_rec.Status != TSESST_CANCELED, PPERR_INVSUPERSESSSTATUS);
 		if(pRec->Flags & TSESF_SUBSESS) {
 			//
-			// Субсессия должна иметь технологию, являющуюся прямым потомком технологии
-			// родительской сессии.
+			// РЎСѓР±СЃРµСЃСЃРёСЏ РґРѕР»Р¶РЅР° РёРјРµС‚СЊ С‚РµС…РЅРѕР»РѕРіРёСЋ, СЏРІР»СЏСЋС‰СѓСЋСЃСЏ РїСЂСЏРјС‹Рј РїРѕС‚РѕРјРєРѕРј С‚РµС…РЅРѕР»РѕРіРёРё
+			// СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ СЃРµСЃСЃРёРё.
 			//
 			if(pRec->TechID && super_rec.TechID && super_rec.TechID != pRec->TechID) {
 				PPIDArray tech_list;
@@ -1920,9 +1921,9 @@ int SLAPI PPObjTSession::CheckSuperSessLink(const TSessionTbl::Rec * pRec, PPID 
 		}
 		else {
 			//
-			// Суперсессия должна быть привязана либо к тому же процессору, что и
-			// проверяемая сессия, либо процессор суперсессии должен быть группой, к которой
-			// принадлежит процессор проверяемой сессии.
+			// РЎСѓРїРµСЂСЃРµСЃСЃРёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїСЂРёРІСЏР·Р°РЅР° Р»РёР±Рѕ Рє С‚РѕРјСѓ Р¶Рµ РїСЂРѕС†РµСЃСЃРѕСЂСѓ, С‡С‚Рѕ Рё
+			// РїСЂРѕРІРµСЂСЏРµРјР°СЏ СЃРµСЃСЃРёСЏ, Р»РёР±Рѕ РїСЂРѕС†РµСЃСЃРѕСЂ СЃСѓРїРµСЂСЃРµСЃСЃРёРё РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РіСЂСѓРїРїРѕР№, Рє РєРѕС‚РѕСЂРѕР№
+			// РїСЂРёРЅР°РґР»РµР¶РёС‚ РїСЂРѕС†РµСЃСЃРѕСЂ РїСЂРѕРІРµСЂСЏРµРјРѕР№ СЃРµСЃСЃРёРё.
 			//
 			if(pRec->PrcID && super_rec.PrcID && super_rec.PrcID != pRec->PrcID) {
 				PPIDArray prc_list;
@@ -1932,8 +1933,8 @@ int SLAPI PPObjTSession::CheckSuperSessLink(const TSessionTbl::Rec * pRec, PPID 
 		}
 		if(pRec->StDt && super_rec.StDt) {
 			//
-			// Время начала дочерней сессии должно быть больше или равно
-			// времени начала суперсессии
+			// Р’СЂРµРјСЏ РЅР°С‡Р°Р»Р° РґРѕС‡РµСЂРЅРµР№ СЃРµСЃСЃРёРё РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅРѕ
+			// РІСЂРµРјРµРЅРё РЅР°С‡Р°Р»Р° СЃСѓРїРµСЂСЃРµСЃСЃРёРё
 			//
 			const long tm_diff = ((long)pRec->StTm.v) - ((long)super_rec.StTm.v);
 			THROW_PP(pRec->StDt > super_rec.StDt || (pRec->StDt == super_rec.StDt && tm_diff > -99), PPERR_CHILDOLDERSUPERSESS);
@@ -2212,14 +2213,14 @@ int SLAPI PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 		if(GObj.Fetch(tec_rec.GoodsID, &goods_rec) > 0) {
 			double qtty = 0.0;
 			//
-			// @v8.1.6 Поменялись местами условия:
-			// Было:
+			// @v8.1.6 РџРѕРјРµРЅСЏР»РёСЃСЊ РјРµСЃС‚Р°РјРё СѓСЃР»РѕРІРёСЏ:
+			// Р‘С‹Р»Рѕ:
 			// if(tec_rec.Flags & TECF_AUTOMAIN) {
 			// }
 			// else if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
 			// }
 			//
-			// Стало:
+			// РЎС‚Р°Р»Рѕ:
 			// if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
 			// }
 			// else if(tec_rec.Flags & TECF_AUTOMAIN) {
@@ -2359,10 +2360,10 @@ int SLAPI PPObjTSession::PutPacket(PPID * pID, TSessionPacket * pPack, int use_t
 			THROW(P_Tbl->Put(pID, &pPack->Rec, 0));
 			THROW(NormalizePacket(pPack, 0));
 			//
-			// В функции PutLine, которая вызывается из PutTimingLine не должна срабатывать
-			// защита от изменения строк в списанной сессии
+			// Р’ С„СѓРЅРєС†РёРё PutLine, РєРѕС‚РѕСЂР°СЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РёР· PutTimingLine РЅРµ РґРѕР»Р¶РЅР° СЃСЂР°Р±Р°С‚С‹РІР°С‚СЊ
+			// Р·Р°С‰РёС‚Р° РѕС‚ РёР·РјРµРЅРµРЅРёСЏ СЃС‚СЂРѕРє РІ СЃРїРёСЃР°РЅРЅРѕР№ СЃРµСЃСЃРёРё
 			//
-			GetConfig(); // Гарантируем извлечение конфигурации из базы данных
+			GetConfig(); // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј РёР·РІР»РµС‡РµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 			preserve_cfg_flags = Cfg.Flags;
 			Cfg.Flags |= PPTSessConfig::fAllowLinesInWrOffSessions;
 			THROW(PutTimingLine(&pPack->Rec));
@@ -2403,10 +2404,10 @@ int SLAPI PPObjTSession::PutRec(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 			}
 			THROW(P_Tbl->Put(pID, pRec, 0));
 			//
-			// В функции PutLine, которая вызывается из PutTimingLine не должна срабатывать
-			// защита от изменения строк в списанной сессии
+			// Р’ С„СѓРЅРєС†РёРё PutLine, РєРѕС‚РѕСЂР°СЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РёР· PutTimingLine РЅРµ РґРѕР»Р¶РЅР° СЃСЂР°Р±Р°С‚С‹РІР°С‚СЊ
+			// Р·Р°С‰РёС‚Р° РѕС‚ РёР·РјРµРЅРµРЅРёСЏ СЃС‚СЂРѕРє РІ СЃРїРёСЃР°РЅРЅРѕР№ СЃРµСЃСЃРёРё
 			//
-			GetConfig(); // Гарантируем извлечение конфигурации из базы данных
+			GetConfig(); // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј РёР·РІР»РµС‡РµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 			preserve_cfg_flags = Cfg.Flags;
 			Cfg.Flags |= PPTSessConfig::fAllowLinesInWrOffSessions;
 			THROW(PutTimingLine(pRec));
@@ -2649,7 +2650,7 @@ int SLAPI PPObjTSession::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pLi
 	return (Search(id, &rec) > 0) ? TecObj.GetGoodsStrucList(rec.TechID, useSubst, pList) : 0;
 }
 
-static const int TSess_UseQuot_As_Price = 1; // @v9.9.7 Временная константа дабы не вводить конфигурационный параметр
+static const int TSess_UseQuot_As_Price = 1; // @v9.9.7 Р’СЂРµРјРµРЅРЅР°СЏ РєРѕРЅСЃС‚Р°РЅС‚Р° РґР°Р±С‹ РЅРµ РІРІРѕРґРёС‚СЊ РєРѕРЅС„РёРіСѓСЂР°С†РёРѕРЅРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ
 
 int SLAPI PPObjTSession::GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rTSesRec, long extRgiFlags, RetailGoodsInfo & rRgi)
 {
@@ -2819,7 +2820,7 @@ int SLAPI PPObjTSession::Add(PPID * pID, PPID superSessID, PPID prcID, int kind,
 	THROW(InitPacket(&pack, kind, prcID, superSessID, status));
 	SETIFZ(pack.Rec.StDt, LConfig.OperDate);
 	while(ok < 0 && EditDialog(&pack) > 0) {
-		*pID = pack.Rec.ID; // Функция EditDialog могла сохранить сессию, инициализировав идентификатор
+		*pID = pack.Rec.ID; // Р¤СѓРЅРєС†РёСЏ EditDialog РјРѕРіР»Р° СЃРѕС…СЂР°РЅРёС‚СЊ СЃРµСЃСЃРёСЋ, РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РІ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
 		if(PutPacket(pID, &pack, 1))
 			ok = 1;
 		else
@@ -2972,8 +2973,8 @@ int SLAPI TSessionCore::SearchSerial(const char * pSerial, PPID sessID, int sign
 			else {
 				line_rec = temp_line_rec;
 				//
-				// Коль скоро не требуется искать самую последнюю строку, то нас устроит
-				// первая встречная - уходим!
+				// РљРѕР»СЊ СЃРєРѕСЂРѕ РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ РёСЃРєР°С‚СЊ СЃР°РјСѓСЋ РїРѕСЃР»РµРґРЅСЋСЋ СЃС‚СЂРѕРєСѓ, С‚Рѕ РЅР°СЃ СѓСЃС‚СЂРѕРёС‚
+				// РїРµСЂРІР°СЏ РІСЃС‚СЂРµС‡РЅР°СЏ - СѓС…РѕРґРёРј!
 				//
 				ok = 1;
 				break;
@@ -3013,9 +3014,9 @@ int SLAPI PPObjTSession::SelectBySerial(SelectBySerialParam * pParam)
 		}
 		else if(oneof2(r, -2, -3)) {
 			//
-			// В случае, если лот находится на другом складе или его остаток равен нулю,
-			// инициализируем возвращаемую струкутуру, однако код возврата меньше нуля.
-			// Вызывающая функция должна сама решить, что с этим делать.
+			// Р’ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё Р»РѕС‚ РЅР°С…РѕРґРёС‚СЃСЏ РЅР° РґСЂСѓРіРѕРј СЃРєР»Р°РґРµ РёР»Рё РµРіРѕ РѕСЃС‚Р°С‚РѕРє СЂР°РІРµРЅ РЅСѓР»СЋ,
+			// РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РІРѕР·РІСЂР°С‰Р°РµРјСѓСЋ СЃС‚СЂСѓРєСѓС‚СѓСЂСѓ, РѕРґРЅР°РєРѕ РєРѕРґ РІРѕР·РІСЂР°С‚Р° РјРµРЅСЊС€Рµ РЅСѓР»СЏ.
+			// Р’С‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° СЃР°РјР° СЂРµС€РёС‚СЊ, С‡С‚Рѕ СЃ СЌС‚РёРј РґРµР»Р°С‚СЊ.
 			//
 			pParam->CodeType = 2;
 			pParam->GoodsID  = labs(lot_rec.GoodsID);
@@ -3027,7 +3028,7 @@ int SLAPI PPObjTSession::SelectBySerial(SelectBySerialParam * pParam)
 	}
 	else {
 		//
-		// Сначала пытаемся найти последний остаток серийного номера
+		// РЎРЅР°С‡Р°Р»Р° РїС‹С‚Р°РµРјСЃСЏ РЅР°Р№С‚Рё РїРѕСЃР»РµРґРЅРёР№ РѕСЃС‚Р°С‚РѕРє СЃРµСЂРёР№РЅРѕРіРѕ РЅРѕРјРµСЂР°
 		//
 		if(P_Tbl->SearchSerial(pParam->Serial, 0, 0, TSessionCore::sserLast | TSessionCore::sserRest, &line_rec) > 0) {
 			pParam->CodeType = 3;
@@ -3039,8 +3040,8 @@ int SLAPI PPObjTSession::SelectBySerial(SelectBySerialParam * pParam)
 		}
 		else if(P_Tbl->SearchSerial(pParam->Serial, 0, +1, TSessionCore::sserLast, &line_rec) > 0) {
 			//
-			// Если остаток не найден, то ищем полную партию по указанному серийному номеру.
-			// Строка должна иметь знак ПЛЮС.
+			// Р•СЃР»Рё РѕСЃС‚Р°С‚РѕРє РЅРµ РЅР°Р№РґРµРЅ, С‚Рѕ РёС‰РµРј РїРѕР»РЅСѓСЋ РїР°СЂС‚РёСЋ РїРѕ СѓРєР°Р·Р°РЅРЅРѕРјСѓ СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ.
+			// РЎС‚СЂРѕРєР° РґРѕР»Р¶РЅР° РёРјРµС‚СЊ Р·РЅР°Рє РџР›Р®РЎ.
 			//
 			pParam->CodeType = 3;
 			pParam->OutTSesID = line_rec.TSessID;
@@ -3052,8 +3053,8 @@ int SLAPI PPObjTSession::SelectBySerial(SelectBySerialParam * pParam)
 	}
 	if(ok > 0) {
 		//
-		// Проверяем, не было ли в течении этой сессии (InTSessID) уже расхода по этому серийному номеру.
-		// Если был, то возвращаем 2: вызывающая функция сама должна решить, что делать в этой ситуации.
+		// РџСЂРѕРІРµСЂСЏРµРј, РЅРµ Р±С‹Р»Рѕ Р»Рё РІ С‚РµС‡РµРЅРёРё СЌС‚РѕР№ СЃРµСЃСЃРёРё (InTSessID) СѓР¶Рµ СЂР°СЃС…РѕРґР° РїРѕ СЌС‚РѕРјСѓ СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ.
+		// Р•СЃР»Рё Р±С‹Р», С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј 2: РІС‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ СЃР°РјР° РґРѕР»Р¶РЅР° СЂРµС€РёС‚СЊ, С‡С‚Рѕ РґРµР»Р°С‚СЊ РІ СЌС‚РѕР№ СЃРёС‚СѓР°С†РёРё.
 		//
 		if(P_Tbl->SearchSerial(pParam->Serial, pParam->InTSesID, -1, 0, &line_rec) > 0) {
 			PPSetError(PPERR_SERIALUSED, pParam->Serial);
@@ -3084,9 +3085,9 @@ int SLAPI PPObjTSession::UndoWritingOff(PPID sessID, int use_ta)
 			THROW(PutRec(&sessID, &rec, 0));
 			if(rec.LinkBillID) {
 				//
-				// Если сессия привязана к драфт-документу и вид операции списания //
-				// этого документа совпадает с видом операции списания по процессору,
-				// то откатываем также cписание драфт-документа
+				// Р•СЃР»Рё СЃРµСЃСЃРёСЏ РїСЂРёРІСЏР·Р°РЅР° Рє РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Сѓ Рё РІРёРґ РѕРїРµСЂР°С†РёРё СЃРїРёСЃР°РЅРёСЏ //
+				// СЌС‚РѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° СЃРѕРІРїР°РґР°РµС‚ СЃ РІРёРґРѕРј РѕРїРµСЂР°С†РёРё СЃРїРёСЃР°РЅРёСЏ РїРѕ РїСЂРѕС†РµСЃСЃРѕСЂСѓ,
+				// С‚Рѕ РѕС‚РєР°С‚С‹РІР°РµРј С‚Р°РєР¶Рµ cРїРёСЃР°РЅРёРµ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°
 				//
 				BillTbl::Rec d_rec;
 				ProcessorTbl::Rec prc_rec;
@@ -3434,8 +3435,8 @@ int SLAPI PPObjTSession::GetWrOffAttrib(const TSessionTbl::Rec * pRec, WrOffAttr
 	else
 		pAttr->Ar2ID = pRec->Ar2ID;
 	//
-	// Если в документе поле агента не заполнено и процессор связан с персоналией,
-	// являющейся агентом, то привязываем соответствующую ей статью как агента по документу
+	// Р•СЃР»Рё РІ РґРѕРєСѓРјРµРЅС‚Рµ РїРѕР»Рµ Р°РіРµРЅС‚Р° РЅРµ Р·Р°РїРѕР»РЅРµРЅРѕ Рё РїСЂРѕС†РµСЃСЃРѕСЂ СЃРІСЏР·Р°РЅ СЃ РїРµСЂСЃРѕРЅР°Р»РёРµР№,
+	// СЏРІР»СЏСЋС‰РµР№СЃСЏ Р°РіРµРЅС‚РѕРј, С‚Рѕ РїСЂРёРІСЏР·С‹РІР°РµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰СѓСЋ РµР№ СЃС‚Р°С‚СЊСЋ РєР°Рє Р°РіРµРЅС‚Р° РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
 	//
 	if(!pAttr->AgentID && prc_rec.LinkObjType == PPOBJ_PERSON && prc_rec.LinkObjID) {
 		agent_acs_id = NZOR(agent_acs_id, GetAgentAccSheet());
@@ -3492,8 +3493,8 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 		double order_price = 0.0;
 		WrOffAttrib attrib;
 		TechTbl::Rec tec_rec;
-		RAssocArray price_list; // Кэш цен реализации (ассоциация {GoodsID, Price})
-		RAssocArray pack_list;  // Кэш емкостей упаковки (ассоциация {GoodsID, UnitPerPack})
+		RAssocArray price_list; // РљСЌС€ С†РµРЅ СЂРµР°Р»РёР·Р°С†РёРё (Р°СЃСЃРѕС†РёР°С†РёСЏ {GoodsID, Price})
+		RAssocArray pack_list;  // РљСЌС€ РµРјРєРѕСЃС‚РµР№ СѓРїР°РєРѕРІРєРё (Р°СЃСЃРѕС†РёР°С†РёСЏ {GoodsID, UnitPerPack})
 		if(TecObj.Search(tses_rec.TechID, &tec_rec) > 0) {
 			tec_goods_id = tec_rec.GoodsID;
 			tec_struc_id = tec_rec.GStrucID;
@@ -3595,7 +3596,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 						}
 						{
 							//
-							// Определяем цены
+							// РћРїСЂРµРґРµР»СЏРµРј С†РµРЅС‹
 							//
 							double cost = 0.0, price = 0.0;
 							double lot_cost = 0.0, lot_price = 0.0;
@@ -3619,8 +3620,8 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 								price = R5(fabs(line_rec.Price) - line_rec.Discount);
 							else if(line_rec.Sign > 0)
 								cost  = R5(fabs(line_rec.Price) - line_rec.Discount);
-							// Для ускорения процедуры, определив цену, сохраняем ее в списке,
-							// для того, чтобы при следующей встрече с этим товаром, просто извлечь цену из списка.
+							// Р”Р»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ РїСЂРѕС†РµРґСѓСЂС‹, РѕРїСЂРµРґРµР»РёРІ С†РµРЅСѓ, СЃРѕС…СЂР°РЅСЏРµРј РµРµ РІ СЃРїРёСЃРєРµ,
+							// РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїСЂРё СЃР»РµРґСѓСЋС‰РµР№ РІСЃС‚СЂРµС‡Рµ СЃ СЌС‚РёРј С‚РѕРІР°СЂРѕРј, РїСЂРѕСЃС‚Рѕ РёР·РІР»РµС‡СЊ С†РµРЅСѓ РёР· СЃРїРёСЃРєР°.
 							if(price == 0 && price_list.Search(ilti.GoodsID, &price, 0) <= 0) {
 								if(ilti.GoodsID == tec_goods_id && order_price > 0)
 									price = order_price;
@@ -3635,8 +3636,8 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 						}
 						if(line_rec.Sign > 0 && ilti.UnitPerPack == 0) {
 							//
-							// Определяем емкость упаковки для исходящих позиций (если связанный документ
-							//   не снабдил нас такой информацией)
+							// РћРїСЂРµРґРµР»СЏРµРј РµРјРєРѕСЃС‚СЊ СѓРїР°РєРѕРІРєРё РґР»СЏ РёСЃС…РѕРґСЏС‰РёС… РїРѕР·РёС†РёР№ (РµСЃР»Рё СЃРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
+							//   РЅРµ СЃРЅР°Р±РґРёР» РЅР°СЃ С‚Р°РєРѕР№ РёРЅС„РѕСЂРјР°С†РёРµР№)
 							//
 							double package = 0;
 							GoodsStockExt gse;
@@ -3691,7 +3692,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 					rLogger.LogMsgCode(mfError, PPERR_INADEQSERIAL, recompl_item.Serial);
 			}
 			//
-			// Списание автоматических рассчитываемых компонентов
+			// РЎРїРёСЃР°РЅРёРµ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёС… СЂР°СЃСЃС‡РёС‚С‹РІР°РµРјС‹С… РєРѕРјРїРѕРЅРµРЅС‚РѕРІ
 			//
 			if(op_type_id == PPOPT_GOODSMODIF && tec_goods_id && tec_struc_id && tec_goods_qtty) {
 				uint   gs_pos = 0;
@@ -3719,17 +3720,17 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 			if(!incomplete || prc_rec.Flags & PRCF_TURNINCOMPLBILL) {
 				if(incomplete)
 					//
-					// Информируем оператора о том, что сессия списана несмотря на дефицит
+					// РРЅС„РѕСЂРјРёСЂСѓРµРј РѕРїРµСЂР°С‚РѕСЂР° Рѕ С‚РѕРј, С‡С‚Рѕ СЃРµСЃСЃРёСЏ СЃРїРёСЃР°РЅР° РЅРµСЃРјРѕС‚СЂСЏ РЅР° РґРµС„РёС†РёС‚
 					//
 					rLogger.LogString(PPTXT_TSESWROFFDEFICIT, ses_name);
 				if(bill_pack.OpTypeID == PPOPT_GOODSMODIF)
 					bill_pack.CalcModifCost();
 				if(p_link_bill_pack && p_link_bill_pack->IsDraft()) {
 					//
-					// Если сессия привязана к драфт-документу и вид операции списания //
-					// этого документа совпадает с видом операции списания по процессору,
-					// то документ списания сессии одновременно становится документом
-					// списания драфт-документа
+					// Р•СЃР»Рё СЃРµСЃСЃРёСЏ РїСЂРёРІСЏР·Р°РЅР° Рє РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Сѓ Рё РІРёРґ РѕРїРµСЂР°С†РёРё СЃРїРёСЃР°РЅРёСЏ //
+					// СЌС‚РѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° СЃРѕРІРїР°РґР°РµС‚ СЃ РІРёРґРѕРј РѕРїРµСЂР°С†РёРё СЃРїРёСЃР°РЅРёСЏ РїРѕ РїСЂРѕС†РµСЃСЃРѕСЂСѓ,
+					// С‚Рѕ РґРѕРєСѓРјРµРЅС‚ СЃРїРёСЃР°РЅРёСЏ СЃРµСЃСЃРёРё РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РґРѕРєСѓРјРµРЅС‚РѕРј
+					// СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°
 					//
 					BillTbl::Rec d_rec, link_rec;
 					if(p_bobj->Search(tses_rec.LinkBillID, &d_rec) > 0) {
@@ -3752,10 +3753,10 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 				}
 				else if(tses_rec.OrderLotID) {
 					//
-					// Привязка к заказу строк списания, соответствующих заказанной позиции.
-					// Привязываются к заказу только позиции, в которых товар расходуется (то есть,
-					// собственно, производство продукции закрыть заказ не может, ибо для этого требуется //
-					// продукцию отгрузить.
+					// РџСЂРёРІСЏР·РєР° Рє Р·Р°РєР°Р·Сѓ СЃС‚СЂРѕРє СЃРїРёСЃР°РЅРёСЏ, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… Р·Р°РєР°Р·Р°РЅРЅРѕР№ РїРѕР·РёС†РёРё.
+					// РџСЂРёРІСЏР·С‹РІР°СЋС‚СЃСЏ Рє Р·Р°РєР°Р·Сѓ С‚РѕР»СЊРєРѕ РїРѕР·РёС†РёРё, РІ РєРѕС‚РѕСЂС‹С… С‚РѕРІР°СЂ СЂР°СЃС…РѕРґСѓРµС‚СЃСЏ (С‚Рѕ РµСЃС‚СЊ,
+					// СЃРѕР±СЃС‚РІРµРЅРЅРѕ, РїСЂРѕРёР·РІРѕРґСЃС‚РІРѕ РїСЂРѕРґСѓРєС†РёРё Р·Р°РєСЂС‹С‚СЊ Р·Р°РєР°Р· РЅРµ РјРѕР¶РµС‚, РёР±Рѕ РґР»СЏ СЌС‚РѕРіРѕ С‚СЂРµР±СѓРµС‚СЃСЏ //
+					// РїСЂРѕРґСѓРєС†РёСЋ РѕС‚РіСЂСѓР·РёС‚СЊ.
 					//
 					ReceiptTbl::Rec ord_lot;
 					if(p_bobj->trfr->Rcpt.Search(tses_rec.OrderLotID, &ord_lot) > 0) {
@@ -4048,7 +4049,7 @@ int SLAPI BhtTSess::CreateSess(PPID * pSessID, const BhtTSessRec * pRec, const P
 	PPID   super_sess_id = 0;
 	PPID   par_prc_id = pPrcRec->ParentID;
 	//
-	// Сначала, выясняем существует ли подходящая суперсессия //
+	// РЎРЅР°С‡Р°Р»Р°, РІС‹СЏСЃРЅСЏРµРј СЃСѓС‰РµСЃС‚РІСѓРµС‚ Р»Рё РїРѕРґС…РѕРґСЏС‰Р°СЏ СЃСѓРїРµСЂСЃРµСЃСЃРёСЏ //
 	//
 	while(!super_sess_id && par_prc_id) {
 		ProcessorTbl::Rec prc_rec;
@@ -4119,13 +4120,13 @@ int SLAPI BhtTSess::SelectSession(const BhtTSessRec * pRec)
 	if(bill_id) {
 		if(SearchByBill(bill_id, &pos)) {
 			//
-			// Пул сессий содержит искомый документ
+			// РџСѓР» СЃРµСЃСЃРёР№ СЃРѕРґРµСЂР¶РёС‚ РёСЃРєРѕРјС‹Р№ РґРѕРєСѓРјРµРЅС‚
 			//
 			PPID s_prc_id = Get(pos).PrcID;
 			if(s_prc_id != prc_rec.ID) {
 				//
-				// Если процессор, на котором обрабатывается документ отличен от
-				// того, который задан, то пытаемся осуществить переключение.
+				// Р•СЃР»Рё РїСЂРѕС†РµСЃСЃРѕСЂ, РЅР° РєРѕС‚РѕСЂРѕРј РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ РґРѕРєСѓРјРµРЅС‚ РѕС‚Р»РёС‡РµРЅ РѕС‚
+				// С‚РѕРіРѕ, РєРѕС‚РѕСЂС‹Р№ Р·Р°РґР°РЅ, С‚Рѕ РїС‹С‚Р°РµРјСЃСЏ РѕСЃСѓС‰РµСЃС‚РІРёС‚СЊ РїРµСЂРµРєР»СЋС‡РµРЅРёРµ.
 				//
 				THROW(r = TSesObj.IsPrcSwitchable(prc_rec.ID, &spl));
 				if(r > 0 && spl.lsearch(s_prc_id)) {
@@ -4141,7 +4142,7 @@ int SLAPI BhtTSess::SelectSession(const BhtTSessRec * pRec)
 		}
 		else if(TSesObj.SearchByLinkBillID(bill_id, &ses_rec) > 0) {
 			//
-			// Искомого документа в пуле сессий нет, но сессия по нему уже существует
+			// РСЃРєРѕРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РІ РїСѓР»Рµ СЃРµСЃСЃРёР№ РЅРµС‚, РЅРѕ СЃРµСЃСЃРёСЏ РїРѕ РЅРµРјСѓ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
 			//
 			if(P_Logger) {
 				TSesObj.MakeName(&ses_rec, msg_buf);
@@ -4149,7 +4150,7 @@ int SLAPI BhtTSess::SelectSession(const BhtTSessRec * pRec)
 			}
 			if(oneof2(ses_rec.Status, TSESST_CLOSED, TSESST_CANCELED)) {
 				//
-				// Сессия по документу уже закрыта или отменена: мы с ней уже ничего не сможем сделать.
+				// РЎРµСЃСЃРёСЏ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ СѓР¶Рµ Р·Р°РєСЂС‹С‚Р° РёР»Рё РѕС‚РјРµРЅРµРЅР°: РјС‹ СЃ РЅРµР№ СѓР¶Рµ РЅРёС‡РµРіРѕ РЅРµ СЃРјРѕР¶РµРј СЃРґРµР»Р°С‚СЊ.
 				//
 				CALLEXCEPT_PP(PPERR_BILLPRCSESSCLOSED);
 			}
@@ -4177,12 +4178,12 @@ int SLAPI BhtTSess::SelectSession(const BhtTSessRec * pRec)
 		}
 		else {
 			//
-			// В пуле нужной сессии нет, нет ее среди существующих сессий.
+			// Р’ РїСѓР»Рµ РЅСѓР¶РЅРѕР№ СЃРµСЃСЃРёРё РЅРµС‚, РЅРµС‚ РµРµ СЃСЂРµРґРё СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… СЃРµСЃСЃРёР№.
 			//
 			if(SearchByPrc(prc_rec.ID, &pos)) {
 				//
-				// Мы нашли сессию по процессору в пуле, но она не подходит по документу.
-				// Пытаемся переключить процессор
+				// РњС‹ РЅР°С€Р»Рё СЃРµСЃСЃРёСЋ РїРѕ РїСЂРѕС†РµСЃСЃРѕСЂСѓ РІ РїСѓР»Рµ, РЅРѕ РѕРЅР° РЅРµ РїРѕРґС…РѕРґРёС‚ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ.
+				// РџС‹С‚Р°РµРјСЃСЏ РїРµСЂРµРєР»СЋС‡РёС‚СЊ РїСЂРѕС†РµСЃСЃРѕСЂ
 				//
 				THROW(r = TSesObj.IsPrcSwitchable(prc_rec.ID, &spl));
 				prc_id = 0;
@@ -4204,7 +4205,7 @@ int SLAPI BhtTSess::SelectSession(const BhtTSessRec * pRec)
 			}
 			else {
 				//
-				// В пуле нет сессии по нужному процессору и нет по нужному документу
+				// Р’ РїСѓР»Рµ РЅРµС‚ СЃРµСЃСЃРёРё РїРѕ РЅСѓР¶РЅРѕРјСѓ РїСЂРѕС†РµСЃСЃРѕСЂСѓ Рё РЅРµС‚ РїРѕ РЅСѓР¶РЅРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ
 				//
 			}
 		}
@@ -4216,16 +4217,16 @@ int SLAPI BhtTSess::SelectSession(const BhtTSessRec * pRec)
 		}
 		else if(TSesObj.P_Tbl->SearchByPrcTime(prc_rec.ID, TSESK_SESSION, pRec->Dtm, &ses_rec) > 0) {
 			//
-			// На указанный момент по заданному процессору существует сессия //
+			// РќР° СѓРєР°Р·Р°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РїРѕ Р·Р°РґР°РЅРЅРѕРјСѓ РїСЂРѕС†РµСЃСЃРѕСЂСѓ СЃСѓС‰РµСЃС‚РІСѓРµС‚ СЃРµСЃСЃРёСЏ //
 			//
 			if(bill_id && ses_rec.LinkBillID != bill_id) {
 				//
-				// Эта сессия не подходит нам по документу:
-				// пытаемся переключиться на другой процессор
+				// Р­С‚Р° СЃРµСЃСЃРёСЏ РЅРµ РїРѕРґС…РѕРґРёС‚ РЅР°Рј РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ:
+				// РїС‹С‚Р°РµРјСЃСЏ РїРµСЂРµРєР»СЋС‡РёС‚СЊСЃСЏ РЅР° РґСЂСѓРіРѕР№ РїСЂРѕС†РµСЃСЃРѕСЂ
 				//
 				THROW(r = TSesObj.IsPrcSwitchable(prc_rec.ID, &spl));
-				THROW_PP_S(r > 0, PPERR_PRCISBUSY, prc_rec.Name); // Процессор не допускает переключения.
-					// Просто сообщаем, что он занят.
+				THROW_PP_S(r > 0, PPERR_PRCISBUSY, prc_rec.Name); // РџСЂРѕС†РµСЃСЃРѕСЂ РЅРµ РґРѕРїСѓСЃРєР°РµС‚ РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ.
+					// РџСЂРѕСЃС‚Рѕ СЃРѕРѕР±С‰Р°РµРј, С‡С‚Рѕ РѕРЅ Р·Р°РЅСЏС‚.
 				prc_id = 0;
 				for(i = 0; i < spl.getCount(); i++) {
 					PPID   temp_prc_id = spl.at(i);
@@ -4245,7 +4246,7 @@ int SLAPI BhtTSess::SelectSession(const BhtTSessRec * pRec)
 			}
 			else {
 				//
-				// Привязываемся к существующей сессии
+				// РџСЂРёРІСЏР·С‹РІР°РµРјСЃСЏ Рє СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ СЃРµСЃСЃРёРё
 				//
 				THROW(Add(&ses_rec, 0));
 				ok = 1;
@@ -4262,7 +4263,7 @@ int SLAPI BhtTSess::SelectSession(const BhtTSessRec * pRec)
 	}
 	if(ok > 0 && LastUsedEntryPos != prev_entry_pos && prev_entry_pos < getCount()) {
 		PSE & r_entry = Get(prev_entry_pos);
-		if(!r_entry.BillID) { // Сессии, привязанные к документам оставляем в пуле
+		if(!r_entry.BillID) { // РЎРµСЃСЃРёРё, РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ Рє РґРѕРєСѓРјРµРЅС‚Р°Рј РѕСЃС‚Р°РІР»СЏРµРј РІ РїСѓР»Рµ
 			THROW(r = CloseSess(prev_entry_pos));
 			if(r > 0) {
 				atFree(prev_entry_pos);
@@ -4314,11 +4315,11 @@ int SLAPI BhtTSess::Finish()
 }
 //
 // ARG(signal IN):
-//   1 - начало процесса обработки данных. pRec инициализирована первой записью потока.
-//   0 - продолжение процесса обработки данных. pRec инициализирована очередной записью потока.
-//   2 - штатное завершение процесса обработки данных.  pRec не инициализирована.
-//   3 - отмена предыдущей строки с кодом 0
-//  -1 - нештатное (по ошибке) завершение процесса обработки данных. pRec не инициализирована.
+//   1 - РЅР°С‡Р°Р»Рѕ РїСЂРѕС†РµСЃСЃР° РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С…. pRec РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅР° РїРµСЂРІРѕР№ Р·Р°РїРёСЃСЊСЋ РїРѕС‚РѕРєР°.
+//   0 - РїСЂРѕРґРѕР»Р¶РµРЅРёРµ РїСЂРѕС†РµСЃСЃР° РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С…. pRec РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅР° РѕС‡РµСЂРµРґРЅРѕР№ Р·Р°РїРёСЃСЊСЋ РїРѕС‚РѕРєР°.
+//   2 - С€С‚Р°С‚РЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ РїСЂРѕС†РµСЃСЃР° РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С….  pRec РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅР°.
+//   3 - РѕС‚РјРµРЅР° РїСЂРµРґС‹РґСѓС‰РµР№ СЃС‚СЂРѕРєРё СЃ РєРѕРґРѕРј 0
+//  -1 - РЅРµС€С‚Р°С‚РЅРѕРµ (РїРѕ РѕС€РёР±РєРµ) Р·Р°РІРµСЂС€РµРЅРёРµ РїСЂРѕС†РµСЃСЃР° РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С…. pRec РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅР°.
 //
 int SLAPI PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPLogger * pLogger, int use_ta)
 {
@@ -4343,7 +4344,7 @@ int SLAPI PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPL
 		}
 		else {
 			//
-			// Строка сессии
+			// РЎС‚СЂРѕРєР° СЃРµСЃСЃРёРё
 			//
 			PPID   sess_id = P_BhtCurSess->GetLastUsedSessID();
 			if(sess_id && pRec->Barcode[0]) {
@@ -4381,7 +4382,7 @@ int SLAPI PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPL
 						else if(r2 == 2) {
 							if(P_BhtCurSess->IsDupSerialAllowed()) {
 								//
-								// Процессор допускает дублирование серийных номеров в одной сессии
+								// РџСЂРѕС†РµСЃСЃРѕСЂ РґРѕРїСѓСЃРєР°РµС‚ РґСѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРµСЂРёР№РЅС‹С… РЅРѕРјРµСЂРѕРІ РІ РѕРґРЅРѕР№ СЃРµСЃСЃРёРё
 								//
 								line_rec.GoodsID = ssp.GoodsID;
 								line_rec.Qtty    = (pRec->Qtty > 0) ? pRec->Qtty : ((ssp.Qtty > 1) ? ssp.Qtty : 1);
@@ -4394,9 +4395,9 @@ int SLAPI PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPL
 						}
 						else if(r2 == -2) {
 							//
-							// Лот с серийным номером найден, но находится на другом складе либо
-							// закончился. Следовательно, даем сообщение в журнал, и инициализируем
-							// ИД товара, количество. Серийный номер не используем.
+							// Р›РѕС‚ СЃ СЃРµСЂРёР№РЅС‹Рј РЅРѕРјРµСЂРѕРј РЅР°Р№РґРµРЅ, РЅРѕ РЅР°С…РѕРґРёС‚СЃСЏ РЅР° РґСЂСѓРіРѕРј СЃРєР»Р°РґРµ Р»РёР±Рѕ
+							// Р·Р°РєРѕРЅС‡РёР»СЃСЏ. РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РґР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ РІ Р¶СѓСЂРЅР°Р», Рё РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј
+							// РР” С‚РѕРІР°СЂР°, РєРѕР»РёС‡РµСЃС‚РІРѕ. РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј.
 							//
 							line_rec.GoodsID = ssp.GoodsID;
 							// @v5.2.12 line_rec.Qtty    = (ssp.Qtty > 1) ? ssp.Qtty : 1;
@@ -4599,7 +4600,7 @@ int SLAPI PPObjTSession::GetPlaceStatus(PPID tsessID, const char * pPlaceCode, P
 						rStatus.Status = -2;
 					else if(current_status == PPCheckInPersonItem::statusRegistered)
 						rStatus.Status = -1;
-					else // Строго говоря, это состояние невозможно
+					else // РЎС‚СЂРѕРіРѕ РіРѕРІРѕСЂСЏ, СЌС‚Рѕ СЃРѕСЃС‚РѕСЏРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ
 						rStatus.Status = -1;
 					rStatus.RegPersonID = r_ci.GetPerson();
 					rStatus.CipID = r_ci.ID;
@@ -4741,7 +4742,7 @@ int SLAPI PPObjTSession::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	return ok;
 }
 //
-// Descr: Автоматическая обработка технологических сессий
+// Descr: РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РѕР±СЂР°Р±РѕС‚РєР° С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
 //
 SLAPI PrcssrTSessMaintenance::Param::Param()
 {

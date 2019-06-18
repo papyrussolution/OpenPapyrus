@@ -844,8 +844,12 @@ int SDrawPath::Close()
 static int GetSvgPathNumber(SStrScan & rScan, SString & rTempBuf, float & rF)
 {
 	int    ok = 1;
-	if(rScan.Skip().GetDotPrefixedNumber(rTempBuf))
-		rF = rTempBuf.ToFloat();
+	if(rScan.Skip().GetDotPrefixedNumber(rTempBuf)) {
+		float temp_val = rTempBuf.ToFloat();
+		// @v10.4.10 rF = rTempBuf.ToFloat();
+		rF = atof(rTempBuf); // @v10.4.10
+		assert(rF == temp_val);
+	}
 	else
 		ok = 0;
 	return ok;
@@ -854,11 +858,18 @@ static int GetSvgPathNumber(SStrScan & rScan, SString & rTempBuf, float & rF)
 static int GetSvgPathPoint(SStrScan & rScan, SString & rTempBuf, FPoint & rP)
 {
 	int    ok = 1;
+	float  temp_val = 0.0f;
 	THROW(rScan.Skip().GetDotPrefixedNumber(rTempBuf));
-	rP.X = rTempBuf.ToFloat();
+	// @v10.4.10 rP.X = rTempBuf.ToFloat();
+	temp_val = rTempBuf.ToFloat();
+	rP.X = atof(rTempBuf); // @v10.4.10
+	assert(temp_val == rP.X);
 	rScan.Skip().IncrChr(',');
 	THROW(rScan.Skip().GetDotPrefixedNumber(rTempBuf));
-	rP.Y = rTempBuf.ToFloat();
+	// @v10.4.10 rP.Y = rTempBuf.ToFloat();
+	temp_val = rTempBuf.ToFloat();
+	rP.Y = atof(rTempBuf); // @v10.4.10
+	assert(temp_val == rP.Y);
 	CATCHZOK
 	return ok;
 }
@@ -946,14 +957,16 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					}
 					break;
 				case 'c': // 6, SVG_PATH_CMD_REL_CURVE_TO
-					while(scan.Skip().IsDotPrefixedNumber()) {
-						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
-						scan.Skip().IncrChr(',');
-						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
-						scan.Skip().IncrChr(',');
-						THROW(GetSvgPathPoint(scan, temp_buf, pa[2]));
-						const FPoint cur = GetCurrent();
-						Curve(cur + pa[0], cur + pa[1], cur + pa[2]);
+					{
+						while(scan.Skip().IsDotPrefixedNumber()) {
+							THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
+							scan.Skip().IncrChr(',');
+							THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
+							scan.Skip().IncrChr(',');
+							THROW(GetSvgPathPoint(scan, temp_buf, pa[2]));
+							const FPoint cur = GetCurrent();
+							Curve(cur + pa[0], cur + pa[1], cur + pa[2]);
+						}
 					}
 					break;
 				case 'S': // 4, SVG_PATH_CMD_SMOOTH_CURVE_TO
@@ -1068,6 +1081,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					Close();
 					break;
 				default:
+					assert(0);
 					CALLEXCEPT();
 			}
 		}

@@ -3804,13 +3804,13 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 		THROW(curl.HttpGet(url, ScURL::mfDontVerifySslPeer, &http_header, &wr_stream));
 		{
 			const uint64 at_end = SLS.GetProfileTime();
-			SBuffer * p_result_buf = (SBuffer *)wr_stream;
+			SBuffer * p_result_buf = static_cast<SBuffer *>(wr_stream);
 			const size_t avl_size = p_result_buf ? p_result_buf->GetAvailableSize() : 0;
 			THROW(avl_size);
-			result_str.CopyFromN((const char *)p_result_buf->GetBuf(p_result_buf->GetRdOffs()), avl_size);
+			result_str.CopyFromN(static_cast<const char *>(p_result_buf->GetBuf(p_result_buf->GetRdOffs())), avl_size);
 			{
 				THROW(SETIFZ(P_XpCtx, xmlNewParserCtxt()));
-				THROW((p_doc = xmlCtxtReadMemory(P_XpCtx, (const char *)p_result_buf->GetBuf(), (int)avl_size, 0, 0, XML_PARSE_NOENT)));
+				THROW((p_doc = xmlCtxtReadMemory(P_XpCtx, static_cast<const char *>(p_result_buf->GetBuf()), static_cast<int>(avl_size), 0, 0, XML_PARSE_NOENT)));
 				THROW(p_root = xmlDocGetRootElement(p_doc));
 				if(SXml::GetContentByName(p_root, "string", temp_buf)) {
 					rResult = temp_buf;
@@ -3886,7 +3886,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 				if(ffr > 0) {
                     SFileFormat::GetExt(ff, file_type_symb);
 				}
-				temp_buf.Z().CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab().Cat(dest_path).CR();
+				temp_buf.Z().CatLongZ(static_cast<long>(ff), 3).Tab().CatLongZ(static_cast<long>(ffr), 3).Tab().Cat(file_type_symb).Tab().Cat(dest_path).CR();
 				pDetectTypeOutFile->WriteLine(temp_buf);
 				// @v10.0.02 {
 				if(ff == SFileFormat::Xml) {
@@ -3894,7 +3894,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					int   xml_format = 0;
 					xfd.Run(dest_path, &xml_format);
 					if(xml_format) {
-                        temp_buf.Z().CatEq("xmlformat", (long)xml_format).CR();
+                        temp_buf.Z().CatEq("xmlformat", static_cast<long>(xml_format)).CR();
                         pDetectTypeOutFile->WriteLine(temp_buf);
 					}
 				}
@@ -3910,7 +3910,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					ps.Split(dest_path);
 					if(count) {
 						for(uint bi = 0; bi < 64; bi++) {
-							if(!(count & ((uint64)1 << bi)))
+							if(!(count & (1ULL << bi)))
 								zbits++;
 							else
 								break;
@@ -3960,7 +3960,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					temp_buf.Z().CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab();
 					for(uint i = 0; i < freq_list.getCount(); i++) {
 						const RAssoc item = freq_list.at(i);
-						uchar c = (uchar)item.Key;
+						uchar c = static_cast<uchar>(item.Key);
                         temp_buf.CatHex(c);
 					}
 					temp_buf.CR();

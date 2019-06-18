@@ -386,25 +386,25 @@ int FASTCALL SStrScan::GetDotPrefixedNumber(SString & rBuf)
 	rBuf.Z();
     if(Is('.')) {
         Incr();
-        SString temp_buf;
-        if(GetDigits(temp_buf)) {
-            rBuf.Cat("0.").Cat(temp_buf);
+        SString & r_temp_buf = SLS.AcquireRvlStr();
+        if(GetDigits(r_temp_buf)) {
+            rBuf.Cat("0.").Cat(r_temp_buf);
             ok = 1;
         }
     }
     else if(Is("+.")) {
         Incr(2);
-        SString temp_buf;
-        if(GetDigits(temp_buf)) {
-            rBuf.Cat("0.").Cat(temp_buf);
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+        if(GetDigits(r_temp_buf)) {
+            rBuf.Cat("0.").Cat(r_temp_buf);
             ok = 1;
         }
     }
     else if(Is("-.")) {
         Incr(2);
-        SString temp_buf;
-        if(GetDigits(temp_buf)) {
-            rBuf.Cat("-0.").Cat(temp_buf);
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+        if(GetDigits(r_temp_buf)) {
+            rBuf.Cat("-0.").Cat(r_temp_buf);
             ok = 1;
         }
     }

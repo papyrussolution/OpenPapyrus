@@ -58,6 +58,7 @@ void DbDictionary::SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPa
 	LEAVE_CRITICAL_SECTION
 }
 
+
 //static
 DbDictionary * DbDictionary::CreateInstance(const char * pPath, long options)
 {

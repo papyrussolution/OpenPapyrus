@@ -1,5 +1,6 @@
 // SOBLK.CPP
 // Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,7 +8,7 @@
 class Backend_SelectObjectBlock {
 public:
 	//
-	// Операторы
+	// РћРїРµСЂР°С‚РѕСЂС‹
 	//
 	enum {
 		oSelect = 1,
@@ -40,7 +41,7 @@ public:
 		oTSessCipCancel,            // @v8.8.2
 	};
 	//
-	// Критерии
+	// РљСЂРёС‚РµСЂРёРё
 	//
 	enum {
 		cID = 1,
@@ -68,7 +69,7 @@ public:
 		cCategory,
 		cStatus,
 		cPassword,
-		cFormat,    // Формат вывода результатов
+		cFormat,    // Р¤РѕСЂРјР°С‚ РІС‹РІРѕРґР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
 		cMatrix,
 		cMatrixLoc,
 		cPassive,
@@ -106,7 +107,7 @@ public:
 		cTag,
 		cPerson,
 		cTagExist,
-		cTagValue,  // Подкритерием (обязательным) служит символ тега
+		cTagValue,  // РџРѕРґРєСЂРёС‚РµСЂРёРµРј (РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј) СЃР»СѓР¶РёС‚ СЃРёРјРІРѕР» С‚РµРіР°
 
 		cClass,
 		cGcDimX,
@@ -133,33 +134,33 @@ public:
 		cGeoTracking // @v10.1.5
 	};
 	//
-	// Подкритерии
+	// РџРѕРґРєСЂРёС‚РµСЂРёРё
 	//
 	enum {
 		scID = 1,
 		scCode,
 		scName,
 		scDef,
-		scXml,    // Формат вывода результатов FORMAT.XML
-		scTddo,   // Формат вывода результатов FORMAT.TDDO (требует дополнительного аргумента - имя шаблона)
-		scBinary, // Формат вывода результатов FORMAT.BINARY
-		scJson,   // Формат вывода результатов FORMAT.JSON (DL600 структура)
-		scXmlUtf8 // Формат вывода результатов FORMAT.XMLUTF8 (по умолчанию для xml кодировка ANSI)
+		scXml,    // Р¤РѕСЂРјР°С‚ РІС‹РІРѕРґР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ FORMAT.XML
+		scTddo,   // Р¤РѕСЂРјР°С‚ РІС‹РІРѕРґР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ FORMAT.TDDO (С‚СЂРµР±СѓРµС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ Р°СЂРіСѓРјРµРЅС‚Р° - РёРјСЏ С€Р°Р±Р»РѕРЅР°)
+		scBinary, // Р¤РѕСЂРјР°С‚ РІС‹РІРѕРґР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ FORMAT.BINARY
+		scJson,   // Р¤РѕСЂРјР°С‚ РІС‹РІРѕРґР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ FORMAT.JSON (DL600 СЃС‚СЂСѓРєС‚СѓСЂР°)
+		scXmlUtf8 // Р¤РѕСЂРјР°С‚ РІС‹РІРѕРґР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ FORMAT.XMLUTF8 (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ xml РєРѕРґРёСЂРѕРІРєР° ANSI)
 	};
 
 	Backend_SelectObjectBlock();
 	~Backend_SelectObjectBlock();
 	//
-	// Descr: Разбирает текстовую команду pStr.
-	// ARG(pStr     IN): Командная строка
-	// ARG(pEndPos OUT): Не используется.
+	// Descr: Р Р°Р·Р±РёСЂР°РµС‚ С‚РµРєСЃС‚РѕРІСѓСЋ РєРѕРјР°РЅРґСѓ pStr.
+	// ARG(pStr     IN): РљРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР°
+	// ARG(pEndPos OUT): РќРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.
 	// Returns:
-	//  >0 - команда разобрана успешно.
-	//  0  - ошибка
+	//  >0 - РєРѕРјР°РЅРґР° СЂР°Р·РѕР±СЂР°РЅР° СѓСЃРїРµС€РЅРѕ.
+	//  0  - РѕС€РёР±РєР°
 	//
 	int    Parse(const char * pStr);
 	//
-	// Descr: Выполняет предварительно разобранную функцией Parse команду.
+	// Descr: Р’С‹РїРѕР»РЅСЏРµС‚ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СЂР°Р·РѕР±СЂР°РЅРЅСѓСЋ С„СѓРЅРєС†РёРµР№ Parse РєРѕРјР°РЅРґСѓ.
 	//
 	int    Execute(PPJobSrvReply & rReply);
 private:
@@ -413,31 +414,31 @@ private:
 	struct TagBlock : public ObjTagItem {
 		TagBlock();
 		PPID   ObjType;
-		// Список идентификаторов объектов заносится в Backend_SelectObjectBlock::IdList
+		// РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РѕР±СЉРµРєС‚РѕРІ Р·Р°РЅРѕСЃРёС‚СЃСЏ РІ Backend_SelectObjectBlock::IdList
 		SString Value;
 	};
 	DlRtm * P_DlRtm;
 	int    Operator;
-	PPID   ObjType;    // Тип объекта, фигурирующий в запросе
-	long   ObjTypeExt; // Дополнительное значение типа объекта, связанное с запрошенным символом типа объекта
+	PPID   ObjType;    // РўРёРї РѕР±СЉРµРєС‚Р°, С„РёРіСѓСЂРёСЂСѓСЋС‰РёР№ РІ Р·Р°РїСЂРѕСЃРµ
+	long   ObjTypeExt; // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° РѕР±СЉРµРєС‚Р°, СЃРІСЏР·Р°РЅРЅРѕРµ СЃ Р·Р°РїСЂРѕС€РµРЅРЅС‹Рј СЃРёРјРІРѕР»РѕРј С‚РёРїР° РѕР±СЉРµРєС‚Р°
 	SString DL600StrucName;
 	SString JSONString;
 	StringSet SrchCodeList;
 	PPIDArray IdList;
-	PPIDArray TagExistList; // Список типов тэгов, существование которых (со связкой ИЛИ) определяет список извлекаемых объектов
+	PPIDArray TagExistList; // РЎРїРёСЃРѕРє С‚РёРїРѕРІ С‚СЌРіРѕРІ, СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РєРѕС‚РѕСЂС‹С… (СЃРѕ СЃРІСЏР·РєРѕР№ РР›Р) РѕРїСЂРµРґРµР»СЏРµС‚ СЃРїРёСЃРѕРє РёР·РІР»РµРєР°РµРјС‹С… РѕР±СЉРµРєС‚РѕРІ
 
 	int    Separate;
 	long   ExtFiltFlags;
-	IntRange Page;     // Диапазон номеров страниц для выборки
+	IntRange Page;     // Р”РёР°РїР°Р·РѕРЅ РЅРѕРјРµСЂРѕРІ СЃС‚СЂР°РЅРёС† РґР»СЏ РІС‹Р±РѕСЂРєРё
 	enum {
 		fmtXml = 1, // default
 		fmtTddo,
 		fmtBinary,
 		fmtJson,    // @v7.6.5 @Muxa
-		fmtXmlUtf8  // Явно задается вывод xml в кодировке UTF-8 (по умолчанию - ANSI)
+		fmtXmlUtf8  // РЇРІРЅРѕ Р·Р°РґР°РµС‚СЃСЏ РІС‹РІРѕРґ xml РІ РєРѕРґРёСЂРѕРІРєРµ UTF-8 (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - ANSI)
 	};
 	int    OutFormat;
-	SString OutTemplate; // Наименование шаблона вывода резульатов в формате TDDO
+	SString OutTemplate; // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С€Р°Р±Р»РѕРЅР° РІС‹РІРѕРґР° СЂРµР·СѓР»СЊР°С‚РѕРІ РІ С„РѕСЂРјР°С‚Рµ TDDO
 	PPObjGoods GObj;
 	PPObjGoodsGroup GgObj;
 	PPObjPerson PsnObj;
@@ -468,7 +469,7 @@ private:
 	ProcessorFilt * P_PrcF;
 	Quotation2Core * P_Qc;
 	SetBlock * P_SetBlk;
-	TagBlock * P_TagBlk;   // Значение тэга объекта (SETOBJECTTAG, INCOBJECTTAG, DECOBJECTTAG, GETOBJECTTAG)
+	TagBlock * P_TagBlk;   // Р—РЅР°С‡РµРЅРёРµ С‚СЌРіР° РѕР±СЉРµРєС‚Р° (SETOBJECTTAG, INCOBJECTTAG, DECOBJECTTAG, GETOBJECTTAG)
 	SelectObjectBlock::DistribCCheck * P_DCc;
 	UuidArray * P_UuidList; // @v8.7.5
 	StrAssocArray ResultList;
@@ -567,7 +568,7 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 		}
 		{
 			//
-			// Для распределенных чеков сессии создаются по одной на каждый день для каждой точки.
+			// Р”Р»СЏ СЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹С… С‡РµРєРѕРІ СЃРµСЃСЃРёРё СЃРѕР·РґР°СЋС‚СЃСЏ РїРѕ РѕРґРЅРѕР№ РЅР° РєР°Р¶РґС‹Р№ РґРµРЅСЊ РґР»СЏ РєР°Р¶РґРѕР№ С‚РѕС‡РєРё.
 			//
 			long   sess_number = 0;
 			CSessionTbl::Rec last_cs_rec;
@@ -584,7 +585,7 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 		}
 		{
 			//
-			// Проверка на отсутствие дублирования по ключу {CashID; Dt; Tm}
+			// РџСЂРѕРІРµСЂРєР° РЅР° РѕС‚СЃСѓС‚СЃС‚РІРёРµ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РїРѕ РєР»СЋС‡Сѓ {CashID; Dt; Tm}
 			//
 			CCheckTbl::Key1 cck1;
 			MEMSZERO(cck1);
@@ -626,9 +627,9 @@ int SLAPI SelectObjectBlock::DistribCCheck::Finish(PPID ccID, PPID * pNewCcID)
 		THROW(cc_pack.Rec.Flags & CCHKF_SKIP);
 		THROW(P_CsObj->P_Cc->RemovePacket(ccID, 0));
 		//
-		// SetupAmount следует использовать только в том случае, если сумма чека обязана соответствовать
-		// суммам по строкам. На начальном этапе распределенный чеки будут работать без строк, потому
-		// SetupAmount безусловно не используем.
+		// SetupAmount СЃР»РµРґСѓРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё СЃСѓРјРјР° С‡РµРєР° РѕР±СЏР·Р°РЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ
+		// СЃСѓРјРјР°Рј РїРѕ СЃС‚СЂРѕРєР°Рј. РќР° РЅР°С‡Р°Р»СЊРЅРѕРј СЌС‚Р°РїРµ СЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹Р№ С‡РµРєРё Р±СѓРґСѓС‚ СЂР°Р±РѕС‚Р°С‚СЊ Р±РµР· СЃС‚СЂРѕРє, РїРѕС‚РѕРјСѓ
+		// SetupAmount Р±РµР·СѓСЃР»РѕРІРЅРѕ РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј.
 		//
 		//cc_pack.SetupAmount(0, 0);
 		cc_pack.Rec.Flags &= ~CCHKF_SKIP;
@@ -666,7 +667,7 @@ SELECT DL600 UhttPerson by id(21319)
 SET QUOT KIND(BASE) SELLER.CODE(10001) LOCATION.CODE(230223300391) GOODS(52117) CUR.CODE() VALUE(24.10)
 SET GOODSARCODE GOODS.BARCODE(46072740) SELLER.CODE(10001) VALUE(15219)
 
-SET DL600 STRUCTNAME JSON-строка
+SET DL600 STRUCTNAME JSON-СЃС‚СЂРѕРєР°
 
 CREATE PERSON name(my name) kind.code(user)
 CREATE GLOBALUSER name(abracad) password(x2-19) datasource(uuid)
@@ -693,8 +694,8 @@ SCARDWITHDRAW CODE(1111122) AMOUNT(300.00)
 
 set_expr ::= 'SET' set_object set_criteria_expr
 set_object ::=
-	'QUOT'       | // KIND, GOODS, VALUE обязательны
-	'GOODSARCODE'  // GOODS, SELLER, VALUE обязательны
+	'QUOT'       | // KIND, GOODS, VALUE РѕР±СЏР·Р°С‚РµР»СЊРЅС‹
+	'GOODSARCODE'  // GOODS, SELLER, VALUE РѕР±СЏР·Р°С‚РµР»СЊРЅС‹
 set_criteria_expr ::= criteria_list
 
 
@@ -717,35 +718,35 @@ criterion_term ::=
 	crit_descr '.' crit_modif '(' text ')'
 
 crit_descr ::=
-	'ID'         |  // Идентификатор объекта
-	'CODE'       |  // Код (символ) объекта
-	'NAME'       |  // Наименование объекта
-	'SUBNAME'    |  // Подстрока в наименовании объекта
-	'PARENT'     |  // Родительский объект
-	'BRAND'      |  // Брэнд (для товаров)
-	'MANUF'      |  // Производитель (для товаров)
-	'BARCODE'    |  // Штрихкод (для товаров)
-	'ARCODE'     |  // Код по контрагенту (для товаров)
-	'OWNER'      |  // Владелец
-	'KIND'       |  // Вид
-	'REGISTER'   |  // Номер регистрационного документа
-	'SELLER'     |  // Продавец
-	'LOCATION'   |  // Локация (склад, адрес)
-	'LOCWORLD'   |  // Географический объект, которому принадлежит локация //
-	'BUYER'      |  // Покупатель
-	'GOODS'      |  // Товар
-	'GOODSGROUP' |  // Товарная группа
-	'CUR'        |  // Валюта
-	'VALUE'      |  // Значение
-	'CATEGORY'      // Категория (персоналии)
+	'ID'         |  // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±СЉРµРєС‚Р°
+	'CODE'       |  // РљРѕРґ (СЃРёРјРІРѕР») РѕР±СЉРµРєС‚Р°
+	'NAME'       |  // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕР±СЉРµРєС‚Р°
+	'SUBNAME'    |  // РџРѕРґСЃС‚СЂРѕРєР° РІ РЅР°РёРјРµРЅРѕРІР°РЅРёРё РѕР±СЉРµРєС‚Р°
+	'PARENT'     |  // Р РѕРґРёС‚РµР»СЊСЃРєРёР№ РѕР±СЉРµРєС‚
+	'BRAND'      |  // Р‘СЂСЌРЅРґ (РґР»СЏ С‚РѕРІР°СЂРѕРІ)
+	'MANUF'      |  // РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ (РґР»СЏ С‚РѕРІР°СЂРѕРІ)
+	'BARCODE'    |  // РЁС‚СЂРёС…РєРѕРґ (РґР»СЏ С‚РѕРІР°СЂРѕРІ)
+	'ARCODE'     |  // РљРѕРґ РїРѕ РєРѕРЅС‚СЂР°РіРµРЅС‚Сѓ (РґР»СЏ С‚РѕРІР°СЂРѕРІ)
+	'OWNER'      |  // Р’Р»Р°РґРµР»РµС†
+	'KIND'       |  // Р’РёРґ
+	'REGISTER'   |  // РќРѕРјРµСЂ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+	'SELLER'     |  // РџСЂРѕРґР°РІРµС†
+	'LOCATION'   |  // Р›РѕРєР°С†РёСЏ (СЃРєР»Р°Рґ, Р°РґСЂРµСЃ)
+	'LOCWORLD'   |  // Р“РµРѕРіСЂР°С„РёС‡РµСЃРєРёР№ РѕР±СЉРµРєС‚, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ Р»РѕРєР°С†РёСЏ //
+	'BUYER'      |  // РџРѕРєСѓРїР°С‚РµР»СЊ
+	'GOODS'      |  // РўРѕРІР°СЂ
+	'GOODSGROUP' |  // РўРѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР°
+	'CUR'        |  // Р’Р°Р»СЋС‚Р°
+	'VALUE'      |  // Р—РЅР°С‡РµРЅРёРµ
+	'CATEGORY'      // РљР°С‚РµРіРѕСЂРёСЏ (РїРµСЂСЃРѕРЅР°Р»РёРё)
 
 crit_modif ::=
-	'ID'         |  // Идентификатор объекта
-	'CODE'       |  // Код (символ) объекта
-	'NAME'       |  // Наименование объекта
-	'DEF'           // Подкритерий по умолчанию (обычно ID)
+	'ID'         |  // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±СЉРµРєС‚Р°
+	'CODE'       |  // РљРѕРґ (СЃРёРјРІРѕР») РѕР±СЉРµРєС‚Р°
+	'NAME'       |  // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕР±СЉРµРєС‚Р°
+	'DEF'           // РџРѕРґРєСЂРёС‚РµСЂРёР№ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ (РѕР±С‹С‡РЅРѕ ID)
 
-Возможные значения crit_descr для разных значений selection_object:
+Р’РѕР·РјРѕР¶РЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ crit_descr РґР»СЏ СЂР°Р·РЅС‹С… Р·РЅР°С‡РµРЅРёР№ selection_object:
 
 dl600_selection_expr
 	id
@@ -1216,7 +1217,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 				// } @v10.0.05
 				if(oneof4(criterion, cActual, cMatrix, cLast, cStripSSfx)) {
 					//
-					// Одиночные критерии (не требующие параметров): 'ACTUAL' 'MATRIX' 'LAST', 'STRIPSSFX'
+					// РћРґРёРЅРѕС‡РЅС‹Рµ РєСЂРёС‚РµСЂРёРё (РЅРµ С‚СЂРµР±СѓСЋС‰РёРµ РїР°СЂР°РјРµС‚СЂРѕРІ): 'ACTUAL' 'MATRIX' 'LAST', 'STRIPSSFX'
 					//
 					sub_criterion = 0;
 					arg_buf.Z();
@@ -1227,7 +1228,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 						THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_SUBCRITERION);
 						if(criterion == cTagValue) {
 							//
-							// Специальный случай: для запроса TAGVALUE подкритерием является символ тега
+							// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РґР»СЏ Р·Р°РїСЂРѕСЃР° TAGVALUE РїРѕРґРєСЂРёС‚РµСЂРёРµРј СЏРІР»СЏРµС‚СЃСЏ СЃРёРјРІРѕР» С‚РµРіР°
 							//
 							PPID   tag_id = 0;
 							THROW(TagObj.FetchBySymb(temp_buf, &tag_id) > 0);
@@ -1284,7 +1285,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 }
 
 //
-// Локальная структура описания селектора интернет-магазина Universe-HTT
+// Р›РѕРєР°Р»СЊРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РѕРїРёСЃР°РЅРёСЏ СЃРµР»РµРєС‚РѕСЂР° РёРЅС‚РµСЂРЅРµС‚-РјР°РіР°Р·РёРЅР° Universe-HTT
 //
 struct LocalSelectorDescr {
 	LocalSelectorDescr() : ID(0), Attr(0), Clsf(0), Type(0)
@@ -1409,7 +1410,7 @@ struct LocalSelectorDescr {
 
 /*
 
-select person by name("А") format tddo(fn, )
+select person by name("Рђ") format tddo(fn, )
 select tddo(fn, arg_list)
 
 */
@@ -1430,7 +1431,7 @@ int FASTCALL Backend_SelectObjectBlock::TrimResultListByPage(StrAssocArray & rLi
 				rList.Z();
 			else {
 				//
-				// Сначала удаляем хвостовые элементы
+				// РЎРЅР°С‡Р°Р»Р° СѓРґР°Р»СЏРµРј С…РІРѕСЃС‚РѕРІС‹Рµ СЌР»РµРјРµРЅС‚С‹
 				//
 				if(c > end_pos) {
 					do {
@@ -1438,7 +1439,7 @@ int FASTCALL Backend_SelectObjectBlock::TrimResultListByPage(StrAssocArray & rLi
 					} while(c > end_pos);
 				}
 				//
-				// Теперь удаляем элементы, предшествующие start_pos
+				// РўРµРїРµСЂСЊ СѓРґР°Р»СЏРµРј СЌР»РµРјРµРЅС‚С‹, РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РёРµ start_pos
 				//
 				c = start_pos;
 				if(c) do {
@@ -1543,9 +1544,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					const uint pdc = prc_pack.Ext.GetPlaceDescriptionCount();
 					if(pdc) {
 						temp_buf.Z();
-						LongArray place_pos_list; // Список позиций мест, добавленных на этой итерации
+						LongArray place_pos_list; // РЎРїРёСЃРѕРє РїРѕР·РёС†РёР№ РјРµСЃС‚, РґРѕР±Р°РІР»РµРЅРЅС‹С… РЅР° СЌС‚РѕР№ РёС‚РµСЂР°С†РёРё
 						LongArray goods_list;
-						PPCheckInPersonArray cilist; // Список регистраций для сессии. По нему будем идентифицировать занятые места
+						PPCheckInPersonArray cilist; // РЎРїРёСЃРѕРє СЂРµРіРёСЃС‚СЂР°С†РёР№ РґР»СЏ СЃРµСЃСЃРёРё. РџРѕ РЅРµРјСѓ Р±СѓРґРµРј РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ Р·Р°РЅСЏС‚С‹Рµ РјРµСЃС‚Р°
 						THROW(ci_mgr.GetList(PPCheckInPersonItem::kTSession, tsess_id, cilist));
 						for(uint pdi = 0; pdi < pdc; pdi++) {
 							if(prc_pack.Ext.GetPlaceDescription(pdi, pd) && ppct.Parse(pd.Range)) {
@@ -1566,7 +1567,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 												p_new_item->Status = -2;
 											else if(current_status == PPCheckInPersonItem::statusRegistered)
 												p_new_item->Status = -1;
-											else // Строго говоря, это состояние невозможно
+											else // РЎС‚СЂРѕРіРѕ РіРѕРІРѕСЂСЏ, СЌС‚Рѕ СЃРѕСЃС‚РѕСЏРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ
 												p_new_item->Status = -1;
 											p_new_item->CipID = r_ci.ID;
 											p_new_item->RegPersonID = r_ci.GetPerson();
@@ -1643,7 +1644,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 				TSCollection <LocalSelectorDescr> sdescr_list;
 				CALLPTRMEMB(p_view, GetSelectorListInfo(selector_list));
 				//
-				// Формирование списка селекторов
+				// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєР° СЃРµР»РµРєС‚РѕСЂРѕРІ
 				//
 				{
 					PPUhttStoreSelDescr::Entry sd_entry;
@@ -1657,7 +1658,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					}
 				}
 				//
-				// Формирование ответа
+				// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РѕС‚РІРµС‚Р°
 				//
 				{
 					json_t * p_jhdr = new json_t(json_t::tOBJECT);
@@ -1880,7 +1881,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 				json_t * p_jpack = new json_t(json_t::tOBJECT);
 				TSCollection <LocalSelectorDescr> sdescr_list;
 				//
-				// Формирование списка селекторов
+				// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєР° СЃРµР»РµРєС‚РѕСЂРѕРІ
 				//
 				{
 					PPUhttStoreSelDescr::Entry sd_entry;
@@ -1894,7 +1895,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					}
 				}
 				//
-				// Формирование ответа
+				// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РѕС‚РІРµС‚Р°
 				//
 				{
 					json_t * p_jhdr = new json_t(json_t::tOBJECT);
@@ -2008,7 +2009,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 	int     ok = 1;
 	Reference * p_ref = PPRef;
 	PPObjBill * p_bobj = BillObj;
-	int    done = 0; // Признак того, что результирующий список сформирован
+	int    done = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ СЃРїРёСЃРѕРє СЃС„РѕСЂРјРёСЂРѕРІР°РЅ
 	int    use_filt = 0;
 	PPGta  gta_blk;
 	PPID   temp_id = 0;
@@ -2023,7 +2024,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 		switch(Operator) {
 			case oSet:
 				if(ObjType == PPOBJ_DL600DATA) {
-					// @todo этот случай обрабатывается отдельно
+					// @todo СЌС‚РѕС‚ СЃР»СѓС‡Р°Р№ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ РѕС‚РґРµР»СЊРЅРѕ
 				}
 				else if(ObjType == PPOBJ_QUOT2) {
 					gta_blk.Op = GTAOP_OBJADD;
@@ -2069,8 +2070,8 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW(DL600StrucName.NotEmptyS());
 					if(Operator == oSelect && OutFormat == fmtTddo) {
 						//
-						// Специальный случай: запрашивается DL600-структура и формат вывода TDDO -
-						// сразу формируем TDDO-результат по первому найденному идентификатору.
+						// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: Р·Р°РїСЂР°С€РёРІР°РµС‚СЃСЏ DL600-СЃС‚СЂСѓРєС‚СѓСЂР° Рё С„РѕСЂРјР°С‚ РІС‹РІРѕРґР° TDDO -
+						// СЃСЂР°Р·Сѓ С„РѕСЂРјРёСЂСѓРµРј TDDO-СЂРµР·СѓР»СЊС‚Р°С‚ РїРѕ РїРµСЂРІРѕРјСѓ РЅР°Р№РґРµРЅРЅРѕРјСѓ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
 						//
 						/*
 						StringSet in_line(',', OutTemplate);
@@ -2298,7 +2299,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						PPBillPacket pack;
 						THROW(p_bobj->GetCrBillEntry(temp_bill_id, &pack));
 						THROW(p_bobj->__TurnPacket(&pack, 0, 0, 1));
-						THROW(p_bobj->SetCrBillEntry(temp_bill_id, 0)); // Удаляем экземпляр документа из кэша
+						THROW(p_bobj->SetCrBillEntry(temp_bill_id, 0)); // РЈРґР°Р»СЏРµРј СЌРєР·РµРјРїР»СЏСЂ РґРѕРєСѓРјРµРЅС‚Р° РёР· РєСЌС€Р°
 						P_SetBlk->U.B.ID = pack.Rec.ID;
 						rResult.SetString(temp_buf.Z().Cat(pack.Rec.ID));
 					}
@@ -2360,10 +2361,10 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								THROW_SL(rResult.Write(&r_list, 0));
 							}
 							else if(OutFormat == fmtTddo) {
-								THROW(Helper_ProcessTddo(0, (void *)&r_list, "UhttDraftTransitGoodsRestList", OutTemplate, rResult));
+								THROW(Helper_ProcessTddo(0, &r_list, "UhttDraftTransitGoodsRestList", OutTemplate, rResult));
 							}
 							else {
-								THROW(PPExportDL600DataToBuffer("UhttDraftTransitGoodsRestList", (void *)&r_list, _xmlcp, ResultText));
+								THROW(PPExportDL600DataToBuffer("UhttDraftTransitGoodsRestList", &r_list, _xmlcp, ResultText));
 								THROW(rResult.WriteString(ResultText));
 								rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 							}
@@ -2452,8 +2453,8 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				const PPQuotItemArray * p_qlist = qview.GetQList();
 				if(p_qlist && (!Page.IsZero() || P_QF->GoodsSubText.NotEmpty() || (P_QF->LocalFlags & P_QF->lfNonZeroDraftRestOnly))) {
 					//
-					// @todo Здесь следует скопировать в temp_list только необходимые элементы.
-					// (а не копировать все и вырезать не нужное).
+					// @todo Р—РґРµСЃСЊ СЃР»РµРґСѓРµС‚ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ РІ temp_list С‚РѕР»СЊРєРѕ РЅРµРѕР±С…РѕРґРёРјС‹Рµ СЌР»РµРјРµРЅС‚С‹.
+					// (Р° РЅРµ РєРѕРїРёСЂРѕРІР°С‚СЊ РІСЃРµ Рё РІС‹СЂРµР·Р°С‚СЊ РЅРµ РЅСѓР¶РЅРѕРµ).
 					//
 					temp_list = *p_qlist;
 					uint   c = temp_list.getCount();
@@ -2500,7 +2501,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								temp_list.clear();
 							else {
 								//
-								// Сначала удаляем хвостовые элементы
+								// РЎРЅР°С‡Р°Р»Р° СѓРґР°Р»СЏРµРј С…РІРѕСЃС‚РѕРІС‹Рµ СЌР»РµРјРµРЅС‚С‹
 								//
 								if(c > end_pos) {
 									do {
@@ -2508,7 +2509,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 									} while(c > end_pos);
 								}
 								//
-								// Теперь удаляем элементы, предшествующие start_pos
+								// РўРµРїРµСЂСЊ СѓРґР°Р»СЏРµРј СЌР»РµРјРµРЅС‚С‹, РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РёРµ start_pos
 								//
 								c = start_pos;
 								if(c) do {
@@ -2526,7 +2527,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW(Helper_ProcessTddo(0, (void *)p_qlist, "QuotArray", OutTemplate, rResult));
 				}
 				else if(OutFormat == fmtJson) {
-					PPExportDL600DataToJson(DL600StrucName, 0, (void *)p_qlist, ResultText);
+					PPExportDL600DataToJson(DL600StrucName, 0, (void *)p_qlist, ResultText); // @badcast
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}
@@ -2545,15 +2546,15 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW_SL(rResult.Write(&mtx_list, 0));
 				}
 				else if(OutFormat == fmtTddo) {
-					THROW(Helper_ProcessTddo(0, (void *)&mtx_list, "LongArray", OutTemplate, rResult));
+					THROW(Helper_ProcessTddo(0, &mtx_list, "LongArray", OutTemplate, rResult));
 				}
 				else if(OutFormat == fmtJson) {
-					PPExportDL600DataToJson(DL600StrucName, 0, (void *)&mtx_list, ResultText);
+					PPExportDL600DataToJson(DL600StrucName, 0, &mtx_list, ResultText);
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}
 				else {
-					THROW(PPExportDL600DataToBuffer("LongArray", (void *)&mtx_list, _xmlcp, ResultText)); // @badcast
+					THROW(PPExportDL600DataToBuffer("LongArray", &mtx_list, _xmlcp, ResultText));
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}
@@ -2578,7 +2579,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 		case PPOBJ_GOODSARCODE:
 			if(Operator == oSelect) {
 				THROW_PP(P_GoodsF->CodeArID, PPERR_CMDSEL_UNIDENTSELLER);
-				// no break: управление передается в 'case PPOBJ_GOODS'
+				// no break: СѓРїСЂР°РІР»РµРЅРёРµ РїРµСЂРµРґР°РµС‚СЃСЏ РІ 'case PPOBJ_GOODS'
 			}
 			else {
 				if(Operator == oSet) {
@@ -2591,7 +2592,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				}
 				break;
 			}
-			// no break: для Operator == oSelect управление передается в 'case PPOBJ_GOODS'
+			// no break: РґР»СЏ Operator == oSelect СѓРїСЂР°РІР»РµРЅРёРµ РїРµСЂРµРґР°РµС‚СЃСЏ РІ 'case PPOBJ_GOODS'
 		case PPOBJ_GOODS:
 			if(Operator == oSelect) {
 				int    r = ProcessSelection_Goods(rResult);
@@ -2791,7 +2792,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						THROW(PsnObj.P_Tbl->GetRelList(P_PsnRelF->PrmrPersonID, &rel_list, 0));
 						if(P_PsnRelF->ScndPersonID || P_PsnRelF->RelTypeID) {
 							//
-							// Удаляем из списка лишние элементы
+							// РЈРґР°Р»СЏРµРј РёР· СЃРїРёСЃРєР° Р»РёС€РЅРёРµ СЌР»РµРјРµРЅС‚С‹
 							//
 							uint   c = rel_list.getCount();
 							if(c) do {
@@ -2807,7 +2808,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						THROW(PsnObj.P_Tbl->GetRelList(P_PsnRelF->ScndPersonID, &rel_list, 1));
 						if(P_PsnRelF->RelTypeID) {
 							//
-							// Удаляем из списка лишние элементы
+							// РЈРґР°Р»СЏРµРј РёР· СЃРїРёСЃРєР° Р»РёС€РЅРёРµ СЌР»РµРјРµРЅС‚С‹
 							//
 							uint   c = rel_list.getCount();
 							if(c) do {
@@ -3119,7 +3120,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							//
 							if(cip_pos == 0) {
 								PPObjTSession::PlaceStatus place_status;
-								THROW_PP(Operator == oTSessCipCheckIn, PPERR_TSESSCIPOP_INVCIPID); // Нельзя отменить заказ на не заказанное место
+								THROW_PP(Operator == oTSessCipCheckIn, PPERR_TSESSCIPOP_INVCIPID); // РќРµР»СЊР·СЏ РѕС‚РјРµРЅРёС‚СЊ Р·Р°РєР°Р· РЅР° РЅРµ Р·Р°РєР°Р·Р°РЅРЅРѕРµ РјРµСЃС‚Рѕ
 								P_TSesObj->GetPlaceStatus(tses_id, crit_place_code,
 									P_SetBlk->U.TS.QuotKindID, (store_id ? store_rec.LocID : 0), place_status);
 								THROW_PP_S(place_status.Status > 0, PPERR_TSESSCIPOP_PLACESTATUS, crit_place_code);
@@ -3352,12 +3353,12 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW(Helper_ProcessTddo(0, &list, "UhttCurRateArray", OutTemplate, rResult));
 				}
 				else if(OutFormat == fmtJson) {
-					PPExportDL600DataToJson(DL600StrucName, 0, (void *)&list, ResultText);
+					PPExportDL600DataToJson(DL600StrucName, 0, &list, ResultText);
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}
 				else {
-					THROW(PPExportDL600DataToBuffer("UhttCurRateArray", (void *)&list, _xmlcp, ResultText)); // @badcast
+					THROW(PPExportDL600DataToBuffer("UhttCurRateArray", &list, _xmlcp, ResultText));
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}
@@ -3517,10 +3518,10 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW_SL(rResult.Write(p_list, 0));
 				}
 				else if(OutFormat == fmtTddo) {
-					THROW(Helper_ProcessTddo(0, (void *)p_list, "UhttSCardOpArray", OutTemplate, rResult));
+					THROW(Helper_ProcessTddo(0, (void *)p_list, "UhttSCardOpArray", OutTemplate, rResult)); // @badcast
 				}
 				else if(OutFormat == fmtJson) {
-					PPExportDL600DataToJson(DL600StrucName, 0, (void *)p_list, ResultText);
+					PPExportDL600DataToJson(DL600StrucName, 0, (void *)p_list, ResultText); // @badcast
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}
@@ -3610,7 +3611,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 			if(Operator == oGtaCheckIn) {
 				GtaJournalCore * p_gtaj = DS.GetGtaJ();
 				if(p_gtaj) {
-					PPGta  local_gta_blk; // не путать с gta_blk, объявленным в начале функции
+					PPGta  local_gta_blk; // РЅРµ РїСѓС‚Р°С‚СЊ СЃ gta_blk, РѕР±СЉСЏРІР»РµРЅРЅС‹Рј РІ РЅР°С‡Р°Р»Рµ С„СѓРЅРєС†РёРё
 					local_gta_blk.Op = P_SetBlk->U.GT.GtaOp;
 					local_gta_blk.GlobalUserID = P_SetBlk->U.GT.GlobalUserID;
 					local_gta_blk.ObjId = P_SetBlk->U.GT.Oi;
@@ -3735,7 +3736,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				break;
 			case oSet:
 				if(ObjType == PPOBJ_DL600DATA) {
-					gta_ok = 0; // @todo этот случай обрабатывается отдельно
+					gta_ok = 0; // @todo СЌС‚РѕС‚ СЃР»СѓС‡Р°Р№ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ РѕС‚РґРµР»СЊРЅРѕ
 				}
 				else if(ObjType == PPOBJ_QUOT2) {
 					gta_blk.ObjId.Id = P_SetBlk->U.Q.GoodsID;
@@ -4413,7 +4414,7 @@ int Backend_SelectObjectBlock::ResolveCrit_ArByPerson(int subcriterion, const SS
 			temp_id = rArg.ToLong();
 			break;
 		case scCode:
-			if(acs_id) { // @todo Возможно ошибка
+			if(acs_id) { // @todo Р’РѕР·РјРѕР¶РЅРѕ РѕС€РёР±РєР°
 				PPObjAccSheet acs_obj;
 				PPAccSheet acs_rec;
 				if(acs_obj.Fetch(accSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
@@ -4435,7 +4436,7 @@ int Backend_SelectObjectBlock::ResolveCrit_ArByPerson(int subcriterion, const SS
 			ASSIGN_PTR(pID, 0);
 			return 0;
 	}
-	if(temp_id && accSheetID) { // @todo Возможно ошибка
+	if(temp_id && accSheetID) { // @todo Р’РѕР·РјРѕР¶РЅРѕ РѕС€РёР±РєР°
 		PPID   ar_id = 0;
 		ArObj.P_Tbl->PersonToArticle(temp_id, acs_id, &ar_id);
 		temp_id = ar_id;
@@ -4553,57 +4554,57 @@ SELECT
 	DL600
 		ID
 	QUOT
-		ACTUAL   Критерий без параметров, означающий, что необходимо извлечь только актуальные котировки.
-			Если этот критерий не указан, то извлекаются все значения подходящих котировок. Если указан,
-			то извлекаются только актуальные (текущие) значения подходящих котировок.
+		ACTUAL   РљСЂРёС‚РµСЂРёР№ Р±РµР· РїР°СЂР°РјРµС‚СЂРѕРІ, РѕР·РЅР°С‡Р°СЋС‰РёР№, С‡С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РІР»РµС‡СЊ С‚РѕР»СЊРєРѕ Р°РєС‚СѓР°Р»СЊРЅС‹Рµ РєРѕС‚РёСЂРѕРІРєРё.
+			Р•СЃР»Рё СЌС‚РѕС‚ РєСЂРёС‚РµСЂРёР№ РЅРµ СѓРєР°Р·Р°РЅ, С‚Рѕ РёР·РІР»РµРєР°СЋС‚СЃСЏ РІСЃРµ Р·РЅР°С‡РµРЅРёСЏ РїРѕРґС…РѕРґСЏС‰РёС… РєРѕС‚РёСЂРѕРІРѕРє. Р•СЃР»Рё СѓРєР°Р·Р°РЅ,
+			С‚Рѕ РёР·РІР»РµРєР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ Р°РєС‚СѓР°Р»СЊРЅС‹Рµ (С‚РµРєСѓС‰РёРµ) Р·РЅР°С‡РµРЅРёСЏ РїРѕРґС…РѕРґСЏС‰РёС… РєРѕС‚РёСЂРѕРІРѕРє.
 
-		KIND     Вид котировки.
-			ID   (default) Идентификатор вида котировки
-			CODE Символ вида котировки
+		KIND     Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё.
+			ID   (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РІРёРґР° РєРѕС‚РёСЂРѕРІРєРё
+			CODE РЎРёРјРІРѕР» РІРёРґР° РєРѕС‚РёСЂРѕРІРєРё
 
-		SELLER   Продавец (публикатор котировки).
-			Персоналия (транслируется в аналитическую статью таблицы GetSupplAccSheet())
-			ID   (default) Идентификатор персоналии
-			CODE  Номер поискового регистра вида персоналии (не путать с поисковым регистром таблицы аналитических статей)
-			NAME  Наименование персоналии (поиск по точному соответсвию имени без учета регистров символов)
+		SELLER   РџСЂРѕРґР°РІРµС† (РїСѓР±Р»РёРєР°С‚РѕСЂ РєРѕС‚РёСЂРѕРІРєРё).
+			РџРµСЂСЃРѕРЅР°Р»РёСЏ (С‚СЂР°РЅСЃР»РёСЂСѓРµС‚СЃСЏ РІ Р°РЅР°Р»РёС‚РёС‡РµСЃРєСѓСЋ СЃС‚Р°С‚СЊСЋ С‚Р°Р±Р»РёС†С‹ GetSupplAccSheet())
+			ID   (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРµСЂСЃРѕРЅР°Р»РёРё
+			CODE  РќРѕРјРµСЂ РїРѕРёСЃРєРѕРІРѕРіРѕ СЂРµРіРёСЃС‚СЂР° РІРёРґР° РїРµСЂСЃРѕРЅР°Р»РёРё (РЅРµ РїСѓС‚Р°С‚СЊ СЃ РїРѕРёСЃРєРѕРІС‹Рј СЂРµРіРёСЃС‚СЂРѕРј С‚Р°Р±Р»РёС†С‹ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№)
+			NAME  РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёРё (РїРѕРёСЃРє РїРѕ С‚РѕС‡РЅРѕРјСѓ СЃРѕРѕС‚РІРµС‚СЃРІРёСЋ РёРјРµРЅРё Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂРѕРІ СЃРёРјРІРѕР»РѕРІ)
 
-		BUYER    Покупатель. Персоналия (транслируется в аналитическую статью таблицы GetSupplAccSheet())
-			ID   (default) Идентификатор персоналии
-			CODE  Номер поискового регистра вида персоналии (не путать с поисковым регистром таблицы аналитических статей)
-			NAME  Наименование персоналии (поиск по точному соответсвию имени без учета регистров символов)
+		BUYER    РџРѕРєСѓРїР°С‚РµР»СЊ. РџРµСЂСЃРѕРЅР°Р»РёСЏ (С‚СЂР°РЅСЃР»РёСЂСѓРµС‚СЃСЏ РІ Р°РЅР°Р»РёС‚РёС‡РµСЃРєСѓСЋ СЃС‚Р°С‚СЊСЋ С‚Р°Р±Р»РёС†С‹ GetSupplAccSheet())
+			ID   (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРµСЂСЃРѕРЅР°Р»РёРё
+			CODE  РќРѕРјРµСЂ РїРѕРёСЃРєРѕРІРѕРіРѕ СЂРµРіРёСЃС‚СЂР° РІРёРґР° РїРµСЂСЃРѕРЅР°Р»РёРё (РЅРµ РїСѓС‚Р°С‚СЊ СЃ РїРѕРёСЃРєРѕРІС‹Рј СЂРµРіРёСЃС‚СЂРѕРј С‚Р°Р±Р»РёС†С‹ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№)
+			NAME  РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёРё (РїРѕРёСЃРє РїРѕ С‚РѕС‡РЅРѕРјСѓ СЃРѕРѕС‚РІРµС‚СЃРІРёСЋ РёРјРµРЅРё Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂРѕРІ СЃРёРјРІРѕР»РѕРІ)
 
-		LOCATION Адрес продавца. Имеется в виду либо склад, либо любой адрес персоналии (юридический, фактический, либо адрес доставки).
-			ID    (default) Идентификатор адреса.
-			CODE  Код адреса. Сначала ищется код склада, в случае неудачи - код адреса.
+		LOCATION РђРґСЂРµСЃ РїСЂРѕРґР°РІС†Р°. РРјРµРµС‚СЃСЏ РІ РІРёРґСѓ Р»РёР±Рѕ СЃРєР»Р°Рґ, Р»РёР±Рѕ Р»СЋР±РѕР№ Р°РґСЂРµСЃ РїРµСЂСЃРѕРЅР°Р»РёРё (СЋСЂРёРґРёС‡РµСЃРєРёР№, С„Р°РєС‚РёС‡РµСЃРєРёР№, Р»РёР±Рѕ Р°РґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё).
+			ID    (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°РґСЂРµСЃР°.
+			CODE  РљРѕРґ Р°РґСЂРµСЃР°. РЎРЅР°С‡Р°Р»Р° РёС‰РµС‚СЃСЏ РєРѕРґ СЃРєР»Р°РґР°, РІ СЃР»СѓС‡Р°Рµ РЅРµСѓРґР°С‡Рё - РєРѕРґ Р°РґСЂРµСЃР°.
 
-		LOCWORLD Географический объект, которому должен принадлежать адрес продавца.
-			ID   (default) Идентификатор географического объекта.
-			CODE Символ географического объекта.
+		LOCWORLD Р“РµРѕРіСЂР°С„РёС‡РµСЃРєРёР№ РѕР±СЉРµРєС‚, РєРѕС‚РѕСЂРѕРјСѓ РґРѕР»Р¶РµРЅ РїСЂРёРЅР°РґР»РµР¶Р°С‚СЊ Р°РґСЂРµСЃ РїСЂРѕРґР°РІС†Р°.
+			ID   (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РѕР±СЉРµРєС‚Р°.
+			CODE РЎРёРјРІРѕР» РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РѕР±СЉРµРєС‚Р°.
 
-		GOODS    Товар, к которому относятся котировки.
-			ID   (default) Идентификатор товара.
-			CODE Код товара (без привязки к контрагенту).
+		GOODS    РўРѕРІР°СЂ, Рє РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РЅРѕСЃСЏС‚СЃСЏ РєРѕС‚РёСЂРѕРІРєРё.
+			ID   (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РѕРІР°СЂР°.
+			CODE РљРѕРґ С‚РѕРІР°СЂР° (Р±РµР· РїСЂРёРІСЏР·РєРё Рє РєРѕРЅС‚СЂР°РіРµРЅС‚Сѓ).
 
-		GOODSGROUP Товарная группа, для товаров которой необходимо извлечь котировки.
-			Отменяется критерием GOODS.
-			ID   (default) Идентификатор товарной группы.
-			CODE  Код группы.
-			NAME  Наименование группы (поиск по точному соответсвию имени без учета регистров символов).
+		GOODSGROUP РўРѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР°, РґР»СЏ С‚РѕРІР°СЂРѕРІ РєРѕС‚РѕСЂРѕР№ РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РІР»РµС‡СЊ РєРѕС‚РёСЂРѕРІРєРё.
+			РћС‚РјРµРЅСЏРµС‚СЃСЏ РєСЂРёС‚РµСЂРёРµРј GOODS.
+			ID   (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РѕРІР°СЂРЅРѕР№ РіСЂСѓРїРїС‹.
+			CODE  РљРѕРґ РіСЂСѓРїРїС‹.
+			NAME  РќР°РёРјРµРЅРѕРІР°РЅРёРµ РіСЂСѓРїРїС‹ (РїРѕРёСЃРє РїРѕ С‚РѕС‡РЅРѕРјСѓ СЃРѕРѕС‚РІРµС‚СЃРІРёСЋ РёРјРµРЅРё Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂРѕРІ СЃРёРјРІРѕР»РѕРІ).
 
-		BRAND     Торговая марка, для товаров которой необходимо извлечь котировки.
-			Отменяется критерием GOODS.
-			ID   (default) Идентификатор брэнда.
-			NAME  Наименование брэнда (поиск по точному соответсвию имени без учета регистров символов).
+		BRAND     РўРѕСЂРіРѕРІР°СЏ РјР°СЂРєР°, РґР»СЏ С‚РѕРІР°СЂРѕРІ РєРѕС‚РѕСЂРѕР№ РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РІР»РµС‡СЊ РєРѕС‚РёСЂРѕРІРєРё.
+			РћС‚РјРµРЅСЏРµС‚СЃСЏ РєСЂРёС‚РµСЂРёРµРј GOODS.
+			ID   (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р±СЂСЌРЅРґР°.
+			NAME  РќР°РёРјРµРЅРѕРІР°РЅРёРµ Р±СЂСЌРЅРґР° (РїРѕРёСЃРє РїРѕ С‚РѕС‡РЅРѕРјСѓ СЃРѕРѕС‚РІРµС‚СЃРІРёСЋ РёРјРµРЅРё Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂРѕРІ СЃРёРјРІРѕР»РѕРІ).
 
-		CURRENCY Валюта значения котировки. Если не указана, то извлекаются котировки без ограничения по
-			валюте, в которой они определены.
-			ID   (default) Идентификатор валюты.
-			CODE Символ валюты (не путать с цифровым кодом валюты).
+		CURRENCY Р’Р°Р»СЋС‚Р° Р·РЅР°С‡РµРЅРёСЏ РєРѕС‚РёСЂРѕРІРєРё. Р•СЃР»Рё РЅРµ СѓРєР°Р·Р°РЅР°, С‚Рѕ РёР·РІР»РµРєР°СЋС‚СЃСЏ РєРѕС‚РёСЂРѕРІРєРё Р±РµР· РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РїРѕ
+			РІР°Р»СЋС‚Рµ, РІ РєРѕС‚РѕСЂРѕР№ РѕРЅРё РѕРїСЂРµРґРµР»РµРЅС‹.
+			ID   (default) РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РІР°Р»СЋС‚С‹.
+			CODE РЎРёРјРІРѕР» РІР°Р»СЋС‚С‹ (РЅРµ РїСѓС‚Р°С‚СЊ СЃ С†РёС„СЂРѕРІС‹Рј РєРѕРґРѕРј РІР°Р»СЋС‚С‹).
 
 		return: UhttQuot
-		note: Выборка котировок не предусматривает множественных критериев. Таким образом,
-		если одни и тот же критерий указан несколько раз, то в рассмотрение берется только
-		последнее значение этого критерия.
+		note: Р’С‹Р±РѕСЂРєР° РєРѕС‚РёСЂРѕРІРѕРє РЅРµ РїСЂРµРґСѓСЃРјР°С‚СЂРёРІР°РµС‚ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅС‹С… РєСЂРёС‚РµСЂРёРµРІ. РўР°РєРёРј РѕР±СЂР°Р·РѕРј,
+		РµСЃР»Рё РѕРґРЅРё Рё С‚РѕС‚ Р¶Рµ РєСЂРёС‚РµСЂРёР№ СѓРєР°Р·Р°РЅ РЅРµСЃРєРѕР»СЊРєРѕ СЂР°Р·, С‚Рѕ РІ СЂР°СЃСЃРјРѕС‚СЂРµРЅРёРµ Р±РµСЂРµС‚СЃСЏ С‚РѕР»СЊРєРѕ
+		РїРѕСЃР»РµРґРЅРµРµ Р·РЅР°С‡РµРЅРёРµ СЌС‚РѕРіРѕ РєСЂРёС‚РµСЂРёСЏ.
 
 	GOODS
 
@@ -5099,7 +5100,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				if(Operator == oSelect) {
 					SETIFZ(P_GoodsF, new GoodsFilt);
 					P_GoodsF->Flags |= GoodsFilt::fShowArCode;
-					// no break: управление передается в 'case PPOBJ_GOODS'
+					// no break: СѓРїСЂР°РІР»РµРЅРёРµ РїРµСЂРµРґР°РµС‚СЃСЏ РІ 'case PPOBJ_GOODS'
 				}
 				else if(Operator == oSet) {
 					SETIFZ(P_SetBlk, new SetBlock);
@@ -5121,7 +5122,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					}
 					break;
 				}
-				// no break: для Operator == oSelect управление передается в 'case PPOBJ_GOODS'
+				// no break: РґР»СЏ Operator == oSelect СѓРїСЂР°РІР»РµРЅРёРµ РїРµСЂРµРґР°РµС‚СЃСЏ РІ 'case PPOBJ_GOODS'
 			case PPOBJ_GOODS:
 				SETIFZ(P_GoodsF, new GoodsFilt);
 				switch(criterion) {

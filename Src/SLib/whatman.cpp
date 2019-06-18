@@ -1674,6 +1674,74 @@ int TWhatman::CalcRule(double ptPerInch, Rule & rRule) const
 	}
 	return 1;
 }
+
+int TWhatman::ProcessLayouts()
+{
+	int    ok = -1;
+	struct LocalLoEntry {
+		LocalLoEntry(const WhatmanObjectLayoutBase * pLo) : Flags(fIsLayout), P_Lo(pLo), P_ParentLo(0)
+		{
+			PTR32(ParentLoSymb)[0] = 0;
+		}
+		LocalLoEntry(const TWhatmanObject * pObj) : Flags(0), P_Obj(pObj), P_ParentLo(0)
+		{
+			PTR32(ParentLoSymb)[0] = 0;
+		}
+		enum {
+			fIsLayout    = 0x0001,
+			fHasChildren = 0x0002
+		};
+		int    Flags;
+		union {
+			const TWhatmanObject * P_Obj;
+			const WhatmanObjectLayoutBase * P_Lo;
+		};
+		const  WhatmanObjectLayoutBase * P_ParentLo;
+		char   ParentLoSymb[64];
+	};
+	SArray layout_list(sizeof(LocalLoEntry));
+	{
+		for(uint i = 0; i < ObjList.getCount(); i++) {
+			const TWhatmanObject * p_iter_obj = ObjList.at(i);
+			if(p_iter_obj) {
+				if(p_iter_obj->Symb.IsEqiAscii("Layout")) {
+					const WhatmanObjectLayoutBase * p_iter_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(p_iter_obj);
+					LocalLoEntry entry(p_iter_layout_obj);
+					STRNSCPY(entry.ParentLoSymb, p_iter_obj->GetLayoutContainerIdent());
+					layout_list.insert(&entry);
+					//p_iter_layout_obj->GetContainerIdent()
+				}
+				else if(p_iter_obj->GetLayoutContainerIdent().NotEmpty()) {
+					LocalLoEntry entry(p_iter_obj);
+					STRNSCPY(entry.ParentLoSymb, p_iter_obj->GetLayoutContainerIdent());
+					layout_list.insert(&entry);
+				}
+			}
+		}
+	}
+	if(layout_list.getCount()) {
+		for(uint i = 0; i < layout_list.getCount(); i++) {
+			LocalLoEntry * p_entry = static_cast<LocalLoEntry *>(layout_list.at(i));
+			if(!p_entry->P_ParentLo && p_entry->ParentLoSymb[0]) {
+				for(uint j = 0; !p_entry->P_ParentLo && j < layout_list.getCount(); j++) {
+					LocalLoEntry * p_lo_entry = static_cast<LocalLoEntry *>(layout_list.at(j));
+					if((p_lo_entry->Flags & LocalLoEntry::fIsLayout) && p_lo_entry->P_Lo->GetContainerIdent().IsEqual(p_entry->ParentLoSymb)) {
+						p_entry->P_ParentLo = p_lo_entry->P_Lo;
+						p_lo_entry->Flags |= LocalLoEntry::fHasChildren;
+					}
+				}
+			}
+		}
+		uint lidx = layout_list.getCount();
+		if(lidx) do {
+			LocalLoEntry * p_entry = static_cast<LocalLoEntry *>(layout_list.at(--lidx));
+			if(!p_entry->P_ParentLo && !(p_entry->Flags & LocalLoEntry::fIsLayout)) {
+				layout_list.atFree(lidx);
+			}
+		} while(lidx);
+	}
+	return ok;
+}
 //
 //
 //

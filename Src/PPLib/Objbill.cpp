@@ -3693,8 +3693,6 @@ int SLAPI PPObjBill::Helper_PutBillToMrpTab(PPID billID, MrpTabPacket * pMrpPack
 	PPID   mrp_tab_id = 0, intr_tab_id = 0;
 	const  PPID wroff_op_type_id = GetOpType(pWrOffParam->WrOffOpID);
 	{
-		// @v8.6.10 PPTransaction tra(use_ta);
-		// @v8.6.10 THROW(tra);
 		THROW(Search(billID, &bill_rec) > 0);
 		THROW(mrp_obj.GetTabID(pMrpPack, bill_rec.LocID, bill_rec.Dt, &mrp_tab_id, use_ta)); // @v8.6.10 0-->use_ta
 		{
@@ -3751,7 +3749,6 @@ int SLAPI PPObjBill::Helper_PutBillToMrpTab(PPID billID, MrpTabPacket * pMrpPack
 					break;
 			}
 		}
-		// @v8.6.10 THROW(tra.Commit());
 	}
 	CATCHZOK
 	return ok;
@@ -3761,39 +3758,38 @@ int SLAPI PPObjBill::CreateMrpTab(const PPIDArray * pList, MrpTabPacket * pMrpPa
 {
 	int    ok = 1;
 	uint   i;
-	if(pList && pList->getCount()) {
+	const  uint list_count = SVectorBase::GetCount(pList);
+	if(list_count) {
 		SString fmt_buf, msg_buf, bill_name; // for logger
 		PPObjMrpTab mrp_obj;
 		IterCounter cntr;
-		cntr.Init(pList->getCount());
+		cntr.Init(list_count);
 		PPLoadText(PPTXT_MRPTABBUILDING_BYBILL, fmt_buf);
-		{
-			for(i = 0; i < pList->getCount(); i++) {
-				const PPID bill_id = pList->at(i);
-				BillTbl::Rec bill_rec;
-				if(Search(bill_id, &bill_rec) > 0) {
-					const PPID op_type_id = GetOpType(bill_rec.OpID);
-					const int  is_draft = IsDraftOp(bill_rec.OpID);
-					PPWaitPercent(cntr.Increment(), GetNamePtr()); // @! GetNamePtr вызывается сразу после Search
-					if(op_type_id == PPOPT_GOODSORDER || (is_draft && !(bill_rec.Flags & BILLF_WRITEDOFF))) {
-						PPOprKindPacket op_pack;
-						THROW(P_OpObj->GetPacket(bill_rec.OpID, &op_pack) > 0);
-						if(is_draft)
-							THROW_PP(op_pack.P_DraftData && (op_pack.P_DraftData->WrOffOpID || op_pack.P_DraftData->WrOffComplOpID), PPERR_UNDEFWROFFOP);
-						MakeCodeString(&bill_rec, 1, bill_name);
-						msg_buf.Printf(fmt_buf, bill_name.cptr());
-						CALLPTRMEMB(pLogger, Log(msg_buf));
-						PPWaitMsg(msg_buf);
-						THROW(ok = Helper_PutBillToMrpTab(bill_id, pMrpPack, op_pack.P_DraftData, use_ta));
-					}
+		for(i = 0; i < list_count; i++) {
+			const PPID bill_id = pList->at(i);
+			BillTbl::Rec bill_rec;
+			if(Search(bill_id, &bill_rec) > 0) {
+				const PPID op_type_id = GetOpType(bill_rec.OpID);
+				const int  is_draft = IsDraftOp(bill_rec.OpID);
+				PPWaitPercent(cntr.Increment(), GetNamePtr()); // @! GetNamePtr вызывается сразу после Search
+				if(op_type_id == PPOPT_GOODSORDER || (is_draft && !(bill_rec.Flags & BILLF_WRITEDOFF))) {
+					PPOprKindPacket op_pack;
+					THROW(P_OpObj->GetPacket(bill_rec.OpID, &op_pack) > 0);
+					if(is_draft)
+						THROW_PP(op_pack.P_DraftData && (op_pack.P_DraftData->WrOffOpID || op_pack.P_DraftData->WrOffComplOpID), PPERR_UNDEFWROFFOP);
+					MakeCodeString(&bill_rec, 1, bill_name);
+					msg_buf.Printf(fmt_buf, bill_name.cptr());
+					CALLPTRMEMB(pLogger, Log(msg_buf));
+					PPWaitMsg(msg_buf);
+					THROW(ok = Helper_PutBillToMrpTab(bill_id, pMrpPack, op_pack.P_DraftData, use_ta));
 				}
 			}
-			if(pMrpPack->getCount()) {
-				PPLoadText(PPTXT_MRPTABFINISHING, msg_buf);
-				CALLPTRMEMB(pLogger, Log(msg_buf));
-				PPWaitMsg(msg_buf);
-				THROW(mrp_obj.FinishPacket(pMrpPack, 0, use_ta));
-			}
+		}
+		if(pMrpPack->getCount()) {
+			PPLoadText(PPTXT_MRPTABFINISHING, msg_buf);
+			CALLPTRMEMB(pLogger, Log(msg_buf));
+			PPWaitMsg(msg_buf);
+			THROW(mrp_obj.FinishPacket(pMrpPack, 0, use_ta));
 		}
 	}
 	CATCHZOK

@@ -3439,7 +3439,6 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 					drec_goods.put(9, goods_rec.BrandID);
 					if(goods_rec.BrandID && (pPack->Rec.Flags & PLMF_EXPBRAND)) {
 						PPBrand brand_rec;
-						MEMSZERO(brand_rec);
 						if(rBlk.P_BrObj->Fetch(goods_rec.BrandID, &brand_rec) > 0)
 							drec_goods.put(10, brand_rec.OwnerID);
 					}
@@ -3495,7 +3494,6 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 					drec_goods.put(9, goods_rec.BrandID);
 					if(goods_rec.BrandID && (pPack->Rec.Flags & PLMF_EXPBRAND)) {
 						PPBrand brand_rec;
-						MEMSZERO(brand_rec);
 						if(rBlk.P_BrObj->Fetch(goods_rec.BrandID, &brand_rec) > 0)
 							drec_goods.put(10, brand_rec.OwnerID);
 					}

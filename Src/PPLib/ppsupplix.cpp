@@ -2866,7 +2866,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 		THROW(State & stInited);
 		THROW(State & stEpDefined);
 		THROW(P_Lib);
-		THROW_SL(func = (ISALESGETGOODSLIST_PROC)P_Lib->GetProcAddr("iSalesGetGoodsList"));
+		THROW_SL(func = reinterpret_cast<ISALESGETGOODSLIST_PROC>(P_Lib->GetProcAddr("iSalesGetGoodsList")));
 		sess.Setup(SvcUrl);
 		// @v9.7.7 {
 		if(forceSettings && P.ExpPeriod.low)
@@ -3000,9 +3000,8 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (ISALESGETRECEIPTLIST_PROC)P_Lib->GetProcAddr("iSalesGetReceiptList"));
+	THROW_SL(func = reinterpret_cast<ISALESGETRECEIPTLIST_PROC>(P_Lib->GetProcAddr("iSalesGetReceiptList")));
 	sess.Setup(SvcUrl);
-
 	p_result = func(sess, UserName, Password, &period, /*1*/BIN(P.Flags & P.fRepeatProcessing) /*inclProcessedItems*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
@@ -3026,7 +3025,6 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 					PPBillPacket pack;
 					Goods2Tbl::Rec goods_rec;
 					PPBillPacket::SetupObjectBlock sob;
-
 					src_receipt_code = p_src_pack->Code;
 					PPID   ar_id = P.SupplID;
 					PPID   loc_id = P.LocList.GetSingle();
@@ -3112,10 +3110,8 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	TSCollection <iSalesBillPacket> * p_result = 0;
 	TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
 	ISALESGETORDERLIST_PROC func = 0;
-
 	DateRange period;
 	period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
-
 	SString tech_buf;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 	{
@@ -3125,7 +3121,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (ISALESGETORDERLIST_PROC)P_Lib->GetProcAddr("iSalesGetOrderList"));
+	THROW_SL(func = reinterpret_cast<ISALESGETORDERLIST_PROC>(P_Lib->GetProcAddr("iSalesGetOrderList")));
 	sess.Setup(SvcUrl);
 	{
 		const int do_incl_processed_items = BIN(P.Flags & P.fRepeatProcessing);
@@ -3138,7 +3134,6 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	}
 	if(p_result->getCount()) {
 		SString srcloc_attr_pattern = "ORD_GROUPCODE1";
-
 		PPAlbatrosConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
@@ -3152,7 +3147,6 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 					PPBillPacket pack;
 					Goods2Tbl::Rec goods_rec;
 					PPBillPacket::SetupObjectBlock sob;
-
 					src_order_code = p_src_pack->Code;
 					const  PPID   _src_loc_id = p_src_pack->SrcLocCode.ToLong();
 					//
@@ -3330,7 +3324,6 @@ int SLAPI iSalesPepsi::ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & r
 int SLAPI iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
 {
 	rResult.freeAll();
-
 	int    ok = -1;
 	PPSoapClientSession sess;
 	SString lib_path;
@@ -4386,7 +4379,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 		const  uint max_fraction_size = 10; // @v10.0.02 20-->10
 		long   total_error_count = 0;
 		ISALESPUTBILLS_PROC func = 0;
-		THROW_SL(func = (ISALESPUTBILLS_PROC)P_Lib->GetProcAddr("iSalesPutBills"));
+		THROW_SL(func = reinterpret_cast<ISALESPUTBILLS_PROC>(P_Lib->GetProcAddr("iSalesPutBills")));
 		outp_packet.setPointer(0);
 		for(uint sended_count = 0; sended_count < outp_packet.getCount(); sended_count += max_fraction_size) {
 			sess.Setup(SvcUrl);
@@ -4764,15 +4757,12 @@ int SLAPI SapEfes::ReceiveOrders()
 										double _qtty = fabs(p_src_item->Qtty);
 										double _qtty_mult = 1.0;
 										if(p_src_item->UnitType == sapefesUnitPack) {
-											if(p_src_item->BaseUnitType == sapefesUnitItem && p_src_item->QtyN > 0.0) {
-												_qtty_mult = (((double)p_src_item->QtyD) / ((double)p_src_item->QtyN));
-											}
-											else if(GObj.GetStockExt(goods_rec.ID, &gse, 0) > 0 && gse.Package > 0.0) {
+											if(p_src_item->BaseUnitType == sapefesUnitItem && p_src_item->QtyN > 0.0)
+												_qtty_mult = (p_src_item->QtyD / p_src_item->QtyN);
+											else if(GObj.GetStockExt(goods_rec.ID, &gse, 0) > 0 && gse.Package > 0.0)
 												_qtty_mult = gse.Package;
-											}
 										}
 										_qtty *= _qtty_mult;
-
 										ti.GoodsID = goods_rec.ID;
 										ti.Quantity_ = _qtty;
 										if(ti.Quantity_ != 0.0) {
@@ -4825,14 +4815,13 @@ int SLAPI SapEfes::SendSales_ByDlvrLoc()
 	const  LDATE _curdate = getcurdate_();
 	TSCollection <SapEfesLogMsg> * p_result = 0;
 	TSCollection <SapEfesGoodsReportEntry> outp_packet;
-
 	PPSoapClientSession sess;
 	SapEfesCallHeader sech;
 	EFESSETMTDOUTLETSREPORTSYNC_PROC func = 0;
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (EFESSETMTDOUTLETSREPORTSYNC_PROC)P_Lib->GetProcAddr("EfesSetMTDOutletsReportSync"));
+	THROW_SL(func = reinterpret_cast<EFESSETMTDOUTLETSREPORTSYNC_PROC>(P_Lib->GetProcAddr("EfesSetMTDOutletsReportSync")));
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
 	{
@@ -4883,14 +4872,13 @@ int SLAPI SapEfes::SendSales_ByGoods()
 	const  LDATE _curdate = getcurdate_();
 	TSCollection <SapEfesLogMsg> * p_result = 0;
 	TSCollection <SapEfesGoodsReportEntry> outp_packet;
-
 	PPSoapClientSession sess;
 	SapEfesCallHeader sech;
 	EFESSETMTDPRODUCTREPORTSYNC_PROC func = 0;
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (EFESSETMTDPRODUCTREPORTSYNC_PROC)P_Lib->GetProcAddr("EfesSetMTDProductReportSync"));
+	THROW_SL(func = reinterpret_cast<EFESSETMTDPRODUCTREPORTSYNC_PROC>(P_Lib->GetProcAddr("EfesSetMTDProductReportSync")));
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
 	{
@@ -4941,7 +4929,7 @@ int SLAPI SapEfes::SendStocks()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (EFESSETDAILYSTOCKREPORTSYNC_PROC)P_Lib->GetProcAddr("EfesSetDailyStockReportSync"));
+	THROW_SL(func = reinterpret_cast<EFESSETDAILYSTOCKREPORTSYNC_PROC>(P_Lib->GetProcAddr("EfesSetDailyStockReportSync")));
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
 	{
@@ -4950,7 +4938,6 @@ int SLAPI SapEfes::SendStocks()
 		GoodsRestViewItem gr_item;
 		SString ar_code;
 		//LocationTbl::Rec loc_rec;
-
 		gr_filt.Date = NZOR(P.ExpPeriod.upp, _curdate);
 		gr_filt.GoodsGrpID = Ep.GoodsGrpID;
 		gr_filt.LocList = P.LocList; // @v9.3.0
@@ -6634,7 +6621,6 @@ int SLAPI SupplGoodsImport()
 	if(EditSupplExpFilt(&filt, 1) > 0) {
 		SString path;
 		if(PPOpenFile(PPTXT_FILPAT_GOODS_XML, path, 0, APPL->H_MainWnd) > 0) {
-			//
 			SupplInterchangeFilt six_filt;
 			six_filt = filt;
 			PrcssrSupplInterchange six_prc;

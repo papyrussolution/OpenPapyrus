@@ -482,7 +482,7 @@ int SLAPI SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrect
 	THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, pFc->AmtBank));
 	THROW(ArrAdd(Arr_In, DVCPARAM_CODE, pFc->Code));
 	THROW(ArrAdd(Arr_In, DVCPARAM_DATE, temp_buf.Z().Cat(pFc->Dt, DATF_ISO8601|DATF_CENTURY)));
-	THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, pFc->Reason));
+	THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (temp_buf = pFc->Reason).Transf(CTRANSF_INNER_TO_OUTER))); // @v10.4.10 Transf(CTRANSF_INNER_TO_OUTER)
 	if(pFc->Flags & pFc->fVatFree) {
 		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1));
 		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREEAMOUNT, (pFc->AmtCash+pFc->AmtBank+pFc->AmtPrepay+pFc->AmtPostpay)));

@@ -4757,7 +4757,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 				uint   elp = 0;
 				int    r = ext_list.lsearch(&oi.Id, &elp, CMPF_LONG);
 				assert(r);
-				Ext * p_ext = (Ext *)ext_list.at(elp);
+				Ext * p_ext = static_cast<Ext *>(ext_list.at(elp));
 				IndexItem ii(p_ext->Pos, p_ext->Extra, p_ext->DispPos);
 				THROW_SL(Index.insert(&ii));
 			}
@@ -4879,7 +4879,7 @@ int SLAPI PPBillPacket::MergeTI(PPTransferItem * pTI, int idx, long flags, LongA
 		pMergePosList->add(idx);
 	}
 	for(uint i = 0; EnumTItems(&i, &p_ti);) {
-		int    ii = (int)(i-1);
+		int    ii = static_cast<int>(i-1);
 		if(ii != idx && !rSaw.lsearch(ii) && CanMerge(pTI, p_ti, flags)) {
 			const double q1 = pTI->Quantity_;
 			const double q2 = p_ti->Quantity_;

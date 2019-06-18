@@ -309,7 +309,7 @@ int SLAPI PPObjBill::AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, d
 		}
 	}
 	else if(intr == INTREXPND) {
-		PPID loc_id = PPObjLocation::ObjToWarehouse(pPack->Rec.Object);
+		const PPID loc_id = PPObjLocation::ObjToWarehouse(pPack->Rec.Object);
 		if(loc_id && LocObj.Fetch(loc_id, &loc_rec) > 0 && loc_rec.Flags & LOCF_ADJINTRPRICE) {
 			adj_intr_price = 1;
 			adj_intr_loc = loc_id;
@@ -598,10 +598,8 @@ public:
 	const double SrcPriceAmount;
 	const double SrcPriceVat;
 	const double VatRate;
-	//const ulong  MinVatDiv;
 	const PPBillPacket & R_Bp;
 	const LongArray & R_Rows;
-	//
 	BillTotalBlock * P_Btb;
 	BillTotalData TotalRunning;
 	RealArray DiscountList; // [R_Rows.getCount]
@@ -647,7 +645,22 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 	SString serial;
 	(serial = pSerial).Strip();
 	int    by_serial = BIN(!(flags & CILTIF_EXCLUDESERIAL) && serial.NotEmpty());
-	THROW_PP_S(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) > 0, PPERR_NEXISTGOODSINBILL, ilti->GoodsID);
+	// @v10.4.10 THROW_PP_S(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) > 0, PPERR_NEXISTGOODSINBILL, ilti->GoodsID);
+	// @v10.4.10 {
+	if(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) <= 0) {
+		BillTbl::Rec src_bill_rec;
+		temp_buf.Z();
+		if(ilti->BillID && Search(ilti->BillID, &src_bill_rec) > 0) {
+			PPObjBill::MakeCodeString(&src_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
+			temp_buf.Space().CatChar('#').Cat(ilti->RByBill).Space();
+		}
+		else {
+			temp_buf.CatChar('#').Cat(ilti->RByBill).Space();
+		}
+		temp_buf.CatEq("id", labs(ilti->GoodsID));
+		CALLEXCEPT_PP_S(PPERR_NEXISTGOODSINBILL, temp_buf);
+	}
+	// } @v10.4.10 
 	if(GObj.FetchTax(goods_rec.ID, pPack->Rec.Dt, 0L, &gtx) > 0)
 		vatrate = gtx.GetVatRate();
 	if(goods_rec.Flags & GF_UNLIM) {

@@ -1,7 +1,7 @@
 // EGAIS.CPP
 // Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
-// Поддержка форматов для обмена с системой EGAIS
 // @codepage UTF-8
+// Поддержка форматов для обмена с системой EGAIS
 //
 #include <pp.h>
 #pragma hdrstop

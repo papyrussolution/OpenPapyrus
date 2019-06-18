@@ -3576,7 +3576,7 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 				for(uint pos = 0; !found && (p_item = tag_list.EnumItems(&pos));) {
 					PPObjTagPacket tag_pack;
 					if(obj_tag.GetPacket(p_item->TagID, &tag_pack) > 0 && tag_pack.Rec.Flags & OTF_NOTICEINCASHPANE) {
-						tag_value = p_item->Val.PStr; //@erik v10.4.9
+						p_item -> GetStr(tag_value); //@erik v10.4.10
 						tag_name = tag_pack.Rec.Name;
 						found = 1;
 					}

@@ -860,6 +860,19 @@ AdviseEventCollectorPeriod=ms
 ;
 InvcMergeTaxCalcAlg2Since=date
 ;
+; @v10.4.10
+; Параметр, управляющий формированием отладочных журналов модуля gSOAP
+; Вместо options должно быть либо all, либо перечесление одной или нескольких опций sent, recv, test
+; all - будут выводиться 3 журнала (gsoap_sent.log, gsoap_recv.log, gsoap_test.log)
+; sent - будет выводится журнал gsoap_sent.log
+; recv - будет выводится журнал gsoap_recv.log
+; test - будет выводится журнал gsoap_test.log
+; Example:
+;    gsoap_log=sent recv 
+;    gsoap_log=all
+;
+gsoap_log=options
+;
 ; ------------------------------------------------------------------------------
 ; Параметры для формирования кассового узла Papyrus
 ;

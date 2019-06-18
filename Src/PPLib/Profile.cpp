@@ -1046,11 +1046,9 @@ int SLAPI PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine
 	long   sess_id = 0;
 	SString temp_buf, sess_uuid;
 	UserFuncPrfSessTbl::Key1 k1;
-
 	MEMSZERO(k1);
 	if(funcId) {
 		long db_id = 0L;
-
 		k1.ThreadId = DB_REC;
 		rLine.DbUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 		temp_buf.CopyTo(k1.SessUUID_s, sizeof(k1.SessUUID_s));
@@ -1216,8 +1214,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 					UfpFileSet * p_set = file_set_list.at(i);
 					if(p_set && p_set->DbUuid == db_uuid) {
 						assert(fp == 0);
-						int    dup_fault = p_set->Set.Search(kind);
-						// @v8.3.3 assert(!dup_fault);
+						const int dup_fault = p_set->Set.Search(kind);
 						if(!dup_fault) {
 							p_set->Set.AddFast(kind, sde.FileName);
 							ok = 1;

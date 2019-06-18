@@ -1,11 +1,11 @@
 // V_OPGRP.CPP
 // Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(OpGrouping); SLAPI OpGroupingFilt::OpGroupingFilt() :
-	PPBaseFilt(PPFILT_OPGROUPING, 0, 1) // @v6.2.4 ver 0-->1
+IMPLEMENT_PPFILT_FACTORY(OpGrouping); SLAPI OpGroupingFilt::OpGroupingFilt() : PPBaseFilt(PPFILT_OPGROUPING, 0, 1)
 {
 	SetFlatChunk(offsetof(OpGroupingFilt, ReserveStart),
 		offsetof(OpGroupingFilt, LocList)-offsetof(OpGroupingFilt, ReserveStart));
@@ -64,7 +64,6 @@ enum {
 	siExtCost,
 	siExtPrice,
 	siIncome,
-
 	siNumItems
 };
 
@@ -84,8 +83,8 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 	Filt.ShipmentPeriod.Actualize(ZERODATE);
 	CycleList.init2(&Filt.Period, &Filt.Cycl);
 	//
-	// Если заданы группа товара или товар, то колонки
-	// по дополнительному типу товара получить нельзя.
+	// Р•СЃР»Рё Р·Р°РґР°РЅС‹ РіСЂСѓРїРїР° С‚РѕРІР°СЂР° РёР»Рё С‚РѕРІР°СЂ, С‚Рѕ РєРѕР»РѕРЅРєРё
+	// РїРѕ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРјСѓ С‚РёРїСѓ С‚РѕРІР°СЂР° РїРѕР»СѓС‡РёС‚СЊ РЅРµР»СЊР·СЏ.
 	//
 	if(Filt.GoodsGrpID || Filt.GoodsID)
 		Filt.ExtGoodsTypeID = 0;
@@ -226,10 +225,8 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 				for(i = 0; i < op_list.getCount(); i++) {
 					const PPID op_id = op_list.at(i).Key;
 					const int sign = op_list.at(i).Val;
-
 					TempOpGrpngTbl::Rec rec;
 					MEMSZERO(rec);
-
 					OpGroupingViewItem item;
 					MEMSZERO(item);
 					rec.OpID = op_id;
@@ -291,7 +288,7 @@ int FASTCALL PPViewOpGrouping::NextIteration(OpGroupingViewItem * pItem)
 		pItem->Sign      = rec.Sign;
 		pItem->Qtty      = rec.Qtty;
 		pItem->PhQtty    = rec.PhQtty;
-		pItem->Flags     = rec.TaxFlags; // @v6.4.10
+		pItem->Flags     = rec.TaxFlags;
 		pItem->Count     = rec.Count;
 		pItem->LnCount   = rec.LnCount;
 		pItem->AvgLn     = rec.AvgLn;
@@ -362,9 +359,9 @@ int SLAPI PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
 {
 	int    sign = 0;
 	int    r = GetRecSign(pRec, &sign);
-	pRec->TotalSign = (short)sign; // @v6.4.11
+	pRec->TotalSign = static_cast<short>(sign);
 	TempOpGrpngTbl::Rec rec = *pRec;
-	//   Корректировка учета исходящих остатков в GdsOpTotal при использовании циклов в фильтре
+	//   РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° СѓС‡РµС‚Р° РёСЃС…РѕРґСЏС‰РёС… РѕСЃС‚Р°С‚РєРѕРІ РІ GdsOpTotal РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё С†РёРєР»РѕРІ РІ С„РёР»СЊС‚СЂРµ
 	if(rec.OpID == 10000) {
 		rec.Qtty     -= LastOutRest.Qtty;
 		rec.PhQtty   -= LastOutRest.PhQtty;
@@ -682,7 +679,7 @@ int SLAPI PPViewOpGrouping::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
-	OpGroupingFilt * p_filt = (OpGroupingFilt *)pFilt;
+	OpGroupingFilt * p_filt = static_cast<OpGroupingFilt *>(pFilt);
 	DIALOG_PROC_BODY(OpGroupingFiltDialog, p_filt);
 }
 
@@ -1011,7 +1008,6 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 	SString line_text, temp_buf, op_name;
 	Generator_GnuPlot plot(0);
 	Generator_GnuPlot::PlotParam param;
-
 	if(CycleList.getCount()) {
 		uint   i;
 		PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -1056,7 +1052,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 				case  9:
 					si = siCount;
 					PPLoadString("linecount", line_text); // @v9.3.1
-					// @v9.3.1 (line_text = "Количество строк").ToOem();
+					// @v9.3.1 (line_text = "РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє").ToOem();
 					break;
 				case 10:
 					si = siAmount;
@@ -1314,9 +1310,9 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 			I.BillCostSum  = item.Cost;
 			I.BillPriceSum = item.Price;
 			I.BillDscntSum = item.Discount;
-			I.SumVat      = item.VatSum;      // @v6.2.4
-			I.SumExcise   = item.ExciseSum;   // @v6.2.4
-			I.SumSalesTax = item.STaxSum;     // @v6.2.4
+			I.SumVat      = item.VatSum;
+			I.SumExcise   = item.ExciseSum;
+			I.SumSalesTax = item.STaxSum;
 		}
 		else {
 			I.BillID       = 0;

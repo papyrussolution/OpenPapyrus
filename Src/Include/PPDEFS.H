@@ -8957,6 +8957,7 @@
 	#define CTL_VCALPAR_FILE           (7 + WINDOWS_ID_BIAS)
 	#define CTLBRW_VCALPAR_FILE        (8 + WINDOWS_ID_BIAS)
 #define DLG_PRINT2                  1082 // PRINT2
+	#define cmPrntCfg            101 //@erik v10.4.10
 	#define CTL_PRINT2_ACTION          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRINT2_REPORT          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRINT2_REPORT       (3 + WINDOWS_ID_BIAS)

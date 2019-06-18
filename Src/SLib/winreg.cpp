@@ -109,7 +109,7 @@ uint32 SLAPI WinRegValue::GetDWord() const
 {
 	if(oneof3(Type, REG_DWORD, REG_DWORD_LITTLE_ENDIAN, REG_DWORD_BIG_ENDIAN))
 		if(P_Buf && DataSize >= sizeof(DWORD))
-			return (uint32)*(DWORD *)P_Buf;
+			return static_cast<uint32>(*static_cast<const DWORD *>(P_Buf));
 	return 0;
 }
 
@@ -361,7 +361,7 @@ int SLAPI WinRegKey::EnumKeys(uint * pIdx, SString & rKey)
 {
 	int    ok = 0;
 	if(Key && pIdx) {
-		const size_t init_name_len = 256;
+		const  size_t init_name_len = 256;
 		DWORD  idx = *pIdx;
 		DWORD  data_len = 2048;
 		DWORD  name_len = init_name_len;

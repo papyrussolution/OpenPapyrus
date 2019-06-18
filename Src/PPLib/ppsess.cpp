@@ -1877,7 +1877,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 {
 	int    ok = 1;
 	SString temp_buf;
-	signal(SIGFPE,  (void (*)(int))FpeCatcher);
+	signal(SIGFPE, reinterpret_cast<void (*)(int)>(FpeCatcher));
 	SLS.Init(0, hInst);
 	{
 		PPVersionInfo vi = GetVersionInfo();
@@ -1890,8 +1890,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 		typedef VOID (WINAPI * DISABLEPROCESSWINDOWSGHOSTING)(VOID);
 		SDynLibrary lib_user32("USER32.DLL");
 		if(lib_user32.IsValid()) {
-			DISABLEPROCESSWINDOWSGHOSTING proc_DisableProcessWindowsGhosting =
-				(DISABLEPROCESSWINDOWSGHOSTING)lib_user32.GetProcAddr("DisableProcessWindowsGhosting");
+			DISABLEPROCESSWINDOWSGHOSTING proc_DisableProcessWindowsGhosting = reinterpret_cast<DISABLEPROCESSWINDOWSGHOSTING>(lib_user32.GetProcAddr("DisableProcessWindowsGhosting"));
 			if(proc_DisableProcessWindowsGhosting) {
 				proc_DisableProcessWindowsGhosting();
 			}

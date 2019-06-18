@@ -106,7 +106,6 @@ private:
 
 		SString Sid;
 		LMatrix2D * P_Mtx;
-		//
 		LMatrix2D Mtx;
 	};
 
@@ -204,24 +203,24 @@ int SSvg::GetAttrList(xmlNode * pNode, StrAssocArray & rList)
 	if(pNode && pNode->type == XML_ELEMENT_NODE) {
 		xmlAttr * p_prop = pNode->properties;
 		for(xmlAttr * p_prop = pNode->properties; p_prop; p_prop = p_prop->next) {
-			int    token = GetToken((const char *)p_prop->name);
+			int    token = GetToken(reinterpret_cast<const char *>(p_prop->name));
 			if(token) {
 				if(p_prop->type == XML_ATTRIBUTE_NODE) {
 					if(p_prop->children) {
 						if(!p_prop->children->next && oneof2(p_prop->children->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
-							rList.Add(token, (const char *)p_prop->children->content);
+							rList.Add(token, reinterpret_cast<const char *>(p_prop->children->content));
 						}
 						else {
 							xmlChar * p_ret = xmlNodeListGetString(p_prop->doc, p_prop->children, 1);
 							if(p_ret) {
-								rList.Add(token, (const char *)p_ret);
+								rList.Add(token, reinterpret_cast<const char *>(p_ret));
 								SAlloc::F(p_ret);
 							}
 						}
 					}
 				}
 				else if(p_prop->type == XML_ATTRIBUTE_DECL) {
-					rList.Add(token, (const char *)((xmlAttribute *)p_prop)->defaultValue);
+					rList.Add(token, reinterpret_cast<const char *>(reinterpret_cast<xmlAttribute *>(p_prop)->defaultValue));
 				}
 			}
 		}
@@ -368,7 +367,7 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 			break;
 		case tOpacity:   rBlk.Opacity = rVal.ToFloat(); break;
 		case tStopColor: GetColor(rVal, rBlk.GradientColor); break;
-		case tStopOpacity: rBlk.GradientColor.Alpha = (uint8)(rVal.ToFloat() * rBlk.Opacity * 255.0f); break;
+		case tStopOpacity: rBlk.GradientColor.Alpha = static_cast<uint8>(rVal.ToFloat() * rBlk.Opacity * 255.0f); break;
 		case tFill:
 			if(rVal != "none") {
 				if(rVal.CmpPrefix("url", 0) == 0) {
@@ -414,7 +413,7 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 				rBlk.Brush.Rule = SPaintObj::frEvenOdd;
 			break;
 		case tFillOpacity:
-			rBlk.Brush.C.Alpha = (uint8)(rVal.ToFloat() * rBlk.Opacity * 255.0f);
+			rBlk.Brush.C.Alpha = static_cast<uint8>(rVal.ToFloat() * rBlk.Opacity * 255.0f);
 			// @todo inherit
 			break;
 		case tStroke:
@@ -498,7 +497,7 @@ int SSvg::_GetUSize(const char * pTxt, int dir, float & rR)
 	usz.Dir = dir;
 	if(usz.FromStr(pTxt, USize::fmtSVG)) {
 		P_Result->ConvertCoord(usz, &sz);
-		rR = (float)sz;
+		rR = static_cast<float>(sz);
 		return 1;
 	}
 	else {
@@ -515,7 +514,11 @@ int SSvg::_GetPoints(SStrScan & rScan, const char * pTxt, FloatArray & rList)
 	SString temp_buf;
 	rScan.Skip();
 	while(rScan.GetDotPrefixedNumber(temp_buf)) {
-		rList.add(temp_buf.ToFloat());
+		// @v10.4.10 float val = temp_buf.ToFloat();
+		float val = atof(temp_buf); // @v10.4.10 
+		float temp_val = temp_buf.ToFloat();
+		assert(val == temp_val);
+		rList.add(val);
 		rScan.Skip().IncrChr(',');
 		rScan.Skip();
 	}

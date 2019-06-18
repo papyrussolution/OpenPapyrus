@@ -963,17 +963,12 @@ int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)
 	return ::TextOut(static_cast<HDC>(S.HCtx), p.x, p.y, SUcSwitch(pText), len) ? 1 : 0; // @unicodeproblem
 }
 
-TCanvas2::DrawingProcFrame::DrawingProcFrame(TCanvas2 * pCanv, const SDrawFigure * pFig)
+TCanvas2::DrawingProcFrame::DrawingProcFrame(TCanvas2 * pCanv, const SDrawFigure * pFig) : P_Canv(pCanv), P_Fig(pFig), MtxAppl(0)
 {
-	P_Canv = pCanv;
-	P_Fig = pFig;
-	MtxAppl = 0;
-	if(P_Fig) {
-		if(!P_Fig->GetTransform().IsIdentical()) {
-			P_Canv->PushTransform();
-			MtxAppl = 1;
-			P_Canv->AddTransform(P_Fig->GetTransform());
-		}
+	if(P_Fig && !P_Fig->GetTransform().IsIdentical()) {
+		P_Canv->PushTransform();
+		MtxAppl = 1;
+		P_Canv->AddTransform(P_Fig->GetTransform());
 	}
 }
 

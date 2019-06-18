@@ -2607,6 +2607,7 @@ public:
 	int    Store(const char * pFileName);
 	int    Load(const char * pFileName);
 	static float GetRuleWidth();
+	int    ProcessLayouts();
 private:
 	struct ObjZone {
 		int    I;

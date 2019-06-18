@@ -8057,6 +8057,9 @@ int PPALDD_ContentBList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 {
 	struct VIterState {
+		VIterState(int isDraft) : IsDraft(isDraft)
+		{
+		}
 		int    IsDraft;
 	};
 	IterProlog(iterId, 0);
@@ -8069,8 +8072,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 		if(!I.recNo) {
 			I.BillID = item.ID;
 			I.grpNo++;
-			VIterState vis;
-			vis.IsDraft = IsDraftOp(item.OpID);
+			VIterState vis(IsDraftOp(item.OpID));
 			p_v->SetIterState(&vis, sizeof(vis));
 		}
 		int    r = 0;

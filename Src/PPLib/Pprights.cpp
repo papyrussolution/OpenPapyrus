@@ -757,9 +757,9 @@ public:
 	{
 		int    s = 0;
 		if(dir > 0)
-			s = setDTS((ObjRestrictArray *)pData);
+			s = setDTS(static_cast<const ObjRestrictArray *>(pData));
 		else if(dir < 0)
-			s = getDTS((ObjRestrictArray *)pData);
+			s = getDTS(static_cast<ObjRestrictArray *>(pData));
 		else
 			s = ObjRestrictListDialog::TransmitData(dir, pData);
 		return s;
@@ -845,7 +845,8 @@ private:
 	}
 	virtual void getExtText(PPID objID, long objFlags, SString & rBuf)
 	{
-		PPLoadString((objFlags == 0) ? "no" : "yes", rBuf);
+		// @v10.4.10 PPLoadString((objFlags == 0) ? "no" : "yes", rBuf);
+		PPLoadString("yes", rBuf); // @v10.4.10
 	}
 	ObjRestrictArray Data;
 	PPObjCashNode CnObj;

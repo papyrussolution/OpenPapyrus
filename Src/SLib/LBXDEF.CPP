@@ -598,9 +598,9 @@ int SLAPI StdTreeListBoxDef::getCurID(long * pId)
 {
 	int    ok = 0;
 	if(P_SaList) {
-		const void * p = (const void *)getRow_(_curItem());
+		const void * p = getRow_(_curItem());
 		if(p) {
-			*pId = ((long *)p)[0];
+			*pId = static_cast<const long *>(p)[0];
 			ok = 1;
 		}
 	}

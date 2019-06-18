@@ -1,12 +1,12 @@
 // V_GOODS.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
 //
-// Фильтр по товарам
+// Р¤РёР»СЊС‚СЂ РїРѕ С‚РѕРІР°СЂР°Рј
 //
 int SLAPI GoodsFilt::InitInstance()
 {
@@ -94,7 +94,7 @@ int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GoodsFilt_v24, P_TagF));
 				Init(1, 0);
 			}
-			char   ReserveStart[4];    // @anchor Проецируется на __GoodsFilt::Reserve
+			char   ReserveStart[4];    // @anchor РџСЂРѕРµС†РёСЂСѓРµС‚СЃСЏ РЅР° __GoodsFilt::Reserve
 			PPID   UhttStoreID;
 			PPID   RestrictQuotKindID;
 			int32  InitOrder;
@@ -567,12 +567,12 @@ struct __GoodsFilt {
 	int32  ObjID;
 	int32  PropID;
 	/*
-		Номер версии записи. Предназначен для идентификации формата
-		записи при чтении ее из БД.
-		При добавлении новых полей в структуру следует уменьшать номер
-		версии (-11, -12, -13, -14 и т.д.) и в функции GoodsFilt::ReadFromProp
-		следить за номером версии считываемой записи и соответственно ее
-		обрабатывать.
+		РќРѕРјРµСЂ РІРµСЂСЃРёРё Р·Р°РїРёСЃРё. РџСЂРµРґРЅР°Р·РЅР°С‡РµРЅ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё С„РѕСЂРјР°С‚Р°
+		Р·Р°РїРёСЃРё РїСЂРё С‡С‚РµРЅРёРё РµРµ РёР· Р‘Р”.
+		РџСЂРё РґРѕР±Р°РІР»РµРЅРёРё РЅРѕРІС‹С… РїРѕР»РµР№ РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ СЃР»РµРґСѓРµС‚ СѓРјРµРЅСЊС€Р°С‚СЊ РЅРѕРјРµСЂ
+		РІРµСЂСЃРёРё (-11, -12, -13, -14 Рё С‚.Рґ.) Рё РІ С„СѓРЅРєС†РёРё GoodsFilt::ReadFromProp
+		СЃР»РµРґРёС‚СЊ Р·Р° РЅРѕРјРµСЂРѕРј РІРµСЂСЃРёРё СЃС‡РёС‚С‹РІР°РµРјРѕР№ Р·Р°РїРёСЃРё Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РµРµ
+		РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ.
 	*/
 	int32  VerTag; // -14 // @v3.11.3
 
@@ -587,9 +587,9 @@ struct __GoodsFilt {
 	PPID   ManufCountryID; // v-12
 	PPID   LocID;
 	DateRange   LotPeriod; // v-13
-	long   VatRate;        // v-15 // Ставка НДС (0.01), которой облагается товар
-	LDATE  VatDate;        // v-15 // Дата, на которую рассчитывается VatRate
-	PPID   BrandID;        // v-15 // Брэнд. (Просранство - за счет Reserve)
+	long   VatRate;        // v-15 // РЎС‚Р°РІРєР° РќР”РЎ (0.01), РєРѕС‚РѕСЂРѕР№ РѕР±Р»Р°РіР°РµС‚СЃСЏ С‚РѕРІР°СЂ
+	LDATE  VatDate;        // v-15 // Р”Р°С‚Р°, РЅР° РєРѕС‚РѕСЂСѓСЋ СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ VatRate
+	PPID   BrandID;        // v-15 // Р‘СЂСЌРЅРґ. (РџСЂРѕСЃСЂР°РЅСЃС‚РІРѕ - Р·Р° СЃС‡РµС‚ Reserve)
 	PPID   CodeArID;       // v-18
 	PPID   BrandOwnerID;   // v-20
 	int32  MtxLocID;       //
@@ -666,7 +666,7 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 		rec_size += sizeof(PPID) * BrandList.GetCount();
 		// } @v6.0.2
 		// @v6.4.2 (-21) {
-		rec_size += sizeof(int32); // Версия P_SjF (если 0 то P_SjF пустой)
+		rec_size += sizeof(int32); // Р’РµСЂСЃРёСЏ P_SjF (РµСЃР»Рё 0 С‚Рѕ P_SjF РїСѓСЃС‚РѕР№)
 		if(P_SjF && !P_SjF->IsEmpty()) {
 			rec_size += sizeof(P_SjF->Period);
 			rec_size += sizeof(P_SjF->BegTm);
@@ -677,12 +677,12 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 		}
 		// } @v6.4.2 (-21)
 		// @v7.2.0 (-22) {
-		rec_size += sizeof(int32); // Версия P_TagF (если 0 то P_TagF пустой)
+		rec_size += sizeof(int32); // Р’РµСЂСЃРёСЏ P_TagF (РµСЃР»Рё 0 С‚Рѕ P_TagF РїСѓСЃС‚РѕР№)
 		if(P_TagF && !P_TagF->IsEmpty()) {
 			rec_size += sizeof(P_TagF->Flags);
 			temp_ser_buf.Clear();
 			P_TagF->TagsRestrict.Write(temp_ser_buf, 0);
-			rec_size += sizeof(uint32); // Пространство под размер буфера
+			rec_size += sizeof(uint32); // РџСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РїРѕРґ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°
 			rec_size += temp_ser_buf.GetAvailableSize();
 		}
 		// } @v7.2.0 (-22)
@@ -903,7 +903,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				Ep.Z();
 				if(gds_cls_id) {
 					//
-					// В более поздних версиях добавились поля сверх перечисленных
+					// Р’ Р±РѕР»РµРµ РїРѕР·РґРЅРёС… РІРµСЂСЃРёСЏС… РґРѕР±Р°РІРёР»РёСЃСЊ РїРѕР»СЏ СЃРІРµСЂС… РїРµСЂРµС‡РёСЃР»РµРЅРЅС‹С…
 					//
 					struct ExtParams_16 {
 						PPID   GdsClsID;
@@ -1178,8 +1178,8 @@ SLAPI PPViewGoods::~PPViewGoods()
 	DBRemoveTempFiles();
 }
 //
-// Похоже, необходимости в этой функции нет, поскольку технология создания //
-// временных альтернативных групп больше не используется //
+// РџРѕС…РѕР¶Рµ, РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РІ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РЅРµС‚, РїРѕСЃРєРѕР»СЊРєСѓ С‚РµС…РЅРѕР»РѕРіРёСЏ СЃРѕР·РґР°РЅРёСЏ //
+// РІСЂРµРјРµРЅРЅС‹С… Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹С… РіСЂСѓРїРї Р±РѕР»СЊС€Рµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ //
 //
 int SLAPI PPViewGoods::RemoveTempAltGroup()
 {
@@ -1666,7 +1666,9 @@ void SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderT
 		const size_t max_prefix_len = 48;
 		Goods2Tbl::Rec temp_rec;
 		IterOrder ord = static_cast<IterOrder>(Filt.InitOrder);
-		SString buf, temp_buf;
+		SString buf;
+		SString temp_buf;
+		SString last_alphabet_symb;
 		memzero(pOrdRec, sizeof(*pOrdRec));
 		pOrdRec->ID = pGoodsRec->ID;
 		if(oneof2(ord, OrdByBarcode, OrdByBarcode_Name)) {
@@ -1681,8 +1683,10 @@ void SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderT
 			else
 				temp_buf.Z();
 			size_t len = temp_buf.Trim(max_prefix_len).Len();
-			if(len == 0)
-				temp_buf.CatCharN('я', max_prefix_len).ToOem();
+			if(len == 0) {
+				last_alphabet_symb.Z().CatChar('СЏ').Transf(CTRANSF_UTF8_TO_INNER);
+				temp_buf.CatCharN(last_alphabet_symb.C(0), max_prefix_len);
+			}
 			else {
 				size_t tail = (len >= max_prefix_len) ? 0 : max_prefix_len - len;
 				temp_buf.CatCharN((char)0, tail);
@@ -1698,8 +1702,10 @@ void SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderT
 			else
 				temp_buf.Z();
 			size_t len = temp_buf.Trim(max_prefix_len).Len();
-			if(len == 0)
-				temp_buf.CatCharN('я', max_prefix_len).ToOem();
+			if(len == 0) {
+				last_alphabet_symb.Z().CatChar('СЏ').Transf(CTRANSF_UTF8_TO_INNER);
+				temp_buf.CatCharN(last_alphabet_symb.C(0), max_prefix_len);
+			}
 			else {
 				size_t tail = (len >= max_prefix_len) ? 0 : max_prefix_len - len;
 				temp_buf.CatCharN((char)0, tail);
@@ -2545,7 +2551,7 @@ int SLAPI PPViewGoods::RemoveAll()
 						}
 						if(valid_bc_pos_list.getCount() > 1) {
 							uint j;
-							for(j = valid_bc_pos_list.getCount()-1; j > 0; j--) { // (j > 0) первый код оставляем в оригинальном пакете
+							for(j = valid_bc_pos_list.getCount()-1; j > 0; j--) { // (j > 0) РїРµСЂРІС‹Р№ РєРѕРґ РѕСЃС‚Р°РІР»СЏРµРј РІ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРј РїР°РєРµС‚Рµ
 								const uint bc_pos = valid_bc_pos_list.get(j);
 								const BarcodeTbl::Rec & r_bc_item = org_pack.Codes.at(bc_pos);
 								BarcodeTbl::Rec & r_org_bc_item = org_pack.Codes.at(bc_pos);
@@ -2557,7 +2563,7 @@ int SLAPI PPViewGoods::RemoveAll()
 								THROW(GObj.PutPacket(&temp_id, &org_pack, 0));
 								success_count++;
 							}
-							for(j = valid_bc_pos_list.getCount()-1; j > 0; j--) { // (j > 0) первый код оставляем в оригинальном пакете
+							for(j = valid_bc_pos_list.getCount()-1; j > 0; j--) { // (j > 0) РїРµСЂРІС‹Р№ РєРѕРґ РѕСЃС‚Р°РІР»СЏРµРј РІ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРј РїР°РєРµС‚Рµ
 								const uint bc_pos = valid_bc_pos_list.get(j);
 								const BarcodeTbl::Rec & r_bc_item = bc_list.at(bc_pos);
 								BarcodeTbl::Rec & r_org_bc_item = bc_list.at(bc_pos);
@@ -2850,10 +2856,10 @@ static int RecoverGoodsExtPropRef(PPID goodsID, PPID * pRefID, int isCls, const 
 
 struct GoodsRecoverParam {
 	enum {
-		fCorrect          = 0x0001, // Исправлять ошибки
-		fCheckAlcoAttribs = 0x0002  // @v9.3.5 Проверять алкогольные атрибут
+		fCorrect          = 0x0001, // РСЃРїСЂР°РІР»СЏС‚СЊ РѕС€РёР±РєРё
+		fCheckAlcoAttribs = 0x0002  // @v9.3.5 РџСЂРѕРІРµСЂСЏС‚СЊ Р°Р»РєРѕРіРѕР»СЊРЅС‹Рµ Р°С‚СЂРёР±СѓС‚
 	};
-	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
+	SString LogFileName;  // РРјСЏ С„Р°Р№Р»Р° Р¶СѓСЂРЅР°Р»Р°, РІ РєРѕС‚РѕСЂС‹Р№ Р·Р°РЅРѕСЃРёС‚СЃСЏ РёРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС€РёР±РєР°С…
 	long   Flags;
 };
 
@@ -2921,7 +2927,7 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 					else if(!pack.Stock.IsEmpty()) {
 						to_turn_packet = 1;
 					}
-					{ // Проверка на флаги
+					{ // РџСЂРѕРІРµСЂРєР° РЅР° С„Р»Р°РіРё
 						const long f = (pack.Rec.Flags & GF_DB_FLAGS_GOODS);
 						if(f != pack.Rec.Flags) {
 							pack.Rec.Flags = f;
@@ -2929,7 +2935,7 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 							err = 1;
 						}
 					}
-					{ // Проверка на обнуление зарезервированного пространства
+					{ // РџСЂРѕРІРµСЂРєР° РЅР° РѕР±РЅСѓР»РµРЅРёРµ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРіРѕ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР°
 						for(size_t i = 0; i < sizeof(pack.Rec.Reserve); i++)
 							if(pack.Rec.Reserve[i] != 0) {
 								pack.Rec.Reserve[i] = 0;
@@ -2983,15 +2989,15 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 							if(agi.StatusFlags & agi.stEgaisCodeByGoods) {
 							}
 							if(agi.CategoryCode.Empty()) {
-								//PPTXT_LOG_ALCGOODSHASNTCAT      "Для алкогольного товара '%s' не определен вид алкогольной продукции"
+								//PPTXT_LOG_ALCGOODSHASNTCAT      "Р”Р»СЏ Р°Р»РєРѕРіРѕР»СЊРЅРѕРіРѕ С‚РѕРІР°СЂР° '%s' РЅРµ РѕРїСЂРµРґРµР»РµРЅ РІРёРґ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё"
 								logger.LogString(PPTXT_LOG_ALCGOODSHASNTCAT, pack.Rec.Name);
 							}
 							if(agi.Proof <= 0.0) {
-								//PPTXT_LOG_ALCGOODSHASNTPROOF    "Для алкогольного товара '%s' не определено содержание спирта"
+								//PPTXT_LOG_ALCGOODSHASNTPROOF    "Р”Р»СЏ Р°Р»РєРѕРіРѕР»СЊРЅРѕРіРѕ С‚РѕРІР°СЂР° '%s' РЅРµ РѕРїСЂРµРґРµР»РµРЅРѕ СЃРѕРґРµСЂР¶Р°РЅРёРµ СЃРїРёСЂС‚Р°"
 								logger.LogString(PPTXT_LOG_ALCGOODSHASNTPROOF, pack.Rec.Name);
 							}
 							if(agi.Volume <= 0.0) {
-								//PPTXT_LOG_ALCGOODSHASNTVOL      "Для алкогольного товара '%s' не определен объем"
+								//PPTXT_LOG_ALCGOODSHASNTVOL      "Р”Р»СЏ Р°Р»РєРѕРіРѕР»СЊРЅРѕРіРѕ С‚РѕРІР°СЂР° '%s' РЅРµ РѕРїСЂРµРґРµР»РµРЅ РѕР±СЉРµРј"
 								logger.LogString(PPTXT_LOG_ALCGOODSHASNTVOL, pack.Rec.Name);
 							}
 						}
@@ -3317,7 +3323,7 @@ struct UhttExpGoodsParam {
 	{
 	}
 	long   Flags;
-	long   CategoryObject; // Сущность, которую следует выгружать в качестве наименования категории товара
+	long   CategoryObject; // РЎСѓС‰РЅРѕСЃС‚СЊ, РєРѕС‚РѕСЂСѓСЋ СЃР»РµРґСѓРµС‚ РІС‹РіСЂСѓР¶Р°С‚СЊ РІ РєР°С‡РµСЃС‚РІРµ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РєР°С‚РµРіРѕСЂРёРё С‚РѕРІР°СЂР°
 	PPID   CategoryTagID;
 };
 
@@ -3472,7 +3478,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 					Goods2Tbl::Rec goods_rec;
 					THROW(GObj.Search(goods_id, &goods_rec) > 0);
 					GObj.ReadBarcodes(goods_id, bc_list);
-					// @v10.0.0 Убираем из списка кодов коды алкогольной продукции ЕГАИС {
+					// @v10.0.0 РЈР±РёСЂР°РµРј РёР· СЃРїРёСЃРєР° РєРѕРґРѕРІ РєРѕРґС‹ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё Р•Р“РђРРЎ {
 					{
 						uint bcidx = bc_list.getCount();
 						if(bcidx) do {
@@ -3492,8 +3498,8 @@ int SLAPI PPViewGoods::ExportUhtt()
 									if(code_buf[0] > '9') {
 										uint   cp = 0;
 										int    ccr = bc_list.SearchCode(code_buf, &cp);
-										assert(ccr); // Не может быть чтобы код не был найден в списке -
-											// мы же его туда положили когда запрашивали соответствие через GetUhttGoodsRefList()
+										assert(ccr); // РќРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ С‡С‚РѕР±С‹ РєРѕРґ РЅРµ Р±С‹Р» РЅР°Р№РґРµРЅ РІ СЃРїРёСЃРєРµ -
+											// РјС‹ Р¶Рµ РµРіРѕ С‚СѓРґР° РїРѕР»РѕР¶РёР»Рё РєРѕРіРґР° Р·Р°РїСЂР°С€РёРІР°Р»Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ С‡РµСЂРµР· GetUhttGoodsRefList()
 										if(ccr) {
 											uhtt_goods_id = temp_uhtt_id;
 											private_code_pos = cp;
@@ -3504,7 +3510,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 										SETIFZ(uhtt_goods_id, temp_uhtt_id);
 								}
 								else {
-									; // Неожиданная ситуация - код обязательно должен быть
+									; // РќРµРѕР¶РёРґР°РЅРЅР°СЏ СЃРёС‚СѓР°С†РёСЏ - РєРѕРґ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ
 								}
 							}
 						}
@@ -3639,17 +3645,17 @@ int SLAPI PPViewGoods::ExportUhtt()
 									lf.At(0, img_path.Z());
 									if(img_path.NotEmptyS()) {
 										if(uc.SetObjImage("GOODS", uhtt_goods_id, img_path)) {
-											// PPTXT_LOG_UHTT_GOODSSETIMG "Для товара @goods экспортировано изображение"
+											// PPTXT_LOG_UHTT_GOODSSETIMG "Р”Р»СЏ С‚РѕРІР°СЂР° @goods СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°РЅРѕ РёР·РѕР±СЂР°Р¶РµРЅРёРµ"
 											logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSSETIMG, &msg_buf, goods_id));
 										}
 										else {
-											// PPTXT_LOG_UHTT_GOODSSETIMGFAULT "Ошибка экспорта изображения для товара @goods: @zstr"
+											// PPTXT_LOG_UHTT_GOODSSETIMGFAULT "РћС€РёР±РєР° СЌРєСЃРїРѕСЂС‚Р° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РґР»СЏ С‚РѕРІР°СЂР° @goods: @zstr"
 											logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSSETIMGFAULT, &msg_buf, goods_id, uc.GetLastMessage().cptr()));
 										}
 									}
 								}
 								else {
-									// PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
+									// PPTXT_LOG_UHTT_GOODSNOIMG "Р”Р»СЏ С‚РѕРІР°СЂР° @goods РЅРµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ"
 									logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, goods_id));
 								}
 							}
@@ -4005,8 +4011,8 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				}
 				break;
 			/*
-			@todo реализовать вызов AddBarcodeCheckDigit()
-			Ранее вызывалась по <Ctrl-X Ctrl-A>
+			@todo СЂРµР°Р»РёР·РѕРІР°С‚СЊ РІС‹Р·РѕРІ AddBarcodeCheckDigit()
+			Р Р°РЅРµРµ РІС‹Р·С‹РІР°Р»Р°СЃСЊ РїРѕ <Ctrl-X Ctrl-A>
 				AddBarcodeCheckDigit();
 			*/
 			//case PPVCMD_DETAIL:
@@ -4451,12 +4457,12 @@ int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
 			STRNSCPY(H.Name, p_blk->Pack.Rec.Name);
 
 			H.Brutto = p_blk->Pack.Stock.Brutto;
-			H.Length = p_blk->Pack.Stock.PckgDim.Length;   // Габаритная длина упаковки поставки,  мм
-			H.Width  = p_blk->Pack.Stock.PckgDim.Width;    // Габаритная ширина упаковки поставки, мм
-			H.Height = p_blk->Pack.Stock.PckgDim.Height;   // Габаритная высота упаковки поставки, мм
-			H.MinStock = p_blk->Pack.Stock.GetMinStock(0); // Минимальный запас товара
-			H.Package  = p_blk->Pack.Stock.Package;        // Емкость упаковки поставки (торговых единиц)
-			H.ExpiryPeriod = p_blk->Pack.Stock.ExpiryPeriod; // Срок годности товара (дней).
+			H.Length = p_blk->Pack.Stock.PckgDim.Length;   // Р“Р°Р±Р°СЂРёС‚РЅР°СЏ РґР»РёРЅР° СѓРїР°РєРѕРІРєРё РїРѕСЃС‚Р°РІРєРё,  РјРј
+			H.Width  = p_blk->Pack.Stock.PckgDim.Width;    // Р“Р°Р±Р°СЂРёС‚РЅР°СЏ С€РёСЂРёРЅР° СѓРїР°РєРѕРІРєРё РїРѕСЃС‚Р°РІРєРё, РјРј
+			H.Height = p_blk->Pack.Stock.PckgDim.Height;   // Р“Р°Р±Р°СЂРёС‚РЅР°СЏ РІС‹СЃРѕС‚Р° СѓРїР°РєРѕРІРєРё РїРѕСЃС‚Р°РІРєРё, РјРј
+			H.MinStock = p_blk->Pack.Stock.GetMinStock(0); // РњРёРЅРёРјР°Р»СЊРЅС‹Р№ Р·Р°РїР°СЃ С‚РѕРІР°СЂР°
+			H.Package  = p_blk->Pack.Stock.Package;        // Р•РјРєРѕСЃС‚СЊ СѓРїР°РєРѕРІРєРё РїРѕСЃС‚Р°РІРєРё (С‚РѕСЂРіРѕРІС‹С… РµРґРёРЅРёС†)
+			H.ExpiryPeriod = p_blk->Pack.Stock.ExpiryPeriod; // РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё С‚РѕРІР°СЂР° (РґРЅРµР№).
 			H.GseFlags = p_blk->Pack.Stock.GseFlags;
 			H.MinShippmQtty = p_blk->Pack.Stock.MinShippmQtty;
 
@@ -4708,8 +4714,8 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
             SCopyFile(org_file_path, dest_file_name, 0, 0, 0);
             //
             // @v9.1.1 {
-            // Для latex результирующее имя файла должно быть без расширения
-            // (в то время как сам файл расширение иметь должен)
+            // Р”Р»СЏ latex СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРµ РёРјСЏ С„Р°Р№Р»Р° РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р±РµР· СЂР°СЃС€РёСЂРµРЅРёСЏ
+            // (РІ С‚Рѕ РІСЂРµРјСЏ РєР°Рє СЃР°Рј С„Р°Р№Р» СЂР°СЃС€РёСЂРµРЅРёРµ РёРјРµС‚СЊ РґРѕР»Р¶РµРЅ)
             //
             if(P_Ep && P_Ep->OutputFormat == SFileFormat::Latex) {
 				ps_dest.Ext.Z();
@@ -5102,7 +5108,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			}
 			else {
 				//
-				// Ограниченное изменение товара (только под определенной учетной записью и только некоторые атрибуты)
+				// РћРіСЂР°РЅРёС‡РµРЅРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ С‚РѕРІР°СЂР° (С‚РѕР»СЊРєРѕ РїРѕРґ РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃСЊСЋ Рё С‚РѕР»СЊРєРѕ РЅРµРєРѕС‚РѕСЂС‹Рµ Р°С‚СЂРёР±СѓС‚С‹)
 				//
 				if(glob_acc_id) {
 					int    any_for_upd = 0;

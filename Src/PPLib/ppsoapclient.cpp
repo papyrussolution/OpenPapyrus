@@ -1,5 +1,5 @@
 // PPSOAPCLIENT.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
 //
 //
 #include <pp.h>
@@ -13,8 +13,9 @@ BOOL Implement_SoapModule_DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReser
 	switch(dwReason) {
 		case DLL_PROCESS_ATTACH:
 			{
-				SString product_name = pProductName;
-				SLS.Init(product_name, (HINSTANCE)hModule);
+				SString temp_buf;
+				temp_buf = pProductName;
+				SLS.Init(temp_buf, static_cast<HINSTANCE>(hModule));
 			}
 			break;
 		case DLL_THREAD_ATTACH:

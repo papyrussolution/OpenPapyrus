@@ -1480,10 +1480,10 @@ int SLAPI PrcssrDL200::Print()
 		STRNSCPY(fn, pans.Entries.at(pans.Selection)->ReportPath_);
 		switch(pans.Dest) {
 			case PrnDlgAns::aPrint:
-				ok = CrystalReportPrint(fn, OutPath, pans.Printer, pans.NumCopies, SPRN_DONTRENAMEFILES);
+				ok = CrystalReportPrint(fn, OutPath, pans.Printer, pans.NumCopies, SPRN_DONTRENAMEFILES, 0);
 				break;
 			case PrnDlgAns::aPreview:
-				ok = CrystalReportPrint(fn, OutPath, pans.Printer, 1, SPRN_PREVIEW | SPRN_DONTRENAMEFILES);
+				ok = CrystalReportPrint(fn, OutPath, pans.Printer, 1, SPRN_PREVIEW | SPRN_DONTRENAMEFILES, 0);
 				break;
 			case PrnDlgAns::aExport:
 				ok = CrystalReportExport(fn, OutPath, pans.P_ReportName, 0, 0);

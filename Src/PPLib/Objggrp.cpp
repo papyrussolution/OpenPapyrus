@@ -1789,7 +1789,7 @@ int SLAPI BrandFilt::IsEmpty() const
 
 SLAPI PPBrandPacket::PPBrandPacket()
 {
-	Init();
+	// @v10.4.10 (ctrs will do it) Init();
 }
 
 SLAPI PPBrandPacket::~PPBrandPacket()
@@ -1949,10 +1949,8 @@ int SLAPI PPObjBrand::GetListByFilt(const BrandFilt * pFilt, PPIDArray * pList)
 	k2.Kind = Kind;
 	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 		PPBrand rec;
-		if(Helper_GetRec(P_Tbl->data, &rec)) {
-			if(rec.CheckForFilt(pFilt)) {
-				THROW_SL(result_list.add(rec.ID));
-			}
+		if(Helper_GetRec(P_Tbl->data, &rec) && rec.CheckForFilt(pFilt)) {
+			THROW_SL(result_list.add(rec.ID));
 		}
 	}
 	CATCHZOK

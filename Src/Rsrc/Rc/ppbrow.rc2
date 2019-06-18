@@ -630,7 +630,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	DORECOVER     : kbCtrlR,  TBBM_HAMMER,     "@{verificationandrecovery}\tCtrl-R"
 	separator
 	CHANGEFILT    : kbCtrlV,  TBBM_FILTER,     "@{filter}\tCtrl-V"
-	CHANGECLOSEPAR: kbCtrlA,  TBBM_TEST,       "Все/Только открытые"
+	CHANGECLOSEPAR: kbCtrlA,  TBBM_TEST,       "Все/Только открытые\tCtrl-A"
 }
 
 toolbar export ORDLOTS TB_FIRST_TOOLBAR {
@@ -5954,7 +5954,7 @@ browser BUDGET north(100), 1, 1, "Бюджеты", OWNER|GRID, 0
 
 browser BUDGETITEMS_CROSSTAB north(100), 3, 1, "Статьи бюджета", OWNER|GRID, 0
 {
-	"Бюджетный счет",   2, notype, 0, 30
+	"@budgetaccount",   2, notype, 0, 30
 	crosstab "@date", notype, NMBF_NOZERO|NMBF_NOTRAILZ, 12.2
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM        : kbIns,    TBBM_INSERT,       "@{add}\tInsert"
@@ -5975,7 +5975,7 @@ browser BUDGETITEMS_CROSSTAB north(100), 3, 1, "Статьи бюджета", OWNER|GRID, 0
 
 browser BUDGET_ITEMS north(100), 1, 1, "Статьи бюджета", OWNER|GRID, 0
 {
-	"Бюджетный счет",  4, notype,  0, 30
+	"@budgetaccount",  4, notype,  0, 30
 	"@date",           5, notype,  0, 20
 	"@plan",           6, notype,  NMBF_NOZERO, 12.2
 	"@fact",           7, notype,  NMBF_NOZERO, 12.2
@@ -8175,7 +8175,7 @@ reportstub TransportView    { dl600data=TransportView,   "Транспортные средства"
 reportstub CSess_KM6        { dl600data=CSessionKM,      "Кассовая сессия" }
 reportstub PaymPlanDetail   { dl600data=PaymPlan,        "План платежей с детализацией по документам" }
 reportstub GoodsOpAnlzDraftWrOff { dl600data=GoodsOpAnlz, "Товарный отчет по драфт-операции в сравнении со списанием" }
-reportstub Budget           { dl600data=Budget,          "Бюджет" }
+reportstub Budget           { dl600data=Budget,          "@{budget}" }
 reportstub CheckOpJrnl      { dl600data=CheckOpJrnl,     "Журнал чековых операций" }
 reportstub GTaxAnlz_LedgByLots { dl600data=GoodsTaxAnlz, "Книга учета частного предпринимателя (приходы)" }
 reportstub GoodsMov2        { dl600data=GoodsMov2, "Движение товаров" }

@@ -2465,7 +2465,6 @@ int SLAPI StrAssocArray::GetTextByPos(uint textPos, SString & rBuf) const
 	return ok;
 }
 
-//StrAssocArray::Item FASTCALL StrAssocArray::at(uint pos) const
 StrAssocArray::Item FASTCALL StrAssocArray::Get(uint pos) const
 {
 	Item   item;

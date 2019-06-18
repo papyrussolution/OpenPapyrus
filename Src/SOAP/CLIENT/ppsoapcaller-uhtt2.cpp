@@ -1,5 +1,5 @@
 // PPSOAPCALLER-UHTT.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <ppsoapclient.h>
 #include "uhtt2\uhttSoapWSInterfaceImplServiceSoapBindingProxy.h"

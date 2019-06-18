@@ -1354,9 +1354,23 @@ int SLAPI PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf *
 					sav_recur_pos = pRecurTrace->getCount();
 			}
 			for(uint p = 0; (r2 = gs.EnumItemsExt(&p, &gs_item, goods_id, ext_req, &src_qtty)) > 0;) {
-				MrpReqItem reqi(gs_item.GoodsID, 0/*flags*/, src_qtty, 0.0);
-				THROW(r = Helper_ExpandReq(pPack, pLeaf, reqi, 1, cflags, pRecurTrace)); // @recursion
-				THROW(pPack->AddLine__(pLeaf->TabID, goods_id, gs_item.GoodsID, ext_req, src_qtty, 0, (r == 2) ? 0 : MRPLF_TERMINAL));
+				Goods2Tbl::Rec item_goods_rec;
+				if(goods_obj.Fetch(gs_item.GoodsID, &item_goods_rec) > 0) { // @v10.4.10 
+					MrpReqItem reqi(gs_item.GoodsID, 0/*flags*/, src_qtty, 0.0);
+					THROW(r = Helper_ExpandReq(pPack, pLeaf, reqi, 1, cflags, pRecurTrace)); // @recursion
+					THROW(pPack->AddLine__(pLeaf->TabID, goods_id, gs_item.GoodsID, ext_req, src_qtty, 0, (r == 2) ? 0 : MRPLF_TERMINAL));
+				}
+				// @v10.4.10 {
+				else {
+					SString msg_buf;
+					GetGoodsName(goods_id, msg_buf);
+					msg_buf.Space();
+					if(gs.Rec.Name[0])
+						msg_buf.Cat(gs.Rec.Name).Space();
+					msg_buf.CatEq("goods_id", gs_item.GoodsID);
+					CALLEXCEPT_PP_S(PPERR_GSTRUCHASUNDEFGOODS, msg_buf);
+				}
+				// @v10.4.10 {
 			}
 			THROW(r2);
 			terminal = 0;
@@ -1409,11 +1423,8 @@ int SLAPI PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_t
 		THROW_PP(Search(base_leaf.TabID, &base_rec) > 0, PPERR_BASEMRPNFOUND);
 		THROW(P_Tbl->RemoveLines(base_leaf.TabID, 0));
 		if(pTree->IsTree()) {
-			// @v8.4.8 {
 			SString msg_buf;
 			PPLoadText(PPTXT_MRPTABFINISHING, msg_buf);
-			// } @v8.4.8
-
 			uint   i, j;
 			PPIDArray loc_list;
 			MrpTabLeaf * p_item;

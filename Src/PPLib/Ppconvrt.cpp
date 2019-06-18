@@ -1,7 +1,7 @@
 // PPCONVRT.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-// Конвертация файлов данных при изменениях версий
+// @codepage UTF-8
+// РљРѕРЅРІРµСЂС‚Р°С†РёСЏ С„Р°Р№Р»РѕРІ РґР°РЅРЅС‹С… РїСЂРё РёР·РјРµРЅРµРЅРёСЏС… РІРµСЂСЃРёР№
 //
 #include <pp.h>
 #pragma hdrstop
@@ -48,7 +48,7 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 					const PPID secur_obj_list[] = { PPOBJ_CONFIG, PPOBJ_USRGRP, PPOBJ_USR };
 					PPTransaction tra(1);
 					THROW(tra);
-					THROW(PPReEncryptDatabaseChain(p_bobj, p_ref, ppb_src.DefPassword, ppb_dest.DefPassword, 0)); // Собсвенная транзакция
+					THROW(PPReEncryptDatabaseChain(p_bobj, p_ref, ppb_src.DefPassword, ppb_dest.DefPassword, 0)); // РЎРѕР±СЃРІРµРЅРЅР°СЏ С‚СЂР°РЅР·Р°РєС†РёСЏ
 					for(uint si = 0; si < SIZEOFARRAY(secur_obj_list); si++) {
 						const PPID sec_obj_type = secur_obj_list[si];
 						for(PPID sec_id = 0; p_ref->EnumItems(sec_obj_type, &sec_id, &sec_rec) > 0;) {
@@ -144,10 +144,7 @@ protected:
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion) = 0;
 	virtual void SLAPI DestroyTable(DBTable * pTbl);
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen) = 0;
-	virtual int SLAPI Final(DBTable * pTbl)
-	{
-		return -1;
-	}
+	virtual int SLAPI Final(DBTable * pTbl) { return -1; }
 	PPLogger Logger;
 };
 
@@ -159,9 +156,9 @@ void SLAPI PPTableConversion::DestroyTable(DBTable * pTbl)
 int SLAPI PPTableConversion::Convert()
 {
 	//
-	// Так как сеанс конвертации может состоять из нескольких конвертаций отдельных таблиц
-	// необходимо иметь общий каталог, в который будут сбрасываться резервные копии всех конвертируемых в
-	// данном сеансе файлов.
+	// РўР°Рє РєР°Рє СЃРµР°РЅСЃ РєРѕРЅРІРµСЂС‚Р°С†РёРё РјРѕР¶РµС‚ СЃРѕСЃС‚РѕСЏС‚СЊ РёР· РЅРµСЃРєРѕР»СЊРєРёС… РєРѕРЅРІРµСЂС‚Р°С†РёР№ РѕС‚РґРµР»СЊРЅС‹С… С‚Р°Р±Р»РёС†
+	// РЅРµРѕР±С…РѕРґРёРјРѕ РёРјРµС‚СЊ РѕР±С‰РёР№ РєР°С‚Р°Р»РѕРі, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґСѓС‚ СЃР±СЂР°СЃС‹РІР°С‚СЊСЃСЏ СЂРµР·РµСЂРІРЅС‹Рµ РєРѕРїРёРё РІСЃРµС… РєРѕРЅРІРµСЂС‚РёСЂСѓРµРјС‹С… РІ
+	// РґР°РЅРЅРѕРј СЃРµР°РЅСЃРµ С„Р°Р№Р»РѕРІ.
 	//
 	static SString _BakPath;
 	//
@@ -178,14 +175,14 @@ int SLAPI PPTableConversion::Convert()
 	DBTable * p_old_tbl = 0;
 	SString temp_buf;
 
-	DBTablePartitionList tpl; // Агрегат, содержащий информацию об оригинальных файлах, подлежащих конвертации
+	DBTablePartitionList tpl; // РђРіСЂРµРіР°С‚, СЃРѕРґРµСЂР¶Р°С‰РёР№ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± РѕСЂРёРіРёРЅР°Р»СЊРЅС‹С… С„Р°Р№Р»Р°С…, РїРѕРґР»РµР¶Р°С‰РёС… РєРѕРЅРІРµСЂС‚Р°С†РёРё
 	DBTablePartitionList::Entry tpe, tpe_con;
-	LongArray moved_pos_list; // Список позиций файлов в массиве tpl, которые фактически были перемещены в резервный каталог
+	LongArray moved_pos_list; // РЎРїРёСЃРѕРє РїРѕР·РёС†РёР№ С„Р°Р№Р»РѕРІ РІ РјР°СЃСЃРёРІРµ tpl, РєРѕС‚РѕСЂС‹Рµ С„Р°РєС‚РёС‡РµСЃРєРё Р±С‹Р»Рё РїРµСЂРµРјРµС‰РµРЅС‹ РІ СЂРµР·РµСЂРІРЅС‹Р№ РєР°С‚Р°Р»РѕРі
 
 	ENTER_CRITICAL_SECTION
 	if(need_conversion) {
 		SString ext_str, new_path, file_path;
-		SString old_fname_to_convert; // Имя файла, который мы будет открывать для конвертации.
+		SString old_fname_to_convert; // РРјСЏ С„Р°Р№Р»Р°, РєРѕС‚РѕСЂС‹Р№ РјС‹ Р±СѓРґРµС‚ РѕС‚РєСЂС‹РІР°С‚СЊ РґР»СЏ РєРѕРЅРІРµСЂС‚Р°С†РёРё.
 		SPathStruc path_struc;
 		THROW(DS.GetSync().LockDB());
 		db_locked = 1;
@@ -210,15 +207,15 @@ int SLAPI PPTableConversion::Convert()
 		}
 		THROW_PP_S(_BakPath.NotEmpty() && fileExists(_BakPath), /*PPERR_CVT_BAKPATHFAULT*/1, file_name);
 		{
-			LongArray to_copy_pos_list; // Список позиций файлов в массиве tpl, которые необходимо скопировать в резервный каталог
+			LongArray to_copy_pos_list; // РЎРїРёСЃРѕРє РїРѕР·РёС†РёР№ С„Р°Р№Р»РѕРІ РІ РјР°СЃСЃРёРІРµ tpl, РєРѕС‚РѕСЂС‹Рµ РЅРµРѕР±С…РѕРґРёРјРѕ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ РІ СЂРµР·РµСЂРІРЅС‹Р№ РєР°С‚Р°Р»РѕРі
 			THROW_DB(tpl.Init(file_name, 0, 0));
 			if(tpl.GetConEntry(tpe_con)) {
 				//
-				// Если существует файл continuous-состояния (^^^) то дадим ему несколько секунд
-				// на исчезновение...
+				// Р•СЃР»Рё СЃСѓС‰РµСЃС‚РІСѓРµС‚ С„Р°Р№Р» continuous-СЃРѕСЃС‚РѕСЏРЅРёСЏ (^^^) С‚Рѕ РґР°РґРёРј РµРјСѓ РЅРµСЃРєРѕР»СЊРєРѕ СЃРµРєСѓРЅРґ
+				// РЅР° РёСЃС‡РµР·РЅРѕРІРµРЅРёРµ...
 				//
 				SDelay(5000);
-				// ... и снова инициализируем tpl
+				// ... Рё СЃРЅРѕРІР° РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј tpl
 				THROW_DB(tpl.Init(file_name, 0, 0));
 			}
 			for(i = 0; i < tpl.GetCount(); i++) {
@@ -281,7 +278,7 @@ int SLAPI PPTableConversion::Convert()
 		p_tbl = 0;
 		ZDELETE(p_old_tbl);
 		//
-		// Раз ничего не вышло, то возвращаем назад перемещенные файлы
+		// Р Р°Р· РЅРёС‡РµРіРѕ РЅРµ РІС‹С€Р»Рѕ, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј РЅР°Р·Р°Рґ РїРµСЂРµРјРµС‰РµРЅРЅС‹Рµ С„Р°Р№Р»С‹
 		//
 		for(i = 0; i < moved_pos_list.getCount(); i++) {
 			tpl.Get(moved_pos_list.get(i), tpe);
@@ -457,7 +454,7 @@ int SLAPI GoodsConvertion270::ConvertGroups()
 			}
 	}
 	{
-		// Удаление синхронизации групп товаров
+		// РЈРґР°Р»РµРЅРёРµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РіСЂСѓРїРї С‚РѕРІР°СЂРѕРІ
 		ObjSyncTbl::Key0 k;
 		MEMSZERO(k);
 		k.ObjType = PPOBJ_GOODSGROUP;
@@ -886,14 +883,14 @@ int SLAPI PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
 		PPID   Tag;          //
 		PPID   ID;           //
 		PPID   Prop;         //
-		int16  Count;        // Количество элементов в кластере
+		int16  Count;        // РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РєР»Р°СЃС‚РµСЂРµ
 		PPID   Items[LLC_LIMIT];
 	};
 	struct AccListBuf { // 84
 		PPID   Tag;          //
 		PPID   ID;           //
 		PPID   Prop;         //
-		int16  Size;         // Длина строки в байтах
+		int16  Size;         // Р”Р»РёРЅР° СЃС‚СЂРѕРєРё РІ Р±Р°Р№С‚Р°С…
 		char   Str[ALS_LIMIT];
 	};
 	int ok = 1, r;
@@ -1021,13 +1018,13 @@ private:
 	long * ptr;
 };
 //
-// Структура списка групп операций по счетчику:
+// РЎС‚СЂСѓРєС‚СѓСЂР° СЃРїРёСЃРєР° РіСЂСѓРїРї РѕРїРµСЂР°С†РёР№ РїРѕ СЃС‡РµС‚С‡РёРєСѓ:
 //
 //    Variable Part:
 //        long Count;
 //        long Items[Count];
 //
-// Группы неявно идентифицируются порядковым номером в списке (0..)
+// Р“СЂСѓРїРїС‹ РЅРµСЏРІРЅРѕ РёРґРµРЅС‚РёС„РёС†РёСЂСѓСЋС‚СЃСЏ РїРѕСЂСЏРґРєРѕРІС‹Рј РЅРѕРјРµСЂРѕРј РІ СЃРїРёСЃРєРµ (0..)
 //
 // sizeof(CntGrpCluster) == PROPRECFIXSIZE
 //
@@ -1090,13 +1087,13 @@ struct PPOprKind_Before301 {
 	long   Tag;              // Const PPOBJ_OPRKIND
 	long   ID;
 	char   Name[42];
-	int16  Rank;             // @v2.9.10 Ранг операции (порядок сортировки)
-	long   Link;             // Связанный вид операции
-	char   CodeTemplate[16]; // Шаблон генерации кода документа
-	long   Counter;          // Номер последней операции по кодировке
+	int16  Rank;             // @v2.9.10 Р Р°РЅРі РѕРїРµСЂР°С†РёРё (РїРѕСЂСЏРґРѕРє СЃРѕСЂС‚РёСЂРѕРІРєРё)
+	long   Link;             // РЎРІСЏР·Р°РЅРЅС‹Р№ РІРёРґ РѕРїРµСЂР°С†РёРё
+	char   CodeTemplate[16]; // РЁР°Р±Р»РѕРЅ РіРµРЅРµСЂР°С†РёРё РєРѕРґР° РґРѕРєСѓРјРµРЅС‚Р°
+	long   Counter;          // РќРѕРјРµСЂ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРё РїРѕ РєРѕРґРёСЂРѕРІРєРµ
 	long   Flags;            // OPKF_XXX
-	long   OprType;          // Тип операции PPOprType::ID
-	long   AccSheet;         // Связанная таблица аналитических статей
+	long   OprType;          // РўРёРї РѕРїРµСЂР°С†РёРё PPOprType::ID
+	long   AccSheet;         // РЎРІСЏР·Р°РЅРЅР°СЏ С‚Р°Р±Р»РёС†Р° Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№
 };
 
 int SLAPI Convert301()
@@ -1238,7 +1235,7 @@ public:
 
 CONVERT_PROC(Convert329, PPCvtSJ329);
 //
-// Эта конвертация перенесена в Convert4405
+// Р­С‚Р° РєРѕРЅРІРµСЂС‚Р°С†РёСЏ РїРµСЂРµРЅРµСЃРµРЅР° РІ Convert4405
 //
 class PPCvtRegister3512 : public PPTableConversion {
 public:
@@ -1283,7 +1280,7 @@ public:
 
 CONVERT_PROC(Convert3512, PPCvtRegister3512);
 
-// @v9.0.4 (Перенесено ниже) #endif // } 0
+// @v9.0.4 (РџРµСЂРµРЅРµСЃРµРЅРѕ РЅРёР¶Рµ) #endif // } 0
 //
 //
 //
@@ -1458,7 +1455,7 @@ public:
 
 CONVERT_PROC(Convert31110, PPCvtCCheck31110);
 
-#endif // } 0 @v9.0.4 (снята поддержка Convert31110, Convert31102, Convert400, Convert372)
+#endif // } 0 @v9.0.4 (СЃРЅСЏС‚Р° РїРѕРґРґРµСЂР¶РєР° Convert31110, Convert31102, Convert400, Convert372)
 //
 //
 //
@@ -1481,23 +1478,23 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		struct OldBillRec { // Size = 76+160
-			long   ID;       // Ид. документа
-			char   Code[10];    // Код документа
-			LDATE  Dt;          // Дата документа
-			long   BillNo;      // Номер документа за день
-			long   OprKind;     // Вид операции          ->Ref(PPOBJ_OPRKIND)
-			long   UserID;      // Пользователь          ->Ref(PPOBJ_USR)
-			long   Location;    // Позиция               ->Location.ID
-			long   Object;      // Контрагент            ->Article.ID
-			long   Object2;     // Дополнительный объект ->Article.ID
-			long   CurID;       // Валюта (0 - базовая)  ->Ref(PPOBJ_CURRENCY)
-			double CRate;       // Курс валюты для пересчета в базовую валюту
-			char   Amount[8];   // Номинальная сумма (в единицах CurID)
-			long   LinkBillID;  // Связанный документ    ->Bill.ID
-			long   Flags;       // Флаги
-			int16  AccessLevel; // Уровень доступа к документу
+			long   ID;       // РРґ. РґРѕРєСѓРјРµРЅС‚Р°
+			char   Code[10];    // РљРѕРґ РґРѕРєСѓРјРµРЅС‚Р°
+			LDATE  Dt;          // Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р°
+			long   BillNo;      // РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° Р·Р° РґРµРЅСЊ
+			long   OprKind;     // Р’РёРґ РѕРїРµСЂР°С†РёРё          ->Ref(PPOBJ_OPRKIND)
+			long   UserID;      // РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ          ->Ref(PPOBJ_USR)
+			long   Location;    // РџРѕР·РёС†РёСЏ               ->Location.ID
+			long   Object;      // РљРѕРЅС‚СЂР°РіРµРЅС‚            ->Article.ID
+			long   Object2;     // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ ->Article.ID
+			long   CurID;       // Р’Р°Р»СЋС‚Р° (0 - Р±Р°Р·РѕРІР°СЏ)  ->Ref(PPOBJ_CURRENCY)
+			double CRate;       // РљСѓСЂСЃ РІР°Р»СЋС‚С‹ РґР»СЏ РїРµСЂРµСЃС‡РµС‚Р° РІ Р±Р°Р·РѕРІСѓСЋ РІР°Р»СЋС‚Сѓ
+			char   Amount[8];   // РќРѕРјРёРЅР°Р»СЊРЅР°СЏ СЃСѓРјРјР° (РІ РµРґРёРЅРёС†Р°С… CurID)
+			long   LinkBillID;  // РЎРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚    ->Bill.ID
+			long   Flags;       // Р¤Р»Р°РіРё
+			int16  AccessLevel; // РЈСЂРѕРІРµРЅСЊ РґРѕСЃС‚СѓРїР° Рє РґРѕРєСѓРјРµРЅС‚Сѓ
 			//long   SCardID;     // @v4.1.8 ->SCard.ID
-			char   Memo[160];   // Примечание
+			char   Memo[160];   // РџСЂРёРјРµС‡Р°РЅРёРµ
 		} * p_rec = (OldBillRec *)rec;
 		BillTbl::Rec * p_data = (BillTbl::Rec*)tbl->getDataBuf();
 		tbl->clearDataBuf();
@@ -1524,7 +1521,7 @@ public:
 	}
 };
 
-#if 0 // { Перенесено в PPCvtCCheckLine5207
+#if 0 // { РџРµСЂРµРЅРµСЃРµРЅРѕ РІ PPCvtCCheckLine5207
 
 class PPCvtCCheckLine4108 : public PPTableConversion {
 public:
@@ -1540,7 +1537,7 @@ DBTable * SLAPI PPCvtCCheckLine4108::CreateTableInstance(int * pNeedConversion)
 	else if(pNeedConversion) {
 		RECORDSIZE recsz = p_tbl->getRecSize();
 		//
-		// В новом формате запись короче (28 байтов вместо 40)
+		// Р’ РЅРѕРІРѕРј С„РѕСЂРјР°С‚Рµ Р·Р°РїРёСЃСЊ РєРѕСЂРѕС‡Рµ (28 Р±Р°Р№С‚РѕРІ РІРјРµСЃС‚Рѕ 40)
 		//
 		*pNeedConversion = BIN(recsz > sizeof(CCheckLineTbl::Rec));
 	}
@@ -1551,12 +1548,12 @@ int SLAPI PPCvtCCheckLine4108::ConvertRec(DBTable * pTbl, void * pRec, int * /*p
 {
 	struct OldCCheckLineRec {
 		long   CheckID;      // -> CCheck.ID
-		long   RByCheck;     // Счетчик строк по чеку
-		long   DivID;        // Отдел магазина
+		long   RByCheck;     // РЎС‡РµС‚С‡РёРє СЃС‚СЂРѕРє РїРѕ С‡РµРєСѓ
+		long   DivID;        // РћС‚РґРµР» РјР°РіР°Р·РёРЅР°
 		long   GoodsID;      // -> Goods.ID
-		double Quantity;     // Количество товара
-		char   Price[8];     // Цена
-		char   Discount[8];  // Скидка
+		double Quantity;     // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР°
+		char   Price[8];     // Р¦РµРЅР°
+		char   Discount[8];  // РЎРєРёРґРєР°
 	} * p_old_data = (OldCCheckLineRec*)pRec;
 	CCheckLineTbl::Rec * p_data = (CCheckLineTbl::Rec*)pTbl->getDataBuf();
 	memzero(p_data, sizeof(CCheckLineTbl::Rec));
@@ -1585,7 +1582,7 @@ public:
 		else if(pNeedConversion) {
 			RECORDSIZE recsz = p_tbl->getRecSize();
 			//
-			// В новом формате запись короче (48 байтов вместо 56)
+			// Р’ РЅРѕРІРѕРј С„РѕСЂРјР°С‚Рµ Р·Р°РїРёСЃСЊ РєРѕСЂРѕС‡Рµ (48 Р±Р°Р№С‚РѕРІ РІРјРµСЃС‚Рѕ 56)
 			//
 			*pNeedConversion = BIN(recsz > sizeof(SCardOpTbl::Rec));
 		}
@@ -1672,7 +1669,7 @@ DBTable * SLAPI PPCvtVatBook4402::CreateTableInstance(int * pNeedConversion)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
 		//
-		// Сюда же перенесена проверка на конвертацию VATBook 3.11.2, которая упразднена
+		// РЎСЋРґР° Р¶Рµ РїРµСЂРµРЅРµСЃРµРЅР° РїСЂРѕРІРµСЂРєР° РЅР° РєРѕРЅРІРµСЂС‚Р°С†РёСЋ VATBook 3.11.2, РєРѕС‚РѕСЂР°СЏ СѓРїСЂР°Р·РґРЅРµРЅР°
 		//
 		int    num_seg = 0;
 		DBIdxSpec * p_is = p_tbl->getIndexSpec(1, &num_seg);
@@ -1743,7 +1740,7 @@ CONVERT_PROC(Convert4402, PPCvtVatBook4402);
 //
 //
 //
-#if 0 // Перенесено в Convert5200 {
+#if 0 // РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert5200 {
 
 class PPCvtGoods4405 : public PPTableConversion {
 public:
@@ -1860,7 +1857,7 @@ DBTable * SLAPI PPCvtPriceLine4405::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtPriceLine4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldPriceLineRec1 {
+	const struct OldPriceLineRec1 {
 		long    ListID;
 		long    GoodsID;
 		short   LineNo;
@@ -1878,8 +1875,8 @@ int SLAPI PPCvtPriceLine4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pN
 		char    Reserve[32];
 		LDATE   Expiry;
 		char    Memo[128];
-	} * p_old_data1 = (OldPriceLineRec1*)pRec;
-	struct OldPriceLineRec2 {
+	} * p_old_data1 = static_cast<const OldPriceLineRec1 *>(pRec);
+	const struct OldPriceLineRec2 {
 		long    ListID;
 		long    GoodsID;
 		short   LineNo;
@@ -1898,9 +1895,9 @@ int SLAPI PPCvtPriceLine4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pN
 		double  Rest;
 		LDATE   Expiry;
 		char    Memo[128];
-	} * p_old_data2 = (OldPriceLineRec2*)pRec;
+	} * p_old_data2 = static_cast<const OldPriceLineRec2 *>(pRec);
 
-	PriceLineTbl::Rec * p_data = (PriceLineTbl::Rec*)pTbl->getDataBuf();
+	PriceLineTbl::Rec * p_data = static_cast<PriceLineTbl::Rec *>(pTbl->getDataBuf());
 	memzero(p_data, sizeof(PriceLineTbl::Rec));
 	if(_pre380format) {
 		p_data->ListID      = p_old_data1->ListID;
@@ -1966,28 +1963,31 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		pTbl->clearDataBuf();
-		RegisterTbl::Rec tmp_buf;
-		MEMSZERO(tmp_buf);
-		memcpy(&tmp_buf, pRec, sizeof(RegisterTbl::Rec));
-		tmp_buf.UniqCntr = 0;
-		tmp_buf.Flags = 0;
-
+		SString temp_buf;
+		RegisterTbl::Rec tmp_rec;
+		MEMSZERO(tmp_rec);
+		memcpy(&tmp_rec, pRec, sizeof(RegisterTbl::Rec));
+		tmp_rec.UniqCntr = 0;
+		tmp_rec.Flags = 0;
 		char   serial_buf[48];
 		int    c = 0;
-		STRNSCPY(serial_buf, tmp_buf.Serial);
+		STRNSCPY(serial_buf, tmp_rec.Serial);
 		while(1) {
 			RegisterTbl::Key3 k3;
 			MEMSZERO(k3);
-			k3.RegTypeID = tmp_buf.RegTypeID;
-			STRNSCPY(k3.Serial, tmp_buf.Serial);
-			STRNSCPY(k3.Num, tmp_buf.Num);
+			k3.RegTypeID = tmp_rec.RegTypeID;
+			STRNSCPY(k3.Serial, tmp_rec.Serial);
+			STRNSCPY(k3.Num, tmp_rec.Num);
 			k3.UniqCntr = 0;
 			if(pTbl->search(3, &k3, spEq)) {
-				sprintf(tmp_buf.Serial, "%s #%d", serial_buf, ++c);
-				strip(tmp_buf.Serial);
+				c++;
+				// @v10.4.10 sprintf(tmp_rec.Serial, "%s #%d", serial_buf, c);
+				// @v10.4.10 strip(tmp_rec.Serial);
+				temp_buf.Z().Cat(serial_buf).Space().CatChar('#').Cat(c).Strip(); // @v10.4.10 
+				STRNSCPY(tmp_rec.Serial, temp_buf); // @v10.4.10 
 			}
 			else {
-				pTbl->copyBufFrom(&tmp_buf);
+				pTbl->copyBufFrom(&tmp_rec);
 				break;
 			}
 		}
@@ -1999,7 +1999,7 @@ int SLAPI Convert4405()
 {
 	int    ok = 1;
 	PPWait(1);
-#if 0 // Перенесено в Convert5200 {
+#if 0 // РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert5200 {
 	if(ok) {
 		PPCvtGoods4405    gds_cvt;
 		ok = gds_cvt.Convert() ? 1 : PPErrorZ();
@@ -2043,12 +2043,11 @@ DBTable * SLAPI PPCvtHistBill4515::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtHistBill4515::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldRec {
+	const struct OldRec {
 		long   ID;
 		long   InnerID;
 		long   BillID;
 		long   Ver;
-
 		char   Code[24];
 		LDATE  Dt;
 		long   OprKind;
@@ -2063,8 +2062,8 @@ int SLAPI PPCvtHistBill4515::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNe
 		long   SCardID;
 		long   PayerID;
 		long   AgentID;
-	} * p_old_data = (OldRec*)pRec;
-	HistBillTbl::Rec * p_data = (HistBillTbl::Rec*)pTbl->getDataBuf();
+	} * p_old_data = static_cast<const OldRec *>(pRec);
+	HistBillTbl::Rec * p_data = static_cast<HistBillTbl::Rec *>(pTbl->getDataBuf());
 	memzero(p_data, sizeof(HistBillTbl::Rec));
 	p_data->ID         = p_old_data->ID;
 	p_data->BillID     = p_old_data->BillID;
@@ -2128,9 +2127,8 @@ public:
 			long    InTaxGrpID;
 			long    Flags;
 		};
-		OldRec * p_old_rec = (OldRec *)rec;
-		ReceiptTbl::Rec * data = (ReceiptTbl::Rec*)tbl->getDataBuf();
-
+		const OldRec * p_old_rec = static_cast<const OldRec *>(rec);
+		ReceiptTbl::Rec * data = static_cast<ReceiptTbl::Rec *>(tbl->getDataBuf());
 		memzero(data, sizeof(ReceiptTbl::Rec));
 		data->ID      = p_old_rec->ID;
 		data->BillID  = p_old_rec->BillID;
@@ -2261,23 +2259,23 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		struct OldBillRec { // Size = 76+160
-			long   ID;       // Ид. документа
-			char   Code[10];    // Код документа
-			LDATE  Dt;          // Дата документа
-			long   BillNo;      // Номер документа за день
-			long   OprKind;     // Вид операции          ->Ref(PPOBJ_OPRKIND)
-			long   UserID;      // Пользователь          ->Ref(PPOBJ_USR)
-			long   Location;    // Позиция               ->Location.ID
-			long   Object;      // Контрагент            ->Article.ID
-			long   Object2;     // Дополнительный объект ->Article.ID
-			long   CurID;       // Валюта (0 - базовая)  ->Ref(PPOBJ_CURRENCY)
-			double CRate;       // Курс валюты для пересчета в базовую валюту
-			char   Amount[8];   // Номинальная сумма (в единицах CurID)
-			long   LinkBillID;  // Связанный документ    ->Bill.ID
-			long   Flags;       // Флаги
-			int16  AccessLevel; // Уровень доступа к документу
+			long   ID;       // РРґ. РґРѕРєСѓРјРµРЅС‚Р°
+			char   Code[10];    // РљРѕРґ РґРѕРєСѓРјРµРЅС‚Р°
+			LDATE  Dt;          // Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р°
+			long   BillNo;      // РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° Р·Р° РґРµРЅСЊ
+			long   OprKind;     // Р’РёРґ РѕРїРµСЂР°С†РёРё          ->Ref(PPOBJ_OPRKIND)
+			long   UserID;      // РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ          ->Ref(PPOBJ_USR)
+			long   Location;    // РџРѕР·РёС†РёСЏ               ->Location.ID
+			long   Object;      // РљРѕРЅС‚СЂР°РіРµРЅС‚            ->Article.ID
+			long   Object2;     // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ ->Article.ID
+			long   CurID;       // Р’Р°Р»СЋС‚Р° (0 - Р±Р°Р·РѕРІР°СЏ)  ->Ref(PPOBJ_CURRENCY)
+			double CRate;       // РљСѓСЂСЃ РІР°Р»СЋС‚С‹ РґР»СЏ РїРµСЂРµСЃС‡РµС‚Р° РІ Р±Р°Р·РѕРІСѓСЋ РІР°Р»СЋС‚Сѓ
+			char   Amount[8];   // РќРѕРјРёРЅР°Р»СЊРЅР°СЏ СЃСѓРјРјР° (РІ РµРґРёРЅРёС†Р°С… CurID)
+			long   LinkBillID;  // РЎРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚    ->Bill.ID
+			long   Flags;       // Р¤Р»Р°РіРё
+			int16  AccessLevel; // РЈСЂРѕРІРµРЅСЊ РґРѕСЃС‚СѓРїР° Рє РґРѕРєСѓРјРµРЅС‚Сѓ
 			long   SCardID;     // @v4.1.8 ->SCard.ID
-			char   Memo[160];   // Примечание
+			char   Memo[160];   // РџСЂРёРјРµС‡Р°РЅРёРµ
 		} * p_old_rec = (OldBillRec *)rec;
 
 		BillTbl::Rec * p_data = (BillTbl::Rec *)tbl->getDataBuf();
@@ -2320,9 +2318,9 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		struct OldPayPlanRec { // Size=16
-			long   BillID;      // Ид. документа ->Bill.ID
-			LDATE  PayDate;     // Дата оплаты
-			char   Amount[8];   // Сумма оплаты @v4.9.11 money[8]-->double
+			long   BillID;      // РРґ. РґРѕРєСѓРјРµРЅС‚Р° ->Bill.ID
+			LDATE  PayDate;     // Р”Р°С‚Р° РѕРїР»Р°С‚С‹
+			char   Amount[8];   // РЎСѓРјРјР° РѕРїР»Р°С‚С‹ @v4.9.11 money[8]-->double
 		} * p_old_rec = (OldPayPlanRec *)rec;
 
 		PayPlanTbl::Rec * p_data = (PayPlanTbl::Rec *)tbl->getDataBuf();
@@ -2356,25 +2354,25 @@ DBTable * SLAPI PPCvtTransfer4911::CreateTableInstance(int * pNeedConversion)
 int SLAPI PPCvtTransfer4911::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
 	struct OldTransferRec { // Size = 88
-		long   Location;    // Позиция                   ->Location.ID
-		LDATE  Dt;          // Дата передачи (не обязательно дублирует Bill.Dt)
-		long   OprNo;       // Номер операции за день
-		long   BillID;      // Ид документа              ->Bill.ID
-		int16  RByBill;     // Номер операции по документу
-		int16  Reverse;     // Признак зеркальной записи
-		long   CorrLoc;     // Корреспондирующая позиция ->Location.ID
-		long   LotID;       // Ид приходной записи       ->Receipt.ID
-		long   GoodsID;     // Ид товара                 ->Goods.ID
-		long   Flags;       // Флаги
-		double Quantity;    // Количество товара (Приход +/Расход -/Переоценка 0)
-		double Rest;        // Остаток после операции (Location, Lot)
-		char   Cost[8];     // Цена поступления //
-		char   Price[8];    // Цена реализации  //
-		char   Discount[8]; // Скидка
-		long   CurID;       // Валюта цены ->Ref(PPOBJ_CURRENCY)
-		char   CurPrice[8]; // Цена в валюте CurID (В зависимости от операции
-		// это может быть либо цена поступления либо цена реализации).
-		// Если CurID == 0, то CurPrice == (Flags & PPTFR_SELLING) ? Cost : (Price-Discount)
+		long   Location;    // РџРѕР·РёС†РёСЏ                   ->Location.ID
+		LDATE  Dt;          // Р”Р°С‚Р° РїРµСЂРµРґР°С‡Рё (РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґСѓР±Р»РёСЂСѓРµС‚ Bill.Dt)
+		long   OprNo;       // РќРѕРјРµСЂ РѕРїРµСЂР°С†РёРё Р·Р° РґРµРЅСЊ
+		long   BillID;      // РРґ РґРѕРєСѓРјРµРЅС‚Р°              ->Bill.ID
+		int16  RByBill;     // РќРѕРјРµСЂ РѕРїРµСЂР°С†РёРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
+		int16  Reverse;     // РџСЂРёР·РЅР°Рє Р·РµСЂРєР°Р»СЊРЅРѕР№ Р·Р°РїРёСЃРё
+		long   CorrLoc;     // РљРѕСЂСЂРµСЃРїРѕРЅРґРёСЂСѓСЋС‰Р°СЏ РїРѕР·РёС†РёСЏ ->Location.ID
+		long   LotID;       // РРґ РїСЂРёС…РѕРґРЅРѕР№ Р·Р°РїРёСЃРё       ->Receipt.ID
+		long   GoodsID;     // РРґ С‚РѕРІР°СЂР°                 ->Goods.ID
+		long   Flags;       // Р¤Р»Р°РіРё
+		double Quantity;    // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР° (РџСЂРёС…РѕРґ +/Р Р°СЃС…РѕРґ -/РџРµСЂРµРѕС†РµРЅРєР° 0)
+		double Rest;        // РћСЃС‚Р°С‚РѕРє РїРѕСЃР»Рµ РѕРїРµСЂР°С†РёРё (Location, Lot)
+		char   Cost[8];     // Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
+		char   Price[8];    // Р¦РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё  //
+		char   Discount[8]; // РЎРєРёРґРєР°
+		long   CurID;       // Р’Р°Р»СЋС‚Р° С†РµРЅС‹ ->Ref(PPOBJ_CURRENCY)
+		char   CurPrice[8]; // Р¦РµРЅР° РІ РІР°Р»СЋС‚Рµ CurID (Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РѕРїРµСЂР°С†РёРё
+		// СЌС‚Рѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р»РёР±Рѕ С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ Р»РёР±Рѕ С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё).
+		// Р•СЃР»Рё CurID == 0, С‚Рѕ CurPrice == (Flags & PPTFR_SELLING) ? Cost : (Price-Discount)
 	} * p_old_rec = (OldTransferRec *)rec;
 	TransferTbl::Rec * p_data = (TransferTbl::Rec *)tbl->getDataBuf();
 	tbl->clearDataBuf();
@@ -2461,7 +2459,7 @@ public:
 };
 
 //
-#if 0 // Перенесено в Convert5810 {
+#if 0 // РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert5810 {
 
 class PPCvtCGoodsLine4911 : public PPTableConversion {
 public:
@@ -2496,8 +2494,8 @@ int SLAPI PPCvtCGoodsLine4911::ConvertRec(DBTable * tbl, void * rec, int * pNewR
 		double Quantity;
 		double Rest;
 		char   Sum[8];          // @v4.9.15 money-->double
-		long   AltGoodsID;      // ->Goods.ID Товар, который может быть списан вместо GoodsID
-		float  AltGoodsQtty;    // @v4.4.10 Количество, списанное по альтернативному товару
+		long   AltGoodsID;      // ->Goods.ID РўРѕРІР°СЂ, РєРѕС‚РѕСЂС‹Р№ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРїРёСЃР°РЅ РІРјРµСЃС‚Рѕ GoodsID
+		float  AltGoodsQtty;    // @v4.4.10 РљРѕР»РёС‡РµСЃС‚РІРѕ, СЃРїРёСЃР°РЅРЅРѕРµ РїРѕ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕРјСѓ С‚РѕРІР°СЂСѓ
 	} * p_old_rec = (OldCGoodsLineRec *)rec;
 
 	CGoodsLineTbl::Rec * p_data = (CGoodsLineTbl::Rec *)tbl->getDataBuf();
@@ -2517,7 +2515,7 @@ int SLAPI PPCvtCGoodsLine4911::ConvertRec(DBTable * tbl, void * rec, int * pNewR
 
 static CONVERT_PROC(_ConvertCGoodsLine4911, PPCvtCGoodsLine4911);
 
-#endif // } 0 Перенесено в Convert5810
+#endif // } 0 РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert5810
 
 static CONVERT_PROC(_ConvertBill4911,       PPCvtBill4911);
 static CONVERT_PROC(_ConvertPayPlan4911,    PPCvtPayPlan4911);
@@ -2561,7 +2559,7 @@ public:
 CONVERT_PROC(Convert5006, PPCvtPrjTask5006);
 #endif // } 0 @v6.2.2 Moved to PPCvtPrjTask6202
 
-#if 0 // Перенесено в Convert6407 {
+#if 0 // РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert6407 {
 // @v5.0.9 AHTOXA {
 class PPCvtInventory5009 : public PPTableConversion {
 public:
@@ -2624,7 +2622,7 @@ public:
 
 CONVERT_PROC(Convert5009, PPCvtInventory5009);
 // } @v5.0.9 AHTOXA
-#endif // } 0 Перенесено в Convert6407
+#endif // } 0 РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert6407
 //
 //
 //
@@ -2780,21 +2778,21 @@ int SLAPI PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*p
 {
 	struct OldCCheckLineRec {
 		long   CheckID;      // -> CCheck.ID
-		long   RByCheck;     // Счетчик строк по чеку
-		long   DivID;        // Отдел магазина
+		long   RByCheck;     // РЎС‡РµС‚С‡РёРє СЃС‚СЂРѕРє РїРѕ С‡РµРєСѓ
+		long   DivID;        // РћС‚РґРµР» РјР°РіР°Р·РёРЅР°
 		long   GoodsID;      // -> Goods.ID
-		double Quantity;     // Количество товара
-		char   Price[8];     // Цена
-		char   Discount[8];  // Скидка
+		double Quantity;     // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР°
+		char   Price[8];     // Р¦РµРЅР°
+		char   Discount[8];  // РЎРєРёРґРєР°
 	} * p_4108_data = (OldCCheckLineRec*)pRec;
 	struct CCheckLineBefore5207 { // Size = 28 /* before @v4.1.8 - 40 bytes */
 		long   CheckID;      // ->CCheck.ID
-		int16  RByCheck;     // Счетчик строк по чеку
-		int16  DivID;        // Отдел магазина
+		int16  RByCheck;     // РЎС‡РµС‚С‡РёРє СЃС‚СЂРѕРє РїРѕ С‡РµРєСѓ
+		int16  DivID;        // РћС‚РґРµР» РјР°РіР°Р·РёРЅР°
 		long   GoodsID;      // ->Goods.ID
-		double Quantity;     // Количество товара
-		long   Price;        // Цена 0.01
-		long   Discount;     // Скидка 0.01
+		double Quantity;     // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР°
+		long   Price;        // Р¦РµРЅР° 0.01
+		long   Discount;     // РЎРєРёРґРєР° 0.01
 	} * p_5207_data = (CCheckLineBefore5207*)pRec;
 	CCheckLineTbl::Rec * p_data = (CCheckLineTbl::Rec*)pTbl->getDataBuf();
 	memzero(p_data, sizeof(CCheckLineTbl::Rec));
@@ -2926,7 +2924,7 @@ DBTable * SLAPI PPCvtBarcode5305::CreateTableInstance(int * pNeedConversion)
 	else if(pNeedConversion) {
 		RECORDSIZE recsz = 0;
 		if(p_tbl->getRecSize(&recsz))
-			*pNeedConversion = BIN(recsz == 32); // Новый размер =28 bytes
+			*pNeedConversion = BIN(recsz == 32); // РќРѕРІС‹Р№ СЂР°Р·РјРµСЂ =28 bytes
 	}
 	return p_tbl;
 }
@@ -2934,10 +2932,10 @@ DBTable * SLAPI PPCvtBarcode5305::CreateTableInstance(int * pNeedConversion)
 int SLAPI PPCvtBarcode5305::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	struct OldBarcodeRec {
-		long   GoodsID;     // Ид товара
-		double Qtty;        // Количество единиц товара в упаковке
-		long   BarcodeType; // Тип кодировки
-		char   Code[16];    // Штрихкод
+		long   GoodsID;     // РРґ С‚РѕРІР°СЂР°
+		double Qtty;        // РљРѕР»РёС‡РµСЃС‚РІРѕ РµРґРёРЅРёС† С‚РѕРІР°СЂР° РІ СѓРїР°РєРѕРІРєРµ
+		long   BarcodeType; // РўРёРї РєРѕРґРёСЂРѕРІРєРё
+		char   Code[16];    // РЁС‚СЂРёС…РєРѕРґ
 	} * p_old_data = (OldBarcodeRec *)pRec;
 	BarcodeTbl::Rec * p_data = (BarcodeTbl::Rec*)pTbl->getDataBuf();
 	memzero(p_data, sizeof(LocationTbl::Rec));
@@ -2961,7 +2959,7 @@ public:
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
 			RECORDSIZE recsz = p_tbl->getRecSize();
-			*pNeedConversion = BIN(recsz > sizeof(PersonPostTbl::Rec)); // Новый размер меньше предыдущего
+			*pNeedConversion = BIN(recsz > sizeof(PersonPostTbl::Rec)); // РќРѕРІС‹Р№ СЂР°Р·РјРµСЂ РјРµРЅСЊС€Рµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ
 		}
 		return p_tbl;
 	}
@@ -2984,7 +2982,7 @@ public:
 		p_data->StaffID  = p_old_rec->PostID;
 		p_data->PersonID = p_old_rec->PersonID;
 		p_data->Dt       = p_old_rec->Dt;
-		p_data->Flags |= 0x10000000L; // Список сумм (если есть) в старом формате
+		p_data->Flags |= 0x10000000L; // РЎРїРёСЃРѕРє СЃСѓРјРј (РµСЃР»Рё РµСЃС‚СЊ) РІ СЃС‚Р°СЂРѕРј С„РѕСЂРјР°С‚Рµ
 		*pNewRecLen = sizeof(PersonPostTbl::Rec);
 		return 1;
 	}
@@ -3047,31 +3045,31 @@ DBTable * SLAPI PPCvtProperty5506::CreateTableInstance(int * needConversion)
 {
 	struct __PPCustDisp {     // @v4.7.6
 		PPID   Tag;           // Const = PPOBJ_CASHNODE
-		PPID   CashNodeID;    // ИД кассового узла
+		PPID   CashNodeID;    // РР” РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
 		PPID   Prop;          // Const = CNPRP_CUSTDISP
-		long   Type;          // Тип дисплея покупателя //
-		char   Port[8];       // Порт (COM)
+		long   Type;          // РўРёРї РґРёСЃРїР»РµСЏ РїРѕРєСѓРїР°С‚РµР»СЏ //
+		char   Port[8];       // РџРѕСЂС‚ (COM)
 		char   Reserve[52];
 		long   Reserve2[2];
 	};
 
 	struct __PPTouchScreen {  // @v5.1.2
 		PPID   Tag;           // Const = PPOBJ_CASHNODE
-		PPID   CashNodeID;    // ИД кассового узла
+		PPID   CashNodeID;    // РР” РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
 		PPID   Prop;          // Const = CNPRP_TOUCHSCREEN
-		PPID   TouchScreenID; // ИД TouchScreen
+		PPID   TouchScreenID; // РР” TouchScreen
 		char   Reserve[60];
 		long   Reserve2[2];
 	};
 
 	struct __PPExtDevices {   // @v5.5.6
 		PPID   Tag;           // Const = PPOBJ_CASHNODE
-		PPID   CashNodeID;    // ИД кассового узла
+		PPID   CashNodeID;    // РР” РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
 		PPID   Prop;          // Const = CNPRP_EXTDEVICES
-		PPID   TouchScreenID; // ИД TouchScreen
-		PPID   ExtCashNodeID; // ИД дополнительного кассового узла
-		long   CustDispType;  // Тип дисплея покупателя //
-		char   CustDispPort[8]; // Порт дисплея покупателя (COM)
+		PPID   TouchScreenID; // РР” TouchScreen
+		PPID   ExtCashNodeID; // РР” РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
+		long   CustDispType;  // РўРёРї РґРёСЃРїР»РµСЏ РїРѕРєСѓРїР°С‚РµР»СЏ //
+		char   CustDispPort[8]; // РџРѕСЂС‚ РґРёСЃРїР»РµСЏ РїРѕРєСѓРїР°С‚РµР»СЏ (COM)
 		char   Reserve[44];
 		long   Reserve2[2];
 	};
@@ -3789,7 +3787,7 @@ public:
 	virtual DBTable * SLAPI CreateTableInstance(int * needConversion);
 	virtual int SLAPI ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
 private:
-	int    C4911; // Если !0, то исходный файл находится в состоянии, предшествующем v4.9.11
+	int    C4911; // Р•СЃР»Рё !0, С‚Рѕ РёСЃС…РѕРґРЅС‹Р№ С„Р°Р№Р» РЅР°С…РѕРґРёС‚СЃСЏ РІ СЃРѕСЃС‚РѕСЏРЅРёРё, РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РµРј v4.9.11
 };
 
 DBTable * SLAPI PPCvtCGoodsLine5810::CreateTableInstance(int * pNeedConversion)
@@ -4107,10 +4105,10 @@ public:
 		{
 			//
 			// @v6.2.12 {
-			// Защита от непонятного явления: в конвертируемой записи иногда
-			// содержится префикс структурированного LOB-поля. Скорее всего
-			// проблема была связана с временным дефектом кода, приводящим к неверной
-			// конвертации записи.
+			// Р—Р°С‰РёС‚Р° РѕС‚ РЅРµРїРѕРЅСЏС‚РЅРѕРіРѕ СЏРІР»РµРЅРёСЏ: РІ РєРѕРЅРІРµСЂС‚РёСЂСѓРµРјРѕР№ Р·Р°РїРёСЃРё РёРЅРѕРіРґР°
+			// СЃРѕРґРµСЂР¶РёС‚СЃСЏ РїСЂРµС„РёРєСЃ СЃС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅРѕРіРѕ LOB-РїРѕР»СЏ. РЎРєРѕСЂРµРµ РІСЃРµРіРѕ
+			// РїСЂРѕР±Р»РµРјР° Р±С‹Р»Р° СЃРІСЏР·Р°РЅР° СЃ РІСЂРµРјРµРЅРЅС‹Рј РґРµС„РµРєС‚РѕРј РєРѕРґР°, РїСЂРёРІРѕРґСЏС‰РёРј Рє РЅРµРІРµСЂРЅРѕР№
+			// РєРѕРЅРІРµСЂС‚Р°С†РёРё Р·Р°РїРёСЃРё.
 			//
 			if(*pNewRecLen > offsetof(PropertyTbl::Rec, VT)) {
 				SLob * p_lob = &((PropertyTbl::Rec *)pOldRec)->VT;
@@ -4166,7 +4164,7 @@ public:
 				*pNeedConversion = 1;
 			}
 			else {
-				// В версиях до 5.2.07 размер записи был такой же, как и после 6.2.02
+				// Р’ РІРµСЂСЃРёСЏС… РґРѕ 5.2.07 СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё Р±С‹Р» С‚Р°РєРѕР№ Р¶Рµ, РєР°Рє Рё РїРѕСЃР»Рµ 6.2.02
 				if(stat.IdxList.getNumKeys() < 6) {
 					Before5207 = 1;
 					*pNeedConversion = 1;
@@ -4438,13 +4436,13 @@ struct Goods2_Before6202 {
 static int SLAPI GetTransport_Before6202(PPID id, const Goods2_Before6202 * pOldRec, PPTransport * pRec)
 {
 	struct __TranspD {
-		PPID   TrModelID;       // ИД модели транспортного средства
-		char   TrailerCode[16]; // Номер прицепа    //
-		char   Code[16];        // Номер автомобиля //
+		PPID   TrModelID;       // РР” РјРѕРґРµР»Рё С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ СЃСЂРµРґСЃС‚РІР°
+		char   TrailerCode[16]; // РќРѕРјРµСЂ РїСЂРёС†РµРїР°    //
+		char   Code[16];        // РќРѕРјРµСЂ Р°РІС‚РѕРјРѕР±РёР»СЏ //
 		PPID   OwnerID;
 		PPID   CountryID;
 		PPID   CaptainID;
-		char   Reserve[16];     // @v4.4.5 Поле Abbr таблицы Goods2 расширено до 64 байт
+		char   Reserve[16];     // @v4.4.5 РџРѕР»Рµ Abbr С‚Р°Р±Р»РёС†С‹ Goods2 СЂР°СЃС€РёСЂРµРЅРѕ РґРѕ 64 Р±Р°Р№С‚
 	};
 	pRec->ID = pOldRec->ID;
 	pRec->TrType = pOldRec->GdsClsID;
@@ -5060,7 +5058,7 @@ public:
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
 	{
 		//
-		// Конвертируем записи PropertyTbl с координатами:
+		// РљРѕРЅРІРµСЂС‚РёСЂСѓРµРј Р·Р°РїРёСЃРё PropertyTbl СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё:
 		// {PPOBJ_OPRKIND, [1..PP_MAXATURNTEMPLATES]}, {PPOBJ_BILL, BILLPRP_EXTRA}
 		//
 		PropertyTbl * p_tbl = new PropertyTbl;
@@ -5172,7 +5170,7 @@ CONVERT_PROC(Convert6611, PPCvtCurRest6611);
 //
 //
 //
-#if 0 // { Перенесено в PPCvtCCheckExt7601
+#if 0 // { РџРµСЂРµРЅРµСЃРµРЅРѕ РІ PPCvtCCheckExt7601
 
 class PPCvtCCheckExt6708 : public PPTableConversion {
 	struct CCheckExt_Before6708 {  // size=20
@@ -5217,7 +5215,7 @@ class PPCvtCCheckExt6708 : public PPTableConversion {
 
 CONVERT_PROC(Convert6708, PPCvtCCheckExt6708);
 
-#endif // } 0 Перенесено в PPCvtCCheckExt7601
+#endif // } 0 РџРµСЂРµРЅРµСЃРµРЅРѕ РІ PPCvtCCheckExt7601
 //
 //
 //
@@ -5265,7 +5263,7 @@ int SLAPI ConvertQuot720()
 //
 //
 //
-#if 0 // { Перенесено в PPCvtVatBook7311
+#if 0 // { РџРµСЂРµРЅРµСЃРµРЅРѕ РІ PPCvtVatBook7311
 
 class PPCvtVatBook7208 : public PPTableConversion {
 public:
@@ -5295,7 +5293,7 @@ public:
 
 CONVERT_PROC(Convert7208, PPCvtVatBook7208);
 
-#endif // } 0 Перенесено в PPCvtVatBook7311
+#endif // } 0 РџРµСЂРµРЅРµСЃРµРЅРѕ РІ PPCvtVatBook7311
 //
 //
 //
@@ -5632,7 +5630,7 @@ CONVERT_PROC(Convert7601, PPCvtCCheckExt7601);
 //
 //
 //
-#if 0 // @v9.4.0 перенесено в PPCvtSCard9400 {
+#if 0 // @v9.4.0 РїРµСЂРµРЅРµСЃРµРЅРѕ РІ PPCvtSCard9400 {
 
 class PPCvtSCard7702 : public PPTableConversion {
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
@@ -5955,7 +5953,7 @@ public:
 	}
 
 	PPWorkbook Rec;
-	ObjTagList TagL;        // Список тегов
+	ObjTagList TagL;        // РЎРїРёСЃРѕРє С‚РµРіРѕРІ
 	ObjLinkFiles F;
 };
 
@@ -6118,7 +6116,7 @@ int SLAPI ConvertWorkbook813()
 //
 //
 //
-#if 0 // @v8.3.6 Конвертация совмещена с PPCvtRegister8306 {
+#if 0 // @v8.3.6 РљРѕРЅРІРµСЂС‚Р°С†РёСЏ СЃРѕРІРјРµС‰РµРЅР° СЃ PPCvtRegister8306 {
 class PPCvtRegister8203 : public PPTableConversion {
 public:
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
@@ -6142,7 +6140,7 @@ public:
 };
 
 CONVERT_PROC(Convert8203, PPCvtRegister8203);
-#endif // } 0 @v8.3.6 Конвертация совмещена с PPCvtRegister8306
+#endif // } 0 @v8.3.6 РљРѕРЅРІРµСЂС‚Р°С†РёСЏ СЃРѕРІРјРµС‰РµРЅР° СЃ PPCvtRegister8306
 //
 //
 //
@@ -6218,7 +6216,7 @@ DBTable * SLAPI PPCvtBarcode8800::CreateTableInstance(int * pNeedConversion)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
 		RECORDSIZE recsz = p_tbl->getRecSize();
-		*pNeedConversion = BIN(recsz < sizeof(BarcodeTbl::Rec)); // Новый размер =38 bytes
+		*pNeedConversion = BIN(recsz < sizeof(BarcodeTbl::Rec)); // РќРѕРІС‹Р№ СЂР°Р·РјРµСЂ =38 bytes
 	}
 	return p_tbl;
 }
@@ -6255,7 +6253,7 @@ DBTable * SLAPI PPCvtArGoodsCode8800::CreateTableInstance(int * pNeedConversion)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
 		RECORDSIZE recsz = p_tbl->getRecSize();
-		*pNeedConversion = BIN(recsz < sizeof(ArGoodsCodeTbl::Rec)); // Новый размер =38 bytes
+		*pNeedConversion = BIN(recsz < sizeof(ArGoodsCodeTbl::Rec)); // РќРѕРІС‹Р№ СЂР°Р·РјРµСЂ =38 bytes
 	}
 	return p_tbl;
 }
@@ -6320,7 +6318,7 @@ public:
 			long   CurID;         // ->Ref(PPOBJ_CURRENCY)
 			double UnitPerPack;   //
 			double Qtty;          //
-			double Rest;          // Излишек при списании
+			double Rest;          // РР·Р»РёС€РµРє РїСЂРё СЃРїРёСЃР°РЅРёРё
 			double Cost;          //
 			double Price;         //
 			double Discount;      //
@@ -6329,8 +6327,8 @@ public:
 			long   QCertID;       // ->QualityCert.ID
 			long   InTaxGrpID;    // ->Ref(PPOBJ_GOODSTAX)
 			long   Flags;         //
-			char   PartNo[24];    // Номер партии (пакета)
-			char   Clb[24];       // Номер ГТД
+			char   PartNo[24];    // РќРѕРјРµСЂ РїР°СЂС‚РёРё (РїР°РєРµС‚Р°)
+			char   Clb[24];       // РќРѕРјРµСЂ Р“РўР”
 			uint8  Reserve2[28];  // @reserve
 		};
 		CpTransfRec_Before8910 * p_old_data = (CpTransfRec_Before8910 *)rec;
@@ -6390,7 +6388,7 @@ static int SLAPI ConvertStaffList9003()
 			p_tbl->getNumRecs(&numrecs);
 			if(numrecs) {
 				StaffList_Pre9003Tbl::Key0 k0;
-				k0.ID = STAFFLIST_EXCL_ID; // Запись с эксклюзивным значением, сигнализирующая, что таблица уже отконвертирована
+				k0.ID = STAFFLIST_EXCL_ID; // Р—Р°РїРёСЃСЊ СЃ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј, СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰Р°СЏ, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° СѓР¶Рµ РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅР°
 				if(!p_tbl->search(0, &k0, spEq)) {
 					THROW_DB(BTROKORNFOUND);
 					THROW(DS.GetSync().LockDB());
@@ -6421,7 +6419,7 @@ static int SLAPI ConvertStaffList9003()
 							} while(p_tbl->step(spNext));
 							{
 								//
-								// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
+								// РЎРѕР·РґР°РµРј Р·Р°РїРёСЃСЊ СЃ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј, СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰СѓСЋ, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° СѓР¶Рµ РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅР°
 								//
 								StaffList_Pre9003Tbl::Rec spec_rec;
 								MEMSZERO(spec_rec);
@@ -6482,7 +6480,7 @@ static int SLAPI ConvertAccount9004()
 			p_tbl->getNumRecs(&numrecs);
 			if(numrecs) {
 				Account_Pre9004Tbl::Key0 k0;
-				k0.ID = ACCOUNT_EXCL2_ID; // Запись с эксклюзивным значением, сигнализирующая, что таблица уже отконвертирована
+				k0.ID = ACCOUNT_EXCL2_ID; // Р—Р°РїРёСЃСЊ СЃ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј, СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰Р°СЏ, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° СѓР¶Рµ РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅР°
 				if(!p_tbl->search(0, &k0, spEq)) {
 					THROW_DB(BTROKORNFOUND);
 					THROW(DS.GetSync().LockDB());
@@ -6494,10 +6492,10 @@ static int SLAPI ConvertAccount9004()
 						THROW(tra);
 						{
 							Account_Pre9004Tbl::Key0 k0;
-							k0.ID = ACCOUNT_EXCL_ID; // Запись с эксклюзивным значением, сигнализирующая, что таблица отконвертирована (с ошибкой)
+							k0.ID = ACCOUNT_EXCL_ID; // Р—Р°РїРёСЃСЊ СЃ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј, СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰Р°СЏ, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅР° (СЃ РѕС€РёР±РєРѕР№)
 							if(p_tbl->search(0, &k0, spEq)) {
 								//
-								// Удаляем запись с ошибочным эксклюзивным значением
+								// РЈРґР°Р»СЏРµРј Р·Р°РїРёСЃСЊ СЃ РѕС€РёР±РѕС‡РЅС‹Рј СЌРєСЃРєР»СЋР·РёРІРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј
 								//
 								THROW_DB(p_tbl->deleteRec());
 								{
@@ -6562,7 +6560,7 @@ static int SLAPI ConvertAccount9004()
 						}
 						{
 							//
-							// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
+							// РЎРѕР·РґР°РµРј Р·Р°РїРёСЃСЊ СЃ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј, СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰СѓСЋ, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° СѓР¶Рµ РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅР°
 							//
 							Account_Pre9004Tbl::Rec spec_rec;
 							MEMSZERO(spec_rec);
@@ -6606,7 +6604,7 @@ static int SLAPI ConvertBankAccount9004()
 			p_tbl->getNumRecs(&numrecs);
 			if(numrecs) {
 				BankAccount_Pre9004Tbl::Key0 k0;
-				k0.ID = BANKACCOUNT_EXCL_ID; // Запись с эксклюзивным значением, сигнализирующая, что таблица уже отконвертирована
+				k0.ID = BANKACCOUNT_EXCL_ID; // Р—Р°РїРёСЃСЊ СЃ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј, СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰Р°СЏ, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° СѓР¶Рµ РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅР°
 				if(!p_tbl->search(0, &k0, spEq)) {
 					THROW_DB(BTROKORNFOUND);
 					THROW(DS.GetSync().LockDB());
@@ -6641,7 +6639,7 @@ static int SLAPI ConvertBankAccount9004()
 							} while(p_tbl->step(spNext));
 							{
 								//
-								// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
+								// РЎРѕР·РґР°РµРј Р·Р°РїРёСЃСЊ СЃ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј, СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰СѓСЋ, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° СѓР¶Рµ РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅР°
 								//
 								BankAccount_Pre9004Tbl::Rec spec_rec;
 								MEMSZERO(spec_rec);
@@ -6673,7 +6671,7 @@ public:
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
 			RECORDSIZE recsz = p_tbl->getRecSize();
-			*pNeedConversion = BIN(recsz < sizeof(CCheckPaymTbl::Rec)); // Новый размер =38 bytes
+			*pNeedConversion = BIN(recsz < sizeof(CCheckPaymTbl::Rec)); // РќРѕРІС‹Р№ СЂР°Р·РјРµСЂ =38 bytes
 		}
 		return p_tbl;
 	}
@@ -6779,7 +6777,7 @@ public:
 			char   ManufRarIdent[16];
 			char   ImporterRarIdent[16];
 			char   CategoryCode[8];
-			int32  Proof;          // Промилле
+			int32  Proof;          // РџСЂРѕРјРёР»Р»Рµ
 			int32  Volume;         // x100000
 			LDATE  ActualDate;
 			//long   Flags; // @v9.2.12
@@ -6935,7 +6933,7 @@ private:
 		return ok;
 	}
 private:
-	int    Stage; // 1 - конвертация из версии менее 7.7.2, 0 - из более новой
+	int    Stage; // 1 - РєРѕРЅРІРµСЂС‚Р°С†РёСЏ РёР· РІРµСЂСЃРёРё РјРµРЅРµРµ 7.7.2, 0 - РёР· Р±РѕР»РµРµ РЅРѕРІРѕР№
 	UnxTextRefCore UtrC;
 };
 
@@ -6984,16 +6982,16 @@ int SLAPI Convert9811()
 		// @v10.0.12 THROW(r);
 		{
 			//
-			// Необходимо зафиксировать в системном журнале событие,
-			// которое будет разграничивать применении старой
-			// и новой схемы хранения версионных объектов
+			// РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°С„РёРєСЃРёСЂРѕРІР°С‚СЊ РІ СЃРёСЃС‚РµРјРЅРѕРј Р¶СѓСЂРЅР°Р»Рµ СЃРѕР±С‹С‚РёРµ,
+			// РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ СЂР°Р·РіСЂР°РЅРёС‡РёРІР°С‚СЊ РїСЂРёРјРµРЅРµРЅРёРё СЃС‚Р°СЂРѕР№
+			// Рё РЅРѕРІРѕР№ СЃС…РµРјС‹ С…СЂР°РЅРµРЅРёСЏ РІРµСЂСЃРёРѕРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
 			//
 			LDATETIME moment;
 			PPIDArray acn_list;
 			acn_list.add(PPACN_EVENTTOKEN);
 			THROW(p_sj = new SysJournal);
 			if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, &acn_list, &moment) > 0) {
-				ok = -1; // Событие уже установлено
+				ok = -1; // РЎРѕР±С‹С‚РёРµ СѓР¶Рµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ
 			}
 			else {
 				THROW(p_sj->LogEvent(PPACN_EVENTTOKEN, PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, 0, 1/*use_ta*/));

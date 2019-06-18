@@ -1,6 +1,6 @@
 // OBJBSKT.CPP
 // Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -52,23 +52,23 @@ IMPL_CMPFUNC(ILTIGOODS, i1, i2)
 	return 0;
 }
 //
-// Descr: внутреннее представление для элемента товарной корзины. Проецируется на
-//   запись таблицы ObjAssocTbl
+// Descr: РІРЅСѓС‚СЂРµРЅРЅРµРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РґР»СЏ СЌР»РµРјРµРЅС‚Р° С‚РѕРІР°СЂРЅРѕР№ РєРѕСЂР·РёРЅС‹. РџСЂРѕРµС†РёСЂСѓРµС‚СЃСЏ РЅР°
+//   Р·Р°РїРёСЃСЊ С‚Р°Р±Р»РёС†С‹ ObjAssocTbl
 //
 struct PPGoodsBasketItem { // @#{sizeof(PPGoodsBasketItem) == sizeof(ObjAssocTbl::Rec)}
-	PPID   Id;             // Внутренний идентификатор строки (уникальный по всей таблице ObjAssoc)
+	PPID   Id;             // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚СЂРѕРєРё (СѓРЅРёРєР°Р»СЊРЅС‹Р№ РїРѕ РІСЃРµР№ С‚Р°Р±Р»РёС†Рµ ObjAssoc)
 	PPID   Tag;            // Const=PPASS_GOODSBASKET
-	PPID   BasketID;       // PrimaryID =? ID структуры PPGoodsBasket
-	PPID   ItemGoodsID;    // ->Goods.ID ID элемента структуры
-	long   Num;            // Внутренний номер (не используется, но инициализируется)
-	PPID   UserID;         // Идентификатор пользователя, создавшего строку
+	PPID   BasketID;       // PrimaryID =? ID СЃС‚СЂСѓРєС‚СѓСЂС‹ PPGoodsBasket
+	PPID   ItemGoodsID;    // ->Goods.ID ID СЌР»РµРјРµРЅС‚Р° СЃС‚СЂСѓРєС‚СѓСЂС‹
+	long   Num;            // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РЅРѕРјРµСЂ (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, РЅРѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ)
+	PPID   UserID;         // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, СЃРѕР·РґР°РІС€РµРіРѕ СЃС‚СЂРѕРєСѓ
 	char   Reserve1[20];   // @reserve
-	long   Flags;          // Флаги
-	double Quantity;	   // Количество [0..]
-	double Price;	       // Цена за единицу (смысл интерпретируется пользователем корзины).
+	long   Flags;          // Р¤Р»Р°РіРё
+	double Quantity;	   // РљРѕР»РёС‡РµСЃС‚РІРѕ [0..]
+	double Price;	       // Р¦РµРЅР° Р·Р° РµРґРёРЅРёС†Сѓ (СЃРјС‹СЃР» РёРЅС‚РµСЂРїСЂРµС‚РёСЂСѓРµС‚СЃСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РєРѕСЂР·РёРЅС‹).
 	double Reserve2;       // @reserve
-	double UnitPerPack;    // Емкость упаковки товара
-	LDATE  Expiry;         // Срок годности товара
+	double UnitPerPack;    // Р•РјРєРѕСЃС‚СЊ СѓРїР°РєРѕРІРєРё С‚РѕРІР°СЂР°
+	LDATE  Expiry;         // РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё С‚РѕРІР°СЂР°
 };
 
 #ifdef _DEBUG // {
@@ -287,7 +287,7 @@ int SLAPI PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long opti
 		STRNSCPY(pData->Head.Name, gb.Name);
 		memzero(pData->Head.Reserve1, sizeof(pData->Head.Reserve1));
 		pData->Lots.freeAll();
-		int    new_load_method = 1; // Проверено: этот метод быстрее
+		int    new_load_method = 1; // РџСЂРѕРІРµСЂРµРЅРѕ: СЌС‚РѕС‚ РјРµС‚РѕРґ Р±С‹СЃС‚СЂРµРµ
 		if(new_load_method) {
 			PROFILE_START
 			for(SEnum en = ref->Assc.Enum(PPASS_GOODSBASKET, gb.ID, 0); en.Next(&gbi) > 0;) {
@@ -351,9 +351,9 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 				PPBasketPacket * p_private = DS.GetPrivateBasket();
 				if(p_private && *pID && p_private->Head.ID == *pID) {
 					//
-					// Сохраняемая корзина была приватной, но потеряла этот статус:
-					// сначала сохраняем пакет как приватный, затем очищаем
-					// приватную корзину. Таким образом, изменения будут сохранены.
+					// РЎРѕС…СЂР°РЅСЏРµРјР°СЏ РєРѕСЂР·РёРЅР° Р±С‹Р»Р° РїСЂРёРІР°С‚РЅРѕР№, РЅРѕ РїРѕС‚РµСЂСЏР»Р° СЌС‚РѕС‚ СЃС‚Р°С‚СѓСЃ:
+					// СЃРЅР°С‡Р°Р»Р° СЃРѕС…СЂР°РЅСЏРµРј РїР°РєРµС‚ РєР°Рє РїСЂРёРІР°С‚РЅС‹Р№, Р·Р°С‚РµРј РѕС‡РёС‰Р°РµРј
+					// РїСЂРёРІР°С‚РЅСѓСЋ РєРѕСЂР·РёРЅСѓ. РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РёР·РјРµРЅРµРЅРёСЏ Р±СѓРґСѓС‚ СЃРѕС…СЂР°РЅРµРЅС‹.
 					//
 					THROW(DS.SetPrivateBasket(pData, 0));
 					THROW(DS.SetPrivateBasket(0, 0));
@@ -846,7 +846,7 @@ int SLAPI PPObjGoodsBasket::Edit(PPID * pID, void * extraPtr)
 	int    ok = cmCancel;
 	int    valid_data = 0;
 	int    is_locked = 0;
-	PPObjGoods goods_obj; // Загружаем объект для того, чтобы во вложенных вызовах он был открыт
+	PPObjGoods goods_obj; // Р—Р°РіСЂСѓР¶Р°РµРј РѕР±СЉРµРєС‚ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РІРѕ РІР»РѕР¶РµРЅРЅС‹С… РІС‹Р·РѕРІР°С… РѕРЅ Р±С‹Р» РѕС‚РєСЂС‹С‚
 	PPGoodsBasket  org_rec;
 	PPID   org_id = 0;
 	PPBasketCombine bc;
@@ -1048,8 +1048,8 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 				PPBasketCombine bc;
 				bc.BasketID = gbID;
 				//
-				// Здесь не следует блокировать корзину поскольку
-				// она была заблокирована при выборе в комбо-боксе.
+				// Р—РґРµСЃСЊ РЅРµ СЃР»РµРґСѓРµС‚ Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ РєРѕСЂР·РёРЅСѓ РїРѕСЃРєРѕР»СЊРєСѓ
+				// РѕРЅР° Р±С‹Р»Р° Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° РїСЂРё РІС‹Р±РѕСЂРµ РІ РєРѕРјР±Рѕ-Р±РѕРєСЃРµ.
 				//
 				THROW(GbObj.GetPacket(gbID, &bc.Pack, PPObjGoodsBasket::gpoProcessPrivate));
 				THROW(GoodsBasketDialog(bc, 1));
@@ -1245,9 +1245,9 @@ public:
 	};
 	//
 	// Parameters:
-	//   defLocID - склад, используемый для нахождения последнего лота
-	//     товара с целью определения текущих параметров.
-	//     Если defLocID == 0, то считается, что он равен LConfig.Location.
+	//   defLocID - СЃРєР»Р°Рґ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ РЅР°С…РѕР¶РґРµРЅРёСЏ РїРѕСЃР»РµРґРЅРµРіРѕ Р»РѕС‚Р°
+	//     С‚РѕРІР°СЂР° СЃ С†РµР»СЊСЋ РѕРїСЂРµРґРµР»РµРЅРёСЏ С‚РµРєСѓС‰РёС… РїР°СЂР°РјРµС‚СЂРѕРІ.
+	//     Р•СЃР»Рё defLocID == 0, С‚Рѕ СЃС‡РёС‚Р°РµС‚СЃСЏ, С‡С‚Рѕ РѕРЅ СЂР°РІРµРЅ LConfig.Location.
 	//
 	GBItemDialog(PPBasketCombine & rCart, PPID defLocID, long flags) :
 		TDialog(DLG_GBITEM), R_Cart(rCart), DefLocID(NZOR(defLocID, LConfig.Location)), Flags(flags)
@@ -1282,7 +1282,7 @@ private:
 	PPBasketCombine & R_Cart;
 	long   Flags;
 	ILTI   Item;
-	PPID   DefLocID; // Склад, используемый для нахождения последнего лота
+	PPID   DefLocID; // РЎРєР»Р°Рґ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ РЅР°С…РѕР¶РґРµРЅРёСЏ РїРѕСЃР»РµРґРЅРµРіРѕ Р»РѕС‚Р°
 };
 
 int GBItemDialog::setDTS(const ILTI * pItem)
@@ -1614,7 +1614,7 @@ private:
 		else if(event.isKeyDown(KB_CTRLENTER)) {
 			if(IsInState(sfModal)) {
 				endModal(cmOK);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 		else if(event.isKeyDown(kbF2))
@@ -1983,26 +1983,26 @@ int SLAPI AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double pric
 //
 struct Basket2BillParam {
 	enum {
-		costFromBasket  = 1,  // из корзины
-		costFromLastLot = 2   // из последнего лота
+		costFromBasket  = 1,  // РёР· РєРѕСЂР·РёРЅС‹
+		costFromLastLot = 2   // РёР· РїРѕСЃР»РµРґРЅРµРіРѕ Р»РѕС‚Р°
 	};
 	enum {
-		priceFromBasket  = 1, // из корзины
-		priceFromLastLot = 2, // из последнего лота
-		priceFromQuot    = 3  // из котировки вида QuotKindID
+		priceFromBasket  = 1, // РёР· РєРѕСЂР·РёРЅС‹
+		priceFromLastLot = 2, // РёР· РїРѕСЃР»РµРґРЅРµРіРѕ Р»РѕС‚Р°
+		priceFromQuot    = 3  // РёР· РєРѕС‚РёСЂРѕРІРєРё РІРёРґР° QuotKindID
 	};
 	enum {
-		fLinkBillExists  = 0x0001, // Информационный флаг от вызывающей функции,
-			// показывающий существование связанного документа, из строк которого можно
-			// извлекать цены и прочие параметры
-		fUseLinkParams   = 0x0002, // Использовать параметры из связанного документа
-		fSilentOnDeficit = 0x0004  // При недостатке товара для внесения в документ не выводить
-			// об этом сообщение на экран
+		fLinkBillExists  = 0x0001, // РРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹Р№ С„Р»Р°Рі РѕС‚ РІС‹Р·С‹РІР°СЋС‰РµР№ С„СѓРЅРєС†РёРё,
+			// РїРѕРєР°Р·С‹РІР°СЋС‰РёР№ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РёР· СЃС‚СЂРѕРє РєРѕС‚РѕСЂРѕРіРѕ РјРѕР¶РЅРѕ
+			// РёР·РІР»РµРєР°С‚СЊ С†РµРЅС‹ Рё РїСЂРѕС‡РёРµ РїР°СЂР°РјРµС‚СЂС‹
+		fUseLinkParams   = 0x0002, // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїР°СЂР°РјРµС‚СЂС‹ РёР· СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+		fSilentOnDeficit = 0x0004  // РџСЂРё РЅРµРґРѕСЃС‚Р°С‚РєРµ С‚РѕРІР°СЂР° РґР»СЏ РІРЅРµСЃРµРЅРёСЏ РІ РґРѕРєСѓРјРµРЅС‚ РЅРµ РІС‹РІРѕРґРёС‚СЊ
+			// РѕР± СЌС‚РѕРј СЃРѕРѕР±С‰РµРЅРёРµ РЅР° СЌРєСЂР°РЅ
 	};
 	PPID   BasketID;
 	PPID   QuotKindID;
-	long   RuleCost;  // Правило формирования цены поступления в документе (Basket2BillParam::costFromXXX)
-	long   RulePrice; // Правило формирования цены реализации в документе (Basket2BillParam::priceFromXXX)
+	long   RuleCost;  // РџСЂР°РІРёР»Рѕ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ С†РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РІ РґРѕРєСѓРјРµРЅС‚Рµ (Basket2BillParam::costFromXXX)
+	long   RulePrice; // РџСЂР°РІРёР»Рѕ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё РІ РґРѕРєСѓРјРµРЅС‚Рµ (Basket2BillParam::priceFromXXX)
 	long   Flags;
 };
 
@@ -2219,13 +2219,13 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 			if(r == PCUG_ASGOODAS || r == -1) {
 				int * p_i;
 				for(uint j = 0; one_goods_rows.enumItems(&j, (void **)&p_i);) {
-					PPTransferItem & r_ti = pPack->TI((uint)*p_i);
+					PPTransferItem & r_ti = pPack->TI(static_cast<uint>(*p_i));
 					if(op_type_id == PPOPT_GOODSRECEIPT && r_ti.Flags & PPTFR_RECEIPT) {
 						r_ti.QCert = lot_rec.QCertID;
 						r_ti.Expiry = p_item->Expiry;
 						if(lot_rec.ID) {
 							//
-							// Наследуем теги (имеющие признак OTF_INHERITABLE) от последнего лота.
+							// РќР°СЃР»РµРґСѓРµРј С‚РµРіРё (РёРјРµСЋС‰РёРµ РїСЂРёР·РЅР°Рє OTF_INHERITABLE) РѕС‚ РїРѕСЃР»РµРґРЅРµРіРѕ Р»РѕС‚Р°.
 							//
 							ObjTagList inh_tag_list;
 							GetTagListByLot(lot_rec.ID, 1, &inh_tag_list);

@@ -1,13 +1,14 @@
 // PPREPORT.CPP
 // Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #include <crpe.h>
 #include <crpe2.h>
-#include <shlwapi.h> // Vadim 03.09.02 - надо подключить shlwapi.lib
+#include <shlwapi.h> // Vadim 03.09.02 - РЅР°РґРѕ РїРѕРґРєР»СЋС‡РёС‚СЊ shlwapi.lib
 //
-// Закомментировать, если немодальный предварительный просмотр печати будет сбоить
+// Р—Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°С‚СЊ, РµСЃР»Рё РЅРµРјРѕРґР°Р»СЊРЅС‹Р№ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Р№ РїСЂРѕСЃРјРѕС‚СЂ РїРµС‡Р°С‚Рё Р±СѓРґРµС‚ СЃР±РѕРёС‚СЊ
 //
 //#define MODELESS_REPORT_PREVIEW
 
@@ -69,12 +70,13 @@ PPReportEnv::PPReportEnv() : Sort(0), PrnFlags(0)
 //
 //
 //
-SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), P_ReportName(pReportName), P_DefPrnForm(0)
+SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), P_ReportName(pReportName), P_DefPrnForm(0), P_DevMode(0)//@erik
 {
 }
 
 SLAPI PrnDlgAns::~PrnDlgAns()
 {
+	ZDELETE(P_DevMode);  //@v10.4.10
 }
 //
 //
@@ -772,7 +774,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 	int    force_ddf = 0;
 	const uint16 cr_dll_ver = PEGetVersion(PE_GV_DLL);
 	SString temp_buf, fname, buf2;
-	SString left; // Временные переменные для деления буферов по символу
+	SString left; // Р’СЂРµРјРµРЅРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ РґРµР»РµРЅРёСЏ Р±СѓС„РµСЂРѕРІ РїРѕ СЃРёРјРІРѕР»Сѓ
 	if(isempty(P_ReportName))
 		ok = -1;
 	else {
@@ -949,7 +951,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 									p_new_entry = 0;
 								}
 							}
-							delete p_new_entry; // Если p_new_entry была добавлена в Entries, то 0 (см. выше)
+							delete p_new_entry; // Р•СЃР»Рё p_new_entry Р±С‹Р»Р° РґРѕР±Р°РІР»РµРЅР° РІ Entries, С‚Рѕ 0 (СЃРј. РІС‹С€Рµ)
 						}
 						break;
 				}
@@ -998,8 +1000,8 @@ public:
 		THROW(P_Data->SetupReportEntries(0));
 		if(P_Data->P_DefPrnForm) {
 			//
-			// Если задано имя формы по умолчанию и в списке форм есть файл с именем, совпадающем
-			// с именем формы по умолчанию, то перемещаем эту форму на самый верх списка.
+			// Р•СЃР»Рё Р·Р°РґР°РЅРѕ РёРјСЏ С„РѕСЂРјС‹ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ Рё РІ СЃРїРёСЃРєРµ С„РѕСЂРј РµСЃС‚СЊ С„Р°Р№Р» СЃ РёРјРµРЅРµРј, СЃРѕРІРїР°РґР°СЋС‰РµРј
+			// СЃ РёРјРµРЅРµРј С„РѕСЂРјС‹ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ, С‚Рѕ РїРµСЂРµРјРµС‰Р°РµРј СЌС‚Сѓ С„РѕСЂРјСѓ РЅР° СЃР°РјС‹Р№ РІРµСЂС… СЃРїРёСЃРєР°.
 			//
 			SPathStruc ps;
 			for(uint i = 0; i < P_Data->Entries.getCount(); i++) {
@@ -1021,7 +1023,7 @@ public:
 			list.Z();
 			long   sel_prn_id = 0;
 			//
-			// Перемещаем принтер по умолчанию на верх списка
+			// РџРµСЂРµРјРµС‰Р°РµРј РїСЂРёРЅС‚РµСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РЅР° РІРµСЂС… СЃРїРёСЃРєР°
 			//
 			long   def_prn_id = 0;
 			for(uint j = 0; j < PrnList.getCount(); j++) {
@@ -1079,6 +1081,35 @@ private:
 			SetupReportEntry();
 			clearEvent(event);
 		}
+		// @erik v10.4.10 {
+		else if(event.isCmd(cmPrntCfg)) {
+			PRINTDLGA pd;
+			memzero(&pd, sizeof(pd));
+			pd.lStructSize = sizeof(pd);
+			//pd.hDevMode = NULL;
+			//pd.hDevNames = NULL;
+			pd.Flags = PD_USEDEVMODECOPIESANDCOLLATE | PD_RETURNDC;
+			pd.nCopies = 1;
+			pd.nFromPage = 0xFFFF;
+			pd.nToPage = 0xFFFF;
+			pd.nMinPage = 1;
+			pd.nMaxPage = 0xFFFF;
+			if(PrintDlgA(&pd) == TRUE) {
+				DEVMODEA * lpMode = static_cast<DEVMODEA *>(::GlobalLock(pd.hDevMode));
+				DEVNAMES * lpNames = static_cast<DEVNAMES *>(::GlobalLock(pd.hDevNames));
+				DEVMODEA mode = *lpMode;
+				::GlobalUnlock(pd.hDevMode);
+				::GlobalUnlock(pd.hDevNames);
+				::GlobalFree(pd.hDevMode);
+				::GlobalFree(pd.hDevNames);
+				SETIFZ(P_Data->P_DevMode, new DEVMODEA);
+				*(P_Data->P_DevMode) = mode;
+				::DeleteDC(pd.hDC); // ?
+			}
+			else
+				ZDELETE(P_Data->P_DevMode);
+		}
+		//}@erik
 	}
 	void   SetupReportEntry()
 	{
@@ -1321,11 +1352,11 @@ int SLAPI SReport::prepareData()
 					if(!(PrnOptions & SPRN_SKIPGRPS))
 						for(int i = 0; i < grpCount; i++)
 							if((c = checkval(groups[i].fields, &groups[i].lastval)) > 0) {
-								// Значение изменилось
+								// Р—РЅР°С‡РµРЅРёРµ РёР·РјРµРЅРёР»РѕСЃСЊ
 								THROW(printGroupHead(GROUP_FOOT, i));
 								THROW(printGroupHead(GROUP_HEAD, i));
 							}
-							else if(c < 0) { // Первая запись
+							else if(c < 0) { // РџРµСЂРІР°СЏ Р·Р°РїРёСЃСЊ
 								THROW(printGroupHead(GROUP_HEAD, i));
 							}
 					if(!(f->fldfmt & FLDFMT_SKIP))
@@ -1565,7 +1596,7 @@ static int SLAPI RemoveCompName(SString & rPrintDevice)
 		if(isdec(rPrintDevice.C(2))) {
 			long val = rPrintDevice.C(2) - '0';
 			InetAddr addr;
-			// @todo Исправить ошибку в GetFirstHostByMACAddr
+			// @todo РСЃРїСЂР°РІРёС‚СЊ РѕС€РёР±РєСѓ РІ GetFirstHostByMACAddr
 			//MACAddr  mac_addr;
 			//GetFirstMACAddr(&mac_addr);
 			//GetFirstHostByMACAddr(&mac_addr, &addr);
@@ -1576,40 +1607,47 @@ static int SLAPI RemoveCompName(SString & rPrintDevice)
 	return 1;
 }
 
-static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options)
+static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options, const DEVMODEA *pDevMode)
 {
 	int    ok = 1;
 	SString print_device = isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter;
 	RemoveCompName(print_device);
 	DEVMODEA * p_dm = 0, dm;
-	if(options & SPRN_USEDUPLEXPRINTING || print_device.NotEmptyS()) {
-		char   device_name[128];
-		char   port_name[128];
-		char   drv_name[64];
-		HANDLE h_drv = 0;
-		HANDLE h_prn = 0;
-		HANDLE h_port = 0;
-		short  drv_len, prn_len, port_len;
-		memzero(device_name, sizeof(device_name));
-		memzero(port_name, sizeof(port_name));
-		memzero(drv_name, sizeof(drv_name));
-		THROW_PP(PEGetSelectedPrinter(hJob, &h_drv, &drv_len, &h_prn, &prn_len, &h_port, &port_len, &p_dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
-		if(!RVALUEPTR(dm, p_dm))
-			MEMSZERO(dm);
-		PEGetHandleString(h_prn,  device_name, sizeof(device_name));
-		PEGetHandleString(h_port, port_name, sizeof(port_name));
-		PEGetHandleString(h_drv,  drv_name, sizeof(drv_name));
-		if(print_device.NotEmpty())
-			STRNSCPY(device_name, print_device);
-		if(options & SPRN_USEDUPLEXPRINTING) {
-			DWORD  is_duplex_device = DeviceCapabilitiesA(device_name, port_name, DC_DUPLEX, 0, p_dm); // @unicodeproblem
-			if(is_duplex_device) {
-				RVALUEPTR(dm, p_dm);
-				dm.dmFields |= DM_DUPLEX;
-				dm.dmDuplex = DMDUP_VERTICAL;
-			}
-		}
+	char   device_name[128];
+	char   port_name[128];
+	char   drv_name[64];
+	HANDLE h_drv = 0;
+	HANDLE h_prn = 0;
+	HANDLE h_port = 0;
+	short  drv_len, prn_len, port_len;
+	memzero(device_name, sizeof(device_name));
+	memzero(port_name, sizeof(port_name));
+	memzero(drv_name, sizeof(drv_name));
+	//@erik v10.4.10 {
+	if(pDevMode){
+		RVALUEPTR(dm, pDevMode);
 		THROW_PP(PESelectPrinter(hJob, drv_name, device_name, port_name, &dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
+	}
+	else{ // } @erik v10.4.10 
+		if(options & SPRN_USEDUPLEXPRINTING || print_device.NotEmptyS()) {
+			THROW_PP(PEGetSelectedPrinter(hJob, &h_drv, &drv_len, &h_prn, &prn_len, &h_port, &port_len, &p_dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
+			if(!RVALUEPTR(dm, p_dm))
+				MEMSZERO(dm);
+			PEGetHandleString(h_prn,  device_name, sizeof(device_name));
+			PEGetHandleString(h_port, port_name, sizeof(port_name));
+			PEGetHandleString(h_drv,  drv_name, sizeof(drv_name));
+			if(print_device.NotEmpty())
+				STRNSCPY(device_name, print_device);
+			if(options & SPRN_USEDUPLEXPRINTING) {
+				DWORD  is_duplex_device = DeviceCapabilitiesA(device_name, port_name, DC_DUPLEX, 0, p_dm); // @unicodeproblem
+				if(is_duplex_device) {
+					RVALUEPTR(dm, p_dm);
+					dm.dmFields |= DM_DUPLEX;
+					dm.dmDuplex = DMDUP_VERTICAL;
+				}
+			}
+			THROW_PP(PESelectPrinter(hJob, drv_name, device_name, port_name, &dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
+		}
 	}
 	CATCH
 		CrwError = PEGetErrorCode(hJob);
@@ -1636,8 +1674,20 @@ int SLAPI GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 	return ok;
 }
 
-int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const char * pPrinter, int numCopies, int options)
+int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode)   //@erik v10.4.10{
 {
+	// __@erik v10.4.10 {
+	char p_printer_tmp[32];
+	if(pDevMode){
+		if(pDevMode->dmDeviceName)
+			strcpy(p_printer_tmp, (char*)pDevMode->dmDeviceName);
+		if(pDevMode->dmCopies)
+			numCopies = pDevMode->dmCopies;
+	}
+	else {
+		strcpy(p_printer_tmp, pPrinter);
+	}
+	// } __@erik v10.4.10
 	int    ok = 1;
 	int    zero_print_device = 0;
 	short  h_job = PEOpenPrintJob(pReportName);
@@ -1648,30 +1698,30 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 	PEGetReportOptions(h_job, &ro);
 	ro.morePrintEngineErrorMessages = FALSE;
 	PESetReportOptions(h_job, &ro);
-	if(!DS.GetConstTLA().PrintDevice.Len()) {
-		if(GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0)
+	if (!DS.GetConstTLA().PrintDevice.Len()) {
+		if (GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0)
 			zero_print_device = 1;
 	}
-	THROW(SetPrinterParam(h_job, pPrinter, options));
+	THROW(SetPrinterParam(h_job, p_printer_tmp, options, pDevMode));
 	THROW(SetupReportLocations(h_job, pDir, (options & SPRN_DONTRENAMEFILES) ? 0 : 1));
-	if(options & SPRN_PREVIEW) {
+	if (options & SPRN_PREVIEW) {
 		THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
-			CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
+			CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE | WS_VISIBLE | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
 	}
 	else {
 		THROW_PP(PEOutputToPrinter(h_job, numCopies), PPERR_CRYSTAL_REPORT);
 	}
-	if(options & SPRN_SKIPGRPS)
+	if (options & SPRN_SKIPGRPS)
 		SetupGroupSkipping(h_job);
-	if(options & SPRN_PREVIEW) {
+	if (options & SPRN_PREVIEW) {
 		struct PreviewEventParam {
 			static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
 			{
-				if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
-					#ifndef MODELESS_REPORT_PREVIEW
+				if (eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
+#ifndef MODELESS_REPORT_PREVIEW
 					EnableWindow(APPL->H_TopOfStack, 1);
 					static_cast<PreviewEventParam *>(pUserData)->StopPreview++;
-					#endif
+#endif
 				}
 				return TRUE;
 			}
@@ -1687,7 +1737,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 		THROW_PP(PESetEventCallback(h_job, PreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
 #ifndef MODELESS_REPORT_PREVIEW
-		EnableWindow(APPL->H_TopOfStack, 0); // Запрещает работу в программе пока окно просмотра активно
+		EnableWindow(APPL->H_TopOfStack, 0); // Р—Р°РїСЂРµС‰Р°РµС‚ СЂР°Р±РѕС‚Сѓ РІ РїСЂРѕРіСЂР°РјРјРµ РїРѕРєР° РѕРєРЅРѕ РїСЂРѕСЃРјРѕС‚СЂР° Р°РєС‚РёРІРЅРѕ
 		APPL->MsgLoop(0, pep.StopPreview);
 #endif
 	}
@@ -1697,35 +1747,124 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 		const uint64 profile_end = SLS.GetProfileTime();
 		{
 			msg_buf.Z().CatEq("Report", pReportName);
-			if(!isempty(pPrinter))
-				msg_buf.CatDiv(';', 2).CatEq("Printer", pPrinter);
-			if(numCopies > 1)
+			if (!isempty(p_printer_tmp)) // Р Р°РЅРµРµ Р±С‹Р» pPrinter @erik v10.4.10
+				msg_buf.CatDiv(';', 2).CatEq("Printer", p_printer_tmp); // Р Р°РЅРµРµ Р±С‹Р» pPrinter @erik v10.4.10
+			if (numCopies > 1)
 				msg_buf.CatDiv(';', 2).CatEq("Copies", (long)numCopies);
 			msg_buf.CatDiv(';', 2).CatEq("Mks", (int64)(profile_end - profile_start));
-			PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME|LOGMSGF_DBINFO);
+			PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
 		}
 	}
 	CATCH
 		CrwError = PEGetErrorCode(h_job);
-		// @v8.3.4 @debug {
-		{
-			// @v9.4.9 (msg_buf = "Crystal Reports error:").CatDiv(':', 2).Cat(CrwError);
-			// @v9.4.9 {
-			PPLoadString("err_crpe", msg_buf);
-			msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
-			msg_buf.CatDiv(':', 2).Cat(CrwError);
-			// } @v9.4.9
-			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-		}
-		// } @v8.3.4 @debug
-		ok = 0;
+	// @v8.3.4 @debug {
+	{
+		// @v9.4.9 (msg_buf = "Crystal Reports error:").CatDiv(':', 2).Cat(CrwError);
+		// @v9.4.9 {
+		PPLoadString("err_crpe", msg_buf);
+		msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
+		msg_buf.CatDiv(':', 2).Cat(CrwError);
+		// } @v9.4.9
+		PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP | LOGMSGF_DBINFO | LOGMSGF_TIME | LOGMSGF_USER);
+	}
+	// } @v8.3.4 @debug
+	ok = 0;
 	ENDCATCH
-	if(h_job)
-		PEClosePrintJob(h_job);
-	if(zero_print_device)
+		if (h_job)
+			PEClosePrintJob(h_job);
+	if (zero_print_device)
 		DS.GetTLA().PrintDevice = 0;
 	return ok;
-}
+//	else {
+//		int    ok = 1;
+//		int    zero_print_device = 0;
+//		short  h_job = PEOpenPrintJob(pReportName);
+//		SString msg_buf;
+//		PEReportOptions ro;
+//		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
+//		ro.StructSize = sizeof(ro);
+//		PEGetReportOptions(h_job, &ro);
+//		ro.morePrintEngineErrorMessages = FALSE;
+//		PESetReportOptions(h_job, &ro);
+//		if (!DS.GetConstTLA().PrintDevice.Len()) {
+//			if (GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0)
+//				zero_print_device = 1;
+//		}
+//		THROW(SetPrinterParam(h_job, pPrinter, options, pDevMode));
+//		THROW(SetupReportLocations(h_job, pDir, (options & SPRN_DONTRENAMEFILES) ? 0 : 1));
+//		if (options & SPRN_PREVIEW) {
+//			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
+//				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE | WS_VISIBLE | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
+//		}
+//		else {
+//			THROW_PP(PEOutputToPrinter(h_job, numCopies), PPERR_CRYSTAL_REPORT);
+//		}
+//		if (options & SPRN_SKIPGRPS)
+//			SetupGroupSkipping(h_job);
+//		if (options & SPRN_PREVIEW) {
+//			struct PreviewEventParam {
+//				static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
+//				{
+//					if (eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
+//#ifndef MODELESS_REPORT_PREVIEW
+//						EnableWindow(APPL->H_TopOfStack, 1);
+//						static_cast<PreviewEventParam *>(pUserData)->StopPreview++;
+//#endif
+//					}
+//					return TRUE;
+//				}
+//				int    StopPreview;
+//			};
+//			PreviewEventParam pep;
+//			pep.StopPreview = 0;
+//			PEEnableEventInfo eventInfo;
+//			eventInfo.StructSize = sizeof(PEEnableEventInfo);
+//			eventInfo.closePrintWindowEvent = TRUE;
+//			eventInfo.startStopEvent = TRUE;
+//			THROW_PP(PEEnableEvent(h_job, &eventInfo), PPERR_CRYSTAL_REPORT);
+//			THROW_PP(PESetEventCallback(h_job, PreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
+//			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+//#ifndef MODELESS_REPORT_PREVIEW
+//			EnableWindow(APPL->H_TopOfStack, 0); // Р—Р°РїСЂРµС‰Р°РµС‚ СЂР°Р±РѕС‚Сѓ РІ РїСЂРѕРіСЂР°РјРјРµ РїРѕРєР° РѕРєРЅРѕ РїСЂРѕСЃРјРѕС‚СЂР° Р°РєС‚РёРІРЅРѕ
+//			APPL->MsgLoop(0, pep.StopPreview);
+//#endif
+//		}
+//		else {
+//			const uint64 profile_start = SLS.GetProfileTime();
+//			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+//			const uint64 profile_end = SLS.GetProfileTime();
+//			{
+//				msg_buf.Z().CatEq("Report", pReportName);
+//				if (!isempty(pPrinter))
+//					msg_buf.CatDiv(';', 2).CatEq("Printer", pPrinter);
+//				if (numCopies > 1)
+//					msg_buf.CatDiv(';', 2).CatEq("Copies", (long)numCopies);
+//				msg_buf.CatDiv(';', 2).CatEq("Mks", (int64)(profile_end - profile_start));
+//				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
+//			}
+//		}
+//		CATCH
+//			CrwError = PEGetErrorCode(h_job);
+//		// @v8.3.4 @debug {
+//		{
+//			// @v9.4.9 (msg_buf = "Crystal Reports error:").CatDiv(':', 2).Cat(CrwError);
+//			// @v9.4.9 {
+//			PPLoadString("err_crpe", msg_buf);
+//			msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
+//			msg_buf.CatDiv(':', 2).Cat(CrwError);
+//			// } @v9.4.9
+//			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP | LOGMSGF_DBINFO | LOGMSGF_TIME | LOGMSGF_USER);
+//		}
+//		// } @v8.3.4 @debug
+//		ok = 0;
+//		ENDCATCH
+//			if (h_job)
+//				PEClosePrintJob(h_job);
+//		if (zero_print_device)
+//			DS.GetTLA().PrintDevice = 0;
+//		return ok;
+//	}
+}   // }@erik v10.4.10
 
 int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName,
 	const char * pEMailAddr, int options)
@@ -1752,7 +1891,7 @@ int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
 		if(silent && pEMailAddr && fileExists(path)) {
 			//
-			// Отправка на определенный почтовый адрес
+			// РћС‚РїСЂР°РІРєР° РЅР° РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РїРѕС‡С‚РѕРІС‹Р№ Р°РґСЂРµСЃ
 			//
 			PPAlbatrosConfig alb_cfg;
 			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
@@ -1906,11 +2045,11 @@ int SLAPI SReport::printDetail()
 	if(!(PrnOptions & SPRN_SKIPGRPS)) {
 		for(i = 0; i < grpCount; i++) {
 			if((c = checkval(groups[i].fields, &groups[i].lastval)) > 0) {
-				// Значение изменилось
+				// Р—РЅР°С‡РµРЅРёРµ РёР·РјРµРЅРёР»РѕСЃСЊ
 				THROW(printGroupHead(GROUP_FOOT, i));
 				THROW(printGroupHead(GROUP_HEAD, i));
 			}
-			else if(c < 0) { // Первая запись
+			else if(c < 0) { // РџРµСЂРІР°СЏ Р·Р°РїРёСЃСЊ
 				THROW(printGroupHead(GROUP_HEAD, i));
 			}
 		}
@@ -2202,7 +2341,7 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 					PrnDlgAns report_descr_data(rpt_name);
 					uint   i;
 					report_descr_data.SetupReportEntries(0);
-					report_descr_data.Flags |= PrnDlgAns::fForceDDF; // Создание файлов данных обязательно должно включать создание словаря //
+					report_descr_data.Flags |= PrnDlgAns::fForceDDF; // РЎРѕР·РґР°РЅРёРµ С„Р°Р№Р»РѕРІ РґР°РЅРЅС‹С… РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґРѕР»Р¶РЅРѕ РІРєР»СЋС‡Р°С‚СЊ СЃРѕР·РґР°РЅРёРµ СЃР»РѕРІР°СЂСЏ //
 					for(i = 0; i < report_descr_data.Entries.getCount(); i++) {
 						uint   p = 0;
 						char * p_data_name = newStr(report_descr_data.Entries.at(i)->DataName_);
@@ -2241,7 +2380,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 	SString data_name, fn, printer_name;
 	SString temp_buf;
 	long   fl = 0;
-	const  uint sur_key_last_count = DS.GetTLA().SurIdList.getCount(); // См. коммент в конце функции
+	const  uint sur_key_last_count = DS.GetTLA().SurIdList.getCount(); // РЎРј. РєРѕРјРјРµРЅС‚ РІ РєРѕРЅС†Рµ С„СѓРЅРєС†РёРё
 	if(pEnv) {
 		if(pEnv->PrnFlags & SReport::Landscape)
 			fl |= INIREPF_FORCELANDSCAPE;
@@ -2275,6 +2414,9 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 			pans.P_DefPrnForm = 0;
 		if(!rpt.PrnDest) {
 			if(EditPrintParam(&pans) > 0) {
+				if (pans.P_DevMode) {
+
+				}
 				pans.Flags &= ~pans.fForceDDF;
 				p_sel_entry = pans.Entries.at(pans.Selection);
 				fn                  = p_sel_entry->ReportPath_;
@@ -2364,8 +2506,8 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					// @v9.8.9 {
 					{
 						//
-						// Для Crystal Reports 10 и выше удаляем каталог подготовки данных (если существует)
-						// ибо почему-то Crystal Reports использует его с приоритетом в некоторых случаях.
+						// Р”Р»СЏ Crystal Reports 10 Рё РІС‹С€Рµ СѓРґР°Р»СЏРµРј РєР°С‚Р°Р»РѕРі РїРѕРґРіРѕС‚РѕРІРєРё РґР°РЅРЅС‹С… (РµСЃР»Рё СЃСѓС‰РµСЃС‚РІСѓРµС‚)
+						// РёР±Рѕ РїРѕС‡РµРјСѓ-С‚Рѕ Crystal Reports РёСЃРїРѕР»СЊР·СѓРµС‚ РµРіРѕ СЃ РїСЂРёРѕСЂРёС‚РµС‚РѕРј РІ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС….
 						//
 						PPGetPath(PPPATH_REPORTDATA, temp_buf);
 						if(data_name.NotEmpty())
@@ -2382,12 +2524,12 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				THROW(p_rtm->Export(ep));
 			}
 			PPWait(0);
-			switch(rpt.PrnDest) {
+			switch(rpt.PrnDest) { //@erik v10.4.10
 				case PrnDlgAns::aPrint:
-					ok = CrystalReportPrint(fn, ep.Path, printer_name, pans.NumCopies, rpt.PrnOptions);
+					ok = CrystalReportPrint(fn, ep.Path, printer_name, pans.NumCopies, rpt.PrnOptions, pans.P_DevMode);//@erik
 					break;
 				case PrnDlgAns::aPreview:
-					ok = CrystalReportPrint(fn, ep.Path, printer_name, 1, rpt.PrnOptions | SPRN_PREVIEW);
+					ok = CrystalReportPrint(fn, ep.Path, printer_name, 1, rpt.PrnOptions | SPRN_PREVIEW, pans.P_DevMode); //@erik
 					break;
 				case PrnDlgAns::aExport:
 					{
@@ -2441,9 +2583,9 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 	delete p_rtm;
 	{
 		//
-		// Закладываемся на то, что данная функция не может вызываться рекурсивно:
-		// удаляет все динамические идентификаторы из DS.GetTLA.SurIdList созданные
-		// в течении вызова этой функции.
+		// Р—Р°РєР»Р°РґС‹РІР°РµРјСЃСЏ РЅР° С‚Рѕ, С‡С‚Рѕ РґР°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РЅРµ РјРѕР¶РµС‚ РІС‹Р·С‹РІР°С‚СЊСЃСЏ СЂРµРєСѓСЂСЃРёРІРЅРѕ:
+		// СѓРґР°Р»СЏРµС‚ РІСЃРµ РґРёРЅР°РјРёС‡РµСЃРєРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РёР· DS.GetTLA.SurIdList СЃРѕР·РґР°РЅРЅС‹Рµ
+		// РІ С‚РµС‡РµРЅРёРё РІС‹Р·РѕРІР° СЌС‚РѕР№ С„СѓРЅРєС†РёРё.
 		//
 		uint c = DS.GetTLA().SurIdList.getCount();
 		while(c > sur_key_last_count)

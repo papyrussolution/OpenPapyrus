@@ -1575,7 +1575,7 @@ ulong SLAPI PPRights::CheckSum()
 		P_Rt->ChkSumLocList = 0;
 		P_Rt->ChkSumCfgList = 0;
 		P_Rt->ChkSumAccList = 0;
-		cs = _checksum__((char *)P_Rt, Size());
+		cs = _checksum__(reinterpret_cast<const char *>(P_Rt), Size());
 		P_Rt->ChkSumLocList = save_locl_chksum;
 		P_Rt->ChkSumOpList  = save_opl_chksum;
 		P_Rt->ChkSumCfgList = save_cfgl_chksum;
@@ -1806,19 +1806,11 @@ int SLAPI PPRights::CheckOpID(PPID opID, long rtflags) const
 }
 
 int SLAPI PPRights::CheckLocID(PPID locID, long) const
-{
-	return (!(P_LocList && P_LocList->getCount()) || P_LocList->SearchItemByID(locID, 0)) ? 1 : PPSetError(PPERR_LOCNOTACCESSIBLE);
-}
-
+	{ return (!SVectorBase::GetCount(P_LocList) || P_LocList->SearchItemByID(locID, 0)) ? 1 : PPSetError(PPERR_LOCNOTACCESSIBLE); }
 int SLAPI PPRights::CheckPosNodeID(PPID id, long flags) const
-{
-	return (!(P_PosList && P_PosList->getCount()) || P_PosList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_POSNODENOTACCESSIBLE);
-}
-
+	{ return (!SVectorBase::GetCount(P_PosList) || P_PosList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_POSNODENOTACCESSIBLE); }
 int SLAPI PPRights::CheckQuotKindID(PPID id, long flags) const
-{
-	return (!(P_QkList && P_QkList->getCount()) || P_QkList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_QUOTKINDNOTACCESSIBLE);
-}
+	{ return (!SVectorBase::GetCount(P_QkList) || P_QkList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_QUOTKINDNOTACCESSIBLE); }
 
 int SLAPI PPRights::CheckAccID(PPID accID, long rt) const
 {
@@ -1881,7 +1873,7 @@ int FASTCALL GetCommConfig(PPCommConfig * pCfg)
 	if(pCfg->MainOrgID == 0) {
 		PPObjPerson psn_obj;
 		PersonTbl::Rec psn_rec;
-		if((r = psn_obj.P_Tbl->SearchMainOrg(&psn_rec)) > 0)
+		if(psn_obj.P_Tbl->SearchMainOrg(&psn_rec) > 0)
 			pCfg->MainOrgID = psn_rec.ID;
 	}
 	CATCHZOK

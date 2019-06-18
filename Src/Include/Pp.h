@@ -18485,13 +18485,10 @@ struct AsyncCashNPrepParam {
 //
 class CmLocking {
 public:
-	CmLocking(const PPCashNode & rNodeRec);
+	explicit CmLocking(const PPCashNode & rNodeRec);
 	~CmLocking();
 	int    operator !() const;
-	int    IsForeignLocking() const
-	{
-		return BIN(Flags & fForeignLocking);
-	}
+	int    IsForeignLocking() const;
 private:
 	enum {
 		fError          = 0x0001,
@@ -30949,7 +30946,7 @@ public:
 		friend class PPObjBill;
 
 		SLAPI  TBlock();
-		int16 & SLAPI Rbb() { return CurRByBill; }
+		int16 & SLAPI Rbb() { return CurRByBill; } // non-const because caller may change a value by the returned reference
 		int16  SLAPI GetNewRbb();
 	private:
 		PPID   BillID;

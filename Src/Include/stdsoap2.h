@@ -1341,38 +1341,10 @@ FILE * FASTCALL soap_get_dbg_file(struct soap * pSoap, int idx);
 		#define SOAP_MESSAGE fprintf
 	#endif
 	#ifndef DBGLOG
-		/*
-		#define DBGLOG(DBGFILE, CMD) { \
-			if(soap) { \
-				const size_t __dbg_idx = SOAP_INDEX_ ## DBGFILE; \
-				if(!soap->fdebug[__dbg_idx]) \
-					soap_open_logfile((struct soap*)soap, __dbg_idx); \
-				FILE * fdebug = soap->fdebug[__dbg_idx]; \
-				if(fdebug) { \
-					CMD; \
-					fflush(fdebug);	\
-				} \
-			} \
-		}
-		*/
-		#define DBGLOG(DBGFILE, CMD) { FILE * fdebug = soap_get_dbg_file((struct soap *)soap, SOAP_INDEX_ ## DBGFILE); if(fdebug) { CMD; fflush(fdebug); } }
+		#define DBGLOG(DBGFILE, CMD) { FILE * fdebug = soap_get_dbg_file(const_cast<struct soap *>(soap), SOAP_INDEX_ ## DBGFILE); if(fdebug) { CMD; fflush(fdebug); } }
 	#endif
 	#ifndef DBGMSG
-		/*
-		#define DBGMSG(DBGFILE, MSG, LEN) { \
-		if(soap) { \
-			const size_t __dbg_idx = SOAP_INDEX_ ## DBGFILE; \
-			if(!soap->fdebug[__dbg_idx]) { \
-				soap_open_logfile((struct soap*)soap, __dbg_idx); \
-				FILE * fdebug = soap->fdebug[__dbg_idx]; \
-				if(fdebug) { \
-					fwrite((MSG), 1, (LEN), fdebug); \
-					fflush(fdebug);	\
-				} \
-			} \
-		} } \
-		*/
-		#define DBGMSG(DBGFILE, MSG, LEN) { FILE * fdebug = soap_get_dbg_file((struct soap *)soap, SOAP_INDEX_ ## DBGFILE); if(fdebug) { fwrite((MSG), 1, (LEN), fdebug); fflush(fdebug); } }
+		#define DBGMSG(DBGFILE, MSG, LEN) { FILE * fdebug = soap_get_dbg_file(soap, SOAP_INDEX_ ## DBGFILE); if(fdebug) { fwrite((MSG), 1, (LEN), fdebug); fflush(fdebug); } }
   #endif
   #ifndef DBGFUN
    #define DBGFUN(FNAME) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s()\n", __FILE__, __LINE__, FNAME))
@@ -1395,13 +1367,13 @@ FILE * FASTCALL soap_get_dbg_file(struct soap * pSoap, int idx);
 	}
   #endif
  #else
-  #define DBGLOG(DBGFILE, CMD)
-  #define DBGMSG(DBGFILE, MSG, LEN)
-  #define DBGFUN(FNAME)
-  #define DBGFUN1(FNAME, FMT, ARG)
-  #define DBGFUN2(FNAME, FMT1, ARG1, FMT2, ARG2)
-  #define DBGFUN3(FNAME, FMT1, ARG1, FMT2, ARG2, FMT3, ARG3)
-  #define DBGHEX(DBGFILE, MSG, LEN)
+	#define DBGLOG(DBGFILE, CMD)
+	#define DBGMSG(DBGFILE, MSG, LEN)
+	#define DBGFUN(FNAME)
+	#define DBGFUN1(FNAME, FMT, ARG)
+	#define DBGFUN2(FNAME, FMT1, ARG1, FMT2, ARG2)
+	#define DBGFUN3(FNAME, FMT1, ARG1, FMT2, ARG2, FMT3, ARG3)
+	#define DBGHEX(DBGFILE, MSG, LEN)
  #endif
 
 /* UCS-4 requires 32 bits (0-7FFFFFFF, the sign bit is used by gSOAP to distinguish XML entities) */
@@ -1722,16 +1694,16 @@ extern "C" {
 #endif
 
 struct SOAP_STD_API soap {
-	short  state;                    /* 0 = uninitialized, 1 = initialized, 2 = copy of another soap struct */
-	short  version;          /* 1 = SOAP1.1 and 2 = SOAP1.2 (set automatically from namespace URI in nsmap table) */
+	short  state;   // 0 = uninitialized, 1 = initialized, 2 = copy of another soap struct 
+	short  version; // 1 = SOAP1.1 and 2 = SOAP1.2 (set automatically from namespace URI in nsmap table) */
 	soap_mode mode;
 	soap_mode imode;
 	soap_mode omode;
-	const char * float_format; /* user-definable format string for floats (<1024 chars) */
-	const char * double_format; /* user-definable format string for doubles (<1024 chars) */
-	const char * dime_id_format; /* user-definable format string for integer DIME id (<SOAP_TAGLEN chars) */
-	const char * http_version; /* HTTP version used "1.0" or "1.1" */
-	const char * http_content; /* optional custom response content type (with SOAP_FILE) */
+	const char * float_format;  // user-definable format string for floats (<1024 chars) 
+	const char * double_format; // user-definable format string for doubles (<1024 chars) 
+	const char * dime_id_format; // user-definable format string for integer DIME id (<SOAP_TAGLEN chars) 
+	const char * http_version;   // HTTP version used "1.0" or "1.1" 
+	const char * http_content;   // optional custom response content type (with SOAP_FILE) 
 	const char * encodingStyle; /* default = NULL which means that SOAP encoding is used */
 	const char * actor;     /* SOAP-ENV:actor or role attribute value */
 	const char * lang;      /* xml:lang attribute value of SOAP-ENV:Text */
@@ -1743,20 +1715,22 @@ struct SOAP_STD_API soap {
 	int    connect_flags;      /* connect() SOL_SOCKET sockopt flags, e.g. set to SO_DEBUG to debug socket */
 	int    bind_flags;         /* bind() SOL_SOCKET sockopt flags, e.g. set to SO_REUSEADDR to enable reuse */
 	int    accept_flags;       /* accept() SOL_SOCKET sockopt flags */
-	ushort linger_time; /* linger time for SO_LINGER option */
+	ushort linger_time;        // linger time for SO_LINGER option 
+	uint16 Reserve5;           // @alignment 
 	const struct Namespace * namespaces; /* Pointer to global namespace mapping table */
 	struct Namespace * local_namespaces; /* Local namespace mapping table */
-	struct soap_nlist * nlist; /* namespace stack */
-	struct soap_blist * blist; /* block allocation stack */
-	struct soap_clist * clist; /* class instance allocation list */
-	void * alist;           /* memory allocation (SAlloc::M) list */
+	struct soap_nlist * nlist; // namespace stack 
+	struct soap_blist * blist; // block allocation stack 
+	struct soap_clist * clist; // class instance allocation list 
+	void * alist;              // memory allocation (SAlloc::M) list 
 	struct soap_ilist * iht[SOAP_IDHASH];
 	struct soap_plist * pht[SOAP_PTRHASH];
-	struct soap_pblk * pblk; /* plist block allocation */
-	short  pidx;             /* plist block allocation */
+	struct soap_pblk * pblk;   // plist block allocation 
+	short  pidx;               // plist block allocation
+	uint16 Reserve6;           // @alignment 
 	struct SOAP_ENV__Header * header;
 	struct SOAP_ENV__Fault * fault;
-	int idnum;
+	int    idnum;
 	void * user;            /* for user to pass user-defined data */
 	void * data[4];         /* extension data = {smdevp, mecevp, ...} */
 	struct soap_plugin * plugins; /* linked list of plug-in data */
@@ -1876,9 +1850,9 @@ struct SOAP_STD_API soap {
 	short  peeked;
 	size_t chunksize;
 	size_t chunkbuflen;
-	char endpoint[SOAP_TAGLEN];
-	char path[SOAP_TAGLEN];
-	char host[SOAP_TAGLEN];
+	char   endpoint[SOAP_TAGLEN];
+	char   path[SOAP_TAGLEN];
+	char   host[SOAP_TAGLEN];
 	char * action;
 	char * prolog;          /* XML declaration prolog */
 	ulong  ip;       /* IP number */
@@ -1889,16 +1863,16 @@ struct SOAP_STD_API soap {
 	uint   tcp_keep_intvl; /* set TCP_KEEPINTVL */
 	uint   tcp_keep_cnt; /* set TCP_KEEPCNT */
 	uint   max_keep_alive; /* maximum keep-alive session (default=100) */
-	const char * proxy_http_version; /* HTTP version of proxy "1.0" or "1.1" */
-	const char * proxy_host; /* Proxy Server host name */
-	int proxy_port;         /* Proxy Server port (default = 8080) */
-	const char * proxy_userid; /* Proxy Authorization user name */
-	const char * proxy_passwd; /* Proxy Authorization password */
-	const char * proxy_from; /* X-Forwarding-For header returned by proxy */
-	int status;             /* -1 when request, else error code to be returned by server */
-	int error;
-	int errmode;
-	int errnum;
+	const  char * proxy_http_version; /* HTTP version of proxy "1.0" or "1.1" */
+	const  char * proxy_host; /* Proxy Server host name */
+	int    proxy_port;         /* Proxy Server port (default = 8080) */
+	const  char * proxy_userid; /* Proxy Authorization user name */
+	const  char * proxy_passwd; /* Proxy Authorization password */
+	const  char * proxy_from; /* X-Forwarding-For header returned by proxy */
+	int    status;             /* -1 when request, else error code to be returned by server */
+	int    error;
+	int    errmode;
+	int    errnum;
 #ifndef WITH_LEANER
 	struct soap_dom_element * dom;
 	struct soap_dime dime;
@@ -1919,9 +1893,10 @@ struct SOAP_STD_API soap {
 	int cookie_max;
 #endif
 #ifndef WITH_NOIO
-	int ipv6_multicast_if; /* in6addr->sin6_scope_id IPv6 value */
-	char * ipv4_multicast_if; /* IP_MULTICAST_IF IPv4 setsockopt interface_addr */
-	unsigned char ipv4_multicast_ttl; /* IP_MULTICAST_TTL value 0..255 */
+	int    ipv6_multicast_if;  // in6addr->sin6_scope_id IPv6 value */
+	char * ipv4_multicast_if;  // IP_MULTICAST_IF IPv4 setsockopt interface_addr */
+	uchar  ipv4_multicast_ttl; // IP_MULTICAST_TTL value 0..255 */
+	uint8  Reserve4[3];        // @alignment
 	#ifdef WITH_IPV6
 	struct sockaddr_storage peer; /* IPv6: set by soap_accept and by UDP recv */
 	#else
@@ -1958,13 +1933,14 @@ struct SOAP_STD_API soap {
 	void * rsa_params;
 #endif
 	ushort ssl_flags;
-	const char * keyfile;
-	const char * password;
-	const char * cafile;
-	const char * capath;
-	const char * crlfile;
-	char session_host[SOAP_TAGLEN];
-	int session_port;
+	uint16 Reserve; // @alignment
+	const  char * keyfile;
+	const  char * password;
+	const  char * cafile;
+	const  char * capath;
+	const  char * crlfile;
+	char   session_host[SOAP_TAGLEN];
+	int    session_port;
 #ifdef WITH_C_LOCALE
 	#ifdef WIN32
 		_locale_t c_locale;     /* set to C locale by default */
@@ -1983,12 +1959,14 @@ struct SOAP_STD_API soap {
 #endif
 	const  char * z_dict;    /* support for zlib static dictionaries */
 	uint   z_dict_len;
-	short  zlib_state;       /* SOAP_ZLIB_NONE, SOAP_ZLIB_DEFLATE, or SOAP_ZLIB_INFLATE */
-	short  zlib_in;          /* SOAP_ZLIB_NONE, SOAP_ZLIB_DEFLATE, or SOAP_ZLIB_GZIP */
-	short  zlib_out;         /* SOAP_ZLIB_NONE, SOAP_ZLIB_DEFLATE, or SOAP_ZLIB_GZIP */
-	char * z_buf;           /* buffer */
+	short  zlib_state;      // SOAP_ZLIB_NONE, SOAP_ZLIB_DEFLATE, or SOAP_ZLIB_INFLATE 
+	short  zlib_in;         // SOAP_ZLIB_NONE, SOAP_ZLIB_DEFLATE, or SOAP_ZLIB_GZIP
+	short  zlib_out;        // SOAP_ZLIB_NONE, SOAP_ZLIB_DEFLATE, or SOAP_ZLIB_GZIP
+	uint16 Reserve2;        // @alignment 
+	char * z_buf;           // buffer 
 	size_t z_buflen;
-	ushort z_level; /* compression level to be used (0=none, 1=fast to 9=best) */
+	ushort z_level;         // compression level to be used (0=none, 1=fast to 9=best) 
+	uint16 Reserve3;        // @alignment 
 	float  z_ratio_in;       /* detected compression ratio compressed_length/length of inbound message */
 	float  z_ratio_out;      /* detected compression ratio compressed_length/length of outbound message */
  #ifdef WMW_RPM_IO              /* VxWorks */
@@ -2000,7 +1978,6 @@ struct SOAP_STD_API soap {
 	soap(soap_mode, soap_mode);
 	soap(const struct soap &);
 	virtual ~soap();
-
 	//#define soap_get0(soap) (((soap)->bufidx>=(soap)->buflen && soap_recv(soap)) ? EOF : (uchar)(soap)->buf[(soap)->bufidx])
 	//#define soap_get1(soap) (((soap)->bufidx>=(soap)->buflen && soap_recv(soap)) ? EOF : (uchar)(soap)->buf[(soap)->bufidx++])
 	uchar  Get0();
