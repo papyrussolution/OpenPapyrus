@@ -712,23 +712,26 @@ int SLAPI ReceiptCore::GatherChilds(PPID parent, PPIDArray * pList, int (*test)(
 	return r;
 }
 
-int SLAPI ReceiptCore::GetLastQCert(PPID goodsID, PPID * pQCertID)
+int SLAPI ReceiptCore::GetLastQCert(PPID goodsID, LDATE beforeDate, PPID * pQCertID, PPID * pLotID)
 {
 	ASSIGN_PTR(pQCertID, 0);
-
 	ReceiptTbl::Key2 k;
 	BExtQuery q(this, 2);
-	q.select(this->ID, this->QCertID, 0L).where(this->GoodsID == goodsID && this->QCertID > 0L);
+	DBQ * dbq = &(this->GoodsID == goodsID && this->QCertID > 0L);
+	if(checkdate(beforeDate))
+		dbq = &(*dbq && this->Dt <= beforeDate);
+	q.select(this->ID, this->Dt, this->QCertID, 0L).where(*dbq);
 	k.GoodsID = goodsID;
-	k.Dt = MAXDATE;
+	k.Dt = checkdate(beforeDate) ? beforeDate : MAXDATE;
 	k.OprNo = MAXLONG;
-	for(q.initIteration(1, &k, spLt); q.nextIteration() > 0;) {
+	for(q.initIteration(1, &k, spLe); q.nextIteration() > 0;) {
 		if(data.QCertID) {
 			ASSIGN_PTR(pQCertID, data.QCertID);
+			ASSIGN_PTR(pLotID, data.ID);
 			return 1;
 		}
 	}
-	return (goodsID > 0) ? GetLastQCert(-goodsID, pQCertID) : -1;
+	return (goodsID > 0) ? GetLastQCert(-goodsID, beforeDate, pQCertID, pLotID) /* @recursion */ : -1; 
 }
 
 int SLAPI ReceiptCore::IsThereOpenedLotForQCert(PPID qcertID)

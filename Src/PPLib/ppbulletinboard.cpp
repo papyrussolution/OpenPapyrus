@@ -717,18 +717,16 @@ int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment *
 			TimeSeriesBlock * p_fblk = SearchBlockBySymb(temp_buf, 0);
 			if(p_fblk) {
 				const uint tsc = p_fblk->T_.GetCount();
-				if(tsc && p_fblk->T_.GetTime(tsc-1, &ut) && ut.Get(last_dtm)) {
-					if(cmp(last_dtm, r_tk.Dtm) < 0 && p_fblk->T_.GetValueVecIndex("close", &vec_idx)) {
-						if(!UseRegularValuesOnlyForStakes) {
-							p_fblk->Make_T_Regular();
-							assert(oneof2(p_fblk->TLE.Tag, 0, 2));
-							p_fblk->TLE.Sse.Tm.Set(r_tk.Dtm);
-							p_fblk->TLE.Sse.Values.clear();
-							p_fblk->TLE.Sse.Values.Add(vec_idx, r_tk.Last);
-							p_fblk->TLE.Tag = 2;
-							p_fblk->Make_T_Actual();
-							EvaluateTrends(p_fblk, 0);
-						}
+				if(tsc && p_fblk->T_.GetTime(tsc-1, &ut) && ut.Get(last_dtm) && cmp(last_dtm, r_tk.Dtm) < 0 && p_fblk->T_.GetValueVecIndex("close", &vec_idx)) {
+					if(!UseRegularValuesOnlyForStakes) {
+						p_fblk->Make_T_Regular();
+						assert(oneof2(p_fblk->TLE.Tag, 0, 2));
+						p_fblk->TLE.Sse.Tm.Set(r_tk.Dtm);
+						p_fblk->TLE.Sse.Values.clear();
+						p_fblk->TLE.Sse.Values.Add(vec_idx, r_tk.Last);
+						p_fblk->TLE.Tag = 2;
+						p_fblk->Make_T_Actual();
+						EvaluateTrends(p_fblk, 0);
 					}
 				}
 			}
@@ -906,9 +904,9 @@ struct StakeCommentBlock {
 	StakeCommentBlock() : P_Signature("PPAT"), SpikeQuant(0.0), MaxDuckQuant(0), TargetQuant(0), Flags(0)
 	{
 	}
-	void  MakeText(const PPObjTimeSeries::Strategy & rS, SString & rBuf)
+	void  MakeText(const PPObjTimeSeries::Strategy & rS, double outerSpikeQuant, SString & rBuf)
 	{
-		SpikeQuant = rS.SpikeQuant;
+		SpikeQuant = (outerSpikeQuant > 0.0) ? outerSpikeQuant : rS.SpikeQuant;
 		MaxDuckQuant = rS.MaxDuckQuant;
 		TargetQuant = rS.TargetQuant;
 		Flags = 0;
@@ -1397,6 +1395,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 	const  LDATETIME now = getcurdatetime_();
 	SString temp_buf;
 	SString log_msg;
+	SString log_file_name;
 	SString tk_symb;
 	SString stk_symb;
 	SString stk_memo;
@@ -1412,6 +1411,36 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 			uint  blk_idx = 0;
 			const TimeSeriesBlock * p_blk = SearchBlockBySymb(tk_symb, &blk_idx);
 			if(p_blk) {
+				// @v10.4.10 {
+				if(0) {
+					log_msg.Z().Cat(r_tk.Dtm, DATF_ISO8601, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
+					for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
+						const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
+						if(p_tre) {
+							const uint tre_tlc = p_tre->TL.getCount();
+							const uint tre_erc = p_tre->ErrL.getCount();
+							log_msg.CR().Tab();
+							log_msg.Cat(p_tre->ErrAvg * 10E9, MKSFMTD(0, 5, 0));
+							log_msg.Tab().Cat(p_tre->Stride);
+							if(tre_tlc == 0) {
+								log_msg.Tab().Cat("zero-tl-count");
+							}
+							else {
+								if(tre_tlc != tre_erc)
+									log_msg.Tab().Cat("tl-count != te-count");
+								log_msg.Tab().Cat(p_tre->TL.at(tre_tlc-1) * 10E9, MKSFMTD(0, 5, 0));
+								if(tre_erc == 0)
+									log_msg.Tab().Cat("zero-te-count");
+								else 
+									log_msg.Tab().Cat(p_tre->ErrL.at(tre_erc-1) * 10E9, MKSFMTD(0, 5, 0));
+							}
+						}
+					}
+					(temp_buf = "tst").CatChar('-').Cat(tk_symb).Dot().Cat("log");
+					PPGetFilePath(PPPATH_LOG, temp_buf, log_file_name);
+					PPLogMessage(log_file_name, log_msg, 0);
+				}
+				// } @v10.4.10 
 				int   is_there_stake = 0;
 				PotentialStakeEntry pse(*p_blk);
 				const int fosfsr = FindOptimalStrategyForStake(evaluated_used_margin, pse);
@@ -1457,10 +1486,12 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 					stk_symb = r_pse.R_Blk.T_.GetSymb();
 					const double cost = EvaluateCost(r_pse.R_Blk, LOGIC(r_s.BaseFlags & r_s.bfShort), r_pse.Volume, 0);
 					if(cost > 0.0) {
+						const PPObjTimeSeries::TrendEntry * p_te = PPObjTimeSeries::SearchTrendEntry(r_pse.R_Blk.TrendList, r_s.InputFrameSize);
+						const double spike_quant = p_te ? p_te->SpikeQuant : r_s.SpikeQuant;
 						const double avg_spread_sl = r_pse.R_Blk.GetAverageSpread() * 2.0; // @20190602 1.1-->1.2 // @20190603 1.2-->2.0
 						const double avg_spread_tp = r_pse.R_Blk.GetAverageSpread() * 2.0; // @20190603 1.1-->2.0
-						const double sl = r_s.CalcSL(last_value, avg_spread_sl);
-						const double tp = r_s.CalcTP(last_value, avg_spread_tp);
+						const double sl = r_s.CalcSL(last_value, spike_quant, avg_spread_sl);
+						const double tp = r_s.CalcTP(last_value, spike_quant, avg_spread_tp);
 						const long trange_fmt = MKSFMTD(0, 10, NMBF_NOTRAILZ);
 						log_msg.Z().Cat("Stake").CatDiv(':', 2).
 							Cat(stk_symb).CatChar('-').
@@ -1469,6 +1500,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 							Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
 							Cat(sl, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar('/').
 							Cat(tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+						log_msg.Space().Cat("SP").CatChar('<').Cat(spike_quant, MKSFMTD(0, 9, 0)).CatChar('/').Cat(r_s.SpikeQuant, MKSFMTD(0, 9, 0)).CatChar('>'); // @v10.4.10
 						{
 							PPObjTimeSeries::BestStrategyBlock fake_bsb;
 							fake_bsb.TvForMaxResult = r_pse.Tv;
@@ -1478,7 +1510,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 						{
 							//temp_buf.Z().Cat("PPAT").Comma().Cat(r_s.MaxDuckQuant).Comma().Cat(r_s.TargetQuant).Comma().Cat(r_s.SpikeQuant, MKSFMTD(0, 9, 0));
 							StakeCommentBlock scb;
-							scb.MakeText(r_s, temp_buf);
+							scb.MakeText(r_s, spike_quant, temp_buf);
 						}
 						log_msg.Space().Cat(temp_buf);
 						PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
@@ -1610,6 +1642,9 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 	const uint tsc = pBlk->T_.GetCount();
 	uint  max_opt_delta2_stride = 0;
 	LongArray ifs_list;
+	//uint   vec_idx = 0;
+	//STimeSeries::ValuVec * p_vec = pBlk->T_.GetVecBySymb("close", &vec_idx);
+	//THROW(p_vec);
 	if(tsc > 500 && pBlk->Strategies.GetInputFramSizeList(ifs_list, &max_opt_delta2_stride) > 0) {
 		const uint trend_nominal_count = max_opt_delta2_stride+1;
 		ifs_list.sortAndUndup(); // @paranoic
@@ -1629,6 +1664,13 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 				{
 					STimeSeries::AnalyzeFitParam afp(ifs, tsc-p_entry->NominalCount, p_entry->NominalCount);
 					THROW(pBlk->T_.AnalyzeFit("close", afp, &p_entry->TL, 0, &p_entry->ErrL, 0, 0));
+					// @v10.4.10 {
+					{
+						STimeSeries::Stat st(0);
+						THROW(pBlk->T_.Analyze("close", tsc-p_entry->Stride, p_entry->Stride, st));
+						p_entry->SpikeQuant = st.DeltaAvg / 2.0;
+					}
+					// } @v10.4.10 
 				}
 			}
 		}

@@ -4389,7 +4389,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 						n_app.PutInner(SXml::nst(/*"app"*/0, "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, 0));
 						SXml::WNode n_data(srb, SXml::nst(/*"app"*/0, "data"));
 						{
-							VetisPrepareOutgoingConsignmentRequest * p_req = (VetisPrepareOutgoingConsignmentRequest *)rAppBlk.P_AppParam;
+							const VetisPrepareOutgoingConsignmentRequest * p_req = static_cast<const VetisPrepareOutgoingConsignmentRequest *>(rAppBlk.P_AppParam);
 							const VetisVetDocument & r_org_doc = p_req->OrgDoc;
 							const VetisBatch & r_org_bat = r_org_doc.CertifiedConsignment.Batch;
 							SXml::WNode n_req(srb, "prepareOutcomingConsignmentRequest");
@@ -4497,6 +4497,11 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										PPLoadText(PPTXT_VETISLOCATIONPROSPERITYISOK, temp_buf);
 										temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 										n_vc.PutInner(SXml::nst("d7p1", "locationProsperity"), temp_buf);
+										// @v10.4.10 {
+										PPLoadText(PPTXT_VETIS_SPCMARK_SRCWARENAME, temp_buf);
+										temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+										n_vc.PutInner(SXml::nst("d7p1", "specialMarks"), temp_buf);
+										// } @v10.4.10 
 									}
 								}
 							}
@@ -7141,6 +7146,30 @@ static IMPL_DBE_PROC(dbqf_vetis_vetstockbydoc_i)
 	result->init(stock);
 }
 
+//@erik v10.4.11 {
+static IMPL_DBE_PROC(dbqf_vetis_vet_uuid_i)
+{
+	char   result_buf[64];
+	if(option == CALC_SIZE) {
+		result->init(static_cast<long>(sizeof(result_buf)));
+	}
+	else{
+		Reference * p_ref = PPRef;
+		const PPID entity_id = params[0].lval;
+		VetisEntityCore * p_ec = const_cast<VetisEntityCore *>(static_cast<const VetisEntityCore *>(params[1].ptrval));
+		SString temp_buf;
+		if(p_ec) {
+			VetisEntityCore::Entity entity;
+			if (entity_id && p_ec->GetEntity(entity_id, entity) && entity.Kind == VetisEntityCore::kVetDocument) {
+				entity.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+			}
+		}
+		STRNSCPY(result_buf, temp_buf);
+		result->init(result_buf);
+	}
+}
+// } @erik v10.4.11
+
 /*void foo()
 {
 	VetisDocumentTbl::Key9 k9;
@@ -7272,6 +7301,7 @@ int PPViewVetisDocument::DynFuncVetDStatus = 0;
 int PPViewVetisDocument::DynFuncVetDForm = 0;
 int PPViewVetisDocument::DynFuncVetDType = 0;
 int PPViewVetisDocument::DynFuncVetStockByDoc = 0;
+int PPViewVetisDocument::DynFuncVetUUID = 0;  //@erik v10.4.11
 
 DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
@@ -7282,6 +7312,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 	DbqFuncTab::RegisterDyn(&DynFuncVetDForm, BTS_STRING, dbqf_vetis_vetdform_i, 1, BTS_INT);
 	DbqFuncTab::RegisterDyn(&DynFuncVetDType, BTS_STRING, dbqf_vetis_vetdtype_i, 1, BTS_INT);
 	DbqFuncTab::RegisterDyn(&DynFuncVetStockByDoc, BTS_REAL, dbqf_vetis_vetstockbydoc_i, 2, BTS_INT, BTS_PTR);
+	DbqFuncTab::RegisterDyn(&DynFuncVetUUID, BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  //@erik v10.4.11
 
 	uint   brw_id = BROWSER_VETISDOCUMENT;
 	DBQ     * dbq = 0;
@@ -7295,6 +7326,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 	DBE    dbe_from;
 	DBE    dbe_to;
 	DBE    dbe_stock;
+	DBE    dbe_uuid; //@erik v10.4.11
 	THROW(CheckTblPtr(t = new VetisDocumentTbl(EC.DT.GetName())));
 	{
 		dbe_product_name.init();
@@ -7368,6 +7400,16 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 		}
 		dbe_stock.push(static_cast<DBFunc>(DynFuncVetStockByDoc));
 	}
+	{ //@erik v10.4.11{
+		dbe_uuid.init();
+		dbe_uuid.push(t->EntityID);
+		{
+			DBConst cp;
+			cp.init(&EC);
+			dbe_uuid.push(cp);
+		}
+		dbe_uuid.push(static_cast<DBFunc>(DynFuncVetUUID));
+	}// } @erik v10.4.11
 	dbq = ppcheckfiltid(dbq, t->OrgDocEntityID, Filt.LinkVDocID); // @v10.1.12
 	dbq = & (*dbq && daterange(t->IssueDate, &Filt.Period));
 	dbq = & (*dbq && daterange(t->WayBillDate, &Filt.WayBillPeriod));
@@ -7399,6 +7441,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 		dbe_to,               //  #19
 		t->IssueNumber,       //  #20
 		dbe_stock,            //  #21 @v10.1.4
+		dbe_uuid,             //  #22 //@erik v10.4.11
 		0L).from(t, 0).where(*dbq);
 	CATCH
 		if(q)

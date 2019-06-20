@@ -930,7 +930,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				}
 				CreateStr("", in_data); // @v10.4.8 Дополнительный реквизит чека (БСО)
 				//
-				THROW(ExecCmd("58", in_data, out_data, r_error));
+				{
+					// 19/06/2019 11:51:02	58	start	Master197850000211061900001возврат нал. от 28/03300000
+					OpLogBlock __oplb(LogFileName, "58", in_data); // @v10.4.10
+					THROW(ExecCmd("58", in_data, out_data, r_error));
+				}
 			}
 		}
 		else if(cmd.IsEqiAscii("PRINTFISCAL")) {

@@ -1090,8 +1090,8 @@ int SLAPI PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 		THROW(loti.Init(&P_ACPack->Rec, 1, TISIGN_PLUS));
 		THROW(loti.SetupGoods(r_ti.GoodsID));
 		loti.UnitPerPack = r_ti.UnitPerPack;
-		if(!(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT)) // @v8.2.5
-			P_BObj->trfr->Rcpt.GetLastQCert(labs(r_ti.GoodsID), &loti.QCert);
+		if(!(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT))
+			P_BObj->trfr->Rcpt.GetLastQCert(labs(r_ti.GoodsID), r_ti.Date, &loti.QCert, 0); // @v10.4.10 r_ti.Date
 		loti.Quantity_ = fabs(r_ti.Quantity_);
 		loti.Cost     = 0.0;
 		loti.Price    = r_ti.Price;

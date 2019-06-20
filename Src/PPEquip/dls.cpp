@@ -229,6 +229,29 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 	return ok;
 }
 
+int SLAPI DeviceLoadingStat::GetExportedItems(PPID statID, PPID objType, TSVector <DlsObjTbl::Rec> & rList)
+{
+	int    ok = -1;
+	rList.clear();
+    DvcLoadingStatTbl::Rec rec;
+    if(Search(statID, &rec) > 0) {
+		DlsObjTbl::Key1 k1;
+		MEMSZERO(k1);
+		k1.DlsID = rec.ID;
+		k1.ObjType = static_cast<int16>(objType);
+		BExtQuery q(&DlsoT, 1);
+		q.selectAll().where(DlsoT.DlsID == statID && DlsoT.ObjType == objType);
+		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+			//temp_obj_list.add(DlsoT.data.ObjID);
+			THROW_SL(rList.insert(&DlsoT.data));
+		}
+		if(rList.getCount())
+			ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI DeviceLoadingStat::GetExportedObjectsSince(PPID objType, PPID sinceDlsID, PPIDArray * pObjList)
 {
     int    ok = 1;
@@ -506,7 +529,6 @@ int SLAPI PPViewDvcLoadingStat::InitIteration()
 	DvcLoadingStatTbl::Key1 k1, k1_;
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
-
 	THROW_MEM(P_IterQuery = new BExtQuery(p_t, 1));
 	P_IterQuery->select(p_t->ID, p_t->DvcType, p_t->DvcID, p_t->Dt, p_t->Tm, p_t->Cont, p_t->Status, 0L);
 	MEMSZERO(k1);
@@ -599,7 +621,7 @@ DBQuery * SLAPI PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString 
 			p_tbl->Status,     // #6
 			dbe_dvc,         // #7
 			0).from(p_tbl, 0L);
-	dbq = & (p_tbl->DvcType == (long)Filt.DvcType);
+	dbq = & (p_tbl->DvcType == static_cast<long>(Filt.DvcType));
 	if(Filt.DvcID) {
 		dbq = & (*dbq && (p_tbl->DvcID == Filt.DvcID));
 	}
@@ -675,6 +697,32 @@ int SLAPI PPViewDvcLoadingStat::ProcessCommand(uint ppvCmd, const void * pHdr, P
 				}
 			}
 		}
+		else if(ppvCmd == PPVCMD_PUTTOBASKET) { // @v10.4.10
+			ok = -1;
+			if(hdr.DlsID) {
+				TSVector <DlsObjTbl::Rec> list;
+				if(DlsT.GetExportedItems(hdr.DlsID, PPOBJ_GOODS, list) > 0) {
+					SelBasketParam param;
+					param.SelPrice = 3;
+					int    r = GetBasketByDialog(&param, GetSymb());
+					if(r > 0) {
+						for(uint i = 0; i < list.getCount(); i++) {
+							const DlsObjTbl::Rec & r_item = list.at(i);
+							ILTI   i_i;
+							i_i.GoodsID  = labs(r_item.ObjID);
+							i_i.Price    = r_item.Val;
+							i_i.CurPrice = 0.0;
+							i_i.Flags    = 0;
+							i_i.Quantity = 1.0;
+							param.Pack.AddItem(&i_i, 0, param.SelReplace);
+						}
+						if(param.Pack.Lots.getCount()) {
+							GoodsBasketDialog(param, 1);
+						}
+					}
+				}
+			}
+		}
 		else if(oneof2(ppvCmd, PPVCMD_EXPORT, PPVCMD_EXPORTREDOSINCE)) {
 			ok = -1;
 			if(hdr.DlsID) {
@@ -712,6 +760,52 @@ int SLAPI PPViewDLSDetail::Init(const DLSDetailFilt * pFilt)
 {
 	Filt = *pFilt;
 	return CheckTblPtr(P_DlsObjTbl = new DlsObjTbl);
+}
+
+int SLAPI PPViewDLSDetail::InitIteration()
+{
+	int    ok = 1;
+	DlsObjTbl * p_t = P_DlsObjTbl;
+	if(p_t) {
+		int    idx = 0;
+		union {
+			DlsObjTbl::Key0 k0;
+			DlsObjTbl::Key1 k1;
+		} k, k_;
+		BExtQuery::ZDelete(&P_IterQuery);
+		Counter.Init();
+		MEMSZERO(k);
+		if(Filt.DlsID) {
+			idx = 1;
+			k.k1.DlsID = Filt.DlsID;
+			k.k1.ObjType = static_cast<int16>(Filt.ObjType);
+		}
+		else {
+			idx = 0;
+			k.k0.ObjType = static_cast<int16>(Filt.ObjType);
+		}
+		THROW_MEM(P_IterQuery = new BExtQuery(p_t, idx));
+		P_IterQuery->selectAll().where(p_t->DlsID == Filt.DlsID && p_t->ObjType == Filt.ObjType);
+		k_ = k;
+		Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
+		P_IterQuery->initIteration(0, &k_, spGe);
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPViewDLSDetail::NextIteration(DLSDetailViewItem * pItem)
+{
+	int    ok = -1;
+	memzero(pItem, sizeof(*pItem));
+	if(P_DlsObjTbl && P_IterQuery && P_IterQuery->nextIteration() > 0) {
+		ASSIGN_PTR(pItem, P_DlsObjTbl->data);
+		Counter.Increment();
+		ok = 1;
+	}
+	return ok;
 }
 
 DBQuery * SLAPI PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -785,6 +879,37 @@ int SLAPI PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 						r = SCObj.Edit(&hdr.ObjID, 0);
 					if(r == cmOK)
 						ok = 1;
+				}
+				break;
+			case PPVCMD_PUTTOBASKET: // @v10.4.10
+				ok = -1;
+				if(hdr.ObjType == PPOBJ_GOODS && hdr.ObjID) {
+					AddGoodsToBasket(hdr.ObjID, 0, 1.0, hdr.Val);
+				}
+				break;
+			case PPVCMD_PUTTOBASKETALL: // @v10.4.10
+				ok = -1;
+				if(Filt.ObjType == PPOBJ_GOODS) {
+					SelBasketParam param;
+					param.SelPrice = 3;
+					int    r = GetBasketByDialog(&param, GetSymb());
+					if(r > 0) {
+						DLSDetailViewItem item;
+						PPWait(1);
+						for(InitIteration(); NextIteration(&item) > 0;) {
+							ILTI   i_i;
+							i_i.GoodsID  = labs(item.ObjID);
+							i_i.Price    = item.Val;
+							i_i.CurPrice = 0.0;
+							i_i.Flags    = 0;
+							i_i.Quantity = 1.0;
+							param.Pack.AddItem(&i_i, 0, param.SelReplace);
+						}
+						PPWait(0);
+						if(param.Pack.Lots.getCount()) {
+							GoodsBasketDialog(param, 1);
+						}
+					}
 				}
 				break;
 			case PPVCMD_VIEWLOTS:

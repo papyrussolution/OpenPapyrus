@@ -2493,7 +2493,7 @@ int TrfrItemDialog::setupLot()
 			// Предварительная попытка разрешить рекомплектацию лотов, которые не были перед этим
 			// скомплектованы. Это оказалось актуально при учете ОС.
 			for(uint pos = 0; P_Pack->SearchLot(Item.LotID, &pos) > 0; pos++) {
-				THROW_PP(pos == (uint)ItemNo, PPERR_DUPLOTREVAL);
+				THROW_PP(pos == static_cast<uint>(ItemNo), PPERR_DUPLOTREVAL);
 			}
 			if(Item.RevalCost == 0.0)
 				Item.RevalCost = Item.Cost;
@@ -2540,7 +2540,7 @@ int TrfrItemDialog::setupLot()
 	else
 	   	Rest = (Item.Flags & (PPTFR_RECEIPT | PPTFR_UNLIM)) ? Item.Quantity_ : 0.0;
 	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT) && (Item.Flags & PPTFR_RECEIPT)) // @v10.4.10 (Item.Flags & PPTFR_RECEIPT)
-		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), &Item.QCert);
+		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), Item.Date, &Item.QCert, 0); // @v10.4.10 Item.Date
 	setCtrlLong(CTLSEL_LOT_QCERT, Item.QCert);
 	{
 		QCertCtrlGroup::Rec qc_rec(Item.QCert);

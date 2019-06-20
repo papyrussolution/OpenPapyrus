@@ -198,7 +198,7 @@ struct PrnDlgAns {
 		aExportXML,
 		aPrepareData,
 		aPrepareDataAndExecCR,
-		aExportTDDO // @v8.7.8
+		aExportTDDO
 	};
 	enum {
 		fForceDDF          = 0x0001,
@@ -216,7 +216,7 @@ struct PrnDlgAns {
 	SString EmailAddr;
 	SString ContextSymb; // @v8.8.3
 	TSCollection <ReportDescrEntry> Entries;
-	DEVMODEA *P_DevMode; // @v10.4.10
+	DEVMODEA * P_DevMode; // @v10.4.10
 private:
 	int    SLAPI PreprocessReportFileName(const char * pFileName, ReportDescrEntry * pEntry);
 };

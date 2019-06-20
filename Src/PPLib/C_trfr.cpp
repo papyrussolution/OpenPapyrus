@@ -868,6 +868,7 @@ SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 			case PPLotFault::EgaisCodeAlone:       msg_id = PPERR_ELOT_EGAISCODEALONE; break; // @v9.3.1
 			case PPLotFault::NoEgaisCode:          msg_id = PPERR_ELOT_NOEGAISCODE; break; // @v9.7.8
 			case PPLotFault::NoEgaisCodeAmbig:     msg_id = PPERR_ELOT_NOEGAISCODEAMBIG; break; // @v9.7.8
+			case PPLotFault::ThereIsQCert:         msg_id = PPERR_ELOT_THEREISQCERT; break; // @v10.4.10
 			default: msg_id = PPERR_ELOT_UNKNOWN; break;
 		}
 		SString b, lot_str, temp_buf;
@@ -1107,6 +1108,15 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 				if(goods_obj.GetStockExt(labs(rec.GoodsID), &gse, 0) > 0 && gse.Package > 0 && !feqeps(gse.Package, rec.UnitPerPack, 1E-7))
 					rResultList.AddFault(PPLotFault::PackDifferentGSE, &rec, 0, 0);
 			}
+			// @v10.4.10 {
+			if(flags & TLRF_SETINHQCERT && rec.GoodsID > 0 && !rec.QCertID) {
+				PPID last_qcert_id = 0;
+				PPID last_qcert_lot_id = 0;
+				if(Rcpt.GetLastQCert(rec.GoodsID, rec.Dt, &last_qcert_id, &last_qcert_lot_id) > 0) {
+					rResultList.AddFault(PPLotFault::ThereIsQCert, &rec, 0, last_qcert_lot_id);
+				}
+			}
+			// } @v10.4.10
 			if(rec.PrevLotID) {
 				if(rec.ID == rec.PrevLotID)
 					ProcessLotFault(rResultList, PPLotFault::RefPrevEqID, 0, 0);
@@ -1447,13 +1457,14 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 						long  oprno = lot_rec.OprNo;
 						ReceiptTbl::Rec temp_rec;
 						r = 0;
-						while(Rcpt.EnumLastLots(lot_rec.GoodsID, 0, &dt, &oprno, &temp_rec) > 0)
+						while(Rcpt.EnumLastLots(lot_rec.GoodsID, 0, &dt, &oprno, &temp_rec) > 0) {
 							if(temp_rec.UnitPerPack > 0.0) {
 								lot_rec.UnitPerPack = temp_rec.UnitPerPack;
 								err_lot = 1;
 								r = 1;
 								break;
 							}
+						}
 						if(!r) {
 							if(goods_obj.GetStockExt(labs(lot_rec.GoodsID), &gse) > 0) {
 								gse_inited = 1;
@@ -1465,6 +1476,20 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 						}
 					}
 				}
+				// @v10.4.10 {
+				if(flags & TLRF_SETINHQCERT) {
+					if(pFaultList->HasFault(PPLotFault::ThereIsQCert, &fault, &fault_pos)) {
+						if(!lot_rec.QCertID) { // @paranoic
+							PPID last_qcert_id = 0;
+							PPID last_qcert_lot_id = 0;
+							if(Rcpt.GetLastQCert(lot_rec.GoodsID, lot_rec.Dt, &last_qcert_id, &last_qcert_lot_id) > 0) {
+								lot_rec.QCertID = last_qcert_id;
+								err_lot = 1;
+							}
+						}
+					}
+				}
+				// } @v10.4.10 
 				if(flags & TLRF_REPAIRPACKUNCOND) {
 					if(pFaultList->HasFault(PPLotFault::PackDifferentGSE, &fault, &fault_pos)) {
                         if(gse_inited || goods_obj.GetStockExt(labs(lot_rec.GoodsID), &gse) > 0) {

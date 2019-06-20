@@ -1338,22 +1338,27 @@ SLAPI STimeSeries::Stat::Stat(long flags) : StatBase(flags), State(0), DeltaAvg(
 {
 }
 
-int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
+int SLAPI STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count, Stat & rS) const
 {
 	int    ok = 1;
 	uint   vec_idx = 0;
 	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
 	THROW(p_vec);
+	assert(firstIdx >= 0 && firstIdx < GetCount());
+	assert((firstIdx+count) <= GetCount());
+	THROW(firstIdx >= 0 && firstIdx < GetCount());
+	THROW((firstIdx+count) <= GetCount());
 	{
-		const  uint _c = GetCount();
+		//const  uint _c = GetCount();
+		const uint _c = (firstIdx+count);
 		StatBase stat_delta(0);
 		rS.State |= Stat::stSorted;
 		SUniTime prev_utm;
 		SUniTime utm;
 		double prev_value = 0.0;
-		for(uint i = 0; i < _c; i++) {
+		for(uint i = firstIdx; i < _c; i++) {
 			THROW(GetTime(i, &utm));
-			if(i) {
+			if(i > firstIdx) {
 				int   sq = 0;
 				int   si = utm.Compare(prev_utm, &sq);
 				if(si < 0)
@@ -1365,7 +1370,7 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 				const void * p_value_buf = p_vec->at(i);
 				double value = p_vec->ConvertInnerToDouble(p_value_buf);
 				rS.Step(value);
-				if(i) {
+				if(i > firstIdx) {
 					double delta = (value - prev_value) / prev_value;
 					stat_delta.Step(fabs(delta));
 				}
@@ -1379,6 +1384,11 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 	}
 	CATCHZOK
 	return ok;
+}
+
+int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
+{
+	return Analyze(pVecSymb, 0, GetCount(), rS);
 }
 
 int SLAPI STimeSeries::RemoveItem(uint idx)

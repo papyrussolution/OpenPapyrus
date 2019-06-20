@@ -1764,7 +1764,7 @@ SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeS
 	MainFrameSize = rTnnp.MainFrameSize; // @v10.4.9
 }
 
-SLAPI PPObjTimeSeries::TrendEntry::TrendEntry(uint stride, uint nominalCount) : Stride(stride), NominalCount(nominalCount), ErrAvg(0.0)
+SLAPI PPObjTimeSeries::TrendEntry::TrendEntry(uint stride, uint nominalCount) : Stride(stride), NominalCount(nominalCount), SpikeQuant(0.0), ErrAvg(0.0)
 {
 	assert(stride > 0 && stride <= 100000);
 	//assert(NominalCount > 0 && NominalCount <= 100);
@@ -3122,10 +3122,38 @@ double SLAPI PPObjTimeSeries::Strategy::CalcSL(double peak, double averageSpread
 	}
 }
 
+double SLAPI PPObjTimeSeries::Strategy::CalcSL(double peak, double externalSpikeQuant, double averageSpreadForAdjustment) const
+{
+	const  double mdv = (MaxDuckQuant * ((externalSpikeQuant > 0.0) ? externalSpikeQuant : SpikeQuant));
+	const  double __spread = CalcSlTpAdjustment(Prec, averageSpreadForAdjustment);
+	if(BaseFlags & bfShort) {
+		return round(peak * (1.0 + mdv) + __spread, Prec);
+	}
+	else {
+		return round(peak * (1.0 - mdv) - __spread, Prec);
+	}
+}
+
 double SLAPI PPObjTimeSeries::Strategy::CalcTP(double stakeBase, double averageSpreadForAdjustment) const
 {
 	if(TargetQuant) {
 		const  double tv = (TargetQuant * SpikeQuant);
+		const  double __spread = CalcSlTpAdjustment(Prec, averageSpreadForAdjustment);
+		if(BaseFlags & bfShort) {
+			return round(stakeBase * (1.0 - tv) + __spread, Prec);
+		}
+		else {
+			return round(stakeBase * (1.0 + tv) - __spread, Prec);
+		}
+	}
+	else
+		return 0.0;
+}
+
+double SLAPI PPObjTimeSeries::Strategy::CalcTP(double stakeBase, double externalSpikeQuant, double averageSpreadForAdjustment) const
+{
+	if(TargetQuant) {
+		const  double tv = (TargetQuant * ((externalSpikeQuant > 0.0) ? externalSpikeQuant : SpikeQuant));
 		const  double __spread = CalcSlTpAdjustment(Prec, averageSpreadForAdjustment);
 		if(BaseFlags & bfShort) {
 			return round(stakeBase * (1.0 - tv) + __spread, Prec);

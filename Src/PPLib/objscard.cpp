@@ -875,6 +875,7 @@ StrAssocArray * SLAPI PPObjSCardSeries::MakeStrAssocList(void * extraPtr)
 			THROW_SL(p_list->Add(rec.ID, parent_id, rec.Name));
 		}
 	}
+	p_list->RemoveRecursion(0); // @v10.4.10
 	p_list->SortByText();
 	CATCH
 		ZDELETE(p_list);

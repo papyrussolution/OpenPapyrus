@@ -10273,6 +10273,7 @@ public:
 	};
 
 	int    SLAPI Analyze(const char * pVecSymb, Stat & rS) const;
+	int    SLAPI Analyze(const char * pVecSymb, uint firstIdx, uint count, Stat & rS) const;
 
 	struct AnalyzeFitParam {
 		SLAPI  AnalyzeFitParam(uint distance, uint firstIdx, uint count);

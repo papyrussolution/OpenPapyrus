@@ -630,7 +630,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	DORECOVER     : kbCtrlR,  TBBM_HAMMER,     "@{verificationandrecovery}\tCtrl-R"
 	separator
 	CHANGEFILT    : kbCtrlV,  TBBM_FILTER,     "@{filter}\tCtrl-V"
-	CHANGECLOSEPAR: kbCtrlA,  TBBM_TEST,       "Все/Только открытые\tCtrl-A"
+	CHANGECLOSEPAR: kbCtrlA,  TBBM_TEST,       "Все/Только открытые"
 }
 
 toolbar export ORDLOTS TB_FIRST_TOOLBAR {
@@ -5481,6 +5481,7 @@ browser DLSTAT north(100), 2, 1, "Статистика по загрузке устройств%s", OWNER|GRI
 		SCARDS          : kbF3,     TBBM_EXTRAVIEW, "Карты\tF3"
 		VIEWBILLS       : kbF4,     TBBM_BILLS,     "Документы, учтенные при расчете изменений\tF4"
 		EDITDEVICE      : kbF5,     TBBM_DEVICE,    "@{device}\tF5"
+		PUTTOBASKET     : kbCtrlF4, TBBM_BASKET,    "@{doputtobasket}\tCtrl-F4"
 		EXPORT          : kbF8,     TBBM_EXPORT,    "Загрузить изменения\tF8"
 		EXPORTREDOSINCE : kbCtrlF8, TBBM_NOICON,    "Повторная загрузка данных\tCtrl-F8"
 		separator
@@ -5495,10 +5496,12 @@ browser DLS_GOODS north(100), 2, 1, "Статистика по загрузке товаров: %s", OWNER|
 	"@ware",                 5, notype, 0, 30
 	"@price",                4, notype, NMBF_NOZERO, 8.2
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM   : kbEnter, TBBM_EDIT,      "@{edit}\tEnter"
-		VIEWLOTS   : kbF3,    TBBM_LOTS,      "@{lots}\tF3"
-		VIEWQUOT   : kbCtrlQ, TBBM_QUOTATION, "@{quotes}\tCtrl-Q"
-		SYSJ       : kbCtrlJ, TBBM_SYSJ,      "@{view_sysjournal}\tCtrl-J"
+		EDITITEM       : kbEnter,   TBBM_EDIT,           "@{edit}\tEnter"
+		PUTTOBASKET    : kbCtrlF4,  TBBM_BASKET,         "@{doputtobasket}\tCtrl-F4"
+		PUTTOBASKETALL : kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4"
+		VIEWLOTS       : kbF3,      TBBM_LOTS,           "@{lots}\tF3"
+		VIEWQUOT       : kbCtrlQ,   TBBM_QUOTATION,      "@{quotes}\tCtrl-Q"
+		SYSJ           : kbCtrlJ,   TBBM_SYSJ,           "@{view_sysjournal}\tCtrl-J"
 	}
 }
 
@@ -6298,6 +6301,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 	"Продукт",              16,  notype, 0, 30
 	"@qtty",                17,  notype, NMBF_NOZERO, 10.3
 	"@rest",                21,  notype, NMBF_NOZERO, 10.3
+	"UUID",                 22,  notype, 0, 30  //@erik v10.4.11 
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    TBBM_EDIT,      "Детализация\tEnter"
 		DELETEITEM       : kbDel,      TBBM_DELETE,    "Удалить документ (только для исходящих)\tDelete"

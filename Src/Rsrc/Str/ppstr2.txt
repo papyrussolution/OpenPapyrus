@@ -1289,6 +1289,7 @@ PPERR_ELOT_INADQTRFRWOTAXFLAGON "@{lotfault}: (дата %s оп %ld) у опер
 PPERR_ELOT_EGAISCODEALONE       "Замечание по лоту %s: имеет @{egaiscode}, которого нет ни у одного из товаров"
 PPERR_ELOT_NOEGAISCODE          "Замечание по лоту %s: не имеет @{egaiscode}, в то время как товар имеет такой код"
 PPERR_ELOT_NOEGAISCODEAMBIG     "Замечание по лоту %s: не имеет @{egaiscode}, в то время как товар имеет более одного такого кода"
+PPERR_ELOT_THEREISQCERT         "Лот %s не имеет сертификата в то время как сертификат может быть унаследован от предшествующего лота"
 
 PPERR_UNDEFBILLFUNC             "Неизвестная функция '%s' в контексте документа"
 PPERR_SIEVEFUNC_DUPDEF          "В функции sieve значение по умолчанию определено более одного раза"
@@ -4812,6 +4813,7 @@ PPTXT_VETISOUTGSTOCKENTRY           "Идентифицированая запи
 PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить переданную ссылку на товар '%s'"
 PPTXT_SMSDECLINEDDUETIMERANGE       "Отсылка SMS-уведомлений отклонена из-за недопустимого времени суток (%s)"
 PPTXT_SETTIMESERIESSTAT             "SetTimeSeries @zstr: append_count=@int upd-count=@int field-count=@int profile=@int64"
+PPTXT_VETIS_SPCMARK_SRCWARENAME     "Наименования согласно номеклатуре производителя."
 //
 // LastText
 
@@ -9380,6 +9382,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @linkfiles_size                           "Размер"
 @linkfiles_tag                            "@{tag}"
 
+@tagfilt                                  "Фильтр по тегам"
+@tagfilt_flags                            "@{flags}"
+@tagfilt_fnottagsinlist                   "Отсутствие данных тегов"
+@tagfilt_fcolors                          ""
+@tagfilt_tagrestrict                      "Список тегов и ограничений"
+
 @loctyp_warehouse                         "@{warehouse}"
 @loctyp_wareplace                         "@{storageplace}"
 @loctyp_whzone                            "Складская зона"
@@ -9493,6 +9501,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lotrecoverparam_frepairwotaxflags        "Корректировать признак 'Цены реализации без налогов'"
 @lotrecoverparam_fsetalccodetogoods       "Переносить @{brand_egais}-код в товар"
 @lotrecoverparam_fsetalccodetolots        "Переносить @{brand_egais}-код из товара в лот"
+@lotrecoverparam_fsetinhqcert             "Устанавливать унаследованные сертификаты"
 @lotrecoverparam_minuscompensop           "Вид операции компенсации отрицательных остатков"
 @lotrecoverparam_minuscompensop_hint      "Действует только если в фильтре установлен склад"
 @lotrecoverparam_logfile                  "@{logfilename}"

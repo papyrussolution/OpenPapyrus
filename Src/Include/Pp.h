@@ -11387,7 +11387,7 @@ public:
 	// Descr: То же, что и GetCurrentGoodsPrice только ищет лоты, которые пришли не позднее чем date.
 	//
 	int    SLAPI GetGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * = 0);
-	int    SLAPI GetLastQCert(PPID goodsID, PPID * pQCertID);
+	int    SLAPI GetLastQCert(PPID goodsID, LDATE beforeDate, PPID * pQCertID, PPID * pLotID);
 	int    SLAPI IsThereOpenedLotForQCert(PPID qcertID);
 	//
 	// Descr:
@@ -11585,7 +11585,8 @@ struct PPLotFault { // @flat
 		InadqTrfrWoTaxFlagOn, // @v8.9.0 В строке Transfer устанолен флаг PPTFR_PRICEWOTAXES в то время как товар не имеет флага GF_PRICEWOTAXES
 		EgaisCodeAlone,       // @v9.3.1 Лот содержит тег кода продукции ЕГАИС, но ни один товар не имеет такого кода
 		NoEgaisCode,          // @v9.7.8 Лот не содержит тега кода алкогольной продукции в то время как товар содержит такой код
-		NoEgaisCodeAmbig      // @v9.7.8 Лот не содержит тега кода алкогольной продукции в то время как товар содержит более одного ЕГАИС-кода
+		NoEgaisCodeAmbig,     // @v9.7.8 Лот не содержит тега кода алкогольной продукции в то время как товар содержит более одного ЕГАИС-кода
+		ThereIsQCert          // @v10.4.10 У лота нет сертификата в то время как можно унаследовать сертификат от предыдущей партии
 	};
 	int    Fault;
 	LDATE  Dt;
@@ -11962,6 +11963,8 @@ public:
 	// в список кодов товара, если ни один из товаров не содержит такой код
 #define TLRF_SETALCCODETOLOTS  0x0800 // @v9.7.8 Если товар содержит код алкогольной продукции, а лот - нет, то в тег лота
 	// PPTAG_LOT_FSRARLOTGOODSCODE переносить этот код.
+#define TLRF_SETINHQCERT       0x1000 // @v10.4.10 Устанавливать на лоты, у которых нет сертификатов, унаследованные от 
+	// предыдущих приходов сертификаты.
 //
 // Флаги функции Transfer::MoveLotOps
 //
@@ -16018,7 +16021,9 @@ public:
 		SLAPI  Strategy();
 		void   SLAPI Reset();
 		double SLAPI CalcSL(double peak, double averageSpreadForAdjustment) const;
+		double SLAPI CalcSL(double peak, double externalSpikeQuant, double averageSpreadForAdjustment) const;
 		double SLAPI CalcTP(double stakeBase, double averageSpreadForAdjustment) const;
+		double SLAPI CalcTP(double stakeBase, double externalSpikeQuant, double averageSpreadForAdjustment) const;
 		double SLAPI GetWinCountRate() const;
 		enum {
 			bfShort      = 0x0001, // Стратегия для short-торговли
@@ -16059,9 +16064,10 @@ public:
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
 		const  uint Stride;
 		const  uint NominalCount;
-		double ErrAvg; // @v10.3.12 Средняя ошибка регрессии
+		double ErrAvg;    // @v10.3.12 Средняя ошибка регрессии
+		double SpikeQuant; // @v10.4.10 Квант расчета для периода NominalCount
 		RealArray TL;
-		RealArray ErrL; // @v10.3.12 Ошибки регрессии
+		RealArray ErrL;   // @v10.3.12 Ошибки регрессии
 	};
 	struct BestStrategyBlock {
 		SLAPI  BestStrategyBlock();
@@ -29094,6 +29100,7 @@ public:
 		// @>>GetLastObjInfo(int, PPID, PPID, PPID, LDATE, DlsObjTbl::Rec *)
 	int    SLAPI GetUpdatedObjects(PPID objType, const LDATETIME & since, PPIDArray * pObjList);
 	int    SLAPI GetExportedObjectsSince(PPID objType, PPID sinceDlsID, PPIDArray * pObjList);
+	int    SLAPI GetExportedItems(PPID statID, PPID objType, TSVector <DlsObjTbl::Rec> & rList);
 	//
 	// Descr: Возвращает список идентификаторов документов, повлиявших на выбор товаров
 	//   для обновления statID.
@@ -33205,16 +33212,22 @@ struct DLSDetailFilt {
 	PPIDArray BillList; // @v10.2.11 Список документов, повлиявших на подбор измененных товаров
 };
 
+typedef DlsObjTbl::Rec DLSDetailViewItem;
+
 class PPViewDLSDetail : public PPView {
 public:
 	struct BrwHdr {
 		long   DlsID;
 		short  ObjType;
 		long   ObjID;
+		long   LVal; // @v10.4.10
+		double Val;  // @v10.4.10
 	};
 	SLAPI  PPViewDLSDetail();
 	SLAPI ~PPViewDLSDetail();
 	int    SLAPI Init(const DLSDetailFilt * pFilt);
+	int    SLAPI InitIteration();
+	int    SLAPI NextIteration(DLSDetailViewItem * pItem);
 private:
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -45525,6 +45538,7 @@ private:
 	static int DynFuncVetDForm;
 	static int DynFuncVetDType;
 	static int DynFuncVetStockByDoc;
+	static int DynFuncVetUUID;  //@erik v10.4.11
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);

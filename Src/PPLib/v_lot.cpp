@@ -681,6 +681,7 @@ static int SLAPI RecoverLotsDialog(LotRecoverParam & rParam)
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  9, TLRF_REPAIRWOTAXFLAGS);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 10, TLRF_SETALCCODETOGOODS); // @v9.3.1
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 11, TLRF_SETALCCODETOLOTS); // @v9.7.8
+		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 12, TLRF_SETINHQCERT); // @v10.4.10
 		if(!(LConfig.Flags & CFGFLG_USEPACKAGE)) {
 			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 1, 1);
 			rParam.Flags &= ~(TLRF_REPAIRPACK);
