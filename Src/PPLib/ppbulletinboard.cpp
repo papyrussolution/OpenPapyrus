@@ -183,6 +183,10 @@ public:
 		{
 			return fdivui(SpreadSum, SpreadCount);
 		}
+		double SLAPI GetAverageSpread_WithAdjustment() const
+		{
+			return fdivui(SpreadSum, SpreadCount) * 1.1;
+		}
 		int FASTCALL GetLastValue(double * pValue) const
 		{
 			int    ok = 0;
@@ -997,7 +1001,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 			StakeCommentBlock scb;
 			scb.ParseText(comment_buf);
 			double last_value = 0.0;
-			const  double avg_spread = rBlk.GetAverageSpread() * 2.0; // @20190603 1.1-->2.0
+			const  double avg_spread = rBlk.GetAverageSpread_WithAdjustment();
 			rBlk.T_.GetValue(rBlk.T_.GetCount()-1, vec_idx, &last_value);
 			if(pPse && scb.TargetQuant > 0.0 && scb.SpikeQuant > 0.0) {
 				// Если переданная функции наилучшая текущая стратегия является обратной к данной, то посмотрим не следует ли
@@ -1488,8 +1492,8 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 					if(cost > 0.0) {
 						const PPObjTimeSeries::TrendEntry * p_te = PPObjTimeSeries::SearchTrendEntry(r_pse.R_Blk.TrendList, r_s.InputFrameSize);
 						const double spike_quant = p_te ? p_te->SpikeQuant : r_s.SpikeQuant;
-						const double avg_spread_sl = r_pse.R_Blk.GetAverageSpread() * 2.0; // @20190602 1.1-->1.2 // @20190603 1.2-->2.0
-						const double avg_spread_tp = r_pse.R_Blk.GetAverageSpread() * 2.0; // @20190603 1.1-->2.0
+						const double avg_spread_sl = r_pse.R_Blk.GetAverageSpread_WithAdjustment();
+						const double avg_spread_tp = r_pse.R_Blk.GetAverageSpread_WithAdjustment();
 						const double sl = r_s.CalcSL(last_value, spike_quant, avg_spread_sl);
 						const double tp = r_s.CalcTP(last_value, spike_quant, avg_spread_tp);
 						const long trange_fmt = MKSFMTD(0, 10, NMBF_NOTRAILZ);

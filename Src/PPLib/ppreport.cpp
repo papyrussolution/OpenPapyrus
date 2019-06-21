@@ -70,7 +70,7 @@ PPReportEnv::PPReportEnv() : Sort(0), PrnFlags(0)
 //
 //
 //
-SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), P_ReportName(pReportName), P_DefPrnForm(0), P_DevMode(0)//@erik
+SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), P_ReportName(pReportName), P_DefPrnForm(0), P_DevMode(0) // @erik
 {
 }
 
@@ -1109,7 +1109,7 @@ private:
 			else
 				ZDELETE(P_Data->P_DevMode);
 		}
-		//}@erik
+		// } @erik
 	}
 	void   SetupReportEntry()
 	{
@@ -1623,12 +1623,12 @@ static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options
 	memzero(device_name, sizeof(device_name));
 	memzero(port_name, sizeof(port_name));
 	memzero(drv_name, sizeof(drv_name));
-	//@erik v10.4.10 {
+	// @erik v10.4.10 {
 	if(pDevMode){
 		RVALUEPTR(dm, pDevMode);
 		THROW_PP(PESelectPrinter(hJob, drv_name, device_name, port_name, &dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
 	}
-	else{ // } @erik v10.4.10 
+	else { // } @erik v10.4.10 
 		if(options & SPRN_USEDUPLEXPRINTING || print_device.NotEmptyS()) {
 			THROW_PP(PEGetSelectedPrinter(hJob, &h_drv, &drv_len, &h_prn, &prn_len, &h_port, &port_len, &p_dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
 			if(!RVALUEPTR(dm, p_dm))
@@ -1674,18 +1674,22 @@ int SLAPI GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 	return ok;
 }
 
-int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode)   //@erik v10.4.10{
+int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA * pDevMode) // @erik v10.4.10 {
 {
 	// __@erik v10.4.10 {
-	char p_printer_tmp[32];
-	if(pDevMode){
-		if(pDevMode->dmDeviceName)
-			strcpy(p_printer_tmp, (char*)pDevMode->dmDeviceName);
-		if(pDevMode->dmCopies)
-			numCopies = pDevMode->dmCopies;
+	//char   printer_tmp[128];
+	SString inner_printer_buf;
+	const char * p_inner_printer = 0;
+	if(pDevMode) {
+		inner_printer_buf = reinterpret_cast<const char *>(pDevMode->dmDeviceName);
+		if(inner_printer_buf.NotEmptyS())
+			p_inner_printer = inner_printer_buf;
+		//STRNSCPY(printer_tmp, reinterpret_cast<const char *>(pDevMode->dmDeviceName));
+		numCopies = (pDevMode->dmCopies > 0 && pDevMode->dmCopies <= 1000) ? pDevMode->dmCopies : 1;
 	}
 	else {
-		strcpy(p_printer_tmp, pPrinter);
+		p_inner_printer = pPrinter;
+		//STRNSCPY(printer_tmp, pPrinter);
 	}
 	// } __@erik v10.4.10
 	int    ok = 1;
@@ -1702,7 +1706,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 		if (GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0)
 			zero_print_device = 1;
 	}
-	THROW(SetPrinterParam(h_job, p_printer_tmp, options, pDevMode));
+	THROW(SetPrinterParam(h_job, p_inner_printer, options, pDevMode));
 	THROW(SetupReportLocations(h_job, pDir, (options & SPRN_DONTRENAMEFILES) ? 0 : 1));
 	if (options & SPRN_PREVIEW) {
 		THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
@@ -1747,9 +1751,9 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 		const uint64 profile_end = SLS.GetProfileTime();
 		{
 			msg_buf.Z().CatEq("Report", pReportName);
-			if (!isempty(p_printer_tmp)) // Ранее был pPrinter @erik v10.4.10
-				msg_buf.CatDiv(';', 2).CatEq("Printer", p_printer_tmp); // Ранее был pPrinter @erik v10.4.10
-			if (numCopies > 1)
+			if(!isempty(p_inner_printer)) // Ранее был pPrinter @erik v10.4.10
+				msg_buf.CatDiv(';', 2).CatEq("Printer", p_inner_printer); // Ранее был pPrinter @erik v10.4.10
+			if(numCopies > 1)
 				msg_buf.CatDiv(';', 2).CatEq("Copies", (long)numCopies);
 			msg_buf.CatDiv(';', 2).CatEq("Mks", (int64)(profile_end - profile_start));
 			PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
