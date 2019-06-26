@@ -115,3 +115,12 @@ Support paid.
 * [OpenPapyrus Manual (pdf)](http://uhtt.ru/dispatcher/dc/download?key=papyrus-manual)
 
 -------
+
+### Screenshots
+
+![Ware Edit Dialog](https://github.com/papyrussolution/OpenPapyrus/blob/master/ManWork/Pict/PNG/dlg-goods.png)
+
+![Person Edit Dialog](https://github.com/papyrussolution/OpenPapyrus/blob/master/ManWork/Pict/PNG/dlg-person.png)
+
+![Pos Pane Dialog](https://github.com/papyrussolution/OpenPapyrus/blob/master/ManWork/Pict/PNG/sh-pospane.PNG)
+
