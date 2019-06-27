@@ -3307,7 +3307,7 @@ int PPALDD_ObjectTag::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		size_t data_len = 0;
 		MEMSZERO(H);
-		const ObjTagTbl::Rec * p_tag_rec = (const ObjTagTbl::Rec *)DS.GetTLA().SurIdList.Get(rFilt.ID, &data_len);
+		const ObjTagTbl::Rec * p_tag_rec = static_cast<const ObjTagTbl::Rec *>(DS.GetTLA().SurIdList.Get(rFilt.ID, &data_len));
 		if(p_tag_rec && data_len == sizeof(*p_tag_rec)) {
 			H.SurID = rFilt.ID;
 			H.ObjTypeID  = p_tag_rec->ObjType;
@@ -3330,7 +3330,7 @@ void PPALDD_ObjectTag::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStac
 	if(pF->Name == "?GetStr") {
 		_RET_STR.Z();
 		size_t data_len = 0;
-		const ObjTagTbl::Rec * p_tag_rec = (const ObjTagTbl::Rec *)DS.GetTLA().SurIdList.Get(H.SurID, &data_len);
+		const ObjTagTbl::Rec * p_tag_rec = static_cast<const ObjTagTbl::Rec *>(DS.GetTLA().SurIdList.Get(H.SurID, &data_len));
 		if(p_tag_rec && data_len == sizeof(*p_tag_rec)) {
 			ObjTagItem item;
 			if(item.Get_(*p_tag_rec) > 0)

@@ -118,25 +118,13 @@ public:
 	// последовательность нулем, так как длина все равно определяетс
 	// возвращаемым значением.
 	//
-	virtual int SLAPI InitPrinter(char *)
-	{
-		return 0;
-	}
-	virtual int SLAPI ResetPrinter(char *)
-	{
-		return 0;
-	}
+	virtual int SLAPI InitPrinter(char *) { return 0; }
+	virtual int SLAPI ResetPrinter(char *) { return 0; }
 	//
 	// SetPageLength задает длину листа (строк - НЕ ДЮЙМОВ !)
 	//
-	virtual int SLAPI SetPageLength(int, char *)
-	{
-		return 0;
-	}
-	virtual int SLAPI SetOrientation(int /* 0 - portrait, !0 - landscapce */, char *)
-	{
-		return 0;
-	}
+	virtual int SLAPI SetPageLength(int, char *) { return 0; }
+	virtual int SLAPI SetOrientation(int /* 0 - portrait, !0 - landscapce */, char *) { return 0; }
 	virtual int SLAPI SetMargin(int what, int, char *) { return 0; }
 	virtual int SLAPI SetQuality(int, char *) { return 0; }
 	virtual int SLAPI SetCPI(int, char *) { return 0; }
@@ -214,7 +202,7 @@ struct PrnDlgAns {
 	SString PrepareDataPath;
 	SString Printer;
 	SString EmailAddr;
-	SString ContextSymb; // @v8.8.3
+	SString ContextSymb;
 	TSCollection <ReportDescrEntry> Entries;
 	DEVMODEA * P_DevMode; // @v10.4.10
 private:
@@ -399,7 +387,6 @@ private:
 int SLAPI EditPrintParam(PrnDlgAns * pData);
 int SLAPI CrystalReportPrint(const char *, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
 int SLAPI CrystalReportExport(const char *, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
-int SLAPI getReportBand();
 
 #endif /* __REPORT_H */
 

@@ -9,9 +9,9 @@
 int SLAPI ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, ObjTagItem * pItem)
 {
 	int    ok = -1;
-	TDialog * dlg = 0;
 	SString temp_buf;
-	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_TAGLOTDIM)))) {
+	TDialog * dlg = new TDialog(DLG_TAGLOTDIM);
+	if(CheckDialogPtrErr(&dlg)) {
 		const PPGdsClsPacket * p_gc_pack = pGcPack;
 		ReceiptCore::LotDimensions ld;
 		pItem->GetStr(temp_buf);

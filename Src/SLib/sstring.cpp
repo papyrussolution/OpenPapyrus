@@ -2359,23 +2359,21 @@ SString & FASTCALL SString::Cat(SBuffer & rS)
 	return *this;
 }
 
-SString & FASTCALL SString::CatDiv(int c, int addSpaces/*, int ifNotEmpty*/)
+SString & FASTCALL SString::CatDiv(int c, int addSpaces)
 {
-	//if(!ifNotEmpty || Strip().NotEmpty()) {
-		if(c != 0) {
-			if(addSpaces > 0 && addSpaces != 2)
-				Space();
-			CatChar(c);
-		}
-		if(addSpaces)
+	if(c != 0) {
+		if(addSpaces > 0 && addSpaces != 2)
 			Space();
-	//}
+		CatChar(c);
+	}
+	if(addSpaces)
+		Space();
 	return *this;
 }
 
-SString & FASTCALL SString::CatDivIfNotEmpty(int c, int addSpaces)
+SString & FASTCALL SString::CatDivConditionally(int c, int addSpaces, bool condition)
 {
-	if(Strip().NotEmpty()) {
+	if(condition) {
 		if(c != 0) {
 			if(addSpaces > 0 && addSpaces != 2)
 				Space();
@@ -2385,6 +2383,11 @@ SString & FASTCALL SString::CatDivIfNotEmpty(int c, int addSpaces)
 			Space();
 	}
 	return *this;
+}
+
+SString & FASTCALL SString::CatDivIfNotEmpty(int c, int addSpaces)
+{
+	return CatDivConditionally(c, addSpaces, Strip().NotEmpty());
 }
 
 SString & FASTCALL SString::Cat(long i)

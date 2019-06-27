@@ -948,7 +948,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 					buf.Z().CatChar('$').Cat(goods_id);
 					buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 					bc_rec.Qtty = 1.0;
-					bc_rec.BarcodeType = -1;
+					SetInnerBarcodeType(&bc_rec.BarcodeType, BARCODE_TYPE_UNDEF);
 					gds_pack.Codes.insert(&bc_rec);
 					THROW(new_goods.add(goods_id));
 					THROW(goods_obj.PutPacket(&(goods_id = 0), &gds_pack, 0));

@@ -18,6 +18,8 @@
 //                  Номер документа (чека, сессии)
 // @CLIENT          Документ
 //                  Наименование контрагента по документу
+// @ClIENTEXTNAME   Документ
+//                  Расширенное наименование контрагента по документу
 // @AGENT           Кассовый чек, документ
 //                  Наименование агента по документу либо кассовому чеку
 // @CASHIER         Кассовый чек
@@ -99,14 +101,14 @@ slip CCheck {
 .detail
 	"@goods"
 	if(@nonfiscalamount > 0)
-		"@qtty X @price" right		
+		"@qtty X @price" right
 		"=@itemamt" right
 	else
 		"" fiscal
 	endif
 .footer
 	if(@nonfiscalamount > 0)
-		if(@fiscalamount > 0) 
+		if(@fiscalamount > 0)
 			"Доплата наличными:"
 			"=@fiscalamount" right
 		endif

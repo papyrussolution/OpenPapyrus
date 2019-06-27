@@ -767,11 +767,9 @@ int SLAPI GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
 							StrAssocArray::Item item = ExtSfTitleList.at_WithoutParent(i);
 							const uint sd_pos = (item.Id - 1);
 							assert(sd_pos < P_UhttsPack->Sd.GetCount());
-
-							ext_sd_text = 0;
+							ext_sd_text.Z();
 							ext_sd_id = 0;
 							ext_sd_parent_id = 0;
-
 							if(P_UhttsPack->Sd.GetEntry(sd_pos, sd_entry)) {
 								switch(sd_entry.Attr) {
 									case PPUhttStoreSelDescr::attrGroup:

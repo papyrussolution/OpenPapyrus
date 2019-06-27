@@ -1104,13 +1104,14 @@
 #define PPVCMD_VIEWCHECK                    266
 #define PPVCMD_IMPORTUHTT                   267
 #define PPVCMD_TRANSACTJ                    268
-#define PPVCMD_UPDATEITEMS                  269
-#define PPVCMD_LOTOPS                       270
-#define PPVCMD_VIEWLINKREST                 271
-#define PPVCMD_MATCHPERSON                  272
-#define PPVCMD_UTILIZEDVDOC                 273
-#define PPVCMD_SETUPOUTGOING                274
-#define PPVCMD_SENDOUTGOING                 275
+#define PPVCMD_TRYSTRATEGIES                269
+#define PPVCMD_UPDATEITEMS                  270
+#define PPVCMD_LOTOPS                       271
+#define PPVCMD_VIEWLINKREST                 272
+#define PPVCMD_MATCHPERSON                  273
+#define PPVCMD_UTILIZEDVDOC                 274
+#define PPVCMD_SETUPOUTGOING                275
+#define PPVCMD_SENDOUTGOING                 276
 //
 // PPCMD definitions
 //
@@ -4698,5 +4699,8 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_SCARDBONUS              113
 #define PPDV_SCARDCREDIT             114
 #define PPDV_SCARDDISCOUNT           115
-#define PPDV_LOGOPAPYRUS             116
+#define PPDV_GEAR01                  116
+#define PPDV_GEARDOUBLE01            117
+#define PPDV_GEARTRIPLE01            118
+#define PPDV_LOGOPAPYRUS             119
 

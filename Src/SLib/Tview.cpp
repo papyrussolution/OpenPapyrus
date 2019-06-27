@@ -625,14 +625,6 @@ void TView::drawView()
 }
 */
 
-/* @v9.0.4
-void TView::endModal(ushort command)
-{
-	TView * p_top = TopView();
-	CALLPTRMEMB(p_top, endModal(command));
-}
-*/
-
 void TView::getCommands(TCommandSet & commands) const
 {
 	if(!RVALUEPTR(commands, P_CmdSet))
@@ -1380,18 +1372,6 @@ void TGroup::draw()
 }
 */
 
-/* @v9.0.4
-void TGroup::endModal(ushort command)
-{
-	if(Sf & sfModal) {
-		EndModalCmd = NZOR(command, cmCancel);
-	}
-	else {
-		TView::endModal(command);
-	}
-}
-*/
-
 ushort TGroup::execView(TWindow * p)
 {
 	ushort retval = cmCancel;
@@ -1414,7 +1394,7 @@ ushort TGroup::execView(TWindow * p)
 			event.message.command = cmExecute;
 			event.message.infoPtr = 0;
 			p->handleEvent(event);
-			retval = (event.what == TEvent::evNothing) ? (ushort)event.message.infoLong : 0;
+			retval = (event.what == TEvent::evNothing) ? static_cast<ushort>(event.message.infoLong) : 0;
 		}
 		if(save_owner == 0)
 			remove(p);

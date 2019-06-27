@@ -441,7 +441,7 @@ int GoodsFiltCtrlGroup::EditFilt(TDialog * pDlg)
 void GoodsFiltCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(Filt.IsEmpty() && CtlselGoodsGrp && CtlselGoods) {
-		CtrlGroup * p_grp = (CtrlGroup*)pDlg->getGroup(CtlselGoodsGrp);
+		CtrlGroup * p_grp = static_cast<CtrlGroup *>(pDlg->getGroup(CtlselGoodsGrp));
 		CALLPTRMEMB(p_grp, handleEvent(pDlg, event));
 	}
 	if(event.isCmd(Cm)) {
@@ -456,19 +456,28 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 {
 	class BarcodeItemDialog : public TDialog {
 	public:
-		BarcodeItemDialog(PPID goodsGrpID) : TDialog(DLG_BARCODE), GoodsGrpID(goodsGrpID)
+		explicit BarcodeItemDialog(PPID goodsGrpID) : TDialog(DLG_BARCODE), GoodsGrpID(goodsGrpID)
 		{
 		}
 		int    setDTS(const BarcodeTbl::Rec * pData)
 		{
 			Data = *pData;
-
 			SString goods_name;
 			GetGoodsName(Data.GoodsID, goods_name);
 			setCtrlString(CTL_BARCODE_GOODS, goods_name);
 			setCtrlData(CTL_BARCODE_CODE,  Data.Code);
 			setCtrlData(CTL_BARCODE_UPP,   &Data.Qtty);
-			setCtrlUInt16(CTL_BARCODE_FLAGS, (Data.BarcodeType == BARCODE_TYPE_PREFERRED) ? 1 : 0);
+			// @v10.4.11 setCtrlUInt16(CTL_BARCODE_FLAGS, BIN(IsInnerBarcodeType(Data.BarcodeType, BARCODE_TYPE_PREFERRED)));
+			// @v10.4.11 {
+			{
+				long   bcf = 0;
+				SETFLAG(bcf, 0x01, IsInnerBarcodeType(Data.BarcodeType, BARCODE_TYPE_PREFERRED));
+				SETFLAG(bcf, 0x02, IsInnerBarcodeType(Data.BarcodeType, BARCODE_TYPE_MARKED));
+				AddClusterAssoc(CTL_BARCODE_FLAGS, 0, 0x01);
+				AddClusterAssoc(CTL_BARCODE_FLAGS, 1, 0x02);
+				SetClusterData(CTL_BARCODE_FLAGS, bcf);
+			}
+			// } @v10.4.11 
 			selectCtrl(CTL_BARCODE_CODE);
 			if(!GObj.CheckRights(GOODSRT_PRIORCODE)) {
 				DisableClusterItem(CTL_BARCODE_FLAGS, 0, 1);
@@ -493,7 +502,20 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 			STRNSCPY(Data.Code, barcode);
 			getCtrlData(sel = CTL_BARCODE_UPP, &Data.Qtty);
 			THROW_PP(Data.Qtty > 0.0, PPERR_INVUNITPPACK);
-			Data.BarcodeType = (getCtrlUInt16(CTL_BARCODE_FLAGS) & 0x0001) ? BARCODE_TYPE_PREFERRED : 0;
+			// @v10.4.11 Data.BarcodeType = (getCtrlUInt16(CTL_BARCODE_FLAGS) & 0x0001) ? BARCODE_TYPE_PREFERRED : 0;
+			// @v10.4.11 {
+			{
+				const long bcf = GetClusterData(CTL_BARCODE_FLAGS);
+				if(bcf & 0x01)
+					SetInnerBarcodeType(&Data.BarcodeType, BARCODE_TYPE_PREFERRED);
+				else
+					ResetInnerBarcodeType(&Data.BarcodeType, BARCODE_TYPE_PREFERRED);
+				if(bcf & 0x02)
+					SetInnerBarcodeType(&Data.BarcodeType, BARCODE_TYPE_MARKED);
+				else
+					ResetInnerBarcodeType(&Data.BarcodeType, BARCODE_TYPE_MARKED);
+			}
+			// } @v10.4.11 
 			ASSIGN_PTR(pData, Data);
 			CATCH
 				ok = PPErrorByDialog(this, sel);
@@ -612,7 +634,7 @@ int BarcodeListDialog::addItem(long * pPos, long *)
 			if(rec.BarcodeType == BARCODE_TYPE_PREFERRED) {
 				for(uint i = 0; i < Data.getCount()-1; i++)
 					if(Data.at(i).BarcodeType == BARCODE_TYPE_PREFERRED)
-						Data.at(i).BarcodeType = 0;
+						ResetInnerBarcodeType(&Data.at(i).BarcodeType, BARCODE_TYPE_PREFERRED);
 			}
 			ASSIGN_PTR(pPos, Data.getCount()-1);
 			ok = 1;
@@ -629,10 +651,10 @@ int BarcodeListDialog::editItem(long pos, long)
 		BarcodeTbl::Rec rec = Data.at(static_cast<uint>(pos));
 		if(_EditBarcodeItem(&rec, GoodsGrpID) > 0) {
 			Data.at(static_cast<uint>(pos)) = rec;
-			if(rec.BarcodeType == BARCODE_TYPE_PREFERRED) {
+			if(IsInnerBarcodeType(rec.BarcodeType, BARCODE_TYPE_PREFERRED)) {
 				for(uint i = 0; i < Data.getCount(); i++)
-					if(i != (uint)pos && Data.at(i).BarcodeType == BARCODE_TYPE_PREFERRED)
-						Data.at(i).BarcodeType = 0;
+					if(i != (uint)pos && IsInnerBarcodeType(Data.at(i).BarcodeType, BARCODE_TYPE_PREFERRED))
+						ResetInnerBarcodeType(&Data.at(i).BarcodeType, BARCODE_TYPE_PREFERRED);
 			}
 			return 1;
 		}
@@ -660,7 +682,7 @@ int BarcodeListDialog::setupList()
 			if(!addStringToList(i, ss.getBuf()))
 				return 0;
 			if(p_list->def)
-				if(p_rec->BarcodeType == BARCODE_TYPE_PREFERRED)
+				if(IsInnerBarcodeType(p_rec->BarcodeType, BARCODE_TYPE_PREFERRED))
 					p_list->def->SetItemColor(i, SClrWhite, SClrGreen);
 				else
 					p_list->def->ResetItemColor(i);
@@ -2165,18 +2187,14 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			case cmCtlColor:
 				{
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-					if(p_dc) {
-						if(Data.Rec.Kind == PPGDSK_GOODS) {
-							if(getCtrlHandle(CTL_GOODS_BARCODE) == p_dc->H_Ctl) {
-								char   barcode[64];
-								if(getCtrlData(CTL_GOODS_BARCODE, barcode)) {
-									if(Data.Codes.getCount() == 1 && Data.Codes.at(0).BarcodeType == BARCODE_TYPE_PREFERRED) {
-										::SetBkMode(p_dc->H_DC, TRANSPARENT);
-										::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-										p_dc->H_Br = (HBRUSH)Ptb.Get(brushPriorBarcode);
-										clearEvent(event);
-									}
-								}
+					char   barcode[64];
+					if(p_dc && Data.Rec.Kind == PPGDSK_GOODS) {
+						if(getCtrlHandle(CTL_GOODS_BARCODE) == p_dc->H_Ctl && getCtrlData(CTL_GOODS_BARCODE, barcode)) {
+							if(Data.Codes.getCount() == 1 && IsInnerBarcodeType(Data.Codes.at(0).BarcodeType, BARCODE_TYPE_PREFERRED)) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushPriorBarcode));
+								clearEvent(event);
 							}
 						}
 					}

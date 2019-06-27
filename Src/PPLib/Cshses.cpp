@@ -1714,6 +1714,7 @@ int SLAPI AsyncCashGoodsIterator::UpdateCPrice(PPID goodsID, double price)
 int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 {
 	int    ok = -1;
+	const  LDATETIME _now = getcurdatetime_();
 	Reference * p_ref = PPRef;
 	int    r;
 	PPIDArray acn_goodsnodisrmvd;
@@ -1722,7 +1723,6 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 	SString temp_buf;
 	do {
 		if((Flags & ACGIF_ALLCODESPERITER) || CodePos >= Codes.getCount()) {
-			PROFILE_START
 			if(Flags & ACGIF_UPDATEDONLY && Algorithm == algUpdBills) {
 				r = -1;
 				while(r < 0 && GoodsPos < IterGoodsList.getCount()) {
@@ -1734,7 +1734,6 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 			else {
 				THROW(r = Iter.Next(&grec));
 			}
-			PROFILE_END
 			if(r < 0) {
 				ok = -1;
 				break;
@@ -1745,10 +1744,8 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				double old_price = 0.0;
 				RetailExtrItem  rtl_ext_item;
 				Rec.Init();
-				PROFILE_START
 				rtl_ext_item.QuotList = pInfo->QuotList;
 				THROW(c = RetailExtr.GetPrice(grec.ID, 0, 0.0, &rtl_ext_item));
-				PROFILE_END
 				Rec.QuotList = rtl_ext_item.QuotList;
 				const double price_ = (Flags & ACGIF_UNCONDBASEPRICE) ? rtl_ext_item.BasePrice : rtl_ext_item.Price;
 				if(Flags & ACGIF_INITLOCPRN && P_G2OAssoc) {
@@ -1766,7 +1763,6 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				}
 				else if(Flags & ACGIF_UPDATEDONLY) {
 					DlsObjTbl::Rec dlso_rec;
-					PROFILE_START
 					if(UserOnlyGoodsGrpID && !GObj.BelongToGroup(grec.ID, UserOnlyGoodsGrpID))
 						updated = 0;
 					else if(!UpdGoods.bsearch(grec.ID)) {
@@ -1784,11 +1780,11 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 								updated = 0;
 						}
 					}
-					PROFILE_END
 				}
 				if(updated && price_ > 0.0) {
 					uint  i;
 					PPUnit unit_rec;
+					PPGoodsTaxEntry gtx;
 					PPQuotArray quot_list(grec.ID);
 					if(Algorithm == algUpdBillsVerify && !IterGoodsList.bsearch(grec.ID)) {
 						PPFormat(VerMissMsg, &temp_buf, grec.ID, grec.Name, UpdGoods.bsearch(grec.ID), old_price, price_);
@@ -1816,20 +1812,23 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					Rec.GoodsFlags = grec.Flags;
 					if(grec.Flags & GF_NODISCOUNT)
 						Rec.NoDis  = 1;
-					else if(NoDisToggleGoodsList.bsearch(grec.ID)) {
-						PROFILE_START
+					else if(NoDisToggleGoodsList.bsearch(grec.ID))
 						Rec.NoDis = (SJ.GetLastObjEvent(PPOBJ_GOODS, grec.ID, &acn_goodsnodisrmvd, 0) > 0) ? -1 : 0;
-						PROFILE_END
-					}
 					else
 						Rec.NoDis = 0;
+					if(Rec.GoodsTypeID) {
+						PPGoodsType gt_rec;
+						if(GObj.FetchGoodsType(Rec.GoodsTypeID, &gt_rec) > 0) {
+							if(gt_rec.Flags & GTF_GMARKED)
+								Rec.Flags_ |= AsyncCashGoodsInfo::fGMarkedType;
+						}
+					}
 					Rec.ExtQuot = rtl_ext_item.ExtPrice;
 					//
 					// Инициализируем номер отдела, ассоциированный с группой товара
 					//
 					Rec.DivN = 1;
 					if(AcnPack.Flags & CASHF_EXPDIVN && AcnPack.P_DivGrpList) {
-						PROFILE_START
 						long   default_div = 1;
 						int    use_default_div = 1;
 						PPGenCashNode::DivGrpAssc * p_dg_item;
@@ -1844,7 +1843,6 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						}
 						if(use_default_div)
 							Rec.DivN = default_div;
-						PROFILE_END
 					}
 					{
 						//
@@ -1857,14 +1855,10 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							STRNSCPY(Rec.AsscPosNodeSymb, cn_rec.Symb);
 						}
 					}
-					{
-						PPGoodsTaxEntry gtx;
-						if(GObj.FetchTax(grec.ID, LConfig.OperDate, 0L, &gtx) > 0)
-							Rec.VatRate = gtx.GetVatRate();
-					}
+					if(GObj.FetchTax(grec.ID, /*LConfig.OperDate*/_now.d, 0L, &gtx) > 0)
+						Rec.VatRate = gtx.GetVatRate();
 					CodePos = 0;
-					PROFILE(GObj.ReadBarcodes(grec.ID, Codes));
-					PROFILE_START
+					GObj.ReadBarcodes(grec.ID, Codes);
 					if(GObj.GetConfig().Flags & GCF_USESCALEBCPREFIX) {
 						for(i = 0; i < BcPrefixList.getCount(); i++) {
 							int r2 = GObj.GenerateScaleBarcode(grec.ID, BcPrefixList.at(i).Key, temp_buf);
@@ -1873,16 +1867,13 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 								MEMSZERO(bc_rec);
 								bc_rec.GoodsID = grec.ID;
 								bc_rec.Qtty = 1.0;
-								bc_rec.BarcodeType = 0;
 								temp_buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 								Codes.insert(&bc_rec);
 							}
-							else if(r2 == 0) {
+							else if(r2 == 0)
 								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
-							}
 						}
 					}
-					PROFILE_END
 					Rec.P_CodeList = &Codes; // @v9.0.6
 					if(grec.Flags & GF_EXTPROP) {
 						PPGoodsPacket __pack;
@@ -1895,14 +1886,12 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						}
 					}
 					if(AcnPack.Flags & CASHF_EXPGOODSREST) {
-						PROFILE_START
 						GoodsRestParam param;
-						param.Date    = LConfig.OperDate;
+						param.Date    = /*LConfig.OperDate*/_now.d;
 						param.LocID   = LocID;
 						param.GoodsID = Rec.ID;
 						THROW(BillObj->trfr->GetCurRest(&param));
 						Rec.Rest = param.Total.Rest;
-						PROFILE_END
 					}
 					THROW(GObj.P_Tbl->FetchQuotList(Rec.ID, 0, LocID, quot_list));
 					QuotByQttyList.freeAll();
@@ -1947,12 +1936,14 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 		}
 		if(CodePos < Codes.getCount() && (!(Flags & ACGIF_ALLCODESPERITER) || CodePos == 0)) {
 			uint pref_pos = 0;
-			strip(STRNSCPY(Rec.BarCode, Codes.at(CodePos).Code));
+			const BarcodeTbl::Rec & r_cur_bc_item = Codes.at(CodePos);
+			strip(STRNSCPY(Rec.BarCode, r_cur_bc_item.Code));
 			if(Codes.GetPreferredItem(&pref_pos))
 				strip(STRNSCPY(Rec.PrefBarCode, Codes.at(pref_pos).Code));
 			else
 				STRNSCPY(Rec.PrefBarCode, Rec.BarCode);
-			Rec.UnitPerPack = Codes.at(CodePos).Qtty;
+			Rec.UnitPerPack = r_cur_bc_item.Qtty;
+			SETFLAG(Rec.Flags_, AsyncCashGoodsInfo::fGMarkedCode, IsInnerBarcodeType(r_cur_bc_item.BarcodeType, BARCODE_TYPE_MARKED)); // @v10.4.11
 			*pInfo = Rec;
 			CodePos++;
 			ok = 1;
@@ -1990,8 +1981,10 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	Rest = 0.0;
 	Precision = fpow10i(-3);
 	GoodsFlags = 0;
-	Deleted_ = 0;
+	// @v10.4.11 Deleted_ = 0;
+	Flags_ = 0; // @v10.4.11
 	NoDis = 0;
+	Reserve = 0; // @v10.4.11
 	DivN = 0;
 	VatRate = 0.0;
 	LocPrnID = 0;

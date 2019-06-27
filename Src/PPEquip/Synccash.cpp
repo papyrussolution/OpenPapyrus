@@ -739,10 +739,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(amt_cash > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash)); }
 			if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); } // @v10.4.1
 		}
-		// Всегда закрываем чек
-		//if(fiscal != 0.0) {
-			THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out));
-		//}
+		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек
 		Flags &= ~sfOpenCheck;
 		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 		Arr_In.Z();

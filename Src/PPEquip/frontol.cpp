@@ -581,6 +581,9 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 						tail.CatCharN(';', 6);                          // #24-#29 - Не используем
 						tail.Cat(strip(gds_info.LocPrnSymb)).Semicol(); // #30 - Символ локального принтера, ассоциированного с товаром
 						tail.CatCharN(';', 22);                         // #31-#52 - Не используем
+
+						// #55 Признак типа номенклатуры: 0 – обычный товар; 1 – алкогольная продукция; 2 – изделия из меха;
+						//    3 – лекарственные препараты; 4 – табачная продукция.
 						if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {
 							tail.Cat(agi.CategoryCode).Semicol();                               // #53 Код вида алкогольной продукции
                             tail.Cat(agi.Volume, MKSFMTD(0, 3, NMBF_NOZERO)).Semicol();         // #54 Емкость тары
@@ -591,7 +594,11 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 						else {
 							tail.Semicol();         // #53 Код вида алкогольной продукции
 							tail.Semicol();         // #54 Емкость тары
-							tail.Semicol();         // #55 Признак алкогольной продукции
+							if(gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType|AsyncCashGoodsInfo::fGMarkedCode)) {
+								tail.Cat(4L).Semicol(); // #55 Признак алкогольной продукции
+							}
+							else
+								tail.Semicol(); // #55 Признак алкогольной продукции        
 							tail.Semicol();         // #56 Признак маркированной алкогольной продукции (пока НЕТ)
 							tail.Semicol();         // #57 Крепость алкогольной продукции
 						}
@@ -601,7 +608,8 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 						}
 						// } @v9.9.12
 					}
-					if((bclen = sstrlen(gds_info.BarCode)) != 0) {
+					bclen = sstrlen(gds_info.BarCode);
+					if(bclen) {
 						gds_info.AdjustBarcode(check_dig);
 						int    wp = GetGoodsCfg().IsWghtPrefix(gds_info.BarCode);
 						if(wp == 1)

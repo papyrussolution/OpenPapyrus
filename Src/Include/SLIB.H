@@ -3797,6 +3797,7 @@ public:
 	SString & SLAPI    CRB();     // "\xD\xA"
 	SString & FASTCALL CatCharN(int chr, size_t n);
 	SString & FASTCALL CatDiv(int c, int addSpaces/* = 0*//*, int ifNotEmpty = 0*/);
+	SString & FASTCALL CatDivConditionally(int c, int addSpaces, bool condition);
 	SString & FASTCALL CatDivIfNotEmpty(int c, int addSpaces/* = 0*/);
 	SString & FASTCALL Cat(long);
 	SString & FASTCALL Cat(ulong);

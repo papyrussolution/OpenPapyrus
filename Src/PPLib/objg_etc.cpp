@@ -1,6 +1,7 @@
 // OBJG_ETC.CPP
 // Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
+// Дополнительные классы инфраструктуры управления товарами
 //
 #include <pp.h>
 #pragma hdrstop
@@ -56,16 +57,17 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 3, GTF_ADVANCECERT); // @v10.4.1
 	dlg->SetClusterData(CTL_GDSTYP_UNLIM, rec.Flags);
 
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 0, GTF_RPLC_COST);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 1, GTF_RPLC_PRICE);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 2, GTF_RPLC_DSCNT);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 3, GTF_PRICEINCLDIS);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 4, GTF_EXCLAMOUNT);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 5, GTF_ALLOWZEROPRICE);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 6, GTF_EXCLVAT);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 7, GTF_REQBARCODE);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 8, GTF_QUASIUNLIM);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 9, GTF_LOOKBACKPRICES); // @v9.8.4
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  0, GTF_RPLC_COST);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  1, GTF_RPLC_PRICE);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  2, GTF_RPLC_DSCNT);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  3, GTF_PRICEINCLDIS);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  4, GTF_EXCLAMOUNT);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  5, GTF_ALLOWZEROPRICE);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  6, GTF_EXCLVAT);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  7, GTF_REQBARCODE);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  8, GTF_QUASIUNLIM);
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  9, GTF_LOOKBACKPRICES); // @v9.8.4
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 10, GTF_GMARKED); // @v10.4.11
 	dlg->SetClusterData(CTL_GDSTYP_FLAGS, rec.Flags);
 	dlg->setCtrlReal(CTL_GDSTYP_STKTLR, rec.StockTolerance); // @v9.0.4
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
@@ -823,7 +825,7 @@ public:
 		long   Flags;
 	};
 	PPObjGoodsValRestr::GvrArray * P_BarList;
-	ReadWriteLock BarLock; // ���������� ��� P_BarList
+	ReadWriteLock BarLock; // Блокировка для P_BarList
 };
 
 int SLAPI GoodsValRestrCache::FetchBarList(PPObjGoodsValRestr::GvrArray & rList)

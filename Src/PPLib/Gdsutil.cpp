@@ -6,6 +6,65 @@
 #include <pp.h>
 #pragma hdrstop
 
+/*
+С блока сигарет считали марку 0104600266011725212095134931209513424010067290
+Разбираем ее по правилам https://www.garant.ru/products/ipo/prime/doc/72089916/:
+01 ИД GTIN, далее 14 знаков GTIN: 04600266011725.
+21 ИД Serial, далее 7 знаков serial: 2095134.
+*/
+//
+// 46 bytes
+//
+SLAPI ChestnyZnakCodeStruc::ChestnyZnakCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), TailP(0)
+{
+}
+	
+ChestnyZnakCodeStruc & SLAPI ChestnyZnakCodeStruc::Z()
+{
+	GtinPrefixP = 0;
+	GtinP = 0;
+	SerialPrefixP = 0;
+	SerialP = 0;
+	TailP = 0;
+	ClearS();
+	return *this;
+}
+
+int SLAPI ChestnyZnakCodeStruc::Parse(const char * pRawCode)
+{
+	int    ok = 0;
+	Z();
+	const size_t raw_len = sstrlen(pRawCode);
+	if(raw_len >= 25) {
+		SString temp_buf;
+		size_t p = 0;
+		temp_buf.Z().CatN(pRawCode+p, 2);
+		p += 2;
+		AddS(temp_buf, &GtinPrefixP);
+		if(temp_buf == "01") {
+			temp_buf.Z().CatN(pRawCode+p, 14);
+			p += 14;
+			AddS(temp_buf, &GtinP);
+			while(temp_buf.C(0) == '0')
+				temp_buf.ShiftLeft();
+			//
+			temp_buf.Z().CatN(pRawCode+p, 2);
+			p += 2;
+			AddS(temp_buf, &SerialPrefixP);
+			if(temp_buf == "21") {
+				temp_buf.Z().CatN(pRawCode+p, 7);
+				AddS(temp_buf, &SerialP);
+				temp_buf.Z().Cat(pRawCode+p);
+				AddS(temp_buf, &TailP);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 int FASTCALL CalcBarcodeCheckDigit(const char * pBarcode)
 {
 	size_t len = sstrlen(pBarcode);
@@ -524,61 +583,78 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 			else
 				ok = 0;
 		}
-		else if(pBlk->Flags & GoodsCodeSrchBlock::fUse2dTempl && SearchBy2dBarcode(pBlk->Code, &bcr, &goods_rec) > 0) {
-			pBlk->GoodsID = goods_rec.ID;
-			pBlk->Qtty    = bcr.Qtty;
-			pBlk->Rec     = goods_rec;
-			pBlk->Flags  |= GoodsCodeSrchBlock::fBc2d;
-			strnzcpy(pBlk->RetCode, bcr.Code, 16);
-			ok = 1;
-		}
 		else {
-			int    is_wght_good = 0;
-			PPID   goods_id = 0;
-			PPID   scale_id = 0;
-			double qtty   = 0.0;
-			size_t code_len = sstrlen(code);
-			strnzcpy(pBlk->RetCode, code, 16);
-			int    r = IsScaleBarcode(code, &scale_id, &goods_id, &qtty);
-			if(r > 0 && Fetch(goods_id, &goods_rec) > 0) {
-				pBlk->GoodsID = goods_id;
-				pBlk->ScaleID = scale_id;
-				pBlk->Qtty    = qtty;
-				pBlk->Flags  |= GoodsCodeSrchBlock::fWeightCode;
-				pBlk->Rec = goods_rec;
-				ok = 1;
-			}
-			else if(r == 1) { // Код весовой, но товар, ему соответствующий, не найден
-				pBlk->GoodsID = goods_id;
-				pBlk->ScaleID = scale_id;
-				pBlk->Qtty    = qtty;
-				pBlk->Flags  |= GoodsCodeSrchBlock::fWeightCode;
-				ok = -1;
-			}
-			else if(r < 0) {
-				ArGoodsCodeTbl::Rec arc_rec;
-				if(SearchByBarcode(code, &bcr, &goods_rec, BIN(pBlk->Flags & GoodsCodeSrchBlock::fAdoptSearch)) > 0) {
+			ChestnyZnakCodeStruc czcs;
+			if(czcs.Parse(pBlk->Code) > 0) {
+				SString temp_buf;
+				czcs.GetS(czcs.GtinP, temp_buf);
+				if(SearchByBarcode(temp_buf, &bcr, &goods_rec, BIN(pBlk->Flags & GoodsCodeSrchBlock::fAdoptSearch)) > 0) {
 					pBlk->GoodsID = goods_rec.ID;
 					pBlk->Qtty = bcr.Qtty;
 					pBlk->Rec = goods_rec;
+					pBlk->Flags |= GoodsCodeSrchBlock::fCzCode;
+					strnzcpy(pBlk->RetCode, bcr.Code, 16);
+					czcs.GetS(czcs.SerialP, temp_buf);
+					STRNSCPY(pBlk->RetSerial, temp_buf);
 					ok = 1;
 				}
-				else if(P_Tbl->SearchByArCode(pBlk->ArID, code, &arc_rec, &goods_rec) > 0) {
-					pBlk->GoodsID = goods_rec.ID;
-					pBlk->Qtty    = 1.0;
-					pBlk->Flags  |= GoodsCodeSrchBlock::fArCode;
+			}
+			else if(pBlk->Flags & GoodsCodeSrchBlock::fUse2dTempl && SearchBy2dBarcode(pBlk->Code, &bcr, &goods_rec) > 0) {
+				pBlk->GoodsID = goods_rec.ID;
+				pBlk->Qtty    = bcr.Qtty;
+				pBlk->Rec     = goods_rec;
+				pBlk->Flags  |= GoodsCodeSrchBlock::fBc2d;
+				strnzcpy(pBlk->RetCode, bcr.Code, 16);
+				ok = 1;
+			}
+			else {
+				int    is_wght_good = 0;
+				PPID   goods_id = 0;
+				PPID   scale_id = 0;
+				double qtty   = 0.0;
+				size_t code_len = sstrlen(code);
+				strnzcpy(pBlk->RetCode, code, 16);
+				int    r = IsScaleBarcode(code, &scale_id, &goods_id, &qtty);
+				if(r > 0 && Fetch(goods_id, &goods_rec) > 0) {
+					pBlk->GoodsID = goods_id;
+					pBlk->ScaleID = scale_id;
+					pBlk->Qtty    = qtty;
+					pBlk->Flags  |= GoodsCodeSrchBlock::fWeightCode;
 					pBlk->Rec = goods_rec;
 					ok = 1;
 				}
-				else if(pBlk->ArID && P_Tbl->SearchByArCode(0, code, &arc_rec, &goods_rec) > 0) {
-					pBlk->GoodsID = goods_rec.ID;
-					pBlk->Qtty    = 1.0;
-					pBlk->Flags  |= GoodsCodeSrchBlock::fOwnArCode;
-					pBlk->Rec = goods_rec;
-					ok = 1;
+				else if(r == 1) { // Код весовой, но товар, ему соответствующий, не найден
+					pBlk->GoodsID = goods_id;
+					pBlk->ScaleID = scale_id;
+					pBlk->Qtty    = qtty;
+					pBlk->Flags  |= GoodsCodeSrchBlock::fWeightCode;
+					ok = -1;
 				}
-				else
-					ok = -2;
+				else if(r < 0) {
+					ArGoodsCodeTbl::Rec arc_rec;
+					if(SearchByBarcode(code, &bcr, &goods_rec, BIN(pBlk->Flags & GoodsCodeSrchBlock::fAdoptSearch)) > 0) {
+						pBlk->GoodsID = goods_rec.ID;
+						pBlk->Qtty = bcr.Qtty;
+						pBlk->Rec = goods_rec;
+						ok = 1;
+					}
+					else if(P_Tbl->SearchByArCode(pBlk->ArID, code, &arc_rec, &goods_rec) > 0) {
+						pBlk->GoodsID = goods_rec.ID;
+						pBlk->Qtty    = 1.0;
+						pBlk->Flags  |= GoodsCodeSrchBlock::fArCode;
+						pBlk->Rec = goods_rec;
+						ok = 1;
+					}
+					else if(pBlk->ArID && P_Tbl->SearchByArCode(0, code, &arc_rec, &goods_rec) > 0) {
+						pBlk->GoodsID = goods_rec.ID;
+						pBlk->Qtty    = 1.0;
+						pBlk->Flags  |= GoodsCodeSrchBlock::fOwnArCode;
+						pBlk->Rec = goods_rec;
+						ok = 1;
+					}
+					else
+						ok = -2;
+				}
 			}
 		}
 	}

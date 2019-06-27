@@ -733,6 +733,11 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 						is_weight = gds_cfg.IsWghtPrefix(bc.Code);
 					AddCheckDigToBarcode(bc.Code);
 					p_writer->StartElement("bar-code", "code", bc.Code);
+					// @v10.4.11 {
+					if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedCode|AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
+						p_writer->AddAttrib("marked", "true");
+					}
+					// } @v10.4.11 
 					// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price));
 					// p_writer->PutElement("begin-date", beg_dtm);
 					// p_writer->PutElement("end-date", end_dtm);
@@ -858,7 +863,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			}
 			else if(!is_weight) {
 				// @v9.1.3 (перенесено наверх) p_writer->PutPlugin("precision", prev_gds_info.Precision);
-				if(expiry != ZERODATE)
+				if(checkdate(expiry))
 					p_writer->PutPlugin("best-before", expiry);
 			}
 			else {
@@ -913,11 +918,11 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			}
 			// } @v9.5.2
 			p_writer->EndElement(); // </good>
-			if(prev_gds_info.Deleted_ || labs(prev_gds_info.NoDis) == 1) {
+			if((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted) || labs(prev_gds_info.NoDis) == 1) {
 				_MaxDisEntry dis_entry;
 				STRNSCPY(dis_entry.Barcode, prev_gds_info.PrefBarCode);
 				dis_entry.NoDis = prev_gds_info.NoDis;
-				dis_entry.Deleted = prev_gds_info.Deleted_;
+				dis_entry.Deleted = BIN(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted);
 				max_dis_list.insert(&dis_entry);
 			}
 			barcodes.clear();
@@ -930,6 +935,9 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			bc.Qtty = gds_info.UnitPerPack;
 			if(bc.Qtty <= 0.0)
 				bc.Qtty = 1.0;
+			if(gds_info.Flags_ & gds_info.fGMarkedCode)
+				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_MARKED);
+			IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED);
 			if(gds_info.PrefBarCode[0] && strcmp(bc.Code, gds_info.PrefBarCode) == 0)
 				bc.BarcodeType = BARCODE_TYPE_PREFERRED;
 			barcodes.insert(&bc);

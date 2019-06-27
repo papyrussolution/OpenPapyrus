@@ -99,6 +99,88 @@ int SLAPI BarcodeArrangeConfig::IsLowPrior(const char * pBarcode) const
 //
 //
 //
+int32 FASTCALL MakeInnerBarcodeType(int bt)
+{
+	if(bt == BARCODE_TYPE_COMMON)
+		return BARCODE_TYPE_COMMON;
+	else if(bt == BARCODE_TYPE_PREFERRED)
+		return BARCODE_TYPE_PREFERRED;
+	else if(bt == BARCODE_TYPE_MARKED)
+		return BARCODE_TYPE_MARKED;
+	else if(bt == BARCODE_TYPE_PREFMARK)
+		return BARCODE_TYPE_PREFMARK;
+	else if(bt == BARCODE_TYPE_UNDEF)
+		return BARCODE_TYPE_UNDEF;
+	else
+		return BARCODE_TYPE_COMMON;
+}
+
+void FASTCALL SetInnerBarcodeType(int32 * pBarcodeType, int bt)
+{
+	if(pBarcodeType) {
+		int32 obct = *pBarcodeType;
+		if(bt == BARCODE_TYPE_MARKED) {
+			if(obct == BARCODE_TYPE_PREFERRED)
+				obct = BARCODE_TYPE_PREFMARK;
+			else if(obct != BARCODE_TYPE_PREFMARK)
+				obct = BARCODE_TYPE_MARKED;
+		}
+		else if(bt == BARCODE_TYPE_PREFERRED) {
+			if(obct == BARCODE_TYPE_MARKED)
+				obct = BARCODE_TYPE_PREFMARK;
+			else if(obct != BARCODE_TYPE_PREFMARK)
+				obct = BARCODE_TYPE_PREFERRED;
+		}
+		else if(bt == BARCODE_TYPE_COMMON) {
+			if(!oneof4(obct, BARCODE_TYPE_PREFERRED, BARCODE_TYPE_MARKED, BARCODE_TYPE_PREFMARK, BARCODE_TYPE_COMMON))
+				obct = BARCODE_TYPE_COMMON;
+		}
+		else if(bt == BARCODE_TYPE_UNDEF)
+			obct = BARCODE_TYPE_UNDEF;
+		*pBarcodeType = obct;
+	}
+}
+
+void FASTCALL ResetInnerBarcodeType(int32 * pBarcodeType, int bt)
+{
+	if(pBarcodeType) {
+		int32 obct = *pBarcodeType;
+		if(bt == BARCODE_TYPE_MARKED) {
+			if(obct == BARCODE_TYPE_PREFMARK)
+				obct = BARCODE_TYPE_PREFERRED;
+			else if(obct == BARCODE_TYPE_MARKED)
+				obct = BARCODE_TYPE_COMMON;
+		}
+		else if(bt == BARCODE_TYPE_PREFERRED) {
+			if(obct == BARCODE_TYPE_PREFMARK)
+				obct = BARCODE_TYPE_MARKED;
+			else if(obct == BARCODE_TYPE_PREFERRED)
+				obct = BARCODE_TYPE_COMMON;
+		}
+		else if(bt == BARCODE_TYPE_UNDEF)
+			obct = BARCODE_TYPE_COMMON;
+		*pBarcodeType = obct;
+	}
+}
+
+int FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt)
+{
+	if(bt == BARCODE_TYPE_PREFERRED)
+		return oneof2(barcodeType, BARCODE_TYPE_PREFERRED, BARCODE_TYPE_PREFMARK);
+	else if(bt == BARCODE_TYPE_MARKED)
+		return oneof2(barcodeType, BARCODE_TYPE_MARKED, BARCODE_TYPE_PREFMARK);
+	else if(bt == BARCODE_TYPE_PREFMARK)
+		return (barcodeType == BARCODE_TYPE_PREFMARK);
+	else if(bt == BARCODE_TYPE_UNDEF)
+		return (barcodeType == BARCODE_TYPE_UNDEF);
+	else if(bt == BARCODE_TYPE_COMMON)
+		return oneof3(barcodeType, BARCODE_TYPE_COMMON, BARCODE_TYPE_PREFERRED, BARCODE_TYPE_PREFMARK);
+	else
+		return 0;
+}
+//
+//
+//
 int SLAPI BarcodeArray::Add(const char * pCode, long codeType, double qtty)
 {
 	BarcodeTbl::Rec item;
@@ -144,7 +226,7 @@ int FASTCALL BarcodeArray::GetSingle(SString & rBuf) const
 	int    ok = -1;
 	const BarcodeTbl::Rec * p_single_item = GetSingleItem(0);
 	if(p_single_item) {
-		if(p_single_item->BarcodeType == BARCODE_TYPE_PREFERRED)
+		if(IsInnerBarcodeType(p_single_item->BarcodeType, BARCODE_TYPE_PREFERRED))
 			ok = (p_single_item->Qtty == 1.0) ? 2 : 3;
 		else
 			ok = 1;
@@ -189,12 +271,12 @@ int FASTCALL BarcodeArray::SetPreferredItem(uint pos)
 	int    ok = 1;
 	if(pos < getCount()) {
 		for(uint i = 0; i < getCount(); i++) {
-			if(i != pos && at(i).BarcodeType == BARCODE_TYPE_PREFERRED) {
-				at(i).BarcodeType = 0;
+			if(i != pos && IsInnerBarcodeType(at(i).BarcodeType, BARCODE_TYPE_PREFERRED)) {
+				ResetInnerBarcodeType(&at(i).BarcodeType, BARCODE_TYPE_PREFERRED);
 				ok = 2;
 			}
 		}
-		at(pos).BarcodeType = BARCODE_TYPE_PREFERRED;
+		SetInnerBarcodeType(&at(pos).BarcodeType, BARCODE_TYPE_PREFERRED);
 	}
 	else
 		ok = -1;
@@ -204,7 +286,7 @@ int FASTCALL BarcodeArray::SetPreferredItem(uint pos)
 BarcodeTbl::Rec * FASTCALL BarcodeArray::GetPreferredItem(uint * pPos) const
 {
 	for(uint i = 0; i < getCount(); i++) {
-		if(at(i).BarcodeType == BARCODE_TYPE_PREFERRED) {
+		if(IsInnerBarcodeType(at(i).BarcodeType, BARCODE_TYPE_PREFERRED)) {
 			ASSIGN_PTR(pPos, i);
 			return &at(i);
 		}
@@ -1503,7 +1585,7 @@ int SLAPI GoodsCore::ReadBarcodes(PPID id, BarcodeArray & rCodeList)
 			do {
 				BCTbl.copyBufTo(&rec);
 				int    is_gds_article = 0;
-				if(rec.Code[0] == '$' && (barcode = (rec.Code + 1)).IsDigit() && rec.BarcodeType == -1)
+				if(rec.Code[0] == '$' && (barcode = (rec.Code + 1)).IsDigit() && IsInnerBarcodeType(rec.BarcodeType, BARCODE_TYPE_UNDEF))
 					is_gds_article = 1;
 				if(!is_gds_article && !rCodeList.insert(&rec))
 					ok = PPSetErrorSLib();

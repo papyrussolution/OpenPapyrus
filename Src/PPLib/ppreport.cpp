@@ -1462,7 +1462,7 @@ void ReportError(short printJob)
 	SAlloc::F(p_error_text);
 }
 
-static int SLAPI SetupGroupSkipping(short hJob)
+static void SLAPI SetupGroupSkipping(short hJob)
 {
 	PESectionOptions sectopt;
 	sectopt.StructSize = sizeof(PESectionOptions);
@@ -1483,7 +1483,6 @@ static int SLAPI SetupGroupSkipping(short hJob)
 		strcat(grpopt.fieldName, "._ID_}");
 	}
 	PESetGroupOptions(hJob, 0, &grpopt);
-	return 1;
 }
 
 static int SLAPI GetDataFilePath(int locN, const char * pPath, int isPrint, SString & rBuf /*char * pBuf, size_t bufLen*/)
@@ -1708,16 +1707,16 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 	}
 	THROW(SetPrinterParam(h_job, p_inner_printer, options, pDevMode));
 	THROW(SetupReportLocations(h_job, pDir, (options & SPRN_DONTRENAMEFILES) ? 0 : 1));
-	if (options & SPRN_PREVIEW) {
+	if(options & SPRN_PREVIEW) {
 		THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
 			CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE | WS_VISIBLE | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
 	}
 	else {
 		THROW_PP(PEOutputToPrinter(h_job, numCopies), PPERR_CRYSTAL_REPORT);
 	}
-	if (options & SPRN_SKIPGRPS)
+	if(options & SPRN_SKIPGRPS)
 		SetupGroupSkipping(h_job);
-	if (options & SPRN_PREVIEW) {
+	if(options & SPRN_PREVIEW) {
 		struct PreviewEventParam {
 			static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
 			{

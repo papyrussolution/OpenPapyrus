@@ -2843,9 +2843,8 @@ int SLAPI TestLargeVlrInputOutput()
 			rec.Prop = test_prop_id;
 			src_buf.Write(&rec, offsetof(PropertyTbl::Rec, VT));
 			{
-				for(uint i = 1; i <= 60000; i++) {
-					ulong value = i;
-					THROW_SL(src_buf.Write(value));
+				for(ulong i = 1; i <= 60000U; i++) {
+					THROW_SL(src_buf.Write(i));
 				}
 			}
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
@@ -2865,9 +2864,8 @@ int SLAPI TestLargeVlrInputOutput()
 			rec.Prop = test_prop_id;
 			src_buf.Write(&rec, offsetof(PropertyTbl::Rec, VT));
 			{
-				for(uint i = 1; i <= 65000; i++) {
-					ulong value = i;
-					THROW_SL(src_buf.Write(value));
+				for(ulong i = 1; i <= 65000U; i++) {
+					THROW_SL(src_buf.Write(i));
 				}
 			}
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
@@ -2887,9 +2885,8 @@ int SLAPI TestLargeVlrInputOutput()
 			rec.Prop = test_prop_id;
 			src_buf.Write(&rec, offsetof(PropertyTbl::Rec, VT));
 			{
-				for(uint i = 1; i <= 30000; i++) {
-					ulong value = i;
-					THROW_SL(src_buf.Write(value));
+				for(ulong i = 1; i <= 30000U; i++) {
+					THROW_SL(src_buf.Write(i));
 				}
 			}
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
@@ -2909,9 +2906,8 @@ int SLAPI TestLargeVlrInputOutput()
 			rec.Prop = test_prop_id;
 			src_buf.Write(&rec, offsetof(PropertyTbl::Rec, VT));
 			{
-				for(uint i = 1; i <= 10; i++) {
-					ulong value = i;
-					THROW_SL(src_buf.Write(value));
+				for(ulong i = 1; i <= 10U; i++) {
+					THROW_SL(src_buf.Write(i));
 				}
 			}
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));

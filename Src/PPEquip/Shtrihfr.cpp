@@ -1,7 +1,7 @@
 // SHTRIHFR.CPP
 // Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-// Интерфейс (синхронный) с ККМ Штрих-ФР
+// @codepage UTF-8
+// РРЅС‚РµСЂС„РµР№СЃ (СЃРёРЅС…СЂРѕРЅРЅС‹Р№) СЃ РљРљРњ РЁС‚СЂРёС…-Р¤Р 
 //
 #include <pp.h>
 #pragma hdrstop
@@ -21,10 +21,6 @@ class BillTaxArray : public SVector { // @v9.8.4 SArray-->SVector
 public:
 	SLAPI  BillTaxArray() : SVector(sizeof(BillTaxEntry))
 	{
-	}
-	SLAPI ~BillTaxArray()
-	{
-		freeAll();
 	}
 	int    SLAPI Search(long VAT, long salesTax, uint * p = 0);
 	int    SLAPI Insert(const BillTaxEntry * pEntry, uint * p = 0);
@@ -68,142 +64,142 @@ int SLAPI BillTaxArray::Add(BillTaxEntry * e)
 	return ok;
 }
 //
-//   Штрих-ФР
+//   РЁС‚СЂРёС…-Р¤Р 
 //
 typedef ComDispInterface  FR_INTRF;
 
 #define COM_PORT                   2
-#define MAX_TIMEOUT              255   // Для Штрих-ФР max таймаут 255 мсек
-#define CASH_AMOUNT_REG          241   // Денежный регистр, содержащий наличность в кассе за смену
-#define CHECK_NUMBER_REG         152   // Операционный регистр, содержащий текущий номер чека
-#define DEF_STRLEN                36   // Для Штрих-ФР длина строки
-#define DEF_FONT_NUMBER            7   // Кол-во используемых шрифтов
-#define DEF_LINEFEED_NUMBER        2   // Кол-во пропускаемых строк
-#define DEF_DRAWER_NUMBER          0   // Номер денежного ящика
+#define MAX_TIMEOUT              255   // Р”Р»СЏ РЁС‚СЂРёС…-Р¤Р  max С‚Р°Р№РјР°СѓС‚ 255 РјСЃРµРє
+#define CASH_AMOUNT_REG          241   // Р”РµРЅРµР¶РЅС‹Р№ СЂРµРіРёСЃС‚СЂ, СЃРѕРґРµСЂР¶Р°С‰РёР№ РЅР°Р»РёС‡РЅРѕСЃС‚СЊ РІ РєР°СЃСЃРµ Р·Р° СЃРјРµРЅСѓ
+#define CHECK_NUMBER_REG         152   // РћРїРµСЂР°С†РёРѕРЅРЅС‹Р№ СЂРµРіРёСЃС‚СЂ, СЃРѕРґРµСЂР¶Р°С‰РёР№ С‚РµРєСѓС‰РёР№ РЅРѕРјРµСЂ С‡РµРєР°
+#define DEF_STRLEN                36   // Р”Р»СЏ РЁС‚СЂРёС…-Р¤Р  РґР»РёРЅР° СЃС‚СЂРѕРєРё
+#define DEF_FONT_NUMBER            7   // РљРѕР»-РІРѕ РёСЃРїРѕР»СЊР·СѓРµРјС‹С… С€СЂРёС„С‚РѕРІ
+#define DEF_LINEFEED_NUMBER        2   // РљРѕР»-РІРѕ РїСЂРѕРїСѓСЃРєР°РµРјС‹С… СЃС‚СЂРѕРє
+#define DEF_DRAWER_NUMBER          0   // РќРѕРјРµСЂ РґРµРЅРµР¶РЅРѕРіРѕ СЏС‰РёРєР°
 //
-//   Таблица режимов кассы
+//   РўР°Р±Р»РёС†Р° СЂРµР¶РёРјРѕРІ РєР°СЃСЃС‹
 //
-#define FRCASHMODE_TBL             1   // Номер таблицы
-#define FRCASHMODE_ROW             1   // Номер ряда для признаков
-#define FRCASHMODE_AUTOCASHNULL    2   // Номер поля с признаком автоматического обнуления наличности
-#define FRCASHMODE_OPENDRAWER      7   // Номер поля с признаком открывания денежного ящика
-#define FRCASHMODE_CUTTING         8   // Номер поля с признаком отрезки чека
-#define FRCASHMODE_USEWGHTSENSOR  15   // Номер поля с признаком использования весового датчика
-#define FRCASHMODE_TAXALLCHK      17   // Номер поля с признаком начисления налогов на весь чек
-#define FRCASHMODE_AUTOTIMING     18   // Номер поля с признаком автоматического перевода времени
-#define FRCASHMODE_TAXPRINT       19   // Номер поля с признаком печати налогов
-#define FRCASHMODE_SAVESTRING     22   // Номер поля с признаком сохранения строк в буфере
+#define FRCASHMODE_TBL             1   // РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹
+#define FRCASHMODE_ROW             1   // РќРѕРјРµСЂ СЂСЏРґР° РґР»СЏ РїСЂРёР·РЅР°РєРѕРІ
+#define FRCASHMODE_AUTOCASHNULL    2   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РѕР±РЅСѓР»РµРЅРёСЏ РЅР°Р»РёС‡РЅРѕСЃС‚Рё
+#define FRCASHMODE_OPENDRAWER      7   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РѕС‚РєСЂС‹РІР°РЅРёСЏ РґРµРЅРµР¶РЅРѕРіРѕ СЏС‰РёРєР°
+#define FRCASHMODE_CUTTING         8   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РѕС‚СЂРµР·РєРё С‡РµРєР°
+#define FRCASHMODE_USEWGHTSENSOR  15   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІРµСЃРѕРІРѕРіРѕ РґР°С‚С‡РёРєР°
+#define FRCASHMODE_TAXALLCHK      17   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РЅР°С‡РёСЃР»РµРЅРёСЏ РЅР°Р»РѕРіРѕРІ РЅР° РІРµСЃСЊ С‡РµРє
+#define FRCASHMODE_AUTOTIMING     18   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РїРµСЂРµРІРѕРґР° РІСЂРµРјРµРЅРё
+#define FRCASHMODE_TAXPRINT       19   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РїРµС‡Р°С‚Рё РЅР°Р»РѕРіРѕРІ
+#define FRCASHMODE_SAVESTRING     22   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃС‚СЂРѕРє РІ Р±СѓС„РµСЂРµ
 //
-//   Таблица режимов касс Штрих-Мини-ФР-К И Штрих-Комбо-ФР-К (поля, отличные от Штрих-ФР)
+//   РўР°Р±Р»РёС†Р° СЂРµР¶РёРјРѕРІ РєР°СЃСЃ РЁС‚СЂРёС…-РњРёРЅРё-Р¤Р -Рљ Р РЁС‚СЂРёС…-РљРѕРјР±Рѕ-Р¤Р -Рљ (РїРѕР»СЏ, РѕС‚Р»РёС‡РЅС‹Рµ РѕС‚ РЁС‚СЂРёС…-Р¤Р )
 //
-#define COMBOCASHMODE_OPENDRAWER   6   // Номер поля с признаком открывания денежного ящика
-#define COMBOCASHMODE_CUTTING      7   // Номер поля с признаком отрезки чека
-#define COMBOCASHMODE_USEWGHTSENSOR 14 // Номер поля с признаком использования весового датчика
-#define COMBOCASHMODE_TAXALLCHK   15   // Номер поля с признаком начисления налогов на весь чек
-#define COMBOCASHMODE_AUTOTIMING  16   // Номер поля с признаком автоматического перевода времени
-#define COMBOCASHMODE_TAXPRINT    17   // Номер поля с признаком печати налогов
-#define COMBOCASHMODE_SAVESTRING  20   // Номер поля с признаком сохранения строк в буфере
+#define COMBOCASHMODE_OPENDRAWER   6   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РѕС‚РєСЂС‹РІР°РЅРёСЏ РґРµРЅРµР¶РЅРѕРіРѕ СЏС‰РёРєР°
+#define COMBOCASHMODE_CUTTING      7   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РѕС‚СЂРµР·РєРё С‡РµРєР°
+#define COMBOCASHMODE_USEWGHTSENSOR 14 // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІРµСЃРѕРІРѕРіРѕ РґР°С‚С‡РёРєР°
+#define COMBOCASHMODE_TAXALLCHK   15   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РЅР°С‡РёСЃР»РµРЅРёСЏ РЅР°Р»РѕРіРѕРІ РЅР° РІРµСЃСЊ С‡РµРє
+#define COMBOCASHMODE_AUTOTIMING  16   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РїРµСЂРµРІРѕРґР° РІСЂРµРјРµРЅРё
+#define COMBOCASHMODE_TAXPRINT    17   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј РїРµС‡Р°С‚Рё РЅР°Р»РѕРіРѕРІ
+#define COMBOCASHMODE_SAVESTRING  20   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїСЂРёР·РЅР°РєРѕРј СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃС‚СЂРѕРє РІ Р±СѓС„РµСЂРµ
 //
-//   Таблица кассиров и администраторов
+//   РўР°Р±Р»РёС†Р° РєР°СЃСЃРёСЂРѕРІ Рё Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂРѕРІ
 //
-#define FRCASHIER_TBL              2   // Номер таблицы
-#define FRCASHIER_ROW              1   // Номер ряда для 1-го кассира
-#define FRCASHIER_ADMINROW        30   // Номер ряда для администратора
-#define FRCASHIER_FIELD_PSSW       1   // Номер поля с паролем кассира/администратора
-#define FRCASHIER_FIELD_NAME       2   // Номер поля с именем кассира/администратора
+#define FRCASHIER_TBL              2   // РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹
+#define FRCASHIER_ROW              1   // РќРѕРјРµСЂ СЂСЏРґР° РґР»СЏ 1-РіРѕ РєР°СЃСЃРёСЂР°
+#define FRCASHIER_ADMINROW        30   // РќРѕРјРµСЂ СЂСЏРґР° РґР»СЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
+#define FRCASHIER_FIELD_PSSW       1   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РїР°СЂРѕР»РµРј РєР°СЃСЃРёСЂР°/Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
+#define FRCASHIER_FIELD_NAME       2   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РёРјРµРЅРµРј РєР°СЃСЃРёСЂР°/Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
 //
-//   Таблица перевода времени
+//   РўР°Р±Р»РёС†Р° РїРµСЂРµРІРѕРґР° РІСЂРµРјРµРЅРё
 //
-#define FRTIMESWITCH_TBL           3   // Номер таблицы
-#define FRTIMESWITCH_ALLOW         1   // Номер поля разрешения перевода
-#define FRTIMESWITCH_DAY           2   // Номер поля числа
-#define FRTIMESWITCH_MONTH         3   // Номер поля месяца
-#define FRTIMESWITCH_SEASON        4   // Номер поля времени года
-#define FRTIMESWITCH_MAXROW       20   // Max номер ряда
+#define FRTIMESWITCH_TBL           3   // РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹
+#define FRTIMESWITCH_ALLOW         1   // РќРѕРјРµСЂ РїРѕР»СЏ СЂР°Р·СЂРµС€РµРЅРёСЏ РїРµСЂРµРІРѕРґР°
+#define FRTIMESWITCH_DAY           2   // РќРѕРјРµСЂ РїРѕР»СЏ С‡РёСЃР»Р°
+#define FRTIMESWITCH_MONTH         3   // РќРѕРјРµСЂ РїРѕР»СЏ РјРµСЃСЏС†Р°
+#define FRTIMESWITCH_SEASON        4   // РќРѕРјРµСЂ РїРѕР»СЏ РІСЂРµРјРµРЅРё РіРѕРґР°
+#define FRTIMESWITCH_MAXROW       20   // Max РЅРѕРјРµСЂ СЂСЏРґР°
 //
-//   Таблица типов оплаты
+//   РўР°Р±Р»РёС†Р° С‚РёРїРѕРІ РѕРїР»Р°С‚С‹
 //
-#define FRPAYMTYPE_TBL             5   // Номер таблицы
-#define FRPAYMTYPE_NAME            1   // Номер поля с наименованием оплаты
+#define FRPAYMTYPE_TBL             5   // РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹
+#define FRPAYMTYPE_NAME            1   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РЅР°РёРјРµРЅРѕРІР°РЅРёРµРј РѕРїР»Р°С‚С‹
 //
-//   Таблица налоговых ставок
+//   РўР°Р±Р»РёС†Р° РЅР°Р»РѕРіРѕРІС‹С… СЃС‚Р°РІРѕРє
 //
-#define FRTAX_TBL                  6   // Номер таблицы
-#define FRTAX_SALESTAX_ROW         1   // Номер ряда для налога с продаж
-#define FRTAX_FIELD_TAXAMT         1   // Номер поля с величиной налога
-#define FRTAX_FIELD_TAXNAME        2   // Номер поля с названием налога
+#define FRTAX_TBL                  6   // РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹
+#define FRTAX_SALESTAX_ROW         1   // РќРѕРјРµСЂ СЂСЏРґР° РґР»СЏ РЅР°Р»РѕРіР° СЃ РїСЂРѕРґР°Р¶
+#define FRTAX_FIELD_TAXAMT         1   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РІРµР»РёС‡РёРЅРѕР№ РЅР°Р»РѕРіР°
+#define FRTAX_FIELD_TAXNAME        2   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РЅР°Р·РІР°РЅРёРµРј РЅР°Р»РѕРіР°
 //
-//   Таблица формата чека
+//   РўР°Р±Р»РёС†Р° С„РѕСЂРјР°С‚Р° С‡РµРєР°
 //
-#define FRFORMAT_TBL               9   // Номер таблицы
-#define FRFORMAT_ROW               1   // Номер ряда
-#define FRFORMAT_FIELD_SIZE        3   // Номер поля с размером строки
+#define FRFORMAT_TBL               9   // РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹
+#define FRFORMAT_ROW               1   // РќРѕРјРµСЂ СЂСЏРґР°
+#define FRFORMAT_FIELD_SIZE        3   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ СЂР°Р·РјРµСЂРѕРј СЃС‚СЂРѕРєРё
 //
-//   Таблица настроек стандартного фискального подкладного документа
+//   РўР°Р±Р»РёС†Р° РЅР°СЃС‚СЂРѕРµРє СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ С„РёСЃРєР°Р»СЊРЅРѕРіРѕ РїРѕРґРєР»Р°РґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 //
-#define FRSLIPCONFIG_TBL          12   // Номер таблицы
-#define FRSLIPCONFIG_ROW           1   // Номер ряда
-#define FRSLIPCONFIG_TITLE_STRNUM  6   // Номер поля с номером строки заголовка
+#define FRSLIPCONFIG_TBL          12   // РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹
+#define FRSLIPCONFIG_ROW           1   // РќРѕРјРµСЂ СЂСЏРґР°
+#define FRSLIPCONFIG_TITLE_STRNUM  6   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РЅРѕРјРµСЂРѕРј СЃС‚СЂРѕРєРё Р·Р°РіРѕР»РѕРІРєР°
 //
-//   Таблица стандартных операций на подкладном документе
+//   РўР°Р±Р»РёС†Р° СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… РѕРїРµСЂР°С†РёР№ РЅР° РїРѕРґРєР»Р°РґРЅРѕРј РґРѕРєСѓРјРµРЅС‚Рµ
 //
-#define FRSLIPOPER_TBL            13   // Номер таблицы
-#define FRSLIPOPER_ROW             1   // Номер ряда
-#define FRSLIPOPER_FONTNUM         7   // Номер поля с номером шрифта строки
-#define FRSLIPOPER_FIELD_SIZE     13   // Номер поля с размером строки
+#define FRSLIPOPER_TBL            13   // РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹
+#define FRSLIPOPER_ROW             1   // РќРѕРјРµСЂ СЂСЏРґР°
+#define FRSLIPOPER_FONTNUM         7   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ РЅРѕРјРµСЂРѕРј С€СЂРёС„С‚Р° СЃС‚СЂРѕРєРё
+#define FRSLIPOPER_FIELD_SIZE     13   // РќРѕРјРµСЂ РїРѕР»СЏ СЃ СЂР°Р·РјРµСЂРѕРј СЃС‚СЂРѕРєРё
 //
-//   Режимы печати чеков
+//   Р РµР¶РёРјС‹ РїРµС‡Р°С‚Рё С‡РµРєРѕРІ
 //
-#define PRNMODE_NO_PRINT           0   // Нет печати
-#define PRNMODE_NO_PRINT_NO_PAPER  1   // Нет печати, нет бумаги
-#define PRNMODE_PRINT_NO_PAPER     2   // Печать, кончилась бумага
-#define PRNMODE_AFTER_NO_PAPER     3   // Ожидание команды печати после режима 2
-#define PRNMODE_PRINT              4   // Режим печати
-#define PRNMODE_PRINT_LONG_REPORT  5   // Режим печати длинного отчета
+#define PRNMODE_NO_PRINT           0   // РќРµС‚ РїРµС‡Р°С‚Рё
+#define PRNMODE_NO_PRINT_NO_PAPER  1   // РќРµС‚ РїРµС‡Р°С‚Рё, РЅРµС‚ Р±СѓРјР°РіРё
+#define PRNMODE_PRINT_NO_PAPER     2   // РџРµС‡Р°С‚СЊ, РєРѕРЅС‡РёР»Р°СЃСЊ Р±СѓРјР°РіР°
+#define PRNMODE_AFTER_NO_PAPER     3   // РћР¶РёРґР°РЅРёРµ РєРѕРјР°РЅРґС‹ РїРµС‡Р°С‚Рё РїРѕСЃР»Рµ СЂРµР¶РёРјР° 2
+#define PRNMODE_PRINT              4   // Р РµР¶РёРј РїРµС‡Р°С‚Рё
+#define PRNMODE_PRINT_LONG_REPORT  5   // Р РµР¶РёРј РїРµС‡Р°С‚Рё РґР»РёРЅРЅРѕРіРѕ РѕС‚С‡РµС‚Р°
 //
-//   Коды возврата при операциях печати
+//   РљРѕРґС‹ РІРѕР·РІСЂР°С‚Р° РїСЂРё РѕРїРµСЂР°С†РёСЏС… РїРµС‡Р°С‚Рё
 //
-#define RESCODE_NO_CONNECTION     -1   // Код возврата "Нет связи: нет устройства"
+#define RESCODE_NO_CONNECTION     -1   // РљРѕРґ РІРѕР·РІСЂР°С‚Р° "РќРµС‚ СЃРІСЏР·Рё: РЅРµС‚ СѓСЃС‚СЂРѕР№СЃС‚РІР°"
 #define RESCODE_NO_ERROR      0x0000
-//#define RESCODE_OPEN_CHECK  0x004A   // 074 Код возврата "Открыт чек - операция невозможна"
-//#define RESCODE_PRINT       0x0050   // 080 Код возврата "Идет печать предыдущей команды"
-//#define RESCODE_SUBMODE_OFF 0x0072   // 114 Код возврата "Команда не поддерживается в данном подрежиме"
-#define RESCODE_DVCCMDUNSUPP  0x0037   // 055 Код возврата "Команда не поддерживается в данной реализации ФР"
-#define RESCODE_PAYM_LESS_SUM 0x0045   // 069 Код возврата "Сумма всех видов оплат меньше суммы чека"
-#define RESCODE_MODE_OFF      0x0073   // 115 Код возврата "Команда не поддерживается в данном режиме"
-#define RESCODE_SLIP_IS_EMPTY 0x00C5   // 197 Код возврата "Буфер подкладного документа пуст"
-#define RESCODE_INVEKLZSTATE  163      // 163 Некорректное состояние ЭКЛЗ
+//#define RESCODE_OPEN_CHECK  0x004A   // 074 РљРѕРґ РІРѕР·РІСЂР°С‚Р° "РћС‚РєСЂС‹С‚ С‡РµРє - РѕРїРµСЂР°С†РёСЏ РЅРµРІРѕР·РјРѕР¶РЅР°"
+//#define RESCODE_PRINT       0x0050   // 080 РљРѕРґ РІРѕР·РІСЂР°С‚Р° "РРґРµС‚ РїРµС‡Р°С‚СЊ РїСЂРµРґС‹РґСѓС‰РµР№ РєРѕРјР°РЅРґС‹"
+//#define RESCODE_SUBMODE_OFF 0x0072   // 114 РљРѕРґ РІРѕР·РІСЂР°С‚Р° "РљРѕРјР°РЅРґР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ РІ РґР°РЅРЅРѕРј РїРѕРґСЂРµР¶РёРјРµ"
+#define RESCODE_DVCCMDUNSUPP  0x0037   // 055 РљРѕРґ РІРѕР·РІСЂР°С‚Р° "РљРѕРјР°РЅРґР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ РІ РґР°РЅРЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё Р¤Р "
+#define RESCODE_PAYM_LESS_SUM 0x0045   // 069 РљРѕРґ РІРѕР·РІСЂР°С‚Р° "РЎСѓРјРјР° РІСЃРµС… РІРёРґРѕРІ РѕРїР»Р°С‚ РјРµРЅСЊС€Рµ СЃСѓРјРјС‹ С‡РµРєР°"
+#define RESCODE_MODE_OFF      0x0073   // 115 РљРѕРґ РІРѕР·РІСЂР°С‚Р° "РљРѕРјР°РЅРґР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ РІ РґР°РЅРЅРѕРј СЂРµР¶РёРјРµ"
+#define RESCODE_SLIP_IS_EMPTY 0x00C5   // 197 РљРѕРґ РІРѕР·РІСЂР°С‚Р° "Р‘СѓС„РµСЂ РїРѕРґРєР»Р°РґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РїСѓСЃС‚"
+#define RESCODE_INVEKLZSTATE  163      // 163 РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ Р­РљР›Р—
 //
-//   Режимы ШТРИХ-ФР
+//   Р РµР¶РёРјС‹ РЁРўР РРҐ-Р¤Р 
 //
-#define FRMODE_OPEN_SESS           2   // Открытая смена
-#define FRMODE_OPEN_SESS_LONG      3   // Открытый смена более 24 часов
-#define FRMODE_CLOSE_SESS          4   // Закрытая смена
-#define FRMODE_OPEN_CHECK          8   // Открытый чек
-#define FRMODE_FULL_REPORT        11   // Печать полного фискального отчета
-#define FRMODE_LONG_EKLZ_REPORT   12   // Печать длительного отчета ЭКЛЗ
-#define FRMODE_PRINT_SLIPDOC      14   // Печать подкладного документа
+#define FRMODE_OPEN_SESS           2   // РћС‚РєСЂС‹С‚Р°СЏ СЃРјРµРЅР°
+#define FRMODE_OPEN_SESS_LONG      3   // РћС‚РєСЂС‹С‚С‹Р№ СЃРјРµРЅР° Р±РѕР»РµРµ 24 С‡Р°СЃРѕРІ
+#define FRMODE_CLOSE_SESS          4   // Р—Р°РєСЂС‹С‚Р°СЏ СЃРјРµРЅР°
+#define FRMODE_OPEN_CHECK          8   // РћС‚РєСЂС‹С‚С‹Р№ С‡РµРє
+#define FRMODE_FULL_REPORT        11   // РџРµС‡Р°С‚СЊ РїРѕР»РЅРѕРіРѕ С„РёСЃРєР°Р»СЊРЅРѕРіРѕ РѕС‚С‡РµС‚Р°
+#define FRMODE_LONG_EKLZ_REPORT   12   // РџРµС‡Р°С‚СЊ РґР»РёС‚РµР»СЊРЅРѕРіРѕ РѕС‚С‡РµС‚Р° Р­РљР›Р—
+#define FRMODE_PRINT_SLIPDOC      14   // РџРµС‡Р°С‚СЊ РїРѕРґРєР»Р°РґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 //
-//   Режимы печати подкладного документа
+//   Р РµР¶РёРјС‹ РїРµС‡Р°С‚Рё РїРѕРґРєР»Р°РґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 //
-#define SLIPMODE_BEFORE_PRINT      0   // Ожидание загрузки подкладного документа
-#define SLIPMODE_AFTER_PRINT       6   // Ожидание извлечения подкладного документа после печати
+#define SLIPMODE_BEFORE_PRINT      0   // РћР¶РёРґР°РЅРёРµ Р·Р°РіСЂСѓР·РєРё РїРѕРґРєР»Р°РґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+#define SLIPMODE_AFTER_PRINT       6   // РћР¶РёРґР°РЅРёРµ РёР·РІР»РµС‡РµРЅРёСЏ РїРѕРґРєР»Р°РґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РїРѕСЃР»Рµ РїРµС‡Р°С‚Рё
 //
-//   Модели устройств
+//   РњРѕРґРµР»Рё СѓСЃС‚СЂРѕР№СЃС‚РІ
 //
-#define SHTRIH_FRF                 0   // ШТРИХ-ФР-Ф
-#define ELVES_FRF                  2   // ЭЛВЕС-МИНИ-ФР-Ф
-#define FELIX_RF                   3   // ФЕЛИКС-Р Ф
-#define SHTRIH_FRK                 4   // ШТРИХ-ФР-К
-#define SHTRIH_950K                5   // ШТРИХ-950К
-#define ELVES_FRK                  6   // ЭЛВЕС-ФР-К
-#define SHTRIH_MINI_FRK            7   // ШТРИХ-МИНИ-ФР-К
-#define SHTRIH_COMBO_FRK           9   // ШТРИХ-КОМБО-ФР-К
-#define SHTRIH_POS_F              10   // ШТРИХ-POS-Ф
-#define SHTRIH_950K_V2            11   // ШТРИХ-950К, версия 02
-#define SHTRIH_COMBO_FRK_V2       12   // ШТРИХ-КОМБО-ФР-К, версия 02
-#define SHTRIH_MINI_FRK_V2        14   // ШТРИХ-МИНИ-ФР-К, версия 02
-#define SHTRIH_LIGHT_FRK         252   // ШТРИХ-LIGHT-ФР-К
+#define SHTRIH_FRF                 0   // РЁРўР РРҐ-Р¤Р -Р¤
+#define ELVES_FRF                  2   // Р­Р›Р’Р•РЎ-РњРРќР-Р¤Р -Р¤
+#define FELIX_RF                   3   // Р¤Р•Р›РРљРЎ-Р  Р¤
+#define SHTRIH_FRK                 4   // РЁРўР РРҐ-Р¤Р -Рљ
+#define SHTRIH_950K                5   // РЁРўР РРҐ-950Рљ
+#define ELVES_FRK                  6   // Р­Р›Р’Р•РЎ-Р¤Р -Рљ
+#define SHTRIH_MINI_FRK            7   // РЁРўР РРҐ-РњРРќР-Р¤Р -Рљ
+#define SHTRIH_COMBO_FRK           9   // РЁРўР РРҐ-РљРћРњР‘Рћ-Р¤Р -Рљ
+#define SHTRIH_POS_F              10   // РЁРўР РРҐ-POS-Р¤
+#define SHTRIH_950K_V2            11   // РЁРўР РРҐ-950Рљ, РІРµСЂСЃРёСЏ 02
+#define SHTRIH_COMBO_FRK_V2       12   // РЁРўР РРҐ-РљРћРњР‘Рћ-Р¤Р -Рљ, РІРµСЂСЃРёСЏ 02
+#define SHTRIH_MINI_FRK_V2        14   // РЁРўР РРҐ-РњРРќР-Р¤Р -Рљ, РІРµСЂСЃРёСЏ 02
+#define SHTRIH_LIGHT_FRK         252   // РЁРўР РРҐ-LIGHT-Р¤Р -Рљ
 //
 //
 //
@@ -278,7 +274,7 @@ private:
 		Summ1,                                  // #13
 		Summ2,                                  // #14
 		Summ3,                                  // #15
-		// Tax1..Tax4 должны идти последовательно
+		// Tax1..Tax4 РґРѕР»Р¶РЅС‹ РёРґС‚Рё РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ
 		Tax1,                                   // #16
 		Tax2,                                   // #17
 		Tax3,                                   // #18
@@ -368,7 +364,7 @@ private:
 		LineNumber                              // @v9.1.5
 	};
 	//
-	// Descr: Методы вывода штрихкодов
+	// Descr: РњРµС‚РѕРґС‹ РІС‹РІРѕРґР° С€С‚СЂРёС…РєРѕРґРѕРІ
 	//
 	enum {
 		// @v9.1.7 bcmPrintBarcode = SCS_SHTRIHFRF::PrintBarCode,
@@ -385,25 +381,25 @@ private:
 		devtypeLight
 	};
 	enum ShtrihFlags {
-		sfConnected     = 0x0001, // установлена связь с Штрих-ФР, COM-порт занят
-		sfOpenCheck     = 0x0002, // чек открыт
-		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
-		sfOldShtrih     = 0x0008, // старая версия драйвера Штрих-ФР
-		sfPrintSlip     = 0x0010, // печать подкладного документа
-		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
-		sfUseWghtSensor = 0x0040  // использовать весовой датчик
+		sfConnected     = 0x0001, // СѓСЃС‚Р°РЅРѕРІР»РµРЅР° СЃРІСЏР·СЊ СЃ РЁС‚СЂРёС…-Р¤Р , COM-РїРѕСЂС‚ Р·Р°РЅСЏС‚
+		sfOpenCheck     = 0x0002, // С‡РµРє РѕС‚РєСЂС‹С‚
+		sfCancelled     = 0x0004, // РѕРїРµСЂР°С†РёСЏ РїРµС‡Р°С‚Рё С‡РµРєР° РїСЂРµСЂРІР°РЅР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
+		sfOldShtrih     = 0x0008, // СЃС‚Р°СЂР°СЏ РІРµСЂСЃРёСЏ РґСЂР°Р№РІРµСЂР° РЁС‚СЂРёС…-Р¤Р 
+		sfPrintSlip     = 0x0010, // РїРµС‡Р°С‚СЊ РїРѕРґРєР»Р°РґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+		sfNotUseCutter  = 0x0020, // РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕС‚СЂРµР·С‡РёРє С‡РµРєРѕРІ
+		sfUseWghtSensor = 0x0040  // РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІРµСЃРѕРІРѕР№ РґР°С‚С‡РёРє
 	};
 	static FR_INTRF * P_DrvFRIntrf;
 	static int RefToIntrf;
-	long   CashierPassword;    // Пароль кассира
-	long   AdmPassword;        // Пароль сист.администратора
+	long   CashierPassword;    // РџР°СЂРѕР»СЊ РєР°СЃСЃРёСЂР°
+	long   AdmPassword;        // РџР°СЂРѕР»СЊ СЃРёСЃС‚.Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
 	int    ResCode;            //
 	int    ErrCode;            //
 	int    DeviceType;         //
 	long   CheckStrLen;        //
 	long   Flags;              //
 	uint   RibbonParam;        //
-	SString AdmName;           // Имя сист.администратора
+	SString AdmName;           // РРјСЏ СЃРёСЃС‚.Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
 };
 
 FR_INTRF * SCS_SHTRIHFRF::P_DrvFRIntrf = 0; // @global
@@ -526,7 +522,7 @@ void SLAPI SCS_SHTRIHFRF::SetCheckLine(char pattern, char * pBuf)
 	}
 }
 
-// "СУММА БЕЗ СКИДКИ;КАРТА;ВЛАДЕЛЕЦ;СКИДКА;Чек не напечатан;НАЛОГ С ПРОДАЖ;СУММА ПО СТАВКЕ НДС;НСП;ПОЛУЧАТЕЛЬ;КОПИЯ ЧЕКА;ВОЗВРАТ ПРОДАЖИ;ПРОДАЖА;ИТОГ;БЕЗНАЛИЧНАЯ ОПЛАТА"
+// "РЎРЈРњРњРђ Р‘Р•Р— РЎРљРР”РљР;РљРђР РўРђ;Р’Р›РђР”Р•Р›Р•Р¦;РЎРљРР”РљРђ;Р§РµРє РЅРµ РЅР°РїРµС‡Р°С‚Р°РЅ;РќРђР›РћР“ РЎ РџР РћР”РђР–;РЎРЈРњРњРђ РџРћ РЎРўРђР’РљР• РќР”РЎ;РќРЎРџ;РџРћР›РЈР§РђРўР•Р›Р¬;РљРћРџРРЇ Р§Р•РљРђ;Р’РћР—Р’Р РђРў РџР РћР”РђР–Р;РџР РћР”РђР–Рђ;РРўРћР“;Р‘Р•Р—РќРђР›РР§РќРђРЇ РћРџР›РђРўРђ"
 
 int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 {
@@ -542,21 +538,21 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flag
 		THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('-', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
 		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
-		// @v9.7.1 prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
+		// @v9.7.1 prn_str = "РЎРЈРњРњРђ Р‘Р•Р— РЎРљРР”РљР"; // @cstr #0
 		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v9.7.1
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
-			// @v9.7.1 prn_str = "КАРТА"; // @cstr #1
+			// @v9.7.1 prn_str = "РљРђР РўРђ"; // @cstr #1
 			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v9.7.1
 			prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 			prn_str.Space().Cat(scc.data.Code);
 			THROW(SetFR(StringForPrinting, prn_str));
 			THROW(ExecFRPrintOper(PrintString));
 			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
-				// @v9.7.1 (prn_str = "ВЛАДЕЛЕЦ"); // @cstr #2
+				// @v9.7.1 (prn_str = "Р’Р›РђР”Р•Р›Р•Р¦"); // @cstr #2
 				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v9.7.1
 				prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 				prn_str.Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER));
@@ -566,7 +562,7 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flag
 			}
 		}
 		temp_str.Z().Cat(dscnt, SFMT_MONEY);
-		// @v9.7.1 (prn_str = "СКИДКА"); // @cstr #3
+		// @v9.7.1 (prn_str = "РЎРљРР”РљРђ"); // @cstr #3
 		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str); // @v9.7.1
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%');
@@ -626,62 +622,37 @@ int SLAPI SCS_SHTRIHFRF::GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * 
 	int    ok = 1;
 	int    oem_std = -1;
 	int    oem_method = 0;
-	if(innerBarcodeStd == BARCSTD_CODE39) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 4;
+	switch(innerBarcodeStd) {
+		case BARCSTD_CODE39: oem_std = 4; break;
+		case BARCSTD_UPCA: oem_std = 0; break;
+		case BARCSTD_UPCE: oem_std = 1; break;
+		case BARCSTD_EAN13: oem_std = 2; break;
+		case BARCSTD_EAN8: oem_std = 3; break;
+		case BARCSTD_ANSI: oem_std = 6; break;
+		case BARCSTD_CODE93: oem_std = 7; break;
+		case BARCSTD_CODE128: oem_std = 8; break;
+		case BARCSTD_PDF417: oem_std = 10; break;
+		case BARCSTD_QR:
+			oem_method = bcmPrintBarcodeGraph;
+			oem_std = 3;
+			break;
+		default:
+			ok = 0;
 	}
-	else if(innerBarcodeStd == BARCSTD_UPCA) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 0;
-	}
-	else if(innerBarcodeStd == BARCSTD_UPCE) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 1;
-	}
-	else if(innerBarcodeStd == BARCSTD_EAN13) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 2;
-	}
-	else if(innerBarcodeStd == BARCSTD_EAN8) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 3;
-	}
-	else if(innerBarcodeStd == BARCSTD_ANSI) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 6;
-	}
-	else if(innerBarcodeStd == BARCSTD_CODE93) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 7;
-	}
-	else if(innerBarcodeStd == BARCSTD_CODE128) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 8;
-	}
-	else if(innerBarcodeStd == BARCSTD_PDF417) {
-		// @v9.1.7 oem_method = bcmPrintBarcodeUsingPrinter;
-		oem_std = 10;
-	}
-	else if(innerBarcodeStd == BARCSTD_QR) {
-		oem_method = bcmPrintBarcodeGraph;
-		oem_std = 3;
-	}
-	else
-		ok = 0;
 	ASSIGN_PTR(pOemMethod, oem_method);
 	ASSIGN_PTR(pOemStd, oem_std);
 	return ok;
 }
 //
-// PrintCheck - коды возврата:
+// PrintCheck - РєРѕРґС‹ РІРѕР·РІСЂР°С‚Р°:
 //   SYNCPRN_NO_ERROR           - OK
-//   SYNCPRN_ERROR_AFTER_PRINT  - сбой после печати чека
-//   SYNCPRN_ERROR              - сбой
-//   SYNCPRN_ERROR_WHILE_PRINT  - сбой во время печати чека
-//   SYNCPRN_CANCEL             - отмена до начала печати чека
-//   SYNCPRN_CANCEL_WHILE_PRINT - отмена во время печати чека
-// Если SYNCPRN_ERROR_WHILE_PRINT, SYNCPRN_CANCEL_WHILE_PRINT -
-//   надо оставить флаг прерывания печати чека CASHF_LASTCHKCANCELLED в NodeRec.Flags
+//   SYNCPRN_ERROR_AFTER_PRINT  - СЃР±РѕР№ РїРѕСЃР»Рµ РїРµС‡Р°С‚Рё С‡РµРєР°
+//   SYNCPRN_ERROR              - СЃР±РѕР№
+//   SYNCPRN_ERROR_WHILE_PRINT  - СЃР±РѕР№ РІРѕ РІСЂРµРјСЏ РїРµС‡Р°С‚Рё С‡РµРєР°
+//   SYNCPRN_CANCEL             - РѕС‚РјРµРЅР° РґРѕ РЅР°С‡Р°Р»Р° РїРµС‡Р°С‚Рё С‡РµРєР°
+//   SYNCPRN_CANCEL_WHILE_PRINT - РѕС‚РјРµРЅР° РІРѕ РІСЂРµРјСЏ РїРµС‡Р°С‚Рё С‡РµРєР°
+// Р•СЃР»Рё SYNCPRN_ERROR_WHILE_PRINT, SYNCPRN_CANCEL_WHILE_PRINT -
+//   РЅР°РґРѕ РѕСЃС‚Р°РІРёС‚СЊ С„Р»Р°Рі РїСЂРµСЂС‹РІР°РЅРёСЏ РїРµС‡Р°С‚Рё С‡РµРєР° CASHF_LASTCHKCANCELLED РІ NodeRec.Flags
 //
 int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 {
@@ -697,8 +668,20 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;
-		double fiscal = 0.0, nonfiscal = 0.0;
-		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
+		// @v10.1.11 double fiscal = 0.0;
+		// @v10.1.11 double nonfiscal = 0.0;
+		// @v10.1.11 pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
+		// @v10.1.11 {
+		double real_fiscal = 0.0;
+		double real_nonfiscal = 0.0;
+		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
+		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const CcAmountList & r_al = pPack->AL_Const();
+		const int is_al = BIN(r_al.getCount());
+		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
+		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
+		// } @v10.1.11 
 		THROW(ConnectFR());
 		if(flags & PRNCHK_LASTCHKANNUL)
 			THROW(AnnulateCheck());
@@ -715,11 +698,11 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
 				is_format = 1;
-				if(sdc_param.PageWidth > (uint)CheckStrLen)
+				if(static_cast<long>(sdc_param.PageWidth) > CheckStrLen)
 					WriteLogFile_PageWidthOver(format_name);
 				RibbonParam = 0;
 				CheckForRibbonUsing(sdc_param.RegTo);
-				if(fiscal != 0.0) {
+				if(_fiscal != 0.0) {
 					THROW(SetFR(CheckType, (flags & PRNCHK_RETURN) ? 2L : 0L));
 					THROW(ExecFRPrintOper(OpenCheck));
 				}
@@ -794,7 +777,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				CheckForRibbonUsing(SlipLineParam::fRegRegular|SlipLineParam::fRegJournal);
 				THROW(SetFR(StringForPrinting, ""));
 				if(prn_total_sale) {
-					if(fiscal != 0.0) {
+					if(_fiscal != 0.0) {
 						if(!pPack->GetCount()) {
 							THROW(SetFR(Quantity, 1L));
 							THROW(SetFR(Price, amt));
@@ -805,11 +788,11 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 						else /*if(fiscal != 0.0)*/ {
 							THROW(SetFR(Quantity, 1L));
-							THROW(SetFR(Price, fiscal));
+							THROW(SetFR(Price, _fiscal));
 							THROW(SetFR(Tax1, 0L));
 							THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
 							Flags |= sfOpenCheck;
-							running_total += fiscal;
+							running_total += _fiscal;
 						}
 					}
 				}
@@ -827,13 +810,13 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			CCheckLineTbl::Rec ccl;
 			for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
 				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
-				// Наименование товара
+				// РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
 				GetGoodsName(ccl.GoodsID, temp_buf);
 				temp_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
 				THROW(SetFR(StringForPrinting, temp_buf));
-				// Цена
+				// Р¦РµРЅР°
 				THROW(SetFR(Price, R2(intmnytodbl(ccl.Price) - ccl.Dscnt)));
-				// Количество
+				// РљРѕР»РёС‡РµСЃС‚РІРѕ
 				THROW(SetFR(Quantity, R3(fabs(ccl.Quantity))));
 				{
 					int _dep = (division > 16 || division < 0) ? 0 : division;
@@ -844,7 +827,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
 				Flags |= sfOpenCheck;
 			}
-			// Информация о скидке
+			// РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРєРёРґРєРµ
 			if(DeviceType == devtypeShtrih)
 				THROW(SetFR(UseJournalRibbon, FALSE));
 			THROW(PrintDiscountInfo(pPack, flags));
@@ -853,14 +836,14 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			temp_buf.Z().CatCharN('=', CheckStrLen);
 			THROW(SetFR(StringForPrinting, temp_buf));
 		}
-		if(nonfiscal > 0.0) {
-			if(fiscal > 0.0) {
+		/* @v10.4.11 if(nonfiscal > 0.0) {
+			if(_fiscal > 0.0) {
 				if(flags & PRNCHK_BANKING) {
-					THROW(SetFR(Summ2, fiscal));
+					THROW(SetFR(Summ2, _fiscal));
 					THROW(SetFR(Summ1, 0L));
 				}
 				else {
-					THROW(SetFR(Summ1, fiscal));
+					THROW(SetFR(Summ1, _fiscal));
 					THROW(SetFR(Summ2, 0L));
 				}
 			}
@@ -869,7 +852,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum))
 				sum = running_total;
 			if(flags & PRNCHK_BANKING) {
-				double  add_paym = 0.0; // @v9.0.4 intmnytodbl(pPack->Ext.AddPaym)-->0.0
+				double  add_paym = 0.0;
 				const double add_paym_epsilon = 0.01;
 				const double add_paym_delta = (add_paym - sum);
 				if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon)
@@ -887,8 +870,21 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(SetFR(Summ1, sum));
 				THROW(SetFR(Summ2, 0L));
 			}
+		}*/
+		// @v10.4.11 {
+		{
+			if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum))
+				sum = running_total;
+			const double __amt_bnk = amt_bnk;
+			const double __amt_ccrd = amt_ccrd;
+			const double __amt_cash = sum - __amt_bnk - __amt_ccrd;
+			if(amt_bnk != 0.0)
+				THROW(SetFR(Summ2, __amt_bnk));
+			if((__amt_cash+__amt_ccrd) != 0.0)
+				THROW(SetFR(Summ1, (__amt_cash+__amt_ccrd)));
 		}
-		if(fiscal != 0.0) {
+		// } @v10.4.11 
+		if(_fiscal != 0.0) {
 			THROW(ExecFRPrintOper(CloseCheck));
 		}
 		else {
@@ -1034,7 +1030,7 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 		if(bte.VAT && !pVatAry->bsearch(bte.VAT))
 			THROW_SL(pVatAry->ordInsert(bte.VAT, 0));
 	}
-	// Выбор режима печати налогов
+	// Р’С‹Р±РѕСЂ СЂРµР¶РёРјР° РїРµС‡Р°С‚Рё РЅР°Р»РѕРіРѕРІ
 	CashierPassword = AdmPassword;
 	THROW(SetFR(TableNumber, FRCASHMODE_TBL));
 	THROW(SetFR(RowNumber,   FRCASHMODE_ROW));
@@ -1042,8 +1038,8 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 	THROW(ExecFR(GetFieldStruct));
 	THROW(ExecFR(ReadTable));
 	THROW(GetFR(ValueOfFieldInteger, &print_tax_action));
-	// Начисление налогов на весь чек мы не используем,
-	// а для Штрих-Комбо  и Штрих_Мини нельзя настраивать таблицу налоговых ставок при открытой смене
+	// РќР°С‡РёСЃР»РµРЅРёРµ РЅР°Р»РѕРіРѕРІ РЅР° РІРµСЃСЊ С‡РµРє РјС‹ РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј,
+	// Р° РґР»СЏ РЁС‚СЂРёС…-РљРѕРјР±Рѕ  Рё РЁС‚СЂРёС…_РњРёРЅРё РЅРµР»СЊР·СЏ РЅР°СЃС‚СЂР°РёРІР°С‚СЊ С‚Р°Р±Р»РёС†Сѓ РЅР°Р»РѕРіРѕРІС‹С… СЃС‚Р°РІРѕРє РїСЂРё РѕС‚РєСЂС‹С‚РѕР№ СЃРјРµРЅРµ
 	if(print_tax_action || DeviceType == devtypeCombo || DeviceType == devtypeMini)
 		print_tax_action = 0;
 	else {
@@ -1057,8 +1053,8 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 	if(print_tax_action) {
 		SString temp_buf;
 		SString vat_str;
-		// Настройка таблицы налоговых ставок
-		// Налог с продаж
+		// РќР°СЃС‚СЂРѕР№РєР° С‚Р°Р±Р»РёС†С‹ РЅР°Р»РѕРіРѕРІС‹С… СЃС‚Р°РІРѕРє
+		// РќР°Р»РѕРі СЃ РїСЂРѕРґР°Р¶
 		THROW(SetFR(TableNumber, FRTAX_TBL));
 		if(s_tax) {
 			THROW(SetFR(RowNumber,   FRTAX_SALESTAX_ROW));
@@ -1069,14 +1065,14 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXNAME));
 			THROW(ExecFR(GetFieldStruct));
 			{
-				// @v9.7.1 temp_buf = "НАЛОГ С ПРОДАЖ"; // @cstr #5
+				// @v9.7.1 temp_buf = "РќРђР›РћР“ РЎ РџР РћР”РђР–"; // @cstr #5
 				PPLoadText(PPTXT_CCFMT_STAX, temp_buf); // @v9.7.1
 				temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 				THROW(SetFR(ValueOfFieldString, temp_buf));
 			}
 			THROW(ExecFR(WriteTable));
 		}
-		// Ставки НДС
+		// РЎС‚Р°РІРєРё РќР”РЎ
 		for(pos = 0; pos < pVatAry->getCount(); pos++) {
 			THROW(SetFR(RowNumber, (long)(FRTAX_SALESTAX_ROW + pos + 1)));
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXAMT));
@@ -1135,18 +1131,18 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 		int  tax_no = Tax1;
 		uint vat_pos;
 		BillTaxEntry & bte = bt_ary.at(pos);
-		// Цена
+		// Р¦РµРЅР°
 		price = R2(fabs(bte.Amount * multiplier));
 		sum += price;
 		THROW(SetFR(Price, price));
-		// Количество
+		// РљРѕР»РёС‡РµСЃС‚РІРѕ
 		THROW(SetFR(Quantity, 1L));
 		// @v9.5.7 {
 		if(departN > 0 && departN <= 16) {
 			THROW(SetFR(Department, departN));
 		}
 		// } @v9.5.7
-		// Налоги
+		// РќР°Р»РѕРіРё
 		if(print_tax) {
 			if(bte.SalesTax) {
 				THROW(SetFR(tax_no++, 1L));
@@ -1156,12 +1152,12 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 			}
 		}
 		THROW(SetFR(tax_no, 0L));
-		// @v9.7.1 prn_str = "СУММА ПО СТАВКЕ НДС"; // @cstr #6
+		// @v9.7.1 prn_str = "РЎРЈРњРњРђ РџРћ РЎРўРђР’РљР• РќР”РЎ"; // @cstr #6
 		PPLoadText(PPTXT_CCFMT_AMTBYVATRATE, prn_str); // @v9.7.1
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
 		if(bte.SalesTax) {
-			// @v9.7.1 temp_buf = "НСП"; // @cstr #7
+			// @v9.7.1 temp_buf = "РќРЎРџ"; // @cstr #7
 			PPLoadText(PPTXT_CCFMT_STAX_S, temp_buf); // @v9.7.1
 			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 			prn_str.Space().Cat(temp_buf).Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
@@ -1171,7 +1167,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 		Flags |= sfOpenCheck;
 	}
 	if(name.NotEmptyS()) {
-		// @v9.7.1 prn_str = "ПОЛУЧАТЕЛЬ"; // @cstr #8
+		// @v9.7.1 prn_str = "РџРћР›РЈР§РђРўР•Р›Р¬"; // @cstr #8
 		PPLoadText(PPTXT_CCFMT_RECEIVER, prn_str); // @v9.7.1
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.Space().Cat(name.Transf(CTRANSF_INNER_TO_OUTER));
@@ -1218,14 +1214,14 @@ int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * p
 	THROW_INVARG(pPack);
 	THROW(ConnectFR());
 	if(CConfig.Flags & CCFLG_DEBUG) {
-		(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc entry").CatDiv(':', 2).CatEq("DeviceType", (long)devtypeCombo).
+		(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc entry").CatDiv(':', 2).CatEq("DeviceType", static_cast<long>(devtypeCombo)).
 			CatDiv(';', 2).CatEq("SlipFormat", pFormatName);
 		PPLogMessage(PPFILNAM_SHTRIH_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
 	}
 	if(DeviceType == devtypeCombo && P_SlipFmt) {
 		int   r = 1;
 		SString   line_buf, format_name = (pFormatName && pFormatName[0]) ? pFormatName : "SlipDocument";
-		StringSet head_lines((const char *)&r);
+		StringSet head_lines(reinterpret_cast<const char *>(&r));
 		SlipDocCommonParam  sdc_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
@@ -1305,7 +1301,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char *
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
 			is_format = 1;
-			if(sdc_param.PageWidth > (uint)CheckStrLen)
+			if(static_cast<long>(sdc_param.PageWidth) > CheckStrLen)
 				WriteLogFile_PageWidthOver(format_name);
 			RibbonParam = 0;
 			CheckForRibbonUsing(sdc_param.RegTo);
@@ -1326,14 +1322,14 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char *
 		if(DeviceType == devtypeShtrih)
 			THROW(SetFR(UseJournalRibbon, FALSE));
 		{
-			// @v9.7.1 temp_buf = "КОПИЯ ЧЕКА"; // @cstr #9
+			// @v9.7.1 temp_buf = "РљРћРџРРЇ Р§Р•РљРђ"; // @cstr #9
 			PPLoadText(PPTXT_CCFMT_CHKCOPY, temp_buf); // @v9.7.1
 			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 			THROW(SetFR(DocumentName, temp_buf));
 		}
 		THROW(ExecFRPrintOper(PrintDocumentTitle));
 		{
-			// @v9.7.1 temp_buf = (flags & PRNCHK_RETURN) ? "ВОЗВРАТ ПРОДАЖИ" : "ПРОДАЖА"; // @cstr #10 #11
+			// @v9.7.1 temp_buf = (flags & PRNCHK_RETURN) ? "Р’РћР—Р’Р РђРў РџР РћР”РђР–Р" : "РџР РћР”РђР–Рђ"; // @cstr #10 #11
 			PPLoadText((flags & PRNCHK_RETURN) ? PPTXT_CCFMT_RETURN : PPTXT_CCFMT_SALE, temp_buf); // @v9.7.1
 			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 			THROW(SetFR(StringForPrinting, temp_buf));
@@ -1359,7 +1355,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char *
 		THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('=', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
 		temp_buf.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
-		// @v9.7.1 prn_str = "ИТОГ"; // @cstr #12
+		// @v9.7.1 prn_str = "РРўРћР“"; // @cstr #12
 		PPLoadText(PPTXT_CCFMT_TOTAL, prn_str); // @v9.7.1
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
@@ -1388,7 +1384,7 @@ int SLAPI SCS_SHTRIHFRF::PrintReport(int withCleaning)
 	long   cshr_pssw = 0;
 	ResCode = RESCODE_NO_ERROR;
 	THROW(ConnectFR());
-	// Закрыть сессию можно только под паролем администратора
+	// Р—Р°РєСЂС‹С‚СЊ СЃРµСЃСЃРёСЋ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РїРѕРґ РїР°СЂРѕР»РµРј Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
 	cshr_pssw = CashierPassword;
 	CashierPassword = AdmPassword;
 	//
@@ -1652,7 +1648,7 @@ int SLAPI SCS_SHTRIHFRF::AnnulateCheck()
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOUSECONTPRN, &dont_use_cont_prn);
 	THROW(ExecFR(GetECRStatus));
 	if(!dont_use_cont_prn) {
-		// Проверка на незавершенную печать
+		// РџСЂРѕРІРµСЂРєР° РЅР° РЅРµР·Р°РІРµСЂС€РµРЅРЅСѓСЋ РїРµС‡Р°С‚СЊ
 		THROW(GetFR(ECRAdvancedMode, &adv_mode));
 		if(adv_mode == PRNMODE_AFTER_NO_PAPER) {
 			Flags |= sfOpenCheck;
@@ -1665,7 +1661,7 @@ int SLAPI SCS_SHTRIHFRF::AnnulateCheck()
 			cut = 1;
 		}
 	}
-	// Проверка на наличие открытого чека, который надо аннулировать
+	// РџСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РѕС‚РєСЂС‹С‚РѕРіРѕ С‡РµРєР°, РєРѕС‚РѕСЂС‹Р№ РЅР°РґРѕ Р°РЅРЅСѓР»РёСЂРѕРІР°С‚СЊ
 	THROW(GetFR(ECRMode, &mode));
 	if(mode == FRMODE_OPEN_CHECK) {
 		Flags |= sfOpenCheck | sfCancelled;
@@ -1770,36 +1766,36 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	// @v9.2.1 PPGetWord(PPWORD_CASHIER, 0, cshr_str);
 	PPLoadString("cashier", cshr_str); // @v9.2.1
 	cshr_str.Space().Cat(temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
-	// Получаем пароль кассира
+	// РџРѕР»СѓС‡Р°РµРј РїР°СЂРѕР»СЊ РєР°СЃСЃРёСЂР°
 	THROW(ReadValueFromTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_PSSW, &cshr_pssw));
-	// Приходится проверять незакрытый чек, иначе не удастся записать имя кассира
+	// РџСЂРёС…РѕРґРёС‚СЃСЏ РїСЂРѕРІРµСЂСЏС‚СЊ РЅРµР·Р°РєСЂС‹С‚С‹Р№ С‡РµРє, РёРЅР°С‡Рµ РЅРµ СѓРґР°СЃС‚СЃСЏ Р·Р°РїРёСЃР°С‚СЊ РёРјСЏ РєР°СЃСЃРёСЂР°
 	CashierPassword = cshr_pssw;
 	THROW(AnnulateCheck());
-	// Записываем в таблицы настройки (только под паролем администратора)
+	// Р—Р°РїРёСЃС‹РІР°РµРј РІ С‚Р°Р±Р»РёС†С‹ РЅР°СЃС‚СЂРѕР№РєРё (С‚РѕР»СЊРєРѕ РїРѕРґ РїР°СЂРѕР»РµРј Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°)
 	CashierPassword = AdmPassword;
-	// Имя кассира
+	// РРјСЏ РєР°СЃСЃРёСЂР°
 	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_NAME, cshr_str));
-	// Имя администратора
+	// РРјСЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
 	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ADMINROW, FRCASHIER_FIELD_NAME, AdmName.NotEmpty() ? AdmName : cshr_str));
-	// Настройки режима работы кассы
-	//    Установить автоматическое обнуление наличности
+	// РќР°СЃС‚СЂРѕР№РєРё СЂРµР¶РёРјР° СЂР°Р±РѕС‚С‹ РєР°СЃСЃС‹
+	//    РЈСЃС‚Р°РЅРѕРІРёС‚СЊ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ РѕР±РЅСѓР»РµРЅРёРµ РЅР°Р»РёС‡РЅРѕСЃС‚Рё
 	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, FRCASHMODE_AUTOCASHNULL, 1));
-	//    Установить открывание денежного ящика
+	//    РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РѕС‚РєСЂС‹РІР°РЅРёРµ РґРµРЅРµР¶РЅРѕРіРѕ СЏС‰РёРєР°
 	//THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 	//	DeviceType == devtypeMini) ? COMBOCASHMODE_OPENDRAWER : FRCASHMODE_OPENDRAWER, 1);
-	//    Нет автоматической отрезки чека
+	//    РќРµС‚ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ РѕС‚СЂРµР·РєРё С‡РµРєР°
 	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW,
 		(DeviceType == devtypeCombo || DeviceType == devtypeMini) ? COMBOCASHMODE_CUTTING : FRCASHMODE_CUTTING, 0));
-	/* @v9.7.4 Проблемы с модернизированными аппаратами
-	//    Установить использование весовых датчиков
+	/* @v9.7.4 РџСЂРѕР±Р»РµРјС‹ СЃ РјРѕРґРµСЂРЅРёР·РёСЂРѕРІР°РЅРЅС‹РјРё Р°РїРїР°СЂР°С‚Р°РјРё
+	//    РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РІРµСЃРѕРІС‹С… РґР°С‚С‡РёРєРѕРІ
 	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ?
 		COMBOCASHMODE_USEWGHTSENSOR : FRCASHMODE_USEWGHTSENSOR, BIN(Flags & sfUseWghtSensor)));
 	*/
-	//    Установить автоматический перевод времени
+	//    РЈСЃС‚Р°РЅРѕРІРёС‚СЊ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РїРµСЂРµРІРѕРґ РІСЂРµРјРµРЅРё
 	//THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 	//	DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, 1));
-	//    Не сохранять строки в буфере чека
-	/* @v9.7.5 В новых аппаратах путаница с нумерацией полей. Просто ничего не будем писать в это поле.
+	//    РќРµ СЃРѕС…СЂР°РЅСЏС‚СЊ СЃС‚СЂРѕРєРё РІ Р±СѓС„РµСЂРµ С‡РµРєР°
+	/* @v9.7.5 Р’ РЅРѕРІС‹С… Р°РїРїР°СЂР°С‚Р°С… РїСѓС‚Р°РЅРёС†Р° СЃ РЅСѓРјРµСЂР°С†РёРµР№ РїРѕР»РµР№. РџСЂРѕСЃС‚Рѕ РЅРёС‡РµРіРѕ РЅРµ Р±СѓРґРµРј РїРёСЃР°С‚СЊ РІ СЌС‚Рѕ РїРѕР»Рµ.
 	if(oneof2(DeviceType, devtypeCombo, devtypeMini)) {
 		THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, COMBOCASHMODE_SAVESTRING, 0));
 	}
@@ -1807,10 +1803,10 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 		THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, FRCASHMODE_SAVESTRING, 0));
 	}
 	*/
-	/*    Современные версии Штриха запрещают редактирование таблицы перевода времени
+	/*    РЎРѕРІСЂРµРјРµРЅРЅС‹Рµ РІРµСЂСЃРёРё РЁС‚СЂРёС…Р° Р·Р°РїСЂРµС‰Р°СЋС‚ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ РїРµСЂРµРІРѕРґР° РІСЂРµРјРµРЅРё
 	THROW(ReadValueFromTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 		DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, &auto_timing));
-	// Установка автоматического перевода времени
+	// РЈСЃС‚Р°РЅРѕРІРєР° Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РїРµСЂРµРІРѕРґР° РІСЂРµРјРµРЅРё
 	if(!auto_timing) {
 		int    i, k, d, m, y;
 		SString str_year;
@@ -1835,17 +1831,17 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	}
 	*/
 	//
-	// Наименования типов оплат
+	// РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РёРїРѕРІ РѕРїР»Р°С‚
 	//
 	{
-		// @v9.7.1 temp_buf = "БЕЗНАЛИЧНАЯ ОПЛАТА"; // @cstr #13
+		// @v9.7.1 temp_buf = "Р‘Р•Р—РќРђР›РР§РќРђРЇ РћРџР›РђРўРђ"; // @cstr #13
 		PPLoadText(PPTXT_CCFMT_CASHLESSPAYM, temp_buf); // @v9.7.1
 		temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 2, FRPAYMTYPE_NAME, temp_buf));
 	}
 	THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 3, FRPAYMTYPE_NAME, ""));
 	THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 4, FRPAYMTYPE_NAME, ""));
-	// Формат чека
+	// Р¤РѕСЂРјР°С‚ С‡РµРєР°
 	if(!(Flags & sfOldShtrih)) {
 		THROW(ReadValueFromTbl(FRFORMAT_TBL, FRFORMAT_ROW, FRFORMAT_FIELD_SIZE, &CheckStrLen));
 	}
@@ -1867,9 +1863,9 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 	}
 	else {
 		//#define DEF_BAUD_RATE              2   
-		//#define MAX_BAUD_RATE              6   // Для Штрих-ФР max скорость обмена 115200 бод
-		const int __def_baud_rate = 2; // Для Штрих-ФР скорость обмена по умолчанию 9600 бод
-		const int __max_baud_rate = 6; // Для Штрих-ФР max скорость обмена 115200 бод
+		//#define MAX_BAUD_RATE              6   // Р”Р»СЏ РЁС‚СЂРёС…-Р¤Р  max СЃРєРѕСЂРѕСЃС‚СЊ РѕР±РјРµРЅР° 115200 Р±РѕРґ
+		const int __def_baud_rate = 2; // Р”Р»СЏ РЁС‚СЂРёС…-Р¤Р  СЃРєРѕСЂРѕСЃС‚СЊ РѕР±РјРµРЅР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 9600 Р±РѕРґ
+		const int __max_baud_rate = 6; // Р”Р»СЏ РЁС‚СЂРёС…-Р¤Р  max СЃРєРѕСЂРѕСЃС‚СЊ РѕР±РјРµРЅР° 115200 Р±РѕРґ
 
 		int    baud_rate;
 		int    model_type = 0;
@@ -1923,8 +1919,8 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 #if 0 // @construction {
 		// @v7.2.2 {
 		else if(model_type == SHTRIH_LIGHT_FRK) {
-			DeviceType = devtypeShtrih; // (Временно будем идентифицировать так это значение)
-			// (Должно быть так, но это требует перестройки многих точек кода) DeviceType = devtypeLight;
+			DeviceType = devtypeShtrih; // (Р’СЂРµРјРµРЅРЅРѕ Р±СѓРґРµРј РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ С‚Р°Рє СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ)
+			// (Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ С‚Р°Рє, РЅРѕ СЌС‚Рѕ С‚СЂРµР±СѓРµС‚ РїРµСЂРµСЃС‚СЂРѕР№РєРё РјРЅРѕРіРёС… С‚РѕС‡РµРє РєРѕРґР°) DeviceType = devtypeLight;
 		}
 		// } @v7.2.2
 #endif // } 0 @construction
@@ -2021,9 +2017,9 @@ void SLAPI SCS_SHTRIHFRF::WriteLogFile(PPID id)
 	}
 }
 //
-// Функция AllowPrintOper разбирается со всеми ситуациями,
-//  которые могут возникнуть при печати чека.
-// Код возврата: 1 - операция печати разрешена, 0 - запрещена.
+// Р¤СѓРЅРєС†РёСЏ AllowPrintOper СЂР°Р·Р±РёСЂР°РµС‚СЃСЏ СЃРѕ РІСЃРµРјРё СЃРёС‚СѓР°С†РёСЏРјРё,
+//  РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РІРѕР·РЅРёРєРЅСѓС‚СЊ РїСЂРё РїРµС‡Р°С‚Рё С‡РµРєР°.
+// РљРѕРґ РІРѕР·РІСЂР°С‚Р°: 1 - РѕРїРµСЂР°С†РёСЏ РїРµС‡Р°С‚Рё СЂР°Р·СЂРµС€РµРЅР°, 0 - Р·Р°РїСЂРµС‰РµРЅР°.
 //
 int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 {
@@ -2032,7 +2028,7 @@ int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 	int    wait_prn_err = 0;
 
 	SetErrorMessage();
-	// Ожидание окончания операции печати
+	// РћР¶РёРґР°РЅРёРµ РѕРєРѕРЅС‡Р°РЅРёСЏ РѕРїРµСЂР°С†РёРё РїРµС‡Р°С‚Рё
 	do {
 		THROW(ExecFR(GetECRStatus));
 		THROW(GetFR(ECRMode,         &mode));
@@ -2064,11 +2060,11 @@ int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 		}
 	}
 	else {
-		// На всякий случай помечаем, что чек открыт
-		// (иначе при сбое операции открытия чека неизвестно: чек уже открыт или нет)
+		// РќР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№ РїРѕРјРµС‡Р°РµРј, С‡С‚Рѕ С‡РµРє РѕС‚РєСЂС‹С‚
+		// (РёРЅР°С‡Рµ РїСЂРё СЃР±РѕРµ РѕРїРµСЂР°С†РёРё РѕС‚РєСЂС‹С‚РёСЏ С‡РµРєР° РЅРµРёР·РІРµСЃС‚РЅРѕ: С‡РµРє СѓР¶Рµ РѕС‚РєСЂС‹С‚ РёР»Рё РЅРµС‚)
 		if(mode == FRMODE_OPEN_CHECK)
 			Flags |= sfOpenCheck;
-		// Ожидание заправки чековой ленты или выхода из режима, когда нельзя печатать чек
+		// РћР¶РёРґР°РЅРёРµ Р·Р°РїСЂР°РІРєРё С‡РµРєРѕРІРѕР№ Р»РµРЅС‚С‹ РёР»Рё РІС‹С…РѕРґР° РёР· СЂРµР¶РёРјР°, РєРѕРіРґР° РЅРµР»СЊР·СЏ РїРµС‡Р°С‚Р°С‚СЊ С‡РµРє
 		while(ok && (oneof2(adv_mode, PRNMODE_NO_PRINT_NO_PAPER, PRNMODE_PRINT_NO_PAPER) ||
 			(last_res_code == RESCODE_MODE_OFF && IsModeOffPrint(mode)))) {
 			int  send_msg = 0, r;
@@ -2094,7 +2090,7 @@ int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 			THROW(GetFR(ECRMode,         &mode));
 			THROW(GetFR(ECRAdvancedMode, &adv_mode));
 		}
-		// Проверяем, надо ли завершить печать после заправки ленты
+		// РџСЂРѕРІРµСЂСЏРµРј, РЅР°РґРѕ Р»Рё Р·Р°РІРµСЂС€РёС‚СЊ РїРµС‡Р°С‚СЊ РїРѕСЃР»Рµ Р·Р°РїСЂР°РІРєРё Р»РµРЅС‚С‹
 		if(adv_mode == PRNMODE_AFTER_NO_PAPER) {
 			WriteLogFile(id);
 			THROW(ExecFRPrintOper(ContinuePrint));
@@ -2104,8 +2100,8 @@ int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 			wait_prn_err = 1;
 		}
 		//
-		//   Это, конечно, не отрывок из "Илиады", а очередная попытка
-		//   справиться с идиотскими ошибками, возникающими из-за этой дерьмовой ЭКЛЗ.
+		//   Р­С‚Рѕ, РєРѕРЅРµС‡РЅРѕ, РЅРµ РѕС‚СЂС‹РІРѕРє РёР· "РР»РёР°РґС‹", Р° РѕС‡РµСЂРµРґРЅР°СЏ РїРѕРїС‹С‚РєР°
+		//   СЃРїСЂР°РІРёС‚СЊСЃСЏ СЃ РёРґРёРѕС‚СЃРєРёРјРё РѕС€РёР±РєР°РјРё, РІРѕР·РЅРёРєР°СЋС‰РёРјРё РёР·-Р·Р° СЌС‚РѕР№ РґРµСЂСЊРјРѕРІРѕР№ Р­РљР›Р—.
 		//
 		if(mode == FRMODE_OPEN_CHECK && id == CutCheck) {
 			WriteLogFile(id);
@@ -2119,8 +2115,8 @@ int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 		}
 	}
 	//
-	// Если ситуация не связана непосредственно с процессом печати, выдаем сообщение об ошибке
-	// @v5.9.2 При закрытии чека - сумма оплаты меньше суммы чека - не связано с процессом печати, но wait_prn_err == 1
+	// Р•СЃР»Рё СЃРёС‚СѓР°С†РёСЏ РЅРµ СЃРІСЏР·Р°РЅР° РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ СЃ РїСЂРѕС†РµСЃСЃРѕРј РїРµС‡Р°С‚Рё, РІС‹РґР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ
+	// @v5.9.2 РџСЂРё Р·Р°РєСЂС‹С‚РёРё С‡РµРєР° - СЃСѓРјРјР° РѕРїР»Р°С‚С‹ РјРµРЅСЊС€Рµ СЃСѓРјРјС‹ С‡РµРєР° - РЅРµ СЃРІСЏР·Р°РЅРѕ СЃ РїСЂРѕС†РµСЃСЃРѕРј РїРµС‡Р°С‚Рё, РЅРѕ wait_prn_err == 1
 	//
 	if(!wait_prn_err || oneof2(last_res_code, RESCODE_PAYM_LESS_SUM, RESCODE_INVEKLZSTATE)) {
 		WriteLogFile(id);
@@ -2145,7 +2141,7 @@ void SLAPI SCS_SHTRIHFRF::SetErrorMessage()
 			memzero(mode_descr, sizeof(mode_descr));
 			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1) > 0) {
 				SString temp_buf;
-				// @v9.7.1 temp_buf = "Режим"; // @cstr
+				// @v9.7.1 temp_buf = "Р РµР¶РёРј"; // @cstr
 				PPLoadText(PPTXT_CCFMT_MODE, temp_buf); // @v9.7.1
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 				err_msg.CR().CatChar('\003').Cat(temp_buf).CatDiv(':', 2).Cat(mode_descr);

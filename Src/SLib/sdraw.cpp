@@ -722,7 +722,7 @@ const FPoint & SDrawPath::GetCurrent()
 	if(HasCurrent()) {
 		uint   rc = ArgList.getCount();
 		assert(rc >= 2);
-		Cur.Set(ArgList[rc-2], ArgList[rc-1]);
+		//Cur.Set(ArgList[rc-2], ArgList[rc-1]); // @erik v10.4.11
 	}
 	else
 		Cur.Set(0.0);
@@ -895,16 +895,42 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 							Line(pnt);
 					}
 					break;
+				//case 'm': // 2, SVG_PATH_CMD_REL_MOVE_TO
+				//	for(int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
+				//		THROW(GetSvgPathPoint(scan, temp_buf, pnt));
+				//		const FPoint cur = GetCurrent();
+				//		if(first)
+				//			Move(cur + pnt);
+				//		else
+				//			Line(cur + pnt);
+				//	}
+				//	break;
 				case 'm': // 2, SVG_PATH_CMD_REL_MOVE_TO
-					for(int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
+					for (int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
 						const FPoint cur = GetCurrent();
-						if(first)
+						if (first)
 							Move(cur + pnt);
 						else
 							Line(cur + pnt);
 					}
 					break;
+				//case 'm': // 2, SVG_PATH_CMD_REL_MOVE_TO
+				//{
+				//	const FPoint cur = GetCurrent();
+				//	int first = 1;
+				//	while (scan.Skip().IsDotPrefixedNumber()) {
+				//		THROW(GetSvgPathPoint(scan, temp_buf, pnt));
+				//		//const FPoint cur = GetCurrent();
+				//		if (first) {
+				//			Move(cur + pnt);
+				//			first = 0;
+				//		}
+				//		else
+				//			Line(cur + pnt);
+				//	}
+				//}
+				//break;
 				case 'L': // 2, SVG_PATH_CMD_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));

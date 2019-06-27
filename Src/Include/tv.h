@@ -1468,7 +1468,6 @@ public:
 		handleEvent(event.setWinCmd(uMsg, wParam, lParam));
 		return BIN(event.what == TEvent::evNothing);
 	}
-	// @v9.0.4 virtual void   endModal(ushort command);
 	// @v9.6.2 virtual void   draw();
 	void   Draw_(); // @v9.6.2
 	//
@@ -1518,7 +1517,7 @@ protected:
 
 	class EvBarrier {
 	public:
-		EvBarrier(TView * pV);
+		explicit EvBarrier(TView * pV);
 		~EvBarrier();
 		int    operator !() const;
 	private:
@@ -1574,7 +1573,6 @@ public:
 	virtual void   setState(uint aState, bool enable);
 	virtual int    TransmitData(int dir, void * pData);
 	// @v9.6.2 virtual void   draw();
-	// @v9.0.4 virtual void   endModal(ushort command);
 	virtual int    FASTCALL valid(ushort command);
 	ushort execView(TWindow * p);
 	void   insertView(TView * p, TView * pTarget);
@@ -1711,7 +1709,7 @@ public:
 
 	SLAPI  TWindow(const TRect& bounds, const char * pTitle, short aNumber);
 	SLAPI ~TWindow();
-	/* @v9.0.4 virtual*/ void  endModal(ushort command);
+	void   endModal(ushort command);
 	void * SLAPI  messageToCtrl(ushort ctl, ushort command, void * ptr);
 	TView * FASTCALL getCtrlView(ushort ctl);
 	TView * FASTCALL getCtrlByHandle(HWND h);

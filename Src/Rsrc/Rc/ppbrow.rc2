@@ -6178,6 +6178,7 @@ browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 		CONFIG         : kbF8,     TBBM_CONFIG,  "@{config}\tF8"
 		separator
 		EXPORT         : kbCtrlR,  TBBM_EXPORT,  "@{export}\tCtrl-R"
+		TRYSTRATEGIES  : kbCtrlT,  TBBM_EXPORT,  "Try Strategies\tCtrl-T"
 		REFRESH        : kbCtrlV,  TBBM_REFRESHVIEW, "@{refresh}\tCtrl-V"
 	}
 }
@@ -6301,7 +6302,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 	"Продукт",              16,  notype, 0, 30
 	"@qtty",                17,  notype, NMBF_NOZERO, 10.3
 	"@rest",                21,  notype, NMBF_NOZERO, 10.3
-	"UUID",                 22,  notype, 0, 30  //@erik v10.4.11 
+	"UUID",                 22,  notype, 0, 30  //@erik v10.4.11
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    TBBM_EDIT,      "Детализация\tEnter"
 		DELETEITEM       : kbDel,      TBBM_DELETE,    "Удалить документ (только для исходящих)\tDelete"
@@ -8647,6 +8648,9 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_SCARDBONUS
 	PPDV_SCARDCREDIT
 	PPDV_SCARDDISCOUNT
+	PPDV_GEAR01
+	PPDV_GEARDOUBLE01
+	PPDV_GEARTRIPLE01
 }
 //
 // Следующие изображения используются без замещения цвета

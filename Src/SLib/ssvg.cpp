@@ -630,7 +630,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 	StringSet ss_style;
 	SPaintToolBox * p_tb = P_Result ? P_Result->GetToolBox() : 0;
 	for(xmlNode * p_node = pParentNode->children; p_node != 0; p_node = p_node->next) {
-		int    token = (p_node->type == XML_ELEMENT_NODE) ? GetToken((const char *)p_node->name) : 0;
+		int    token = (p_node->type == XML_ELEMENT_NODE) ? GetToken(reinterpret_cast<const char *>(p_node->name)) : 0;
 		uint32 coord_ready = 0;
 		switch(token) {
 			case tSymbol: // @v10.4.5

@@ -10,7 +10,7 @@
 //
 #define CLOSEBTN_BITMAPID  132 // defined in ppdefs.h as IDB_CLOSE
 #define MENUTREE_LIST     1014
-#define ROUNDRECT_RADIUS     2 // @v8.7.2 3-->2
+#define ROUNDRECT_RADIUS     2 
 #define USE_CANVAS2_DRAWING
 //
 //
@@ -1056,7 +1056,6 @@ IMPL_HANDLE_EVENT(TProgram)
 {
 	TGroup::handleEvent(event);
 	if(event.what == TEvent::evCommand && event.message.command == cmQuit) {
-		// @v9.0.4 (бессмысленная строка) endModal(cmQuit);
 		::DestroyWindow(H_MainWnd);
 		clearEvent(event);
 	}
@@ -1918,6 +1917,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					case IDB_CLOCK:         dv_id = PPDV_CLOCK02; break; // @v9.2.11
 					case IDB_PHONE:         dv_id = PPDV_PHONE01; break; // @v10.0.04
 					case IDB_PHONEFORWARDED: dv_id = PPDV_PHONEFORWARDED01; break; // @v10.0.04
+					case IDB_GEAR:           dv_id = PPDV_GEAR01; break; // @v10.4.11
 					default:
 						{
 							const uint button_id = p_btn->GetId();

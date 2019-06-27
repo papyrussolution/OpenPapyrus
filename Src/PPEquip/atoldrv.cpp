@@ -55,14 +55,8 @@ public:
 	SLAPI ~SCS_ATOLDRV();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
 	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
-	virtual int SLAPI PrintXReport(const CSessInfo *)
-	{
-		return PrintReport(0);
-	}
-	virtual int SLAPI CloseSession(PPID sessID)
-	{
-		return PrintReport(1);
-	}
+	virtual int SLAPI PrintXReport(const CSessInfo *) { return PrintReport(0); }
+	virtual int SLAPI CloseSession(PPID sessID) { return PrintReport(1); }
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
 	virtual int SLAPI PrintIncasso(double sum, int isIncome);
 	virtual int SLAPI OpenBox()
@@ -1928,6 +1922,7 @@ int SLAPI SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
 				//THROW(SetProp(Caption, str));
 				//THROW(ExecOper(PrintString));
 				THROW(PrintText(str, ptfWrap, 0));
+				SDelay(10); // @v10.4.11 Иногда не удается распечатать слип. Гипотеза: драйвер не успевает обрабатывать быструю последовательность строк.
 			}
 			//THROW(ExecOper(PrintHeader));
 			if(!(Flags & sfNotUseCutter)) {

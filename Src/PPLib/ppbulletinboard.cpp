@@ -185,7 +185,7 @@ public:
 		}
 		double SLAPI GetAverageSpread_WithAdjustment() const
 		{
-			return fdivui(SpreadSum, SpreadCount) * 1.1;
+			return fdivui(SpreadSum, SpreadCount) * 2.0;
 		}
 		int FASTCALL GetLastValue(double * pValue) const
 		{
@@ -1242,7 +1242,8 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 			if(!(r_blk.Flags & r_blk.fLong))
 				sel_criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
 			PPObjTimeSeries::BestStrategyBlock _best_result;
-			if(r_blk.Strategies.Select(r_blk.TrendList, -1, sel_criterion, &r_blk.StratIndex, _best_result, &matched_strategies_idx_list) > 0) {
+			int last_trend_idx = -2; // @v10.4.11 -1 --> -2
+			if(r_blk.Strategies.Select(r_blk.TrendList, last_trend_idx, sel_criterion, &r_blk.StratIndex, _best_result, &matched_strategies_idx_list) > 0) {
 				// @20190515 assert(_best_result.MaxResult >= Cfg.MinPerDayPotential);
 				assert(_best_result.MaxResultIdx >= 0 && _best_result.MaxResultIdx < static_cast<int>(r_blk.Strategies.getCount()));
 				const PPObjTimeSeries::Strategy & r_s = r_blk.Strategies.at(_best_result.MaxResultIdx);
@@ -1262,7 +1263,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 					sel_criterion_reverse |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
 					sel_criterion_reverse &= ~PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 				}
-				r_blk.Strategies.Select(r_blk.TrendList, -1, sel_criterion_reverse, &r_blk.StratIndex, _best_result_reverse, 0);
+				r_blk.Strategies.Select(r_blk.TrendList, last_trend_idx, sel_criterion_reverse, &r_blk.StratIndex, _best_result_reverse, 0);
 				//
 				rPse.StrategyPos = static_cast<uint>(_best_result.MaxResultIdx);
 				// @20190515 rPse.ResultPerDay = _best_result.MaxResult;
@@ -1408,7 +1409,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 	const double evaluated_used_margin = EvaluateUsedMargin();
 	for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
 		const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
-		const long max_diff_sec = 20;
+		const long max_diff_sec = UseRegularValuesOnlyForStakes ? 130 : 40;
 		const long cur_diff_sec = diffdatetimesec(now, r_tk.Dtm);
 		if(cur_diff_sec <= max_diff_sec) {
 			StkEnv.GetS(r_tk.SymbP, tk_symb);
@@ -1491,7 +1492,8 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 					const double cost = EvaluateCost(r_pse.R_Blk, LOGIC(r_s.BaseFlags & r_s.bfShort), r_pse.Volume, 0);
 					if(cost > 0.0) {
 						const PPObjTimeSeries::TrendEntry * p_te = PPObjTimeSeries::SearchTrendEntry(r_pse.R_Blk.TrendList, r_s.InputFrameSize);
-						const double spike_quant = p_te ? p_te->SpikeQuant : r_s.SpikeQuant;
+						// @v10.4.11 const double spike_quant = p_te ? p_te->SpikeQuant : r_s.SpikeQuant;
+						const double spike_quant = r_s.SpikeQuant; // @v10.4.11
 						const double avg_spread_sl = r_pse.R_Blk.GetAverageSpread_WithAdjustment();
 						const double avg_spread_tp = r_pse.R_Blk.GetAverageSpread_WithAdjustment();
 						const double sl = r_s.CalcSL(last_value, spike_quant, avg_spread_sl);
@@ -1650,7 +1652,7 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 	//STimeSeries::ValuVec * p_vec = pBlk->T_.GetVecBySymb("close", &vec_idx);
 	//THROW(p_vec);
 	if(tsc > 500 && pBlk->Strategies.GetInputFramSizeList(ifs_list, &max_opt_delta2_stride) > 0) {
-		const uint trend_nominal_count = max_opt_delta2_stride+1;
+		const uint trend_nominal_count = max_opt_delta2_stride + 3; // @v10.4.11 (+1)-->(+3)
 		ifs_list.sortAndUndup(); // @paranoic
 		for(uint i = 0; i < ifs_list.getCount(); i++) {
 			const uint ifs = static_cast<uint>(ifs_list.get(i));

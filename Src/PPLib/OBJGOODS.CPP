@@ -2323,7 +2323,7 @@ int SLAPI PPObjGoods::SearchByArticle(PPID article, BarcodeTbl::Rec * pRec)
 	BarcodeTbl::Rec  bc_rec;
 	MEMSZERO(bc_rec);
 	gds_code.Cat(article).CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
-	if(P_Tbl->SearchBarcode(bc_rec.Code, &bc_rec) > 0 && bc_rec.BarcodeType == -1)
+	if(P_Tbl->SearchBarcode(bc_rec.Code, &bc_rec) > 0 && IsInnerBarcodeType(bc_rec.BarcodeType, BARCODE_TYPE_UNDEF))
 		is_found = 1;
 	ASSIGN_PTR(pRec, bc_rec);
 	return is_found;

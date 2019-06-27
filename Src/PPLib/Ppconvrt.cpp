@@ -6223,13 +6223,13 @@ DBTable * SLAPI PPCvtBarcode8800::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtBarcode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldBarcodeRec {
+	const struct OldBarcodeRec {
 		long   GoodsID;
 		double Qtty;
 		long   BarcodeType;
 		char   Code[16];
-	} * p_old_data = (OldBarcodeRec *)pRec;
-	BarcodeTbl::Rec * p_data = (BarcodeTbl::Rec*)pTbl->getDataBuf();
+	} * p_old_data = static_cast<const OldBarcodeRec *>(pRec);
+	BarcodeTbl::Rec * p_data = static_cast<BarcodeTbl::Rec *>(pTbl->getDataBuf());
 	memzero(p_data, sizeof(BarcodeTbl::Rec));
 	p_data->GoodsID = p_old_data->GoodsID;
 	p_data->Qtty    = p_old_data->Qtty;

@@ -4405,15 +4405,36 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 //
 //
 //
-#define PPGDSK_GROUP      1L // Группы товаров
-#define PPGDSK_GOODS      2L // Товары
-#define PPGDSK_PCKGTYPE   3L // Типы пакетов
-#define PPGDSK_TRANSPORT  4L // Транспортные средства
-#define PPGDSK_BRAND      5L // Брэнды
-#define PPGDSK_BRANDGROUP 6L // Группы брэндов
-#define PPGDSK_SUPRWARE   7L // Составные товары // @vmiller
+#define PPGDSK_GROUP               1L // Группы товаров
+#define PPGDSK_GOODS               2L // Товары
+#define PPGDSK_PCKGTYPE            3L // Типы пакетов
+#define PPGDSK_TRANSPORT           4L // Транспортные средства
+#define PPGDSK_BRAND               5L // Брэнды
+#define PPGDSK_BRANDGROUP          6L // Группы брэндов
+#define PPGDSK_SUPRWARE            7L // Составные товары // @vmiller
 
-#define BARCODE_TYPE_PREFERRED 1000
+#define BARCODE_TYPE_UNDEF        -1
+#define BARCODE_TYPE_COMMON        0
+#define BARCODE_TYPE_PREFERRED  1000
+#define BARCODE_TYPE_MARKED    10000 // @v10.4.11 Маркированный код (на товар нанесена специальная марка тупого Российского государства, которое обирает вдов и сирот, обогащая жирных придурков)
+#define BARCODE_TYPE_PREFMARK  11000 // @v10.4.11
+
+int32 FASTCALL MakeInnerBarcodeType(int bt);
+void  FASTCALL SetInnerBarcodeType(int32 * pBarcodeType, int bt);
+void  FASTCALL ResetInnerBarcodeType(int32 * pBarcodeType, int bt);
+int   FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt);
+
+struct ChestnyZnakCodeStruc : public SStrGroup {
+	SLAPI  ChestnyZnakCodeStruc();
+	ChestnyZnakCodeStruc & SLAPI Z();
+	int    SLAPI Parse(const char * pRawCode);
+
+	uint   GtinPrefixP;
+	uint   GtinP;
+	uint   SerialPrefixP;
+	uint   SerialP;
+	uint   TailP;
+};
 
 class BarcodeArray : public TSVector <BarcodeTbl::Rec> { // @v9.8.4 TSArray-->TSVector
 public:
@@ -16006,6 +16027,12 @@ public:
 		double Peak;   // Максимальное значение, которого достигла котировка в течении сессии
 		double Bottom; // Минимальное значение, которого достигла котировка в течении сессии
 		uint   LastPoint; // Точка ряда, на которой алгоритм TsCalcStrategyResult2 закончил работу
+		STimeChunk TmR;     // @v10.4.11
+		int    StrategyIdx; // @v10.4.11 [0..], (<0) - undefined. Strategy index at the StrategyContainer
+		double OptFactor;   // @v10.4.11
+		double OptFactor2;  // @v10.4.11
+		double TrendErr;    // @v10.4.11
+		double TrendErrRel; // @v10.4.11
 	};
 	struct OptimalFactorRange : public RealRange {
 		OptimalFactorRange();
@@ -16077,6 +16104,8 @@ public:
 		int    MaxResultIdx;
 		double TvForMaxResult;
 		double Tv2ForMaxResult;
+		double TrendErr;    // @v10.4.11
+		double TrendErrRel; // @v10.4.11
 	};
 	class StrategyContainer : public TSVector <Strategy> {
 	public:
@@ -16180,6 +16209,7 @@ public:
 	static int SLAPI ReadConfig(PPObjTimeSeries::Config * pCfg);
 	static SString & SLAPI StrategyOutput(const PPObjTimeSeries::StrategyResultEntry * pSre, SString & rBuf);
 	static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const PPObjTimeSeries::BestStrategyBlock * pBestResult, SString & rBuf);
+	static int SLAPI TryStrategies(PPID id);
 
 	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -16345,9 +16375,12 @@ public:
 	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
+	int    SLAPI TryStrategyContainer(PPID tsID);
 private:
 	int    SLAPI ReadModelParam(ModelParam & rMp);
+	int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & tTs);
 	PrcssrTsStrategyAnalyzeFilt P;
+	PPObjTimeSeries TsObj;
 };
 //
 // @ModuleDecl(CurRateCore)
@@ -21199,8 +21232,7 @@ struct DBDivPack {
 
 	PPDBDiv   Rec;
 	PPIDArray LocList;
-	// @v8.0.11 SString AccList_;
-	SString ExtString; // @v8.0.11
+	SString ExtString;
 };
 
 class PPObjDBDiv : public PPObjReference {
@@ -21218,7 +21250,7 @@ public:
 	int    SLAPI GetCounter(PPID dbid, long * counter, int use_ta);
 	int    SLAPI GetUuid(PPID dbid, S_GUID * pUuid, int use_ta);
 	int    SLAPI AcceptUuid(PPID dbid, const S_GUID & rUuid, int use_ta);
-	int    SLAPI CheckForConsolidDiv(PPID divID);
+	// @v10.4.11 (unused) int    SLAPI CheckForConsolidDiv(PPID divID);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 private:
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
@@ -21249,6 +21281,7 @@ private:
 	// ритейлеры вынуждены выбирать ту цену, которая отпечатана на пачке.
 #define GTF_ADVANCECERT    0x00004000L // @v10.4.1 Сертификат на последующую покупку товаров (главное назначение флага -
 	// сигнализировать при учете, что оплата такого товара является авансом, но не собственно покупкой).
+#define GTF_GMARKED        0x00008000L // @v10.4.11 Товары этого типа имеют государственную маркировку
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	long   Tag;            // Const=PPOBJ_GOODSTYPE
@@ -26709,10 +26742,12 @@ struct GoodsCodeSrchBlock {
 		fGoodsId     = 0x0010, // OUT ИД товара
 		fList        = 0x0020, // OUT Список штрихкодов по шаблону
 		fUse2dTempl  = 0x0040, // IN  Искать по шаблону 2-мерного штрихкода
-		fBc2d        = 0x0080  // OUT Товар найден по шаблону 2d-кода
+		fBc2d        = 0x0080, // OUT Товар найден по шаблону 2d-кода
+		fCzCode      = 0x0100  // OUT Товар найден по коду "Честный Знак"
 	};
 	char   Code[128];      // IN CONST
 	char   RetCode[32];    // OUT
+	char   RetSerial[32];  // OUT @v10.4.11
 	PPID   ArID;           // IN CONST
 	long   Flags;          // IN/OUT
 	PPID   GoodsID;        // OUT
@@ -29171,48 +29206,52 @@ struct AsyncCashGoodsInfo { // @transient
 	void   SLAPI Init();
 	int    SLAPI AdjustBarcode(int chkDig);
 
+	enum {
+		fDeleted     = 0x0001,
+		fGMarkedType = 0x0002,
+		fGMarkedCode = 0x0004
+	};
 	PPID   ID;
-	char   Name[128];      //
-	char   Abbr[128];      //
-	PPID   ParentID;       // ->Goods2.ID Родительская товарная группа
-	PPID   UnitID;         // ->Unit.ID Единица измерения //
-	PPID   PhUnitID;       // @v9.8.6 ->Unit.ID Физическая единица измерения
-	double PhUPerU;        // @v9.8.6 ->Unit.ID Соотношение физических единиц к торговым
-	PPID   ManufID;        // ->Person.ID ИД производителя товара
-	PPID   GdsClsID;       // ->Ref(PPOBJ_GOODSCLASS) ИД класса товара
-	PPID   GoodsTypeID;    // @v9.8.12 ->Ref(PPOBJ_GOODSTYPE) ИД типа товара
-	char   BarCode[24];    // Штрихкод @v8.8.0 [16]-->[24]
-	char   PrefBarCode[24]; // Предпочтительный штрихкод @v8.8.0 [16]-->[24]
-	double UnitPerPack;    // Емкость упаковки
-	double Cost;           // Цена поступления //
-	double Price;          // Цена реализации
-	double ExtQuot;        // Специальная цена (соответствует котировке типа PPCashNode.ExtQuotID)
-	double Rest;           // Остаток
-	double Precision;      // Точность для дробного количества товара. Некоторые кассовые модули
+	char   Name[128];        //
+	char   Abbr[128];        //
+	PPID   ParentID;         // ->Goods2.ID Родительская товарная группа
+	PPID   UnitID;           // ->Unit.ID Единица измерения //
+	PPID   PhUnitID;         // @v9.8.6 ->Unit.ID Физическая единица измерения
+	double PhUPerU;          // @v9.8.6 ->Unit.ID Соотношение физических единиц к торговым
+	PPID   ManufID;          // ->Person.ID ИД производителя товара
+	PPID   GdsClsID;         // ->Ref(PPOBJ_GOODSCLASS) ИД класса товара
+	PPID   GoodsTypeID;      // @v9.8.12 ->Ref(PPOBJ_GOODSTYPE) ИД типа товара
+	char   BarCode[24];      // Штрихкод 
+	char   PrefBarCode[24];  // Предпочтительный штрихкод
+	double UnitPerPack;      // Емкость упаковки
+	double Cost;             // Цена поступления //
+	double Price;            // Цена реализации
+	double ExtQuot;          // Специальная цена (соответствует котировке типа PPCashNode.ExtQuotID)
+	double Rest;             // Остаток
+	double Precision;        // Точность для дробного количества товара. Некоторые кассовые модули
 		// позволяют загружать т.н. максимальную дробность представления количества товара.
 		// Если в записе кассового узла установлен флаг CASHFX_APPLYUNITRND, то это поле
 		// заполняется значением Rounding из записи торговой единицы измерения товара.
 		// Если флаг CASHFX_APPLYUNITRND не задан или единица измерения имеет Rounding == 0,
 		// то Precision = 0.001.
-	long   GoodsFlags;     // @v7.4.12 Флаги записи товара
-	short  Deleted_;       // Признак того, что товар был удален
-	short  NoDis;          // Запрет скидки на товар (> 0 - без скидки, 0 - со скидкой,
-		// -1 - со скидкой (признак "без скидки" был снят)
-	long   DivN;           // Номер отдела
-	PPID   LocPrnID;       // ->Ref(PPOBJ_LOCPRINTER)
-	char   LocPrnSymb[20]; // Символ локального принтера LocPrnID
-	PPID   AsscPosNodeID;       // @v7.9.7 Ассоциированный с товаром кассовый аппарат
-	char   AsscPosNodeSymb[20]; // @v7.9.7 Символ ассоциированного с товаров кассового аппарата
-	double VatRate;        // Ставка НДС
-	S_GUID Uuid;           // @v10.0.04 UUID товара, извлеченный из тега PPTAG_GOODS_UUID
-	RAssocArray QuotList;  // Список дополнительных котировок.
+	long   GoodsFlags;       // Флаги записи товара
+	// @v10.4.11 short  Deleted_;         // Признак того, что товар был удален
+	long   Flags_;           // @v10.4.11
+	short  NoDis;            // Запрет скидки на товар (> 0 - без скидки, 0 - со скидкой, -1 - со скидкой (признак "без скидки" был снят)
+	uint16 Reserve;          // @v10.4.11 @alignment
+	long   DivN;             // Номер отдела
+	PPID   LocPrnID;         // ->Ref(PPOBJ_LOCPRINTER)
+	char   LocPrnSymb[20];   // Символ локального принтера LocPrnID
+	PPID   AsscPosNodeID;    // Ассоциированный с товаром кассовый аппарат
+	char   AsscPosNodeSymb[20]; // Символ ассоциированного с товаров кассового аппарата
+	double VatRate;          // Ставка НДС
+	S_GUID Uuid;             // @v10.0.04 UUID товара, извлеченный из тега PPTAG_GOODS_UUID
+	RAssocArray QuotList;    // Список дополнительных котировок.
 		// Вызывающая функция заполняет поля Key идентификаторами видов котировок.
 		// AsyncCashGoodsIterator инициализирует поля Val массива соответствующими
 		// эффективными значениями котировок.
-	StringSet AddedMsgList; // @v7.0.0 Список дополнительных текстовых полей, составленный
-		// по правилам, определенным полем PPAsyncCashNode::AddedMsgSign.
-	SString LabelName;      // @v7.0.0 Наименование для ценника (этикетки и т.д.)
-		// Извлекается вызовом PPGoodsPacket::GetExtStrData(GDSEXSTR_LABELNAME, SString &)
+	StringSet AddedMsgList;  // Список дополнительных текстовых полей, составленный по правилам, определенным полем PPAsyncCashNode::AddedMsgSign.
+	SString LabelName;       // Наименование для ценника (этикетки и т.д.). Извлекается вызовом PPGoodsPacket::GetExtStrData(GDSEXSTR_LABELNAME, SString &)
 	const PPQuotArray  * P_QuotByQttyList; // @ownedby(AsyncCashGoodsIterator)
 	const BarcodeArray * P_CodeList;       // @v9.0.6 @ownedby(AsyncCashGoodsIterator)
 };

@@ -270,7 +270,6 @@ private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
 	PPObjSCard  ScObj;
-
 	PPPosProtocol Pp; // Ёкземпл€р PPPosProtocol создаваемый дл€ импорта сессий
 	PPPosProtocol::ProcessInputBlock * P_Pib;
 };
@@ -439,7 +438,6 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 	PPPosProtocol::WriteBlock wb;
 	PPObjQuotKind qk_obj;
 	PPObjGoods goods_obj;
-
 	PPAsyncCashNode cn_data;
 	THROW(CnObj.GetAsync(nodeID, &cn_data) > 0);
 	wb.LocID = cn_data.LocID; // @v9.6.7
@@ -513,7 +511,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 					// ≈диницы измерени€
 					//
 					const PPIDArray * p_unit_list = acgi.GetRefList(PPOBJ_UNIT);
-                    if(p_unit_list && p_unit_list->getCount()) {
+                    if(SVectorBase::GetCount(p_unit_list)) {
 						const PPID def_unit_id = GObj.GetConfig().DefUnitID;
 						PPIDArray unit_list(*p_unit_list);
 						uint i;
@@ -2449,7 +2447,7 @@ int PPPosProtocol::EndElement(const char * pName)
 						parent_ref_pos = PeekRefPos();
 						p_item = RdB.GetItem(parent_ref_pos, &type);
 						if(type == obSCard) {
-							((SCardBlock *)p_item)->SeriesBlkP = ref_pos;
+							static_cast<SCardBlock *>(p_item)->SeriesBlkP = ref_pos;
 						}
 					}
 				}
@@ -2459,7 +2457,7 @@ int PPPosProtocol::EndElement(const char * pName)
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
 				if(type == obSCard) {
-					((SCardBlock *)p_item)->OwnerBlkP = ref_pos;
+					static_cast<SCardBlock *>(p_item)->OwnerBlkP = ref_pos;
 				}
 				break;
 			case PPHS_PARENT:
@@ -2467,23 +2465,23 @@ int PPPosProtocol::EndElement(const char * pName)
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
 				if(type == obGoods) {
-					((GoodsBlock *)p_item)->ParentBlkP = ref_pos;
+					static_cast<GoodsBlock *>(p_item)->ParentBlkP = ref_pos;
 				}
 				else if(type == obGoodsGroup) {
-					((GoodsGroupBlock *)p_item)->ParentBlkP = ref_pos;
+					static_cast<GoodsGroupBlock *>(p_item)->ParentBlkP = ref_pos;
 				}
 				break;
 			case PPHS_TYPE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obPayment) {
 					if(RdB.TagValue.CmpNC("cash") == 0) {
-						((CcPaymentBlock *)p_item)->PaymType = CCAMTTYP_CASH;
+						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_CASH;
 					}
 					else if(RdB.TagValue.CmpNC("bank") == 0) {
-						((CcPaymentBlock *)p_item)->PaymType = CCAMTTYP_BANK;
+						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_BANK;
 					}
 					else if(RdB.TagValue.CmpNC("card") == 0) {
-						((CcPaymentBlock *)p_item)->PaymType = CCAMTTYP_CRDCARD;
+						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_CRDCARD;
 					}
 				}
 				break;
@@ -2493,10 +2491,10 @@ int PPPosProtocol::EndElement(const char * pName)
 					if(strtoperiod(RdB.TagValue, &period, 0)) {
 						p_item = PeekRefItem(&ref_pos, &type);
 						if(type == obQuotKind) {
-							((QuotKindBlock *)p_item)->Period = period;
+							static_cast<QuotKindBlock *>(p_item)->Period = period;
 						}
 						else if(type == obQuery) {
-							QueryBlock * p_blk = (QueryBlock *)p_item;
+							QueryBlock * p_blk = static_cast<QueryBlock *>(p_item);
 							p_blk->Period = period;
 							if(p_blk->Q == QueryBlock::qCSession) {
 								if(p_blk->CSess || !p_blk->Period.IsZero() || (p_blk->Flags & (QueryBlock::fCSessCurrent|QueryBlock::fCSessLast))) {
@@ -2516,14 +2514,14 @@ int PPPosProtocol::EndElement(const char * pName)
 						if(strtotime(RdB.TagValue, TIMF_HMS, &t)) {
 							p_item = PeekRefItem(&ref_pos, &type);
 							if(type == obQuotKind)
-								((QuotKindBlock *)p_item)->TimeRestriction.low = t;
+								static_cast<QuotKindBlock *>(p_item)->TimeRestriction.low = t;
 						}
 					}
 					else if(prev_tok == PPHS_AMOUNTRANGE) {
 						double v = RdB.TagValue.ToReal();
 						p_item = PeekRefItem(&ref_pos, &type);
 						if(type == obQuotKind)
-							((QuotKindBlock *)p_item)->AmountRestriction.low = v;
+							static_cast<QuotKindBlock *>(p_item)->AmountRestriction.low = v;
 					}
 				}
 				break;
@@ -2535,14 +2533,14 @@ int PPPosProtocol::EndElement(const char * pName)
 						if(strtotime(RdB.TagValue, TIMF_HMS, &t)) {
 							p_item = PeekRefItem(&ref_pos, &type);
 							if(type == obQuotKind)
-								((QuotKindBlock *)p_item)->TimeRestriction.upp = t;
+								static_cast<QuotKindBlock *>(p_item)->TimeRestriction.upp = t;
 						}
 					}
 					else if(prev_tok == PPHS_AMOUNTRANGE) {
 						double v = RdB.TagValue.ToReal();
 						p_item = PeekRefItem(&ref_pos, &type);
 						if(type == obQuotKind)
-							((QuotKindBlock *)p_item)->AmountRestriction.upp = v;
+							static_cast<QuotKindBlock *>(p_item)->AmountRestriction.upp = v;
 					}
 				}
 				break;
@@ -2551,21 +2549,21 @@ int PPPosProtocol::EndElement(const char * pName)
 					const long _val_id = RdB.TagValue.ToLong();
 					p_item = PeekRefItem(&ref_pos, &type);
 					switch(type) {
-						case obPosNode: ((PosNodeBlock *)p_item)->ID = _val_id; break;
-						case obGoods: ((GoodsBlock *)p_item)->ID = _val_id; break;
-						case obGoodsGroup: ((GoodsGroupBlock *)p_item)->ID = _val_id; break;
-						case obPerson: ((PersonBlock *)p_item)->ID = _val_id; break;
-						case obSCardSeries: ((SCardSeriesBlock *)p_item)->ID = _val_id; break;
-						case obSCard: ((SCardBlock *)p_item)->ID = _val_id; break;
-						case obParent: ((ParentBlock *)p_item)->ID = _val_id; break;
-						case obQuotKind: ((QuotKindBlock *)p_item)->ID = _val_id; break;
-						case obUnit: ((UnitBlock *)p_item)->ID = _val_id; break; // @v9.8.6
-						case obCSession: ((CSessionBlock *)p_item)->ID = _val_id; break;
-						case obCCheck: ((CCheckBlock *)p_item)->ID = _val_id; break;
-						case obCcLine: ((CcLineBlock *)p_item)->RByCheck = _val_id; break;
+						case obPosNode: static_cast<PosNodeBlock *>(p_item)->ID = _val_id; break;
+						case obGoods: static_cast<GoodsBlock *>(p_item)->ID = _val_id; break;
+						case obGoodsGroup: static_cast<GoodsGroupBlock *>(p_item)->ID = _val_id; break;
+						case obPerson: static_cast<PersonBlock *>(p_item)->ID = _val_id; break;
+						case obSCardSeries: static_cast<SCardSeriesBlock *>(p_item)->ID = _val_id; break;
+						case obSCard: static_cast<SCardBlock *>(p_item)->ID = _val_id; break;
+						case obParent: static_cast<ParentBlock *>(p_item)->ID = _val_id; break;
+						case obQuotKind: static_cast<QuotKindBlock *>(p_item)->ID = _val_id; break;
+						case obUnit: static_cast<UnitBlock *>(p_item)->ID = _val_id; break; // @v9.8.6
+						case obCSession: static_cast<CSessionBlock *>(p_item)->ID = _val_id; break;
+						case obCCheck: static_cast<CCheckBlock *>(p_item)->ID = _val_id; break;
+						case obCcLine: static_cast<CcLineBlock *>(p_item)->RByCheck = _val_id; break;
 						case obQuery:
 							{
-								QueryBlock * p_blk = (QueryBlock *)p_item;
+								QueryBlock * p_blk = static_cast<QueryBlock *>(p_item);
 								if(p_blk->Q == QueryBlock::qCSession) {
 									if(_val_id) {
 										if(p_blk->CSess || !p_blk->Period.IsZero() || (p_blk->Flags & (QueryBlock::fCSessCurrent|QueryBlock::fCSessLast))) {
@@ -2585,7 +2583,7 @@ int PPPosProtocol::EndElement(const char * pName)
 					const long _val_id = RdB.TagValue.ToLong();
 					p_item = PeekRefItem(&ref_pos, &type);
 					if(type == obGoods) {
-						((GoodsBlock *)p_item)->InnerId = _val_id;
+						static_cast<GoodsBlock *>(p_item)->InnerId = _val_id;
 					}
 				}
 				break;
@@ -2597,8 +2595,8 @@ int PPPosProtocol::EndElement(const char * pName)
 							{
 								PPQuot temp_q;
 								temp_q.GetValFromStr(RdB.TagValue);
-								((QuotBlock *)p_item)->Value = temp_q.Quot;
-								((QuotBlock *)p_item)->QuotFlags = temp_q.Flags;
+								static_cast<QuotBlock *>(p_item)->Value = temp_q.Quot;
+								static_cast<QuotBlock *>(p_item)->QuotFlags = temp_q.Flags;
 							}
 							break;
 					}
@@ -2610,7 +2608,7 @@ int PPPosProtocol::EndElement(const char * pName)
 					p_item = PeekRefItem(&ref_pos, &type);
 					switch(type) {
 						case obQuotKind:
-							((QuotKindBlock *)p_item)->Rank = (int16)_val_id;
+							static_cast<QuotKindBlock *>(p_item)->Rank = (int16)_val_id;
 							break;
 					}
 				}
@@ -2722,7 +2720,7 @@ int PPPosProtocol::EndElement(const char * pName)
 						break;
 					case obQuery:
 						{
-							QueryBlock * p_blk = (QueryBlock *)p_item;
+							QueryBlock * p_blk = static_cast<QueryBlock *>(p_item);
 							if(p_blk->Q == QueryBlock::qCSession) {
 								const long csess_n = RdB.TagValue.ToLong();
 								if(csess_n) {
