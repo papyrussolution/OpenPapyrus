@@ -2189,7 +2189,7 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 			}
 		}
 		else
-			to_fill_items = (CCheckItemArray &)P;
+			to_fill_items = static_cast<CCheckItemArray &>(P);
 		for(i = 0; to_fill_items.enumItems(&i, (void **)&p_item);) {
 			CCheckPacket * p_pack = (to_fill_ext_pack && BelongToExtCashNode(p_item->GoodsID)) ? pExtPack : pPack;
 			if(p_item->Flags & cifUsedByGift)
@@ -3297,7 +3297,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	showCtrl(STDCTL_SYSINFOBUTTON, !(Flags & fAsSelector));
 	showCtrl(STDCTL_OKBUTTON,  Flags & fAsSelector);
 	showCtrl(STDCTL_PRINT,    !(Flags & fAsSelector));
-	setCtrlOption(CTL_CHKPAN_INPUT, ofFramed, 1);
+	// @v10.4.12 setCtrlOption(CTL_CHKPAN_INPUT, ofFramed, 1);
 	setupHint();
 	SetupInfo(0);
 	if(!SetupStrListBox(this, CTL_CHKPAN_LIST) || !LoadCheck(P_ChkPack, 0))
@@ -4030,7 +4030,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				if(Flags & fPrinted && !(OperRightsFlags & orfChgPrintedCheck))
 					MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 				else {
-					int    r = -1; // r == 1000 - операция не возможна из-за несоблюдения какого-то условия //
+					int    r = -1; // r == 1000 - операция невозможна из-за несоблюдения какого-то условия //
 					char   code[128];
 					int    is_serial = 0; // !0 если code является подходящим серийным номером
 					double qtty = 1.0, price = 0.0;
@@ -4084,6 +4084,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						PgsBlock pgsb(qtty);
 						pgsb.PriceBySerial = price;
 						pgsb.Serial = is_serial ? code : 0;
+						// @v10.4.12 {
+						if(gcsb.Flags & gcsb.fCzCode && gcsb.RetSerial[0])
+							pgsb.CzSerial = gcsb.RetSerial;
+						// } @v10.4.12 
 						if(PreprocessGoodsSelection(goods_id, loc_id, /*&qtty, serial, &price*/pgsb) > 0)
 							SetupNewRow(goods_id, pgsb);
 					}
@@ -7693,8 +7697,6 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							crcc_arg = 1;
 						}
 						{
-							//CcAmountList ccal;
-							//SelPack.GetAmountList(0, ccal);
 							Rb.AmL = SelPack.AL();
 							Rb.SellCheckID = chk_pack.Rec.ID;
 							if(Rb.AmL.getCount()) {
@@ -10447,6 +10449,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						r_item.GoodsID = rgi.ID;
 						STRNSCPY(r_item.GoodsName, rgi.Name);
 						STRNSCPY(r_item.BarCode,   rgi.BarCode);
+						STRNSCPY(r_item.CzSerial, rBlk.CzSerial); // @v10.4.12
 						r_item.Quantity = R6(F(fRetCheck) ? -fabs(rBlk.Qtty) : fabs(rBlk.Qtty));
 						r_item.Price    = price;
 						r_item.Discount = 0.0;

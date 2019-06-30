@@ -76,8 +76,8 @@ SLAPI SCS_SYNCSYM::~SCS_SYNCSYM()
 {
 	if(PrinterDC) {
 		if(OldPrinterFont)
-			SelectObject(PrinterDC, OldPrinterFont);
-		DeleteDC(PrinterDC);
+			::SelectObject(PrinterDC, OldPrinterFont);
+		::DeleteDC(PrinterDC);
 	}
 }
 
@@ -151,7 +151,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			ok = 1;
 		}
 		else {
-			PrinterDC = CreateDC(_T("WINSPOOL\0"), SUcSwitch(PrinterPort), 0, 0); // @unicodeproblem
+			PrinterDC = ::CreateDC(_T("WINSPOOL\0"), SUcSwitch(PrinterPort), 0, 0); // @unicodeproblem
 			if(PrinterDC) {
 				const char * p_font_face = "Courier";
 				DOCINFO di;

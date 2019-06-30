@@ -310,7 +310,7 @@ int SLAPI WinRegKey::PutString(const char * pParam, const char * pBuf)
 	if(Key == 0)
 		return 0;
 	const  TCHAR * p_buf_to_store = SUcSwitch(pBuf);
-	DWORD  size_to_store = (sstrlen(pBuf) + 1) * sizeof(TCHAR);
+	DWORD  size_to_store = static_cast<DWORD>((sstrlen(pBuf) + 1) * sizeof(TCHAR));
 	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, reinterpret_cast<const BYTE *>(p_buf_to_store), size_to_store); // @v10.4.5 
 	// @v10.4.5 LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, (LPBYTE)pBuf, (DWORD)(sstrlen(pBuf) + 1));
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);

@@ -71,16 +71,13 @@ typedef struct {
 typedef struct {
 	uint32 NumPackStreams;
 	uint32 NumFolders;
-
 	uint64 * PackPositions;   // NumPackStreams + 1
 	CSzBitUi32s FolderCRCs;   // NumFolders
-
 	size_t * FoCodersOffsets; // NumFolders + 1
 	uint32 * FoStartPackStreamIndex; // NumFolders + 1
 	uint32 * FoToCoderUnpackSizes; // NumFolders + 1
 	Byte * FoToMainUnpackSizeIndex; // NumFolders
 	uint64 * CoderUnpackSizes; // for all coders in all folders
-
 	Byte * CodersData;
 } CSzAr;
 

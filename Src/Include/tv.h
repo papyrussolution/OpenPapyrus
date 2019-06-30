@@ -2109,11 +2109,11 @@ public:
 	~TLayout();
 	lay_id CreateItem();
 	//
-	// Descr: Вставляет newItemId последним элементом родительского объъекта parentId.
+	// Descr: Вставляет newItemId последним элементом родительского объекта parentId.
 	//
 	int    Insert(lay_id parentId, lay_id newItemId);
 	//
-	// Descr: Вставляет newItemId первым элементом родительского объъекта parentId.
+	// Descr: Вставляет newItemId первым элементом родительского объекта parentId.
 	//
 	int    Push(lay_id parentIdx, lay_id newItemIdx);
 	int    Append(lay_id earlierIdx, lay_id laterIdx);

@@ -782,6 +782,8 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 			serial.CopyTo(pItem->EgaisMark, sizeof(pItem->EgaisMark)); // @v9.2.9
 			GetLineTextExt(_pos, CCheckPacket::lnextRemoteProcessingTa, serial); // @v10.1.6
 			serial.CopyTo(pItem->RemoteProcessingTa, sizeof(pItem->RemoteProcessingTa)); // @v10.1.6
+			GetLineTextExt(_pos, CCheckPacket::lnextCzSerial, serial); // @v10.4.12
+			serial.CopyTo(pItem->CzSerial, sizeof(pItem->CzSerial)); // @v10.4.12
 			if(ExtList.lsearch(&_pos, &ep, CMPF_LONG)) {
 				const LineExt & r_le = ExtList.at(ep);
 				pItem->Queue = r_le.Queue;
@@ -1105,6 +1107,11 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextRemoteProcessingTa, rItem.RemoteProcessingTa));
 		}
 		// } @v10.1.6
+		// @v10.4.12 {
+		if(rItem.CzSerial[0]) {
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextCzSerial, rItem.CzSerial));
+		}
+		// } @v10.4.12 
 		{
 			LineExt le;
 			le.Queue = rItem.Queue;

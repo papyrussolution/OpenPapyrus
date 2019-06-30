@@ -560,6 +560,7 @@ int SLAPI XmlWriter::PutElement(const char * pName, const char * pValue)
 int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	int    check_dig = 0;
 	int    add_time_to_fname = 0;
 	int    use_new_dscnt_code_alg = 0;
@@ -569,6 +570,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	PPID   alc_cls_id = 0;
 	PPID   tobacco_cls_id = 0;
 	PPID   giftcard_cls_id = 0;
+	PPID   sr_prodtagb_tag = 0;
 	SString temp_buf;
 	SString path;
 	SString path_goods;
@@ -582,6 +584,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	BarcodeArray barcodes;
 	PPUnit    unit_rec;
 	PPObjUnit unit_obj;
+	PPObjTag  tag_obj;
 	PPGdsClsPacket gc_pack;
 	PPObjQuotKind  qk_obj;
 	PPObjGoodsClass obj_gdscls;
@@ -621,8 +624,15 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		PPLocationConfig loc_cfg;
 		PPObjLocation::ReadConfig(&loc_cfg);
 		if(loc_cfg.StoreIdxTagID)
-			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, cn_data.LocID, loc_cfg.StoreIdxTagID, store_index);
+			p_ref->Ot.GetTagStr(PPOBJ_LOCATION, cn_data.LocID, loc_cfg.StoreIdxTagID, store_index);
 	}
+	// @v10.4.12 {
+	{
+		PPID   temp_tag_id = 0;
+		if(tag_obj.FetchBySymb("setretail-prodtagb", &temp_tag_id) > 0)
+			sr_prodtagb_tag = temp_tag_id;
+	}
+	// } @v10.4.12 
 	rpe.Init(cn_data.LocID, 0, 0, ZERODATETIME, 0);
 	check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	THROW(DistributeFile(0, 3, SUBDIR_PRODUCTS));
@@ -711,9 +721,6 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			temp_buf.Z();
 			if(CConfig.Flags & CCFLG_DEBUG)
 				LogExportingGoodsItem(&prev_gds_info);
-			//
-			//
-			//
 			{
 				RetailExtrItem  rtl_ext_item;
 				rpe.GetPrice(prev_gds_info.ID, 0, 0.0, &rtl_ext_item);
@@ -765,6 +772,12 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 				p_writer->PutElement("product-type", "ProductPieceWeightEntity");
 			else
 				p_writer->PutElement("product-type", "ProductPieceEntity");
+			// @v10.4.12 {
+			if(sr_prodtagb_tag && p_ref->Ot.GetTagStr(PPOBJ_GOODS, prev_gds_info.ID, sr_prodtagb_tag, temp_buf) > 0) {
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				p_writer->PutElement(temp_buf, "true");
+			}
+			// } @v10.4.12 
 			long divn  = (cn_data.Flags & CASHF_EXPDIVN) ? prev_gds_info.DivN : 1;
 			p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price, SFMT_MONEY));
 			p_writer->PutElement("begin-date", beg_dtm);
@@ -878,7 +891,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					prev_gds_info.AddedMsgList.get(&ss_pos, ingred) && prev_gds_info.AddedMsgList.get(&ss_pos, storage) && prev_gds_info.AddedMsgList.get(&ss_pos, energy);
 				}
 				// @v9.1.3 (перенесено наверх) p_writer->PutPlugin("precision", prev_gds_info.Precision);
-				if(expiry != ZERODATE) {
+				if(checkdate(expiry)) {
 					long   hours = diffdate(expiry, beg_dtm.d) * 24;
 					p_writer->PutPlugin("good-for-hours", hours);
 					// p_writer->PutPlugin("best-before", expiry);
@@ -1098,18 +1111,14 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 							}
 							p_writer->AddAttrib("status", 0L);
 							if(info.Rec.PersonID != 0) {
+								ObjTagItem tag_item;
+								LDATE   dob = ZERODATE;
 								p_writer->StartElement("client");
 									p_writer->AddAttrib("deleted", false);
 									p_writer->AddAttrib("guid", info.Rec.PersonID);
 									p_writer->AddAttrib("last-name", info.PsnName); // @v9.3.2 lastName-->last-name
-									{
-										ObjTagItem tag_item;
-										if(PPRef->Ot.GetTag(PPOBJ_PERSON, info.Rec.PersonID, PPTAG_PERSON_DOB, &tag_item) > 0) {
-											LDATE   dob = ZERODATE;
-											if(tag_item.GetDate(&dob) && checkdate(dob))
-												p_writer->AddAttrib("birth-date", info.PsnName);
-										}
-									}
+									if(p_ref->Ot.GetTag(PPOBJ_PERSON, info.Rec.PersonID, PPTAG_PERSON_DOB, &tag_item) > 0 && tag_item.GetDate(&dob) && checkdate(dob))
+										p_writer->AddAttrib("birth-date", info.PsnName);
 								p_writer->EndElement();
 							}
 						p_writer->EndElement();

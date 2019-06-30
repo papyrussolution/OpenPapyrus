@@ -15,7 +15,7 @@
 //
 // 46 bytes
 //
-SLAPI ChestnyZnakCodeStruc::ChestnyZnakCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), TailP(0)
+SLAPI ChestnyZnakCodeStruc::ChestnyZnakCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), SkuP(0), TailP(0)
 {
 }
 	
@@ -25,6 +25,7 @@ ChestnyZnakCodeStruc & SLAPI ChestnyZnakCodeStruc::Z()
 	GtinP = 0;
 	SerialPrefixP = 0;
 	SerialP = 0;
+	SkuP = 0;
 	TailP = 0;
 	ClearS();
 	return *this;
@@ -37,6 +38,24 @@ int SLAPI ChestnyZnakCodeStruc::Parse(const char * pRawCode)
 	const size_t raw_len = sstrlen(pRawCode);
 	if(raw_len >= 25) {
 		SString temp_buf;
+		SString raw_buf;
+		{
+			for(size_t i = 0; i < raw_len; i++) {
+				const char c = pRawCode[i];
+				if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z') && !oneof4(c, '=', '/', '+', '-')) {
+					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
+					KeyDownCommand kd;
+					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // Попытка транслировать латинский символ из локальной раскладки клавиатуры
+					if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z'))
+						raw_buf.CatChar((char)tc);
+					else
+						raw_buf.CatChar(c);
+				}
+				else 
+					raw_buf.CatChar(c);
+			}
+		}
+		pRawCode = raw_buf.cptr();
 		size_t p = 0;
 		temp_buf.Z().CatN(pRawCode+p, 2);
 		p += 2;
@@ -52,8 +71,14 @@ int SLAPI ChestnyZnakCodeStruc::Parse(const char * pRawCode)
 			p += 2;
 			AddS(temp_buf, &SerialPrefixP);
 			if(temp_buf == "21") {
-				temp_buf.Z().CatN(pRawCode+p, 7);
+				temp_buf.Z();
+				while(pRawCode[p] && strncmp(pRawCode+p, "240", 3) != 0) {
+					temp_buf.CatChar(pRawCode[p++]);
+				}
 				AddS(temp_buf, &SerialP);
+				/*if(strncmp(pRawCode, "240", 3) == 0) {
+
+				}*/
 				temp_buf.Z().Cat(pRawCode+p);
 				AddS(temp_buf, &TailP);
 				ok = 1;

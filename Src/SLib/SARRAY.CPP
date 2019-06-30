@@ -3835,7 +3835,7 @@ int FASTCALL STree::SetupIter(Iter & rIter, uint32 currP) const
 int FASTCALL STree::Enum(Iter & rIter) const
 {
 	int    ok = 0;
-	Item_ * p_item = 0;
+	const  Item_ * p_item = 0;
 	if(rIter.Flags & Iter::fFirstIter) {
 		rIter.Flags &= ~Iter::fFirstIter;
 		Item_ & r_par = TreeList.at(rIter.ParentP);
@@ -3854,7 +3854,7 @@ int FASTCALL STree::Enum(Iter & rIter) const
 		// @todo Этот цикл можно обойти если на этапе перебора элементов (@1) запомнить первый
 		// элемент, имеющий потомков.
 		//
-		Item_ & r_par = TreeList.at(rIter.ParentP);
+		const Item_ & r_par = TreeList.at(rIter.ParentP);
 		if(r_par.FirstChildP) {
 			p_item = &TreeList.at(p = r_par.FirstChildP);
 			while(p_item && !p_item->FirstChildP)
@@ -3984,6 +3984,64 @@ int STree::InsertBefore(const void * pData, uint32 nextP, uint32 * pPos)
 		TreeList.at(node_pos).NextP = nextP;
 	}
 	ASSIGN_PTR(pPos, node_pos);
+	CATCHZOK
+	return ok;
+}
+
+int STree::UpdateNodeParent(uint32 nodeP, uint32 parentP)
+{
+	int    ok = 1;
+	THROW(nodeP < TreeList.getCount());
+	THROW(parentP < TreeList.getCount());
+	{
+		Item_ & r_node = TreeList.at(nodeP);
+		if(r_node.ParentP != parentP) {
+			assert(r_node.ParentP < TreeList.getCount());
+			Item_ & r_old_parent = TreeList.at(r_node.ParentP);
+			Item_ & r_new_parent = TreeList.at(parentP);
+			const uint next_p = r_node.NextP;
+			if(r_node.PrevP) {
+				assert(r_old_parent.FirstChildP != nodeP);
+				Item_ & r_prev = TreeList.at(r_node.PrevP);
+				assert(r_prev.NextP == nodeP);
+				r_prev.NextP = next_p;
+				if(next_p) {
+					Item_ & r_next = TreeList.at(next_p);
+					assert(r_next.PrevP == nodeP);
+					r_next.PrevP = r_node.PrevP;
+					r_node.NextP = 0;
+				}
+				r_node.PrevP = 0;
+			}
+			else {
+				assert(r_old_parent.FirstChildP == nodeP);
+				if(next_p) {
+					Item_ & r_next = TreeList.at(next_p);
+					assert(r_next.PrevP == nodeP);
+					r_next.PrevP = 0;
+					r_old_parent.FirstChildP = next_p;
+					r_node.NextP = 0;
+				}
+			}
+			if(!r_new_parent.FirstChildP) {
+				r_new_parent.FirstChildP = nodeP;
+				r_node.NextP = 0;
+				r_node.PrevP = 0;
+			}
+			else {
+				uint last_p = r_new_parent.FirstChildP;
+				Item_ * p_iter = &TreeList.at(last_p);
+				while(p_iter->NextP) {
+					last_p = p_iter->NextP;
+					p_iter = &TreeList.at(last_p);
+				}
+				r_node.PrevP = last_p;
+				p_iter->NextP = nodeP;
+			}
+		}
+		else
+			ok = -1;
+	}
 	CATCHZOK
 	return ok;
 }

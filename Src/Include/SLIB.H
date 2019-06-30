@@ -7813,12 +7813,22 @@ public:
 	STree & Clear();
 	int    Insert(const void * pData, uint32 parentP, uint32 * pSvcPos);
 	int    InsertBefore(const void * pData, uint32 prevP, uint32 * pSvcPos);
+	int    UpdateNodeParent(uint32 nodeP, uint32 parentP);
 	int    Delete(uint32 svcPos);
 	int    Sort(CompFunc fcmp, long extraData = 0);
 	uint32 FASTCALL GetFirstChildP(uint32 itemP) const;
 	int    HasChildren(uint32 itemP) const;
 	int    Search(const void * pKey, uint32 * pIdx, CompFunc fcmp, size_t ofs = 0, void * pExtraData = 0) const;
 	int    Search(const void * pKey, Iter & rIter, CompFunc fcmp, size_t ofs = 0, void * pExtraData = 0) const;
+	//
+	// Descr: Функция обхода дерева. Реализует поиск в глубину. То есть, начиная с вершины, обходит все узлы дерева
+	//   с текущим родителем, не имеющие потомков, пока не встретит тот, у которого потомки есть. Тогда спускается
+	//   вниз, повторяя предыдущий сценарий. Когда все узлы потомков посещены, возвращается назад и продолжает
+	//   движение.
+	// Returns:
+	//   >0 - получен очередной узел дерева
+	//    0 - обход завершен
+	//
 	int    FASTCALL Enum(Iter & rIter) const;
 	//
 	// Descr: Возвращает указатель на блок данных, соответствующих позиции узла pos.

@@ -1675,32 +1675,54 @@ int TWhatman::CalcRule(double ptPerInch, Rule & rRule) const
 	return 1;
 }
 
+struct LocalLoEntry {
+	LocalLoEntry(const WhatmanObjectLayoutBase * pLo) : Flags(fIsLayout), P_Lo(pLo), P_ParentLo(0), LayId(static_cast<lay_id>(-1))
+	{
+		if(pLo) {
+			STRNSCPY(LoSymb, pLo->GetLayoutContainerIdent());
+		}
+		else {
+			PTR32(LoSymb)[0] = 0;
+		}
+		PTR32(ParentLoSymb)[0] = 0;
+	}
+	LocalLoEntry(const TWhatmanObject * pObj) : Flags(0), P_Obj(pObj), P_ParentLo(0), LayId(static_cast<lay_id>(-1))
+	{
+		PTR32(LoSymb)[0] = 0;
+		PTR32(ParentLoSymb)[0] = 0;
+	}
+	enum {
+		fIsLayout    = 0x0001,
+		fHasChildren = 0x0002
+	};
+	int    Flags;
+	lay_id LayId;
+	union {
+		const TWhatmanObject * P_Obj;
+		const WhatmanObjectLayoutBase * P_Lo;
+	};
+	const  WhatmanObjectLayoutBase * P_ParentLo;
+	char   LoSymb[64];
+	char   ParentLoSymb[64];
+};
+
+static IMPL_CMPFUNC(LocalLoEntry_LoSymb, p1, p2)
+{
+	const LocalLoEntry * p_entry1 = static_cast<const LocalLoEntry *>(p1);
+	const LocalLoEntry * p_entry2 = static_cast<const LocalLoEntry *>(p2);
+	return strcmp(p_entry1->LoSymb, p_entry2->LoSymb);
+}
+
 int TWhatman::ProcessLayouts()
 {
 	int    ok = -1;
-	struct LocalLoEntry {
-		LocalLoEntry(const WhatmanObjectLayoutBase * pLo) : Flags(fIsLayout), P_Lo(pLo), P_ParentLo(0)
-		{
-			PTR32(ParentLoSymb)[0] = 0;
-		}
-		LocalLoEntry(const TWhatmanObject * pObj) : Flags(0), P_Obj(pObj), P_ParentLo(0)
-		{
-			PTR32(ParentLoSymb)[0] = 0;
-		}
-		enum {
-			fIsLayout    = 0x0001,
-			fHasChildren = 0x0002
-		};
-		int    Flags;
-		union {
-			const TWhatmanObject * P_Obj;
-			const WhatmanObjectLayoutBase * P_Lo;
-		};
-		const  WhatmanObjectLayoutBase * P_ParentLo;
-		char   ParentLoSymb[64];
-	};
-	SArray layout_list(sizeof(LocalLoEntry));
 	{
+		struct ObjTreeAssocEntry {
+			const TWhatmanObject * P_Obj;
+			uint32 TreeP;
+		};
+		SVector obj_tree_assoc(sizeof(ObjTreeAssocEntry));
+		STree layout_tree(sizeof(LocalLoEntry));
 		for(uint i = 0; i < ObjList.getCount(); i++) {
 			const TWhatmanObject * p_iter_obj = ObjList.at(i);
 			if(p_iter_obj) {
@@ -1708,38 +1730,137 @@ int TWhatman::ProcessLayouts()
 					const WhatmanObjectLayoutBase * p_iter_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(p_iter_obj);
 					LocalLoEntry entry(p_iter_layout_obj);
 					STRNSCPY(entry.ParentLoSymb, p_iter_obj->GetLayoutContainerIdent());
-					layout_list.insert(&entry);
+					uint32 np = 0;
+					THROW(layout_tree.Insert(&entry, 0/*parent*/, &np));
+					{
+						ObjTreeAssocEntry ae;
+						ae.P_Obj = p_iter_obj;
+						ae.TreeP = np;
+						obj_tree_assoc.insert(&ae);
+					}
+					//layout_list.insert(&entry);
 					//p_iter_layout_obj->GetContainerIdent()
 				}
 				else if(p_iter_obj->GetLayoutContainerIdent().NotEmpty()) {
 					LocalLoEntry entry(p_iter_obj);
 					STRNSCPY(entry.ParentLoSymb, p_iter_obj->GetLayoutContainerIdent());
-					layout_list.insert(&entry);
+					uint32 np = 0;
+					THROW(layout_tree.Insert(&entry, 0/*parent*/, &np));
+					{
+						ObjTreeAssocEntry ae;
+						ae.P_Obj = p_iter_obj;
+						ae.TreeP = np;
+						obj_tree_assoc.insert(&ae);
+					}
+					//layout_list.insert(&entry);
 				}
 			}
 		}
-	}
-	if(layout_list.getCount()) {
-		for(uint i = 0; i < layout_list.getCount(); i++) {
-			LocalLoEntry * p_entry = static_cast<LocalLoEntry *>(layout_list.at(i));
-			if(!p_entry->P_ParentLo && p_entry->ParentLoSymb[0]) {
-				for(uint j = 0; !p_entry->P_ParentLo && j < layout_list.getCount(); j++) {
-					LocalLoEntry * p_lo_entry = static_cast<LocalLoEntry *>(layout_list.at(j));
-					if((p_lo_entry->Flags & LocalLoEntry::fIsLayout) && p_lo_entry->P_Lo->GetContainerIdent().IsEqual(p_entry->ParentLoSymb)) {
-						p_entry->P_ParentLo = p_lo_entry->P_Lo;
-						p_lo_entry->Flags |= LocalLoEntry::fHasChildren;
+		for(int stop_iter = 0; !stop_iter;) {
+			stop_iter = 1;
+			for(STree::Iter iter; layout_tree.Enum(iter) > 0;) {
+				LocalLoEntry * p_entry = static_cast<LocalLoEntry *>(iter.GetData());
+				if(p_entry->ParentLoSymb[0]) {
+					LocalLoEntry key(static_cast<const WhatmanObjectLayoutBase *>(0));
+					STRNSCPY(key.LoSymb, p_entry->ParentLoSymb);
+					uint32 parent_p = 0;
+					if(layout_tree.Search(&key, &parent_p, PTR_CMPFUNC(LocalLoEntry_LoSymb))) {
+						if(layout_tree.UpdateNodeParent(iter.GetCurrentPos(), parent_p) > 0) {
+							//
+							// Мы нашли правильного родителя для элемента iter и успешно переместили его в дереве.
+							// Теперь нам надо выпрыгнуть из цикла перебора и начать все снова, поскольку
+							// итератор может запутаться из-за внесенных изменений.
+							//
+							stop_iter = 0;
+							break;
+						}
+					}
+					else {
+						//
+						// Родительский элемент по символу не идентифицирован - выбрасываем объект из layout-дерева 
+						// После этого необходимо выскочить из цикла итератора и возобновить перебор из-за риска 
+						// нарушения работы итератора после модификации дерева.
+						//
+						layout_tree.Delete(iter.GetCurrentPos());
+						stop_iter = 0;
+						break;
 					}
 				}
 			}
 		}
-		uint lidx = layout_list.getCount();
-		if(lidx) do {
-			LocalLoEntry * p_entry = static_cast<LocalLoEntry *>(layout_list.at(--lidx));
-			if(!p_entry->P_ParentLo && !(p_entry->Flags & LocalLoEntry::fIsLayout)) {
-				layout_list.atFree(lidx);
+		{
+			//
+			// Дерево готово. Теперь по этому дереву строим TLayout
+			//
+			TLayout layout;
+			LocalLoEntry * p_root_entry = 0;
+			for(STree::Iter iter; layout_tree.Enum(iter) > 0;) {
+				LocalLoEntry * p_entry = static_cast<LocalLoEntry *>(iter.GetData());
+				//assert((p_entry->Flags & LocalLoEntry::fIsLayout) || iter.)
+				assert(p_entry->LayId == static_cast<lay_id>(-1));
+				p_entry->LayId = layout.CreateItem();
+				const uint32 parent_p = iter.GetParentPos();
+				LocalLoEntry * p_parent_entry = parent_p ? static_cast<LocalLoEntry *>(layout_tree.GetData(parent_p)) : 0;
+				assert(!p_parent_entry || (p_parent_entry->LayId >= 0 && p_parent_entry->Flags & LocalLoEntry::fIsLayout));
+				if(p_parent_entry) {
+					layout.Insert(p_parent_entry->LayId, p_entry->LayId);
+				}
+				else {
+					assert(p_root_entry == 0);
+					p_root_entry = p_entry;
+				}
+				if(p_entry->Flags & LocalLoEntry::fIsLayout) {
+										
+
+				}
 			}
-		} while(lidx);
+		}
 	}
+	{
+		SArray layout_list(sizeof(LocalLoEntry));
+		{
+			for(uint i = 0; i < ObjList.getCount(); i++) {
+				const TWhatmanObject * p_iter_obj = ObjList.at(i);
+				if(p_iter_obj) {
+					if(p_iter_obj->Symb.IsEqiAscii("Layout")) {
+						const WhatmanObjectLayoutBase * p_iter_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(p_iter_obj);
+						LocalLoEntry entry(p_iter_layout_obj);
+						STRNSCPY(entry.ParentLoSymb, p_iter_obj->GetLayoutContainerIdent());
+						layout_list.insert(&entry);
+						//p_iter_layout_obj->GetContainerIdent()
+					}
+					else if(p_iter_obj->GetLayoutContainerIdent().NotEmpty()) {
+						LocalLoEntry entry(p_iter_obj);
+						STRNSCPY(entry.ParentLoSymb, p_iter_obj->GetLayoutContainerIdent());
+						layout_list.insert(&entry);
+					}
+				}
+			}
+		}
+		if(layout_list.getCount()) {
+			TLayout layout;
+			for(uint i = 0; i < layout_list.getCount(); i++) {
+				LocalLoEntry * p_entry = static_cast<LocalLoEntry *>(layout_list.at(i));
+				if(!p_entry->P_ParentLo && p_entry->ParentLoSymb[0]) {
+					for(uint j = 0; !p_entry->P_ParentLo && j < layout_list.getCount(); j++) {
+						LocalLoEntry * p_lo_entry = static_cast<LocalLoEntry *>(layout_list.at(j));
+						if((p_lo_entry->Flags & LocalLoEntry::fIsLayout) && p_lo_entry->P_Lo->GetContainerIdent().IsEqual(p_entry->ParentLoSymb)) {
+							p_entry->P_ParentLo = p_lo_entry->P_Lo;
+							p_lo_entry->Flags |= LocalLoEntry::fHasChildren;
+						}
+					}
+				}
+			}
+			uint lidx = layout_list.getCount();
+			if(lidx) do {
+				LocalLoEntry * p_entry = static_cast<LocalLoEntry *>(layout_list.at(--lidx));
+				if(!p_entry->P_ParentLo && !(p_entry->Flags & LocalLoEntry::fIsLayout)) {
+					layout_list.atFree(lidx);
+				}
+			} while(lidx);
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 //
