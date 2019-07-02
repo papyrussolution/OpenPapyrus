@@ -433,8 +433,10 @@ static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
 
 SLAPI GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0)
 {
-	Code[0] = 0;
-	RetCode[0] = 0;
+	PTR32(Code)[0] = 0;
+	PTR32(RetCode)[0] = 0;
+	PTR32(CzGtin)[0] = 0;
+	PTR32(CzSerial)[0] = 0;
 	MEMSZERO(Rec);
 }
 
@@ -619,8 +621,10 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 					pBlk->Rec = goods_rec;
 					pBlk->Flags |= GoodsCodeSrchBlock::fCzCode;
 					strnzcpy(pBlk->RetCode, bcr.Code, 16);
+					czcs.GetS(czcs.GtinP, temp_buf);
+					STRNSCPY(pBlk->CzGtin, temp_buf);
 					czcs.GetS(czcs.SerialP, temp_buf);
-					STRNSCPY(pBlk->RetSerial, temp_buf);
+					STRNSCPY(pBlk->CzSerial, temp_buf);
 					ok = 1;
 				}
 			}

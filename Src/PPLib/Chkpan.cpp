@@ -4085,8 +4085,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						pgsb.PriceBySerial = price;
 						pgsb.Serial = is_serial ? code : 0;
 						// @v10.4.12 {
-						if(gcsb.Flags & gcsb.fCzCode && gcsb.RetSerial[0])
-							pgsb.CzSerial = gcsb.RetSerial;
+						if(gcsb.Flags & gcsb.fCzCode) {
+							if(gcsb.CzSerial[0])
+								pgsb.CzSerial = gcsb.CzSerial;
+						}
 						// } @v10.4.12 
 						if(PreprocessGoodsSelection(goods_id, loc_id, /*&qtty, serial, &price*/pgsb) > 0)
 							SetupNewRow(goods_id, pgsb);

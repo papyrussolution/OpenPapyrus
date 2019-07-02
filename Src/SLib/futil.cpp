@@ -37,21 +37,19 @@ int SLAPI pathToUNC(const char * pPath, SString & rUncPath)
 		char   namebuf[MAXPATH + sizeof(UNIVERSAL_NAME_INFO)];
 		namebuf[0] = 0;
 		DWORD  len = MAXPATH;
-		DWORD  wstat = WNetGetUniversalName(SUcSwitch(pPath), UNIVERSAL_NAME_INFO_LEVEL, &namebuf, &len); // @unicodeproblem
+		DWORD  wstat = WNetGetUniversalName(SUcSwitch(pPath), UNIVERSAL_NAME_INFO_LEVEL, &namebuf, &len);
 		if(wstat != NO_ERROR)
 			ok = (SLibError = SLERR_INVPATH, 0);
 		else
-			rUncPath = SUcSwitch(reinterpret_cast<UNIVERSAL_NAME_INFO *>(&namebuf)->lpUniversalName); // @unicodeproblem
+			rUncPath = SUcSwitch(reinterpret_cast<UNIVERSAL_NAME_INFO *>(&namebuf)->lpUniversalName);
 	}
 	return ok;
 }
 
 static int Win_IsFileExists(const char * pFileName)
 {
-	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), 0 /* query access only */,
-		FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE /* share mode */,
-		NULL /*security attributes*/, OPEN_EXISTING /*disposition*/,
-		FILE_FLAG_NO_BUFFERING|FILE_FLAG_SEQUENTIAL_SCAN /* flags & attributes */, NULL /* template file */); // @unicodeproblem
+	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), 0/* query access only */, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE/* share mode */,
+		NULL/*security attributes*/, OPEN_EXISTING/*disposition*/, FILE_FLAG_NO_BUFFERING|FILE_FLAG_SEQUENTIAL_SCAN/* flags & attributes */, NULL/* template file */);
 	if(handle != INVALID_HANDLE_VALUE) {
 		::CloseHandle(handle);
 		return 1;
@@ -119,7 +117,7 @@ int SLAPI driveValid(const char * pPath)
 	int    ok = 0;
 	char   dname[4]="X:\\";
 	dname[0] = *pPath;
-	uint t = GetDriveType(SUcSwitch(dname)); // @unicodeproblem
+	uint t = GetDriveType(SUcSwitch(dname));
 	if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
 		ok = 1;
 	else if(pPath[0] == '\\' && pPath[1] == '\\') {
@@ -129,7 +127,7 @@ int SLAPI driveValid(const char * pPath)
 		if(p) {
 			*p = 0;
 			setLastSlash(buf);
-			ok = GetVolumeInformation(SUcSwitch(buf), 0, 0, 0, 0, 0, 0, 0); // @unicodeproblem
+			ok = GetVolumeInformation(SUcSwitch(buf), 0, 0, 0, 0, 0, 0, 0);
 		}
 	}
 	return ok;
@@ -144,7 +142,7 @@ int FASTCALL IsDirectory(const char * pStr)
 #ifdef __WIN32__
 		WIN32_FIND_DATA fd;
 		MEMSZERO(fd);
-		HANDLE h = FindFirstFile(SUcSwitch(pStr), &fd); // @unicodeproblem
+		HANDLE h = FindFirstFile(SUcSwitch(pStr), &fd);
 		if(h != INVALID_HANDLE_VALUE) {
 			if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				yes = 1;
@@ -153,7 +151,7 @@ int FASTCALL IsDirectory(const char * pStr)
 		else {
 			SString temp_buf;
 			(temp_buf = pStr).Strip().SetLastSlash().CatChar('*');
-			h = FindFirstFile(SUcSwitch(temp_buf), &fd); // @unicodeproblem
+			h = FindFirstFile(SUcSwitch(temp_buf), &fd);
 			if(h != INVALID_HANDLE_VALUE) {
 				yes = 1;
 				FindClose(h);
@@ -203,7 +201,7 @@ static char * SLAPI fexpand(char * rpath)
 #ifdef __WIN32__
 	TCHAR * fn = 0;
 	TCHAR  buf[MAXPATH];
-	::GetFullPathName(SUcSwitch(rpath), MAXPATH, buf, &fn); // @unicodeproblem
+	::GetFullPathName(SUcSwitch(rpath), SIZEOFARRAY(buf), buf, &fn);
 	return strcpy(rpath, SUcSwitch(buf));
 #else
 	char path[MAXPATH];
@@ -645,7 +643,7 @@ int SFileUtil::GetStat(const char * pFileName, Stat * pStat)
 #ifdef __WIN32__
 	LARGE_INTEGER size;
 	HANDLE srchdl = ::CreateFile(SUcSwitch(pFileName), FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, 
-		FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
+		FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); 
 	SLS.SetAddedMsgString(pFileName);
 	THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	SFile::GetTime((int)srchdl, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);
@@ -667,7 +665,7 @@ int SFileUtil::GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail)
 	SString path;
 	SPathStruc ps(pPath);
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
-	if(GetDiskFreeSpaceEx(SUcSwitch(path), &avail, &total, &total_free)) { // @unicodeproblem
+	if(GetDiskFreeSpaceEx(SUcSwitch(path), &avail, &total, &total_free)) {
 		ASSIGN_PTR(pTotal, total.QuadPart);
 		ASSIGN_PTR(pAvail, avail.QuadPart);
 	}

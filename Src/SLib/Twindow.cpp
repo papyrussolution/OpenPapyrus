@@ -44,7 +44,7 @@ int TMenuPopup::Add(const char * pText, int cmd)
 		}
 		UINT flags = MF_STRING|MF_ENABLED;
 		SETFLAG(flags, MF_SEPARATOR, BIN(cmd == TV_MENUSEPARATOR));
-		ok = BIN(::AppendMenu(static_cast<HMENU>(H), flags, (cmd == TV_MENUSEPARATOR) ? 0 : cmd, SUcSwitch(pText))); // @unicodeproblem
+		ok = BIN(::AppendMenu(static_cast<HMENU>(H), flags, (cmd == TV_MENUSEPARATOR) ? 0 : cmd, SUcSwitch(pText)));
 		if(ok)
 			Count++;
 		State &= ~MPST_PREVSEPARATOR;
@@ -1080,11 +1080,10 @@ int SRectLayout::Arrange()
 //
 //
 //
-TScrollBlock::TScrollBlock()
+TScrollBlock::TScrollBlock() : ScX(0), ScY(0)
 {
 	Rx = 0;
 	Ry = 0;
-	ScX = ScY = 0;
 }
 
 int TScrollBlock::Set(int x, int y)
@@ -1118,20 +1117,12 @@ int TScrollBlock::Move(int side, int delta)
 	const int prev_sc_x = ScX;
 	const int prev_sc_y = ScY;
 	switch(side) {
-		case SIDE_LEFT:
-			ScX = MAX(Rx.low, (ScX-delta));
-			break;
-		case SIDE_RIGHT:
-			ScX = MIN(Rx.upp, (ScX+delta));
-			break;
-		case SIDE_TOP:
-			ScY = MAX(Ry.low, (ScY-delta));
-			break;
-		case SIDE_BOTTOM:
-			ScY = MIN(Ry.upp, (ScY+delta));
-			break;
-		default:
-			ok = 0;
+		case SIDE_LEFT:   ScX = MAX(Rx.low, (ScX-delta)); break;
+		case SIDE_RIGHT:  ScX = MIN(Rx.upp, (ScX+delta)); break;
+		case SIDE_TOP:    ScY = MAX(Ry.low, (ScY-delta)); break;
+		case SIDE_BOTTOM: ScY = MIN(Ry.upp, (ScY+delta)); break;
+		default: 
+			ok = 0; 
 			break;
 	}
 	return (ok && (prev_sc_x != ScX || prev_sc_y != ScY)) ? 1 : ok;
@@ -1158,7 +1149,6 @@ int TScrollBlock::SetupWindow(HWND hWnd) const
 //
 //
 //static
-//const char * TWindowBase::P_ClsName = "SLibWindowBase";
 static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 
 //static
@@ -1166,17 +1156,17 @@ int TWindowBase::RegWindowClass(int iconId)
 {
 	WNDCLASSEX wc;
 	const HINSTANCE h_inst = TProgram::GetInst();
-	if(!::GetClassInfoEx(h_inst, /*TWindowBase::P_ClsName*/P_SLibWindowBaseClsName, &wc)) { // @unicodeproblem
+	if(!::GetClassInfoEx(h_inst, P_SLibWindowBaseClsName, &wc)) {
 		MEMSZERO(wc);
 		wc.cbSize        = sizeof(wc);
-		wc.lpszClassName = /*TWindowBase::P_ClsName*/P_SLibWindowBaseClsName; // @unicodeproblem
+		wc.lpszClassName = P_SLibWindowBaseClsName;
 		wc.hInstance     = h_inst;
 		wc.lpfnWndProc   = TWindowBase::WndProc;
 		wc.style         = /*CS_HREDRAW | CS_VREDRAW |*/ /*CS_OWNDC |*/ CS_SAVEBITS | CS_DBLCLKS;
 		wc.hIcon         = iconId ? LoadIcon(h_inst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ /*102*/iconId)) : 0;
 		wc.cbClsExtra    = BRWCLASS_CEXTRA;
 		wc.cbWndExtra    = BRWCLASS_WEXTRA;
-		return ::RegisterClassEx(&wc); // @unicodeproblem
+		return ::RegisterClassEx(&wc);
 	}
 	else
 		return -1;
@@ -1448,8 +1438,8 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					cr_blk.ExStyle = 0;
 					cr_blk.H_Parent = 0;
 					cr_blk.H_Menu = 0;
-					cr_blk.P_WndCls = SUcSwitch(p_mdi_init_data->szClass); // @unicodeproblem
-					cr_blk.P_Title = SUcSwitch(p_mdi_init_data->szTitle); // @unicodeproblem
+					cr_blk.P_WndCls = SUcSwitch(p_mdi_init_data->szClass);
+					cr_blk.P_Title = SUcSwitch(p_mdi_init_data->szTitle);
 				}
 				else {
 					p_view = static_cast<TWindowBase *>(p_init_data->lpCreateParams);
@@ -1462,8 +1452,8 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					cr_blk.ExStyle = p_init_data->dwExStyle;
 					cr_blk.H_Parent = p_init_data->hwndParent;
 					cr_blk.H_Menu = p_init_data->hMenu;
-					cr_blk.P_WndCls = SUcSwitch(p_init_data->lpszClass); // @unicodeproblem
-					cr_blk.P_Title = SUcSwitch(p_init_data->lpszName); // @unicodeproblem
+					cr_blk.P_WndCls = SUcSwitch(p_init_data->lpszClass);
+					cr_blk.P_Title = SUcSwitch(p_init_data->lpszName);
 				}
 				if(p_view) {
 					p_view->HW = hWnd;

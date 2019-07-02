@@ -13613,7 +13613,8 @@ struct CCheckItem { // @transient
 	char   BarCode[24];     // @v8.8.0 [16]-->[24]
 	char   GoodsName[128];  //
 	char   Serial[32];      // @v10.2.10 [24]-->[32]
-	char   CzSerial[16];    // @v10.4.11 Серийный номер маркировки Честный Знак. 
+	char   CzGtin[16];      // @v10.4.12 Gtin код товара, считанный из марки Честный Знак
+	char   CzSerial[24];    // @v10.4.11 Серийный номер маркировки Честный Знак. 
 	char   EgaisMark[156];  // @v9.0.9 Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
 	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
 };
@@ -13750,6 +13751,7 @@ public:
 		lnextRemoteProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
 			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
 		lnextCzSerial           = 4, // @v10.4.12 Серийный номер Честный Знак  
+		lnextCzGtin             = 5, // @v10.4.12 GTIN считанный из кода Честный Знак
 	};
 	//
 	// Двум следующим классам необходим открытый доступ к полям Items_ и SerialList
@@ -26751,7 +26753,8 @@ struct GoodsCodeSrchBlock {
 	};
 	char   Code[128];      // IN CONST
 	char   RetCode[32];    // OUT
-	char   RetSerial[32];  // OUT @v10.4.11
+	char   CzGtin[32];     // OUT @v10.4.12
+	char   CzSerial[32];   // OUT @v10.4.11
 	PPID   ArID;           // IN CONST
 	long   Flags;          // IN/OUT
 	PPID   GoodsID;        // OUT
@@ -49819,6 +49822,7 @@ public:
 		double AbstractPrice; // @v9.5.10 Цена, определенная оператором, без выбора товара.
 		SString Serial;
 		SString EgaisMark;
+		SString CzGtin;       // @v10.4.12 GTIN код товара, считанный из марки Честный Знак
 		SString CzSerial;     // @v10.4.12 Серийный номер марки Честный Знак
 	};
 	//int    SetupNewRow(PPID goodsID, double qtty, double priceBySerial, const char * pSerial, PPID giftID = 0);

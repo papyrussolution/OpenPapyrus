@@ -1809,9 +1809,14 @@ int TWhatman::ProcessLayouts()
 					assert(p_root_entry == 0);
 					p_root_entry = p_entry;
 				}
+				{
+					const TLayout::EntryBlock & r_lo_blk = p_entry->P_Obj->GetLayoutBlock();
+					layout.SetItemSizeXy(p_entry->LayId, r_lo_blk.Sz.x, r_lo_blk.Sz.y);
+				}
 				if(p_entry->Flags & LocalLoEntry::fIsLayout) {
-										
 
+				}
+				else {
 				}
 			}
 		}

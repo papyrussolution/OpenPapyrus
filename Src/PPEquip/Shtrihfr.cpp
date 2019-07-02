@@ -497,7 +497,7 @@ int  SLAPI SCS_SHTRIHFRF::CheckForRibbonUsing(uint ribbonParam)
 void SLAPI SCS_SHTRIHFRF::CutLongTail(char * pBuf)
 {
 	char * p = 0;
-	if(pBuf && sstrlen(pBuf) > (uint)CheckStrLen) {
+	if(pBuf && static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
 		pBuf[CheckStrLen + 1] = 0;
 		if((p = strrchr(pBuf, ' ')) != 0)
 			*p = 0;
@@ -836,7 +836,8 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			temp_buf.Z().CatCharN('=', CheckStrLen);
 			THROW(SetFR(StringForPrinting, temp_buf));
 		}
-		/* @v10.4.11 if(nonfiscal > 0.0) {
+		/* @v10.4.11 
+		if(nonfiscal > 0.0) {
 			if(_fiscal > 0.0) {
 				if(flags & PRNCHK_BANKING) {
 					THROW(SetFR(Summ2, _fiscal));

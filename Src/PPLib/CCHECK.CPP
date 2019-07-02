@@ -1,6 +1,6 @@
 // CCHECK.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -107,8 +107,8 @@ double CcAmountList::ScaleTo(double targetAmount)
 					rs += r_entry.Amount;
 				}
 				//
-				// Если в результате округления возникла разница между итоговой и целевой суммами,
-				// то компенсируем ее за счет либо кассы, либо банка, либо всего чего угодно (в порядке очереди)
+				// Р•СЃР»Рё РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РѕРєСЂСѓРіР»РµРЅРёСЏ РІРѕР·РЅРёРєР»Р° СЂР°Р·РЅРёС†Р° РјРµР¶РґСѓ РёС‚РѕРіРѕРІРѕР№ Рё С†РµР»РµРІРѕР№ СЃСѓРјРјР°РјРё,
+				// С‚Рѕ РєРѕРјРїРµРЅСЃРёСЂСѓРµРј РµРµ Р·Р° СЃС‡РµС‚ Р»РёР±Рѕ РєР°СЃСЃС‹, Р»РёР±Рѕ Р±Р°РЅРєР°, Р»РёР±Рѕ РІСЃРµРіРѕ С‡РµРіРѕ СѓРіРѕРґРЅРѕ (РІ РїРѕСЂСЏРґРєРµ РѕС‡РµСЂРµРґРё)
 				//
 				assert(rs == GetTotal());
 				double diff = targetAmount - rs;
@@ -256,7 +256,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 	const int amt_sign = (amt < 0.0) ? -1 : +1;
 	double total = GetTotal();
 	double ex_amt = Get(type, addedID);
-	double result = ex_amt; // @v10.3.4 (избыточный вызов) Get(type, addedID)-->ex_amt 
+	double result = ex_amt; // @v10.3.4 (РёР·Р±С‹С‚РѕС‡РЅС‹Р№ РІС‹Р·РѕРІ) Get(type, addedID)-->ex_amt 
 	int    do_invert_sign = 0;
 	if(list_sign == amt_sign) {
 		if(list_sign < 0) {
@@ -266,7 +266,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 			amt = -amt;
 			total = GetTotal();
 			ex_amt = Get(type, addedID);
-			result = ex_amt; // @v10.3.4 (избыточный вызов) Get(type, addedID)-->ex_amt 
+			result = ex_amt; // @v10.3.4 (РёР·Р±С‹С‚РѕС‡РЅС‹Р№ РІС‹Р·РѕРІ) Get(type, addedID)-->ex_amt 
 		}
 		SETMIN(amt, total);
 		const double p1 = r1 ? Get(r1) : 0.0;
@@ -603,25 +603,25 @@ IMPL_INVARIANT_C(CCheckPacket)
 {
 	S_INVARIANT_PROLOG(pInvP);
 	//
-	// Доплата по кредитной карте ненулевая только при установленной доп кредитной карте
+	// Р”РѕРїР»Р°С‚Р° РїРѕ РєСЂРµРґРёС‚РЅРѕР№ РєР°СЂС‚Рµ РЅРµРЅСѓР»РµРІР°СЏ С‚РѕР»СЊРєРѕ РїСЂРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ РґРѕРї РєСЂРµРґРёС‚РЅРѕР№ РєР°СЂС‚Рµ
 	//
 	// @v9.0.4 S_ASSERT_P(!Ext.AddCrdCardPaym || Ext.AddCrdCardID, pInvP);
 	//
-	// Наличие доплаты по кредитной карте должно быть помечено флагом CCHKF_ADDINCORPCRD
+	// РќР°Р»РёС‡РёРµ РґРѕРїР»Р°С‚С‹ РїРѕ РєСЂРµРґРёС‚РЅРѕР№ РєР°СЂС‚Рµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕРјРµС‡РµРЅРѕ С„Р»Р°РіРѕРј CCHKF_ADDINCORPCRD
 	//
 	// @v9.0.4 S_ASSERT_P(!Ext.AddCrdCardPaym || Rec.Flags & CCHKF_ADDINCORPCRD, pInvP);
 	//
-	// Дополнительная кредитная карта может быть установлена только тогда, когда в чеке
-	// установлена основная кредитная карта.
+	// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РєСЂРµРґРёС‚РЅР°СЏ РєР°СЂС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° С‚РѕР»СЊРєРѕ С‚РѕРіРґР°, РєРѕРіРґР° РІ С‡РµРєРµ
+	// СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РѕСЃРЅРѕРІРЅР°СЏ РєСЂРµРґРёС‚РЅР°СЏ РєР°СЂС‚Р°.
 	//
 	// @v9.0.4 S_ASSERT_P(!Ext.AddCrdCardID || (Rec.SCardID && Rec.Flags & CCHKF_INCORPCRD), pInvP);
 	//
-	// Флаг CCHKF_INCORPCRD не может быть установлен если в чеке нет ссылки на карту.
+	// Р¤Р»Р°Рі CCHKF_INCORPCRD РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РµСЃР»Рё РІ С‡РµРєРµ РЅРµС‚ СЃСЃС‹Р»РєРё РЅР° РєР°СЂС‚Сѓ.
 	//
-	// @v10.4.1 (кредитная карта может фигурировать в списке платежей) S_ASSERT_P(!(Rec.Flags & CCHKF_INCORPCRD) || Rec.SCardID, pInvP);
+	// @v10.4.1 (РєСЂРµРґРёС‚РЅР°СЏ РєР°СЂС‚Р° РјРѕР¶РµС‚ С„РёРіСѓСЂРёСЂРѕРІР°С‚СЊ РІ СЃРїРёСЃРєРµ РїР»Р°С‚РµР¶РµР№) S_ASSERT_P(!(Rec.Flags & CCHKF_INCORPCRD) || Rec.SCardID, pInvP);
 	{
 		//
-		// Фискальная и нефискальная суммы чека должны в итоге давать полную сумму чеку.
+		// Р¤РёСЃРєР°Р»СЊРЅР°СЏ Рё РЅРµС„РёСЃРєР°Р»СЊРЅР°СЏ СЃСѓРјРјС‹ С‡РµРєР° РґРѕР»Р¶РЅС‹ РІ РёС‚РѕРіРµ РґР°РІР°С‚СЊ РїРѕР»РЅСѓСЋ СЃСѓРјРјСѓ С‡РµРєСѓ.
 		//
 		double amt = fabs(MONEYTOLDBL(Rec.Amount));
 		double fiscal = 0.0, nonfiscal = 0.0;
@@ -630,15 +630,15 @@ IMPL_INVARIANT_C(CCheckPacket)
 	}
 	S_ASSERT_P(!HasExt() || Rec.Flags & CCHKF_EXT, pInvP);
 	//
-	// Чек заказа стола обязательно должен содержать номер заказываемого стола
+	// Р§РµРє Р·Р°РєР°Р·Р° СЃС‚РѕР»Р° РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅРѕРјРµСЂ Р·Р°РєР°Р·С‹РІР°РµРјРѕРіРѕ СЃС‚РѕР»Р°
 	//
 	S_ASSERT_P(!(Rec.Flags & CCHKF_ORDER) || Ext.TableNo, pInvP);
 	//
-	// Количество гостей может быть указано только при заданном номере стола
+	// РљРѕР»РёС‡РµСЃС‚РІРѕ РіРѕСЃС‚РµР№ РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅРѕ С‚РѕР»СЊРєРѕ РїСЂРё Р·Р°РґР°РЅРЅРѕРј РЅРѕРјРµСЂРµ СЃС‚РѕР»Р°
 	//
 	S_ASSERT_P(!Ext.GuestCount || Ext.TableNo, pInvP);
 	//
-	// Флаг CCHKF_CLOSEDORDER может быть установлен только у чека заказа стола либо у чека с доставкой
+	// Р¤Р»Р°Рі CCHKF_CLOSEDORDER РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С‚РѕР»СЊРєРѕ Сѓ С‡РµРєР° Р·Р°РєР°Р·Р° СЃС‚РѕР»Р° Р»РёР±Рѕ Сѓ С‡РµРєР° СЃ РґРѕСЃС‚Р°РІРєРѕР№
 	//
 	S_ASSERT_P(!(Rec.Flags & CCHKF_CLOSEDORDER) || (Rec.Flags & (CCHKF_ORDER|CCHKF_DELIVERY)), pInvP);
 	S_INVARIANT_EPILOG(pInvP);
@@ -756,7 +756,7 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SStri
 	if(Items_.enumItems(pPos, (void **)&p_item)) {
 		ASSIGN_PTR(pItem, *p_item);
 		if(pSerial) {
-			// *Pos была увеличена на 1 функцией enumItems()
+			// *Pos Р±С‹Р»Р° СѓРІРµР»РёС‡РµРЅР° РЅР° 1 С„СѓРЅРєС†РёРµР№ enumItems()
 			// @v9.0.9 GetSerial(*pPos, *pSerial);
 			GetLineTextExt(*pPos, CCheckPacket::lnextSerial, *pSerial); // @v9.0.9
 		}
@@ -771,7 +771,7 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 	CCheckLineTbl::Rec * p_item;
 	if(Items_.enumItems(pPos, (void **)&p_item)) {
 		if(pItem) {
-			const  int _pos = *pPos; // *Pos была увеличена на 1 функцией enumItems()
+			const  int _pos = *pPos; // *Pos Р±С‹Р»Р° СѓРІРµР»РёС‡РµРЅР° РЅР° 1 С„СѓРЅРєС†РёРµР№ enumItems()
 			uint   ep = 0;
 			SString serial;
 			pItem->Z() = *p_item;
@@ -782,6 +782,8 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 			serial.CopyTo(pItem->EgaisMark, sizeof(pItem->EgaisMark)); // @v9.2.9
 			GetLineTextExt(_pos, CCheckPacket::lnextRemoteProcessingTa, serial); // @v10.1.6
 			serial.CopyTo(pItem->RemoteProcessingTa, sizeof(pItem->RemoteProcessingTa)); // @v10.1.6
+			GetLineTextExt(_pos, CCheckPacket::lnextCzGtin, serial); // @v10.4.12
+			serial.CopyTo(pItem->CzGtin, sizeof(pItem->CzGtin)); // @v10.4.12
 			GetLineTextExt(_pos, CCheckPacket::lnextCzSerial, serial); // @v10.4.12
 			serial.CopyTo(pItem->CzSerial, sizeof(pItem->CzSerial)); // @v10.4.12
 			if(ExtList.lsearch(&_pos, &ep, CMPF_LONG)) {
@@ -1108,6 +1110,9 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 		}
 		// } @v10.1.6
 		// @v10.4.12 {
+		if(rItem.CzGtin[0]) {
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextCzGtin, rItem.CzGtin));
+		}
 		if(rItem.CzSerial[0]) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextCzSerial, rItem.CzSerial));
 		}
@@ -1419,8 +1424,8 @@ int SLAPI CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc
         uint  s = 0;
 		{
 			// "CA"
-			const uchar p_fl[] = { 'C', 'c', 209, 241, 145, 225 }; // 'C' в латинской и русской раскладках (ANSI и OEM)
-			const uchar p_sl[] = { 'A', 'a', 212, 244, 148, 228 }; // 'A' в латинской и русской раскладках (ANSI и OEM)
+			const uchar p_fl[] = { 'C', 'c', 209, 241, 145, 225 }; // 'C' РІ Р»Р°С‚РёРЅСЃРєРѕР№ Рё СЂСѓСЃСЃРєРѕР№ СЂР°СЃРєР»Р°РґРєР°С… (ANSI Рё OEM)
+			const uchar p_sl[] = { 'A', 'a', 212, 244, 148, 228 }; // 'A' РІ Р»Р°С‚РёРЅСЃРєРѕР№ Рё СЂСѓСЃСЃРєРѕР№ СЂР°СЃРєР»Р°РґРєР°С… (ANSI Рё OEM)
 			const uchar c1 = static_cast<uchar>(pIdent[0]);
 			const uchar c2 = static_cast<uchar>(pIdent[1]);
 			for(uint i = 0; !s && i < SIZEOFARRAY(p_fl); i++)
@@ -1700,9 +1705,9 @@ int SLAPI CCheckCore::PutExt(const CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pE
 		if(pack.HasExt()) {
 			if(P_Ext) {
 				//
-				// Теоретически вероятность существования записи CCheckExt с ИД=id почти нулевая,
-				// однако изредка возникает проблема дублирования индекса. Для устраненения этой
-				// проблемы и предназначен следюущий код.
+				// РўРµРѕСЂРµС‚РёС‡РµСЃРєРё РІРµСЂРѕСЏС‚РЅРѕСЃС‚СЊ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ Р·Р°РїРёСЃРё CCheckExt СЃ РР”=id РїРѕС‡С‚Рё РЅСѓР»РµРІР°СЏ,
+				// РѕРґРЅР°РєРѕ РёР·СЂРµРґРєР° РІРѕР·РЅРёРєР°РµС‚ РїСЂРѕР±Р»РµРјР° РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РёРЅРґРµРєСЃР°. Р”Р»СЏ СѓСЃС‚СЂР°РЅРµРЅРµРЅРёСЏ СЌС‚РѕР№
+				// РїСЂРѕР±Р»РµРјС‹ Рё РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅ СЃР»РµРґСЋСѓС‰РёР№ РєРѕРґ.
 				//
 				PPTransaction tra(useTa);
 				THROW(tra);
@@ -1767,12 +1772,12 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 		double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
 		double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
 		if(fabs(amt - rec_amt) > tolerance) {
-			// #error Сумма чека не совпадает с суммой по строкам
+			// #error РЎСѓРјРјР° С‡РµРєР° РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ СЃСѓРјРјРѕР№ РїРѕ СЃС‚СЂРѕРєР°Рј
 			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVAMOUNT, fmt_buf), chk_text.cptr(), rec_amt - amt));
 			ok = 0;
 		}
 		if(fabs(dscnt - rec_dscnt) > tolerance) {
-			// #error Сумма скидки чека не совпадает с суммой скидки по строкам
+			// #error РЎСѓРјРјР° СЃРєРёРґРєРё С‡РµРєР° РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ СЃСѓРјРјРѕР№ СЃРєРёРґРєРё РїРѕ СЃС‚СЂРѕРєР°Рј
 			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVDSCNT, fmt_buf), chk_text.cptr(), rec_dscnt - dscnt));
 			ok = 0;
 		}
@@ -1788,7 +1793,7 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 			}
 		}
 		if(cc_pack.Rec.SCardID && Cards.Search(cc_pack.Rec.SCardID, 0) <= 0) {
-			// #error Висячая ссылка на карту в чеке
+			// #error Р’РёСЃСЏС‡Р°СЏ СЃСЃС‹Р»РєР° РЅР° РєР°СЂС‚Сѓ РІ С‡РµРєРµ
 			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVSCARDID, fmt_buf), chk_text.cptr()));
 			ok = 0;
 		}
@@ -1812,7 +1817,7 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 		}
 	}
 	else {
-		// #error Ошибка загрузки чека %ld
+		// #error РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё С‡РµРєР° %ld
 		rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_UNABLELOAD, fmt_buf), id));
 		ok = 0;
 	}
@@ -2161,7 +2166,7 @@ int SLAPI CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 	CCheckTbl::Rec header = *pRec;
 	{
 		//
-		// Проверка на существование в БД чека начальных оборотов по карте
+		// РџСЂРѕРІРµСЂРєР° РЅР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РІ Р‘Р” С‡РµРєР° РЅР°С‡Р°Р»СЊРЅС‹С… РѕР±РѕСЂРѕС‚РѕРІ РїРѕ РєР°СЂС‚Рµ
 		//
 		LDATE  d = encodedate(1, 1, 2001);
 		if(header.SCardID && header.Dt == d && header.CashID == 0 && header.SessID == 0) {
@@ -2174,8 +2179,8 @@ int SLAPI CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 			}
 			else {
 				//
-				// Чек начальных оборотов с такой картой не найден - корректируем
-				// время с тем, чтобы чек без дублирования влез в таблицу
+				// Р§РµРє РЅР°С‡Р°Р»СЊРЅС‹С… РѕР±РѕСЂРѕС‚РѕРІ СЃ С‚Р°РєРѕР№ РєР°СЂС‚РѕР№ РЅРµ РЅР°Р№РґРµРЅ - РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј
+				// РІСЂРµРјСЏ СЃ С‚РµРј, С‡С‚РѕР±С‹ С‡РµРє Р±РµР· РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РІР»РµР· РІ С‚Р°Р±Р»РёС†Сѓ
 				//
 				CCheckTbl::Key1 k1;
 				MEMSZERO(k1);
@@ -2215,7 +2220,7 @@ int SLAPI CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 		if(!(header.Flags & (CCHKF_JUNK|CCHKF_SKIP)))
 			THROW(Cards.AddTurnover(header.SCardID, MONEYTOLDBL(header.Amount), 0));
 		THROW(tra.Commit());
-		//WriteCCheckLogFile(&header, logWrited); // @vmiller Защита от дублирования записи в логе
+		//WriteCCheckLogFile(&header, logWrited); // @vmiller Р—Р°С‰РёС‚Р° РѕС‚ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ Р·Р°РїРёСЃРё РІ Р»РѕРіРµ
 	}
 	CATCHZOK
 	ASSIGN_PTR(pID, id);
@@ -2244,7 +2249,7 @@ int SLAPI CCheckCore::Update(PPID id, const CCheckTbl::Rec * pRec, int use_ta)
 				THROW(Cards.AddTurnover(header.SCardID, new_amt, 0));
 		}
 		THROW(tra.Commit());
-		//WriteCCheckLogFile(&header, logWrited); // @vmiller Защита от дублирования записи в логе
+		//WriteCCheckLogFile(&header, logWrited); // @vmiller Р—Р°С‰РёС‚Р° РѕС‚ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ Р·Р°РїРёСЃРё РІ Р»РѕРіРµ
 	}
 	CATCHZOK
 	return ok;
@@ -2419,7 +2424,7 @@ int SLAPI CCheckCore::PreparePacketForWriting(PPID id, CCheckPacket * pPack, dou
 	assert(id != 0 && (pPack->Rec.ID == 0 || pPack->Rec.ID == id));
 	{
 		//
-		// Удаляем старые строки
+		// РЈРґР°Р»СЏРµРј СЃС‚Р°СЂС‹Рµ СЃС‚СЂРѕРєРё
 		//
 		{
 			CCheckLineTbl::Key0 k0;
@@ -3210,7 +3215,7 @@ int SLAPI CCheckCore::CalcGoodsRest(PPID goodsID, LDATE dt, PPID locID, double *
 {
 	int    ok = 1;
 	double rest = 0.0;
-	double exp = 0.0; // Расход по активным синхронным сессиям
+	double exp = 0.0; // Р Р°СЃС…РѕРґ РїРѕ Р°РєС‚РёРІРЅС‹Рј СЃРёРЅС…СЂРѕРЅРЅС‹Рј СЃРµСЃСЃРёСЏРј
 	GoodsRestParam gp;
 	ObjIdListFilt sess_list;
 	gp.Date    = dt;
@@ -3283,8 +3288,8 @@ int SLAPI CCheckGoodsArray::Add(LDATE dt, const CCheckLineTbl::Rec * pRec, PPID 
 	uint   pos = 0;
 	if(price == 0.0 && pRec->Dscnt != 0.0) {
 		//
-		// Специальный случай: скидка суммой на весь чек, не распределенная по строкам чека.
-		// Включаем такую строку в группировку для возврата.
+		// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: СЃРєРёРґРєР° СЃСѓРјРјРѕР№ РЅР° РІРµСЃСЊ С‡РµРє, РЅРµ СЂР°СЃРїСЂРµРґРµР»РµРЅРЅР°СЏ РїРѕ СЃС‚СЂРѕРєР°Рј С‡РµРєР°.
+		// Р’РєР»СЋС‡Р°РµРј С‚Р°РєСѓСЋ СЃС‚СЂРѕРєСѓ РІ РіСЂСѓРїРїРёСЂРѕРІРєСѓ РґР»СЏ РІРѕР·РІСЂР°С‚Р°.
 		//
 		sign = -1;
 	}
@@ -3401,7 +3406,7 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 				if(chk_list.bsearch(&cc_id, &pos, CMPF_LONG)) {
 					if(cc_id != prev_cc_id) {
 						THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf));
-						// (Использовать будем в виде utf8-строк) temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						// (РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р±СѓРґРµРј РІ РІРёРґРµ utf8-СЃС‚СЂРѕРє) temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
                         // @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(temp_buf, cc_ln_text_ext);
 						CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &cc_ln_text_ext); // @v10.3.9 
 					}
@@ -3496,22 +3501,22 @@ int SLAPI CCheckCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssoc
 	return ok;
 }
 //
-// Функция пересчитывает обороты по пластиковым картам
-// Алгоритм следующий:
-// 1. Обнуляем обороты по всем картам. Эта фаза избыточна, но зато гарантирует правомерность
-//    инкремента оборотов по карточкам, вместо замещения.
-// 2. Перебираем чеки по индексу {SCardID, Dt, Tm} (#4)
-// 3. Собираем обороты по каждой карте в упорядоченном массиве {CardID, Trnovr}[] (ct_list)
-// @v4.7.11 Этот шаг упразднен из-за закрытия поддержки DOS-версии {
-// 4. Если размер массива превысил 2000 элементов, то сбрасываем данные из массива в таблицу
-//    карточек и очищаем его.
+// Р¤СѓРЅРєС†РёСЏ РїРµСЂРµСЃС‡РёС‚С‹РІР°РµС‚ РѕР±РѕСЂРѕС‚С‹ РїРѕ РїР»Р°СЃС‚РёРєРѕРІС‹Рј РєР°СЂС‚Р°Рј
+// РђР»РіРѕСЂРёС‚Рј СЃР»РµРґСѓСЋС‰РёР№:
+// 1. РћР±РЅСѓР»СЏРµРј РѕР±РѕСЂРѕС‚С‹ РїРѕ РІСЃРµРј РєР°СЂС‚Р°Рј. Р­С‚Р° С„Р°Р·Р° РёР·Р±С‹С‚РѕС‡РЅР°, РЅРѕ Р·Р°С‚Рѕ РіР°СЂР°РЅС‚РёСЂСѓРµС‚ РїСЂР°РІРѕРјРµСЂРЅРѕСЃС‚СЊ
+//    РёРЅРєСЂРµРјРµРЅС‚Р° РѕР±РѕСЂРѕС‚РѕРІ РїРѕ РєР°СЂС‚РѕС‡РєР°Рј, РІРјРµСЃС‚Рѕ Р·Р°РјРµС‰РµРЅРёСЏ.
+// 2. РџРµСЂРµР±РёСЂР°РµРј С‡РµРєРё РїРѕ РёРЅРґРµРєСЃСѓ {SCardID, Dt, Tm} (#4)
+// 3. РЎРѕР±РёСЂР°РµРј РѕР±РѕСЂРѕС‚С‹ РїРѕ РєР°Р¶РґРѕР№ РєР°СЂС‚Рµ РІ СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅРѕРј РјР°СЃСЃРёРІРµ {CardID, Trnovr}[] (ct_list)
+// @v4.7.11 Р­С‚РѕС‚ С€Р°Рі СѓРїСЂР°Р·РґРЅРµРЅ РёР·-Р·Р° Р·Р°РєСЂС‹С‚РёСЏ РїРѕРґРґРµСЂР¶РєРё DOS-РІРµСЂСЃРёРё {
+// 4. Р•СЃР»Рё СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР° РїСЂРµРІС‹СЃРёР» 2000 СЌР»РµРјРµРЅС‚РѕРІ, С‚Рѕ СЃР±СЂР°СЃС‹РІР°РµРј РґР°РЅРЅС‹Рµ РёР· РјР°СЃСЃРёРІР° РІ С‚Р°Р±Р»РёС†Сѓ
+//    РєР°СЂС‚РѕС‡РµРє Рё РѕС‡РёС‰Р°РµРј РµРіРѕ.
 // }
-// 5. По окончании цикла безусловно сбрасываем данные из массива в таблицу карточек.
+// 5. РџРѕ РѕРєРѕРЅС‡Р°РЅРёРё С†РёРєР»Р° Р±РµР·СѓСЃР»РѕРІРЅРѕ СЃР±СЂР°СЃС‹РІР°РµРј РґР°РЅРЅС‹Рµ РёР· РјР°СЃСЃРёРІР° РІ С‚Р°Р±Р»РёС†Сѓ РєР°СЂС‚РѕС‡РµРє.
 //
-// За счет буферизации достигается значительное ускорение процесса.
+// Р—Р° СЃС‡РµС‚ Р±СѓС„РµСЂРёР·Р°С†РёРё РґРѕСЃС‚РёРіР°РµС‚СЃСЏ Р·РЅР°С‡РёС‚РµР»СЊРЅРѕРµ СѓСЃРєРѕСЂРµРЅРёРµ РїСЂРѕС†РµСЃСЃР°.
 //
-// Счетчик прогресса функции оперирует значениями идентификаторов карточек, а не общим количеством
-// итераций (предварительный подсчет количества итераций - очень долгий процесс).
+// РЎС‡РµС‚С‡РёРє РїСЂРѕРіСЂРµСЃСЃР° С„СѓРЅРєС†РёРё РѕРїРµСЂРёСЂСѓРµС‚ Р·РЅР°С‡РµРЅРёСЏРјРё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РєР°СЂС‚РѕС‡РµРє, Р° РЅРµ РѕР±С‰РёРј РєРѕР»РёС‡РµСЃС‚РІРѕРј
+// РёС‚РµСЂР°С†РёР№ (РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Р№ РїРѕРґСЃС‡РµС‚ РєРѕР»РёС‡РµСЃС‚РІР° РёС‚РµСЂР°С†РёР№ - РѕС‡РµРЅСЊ РґРѕР»РіРёР№ РїСЂРѕС†РµСЃСЃ).
 //
 int SLAPI CCheckCore::RecalcSCardsTurnover(int use_ta)
 {
@@ -3584,7 +3589,7 @@ int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgX
 							CCheckExtTbl::Rec ext_rec;
 							if(data.Flags & (CCHKF_ADDPAYM|CCHKF_ADDINCORPCRD) && GetExt(data.ID, &ext_rec) > 0) {
 								//
-								// При доплате по дополнительной карте сумма этой доплаты хранится с минусом.
+								// РџСЂРё РґРѕРїР»Р°С‚Рµ РїРѕ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕР№ РєР°СЂС‚Рµ СЃСѓРјРјР° СЌС‚РѕР№ РґРѕРїР»Р°С‚С‹ С…СЂР°РЅРёС‚СЃСЏ СЃ РјРёРЅСѓСЃРѕРј.
 								//
 								// @v9.0.4 amt -= (intmnytodbl(ext_rec.AddPaym) - intmnytodbl(ext_rec.AddCrdCardPaym));
 							}
@@ -3592,7 +3597,7 @@ int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgX
 						crd += amt;
 					}
 					else // Return or charge
-						dbt += amt; // @fixme Вероятно, здесь должно быть (dbt -= amt)
+						dbt += amt; // @fixme Р’РµСЂРѕСЏС‚РЅРѕ, Р·РґРµСЃСЊ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ (dbt -= amt)
 				}
 			}
 		}
@@ -4149,9 +4154,9 @@ long SLAPI CSessionCore::GetCcGroupingFlags(const CSessionTbl::Rec & rCsRec, PPI
 			flags |= CCheckCore::gglfSkipUnprintedChecks;
 		if(cn_rec.CashType == PPCMT_CASHNGROUP && subSessID) {
 			//
-			// Группирующий кассовый узел не может иметь флага пропуска неотпечатанных чеков.
-			// В связи с этим мы вынуждены для каждой субсессии проверять этот флаг в терминальном
-			// кассовом узле.
+			// Р“СЂСѓРїРїРёСЂСѓСЋС‰РёР№ РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР» РЅРµ РјРѕР¶РµС‚ РёРјРµС‚СЊ С„Р»Р°РіР° РїСЂРѕРїСѓСЃРєР° РЅРµРѕС‚РїРµС‡Р°С‚Р°РЅРЅС‹С… С‡РµРєРѕРІ.
+			// Р’ СЃРІСЏР·Рё СЃ СЌС‚РёРј РјС‹ РІС‹РЅСѓР¶РґРµРЅС‹ РґР»СЏ РєР°Р¶РґРѕР№ СЃСѓР±СЃРµСЃСЃРёРё РїСЂРѕРІРµСЂСЏС‚СЊ СЌС‚РѕС‚ С„Р»Р°Рі РІ С‚РµСЂРјРёРЅР°Р»СЊРЅРѕРј
+			// РєР°СЃСЃРѕРІРѕРј СѓР·Р»Рµ.
 			//
 			CSessionTbl::Rec sub_rec;
 			if(Search(subSessID, &sub_rec) > 0 && cn_obj.Fetch(sub_rec.CashNodeID, &cn_sub_rec) > 0) {
@@ -4262,7 +4267,7 @@ public:
 	int    SLAPI Add(const CGoodsLineTbl::Rec *);
 private:
 	PPObjGoods GObj;
-    LAssocArray UnifyGoodsList; // Список подстановки объединенных товаров. {OrgGoodsID, ReplacmentGoodsID}
+    LAssocArray UnifyGoodsList; // РЎРїРёСЃРѕРє РїРѕРґСЃС‚Р°РЅРѕРІРєРё РѕР±СЉРµРґРёРЅРµРЅРЅС‹С… С‚РѕРІР°СЂРѕРІ. {OrgGoodsID, ReplacmentGoodsID}
 };
 
 int SLAPI CgBillCvtList::Add(const CGoodsLineTbl::Rec * pRec)
@@ -4282,9 +4287,9 @@ int SLAPI CgBillCvtList::Add(const CGoodsLineTbl::Rec * pRec)
 	if(founded_goods_id && founded_goods_id != goods_id) {
 		UnifyGoodsList.Add(goods_id, founded_goods_id, 0);
 		//
-		// Если товара goods_id был замещен в результате объединения другим товаром, то
-		// здесь мы все равно в список добавляем оригинальный идентификатор.
-		// Функция ConvertSign потом обработает эту ситуацию.
+		// Р•СЃР»Рё С‚РѕРІР°СЂР° goods_id Р±С‹Р» Р·Р°РјРµС‰РµРЅ РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РѕР±СЉРµРґРёРЅРµРЅРёСЏ РґСЂСѓРіРёРј С‚РѕРІР°СЂРѕРј, С‚Рѕ
+		// Р·РґРµСЃСЊ РјС‹ РІСЃРµ СЂР°РІРЅРѕ РІ СЃРїРёСЃРѕРє РґРѕР±Р°РІР»СЏРµРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ.
+		// Р¤СѓРЅРєС†РёСЏ ConvertSign РїРѕС‚РѕРј РѕР±СЂР°Р±РѕС‚Р°РµС‚ СЌС‚Сѓ СЃРёС‚СѓР°С†РёСЋ.
 		//
 	}
 	if(founded_goods_id || GObj.Fetch(pRec->AltGoodsID, &goods_rec) > 0) {
@@ -4301,7 +4306,7 @@ int SLAPI CgBillCvtList::Add(const CGoodsLineTbl::Rec * pRec)
 		return -1;
 }
 //
-// Без транзакции проводит документ pPack.
+// Р‘РµР· С‚СЂР°РЅР·Р°РєС†РёРё РїСЂРѕРІРѕРґРёС‚ РґРѕРєСѓРјРµРЅС‚ pPack.
 //
 int SLAPI CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet, OptimalAmountDamper * pOad)
 {
@@ -4339,25 +4344,25 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 	if(op_id > 0) {
 		PPObjBill * p_bobj = BillObj;
 		//
-		// Конвертация осуществляется в несколько этапов:
-		//   1. (stgMain)  Основной цикл, в процессе которого функция пытается внести в товарные документы
-		//      списания каждую позицию. В ходе этого цикла по ряду позиций может быть обнаружен дефицит.
-		//      В этом случае функция вносит этот дефицит в список для дальнейшей комплектации (только если
-		//      конфигурация предполагает возможность комплектации дефицита во время списания).
+		// РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РІ РЅРµСЃРєРѕР»СЊРєРѕ СЌС‚Р°РїРѕРІ:
+		//   1. (stgMain)  РћСЃРЅРѕРІРЅРѕР№ С†РёРєР», РІ РїСЂРѕС†РµСЃСЃРµ РєРѕС‚РѕСЂРѕРіРѕ С„СѓРЅРєС†РёСЏ РїС‹С‚Р°РµС‚СЃСЏ РІРЅРµСЃС‚Рё РІ С‚РѕРІР°СЂРЅС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹
+		//      СЃРїРёСЃР°РЅРёСЏ РєР°Р¶РґСѓСЋ РїРѕР·РёС†РёСЋ. Р’ С…РѕРґРµ СЌС‚РѕРіРѕ С†РёРєР»Р° РїРѕ СЂСЏРґСѓ РїРѕР·РёС†РёР№ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕР±РЅР°СЂСѓР¶РµРЅ РґРµС„РёС†РёС‚.
+		//      Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ С„СѓРЅРєС†РёСЏ РІРЅРѕСЃРёС‚ СЌС‚РѕС‚ РґРµС„РёС†РёС‚ РІ СЃРїРёСЃРѕРє РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ РєРѕРјРїР»РµРєС‚Р°С†РёРё (С‚РѕР»СЊРєРѕ РµСЃР»Рё
+		//      РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРµРґРїРѕР»Р°РіР°РµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РєРѕРјРїР»РµРєС‚Р°С†РёРё РґРµС„РёС†РёС‚Р° РІРѕ РІСЂРµРјСЏ СЃРїРёСЃР°РЅРёСЏ).
 		//
-		//      После завершения цикла функция собственно и комплектует дефицит.
-		//   2. (stgCompl) Цикл, в процессе которого списываются позиции, по которым был скомплектован дефицит.
-		//   3. (stgSubst) В ходе предыдущих двух этапов формировался список позиций (subst_pos_list),
-		//      для которых задан альтернативный (подстановочный) товар. На последнем этапе функция пытается провести
-		//      дефицитное количество по подстановочным товарам.
+		//      РџРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ С†РёРєР»Р° С„СѓРЅРєС†РёСЏ СЃРѕР±СЃС‚РІРµРЅРЅРѕ Рё РєРѕРјРїР»РµРєС‚СѓРµС‚ РґРµС„РёС†РёС‚.
+		//   2. (stgCompl) Р¦РёРєР», РІ РїСЂРѕС†РµСЃСЃРµ РєРѕС‚РѕСЂРѕРіРѕ СЃРїРёСЃС‹РІР°СЋС‚СЃСЏ РїРѕР·РёС†РёРё, РїРѕ РєРѕС‚РѕСЂС‹Рј Р±С‹Р» СЃРєРѕРјРїР»РµРєС‚РѕРІР°РЅ РґРµС„РёС†РёС‚.
+		//   3. (stgSubst) Р’ С…РѕРґРµ РїСЂРµРґС‹РґСѓС‰РёС… РґРІСѓС… СЌС‚Р°РїРѕРІ С„РѕСЂРјРёСЂРѕРІР°Р»СЃСЏ СЃРїРёСЃРѕРє РїРѕР·РёС†РёР№ (subst_pos_list),
+		//      РґР»СЏ РєРѕС‚РѕСЂС‹С… Р·Р°РґР°РЅ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹Р№ (РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Р№) С‚РѕРІР°СЂ. РќР° РїРѕСЃР»РµРґРЅРµРј СЌС‚Р°РїРµ С„СѓРЅРєС†РёСЏ РїС‹С‚Р°РµС‚СЃСЏ РїСЂРѕРІРµСЃС‚Рё
+		//      РґРµС„РёС†РёС‚РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕ РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Рј С‚РѕРІР°СЂР°Рј.
 		//
-		// Важно: все эти этапы разделены из-за того, что при попытке одновременной подстановки и комплектации
-		//   могут возникать коллизии одновременного расхода из одного и того же лота.
-		//   Например: допустим имеется два товара "BRED" и "BRED 1/2" (буханка хлеба и пол-буханки, соответственно).
-		//   Товар "BRED 1/2" может быть скомплектован из "BRED". Если в кассовой сессии продавались оба наименования,
-		//   то после внесения в документ товара "BRED" (но до проведения этого документа) функция комплектации для "BRED 1/2"
-		//   может использовать тот же лот "BRED". В результате, при попытке провести этот документ появится ошибка
-		//   "Остаток товара слишком мал".
+		// Р’Р°Р¶РЅРѕ: РІСЃРµ СЌС‚Рё СЌС‚Р°РїС‹ СЂР°Р·РґРµР»РµРЅС‹ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё РїРѕРїС‹С‚РєРµ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕР№ РїРѕРґСЃС‚Р°РЅРѕРІРєРё Рё РєРѕРјРїР»РµРєС‚Р°С†РёРё
+		//   РјРѕРіСѓС‚ РІРѕР·РЅРёРєР°С‚СЊ РєРѕР»Р»РёР·РёРё РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕРіРѕ СЂР°СЃС…РѕРґР° РёР· РѕРґРЅРѕРіРѕ Рё С‚РѕРіРѕ Р¶Рµ Р»РѕС‚Р°.
+		//   РќР°РїСЂРёРјРµСЂ: РґРѕРїСѓСЃС‚РёРј РёРјРµРµС‚СЃСЏ РґРІР° С‚РѕРІР°СЂР° "BRED" Рё "BRED 1/2" (Р±СѓС…Р°РЅРєР° С…Р»РµР±Р° Рё РїРѕР»-Р±СѓС…Р°РЅРєРё, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ).
+		//   РўРѕРІР°СЂ "BRED 1/2" РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРєРѕРјРїР»РµРєС‚РѕРІР°РЅ РёР· "BRED". Р•СЃР»Рё РІ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё РїСЂРѕРґР°РІР°Р»РёСЃСЊ РѕР±Р° РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ,
+		//   С‚Рѕ РїРѕСЃР»Рµ РІРЅРµСЃРµРЅРёСЏ РІ РґРѕРєСѓРјРµРЅС‚ С‚РѕРІР°СЂР° "BRED" (РЅРѕ РґРѕ РїСЂРѕРІРµРґРµРЅРёСЏ СЌС‚РѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°) С„СѓРЅРєС†РёСЏ РєРѕРјРїР»РµРєС‚Р°С†РёРё РґР»СЏ "BRED 1/2"
+		//   РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕС‚ Р¶Рµ Р»РѕС‚ "BRED". Р’ СЂРµР·СѓР»СЊС‚Р°С‚Рµ, РїСЂРё РїРѕРїС‹С‚РєРµ РїСЂРѕРІРµСЃС‚Рё СЌС‚РѕС‚ РґРѕРєСѓРјРµРЅС‚ РїРѕСЏРІРёС‚СЃСЏ РѕС€РёР±РєР°
+		//   "РћСЃС‚Р°С‚РѕРє С‚РѕРІР°СЂР° СЃР»РёС€РєРѕРј РјР°Р»".
 		//
 		enum Stage {
 			stgMain = 1,
@@ -4365,7 +4370,7 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 			stgSubst,
 			stgFinish
 		};
-		Stage  stage = stgMain; // Тег этапа обработки
+		Stage  stage = stgMain; // РўРµРі СЌС‚Р°РїР° РѕР±СЂР°Р±РѕС‚РєРё
 		const CgBillCvtList * p_list = static_cast<const CgBillCvtList *>(pData);
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPObjGoods goods_obj;
@@ -4373,8 +4378,8 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 		SString serial_buf;
 		SStringU temp_buf_u;
 		Goods2Tbl::Rec goods_rec;
-		LongArray survey_pos_list; // Список индексов позиций в p_list, которые должны быть обработаны в процессе очередного этапа.
-		LongArray subst_pos_list; // Список индексов позиций, для которых следует попробовать провести альтернативный товар.
+		LongArray survey_pos_list; // РЎРїРёСЃРѕРє РёРЅРґРµРєСЃРѕРІ РїРѕР·РёС†РёР№ РІ p_list, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅС‹ РІ РїСЂРѕС†РµСЃСЃРµ РѕС‡РµСЂРµРґРЅРѕРіРѕ СЌС‚Р°РїР°.
+		LongArray subst_pos_list; // РЎРїРёСЃРѕРє РёРЅРґРµРєСЃРѕРІ РїРѕР·РёС†РёР№, РґР»СЏ РєРѕС‚РѕСЂС‹С… СЃР»РµРґСѓРµС‚ РїРѕРїСЂРѕР±РѕРІР°С‚СЊ РїСЂРѕРІРµСЃС‚Рё Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹Р№ С‚РѕРІР°СЂ.
 		uint   i, j;
 		for(i = 0; i < p_list->getCount(); i++)
 			survey_pos_list.add(static_cast<long>(i));
@@ -4418,14 +4423,14 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 								}
 							} while(!founded_goods_id && p_sj && p_sj->GetLastObjUnifyEvent(PPOBJ_GOODS, temp_goods_id, &temp_goods_id, 0) > 0);
 						}
-						if(founded_goods_id) { // Защита от вставки в документ несуществующего товара
+						if(founded_goods_id) { // Р—Р°С‰РёС‚Р° РѕС‚ РІСЃС‚Р°РІРєРё РІ РґРѕРєСѓРјРµРЅС‚ РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ С‚РѕРІР°СЂР°
 							if(founded_goods_id != goods_id)
 								Logger.Log(PPFormatT(PPTXT_LOG_UNIFGOODSSUBST, &msg_buf, goods_id, founded_goods_id));
 							ilti.GoodsID  = founded_goods_id;
 							ilti.Price    = TR5(fabs(cg_rec.Sum / cg_rec.Qtty));
 							ilti.SetQtty(-qtty);
 							serial_buf.Z();
-							if(cg_rec.SerialID && stage != stgSubst) { // Для альтернативной подстановки серию не учитываем
+							if(cg_rec.SerialID && stage != stgSubst) { // Р”Р»СЏ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕР№ РїРѕРґСЃС‚Р°РЅРѕРІРєРё СЃРµСЂРёСЋ РЅРµ СѓС‡РёС‚С‹РІР°РµРј
 								if(PPRef->TrT.SearchSelfRef(cg_rec.SerialID, temp_buf_u) > 0) {
 									temp_buf_u.CopyToMb(CP_UTF8, serial_buf);
 									serial_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -4462,7 +4467,7 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 			THROW(TurnBill(&pack, pTotal, BIN(sign < 0), pOad));
 			survey_pos_list.clear();
 			//
-			// Переключение тега этапа
+			// РџРµСЂРµРєР»СЋС‡РµРЅРёРµ С‚РµРіР° СЌС‚Р°РїР°
 			//
 			if(stage == stgMain) {
 				stage = stgSubst;
@@ -4607,7 +4612,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 							if(::GetCurGoodsPrice(goods_id, loc_id, GPRET_MOSTRECENT, 0, &lot_rec) > 0) {
 								ti.UnitPerPack = lot_rec.UnitPerPack;
 								ti.Cost = R5(lot_rec.Cost);
-								// @v9.3.9 (Будет безусловно устанавливаться средняя цена по чекам) ti.Price = R5(lot_rec.Price); // @v7.3.1
+								// @v9.3.9 (Р‘СѓРґРµС‚ Р±РµР·СѓСЃР»РѕРІРЅРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊСЃСЏ СЃСЂРµРґРЅСЏСЏ С†РµРЅР° РїРѕ С‡РµРєР°Рј) ti.Price = R5(lot_rec.Price); // @v7.3.1
 							}
 							if(ti.Price <= 0.0)
 								ti.Price = TR5(item.Sum / item.Qtty);
@@ -4618,8 +4623,8 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 								assert(quotk_id); // @paranoic
 								double quot = 0.0;
 								//
-								// Если, в случае формирования документа на "чужом" складе, котировка должна
-								// браться по складу, которому принадлежит сессия, то loc_id следует заменить на locID
+								// Р•СЃР»Рё, РІ СЃР»СѓС‡Р°Рµ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° РЅР° "С‡СѓР¶РѕРј" СЃРєР»Р°РґРµ, РєРѕС‚РёСЂРѕРІРєР° РґРѕР»Р¶РЅР°
+								// Р±СЂР°С‚СЊСЃСЏ РїРѕ СЃРєР»Р°РґСѓ, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ СЃРµСЃСЃРёСЏ, С‚Рѕ loc_id СЃР»РµРґСѓРµС‚ Р·Р°РјРµРЅРёС‚СЊ РЅР° locID
 								//
 								const QuotIdent qi(QIDATE(date), loc_id, quotk_id);
 								if(goods_obj.GetQuotExt(goods_id, qi, ti.Cost, lot_rec.Price, &quot, 1) > 0) {
@@ -4692,11 +4697,11 @@ int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CS
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(ConvertSign(-1, sessID, locID, pData, pTotal, 0)); // Возвраты
-		THROW(ConvertSign(+1, sessID, locID, pData, pTotal, &oad)); // Продажи
+		THROW(ConvertSign(-1, sessID, locID, pData, pTotal, 0)); // Р’РѕР·РІСЂР°С‚С‹
+		THROW(ConvertSign(+1, sessID, locID, pData, pTotal, &oad)); // РџСЂРѕРґР°Р¶Рё
 		{
-			THROW(ConvertSign(-1, sessID, locID, pData, pTotal, 0)); // Возвраты (Если из-за отсутствия продаж возврат не провелся)
-			THROW(ConvertSign(+1, sessID, locID, pData, pTotal, &oad)); // Продажи
+			THROW(ConvertSign(-1, sessID, locID, pData, pTotal, 0)); // Р’РѕР·РІСЂР°С‚С‹ (Р•СЃР»Рё РёР·-Р·Р° РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РїСЂРѕРґР°Р¶ РІРѕР·РІСЂР°С‚ РЅРµ РїСЂРѕРІРµР»СЃСЏ)
+			THROW(ConvertSign(+1, sessID, locID, pData, pTotal, &oad)); // РџСЂРѕРґР°Р¶Рё
 		}
 		THROW(ConvertDeficit(sessID, locID, pTotal));
 		GL.CalcSessTotal(sessID, pTotal);
@@ -4777,7 +4782,7 @@ int SLAPI CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pM
 			THROW(tra);
 			{
 				//
-				// Извлекаем список товаров, которые должны попасть в документы списания //
+				// РР·РІР»РµРєР°РµРј СЃРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ РїРѕРїР°СЃС‚СЊ РІ РґРѕРєСѓРјРµРЅС‚С‹ СЃРїРёСЃР°РЅРёСЏ //
 				//
 				CGoodsLineTbl::Key0 k;
 				BExtQuery q(&GL, 0);
@@ -4787,8 +4792,8 @@ int SLAPI CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pM
 				for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;)
 					THROW(list.Add(&GL.data));
 				//
-				// Список сортируем по наименованию товара, дабы в документах строки были
-				// отсортированы также
+				// РЎРїРёСЃРѕРє СЃРѕСЂС‚РёСЂСѓРµРј РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ С‚РѕРІР°СЂР°, РґР°Р±С‹ РІ РґРѕРєСѓРјРµРЅС‚Р°С… СЃС‚СЂРѕРєРё Р±С‹Р»Рё
+				// РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅС‹ С‚Р°РєР¶Рµ
 				//
 				list.sort(PTR_CMPFUNC(CgBillCvtItem_GoodsName));
 			}
@@ -4843,7 +4848,7 @@ int SLAPI CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pM
 				pack.Rec.Amount = total.Amount;
 				pack.SetPoolMembership(PPBillPacket::bpkCSess, sessID);
 				//
-				// Что бы при ручном редактировании не снесли рассчитанные суммы зафиксируем их.
+				// Р§С‚Рѕ Р±С‹ РїСЂРё СЂСѓС‡РЅРѕРј СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРё РЅРµ СЃРЅРµСЃР»Рё СЂР°СЃСЃС‡РёС‚Р°РЅРЅС‹Рµ СЃСѓРјРјС‹ Р·Р°С„РёРєСЃРёСЂСѓРµРј РёС….
 				//
 				pack.Rec.Flags |= BILLF_FIXEDAMOUNTS;
 				THROW(pack.InitAmounts());
@@ -4892,9 +4897,9 @@ int SLAPI CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPI
 				CCheckGoodsArray cg_list;
 				for(i = 0; i < pSessList->getCount(); i++) {
 					//
-					// Функция CSessGrouping::ConvertTempSessToBills на текущий момент (v5.5.7)
-					// вызывается только для асинхронных кассовых узлов, поэтому, не пытаемся устанавливать
-					// флаг gglfSkipUnprintedChecks в ggl_flags при вызове CC.GroupingToGoodsLines()
+					// Р¤СѓРЅРєС†РёСЏ CSessGrouping::ConvertTempSessToBills РЅР° С‚РµРєСѓС‰РёР№ РјРѕРјРµРЅС‚ (v5.5.7)
+					// РІС‹Р·С‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ Р°СЃРёРЅС…СЂРѕРЅРЅС‹С… РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ, РїРѕСЌС‚РѕРјСѓ, РЅРµ РїС‹С‚Р°РµРјСЃСЏ СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ
+					// С„Р»Р°Рі gglfSkipUnprintedChecks РІ ggl_flags РїСЂРё РІС‹Р·РѕРІРµ CC.GroupingToGoodsLines()
 					//
 					long   ggl_flags = 0;
 					PPID   sess_id = pSessList->at(i);
@@ -5087,7 +5092,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 		THROW(tra);
 		{
 			//
-			// Группировка суперсессий
+			// Р“СЂСѓРїРїРёСЂРѕРІРєР° СЃСѓРїРµСЂСЃРµСЃСЃРёР№
 			//
 			__SessItem item, * p_item, * p_item2;
 			uint   last_super_num = 0;
@@ -5105,12 +5110,12 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 						ok = CS.CheckUniqueDateTime(sess_rec.CashNodeID, &temp_dt, &temp_tm);
 						THROW_DB(updateFor(&CS, 0, (CS.ID == sess_id), set(CS.Dt, dbconst(temp_dt)).set(CS.Tm, dbconst(temp_tm))));
 						//
-						// Так как запись сессии была изменена, то считываем ее снова для дальнейшего использования //
+						// РўР°Рє РєР°Рє Р·Р°РїРёСЃСЊ СЃРµСЃСЃРёРё Р±С‹Р»Р° РёР·РјРµРЅРµРЅР°, С‚Рѕ СЃС‡РёС‚С‹РІР°РµРј РµРµ СЃРЅРѕРІР° РґР»СЏ РґР°Р»СЊРЅРµР№С€РµРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ //
 						//
 						THROW(CS.Search(sess_id, &sess_rec) > 0);
 					}
 					//
-					// Корректируем период поиска временных сессий в соответствии с датой обрабатываемой сессии
+					// РљРѕСЂСЂРµРєС‚РёСЂСѓРµРј РїРµСЂРёРѕРґ РїРѕРёСЃРєР° РІСЂРµРјРµРЅРЅС‹С… СЃРµСЃСЃРёР№ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ РґР°С‚РѕР№ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕР№ СЃРµСЃСЃРёРё
 					//
 					if(!temp_sess_period.low)
 						temp_sess_period.low = sess_rec.Dt;
@@ -5124,7 +5129,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 						item.Dtm.Set(sess_rec.Dt, sess_rec.Tm);
 						item.SuperID = sess_rec.SuperSessID;
 						item.SuperGroup = item.SuperID ? (last_super_num++) : 0;
-						item.HasCGLines = BIN(GL.HasAnyLineForSess(sess_id) > 0 || (item.SuperID && GL.HasAnyLineForSess(item.SuperID) > 0)); // проверка на наличие строк группировки у суперсессии
+						item.HasCGLines = BIN(GL.HasAnyLineForSess(sess_id) > 0 || (item.SuperID && GL.HasAnyLineForSess(item.SuperID) > 0)); // РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ СЃС‚СЂРѕРє РіСЂСѓРїРїРёСЂРѕРІРєРё Сѓ СЃСѓРїРµСЂСЃРµСЃСЃРёРё
 						THROW_SL(temp_list.insert(&item));
 					}
 					else {
@@ -5255,7 +5260,7 @@ int SLAPI CSessGrouping::CompleteSession(PPID sessID)
 				THROW(tra.Commit());
 			}
 			//
-			// Транзакции формирования сессий и их списания разделены.
+			// РўСЂР°РЅР·Р°РєС†РёРё С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ СЃРµСЃСЃРёР№ Рё РёС… СЃРїРёСЃР°РЅРёСЏ СЂР°Р·РґРµР»РµРЅС‹.
 			//
 			{
 				PPTransaction tra(1);
@@ -5344,12 +5349,12 @@ private:
 	{
 	}
 	int    RefreshCTableStatusList(int force);
-	LDATETIME CTableStatusTime; // Время последнего извлечения чеков для определения статусов столов
+	LDATETIME CTableStatusTime; // Р’СЂРµРјСЏ РїРѕСЃР»РµРґРЅРµРіРѕ РёР·РІР»РµС‡РµРЅРёСЏ С‡РµРєРѕРІ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃС‚Р°С‚СѓСЃРѕРІ СЃС‚РѕР»РѕРІ
 	TSVector <CTableStatus> CTStList; // @v9.8.5 TSArray-->TSVector
 	long   CTableStatusRefreshTimeout;
-	LDATE  FirstActualDate; // Дата первого чека заказа, имеющего дату большую или равную текущей.
-		// Это поле необходимо для сужения области просмотра чеков так как они не индексированы
-		// по признаку заказа или по дате исполнения.
+	LDATE  FirstActualDate; // Р”Р°С‚Р° РїРµСЂРІРѕРіРѕ С‡РµРєР° Р·Р°РєР°Р·Р°, РёРјРµСЋС‰РµРіРѕ РґР°С‚Сѓ Р±РѕР»СЊС€СѓСЋ РёР»Рё СЂР°РІРЅСѓСЋ С‚РµРєСѓС‰РµР№.
+		// Р­С‚Рѕ РїРѕР»Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РґР»СЏ СЃСѓР¶РµРЅРёСЏ РѕР±Р»Р°СЃС‚Рё РїСЂРѕСЃРјРѕС‚СЂР° С‡РµРєРѕРІ С‚Р°Рє РєР°Рє РѕРЅРё РЅРµ РёРЅРґРµРєСЃРёСЂРѕРІР°РЅС‹
+		// РїРѕ РїСЂРёР·РЅР°РєСѓ Р·Р°РєР°Р·Р° РёР»Рё РїРѕ РґР°С‚Рµ РёСЃРїРѕР»РЅРµРЅРёСЏ.
 	ReadWriteLock CTableStatusRwl;
 };
 
@@ -5472,10 +5477,10 @@ int SLAPI CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & r
 {
 	int    ok = 1;
 	//
-	// Значение tag содержит флаги:
-	// -- 0x01 если чек имеет запись расширения (CCheckExt) //
-	// -- 0x02 если одна или более строк имеют запись расширения (CCheckLineExt).
-	// -- 0x04 если чек имеет массив сумм оплат CcAmountList
+	// Р—РЅР°С‡РµРЅРёРµ tag СЃРѕРґРµСЂР¶РёС‚ С„Р»Р°РіРё:
+	// -- 0x01 РµСЃР»Рё С‡РµРє РёРјРµРµС‚ Р·Р°РїРёСЃСЊ СЂР°СЃС€РёСЂРµРЅРёСЏ (CCheckExt) //
+	// -- 0x02 РµСЃР»Рё РѕРґРЅР° РёР»Рё Р±РѕР»РµРµ СЃС‚СЂРѕРє РёРјРµСЋС‚ Р·Р°РїРёСЃСЊ СЂР°СЃС€РёСЂРµРЅРёСЏ (CCheckLineExt).
+	// -- 0x04 РµСЃР»Рё С‡РµРє РёРјРµРµС‚ РјР°СЃСЃРёРІ СЃСѓРјРј РѕРїР»Р°С‚ CcAmountList
 	//
 	uint32 tag = 0;
 	if(dir > 0) {
@@ -5493,7 +5498,7 @@ int SLAPI CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & r
 			THROW_SL(pCtx->Unserialize(0, 0, 0, rBuf));
 		}
 		else {
-			assert(P_Ext != 0); // Условие гарантированно выполняется по причине вышестоящей проверки и установки признака tag.
+			assert(P_Ext != 0); // РЈСЃР»РѕРІРёРµ РіР°СЂР°РЅС‚РёСЂРѕРІР°РЅРЅРѕ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РїРѕ РїСЂРёС‡РёРЅРµ РІС‹С€РµСЃС‚РѕСЏС‰РµР№ РїСЂРѕРІРµСЂРєРё Рё СѓСЃС‚Р°РЅРѕРІРєРё РїСЂРёР·РЅР°РєР° tag.
 			THROW_SL(P_Ext->SerializeRecord(dir, &pPack->Ext, rBuf, pCtx));
 		}
 	}
@@ -5544,7 +5549,7 @@ int SLAPI CCheckCore::CorrectCCLineProblem01()
 		THROW(tra);
 		{
 			//
-			// Поиск и удаление строк чеков, не привязанных к чекам
+			// РџРѕРёСЃРє Рё СѓРґР°Р»РµРЅРёРµ СЃС‚СЂРѕРє С‡РµРєРѕРІ, РЅРµ РїСЂРёРІСЏР·Р°РЅРЅС‹С… Рє С‡РµРєР°Рј
 			//
 			IterCounter cntr;
 			PPInitIterCounter(cntr, &Lines);
@@ -5561,7 +5566,7 @@ int SLAPI CCheckCore::CorrectCCLineProblem01()
 		}
 		{
 			//
-			// Удаление чеков строк, которые автоматически появились там из-за изначально непустой таблицы CCheckLine
+			// РЈРґР°Р»РµРЅРёРµ С‡РµРєРѕРІ СЃС‚СЂРѕРє, РєРѕС‚РѕСЂС‹Рµ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РїРѕСЏРІРёР»РёСЃСЊ С‚Р°Рј РёР·-Р·Р° РёР·РЅР°С‡Р°Р»СЊРЅРѕ РЅРµРїСѓСЃС‚РѕР№ С‚Р°Р±Р»РёС†С‹ CCheckLine
 			//
 			//ValidateCheck(item.ID, 0.001, logger);
 			const double tolerance = 0.001;

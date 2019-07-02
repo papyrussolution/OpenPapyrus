@@ -33,7 +33,6 @@ void PrcTechCtrlGroup::enablePrcInsert(int enbl) { SETFLAG(Flags, fEnablePrcInse
 void PrcTechCtrlGroup::setupArticle(TDialog * pDlg, const ProcessorTbl::Rec * pPrcRec)
 {
 	PPOprKind op_rec;
-	MEMSZERO(op_rec);
 	GetOpData(pPrcRec->WrOffOpID, &op_rec);
 	SetupArCombo(pDlg, CtlselAr, Data.ArID, OLW_LOADDEFONOPEN|OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet);
 	int    was_idle_sheet_set = 0;
@@ -846,7 +845,7 @@ static int PPCheckInPersonTurnProc_TSess(const PPCheckInPersonConfig * pCfg, PPC
 {
 	assert(pList != 0);
 	int    ok = -1;
-	TSessionPacket * p_pack = (TSessionPacket *)pExtPtr;
+	TSessionPacket * p_pack = static_cast<TSessionPacket *>(pExtPtr);
 	if(p_pack) {
 		if(itemPos < pList->GetCount()) {
 			//PPCheckInPersonItem & r_item = pList->at(itemPos);

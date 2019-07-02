@@ -5032,7 +5032,6 @@ int SLAPI PPDS_CrrInvOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter,
 		case DSF_CRRINVOPEXENTRY_WRDNOPSYMB:
 			{
 				PPOprKind op_rec;
-				MEMSZERO(op_rec);
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.WrDnOp, &op_rec) > 0)
 						ok = TransferData(op_rec.Symb, sizeof(op_rec.Symb), dir, rBuf);
@@ -5044,7 +5043,6 @@ int SLAPI PPDS_CrrInvOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter,
 		case DSF_CRRINVOPEXENTRY_WRUPOPSYMB:
 			{
 				PPOprKind op_rec;
-				MEMSZERO(op_rec);
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.WrUpOp, &op_rec) > 0)
 						ok = TransferData(op_rec.Symb, sizeof(op_rec.Symb), dir, rBuf);
@@ -5371,7 +5369,6 @@ int SLAPI PPDS_CrrDraftOpExEntry::TransferField(long fldID, Tfd dir, uint * pIte
 		case DSF_CRRDRAFTOPEXENTRY_WROFFOP:
 			{
 				PPOprKind op_rec;
-				MEMSZERO(op_rec);
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.WrOffOpID, &op_rec) > 0)
 						ok = TransferData(op_rec.Symb, sizeof(op_rec.Symb), dir, rBuf);
@@ -5383,7 +5380,6 @@ int SLAPI PPDS_CrrDraftOpExEntry::TransferField(long fldID, Tfd dir, uint * pIte
 		case DSF_CRRDRAFTOPEXENTRY_WROFFCOMPLOP:
 			{
 				PPOprKind op_rec;
-				MEMSZERO(op_rec);
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.WrOffComplOpID, &op_rec) > 0)
 						ok = TransferData(op_rec.Symb, sizeof(op_rec.Symb), dir, rBuf);

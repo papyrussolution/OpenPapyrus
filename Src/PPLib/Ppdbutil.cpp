@@ -1,6 +1,6 @@
 // PPDBUTIL.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,7 +8,7 @@
 // @v9.6.3 #include <dos.h>
 //#include <sys\stat.h>
 //
-// Формат записи параметров резервной копии в файле pp.ini
+// Р¤РѕСЂРјР°С‚ Р·Р°РїРёСЃРё РїР°СЂР°РјРµС‚СЂРѕРІ СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРё РІ С„Р°Р№Р»Рµ pp.ini
 //
 // backup_name=db_name,path,period,flags(1-with compression),max_copies
 
@@ -124,7 +124,7 @@ static int SLAPI _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecov
 		SFileUtil::Stat st;
 		SFileUtil::GetStat(path, &st);
 		SFileUtil::GetDiskSpace(path, &disk_total, &disk_avail);
-		r = BIN(disk_avail > (st.Size * 2)); // *2 - коэффициент запаса
+		r = BIN(disk_avail > (st.Size * 2)); // *2 - РєРѕСЌС„С„РёС†РёРµРЅС‚ Р·Р°РїР°СЃР°
 		DBErrCode = SDBERR_BU_NOFREESPACE;
 		THROW_DB(r);
 		if(!p_db->RecoverTable(tblID, pParam)) {
@@ -672,8 +672,8 @@ public:
 	};
 	struct Param {
 		long   Mode;       // 0 - read, 1 - write
-		long   TblID;      // Идентификатор единственной таблицы, которую следует обработать.
-		int32  SpcOb;      // @v10.0.05 Специальный объект дампирования (spcobXXX)
+		long   TblID;      // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РµРґРёРЅСЃС‚РІРµРЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹, РєРѕС‚РѕСЂСѓСЋ СЃР»РµРґСѓРµС‚ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ.
+		int32  SpcOb;      // @v10.0.05 РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ РґР°РјРїРёСЂРѕРІР°РЅРёСЏ (spcobXXX)
 		SString DbSymb;
 		SString TableName;
 		SString FileName;
@@ -717,7 +717,7 @@ private:
 	StrAssocArray TblNameList;
 	SArray TblEntryList;
 	SSerializeContext Ctx;
-	SFile  FDump; // Файл дампа
+	SFile  FDump; // Р¤Р°Р№Р» РґР°РјРїР°
 	uint32 MaxBufLen;
 	int    Valid;
 	Param  P;
@@ -1075,8 +1075,8 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 							THROW_DB(tbl.insertRec());
 							if(has_lob) {
 								//
-								// Так как сериализация LOB-поля восстанавливает его в канонизированном
-								// виде, то очищаем канонизированный буфер во избежании утечки памяти.
+								// РўР°Рє РєР°Рє СЃРµСЂРёР°Р»РёР·Р°С†РёСЏ LOB-РїРѕР»СЏ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РµРіРѕ РІ РєР°РЅРѕРЅРёР·РёСЂРѕРІР°РЅРЅРѕРј
+								// РІРёРґРµ, С‚Рѕ РѕС‡РёС‰Р°РµРј РєР°РЅРѕРЅРёР·РёСЂРѕРІР°РЅРЅС‹Р№ Р±СѓС„РµСЂ РІРѕ РёР·Р±РµР¶Р°РЅРёРё СѓС‚РµС‡РєРё РїР°РјСЏС‚Рё.
 								//
 								tbl.writeLobData(lob_fld, 0, 0, 0);
 							}
@@ -1115,15 +1115,15 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 	int    ref_allocated = 0;
 	DbTableStat ts;
 	SBuffer buffer;
-	int64  recs_count = 0;  // Общее количество записей
+	int64  recs_count = 0;  // РћР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№
 	const  int64 start_offs = FDump.Tell();
 	THROW(P.Mode == 1);
 	if(P.SpcOb == spcobNone) {
 		if(CurDict->GetTableInfo(tblID, &ts) && !(ts.Flags & XTF_DICT)) {
 			SBuffer lob_buf;
 			char   key[MAXKEYLEN];
-			int64  local_count = 0; // Количество записей в отрезке
-			int64  chunk_count = 0; // Количество отрезков
+			int64  local_count = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№ РІ РѕС‚СЂРµР·РєРµ
+			int64  chunk_count = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚СЂРµР·РєРѕРІ
 			int    has_lob = 0;
 			IterCounter cntr;
 			DBField lob_fld;
@@ -1138,8 +1138,8 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 			if(tbl.search(0, &key, spFirst)) do {
 				if(has_lob) {
 					//
-					// Канонизируем буфер LOB-поля для того, чтобы функция Serialize могла
-					// правильно сохранить его в потоке.
+					// РљР°РЅРѕРЅРёР·РёСЂСѓРµРј Р±СѓС„РµСЂ LOB-РїРѕР»СЏ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ С„СѓРЅРєС†РёСЏ Serialize РјРѕРіР»Р°
+					// РїСЂР°РІРёР»СЊРЅРѕ СЃРѕС…СЂР°РЅРёС‚СЊ РµРіРѕ РІ РїРѕС‚РѕРєРµ.
 					//
 					lob_buf.Z();
 					tbl.readLobData(lob_fld, lob_buf);
@@ -1148,7 +1148,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 				THROW_SL(Ctx.Serialize(tbl.GetTableName(), &tbl.GetFieldsNonConst(), tbl.getDataBuf(), buffer));
 				if(has_lob) {
 					//
-					// Очищаем канонизированный буфер LOB-поля во избежании утечки памяти.
+					// РћС‡РёС‰Р°РµРј РєР°РЅРѕРЅРёР·РёСЂРѕРІР°РЅРЅС‹Р№ Р±СѓС„РµСЂ LOB-РїРѕР»СЏ РІРѕ РёР·Р±РµР¶Р°РЅРёРё СѓС‚РµС‡РєРё РїР°РјСЏС‚Рё.
 					//
 					tbl.writeLobData(lob_fld, 0, 0, 0);
 				}
@@ -1299,7 +1299,7 @@ IMPL_HANDLE_EVENT(DBMaintenanceDialog)
 				const int cmd_ = TVCMD;
 				clearEvent(event);
 				endModal(cmd_);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 		else if(oneof7(TVCMD, cmBuAutoBackup, cmRecover, cmProtect, cmDump, cmCreateDB, cmSetupBackupCfg, cmDbMonitor))
@@ -1307,7 +1307,7 @@ IMPL_HANDLE_EVENT(DBMaintenanceDialog)
 				const int cmd_ = TVCMD;
 				clearEvent(event);
 				endModal(cmd_);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 	}
 }
@@ -1329,7 +1329,7 @@ private:
 				F.FlashIniBuf();
 			}
 			endModal(cmOK);
-			return; // После endModal не следует обращаться к this
+			return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 		}
 		else
 			PPListDialog::handleEvent(event);
@@ -1595,7 +1595,7 @@ IMPL_HANDLE_EVENT(BackupDialog)
 				Data.Cmd = TVCMD;
 				clearEvent(event);
 				endModal(Data.Cmd);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 		else if(TVCMD == cmBuCheck) {
@@ -2127,7 +2127,7 @@ static int SLAPI PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString
 static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 {
 	int    ok = 1, ret;
-	int    all_ok = -1; // Если >0, то все таблицы восстановлены, если 0, то были ошибки
+	int    all_ok = -1; // Р•СЃР»Рё >0, С‚Рѕ РІСЃРµ С‚Р°Р±Р»РёС†С‹ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅС‹, РµСЃР»Рё 0, С‚Рѕ Р±С‹Р»Рё РѕС€РёР±РєРё
 	SArray r_info_array(sizeof(PPRecoverInfo));
 	BTBLID tblID = 0;
 	PPRecoverParam param;
@@ -2166,7 +2166,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 					SPathStruc::ReplacePath(param.LogFileName, temp_buf, 0);
 				}
 				//
-				// Создаем подкаталог, в который будут сбрасываться версии файлов "до ремонта"
+				// РЎРѕР·РґР°РµРј РїРѕРґРєР°С‚Р°Р»РѕРі, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґСѓС‚ СЃР±СЂР°СЃС‹РІР°С‚СЊСЃСЏ РІРµСЂСЃРёРё С„Р°Р№Р»РѕРІ "РґРѕ СЂРµРјРѕРЅС‚Р°"
 				//
 				for(long k = 1; k < 1000000L; k++)
 					if(!::IsDirectory((bak_path = data_path).SetLastSlash().Cat("RB").CatLongZ(k, 6))) {
@@ -2469,7 +2469,7 @@ int SLAPI CreateBackupCopy(const char * pActiveUser, int skipCfm)
 							if(cc && (use_copy_continouos || is_db_locked || ppb->LockDatabase() > 0)) {
 								is_db_locked = BIN(!use_copy_continouos);
 								if(!_DoAutoBackup(ppb, &scen, use_copy_continouos))
-									ok = PPErrorZ(); // Вывод сообщения об ошибке
+									ok = PPErrorZ(); // Р’С‹РІРѕРґ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєРµ
 								else if(ok)
 									ok = 1;
 							}
@@ -2491,7 +2491,8 @@ int SLAPI CreateBackupCopy(const char * pActiveUser, int skipCfm)
 
 int SLAPI SetDatabaseChain()
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r = 0;
 	char   password[32];
 	TDialog * dlg = 0;
 	THROW(r = PPCheckDatabaseChain());
@@ -2715,7 +2716,7 @@ int SLAPI DoDBMaintain(const DBMaintainParam * pParam)
 			THROW(sj.DoMaintain(to_dt, BIN(param.Tables & DBMaintainParam::tblRsrvSj), &logger));
 			logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_ENDSYSJ);
 		}
-		/* @v9.8.11 Более не актуально из-за изменения технологии хранений версий документов
+		/* @v9.8.11 Р‘РѕР»РµРµ РЅРµ Р°РєС‚СѓР°Р»СЊРЅРѕ РёР·-Р·Р° РёР·РјРµРЅРµРЅРёСЏ С‚РµС…РЅРѕР»РѕРіРёРё С…СЂР°РЅРµРЅРёР№ РІРµСЂСЃРёР№ РґРѕРєСѓРјРµРЅС‚РѕРІ
 		if(param.Tables & (DBMaintainParam::tblXBill|DBMaintainParam::tblXBillRecover)) {
 			HistBillCore hb;
 			to_dt = (param.Tables & DBMaintainParam::tblXBill) ? plusdate(getcurdate_(), -param.XBillDays) : ZERODATE;
@@ -2834,7 +2835,7 @@ int SLAPI TestLargeVlrInputOutput()
 		THROW(tra);
 		{
 			//
-			// Создание новой записи
+			// РЎРѕР·РґР°РЅРёРµ РЅРѕРІРѕР№ Р·Р°РїРёСЃРё
 			//
 			src_buf.Z();
 			MEMSZERO(rec);
@@ -2855,7 +2856,7 @@ int SLAPI TestLargeVlrInputOutput()
 		}
 		{
 			//
-			// Изменение записи на буфер большего размера
+			// РР·РјРµРЅРµРЅРёРµ Р·Р°РїРёСЃРё РЅР° Р±СѓС„РµСЂ Р±РѕР»СЊС€РµРіРѕ СЂР°Р·РјРµСЂР°
 			//
 			src_buf.Z();
 			MEMSZERO(rec);
@@ -2876,7 +2877,7 @@ int SLAPI TestLargeVlrInputOutput()
 		}
 		{
 			//
-			// Изменение записи на буфер меньшего размера
+			// РР·РјРµРЅРµРЅРёРµ Р·Р°РїРёСЃРё РЅР° Р±СѓС„РµСЂ РјРµРЅСЊС€РµРіРѕ СЂР°Р·РјРµСЂР°
 			//
 			src_buf.Z();
 			MEMSZERO(rec);
@@ -2897,7 +2898,7 @@ int SLAPI TestLargeVlrInputOutput()
 		}
 		{
 			//
-			// Изменение записи на буфер совсем маленького размера (без необходимости считывать отдельными отрезками)
+			// РР·РјРµРЅРµРЅРёРµ Р·Р°РїРёСЃРё РЅР° Р±СѓС„РµСЂ СЃРѕРІСЃРµРј РјР°Р»РµРЅСЊРєРѕРіРѕ СЂР°Р·РјРµСЂР° (Р±РµР· РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё СЃС‡РёС‚С‹РІР°С‚СЊ РѕС‚РґРµР»СЊРЅС‹РјРё РѕС‚СЂРµР·РєР°РјРё)
 			//
 			src_buf.Z();
 			MEMSZERO(rec);
@@ -2918,7 +2919,7 @@ int SLAPI TestLargeVlrInputOutput()
 		}
 		{
 			//
-			// Удаление записи (заносим пустой буфер)
+			// РЈРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРё (Р·Р°РЅРѕСЃРёРј РїСѓСЃС‚РѕР№ Р±СѓС„РµСЂ)
 			//
 			src_buf.Z();
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
@@ -2942,13 +2943,13 @@ class PrcssrTestDb {
 public:
 	struct Param {
 		enum {
-			fDbProvider = 0x0001 // Тестировать SQL-провайдера. В противном случае - native db
+			fDbProvider = 0x0001 // РўРµСЃС‚РёСЂРѕРІР°С‚СЊ SQL-РїСЂРѕРІР°Р№РґРµСЂР°. Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ - native db
 		};
 		long   Flags;
-		long   NumTaSeries; // Количество серий транзакций вставки записей в TestTa01
+		long   NumTaSeries; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРµСЂРёР№ С‚СЂР°РЅР·Р°РєС†РёР№ РІСЃС‚Р°РІРєРё Р·Р°РїРёСЃРµР№ РІ TestTa01
 		SString WordsFileName;
 		SString LogFileName;
-		SString OutPath;    // Путь к файлам вывода //
+		SString OutPath;    // РџСѓС‚СЊ Рє С„Р°Р№Р»Р°Рј РІС‹РІРѕРґР° //
 	};
 	SLAPI  PrcssrTestDb();
 	SLAPI ~PrcssrTestDb();
@@ -2986,10 +2987,10 @@ private:
 
 	Param  P;
 	StrAssocArray WordList;
-	PPIDArray Ref1List; // Список доступных идентификаторов справочника Ref1
-	PPIDArray Ref2List; // Список доступных идентификаторов справочника Ref2
+	PPIDArray Ref1List; // РЎРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СЃРїСЂР°РІРѕС‡РЅРёРєР° Ref1
+	PPIDArray Ref2List; // РЎРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СЃРїСЂР°РІРѕС‡РЅРёРєР° Ref2
 	SRandGenerator G;
-	ulong  TaCount;     // Количество (не точное) записей в таблице TestTa01
+	ulong  TaCount;     // РљРѕР»РёС‡РµСЃС‚РІРѕ (РЅРµ С‚РѕС‡РЅРѕРµ) Р·Р°РїРёСЃРµР№ РІ С‚Р°Р±Р»РёС†Рµ TestTa01
 	TestRef01Tbl * P_Ref1;
 	TestRef02Tbl * P_Ref2;
 	TestTa01Tbl * P_Ta;
@@ -3063,7 +3064,7 @@ int SLAPI PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 		}
 	}
 	else {
-		const char * p_alphabet = "0123456789.-ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФхЦЧШЩъЫЬЭЮЯ";
+		const char * p_alphabet = "0123456789.-ABCDEFGHIJKLMNOPQRSTUVWXYZРђР‘Р’Р“Р”Р•Р–Р—РР™РљР›РњРќРћРџР РЎРўРЈР¤С…Р¦Р§РЁР©СЉР«Р¬Р­Р®РЇ";
 		const size_t ab_len = sstrlen(p_alphabet);
 		for(i = 0; i < num_words; i++) {
 			temp_buf.Z();
@@ -3222,8 +3223,8 @@ int SLAPI PrcssrTestDb::AnalyzeAndUpdateTa()
 {
 	int    ok = 1;
 	OutputTa("ta_before_upd.txt");
-	SHistogram hg_v1; // Гистограмма по значениям TestTa01::RVal1
-	SHistogram hg_v2; // Гистограмма по значениям TestTa01::RVal2
+	SHistogram hg_v1; // Р“РёСЃС‚РѕРіСЂР°РјРјР° РїРѕ Р·РЅР°С‡РµРЅРёСЏРј TestTa01::RVal1
+	SHistogram hg_v2; // Р“РёСЃС‚РѕРіСЂР°РјРјР° РїРѕ Р·РЅР°С‡РµРЅРёСЏРј TestTa01::RVal2
 	hg_v1.SetupDynamic(0.0, 0.5);
 	hg_v2.SetupDynamic(70.0, 0.65);
 	GetTaHistograms(&hg_v1, &hg_v2);
@@ -3282,14 +3283,14 @@ int SLAPI PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 	MEMSZERO(rec);
 	getcurdatetime(&rec.Dt, &rec.Tm);
 	//
-	// Вероятность нулевого значения Ref1ID =0.05
+	// Р’РµСЂРѕСЏС‚РЅРѕСЃС‚СЊ РЅСѓР»РµРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ Ref1ID =0.05
 	//
 	if(labs(G.GetUniformInt(100)) < 5) {
 		rec.Ref1ID = 0;
 	}
 	else {
 		//
-		// Вероятность висячей ссылки Ref1ID =0.000001
+		// Р’РµСЂРѕСЏС‚РЅРѕСЃС‚СЊ РІРёСЃСЏС‡РµР№ СЃСЃС‹Р»РєРё Ref1ID =0.000001
 		//
 		if(G.GetUniformInt(1000000) == 0) {
 
@@ -3297,25 +3298,25 @@ int SLAPI PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 		else {
 			if(Ref1List.getCount() == 0) {
 				//
-				// Если в справочнике нет ни одной записи, то безусловно создаем новый элемент справочника
+				// Р•СЃР»Рё РІ СЃРїСЂР°РІРѕС‡РЅРёРєРµ РЅРµС‚ РЅРё РѕРґРЅРѕР№ Р·Р°РїРёСЃРё, С‚Рѕ Р±РµР·СѓСЃР»РѕРІРЅРѕ СЃРѕР·РґР°РµРј РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР°
 				//
 				THROW(CreateRef01(&rec.Ref1ID));
 			}
 			else {
 				//
-				// Вероятность создания нового элемента справочника находится в логарифмической зависимости
-				// от накопленного количества транзакций.
+				// Р’РµСЂРѕСЏС‚РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅРёСЏ РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЃРїСЂР°РІРѕС‡РЅРёРєР° РЅР°С…РѕРґРёС‚СЃСЏ РІ Р»РѕРіР°СЂРёС„РјРёС‡РµСЃРєРѕР№ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё
+				// РѕС‚ РЅР°РєРѕРїР»РµРЅРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° С‚СЂР°РЅР·Р°РєС†РёР№.
 				//
 				double p = 1.0 / log((double)TaCount);
 				if(labs(G.GetUniformInt(1000000)) < p * 1000000.0) {
 					//
-					// Попали в вероятность создания нового элемента справочника
+					// РџРѕРїР°Р»Рё РІ РІРµСЂРѕСЏС‚РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅРёСЏ РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЃРїСЂР°РІРѕС‡РЅРёРєР°
 					//
 					THROW(CreateRef01(&rec.Ref1ID));
 				}
 				else {
 					//
-					// Используем существующий элемент справочника
+					// РСЃРїРѕР»СЊР·СѓРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СЌР»РµРјРµРЅС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР°
 					//
 					uint pos = labs(G.GetUniformInt(Ref1List.getCount()));
 					assert(pos < Ref1List.getCount());
@@ -3325,14 +3326,14 @@ int SLAPI PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 		}
 	}
 	//
-	// Вероятность нулевого значения Ref2ID =0.80
+	// Р’РµСЂРѕСЏС‚РЅРѕСЃС‚СЊ РЅСѓР»РµРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ Ref2ID =0.80
 	//
 	if(labs(G.GetUniformInt(100)) < 80) {
 		rec.Ref2ID = 0;
 	}
 	else {
 		//
-		// Вероятность висячей ссылки Ref2ID =0.000001
+		// Р’РµСЂРѕСЏС‚РЅРѕСЃС‚СЊ РІРёСЃСЏС‡РµР№ СЃСЃС‹Р»РєРё Ref2ID =0.000001
 		//
 		if(G.GetUniformInt(1000000) == 0) {
 
@@ -3340,25 +3341,25 @@ int SLAPI PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 		else {
 			if(Ref2List.getCount() == 0) {
 				//
-				// Если в справочнике нет ни одной записи, то безусловно создаем новый элемент справочника
+				// Р•СЃР»Рё РІ СЃРїСЂР°РІРѕС‡РЅРёРєРµ РЅРµС‚ РЅРё РѕРґРЅРѕР№ Р·Р°РїРёСЃРё, С‚Рѕ Р±РµР·СѓСЃР»РѕРІРЅРѕ СЃРѕР·РґР°РµРј РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР°
 				//
 				THROW(CreateRef02(&rec.Ref2ID));
 			}
 			else {
 				//
-				// Вероятность создания нового элемента справочника находится в логарифмической зависимости
-				// от накопленного количества транзакций.
+				// Р’РµСЂРѕСЏС‚РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅРёСЏ РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЃРїСЂР°РІРѕС‡РЅРёРєР° РЅР°С…РѕРґРёС‚СЃСЏ РІ Р»РѕРіР°СЂРёС„РјРёС‡РµСЃРєРѕР№ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё
+				// РѕС‚ РЅР°РєРѕРїР»РµРЅРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° С‚СЂР°РЅР·Р°РєС†РёР№.
 				//
 				double p = 1.0 / log((double)TaCount);
 				if(labs(G.GetUniformInt(1000000)) < p * 1000000.0) {
 					//
-					// Попали в вероятность создания нового элемента справочника
+					// РџРѕРїР°Р»Рё РІ РІРµСЂРѕСЏС‚РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅРёСЏ РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЃРїСЂР°РІРѕС‡РЅРёРєР°
 					//
 					THROW(CreateRef02(&rec.Ref2ID));
 				}
 				else {
 					//
-					// Используем существующий элемент справочника
+					// РСЃРїРѕР»СЊР·СѓРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СЌР»РµРјРµРЅС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР°
 					//
 					uint pos = labs(G.GetUniformInt(Ref2List.getCount()));
 					assert(pos < Ref2List.getCount());
@@ -3397,12 +3398,12 @@ int SLAPI PrcssrTestDb::CreateRef01(long * pID)
 		id = P_Ref1->data.ID;
 		rec.ID = id;
 		//
-		// Оставляем малую возмножность для дублирования индекса #05 (изменяем S48)
+		// РћСЃС‚Р°РІР»СЏРµРј РјР°Р»СѓСЋ РІРѕР·РјРЅРѕР¶РЅРѕСЃС‚СЊ РґР»СЏ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РёРЅРґРµРєСЃР° #05 (РёР·РјРµРЅСЏРµРј S48)
 		//
 
 		// @log Ref1 by Key1 found
 		THROW_DB(updateFor(P_Ref1, 0, (P_Ref1->ID == id),
-			// L и I16 не меняем
+			// L Рё I16 РЅРµ РјРµРЅСЏРµРј
 			set(P_Ref1->UI16, dbconst(rec.UI16)).
 			set(P_Ref1->F64, dbconst(rec.F64)).
 			set(P_Ref1->F32, dbconst(rec.F32)).
@@ -3420,7 +3421,7 @@ int SLAPI PrcssrTestDb::CreateRef01(long * pID)
 			id = P_Ref1->data.ID;
 			rec.ID = id;
 			//
-			// Оставляем малую возмножность для дублирования индекса #01 (изменяем L и I16)
+			// РћСЃС‚Р°РІР»СЏРµРј РјР°Р»СѓСЋ РІРѕР·РјРЅРѕР¶РЅРѕСЃС‚СЊ РґР»СЏ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РёРЅРґРµРєСЃР° #01 (РёР·РјРµРЅСЏРµРј L Рё I16)
 			//
 
 			// @log Ref1 by Key5 found
@@ -3432,7 +3433,7 @@ int SLAPI PrcssrTestDb::CreateRef01(long * pID)
 				set(P_Ref1->F32, dbconst(rec.F32)).
 				set(P_Ref1->D, dbconst(rec.D)).
 				set(P_Ref1->T, dbconst(rec.T)).
-				// S48 не меняем
+				// S48 РЅРµ РјРµРЅСЏРµРј
 				set(P_Ref1->S12, dbconst(rec.S12))));
 			LogMessage(msg_buf.Printf("Updated rec of '%s' (reason: Key5 found)", P_Ref1->GetTableName()));
 		}
@@ -3485,12 +3486,12 @@ int SLAPI PrcssrTestDb::CreateRef02(long * pID)
 		id = P_Ref2->data.ID;
 		rec.ID = id;
 		//
-		// Оставляем малую возможность для дублирования индекса #05 (изменяем S48)
+		// РћСЃС‚Р°РІР»СЏРµРј РјР°Р»СѓСЋ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РґР»СЏ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РёРЅРґРµРєСЃР° #05 (РёР·РјРµРЅСЏРµРј S48)
 		//
 
 		// @log Ref2 by Key1 found
 		THROW_DB(updateFor(P_Ref2, 0, (P_Ref2->ID == id),
-			// L и I16 не меняем
+			// L Рё I16 РЅРµ РјРµРЅСЏРµРј
 			set(P_Ref2->UI16, dbconst(rec.UI16)).
 			set(P_Ref2->F64, dbconst(rec.F64)).
 			set(P_Ref2->F32, dbconst(rec.F32)).
@@ -3509,7 +3510,7 @@ int SLAPI PrcssrTestDb::CreateRef02(long * pID)
 			id = P_Ref2->data.ID;
 			rec.ID = id;
 			//
-			// Оставляем малую возмножность для дублирования индекса #01 (изменяем L и I16)
+			// РћСЃС‚Р°РІР»СЏРµРј РјР°Р»СѓСЋ РІРѕР·РјРЅРѕР¶РЅРѕСЃС‚СЊ РґР»СЏ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РёРЅРґРµРєСЃР° #01 (РёР·РјРµРЅСЏРµРј L Рё I16)
 			//
 
 			// @log Ref2 by Key5 found
@@ -3521,7 +3522,7 @@ int SLAPI PrcssrTestDb::CreateRef02(long * pID)
 				set(P_Ref2->F32, dbconst(rec.F32)).
 				set(P_Ref2->D, dbconst(rec.D)).
 				set(P_Ref2->T, dbconst(rec.T)).
-				// S48 не меняем
+				// S48 РЅРµ РјРµРЅСЏРµРј
 				set(P_Ref2->S12, dbconst(rec.S12)).
 				set(P_Ref2->N, dbconst(rec.N))));
 			LogMessage(msg_buf.Printf("Updated rec of '%s' (reason: Key5 found)", P_Ref2->GetTableName()));
@@ -3588,8 +3589,8 @@ SLTEST_R(PrcssrTestDb)
 	prcssr.InitParam(&param);
 	/*
 	;
-	; Аргументы:
-	;   0 - Количество серий создания записей транзакций
+	; РђСЂРіСѓРјРµРЅС‚С‹:
+	;   0 - РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРµСЂРёР№ СЃРѕР·РґР°РЅРёСЏ Р·Р°РїРёСЃРµР№ С‚СЂР°РЅР·Р°РєС†РёР№
 	;
 	*/
 	if(EnumArg(&arg_no, arg)) {
@@ -3646,7 +3647,7 @@ SLTEST_R(TestDbSerialization)
 			ulong rn = SLS.GetTLA().Rg.Get();
 			int sp;
 			//
-			// Сохраняем последовательность типов записей для полседующего восстановления //
+			// РЎРѕС…СЂР°РЅСЏРµРј РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ С‚РёРїРѕРІ Р·Р°РїРёСЃРµР№ РґР»СЏ РїРѕР»СЃРµРґСѓСЋС‰РµРіРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ //
 			//
 			const long s = (rn % 4);
 			switch(s) {
@@ -3657,7 +3658,7 @@ SLTEST_R(TestDbSerialization)
 							BillTbl::Rec bill_rec;
 							bill_tbl.copyBufTo(&bill_rec);
 							//
-							// Проверка работоспособности функции BNFieldList::IsEqualRecords
+							// РџСЂРѕРІРµСЂРєР° СЂР°Р±РѕС‚РѕСЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё С„СѓРЅРєС†РёРё BNFieldList::IsEqualRecords
 							//
 							THROW(SLTEST_CHECK_NZ(bill_tbl.GetFields().IsEqualRecords(&bill_rec, &bill_tbl.data)));
 							THROW(SLTEST_CHECK_NZ(ctx.Serialize(bill_tbl.GetTableName(), &bill_tbl.GetFieldsNonConst(), &bill_tbl.data, srlz_buf)));
@@ -3675,7 +3676,7 @@ SLTEST_R(TestDbSerialization)
 							ReceiptTbl::Rec lot_rec;
 							lot_tbl.copyBufTo(&lot_rec);
 							//
-							// Проверка работоспособности функции BNFieldList::IsEqualRecords
+							// РџСЂРѕРІРµСЂРєР° СЂР°Р±РѕС‚РѕСЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё С„СѓРЅРєС†РёРё BNFieldList::IsEqualRecords
 							//
 							THROW(SLTEST_CHECK_NZ(lot_tbl.GetFields().IsEqualRecords(&lot_rec, &lot_tbl.data)));
 							THROW(SLTEST_CHECK_NZ(ctx.Serialize(lot_tbl.GetTableName(), &lot_tbl.GetFieldsNonConst(), &lot_tbl.data, srlz_buf)));
@@ -3693,7 +3694,7 @@ SLTEST_R(TestDbSerialization)
 							CCheckTbl::Rec cc_rec;
 							cc_tbl.copyBufTo(&cc_rec);
 							//
-							// Проверка работоспособности функции BNFieldList::IsEqualRecords
+							// РџСЂРѕРІРµСЂРєР° СЂР°Р±РѕС‚РѕСЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё С„СѓРЅРєС†РёРё BNFieldList::IsEqualRecords
 							//
 							THROW(SLTEST_CHECK_NZ(cc_tbl.GetFields().IsEqualRecords(&cc_rec, &cc_tbl.data)));
 							THROW(SLTEST_CHECK_NZ(ctx.Serialize(cc_tbl.GetTableName(), &cc_tbl.GetFieldsNonConst(), &cc_tbl.data, srlz_buf)));
@@ -3718,7 +3719,7 @@ SLTEST_R(TestDbSerialization)
 							PrjTaskTbl::Rec todo_rec;
 							todo_tbl.copyBufTo(&todo_rec);
 							//
-							// Проверка работоспособности функции BNFieldList::IsEqualRecords
+							// РџСЂРѕРІРµСЂРєР° СЂР°Р±РѕС‚РѕСЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё С„СѓРЅРєС†РёРё BNFieldList::IsEqualRecords
 							//
 							THROW(SLTEST_CHECK_NZ(todo_tbl.GetFields().IsEqualRecords(&todo_rec, &todo_tbl.data)));
 							THROW(SLTEST_CHECK_NZ(ctx.Serialize(todo_tbl.GetTableName(), &todo_tbl.GetFieldsNonConst(), &todo_tbl.data, srlz_buf)));
@@ -3736,11 +3737,11 @@ SLTEST_R(TestDbSerialization)
 		THROW(SLTEST_CHECK_NZ(srlz_file.Write(srlz_buf)));
 	}
 	//
-	// Страховочная проверка
+	// РЎС‚СЂР°С…РѕРІРѕС‡РЅР°СЏ РїСЂРѕРІРµСЂРєР°
 	//
 	THROW(SLTEST_CHECK_EQ(serial_list.getCount(), id_list.getCount()));
 	//
-	// Восстановление данных
+	// Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РґР°РЅРЅС‹С…
 	//
 	{
 		SFile srlz_file(srlz_file_name, SFile::mRead|SFile::mBinary);

@@ -1121,7 +1121,6 @@ int SLAPI Convert301()
 			PPID   cntr_id = 0;
 			char   memo_templ[128];
 			PropertyTbl::Rec prop_rec;
-
 			MEMSZERO(op_rec);
 			STRNSCPY(op_rec.Name, op_rec_b301.Name);
 			op_rec.Tag        = op_rec_b301.Tag;

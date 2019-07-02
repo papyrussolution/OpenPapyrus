@@ -5416,7 +5416,6 @@ int SLAPI PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, 
 	BhtRecord br_line;
 	PPOprKind  op_rec;
 	PPObjGoods g_obj;
-	MEMSZERO(op_rec);
 	r = GetOpData(pBhtRec->ExpendOpID, &op_rec);
 	PPSetAddedMsgString(longfmtz(op_rec.ID, 0, op_id, sizeof(op_id)));
 	THROW_PP(r > 0 && op_rec.OpTypeID == PPOPT_GOODSEXPEND, PPERR_INVEXPOP)

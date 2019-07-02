@@ -1,5 +1,6 @@
 // PPSOAPCALLER-PEPSI.CPP
-// Copyright (c) A.Sobolev 2016, 2017
+// Copyright (c) A.Sobolev 2016, 2017, 2019
+// @codepage UTF-8
 //
 #include <ppsoapclient.h>
 #include "pepsi\pepsiSoapAccountingTransferSoapProxy.h"
@@ -54,9 +55,8 @@ static void FASTCALL ProcessError(AccountingTransferSoapProxy & rProxi, PPSoapCl
 
 static int FASTCALL PreprocessCall(AccountingTransferSoapProxy & rProxy, PPSoapClientSession & rSess, int result)
 {
-	if(result == SOAP_OK) {
+	if(result == SOAP_OK)
 		return 1;
-	}
 	else {
 		ProcessError(rProxy, rSess);
 		return 0;
@@ -313,7 +313,7 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 		const ns1__DOC * p_ord = pSrcList->DOC[i];
 		if(p_ord) {
 			const int doc_type = (temp_buf = p_ord->DOC_USCORETP).Transf(CTRANSF_UTF8_TO_INNER).ToLong();
-			if(oneof2(doc_type, 6, 13)) { // Çàêàç îò êëèåíòà èëè ïðèõîä îò ïîñòàâùèêà
+			if(oneof2(doc_type, 6, 13)) { // Ð—Ð°ÐºÐ°Ð· Ð¾Ñ‚ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° Ð¸Ð»Ð¸ Ð¿Ñ€Ð¸Ñ…Ð¾Ð´ Ð¾Ñ‚ Ð¿Ð¾ÑÑ‚Ð°Ð²Ñ‰Ð¸ÐºÐ°
 				iSalesBillPacket * p_new_order = p_result->CreateNewItem(0);
 				THROW(p_new_order);
 				p_new_order->DocType = doc_type;
@@ -322,7 +322,7 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 				(temp_buf = p_ord->DOC_USCOREDT).Transf(CTRANSF_UTF8_TO_INNER);
 				strtodatetime(temp_buf, &p_new_order->Dtm, DATF_DMY, TIMF_HMS);
 				p_new_order->Status = (temp_buf = p_ord->STATUS).Transf(CTRANSF_UTF8_TO_INNER).ToLong();
-				p_new_order->SellerCode = (temp_buf = p_ord->SELLER).Transf(CTRANSF_UTF8_TO_INNER); // Êîä äèñòðèáüþòîðà
+				p_new_order->SellerCode = (temp_buf = p_ord->SELLER).Transf(CTRANSF_UTF8_TO_INNER); // ÐšÐ¾Ð´ Ð´Ð¸ÑÑ‚Ñ€Ð¸Ð±ÑŒÑŽÑ‚Ð¾Ñ€Ð°
 				p_new_order->PayerCode = (temp_buf = p_ord->PAYER).Transf(CTRANSF_UTF8_TO_INNER);
 				p_new_order->AgentCode = (temp_buf = p_ord->SR_USCOREID).Transf(CTRANSF_UTF8_TO_INNER);
 				p_new_order->Memo = (temp_buf = p_ord->COMMS).Transf(CTRANSF_UTF8_TO_INNER);
@@ -436,7 +436,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetRece
 	param.dtTo = GetDynamicParamString(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
 	param.includeAlreadyProcessedItems = GetDynamicParamString(inclProcessedItems, arg_str_pool);
 	param.docTypes = GetDynamicParamString("6", arg_str_pool);
-	param.docStatuses = GetDynamicParamString("2", arg_str_pool); // 0 - âûïèñàí; 1 - îòìåíåí; 2 - ÷åðíîâèê
+	param.docStatuses = GetDynamicParamString("2", arg_str_pool); // 0 - Ð²Ñ‹Ð¿Ð¸ÑÐ°Ð½; 1 - Ð¾Ñ‚Ð¼ÐµÐ½ÐµÐ½; 2 - Ñ‡ÐµÑ€Ð½Ð¾Ð²Ð¸Ðº
 	THROW(PreprocessCall(proxi, rSess, proxi.DocumentsTransfer(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	if(resp.DocumentsTransferResult && resp.DocumentsTransferResult->__sizeDOC > 0) {
 		p_result = Helper_AcceptDocList(resp.DocumentsTransferResult);
@@ -820,7 +820,15 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 				p_new_bill->DOC_USCORETP = GetDynamicParamString(p_src_pack->DocType, arg_str_pool);
 				p_new_bill->DOC_USCORENO = GetDynamicParamString(p_src_pack->Code, arg_str_pool);
 				p_new_bill->DOC_USCOREDT = GetDynamicParamString(p_src_pack->Dtm, DATF_GERMAN|DATF_CENTURY, TIMF_HMS, arg_str_pool);
-				p_new_bill->INC_USCOREDT = 0;
+				{
+					// @v10.4.12 p_new_bill->INC_USCOREDT = 0;
+					// @v10.4.12 {
+					LDATETIME crdtm = p_src_pack->CreationDtm;
+					if(!checkdate(crdtm.d))
+						crdtm = p_src_pack->Dtm;
+					p_new_bill->INC_USCOREDT = GetDynamicParamString(crdtm.d, DATF_GERMAN|DATF_CENTURY, arg_str_pool); 
+					// } @v10.4.12 
+				}
 				p_new_bill->EXT_USCORETP = 0;
 				p_new_bill->EXT_USCORENO = 0;
 				p_new_bill->EXT_USCOREDT = 0;

@@ -2879,7 +2879,6 @@ int SLAPI PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * p
 			ProcessorTbl::Rec prc_rec;
 			if(PrcObj.GetRecWithInheritance(labs(prcID), &prc_rec) > 0) {
 				PPOprKind op_rec;
-				MEMSZERO(op_rec);
 				GetOpData(prc_rec.WrOffOpID, &op_rec);
 				SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, rec.Ar2ID, OLW_CANINSERT, op_rec.AccSheet2ID, sacfDisableIfZeroSheet|sacfNonGeneric);
 			}

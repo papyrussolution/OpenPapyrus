@@ -320,7 +320,7 @@ int SLAPI BillFilterDialog(uint dlgID, BillFilt * pFilt, TDialog ** ppDlg, const
 int SLAPI BillFilterDialog(uint dlgID, BillFilt * pFilt, const char * pAddText)
 {
 	BillFiltDialog * dlg = 0;
-	int    r = BillFilterDialog(dlgID, pFilt, reinterpret_cast<TDialog**>(&dlg), pAddText);
+	const int r = BillFilterDialog(dlgID, pFilt, reinterpret_cast<TDialog**>(&dlg), pAddText);
 	delete dlg;
 	return r;
 }

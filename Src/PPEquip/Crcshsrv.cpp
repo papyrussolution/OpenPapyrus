@@ -741,7 +741,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					AddCheckDigToBarcode(bc.Code);
 					p_writer->StartElement("bar-code", "code", bc.Code);
 					// @v10.4.11 {
-					if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedCode|AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
+					if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
 						p_writer->AddAttrib("marked", "true");
 					}
 					// } @v10.4.11 
@@ -951,8 +951,10 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			if(gds_info.Flags_ & gds_info.fGMarkedCode)
 				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_MARKED);
 			IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED);
-			if(gds_info.PrefBarCode[0] && strcmp(bc.Code, gds_info.PrefBarCode) == 0)
-				bc.BarcodeType = BARCODE_TYPE_PREFERRED;
+			if(gds_info.PrefBarCode[0] && strcmp(bc.Code, gds_info.PrefBarCode) == 0) {
+				//bc.BarcodeType = BARCODE_TYPE_PREFERRED;
+				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_PREFERRED);
+			}
 			barcodes.insert(&bc);
 		}
 		prev_goods_id = gds_info.ID;

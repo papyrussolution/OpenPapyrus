@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147494286
+LastSignatureCode=2147494300
 LastAutoCodeList=1,11435;102,10169;103,10071;110,10000;111,11845;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10099;120,10005;1001,10000;121,10000;122,10000;123,10335;1002,10000;1003,10000;1004,10000;1005,10000;124,10097
 
 [SignatureList]
@@ -143,6 +143,7 @@ op_pl=2147486936
 association=2147493896
 association_pl=2147493897
 desktop=2147493910
+accesslevel=2147494300
 tag=2147483725
 tags=2147486627
 listoftags=2147494244
@@ -5361,6 +5362,19 @@ prcbusyfilt_ffree=2147487405
 prcbusyfilt_fshowtimegraph=2147487406
 prcbusyfilt_minduration=2147487407
 prcbusyfilt_prc=2147487408
+prcpan=2147494287
+prcpan_prc=2147494288
+prcpan_curtsess=2147494289
+prcpan_mainware=2147494290
+prcpan_ware=2147494291
+prcpan_serial=2147494292
+prcpan_sign=2147494293
+prcpan_unitperpack=2147494294
+prcpan_qtty=2147494295
+prcpan_qttypack=2147494296
+prcpan_total=2147494297
+prcpan_total_qtty=2147494298
+prcpan_total_qttypack=2147494299
 prcssrwroffdraftfilt_dwo=2147487171
 prcssrwroffdraftfilt_fcreatemrptab=2147487172
 prcssrwroffdraftfilt_period=2147487173

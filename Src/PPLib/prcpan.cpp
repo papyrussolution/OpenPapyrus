@@ -47,7 +47,7 @@ private:
 	virtual int FASTCALL valid(ushort command);
 	int    isRestState() const
 	{
-		return (State == sREST || State == sREST_SERIAL_NOQTTY || State == sREST_SERIAL_QTTY) ? 1 : 0;
+		return BIN(State == sREST || State == sREST_SERIAL_NOQTTY || State == sREST_SERIAL_QTTY);
 	}
 	int    setupProcessor(PPID prcID, int init);
 	void   updateStatus(int forceUpdate);
@@ -70,7 +70,7 @@ private:
 	int    getInput()
 	{
 		getCtrlString(CTL_PRCPAN_INPUT, Input);
-		return Input.NotEmptyS() ? 1 : 0;
+		return BIN(Input.NotEmptyS());
 	}
 	void   acceptQuantity(int inPack); // @<<processEnter
 	void   ProcessEnter();
@@ -86,7 +86,6 @@ private:
 
 	PPObjTSession TSesObj;
 	PPObjGoods GObj;
-
 	Header H;
 	Entry  E;
 	TGSArray TgsList;
@@ -105,7 +104,6 @@ private:
 	};
 	TSArray <SwitchPrcEntry> SwitchPrcList;
 };
-
 /*
 F2   - выбор товара
 F10  - выбор основного товара
@@ -338,7 +336,7 @@ void PrcPaneDialog::clearInput(int selectOnly)
 		CALLPTRMEMB(p_il, selectAll(true));
 	}
 	else {
-		Input = 0;
+		Input.Z();
 		setCtrlString(CTL_PRCPAN_INPUT, Input);
 		selectCtrl(CTL_PRCPAN_INPUT);
 	}
@@ -799,7 +797,7 @@ void PrcPaneDialog::selectGoods(int mode)
 				int    r2 = TSesObj.SelectBySerial(&ssp);
 				if(r2 == 1 || (r2 == 2 && isRestState())) {
 					setupGoods(ssp.GoodsID);
-					if(ssp.Qtty > 1)
+					if(ssp.Qtty > 1.0)
 						setupQtty(ssp.Qtty, 0);
 					STRNSCPY(E.Serial, ssp.Serial);
 					E.LotID = ssp.LotID;
@@ -816,7 +814,7 @@ void PrcPaneDialog::selectGoods(int mode)
 					// закончился. Следовательно, инициализируем ИД товара, количество. Серийный номер не используем.
 					//
 					setupGoods(ssp.GoodsID);
-					if(ssp.Qtty > 1)
+					if(ssp.Qtty > 1.0)
 						setupQtty(ssp.Qtty, 0);
 					memzero(E.Serial, sizeof(E.Serial));
 					E.LotID = 0;
@@ -850,15 +848,15 @@ int PrcPaneDialog::setupQtty(double qtty, int inPack)
 			E.Qtty = E.Pack * qtty;
 		}
 		else {
-			E.PackQtty = (E.Pack > 0) ? R6(qtty / E.Pack) : 0;
+			E.PackQtty = (E.Pack > 0) ? R6(qtty / E.Pack) : 0.0;
 			E.Qtty = qtty;
 		}
 		setCtrlData(CTL_PRCPAN_QTTYPACK, &E.PackQtty);
 		setCtrlData(CTL_PRCPAN_QTTY,     &E.Qtty);
 		if(oneof2(State, sGOODS_NOQTTY, sGOODS_QTTY))
-			State = (E.Qtty > 0) ? sGOODS_QTTY : sGOODS_NOQTTY;
+			State = (E.Qtty > 0.0) ? sGOODS_QTTY : sGOODS_NOQTTY;
 		else if(oneof2(State, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY))
-			State = (E.Qtty > 0) ? sREST_SERIAL_QTTY : sREST_SERIAL_NOQTTY;
+			State = (E.Qtty > 0.0) ? sREST_SERIAL_QTTY : sREST_SERIAL_NOQTTY;
 	}
 	CATCH
 		showMessage(mfError, 0, 0);
@@ -892,9 +890,9 @@ void PrcPaneDialog::setupGoods(PPID goodsID)
 	E.GoodsID = 0;
 	E.GoodsName[0] = 0;
 	E.Serial[0] = 0;
-	E.Pack = 0;
-	E.PackQtty = 0;
-	E.Qtty = 0;
+	E.Pack = 0.0;
+	E.PackQtty = 0.0;
+	E.Qtty = 0.0;
 	E.Expiry = ZERODATE;
 	setStaticText(CTL_PRCPAN_ST_EXPIRY, 0);
 	E.Sign   = UNDEF_SIGN;
@@ -904,7 +902,6 @@ void PrcPaneDialog::setupGoods(PPID goodsID)
 		if(GObj.Fetch(goodsID, &goods_rec) > 0) {
 			E.GoodsID = goodsID;
 			STRNSCPY(E.GoodsName, goods_rec.Name);
-			//
 			int    sign = 0;
 			PPID   op_id = 0;
 			if(H.LinkBillID) {

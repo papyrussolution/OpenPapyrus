@@ -1983,9 +1983,7 @@ private:
 	int    MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe);
 	void   RegisterMouseTracking(int force);
 
-	//static const char * P_ClsName;
 	const  SString ClsName;     // Window class name
-
 	enum {
 		wbsMDI                  = 0x0001,
 		wbsUserSettingsChanged  = 0x0002,
@@ -2068,6 +2066,8 @@ public:
 			bfVFill  = (bfTop|bfBottom),
 			bfFill   = (bfLeft|bfRight|bfTop|bfBottom)
 		};
+		// @construction USize  SzX;
+		// @construction USize  SzY;
 		TPoint Sz;
 		TRect  Margins;
 		int16  ContainerDirection;  // DIREC_UNKN(free) || DIREC_HORZ || DIREC_VERT

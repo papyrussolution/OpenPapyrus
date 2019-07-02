@@ -7160,7 +7160,6 @@ int SLAPI PPEgaisProcessor::GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta
 	}
 	else {
 		PPOprKindPacket op_pack;
-        MEMSZERO(op_rec);
 		op_pack.Rec.ID = reserved_id;
         PPLoadText(name_id, temp_buf);
         THROW(temp_buf.NotEmptyS());
