@@ -67,12 +67,10 @@ void FASTCALL PPThread::GetInfo(PPThread::Info & rInfo) const
 void FASTCALL PPThread::LockStackToStr(SString & rBuf) const
 {
 	const SlThreadLocalArea * p_sl_tla = (const SlThreadLocalArea *)SlThread::P_Tla;
-	if(p_sl_tla) {
+	if(p_sl_tla)
 		p_sl_tla->LckStk.ToStr(rBuf);
-	}
-	else {
+	else
 		rBuf.Cat("TLA inaccessible");
-	}
 }
 
 int SLAPI PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -212,19 +210,19 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tGetDisplayInfo,
 		tGetWorkbookContent,
 		tSetTxtCmdTerm,
-		tGetKeywordSeq,  // @v8.2.9
-		tRegisterStylo, // @v8.7.1
+		tGetKeywordSeq,
+		tRegisterStylo,
 		tSoBlock,
 		tNoArg,
-		tSetWorkbookContent, // @v8.7.7
-		tQueryNaturalToken, // @v8.8.12
+		tSetWorkbookContent,
+		tQueryNaturalToken,
 		tGetArticleByPerson,
 		tGetPersonByArticle,
 		tLogLockStack, // @v9.8.1
 		tSetTimeSeries, // @v10.2.3
 		tGetReqQuotes,  // @v10.2.4
-		tSetTimeSeriesProp,  // @10.2.5
-		tSetTimeSeriesStkEnv // @v10.2.10
+		tSetTimeSeriesProp,   // @10.2.5
+		tSetTimeSeriesStkEnv, // @v10.2.10
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -355,10 +353,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 	uint   i;
 	uint   _u_hs = 0; // @v9.6.4
 	long   cmd_flags = 0;
-	{
-		// @v9.8.0 Params.Z();
-		ClearParams(); // @v9.8.0
-	}
+	ClearParams();
     THROW(GetWord(rLine, &p));
 	Term.ToLower(); // @v9.6.4
 	CALLPTRMEMB(P_ShT, Search(Term, &_u_hs, 0)); // @v9.6.4

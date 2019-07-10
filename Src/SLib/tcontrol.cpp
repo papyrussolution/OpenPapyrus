@@ -1764,12 +1764,25 @@ int ComboBox::TransmitData(int dir, void * pData)
 			SETFLAG(State, stNoDefZero, !NoDefID);
 		}
 		else if(P_ListWin) {
-			P_ListWin->listBox()->TransmitData(dir, pData);
-			SETFLAG(State, stUndef, !(P_ListWin->listBox()->State & SmartListBox::stDataFounded));
+			SmartListBox * p_lb = P_ListWin->listBox();
+			p_lb->TransmitData(dir, pData);
+			SETFLAG(State, stUndef, !(p_lb->State & SmartListBox::stDataFounded));
 			if(P_ILink) {
 				char   d[512];
-				if(State & stUndef)
+				if(State & stUndef) {
 					memzero(d, sizeof(d));
+					// @v10.4.12 {
+					/* @construction 
+					if(!(p_lb->State & SmartListBox::stDataFounded)) {
+						long temp_id = 0;
+						if(p_lb->getCurID(&temp_id) && temp_id) {
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							r_temp_buf.CatEq("#NF", temp_id);
+							STRNSCPY(d, r_temp_buf);
+						}
+					}*/
+					// } @v10.4.12 
+				}
 				else
 					P_ListWin->getListData(d);
 				P_ILink->TransmitData(dir, d);

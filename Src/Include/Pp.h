@@ -2406,8 +2406,8 @@ public:
 	FinishImpExpProc FinishImpExp;
 	GetErrorMessageProc GetErrorMessage;
 private:
-	int OpKind;
-	int Inited;
+	int    OpKind;
+	int    Inited;
 	SDynLibrary * P_Lib;
 };
 
@@ -5447,7 +5447,7 @@ public:
 			// запрос на продолжение передачи. Пока этот флаг используется для передачи больших файлов порциями.
 	};
 
-	struct Header {
+	struct Header { // @persistent
 		Header();
 		SString & FASTCALL ToStr(SString & rBuf) const;
 
@@ -5492,7 +5492,7 @@ public:
 	//
 	// Descr: Структура заголовка пакета передачи файла
 	//
-	struct TransmitFileBlock {
+	struct TransmitFileBlock { // @persistent
 		SLAPI  TransmitFileBlock();
 		//
 		// Descr: Типы передачи файлов
@@ -13704,11 +13704,11 @@ class CCheckPacket : public PPExtStrContainer {
 public:
 	struct LineExt { // @transient
 		enum {
-			fGroup         = 0x01,
-			fModifier      = 0x02,
+			fGroup = 0x01,
+			fModifier = 0x02,
 			fPartOfComplex = 0x04,
-			fQuotedByGift  = 0x08,
-			fFixedPrice    = 0x10
+			fQuotedByGift = 0x08,
+			fFixedPrice = 0x10
 		};
 		LineExt();
 		int    IsEmpty() const;
@@ -13725,15 +13725,40 @@ public:
 	// и для драйвера торгового оборудования АТОЛ на 12 апреля 2019 года.
 	//
 	enum PaymentTermTag {
-		pttUndef          = 0, // PTT_UNDEF
-		pttFullPrepay     = 1, // PTT_FULL_PREPAY    Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
-		pttPrepay         = 2, // PTT_PREPAY         Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
-		pttAdvance        = 3, // PTT_ADVANCE        Аванс
-		pttFullPayment    = 4, // PTT_FULLPAYMENT    Полный расчет (Полная оплата, в том числе с учетом аванса (предварительной оплаты) в момент передачи предмета расчета)
-		pttPartial        = 5, // PTT_PARTIAL        Частичный расчет и кредит (Частичная оплата предмета расчета в момент его передачи с последующей оплатой в кредит)
+		pttUndef = 0, // PTT_UNDEF
+		pttFullPrepay = 1, // PTT_FULL_PREPAY    Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
+		pttPrepay = 2, // PTT_PREPAY         Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
+		pttAdvance = 3, // PTT_ADVANCE        Аванс
+		pttFullPayment = 4, // PTT_FULLPAYMENT    Полный расчет (Полная оплата, в том числе с учетом аванса (предварительной оплаты) в момент передачи предмета расчета)
+		pttPartial = 5, // PTT_PARTIAL        Частичный расчет и кредит (Частичная оплата предмета расчета в момент его передачи с последующей оплатой в кредит)
 		pttCreditHandOver = 6, // PTT_CREDITHANDOVER Передача в кредит (Передача предмета расчета без его оплаты в момент его передачи с последующей оплатой в кредит)
-		pttCredit         = 7  // PTT_CREDIT         Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
+		pttCredit = 7  // PTT_CREDIT         Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
 	};
+
+	//@erikC v10.4.12{
+	enum SubjTermTag {
+		sttUndef           = 0,  // STT_UNDEF 
+		sttGood            = 1,  // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
+		sttExcisableGood   = 2,  // STT_EXCISABLEGOOD    о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
+		sttExecutableWork  = 3,  // STT_EXECUTABLEWORK   о выполняемой работе(наименование и иные сведения, описывающие работу)
+		sttService         = 4,	 // STT_SERVICE   об оказываемой услуге(наименование и иные сведения, описывающие услугу)
+		sttBetting         = 5,	 // STT_BETTING   о приеме ставок при осуществлении деятельности по проведению азартных игр
+		sttPaymentGambling = 6,	 // STT_PAYMENTGAMBLING   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению азартных игр
+		sttBettingLottery  = 7,	 // STT_BETTINGLOTTERY   о приеме денежных средств при реализации лотерейных билетов, электронных лотерейных билетов, приеме лотерейных ставок при осуществлении деятельности по проведению лотерей
+		sttPaymentLottery  = 8,	 // STT_PAYMENTLOTTERY   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению лотерей
+		sttGrantRightsUseIntellectualActivity = 9,	// STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY   о предоставлении прав на использование результатов интеллектуальной деятельности или средств индивидуализации
+		sttAdvance                = 10,	// STT_ADVANCE   об авансе, задатке, предоплате, кредите, взносе в счет оплаты, пени, штрафе, вознаграждении, бонусе и ином аналогичном предмете расчета
+		sttPaymentsPayingAgent    = 11,	// STT_PAYMENTSPAYINGAGENT   о вознаграждении пользователя, являющегося платежным агентом(субагентом), банковским платежным агентом(субагентом), комиссионером, поверенным или иным агентом
+		sttSubjTerm               = 12,	// STT_SUBJTERM   о предмете расчета, состоящем из предметов, каждому из которых может быть присвоено значение от «0» до «11»
+		sttNotSubjTerm            = 13,	// STT_NOTSUBJTERM   о предмете расчета, не относящемуся к предметам расчета, которым может быть присвоено значение от «0» до «12»
+		sttTransferPropertyRights = 14,	// STT_TRANSFERPROPERTYRIGHTS   о передаче имущественных прав
+		sttNonOperatingIncome     = 15,	// STT_NONOPERATINGINCOME    о внереализационном доходе(Название товара может принимать значения 1 - 25)
+		sttExpensesReduceTax      = 16,	// STT_EXPENSESREDUCETAX    о суммах расходов, уменьшающих сумму налога(авансовых платежей) в соответствии с пунктом 3.1 статьи 346.21 Налогового кодекса Российской Федерации(Название товара может принимать значения 26 - 31)
+		sttAmountMerchantFee      = 17,	// STT_AMOUNTMERCHANTFEE   о суммах уплаченного торгового сбора
+		sttResortАee              = 18,	// STT_RESORTAEE       о курортном сборе
+		sttDeposit                = 19,	// STT_DEPOSIT  Залог
+	};
+    //  } @erik v10.4.12
 	//
 	//
 	//
@@ -16160,9 +16185,11 @@ public:
 		enum {
 			selcritVelocity = 1, // По скорости выигрыша
 			selcritWinRatio = 2, // По отношению числа выигрышей к ставкам
-			selcritfSkipAmbiguous = 0x0100, // Флаг, блокирующий выбор стратегии, если существует хотя бы одна иная стратегия с противоположным направлением
-			selcritfSkipShort     = 0x0200, // Флаг, блокирующий выбор коротких стратегий
-			selcritfSkipLong      = 0x0400  // Флаг, блокирующий выбор длинных стратегий
+			selcritfSkipAmbiguous   = 0x0100, // Флаг, блокирующий выбор стратегии, если существует хотя бы одна иная стратегия с противоположным направлением
+			selcritfSkipShort       = 0x0200, // Флаг, блокирующий выбор коротких стратегий
+			selcritfSkipLong        = 0x0400, // Флаг, блокирующий выбор длинных стратегий
+			selcritfWeightAmbiguous = 0x0800, // @v10.4.12 Флаг, предписывающий при наличии разнонаправленных стратегий выбирать то направление, 
+				// которому соответствует большее количество допустимых стратегий. Если количества равны, то не выбирать ничего
 		};
 
 		int    SLAPI Select(const TSCollection <TrendEntry> & rTrendList, int lastTrendIdx, long criterion,
@@ -19313,6 +19340,7 @@ struct SlipLineParam {
 	double Price;         // для regtoFiscal
 	double VatRate;       // для regtoFiscal
 	int    PaymTermTag;   // для regtoFiscal @v10.4.1 CCheckPacket::PaymentTermTag
+	int    SbjTermTag;    // для regtoFiscal CCheckPacket::SubjTermTag @erikA v10.4.12
 	short  DivID;         // для regtoFiscal
 	short  FontSize;      // Размер шрифта (для обычного принтера)
 	int    BarcodeStd;    // BARCSTD_XXX Стандарт штрихкода
@@ -28935,7 +28963,7 @@ public:
 		fUHTT             = 0x0010,
 		fForceSnglBarcode = 0x0020,
 		fImportImages     = 0x0040,
-		fForceUpdateManuf = 0x0080  // @v8.9.1
+		fForceUpdateManuf = 0x0080
 	};
 	SLAPI  PPGoodsImpExpParam(uint recId = 0, long flags = 0);
 	void   SLAPI Clear();
@@ -30413,7 +30441,8 @@ public:
 		fImpExpRowsOnly      = 0x0002, // Импортировать/экспортировать только файл строк
 		//fSignBill = 0x0002
 		fRestrictByMatrix    = 0x0004, // @v9.0.4
-		fExpOneByOne         = 0x0008  // @v9.3.10 Экспортировать документы по-одному в каждом файле
+		fExpOneByOne         = 0x0008, // @v9.3.10 Экспортировать документы по-одному в каждом файле
+		fCreateAbsenceGoods  = 0x0010  // @v10.4.12 Создавать отсутствующие товары (если возможно)
 	};
 	//
 	// Descr: Предопределенный форматы импорт/экспорта документов
@@ -30798,6 +30827,8 @@ struct SelAddBySampleParam {
 		fNonInteractive = 0x0002,
 		fAll            = 0x0004, // @v10.0.02 Сформировать документы для всей выборки (только если выборка по
 			// одному виду операции). Автоматически предполагате fNonInteractive
+		fRcptAllOnShipm = 0x0008  // @v10.4.12 При формировании отгрузки по заказу весь заказанный товар
+			// безусловно оприходовать.
 	};
 	enum {
 		acnUndef               = -1, // Не определено
@@ -31266,7 +31297,7 @@ public:
 	//   строку в документ (например, из-за недостатка товара pItem->GoodsID).
 	//
 	int    SLAPI ConvertILTI(ILTI *, PPBillPacket *, LongArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
-	int    SLAPI InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, int interactive);
+	int    SLAPI InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, int interactive);
 	int    SLAPI AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice);
 	int    SLAPI CmpSnrWithLotSnr(PPID lotID, const char * pSerial);
 	int    SLAPI ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPack);
@@ -39880,7 +39911,6 @@ private:
 	virtual int  SLAPI ViewTotal();
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
-
 	int    SLAPI InitGroupNamesList();
 	int    SLAPI InitIterQuery(PPID grpID);
 	int    SLAPI NextOuterIteration();
@@ -39890,13 +39920,11 @@ private:
 	PPObjBill         * P_BObj;
 	TempGoodsMovTbl   * P_TempTbl;
 	GoodsMovTotal     Total;
-
 	long    IterCount;
 	long    NumIters;
 	int     IterIdx;
 	GoodsGroupIterator * P_GGIter;
-	// @v9.6.6 char    IterGrpName[256];
-	SString IterGrpName; // @v9.6.6
+	SString IterGrpName;
 };
 //
 // @ModuleDecl(PPViewGoodsMov2)
@@ -39908,8 +39936,8 @@ struct GoodsMov2ViewItem : TempGoodsMov2Tbl::Rec {
 class PPViewGoodsMov2 : public PPView {
 public:
 	struct BrwHdr {
-		PPID OpID;
-		PPID GoodsID;
+		PPID   OpID;
+		PPID   GoodsID;
 	};
 	enum IterOrder {
 		OrdByDefault,
@@ -52018,6 +52046,7 @@ struct ResolveGoodsItem {
 	char   GoodsName[128];
 	char   Barcode[24];
 	char   ArCode[24];        // Код, ассоциированный со статьей ArID
+	char   ManufName[128];    // @v10.4.12 Наименование производителя
 	double Quantity;
 };
 

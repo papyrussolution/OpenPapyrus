@@ -185,7 +185,7 @@ public:
 		}
 		double SLAPI GetAverageSpread_WithAdjustment() const
 		{
-			return fdivui(SpreadSum, SpreadCount) * 2.0;
+			return fdivui(SpreadSum, SpreadCount) * 2.0; // @20190703 2.0-->1.2 // @20190707 1.2-->1.5 // @20190708 1.5-->2.0
 		}
 		int FASTCALL GetLastValue(double * pValue) const
 		{
@@ -1237,6 +1237,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 		{
 			LongArray matched_strategies_idx_list;
 			long sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
+			// @20190708 long sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous;
 			if(!(r_blk.Flags & r_blk.fShort))
 				sel_criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 			if(!(r_blk.Flags & r_blk.fLong))
@@ -1254,7 +1255,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 				// Пока только вывод в журнал.
 				//
 				PPObjTimeSeries::BestStrategyBlock _best_result_reverse; // Лучший результат для реверсивной ставки
-				long sel_criterion_reverse = sel_criterion & ~PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
+				long sel_criterion_reverse = sel_criterion & ~(PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous|PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous);
 				if(is_sell) {
 					sel_criterion_reverse |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 					sel_criterion_reverse &= ~PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
@@ -1648,6 +1649,7 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 	const uint tsc = pBlk->T_.GetCount();
 	uint  max_opt_delta2_stride = 0;
 	LongArray ifs_list;
+	RealArray temp_err_list;
 	//uint   vec_idx = 0;
 	//STimeSeries::ValuVec * p_vec = pBlk->T_.GetVecBySymb("close", &vec_idx);
 	//THROW(p_vec);
@@ -1669,7 +1671,16 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 				}
 				{
 					STimeSeries::AnalyzeFitParam afp(ifs, tsc-p_entry->NominalCount, p_entry->NominalCount);
-					THROW(pBlk->T_.AnalyzeFit("close", afp, &p_entry->TL, 0, &p_entry->ErrL, 0, 0));
+					THROW(pBlk->T_.AnalyzeFit("close", afp, &p_entry->TL, 0, /*&p_entry->ErrL*/&temp_err_list, 0, 0)); // @v10.4.12 p_entry->ErrL-->temp_err_list
+					// @v10.4.12 {
+					for(uint eridx = 0; eridx < temp_err_list.getCount(); eridx++) {
+						const double err = temp_err_list.at(eridx);
+						assert(err >= 0.0);
+						if(err > 0.0)
+							temp_err_list.at(eridx) = sqrt(err);
+					}
+					p_entry->ErrL = temp_err_list;
+					// } @v10.4.12
 					// @v10.4.10 {
 					{
 						STimeSeries::Stat st(0);

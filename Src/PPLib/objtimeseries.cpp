@@ -2034,7 +2034,8 @@ static void SLAPI TsSimulateStrategyContainer(const DateTimeArray & rTmList, con
 		*/
 		const uint _start_offset = max_ifs+max_delta2_stride;
 		const uint _max_test_count = 50; // @20190422 100-->50
-		long  sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
+		//long  sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
+		long  sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous;
 		for(uint init_offset = _start_offset, test_no = 0; test_no < _max_test_count; (init_offset += 173), (test_no++)) {
 			const LDATETIME start_tm = rTmList.at(init_offset);
 			LDATETIME finish_tm = ZERODATETIME;
@@ -2748,8 +2749,10 @@ int SLAPI PPObjTimeSeries::StrategyContainer::Select(const TSCollection <TrendEn
 	const TSCollection <IndexEntry1> * pIndex1, BestStrategyBlock & rBsb, LongArray * pAllSuitedPosList) const
 {
 	int    ok = -1;
-	bool   is_there_long = false;
-	bool   is_there_short = false;
+	//bool   is_there_long = false;
+	//bool   is_there_short = false;
+	uint   potential_long_count = 0;
+	uint   potential_short_count = 0;
 	BestStrategyBlock _best_result;
 	LongArray candidate_pos_list;
 	if(pIndex1) {
@@ -2779,12 +2782,14 @@ int SLAPI PPObjTimeSeries::StrategyContainer::Select(const TSCollection <TrendEn
 							if(trend_err_limit <= 0.0 || (trend_err > 0.0 && trend_err <= trend_err_limit)) {
 								bool do_skip = false;
 								if(r_s.BaseFlags & r_s.bfShort) {
-									is_there_short = true;
+									//is_there_short = true;
+									potential_short_count++;
 									if(criterion & selcritfSkipShort)
 										do_skip = true;
 								}
 								else {
-									is_there_long = true;
+									//is_there_long = true;
+									potential_long_count++;
 									if(criterion & selcritfSkipLong)
 										do_skip = true;
 								}
@@ -2832,12 +2837,14 @@ int SLAPI PPObjTimeSeries::StrategyContainer::Select(const TSCollection <TrendEn
 					//_best_result.SetResult(cr, si, _tv, _tv2);
 					bool do_skip = false;
 					if(r_s.BaseFlags & r_s.bfShort) {
-						is_there_short = true;
+						//is_there_short = true;
+						potential_short_count++;
 						if(criterion & selcritfSkipShort)
 							do_skip = true;
 					}
 					else {
-						is_there_long = true;
+						//is_there_long = true;
+						potential_long_count++;
 						if(criterion & selcritfSkipLong)
 							do_skip = true;
 					}
@@ -2850,26 +2857,51 @@ int SLAPI PPObjTimeSeries::StrategyContainer::Select(const TSCollection <TrendEn
 		}
 	}
 	if(candidate_pos_list.getCount()) {
-		if(criterion & selcritfSkipAmbiguous && is_there_short && is_there_long)
+		bool skip_short = false;
+		bool skip_long = false;
+		if(potential_long_count && potential_short_count) {
+			if(criterion & selcritfSkipAmbiguous) {
+				skip_short = true;
+				skip_long = true;
+				ok = -2;
+			}
+			else if(criterion & selcritfWeightAmbiguous) {
+				if(potential_long_count > potential_short_count) {
+					skip_short = true;
+				}
+				else if(potential_short_count > potential_long_count) {
+					skip_long = true;
+				}
+				else {
+					skip_short = true;
+					skip_long = true;
+					ok = -2;
+				}
+			}
+		}
+		/*if(criterion & selcritfSkipAmbiguous && is_there_short && is_there_long)
 			ok = -2;
-		else {
+		else {*/
+		if(!skip_long || !skip_short) {
 			for(uint clidx = 0; clidx < candidate_pos_list.getCount(); clidx++) {
 				uint sidx = static_cast<uint>(candidate_pos_list.get(clidx));
 				const Strategy & r_s = at(sidx);
-				double local_result = 0.0;
-				switch(criterion & 0xffL) {
-					case selcritVelocity: local_result = r_s.V.GetResultPerDay(); break;
-					case selcritWinRatio: local_result = r_s.GetWinCountRate(); break;
-				}
-				if(local_result > 0.0) {
-					const TrendEntry * p_te = SearchTrendEntry(rTrendList, r_s.InputFrameSize);
-					const uint tlc = p_te ? p_te->TL.getCount() : 0;
-					const uint trend_idx = (lastTrendIdx < 0) ? (tlc-1) : static_cast<uint>(lastTrendIdx);
-					const double trend_err = p_te->ErrL.at(trend_idx);
-					const double tv = p_te ? p_te->TL.at(trend_idx) : 0.0;
-					_best_result.SetResult(local_result, sidx, tv, 0.0);
-					_best_result.TrendErr = trend_err; // @v10.4.11
-					_best_result.TrendErrRel = fdivnz(trend_err, r_s.TrendErrAvg); // @v10.4.11
+				if((r_s.BaseFlags & r_s.bfShort && !skip_short) || (!(r_s.BaseFlags & r_s.bfShort) && !skip_long)) {
+					double local_result = 0.0;
+					switch(criterion & 0xffL) {
+						case selcritVelocity: local_result = r_s.V.GetResultPerDay(); break;
+						case selcritWinRatio: local_result = r_s.GetWinCountRate(); break;
+					}
+					if(local_result > 0.0) {
+						const TrendEntry * p_te = SearchTrendEntry(rTrendList, r_s.InputFrameSize);
+						const uint tlc = p_te ? p_te->TL.getCount() : 0;
+						const uint trend_idx = (lastTrendIdx < 0) ? (tlc-1) : static_cast<uint>(lastTrendIdx);
+						const double trend_err = p_te->ErrL.at(trend_idx);
+						const double tv = p_te ? p_te->TL.at(trend_idx) : 0.0;
+						_best_result.SetResult(local_result, sidx, tv, 0.0);
+						_best_result.TrendErr = trend_err; // @v10.4.11
+						_best_result.TrendErrRel = fdivnz(trend_err, r_s.TrendErrAvg); // @v10.4.11
+					}
 				}
 			}
 			if(_best_result.MaxResult > 0.0)
@@ -4531,7 +4563,7 @@ int SLAPI PrcssrTsStrategyAnalyze::TryStrategyContainer(PPID tsID)
 				//THROW(p_vec);
 				if(tsc > 500 && sc.GetInputFramSizeList(ifs_list, &max_opt_delta2_stride) > 0) {
 					const uint main_frame_size = (model_param.MainFrameSize && model_param.MainFrameRangeCount) ? model_param.MainFrameSize : 0;
-					const uint trend_nominal_count = max_opt_delta2_stride+1;
+					const uint trend_nominal_count = max_opt_delta2_stride + 3;
 					ifs_list.sortAndUndup(); // @paranoic
 					if(tsc > 10000) {
 						ts.GetChunkRecentCount(10000, ts_last_chunk);

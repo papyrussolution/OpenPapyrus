@@ -76,6 +76,7 @@ private:
 	DECL_HANDLE_EVENT;
 	int    editAdvOptions();
 	void   setupQuot();
+	void   GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra);
 	QuotUpdFilt Data;
 	int    QuotCls; // PPQuot::clsXXX  (obsolete: 1 - котировки, 2 - контрактные цены, 3 - матрица)
 	const  PPObjQuotKind::Special QkSpc;
@@ -272,6 +273,38 @@ void QuotUpdDialog::setupQuot()
 	}
 }
 
+void QuotUpdDialog::GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra)
+{
+	PPID   acc_sheet_id = 0;
+	long   qk_sel_extra = 1;
+	PPID   new_qk_id = qkID;
+	if(QuotCls == PPQuot::clsSupplDeal) {
+		acc_sheet_id = GetSupplAccSheet();
+		qk_sel_extra = QuotKindFilt::fSupplDeal;
+		if(!oneof3(new_qk_id, QkSpc.SupplDealID, QkSpc.SupplDevDnID, QkSpc.SupplDevUpID))
+			new_qk_id = QkSpc.SupplDealID;
+	}
+	else if(QuotCls == PPQuot::clsMtx) {
+		qk_sel_extra = QuotKindFilt::fGoodsMatrix;
+		new_qk_id = QkSpc.MtxID;
+	}
+	else if(QuotCls == PPQuot::clsPredictCoeff) {
+		qk_sel_extra = QuotKindFilt::fPredictCoeff;
+		new_qk_id = QkSpc.PredictCoeffID;
+	}
+	else {
+		PPQuotKind qk_rec;
+		if(new_qk_id && QkObj.Fetch(new_qk_id, &qk_rec) > 0 && qk_rec.AccSheetID)
+			acc_sheet_id = qk_rec.AccSheetID;
+		else
+			acc_sheet_id = GetSellAccSheet();
+		qk_sel_extra = 1;
+	}
+	ASSIGN_PTR(pAcsID, acc_sheet_id);
+	ASSIGN_PTR(pDefQkID, new_qk_id);
+	ASSIGN_PTR(pQkSelExtra, qk_sel_extra);
+}
+
 IMPL_HANDLE_EVENT(QuotUpdDialog)
 {
 	if(event.isCmd(cmOK)) {
@@ -284,30 +317,13 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 	}
 	TDialog::handleEvent(event);
 	if(event.isClusterClk(CTL_QUOTUPD_WHAT)) {
-		long   prev_cls = QuotCls;
+		const long   prev_cls = QuotCls;
 		QuotCls = GetClusterData(CTL_QUOTUPD_WHAT);
-		PPID   acc_sheet_id = 0;
-		long   qk_sel_extra = 1;
-		PPID   new_qk_id = 0;
-		if(QuotCls == PPQuot::clsSupplDeal) {
-			acc_sheet_id = GetSupplAccSheet();
-			qk_sel_extra = QuotKindFilt::fSupplDeal;
-			new_qk_id = QkSpc.SupplDealID;
-		}
-		else if(QuotCls == PPQuot::clsMtx) {
-			qk_sel_extra = QuotKindFilt::fGoodsMatrix;
-			new_qk_id = QkSpc.MtxID;
-		}
-		else if(QuotCls == PPQuot::clsPredictCoeff) {
-			qk_sel_extra = QuotKindFilt::fPredictCoeff;
-			new_qk_id = QkSpc.PredictCoeffID;
-		}
-		else {
-			acc_sheet_id = GetSellAccSheet();
-			qk_sel_extra = 1;
-			new_qk_id = 0;
-		}
 		if(QuotCls != prev_cls) {
+			PPID   acc_sheet_id = 0;
+			long   qk_sel_extra = 1;
+			PPID   new_qk_id = 0;
+			GetQuotKindDefaults(QuotCls, 0, &acc_sheet_id, &new_qk_id, &qk_sel_extra);
 			Data.ArticleID = 0;
 			Data.ArList.Set(0);
 			Data.QuotKindID = new_qk_id;
@@ -325,6 +341,24 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 		disableCtrl(CTL_QUOTUPD_PCT, !oneof3(Data.ByWhat, QuotUpdFilt::byAbsVal, QuotUpdFilt::byPctVal, QuotUpdFilt::byFormula));
 		enableCommand(cmQuotUpdSetQuot, Data.ByWhat == QuotUpdFilt::byAbsVal);
 	}
+	// @v10.4.12 {
+	else if(event.isCbSelected(CTLSEL_QUOTUPD_KIND)) {
+		PPID   qk_id = getCtrlLong(CTLSEL_QUOTUPD_KIND);
+		if(qk_id != Data.QuotKindID) {
+			Data.QuotKindID = qk_id;
+			PPID   acc_sheet_id = 0;
+			long   qk_sel_extra = 1;
+			PPID   new_qk_id = 0;
+			GetQuotKindDefaults(QuotCls, qk_id, &acc_sheet_id, &new_qk_id, &qk_sel_extra);
+			if(new_qk_id == qk_id) {
+				ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
+				ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
+				p_ar_grp->SetAccSheet(acc_sheet_id);
+				setGroupData(GRP_ARTICLE, &ar_grp_rec);
+			}
+		}
+	}
+	// } @v10.4.12 
 	else if(event.isCmd(cmAdvOptions)) {
 		if(!editAdvOptions())
 			PPError();

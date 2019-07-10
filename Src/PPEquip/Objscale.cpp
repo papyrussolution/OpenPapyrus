@@ -2231,7 +2231,7 @@ public:
 	SLAPI  TCPIPMToledo(int p, const PPScale * pData) : PPScaleDevice(p, pData), P_DrvMT(0), P_AddStrAry(0),
 		P_PLUStream(0), TrfrDLLHandle(0), TrfrDLLCall(0), CalcCrcCall(0), SocketHandle(0), IsConnected(0)
 	{
-		UseNewAlg     = (Data.ProtocolVer >= 100) ? 0 : 1;
+		UseNewAlg = (Data.ProtocolVer >= 100) ? 0 : 1;
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 		SETIFZ(Data.LogNum, 1);
@@ -2312,11 +2312,12 @@ int SLAPI TCPIPMToledo::SetConnection()
 		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, reinterpret_cast<sockaddr *>(&sin), sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
+		/* @v10.4.12
 		PPSetAddedMsgString(CrcDLLPath);
 		if(!TrfrDLLHandle) {
 			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(CrcDLLPath)), PPERR_SCALE_INITMTDLL); // @unicodeproblem
 			THROW_PP(CalcCrcCall   = (MT_CalcCrcProc)GetProcAddress(TrfrDLLHandle, "?CalcCRC16@@YAGQBDI@Z"), PPERR_SCALE_INITMTDLL);
-		}
+		} */
 	}
 	else {
 		SString buf;

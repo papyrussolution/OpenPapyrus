@@ -141,6 +141,9 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%f%)%s%zãáèò/ñåê%.%>%1gbit/s
 %(%f%)%s%zãbit/s%>%1gbit/s
 %(%f%)%zlb%.%>%1lb
+%(%f%)%zlbs%.%>%1lb
+%(%f%)%zounces%>%1oz
+%(%f%)%zliquid ounces%>%1floz
 
 %^%(%f%)z%_%>%1oz%_
 %(%f%)z%$%>%1oz

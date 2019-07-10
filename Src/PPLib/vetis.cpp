@@ -4583,7 +4583,9 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										PutNonZeroGuid(n_p, "bs", r_bat.ProductItem.Guid);
 										temp_buf = r_bat.ProductItem.Name;
 										if(temp_buf.NotEmptyS()) {
-											n_p.PutInner(SXml::nst("d9p1", "name"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+											XMLReplaceSpecSymb(temp_buf, "<>&"); // @v10.4.12
+											temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+											n_p.PutInner(SXml::nst("d9p1", "name"), temp_buf);
 										}
 									}
 									n_c.PutInner(SXml::nst("d7p1", "volume"), temp_buf.Z().Cat(r_bat.Volume, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
@@ -4603,7 +4605,8 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 													SXml::WNode n_pf(srb, SXml::nst("d9p1", "packingForm"));
 													PutNonZeroUuid(n_pf, "bs", p_pl_item->Uuid);
 													PutNonZeroGuid(n_pf, "bs", p_pl_item->Guid);
-													PutNonEmptyText(n_pf, "d9p1", "name", temp_buf = p_pl_item->Name);
+													temp_buf = p_pl_item->Name;
+													PutNonEmptyText(n_pf, "d9p1", "name", temp_buf);
 												}
 											}
 										}
@@ -4637,7 +4640,8 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 													SXml::WNode n_ent(srb, SXml::nst("d9p1", "enterprise"));
 													PutNonZeroUuid(n_ent, "bs", p_pl_item->Uuid);
 													PutNonZeroGuid(n_ent, "bs", p_pl_item->Guid);
-													PutNonEmptyText(n_ent, "d9p1", "name", temp_buf = p_pl_item->Name);
+													temp_buf = p_pl_item->Name;
+													PutNonEmptyText(n_ent, "d9p1", "name", temp_buf);
 												}
 												const char * p_role = "UNKNOWN";
 												if(p_pl_item->Role == p_pl_item->rolePRODUCER)
@@ -7260,7 +7264,9 @@ static IMPL_DBE_PROC(dbqf_vetis_vetdstatus_i)
 	}
 	else {
 		SString temp_buf;
-		SIntToSymbTab_GetSymb(VetisVetDocStatus_SymbTab, SIZEOFARRAY(VetisVetDocStatus_SymbTab), params[0].lval, temp_buf);
+		PPGetSubStrById(PPTXT_VETIS_DOCSTATUS, params[0].lval, temp_buf);
+		if(temp_buf.Empty())
+			SIntToSymbTab_GetSymb(VetisVetDocStatus_SymbTab, SIZEOFARRAY(VetisVetDocStatus_SymbTab), params[0].lval, temp_buf);
 		temp_buf.CopyTo(buf, sizeof(buf));
 		result->init(buf);
 	}

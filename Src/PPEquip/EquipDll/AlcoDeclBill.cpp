@@ -111,15 +111,15 @@ static ExportCls * P_ExportCls = 0;
 int GetObjTypeBySymb(const char * pSymb, uint & rType);
 int SetError(int errCode, const char * pStr = "") { ErrorCode = errCode, StrError = pStr; return 1; }
 
-struct ErrMessage {
+/*struct ErrMessage {
 	uint Id;
 	const char * P_Msg;
-};
+};*/
 
-struct ObjectTypeSymbols {
+/*struct ObjectTypeSymbols {
 	char * P_Symb;
 	uint Type;
-};
+};*/
 
 enum ObjectType {
 	objGood = 1,
@@ -133,18 +133,18 @@ enum ObjectType {
 	// и т.д.
 };
 
-ObjectTypeSymbols Symbols[] = {
-	{"GOODS",       objGood},
-	{"BILLS",		objBill},
-	{"CHECKS",		objCheck},
-	{"CSESS",		objCashSess},
-	{"PRICELIST",	objPriceList},
-	{"LOTS",		objLot},
-	{"PHONELIST",	objPhoneList},
-	{"CLIBANKDATA",	objCliBnkData}
+/*ObjectTypeSymbols*/SIntToSymbTabEntry Symbols[] = {
+	{objGood,  "GOODS"},
+	{objBill,  "BILLS"},
+	{objCheck, "CHECKS"},
+	{objCashSess, "CSESS"},
+	{objPriceList, "PRICELIST"},
+	{objLot, "LOTS"},
+	{objPhoneList, "PHONELIST"},
+	{objCliBnkData, "CLIBANKDATA"}
 };
 
-ErrMessage ErrMsg[] = {
+/*ErrMessage*/SIntToSymbTabEntry ErrMsg[] = {
 	{IEERR_SYMBNOTFOUND,		"Символ не найден"},
 	{IEERR_NODATA,				"Данные не переданы"},
 	{IEERR_NOSESS,				"Сеанса с таким номером нет"},
@@ -196,11 +196,11 @@ struct GoodInfoSt {
 		Quantity = 0.0;
 		ReceiptDate = ZERODATE;
 		GoodKind = 0;
-		OrgName = 0;
-		INN = 0;
-		KPP = 0;
-		TTN = 0;
-		GTD = 0;
+		OrgName.Z();
+		INN.Z();
+		KPP.Z();
+		TTN.Z();
+		GTD.Z();
 	};
 	double Quantity;
 	LDATE  ReceiptDate;
@@ -224,22 +224,22 @@ struct ContragInfoSt {
 		RegionCode = 0;
 		Date = ZERODATE;
 		Expiry = ZERODATE;
-		Index = 0;
-		ContragName = 0;
-		LicOrgName = 0;
+		Index.Z();
+		ContragName.Z();
+		LicOrgName.Z();
 		LicID = 0;
-		LicSerial = 0;
-		LicNum = 0;
-		District = 0;
-		Town = 0;
-		Community = 0;
-		Street = 0;
-		Housing = 0;
-		Letter = 0;
-		INN = 0;
-		KPP = 0;
-		Producer = 0;
-		Transporter = 0;
+		LicSerial.Z();
+		LicNum.Z();
+		District.Z();
+		Town.Z();
+		Community.Z();
+		Street.Z();
+		Housing.Z();
+		Letter.Z();
+		INN.Z();
+		KPP.Z();
+		Producer.Z();
+		Transporter.Z();
 		IsManuf = 0;
 	}
 	int		House;
@@ -346,23 +346,11 @@ private:
 	SString & DeleteExtSymbols(const char * pIn, SString & rOut);
 };
 
-ExportCls::ExportCls()
+ExportCls::ExportCls() : Id(0), ObjId(0), ObjType(0), ShopPos(0), Inited(0), BillDate(ZERODATE), P_WXmlAlco(0), P_WXmlBeer(0),
+	P_WXmlAlcoRet(0), P_WXmlBeerRet(0), P_WXmlContrag(0)
 {
-	Id = 0;
-	ObjId = 0;
-	ObjType = 0;
-	ShopPos = 0;
-	Inited = 0;
-//	BeerTypeId = 0; // @vmiller
-	BillDate = ZERODATE;
-	P_WXmlAlco = 0;
-	P_WXmlBeer = 0;
-	P_WXmlAlcoRet = 0; // @vmiller new
-	P_WXmlBeerRet = 0; // @vmiller new
-	P_WXmlContrag = 0;
 	ErrorCode = 0;
-	ShopInfo.freeAll();
-	ContragInfo.freeAll();
+	//	BeerTypeId = 0; // @vmiller
 }
 
 ExportCls::~ExportCls()
@@ -378,9 +366,20 @@ ExportCls::~ExportCls()
 
 static SString & PreprocessFnText(SString & rT)
 {
-	rT.ReplaceChar(',', ' ').ReplaceChar('\\', ' ').ReplaceChar('/', ' ').ReplaceChar('.', ' ').
+	SString temp_buf;
+	const size_t src_len = rT.Len();
+	for(size_t i = 0; i < src_len; i++) {
+		const char c = rT.C(i);
+		if(oneof8(c, ',', '\\', '/', '.', '\"', '*', ':', '?')) 
+			temp_buf.CatChar(' ');
+		else
+			temp_buf.CatChar('c');
+	}
+	temp_buf.ReplaceStr("  ", " ", 0).Strip();
+	/*rT.ReplaceChar(',', ' ').ReplaceChar('\\', ' ').ReplaceChar('/', ' ').ReplaceChar('.', ' ').
 		ReplaceChar('\"', ' ').ReplaceChar('*', ' ');
-	rT.ReplaceStr("  ", " ", 0).Strip();
+	rT.ReplaceStr("  ", " ", 0).Strip();*/
+	rT = temp_buf;
 	return rT;
 }
 
@@ -796,7 +795,7 @@ int ExportCls::SaveContragInfo(TSCollection <ContragInfoSt> * pArr)
 void ExportCls::GetPeriod(LDATE billDate, int quarterNum, int year)
 {
 	int month = billDate.month();
-	quarterNum = fceili((double)month / 3);
+	quarterNum = fceili(fdivi(month, 3));
 	year = billDate.year();
 }
 
@@ -804,8 +803,8 @@ SString & ExportCls::DeleteExtSymbols(const char * pIn, SString & rOut)
 {
 	rOut.CopyFrom(pIn);
 	for(size_t i = 0; i < rOut.Len();) {
-		if((rOut.C(i) == '/') || (rOut.C(i) == '\\') || (rOut.C(i) == '.') || (rOut.C(i) == ',') ||
-			(rOut.C(i) == '?'))
+		const char c = rOut.C(i);
+		if(oneof5(c, '/', '\\', '.', ',', '?'))
 			rOut.Excise(i, 1);
 		else
 			i++;
@@ -818,15 +817,16 @@ SString & ExportCls::DeleteExtSymbols(const char * pIn, SString & rOut)
 //		1 - символ найден
 int GetObjTypeBySymb(const char * pSymb, uint & rType)
 {
-	for(size_t i = 0; i < SIZEOFARRAY(Symbols); i++) {
+	rType = static_cast<uint>(SIntToSymbTab_GetId(Symbols, SIZEOFARRAY(Symbols), pSymb)); // @v10.4.12
+	return BIN(rType != 0); // @v10.4.12
+	/* @v10.4.12 for(size_t i = 0; i < SIZEOFARRAY(Symbols); i++) {
 		if(strcmp(Symbols[i].P_Symb, pSymb) == 0) {
 			rType = Symbols[i].Type;
 			return 1;
 		}
 	}
-	return 0;
+	return 0;*/
 }
-
 //
 // Внешние функции экспорта
 //
@@ -1068,12 +1068,13 @@ EXPORT int FinishImpExp()
 EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 {
 	SString str = "";
-	for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
+	/* @v10.4.12 for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 		if(ErrMsg[i].Id == ErrorCode) {
 			str.Cat(ErrMsg[i].P_Msg);
 			break;
 		}
-	}
+	}*/
+	SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), ErrorCode, str); // @v10.4.12
 	if(ErrorCode == IERR_IMPFILENOTFOUND || IERR_INVMESSAGEYTYPE)
 		str.Cat(StrError);
 	memzero(pMsg, bufLen);

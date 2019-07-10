@@ -2810,6 +2810,7 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 0, SelAddBySampleParam::fCopyBillCode);
 			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 1, SelAddBySampleParam::fNonInteractive); // @v10.0.02
 			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 2, SelAddBySampleParam::fAll); // @v10.0.02
+			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 3, SelAddBySampleParam::fRcptAllOnShipm); // @v10.4.12
 			SetClusterData(CTL_SELBBSMPL_FLAGS, Data.Flags);
 			DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd); // @v10.0.02
 			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
@@ -2849,6 +2850,7 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 			if(event.isClusterClk(CTL_SELBBSMPL_WHAT)) {
 				setupOpCombo();
 				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd); // @v10.0.02
+				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 3, !(Data.Action == SelAddBySampleParam::acnShipmByOrder)); // @v10.4.12
 				process_reg = 1;
 				clearEvent(event);
 			}
@@ -2971,7 +2973,7 @@ int SLAPI PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 								PPWait(1);
 								for(uint i = 0; i < bill_id_list.getCount(); i++) {
 									const PPID sample_bill_id = bill_id_list.get(i);
-									const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
+									const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sample_bill_id, &param); // @v10.4.12 sampleBillID-->sample_bill_id
 									if(!local_result)
 										logger.LogLastError();
 									else if(local_result == cmOK) {

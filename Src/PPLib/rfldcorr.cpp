@@ -2882,39 +2882,23 @@ ImpExpParamDialog * ImpExpCfgsListDialog::GetParamDlg(uint cfgPos)
 	ImpExpParamDialog * p_dlg = 0;
 	if(cfgPos < CfgsList.getCount()) {
 		switch(CfgsList.Get(cfgPos).Id) {
-			case PPREC_GOODS2:
-				p_dlg = new GoodsImpExpDialog;
-				break;
-			case PPREC_PERSON:
-				p_dlg = new PersonImpExpDialog;
-				break;
-			case PPREC_BILL:
-				p_dlg = new BillHdrImpExpDialog;
-				break;
+			case PPREC_GOODS2: p_dlg = new GoodsImpExpDialog; break;
+			case PPREC_PERSON: p_dlg = new PersonImpExpDialog; break;
+			case PPREC_BILL: p_dlg = new BillHdrImpExpDialog; break;
 			case PPREC_BROW:
 			case PPREC_INVENTORYITEM:
 			case PPREC_PRICELIST:
 			case PPREC_CSESS:
 			case PPREC_CCHECKS:
 			case PPREC_CCLINES:
-			case PPREC_WORKBOOK: // @v8.1.1
-				p_dlg = new ImpExpParamDialog(DLG_IMPEXP, 0);
-				break;
+			case PPREC_WORKBOOK: p_dlg = new ImpExpParamDialog(DLG_IMPEXP, 0); break;
 			/* @v9.1.3 case PPREC_CSESSCOMPLEX: // @v8.2.7
 				p_dlg = new CSessComplexImpExpDialog;
 				break; */
-			case PPREC_LOT: // @Muxa
-				p_dlg = new LotImpExpDialog;
-				break;
-			case PPREC_PHONELIST:
-				p_dlg = new PhoneListImpExpDialog;
-				break;
-			case PPREC_SCARD:
-				p_dlg = new SCardImpExpDialog;
-				break;
-			case PPREC_QUOTVAL: // @v8.5.11
-				p_dlg = new QuotImpExpDialog;
-				break;
+			case PPREC_LOT: p_dlg = new LotImpExpDialog; break; // @Muxa
+			case PPREC_PHONELIST: p_dlg = new PhoneListImpExpDialog; break;
+			case PPREC_SCARD: p_dlg = new SCardImpExpDialog; break;
+			case PPREC_QUOTVAL: p_dlg = new QuotImpExpDialog; break;
 		}
 	}
 	return p_dlg;

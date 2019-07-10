@@ -6868,7 +6868,9 @@ struct TaggedString {
 	long   Id;
 	char   Txt[64];
 };
-
+//
+// @obsolete
+//
 class TaggedStringArray : public TSArray <TaggedString> {
 public:
 	SLAPI  TaggedStringArray();
@@ -9924,27 +9926,21 @@ public:
 	int    FASTCALL copy(const LMatrix &);
 	const  char * SLAPI getname() const { return P_Name; }
 	void   FASTCALL setname(const char * pName);
-
 	int    SLAPI checktarget(LMIDX row, LMIDX col) const;
 	LMIDX  SLAPI rows() const { return NumRows; }
 	LMIDX  SLAPI cols() const { return NumCols; }
-
 	double SLAPI get(LMIDX row, LMIDX col) const;
 	LVect * SLAPI getrow(LMIDX row) const;
 	LVect * SLAPI getcol(LMIDX col) const;
-
 	int    SLAPI set(LMIDX row, LMIDX col, double);
 	int    SLAPI setrow(LMIDX row, const LVect &);
 	int    SLAPI setcol(LMIDX col, const LVect &);
 	void   SLAPI zero(LMIDX row, LMIDX col);
-
 	void   SLAPI swaprows(LMIDX r1, LMIDX r2);
-
 	int    SLAPI transpose(const LMatrix &);
 	double SLAPI Jacobian() const;
 	int    FASTCALL operator += (const LMatrix &);
 	int    FASTCALL operator -= (const LMatrix &);
-
 	friend LVect   * FASTCALL operator * (const LMatrix &, const LVect &);
 	friend LMatrix * FASTCALL operator * (const LMatrix &, const LMatrix &);
 	friend LVect   * FASTCALL operator * (const LVect &, const LMatrix &);

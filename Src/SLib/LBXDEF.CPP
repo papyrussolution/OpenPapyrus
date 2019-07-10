@@ -86,7 +86,7 @@ int SLAPI ListBoxDef::getCurID(long * pId)
 	if(Options & lbtAutoID)
 		*pId = _curItem();
 	else if((vp = getRow_(_curItem())) != 0)
-		*pId = (Options & lbtWordID) ? (long)*ip : *lp;
+		*pId = (Options & lbtWordID) ? static_cast<long>(*ip) : *lp;
 	else
 		return 0;
 	return 1;
@@ -140,7 +140,7 @@ int    SLAPI ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCou
 int SLAPI ListBoxDef::go(long row)
 {
 	if(valid()) {
-		long   c = getRecsCount();
+		const long  c = getRecsCount();
 		row = c ? RANGE(row, 0, c-1) : 0;
 		ScrollDelta = row - CurItem;
 		CurItem = row;
@@ -160,7 +160,7 @@ int ListBoxDef::TransmitData(int dir, void * pData)
 		if(Options & lbtNoData)
 			s = 0;
 		if(Options & lbtTransferData)
-			s = (int)stsize(Type);
+			s = static_cast<int>(stsize(Type));
 		else
 			s = (Options & lbtWordID) ? sizeof(int16) : sizeof(int32);
 	}
@@ -168,7 +168,7 @@ int ListBoxDef::TransmitData(int dir, void * pData)
 		s = (Options & lbtNoData || !pData) ? 0 : search(pData, 0, (Options & lbtTransferData) ? srchFirst : srchFirst | lbSrchByID);
 	}
 	else if(dir < 0) {
-		if(!(Options & lbtNoData))
+		if(!(Options & lbtNoData)) {
 			if(Options & lbtTransferData)
 				getCurData(pData);
 			else {
@@ -176,10 +176,11 @@ int ListBoxDef::TransmitData(int dir, void * pData)
 				if(!getCurID(&i))
 					i = 0;
 				if(Options & lbtWordID)
-					*(short*)pData = (short)i;
+					*static_cast<short *>(pData) = static_cast<short>(i);
 				else
-					*(long *)pData = i;
+					*static_cast<long *>(pData) = i;
 			}
+		}
 		s = 1;
 	}
 	return s;

@@ -117,7 +117,7 @@ struct Config {
 };
 
 struct CheckStruct {
-	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0)
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0) //@erikN v10.4.12 add "Stt(0),"
 	{
 	}
 	void Clear()
@@ -128,6 +128,7 @@ struct CheckStruct {
 		Department = 0;
 		Tax = 0;
 		Ptt = 0; // @v10.4.1
+		Stt = 0; // @erikM v10.4.12
 		// @v9.9.4 if(Text.NotEmpty())
 		// @v9.9.4 	Text.Destroy();
 		Text.Z(); // @v9.9.4
@@ -144,6 +145,7 @@ struct CheckStruct {
 	int    Department;
 	int    Tax;
 	int    Ptt; // @v10.4.1 // CCheckPacket::PaymentTermTag
+	int    Stt; // @erikE v10.4.12
 	SString Text;
 	SString Code; // @v9.5.7
 	double PaymCash;
@@ -978,6 +980,48 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					else if(param_val.IsEqiAscii("PTT_CREDIT"))
 						Check.Ptt = 7;
 				}
+				//@erikG v10.4.12{
+				else if (s_param == "SUBJTERMTAG") {
+					if (param_val.IsEqiAscii("STT_GOOD"))
+						Check.Stt = 1;
+					else if (param_val.IsEqiAscii("STT_EXCISABLEGOOD"))
+						Check.Stt = 2;
+					else if (param_val.IsEqiAscii("STT_EXECUTABLEWORK"))
+						Check.Stt = 3;
+					else if (param_val.IsEqiAscii("STT_SERVICE"))
+						Check.Stt = 4;
+					else if (param_val.IsEqiAscii("STT_BETTING"))
+						Check.Stt = 5;
+					else if (param_val.IsEqiAscii("STT_PAYMENTGAMBLING"))
+						Check.Stt = 6;
+					else if (param_val.IsEqiAscii("STT_BETTINGLOTTERY"))
+						Check.Stt = 7;
+					else if (param_val.IsEqiAscii("STT_PAYMENTLOTTERY"))
+						Check.Stt = 8;
+					else if (param_val.IsEqiAscii("STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY"))
+						Check.Stt = 9;
+					else if (param_val.IsEqiAscii("STT_ADVANCE"))
+						Check.Stt = 10;
+					else if (param_val.IsEqiAscii("STT_PAYMENTSPAYINGAGENT"))
+						Check.Stt = 11;
+					else if (param_val.IsEqiAscii("STT_SUBJTERM"))
+						Check.Stt = 12;
+					else if (param_val.IsEqiAscii("STT_NOTSUBJTERM"))
+						Check.Stt = 13;
+					else if (param_val.IsEqiAscii("STT_TRANSFERPROPERTYRIGHTS"))
+						Check.Stt = 14;
+					else if (param_val.IsEqiAscii("STT_NONOPERATINGINCOME"))
+						Check.Stt = 15;
+					else if (param_val.IsEqiAscii("STT_EXPENSESREDUCETAX"))
+						Check.Stt = 16;
+					else if (param_val.IsEqiAscii("STT_AMOUNTMERCHANTFEE"))
+						Check.Stt = 17;
+					else if (param_val.IsEqiAscii("STT_RESORTAEE"))
+						Check.Stt = 18;
+					else if (param_val.IsEqiAscii("STT_DEPOSIT"))
+						Check.Stt = 19;
+				}
+				// } @erik v10.4.12
 			}
 			{
 				if(Check.Price <= 0.0) {
@@ -1671,6 +1715,20 @@ int PiritEquip::RunCheck(int opertype)
 					6 	Передача в кредит
 					7 	Оплата кредита
 				(Целое число) Признак предмета расчета
+					1 	о реализуемом товаре, за исключением подакцизного товара (наименование и иные сведения, описывающие товар)
+					2 	о реализуемом подакцизном товаре (наименование и иные сведения, описывающие товар)
+					3 	о выполняемой работе (наименование и иные сведения, описывающие работу)
+					4 	об оказываемой услуге (наименование и иные сведения, описывающие услугу)
+					5 	о приеме ставок при осуществлении деятельности по проведению азартных игр
+					6 	о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению азартных игр
+					7 	о приеме денежных средств при реализации лотерейных билетов, электронных лотерейных билетов, приеме лотерейных ставок при осуществлении деятельности по проведению лотерей
+					8 	о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению лотерей
+					9 	о предоставлении прав на использование результатов интеллектуальной деятельности или средств индивидуализации
+					10 	об авансе, задатке, предоплате, кредите, взносе в счет оплаты, пени, штрафе, вознаграждении, бонусе и ином аналогичном предмете расчета
+					11 	о вознаграждении пользователя, являющегося платежным агентом (субагентом), банковским платежным агентом (субагентом), комиссионером, поверенным или иным агентом
+					12 	о предмете расчета, состоящем из предметов, каждому из которых может быть присвоено значение от «0» до «11»
+					13 	о предмете расчета, не относящемуся к предметам расчета, которым может быть присвоено значение от «0» до «12»
+
 				(Строка[3]) Код страны происхождения товара
 				(Строка[0...24]) Номер таможенной декларации
 				(Дробное число) Сумма акциза
@@ -1693,6 +1751,7 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr("", in_data);        // @v10.4.1 пустой параметр (string)
 			CreateStr(0.0, in_data);       // @v10.4.1 скидка (real)
 			CreateStr(Check.Ptt, in_data); // @v10.4.1 признак способа расчета (integer)
+			CreateStr(Check.Stt, in_data); // @erikO v10.4.12 Признак предмета расчета(integer)
 			{
 				// @v9.9.4 const int do_check_ret = 0;
 				const int do_check_ret = BIN(Check.Price == 0.0); // @v9.9.4

@@ -4275,7 +4275,7 @@ browser OBJSYNC north(100), 1, 1, "Таблица синхронизации {%s}", OWNER|GRID, 0
 		ADDITEM    :  kbIns,      TBBM_INSERT,          "Добавить запись\tInsert"
 		DELETEITEM :  kbDel,      TBBM_DELETE,          "Удалить запись\tDelete"
 		separator
-		EDITOBJ    :  kbF4,       TBBM_LINS,            "Объект\tF4"
+		EDITOBJ    :  kbF4,       TBBM_LINS,            "@{object}\tF4"
 		separator
 		CHANGEFILT :  kbCtrlV,    TBBM_FILTER,          "@{filter}\tCtrl-V"
 	}
@@ -5463,7 +5463,7 @@ browser GOODSTOOBJASSC north(100), 3, 1, "Ассоциации товар-%s", OWNER|GRID, 0
 		DELETEITEM : kbDel,   TBBM_DELETE, "@{delete}\tDelete"
 		separator
 		EDITGOODS  : kbF2,    TBBM_GOODS,  "@{ware}\tF2"
-		EDITOBJ    : kbF4,    TBBM_LINS,   "Объект\tF4"
+		EDITOBJ    : kbF4,    TBBM_LINS,   "@{object}\tF4"
 	}
 }
 //
@@ -7071,22 +7071,20 @@ record BRow {
 	LotManuf      zstring(128)    "Производитель-импортер из лота (dll)";
 	ManufINN      zstring(32)     "ИНН производителя-импортера из лота (dll)";
 	ManufKPP      zstring(32)     "КПП производителя-импортера из лота (dll)";
-	ManufCityName zstring(48)    "Название города из адреса производителя-импортера (dll)";
-	ManufRegionName zstring(48)  "Название региона из адреса производителя-импортера (dll)";
+	ManufCityName zstring(48)     "Название города из адреса производителя-импортера (dll)";
+	ManufRegionName zstring(48)   "Название региона из адреса производителя-импортера (dll)";
 	ManufIndex    zstring(16)     "Индекс из адреса производителя-импортера (dll)";
-	ManufRegionCode long	     "Код региона из адреса производителя-импортера (dll)";
-	ManufDistrict zstring(48)    "Название района из адреса производителя-импортера (dll)";
+	ManufRegionCode long	      "Код региона из адреса производителя-импортера (dll)";
+	ManufDistrict zstring(48)     "Название района из адреса производителя-импортера (dll)";
 	ManufStreet   zstring(48)     "Улица из адреса производителя-импортера (dll)";
-	ManufHouse    long	         "Номер дома из адреса производителя-импортера (dll)";
-	ManufHousing  long	         "Номер корпуса из адреса производителя-импортера (dll)";
-
-	ManufCountryName zstring(48) "Наименование страны-производителя товара";
-	ManufCountryOKSM zstring(8)  "Код страны-производителя товара (ОКСМ)";
-
-	IsManuf       long      "Персоналия является производителем (dll)";
-	LotDocDate    date	   "Дата приходного документа из лота";
-	IsBeer	      long      "Товар относится к группе Пиво (dll)";
-	IsAlco	      long	   "Товар относится к группе Алкоголь (dll)";
+	ManufHouse    long	          "Номер дома из адреса производителя-импортера (dll)";
+	ManufHousing  long	          "Номер корпуса из адреса производителя-импортера (dll)";
+	ManufCountryName zstring(48)  "Наименование страны-производителя товара";
+	ManufCountryOKSM zstring(8)   "Код страны-производителя товара (ОКСМ)";
+	IsManuf       long            "Персоналия является производителем (dll)";
+	LotDocDate    date	          "Дата приходного документа из лота";
+	IsBeer	      long            "Товар относится к группе Пиво (dll)";
+	IsAlco	      long	          "Товар относится к группе Алкоголь (dll)";
 	//
 }
 

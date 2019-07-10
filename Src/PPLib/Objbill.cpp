@@ -697,7 +697,7 @@ void SLAPI PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 	}
 }
 
-int SLAPI PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, int interactive)
+int SLAPI PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, int interactive)
 {
 	int    ok = -1;
 	LongArray row_idx_list;
@@ -741,6 +741,17 @@ int SLAPI PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBil
 			}
 			lot_list.clear();
 			trfr->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, pPack->Rec.Dt, &lot_list);
+			// @v10.4.12 {
+			if(srcLotID) {
+				//
+				// Если вызывающая функция задала лот, из которого следует расходовать товар, 
+				// и этот лот в списке, то перемещаем его вверх списка для того, чтобы применить с приоритетом.
+				//
+				uint src_lot_pos = 0;
+				if(lot_list.lsearch(&srcLotID, &src_lot_pos, CMPF_LONG) && src_lot_pos != 0)
+					lot_list.swap(src_lot_pos, 0);
+			}
+			// } @v10.4.12 
 			for(uint lotidx = 0; lotidx < lot_list.getCount() && qtty > 0.0; lotidx++) {
 				const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
 				THROW(pPack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
@@ -781,7 +792,7 @@ int SLAPI PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBil
 						ti.Discount = ti.Price - p_ord_item->NetPrice();
 					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
 					ti.Flags   |= PPTFR_ONORDER;
-					ti.Quantity_ = rest;
+					ti.Quantity_ = -rest; // @v10.4.12 @fix rest-->-rest
 					{
 						uint   sh_lot_row_pos = 0;
 						//
@@ -1390,6 +1401,11 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 			loc_id = LConfig.Location;
 	}
 	if(loc_id) {
+		PPBillPacket rcpt_bpack;
+		PPBillPacket * p_rcpt_bpack = 0;
+		LAssocArray pos_to_src_lot_list; // Список ассоциаций номеров строк исходного документа с номерами строк p_rcpt_bpack, 
+			// для определения лотов, из которых необходимо расходовать товары.
+			// Используется при установленном флаге SelAddBySampleParam::fRcptAllOnShipm
 		PPBillPacket::SetupObjectBlock sob;
 		if(pParam->Flags & SelAddBySampleParam::fCopyBillCode) {
 			THROW(pack.CreateBlank_WithoutCode(pParam->OpID, 0, loc_id, 1));
@@ -1407,8 +1423,9 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 		pack.SampleBillID = sampleBillID;
 		if(pack.Rec.SCardID == 0 && sample_pack.Rec.SCardID > 0)
 			pack.Rec.SCardID = sample_pack.Rec.SCardID;
-		if(sample_pack.P_Freight)
+		if(sample_pack.P_Freight) {
 			THROW(pack.SetFreight(sample_pack.P_Freight));
+		}
 		if(sample_pack.Ext.AgentID)
 			pack.Ext.AgentID = sample_pack.Ext.AgentID;
 		STRNSCPY(pack.Rec.Memo, sample_pack.Rec.Memo);
@@ -1427,13 +1444,108 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 		}
 		if(pParam->QuotKindID)
 			pack.QuotKindID = pParam->QuotKindID;
-		if(pParam->Flags & pParam->fNonInteractive) {
-			for(uint i = 0; i < sample_pack.GetTCount(); i++) {
-				THROW(InsertShipmentItemByOrder(&pack, &sample_pack, i, 0 /*noninteractive*/));
+		if(pParam->Flags & SelAddBySampleParam::fRcptAllOnShipm) {
+			Goods2Tbl::Rec goods_rec;
+			int is_there_limited_goods = 0;
+			for(uint i = 0; !is_there_limited_goods && i < sample_pack.GetTCount(); i++) {
+				if(GObj.Fetch(sample_pack.ConstTI(i).GoodsID, &goods_rec) > 0 && !(goods_rec.Flags & GF_UNLIM))
+					is_there_limited_goods = 1;
+			}
+			if(is_there_limited_goods) {
+				PPID   rcpt_op_id = GetReceiptOp();
+				PPOprKind rcpt_op_rec;
+				PPID   rcpt_ar_id = 0;
+				PPBillPacket::SetupObjectBlock rcpt_sob;
+				THROW_PP(rcpt_op_id, PPERR_UNDEFRECEIPTOP);
+				THROW(rcpt_bpack.CreateBlank(rcpt_op_id, 0, loc_id, 1));
+				GetOpData(rcpt_op_id, &rcpt_op_rec);
+				rcpt_bpack.Rec.Dt = pack.Rec.Dt;
+				if(sample_pack.Rec.Object) {
+					ArticleTbl::Rec ar_rec;
+					PPID   temp_ar_id = 0;
+					if(ArObj.Fetch(sample_pack.Rec.Object, &ar_rec) > 0) {
+						if(ar_rec.AccSheetID == rcpt_op_rec.AccSheetID)
+							rcpt_ar_id = sample_pack.Rec.Object;
+						else if(ArObj.GetByPerson(rcpt_op_rec.AccSheetID, ObjectToPerson(sample_pack.Rec.Object, 0), &temp_ar_id) > 0)
+							rcpt_ar_id = temp_ar_id;
+					}
+				}
+				THROW(rcpt_bpack.SetupObject(rcpt_ar_id, rcpt_sob));
+				{
+					SString memo_buf;
+					PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
+					(memo_buf = "@autoreceipt").Space().Cat(temp_buf);
+					STRNSCPY(rcpt_bpack.Rec.Memo, memo_buf);
+				}
+				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
+					const PPTransferItem & r_src_ti = sample_pack.ConstTI(i);
+					if(GObj.Fetch(r_src_ti.GoodsID, &goods_rec) > 0 && !(goods_rec.Flags & GF_UNLIM)) {
+						PPTransferItem ti;
+						LongArray row_idx_list;
+						ti.Init(&rcpt_bpack.Rec, 0, 0);
+						THROW(ti.SetupGoods(labs(r_src_ti.GoodsID)));
+						ti.RByBill = r_src_ti.RByBill;
+						ti.Quantity_ = fabs(r_src_ti.Quantity_);
+						ti.Cost = (r_src_ti.Cost > 0.0) ? r_src_ti.Cost : r_src_ti.Price;
+						ti.Price = r_src_ti.Price;
+						ti.Expiry = r_src_ti.Expiry;
+						THROW(rcpt_bpack.InsertRow(&ti, &row_idx_list));
+						{
+							ObjTagList rcpt_row_tag_list;
+							assert(row_idx_list.getCount() == 1);
+							const uint ti_pos = row_idx_list.get(0);
+							if(sample_pack.LTagL.GetTagStr(i, PPTAG_LOT_SN, temp_buf) > 0)
+								rcpt_row_tag_list.PutItemStr(PPTAG_LOT_SN, temp_buf);
+							if(sample_pack.LTagL.GetTagStr(i, PPTAG_LOT_CLB, temp_buf) > 0)
+								rcpt_row_tag_list.PutItemStr(PPTAG_LOT_CLB, temp_buf);
+							rcpt_bpack.LTagL.Set(ti_pos, &rcpt_row_tag_list);
+							pos_to_src_lot_list.Add(static_cast<long>(i), ti_pos);
+						}
+					}
+				}
+				if(rcpt_bpack.GetTCount()) {
+					THROW(rcpt_bpack.InitAmounts());
+					THROW(FillTurnList(&rcpt_bpack));
+					THROW(TurnPacket(&rcpt_bpack, 1)); 
+					p_rcpt_bpack = &rcpt_bpack;
+					/*for(uint j = 0; j < rcpt_bpack.GetTCount(); j++) {
+						const PPTransferItem & r_ti = rcpt_bpack.ConstTI(j);
+						uint  pos = 0;
+						long  src_ti_pos = 0;
+						if(pos_to_src_lot_list.SearchByVal(j, &src_ti_pos, &pos)) {
+						}
+					}*/
+				}
 			}
 		}
-		else {
-			res = Helper_EditGoodsBill(pBillID, &pack);
+		{
+			// @v10.4.12 {
+			for(uint i = 0; i < sample_pack.GetTCount(); i++) {
+				PPID   src_lot_id = 0;
+				if(p_rcpt_bpack) {
+					uint  pos = 0;
+					long  rcpt_ti_pos = 0;
+					if(pos_to_src_lot_list.Search(i, &rcpt_ti_pos, &pos))
+						src_lot_id = p_rcpt_bpack->ConstTI(rcpt_ti_pos).LotID;
+				}
+				THROW(InsertShipmentItemByOrder(&pack, &sample_pack, i, src_lot_id, 0 /*noninteractive*/));
+			}
+			// @v10.4.12 {
+			if(pParam->Flags & pParam->fNonInteractive) {
+#if 0  // @v10.4.12 {
+				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
+					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, i, 0/*srcLotID*/, 0 /*noninteractive*/));
+				}
+#endif // } 0 @v10.4.12
+				// @v10.4.12 @fix (странно что никто не пожаловался - документ не проводился) {
+				THROW(pack.InitAmounts());
+				THROW(FillTurnList(&pack));
+				THROW(TurnPacket(&pack, 1)); 
+				// } @v10.4.12
+			}
+			else {
+				res = Helper_EditGoodsBill(pBillID, &pack);
+			}
 		}
 	}
 	if(res != cmOK)

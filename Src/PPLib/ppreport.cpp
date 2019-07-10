@@ -2529,10 +2529,10 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 			PPWait(0);
 			switch(rpt.PrnDest) { //@erik v10.4.10
 				case PrnDlgAns::aPrint:
-					ok = CrystalReportPrint(fn, ep.Path, printer_name, pans.NumCopies, rpt.PrnOptions, pans.P_DevMode);//@erik
+					ok = CrystalReportPrint(fn, ep.Path, printer_name, pans.NumCopies, rpt.PrnOptions, pans.P_DevMode);//@erik v10.4.10
 					break;
 				case PrnDlgAns::aPreview:
-					ok = CrystalReportPrint(fn, ep.Path, printer_name, 1, rpt.PrnOptions | SPRN_PREVIEW, pans.P_DevMode); //@erik
+					ok = CrystalReportPrint(fn, ep.Path, printer_name, 1, rpt.PrnOptions | SPRN_PREVIEW, pans.P_DevMode); //@erik v10.4.10
 					break;
 				case PrnDlgAns::aExport:
 					{

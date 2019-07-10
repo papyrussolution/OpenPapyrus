@@ -4814,6 +4814,8 @@ PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить
 PPTXT_SMSDECLINEDDUETIMERANGE       "Отсылка SMS-уведомлений отклонена из-за недопустимого времени суток (%s)"
 PPTXT_SETTIMESERIESSTAT             "SetTimeSeries @zstr: append_count=@int upd-count=@int field-count=@int profile=@int64"
 PPTXT_VETIS_SPCMARK_SRCWARENAME     "Наименования согласно номеклатуре производителя."
+PPTXT_VETIS_DOCSTATUS               "0,Создан;1,Подтвержден;2,Отменен;3,Погашен;4,Закрыт;8,Подготовка расхода;9,Остатки"
+PPTXT_TOCREATEWARECFGOPTNEEDED      "Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию"
 //
 // LastText
 
@@ -5542,6 +5544,7 @@ DVCPARAM_VATAMOUNT20    "VATAMOUNT20" // @v10.4.8
 DVCPARAM_VATFREEAMOUNT	"VATFREEAMOUNT" // @v10.0.0
 DVCPARAM_PAYMCCRD       "PAYMCCRD" // @v10.4.1 Оплата корпоративной кредитной картой
 DVCPARAM_PAYMENTTERMTAG     "PAYMENTTERMTAG" // @v10.4.1
+DVCPARAM_SUBJTERMTAG     "SUBJTERMTAG" // @erikB v10.4.12
 DVCPARAM_PTT_UNDEF          "PTT_UNDEF"          //
 DVCPARAM_PTT_FULL_PREPAY    "PTT_FULL_PREPAY"    // Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
 DVCPARAM_PTT_PREPAY         "PTT_PREPAY"         // Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
@@ -5550,6 +5553,29 @@ DVCPARAM_PTT_FULLPAYMENT    "PTT_FULLPAYMENT"    // Полный расчет (�
 DVCPARAM_PTT_PARTIAL        "PTT_PARTIAL"        // Частичный расчет и кредит (Частичная оплата предмета расчета в момент его передачи с последующей оплатой в кредит)
 DVCPARAM_PTT_CREDITHANDOVER "PTT_CREDITHANDOVER" // Передача в кредит (Передача предмета расчета без его оплаты в момент его передачи с последующей оплатой в кредит)
 DVCPARAM_PTT_CREDIT         "PTT_CREDIT"         // Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
+
+//@erikF{ v10.4.12
+DVCPARAM_STT_UNDEF             "STT_UNDEF""          //
+DVCPARAM_STT_GOOD              "STT_GOOD"            // о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
+DVCPARAM_STT_EXCISABLEGOOD     "STT_EXCISABLEGOOD"   // о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
+DVCPARAM_STT_EXECUTABLEWORK    "STT_EXECUTABLEWORK"  // о выполняемой работе(наименование и иные сведения, описывающие работу)
+DVCPARAM_STT_SERVICE           "STT_SERVICE"         // об оказываемой услуге(наименование и иные сведения, описывающие услугу)
+DVCPARAM_STT_BETTING           "STT_BETTING"         // о приеме ставок при осуществлении деятельности по проведению азартных игр
+DVCPARAM_STT_PAYMENTGAMBLING   "STT_PAYMENTGAMBLING" // о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению азартных игр
+DVCPARAM_STT_BETTINGLOTTERY    "STT_BETTINGLOTTERY"  // о приеме денежных средств при реализации лотерейных билетов, электронных лотерейных билетов, приеме лотерейных ставок при осуществлении деятельности по проведению лотерей
+DVCPARAM_STT_PAYMENTLOTTERY    "STT_PAYMENTLOTTERY"  // о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению лотерей
+DVCPARAM_STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY   "STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY"   // о предоставлении прав на использование результатов интеллектуальной деятельности или средств индивидуализации
+DVCPARAM_STT_ADVANCE                  "STT_ADVANCE"                 // об авансе, задатке, предоплате, кредите, взносе в счет оплаты, пени, штрафе, вознаграждении, бонусе и ином аналогичном предмете расчета
+DVCPARAM_STT_PAYMENTSPAYINGAGENT      "STT_PAYMENTSPAYINGAGENT"     // о вознаграждении пользователя, являющегося платежным агентом(субагентом), банковским платежным агентом(субагентом), комиссионером, поверенным или иным агентом
+DVCPARAM_STT_SUBJTERM                 "STT_SUBJTERM"                // о предмете расчета, состоящем из предметов, каждому из которых может быть присвоено значение от «0» до «11»
+DVCPARAM_STT_NOTSUBJTERM              "STT_NOTSUBJTERM"             // о предмете расчета, не относящемуся к предметам расчета, которым может быть присвоено значение от «0» до «12»
+DVCPARAM_STT_TRANSFERPROPERTYRIGHTS   "STT_TRANSFERPROPERTYRIGHTS"  // о передаче имущественных прав
+DVCPARAM_STT_NONOPERATINGINCOME       "STT_NONOPERATINGINCOME"      // о внереализационном доходе(Название товара может принимать значения 1 - 25)
+DVCPARAM_STT_EXPENSESREDUCETAX        "STT_EXPENSESREDUCETAX"       // о суммах расходов, уменьшающих сумму налога(авансовых платежей) в соответствии с пунктом 3.1 статьи 346.21 Налогового кодекса Российской Федерации(Название товара может принимать значения 26 - 31)
+DVCPARAM_STT_AMOUNTMERCHANTFEE        "STT_AMOUNTMERCHANTFEE"       // о суммах уплаченного торгового сбора
+DVCPARAM_STT_RESORTAEE                "STT_RESORTAEE"               // о курортном сборе
+DVCPARAM_STT_DEPOSIT                  "STT_DEPOSIT"                 // Залог 
+// }@erik v10.4.12
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -11956,6 +11982,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billbysampleparam_fcopybillcode          "Копировать номер документа"
 @billbysampleparam_fnoninteractive        "Неинтерактивный режим"
 @billbysampleparam_fall                   "Для всей выборки документов"
+@billbysampleparam_frcptallonshipm        "Оприходовать весь заказанный товар"
 
 @pospaymblock                             "Оплата покупки"
 @pospaymblock_amount                      "К оплате"
@@ -12190,6 +12217,54 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @uicfg_billmultiprintdefault              "По общей конфигурации"
 @uicfg_fenalbebillmultiprint              "Разрешить"
 @uicfg_fdisablebillmultiprint             "Запретить"
+
+@impexpparam_pl                           "Конфигурации импорта/экспорта"
+
+@impexpparam                              "Параметры импорта/экспорта"
+@impexpparam_name                         "Наименование конфигурации"
+@impexpparam_dataformat                   "@{outerdataformat}"
+@impexpparam_direction                    ""
+@impexpparam_filename                     "@{filename}"
+@impexpparam_inetacc                      "@{ftpaccount}"
+@impexpparam_baseflags                    "@{flags}"
+@impexpparam_bfdeletesrcfiles             "@{removefilesafterimport}"
+
+@impexpparambillh                         "Параметры импорта/экспорта документов"
+@impexpparambillh_flags                   "@{flags}"
+@impexpparambillh_fimprowsfromsamefile    "Строки импортировать из того же файла"
+@impexpparambillh_fimpexprowsonly         "Импортировать только файл строк"
+@impexpparambillh_frestrictbymatrix       "Ограничивать товарной матрицей"
+@impexpparambillh_fexponebyone            "Экспортировать документы по-одному"
+@impexpparambillh_fcreateabsencegoods     "Создавать отсутствующие товары"
+@impexpparambillh_impop                   "Вид операции импорта"
+@impexpparambillh_predefformat            "Предопределенный формат"
+@impexpparambillh_pfundef                 ""
+@impexpparambillh_pfnalogr_invoice        ""
+@impexpparambillh_pfnalogr_rezruisp       ""
+@impexpparambillh_pfnalogr_schfdoppr      ""
+@impexpparambillh_objsrchcode             "Поисковый код для контрагента" // generic
+@impexpparambillh_obj1srchcode            "@{impexpparambillh_objsrchcode} 1"
+@impexpparambillh_obj2srchcode            "@{impexpparambillh_objsrchcode} 2"
+
+@impexpparamgoods                         "Параметры импорта/экспорта товаров"
+@impexpparamgoods_flags                   "@{flags}"
+@impexpparamgoods_fskipzeroqtty           "Не приходовать нулевое количество"
+@impexpparamgoods_fanalyzebarcode         "Анализировать штрихкоды"
+@impexpparamgoods_fanalyzename            "Анализировать наименования"
+@impexpparamgoods_fanalyzeonly            "Только анализ"
+@impexpparamgoods_fuhtt                   "@{brand_uhtt}"
+@impexpparamgoods_fforcesnglbarcode       "Force Single Barcode"
+@impexpparamgoods_fimportimages           "Импорт изображений"
+@impexpparamgoods_fforceupdatemanuf       "Заменять существующих производителей"
+@impexpparamgoods_accsheet                "@{accsheet}"
+@impexpparamgoods_suppl                   "@{supplier}"
+@impexpparamgoods_defunit                 "Торговая единица по умолчанию"
+@impexpparamgoods_phunit                  "Физическая единица измерения"
+@impexpparamgoods_defparent               "@{groupdefault}"
+@impexpparamgoods_rcptop                  "Операция прихода"
+@impexpparamgoods_loc                     "@{warehouse}"
+@impexpparamgoods_matrixaction            "Признак необходимости добавления товара в матрицу"
+@impexpparamgoods_subcode                 "SubCode (offs,len)"
 
 @pugl_singlewarewarn                      "Остаток товара '%s' недостаточен для комплектации"
 @pugl_multigoodswroffwarn                 "Следующих товаров не хватает для списания"

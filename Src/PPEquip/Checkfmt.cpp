@@ -18,6 +18,7 @@ void SLAPI SlipLineParam::Init()
 	Price = 0.0;
 	VatRate = 0.0;
 	PaymTermTag = CCheckPacket::pttUndef; // @v10.4.1
+	SbjTermTag = CCheckPacket::sttUndef;  // @erikH v10.4.12
 	DivID = 0;
 	FontSize = 0;
 	MEMSZERO(PictCoord);
@@ -139,6 +140,7 @@ public:
 		uint16 Reserve;       // @alignment
 		long   GoodsID;       // @v9.5.7
 		CCheckPacket::PaymentTermTag Ptt; // @v10.4.1 Признак способа расчета (определяется типом товара)
+		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 Признак предмета расчета
 		// @v9.5.7 char   PictPath[256];
 		char   Text[256];     // @v9.5.7
 		char   Code[32];      // @v9.5.7
@@ -512,7 +514,7 @@ enum {
 	symbManufSerial,       // MANUFSERIAL
 	symbDirector,          // DIRECTOR   @v9.7.6 Директор
 	symbAccountant,        // ACCOUNTANT @v9.7.6 Главный бухгалтер
-	symbClientExtName      // CLIENTEXTNAME @erikA v10.4.11
+	symbClientExtName      // CLIENTEXTNAME @erik v10.4.11
 };
 
 PPID PPSlipFormat::GetSCardID(const Iter * pIter, double * pAdjSum) const
@@ -605,7 +607,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						rResult.Cat(temp_buf);
 					}
 					break;
-				//@erikB v10.4.11 {ё
+				//@erik v10.4.11 {
 				case symbClientExtName:
 					{
 						if (Src == srcGoodsBill) {
@@ -621,7 +623,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						}
 					}
 					break;
-				// } erikB
+				// } erik v10.4.11
 				case symbAgent:
 					if(Src == srcCCheck)
 						temp_id = p_ccp->Ext.SalerID;
@@ -1480,6 +1482,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							// @v9.5.7 {
 							pIter->GoodsID = cc_item.GoodsID;
 							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
+							pIter->Stt = CCheckPacket::sttUndef; // @erikP v10.4.12
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
@@ -1487,8 +1490,15 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								if(P_Od->GObj.FetchTax(pIter->GoodsID, P_CcPack->Rec.Dt, 0, &tax_entry) > 0)
 									pIter->VatRate = tax_entry.GetVatRate();
 								// @v10.4.1 {
-								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ADVANCECERT)
-									pIter->Ptt = CCheckPacket::pttAdvance;
+								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+									if(gt_rec.Flags & GTF_ADVANCECERT)
+										pIter->Ptt = CCheckPacket::pttAdvance;
+									//@erikL v10.4.12 {
+									else if(gt_rec.Flags & GTF_UNLIMITED)
+										pIter->Stt = CCheckPacket::sttService;
+									// } @erik v10.4.12
+
+								}
 								// } @v10.4.1 
 							}
 							// } @v9.5.7
@@ -2414,6 +2424,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			sl_param.VatRate = CurIter.VatRate; // @v9.7.1
 			sl_param.DivID = CurIter.DivID;
 			sl_param.PaymTermTag = CurIter.Ptt; // @v10.4.1
+			sl_param.SbjTermTag = CurIter.Stt; // @erikI v10.4.12
 		}
 		else if(ok < 0) {
 			if(CurZone == 0)

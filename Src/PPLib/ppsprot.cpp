@@ -130,7 +130,7 @@ int SLAPI PPJobSrvProtocol::StartReading(SString * pRepString)
 {
 	int    ok = 1;
 	ASSIGN_PTR(pRepString, 0);
-	ErrText = 0;
+	ErrText.Z();
 	State |= stReading;
 	size_t avl_sz = GetAvailableSize();
 	THROW_PP(avl_sz >= 2, PPERR_JOBSRV_INVREPLYSIZE);

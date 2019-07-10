@@ -404,6 +404,7 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpExpRowsOnly);
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 2, PPBillImpExpParam::fRestrictByMatrix); // @v9.0.4
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 3, PPBillImpExpParam::fExpOneByOne); // @v9.3.10
+	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 4, PPBillImpExpParam::fCreateAbsenceGoods); // @v10.4.12
 	SetClusterData(CTL_IMPEXPBILH_FLAGS, Data.Flags);
 
 	PPIDArray op_types;
@@ -2364,7 +2365,10 @@ int SLAPI PPBillImporter::ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt,
 int SLAPI PPBillImporter::Import(int useTa)
 {
 	int    ok = 1;
-	SString temp_buf, qc_code, TTN;
+	SString temp_buf;
+	SString goods_name_buf;
+	SString qc_code;
+	SString TTN;
 	SString fmt_buf, msg_buf;
 	SString serial, sn_templt;
 	PPObjAccSheet acs_obj;
@@ -2380,17 +2384,16 @@ int SLAPI PPBillImporter::Import(int useTa)
 	GetOpData(OpID, &op_rec);
 	const int restrict_by_matrix = BIN(BillParam.Flags & PPBillImpExpParam::fRestrictByMatrix);
 	const int need_price_restrict = BIN(op_rec.ExtFlags & OPKFX_RESTRICTPRICE);
+	const PPGoodsConfig & r_gcfg = GObj.GetConfig();
 	PPWait(0);
 	{
 		const  PPID temp_tag_id_1 = BillParam.ImpExpParamDll.ManufTagID;
 		const  PPID temp_tag_id_2 = P_BObj->GetConfig().MnfCountryLotTagID;
 		if(temp_tag_id_1 || temp_tag_id_2) {
-			if(temp_tag_id_1 && tag_obj.Fetch(temp_tag_id_1, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
+			if(temp_tag_id_1 && tag_obj.Fetch(temp_tag_id_1, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON)
 				mnf_lot_tag_id = temp_tag_id_1;
-			}
-			else if(temp_tag_id_2 && tag_obj.Fetch(temp_tag_id_2, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
+			else if(temp_tag_id_2 && tag_obj.Fetch(temp_tag_id_2, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON)
 				mnf_lot_tag_id = temp_tag_id_2;
-			}
 		}
 	}
 	{
@@ -2406,6 +2409,10 @@ int SLAPI PPBillImporter::Import(int useTa)
 				ResolveGoodsItem item;
 				STRNSCPY(item.GoodsName, r_row.GoodsName);
 				STRNSCPY(item.Barcode, r_row.Barcode);
+				// @v10.4.12 {
+				(temp_buf = r_row.LotManuf).Transf(CTRANSF_OUTER_TO_INNER);
+				STRNSCPY(item.ManufName, temp_buf);
+				// } @v10.4.12
 				item.Quantity = r_row.Quantity;
 				if(r_row.CntragID && r_row.ArCode[0]) {
 					item.ArID = r_row.CntragID;
@@ -2416,16 +2423,128 @@ int SLAPI PPBillImporter::Import(int useTa)
 			}
 		}
 		if(goods_list.getCount()) {
-			if(DS.CheckExtFlag(ECF_SYSSERVICE)) // @v10.1.0
-				ok = -1;
-			else {
-				if(ResolveGoodsDlg(&goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG) > 0) {
-					for(uint i = 0; i < goods_list.getCount(); i++)
-						BillsRows.at(unres_pos_list.get(i)).GoodsID = goods_list.at(i).ResolvedGoodsID;
-					r = 1;
+			// @v10.4.12 {
+			assert(goods_list.getCount() == unres_pos_list.getCount());
+			if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
+				if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
+					PPTransaction tra(useTa);
+					THROW(tra);
+					for(uint i = 0; i < goods_list.getCount(); i++) {
+						ResolveGoodsItem & r_rgi = goods_list.at(i);
+						if(!r_rgi.ResolvedGoodsID && r_rgi.GoodsName[0]) {
+							PPGoodsPacket gpack;
+							if(GObj.InitPacket(&gpack, gpkndGoods, r_gcfg.DefGroupID, 0, r_rgi.Barcode)) {
+								const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
+								PPID   by_name_id = 0;
+								SString suffix;
+								long   uc = 1;
+								(goods_name_buf = r_rgi.GoodsName).Strip();								
+								while(GObj.SearchByName(goods_name_buf, &by_name_id, 0) > 0) {
+									suffix.Z().Space().CatChar('#').Cat(++uc);
+									(goods_name_buf = r_rgi.GoodsName).Strip();
+									size_t sum_len = goods_name_buf.Len() + suffix.Len();
+									if(sum_len > max_nm_len)
+										goods_name_buf.Trim(max_nm_len-suffix.Len());
+									goods_name_buf.Cat(suffix);
+								}
+								STRNSCPY(gpack.Rec.Name, goods_name_buf);
+								STRNSCPY(gpack.Rec.Abbr, goods_name_buf);
+								gpack.Rec.UnitID = r_gcfg.DefUnitID;
+								if(r_rgi.ArID && r_rgi.ArCode[0]) {
+									ArGoodsCodeTbl::Rec ar_code_rec;
+									MEMSZERO(ar_code_rec);
+									ar_code_rec.ArID = r_rgi.ArID;
+									ar_code_rec.Pack = 1000; // 1.0
+									STRNSCPY(ar_code_rec.Code, r_rgi.ArCode);
+									gpack.ArCodes.insert(&ar_code_rec);
+								}
+								if(r_rgi.ManufName[0]) {
+									temp_buf = r_rgi.ManufName;
+									if(temp_buf.NotEmptyS()) {
+										PPID   manuf_id = 0;
+										THROW(PsnObj.AddSimple(&manuf_id, temp_buf, PPPRK_MANUF, PPPRS_LEGAL, 0));
+										gpack.Rec.ManufID = manuf_id;
+									}
+								}
+								PPID goods_id = 0;
+								if(!GObj.PutPacket(&goods_id, &gpack, 0)) {
+									PPGetLastErrorMessage(1, msg_buf);
+									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
+									Logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, gpack.Rec.Name, msg_buf.cptr()));
+								}
+								else {
+									r_rgi.ResolvedGoodsID = goods_id;
+									BillsRows.at(unres_pos_list.get(i)).GoodsID = goods_id;
+									//
+									// Теперь, когда новый товар создан, нам надо найти все аналогичные позиции в списке (если они там есть)
+									// и сопоставить их с созданным товаров.
+									// Мы сделаем это, основываясь, в порядке уменьшения приоритета, либо на коде товара, либо на коде по статье,
+									// либо на наименовании. Обращаю внимание на то, что сравнение наименований точное с учетом регистра.
+									//
+									if(r_rgi.Barcode[0]) {
+										for(uint j = i+1; j < goods_list.getCount(); j++) {
+											ResolveGoodsItem & r_rgi2 = goods_list.at(j);
+											if(sstreqi_ascii(r_rgi2.Barcode, r_rgi.Barcode)) {
+												r_rgi2.ResolvedGoodsID = goods_id;
+												BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
+											}
+										}
+									}
+									else if(r_rgi.ArID && r_rgi.ArCode[0]) {
+										for(uint j = i+1; j < goods_list.getCount(); j++) {
+											ResolveGoodsItem & r_rgi2 = goods_list.at(j);
+											if(r_rgi2.ArID == r_rgi.ArID && sstreqi_ascii(r_rgi2.ArCode, r_rgi.ArCode)) {
+												r_rgi2.ResolvedGoodsID = goods_id;
+												BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
+											}
+										}
+									}
+									else {
+										for(uint j = i+1; j < goods_list.getCount(); j++) {
+											ResolveGoodsItem & r_rgi2 = goods_list.at(j);
+											if(sstreq(r_rgi2.GoodsName, r_rgi.GoodsName)) {
+												r_rgi2.ResolvedGoodsID = goods_id;
+												BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					THROW(tra.Commit());
 				}
-				else
+				else {
+					// Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию
+					PPLoadText(PPTXT_TOCREATEWARECFGOPTNEEDED, msg_buf);
+					Logger.Log(msg_buf);
+				}
+				{
+					assert(goods_list.getCount() == unres_pos_list.getCount());
+					uint i = goods_list.getCount();
+					if(i) do {
+						ResolveGoodsItem & r_rgi = goods_list.at(--i);
+						if(r_rgi.ResolvedGoodsID) {
+							goods_list.atFree(i);
+							unres_pos_list.atFree(i);
+						}
+					} while(i);
+					assert(goods_list.getCount() == unres_pos_list.getCount());
+				}
+			}
+			// } @v10.4.12
+			if(goods_list.getCount()) {
+				if(DS.CheckExtFlag(ECF_SYSSERVICE)) // @v10.1.0
 					ok = -1;
+				else {
+					if(ResolveGoodsDlg(&goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG) > 0) {
+						for(uint i = 0; i < goods_list.getCount(); i++)
+							BillsRows.at(unres_pos_list.get(i)).GoodsID = goods_list.at(i).ResolvedGoodsID;
+						r = 1;
+					}
+					else
+						ok = -1;
+				}
 			}
 		}
 	}
@@ -2506,23 +2625,23 @@ int SLAPI PPBillImporter::Import(int useTa)
 											}
 											else if((temp_buf = r_row.LotManuf).NotEmptyS()) {
 												PPPersonPacket psn_pack;
-                                                STRNSCPY(psn_pack.Rec.Name, temp_buf);
-                                                psn_pack.Kinds.add(alc_manuf_kind_id);
-                                                {
+												STRNSCPY(psn_pack.Rec.Name, temp_buf);
+												psn_pack.Kinds.add(alc_manuf_kind_id);
+												{
                                                 	MEMSZERO(reg_rec);
                                                 	reg_rec.ObjType = PPOBJ_PERSON;
                                                 	reg_rec.RegTypeID = PPREGT_TPID;
                                                 	STRNSCPY(reg_rec.Num, r_row.ManufINN);
 													psn_pack.Regs.insert(&reg_rec);
-                                                }
-                                                if(r_row.ManufKPP[0]) {
+												}
+												if(r_row.ManufKPP[0]) {
                                                 	MEMSZERO(reg_rec);
                                                 	reg_rec.ObjType = PPOBJ_PERSON;
 													reg_rec.RegTypeID = PPREGT_KPP;
                                                 	STRNSCPY(reg_rec.Num, r_row.ManufKPP);
 													psn_pack.Regs.insert(&reg_rec);
-                                                }
-                                                THROW(PsnObj.PutPacket(&manuf_id, &psn_pack, 0));
+												}
+												THROW(PsnObj.PutPacket(&manuf_id, &psn_pack, 0));
 											}
 											if(manuf_id) {
 												if(tag_item.SetInt(alc_manuf_lot_tag_id, manuf_id)) {

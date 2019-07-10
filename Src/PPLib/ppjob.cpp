@@ -3091,15 +3091,13 @@ public:
 	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
-		size_t sav_offs = 0;
 		Param  param;
 		TDialog * dlg = 0;
 		PPNamedFiltMngr nf_mngr;
 		SString db_symb;
 		THROW_INVARG(pParam);
 		THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
-
-		sav_offs = pParam->GetRdOffs();
+		const size_t sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize()) {
 			THROW(param.Read(*pParam, 0));
 		}
