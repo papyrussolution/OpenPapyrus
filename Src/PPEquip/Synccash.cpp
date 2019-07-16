@@ -629,30 +629,30 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 						// } @v10.4.1 
 						// @erikJ v10.4.12 {
-						if (sl_param.SbjTermTag != CCheckPacket::sttUndef) {
+						if(sl_param.SbjTermTag != CCheckPacket::sttUndef) {
 							uint   str_id = 0;
-							switch (sl_param.SbjTermTag) {
-							case CCheckPacket::sttGood: str_id = DVCPARAM_STT_GOOD; break;
-							case CCheckPacket::sttExcisableGood: str_id = DVCPARAM_STT_EXCISABLEGOOD; break;
-							case CCheckPacket::sttExecutableWork: str_id = DVCPARAM_STT_EXECUTABLEWORK; break;
-							case CCheckPacket::sttService: str_id = DVCPARAM_STT_SERVICE; break;
-							case CCheckPacket::sttBetting: str_id = DVCPARAM_STT_BETTING; break;
-							case CCheckPacket::sttPaymentGambling: str_id = DVCPARAM_STT_PAYMENTGAMBLING; break;
-							case CCheckPacket::sttBettingLottery: str_id = DVCPARAM_STT_BETTINGLOTTERY; break;
-							case CCheckPacket::sttPaymentLottery: str_id = DVCPARAM_STT_PAYMENTLOTTERY; break;
-							case CCheckPacket::sttGrantRightsUseIntellectualActivity: str_id = DVCPARAM_STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY; break;
-							case CCheckPacket::sttAdvance: str_id = DVCPARAM_STT_ADVANCE; break;
-							case CCheckPacket::sttPaymentsPayingAgent: str_id = DVCPARAM_STT_PAYMENTSPAYINGAGENT; break;
-							case CCheckPacket::sttSubjTerm: str_id = DVCPARAM_STT_SUBJTERM; break;
-							case CCheckPacket::sttNotSubjTerm: str_id = DVCPARAM_STT_NOTSUBJTERM; break;
-							case CCheckPacket::sttTransferPropertyRights: str_id = DVCPARAM_STT_TRANSFERPROPERTYRIGHTS; break;
-							case CCheckPacket::sttNonOperatingIncome: str_id = DVCPARAM_STT_NONOPERATINGINCOME; break;
-							case CCheckPacket::sttExpensesReduceTax: str_id = DVCPARAM_STT_EXPENSESREDUCETAX; break;
-							case CCheckPacket::sttAmountMerchantFee: str_id = DVCPARAM_STT_AMOUNTMERCHANTFEE; break;
-							case CCheckPacket::sttResortАee: str_id = DVCPARAM_STT_RESORTAEE; break;
-							case CCheckPacket::sttDeposit: str_id = DVCPARAM_SUBJTERMTAG; break;
+							switch(sl_param.SbjTermTag) {
+								case CCheckPacket::sttGood: str_id = DVCPARAM_STT_GOOD; break;
+								case CCheckPacket::sttExcisableGood: str_id = DVCPARAM_STT_EXCISABLEGOOD; break;
+								case CCheckPacket::sttExecutableWork: str_id = DVCPARAM_STT_EXECUTABLEWORK; break;
+								case CCheckPacket::sttService: str_id = DVCPARAM_STT_SERVICE; break;
+								case CCheckPacket::sttBetting: str_id = DVCPARAM_STT_BETTING; break;
+								case CCheckPacket::sttPaymentGambling: str_id = DVCPARAM_STT_PAYMENTGAMBLING; break;
+								case CCheckPacket::sttBettingLottery: str_id = DVCPARAM_STT_BETTINGLOTTERY; break;
+								case CCheckPacket::sttPaymentLottery: str_id = DVCPARAM_STT_PAYMENTLOTTERY; break;
+								case CCheckPacket::sttGrantRightsUseIntellectualActivity: str_id = DVCPARAM_STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY; break;
+								case CCheckPacket::sttAdvance: str_id = DVCPARAM_STT_ADVANCE; break;
+								case CCheckPacket::sttPaymentsPayingAgent: str_id = DVCPARAM_STT_PAYMENTSPAYINGAGENT; break;
+								case CCheckPacket::sttSubjTerm: str_id = DVCPARAM_STT_SUBJTERM; break;
+								case CCheckPacket::sttNotSubjTerm: str_id = DVCPARAM_STT_NOTSUBJTERM; break;
+								case CCheckPacket::sttTransferPropertyRights: str_id = DVCPARAM_STT_TRANSFERPROPERTYRIGHTS; break;
+								case CCheckPacket::sttNonOperatingIncome: str_id = DVCPARAM_STT_NONOPERATINGINCOME; break;
+								case CCheckPacket::sttExpensesReduceTax: str_id = DVCPARAM_STT_EXPENSESREDUCETAX; break;
+								case CCheckPacket::sttAmountMerchantFee: str_id = DVCPARAM_STT_AMOUNTMERCHANTFEE; break;
+								case CCheckPacket::sttResortFee: str_id = DVCPARAM_STT_RESORTFEE; break;
+								case CCheckPacket::sttDeposit: str_id = DVCPARAM_SUBJTERMTAG; break;
 							}
-							if (str_id) {
+							if(str_id) {
 								PPLoadString(PPSTR_ABDVCCMD, str_id, temp_buf);
 								THROW(ArrAdd(Arr_In, DVCPARAM_SUBJTERMTAG, temp_buf));
 							}

@@ -2877,14 +2877,13 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 			long   flags = 0;
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &flags);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(Data.OpID).CatChar('-').Cat(Data.Action);
-			val.Z().Cat(flags & SelAddBySampleParam::fCopyBillCode);
+			val.Z().Cat(flags & (SelAddBySampleParam::fCopyBillCode|SelAddBySampleParam::fRcptAllOnShipm)); // @v10.5.0 SelAddBySampleParam::fRcptAllOnShipm
 			reg_key.PutString(param, val);
 		}
 		void   restoreFlags()
 		{
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
 			SString param;
-			//char   val_buf[128];
 			SString temp_buf;
 			PPID   op_id = getCtrlLong(CTLSEL_SELBBSMPL_OP);
 			long   action = 0;
@@ -2894,6 +2893,7 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 			if(reg_key.GetString(param, temp_buf)) {
 				long rf = atoi(temp_buf);
 				SETFLAGBYSAMPLE(flags, SelAddBySampleParam::fCopyBillCode, rf);
+				SETFLAGBYSAMPLE(flags, SelAddBySampleParam::fRcptAllOnShipm, rf); // @v10.5.0
 			}
 			SetClusterData(CTL_SELBBSMPL_SAMECODE, flags);
 		}

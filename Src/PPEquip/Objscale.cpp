@@ -3184,7 +3184,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 			if(GetAddedMsgLines(pScalePLU, line_len_limit, max_added_lines, 0, ss) > 0) {
 				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 					ext_text_buf.CatChar(3); // Размер шрифта
-					LongToHexBytesStr((long)temp_buf.Len(), 1, str_len);
+					LongToHexBytesStr(static_cast<long>(temp_buf.Len()), 1, str_len);
 					ext_text_buf.CatChar(str_len.C(0)); // Длина строки без заголовков и терминаторов
 					ext_text_buf.Cat(temp_buf).CatChar(13);
 				}
@@ -3195,7 +3195,6 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		}
 		double price = R2(pScalePLU->Price);
 		long   fract = R0i(ffrac(price) * 100.0);
-
 		LongToBCDStr(fract, "%02ld", kop);
 		LongToBCDStr((long)price, "%06ld", rub);
 		LongToHexBytesStr((long)goods_name.Len(), 1, str_len);

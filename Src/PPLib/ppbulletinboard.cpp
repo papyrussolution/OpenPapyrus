@@ -235,7 +235,7 @@ public:
 		TempLastEntry TLE;
 		TSCollection <PPObjTimeSeries::TrendEntry> TrendList;
 		PPObjTimeSeries::StrategyContainer Strategies;
-		TSCollection <PPObjTimeSeries::StrategyContainer::IndexEntry1> StratIndex;
+		PPObjTimeSeries::StrategyContainer::Index1 StratIndex;
 
 		long   Actual_Regular_Parity;
 		void SLAPI Make_T_Regular()
@@ -1735,7 +1735,7 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSer
 					LDATETIME t_prev = ZERODATETIME;
 					for(uint j = 0; j < tsc; j++) {
 						LDATETIME t = ZERODATETIME;
-						double v = 0;
+						double v = 0.0;
 						SUniTime ut;
 						p_fblk->T_.GetTime(j, &ut);
 						ut.Get(t);

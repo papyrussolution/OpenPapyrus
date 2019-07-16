@@ -404,7 +404,8 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpExpRowsOnly);
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 2, PPBillImpExpParam::fRestrictByMatrix); // @v9.0.4
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 3, PPBillImpExpParam::fExpOneByOne); // @v9.3.10
-	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 4, PPBillImpExpParam::fCreateAbsenceGoods); // @v10.4.12
+	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 4, PPBillImpExpParam::fDontIdentGoodsByName); // @v10.5.0
+	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 5, PPBillImpExpParam::fCreateAbsenceGoods); // @v10.4.12 @v10.5.0 4-->5
 	SetClusterData(CTL_IMPEXPBILH_FLAGS, Data.Flags);
 
 	PPIDArray op_types;
@@ -1778,7 +1779,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 				if(!goods_id) {
 					if(brow_.Barcode[0] && GObj.SearchByBarcode(brow_.Barcode, &bcrec, 0, 1/*adoptSearching*/) > 0)
 						goods_id = bcrec.GoodsID;
-					else if(GObj.SearchByName(brow_.GoodsName, &id) > 0)
+					else if(!(BillParam.Flags & BillParam.fDontIdentGoodsByName) && GObj.SearchByName(brow_.GoodsName, &id) > 0) // @v10.5.0 fDontIdentGoodsByName
 						goods_id = id;
 				}
 				// @v9.8.4 {

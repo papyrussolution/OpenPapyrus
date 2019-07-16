@@ -288,7 +288,7 @@ toolbar MAIN TB_GLOBAL {
 	cmGoodsBillList,    "@{cmd_goodsbilllist}",     TBBM_GOODSBILLS
 	cmGoodsOrder,       "@{cmd_goodsorder}",        TBBM_ORDERBILLS
 	cmInventory,        "Документы инвентаризации", TBBM_INVENTORY
-	cmDraftBillList,    "Драфт-документы",          TBBM_DRAFTBILLS
+	cmDraftBillList,    "@{draftdocument_pl}",      TBBM_DRAFTBILLS
 	cmUnifyGoodsPrice,  "Унификация цен",           TBBM_UNIFYPRICE
 	cmVATBook,          "Книги продаж/покупок",     TBBM_VATBOOK
 	separator
@@ -937,7 +937,7 @@ toolbar export LIST_WORLD TB_FIRST_TOOLBAR {
 	cmaInsert,         "@{add}\tInsert",             TBBM_INSERT
 	cmaDelete,         "@{delete}\tDelete",          TBBM_DELETE
 	separator
-	cmaMore,           "Улицы",                      TBBM_HOUSE
+	cmaMore,           "@{street_pl}",               TBBM_HOUSE
 	separator
 	cmTransmit,        "@{dotransmit_short}",        TBBM_SENDOBJ
 	separator
@@ -3640,7 +3640,7 @@ browser QUOT_SER north(100), 2, 1, "Изменения котировки товара (%s)", OWNER|GRID
 	}
 }
 
-browser CCHECK north(100), 1, 1, "Кассовые чеки", OWNER|GRID, 0
+browser CCHECK north(100), 1, 1, "@poscheck_pl", OWNER|GRID, 0
 {
 	"@date",          1, notype, DATF_DMY, 8
 	"@time",          2, notype, TIMF_HMS | TIMF_MSEC, 8
@@ -3981,7 +3981,7 @@ browser PSNEVSUBST north(100), 1, 2, "Персональные операции с подстановкой {%s}"
 	}
 }
 
-browser STAFFLIST north(100), 2, 1, "Штатное расписание {%s}", OWNER|GRID, 0
+browser STAFFLIST north(100), 2, 1, "@{stafflist} {%s}", OWNER|GRID, 0
 {
 	"@id",                0, int32,       0,       6, BCO_USERPROC
 	"@person_position",   1, zstring(48), 0,      30, BCO_USERPROC
@@ -3997,7 +3997,7 @@ browser STAFFLIST north(100), 2, 1, "Штатное расписание {%s}", OWNER|GRID, 0
 		separator
 		STAFFPOST  : kbF3,      TBBM_PERSONS,  "Штатные единицы\tF3"
 		STAFFCAL   : kbCtrlE,   TBBM_STAFFCAL, "@{view_staffcal}\tCtrl-E"
-		AMOUNTS    : kbF4,      TBBM_AMOUNTS,  "Штатные суммы\tF4"
+		AMOUNTS    : kbF4,      TBBM_AMOUNTS,  "@{staffamount_s_pl}\tF4"
 		SALARY     : kbF5,      TBBM_SALARY,   "Начисления\tF5"
 		PRINT      : kbF7,      TBBM_PRINT,    "@{print}\tF7"
 		separator
@@ -4022,7 +4022,7 @@ browser PERSONPOST south(65), 1, 0, "Штатные единицы {%s}", OWNER|GRID, 0
 		separator
 		EDITPERSON : kbF2,      TBBM_PERSONS,  "@{person}\tF2"
 		STAFFCAL   : kbCtrlE,   TBBM_STAFFCAL, "@{view_staffcal}\tCtrl-E"
-		AMOUNTS    : kbF4,      TBBM_AMOUNTS,  "Штатные суммы\tF4"
+		AMOUNTS    : kbF4,      TBBM_AMOUNTS,  "@{staffamount_s_pl}\tF4"
 		SALARY     : kbF5,      TBBM_SALARY,   "Начисления\tF5"
 		//PRINT      : kbF7,    TBBM_PRINT,    "@{print}\tF7"
 		separator
@@ -4313,7 +4313,7 @@ toolbar export SCARD TB_FIRST_TOOLBAR {
 	CALCTRNOVR  : kbCtrlR,   TBBM_HAMMER,    "Пересчет оборотов\tCtrl-R"
 	SYSJ        : kbCtrlJ,   TBBM_SYSJ,      "@{view_sysjournal}\tCtrl-J"
 	TRANSMIT    : kbCtrlH,   TBBM_SENDOBJ,   "@{dotransmit}\tCtrl-H"
-	AUTOFILL    : kbF8,      TBBM_NOICON,    "Автозаполнение\tF8"
+	AUTOFILL    : kbF8,      TBBM_NOICON,    "@{autofill}\tF8"
 	DELETEALL   : kbCtrlF8,  TBBM_DELETEALL, "Удалить выборку\tCtrl-F8"
 	REPLACECARD : kbCtrlM,   TBBM_REPLACE,   "Заменить в чеках\tCtrl-M"
 	AFILLDEFPSN : kbCtrlP,   TBBM_NOICON,    "Авотозаполнение персоналии по умолч.\tCtrl-P"
@@ -5675,7 +5675,7 @@ browser CASHNODE north(100), 1, 1, "@{view_cashnode}", OWNER|GRID, 0
 	}
 }
 
-browser BIZSCORE north(100), 1, 1, "Бизнес-показатели", OWNER|GRID, 0
+browser BIZSCORE north(100), 1, 1, "@bizscore_pl", OWNER|GRID, 0
 {
 	"ID",              0, notype, 0,  6
 	"@appellation",    1, notype, 0, 30
@@ -5709,7 +5709,7 @@ browser BIZSCOREVAL north(100), 3, 1, "Значения бизнес-показателей", OWNER|GRID,
 	"@value",          5, notype, NMBF_NOZERO, 12.2
 	"Строка",          6, notype, 0, 40
 	toolbar TB_FIRST_TOOLBAR {
-		VIEWBIZSCORE  : kbF2,     TBBM_NOICON, "Бизнес-показатель\tF2"
+		VIEWBIZSCORE  : kbF2,     TBBM_NOICON, "@{bizscore}\tF2"
 		CHARGE        : kbF6,     TBBM_CHARGE, "Расчет\tF6"
 		DELETEITEM    : kbDel,    TBBM_DELETE, "Удалить значение\tDelete"
 		DELETEALL     : kbCtrlF8, TBBM_DELETEALL, "@{doremoveall}\tCtrl-F8"
@@ -8157,7 +8157,7 @@ record FiasRawAddrObj {
 // -------------- Описания "заглушек" отчетов (вместо генерируемых устаревшей утилитой rptgen.exe)
 //
 reportstub Salary           { dl600data=Salary,          "Анализ начисления зарплаты" }
-reportstub StaffCal         { dl600data=StaffCalView,    "Штатные календари" }
+reportstub StaffCal         { dl600data=StaffCalView,    "@{staffcalendar_pl}" }
 reportstub GoodsBillWpGGrp  { dl600data=GoodsBillWpG,    "Накладная с сортировкой по месту хранения" }
 reportstub SalaryCt         { dl600data=Salary,          "Анализ начисления зарплаты с кросстабуляцией" }
 reportstub GOA_ZEROOP       { dl600data=GoodsOpAnlz,     "Отчет о товарах, по которым не было операций, но были остатки" }
@@ -8169,7 +8169,7 @@ reportstub DispatchOrder    { dl600data=PsnEventItem,    "Приказ о командировке"
 reportstub LeaveOrder       { dl600data=PsnEventItem,    "Приказ об отпуске" }
 reportstub ReceiptOrder     { dl600data=PsnEventItem,    "Приказ о приеме на работу" }
 reportstub DismissOrder     { dl600data=PsnEventItem,    "Приказ об увольнении" }
-reportstub StaffList        { dl600data=StaffListView,   "Штатное расписание" }
+reportstub StaffList        { dl600data=StaffListView,   "@{stafflist}" }
 reportstub BillTareSaldo    { dl600data=GoodsBillSaldo,  "Акт приема-передачи тары" }
 reportstub SalaryByPost     { dl600data=SalaryByPost,    "Анализ начисления зарплаты с группировкой по штатным назначениям" }
 reportstub LocPrnTest       { dl600data=LocPrnTest,      "Тест печати на локальный принтер" }
@@ -8326,7 +8326,7 @@ reportstub CurRateBT		{ dl600data=CurRateView,		"Валютные курсы (по заданным: ба
 reportstub CurRate			{ dl600data=CurRateView,		"Валютные курсы"}
 reportstub CCheckGdsCorr	{ dl600data=CCheckView,			"Корреляция товаров по кассовым чекам"}
 reportstub CCheckView_Q		{ dl600data=CCheckView,			"Кассовые чеки с колонкой количества"}
-reportstub CCheckView		{ dl600data=CCheckView,			"Кассовые чеки"}
+reportstub CCheckView		{ dl600data=CCheckView,			"@{poscheck_pl}"}
 reportstub CCheckView_G_Dt	{ dl600data=CCheckView,			"Кассовые чеки с группировкой по дням"}
 reportstub CCheckView_G_Q	{ dl600data=CCheckView,			"Кассовые чеки с группировкой по количеству"}
 reportstub CCheckView_G_GDt	{ dl600data=CCheckView,			"Кассовые чеки с группировкой по товару и дате"}

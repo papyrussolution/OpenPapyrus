@@ -1520,15 +1520,17 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 		}
 		{
 			// @v10.4.12 {
-			for(uint i = 0; i < sample_pack.GetTCount(); i++) {
-				PPID   src_lot_id = 0;
-				if(p_rcpt_bpack) {
-					uint  pos = 0;
-					long  rcpt_ti_pos = 0;
-					if(pos_to_src_lot_list.Search(i, &rcpt_ti_pos, &pos))
-						src_lot_id = p_rcpt_bpack->ConstTI(rcpt_ti_pos).LotID;
+			if(pParam->Flags & (pParam->fNonInteractive|pParam->fRcptAllOnShipm)) { // @v10.5.0
+				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
+					PPID   src_lot_id = 0;
+					if(p_rcpt_bpack) {
+						uint  pos = 0;
+						long  rcpt_ti_pos = 0;
+						if(pos_to_src_lot_list.Search(i, &rcpt_ti_pos, &pos))
+							src_lot_id = p_rcpt_bpack->ConstTI(rcpt_ti_pos).LotID;
+					}
+					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, i, src_lot_id, 0 /*noninteractive*/));
 				}
-				THROW(InsertShipmentItemByOrder(&pack, &sample_pack, i, src_lot_id, 0 /*noninteractive*/));
 			}
 			// @v10.4.12 {
 			if(pParam->Flags & pParam->fNonInteractive) {
@@ -8853,6 +8855,17 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 							break;
 						case PPSYM_LOCATION: GetLocationName(pk->Rec.LocID, subst_buf); break;
 						case PPSYM_OBJECT:   GetArticleName(pk->Rec.Object, subst_buf); break;
+						case PPSYM_OBJINN: // @v10.5.0
+						case PPSYM_OBJKPP: // @v10.5.0
+							if(pk->Rec.Object) {
+								PPID   person_id = ObjectToPerson(pk->Rec.Object);
+								if(person_id) {
+									PPObjPerson psn_obj;
+									const PPID reg_type_id = (sym == PPSYM_OBJINN) ? PPREGT_TPID : ((sym == PPSYM_OBJKPP) ? PPREGT_KPP : 0);
+									psn_obj.GetRegNumber(person_id, reg_type_id, pk->Rec.Dt, subst_buf);
+								}
+							}
+							break;
 						case PPSYM_BILLOBJ2: GetArticleName(pk->Rec.Object2, subst_buf); break;
 						case PPSYM_DLVRLOCCODE:
 							if(pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)

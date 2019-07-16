@@ -609,17 +609,14 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				//@erik v10.4.11 {
 				case symbClientExtName:
-					{
-						if (Src == srcGoodsBill) {
-							PPID person_id = ObjectToPerson(p_bp->Rec.Object);
-							if (person_id != 0 && P_Od->PsnObj.GetExtName(person_id, temp_buf) > 0) {
-								rResult.Cat(temp_buf);
-							}
-							else {
-								GetArticleName(p_bp->Rec.Object, temp_buf);
-								rResult.Cat(temp_buf);
-							}
-	
+					if(Src == srcGoodsBill) {
+						PPID person_id = ObjectToPerson(p_bp->Rec.Object);
+						if(person_id && P_Od->PsnObj.GetExtName(person_id, temp_buf) > 0) {
+							rResult.Cat(temp_buf);
+						}
+						else {
+							GetArticleName(p_bp->Rec.Object, temp_buf);
+							rResult.Cat(temp_buf);
 						}
 					}
 					break;

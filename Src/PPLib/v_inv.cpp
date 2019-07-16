@@ -1,5 +1,7 @@
 // V_INV.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
+// PPViewInventory: –æ—Ç–æ–±—Ä–∞–∂–µ–Ω–∏–µ —Å—Ç—Ä–æ–∫ –∏–Ω–≤–µ–Ω—Ç–∞—Ä–∏–∑–∞—Ü–∏–∏
 //
 #include <pp.h>
 #pragma hdrstop
@@ -109,7 +111,7 @@ public:
 			Data.GoodsID    = rec.GoodsID;
 			//getCtrlData(CTLSEL_INVDIFFLT_GRP, &Data.GoodsGrpID);
 		}
-		getCtrlData(CTLSEL_INVDIFFLT_STRGLOC, &Data.StorageLocID); // @v8.8.6
+		getCtrlData(CTLSEL_INVDIFFLT_STRGLOC, &Data.StorageLocID);
 		getCtrlData(CTL_INVDIFFLT_SIGN, &(v = 0));
 		if(v == 0)
 			f = 0;
@@ -212,7 +214,7 @@ private:
 int SLAPI PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1, valid_data = 0;
-	InventoryFilt * p_filt = (InventoryFilt*)pFilt;
+	InventoryFilt * p_filt = static_cast<InventoryFilt *>(pFilt);
 	InventoryFiltDialog * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new InventoryFiltDialog()))) {
 		dlg->setDTS(p_filt);
@@ -580,7 +582,6 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 								if(!do_skip) {
 									ExtraEntry new_entry;
 									MEMSZERO(new_entry);
-
 									PPID   final_goods_id = 0;
 									if(!!Filt.Sgb)
 										final_goods_id = subst_bill_val;
@@ -831,7 +832,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 	}
 	if(ok > 0) {
 		if(pItem) {
-			*(InventoryTbl::Rec *)pItem = inv_rec;
+			*static_cast<InventoryTbl::Rec *>(pItem) = inv_rec;
 			pItem->FullGrpName = 0;
 			P_GgIter->Get(goods_rec.ParentID, pItem->FullGrpName);
 		}
@@ -1070,9 +1071,9 @@ private:
 	PPInventoryOpEx  InvOpEx;
 	enum {
 		stExistsGoodsOnly = 0x0001,
-		stGoodsFixed      = 0x0002,  // ‘ËÍÒËÓ‚‡ÌÌ˚È ÚÓ‚‡ (‚˚·‡Ì ‰Ó ‚ıÓ‰‡ ‚ ‰Ë‡ÎÓ„)
-		stUseSerial       = 0x0004,
-		stLockUpdateByInp = 0x0008   // @v7.5.11
+		stGoodsFixed      = 0x0002,  // –§–∏–∫—Å–∏—Ä–æ–≤–∞–Ω–Ω—ã–π —Ç–æ–≤–∞—Ä (–≤—ã–±—Ä–∞–Ω –¥–æ –≤—Ö–æ–¥–∞ –≤ –¥–∏–∞–ª–æ–≥)
+		stUseSerial       = 0x0004,  //
+		stLockUpdateByInp = 0x0008   //
 	};
 	long   St;
 	double StockRest;
@@ -1236,7 +1237,7 @@ int SLAPI PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, co
 								reply = cmCancel;
 								PPError(PPERR_INVTOOWRITEDOFF, 0);
 							}
-							else if(duprec.Flags & INVENTF_AUTOLINE) // œÓÒÚÓ ËÁÏÂÌËÚ¸ ÒÚÓÍÛ
+							else if(duprec.Flags & INVENTF_AUTOLINE) // –ü—Ä–æ—Å—Ç–æ –∏–∑–º–µ–Ω–∏—Ç—å —Å—Ç—Ä–æ–∫—É
 								*pOprNo = duprec.OprNo;
 							else {
 								if(accelMode)
@@ -1773,7 +1774,7 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 									sel_by_name = 0;
 							}
 							SETFLAG(sel_flags, ExtGoodsSelDialog::fExistsOnly, (Filt.Flags & InventoryFilt::fSelExistsGoodsOnly));
-							SETFLAG(sel_flags, ExtGoodsSelDialog::fByName, Flags & fSelGoodsByName); // ¬ ‰Ë‡ÎÓ„Â ·Û‰ÛÚ ÔÓÎÌ˚Â Ì‡ËÏÂÌÓ‚‡ÌËˇ //
+							SETFLAG(sel_flags, ExtGoodsSelDialog::fByName, Flags & fSelGoodsByName); // –í –¥–∏–∞–ª–æ–≥–µ –±—É–¥—É—Ç –ø–æ–ª–Ω—ã–µ –Ω–∞–∏–º–µ–Ω–æ–≤–∞–Ω–∏—è //
 							ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(bill_rec.OpID, 0, sel_flags);
 							if(CheckDialogPtrErr(&dlg)) {
 								if(sel_by_name)
@@ -1799,7 +1800,7 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 				}
 				else if(hdr.BillID && hdr.OprNo) {
 					int r = EditLine(hdr.BillID, &hdr.OprNo, 0, 0, 0.0, 0);
-					if(r > 0 || r == -2) { // -2 - ·˚Î Á‡ÏÂÌÂÌ Ë‰ ÚÓ‚‡‡
+					if(r > 0 || r == -2) { // -2 - –±—ã–ª –∑–∞–º–µ–Ω–µ–Ω –∏–¥ —Ç–æ–≤–∞—Ä–∞
 						Flags |= fWasUpdated;
 						ok = 1;
 					}
@@ -2128,7 +2129,7 @@ int PPALDD_Invent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 
 int PPALDD_Invent::NextIteration(PPIterID iterId)
 {
-	long   n = (long)I.LineNo+1;
+	long   n = I.LineNo+1;
 	START_PPVIEW_ALDD_ITER(Inventory);
 	I.LineNo        = item.OprNo;
 	I.WritedOff     = BIN(item.Flags & INVENTF_WRITEDOFF);

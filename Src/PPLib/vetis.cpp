@@ -373,6 +373,17 @@ struct VetisEnterpriseActivityList : public VetisEntityList {
 	TSCollection <VetisEnterpriseActivity> Activity;
 };
 
+enum VetisRegisterModificationType {
+	vetisrmtCREATE = 1,     // Добавление новой записи.
+	vetisrmtFIND_OR_CREATE, // Поиск существующей или добавление новой записи, если искомой записи не существует.
+	vetisrmtUPDATE,         // Внесение изменений в существующую запись.
+	vetisrmtDELETE,         // Удаление существующей записи.
+	vetisrmtMERGE,          // Объединение двух или нескольких записей.
+	vetisrmtATTACH,         // Присоединение одной или нескольких записе к другой.
+	vetisrmtSPLIT,          // Разделение записи на две и более.
+	vetisrmtFORK            // Отделение одной и более записей от существующей.
+};
+
 struct VetisEnterprise : public VetisNamedGenericVersioningEntity {
 	VetisEnterprise();
 	~VetisEnterprise();
@@ -492,7 +503,7 @@ enum VetisProductType {
 };
 
 enum VetisProductMarkingClass {
-	vpmcUNDEFINED = 0, 
+	vpmcUNDEFINED = 0,
 	vpmcBN, // Номер производственной партии
 	vpmcSSCC, // SSCC-код
 	vpmcEAN8,
@@ -577,7 +588,7 @@ struct VetisPackage {
 		TSCollection_Copy(ProductMarks, rS.ProductMarks);
 		return *this;
 	}
-	VetisPackage & Z() 
+	VetisPackage & Z()
 	{
 		Level = 0;
 		Quantity = 0;
@@ -1203,7 +1214,10 @@ public:
 		signGetVetDocumentByUuid,
 		signProcessIncomingConsignment,
 		signProcessOutgoingConsignment,
-		signWithdrawVetDocument
+		signWithdrawVetDocument,
+		signModifyEnterprise,        // @v10.5.0
+		signModifyActivityLocations, // @v10.5.0
+		signResolveDiscrepancy       // @v10.5.0
 	};
 	explicit VetisApplicationData(long sign) : Sign(sign)
 	{
@@ -1299,6 +1313,31 @@ public:
 	VetisVetDocument Doc;
 };
 
+class VetisModifyEnterpriseRequest : public VetisApplicationData { // @V10.5.0
+public:
+	VetisModifyEnterpriseRequest(VetisRegisterModificationType mt) : VetisApplicationData(signModifyEnterprise), ModType(mt)
+	{
+	}
+	VetisRegisterModificationType ModType;
+	VetisEnterprise En;
+};
+
+class VetisModifyActivityLocationsRequest : public VetisApplicationData { // @V10.5.0
+public:
+	VetisModifyActivityLocationsRequest() : VetisApplicationData(signModifyActivityLocations)
+	{
+	}
+	//VetisVetDocument Doc;
+};
+
+class VetisResolveDiscrepancyRequest : public VetisApplicationData { // @V10.5.0
+public:
+	VetisResolveDiscrepancyRequest() : VetisApplicationData(signResolveDiscrepancy)
+	{
+	}
+	//VetisVetDocument Doc;
+};
+
 struct VetisApplicationBlock {
 	VetisApplicationBlock(uint vetisSvcVer, const VetisApplicationData * pAppParam);
 	VetisApplicationBlock();
@@ -1337,11 +1376,9 @@ struct VetisApplicationBlock {
 	LDATETIME PrdcRsltDate;
 	ReplyListValues ListResult;
 	SString AppData; // xml-block
-
 	TSCollection <VetisErrorEntry> ErrList;
 	TSCollection <VetisFault> FaultList;
 	const VetisApplicationData * P_AppParam;
-
 	TSCollection <VetisProductItem> ProductItemList; // Ответ на запрос одного или нескольких ProductItem
 	TSCollection <VetisEnterprise> EntItemList;
 	TSCollection <VetisBusinessEntity> BEntList;
@@ -2969,6 +3006,7 @@ public:
 	//
 	int    SLAPI PrepareOutgoingConsignment(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
 	int    SLAPI WithdrawVetDocument(const S_GUID & rDocUuid, VetisApplicationBlock & rReply);
+	int    SLAPI VetisModifyEnterprise(VetisRegisterModificationType modType, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply);
 	//
 	// Операция RegisterProductionOperation предназначена для оформления в системе Меркурий производственной партии, как завершённой, так и незавершённой.
 	//   На вход системы передаются следующие сведения:
@@ -3355,6 +3393,17 @@ static const SIntToSymbTabEntry VetisProductMarkingClass_SymbTab[] = {
 	{ vpmcEAN13, "EAN13" },
 	{ vpmcEAN128, "EAN128" },
 	{ vpmcBUNDLE, "BUNDLE" }
+};
+
+static const SIntToSymbTabEntry VetisRegisterModificationType_SymbTab[] = {
+	{ vetisrmtCREATE, "CREATE" },
+	{ vetisrmtFIND_OR_CREATE, "FIND_OR_CREATE" },
+	{ vetisrmtUPDATE, "UPDATE" },
+	{ vetisrmtDELETE, "DELETE" },
+	{ vetisrmtMERGE, "MERGE" },
+	{ vetisrmtATTACH, "ATTACH" },
+	{ vetisrmtSPLIT, "SPLIT" },
+	{ vetisrmtFORK, "FORK" }
 };
 
 int SLAPI PPVetisInterface::ParseGenericVersioningEntity(xmlNode * pParentNode, VetisGenericVersioningEntity & rResult)
@@ -4321,7 +4370,172 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 	THROW(rAppBlk.P_AppParam);
 	{
 		VetisSubmitRequestBlock srb;
-		if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signWithdrawVetDocument) {
+		if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyEnterprise) {
+			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
+			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+			n_env.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "merc"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/g2b/applications/v2")); // merc
+			//n_env.PutAttrib(SXml::nst("xmlns", "ws"),      InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application/ws-definitions")); // alpdef
+			//n_env.PutAttrib(SXml::nst("xmlns", "app"),     InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application")); // apl
+			//n_env.PutAttrib(SXml::nst("xmlns", "vd"),      InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/vet-document/v2")); // vd
+			{
+				SXml::WNode n_hdr(srb, SXml::nst("soapenv", "Header"));
+			}
+			{
+				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
+				{
+					SXml::WNode n_f(srb, SXml::nst(/*"ws"*/0, "submitApplicationRequest"));
+					n_f.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application/ws-definitions"));
+					P.GetExtStrData(extssApiKey, temp_buf);
+					n_f.PutInner(SXml::nst(/*"ws"*/0, "apiKey"), temp_buf);
+					{
+						SXml::WNode n_app(srb, SXml::nst(/*"app"*/0, "application"));
+						n_f.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application"));
+						n_app.PutInner(SXml::nst(/*"app"*/0, "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
+						n_app.PutInner(SXml::nst(/*"app"*/0, "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst(/*"app"*/0, "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
+						n_app.PutInner(SXml::nst(/*"app"*/0, "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						SXml::WNode n_data(srb, SXml::nst(/*"app"*/0, "data"));
+						{
+							const VetisModifyEnterpriseRequest * p_req = static_cast<const VetisModifyEnterpriseRequest *>(rAppBlk.P_AppParam);
+							const VetisEnterprise & r_ent = p_req->En;
+							//const VetisBatch & r_bat = r_doc.CertifiedConsignment.Batch;
+							SXml::WNode n_req(srb, "modifyEnterpriseRequest");
+							n_req.PutAttrib("xmlns",  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/applications"));
+							n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
+							n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
+							{
+								SXml::WNode n_n2(srb, "initiator");
+								n_n2.PutAttrib(SXml::nst("xmlns", "d7p1"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
+								n_n2.PutInner(SXml::nst("d7p1", "login"), rAppBlk.User);
+							}
+							{
+								SXml::WNode n_n2(srb, "modificationOperation");
+								//VetisRegisterModificationType_SymbTab
+								SIntToSymbTab_GetSymb(VetisRegisterModificationType_SymbTab, SIZEOFARRAY(VetisRegisterModificationType_SymbTab), p_req->ModType, temp_buf);
+								n_n2.PutInner(SXml::nst("vd", "type"), temp_buf);
+								{
+									SXml::WNode n_n3(srb, SXml::nst("vd", "resultingList"));
+									{
+										SXml::WNode n_n4(srb, SXml::nst("dt", "enterprise"));
+										temp_buf.Z();
+										n_n4.PutInner(SXml::nst("dt", "name"), temp_buf);
+										n_n4.PutInner(SXml::nst("dt", "type"), temp_buf);
+										{
+											SXml::WNode n_adr(srb, SXml::nst("dt", "address"));
+											{
+												SXml::WNode n_c(srb, SXml::nst("dt", "country"));
+											}
+											{
+												SXml::WNode n_c(srb, SXml::nst("dt", "region"));
+											}
+											{
+												SXml::WNode n_c(srb, SXml::nst("dt", "locality"));
+											}
+											n_adr.PutInner(SXml::nst("dt", "addressView"), temp_buf);
+										}
+										{
+											SXml::WNode n_actl(srb, SXml::nst("dt", "activityList"));
+											{
+												SXml::WNode n_act(srb, SXml::nst("dt", "activity"));
+												n_act.PutInner(SXml::nst("dt", "name"), temp_buf); //<dt:name>Реализация пищевых продуктов</dt:name>
+											}
+										}
+										{
+											SXml::WNode n_owner(srb, SXml::nst("dt", "owner"));
+										}
+										{
+											SXml::WNode n_reg(srb, SXml::nst("dt", "officialRegistration"));
+											{
+												SXml::WNode n_be(srb, SXml::nst("dt", "businessEntity"));
+												n_be.PutInner(SXml::nst("dt", "inn"), temp_buf);
+											}
+											n_reg.PutInner(SXml::nst("dt", "kpp"), temp_buf);
+										}
+									}
+								}
+								n_n2.PutInner(SXml::nst("vd", "reason"), temp_buf); //<vd:reason>Причина добавления предприятия в реестр вот такая вот.</vd:reason>
+							}
+						}
+					}
+				}
+			}
+			/*
+				<SOAP-ENV:Envelope 
+					xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2" 
+					xmlns:bs="http://api.vetrf.ru/schema/cdm/base" 
+					xmlns:merc="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2" 
+					xmlns:apldef="http://api.vetrf.ru/schema/cdm/application/ws-definitions" 
+					xmlns:apl="http://api.vetrf.ru/schema/cdm/application" 
+					xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" 
+					xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+				  <SOAP-ENV:Header/>
+				  <SOAP-ENV:Body>
+					<apldef:submitApplicationRequest>
+					  <apldef:apiKey>apikey</apldef:apiKey>
+					  <apl:application>
+						<apl:serviceId>mercury-g2b.service:2.0</apl:serviceId>
+						<apl:issuerId>issuerId</apl:issuerId>
+						<apl:issueDate>2017-09-18T19:58:14</apl:issueDate>
+						<apl:data>
+						  <merc:modifyEnterpriseRequest>
+							<merc:localTransactionId>a10003</merc:localTransactionId>
+							<merc:initiator>
+							  <vd:login>user_login</vd:login>
+							</merc:initiator>
+							<merc:modificationOperation>
+							  <vd:type>CREATE</vd:type>
+							  <vd:resultingList>
+								<dt:enterprise>
+								  <dt:name>Детский сад №4</dt:name>
+								  <dt:type>1</dt:type>
+								  <dt:address>
+									<dt:country>
+									  <bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
+									</dt:country>
+									<dt:region>
+									  <bs:guid>b8837188-39ee-4ff9-bc91-fcc9ed451bb3</bs:guid>
+									</dt:region>
+									<dt:locality>
+									  <bs:guid>0d7d5d87-f0a6-428f-b655-d3be106c64a2</bs:guid>
+									</dt:locality>
+									<dt:addressView>600021, обл.Владимирская, г.Муром, ул.Октябрьской Революции,д.2Б</dt:addressView>
+								  </dt:address>
+								  <dt:activityList>
+									<dt:activity>
+									  <dt:name>Приготовление полуфабрикатов</dt:name>
+									</dt:activity>
+									<dt:activity>
+									  <dt:name>Реализация пищевых продуктов</dt:name>
+									</dt:activity>
+									<dt:activity>
+									  <dt:name>Реализация непищевых продуктов</dt:name>
+									</dt:activity>
+								  </dt:activityList>
+								  <dt:owner>
+									<bs:guid>fcd89443-218a-11e2-a69b-b499babae7ea</bs:guid>
+								  </dt:owner>
+								  <dt:officialRegistration>
+									<dt:ID>123456</dt:ID>
+									<dt:businessEntity>
+									  <dt:inn>5702001741</dt:inn>
+									</dt:businessEntity>
+									<dt:kpp>570201001</dt:kpp>
+								  </dt:officialRegistration>
+								</dt:enterprise>
+							  </vd:resultingList>
+							  <vd:reason>Причина добавления предприятия в реестр вот такая вот.</vd:reason>
+							</merc:modificationOperation>
+						  </merc:modifyEnterpriseRequest>
+						</apl:data>
+					  </apl:application>
+					</apldef:submitApplicationRequest>
+				  </SOAP-ENV:Body>
+				</SOAP-ENV:Envelope>
+			*/
+		}
+		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signWithdrawVetDocument) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
@@ -4501,7 +4715,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										PPLoadText(PPTXT_VETIS_SPCMARK_SRCWARENAME, temp_buf);
 										temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 										n_vc.PutInner(SXml::nst("d7p1", "specialMarks"), temp_buf);
-										// } @v10.4.10 
+										// } @v10.4.10
 									}
 								}
 							}
@@ -4675,7 +4889,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 											PutNonZeroUuid(n_broker, "bs", r_doc.CertifiedConsignment.Broker.Uuid);
 											PutNonZeroGuid(n_broker, "bs", r_doc.CertifiedConsignment.Broker.Guid);
 										}
-										// } @v10.3.4 
+										// } @v10.3.4
 										{
 											SXml::WNode n_tr(srb, SXml::nst("d9p1", "transportInfo"));
 											if(r_doc.CertifiedConsignment.TransportInfo.TransportType) {
@@ -5634,6 +5848,26 @@ int SLAPI PPVetisInterface::ProcessIncomingConsignment(const S_GUID & rDocUuid, 
 					ok = 1;
 				}
 			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPVetisInterface::VetisModifyEnterprise(VetisRegisterModificationType modType, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply)
+{
+	int    ok = -1;
+	VetisApplicationBlock doc_reply;
+	VetisModifyEnterpriseRequest app_data(modType);
+	app_data.En = rEnt;
+	{
+		rReply.Clear();
+		VetisApplicationBlock submit_result;
+		VetisApplicationBlock blk(1, &app_data);
+		THROW(SubmitRequest(blk, submit_result));
+		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
+			THROW(ReceiveResult(submit_result.ApplicationId, rReply));
+			ok = 1;
 		}
 	}
 	CATCHZOK
@@ -6654,7 +6888,7 @@ int EditVetisVetDocument(VetisVetDocument & rData)
 		if(r_crtc.Consignee.BusinessEntity.Name.NotEmpty())
 			text_buf.CatDivIfNotEmpty(';', 2).Cat(r_crtc.Consignee.Enterprise.Name);
 		dlg->setCtrlString(CTL_VETVDOC_TONAM, text_buf);
-		// } @v10.4.8 
+		// } @v10.4.8
 		/* @v10.4.8 if(r_crtc.Consignee.Enterprise.Name.NotEmpty())
 			dlg->setCtrlString(CTL_VETVDOC_TONAM, r_crtc.Consignee.Enterprise.Name);
 		else
@@ -7423,7 +7657,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 		dbq = & (*dbq && ppidlist(t->VetisDocStatus, &status_list));
 	dbq = ppcheckfiltid(dbq, t->FromEntityID, FromEntityID);
 	// @v10.4.8 dbq = ppcheckfiltid(dbq, t->ToEntityID, ToEntityID);
-	dbq = ppcheckfiltid(dbq, t->ToEnterpriseID, ToEnterpriseID); // @v10.4.8 
+	dbq = ppcheckfiltid(dbq, t->ToEnterpriseID, ToEnterpriseID); // @v10.4.8
 	q = &select(
 		t->EntityID,          //  #0
 		t->Flags,             //  #1
@@ -7992,7 +8226,7 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 				}
 				THROW(tra.Commit());
 			}
-			// } @v10.4.1 
+			// } @v10.4.1
 #endif // } 0 @v10.4.1
 		}
 		if(ok > 0)

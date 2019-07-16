@@ -335,7 +335,7 @@
 	#define HELP_BROWSER_QUOT_CROSSTAB                147
 #define BROWSER_QUOT_SER                     148 // Изменения котировки товара (%s)
 	#define HELP_BROWSER_QUOT_SER                     148
-#define BROWSER_CCHECK                       149 // Кассовые чеки
+#define BROWSER_CCHECK                       149 // @poscheck_pl
 	#define HELP_BROWSER_CCHECK                       149
 #define TOOLBAR_CCHECKGRP                     38
 #define BROWSER_CCHECKGRP_TM                 150 // Кассовые чеки по часам
@@ -386,7 +386,7 @@
 	#define HELP_BROWSER_PSNEVBYPSN                   172
 #define BROWSER_PSNEVSUBST                   173 // Персональные операции с подстановкой {%s}
 	#define HELP_BROWSER_PSNEVSUBST                   173
-#define BROWSER_STAFFLIST                    174 // Штатное расписание {%s}
+#define BROWSER_STAFFLIST                    174 // @{stafflist} {%s}
 	#define HELP_BROWSER_STAFFLIST                    174
 #define BROWSER_PERSONPOST                   175 // Штатные единицы {%s}
 	#define HELP_BROWSER_PERSONPOST                   175
@@ -524,7 +524,7 @@
 	#define HELP_BROWSER_SCALE                        240
 #define BROWSER_CASHNODE                     241 // @{view_cashnode}
 	#define HELP_BROWSER_CASHNODE                     241
-#define BROWSER_BIZSCORE                     242 // Бизнес-показатели
+#define BROWSER_BIZSCORE                     242 // @bizscore_pl
 	#define HELP_BROWSER_BIZSCORE                     242
 #define BROWSER_BIZSCOREVAL                  243 // Значения бизнес-показателей
 	#define HELP_BROWSER_BIZSCOREVAL                  243

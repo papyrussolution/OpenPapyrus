@@ -1,8 +1,8 @@
 // INVENTRY.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
-// Инвентаризация //
+// РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ //
 //
 #include <pp.h>
 #pragma hdrstop
@@ -208,6 +208,12 @@ IMPL_HANDLE_EVENT(InventoryDialog)
 			case cmFilteredDetail: editItems(1); break;
 			case cmInvWriteOff:    writeOff();   break;
 			case cmInvRollback:    rollbackWritingOff(); break;
+			// @erikB v10.4.13 {
+			case cmTags:
+				P_Data->BTagL.ObjType = PPOBJ_BILL;
+				if (EditObjTagValList(&P_Data->BTagL, 0) > 0) {}
+				break;
+			// } @erik 
 			default: return;
 		}
 	else if(TVKEYDOWN) {
@@ -389,7 +395,7 @@ int SLAPI PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem,
 			}
 			else {
 				THROW_PP(!(sg_rec.Flags & INVENTF_WRITEDOFF), PPERR_INVTOOWRITEDOFF);
-				if(sg_rec.Flags & INVENTF_AUTOLINE) { // Просто изменить строку
+				if(sg_rec.Flags & INVENTF_AUTOLINE) { // РџСЂРѕСЃС‚Рѕ РёР·РјРµРЅРёС‚СЊ СЃС‚СЂРѕРєСѓ
 					pItem->State |= InvItem::stUpdatedAutoLine;
 				}
 				else {
@@ -535,7 +541,7 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 	InventoryCore & r_inv_tbl = GetInvT();
 	InventoryTbl::Rec inv_rec;
 	PPTransferItem  * p_ti;
-	PPBillPacket      link_pack;
+	PPBillPacket link_pack;
 	{
 		PPObjSecur::Exclusion ose(PPEXCLRT_INVWROFFROLLBACK); // @v8.6.1
 		PPTransaction tra(1);
@@ -570,10 +576,10 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 					long oprno = inv_rec.OprNo;
 					if(inv_rec.Flags & INVENTF_GENWROFFLINE) {
 						//
-						// При удалении записей внутри цикла может сбойнуть
-						// перечисление записей en.Next(). Поэтому запоминаем
-						// список номеров записей, которые надо удалить и
-						// делаем это после цикла.
+						// РџСЂРё СѓРґР°Р»РµРЅРёРё Р·Р°РїРёСЃРµР№ РІРЅСѓС‚СЂРё С†РёРєР»Р° РјРѕР¶РµС‚ СЃР±РѕР№РЅСѓС‚СЊ
+						// РїРµСЂРµС‡РёСЃР»РµРЅРёРµ Р·Р°РїРёСЃРµР№ en.Next(). РџРѕСЌС‚РѕРјСѓ Р·Р°РїРѕРјРёРЅР°РµРј
+						// СЃРїРёСЃРѕРє РЅРѕРјРµСЂРѕРІ Р·Р°РїРёСЃРµР№, РєРѕС‚РѕСЂС‹Рµ РЅР°РґРѕ СѓРґР°Р»РёС‚СЊ Рё
+						// РґРµР»Р°РµРј СЌС‚Рѕ РїРѕСЃР»Рµ С†РёРєР»Р°.
 						//
 						to_remove_oprno_list.add(oprno);
 					}
@@ -584,7 +590,7 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 				}
 			}
 			//
-			// Непосредственное удаление записей с флагом INVENTF_GENWROFFLINE
+			// РќРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕРµ СѓРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРµР№ СЃ С„Р»Р°РіРѕРј INVENTF_GENWROFFLINE
 			//
 			for(i = 0; i < to_remove_oprno_list.getCount(); i++) {
 				long oprno = to_remove_oprno_list.get(i);
@@ -660,9 +666,9 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 	struct WrOffPriceBlock { // @flat
 		long   InvR;
 		//
-		// Дата и порядковый номер операции, до которых следует принимать в расчет остаток по лотам.
-		// Эти поля инициализируются для аварийного режима rifAverage с целью исключить из
-		// рассмотрения операции уже сделанного списания.
+		// Р”Р°С‚Р° Рё РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ РѕРїРµСЂР°С†РёРё, РґРѕ РєРѕС‚РѕСЂС‹С… СЃР»РµРґСѓРµС‚ РїСЂРёРЅРёРјР°С‚СЊ РІ СЂР°СЃС‡РµС‚ РѕСЃС‚Р°С‚РѕРє РїРѕ Р»РѕС‚Р°Рј.
+		// Р­С‚Рё РїРѕР»СЏ РёРЅРёС†РёР°Р»РёР·РёСЂСѓСЋС‚СЃСЏ РґР»СЏ Р°РІР°СЂРёР№РЅРѕРіРѕ СЂРµР¶РёРјР° rifAverage СЃ С†РµР»СЊСЋ РёСЃРєР»СЋС‡РёС‚СЊ РёР·
+		// СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЏ РѕРїРµСЂР°С†РёРё СѓР¶Рµ СЃРґРµР»Р°РЅРЅРѕРіРѕ СЃРїРёСЃР°РЅРёСЏ.
 		//
 		LDATE  Dt;
 		long   OprNo;
@@ -690,8 +696,8 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 						double t_qtty = fabs(p_ti->Qtty());
 						double t_sum = 0;
 						//
-						// Для определения номера операции за день (Transfer::OprNo) придется извлечь запись из БД
-						// поскольку в PPTransferItem это значение не заносится.
+						// Р”Р»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РЅРѕРјРµСЂР° РѕРїРµСЂР°С†РёРё Р·Р° РґРµРЅСЊ (Transfer::OprNo) РїСЂРёРґРµС‚СЃСЏ РёР·РІР»РµС‡СЊ Р·Р°РїРёСЃСЊ РёР· Р‘Р”
+						// РїРѕСЃРєРѕР»СЊРєСѓ РІ PPTransferItem СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РЅРµ Р·Р°РЅРѕСЃРёС‚СЃСЏ.
 						//
 						TransferTbl::Rec trfr_rec;
 						THROW(trfr->SearchByBill(p_ti->BillID, 0, p_ti->RByBill, &trfr_rec) > 0);
@@ -834,6 +840,7 @@ int SLAPI PPObjBill::TurnInventory(PPBillPacket * pPack, int use_ta)
 		THROW(tra);
 		if((ok = P_Tbl->Edit(&id, pPack, 0)) > 0) {
 			pPack->Rec.ID = id;
+			THROW(SetTagList(pPack->Rec.ID, &pPack->BTagL, 0)); // @v10.5.0
 			if(is_new)
 				DS.LogAction(PPACN_INVENTTURN, PPOBJ_BILL, id, 0, 0);
 		}
@@ -914,11 +921,11 @@ int SLAPI PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
-	UintHashTable sn_lot_list; // Список лотов, которые имеют серийные номера
+	UintHashTable sn_lot_list; // РЎРїРёСЃРѕРє Р»РѕС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ РёРјРµСЋС‚ СЃРµСЂРёР№РЅС‹Рµ РЅРѕРјРµСЂР°
 	SString serial;
 	PPObjGoods goods_obj;
 	PPIDArray goods_list;
-	GetInvT(); // Гарантируем существование открытого экземпляра PPObjBill::P_InvT
+	GetInvT(); // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РѕС‚РєСЂС‹С‚РѕРіРѕ СЌРєР·РµРјРїР»СЏСЂР° PPObjBill::P_InvT
 	CGoodsLine gl;
 	long   ib_flags = InvBlock::fAutoLine;
 	SETFLAG(ib_flags, InvBlock::fUseCurrent, (pFilt->Method == PPInventoryOpEx::afmByCurLotRest));
@@ -943,8 +950,8 @@ int SLAPI PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 	}
 	const uint gc = goods_list.getCount();
 	if(gc) {
-		const int ta_per_line = 1; // Если !0, то каждая строка формируется отдельной транзакцией, иначе - все в общей транзакции.
-		// Каждая строка в отдельной траназкции значительно снижает общую нагрузку на остальных пользователей.
+		const int ta_per_line = 1; // Р•СЃР»Рё !0, С‚Рѕ РєР°Р¶РґР°СЏ СЃС‚СЂРѕРєР° С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ РѕС‚РґРµР»СЊРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРµР№, РёРЅР°С‡Рµ - РІСЃРµ РІ РѕР±С‰РµР№ С‚СЂР°РЅР·Р°РєС†РёРё.
+		// РљР°Р¶РґР°СЏ СЃС‚СЂРѕРєР° РІ РѕС‚РґРµР»СЊРЅРѕР№ С‚СЂР°РЅР°Р·РєС†РёРё Р·РЅР°С‡РёС‚РµР»СЊРЅРѕ СЃРЅРёР¶Р°РµС‚ РѕР±С‰СѓСЋ РЅР°РіСЂСѓР·РєСѓ РЅР° РѕСЃС‚Р°Р»СЊРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№.
 		double prf_measure = 0.0;
 		PPUserFuncProfiler ufp(PPUPRF_INVENTAUTOBUILD); // @v8.5.5
 		PPTransaction tra(BIN(!ta_per_line));
@@ -993,7 +1000,7 @@ public:
 	}
 	SLAPI  ~InventoryConversion()
 	{
-		// На всякий случай проверим, чтобы не оставалось активной транзакции
+		// РќР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№ РїСЂРѕРІРµСЂРёРј, С‡С‚РѕР±С‹ РЅРµ РѕСЃС‚Р°РІР°Р»РѕСЃСЊ Р°РєС‚РёРІРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё
 		PPRollbackWork(&transaction);
 	}
 	int    SLAPI Run(PPID);
@@ -1021,7 +1028,7 @@ int SLAPI InventoryConversion::Init(PPID billID)
 	THROW(P_BObj->P_Tbl->Extract(invID, &invPack) > 0);
 	THROW(P_BObj->P_OpObj->FetchInventoryData(invPack.Rec.OpID, &invOpEx));
 	//
-	// Инвентаризацию остатков по клиентам не списываем
+	// РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЋ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ РєР»РёРµРЅС‚Р°Рј РЅРµ СЃРїРёСЃС‹РІР°РµРј
 	//
 	if(!(invOpEx.Flags & INVOPF_INVBYCLIENT)) {
 		THROW_PP(invOpEx.WrDnOp || invOpEx.WrUpOp, PPERR_UNDEFINVWROPS);
@@ -1258,7 +1265,7 @@ int SLAPI InventoryConversion::Run(PPID billID)
 				PPWaitPercent(i+1, c);
 			}
 			THROW(TurnPackets(1, 0));
-			DS.LogAction(PPACN_INVENTWROFF, PPOBJ_BILL, invID, 0, 1); // @v6.3.7 use_ta = 1 (TurnPackets закрывает свою транзакцию).
+			DS.LogAction(PPACN_INVENTWROFF, PPOBJ_BILL, invID, 0, 1); // @v6.3.7 use_ta = 1 (TurnPackets Р·Р°РєСЂС‹РІР°РµС‚ СЃРІРѕСЋ С‚СЂР°РЅР·Р°РєС†РёСЋ).
 		}
 	}
 	else
@@ -1417,9 +1424,9 @@ int SLAPI PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::Inv
 		PPIDArray lot_list;
 		if(P_BObj->SearchLotsBySerialExactly(serial, &lot_list) > 0) { // @v9.1.1 SearchLotsBySerial-->SearchLotsBySerialExactly
 			int r = P_BObj->SelectLotFromSerialList(&lot_list, P.LocID, 0, &lot_rec);
-			if(r > 0 || r == -3) { // -3 - закрытый лот
+			if(r > 0 || r == -3) { // -3 - Р·Р°РєСЂС‹С‚С‹Р№ Р»РѕС‚
 				if(GObj.Fetch(labs(lot_rec.GoodsID), &goods_rec) > 0) {
-					// @log Товар '%s' идентифицирован по серийному номеру '%s'
+					// @log РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ '%s'
 					PPLoadText((r == -3) ? PPTXT_LOG_IMPINV_GOODSIDBYSERIALCL : PPTXT_LOG_IMPINV_GOODSIDBYSERIAL, fmt_buf);
 					rLogger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, pSerial));
 					pInvItem->GoodsID = goods_rec.ID;
@@ -1430,7 +1437,7 @@ int SLAPI PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::Inv
 		// } @v7.3.4
 		/* @v7.3.4
 		if(P_BObj->SelectLotBySerial(serial, 0, P.LocID, &lot_rec) > 0 && GObj.Fetch(labs(lot_rec.GoodsID), &goods_rec) > 0) {
-			// @log Товар '%s' идентифицирован по серийному номеру '%s'
+			// @log РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ '%s'
 			PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYSERIAL, fmt_buf);
 			rLogger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, pSerial));
 			pInvItem->GoodsID = goods_rec.ID;
@@ -1483,14 +1490,14 @@ int SLAPI PrcssrInvImport::Run()
 				(temp_buf = rec.GoodsName).Strip().Transf(CTRANSF_OUTER_TO_INNER).CopyTo(rec.GoodsName, sizeof(rec.GoodsName));
 				(temp_buf = rec.Serial).Strip().Transf(CTRANSF_OUTER_TO_INNER).CopyTo(rec.Serial, sizeof(rec.Serial));
 				//
-				// Идентификация товара {
+				// РРґРµРЅС‚РёС„РёРєР°С†РёСЏ С‚РѕРІР°СЂР° {
 				//
 				if(IdentifyBySerial(rec.Serial, &inv_item, logger) > 0) {
 					STRNSCPY(inv_item.Serial, rec.Serial);
 					r2 = 1;
 				}
 				else if(rec.GoodsID && GObj.Fetch(rec.GoodsID, &goods_rec) > 0) {
-					// @log Товар '%s' идентифицирован по идентификатору '%s'
+					// @log РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ '%s'
 					PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYID, fmt_buf);
 					logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, temp_buf.Z().Cat(rec.GoodsID).cptr()));
 					inv_item.GoodsID = rec.GoodsID;
@@ -1509,7 +1516,7 @@ int SLAPI PrcssrInvImport::Run()
 					}
 					if(is_wght_good && GObj.GetConfig().Flags & GCF_LOADTOSCALEGID) {
 						if(GObj.Fetch(inv_item.GoodsID, 0) > 0) {
-							// @log Товар '%s' идентифицирован по идентификатору '%s'
+							// @log РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ '%s'
 							PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYID, fmt_buf);
 							logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, temp_buf.Z().Cat(inv_item.GoodsID).cptr()));
 							r2 = 1;
@@ -1519,12 +1526,12 @@ int SLAPI PrcssrInvImport::Run()
 						inv_item.GoodsID = bc_rec.GoodsID;
 						if(!is_wght_good) {
 							inv_item.Qtty = bc_rec.Qtty;
-							// @log Товар '%s' идентифицирован по штрихкоду '%s'
+							// @log РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ С€С‚СЂРёС…РєРѕРґСѓ '%s'
 							PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYBARCODE, fmt_buf);
 							logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, rec.Barcode));
 						}
 						else {
-							// @log Товар (весовой) '%s' идентифицирован по штрихкоду '%s'
+							// @log РўРѕРІР°СЂ (РІРµСЃРѕРІРѕР№) '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ С€С‚СЂРёС…РєРѕРґСѓ '%s'
 							PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYBARCODEW, fmt_buf);
 							logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, rec.Barcode));
 						}
@@ -1535,30 +1542,30 @@ int SLAPI PrcssrInvImport::Run()
 				}
 				if(!r2 && rec.GoodsName[0]) {
 					//
-					// Если не удалось идентифицировтаь товар ни по идентификатору, ни по штрихкоду, ни по серии,
-					// то предпринимаем последнюю попытку - по имени. Шансы на эту попытку не велики, но
-					// общую надежность импорта это повышает.
+					// Р•СЃР»Рё РЅРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІС‚Р°СЊ С‚РѕРІР°СЂ РЅРё РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ, РЅРё РїРѕ С€С‚СЂРёС…РєРѕРґСѓ, РЅРё РїРѕ СЃРµСЂРёРё,
+					// С‚Рѕ РїСЂРµРґРїСЂРёРЅРёРјР°РµРј РїРѕСЃР»РµРґРЅСЋСЋ РїРѕРїС‹С‚РєСѓ - РїРѕ РёРјРµРЅРё. РЁР°РЅСЃС‹ РЅР° СЌС‚Сѓ РїРѕРїС‹С‚РєСѓ РЅРµ РІРµР»РёРєРё, РЅРѕ
+					// РѕР±С‰СѓСЋ РЅР°РґРµР¶РЅРѕСЃС‚СЊ РёРјРїРѕСЂС‚Р° СЌС‚Рѕ РїРѕРІС‹С€Р°РµС‚.
 					//
 					if(GObj.SearchByName(rec.GoodsName, &inv_item.GoodsID, &goods_rec) > 0) {
-						// @log Товар '%s' идентифицирован по имени
+						// @log РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ РёРјРµРЅРё
 						PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYNAME, fmt_buf);
 						logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name));
 						r2 = 1;
 					}
 				}
 				//
-				// } Закончена идентификация товара
+				// } Р—Р°РєРѕРЅС‡РµРЅР° РёРґРµРЅС‚РёС„РёРєР°С†РёСЏ С‚РѕРІР°СЂР°
 				//
 
 				//
-				// Если штриход весовой, то в коде могло быть "зашито" количество товара.
-				// Поле Quantity имеет приоритет перед этим значением, однако, если rec.Quantity нулевое
-				// или отрицательное, то мы воспользуемся величиной из штрихкода.
+				// Р•СЃР»Рё С€С‚СЂРёС…РѕРґ РІРµСЃРѕРІРѕР№, С‚Рѕ РІ РєРѕРґРµ РјРѕРіР»Рѕ Р±С‹С‚СЊ "Р·Р°С€РёС‚Рѕ" РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР°.
+				// РџРѕР»Рµ Quantity РёРјРµРµС‚ РїСЂРёРѕСЂРёС‚РµС‚ РїРµСЂРµРґ СЌС‚РёРј Р·РЅР°С‡РµРЅРёРµРј, РѕРґРЅР°РєРѕ, РµСЃР»Рё rec.Quantity РЅСѓР»РµРІРѕРµ
+				// РёР»Рё РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ, С‚Рѕ РјС‹ РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ РІРµР»РёС‡РёРЅРѕР№ РёР· С€С‚СЂРёС…РєРѕРґР°.
 				//
 				if(rec.Quantity > 0.0)
 					inv_item.Qtty = rec.Quantity;
 				if(r2 == 0) {
-					// @log Строка не проведена: не удалось идентифицировать товар '%s'
+					// @log РЎС‚СЂРѕРєР° РЅРµ РїСЂРѕРІРµРґРµРЅР°: РЅРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ С‚РѕРІР°СЂ '%s'
 					PPLoadText(PPTXT_LOG_IMPINV_GOODSNOTIDD, fmt_buf);
 					temp_buf.Z().CatEq("recno", cntr+1);
 					if(rec.GoodsName[0])
@@ -1573,7 +1580,7 @@ int SLAPI PrcssrInvImport::Run()
 					logger.Log(log_msg.Printf(fmt_buf, temp_buf.cptr()));
 				}
 				else if(inv_item.Qtty < 0.0 || inv_item.Qtty > 1000000.) {
-					// @log Строка не проведена: для товара '%s' задано недопустимое значение количества '%s'
+					// @log РЎС‚СЂРѕРєР° РЅРµ РїСЂРѕРІРµРґРµРЅР°: РґР»СЏ С‚РѕРІР°СЂР° '%s' Р·Р°РґР°РЅРѕ РЅРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РєРѕР»РёС‡РµСЃС‚РІР° '%s'
 					PPLoadText(PPTXT_LOG_IMPINV_INVQTTY, fmt_buf);
 					temp_buf.Z().Cat(rec.Quantity, SFMT_QTTY);
 					log_msg.Printf(fmt_buf, goods_rec.Name, temp_buf.cptr());
@@ -1582,11 +1589,11 @@ int SLAPI PrcssrInvImport::Run()
 				else {
 					THROW(P_BObj->AcceptInventoryItem(blk, &inv_item, 0));
 					if(inv_item.State & PPObjBill::InvItem::stAddedToExistLine) {
-						// @log Товар '%s' уже встречался в файле - количество суммировано
+						// @log РўРѕРІР°СЂ '%s' СѓР¶Рµ РІСЃС‚СЂРµС‡Р°Р»СЃСЏ РІ С„Р°Р№Р»Рµ - РєРѕР»РёС‡РµСЃС‚РІРѕ СЃСѓРјРјРёСЂРѕРІР°РЅРѕ
 						PPLoadText(PPTXT_LOG_IMPINV_DUPGOODS, fmt_buf);
 						logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name));
 					}
-					// @log Строка '%s' проведена
+					// @log РЎС‚СЂРѕРєР° '%s' РїСЂРѕРІРµРґРµРЅР°
 					PPLoadText(PPTXT_LOG_IMPINV_LINETURNED, fmt_buf);
 					temp_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(inv_item.FinalQtty, SFMT_QTTY).
 						CatDiv('-', 1).Cat(inv_item.FinalPrice, SFMT_MONEY);
@@ -1646,7 +1653,7 @@ public:
 		};
 		PPID   LocID;
 		PPID   GoodsGrpID;
-		ulong  Part;       // Часть общего справочника (в промилле), которая должна принимать участие в выборке
+		ulong  Part;       // Р§Р°СЃС‚СЊ РѕР±С‰РµРіРѕ СЃРїСЂР°РІРѕС‡РЅРёРєР° (РІ РїСЂРѕРјРёР»Р»Рµ), РєРѕС‚РѕСЂР°СЏ РґРѕР»Р¶РЅР° РїСЂРёРЅРёРјР°С‚СЊ СѓС‡Р°СЃС‚РёРµ РІ РІС‹Р±РѕСЂРєРµ
 		long   Flags;
 	};
 	SLAPI  GeneratorGoods();
@@ -1658,7 +1665,7 @@ private:
 	Param  P;
 	PPObjGoods GObj;
 	PPIDArray List;
-	PPIDArray SeenList; // Список уже просмотренных значений (если (P.Flags & fAllowDup), то список не используется)
+	PPIDArray SeenList; // РЎРїРёСЃРѕРє СѓР¶Рµ РїСЂРѕСЃРјРѕС‚СЂРµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ (РµСЃР»Рё (P.Flags & fAllowDup), С‚Рѕ СЃРїРёСЃРѕРє РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
 	SRng * P_Rng;
 };
 
@@ -1687,8 +1694,8 @@ int SLAPI GeneratorGoods::Init(const Param * pParam)
 	P = *pParam;
 	int    ok = 1;
 	//
-	// Получаем "случайную" величину до перебора товаров, так как потом нам снова потребуется взять
-	// случайную величину от времени.
+	// РџРѕР»СѓС‡Р°РµРј "СЃР»СѓС‡Р°Р№РЅСѓСЋ" РІРµР»РёС‡РёРЅСѓ РґРѕ РїРµСЂРµР±РѕСЂР° С‚РѕРІР°СЂРѕРІ, С‚Р°Рє РєР°Рє РїРѕС‚РѕРј РЅР°Рј СЃРЅРѕРІР° РїРѕС‚СЂРµР±СѓРµС‚СЃСЏ РІР·СЏС‚СЊ
+	// СЃР»СѓС‡Р°Р№РЅСѓСЋ РІРµР»РёС‡РёРЅСѓ РѕС‚ РІСЂРµРјРµРЅРё.
 	//
 	const  ulong s = getcurtime_().v;
 	SRng * p_rng = 0;
@@ -1769,7 +1776,7 @@ int SLAPI TestGenerateInventory()
 		grp.LocID = LConfig.Location;
 		gen.InitParam(&gp);
 		gp.Flags |= GeneratorGoods::Param::fAllowDup;
-		gp.Part = 300; // 30% от общей номенклатуры
+		gp.Part = 300; // 30% РѕС‚ РѕР±С‰РµР№ РЅРѕРјРµРЅРєР»Р°С‚СѓСЂС‹
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, temp_buf);
 		PPIniFile ini_file(temp_buf, 0, 1, 1);
 		THROW(gen.Init(&gp));
@@ -1799,7 +1806,7 @@ int SLAPI TestGenerateInventory()
 						double diff = fabs(SLS.GetTLA().Rg.GetGaussian(sqrt(0.2)));
 						item.Quantity = grp.Total.Rest * diff;
 						//
-						// Изредка вставляем нулевые значения //
+						// РР·СЂРµРґРєР° РІСЃС‚Р°РІР»СЏРµРј РЅСѓР»РµРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ //
 						//
 						if(item.Quantity <= 0.0 && ((ulong)cntr % 10) == 0)
 							item.Quantity = 10 * diff;

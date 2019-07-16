@@ -5391,7 +5391,7 @@ private:
 #define PPSCMD_POS_GETCTABLELIST     10080 // CPOSGETCTABLELIST
 #define PPSCMD_POS_CPOSSETCCROWQUEUE 10081 // CPOSSETCCROWQUEUE
 #define PPSCMD_POS_GETMODIFLIST      10082 // CPOSGETMODIFLIST goodsID
-#define PPSCMD_RESETCACHE            10101 // RESETCACHE
+#define PPSCMD_RESETCACHE            10101 // RESETCACHE	
 #define PPSCMD_GETDISPLAYINFO        10102
 #define PPSCMD_GETWORKBOOKCONTENT    10103
 #define PPSCMD_SETTXTCMDTERM         10104 // @v8.1.0
@@ -7522,7 +7522,9 @@ enum {
     PPSYM_POSNODE,     // @v10.1.3 @posnode     Наименование кассового узла
 	PPSYM_DLVRLOCTAG,  // @v10.4.1 @dlvrloctag.tagsymb Символ тега, идентифицирующего адрес доставки
 	PPSYM_DUEDATE,     // @v10.4.8 @duedate Дата исполнения документа
-	PPSYM_FGDUEDATE    // @v10.4.8 @fgduedate Дата исполнения документа в 'плоском' представлении (25032015)
+	PPSYM_FGDUEDATE,   // @v10.4.8 @fgduedate Дата исполнения документа в 'плоском' представлении (25032015)
+	PPSYM_OBJINN,      // @v10.5.0 @objinn ИНН персоналии, ассоциированной со основной статьей документа
+	PPSYM_OBJKPP       // @v10.5.0 @objkpp КПП персоналии, ассоциированной со основной статьей документа
 };
 //
 class PPSymbTranslator {
@@ -13755,7 +13757,7 @@ public:
 		sttNonOperatingIncome     = 15,	// STT_NONOPERATINGINCOME    о внереализационном доходе(Название товара может принимать значения 1 - 25)
 		sttExpensesReduceTax      = 16,	// STT_EXPENSESREDUCETAX    о суммах расходов, уменьшающих сумму налога(авансовых платежей) в соответствии с пунктом 3.1 статьи 346.21 Налогового кодекса Российской Федерации(Название товара может принимать значения 26 - 31)
 		sttAmountMerchantFee      = 17,	// STT_AMOUNTMERCHANTFEE   о суммах уплаченного торгового сбора
-		sttResortАee              = 18,	// STT_RESORTAEE       о курортном сборе
+		sttResortFee              = 18,	// STT_RESORTFEE       о курортном сборе
 		sttDeposit                = 19,	// STT_DEPOSIT  Залог
 	};
     //  } @erik v10.4.12
@@ -16178,7 +16180,10 @@ public:
 			uint   Stride; // @firstmember Шаг тренда
 			TSVector <Range> RangeList; // Упорядоченный по возрастанию список диапазонов
 		};
-		int    SLAPI CreateIndex1(TSCollection <IndexEntry1> & rIndex) const;
+		struct Index1 : public TSCollection <IndexEntry1> {
+			RAssocArray TmFrmToMaxErrList;
+		};
+		int    SLAPI CreateIndex1(Index1 & rIndex) const;
 		//
 		// Descr: Критерии подбора стратегии
 		//
@@ -16193,7 +16198,7 @@ public:
 		};
 
 		int    SLAPI Select(const TSCollection <TrendEntry> & rTrendList, int lastTrendIdx, long criterion,
-			const TSCollection <IndexEntry1> * pIndex, BestStrategyBlock & rBsb, LongArray * pAllSuitedPosList) const;
+			const Index1 * pIndex, BestStrategyBlock & rBsb, LongArray * pAllSuitedPosList) const;
 	private:
 		uint32 Ver;
 		LDATETIME StorageTm;
@@ -16389,6 +16394,7 @@ public:
 		LongArray InputFrameSizeList; // Список не включает период магистрального тренда
 		LongArray MaxDuckQuantList;
 		LongArray TargetQuantList; // @v10.4.3
+		LongArray MainFrameSizeList; // @v10.5.0
 		double InitTrendErrLimit;
 		uint   BestSubsetDimention;
 		uint   BestSubsetMaxPhonyIters;
@@ -16398,7 +16404,7 @@ public:
 		uint   OptRangeMultiLimit; // @v10.4.7
 		LDATE  UseDataSince;
 		uint   DefTargetQuant; // @v10.4.2
-		uint   MainFrameSize;  // @v10.4.9 Длительность магистрального тренда
+		//uint   MainFrameSize;  // @v10.4.9 Длительность магистрального тренда
 		uint   MainFrameRangeCount; // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
 		double MinWinRate; // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
 	};
@@ -30437,12 +30443,13 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 class PPBillImpExpParam : public PPImpExpParam {
 public:
 	enum {
-		fImpRowsFromSameFile = 0x0001,
-		fImpExpRowsOnly      = 0x0002, // Импортировать/экспортировать только файл строк
+		fImpRowsFromSameFile  = 0x0001,
+		fImpExpRowsOnly       = 0x0002, // Импортировать/экспортировать только файл строк
 		//fSignBill = 0x0002
-		fRestrictByMatrix    = 0x0004, // @v9.0.4
-		fExpOneByOne         = 0x0008, // @v9.3.10 Экспортировать документы по-одному в каждом файле
-		fCreateAbsenceGoods  = 0x0010  // @v10.4.12 Создавать отсутствующие товары (если возможно)
+		fRestrictByMatrix     = 0x0004, // @v9.0.4
+		fExpOneByOne          = 0x0008, // @v9.3.10 Экспортировать документы по-одному в каждом файле
+		fCreateAbsenceGoods   = 0x0010, // @v10.4.12 Создавать отсутствующие товары (если возможно)
+		fDontIdentGoodsByName = 0x0020  // @v10.5.0  При идентификации товаров 
 	};
 	//
 	// Descr: Предопределенный форматы импорт/экспорта документов
@@ -39561,8 +39568,7 @@ public:
 		fShowFree     = 0x0002,
 		fPaymPeriod   = 0x0004,   // Период указан по дате оплаты
 		fShowExcluded = 0x0008,   // Показывать исключенные записи
-		fIterateClb   = 0x0010,   // Итератор книги покупок должен на каждую
-		                          // запись книги перебрать все номера ГТД
+		fIterateClb   = 0x0010,   // Итератор книги покупок должен на каждую запись книги перебрать все номера ГТД
 		fOnlyEmptyExtAr = 0x0020  // Только с пустой дополнительной статьей
 	};
 	char   ReserveStart[28]; // @anchor
@@ -39594,7 +39600,7 @@ struct VatBookTotal {      // @transient
 #define VBV_CLB_ITEM_SIZE 64
 
 struct VatBookViewItem : VATBookTbl::Rec { // @transient
-	char   ManufCountry[30];
+	char   ManufCountry[32]; // @v10.5.0 [30]-->[32]
 	char   CLB[28];
 };
 
@@ -46113,7 +46119,6 @@ public:
 	SLAPI  DL2_Resolver(long flags = 0);
 	SLAPI ~DL2_Resolver();
 	virtual DL2_CI * SLAPI Resolve(int exprNo, const DL2_CI * pCi);
-
 	DL2_CI * SLAPI Resolve(const DL2_CI * pCi);
 	DL2_CI * SLAPI ResolveScore(const DL2_Score & rSc);
 	int    SLAPI ResolveName(const char * pExpression, SString & rName);
@@ -46123,7 +46128,6 @@ public:
 	LDATE  SLAPI GetActualDate() const;
 	int    SLAPI SetCurArticle(long ar);
 	long   SLAPI GetCurArticle() const;
-
 	int    FASTCALL Log(const char * pMsg);
 	int    SLAPI ReverseFormula(const char * pFormula, SString & rResult);
 
@@ -46178,7 +46182,6 @@ private:
 	DL2_Data D;
 	DL2_GroupStack GStack;
 	DL2_Storage Strg;
-
 	SString OutPath;
 	BDictionary * P_Dict;
 	DBTable * P_HdrTbl;
