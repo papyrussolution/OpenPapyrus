@@ -15017,6 +15017,33 @@ private:
 //
 class PPNamedFilt {
 public:
+	// @v10.5.0 @construction {
+	class ViewDefinition : public SStrGroup {
+	public:
+		struct Entry { // @transient
+			SString Zone;
+			SString FieldName;
+			SString Text;
+			int32  TotalFunc;
+		};
+		ViewDefinition()
+		{
+		}
+		uint   GetCount() const;
+		int    GetEntry(uint idx, Entry & rE) const;
+		int    SetEntry(const Entry & rE);
+		int    RemoveEntryByIdx(uint idx);
+	private:
+		struct InnerEntry { // @persistent
+			uint32 ZoneP;
+			uint32 FileNameP;
+			uint32 TextP;
+			int32  TotalFunc;
+			uint8  Reserve[16]; // @reserve
+		};
+		TSVector <InnerEntry> L;
+	};
+	// } @v10.5.0 
 	SLAPI  PPNamedFilt();
 	SLAPI ~PPNamedFilt();
 	PPNamedFilt & FASTCALL operator = (const PPNamedFilt &);
@@ -15041,6 +15068,7 @@ public:
 	SString Symb;       // Уникальная (непустая) строка символа именованного фильтра
 	SString ViewSymb;   // Строка символа обьекта PPView, по которому строится фильтр
 	SBuffer Param;      // Хранит данные о настройках фильтра PPBaseFilt
+	ViewDefinition VD;  // @v10.5.0 @construction
 };
 
 //
@@ -21947,8 +21975,8 @@ public:
 	int    SLAPI IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPacket & rS2, long flags);
 	int    SLAPI Search(PPID id, PPGoodsTaxEntry * pEntry);
 	int    SLAPI Search(PPID id, PPGoodsTax * pRec);
-	int    SLAPI AddBySample(PPID *, long sampleID);
-	int    SLAPI GetByScheme(PPID *, double vat, double excise, double stax, long flags, int use_ta);
+	int    SLAPI AddBySample(PPID * pID, long sampleID);
+	int    SLAPI GetByScheme(PPID * pID, double vat, double excise, double stax, long flags, int use_ta);
 	int    SLAPI GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen);
 	//
 	// Descr: Ищет налоговую группу, аналогичную по схеме налогообложения записи pPattern.
@@ -21958,8 +21986,8 @@ public:
 	int    SLAPI Test(PPID);
 	int    SLAPI FormatOrder(long order, long unionVect, char * buf, size_t buflen);
 	int    SLAPI StrToOrder(const char *, long * pOrder, long * pUnionVect);
-	int    SLAPI GetPacket(PPID, PPGoodsTaxPacket *);
-	int    SLAPI PutPacket(PPID *, PPGoodsTaxPacket *, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPGoodsTaxPacket *);
+	int    SLAPI PutPacket(PPID * pID, PPGoodsTaxPacket *, int use_ta);
 private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -29554,9 +29582,10 @@ struct PPScale2 {          // @persistent @store(Reference2Tbl+)
 	char   Symb[20];         //
 	PPID   ParentID;         // Ид. группы весов
 	char   AddedMsgSign[8];  // Символы дополнительных полей, которые следует загружать на весы
-	int16  MaxAddedLine;     // Максимальная длина строки дополнительного текста.
+	int16  MaxAddedLn;       // Максимальная длина строки дополнительного текста.
 		// Если не указано, то система принимает значение на свое усмотрение.
-	char   Reserve[10];      // @reserve
+	int16  MaxAddedLnCount;  // @v10.5.0 Максимальное количество строк дополнительного текста.
+	char   Reserve[8];       // @reserve @v10.5.0 [10]-->[8]
 	//
 	// Если Flags & SCALF_TCPIP, то IP-адрес устройства упаковывается в
 	// поле Port в виде: Port[0].Port[1].Port[2].Port[3]
@@ -35330,6 +35359,7 @@ public:
 		tmReading
 	};
 	struct Header {        // @persistent(DBX) @size=128
+		Header();
 		int32  Magic;           // 0x534F5050L ("PPOS")
 		uint16 PacketType;      // Тип пакета (PPOT_XXX)
 		int32  DBID;            // Раздел БД, создавший пакет для передачи
@@ -37014,7 +37044,8 @@ public:
 			// пункту назначения (не принимать во внимание адрес доставки и дочерние географические объекты)
 		fShippedOnly       = 0x0010  // Только отгруженные
 	};
-	char   ReserveStart[24]; // @anchor // @v8.8.5 [28]-->[24]
+	char   ReserveStart[20]; // @anchor // @v8.8.5 [28]-->[24] // @v10.5.0 [24]-->[20]
+	PPID   DlvrLocID;        // @v10.5.0 
 	PPID   StorageLocID;     // Место хранения
 	PPID   PortOfLoading;    // Пункт погрузки
 	DateRange BillPeriod;
@@ -39398,7 +39429,8 @@ public:
 	AccAnlzFilt & FASTCALL operator = (const AccAnlzFilt & s);
 	char * SLAPI GetAccText(char * pBuf, size_t bufLen) const;
 
-	char   ReserveStart[12]; // @anchor
+	char   ReserveStart[8]; // @anchor
+	PPID   DlvrLocID;      // @v10.5.0 Адрес доставки документов, по которым осуществляется фильтрация проводок 
 	PPID   Object2ID;      // Дополнительный объект по документу
 	PPID   SubstRelTypeID; // Подстановка статьи по персональному отношению
 	PPID   AgentID;        // ->Article.ID Агент по документу
@@ -39481,7 +39513,7 @@ struct AccAnlzTotal {
 	AmtList OutRestCrd;
 };
 
-typedef int (*AccAnlzViewEnumProc)(AccTurnTbl::Rec *, long);
+typedef int (*AccAnlzViewEnumProc)(AccTurnTbl::Rec *, void *);
 
 class PPViewAccAnlz : public PPView {
 public:
@@ -39509,11 +39541,9 @@ public:
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int SLAPI Browse(int modeless);
-
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(AccAnlzViewItem *);
 	int    SLAPI GetTotal(AccAnlzTotal *) const;
-
 	void   SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
 	int    SLAPI GetBrwHdr(const void * pRow, BrwHdr * pHdr) const;
 
@@ -39525,26 +39555,11 @@ private:
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int    SLAPI Print(const void *);
 	virtual int   SLAPI ViewTotal();
-
 	int    SLAPI EditSupplTrnovrFilt(AccAnlzFilt *);
-	int    SLAPI EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc, long);
+	int    SLAPI EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc, void * extraPtr);
 	int    SLAPI GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int use_ta);
 	int    SLAPI CalcTotalAccTrnovr(AccAnlzTotal *);
 	int    SLAPI ViewGraph(const PPViewBrowser * pBrw);
-
-	AccAnlzFilt Filt;
-	int    IsGenAcc;                // @*Init_()
-	int    IsRegister;              // @*Init_()
-	int    IsGenAr;                 // @*Init_()
-	ObjRestrictArray ExtGenAccList; // @*Init_()
-	PPCycleArray  CycleList;        // @*Init_()
-	AccAnlzTotal  Total;
-	PPObjAccount  AccObj;
-	PPObjArticle  ArObj;
-	PPObjBill   * P_BObj;
-	AccTurnCore * P_ATC;
-	TempAccAnlzTbl   * P_TmpAATbl;
-	TempAccTrnovrTbl * P_TmpATTbl;
 	struct BillEntry {
 		PPID   ID;
 		PPID   LocID;
@@ -39554,6 +39569,21 @@ private:
 		long   Flags;
 	};
 	int    SLAPI FetchBill(PPID billID, BillEntry * pEntry);
+
+	AccAnlzFilt Filt;
+	int    IsGenAcc;                // @*Init_()
+	int    IsRegister;              // @*Init_()
+	int    IsGenAr;                 // @*Init_()
+	PPID   EffDlvrLocID;            // @v10.5.0 Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
+	ObjRestrictArray ExtGenAccList; // @*Init_()
+	PPCycleArray  CycleList;        // @*Init_()
+	AccAnlzTotal  Total;
+	PPObjAccount  AccObj;
+	PPObjArticle  ArObj;
+	PPObjBill   * P_BObj;
+	AccTurnCore * P_ATC;
+	TempAccAnlzTbl   * P_TmpAATbl;
+	TempAccTrnovrTbl * P_TmpATTbl;
 };
 //
 // @ModuleDecl(PPViewVatBook)
@@ -46224,19 +46254,20 @@ private:
 class BillContext : public ExprEvalContext {
 public:
 	enum {
-		funcAmountByVat  = EXRP_EVAL_FIRST_FUNC + 1, // amountbyvat(x)
-		funcAmountByGVat = EXRP_EVAL_FIRST_FUNC + 2, // amountbygvat(x)
+		funcAmountByVat   = EXRP_EVAL_FIRST_FUNC + 1, // amountbyvat(x)
+		funcAmountByGVat  = EXRP_EVAL_FIRST_FUNC + 2, // amountbygvat(x)
 			// Сумма документа по строкам, товары которых облагаются указанной ставкой НДС.
 			// Отличается от amountbyvat тем, что суммируются строки, по которым не эффективная,
 			// но номинальная (то есть, заданная для товара) ставка НДС равна указанной.
-		funcAmountByTVat = EXRP_EVAL_FIRST_FUNC + 3, // amountbytvat(oid(GOODSTYPE, id), x)
+		funcAmountByTVat  = EXRP_EVAL_FIRST_FUNC + 3, // amountbytvat(oid(GOODSTYPE, id), x)
 			// Сумма документа по строкам, товары которых принадлежат типу oid(GOODSTYPE, id) и
 			// облагаются ставкой НДС x%. То есть, результат аналогичен amountbyvat с той
 			// разницей, что суммирование ограничивается товарами с типом oid(GOODSTYPE, id).
-		funcCostByVat    = EXRP_EVAL_FIRST_FUNC + 4, // costbyvat(x)
-		funcCostVat      = EXRP_EVAL_FIRST_FUNC + 5, // costvat(x)
-		funcPriceByVat   = EXRP_EVAL_FIRST_FUNC + 6, // pricebyvat(x)
-		funcPriceVat     = EXRP_EVAL_FIRST_FUNC + 7, // pricevat(x)
+		funcCostByVat     = EXRP_EVAL_FIRST_FUNC + 4, // costbyvat(x)
+		funcCostVat       = EXRP_EVAL_FIRST_FUNC + 5, // costvat(x)
+		funcPriceByVat    = EXRP_EVAL_FIRST_FUNC + 6, // pricebyvat(x)
+		funcPriceVat      = EXRP_EVAL_FIRST_FUNC + 7, // pricevat(x)
+		funcHasWhiteLabel = EXRP_EVAL_FIRST_FUNC + 8, // haswhitelabel() // @v10.5.0
 	};
 
 	SLAPI  BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx);
@@ -52046,10 +52077,12 @@ struct ResolveGoodsItem {
 	PPID   GoodsID;
 	PPID   ResolvedGoodsID;
 	PPID   ArID;              // Статья, с которой связан код ArCode
+	double VatRate;           // @v10.5.0 Ставка НДС (в процентах)
 	char   GoodsName[128];
 	char   Barcode[24];
 	char   ArCode[24];        // Код, ассоциированный со статьей ArID
 	char   ManufName[128];    // @v10.4.12 Наименование производителя
+	char   GroupName[128];    // @v10.5.0 Наименование товарной группы  
 	double Quantity;
 };
 

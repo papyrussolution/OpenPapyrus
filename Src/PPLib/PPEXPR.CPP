@@ -166,7 +166,6 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 	PPErrCode = 0;
 	rBuf.Z();
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		StatData.Count.Incr();
 		ok = Search(pSymb, pID, rBuf);
@@ -175,8 +174,6 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 		else
 			StatData.Misses.Incr();
 		if(!ok) {
-			//RwL.Unlock();
-			//RwL.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			PPID   id = 0;
 			PPObjAmountType at_obj;
@@ -210,7 +207,7 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 					size_t next_pos = 0;
 					id = st.Translate(pSymb, &next_pos);
 					if(id == PPSYM_ADVLNAMT) {
-						f = 0;
+						f.Z();
 						s = pSymb;
 						if(Add(0x0008, PPAMT_ADLN_MAIN, s.Strip(), f.Strip())) {
 							*pID = PPAMT_ADLN_MAIN;
@@ -224,7 +221,6 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 				}
 			}
 		}
-		//RwL.Unlock();
 	}
 	if(!ok && !PPErrCode)
 		PPSetError(PPERR_ILLVAR, pSymb);
@@ -267,6 +263,8 @@ int SLAPI BillContext::IsFunc(const char * pSymb, int * pFuncId)
 			func_id = funcPriceByVat;
 		else if(temp_buf == "pricevat")
 			func_id = funcPriceVat;
+		else if(temp_buf == "haswhitelabel") // @v10.5.0
+			func_id = funcHasWhiteLabel;
 		else
 			PPSetError(PPERR_UNDEFGOODSFUNC, pSymb);
 	}
@@ -336,6 +334,9 @@ int SLAPI BillContext::ResolveFunc(int funcId, FC & rFc)
 				if(p_vat_entry)
 					result = p_vat_entry->AmountByVat;
 			}
+			break;
+		case funcHasWhiteLabel: // @v10.5.0
+			result = (P_Pack->Rec.Flags & BILLF_WHITELABEL) ? 1.0 : 0.0;
 			break;
 	}
 	CATCHZOK

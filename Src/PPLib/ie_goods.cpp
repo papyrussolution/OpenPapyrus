@@ -1713,12 +1713,10 @@ int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PP
 						PPLoadString("munit_kg", val_buf);
 						phperu /= 1000L;
 					}
-					else if(val_buf.IsEqiAscii("kg")) {
+					else if(val_buf.IsEqiAscii("kg"))
 						PPLoadString("munit_kg", val_buf);
-					}
-					else if(stricmp1251(val_buf, "л") == 0) {
+					else if(stricmp1251(val_buf, "л") == 0)
 						PPLoadString("munit_liter", val_buf);
-					}
 					else if(stricmp1251(val_buf, "мл") == 0) {
 						PPLoadString("munit_liter", val_buf);
 						phperu /= 1000L;

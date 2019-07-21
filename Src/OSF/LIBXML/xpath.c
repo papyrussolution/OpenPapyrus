@@ -4046,7 +4046,6 @@ xmlNodeSetPtr xmlXPathDifference(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 	}
 	return ret;
 }
-
 /**
  * xmlXPathIntersection:
  * @nodes1:  a node-set
@@ -4139,7 +4138,6 @@ xmlNodeSetPtr xmlXPathDistinct(xmlNodeSetPtr nodes)
 	xmlXPathNodeSetSort(nodes);
 	return (xmlXPathDistinctSorted(nodes));
 }
-
 /**
  * xmlXPathHasSameNodes:
  * @nodes1:  a node-set
@@ -4165,7 +4163,6 @@ int xmlXPathHasSameNodes(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 	}
 	return 0;
 }
-
 /**
  * xmlXPathNodeLeadingSorted:
  * @nodes: a node-set, sorted by document order
@@ -4200,7 +4197,6 @@ xmlNodeSetPtr xmlXPathNodeLeadingSorted(xmlNodeSetPtr nodes, xmlNode * P_Node)
 	}
 	return ret;
 }
-
 /**
  * xmlXPathNodeLeading:
  * @nodes:  a node-set
@@ -4239,7 +4235,6 @@ xmlNodeSetPtr xmlXPathLeadingSorted(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 		return (nodes1);
 	return (xmlXPathNodeLeadingSorted(nodes1, xmlXPathNodeSetItem(nodes2, 1)));
 }
-
 /**
  * xmlXPathLeading:
  * @nodes1:  a node-set
@@ -4264,7 +4259,6 @@ xmlNodeSetPtr xmlXPathLeading(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 	xmlXPathNodeSetSort(nodes2);
 	return (xmlXPathNodeLeadingSorted(nodes1, xmlXPathNodeSetItem(nodes2, 1)));
 }
-
 /**
  * xmlXPathNodeTrailingSorted:
  * @nodes: a node-set, sorted by document order
@@ -4299,7 +4293,6 @@ xmlNodeSetPtr xmlXPathNodeTrailingSorted(xmlNodeSetPtr nodes, xmlNode * P_Node)
 	}
 	return ret;
 }
-
 /**
  * xmlXPathNodeTrailing:
  * @nodes:  a node-set
@@ -4336,7 +4329,6 @@ xmlNodeSetPtr xmlXPathTrailingSorted(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 {
 	return xmlXPathNodeSetIsEmpty(nodes2) ? nodes1 : xmlXPathNodeTrailingSorted(nodes1, xmlXPathNodeSetItem(nodes2, 0));
 }
-
 /**
  * xmlXPathTrailing:
  * @nodes1:  a node-set
@@ -4361,13 +4353,9 @@ xmlNodeSetPtr xmlXPathTrailing(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 	xmlXPathNodeSetSort(nodes2);
 	return xmlXPathNodeTrailingSorted(nodes1, xmlXPathNodeSetItem(nodes2, 0));
 }
-
-/************************************************************************
-*									*
-*		Routines to handle extra functions			*
-*									*
-************************************************************************/
-
+//
+// Routines to handle extra functions
+//
 /**
  * xmlXPathRegisterFunc:
  * @ctxt:  the XPath context
@@ -4382,7 +4370,6 @@ int FASTCALL xmlXPathRegisterFunc(xmlXPathContextPtr ctxt, const xmlChar * name,
 {
 	return xmlXPathRegisterFuncNS(ctxt, name, NULL, f);
 }
-
 /**
  * xmlXPathRegisterFuncNS:
  * @ctxt:  the XPath context
@@ -5624,7 +5611,7 @@ static xmlXPathParserContextPtr xmlXPathCompParserContext(xmlXPathCompExprPtr co
 	}
 	memzero(ret, sizeof(xmlXPathParserContext));
 	/* Allocate the value stack */
-	ret->valueTab = (xmlXPathObjectPtr*)SAlloc::M(10 * sizeof(xmlXPathObject *));
+	ret->valueTab = static_cast<xmlXPathObjectPtr *>(SAlloc::M(10 * sizeof(xmlXPathObject *)));
 	if(ret->valueTab == NULL) {
 		SAlloc::F(ret);
 		xmlXPathErrMemory(ctxt, "creating evaluation context");
@@ -5634,13 +5621,10 @@ static xmlXPathParserContextPtr xmlXPathCompParserContext(xmlXPathCompExprPtr co
 	ret->valueMax = 10;
 	ret->value = NULL;
 	ret->valueFrame = 0;
-
 	ret->context = ctxt;
 	ret->comp = comp;
-
 	return ret;
 }
-
 /**
  * xmlXPathFreeParserContext:
  * @ctxt:  the context to free
@@ -5659,13 +5643,9 @@ void xmlXPathFreeParserContext(xmlXPathParserContextPtr ctxt)
 	}
 	SAlloc::F(ctxt);
 }
-
-/************************************************************************
-*									*
-*		The implicit core function library			*
-*									*
-************************************************************************/
-
+// 
+// The implicit core function library
+// 
 /**
  * xmlXPathNodeValHash:
  * @node:  a node pointer
@@ -5675,46 +5655,43 @@ void xmlXPathFreeParserContext(xmlXPathParserContextPtr ctxt)
  *
  * Returns an int usable as a hash
  */
-static uint xmlXPathNodeValHash(xmlNode * P_Node)
+static uint xmlXPathNodeValHash(xmlNode * pNode)
 {
 	int len = 2;
 	const xmlChar * string = NULL;
 	xmlNode * tmp = NULL;
 	uint ret = 0;
-	if(!P_Node)
+	if(!pNode)
 		return 0;
-	if(P_Node->type == XML_DOCUMENT_NODE) {
-		tmp = xmlDocGetRootElement((xmlDoc *)P_Node);
-		if(!tmp)
-			P_Node = P_Node->children;
-		else
-			P_Node = tmp;
-		if(!P_Node)
+	if(pNode->type == XML_DOCUMENT_NODE) {
+		tmp = xmlDocGetRootElement(reinterpret_cast<xmlDoc *>(pNode));
+		pNode = tmp ? tmp : pNode->children;
+		if(!pNode)
 			return 0;
 	}
-	switch(P_Node->type) {
+	switch(pNode->type) {
 		case XML_COMMENT_NODE:
 		case XML_PI_NODE:
 		case XML_CDATA_SECTION_NODE:
 		case XML_TEXT_NODE:
-		    string = P_Node->content;
+		    string = pNode->content;
 		    if(string == NULL)
 			    return 0;
 		    if(string[0] == 0)
 			    return 0;
 		    return (((uint)string[0]) + (((uint)string[1]) << 8));
 		case XML_NAMESPACE_DECL:
-		    string = ((xmlNs *)P_Node)->href;
+		    string = reinterpret_cast<xmlNs *>(pNode)->href;
 		    if(string == NULL)
 			    return 0;
 		    if(string[0] == 0)
 			    return 0;
 		    return (((uint)string[0]) + (((uint)string[1]) << 8));
 		case XML_ATTRIBUTE_NODE:
-		    tmp = ((xmlAttr *)P_Node)->children;
+		    tmp = reinterpret_cast<xmlAttr *>(pNode)->children;
 		    break;
 		case XML_ELEMENT_NODE:
-		    tmp = P_Node->children;
+		    tmp = pNode->children;
 		    break;
 		default:
 		    return 0;
@@ -5728,7 +5705,7 @@ static uint xmlXPathNodeValHash(xmlNode * P_Node)
 			    string = tmp->content;
 			    break;
 			case XML_NAMESPACE_DECL:
-			    string = ((xmlNs *)tmp)->href;
+			    string = reinterpret_cast<xmlNs *>(tmp)->href;
 			    break;
 			default:
 			    break;
@@ -5742,8 +5719,7 @@ static uint xmlXPathNodeValHash(xmlNode * P_Node)
 				ret = (uint)string[0];
 			}
 			else {
-				return (((uint)string[0]) +
-				    (((uint)string[1]) << 8));
+				return (((uint)string[0]) + (((uint)string[1]) << 8));
 			}
 		}
 		/*
@@ -5755,19 +5731,17 @@ static uint xmlXPathNodeValHash(xmlNode * P_Node)
 				continue;
 			}
 		}
-		if(tmp == P_Node)
+		if(tmp == pNode)
 			break;
-
 		if(tmp->next) {
 			tmp = tmp->next;
 			continue;
 		}
-
 		do {
 			tmp = tmp->P_ParentNode;
 			if(!tmp)
 				break;
-			if(tmp == P_Node) {
+			if(tmp == pNode) {
 				tmp = NULL;
 				break;
 			}
@@ -5779,7 +5753,6 @@ static uint xmlXPathNodeValHash(xmlNode * P_Node)
 	}
 	return ret;
 }
-
 /**
  * xmlXPathStringHash:
  * @string:  a string
@@ -5792,12 +5765,11 @@ static uint xmlXPathNodeValHash(xmlNode * P_Node)
 static uint xmlXPathStringHash(const xmlChar * string)
 {
 	if(string == NULL)
-		return ((uint)0);
+		return 0U;
 	if(string[0] == 0)
 		return 0;
 	return (((uint)string[0]) + (((uint)string[1]) << 8));
 }
-
 /**
  * xmlXPathCompareNodeSetFloat:
  * @ctxt:  the XPath Parser context

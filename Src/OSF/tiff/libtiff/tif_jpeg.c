@@ -399,9 +399,8 @@ static void tables_init_destination(j_compress_ptr cinfo)
 static boolean tables_empty_output_buffer(j_compress_ptr cinfo)
 {
 	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
-	void* newbuf;
 	/* the entire buffer has been filled; enlarge it by 1000 bytes */
-	newbuf = SAlloc::R((void *)sp->jpegtables, (tmsize_t)(sp->jpegtables_length + 1000));
+	void * newbuf = SAlloc::R(sp->jpegtables, (tmsize_t)(sp->jpegtables_length + 1000));
 	if(newbuf == NULL)
 		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 100);
 	sp->dest.next_output_byte = (JOCTET*)newbuf + sp->jpegtables_length;
@@ -448,7 +447,7 @@ static void std_init_source(j_decompress_ptr cinfo)
 {
 	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	TIFF* tif = sp->tif;
-	sp->src.next_input_byte = (const JOCTET*)tif->tif_rawdata;
+	sp->src.next_input_byte = static_cast<const JOCTET *>(tif->tif_rawdata);
 	sp->src.bytes_in_buffer = (size_t)tif->tif_rawcc;
 }
 
@@ -528,9 +527,8 @@ static void TIFFjpeg_data_src(JPEGState* sp)
 
 static void tables_init_source(j_decompress_ptr cinfo)
 {
-	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
-
-	sp->src.next_input_byte = (const JOCTET*)sp->jpegtables;
+	JPEGState * sp = reinterpret_cast<JPEGState *>(cinfo);
+	sp->src.next_input_byte = static_cast<const JOCTET *>(sp->jpegtables);
 	sp->src.bytes_in_buffer = (size_t)sp->jpegtables_length;
 }
 
@@ -1141,7 +1139,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 	** Update available information, buffer may have been refilled
 	** between decode requests
 	*/
-	sp->src.next_input_byte = (const JOCTET*)tif->tif_rawcp;
+	sp->src.next_input_byte = static_cast<const JOCTET *>(tif->tif_rawcp);
 	sp->src.bytes_in_buffer = (size_t)tif->tif_rawcc;
 	if(sp->bytesperline == 0)
 		return 0;
@@ -1188,7 +1186,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 	** Update available information, buffer may have been refilled
 	** between decode requests
 	*/
-	sp->src.next_input_byte = (const JOCTET*)tif->tif_rawcp;
+	sp->src.next_input_byte = static_cast<const JOCTET *>(tif->tif_rawcp);
 	sp->src.bytes_in_buffer = (size_t)tif->tif_rawcc;
 	if(sp->bytesperline == 0)
 		return 0;

@@ -46,9 +46,9 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 	MsgBoxDlgFuncParam * p_param = reinterpret_cast<MsgBoxDlgFuncParam *>(lParam);
 	switch(uMsg) {
 		case WM_INITDIALOG:
-			{
+			if(p_param) {
 				SString title_buf;
-				if(p_param && p_param->P_Msg) {
+				if(p_param->P_Msg) {
 					ConvertMsgString(p_param->P_Msg, title_buf);
 					TView::SSetWindowText(GetDlgItem(hwndDlg, CTL_WMSGBOX_TEXT), title_buf);
 				}
@@ -76,7 +76,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 						}
 					}
 				}
-				if((p_param->Options & mfConf)  == mfConf)
+				if((p_param->Options & mfConf) == mfConf)
 					TDialog::centerDlg(hwndDlg);
 				ret = (p_param->Options & mfNoFocus) ? FALSE : TRUE; // @v10.0.04
 			}

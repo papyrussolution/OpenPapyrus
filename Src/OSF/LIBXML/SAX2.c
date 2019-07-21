@@ -186,7 +186,7 @@ const xmlChar * xmlSAX2GetPublicId(void * ctx ATTRIBUTE_UNUSED)
  */
 const xmlChar * xmlSAX2GetSystemId(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	return (ctx && ctxt->input) ? ((const xmlChar *)ctxt->input->filename) : 0;
 }
 /**
@@ -199,7 +199,7 @@ const xmlChar * xmlSAX2GetSystemId(void * ctx)
  */
 int xmlSAX2GetLineNumber(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	return (ctx && ctxt->input) ? ctxt->input->line : 0;
 }
 /**
@@ -212,7 +212,7 @@ int xmlSAX2GetLineNumber(void * ctx)
  */
 int xmlSAX2GetColumnNumber(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	return (ctx && ctxt->input) ? ctxt->input->col : 0;
 }
 /**
@@ -225,7 +225,7 @@ int xmlSAX2GetColumnNumber(void * ctx)
  */
 int xmlSAX2IsStandalone(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	return (ctx && ctxt->myDoc) ? (ctxt->myDoc->standalone == 1) : 0;
 }
 /**
@@ -238,7 +238,7 @@ int xmlSAX2IsStandalone(void * ctx)
  */
 int xmlSAX2HasInternalSubset(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	return (ctxt && ctxt->myDoc) ? (ctxt->myDoc->intSubset != NULL) : 0;
 }
 /**
@@ -251,7 +251,7 @@ int xmlSAX2HasInternalSubset(void * ctx)
  */
 int xmlSAX2HasExternalSubset(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	return (ctxt && ctxt->myDoc) ? (ctxt->myDoc->extSubset != NULL) : 0;
 }
 /**
@@ -265,7 +265,7 @@ int xmlSAX2HasExternalSubset(void * ctx)
  */
 void xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	if(ctx) {
 #ifdef DEBUG_SAX
 		xmlGenericError(0, "SAX.xmlSAX2InternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
@@ -297,7 +297,7 @@ void xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
  */
 void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	if(!ctx) return;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2ExternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
@@ -403,7 +403,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
  */
 xmlParserInput * xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlParserInput * ret;
 	xmlChar * URI;
 	const char * base = NULL;
@@ -433,7 +433,7 @@ xmlParserInput * xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, cons
  */
 xmlEntity * xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlEntity * ret = NULL;
 	if(!ctx)
 		return 0;
@@ -504,7 +504,7 @@ xmlEntity * xmlSAX2GetEntity(void * ctx, const xmlChar * name)
  */
 xmlEntity * xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlEntity * ret = 0;
 	if(ctx) {
 #ifdef DEBUG_SAX
@@ -529,7 +529,7 @@ xmlEntity * xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
 void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
 {
 	xmlEntity * ent;
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	if(!ctx) 
 		return;
 #ifdef DEBUG_SAX
@@ -581,7 +581,7 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar
  */
 void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlAttribute * attr;
 	xmlChar * name = NULL, * prefix = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
@@ -630,7 +630,7 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
  */
 void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContent * content)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlElement * elem = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
@@ -664,7 +664,7 @@ void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementCo
  */
 void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlNotation * nota = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
@@ -704,7 +704,7 @@ void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publi
 void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
 {
 	xmlEntity * ent;
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	if(!ctx) return;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2UnparsedEntityDecl(%s, %s, %s, %s)\n", name, publicId, systemId, notationName);
@@ -761,7 +761,7 @@ void xmlSAX2SetDocumentLocator(void * ctx ATTRIBUTE_UNUSED, xmlSAXLocator * loc 
  */
 void xmlSAX2StartDocument(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	if(ctx) {
 #ifdef DEBUG_SAX
 		xmlGenericError(0, "SAX.xmlSAX2StartDocument()\n");
@@ -817,7 +817,7 @@ void xmlSAX2StartDocument(void * ctx)
  */
 void xmlSAX2EndDocument(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2EndDocument()\n");
 #endif
@@ -857,7 +857,7 @@ void xmlSAX2EndDocument(void * ctx)
  */
 static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const xmlChar * value, const xmlChar * prefix ATTRIBUTE_UNUSED)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlAttr * ret;
 	xmlChar * name;
 	xmlChar * ns;
@@ -1255,7 +1255,7 @@ process_external_subset:
  */
 void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlNode * ret;
 	xmlNode * parent;
 	xmlNs * ns;
@@ -1427,7 +1427,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
  */
 void xmlSAX2EndElement(void * ctx, const xmlChar * name ATTRIBUTE_UNUSED)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	if(ctx) {
 		xmlNode * cur = ctxt->P_Node;
 #ifdef DEBUG_SAX
@@ -1785,7 +1785,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI,
     int nb_namespaces, const xmlChar ** namespaces, int nb_attributes, int nb_defaulted, const xmlChar ** attributes)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlNode * ret;
 	xmlNode * parent;
 	xmlNs * last = NULL;
@@ -1991,7 +1991,7 @@ void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar 
 void xmlSAX2EndElementNs(void * ctx, const xmlChar * localname ATTRIBUTE_UNUSED,
     const xmlChar * prefix ATTRIBUTE_UNUSED, const xmlChar * URI ATTRIBUTE_UNUSED)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlParserNodeInfo node_info;
 	if(ctx) {
 		xmlNode * cur = ctxt->P_Node;
@@ -2022,7 +2022,7 @@ void xmlSAX2EndElementNs(void * ctx, const xmlChar * localname ATTRIBUTE_UNUSED,
  */
 void xmlSAX2Reference(void * ctx, const xmlChar * name)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlNode * ret;
 	if(!ctx)
 		return;
@@ -2051,7 +2051,7 @@ void xmlSAX2Reference(void * ctx, const xmlChar * name)
  */
 void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlNode * lastChild;
 	if(!ctx)
 		return;
@@ -2186,7 +2186,7 @@ void xmlSAX2IgnorableWhitespace(void * ctx ATTRIBUTE_UNUSED, const xmlChar * ch 
  */
 void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlChar * data)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlNode * ret;
 	xmlNode * parent;
 	if(!ctx)
@@ -2241,7 +2241,7 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
  */
 void xmlSAX2Comment(void * ctx, const xmlChar * value)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlNode * ret;
 	xmlNode * parent;
 	if(!ctx) 
@@ -2297,7 +2297,7 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
  */
 void xmlSAX2CDataBlock(void * ctx, const xmlChar * value, int len)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlNode * ret;
 	xmlNode * lastChild;
 	if(!ctx) return;

@@ -1710,6 +1710,10 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 		STRNSCPY(brow_.Barcode, temp_buf);
 		(temp_buf = brow_.GoodsName).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.GoodsName, temp_buf);
+		// @v10.5.0 {
+		(temp_buf = brow_.GoodsGroup).Transf(CTRANSF_OUTER_TO_INNER); 
+		STRNSCPY(brow_.GoodsGroup, temp_buf);
+		// } @v10.5.0 
 		if(mode == 1/*linkByLastInsBill*/)
 			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount() - 1).ID);
 		else if(mode == 2) {
@@ -2409,6 +2413,8 @@ int SLAPI PPBillImporter::Import(int useTa)
 			if(!r_row.GoodsID) {
 				ResolveGoodsItem item;
 				STRNSCPY(item.GoodsName, r_row.GoodsName);
+				STRNSCPY(item.GroupName, r_row.GoodsGroup); // @v10.5.0
+				item.VatRate = r_row.VatRate; // @v10.5.9
 				STRNSCPY(item.Barcode, r_row.Barcode);
 				// @v10.4.12 {
 				(temp_buf = r_row.LotManuf).Transf(CTRANSF_OUTER_TO_INNER);
@@ -2428,13 +2434,29 @@ int SLAPI PPBillImporter::Import(int useTa)
 			assert(goods_list.getCount() == unres_pos_list.getCount());
 			if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
 				if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
+					PPObjGoodsGroup gg_obj;
 					PPTransaction tra(useTa);
 					THROW(tra);
 					for(uint i = 0; i < goods_list.getCount(); i++) {
 						ResolveGoodsItem & r_rgi = goods_list.at(i);
 						if(!r_rgi.ResolvedGoodsID && r_rgi.GoodsName[0]) {
 							PPGoodsPacket gpack;
-							if(GObj.InitPacket(&gpack, gpkndGoods, r_gcfg.DefGroupID, 0, r_rgi.Barcode)) {
+							PPID   parent_id = 0;
+							// @v10.5.0 {
+							{
+								temp_buf = r_rgi.GroupName;
+								if(temp_buf.NotEmptyS()) {
+									PPID   folder_id = 0;
+									if(!gg_obj.AddSimple(&parent_id, gpkndOrdinaryGroup, folder_id, temp_buf /*grpname*/, 0, r_gcfg.DefUnitID, 0)) {
+										PPGetLastErrorMessage(1, msg_buf);
+										Logger.Log(msg_buf);
+										parent_id = 0;
+									}
+								}
+							}
+							// } @v10.5.0 
+							SETIFZ(parent_id, r_gcfg.DefGroupID);
+							if(GObj.InitPacket(&gpack, gpkndGoods, parent_id, 0, r_rgi.Barcode)) {
 								const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
 								PPID   by_name_id = 0;
 								SString suffix;
@@ -2467,11 +2489,18 @@ int SLAPI PPBillImporter::Import(int useTa)
 										gpack.Rec.ManufID = manuf_id;
 									}
 								}
+								// @v10.5.0 {
+								if(r_rgi.VatRate > 0.0 && r_rgi.VatRate <= 40.0) {
+									PPID   tax_grp_id = 0;
+									if(GObj.GTxObj.GetByScheme(&tax_grp_id, r_rgi.VatRate, 0.0, 0.0, 0, 0/*use_ta*/) > 0)
+										gpack.Rec.TaxGrpID = tax_grp_id;
+								}
+								// } @v10.5.0 
 								PPID goods_id = 0;
 								if(!GObj.PutPacket(&goods_id, &gpack, 0)) {
-									PPGetLastErrorMessage(1, msg_buf);
+									PPGetLastErrorMessage(1, temp_buf);
 									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
-									Logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, gpack.Rec.Name, msg_buf.cptr()));
+									Logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, gpack.Rec.Name, temp_buf.cptr()));
 								}
 								else {
 									r_rgi.ResolvedGoodsID = goods_id;
@@ -3926,12 +3955,15 @@ int SLAPI PPBillExporter::SignBill()
 
 int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll * pImpExpDll /*=0*/)
 {
-	int    ok = -1, obj_id = 0, use_dll = 0;
+	int    ok = -1;
+	int    obj_id = 0;
+	int    use_dll = 0;
 	const  int use_ar_code = BIN(pPack->Rec.Object && (CConfig.Flags & CCFLG_USEARGOODSCODE));
 	PPObjWorld world_obj;
 	SString temp_buf, err_msg;
 	Sdr_Bill bill;
 	PPTransferItem * p_ti = 0;
+	Reference * p_ref = PPRef;
 	ReceiptCore * p_rcpt = (P_BObj && P_BObj->trfr) ? &P_BObj->trfr->Rcpt : 0;
 	GTaxVect vect;
 	THROW_INVARG(pPack && P_IEBill && (P_IEBRow || (sessId && pImpExpDll)));
@@ -3940,7 +3972,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 		SString ttn_tag_value;
 		if(BillParam.ImpExpParamDll.TTNTagID) {
 			ObjTagItem tag_item;
-			if(PPRef->Ot.GetTag(PPOBJ_BILL, pPack->Rec.ID, BillParam.ImpExpParamDll.TTNTagID, &tag_item) > 0)
+			if(p_ref->Ot.GetTag(PPOBJ_BILL, pPack->Rec.ID, BillParam.ImpExpParamDll.TTNTagID, &tag_item) > 0)
 				tag_item.GetStr(ttn_tag_value);
 		}
 		if(sessId && pImpExpDll) {
@@ -3976,6 +4008,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 		for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
 			const PPID goods_id = labs(p_ti->GoodsID);
 			Goods2Tbl::Rec goods_rec;
+			Goods2Tbl::Rec gg_rec; // @v10.5.0
 			Sdr_BRow brow;
 			BarcodeArray bcd_ary;
 			MEMSZERO(brow);
@@ -3986,6 +4019,10 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			if(GObj.Fetch(goods_id, &goods_rec) <= 0)
 				MEMSZERO(goods_rec);
 			(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.GoodsName, sizeof(brow.GoodsName));
+			// @v10.5.0 {
+			if(goods_rec.ParentID && GObj.Fetch(goods_rec.ParentID, &gg_rec) > 0)
+				(temp_buf = gg_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.GoodsGroup, sizeof(brow.GoodsGroup));
+			// } @v10.5.0 
 			if(use_ar_code) {
 				if(GObj.P_Tbl->GetArCode(pPack->Rec.Object, goods_id, temp_buf, 0) > 0) {
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5
@@ -4069,7 +4106,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 							//
 							if(BillParam.ImpExpParamDll.IsManufTagID) {
 								ObjTagItem tag_item;
-								if(PPRef->Ot.GetTag(PPOBJ_PERSON, manuf_id, BillParam.ImpExpParamDll.IsManufTagID, &tag_item) > 0) {
+								if(p_ref->Ot.GetTag(PPOBJ_PERSON, manuf_id, BillParam.ImpExpParamDll.IsManufTagID, &tag_item) > 0) {
 									long   is_manuf = 0;
 									tag_item.GetInt(&is_manuf);
 									brow.IsManuf = is_manuf;
@@ -4399,7 +4436,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
                         {
                         	StringSet ss_email;
 							psn_pack.ELA.GetListByType(PPELK_EMAIL, ss_email);
-                            if(ss_email.getCount() && ss_email.get((uint)0, temp_buf))
+                            if(ss_email.getCount() && ss_email.get(0U, temp_buf))
 								STRNSCPY(pBill->CntragEMail, temp_buf);
 						}
 						// } @v9.7.6

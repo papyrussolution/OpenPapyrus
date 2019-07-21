@@ -70,7 +70,7 @@ void TToolbar::DestroyHWND()
 
 LRESULT TToolbar::OnCommand(WPARAM wParam, LPARAM lParam)
 {
-	PostMessage(H_MainWnd, WM_COMMAND, wParam, lParam);
+	::PostMessage(H_MainWnd, WM_COMMAND, wParam, lParam);
 	return 0;
 }
 
@@ -202,7 +202,7 @@ LRESULT TToolbar::OnMove(WPARAM wParam, LPARAM lParam)
 		TView::SetWindowProp(H_Toolbar, GWL_STYLE, fl);
 		MoveWindow(H_Wnd, CurrRect.left, CurrRect.top, CurrRect.right, CurrRect.bottom, 1);
 		if(CurrPos == TOOLBAR_ON_FREE) {
-			DWORD r = (DWORD)::SendMessage(H_Toolbar, TB_GETROWS, 0, 0);
+			DWORD r = static_cast<DWORD>(::SendMessage(H_Toolbar, TB_GETROWS, 0, 0));
 			CurrRect.bottom = (Height + 2) * r;
 			MoveWindow(H_Wnd, CurrRect.left, CurrRect.top, CurrRect.right, CurrRect.bottom, 1);
 		}
@@ -210,8 +210,8 @@ LRESULT TToolbar::OnMove(WPARAM wParam, LPARAM lParam)
 			APPL->SizeMainWnd(H_Wnd);
 		else {
 			RECT rc;
-			GetClientRect(H_MainWnd, &rc);
-			PostMessage(H_MainWnd, WM_SIZE, 0, MAKELPARAM(rc.right, rc.bottom));
+			::GetClientRect(H_MainWnd, &rc);
+			::PostMessage(H_MainWnd, WM_SIZE, 0, MAKELPARAM(rc.right, rc.bottom));
 		}
 	}
 	return 0;
@@ -272,8 +272,8 @@ LRESULT TToolbar::OnMoving(WPARAM wParam, LPARAM lParam)
 		p_rect->right  = p_rect->left + free_width;
 		CurrPos  = TOOLBAR_ON_FREE;
 	}
-	MousePoint.x += (short)(CurrRect.left - p_rect->left);
-	MousePoint.y += (short)(CurrRect.top - p_rect->top);
+	MousePoint.x += static_cast<short>(CurrRect.left - p_rect->left);
+	MousePoint.y += static_cast<short>(CurrRect.top - p_rect->top);
 	CurrRect = *p_rect;
 	return TRUE;
 }
@@ -465,7 +465,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 	Style = style;
 	VisibleCount = 0;
 	uint   i;
-	HIMAGELIST himl = (HIMAGELIST)::SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0);
+	HIMAGELIST himl = reinterpret_cast<HIMAGELIST>(::SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0));
 	{
 		/* @v9.5.5
 		long count = SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
@@ -473,7 +473,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 			::SendMessage(H_Toolbar, TB_DELETEBUTTON, idx, 0);
 		*/
 		// @v9.5.5 {
-		long _c = (long)::SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
+		long _c = static_cast<long>(::SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0));
 		if(_c) do {
 			::SendMessage(H_Toolbar, TB_DELETEBUTTON, --_c, 0);
 		} while(_c);
@@ -485,8 +485,8 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 		}
 	}
 	if(Items.getItemsCount()) {
-		himl = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLORDDB, 0, 64);
-		HMENU  h_menu = GetMenu(H_MainWnd);
+		himl = ::ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLORDDB, 0, 64);
+		HMENU  h_menu = ::GetMenu(H_MainWnd);
 		ToolbarItem item;
 		int    prev_separator = 0;
 		TBBUTTON * p_btns = new TBBUTTON[Items.getItemsCount()];
@@ -498,7 +498,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 				MEMSZERO(btns);
 				if(item.KeyCode != TV_MENUSEPARATOR) {
 					btns.idCommand = item.KeyCode;
-					btns.dwData  = (DWORD_PTR)item.ToolTipText;
+					btns.dwData  = reinterpret_cast<DWORD_PTR>(item.ToolTipText);
 					btns.fsStyle = TBSTYLE_BUTTON;
 					if(!h_menu || isFindMenuID(item.KeyCode, h_menu))
 						btns.fsState |= TBSTATE_ENABLED;
@@ -512,21 +512,59 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 				else
 					skip = 1;
 				if(!skip) {
-					HBITMAP h_bmp = item.BitmapIndex ? APPL->FetchBitmap(item.BitmapIndex) : 0;
-					long img_idx = -1;
-					if(h_bmp) {
-						HICON h_icon = BitmapToIcon(h_bmp);
-						// На некоторых машинах не отображаются картинки
-						// img_idx = ImageList_Add(himl, h_bmp, (HBITMAP)0);
-						img_idx = ImageList_AddIcon(himl, h_icon);
-						DestroyIcon(h_icon);
+					long   img_idx = -1;
+					if(item.BitmapIndex & 0x00008000) {
+						TWhatmanToolArray::Item tool_item;
+						const SDrawFigure * p_fig = APPL->LoadDrawFigureById(item.BitmapIndex, &tool_item);
+						const uint _w = 16;
+						const uint _h = 16;
+						SImageBuffer ib(_w, _h);
+						{
+							TCanvas2 canv(APPL->GetUiToolBox(), ib);
+							if(!tool_item.ReplacedColor.IsEmpty()) {
+								SColor replacement_color;
+								replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
+								canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+							}
+							LMatrix2D mtx;
+							SViewPort vp;
+							FRect pic_bounds;
+							pic_bounds.a.X = 0.0f;
+							pic_bounds.a.Y = 0.0f;
+							pic_bounds.b.X = static_cast<float>(_w);
+							pic_bounds.b.Y = static_cast<float>(_h);
+							//
+							canv.Rect(pic_bounds);
+							//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+							canv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
+							canv.PushTransform();
+							p_fig->GetViewPort(&vp);
+							canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+							canv.Draw(p_fig);
+						}
+						HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
+						if(h_icon) {
+							img_idx = ImageList_AddIcon(himl, h_icon);
+							//added_list.Add(image_id, image_idx, 0);
+							DestroyIcon(h_icon);
+						}
+					}
+					else {
+						HBITMAP h_bmp = item.BitmapIndex ? APPL->FetchBitmap(item.BitmapIndex) : 0;
+						if(h_bmp) {
+							HICON h_icon = BitmapToIcon(h_bmp);
+							// На некоторых машинах не отображаются картинки
+							// img_idx = ImageList_Add(himl, h_bmp, (HBITMAP)0);
+							img_idx = ImageList_AddIcon(himl, h_icon);
+							DestroyIcon(h_icon);
+						}
 					}
 					btns.iBitmap = MAKELONG(img_idx, 0);
 					p_btns[img_count++] = btns;
 				}
 			}
 		}
-		SendMessage(H_Toolbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
+		SendMessage(H_Toolbar, TB_BUTTONSTRUCTSIZE, static_cast<WPARAM>(sizeof(TBBUTTON)), 0);
 		SendMessage(H_Toolbar, TB_SETIMAGELIST, 0, reinterpret_cast<LPARAM>(himl));
 		SendMessage(H_Toolbar, TB_ADDBUTTONS, img_count, reinterpret_cast<LPARAM>(p_btns));
 		delete [] p_btns;

@@ -2375,6 +2375,7 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 {
 	int    ok = 1;
 	uint   dyn_fld_pos = 0;
+	char   temp_cbuf[1024];
 	SdbField outer_fld;
 	SString formula_result;
 	SdbField inner_fld; // Определение выносим за пределы цикла во избежании лишних распределений памяти
@@ -2392,9 +2393,9 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 			if(pDynRec) {
 				THROW_SL(pDynRec->GetFieldByPos(dyn_fld_pos, &inner_fld));
 				if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {
-					char temp_buf[1024];
-					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_buf);
-					stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_buf));
+					PTR32(temp_cbuf)[0] = 0;
+					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
+					stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_cbuf));
 				}
 				stcast(outer_fld.T.Typ, inner_fld.T.Typ, p_outer_fld_buf, pDynRec->GetData(dyn_fld_pos), 0);
 			}
@@ -2404,9 +2405,9 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 			uint   inner_pos = 0;
 			THROW_SL(P.InrRec.GetFieldByID(outer_fld.ID, &inner_pos, &inner_fld));
 			if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {
-				char temp_buf[1024];
-				sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_buf);
-				stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_buf));
+				PTR32(temp_cbuf)[0] = 0;
+				sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
+				stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_cbuf));
 			}
 			stcast(outer_fld.T.Typ, inner_fld.T.Typ, p_outer_fld_buf, P.InrRec.GetData(inner_pos), 0);
 		}

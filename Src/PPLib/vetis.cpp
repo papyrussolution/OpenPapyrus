@@ -390,7 +390,8 @@ struct VetisEnterprise : public VetisNamedGenericVersioningEntity {
 	VetisEnterprise & FASTCALL operator = (const VetisEnterprise & rS);
 
 	SString EnglishName;
-	int    Type; // EnterpriseType
+	int    Type;          // EnterpriseType
+	PPID   NativeLocID;   // @v10.5.0 -->Location.ID Идентификатор соответствующей локации в БД
 	StringSet NumberList; // EnterpriseNumberList
 	VetisAddress Address;
 	VetisEnterpriseActivityList ActivityList;
@@ -421,7 +422,7 @@ struct VetisIncorporationForm : public VetisGenericEntity {
 };
 
 struct VetisBusinessEntity : public VetisNamedGenericVersioningEntity {
-	VetisBusinessEntity() : VetisNamedGenericVersioningEntity(), EntityID(0), Type(0)
+	VetisBusinessEntity() : VetisNamedGenericVersioningEntity(), EntityID(0), Type(0), NativePsnID(0)
 	{
 	}
 	VetisBusinessEntity & Z()
@@ -429,6 +430,7 @@ struct VetisBusinessEntity : public VetisNamedGenericVersioningEntity {
 		VetisNamedGenericVersioningEntity::Z();
 		EntityID = 0;
 		Type = 0;
+		NativePsnID = 0;
 		FullName.Z();
 		Fio.Z();
 		Passport.Z();
@@ -445,6 +447,7 @@ struct VetisBusinessEntity : public VetisNamedGenericVersioningEntity {
 		VetisNamedGenericVersioningEntity::operator = (rS);
 		EntityID = rS.EntityID;
 		Type = rS.Type;
+		NativePsnID = rS.NativePsnID; // @v10.5.0
 		FullName = rS.FullName;
 		Fio = rS.Fio;
 		Passport = rS.Passport;
@@ -458,6 +461,7 @@ struct VetisBusinessEntity : public VetisNamedGenericVersioningEntity {
 	}
 	PPID   EntityID;
 	int    Type;     // BusinessEntityType
+	PPID   NativePsnID; // @v10.5.0 -->Person.ID Идентификатор соответствующей персоналии в БД
 	SString FullName;
 	SString Fio;
 	SString Passport;
@@ -1448,7 +1452,7 @@ VetisUser & FASTCALL VetisUser::operator = (const VetisUser & rS)
 	return *this;
 }
 
-VetisEnterprise::VetisEnterprise() : P_Owner(0), Type(0)
+VetisEnterprise::VetisEnterprise() : P_Owner(0), Type(0), NativeLocID(0)
 {
 }
 
@@ -1462,6 +1466,7 @@ VetisEnterprise & FASTCALL VetisEnterprise::operator = (const VetisEnterprise & 
 	VetisNamedGenericVersioningEntity::operator = (rS);
 	EnglishName = rS.EnglishName;
 	Type = rS.Type;
+	NativeLocID = rS.NativeLocID; // @v10.5.0
 	NumberList = rS.NumberList;
 	Address = rS.Address;
 	ActivityList = rS.ActivityList;
@@ -5270,7 +5275,7 @@ int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicatio
 			}
 		}
 		xmlTextWriterFlush(srb);
-		reply_buf.CopyFromN((char *)((xmlBuffer *)srb)->content, ((xmlBuffer *)srb)->use);
+		reply_buf.CopyFromN(reinterpret_cast<char *>(static_cast<xmlBuffer *>(srb)->content), static_cast<xmlBuffer *>(srb)->use);
 		{
 			const char * p_url = 0;
 			if(rResult.VetisSvcVer == 1)
@@ -6811,6 +6816,57 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 	return ok;
 }
 
+int EditVetisEnterprise(VetisEnterprise & rData)
+{
+	class VetEntDialog : public TDialog {
+	public:
+		VetEntDialog() : TDialog(DLG_VETISENT)
+		{
+		}
+		int    setDTS(const VetisEnterprise * pData)
+		{
+			int    ok = 1;
+			Reference * p_ref = PPRef;
+			SString temp_buf;
+			RVALUEPTR(Data, pData);
+			PPID   person_id = Data.P_Owner ? Data.P_Owner->NativePsnID : 0;
+			SetupPersonCombo(this, CTLSEL_VETISENT_ORG, person_id, 0, PPPRK_MAIN, 1);
+			temp_buf.Z();
+			if(person_id) {
+				ObjTagItem tag_item;
+				S_GUID guid;
+				if(p_ref->Ot.GetTag(PPOBJ_PERSON, person_id, PPTAG_PERSON_VETISUUID, &tag_item) > 0) {
+					tag_item.GetGuid(&guid);
+					guid.ToStr(S_GUID::fmtIDL, temp_buf);
+				}
+			}
+			setCtrlString(CTL_VETISENT_BENTY, temp_buf);
+			SetupLocationCombo(this, CTLSEL_VETISENT_LOC, Data.NativeLocID, 0, 0);
+			temp_buf.Z();
+			if(Data.NativeLocID) {
+				ObjTagItem tag_item;
+				S_GUID guid;
+				if(p_ref->Ot.GetTag(PPOBJ_LOCATION, Data.NativeLocID, PPTAG_LOC_VETIS_GUID, &tag_item) > 0) {
+					tag_item.GetGuid(&guid);
+					guid.ToStr(S_GUID::fmtIDL, temp_buf);
+				}
+			}
+			setCtrlString(CTL_VETISENT_ENT, temp_buf);
+			return ok;
+		}
+		int    getDTS(VetisEnterprise * pData)
+		{
+			int    ok = 1;
+
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		VetisEnterprise Data;
+	};
+	DIALOG_PROC_BODY(VetEntDialog, &rData);
+}
+
 int EditVetisVetDocument(VetisVetDocument & rData)
 {
 	class VetVDocInfoDialog : public TDialog {
@@ -6922,12 +6978,10 @@ int EditVetisVetDocument(VetisVetDocument & rData)
 		}
 		{
 			text_buf.Z();
-			if(rData.Flags & VetisGenericVersioningEntity::fActive) {
+			if(rData.Flags & VetisGenericVersioningEntity::fActive)
 				text_buf.CatDivIfNotEmpty(',', 2).Cat("ACTIVE");
-			}
-			if(rData.Flags & VetisGenericVersioningEntity::fLast) {
+			if(rData.Flags & VetisGenericVersioningEntity::fLast)
 				text_buf.CatDivIfNotEmpty(',', 2).Cat("LAST");
-			}
 			dlg->setStaticText(CTL_VETVDOC_ST_FLAGS, text_buf);
 		}
 		if(rData.NativeBillID) {

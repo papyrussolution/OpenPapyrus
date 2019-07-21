@@ -66,8 +66,8 @@ void init_source(j_decompress_ptr cinfo)
 {
 	/* buffer/length refer to compressed data */
 	/* FIXME find img */
-	const zbar_image_t * img = ((zbar_src_mgr_t*)cinfo->src)->img;
-	cinfo->src->next_input_byte = (const JOCTET *)img->P_Data;
+	const zbar_image_t * img = reinterpret_cast<zbar_src_mgr_t *>(cinfo->src)->img;
+	cinfo->src->next_input_byte = static_cast<const JOCTET *>(img->P_Data);
 	cinfo->src->bytes_in_buffer = img->datalen;
 }
 
@@ -161,7 +161,7 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	}
 	/* setup input image */
 	if(!cinfo->src) {
-		cinfo->src = (jpeg_source_mgr *)SAlloc::C(1, sizeof(zbar_src_mgr_t));
+		cinfo->src = static_cast<jpeg_source_mgr *>(SAlloc::C(1, sizeof(zbar_src_mgr_t)));
 		cinfo->src->init_source = init_source;
 		cinfo->src->fill_input_buffer = fill_input_buffer;
 		cinfo->src->skip_input_data = skip_input_data;
@@ -170,7 +170,7 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	}
 	cinfo->src->next_input_byte = NULL;
 	cinfo->src->bytes_in_buffer = 0;
-	((zbar_src_mgr_t*)cinfo->src)->img = src;
+	reinterpret_cast<zbar_src_mgr_t *>(cinfo->src)->img = src;
 	int rc = jpeg_read_header(cinfo, TRUE);
 	zprintf(30, "header: %s\n", (rc == 2) ? "tables-only" : "normal");
 	/* supporting color with jpeg became...complicated,

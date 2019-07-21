@@ -72,7 +72,7 @@ char * SLAPI AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
 //
 //
 //
-SLAPI PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0)
+SLAPI PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0), EffDlvrLocID(0)
 {
 	P_ATC = P_BObj->atobj->P_Tbl;
 }
@@ -122,14 +122,13 @@ PPBaseFilt * SLAPI PPViewAccAnlz::CreateFilt(void * extraPtr) const
 
 class AccAnlzFiltDialog : public WLDialog {
 public:
-	AccAnlzFiltDialog(uint dlgID, PPObjAccTurn * _ppobj) : WLDialog(dlgID, CTL_ACCANLZ_LABEL), ATObj(_ppobj)
+	AccAnlzFiltDialog(uint dlgID, PPObjAccTurn * _ppobj) : WLDialog(dlgID, CTL_ACCANLZ_LABEL), ATObj(_ppobj), RelComboInited(0)
 	{
 		AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ACCANLZ_ACC, CTL_ACCANLZ_ART, CTLSEL_ACCANLZ_ACCNAME, CTLSEL_ACCANLZ_ARTNAME);
 		addGroup(GRP_ACC, p_acc_grp);
 		CycleCtrlGroup * p_cycle_grp = new CycleCtrlGroup(CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, CTL_ACCANLZ_PERIOD);
 		addGroup(GRP_CYCLE, p_cycle_grp);
 		SetupCalPeriod(CTLCAL_ACCANLZ_PERIOD, CTL_ACCANLZ_PERIOD);
-		RelComboInited = 0;
 	}
 	int    setDTS(const AccAnlzFilt * pFilt)
 	{
@@ -220,7 +219,6 @@ public:
 		Filt.SubstRelTypeID = 0;
 		if(acc_rec.AccSheetID) {
 			GetClusterData(CTL_ACCANLZ_TRNOVR, &Filt.Flags);
-			//
 			PPObjAccSheet acs_obj;
 			PPAccSheet acs_rec;
 			if(acs_obj.Fetch(acc_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
@@ -296,8 +294,16 @@ private:
 		else if(event.isCmd(cmaMore)) {
 			TDialog * dlg = new TDialog(DLG_ACCANLZ2);
 			if(CheckDialogPtrErr(&dlg)) {
+				getDTS(0); // @v10.5.0
 				SetupPPObjCombo(dlg, CTLSEL_ACCANLZ_LOC, PPOBJ_LOCATION, Filt.LocID, OLW_CANSELUPLEVEL, 0);
 				SetupArCombo(dlg, CTLSEL_ACCANLZ_AGENT, Filt.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
+				// @v10.5.0 {
+				PPID  psn_id = 0;
+				if(Filt.Aco == ACO_3 && Filt.AcctId.ar) {
+					psn_id = ObjectToPerson(Filt.AcctId.ar, 0);
+					SetupLocationCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, Filt.DlvrLocID, 0, LOCTYP_ADDRESS, psn_id);
+				}
+				// } @v10.5.0 
 				dlg->AddClusterAssocDef(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  1, PPViewAccAnlz::OrdByBillCode_Date);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  2, PPViewAccAnlz::OrdByCorrAcc_Date);
@@ -306,6 +312,7 @@ private:
 					dlg->getCtrlData(CTLSEL_ACCANLZ_LOC, &Filt.LocID);
 					dlg->getCtrlData(CTLSEL_ACCANLZ_AGENT, &Filt.AgentID);
 					dlg->GetClusterData(CTL_ACCANLZ_ORDER, &Filt.InitOrder);
+					Filt.DlvrLocID = psn_id ? dlg->getCtrlLong(CTLSEL_ACCANLZ_DLVRLOC) : 0;
 					valid_data = 1;
 				}
 			}
@@ -664,15 +671,16 @@ int SLAPI PPViewAccAnlz::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRe
 	return P_ATC->GetAcctRel(accID, arID, pRec, cr, use_ta);
 }
 
-int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc proc, long param)
+int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc proc, void * extraPtr)
 {
 	int    ok = 1, r;
 	PROFILE_START
-	int    aco2, mult = (aco < 0) ? -1 : 1;
+	int    aco2;
+	const  int mult = (aco < 0) ? -1 : 1;
 	uint   i;
 	Acct   acct;
 	SArray * p_acct_list = 0;
-	ObjRestrictItem * p_item;
+	ObjRestrictItem * p_item = 0;
 	PPObjLocation loc_obj;
 	union {
 		AccTurnTbl::Key1 k1;
@@ -748,7 +756,7 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 					int    to_continue = 0;
 					for(i = 0; ExtGenAccList.enumItems(&i, (void **)&p_item);) {
 						aco2 = abs(GetAcoByGenFlags(p_item->Flags));
-						if(P_ATC->AccBelongToOrd(rec.CorrAcc, aco2, (Acct *)p_acct_list->at(i-1), Filt.CurID, 1) > 0) {
+						if(P_ATC->AccBelongToOrd(rec.CorrAcc, aco2, static_cast<const Acct *>(p_acct_list->at(i-1)), Filt.CurID, 1) > 0) {
 							to_continue = 1;
 							break;
 						}
@@ -784,7 +792,7 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 					break;
 			}
 		}
-		if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || Filt.AgentID || Filt.Object2ID)
+		if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || Filt.AgentID || Filt.Object2ID || EffDlvrLocID)
 			if(FetchBill(rec.Bill, &bill_entry) > 0) {
 				if(Filt.AgentID && bill_entry.AgentID != Filt.AgentID)
 					continue;
@@ -794,13 +802,20 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 					continue;
 				if(Filt.LocID && bill_entry.LocID != Filt.LocID && loc_obj.IsMemberOfGroup(bill_entry.LocID, Filt.LocID) <= 0)
 					continue;
+				// @v10.5.0 {
+				if(EffDlvrLocID) {
+					PPFreight freight;
+					if(!(P_BObj->FetchFreight(rec.Bill, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID))
+						continue;
+				}
+				// } @v10.5.0 
 			}
 			else
 				continue;
 		//
 		if(mult < 0)
 			LDBLTOMONEY(-MONEYTOLDBL(rec.Amount), rec.Amount);
-		THROW(r = proc(&rec, param));
+		THROW(r = proc(&rec, extraPtr));
 		if(r < 0) {
 			ok = -1;
 			break;
@@ -840,11 +855,11 @@ struct IterProcParam_CrtTmpTbl {
 	AmtList * P_CycleOutRests;
 };
 
-int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, long param)
+int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 {
 	int    ok = 1;
 	PPID   cur_id = 0;
-	IterProcParam_CrtTmpTbl & p = *(IterProcParam_CrtTmpTbl*)param;
+	IterProcParam_CrtTmpTbl & p = *static_cast<IterProcParam_CrtTmpTbl *>(extraPtr);
 	TempAccAnlzTbl::Rec trec;
 	AcctRelTbl::Rec arel_rec;
 	MEMSZERO(trec);
@@ -907,13 +922,13 @@ int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, long param)
 	return ok;
 }
 
-int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, long param)
+int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 {
 	int    ok = 1;
 	const PPRights & r_orts = ObjRts;
 	uint   cycle_pos = 0;
 	SString temp_buf;
-	IterProcParam_CrtTmpTbl & p = *(IterProcParam_CrtTmpTbl*)param;
+	IterProcParam_CrtTmpTbl & p = *static_cast<IterProcParam_CrtTmpTbl *>(extraPtr);
 	AcctRelTbl::Rec arel_rec;
 	BillTbl::Rec bill_rec;
 	TempAccTrnovrTbl::Rec  trec;
@@ -1043,6 +1058,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 	IsGenAcc = 0;
 	IsGenAr = 0; // @v9.5.9
 	IsRegister = 0;
+	EffDlvrLocID = 0; // @v10.5.0
 	ExtGenAccList.freeAll();
 
 	int    ok = 1;
@@ -1063,7 +1079,12 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_TmpATTbl);
 	Total.Init();
 	CycleList.init2(&Filt.Period, &Filt.Cycl);
-	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && (Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID))) {
+	// @v10.5.0 {
+	if(Filt.DlvrLocID && Filt.Aco == ACO_3 && Filt.AcctId.ar) {
+		EffDlvrLocID = Filt.DlvrLocID;
+	}
+	// } @v10.5.0 
+	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && (Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID))) {
 		THROW(AdjustPeriodToRights(Filt.Period, 0));
 	}
 	if(Filt.AccID && (!Filt.AcctId.ac || !Filt.AcctId.ar)) {
@@ -1090,7 +1111,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 	}
 	// } @v9.5.9
 	Filt.CurID = (Filt.Flags & AccAnlzFilt::fAllCurrencies) ? -1 : Filt.CurID;
-	if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID) {
+	if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID) {
 		Total.InRest.freeAll();
 		Total.OutRest.freeAll();
 		if(Filt.Period.low) {
@@ -1386,11 +1407,11 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 				aco = abs(aco);
 				THROW(P_ATC->IdentifyAcc(&aco, &acc_id, Filt.CurID, Filt.SubstRelTypeID, &__acc_list));
 				if(!__acc_list.isList()) {
-					THROW(ok = EnumerateByIdentifiedAcc(aco * sign, acc_id, enum_proc, (long)&param));
+					THROW(ok = EnumerateByIdentifiedAcc(aco * sign, acc_id, enum_proc, &param));
 				}
 				else {
 					for(uint j = 0; ok > 0 && j < __acc_list.getCount(); j++)
-						THROW(ok = EnumerateByIdentifiedAcc(aco * sign, __acc_list.get(j), enum_proc, (long)&param));
+						THROW(ok = EnumerateByIdentifiedAcc(aco * sign, __acc_list.get(j), enum_proc, &param));
 				}
 			}
 		}
@@ -1462,7 +1483,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 			}
 		}
 	}
-	if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID) {
+	if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID) {
 		Total.OutRest.Add(&Total.InRest);
 		Total.OutRest.Add(&Total.DbtTrnovr);
 		Total.OutRest.Sub(&Total.CrdTrnovr);

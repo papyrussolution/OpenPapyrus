@@ -1121,7 +1121,6 @@ static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNo
 	}
 	return ret;
 }
-
 /**
  * xmlSchematronReportSuccess:
  * @ctxt:  the validation context

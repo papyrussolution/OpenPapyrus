@@ -539,7 +539,7 @@ static xmlNode * FASTCALL xmlTextReaderEntPop(xmlTextReader * reader)
  */
 static void xmlTextReaderStartElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderStartElement(%s)\n", fullname);
@@ -562,7 +562,7 @@ static void xmlTextReaderStartElement(void * ctx, const xmlChar * fullname, cons
  */
 static void xmlTextReaderEndElement(void * ctx, const xmlChar * fullname)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderEndElement(%s)\n", fullname);
@@ -591,7 +591,7 @@ static void xmlTextReaderStartElementNs(void * ctx, const xmlChar * localname,
     const xmlChar * prefix, const xmlChar * URI, int nb_namespaces,
     const xmlChar ** namespaces, int nb_attributes, int nb_defaulted, const xmlChar ** attributes)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderStartElementNs(%s)\n", localname);
@@ -616,7 +616,7 @@ static void xmlTextReaderStartElementNs(void * ctx, const xmlChar * localname,
  */
 static void xmlTextReaderEndElementNs(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderEndElementNs(%s)\n", localname);
@@ -636,7 +636,7 @@ static void xmlTextReaderEndElementNs(void * ctx, const xmlChar * localname, con
  */
 static void xmlTextReaderCharacters(void * ctx, const xmlChar * ch, int len)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderCharacters()\n");
@@ -656,7 +656,7 @@ static void xmlTextReaderCharacters(void * ctx, const xmlChar * ch, int len)
  */
 static void xmlTextReaderCDataBlock(void * ctx, const xmlChar * ch, int len)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderCDataBlock()\n");
@@ -2919,11 +2919,10 @@ xmlChar * xmlTextReaderBaseUri(xmlTextReader * reader)
  */
 const xmlChar * xmlTextReaderConstBaseUri(xmlTextReader * reader) 
 {
-	xmlChar * tmp;
 	const xmlChar * ret;
 	if(!reader || !reader->P_Node)
 		return 0;
-	tmp = xmlNodeGetBase(NULL, reader->P_Node);
+	xmlChar * tmp = xmlNodeGetBase(NULL, reader->P_Node);
 	if(!tmp)
 		return 0;
 	ret = CONSTSTR(tmp);
@@ -2959,13 +2958,12 @@ int xmlTextReaderDepth(xmlTextReader * reader)
  */
 int xmlTextReaderHasAttributes(xmlTextReader * reader) 
 {
-	xmlNode * P_Node;
 	if(!reader)
 		return -1;
 	if(!reader->P_Node)
 		return 0;
-	P_Node = reader->curnode ? reader->curnode : reader->P_Node;
-	if((P_Node->type == XML_ELEMENT_NODE) && (P_Node->properties || P_Node->nsDef))
+	xmlNode * p_node = reader->curnode ? reader->curnode : reader->P_Node;
+	if((p_node->type == XML_ELEMENT_NODE) && (p_node->properties || p_node->nsDef))
 		return 1;
 	/* @todo handle the xmlDecl */
 	return 0;
@@ -2980,12 +2978,11 @@ int xmlTextReaderHasAttributes(xmlTextReader * reader)
  */
 int xmlTextReaderHasValue(xmlTextReader * reader) 
 {
-	xmlNode * p_node;
 	if(!reader)
 		return -1;
 	if(!reader->P_Node)
 		return 0;
-	p_node = reader->curnode ? reader->curnode : reader->P_Node;
+	xmlNode * p_node = reader->curnode ? reader->curnode : reader->P_Node;
 	switch(p_node->type) {
 		case XML_ATTRIBUTE_NODE:
 		case XML_TEXT_NODE:
@@ -3011,13 +3008,13 @@ int xmlTextReaderHasValue(xmlTextReader * reader)
 xmlChar * xmlTextReaderValue(xmlTextReader * reader) 
 {
 	if(reader && reader->P_Node) {
-		xmlNode * P_Node = reader->curnode ? reader->curnode : reader->P_Node;
-		switch(P_Node->type) {
+		xmlNode * p_node = reader->curnode ? reader->curnode : reader->P_Node;
+		switch(p_node->type) {
 			case XML_NAMESPACE_DECL:
-				return sstrdup(((xmlNs *)P_Node)->href);
+				return sstrdup(reinterpret_cast<xmlNs *>(p_node)->href);
 			case XML_ATTRIBUTE_NODE: 
 				{
-					xmlAttr * attr = (xmlAttr *)P_Node;
+					xmlAttr * attr = reinterpret_cast<xmlAttr *>(p_node);
 					return xmlNodeListGetString(attr->parent ? attr->parent->doc : 0, attr->children, 1);
 				}
 				break;
@@ -3025,9 +3022,7 @@ xmlChar * xmlTextReaderValue(xmlTextReader * reader)
 			case XML_CDATA_SECTION_NODE:
 			case XML_PI_NODE:
 			case XML_COMMENT_NODE:
-				if(P_Node->content)
-					return sstrdup(P_Node->content);
-				// @fallthrough
+				return sstrdup(p_node->content);
 			default:
 				return 0;
 				break;
@@ -3047,15 +3042,14 @@ xmlChar * xmlTextReaderValue(xmlTextReader * reader)
  */
 const xmlChar * xmlTextReaderConstValue(xmlTextReader * reader)
 {
-	xmlNode * P_Node;
 	if(!reader || !reader->P_Node)
 		return 0;
-	P_Node = reader->curnode ? reader->curnode : reader->P_Node;
-	switch(P_Node->type) {
+	xmlNode * p_node = reader->curnode ? reader->curnode : reader->P_Node;
+	switch(p_node->type) {
 		case XML_NAMESPACE_DECL:
-		    return (((xmlNs *)P_Node)->href);
+		    return reinterpret_cast<xmlNs *>(p_node)->href;
 		case XML_ATTRIBUTE_NODE: {
-		    xmlAttr * attr = (xmlAttr *)P_Node;
+		    xmlAttr * attr = reinterpret_cast<xmlAttr *>(p_node);
 		    if(attr->children && (attr->children->type == XML_TEXT_NODE) && (attr->children->next == NULL))
 			    return (attr->children->content);
 		    else {
@@ -3068,7 +3062,7 @@ const xmlChar * xmlTextReaderConstValue(xmlTextReader * reader)
 			    }
 			    else
 				    xmlBufEmpty(reader->buffer);
-			    xmlBufGetNodeContent(reader->buffer, P_Node);
+			    xmlBufGetNodeContent(reader->buffer, p_node);
 			    return xmlBufContent(reader->buffer);
 		    }
 		    break;
@@ -3077,7 +3071,7 @@ const xmlChar * xmlTextReaderConstValue(xmlTextReader * reader)
 		case XML_CDATA_SECTION_NODE:
 		case XML_PI_NODE:
 		case XML_COMMENT_NODE:
-		    return (P_Node->content);
+		    return p_node->content;
 		default:
 		    break;
 	}
@@ -3092,7 +3086,7 @@ const xmlChar * xmlTextReaderConstValue(xmlTextReader * reader)
  *
  * Returns 0 if not defaulted, 1 if defaulted, and -1 in case of error
  */
-int xmlTextReaderIsDefault(xmlTextReader * reader)
+int xmlTextReaderIsDefault(const xmlTextReader * reader)
 {
 	return reader ? 0 : -1;
 }
@@ -3104,7 +3098,7 @@ int xmlTextReaderIsDefault(xmlTextReader * reader)
  *
  * Returns " or ' and -1 in case of error
  */
-int xmlTextReaderQuoteChar(xmlTextReader * reader)
+int xmlTextReaderQuoteChar(const xmlTextReader * reader)
 {
 	// @todo maybe lookup the attribute value for " first
 	return reader ? (int)'"' : -1;
@@ -3189,7 +3183,7 @@ int xmlTextReaderSetParserProp(xmlTextReader * reader, int prop, int value)
 {
 	if(reader && reader->ctxt) {
 		xmlParserCtxt * ctxt = reader->ctxt;
-		const xmlParserProperties p = (xmlParserProperties)prop;
+		const xmlParserProperties p = static_cast<xmlParserProperties>(prop);
 		switch(p) {
 			case XML_PARSER_LOADDTD:
 				if(value != 0) {
@@ -3399,7 +3393,7 @@ static void XMLCDECL xmlTextReaderValidityWarning(void * ctxt, const char * msg,
 
 static void XMLCDECL xmlTextReaderValidityErrorRelay(void * ctx, const char * msg, ...)
 {
-	xmlTextReader * reader = (xmlTextReader *)ctx;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(ctx);
 	char * str;
 	va_list ap;
 	va_start(ap, msg);
@@ -3416,7 +3410,7 @@ static void XMLCDECL xmlTextReaderValidityErrorRelay(void * ctx, const char * ms
 
 static void XMLCDECL xmlTextReaderValidityWarningRelay(void * ctx, const char * msg, ...)
 {
-	xmlTextReader * reader = (xmlTextReader *)ctx;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(ctx);
 	char * str;
 	va_list ap;
 	va_start(ap, msg);
@@ -3435,7 +3429,7 @@ static void xmlTextReaderStructuredError(void * ctxt, xmlErrorPtr error);
 
 static void xmlTextReaderValidityStructuredRelay(void * userData, xmlErrorPtr error)
 {
-	xmlTextReader * reader = (xmlTextReader *)userData;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(userData);
 	if(reader->sErrorFunc)
 		reader->sErrorFunc(reader->errorFuncArg, error);
 	else
@@ -3512,7 +3506,7 @@ static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * 
 		return -1;
 	ASSIGN_PTR(file, 0);
 	ASSIGN_PTR(line, 0);
-	reader = (xmlTextReader *)ctx;
+	reader = static_cast<xmlTextReader *>(ctx);
 	if(reader->ctxt && reader->ctxt->input) {
 		ASSIGN_PTR(file, reader->ctxt->input->filename);
 		ASSIGN_PTR(line, reader->ctxt->input->line);

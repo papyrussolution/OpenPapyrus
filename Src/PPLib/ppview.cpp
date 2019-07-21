@@ -1291,7 +1291,8 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 				ep.Flags &= ~DlRtm::ExportParam::fDiff_ID_ByScope;
 				if(p_nf->Flags & PPNamedFilt::fDontWriteXmlDTD)
 					ep.Flags |= (DlRtm::ExportParam::fDontWriteXmlDTD|DlRtm::ExportParam::fDontWriteXmlTypes);
-				ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
+				//ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
+				ep.Cp = cpUTF8; // @v10.5.0 DS.GetConstTLA().DL600XmlCp-->cpUTF8
 				THROW(p_rtm->ExportXML(ep, rResultFileName));
 			}
 		}

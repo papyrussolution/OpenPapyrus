@@ -4200,7 +4200,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 				long   count = 0;
 				SString  file_name, save_file_name;
 				PPBillImpExpParam * p_ie_param = P_IEParam[0];
-				SeparatedFileSet.get((uint)0, file_name);
+				SeparatedFileSet.get(0U, file_name);
 				p_ie_param->FileName = file_name;
 				THROW_MEM(p_ie_csz = new PPImpExp(p_ie_param, 0));
 				THROW(p_ie_csz->OpenFileForReading(0));

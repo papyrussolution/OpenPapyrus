@@ -1037,6 +1037,11 @@ int SLAPI PPObjectTransmit::SetupSyncCmpRec(const ObjSyncQueueTbl::Rec * pQueueR
 	return ok;
 }
 
+PPObjectTransmit::Header::Header()
+{
+	THISZERO();
+}
+
 PPObjectTransmit::PacketStat::PacketStat() : Items(sizeof(PPObjectTransmit::IndexItem))
 {
 }

@@ -3623,7 +3623,7 @@ int SLAPI PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 		rMp.InitTrendErrLimit = 1.0;
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_BESTSUBSETDIMESION, temp_buf) > 0)
 		rMp.BestSubsetDimention = static_cast<uint>(temp_buf.ToLong());
-	if(rMp.BestSubsetDimention == 0 || rMp.BestSubsetDimention > 1000)
+	if(rMp.BestSubsetDimention == 0 || rMp.BestSubsetDimention > 3000)
 		rMp.BestSubsetDimention = 100;
 	// @v10.4.3 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_BESTSUBSETTF, temp_buf) > 0) {

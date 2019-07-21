@@ -414,7 +414,7 @@ static void FASTCALL xmlIOErr(int code, const char * extra)
  */
 void __xmlLoaderErr(void * ctx, const char * msg, const char * filename)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	if(!ctxt || !ctxt->disableSAX || ctxt->instate != XML_PARSER_EOF) {
 		xmlStructuredErrorFunc schannel = NULL;
 		xmlGenericErrorFunc channel = NULL;

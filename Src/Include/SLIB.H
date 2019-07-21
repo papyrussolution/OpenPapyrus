@@ -9558,9 +9558,6 @@ struct SStrScan : public SRegExpSet {
 	//   0  - по текущей позиции нет тега, либо тег ошибочный
 	//
 	int    FASTCALL GetTagBrace(SString & rText, int * pKind);
-	//
-	//
-	//
 	int    FASTCALL IsRe(long reHandler);
 	int    SLAPI GetRe(long reHandler, SString & rBuf);
 	int    FASTCALL Is(const char * pS) const;

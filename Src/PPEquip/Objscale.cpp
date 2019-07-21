@@ -827,7 +827,7 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 	THROW(CheckSync_16());
 	data_buf[p++] = 0x82;
 	// PLU
-	*(long *)(data_buf+p) = pPLU->GoodsNo;
+	*reinterpret_cast<long *>(data_buf+p) = pPLU->GoodsNo;
 	p += 4;
 	// BARCODE
 	{
@@ -841,7 +841,6 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 		char   name_part_1[48], name_part_2[48];
 		const  int name_items_count = 2;
 		SplitStrItem name_items[name_items_count];
-
 		memzero(name_part_1, sizeof(name_part_1));
 		memzero(name_part_2, sizeof(name_part_2));
 		name_items[0].len = 28;
@@ -871,7 +870,7 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 	// PRICE
 	{
 		const long price = R0i(pPLU->Price * 100L);
-		*(int32 *)(data_buf+p) = price;
+		*reinterpret_cast<int32 *>(data_buf+p) = price;
 		p += 4;
 	}
 	// EXPIRY
@@ -882,7 +881,7 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 	}
 	// TARE WEIGHT
 	{
-		*(int16 *)(data_buf+p) = 0;
+		*reinterpret_cast<int16 *>(data_buf+p) = 0;
 		p += 2;
 	}
 	// GROUP CODE
@@ -898,7 +897,7 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 			local_msg_code = ++MsgCode;
 		else
 			local_msg_code = 0;
-		*(int16 *)(data_buf+p) = local_msg_code;
+		*reinterpret_cast<int16 *>(data_buf+p) = local_msg_code;
 		p += 2;
 	}
 	//
@@ -906,7 +905,7 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 	//
 	//
 	if(Data.Flags & SCALF_TCPIP) {
-		THROW_PP(send(SocketHandle, (const char *)data_buf, (int)p, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
+		THROW_PP(send(SocketHandle, reinterpret_cast<const char *>(data_buf), (int)p, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
 	}
 	else {
 		for(uint i = 0; i < p; i++)
@@ -915,14 +914,15 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 	THROW(CheckAckForPLU());
 	if(local_msg_code) {
 		const uint line_len = 50;
-		const uint line_count = 8;
+		// @v10.5.0 const uint line_count = 8;
+		const uint line_count = (Data.MaxAddedLnCount > 0 && Data.MaxAddedLnCount <= 100) ? Data.MaxAddedLnCount : 8; // @v10.5.0
 		const size_t packet_size = (line_len * line_count) + 1 + 2;
 		THROW(CheckSync_16());
 		p = 0;
 		memset(data_buf, ' ', (size_t)404);
 		data_buf[p++] = 0x84;
 		// MSG CODE
-		*(int16 *)(data_buf+p) = local_msg_code;
+		*reinterpret_cast<int16 *>(data_buf+p) = local_msg_code;
 		p += 2;
 		// MESSAGE
 		{
@@ -1268,7 +1268,7 @@ int SLAPI CasCL5000J::SetConnection()
 	if(Data.Flags & SCALF_TCPIP) {
 		char   send_timeout[10], rcv_timeout[10];
 		char   ip[16];
-		long res;
+		long   res;
 		struct sockaddr_in sin;
 		memzero(ip, sizeof(ip));
 		THROW(PPObjScale::DecodeIP(Data.Port, ip));
@@ -1361,14 +1361,14 @@ void SLAPI CasCL5000J::PutStr(const char * str)
 
 void SLAPI CasCL5000J::PutInt(int16 s_data)
 {
-	char * p_temp = (char *) &s_data;
+	const char * p_temp = reinterpret_cast<const char *>(&s_data);
 	PutChr(p_temp[1]);
 	PutChr(p_temp[0]);
 }
 
 void SLAPI CasCL5000J::PutLong(long s_data)
 {
-	char * p_temp = (char *) &s_data;
+	const char * p_temp = reinterpret_cast<const char *>(&s_data);
 	for(int i = 3; i >= 0; i--)
 		PutChr(p_temp[i]);
 }
@@ -1391,7 +1391,7 @@ int SLAPI CasCL5000J::SendData(const char * pBuf, size_t bufLen)
 	// CR
 	p_buf[bufLen + 2] = 0x0D;
 	if(Data.Flags & SCALF_TCPIP) {
-		THROW_PP(send(SocketHandle, (const char *)p_buf, (int)data_size, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
+		THROW_PP(send(SocketHandle, reinterpret_cast<const char *>(p_buf), (int)data_size, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
 	}
 	else {
 		for(uint i = 0; i < data_size; i++)
@@ -1399,13 +1399,13 @@ int SLAPI CasCL5000J::SendData(const char * pBuf, size_t bufLen)
 	}
 	THROW(CheckAck());
 	CATCHZOK
+	delete [] p_buf; // @v10.5.0 @fix
 	return ok;
 }
 
 int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 {
 	const  size_t direct_message_max_size = 300;
-
 	int    ok = 1;
 	char   data_buf[1024], buf[8];
 	char   direct_message[direct_message_max_size*2]; // *2 - страховка
@@ -1413,7 +1413,6 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 	SString barcode;
 	size_t p = 0;
 	size_t msg_pos = 0;
-
 	THROW(CheckSync());
 	longfmtz(pPLU->Barcode, 6, buf, sizeof(buf));
 	barcode = buf;
@@ -1423,10 +1422,9 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		//
 		{
 			direct_message[0] = 0;
-
 			SString line_buf;
 			StringSet added_lines;
-			if(GetAddedMsgLines(pPLU, NZOR(Data.MaxAddedLine, 50), direct_message_max_size-1, amlfMaxText, added_lines) > 0) {
+			if(GetAddedMsgLines(pPLU, NZOR(Data.MaxAddedLn, 50), direct_message_max_size-1, amlfMaxText, added_lines) > 0) {
 				for(uint pos = 0; msg_pos < (direct_message_max_size-1) && added_lines.get(&pos, line_buf);) {
 					line_buf.Transf(CTRANSF_INNER_TO_OUTER); // @fix @v8.6.4
 					const size_t _len = line_buf.Len();
@@ -1445,20 +1443,20 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		memzero(data_buf, sizeof(data_buf));
 		data_buf[p++] = 'W';            // Write
 		data_buf[p++] = 'L';            // Barcode
-		*((uint32 *)(data_buf + p)) = 0; // Address
+		*reinterpret_cast<uint32 *>(data_buf + p) = 0; // Address
 		p += sizeof(uint32);
 		data_buf[p++] = ',';
-		data_buf[p] = (char)(data_size+msg_pos); // Size of data
+		data_buf[p] = static_cast<char>(data_size+msg_pos); // Size of data
 		p += sizeof(uint16);
 		data_buf[p++] = ':';
 		// DEPARTMENT NUMBER
 		PTR16(data_buf + p)[0] = 1;
 		p += sizeof(uint16);
 		// PLU
-		*((uint32 *)(data_buf + p)) = pPLU->GoodsNo;
+		*reinterpret_cast<uint32 *>(data_buf + p) = pPLU->GoodsNo;
 		p += sizeof(uint32);
 		// TYPE
-		*((uint8 *)(data_buf + p))  = 1;
+		*reinterpret_cast<uint8 *>(data_buf + p) = 1;
 		p += sizeof(uint8);
 		// NAME1
 		{
@@ -1495,34 +1493,34 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// RESERVE
-		*((uint8 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint8 *>(data_buf + p) = 0;
 		p += sizeof(uint8);
 		// FIXED WEIGHT
-		*((uint32 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint32 *>(data_buf + p) = 0;
 		p += sizeof(uint32);
 		// ITEM CODE
-		*((uint32 *)(data_buf + p)) = barcode.ToLong();
+		*reinterpret_cast<uint32 *>(data_buf + p) = barcode.ToLong();
 		p += sizeof(uint32);
 		// PCS
 		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// PCS SYMBOL
-		*((uint8 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint8 *>(data_buf + p) = 0;
 		p += sizeof(uint8);
 		// USE FIXED PRICE TYPE
-		*((uint8 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint8 *>(data_buf + p) = 0;
 		p += sizeof(uint8);
 		// UNIT PRICE
-		*((uint32 *)(data_buf + p)) = R0i(pPLU->Price * 100L);
+		*reinterpret_cast<uint32 *>(data_buf + p) = R0i(pPLU->Price * 100L);
 		p += sizeof(uint32);
 		// SPECIAL PRICE
-		*((uint32 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint32 *>(data_buf + p) = 0;
 		p += sizeof(uint32);
 		// TARE WEIGHT
-		*((uint32 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint32 *>(data_buf + p) = 0;
 		p += sizeof(uint32);
 		// TARE NUMBER
-		*((uint8 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint8 *>(data_buf + p) = 0;
 		p += sizeof(uint8);
 		// BARCODE NUMBER
 		PTR16(data_buf + p)[0] = (uint16)1;
@@ -1537,19 +1535,19 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// PACKED TIME
-		*((uint8 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint8 *>(data_buf + p) = 0;
 		p += sizeof(uint8);
 		// SELL BY DATE (EXPIRY in days)
 		{
 			if(pPLU->Expiry.year()) {
-				*((uint32 *)(data_buf + p)) = diffdate(pPLU->Expiry, getcurdate_()) + 1;
+				*reinterpret_cast<uint32 *>(data_buf + p) = diffdate(pPLU->Expiry, getcurdate_()) + 1;
 			}
 			else
-				*((uint32 *)(data_buf + p)) = 0;
+				*reinterpret_cast<uint32 *>(data_buf + p) = 0;
 		}
 		p += sizeof(uint32);
 		// SELL BY TIME
-		*((uint8 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint8 *>(data_buf + p) = 0;
 		p += sizeof(uint8);
 		// MESSAGE NUMBER
 		PTR16(data_buf + p)[0] = 0;
@@ -1561,7 +1559,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// SALE MESSAGE NUMBER
-		*((uint8 *)(data_buf + p)) = 0;
+		*reinterpret_cast<uint8 *>(data_buf + p) = 0;
 		p += sizeof(uint8);
 		if(msg_pos) {
 			memcpy(data_buf+p, direct_message, msg_pos);
@@ -2446,8 +2444,9 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 		uchar  ScaleNumber; // = 0 - not use
 	};
 
-	const int16 _NonWeightPriceFlag = 0x0001;
-
+	const  int16 _NonWeightPriceFlag = 0x0001;
+	const  int use_ext_messages = (Data.ProtocolVer >= 10) ? 1 : 0;
+	const  int protocol_ver = (Data.ProtocolVer % 10);
 	int    ok = 1;
 	int    is_msg = pPLU->HasAddedMsg();
 	char   reply;
@@ -2458,10 +2457,6 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 	SString  barcode;
 	_PacketHeader  pack_head;
 	_CommandHeader comm_head;
-
-	const  int use_ext_messages = (Data.ProtocolVer >= 10) ? 1 : 0;
-	const  int protocol_ver = (Data.ProtocolVer % 10);
-
 	if(numdays <= 0 || numdays > 499)
 		numdays = 499;
 	if(protocol_ver == 2) {
@@ -2577,7 +2572,7 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 			char    AddStrTxt[max_text];
 		} as_entry;
 		StringSet add_str("\x0A");
-		GetAddedMsgLines(pPLU, NZOR(Data.MaxAddedLine, 50), max_text, amlfMaxText, add_str);
+		GetAddedMsgLines(pPLU, NZOR(Data.MaxAddedLn, 50), max_text, amlfMaxText, add_str);
 		//
 		pack_head.StartByte   = 0x02;
 		pack_head.TotalLength = (ushort)(sizeof(_CommandHeader) + sizeof(_AddStr));
@@ -2703,14 +2698,14 @@ int SLAPI TCPIPMToledo::SendPLU(const ScalePLU * pPLU)
 		}
 		else {
 			sprintf(buf, "%ld,%ld,0,%.2lf,0,%ld,0,0,%ld,0,0,0,0,%s\n", pPLU->GoodsNo, pPLU->Barcode,
-				pPLU->Price, is_msg ? pPLU->GoodsNo : 0, numdays, (const char *)pPLU->GoodsName);
+				pPLU->Price, is_msg ? pPLU->GoodsNo : 0, numdays, pPLU->GoodsName.cptr());
 			fprintf(P_PLUStream, buf);
 		}
 		if(is_msg) {
 			const size_t max_text = 300;
 			_AddStrEntry  as_e;
 			StringSet  add_str("\x0A");
-			GetAddedMsgLines(pPLU, NZOR(Data.MaxAddedLine, 50), max_text, amlfMaxText, add_str);
+			GetAddedMsgLines(pPLU, NZOR(Data.MaxAddedLn, 50), max_text, amlfMaxText, add_str);
 			as_e.AddStrCode = pPLU->GoodsNo;
 			STRNSCPY(as_e.AddStr, add_str.getBuf());
 			SOemToChar(as_e.AddStr);
@@ -2835,7 +2830,7 @@ int SLAPI CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
 		dbfrS.put(3, head);
 		dbfrS.put(4, GCfg.WghtPrefix);
 		{
-			if(Data.MaxAddedLine > 0 && Data.MaxAddedLine < 64 && pScalePLU->GoodsName.Wrap(Data.MaxAddedLine, head, tail) > 0) {
+			if(Data.MaxAddedLn > 0 && Data.MaxAddedLn < 64 && pScalePLU->GoodsName.Wrap(Data.MaxAddedLn, head, tail) > 0) {
 				dbfrS.put(5, head);
 				dbfrS.put(6, tail);
 			}
@@ -2855,7 +2850,7 @@ int SLAPI CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
 		if(is_msg) {
 			const size_t max_text = 255;
 			StringSet  add_str("\x0A");
-			GetAddedMsgLines(pScalePLU, NZOR(Data.MaxAddedLine, 50), max_text, amlfMaxText, add_str);
+			GetAddedMsgLines(pScalePLU, NZOR(Data.MaxAddedLn, 50), max_text, amlfMaxText, add_str);
 			// as_e.AddStrCode = pPLU->GoodsNo;
 			// STRNSCPY(as_e.AddStr, add_str.getBuf());
 		}
@@ -3156,8 +3151,8 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 	}
 	else if(Connected) {
 		const int line_len_limit = oneof2(Data.ProtocolVer, 500, 503) ? 48 : 25;
-		const int max_added_lines = 8;
-
+		// @v10.5.0 const int max_added_lines = 8;
+		const int max_added_lines = (Data.MaxAddedLnCount > 0 && Data.MaxAddedLnCount <= 100) ? Data.MaxAddedLnCount : 8; // @v10.5.0
 		uint   j = 0;
 		size_t size_offs = 0;
 		char   result[16];
@@ -3173,7 +3168,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		SString goods_name;
 		SString ext_text_buf;
 		SString temp_buf;
-		ConvertDIGI_Text(pScalePLU->GoodsName, /*5*/3 /* fontSize */, line_len_limit, 4 /* maxLinesCount */, goods_name); // @v8.6.6 fontSize 7-->5
+		ConvertDIGI_Text(pScalePLU->GoodsName, /*5*/3 /* fontSize */, line_len_limit, 4/* maxLinesCount */, goods_name); // @v8.6.6 fontSize 7-->5
 		{
 			/* @v9.8.9 if(pScalePLU->HasAddedMsg()) {
 			 	ConvertDIGI_Text(pScalePLU->AddMsgBuf, 3, Data.MaxAddedLine, max_added_lines, ext_text_buf);
@@ -3570,13 +3565,13 @@ int SLAPI Bizerba::SendPLUByDriver(const ScalePLU * pScalePLU)
 		if(pScalePLU->HasAddedMsg()) {
 			const size_t max_len = 200;
 			StringSet ss("\n");
-			GetAddedMsgLines(pScalePLU, NZOR(Data.MaxAddedLine, 50), max_len, amlfMaxText, ss);
+			GetAddedMsgLines(pScalePLU, NZOR(Data.MaxAddedLn, 50), max_len, amlfMaxText, ss);
 			SString added_msg = ss.getBuf();
 			if(added_msg.Len()) {
 				added_msg.Trim(max_len).Transf(CTRANSF_INNER_TO_OUTER);
 				msg_no = AddInfoFieldId;
 				THROW(SetParam(msg_no));
-				THROW(SetParam((const char *)added_msg));
+				THROW(SetParam(added_msg.cptr()));
 				THROW(ExecBZOper(WriteMsg));
 				AddInfoFieldId++;
 			}
@@ -3635,7 +3630,8 @@ int SLAPI Bizerba::SendPLU(const ScalePLU * pScalePLU)
 			tfzu_texts = "@00@04";
 			empty_tfzu = "@00@04";
 			{
-				const  uint msgs_count = 4;
+				// @v10.5.0 const  uint msgs_count = 4;
+				const  uint msgs_count = (Data.MaxAddedLnCount > 0 && Data.MaxAddedLnCount <= 100) ? Data.MaxAddedLnCount : 4;
 				StringSet add_str("\n");
 				GetAddedMsgLines(pScalePLU, 63, msgs_count, 0, add_str);
 				SString line_buf;
@@ -3961,7 +3957,7 @@ int SLAPI ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
 		}
 		if(is_msg) {
 			StringSet add_str("\x0A");
-			GetAddedMsgLines(pScalePLU, MIN(labs(Data.MaxAddedLine), 50), StrCountInMsg, 0, add_str);
+			GetAddedMsgLines(pScalePLU, MIN(labs(Data.MaxAddedLn), 50), StrCountInMsg, 0, add_str);
 			for(uint p = 0, strn = 0; (long)strn < StrCountInMsg && add_str.get(&p, temp_buf); strn++) {
 				THROW(SetSPProp(MessageNumber, MsgN));
 				// Это свойство не отрабатывает: драйвер ругается как на неизвестное (???) THROW(SetSPProp(StringNumber, (long)(strn+1)));
@@ -4120,7 +4116,7 @@ $$$RPL
 		line_buf.Semicol();                                            // #23 Масса тары
 		line_buf.CatCharN(';', 6);                                        // #24-#29
 		if(GetAddedMsgLines(pScalePLU, 255, 1, 0, ext_lines) > 0) {
-            ext_lines.get((uint)0, temp_buf);
+            ext_lines.get(0U, temp_buf);
 			if(temp_buf.NotEmptyS()) {
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				MsgResLines.Add(pScalePLU->GoodsID, temp_buf);
@@ -4129,7 +4125,7 @@ $$$RPL
 		}
 		line_buf.Semicol();                                            // #30 Номер сообщения
 		line_buf.Semicol();                                            // #31 Код файла картинки
-		// none line_buf.Cat(FixedMsgResID);                                      // #32 Идентификатор ресурса сообщений
+		// none line_buf.Cat(FixedMsgResID);                           // #32 Идентификатор ресурса сообщений
 		P_FOut->WriteLine(line_buf.CR());
 	}
 	return ok;
@@ -4420,7 +4416,8 @@ int ScaleDialog::setDTS(const PPScale * pData, const char * pExpPaths)
 	setCtrlData(CTL_SCALE_LOGNUM, &Data.LogNum);
 	setCtrlData(CTL_SCALE_BCPREFIX, &Data.BcPrefix);
 	setCtrlData(CTL_SCALE_ADDEDMSGSIGN, Data.AddedMsgSign);
-	setCtrlData(CTL_SCALE_ADDEDLINELEN, &Data.MaxAddedLine);
+	setCtrlData(CTL_SCALE_ADDEDLINELEN, &Data.MaxAddedLn);
+	setCtrlData(CTL_SCALE_ADDEDLNCT,    &Data.MaxAddedLnCount); // @v10.5.0
 	AddClusterAssoc(CTL_SCALE_FLAGS, 0, SCALF_STRIPWP);
 	AddClusterAssoc(CTL_SCALE_FLAGS, 1, SCALF_EXSGOODS);
 	AddClusterAssoc(CTL_SCALE_FLAGS, 2, SCALF_TCPIP);
@@ -4462,7 +4459,8 @@ int ScaleDialog::getDTS(PPScale * pData, SString & rExpPaths)
 	GetClusterData(CTL_SCALE_FLAGS, &Data.Flags);
 	getCtrlData(sel = CTL_SCALE_ADDEDMSGSIGN, Data.AddedMsgSign);
 	THROW_PP(PPGoodsPacket::ValidateAddedMsgSign(Data.AddedMsgSign, sizeof(Data.AddedMsgSign)), PPERR_INVPOSADDEDMSGSIGN);
-	getCtrlData(CTL_SCALE_ADDEDLINELEN, &Data.MaxAddedLine);
+	getCtrlData(CTL_SCALE_ADDEDLINELEN, &Data.MaxAddedLn);
+	getCtrlData(CTL_SCALE_ADDEDLNCT,    &Data.MaxAddedLnCount); // @v10.5.0
 	getCtrlData(CTLSEL_SCALE_PARENT, &Data.ParentID);
 	if(!oneof2(Data.ScaleTypeID, PPSCLT_CRCSHSRV, PPSCLT_SCALEGROUP)) {
 		if(Data.Flags & SCALF_TCPIP) {
@@ -4504,7 +4502,10 @@ int SLAPI PPObjScale::CheckDup(PPID objID, const PPScale * pRec)
 
 int SLAPI PPObjScale::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, ok = 1, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPScale scale;
 	ScaleDialog * dlg = 0;
 	SString paths;

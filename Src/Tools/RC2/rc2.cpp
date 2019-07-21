@@ -1,5 +1,5 @@
 // RC2.CPP
-// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017
+// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019
 //
 #include <pp.h>
 #include "rc2.h"
@@ -118,7 +118,7 @@ int SLAPI Rc2Data::AddSymb(int kind, const char * pSymb, long * pID, SString & r
 	if(ok < 0) {
 		SString kind_name;
 		SymbolList.GetSymbKindName(kind, kind_name);
-		rErrMsg.Printf("Duplicated name '%s' of %s", pSymb, (const char *)kind_name);
+		rErrMsg.Printf("Duplicated name '%s' of %s", pSymb, kind_name.cptr());
 	}
 	else if(ok == 0) {
 		(rErrMsg = "Can't create symbol").Space().Cat(pSymb);
@@ -480,11 +480,11 @@ int SLAPI Rc2Data::GenerateRecordStruct(const SdRecord * pRec)
 {
 	SString type_text;
 	SdbField fld;
-	fprintf(pHdr, "struct Sdr_%s {\n", (const char *)pRec->Name);
+	fprintf(pHdr, "struct Sdr_%s {\n", pRec->Name.cptr());
 	for(uint k = 0; k < pRec->GetCount(); k++)
 		if(pRec->GetFieldByPos(k, &fld) > 0) {
 			GetBinaryTypeString(fld.T.Typ, 0, type_text, fld.Name, 7);
-			fprintf(pHdr, "\t%s;\n", (const char *)type_text);
+			fprintf(pHdr, "\t%s;\n", type_text.cptr());
 		}
 	fprintf(pHdr, "};\n");
 	return 1;
@@ -523,7 +523,7 @@ int SLAPI Rc2Data::GenerateSymbDefinitions()
 					p_prefix = "";
 				else
 					p_prefix = "";
-				fprintf(pHdr, "//\n// %s definitions\n//\n", (const char *)symb_kind_name);
+				fprintf(pHdr, "//\n// %s definitions\n//\n", symb_kind_name.cptr());
 			}
 			if(strcmp(r_symb.Symb, "0") != 0) {
 				if(r_symb.Kind == DeclareSymb::kView) {
@@ -533,12 +533,12 @@ int SLAPI Rc2Data::GenerateSymbDefinitions()
 						const ViewDefinition * p_view = ViewList.at(vp);
 						if(p_view) {
 							if(p_view->Flags & ViewDefinition::fFilterOnly) {
-								fprintf(pHdr, "%s%s%-26s%6d\n", P_DefinePrefix, P_FiltPrefix,     _strupr(r_symb.Symb), symbid+1);
+								fprintf(pHdr, "%s%s%-32s%10d\n", P_DefinePrefix, P_FiltPrefix,     _strupr(r_symb.Symb), symbid+1);
 							}
 							else {
-								fprintf(pHdr, "%s%s%-26s%6d\n",   P_DefinePrefix, p_prefix,         _strupr(r_symb.Symb), symbid);
-								fprintf(pHdr, "\t%s%s%-26s%6d\n", P_DefinePrefix, P_FiltPrefix,     _strupr(r_symb.Symb), symbid+1);
-								fprintf(pHdr, "\t%s%s%-26s%6d\n", P_DefinePrefix, P_ViewItemPrefix, _strupr(r_symb.Symb), symbid+2);
+								fprintf(pHdr, "%s%s%-32s%10d\n",   P_DefinePrefix, p_prefix,         _strupr(r_symb.Symb), symbid);
+								fprintf(pHdr, "\t%s%s%-32s%10d\n", P_DefinePrefix, P_FiltPrefix,     _strupr(r_symb.Symb), symbid+1);
+								fprintf(pHdr, "\t%s%s%-32s%10d\n", P_DefinePrefix, P_ViewItemPrefix, _strupr(r_symb.Symb), symbid+2);
 							}
 						}
 					}
@@ -547,7 +547,7 @@ int SLAPI Rc2Data::GenerateSymbDefinitions()
 					long id = r_symb.ID;
 					if(r_symb.Kind == DeclareSymb::kReportStub)
 						id += 1000;
-					fprintf(pHdr, "%s%s%-26s%6d\n", P_DefinePrefix, p_prefix, _strupr(r_symb.Symb), id);
+					fprintf(pHdr, "%s%s%-32s%10d\n", P_DefinePrefix, p_prefix, _strupr(r_symb.Symb), id);
 					if(r_symb.Kind == DeclareSymb::kRecord) {
 						const SdRecord * p_rec = 0;
 						for(uint j = 0; RecList.enumItems(&j, (void **)&p_rec);) {
@@ -555,8 +555,7 @@ int SLAPI Rc2Data::GenerateSymbDefinitions()
 								for(uint k = 0; k < p_rec->GetCount(); k++) {
 									SdbField fld;
 									if(p_rec->GetFieldByPos(k, &fld) > 0)
-										fprintf(pHdr, "\t%s%s%s_%-26s%6u\n", P_DefinePrefix, P_FldPrefix,
-											_strupr(r_symb.Symb), (const char *)fld.Name.ToUpper(), fld.ID);
+										fprintf(pHdr, "\t%s%s%s_%-32s%10u\n", P_DefinePrefix, P_FldPrefix, _strupr(r_symb.Symb), fld.Name.ToUpper().cptr(), fld.ID);
 								}
 								fprintf(pHdr, "\n");
 								GenerateRecordStruct(p_rec);
@@ -577,8 +576,8 @@ int SLAPI Rc2Data::GenerateSymbDefinitions()
 int SLAPI Rc2Data::GenerateBrowserDefine(char * pName, char * comment)
 {
 	BrwCounter++;
-	fprintf(pHdr, "%s%s%-26s%6d // %s\n", P_DefinePrefix, P_BrwPrefix, _strupr(pName), BrwCounter, comment);
-	fprintf(pHdr, "\t%sHELP_%s%-26s%6d\n", P_DefinePrefix, P_BrwPrefix, _strupr(pName), BrwCounter);
+	fprintf(pHdr, "%s%s%-32s%10d // %s\n", P_DefinePrefix, P_BrwPrefix, _strupr(pName), BrwCounter, comment);
+	fprintf(pHdr, "\t%sHELP_%s%-32s%10d\n", P_DefinePrefix, P_BrwPrefix, _strupr(pName), BrwCounter);
 	return 1;
 }
 
@@ -751,9 +750,9 @@ int SLAPI Rc2Data::GenerateCmdDefinitions()
 			p_cmd->MenuCmdIdent[0] = '0';
 			p_cmd->MenuCmdIdent[1] = 0;
 		}
-		view_symb = 0;
-		filt_symb = 0;
-		filt_ext_symb = 0;
+		view_symb.Z();
+		filt_symb.Z();
+		filt_ext_symb.Z();
 		strip(p_cmd->Filt.FiltSymb);
 		if(strip(p_cmd->Filt.FiltSymb)[0]) {
 			if(p_cmd->Filt.DeclView)
@@ -768,11 +767,9 @@ int SLAPI Rc2Data::GenerateCmdDefinitions()
 			filt_symb.CatChar('0');
 		if(filt_ext_symb.Empty())
 			filt_ext_symb.CatChar('0');
-
 		fprintf(pRc, "\t\"%s\\0\", \"%s\\0\", %s,\n\t%s, %s, 0x%08lX, %s, %s, %s\n",
 			p_cmd->Name, p_cmd->Descr, p_cmd->IconIdent,
-			p_cmd->ToolbarIdent, p_cmd->MenuCmdIdent, p_cmd->Flags,
-			(const char *)view_symb, (const char *)filt_symb, (const char *)filt_ext_symb);
+			p_cmd->ToolbarIdent, p_cmd->MenuCmdIdent, p_cmd->Flags, view_symb.cptr(), filt_symb.cptr(), filt_ext_symb.cptr());
 		fprintf(pRc, "};\n");
 	}
 	return 1;
@@ -810,8 +807,8 @@ int SLAPI Rc2Data::GenerateRecDefinitions()
 	for(uint i = 0; i < RecList.getCount(); i++) {
 		const SdRecord * p_rec = RecList.at(i);
 		(name = p_rec->Name).ToUpper();
-		fprintf(pRc, "\n%s%s PP_RCDECLRECORD {\n", P_RecPrefix, (const char *)name);
-		fprintf(pRc, "\t\"%s\\0\", %u,\n", (const char *)p_rec->Name, p_rec->GetCount());
+		fprintf(pRc, "\n%s%s PP_RCDECLRECORD {\n", P_RecPrefix, name.cptr());
+		fprintf(pRc, "\t\"%s\\0\", %u,\n", p_rec->Name.cptr(), p_rec->GetCount());
 		for(uint j = 0; j < p_rec->GetCount(); j++) {
 			SdbField fld;
 			p_rec->GetFieldByPos(j, &fld);
@@ -824,13 +821,9 @@ int SLAPI Rc2Data::GenerateRecDefinitions()
 			//   FldID, "FldName\0", FldType, FldSize, FldPrec, FldFormatLen, FldFormatPrec, FldFormatFlags, "FldDescr\0"
 			fld.Name.CatChar('\\').CatChar('0').Quot('\"', '\"');
 			fld.Descr.CatChar('\\').CatChar('0').Quot('\"', '\"');
-			fprintf(pRc, "\t%u, %s, %s, %d, %d, %d, %d, %d, %s\n",
-				fld.ID, (const char *)fld.Name,
-				typ ? GetSTypeName(fld.T.Typ) : "0", size, prec, fmtlen, fmtprc, fmtflg, (const char *)fld.Descr);
-			/*
-			fprintf(pRc, "\t%u, %s, 0x%lX, 0x%lX, %s\n",
-				fld.ID, (const char *)fld.Name, fld.T.Typ, fld.OuterFormat, (const char *)fld.Descr);
-			*/
+			fprintf(pRc, "\t%u, %s, %s, %d, %d, %d, %d, %d, %s\n", fld.ID, fld.Name.cptr(),
+				typ ? GetSTypeName(fld.T.Typ) : "0", size, prec, fmtlen, fmtprc, fmtflg, fld.Descr.cptr());
+			// fprintf(pRc, "\t%u, %s, 0x%lX, 0x%lX, %s\n", fld.ID, (const char *)fld.Name, fld.T.Typ, fld.OuterFormat, (const char *)fld.Descr);
 		}
 		fprintf(pRc, "};\n");
 	}
@@ -844,8 +837,7 @@ int SLAPI Rc2Data::GenerateReportStubDefinitions()
 		const ReportStubDefinition * p_def = RptStubList.at(i);
 		(name = p_def->Name).ToUpper();
 		fprintf(pRc, "\n%s%s PP_RCDECLREPORTSTUB { \"%s\\0\", \"%s\\0\", \"%s\\0\" }\n",
-			P_ReportStubPrefix, (const char *)name,
-			(const char *)p_def->Name, (const char *)p_def->Data, (const char *)p_def->Descr);
+			P_ReportStubPrefix, name.cptr(), p_def->Name.cptr(), p_def->Data.cptr(), p_def->Descr.cptr());
 	}
 	return 1;
 }
@@ -869,12 +861,12 @@ int SLAPI Rc2Data::GenerateViewDefinitions()
 			temp_buf.CR().Cat(P_ViewPrefix).Cat(symb).Space().Cat("PP_RCDECLVIEW").
 				CatDiv('{', 1).CatChar('\"').Cat(p_def->Name).Cat("\\0\"").CatDiv(',', 2).
 				CatChar('\"').Cat(p_def->Descr).Cat("\\0\"").Space().CatChar('}').CR();
-			fprintf(pRc, (const char *)temp_buf);
+			fprintf(pRc, temp_buf.cptr());
 		}
 		temp_buf = 0;
 		temp_buf.Cat(P_FiltPrefix).Cat(symb).Space().Cat("PP_RCDECLFILT").
 			CatDiv('{', 1).CatChar('\"').Cat(p_def->Name).Cat("\\0\"").Space().CatChar('}').CR();
-		fprintf(pRc, (const char *)temp_buf);
+		fprintf(pRc, temp_buf.cptr());
 	}
 	return 1;
 }
@@ -903,7 +895,7 @@ int SLAPI Rc2Data::GenerateCtrlMenuDefinitions()
 		}
 		temp_buf.CatChar('}').CR();
 	}
-	fprintf(pRc, (const char *)temp_buf);
+	fprintf(pRc, temp_buf.cptr());
 	return 1;
 }
 
@@ -915,13 +907,13 @@ int SLAPI Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 
 	int    ok = -1;
 	if(DrawVectorList.getCount()) {
-#if DO_CREATE_VECT_STORAGE // @construction 
+#if DO_CREATE_VECT_STORAGE
 		TWhatmanToolArray tool_array;
 #endif
 		for(uint grp_idx = 0; grp_idx < DrawVectorList.getCount(); grp_idx++) {
 			const DrawVectorGroup * p_grp = DrawVectorList.at(grp_idx);
 			if(p_grp) {
-#if DO_CREATE_VECT_STORAGE // @construction {
+#if DO_CREATE_VECT_STORAGE
 				for(uint item_idx = 0; item_idx < p_grp->List.getCount(); item_idx++) {
 					const Rc2DrawVectorItem & r_item = p_grp->List.at(item_idx);
 					char   symb[128];
@@ -939,7 +931,7 @@ int SLAPI Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 						ok = 1;
 					}
 				}
-#endif // } DO_CREATE_VECT_STORAGE @construction
+#endif
 			}
 		}
 		if(ok > 0) {
@@ -1012,7 +1004,7 @@ int SLAPI Rc2Data::GenerateRFileDefinitions()
 				CatHex(p_def->Flags).CatDiv(',', 2).
 				CatChar('\"').Cat(p_def->Descr).Cat("\\0\"").
 			CatChar('}').CR();
-		fprintf(pRc, (const char *)temp_buf);
+		fprintf(pRc, temp_buf.cptr());
 	}
 	return 1;
 }
@@ -1022,14 +1014,14 @@ int SLAPI Rc2Data::GenerateRFileDefinitions()
 IMPL_CMPFUNC(DeclareSymb_ID, i1, i2)
 {
 	int    si;
-	CMPCASCADE2(si, (DeclareSymb *)i1, (DeclareSymb *)i2, Kind, ID);
+	CMPCASCADE2(si, static_cast<const DeclareSymb *>(i1), static_cast<const DeclareSymb *>(i2), Kind, ID);
 	return si;
 }
 
 IMPL_CMPFUNC(DeclareSymb_Symb, i1, i2)
 {
-	DeclareSymb * s1 = (DeclareSymb *)i1;
-	DeclareSymb * s2 = (DeclareSymb *)i2;
+	const DeclareSymb * s1 = static_cast<const DeclareSymb *>(i1);
+	const DeclareSymb * s2 = static_cast<const DeclareSymb *>(i2);
 	if(s1->Kind < s2->Kind)
 		return -1;
 	else if(s1->Kind > s2->Kind)
@@ -1044,30 +1036,20 @@ DeclareSymbList::DeclareSymbList() : TSArray<DeclareSymb> (1)
 
 SString & DeclareSymbList::GetSymbKindName(int kind, SString & rBuf) const
 {
-	if(kind == DeclareSymb::kCommand)
-		rBuf = "PPVIEW COMMAND";
-	else if(kind == DeclareSymb::kJob)
-		rBuf = "PPJOB";
-	else if(kind == DeclareSymb::kObj)
-		rBuf = "PPOBJECT";
-	else if(kind == DeclareSymb::kCmd)
-		rBuf = "PPCMD";
-	else if(kind == DeclareSymb::kRecord)
-		rBuf = "RECORD";
-	else if(kind == DeclareSymb::kView)
-		rBuf = "PPVIEW";
-	else if(kind == DeclareSymb::kReportStub)
-		rBuf = "REPORT";
-	else if(kind == DeclareSymb::kCtrlMenu)
-		rBuf = "CTRLMENU";
-	else if(kind == DeclareSymb::kBitmap)
-		rBuf = "BITMAP";
-	else if(kind == DeclareSymb::kDrawVector)
-		rBuf = "DRAWVECTOR";
-	else if(kind == DeclareSymb::kRFile)
-		rBuf = "FILE";
-	else
-		rBuf = "UNKNOWN";
+	switch(kind) {
+		case DeclareSymb::kCommand: rBuf = "PPVIEW COMMAND"; break;
+		case DeclareSymb::kJob: rBuf = "PPJOB"; break;
+		case DeclareSymb::kObj: rBuf = "PPOBJECT"; break;
+		case DeclareSymb::kCmd: rBuf = "PPCMD"; break;
+		case DeclareSymb::kRecord: rBuf = "RECORD"; break;
+		case DeclareSymb::kView: rBuf = "PPVIEW"; break;
+		case DeclareSymb::kReportStub: rBuf = "REPORT"; break;
+		case DeclareSymb::kCtrlMenu: rBuf = "CTRLMENU"; break;
+		case DeclareSymb::kBitmap: rBuf = "BITMAP"; break;
+		case DeclareSymb::kDrawVector: rBuf = "DRAWVECTOR"; break;
+		case DeclareSymb::kRFile: rBuf = "FILE"; break;
+		default: rBuf = "UNKNOWN"; break;
+	}
 	return rBuf;
 }
 
@@ -1089,6 +1071,10 @@ int DeclareSymbList::AddSymb(int kind, const char * pSymb, long * pID)
 		if(!LastIdList.Search(kind, &last_id, 0)) {
 			if(kind == DeclareSymb::kCmd)
 				last_id = 1000;
+			// @v10.5.0 {
+			else if(kind == DeclareSymb::kDrawVector) 
+				last_id = 0x8000;
+			// } @v10.5.0 
 			else
 				last_id = 0;
 		}
@@ -1227,17 +1213,17 @@ void main(int argc, char ** argv)
 				Rc2.GenerateRCHeader();
 				Rc2.GenerateIncHeader();
 				yyparse();
-				Rc2.GenerateRecDefinitions(); // @v5.1.6
+				Rc2.GenerateRecDefinitions();
 				Rc2.GenerateJobDefinitions();
 				Rc2.GenerateObjDefinitions();
-				Rc2.GenerateCmdDefinitions(); // @v5.1.4
+				Rc2.GenerateCmdDefinitions();
 				Rc2.GenerateSymbDefinitions();
 				Rc2.GenerateReportStubDefinitions();
-				Rc2.GenerateViewDefinitions(); // @v5.6.1
-				Rc2.GenerateCtrlMenuDefinitions(); // @v5.7.8
-				Rc2.GenerateBitmapDefinitions(); // @v7.5.12
+				Rc2.GenerateViewDefinitions();
+				Rc2.GenerateCtrlMenuDefinitions();
+				Rc2.GenerateBitmapDefinitions();
 				Rc2.GenerateDrawVectorFile(drawvector_storage_name); // @v9.1.1
-				Rc2.GenerateRFileDefinitions(); // @v7.8.7
+				Rc2.GenerateRFileDefinitions();
 			}
 		}
 	}

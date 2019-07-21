@@ -826,7 +826,7 @@ int SLAPI PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 	/* @construction */
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
-		StdTreeListBoxDef * p_def = (StdTreeListBoxDef*)pDef;
+		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
 			PPSCardSeries2 scs_rec;
@@ -836,20 +836,11 @@ int SLAPI PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 					long img_id = 0;
 					int scs_type = scs_rec.GetType();
 					switch(scs_type) {
-						case scstRsrvPool:
-							break;
-						case scstGroup:
-							img_id = PPDV_FOLDER01;//ICON_FOLDERGRP;
-							break;
-						case scstBonus:
-							img_id = PPDV_SCARDBONUS;
-							break;
-						case scstCredit:
-							img_id = PPDV_SCARDCREDIT;
-							break;
-						case scstDiscount:
-							img_id = PPDV_SCARDDISCOUNT;
-							break;
+						case scstRsrvPool: break;
+						case scstGroup: img_id = PPDV_FOLDER01; break;
+						case scstBonus: img_id = PPDV_SCARDBONUS; break;
+						case scstCredit: img_id = PPDV_SCARDCREDIT; break;
+						case scstDiscount: img_id = PPDV_SCARDDISCOUNT; break;
 					}
 					if(img_id)
 						p_def->AddVecImageAssoc(id, img_id);
@@ -1705,10 +1696,9 @@ SLAPI PPObjSCardSeriesListWindow::PPObjSCardSeriesListWindow(PPObject * pObj, ui
 	PPObjListWindow(pObj, flags, extraPtr), CurIterPos(0)
 {
 	if(pObj) {
-		((PPObjSCardSeries*)pObj)->InitFilt(extraPtr, Filt);
+		static_cast<PPObjSCardSeries *>(pObj)->InitFilt(extraPtr, Filt);
 	}
 	ExtraPtr = &Filt;
-
 	DefaultCmd = cmaMore;
 	SetToolbar(TOOLBAR_LIST_SCARDSERIES);
 }

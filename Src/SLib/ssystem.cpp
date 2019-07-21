@@ -92,7 +92,7 @@ uint SSystem::SFormatMessage(SString & rMsg)
 	return SFormatMessage(::GetLastError(), rMsg);
 }
 
-SSystem::SSystem(int imm) : Flags(0)
+SSystem::SSystem(int imm) : Flags(0), CpuV(cpuvUnkn), CpuCs(cpucsUnkn), CpuCacheSizeL0(0), CpuCacheSizeL1(0), CpuCacheSizeL2(0), CpuA(0), CpuB(0), CpuC(0), CpuD(0)
 {
 	if(imm) {
 		GetCpuInfo();

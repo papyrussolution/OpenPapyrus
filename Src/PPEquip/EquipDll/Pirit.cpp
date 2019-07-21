@@ -679,7 +679,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			str.Z();
 			if(ReadConfigTab(10, 0, out_data, r_error) && out_data.NotEmptyS()) {
 				RetTknzr.setBuf(out_data);
-				if(RetTknzr.get((uint)0, temp_buf))
+				if(RetTknzr.get(0U, temp_buf))
 					str.CatEq("LOGNUM", temp_buf);
 			}
 			str.CatDivIfNotEmpty(';', 0).CatEq("CHECKSTRLEN", "130"); // @v9.1.8 44-->130
@@ -1432,7 +1432,7 @@ int PiritEquip::GetTaxTab()
 		THROW(ReadConfigTab(40, i, out_data, r_error)); // Наименование i-й налоговой ставки
 		//if(out_data.NotEmpty()) {
 		RetTknzr.setBuf(out_data);
-		if(RetTknzr.get((uint)0, temp_buf)) {
+		if(RetTknzr.get(0U, temp_buf)) {
 			STRNSCPY(DvcTaxArray[i].Name, /*out_data*/temp_buf);
 			/*
 			in_data.Z();
@@ -1443,7 +1443,7 @@ int PiritEquip::GetTaxTab()
 			*/
 			THROW(ReadConfigTab(41, i, out_data, r_error)); // Значение i-й налоговой ставки
 			RetTknzr.setBuf(out_data);
-			if(RetTknzr.get((uint)0, temp_buf)) {
+			if(RetTknzr.get(0U, temp_buf)) {
 				//raw_tax_val = out_data;
 				DvcTaxArray[i].Rate = temp_buf.ToReal();
 			}

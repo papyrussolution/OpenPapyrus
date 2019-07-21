@@ -12,7 +12,7 @@ static int FASTCALL substFCMP(const void * i1, const void * i2, void * pExtraDat
 //
 // ListBoxDef
 //
-SLAPI ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(0), Type(aType), 
+SLAPI ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(0), Type(aType),
 	ViewHight(1), TopItem(0), CurItem(0), CFlags(0), ScrollDelta(0)
 {
 	SetCapability(0, LBDEFSIGN_DEFAULT);
@@ -131,8 +131,8 @@ long   SLAPI ListBoxDef::getRecsCount() { return 0; }
 void * FASTCALL ListBoxDef::getRow_(long) { return 0; }
 int    SLAPI ListBoxDef::refresh() { return 1; }
 int    SLAPI ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
-int    SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~0x40000000), 0); }
-int    SLAPI ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | 0x40000000), 0); }
+int    SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~0x00008000), 0); }
+int    SLAPI ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | 0x00008000), 0); }
 int    SLAPI ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCount()); }
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
@@ -198,12 +198,12 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 			long image_id = ImageAssoc.at(i).Val;
 			long image_idx = -1;
 			if(added_list.Search(image_id, &image_idx, 0) <= 0) {
-				if(image_id & 0x40000000) {
+				if(image_id & 0x00008000) {
 					{
 						//SETIFZ(dv_id, PPDV_TESTFLOWER);
 						TWhatmanToolArray::Item tool_item;
 						//const SDrawFigure * p_fig = APPL->DvToolList.GetFigById(1, dv_id, &tool_item);
-						const SDrawFigure * p_fig = APPL->LoadDrawFigureById((image_id & ~0x40000000), &tool_item);
+						const SDrawFigure * p_fig = APPL->LoadDrawFigureById(image_id, &tool_item); // @v10.5.0 (image_id & ~0x40000000)-->image_id
 						if(p_fig) {
 							const uint _w = 16;
 							const uint _h = 16;
@@ -219,18 +219,16 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 									replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
 									canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
 								}
+								LMatrix2D mtx;
+								SViewPort vp;
 								FRect pic_bounds;
 								pic_bounds.a.X = 0.0f;
 								pic_bounds.a.Y = 0.0f;
-								pic_bounds.b.X = (float)_w;
-								pic_bounds.b.Y = (float)_h;
+								pic_bounds.b.X = static_cast<float>(_w);
+								pic_bounds.b.Y = static_cast<float>(_h);
 								//
-								LMatrix2D mtx;
-								SViewPort vp;
-								
 								canv.Rect(pic_bounds);
 								canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
-
 								canv.PushTransform();
 								p_fig->GetViewPort(&vp);
 								canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
@@ -400,7 +398,7 @@ int SLAPI StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 		pos = (dir == srchNext) ? (uint)_curItem() + 1 : 0U;
 		SETIFZ(fcmp, substFCMP);
 		r = (srchMode & srchBinary) ?
-			P_Data->bsearch(pPattern, &pos, fcmp, ofs, reinterpret_cast<void *>(Type)) : 
+			P_Data->bsearch(pPattern, &pos, fcmp, ofs, reinterpret_cast<void *>(Type)) :
 			P_Data->lsearch(pPattern, &pos, fcmp, ofs, reinterpret_cast<void *>(Type));
 	}
 	if(r)

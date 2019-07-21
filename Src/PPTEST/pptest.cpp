@@ -859,7 +859,6 @@ int SLAPI GenerateGoodsBills()
 			goods_flt.OpGrpID = GoodsOpAnalyzeFilt::ogIncoming;
 			goods_flt.Period.low = period.low;
 			goods_flt.Period.upp = period.upp;
-
 			THROW_MEM(p_vgoods = new PPViewGoodsOpAnalyze);
 			THROW(p_vgoods->Init_(&goods_flt));
 			//

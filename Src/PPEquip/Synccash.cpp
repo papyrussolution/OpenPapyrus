@@ -208,7 +208,7 @@ int SCS_SYNCCASH::GetPort(const char * pPortName, int * pPortNo)
 
 SLAPI SCS_SYNCCASH::SCS_SYNCCASH(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port), Port(0), CashierPassword(0),
 	AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR), CheckStrLen(DEF_STRLEN), Flags(/*sfKeepAlive*/0),
-	RibbonParam(0), Inited(0), IsSetLogo(0), PrintLogo(0)
+	RibbonParam(0), Inited(0), IsSetLogo(0), PrintLogo(0), DeviceType(0)
 {
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfNotUseCutter;

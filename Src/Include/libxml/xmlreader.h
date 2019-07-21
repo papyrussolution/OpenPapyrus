@@ -130,10 +130,10 @@ XMLPUBFUN int XMLCALL xmlTextReaderAttributeCount(xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderDepth(xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderHasAttributes(xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderHasValue(xmlTextReader * reader);
-XMLPUBFUN int XMLCALL xmlTextReaderIsDefault(xmlTextReader * reader);
+XMLPUBFUN int XMLCALL xmlTextReaderIsDefault(const xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderIsEmptyElement(xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderNodeType(xmlTextReader * reader);
-XMLPUBFUN int XMLCALL xmlTextReaderQuoteChar(xmlTextReader * reader);
+XMLPUBFUN int XMLCALL xmlTextReaderQuoteChar(const xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderReadState(xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderIsNamespaceDecl(xmlTextReader * reader);
 

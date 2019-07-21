@@ -3550,7 +3550,7 @@ static xmlChar * xmlTextWriterVSprintf(const char * format, va_list argptr)
  */
 static void xmlTextWriterStartDocumentCallback(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlDoc * doc;
 	if(ctxt->html) {
 #ifdef LIBXML_HTML_ENABLED

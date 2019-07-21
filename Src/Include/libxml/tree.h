@@ -699,7 +699,7 @@ XMLPUBFUN int XMLCALL xmlNodeGetSpacePreserve(const xmlNode * cur);
 	XMLPUBFUN void XMLCALL xmlNodeSetLang(xmlNode * cur, const xmlChar * lang);
 	XMLPUBFUN void XMLCALL xmlNodeSetSpacePreserve(xmlNode * cur, int val);
 #endif
-XMLPUBFUN xmlChar * XMLCALL xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED)
 	XMLPUBFUN void XMLCALL xmlNodeSetBase(xmlNode * cur, const xmlChar * uri);
 #endif

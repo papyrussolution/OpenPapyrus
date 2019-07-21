@@ -328,7 +328,7 @@ int SLAPI Crosstab::CreateTable()
 	}
 	{
 		BNKey key;
-		key.addSegment(P_RTbl->GetFields().getField((uint)0).Id, XIF_EXT);
+		key.addSegment(P_RTbl->GetFields().getField(0U).Id, XIF_EXT);
 		P_RTbl->AddKey(key);
 		key.setKeyParams(0, 0);
 		for(i = 0; i < IdxFldList.GetCount(); i++)

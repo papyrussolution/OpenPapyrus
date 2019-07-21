@@ -368,6 +368,8 @@ int SLAPI BillCore::GetListByFreightFilt(const FreightFilt & rFilt, UintHashTabl
 		ok = 0;
 	else if(rFilt.CaptainID)
 		ok = 0;
+	else if(rFilt.DlvrLocID) // @v10.5.0
+		ok = 0;
 	if(ok == 0) {
 		ok = -1;
 		PropertyTbl * p_prop = &PPRef->Prop;
@@ -383,7 +385,7 @@ int SLAPI BillCore::GetListByFreightFilt(const FreightFilt & rFilt, UintHashTabl
 		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
 			const PPFreight & r_fr = *reinterpret_cast<const PPFreight *>(&p_prop->data);
 			if(r_fr.CheckForFilt(rFilt)) {
-				rList.Add((uint32)r_fr.ID);
+				rList.Add(static_cast<uint32>(r_fr.ID));
 				ok = 1;
 			}
 		}
@@ -402,7 +404,7 @@ int SLAPI BillCore::GetDlvrAddrList(LAssocArray * pList)
 	k0.ObjType = PPOBJ_BILL;
 	CALLPTRMEMB(pList, clear());
 	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
-		PPFreight * p_freight = (PPFreight *)&p_prop->data;
+		const PPFreight * p_freight = reinterpret_cast<const PPFreight *>(&p_prop->data);
 		if(p_freight->DlvrAddrID) {
 			if(pList) {
 				THROW_SL(pList->Add(p_freight->ID, p_freight->DlvrAddrID, 0));

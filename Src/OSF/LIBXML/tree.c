@@ -12,12 +12,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#ifdef HAVE_ZLIB_H
-	//#include <zlib.h>
-//#endif
-//#ifdef LIBXML_HTML_ENABLED
-	//#include <libxml/HTMLtree.h>
-//#endif
 #include "save.h"
 
 int __xmlRegisterCallbacks = 0;
@@ -4506,55 +4500,52 @@ void xmlNodeSetName(xmlNode * cur, const xmlChar * name)
  */
 void xmlNodeSetBase(xmlNode * cur, const xmlChar* uri)
 {
-	xmlNs * ns;
-	xmlChar* fixed;
-	if(!cur) return;
-	switch(cur->type) {
-		case XML_TEXT_NODE:
-		case XML_CDATA_SECTION_NODE:
-		case XML_COMMENT_NODE:
-		case XML_DOCUMENT_TYPE_NODE:
-		case XML_DOCUMENT_FRAG_NODE:
-		case XML_NOTATION_NODE:
-		case XML_DTD_NODE:
-		case XML_ELEMENT_DECL:
-		case XML_ATTRIBUTE_DECL:
-		case XML_ENTITY_DECL:
-		case XML_PI_NODE:
-		case XML_ENTITY_REF_NODE:
-		case XML_ENTITY_NODE:
-		case XML_NAMESPACE_DECL:
-		case XML_XINCLUDE_START:
-		case XML_XINCLUDE_END:
-		    return;
-		case XML_ELEMENT_NODE:
-		case XML_ATTRIBUTE_NODE:
-		    break;
-		case XML_DOCUMENT_NODE:
-#ifdef LIBXML_DOCB_ENABLED
-		case XML_DOCB_DOCUMENT_NODE:
-#endif
-		case XML_HTML_DOCUMENT_NODE: {
-		    xmlDoc * doc = (xmlDoc *)cur;
-		    SAlloc::F((xmlChar *)doc->URL);
-		    if(!uri)
-			    doc->URL = NULL;
-		    else
-			    doc->URL = xmlPathToURI(uri);
-		    return;
-	    }
-	}
-
-	ns = xmlSearchNsByHref(cur->doc, cur, XML_XML_NAMESPACE);
-	if(ns == NULL)
-		return;
-	fixed = xmlPathToURI(uri);
-	if(fixed) {
-		xmlSetNsProp(cur, ns, reinterpret_cast<const xmlChar *>("base"), fixed);
-		SAlloc::F(fixed);
-	}
-	else {
-		xmlSetNsProp(cur, ns, reinterpret_cast<const xmlChar *>("base"), uri);
+	if(cur) {
+		xmlNs * ns;
+		xmlChar * fixed;
+		switch(cur->type) {
+			case XML_TEXT_NODE:
+			case XML_CDATA_SECTION_NODE:
+			case XML_COMMENT_NODE:
+			case XML_DOCUMENT_TYPE_NODE:
+			case XML_DOCUMENT_FRAG_NODE:
+			case XML_NOTATION_NODE:
+			case XML_DTD_NODE:
+			case XML_ELEMENT_DECL:
+			case XML_ATTRIBUTE_DECL:
+			case XML_ENTITY_DECL:
+			case XML_PI_NODE:
+			case XML_ENTITY_REF_NODE:
+			case XML_ENTITY_NODE:
+			case XML_NAMESPACE_DECL:
+			case XML_XINCLUDE_START:
+			case XML_XINCLUDE_END:
+				return;
+			case XML_ELEMENT_NODE:
+			case XML_ATTRIBUTE_NODE:
+				break;
+			case XML_DOCUMENT_NODE:
+	#ifdef LIBXML_DOCB_ENABLED
+			case XML_DOCB_DOCUMENT_NODE:
+	#endif
+			case XML_HTML_DOCUMENT_NODE: {
+				xmlDoc * doc = (xmlDoc *)cur;
+				SAlloc::F((xmlChar *)doc->URL);
+				doc->URL = uri ? xmlPathToURI(uri) : 0;
+				return;
+			}
+		}
+		ns = xmlSearchNsByHref(cur->doc, cur, XML_XML_NAMESPACE);
+		if(ns == NULL)
+			return;
+		fixed = xmlPathToURI(uri);
+		if(fixed) {
+			xmlSetNsProp(cur, ns, reinterpret_cast<const xmlChar *>("base"), fixed);
+			SAlloc::F(fixed);
+		}
+		else {
+			xmlSetNsProp(cur, ns, reinterpret_cast<const xmlChar *>("base"), uri);
+		}
 	}
 }
 
@@ -4577,11 +4568,10 @@ void xmlNodeSetBase(xmlNode * cur, const xmlChar* uri)
  * Returns a pointer to the base URL, or NULL if not found
  *   It's up to the caller to free the memory with SAlloc::F().
  */
-xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
+xmlChar * FASTCALL xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 {
 	xmlChar * oldbase = NULL;
 	xmlChar * base;
-	xmlChar * newbase;
 	if(!cur && !doc)
 		return 0;
 	if(cur && (cur->type == XML_NAMESPACE_DECL))
@@ -4612,14 +4602,14 @@ xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 	}
 	while(cur) {
 		if(cur->type == XML_ENTITY_DECL) {
-			xmlEntity * ent = (xmlEntity *)cur;
+			const xmlEntity * ent = reinterpret_cast<const xmlEntity *>(cur);
 			return sstrdup(ent->URI);
 		}
 		if(cur->type == XML_ELEMENT_NODE) {
 			base = xmlGetNsProp(cur, reinterpret_cast<const xmlChar *>("base"), XML_XML_NAMESPACE);
 			if(base) {
 				if(oldbase) {
-					newbase = xmlBuildURI(oldbase, base);
+					xmlChar * newbase = xmlBuildURI(oldbase, base);
 					if(newbase) {
 						SAlloc::F(oldbase);
 						SAlloc::F(base);
@@ -4643,9 +4633,11 @@ xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 	if(doc && doc->URL) {
 		if(oldbase == NULL)
 			return sstrdup(doc->URL);
-		newbase = xmlBuildURI(oldbase, doc->URL);
-		SAlloc::F(oldbase);
-		return (newbase);
+		else {
+			xmlChar * newbase = xmlBuildURI(oldbase, doc->URL);
+			SAlloc::F(oldbase);
+			return (newbase);
+		}
 	}
 	return (oldbase);
 }

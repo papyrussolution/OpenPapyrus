@@ -23,7 +23,7 @@ int FASTCALL PayPlanArray::IsEqual(const PayPlanArray & rS) const
 		for(uint i = 0; ok && enumItems(&i, reinterpret_cast<void**>(&p_e1));) {
 			int    found = 0;
 			for(uint j = 0; !found && rS.enumItems(&j, reinterpret_cast<void**>(&p_e2));) {
-				long   p = (long)j;
+				long   p = static_cast<long>(j);
 				if(!saw_list.lsearch(p) && memcmp(p_e1, p_e2, sizeof(*p_e1)) == 0) {
 					saw_list.add(p);
 					found = 1;
@@ -107,10 +107,8 @@ static int GetDefaultPaymPeriod(const PPBillPacket * pPack, int * pDays)
 	ArticleTbl::Rec ar_rec;
 	if(arobj.Fetch(pPack->Rec.Object, &ar_rec) > 0)
 		client_id = ar_rec.ID;
-	else {
+	else
 		MEMSZERO(ar_rec);
-		client_id = 0;
-	}
 	const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 	if(agt_kind == 1) {
 		int    is_agreement = 0;
@@ -261,6 +259,8 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 	else if(rFilt.ShipID && ShipID != rFilt.ShipID)
 		ok = 0;
 	else if(rFilt.CaptainID && CaptainID != rFilt.CaptainID)
+		ok = 0;
+	else if(rFilt.DlvrLocID && DlvrAddrID != rFilt.DlvrLocID) // @v10.5.0
 		ok = 0;
 	else if(rFilt.PortID || rFilt.PortOfLoading) {
 		const int strict = BIN(rFilt.Flags & FreightFilt::fStrictPort);
@@ -2042,7 +2042,7 @@ int SLAPI PPBillPacket::GetContextEmailAddr(SString & rBuf) const
 			PPELinkArray elink_list;
 			psn_obj.P_Tbl->GetELinks(psn_id, &elink_list);
 			if(elink_list.GetListByType(ELNKRT_EMAIL, ss) > 0) {
-				ss.get((uint)0, rBuf);
+				ss.get(0U, rBuf);
 				ok = 1;
 			}
 		}
@@ -4400,7 +4400,7 @@ int SLAPI PPBillPacket::SetupVirtualTItems()
 	CATCH
 		if(ok > 0)
 			while(GetTCount())
-				RemoveRow((uint)0);
+				RemoveRow(0U);
 		ok = 0;
 	ENDCATCH
 	if(ok > 0)
@@ -4412,7 +4412,7 @@ int SLAPI PPBillPacket::RemoveVirtualTItems()
 {
 	if(ProcessFlags & pfHasVirtualTI) {
 		while(GetTCount())
-			RemoveRow((uint)0);
+			RemoveRow(0U);
 		return 1;
 	}
 	else

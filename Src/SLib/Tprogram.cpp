@@ -1777,7 +1777,6 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			HFONT hf = reinterpret_cast<HFONT>(SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
 			canv.SelectObjectAndPush(hf);
 			canv.SetBkTranparent();
-
 			COLORREF text_color;
             if(!UiToolBox.GetColor(tbiButtonTextColor + item_state, &text_color) && item_state)
 				text_color = UiToolBox.GetColor(tbiButtonTextColor);
@@ -1814,10 +1813,8 @@ int TProgram::GetDialogTextLayout(const SString & rText, int fontId, int penId, 
 	rTlo.Reset();
 	if(fontId && rText.NotEmpty()) {
 		SString temp_buf;
-
 		int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
 		int    tid_cs = UiToolBox.CreateCStyle(0, fontId, penId, tool_text_brush_id);
-
 		SParaDescr pd;
 		if(adj == ADJ_CENTER)
 			pd.Flags |= SParaDescr::fJustCenter;

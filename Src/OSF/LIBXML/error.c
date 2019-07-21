@@ -360,7 +360,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	if((xmlGetWarningsDefaultValue == 0) && (level == XML_ERR_WARNING))
 		return;
 	if(oneof6(domain, XML_FROM_PARSER, XML_FROM_HTML, XML_FROM_DTD, XML_FROM_NAMESPACE, XML_FROM_IO, XML_FROM_VALID)) {
-		ctxt = (xmlParserCtxt *)ctx;
+		ctxt = static_cast<xmlParserCtxt *>(ctx);
 		if(!schannel && ctxt && ctxt->sax && (ctxt->sax->initialized == XML_SAX2_MAGIC) && ctxt->sax->serror) {
 			schannel = ctxt->sax->serror;
 			data = ctxt->userData;
@@ -533,7 +533,7 @@ void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * P_Node, const cha
  */
 void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlParserInput * input = NULL;
 	xmlParserInput * cur = NULL;
 	char * str;
@@ -570,7 +570,7 @@ void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
  */
 void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlParserInput * input = NULL;
 	xmlParserInput * cur = NULL;
 	char * str;
@@ -613,7 +613,7 @@ void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
  */
 void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlParserInput * input = NULL;
 	char * str;
 	int len = sstrlen((const xmlChar *)msg);
@@ -654,7 +654,7 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
  */
 void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlParserInput * input = NULL;
 	char * str;
 	int len = sstrlen((const xmlChar *)msg);
@@ -738,7 +738,7 @@ void xmlResetLastError()
  */
 xmlErrorPtr xmlCtxtGetLastError(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 
 	if(!ctxt)
 		return 0;
@@ -756,7 +756,7 @@ xmlErrorPtr xmlCtxtGetLastError(void * ctx)
  */
 void xmlCtxtResetLastError(void * ctx)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 
 	if(!ctxt)
 		return;

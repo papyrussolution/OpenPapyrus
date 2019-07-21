@@ -869,7 +869,6 @@ PosPaymentBlock & PosPaymentBlock::Clear()
 	BonusMaxPart = 0.0;
 	UsableBonus = 0.0;
 	AmtToPaym = 0.0;
-
 	Kind = cpmUndef;
 	Total = 0.0;
 	Discount = 0.0;
@@ -885,25 +884,10 @@ PosPaymentBlock & PosPaymentBlock::Init(const CPosProcessor * pCpp)
 	return *this;
 }
 
-double PosPaymentBlock::GetTotal() const
-{
-	return Total;
-}
-
-double PosPaymentBlock::GetDiscount() const
-{
-	return Discount;
-}
-
-double PosPaymentBlock::GetPctDiscount() const
-{
-	return fdivnz((Discount * 100.0), (Total + Discount));
-}
-
-double PosPaymentBlock::GetUsableBonus() const
-{
-	return UsableBonus;
-}
+double PosPaymentBlock::GetTotal() const { return Total; }
+double PosPaymentBlock::GetDiscount() const { return Discount; }
+double PosPaymentBlock::GetPctDiscount() const { return fdivnz((Discount * 100.0), (Total + Discount)); }
+double PosPaymentBlock::GetUsableBonus() const { return UsableBonus; }
 
 int PosPaymentBlock::EditDialog2()
 {

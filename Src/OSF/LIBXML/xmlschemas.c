@@ -22795,7 +22795,7 @@ internal_error:
 static void xmlSchemaSAXHandleText(void * ctx, const xmlChar * ch, int len)
 {
 	if(ctx) {
-		xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
+		xmlSchemaValidCtxt * vctxt = static_cast<xmlSchemaValidCtxt *>(ctx);
 		if(vctxt->depth >= 0) {
 			if((vctxt->skipDepth != -1) && (vctxt->depth >= vctxt->skipDepth))
 				return;
@@ -22815,7 +22815,7 @@ static void xmlSchemaSAXHandleText(void * ctx, const xmlChar * ch, int len)
 static void xmlSchemaSAXHandleCDataSection(void * ctx, const xmlChar * ch, int len)
 {
 	if(ctx) {
-		xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
+		xmlSchemaValidCtxt * vctxt = static_cast<xmlSchemaValidCtxt *>(ctx);
 		if(vctxt->depth >= 0) {
 			if((vctxt->skipDepth != -1) && (vctxt->depth >= vctxt->skipDepth))
 				return;
@@ -22832,7 +22832,7 @@ static void xmlSchemaSAXHandleCDataSection(void * ctx, const xmlChar * ch, int l
 
 static void xmlSchemaSAXHandleReference(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name ATTRIBUTE_UNUSED)
 {
-	xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
+	xmlSchemaValidCtxt * vctxt = static_cast<xmlSchemaValidCtxt *>(ctx);
 	if(vctxt->depth < 0)
 		return;
 	if((vctxt->skipDepth != -1) && (vctxt->depth >= vctxt->skipDepth))
@@ -22845,7 +22845,7 @@ static void xmlSchemaSAXHandleStartElementNs(void * ctx, const xmlChar * localna
     const xmlChar * URI, int nb_namespaces, const xmlChar ** namespaces, int nb_attributes,
     int nb_defaulted ATTRIBUTE_UNUSED, const xmlChar ** attributes)
 {
-	xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
+	xmlSchemaValidCtxt * vctxt = static_cast<xmlSchemaValidCtxt *>(ctx);
 	int ret;
 	xmlSchemaNodeInfoPtr ielem;
 	int i, j;
@@ -22886,7 +22886,7 @@ static void xmlSchemaSAXHandleStartElementNs(void * ctx, const xmlChar * localna
 			 * Store prefix and namespace name.
 			 */
 			if(ielem->nsBindings == NULL) {
-				ielem->nsBindings = (const xmlChar **)SAlloc::M(10 * sizeof(const xmlChar *));
+				ielem->nsBindings = static_cast<const xmlChar **>(SAlloc::M(10 * sizeof(const xmlChar *)));
 				if(ielem->nsBindings == NULL) {
 					xmlSchemaVErrMemory(vctxt, "allocating namespace bindings for SAX validation", 0);
 					goto internal_error;
@@ -22896,7 +22896,7 @@ static void xmlSchemaSAXHandleStartElementNs(void * ctx, const xmlChar * localna
 			}
 			else if(ielem->sizeNsBindings <= ielem->nbNsBindings) {
 				ielem->sizeNsBindings *= 2;
-				ielem->nsBindings = (const xmlChar **)SAlloc::R((void *)ielem->nsBindings, ielem->sizeNsBindings * 2 * sizeof(const xmlChar *));
+				ielem->nsBindings = static_cast<const xmlChar **>(SAlloc::R((void *)ielem->nsBindings, ielem->sizeNsBindings * 2 * sizeof(const xmlChar *)));
 				if(ielem->nsBindings == NULL) {
 					xmlSchemaVErrMemory(vctxt, "re-allocating namespace bindings for SAX validation", 0);
 					goto internal_error;
@@ -22954,7 +22954,7 @@ internal_error:
 
 static void xmlSchemaSAXHandleEndElementNs(void * ctx, const xmlChar * localname ATTRIBUTE_UNUSED, const xmlChar * prefix ATTRIBUTE_UNUSED, const xmlChar * URI ATTRIBUTE_UNUSED)
 {
-	xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
+	xmlSchemaValidCtxt * vctxt = static_cast<xmlSchemaValidCtxt *>(ctx);
 	int res;
 	/*
 	 * Skip elements if inside a "skip" wildcard or if invalid.
@@ -23999,7 +23999,7 @@ static int xmlSchemaValidateStreamLocator(void * ctx, const char ** file, unsign
 		return -1;
 	ASSIGN_PTR(file, NULL);
 	ASSIGN_PTR(line, 0);
-	ctxt = (xmlParserCtxt *)ctx;
+	ctxt = static_cast<xmlParserCtxt *>(ctx);
 	if(ctxt->input) {
 		ASSIGN_PTR(file, ctxt->input->filename);
 		ASSIGN_PTR(line, ctxt->input->line);

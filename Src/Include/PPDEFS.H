@@ -2406,6 +2406,8 @@
 	#define CTLSEL_ACCANLZ_SUBST        (34 + WINDOWS_ID_BIAS)
 	#define CTL_ACCANLZ_RELSUBST        (35 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCANLZ_RELSUBST     (36 + WINDOWS_ID_BIAS)
+	#define CTL_ACCANLZ_DLVRLOC         (37 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ACCANLZ_DLVRLOC      (38 + WINDOWS_ID_BIAS)
 #define DLG_QCERT                  90 // Сертификат качества
 	#define CTL_QCERT_CODE               (1 + WINDOWS_ID_BIAS)
 	#define CTL_QCERT_BCODE              (2 + WINDOWS_ID_BIAS)
@@ -4035,6 +4037,7 @@
 	#define CTL_SCALE_ADDEDMSGSIGN       (18 + WINDOWS_ID_BIAS)
 	#define CTL_SCALE_ADDEDLINELEN       (19 + WINDOWS_ID_BIAS)
 	#define CTL_SCALE_SYSBTN             (20 + WINDOWS_ID_BIAS)
+	#define CTL_SCALE_ADDEDLNCT          (21 + WINDOWS_ID_BIAS)
 #define DLG_SCALEPREP             308 // Подготовка данных для весов
 #define DLG_SCALETRAN             309 // Загрузка данных в весы
 	#define CTL_SCALEPREP_SCALE          (1 + WINDOWS_ID_BIAS)
@@ -10648,6 +10651,13 @@
 	#define CTL_LAYOENTRY_GRAVITY     (3 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_PARENT      (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LAYOENTRY_PARENT   (5 + WINDOWS_ID_BIAS)
+#define DLG_VETISENT              1364
+	#define CTL_VETISENT_LOC          (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETISENT_LOC       (2 + WINDOWS_ID_BIAS)
+	#define CTL_VETISENT_ORG          (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETISENT_ORG       (4 + WINDOWS_ID_BIAS)
+	#define CTL_VETISENT_BENTY        (5 + WINDOWS_ID_BIAS)
+	#define CTL_VETISENT_ENT          (6 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

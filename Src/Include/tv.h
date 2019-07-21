@@ -1176,7 +1176,7 @@ public:
 	int    FASTCALL EndScope(SRegion & rR);
 	int    SLAPI Stroke(int paintObjIdent, int preserve);
 	int    SLAPI Fill(int paintObjIdent, int preserve);
-	int    SLAPI Fill(SColor c, int preseve);
+	int    SLAPI Fill(SColor c, int preserve);
 	//
 	// Descr: Сохраняет во внутреннем стеке текущую матрицу преобразования.
 	//
@@ -3790,7 +3790,7 @@ class TToolbar {
 public:
 	friend class TuneToolsDialog;
 
-	TToolbar(HWND hw, DWORD style = 0);
+	explicit TToolbar(HWND hw, DWORD style = 0);
 	~TToolbar();
 	void   DestroyHWND();
 	BOOL   Valid() const;

@@ -886,10 +886,6 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 											ZDELETE(p_at);
 											at_auth_error = 1;
 										}
-										/*if(!p_at->Auth("papyrus", "JwihuTuWLr6ZLJzyqkqpkr8OLbC2UoRcu+NOBrUxMyQ=")) {
-											ZDELETE(p_at);
-											at_auth_error = 1;
-										}*/
 									}
 								}
 								if(p_at) {

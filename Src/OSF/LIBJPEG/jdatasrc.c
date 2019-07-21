@@ -217,11 +217,8 @@ GLOBAL(void) jpeg_mem_src(j_decompress_ptr cinfo, const uchar * inbuffer, ulong 
 	 * the first one.
 	 */
 	if(cinfo->src == NULL) { /* first time for this JPEG object? */
-		cinfo->src = (struct jpeg_source_mgr*)
-		    (*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT,
-		    SIZEOF(struct jpeg_source_mgr));
+		cinfo->src = (struct jpeg_source_mgr*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, SIZEOF(struct jpeg_source_mgr));
 	}
-
 	src = cinfo->src;
 	src->init_source = init_mem_source;
 	src->fill_input_buffer = fill_mem_input_buffer;
@@ -229,5 +226,5 @@ GLOBAL(void) jpeg_mem_src(j_decompress_ptr cinfo, const uchar * inbuffer, ulong 
 	src->resync_to_restart = jpeg_resync_to_restart; /* use default method */
 	src->term_source = term_source;
 	src->bytes_in_buffer = (size_t)insize;
-	src->next_input_byte = (const JOCTET*)inbuffer;
+	src->next_input_byte = static_cast<const JOCTET *>(inbuffer);
 }

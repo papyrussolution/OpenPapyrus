@@ -1298,11 +1298,11 @@ static int FASTCALL xmlCtxtGrowAttrs(xmlParserCtxt * ctxt, int nr)
 	}
 	else if((nr + 5) > ctxt->maxatts) {
 		maxatts = (nr + 5) * 2;
-		atts = static_cast<const xmlChar **>(SAlloc::R((void *)ctxt->atts, maxatts * sizeof(const xmlChar *)));
+		atts = static_cast<const xmlChar **>(SAlloc::R(ctxt->atts, maxatts * sizeof(const xmlChar *)));
 		if(atts == NULL) 
 			goto mem_error;
 		ctxt->atts = atts;
-		attallocs = (int *)SAlloc::R((void *)ctxt->attallocs, (maxatts / 5) * sizeof(int));
+		attallocs = static_cast<int *>(SAlloc::R(ctxt->attallocs, (maxatts / 5) * sizeof(int)));
 		if(attallocs == NULL) 
 			goto mem_error;
 		ctxt->attallocs = attallocs;
@@ -10760,7 +10760,7 @@ xmlParserCtxt * xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, c
 		if(ctxt->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler)
 #endif /* LIBXML_SAX1_ENABLED */
 		SAlloc::F(ctxt->sax);
-		ctxt->sax = (xmlSAXHandler *)SAlloc::M(sizeof(xmlSAXHandler));
+		ctxt->sax = static_cast<xmlSAXHandler *>(SAlloc::M(sizeof(xmlSAXHandler)));
 		if(ctxt->sax == NULL) {
 			xmlErrMemory(ctxt, 0);
 			xmlFreeParserInputBuffer(buf);
@@ -10877,7 +10877,7 @@ xmlParserCtxt * xmlCreateIOParserCtxt(xmlSAXHandler * sax, void * user_data, xml
 		if(ctxt->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler)
 #endif
 		SAlloc::F(ctxt->sax);
-		ctxt->sax = (xmlSAXHandler *)SAlloc::M(sizeof(xmlSAXHandler));
+		ctxt->sax = static_cast<xmlSAXHandler *>(SAlloc::M(sizeof(xmlSAXHandler)));
 		if(ctxt->sax == NULL) {
 			xmlErrMemory(ctxt, 0);
 			xmlFreeParserCtxt(ctxt);
