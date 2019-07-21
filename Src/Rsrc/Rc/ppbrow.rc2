@@ -13,7 +13,7 @@
 // @v10.5.0 TBBM_BROWSE-->PPDV_LINS02
 // @v10.5.0 TBBM_PRINT-->PPDV_PRINTER01
 // @v10.5.0 TBBM_TAGS-->PPDV_TAGS01
-// @v10.5.0 _TBBM_NOICON-->PPDV_NOICON
+// @v10.5.0 TBBM_NOICON-->PPDV_NOICON
 //
 declare command DEFAULT     // kbEnter
 declare command ADDITEM     // kbInsert
