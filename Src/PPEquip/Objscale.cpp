@@ -2295,7 +2295,8 @@ int SLAPI TCPIPMToledo::SetConnection()
 	memzero(ip, sizeof(ip));
 	THROW(PPObjScale::DecodeIP(Data.Port, ip));
 	if(UseNewAlg) {
-		char   send_timeout[10], rcv_timeout[10];
+		char   send_timeout[16];
+		char   rcv_timeout[16];
 		long   res;
 		struct sockaddr_in sin;
 		THROW_PP((SocketHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) != INVALID_SOCKET, PPERR_SCALE_NOSYNC);
@@ -2306,16 +2307,16 @@ int SLAPI TCPIPMToledo::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, sstrleni(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, send_timeout, sstrleni(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, reinterpret_cast<sockaddr *>(&sin), sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
-		/* @v10.4.12
+		// @v10.5.0 (»збавитьс€ от этого блока будет сложнее, чем € думал) /* @v10.4.12
 		PPSetAddedMsgString(CrcDLLPath);
 		if(!TrfrDLLHandle) {
 			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(CrcDLLPath)), PPERR_SCALE_INITMTDLL); // @unicodeproblem
-			THROW_PP(CalcCrcCall   = (MT_CalcCrcProc)GetProcAddress(TrfrDLLHandle, "?CalcCRC16@@YAGQBDI@Z"), PPERR_SCALE_INITMTDLL);
-		} */
+			THROW_PP(CalcCrcCall   = reinterpret_cast<MT_CalcCrcProc>(GetProcAddress(TrfrDLLHandle, "?CalcCRC16@@YAGQBDI@Z")), PPERR_SCALE_INITMTDLL);
+		} // */
 	}
 	else {
 		SString buf;
@@ -2324,7 +2325,7 @@ int SLAPI TCPIPMToledo::SetConnection()
 		PPSetAddedMsgString(TrfrDLLPath);
 		if(!TrfrDLLHandle) {
 			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(TrfrDLLPath)), PPERR_SCALE_INITMTDLL); // @unicodeproblem
-			THROW_PP(TrfrDLLCall   = (MT_EthernetProc)GetProcAddress(TrfrDLLHandle, "Transfer_Ethernet"), PPERR_SCALE_INITMTDLL);
+			THROW_PP(TrfrDLLCall = reinterpret_cast<MT_EthernetProc>(GetProcAddress(TrfrDLLHandle, "Transfer_Ethernet")), PPERR_SCALE_INITMTDLL);
 		}
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_CFG, buf);
 		PPSetAddedMsgString(buf);

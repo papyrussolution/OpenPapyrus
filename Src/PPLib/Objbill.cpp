@@ -792,7 +792,8 @@ int SLAPI PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBil
 						ti.Discount = ti.Price - p_ord_item->NetPrice();
 					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
 					ti.Flags   |= PPTFR_ONORDER;
-					ti.Quantity_ = -rest; // @v10.4.12 @fix rest-->-rest
+					// @v10.5.0 ti.Quantity_ = -rest; // @v10.4.12 @fix rest-->-rest
+					ti.Quantity_ = interactive ? rest : -rest; // @v10.5.0
 					{
 						uint   sh_lot_row_pos = 0;
 						//

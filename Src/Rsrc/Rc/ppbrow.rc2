@@ -6302,7 +6302,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 {
 	"ID",                    0,  notype, 0,  5
 	"Дата выпуска",          9,  notype, 0, 10
-	"Номер",                20,  notype, 0, 10
+	"@number",              20,  notype, 0, 10
 	"Форма",                11,  notype, 0, 10
 	"@type",                12,  notype, 0, 10
 	"@status",              13,  notype, 0, 10
