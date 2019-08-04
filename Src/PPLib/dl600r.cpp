@@ -875,7 +875,7 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 
 int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
 
-SLAPI DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0)
+SLAPI DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0), P_ViewDef(0)
 {
 }
 
@@ -1077,7 +1077,6 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 	SString data_name, head_name, suffix, left;
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
-
 	rBuf.Z();
 	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
 	head_name = data_name;
@@ -1299,6 +1298,31 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 			xmlTextWriterEndElement(p_writer);
 		// } @paul (pentaho export types)
 		}
+		// @erik v10.5.2{
+		if(rParam.P_ViewDef) { //надеюсь, список всех entry  отсортирован по Zone. При обратном ничего плохого конечно не случится, но XML будет некрасивый
+			const PPNamedFilt::ViewDefinition * p_vd = static_cast<const PPNamedFilt::ViewDefinition *>(rParam.P_ViewDef);
+			PPNamedFilt::ViewDefinition::Entry tmp_entry;
+			for(uint i = 0; i < p_vd->GetCount(); i++){
+				p_vd->GetEntry(i, tmp_entry);
+				if(i == 0){
+					suffix = tmp_entry.Zone;
+					xmlTextWriterStartElement(p_writer, suffix.ucptr());
+				}
+				else if(suffix != tmp_entry.Zone){
+					xmlTextWriterEndElement(p_writer);
+					suffix = tmp_entry.Zone;
+					xmlTextWriterStartElement(p_writer, suffix.ucptr());
+				}
+				if(oneof2(rParam.Cp, cpANSI, cp1251))
+					tmp_entry.Text.Transf(CTRANSF_INNER_TO_OUTER);
+				else if(rParam.Cp == cpUTF8)
+					tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
+				xmlTextWriterWriteElement(p_writer, tmp_entry.FieldName.ucptr(), tmp_entry.Text.ucptr());
+			}
+			xmlTextWriterEndElement(p_writer);
+		}
+		// } @erik
+
 		for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 			int    is_hdr = 0;
 			if(p_child->Name.IsEqiAscii("hdr")) {

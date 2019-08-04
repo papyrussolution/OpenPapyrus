@@ -1,5 +1,5 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -54,6 +54,10 @@ int FASTCALL checkirange(long nmb, long low, long upp)
 	}
 }
 
+long   FASTCALL inrangeordefault(long val, long low, long upp, long def) { return (val >= low && val <= upp) ? val : def; }
+uint   FASTCALL inrangeordefault(uint val, uint low, uint upp, uint def) { return (val >= low && val <= upp) ? val : def; }
+double FASTCALL inrangeordefault(double val, double low, double upp, double def) { return (val >= low && val <= upp) ? val : def; }
+
 int FASTCALL checkupper(uint nmb, uint upper)
 {
 	if(nmb < upper)
@@ -69,7 +73,7 @@ int FASTCALL checkupper(uint nmb, uint upper)
 
 int FASTCALL checkfrange(double nmb, double low, double upp)
 {
-	if((low == 0 && upp == 0) || (nmb >= low && nmb <= upp))
+	if((low == 0.0 && upp == 0.0) || (nmb >= low && nmb <= upp))
 		return 1;
 	else {
 #ifndef _WIN32_WCE // {

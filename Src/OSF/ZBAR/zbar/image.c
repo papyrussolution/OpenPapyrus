@@ -236,7 +236,7 @@ void zbar_image_set_symbols(zbar_image_t * img, /*const*/zbar_symbol_set_t * sym
 		zbar_symbol_set_ref(syms, 1);
 	if(img->syms)
 		zbar_symbol_set_ref(img->syms, -1);
-	img->syms = (zbar_symbol_set_t*)syms;
+	img->syms = syms;
 }
 
 const zbar_symbol_t * zbar_image_first_symbol(const zbar_image_t * img)
@@ -253,7 +253,7 @@ typedef struct zimg_hdr_s {
 int zbar_image_write(const zbar_image_t * img, const char * filebase)
 {
 	int len = strlen(filebase) + 16;
-	char * filename = (char *)SAlloc::M(len);
+	char * filename = static_cast<char *>(SAlloc::M(len));
 	int n = 0, rc = 0;
 	FILE * f;
 	zimg_hdr_t hdr;

@@ -1413,7 +1413,7 @@ char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target)
 		if(len < 0) 
 			return 0;
 		if(target == NULL) {
-			ret = (char *)SAlloc::M(len+1);
+			ret = static_cast<char *>(SAlloc::M(len+1));
 			if(!ret) {
 				xmlURIErrMemory("unescaping URI value\n");
 				return 0;
@@ -1805,7 +1805,7 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	len = 2; /* extra / and 0 */
 	len += sstrlen(ref->path);
 	len += sstrlen(bas->path);
-	res->path = (char *)SAlloc::M(len);
+	res->path = static_cast<char *>(SAlloc::M(len));
 	if(res->path == NULL) {
 		xmlURIErrMemory("resolving URI against base\n");
 		goto done;

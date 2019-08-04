@@ -2793,7 +2793,6 @@ public:
 	TLabel * SLAPI getCtlLabel(uint ctlID);
 	int    SLAPI getLabelText(uint ctlID, SString & rText);
 	int    SLAPI setLabelText(uint ctlID, const char * pText);
-
 	int    GetCtlSymb(uint id, SString & rBuf) const;
 	int    SaveUserSettings();
 	int    RestoreUserSettings();

@@ -888,7 +888,6 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	BExtQuery::ZDelete(&P_IterQuery);
 	UndefPriorList  = (Filt.GetPriorList(&PriorList) > 0) ? 0 : 1;
 	UndefStatusList = (Filt.GetStatusList(&StatusList) > 0) ? 0 : 1;
-
 	CreatorList.Set(0);
 	EmployerList.Set(0);
 	ClientList.Set(0);
@@ -946,23 +945,15 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 			if(p_ct_prcssr)
 				THROW(p_ct_prcssr->Start());
 			for(InitIteration(); NextIteration(&rec) > 0; PPWaitPercent(GetCounter())) {
-				/* @v8.5.11
-				if((!CreatorList.IsExists() || CreatorList.CheckID(rec.CreatorID) > 0) && (!EmployerList.IsExists() || EmployerList.CheckID(rec.EmployerID) > 0) &&
-					(!ClientList.IsExists() || ClientList.CheckID(rec.ClientID) > 0)) {
-					if((filt.StartTmPeriodBeg || filt.StartTmPeriodEnd) && filt.StartTmPeriodEnd >= filt.StartTmPeriodBeg)
-						if(rec.StartTm < filt.StartTmPeriodBeg || rec.StartTm > filt.StartTmPeriodEnd)
-							continue;
-					*/
-					if(p_ct_prcssr) {
-						THROW(p_ct_prcssr->ProcessRec(&rec));
-					}
-					else {
-						TempOrderTbl::Rec ord_rec;
-						MakeTempEntry(&rec, &ord_rec);
-						THROW_DB(p_bei->insert(&ord_rec));
-					}
-					THROW(AddItemToTimeGrid(&rec, 0));
-				// @v8.5.11 }
+				if(p_ct_prcssr) {
+					THROW(p_ct_prcssr->ProcessRec(&rec));
+				}
+				else {
+					TempOrderTbl::Rec ord_rec;
+					MakeTempEntry(&rec, &ord_rec);
+					THROW_DB(p_bei->insert(&ord_rec));
+				}
+				THROW(AddItemToTimeGrid(&rec, 0));
 			}
 			if(p_ct_prcssr) {
 				THROW(p_ct_prcssr->Finish());
@@ -993,7 +984,7 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 			virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 			{
 				return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ?
-					P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
 			}
 			PPViewPrjTask * P_V;
 		};
@@ -1091,20 +1082,16 @@ void PrjTaskFiltDialog::SetupCtrls()
 int PrjTaskFiltDialog::setDTS(const PrjTaskFilt * pData)
 {
 	Data = *pData;
-
 	AddClusterAssoc(CTL_TODOFILT_KIND, 0, TODOKIND_TASK);
 	AddClusterAssoc(CTL_TODOFILT_KIND, 1, TODOKIND_TEMPLATE);
-
 	AddClusterAssoc(CTL_TODOFILT_FLAGS, 0, PrjTaskFilt::fUnbindedOnly);
 	AddClusterAssoc(CTL_TODOFILT_FLAGS, 1, PrjTaskFilt::fUnviewedOnly);
 	AddClusterAssoc(CTL_TODOFILT_FLAGS, 2, PrjTaskFilt::fUnviewedEmployerOnly);
 	SetClusterData(CTL_TODOFILT_FLAGS, Data.Flags);
-
 	SetPeriodInput(this, CTL_TODOFILT_PERIOD, &Data.Period);
 	SetPeriodInput(this, CTL_TODOFILT_START,  &Data.StartPeriod);
 	SetPeriodInput(this, CTL_TODOFILT_ESTFINISH, &Data.EstFinishPeriod);
 	SetPeriodInput(this, CTL_TODOFILT_FINISH,  &Data.FinishPeriod);
-
 	SetupPPObjCombo(this,  CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, Data.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
 	SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, (PPID)PPPRK_EMPL, 0);
 	SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, (PPID)PPPRK_EMPL, 0);
@@ -1141,7 +1128,6 @@ int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
 {
 	int    ok = 1;
 	uint   sel = 0;
-
 	GetClusterData(CTL_TODOFILT_KIND, &Data.Kind);
 	GetClusterData(CTL_TODOFILT_FLAGS, &Data.Flags);
 	THROW(GetPeriodInput(this, sel = CTL_TODOFILT_PERIOD, &Data.Period));
@@ -1283,7 +1269,7 @@ int SLAPI PPViewPrjTask::InitIteration()
 		MEMSZERO(k);
 		if(Filt.TabType == PrjTaskFilt::crstDateHour)
 			idx = 0;
-		else if(Filt.TabType == PrjTaskFilt::crstClientDate || Filt.TabType == PrjTaskFilt::crstClientEmployer)
+		else if(oneof2(Filt.TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstClientEmployer))
 			idx = 1;
 		else if(Filt.TabType == PrjTaskFilt::crstEmployerDate)
 			idx = 2;
@@ -1403,7 +1389,6 @@ int SLAPI PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 		VCalendar vcal;
 		PrjTaskViewItem item;
 		VCalendar::Todo vrec;
-
 		PPGetFilePath(PPPATH_OUT, PPFILNAM_VCALTODO, path);
 		PPGetFilePath(PPPATH_OUT, PPFILNAM_ICALTODO, ical_path);
 		THROW(vcal.Open(path, 1));

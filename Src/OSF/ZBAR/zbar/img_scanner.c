@@ -216,7 +216,7 @@ static /*inline**/ int FASTCALL recycle_syms(zbar_image_scanner_t * iscn, zbar_s
 		iscn->recycle[i].nsyms--;
 	}
 	else {
-		sym = (zbar_symbol_t *)SAlloc::C(1, sizeof(zbar_symbol_t));
+		sym = static_cast<zbar_symbol_t *>(SAlloc::C(1, sizeof(zbar_symbol_t)));
 		STAT(sym_new);
 	}
 	// init new symbol 
@@ -232,7 +232,7 @@ static /*inline**/ int FASTCALL recycle_syms(zbar_image_scanner_t * iscn, zbar_s
 		if((int)sym->data_alloc < datalen) {
 			SAlloc::F(sym->P_Data_);
 			sym->data_alloc = datalen;
-			sym->P_Data_ = (char *)SAlloc::M(datalen);
+			sym->P_Data_ = static_cast<char *>(SAlloc::M(datalen));
 		}
 	}
 	else {

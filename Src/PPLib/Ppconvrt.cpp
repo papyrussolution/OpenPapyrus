@@ -847,14 +847,14 @@ int SLAPI PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t 
 		THROW(Search(id, &ref_rec) > 0);
 	}
 	strnzcpy(pName, strip(ref_rec.ObjName), PP_SYMBLEN);
-	THROW_MEM(bform = (char *)SAlloc::C(1, sz));
+	THROW_MEM(bform = static_cast<char *>(SAlloc::C(1, sz)));
 	THROW(ref->GetProp(Obj, id, 1, form, sz) > 0);
 	if((PROPRECFIXSIZE + form->TailSize) > sz) {
 		sz = PROPRECFIXSIZE + (size_t)form->TailSize;
-		THROW_MEM(bform = (char *)SAlloc::R(bform, sz));
+		THROW_MEM(bform = static_cast<char *>(SAlloc::R(bform, sz)));
 		THROW(ref->GetProp(PPOBJ_FORMULA, id, 1, form, sz));
 	}
-	strnzcpy(pBuf, (char *)(form + 1), buflen);
+	strnzcpy(pBuf, reinterpret_cast<const char *>(form + 1), buflen);
 	strip(pBuf);
 	CATCHZOK
 	SAlloc::F(bform);

@@ -1911,11 +1911,12 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 		const  int adjust_sl = BIN(rS.StakeCloseMode == rS.clsmodAdjustLoss); // @v10.4.8
 		{
 			static const double spread_adjustment = 1.1; // Поправка запаса прочности для размера комиссии
+			const uint _target_quant = rS.TargetQuant;
 			const double spread = (rS.Prec > 0 && rS.SpreadAvg > 0.0) ? (rS.SpreadAvg * fpow10i(-rS.Prec) * spread_adjustment) : 0.0;
 			const double margin = rS.Margin;
 			uint k = valueIdx+1;
 			if(is_short) {
-				const double target_value = rS.TargetQuant ? round(stake_value * (1.0 - (rS.TargetQuant * rS.SpikeQuant)), prec) : 0.0;
+				const double target_value = _target_quant ? round(stake_value * (1.0 - (_target_quant * rS.SpikeQuant)), prec) : 0.0;
 				const double org_sl = Implement_CalcSL_Short(mdv, prec, peak);
 				double sl = org_sl;
 				while(k < tsc) {
@@ -1928,7 +1929,7 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 						ok = 2;
 						break;
 					}
-					else if(rS.TargetQuant && value <= target_value) {
+					else if(_target_quant && value <= target_value) {
 						ok = 2;
 						break;
 					}
@@ -1944,7 +1945,7 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 				}
 			}
 			else {
-				const double target_value = rS.TargetQuant ? round(stake_value * (1.0 + (rS.TargetQuant * rS.SpikeQuant)), prec) : 0.0;
+				const double target_value = _target_quant ? round(stake_value * (1.0 + (_target_quant * rS.SpikeQuant)), prec) : 0.0;
 				const double org_sl = Implement_CalcSL_Long(mdv, prec, peak);
 				double sl = org_sl;
 				while(k < tsc) {
@@ -1957,7 +1958,7 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 						ok = 2;
 						break;
 					}
-					else if(rS.TargetQuant && value >= target_value) {
+					else if(_target_quant && value >= target_value) {
 						ok = 2;
 						break;
 					}
@@ -2056,7 +2057,7 @@ static void SLAPI TsSimulateStrategyContainer(const DateTimeArray & rTmList, con
 						rv_ex.TrendErr = _best_result.TrendErr; // @v10.4.11
 						rv_ex.TrendErrRel = _best_result.TrendErrRel; // @v10.4.11
 						CALLPTRMEMB(pDetailsList, insert(&rv_ex)); // @v10.4.11
-						i = rv_ex.LastPoint+1; // Дальше продолжим со следующей точки
+						i = rv_ex.LastPoint; // Дальше продолжим со следующей точки // @v10.5.1 (rv_ex.LastPoint+1)-->(rv_ex.LastPoint) цикл for сделает инкремент
 					}
 					else
 						break; // Ряд оборвался - дальше анализировать нельзя: некоторые стратегии не имеют достаточно данных.
@@ -2763,11 +2764,9 @@ int SLAPI PPObjTimeSeries::StrategyContainer::CreateIndex1(PPObjTimeSeries::Stra
 }
 
 int SLAPI PPObjTimeSeries::StrategyContainer::Select(const TSCollection <TrendEntry> & rTrendList, int lastTrendIdx, long criterion, 
-	const /*TSCollection <IndexEntry1>*/Index1 * pIndex1, BestStrategyBlock & rBsb, LongArray * pAllSuitedPosList) const
+	const Index1 * pIndex1, BestStrategyBlock & rBsb, LongArray * pAllSuitedPosList) const
 {
 	int    ok = -1;
-	//bool   is_there_long = false;
-	//bool   is_there_short = false;
 	uint   potential_long_count = 0;
 	uint   potential_short_count = 0;
 	BestStrategyBlock _best_result;
@@ -3619,12 +3618,10 @@ int SLAPI PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 	rMp.Z();
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_INITTRENDERRLIMIT, temp_buf) > 0)
 		rMp.InitTrendErrLimit = temp_buf.ToReal();
-	if(rMp.InitTrendErrLimit <= 0.0 || rMp.InitTrendErrLimit > 10.0)
-		rMp.InitTrendErrLimit = 1.0;
+	rMp.InitTrendErrLimit = inrangeordefault(rMp.InitTrendErrLimit, 1E-6, 10.0, 1.0);
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_BESTSUBSETDIMESION, temp_buf) > 0)
 		rMp.BestSubsetDimention = static_cast<uint>(temp_buf.ToLong());
-	if(rMp.BestSubsetDimention == 0 || rMp.BestSubsetDimention > 3000)
-		rMp.BestSubsetDimention = 100;
+	rMp.BestSubsetDimention = inrangeordefault(rMp.BestSubsetDimention, 1, 3000, 100);
 	// @v10.4.3 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_BESTSUBSETTF, temp_buf) > 0) {
 		if(temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes") || temp_buf.IsEqual("1"))
@@ -3662,8 +3659,7 @@ int SLAPI PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 	// @v10.4.2 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_DEFTARGETQUANT, temp_buf) > 0)
 		rMp.DefTargetQuant = static_cast<uint>(temp_buf.ToLong());
-	if(rMp.DefTargetQuant == 0 || rMp.DefTargetQuant > 200)
-		rMp.DefTargetQuant = 18;
+	rMp.DefTargetQuant = inrangeordefault(rMp.DefTargetQuant, 1, 200, 18);
 	// } @v10.4.2
 	// @v10.4.7 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_OPTRANGE_STEP, temp_buf) > 0) {
@@ -3694,8 +3690,7 @@ int SLAPI PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_MINWINRATE, temp_buf) > 0) {
 		rMp.MinWinRate = temp_buf.ToReal();
 	}
-	if(rMp.MinWinRate < 0.0 || rMp.MinWinRate > 100.0)
-		rMp.MinWinRate = 0.0;
+	rMp.MinWinRate = inrangeordefault(rMp.MinWinRate, 0.0, 100.0, 0.0);
 	// } @v10.4.2
 	// @v10.4.9 {
 	{

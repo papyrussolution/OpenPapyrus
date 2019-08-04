@@ -13737,7 +13737,7 @@ public:
 		pttCredit = 7  // PTT_CREDIT         Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
 	};
 
-	//@erikC v10.4.12{
+	//@erik v10.4.12{
 	enum SubjTermTag {
 		sttUndef           = 0,  // STT_UNDEF 
 		sttGood            = 1,  // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
@@ -15021,6 +15021,18 @@ public:
 	class ViewDefinition : public SStrGroup {
 	public:
 		struct Entry { // @transient
+			Entry() : TotalFunc(0)
+			{
+			}
+
+			Entry & Z(){
+				Zone = 0;
+				FieldName = 0;
+				Text = 0;
+				TotalFunc = 0;
+				return *this;
+			}
+
 			SString Zone;
 			SString FieldName;
 			SString Text;
@@ -15030,17 +15042,21 @@ public:
 		{
 		}
 		uint   GetCount() const;
-		int    GetEntry(uint idx, Entry & rE) const;
+		int    GetEntry(uint pos, Entry & rE) const;
 		int    SetEntry(const Entry & rE);
-		int    RemoveEntryByIdx(uint idx);
+		int    RemoveEntryByPos(uint pos);
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+		int    XmlWriter(void * param);
+
 	private:
 		struct InnerEntry { // @persistent
 			uint32 ZoneP;
-			uint32 FileNameP;
+			uint32 FieldNameP;
 			uint32 TextP;
 			int32  TotalFunc;
 			uint8  Reserve[16]; // @reserve
 		};
+		int SearchEntry(const char * pZone, const char * pFieldName, uint * pPos, InnerEntry * pInneEntry) const;
 		TSVector <InnerEntry> L;
 	};
 	// } @v10.5.0 
@@ -15050,7 +15066,7 @@ public:
 	//
 	// Descr: Записать данные класса в буфер
 	//
-	int    SLAPI Write(SBuffer &, long) const;
+	int    SLAPI Write(SBuffer &, long);// @erik v10.5.0 const -> notConst
 	//
 	// Descr: Прочитать из буфера данные и спроецировать на класс
 	//
@@ -19374,7 +19390,7 @@ struct SlipLineParam {
 	double Price;         // для regtoFiscal
 	double VatRate;       // для regtoFiscal
 	int    PaymTermTag;   // для regtoFiscal @v10.4.1 CCheckPacket::PaymentTermTag
-	int    SbjTermTag;    // для regtoFiscal CCheckPacket::SubjTermTag @erikA v10.4.12
+	int    SbjTermTag;    // для regtoFiscal CCheckPacket::SubjTermTag @erik v10.4.12
 	short  DivID;         // для regtoFiscal
 	short  FontSize;      // Размер шрифта (для обычного принтера)
 	int    BarcodeStd;    // BARCSTD_XXX Стандарт штрихкода
@@ -28193,7 +28209,8 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 		fUncondAcceptEdiIntrMov      = 0x0004, // @v9.0.0 Безусловный акцепт внутренних перемещений, продублированных по каналу EDI
 		fUseOwnEgaisObjects          = 0x0008, // @v9.0.2 Использовать собственную базу данных объектов ЕГАИС
 		fUseDateInBillAnalog         = 0x0010, // @v9.1.9 Использовать критерий даты при поиске аналога документа
-		fStrictExpGtinCheck          = 0x0020  // @v10.0.04 Строгая проверка передаваемых кодов товара на принадлежность EAN/UPC
+		fStrictExpGtinCheck          = 0x0020, // @v10.0.04 Строгая проверка передаваемых кодов товара на принадлежность EAN/UPC
+		fVetisTestContour            = 0x0040  // @v10.5.1 Используется тестовый контур ВЕТИС
 	};
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
@@ -31839,8 +31856,9 @@ private:
 	};
 	long   State2; // @v9.8.11 PPObjBill::stXXX
 	struct LockSet { // @flat
-		PPID   id;
-		PPID   link;
+		LockSet(PPID id, PPID linkID);
+		PPID   ID;
+		PPID   LinkID;
 	};
 	TSVector <LockSet> locks; // @v9.8.6 TSArray-->TSVector
 	GtaBlock GtaB;
@@ -45544,6 +45562,10 @@ public:
 	//   Если параметр fromBill != 0, то считает, что лот {billID; rowN} уже сопоставлен и не модифицирует документ.
 	//
 	int    SLAPI MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta);
+	int    SLAPI SetupEnterpriseEntry(PPID psnID, PPID locID, VetisEnterprise & rEntry);
+	int    SLAPI MakeCountryList(StrAssocArray & rList, UUIDAssocArray & rGuidList);
+	int    SLAPI MakeRegionList(long countryIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList);
+	int    SLAPI MakeLocalityList(long regionIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList);
 
 	VetisEntityTbl ET;
 	VetisProductTbl PiT;
@@ -45657,6 +45679,7 @@ private:
 	int    SLAPI LoadDocuments();
 	int    SLAPI ProcessIncoming(PPID entityID);
 	int    SLAPI ProcessOutcoming(PPID entityID);
+	int    SLAPI ViewWarehouse();
 	enum {
 		otmFrom = 1,
 		otmTo,

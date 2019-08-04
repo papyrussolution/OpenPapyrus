@@ -1,5 +1,5 @@
 // SC_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2019
 // Part of StyloConduit project
 // Ёкспорт/»мпорт задач
 //
@@ -8,12 +8,8 @@
 #pragma hdrstop
 #include "StyloConduit.h"
 
-SCDBObjToDo::SCDBObjToDo(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjToDo::SCDBObjToDo(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_ExpTbl(0), P_ImpTbl(0), P_ExpPath(0), P_ImpPath(0)
 {
-	P_ExpTbl = 0;
-	P_ImpTbl = 0;
-	P_ExpPath = 0;
-	P_ImpPath = 0;
 }
 
 SCDBObjToDo::~SCDBObjToDo()
@@ -43,19 +39,16 @@ int SCDBObjToDo::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
 	char   path[MAXPATH], fname[MAXPATH];
-
 	ZDELETE(P_ExpPath);
 	P_ExpPath = newStr(pExpPath);
 	ZDELETE(P_ImpPath);
 	P_ImpPath = newStr(pImpPath);
-
 	setLastSlash(STRNSCPY(path, pExpPath));
 	strcat(STRNSCPY(fname, path), "sp_todo.dbf");
 	if(fileExists(fname)) {
 		P_ExpTbl = new DbfTable(fname);
 		THROW(ScCheckDbfOpening(P_ExpTbl, P_Ctx->LogFile));
 	}
-
 	setLastSlash(STRNSCPY(path, pImpPath));
 	strcat(STRNSCPY(fname, path), "sp_todo.dbf");
 	if(fileExists(fname))
@@ -63,11 +56,8 @@ int SCDBObjToDo::Init(const char * pExpPath, const char * pImpPath)
 	THROW(CreateImpTbl(fname));
 	P_ImpTbl = new DbfTable(fname);
 	THROW(ScCheckDbfOpening(P_ImpTbl, P_Ctx->LogFile));
-
 	THROW(ReadIdAssoc(P_Ctx->PalmCfg.PalmCompressedData()));
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -93,9 +83,7 @@ int SCDBObjToDo::ReadIdAssoc(int fromPalmCompressedFile)
 			IdAsscList.Add(rec.Key, rec.Val, 0, 0);
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -103,10 +91,8 @@ int SCDBObjToDo::WriteIdAssoc(PROGRESSFN pFn)
 {
 	int    ok = 1;
 	uint   i;
-
 	const int do_compress = P_Ctx->PalmCfg.CompressData();
 	const char * p_tbl_name = do_compress ? P_ToDoAsscFileName_A : P_ToDoAsscFileName;
-
 	SyncTable stbl(do_compress, 0, P_Ctx);
 	THROW(stbl.Open(p_tbl_name, SyncTable::oCreate));
 	if(!do_compress)
@@ -118,9 +104,7 @@ int SCDBObjToDo::WriteIdAssoc(PROGRESSFN pFn)
 		THROW(stbl.AddRec(&rec_id, &r_item, sizeof(r_item)));
 		WaitPercent(pFn, i+1, IdAsscList.getCount(), "Ёкспорт таблицы ассоциаций");
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -233,9 +217,7 @@ int SCDBObjToDo::Import(PROGRESSFN pFn, CSyncProperties * pProps)
 			}
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	delete p_buf;
 	return ok;
 }
@@ -266,7 +248,6 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 		P_ExpTbl->getFieldNumber("DUEDATE",   &fldn_duedate);
 		P_ExpTbl->getFieldNumber("DESCRIPT",  &fldn_descr);
 		P_ExpTbl->getFieldNumber("MEMO",      &fldn_memo);
-
 		const int do_compress = P_Ctx->PalmCfg.CompressData();
 		const char * p_tbl_name = do_compress ? "ToDoDB_A" : "ToDoDB";
 		if(do_compress)
@@ -281,7 +262,6 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 			long   temp_long = 0;
 			DWORD  rec_id = 0;
 			char   temp_buf[512];
-
 			HostRec host_rec;
 			DbfRecord rec(P_ExpTbl);
 			P_ExpTbl->getRec(&rec);
@@ -327,9 +307,7 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 	}
 	else
 		ok = -1;
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	delete p_out_buf;
 	return ok;
 }

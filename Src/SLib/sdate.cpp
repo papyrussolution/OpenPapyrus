@@ -3201,7 +3201,7 @@ uint SUniTime::GetSignature() const
 	return SUniTime_Decode(D, &value);
 }
 
-int64  SUniTime::ToInt64() const { return *(int64 *)D; }
+int64  SUniTime::ToInt64() const { return *reinterpret_cast<const int64 *>(D); }
 
 int    SUniTime::FromInt64(int64 v)
 {

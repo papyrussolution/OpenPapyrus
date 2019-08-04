@@ -5,27 +5,29 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(0), ViewID(0), Flags(0)
+SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(1), ViewID(0), Flags(0) //@erik ver(0)->ver(1)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
 
 PPNamedFilt & FASTCALL PPNamedFilt::operator = (const PPNamedFilt & s)
 {
-	ID       = s.ID;
-	Ver      = s.Ver;
-	ViewID   = s.ViewID;
-	Flags    = s.Flags;
-	Name     = s.Name;
-	DbSymb   = s.DbSymb;
-	Symb     = s.Symb;
+	ID = s.ID;
+	Ver = s.Ver;
+	ViewID = s.ViewID;
+	Flags = s.Flags;
+	Name = s.Name;
+	DbSymb = s.DbSymb;
+	Symb = s.Symb;
 	ViewSymb = s.ViewSymb;
-	Param    = s.Param;
+	Param = s.Param;
+	VD = s.VD;
 	return *this;
 }
 
-int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) const
+int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
 {
+	SSerializeContext sctx;
 	int    ok = 1;
 	THROW(rBuf.Write(ID));
 	THROW(rBuf.Write(Ver));
@@ -37,10 +39,11 @@ int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) const
 	THROW(rBuf.Write(Symb));
 	THROW(rBuf.Write(ViewSymb));
 	THROW(rBuf.Write(Param));
+	THROW(VD.Serialize(1, rBuf, &sctx));
 	CATCH
 		ok = PPSetErrorSLib();
 	ENDCATCH
-	return ok;
+		return ok;
 }
 
 int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
@@ -56,10 +59,14 @@ int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
 	THROW(rBuf.Read(Symb));
 	THROW(rBuf.Read(ViewSymb));
 	THROW(rBuf.Read(Param));
+	if(Ver > 0) {
+		SSerializeContext sctx;
+		THROW(VD.Serialize(-1, rBuf, &sctx));
+	}
 	CATCH
 		ok = PPSetErrorSLib();
 	ENDCATCH
-	return ok;
+		return ok;
 }
 
 SLAPI PPNamedFilt::~PPNamedFilt()
@@ -67,7 +74,7 @@ SLAPI PPNamedFilt::~PPNamedFilt()
 	Param.Z();
 }
 
-SLAPI PPNamedFiltPool::PPNamedFiltPool(const char * pDbSymb, const int readOnly) : TSCollection <PPNamedFilt> (), DbSymb(pDbSymb), Flags(0)
+SLAPI PPNamedFiltPool::PPNamedFiltPool(const char * pDbSymb, const int readOnly) : TSCollection <PPNamedFilt>(), DbSymb(pDbSymb), Flags(0)
 {
 	SETFLAG(Flags, fReadOnly, readOnly);
 }
@@ -101,7 +108,7 @@ uint SLAPI PPNamedFiltPool::GetCount() const
 int SLAPI PPNamedFiltPool::CheckUniqueNamedFilt(const PPNamedFilt * pNFilt) const
 {
 	int    ok = 1;
-    for(uint i = 0; i < getCount(); i++) {
+	for(uint i = 0; i < getCount(); i++) {
 		const PPNamedFilt * p_nfilt = at(i);
 		if(p_nfilt->ID != pNFilt->ID) {
 			THROW_PP_S(p_nfilt->Name.CmpNC(pNFilt->Name) != 0, PPERR_DUPNFNAME, p_nfilt->Name);
@@ -110,7 +117,7 @@ int SLAPI PPNamedFiltPool::CheckUniqueNamedFilt(const PPNamedFilt * pNFilt) cons
 		}
 	}
 	CATCHZOK
-	return ok;
+		return ok;
 }
 
 int SLAPI PPNamedFiltPool::Enum(PPID * pID, PPNamedFilt * pNFilt, int ignoreDbSymb) const
@@ -169,15 +176,15 @@ int SLAPI PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt *
 		else if(p_nfilt->ID > max_id)
 			max_id = p_nfilt->ID;
 	}
-	if(ok < 0 && pNFilt) {
+	if (ok < 0 && pNFilt) {
 		PPNamedFilt * p_nfilt = CreateNewItem();
 		THROW_SL(p_nfilt);
 		*p_nfilt = *pNFilt;
-		p_nfilt->ID = max_id+1;
+		p_nfilt->ID = max_id + 1;
 		ASSIGN_PTR(pNamedFiltID, p_nfilt->ID);
 	}
 	CATCHZOK
-	return ok;
+		return ok;
 }
 
 SLAPI PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
@@ -204,7 +211,7 @@ int SLAPI PPNamedFiltMngr::LoadResource(PPID viewID, SString & rSymb, SString & 
 		pFlags = &flags;
 	}
 	CATCHZOK
-	return ok;
+		return ok;
 }
 
 int SLAPI PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocArray * pTextList) const
@@ -228,7 +235,7 @@ int SLAPI PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocA
 		pTextList->SortByText();
 	}
 	CATCHZOK
-	return ok;
+		return ok;
 }
 
 #define NFSTRGSIGN 'SFPP'
@@ -266,7 +273,7 @@ int SLAPI PPNamedFiltMngr::LoadPool(const char * pDbSymb, PPNamedFiltPool * pPoo
 	LastLoading = getcurdatetime_();
 	pPool->DbSymb = pDbSymb;
 	CATCHZOK
-	SETFLAG(pPool->Flags, PPNamedFiltPool::fReadOnly, readOnly);
+		SETFLAG(pPool->Flags, PPNamedFiltPool::fReadOnly, readOnly);
 	return ok;
 }
 
@@ -288,7 +295,7 @@ int SLAPI PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
 		THROW_SL(f.Write(buf));
 	}
 	CATCHZOK
-	return ok;
+		return ok;
 }
 //
 // Descr: Отвечает за диалог "Список фильтров"
@@ -348,7 +355,7 @@ int SLAPI ViewFiltPool()
 			PPError();
 	}
 	CATCHZOKPPERR
-	delete dlg;
+		delete dlg;
 	return ok;
 }
 
@@ -361,6 +368,8 @@ public:
 	{
 		P_Mngr->GetResourceLists(&CmdSymbList, &CmdTextList);
 	}
+
+	int    ViewMobColumnList(); //@erik 10.5.0
 	//
 	// Descr: Заполняет интерфейс данными из pData
 	//
@@ -397,7 +406,7 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 	uint pos;
 	// Событие: выбор элемента в комбобоксе
 	if(event.isCbSelected(CTLSEL_FILTITEM_CMD)) {
-		PPID view_id  = getCtrlLong(CTLSEL_FILTITEM_CMD);
+		PPID view_id = getCtrlLong(CTLSEL_FILTITEM_CMD);
 		if(view_id && CmdTextList.Search(view_id, &pos)) {
 			// Если пользователь еще не ввел название, возможно он захочет совпадающее с именем PPView
 			SString name;
@@ -414,6 +423,9 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 	// Событие: нажатие кнопки "Фильтр.."
 	else if(event.isCmd(cmCmdParam)) {
 		ChangeBaseFilter();
+	}
+	else if(event.isCmd(cmOutFields)) {
+		ViewMobColumnList();
 	}
 	clearEvent(event);
 }
@@ -445,7 +457,7 @@ int FiltItemDialog::ChangeBaseFilter()
 	CATCH
 		Data.Param.SetRdOffs(sav_offs);
 	ENDCATCH
-	ZDELETE(p_filt);
+		ZDELETE(p_filt);
 	ZDELETE(p_view);
 	return ok;
 }
@@ -492,7 +504,7 @@ int FiltItemDialog::getDTS(PPNamedFilt * pData)
 		// Вывести сообщение о ошибке и активировать породивший его управляющий элемент
 		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
-	return ok;
+		return ok;
 }
 
 //
@@ -500,7 +512,7 @@ int FiltItemDialog::getDTS(PPNamedFilt * pData)
 //
 int FiltPoolDialog::addItem(long * pPos, long * pID)
 {
-	int    ok = -1;
+	int ok = -1;
 	PPNamedFilt  nfilt;
 	nfilt.DbSymb = P_Data->GetDbSymb();
 	if(EditFiltItem(P_Mngr, P_Data, &nfilt) > 0) {
@@ -510,7 +522,7 @@ int FiltPoolDialog::addItem(long * pPos, long * pID)
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	return ok;
+		return ok;
 }
 
 //
@@ -543,3 +555,263 @@ int FiltPoolDialog::delItem(long pos, long id)
 {
 	return P_Data->PutNamedFilt(&id, 0);
 }
+
+//@erik v10.5.0
+uint PPNamedFilt::ViewDefinition::GetCount()const
+{
+	return L.getCount();
+}
+
+int PPNamedFilt::ViewDefinition::SearchEntry(const char * pZone, const char *pFieldName, uint * pPos, InnerEntry * pInnerEntry) const
+{
+	int ok = 0;
+	SString temp_buf;
+	for(uint i = 0; !ok && i < L.getCount(); i++) {
+		const InnerEntry & r_inner_entry = L.at(i);
+		GetS(r_inner_entry.ZoneP, temp_buf);
+		if(temp_buf.IsEqiAscii(pZone)) {
+			GetS(r_inner_entry.FieldNameP, temp_buf);
+			if(temp_buf.IsEqiAscii(pFieldName)) {
+				ok = 1;
+				ASSIGN_PTR(pPos, i);
+				ASSIGN_PTR(pInnerEntry, r_inner_entry);
+			}
+		}
+	}
+	return ok;
+}
+
+int PPNamedFilt::ViewDefinition::SetEntry(const Entry & rE)
+{
+	int ok = 0;
+	uint pos = 0;
+	InnerEntry new_entry;
+	if(SearchEntry(rE.Zone, rE.FieldName, &pos, 0)) {
+		AddS(rE.Zone, &new_entry.ZoneP);
+		AddS(rE.FieldName, &new_entry.FieldNameP);
+		AddS(rE.Text, &new_entry.TextP);
+		new_entry.TotalFunc = rE.TotalFunc;
+		L.at(pos) = new_entry;
+		ok = 1;
+	}
+	else {
+		AddS(rE.Zone, &new_entry.ZoneP);
+		AddS(rE.FieldName, &new_entry.FieldNameP);
+		AddS(rE.Text, &new_entry.TextP);
+		new_entry.TotalFunc = rE.TotalFunc;
+		L.insert(&new_entry);
+		ok = 2;
+	}
+	return ok;
+}
+
+int PPNamedFilt::ViewDefinition::GetEntry(const uint pos, Entry & rE) const
+{
+	rE.Z();
+	int ok = 0;
+	if(pos < L.getCount()) {
+		const InnerEntry & r_entry = L.at(pos);
+		GetS(r_entry.ZoneP, rE.Zone);
+		GetS(r_entry.FieldNameP, rE.FieldName);
+		GetS(r_entry.TextP, rE.Text);
+		rE.TotalFunc = r_entry.TotalFunc;
+		ok = 1;
+	}
+	return ok;
+}
+
+int PPNamedFilt::ViewDefinition::RemoveEntryByPos(uint pos)
+{
+	int    ok = 0;
+	if(pos < GetCount() && L.atFree(pos))
+		ok = 1;
+	return ok;
+}
+
+int XmlWriter(void * param)
+{
+	int ok = 1;
+
+	return ok;
+}
+
+
+int PPNamedFilt::ViewDefinition::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	int    ok = 1;
+	THROW_SL(pCtx->Serialize(dir, &L, rBuf));
+	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pCtx));
+	CATCHZOK
+	return ok;
+}
+
+class MobileClmnValListDialog : public PPListDialog {
+public:
+	MobileClmnValListDialog() : PPListDialog(DLG_MOBCLMNN, CTL_MOBCLMNN_LIST)
+	{
+		updateList(-1);
+	}
+	int setDTS(const PPNamedFilt::ViewDefinition * pData)
+	{
+		int    ok = 1;
+		Data = *pData;	
+		PPNamedFilt::ViewDefinition::Entry mobTypeClmn;
+		StringSet ss(SLBColumnDelim);
+		PPID id = 0;
+		for(int i = 0; ok && i < Data.GetCount(); i++) {
+			id = i + 1;
+			Data.GetEntry(i, mobTypeClmn);
+			ss.clear();
+			((ss += mobTypeClmn.Zone) += mobTypeClmn.FieldName) += mobTypeClmn.Text;
+			if(!addStringToList(id, ss.getBuf()))
+				ok = 0;
+		}
+		updateList(1, 1);
+		return ok;
+	}
+	int getDTS(PPNamedFilt::ViewDefinition * pData)
+	{
+		int    ok = 1;
+		if(Data.GetCount() >= 0){
+			ASSIGN_PTR(pData, Data);
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+private:
+	virtual int setupList();
+	virtual int addItem(long * pPos, long * pID);
+	virtual int editItem(long pos, long id);
+	virtual int delItem(long pos, long id);
+
+	PPNamedFilt::ViewDefinition Data;
+};
+
+//
+// Descr: Создает и отображает диалог "Список "
+//
+int FiltItemDialog::ViewMobColumnList()
+{
+	DIALOG_PROC_BODY(MobileClmnValListDialog, &Data.VD);
+}
+
+//
+// Descr: Класс, отвечающий за диалог "добавить элемент"
+//
+class MobileClmnValItemDialog : public TDialog {
+public:
+	MobileClmnValItemDialog(PPNamedFilt::ViewDefinition * pViewDef) : TDialog(DLG_MOBCLEDT), P_Data(pViewDef)
+	{
+	}
+	int    setDTS(const PPNamedFilt::ViewDefinition::Entry * pData);
+	int    getDTS(PPNamedFilt::ViewDefinition::Entry * pData);
+private:
+	// Собственно, редактируемый элемент
+	PPNamedFilt::ViewDefinition * P_Data;  // @notowned
+};
+
+//
+// Descr: Заполняет интерфейс данными из pData
+//
+int MobileClmnValItemDialog::setDTS(const PPNamedFilt::ViewDefinition::Entry * pEntry)
+{
+	int    ok = 1;
+	PPNamedFilt::ViewDefinition::Entry entry = *pEntry;
+	setCtrlString(CTL_MOBCLEDT_Z, entry.Zone); // Поле "Zone"
+	setCtrlString(CTL_MOBCLEDT_FN, entry.FieldName); // Поле "FieldName"
+	setCtrlString(CTL_MOBCLEDT_TXT, entry.Text); // Поле "Text"
+	return ok;
+}
+//
+// Descr: Заполняет pData данными из интерфейса
+//
+int MobileClmnValItemDialog::getDTS(PPNamedFilt::ViewDefinition::Entry * pEntry)
+{
+	int    ok = 1;
+	uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
+	PPNamedFilt::ViewDefinition::Entry entry;
+	getCtrlString(sel = CTL_MOBCLEDT_Z, entry.Zone);
+	THROW(entry.Zone.NotEmptyS());
+	getCtrlString(sel = CTL_MOBCLEDT_FN, entry.FieldName);
+	THROW(entry.FieldName.NotEmptyS());
+	getCtrlString(sel = CTL_MOBCLEDT_TXT, entry.Text);
+	THROW(entry.Text.NotEmptyS());
+	ASSIGN_PTR(pEntry, entry);
+	CATCH
+		ok = 0;
+	ENDCATCH
+		return ok;
+}
+
+//
+// Descr: Отображает диалог редактирования 
+//
+int SLAPI EditMobTypeClmn(PPNamedFilt::ViewDefinition * pViewDef, PPNamedFilt::ViewDefinition::Entry * pEntry)
+{
+	DIALOG_PROC_BODY_P1(MobileClmnValItemDialog, pViewDef, pEntry);
+}
+
+//
+// Descr: загрузка и перезагрузка списка всех отображаемых полей
+//
+int MobileClmnValListDialog::setupList()
+{
+	int    ok = 1;
+	PPNamedFilt::ViewDefinition::Entry entry;
+	StringSet ss(SLBColumnDelim);
+	PPID id = 0;
+	for(int i = 0; ok && i < Data.GetCount(); i++) {
+		id = i + 1;
+		Data.GetEntry(i, entry);
+		ss.clear();
+		((ss += entry.Zone) += entry.FieldName) += entry.Text;
+		if(!addStringToList(id, ss.getBuf()))
+			ok = 0;
+	}
+	return ok;
+}
+
+//
+//Descr: Обрабатывает нажатие кнопки "Добавить.."
+//
+int MobileClmnValListDialog::addItem(long * pPos, long * pID)
+{
+	int    ok = 0;
+	PPNamedFilt::ViewDefinition::Entry entry;
+	if(EditMobTypeClmn(&Data, &entry) > 0) {
+		Data.SetEntry(entry);
+		ok = 1;
+	}
+	return ok;
+}
+
+//
+// Descr: Обрабатывает редактирование
+//
+int MobileClmnValListDialog::editItem(long pos, long id)
+{
+	int    ok = -1;
+	PPNamedFilt::ViewDefinition::Entry entry;
+	if(Data.GetEntry(pos, entry)) {
+		// Вызываем диалог редактировани
+		if(EditMobTypeClmn(&Data, &entry) > 0) {
+			// OK - сохраняем данные
+			ok = Data.SetEntry(entry);
+		}
+	}
+	else {
+		ok = 0;
+	}
+	return ok;
+}
+
+//
+// Descr: Обрабатывает удаление
+//
+int MobileClmnValListDialog::delItem(long pos, long id)
+{
+	return Data.RemoveEntryByPos(pos);
+}
+
+//@erik

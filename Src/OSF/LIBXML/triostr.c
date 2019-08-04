@@ -15,9 +15,6 @@
  *
  ************************************************************************/
 
-/*************************************************************************
- * Include files
- */
 #pragma hdrstop // Not Using Precompiled Headers
 #include <slib.h>
 //#include <assert.h>
@@ -124,9 +121,8 @@ static const char rcsid[] = "@(#)$Id$";
  */
 TRIO_STRING_PUBLIC char * trio_create(size_t size)
 {
-	return (char *)SAlloc::M(size);
+	return static_cast<char *>(SAlloc::M(size));
 }
-
 /**
    Destroy string.
 
@@ -136,7 +132,6 @@ TRIO_STRING_PUBLIC void trio_destroy(char * string)
 {
 	SAlloc::F(string);
 }
-
 /**
    Count the number of characters in a string.
 
@@ -147,7 +142,6 @@ TRIO_STRING_PUBLIC void trio_destroy(char * string)
 {
 	return strlen(string);
 }*/
-
 #if !defined(TRIO_MINIMAL)
 /**
    Append @p source at the end of @p target.
@@ -1005,7 +999,7 @@ TRIO_STRING_PRIVATE BOOLEAN_T TrioStringGrow(trio_string_t * self, size_t delta)
 {
 	BOOLEAN_T status = FALSE;
 	size_t new_size = (delta == 0) ? ( (self->allocated == 0) ? 1 : self->allocated * 2 ) : self->allocated + delta;
-	char * new_content = (char *)SAlloc::R(self->content, new_size);
+	char * new_content = static_cast<char *>(SAlloc::R(self->content, new_size));
 	if(new_content) {
 		self->content = new_content;
 		self->allocated = new_size;

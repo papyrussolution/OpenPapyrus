@@ -69,7 +69,7 @@ int SLAPI PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 	if(pParam) {
 		if(pParam->DisRoundPrec < 0.0 || pParam->DisRoundPrec > 50.0)
 			ok = PPSetError(PPERR_INVROUNDPREC);
-		else if(pParam->AmtRoundPrec < 0.0 || pParam->AmtRoundPrec > 50.0)
+		else if(pParam->AmtRoundPrec < 0.0 || pParam->AmtRoundPrec > 100.0) // @v10.5.1 (>50.0)-->(>100.0)
 			ok = PPSetError(PPERR_INVROUNDPREC);
 		else {
 			if(pParam->DisRoundPrec != 0.0) {

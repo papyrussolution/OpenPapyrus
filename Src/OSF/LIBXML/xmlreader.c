@@ -3915,19 +3915,15 @@ int xmlTextReaderStandalone(xmlTextReader * reader)
 		return -1;
 	return doc->standalone;
 }
-
-/************************************************************************
-*									*
-*			Error Handling Extensions                       *
-*									*
-************************************************************************/
-
+//
+// Error Handling Extensions
+//
 /* helper to build a xmlMalloc'ed string from a format and va_list */
 static char * xmlTextReaderBuildMessage(const char * msg, va_list ap)
 {
 	int size = 0;
 	int chars;
-	char * larger;
+	char * larger = 0;
 	char * str = NULL;
 	va_list aq;
 	while(1) {
@@ -3942,7 +3938,8 @@ static char * xmlTextReaderBuildMessage(const char * msg, va_list ap)
 		if((chars < size) || (size == MAX_ERR_MSG_SIZE))
 			break;
 		size = (chars < MAX_ERR_MSG_SIZE) ? (chars + 1) : MAX_ERR_MSG_SIZE;
-		if((larger = (char *)SAlloc::R(str, size)) == NULL) {
+		larger = static_cast<char *>(SAlloc::R(str, size));
+		if(larger == NULL) {
 			xmlGenericError(0, "xmlRealloc failed !\n");
 			SAlloc::F(str);
 			return NULL;

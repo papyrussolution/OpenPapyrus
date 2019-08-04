@@ -2295,8 +2295,7 @@ int SLAPI TCPIPMToledo::SetConnection()
 	memzero(ip, sizeof(ip));
 	THROW(PPObjScale::DecodeIP(Data.Port, ip));
 	if(UseNewAlg) {
-		char   send_timeout[16];
-		char   rcv_timeout[16];
+		char   send_timeout[10], rcv_timeout[10];
 		long   res;
 		struct sockaddr_in sin;
 		THROW_PP((SocketHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) != INVALID_SOCKET, PPERR_SCALE_NOSYNC);
@@ -2307,16 +2306,17 @@ int SLAPI TCPIPMToledo::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, send_timeout, sstrleni(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, sstrleni(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, reinterpret_cast<sockaddr *>(&sin), sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
-		// @v10.5.0 (»збавитьс€ от этого блока будет сложнее, чем € думал) /* @v10.4.12
+		///* @v10.4.12
 		PPSetAddedMsgString(CrcDLLPath);
 		if(!TrfrDLLHandle) {
 			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(CrcDLLPath)), PPERR_SCALE_INITMTDLL); // @unicodeproblem
-			THROW_PP(CalcCrcCall   = reinterpret_cast<MT_CalcCrcProc>(GetProcAddress(TrfrDLLHandle, "?CalcCRC16@@YAGQBDI@Z")), PPERR_SCALE_INITMTDLL);
-		} // */
+			THROW_PP(CalcCrcCall   = (MT_CalcCrcProc)GetProcAddress(TrfrDLLHandle, "?CalcCRC16@@YAGQBDI@Z"), PPERR_SCALE_INITMTDLL);
+		} 
+		//*/
 	}
 	else {
 		SString buf;
@@ -2325,7 +2325,7 @@ int SLAPI TCPIPMToledo::SetConnection()
 		PPSetAddedMsgString(TrfrDLLPath);
 		if(!TrfrDLLHandle) {
 			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(TrfrDLLPath)), PPERR_SCALE_INITMTDLL); // @unicodeproblem
-			THROW_PP(TrfrDLLCall = reinterpret_cast<MT_EthernetProc>(GetProcAddress(TrfrDLLHandle, "Transfer_Ethernet")), PPERR_SCALE_INITMTDLL);
+			THROW_PP(TrfrDLLCall   = (MT_EthernetProc)GetProcAddress(TrfrDLLHandle, "Transfer_Ethernet"), PPERR_SCALE_INITMTDLL);
 		}
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_CFG, buf);
 		PPSetAddedMsgString(buf);
@@ -2567,11 +2567,14 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 		THROW_PP(recv(SocketHandle, &reply, 1, 0) != SOCKET_ERROR && reply == 0x06, PPERR_SCALE_RCV);
 	}
 	if(is_msg) {
-		const size_t max_text = 300;
+		const size_t max_text = 200; 
 		struct _AddStr {
 			ushort  AddStrCode;
 			char    AddStrTxt[max_text];
 		} as_entry;
+		uint8 stk_pad[64]; // @padding @v10.5.1
+		memzero(stk_pad, sizeof(stk_pad));
+		//const size_t _add_str_size = sizeof(ushort) + max_text;
 		StringSet add_str("\x0A");
 		GetAddedMsgLines(pPLU, NZOR(Data.MaxAddedLn, 50), max_text, amlfMaxText, add_str);
 		//
@@ -2594,35 +2597,35 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 			if(use_ext_messages && full_buf_len > max_text) {
 				size_t _text_buf_offs = 0;
 				ushort _plu = (ushort)pPLU->GoodsNo;
-				ushort _n = 0;
+				uint   _n = 0;
+				const uint _max_n = 4;
 				SString _plu_text;
 				do {
+					_n++;
 					MEMSZERO(as_entry);
 					as_entry.AddStrCode = _plu;
 					const size_t part_len = sstrlen(p_full_buf + _text_buf_offs);
-					if(part_len <= max_text) {
+					if(_n < _max_n && part_len <= max_text) {
 						STRNSCPY(as_entry.AddStrTxt, p_full_buf + _text_buf_offs);
 						_text_buf_offs += part_len;
 					}
 					else {
 						const size_t ext_plu_len = 4;
 						const size_t ext_size = ext_plu_len + 2;
-						/*
-						9000 + x
-						8000 + x
-						7000 + x
-						*/
-						_plu = (ushort)pPLU->GoodsNo + (7000 + (1000 * _n));
+						_plu = (ushort)pPLU->GoodsNo + (2000 * _n);
 						_plu_text.Z().CatLongZ((long)_plu, ext_plu_len);
 						if(_plu_text.Len() == 4) {
-							strnzcpy(as_entry.AddStrTxt, p_full_buf + _text_buf_offs, max_text - ext_size); // \x15}xxxx
-							as_entry.AddStrTxt[max_text-ext_size] = '\x15';
-							as_entry.AddStrTxt[max_text-ext_size-1] = '}';
-							memcpy(as_entry.AddStrTxt+max_text-ext_plu_len, (const char *)_plu_text, ext_plu_len);
+							size_t tp = 0;
+							as_entry.AddStrTxt[tp++] = 15;
+							as_entry.AddStrTxt[tp++] = '}';
+							memcpy(as_entry.AddStrTxt+tp, _plu_text.cptr(), ext_plu_len);
+							tp += ext_plu_len;
+							strnzcpy(as_entry.AddStrTxt+tp, p_full_buf + _text_buf_offs, max_text-tp); // \x15}xxxx
 							_text_buf_offs += (max_text - ext_size);
 						}
 						else {
 							strnzcpy(as_entry.AddStrTxt, p_full_buf + _text_buf_offs, max_text);
+							const size_t ast_len = sstrlen(as_entry.AddStrTxt);
 							_text_buf_offs = full_buf_len; // @exit
 						}
 					}
@@ -2633,17 +2636,19 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 						p += sizeof(comm_head);
 						memcpy(data_buf + p, &as_entry, sizeof(as_entry));
 						p += sizeof(as_entry);
-						crc = CalcCrcCall((const char *)data_buf + 1, (int)(p - 1));
-						*(data_buf + p++) = ((uchar *)&crc)[1];
-						*(data_buf + p++) = ((uchar *)&crc)[0];
+						crc = CalcCrcCall(reinterpret_cast<const char *>(data_buf) + 1, (int)(p - 1));
+						*(data_buf + p++) = reinterpret_cast<const uchar *>(&crc)[1];
+						*(data_buf + p++) = reinterpret_cast<const uchar *>(&crc)[0];
 						THROW_PP(send(SocketHandle, (const char *)data_buf, (int)p, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
 						THROW_PP(recv(SocketHandle, &reply, 1, 0) != SOCKET_ERROR && reply == 0x06, PPERR_SCALE_RCV);
 					}
-					_n++;
-				} while(_text_buf_offs < full_buf_len && _n < 3);
+				} while(_text_buf_offs < full_buf_len && _n < _max_n);
 			}
 			else {
-				STRNSCPY(as_entry.AddStrTxt, p_full_buf);
+				size_t spc_offs = 0;
+				//as_entry.AddStrTxt[spc_offs++] = 15;
+				//as_entry.AddStrTxt[spc_offs++] = '{';
+				strnzcpy(as_entry.AddStrTxt+spc_offs, p_full_buf, sizeof(as_entry.AddStrTxt)-spc_offs);
 				{
 					memcpy(data_buf, &pack_head, sizeof(pack_head));
 					p  = sizeof(pack_head);

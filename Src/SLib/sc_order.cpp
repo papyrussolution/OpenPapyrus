@@ -1,5 +1,5 @@
 // SC_ORDER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2016, 2019
 // Part of StyloConduit project
 // Экспорт/Импорт документов
 //
@@ -8,10 +8,8 @@
 #pragma hdrstop
 #include "StyloConduit.h"
 
-SCDBObjOrder::SCDBObjOrder(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjOrder::SCDBObjOrder(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_HdrTbl(0), P_LineTbl(0)
 {
-	P_HdrTbl = 0;
-	P_LineTbl = 0;
 }
 
 SCDBObjOrder::~SCDBObjOrder()
@@ -69,15 +67,14 @@ int SCDBObjOrder::Init(const char * pExpPath, const char * pImpPath)
 	// смещать ИД документов на значение LastID.
 	//
 	LastID = 0;
-	if(!hdr_tbl_absence && P_HdrTbl->top())
-		do {
-			int32 id;
-			DbfRecord rec(P_HdrTbl);
-			P_HdrTbl->getRec(&rec);
-			rec.get(1, id);
-			if(id > LastID)
-				LastID = id;
-		} while(P_HdrTbl->next());
+	if(!hdr_tbl_absence && P_HdrTbl->top()) do {
+		int32 id;
+		DbfRecord rec(P_HdrTbl);
+		P_HdrTbl->getRec(&rec);
+		rec.get(1, id);
+		if(id > LastID)
+			LastID = id;
+	} while(P_HdrTbl->next());
 	IdAsscList.freeAll();
 	strcat(STRNSCPY(fname, path), "sp_bitem.dbf");
 	if(hdr_tbl_absence)
@@ -145,7 +142,6 @@ int SCDBObjOrder::PutHdrRec(void * pRec)
 int SCDBObjOrder::ImportHdr(PROGRESSFN pFn)
 {
 	const char * p_tbl_name = "OrdHdr.tbl";
-
 	int    ok = 1;
 	uint32 ver = P_Ctx->PalmCfg.Ver;
 	SyncTable stbl(0, P_Ctx->PalmCfg.PalmCompressedData(), P_Ctx);
@@ -282,10 +278,8 @@ int SCDBObjOrder::Import(PROGRESSFN pFn, CSyncProperties * pProps)
 //
 //
 //
-SCDBObjCliInv::SCDBObjCliInv(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjCliInv::SCDBObjCliInv(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_HdrTbl(0), P_LineTbl(0)
 {
-	P_HdrTbl = 0;
-	P_LineTbl = 0;
 }
 
 SCDBObjCliInv::~SCDBObjCliInv()
@@ -385,7 +379,6 @@ int SCDBObjCliInv::PutHdrRec(void * pRec)
 int SCDBObjCliInv::ImportHdr(PROGRESSFN pFn)
 {
 	const char * p_tbl_name = "InvHdr.tbl";
-
 	int    ok = 1;
 	SyncTable stbl(0, P_Ctx->PalmCfg.PalmCompressedData(), P_Ctx);
 	SyncTable::Stat stat;
@@ -429,7 +422,6 @@ int SCDBObjCliInv::PutLineRec(void * pRec)
 int SCDBObjCliInv::ImportLine(PROGRESSFN pFn)
 {
 	const char * p_tbl_name = "InvLine.tbl";
-
 	int    ok = 1;
 	SyncTable stbl(0, P_Ctx->PalmCfg.PalmCompressedData(), P_Ctx);
 	SyncTable::Stat stat;

@@ -3138,6 +3138,9 @@ struct TimeRange { // @persistent
 //   Принадлежность включительная (т.е. если число равно одной из границ, то условие выполняется).
 //
 int    FASTCALL checkirange(long nmb, long low, long upp);
+long   FASTCALL inrangeordefault(long val, long low, long upp, long def);
+uint   FASTCALL inrangeordefault(uint val, uint low, uint upp, uint def);
+double FASTCALL inrangeordefault(double val, double low, double upp, double def);
 //
 // Descr: Проверяет беззнаковое целое число на принадлежность диапазону [0..upper[.
 //   Принадлежность НЕ включительная (nmb == upper - возвращает 0).
@@ -6855,6 +6858,7 @@ public:
 	int    SLAPI Add(long key, const S_GUID & rVal, uint * pPos);
 	int    SLAPI Search(long key, S_GUID * pVal, uint * pPos) const;
 	int    SLAPI SearchVal(const S_GUID_Base &, long * pKey, uint * pPos) const;
+	int    SLAPI GetMaxKey(long * pMaxKey, uint * pPos) const;
 };
 #endif // } _WIN32_WCE
 //

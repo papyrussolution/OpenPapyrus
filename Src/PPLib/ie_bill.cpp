@@ -1555,6 +1555,29 @@ int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN
 						Logger.LogString(PPTXT_BROWPRICEFORMINV, temp_buf);
 				}
 			}
+			// @erik v10.5.2 {
+			else if(temp_buf.IsEqNC("qttyformula")){
+				scan.Skip();
+				if(scan[0] == '.') {
+					scan.Incr(1);
+					const int fr = ResolveFormula((temp_buf = scan).Strip(), rIep.InrRec, &rval);
+					if(fr > 0) {
+						if(rval > 0.0) {
+							//brow_.Price = rval;
+							if(rIep.InrRec.SearchName("Quantity", &inner_fld_pos)) {
+								rIep.InrRec.GetFieldByPos(inner_fld_pos, &inner_fld);
+								void * p_inner_fld_data = rIep.InrRec.GetData(inner_fld_pos);
+								stcast(MKSTYPE(S_FLOAT, 8), inner_fld.T.Typ, &rval, p_inner_fld_data, 0);
+							}
+						}
+						else
+							Logger.LogString(PPTXT_BROWQUANTITYFORMINVRES, temp_buf);
+					}
+					else if(fr == 0)
+						Logger.LogString(PPTXT_BROWQUANTITYFORMINV, temp_buf);
+				}
+			}
+			// } @erik
 			else {
 				enum {
 					dfkFormula = 1, // formula[inner_field].formula

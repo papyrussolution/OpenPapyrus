@@ -1904,6 +1904,29 @@ int SLAPI UUIDAssocArray::SearchVal(const S_GUID_Base & rVal, long * pKey, uint 
 	return 0;
 }
 
+int SLAPI UUIDAssocArray::GetMaxKey(long * pMaxKey, uint * pPos) const
+{
+	int    ok = -1;
+	long   max_key = MINLONG;
+	uint   max_key_pos = 0;
+	for(uint i = 0; i < getCount(); i++) {
+		const UUIDAssoc & r_item = at(i);
+		if(max_key < r_item.Key) {
+			max_key = r_item.Key;
+			max_key_pos = i;
+			if(ok < 0)
+				ok = 1;
+		}
+		else if(max_key == r_item.Key && i)
+			ok = 2;
+	}
+	if(ok > 0) {
+		ASSIGN_PTR(pMaxKey, max_key);
+		ASSIGN_PTR(pPos, max_key_pos);
+	}
+	return ok;
+}
+
 #endif // } _WIN32_WCE
 //
 //

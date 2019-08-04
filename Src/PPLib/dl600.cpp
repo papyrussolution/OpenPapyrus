@@ -792,7 +792,7 @@ RtmStack::~RtmStack()
 int FASTCALL RtmStack::Init(size_t sz)
 {
 	size_t s = ALIGNSIZE(sz, 10);
-	B.P_Buf = (char *)SAlloc::R(B.P_Buf, s);
+	B.P_Buf = static_cast<char *>(SAlloc::R(B.P_Buf, s));
 	if(B.P_Buf) {
 		B.Size = s;
 		return 1;

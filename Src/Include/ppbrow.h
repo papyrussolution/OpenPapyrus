@@ -335,7 +335,7 @@
 	#define HELP_BROWSER_QUOT_CROSSTAB                          147
 #define BROWSER_QUOT_SER                               148 // Изменения котировки товара (%s)
 	#define HELP_BROWSER_QUOT_SER                               148
-#define BROWSER_CCHECK                                 149 // @poscheck_pl
+#define BROWSER_CCHECK                                 149 // @{poscheck_pl}
 	#define HELP_BROWSER_CCHECK                                 149
 #define TOOLBAR_CCHECKGRP                     38
 #define BROWSER_CCHECKGRP_TM                           150 // Кассовые чеки по часам
@@ -486,7 +486,7 @@
 	#define HELP_BROWSER_PROCESSOR                              221
 #define BROWSER_TECH                                   222 // @{view_tech} {%s}
 	#define HELP_BROWSER_TECH                                   222
-#define BROWSER_TECHTOOLING                            223 // Технологии перенастройки {%s}
+#define BROWSER_TECHTOOLING                            223 // @{reconftech_pl} {%s}
 	#define HELP_BROWSER_TECHTOOLING                            223
 #define BROWSER_TSESSION                               224 // @{tsession_pl} {%s}
 	#define HELP_BROWSER_TSESSION                               224
@@ -1112,6 +1112,7 @@
 #define PPVCMD_UTILIZEDVDOC                           274
 #define PPVCMD_SETUPOUTGOING                          275
 #define PPVCMD_SENDOUTGOING                           276
+#define PPVCMD_VETISWAREHOUSE                         277
 //
 // PPCMD definitions
 //
@@ -4714,5 +4715,9 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_FILTER01                        32894
 #define PPDV_DIAMOND01                       32895
 #define PPDV_NOICON                          32896
-#define PPDV_LOGOPAPYRUS                     32897
+#define PPDV_VETISREFRESH                    32897
+#define PPDV_VETISWAREHOUSE                  32898
+#define PPDV_SHOPPINGCART01                  32899
+#define PPDV_SHOPPINGCART02                  32900
+#define PPDV_LOGOPAPYRUS                     32901
 

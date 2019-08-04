@@ -1,6 +1,6 @@
 // V_TRANLZ.CPP
 // Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -577,8 +577,8 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 		PPUserFuncProfiler ufp(PPUPRF_VIEW_TRFRANLZ);
 		double prf_measure = 0.0;
 		//
-		// Инициализируем список складов, по которым следует поднимать выборку.
-		// Учитываются доступные склады в правах доступа.
+		// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРїРёСЃРѕРє СЃРєР»Р°РґРѕРІ, РїРѕ РєРѕС‚РѕСЂС‹Рј СЃР»РµРґСѓРµС‚ РїРѕРґРЅРёРјР°С‚СЊ РІС‹Р±РѕСЂРєСѓ.
+		// РЈС‡РёС‚С‹РІР°СЋС‚СЃСЏ РґРѕСЃС‚СѓРїРЅС‹Рµ СЃРєР»Р°РґС‹ РІ РїСЂР°РІР°С… РґРѕСЃС‚СѓРїР°.
 		//
 		LocList.freeAll();
 		if(Filt.LocList.GetCount() == 0) {
@@ -673,7 +673,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			ZDELETE(P_TrGrpngTbl);
 			if(Flags & fAsGoodsCard) {
 				//
-				// Рассчитываем входящий остаток
+				// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј РІС…РѕРґСЏС‰РёР№ РѕСЃС‚Р°С‚РѕРє
 				//
 				if((Filt.Flags & TrfrAnlzFilt::fLabelOnly)) {
 					InRest = 0.0;
@@ -1007,10 +1007,10 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 	if(Filt.Grp == TrfrAnlzFilt::gDateCntragentAgentGoods || Filt.Sgp == sgpBillAgent) {
 		if(Filt.Flags & (TrfrAnlzFilt::fShowAllArticles|TrfrAnlzFilt::fShowAllGoods) && (Filt.Flags & TrfrAnlzFilt::fByZeroAgent || Filt.AgentList.GetSingle())) {
 			//
-			// При указанных условиях GCTIterator обработал ограничение Filt.AgentID как мягкое.
-			// То есть, все записи, которые не соответствуют этому ограничению, имеют
-			// нулевые величины, но присутствуют в выборке. Все, что осталось сделать -
-			// это фиктивно обозначить в каждой из этих записей агента как Filt.AgentID.
+			// РџСЂРё СѓРєР°Р·Р°РЅРЅС‹С… СѓСЃР»РѕРІРёСЏС… GCTIterator РѕР±СЂР°Р±РѕС‚Р°Р» РѕРіСЂР°РЅРёС‡РµРЅРёРµ Filt.AgentID РєР°Рє РјСЏРіРєРѕРµ.
+			// РўРѕ РµСЃС‚СЊ, РІСЃРµ Р·Р°РїРёСЃРё, РєРѕС‚РѕСЂС‹Рµ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‚ СЌС‚РѕРјСѓ РѕРіСЂР°РЅРёС‡РµРЅРёСЋ, РёРјРµСЋС‚
+			// РЅСѓР»РµРІС‹Рµ РІРµР»РёС‡РёРЅС‹, РЅРѕ РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‚ РІ РІС‹Р±РѕСЂРєРµ. Р’СЃРµ, С‡С‚Рѕ РѕСЃС‚Р°Р»РѕСЃСЊ СЃРґРµР»Р°С‚СЊ -
+			// СЌС‚Рѕ С„РёРєС‚РёРІРЅРѕ РѕР±РѕР·РЅР°С‡РёС‚СЊ РІ РєР°Р¶РґРѕР№ РёР· СЌС‚РёС… Р·Р°РїРёСЃРµР№ Р°РіРµРЅС‚Р° РєР°Рє Filt.AgentID.
 			//
 			bill_agent_id = (Filt.Flags & TrfrAnlzFilt::fByZeroAgent) ? 0 : Filt.AgentList.GetSingle();
 		}
@@ -1105,9 +1105,9 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 		// } @v10.3.4
 		if(Flags & fAsGoodsCard && Filt.Flags & TrfrAnlzFilt::fGByDate) {
 			//
-			// В случае расчета карточки товара с группировкой по дате price представляет
-			// среднюю цену расхода (в ценах реализации).
-			// При этом количество расхода установлено в поле pBillRec->CRate
+			// Р’ СЃР»СѓС‡Р°Рµ СЂР°СЃС‡РµС‚Р° РєР°СЂС‚РѕС‡РєРё С‚РѕРІР°СЂР° СЃ РіСЂСѓРїРїРёСЂРѕРІРєРѕР№ РїРѕ РґР°С‚Рµ price РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚
+			// СЃСЂРµРґРЅСЋСЋ С†РµРЅСѓ СЂР°СЃС…РѕРґР° (РІ С†РµРЅР°С… СЂРµР°Р»РёР·Р°С†РёРё).
+			// РџСЂРё СЌС‚РѕРј РєРѕР»РёС‡РµСЃС‚РІРѕ СЂР°СЃС…РѕРґР° СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РІ РїРѕР»Рµ pBillRec->CRate
 			//
 			price = TR5(pTrfrRec->Price) * fabs(pBillRec->CRate);
 			discount = 0.0;
@@ -1117,7 +1117,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			discount = TR5(pTrfrRec->Discount) * qtty;
 		}
 		//
-		// Рассчитываем налоги либо поправляем цены, в случае, если они указаны без налогов
+		// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј РЅР°Р»РѕРіРё Р»РёР±Рѕ РїРѕРїСЂР°РІР»СЏРµРј С†РµРЅС‹, РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РѕРЅРё СѓРєР°Р·Р°РЅС‹ Р±РµР· РЅР°Р»РѕРіРѕРІ
 		//
 		if((Filt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fCWoVat) || (pTrfrRec->Flags & (PPTFR_COSTWOVAT|PPTFR_PRICEWOTAXES)))) {
 			Goods2Tbl::Rec grec;
@@ -1139,7 +1139,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 						GObj.AdjCostToVat(in_tax_grp_id, grec.TaxGrpID, lot_date, tax_factor, &cost, 1, vat_free);
 					if(Filt.Flags & TrfrAnlzFilt::fCWoVat) {
 						//
-						// Расчет цены поступления без НДС
+						// Р Р°СЃС‡РµС‚ С†РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ Р±РµР· РќР”РЎ
 						//
 						if(GObj.GTxObj.Fetch(NZOR(in_tax_grp_id, grec.TaxGrpID), pTrfrRec->Dt, 0, &gtx) > 0) {
 							GTaxVect vect;
@@ -1164,7 +1164,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 							}
 							if(Filt.Flags & TrfrAnlzFilt::fCWoVat) {
 								//
-								// Расчет цены реализации без НДС
+								// Р Р°СЃС‡РµС‚ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё Р±РµР· РќР”РЎ
 								//
 								price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 								discount = 0.0;
@@ -1196,7 +1196,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			}
 		}
 		//
-		// Если условия фильтра предполагают детализацию (Контрагент-Адрес доставки), то подстановка персоналии невозможна.
+		// Р•СЃР»Рё СѓСЃР»РѕРІРёСЏ С„РёР»СЊС‚СЂР° РїСЂРµРґРїРѕР»Р°РіР°СЋС‚ РґРµС‚Р°Р»РёР·Р°С†РёСЋ (РљРѕРЅС‚СЂР°РіРµРЅС‚-РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё), С‚Рѕ РїРѕРґСЃС‚Р°РЅРѕРІРєР° РїРµСЂСЃРѕРЅР°Р»РёРё РЅРµРІРѕР·РјРѕР¶РЅР°.
 		//
 		if(Filt.Sgp && !(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)) {
 			if(Filt.Flags & TrfrAnlzFilt::fSubstDlvrAddr && dlvr_loc_id < 0)
@@ -1807,36 +1807,36 @@ int SLAPI PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 		if(P_IterOrderQuery) {
 			if(PrevOuterID != CurOuterID) {
 				PPID __id = CurOuterID;
-				if(P_TrAnlzTbl->search(3, &__id, spEq)) {
+				if(P_TrAnlzTbl->search(0, &__id, spEq)) { // @v10.5.1 @fix idx 3-->0
 					PrevOuterID = CurOuterID;
 					InitAppData(pItem);
-					return 1;
+					r = 1;
 				}
 			}
-			else
-				return -1;
 		}
-		else if(!P_IterQuery) {
-			char   k0[MAXKEYLEN];
-			P_IterQuery = new BExtQuery(P_TrAnlzTbl, 0);
-			P_IterQuery->selectAll();
-			memzero(k0, sizeof(k0));
-			P_IterQuery->initIteration(0, k0, spFirst);
-		}
-		r = P_IterQuery->nextIteration();
-		if(r > 0) {
-			// @debug {
-			/*if(0) {
-				SString temp_buf;
-				temp_buf = P_TrAnlzTbl->GetFileName();
-				SPathStruc::ReplaceExt(temp_buf, "dump", 1);
-				SFile f_out(temp_buf, SFile::mWrite|SFile::mAppend);
-				const BNFieldList & r_debug_fl = P_TrAnlzTbl->GetFields();
-				r_debug_fl.RecordToStr(&P_TrAnlzTbl->data, temp_buf);
-				f_out.WriteLine(temp_buf.CR());
-			}*/
-			// } @debug 
-			InitAppData(pItem);
+		else { // @v10.5.1
+			if(!P_IterQuery) {
+				char   k0[MAXKEYLEN];
+				P_IterQuery = new BExtQuery(P_TrAnlzTbl, 0);
+				P_IterQuery->selectAll();
+				memzero(k0, sizeof(k0));
+				P_IterQuery->initIteration(0, k0, spFirst);
+			}
+			r = P_IterQuery->nextIteration();
+			if(r > 0) {
+				// @debug {
+				/*if(0) {
+					SString temp_buf;
+					temp_buf = P_TrAnlzTbl->GetFileName();
+					SPathStruc::ReplaceExt(temp_buf, "dump", 1);
+					SFile f_out(temp_buf, SFile::mWrite|SFile::mAppend);
+					const BNFieldList & r_debug_fl = P_TrAnlzTbl->GetFields();
+					r_debug_fl.RecordToStr(&P_TrAnlzTbl->data, temp_buf);
+					f_out.WriteLine(temp_buf.CR());
+				}*/
+				// } @debug 
+				InitAppData(pItem);
+			}
 		}
 	}
 	else if(P_TrGrpngTbl) {
@@ -2087,10 +2087,10 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 						dbe_oprkind,    // #4
 						dbe_ar,         // #5
 						tat->Qtty,      // #6
-						tat->Cost,      // #7   Сумма в ценах поступления //
-						tat->Price,     // #8   Сумма в ценах реализации  //
-						dbe_cost,       // #9   Цена поступления //
-						dbe_price,      // #10  Цена реализации  //
+						tat->Cost,      // #7   РЎСѓРјРјР° РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
+						tat->Price,     // #8   РЎСѓРјРјР° РІ С†РµРЅР°С… СЂРµР°Р»РёР·Р°С†РёРё  //
+						dbe_cost,       // #9   Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
+						dbe_price,      // #10  Р¦РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё  //
 						dbe_loc,        // #11
 						tat->PVat,      // #12
 						tat->LinkQtty,  // #13 @v9.4.10
@@ -2111,10 +2111,10 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 						dbe_oprkind,    // #4
 						dbe_ar,         // #5
 						tat->Qtty,      // #6
-						tat->Cost,      // #7   Сумма в ценах поступления //
-						tat->Price,     // #8   Сумма в ценах реализации  //
-						dbe_cost,       // #9   Цена поступления //
-						dbe_price,      // #10  Цена реализации  //
+						tat->Cost,      // #7   РЎСѓРјРјР° РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
+						tat->Price,     // #8   РЎСѓРјРјР° РІ С†РµРЅР°С… СЂРµР°Р»РёР·Р°С†РёРё  //
+						dbe_cost,       // #9   Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
+						dbe_price,      // #10  Р¦РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё  //
 						dbe_loc,        // #11
 						tat->PVat,      // #12
 						tat->LinkQtty,  // #13 @v9.4.10
@@ -2613,8 +2613,8 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			// @v9.8.7 DBFieldList fld_list; // realy const, do not modify
 			int    r = 0;
 			//
-			// Расчет смещения осуществляется в соответствии с установкой полей
-			// в функции  PPViewTrfrAnlz::CreateBrowserQuery
+			// Р Р°СЃС‡РµС‚ СЃРјРµС‰РµРЅРёСЏ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ СѓСЃС‚Р°РЅРѕРІРєРѕР№ РїРѕР»РµР№
+			// РІ С„СѓРЅРєС†РёРё  PPViewTrfrAnlz::CreateBrowserQuery
 			//
 			const uint _aggr_count = P_Ct->GetAggrCount();
 			if(oneof2(Filt.Grp, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsDate)) {
@@ -2729,7 +2729,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 							flt.AgentList.Add((ArObj.P_Tbl->PersonToArticle(psn_id, acc_sheet_id, &agent_ar_id) > 0) ? agent_ar_id : rec.ArticleID);
 						}
 					}
-					// @ не реализовано
+					// @ РЅРµ СЂРµР°Р»РёР·РѕРІР°РЅРѕ
 					else if(Filt.Sgp == sgpVesselAgent) {
 					}
 					else if(Filt.Sgp == sgpNone) {
@@ -3103,7 +3103,7 @@ void TrfrAnlzFiltDialog::SetSaldoInfo()
 		if(dt)
 			temp_buf.Cat(dt);
 		else {
-			PPGetSubStr(PPTXT_TRFRANLZ_SALDOINFO, 1, txt_buf); // нет расчета
+			PPGetSubStr(PPTXT_TRFRANLZ_SALDOINFO, 1, txt_buf); // РЅРµС‚ СЂР°СЃС‡РµС‚Р°
 			temp_buf.Cat(txt_buf);
 		}
 		setStaticText(CTL_GTO_SALDOINFO, temp_buf);
@@ -3498,7 +3498,7 @@ int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 {
 	int    ok = -1;
 	TrfrAnlzViewItem item;
-	// @v10.4.3 Модификация if-->while с целья воспрепятствовать прерыванию процесса из-за ошибки в одной строке отчета
+	// @v10.4.3 РњРѕРґРёС„РёРєР°С†РёСЏ if-->while СЃ С†РµР»СЊСЏ РІРѕСЃРїСЂРµРїСЏС‚СЃС‚РІРѕРІР°С‚СЊ РїСЂРµСЂС‹РІР°РЅРёСЋ РїСЂРѕС†РµСЃСЃР° РёР·-Р·Р° РѕС€РёР±РєРё РІ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРµ РѕС‚С‡РµС‚Р°
 	while(ok < 0 && NextIteration(&item) > 0) {
 		PPID   psn_id = 0, org_lot_id = 0;
 		SString temp_buf;
@@ -3509,7 +3509,7 @@ int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 		THROW(GObj.GetStockExt(pItem->GoodsRec.ID, &pItem->GoodsStock, 1));
 		THROW(GObj.P_Tbl->GetExt(pItem->GoodsRec.ID, &pItem->GoodsExt));
 		pItem->Item = item;
-		// не будем извлекать пока что, так как billrec = bill packet pItem->BillRec;
+		// РЅРµ Р±СѓРґРµРј РёР·РІР»РµРєР°С‚СЊ РїРѕРєР° С‡С‚Рѕ, С‚Р°Рє РєР°Рє billrec = bill packet pItem->BillRec;
 		// @v10.4.3 THROW(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec));
 		if(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec)) { // @v10.4.3 
 			// @v9.1.12 {
@@ -3528,8 +3528,8 @@ int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 							const PPTransferItem & r_other = cor_bp.ConstTI(j);
 							if(r_other.LotID == item.LotID) {
 								pItem->Item.Qtty = r_other.Quantity_;
-								// @todo Здесь необходимо так же пересчитать физическое количество и суммы.
-								// Сразу это не сделано из-за того, что надо было быстро, а для алкогольной декларации это - не обязательно.
+								// @todo Р—РґРµСЃСЊ РЅРµРѕР±С…РѕРґРёРјРѕ С‚Р°Рє Р¶Рµ РїРµСЂРµСЃС‡РёС‚Р°С‚СЊ С„РёР·РёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Рё СЃСѓРјРјС‹.
+								// РЎСЂР°Р·Сѓ СЌС‚Рѕ РЅРµ СЃРґРµР»Р°РЅРѕ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РЅР°РґРѕ Р±С‹Р»Рѕ Р±С‹СЃС‚СЂРѕ, Р° РґР»СЏ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РґРµРєР»Р°СЂР°С†РёРё СЌС‚Рѕ - РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ.
 								break;
 							}
 						}
@@ -3901,8 +3901,8 @@ int SLAPI PrcssrAlcReport::Init()
 		}
 	}
 	if(Cfg.E.Flags & Config::fDetectAlcByClass && Cfg.E.AlcGoodsClsID) { // @v9.0.10
-		; // Принадлежность товара алкоголю идентифицируем по классу, потому инициализироват
-		// список алкогольных и пивных товаров нет смысла
+		; // РџСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ С‚РѕРІР°СЂР° Р°Р»РєРѕРіРѕР»СЋ РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµРј РїРѕ РєР»Р°СЃСЃСѓ, РїРѕС‚РѕРјСѓ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚
+		// СЃРїРёСЃРѕРє Р°Р»РєРѕРіРѕР»СЊРЅС‹С… Рё РїРёРІРЅС‹С… С‚РѕРІР°СЂРѕРІ РЅРµС‚ СЃРјС‹СЃР»Р°
 	}
 	else {
 		if(Cfg.AlcGoodsGrpID) {
@@ -3934,8 +3934,8 @@ int SLAPI PrcssrAlcReport::AutoConfigure(long flags)
 		STRNSCPY(gc_pack.Rec.Name, temp_buf);
 		STRNSCPY(gc_pack.Rec.Symb, "ALCOHOL");
 		gc_pack.Rec.Flags = PPGdsCls::fDupCombine|PPGdsCls::fStdEditDlg;
-		// dim-x Крепость %об
-		// dim-y Емкость Л
+		// dim-x РљСЂРµРїРѕСЃС‚СЊ %РѕР±
+		// dim-y Р•РјРєРѕСЃС‚СЊ Р›
 		PPLoadString("meas_alcostrength", name_buf);
 		PPLoadString("munit_pctvol", temp_buf);
 		name_buf.CatDiv(',', 2).Cat(temp_buf);
@@ -4273,7 +4273,7 @@ int SLAPI PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsn
 							_loc_ok = 1;
 						}
 						else if(_loc_ok > 0) {
-							_loc_ok = 2; // Есть неоднозначность - найдено более одной локации с одним и тем же кодом
+							_loc_ok = 2; // Р•СЃС‚СЊ РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ - РЅР°Р№РґРµРЅРѕ Р±РѕР»РµРµ РѕРґРЅРѕР№ Р»РѕРєР°С†РёРё СЃ РѕРґРЅРёРј Рё С‚РµРј Р¶Рµ РєРѕРґРѕРј
 							break;
 						}
                 	}
@@ -4290,7 +4290,7 @@ int SLAPI PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsn
 						_psn_ok = 1;
 					}
 					else if(_psn_ok > 0) {
-						_psn_ok = 2; // Есть неоднозначность - найдено более одной персоналии с одним и тем же кодом
+						_psn_ok = 2; // Р•СЃС‚СЊ РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ - РЅР°Р№РґРµРЅРѕ Р±РѕР»РµРµ РѕРґРЅРѕР№ РїРµСЂСЃРѕРЅР°Р»РёРё СЃ РѕРґРЅРёРј Рё С‚РµРј Р¶Рµ РєРѕРґРѕРј
 						break;
 					}
                 }
@@ -4301,8 +4301,8 @@ int SLAPI PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsn
                 const PPID _id = psn_id_list.get(i);
                 PersonTbl::Rec psn_rec;
                 if(PsnObj.Fetch(_id, &psn_rec) > 0) {
-					_psn_ok = 3; // Неоднозначность: по коду найден и подходящая локация и персоналия.
-						// Предпочтение отдаем локации.
+					_psn_ok = 3; // РќРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ: РїРѕ РєРѕРґСѓ РЅР°Р№РґРµРЅ Рё РїРѕРґС…РѕРґСЏС‰Р°СЏ Р»РѕРєР°С†РёСЏ Рё РїРµСЂСЃРѕРЅР°Р»РёСЏ.
+						// РџСЂРµРґРїРѕС‡С‚РµРЅРёРµ РѕС‚РґР°РµРј Р»РѕРєР°С†РёРё.
 					break;
                 }
 			}
@@ -4391,7 +4391,7 @@ int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcess
 				if(pProcessedMark) {
 					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
 					KeyDownCommand kd;
-					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // Попытка транслировать латинский символ из локальной раскладки клавиатуры
+					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // РџРѕРїС‹С‚РєР° С‚СЂР°РЅСЃР»РёСЂРѕРІР°С‚СЊ Р»Р°С‚РёРЅСЃРєРёР№ СЃРёРјРІРѕР» РёР· Р»РѕРєР°Р»СЊРЅРѕР№ СЂР°СЃРєР»Р°РґРєРё РєР»Р°РІРёР°С‚СѓСЂС‹
 					if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z'))
                         pProcessedMark->CatChar((char)tc);
 					else
@@ -4417,40 +4417,40 @@ int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcess
 int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::EgaisMarkBlock & rMb)
 {
 	/*
-	Если СтрДлина(Значение) <> 68 Тогда
-		Сообщить("Некорректный номер марки")
-	Иначе
-		ВерсияПО = Лев(Значение, 2);
-		если сред(Значение,4,5) = "00000" тогда
-			НачальнаяПозицияАП = 9;
-			КонецнаяПозицияАП = 2;
-			КоличествоСимволовАП = 11;
-		Иначе
-			НачальнаяпозицияАП = 8;
-			КонецнаяПозицияАП = 2;
-			КоличествоСимволовАП = 12;
-		КонецЕсли;
-		строкаАП = Сред(Значение,НачальнаяПозицияАП,КоличествоСимволовАП);
-		Результат = ПреобразованиеИЗBase36(строкаАП);
-		Результат = СтрЗаменить(Результат, Символ(160), "");
-		Алкокод = Формат(Результат, "ЧЦ=19; ЧВН=; ЧГ=0");
-		Пока СтрДлина(Алкокод) < 19 Цикл
-			Алкокод = "0" + Алкокод;
-		КонецЦикла;
+	Р•СЃР»Рё РЎС‚СЂР”Р»РёРЅР°(Р—РЅР°С‡РµРЅРёРµ) <> 68 РўРѕРіРґР°
+		РЎРѕРѕР±С‰РёС‚СЊ("РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РЅРѕРјРµСЂ РјР°СЂРєРё")
+	РРЅР°С‡Рµ
+		Р’РµСЂСЃРёСЏРџРћ = Р›РµРІ(Р—РЅР°С‡РµРЅРёРµ, 2);
+		РµСЃР»Рё СЃСЂРµРґ(Р—РЅР°С‡РµРЅРёРµ,4,5) = "00000" С‚РѕРіРґР°
+			РќР°С‡Р°Р»СЊРЅР°СЏРџРѕР·РёС†РёСЏРђРџ = 9;
+			РљРѕРЅРµС†РЅР°СЏРџРѕР·РёС†РёСЏРђРџ = 2;
+			РљРѕР»РёС‡РµСЃС‚РІРѕРЎРёРјРІРѕР»РѕРІРђРџ = 11;
+		РРЅР°С‡Рµ
+			РќР°С‡Р°Р»СЊРЅР°СЏРїРѕР·РёС†РёСЏРђРџ = 8;
+			РљРѕРЅРµС†РЅР°СЏРџРѕР·РёС†РёСЏРђРџ = 2;
+			РљРѕР»РёС‡РµСЃС‚РІРѕРЎРёРјРІРѕР»РѕРІРђРџ = 12;
+		РљРѕРЅРµС†Р•СЃР»Рё;
+		СЃС‚СЂРѕРєР°РђРџ = РЎСЂРµРґ(Р—РЅР°С‡РµРЅРёРµ,РќР°С‡Р°Р»СЊРЅР°СЏРџРѕР·РёС†РёСЏРђРџ,РљРѕР»РёС‡РµСЃС‚РІРѕРЎРёРјРІРѕР»РѕРІРђРџ);
+		Р РµР·СѓР»СЊС‚Р°С‚ = РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµРР—Base36(СЃС‚СЂРѕРєР°РђРџ);
+		Р РµР·СѓР»СЊС‚Р°С‚ = РЎС‚СЂР—Р°РјРµРЅРёС‚СЊ(Р РµР·СѓР»СЊС‚Р°С‚, РЎРёРјРІРѕР»(160), "");
+		РђР»РєРѕРєРѕРґ = Р¤РѕСЂРјР°С‚(Р РµР·СѓР»СЊС‚Р°С‚, "Р§Р¦=19; Р§Р’Рќ=; Р§Р“=0");
+		РџРѕРєР° РЎС‚СЂР”Р»РёРЅР°(РђР»РєРѕРєРѕРґ) < 19 Р¦РёРєР»
+			РђР»РєРѕРєРѕРґ = "0" + РђР»РєРѕРєРѕРґ;
+		РљРѕРЅРµС†Р¦РёРєР»Р°;
 
 
-	Функция ПреобразованиеИЗBase36(строкаРазбора)
-		Результат=0;
-		н = СтрДлина(строкаРазбора);
-		Для Х=1 По Н Цикл
-			М=1;
-			Для У=1 По Н-Х Цикл
-				М=М*36
-			КонецЦикла;
-			Результат=Результат+(Найти("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",Сред(строкаРазбора,Х,1))-1)*М;
-		КонецЦикла;
-		Возврат Результат;
-	КонецФункции
+	Р¤СѓРЅРєС†РёСЏ РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµРР—Base36(СЃС‚СЂРѕРєР°Р Р°Р·Р±РѕСЂР°)
+		Р РµР·СѓР»СЊС‚Р°С‚=0;
+		РЅ = РЎС‚СЂР”Р»РёРЅР°(СЃС‚СЂРѕРєР°Р Р°Р·Р±РѕСЂР°);
+		Р”Р»СЏ РҐ=1 РџРѕ Рќ Р¦РёРєР»
+			Рњ=1;
+			Р”Р»СЏ РЈ=1 РџРѕ Рќ-РҐ Р¦РёРєР»
+				Рњ=Рњ*36
+			РљРѕРЅРµС†Р¦РёРєР»Р°;
+			Р РµР·СѓР»СЊС‚Р°С‚=Р РµР·СѓР»СЊС‚Р°С‚+(РќР°Р№С‚Рё("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",РЎСЂРµРґ(СЃС‚СЂРѕРєР°Р Р°Р·Р±РѕСЂР°,РҐ,1))-1)*Рњ;
+		РљРѕРЅРµС†Р¦РёРєР»Р°;
+		Р’РѕР·РІСЂР°С‚ Р РµР·СѓР»СЊС‚Р°С‚;
+	РљРѕРЅРµС†Р¤СѓРЅРєС†РёРё
 	*/
 	rMb.Ver = 0;
 	rMb.EgaisCode.Z();
@@ -4462,7 +4462,7 @@ int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::E
 	mark.Strip();
 	THROW(PrcssrAlcReport::IsEgaisMark(mark, 0));
 	ok = 1;
-	if(mark.Len() == 68) { // Марки длиной 150 символов не имеют осмысленной информации
+	if(mark.Len() == 68) { // РњР°СЂРєРё РґР»РёРЅРѕР№ 150 СЃРёРјРІРѕР»РѕРІ РЅРµ РёРјРµСЋС‚ РѕСЃРјС‹СЃР»РµРЅРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё
 		mark.Sub(0, 2, temp_buf);
 		rMb.Ver = static_cast<int16>(temp_buf.ToLong());
 		{
@@ -4495,8 +4495,8 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 	GoodsExtTbl::Rec goods_ext_rec;
 	Goods2Tbl::Rec goods_rec;
 	ObjTagItem tag_item;
-	const char * p_egais_code = 0; // Указатель на наиболее надежную версию кода товара ЕГАИС
-		// Может ссылаться либо на rItem.EgaisCode, либо на rItem.RefcEgaisCode.
+	const char * p_egais_code = 0; // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°РёР±РѕР»РµРµ РЅР°РґРµР¶РЅСѓСЋ РІРµСЂСЃРёСЋ РєРѕРґР° С‚РѕРІР°СЂР° Р•Р“РђРРЎ
+		// РњРѕР¶РµС‚ СЃСЃС‹Р»Р°С‚СЊСЃСЏ Р»РёР±Рѕ РЅР° rItem.EgaisCode, Р»РёР±Рѕ РЅР° rItem.RefcEgaisCode.
 	goods_ext_rec.GoodsID = 0;
 	rItem.LotID = lotID;
 	if(GObj.Fetch(goodsID, &goods_rec) > 0) {
@@ -4576,9 +4576,9 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 			}
 		}
 		//
-		// PPTXT_ALCREP_CATNDEF        "Для товара %s не определен код алкогольной продукции"
-		// PPTXT_ALCREP_CATNAMNDEF     "Не удалось идентифицировать наименование вида алкогольной продукции: %s"
-		// PPTXT_ALCREP_GOODSCLSNDEF   "Не определен класс у товара %s"
+		// PPTXT_ALCREP_CATNDEF        "Р”Р»СЏ С‚РѕРІР°СЂР° %s РЅРµ РѕРїСЂРµРґРµР»РµРЅ РєРѕРґ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё"
+		// PPTXT_ALCREP_CATNAMNDEF     "РќРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РІРёРґР° Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё: %s"
+		// PPTXT_ALCREP_GOODSCLSNDEF   "РќРµ РѕРїСЂРµРґРµР»РµРЅ РєР»Р°СЃСЃ Сѓ С‚РѕРІР°СЂР° %s"
 		//
 		if(!(rItem.StatusFlags & GoodsItem::stClass)) {
             temp_buf.Z().CatChar('[').CatEq("id", goods_rec.ID).Space().CatEq("name", goods_rec.Name).CatChar(']');
@@ -4712,12 +4712,8 @@ int FASTCALL PrcssrAlcReport::IsStorageLoc(PPID locID) const
 
 int FASTCALL PrcssrAlcReport::IsStorageBillLoc(PPID billID)
 {
-	int    yes = 0;
 	BillTbl::Rec bill_rec;
-    if(P_BObj->Fetch(billID, &bill_rec) > 0) {
-    	yes = Cfg.StorageLocList.bsearch(bill_rec.LocID);
-    }
-    return yes;
+    return (P_BObj->Fetch(billID, &bill_rec) > 0) ? Cfg.StorageLocList.bsearch(bill_rec.LocID) : 0;
 }
 
 int FASTCALL PrcssrAlcReport::GetAlcGoodsList(PPIDArray & rList)
@@ -4789,8 +4785,8 @@ int SLAPI PrcssrAlcReport::GetWkrRegisterListByPeriod(int wkr, PPID psnID, PPID 
 				by_loc = 2;
 			else if(wkr == wkrKPP && Cfg.KppDlvrExt && LocationCore::GetExField(&loc_rec, Cfg.KppDlvrExt, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 				//
-				// До ввода регистров по локациям для ввода КПП локации иногда использовалось специальное
-				// дополнительное поле локации.
+				// Р”Рѕ РІРІРѕРґР° СЂРµРіРёСЃС‚СЂРѕРІ РїРѕ Р»РѕРєР°С†РёСЏРј РґР»СЏ РІРІРѕРґР° РљРџРџ Р»РѕРєР°С†РёРё РёРЅРѕРіРґР° РёСЃРїРѕР»СЊР·РѕРІР°Р»РѕСЃСЊ СЃРїРµС†РёР°Р»СЊРЅРѕРµ
+				// РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ Р»РѕРєР°С†РёРё.
 				//
 				MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
@@ -4842,8 +4838,8 @@ int SLAPI PrcssrAlcReport::GetWkrRegisterList(int wkr, PPID psnID, PPID locID, L
 				by_loc = 2;
 			else if(wkr == wkrKPP && Cfg.KppDlvrExt && LocationCore::GetExField(&loc_rec, Cfg.KppDlvrExt, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 				//
-				// До ввода регистров по локациям для ввода КПП локации иногда использовалось специальное
-				// дополнительное поле локации.
+				// Р”Рѕ РІРІРѕРґР° СЂРµРіРёСЃС‚СЂРѕРІ РїРѕ Р»РѕРєР°С†РёСЏРј РґР»СЏ РІРІРѕРґР° РљРџРџ Р»РѕРєР°С†РёРё РёРЅРѕРіРґР° РёСЃРїРѕР»СЊР·РѕРІР°Р»РѕСЃСЊ СЃРїРµС†РёР°Р»СЊРЅРѕРµ
+				// РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ Р»РѕРєР°С†РёРё.
 				//
 				MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
@@ -4894,8 +4890,8 @@ int SLAPI PrcssrAlcReport::GetWkrRegister(int wkr, PPID psnID, PPID locID, LDATE
 				by_loc = 2;
 			else if(wkr == wkrKPP && Cfg.KppDlvrExt && LocationCore::GetExField(&loc_rec, Cfg.KppDlvrExt, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 				//
-				// До ввода регистров по локациям для ввода КПП локации иногда использовалось специальное
-				// дополнительное поле локации.
+				// Р”Рѕ РІРІРѕРґР° СЂРµРіРёСЃС‚СЂРѕРІ РїРѕ Р»РѕРєР°С†РёСЏРј РґР»СЏ РІРІРѕРґР° РљРџРџ Р»РѕРєР°С†РёРё РёРЅРѕРіРґР° РёСЃРїРѕР»СЊР·РѕРІР°Р»РѕСЃСЊ СЃРїРµС†РёР°Р»СЊРЅРѕРµ
+				// РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ Р»РѕРєР°С†РёРё.
 				//
 				MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
@@ -4978,7 +4974,7 @@ int SLAPI PrcssrAlcReport::GetLotManufID(PPID lotID, PPID * pManufID, SString * 
 					else {
 						manuf_id = 0;
 						status = _stHangedTagLink;
-						// Лот имеет тег, ссылающийся на несуществующую персоналию
+						// Р›РѕС‚ РёРјРµРµС‚ С‚РµРі, СЃСЃС‹Р»Р°СЋС‰РёР№СЃСЏ РЅР° РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ РїРµСЂСЃРѕРЅР°Р»РёСЋ
 					}
 				}
 				else
@@ -5024,7 +5020,7 @@ int SLAPI PrcssrAlcReport::ProcessRegisterRec(RegisterTbl::Rec * pRegRec, PPID p
     sib.PsnID = psnID;
     sib.LocID = locID;
 	uint32 sur_id = BobJencHash(&sib, sizeof(sib));
-    pRegRec->ExtID = labs((long)sur_id); // @note Для банковских счетов поле RegisterTbl::Rec::ExtID значимо
+    pRegRec->ExtID = labs((long)sur_id); // @note Р”Р»СЏ Р±Р°РЅРєРѕРІСЃРєРёС… СЃС‡РµС‚РѕРІ РїРѕР»Рµ RegisterTbl::Rec::ExtID Р·РЅР°С‡РёРјРѕ
     {
 		SString serial, left, right;
 		(serial = pRegRec->Serial).Strip();

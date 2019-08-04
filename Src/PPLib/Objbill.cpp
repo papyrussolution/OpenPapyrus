@@ -5,6 +5,10 @@
 #include <pp.h>
 #pragma hdrstop
 
+PPObjBill::LockSet::LockSet(PPID id, PPID linkID) : ID(id), LinkID(linkID)
+{
+}
+
 SLAPI PPObjBill::EditParam::EditParam() : Flags(0)
 {
 }
@@ -63,11 +67,11 @@ static int FASTCALL _Unlock(PPID id)
 
 int SLAPI PPObjBill::Lock(PPID id)
 {
-	int     ok = 1, bill_locked = 0, link_bill_locked = 0;
-	LockSet set;
-	set.id   = id;
-	set.link = 0;
-	if(id && !locks.bsearch(&set, 0, CMPF_LONG) && !locks.bsearch(&set, 0, CMPF_LONG, sizeof(set.id), 0)) {
+	int    ok = 1;
+	int    bill_locked = 0;
+	int    link_bill_locked = 0;
+	LockSet set(id, 0);
+	if(id && !locks.bsearch(&set, 0, CMPF_LONG) && !locks.bsearch(&set, 0, CMPF_LONG, sizeof(set.ID), 0)) {
 		BillTbl::Rec bill_rec, link_bill_rec;
 		THROW(_Lock(id));
 		bill_locked = 1;
@@ -90,7 +94,7 @@ int SLAPI PPObjBill::Lock(PPID id)
 					if(do_lock_link) {
 						THROW(_Lock(link_id));
 						link_bill_locked = 1;
-						set.link = link_id;
+						set.LinkID = link_id;
 					}
 				}
 			}
@@ -99,13 +103,13 @@ int SLAPI PPObjBill::Lock(PPID id)
 	}
 	CATCH
 		{
-		int save_err_code = PPErrCode;
-		if(bill_locked)
-			_Unlock(set.id);
-		if(link_bill_locked)
-			_Unlock(set.link);
-		PPErrCode = save_err_code;
-		ok = 0;
+			const int save_err_code = PPErrCode;
+			if(bill_locked)
+				_Unlock(set.ID);
+			if(link_bill_locked)
+				_Unlock(set.LinkID);
+			PPErrCode = save_err_code;
+			ok = 0;
 		}
 	ENDCATCH
 	return ok;
@@ -115,12 +119,10 @@ int SLAPI PPObjBill::Unlock(PPID id)
 {
 	int     ok = 1;
 	uint    p = 0;
-	LockSet set;
-	set.id   = id;
-	set.link = 0;
+	LockSet set(id, 0);
 	if(id && locks.bsearch(&set, &p, CMPF_LONG)) {
-		_Unlock(locks.at(p).id);
-		_Unlock(locks.at(p).link);
+		_Unlock(locks.at(p).ID);
+		_Unlock(locks.at(p).LinkID);
 		locks.atFree(p);
 	}
 	return ok;
@@ -160,7 +162,7 @@ SLAPI PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CCon
 SLAPI PPObjBill::~PPObjBill()
 {
 	for(uint i = 0; i < locks.getCount(); i++)
-		Unlock(locks.at(i).id);
+		Unlock(locks.at(i).ID);
 	delete atobj;
 	delete P_OpObj;
 	delete P_PckgT;
@@ -4583,7 +4585,6 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 	PPID   qk_id = 0;
 	TDialog * dlg = 0;
 	SArray * p_qbo_ary = 0;
-	//StdListBoxDef * def = 0;
 	// @v9.3.12 PPOPT_GOODSORDER
 	if(pPack && oneof3(pPack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && /*pPack->SampleBillID &&*/ pPack->GetQuotKindList(&ql) > 0) {
 		PPID   ar_id = NZOR(forceArID, pPack->Rec.Object);
@@ -4617,20 +4618,20 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				qk_id = cliagt.DefQuotKindID;
 			} @construction */
 			if(p_qbo_ary->getCount() > 1) {
-				qk_id = pPack->QuotKindID ? pPack->QuotKindID : ((PPObjQuotKind::ListEntry *)p_qbo_ary->at(0))->ID;
+				qk_id = NZOR(pPack->QuotKindID, static_cast<const PPObjQuotKind::ListEntry *>(p_qbo_ary->at(0))->ID);
 				int  valid_data = 0;
-				ComboBox * p_combo = 0;
 				THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELQUOT2))));
-				StdListBoxDef * def = new StdListBoxDef(p_qbo_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData,
-					MKSTYPE(S_ZSTRING, sizeof(PPObjQuotKind::ListEntry)-sizeof(PPID)));
+				StdListBoxDef * def = new StdListBoxDef(p_qbo_ary, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, sizeof(PPObjQuotKind::ListEntry)-sizeof(PPID)));
 				THROW_MEM(def);
-				p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_SELQUOT2_KIND));
-				if(p_combo) {
-					THROW_MEM(p_combo->setListWindow(new ListWindow(def, 0, 0), qk_id));
-				}
-				while(!valid_data && ExecView(dlg) == cmOK) {
-					dlg->getCtrlData(CTLSEL_SELQUOT2_KIND, &qk_id);
-					valid_data = 1;
+				{
+					ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_SELQUOT2_KIND));
+					if(p_combo) {
+						THROW_MEM(p_combo->setListWindow(new ListWindow(def, 0, 0), qk_id));
+					}
+					while(!valid_data && ExecView(dlg) == cmOK) {
+						dlg->getCtrlData(CTLSEL_SELQUOT2_KIND, &qk_id);
+						valid_data = 1;
+					}
 				}
 				ZDELETE(dlg);
 				def = 0;
@@ -4652,7 +4653,6 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 						// систем, требуется поправлять конечную цену на величину процентной скидки из заказа
 						//
 						TransferTbl::Rec ord_item;
-						double ord_pct_dis = 0.0;
 						if(quot > 0.0 && p_ti->OrdLotID && trfr->Rcpt.Search(p_ti->OrdLotID, &ord_lot_rec) > 0) {
 							if(Fetch(ord_lot_rec.BillID, &ord_bill_rec) > 0 && ord_bill_rec.EdiOp == PPEDIOP_SALESORDER) {
 								if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_bill_rec.ID, PPTAG_BILL_EDICHANNEL, edi_channel) > 0 && edi_channel.CmpNC("ISALES-PEPSI") == 0) {
@@ -4661,9 +4661,9 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 										const double ord_qtty = fabs(ord_item.Quantity);
 										const double ord_price = fabs(ord_item.Price) * ord_qtty;
 										const double ord_dis   = ord_item.Discount * ord_qtty;
-										ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+										const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
 										if(ord_pct_dis > 0.0)
-											quot = R5(quot * (1 - ord_pct_dis));
+											quot = R5(quot * (1.0 - ord_pct_dis));
 									}
 								}
 							}
@@ -4673,7 +4673,13 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 							quot = p_ti->RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
 								(cliagt.Flags & AGTF_PRICEROUNDVAT) ? PPTransferItem::valfRoundVat : 0);
 						}
-						p_ti->Discount = R2(p_ti->Price - quot);
+						// @v10.5.1 {
+						if(oneof2(pPack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && p_ti->Price <= 0.0) {
+							p_ti->Price = R2(quot);
+							p_ti->Discount = 0.0;
+						}
+						else // } @v10.5.1 
+							p_ti->Discount = R2(p_ti->Price - quot);
 						p_ti->SetupQuot(quot, 1);
 						pPack->SetupItemQuotInfo(i-1, qk_id, quot, 0);
 						ok = 1;
@@ -4689,7 +4695,6 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 	CATCHZOKPPERR
 	if(dlg)
 		delete dlg;
-	/*else if(def) delete def;*/
 	else
 		delete p_qbo_ary;
 	return ok;
@@ -7319,7 +7324,9 @@ int SLAPI PPObjBill::RemoveTransferItem(PPID billID, int rByBill, int force)
 
 int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 {
-	int    ok = 1, ta = 0, frrl_tag = 0;
+	int    ok = 1;
+	int    ta = 0;
+	int    frrl_tag = 0;
 	int    r, found, rbybill, rest_checking = -1;
 	uint   i, pos;
 	const  PPRights & r_rt = ObjRts;

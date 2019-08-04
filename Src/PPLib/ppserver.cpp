@@ -3388,7 +3388,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 	SCRC32 crc;
 	ulong  c, clen;
 	uint   max_size = 16*1024;
-	char * p_buf = (char *)SAlloc::M(max_size+sizeof(ulong));
+	char * p_buf = static_cast<char *>(SAlloc::M(max_size+sizeof(ulong)));
 	SString msg_buf, line_buf;
 	(line_buf = "TESTPAPYRUSSERVER").CRB();
 	THROW(TestSend(rSo, line_buf.cptr(), line_buf.Len(), &actual_size) > 0);

@@ -3178,6 +3178,32 @@ z39.50s:urischeme
 :verbum_cogitare::verbum // базовая концепция "думать" cogitare(subject)
 :verbum_facite::verbum // базовая концепция "делать" facite(subject)
 :verbum_opus::verbum // базовая концепция "работать" verbum(subject)
+
+[ru]{
+	идти=:verbum_motus
+	бежать=:verbum_motus
+	ползти=:verbum_motus
+	ехать=:verbum_motus
+	плыть=:verbum_motus
+	лететь=:verbum_motus
+	стоять=:verbum_stabit
+	лежать=:verbum_stabit
+	висеть=:verbum_stabit
+	есть=:verbum_nutritor
+	кушать=:verbum_nutritor
+	принимать пищу=:verbum_nutritor
+	завтракать=:verbum_nutritor
+	обедать=:verbum_nutritor
+	ужинать=:verbum_nutritor
+	пить=:verbum_nutritor
+	дышать=:verbum_respirare
+	вдыхать=:verbum_respirare
+	глотать воздух=:verbum_respirare
+	чувствовать=:verbum_sentire
+	ощущать=:verbum_sentire
+	осязать=:verbum_sentire
+	нюхать=:verbum_sentire
+}
 //
 // Потенциально оскорбительные концепции (используются для идентификации грубых, оскорбительных слов и выражений)
 //

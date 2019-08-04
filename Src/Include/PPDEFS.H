@@ -1284,6 +1284,7 @@
 #define PPTAG_LOT_ORGLINEIDENT      85L // @v10.3.4 Оригинальный идентификатор строки документа. Используется в случае, если идент импортированного документа
 	// не может быть представлена целым числом [1..30000]
 #define PPTAG_LOT_FREIGHTPACKAGE    86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
+#define PPTAG_GOODS_VETISGUID       87L // @v10.5.1 GUID товара в справочнике ВЕТИС
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -9506,6 +9507,7 @@
 	//#define CTL_FILTPOOL_FLAGS            (2 + WINDOWS_ID_BIAS)
 #define DLG_FILTITEM              1174
 	#define cmFiltParam                102
+	#define cmOutFields                103
 	#define CTL_FILTITEM_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_FILTITEM_NAME          (2 + WINDOWS_ID_BIAS)
 	#define CTL_FILTITEM_CMD           (3 + WINDOWS_ID_BIAS)
@@ -10442,6 +10444,7 @@
 	#define CTL_VETISCFG_DOCTUSER     (5 + WINDOWS_ID_BIAS)
 	#define CTL_VETISCFG_DOCTPASSW    (6 + WINDOWS_ID_BIAS)
 	#define CTL_VETISCFG_DOCCRTDELAY  (7 + WINDOWS_ID_BIAS)
+	#define CTL_VETISCFG_FLAGS        (8 + WINDOWS_ID_BIAS)
 #define DLG_PHNCPANE              1332
 	#define cmNewContact              101
 	#define cmAttachContact           102
@@ -10652,12 +10655,30 @@
 	#define CTL_LAYOENTRY_PARENT      (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LAYOENTRY_PARENT   (5 + WINDOWS_ID_BIAS)
 #define DLG_VETISENT              1364
+	#define cmCreateVetisEnterprise   101
 	#define CTL_VETISENT_LOC          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VETISENT_LOC       (2 + WINDOWS_ID_BIAS)
 	#define CTL_VETISENT_ORG          (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VETISENT_ORG       (4 + WINDOWS_ID_BIAS)
 	#define CTL_VETISENT_BENTY        (5 + WINDOWS_ID_BIAS)
 	#define CTL_VETISENT_ENT          (6 + WINDOWS_ID_BIAS)
+	#define CTL_VETISENT_COUNTRY      (7 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETISENT_COUNTRY   (8 + WINDOWS_ID_BIAS)
+	#define CTL_VETISENT_REGION       (9 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETISENT_REGION    (10 + WINDOWS_ID_BIAS)
+	#define CTL_VETISENT_LOCALITY     (11 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETISENT_LOCALITY  (12 + WINDOWS_ID_BIAS)
+#define DLG_MOBCLMNN              1365
+	#define CTL_MOBCLMNN_LIST         (1 + WINDOWS_ID_BIAS)
+	#define CTL_MOBCLMNN_OBJ          (2 + WINDOWS_ID_BIAS)
+#define DLG_MOBCLEDT              1366
+	#define CTL_MOBCLEDT_Z            (1 + WINDOWS_ID_BIAS)
+	#define CTL_MOBCLEDT_FN           (2 + WINDOWS_ID_BIAS)
+	#define CTL_MOBCLEDT_TXT          (3 + WINDOWS_ID_BIAS)
+#define DLG_TESTVETIS             1367
+	#define CTL_TESTVETIS_INFO        (1 + WINDOWS_ID_BIAS)
+	#define CTL_TESTVETIS_FLAGS       (2 + WINDOWS_ID_BIAS)
+	#define CTL_TESTVETIS_PARAM       (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

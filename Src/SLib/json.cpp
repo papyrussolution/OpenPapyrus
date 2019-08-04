@@ -50,11 +50,11 @@ enum rstring_code {
 
 static RcString * FASTCALL rcs_create(size_t length)
 {
-	RcString * rcs = (RcString *)SAlloc::M(sizeof(RcString)); // allocates memory for a struct RcString
+	RcString * rcs = static_cast<RcString *>(SAlloc::M(sizeof(RcString))); // allocates memory for a struct RcString
 	if(rcs) {
 		rcs->max = length;
 		rcs->length = 0;
-		THROW(rcs->P_Text = (char *)SAlloc::M((rcs->max + 1) * sizeof(char)));
+		THROW(rcs->P_Text = static_cast<char *>(SAlloc::M((rcs->max + 1) * sizeof(char))));
 		rcs->P_Text[0] = '\0';
 	}
 	CATCH
@@ -75,13 +75,13 @@ static void FASTCALL rcs_free(RcString ** rcs)
 static rstring_code FASTCALL rcs_resize(RcString * rcs, size_t length)
 {
 	assert(rcs);
-	char * temp = (char *)SAlloc::R(rcs->P_Text, sizeof(char) * (length + 1)); // length plus '\0'
-	if(temp == NULL) {
+	char * p_temp = static_cast<char *>(SAlloc::R(rcs->P_Text, sizeof(char) * (length + 1))); // length plus '\0'
+	if(p_temp == NULL) {
 		SAlloc::F(rcs);
 		return RS_MEMORY;
 	}
 	else {
-		rcs->P_Text = temp;
+		rcs->P_Text = p_temp;
 		rcs->max = length;
 		rcs->P_Text[rcs->max] = '\0';
 		return RS_OK;

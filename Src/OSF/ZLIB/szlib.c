@@ -3130,7 +3130,7 @@ gzFile ZEXPORT gzdopen(int fd, const char * mode)
 {
 	char * path;    /* identifier for error messages */
 	gzFile gz;
-	if(fd == -1 || (path = (char *)SAlloc::M(7 + 3 * sizeof(int))) == NULL)
+	if(fd == -1 || (path = static_cast<char *>(SAlloc::M(7 + 3 * sizeof(int)))) == NULL)
 		return NULL;
 #if !defined(NO_snprintf) && !defined(NO_vsnprintf)
 	(void)snprintf(path, 7 + 3 * sizeof(int), "<fd:%d>", fd);
@@ -3361,7 +3361,7 @@ void ZLIB_INTERNAL FASTCALL gz_error(gz_state * state, int err, const char * msg
 	if(err == Z_MEM_ERROR)
 		return;
 	// construct error message with path 
-	if((state->msg = (char *)SAlloc::M(strlen(state->path) + strlen(msg) + 3)) == NULL) {
+	if((state->msg = static_cast<char *>(SAlloc::M(strlen(state->path) + strlen(msg) + 3))) == NULL) {
 		state->err = Z_MEM_ERROR;
 		return;
 	}

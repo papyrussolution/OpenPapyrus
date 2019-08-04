@@ -410,9 +410,9 @@ public:
 	SlTestFixtureMEMMOVO()
 	{
 		assert(BYTES_SIZE % 4 == 0);
-		P_Bytes = (char *)SAlloc::M(BYTES_SIZE);
+		P_Bytes = static_cast<char *>(SAlloc::M(BYTES_SIZE));
 		assert(P_Bytes);
-		P_Pattern = (char *)SAlloc::M(BYTES_SIZE);
+		P_Pattern = static_cast<char *>(SAlloc::M(BYTES_SIZE));
 		assert(P_Pattern);
 		{
 			SRng * p_rng = SRng::CreateInstance(SRng::algMT, 0);

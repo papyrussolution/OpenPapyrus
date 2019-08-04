@@ -604,27 +604,22 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 			THROW(P_TempTbl = CreateTempFile());
 		}
 		if(Filt.Flags & (QuotFilt::fAbsence|QuotFilt::fOnlyAbsence)) {
-			//Goods2Tbl::Rec goods_rec;
 			QuotIdent qi(Filt.LocList.GetSingle(), Filt.QuotKindID, Filt.CurID, Filt.ArID);
 			PPQuotItemArray temp_list;
 			PPQuotArray quot_list;
 			PPIDArray goods_id_list;
 			{
-				if(Filt.GoodsList.GetCount()) {
+				if(Filt.GoodsList.GetCount())
 					goods_id_list = Filt.GoodsList.Get();
-				}
-				else if(Filt.GoodsID) {
+				else if(Filt.GoodsID)
 					goods_id_list.add(Filt.GoodsID);
-				}
-				else {
+				else
 					GoodsIterator::GetListByGroup(Filt.GoodsGrpID, &goods_id_list);
-				}
 				goods_id_list.sortAndUndup();
 			}
 			PPTransaction tra(ppDbDependTransaction, use_ta);
 			THROW(tra);
 			PPLoadText(PPTXT_WAIT_QUOTVIEWBUILDING, msg_buf);
-			//for(GoodsIterator iter(Filt.GoodsGrpID, 0); iter.Next(&goods_rec) > 0; PPWaitPercent(iter.GetIterCounter(), msg_buf)) {
 			for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
 				const  PPID goods_id = goods_id_list.get(gidx);
 				uint   pos = 0;
@@ -730,7 +725,7 @@ int SLAPI PPViewQuot::MakeOrderEntry(IterOrder ord, const TempQuotTbl::Rec & rSr
 		else
 			temp_buf.Z().CatChar('\xFF');
 		GetGoodsName(rSrcRec.GoodsID, goods_name);
-		while((temp_buf.Len() + goods_name.Len() + 1) > sizeof(rDestRec.Name)) {
+		while((temp_buf.Len() + goods_name.Len() + 1) > SIZEOFARRAY(rDestRec.Name)) {
 			if(temp_buf.Len() > goods_name.Len())
 				temp_buf.TrimRight();
 			else
@@ -738,7 +733,7 @@ int SLAPI PPViewQuot::MakeOrderEntry(IterOrder ord, const TempQuotTbl::Rec & rSr
 		}
 		temp_buf.Cat(goods_name);
 	}
-	temp_buf.CopyTo(rDestRec.Name, sizeof(rDestRec.Name));
+	temp_buf.CopyTo(rDestRec.Name, SIZEOFARRAY(rDestRec.Name));
 	return ok;
 }
 

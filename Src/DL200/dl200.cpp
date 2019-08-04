@@ -33,7 +33,7 @@ static int SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 	size_t item_size = pAry->getItemSize();
 	long   beg_pos = ftell(pStream);
 	pAry->freeAll();
-	char * p_buf = (char *)SAlloc::M(item_size);
+	char * p_buf = static_cast<char *>(SAlloc::M(item_size));
 	THROW(p_buf);
 	THROW_V(fread(&c, sizeof(c), 1, pStream) == 1, SLERR_READFAULT);
 	for(i = 0; i < c; i++) {
@@ -155,7 +155,7 @@ static DL2_CI * SLAPI _plus2(const DL2_CI * pA1, const DL2_CI * pA2)
 	//
 	if(t1 == DL2CIT_STRING && t2 == DL2CIT_STRING) {
 		size_t len = pA1->Len + pA2->Len;
-		char * p_temp = (char *)SAlloc::C(1, len);
+		char * p_temp = static_cast<char *>(SAlloc::C(1, len));
 		strcat(strcpy(p_temp, pA1->GetStr()), pA2->GetStr());
 		p_result = DL2_CI::MakeStr(p_temp);
 		SAlloc::F(p_temp);

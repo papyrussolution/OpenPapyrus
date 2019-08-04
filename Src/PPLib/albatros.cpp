@@ -40,6 +40,8 @@ int AlbatrosConfigDialog::EditVetisConfig()
 		dlg->setCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout); 
 		dlg->setCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay); // @v10.1.10
 		// } @v10.1.0
+		dlg->AddClusterAssoc(CTL_VETISCFG_FLAGS, 0, Data.Hdr.fVetisTestContour); // @v10.5.1
+		dlg->SetClusterData(CTL_VETISCFG_FLAGS, Data.Hdr.Flags); // @v10.5.1
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_VETISCFG_USER, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf.Strip());
@@ -55,6 +57,7 @@ int AlbatrosConfigDialog::EditVetisConfig()
 			dlg->getCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout); 
 			// } @v10.1.0
 			dlg->getCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay); // @v10.1.10
+			dlg->GetClusterData(CTL_VETISCFG_FLAGS, &Data.Hdr.Flags); // @v10.5.1
 			ok = 1;
 		}
 	}

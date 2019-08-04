@@ -201,18 +201,18 @@ INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				long prev_id = CLUSTER_ID(GetDlgCtrlID(reinterpret_cast<HWND>(lParam)));
-				if((v = p_dlg->P_Last) != 0)
-					do {
-						if(v->TestId(prev_id)) {
-							TView::messageBroadcast(p_dlg, cmReleasedFocus, v);
-		 					if(!(p_dlg->MsgLockFlags & TGroup::fLockMsgChangedFocus)) {
-								p_dlg->MsgLockFlags |= TGroup::fLockMsgChangedFocus;
-								TView::messageBroadcast(p_dlg, cmChangedFocus, v);
-								p_dlg->MsgLockFlags &= ~TGroup::fLockMsgChangedFocus;
-							}
-							break;
+				v = p_dlg->P_Last;
+				if(v) do {
+					if(v->TestId(prev_id)) {
+						TView::messageBroadcast(p_dlg, cmReleasedFocus, v);
+		 				if(!(p_dlg->MsgLockFlags & TGroup::fLockMsgChangedFocus)) {
+							p_dlg->MsgLockFlags |= TGroup::fLockMsgChangedFocus;
+							TView::messageBroadcast(p_dlg, cmChangedFocus, v);
+							p_dlg->MsgLockFlags &= ~TGroup::fLockMsgChangedFocus;
 						}
-					} while((v = v->prev()) != p_dlg->P_Last);
+						break;
+					}
+				} while((v = v->prev()) != p_dlg->P_Last);
 			}
 			break;
 		case WM_SETFOCUS:

@@ -245,7 +245,7 @@ char * zbar_symbol_xml(const zbar_symbol_t * sym, char ** buf, uint * len)
 		maxlen += MAX_INT_DIGITS;
 	if(!*buf || (*len < maxlen)) {
 		SAlloc::F(*buf);
-		*buf = (char *)SAlloc::M(maxlen);
+		*buf = static_cast<char *>(SAlloc::M(maxlen));
 		/* FIXME check OOM */
 		*len = maxlen;
 	}

@@ -146,7 +146,7 @@ static CURLcode base64_encode(const char * table64, struct Curl_easy * data, con
 	if(insize > UINT_MAX/4)
 		return CURLE_OUT_OF_MEMORY;
 #endif
-	base64data = output = (char *)SAlloc::M(insize * 4 / 3 + 4);
+	base64data = output = static_cast<char *>(SAlloc::M(insize * 4 / 3 + 4));
 	if(!output)
 		return CURLE_OUT_OF_MEMORY;
 	/*

@@ -301,7 +301,8 @@ private:
 				PPID  psn_id = 0;
 				if(Filt.Aco == ACO_3 && Filt.AcctId.ar) {
 					psn_id = ObjectToPerson(Filt.AcctId.ar, 0);
-					SetupLocationCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, Filt.DlvrLocID, 0, LOCTYP_ADDRESS, psn_id);
+					// SetupLocationCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, Filt.DlvrLocID, 0, LOCTYP_ADDRESS, psn_id);
+					PsnObj.SetupDlvrLocCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, psn_id, Filt.DlvrLocID);
 				}
 				// } @v10.5.0 
 				dlg->AddClusterAssocDef(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
@@ -416,6 +417,7 @@ private:
 	}
 
 	PPObjAccTurn * ATObj;
+	PPObjPerson PsnObj;
 	AccAnlzFilt   Filt;
 	int    RelComboInited;
 };

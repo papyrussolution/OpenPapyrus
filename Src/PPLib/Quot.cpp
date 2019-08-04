@@ -91,10 +91,9 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 	long   qk_sel_extra = 1;
 	PPID   new_qk_id = 0;
 	SString temp_buf;
-
-	Data = *pFilt;
+	RVALUEPTR(Data, pFilt);
 	QkObj.Classify(Data.QuotKindID, &QuotCls);
-	if(QuotCls == PPQuot::clsMtx) {
+	/* @v10.5.1 if(QuotCls == PPQuot::clsMtx) {
 		qk_sel_extra = QuotKindFilt::fGoodsMatrix;
 		new_qk_id = QkSpc.MtxID;
 	}
@@ -111,14 +110,15 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 		acc_sheet_id = GetSellAccSheet();
 		qk_sel_extra = 1;
 		new_qk_id = 0;
-	}
+	} */
+	GetQuotKindDefaults(QuotCls, Data.QuotKindID, &acc_sheet_id, &new_qk_id, &qk_sel_extra); // @v10.5.1
 	SETIFZ(Data.QuotKindID, new_qk_id);
 	AddClusterAssocDef(CTL_QUOTUPD_WHAT, 0, PPQuot::clsGeneral);
 	AddClusterAssoc(CTL_QUOTUPD_WHAT, 1, PPQuot::clsSupplDeal);
 	AddClusterAssoc(CTL_QUOTUPD_WHAT, 2, PPQuot::clsMtx);
 	AddClusterAssoc(CTL_QUOTUPD_WHAT, 3, PPQuot::clsPredictCoeff);
 	SetClusterData(CTL_QUOTUPD_WHAT, QuotCls);
-	SetupPPObjCombo(this, CTLSEL_QUOTUPD_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN, (void *)qk_sel_extra);
+	SetupPPObjCombo(this, CTLSEL_QUOTUPD_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(qk_sel_extra));
 	{
 		LocationCtrlGroup::Rec grp_rec(&Data.LocList);
 		setGroupData(GRP_LOC, &grp_rec);

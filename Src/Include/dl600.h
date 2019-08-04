@@ -1208,6 +1208,7 @@ public:
 		SFileFormat OutputFormat;
 		SString DestPath;
 		SString Path;
+		const void * P_ViewDef; //v10.5.1
 	};
 	int    SLAPI Export(ExportParam & rParam);
 	int    SLAPI ExportXML(ExportParam & rParam, SString & rOutFileName);

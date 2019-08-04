@@ -5130,7 +5130,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    /* Add room for leading/trailing zero. */
 			    if((dec.frac == 0) || (dec.frac == dec.total))
 				    bufsize++;
-			    buf = (char *)SAlloc::M(bufsize);
+			    buf = static_cast<char *>(SAlloc::M(bufsize));
 			    if(!buf)
 				    return -1;
 			    offs = buf;

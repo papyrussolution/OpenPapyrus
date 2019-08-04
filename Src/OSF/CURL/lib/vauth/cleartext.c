@@ -51,12 +51,10 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data, const char * us
 	size_t ulen;
 	size_t plen;
 	size_t plainlen;
-
 	*outlen = 0;
 	*outptr = NULL;
 	ulen = sstrlen(userp);
 	plen = sstrlen(passwdp);
-
 	/* Compute binary message length, checking for overflows. */
 	plainlen = 2 * ulen;
 	if(plainlen < ulen)
@@ -67,8 +65,7 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data, const char * us
 	plainlen += 2;
 	if(plainlen < 2)
 		return CURLE_OUT_OF_MEMORY;
-
-	plainauth = (char *)SAlloc::M(plainlen);
+	plainauth = static_cast<char *>(SAlloc::M(plainlen));
 	if(!plainauth)
 		return CURLE_OUT_OF_MEMORY;
 

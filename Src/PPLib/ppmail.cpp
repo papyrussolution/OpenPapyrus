@@ -1624,7 +1624,7 @@ int SLAPI PPMailSmtp::TransmitFile(const char * pFileName, MailCallbackProc pf, 
 		buflen = KB * (1 + (uint)flen / KB);
 	else
 		buflen = 8 * KB;
-	THROW_MEM(buf = (char *)SAlloc::M(buflen));
+	THROW_MEM(buf = static_cast<char *>(SAlloc::M(buflen)));
 	bytes_counter.Init(flen);
 	do {
 		THROW(PPCheckUserBreak());

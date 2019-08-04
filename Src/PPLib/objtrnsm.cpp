@@ -1066,7 +1066,7 @@ int SLAPI PPObjectTransmit::ReadFileStat(const char * pFileName, PacketStat & rS
 		stream.Seek(rStat.Hdr.NameListOffs);
 		uint32 name_list_size = 0;
 		THROW_SL(stream.Read(&name_list_size, sizeof(name_list_size)));
-		THROW_MEM(p_temp_buf = (char *)SAlloc::M(name_list_size));
+		THROW_MEM(p_temp_buf = static_cast<char *>(SAlloc::M(name_list_size)));
 		THROW_SL(stream.Read(p_temp_buf, name_list_size));
 		THROW_SL(rStat.NameList.setBuf(p_temp_buf, name_list_size));
 		ZFREE(p_temp_buf);
@@ -1284,7 +1284,7 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 		fseek(stream, hdr.NameListOffs, SEEK_SET);
 		uint32 name_list_size = 0;
 		THROW(Read(stream, &name_list_size, sizeof(name_list_size)));
-		THROW_MEM(p_temp_buf = (char *)SAlloc::M(name_list_size));
+		THROW_MEM(p_temp_buf = static_cast<char *>(SAlloc::M(name_list_size)));
 		THROW(Read(stream, p_temp_buf, name_list_size));
 		THROW_SL(name_list.setBuf(p_temp_buf, name_list_size));
 		ZFREE(p_temp_buf);

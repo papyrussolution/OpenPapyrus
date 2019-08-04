@@ -1298,25 +1298,19 @@ int ProcessorDialog::EditExt()
 			SETFLAG(Data.Ext.TimeFlags, Data.Ext.tfCheckInRoundForward,   check_in_round == 1);
 			SETFLAG(Data.Ext.TimeFlags, Data.Ext.tfCheckOutRoundBackward, check_out_round == 2);
 			GetClusterData(CTL_PRCEXT_PLUSONE, &Data.Ext.TimeFlags);
-			GetClusterData(CTL_PRCEXT_INITSTATUS, &Data.Ext.InitSessStatus); // @v8.2.9
-			// @v8.7.5 {
+			GetClusterData(CTL_PRCEXT_INITSTATUS, &Data.Ext.InitSessStatus);
 			PPID   owner_gua_id = getCtrlLong(CTLSEL_PRCEXT_GUA);
 			Data.Ext.SetOwnerGuaID(owner_gua_id);
-			// } @v8.7.5
-			// @v8.8.0 {
 			{
 				long   cipcto_min = getCtrlLong(CTL_PRCEXT_CIPCTO);
                 long   cipcto = labs(cipcto_min * 60);
 				Data.Ext.SetCipCancelTimeout(cipcto);
 			}
-			// } @v8.8.0
-			// @v8.8.1 {
 			{
 				long   ciplto_min = getCtrlLong(CTL_PRCEXT_CIPLTO);
                 long   ciplto = labs(ciplto_min * 60);
 				Data.Ext.SetCipLockTimeout(ciplto);
 			}
-			// } @v8.8.1
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -1937,7 +1931,7 @@ int SLAPI PPViewProcessor::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			dlg->AddClusterAssoc(CTL_PRCFILT_KIND, 0, PPPRCK_GROUP);
 			dlg->AddClusterAssoc(CTL_PRCFILT_KIND, 1, PPPRCK_PROCESSOR);
 			dlg->SetClusterData(CTL_PRCFILT_KIND, p_filt->Kind);
-			SetupPPObjCombo(dlg, CTLSEL_PRCFILT_PARENT, PPOBJ_PROCESSOR, p_filt->ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, 
+			SetupPPObjCombo(dlg, CTLSEL_PRCFILT_PARENT, PPOBJ_PROCESSOR, p_filt->ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL,
 				reinterpret_cast<void *>(PRCEXDF_GROUP));
 			SetupPPObjCombo(dlg, CTLSEL_PRCFILT_LOC, PPOBJ_LOCATION, p_filt->LocID, 0);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
