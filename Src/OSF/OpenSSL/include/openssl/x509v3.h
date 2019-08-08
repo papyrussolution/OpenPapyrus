@@ -436,17 +436,13 @@ typedef struct x509_purpose_st {
 #define X509V3_ADD_SILENT               0x10
 
 DEFINE_STACK_OF(X509_PURPOSE)
-
 DECLARE_ASN1_FUNCTIONS(BASIC_CONSTRAINTS)
-
 DECLARE_ASN1_FUNCTIONS(SXNET)
 DECLARE_ASN1_FUNCTIONS(SXNETID)
 
 int SXNET_add_id_asc(SXNET ** psx, const char * zone, const char * user, int userlen);
-int SXNET_add_id_ulong(SXNET ** psx, ulong lzone, const char * user,
-    int userlen);
-int SXNET_add_id_INTEGER(SXNET ** psx, ASN1_INTEGER * izone, const char * user,
-    int userlen);
+int SXNET_add_id_ulong(SXNET ** psx, ulong lzone, const char * user, int userlen);
+int SXNET_add_id_INTEGER(SXNET ** psx, ASN1_INTEGER * izone, const char * user, int userlen);
 
 ASN1_OCTET_STRING * SXNET_get_id_asc(SXNET * sx, const char * zone);
 ASN1_OCTET_STRING * SXNET_get_id_ulong(SXNET * sx, ulong lzone);
@@ -460,43 +456,28 @@ DECLARE_ASN1_FUNCTIONS(GENERAL_NAME)
 GENERAL_NAME *GENERAL_NAME_dup(GENERAL_NAME *a);
 int GENERAL_NAME_cmp(GENERAL_NAME * a, GENERAL_NAME * b);
 
-ASN1_BIT_STRING * v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD *method,
-    X509V3_CTX *ctx,
-    STACK_OF(CONF_VALUE) *nval);
-STACK_OF(CONF_VALUE) *i2v_ASN1_BIT_STRING(X509V3_EXT_METHOD *method,
-    ASN1_BIT_STRING *bits,
-    STACK_OF(CONF_VALUE) *extlist);
+ASN1_BIT_STRING * v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD *method, X509V3_CTX *ctx, STACK_OF(CONF_VALUE) *nval);
+STACK_OF(CONF_VALUE) *i2v_ASN1_BIT_STRING(X509V3_EXT_METHOD *method, ASN1_BIT_STRING *bits, STACK_OF(CONF_VALUE) *extlist);
 char * i2s_ASN1_IA5STRING(X509V3_EXT_METHOD * method, ASN1_IA5STRING * ia5);
-ASN1_IA5STRING * s2i_ASN1_IA5STRING(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx, const char * str);
+ASN1_IA5STRING * s2i_ASN1_IA5STRING(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, const char * str);
 
-STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(X509V3_EXT_METHOD *method,
-    GENERAL_NAME *gen,
-    STACK_OF(CONF_VALUE) *ret);
+STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(X509V3_EXT_METHOD *method, GENERAL_NAME *gen, STACK_OF(CONF_VALUE) *ret);
 int GENERAL_NAME_print(BIO * out, GENERAL_NAME * gen);
 
 DECLARE_ASN1_FUNCTIONS(GENERAL_NAMES)
 
-STACK_OF(CONF_VALUE) *i2v_GENERAL_NAMES(X509V3_EXT_METHOD *method,
-    GENERAL_NAMES *gen,
-    STACK_OF(CONF_VALUE) *extlist);
-GENERAL_NAMES * v2i_GENERAL_NAMES(const X509V3_EXT_METHOD *method,
-    X509V3_CTX *ctx, STACK_OF(CONF_VALUE) *nval);
+STACK_OF(CONF_VALUE) *i2v_GENERAL_NAMES(X509V3_EXT_METHOD *method, GENERAL_NAMES *gen, STACK_OF(CONF_VALUE) *extlist);
+GENERAL_NAMES * v2i_GENERAL_NAMES(const X509V3_EXT_METHOD *method, X509V3_CTX *ctx, STACK_OF(CONF_VALUE) *nval);
 
 DECLARE_ASN1_FUNCTIONS(OTHERNAME)
 DECLARE_ASN1_FUNCTIONS(EDIPARTYNAME)
-int OTHERNAME_cmp(OTHERNAME * a, OTHERNAME * b);
-void GENERAL_NAME_set0_value(GENERAL_NAME * a, int type, void * value);
+int    OTHERNAME_cmp(OTHERNAME * a, OTHERNAME * b);
+void   GENERAL_NAME_set0_value(GENERAL_NAME * a, int type, void * value);
 void * GENERAL_NAME_get0_value(GENERAL_NAME * a, int * ptype);
-int GENERAL_NAME_set0_othername(GENERAL_NAME * gen,
-    ASN1_OBJECT * oid, ASN1_TYPE * value);
-int GENERAL_NAME_get0_otherName(GENERAL_NAME * gen,
-    ASN1_OBJECT ** poid, ASN1_TYPE ** pvalue);
-
-char * i2s_ASN1_OCTET_STRING(X509V3_EXT_METHOD * method,
-    const ASN1_OCTET_STRING * ia5);
-ASN1_OCTET_STRING * s2i_ASN1_OCTET_STRING(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx, const char * str);
+int    GENERAL_NAME_set0_othername(GENERAL_NAME * gen, ASN1_OBJECT * oid, ASN1_TYPE * value);
+int    GENERAL_NAME_get0_otherName(GENERAL_NAME * gen, ASN1_OBJECT ** poid, ASN1_TYPE ** pvalue);
+char * i2s_ASN1_OCTET_STRING(X509V3_EXT_METHOD * method, const ASN1_OCTET_STRING * ia5);
+ASN1_OCTET_STRING * s2i_ASN1_OCTET_STRING(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, const char * str);
 
 DECLARE_ASN1_FUNCTIONS(EXTENDED_KEY_USAGE)
 int i2a_ACCESS_DESCRIPTION(BIO * bp, const ACCESS_DESCRIPTION * a);

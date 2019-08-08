@@ -1,9 +1,11 @@
 // SXML.CPP
 // Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// ¬спомогательные механизмы дл€ работы с XML
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+#include <snet.h>
 #include <sxml.h>
 #include <libxml/xmlschemastypes.h>
 

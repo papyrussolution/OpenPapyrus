@@ -854,6 +854,7 @@ cd $(SolutionDir)
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Construction of gSOAP sources %(FullPath)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Construction of gSOAP sources %(FullPath)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Construction of gSOAP sources %(FullPath)</Message>
+      <SubType>Designer</SubType>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

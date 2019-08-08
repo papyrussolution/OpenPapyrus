@@ -2065,16 +2065,21 @@ int TToolTip::AddTool(ToolItem & rItem)
 {
 	int    ok = 1;
 	if(H) {
+		//
+		// @v10.5.2 ѕочему-то unicode-верси€ методов TOOLTIP не работает правильно. ѕо-этому здесь €вно используютс€ //
+		// multibyte-методы.
+		//
 		const uint _cur_count = GetToolsCount();
-		TOOLINFO ti;
+		TOOLINFOA ti;
 		MEMSZERO(ti);
-		ti.cbSize = sizeof(TOOLINFO);
+		ti.cbSize = sizeof(ti);
 		ti.uFlags = TTF_SUBCLASS;
 		ti.hwnd = rItem.H;
 		ti.hinst = SLS.GetHInst();
 		ti.uId = _cur_count+1; //++Counter;
 		if(rItem.Text.NotEmpty()) {
-			ti.lpszText = const_cast<TCHAR *>(SUcSwitch(rItem.Text)); // @badcast // @unicodeproblem
+			//ti.lpszText = const_cast<TCHAR *>(SUcSwitch(rItem.Text)); // @badcast // @unicodeproblem
+			ti.lpszText = const_cast<char *>(rItem.Text.cptr()); // @badcast // @unicodeproblem
 		}
 		if(rItem.R.IsEmpty() && rItem.H) {
 			GetClientRect(rItem.H, &ti.rect);
@@ -2083,7 +2088,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 			ti.rect = static_cast<RECT>(rItem.R);
 		}
 		ti.lParam = rItem.Param;
-		::SendMessage(H, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem
+		::SendMessage(H, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem
 	}
 	else
 		ok = 0;

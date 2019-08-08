@@ -649,6 +649,7 @@ int SLAPI PPViewAccAnlz::FetchBill(PPID billID, BillEntry * pEntry)
 			pEntry->OpID = rec.OpID;
 			pEntry->Object2ID = rec.Object2;
 			pEntry->Flags = rec.Flags;
+			pEntry->LinkBillID = rec.LinkBillID; // @v10.5.2
 			pEntry->AgentID = 0;
 			if(Filt.AgentID || Filt.CorAco == AccAnlzFilt::aafgByAgent) {
 				PPBillExt bext_rec;
@@ -807,8 +808,10 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 				// @v10.5.0 {
 				if(EffDlvrLocID) {
 					PPFreight freight;
-					if(!(P_BObj->FetchFreight(rec.Bill, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID))
-						continue;
+					if(!(P_BObj->FetchFreight(rec.Bill, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID)) {
+						if(!(bill_entry.LinkBillID && P_BObj->FetchFreight(bill_entry.LinkBillID, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID)) // @v10.5.2
+							continue;
+					}
 				}
 				// } @v10.5.0 
 			}

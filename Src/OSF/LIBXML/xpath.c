@@ -988,13 +988,13 @@ static int xmlXPathCompExprAdd(xmlXPathCompExprPtr comp, int ch1, int ch2,
 	comp->steps[comp->nbStep].value3 = value3;
 	if(comp->dict && oneof3(op, XPATH_OP_FUNCTION, XPATH_OP_VARIABLE, XPATH_OP_COLLECT)) {
 		if(value4) {
-			comp->steps[comp->nbStep].value4 = (xmlChar *)xmlDictLookupSL(comp->dict, (const xmlChar *)value4);
+			comp->steps[comp->nbStep].value4 = (void *)(xmlDictLookupSL(comp->dict, (const xmlChar *)value4)); // @badcast
 			SAlloc::F(value4);
 		}
 		else
 			comp->steps[comp->nbStep].value4 = NULL;
 		if(value5) {
-			comp->steps[comp->nbStep].value5 = (xmlChar *)xmlDictLookupSL(comp->dict, (const xmlChar *)value5);
+			comp->steps[comp->nbStep].value5 = (void *)xmlDictLookupSL(comp->dict, (const xmlChar *)value5); // @badcast
 			SAlloc::F(value5);
 		}
 		else
@@ -1017,7 +1017,6 @@ static int xmlXPathCompExprAdd(xmlXPathCompExprPtr comp, int ch1, int ch2,
  */
 static void xmlXPathCompSwap(xmlXPathStepOpPtr op) 
 {
-	int tmp;
 #ifndef LIBXML_THREAD_ENABLED
 	/*
 	 * Since this manipulates possibly shared variables, this is
@@ -1027,28 +1026,19 @@ static void xmlXPathCompSwap(xmlXPathStepOpPtr op)
 	if(xmlXPathDisableOptimizer)
 		return;
 #endif
-	tmp = op->ch1;
+	int tmp = op->ch1;
 	op->ch1 = op->ch2;
 	op->ch2 = tmp;
 }
 
-#define PUSH_FULL_EXPR(op, op1, op2, val, val2, val3, val4, val5)	\
-	xmlXPathCompExprAdd(ctxt->comp, (op1), (op2), (op), (val), (val2), (val3), (val4), (val5))
-#define PUSH_LONG_EXPR(op, val, val2, val3, val4, val5)			\
-	xmlXPathCompExprAdd(ctxt->comp, ctxt->comp->last, -1, (op), (val), (val2), (val3), (val4), (val5))
-#define PUSH_LEAVE_EXPR(op, val, val2)					\
-	xmlXPathCompExprAdd(ctxt->comp, -1, -1, (op), (val), (val2), 0, NULL, NULL)
-#define PUSH_UNARY_EXPR(op, ch, val, val2)				\
-	xmlXPathCompExprAdd(ctxt->comp, (ch), -1, (op), (val), (val2), 0, NULL, NULL)
-#define PUSH_BINARY_EXPR(op, ch1, ch2, val, val2)			\
-	xmlXPathCompExprAdd(ctxt->comp, (ch1), (ch2), (op), (val), (val2), 0, NULL, NULL)
-
-/************************************************************************
-*									*
-*		XPath object cache structures				*
-*									*
-************************************************************************/
-
+#define PUSH_FULL_EXPR(op, op1, op2, val, val2, val3, val4, val5) xmlXPathCompExprAdd(ctxt->comp, (op1), (op2), (op), (val), (val2), (val3), (val4), (val5))
+#define PUSH_LONG_EXPR(op, val, val2, val3, val4, val5) xmlXPathCompExprAdd(ctxt->comp, ctxt->comp->last, -1, (op), (val), (val2), (val3), (val4), (val5))
+#define PUSH_LEAVE_EXPR(op, val, val2)            xmlXPathCompExprAdd(ctxt->comp, -1, -1, (op), (val), (val2), 0, NULL, NULL)
+#define PUSH_UNARY_EXPR(op, ch, val, val2)        xmlXPathCompExprAdd(ctxt->comp, (ch), -1, (op), (val), (val2), 0, NULL, NULL)
+#define PUSH_BINARY_EXPR(op, ch1, ch2, val, val2) xmlXPathCompExprAdd(ctxt->comp, (ch1), (ch2), (op), (val), (val2), 0, NULL, NULL)
+//
+// XPath object cache structures
+//
 /* #define XP_DEFAULT_CACHE_ON */
 
 #define XP_HAS_CACHE(c) (c && (c)->cache)
@@ -1093,13 +1083,9 @@ struct _xmlXPathContextCache {
 
 #endif
 };
-
-/************************************************************************
-*									*
-*		Debugging related functions				*
-*									*
-************************************************************************/
-
+//
+// Debugging related functions
+// 
 #define STRANGE xmlGenericError(0, "Internal error at %s:%d\n", __FILE__, __LINE__);
 
 #ifdef LIBXML_DEBUG_ENABLED
@@ -1115,14 +1101,12 @@ static void xmlXPathDebugDumpNode(FILE * output, xmlNode * cur, int depth)
 		fprintf(output, "Node is NULL !\n");
 		return;
 	}
-
-	if((cur->type == XML_DOCUMENT_NODE) ||
-	    (cur->type == XML_HTML_DOCUMENT_NODE)) {
+	if(oneof2(cur->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
 		fprintf(output, "%s", shift);
 		fprintf(output, " /\n");
 	}
 	else if(cur->type == XML_ATTRIBUTE_NODE)
-		xmlDebugDumpAttr(output, (xmlAttr *)cur, depth);
+		xmlDebugDumpAttr(output, reinterpret_cast<xmlAttr *>(cur), depth);
 	else
 		xmlDebugDumpOneNode(output, cur, depth);
 }
@@ -1147,20 +1131,18 @@ static void xmlXPathDebugDumpNodeList(FILE * output, xmlNode * cur, int depth)
 	}
 }
 
-static void xmlXPathDebugDumpNodeSet(FILE * output, xmlNodeSetPtr cur, int depth) {
+static void xmlXPathDebugDumpNodeSet(FILE * output, xmlNodeSetPtr cur, int depth) 
+{
 	int i;
 	char shift[100];
-
 	for(i = 0; ((i < depth) && (i < 25)); i++)
 		shift[2 * i] = shift[2 * i + 1] = ' ';
 	shift[2 * i] = shift[2 * i + 1] = 0;
-
 	if(!cur) {
 		fprintf(output, "%s", shift);
 		fprintf(output, "NodeSet is NULL !\n");
 		return;
 	}
-
 	if(cur) {
 		fprintf(output, "Set contains %d nodes:\n", cur->nodeNr);
 		for(i = 0; i < cur->nodeNr; i++) {
@@ -1274,7 +1256,7 @@ void xmlXPathDebugDumpObject(FILE * output, xmlXPathObjectPtr cur, int depth)
 					break;
 				case XPATH_POINT:
 					fprintf(output, "Object is a point : index %d in node", cur->index);
-					xmlXPathDebugDumpNode(output, (xmlNode *)cur->user, depth + 1);
+					xmlXPathDebugDumpNode(output, static_cast<xmlNode *>(cur->user), depth + 1);
 					fprintf(output, "\n");
 					break;
 				case XPATH_RANGE:

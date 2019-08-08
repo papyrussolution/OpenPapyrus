@@ -1186,6 +1186,9 @@
 				RelativePath="..\SLib\sxml.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\sxmlad.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\tab.cpp">
 			</File>
 			<File

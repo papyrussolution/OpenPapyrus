@@ -10,7 +10,6 @@
  * Gary Pennington <Gary.Pennington@uk.sun.com>
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -41,13 +40,9 @@ void xmlCleanupGlobals()
 	xmlThrDefMutex = NULL;
 	__xmlGlobalInitMutexDestroy();
 }
-
-/************************************************************************
-*									*
-*	All the user accessible global variables of the library		*
-*									*
-************************************************************************/
-
+//
+// All the user accessible global variables of the library
+//
 /*
  * Memory allocation routines
  */
@@ -147,7 +142,6 @@ void xmlCleanupGlobals()
  * Constant string describing the internal version of the library
  */
 const char * xmlParserVersion = LIBXML_VERSION_STRING LIBXML_VERSION_EXTRA;
-
 /**
  * xmlBufferAllocScheme:
  *
@@ -163,11 +157,9 @@ static xmlBufferAllocationScheme xmlBufferAllocSchemeThrDef = XML_BUFFER_ALLOC_E
  */
 int xmlDefaultBufferSize = BASE_BUFFER_SIZE;
 static int xmlDefaultBufferSizeThrDef = BASE_BUFFER_SIZE;
-
 /*
  * Parser defaults
  */
-
 /**
  * oldXMLWDcompatibility:
  *
@@ -266,9 +258,7 @@ static xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameValueThrDe
 
 /* xmlGenericErrorFunc xmlGenericError = xmlGenericErrorDefaultFunc; */
 /* Must initialize xmlGenericError in xmlInitParser */
-void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED,
-    const char * msg,
-    ...);
+void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char * msg, ...);
 /**
  * xmlGenericError:
  *
@@ -904,19 +894,13 @@ int xmlThrDefParserDebugEntities(int v)
 #undef  xmlParserVersion
 const char ** __xmlParserVersion()
 {
-	if(IS_MAIN_THREAD)
-		return (&xmlParserVersion);
-	else
-		return (&xmlGetGlobalState()->xmlParserVersion);
+	return (IS_MAIN_THREAD) ? (&xmlParserVersion) : (&xmlGetGlobalState()->xmlParserVersion);
 }
 
 #undef  xmlPedanticParserDefaultValue
 int * __xmlPedanticParserDefaultValue()
 {
-	if(IS_MAIN_THREAD)
-		return (&xmlPedanticParserDefaultValue);
-	else
-		return (&xmlGetGlobalState()->xmlPedanticParserDefaultValue);
+	return (IS_MAIN_THREAD) ? (&xmlPedanticParserDefaultValue) : (&xmlGetGlobalState()->xmlPedanticParserDefaultValue);
 }
 
 int xmlThrDefPedanticParserDefaultValue(int v)
@@ -931,12 +915,7 @@ int xmlThrDefPedanticParserDefaultValue(int v)
 
 #undef  xmlSaveNoEmptyTags
 int * __xmlSaveNoEmptyTags()
-{
-	if(IS_MAIN_THREAD)
-		return (&xmlSaveNoEmptyTags);
-	else
-		return (&xmlGetGlobalState()->xmlSaveNoEmptyTags);
-}
+	{ return IS_MAIN_THREAD ? (&xmlSaveNoEmptyTags) : (&xmlGetGlobalState()->xmlSaveNoEmptyTags); }
 
 int xmlThrDefSaveNoEmptyTags(int v)
 {
@@ -950,12 +929,7 @@ int xmlThrDefSaveNoEmptyTags(int v)
 
 #undef  xmlSubstituteEntitiesDefaultValue
 int * __xmlSubstituteEntitiesDefaultValue()
-{
-	if(IS_MAIN_THREAD)
-		return (&xmlSubstituteEntitiesDefaultValue);
-	else
-		return (&xmlGetGlobalState()->xmlSubstituteEntitiesDefaultValue);
-}
+	{ return IS_MAIN_THREAD ? (&xmlSubstituteEntitiesDefaultValue) : (&xmlGetGlobalState()->xmlSubstituteEntitiesDefaultValue); }
 
 int xmlThrDefSubstituteEntitiesDefaultValue(int v)
 {
@@ -969,33 +943,16 @@ int xmlThrDefSubstituteEntitiesDefaultValue(int v)
 
 #undef  xmlRegisterNodeDefaultValue
 xmlRegisterNodeFunc * __xmlRegisterNodeDefaultValue()
-{
-	if(IS_MAIN_THREAD)
-		return (&xmlRegisterNodeDefaultValue);
-	else
-		return (&xmlGetGlobalState()->xmlRegisterNodeDefaultValue);
-}
-
+	{ return IS_MAIN_THREAD ? (&xmlRegisterNodeDefaultValue) : (&xmlGetGlobalState()->xmlRegisterNodeDefaultValue); }
 #undef  xmlDeregisterNodeDefaultValue
 xmlDeregisterNodeFunc * __xmlDeregisterNodeDefaultValue()
-{
-	if(IS_MAIN_THREAD)
-		return (&xmlDeregisterNodeDefaultValue);
-	else
-		return (&xmlGetGlobalState()->xmlDeregisterNodeDefaultValue);
-}
-
+	{ return IS_MAIN_THREAD ? (&xmlDeregisterNodeDefaultValue) : (&xmlGetGlobalState()->xmlDeregisterNodeDefaultValue); }
 #undef  xmlParserInputBufferCreateFilenameValue
 xmlParserInputBufferCreateFilenameFunc * __xmlParserInputBufferCreateFilenameValue()
-{
-	return IS_MAIN_THREAD ? (&xmlParserInputBufferCreateFilenameValue) : (&xmlGetGlobalState()->xmlParserInputBufferCreateFilenameValue);
-}
-
+	{ return IS_MAIN_THREAD ? (&xmlParserInputBufferCreateFilenameValue) : (&xmlGetGlobalState()->xmlParserInputBufferCreateFilenameValue); }
 #undef  xmlOutputBufferCreateFilenameValue
 xmlOutputBufferCreateFilenameFunc * __xmlOutputBufferCreateFilenameValue()
-{
-	return IS_MAIN_THREAD ? (&xmlOutputBufferCreateFilenameValue) : (&xmlGetGlobalState()->xmlOutputBufferCreateFilenameValue);
-}
+	{ return IS_MAIN_THREAD ? (&xmlOutputBufferCreateFilenameValue) : (&xmlGetGlobalState()->xmlOutputBufferCreateFilenameValue); }
 
 #define bottom_globals
 //#include "elfgcchack.h"

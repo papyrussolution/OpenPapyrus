@@ -165,7 +165,7 @@ static xmlRMutex * xmlLibraryLock = NULL;
  */
 xmlMutex * xmlNewMutex()
 {
-	xmlMutex * tok = (xmlMutex *)malloc(sizeof(xmlMutex));
+	xmlMutex * tok = static_cast<xmlMutex *>(malloc(sizeof(xmlMutex)));
 	if(!tok == NULL)
 		return 0;
 #ifdef HAVE_PTHREAD_H
@@ -261,8 +261,8 @@ void FASTCALL xmlMutexUnlock(xmlMutex * tok)
  */
 xmlRMutex * xmlNewRMutex()
 {
-	xmlRMutex * tok;
-	if((tok = (xmlRMutex *)malloc(sizeof(xmlRMutex))) == NULL)
+	xmlRMutex * tok = static_cast<xmlRMutex *>(malloc(sizeof(xmlRMutex)));
+	if(tok == NULL)
 		return 0;
 #ifdef HAVE_PTHREAD_H
 	if(libxml_is_threaded != 0) {
@@ -318,7 +318,6 @@ void FASTCALL xmlRMutexLock(xmlRMutex * tok)
 #ifdef HAVE_PTHREAD_H
 	if(libxml_is_threaded == 0)
 		return;
-
 	pthread_mutex_lock(&tok->lock);
 	if(tok->held) {
 		if(pthread_equal(tok->tid, pthread_self())) {
@@ -518,9 +517,9 @@ static void xmlFreeGlobalState(void * state)
  *
  * Returns the newly allocated xmlGlobalState * or NULL in case of error
  */
-static xmlGlobalState *xmlNewGlobalState()
+static xmlGlobalState * xmlNewGlobalState()
 {
-	xmlGlobalState * gs = (xmlGlobalState *)malloc(sizeof(xmlGlobalState));
+	xmlGlobalState * gs = static_cast<xmlGlobalState *>(malloc(sizeof(xmlGlobalState)));
 	if(gs == NULL)
 		xmlGenericError(0, "xmlGetGlobalState: out of memory\n");
 	else {
@@ -542,7 +541,7 @@ typedef struct _xmlGlobalStateCleanupHelperParams {
 
 static void XMLCDECL xmlGlobalStateCleanupHelper(void * p)
 {
-	xmlGlobalStateCleanupHelperParams * params = (xmlGlobalStateCleanupHelperParams *)p;
+	xmlGlobalStateCleanupHelperParams * params = static_cast<xmlGlobalStateCleanupHelperParams *>(p);
 	WaitForSingleObject(params->thread, INFINITE);
 	CloseHandle(params->thread);
 	xmlFreeGlobalState(params->memory);
@@ -555,7 +554,6 @@ static void XMLCDECL xmlGlobalStateCleanupHelper(void * p)
 typedef struct _xmlGlobalStateCleanupHelperParams {
 	void * memory;
 	struct _xmlGlobalStateCleanupHelperParams * prev;
-
 	struct _xmlGlobalStateCleanupHelperParams * next;
 } xmlGlobalStateCleanupHelperParams;
 
@@ -567,7 +565,6 @@ static CRITICAL_SECTION cleanup_helpers_cs;
 #endif /* HAVE_WIN32_THREADS */
 
 #if defined HAVE_BEOS_THREADS
-
 /**
  * xmlGlobalStateCleanup:
  * @data: unused parameter
@@ -580,7 +577,6 @@ void xmlGlobalStateCleanup(void * data)
 	if(globalval)
 		xmlFreeGlobalState(globalval);
 }
-
 #endif
 /**
  * xmlGetGlobalState:
@@ -616,16 +612,16 @@ xmlGlobalState * xmlGetGlobalState()
 	xmlGlobalStateCleanupHelperParams * p;
 	xmlOnceInit();
 #if defined(LIBXML_STATIC) && !defined(LIBXML_STATIC_FOR_DLL)
-	globalval = (xmlGlobalState*)TlsGetValue(globalkey);
+	globalval = static_cast<xmlGlobalState *>(TlsGetValue(globalkey));
 #else
-	p = (xmlGlobalStateCleanupHelperParams*)TlsGetValue(globalkey);
+	p = static_cast<xmlGlobalStateCleanupHelperParams *>(TlsGetValue(globalkey));
 	globalval = (xmlGlobalState*)(p ? p->memory : NULL);
 #endif
 	if(globalval == NULL) {
 		xmlGlobalState * tsd = xmlNewGlobalState();
 		if(tsd == NULL)
 			return 0;
-		p = (xmlGlobalStateCleanupHelperParams*)malloc(sizeof(xmlGlobalStateCleanupHelperParams));
+		p = static_cast<xmlGlobalStateCleanupHelperParams *>(malloc(sizeof(xmlGlobalStateCleanupHelperParams)));
 		if(!p) {
 			xmlGenericError(0, "xmlGetGlobalState: out of memory\n");
 			xmlFreeGlobalState(tsd);
@@ -654,9 +650,7 @@ xmlGlobalState * xmlGetGlobalState()
 #endif /* HAVE_COMPILER_TLS */
 #elif defined HAVE_BEOS_THREADS
 	xmlGlobalState * globalval;
-
 	xmlOnceInit();
-
 	if((globalval = (xmlGlobalState*)tls_get(globalkey)) == NULL) {
 		xmlGlobalState * tsd = xmlNewGlobalState();
 		if(tsd == NULL)
@@ -671,22 +665,18 @@ xmlGlobalState * xmlGetGlobalState()
 	return 0;
 #endif
 }
-
-/************************************************************************
-*									*
-*			Library wide thread interfaces			*
-*									*
-************************************************************************/
-
-/**
- * xmlGetThreadId:
- *
- * xmlGetThreadId() find the current thread ID number
- * Note that this is likely to be broken on some platforms using pthreads
- * as the specification doesn't mandate pthread_t to be an integer type
- *
- * Returns the current thread ID number
- */
+// 
+// Library wide thread interfaces
+// 
+// 
+// xmlGetThreadId:
+// 
+// xmlGetThreadId() find the current thread ID number
+// Note that this is likely to be broken on some platforms using pthreads
+// as the specification doesn't mandate pthread_t to be an integer type
+// 
+// Returns the current thread ID number
+// 
 int xmlGetThreadId()
 {
 #ifdef HAVE_PTHREAD_H

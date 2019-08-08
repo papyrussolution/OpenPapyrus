@@ -2689,7 +2689,7 @@ int SLAPI PPObjGoods::UpdateFlags(PPID goodsID, long setF, long resetF, int use_
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(P_Tbl->Search(goodsID, &rec) > 0) {
-			long   old_f = rec.Flags;
+			const long old_f = rec.Flags;
 			if(setF & GF_NODISCOUNT) rec.Flags |= GF_NODISCOUNT;
 			if(resetF & GF_NODISCOUNT) rec.Flags &= ~GF_NODISCOUNT;
 			if(setF & GF_PASSIV) rec.Flags |= GF_PASSIV;

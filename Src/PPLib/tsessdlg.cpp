@@ -1279,7 +1279,6 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 {
 	Data = *pData;
 	OrgStatus = Data.Rec.Status;
-
 	int    ok = 1;
 	InpUpdLock++;
 	setCtrlLong(CTL_TSESS_NUMBER, Data.Rec.Num);

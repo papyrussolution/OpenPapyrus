@@ -108,6 +108,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z", "7z.vcproj", "{B742E28
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rabbitmq-static", "rabbitmq-c.vcproj", "{8D027C7B-9821-4FB1-B62A-D33D7500720D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -667,6 +671,28 @@ Global
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.ServerRelease.Build.0 = ServerRelease|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Universe-HTT.ActiveCfg = MtDllDebug|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Universe-HTT.Build.0 = MtDllDebug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.Debug.ActiveCfg = Debug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.Debug.Build.0 = Debug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.DebugU.ActiveCfg = Debug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.DebugU.Build.0 = Debug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.MinSizeRel.ActiveCfg = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.MinSizeRel.Build.0 = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.MtDllDebug.ActiveCfg = Debug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.MtDllDebug.Build.0 = Debug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.MtDllRelease.ActiveCfg = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.MtDllRelease.Build.0 = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.Release.ActiveCfg = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.Release.Build.0 = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.ReleaseU.ActiveCfg = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.ReleaseU.Build.0 = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.RelWithDebInfo.ActiveCfg = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.RelWithDebInfo.Build.0 = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.ServerDebug.ActiveCfg = Debug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.ServerDebug.Build.0 = Debug|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.ServerRelease.ActiveCfg = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.ServerRelease.Build.0 = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.Universe-HTT.ActiveCfg = Release|Win32
+		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

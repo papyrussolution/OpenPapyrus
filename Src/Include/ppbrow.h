@@ -458,7 +458,7 @@
 	#define HELP_BROWSER_PROJECT                                207
 #define BROWSER_PRJPHASE                               208 // Фазы проекта '%s'
 	#define HELP_BROWSER_PRJPHASE                               208
-#define BROWSER_PRJTASK                                209 // Задачи {%s}
+#define BROWSER_PRJTASK                                209 // @{prjtask_pl} {%s}
 	#define HELP_BROWSER_PRJTASK                                209
 #define BROWSER_PRJTASK_DATEHOURCT                     210 // Задачи с табуляцией Дата/Час
 	#define HELP_BROWSER_PRJTASK_DATEHOURCT                     210
@@ -1113,6 +1113,7 @@
 #define PPVCMD_SETUPOUTGOING                          275
 #define PPVCMD_SENDOUTGOING                           276
 #define PPVCMD_VETISWAREHOUSE                         277
+#define PPVCMD_VETISPRODUCT                           278
 //
 // PPCMD definitions
 //

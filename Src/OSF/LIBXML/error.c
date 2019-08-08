@@ -350,14 +350,14 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
     const char * str2, const char * str3, int int1, int col, const char * msg, ...)
 {
 	xmlParserCtxt * ctxt = NULL;
-	xmlNode * P_Node = (xmlNode *)nod;
+	xmlNode * p_node = static_cast<xmlNode *>(nod);
 	char * str = NULL;
 	xmlParserInput * input = NULL;
-	xmlErrorPtr to = &xmlLastError;
+	xmlError * to = &xmlLastError;
 	xmlNode * baseptr = NULL;
 	if(code == XML_ERR_OK)
 		return;
-	if((xmlGetWarningsDefaultValue == 0) && (level == XML_ERR_WARNING))
+	if((xmlGetWarningsDefaultValue == 0) && level == XML_ERR_WARNING)
 		return;
 	if(oneof6(domain, XML_FROM_PARSER, XML_FROM_HTML, XML_FROM_DTD, XML_FROM_NAMESPACE, XML_FROM_IO, XML_FROM_VALID)) {
 		ctxt = static_cast<xmlParserCtxt *>(ctx);
@@ -403,20 +403,20 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		}
 		to = &ctxt->lastError;
 	}
-	else if(P_Node && !file) {
+	else if(p_node && !file) {
 		int i;
-		if(P_Node->doc && P_Node->doc->URL) {
-			baseptr = P_Node;
+		if(p_node->doc && p_node->doc->URL) {
+			baseptr = p_node;
 /*	    file = (const char *) node->doc->URL; */
 		}
-		for(i = 0; ((i < 10) && P_Node && (P_Node->type != XML_ELEMENT_NODE)); i++)
-			P_Node = P_Node->P_ParentNode;
-		if(!baseptr && P_Node && P_Node->doc && P_Node->doc->URL)
-			baseptr = P_Node;
-		if(P_Node && P_Node->type == XML_ELEMENT_NODE)
-			line = P_Node->line;
+		for(i = 0; ((i < 10) && p_node && (p_node->type != XML_ELEMENT_NODE)); i++)
+			p_node = p_node->P_ParentNode;
+		if(!baseptr && p_node && p_node->doc && p_node->doc->URL)
+			baseptr = p_node;
+		if(p_node && p_node->type == XML_ELEMENT_NODE)
+			line = p_node->line;
 		if(!line || line == 65535)
-			line = xmlGetLineNo(P_Node);
+			line = xmlGetLineNo(p_node);
 	}
 	/*
 	 * Save the information about the error
@@ -463,8 +463,8 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		else
 #endif
 		to->file = (char *)sstrdup(baseptr->doc->URL);
-		if(!to->file && P_Node && P_Node->doc)
-			to->file = (char *)sstrdup(P_Node->doc->URL);
+		if(!to->file && p_node && p_node->doc)
+			to->file = (char *)sstrdup(p_node->doc->URL);
 	}
 	to->line = line;
 	to->str1 = sstrdup(str1);
@@ -472,7 +472,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	to->str3 = sstrdup(str3);
 	to->int1 = int1;
 	to->int2 = col;
-	to->P_Node = P_Node;
+	to->P_Node = p_node;
 	to->ctxt = ctx;
 	if(to != &xmlLastError)
 		xmlCopyError(to, &xmlLastError);

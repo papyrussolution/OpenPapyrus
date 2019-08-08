@@ -685,18 +685,18 @@ int PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 	TCHAR  tooltip[512]; // @v9.0.11 [256]-->[512]
 	memzero(tooltip, sizeof(tooltip));
 	STRNSCPY(tooltip, SUcSwitch(pText));
-	TOOLINFO t_i;
-	t_i.cbSize      = sizeof(TOOLINFO);
-	t_i.uFlags      = TTF_SUBCLASS;
-	t_i.hwnd        = H();
-	t_i.uId         = id;
+	TOOLINFOA t_i;
+	t_i.cbSize = sizeof(t_i);
+	t_i.uFlags = TTF_SUBCLASS;
+	t_i.hwnd   = H();
+	t_i.uId    = id;
 	TRect ir;
 	CalcIconRect(coord, ir);
 	t_i.rect = ir;
 	t_i.hinst    = TProgram::GetInst();
-	t_i.lpszText = tooltip; // @unicodeproblem
-	::SendMessage(HwndTT, static_cast<UINT>(TTM_DELTOOL), 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
-	::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+	t_i.lpszText = const_cast<char *>(pText);//tooltip; // @unicodeproblem
+	::SendMessage(HwndTT, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+	::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 	return 1;
 }
 

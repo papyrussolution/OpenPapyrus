@@ -20098,17 +20098,14 @@ public:
 	static int SLAPI ImpExp(const PalmPaneData *);
 	static int SLAPI EditImpExpData(PalmPaneData *);
 	static int SLAPI XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath);
-
 	static int SLAPI PutDisplayBlock(const PalmDisplayBlock & rBlk);
 	static int SLAPI LockDisplayQueue(PPID dvcID);
 	static int SLAPI UnlockDisplayQueue(PPID dvcID);
 	static int SLAPI PeekDisplayBlock(PPID dvcID, PalmDisplayBlock & rBlk, int lock);
 	static int SLAPI RemoveDisplayBlock(const PalmDisplayBlock & rBlk);
 	static int SLAPI PopDisplayBlock(PPID dvcID, PalmDisplayBlock * pBlk, int lock);
-
 	SLAPI  PPObjStyloPalm(void * extraPtr = 0);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
-
 	int    SLAPI IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmPacket & rS2, long flags);
 	int    SLAPI GetChildList(PPID id, PPIDArray & rPalmList);
 	int    SLAPI GetLocList(PPID id, ObjIdListFilt & rLocList);
@@ -35785,12 +35782,10 @@ public:
 		int    SLAPI SetAccumItem(PPID goodsID, PPID locID, LDATE dt, double qtty);
 		int    SLAPI SetInitRest(PPID goodsID, PPID locID, double rest);
 		void   SLAPI Finish();
-		//
 		double SLAPI GetRest(PPID goodsID, PPID locID, LDATE dt) const;
 		double SLAPI GetRest(PPID goodsID, LDATE dt) const;
 		double SLAPI GetAverageRest(PPID goodsID, PPID locID, const DateRange & rPeriod) const;
 		double SLAPI GetAverageRest(PPID goodsID, const DateRange & rPeriod) const;
-
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	private:
 		enum {
@@ -39585,6 +39580,7 @@ private:
 		PPID   Object2ID;
 		PPID   AgentID;
 		long   Flags;
+		PPID   LinkBillID; // @v10.5.2
 	};
 	int    SLAPI FetchBill(PPID billID, BillEntry * pEntry);
 
@@ -40269,7 +40265,8 @@ public:
 		gGoodsSCSer,      // Группировка по товару и серии карт
 		gAmountNGoods,    // @v8.4.8
 		gAgentGoodsSCSer, // @v9.6.6 Группировать по агентам, товарам и сериям карт
-		gGoodsDateSerial  // @v10.2.6 Группировать по товару/дате/серийному номеру
+		gGoodsDateSerial, // @v10.2.6 Группировать по товару/дате/серийному номеру
+		gGoodsCard        // @erikA v10.5.2 Группировка по товару и картам
 	};
 	enum {
 		fZeroSess         = 0x00000001, // Чеки по неопределенным кассовым сессиям
@@ -40321,7 +40318,7 @@ public:
 		ctvSKUCount
 	};
 	static int FASTCALL HasGoodsGrouping(Grouping grp)
-		{ return BIN(oneof8(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer, gGoodsDateSerial)); }
+		{ return BIN(oneof9(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer, gGoodsDateSerial, gGoodsCard)); } //@erik v10.5.2 add{gGoodsCard} 
 	SLAPI  CCheckFilt();
 	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
 	CCheckFilt & FASTCALL operator = (const CCheckFilt & src);
@@ -45566,6 +45563,8 @@ public:
 	int    SLAPI MakeCountryList(StrAssocArray & rList, UUIDAssocArray & rGuidList);
 	int    SLAPI MakeRegionList(long countryIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList);
 	int    SLAPI MakeLocalityList(long regionIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList);
+	int    SLAPI MakeProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList);
+	int    SLAPI MakeSubProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList, LAssocArray * pParentProductList);
 
 	VetisEntityTbl ET;
 	VetisProductTbl PiT;
@@ -45574,6 +45573,8 @@ public:
 	UuidRefCore UrT;
 private:
 	int    SLAPI EntityRecToEntity(const VetisEntityTbl::Rec & rRec, Entity & rE);
+	long   SLAPI Helper_InitMaxGuidKey(const UUIDAssocArray & rGuidList) const;
+	long   SLAPI Helper_SetGuidToList(const S_GUID & rGuid, long * pMaxGuidKey, UUIDAssocArray & rGuidList) const;
 
 	PPObjPerson PsnObj;
 };
@@ -45680,6 +45681,7 @@ private:
 	int    SLAPI ProcessIncoming(PPID entityID);
 	int    SLAPI ProcessOutcoming(PPID entityID);
 	int    SLAPI ViewWarehouse();
+	int    SLAPI ViewGoods();
 	enum {
 		otmFrom = 1,
 		otmTo,

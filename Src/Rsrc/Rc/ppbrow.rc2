@@ -4811,19 +4811,19 @@ browser PROJECT north(100), 2, 1, "@{project_pl}", OWNER|GRID, 0
 	"Координатор",           9, notype, 0, 30
 	"@description",             10, notype, 0, 60 //, BCO_RESIZEABLE
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter, PPDV_EDITFILE02,         "@{edit}\tEnter"
-		ADDITEM     : kbIns,   PPDV_ADDFILE02,       "@{add}\tInsert"
-		DELETEITEM  : kbDel,   PPDV_DELETEFILE02,       "@{delete}\tDelete"
-		DETAIL      : kbF3,    TBBM_PRJTASK,      "Задачи\tF3"
-		VIEWPRJPHASE: kbF4,    PPDV_LINS01,         "Фазы\tF4"
+		EDITITEM    : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
+		ADDITEM     : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
+		DELETEITEM  : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
+		DETAIL      : kbF3,    TBBM_PRJTASK,      "@{prjtask_pl}\tF3"
+		VIEWPRJPHASE: kbF4,    PPDV_LINS01,       "Фазы\tF4"
 		EDITBILLPOOL: kbF5,    TBBM_BILLS,        "@{documents}\tF5"
 		SYSJ        : kbCtrlJ, TBBM_SYSJ,         "@{view_sysjournal}\tCtrl-J"
 		separator
 		TRANSMIT    : kbCtrlH, TBBM_SENDOBJ,      "@{dotransmit}\tCtrl-H"
-		PRINT       : kbF7,    PPDV_PRINTER01,        "@{print}\tF7"
+		PRINT       : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		PRNPRJTASKS : kbAltF7, TBBM_BARLABEL,     "Печать задач проекта\tAlt-F7"
-		TOTAL       : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
-		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		TOTAL       : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
+		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
 	}
 }
 
@@ -4840,22 +4840,22 @@ browser PRJPHASE north(100), 2, 1, "Фазы проекта '%s'", OWNER|GRID, 0
 	"Координатор",           9, notype, 0, 30
 	"@description",         10, notype, 0, 60 //, BCO_RESIZEABLE
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter, PPDV_EDITFILE02,         "@{edit}\tEnter"
-		ADDITEM     : kbIns,   PPDV_ADDFILE02,       "@{add}\tInsert"
-		DELETEITEM  : kbDel,   PPDV_DELETEFILE02,       "@{delete}\tDelete"
-		DETAIL      : kbF3,    TBBM_PRJTASK,      "Задачи\tF3"
+		EDITITEM    : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
+		ADDITEM     : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
+		DELETEITEM  : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
+		DETAIL      : kbF3,    TBBM_PRJTASK,      "@{prjtask_pl}\tF3"
 		EDITBILLPOOL: kbF5,    TBBM_BILLS,        "@{documents}\tF5"
 		SYSJ        : kbCtrlJ, TBBM_SYSJ,         "@{view_sysjournal}\tCtrl-J"
 		separator
 		TRANSMIT    : kbCtrlH, TBBM_SENDOBJ,      "@{dotransmit}\tCtrl-H"
-		PRINT       : kbF7,    PPDV_PRINTER01,        "@{print}\tF7"
+		PRINT       : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		PRNPRJTASKS : kbAltF7, TBBM_BARLABEL,     "Печать задач проекта\tAlt-F7"
-		TOTAL       : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
-		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		TOTAL       : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
+		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
 	}
 }
 
-browser PRJTASK north(100), 2, 1, "Задачи {%s}", OWNER|GRID, 0
+browser PRJTASK north(100), 2, 1, "@{prjtask_pl} {%s}", OWNER|GRID, 0
 {
 	"@code",                 1, notype, 0, 8
 	"@date",                 2, notype, DATF_DMY, 8
@@ -4979,19 +4979,19 @@ browser PRJTASKTEMPL north(100), 2, 1, "Шаблоны задач {%s}", OWNER|GRID, 0
 	"Ответственный",         9, notype, 0, 30
 	"@description",         10, notype, 0, 60
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_EDITFILE02,         "@{edit}\tEnter"
-		ADDITEM     : kbIns,    PPDV_ADDFILE02,       "@{add}\tInsert"
+		EDITITEM    : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
+		ADDITEM     : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,       "@{delete}\tDelete"
+		DELETEITEM  : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
 		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,    "@{doremoveall}\tCtrl-F8"
-		DETAIL      : kbF3,     TBBM_PRJTASK,      "Задачи\tF3"
+		DETAIL      : kbF3,     TBBM_PRJTASK,      "@{prjtask_pl}\tF3"
 		SYSJ        : kbCtrlJ,  TBBM_SYSJ,         "@{view_sysjournal}\tCtrl-J"
 		separator
 		BUILD       : kbF6,     TBBM_CHARGE,       "Формирование задач\tF6"
-		PRINT       : kbF7,     PPDV_PRINTER01,        "@{print}\tF7"
-		TOTAL       : kbF9,     PPDV_SIGMA02,         "@{totals}\tF9"
+		PRINT       : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
+		TOTAL       : kbF9,     PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
-		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 	}
 }
 
@@ -6326,6 +6326,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 		SENDOUTGOING     : kbCtrlF8,   PPDV_NOICON,         "Отправить запросы на подготовку исходящих документов\tCtrl-F8"
 		UPDATEITEMS      : kbF5,       PPDV_VETISREFRESH,   "@{refresh}\tF5"
 		VETISWAREHOUSE   : kbCtrlF3,   PPDV_VETISWAREHOUSE, "Склад Vetis\tCtrl-F3"
+		VETISPRODUCT     : kbCtrlF4,   PPDV_NOICON,         "Продукт Vetis\tCtrl-F4"
 		separator
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9" // @v10.1.12
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"

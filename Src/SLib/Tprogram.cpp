@@ -343,7 +343,9 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 {
 	if(ptr) {
 		TCHAR  title_buf[512];
+		char   mb_title_buf[512];
 		STRNSCPY(title_buf, SUcSwitch(pTitle));
+		STRNSCPY(mb_title_buf, pTitle);
 		const  size_t title_len = sstrlen(title_buf);
 		HMENU h_menu = GetMenu(H_MainWnd);
 		h_menu = GetSubMenu(h_menu, GetMenuItemCount(h_menu) - 1);
@@ -384,16 +386,16 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 				TabCtrl_HighlightItem(hwnd_tab, prev_sel, 0);
 				TabCtrl_HighlightItem(hwnd_tab, idx, 1);
 				if(hwnd_tt && TabCtrl_GetItemRect(hwnd_tab, idx, &rc_item))	{
-					TOOLINFO t_i;
-					t_i.cbSize      = sizeof(TOOLINFO);
+					TOOLINFOA t_i;
+					t_i.cbSize      = sizeof(t_i);
 					t_i.uFlags      = TTF_SUBCLASS;
 					t_i.hwnd        = hwnd_tab;
 					t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
-					t_i.lpszText    = temp_org_title_buf/*title_buf*/; // @unicodeproblem
-					SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
-					SendMessage(hwnd_tt, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+					t_i.lpszText    = mb_title_buf/*temp_org_title_buf*/; // @unicodeproblem
+					SendMessage(hwnd_tt, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+					SendMessage(hwnd_tt, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 				}
 				if(H_ShortcutsWnd)
 					ShowWindow(H_ShortcutsWnd, SW_SHOW);

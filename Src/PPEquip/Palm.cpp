@@ -3361,6 +3361,8 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	PPImpExp * p_ie_quots = 0;
 	Goods2Tbl::Rec goods_rec;
 	TSVector <StyloPalmGoodsEntry> goods_list;
+	PPIDArray temp_loc_list;
+	Transfer * p_trfr = BillObj->trfr;
 	SETIFZ(rBlk.P_GrView, new PPViewGoodsRest);
 	THROW_MEM(rBlk.P_GrView);
 	THROW(p_goods_tbl = Palm_CreateDbfTable(PPFILNAM_PALM_GOODS, DBFS_PALM_GOODS));
@@ -3507,21 +3509,57 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 							drec_goods.put(12, BIN(stock.GseFlags & GoodsStockExt::fMultMinShipm));
 						}
 					}
-					for(i = 0; i < PALM_MAX_QUOT && i < rBlk.QkList.getCount(); i++) {
-						StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
-						QuotIdent qi(QIDATE(getcurdate_()), single_loc_id, r_item.Id);
-						double quot = 0.0;
-						if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
-							drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
-							{
-								Sdr_PalmQuot quot_rec;
-								MEMSZERO(quot_rec);
-								quot_rec.GoodsID    = r_goods_entry.GoodsID;
-								quot_rec.QuotKindID = r_item.Id;
-								quot_rec.ClientID   = 0;
-								quot_rec.Price      = quot;
-								THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
+					{
+						const LDATE now_date = getcurdate_();
+						for(i = 0; i < PALM_MAX_QUOT && i < rBlk.QkList.getCount(); i++) {
+							const StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
+							double quot = 0.0;
+							QuotIdent qi(QIDATE(now_date), single_loc_id, r_item.Id);
+							if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
+								drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
+								{
+									Sdr_PalmQuot quot_rec;
+									MEMSZERO(quot_rec);
+									quot_rec.GoodsID    = r_goods_entry.GoodsID;
+									quot_rec.QuotKindID = r_item.Id;
+									quot_rec.ClientID   = 0;
+									quot_rec.Price      = quot;
+									THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
+								}
 							}
+							// @v10.5.2 {
+							else if(single_loc_id == 0 && pPack->LocList.GetCount()) {
+								GoodsRestParam grparam;
+								grparam.LocList = pPack->LocList.Get();
+								grparam.GoodsID = r_goods_entry.GoodsID;
+								grparam.DiffParam = GoodsRestParam::_diffLoc;
+								p_trfr->GetCurRest(&grparam);
+								temp_loc_list.clear();
+								if(grparam.Total.Rest > 0.0) {
+									for(uint grvidx = 0; grvidx < grparam.getCount(); grvidx++) {
+										GoodsRestVal & r_grv = grparam.at(grvidx);
+										if(r_grv.Rest > 0.0)
+											temp_loc_list.add(r_grv.LocID);
+									}
+								}
+								{
+									const PPID target_loc_id = temp_loc_list.getCount() ? temp_loc_list.get(0) : pPack->LocList.Get(0);
+									QuotIdent qi(QIDATE(now_date), target_loc_id, r_item.Id);
+									if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
+										drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
+										{
+											Sdr_PalmQuot quot_rec;
+											MEMSZERO(quot_rec);
+											quot_rec.GoodsID    = r_goods_entry.GoodsID;
+											quot_rec.QuotKindID = r_item.Id;
+											quot_rec.ClientID   = 0;
+											quot_rec.Price      = quot;
+											THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
+										}
+									}
+								}
+							}
+							// } @v10.5.2 
 						}
 					}
 					PPSetAddedMsgString(p_goods_tbl->getName());
@@ -3979,7 +4017,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 				THROW(andr_devs.Add(&palm_pack)); // Инициализируем writer для андроид устройств
 				p_cfg_item__->ID = palm_pack.Rec.ID;
 				p_cfg_item__->PalmFlags = dvc_flags;
-				p_cfg_item__->C.MaxNotSentOrd = (uint16)palm_pack.Rec.MaxUnsentOrders;
+				p_cfg_item__->C.MaxNotSentOrd = static_cast<uint16>(palm_pack.Rec.MaxUnsentOrders);
 				palm_pack.MakeOutputPath(p_cfg_item__->Path);
 				cfg_list.insert(p_cfg_item__);
 				{

@@ -143,16 +143,20 @@ void ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 		TabCtrl_HighlightItem(hwnd_tab, prev_sel, 0);
 		TabCtrl_HighlightItem(hwnd_tab, idx, 1);
 		if(HwndTT && TabCtrl_GetItemRect(hwnd_tab, idx, &rc_item))	{
-			TOOLINFO t_i;
-			t_i.cbSize      = sizeof(TOOLINFO);
+			//
+			// @v10.5.2 ѕочему-то unicode-верси€ методов TOOLTIP не работает правильно. ѕо-этому здесь €вно используютс€ //
+			// multibyte-методы.
+			//
+			TOOLINFOA t_i;
+			t_i.cbSize      = sizeof(t_i);
 			t_i.uFlags      = TTF_SUBCLASS;
 			t_i.hwnd        = hwnd_tab;
 			t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 			t_i.rect        = rc_item;
 			t_i.hinst       = TProgram::GetInst();
-			t_i.lpszText    = temp_title_buf; // @unicodeproblem
-			::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
-			::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+			t_i.lpszText    = const_cast<char *>(pTitle); //temp_title_buf; // @unicodeproblem
+			::SendMessage(HwndTT, (UINT)TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+			::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 		}
 		if(Hwnd)
 			ShowWindow(Hwnd, SW_SHOW);

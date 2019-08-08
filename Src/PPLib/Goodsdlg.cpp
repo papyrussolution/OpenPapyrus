@@ -344,7 +344,7 @@ int GoodsFiltCtrlGroup::setData(TDialog * pDlg, void * pData)
 		if(CtlselGoodsGrp && CtlselGoods) {
 			GoodsCtrlGroup * p_grp = 0;
 			GoodsCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID, Data.LocID, Data.Flags);
-			if(!(p_grp = (GoodsCtrlGroup*)pDlg->getGroup(CtlselGoodsGrp))) {
+			if(!(p_grp = static_cast<GoodsCtrlGroup *>(pDlg->getGroup(CtlselGoodsGrp)))) {
 				p_grp = new GoodsCtrlGroup(CtlselGoodsGrp, CtlselGoods);
 				pDlg->addGroup(CtlselGoodsGrp, p_grp);
 			}

@@ -2514,3 +2514,58 @@ int PPALDD_UhttCurRateArray::NextIteration(long iterId)
 	}
 	return ok;
 }
+//
+//
+//
+struct UniFindObjParam {
+	UniFindObjParam() : WFlags(0), DFlags(0)
+	{
+		Period.Z();
+	}
+	enum {
+		wfBill        = 0x0001,
+		wfGoods       = 0x0002,
+		wfPerson      = 0x0004,
+		wfSCard       = 0x0008,
+		wfCCheck      = 0x0010,
+		wfPersonEvent = 0x0020,
+		wfProject     = 0x0040,
+		wfToDo        = 0x0080
+	};
+	enum {
+		dfInteractive = 0x0001
+	};
+	long   WFlags;
+	long   DFlags;
+	SString MainPattern;
+	DateRange Period;
+};
+
+class UniFindObjParamDialog : public TDialog {
+public:
+	UniFindObjParamDialog() : TDialog(DLG_UNIFINDOBJ)
+	{
+	}
+	int    setDTS(const UniFindObjParam * pData)
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		return ok;
+	}
+	int    getDTS(UniFindObjParam * pData)
+	{
+		int    ok = 1;
+
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+public:
+	UniFindObjParam Data;
+};
+
+int SLAPI UniFindObj()
+{
+	int    ok = -1;
+
+	return ok;
+}

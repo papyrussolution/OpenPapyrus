@@ -26,14 +26,14 @@
 struct xmlDebugCtxt {
 	xmlDebugCtxt(FILE * pOutp) : output(NZOR(pOutp, stdout)), depth(0), check(0), errors(0), doc(NULL), P_Node(NULL), dict(NULL), nodict(0), options(0)
 	{
-		memset(shift, ' ', sizeof(shift)-1);
-		shift[sizeof(shift)-1] = 0;
+		memset(Shift, ' ', sizeof(Shift)-1);
+		Shift[sizeof(Shift)-1] = 0;
 	}
-	FILE * output;          /* the output file */
-	char   shift[101];        /* used for indenting */
-	int    depth;              /* current depth */
-	xmlDoc  * doc;          /* current document */
-	xmlNode * P_Node;        /* current node */
+	FILE * output;     // the output file
+	char   Shift[128]; // used for indenting // @v10.5.2 [101]-->[128]
+	int    depth;      // current depth 
+	xmlDoc  * doc;     // current document
+	xmlNode * P_Node;  // current node 
 	xmlDict * dict;        /* the doc dictionnary */
 	int    check;              /* do just checkings */
 	int    errors;             /* number of errors found */
@@ -73,7 +73,7 @@ static void FASTCALL xmlCtxtDumpCleanCtxt(xmlDebugCtxt * ctxt ATTRIBUTE_UNUSED)
  *       -2 if the namespace is not in scope, and -3 if not on
  *       an ancestor node.
  */
-static int xmlNsCheckScope(xmlNode * pNode, xmlNs * ns)
+static int xmlNsCheckScope(const xmlNode * pNode, xmlNs * ns)
 {
 	if(!pNode || !ns)
 		return -1;
@@ -92,7 +92,7 @@ static int xmlNsCheckScope(xmlNode * pNode, xmlNs * ns)
 	}
 	// the xml namespace may be declared on the document node 
 	if(pNode && ((pNode->type == XML_DOCUMENT_NODE) || (pNode->type == XML_HTML_DOCUMENT_NODE))) {
-		xmlNs * oldNs = reinterpret_cast<xmlDoc *>(pNode)->oldNs;
+		const xmlNs * oldNs = reinterpret_cast<const xmlDoc *>(pNode)->oldNs;
 		if(oldNs == ns)
 			return 1;
 	}
@@ -104,9 +104,9 @@ static void FASTCALL xmlCtxtDumpSpaces(xmlDebugCtxt * ctxt)
 	if(!ctxt->check) {
 		if(ctxt->output && ctxt->depth > 0) {
 			if(ctxt->depth < 50)
-				fprintf(ctxt->output, "%s", &ctxt->shift[100 - 2 * ctxt->depth]);
+				fprintf(ctxt->output, "%s", &ctxt->Shift[100 - 2 * ctxt->depth]);
 			else
-				fprintf(ctxt->output, "%s", ctxt->shift);
+				fprintf(ctxt->output, "%s", ctxt->Shift);
 		}
 	}
 }
@@ -142,7 +142,7 @@ static void FASTCALL xmlDebugErr3(xmlDebugCtxt * ctxt, int error, const char * m
  *
  * Report if a given namespace is is not in scope.
  */
-static void xmlCtxtNsCheckScope(xmlDebugCtxt * ctxt, xmlNode * pNode, xmlNs * ns)
+static void xmlCtxtNsCheckScope(xmlDebugCtxt * ctxt, const xmlNode * pNode, xmlNs * ns)
 {
 	int ret = xmlNsCheckScope(pNode, ns);
 	const char * p_ns_pfx = ns ? reinterpret_cast<const char *>(ns->prefix) : 0;
@@ -168,12 +168,9 @@ static void xmlCtxtNsCheckScope(xmlDebugCtxt * ctxt, xmlNode * pNode, xmlNs * ns
  */
 static void xmlCtxtCheckString(xmlDebugCtxt * ctxt, const xmlChar * str)
 {
-	if(str) {
-		if(ctxt->check) {
-			if(!xmlCheckUTF8(str)) {
-				xmlDebugErr3(ctxt, XML_CHECK_NOT_UTF8, "String is not UTF-8 %s", reinterpret_cast<const char *>(str));
-			}
-		}
+	if(str && ctxt->check) {
+		if(!xmlCheckUTF8(str))
+			xmlDebugErr3(ctxt, XML_CHECK_NOT_UTF8, "String is not UTF-8 %s", reinterpret_cast<const char *>(str));
 	}
 }
 /**
@@ -203,7 +200,7 @@ static void xmlCtxtCheckName(xmlDebugCtxt * ctxt, const xmlChar * name)
 	}
 }
 
-static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * pNode)
+static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, const xmlNode * pNode)
 {
 	xmlDict * dict;
 	xmlDoc * doc = pNode->doc;
@@ -664,10 +661,10 @@ static void xmlCtxtDumpAttrList(xmlDebugCtxt * ctxt, xmlAttr * attr)
  *
  * Dumps debug information for the element node, it is not recursive
  */
-static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
+static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * pNode)
 {
 	SString temp_buf;
-	if(!P_Node) {
+	if(!pNode) {
 		if(!ctxt->check) {
 			xmlCtxtDumpSpaces(ctxt);
 			(temp_buf = "node is NULL").CR();
@@ -675,17 +672,17 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 		}
 	}
 	else {
-		ctxt->P_Node = P_Node;
-		switch(P_Node->type) {
+		ctxt->P_Node = pNode;
+		switch(pNode->type) {
 			case XML_ELEMENT_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
 					fprintf(ctxt->output, (temp_buf = "ELEMENT").Space().cptr());
-					if(P_Node->ns && P_Node->ns->prefix) {
-						xmlCtxtDumpString(ctxt, P_Node->ns->prefix);
+					if(pNode->ns && pNode->ns->prefix) {
+						xmlCtxtDumpString(ctxt, pNode->ns->prefix);
 						fprintf(ctxt->output, ":");
 					}
-					xmlCtxtDumpString(ctxt, P_Node->name);
+					xmlCtxtDumpString(ctxt, pNode->name);
 					fprintf(ctxt->output, "\n");
 				}
 				break;
@@ -693,19 +690,19 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 				if(!ctxt->check)
 					xmlCtxtDumpSpaces(ctxt);
 				fprintf(ctxt->output, "Error, ATTRIBUTE found here\n");
-				xmlCtxtGenericNodeCheck(ctxt, P_Node);
+				xmlCtxtGenericNodeCheck(ctxt, pNode);
 				return;
 			case XML_TEXT_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					if(P_Node->name == (const xmlChar *)xmlStringTextNoenc)
+					if(pNode->name == (const xmlChar *)xmlStringTextNoenc)
 						temp_buf = "TEXT no enc";
 					else
 						temp_buf = "TEXT";
 					if(ctxt->options & DUMP_TEXT_TYPE) {
-						if(P_Node->content == (xmlChar *)&(P_Node->properties))
+						if(pNode->content == (xmlChar *)&(pNode->properties))
 							temp_buf.Space().Cat("compact");
-						else if(xmlDictOwns(ctxt->dict, P_Node->content) == 1)
+						else if(xmlDictOwns(ctxt->dict, pNode->content) == 1)
 							temp_buf.Space().Cat("interned");
 					}
 					fprintf(ctxt->output, temp_buf.CR().cptr());
@@ -720,7 +717,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 			case XML_ENTITY_REF_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					fprintf(ctxt->output, (temp_buf = "ENTITY_REF").CatParStr((const char *)P_Node->name).CR().cptr());
+					fprintf(ctxt->output, (temp_buf = "ENTITY_REF").CatParStr((const char *)pNode->name).CR().cptr());
 				}
 				break;
 			case XML_ENTITY_NODE:
@@ -732,7 +729,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 			case XML_PI_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					(temp_buf = "PI").Space().Cat((const char *)P_Node->name).CR();
+					(temp_buf = "PI").Space().Cat((const char *)pNode->name).CR();
 					fprintf(ctxt->output, temp_buf.cptr());
 				}
 				break;
@@ -748,7 +745,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 					xmlCtxtDumpSpaces(ctxt);
 				}
 				fprintf(ctxt->output, "Error, DOCUMENT found here\n");
-				xmlCtxtGenericNodeCheck(ctxt, P_Node);
+				xmlCtxtGenericNodeCheck(ctxt, pNode);
 				return;
 			case XML_DOCUMENT_TYPE_NODE:
 				if(!ctxt->check) {
@@ -769,19 +766,19 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 				}
 				break;
 			case XML_DTD_NODE:
-				xmlCtxtDumpDtdNode(ctxt, (xmlDtd *)P_Node);
+				xmlCtxtDumpDtdNode(ctxt, (xmlDtd *)pNode);
 				return;
 			case XML_ELEMENT_DECL:
-				xmlCtxtDumpElemDecl(ctxt, (xmlElement *)P_Node);
+				xmlCtxtDumpElemDecl(ctxt, (xmlElement *)pNode);
 				return;
 			case XML_ATTRIBUTE_DECL:
-				xmlCtxtDumpAttrDecl(ctxt, (xmlAttribute *)P_Node);
+				xmlCtxtDumpAttrDecl(ctxt, (xmlAttribute *)pNode);
 				return;
 			case XML_ENTITY_DECL:
-				xmlCtxtDumpEntityDecl(ctxt, (xmlEntity *)P_Node);
+				xmlCtxtDumpEntityDecl(ctxt, (xmlEntity *)pNode);
 				return;
 			case XML_NAMESPACE_DECL:
-				xmlCtxtDumpNamespace(ctxt, (xmlNs *)P_Node);
+				xmlCtxtDumpNamespace(ctxt, (xmlNs *)pNode);
 				return;
 			case XML_XINCLUDE_START:
 				if(!ctxt->check) {
@@ -798,32 +795,32 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 			default:
 				if(!ctxt->check)
 					xmlCtxtDumpSpaces(ctxt);
-				xmlDebugErr2(ctxt, XML_CHECK_UNKNOWN_NODE, "Unknown node type %d\n", P_Node->type);
+				xmlDebugErr2(ctxt, XML_CHECK_UNKNOWN_NODE, "Unknown node type %d\n", pNode->type);
 				return;
 		}
-		if(P_Node->doc == NULL) {
+		if(pNode->doc == NULL) {
 			if(!ctxt->check) {
 				xmlCtxtDumpSpaces(ctxt);
 			}
 			fprintf(ctxt->output, "PBM: doc == NULL !!!\n");
 		}
 		ctxt->depth++;
-		if((P_Node->type == XML_ELEMENT_NODE) && (P_Node->nsDef != NULL))
-			xmlCtxtDumpNamespaceList(ctxt, P_Node->nsDef);
-		if((P_Node->type == XML_ELEMENT_NODE) && (P_Node->properties != NULL))
-			xmlCtxtDumpAttrList(ctxt, P_Node->properties);
-		if(P_Node->type != XML_ENTITY_REF_NODE) {
-			if((P_Node->type != XML_ELEMENT_NODE) && (P_Node->content != NULL)) {
+		if((pNode->type == XML_ELEMENT_NODE) && pNode->nsDef)
+			xmlCtxtDumpNamespaceList(ctxt, pNode->nsDef);
+		if((pNode->type == XML_ELEMENT_NODE) && pNode->properties)
+			xmlCtxtDumpAttrList(ctxt, pNode->properties);
+		if(pNode->type != XML_ENTITY_REF_NODE) {
+			if((pNode->type != XML_ELEMENT_NODE) && pNode->content) {
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
 					fprintf(ctxt->output, "content=");
-					xmlCtxtDumpString(ctxt, P_Node->content);
+					xmlCtxtDumpString(ctxt, pNode->content);
 					fprintf(ctxt->output, "\n");
 				}
 			}
 		}
 		else {
-			xmlEntity * ent = xmlGetDocEntity(P_Node->doc, P_Node->name);
+			xmlEntity * ent = xmlGetDocEntity(pNode->doc, pNode->name);
 			if(ent)
 				xmlCtxtDumpEntity(ctxt, ent);
 		}
@@ -831,7 +828,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 		/*
 		* Do a bit of checking
 		*/
-		xmlCtxtGenericNodeCheck(ctxt, P_Node);
+		xmlCtxtGenericNodeCheck(ctxt, pNode);
 	}
 }
 
@@ -1141,12 +1138,12 @@ void xmlDebugDumpAttrList(FILE * output, xmlAttr * attr, int depth)
  *
  * Dumps debug information for the element node, it is not recursive
  */
-void xmlDebugDumpOneNode(FILE * output, xmlNode * P_Node, int depth)
+void xmlDebugDumpOneNode(FILE * output, xmlNode * pNode, int depth)
 {
 	if(output) {
 		xmlDebugCtxt ctxt(output);
 		ctxt.depth = depth;
-		xmlCtxtDumpOneNode(&ctxt, P_Node);
+		xmlCtxtDumpOneNode(&ctxt, pNode);
 		xmlCtxtDumpCleanCtxt(&ctxt);
 	}
 }

@@ -1308,6 +1308,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					case CCheckFilt::gGoodsSCSer:
 					case CCheckFilt::gAmountNGoods:
 					case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6
+					case CCheckFilt::gGoodsCard:       // @erik v10.5.2
 						if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
 							THROW(GdsObj.SubstGoods(item.G_GoodsID, &ccgitem.GoodsID, Filt.Sgg, &sgg_blk, &Gsl));
 						if(last_chk_id != item.ID) {
@@ -1339,6 +1340,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								if(Filt.AmountQuant > 0.0)
 									ccgitem.CashID = (long)fabs(ccgitem.Amount / Filt.AmountQuant);
 								break;
+							case CCheckFilt::gGoodsCard: ccgitem.SCardID = item.SCardID; break; // @erik v10.5.2
 						}
 						break;
 					case CCheckFilt::gAgentsNHour:
@@ -1538,6 +1540,26 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							}
 							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
+						// @erik v10.5.2{
+						case CCheckFilt::gGoodsCard:
+							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
+								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
+							}
+							else {
+								GdsObj.FetchNameR(rec.GoodsID, goods_name);
+							}
+							temp_buf = goods_name;
+							SCardTbl::Rec crd_rec;
+							if(ScObj.Fetch(rec.SCardID, &crd_rec) > 0) {
+								PPSCardSeries ser_rec;
+								THROW_MEM(SETIFZ(p_serobj, new PPObjSCardSeries));
+								if(p_serobj->Fetch(crd_rec.SeriesID, &ser_rec) > 0)
+									temp_buf.CatDivIfNotEmpty('-', 1).Cat(ser_rec.Name);
+								temp_buf.CatChar(':').Cat(crd_rec.Code);
+							}
+							break;
+						// } @erik
+
 					}
 					temp_buf.CopyTo(rec.Text, sizeof(rec.Text));
 					if(Filt.Grp == CCheckFilt::gQtty)
@@ -2192,6 +2214,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			case CCheckFilt::gCashiersNGoods: brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
 			case CCheckFilt::gGoodsSCSer:     brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
 			case CCheckFilt::gAgentGoodsSCSer: brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break; // @v9.6.6
+			case CCheckFilt::gGoodsCard:      brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break; // @erik v10.5.2
 			default: brw_id = (Filt.Flags & CCheckFilt::fGoodsCorr) ? BROWSER_CCHECK_GOODSCORR : BROWSER_CCHECK;
 		}
 		if(P_TmpGdsCorrTbl) {
@@ -3899,8 +3922,8 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				oneof11(grp, CCheckFilt::gTime, CCheckFilt::gDate, CCheckFilt::gDayOfWeek, CCheckFilt::gDowNTime, CCheckFilt::gCash, CCheckFilt::gCashNode,
 					CCheckFilt::gCard, CCheckFilt::gDscntPct, CCheckFilt::gDiv, CCheckFilt::gGuestCount, CCheckFilt::gTableNo) ||
 				oneof6(grp, CCheckFilt::gGoods, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gCashiers, CCheckFilt::gAgents, CCheckFilt::gLinesCount) ||
-				oneof8(grp, CCheckFilt::gAgentsNHour, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial, CCheckFilt::gAgentsNGoods, CCheckFilt::gCashiersNGoods,
-					CCheckFilt::gDlvrAddr, CCheckFilt::gGoodsSCSer, CCheckFilt::gAgentGoodsSCSer)) { // @v10.2.6 CCheckFilt::gGoodsDateSerial
+				oneof9(grp, CCheckFilt::gAgentsNHour, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial, CCheckFilt::gAgentsNGoods, CCheckFilt::gCashiersNGoods,
+					CCheckFilt::gDlvrAddr, CCheckFilt::gGoodsSCSer, CCheckFilt::gAgentGoodsSCSer, CCheckFilt::gGoodsCard)) { // @v10.2.6 CCheckFilt::gGoodsDateSerial  // @erik v10.5.2 CCheckFilt::gGoodsCard
 				PPID   k = temp_id;
 				if(P_TmpGrpTbl->search(0, &k, spEq)) {
 					int  to_view = 1;
@@ -3960,6 +3983,8 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 							tmp_filt.SCardSerID = cur_rec.SCardID;
 							tmp_filt.AgentID = cur_rec.CashID;
 						}
+						else if(Filt.Grp == CCheckFilt::gGoodsCard) // @erik v10.5.1
+							tmp_filt.SCardID = cur_rec.SCardID;
 						// } @v9.6.6
 					}
 					else if(Filt.Grp == CCheckFilt::gGuestCount)

@@ -1640,6 +1640,7 @@
     <ClCompile Include="..\SLib\suc.cpp" />
     <ClCompile Include="..\SLib\sunit.cpp" />
     <ClCompile Include="..\SLib\sxml.cpp" />
+    <ClCompile Include="..\SLib\sxmlad.cpp" />
     <ClCompile Include="..\SLib\s_crc32.cpp" />
     <ClCompile Include="..\SLib\tab.cpp" />
     <ClCompile Include="..\SLib\TCanvas.cpp" />

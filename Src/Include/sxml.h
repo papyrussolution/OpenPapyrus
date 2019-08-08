@@ -67,6 +67,10 @@ public:
         ~WNode();
         int    PutAttrib(const char * pName, const char * pValue);
         int    PutAttribSkipEmpty(const char * pName, const char * pValue);
+		//
+		// Descr: Добавляет к узлу this атрибут вида: "xmlns:pNs"="pDomain/pPath"
+		//
+		int    PutAttrib_Ns(const char * pNs, const char * pDomain, const char * pPath);
         int    PutInner(const char * pInnerName, const char * pInnerValue);
         int    PutInnerSkipEmpty(const char * pInnerName, const char * pInnerValue);
 		int    PutInnerValidDate(const char * pInnerName, LDATE dt, long fmt);

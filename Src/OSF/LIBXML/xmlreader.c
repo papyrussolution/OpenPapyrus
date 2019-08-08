@@ -177,12 +177,9 @@ struct xmlTextReader {
 
 static int xmlTextReaderReadTree(xmlTextReader * reader);
 static int xmlTextReaderNextTree(xmlTextReader * reader);
-
-/************************************************************************
-*									*
-*	Our own version of the freeing routines as we recycle nodes	*
-*									*
-************************************************************************/
+//
+// Our own version of the freeing routines as we recycle nodes
+//
 /**
  * @str:  a string
  *
@@ -2761,46 +2758,39 @@ xmlChar * xmlTextReaderName(xmlTextReader * reader)
  */
 const xmlChar * xmlTextReaderConstName(xmlTextReader * reader) 
 {
-	xmlNode * P_Node;
+	xmlNode * p_node;
 	if(!reader || !reader->P_Node)
 		return 0;
-	P_Node = reader->curnode ? reader->curnode : reader->P_Node;
-	switch(P_Node->type) {
+	p_node = reader->curnode ? reader->curnode : reader->P_Node;
+	switch(p_node->type) {
 		case XML_ELEMENT_NODE:
 		case XML_ATTRIBUTE_NODE:
-		    if((P_Node->ns == NULL) || (P_Node->ns->prefix == NULL))
-			    return (P_Node->name);
-		    return (CONSTQSTR(P_Node->ns->prefix, P_Node->name));
-		case XML_TEXT_NODE:
-		    return (CONSTSTR(reinterpret_cast<const xmlChar *>("#text")));
-		case XML_CDATA_SECTION_NODE:
-		    return (CONSTSTR(reinterpret_cast<const xmlChar *>("#cdata-section")));
+		    if(!p_node->ns || !p_node->ns->prefix)
+			    return (p_node->name);
+		    return (CONSTQSTR(p_node->ns->prefix, p_node->name));
+		case XML_TEXT_NODE: return CONSTSTR(reinterpret_cast<const xmlChar *>("#text"));
+		case XML_CDATA_SECTION_NODE: return CONSTSTR(reinterpret_cast<const xmlChar *>("#cdata-section"));
 		case XML_ENTITY_NODE:
-		case XML_ENTITY_REF_NODE:
-		    return (CONSTSTR(P_Node->name));
-		case XML_PI_NODE:
-		    return (CONSTSTR(P_Node->name));
-		case XML_COMMENT_NODE:
-		    return (CONSTSTR(reinterpret_cast<const xmlChar *>("#comment")));
+		case XML_ENTITY_REF_NODE: return CONSTSTR(p_node->name);
+		case XML_PI_NODE: return CONSTSTR(p_node->name);
+		case XML_COMMENT_NODE: return CONSTSTR(reinterpret_cast<const xmlChar *>("#comment"));
 		case XML_DOCUMENT_NODE:
 		case XML_HTML_DOCUMENT_NODE:
 #ifdef LIBXML_DOCB_ENABLED
 		case XML_DOCB_DOCUMENT_NODE:
 #endif
 		    return (CONSTSTR(reinterpret_cast<const xmlChar *>("#document")));
-		case XML_DOCUMENT_FRAG_NODE:
-		    return (CONSTSTR(reinterpret_cast<const xmlChar *>("#document-fragment")));
-		case XML_NOTATION_NODE:
-		    return (CONSTSTR(P_Node->name));
+		case XML_DOCUMENT_FRAG_NODE: return CONSTSTR(reinterpret_cast<const xmlChar *>("#document-fragment"));
+		case XML_NOTATION_NODE: return (CONSTSTR(p_node->name));
 		case XML_DOCUMENT_TYPE_NODE:
-		case XML_DTD_NODE:
-		    return (CONSTSTR(P_Node->name));
-		case XML_NAMESPACE_DECL: {
-		    xmlNs * ns = (xmlNs *)P_Node;
-		    if(ns->prefix == NULL)
-			    return (CONSTSTR(reinterpret_cast<const xmlChar *>("xmlns")));
-		    return (CONSTQSTR(reinterpret_cast<const xmlChar *>("xmlns"), ns->prefix));
-	    }
+		case XML_DTD_NODE: return (CONSTSTR(p_node->name));
+		case XML_NAMESPACE_DECL: 
+			{
+				xmlNs * ns = reinterpret_cast<xmlNs *>(p_node);
+				if(ns->prefix == NULL)
+					return (CONSTSTR(reinterpret_cast<const xmlChar *>("xmlns")));
+				return (CONSTQSTR(reinterpret_cast<const xmlChar *>("xmlns"), ns->prefix));
+			}
 		case XML_ELEMENT_DECL:
 		case XML_ATTRIBUTE_DECL:
 		case XML_ENTITY_DECL:
@@ -2824,7 +2814,7 @@ xmlChar * xmlTextReaderPrefix(xmlTextReader * reader)
 	if(reader && reader->P_Node) {
 		xmlNode * p_node = reader->curnode ? reader->curnode : reader->P_Node;
 		if(p_node->type == XML_NAMESPACE_DECL) {
-			xmlNs * ns = (xmlNs *)p_node;
+			xmlNs * ns = reinterpret_cast<xmlNs *>(p_node);
 			return ns->prefix ? sstrdup(reinterpret_cast<const xmlChar *>("xmlns")) : 0;
 		}
 		else if(!oneof2(p_node->type, XML_ELEMENT_NODE, XML_ATTRIBUTE_NODE))

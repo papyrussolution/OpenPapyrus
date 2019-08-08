@@ -152,6 +152,7 @@
     <ClCompile Include="..\SLib\sfann2.cpp" />
     <ClCompile Include="..\SLib\sclipboard.cpp" />
     <ClCompile Include="..\SLib\tlayout.cpp" />
+    <ClCompile Include="..\SLib\sxmlad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

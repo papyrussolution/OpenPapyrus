@@ -62,66 +62,46 @@
  * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  * PERFORMANCE OF THIS SOFTWARE.
  */
-
-#include <stdlib.h>
-#include <limits.h>
-#include <string.h>
-#include <stdio.h>
+//#include <stdlib.h>
+//#include <limits.h>
+//#include <string.h>
+//#include <stdio.h>
 #include "pixman-private.h"
 
 #define PIXREGION_NIL(reg) ((reg)->data && !(reg)->data->numRects)
 /* not a region */
 #define PIXREGION_NAR(reg)      ((reg)->data == pixman_broken_data)
 #define PIXREGION_NUMRECTS(reg) ((reg)->data ? (reg)->data->numRects : 1)
-#define PIXREGION_SIZE(reg) ((reg)->data ? (reg)->data->size : 0)
-#define PIXREGION_RECTS(reg) \
-	((reg)->data ? (box_type_t*)((reg)->data + 1) \
-	: &(reg)->extents)
-#define PIXREGION_BOXPTR(reg) ((box_type_t*)((reg)->data + 1))
-#define PIXREGION_BOX(reg, i) (&PIXREGION_BOXPTR(reg)[i])
-#define PIXREGION_TOP(reg) PIXREGION_BOX(reg, (reg)->data->numRects)
-#define PIXREGION_END(reg) PIXREGION_BOX(reg, (reg)->data->numRects - 1)
-
-#define GOOD_RECT(rect) ((rect)->x1 < (rect)->x2 && (rect)->y1 < (rect)->y2)
-#define BAD_RECT(rect) ((rect)->x1 > (rect)->x2 || (rect)->y1 > (rect)->y2)
+#define PIXREGION_SIZE(reg)     ((reg)->data ? (reg)->data->size : 0)
+#define PIXREGION_RECTS(reg)    ((reg)->data ? (box_type_t *)((reg)->data + 1) : &(reg)->extents)
+#define PIXREGION_BOXPTR(reg)   ((box_type_t *)((reg)->data + 1))
+#define PIXREGION_BOX(reg, i)   (&PIXREGION_BOXPTR(reg)[i])
+#define PIXREGION_TOP(reg)      PIXREGION_BOX(reg, (reg)->data->numRects)
+#define PIXREGION_END(reg)      PIXREGION_BOX(reg, (reg)->data->numRects - 1)
+#define GOOD_RECT(rect)         ((rect)->x1 < (rect)->x2 && (rect)->y1 < (rect)->y2)
+#define BAD_RECT(rect)          ((rect)->x1 > (rect)->x2 || (rect)->y1 > (rect)->y2)
 
 #ifdef DEBUG
-
-#define GOOD(reg)                                                       \
-	do                                                                  \
-	{                                                                   \
-		if(!PREFIX(_selfcheck(reg)))                                 \
-			_pixman_log_error(FUNC, "Malformed region " # reg);        \
-	} while(0)
-
+	#define GOOD(reg)                                                       \
+		do { \
+			if(!PREFIX(_selfcheck(reg)))                                 \
+				_pixman_log_error(FUNC, "Malformed region " # reg);        \
+		} while(0)
 #else
-
-#define GOOD(reg)
-
+	#define GOOD(reg)
 #endif
 
-static const box_type_t PREFIX(_empty_box_) = {
-	0, 0, 0, 0
-};
-static const region_data_type_t PREFIX(_empty_data_) = {
-	0, 0
-};
+static const box_type_t PREFIX(_empty_box_) = { 0, 0, 0, 0 };
+static const region_data_type_t PREFIX(_empty_data_) = { 0, 0 };
 #if defined (__llvm__) && !defined (__clang__)
-static const volatile region_data_type_t PREFIX(_broken_data_) = {
-	0, 0
-};
+	static const volatile region_data_type_t PREFIX(_broken_data_) = { 0, 0 };
 #else
-static const region_data_type_t PREFIX(_broken_data_) = {
-	0, 0
-};
+	static const region_data_type_t PREFIX(_broken_data_) = { 0, 0 };
 #endif
 
-static box_type_t * pixman_region_empty_box =
-    (box_type_t*)&PREFIX(_empty_box_);
-static region_data_type_t * pixman_region_empty_data =
-    (region_data_type_t*)&PREFIX(_empty_data_);
-static region_data_type_t * pixman_broken_data =
-    (region_data_type_t*)&PREFIX(_broken_data_);
+static box_type_t * pixman_region_empty_box = const_cast<box_type_t *>(&PREFIX(_empty_box_)); // @badcast
+static region_data_type_t * pixman_region_empty_data = const_cast<region_data_type_t *>(&PREFIX(_empty_data_)); // @badcast
+static region_data_type_t * pixman_broken_data = const_cast<region_data_type_t *>(&PREFIX(_broken_data_)); // @badcast
 
 static pixman_bool_t pixman_break(region_type_t * region);
 
@@ -175,25 +155,11 @@ static pixman_bool_t pixman_break(region_type_t * region);
  */
 
 /*  true iff two Boxes overlap */
-#define EXTENTCHECK(r1, r2)        \
-	(!( ((r1)->x2 <= (r2)->x1)  || \
-	((r1)->x1 >= (r2)->x2)  || \
-	((r1)->y2 <= (r2)->y1)  || \
-	((r1)->y1 >= (r2)->y2) ) )
-
+#define EXTENTCHECK(r1, r2) (!(((r1)->x2 <= (r2)->x1) || ((r1)->x1 >= (r2)->x2) || ((r1)->y2 <= (r2)->y1) || ((r1)->y1 >= (r2)->y2)))
 /* true iff (x,y) is in Box */
-#define INBOX(r, x, y)  \
-	( ((r)->x2 >  x) && \
-	((r)->x1 <= x) && \
-	((r)->y2 >  y) && \
-	((r)->y1 <= y) )
-
+#define INBOX(r, x, y)  (((r)->x2 >  x) && ((r)->x1 <= x) && ((r)->y2 >  y) && ((r)->y1 <= y))
 /* true iff Box r1 contains Box r2 */
-#define SUBSUMES(r1, r2)        \
-	( ((r1)->x1 <= (r2)->x1) && \
-	((r1)->x2 >= (r2)->x2) && \
-	((r1)->y1 <= (r2)->y1) && \
-	((r1)->y2 >= (r2)->y2) )
+#define SUBSUMES(r1, r2) (((r1)->x1 <= (r2)->x1) && ((r1)->x2 >= (r2)->x2) && ((r1)->y1 <= (r2)->y1) && ((r1)->y2 >= (r2)->y2))
 
 static size_t PIXREGION_SZOF(size_t n)
 {
@@ -202,7 +168,6 @@ static size_t PIXREGION_SZOF(size_t n)
 		return 0;
 	if(sizeof(region_data_type_t) > UINT32_MAX - size)
 		return 0;
-
 	return size + sizeof(region_data_type_t);
 }
 
@@ -217,22 +182,16 @@ static region_data_type_t * alloc_data(size_t n)
 #define FREE_DATA(reg) if((reg)->data && (reg)->data->size) free((reg)->data)
 
 #define RECTALLOC_BAIL(region, n, bail)                                 \
-	do                                                                  \
-	{                                                                   \
-		if(!(region)->data ||                                          \
-		    (((region)->data->numRects + (n)) > (region)->data->size))  \
-		{                                                               \
+	do { \
+		if(!(region)->data || (((region)->data->numRects + (n)) > (region)->data->size)) { \
 			if(!pixman_rect_alloc(region, n))                         \
 				goto bail;                                              \
 		}                                                               \
 	} while(0)
 
 #define RECTALLOC(region, n)                                            \
-	do                                                                  \
-	{                                                                   \
-		if(!(region)->data ||                                          \
-		    (((region)->data->numRects + (n)) > (region)->data->size))  \
-		{                                                               \
+	do { \
+		if(!(region)->data || (((region)->data->numRects + (n)) > (region)->data->size)) { \
 			if(!pixman_rect_alloc(region, n)) {                       \
 				return FALSE;                                           \
 			}                                                           \
@@ -240,22 +199,17 @@ static region_data_type_t * alloc_data(size_t n)
 	} while(0)
 
 #define ADDRECT(next_rect, nx1, ny1, nx2, ny2)      \
-	do                                              \
-	{                                               \
+	do { \
 		next_rect->x1 = nx1;                        \
 		next_rect->y1 = ny1;                        \
 		next_rect->x2 = nx2;                        \
 		next_rect->y2 = ny2;                        \
 		next_rect++;                                \
-	}                                               \
-	while(0)
+	} while(0)
 
 #define NEWRECT(region, next_rect, nx1, ny1, nx2, ny2)                  \
-	do                                                                  \
-	{                                                                   \
-		if(!(region)->data ||                                          \
-		    ((region)->data->numRects == (region)->data->size))         \
-		{                                                               \
+	do { \
+		if(!(region)->data || ((region)->data->numRects == (region)->data->size)) { \
 			if(!pixman_rect_alloc(region, 1))                         \
 				return FALSE;                                           \
 			next_rect = PIXREGION_TOP(region);                         \
@@ -268,14 +222,8 @@ static region_data_type_t * alloc_data(size_t n)
 #define DOWNSIZE(reg, numRects)                                         \
 	do {                                                                   \
 		if(((numRects) < ((reg)->data->size >> 1)) && ((reg)->data->size > 50)) { \
-			region_data_type_t * new_data;                              \
 			size_t data_size = PIXREGION_SZOF(numRects);               \
-			if(!data_size) {                                            \
-				new_data = NULL;                                        \
-			}                                                           \
-			else {                                                     \
-				new_data = (region_data_type_t*)realloc((reg)->data, data_size); \
-			}                                                           \
+			region_data_type_t * new_data = data_size ? static_cast<region_data_type_t *>(SAlloc::R((reg)->data, data_size)) : 0; \
 			if(new_data) {                                              \
 				new_data->size = (numRects);                            \
 				(reg)->data = new_data;                                 \
@@ -288,66 +236,43 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_equal) (region_type_t *reg1, region_type_t *
 	int i;
 	box_type_t * rects1;
 	box_type_t * rects2;
-
 	if(reg1->extents.x1 != reg2->extents.x1)
 		return FALSE;
-
 	if(reg1->extents.x2 != reg2->extents.x2)
 		return FALSE;
-
 	if(reg1->extents.y1 != reg2->extents.y1)
 		return FALSE;
-
 	if(reg1->extents.y2 != reg2->extents.y2)
 		return FALSE;
-
 	if(PIXREGION_NUMRECTS(reg1) != PIXREGION_NUMRECTS(reg2))
 		return FALSE;
-
 	rects1 = PIXREGION_RECTS(reg1);
 	rects2 = PIXREGION_RECTS(reg2);
-
 	for(i = 0; i != PIXREGION_NUMRECTS(reg1); i++) {
 		if(rects1[i].x1 != rects2[i].x1)
 			return FALSE;
-
 		if(rects1[i].x2 != rects2[i].x2)
 			return FALSE;
-
 		if(rects1[i].y1 != rects2[i].y1)
 			return FALSE;
-
 		if(rects1[i].y2 != rects2[i].y2)
 			return FALSE;
 	}
-
 	return TRUE;
 }
 
-int PREFIX(_print) (region_type_t *rgn)
+int PREFIX(_print)(region_type_t *rgn)
 {
-	int num, size;
 	int i;
-	box_type_t * rects;
-
-	num = PIXREGION_NUMRECTS(rgn);
-	size = PIXREGION_SIZE(rgn);
-	rects = PIXREGION_RECTS(rgn);
-
+	int num = PIXREGION_NUMRECTS(rgn);
+	int size = PIXREGION_SIZE(rgn);
+	box_type_t * rects = PIXREGION_RECTS(rgn);
 	fprintf(stderr, "num: %d size: %d\n", num, size);
-	fprintf(stderr, "extents: %d %d %d %d\n",
-	    rgn->extents.x1,
-	    rgn->extents.y1,
-	    rgn->extents.x2,
-	    rgn->extents.y2);
-
+	fprintf(stderr, "extents: %d %d %d %d\n", rgn->extents.x1, rgn->extents.y1, rgn->extents.x2, rgn->extents.y2);
 	for(i = 0; i < num; i++) {
-		fprintf(stderr, "%d %d %d %d \n",
-		    rects[i].x1, rects[i].y1, rects[i].x2, rects[i].y2);
+		fprintf(stderr, "%d %d %d %d \n", rects[i].x1, rects[i].y1, rects[i].x2, rects[i].y2);
 	}
-
 	fprintf(stderr, "\n");
-
 	return(num);
 }
 
@@ -357,24 +282,18 @@ PIXMAN_EXPORT void PREFIX(_init) (region_type_t *region)
 	region->data = pixman_region_empty_data;
 }
 
-PIXMAN_EXPORT void PREFIX(_init_rect) (region_type_t *    region,
-    int x,
-    int y,
-    unsigned int width,
-    unsigned int height)
+PIXMAN_EXPORT void PREFIX(_init_rect)(region_type_t * region, int x, int y, unsigned int width, unsigned int height)
 {
 	region->extents.x1 = x;
 	region->extents.y1 = y;
 	region->extents.x2 = x + width;
 	region->extents.y2 = y + height;
-
 	if(!GOOD_RECT(&region->extents)) {
 		if(BAD_RECT(&region->extents))
 			_pixman_log_error(FUNC, "Invalid rectangle passed");
 		PREFIX(_init) (region);
 		return;
 	}
-
 	region->data = NULL;
 }
 
@@ -387,7 +306,6 @@ PIXMAN_EXPORT void PREFIX(_init_with_extents) (region_type_t *region, box_type_t
 		return;
 	}
 	region->extents = *extents;
-
 	region->data = NULL;
 }
 
@@ -402,76 +320,53 @@ PIXMAN_EXPORT int PREFIX(_n_rects) (region_type_t *region)
 	return PIXREGION_NUMRECTS(region);
 }
 
-PIXMAN_EXPORT box_type_t * PREFIX(_rectangles) (region_type_t *region,
-    int      * n_rects)
+PIXMAN_EXPORT box_type_t * PREFIX(_rectangles)(region_type_t *region, int * n_rects)
 {
 	if(n_rects)
 		*n_rects = PIXREGION_NUMRECTS(region);
-
 	return PIXREGION_RECTS(region);
 }
 
 static pixman_bool_t pixman_break(region_type_t * region)
 {
 	FREE_DATA(region);
-
 	region->extents = *pixman_region_empty_box;
 	region->data = pixman_broken_data;
-
 	return FALSE;
 }
 
-static pixman_bool_t pixman_rect_alloc(region_type_t * region,
-    int n)
+static pixman_bool_t pixman_rect_alloc(region_type_t * region, int n)
 {
 	region_data_type_t * data;
-
 	if(!region->data) {
 		n++;
 		region->data = alloc_data(n);
-
 		if(!region->data)
 			return pixman_break(region);
-
 		region->data->numRects = 1;
 		*PIXREGION_BOXPTR(region) = region->extents;
 	}
 	else if(!region->data->size) {
 		region->data = alloc_data(n);
-
 		if(!region->data)
 			return pixman_break(region);
-
 		region->data->numRects = 0;
 	}
-	else{
+	else {
 		size_t data_size;
-
 		if(n == 1) {
 			n = region->data->numRects;
 			if(n > 500) /* XXX pick numbers out of a hat */
 				n = 250;
 		}
-
 		n += region->data->numRects;
 		data_size = PIXREGION_SZOF(n);
-
-		if(!data_size) {
-			data = NULL;
-		}
-		else{
-			data = (region_data_type_t*)
-			    realloc(region->data, PIXREGION_SZOF(n));
-		}
-
+		data = data_size ? static_cast<region_data_type_t *>(SAlloc::R(region->data, PIXREGION_SZOF(n))) : 0;
 		if(!data)
 			return pixman_break(region);
-
 		region->data = data;
 	}
-
 	region->data->size = n;
-
 	return TRUE;
 }
 
@@ -479,34 +374,23 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_copy) (region_type_t *dst, region_type_t *sr
 {
 	GOOD(dst);
 	GOOD(src);
-
 	if(dst == src)
 		return TRUE;
-
 	dst->extents = src->extents;
-
 	if(!src->data || !src->data->size) {
 		FREE_DATA(dst);
 		dst->data = src->data;
 		return TRUE;
 	}
-
 	if(!dst->data || (dst->data->size < src->data->numRects)) {
 		FREE_DATA(dst);
-
 		dst->data = alloc_data(src->data->numRects);
-
 		if(!dst->data)
 			return pixman_break(dst);
-
 		dst->data->size = src->data->numRects;
 	}
-
 	dst->data->numRects = src->data->numRects;
-
-	memmove((char*)PIXREGION_BOXPTR(dst), (char*)PIXREGION_BOXPTR(src),
-	    dst->data->numRects * sizeof(box_type_t));
-
+	memmove((char*)PIXREGION_BOXPTR(dst), (char*)PIXREGION_BOXPTR(src), dst->data->numRects * sizeof(box_type_t));
 	return TRUE;
 }
 
@@ -987,10 +871,8 @@ bail:
 static void pixman_set_extents(region_type_t * region)
 {
 	box_type_t * box, * box_end;
-
 	if(!region->data)
 		return;
-
 	if(!region->data->size) {
 		region->extents.x2 = region->extents.x1;
 		region->extents.y2 = region->extents.y1;
@@ -1988,7 +1870,7 @@ PIXMAN_EXPORT pixman_region_overlap_t PREFIX(_contains_rectangle) (region_type_t
 				break;
 			x = prect->x1; /* reset x out to left again */
 		}
-		else{
+		else {
 			/*
 			 * Because boxes in a band are maximal width, if the first box
 			 * to overlap the rectangle doesn't completely cover it in that
@@ -2000,7 +1882,6 @@ PIXMAN_EXPORT pixman_region_overlap_t PREFIX(_contains_rectangle) (region_type_t
 			break;
 		}
 	}
-
 	if(part_in) {
 		if(y < prect->y2)
 			return PIXMAN_REGION_PART;
@@ -2075,12 +1956,11 @@ PIXMAN_EXPORT void PREFIX(_translate) (region_type_t *region, int x, int y)
 
 			pbox_out++;
 		}
-
 		if(pbox_out != pbox) {
 			if(region->data->numRects == 1) {
 				region->extents = *PIXREGION_BOXPTR(region);
 				FREE_DATA(region);
-				region->data = (region_data_type_t*)NULL;
+				region->data = 0; //(region_data_type_t*)NULL;
 			}
 			else{
 				pixman_set_extents(region);
@@ -2140,97 +2020,68 @@ PIXMAN_EXPORT int PREFIX(_contains_point) (region_type_t * region, int x, int y,
 PIXMAN_EXPORT int PREFIX(_not_empty) (region_type_t * region)
 {
 	GOOD(region);
-
 	return(!PIXREGION_NIL(region));
 }
 
 PIXMAN_EXPORT box_type_t * PREFIX(_extents) (region_type_t * region)
 {
 	GOOD(region);
-
 	return(&region->extents);
 }
-
 /*
  * Clip a list of scanlines to a region.  The caller has allocated the
  * space.  FSorted is non-zero if the scanline origins are in ascending order.
  *
  * returns the number of new, clipped scanlines.
  */
-
 PIXMAN_EXPORT pixman_bool_t PREFIX(_selfcheck) (region_type_t *reg)
 {
 	int i, numRects;
-
-	if((reg->extents.x1 > reg->extents.x2) ||
-	    (reg->extents.y1 > reg->extents.y2)) {
+	if((reg->extents.x1 > reg->extents.x2) || (reg->extents.y1 > reg->extents.y2)) {
 		return FALSE;
 	}
-
 	numRects = PIXREGION_NUMRECTS(reg);
 	if(!numRects) {
-		return ((reg->extents.x1 == reg->extents.x2) &&
-		       (reg->extents.y1 == reg->extents.y2) &&
-		       (reg->data->size || (reg->data == pixman_region_empty_data)));
+		return ((reg->extents.x1 == reg->extents.x2) && (reg->extents.y1 == reg->extents.y2) && (reg->data->size || (reg->data == pixman_region_empty_data)));
 	}
 	else if(numRects == 1) {
 		return (!reg->data);
 	}
 	else{
-		box_type_t * pbox_p, * pbox_n;
-		box_type_t box;
-
-		pbox_p = PIXREGION_RECTS(reg);
-		box = *pbox_p;
+		box_type_t * pbox_n;
+		box_type_t * pbox_p = PIXREGION_RECTS(reg);
+		box_type_t box = *pbox_p;
 		box.y2 = pbox_p[numRects - 1].y2;
 		pbox_n = pbox_p + 1;
-
 		for(i = numRects; --i > 0; pbox_p++, pbox_n++) {
 			if((pbox_n->x1 >= pbox_n->x2) ||
 			    (pbox_n->y1 >= pbox_n->y2)) {
 				return FALSE;
 			}
-
 			if(pbox_n->x1 < box.x1)
 				box.x1 = pbox_n->x1;
-
 			if(pbox_n->x2 > box.x2)
 				box.x2 = pbox_n->x2;
-
-			if((pbox_n->y1 < pbox_p->y1) ||
-			    ((pbox_n->y1 == pbox_p->y1) &&
-			    ((pbox_n->x1 < pbox_p->x2) || (pbox_n->y2 != pbox_p->y2)))) {
+			if((pbox_n->y1 < pbox_p->y1) || ((pbox_n->y1 == pbox_p->y1) && ((pbox_n->x1 < pbox_p->x2) || (pbox_n->y2 != pbox_p->y2)))) {
 				return FALSE;
 			}
 		}
-
-		return ((box.x1 == reg->extents.x1) &&
-		       (box.x2 == reg->extents.x2) &&
-		       (box.y1 == reg->extents.y1) &&
-		       (box.y2 == reg->extents.y2));
+		return ((box.x1 == reg->extents.x1) && (box.x2 == reg->extents.x2) && (box.y1 == reg->extents.y1) && (box.y2 == reg->extents.y2));
 	}
 }
 
-PIXMAN_EXPORT pixman_bool_t PREFIX(_init_rects) (region_type_t *region,
-    const box_type_t *boxes, int count)
+PIXMAN_EXPORT pixman_bool_t PREFIX(_init_rects) (region_type_t *region, const box_type_t *boxes, int count)
 {
 	box_type_t * rects;
 	int displacement;
 	int i;
-
 	/* if it's 1, then we just want to set the extents, so call
 	 * the existing method. */
 	if(count == 1) {
-		PREFIX(_init_rect) (region,
-		    boxes[0].x1,
-		    boxes[0].y1,
-		    boxes[0].x2 - boxes[0].x1,
-		    boxes[0].y2 - boxes[0].y1);
+		PREFIX(_init_rect) (region, boxes[0].x1, boxes[0].y1, boxes[0].x2 - boxes[0].x1, boxes[0].y2 - boxes[0].y1);
 		return TRUE;
 	}
-
 	PREFIX(_init) (region);
-
 	/* if it's 0, don't call pixman_rect_alloc -- 0 rectangles is
 	 * a special case, and causing pixman_rect_alloc would cause
 	 * us to leak memory (because the 0-rect case should be the
@@ -2238,69 +2089,48 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_init_rects) (region_type_t *region,
 	 */
 	if(count == 0)
 		return TRUE;
-
 	if(!pixman_rect_alloc(region, count))
 		return FALSE;
-
 	rects = PIXREGION_RECTS(region);
-
 	/* Copy in the rects */
 	memcpy(rects, boxes, sizeof(box_type_t) * count);
 	region->data->numRects = count;
-
 	/* Eliminate empty and malformed rectangles */
 	displacement = 0;
-
 	for(i = 0; i < count; ++i) {
 		box_type_t * box = &rects[i];
-
 		if(box->x1 >= box->x2 || box->y1 >= box->y2)
 			displacement++;
 		else if(displacement)
 			rects[i - displacement] = rects[i];
 	}
-
 	region->data->numRects -= displacement;
-
 	/* If eliminating empty rectangles caused there
 	 * to be only 0 or 1 rectangles, deal with that.
 	 */
 	if(region->data->numRects == 0) {
 		FREE_DATA(region);
 		PREFIX(_init) (region);
-
 		return TRUE;
 	}
-
 	if(region->data->numRects == 1) {
 		region->extents = rects[0];
-
 		FREE_DATA(region);
 		region->data = NULL;
-
 		GOOD(region);
-
 		return TRUE;
 	}
-
 	/* Validate */
 	region->extents.x1 = region->extents.x2 = 0;
-
 	return validate(region);
 }
 
 #define READ(_ptr) (*(_ptr))
 
-static inline box_type_t * bitmap_addrect(region_type_t * reg,
-    box_type_t * r,
-    box_type_t ** first_rect,
-    int rx1, int ry1,
-    int rx2, int ry2)
+static inline box_type_t * bitmap_addrect(region_type_t * reg, box_type_t * r, box_type_t ** first_rect,
+    int rx1, int ry1, int rx2, int ry2)
 {
-	if((rx1 < rx2) && (ry1 < ry2) &&
-	    (!(reg->data->numRects &&
-	    ((r-1)->y1 == ry1) && ((r-1)->y2 == ry2) &&
-	    ((r-1)->x1 <= rx1) && ((r-1)->x2 >= rx2)))) {
+	if((rx1 < rx2) && (ry1 < ry2) && (!(reg->data->numRects && ((r-1)->y1 == ry1) && ((r-1)->y2 == ry2) && ((r-1)->x1 <= rx1) && ((r-1)->x2 >= rx2)))) {
 		if(reg->data->numRects == reg->data->size) {
 			if(!pixman_rect_alloc(reg, 1))
 				return NULL;
@@ -2328,8 +2158,7 @@ static inline box_type_t * bitmap_addrect(region_type_t * reg,
  * at the same X coordinates.
  * Stride is in number of uint32_t per line.
  */
-PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region,
-    pixman_image_t *image)
+PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image_t *image)
 {
 	uint32_t mask0 = 0xffffffff & ~SCREEN_SHIFT_RIGHT(0xffffffff, 1);
 	box_type_t * first_rect, * rects, * prect_line_start;
@@ -2340,22 +2169,16 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region,
 	int ib;
 	pixman_bool_t in_box, same;
 	int width, height, stride;
-
 	PREFIX(_init) (region);
-
 	critical_if_fail(region->data);
-
 	return_if_fail(image->type == BITS);
 	return_if_fail(image->bits.format == PIXMAN_a1);
-
 	pw_line = pixman_image_get_data(image);
 	width = pixman_image_get_width(image);
 	height = pixman_image_get_height(image);
 	stride = pixman_image_get_stride(image) / 4;
-
 	first_rect = PIXREGION_BOXPTR(region);
 	rects = first_rect;
-
 	region->extents.x1 = width - 1;
 	region->extents.x2 = 0;
 	irect_prev_start = -1;
@@ -2363,17 +2186,14 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region,
 		pw = pw_line;
 		pw_line += stride;
 		irect_line_start = rects - first_rect;
-
-		/* If the Screen left most bit of the word is set, we're starting in
-		 * a box */
+		// If the Screen left most bit of the word is set, we're starting in a box 
 		if(READ(pw) & mask0) {
 			in_box = TRUE;
 			rx1 = 0;
 		}
-		else{
+		else {
 			in_box = FALSE;
 		}
-
 		/* Process all words which are fully in the pixmap */
 		pw_line_end = pw + (width >> 5);
 		for(base = 0; pw < pw_line_end; base += 32) {
@@ -2387,8 +2207,7 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region,
 					continue;
 			}
 			for(ib = 0; ib < 32; ib++) {
-				/* If the Screen left most bit of the word is set, we're
-				 * starting a box */
+				// If the Screen left most bit of the word is set, we're starting a box 
 				if(w & mask0) {
 					if(!in_box) {
 						rx1 = base + ib;
@@ -2452,14 +2271,12 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region,
 		same = FALSE;
 		if(irect_prev_start != -1) {
 			crects = irect_line_start - irect_prev_start;
-			if(crects != 0 &&
-			    crects == ((rects - first_rect) - irect_line_start)) {
+			if(crects != 0 && crects == ((rects - first_rect) - irect_line_start)) {
 				old_rect = first_rect + irect_prev_start;
 				new_rect = prect_line_start = first_rect + irect_line_start;
 				same = TRUE;
 				while(old_rect < prect_line_start) {
-					if((old_rect->x1 != new_rect->x1) ||
-					    (old_rect->x2 != new_rect->x2)) {
+					if((old_rect->x1 != new_rect->x1) || (old_rect->x2 != new_rect->x2)) {
 						same = FALSE;
 						break;
 					}
