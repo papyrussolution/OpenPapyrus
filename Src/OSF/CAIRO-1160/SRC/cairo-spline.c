@@ -38,7 +38,7 @@
 //#include "cairo-box-inline.h"
 //#include "cairo-slope-private.h"
 
-cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d, const cairo_box_t * box)
+boolint _cairo_spline_intersects(const cairo_point_t * a, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d, const cairo_box_t * box)
 {
 	cairo_box_t bounds;
 	if(_cairo_box_contains_point(box, a) || _cairo_box_contains_point(box, b) || _cairo_box_contains_point(box, c) || _cairo_box_contains_point(box, d)) {
@@ -65,7 +65,7 @@ cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a, const cairo_point
 	return TRUE;
 }
 
-cairo_bool_t _cairo_spline_init(cairo_spline_t * spline,
+boolint _cairo_spline_init(cairo_spline_t * spline,
     cairo_spline_add_point_func_t add_point_func,
     void * closure,
     const cairo_point_t * a, const cairo_point_t * b,
@@ -324,7 +324,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 			double b2 = b * b; \
 			double delta = b2 - a * c; \
 			if(delta > 0) { \
-				cairo_bool_t feasible; \
+				boolint feasible; \
 				double _2ab = 2 * a * b; \
 				/* We are only interested in solutions t that satisfy 0<t<1 \
 				 * here.  We do some checks to avoid sqrt if the solutions \

@@ -2147,7 +2147,7 @@ void ngx_http_request_empty_handler(ngx_http_request_t * r)
 
 ngx_int_t ngx_http_send_special(ngx_http_request_t * r, ngx_uint_t flags)
 {
-	ngx_buf_t  * b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+	ngx_buf_t  * b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 	if(!b) {
 		return NGX_ERROR;
 	}

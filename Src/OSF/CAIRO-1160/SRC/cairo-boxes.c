@@ -32,9 +32,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-box-inline.h"
-//#include "cairo-boxes-private.h"
-//#include "cairo-error-private.h"
 
 void FASTCALL _cairo_boxes_init(cairo_boxes_t * boxes)
 {
@@ -156,7 +153,7 @@ cairo_status_t FASTCALL _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_
 		return CAIRO_STATUS_SUCCESS;
 	if(boxes->num_limits) {
 		cairo_point_t p1, p2;
-		cairo_bool_t reversed = FALSE;
+		boolint reversed = FALSE;
 		int n;
 		/* support counter-clockwise winding for rectangular tessellation */
 		if(box->p1.x < box->p2.x) {
@@ -311,7 +308,7 @@ void _cairo_boxes_fini(cairo_boxes_t * boxes)
 	}
 }
 
-cairo_bool_t _cairo_boxes_for_each_box(cairo_boxes_t * boxes, cairo_bool_t (*func)(cairo_box_t * box, void * data), void * data)
+boolint _cairo_boxes_for_each_box(cairo_boxes_t * boxes, boolint (*func)(cairo_box_t * box, void * data), void * data)
 {
 	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
 		for(int i = 0; i < chunk->count; i++)

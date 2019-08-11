@@ -53,7 +53,7 @@ static inline void _cairo_image_surface_set_parent(cairo_image_surface_t * image
 	image->parent = parent;
 }
 
-static inline cairo_bool_t _cairo_image_surface_is_clone(const cairo_image_surface_t * image)
+static inline boolint _cairo_image_surface_is_clone(const cairo_image_surface_t * image)
 {
 	return image->parent != NULL;
 }
@@ -65,7 +65,7 @@ static inline cairo_bool_t _cairo_image_surface_is_clone(const cairo_image_surfa
  *
  * Return value: %TRUE if the surface is an image surface
  **/
-static inline cairo_bool_t _cairo_surface_is_image(const cairo_surface_t * surface)
+static inline boolint _cairo_surface_is_image(const cairo_surface_t * surface)
 {
 	/* _cairo_surface_nil sets a NULL backend so be safe */
 	return surface->backend && surface->backend->type == CAIRO_SURFACE_TYPE_IMAGE;
@@ -78,7 +78,7 @@ static inline cairo_bool_t _cairo_surface_is_image(const cairo_surface_t * surfa
  *
  * Return value: %TRUE if the surface is an image source
  **/
-static inline cairo_bool_t _cairo_surface_is_image_source(const cairo_surface_t * surface)
+static inline boolint _cairo_surface_is_image_source(const cairo_surface_t * surface)
 {
 	return surface->backend == &_cairo_image_source_backend;
 }

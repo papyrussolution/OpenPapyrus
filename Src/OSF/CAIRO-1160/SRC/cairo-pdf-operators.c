@@ -53,7 +53,7 @@ void _cairo_pdf_operators_init(cairo_pdf_operators_t * pdf_operators,
     cairo_output_stream_t * stream,
     cairo_matrix_t * cairo_to_pdf,
     cairo_scaled_font_subsets_t * font_subsets,
-    cairo_bool_t ps)
+    boolint ps)
 {
 	pdf_operators->stream = stream;
 	pdf_operators->cairo_to_pdf = *cairo_to_pdf;
@@ -99,7 +99,7 @@ void _cairo_pdf_operators_set_cairo_to_pdf_matrix(cairo_pdf_operators_t * pdf_op
 }
 
 cairo_private void _cairo_pdf_operators_enable_actual_text(cairo_pdf_operators_t * pdf_operators,
-    cairo_bool_t enable)
+    boolint enable)
 {
 	pdf_operators->use_actual_text = enable;
 }
@@ -163,10 +163,10 @@ typedef struct _word_wrap_stream {
 	cairo_output_stream_t base;
 	cairo_output_stream_t * output;
 	int max_column;
-	cairo_bool_t ps_output;
+	boolint ps_output;
 	int column;
 	cairo_word_wrap_state_t state;
-	cairo_bool_t in_escape;
+	boolint in_escape;
 	int escape_digits;
 } word_wrap_stream_t;
 
@@ -196,7 +196,7 @@ static int _word_wrap_stream_count_hexstring_up_to(word_wrap_stream_t * stream, 
 {
 	const uchar * s = data;
 	int count = 0;
-	cairo_bool_t newline = FALSE;
+	boolint newline = FALSE;
 	while(length--) {
 		count++;
 		stream->column++;
@@ -226,7 +226,7 @@ static int _word_wrap_stream_count_string_up_to(word_wrap_stream_t * stream, con
 {
 	const uchar * s = data;
 	int count = 0;
-	cairo_bool_t newline = FALSE;
+	boolint newline = FALSE;
 	while(length--) {
 		count++;
 		stream->column++;
@@ -311,7 +311,7 @@ static cairo_status_t _word_wrap_stream_close(cairo_output_stream_t * base)
 	return _cairo_output_stream_get_status(stream->output);
 }
 
-static cairo_output_stream_t * _word_wrap_stream_create(cairo_output_stream_t * output, cairo_bool_t ps, int max_column)
+static cairo_output_stream_t * _word_wrap_stream_create(cairo_output_stream_t * output, boolint ps, int max_column)
 {
 	word_wrap_stream_t * stream;
 	if(output->status)
@@ -338,7 +338,7 @@ typedef struct _pdf_path_info {
 	cairo_matrix_t * path_transform;
 	cairo_line_cap_t line_cap;
 	cairo_point_t last_move_to_point;
-	cairo_bool_t has_sub_path;
+	boolint has_sub_path;
 } pdf_path_info_t;
 
 static cairo_status_t _cairo_pdf_path_move_to(void * closure, const cairo_point_t * point)
@@ -652,7 +652,7 @@ static cairo_int_status_t _cairo_pdf_operators_emit_stroke(cairo_pdf_operators_t
 {
 	cairo_int_status_t status;
 	cairo_matrix_t m, path_transform;
-	cairo_bool_t has_ctm = TRUE;
+	boolint has_ctm = TRUE;
 	double scale = 1.0;
 
 	if(pdf_operators->in_text_object) {
@@ -1104,7 +1104,7 @@ static cairo_status_t _cairo_pdf_operators_end_text(cairo_pdf_operators_t * pdf_
 
 /* Compare the scale components of two matrices. The translation
  * components are ignored. */
-static cairo_bool_t _cairo_matrix_scale_equal(cairo_matrix_t * a, cairo_matrix_t * b)
+static boolint _cairo_matrix_scale_equal(cairo_matrix_t * a, cairo_matrix_t * b)
 {
 	return (a->xx == b->xx &&
 	       a->xy == b->xy &&

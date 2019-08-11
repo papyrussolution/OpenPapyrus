@@ -192,12 +192,12 @@ static void _cairo_bo_sweep_line_delete(cairo_bo_sweep_line_t * sweep_line,
 		sweep_line->current_edge = edge->prev ? edge->prev : edge->next;
 }
 
-static inline cairo_bool_t edges_collinear(const cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
+static inline boolint edges_collinear(const cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
 {
 	return a->edge.line.p1.x == b->edge.line.p1.x;
 }
 
-static cairo_status_t _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32_t bot, cairo_bool_t do_traps, void * container)
+static cairo_status_t _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32_t bot, boolint do_traps, void * container)
 {
 	cairo_bo_trap_t * trap = &left->deferred_trap;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
@@ -228,7 +228,7 @@ static cairo_status_t _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32_t bo
 static inline cairo_status_t _cairo_bo_edge_start_or_continue_trap(cairo_bo_edge_t * left,
     cairo_bo_edge_t * right,
     int top,
-    cairo_bool_t do_traps,
+    boolint do_traps,
     void * container)
 {
 	cairo_status_t status;
@@ -259,7 +259,7 @@ static inline cairo_status_t _cairo_bo_edge_start_or_continue_trap(cairo_bo_edge
 static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left,
     int32_t top,
     cairo_fill_rule_t fill_rule,
-    cairo_bool_t do_traps,
+    boolint do_traps,
     void * container)
 {
 	cairo_bo_edge_t * right;
@@ -332,7 +332,7 @@ static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left,
 
 				if((in_out++ & 1) == 0) {
 					cairo_bo_edge_t * next;
-					cairo_bool_t skip = FALSE;
+					boolint skip = FALSE;
 
 					/* skip co-linear edges */
 					next = right->next;
@@ -363,7 +363,7 @@ static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left,
 static cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear(cairo_bo_event_t  ** start_events,
     int num_events,
     cairo_fill_rule_t fill_rule,
-    cairo_bool_t do_traps,
+    boolint do_traps,
     void * container)
 {
 	cairo_bo_sweep_line_t sweep_line;

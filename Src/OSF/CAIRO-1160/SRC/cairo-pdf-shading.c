@@ -82,10 +82,10 @@ static uchar * encode_alpha(uchar * p, const cairo_color_t * color)
 	return p;
 }
 
-static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, cairo_bool_t is_alpha)
+static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, boolint is_alpha)
 {
 	uint num_color_components, i;
-	cairo_bool_t is_valid;
+	boolint is_valid;
 	if(is_alpha)
 		num_color_components = 1;
 	else
@@ -110,7 +110,7 @@ static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading
 static const int pdf_points_order_i[16] = { 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 2, 1, 1, 1, 2, 2 };
 static const int pdf_points_order_j[16] = { 0, 1, 2, 3, 3, 3, 3, 2, 1, 0, 0, 0, 1, 2, 2, 1 };
 
-static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, cairo_bool_t is_alpha)
+static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, boolint is_alpha)
 {
 	const cairo_mesh_patch_t * patch;
 	double x_off, y_off, x_scale, y_scale;
@@ -185,7 +185,7 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * sha
 
 static cairo_status_t _cairo_pdf_shading_init(cairo_pdf_shading_t * shading,
     const cairo_mesh_pattern_t * mesh,
-    cairo_bool_t is_alpha)
+    boolint is_alpha)
 {
 	cairo_status_t status;
 

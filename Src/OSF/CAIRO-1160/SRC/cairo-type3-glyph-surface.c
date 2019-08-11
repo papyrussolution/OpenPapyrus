@@ -60,7 +60,7 @@ static cairo_status_t _cairo_type3_glyph_surface_clipper_intersect_clip_path(cai
 }
 
 cairo_surface_t * _cairo_type3_glyph_surface_create(cairo_scaled_font_t * scaled_font, cairo_output_stream_t * stream,
-    cairo_type3_glyph_surface_emit_image_t emit_image, cairo_scaled_font_subsets_t * font_subsets, cairo_bool_t ps)
+    cairo_type3_glyph_surface_emit_image_t emit_image, cairo_scaled_font_subsets_t * font_subsets, boolint ps)
 {
 	cairo_type3_glyph_surface_t * surface;
 	if(unlikely(stream != NULL && stream->status))

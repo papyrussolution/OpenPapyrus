@@ -64,12 +64,12 @@ typedef struct _cairo_type1_font {
 	int bbox_max_chars;
 	cairo_output_stream_t * output;
 	unsigned short eexec_key;
-	cairo_bool_t hex_encode;
+	boolint hex_encode;
 	int hex_column;
 } cairo_type1_font_t;
 
 static cairo_status_t cairo_type1_font_create(cairo_scaled_font_subset_t * scaled_font_subset,
-    cairo_type1_font_t ** subset_return, cairo_bool_t hex_encode)
+    cairo_type1_font_t ** subset_return, boolint hex_encode)
 {
 	cairo_font_face_t * font_face;
 	cairo_matrix_t font_matrix;
@@ -277,7 +277,7 @@ static cairo_int_status_t cairo_type1_font_create_charstring(cairo_type1_font_t 
 	cairo_scaled_glyph_t * scaled_glyph;
 	t1_path_info_t path_info;
 	cairo_text_extents_t * metrics;
-	cairo_bool_t emit_path = TRUE;
+	boolint emit_path = TRUE;
 	/* This call may return CAIRO_INT_STATUS_UNSUPPORTED for bitmap fonts. */
 	status = _cairo_scaled_glyph_lookup(font->type1_scaled_font, glyph_index,
 		CAIRO_SCALED_GLYPH_INFO_METRICS|CAIRO_SCALED_GLYPH_INFO_PATH, &scaled_glyph);
@@ -585,7 +585,7 @@ static cairo_status_t cairo_type1_font_destroy(cairo_type1_font_t * font)
 static cairo_status_t _cairo_type1_fallback_init_internal(cairo_type1_subset_t * type1_subset,
     const char * name,
     cairo_scaled_font_subset_t * scaled_font_subset,
-    cairo_bool_t hex_encode)
+    boolint hex_encode)
 {
 	cairo_type1_font_t * font;
 	ulong length;

@@ -47,8 +47,8 @@
  * monolithic cairoint.h. So, for now, just include cairoint.h instead
  * if you want to include this file. */
 
-typedef cairo_bool_t (*cairo_hash_keys_equal_func_t)(const void *key_a, const void *key_b);
-typedef cairo_bool_t (*cairo_hash_predicate_func_t)(const void *entry);
+typedef boolint (*cairo_hash_keys_equal_func_t)(const void *key_a, const void *key_b);
+typedef boolint (*cairo_hash_predicate_func_t)(const void *entry);
 typedef void (*cairo_hash_callback_func_t)(void *entry, void *closure);
 cairo_private cairo_hash_table_t * FASTCALL _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_equal);
 cairo_private void FASTCALL _cairo_hash_table_destroy(cairo_hash_table_t * hash_table);

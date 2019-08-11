@@ -100,7 +100,7 @@ void FASTCALL _cairo_box_round_to_rectangle(const cairo_box_t * box, cairo_recta
 	rectangle->height = _cairo_fixed_integer_ceil(box->p2.y) - rectangle->y;
 }
 
-cairo_bool_t FASTCALL _cairo_rectangle_intersect(cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src)
+boolint FASTCALL _cairo_rectangle_intersect(cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src)
 {
 	const int x1 = MAX(dst->x, src->x);
 	const int y1 = MAX(dst->y, src->y);
@@ -161,7 +161,7 @@ void _cairo_rectangle_union(cairo_rectangle_int_t * dst, const cairo_rectangle_i
  * it's of no interest to us.
  */
 
-cairo_bool_t _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_line_t * line)
+boolint _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_line_t * line)
 {
 	cairo_fixed_t t1 = 0, t2 = 0, t3 = 0, t4 = 0;
 	cairo_int64_t t1y, t2y, t3x, t4x;

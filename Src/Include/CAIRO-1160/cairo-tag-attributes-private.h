@@ -56,7 +56,7 @@ typedef struct _cairo_link_attrs {
 	char * uri;
 	char * file;
 	int page;
-	cairo_bool_t has_pos;
+	boolint has_pos;
 	cairo_point_double_t pos;
 } cairo_link_attrs_t;
 
@@ -64,19 +64,19 @@ typedef struct _cairo_dest_attrs {
 	char * name;
 	double x;
 	double y;
-	cairo_bool_t x_valid;
-	cairo_bool_t y_valid;
-	cairo_bool_t internal;
+	boolint x_valid;
+	boolint y_valid;
+	boolint internal;
 } cairo_dest_attrs_t;
 
 typedef struct _cairo_ccitt_params {
 	int columns;
 	int rows;
 	int k;
-	cairo_bool_t end_of_line;
-	cairo_bool_t encoded_byte_align;
-	cairo_bool_t end_of_block;
-	cairo_bool_t black_is_1;
+	boolint end_of_line;
+	boolint encoded_byte_align;
+	boolint end_of_block;
+	boolint black_is_1;
 	int damaged_rows_before_error;
 } cairo_ccitt_params_t;
 

@@ -53,7 +53,7 @@ struct stroker {
 	double half_line_width;
 	double tolerance;
 	double ctm_determinant;
-	cairo_bool_t ctm_det_positive;
+	boolint ctm_det_positive;
 	cairo_line_join_t line_join;
 
 	cairo_traps_t * traps;
@@ -62,17 +62,17 @@ struct stroker {
 
 	cairo_point_t first_point;
 
-	cairo_bool_t has_initial_sub_path;
+	boolint has_initial_sub_path;
 
-	cairo_bool_t has_current_face;
+	boolint has_current_face;
 	cairo_stroke_face_t current_face;
 
-	cairo_bool_t has_first_face;
+	boolint has_first_face;
 	cairo_stroke_face_t first_face;
 
 	cairo_stroker_dash_t dash;
 
-	cairo_bool_t has_bounds;
+	boolint has_bounds;
 	cairo_box_t tight_bounds;
 	cairo_box_t line_bounds;
 	cairo_box_t join_bounds;
@@ -192,7 +192,7 @@ static int slope_compare_sgn(double dx1, double dy1, double dx2, double dy2)
 	return 0;
 }
 
-static cairo_bool_t stroker_intersects_join(const struct stroker * stroker,
+static boolint stroker_intersects_join(const struct stroker * stroker,
     const cairo_point_t * in,
     const cairo_point_t * out)
 {
@@ -652,7 +652,7 @@ static void add_caps(struct stroker * stroker)
 		add_trailing_cap(stroker, &stroker->current_face);
 }
 
-static cairo_bool_t stroker_intersects_edge(const struct stroker * stroker, const cairo_stroke_face_t * start, const cairo_stroke_face_t * end)
+static boolint stroker_intersects_edge(const struct stroker * stroker, const cairo_stroke_face_t * start, const cairo_stroke_face_t * end)
 {
 	cairo_box_t box;
 	if(!stroker->has_bounds)
@@ -756,7 +756,7 @@ static cairo_status_t line_to_dashed(void * closure, const cairo_point_t * point
 	const cairo_point_t * p2 = point;
 	cairo_slope_t dev_slope;
 	cairo_line_t segment;
-	cairo_bool_t fully_in_bounds;
+	boolint fully_in_bounds;
 	stroker->has_initial_sub_path = stroker->dash.dash_starts_on;
 	if(p1->x == p2->x && p1->y == p2->y)
 		return CAIRO_STATUS_SUCCESS;

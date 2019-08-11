@@ -86,7 +86,7 @@ struct _fill_box {
 	//cairo_surface_t *dither = NULL;
 };
 
-static cairo_bool_t fill_box(cairo_box_t * box, void * closure)
+static boolint fill_box(cairo_box_t * box, void * closure)
 {
 	struct _fill_box * data = closure;
 	int x = _cairo_fixed_integer_part(box->p1.x);
@@ -227,7 +227,7 @@ struct _fallback_box {
 	const cairo_pattern_t * pattern;
 };
 
-static cairo_bool_t fallback_box(cairo_box_t * box, void * closure)
+static boolint fallback_box(cairo_box_t * box, void * closure)
 {
 	struct _fallback_box * data = closure;
 	int x = _cairo_fixed_integer_part(box->p1.x);
@@ -311,7 +311,7 @@ struct _box_data {
 	int width, height;
 };
 
-static cairo_bool_t source_contains_box(cairo_box_t * box, void * closure)
+static boolint source_contains_box(cairo_box_t * box, void * closure)
 {
 	struct _box_data * data = closure;
 
@@ -323,7 +323,7 @@ static cairo_bool_t source_contains_box(cairo_box_t * box, void * closure)
 		_cairo_fixed_integer_part(box->p2.y) + data->ty <= data->height;
 }
 
-static cairo_bool_t image_upload_box(cairo_box_t * box, void * closure)
+static boolint image_upload_box(cairo_box_t * box, void * closure)
 {
 	const struct _box_data * iub = closure;
 	int x = _cairo_fixed_integer_part(box->p1.x);
@@ -338,7 +338,7 @@ static cairo_bool_t image_upload_box(cairo_box_t * box, void * closure)
 		   x, y) == CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t surface_matches_image_format(cairo_xlib_surface_t * surface, cairo_image_surface_t * image)
+static boolint surface_matches_image_format(cairo_xlib_surface_t * surface, cairo_image_surface_t * image)
 {
 	cairo_format_masks_t format;
 	return (_pixman_format_to_masks(image->pixman_format, &format) &&
@@ -380,7 +380,7 @@ static cairo_status_t upload_image_inplace(cairo_xlib_surface_t * dst, const cai
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t copy_box(cairo_box_t * box, void * closure)
+static boolint copy_box(cairo_box_t * box, void * closure)
 {
 	const struct _box_data * cb = closure;
 	int x = _cairo_fixed_integer_part(box->p1.x);

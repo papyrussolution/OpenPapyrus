@@ -331,6 +331,7 @@
     <ClCompile Include="..\PPLib\ppsprot.cpp" />
     <ClCompile Include="..\PPLib\objtimeseries.cpp" />
     <ClCompile Include="..\PPLib\tsenv.cpp" />
+    <ClCompile Include="..\PPLib\ppmqc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

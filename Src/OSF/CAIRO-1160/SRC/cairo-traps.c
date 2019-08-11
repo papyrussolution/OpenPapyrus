@@ -98,7 +98,7 @@ void _cairo_traps_fini(cairo_traps_t * traps)
 }
 
 /* make room for at least one more trap */
-static cairo_bool_t _cairo_traps_grow(cairo_traps_t * traps)
+static boolint _cairo_traps_grow(cairo_traps_t * traps)
 {
 	cairo_trapezoid_t * new_traps;
 	int new_size = 4 * traps->traps_size;
@@ -212,7 +212,7 @@ void _cairo_traps_tessellate_convex_quad(cairo_traps_t * traps, const cairo_poin
 	int b, c, d;
 	int i;
 	cairo_slope_t ab, ad;
-	cairo_bool_t b_left_of_d;
+	boolint b_left_of_d;
 	cairo_line_t left;
 	cairo_line_t right;
 	/* Choose a as a point with minimal y */
@@ -478,7 +478,7 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 	bottom = bottom_right->y;
 
 	if(traps->num_limits) {
-		cairo_bool_t reversed;
+		boolint reversed;
 		int n;
 
 		if(top >= traps->bounds.p2.y || bottom <= traps->bounds.p1.y)
@@ -626,7 +626,7 @@ void _cairo_trapezoid_array_translate_and_scale(cairo_trapezoid_t * offset_traps
 	}
 }
 
-static cairo_bool_t _cairo_trap_contains(cairo_trapezoid_t * t, const cairo_point_t * pt)
+static boolint _cairo_trap_contains(cairo_trapezoid_t * t, const cairo_point_t * pt)
 {
 	cairo_slope_t slope_left, slope_pt, slope_right;
 	if(t->top > pt->y)
@@ -644,7 +644,7 @@ static cairo_bool_t _cairo_trap_contains(cairo_trapezoid_t * t, const cairo_poin
 	return TRUE;
 }
 
-cairo_bool_t _cairo_traps_contain(const cairo_traps_t * traps, double x, double y)
+boolint _cairo_traps_contain(const cairo_traps_t * traps, double x, double y)
 {
 	int i;
 	cairo_point_t point;
@@ -732,12 +732,12 @@ void _cairo_traps_extents(const cairo_traps_t * traps,
 	}
 }
 
-static cairo_bool_t _mono_edge_is_vertical(const cairo_line_t * line)
+static boolint _mono_edge_is_vertical(const cairo_line_t * line)
 {
 	return _cairo_fixed_integer_round_down(line->p1.x) == _cairo_fixed_integer_round_down(line->p2.x);
 }
 
-static cairo_bool_t _traps_are_pixel_aligned(cairo_traps_t * traps,
+static boolint _traps_are_pixel_aligned(cairo_traps_t * traps,
     cairo_antialias_t antialias)
 {
 	int i;
@@ -831,7 +831,7 @@ cairo_int_status_t _cairo_traps_extract_region(cairo_traps_t * traps, cairo_anti
 	return status;
 }
 
-cairo_bool_t _cairo_traps_to_boxes(cairo_traps_t * traps, cairo_antialias_t antialias, cairo_boxes_t * boxes)
+boolint _cairo_traps_to_boxes(cairo_traps_t * traps, cairo_antialias_t antialias, cairo_boxes_t * boxes)
 {
 	int i;
 	for(i = 0; i < traps->num_traps; i++) {

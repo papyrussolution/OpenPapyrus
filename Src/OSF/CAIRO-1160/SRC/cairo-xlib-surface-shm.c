@@ -47,7 +47,7 @@
 void _cairo_xlib_display_init_shm(cairo_xlib_display_t * display) {
 }
 
-cairo_surface_t * _cairo_xlib_surface_get_shm(cairo_xlib_surface_t * surface, cairo_bool_t overwrite)
+cairo_surface_t * _cairo_xlib_surface_get_shm(cairo_xlib_surface_t * surface, boolint overwrite)
 {
 	return NULL;
 }
@@ -104,13 +104,13 @@ XRenderPictFormat * _cairo_xlib_shm_surface_get_xrender_format(cairo_surface_t *
 	return NULL;
 }
 
-cairo_bool_t _cairo_xlib_shm_surface_is_active(cairo_surface_t * surface)
+boolint _cairo_xlib_shm_surface_is_active(cairo_surface_t * surface)
 {
 	ASSERT_NOT_REACHED;
 	return FALSE;
 }
 
-cairo_bool_t _cairo_xlib_shm_surface_is_idle(cairo_surface_t * surface)
+boolint _cairo_xlib_shm_surface_is_idle(cairo_surface_t * surface)
 {
 	ASSERT_NOT_REACHED;
 	return TRUE;
@@ -201,17 +201,17 @@ struct _cairo_xlib_shm_display {
 	struct pqueue info;
 };
 
-static inline cairo_bool_t seqno_passed(ulong a, ulong b)
+static inline boolint seqno_passed(ulong a, ulong b)
 {
 	return (long)(b - a) >= 0;
 }
 
-static inline cairo_bool_t seqno_before(ulong a, ulong b)
+static inline boolint seqno_before(ulong a, ulong b)
 {
 	return (long)(b - a) > 0;
 }
 
-static inline cairo_bool_t seqno_after(ulong a, ulong b)
+static inline boolint seqno_after(ulong a, ulong b)
 {
 	return (long)(a - b) > 0;
 }
@@ -323,7 +323,7 @@ static inline void _pqueue_pop(struct pqueue * pq)
 	elements[i] = tail;
 }
 
-static cairo_bool_t _x_error_occurred;
+static boolint _x_error_occurred;
 
 static int _check_error_handler(Display * display,
     XErrorEvent * event)
@@ -332,7 +332,7 @@ static int _check_error_handler(Display * display,
 	return False; /* ignored */
 }
 
-static cairo_bool_t can_use_shm(Display * dpy, int * has_pixmap)
+static boolint can_use_shm(Display * dpy, int * has_pixmap)
 {
 	XShmSegmentInfo shm;
 	int (* old_handler) (Display * display, XErrorEvent * event);
@@ -593,7 +593,7 @@ cleanup:
 }
 
 static cairo_xlib_shm_info_t * _cairo_xlib_shm_info_create(cairo_xlib_display_t * display,
-    size_t size, cairo_bool_t will_sync)
+    size_t size, boolint will_sync)
 {
 	cairo_xlib_shm_info_t * info;
 	cairo_xlib_shm_t * pool;
@@ -665,7 +665,7 @@ static cairo_status_t _cairo_xlib_shm_surface_flush(void * abstract_surface, uns
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static inline cairo_bool_t active(cairo_xlib_shm_surface_t * shm, Display * dpy)
+static inline boolint active(cairo_xlib_shm_surface_t * shm, Display * dpy)
 {
 	return (shm->active &&
 	       !seqno_passed(shm->active, LastKnownRequestProcessed(dpy)));
@@ -741,7 +741,7 @@ static const cairo_surface_backend_t cairo_xlib_shm_surface_backend = {
 	_cairo_image_surface_glyphs,
 };
 
-static cairo_bool_t has_shm(cairo_xlib_surface_t * surface)
+static boolint has_shm(cairo_xlib_surface_t * surface)
 {
 	cairo_xlib_display_t * display = (cairo_xlib_display_t*)surface->base.device;
 	return display->shm != NULL;
@@ -759,7 +759,7 @@ static int has_shm_pixmaps(cairo_xlib_surface_t * surface)
 static cairo_xlib_shm_surface_t * _cairo_xlib_shm_surface_create(cairo_xlib_surface_t * other,
     pixman_format_code_t format,
     int width, int height,
-    cairo_bool_t will_sync,
+    boolint will_sync,
     int create_pixmap)
 {
 	cairo_xlib_shm_surface_t * shm;
@@ -947,7 +947,7 @@ static void dec_idle(cairo_surface_t * surface)
 }
 
 cairo_surface_t * _cairo_xlib_surface_get_shm(cairo_xlib_surface_t * surface,
-    cairo_bool_t overwrite)
+    boolint overwrite)
 {
 	if(surface->fallback) {
 		assert(surface->base.damage);
@@ -958,7 +958,7 @@ cairo_surface_t * _cairo_xlib_surface_get_shm(cairo_xlib_surface_t * surface,
 
 	if(surface->shm == NULL) {
 		pixman_format_code_t pixman_format;
-		cairo_bool_t will_sync;
+		boolint will_sync;
 
 		if(!has_shm_pixmaps(surface))
 			return NULL;
@@ -1221,7 +1221,7 @@ XRenderPictFormat * _cairo_xlib_shm_surface_get_xrender_format(cairo_surface_t *
 		   shm->image.pixman_format);
 }
 
-cairo_bool_t _cairo_xlib_shm_surface_is_active(cairo_surface_t * surface)
+boolint _cairo_xlib_shm_surface_is_active(cairo_surface_t * surface)
 {
 	cairo_xlib_shm_surface_t * shm;
 
@@ -1237,7 +1237,7 @@ cairo_bool_t _cairo_xlib_shm_surface_is_active(cairo_surface_t * surface)
 	return TRUE;
 }
 
-cairo_bool_t _cairo_xlib_shm_surface_is_idle(cairo_surface_t * surface)
+boolint _cairo_xlib_shm_surface_is_idle(cairo_surface_t * surface)
 {
 	cairo_xlib_shm_surface_t * shm;
 
@@ -1248,7 +1248,7 @@ cairo_bool_t _cairo_xlib_shm_surface_is_idle(cairo_surface_t * surface)
 #define XORG_VERSION_ENCODE(major, minor, patch, snap) \
 	(((major) * 10000000) + ((minor) * 100000) + ((patch) * 1000) + snap)
 
-static cairo_bool_t has_broken_send_shm_event(cairo_xlib_display_t * display,
+static boolint has_broken_send_shm_event(cairo_xlib_display_t * display,
     cairo_xlib_shm_display_t * shm)
 {
 	Display * dpy = display->display;
@@ -1298,7 +1298,7 @@ static cairo_bool_t has_broken_send_shm_event(cairo_xlib_display_t * display,
 	return _x_error_occurred;
 }
 
-static cairo_bool_t xorg_has_buggy_send_shm_completion_event(cairo_xlib_display_t * display,
+static boolint xorg_has_buggy_send_shm_completion_event(cairo_xlib_display_t * display,
     cairo_xlib_shm_display_t * shm)
 {
 	Display * dpy = display->display;

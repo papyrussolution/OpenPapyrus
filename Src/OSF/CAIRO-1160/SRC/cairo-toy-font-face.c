@@ -280,7 +280,7 @@ UNWIND:
 
 slim_hidden_def(cairo_toy_font_face_create);
 
-static cairo_bool_t _cairo_toy_font_face_destroy(void * abstract_face)
+static boolint _cairo_toy_font_face_destroy(void * abstract_face)
 {
 	cairo_toy_font_face_t * font_face = (cairo_toy_font_face_t *)abstract_face;
 	cairo_hash_table_t * hash_table = _cairo_toy_font_face_hash_table_lock();
@@ -325,7 +325,7 @@ static cairo_font_face_t * _cairo_toy_font_face_get_implementation(void * abstra
 	return (cairo_font_face_t *)abstract_font_face;
 }
 
-static cairo_bool_t _cairo_font_face_is_toy(cairo_font_face_t * font_face)
+static boolint _cairo_font_face_is_toy(cairo_font_face_t * font_face)
 {
 	return font_face->backend == &_cairo_toy_font_face_backend;
 }

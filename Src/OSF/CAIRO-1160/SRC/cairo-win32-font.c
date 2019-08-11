@@ -112,10 +112,10 @@ typedef struct {
 	 * encode the 8 possibilities for orientation (4 rotation angles with
 	 * and without a flip), and scale_x, scale_y the scale components.
 	 */
-	cairo_bool_t preserve_axes;
-	cairo_bool_t swap_axes;
-	cairo_bool_t swap_x;
-	cairo_bool_t swap_y;
+	boolint preserve_axes;
+	boolint swap_axes;
+	boolint swap_x;
+	boolint swap_y;
 	double x_scale;
 	double y_scale;
 	/* The size of the design unit of the font
@@ -123,10 +123,10 @@ typedef struct {
 	int em_square;
 	HFONT scaled_hfont;
 	HFONT unscaled_hfont;
-	cairo_bool_t is_bitmap;
-	cairo_bool_t is_type1;
-	cairo_bool_t delete_scaled_hfont;
-	cairo_bool_t has_type1_notdef_index;
+	boolint is_bitmap;
+	boolint is_type1;
+	boolint delete_scaled_hfont;
+	boolint has_type1_notdef_index;
 	ulong type1_notdef_index;
 } cairo_win32_scaled_font_t;
 
@@ -207,7 +207,7 @@ static cairo_status_t _compute_transform(cairo_win32_scaled_font_t * scaled_font
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _have_cleartype_quality(void)
+static boolint _have_cleartype_quality(void)
 {
 	OSVERSIONINFO version_info;
 	version_info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -417,13 +417,13 @@ static cairo_status_t _cairo_win32_scaled_font_select_unscaled_font(cairo_scaled
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_bool_t _cairo_win32_scaled_font_is_type1(cairo_scaled_font_t * scaled_font)
+boolint _cairo_win32_scaled_font_is_type1(cairo_scaled_font_t * scaled_font)
 {
 	cairo_win32_scaled_font_t * win32_scaled_font = (cairo_win32_scaled_font_t*)scaled_font;
 	return win32_scaled_font->is_type1;
 }
 
-cairo_bool_t _cairo_win32_scaled_font_is_bitmap(cairo_scaled_font_t * scaled_font)
+boolint _cairo_win32_scaled_font_is_bitmap(cairo_scaled_font_t * scaled_font)
 {
 	cairo_win32_scaled_font_t * win32_scaled_font = (cairo_win32_scaled_font_t*)scaled_font;
 	return win32_scaled_font->is_bitmap;
@@ -1186,13 +1186,13 @@ exit1:
 	return status;
 }
 
-static cairo_int_status_t _cairo_win32_scaled_font_is_synthetic(void * abstract_font, cairo_bool_t * is_synthetic)
+static cairo_int_status_t _cairo_win32_scaled_font_is_synthetic(void * abstract_font, boolint * is_synthetic)
 {
 	cairo_win32_scaled_font_t * scaled_font = static_cast<cairo_win32_scaled_font_t *>(abstract_font);
 	cairo_status_t status;
 	int weight;
-	cairo_bool_t bold;
-	cairo_bool_t italic;
+	boolint bold;
+	boolint italic;
 	*is_synthetic = FALSE;
 	status = _cairo_truetype_get_style(&scaled_font->base, &weight, &bold, &italic);
 	/* If this doesn't work assume it is not synthetic to avoid
@@ -1568,7 +1568,7 @@ static void _cairo_win32_font_face_hash_table_unlock(void)
 	CAIRO_MUTEX_UNLOCK(_cairo_win32_font_face_mutex);
 }
 
-static cairo_bool_t _cairo_win32_font_face_destroy(void * abstract_face)
+static boolint _cairo_win32_font_face_destroy(void * abstract_face)
 {
 	cairo_win32_font_face_t * font_face = (cairo_win32_font_face_t *)abstract_face;
 	cairo_hash_table_t * hash_table = _cairo_win32_font_face_hash_table_lock();
@@ -1627,7 +1627,7 @@ static int _cairo_win32_font_face_keys_equal(const void * key_a, const void * ke
 
 /* implement the platform-specific interface */
 
-static cairo_bool_t _is_scale(const cairo_matrix_t * matrix, double scale)
+static boolint _is_scale(const cairo_matrix_t * matrix, double scale)
 {
 	return matrix->xx == scale && matrix->yy == scale && matrix->xy == 0. && matrix->yx == 0. && matrix->x0 == 0. && matrix->y0 == 0.;
 }
@@ -1775,7 +1775,7 @@ cairo_font_face_t * cairo_win32_font_face_create_for_hfont(HFONT font)
 	return cairo_win32_font_face_create_for_logfontw_hfont(&logfont, font);
 }
 
-static cairo_bool_t _cairo_scaled_font_is_win32(cairo_scaled_font_t * scaled_font)
+static boolint _cairo_scaled_font_is_win32(cairo_scaled_font_t * scaled_font)
 {
 	return scaled_font->backend == &_cairo_win32_scaled_font_backend;
 }

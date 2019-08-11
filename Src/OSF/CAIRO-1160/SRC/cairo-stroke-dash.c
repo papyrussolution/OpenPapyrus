@@ -42,7 +42,7 @@
 void _cairo_stroker_dash_start(cairo_stroker_dash_t * dash)
 {
 	double offset;
-	cairo_bool_t on = TRUE;
+	boolint on = TRUE;
 	uint i = 0;
 	if(!dash->dashed)
 		return;

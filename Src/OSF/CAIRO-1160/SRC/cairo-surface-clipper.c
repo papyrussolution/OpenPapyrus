@@ -95,7 +95,7 @@ static cairo_status_t _cairo_surface_clipper_intersect_clip_path_recursive(cairo
 cairo_status_t _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
-	cairo_bool_t incremental = FALSE;
+	boolint incremental = FALSE;
 	if(_cairo_clip_equal(clip, clipper->clip))
 		return CAIRO_STATUS_SUCCESS;
 	/* all clipped out state should never propagate this far */

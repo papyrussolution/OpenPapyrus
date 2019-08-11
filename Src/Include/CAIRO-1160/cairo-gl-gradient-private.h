@@ -88,7 +88,7 @@ _cairo_gl_gradient_reference (cairo_gl_gradient_t *gradient);
 cairo_private void
 _cairo_gl_gradient_destroy (cairo_gl_gradient_t *gradient);
 
-cairo_private cairo_bool_t
+cairo_private boolint
 _cairo_gl_gradient_equal (const void *key_a, const void *key_b);
 
 

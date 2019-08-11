@@ -269,7 +269,7 @@ cairo_status_t _cairo_gstate_redirect_target(cairo_gstate_t * gstate, cairo_surf
  * Return value: %TRUE if @gstate is redirected to a target different
  * than the previous state in the stack, %FALSE otherwise.
  **/
-cairo_bool_t _cairo_gstate_is_group(cairo_gstate_t * gstate)
+boolint _cairo_gstate_is_group(cairo_gstate_t * gstate)
 {
 	return gstate->parent_target != NULL;
 }
@@ -669,7 +669,7 @@ void _do_cairo_gstate_backend_to_user_distance(const cairo_gstate_t * gstate, do
 	cairo_matrix_transform_distance(&gstate->ctm_inverse, x, y);
 }
 
-void _cairo_gstate_backend_to_user_rectangle(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2, cairo_bool_t * is_tight)
+void _cairo_gstate_backend_to_user_rectangle(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2, boolint * is_tight)
 {
 	cairo_matrix_t matrix_inverse;
 	if(!_cairo_matrix_is_identity(&gstate->target->device_transform_inverse) || !_cairo_matrix_is_identity(&gstate->ctm_inverse)) {
@@ -937,7 +937,7 @@ cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate,
     cairo_path_fixed_t * path,
     double x,
     double y,
-    cairo_bool_t * inside_ret)
+    boolint * inside_ret)
 {
 	cairo_status_t status;
 	cairo_rectangle_int_t extents;
@@ -1037,13 +1037,13 @@ cairo_status_t _cairo_gstate_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * 
 	return status;
 }
 
-cairo_bool_t _cairo_gstate_in_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y)
+boolint _cairo_gstate_in_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y)
 {
 	_cairo_gstate_user_to_backend(gstate, &x, &y);
 	return _cairo_path_fixed_in_fill(path, gstate->fill_rule, gstate->tolerance, x, y);
 }
 
-cairo_bool_t _cairo_gstate_in_clip(cairo_gstate_t * gstate, double x, double y)
+boolint _cairo_gstate_in_clip(cairo_gstate_t * gstate, double x, double y)
 {
 	cairo_clip_t * clip = gstate->clip;
 	int i;
@@ -1123,7 +1123,7 @@ cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate, cairo_path_
 {
 	cairo_int_status_t status;
 	cairo_box_t extents;
-	cairo_bool_t empty;
+	boolint empty;
 	if(x1)
 		*x1 = 0.0;
 	if(y1)
@@ -1164,7 +1164,7 @@ cairo_status_t _cairo_gstate_fill_extents(cairo_gstate_t * gstate, cairo_path_fi
 {
 	cairo_status_t status;
 	cairo_box_t extents;
-	cairo_bool_t empty;
+	boolint empty;
 	ASSIGN_PTR(x1, 0.0);
 	ASSIGN_PTR(y1, 0.0);
 	ASSIGN_PTR(x2, 0.0);
@@ -1209,9 +1209,9 @@ cairo_status_t _cairo_gstate_clip(cairo_gstate_t * gstate, cairo_path_fixed_t * 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_gstate_int_clip_extents(cairo_gstate_t * gstate, cairo_rectangle_int_t * extents)
+static boolint _cairo_gstate_int_clip_extents(cairo_gstate_t * gstate, cairo_rectangle_int_t * extents)
 {
-	cairo_bool_t is_bounded = _cairo_surface_get_extents(gstate->target, extents);
+	boolint is_bounded = _cairo_surface_get_extents(gstate->target, extents);
 	if(gstate->clip) {
 		_cairo_rectangle_intersect(extents, _cairo_clip_get_extents(gstate->clip));
 		is_bounded = TRUE;
@@ -1219,7 +1219,7 @@ static cairo_bool_t _cairo_gstate_int_clip_extents(cairo_gstate_t * gstate, cair
 	return is_bounded;
 }
 
-cairo_bool_t _cairo_gstate_clip_extents(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2)
+boolint _cairo_gstate_clip_extents(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2)
 {
 	cairo_rectangle_int_t extents;
 	double px1, py1, px2, py2;
@@ -1659,7 +1659,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate, c
 	cairo_matrix_t * ctm = &gstate->ctm;
 	cairo_matrix_t * font_matrix = &gstate->font_matrix;
 	cairo_matrix_t * device_transform = &gstate->target->device_transform;
-	cairo_bool_t drop = FALSE;
+	boolint drop = FALSE;
 	double x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 	int i, j, k;
 	drop = TRUE;
@@ -1710,7 +1710,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate, c
 		else {
 			const cairo_glyph_t * cur_glyph = (cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD) ? (glyphs + num_glyphs - 1) : glyphs;
 			for(i = 0; i < num_clusters; i++) {
-				cairo_bool_t cluster_visible = FALSE;
+				boolint cluster_visible = FALSE;
 				for(k = 0; k < clusters[i].num_glyphs; k++) {
 					transformed_glyphs[j+k].index = cur_glyph->index;
 					transformed_glyphs[j+k].P = cur_glyph->P;
@@ -1745,7 +1745,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate, c
 		else {
 			const cairo_glyph_t * cur_glyph = (cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD) ? (glyphs + num_glyphs - 1) : glyphs;
 			for(i = 0; i < num_clusters; i++) {
-				cairo_bool_t cluster_visible = FALSE;
+				boolint cluster_visible = FALSE;
 				for(k = 0; k < clusters[i].num_glyphs; k++) {
 					transformed_glyphs[j+k].index = cur_glyph->index;
 					transformed_glyphs[j+k].P.x = cur_glyph->P.x + tx;
@@ -1782,7 +1782,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate, c
 		else {
 			const cairo_glyph_t * cur_glyph = (cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD) ? (glyphs + num_glyphs - 1) : glyphs;
 			for(i = 0; i < num_clusters; i++) {
-				cairo_bool_t cluster_visible = FALSE;
+				boolint cluster_visible = FALSE;
 				for(k = 0; k < clusters[i].num_glyphs; k++) {
 					transformed_glyphs[j+k] = *cur_glyph;
 					cairo_matrix_transform_point(&aggregate_transform, &transformed_glyphs[j+k].P.x, &transformed_glyphs[j+k].P.y);

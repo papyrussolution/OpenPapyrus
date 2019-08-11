@@ -59,7 +59,7 @@ struct _cairo_gstate {
 	cairo_matrix_t ctm;
 	cairo_matrix_t ctm_inverse;
 	cairo_matrix_t source_ctm_inverse; /* At the time ->source was set */
-	cairo_bool_t is_identity;
+	boolint is_identity;
 	cairo_pattern_t * source;
 	struct _cairo_gstate * next;
 };
@@ -70,7 +70,7 @@ cairo_private cairo_status_t _cairo_gstate_init(cairo_gstate_t * gstate,
 cairo_private void _cairo_gstate_fini(cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_save(cairo_gstate_t ** gstate, cairo_gstate_t ** freelist);
 cairo_private cairo_status_t _cairo_gstate_restore(cairo_gstate_t ** gstate, cairo_gstate_t ** freelist);
-cairo_private cairo_bool_t _cairo_gstate_is_group(cairo_gstate_t * gstate);
+cairo_private boolint _cairo_gstate_is_group(cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_redirect_target(cairo_gstate_t * gstate, cairo_surface_t * child);
 cairo_private cairo_surface_t * _cairo_gstate_get_target(cairo_gstate_t * gstate);
 cairo_private cairo_surface_t * _cairo_gstate_get_original_target(cairo_gstate_t * gstate);
@@ -138,7 +138,7 @@ static inline void _cairo_gstate_backend_to_user_distance(const cairo_gstate_t *
 		_do_cairo_gstate_backend_to_user_distance(gstate, x, y);
 }
 
-cairo_private void _cairo_gstate_backend_to_user_rectangle(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2, cairo_bool_t * is_tight);
+cairo_private void _cairo_gstate_backend_to_user_rectangle(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2, boolint * is_tight);
 cairo_private void _cairo_gstate_path_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2);
 cairo_private cairo_status_t _cairo_gstate_paint(cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_mask(cairo_gstate_t * gstate, cairo_pattern_t * mask);
@@ -148,12 +148,12 @@ cairo_private cairo_status_t _cairo_gstate_copy_page(cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_show_page(cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2);
 cairo_private cairo_status_t _cairo_gstate_fill_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2);
-cairo_private cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y, cairo_bool_t * inside_ret);
-cairo_private cairo_bool_t _cairo_gstate_in_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y);
-cairo_private cairo_bool_t _cairo_gstate_in_clip(cairo_gstate_t * gstate, double x, double y);
+cairo_private cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y, boolint * inside_ret);
+cairo_private boolint _cairo_gstate_in_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y);
+cairo_private boolint _cairo_gstate_in_clip(cairo_gstate_t * gstate, double x, double y);
 cairo_private cairo_status_t _cairo_gstate_clip(cairo_gstate_t * gstate, cairo_path_fixed_t * path);
 cairo_private cairo_status_t _cairo_gstate_reset_clip(cairo_gstate_t * gstate);
-cairo_private cairo_bool_t _cairo_gstate_clip_extents(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2);
+cairo_private boolint _cairo_gstate_clip_extents(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2);
 cairo_private cairo_rectangle_list_t* _cairo_gstate_copy_clip_rectangle_list(cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_show_surface(cairo_gstate_t * gstate, cairo_surface_t * surface, double x, double y, double width, double height);
 cairo_private cairo_status_t _cairo_gstate_tag_begin(cairo_gstate_t * gstate, const char * tag_name, const char * attributes);

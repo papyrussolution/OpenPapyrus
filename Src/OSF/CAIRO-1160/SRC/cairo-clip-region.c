@@ -53,7 +53,7 @@ static void FASTCALL _cairo_clip_extract_region(cairo_clip_t * clip)
 {
 	cairo_rectangle_int_t stack_rects[CAIRO_STACK_ARRAY_LENGTH(cairo_rectangle_int_t)];
 	cairo_rectangle_int_t * r = stack_rects;
-	cairo_bool_t is_region;
+	boolint is_region;
 	int i;
 	if(clip->num_boxes == 0)
 		return;
@@ -89,7 +89,7 @@ cairo_region_t * FASTCALL _cairo_clip_get_region(const cairo_clip_t * clip)
 	return clip->region;
 }
 
-cairo_bool_t FASTCALL _cairo_clip_is_region(const cairo_clip_t * clip)
+boolint FASTCALL _cairo_clip_is_region(const cairo_clip_t * clip)
 {
 	if(clip == NULL)
 		return TRUE;

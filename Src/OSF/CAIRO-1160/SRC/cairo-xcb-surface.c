@@ -235,7 +235,7 @@ static void _destroy_image(pixman_image_t * image, void * data)
 static cairo_surface_t * _cairo_xcb_surface_create_shm_image(cairo_xcb_connection_t * connection,
     pixman_format_code_t pixman_format,
     int width, int height,
-    cairo_bool_t might_reuse,
+    boolint might_reuse,
     cairo_xcb_shm_info_t ** shm_info_out)
 {
 	cairo_surface_t * image;
@@ -322,7 +322,7 @@ done:
 }
 
 static cairo_surface_t * _get_image(cairo_xcb_surface_t * surface,
-    cairo_bool_t use_shm,
+    boolint use_shm,
     int x, int y,
     int width, int height)
 {
@@ -505,7 +505,7 @@ static void _cairo_xcb_surface_release_source_image(void * abstract_surface,
 	cairo_surface_destroy(&image->base);
 }
 
-cairo_bool_t _cairo_xcb_surface_get_extents(void * abstract_surface,
+boolint _cairo_xcb_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * extents)
 {
 	cairo_xcb_surface_t * surface = abstract_surface;
@@ -862,7 +862,7 @@ static cairo_int_status_t _cairo_xcb_fallback_compositor_glyphs(const cairo_comp
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	cairo_xcb_surface_t * surface = (cairo_xcb_surface_t*)extents->surface;
 	cairo_surface_t * fallback = _cairo_xcb_surface_fallback(surface, extents);
@@ -1007,7 +1007,7 @@ const cairo_surface_backend_t _cairo_xcb_surface_backend = {
 	_cairo_xcb_surface_glyphs,
 };
 
-cairo_surface_t * _cairo_xcb_surface_create_internal(cairo_xcb_screen_t * screen, xcb_drawable_t drawable, cairo_bool_t owns_pixmap,
+cairo_surface_t * _cairo_xcb_surface_create_internal(cairo_xcb_screen_t * screen, xcb_drawable_t drawable, boolint owns_pixmap,
     pixman_format_code_t pixman_format, xcb_render_pictformat_t xrender_format, int width, int height)
 {
 	cairo_xcb_surface_t * surface = _cairo_malloc(sizeof(cairo_xcb_surface_t));

@@ -46,7 +46,7 @@ typedef struct cairo_filler {
 	cairo_polygon_t * polygon;
 	double tolerance;
 	cairo_box_t limit;
-	cairo_bool_t has_limits;
+	boolint has_limits;
 	cairo_point_t current_point;
 	cairo_point_t last_move_to;
 } cairo_filler_t;

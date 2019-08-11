@@ -150,13 +150,13 @@ static const cairo_device_backend_t _cairo_gl_device_backend = {
 	_gl_destroy,
 };
 
-static cairo_bool_t _cairo_gl_msaa_compositor_enabled(void)
+static boolint _cairo_gl_msaa_compositor_enabled(void)
 {
 	const char * env = getenv("CAIRO_GL_COMPOSITOR");
 	return env && strcmp(env, "msaa") == 0;
 }
 
-static cairo_bool_t test_can_read_bgra(cairo_gl_flavor_t gl_flavor)
+static boolint test_can_read_bgra(cairo_gl_flavor_t gl_flavor)
 {
 	/* Desktop GL always supports BGRA formats. */
 	if(gl_flavor == CAIRO_GL_FLAVOR_DESKTOP)
@@ -180,8 +180,8 @@ cairo_status_t _cairo_gl_context_init(cairo_gl_context_t * ctx)
 	cairo_gl_flavor_t gl_flavor = _cairo_gl_get_flavor();
 	int n;
 
-	cairo_bool_t is_desktop = gl_flavor == CAIRO_GL_FLAVOR_DESKTOP;
-	cairo_bool_t is_gles = (gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
+	boolint is_desktop = gl_flavor == CAIRO_GL_FLAVOR_DESKTOP;
+	boolint is_gles = (gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
 	    gl_flavor == CAIRO_GL_FLAVOR_ES2);
 
 	_cairo_device_init(&ctx->base, &_cairo_gl_device_backend);
@@ -483,7 +483,7 @@ static void _cairo_gl_ensure_multisampling(cairo_gl_context_t * ctx,
 
 #endif
 
-static cairo_bool_t _cairo_gl_ensure_msaa_depth_stencil_buffer(cairo_gl_context_t * ctx,
+static boolint _cairo_gl_ensure_msaa_depth_stencil_buffer(cairo_gl_context_t * ctx,
     cairo_gl_surface_t * surface)
 {
 	cairo_gl_dispatch_t * dispatch = &ctx->dispatch;
@@ -539,7 +539,7 @@ static cairo_bool_t _cairo_gl_ensure_msaa_depth_stencil_buffer(cairo_gl_context_
 	return TRUE;
 }
 
-static cairo_bool_t _cairo_gl_ensure_depth_stencil_buffer(cairo_gl_context_t * ctx,
+static boolint _cairo_gl_ensure_depth_stencil_buffer(cairo_gl_context_t * ctx,
     cairo_gl_surface_t * surface)
 {
 	cairo_gl_dispatch_t * dispatch = &ctx->dispatch;
@@ -568,7 +568,7 @@ static cairo_bool_t _cairo_gl_ensure_depth_stencil_buffer(cairo_gl_context_t * c
 	return TRUE;
 }
 
-cairo_bool_t _cairo_gl_ensure_stencil(cairo_gl_context_t * ctx,
+boolint _cairo_gl_ensure_stencil(cairo_gl_context_t * ctx,
     cairo_gl_surface_t * surface)
 {
 	if(!_cairo_gl_surface_is_texture(surface))
@@ -625,8 +625,8 @@ static void _gl_identity_ortho(GLfloat * m,
 static void bind_multisample_framebuffer(cairo_gl_context_t * ctx,
     cairo_gl_surface_t * surface)
 {
-	cairo_bool_t stencil_test_enabled;
-	cairo_bool_t scissor_test_enabled;
+	boolint stencil_test_enabled;
+	boolint scissor_test_enabled;
 
 	assert(surface->supports_msaa);
 	assert(ctx->gl_flavor == CAIRO_GL_FLAVOR_DESKTOP ||
@@ -685,8 +685,8 @@ static void bind_multisample_framebuffer(cairo_gl_context_t * ctx,
 static void bind_singlesample_framebuffer(cairo_gl_context_t * ctx,
     cairo_gl_surface_t * surface)
 {
-	cairo_bool_t stencil_test_enabled;
-	cairo_bool_t scissor_test_enabled;
+	boolint stencil_test_enabled;
+	boolint scissor_test_enabled;
 
 	assert(ctx->gl_flavor == CAIRO_GL_FLAVOR_DESKTOP ||
 	    ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3);
@@ -732,7 +732,7 @@ static void bind_singlesample_framebuffer(cairo_gl_context_t * ctx,
 
 void _cairo_gl_context_bind_framebuffer(cairo_gl_context_t * ctx,
     cairo_gl_surface_t * surface,
-    cairo_bool_t multisampling)
+    boolint multisampling)
 {
 	if(_cairo_gl_surface_is_texture(surface)) {
 		/* OpenGL ES surfaces only have either a multisample framebuffer or a
@@ -767,9 +767,9 @@ void _cairo_gl_context_bind_framebuffer(cairo_gl_context_t * ctx,
 		surface->msaa_active = multisampling;
 }
 
-void _cairo_gl_context_set_destination(cairo_gl_context_t * ctx, cairo_gl_surface_t * surface, cairo_bool_t multisampling)
+void _cairo_gl_context_set_destination(cairo_gl_context_t * ctx, cairo_gl_surface_t * surface, boolint multisampling)
 {
-	cairo_bool_t changing_surface, changing_sampling;
+	boolint changing_surface, changing_sampling;
 	/* The decision whether or not to use multisampling happens when
 	 * we create an OpenGL ES surface, so we can never switch modes. */
 	if(ctx->gl_flavor == CAIRO_GL_FLAVOR_ES2)
@@ -808,7 +808,7 @@ void _cairo_gl_context_set_destination(cairo_gl_context_t * ctx, cairo_gl_surfac
 		_gl_identity_ortho(ctx->modelviewprojection_matrix, 0, surface->width, surface->height, 0);
 }
 
-void cairo_gl_device_set_thread_aware(cairo_device_t * device, cairo_bool_t thread_aware)
+void cairo_gl_device_set_thread_aware(cairo_device_t * device, boolint thread_aware)
 {
 	if(device->backend->type != CAIRO_DEVICE_TYPE_GL) {
 		_cairo_error_throw(CAIRO_STATUS_DEVICE_TYPE_MISMATCH);

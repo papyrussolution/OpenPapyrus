@@ -112,7 +112,7 @@ cairo_status_t FASTCALL _cairo_win32_print_gdi_error(const char * context)
 	return _cairo_error(CAIRO_STATUS_WIN32_GDI_ERROR);
 }
 
-cairo_bool_t _cairo_win32_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
+boolint _cairo_win32_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
 	cairo_win32_surface_t * surface = static_cast<cairo_win32_surface_t *>(abstract_surface);
 	*rectangle = surface->extents;
@@ -155,7 +155,7 @@ HDC cairo_win32_surface_get_dc(cairo_surface_t * surface)
  *
  * Return value: %TRUE if the surface is an win32 surface
  **/
-static inline cairo_bool_t _cairo_surface_is_win32(const cairo_surface_t * surface)
+static inline boolint _cairo_surface_is_win32(const cairo_surface_t * surface)
 {
 	/* _cairo_surface_nil sets a NULL backend so be safe */
 	return surface->backend && surface->backend->type == CAIRO_SURFACE_TYPE_WIN32;
@@ -184,7 +184,7 @@ cairo_surface_t * cairo_win32_surface_get_image(cairo_surface_t * surface)
 
 #define STACK_GLYPH_SIZE 256
 cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t * dst, const cairo_pattern_t * source,
-    cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, cairo_bool_t glyph_indexing)
+    cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, boolint glyph_indexing)
 {
 #if CAIRO_HAS_WIN32_FONT
 	WORD glyph_buf_stack[STACK_GLYPH_SIZE];

@@ -129,7 +129,7 @@ cairo_int_status_t _cairo_contour_add(cairo_contour_t * dst, const cairo_contour
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
-static inline cairo_bool_t iter_next(cairo_contour_iter_t * iter)
+static inline boolint iter_next(cairo_contour_iter_t * iter)
 {
 	if(iter->point == &iter->chain->points[iter->chain->size_points-1]) {
 		iter->chain = iter->chain->next;
@@ -144,7 +144,7 @@ static inline cairo_bool_t iter_next(cairo_contour_iter_t * iter)
 	}
 }
 
-static cairo_bool_t iter_equal(const cairo_contour_iter_t * i1, const cairo_contour_iter_t * i2)
+static boolint iter_equal(const cairo_contour_iter_t * i1, const cairo_contour_iter_t * i2)
 {
 	return i1->chain == i2->chain && i1->point == i2->point;
 }
@@ -198,7 +198,7 @@ static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_po
 #define DELETED(p) ((p)->x == INT_MIN && (p)->y == INT_MAX)
 #define MARK_DELETED(p) ((p)->x = INT_MIN, (p)->y = INT_MAX)
 
-static cairo_bool_t _cairo_contour_simplify_chain(cairo_contour_t * contour, const double tolerance, const cairo_contour_iter_t * first, const cairo_contour_iter_t * last)
+static boolint _cairo_contour_simplify_chain(cairo_contour_t * contour, const double tolerance, const cairo_contour_iter_t * first, const cairo_contour_iter_t * last)
 {
 	cairo_contour_iter_t iter, furthest;
 	uint64_t max_error;
@@ -231,7 +231,7 @@ static cairo_bool_t _cairo_contour_simplify_chain(cairo_contour_t * contour, con
 		return FALSE;
 
 	if(max_error > tolerance * ((uint64_t)nx * nx + (uint64_t)ny * ny)) {
-		cairo_bool_t simplified;
+		boolint simplified;
 		simplified = FALSE;
 		simplified |= _cairo_contour_simplify_chain(contour, tolerance, first, &furthest);
 		simplified |= _cairo_contour_simplify_chain(contour, tolerance, &furthest, last);
@@ -254,7 +254,7 @@ void _cairo_contour_simplify(cairo_contour_t * contour, double tolerance)
 	cairo_contour_chain_t * chain;
 	cairo_point_t * last = NULL;
 	cairo_contour_iter_t iter, furthest;
-	cairo_bool_t simplified;
+	boolint simplified;
 	uint64_t max = 0;
 	int i;
 	if(contour->chain.num_points <= 2)

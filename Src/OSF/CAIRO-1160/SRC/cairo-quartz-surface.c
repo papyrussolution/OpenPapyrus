@@ -121,7 +121,7 @@ static void (* CGContextSetAllowsFontSmoothingPtr) (CGContextRef, bool) = NULL;
 static uint (* CGContextGetTypePtr) (CGContextRef) = NULL;
 static bool (* CGContextGetAllowsFontSmoothingPtr) (CGContextRef) = NULL;
 
-static cairo_bool_t _cairo_quartz_symbol_lookup_done = FALSE;
+static boolint _cairo_quartz_symbol_lookup_done = FALSE;
 
 /*
  * Utility functions
@@ -157,7 +157,7 @@ CGImageRef CairoQuartzCreateCGImage(cairo_format_t format,
     uint height,
     uint stride,
     void * data,
-    cairo_bool_t interpolate,
+    boolint interpolate,
     CGColorSpaceRef colorSpaceOverride,
     CGDataProviderReleaseDataCallback releaseCallback,
     void * releaseInfo)
@@ -248,7 +248,7 @@ FINISH:
 	return image;
 }
 
-static inline cairo_bool_t _cairo_quartz_is_cgcontext_bitmap_context(CGContextRef cgc)
+static inline boolint _cairo_quartz_is_cgcontext_bitmap_context(CGContextRef cgc)
 {
 	if(unlikely(cgc == NULL))
 		return FALSE;
@@ -268,7 +268,7 @@ static inline cairo_bool_t _cairo_quartz_is_cgcontext_bitmap_context(CGContextRe
 #define CG_MAX_WIDTH    USHRT_MAX
 
 /* is the desired size of the surface within bounds? */
-cairo_bool_t _cairo_quartz_verify_surface_size(int width, int height)
+boolint _cairo_quartz_verify_surface_size(int width, int height)
 {
 	/* hmmm, allow width, height == 0 ? */
 	if(width < 0 || height < 0)
@@ -863,7 +863,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t * source,
 typedef struct {
 	CGImageRef image;
 	CGRect imageBounds;
-	cairo_bool_t do_reflect;
+	boolint do_reflect;
 } SurfacePatternDrawInfo;
 
 static void SurfacePatternDrawFunc(void * ainfo, CGContextRef context)
@@ -925,7 +925,7 @@ static cairo_int_status_t _cairo_quartz_cairo_repeating_surface_pattern_to_quart
 	SurfacePatternDrawInfo * info;
 	cairo_quartz_float_t rw, rh;
 	cairo_status_t status;
-	cairo_bool_t is_bounded;
+	boolint is_bounded;
 
 	cairo_matrix_t m;
 
@@ -1109,7 +1109,7 @@ static cairo_int_status_t _cairo_quartz_setup_state(cairo_quartz_drawing_state_t
 	cairo_operator_t op = composite->op;
 	const cairo_pattern_t * source = &composite->source_pattern.base;
 	const cairo_clip_t * clip = composite->clip;
-	cairo_bool_t needs_temp;
+	boolint needs_temp;
 	cairo_status_t status;
 	cairo_format_t format = _cairo_format_from_content(composite->surface->content);
 
@@ -1221,7 +1221,7 @@ static cairo_int_status_t _cairo_quartz_setup_state(cairo_quartz_drawing_state_t
 		CGAffineTransform xform;
 		CGRect srcRect;
 		cairo_fixed_t fw, fh;
-		cairo_bool_t is_bounded;
+		boolint is_bounded;
 
 		_cairo_surface_get_extents(composite->surface, &extents);
 		status = _cairo_surface_to_cgimage(pat_surf, &extents, format,
@@ -1567,7 +1567,7 @@ static cairo_surface_t * _cairo_quartz_surface_create_similar(void * abstract_su
 	return similar;
 }
 
-static cairo_bool_t _cairo_quartz_surface_get_extents(void * abstract_surface,
+static boolint _cairo_quartz_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * extents)
 {
 	cairo_quartz_surface_t * surface = (cairo_quartz_surface_t*)abstract_surface;
@@ -1680,7 +1680,7 @@ static cairo_int_status_t _cairo_quartz_cg_mask(const cairo_compositor_t * compo
 	cairo_surface_t * mask_surf;
 	cairo_matrix_t matrix;
 	cairo_status_t status;
-	cairo_bool_t need_temp;
+	boolint need_temp;
 	CGInterpolationQuality filter;
 
 	ND((stderr, "%p _cairo_quartz_surface_mask op %d source->type %d mask->type %d\n",
@@ -1706,7 +1706,7 @@ static cairo_int_status_t _cairo_quartz_cg_mask(const cairo_compositor_t * compo
 
 	if(!need_temp) {
 		CGInterpolationQuality mask_filter;
-		cairo_bool_t simple_transform;
+		boolint simple_transform;
 
 		matrix = mask->matrix;
 
@@ -1893,7 +1893,7 @@ static cairo_int_status_t _cairo_quartz_cg_glyphs(const cairo_compositor_t * com
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	CGAffineTransform textTransform, invTextTransform;
 	CGGlyph glyphs_static[CAIRO_STACK_ARRAY_LENGTH(CGSize)];
@@ -1908,7 +1908,7 @@ static cairo_int_status_t _cairo_quartz_cg_glyphs(const cairo_compositor_t * com
 	int i;
 	CGFontRef cgfref = NULL;
 
-	cairo_bool_t didForceFontSmoothing = FALSE;
+	boolint didForceFontSmoothing = FALSE;
 
 	if(cairo_scaled_font_get_type(scaled_font) != CAIRO_FONT_TYPE_QUARTZ)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -2388,7 +2388,7 @@ CGContextRef cairo_quartz_surface_get_cg_context(cairo_surface_t * surface)
  *
  * Return value: True if the surface is an quartz surface
  **/
-cairo_bool_t _cairo_surface_is_quartz(const cairo_surface_t * surface)
+boolint _cairo_surface_is_quartz(const cairo_surface_t * surface)
 {
 	return surface->backend == &cairo_quartz_surface_backend;
 }

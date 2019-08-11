@@ -437,7 +437,7 @@ static ngx_int_t ngx_http_gzip_filter_gzheader(ngx_http_request_t * r, ngx_http_
 {
 	ngx_chain_t  * cl;
 	static u_char gzheader[10] = { 0x1f, 0x8b, Z_DEFLATED, 0, 0, 0, 0, 0, 0, 3 };
-	ngx_buf_t * b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+	ngx_buf_t * b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 	if(!b) {
 		return NGX_ERROR;
 	}

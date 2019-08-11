@@ -43,10 +43,10 @@
 CAIRO_BEGIN_DECLS
 
 typedef struct _cairo_stroker_dash {
-	cairo_bool_t dashed;
+	boolint dashed;
 	uint dash_index;
-	cairo_bool_t dash_on;
-	cairo_bool_t dash_starts_on;
+	boolint dash_on;
+	boolint dash_starts_on;
 	double dash_remain;
 	double dash_offset;
 	const double * dashes;

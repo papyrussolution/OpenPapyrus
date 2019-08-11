@@ -84,7 +84,7 @@ struct _cairo_vg_surface {
 	VGImageFormat format;
 	int width;
 	int height;
-	cairo_bool_t own_image;
+	boolint own_image;
 	cairo_cache_entry_t snapshot_cache_entry;
 	cairo_surface_clipper_t clipper;
 	ulong target_id;
@@ -140,7 +140,7 @@ static void _vg_context_destroy_target(cairo_vg_context_t * context,
 	context->destroy_target(context, surface);
 }
 
-static cairo_bool_t _vg_snapshot_cache_can_remove(const void * entry)
+static boolint _vg_snapshot_cache_can_remove(const void * entry)
 {
 	return TRUE;
 }
@@ -213,7 +213,7 @@ static void check_vg_errors(const char* function, int line)
 #endif //OPENVG_DEBUG
 
 static pixman_format_code_t _vg_format_to_pixman(VGImageFormat format,
-    cairo_bool_t * needs_premult_fixup)
+    boolint * needs_premult_fixup)
 {
 	*needs_premult_fixup = FALSE;
 	switch(format) {
@@ -414,7 +414,7 @@ static cairo_status_t _vg_surface_clipper_intersect_clip_path(cairo_surface_clip
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _vg_surface_get_extents(void * abstract_surface,
+static boolint _vg_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * extents)
 {
 	cairo_vg_surface_t * surface = abstract_surface;
@@ -561,7 +561,7 @@ static void _vg_path_from_cairo(vg_path_t * vg_path,
 	CHECK_VG_ERRORS();
 }
 
-static cairo_bool_t _vg_is_supported_operator(cairo_operator_t op)
+static boolint _vg_is_supported_operator(cairo_operator_t op)
 {
 	switch((int)op) {
 		case CAIRO_OPERATOR_SOURCE:
@@ -1322,7 +1322,7 @@ static cairo_int_status_t _vg_get_image(cairo_vg_surface_t * surface,
 	cairo_image_surface_t * image;
 	pixman_image_t * pixman_image;
 	pixman_format_code_t pixman_format;
-	cairo_bool_t needs_premultiply;
+	boolint needs_premultiply;
 
 	pixman_format = _vg_format_to_pixman(surface->format,
 		&needs_premultiply);
@@ -1458,7 +1458,7 @@ static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * contex
 
 cairo_surface_t * cairo_vg_surface_create_for_image(cairo_vg_context_t * context, VGImage image, VGImageFormat format, int width, int height)
 {
-	cairo_bool_t premult;
+	boolint premult;
 	if(context->status)
 		return _cairo_surface_create_in_error(context->status);
 	if(image == VG_INVALID_HANDLE)
@@ -1649,7 +1649,7 @@ static cairo_status_t egl_create_target(cairo_vg_context_t * context,
 	pixman_format_code_t pixman_format;
 	EGLConfig config;
 	int num_configs = 0;
-	cairo_bool_t needs_premultiply;
+	boolint needs_premultiply;
 
 	pixman_format = _vg_format_to_pixman(surface->format, &needs_premultiply);
 	if(pixman_format == 0)

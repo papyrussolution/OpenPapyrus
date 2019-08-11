@@ -110,7 +110,7 @@ FT_Bitmap_Copy(FT_Library library,
 
 		if(source_pitch_sign == target_pitch_sign)
 			FT_MEM_COPY(target->buffer, source->buffer, size);
-		else{
+		else {
 			/* take care of bitmap flow */
 			FT_UInt i;
 			FT_Byte*  s = source->buffer;
@@ -217,7 +217,7 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory,
 			    bitmap->buffer + (FT_UInt)pitch * i,
 			    len);
 	}
-	else{
+	else {
 		FT_UInt len = ( width * bpp + 7 ) >> 3;
 
 		for(i = 0; i < bitmap->rows; i++)
@@ -315,7 +315,7 @@ FT_Bitmap_Embolden(FT_Library library,
 	pitch = bitmap->pitch;
 	if(pitch > 0)
 		p = bitmap->buffer + pitch * ystr;
-	else{
+	else {
 		pitch = -pitch;
 		p = bitmap->buffer + (FT_UInt)pitch * ( bitmap->rows - 1 );
 	}
@@ -345,13 +345,13 @@ FT_Bitmap_Embolden(FT_Library library,
 						break;
 #endif
 				}
-				else{
+				else {
 					if(x - i >= 0) {
 						if(p[x] + p[x - i] > bitmap->num_grays - 1) {
 							p[x] = (unsigned char)( bitmap->num_grays - 1 );
 							break;
 						}
-						else{
+						else {
 							p[x] = (unsigned char)( p[x] + p[x - i] );
 							if(p[x] == bitmap->num_grays - 1)
 								break;

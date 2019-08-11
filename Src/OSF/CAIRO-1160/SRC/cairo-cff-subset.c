@@ -109,7 +109,7 @@ typedef struct _cff_header {
 } cff_header_t;
 
 typedef struct _cff_index_element {
-	cairo_bool_t is_copy;
+	boolint is_copy;
 	uchar * data;
 	int length;
 } cff_index_element_t;
@@ -142,8 +142,8 @@ typedef struct _cairo_cff_font {
 	cairo_array_t local_sub_index;
 	uchar * charset;
 	int num_glyphs;
-	cairo_bool_t is_cid;
-	cairo_bool_t is_opentype;
+	boolint is_cid;
+	boolint is_opentype;
 	int units_per_em;
 	int global_sub_bias;
 	int local_sub_bias;
@@ -169,10 +169,10 @@ typedef struct _cairo_cff_font {
 	uint num_subset_fontdicts;
 	int * fd_subset_map;
 	int * private_dict_offset;
-	cairo_bool_t subset_subroutines;
-	cairo_bool_t * global_subs_used;
-	cairo_bool_t * local_subs_used;
-	cairo_bool_t ** fd_local_subs_used;
+	boolint subset_subroutines;
+	boolint * global_subs_used;
+	boolint * local_subs_used;
+	boolint ** fd_local_subs_used;
 	cairo_array_t output;
 
 	/* Subset Metrics */
@@ -183,15 +183,15 @@ typedef struct _cairo_cff_font {
 	/* Type 2 charstring data */
 	int type2_stack_size;
 	int type2_stack_top_value;
-	cairo_bool_t type2_stack_top_is_int;
+	boolint type2_stack_top_is_int;
 	int type2_num_hints;
 	int type2_hintmask_bytes;
 	int type2_nesting_level;
-	cairo_bool_t type2_seen_first_int;
-	cairo_bool_t type2_find_width;
-	cairo_bool_t type2_found_width;
+	boolint type2_seen_first_int;
+	boolint type2_find_width;
+	boolint type2_found_width;
 	int type2_width;
-	cairo_bool_t type2_has_path;
+	boolint type2_has_path;
 } cairo_cff_font_t;
 
 /* Encoded integer using maximum sized encoding. This is required for
@@ -550,7 +550,7 @@ static void cff_index_fini(cairo_array_t * index)
 	_cairo_array_fini(index);
 }
 
-static cairo_bool_t _cairo_cff_dict_equal(const void * key_a, const void * key_b)
+static boolint _cairo_cff_dict_equal(const void * key_a, const void * key_b)
 {
 	const cff_dict_operator_t * op_a = (const cff_dict_operator_t *)key_a;
 	const cff_dict_operator_t * op_b = (const cff_dict_operator_t *)key_b;
@@ -808,7 +808,7 @@ static cairo_int_status_t cairo_cff_font_read_private_dict(cairo_cff_font_t * fo
     cairo_hash_table_t * private_dict,
     cairo_array_t * local_sub_index,
     int * local_sub_bias,
-    cairo_bool_t  ** local_subs_used,
+    boolint  ** local_subs_used,
     double * default_width,
     double * nominal_width,
     uchar * ptr,
@@ -850,7 +850,7 @@ static cairo_int_status_t cairo_cff_font_read_private_dict(cairo_cff_font_t * fo
 	if(operand)
 		decode_number(operand, nominal_width);
 	num_subs = _cairo_array_num_elements(local_sub_index);
-	*local_subs_used = (cairo_bool_t *)SAlloc::C(num_subs, sizeof(cairo_bool_t));
+	*local_subs_used = (boolint *)SAlloc::C(num_subs, sizeof(boolint));
 	if(unlikely(*local_subs_used == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(num_subs < 1240)
@@ -928,7 +928,7 @@ static cairo_int_status_t cairo_cff_font_read_cid_fontdict(cairo_cff_font_t * fo
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail;
 	}
-	font->fd_local_subs_used = (cairo_bool_t **)SAlloc::C(sizeof(cairo_bool_t *), font->num_fontdicts);
+	font->fd_local_subs_used = (boolint **)SAlloc::C(sizeof(boolint *), font->num_fontdicts);
 	if(unlikely(font->fd_local_subs_used == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail;
@@ -1189,7 +1189,7 @@ static cairo_int_status_t cairo_cff_font_read_global_subroutines(cairo_cff_font_
 	if(unlikely(status))
 		return status;
 	num_subs = _cairo_array_num_elements(&font->global_sub_index);
-	font->global_subs_used = (cairo_bool_t *)SAlloc::C(num_subs, sizeof(cairo_bool_t));
+	font->global_subs_used = (boolint *)SAlloc::C(num_subs, sizeof(boolint));
 	if(unlikely(font->global_subs_used == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(num_subs < 1240)
@@ -1350,7 +1350,7 @@ static uchar * type2_decode_integer(uchar * p, int * integer)
  * type2_find_width is set to FALSE and type2_found_width is set to
  * TRUE if an extra argument is found, otherwise FALSE.
  */
-static cairo_status_t cairo_cff_parse_charstring(cairo_cff_font_t * font, uchar * charstring, int length, int glyph_id, cairo_bool_t need_width)
+static cairo_status_t cairo_cff_parse_charstring(cairo_cff_font_t * font, uchar * charstring, int length, int glyph_id, boolint need_width)
 {
 	uchar * p = charstring;
 	uchar * end = charstring + length;
@@ -2217,7 +2217,7 @@ static cairo_status_t cairo_cff_font_write_local_sub(cairo_cff_font_t * font,
     int dict_num,
     cairo_hash_table_t * private_dict,
     cairo_array_t * local_sub_index,
-    cairo_bool_t * local_subs_used)
+    boolint * local_subs_used)
 {
 	int offset;
 	int size;
@@ -2459,7 +2459,7 @@ static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * fo
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t check_fontdata_is_cff(const uchar * data, long length)
+static boolint check_fontdata_is_cff(const uchar * data, long length)
 {
 	cff_header_t * header;
 
@@ -2570,7 +2570,7 @@ static cairo_int_status_t _cairo_cff_font_create(cairo_scaled_font_subset_t * sc
 {
 	const cairo_scaled_font_backend_t * backend;
 	cairo_int_status_t status;
-	cairo_bool_t is_synthetic;
+	boolint is_synthetic;
 	cairo_cff_font_t * font;
 	backend = scaled_font_subset->scaled_font->backend;
 	/* We need to use a fallback font if this font differs from the CFF outlines. */
@@ -2804,7 +2804,7 @@ void _cairo_cff_subset_fini(cairo_cff_subset_t * subset)
 	SAlloc::F(subset->data);
 }
 
-cairo_bool_t _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font)
+boolint _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font)
 {
 	const cairo_scaled_font_backend_t * backend;
 	cairo_int_status_t status;
@@ -2817,7 +2817,7 @@ cairo_bool_t _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font
 	cairo_hash_table_t * top_dict;
 	cairo_array_t index;
 	int size;
-	cairo_bool_t is_cid = FALSE;
+	boolint is_cid = FALSE;
 	backend = scaled_font->backend;
 	data = NULL;
 	data_length = 0;

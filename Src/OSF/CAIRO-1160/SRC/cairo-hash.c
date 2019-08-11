@@ -127,7 +127,7 @@ struct _cairo_hash_table {
  *
  * Return value: %TRUE.
  **/
-static cairo_bool_t _cairo_hash_table_uid_keys_equal(const void * key_a, const void * key_b)
+static boolint _cairo_hash_table_uid_keys_equal(const void * key_a, const void * key_b)
 {
 	return TRUE;
 }

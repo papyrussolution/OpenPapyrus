@@ -288,7 +288,7 @@ static cairo_int_status_t analyze_surface_pattern_transparency(cairo_win32_print
 	return status;
 }
 
-static cairo_bool_t surface_pattern_supported(const cairo_surface_pattern_t * pattern)
+static boolint surface_pattern_supported(const cairo_surface_pattern_t * pattern)
 {
 	if(_cairo_surface_is_recording(pattern->surface))
 		return TRUE;
@@ -298,7 +298,7 @@ static cairo_bool_t surface_pattern_supported(const cairo_surface_pattern_t * pa
 		return TRUE;
 }
 
-static cairo_bool_t pattern_supported(cairo_win32_printing_surface_t * surface, const cairo_pattern_t * pattern)
+static boolint pattern_supported(cairo_win32_printing_surface_t * surface, const cairo_pattern_t * pattern)
 {
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID: return TRUE;
@@ -343,7 +343,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_analyze_operation(cairo_
 		return CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY;
 }
 
-static cairo_bool_t _cairo_win32_printing_surface_operation_supported(cairo_win32_printing_surface_t * surface,
+static boolint _cairo_win32_printing_surface_operation_supported(cairo_win32_printing_surface_t * surface,
     cairo_operator_t op, const cairo_pattern_t * pattern, const cairo_rectangle_int_t * extents)
 {
 	if(_cairo_win32_printing_surface_analyze_operation(surface, op, pattern, extents) != CAIRO_INT_STATUS_UNSUPPORTED)
@@ -435,7 +435,7 @@ static cairo_status_t _cairo_win32_printing_surface_paint_recording_pattern(cair
 {
 	cairo_content_t old_content;
 	cairo_matrix_t old_ctm;
-	cairo_bool_t old_has_ctm;
+	boolint old_has_ctm;
 	cairo_rectangle_int_t recording_extents;
 	XFORM xform;
 	int x_tile, y_tile, left, right, top, bottom;
@@ -443,7 +443,7 @@ static cairo_status_t _cairo_win32_printing_surface_paint_recording_pattern(cair
 	cairo_recording_surface_t * recording_surface = reinterpret_cast<cairo_recording_surface_t *>(pattern->surface);
 	cairo_box_t bbox;
 	cairo_surface_t * free_me = NULL;
-	cairo_bool_t is_subsurface;
+	boolint is_subsurface;
 	cairo_extend_t extend = cairo_pattern_get_extend(&pattern->base);
 	cairo_matrix_t p2d = pattern->base.matrix;
 	cairo_int_status_t status = cairo_matrix_invert(&p2d);
@@ -620,7 +620,7 @@ static cairo_status_t _cairo_win32_printing_surface_paint_image_pattern(cairo_wi
 	const uchar * mime_data;
 	ulong mime_size;
 	cairo_image_info_t mime_info;
-	cairo_bool_t use_mime;
+	boolint use_mime;
 	DWORD mime_type;
 	// If we can't use StretchDIBits with this surface, we can't do anything here.
 	if(!(surface->win32.flags & CAIRO_WIN32_SURFACE_CAN_STRETCHDIB))
@@ -1057,7 +1057,7 @@ static cairo_status_t _cairo_win32_printing_surface_clipper_intersect_clip_path(
 	return status;
 }
 
-static cairo_bool_t _cairo_win32_printing_surface_get_extents(void * abstract_surface,
+static boolint _cairo_win32_printing_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * rectangle)
 {
 	cairo_win32_printing_surface_t * surface = static_cast<cairo_win32_printing_surface_t *>(abstract_surface);
@@ -1382,7 +1382,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_emit_win32_glyphs(cairo_
 	cairo_glyph_t * unicode_glyphs;
 	cairo_scaled_font_subsets_glyph_t subset_glyph;
 	int i, first;
-	cairo_bool_t sequence_is_unicode;
+	boolint sequence_is_unicode;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 
 	/* Where possible reverse the glyph indices back to unicode
@@ -1448,10 +1448,10 @@ static cairo_int_status_t _cairo_win32_printing_surface_show_glyphs(void * abstr
 	cairo_pattern_t * opaque = NULL;
 	int i;
 	cairo_matrix_t old_ctm;
-	cairo_bool_t old_has_ctm;
+	boolint old_has_ctm;
 	cairo_solid_pattern_t clear;
 	cairo_composite_rectangles_t extents;
-	cairo_bool_t overlap;
+	boolint overlap;
 
 	status = _cairo_composite_rectangles_init_for_glyphs(&extents,
 		&surface->win32.base,
@@ -1731,7 +1731,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_set_paginated_mode(void 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_win32_printing_surface_supports_fine_grained_fallbacks(void * abstract_surface)
+static boolint _cairo_win32_printing_surface_supports_fine_grained_fallbacks(void * abstract_surface)
 {
 	return TRUE;
 }

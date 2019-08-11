@@ -286,12 +286,12 @@ cairo_device_t * cairo_surface_get_device(cairo_surface_t * surface)
 	return surface->device;
 }
 
-static cairo_bool_t FASTCALL _cairo_surface_has_snapshots(const cairo_surface_t * surface)
+static boolint FASTCALL _cairo_surface_has_snapshots(const cairo_surface_t * surface)
 {
 	return !cairo_list_is_empty(&surface->snapshots);
 }
 
-static cairo_bool_t FASTCALL _cairo_surface_has_mime_data(const cairo_surface_t * surface)
+static boolint FASTCALL _cairo_surface_has_mime_data(const cairo_surface_t * surface)
 {
 	return surface->mime_data.num_elements != 0;
 }
@@ -353,7 +353,7 @@ cairo_status_t FASTCALL _cairo_surface_begin_modification(cairo_surface_t * surf
 }
 
 void _cairo_surface_init(cairo_surface_t * surface, const cairo_surface_backend_t * backend, cairo_device_t * device,
-    cairo_content_t content, cairo_bool_t is_vector)
+    cairo_content_t content, boolint is_vector)
 {
 	CAIRO_MUTEX_INITIALIZE();
 	surface->backend = backend;
@@ -1014,7 +1014,7 @@ static const char * _cairo_surface_image_mime_types[] = {
 	CAIRO_MIME_TYPE_CCITT_FAX,
 };
 
-cairo_bool_t _cairo_surface_has_mime_image(const cairo_surface_t * surface)
+boolint _cairo_surface_has_mime_image(const cairo_surface_t * surface)
 {
 	/* Prevent reads of the array during teardown */
 	if(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count))
@@ -1255,7 +1255,7 @@ slim_hidden_def(cairo_surface_set_mime_data);
  *
  * Since: 1.12
  **/
-cairo_bool_t cairo_surface_supports_mime_type(cairo_surface_t * surface,
+boolint cairo_surface_supports_mime_type(cairo_surface_t * surface,
     const char * mime_type)
 {
 	const char ** types;
@@ -1722,7 +1722,7 @@ void cairo_surface_get_fallback_resolution(const cairo_surface_t * surface, doub
 	ASSIGN_PTR(y_pixels_per_inch, surface->y_fallback_resolution);
 }
 
-cairo_bool_t _cairo_surface_has_device_transform(const cairo_surface_t * surface)
+boolint _cairo_surface_has_device_transform(const cairo_surface_t * surface)
 {
 	return !_cairo_matrix_is_identity(&surface->device_transform);
 }
@@ -1818,7 +1818,7 @@ static cairo_status_t FASTCALL _pattern_has_error(const cairo_pattern_t * patter
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t FASTCALL nothing_to_do(const cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source)
+static boolint FASTCALL nothing_to_do(const cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source)
 {
 	if(_cairo_pattern_is_clear(source)) {
 		if(op == CAIRO_OPERATOR_OVER || op == CAIRO_OPERATOR_ADD)
@@ -2086,9 +2086,9 @@ slim_hidden_def(cairo_surface_show_page);
  * This behavior would have to be changed is we ever exported a public
  * variant of this function.
  **/
-cairo_bool_t FASTCALL _cairo_surface_get_extents(cairo_surface_t * surface, cairo_rectangle_int_t * extents)
+boolint FASTCALL _cairo_surface_get_extents(cairo_surface_t * surface, cairo_rectangle_int_t * extents)
 {
-	cairo_bool_t bounded;
+	boolint bounded;
 	if(unlikely(surface->status))
 		goto zero_extents;
 	if(unlikely(surface->finished)) {
@@ -2128,7 +2128,7 @@ zero_extents:
  *
  * Since: 1.8
  **/
-cairo_bool_t cairo_surface_has_show_text_glyphs(cairo_surface_t * surface)
+boolint cairo_surface_has_show_text_glyphs(cairo_surface_t * surface)
 {
 	if(unlikely(surface->status))
 		return FALSE;
@@ -2211,7 +2211,7 @@ static cairo_int_status_t composite_color_glyphs(cairo_surface_t * surface, cair
 		if(cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD)
 			glyph_pos = *num_glyphs - 1;
 		for(i = 0; i < *num_clusters; i++) {
-			cairo_bool_t skip_cluster = FALSE;
+			boolint skip_cluster = FALSE;
 			for(j = 0; j < clusters[i].num_glyphs; j++) {
 				if(cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD)
 					gp = glyph_pos - j;
@@ -2419,7 +2419,7 @@ DONE:
 	return _cairo_surface_set_error(surface, status);
 }
 
-cairo_status_t _cairo_surface_tag(cairo_surface_t * surface, cairo_bool_t begin, const char * tag_name,
+cairo_status_t _cairo_surface_tag(cairo_surface_t * surface, boolint begin, const char * tag_name,
     const char * attributes, const cairo_pattern_t * source, const cairo_stroke_style_t * stroke_style, const cairo_matrix_t * ctm,
     const cairo_matrix_t * ctm_inverse, const cairo_clip_t * clip)
 {

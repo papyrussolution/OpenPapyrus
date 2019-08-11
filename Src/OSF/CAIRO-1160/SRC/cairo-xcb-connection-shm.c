@@ -36,7 +36,7 @@
 #include <xcb/xcbext.h>
 #include <xcb/shm.h>
 
-uint32_t _cairo_xcb_connection_shm_attach(cairo_xcb_connection_t * connection, uint32_t id, cairo_bool_t readonly)
+uint32_t _cairo_xcb_connection_shm_attach(cairo_xcb_connection_t * connection, uint32_t id, boolint readonly)
 {
 	uint32_t segment = _cairo_xcb_connection_get_xid(connection);
 	assert(connection->flags & CAIRO_XCB_HAS_SHM);

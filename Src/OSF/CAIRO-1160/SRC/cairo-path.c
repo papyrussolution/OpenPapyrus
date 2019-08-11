@@ -85,7 +85,7 @@ static cairo_status_t _cpc_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static int _cairo_path_count(cairo_path_t * path, const cairo_path_fixed_t * path_fixed, double tolerance, cairo_bool_t flatten)
+static int _cairo_path_count(cairo_path_t * path, const cairo_path_fixed_t * path_fixed, double tolerance, boolint flatten)
 {
 	cairo_status_t status;
 	cpc_t cpc;
@@ -178,7 +178,7 @@ static cairo_status_t _cpp_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_path_populate(cairo_path_t * path, const cairo_path_fixed_t * path_fixed, cairo_t * cr, cairo_bool_t flatten)
+static cairo_status_t _cairo_path_populate(cairo_path_t * path, const cairo_path_fixed_t * path_fixed, cairo_t * cr, boolint flatten)
 {
 	cairo_status_t status;
 	cpp_t cpp;
@@ -214,7 +214,7 @@ cairo_path_t * _cairo_path_create_in_error(cairo_status_t status)
 	return path;
 }
 
-static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixed, cairo_t * cr, cairo_bool_t flatten)
+static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixed, cairo_t * cr, boolint flatten)
 {
 	cairo_path_t * path = static_cast<cairo_path_t *>(_cairo_malloc(sizeof(cairo_path_t)));
 	if(unlikely(path == NULL)) {

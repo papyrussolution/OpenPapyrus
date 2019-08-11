@@ -67,14 +67,14 @@ struct _cairo_paginated_surface_backend {
 	 * Will be called at the end of the ANALYZE phase but before the
 	 * mode is changed to RENDER.
 	 */
-	cairo_warn cairo_int_status_t (* set_fallback_images_required) (void * surface, cairo_bool_t fallbacks_required);
-	cairo_bool_t (* supports_fine_grained_fallbacks) (void  * surface);
+	cairo_warn cairo_int_status_t (* set_fallback_images_required) (void * surface, boolint fallbacks_required);
+	boolint (* supports_fine_grained_fallbacks) (void  * surface);
 
 	/* Optional. Indicates whether the page requires a thumbnail image to be
 	 * supplied. If a thumbnail is required, set width, heigh to size required
 	 * and return TRUE.
 	 */
-	cairo_bool_t (* requires_thumbnail_image) (void * surface, int  * width, int  * height);
+	boolint (* requires_thumbnail_image) (void * surface, int  * width, int  * height);
 
 	/* If thumbbail image requested, this function will be called before
 	 * _show_page().
@@ -151,7 +151,7 @@ struct _cairo_paginated_surface_backend {
 cairo_private cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cairo_content_t content, const cairo_paginated_surface_backend_t * backend);
 cairo_private cairo_surface_t * _cairo_paginated_surface_get_target(cairo_surface_t * surface);
 cairo_private cairo_surface_t * _cairo_paginated_surface_get_recording(cairo_surface_t * surface);
-cairo_private cairo_bool_t FASTCALL _cairo_surface_is_paginated(const cairo_surface_t * surface);
+cairo_private boolint FASTCALL _cairo_surface_is_paginated(const cairo_surface_t * surface);
 cairo_private cairo_status_t _cairo_paginated_surface_set_size(cairo_surface_t  * surface, int width, int height);
 
 #endif /* CAIRO_PAGINATED_H */

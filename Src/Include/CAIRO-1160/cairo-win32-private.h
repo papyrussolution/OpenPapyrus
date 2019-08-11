@@ -104,7 +104,7 @@ typedef struct _cairo_win32_display_surface {
 	/* We create off-screen surfaces as DIBs or DDBs, based on what we created
 	 * originally */
 	HBITMAP bitmap;
-	cairo_bool_t is_dib;
+	boolint is_dib;
 	/* Used to save the initial 1x1 monochrome bitmap for the DC to
 	 * select back into the DC before deleting the DC and our
 	 * bitmap. For Windows XP, this doesn't seem to be necessary
@@ -116,7 +116,7 @@ typedef struct _cairo_win32_display_surface {
 	cairo_surface_t * image;
 	cairo_surface_t * fallback;
 	HRGN initial_clip_rgn;
-	cairo_bool_t had_simple_clip;
+	boolint had_simple_clip;
 } cairo_win32_display_surface_t;
 #define to_win32_display_surface(S) (reinterpret_cast<cairo_win32_display_surface_t *>(S))
 
@@ -125,12 +125,12 @@ typedef struct _cairo_win32_printing_surface {
 	cairo_surface_clipper_t clipper;
 	cairo_paginated_mode_t paginated_mode;
 	cairo_content_t content;
-	cairo_bool_t path_empty;
-	cairo_bool_t has_ctm;
+	boolint path_empty;
+	boolint has_ctm;
 	cairo_matrix_t ctm;
-	cairo_bool_t has_gdi_ctm;
+	boolint has_gdi_ctm;
 	cairo_matrix_t gdi_ctm;
-	cairo_bool_t extents_valid;
+	boolint extents_valid;
 	HBRUSH brush, old_brush;
 	cairo_scaled_font_subsets_t * font_subsets;
 } cairo_win32_printing_surface_t;
@@ -153,10 +153,10 @@ cairo_private cairo_device_t * _cairo_win32_device_get(void);
 const cairo_compositor_t * _cairo_win32_gdi_compositor_get(void);
 cairo_status_t FASTCALL _cairo_win32_print_gdi_error(const char * context);
 cairo_private void _cairo_win32_display_surface_discard_fallback(cairo_win32_display_surface_t * surface);
-cairo_bool_t _cairo_win32_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);
+boolint _cairo_win32_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);
 uint32_t _cairo_win32_flags_for_dc(HDC dc, cairo_format_t format);
 cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t * dst,
-    const cairo_pattern_t * source, cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, cairo_bool_t glyph_indexing);
+    const cairo_pattern_t * source, cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, boolint glyph_indexing);
 
 static inline void _cairo_matrix_to_win32_xform(const cairo_matrix_t * m, XFORM * xform)
 {
@@ -171,7 +171,7 @@ static inline void _cairo_matrix_to_win32_xform(const cairo_matrix_t * m, XFORM 
 cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_surface_t * surface, const cairo_clip_t * clip);
 void _cairo_win32_display_surface_unset_clip(const cairo_win32_display_surface_t * surface);
 void _cairo_win32_debug_dump_hrgn(HRGN rgn, char * header);
-cairo_bool_t _cairo_win32_scaled_font_is_type1(cairo_scaled_font_t * scaled_font);
-cairo_bool_t _cairo_win32_scaled_font_is_bitmap(cairo_scaled_font_t * scaled_font);
+boolint _cairo_win32_scaled_font_is_type1(cairo_scaled_font_t * scaled_font);
+boolint _cairo_win32_scaled_font_is_bitmap(cairo_scaled_font_t * scaled_font);
 
 #endif /* CAIRO_WIN32_PRIVATE_H */

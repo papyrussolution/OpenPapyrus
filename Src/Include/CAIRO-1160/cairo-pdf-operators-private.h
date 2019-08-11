@@ -67,12 +67,12 @@ typedef struct _cairo_pdf_operators {
 	cairo_scaled_font_subsets_t * font_subsets;
 	cairo_pdf_operators_use_font_subset_t use_font_subset;
 	void * use_font_subset_closure;
-	cairo_bool_t ps_output; /* output is for PostScript */
-	cairo_bool_t use_actual_text;
-	cairo_bool_t in_text_object; /* inside BT/ET pair */
+	boolint ps_output; /* output is for PostScript */
+	boolint use_actual_text;
+	boolint in_text_object; /* inside BT/ET pair */
 
 	/* PDF text state */
-	cairo_bool_t is_new_text_object; /* text object started but matrix and font not yet selected */
+	boolint is_new_text_object; /* text object started but matrix and font not yet selected */
 	uint font_id;
 	uint subset_id;
 	cairo_matrix_t text_matrix; /* PDF text matrix (Tlm in the PDF reference) */
@@ -81,27 +81,27 @@ typedef struct _cairo_pdf_operators {
 	double cur_x; /* Current position in PDF text space (Tm in the PDF reference) */
 	double cur_y;
 	int hex_width;
-	cairo_bool_t is_latin;
+	boolint is_latin;
 	int num_glyphs;
 	double glyph_buf_x_pos;
 	cairo_pdf_glyph_t glyphs[PDF_GLYPH_BUFFER_SIZE];
 
 	/* PDF line style */
-	cairo_bool_t has_line_style;
+	boolint has_line_style;
 	double line_width;
 	cairo_line_cap_t line_cap;
 	cairo_line_join_t line_join;
 	double miter_limit;
-	cairo_bool_t has_dashes;
+	boolint has_dashes;
 } cairo_pdf_operators_t;
 
 cairo_private void _cairo_pdf_operators_init(cairo_pdf_operators_t * pdf_operators,
-    cairo_output_stream_t * stream, cairo_matrix_t * cairo_to_pdf, cairo_scaled_font_subsets_t * font_subsets, cairo_bool_t ps);
+    cairo_output_stream_t * stream, cairo_matrix_t * cairo_to_pdf, cairo_scaled_font_subsets_t * font_subsets, boolint ps);
 cairo_private cairo_status_t _cairo_pdf_operators_fini(cairo_pdf_operators_t * pdf_operators);
 cairo_private void _cairo_pdf_operators_set_font_subsets_callback(cairo_pdf_operators_t * pdf_operators, cairo_pdf_operators_use_font_subset_t use_font_subset, void * closure);
 cairo_private void _cairo_pdf_operators_set_stream(cairo_pdf_operators_t * pdf_operators, cairo_output_stream_t * stream);
 cairo_private void _cairo_pdf_operators_set_cairo_to_pdf_matrix(cairo_pdf_operators_t * pdf_operators, cairo_matrix_t * cairo_to_pdf);
-cairo_private void _cairo_pdf_operators_enable_actual_text(cairo_pdf_operators_t * pdf_operators, cairo_bool_t enable);
+cairo_private void _cairo_pdf_operators_enable_actual_text(cairo_pdf_operators_t * pdf_operators, boolint enable);
 cairo_private cairo_status_t FASTCALL _cairo_pdf_operators_flush(cairo_pdf_operators_t * pdf_operators);
 cairo_private void FASTCALL _cairo_pdf_operators_reset(cairo_pdf_operators_t * pdf_operators);
 cairo_private cairo_int_status_t _cairo_pdf_operators_clip(cairo_pdf_operators_t * pdf_operators, const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule);

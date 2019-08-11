@@ -223,34 +223,23 @@ cairo_device_t * _cairo_xlib_device_create(Display * dpy)
 	env = getenv("CAIRO_DEBUG");
 	if(env != NULL && (env = strstr(env, "xrender-version=")) != NULL) {
 		int max_render_major, max_render_minor;
-
 		env += sizeof("xrender-version=") - 1;
 		if(sscanf(env, "%d.%d", &max_render_major, &max_render_minor) != 2)
 			max_render_major = max_render_minor = -1;
-
-		if(max_render_major < display->render_major ||
-		    (max_render_major == display->render_major &&
-		    max_render_minor < display->render_minor)) {
+		if(max_render_major < display->render_major || (max_render_major == display->render_major && max_render_minor < display->render_minor)) {
 			display->render_major = max_render_major;
 			display->render_minor = max_render_minor;
 		}
 	}
-
 	_cairo_xlib_display_select_compositor(display);
-
 	display->white = NULL;
 	memset(display->alpha, 0, sizeof(display->alpha));
 	memset(display->solid, 0, sizeof(display->solid));
 	memset(display->solid_cache, 0, sizeof(display->solid_cache));
 	memset(display->last_solid_cache, 0, sizeof(display->last_solid_cache));
-
-	memset(display->cached_xrender_formats, 0,
-	    sizeof(display->cached_xrender_formats));
-
+	memset(display->cached_xrender_formats, 0, sizeof(display->cached_xrender_formats));
 	display->force_precision = -1;
-
 	_cairo_xlib_display_init_shm(display);
-
 	/* Prior to Render 0.10, there is no protocol support for gradients and
 	 * we call function stubs instead, which would silently consume the drawing.
 	 */
@@ -531,17 +520,17 @@ cairo_xlib_screen_t * _cairo_xlib_display_get_screen(cairo_xlib_display_t * disp
 	return NULL;
 }
 
-cairo_bool_t _cairo_xlib_display_has_repeat(cairo_device_t * device)
+boolint _cairo_xlib_display_has_repeat(cairo_device_t * device)
 {
 	return !((cairo_xlib_display_t*)device)->buggy_repeat;
 }
 
-cairo_bool_t _cairo_xlib_display_has_reflect(cairo_device_t * device)
+boolint _cairo_xlib_display_has_reflect(cairo_device_t * device)
 {
 	return !((cairo_xlib_display_t*)device)->buggy_pad_reflect;
 }
 
-cairo_bool_t _cairo_xlib_display_has_gradients(cairo_device_t * device)
+boolint _cairo_xlib_display_has_gradients(cairo_device_t * device)
 {
 	return !((cairo_xlib_display_t*)device)->buggy_gradients;
 }

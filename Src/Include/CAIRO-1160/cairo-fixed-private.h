@@ -282,7 +282,7 @@ static inline cairo_fixed_t _cairo_edge_compute_intersection_x_for_y(const cairo
 /* Intersect two segments based on the algorithm described at
  * http://paulbourke.net/geometry/pointlineplane/. This implementation
  * uses floating point math. */
-static inline cairo_bool_t _slow_segment_intersection(const cairo_point_t * seg1_p1, const cairo_point_t * seg1_p2, 
+static inline boolint _slow_segment_intersection(const cairo_point_t * seg1_p1, const cairo_point_t * seg1_p2, 
 	const cairo_point_t * seg2_p1, const cairo_point_t * seg2_p2, cairo_point_t * intersection)
 {
 	double u_a, u_b;

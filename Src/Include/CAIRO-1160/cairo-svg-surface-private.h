@@ -62,7 +62,7 @@ typedef struct cairo_svg_surface {
 
     double width;
     double height;
-    cairo_bool_t surface_bounded;
+    boolint surface_bounded;
 
     cairo_svg_document_t *document;
 
@@ -73,11 +73,11 @@ typedef struct cairo_svg_surface {
     cairo_surface_clipper_t clipper;
     uint clip_level;
     uint base_clip;
-    cairo_bool_t is_base_clip_emitted;
+    boolint is_base_clip_emitted;
 
     cairo_paginated_mode_t paginated_mode;
 
-    cairo_bool_t force_fallbacks;
+    boolint force_fallbacks;
 } cairo_svg_surface_t;
 
 #endif /* CAIRO_SVG_SURFACE_PRIVATE_H */

@@ -133,7 +133,7 @@ struct _cairo_xlib_screen {
 
     cairo_list_t surfaces;
 
-    cairo_bool_t has_font_options;
+    boolint has_font_options;
     cairo_font_options_t font_options;
 
     GC gc[GC_CACHE_SIZE];
@@ -182,7 +182,7 @@ struct _cairo_xlib_surface {
     cairo_list_t link;
 
     Display *dpy; /* only valid between acquire/release */
-    cairo_bool_t owns_pixmap;
+    boolint owns_pixmap;
     Visual *visual;
 
     int use_pixmap;
@@ -218,7 +218,7 @@ struct _cairo_xlib_proxy {
     cairo_surface_t *owner;
 };
 
-inline static cairo_bool_t
+inline static boolint
 _cairo_xlib_vendor_is_xorg (Display *dpy)
 {
     const char *const vendor = ServerVendor (dpy);
@@ -247,13 +247,13 @@ cairo_private cairo_status_t
 _cairo_xlib_display_acquire (cairo_device_t *device,
                              cairo_xlib_display_t **display);
 
-cairo_private cairo_bool_t
+cairo_private boolint
 _cairo_xlib_display_has_repeat (cairo_device_t *device);
 
-cairo_private cairo_bool_t
+cairo_private boolint
 _cairo_xlib_display_has_reflect (cairo_device_t *device);
 
-cairo_private cairo_bool_t
+cairo_private boolint
 _cairo_xlib_display_has_gradients (cairo_device_t *device);
 
 cairo_private void
@@ -345,7 +345,7 @@ _cairo_xlib_surface_draw_image (cairo_xlib_surface_t   *surface,
 cairo_private cairo_surface_t *
 _cairo_xlib_source_create_for_pattern (cairo_surface_t *dst,
 				       const cairo_pattern_t *pattern,
-				       cairo_bool_t is_mask,
+				       boolint is_mask,
 				       const cairo_rectangle_int_t *extents,
 				       const cairo_rectangle_int_t *sample,
 				       int *src_x, int *src_y);
@@ -391,7 +391,7 @@ _cairo_xlib_font_close (cairo_xlib_font_t *font);
  * screen.  Both core and Render drawing require this
  * when using multiple drawables in an operation.
  */
-static inline cairo_bool_t
+static inline boolint
 _cairo_xlib_surface_same_screen (cairo_xlib_surface_t *dst,
 				 cairo_xlib_surface_t *src)
 {
@@ -427,7 +427,7 @@ _cairo_xlib_surface_create_similar_shm (void *surface,
 
 cairo_private cairo_surface_t *
 _cairo_xlib_surface_get_shm (cairo_xlib_surface_t *surface,
-			     cairo_bool_t overwrite);
+			     boolint overwrite);
 
 cairo_private cairo_int_status_t
 _cairo_xlib_surface_put_shm (cairo_xlib_surface_t *surface);
@@ -452,10 +452,10 @@ _cairo_xlib_shm_surface_get_obdata (cairo_surface_t *surface);
 cairo_private void
 _cairo_xlib_shm_surface_mark_active (cairo_surface_t *shm);
 
-cairo_private cairo_bool_t
+cairo_private boolint
 _cairo_xlib_shm_surface_is_active (cairo_surface_t *surface);
 
-cairo_private cairo_bool_t
+cairo_private boolint
 _cairo_xlib_shm_surface_is_idle (cairo_surface_t *surface);
 
 cairo_private Pixmap

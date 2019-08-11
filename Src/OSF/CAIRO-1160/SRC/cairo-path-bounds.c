@@ -42,7 +42,7 @@
 
 typedef struct _cairo_path_bounder {
 	cairo_point_t current_point;
-	cairo_bool_t has_extents;
+	boolint has_extents;
 	cairo_box_t extents;
 } cairo_path_bounder_t;
 
@@ -81,7 +81,7 @@ static cairo_status_t _cairo_path_bounder_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_bool_t _cairo_path_bounder_extents(const cairo_path_fixed_t * path, cairo_box_t * extents)
+boolint _cairo_path_bounder_extents(const cairo_path_fixed_t * path, cairo_box_t * extents)
 {
 	cairo_path_bounder_t bounder;
 	cairo_status_t status;
@@ -119,7 +119,7 @@ void _cairo_path_fixed_fill_extents(const cairo_path_fixed_t * path, cairo_fill_
 void _cairo_path_fixed_approximate_stroke_extents(const cairo_path_fixed_t * path,
     const cairo_stroke_style_t * style,
     const cairo_matrix_t * ctm,
-    cairo_bool_t is_vector,
+    boolint is_vector,
     cairo_rectangle_int_t * extents)
 {
 	if(path->has_extents) {
@@ -170,7 +170,7 @@ cairo_status_t _cairo_path_fixed_stroke_extents(const cairo_path_fixed_t * path,
 	return status;
 }
 
-cairo_bool_t _cairo_path_fixed_extents(const cairo_path_fixed_t * path, cairo_box_t * box)
+boolint _cairo_path_fixed_extents(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
 	*box = path->extents;
 	return path->has_extents;

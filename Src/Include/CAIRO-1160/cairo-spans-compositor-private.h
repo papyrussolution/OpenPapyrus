@@ -58,12 +58,12 @@ struct cairo_spans_compositor {
 	cairo_int_status_t (* fill_boxes)(void * surface, cairo_operator_t op, const cairo_color_t  * color, cairo_boxes_t  * boxes);
 	cairo_int_status_t (* draw_image_boxes) (void * surface, cairo_image_surface_t * image, cairo_boxes_t * boxes, int dx, int dy);
 	cairo_int_status_t (* copy_boxes) (void * surface, cairo_surface_t * src, cairo_boxes_t * boxes, const cairo_rectangle_int_t * extents, int dx, int dy);
-	cairo_surface_t * (* pattern_to_surface) (cairo_surface_t * dst, const cairo_pattern_t * pattern, cairo_bool_t is_mask, const cairo_rectangle_int_t * extents,
+	cairo_surface_t * (* pattern_to_surface) (cairo_surface_t * dst, const cairo_pattern_t * pattern, boolint is_mask, const cairo_rectangle_int_t * extents,
 	    const cairo_rectangle_int_t * sample, int * src_x, int * src_y);
 	cairo_int_status_t (* composite_boxes) (void * surface, cairo_operator_t op, cairo_surface_t * source, cairo_surface_t * mask,
 	    int src_x, int src_y, int mask_x, int mask_y, int dst_x, int dst_y, cairo_boxes_t * boxes, const cairo_rectangle_int_t * extents);
 	/* general shape masks using a span renderer */
-	cairo_int_status_t (* renderer_init) (cairo_abstract_span_renderer_t * renderer, const cairo_composite_rectangles_t * extents, cairo_antialias_t antialias, cairo_bool_t needs_clip);
+	cairo_int_status_t (* renderer_init) (cairo_abstract_span_renderer_t * renderer, const cairo_composite_rectangles_t * extents, cairo_antialias_t antialias, boolint needs_clip);
 	void (* renderer_fini) (cairo_abstract_span_renderer_t * renderer, cairo_int_status_t status);
 };
 

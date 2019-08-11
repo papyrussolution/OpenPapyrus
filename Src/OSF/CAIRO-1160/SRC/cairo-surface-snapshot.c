@@ -104,11 +104,11 @@ static void _cairo_surface_snapshot_release_source_image(void * abstract_surface
 	SAlloc::F(extra);
 }
 
-static cairo_bool_t _cairo_surface_snapshot_get_extents(void * abstract_surface, cairo_rectangle_int_t * extents)
+static boolint _cairo_surface_snapshot_get_extents(void * abstract_surface, cairo_rectangle_int_t * extents)
 {
 	cairo_surface_snapshot_t * surface = static_cast<cairo_surface_snapshot_t *>(abstract_surface);
 	cairo_surface_t * target = _cairo_surface_snapshot_get_target(&surface->base);
-	cairo_bool_t bounded = _cairo_surface_get_extents(target, extents);
+	boolint bounded = _cairo_surface_get_extents(target, extents);
 	cairo_surface_destroy(target);
 	return bounded;
 }

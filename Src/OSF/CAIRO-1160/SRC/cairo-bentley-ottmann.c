@@ -380,7 +380,7 @@ static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32_t b,
  * Returns %CAIRO_BO_STATUS_INTERSECTION if there is an intersection or
  * %CAIRO_BO_STATUS_PARALLEL if the two lines are exactly parallel.
  */
-static cairo_bool_t intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
+static boolint intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
 	cairo_int64_t a_det, b_det;
 
@@ -512,7 +512,7 @@ static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, const cairo_bo_intersect_point_t * point)
+static boolint _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, const cairo_bo_intersect_point_t * point)
 {
 	/* XXX: When running the actual algorithm, we don't actually need to
 	 * compare against edge->top at all here, since any intersection above
@@ -564,7 +564,7 @@ static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * ed
  * effectively outside (no intersection is returned). Also, if the
  * intersection point has the same
  */
-static cairo_bool_t _cairo_bo_edge_intersect(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_point32_t * intersection)
+static boolint _cairo_bo_edge_intersect(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_point32_t * intersection)
 {
 	cairo_bo_intersect_point_t quorem;
 	if(!intersect_lines(a, b, &quorem))
@@ -872,7 +872,7 @@ static void _cairo_bo_event_queue_print(cairo_bo_event_queue_t * event_queue)
 
 static void _cairo_bo_sweep_line_print(cairo_bo_sweep_line_t * sweep_line)
 {
-	cairo_bool_t first = TRUE;
+	boolint first = TRUE;
 	cairo_bo_edge_t * edge;
 
 	printf("Sweep line from edge list: ");
@@ -924,7 +924,7 @@ event_log(const char * fmt, ...)
 #define IS_COLINEAR(e) (((uintptr_t)(e))&1)
 #define MARK_COLINEAR(e, v) ((cairo_bo_edge_t*)(((uintptr_t)(e))|(v)))
 
-static inline cairo_bool_t edges_colinear(cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
+static inline boolint edges_colinear(cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
 {
 	unsigned p;
 	if(HAS_COLINEAR(a->colinear, b))
@@ -1400,7 +1400,7 @@ CLEANUP:
 }
 
 #if 0
-static cairo_bool_t edges_have_an_intersection_quadratic(cairo_bo_edge_t * edges,
+static boolint edges_have_an_intersection_quadratic(cairo_bo_edge_t * edges,
     int num_edges)
 
 {

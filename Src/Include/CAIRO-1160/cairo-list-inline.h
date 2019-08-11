@@ -71,7 +71,7 @@ static inline void cairo_list_validate(const cairo_list_t * head)
 	_cairo_list_validate(link);
 }
 
-static inline cairo_bool_t cairo_list_is_empty(const cairo_list_t * head);
+static inline boolint cairo_list_is_empty(const cairo_list_t * head);
 static inline void cairo_list_validate_is_empty(const cairo_list_t * head)
 {
 	assert(head->next == NULL || (cairo_list_is_empty(head) && head->next == head->prev));
@@ -152,25 +152,25 @@ static inline void cairo_list_swap(cairo_list_t * entry, cairo_list_t * other)
 	cairo_list_init(other);
 }
 
-static inline cairo_bool_t cairo_list_is_first(const cairo_list_t * entry, const cairo_list_t * head)
+static inline boolint cairo_list_is_first(const cairo_list_t * entry, const cairo_list_t * head)
 {
 	cairo_list_validate(head);
 	return entry->prev == head;
 }
 
-static inline cairo_bool_t cairo_list_is_last(const cairo_list_t * entry, const cairo_list_t * head)
+static inline boolint cairo_list_is_last(const cairo_list_t * entry, const cairo_list_t * head)
 {
 	cairo_list_validate(head);
 	return entry->next == head;
 }
 
-static inline cairo_bool_t cairo_list_is_empty(const cairo_list_t * head)
+static inline boolint cairo_list_is_empty(const cairo_list_t * head)
 {
 	cairo_list_validate(head);
 	return head->next == head;
 }
 
-static inline cairo_bool_t cairo_list_is_singular(const cairo_list_t * head)
+static inline boolint cairo_list_is_singular(const cairo_list_t * head)
 {
 	cairo_list_validate(head);
 	return head->next == head || head->next == head->prev;

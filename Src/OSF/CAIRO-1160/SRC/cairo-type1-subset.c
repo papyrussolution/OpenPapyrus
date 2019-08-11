@@ -90,13 +90,13 @@ struct cairo_type1_font_subset_t {
 	cairo_array_t glyph_names_array;
 
 	int num_subrs;
-	cairo_bool_t subset_subrs;
+	boolint subset_subrs;
 	struct Subrs {
 		const char * subr_string;
 		int subr_length;
 		const char * np;
 		int np_length;
-		cairo_bool_t used;
+		boolint used;
 	} * subrs;
 
 	/* Indexed by subset_index this maps to the glyph order in the
@@ -114,12 +114,12 @@ struct cairo_type1_font_subset_t {
 	int header_segment_size;
 	char * eexec_segment;
 	int eexec_segment_size;
-	cairo_bool_t eexec_segment_is_ascii;
+	boolint eexec_segment_is_ascii;
 	char * cleartext;
 	char * cleartext_end;
 	int header_size;
 	unsigned short eexec_key;
-	cairo_bool_t hex_encode;
+	boolint hex_encode;
 	int hex_column;
 
 	struct {
@@ -133,7 +133,7 @@ struct cairo_type1_font_subset_t {
 	} ps_stack;
 };
 
-static cairo_status_t _cairo_type1_font_subset_init(cairo_type1_font_subset_t * font, cairo_scaled_font_subset_t * scaled_font_subset, cairo_bool_t hex_encode)
+static cairo_status_t _cairo_type1_font_subset_init(cairo_type1_font_subset_t * font, cairo_scaled_font_subset_t * scaled_font_subset, boolint hex_encode)
 {
 	memzero(font, sizeof(*font));
 	font->scaled_font_subset = scaled_font_subset;
@@ -159,7 +159,7 @@ static void cairo_type1_font_subset_use_glyph(cairo_type1_font_subset_t * font, 
 	font->num_glyphs++;
 }
 
-static cairo_bool_t is_ps_delimiter(int c)
+static boolint is_ps_delimiter(int c)
 {
 	static const char delimiters[] = "()[]{}<>/% \t\r\n";
 	return sstrchr(delimiters, c) != NULL;
@@ -1361,7 +1361,7 @@ static cairo_status_t cairo_type1_font_subset_write(cairo_type1_font_subset_t * 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t check_fontdata_is_type1(const uchar * data, long length)
+static boolint check_fontdata_is_type1(const uchar * data, long length)
 {
 	/* Test for  Type 1 Binary (PFB) */
 	if(length > 2 && data[0] == 0x80 && data[1] == 0x01)
@@ -1427,11 +1427,11 @@ static cairo_status_t _cairo_type1_font_subset_fini(cairo_type1_font_subset_t * 
 	return status;
 }
 
-cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t * type1_subset, const char * name, cairo_scaled_font_subset_t * scaled_font_subset, cairo_bool_t hex_encode)
+cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t * type1_subset, const char * name, cairo_scaled_font_subset_t * scaled_font_subset, boolint hex_encode)
 {
 	cairo_type1_font_subset_t font;
 	cairo_status_t status;
-	cairo_bool_t is_synthetic;
+	boolint is_synthetic;
 	ulong length;
 	uint i;
 	char buf[30];
@@ -1499,7 +1499,7 @@ void _cairo_type1_subset_fini(cairo_type1_subset_t * subset)
 	SAlloc::F(subset->data);
 }
 
-cairo_bool_t _cairo_type1_scaled_font_is_type1(cairo_scaled_font_t * scaled_font)
+boolint _cairo_type1_scaled_font_is_type1(cairo_scaled_font_t * scaled_font)
 {
 	cairo_status_t status;
 	ulong length;

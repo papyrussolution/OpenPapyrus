@@ -35,6 +35,7 @@
  * SOFTWARE.
  * ***** END LICENSE BLOCK *****
  */
+#define __STDC_LIMIT_MACROS
 #include <slib.h>
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
@@ -83,7 +84,10 @@ char * amqp_os_error_string(int err);
 	char * amqp_ssl_error_string(int err);
 #endif
 #include "amqp_socket.h"
+#include "amqp_tcp_socket.h"
 #include "amqp_time.h"
+#include "amqp_hostcheck.h"
+#include "amqp_table.h"
 /*
  * Connection states: XXX FIX THIS
  *
@@ -178,23 +182,10 @@ struct amqp_connection_state_t_ {
 
 amqp_pool_t * amqp_get_or_create_channel_pool(amqp_connection_state_t connection, amqp_channel_t channel);
 amqp_pool_t * amqp_get_channel_pool(amqp_connection_state_t state, amqp_channel_t channel);
-
-static inline int amqp_heartbeat_send(amqp_connection_state_t state) 
-{
-	return state->heartbeat;
-}
-
-static inline int amqp_heartbeat_recv(amqp_connection_state_t state) 
-{
-	return 2 * state->heartbeat;
-}
-
 int amqp_try_recv(amqp_connection_state_t state);
-
-static inline void * amqp_offset(void * data, size_t offset) 
-{
-	return (char*)data + offset;
-}
+static inline int amqp_heartbeat_send(const amqp_connection_state_t state) { return state->heartbeat; }
+static inline int amqp_heartbeat_recv(const amqp_connection_state_t state) { return 2 * state->heartbeat; }
+static inline void * amqp_offset(void * data, size_t offset)  { return (char*)data + offset; }
 
 /* This macro defines the encoding and decoding functions associated with a
    simple type. */
@@ -263,8 +254,7 @@ static inline uint16_t amqp_d16(void * data)
 static inline void amqp_e32(uint32_t val, void * data) 
 {
 	if(!is_bigendian()) {
-		val = ((val & 0xFF000000u) >> 24u) | ((val & 0x00FF0000u) >> 8u) |
-		    ((val & 0x0000FF00u) << 8u) | ((val & 0x000000FFu) << 24u);
+		val = ((val & 0xFF000000u) >> 24u) | ((val & 0x00FF0000u) >> 8u) | ((val & 0x0000FF00u) << 8u) | ((val & 0x000000FFu) << 24u);
 	}
 	memcpy(data, &val, sizeof(val));
 }
@@ -274,38 +264,31 @@ static inline uint32_t amqp_d32(void * data)
 	uint32_t val;
 	memcpy(&val, data, sizeof(val));
 	if(!is_bigendian()) {
-		val = ((val & 0xFF000000u) >> 24u) | ((val & 0x00FF0000u) >> 8u) |
-		    ((val & 0x0000FF00u) << 8u) | ((val & 0x000000FFu) << 24u);
+		val = ((val & 0xFF000000u) >> 24u) | ((val & 0x00FF0000u) >> 8u) | ((val & 0x0000FF00u) << 8u) | ((val & 0x000000FFu) << 24u);
 	}
 	return val;
 }
 
-static inline void amqp_e64(uint64_t val, void * data) {
+static inline void amqp_e64(uint64_t val, void * data) 
+{
 	if(!is_bigendian()) {
-		val = ((val & 0xFF00000000000000u) >> 56u) |
-		    ((val & 0x00FF000000000000u) >> 40u) |
-		    ((val & 0x0000FF0000000000u) >> 24u) |
-		    ((val & 0x000000FF00000000u) >> 8u) |
-		    ((val & 0x00000000FF000000u) << 8u) |
-		    ((val & 0x0000000000FF0000u) << 24u) |
-		    ((val & 0x000000000000FF00u) << 40u) |
-		    ((val & 0x00000000000000FFu) << 56u);
+		val = ((val & 0xFF00000000000000u) >> 56u) | ((val & 0x00FF000000000000u) >> 40u) |
+		    ((val & 0x0000FF0000000000u) >> 24u) | ((val & 0x000000FF00000000u) >> 8u) |
+		    ((val & 0x00000000FF000000u) << 8u) | ((val & 0x0000000000FF0000u) << 24u) |
+		    ((val & 0x000000000000FF00u) << 40u) | ((val & 0x00000000000000FFu) << 56u);
 	}
 	memcpy(data, &val, sizeof(val));
 }
 
-static inline uint64_t amqp_d64(void * data) {
+static inline uint64_t amqp_d64(void * data) 
+{
 	uint64_t val;
 	memcpy(&val, data, sizeof(val));
 	if(!is_bigendian()) {
-		val = ((val & 0xFF00000000000000u) >> 56u) |
-		    ((val & 0x00FF000000000000u) >> 40u) |
-		    ((val & 0x0000FF0000000000u) >> 24u) |
-		    ((val & 0x000000FF00000000u) >> 8u) |
-		    ((val & 0x00000000FF000000u) << 8u) |
-		    ((val & 0x0000000000FF0000u) << 24u) |
-		    ((val & 0x000000000000FF00u) << 40u) |
-		    ((val & 0x00000000000000FFu) << 56u);
+		val = ((val & 0xFF00000000000000u) >> 56u) | ((val & 0x00FF000000000000u) >> 40u) |
+		    ((val & 0x0000FF0000000000u) >> 24u) | ((val & 0x000000FF00000000u) >> 8u) |
+		    ((val & 0x00000000FF000000u) << 8u) | ((val & 0x0000000000FF0000u) << 24u) |
+		    ((val & 0x000000000000FF00u) << 40u) | ((val & 0x00000000000000FFu) << 56u);
 	}
 	return val;
 }

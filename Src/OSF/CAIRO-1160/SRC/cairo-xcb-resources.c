@@ -57,7 +57,7 @@
 #include "cairo-xcb-private.h"
 #include "cairo-fontconfig-private.h"
 
-static void parse_boolean(const char * v, cairo_bool_t * out)
+static void parse_boolean(const char * v, boolint * out)
 {
 	char c0, c1;
 	c0 = *v;
@@ -103,7 +103,7 @@ struct resource_parser {
 	cairo_xcb_resources_t * resources;
 };
 
-static cairo_bool_t resource_parse_line(char * name, cairo_xcb_resources_t * resources)
+static boolint resource_parse_line(char * name, cairo_xcb_resources_t * resources)
 {
 	char * value = sstrchr(name, ':');
 	if(value == NULL)
@@ -149,7 +149,7 @@ static void resource_parser_init(struct resource_parser * parser, cairo_xcb_reso
 	parser->resources = resources;
 }
 
-static cairo_bool_t resource_parser_update(struct resource_parser * parser, const char * data, int length)
+static boolint resource_parser_update(struct resource_parser * parser, const char * data, int length)
 {
 	int bytes_parsed;
 	if(parser->bytes_in_buffer + length + 1 > parser->buffer_size) {
@@ -191,7 +191,7 @@ static void get_resources(xcb_connection_t * connection, xcb_screen_t * screen, 
 	xcb_get_property_reply_t * reply;
 	struct resource_parser parser;
 	int offset;
-	cairo_bool_t has_more_data;
+	boolint has_more_data;
 
 	resources->xft_antialias = TRUE;
 	resources->xft_lcdfilter = -1;

@@ -542,7 +542,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r, ngx_http_
 		// "Content-Type: image/jpeg" CRLF
 		// "Content-Range: bytes "
 		// 
-		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+		b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 		if(!b) {
 			return NGX_ERROR;
 		}
@@ -555,7 +555,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r, ngx_http_
 		}
 		hcl->buf = b;
 		// "SSSS-EEEE/TTTT" CRLF CRLF 
-		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+		b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 		if(!b) {
 			return NGX_ERROR;
 		}
@@ -568,7 +568,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r, ngx_http_
 		}
 		rcl->buf = b;
 		// the range data 
-		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+		b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 		if(!b) {
 			return NGX_ERROR;
 		}
@@ -596,7 +596,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r, ngx_http_
 		ll = &dcl->next;
 	}
 	// the last boundary CRLF "--0123456789--" CRLF  
-	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+	b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 	if(!b) {
 		return NGX_ERROR;
 	}

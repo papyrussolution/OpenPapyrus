@@ -45,12 +45,12 @@ typedef struct _cairo_scaled_font_subsets_glyph {
 	uint font_id;
 	uint subset_id;
 	uint subset_glyph_index;
-	cairo_bool_t is_scaled;
-	cairo_bool_t is_composite;
-	cairo_bool_t is_latin;
+	boolint is_scaled;
+	boolint is_composite;
+	boolint is_latin;
 	double x_advance;
 	double y_advance;
-	cairo_bool_t utf8_is_mapped;
+	boolint utf8_is_mapped;
 	uint32_t unicode;
 } cairo_scaled_font_subsets_glyph_t;
 
@@ -122,12 +122,12 @@ cairo_private void _cairo_scaled_font_subsets_destroy(cairo_scaled_font_subsets_
 /**
  * _cairo_scaled_font_subsets_enable_latin_subset:
  * @font_subsets: a #cairo_scaled_font_subsets_t object to be destroyed
- * @use_latin: a #cairo_bool_t indicating if a latin subset is to be used
+ * @use_latin: a #boolint indicating if a latin subset is to be used
  *
  * If enabled, all CP1252 characters will be placed in a separate
  * 8-bit latin subset.
  **/
-cairo_private void _cairo_scaled_font_subsets_enable_latin_subset(cairo_scaled_font_subsets_t * font_subsets, cairo_bool_t use_latin);
+cairo_private void _cairo_scaled_font_subsets_enable_latin_subset(cairo_scaled_font_subsets_t * font_subsets, boolint use_latin);
 /**
  * _cairo_scaled_font_subsets_map_glyph:
  * @font_subsets: a #cairo_scaled_font_subsets_t
@@ -355,7 +355,7 @@ cairo_private void _cairo_cff_subset_fini(cairo_cff_subset_t * cff_subset);
  *
  * Return %TRUE if @scaled_font is a CID CFF font, otherwise return %FALSE.
  **/
-cairo_private cairo_bool_t _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font);
+cairo_private boolint _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font);
 /**
  * _cairo_cff_fallback_init:
  * @cff_subset: a #cairo_cff_subset_t to initialize
@@ -470,7 +470,7 @@ typedef struct _cairo_type1_subset {
  * file, or an non-zero value indicating an error.  Possible errors
  * include %CAIRO_STATUS_NO_MEMORY.
  **/
-cairo_private cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t * type_subset, const char * name, cairo_scaled_font_subset_t  * font_subset, cairo_bool_t hex_encode);
+cairo_private cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t * type_subset, const char * name, cairo_scaled_font_subset_t  * font_subset, boolint hex_encode);
 /**
  * _cairo_type1_subset_fini:
  * @type1_subset: a #cairo_type1_subset_t
@@ -486,7 +486,7 @@ cairo_private void _cairo_type1_subset_fini(cairo_type1_subset_t * subset);
  *
  * Return %TRUE if @scaled_font is a Type 1 font, otherwise return %FALSE.
  **/
-cairo_private cairo_bool_t _cairo_type1_scaled_font_is_type1(cairo_scaled_font_t  * scaled_font);
+cairo_private boolint _cairo_type1_scaled_font_is_type1(cairo_scaled_font_t  * scaled_font);
 /**
  * _cairo_type1_fallback_init_binary:
  * @type1_subset: a #cairo_type1_subset_t to initialize
@@ -621,7 +621,7 @@ cairo_private cairo_int_status_t _cairo_truetype_read_font_name(cairo_scaled_fon
  * %CAIRO_INT_STATUS_UNSUPPORTED if the font is not TrueType/OpenType
  * or the OS/2 table is not present.
  **/
-cairo_private cairo_int_status_t _cairo_truetype_get_style(cairo_scaled_font_t * scaled_font, int * weight, cairo_bool_t * bold, cairo_bool_t * italic);
+cairo_private cairo_int_status_t _cairo_truetype_get_style(cairo_scaled_font_t * scaled_font, int * weight, boolint * bold, boolint * italic);
 /**
  * _cairo_escape_ps_name:
  * @ps_name: returns the PostScript name with all invalid characters escaped

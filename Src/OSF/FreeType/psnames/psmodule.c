@@ -163,7 +163,7 @@ compare_uni_maps(const void*  a,
 		else
 			return 0;
 	}
-	else{
+	else {
 		if(unicode1 > unicode2)
 			return 1;
 		else if(unicode1 < unicode2)
@@ -325,7 +325,7 @@ static FT_Error ps_unicodes_init(FT_Memory memory,
 			if(!error)
 				error = FT_THROW(No_Unicode_Glyph_Name);
 		}
-		else{
+		else {
 			/* Reallocate if the number of used entries is much smaller. */
 			if(count < num_glyphs / 2) {
 				(void)FT_RENEW_ARRAY(table->maps, num_glyphs, count);

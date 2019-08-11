@@ -108,7 +108,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z", "7z.vcproj", "{B742E28
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rabbitmq-static", "rabbitmq-c.vcproj", "{8D027C7B-9821-4FB1-B62A-D33D7500720D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rabbitmq", "rabbitmq-c.vcproj", "{8D027C7B-9821-4FB1-B62A-D33D7500720D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pthreads4w", "pthreads4w.vcproj", "{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -693,6 +697,28 @@ Global
 		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.ServerRelease.Build.0 = Release|Win32
 		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.Universe-HTT.ActiveCfg = Release|Win32
 		{8D027C7B-9821-4FB1-B62A-D33D7500720D}.Universe-HTT.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Debug.ActiveCfg = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Debug.Build.0 = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.DebugU.ActiveCfg = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.DebugU.Build.0 = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MinSizeRel.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MinSizeRel.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllDebug.ActiveCfg = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllDebug.Build.0 = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllRelease.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllRelease.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Release.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Release.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ReleaseU.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ReleaseU.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.RelWithDebInfo.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.RelWithDebInfo.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerDebug.ActiveCfg = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerDebug.Build.0 = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerRelease.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerRelease.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Universe-HTT.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

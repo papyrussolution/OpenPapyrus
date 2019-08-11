@@ -91,7 +91,7 @@ struct edge_t {
 	struct quorem x;
 	struct quorem dxdy;
 	struct quorem dxdy_full;
-	cairo_bool_t vertical;
+	boolint vertical;
 	uint flags;
 	int current_sign;
 	struct run * runs;
@@ -151,7 +151,7 @@ typedef struct _sweep_line {
 	cairo_list_t active;
 	cairo_list_t stopped;
 	cairo_list_t * insert_cursor;
-	cairo_bool_t is_vertical;
+	boolint is_vertical;
 
 	cairo_fixed_t current_row;
 	cairo_fixed_t current_subrow;
@@ -516,7 +516,7 @@ static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32_t b, cairo_int6
  * Returns %CAIRO_BO_STATUS_INTERSECTION if there is an intersection or
  * %CAIRO_BO_STATUS_PARALLEL if the two lines are exactly parallel.
  */
-static cairo_bool_t intersect_lines(const edge_t * a, const edge_t * b,
+static boolint intersect_lines(const edge_t * a, const edge_t * b,
     cairo_bo_intersect_point_t * intersection)
 {
 	cairo_int64_t a_det, b_det;
@@ -643,7 +643,7 @@ static int bo_intersect_ordinate_32_compare(int32_t a, int32_t b, int exactness)
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t bo_edge_contains_intersect_point(const edge_t * edge, const cairo_bo_intersect_point_t * point)
+static boolint bo_edge_contains_intersect_point(const edge_t * edge, const cairo_bo_intersect_point_t * point)
 {
 	int cmp_top, cmp_bottom;
 
@@ -684,7 +684,7 @@ static cairo_bool_t bo_edge_contains_intersect_point(const edge_t * edge, const 
 	}
 }
 
-static cairo_bool_t edge_intersect(const edge_t * a, const edge_t * b, cairo_point_t * intersection)
+static boolint edge_intersect(const edge_t * a, const edge_t * b, cairo_point_t * intersection)
 {
 	cairo_bo_intersect_point_t quorem;
 	if(!intersect_lines(a, b, &quorem))
@@ -726,7 +726,7 @@ static void pqueue_fini(pqueue_t * pq)
 		SAlloc::F(pq->elements);
 }
 
-static cairo_bool_t pqueue_grow(pqueue_t * pq)
+static boolint pqueue_grow(pqueue_t * pq)
 {
 	event_t ** new_elements;
 	pq->max_size *= 2;
@@ -1306,7 +1306,7 @@ static void sub_add_run(sweep_line_t * sweep_line, edge_t * edge, int y, int sig
 	edge->current_sign = sign;
 }
 
-inline static cairo_bool_t edges_coincident(edge_t * left, edge_t * right, cairo_fixed_t y)
+inline static boolint edges_coincident(edge_t * left, edge_t * right, cairo_fixed_t y)
 {
 	/* XXX is compare_x_for_y() worth executing during sub steps? */
 	return line_equal(&left->edge.line, &right->edge.line);

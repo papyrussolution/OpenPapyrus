@@ -2242,9 +2242,9 @@ void cairo_show_page(cairo_t * cr)
  *
  * Since: 1.0
  **/
-cairo_bool_t cairo_in_stroke(cairo_t * cr, double x, double y)
+boolint cairo_in_stroke(cairo_t * cr, double x, double y)
 {
-	cairo_bool_t inside = FALSE;
+	boolint inside = FALSE;
 	if(unlikely(cr->status))
 		return FALSE;
 	cairo_status_t status = cr->backend->in_stroke(cr, x, y, &inside);
@@ -2270,9 +2270,9 @@ cairo_bool_t cairo_in_stroke(cairo_t * cr, double x, double y)
  *
  * Since: 1.0
  **/
-cairo_bool_t cairo_in_fill(cairo_t * cr, double x, double y)
+boolint cairo_in_fill(cairo_t * cr, double x, double y)
 {
-	cairo_bool_t inside = FALSE;
+	boolint inside = FALSE;
 	if(unlikely(cr->status))
 		return FALSE;
 	cairo_status_t status = cr->backend->in_fill(cr, x, y, &inside);
@@ -2508,9 +2508,9 @@ void cairo_clip_extents(cairo_t * cr, double * x1, double * y1, double * x2, dou
  *
  * Since: 1.10
  **/
-cairo_bool_t cairo_in_clip(cairo_t * cr, double x, double y)
+boolint cairo_in_clip(cairo_t * cr, double x, double y)
 {
-	cairo_bool_t inside = FALSE;
+	boolint inside = FALSE;
 	if(unlikely(cr->status))
 		return FALSE;
 	cairo_status_t status = cr->backend->in_clip(cr, x, y, &inside);
@@ -3097,7 +3097,7 @@ void cairo_show_text(cairo_t * cr, const char * utf8)
 	int utf8_len, num_glyphs, num_clusters;
 	cairo_text_cluster_flags_t cluster_flags;
 	double x, y;
-	cairo_bool_t has_show_text_glyphs;
+	boolint has_show_text_glyphs;
 	cairo_glyph_t stack_glyphs[CAIRO_STACK_ARRAY_LENGTH(cairo_glyph_t)];
 	cairo_text_cluster_t stack_clusters[CAIRO_STACK_ARRAY_LENGTH(cairo_text_cluster_t)];
 	cairo_scaled_font_t * scaled_font;
@@ -3474,7 +3474,7 @@ cairo_antialias_t cairo_get_antialias(cairo_t * cr)
  *
  * Since: 1.6
  **/
-cairo_bool_t cairo_has_current_point(cairo_t * cr)
+boolint cairo_has_current_point(cairo_t * cr)
 {
 	if(unlikely(cr->status))
 		return FALSE;

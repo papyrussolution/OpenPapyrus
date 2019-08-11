@@ -79,7 +79,7 @@ struct fill_box {
 	HBRUSH brush;
 };
 
-static cairo_bool_t fill_box(cairo_box_t * box, void * closure)
+static boolint fill_box(cairo_box_t * box, void * closure)
 {
 	struct fill_box * fb = static_cast<struct fill_box *>(closure);
 	RECT rect;
@@ -107,7 +107,7 @@ struct copy_box {
 	cairo_win32_alpha_blend_func_t alpha_blend;
 };
 
-static cairo_bool_t copy_box(cairo_box_t * box, void * closure)
+static boolint copy_box(cairo_box_t * box, void * closure)
 {
 	const struct copy_box * cb = static_cast<const struct copy_box *>(closure);
 	int x = _cairo_fixed_integer_part(box->p1.x);
@@ -118,7 +118,7 @@ static cairo_bool_t copy_box(cairo_box_t * box, void * closure)
 	return BitBlt(cb->dst, x, y, width, height, cb->src, x + cb->tx, y + cb->ty, SRCCOPY);
 }
 
-static cairo_bool_t alpha_box(cairo_box_t * box, void * closure)
+static boolint alpha_box(cairo_box_t * box, void * closure)
 {
 	const struct copy_box * cb = static_cast<const struct copy_box *>(closure);
 	int x = _cairo_fixed_integer_part(box->p1.x);
@@ -137,7 +137,7 @@ struct upload_box {
 	void * data;
 };
 
-static cairo_bool_t upload_box(cairo_box_t * box, void * closure)
+static boolint upload_box(cairo_box_t * box, void * closure)
 {
 	const struct upload_box * cb = static_cast<const struct upload_box *>(closure);
 	int x = _cairo_fixed_integer_part(box->p1.x);
@@ -175,7 +175,7 @@ static cairo_int_status_t fill_boxes(cairo_win32_display_surface_t * dst, const 
 	return status;
 }
 
-static cairo_bool_t source_contains_box(cairo_box_t * box, void * closure)
+static boolint source_contains_box(cairo_box_t * box, void * closure)
 {
 	const struct check_box * data = static_cast<const struct check_box *>(closure);
 	/* The box is pixel-aligned so the truncation is safe. */
@@ -327,7 +327,7 @@ static cairo_status_t alpha_blend_boxes(cairo_win32_display_surface_t * dst, con
 	return status;
 }
 
-static cairo_bool_t can_alpha_blend(cairo_win32_display_surface_t * dst)
+static boolint can_alpha_blend(cairo_win32_display_surface_t * dst)
 {
 	if((dst->win32.flags & CAIRO_WIN32_SURFACE_CAN_ALPHABLEND) == 0)
 		return FALSE;
@@ -389,7 +389,7 @@ static cairo_status_t opacity_boxes(cairo_composite_rectangles_t * composite, ca
 
 /* high-level compositor interface */
 
-static cairo_bool_t check_blit(cairo_composite_rectangles_t * composite)
+static boolint check_blit(cairo_composite_rectangles_t * composite)
 {
 	cairo_win32_display_surface_t * dst;
 	if(composite->clip->path)
@@ -464,7 +464,7 @@ static cairo_int_status_t _cairo_win32_gdi_compositor_fill(const cairo_composito
 	return status;
 }
 
-static cairo_bool_t check_glyphs(cairo_composite_rectangles_t * composite, cairo_scaled_font_t * scaled_font)
+static boolint check_glyphs(cairo_composite_rectangles_t * composite, cairo_scaled_font_t * scaled_font)
 {
 	if(!_cairo_clip_is_region(composite->clip))
 		return FALSE;
@@ -476,7 +476,7 @@ static cairo_bool_t check_glyphs(cairo_composite_rectangles_t * composite, cairo
 }
 
 static cairo_int_status_t _cairo_win32_gdi_compositor_glyphs(const cairo_compositor_t * compositor,
-    cairo_composite_rectangles_t * composite, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int num_glyphs, cairo_bool_t overlap)
+    cairo_composite_rectangles_t * composite, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int num_glyphs, boolint overlap)
 {
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	if(check_blit(composite) && check_glyphs(composite, scaled_font)) {

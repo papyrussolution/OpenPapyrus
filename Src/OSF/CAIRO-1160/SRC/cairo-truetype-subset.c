@@ -92,7 +92,7 @@ struct _cairo_truetype_font {
 	ulong last_boundary;
 	int * parent_to_subset; /* array size: num_glyphs_in_face + 1 */
 	cairo_status_t status;
-	cairo_bool_t is_pdf;
+	boolint is_pdf;
 };
 
 /*
@@ -122,10 +122,10 @@ static cairo_status_t FASTCALL _cairo_truetype_font_set_error(cairo_truetype_fon
 	return _cairo_error(status);
 }
 
-static cairo_status_t _cairo_truetype_font_create(cairo_scaled_font_subset_t * scaled_font_subset, cairo_bool_t is_pdf, cairo_truetype_font_t  ** font_return)
+static cairo_status_t _cairo_truetype_font_create(cairo_scaled_font_subset_t * scaled_font_subset, boolint is_pdf, cairo_truetype_font_t  ** font_return)
 {
 	cairo_status_t status;
-	cairo_bool_t is_synthetic;
+	boolint is_synthetic;
 	cairo_truetype_font_t * font;
 	tt_head_t head;
 	tt_hhea_t hhea;
@@ -922,9 +922,9 @@ static void FASTCALL cairo_truetype_font_add_truetype_table(cairo_truetype_font_
  */
 static void cairo_truetype_font_create_truetype_table_list(cairo_truetype_font_t * font)
 {
-	cairo_bool_t has_cvt = FALSE;
-	cairo_bool_t has_fpgm = FALSE;
-	cairo_bool_t has_prep = FALSE;
+	boolint has_cvt = FALSE;
+	boolint has_fpgm = FALSE;
+	boolint has_prep = FALSE;
 	int pos;
 	ulong size = 0;
 	if(font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, TT_TAG_cvt, 0, NULL, &size) == CAIRO_INT_STATUS_SUCCESS)
@@ -961,7 +961,7 @@ static void cairo_truetype_font_create_truetype_table_list(cairo_truetype_font_t
 		cairo_truetype_font_add_truetype_table(font, TT_TAG_prep, cairo_truetype_font_write_generic_table, pos);
 }
 
-static cairo_status_t cairo_truetype_subset_init_internal(cairo_truetype_subset_t * truetype_subset, cairo_scaled_font_subset_t * font_subset, cairo_bool_t is_pdf)
+static cairo_status_t cairo_truetype_subset_init_internal(cairo_truetype_subset_t * truetype_subset, cairo_scaled_font_subset_t * font_subset, boolint is_pdf)
 {
 	cairo_truetype_font_t * font = NULL;
 	const char * data = NULL; /* squelch bogus compiler warning */
@@ -1197,7 +1197,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 	tt_name_record_t * record;
 	int i, len;
 	char * p;
-	cairo_bool_t has_tag;
+	boolint has_tag;
 	cairo_status_t status;
 	char * str = NULL;
 	for(i = 0; i < be16_to_cpu(name->num_records); i++) {
@@ -1352,8 +1352,8 @@ fail:
 
 cairo_int_status_t _cairo_truetype_get_style(cairo_scaled_font_t * scaled_font,
     int * weight,
-    cairo_bool_t * bold,
-    cairo_bool_t * italic)
+    boolint * bold,
+    boolint * italic)
 {
 	cairo_status_t status;
 	const cairo_scaled_font_backend_t * backend;

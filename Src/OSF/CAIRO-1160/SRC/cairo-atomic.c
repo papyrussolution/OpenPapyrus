@@ -47,9 +47,9 @@ void _cairo_atomic_int_inc(cairo_atomic_intptr_t * x)
 	CAIRO_MUTEX_UNLOCK(_cairo_atomic_mutex);
 }
 
-cairo_bool_t _cairo_atomic_int_dec_and_test(cairo_atomic_intptr_t * x)
+boolint _cairo_atomic_int_dec_and_test(cairo_atomic_intptr_t * x)
 {
-	cairo_bool_t ret;
+	boolint ret;
 	CAIRO_MUTEX_LOCK(_cairo_atomic_mutex);
 	ret = --*x == 0;
 	CAIRO_MUTEX_UNLOCK(_cairo_atomic_mutex);

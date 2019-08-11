@@ -229,7 +229,7 @@ static void _lzw_symbol_table_init(lzw_symbol_table_t * table)
  * will be pointing at the location in the table to which a new CODE
  * value should be stored along with PREV and NEXT.
  */
-static cairo_bool_t _lzw_symbol_table_lookup(lzw_symbol_table_t * table, lzw_symbol_t symbol, lzw_symbol_t ** slot_ret)
+static boolint _lzw_symbol_table_lookup(lzw_symbol_table_t * table, lzw_symbol_t symbol, lzw_symbol_t ** slot_ret)
 {
 	/* The algorithm here is identical to that in cairo-hash.c. We
 	 * copy it here to allow for a rather more efficient

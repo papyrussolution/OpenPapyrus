@@ -216,13 +216,11 @@ typedef struct crypto_threadid_st {
 #define CRYPTO_THREADID_cmp(a, b)                     (-1)
 #define CRYPTO_THREADID_cpy(dest, src)
 #define CRYPTO_THREADID_hash(id)                      (0UL)
-
-#  if OPENSSL_API_COMPAT < 0x10000000L
-#   define CRYPTO_set_id_callback(func)
-#   define CRYPTO_get_id_callback()                     (NULL)
-#   define CRYPTO_thread_id()                           (0UL)
-#  endif /* OPENSSL_API_COMPAT < 0x10000000L */
-
+#if OPENSSL_API_COMPAT < 0x10000000L
+	#define CRYPTO_set_id_callback(func)
+	#define CRYPTO_get_id_callback()                     (NULL)
+	#define CRYPTO_thread_id()                           (0UL)
+#endif /* OPENSSL_API_COMPAT < 0x10000000L */
 #define CRYPTO_set_dynlock_create_callback(dyn_create_function)
 #define CRYPTO_set_dynlock_lock_callback(dyn_lock_function)
 #define CRYPTO_set_dynlock_destroy_callback(dyn_destroy_function)

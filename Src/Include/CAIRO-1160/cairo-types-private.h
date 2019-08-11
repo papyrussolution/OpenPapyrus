@@ -345,7 +345,7 @@ typedef struct _cairo_spline {
 	cairo_spline_knots_t knots;
 	cairo_slope_t initial_slope;
 	cairo_slope_t final_slope;
-	cairo_bool_t has_point;
+	boolint has_point;
 	cairo_point_t last_point;
 } cairo_spline_t;
 

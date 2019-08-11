@@ -52,16 +52,16 @@ struct stroker {
 	const cairo_matrix_t * ctm;
 	const cairo_matrix_t * ctm_inverse;
 	double tolerance;
-	cairo_bool_t ctm_det_positive;
+	boolint ctm_det_positive;
 	cairo_pen_t pen;
-	cairo_bool_t has_sub_path;
+	boolint has_sub_path;
 	cairo_point_t first_point;
-	cairo_bool_t has_current_face;
+	boolint has_current_face;
 	cairo_stroke_face_t current_face;
-	cairo_bool_t has_first_face;
+	boolint has_first_face;
 	cairo_stroke_face_t first_face;
 	cairo_box_t limit;
-	cairo_bool_t has_limits;
+	boolint has_limits;
 };
 
 static inline double normalize_slope(double * dx, double * dy);
@@ -106,7 +106,7 @@ static void add_fan(struct stroker * stroker,
     const cairo_point_t * midpt,
     const cairo_point_t * inpt,
     const cairo_point_t * outpt,
-    cairo_bool_t clockwise)
+    boolint clockwise)
 {
 	int start, stop, step, i, npoints;
 

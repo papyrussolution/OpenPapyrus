@@ -1927,13 +1927,13 @@ void _cairo_pattern_transform(cairo_pattern_t * pattern, const cairo_matrix_t * 
 	cairo_matrix_multiply(&pattern->matrix, ctm_inverse, &pattern->matrix);
 }
 
-static cairo_bool_t _linear_pattern_is_degenerate(const cairo_linear_pattern_t * linear)
+static boolint _linear_pattern_is_degenerate(const cairo_linear_pattern_t * linear)
 {
 	return fabs(linear->pd1.x - linear->pd2.x) < DBL_EPSILON &&
 	       fabs(linear->pd1.y - linear->pd2.y) < DBL_EPSILON;
 }
 
-static cairo_bool_t _radial_pattern_is_degenerate(const cairo_radial_pattern_t * radial)
+static boolint _radial_pattern_is_degenerate(const cairo_radial_pattern_t * radial)
 {
 	/* A radial pattern is considered degenerate if it can be
 	 * represented as a solid or clear pattern.  This corresponds to
@@ -2014,7 +2014,7 @@ static void _cairo_linear_pattern_box_to_parameter(const cairo_linear_pattern_t 
 		range[1] += tdy;
 }
 
-static cairo_bool_t _extend_range(double range[2], double value, cairo_bool_t valid)
+static boolint _extend_range(double range[2], double value, boolint valid)
 {
 	if(!valid)
 		range[0] = range[1] = value;
@@ -2040,7 +2040,7 @@ static cairo_bool_t _extend_range(double range[2], double value, cairo_bool_t va
  * %FALSE.
  *
  */
-cairo_bool_t _cairo_radial_pattern_focus_is_inside(const cairo_radial_pattern_t * radial)
+boolint _cairo_radial_pattern_focus_is_inside(const cairo_radial_pattern_t * radial)
 {
 	double cx, cy, cr, dx, dy, dr;
 
@@ -2063,7 +2063,7 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	double cx, cy, cr, dx, dy, dr;
 	double a, x_focus, y_focus;
 	double mindr, minx, miny, maxx, maxy;
-	cairo_bool_t valid;
+	boolint valid;
 
 	assert(!_radial_pattern_is_degenerate(radial));
 	assert(x0 < x1);
@@ -2536,7 +2536,7 @@ void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradi
 	}
 }
 
-static cairo_bool_t _gradient_is_clear(const cairo_gradient_pattern_t * gradient,
+static boolint _gradient_is_clear(const cairo_gradient_pattern_t * gradient,
     const cairo_rectangle_int_t * extents)
 {
 	uint i;
@@ -2784,7 +2784,7 @@ void _cairo_pattern_alpha_range(const cairo_pattern_t * pattern, double * out_mi
  * the coodrinate range if the mesh pattern contains at least one
  * patch, otherwise it returns FALSE.
  **/
-cairo_bool_t _cairo_mesh_pattern_coord_box(const cairo_mesh_pattern_t * mesh, double * out_xmin, double * out_ymin, double * out_xmax, double * out_ymax)
+boolint _cairo_mesh_pattern_coord_box(const cairo_mesh_pattern_t * mesh, double * out_xmin, double * out_ymin, double * out_xmax, double * out_ymax)
 {
 	const cairo_mesh_patch_t * patch;
 	uint num_patches, i, j, k;
@@ -2824,7 +2824,7 @@ cairo_bool_t _cairo_mesh_pattern_coord_box(const cairo_mesh_pattern_t * mesh, do
  *
  * Return value: %TRUE if the pattern is a solid color.
  **/
-cairo_bool_t _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * extents, cairo_color_t * color)
+boolint _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * extents, cairo_color_t * color)
 {
 	uint i;
 	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
@@ -2866,7 +2866,7 @@ cairo_bool_t _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * g
  *
  * Return value: %TRUE if the pattern has constant alpha.
  **/
-cairo_bool_t _cairo_pattern_is_constant_alpha(const cairo_pattern_t * abstract_pattern, const cairo_rectangle_int_t * extents, double * alpha)
+boolint _cairo_pattern_is_constant_alpha(const cairo_pattern_t * abstract_pattern, const cairo_rectangle_int_t * extents, double * alpha)
 {
 	const cairo_pattern_union_t * pattern;
 	cairo_color_t color;
@@ -2903,10 +2903,10 @@ cairo_bool_t _cairo_pattern_is_constant_alpha(const cairo_pattern_t * abstract_p
 	return FALSE;
 }
 
-static cairo_bool_t _mesh_is_clear(const cairo_mesh_pattern_t * mesh)
+static boolint _mesh_is_clear(const cairo_mesh_pattern_t * mesh)
 {
 	double x1, y1, x2, y2;
-	cairo_bool_t is_valid = _cairo_mesh_pattern_coord_box(mesh, &x1, &y1, &x2, &y2);
+	boolint is_valid = _cairo_mesh_pattern_coord_box(mesh, &x1, &y1, &x2, &y2);
 	if(!is_valid)
 		return TRUE;
 	if(x2 - x1 < DBL_EPSILON || y2 - y1 < DBL_EPSILON)
@@ -2924,7 +2924,7 @@ static cairo_bool_t _mesh_is_clear(const cairo_mesh_pattern_t * mesh)
  *
  * Return value: %TRUE if the pattern is an opaque, solid color.
  **/
-cairo_bool_t _cairo_pattern_is_opaque_solid(const cairo_pattern_t * pattern)
+boolint _cairo_pattern_is_opaque_solid(const cairo_pattern_t * pattern)
 {
 	if(pattern->type != CAIRO_PATTERN_TYPE_SOLID)
 		return FALSE;
@@ -2934,7 +2934,7 @@ cairo_bool_t _cairo_pattern_is_opaque_solid(const cairo_pattern_t * pattern)
 	}
 }
 
-static cairo_bool_t _surface_is_opaque(const cairo_surface_pattern_t * pattern, const cairo_rectangle_int_t * sample)
+static boolint _surface_is_opaque(const cairo_surface_pattern_t * pattern, const cairo_rectangle_int_t * sample)
 {
 	cairo_rectangle_int_t extents;
 	if(pattern->surface->content & CAIRO_CONTENT_ALPHA)
@@ -2948,7 +2948,7 @@ static cairo_bool_t _surface_is_opaque(const cairo_surface_pattern_t * pattern, 
 	return _cairo_rectangle_contains_rectangle(&extents, sample);
 }
 
-static cairo_bool_t _raster_source_is_opaque(const cairo_raster_source_pattern_t * pattern, const cairo_rectangle_int_t * sample)
+static boolint _raster_source_is_opaque(const cairo_raster_source_pattern_t * pattern, const cairo_rectangle_int_t * sample)
 {
 	if(pattern->content & CAIRO_CONTENT_ALPHA)
 		return FALSE;
@@ -2959,7 +2959,7 @@ static cairo_bool_t _raster_source_is_opaque(const cairo_raster_source_pattern_t
 	return _cairo_rectangle_contains_rectangle(&pattern->extents, sample);
 }
 
-static cairo_bool_t _surface_is_clear(const cairo_surface_pattern_t * pattern)
+static boolint _surface_is_clear(const cairo_surface_pattern_t * pattern)
 {
 	cairo_rectangle_int_t extents;
 	if(_cairo_surface_get_extents(pattern->surface, &extents) && (extents.width == 0 || extents.height == 0))
@@ -2967,12 +2967,12 @@ static cairo_bool_t _surface_is_clear(const cairo_surface_pattern_t * pattern)
 	return pattern->surface->is_clear && pattern->surface->content & CAIRO_CONTENT_ALPHA;
 }
 
-static cairo_bool_t _raster_source_is_clear(const cairo_raster_source_pattern_t * pattern)
+static boolint _raster_source_is_clear(const cairo_raster_source_pattern_t * pattern)
 {
 	return pattern->extents.width == 0 || pattern->extents.height == 0;
 }
 
-static cairo_bool_t _gradient_is_opaque(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * sample)
+static boolint _gradient_is_opaque(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * sample)
 {
 	uint i;
 	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
@@ -3010,7 +3010,7 @@ static cairo_bool_t _gradient_is_opaque(const cairo_gradient_pattern_t * gradien
  *
  * Return value: %TRUE if the pattern is a opaque.
  **/
-cairo_bool_t FASTCALL _cairo_pattern_is_opaque(const cairo_pattern_t * abstract_pattern, const cairo_rectangle_int_t * sample)
+boolint FASTCALL _cairo_pattern_is_opaque(const cairo_pattern_t * abstract_pattern, const cairo_rectangle_int_t * sample)
 {
 	if(abstract_pattern->has_component_alpha)
 		return FALSE;
@@ -3027,7 +3027,7 @@ cairo_bool_t FASTCALL _cairo_pattern_is_opaque(const cairo_pattern_t * abstract_
 	return FALSE;
 }
 
-cairo_bool_t FASTCALL _cairo_pattern_is_clear(const cairo_pattern_t * abstract_pattern)
+boolint FASTCALL _cairo_pattern_is_clear(const cairo_pattern_t * abstract_pattern)
 {
 	if(abstract_pattern->has_component_alpha)
 		return FALSE;
@@ -3221,12 +3221,12 @@ void FASTCALL _cairo_pattern_sampled_area(const cairo_pattern_t * pattern, const
  * "infinite" extents, though it would be possible to optimize these
  * with a little more work.
  **/
-void _cairo_pattern_get_extents(const cairo_pattern_t * pattern, cairo_rectangle_int_t * extents, cairo_bool_t is_vector)
+void _cairo_pattern_get_extents(const cairo_pattern_t * pattern, cairo_rectangle_int_t * extents, boolint is_vector)
 {
 	double x1, y1, x2, y2;
 	int ix1, ix2, iy1, iy2;
-	cairo_bool_t round_x = FALSE;
-	cairo_bool_t round_y = FALSE;
+	boolint round_x = FALSE;
+	boolint round_y = FALSE;
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
 		    goto UNBOUNDED;
@@ -3548,12 +3548,12 @@ ulong _cairo_pattern_hash(const cairo_pattern_t * pattern)
 	}
 }
 
-static cairo_bool_t _cairo_solid_pattern_equal(const cairo_solid_pattern_t * a, const cairo_solid_pattern_t * b)
+static boolint _cairo_solid_pattern_equal(const cairo_solid_pattern_t * a, const cairo_solid_pattern_t * b)
 {
 	return _cairo_color_equal(&a->color, &b->color);
 }
 
-static cairo_bool_t _cairo_gradient_color_stops_equal(const cairo_gradient_pattern_t * a, const cairo_gradient_pattern_t * b)
+static boolint _cairo_gradient_color_stops_equal(const cairo_gradient_pattern_t * a, const cairo_gradient_pattern_t * b)
 {
 	uint n;
 	if(a->n_stops != b->n_stops)
@@ -3567,7 +3567,7 @@ static cairo_bool_t _cairo_gradient_color_stops_equal(const cairo_gradient_patte
 	return TRUE;
 }
 
-cairo_bool_t _cairo_linear_pattern_equal(const cairo_linear_pattern_t * a, const cairo_linear_pattern_t * b)
+boolint _cairo_linear_pattern_equal(const cairo_linear_pattern_t * a, const cairo_linear_pattern_t * b)
 {
 	if(a->pd1.x != b->pd1.x)
 		return FALSE;
@@ -3580,7 +3580,7 @@ cairo_bool_t _cairo_linear_pattern_equal(const cairo_linear_pattern_t * a, const
 	return _cairo_gradient_color_stops_equal(&a->base, &b->base);
 }
 
-cairo_bool_t _cairo_radial_pattern_equal(const cairo_radial_pattern_t * a, const cairo_radial_pattern_t * b)
+boolint _cairo_radial_pattern_equal(const cairo_radial_pattern_t * a, const cairo_radial_pattern_t * b)
 {
 	if(a->cd1.center.x != b->cd1.center.x)
 		return FALSE;
@@ -3597,7 +3597,7 @@ cairo_bool_t _cairo_radial_pattern_equal(const cairo_radial_pattern_t * a, const
 	return _cairo_gradient_color_stops_equal(&a->base, &b->base);
 }
 
-static cairo_bool_t _cairo_mesh_pattern_equal(const cairo_mesh_pattern_t * a, const cairo_mesh_pattern_t * b)
+static boolint _cairo_mesh_pattern_equal(const cairo_mesh_pattern_t * a, const cairo_mesh_pattern_t * b)
 {
 	const cairo_mesh_patch_t * patch_a, * patch_b;
 	uint i, num_patches_a, num_patches_b;
@@ -3614,17 +3614,17 @@ static cairo_bool_t _cairo_mesh_pattern_equal(const cairo_mesh_pattern_t * a, co
 	return TRUE;
 }
 
-static cairo_bool_t _cairo_surface_pattern_equal(const cairo_surface_pattern_t * a, const cairo_surface_pattern_t * b)
+static boolint _cairo_surface_pattern_equal(const cairo_surface_pattern_t * a, const cairo_surface_pattern_t * b)
 {
 	return a->surface->unique_id == b->surface->unique_id;
 }
 
-static cairo_bool_t _cairo_raster_source_pattern_equal(const cairo_raster_source_pattern_t * a, const cairo_raster_source_pattern_t * b)
+static boolint _cairo_raster_source_pattern_equal(const cairo_raster_source_pattern_t * a, const cairo_raster_source_pattern_t * b)
 {
 	return a->user_data == b->user_data;
 }
 
-cairo_bool_t _cairo_pattern_equal(const cairo_pattern_t * a, const cairo_pattern_t * b)
+boolint _cairo_pattern_equal(const cairo_pattern_t * a, const cairo_pattern_t * b)
 {
 	if(a->status || b->status)
 		return FALSE;

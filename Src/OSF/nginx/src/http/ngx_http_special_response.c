@@ -400,7 +400,7 @@ static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http
 	if(ngx_http_error_pages[err].len == 0) {
 		return ngx_http_send_special(r, NGX_HTTP_LAST);
 	}
-	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+	b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 	if(!b) {
 		return NGX_ERROR;
 	}
@@ -409,7 +409,7 @@ static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http
 	b->last = ngx_http_error_pages[err].data + ngx_http_error_pages[err].len;
 	out[0].buf = b;
 	out[0].next = &out[1];
-	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+	b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 	if(!b) {
 		return NGX_ERROR;
 	}
@@ -419,7 +419,7 @@ static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http
 	out[1].buf = b;
 	out[1].next = NULL;
 	if(msie_padding) {
-		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+		b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 		if(!b) {
 			return NGX_ERROR;
 		}

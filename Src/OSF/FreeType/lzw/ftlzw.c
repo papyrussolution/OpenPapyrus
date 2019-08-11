@@ -225,7 +225,7 @@ static FT_ULong ft_lzw_file_io(FT_LZWFile zip,
 			zip->cursor -= zip->pos - pos;
 			zip->pos     = pos;
 		}
-		else{
+		else {
 			error = ft_lzw_file_reset(zip);
 			if(error)
 				goto Exit;

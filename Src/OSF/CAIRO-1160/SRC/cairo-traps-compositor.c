@@ -547,7 +547,7 @@ skip:
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t can_reduce_alpha_op(cairo_operator_t op)
+static boolint can_reduce_alpha_op(cairo_operator_t op)
 {
 	int iop = op;
 	switch(iop) {
@@ -560,7 +560,7 @@ static cairo_bool_t can_reduce_alpha_op(cairo_operator_t op)
 	}
 }
 
-static cairo_bool_t reduce_alpha_op(cairo_composite_rectangles_t * extents)
+static boolint reduce_alpha_op(cairo_composite_rectangles_t * extents)
 {
 	cairo_surface_t * dst = extents->surface;
 	cairo_operator_t op = extents->op;
@@ -775,7 +775,7 @@ enum {
 	FORCE_CLIP_REGION = 0x4,
 };
 
-static cairo_bool_t need_bounded_clip(cairo_composite_rectangles_t * extents)
+static boolint need_bounded_clip(cairo_composite_rectangles_t * extents)
 {
 	uint flags = 0;
 
@@ -797,7 +797,7 @@ static cairo_bool_t need_bounded_clip(cairo_composite_rectangles_t * extents)
 	return flags;
 }
 
-static cairo_bool_t need_unbounded_clip(cairo_composite_rectangles_t * extents)
+static boolint need_unbounded_clip(cairo_composite_rectangles_t * extents)
 {
 	uint flags = 0;
 	if(!extents->is_bounded) {
@@ -919,7 +919,7 @@ static cairo_int_status_t composite_tristrip(const cairo_traps_compositor_t * co
 	return compositor->composite_tristrip(dst, op, src, src_x - dst_x, src_y - dst_y, dst_x, dst_y, extents, info->antialias, &info->strip);
 }
 
-static cairo_bool_t is_recording_pattern(const cairo_pattern_t * pattern)
+static boolint is_recording_pattern(const cairo_pattern_t * pattern)
 {
 	cairo_surface_t * surface;
 	if(pattern->type != CAIRO_PATTERN_TYPE_SURFACE)
@@ -935,7 +935,7 @@ static cairo_surface_t * recording_pattern_get_surface(const cairo_pattern_t * p
 	return _cairo_surface_get_source(surface, NULL);
 }
 
-static cairo_bool_t recording_pattern_contains_sample(const cairo_pattern_t * pattern, const cairo_rectangle_int_t * sample)
+static boolint recording_pattern_contains_sample(const cairo_pattern_t * pattern, const cairo_rectangle_int_t * sample)
 {
 	cairo_recording_surface_t * surface;
 	if(!is_recording_pattern(pattern))
@@ -948,7 +948,7 @@ static cairo_bool_t recording_pattern_contains_sample(const cairo_pattern_t * pa
 	return _cairo_rectangle_contains_rectangle(&surface->extents, sample);
 }
 
-static cairo_bool_t op_reduces_to_source(cairo_composite_rectangles_t * extents)
+static boolint op_reduces_to_source(cairo_composite_rectangles_t * extents)
 {
 	if(extents->op == CAIRO_OPERATOR_SOURCE)
 		return TRUE;
@@ -961,8 +961,8 @@ static cairo_status_t composite_aligned_boxes(const cairo_traps_compositor_t * c
 {
 	cairo_surface_t * dst = extents->surface;
 	cairo_operator_t op = extents->op;
-	cairo_bool_t need_clip_mask = !_cairo_clip_is_region(extents->clip);
-	cairo_bool_t op_is_source;
+	boolint need_clip_mask = !_cairo_clip_is_region(extents->clip);
+	boolint op_is_source;
 	cairo_status_t status;
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(need_clip_mask && (!extents->is_bounded || extents->op == CAIRO_OPERATOR_SOURCE)) {
@@ -1219,11 +1219,11 @@ static cairo_status_t clip_and_composite_polygon(const cairo_traps_compositor_t 
     cairo_polygon_t * polygon,
     cairo_antialias_t antialias,
     cairo_fill_rule_t fill_rule,
-    cairo_bool_t curvy)
+    boolint curvy)
 {
 	composite_traps_info_t traps;
 	cairo_surface_t * dst = extents->surface;
-	cairo_bool_t clip_surface = !_cairo_clip_is_region(extents->clip);
+	boolint clip_surface = !_cairo_clip_is_region(extents->clip);
 	cairo_int_status_t status;
 
 	TRACE((stderr, "%s\n", __FUNCTION__));
@@ -1876,7 +1876,7 @@ static cairo_int_status_t _cairo_traps_compositor_glyphs(const cairo_compositor_
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	const cairo_traps_compositor_t * compositor = (cairo_traps_compositor_t *)_compositor;
 	cairo_int_status_t status;

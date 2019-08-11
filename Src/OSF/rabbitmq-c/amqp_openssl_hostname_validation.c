@@ -27,12 +27,12 @@
  * https://wiki.openssl.org/index.php/Hostname_validation
  */
 #include "amqp_private.h"
+#pragma hdrstop
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #include "amqp_hostcheck.h"
 #include "amqp_openssl_bio.h"
 #include "amqp_openssl_hostname_validation.h"
-#include <string.h>
 
 #define HOSTNAME_MAX_SIZE 255
 

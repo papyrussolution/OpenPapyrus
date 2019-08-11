@@ -54,7 +54,7 @@ typedef struct cairo_stroker {
 	double tolerance;
 	double spline_cusp_tolerance;
 	double ctm_determinant;
-	cairo_bool_t ctm_det_positive;
+	boolint ctm_det_positive;
 	void * closure;
 	cairo_status_t (* add_external_edge)(void * closure, const cairo_point_t * p1, const cairo_point_t * p2);
 	cairo_status_t (* add_triangle)(void * closure, const cairo_point_t triangle[3]);
@@ -64,13 +64,13 @@ typedef struct cairo_stroker {
 	cairo_pen_t pen;
 	cairo_point_t current_point;
 	cairo_point_t first_point;
-	cairo_bool_t has_initial_sub_path;
-	cairo_bool_t has_current_face;
+	boolint has_initial_sub_path;
+	boolint has_current_face;
 	cairo_stroke_face_t current_face;
-	cairo_bool_t has_first_face;
+	boolint has_first_face;
 	cairo_stroke_face_t first_face;
 	cairo_stroker_dash_t dash;
-	cairo_bool_t has_bounds;
+	boolint has_bounds;
 	cairo_box_t bounds;
 } cairo_stroker_t;
 
@@ -204,7 +204,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
     const cairo_point_t * midpt,
     const cairo_point_t * inpt,
     const cairo_point_t * outpt,
-    cairo_bool_t clockwise)
+    boolint clockwise)
 {
 	cairo_point_t stack_points[64], * points = stack_points;
 	cairo_pen_t * pen = &stroker->pen;
@@ -670,7 +670,7 @@ static cairo_status_t _cairo_stroker_add_trailing_cap(cairo_stroker_t * stroker,
 	return _cairo_stroker_add_cap(stroker, face);
 }
 
-static inline cairo_bool_t _compute_normalized_device_slope(double * dx, double * dy,
+static inline boolint _compute_normalized_device_slope(double * dx, double * dy,
     const cairo_matrix_t * ctm_inverse,
     double * mag_out)
 {
@@ -982,7 +982,7 @@ static cairo_status_t _cairo_stroker_line_to_dashed(void * closure, const cairo_
 	cairo_point_t * p1 = &stroker->current_point;
 	cairo_slope_t dev_slope;
 	cairo_line_t segment;
-	cairo_bool_t fully_in_bounds;
+	boolint fully_in_bounds;
 	cairo_status_t status;
 	stroker->has_initial_sub_path = stroker->dash.dash_starts_on;
 	if(p1->x == p2->x && p1->y == p2->y)

@@ -189,7 +189,7 @@ void FASTCALL _cairo_polygon_fini(cairo_polygon_t * polygon)
 }
 
 /* make room for at least one more edge */
-static cairo_bool_t _cairo_polygon_grow(cairo_polygon_t * polygon)
+static boolint _cairo_polygon_grow(cairo_polygon_t * polygon)
 {
 	cairo_edge_t * new_edges;
 	int old_size = polygon->edges_size;
@@ -293,7 +293,7 @@ static void _add_clipped_edge(cairo_polygon_t * polygon, const cairo_point_t * p
 		else {
 			/* The edge and the box intersect in a generic way */
 			cairo_fixed_t left_y, right_y;
-			cairo_bool_t top_left_to_bottom_right;
+			boolint top_left_to_bottom_right;
 			/*
 			 * The edge intersects the lines corresponding to the left
 			 * and right sides of the limit box at left_y and right_y,

@@ -102,8 +102,8 @@ static int (* CGFontGetLeadingPtr) (CGFontRef fontRef) = NULL;
 /* Not public anymore in 64-bits nor in 10.7 */
 static ATSFontRef (* FMGetATSFontRefFromFontPtr) (FMFont iFont) = NULL;
 
-static cairo_bool_t _cairo_quartz_font_symbol_lookup_done = FALSE;
-static cairo_bool_t _cairo_quartz_font_symbols_present = FALSE;
+static boolint _cairo_quartz_font_symbol_lookup_done = FALSE;
+static boolint _cairo_quartz_font_symbols_present = FALSE;
 
 /* Defined in 10.11 */
 #define CGGLYPH_MAX ((CGGlyph)0xFFFE)  /* kCGFontIndexMax */
@@ -241,7 +241,7 @@ static cairo_status_t _cairo_quartz_font_face_create_for_toy(cairo_toy_font_face
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_quartz_font_face_destroy(void * abstract_face)
+static boolint _cairo_quartz_font_face_destroy(void * abstract_face)
 {
 	cairo_quartz_font_face_t * font_face = (cairo_quartz_font_face_t*)abstract_face;
 

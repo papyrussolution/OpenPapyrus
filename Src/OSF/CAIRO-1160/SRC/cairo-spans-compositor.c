@@ -407,7 +407,7 @@ static cairo_surface_t * unwrap_source(const cairo_pattern_t * pattern)
 		   &limit);
 }
 
-static cairo_bool_t is_recording_pattern(const cairo_pattern_t * pattern)
+static boolint is_recording_pattern(const cairo_pattern_t * pattern)
 {
 	cairo_surface_t * surface;
 
@@ -418,7 +418,7 @@ static cairo_bool_t is_recording_pattern(const cairo_pattern_t * pattern)
 	return _cairo_surface_is_recording(surface);
 }
 
-static cairo_bool_t recording_pattern_contains_sample(const cairo_pattern_t * pattern,
+static boolint recording_pattern_contains_sample(const cairo_pattern_t * pattern,
     const cairo_rectangle_int_t * sample)
 {
 	cairo_recording_surface_t * surface;
@@ -436,8 +436,8 @@ static cairo_bool_t recording_pattern_contains_sample(const cairo_pattern_t * pa
 	return _cairo_rectangle_contains_rectangle(&surface->extents, sample);
 }
 
-static cairo_bool_t op_reduces_to_source(const cairo_composite_rectangles_t * extents,
-    cairo_bool_t no_mask)
+static boolint op_reduces_to_source(const cairo_composite_rectangles_t * extents,
+    boolint no_mask)
 {
 	if(extents->op == CAIRO_OPERATOR_SOURCE)
 		return TRUE;
@@ -494,7 +494,7 @@ static cairo_status_t upload_boxes(const cairo_spans_compositor_t * compositor,
 	return status;
 }
 
-static cairo_bool_t _clip_is_region(const cairo_clip_t * clip)
+static boolint _clip_is_region(const cairo_clip_t * clip)
 {
 	int i;
 
@@ -521,10 +521,10 @@ static cairo_int_status_t composite_aligned_boxes(const cairo_spans_compositor_t
 	cairo_operator_t op = extents->op;
 	const cairo_pattern_t * source = &extents->source_pattern.base;
 	cairo_int_status_t status;
-	cairo_bool_t need_clip_mask = !_clip_is_region(extents->clip);
-	cairo_bool_t op_is_source;
-	cairo_bool_t no_mask;
-	cairo_bool_t inplace;
+	boolint need_clip_mask = !_clip_is_region(extents->clip);
+	boolint op_is_source;
+	boolint no_mask;
+	boolint inplace;
 
 	TRACE((stderr, "%s: need_clip_mask=%d, is-bounded=%d\n",
 	    __FUNCTION__, need_clip_mask, extents->is_bounded));
@@ -671,7 +671,7 @@ static cairo_int_status_t composite_aligned_boxes(const cairo_spans_compositor_t
 	return status;
 }
 
-static cairo_bool_t composite_needs_clip(const cairo_composite_rectangles_t * composite,
+static boolint composite_needs_clip(const cairo_composite_rectangles_t * composite,
     const cairo_box_t * extents)
 {
 	return !_cairo_clip_contains_box(composite->clip, extents);
@@ -717,7 +717,7 @@ static cairo_int_status_t composite_polygon(const cairo_spans_compositor_t * com
 {
 	cairo_abstract_span_renderer_t renderer;
 	cairo_scan_converter_t * converter;
-	cairo_bool_t needs_clip;
+	boolint needs_clip;
 	cairo_int_status_t status;
 
 	if(extents->is_bounded)

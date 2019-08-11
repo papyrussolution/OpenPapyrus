@@ -61,7 +61,7 @@ cairo_private cairo_surface_t * _cairo_type3_glyph_surface_create(cairo_scaled_f
     cairo_output_stream_t  * stream,
     cairo_type3_glyph_surface_emit_image_t emit_image,
     cairo_scaled_font_subsets_t * font_subsets,
-    cairo_bool_t ps_output);
+    boolint ps_output);
 
 cairo_private void _cairo_type3_glyph_surface_set_font_subsets_callback(void * abstract_surface, cairo_pdf_operators_use_font_subset_t use_font_subset, void * closure);
 cairo_private cairo_status_t _cairo_type3_glyph_surface_analyze_glyph(void   * abstract_surface, ulong glyph_index);

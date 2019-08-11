@@ -84,7 +84,7 @@ static cairo_int_status_t _cairo_no_compositor_glyphs(const cairo_compositor_t *
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	ASSERT_NOT_REACHED;
 	return CAIRO_INT_STATUS_NOTHING_TO_DO;

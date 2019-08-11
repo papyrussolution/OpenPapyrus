@@ -234,14 +234,14 @@ static cairo_status_t _cairo_xcb_connection_parse_xrender_formats(cairo_xcb_conn
 	DEPTH_MASK(8) | \
 	DEPTH_MASK(24) | \
 	DEPTH_MASK(32))
-static cairo_bool_t pixmap_depths_usable(cairo_xcb_connection_t * connection,
+static boolint pixmap_depths_usable(cairo_xcb_connection_t * connection,
     uint32_t missing,
     xcb_drawable_t root)
 {
 	xcb_connection_t * c = connection->xcb_connection;
 	xcb_void_cookie_t create_cookie[32];
 	xcb_pixmap_t pixmap;
-	cairo_bool_t success = TRUE;
+	boolint success = TRUE;
 	int depth, i, j;
 
 	pixmap = _cairo_xcb_connection_get_xid(connection);
@@ -269,7 +269,7 @@ static cairo_bool_t pixmap_depths_usable(cairo_xcb_connection_t * connection,
 	return success;
 }
 
-static cairo_bool_t has_required_depths(cairo_xcb_connection_t * connection)
+static boolint has_required_depths(cairo_xcb_connection_t * connection)
 {
 	xcb_screen_iterator_t screens;
 
@@ -342,7 +342,7 @@ static cairo_status_t _cairo_xcb_connection_query_render(cairo_xcb_connection_t 
 	xcb_render_query_version_reply_t * version;
 	xcb_render_query_pict_formats_reply_t * formats;
 	cairo_status_t status;
-	cairo_bool_t present;
+	boolint present;
 
 	version_cookie = xcb_render_query_version(c, XCB_RENDER_MAJOR_VERSION, XCB_RENDER_MINOR_VERSION);
 	formats_cookie = xcb_render_query_pict_formats(c);
@@ -424,9 +424,9 @@ static void _cairo_xcb_connection_query_cairo(cairo_xcb_connection_t * connectio
 #endif
 
 #if CAIRO_HAS_XCB_SHM_FUNCTIONS
-static cairo_bool_t can_use_shm(cairo_xcb_connection_t * connection)
+static boolint can_use_shm(cairo_xcb_connection_t * connection)
 {
-	cairo_bool_t success = TRUE;
+	boolint success = TRUE;
 	xcb_connection_t * c = connection->xcb_connection;
 	xcb_void_cookie_t cookie[2];
 	xcb_generic_error_t * error;
@@ -509,7 +509,7 @@ static void _pluck_xrender_format(void * entry,
 static void _device_finish(void * device)
 {
 	cairo_xcb_connection_t * connection = device;
-	cairo_bool_t was_cached = FALSE;
+	boolint was_cached = FALSE;
 
 	if(!cairo_list_is_empty(&connection->link)) {
 		CAIRO_MUTEX_LOCK(_cairo_xcb_connections_mutex);

@@ -153,7 +153,7 @@ void _cairo_xcb_screen_finish(cairo_xcb_screen_t * screen)
 	SAlloc::F(screen);
 }
 
-static cairo_bool_t _linear_pattern_cache_entry_equal(const void * A, const void * B)
+static boolint _linear_pattern_cache_entry_equal(const void * A, const void * B)
 {
 	const struct pattern_cache_entry * a = A, * b = B;
 
@@ -161,7 +161,7 @@ static cairo_bool_t _linear_pattern_cache_entry_equal(const void * A, const void
 		   &b->pattern.gradient.linear);
 }
 
-static cairo_bool_t _radial_pattern_cache_entry_equal(const void * A, const void * B)
+static boolint _radial_pattern_cache_entry_equal(const void * A, const void * B)
 {
 	const struct pattern_cache_entry * a = A, * b = B;
 

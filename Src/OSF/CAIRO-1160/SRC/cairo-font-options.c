@@ -251,7 +251,7 @@ slim_hidden_def(cairo_font_options_merge);
  *
  * Since: 1.0
  **/
-cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other)
+boolint cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other)
 {
 	if(cairo_font_options_status((cairo_font_options_t*)options))
 		return FALSE;

@@ -1804,6 +1804,7 @@
 #define cmCopyToClipboard        1169
 #define cmCopyToClipboardAll     1170
 #define cmLayoutEntry            1171 // @v10.4.9
+#define cmPasteFromClipboardAll  1172 // @erik v10.5.2
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)

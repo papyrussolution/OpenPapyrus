@@ -306,7 +306,7 @@ static cairo_surface_t * _cairo_xml_surface_create_similar(void * abstract_surfa
 	return cairo_recording_surface_create(content, &extents);
 }
 
-static cairo_bool_t _cairo_xml_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
+static boolint _cairo_xml_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
 	cairo_xml_surface_t * surface = static_cast<cairo_xml_surface_t *>(abstract_surface);
 	if(surface->width < 0 || surface->height < 0)

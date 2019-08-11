@@ -33,12 +33,13 @@
  * ***** END LICENSE BLOCK *****
  */
 #include "amqp_private.h"
-#include <assert.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
+#pragma hdrstop
+//#include <assert.h>
+//#include <stdint.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <sys/types.h>
 
 char const * amqp_version(void) 
 {
@@ -63,25 +64,26 @@ void init_amqp_pool(amqp_pool_t * pool, size_t pagesize)
 
 static void empty_blocklist(amqp_pool_blocklist_t * x) 
 {
-	int i;
 	if(x->blocklist != NULL) {
-		for(i = 0; i < x->num_blocks; i++) {
-			free(x->blocklist[i]);
+		for(int i = 0; i < x->num_blocks; i++) {
+			SAlloc::F(x->blocklist[i]);
 		}
-		free(x->blocklist);
+		SAlloc::F(x->blocklist);
 	}
 	x->num_blocks = 0;
 	x->blocklist = NULL;
 }
 
-void recycle_amqp_pool(amqp_pool_t * pool) {
+void recycle_amqp_pool(amqp_pool_t * pool) 
+{
 	empty_blocklist(&pool->large_blocks);
 	pool->next_page = 0;
 	pool->alloc_block = NULL;
 	pool->alloc_used = 0;
 }
 
-void empty_amqp_pool(amqp_pool_t * pool) {
+void empty_amqp_pool(amqp_pool_t * pool) 
+{
 	recycle_amqp_pool(pool);
 	empty_blocklist(&pool->pages);
 }
@@ -91,7 +93,7 @@ static int record_pool_block(amqp_pool_blocklist_t * x, void * block)
 {
 	size_t blocklistlength = sizeof(void *) * (x->num_blocks + 1);
 	if(x->blocklist == NULL) {
-		x->blocklist = static_cast<void **>(malloc(blocklistlength));
+		x->blocklist = static_cast<void **>(SAlloc::M(blocklistlength));
 		if(x->blocklist == NULL) {
 			return 0;
 		}
@@ -108,20 +110,19 @@ static int record_pool_block(amqp_pool_blocklist_t * x, void * block)
 	return 1;
 }
 
-void * amqp_pool_alloc(amqp_pool_t * pool, size_t amount) {
+void * amqp_pool_alloc(amqp_pool_t * pool, size_t amount) 
+{
 	if(amount == 0) {
 		return NULL;
 	}
-
 	amount = (amount + 7) & (~7); /* round up to nearest 8-byte boundary */
-
 	if(amount > pool->pagesize) {
-		void * result = calloc(1, amount);
+		void * result = SAlloc::C(1, amount);
 		if(result == NULL) {
 			return NULL;
 		}
 		if(!record_pool_block(&pool->large_blocks, result)) {
-			free(result);
+			SAlloc::F(result);
 			return NULL;
 		}
 		return result;
@@ -135,7 +136,7 @@ void * amqp_pool_alloc(amqp_pool_t * pool, size_t amount) {
 		}
 	}
 	if(pool->next_page >= pool->pages.num_blocks) {
-		pool->alloc_block = static_cast<char *>(calloc(1, pool->pagesize));
+		pool->alloc_block = static_cast<char *>(SAlloc::C(1, pool->pagesize));
 		if(pool->alloc_block == NULL) {
 			return NULL;
 		}
@@ -170,7 +171,7 @@ amqp_bytes_t amqp_bytes_malloc_dup(amqp_bytes_t src)
 {
 	amqp_bytes_t result;
 	result.len = src.len;
-	result.bytes = malloc(src.len);
+	result.bytes = SAlloc::M(src.len);
 	if(result.bytes != NULL) {
 		memcpy(result.bytes, src.bytes, src.len);
 	}
@@ -181,12 +182,13 @@ amqp_bytes_t amqp_bytes_malloc(size_t amount)
 {
 	amqp_bytes_t result;
 	result.len = amount;
-	result.bytes = malloc(amount); /* will return NULL if it fails */
+	result.bytes = SAlloc::M(amount); /* will return NULL if it fails */
 	return result;
 }
 
-void amqp_bytes_free(amqp_bytes_t bytes) {
-	free(bytes.bytes);
+void amqp_bytes_free(amqp_bytes_t bytes) 
+{
+	SAlloc::F(bytes.bytes);
 }
 
 amqp_pool_t * amqp_get_or_create_channel_pool(amqp_connection_state_t state, amqp_channel_t channel) 
@@ -198,7 +200,7 @@ amqp_pool_t * amqp_get_or_create_channel_pool(amqp_connection_state_t state, amq
 			return &entry->pool;
 		}
 	}
-	entry = static_cast<amqp_pool_table_entry_t *>(malloc(sizeof(amqp_pool_table_entry_t)));
+	entry = static_cast<amqp_pool_table_entry_t *>(SAlloc::M(sizeof(amqp_pool_table_entry_t)));
 	if(NULL == entry) {
 		return NULL;
 	}

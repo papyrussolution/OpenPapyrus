@@ -124,7 +124,7 @@ static cairo_xcb_picture_t * _cairo_xcb_picture_create(cairo_xcb_screen_t * scre
 	return surface;
 }
 
-static inline cairo_bool_t _operator_is_supported(uint32_t flags, cairo_operator_t op)
+static inline boolint _operator_is_supported(uint32_t flags, cairo_operator_t op)
 {
 	if(op <= CAIRO_OPERATOR_SATURATE)
 		return TRUE;
@@ -359,7 +359,7 @@ static cairo_xcb_picture_t * _picture_from_image(cairo_xcb_surface_t * target,
 	return picture;
 }
 
-static cairo_bool_t _pattern_is_supported(uint32_t flags,
+static boolint _pattern_is_supported(uint32_t flags,
     const cairo_pattern_t * pattern)
 
 {
@@ -525,7 +525,7 @@ static void _cairo_xcb_picture_set_extend(cairo_xcb_picture_t * picture,
 }
 
 static void _cairo_xcb_picture_set_component_alpha(cairo_xcb_picture_t * picture,
-    cairo_bool_t ca)
+    boolint ca)
 {
 	uint32_t pa[1];
 
@@ -1456,7 +1456,7 @@ cleanup_boxes:
 #define CAIRO_FIXED_16_16_MIN _cairo_fixed_from_int(-32768)
 #define CAIRO_FIXED_16_16_MAX _cairo_fixed_from_int(32767)
 
-static cairo_bool_t _line_exceeds_16_16(const cairo_line_t * line)
+static boolint _line_exceeds_16_16(const cairo_line_t * line)
 {
 	return
 		line->p1.x <= CAIRO_FIXED_16_16_MIN ||
@@ -1744,7 +1744,7 @@ static cairo_xcb_surface_t * _create_composite_mask(cairo_clip_t * clip,
     const cairo_rectangle_int_t* extents)
 {
 	cairo_xcb_surface_t * surface;
-	cairo_bool_t need_clip_combine;
+	boolint need_clip_combine;
 	cairo_int_status_t status;
 
 	surface = (cairo_xcb_surface_t*)
@@ -2053,7 +2053,7 @@ static cairo_status_t _clip_and_composite_source(cairo_clip_t * clip,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t can_reduce_alpha_op(cairo_operator_t op)
+static boolint can_reduce_alpha_op(cairo_operator_t op)
 {
 	int iop = op;
 	switch(iop) {
@@ -2066,7 +2066,7 @@ static cairo_bool_t can_reduce_alpha_op(cairo_operator_t op)
 	}
 }
 
-static cairo_bool_t reduce_alpha_op(cairo_surface_t * dst,
+static boolint reduce_alpha_op(cairo_surface_t * dst,
     cairo_operator_t op,
     const cairo_pattern_t * pattern)
 {
@@ -2354,7 +2354,7 @@ enum {
 	FORCE_CLIP_REGION = 0x4,
 };
 
-static cairo_bool_t need_bounded_clip(cairo_composite_rectangles_t * extents)
+static boolint need_bounded_clip(cairo_composite_rectangles_t * extents)
 {
 	uint flags = NEED_CLIP_REGION;
 	if(!_cairo_clip_is_region(extents->clip))
@@ -2362,7 +2362,7 @@ static cairo_bool_t need_bounded_clip(cairo_composite_rectangles_t * extents)
 	return flags;
 }
 
-static cairo_bool_t need_unbounded_clip(cairo_composite_rectangles_t * extents)
+static boolint need_unbounded_clip(cairo_composite_rectangles_t * extents)
 {
 	uint flags = 0;
 	if(!extents->is_bounded) {
@@ -2510,7 +2510,7 @@ static cairo_status_t _composite_boxes(cairo_xcb_surface_t * dst,
     const cairo_composite_rectangles_t * extents)
 {
 	cairo_clip_t * clip = extents->clip;
-	cairo_bool_t need_clip_mask = !_cairo_clip_is_region(clip);
+	boolint need_clip_mask = !_cairo_clip_is_region(clip);
 	cairo_status_t status;
 
 	/* If the boxes are not pixel-aligned, we will need to compute a real mask */
@@ -2582,8 +2582,8 @@ static cairo_status_t _composite_boxes(cairo_xcb_surface_t * dst,
 	return status;
 }
 
-static cairo_bool_t cairo_boxes_for_each_box(cairo_boxes_t * boxes,
-    cairo_bool_t (*func)(cairo_box_t * box,
+static boolint cairo_boxes_for_each_box(cairo_boxes_t * boxes,
+    boolint (*func)(cairo_box_t * box,
     void * data),
     void * data)
 {
@@ -2604,7 +2604,7 @@ struct _image_contains_box {
 	int tx, ty;
 };
 
-static cairo_bool_t image_contains_box(cairo_box_t * box, void * closure)
+static boolint image_contains_box(cairo_box_t * box, void * closure)
 {
 	struct _image_contains_box * data = closure;
 	/* The box is pixel-aligned so the truncation is safe. */
@@ -2622,7 +2622,7 @@ struct _image_upload_box {
 	int tx, ty;
 };
 
-static cairo_bool_t image_upload_box(cairo_box_t * box, void * closure)
+static boolint image_upload_box(cairo_box_t * box, void * closure)
 {
 	const struct _image_upload_box * iub = closure;
 	/* The box is pixel-aligned so the truncation is safe. */
@@ -2749,12 +2749,12 @@ static cairo_int_status_t trim_extents_to_traps(cairo_composite_rectangles_t * e
 	return _cairo_composite_rectangles_intersect_mask_extents(extents, &box);
 }
 
-static cairo_bool_t _mono_edge_is_vertical(const cairo_line_t * line)
+static boolint _mono_edge_is_vertical(const cairo_line_t * line)
 {
 	return _cairo_fixed_integer_round_down(line->p1.x) == _cairo_fixed_integer_round_down(line->p2.x);
 }
 
-static cairo_bool_t _traps_are_pixel_aligned(cairo_traps_t * traps,
+static boolint _traps_are_pixel_aligned(cairo_traps_t * traps,
     cairo_antialias_t antialias)
 {
 	int i;
@@ -2854,7 +2854,7 @@ static cairo_status_t _composite_polygon(cairo_xcb_surface_t * dst,
     cairo_composite_rectangles_t * extents)
 {
 	composite_traps_info_t traps;
-	cairo_bool_t clip_surface = !_cairo_clip_is_region(extents->clip);
+	boolint clip_surface = !_cairo_clip_is_region(extents->clip);
 	cairo_region_t * clip_region = _cairo_clip_get_region(extents->clip);
 	cairo_status_t status;
 
@@ -3816,7 +3816,7 @@ typedef struct {
 	cairo_scaled_font_t * font;
 	cairo_xcb_glyph_t * glyphs;
 	int num_glyphs;
-	cairo_bool_t use_mask;
+	boolint use_mask;
 } composite_glyphs_info_t;
 
 static cairo_status_t _can_composite_glyphs(cairo_xcb_surface_t * dst,
@@ -3967,7 +3967,7 @@ static void _cairo_xcb_font_fini(cairo_scaled_font_private_t * abstract_private,
 {
 	cairo_xcb_font_t * font_private = (cairo_xcb_font_t*)abstract_private;
 	cairo_xcb_connection_t * connection;
-	cairo_bool_t have_connection;
+	boolint have_connection;
 	cairo_status_t status;
 	int i;
 
@@ -4093,7 +4093,7 @@ static cairo_xcb_font_glyphset_info_t * _cairo_xcb_scaled_font_get_glyphset_info
 	return info;
 }
 
-static cairo_bool_t _cairo_xcb_glyphset_info_has_pending_free_glyph(cairo_xcb_font_glyphset_info_t * info,
+static boolint _cairo_xcb_glyphset_info_has_pending_free_glyph(cairo_xcb_font_glyphset_info_t * info,
     ulong glyph_index)
 {
 	if(info->pending_free_glyphs != NULL) {
@@ -4225,7 +4225,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_scaled_glyph_t * scaled_glyph = *scaled_glyph_out;
 	cairo_image_surface_t * glyph_surface = scaled_glyph->surface;
-	cairo_bool_t already_had_glyph_surface;
+	boolint already_had_glyph_surface;
 	cairo_xcb_font_glyphset_info_t * info;
 
 	glyph_index = _cairo_scaled_glyph_index(scaled_glyph);
@@ -4650,7 +4650,7 @@ cairo_int_status_t _cairo_xcb_render_compositor_glyphs(const cairo_compositor_t 
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	cairo_xcb_surface_t * surface = (cairo_xcb_surface_t*)composite->surface;
 	cairo_operator_t op = composite->op;

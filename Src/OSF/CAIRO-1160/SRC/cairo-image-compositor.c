@@ -103,7 +103,7 @@ static inline uint32_t color_to_uint32(const cairo_color_t * color)
 	return (color->alpha_short >> 8 << 24) | (color->red_short >> 8 << 16) | (color->green_short & 0xff00) | (color->blue_short >> 8);
 }
 
-static inline cairo_bool_t color_to_pixel(const cairo_color_t * color, pixman_format_code_t format, uint32_t * pixel)
+static inline boolint color_to_pixel(const cairo_color_t * color, pixman_format_code_t format, uint32_t * pixel)
 {
 	if(!oneof9(format, PIXMAN_a8r8g8b8, PIXMAN_x8r8g8b8, PIXMAN_a8b8g8r8, PIXMAN_x8b8g8r8, PIXMAN_b8g8r8a8, PIXMAN_b8g8r8x8, PIXMAN_r5g6b5, PIXMAN_b5g6r5, PIXMAN_a8)) {
 		return FALSE;
@@ -165,7 +165,7 @@ static pixman_op_t FASTCALL _pixman_operator(cairo_operator_t op)
 	}
 }
 
-static cairo_bool_t __fill_reduces_to_source(cairo_operator_t op, const cairo_color_t * color, const cairo_image_surface_t * dst)
+static boolint __fill_reduces_to_source(cairo_operator_t op, const cairo_color_t * color, const cairo_image_surface_t * dst)
 {
 	if(op == CAIRO_OPERATOR_SOURCE || op == CAIRO_OPERATOR_CLEAR)
 		return TRUE;
@@ -176,7 +176,7 @@ static cairo_bool_t __fill_reduces_to_source(cairo_operator_t op, const cairo_co
 	return FALSE;
 }
 
-static cairo_bool_t fill_reduces_to_source(cairo_operator_t op, const cairo_color_t * color, const cairo_image_surface_t * dst, uint32_t * pixel)
+static boolint fill_reduces_to_source(cairo_operator_t op, const cairo_color_t * color, const cairo_image_surface_t * dst, uint32_t * pixel)
 {
 	return __fill_reduces_to_source(op, color, dst) ? color_to_pixel(color, dst->pixman_format, pixel) : FALSE;
 }
@@ -353,7 +353,7 @@ static cairo_int_status_t composite_boxes(void * _dst,
 #define CAIRO_FIXED_16_16_MIN _cairo_fixed_from_int(-32768)
 #define CAIRO_FIXED_16_16_MAX _cairo_fixed_from_int(32767)
 
-static cairo_bool_t line_exceeds_16_16(const cairo_line_t * line)
+static boolint line_exceeds_16_16(const cairo_line_t * line)
 {
 	return
 		line->p1.x <= CAIRO_FIXED_16_16_MIN ||
@@ -1107,7 +1107,7 @@ static cairo_status_t _cairo_image_finish_unbounded_spans(void * abstract_render
 
 static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t * _r,
     const cairo_composite_rectangles_t * composite,
-    cairo_bool_t needs_clip)
+    boolint needs_clip)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t*)_r;
 	cairo_image_surface_t * dst = (cairo_image_surface_t*)composite->surface;
@@ -1650,7 +1650,7 @@ static cairo_status_t _mono_finish_unbounded_spans(void * abstract_renderer)
 static cairo_int_status_t mono_renderer_init(cairo_image_span_renderer_t * r,
     const cairo_composite_rectangles_t * composite,
     cairo_antialias_t antialias,
-    cairo_bool_t needs_clip)
+    boolint needs_clip)
 {
 	cairo_image_surface_t * dst = (cairo_image_surface_t*)composite->surface;
 
@@ -2350,7 +2350,7 @@ static void free_pixels(pixman_image_t * image, void * data)
 }
 
 static cairo_int_status_t inplace_renderer_init(cairo_image_span_renderer_t * r, const cairo_composite_rectangles_t * composite,
-    cairo_antialias_t antialias, cairo_bool_t needs_clip)
+    cairo_antialias_t antialias, boolint needs_clip)
 {
 	cairo_image_surface_t * dst = (cairo_image_surface_t*)composite->surface;
 	uint8_t * buf;
@@ -2493,7 +2493,7 @@ static cairo_int_status_t inplace_renderer_init(cairo_image_span_renderer_t * r,
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t * _r, const cairo_composite_rectangles_t * composite, cairo_antialias_t antialias, cairo_bool_t needs_clip)
+static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t * _r, const cairo_composite_rectangles_t * composite, cairo_antialias_t antialias, boolint needs_clip)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t*)_r;
 	cairo_image_surface_t * dst = (cairo_image_surface_t*)composite->surface;

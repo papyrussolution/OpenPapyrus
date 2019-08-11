@@ -143,11 +143,11 @@ typedef struct _twin_face_properties {
 	twin_face_weight_t weight;
 	twin_face_stretch_t stretch;
 	/* lets have some fun */
-	cairo_bool_t monospace;
-	cairo_bool_t smallcaps;
+	boolint monospace;
+	boolint smallcaps;
 } twin_face_properties_t;
 
-static cairo_bool_t field_matches(const char * s1, const char * s2, int len)
+static boolint field_matches(const char * s1, const char * s2, int len)
 {
 	int c1, c2;
 	while(len && *s1 && *s2) {
@@ -168,7 +168,7 @@ static cairo_bool_t field_matches(const char * s1, const char * s2, int len)
 	return len == 0 && *s1 == '\0';
 }
 
-static cairo_bool_t parse_int(const char * word, size_t wordlen, int * out)
+static boolint parse_int(const char * word, size_t wordlen, int * out)
 {
 	char * end;
 	long val = strtol(word, &end, 10);
@@ -181,10 +181,10 @@ static cairo_bool_t parse_int(const char * word, size_t wordlen, int * out)
 	return FALSE;
 }
 
-static cairo_bool_t find_field(const char * what, const FieldMap * map, int n_elements, const char * str, int len, int * val)
+static boolint find_field(const char * what, const FieldMap * map, int n_elements, const char * str, int len, int * val)
 {
 	int i;
-	cairo_bool_t had_prefix = FALSE;
+	boolint had_prefix = FALSE;
 	if(what) {
 		i = strlen(what);
 		if(len > i && 0 == strncmp(what, str, i) && str[i] == '=') {
@@ -286,7 +286,7 @@ static cairo_status_t twin_font_face_set_properties_from_toy(cairo_font_face_t *
 
 typedef struct _twin_scaled_properties {
 	twin_face_properties_t * face_props;
-	cairo_bool_t snap; /* hint outlines */
+	boolint snap; /* hint outlines */
 	double weight; /* unhinted pen width */
 	double penx, peny; /* hinted pen width */
 	double marginl, marginr; /* hinted side margins */

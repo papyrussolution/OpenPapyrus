@@ -761,7 +761,7 @@ static pixman_fixed_t * create_separable_convolution(int * n_values, kernel_t xf
 
 /* ========================================================================== */
 
-static cairo_bool_t _pixman_image_set_properties(pixman_image_t * pixman_image, const cairo_pattern_t * pattern,
+static boolint _pixman_image_set_properties(pixman_image_t * pixman_image, const cairo_pattern_t * pattern,
     const cairo_rectangle_int_t * extents, int * ix, int * iy)
 {
 	pixman_transform_t pixman_transform;
@@ -951,7 +951,7 @@ static cairo_surface_t * get_proxy(cairo_surface_t * proxy)
 
 static pixman_image_t * _pixman_image_for_recording(cairo_image_surface_t * dst,
     const cairo_surface_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * ix, int * iy)
@@ -1079,7 +1079,7 @@ done:
 
 static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
     const cairo_surface_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * ix, int * iy)
@@ -1167,7 +1167,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
 		}
 		else if(type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
 			cairo_surface_subsurface_t * sub;
-			cairo_bool_t is_contained = FALSE;
+			boolint is_contained = FALSE;
 
 			sub = (cairo_surface_subsurface_t*)source;
 			source = (cairo_image_surface_t*)sub->target;
@@ -1275,7 +1275,7 @@ static void _raster_source_cleanup(pixman_image_t * pixman_image, void * closure
 }
 
 static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst, const cairo_raster_source_pattern_t * pattern,
-    cairo_bool_t is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * ix, int * iy)
+    boolint is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * ix, int * iy)
 {
 	pixman_image_t * pixman_image;
 	struct raster_source_cleanup * cleanup;
@@ -1334,7 +1334,7 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst, co
 
 pixman_image_t * _pixman_image_for_pattern(cairo_image_surface_t * dst,
     const cairo_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * tx, int * ty)
@@ -1388,7 +1388,7 @@ const cairo_surface_backend_t _cairo_image_source_backend = {
 	NULL, /* read-only wrapper */
 };
 
-cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst, const cairo_pattern_t * pattern, cairo_bool_t is_mask,
+cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst, const cairo_pattern_t * pattern, boolint is_mask,
     const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
 {
 	TRACE((stderr, "%s\n", __FUNCTION__));

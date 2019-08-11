@@ -82,7 +82,7 @@ typedef struct _cairo_cache_entry {
 	ulong size;
 } cairo_cache_entry_t;
 
-typedef cairo_bool_t (* cairo_cache_predicate_func_t) (const void * entry);
+typedef boolint (* cairo_cache_predicate_func_t) (const void * entry);
 
 struct _cairo_cache {
 	cairo_hash_table_t * hash_table;
@@ -93,7 +93,7 @@ struct _cairo_cache {
 	int freeze_count;
 };
 
-typedef cairo_bool_t (* cairo_cache_keys_equal_func_t) (const void * key_a, const void * key_b);
+typedef boolint (* cairo_cache_keys_equal_func_t) (const void * key_a, const void * key_b);
 typedef void (* cairo_cache_callback_func_t) (void * entry, void * closure);
 
 cairo_private cairo_status_t FASTCALL _cairo_cache_init(cairo_cache_t * cache, cairo_cache_keys_equal_func_t keys_equal,

@@ -83,7 +83,7 @@ _cairo_cogl_linear_gradient_reference (cairo_cogl_linear_gradient_t *gradient);
 void
 _cairo_cogl_linear_gradient_destroy (cairo_cogl_linear_gradient_t *gradient);
 
-cairo_bool_t
+boolint
 _cairo_cogl_linear_gradient_equal (const void *key_a, const void *key_b);
 
 #endif /* CAIRO_COGL_GRADIENT_PRIVATE_H */

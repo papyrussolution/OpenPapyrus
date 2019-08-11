@@ -572,7 +572,7 @@ static void _cairo_scaled_font_init_key(cairo_scaled_font_t * scaled_font, cairo
 	scaled_font->hash_entry.hash = _cairo_scaled_font_compute_hash(scaled_font);
 }
 
-static cairo_bool_t _cairo_scaled_font_keys_equal(const void * abstract_key_a, const void * abstract_key_b)
+static boolint _cairo_scaled_font_keys_equal(const void * abstract_key_a, const void * abstract_key_b)
 {
 	const cairo_scaled_font_t * key_a = static_cast<const cairo_scaled_font_t *>(abstract_key_a);
 	const cairo_scaled_font_t * key_b = static_cast<const cairo_scaled_font_t *>(abstract_key_b);
@@ -581,7 +581,7 @@ static cairo_bool_t _cairo_scaled_font_keys_equal(const void * abstract_key_a, c
 		   (uchar *)(&key_b->ctm.xx), sizeof(cairo_matrix_t)) == 0 && cairo_font_options_equal(&key_a->options, &key_b->options);
 }
 
-static cairo_bool_t _cairo_scaled_font_matches(const cairo_scaled_font_t * scaled_font, const cairo_font_face_t * font_face,
+static boolint _cairo_scaled_font_matches(const cairo_scaled_font_t * scaled_font, const cairo_font_face_t * font_face,
     const cairo_matrix_t * font_matrix, const cairo_matrix_t * ctm, const cairo_font_options_t * options)
 {
 	return scaled_font->original_font_face == font_face && memcmp((uchar *)(&scaled_font->font_matrix.xx), (uchar *)(&font_matrix->xx), sizeof(cairo_matrix_t)) == 0 &&
@@ -1345,7 +1345,7 @@ void cairo_scaled_font_glyph_extents(cairo_scaled_font_t * scaled_font,
 	cairo_status_t status;
 	int i;
 	double min_x = 0.0, min_y = 0.0, max_x = 0.0, max_y = 0.0;
-	cairo_bool_t visible = FALSE;
+	boolint visible = FALSE;
 	cairo_scaled_glyph_t * scaled_glyph = NULL;
 
 	extents->x_bearing = 0.0;
@@ -1862,7 +1862,7 @@ BAIL:   /* error with input arguments */
 
 slim_hidden_def(cairo_scaled_font_text_to_glyphs);
 
-static inline cairo_bool_t _range_contains_glyph(const cairo_box_t * extents,
+static inline boolint _range_contains_glyph(const cairo_box_t * extents,
     cairo_fixed_t left,
     cairo_fixed_t top,
     cairo_fixed_t right,
@@ -1886,7 +1886,7 @@ static cairo_status_t _cairo_scaled_font_single_glyph_device_extents(cairo_scale
 	_cairo_scaled_font_freeze_cache(scaled_font);
 	status = _cairo_scaled_glyph_lookup(scaled_font, glyph->index, CAIRO_SCALED_GLYPH_INFO_METRICS, &scaled_glyph);
 	if(likely(status == CAIRO_STATUS_SUCCESS)) {
-		cairo_bool_t round_xy = _cairo_font_options_get_round_glyph_positions(&scaled_font->options) == CAIRO_ROUND_GLYPH_POS_ON;
+		boolint round_xy = _cairo_font_options_get_round_glyph_positions(&scaled_font->options) == CAIRO_ROUND_GLYPH_POS_ON;
 		cairo_box_t box;
 		cairo_fixed_t v;
 		if(round_xy)
@@ -1909,12 +1909,12 @@ static cairo_status_t _cairo_scaled_font_single_glyph_device_extents(cairo_scale
 /*
  * Compute a device-space bounding box for the glyphs.
  */
-cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * scaled_font, const cairo_glyph_t * glyphs, int num_glyphs, cairo_rectangle_int_t * extents, cairo_bool_t * overlap_out)
+cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * scaled_font, const cairo_glyph_t * glyphs, int num_glyphs, cairo_rectangle_int_t * extents, boolint * overlap_out)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_box_t box = { { INT_MAX, INT_MAX }, { INT_MIN, INT_MIN }};
 	cairo_scaled_glyph_t * glyph_cache[64];
-	cairo_bool_t overlap = overlap_out ? FALSE : TRUE;
+	boolint overlap = overlap_out ? FALSE : TRUE;
 	cairo_round_glyph_positions_t round_glyph_positions = _cairo_font_options_get_round_glyph_positions(&scaled_font->options);
 	int i;
 	if(unlikely(scaled_font->status))
@@ -1971,7 +1971,7 @@ cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * sca
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_bool_t _cairo_scaled_font_glyph_approximate_extents(cairo_scaled_font_t * scaled_font,
+boolint _cairo_scaled_font_glyph_approximate_extents(cairo_scaled_font_t * scaled_font,
     const cairo_glyph_t * glyphs, int num_glyphs, cairo_rectangle_int_t * extents)
 {
 	double x0, x1, y0, y1, pad;
@@ -2308,7 +2308,7 @@ BAIL:
  **/
 void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, const cairo_text_extents_t * fs_metrics)
 {
-	cairo_bool_t first = TRUE;
+	boolint first = TRUE;
 	double hm, wm;
 	double min_user_x = 0.0, max_user_x = 0.0, min_user_y = 0.0, max_user_y = 0.0;
 	double min_device_x = 0.0, max_device_x = 0.0, min_device_y = 0.0, max_device_y = 0.0;
@@ -2416,7 +2416,7 @@ void _cairo_scaled_glyph_set_color_surface(cairo_scaled_glyph_t * scaled_glyph, 
 		scaled_glyph->has_info &= ~CAIRO_SCALED_GLYPH_INFO_COLOR_SURFACE;
 }
 
-static cairo_bool_t _cairo_scaled_glyph_page_can_remove(const void * closure)
+static boolint _cairo_scaled_glyph_page_can_remove(const void * closure)
 {
 	const cairo_scaled_glyph_page_t * page = static_cast<const cairo_scaled_glyph_page_t *>(closure);
 	const cairo_scaled_font_t * scaled_font = page->scaled_font;
@@ -2697,7 +2697,7 @@ void cairo_scaled_font_get_font_options(cairo_scaled_font_t * scaled_font, cairo
 
 slim_hidden_def(cairo_scaled_font_get_font_options);
 
-cairo_bool_t _cairo_scaled_font_has_color_glyphs(cairo_scaled_font_t * scaled_font)
+boolint _cairo_scaled_font_has_color_glyphs(cairo_scaled_font_t * scaled_font)
 {
 	if(scaled_font->backend != NULL && scaled_font->backend->has_color_glyphs != NULL)
 		return scaled_font->backend->has_color_glyphs(scaled_font);

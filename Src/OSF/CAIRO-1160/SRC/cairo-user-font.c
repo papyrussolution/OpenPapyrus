@@ -70,7 +70,7 @@ typedef struct _cairo_user_scaled_font_methods {
 typedef struct _cairo_user_font_face {
 	cairo_font_face_t base;
 	// Set to true after first scaled font is created.  At that point, the scaled_font_methods cannot change anymore.
-	cairo_bool_t immutable;
+	boolint immutable;
 	cairo_user_scaled_font_methods_t scaled_font_methods;
 } cairo_user_font_face_t;
 
@@ -401,7 +401,7 @@ const cairo_font_face_backend_t _cairo_user_font_face_backend = {
 	_cairo_user_font_face_scaled_font_create
 };
 
-cairo_bool_t _cairo_font_face_is_user(cairo_font_face_t * font_face)
+boolint _cairo_font_face_is_user(cairo_font_face_t * font_face)
 {
 	return font_face->backend == &_cairo_user_font_face_backend;
 }

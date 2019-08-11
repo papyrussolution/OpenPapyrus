@@ -55,7 +55,7 @@ static const cairo_compositor_t * _get_compositor(cairo_surface_t * surface)
 	return ((cairo_image_surface_t*)surface)->compositor;
 }
 
-static cairo_bool_t unclipped(cairo_xlib_surface_t * xlib, cairo_clip_t * clip)
+static boolint unclipped(cairo_xlib_surface_t * xlib, cairo_clip_t * clip)
 {
 	cairo_rectangle_int_t r;
 
@@ -71,7 +71,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_paint(const cairo_composito
 	cairo_xlib_surface_t * xlib = (cairo_xlib_surface_t*)extents->surface;
 	cairo_int_status_t status;
 	cairo_surface_t * shm;
-	cairo_bool_t overwrite;
+	boolint overwrite;
 
 	TRACE((stderr, "%s\n", __FUNCTION__));
 
@@ -196,7 +196,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_glyphs(const cairo_composit
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	cairo_xlib_surface_t * xlib = (cairo_xlib_surface_t*)extents->surface;
 	cairo_int_status_t status;

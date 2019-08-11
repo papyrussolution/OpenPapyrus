@@ -197,7 +197,7 @@ static cairo_gl_gradient_t * _cairo_gl_gradient_lookup(cairo_gl_context_t * ctx,
 	return _cairo_cache_lookup(&ctx->gradients, &lookup.cache_entry);
 }
 
-cairo_bool_t _cairo_gl_gradient_equal(const void * key_a, const void * key_b)
+boolint _cairo_gl_gradient_equal(const void * key_a, const void * key_b)
 {
 	const cairo_gl_gradient_t * a = key_a;
 	const cairo_gl_gradient_t * b = key_b;

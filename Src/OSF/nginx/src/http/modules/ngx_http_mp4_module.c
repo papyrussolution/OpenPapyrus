@@ -483,7 +483,7 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	if(mp4 == NULL) {
-		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+		b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 		if(!b) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}

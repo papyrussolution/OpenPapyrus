@@ -169,13 +169,13 @@ typedef struct  {
 	cairo_surface_t * src_surface;
 	cairo_operator_t op;
 	const cairo_rectangle_int_t * src_surface_extents;
-	cairo_bool_t src_surface_bounded;
+	boolint src_surface_bounded;
 	const cairo_rectangle_int_t * src_op_extents; /* operation extents in src space */
 	cairo_filter_t filter;
-	cairo_bool_t stencil_mask; /* TRUE if source is to be used as a mask */
+	boolint stencil_mask; /* TRUE if source is to be used as a mask */
 
 	/* output params */
-	cairo_bool_t is_image; /* returns TRUE if PS image will be emitted */
+	boolint is_image; /* returns TRUE if PS image will be emitted */
 	                       /*         FALSE if recording will be emitted */
 	long approx_size;
 	int eod_count;
@@ -184,7 +184,7 @@ typedef struct  {
 extern const cairo_surface_backend_t cairo_ps_surface_backend;
 extern const cairo_paginated_surface_backend_t cairo_ps_surface_paginated_backend;
 
-static cairo_bool_t _cairo_ps_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);
+static boolint _cairo_ps_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);
 static void _cairo_ps_form_emit(void * entry, void * closure);
 
 static const cairo_ps_level_t _cairo_ps_levels[] = { CAIRO_PS_LEVEL_2, CAIRO_PS_LEVEL_3 };
@@ -240,7 +240,7 @@ static void _cairo_ps_form_init_key(cairo_ps_form_t * key)
 		key->unique_id, key->unique_id_length);
 }
 
-static cairo_bool_t _cairo_ps_form_equal(const void * key_a, const void * key_b)
+static boolint _cairo_ps_form_equal(const void * key_a, const void * key_b)
 {
 	const cairo_ps_form_t * a = (const cairo_ps_form_t *)key_a;
 	const cairo_ps_form_t * b = (const cairo_ps_form_t *)key_b;
@@ -269,7 +269,7 @@ static void _cairo_ps_surface_emit_header(cairo_ps_surface_t * surface)
 	int i, num_comments;
 	int level;
 	const char * eps_header = "";
-	cairo_bool_t has_bbox;
+	boolint has_bbox;
 	if(surface->has_creation_date)
 		now = surface->creation_date;
 	else
@@ -297,7 +297,7 @@ static void _cairo_ps_surface_emit_header(cairo_ps_surface_t * surface)
 
 	if(!cairo_list_is_empty(&surface->document_media)) {
 		cairo_page_media_t * page;
-		cairo_bool_t first = TRUE;
+		boolint first = TRUE;
 
 		cairo_list_foreach_entry(page, cairo_page_media_t, &surface->document_media, link) {
 			if(first) {
@@ -874,7 +874,7 @@ static void _cairo_ps_surface_emit_footer(cairo_ps_surface_t * surface)
 	_cairo_output_stream_printf(surface->final_stream, "%%%%EOF\n");
 }
 
-static cairo_bool_t _path_covers_bbox(cairo_ps_surface_t * surface, const cairo_path_fixed_t * path)
+static boolint _path_covers_bbox(cairo_ps_surface_t * surface, const cairo_path_fixed_t * path)
 {
 	cairo_box_t box;
 	if(_cairo_path_fixed_is_box(path, &box)) {
@@ -916,7 +916,7 @@ static cairo_status_t _cairo_ps_surface_clipper_intersect_clip_path(cairo_surfac
 }
 
 /* PLRM specifies a tolerance of 5 points when matching page sizes */
-static cairo_bool_t _ps_page_dimension_equal(int a, int b)
+static boolint _ps_page_dimension_equal(int a, int b)
 {
 	return (abs(a - b) < 5);
 }
@@ -1168,7 +1168,7 @@ cairo_surface_t * cairo_ps_surface_create_for_stream(cairo_write_func_t write_fu
 		   height_in_points);
 }
 
-static cairo_bool_t _cairo_surface_is_ps(cairo_surface_t * surface)
+static boolint _cairo_surface_is_ps(cairo_surface_t * surface)
 {
 	return surface->backend == &cairo_ps_surface_backend;
 }
@@ -1177,8 +1177,8 @@ static cairo_bool_t _cairo_surface_is_ps(cairo_surface_t * surface)
  * surface's target is a ps_surface, then set ps_surface to that
  * target. Otherwise return FALSE.
  */
-static cairo_bool_t _extract_ps_surface(cairo_surface_t * surface,
-    cairo_bool_t set_error_on_failure,
+static boolint _extract_ps_surface(cairo_surface_t * surface,
+    boolint set_error_on_failure,
     cairo_ps_surface_t ** ps_surface)
 {
 	cairo_surface_t * target;
@@ -1308,7 +1308,7 @@ const char * cairo_ps_level_to_string(cairo_ps_level_t level)
  * Since: 1.6
  **/
 void cairo_ps_surface_set_eps(cairo_surface_t * surface,
-    cairo_bool_t eps)
+    boolint eps)
 {
 	cairo_ps_surface_t * ps_surface = NULL;
 
@@ -1328,7 +1328,7 @@ void cairo_ps_surface_set_eps(cairo_surface_t * surface,
  *
  * Since: 1.6
  **/
-cairo_public cairo_bool_t cairo_ps_surface_get_eps(cairo_surface_t * surface)
+cairo_public boolint cairo_ps_surface_get_eps(cairo_surface_t * surface)
 {
 	cairo_ps_surface_t * ps_surface = NULL;
 
@@ -1642,7 +1642,7 @@ static cairo_int_status_t _cairo_ps_surface_show_page(void * abstract_surface)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t color_is_gray(double red, double green, double blue)
+static boolint color_is_gray(double red, double green, double blue)
 {
 	const double epsilon = 0.00001;
 	return (fabs(red - green) < epsilon && fabs(red - blue) < epsilon);
@@ -1667,7 +1667,7 @@ static cairo_status_t _cairo_ps_surface_acquire_source_surface_from_pattern(cair
     const cairo_pattern_t * pattern,
     const cairo_rectangle_int_t * extents,
     cairo_rectangle_int_t * src_surface_extents,
-    cairo_bool_t * src_surface_bounded,
+    boolint * src_surface_bounded,
     cairo_rectangle_int_t * src_op_extents,
     cairo_surface_t ** source_surface,
     double * x_offset,
@@ -1796,7 +1796,7 @@ static cairo_int_status_t _cairo_ps_surface_analyze_surface_pattern_transparency
     const cairo_rectangle_int_t * extents)
 {
 	cairo_rectangle_int_t src_surface_extents;
-	cairo_bool_t src_surface_bounded;
+	boolint src_surface_bounded;
 	cairo_rectangle_int_t src_op_extents;
 	cairo_surface_t * source_surface;
 	double x_offset, y_offset;
@@ -1854,7 +1854,7 @@ static cairo_int_status_t _cairo_ps_surface_analyze_surface_pattern_transparency
 	return status;
 }
 
-static cairo_bool_t surface_pattern_supported(const cairo_surface_pattern_t * pattern)
+static boolint surface_pattern_supported(const cairo_surface_pattern_t * pattern)
 {
 	if(pattern->surface->type == CAIRO_SURFACE_TYPE_RECORDING)
 		return TRUE;
@@ -1874,7 +1874,7 @@ static cairo_bool_t surface_pattern_supported(const cairo_surface_pattern_t * pa
 	return TRUE;
 }
 
-static cairo_bool_t _gradient_pattern_supported(cairo_ps_surface_t * surface,
+static boolint _gradient_pattern_supported(cairo_ps_surface_t * surface,
     const cairo_pattern_t * pattern)
 {
 	double min_alpha, max_alpha;
@@ -1893,7 +1893,7 @@ static cairo_bool_t _gradient_pattern_supported(cairo_ps_surface_t * surface,
 	return TRUE;
 }
 
-static cairo_bool_t pattern_supported(cairo_ps_surface_t * surface, const cairo_pattern_t * pattern)
+static boolint pattern_supported(cairo_ps_surface_t * surface, const cairo_pattern_t * pattern)
 {
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
@@ -1916,7 +1916,7 @@ static cairo_bool_t pattern_supported(cairo_ps_surface_t * surface, const cairo_
 	}
 }
 
-static cairo_bool_t mask_supported(cairo_ps_surface_t * surface,
+static boolint mask_supported(cairo_ps_surface_t * surface,
     const cairo_pattern_t * mask,
     const cairo_rectangle_int_t * extents)
 {
@@ -2017,7 +2017,7 @@ static cairo_int_status_t _cairo_ps_surface_analyze_operation(cairo_ps_surface_t
 	return CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY;
 }
 
-static cairo_bool_t _cairo_ps_surface_operation_supported(cairo_ps_surface_t * surface,
+static boolint _cairo_ps_surface_operation_supported(cairo_ps_surface_t * surface,
     cairo_operator_t op,
     const cairo_pattern_t * pattern,
     const cairo_pattern_t * mask,
@@ -2039,7 +2039,7 @@ typedef struct _string_array_stream {
 	int column;
 	int string_size;
 	int tuple_count;
-	cairo_bool_t use_strings;
+	boolint use_strings;
 } string_array_stream_t;
 
 static cairo_status_t _base85_string_wrap_stream_write(cairo_output_stream_t * base,
@@ -2200,7 +2200,7 @@ static cairo_status_t _cairo_ps_surface_flatten_image_transparency(cairo_ps_surf
 }
 
 static cairo_status_t _cairo_ps_surface_emit_base85_string(cairo_ps_surface_t * surface, const uchar * data, ulong length,
-    cairo_ps_compress_t compress, cairo_bool_t use_strings)
+    cairo_ps_compress_t compress, boolint use_strings)
 {
 	cairo_output_stream_t * base85_stream, * deflate_stream;
 	uchar * data_compressed;
@@ -2288,7 +2288,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	cairo_image_surface_t * ps_image;
 	int x, y, i, a;
 	cairo_image_transparency_t transparency;
-	cairo_bool_t use_mask;
+	boolint use_mask;
 	uint32_t * pixel32;
 	uint8_t * pixel8;
 	int bit;
@@ -3025,11 +3025,11 @@ static cairo_status_t _cairo_ps_surface_emit_eps(cairo_ps_surface_t * surface,
 static cairo_status_t _cairo_ps_surface_emit_recording_surface(cairo_ps_surface_t * surface,
     cairo_surface_t * recording_surface,
     const cairo_rectangle_int_t * recording_extents,
-    cairo_bool_t subsurface)
+    boolint subsurface)
 {
 	double old_width, old_height;
 	cairo_rectangle_int_t old_surface_extents;
-	cairo_bool_t old_surface_bounded;
+	boolint old_surface_bounded;
 	cairo_matrix_t old_cairo_to_ps;
 	cairo_content_t old_content;
 	cairo_surface_clipper_t old_clipper;
@@ -3152,7 +3152,7 @@ static void _cairo_ps_surface_emit_solid_pattern(cairo_ps_surface_t * surface, c
  */
 static cairo_int_status_t _cairo_ps_surface_use_form(cairo_ps_surface_t * surface,
     cairo_emit_surface_params_t * params,
-    cairo_bool_t test,
+    boolint test,
     cairo_ps_form_t ** ps_form)
 {
 	cairo_ps_form_t source_key;
@@ -3224,7 +3224,7 @@ fail:
 	return status;
 }
 
-static cairo_int_status_t _cairo_ps_surface_emit_form(cairo_ps_surface_t * surface, cairo_emit_surface_params_t * params, cairo_bool_t test)
+static cairo_int_status_t _cairo_ps_surface_emit_form(cairo_ps_surface_t * surface, cairo_emit_surface_params_t * params, boolint test)
 {
 	cairo_ps_form_t * ps_form = NULL;
 	cairo_status_t status = _cairo_ps_surface_use_form(surface, params, test, &ps_form);
@@ -3265,7 +3265,7 @@ static cairo_int_status_t _cairo_ps_surface_emit_surface(cairo_ps_surface_t * su
 {
 	cairo_int_status_t status;
 	cairo_output_stream_t * old_stream = NULL;
-	cairo_bool_t use_form;
+	boolint use_form;
 
 	/* Try emitting as a form. Returns unsupported if the surface is
 	 * deemed unsuitable for a form. */
@@ -3476,10 +3476,10 @@ static void _path_fixed_init_rectangle(cairo_path_fixed_t * path, cairo_rectangl
 }
 
 static cairo_status_t _cairo_ps_surface_paint_surface(cairo_ps_surface_t * surface, const cairo_pattern_t * pattern,
-    cairo_rectangle_int_t * extents, cairo_operator_t op, cairo_bool_t stencil_mask)
+    cairo_rectangle_int_t * extents, cairo_operator_t op, boolint stencil_mask)
 {
 	cairo_rectangle_int_t src_surface_extents;
-	cairo_bool_t src_surface_bounded;
+	boolint src_surface_bounded;
 	cairo_rectangle_int_t src_op_extents;
 	cairo_surface_t * source_surface;
 	double x_offset, y_offset;
@@ -3624,9 +3624,9 @@ static cairo_status_t _cairo_ps_surface_emit_surface_pattern(cairo_ps_surface_t 
 	cairo_status_t status;
 	double xstep, ystep;
 	cairo_rectangle_int_t pattern_extents;
-	cairo_bool_t bounded;
+	boolint bounded;
 	cairo_matrix_t cairo_p2d, ps_p2d;
-	cairo_bool_t old_paint_proc;
+	boolint old_paint_proc;
 	double x_offset, y_offset;
 	cairo_surface_t * source_surface;
 	cairo_image_surface_t * image = NULL;
@@ -4018,7 +4018,7 @@ static cairo_status_t _cairo_ps_surface_emit_repeating_function(cairo_ps_surface
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_gradient(cairo_ps_surface_t * surface, cairo_gradient_pattern_t * pattern, cairo_bool_t is_ps_pattern)
+static cairo_status_t _cairo_ps_surface_emit_gradient(cairo_ps_surface_t * surface, cairo_gradient_pattern_t * pattern, boolint is_ps_pattern)
 {
 	cairo_matrix_t pat_to_ps;
 	cairo_circle_double_t start, end;
@@ -4156,7 +4156,7 @@ static cairo_status_t _cairo_ps_surface_emit_gradient(cairo_ps_surface_t * surfa
 
 static cairo_status_t _cairo_ps_surface_emit_mesh_pattern(cairo_ps_surface_t * surface,
     cairo_mesh_pattern_t * pattern,
-    cairo_bool_t is_ps_pattern)
+    boolint is_ps_pattern)
 {
 	cairo_matrix_t pat_to_ps;
 	cairo_status_t status;
@@ -4324,7 +4324,7 @@ static cairo_status_t _cairo_ps_surface_paint_pattern(cairo_ps_surface_t * surfa
     const cairo_pattern_t * source,
     cairo_rectangle_int_t * extents,
     cairo_operator_t op,
-    cairo_bool_t stencil_mask)
+    boolint stencil_mask)
 {
 	switch(source->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE:
@@ -4349,7 +4349,7 @@ static cairo_status_t _cairo_ps_surface_paint_pattern(cairo_ps_surface_t * surfa
 	}
 }
 
-static cairo_bool_t _can_paint_pattern(const cairo_pattern_t * pattern)
+static boolint _can_paint_pattern(const cairo_pattern_t * pattern)
 {
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
@@ -4371,7 +4371,7 @@ static cairo_bool_t _can_paint_pattern(const cairo_pattern_t * pattern)
 	}
 }
 
-static cairo_bool_t _cairo_ps_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
+static boolint _cairo_ps_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
 	cairo_ps_surface_t * surface = static_cast<cairo_ps_surface_t *>(abstract_surface);
 	if(surface->surface_bounded)
@@ -4616,7 +4616,7 @@ cleanup_composite:
 	return status;
 }
 
-static cairo_bool_t _cairo_ps_surface_has_show_text_glyphs(void * abstract_surface)
+static boolint _cairo_ps_surface_has_show_text_glyphs(void * abstract_surface)
 {
 	return TRUE;
 }
@@ -4636,7 +4636,7 @@ static cairo_int_status_t _cairo_ps_surface_show_text_glyphs(void * abstract_sur
 {
 	cairo_ps_surface_t * surface = static_cast<cairo_ps_surface_t *>(abstract_surface);
 	cairo_composite_rectangles_t extents;
-	cairo_bool_t overlap;
+	boolint overlap;
 	cairo_status_t status;
 
 	status = _cairo_composite_rectangles_init_for_glyphs(&extents,
@@ -4710,7 +4710,7 @@ static cairo_int_status_t _cairo_ps_surface_set_bounding_box(void * abstract_sur
 	cairo_ps_surface_t * surface = static_cast<cairo_ps_surface_t *>(abstract_surface);
 	int i, num_comments;
 	char ** comments;
-	cairo_bool_t has_page_media, has_page_bbox;
+	boolint has_page_media, has_page_bbox;
 	const char * page_media;
 	cairo_rectangle_int_t page_bbox;
 	cairo_point_int_t bbox_p1, bbox_p2; /* in PS coordinates */
@@ -4778,7 +4778,7 @@ static cairo_int_status_t _cairo_ps_surface_set_bounding_box(void * abstract_sur
 	return _cairo_output_stream_get_status(surface->stream);
 }
 
-static cairo_bool_t _cairo_ps_surface_supports_fine_grained_fallbacks(void * abstract_surface)
+static boolint _cairo_ps_surface_supports_fine_grained_fallbacks(void * abstract_surface)
 {
 	return TRUE;
 }

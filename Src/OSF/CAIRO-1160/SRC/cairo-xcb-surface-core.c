@@ -51,7 +51,7 @@ typedef struct _cairo_xcb_pixmap {
 	int height;
 	int depth;
 	int x0, y0;
-	cairo_bool_t repeat;
+	boolint repeat;
 } cairo_xcb_pixmap_t;
 
 static cairo_status_t _cairo_xcb_pixmap_finish(void * abstract_surface)

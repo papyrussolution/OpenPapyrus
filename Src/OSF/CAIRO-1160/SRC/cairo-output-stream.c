@@ -238,7 +238,7 @@ void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const
  * has been relicensed under the LGPL/MPL dual license for inclusion
  * into cairo (see COPYING). -- Kristian Høgsberg <krh@redhat.com>
  */
-static void _cairo_dtostr(char * buffer, size_t size, double d, cairo_bool_t limited_precision)
+static void _cairo_dtostr(char * buffer, size_t size, double d, boolint limited_precision)
 {
 	const char * decimal_point;
 	int decimal_point_len;
@@ -336,7 +336,7 @@ void _cairo_output_stream_vprintf(cairo_output_stream_t * stream,
 	char * p;
 	const char * f, * start;
 	int length_modifier, width;
-	cairo_bool_t var_width;
+	boolint var_width;
 
 	if(stream->status)
 		return;

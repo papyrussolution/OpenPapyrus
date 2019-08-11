@@ -39,11 +39,10 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 #include "wsdlH.h"
 
 enum Type { NONE, CLASS, ENUM, STRUCT, TYPEDEF };
-
 enum Lookup { NOLOOKUP, LOOKUP };
 
-class Types
-{ public:
+class Types { 
+public:
     SetOfString		knames;	// keywords, reserved words, class names, and typedefs
     MapOfStringToString modtypemap;
     MapOfStringToString deftypemap;

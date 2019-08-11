@@ -121,10 +121,10 @@ cairo_private cairo_int_status_t _cairo_composite_rectangles_init_for_glyphs(cai
     cairo_glyph_t * glyphs,
     int num_glyphs,
     const cairo_clip_t * clip,
-    cairo_bool_t  * overlap);
+    boolint  * overlap);
 cairo_private cairo_int_status_t _cairo_composite_rectangles_intersect_source_extents(cairo_composite_rectangles_t * extents, const cairo_box_t * box);
 cairo_private cairo_int_status_t FASTCALL _cairo_composite_rectangles_intersect_mask_extents(cairo_composite_rectangles_t * extents, const cairo_box_t * box);
-cairo_private cairo_bool_t FASTCALL _cairo_composite_rectangles_can_reduce_clip(cairo_composite_rectangles_t * composite, const cairo_clip_t * clip);
+cairo_private boolint FASTCALL _cairo_composite_rectangles_can_reduce_clip(cairo_composite_rectangles_t * composite, const cairo_clip_t * clip);
 cairo_private cairo_int_status_t _cairo_composite_rectangles_add_to_damage(cairo_composite_rectangles_t * composite, cairo_boxes_t * damage);
 cairo_private void FASTCALL _cairo_composite_rectangles_fini(cairo_composite_rectangles_t * extents);
 

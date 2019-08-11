@@ -155,7 +155,7 @@ ulong _cairo_path_fixed_size(const cairo_path_fixed_t * path)
 	return num_ops * sizeof(buf->op[0]) + num_points * sizeof(buf->points[0]);
 }
 
-cairo_bool_t _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_path_fixed_t * b)
+boolint _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_path_fixed_t * b)
 {
 	const cairo_path_buf_t * buf_a, * buf_b;
 	const cairo_path_op_t * ops_a, * ops_b;
@@ -494,7 +494,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_close_path(cairo_path_fixed_t * path)
 	return _cairo_path_fixed_add(path, CAIRO_PATH_OP_CLOSE_PATH, NULL, 0);
 }
 
-cairo_bool_t FASTCALL _cairo_path_fixed_get_current_point(const cairo_path_fixed_t * path, cairo_fixed_t * x, cairo_fixed_t * y)
+boolint FASTCALL _cairo_path_fixed_get_current_point(const cairo_path_fixed_t * path, cairo_fixed_t * x, cairo_fixed_t * y)
 {
 	if(!path->has_current_point)
 		return FALSE;
@@ -789,10 +789,10 @@ void _cairo_path_fixed_transform(cairo_path_fixed_t * path,
 		}
 	} cairo_path_foreach_buf_end(buf, path);
 	if(path->has_curve_to) {
-		cairo_bool_t is_tight;
+		boolint is_tight;
 		_cairo_matrix_transform_bounding_box_fixed(matrix, &extents, &is_tight);
 		if(!is_tight) {
-			cairo_bool_t has_extents = _cairo_path_bounder_extents(path, &extents);
+			boolint has_extents = _cairo_path_bounder_extents(path, &extents);
 			assert(has_extents);
 		}
 		path->extents = extents;
@@ -886,7 +886,7 @@ static inline void _canonical_box(cairo_box_t * box, const cairo_point_t * p1, c
 	}
 }
 
-static inline cairo_bool_t _path_is_quad(const cairo_path_fixed_t * path)
+static inline boolint _path_is_quad(const cairo_path_fixed_t * path)
 {
 	const cairo_path_buf_t * buf = cairo_path_head(path);
 	/* Do we have the right number of ops? */
@@ -917,7 +917,7 @@ static inline cairo_bool_t _path_is_quad(const cairo_path_fixed_t * path)
 	return TRUE;
 }
 
-static inline cairo_bool_t _points_form_rect(const cairo_point_t * points)
+static inline boolint _points_form_rect(const cairo_point_t * points)
 {
 	if(points[0].y == points[1].y && points[1].x == points[2].x && points[2].y == points[3].y && points[3].x == points[0].x)
 		return TRUE;
@@ -928,7 +928,7 @@ static inline cairo_bool_t _points_form_rect(const cairo_point_t * points)
 /*
  * Check whether the given path contains a single rectangle.
  */
-cairo_bool_t FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box)
+boolint FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
 	if(!path->fill_is_rectilinear)
 		return FALSE;
@@ -947,9 +947,9 @@ cairo_bool_t FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, 
 
 /* Determine whether two lines A->B and C->D intersect based on the
  * algorithm described here: http://paulbourke.net/geometry/pointlineplane/ */
-static inline cairo_bool_t _lines_intersect_or_are_coincident(cairo_point_t a, cairo_point_t b, cairo_point_t c, cairo_point_t d)
+static inline boolint _lines_intersect_or_are_coincident(cairo_point_t a, cairo_point_t b, cairo_point_t c, cairo_point_t d)
 {
-	cairo_bool_t denominator_negative;
+	boolint denominator_negative;
 	const cairo_int64_t denominator = _cairo_int64_sub(_cairo_int32x32_64_mul(d.y - c.y, b.x - a.x), _cairo_int32x32_64_mul(d.x - c.x, b.y - a.y));
 	const cairo_int64_t numerator_a = _cairo_int64_sub(_cairo_int32x32_64_mul(d.x - c.x, a.y - c.y), _cairo_int32x32_64_mul(d.y - c.y, a.x - c.x));
 	const cairo_int64_t numerator_b = _cairo_int64_sub(_cairo_int32x32_64_mul(b.x - a.x, a.y - c.y), _cairo_int32x32_64_mul(b.y - a.y, a.x - c.x));
@@ -984,7 +984,7 @@ static inline cairo_bool_t _lines_intersect_or_are_coincident(cairo_point_t a, c
 	return TRUE;
 }
 
-cairo_bool_t _cairo_path_fixed_is_simple_quad(const cairo_path_fixed_t * path)
+boolint _cairo_path_fixed_is_simple_quad(const cairo_path_fixed_t * path)
 {
 	const cairo_point_t * points;
 	if(!_path_is_quad(path))
@@ -999,7 +999,7 @@ cairo_bool_t _cairo_path_fixed_is_simple_quad(const cairo_path_fixed_t * path)
 	return TRUE;
 }
 
-cairo_bool_t _cairo_path_fixed_is_stroke_box(const cairo_path_fixed_t * path, cairo_box_t * box)
+boolint _cairo_path_fixed_is_stroke_box(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
 	const cairo_path_buf_t * buf = cairo_path_head(path);
 	if(!path->fill_is_rectilinear)
@@ -1043,7 +1043,7 @@ cairo_bool_t _cairo_path_fixed_is_stroke_box(const cairo_path_fixed_t * path, ca
  * cairo_close_path (cr);
  * </programlisting></informalexample>
  */
-cairo_bool_t _cairo_path_fixed_is_rectangle(const cairo_path_fixed_t * path, cairo_box_t * box)
+boolint _cairo_path_fixed_is_rectangle(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
 	const cairo_path_buf_t * buf;
 	if(!_cairo_path_fixed_is_box(path, box))
@@ -1064,7 +1064,7 @@ void _cairo_path_fixed_iter_init(cairo_path_fixed_iter_t * iter, const cairo_pat
 	iter->n_point = 0;
 }
 
-static cairo_bool_t _cairo_path_fixed_iter_next_op(cairo_path_fixed_iter_t * iter)
+static boolint _cairo_path_fixed_iter_next_op(cairo_path_fixed_iter_t * iter)
 {
 	if(++iter->n_op >= iter->buf->num_ops) {
 		iter->buf = cairo_path_buf_next(iter->buf);
@@ -1080,7 +1080,7 @@ static cairo_bool_t _cairo_path_fixed_iter_next_op(cairo_path_fixed_iter_t * ite
 	return TRUE;
 }
 
-cairo_bool_t _cairo_path_fixed_iter_is_fill_box(cairo_path_fixed_iter_t * _iter,
+boolint _cairo_path_fixed_iter_is_fill_box(cairo_path_fixed_iter_t * _iter,
     cairo_box_t * box)
 {
 	cairo_point_t points[5];
@@ -1175,7 +1175,7 @@ cairo_bool_t _cairo_path_fixed_iter_is_fill_box(cairo_path_fixed_iter_t * _iter,
 	return FALSE;
 }
 
-cairo_bool_t _cairo_path_fixed_iter_at_end(const cairo_path_fixed_iter_t * iter)
+boolint _cairo_path_fixed_iter_at_end(const cairo_path_fixed_iter_t * iter)
 {
 	return (iter->buf == NULL) ? TRUE : (iter->n_op == iter->buf->num_ops);
 }

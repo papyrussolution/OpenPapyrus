@@ -132,12 +132,12 @@ cairo_private cairo_surface_t * _cairo_image_surface_source(void * abstract_surf
 cairo_private cairo_status_t _cairo_image_surface_acquire_source_image(void * abstract_surface, cairo_image_surface_t  ** image_out, void    ** image_extra);
 cairo_private void _cairo_image_surface_release_source_image(void * abstract_surface, cairo_image_surface_t * image, void * image_extra);
 cairo_private cairo_surface_t * _cairo_image_surface_snapshot(void * abstract_surface);
-cairo_private_no_warn cairo_bool_t _cairo_image_surface_get_extents(void * abstract_surface,
+cairo_private_no_warn boolint _cairo_image_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * rectangle);
 cairo_private void _cairo_image_surface_get_font_options(void * abstract_surface, cairo_font_options_t * options);
 cairo_private cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst,
     const cairo_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * src_x, int * src_y);
@@ -145,7 +145,7 @@ cairo_private cairo_status_t _cairo_image_surface_finish(void * abstract_surface
 cairo_private pixman_image_t * FASTCALL _pixman_image_for_color(const cairo_color_t * cairo_color);
 cairo_private pixman_image_t * _pixman_image_for_pattern(cairo_image_surface_t * dst,
     const cairo_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * tx, int * ty);

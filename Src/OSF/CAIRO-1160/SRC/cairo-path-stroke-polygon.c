@@ -66,15 +66,15 @@ struct stroker {
 	double tolerance;
 	double spline_cusp_tolerance;
 	double half_line_width;
-	cairo_bool_t ctm_det_positive;
+	boolint ctm_det_positive;
 	cairo_pen_t pen;
 	cairo_point_t first_point;
-	cairo_bool_t has_initial_sub_path;
-	cairo_bool_t has_current_face;
+	boolint has_initial_sub_path;
+	boolint has_current_face;
 	cairo_stroke_face_t current_face;
-	cairo_bool_t has_first_face;
+	boolint has_first_face;
 	cairo_stroke_face_t first_face;
-	cairo_bool_t has_bounds;
+	boolint has_bounds;
 	cairo_box_t bounds;
 };
 
@@ -89,7 +89,7 @@ static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_po
 	return _cairo_int32x32_64_mul(dx, dx) + _cairo_int32x32_64_mul(dy, dy);
 }
 
-static cairo_bool_t within_tolerance(const cairo_point_t * p1, const cairo_point_t * p2, cairo_uint64_t tolerance)
+static boolint within_tolerance(const cairo_point_t * p1, const cairo_point_t * p2, cairo_uint64_t tolerance)
 {
 	return FALSE;
 	return _cairo_int64_lt(point_distance_sq(p1, p2), tolerance);
@@ -131,7 +131,7 @@ static inline int range_step(int i, int step, int max)
  * inpt and outpt.
  */
 static void add_fan(struct stroker * stroker, const cairo_slope_t * in_vector, const cairo_slope_t * out_vector,
-    const cairo_point_t * midpt, cairo_bool_t clockwise, struct stroker::stroke_contour * c)
+    const cairo_point_t * midpt, boolint clockwise, struct stroker::stroke_contour * c)
 {
 	cairo_pen_t * pen = &stroker->pen;
 	int start, stop;
@@ -173,7 +173,7 @@ static void inner_join(struct stroker * stroker, const cairo_stroke_face_t * in,
 	struct stroker::stroke_contour * inner;
 	cairo_int64_t d_p, d_last;
 	cairo_int64_t half_line_width;
-	cairo_bool_t negate;
+	boolint negate;
 
 	/* XXX line segments shorter than line-width */
 

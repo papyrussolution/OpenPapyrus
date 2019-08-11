@@ -359,7 +359,7 @@ BAD:
  *
  * Return value: %TRUE if the operator is bounded by the mask operand
  **/
-cairo_bool_t FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op)
+boolint FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op)
 {
 	switch(op) {
 		case CAIRO_OPERATOR_CLEAR:
@@ -413,7 +413,7 @@ cairo_bool_t FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op)
  *
  * Return value: %TRUE if the operator is bounded by the source operand
  **/
-cairo_bool_t FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op)
+boolint FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op)
 {
 	switch(op) {
 		case CAIRO_OPERATOR_OVER:
@@ -815,7 +815,7 @@ double _cairo_strtod(const char * nptr, char ** endptr)
 	double value;
 	char * end;
 	int delta;
-	cairo_bool_t have_dp;
+	boolint have_dp;
 	decimal_point = _cairo_get_locale_decimal_point();
 	decimal_point_len = strlen(decimal_point);
 	assert(decimal_point_len != 0);
@@ -993,7 +993,7 @@ ulong FASTCALL _cairo_string_hash(const char * str, int len)
 	return h;
 }
 
-static cairo_bool_t _intern_string_equal(const void * _a, const void * _b)
+static boolint _intern_string_equal(const void * _a, const void * _b)
 {
 	const cairo_intern_string_t * a = static_cast<const cairo_intern_string_t *>(_a);
 	const cairo_intern_string_t * b = static_cast<const cairo_intern_string_t *>(_b);

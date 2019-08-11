@@ -88,9 +88,9 @@ cairo_os2_surface_refresh_window (cairo_surface_t *surface,
 
 cairo_public void
 cairo_os2_surface_set_manual_window_refresh (cairo_surface_t *surface,
-                                             cairo_bool_t     manual_refresh);
+                                             boolint     manual_refresh);
 
-cairo_public cairo_bool_t
+cairo_public boolint
 cairo_os2_surface_get_manual_window_refresh (cairo_surface_t *surface);
 
 cairo_public cairo_status_t

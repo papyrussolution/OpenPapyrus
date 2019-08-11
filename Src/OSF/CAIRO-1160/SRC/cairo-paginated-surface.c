@@ -109,7 +109,7 @@ FAIL:
 	return _cairo_surface_create_in_error(status);
 }
 
-cairo_bool_t FASTCALL _cairo_surface_is_paginated(const cairo_surface_t * surface)
+boolint FASTCALL _cairo_surface_is_paginated(const cairo_surface_t * surface)
 {
 	return surface->backend == &cairo_paginated_surface_backend;
 }
@@ -211,7 +211,7 @@ static cairo_status_t _cairo_paginated_surface_acquire_source_image(void * abstr
     void   ** image_extra)
 {
 	cairo_paginated_surface_t * surface = static_cast<cairo_paginated_surface_t *>(abstract_surface);
-	cairo_bool_t is_bounded;
+	boolint is_bounded;
 	cairo_surface_t * image;
 	cairo_status_t status;
 	cairo_rectangle_int_t extents;
@@ -320,7 +320,7 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 {
 	cairo_surface_t * analysis;
 	cairo_int_status_t status;
-	cairo_bool_t has_supported, has_page_fallback, has_finegrained_fallback;
+	boolint has_supported, has_page_fallback, has_finegrained_fallback;
 
 	if(unlikely(surface->target->status))
 		return surface->target->status;
@@ -351,7 +351,7 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 	}
 
 	if(surface->backend->set_fallback_images_required) {
-		cairo_bool_t has_fallbacks = _cairo_analysis_surface_has_unsupported(analysis);
+		boolint has_fallbacks = _cairo_analysis_surface_has_unsupported(analysis);
 
 		status = surface->backend->set_fallback_images_required(surface->target,
 			has_fallbacks);
@@ -389,7 +389,7 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 	}
 	if(has_page_fallback) {
 		cairo_rectangle_int_t extents;
-		cairo_bool_t is_bounded;
+		boolint is_bounded;
 		status = surface->backend->set_paginated_mode(surface->target, CAIRO_PAGINATED_MODE_FALLBACK);
 		if(unlikely(status))
 			goto FAIL;
@@ -486,7 +486,7 @@ static cairo_int_status_t _cairo_paginated_surface_show_page(void * abstract_sur
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_paginated_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
+static boolint _cairo_paginated_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
 	cairo_paginated_surface_t * surface = static_cast<cairo_paginated_surface_t *>(abstract_surface);
 	return _cairo_surface_get_extents(surface->target, rectangle);
@@ -540,7 +540,7 @@ static cairo_int_status_t _cairo_paginated_surface_fill(void * abstract_surface,
 	return _cairo_surface_fill(surface->recording_surface, op, source, path, fill_rule, tolerance, antialias, clip);
 }
 
-static cairo_bool_t _cairo_paginated_surface_has_show_text_glyphs(void * abstract_surface)
+static boolint _cairo_paginated_surface_has_show_text_glyphs(void * abstract_surface)
 {
 	cairo_paginated_surface_t * surface = static_cast<cairo_paginated_surface_t *>(abstract_surface);
 	return cairo_surface_has_show_text_glyphs(surface->target);
@@ -581,7 +581,7 @@ static const char ** _cairo_paginated_surface_get_supported_mime_types(void * ab
 }
 
 static cairo_int_status_t _cairo_paginated_surface_tag(void * abstract_surface,
-    cairo_bool_t begin,
+    boolint begin,
     const char * tag_name,
     const char * attributes,
     const cairo_pattern_t * source,

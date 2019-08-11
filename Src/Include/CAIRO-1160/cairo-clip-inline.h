@@ -39,7 +39,7 @@
 
 //#include "cairo-clip-private.h"
 
-static inline cairo_bool_t _cairo_clip_is_all_clipped(const cairo_clip_t * clip)
+static inline boolint _cairo_clip_is_all_clipped(const cairo_clip_t * clip)
 {
 	return clip == &__cairo_clip_all;
 }

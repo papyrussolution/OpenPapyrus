@@ -68,7 +68,7 @@ void _cairo_tristrip_init_with_clip(cairo_tristrip_t * strip, const cairo_clip_t
 }
 
 /* make room for at least one more trap */
-static cairo_bool_t _cairo_tristrip_grow(cairo_tristrip_t * strip)
+static boolint _cairo_tristrip_grow(cairo_tristrip_t * strip)
 {
 	cairo_point_t * points;
 	int new_size = 4 * strip->size_points;

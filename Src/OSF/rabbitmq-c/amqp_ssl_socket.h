@@ -52,7 +52,7 @@ AMQP_BEGIN_DECLS
  *
  * \since v0.4.0
  */
-AMQP_PUBLIC_FUNCTION amqp_socket_t *AMQP_CALL amqp_ssl_socket_new(amqp_connection_state_t state);
+AMQP_PUBLIC_FUNCTION amqp_socket_t * AMQP_CALL amqp_ssl_socket_new(amqp_connection_state_t state);
 /**
  * Get the internal OpenSSL context. Caveat emptor.
  *
@@ -118,7 +118,7 @@ AMQP_PUBLIC_FUNCTION int AMQP_CALL amqp_ssl_socket_set_key_buffer(amqp_socket_t 
  *
  * \since v0.4.0
  */
-AMQP_DEPRECATED(AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_ssl_socket_set_verify(amqp_socket_t * self, amqp_boolean_t verify));
+AMQP_DEPRECATED(AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_ssl_socket_set_verify(amqp_socket_t * self, boolint verify));
 
 /**
  * Enable or disable peer verification.
@@ -131,7 +131,7 @@ AMQP_DEPRECATED(AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_ssl_socket_set_verify(a
  *
  * \since v0.8.0
  */
-AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_ssl_socket_set_verify_peer(amqp_socket_t * self, amqp_boolean_t verify);
+AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_ssl_socket_set_verify_peer(amqp_socket_t * self, boolint verify);
 /**
  * Enable or disable hostname verification.
  *
@@ -141,7 +141,7 @@ AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_ssl_socket_set_verify_peer(amqp_socket_
  *
  * \since v0.8.0
  */
-AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_ssl_socket_set_verify_hostname(amqp_socket_t * self, amqp_boolean_t verify);
+AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_ssl_socket_set_verify_hostname(amqp_socket_t * self, boolint verify);
 
 typedef enum {
 	AMQP_TLSv1 = 1,
@@ -190,7 +190,7 @@ AMQP_PUBLIC_FUNCTION int AMQP_CALL amqp_ssl_socket_set_ssl_versions(amqp_socket_
  *
  * \since v0.4.0
  */
-AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_set_initialize_ssl_library(amqp_boolean_t do_initialize);
+AMQP_PUBLIC_FUNCTION void AMQP_CALL amqp_set_initialize_ssl_library(boolint do_initialize);
 /**
  * Initialize the underlying SSL/TLS library.
  *

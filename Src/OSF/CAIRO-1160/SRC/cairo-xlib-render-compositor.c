@@ -206,7 +206,7 @@ static cairo_int_status_t copy_image_boxes(void * _dst,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t boxes_cover_surface(cairo_boxes_t * boxes,
+static boolint boxes_cover_surface(cairo_boxes_t * boxes,
     cairo_xlib_surface_t * surface)
 {
 	cairo_box_t * b;
@@ -561,7 +561,7 @@ static int _render_operator(cairo_operator_t op)
 	}
 }
 
-static cairo_bool_t fill_reduces_to_source(cairo_operator_t op,
+static boolint fill_reduces_to_source(cairo_operator_t op,
     const cairo_color_t * color,
     cairo_xlib_surface_t * dst)
 {
@@ -1093,7 +1093,7 @@ static cairo_xlib_font_glyphset_t * _cairo_xlib_font_get_glyphset_info_for_forma
 	return info;
 }
 
-static cairo_bool_t has_pending_free_glyph(cairo_xlib_font_glyphset_t * info,
+static boolint has_pending_free_glyph(cairo_xlib_font_glyphset_t * info,
     ulong glyph_index)
 {
 	struct _cairo_xlib_font_glyphset_free_glyphs * to_free;
@@ -1150,7 +1150,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_scaled_glyph_t * glyph = *pscaled_glyph;
 	cairo_image_surface_t * glyph_surface = glyph->surface;
-	cairo_bool_t already_had_glyph_surface;
+	boolint already_had_glyph_surface;
 	cairo_xlib_font_glyphset_t * info;
 
 	glyph_index = _cairo_scaled_glyph_index(glyph);
@@ -1370,7 +1370,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
     cairo_xlib_glyph_t * glyphs,
     int num_glyphs,
     cairo_scaled_font_t * font,
-    cairo_bool_t use_mask,
+    boolint use_mask,
     cairo_operator_t op,
     cairo_xlib_source_t * src,
     int src_x, int src_y,
@@ -1712,7 +1712,7 @@ const cairo_compositor_t * _cairo_xlib_mask_compositor_get(void)
 #define CAIRO_FIXED_16_16_MIN -32768
 #define CAIRO_FIXED_16_16_MAX 32767
 
-static cairo_bool_t line_exceeds_16_16(const cairo_line_t * line)
+static boolint line_exceeds_16_16(const cairo_line_t * line)
 {
 	return
 		line->p1.x < _cairo_fixed_from_int(CAIRO_FIXED_16_16_MIN) ||

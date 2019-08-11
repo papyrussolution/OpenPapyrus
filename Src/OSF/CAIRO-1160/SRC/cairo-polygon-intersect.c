@@ -542,7 +542,7 @@ static inline cairo_bo_intersect_ordinate_t round_to_nearest(cairo_quorem64_t d,
  * Returns %CAIRO_BO_STATUS_INTERSECTION if there is an intersection or
  * %CAIRO_BO_STATUS_PARALLEL if the two lines are exactly parallel.
  */
-static cairo_bool_t intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
+static boolint intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
 	cairo_int64_t a_det, b_det;
 
@@ -628,7 +628,7 @@ static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, const cairo_bo_intersect_point_t * point)
+static boolint _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, const cairo_bo_intersect_point_t * point)
 {
 	return _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.bottom) < 0;
 }
@@ -649,7 +649,7 @@ static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * ed
  * effectively outside (no intersection is returned). Also, if the
  * intersection point has the same
  */
-static cairo_bool_t _cairo_bo_edge_intersect(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
+static boolint _cairo_bo_edge_intersect(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
 	if(!intersect_lines(a, b, intersection))
 		return FALSE;
@@ -913,7 +913,7 @@ static void _cairo_bo_sweep_line_swap(cairo_bo_sweep_line_t * sweep_line, cairo_
 	left->prev = right;
 }
 
-static inline cairo_bool_t edges_colinear(const cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
+static inline boolint edges_colinear(const cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
 {
 	if(_line_equal(&a->edge.line, &b->edge.line))
 		return TRUE;

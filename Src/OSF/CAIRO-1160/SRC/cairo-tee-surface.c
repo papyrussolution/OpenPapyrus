@@ -179,7 +179,7 @@ static cairo_surface_t * _cairo_tee_surface_snapshot(void * abstract_surface)
 	return _cairo_surface_wrapper_snapshot(&surface->master);
 }
 
-static cairo_bool_t _cairo_tee_surface_get_extents(void * abstract_surface,
+static boolint _cairo_tee_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * rectangle)
 {
 	cairo_tee_surface_t * surface = abstract_surface;
@@ -310,7 +310,7 @@ static cairo_int_status_t _cairo_tee_surface_fill(void * abstract_surface,
 		   clip);
 }
 
-static cairo_bool_t _cairo_tee_surface_has_show_text_glyphs(void * abstract_surface)
+static boolint _cairo_tee_surface_has_show_text_glyphs(void * abstract_surface)
 {
 	return TRUE;
 }

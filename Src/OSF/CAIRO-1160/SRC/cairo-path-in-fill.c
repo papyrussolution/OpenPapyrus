@@ -38,10 +38,10 @@
 
 typedef struct cairo_in_fill {
 	double tolerance;
-	cairo_bool_t on_edge;
+	boolint on_edge;
 	int winding;
 	cairo_fixed_t x, y;
-	cairo_bool_t has_current_point;
+	boolint has_current_point;
 	cairo_point_t current_point;
 	cairo_point_t first_point;
 } cairo_in_fill_t;
@@ -201,11 +201,11 @@ static cairo_status_t _cairo_in_fill_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_bool_t _cairo_path_fixed_in_fill(const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, double x, double y)
+boolint _cairo_path_fixed_in_fill(const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, double x, double y)
 {
 	cairo_in_fill_t in_fill;
 	cairo_status_t status;
-	cairo_bool_t is_inside;
+	boolint is_inside;
 	if(_cairo_path_fixed_fill_is_empty(path))
 		return FALSE;
 	_cairo_in_fill_init(&in_fill, tolerance, x, y);

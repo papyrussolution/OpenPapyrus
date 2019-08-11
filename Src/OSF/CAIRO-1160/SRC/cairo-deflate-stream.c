@@ -51,10 +51,10 @@ typedef struct _cairo_deflate_stream {
 	uchar output_buf[BUFFER_SIZE];
 } cairo_deflate_stream_t;
 
-static void cairo_deflate_stream_deflate(cairo_deflate_stream_t * stream, cairo_bool_t flush)
+static void cairo_deflate_stream_deflate(cairo_deflate_stream_t * stream, boolint flush)
 {
 	int ret;
-	cairo_bool_t finished;
+	boolint finished;
 	do {
 		ret = deflate(&stream->zlib_stream, flush ? Z_FINISH : Z_NO_FLUSH);
 		if(flush || stream->zlib_stream.avail_out == 0) {

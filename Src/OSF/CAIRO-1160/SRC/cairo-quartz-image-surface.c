@@ -116,7 +116,7 @@ static cairo_int_status_t _cairo_quartz_image_surface_unmap_image(void * asurfac
 	return _cairo_surface_unmap_image(&surface->imageSurface->base, image);
 }
 
-static cairo_bool_t _cairo_quartz_image_surface_get_extents(void * asurface,
+static boolint _cairo_quartz_image_surface_get_extents(void * asurface,
     cairo_rectangle_int_t * extents)
 {
 	cairo_quartz_image_surface_t * surface = (cairo_quartz_image_surface_t*)asurface;

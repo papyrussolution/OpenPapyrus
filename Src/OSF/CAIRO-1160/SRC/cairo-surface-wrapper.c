@@ -417,7 +417,7 @@ FINISH:
 	return status;
 }
 
-cairo_status_t _cairo_surface_wrapper_tag(cairo_surface_wrapper_t * wrapper, cairo_bool_t begin, const char * tag_name, const char * attributes,
+cairo_status_t _cairo_surface_wrapper_tag(cairo_surface_wrapper_t * wrapper, boolint begin, const char * tag_name, const char * attributes,
     const cairo_pattern_t * source, const cairo_stroke_style_t * stroke_style, const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
@@ -448,7 +448,7 @@ cairo_surface_t * _cairo_surface_wrapper_create_similar(cairo_surface_wrapper_t 
 	return _cairo_surface_create_scratch(wrapper->target, content, width, height, NULL);
 }
 
-cairo_bool_t _cairo_surface_wrapper_get_extents(cairo_surface_wrapper_t * wrapper, cairo_rectangle_int_t * extents)
+boolint _cairo_surface_wrapper_get_extents(cairo_surface_wrapper_t * wrapper, cairo_rectangle_int_t * extents)
 {
 	if(wrapper->has_extents) {
 		if(_cairo_surface_get_extents(wrapper->target, extents))
@@ -462,7 +462,7 @@ cairo_bool_t _cairo_surface_wrapper_get_extents(cairo_surface_wrapper_t * wrappe
 	}
 }
 
-static cairo_bool_t _cairo_surface_wrapper_needs_device_transform(cairo_surface_wrapper_t * wrapper)
+static boolint _cairo_surface_wrapper_needs_device_transform(cairo_surface_wrapper_t * wrapper)
 {
 	return (wrapper->has_extents && (wrapper->extents.x | wrapper->extents.y)) ||
 		!_cairo_matrix_is_identity(&wrapper->transform) || !_cairo_matrix_is_identity(&wrapper->target->device_transform);
@@ -510,7 +510,7 @@ cairo_surface_t * _cairo_surface_wrapper_snapshot(cairo_surface_wrapper_t * wrap
 	return (wrapper->target->backend->snapshot) ? wrapper->target->backend->snapshot(wrapper->target) : 0;
 }
 
-cairo_bool_t _cairo_surface_wrapper_has_show_text_glyphs(cairo_surface_wrapper_t * wrapper)
+boolint _cairo_surface_wrapper_has_show_text_glyphs(cairo_surface_wrapper_t * wrapper)
 {
 	return cairo_surface_has_show_text_glyphs(wrapper->target);
 }
@@ -533,10 +533,10 @@ void _cairo_surface_wrapper_fini(cairo_surface_wrapper_t * wrapper)
 	cairo_surface_destroy(wrapper->target);
 }
 
-cairo_bool_t _cairo_surface_wrapper_get_target_extents(cairo_surface_wrapper_t * wrapper, cairo_bool_t surface_is_unbounded, cairo_rectangle_int_t * extents)
+boolint _cairo_surface_wrapper_get_target_extents(cairo_surface_wrapper_t * wrapper, boolint surface_is_unbounded, cairo_rectangle_int_t * extents)
 {
 	cairo_rectangle_int_t clip;
-	cairo_bool_t has_clip = FALSE;
+	boolint has_clip = FALSE;
 	if(!surface_is_unbounded)
 		has_clip = _cairo_surface_get_extents(wrapper->target, &clip);
 	if(wrapper->clip) {

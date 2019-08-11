@@ -132,7 +132,7 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 	else {
 		cairo_surface_t * parent_surface;
 		cairo_rectangle_int_t extents;
-		cairo_bool_t bounded, is_empty;
+		boolint bounded, is_empty;
 
 		parent_surface = _cairo_gstate_get_target(cr->gstate);
 
@@ -224,7 +224,7 @@ static cairo_status_t _cairo_default_context_set_source(void * abstract_cr, cair
 	return _cairo_gstate_set_source(cr->gstate, source);
 }
 
-static cairo_bool_t _current_source_matches_solid(const cairo_pattern_t * pattern, double red, double green, double blue, double alpha)
+static boolint _current_source_matches_solid(const cairo_pattern_t * pattern, double red, double green, double blue, double alpha)
 {
 	cairo_color_t color;
 	if(pattern->type != CAIRO_PATTERN_TYPE_SOLID)
@@ -548,7 +548,7 @@ static cairo_status_t _cairo_default_context_curve_to(void * abstract_cr, double
 	return _cairo_path_fixed_curve_to(cr->path, x1_fixed, y1_fixed, x2_fixed, y2_fixed, x3_fixed, y3_fixed);
 }
 
-static cairo_status_t _cairo_default_context_arc(void * abstract_cr, double xc, double yc, double radius, double angle1, double angle2, cairo_bool_t forward)
+static cairo_status_t _cairo_default_context_arc(void * abstract_cr, double xc, double yc, double radius, double angle1, double angle2, boolint forward)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	cairo_status_t status;
@@ -644,13 +644,13 @@ static void _cairo_default_context_path_extents(void * abstract_cr, double * x1,
 	_cairo_gstate_path_extents(cr->gstate, cr->path, x1, y1, x2, y2);
 }
 
-static cairo_bool_t _cairo_default_context_has_current_point(void * abstract_cr)
+static boolint _cairo_default_context_has_current_point(void * abstract_cr)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	return cr->path->has_current_point;
 }
 
-static cairo_bool_t _cairo_default_context_get_current_point(void * abstract_cr, double * x, double * y)
+static boolint _cairo_default_context_get_current_point(void * abstract_cr, double * x, double * y)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	cairo_fixed_t x_fixed, y_fixed;
@@ -728,7 +728,7 @@ static cairo_status_t _cairo_default_context_stroke(void * abstract_cr)
 	return _cairo_default_context_new_path(cr);
 }
 
-static cairo_status_t _cairo_default_context_in_stroke(void * abstract_cr, double x, double y, cairo_bool_t * inside)
+static cairo_status_t _cairo_default_context_in_stroke(void * abstract_cr, double x, double y, boolint * inside)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	return _cairo_gstate_in_stroke(cr->gstate, cr->path, x, y, inside);
@@ -755,7 +755,7 @@ static cairo_status_t _cairo_default_context_fill(void * abstract_cr)
 	return _cairo_default_context_new_path(cr);
 }
 
-static cairo_status_t _cairo_default_context_in_fill(void * abstract_cr, double x, double y, cairo_bool_t * inside)
+static cairo_status_t _cairo_default_context_in_fill(void * abstract_cr, double x, double y, boolint * inside)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	*inside = _cairo_gstate_in_fill(cr->gstate, cr->path, x, y);
@@ -784,7 +784,7 @@ static cairo_status_t _cairo_default_context_clip(void * abstract_cr)
 	return _cairo_default_context_new_path(cr);
 }
 
-static cairo_status_t _cairo_default_context_in_clip(void * abstract_cr, double x, double y, cairo_bool_t * inside)
+static cairo_status_t _cairo_default_context_in_clip(void * abstract_cr, double x, double y, boolint * inside)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	*inside = _cairo_gstate_in_clip(cr->gstate, x, y);
@@ -899,7 +899,7 @@ static void _cairo_default_context_get_font_options(void * abstract_cr, cairo_fo
 static cairo_status_t _cairo_default_context_set_scaled_font(void * abstract_cr, cairo_scaled_font_t * scaled_font)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
-	cairo_bool_t was_previous;
+	boolint was_previous;
 	cairo_status_t status;
 	if(scaled_font == cr->gstate->scaled_font)
 		return CAIRO_STATUS_SUCCESS;

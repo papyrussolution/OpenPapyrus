@@ -67,7 +67,7 @@ static void clear_bits(cairo_mempool_t * pool, size_t first, size_t last)
 		BITCLEAR(pool, i);
 }
 
-static void free_bits(cairo_mempool_t * pool, size_t start, int bits, cairo_bool_t clear)
+static void free_bits(cairo_mempool_t * pool, size_t start, int bits, boolint clear)
 {
 	struct _cairo_mempool::_cairo_memblock * block;
 	if(clear)
@@ -81,7 +81,7 @@ static void free_bits(cairo_mempool_t * pool, size_t start, int bits, cairo_bool
 }
 
 /* Add a chunk to the free list */
-static void free_blocks(cairo_mempool_t * pool, size_t first, size_t last, cairo_bool_t clear)
+static void free_blocks(cairo_mempool_t * pool, size_t first, size_t last, boolint clear)
 {
 	size_t i, len;
 	int bits = 0;

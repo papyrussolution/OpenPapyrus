@@ -145,7 +145,7 @@ static cairo_int_status_t _cairo_fallback_compositor_glyphs(const cairo_composit
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	cairo_image_surface_t * image;
 	cairo_int_status_t status;

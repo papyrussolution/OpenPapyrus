@@ -46,7 +46,7 @@
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-region-private.h"
 
-static cairo_bool_t FASTCALL can_convert_to_polygon(const cairo_clip_t * clip)
+static boolint FASTCALL can_convert_to_polygon(const cairo_clip_t * clip)
 {
 	cairo_clip_path_t * clip_path = clip->path;
 	cairo_antialias_t antialias = clip_path->antialias;
@@ -109,7 +109,7 @@ err:
 	return status;
 }
 
-cairo_bool_t FASTCALL _cairo_clip_is_polygon(const cairo_clip_t * clip)
+boolint FASTCALL _cairo_clip_is_polygon(const cairo_clip_t * clip)
 {
 	if(_cairo_clip_is_all_clipped(clip))
 		return TRUE;

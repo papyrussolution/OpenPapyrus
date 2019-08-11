@@ -45,7 +45,7 @@ typedef struct _cairo_base85_stream {
 	int pending;
 } cairo_base85_stream_t;
 
-static void _expand_four_tuple_to_five(uchar four_tuple[4], uchar five_tuple[5], cairo_bool_t * all_zero)
+static void _expand_four_tuple_to_five(uchar four_tuple[4], uchar five_tuple[5], boolint * all_zero)
 {
 	int digit, i;
 	uint32_t value = four_tuple[0] << 24 | four_tuple[1] << 16 | four_tuple[2] << 8 | four_tuple[3];
@@ -65,7 +65,7 @@ static cairo_status_t _cairo_base85_stream_write(cairo_output_stream_t * base, c
 	cairo_base85_stream_t * stream = (cairo_base85_stream_t*)base;
 	const uchar * ptr = data;
 	uchar five_tuple[5];
-	cairo_bool_t is_zero;
+	boolint is_zero;
 	while(length) {
 		stream->four_tuple[stream->pending++] = *ptr++;
 		length--;

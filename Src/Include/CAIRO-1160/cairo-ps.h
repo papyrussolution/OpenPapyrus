@@ -87,9 +87,9 @@ cairo_ps_level_to_string (cairo_ps_level_t level);
 
 cairo_public void
 cairo_ps_surface_set_eps (cairo_surface_t	*surface,
-			  cairo_bool_t           eps);
+			  boolint           eps);
 
-cairo_public cairo_bool_t
+cairo_public boolint
 cairo_ps_surface_get_eps (cairo_surface_t	*surface);
 
 cairo_public void

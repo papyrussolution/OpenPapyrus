@@ -364,7 +364,7 @@ void FASTCALL cairo_matrix_transform_point(const cairo_matrix_t * matrix, double
 
 slim_hidden_def(cairo_matrix_transform_point);
 
-void FASTCALL _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix, double * x1, double * y1, double * x2, double * y2, cairo_bool_t * is_tight)
+void FASTCALL _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix, double * x1, double * y1, double * x2, double * y2, boolint * is_tight)
 {
 	int i;
 	double quad_x[4], quad_y[4];
@@ -452,7 +452,7 @@ void FASTCALL _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix
 	}
 }
 
-cairo_private void FASTCALL _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, cairo_bool_t * is_tight)
+cairo_private void FASTCALL _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, boolint * is_tight)
 {
 	double x1, y1, x2, y2;
 	_cairo_box_to_doubles(bbox, &x1, &y1, &x2, &y2);
@@ -530,13 +530,13 @@ cairo_status_t FASTCALL cairo_matrix_invert(cairo_matrix_t * matrix)
 
 slim_hidden_def(cairo_matrix_invert);
 
-cairo_bool_t FASTCALL _cairo_matrix_is_invertible(const cairo_matrix_t * matrix)
+boolint FASTCALL _cairo_matrix_is_invertible(const cairo_matrix_t * matrix)
 {
 	double det = _cairo_matrix_compute_determinant(matrix);
 	return ISFINITE(det) && det != 0.;
 }
 
-cairo_bool_t FASTCALL _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix)
+boolint FASTCALL _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix)
 {
 	return matrix->xx == 0. && matrix->xy == 0. && matrix->yx == 0. && matrix->yy == 0.;
 }
@@ -563,7 +563,7 @@ double FASTCALL _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix)
  * Return value: the scale factor of @matrix on the height of the font,
  * or 1.0 if @matrix is %NULL.
  **/
-cairo_status_t _cairo_matrix_compute_basis_scale_factors(const cairo_matrix_t * matrix, double * basis_scale, double * normal_scale, cairo_bool_t x_basis)
+cairo_status_t _cairo_matrix_compute_basis_scale_factors(const cairo_matrix_t * matrix, double * basis_scale, double * normal_scale, boolint x_basis)
 {
 	double det = _cairo_matrix_compute_determinant(matrix);
 	if(!ISFINITE(det))
@@ -598,7 +598,7 @@ cairo_status_t _cairo_matrix_compute_basis_scale_factors(const cairo_matrix_t * 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_bool_t FASTCALL _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity)
+boolint FASTCALL _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity)
 {
 	if(_cairo_matrix_is_translation(matrix)) {
 		cairo_fixed_t x0_fixed = _cairo_fixed_from_double(matrix->x0);
@@ -622,7 +622,7 @@ cairo_bool_t FASTCALL _cairo_matrix_is_integer_translation(const cairo_matrix_t 
  * are allowed to handle matricies filled in using trig functions
  * such as sin(M_PI_2).
  */
-cairo_bool_t FASTCALL _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix)
+boolint FASTCALL _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix)
 {
 	// check that the determinant is near +/-1 
 	double det = _cairo_matrix_compute_determinant(matrix);
@@ -642,7 +642,7 @@ cairo_bool_t FASTCALL _cairo_matrix_has_unity_scale(const cairo_matrix_t * matri
  * mapping between source and destination pixels. If we transform an image
  * with a pixel-exact matrix, filtering is not useful.
  */
-cairo_bool_t _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
+boolint _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
 {
 	cairo_fixed_t x0_fixed, y0_fixed;
 	if(!_cairo_matrix_has_unity_scale(matrix))
@@ -893,7 +893,7 @@ static inline double _pixman_nearest_sample(double d)
  * Return value: %TRUE if @matrix can be represented as a pixman
  * translation, %FALSE otherwise.
  **/
-cairo_bool_t _cairo_matrix_is_pixman_translation(const cairo_matrix_t * matrix, cairo_filter_t filter, int * x_offset, int * y_offset)
+boolint _cairo_matrix_is_pixman_translation(const cairo_matrix_t * matrix, cairo_filter_t filter, int * x_offset, int * y_offset)
 {
 	double tx, ty;
 	if(!_cairo_matrix_is_translation(matrix))
@@ -951,7 +951,7 @@ cairo_bool_t _cairo_matrix_is_pixman_translation(const cairo_matrix_t * matrix, 
 cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t * matrix, cairo_filter_t filter,
     double xc, double yc, pixman_transform_t * out_transform, int * x_offset, int * y_offset)
 {
-	cairo_bool_t is_pixman_translation;
+	boolint is_pixman_translation;
 	is_pixman_translation = _cairo_matrix_is_pixman_translation(matrix, filter, x_offset, y_offset);
 	if(is_pixman_translation) {
 		*out_transform = pixman_identity_transform;

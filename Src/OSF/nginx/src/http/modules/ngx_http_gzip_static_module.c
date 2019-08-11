@@ -180,7 +180,7 @@ static ngx_int_t ngx_http_gzip_static_handler(ngx_http_request_t * r)
 	ngx_str_set(&h->value, "gzip");
 	r->headers_out.content_encoding = h;
 	/* we need to allocate all before the header would be sent */
-	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+	b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 	if(!b) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}

@@ -52,7 +52,7 @@ struct _cairo_output_stream {
 	cairo_output_stream_close_func_t close_func;
 	ulong position;
 	cairo_status_t status;
-	cairo_bool_t closed;
+	boolint closed;
 };
 
 extern const cairo_private cairo_output_stream_t _cairo_output_stream_nil;

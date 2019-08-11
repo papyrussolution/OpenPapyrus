@@ -139,7 +139,7 @@ static void _cairo_xcb_shm_process_pending(cairo_xcb_connection_t * connection, 
 
 cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_t * connection,
     size_t size,
-    cairo_bool_t might_reuse,
+    boolint might_reuse,
     cairo_xcb_shm_info_t ** shm_info_out)
 {
 	cairo_xcb_shm_info_t * shm_info;

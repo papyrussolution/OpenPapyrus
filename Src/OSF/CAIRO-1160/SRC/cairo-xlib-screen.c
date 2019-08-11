@@ -84,9 +84,9 @@ static int parse_boolean(const char * v)
 	return -1;
 }
 
-static cairo_bool_t get_boolean_default(Display * dpy,
+static boolint get_boolean_default(Display * dpy,
     const char * option,
-    cairo_bool_t * value)
+    boolint * value)
 {
 	char * v;
 	int i;
@@ -103,7 +103,7 @@ static cairo_bool_t get_boolean_default(Display * dpy,
 	return FALSE;
 }
 
-static cairo_bool_t get_integer_default(Display * dpy,
+static boolint get_integer_default(Display * dpy,
     const char * option,
     int * value)
 {
@@ -127,8 +127,8 @@ static cairo_bool_t get_integer_default(Display * dpy,
 static void _cairo_xlib_init_screen_font_options(Display * dpy,
     cairo_xlib_screen_t * info)
 {
-	cairo_bool_t xft_hinting;
-	cairo_bool_t xft_antialias;
+	boolint xft_hinting;
+	boolint xft_antialias;
 	int xft_hintstyle;
 	int xft_rgba;
 	int xft_lcdfilter;

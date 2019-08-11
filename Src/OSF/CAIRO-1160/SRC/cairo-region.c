@@ -731,7 +731,7 @@ slim_hidden_def(cairo_region_xor_rectangle);
  *
  * Since: 1.10
  **/
-cairo_bool_t cairo_region_is_empty(const cairo_region_t * region)
+boolint cairo_region_is_empty(const cairo_region_t * region)
 {
 	if(region->status)
 		return TRUE;
@@ -815,7 +815,7 @@ slim_hidden_def(cairo_region_contains_rectangle);
  *
  * Since: 1.10
  **/
-cairo_bool_t cairo_region_contains_point(const cairo_region_t * region, int x, int y)
+boolint cairo_region_contains_point(const cairo_region_t * region, int x, int y)
 {
 	pixman_box32_t box;
 	if(region->status)
@@ -838,7 +838,7 @@ slim_hidden_def(cairo_region_contains_point);
  *
  * Since: 1.10
  **/
-cairo_bool_t cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b)
+boolint cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b)
 {
 	/* error objects are never equal */
 	if((a != NULL && a->status) || (b != NULL && b->status))

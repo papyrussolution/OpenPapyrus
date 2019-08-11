@@ -270,7 +270,7 @@ cairo_clip_t * _cairo_clip_intersect_clip(cairo_clip_t * clip, const cairo_clip_
 	return clip;
 }
 
-cairo_bool_t _cairo_clip_equal(const cairo_clip_t * clip_a, const cairo_clip_t * clip_b)
+boolint _cairo_clip_equal(const cairo_clip_t * clip_a, const cairo_clip_t * clip_b)
 {
 	const cairo_clip_path_t * cp_a, * cp_b;
 	/* are both all-clipped or no-clip? */
@@ -467,7 +467,7 @@ cairo_clip_t * _cairo_clip_copy_with_translation(const cairo_clip_t * clip, int 
 	return _cairo_clip_path_copy_with_translation(copy, clip->path, fx, fy);
 }
 
-cairo_bool_t _cairo_clip_contains_extents(const cairo_clip_t * clip, const cairo_composite_rectangles_t * extents)
+boolint _cairo_clip_contains_extents(const cairo_clip_t * clip, const cairo_composite_rectangles_t * extents)
 {
 	const cairo_rectangle_int_t * rect = extents->is_bounded ? &extents->bounded : &extents->unbounded;
 	return _cairo_clip_contains_rectangle(clip, rect);
@@ -521,9 +521,9 @@ const cairo_rectangle_int_t * FASTCALL _cairo_clip_get_extents(const cairo_clip_
 const cairo_rectangle_list_t _cairo_rectangles_nil = { CAIRO_STATUS_NO_MEMORY, NULL, 0 };
 static const cairo_rectangle_list_t _cairo_rectangles_not_representable = { CAIRO_STATUS_CLIP_NOT_REPRESENTABLE, NULL, 0 };
 
-static cairo_bool_t _cairo_clip_int_rect_to_user(cairo_gstate_t * gstate, const cairo_rectangle_int_t * clip_rect, cairo_rectangle_t * user_rect)
+static boolint _cairo_clip_int_rect_to_user(cairo_gstate_t * gstate, const cairo_rectangle_int_t * clip_rect, cairo_rectangle_t * user_rect)
 {
-	cairo_bool_t is_tight;
+	boolint is_tight;
 	double x1 = clip_rect->x;
 	double y1 = clip_rect->y;
 	double x2 = clip_rect->x + (int)clip_rect->width;

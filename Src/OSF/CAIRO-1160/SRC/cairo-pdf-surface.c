@@ -178,7 +178,7 @@
  *
  **/
 
-static cairo_bool_t _cairo_pdf_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);
+static boolint _cairo_pdf_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);
 /**
  * CAIRO_HAS_PDF_SURFACE:
  *
@@ -237,17 +237,17 @@ static void _cairo_pdf_smask_group_destroy(cairo_pdf_smask_group_t * group);
 static cairo_int_status_t _cairo_pdf_surface_add_font(uint font_id, uint subset_id, void * closure);
 static void _cairo_pdf_group_resources_init(cairo_pdf_group_resources_t * res);
 static cairo_int_status_t _cairo_pdf_surface_open_stream(cairo_pdf_surface_t * surface, cairo_pdf_resource_t * resource,
-    cairo_bool_t compressed, const char * fmt, ...) CAIRO_PRINTF_FORMAT(4, 5);
+    boolint compressed, const char * fmt, ...) CAIRO_PRINTF_FORMAT(4, 5);
 static cairo_int_status_t _cairo_pdf_surface_close_stream(cairo_pdf_surface_t * surface);
-static cairo_int_status_t _cairo_pdf_surface_emit_surface(cairo_pdf_surface_t * surface, cairo_pdf_source_surface_t * source, cairo_bool_t test, cairo_bool_t * is_image);
+static cairo_int_status_t _cairo_pdf_surface_emit_surface(cairo_pdf_surface_t * surface, cairo_pdf_source_surface_t * source, boolint test, boolint * is_image);
 static cairo_int_status_t _cairo_pdf_surface_write_page(cairo_pdf_surface_t * surface);
 static void _cairo_pdf_surface_write_pages(cairo_pdf_surface_t * surface);
 static cairo_pdf_resource_t _cairo_pdf_surface_write_catalog(cairo_pdf_surface_t * surface);
 static long _cairo_pdf_surface_write_xref(cairo_pdf_surface_t * surface);
-static cairo_int_status_t _cairo_pdf_surface_write_patterns_and_smask_groups(cairo_pdf_surface_t * surface, cairo_bool_t finish);
+static cairo_int_status_t _cairo_pdf_surface_write_patterns_and_smask_groups(cairo_pdf_surface_t * surface, boolint finish);
 static cairo_int_status_t _cairo_pdf_surface_write_page(cairo_pdf_surface_t * surface);
 static cairo_int_status_t _cairo_pdf_surface_emit_font_subsets(cairo_pdf_surface_t * surface);
-static cairo_bool_t _cairo_pdf_source_surface_equal(const void * key_a, const void * key_b);
+static boolint _cairo_pdf_source_surface_equal(const void * key_a, const void * key_b);
 
 extern const cairo_surface_backend_t cairo_pdf_surface_backend;
 extern const cairo_paginated_surface_backend_t cairo_pdf_surface_paginated_backend;
@@ -285,7 +285,7 @@ static void _cairo_pdf_surface_set_size_internal(cairo_pdf_surface_t * surface, 
 	surface->surface_extents.height = static_cast<int>(ceil(surface->height));
 }
 
-static cairo_bool_t _path_covers_bbox(cairo_pdf_surface_t * surface, const cairo_path_fixed_t * path)
+static boolint _path_covers_bbox(cairo_pdf_surface_t * surface, const cairo_path_fixed_t * path)
 {
 	cairo_box_t box;
 	return _cairo_path_fixed_is_box(path, &box) && box.p1.x <= 0 && box.p1.y <= 0 &&
@@ -481,7 +481,7 @@ cairo_surface_t * cairo_pdf_surface_create(const char * filename,
 		   height_in_points);
 }
 
-static cairo_bool_t _cairo_surface_is_pdf(cairo_surface_t * surface)
+static boolint _cairo_surface_is_pdf(cairo_surface_t * surface)
 {
 	return surface->backend == &cairo_pdf_surface_backend;
 }
@@ -490,7 +490,7 @@ static cairo_bool_t _cairo_surface_is_pdf(cairo_surface_t * surface)
  * surface's target is a pdf_surface, then set pdf_surface to that
  * target. Otherwise return FALSE.
  */
-static cairo_bool_t _extract_pdf_surface(cairo_surface_t * surface, cairo_pdf_surface_t ** pdf_surface)
+static boolint _extract_pdf_surface(cairo_surface_t * surface, cairo_pdf_surface_t ** pdf_surface)
 {
 	cairo_surface_t * target;
 	cairo_status_t status_ignored;
@@ -1025,7 +1025,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_smask_group(cairo_pdf_surface_t
 	return _cairo_array_append(&surface->smask_groups, &group);
 }
 
-static cairo_bool_t _cairo_pdf_source_surface_equal(const void * key_a, const void * key_b)
+static boolint _cairo_pdf_source_surface_equal(const void * key_a, const void * key_b)
 {
 	const cairo_pdf_source_surface_entry_t * a = (const cairo_pdf_source_surface_entry_t *)key_a;
 	const cairo_pdf_source_surface_entry_t * b = (const cairo_pdf_source_surface_entry_t *)key_b;
@@ -1107,8 +1107,8 @@ static void _cairo_pdf_surface_release_source_image_from_pattern(cairo_pdf_surfa
 
 static cairo_int_status_t _get_source_surface_extents(cairo_surface_t * source,
     cairo_rectangle_int_t * extents,
-    cairo_bool_t * bounded,
-    cairo_bool_t * subsurface)
+    boolint * bounded,
+    boolint * subsurface)
 {
 	cairo_int_status_t status;
 
@@ -1182,9 +1182,9 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
     const cairo_pattern_t * source_pattern,
     cairo_operator_t op,
     cairo_filter_t filter,
-    cairo_bool_t stencil_mask,
-    cairo_bool_t smask,
-    cairo_bool_t need_transp_group,
+    boolint stencil_mask,
+    boolint smask,
+    boolint need_transp_group,
     const cairo_rectangle_int_t * extents,
     cairo_pdf_resource_t * smask_res,
     cairo_pdf_source_surface_entry_t ** pdf_source,
@@ -1196,7 +1196,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 	cairo_pdf_source_surface_entry_t surface_key;
 	cairo_pdf_source_surface_entry_t * surface_entry;
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
-	cairo_bool_t interpolate;
+	boolint interpolate;
 	uchar * unique_id = NULL;
 	ulong unique_id_length = 0;
 	cairo_image_surface_t * image;
@@ -1204,7 +1204,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 	cairo_box_t box;
 	cairo_rectangle_int_t op_extents;
 	double x, y;
-	cairo_bool_t subsurface;
+	boolint subsurface;
 
 	switch(filter) {
 		default:
@@ -1396,7 +1396,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_pdf_pattern_or_shading(cairo_pd
     const cairo_pattern_t * pattern,
     cairo_operator_t op,
     const cairo_rectangle_int_t * extents,
-    cairo_bool_t is_shading,
+    boolint is_shading,
     cairo_pdf_resource_t * pattern_res,
     cairo_pdf_resource_t * gstate_res)
 {
@@ -1506,7 +1506,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_pdf_pattern(cairo_pdf_surface_t
 
 static cairo_int_status_t _cairo_pdf_surface_open_stream(cairo_pdf_surface_t * surface,
     cairo_pdf_resource_t * resource,
-    cairo_bool_t compressed,
+    boolint compressed,
     const char * fmt,
     ...)
 {
@@ -1624,7 +1624,7 @@ static void _cairo_pdf_surface_write_memory_stream(cairo_pdf_surface_t * surface
     cairo_output_stream_t * mem_stream,
     cairo_pdf_resource_t resource,
     cairo_pdf_group_resources_t * resources,
-    cairo_bool_t is_knockout_group,
+    boolint is_knockout_group,
     const cairo_box_double_t * bbox)
 {
 	_cairo_pdf_surface_update_object(surface, resource);
@@ -1770,8 +1770,8 @@ static cairo_int_status_t _cairo_pdf_surface_close_group(cairo_pdf_surface_t * s
 static cairo_int_status_t _cairo_pdf_surface_open_content_stream(cairo_pdf_surface_t * surface,
     const cairo_box_double_t * bbox,
     cairo_pdf_resource_t * resource,
-    cairo_bool_t is_form,
-    cairo_bool_t is_group)
+    boolint is_form,
+    boolint is_group)
 {
 	cairo_int_status_t status;
 
@@ -2045,7 +2045,7 @@ static cairo_int_status_t _cairo_pdf_surface_start_page(void * abstract_surface)
 }
 
 static cairo_int_status_t _cairo_pdf_surface_has_fallback_images(void * abstract_surface,
-    cairo_bool_t has_fallbacks)
+    boolint has_fallbacks)
 {
 	cairo_int_status_t status;
 	cairo_pdf_surface_t * surface = static_cast<cairo_pdf_surface_t *>(abstract_surface);
@@ -2064,12 +2064,12 @@ static cairo_int_status_t _cairo_pdf_surface_has_fallback_images(void * abstract
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_pdf_surface_supports_fine_grained_fallbacks(void * abstract_surface)
+static boolint _cairo_pdf_surface_supports_fine_grained_fallbacks(void * abstract_surface)
 {
 	return TRUE;
 }
 
-static cairo_bool_t _cairo_pdf_surface_requires_thumbnail_image(void * abstract_surface,
+static boolint _cairo_pdf_surface_requires_thumbnail_image(void * abstract_surface,
     int * width,
     int * height)
 {
@@ -2188,7 +2188,7 @@ BAIL:
 // Emit alpha channel from the image into stream_res.
 //
 static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t * surface, cairo_image_surface_t * image,
-    cairo_bool_t stencil_mask, cairo_bool_t interpolate, cairo_pdf_resource_t * stream_res)
+    boolint stencil_mask, boolint interpolate, cairo_pdf_resource_t * stream_res)
 {
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 	char * alpha;
@@ -2324,7 +2324,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 	uint32_t * pixel;
 	int i, x, y, bit;
 	cairo_pdf_resource_t smask = {0}; /* squelch bogus compiler warning */
-	cairo_bool_t need_smask;
+	boolint need_smask;
 	cairo_image_color_t color;
 	cairo_image_transparency_t transparency;
 	char smask_buf[30];
@@ -2536,7 +2536,7 @@ static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surfa
 static cairo_int_status_t _cairo_pdf_surface_emit_jbig2_image(cairo_pdf_surface_t * surface,
     cairo_surface_t * source,
     cairo_pdf_source_surface_entry_t * surface_entry,
-    cairo_bool_t test)
+    boolint test)
 {
 	cairo_int_status_t status;
 	const uchar * mime_data;
@@ -2650,7 +2650,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jbig2_image(cairo_pdf_surface_
 static cairo_int_status_t _cairo_pdf_surface_emit_jpx_image(cairo_pdf_surface_t * surface,
     cairo_surface_t * source,
     cairo_pdf_source_surface_entry_t * surface_entry,
-    cairo_bool_t test)
+    boolint test)
 {
 	cairo_int_status_t status;
 	const uchar * mime_data;
@@ -2730,7 +2730,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpx_image(cairo_pdf_surface_t 
 static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t * surface,
     cairo_surface_t * source,
     cairo_pdf_source_surface_entry_t * surface_entry,
-    cairo_bool_t test)
+    boolint test)
 {
 	cairo_int_status_t status;
 	const uchar * mime_data;
@@ -2828,7 +2828,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t
 static cairo_int_status_t _cairo_pdf_surface_emit_ccitt_image(cairo_pdf_surface_t * surface,
     cairo_surface_t * source,
     cairo_pdf_source_surface_entry_t * surface_entry,
-    cairo_bool_t test)
+    boolint test)
 {
 	cairo_status_t status;
 	const uchar * ccitt_data;
@@ -2926,18 +2926,18 @@ static cairo_int_status_t _cairo_pdf_surface_emit_recording_surface(cairo_pdf_su
     cairo_pdf_source_surface_t * pdf_source)
 {
 	cairo_rectangle_int_t old_surface_extents;
-	cairo_bool_t old_surface_bounded;
+	boolint old_surface_bounded;
 	cairo_paginated_mode_t old_paginated_mode;
 	cairo_surface_clipper_t old_clipper;
-	cairo_bool_t old_in_xobject;
+	boolint old_in_xobject;
 	cairo_box_double_t bbox;
 	cairo_int_status_t status;
 	int alpha = 0;
 	cairo_surface_t * free_me = NULL;
 	cairo_surface_t * source;
 	const cairo_rectangle_int_t * extents;
-	cairo_bool_t is_subsurface;
-	cairo_bool_t transparency_group;
+	boolint is_subsurface;
+	boolint transparency_group;
 	cairo_recording_surface_t * recording;
 
 	assert(pdf_source->type == CAIRO_PATTERN_TYPE_SURFACE);
@@ -3052,8 +3052,8 @@ err:
  **/
 static cairo_int_status_t _cairo_pdf_surface_emit_surface(cairo_pdf_surface_t * surface,
     cairo_pdf_source_surface_t * source,
-    cairo_bool_t test,
-    cairo_bool_t * is_image)
+    boolint test,
+    boolint * is_image)
 {
 	cairo_image_surface_t * image;
 	void * image_extra;
@@ -3484,7 +3484,7 @@ static cairo_int_status_t cairo_pdf_surface_emit_alpha_linear_function(cairo_pdf
 static cairo_int_status_t _cairo_pdf_surface_emit_stitched_colorgradient(cairo_pdf_surface_t * surface,
     uint n_stops,
     cairo_pdf_color_stop_t * stops,
-    cairo_bool_t is_alpha,
+    boolint is_alpha,
     cairo_pdf_resource_t * function)
 {
 	cairo_pdf_resource_t res;
@@ -3577,7 +3577,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_pattern_stops(cairo_pdf_surfac
 	cairo_pdf_color_stop_t * stops;
 	uint n_stops;
 	uint i;
-	cairo_bool_t emit_alpha = FALSE;
+	boolint emit_alpha = FALSE;
 	cairo_int_status_t status;
 	color_function->id = 0;
 	alpha_function->id = 0;
@@ -4240,7 +4240,7 @@ static cairo_int_status_t _cairo_pdf_surface_paint_surface_pattern(cairo_pdf_sur
     const cairo_rectangle_int_t * extents,
     double alpha,
     cairo_pdf_resource_t * smask_res,
-    cairo_bool_t stencil_mask)
+    boolint stencil_mask)
 {
 	cairo_matrix_t cairo_p2d, pdf_p2d;
 	cairo_int_status_t status;
@@ -4400,7 +4400,7 @@ static cairo_int_status_t _cairo_pdf_surface_paint_pattern(cairo_pdf_surface_t *
     const cairo_pattern_t * source,
     const cairo_rectangle_int_t * extents,
     double alpha,
-    cairo_bool_t mask)
+    boolint mask)
 {
 	switch(source->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE:
@@ -4428,7 +4428,7 @@ static cairo_int_status_t _cairo_pdf_surface_paint_pattern(cairo_pdf_surface_t *
 	}
 }
 
-static cairo_bool_t _can_paint_pattern(const cairo_pattern_t * pattern)
+static boolint _can_paint_pattern(const cairo_pattern_t * pattern)
 {
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
@@ -4475,7 +4475,7 @@ static cairo_int_status_t _cairo_pdf_surface_select_operator(cairo_pdf_surface_t
 static cairo_int_status_t _cairo_pdf_surface_select_pattern(cairo_pdf_surface_t * surface,
     const cairo_pattern_t * pattern,
     cairo_pdf_resource_t pattern_res,
-    cairo_bool_t is_stroke)
+    boolint is_stroke)
 {
 	cairo_int_status_t status;
 	int alpha;
@@ -4622,7 +4622,7 @@ static cairo_int_status_t _cairo_pdf_surface_show_page(void * abstract_surface)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_pdf_surface_get_extents(void * abstract_surface,
+static boolint _cairo_pdf_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * rectangle)
 {
 	cairo_pdf_surface_t * surface = static_cast<cairo_pdf_surface_t *>(abstract_surface);
@@ -4676,7 +4676,7 @@ cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 {
 	int i;
 	int len;
-	cairo_bool_t ascii;
+	boolint ascii;
 	char * str;
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 
@@ -6080,7 +6080,7 @@ static cairo_int_status_t _cairo_pdf_surface_write_smask_group(cairo_pdf_surface
     cairo_pdf_smask_group_t * group)
 {
 	double old_width, old_height;
-	cairo_bool_t old_in_xobject;
+	boolint old_in_xobject;
 	cairo_int_status_t status;
 	cairo_box_double_t bbox;
 	cairo_rectangle_int_t old_surface_extents;
@@ -6164,14 +6164,14 @@ RESTORE_SIZE:
 }
 
 static cairo_int_status_t _cairo_pdf_surface_write_patterns_and_smask_groups(cairo_pdf_surface_t * surface,
-    cairo_bool_t finish)
+    boolint finish)
 {
 	cairo_pdf_pattern_t pattern;
 	cairo_pdf_smask_group_t * group;
 	cairo_pdf_source_surface_t src_surface;
 	uint pattern_index, group_index, surface_index, doc_surface_index;
 	cairo_int_status_t status;
-	cairo_bool_t is_image;
+	boolint is_image;
 
 	/* Writing out PDF_MASK groups will cause additional smask groups
 	 * to be appended to surface->smask_groups. Additional patterns
@@ -6375,7 +6375,7 @@ static cairo_int_status_t _cairo_pdf_surface_analyze_surface_pattern_transparenc
 	return status;
 }
 
-static cairo_bool_t _surface_pattern_supported(cairo_surface_pattern_t * pattern)
+static boolint _surface_pattern_supported(cairo_surface_pattern_t * pattern)
 {
 	cairo_extend_t extend;
 
@@ -6408,7 +6408,7 @@ static cairo_bool_t _surface_pattern_supported(cairo_surface_pattern_t * pattern
 	return FALSE;
 }
 
-static cairo_bool_t _pattern_supported(const cairo_pattern_t * pattern)
+static boolint _pattern_supported(const cairo_pattern_t * pattern)
 {
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
@@ -6427,7 +6427,7 @@ static cairo_bool_t _pattern_supported(const cairo_pattern_t * pattern)
 	}
 }
 
-static cairo_bool_t _pdf_operator_supported(cairo_operator_t op)
+static boolint _pdf_operator_supported(cairo_operator_t op)
 {
 	switch(op) {
 		case CAIRO_OPERATOR_OVER:
@@ -6548,7 +6548,7 @@ static cairo_int_status_t _cairo_pdf_surface_analyze_operation(cairo_pdf_surface
 	return CAIRO_INT_STATUS_UNSUPPORTED;
 }
 
-static cairo_bool_t _cairo_pdf_surface_operation_supported(cairo_pdf_surface_t * surface,
+static boolint _cairo_pdf_surface_operation_supported(cairo_pdf_surface_t * surface,
     cairo_operator_t op,
     const cairo_pattern_t * pattern,
     const cairo_rectangle_int_t * extents)
@@ -6602,7 +6602,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_combined_smask(cairo_pdf_surfa
 	double mask_x1, mask_y1, mask_x2, mask_y2;
 	cairo_matrix_t p2u;
 	double src_radius, mask_radius, e;
-	cairo_bool_t need_smask;
+	boolint need_smask;
 	cairo_pdf_source_surface_entry_t * pdf_source;
 
 	/* Check that source and mask are images */
@@ -7490,7 +7490,7 @@ cleanup:
 	return status;
 }
 
-static cairo_bool_t _cairo_pdf_surface_has_show_text_glyphs(void * abstract_surface)
+static boolint _cairo_pdf_surface_has_show_text_glyphs(void * abstract_surface)
 {
 	return TRUE;
 }
@@ -7512,7 +7512,7 @@ static cairo_int_status_t _cairo_pdf_surface_show_text_glyphs(void * abstract_su
 	cairo_pdf_smask_group_t * group;
 	cairo_pdf_resource_t pattern_res, gstate_res;
 	cairo_composite_rectangles_t extents;
-	cairo_bool_t overlap;
+	boolint overlap;
 	cairo_int_status_t status;
 
 	status = _cairo_composite_rectangles_init_for_glyphs(&extents,
@@ -7664,7 +7664,7 @@ static const char ** _cairo_pdf_surface_get_supported_mime_types(void * abstract
 }
 
 static cairo_int_status_t _cairo_pdf_surface_tag(void * abstract_surface,
-    cairo_bool_t begin,
+    boolint begin,
     const char * tag_name,
     const char * attributes,
     const cairo_pattern_t * source,

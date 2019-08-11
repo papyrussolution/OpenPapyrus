@@ -218,7 +218,7 @@ static cairo_status_t render_glyphs(cairo_gl_surface_t * dst,
     cairo_operator_t op,
     cairo_surface_t * source,
     cairo_composite_glyphs_info_t * info,
-    cairo_bool_t * has_component_alpha,
+    boolint * has_component_alpha,
     cairo_clip_t * clip)
 {
 	cairo_format_t last_format = CAIRO_FORMAT_INVALID;
@@ -349,7 +349,7 @@ static cairo_int_status_t render_glyphs_via_mask(cairo_gl_surface_t * dst,
 {
 	cairo_surface_t * mask;
 	cairo_status_t status;
-	cairo_bool_t has_component_alpha;
+	boolint has_component_alpha;
 
 	TRACE((stderr, "%s\n", __FUNCTION__));
 
@@ -423,7 +423,7 @@ cairo_int_status_t _cairo_gl_composite_glyphs_with_clip(void * _dst, cairo_opera
     int src_x, int src_y, int dst_x, int dst_y, cairo_composite_glyphs_info_t * info, cairo_clip_t * clip)
 {
 	cairo_gl_surface_t * dst = _dst;
-	cairo_bool_t has_component_alpha;
+	boolint has_component_alpha;
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	/* If any of the glyphs require component alpha, we have to go through
 	 * a mask, since only _cairo_gl_surface_composite() currently supports

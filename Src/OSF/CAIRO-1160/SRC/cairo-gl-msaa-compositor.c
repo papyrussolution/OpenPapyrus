@@ -48,7 +48,7 @@
 #include "cairo-path-private.h"
 //#include "cairo-traps-private.h"
 
-static cairo_bool_t can_use_msaa_compositor(cairo_gl_surface_t * surface,
+static boolint can_use_msaa_compositor(cairo_gl_surface_t * surface,
     cairo_antialias_t antialias);
 
 static void query_surface_capabilities(cairo_gl_surface_t * surface);
@@ -204,7 +204,7 @@ cairo_int_status_t _cairo_gl_msaa_compositor_draw_clip(cairo_gl_context_t * ctx,
 	return status;
 }
 
-static cairo_bool_t _should_use_unbounded_surface(cairo_composite_rectangles_t * composite)
+static boolint _should_use_unbounded_surface(cairo_composite_rectangles_t * composite)
 {
 	cairo_gl_surface_t * dst = (cairo_gl_surface_t*)composite->surface;
 	cairo_rectangle_int_t * source = &composite->source;
@@ -257,7 +257,7 @@ finish:
 	return status;
 }
 
-static cairo_bool_t can_use_msaa_compositor(cairo_gl_surface_t * surface,
+static boolint can_use_msaa_compositor(cairo_gl_surface_t * surface,
     cairo_antialias_t antialias)
 {
 	cairo_gl_flavor_t gl_flavor = ((cairo_gl_context_t*)surface->base.device)->gl_flavor;
@@ -549,7 +549,7 @@ static cairo_int_status_t _prevent_overlapping_strokes(cairo_gl_context_t * ctx,
 		return CAIRO_INT_STATUS_SUCCESS;
 
 	if(glIsEnabled(GL_STENCIL_TEST) == FALSE) {
-		cairo_bool_t scissor_was_enabled;
+		boolint scissor_was_enabled;
 
 		/* In case we have pending operations we have to flush before
 		   adding the stencil buffer. */
@@ -744,7 +744,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 	cairo_gl_context_t * ctx = NULL;
 	cairo_int_status_t status;
 	cairo_traps_t traps;
-	cairo_bool_t draw_path_with_traps;
+	boolint draw_path_with_traps;
 
 	if(!can_use_msaa_compositor(dst, antialias))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -826,7 +826,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_glyphs(const cairo_composito
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	cairo_int_status_t status;
 	cairo_surface_t * src = NULL;

@@ -39,7 +39,7 @@
 //#include "cairo-surface-snapshot-private.h"
 //#include "cairo-surface-inline.h"
 
-static inline cairo_bool_t _cairo_surface_snapshot_is_reused(cairo_surface_t * surface)
+static inline boolint _cairo_surface_snapshot_is_reused(cairo_surface_t * surface)
 {
 	return CAIRO_REFERENCE_COUNT_GET_VALUE(&surface->ref_count) > 2;
 }
@@ -54,7 +54,7 @@ static inline cairo_surface_t * _cairo_surface_snapshot_get_target(cairo_surface
 	return target;
 }
 
-static inline cairo_bool_t _cairo_surface_is_snapshot(const cairo_surface_t * surface)
+static inline boolint _cairo_surface_is_snapshot(const cairo_surface_t * surface)
 {
 	return (surface->backend->type == static_cast<cairo_surface_type_t>(CAIRO_INTERNAL_SURFACE_TYPE_SNAPSHOT));
 }

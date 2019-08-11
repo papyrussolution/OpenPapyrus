@@ -243,7 +243,7 @@ static inline DFBSurfacePixelFormat _directfb_from_pixman_format(pixman_format_c
 	}
 }
 
-static cairo_bool_t _directfb_get_operator(cairo_operator_t operator,
+static boolint _directfb_get_operator(cairo_operator_t operator,
     DFBSurfaceBlendFunction * ret_srcblend,
     DFBSurfaceBlendFunction * ret_dstblend)
 {

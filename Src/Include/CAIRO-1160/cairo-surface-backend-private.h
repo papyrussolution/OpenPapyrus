@@ -65,7 +65,7 @@ struct _cairo_surface_backend {
 	 * FALSE the surface is considered to be
 	 * boundless and infinite bounds are used for it.
 	 */
-	cairo_bool_t (* get_extents)(void * surface, cairo_rectangle_int_t * extents);
+	boolint (* get_extents)(void * surface, cairo_rectangle_int_t * extents);
 	void (* get_font_options)(void * surface, cairo_font_options_t * options);
 	cairo_warn cairo_status_t (* flush)(void * surface, unsigned flags);
 	cairo_warn cairo_status_t (* mark_dirty_rectangle)(void * surface, int x, int y, int width, int height);
@@ -82,12 +82,12 @@ struct _cairo_surface_backend {
 	    cairo_antialias_t stroke_antialias, const cairo_clip_t * clip);
 	cairo_warn cairo_int_status_t (* show_glyphs)(void * surface, cairo_operator_t op, const cairo_pattern_t * source, cairo_glyph_t * glyphs,
 	    int num_glyphs, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip);
-	cairo_bool_t (* has_show_text_glyphs)(void * surface);
+	boolint (* has_show_text_glyphs)(void * surface);
 	cairo_warn cairo_int_status_t (* show_text_glyphs)(void * surface, cairo_operator_t op, const cairo_pattern_t * source, const char * utf8,
 	    int utf8_len, cairo_glyph_t * glyphs, int num_glyphs, const cairo_text_cluster_t * clusters, int num_clusters,
 	    cairo_text_cluster_flags_t cluster_flags, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip);
 	const char ** (* get_supported_mime_types)(void * surface);
-	cairo_warn cairo_int_status_t (* tag)(void * surface, cairo_bool_t begin, const char * tag_name, const char * attributes, const cairo_pattern_t * source,
+	cairo_warn cairo_int_status_t (* tag)(void * surface, boolint begin, const char * tag_name, const char * attributes, const cairo_pattern_t * source,
 	    const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, const cairo_clip_t * clip);
 };
 

@@ -49,7 +49,7 @@ static cairo_status_t _cairo_gl_shader_compile_and_link(cairo_gl_context_t * ctx
     cairo_gl_shader_t * shader,
     cairo_gl_var_type_t src,
     cairo_gl_var_type_t mask,
-    cairo_bool_t use_coverage,
+    boolint use_coverage,
     const char * fragment_text);
 
 typedef struct _cairo_shader_cache_entry {
@@ -60,25 +60,25 @@ typedef struct _cairo_shader_cache_entry {
 	cairo_gl_operand_type_t src;
 	cairo_gl_operand_type_t mask;
 	cairo_gl_operand_type_t dest;
-	cairo_bool_t use_coverage;
+	boolint use_coverage;
 
 	cairo_gl_shader_in_t in;
 	GLint src_gl_filter;
-	cairo_bool_t src_border_fade;
+	boolint src_border_fade;
 	cairo_extend_t src_extend;
 	GLint mask_gl_filter;
-	cairo_bool_t mask_border_fade;
+	boolint mask_border_fade;
 	cairo_extend_t mask_extend;
 
 	cairo_gl_context_t * ctx; /* XXX: needed to destroy the program */
 	cairo_gl_shader_t shader;
 } cairo_shader_cache_entry_t;
 
-static cairo_bool_t _cairo_gl_shader_cache_equal_desktop(const void * key_a, const void * key_b)
+static boolint _cairo_gl_shader_cache_equal_desktop(const void * key_a, const void * key_b)
 {
 	const cairo_shader_cache_entry_t * a = key_a;
 	const cairo_shader_cache_entry_t * b = key_b;
-	cairo_bool_t both_have_npot_repeat = a->ctx->has_npot_repeat && b->ctx->has_npot_repeat;
+	boolint both_have_npot_repeat = a->ctx->has_npot_repeat && b->ctx->has_npot_repeat;
 	return (a->vertex == b->vertex && a->src  == b->src  && a->mask == b->mask &&
 	       a->dest == b->dest && a->use_coverage == b->use_coverage &&
 	       a->in   == b->in && (both_have_npot_repeat || a->src_extend == b->src_extend) &&
@@ -90,11 +90,11 @@ static cairo_bool_t _cairo_gl_shader_cache_equal_desktop(const void * key_a, con
  * features. In this case we need more parameters to uniquely identify
  * a shader (vs _cairo_gl_shader_cache_equal_desktop()).
  */
-static cairo_bool_t _cairo_gl_shader_cache_equal_gles2(const void * key_a, const void * key_b)
+static boolint _cairo_gl_shader_cache_equal_gles2(const void * key_a, const void * key_b)
 {
 	const cairo_shader_cache_entry_t * a = key_a;
 	const cairo_shader_cache_entry_t * b = key_b;
-	cairo_bool_t both_have_npot_repeat = a->ctx->has_npot_repeat && b->ctx->has_npot_repeat;
+	boolint both_have_npot_repeat = a->ctx->has_npot_repeat && b->ctx->has_npot_repeat;
 	return (a->vertex == b->vertex && a->src  == b->src  && a->mask == b->mask && a->dest == b->dest &&
 	       a->use_coverage == b->use_coverage && a->in   == b->in   &&
 	       a->src_gl_filter == b->src_gl_filter && a->src_border_fade == b->src_border_fade &&
@@ -271,7 +271,7 @@ static void cairo_gl_shader_def_coverage(cairo_output_stream_t * stream)
 
 static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
     cairo_gl_var_type_t mask,
-    cairo_bool_t use_coverage,
+    boolint use_coverage,
     cairo_gl_var_type_t dest,
     char ** out)
 {
@@ -309,7 +309,7 @@ static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
  * Returns whether an operand needs a special border fade fragment shader
  * to simulate the GL_CLAMP_TO_BORDER wrapping method that is missing in GLES2.
  */
-static cairo_bool_t _cairo_gl_shader_needs_border_fade(cairo_gl_operand_t * operand)
+static boolint _cairo_gl_shader_needs_border_fade(cairo_gl_operand_t * operand)
 {
 	cairo_extend_t extend = _cairo_gl_operand_get_extend(operand);
 
@@ -608,7 +608,7 @@ static cairo_status_t cairo_gl_shader_get_fragment_source(cairo_gl_context_t * c
     cairo_gl_shader_in_t in,
     cairo_gl_operand_t * src,
     cairo_gl_operand_t * mask,
-    cairo_bool_t use_coverage,
+    boolint use_coverage,
     cairo_gl_operand_type_t dest_type,
     char ** out)
 {
@@ -768,7 +768,7 @@ static cairo_status_t _cairo_gl_shader_compile_and_link(cairo_gl_context_t * ctx
     cairo_gl_shader_t * shader,
     cairo_gl_var_type_t src,
     cairo_gl_var_type_t mask,
-    cairo_bool_t use_coverage,
+    boolint use_coverage,
     const char * fragment_text)
 {
 	cairo_gl_dispatch_t * dispatch = &ctx->dispatch;
@@ -942,7 +942,7 @@ void _cairo_gl_set_shader(cairo_gl_context_t * ctx,
 cairo_status_t _cairo_gl_get_shader_by_type(cairo_gl_context_t * ctx,
     cairo_gl_operand_t * source,
     cairo_gl_operand_t * mask,
-    cairo_bool_t use_coverage,
+    boolint use_coverage,
     cairo_gl_shader_in_t in,
     cairo_gl_shader_t ** shader)
 {

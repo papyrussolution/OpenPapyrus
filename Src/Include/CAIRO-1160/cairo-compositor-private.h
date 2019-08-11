@@ -46,7 +46,7 @@ typedef struct {
 	cairo_scaled_font_t * font;
 	cairo_glyph_t * glyphs;
 	int num_glyphs;
-	cairo_bool_t use_mask;
+	boolint use_mask;
 	cairo_rectangle_int_t extents;
 } cairo_composite_glyphs_info_t;
 
@@ -75,7 +75,7 @@ struct cairo_compositor {
 	    cairo_scaled_font_t * scaled_font,
 	    cairo_glyph_t * glyphs,
 	    int num_glyphs,
-	    cairo_bool_t overlap);
+	    boolint overlap);
 };
 
 struct cairo_mask_compositor {
@@ -86,7 +86,7 @@ struct cairo_mask_compositor {
 	    cairo_region_t * clip_region);
 	cairo_surface_t * (* pattern_to_surface) (cairo_surface_t * dst,
 	    const cairo_pattern_t * pattern,
-	    cairo_bool_t is_mask,
+	    boolint is_mask,
 	    const cairo_rectangle_int_t * extents,
 	    const cairo_rectangle_int_t * sample,
 	    int * src_x, int * src_y);
@@ -175,7 +175,7 @@ struct cairo_traps_compositor {
 	cairo_surface_t *
 	(* pattern_to_surface) (cairo_surface_t * dst,
 	    const cairo_pattern_t * pattern,
-	    cairo_bool_t is_mask,
+	    boolint is_mask,
 	    const cairo_rectangle_int_t * extents,
 	    const cairo_rectangle_int_t * sample,
 	    int * src_x, int * src_y);

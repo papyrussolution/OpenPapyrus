@@ -145,7 +145,7 @@ static const XTransform identity = {
 	}
 };
 
-static cairo_bool_t picture_set_matrix(cairo_xlib_display_t * display,
+static boolint picture_set_matrix(cairo_xlib_display_t * display,
     Picture picture,
     const cairo_matrix_t * matrix,
     cairo_filter_t filter,
@@ -234,7 +234,7 @@ static int extend_to_repeat(cairo_extend_t extend)
 	}
 }
 
-static cairo_bool_t picture_set_properties(cairo_xlib_display_t * display,
+static boolint picture_set_properties(cairo_xlib_display_t * display,
     Picture picture,
     const cairo_pattern_t * pattern,
     const cairo_matrix_t * matrix,
@@ -270,7 +270,7 @@ static cairo_bool_t picture_set_properties(cairo_xlib_display_t * display,
 
 static cairo_surface_t * render_pattern(cairo_xlib_surface_t * dst,
     const cairo_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     int * src_x, int * src_y)
 {
@@ -321,7 +321,7 @@ static cairo_surface_t * render_pattern(cairo_xlib_surface_t * dst,
 
 static cairo_surface_t * gradient_source(cairo_xlib_surface_t * dst,
     const cairo_gradient_pattern_t * gradient,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     int * src_x, int * src_y)
 {
@@ -688,7 +688,7 @@ static cairo_surface_t * embedded_source(cairo_xlib_surface_t * dst,
 
 static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
     const cairo_surface_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * src_x, int * src_y)
@@ -808,7 +808,7 @@ static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
 
 static cairo_surface_t * native_source(cairo_xlib_surface_t * dst,
     const cairo_surface_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * src_x, int * src_y)
@@ -857,7 +857,7 @@ static cairo_surface_t * recording_pattern_get_surface(const cairo_pattern_t * p
 }
 
 static cairo_surface_t * record_source(cairo_xlib_surface_t * dst, const cairo_surface_pattern_t * pattern,
-    cairo_bool_t is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
+    boolint is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
 {
 	cairo_xlib_surface_t * src;
 	cairo_surface_t * recording;
@@ -903,7 +903,7 @@ static cairo_surface_t * record_source(cairo_xlib_surface_t * dst, const cairo_s
 
 static cairo_surface_t * surface_source(cairo_xlib_surface_t * dst,
     const cairo_surface_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * src_x, int * src_y)
@@ -1021,7 +1021,7 @@ static cairo_surface_t * surface_source(cairo_xlib_surface_t * dst,
 	return &xsrc->base;
 }
 
-static cairo_bool_t pattern_is_supported(cairo_xlib_display_t * display,
+static boolint pattern_is_supported(cairo_xlib_display_t * display,
     const cairo_pattern_t * pattern)
 {
 	if(pattern->type == CAIRO_PATTERN_TYPE_MESH)
@@ -1055,7 +1055,7 @@ static cairo_bool_t pattern_is_supported(cairo_xlib_display_t * display,
 
 cairo_surface_t * _cairo_xlib_source_create_for_pattern(cairo_surface_t * _dst,
     const cairo_pattern_t * pattern,
-    cairo_bool_t is_mask,
+    boolint is_mask,
     const cairo_rectangle_int_t * extents,
     const cairo_rectangle_int_t * sample,
     int * src_x, int * src_y)

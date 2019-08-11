@@ -53,7 +53,7 @@ typedef struct _cairo_ps_form {
     cairo_hash_entry_t base;
     uchar *unique_id;
     ulong unique_id_length;
-    cairo_bool_t is_image;
+    boolint is_image;
     int id;
     cairo_surface_t *src_surface;
     cairo_filter_t filter;
@@ -75,26 +75,26 @@ typedef struct cairo_ps_surface {
     FILE *tmpfile;
     cairo_output_stream_t *stream;
 
-    cairo_bool_t eps;
-    cairo_bool_t contains_eps;
+    boolint eps;
+    boolint contains_eps;
     cairo_content_t content;
     double width;
     double height;
     cairo_point_int_t document_bbox_p1, document_bbox_p2; /* in PS coordinates */
     cairo_rectangle_int_t surface_extents;
-    cairo_bool_t surface_bounded;
+    boolint surface_bounded;
     cairo_matrix_t cairo_to_ps;
-    cairo_bool_t paint_proc; /* TRUE if surface will be used in a PaintProc */
+    boolint paint_proc; /* TRUE if surface will be used in a PaintProc */
 
-    cairo_bool_t current_pattern_is_solid_color;
+    boolint current_pattern_is_solid_color;
     cairo_color_t current_color;
 
     int num_pages;
 
     cairo_paginated_mode_t paginated_mode;
 
-    cairo_bool_t force_fallbacks;
-    cairo_bool_t has_creation_date;
+    boolint force_fallbacks;
+    boolint has_creation_date;
     time_t creation_date;
 
     cairo_scaled_font_subsets_t *font_subsets;

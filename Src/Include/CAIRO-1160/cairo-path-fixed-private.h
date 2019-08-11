@@ -113,7 +113,7 @@ cairo_private void FASTCALL _cairo_path_fixed_translate(cairo_path_fixed_t * pat
 cairo_private cairo_status_t FASTCALL _cairo_path_fixed_append(cairo_path_fixed_t * path, const cairo_path_fixed_t * other, cairo_fixed_t tx, cairo_fixed_t ty);
 cairo_private ulong _cairo_path_fixed_hash(const cairo_path_fixed_t * path);
 cairo_private ulong _cairo_path_fixed_size(const cairo_path_fixed_t * path);
-cairo_private cairo_bool_t _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_path_fixed_t * b);
+cairo_private boolint _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_path_fixed_t * b);
 
 typedef struct _cairo_path_fixed_iter {
 	const cairo_path_buf_t * first;
@@ -123,15 +123,15 @@ typedef struct _cairo_path_fixed_iter {
 } cairo_path_fixed_iter_t;
 
 cairo_private void _cairo_path_fixed_iter_init(cairo_path_fixed_iter_t * iter, const cairo_path_fixed_t * path);
-cairo_private cairo_bool_t _cairo_path_fixed_iter_is_fill_box(cairo_path_fixed_iter_t * _iter, cairo_box_t * box);
-cairo_private cairo_bool_t _cairo_path_fixed_iter_at_end(const cairo_path_fixed_iter_t * iter);
+cairo_private boolint _cairo_path_fixed_iter_is_fill_box(cairo_path_fixed_iter_t * _iter, cairo_box_t * box);
+cairo_private boolint _cairo_path_fixed_iter_at_end(const cairo_path_fixed_iter_t * iter);
 
-static inline cairo_bool_t _cairo_path_fixed_fill_is_empty(const cairo_path_fixed_t * path)
+static inline boolint _cairo_path_fixed_fill_is_empty(const cairo_path_fixed_t * path)
 {
 	return path->fill_is_empty;
 }
 
-static inline cairo_bool_t _cairo_path_fixed_fill_is_rectilinear(const cairo_path_fixed_t * path)
+static inline boolint _cairo_path_fixed_fill_is_rectilinear(const cairo_path_fixed_t * path)
 {
 	if(!path->fill_is_rectilinear)
 		return 0;
@@ -141,12 +141,12 @@ static inline cairo_bool_t _cairo_path_fixed_fill_is_rectilinear(const cairo_pat
 	return path->current_point.x == path->last_move_point.x || path->current_point.y == path->last_move_point.y;
 }
 
-static inline cairo_bool_t _cairo_path_fixed_stroke_is_rectilinear(const cairo_path_fixed_t * path)
+static inline boolint _cairo_path_fixed_stroke_is_rectilinear(const cairo_path_fixed_t * path)
 {
 	return path->stroke_is_rectilinear;
 }
 
-static inline cairo_bool_t _cairo_path_fixed_fill_maybe_region(const cairo_path_fixed_t * path)
+static inline boolint _cairo_path_fixed_fill_maybe_region(const cairo_path_fixed_t * path)
 {
 	if(!path->fill_maybe_region)
 		return 0;
@@ -158,7 +158,7 @@ static inline cairo_bool_t _cairo_path_fixed_fill_maybe_region(const cairo_path_
 	return path->current_point.x == path->last_move_point.x || path->current_point.y == path->last_move_point.y;
 }
 
-cairo_private cairo_bool_t _cairo_path_fixed_is_stroke_box(const cairo_path_fixed_t * path, cairo_box_t * box);
-cairo_private cairo_bool_t _cairo_path_fixed_is_simple_quad(const cairo_path_fixed_t * path);
+cairo_private boolint _cairo_path_fixed_is_stroke_box(const cairo_path_fixed_t * path, cairo_box_t * box);
+cairo_private boolint _cairo_path_fixed_is_simple_quad(const cairo_path_fixed_t * path);
 
 #endif /* CAIRO_PATH_FIXED_PRIVATE_H */

@@ -91,8 +91,8 @@ int is_invisible_empty(Tnode * p);
 int is_eq_nons(const char * s, const char * t);
 int is_eq(const char * s, const char * t);
 int is_item(Entry * p);
-const char * cstring(const char *);
-const char * xstring(const char *);
+const char * FASTCALL cstring(const char *);
+const char * FASTCALL xstring(const char *);
 /*
    install - add new symbol
 */
@@ -13102,7 +13102,7 @@ void soap_in_Darray(Tnode * typ)
 	fprintf(fout, "\n\treturn a;\n}");
 }
 
-const char * cstring(const char * s)
+const char * FASTCALL cstring(const char * s)
 {
 	size_t n;
 	char * t;
@@ -13129,7 +13129,7 @@ const char * cstring(const char * s)
 	return r;
 }
 
-const char * xstring(const char * s)
+const char * FASTCALL xstring(const char * s)
 {
 	size_t n;
 	char * t;

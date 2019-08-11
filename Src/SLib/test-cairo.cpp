@@ -56,13 +56,13 @@ static const cairo_user_data_key_t _cairo_test_context_key;
 static void _xunlink(const cairo_test_context_t * ctx, const char * pathname);
 
 static const char * fail_face = "", * xfail_face = "", * normal_face = "";
-static cairo_bool_t print_fail_on_stdout;
+static boolint print_fail_on_stdout;
 static int cairo_test_timeout = 60;
 
 #define NUM_DEVICE_OFFSETS 2
 #define NUM_DEVICE_SCALE 2
 
-cairo_bool_t cairo_test_mkdir(const char * path)
+boolint cairo_test_mkdir(const char * path)
 {
 #if !HAVE_MKDIR
 	return FALSE;
@@ -136,7 +136,7 @@ static void _cairo_test_init(cairo_test_context_t * ctx, const cairo_test_contex
 	}
 	else {
 		int tmp_num_targets;
-		cairo_bool_t tmp_limited_targets;
+		boolint tmp_limited_targets;
 		ctx->targets_to_test = cairo_boilerplate_get_targets(&tmp_num_targets, &tmp_limited_targets);
 		ctx->num_targets = tmp_num_targets;
 		ctx->limited_targets = tmp_limited_targets;
@@ -353,7 +353,7 @@ out:
 	return has_similar;
 }
 
-static cairo_surface_t * _cairo_test_flatten_reference_image(cairo_test_context_t * ctx, cairo_bool_t flatten)
+static cairo_surface_t * _cairo_test_flatten_reference_image(cairo_test_context_t * ctx, boolint flatten)
 {
 	cairo_surface_t * surface;
 	cairo_t * cr;
@@ -385,7 +385,7 @@ static cairo_surface_t * _cairo_test_flatten_reference_image(cairo_test_context_
 
 cairo_surface_t * cairo_test_get_reference_image(cairo_test_context_t * ctx,
     const char * filename,
-    cairo_bool_t flatten)
+    boolint flatten)
 {
 	cairo_surface_t * surface;
 
@@ -412,7 +412,7 @@ cairo_surface_t * cairo_test_get_reference_image(cairo_test_context_t * ctx,
 	return _cairo_test_flatten_reference_image(ctx, flatten);
 }
 
-static cairo_bool_t cairo_test_file_is_older(const char * filename, char ** ref_filenames, int num_ref_filenames)
+static boolint cairo_test_file_is_older(const char * filename, char ** ref_filenames, int num_ref_filenames)
 {
 #if HAVE_SYS_STAT_H
 	struct stat st;
@@ -432,7 +432,7 @@ static cairo_bool_t cairo_test_file_is_older(const char * filename, char ** ref_
 	return FALSE;
 }
 
-static cairo_bool_t cairo_test_files_equal(const char * test_filename, const char * pass_filename)
+static boolint cairo_test_files_equal(const char * test_filename, const char * pass_filename)
 {
 	FILE * test, * pass;
 	int t, p;
@@ -458,7 +458,7 @@ static cairo_bool_t cairo_test_files_equal(const char * test_filename, const cha
 	return t == p; /* both EOF */
 }
 
-static cairo_bool_t cairo_test_copy_file(const char * src_filename, const char * dst_filename)
+static boolint cairo_test_copy_file(const char * src_filename, const char * dst_filename)
 {
 	FILE * src, * dst;
 	int c;
@@ -484,7 +484,7 @@ static cairo_bool_t cairo_test_copy_file(const char * src_filename, const char *
 }
 
 static cairo_test_status_t cairo_test_for_target(cairo_test_context_t * ctx, const cairo_boilerplate_target_t  * target,
-    int dev_offset, int dev_scale, cairo_bool_t similar)
+    int dev_offset, int dev_scale, boolint similar)
 {
 	cairo_test_status_t status;
 	cairo_surface_t * surface = NULL;
@@ -506,11 +506,11 @@ static cairo_test_status_t cairo_test_for_target(cairo_test_context_t * ctx, con
 	cairo_content_t expected_content;
 	cairo_font_options_t * font_options;
 	const char * format;
-	cairo_bool_t have_output = FALSE;
-	cairo_bool_t have_result = FALSE;
+	boolint have_output = FALSE;
+	boolint have_result = FALSE;
 	void * closure;
 	double width, height;
-	cairo_bool_t have_output_dir;
+	boolint have_output_dir;
 #if HAVE_MEMFAULT
 	int malloc_failure_iterations = ctx->malloc_failure;
 	int last_fault_count = 0;
@@ -1297,7 +1297,7 @@ static void segfault_handler(int signal)
 #endif
 
 cairo_test_status_t _cairo_test_context_run_for_target(cairo_test_context_t * ctx, const cairo_boilerplate_target_t * target,
-    cairo_bool_t similar, int dev_offset, int dev_scale)
+    boolint similar, int dev_offset, int dev_scale)
 {
 	cairo_test_status_t status;
 	if(target->get_image_surface == NULL)
@@ -1520,7 +1520,7 @@ void cairo_test_paint_checkered(cairo_t * cr)
 	cairo_restore(cr);
 }
 
-cairo_bool_t cairo_test_is_target_enabled(const cairo_test_context_t * ctx, const char * target)
+boolint cairo_test_is_target_enabled(const cairo_test_context_t * ctx, const char * target)
 {
 	for(size_t i = 0; i < ctx->num_targets; i++) {
 		const cairo_boilerplate_target_t * t = ctx->targets_to_test[i];
@@ -1535,7 +1535,7 @@ cairo_bool_t cairo_test_is_target_enabled(const cairo_test_context_t * ctx, cons
 	return FALSE;
 }
 
-cairo_bool_t cairo_test_malloc_failure(const cairo_test_context_t * ctx, cairo_status_t status)
+boolint cairo_test_malloc_failure(const cairo_test_context_t * ctx, cairo_status_t status)
 {
 	if(!ctx->malloc_failure)
 		return FALSE;

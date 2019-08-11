@@ -1,6 +1,5 @@
 #ifndef librabbitmq_amqp_hostcheck_h
 #define librabbitmq_amqp_hostcheck_h
-
 /*
  * Copyright 1996-2014 Daniel Stenberg <daniel@haxx.se>.
  * Copyright 2014 Michael Steinert
@@ -24,12 +23,10 @@
  * dealings in this Software without prior written authorization of the
  * copyright holder.
  */
-
 typedef enum {
-  AMQP_HCR_NO_MATCH = 0,
-  AMQP_HCR_MATCH = 1
+	AMQP_HCR_NO_MATCH = 0,
+	AMQP_HCR_MATCH = 1
 } amqp_hostcheck_result;
-
 /**
  * Determine whether hostname matches match_pattern.
  *
@@ -42,7 +39,6 @@ typedef enum {
  * \param hostname to match against
  * \returns AMQP_HCR_MATCH if its a match, AMQP_HCR_NO_MATCH otherwise.
  */
-amqp_hostcheck_result amqp_hostcheck(const char *match_pattern,
-                                     const char *hostname);
+amqp_hostcheck_result amqp_hostcheck(const char * match_pattern, const char * hostname);
 
 #endif

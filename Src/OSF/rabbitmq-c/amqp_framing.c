@@ -34,10 +34,11 @@
  * ***** END LICENSE BLOCK *****
  */
 #include "amqp_private.h"
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#pragma hdrstop
+//#include <stdint.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
 
 char const * amqp_constant_name(int constantNumber) 
 {
@@ -71,7 +72,7 @@ char const * amqp_constant_name(int constantNumber)
 	}
 }
 
-amqp_boolean_t amqp_constant_is_hard_error(int constantNumber) 
+boolint amqp_constant_is_hard_error(int constantNumber) 
 {
 	switch(constantNumber) {
 		case AMQP_CONNECTION_FORCED: return 1;
@@ -207,7 +208,7 @@ char const * amqp_method_name(amqp_method_number_t methodNumber)
 	}
 }
 
-amqp_boolean_t amqp_method_has_content(amqp_method_number_t methodNumber) {
+boolint amqp_method_has_content(amqp_method_number_t methodNumber) {
 	switch(methodNumber) {
 		case AMQP_BASIC_PUBLISH_METHOD:
 		    return 1;
@@ -228,8 +229,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 	uint8_t bit_buffer;
 	switch(methodNumber) {
 		case AMQP_CONNECTION_START_METHOD: {
-		    amqp_connection_start_t * m = (amqp_connection_start_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_start_t));
+		    amqp_connection_start_t * m = (amqp_connection_start_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_start_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -257,9 +257,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_START_OK_METHOD: {
-		    amqp_connection_start_ok_t * m =
-			(amqp_connection_start_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_start_ok_t));
+		    amqp_connection_start_ok_t * m = (amqp_connection_start_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_start_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -270,8 +268,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->mechanism, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->mechanism, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
@@ -282,16 +279,14 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->locale, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->locale, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    *decoded = m;
 		    return 0;
 	    }
 		case AMQP_CONNECTION_SECURE_METHOD: {
-		    amqp_connection_secure_t * m = (amqp_connection_secure_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_secure_t));
+		    amqp_connection_secure_t * m = (amqp_connection_secure_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_secure_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -305,9 +300,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_SECURE_OK_METHOD: {
-		    amqp_connection_secure_ok_t * m =
-			(amqp_connection_secure_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_secure_ok_t));
+		    amqp_connection_secure_ok_t * m = (amqp_connection_secure_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_secure_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -321,8 +314,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_TUNE_METHOD: {
-		    amqp_connection_tune_t * m = (amqp_connection_tune_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_tune_t));
+		    amqp_connection_tune_t * m = (amqp_connection_tune_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_tune_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -336,9 +328,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_TUNE_OK_METHOD: {
-		    amqp_connection_tune_ok_t * m =
-			(amqp_connection_tune_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_tune_ok_t));
+		    amqp_connection_tune_ok_t * m = (amqp_connection_tune_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_tune_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -352,21 +342,18 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_OPEN_METHOD: {
-		    amqp_connection_open_t * m = (amqp_connection_open_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_open_t));
+		    amqp_connection_open_t * m = (amqp_connection_open_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_open_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->virtual_host, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->virtual_host, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->capabilities, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->capabilities, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -376,24 +363,20 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_OPEN_OK_METHOD: {
-		    amqp_connection_open_ok_t * m =
-			(amqp_connection_open_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_open_ok_t));
+		    amqp_connection_open_ok_t * m = (amqp_connection_open_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_open_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->known_hosts, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->known_hosts, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    *decoded = m;
 		    return 0;
 	    }
 		case AMQP_CONNECTION_CLOSE_METHOD: {
-		    amqp_connection_close_t * m = (amqp_connection_close_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_close_t));
+		    amqp_connection_close_t * m = (amqp_connection_close_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_close_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -401,8 +384,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->reply_text, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->reply_text, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_16(encoded, &offset, &m->class_id))
@@ -413,9 +395,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_CLOSE_OK_METHOD: {
-		    amqp_connection_close_ok_t * m =
-			(amqp_connection_close_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_close_ok_t));
+		    amqp_connection_close_ok_t * m = (amqp_connection_close_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_close_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -423,25 +403,20 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_BLOCKED_METHOD: {
-		    amqp_connection_blocked_t * m =
-			(amqp_connection_blocked_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_blocked_t));
+		    amqp_connection_blocked_t * m = (amqp_connection_blocked_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_blocked_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->reason, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->reason, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    *decoded = m;
 		    return 0;
 	    }
 		case AMQP_CONNECTION_UNBLOCKED_METHOD: {
-		    amqp_connection_unblocked_t * m =
-			(amqp_connection_unblocked_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_unblocked_t));
+		    amqp_connection_unblocked_t * m = (amqp_connection_unblocked_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_unblocked_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -449,23 +424,20 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CHANNEL_OPEN_METHOD: {
-		    amqp_channel_open_t * m = (amqp_channel_open_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_channel_open_t));
+		    amqp_channel_open_t * m = (amqp_channel_open_t*)amqp_pool_alloc(pool, sizeof(amqp_channel_open_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->out_of_band, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->out_of_band, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    *decoded = m;
 		    return 0;
 	    }
 		case AMQP_CHANNEL_OPEN_OK_METHOD: {
-		    amqp_channel_open_ok_t * m = (amqp_channel_open_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_channel_open_ok_t));
+		    amqp_channel_open_ok_t * m = (amqp_channel_open_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_channel_open_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -479,8 +451,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CHANNEL_FLOW_METHOD: {
-		    amqp_channel_flow_t * m = (amqp_channel_flow_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_channel_flow_t));
+		    amqp_channel_flow_t * m = (amqp_channel_flow_t*)amqp_pool_alloc(pool, sizeof(amqp_channel_flow_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -491,8 +462,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CHANNEL_FLOW_OK_METHOD: {
-		    amqp_channel_flow_ok_t * m = (amqp_channel_flow_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_channel_flow_ok_t));
+		    amqp_channel_flow_ok_t * m = (amqp_channel_flow_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_channel_flow_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -503,8 +473,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CHANNEL_CLOSE_METHOD: {
-		    amqp_channel_close_t * m = (amqp_channel_close_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_channel_close_t));
+		    amqp_channel_close_t * m = (amqp_channel_close_t*)amqp_pool_alloc(pool, sizeof(amqp_channel_close_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -512,8 +481,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->reply_text, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->reply_text, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_16(encoded, &offset, &m->class_id))
@@ -524,8 +492,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CHANNEL_CLOSE_OK_METHOD: {
-		    amqp_channel_close_ok_t * m = (amqp_channel_close_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_channel_close_ok_t));
+		    amqp_channel_close_ok_t * m = (amqp_channel_close_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_channel_close_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -533,15 +500,13 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_ACCESS_REQUEST_METHOD: {
-		    amqp_access_request_t * m = (amqp_access_request_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_access_request_t));
+		    amqp_access_request_t * m = (amqp_access_request_t*)amqp_pool_alloc(pool, sizeof(amqp_access_request_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->realm, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->realm, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -555,8 +520,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_ACCESS_REQUEST_OK_METHOD: {
-		    amqp_access_request_ok_t * m = (amqp_access_request_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_access_request_ok_t));
+		    amqp_access_request_ok_t * m = (amqp_access_request_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_access_request_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -566,8 +530,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_EXCHANGE_DECLARE_METHOD: {
-		    amqp_exchange_declare_t * m = (amqp_exchange_declare_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_declare_t));
+		    amqp_exchange_declare_t * m = (amqp_exchange_declare_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_declare_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -575,14 +538,12 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->type, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->type, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -601,8 +562,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 	    }
 		case AMQP_EXCHANGE_DECLARE_OK_METHOD: {
 		    amqp_exchange_declare_ok_t * m =
-			(amqp_exchange_declare_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_declare_ok_t));
+			(amqp_exchange_declare_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_declare_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -610,8 +570,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_EXCHANGE_DELETE_METHOD: {
-		    amqp_exchange_delete_t * m = (amqp_exchange_delete_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_delete_t));
+		    amqp_exchange_delete_t * m = (amqp_exchange_delete_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_delete_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -619,8 +578,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -632,8 +590,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 	    }
 		case AMQP_EXCHANGE_DELETE_OK_METHOD: {
 		    amqp_exchange_delete_ok_t * m =
-			(amqp_exchange_delete_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_delete_ok_t));
+			(amqp_exchange_delete_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_delete_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -641,8 +598,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_EXCHANGE_BIND_METHOD: {
-		    amqp_exchange_bind_t * m = (amqp_exchange_bind_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_bind_t));
+		    amqp_exchange_bind_t * m = (amqp_exchange_bind_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_bind_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -650,20 +606,17 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->destination, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->destination, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->source, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->source, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -677,8 +630,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_EXCHANGE_BIND_OK_METHOD: {
-		    amqp_exchange_bind_ok_t * m = (amqp_exchange_bind_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_bind_ok_t));
+		    amqp_exchange_bind_ok_t * m = (amqp_exchange_bind_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_bind_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -686,8 +638,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_EXCHANGE_UNBIND_METHOD: {
-		    amqp_exchange_unbind_t * m = (amqp_exchange_unbind_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_unbind_t));
+		    amqp_exchange_unbind_t * m = (amqp_exchange_unbind_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_unbind_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -695,20 +646,17 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->destination, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->destination, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->source, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->source, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -722,9 +670,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_EXCHANGE_UNBIND_OK_METHOD: {
-		    amqp_exchange_unbind_ok_t * m =
-			(amqp_exchange_unbind_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_unbind_ok_t));
+		    amqp_exchange_unbind_ok_t * m = (amqp_exchange_unbind_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_unbind_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -732,8 +678,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_DECLARE_METHOD: {
-		    amqp_queue_declare_t * m = (amqp_queue_declare_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_declare_t));
+		    amqp_queue_declare_t * m = (amqp_queue_declare_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_declare_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -741,8 +686,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->queue, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -760,15 +704,13 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_DECLARE_OK_METHOD: {
-		    amqp_queue_declare_ok_t * m = (amqp_queue_declare_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_declare_ok_t));
+		    amqp_queue_declare_ok_t * m = (amqp_queue_declare_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_declare_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->queue, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_32(encoded, &offset, &m->message_count))
@@ -779,8 +721,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_BIND_METHOD: {
-		    amqp_queue_bind_t * m =
-			(amqp_queue_bind_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_bind_t));
+		    amqp_queue_bind_t * m = (amqp_queue_bind_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_bind_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -788,20 +729,17 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->queue, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -815,8 +753,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_BIND_OK_METHOD: {
-		    amqp_queue_bind_ok_t * m = (amqp_queue_bind_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_bind_ok_t));
+		    amqp_queue_bind_ok_t * m = (amqp_queue_bind_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_bind_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -824,8 +761,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_PURGE_METHOD: {
-		    amqp_queue_purge_t * m = (amqp_queue_purge_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_purge_t));
+		    amqp_queue_purge_t * m = (amqp_queue_purge_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_purge_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -833,8 +769,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->queue, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -844,8 +779,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_PURGE_OK_METHOD: {
-		    amqp_queue_purge_ok_t * m = (amqp_queue_purge_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_purge_ok_t));
+		    amqp_queue_purge_ok_t * m = (amqp_queue_purge_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_purge_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -855,8 +789,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_DELETE_METHOD: {
-		    amqp_queue_delete_t * m = (amqp_queue_delete_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_delete_t));
+		    amqp_queue_delete_t * m = (amqp_queue_delete_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_delete_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -877,8 +810,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_DELETE_OK_METHOD: {
-		    amqp_queue_delete_ok_t * m = (amqp_queue_delete_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_delete_ok_t));
+		    amqp_queue_delete_ok_t * m = (amqp_queue_delete_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_delete_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -888,8 +820,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_UNBIND_METHOD: {
-		    amqp_queue_unbind_t * m = (amqp_queue_unbind_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_unbind_t));
+		    amqp_queue_unbind_t * m = (amqp_queue_unbind_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_unbind_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -909,8 +840,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
@@ -921,8 +851,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_QUEUE_UNBIND_OK_METHOD: {
-		    amqp_queue_unbind_ok_t * m = (amqp_queue_unbind_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_unbind_ok_t));
+		    amqp_queue_unbind_ok_t * m = (amqp_queue_unbind_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_unbind_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -930,8 +859,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_QOS_METHOD: {
-		    amqp_basic_qos_t * m =
-			(amqp_basic_qos_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_qos_t));
+		    amqp_basic_qos_t * m = (amqp_basic_qos_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_qos_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -946,8 +874,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_QOS_OK_METHOD: {
-		    amqp_basic_qos_ok_t * m = (amqp_basic_qos_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_qos_ok_t));
+		    amqp_basic_qos_ok_t * m = (amqp_basic_qos_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_qos_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -955,8 +882,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_CONSUME_METHOD: {
-		    amqp_basic_consume_t * m = (amqp_basic_consume_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_consume_t));
+		    amqp_basic_consume_t * m = (amqp_basic_consume_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_consume_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -988,8 +914,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_CONSUME_OK_METHOD: {
-		    amqp_basic_consume_ok_t * m = (amqp_basic_consume_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_consume_ok_t));
+		    amqp_basic_consume_ok_t * m = (amqp_basic_consume_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_consume_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1003,8 +928,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_CANCEL_METHOD: {
-		    amqp_basic_cancel_t * m = (amqp_basic_cancel_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_cancel_t));
+		    amqp_basic_cancel_t * m = (amqp_basic_cancel_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_cancel_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1021,8 +945,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_CANCEL_OK_METHOD: {
-		    amqp_basic_cancel_ok_t * m = (amqp_basic_cancel_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_cancel_ok_t));
+		    amqp_basic_cancel_ok_t * m = (amqp_basic_cancel_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_cancel_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1036,8 +959,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_PUBLISH_METHOD: {
-		    amqp_basic_publish_t * m = (amqp_basic_publish_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_publish_t));
+		    amqp_basic_publish_t * m = (amqp_basic_publish_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_publish_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1063,8 +985,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_RETURN_METHOD: {
-		    amqp_basic_return_t * m = (amqp_basic_return_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_return_t));
+		    amqp_basic_return_t * m = (amqp_basic_return_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_return_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1092,8 +1013,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_DELIVER_METHOD: {
-		    amqp_basic_deliver_t * m = (amqp_basic_deliver_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_deliver_t));
+		    amqp_basic_deliver_t * m = (amqp_basic_deliver_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_deliver_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1124,8 +1044,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_GET_METHOD: {
-		    amqp_basic_get_t * m =
-			(amqp_basic_get_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_get_t));
+		    amqp_basic_get_t * m = (amqp_basic_get_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_get_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1133,8 +1052,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->queue, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
@@ -1144,8 +1062,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_GET_OK_METHOD: {
-		    amqp_basic_get_ok_t * m = (amqp_basic_get_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_get_ok_t));
+		    amqp_basic_get_ok_t * m = (amqp_basic_get_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_get_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1172,23 +1089,20 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_GET_EMPTY_METHOD: {
-		    amqp_basic_get_empty_t * m = (amqp_basic_get_empty_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_get_empty_t));
+		    amqp_basic_get_empty_t * m = (amqp_basic_get_empty_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_get_empty_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint8_t len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->cluster_id, len))
+			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->cluster_id, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    *decoded = m;
 		    return 0;
 	    }
 		case AMQP_BASIC_ACK_METHOD: {
-		    amqp_basic_ack_t * m =
-			(amqp_basic_ack_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_ack_t));
+		    amqp_basic_ack_t * m = (amqp_basic_ack_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_ack_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1201,8 +1115,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_REJECT_METHOD: {
-		    amqp_basic_reject_t * m = (amqp_basic_reject_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_reject_t));
+		    amqp_basic_reject_t * m = (amqp_basic_reject_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_reject_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1215,9 +1128,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_RECOVER_ASYNC_METHOD: {
-		    amqp_basic_recover_async_t * m =
-			(amqp_basic_recover_async_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_recover_async_t));
+		    amqp_basic_recover_async_t * m = (amqp_basic_recover_async_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_recover_async_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1228,8 +1139,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_RECOVER_METHOD: {
-		    amqp_basic_recover_t * m = (amqp_basic_recover_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_recover_t));
+		    amqp_basic_recover_t * m = (amqp_basic_recover_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_recover_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1240,8 +1150,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_RECOVER_OK_METHOD: {
-		    amqp_basic_recover_ok_t * m = (amqp_basic_recover_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_recover_ok_t));
+		    amqp_basic_recover_ok_t * m = (amqp_basic_recover_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_recover_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1249,8 +1158,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_BASIC_NACK_METHOD: {
-		    amqp_basic_nack_t * m =
-			(amqp_basic_nack_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_nack_t));
+		    amqp_basic_nack_t * m = (amqp_basic_nack_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_nack_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1264,8 +1172,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_TX_SELECT_METHOD: {
-		    amqp_tx_select_t * m =
-			(amqp_tx_select_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_select_t));
+		    amqp_tx_select_t * m = (amqp_tx_select_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_select_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1273,8 +1180,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_TX_SELECT_OK_METHOD: {
-		    amqp_tx_select_ok_t * m = (amqp_tx_select_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_tx_select_ok_t));
+		    amqp_tx_select_ok_t * m = (amqp_tx_select_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_select_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1282,8 +1188,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_TX_COMMIT_METHOD: {
-		    amqp_tx_commit_t * m =
-			(amqp_tx_commit_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_commit_t));
+		    amqp_tx_commit_t * m = (amqp_tx_commit_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_commit_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1291,8 +1196,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_TX_COMMIT_OK_METHOD: {
-		    amqp_tx_commit_ok_t * m = (amqp_tx_commit_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_tx_commit_ok_t));
+		    amqp_tx_commit_ok_t * m = (amqp_tx_commit_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_commit_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1300,8 +1204,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_TX_ROLLBACK_METHOD: {
-		    amqp_tx_rollback_t * m = (amqp_tx_rollback_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_tx_rollback_t));
+		    amqp_tx_rollback_t * m = (amqp_tx_rollback_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_rollback_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1309,8 +1212,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_TX_ROLLBACK_OK_METHOD: {
-		    amqp_tx_rollback_ok_t * m = (amqp_tx_rollback_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_tx_rollback_ok_t));
+		    amqp_tx_rollback_ok_t * m = (amqp_tx_rollback_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_rollback_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1318,8 +1220,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONFIRM_SELECT_METHOD: {
-		    amqp_confirm_select_t * m = (amqp_confirm_select_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_confirm_select_t));
+		    amqp_confirm_select_t * m = (amqp_confirm_select_t*)amqp_pool_alloc(pool, sizeof(amqp_confirm_select_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1330,8 +1231,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONFIRM_SELECT_OK_METHOD: {
-		    amqp_confirm_select_ok_t * m = (amqp_confirm_select_ok_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_confirm_select_ok_t));
+		    amqp_confirm_select_ok_t * m = (amqp_confirm_select_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_confirm_select_ok_t));
 		    if(m == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1360,9 +1260,7 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 
 	switch(class_id) {
 		case 10: {
-		    amqp_connection_properties_t * p =
-			(amqp_connection_properties_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_connection_properties_t));
+		    amqp_connection_properties_t * p = (amqp_connection_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_properties_t));
 		    if(p == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1371,9 +1269,7 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 		    return 0;
 	    }
 		case 20: {
-		    amqp_channel_properties_t * p =
-			(amqp_channel_properties_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_channel_properties_t));
+		    amqp_channel_properties_t * p = (amqp_channel_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_channel_properties_t));
 		    if(p == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1382,8 +1278,7 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 		    return 0;
 	    }
 		case 30: {
-		    amqp_access_properties_t * p = (amqp_access_properties_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_access_properties_t));
+		    amqp_access_properties_t * p = (amqp_access_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_access_properties_t));
 		    if(p == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1392,9 +1287,7 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 		    return 0;
 	    }
 		case 40: {
-		    amqp_exchange_properties_t * p =
-			(amqp_exchange_properties_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_exchange_properties_t));
+		    amqp_exchange_properties_t * p = (amqp_exchange_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_properties_t));
 		    if(p == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1403,8 +1296,7 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 		    return 0;
 	    }
 		case 50: {
-		    amqp_queue_properties_t * p = (amqp_queue_properties_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_queue_properties_t));
+		    amqp_queue_properties_t * p = (amqp_queue_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_properties_t));
 		    if(p == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1413,8 +1305,7 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 		    return 0;
 	    }
 		case 60: {
-		    amqp_basic_properties_t * p = (amqp_basic_properties_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_basic_properties_t));
+		    amqp_basic_properties_t * p = (amqp_basic_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_properties_t));
 		    if(p == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1422,16 +1313,14 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 		    if(flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
 			    {
 				    uint8_t len;
-				    if(!amqp_decode_8(encoded, &offset, &len) ||
-					!amqp_decode_bytes(encoded, &offset, &p->content_type, len))
+				    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->content_type, len))
 					    return AMQP_STATUS_BAD_AMQP_DATA;
 			    }
 		    }
 		    if(flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) {
 			    {
 				    uint8_t len;
-				    if(!amqp_decode_8(encoded, &offset, &len) ||
-					!amqp_decode_bytes(encoded, &offset, &p->content_encoding, len))
+				    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->content_encoding, len))
 					    return AMQP_STATUS_BAD_AMQP_DATA;
 			    }
 		    }
@@ -1521,8 +1410,7 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 		    return 0;
 	    }
 		case 90: {
-		    amqp_tx_properties_t * p = (amqp_tx_properties_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_tx_properties_t));
+		    amqp_tx_properties_t * p = (amqp_tx_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_properties_t));
 		    if(p == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1531,9 +1419,7 @@ int amqp_decode_properties(uint16_t class_id, amqp_pool_t * pool,
 		    return 0;
 	    }
 		case 85: {
-		    amqp_confirm_properties_t * p =
-			(amqp_confirm_properties_t*)amqp_pool_alloc(
-			    pool, sizeof(amqp_confirm_properties_t));
+		    amqp_confirm_properties_t * p = (amqp_confirm_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_confirm_properties_t));
 		    if(p == NULL) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -2394,7 +2280,7 @@ AMQP_PUBLIC_FUNCTION amqp_channel_open_ok_t * AMQP_CALL amqp_channel_open(amqp_c
  * @param [in] active active
  * @returns amqp_channel_flow_ok_t
  */
-AMQP_PUBLIC_FUNCTION amqp_channel_flow_ok_t * AMQP_CALL amqp_channel_flow(amqp_connection_state_t state, amqp_channel_t channel, amqp_boolean_t active) 
+AMQP_PUBLIC_FUNCTION amqp_channel_flow_ok_t * AMQP_CALL amqp_channel_flow(amqp_connection_state_t state, amqp_channel_t channel, boolint active) 
 {
 	amqp_channel_flow_t req;
 	req.active = active;
@@ -2415,8 +2301,8 @@ AMQP_PUBLIC_FUNCTION amqp_channel_flow_ok_t * AMQP_CALL amqp_channel_flow(amqp_c
  * @returns amqp_exchange_declare_ok_t
  */
 AMQP_PUBLIC_FUNCTION amqp_exchange_declare_ok_t * AMQP_CALL amqp_exchange_declare(amqp_connection_state_t state, amqp_channel_t channel,
-    amqp_bytes_t exchange, amqp_bytes_t type, amqp_boolean_t passive, amqp_boolean_t durable, amqp_boolean_t auto_delete, 
-	amqp_boolean_t internal, amqp_table_t arguments) 
+    amqp_bytes_t exchange, amqp_bytes_t type, boolint passive, boolint durable, boolint auto_delete, 
+	boolint internal, amqp_table_t arguments) 
 {
 	amqp_exchange_declare_t req;
 	req.ticket = 0;
@@ -2440,7 +2326,7 @@ AMQP_PUBLIC_FUNCTION amqp_exchange_declare_ok_t * AMQP_CALL amqp_exchange_declar
  * @returns amqp_exchange_delete_ok_t
  */
 AMQP_PUBLIC_FUNCTION amqp_exchange_delete_ok_t * AMQP_CALL amqp_exchange_delete(amqp_connection_state_t state, amqp_channel_t channel,
-    amqp_bytes_t exchange, amqp_boolean_t if_unused) 
+    amqp_bytes_t exchange, boolint if_unused) 
 {
 	amqp_exchange_delete_t req;
 	req.ticket = 0;
@@ -2509,7 +2395,7 @@ AMQP_PUBLIC_FUNCTION amqp_exchange_unbind_ok_t * AMQP_CALL amqp_exchange_unbind(
  * @returns amqp_queue_declare_ok_t
  */
 AMQP_PUBLIC_FUNCTION amqp_queue_declare_ok_t * AMQP_CALL amqp_queue_declare(amqp_connection_state_t state, amqp_channel_t channel, amqp_bytes_t queue,
-    amqp_boolean_t passive, amqp_boolean_t durable, amqp_boolean_t exclusive, amqp_boolean_t auto_delete, amqp_table_t arguments) 
+    boolint passive, boolint durable, boolint exclusive, boolint auto_delete, amqp_table_t arguments) 
 {
 	amqp_queue_declare_t req;
 	req.ticket = 0;
@@ -2572,7 +2458,7 @@ AMQP_PUBLIC_FUNCTION amqp_queue_purge_ok_t * AMQP_CALL amqp_queue_purge(amqp_con
  * @returns amqp_queue_delete_ok_t
  */
 AMQP_PUBLIC_FUNCTION amqp_queue_delete_ok_t * AMQP_CALL amqp_queue_delete(amqp_connection_state_t state, amqp_channel_t channel, amqp_bytes_t queue,
-    amqp_boolean_t if_unused, amqp_boolean_t if_empty) 
+    boolint if_unused, boolint if_empty) 
 {
 	amqp_queue_delete_t req;
 	req.ticket = 0;
@@ -2615,7 +2501,7 @@ AMQP_PUBLIC_FUNCTION amqp_queue_unbind_ok_t * AMQP_CALL amqp_queue_unbind(amqp_c
  * @returns amqp_basic_qos_ok_t
  */
 AMQP_PUBLIC_FUNCTION amqp_basic_qos_ok_t * AMQP_CALL amqp_basic_qos(amqp_connection_state_t state, amqp_channel_t channel, 
-	uint32_t prefetch_size, uint16_t prefetch_count, amqp_boolean_t global) 
+	uint32_t prefetch_size, uint16_t prefetch_count, boolint global) 
 {
 	amqp_basic_qos_t req;
 	req.prefetch_size = prefetch_size;
@@ -2637,7 +2523,7 @@ AMQP_PUBLIC_FUNCTION amqp_basic_qos_ok_t * AMQP_CALL amqp_basic_qos(amqp_connect
  * @returns amqp_basic_consume_ok_t
  */
 AMQP_PUBLIC_FUNCTION amqp_basic_consume_ok_t * AMQP_CALL amqp_basic_consume(amqp_connection_state_t state, amqp_channel_t channel, amqp_bytes_t queue,
-    amqp_bytes_t consumer_tag, amqp_boolean_t no_local, amqp_boolean_t no_ack, amqp_boolean_t exclusive, amqp_table_t arguments) 
+    amqp_bytes_t consumer_tag, boolint no_local, boolint no_ack, boolint exclusive, amqp_table_t arguments) 
 {
 	amqp_basic_consume_t req;
 	req.ticket = 0;
@@ -2673,7 +2559,7 @@ AMQP_PUBLIC_FUNCTION amqp_basic_cancel_ok_t * AMQP_CALL amqp_basic_cancel(amqp_c
  * @param [in] requeue requeue
  * @returns amqp_basic_recover_ok_t
  */
-AMQP_PUBLIC_FUNCTION amqp_basic_recover_ok_t * AMQP_CALL amqp_basic_recover(amqp_connection_state_t state, amqp_channel_t channel, amqp_boolean_t requeue) 
+AMQP_PUBLIC_FUNCTION amqp_basic_recover_ok_t * AMQP_CALL amqp_basic_recover(amqp_connection_state_t state, amqp_channel_t channel, boolint requeue) 
 {
 	amqp_basic_recover_t req;
 	req.requeue = requeue;

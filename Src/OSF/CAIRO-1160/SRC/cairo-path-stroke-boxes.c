@@ -61,9 +61,9 @@ typedef struct _cairo_rectilinear_stroker {
 	cairo_boxes_t * boxes;
 	cairo_point_t current_point;
 	cairo_point_t first_point;
-	cairo_bool_t open_sub_path;
+	boolint open_sub_path;
 	cairo_stroker_dash_t dash;
-	cairo_bool_t has_bounds;
+	boolint has_bounds;
 	cairo_box_t bounds;
 	int num_segments;
 	int segments_size;
@@ -81,7 +81,7 @@ static void _cairo_rectilinear_stroker_limit(cairo_rectilinear_stroker_t * strok
 	stroker->bounds.p2.y += stroker->half_line_y;
 }
 
-static cairo_bool_t _cairo_rectilinear_stroker_init(cairo_rectilinear_stroker_t * stroker,
+static boolint _cairo_rectilinear_stroker_init(cairo_rectilinear_stroker_t * stroker,
     const cairo_stroke_style_t * stroke_style, const cairo_matrix_t * ctm, cairo_antialias_t antialias, cairo_boxes_t * boxes)
 {
 	/* This special-case rectilinear stroker only supports
@@ -177,7 +177,7 @@ static cairo_status_t _cairo_rectilinear_stroker_emit_segments(cairo_rectilinear
 	 * endpoints to account for caps and joins.
 	 */
 	for(i = 0; i < stroker->num_segments; i++) {
-		cairo_bool_t lengthen_initial, lengthen_final;
+		boolint lengthen_initial, lengthen_final;
 		cairo_box_t box;
 		cairo_point_t * a = &stroker->segments[i].p1;
 		cairo_point_t * b = &stroker->segments[i].p2;
@@ -282,12 +282,12 @@ static cairo_status_t _cairo_rectilinear_stroker_emit_segments_dashed(cairo_rect
 		cairo_box_t box;
 		cairo_point_t * a = &stroker->segments[i].p1;
 		cairo_point_t * b = &stroker->segments[i].p2;
-		cairo_bool_t is_horizontal = stroker->segments[i].flags & HORIZONTAL;
+		boolint is_horizontal = stroker->segments[i].flags & HORIZONTAL;
 		/* Handle the joins for a potentially degenerate segment. */
 		if(line_cap == CAIRO_LINE_CAP_BUTT && stroker->segments[i].flags & JOIN && (i != stroker->num_segments - 1 || (!stroker->open_sub_path && stroker->dash.dash_starts_on))) {
 			cairo_slope_t out_slope;
 			int j = (i + 1) % stroker->num_segments;
-			cairo_bool_t forwards = !!(stroker->segments[i].flags & FORWARDS);
+			boolint forwards = !!(stroker->segments[i].flags & FORWARDS);
 			_cairo_slope_init(&out_slope, &stroker->segments[j].p1, &stroker->segments[j].p2);
 			box.p2 = box.p1 = stroker->segments[i].p2;
 			if(is_horizontal) {
@@ -413,12 +413,12 @@ static cairo_status_t _cairo_rectilinear_stroker_line_to_dashed(void * closure, 
 	cairo_rectilinear_stroker_t * stroker = static_cast<cairo_rectilinear_stroker_t *>(closure);
 	const cairo_point_t * a = &stroker->current_point;
 	const cairo_point_t * b = point;
-	cairo_bool_t fully_in_bounds;
+	boolint fully_in_bounds;
 	double sf, sign, remain;
 	cairo_fixed_t mag;
 	cairo_status_t status;
 	cairo_line_t segment;
-	cairo_bool_t dash_on = FALSE;
+	boolint dash_on = FALSE;
 	unsigned is_horizontal;
 
 	/* We don't draw anything for degenerate paths. */

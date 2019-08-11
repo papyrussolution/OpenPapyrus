@@ -39,7 +39,7 @@
 
 //#include "cairo-recording-surface-private.h"
 
-static inline cairo_bool_t _cairo_recording_surface_get_bounds(const cairo_surface_t * surface, cairo_rectangle_t * extents)
+static inline boolint _cairo_recording_surface_get_bounds(const cairo_surface_t * surface, cairo_rectangle_t * extents)
 {
 	const cairo_recording_surface_t * recording = reinterpret_cast<const cairo_recording_surface_t *>(surface);
 	if(recording->unbounded)
@@ -55,7 +55,7 @@ static inline cairo_bool_t _cairo_recording_surface_get_bounds(const cairo_surfa
  *
  * Return value: %TRUE if the surface is a recording surface
  **/
-static inline cairo_bool_t _cairo_surface_is_recording(const cairo_surface_t * surface)
+static inline boolint _cairo_surface_is_recording(const cairo_surface_t * surface)
 {
 	return surface->backend->type == CAIRO_SURFACE_TYPE_RECORDING;
 }

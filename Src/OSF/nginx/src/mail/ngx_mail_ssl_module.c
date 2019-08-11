@@ -262,7 +262,7 @@ static char * ngx_mail_ssl_merge_conf(ngx_conf_t * cf, void * parent, void * chi
 
 static const char * ngx_mail_ssl_enable(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	ngx_mail_ssl_conf_t  * scf = (ngx_mail_ssl_conf_t*)conf;
+	ngx_mail_ssl_conf_t  * scf = static_cast<ngx_mail_ssl_conf_t *>(conf);
 	const char * rv = ngx_conf_set_flag_slot(cf, cmd, conf);
 	if(rv != NGX_CONF_OK) {
 		return rv;
@@ -278,7 +278,7 @@ static const char * ngx_mail_ssl_enable(ngx_conf_t * cf, const ngx_command_t * c
 
 static const char * ngx_mail_ssl_starttls(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	ngx_mail_ssl_conf_t * scf = (ngx_mail_ssl_conf_t*)conf;
+	ngx_mail_ssl_conf_t * scf = static_cast<ngx_mail_ssl_conf_t *>(conf);
 	const char * rv = ngx_conf_set_enum_slot(cf, cmd, conf);
 	if(rv != NGX_CONF_OK) {
 		return rv;
@@ -294,7 +294,7 @@ static const char * ngx_mail_ssl_starttls(ngx_conf_t * cf, const ngx_command_t *
 
 static const char * ngx_mail_ssl_password_file(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	ngx_mail_ssl_conf_t * scf = (ngx_mail_ssl_conf_t*)conf;
+	ngx_mail_ssl_conf_t * scf = static_cast<ngx_mail_ssl_conf_t *>(conf);
 	if(scf->passwords != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
@@ -310,7 +310,7 @@ static const char * ngx_mail_ssl_password_file(ngx_conf_t * cf, const ngx_comman
 
 static const char * ngx_mail_ssl_session_cache(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	ngx_mail_ssl_conf_t  * scf = (ngx_mail_ssl_conf_t*)conf;
+	ngx_mail_ssl_conf_t  * scf = static_cast<ngx_mail_ssl_conf_t *>(conf);
 	size_t len;
 	ngx_str_t name, size;
 	ngx_int_t n;

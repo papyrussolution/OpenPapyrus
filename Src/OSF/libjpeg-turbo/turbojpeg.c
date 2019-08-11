@@ -151,7 +151,7 @@ static int getPixelFormat(int pixelSize, int flags)
 			if(flags&TJ_BGR) return TJPF_XBGR;
 			else return TJPF_XRGB;
 		}
-		else{
+		else {
 			if(flags&TJ_BGR) return TJPF_BGRX;
 			else return TJPF_RGBX;
 		}
@@ -794,7 +794,7 @@ DLLEXPORT int DLLCALL tjCompress(tjhandle handle, unsigned char * srcBuf,
 		retval = tjEncodeYUV2(handle, srcBuf, width, pitch, height,
 		    getPixelFormat(pixelSize, flags), jpegBuf, jpegSubsamp, flags);
 	}
-	else{
+	else {
 		retval = tjCompress2(handle, srcBuf, width, pitch, height,
 		    getPixelFormat(pixelSize, flags), &jpegBuf, &size, jpegSubsamp, jpegQual,
 		    flags|TJFLAG_NOREALLOC);
@@ -975,7 +975,7 @@ DLLEXPORT int DLLCALL tjEncodeYUV3(tjhandle handle,
 		strides[1] = strides[2] = 0;
 		dstPlanes[1] = dstPlanes[2] = NULL;
 	}
-	else{
+	else {
 		int pw1 = tjPlaneWidth(1, width, subsamp);
 		int ph1 = tjPlaneHeight(1, height, subsamp);
 		strides[1] = strides[2] = PAD(pw1, pad);
@@ -1144,7 +1144,7 @@ DLLEXPORT int DLLCALL tjCompressFromYUV(tjhandle handle,
 		strides[1] = strides[2] = 0;
 		srcPlanes[1] = srcPlanes[2] = NULL;
 	}
-	else{
+	else {
 		int pw1 = tjPlaneWidth(1, width, subsamp);
 		int ph1 = tjPlaneHeight(1, height, subsamp);
 		strides[1] = strides[2] = PAD(pw1, pad);
@@ -1393,7 +1393,7 @@ static int setDecodeDefaults(struct jpeg_decompress_struct * dinfo,
 		dinfo->num_components = dinfo->comps_in_scan = 1;
 		dinfo->jpeg_color_space = JCS_GRAYSCALE;
 	}
-	else{
+	else {
 		dinfo->num_components = dinfo->comps_in_scan = 3;
 		dinfo->jpeg_color_space = JCS_YCbCr;
 	}
@@ -1601,7 +1601,7 @@ DLLEXPORT int DLLCALL tjDecodeYUV(tjhandle handle, const unsigned char * srcBuf,
 		strides[1] = strides[2] = 0;
 		srcPlanes[1] = srcPlanes[2] = NULL;
 	}
-	else{
+	else {
 		int pw1 = tjPlaneWidth(1, width, subsamp);
 		int ph1 = tjPlaneHeight(1, height, subsamp);
 		strides[1] = strides[2] = PAD(pw1, pad);
@@ -1815,7 +1815,7 @@ DLLEXPORT int DLLCALL tjDecompressToYUV2(tjhandle handle,
 		strides[1] = strides[2] = 0;
 		dstPlanes[1] = dstPlanes[2] = NULL;
 	}
-	else{
+	else {
 		int pw1 = tjPlaneWidth(1, width, jpegSubsamp);
 		int ph1 = tjPlaneHeight(1, height, jpegSubsamp);
 		strides[1] = strides[2] = PAD(pw1, pad);

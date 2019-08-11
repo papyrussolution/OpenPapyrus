@@ -48,7 +48,7 @@ struct _cairo_device {
 	const cairo_device_backend_t * backend;
 	cairo_recursive_mutex_t mutex;
 	unsigned mutex_depth;
-	cairo_bool_t finished;
+	boolint finished;
 };
 
 struct _cairo_device_backend {

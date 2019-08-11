@@ -63,7 +63,7 @@ static cairo_always_inline void * _atomic_fetch(void ** slot)
 	return ptr;
 }
 
-static cairo_always_inline cairo_bool_t _atomic_store(void ** slot, void * ptr)
+static cairo_always_inline boolint _atomic_store(void ** slot, void * ptr)
 {
 	return _cairo_atomic_ptr_cmpxchg(slot, NULL, ptr);
 }

@@ -121,7 +121,7 @@ cairo_font_face_t * cairo_font_face_reference(cairo_font_face_t * font_face)
 
 slim_hidden_def(cairo_font_face_reference);
 
-static inline cairo_bool_t __put(cairo_reference_count_t * v)
+static inline boolint __put(cairo_reference_count_t * v)
 {
 	int old;
 	int c = CAIRO_REFERENCE_COUNT_GET_VALUE(v);
@@ -130,7 +130,7 @@ static inline cairo_bool_t __put(cairo_reference_count_t * v)
 	return c != 1;
 }
 
-cairo_bool_t _cairo_font_face_destroy(void * abstract_face)
+boolint _cairo_font_face_destroy(void * abstract_face)
 {
 #if 0 /* Nothing needs to be done, we can just drop the last reference */
 	cairo_font_face_t * font_face = abstract_face;

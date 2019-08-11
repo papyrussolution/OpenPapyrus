@@ -218,7 +218,7 @@ static cairo_status_t _cairo_surface_subsurface_mark_dirty(void * abstract_surfa
 	return status;
 }
 
-static cairo_bool_t _cairo_surface_subsurface_get_extents(void * abstract_surface, cairo_rectangle_int_t * extents)
+static boolint _cairo_surface_subsurface_get_extents(void * abstract_surface, cairo_rectangle_int_t * extents)
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
 	extents->x = 0;

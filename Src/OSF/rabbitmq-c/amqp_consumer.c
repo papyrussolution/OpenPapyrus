@@ -27,14 +27,11 @@
  * ***** END LICENSE BLOCK *****
  */
 #include "amqp_private.h"
-#include "amqp.h"
-#include "amqp_socket.h"
-#include <stdlib.h>
-#include <string.h>
+#pragma hdrstop
 
 static int amqp_basic_properties_clone(amqp_basic_properties_t * original, amqp_basic_properties_t * clone, amqp_pool_t * pool) 
 {
-	memset(clone, 0, sizeof(*clone));
+	memzero(clone, sizeof(*clone));
 	clone->_flags = original->_flags;
 #define CLONE_BYTES_POOL(original, clone, pool)        \
 	if(0 == original.len) {                             \
@@ -129,25 +126,20 @@ static int amqp_bytes_malloc_dup_failed(amqp_bytes_t bytes) {
 	return 0;
 }
 
-amqp_rpc_reply_t amqp_consume_message(amqp_connection_state_t state,
-    amqp_envelope_t * envelope,
-    struct timeval * timeout,
-    AMQP_UNUSED int flags) {
+amqp_rpc_reply_t amqp_consume_message(amqp_connection_state_t state, amqp_envelope_t * envelope, struct timeval * timeout, AMQP_UNUSED int flags) 
+{
 	int res;
 	amqp_frame_t frame;
 	amqp_basic_deliver_t * delivery_method;
 	amqp_rpc_reply_t ret;
-
-	memset(&ret, 0, sizeof(ret));
-	memset(envelope, 0, sizeof(*envelope));
-
+	memzero(&ret, sizeof(ret));
+	memzero(envelope, sizeof(*envelope));
 	res = amqp_simple_wait_frame_noblock(state, &frame, timeout);
 	if(AMQP_STATUS_OK != res) {
 		ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 		ret.library_error = res;
 		goto error_out1;
 	}
-
 	if(AMQP_FRAME_METHOD != frame.frame_type || AMQP_BASIC_DELIVER_METHOD != frame.payload.method.id) {
 		amqp_put_back_frame(state, &frame);
 		ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
@@ -193,8 +185,8 @@ amqp_rpc_reply_t amqp_read_message(amqp_connection_state_t state, amqp_channel_t
 	size_t body_read;
 	char * body_read_ptr;
 	int res;
-	memset(&ret, 0, sizeof(ret));
-	memset(message, 0, sizeof(*message));
+	memzero(&ret, sizeof(ret));
+	memzero(message, sizeof(*message));
 	res = amqp_simple_wait_frame_on_channel(state, channel, &frame);
 	if(AMQP_STATUS_OK != res) {
 		ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
@@ -246,9 +238,7 @@ amqp_rpc_reply_t amqp_read_message(amqp_connection_state_t state, amqp_channel_t
 			goto error_out2;
 		}
 		if(AMQP_FRAME_BODY != frame.frame_type) {
-			if(AMQP_FRAME_METHOD == frame.frame_type &&
-			    (AMQP_CHANNEL_CLOSE_METHOD == frame.payload.method.id ||
-			    AMQP_CONNECTION_CLOSE_METHOD == frame.payload.method.id)) {
+			if(AMQP_FRAME_METHOD == frame.frame_type && (AMQP_CHANNEL_CLOSE_METHOD == frame.payload.method.id || AMQP_CONNECTION_CLOSE_METHOD == frame.payload.method.id)) {
 				ret.reply_type = AMQP_RESPONSE_SERVER_EXCEPTION;
 				ret.reply = frame.payload.method;
 			}
@@ -258,16 +248,12 @@ amqp_rpc_reply_t amqp_read_message(amqp_connection_state_t state, amqp_channel_t
 			}
 			goto error_out2;
 		}
-
 		if(body_read + frame.payload.body_fragment.len > message->body.len) {
 			ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 			ret.library_error = AMQP_STATUS_BAD_AMQP_DATA;
 			goto error_out2;
 		}
-
-		memcpy(body_read_ptr, frame.payload.body_fragment.bytes,
-		    frame.payload.body_fragment.len);
-
+		memcpy(body_read_ptr, frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
 		body_read += frame.payload.body_fragment.len;
 		body_read_ptr += frame.payload.body_fragment.len;
 	}

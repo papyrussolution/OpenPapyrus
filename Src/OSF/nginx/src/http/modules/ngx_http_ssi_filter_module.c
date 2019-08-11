@@ -365,7 +365,7 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 							memzero(b, sizeof(ngx_buf_t));
 						}
 						else {
-							b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+							b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 							if(!b) {
 								return NGX_ERROR;
 							}
@@ -578,7 +578,7 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 				if(rc == NGX_OK) {
 					continue;
 				}
-				if(rc == NGX_DONE || rc == NGX_AGAIN || rc == NGX_ERROR) {
+				if(oneof3(rc, NGX_DONE, NGX_AGAIN, NGX_ERROR)) {
 					ngx_http_ssi_buffered(r, ctx);
 					return rc;
 				}
@@ -595,7 +595,7 @@ ssi_error:
 				memzero(b, sizeof(ngx_buf_t));
 			}
 			else {
-				b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+				b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 				if(!b) {
 					return NGX_ERROR;
 				}
@@ -622,7 +622,7 @@ ssi_error:
 					memzero(b, sizeof(ngx_buf_t));
 				}
 				else {
-					b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+					b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 					if(!b) {
 						return NGX_ERROR;
 					}
@@ -1679,7 +1679,7 @@ static ngx_int_t ngx_http_ssi_echo(ngx_http_request_t * r, ngx_http_ssi_ctx_t * 
 		    len = value->len;
 		    break;
 	}
-	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
+	b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 	if(!b) {
 		return NGX_HTTP_SSI_ERROR;
 	}

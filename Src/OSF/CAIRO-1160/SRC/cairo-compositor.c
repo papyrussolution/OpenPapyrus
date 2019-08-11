@@ -144,7 +144,7 @@ cairo_int_status_t _cairo_compositor_glyphs(const cairo_compositor_t * composito
     const cairo_pattern_t * source, cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip)
 {
 	cairo_composite_rectangles_t extents;
-	cairo_bool_t overlap;
+	boolint overlap;
 	cairo_int_status_t status;
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	status = _cairo_composite_rectangles_init_for_glyphs(&extents, surface, op, source, scaled_font,

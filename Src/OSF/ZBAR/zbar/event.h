@@ -31,7 +31,6 @@
 //
 #if defined(_WIN32)
 	#include <windows.h>
-
 	typedef HANDLE zbar_event_t;
 #else
 	#ifdef HAVE_LIBPTHREAD

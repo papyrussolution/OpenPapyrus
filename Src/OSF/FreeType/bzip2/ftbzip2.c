@@ -226,7 +226,7 @@ static FT_Error ft_bzip2_file_fill_input(FT_BZip2File zip)
 			return FT_THROW(Invalid_Stream_Operation);
 		}
 	}
-	else{
+	else {
 		size = stream->size - stream->pos;
 		if(size > FT_BZIP2_BUFFER_SIZE)
 			size = FT_BZIP2_BUFFER_SIZE;

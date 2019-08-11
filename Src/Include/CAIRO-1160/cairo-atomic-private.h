@@ -99,7 +99,7 @@ static cairo_always_inline void * _cairo_atomic_ptr_get(void ** x)
 	#error No matching integer pointer type
 #endif
 
-static cairo_always_inline cairo_bool_t _cairo_atomic_int_cmpxchg_impl(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
+static cairo_always_inline boolint _cairo_atomic_int_cmpxchg_impl(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
 {
 	cairo_atomic_int_t expected = oldv;
 	return __atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
@@ -116,7 +116,7 @@ static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_o
 
 #define _cairo_atomic_int_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_int_cmpxchg_return_old_impl(x, oldv, newv)
 
-static cairo_always_inline cairo_bool_t _cairo_atomic_ptr_cmpxchg_impl(void ** x, void * oldv, void * newv)
+static cairo_always_inline boolint _cairo_atomic_ptr_cmpxchg_impl(void ** x, void * oldv, void * newv)
 {
 	void * expected = oldv;
 	return __atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
@@ -260,7 +260,7 @@ cairo_private void _cairo_atomic_int_inc(cairo_atomic_int_t * x);
 
 #define _cairo_atomic_int_dec(x) _cairo_atomic_int_dec_and_test(x)
 
-cairo_private cairo_bool_t _cairo_atomic_int_dec_and_test(cairo_atomic_int_t * x);
+cairo_private boolint _cairo_atomic_int_dec_and_test(cairo_atomic_int_t * x);
 cairo_private cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_impl(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv);
 cairo_private void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void ** x, void * oldv, void * newv);
 
@@ -338,7 +338,7 @@ typedef cairo_atomic_int_t cairo_atomic_once_t;
 #define CAIRO_ATOMIC_ONCE_INITIALIZED   (2)
 #define CAIRO_ATOMIC_ONCE_INIT          CAIRO_ATOMIC_ONCE_UNINITIALIZED
 
-static cairo_always_inline cairo_bool_t _cairo_atomic_init_once_enter(cairo_atomic_once_t * once)
+static cairo_always_inline boolint _cairo_atomic_init_once_enter(cairo_atomic_once_t * once)
 {
 	if(likely(_cairo_atomic_int_get(once) == CAIRO_ATOMIC_ONCE_INITIALIZED))
 		return 0;

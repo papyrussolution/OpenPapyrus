@@ -42,7 +42,7 @@ typedef struct _cairo_cogl_context {
     int path_ctm_age;
     cairo_path_fixed_t user_path;
 
-    cairo_bool_t path_is_rectangle;
+    boolint path_is_rectangle;
     double x, y, width, height;
 } cairo_cogl_context_t;
 

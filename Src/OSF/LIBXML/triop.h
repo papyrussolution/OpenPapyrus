@@ -128,7 +128,6 @@ void trio_set_upper(trio_pointer_t ref, int is_upper);
 int trio_print_ref(trio_pointer_t ref, const char *format, ...);
 int trio_vprint_ref(trio_pointer_t ref, const char *format, va_list args);
 int trio_printv_ref(trio_pointer_t ref, const char *format, trio_pointer_t *args);
-
 void trio_print_int(trio_pointer_t ref, int number);
 void trio_print_uint(trio_pointer_t ref, unsigned int number);
 // void trio_print_long(trio_pointer_t ref, long number); 

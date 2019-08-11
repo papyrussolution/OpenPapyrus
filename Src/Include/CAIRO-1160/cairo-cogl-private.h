@@ -50,7 +50,7 @@ typedef enum _cairo_cogl_template_type {
 typedef struct _cairo_cogl_device {
     cairo_device_t base;
 
-    cairo_bool_t backend_vtable_initialized;
+    boolint backend_vtable_initialized;
     cairo_backend_t backend;
 
     /* We save a copy of all the original backend methods that we override so
@@ -94,7 +94,7 @@ typedef struct _cairo_cogl_surface {
     cairo_surface_t base;
 
     CoglPixelFormat cogl_format;
-    cairo_bool_t ignore_alpha;
+    boolint ignore_alpha;
 
     /* We currently have 3 basic kinds of Cogl surfaces:
  * 1) A light surface simply wrapping a CoglTexture
@@ -135,7 +135,7 @@ typedef struct _cairo_cogl_surface {
     cairo_path_fixed_t *user_path;
     cairo_matrix_t *ctm;
     cairo_matrix_t *ctm_inverse;
-    cairo_bool_t path_is_rectangle;
+    boolint path_is_rectangle;
     double path_rectangle_x;
     double path_rectangle_y;
     double path_rectangle_width;

@@ -192,14 +192,11 @@ static pixman_bool_t mips_dspr2_blt(pixman_implementation_t * imp,
 		case 16:
 		    src_stride = src_stride * (int)sizeof(uint32_t) / 2;
 		    dst_stride = dst_stride * (int)sizeof(uint32_t) / 2;
-		    src_bytes = (uint8_t *)(((uint16_t*)src_bits)
-			+ src_stride * (src_y) + (src_x));
-		    dst_bytes = (uint8_t *)(((uint16_t*)dst_bits)
-			+ dst_stride * (dest_y) + (dest_x));
+		    src_bytes = (uint8_t *)(((uint16_t*)src_bits) + src_stride * (src_y) + (src_x));
+		    dst_bytes = (uint8_t *)(((uint16_t*)dst_bits) + dst_stride * (dest_y) + (dest_x));
 		    byte_width = width * 2;
 		    src_stride *= 2;
 		    dst_stride *= 2;
-
 		    while(height--) {
 			    uint8_t * src = src_bytes;
 			    uint8_t * dst = dst_bytes;

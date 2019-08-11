@@ -119,7 +119,7 @@ static inline void pqueue_fini(pqueue_t * pq)
 		SAlloc::F(pq->elements);
 }
 
-static cairo_bool_t pqueue_grow(pqueue_t * pq)
+static boolint pqueue_grow(pqueue_t * pq)
 {
 	rectangle_t ** new_elements;
 	pq->max_size *= 2;

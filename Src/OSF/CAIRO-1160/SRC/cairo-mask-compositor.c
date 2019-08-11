@@ -331,7 +331,7 @@ static cairo_status_t clip_and_composite_source(const cairo_mask_compositor_t * 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t can_reduce_alpha_op(cairo_operator_t op)
+static boolint can_reduce_alpha_op(cairo_operator_t op)
 {
 	int iop = op;
 	switch(iop) {
@@ -344,7 +344,7 @@ static cairo_bool_t can_reduce_alpha_op(cairo_operator_t op)
 	}
 }
 
-static cairo_bool_t reduce_alpha_op(cairo_surface_t * dst,
+static boolint reduce_alpha_op(cairo_surface_t * dst,
     cairo_operator_t op,
     const cairo_pattern_t * pattern)
 {
@@ -539,7 +539,7 @@ enum {
 	FORCE_CLIP_REGION = 0x4,
 };
 
-static cairo_bool_t need_bounded_clip(cairo_composite_rectangles_t * extents)
+static boolint need_bounded_clip(cairo_composite_rectangles_t * extents)
 {
 	uint flags = NEED_CLIP_REGION;
 	if(!_cairo_clip_is_region(extents->clip))
@@ -547,7 +547,7 @@ static cairo_bool_t need_bounded_clip(cairo_composite_rectangles_t * extents)
 	return flags;
 }
 
-static cairo_bool_t need_unbounded_clip(cairo_composite_rectangles_t * extents)
+static boolint need_unbounded_clip(cairo_composite_rectangles_t * extents)
 {
 	uint flags = 0;
 	if(!extents->is_bounded) {
@@ -665,7 +665,7 @@ static cairo_status_t composite_boxes(const cairo_mask_compositor_t * compositor
 	cairo_surface_t * dst = extents->surface;
 	cairo_operator_t op = extents->op;
 	const cairo_pattern_t * source = &extents->source_pattern.base;
-	cairo_bool_t need_clip_mask = extents->clip->path != NULL;
+	boolint need_clip_mask = extents->clip->path != NULL;
 	cairo_status_t status;
 
 	if(need_clip_mask &&
@@ -1078,7 +1078,7 @@ static cairo_int_status_t _cairo_mask_compositor_fill(const cairo_compositor_t *
 }
 
 static cairo_int_status_t _cairo_mask_compositor_glyphs(const cairo_compositor_t * _compositor,
-    cairo_composite_rectangles_t * extents, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int num_glyphs, cairo_bool_t overlap)
+    cairo_composite_rectangles_t * extents, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int num_glyphs, boolint overlap)
 {
 	const cairo_mask_compositor_t * compositor = (cairo_mask_compositor_t*)_compositor;
 	cairo_surface_t * mask;

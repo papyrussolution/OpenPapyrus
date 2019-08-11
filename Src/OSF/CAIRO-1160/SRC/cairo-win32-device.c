@@ -92,7 +92,7 @@ D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(D2D1_RENDER_T
 hr = m_pD2DFactory->CreateDCRenderTarget(&props, &device->d2d);
 #endif
 
-static cairo_bool_t is_win98(void)
+static boolint is_win98(void)
 {
 	OSVERSIONINFO os;
 
@@ -138,7 +138,7 @@ cairo_device_t * _cairo_win32_device_get(void)
 unsigned _cairo_win32_flags_for_dc(HDC dc, cairo_format_t format)
 {
 	uint32_t flags = 0;
-	cairo_bool_t is_display = GetDeviceCaps(dc, TECHNOLOGY) == DT_RASDISPLAY;
+	boolint is_display = GetDeviceCaps(dc, TECHNOLOGY) == DT_RASDISPLAY;
 	if(format == CAIRO_FORMAT_RGB24 || format == CAIRO_FORMAT_ARGB32) {
 		int cap = GetDeviceCaps(dc, RASTERCAPS);
 		if(cap & RC_BITBLT)

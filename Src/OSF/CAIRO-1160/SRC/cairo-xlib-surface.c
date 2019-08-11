@@ -178,7 +178,7 @@ static cairo_surface_t * _cairo_xlib_surface_create_internal(cairo_xlib_screen_t
     int height,
     int depth);
 
-static cairo_bool_t _cairo_surface_is_xlib(cairo_surface_t * surface);
+static boolint _cairo_surface_is_xlib(cairo_surface_t * surface);
 
 /*
  * Instead of taking two round trips for each blending request,
@@ -889,8 +889,8 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 		cairo_xlib_visual_info_t * visual_info = NULL;
 
 		if(surface->visual == NULL || surface->visual->class == TrueColor) {
-			cairo_bool_t has_alpha;
-			cairo_bool_t has_color;
+			boolint has_alpha;
+			boolint has_color;
 
 			has_alpha =  surface->a_mask;
 			has_color = (surface->r_mask ||
@@ -1061,8 +1061,8 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 	cairo_surface_t * shm_image = NULL;
 	pixman_image_t * pixman_image = NULL;
 	cairo_status_t status;
-	cairo_bool_t own_data = FALSE;
-	cairo_bool_t is_rgb_image;
+	boolint own_data = FALSE;
+	boolint is_rgb_image;
 	GC gc;
 
 	ximage.width = image->width;
@@ -1203,7 +1203,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 		int o_a_width = 0, o_r_width = 0, o_g_width = 0, o_b_width = 0;
 		int o_a_shift = 0, o_r_shift = 0, o_g_shift = 0, o_b_shift = 0;
 		cairo_xlib_visual_info_t * visual_info = NULL;
-		cairo_bool_t true_color;
+		boolint true_color;
 		int ret;
 
 		ximage.bits_per_pixel = bits_per_pixel(surface);
@@ -1468,7 +1468,7 @@ static cairo_status_t _cairo_xlib_surface_flush(void * abstract_surface,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_xlib_surface_get_extents(void * abstract_surface,
+static boolint _cairo_xlib_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * rectangle)
 {
 	cairo_xlib_surface_t * surface = abstract_surface;
@@ -1666,7 +1666,7 @@ static const cairo_surface_backend_t cairo_xlib_surface_backend = {
  *
  * Return value: True if the surface is an xlib surface
  **/
-static cairo_bool_t _cairo_surface_is_xlib(cairo_surface_t * surface)
+static boolint _cairo_surface_is_xlib(cairo_surface_t * surface)
 {
 	return surface->backend == &cairo_xlib_surface_backend;
 }
@@ -1838,7 +1838,7 @@ static Screen * _cairo_xlib_screen_from_visual(Display * dpy, Visual * visual)
 	return NULL;
 }
 
-static cairo_bool_t valid_size(int width, int height)
+static boolint valid_size(int width, int height)
 {
 	/* Note: the minimum surface size allowed in the X protocol is 1x1.
 	 * However, as we historically did not check the minimum size we

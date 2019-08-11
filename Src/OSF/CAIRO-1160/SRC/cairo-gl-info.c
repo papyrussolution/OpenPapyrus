@@ -89,7 +89,7 @@ ulong _cairo_gl_get_vbo_size(void)
 	return vbo_size;
 }
 
-cairo_bool_t _cairo_gl_has_extension(const char * ext)
+boolint _cairo_gl_has_extension(const char * ext)
 {
 	const char * extensions = (const char *)glGetString(GL_EXTENSIONS);
 	size_t len = strlen(ext);

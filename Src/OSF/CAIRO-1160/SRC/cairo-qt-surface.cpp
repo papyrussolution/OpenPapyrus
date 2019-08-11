@@ -115,7 +115,7 @@ static const char * _opstr(cairo_operator_t op)
 
 struct cairo_qt_surface_t {
 	cairo_surface_t base;
-	cairo_bool_t supports_porter_duff;
+	boolint supports_porter_duff;
 	QPainter * p;
 	/* The pixmap/image constructors will store their objects here */
 	QPixmap * pixmap;
@@ -128,7 +128,7 @@ struct cairo_qt_surface_t {
 /* Will be true if we ever try to create a QPixmap and end
  * up with one without an alpha channel.
  */
-static cairo_bool_t _qpixmaps_have_no_alpha = FALSE;
+static boolint _qpixmaps_have_no_alpha = FALSE;
 
 /*
  * Helper methods
@@ -666,7 +666,7 @@ static cairo_int_status_t _cairo_qt_surface_unmap_image(void * abstract_surface,
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_qt_surface_get_extents(void * abstract_surface,
+static boolint _cairo_qt_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * extents)
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
@@ -865,8 +865,8 @@ struct PatternToBrushConverter {
 		else if(pattern->type == CAIRO_PATTERN_TYPE_LINEAR ||
 		    pattern->type == CAIRO_PATTERN_TYPE_RADIAL) {
 			QGradient * grad;
-			cairo_bool_t reverse_stops = FALSE;
-			cairo_bool_t emulate_reflect = FALSE;
+			boolint reverse_stops = FALSE;
+			boolint emulate_reflect = FALSE;
 			double offset = 0.0;
 
 			cairo_extend_t extend = pattern->extend;
@@ -1550,7 +1550,7 @@ cairo_surface_t * cairo_qt_surface_create_with_qpixmap(cairo_content_t content, 
  *
  * Return value: True if the surface is an qt surface
  **/
-static inline cairo_bool_t _cairo_surface_is_qt(cairo_surface_t * surface)
+static inline boolint _cairo_surface_is_qt(cairo_surface_t * surface)
 {
 	return surface->backend == &cairo_qt_surface_backend;
 }

@@ -55,7 +55,7 @@ typedef struct _cairo_egl_surface {
 	EGLSurface egl;
 } cairo_egl_surface_t;
 
-static cairo_bool_t _context_acquisition_changed_egl_state(cairo_egl_context_t * ctx, EGLSurface current_surface)
+static boolint _context_acquisition_changed_egl_state(cairo_egl_context_t * ctx, EGLSurface current_surface)
 {
 	return ctx->previous_context != ctx->context || ctx->previous_surface != current_surface;
 }
@@ -139,7 +139,7 @@ static void _egl_destroy(void * abstract_ctx)
 		eglDestroySurface(ctx->display, ctx->dummy_surface);
 }
 
-static cairo_bool_t _egl_make_current_surfaceless(cairo_egl_context_t * ctx)
+static boolint _egl_make_current_surfaceless(cairo_egl_context_t * ctx)
 {
 	const char * extensions;
 
@@ -247,7 +247,7 @@ cairo_surface_t * cairo_gl_surface_create_for_egl(cairo_device_t * device, EGLSu
 	return &surface->base.base;
 }
 
-static cairo_bool_t is_egl_device(cairo_device_t * device)
+static boolint is_egl_device(cairo_device_t * device)
 {
 	return (device->backend != NULL && device->backend->type == CAIRO_DEVICE_TYPE_GL);
 }

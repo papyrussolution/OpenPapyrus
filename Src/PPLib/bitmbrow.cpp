@@ -2252,6 +2252,7 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
+	virtual int  pasteFromClipboardAll(){return -1;} // @erik v10.5.2
 protected:
 	DECL_HANDLE_EVENT
 	{
@@ -2300,6 +2301,11 @@ protected:
 				SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
 			}
 		}
+		// @erik v10.5.2 { 
+		else if(event.isCmd(cmPasteFromClipboardAll)){
+			pasteFromClipboardAll();
+		}
+		// } @erik
 		else
 			return;
 		clearEvent(event);
@@ -2606,6 +2612,82 @@ private:
 		delete dlg;
 		return ok;
 	}
+	//
+	// функция вставки всех марок из буфера(если они там есть)
+	//
+	virtual int pasteFromClipboardAll()
+	{
+		int ok = 0;
+		uint   sel = 0;
+		//TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
+		SString temp_buf;
+		StringSet ss;
+		PPLotExtCodeContainer::MarkSet set;
+		LotExtCodeTbl::Rec rec;
+		MEMSZERO(rec);
+		rec.BillID = P_Pack->Rec.ID;
+		rec.RByBill = RowIdx;
+		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx - 1) : 0;
+		const int  do_check = (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT)) ? 0 : 1;
+		const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+		const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
+		SStringU buf_from_copy;
+		SClipboard::Past_Text(buf_from_copy);
+		buf_from_copy.CopyToUtf8(temp_buf, 0);
+		if(temp_buf.Tokenize("\xD\xA", ss)) {
+			temp_buf.Z();
+			for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
+				if(!temp_buf.NotEmptyS()) {
+					//PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
+					continue;
+				}
+				else if(temp_buf.Len() >= sizeof(rec.Code)) {
+					//PPSetError(PPERR_CODETOOLONG, (long)(sizeof(rec.Code) - 1));
+					//PPErrorByDialog(dlg, sel);
+					continue;
+				}
+				else {
+					SString mark_buf = temp_buf;
+					const int iemr = PrcssrAlcReport::IsEgaisMark(mark_buf, 0);
+					if(!iemr) {
+						if(P_LotXcT) {
+							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) <= 0) {
+								//PPErrorByDialog(dlg, sel);
+								continue;
+							}
+						}
+						else {
+							//PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
+							//PPErrorByDialog(dlg, sel);
+							continue;
+						}
+					}
+					else if(do_check && P_LotXcT) {
+						if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) {
+							STRNSCPY(rec.Code, mark_buf);
+						}
+						else {
+							//PPErrorByDialog(dlg, sel);
+							continue;
+						}
+					}
+					else {
+						set.AddNum(0, mark_buf, 1);
+						STRNSCPY(rec.Code, mark_buf);
+					}
+				}
+				if(Data.AddValidation(set)) {
+					ok++;
+				}
+				//else{
+				//	PPError();
+				//}
+			}
+		}
+		updateList(0);
+		return ok;
+	}
+
 	int    FontId;
 	int    CStyleId;
 	enum {
@@ -2658,7 +2740,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		virtual int setupList()
 		{
 			int    ok = 1;
-			uint   mark_count = 0;
+			uint   mark_count = 0	;
 			uint   box_count = 0;
 			SString temp_buf;
 			SString box_num;
@@ -2796,6 +2878,81 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			}
 			CATCHZOKPPERR
 			delete dlg;
+			return ok;
+		}
+		//
+		//  @erik v10.5.2
+		//  функция вставки всех марок из буфера(если они там есть)
+		//
+		virtual int pasteFromClipboardAll() {
+			int ok = 0;
+			uint   sel = 0;
+			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
+			SString temp_buf;
+			StringSet ss;
+			PPLotExtCodeContainer::MarkSet set;
+			LotExtCodeTbl::Rec rec;
+			MEMSZERO(rec);
+			rec.BillID = P_Pack->Rec.ID;
+			rec.RByBill = RowIdx;
+			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx - 1) : 0;
+			const int  do_check = (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT)) ? 0 : 1;
+			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
+			SStringU buf_from_copy;
+			SClipboard::Past_Text(buf_from_copy);
+			buf_from_copy.CopyToUtf8(temp_buf, 0);
+			if(temp_buf.Tokenize("\xD\xA", ss)) {
+				temp_buf.Z();
+				for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
+					if(!temp_buf.NotEmptyS()) {
+						//PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
+						continue;
+					}
+					else if(temp_buf.Len() >= sizeof(rec.Code)) {
+						//PPSetError(PPERR_CODETOOLONG, (long)(sizeof(rec.Code) - 1));
+						//PPErrorByDialog(dlg, sel);
+						continue;
+					}
+					else {
+						SString mark_buf = temp_buf;
+						const int iemr = PrcssrAlcReport::IsEgaisMark(mark_buf, 0);
+						if(!iemr) {
+							if(P_LotXcT) {
+								if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) <= 0) {
+									//PPErrorByDialog(dlg, sel);
+									continue;
+								}
+							}
+							else {
+								//PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
+								//PPErrorByDialog(dlg, sel);
+								continue;
+							}
+						}
+						else if(do_check && P_LotXcT) {
+							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) {
+								STRNSCPY(rec.Code, mark_buf);
+							}
+							else {
+								//PPErrorByDialog(dlg, sel);
+								continue;
+							}
+						}
+						else {
+							set.AddNum(0, mark_buf, 1);
+							STRNSCPY(rec.Code, mark_buf);
+						}
+					}
+					if(Data.Add(RowIdx, set)) {
+						ok++;
+					}
+					else {
+						//PPError();
+					}
+				}
+			}
+			updateList(0);
 			return ok;
 		}
 	};

@@ -147,7 +147,7 @@ static void _cairo_xlib_xcb_surface_release_source_image(void * abstract_surface
 	_cairo_surface_release_source_image(&surface->xcb->base, image_out, image_extra);
 }
 
-static cairo_bool_t _cairo_xlib_xcb_surface_get_extents(void * abstract_surface,
+static boolint _cairo_xlib_xcb_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * extents)
 {
 	cairo_xlib_xcb_surface_t * surface = abstract_surface;

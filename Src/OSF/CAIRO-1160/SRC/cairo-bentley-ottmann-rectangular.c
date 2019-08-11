@@ -78,7 +78,7 @@ typedef struct _sweep_line {
 	int stop_size;
 	int32_t insert_x;
 	cairo_fill_rule_t fill_rule;
-	cairo_bool_t do_traps;
+	boolint do_traps;
 	void * container;
 	jmp_buf unwind;
 } sweep_line_t;
@@ -187,7 +187,7 @@ static inline rectangle_t * rectangle_peek_stop(sweep_line_t * sweep_line)
 CAIRO_COMBSORT_DECLARE(_rectangle_sort, rectangle_t *, rectangle_compare_start)
 
 static void sweep_line_init(sweep_line_t * sweep_line, rectangle_t ** rectangles, int num_rectangles,
-    cairo_fill_rule_t fill_rule, cairo_bool_t do_traps, void * container)
+    cairo_fill_rule_t fill_rule, boolint do_traps, void * container)
 {
 	rectangles[-2] = NULL;
 	rectangles[-1] = NULL;
@@ -521,9 +521,9 @@ static inline void sweep_line_delete_edge(sweep_line_t * sweep, edge_t * edge)
 	edge->next->prev = edge->prev;
 }
 
-static inline cairo_bool_t sweep_line_delete(sweep_line_t * sweep, rectangle_t * rectangle)
+static inline boolint sweep_line_delete(sweep_line_t * sweep, rectangle_t * rectangle)
 {
-	cairo_bool_t update;
+	boolint update;
 
 	update = TRUE;
 	if(sweep->fill_rule == CAIRO_FILL_RULE_WINDING &&
@@ -556,13 +556,13 @@ static inline void sweep_line_insert(sweep_line_t * sweep, rectangle_t * rectang
 static cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular(rectangle_t  ** rectangles,
     int num_rectangles,
     cairo_fill_rule_t fill_rule,
-    cairo_bool_t do_traps,
+    boolint do_traps,
     void * container)
 {
 	sweep_line_t sweep_line;
 	rectangle_t * rectangle;
 	cairo_status_t status;
-	cairo_bool_t update;
+	boolint update;
 	sweep_line_init(&sweep_line, rectangles, num_rectangles, fill_rule, do_traps, container);
 	if((status = (cairo_status_t)setjmp(sweep_line.unwind)))
 		return status;

@@ -126,7 +126,7 @@ cairo_int_status_t _cairo_gl_composite_set_source(cairo_gl_composite_t * setup,
     const cairo_pattern_t * pattern,
     const cairo_rectangle_int_t * sample,
     const cairo_rectangle_int_t * extents,
-    cairo_bool_t use_texgen)
+    boolint use_texgen)
 {
 	_cairo_gl_operand_destroy(&setup->src);
 	return _cairo_gl_operand_init(&setup->src, pattern, setup->dst,
@@ -156,7 +156,7 @@ cairo_int_status_t _cairo_gl_composite_set_mask(cairo_gl_composite_t * setup,
     const cairo_pattern_t * pattern,
     const cairo_rectangle_int_t * sample,
     const cairo_rectangle_int_t * extents,
-    cairo_bool_t use_texgen)
+    boolint use_texgen)
 {
 	_cairo_gl_operand_destroy(&setup->mask);
 	if(pattern == NULL)
@@ -276,10 +276,10 @@ static void _cairo_gl_context_setup_operand(cairo_gl_context_t * ctx,
     cairo_gl_tex_t tex_unit,
     cairo_gl_operand_t * operand,
     uint vertex_offset,
-    cairo_bool_t vertex_size_changed)
+    boolint vertex_size_changed)
 {
 	cairo_gl_dispatch_t * dispatch = &ctx->dispatch;
-	cairo_bool_t needs_setup;
+	boolint needs_setup;
 
 	/* XXX: we need to do setup when switching from shaders
 	 * to no shaders (or back) */
@@ -343,7 +343,7 @@ static void _cairo_gl_context_setup_operand(cairo_gl_context_t * ctx,
 }
 
 static void _cairo_gl_context_setup_spans(cairo_gl_context_t * ctx,
-    cairo_bool_t spans_enabled,
+    boolint spans_enabled,
     uint vertex_size,
     uint vertex_offset)
 {
@@ -392,7 +392,7 @@ void _cairo_gl_context_destroy_operand(cairo_gl_context_t * ctx,
 	memzero(&ctx->operands[tex_unit], sizeof(cairo_gl_operand_t));
 }
 
-static void _cairo_gl_set_operator(cairo_gl_context_t * ctx, cairo_operator_t op, cairo_bool_t component_alpha)
+static void _cairo_gl_set_operator(cairo_gl_context_t * ctx, cairo_operator_t op, boolint component_alpha)
 {
 	struct {
 		GLenum src;
@@ -581,10 +581,10 @@ static void _scissor_to_box(cairo_gl_surface_t * surface,
 	_scissor_to_doubles(surface, x1, y1, x2, y2);
 }
 
-static cairo_bool_t _cairo_gl_composite_setup_vbo(cairo_gl_context_t * ctx,
+static boolint _cairo_gl_composite_setup_vbo(cairo_gl_context_t * ctx,
     uint size_per_vertex)
 {
-	cairo_bool_t vertex_size_changed = ctx->vertex_size != size_per_vertex;
+	boolint vertex_size_changed = ctx->vertex_size != size_per_vertex;
 	if(vertex_size_changed) {
 		ctx->vertex_size = size_per_vertex;
 		_cairo_gl_composite_flush(ctx);
@@ -683,8 +683,8 @@ static cairo_int_status_t _cairo_gl_composite_setup_clipping(cairo_gl_composite_
     cairo_gl_context_t * ctx,
     int vertex_size)
 {
-	cairo_bool_t clip_changing = TRUE;
-	cairo_bool_t clip_region_changing = TRUE;
+	boolint clip_changing = TRUE;
+	boolint clip_region_changing = TRUE;
 
 	if(!ctx->clip && !setup->clip && !setup->clip_region && !ctx->clip_region)
 		goto disable_all_clipping;
@@ -728,8 +728,8 @@ cairo_status_t _cairo_gl_set_operands_and_operator(cairo_gl_composite_t * setup,
 	uint dst_size, src_size, mask_size, vertex_size;
 	cairo_status_t status;
 	cairo_gl_shader_t * shader;
-	cairo_bool_t component_alpha;
-	cairo_bool_t vertex_size_changed;
+	boolint component_alpha;
+	boolint vertex_size_changed;
 
 	component_alpha =
 	    setup->mask.type == CAIRO_GL_OPERAND_TEXTURE &&
@@ -1188,7 +1188,7 @@ void _cairo_gl_composite_fini(cairo_gl_composite_t * setup)
 
 cairo_status_t _cairo_gl_composite_set_operator(cairo_gl_composite_t * setup,
     cairo_operator_t op,
-    cairo_bool_t assume_component_alpha)
+    boolint assume_component_alpha)
 {
 	if(assume_component_alpha) {
 		if(op != CAIRO_OPERATOR_CLEAR &&
@@ -1204,7 +1204,7 @@ cairo_status_t _cairo_gl_composite_set_operator(cairo_gl_composite_t * setup,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_status_t _cairo_gl_composite_init(cairo_gl_composite_t * setup, cairo_operator_t op, cairo_gl_surface_t * dst, cairo_bool_t assume_component_alpha)
+cairo_status_t _cairo_gl_composite_init(cairo_gl_composite_t * setup, cairo_operator_t op, cairo_gl_surface_t * dst, boolint assume_component_alpha)
 {
 	cairo_status_t status = _blit_texture_to_renderbuffer(dst);
 	memzero(setup, sizeof(cairo_gl_composite_t));

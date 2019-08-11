@@ -41,7 +41,7 @@
 
 static void _cairo_cache_shrink_to_accommodate(cairo_cache_t * cache, ulong additional);
 
-static cairo_bool_t _cairo_cache_entry_is_non_zero(const void * entry)
+static boolint _cairo_cache_entry_is_non_zero(const void * entry)
 {
 	return ((const cairo_cache_entry_t*)entry)->size;
 }
@@ -188,7 +188,7 @@ void * FASTCALL _cairo_cache_lookup(cairo_cache_t * cache, cairo_cache_entry_t *
  * Return value: %TRUE if an entry was successfully removed.
  * %FALSE if there are no entries that can be removed.
  **/
-static cairo_bool_t _cairo_cache_remove_random(cairo_cache_t * cache)
+static boolint _cairo_cache_remove_random(cairo_cache_t * cache)
 {
 	cairo_cache_entry_t * entry = (cairo_cache_entry_t *)_cairo_hash_table_random_entry(cache->hash_table, cache->predicate);
 	if(unlikely(entry == NULL))

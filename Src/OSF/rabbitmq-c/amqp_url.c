@@ -33,16 +33,13 @@
  * ***** END LICENSE BLOCK *****
  */
 #include "amqp_private.h"
+#pragma hdrstop
 #ifdef _MSC_VER
 	#define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <limits.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-void amqp_default_connection_info(struct amqp_connection_info * ci) {
+void amqp_default_connection_info(struct amqp_connection_info * ci) 
+{
 	/* Apply defaults */
 	ci->user = "guest";
 	ci->password = "guest";
@@ -102,15 +99,14 @@ static char find_delim(char ** pp, int colon_and_at_sign_are_delims)
 }
 
 /* Parse an AMQP URL into its component parts. */
-int amqp_parse_url(char * url, struct amqp_connection_info * parsed) {
+int amqp_parse_url(char * url, struct amqp_connection_info * parsed) 
+{
 	int res = AMQP_STATUS_BAD_URL;
 	char delim;
 	char * start;
 	char * host;
 	char * port = NULL;
-
 	amqp_default_connection_info(parsed);
-
 	/* check the prefix */
 	if(!strncmp(url, "amqp://", 7)) {
 		/* do nothing */
@@ -122,10 +118,8 @@ int amqp_parse_url(char * url, struct amqp_connection_info * parsed) {
 	else {
 		goto out;
 	}
-
 	host = start = url += (parsed->ssl ? 8 : 7);
 	delim = find_delim(&url, 1);
-
 	if(delim == ':') {
 		/* The colon could be introducing the port or the
 		   password part of the userinfo.  We don't know yet,
@@ -133,7 +127,6 @@ int amqp_parse_url(char * url, struct amqp_connection_info * parsed) {
 		port = start = url;
 		delim = find_delim(&url, 1);
 	}
-
 	if(delim == '@') {
 		/* What might have been the host and port were in fact
 		   the username and password */

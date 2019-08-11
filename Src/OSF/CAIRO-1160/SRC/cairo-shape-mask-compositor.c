@@ -223,7 +223,7 @@ static cairo_int_status_t _cairo_shape_mask_compositor_glyphs(const cairo_compos
     cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_bool_t overlap)
+    boolint overlap)
 {
 	cairo_surface_t * mask;
 	cairo_surface_pattern_t pattern;

@@ -117,7 +117,7 @@ struct Config {
 };
 
 struct CheckStruct {
-	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0) //@erikN v10.4.12 add "Stt(0),"
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0) //@erik v10.4.12 add "Stt(0),"
 	{
 	}
 	void Clear()
@@ -128,7 +128,7 @@ struct CheckStruct {
 		Department = 0;
 		Tax = 0;
 		Ptt = 0; // @v10.4.1
-		Stt = 0; // @erikM v10.4.12
+		Stt = 0; // @erik v10.4.12
 		// @v9.9.4 if(Text.NotEmpty())
 		// @v9.9.4 	Text.Destroy();
 		Text.Z(); // @v9.9.4
@@ -145,7 +145,7 @@ struct CheckStruct {
 	int    Department;
 	int    Tax;
 	int    Ptt; // @v10.4.1 // CCheckPacket::PaymentTermTag
-	int    Stt; // @erikE v10.4.12
+	int    Stt; // @erik v10.4.12
 	SString Text;
 	SString Code; // @v9.5.7
 	double PaymCash;
@@ -980,7 +980,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					else if(param_val.IsEqiAscii("PTT_CREDIT"))
 						Check.Ptt = 7;
 				}
-				//@erikG v10.4.12{
+				//@erik v10.4.12{
 				else if (s_param == "SUBJTERMTAG") {
 					if (param_val.IsEqiAscii("STT_GOOD"))
 						Check.Stt = 1;

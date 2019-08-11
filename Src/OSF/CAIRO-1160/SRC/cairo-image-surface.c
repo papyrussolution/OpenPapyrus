@@ -81,7 +81,7 @@
  * Since: 1.8
  **/
 
-static cairo_bool_t FASTCALL _cairo_image_surface_is_size_valid(int width, int height)
+static boolint FASTCALL _cairo_image_surface_is_size_valid(int width, int height)
 {
 	return (0 <= width  &&  width <= MAX_IMAGE_SIZE && 0 <= height && height <= MAX_IMAGE_SIZE);
 }
@@ -164,7 +164,7 @@ cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * 
 	return &surface->base;
 }
 
-cairo_bool_t _pixman_format_from_masks(const cairo_format_masks_t * masks, pixman_format_code_t * format_ret)
+boolint _pixman_format_from_masks(const cairo_format_masks_t * masks, pixman_format_code_t * format_ret)
 {
 	pixman_format_code_t format;
 	int format_type;
@@ -203,7 +203,7 @@ cairo_bool_t _pixman_format_from_masks(const cairo_format_masks_t * masks, pixma
 /* A mask consisting of N bits set to 1. */
 #define MASK(N) ((1UL << (N))-1)
 
-cairo_bool_t _pixman_format_to_masks(pixman_format_code_t format, cairo_format_masks_t * masks)
+boolint _pixman_format_to_masks(pixman_format_code_t format, cairo_format_masks_t * masks)
 {
 	masks->bpp = PIXMAN_FORMAT_BPP(format);
 	/* Number of bits in each channel */
@@ -711,7 +711,7 @@ void _cairo_image_surface_release_source_image(void * abstract_surface, cairo_im
 }
 
 /* high level image interface */
-cairo_bool_t _cairo_image_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
+boolint _cairo_image_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
 	cairo_image_surface_t * surface = static_cast<cairo_image_surface_t *>(abstract_surface);
 	rectangle->x = 0;

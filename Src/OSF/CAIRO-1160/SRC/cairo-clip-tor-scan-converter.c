@@ -1347,7 +1347,7 @@ static void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter
 	polygon_add_edge(converter->polygon, &e, clip);
 }
 
-static cairo_bool_t active_list_is_vertical(struct active_list * active)
+static boolint active_list_is_vertical(struct active_list * active)
 {
 	for(struct edge * e = active->head; e != NULL; e = e->next) {
 		if(!e->vertical)

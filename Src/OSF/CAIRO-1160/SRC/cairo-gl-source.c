@@ -53,7 +53,7 @@ static const cairo_surface_backend_t cairo_gl_source_backend = {
 };
 
 cairo_surface_t * _cairo_gl_pattern_to_source(cairo_surface_t * dst, const cairo_pattern_t * pattern,
-    cairo_bool_t is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
+    boolint is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
 {
 	cairo_gl_source_t * source;
 	cairo_int_status_t status;

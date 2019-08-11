@@ -97,9 +97,9 @@ struct _cairo_xcb_surface {
     cairo_xcb_screen_t *screen;
 
     xcb_drawable_t drawable;
-    cairo_bool_t owns_pixmap;
+    boolint owns_pixmap;
 
-    cairo_bool_t deferred_clear;
+    boolint deferred_clear;
     cairo_color_t deferred_clear_color;
 
     int width;
@@ -126,7 +126,7 @@ struct _cairo_xcb_picture {
 
     cairo_extend_t extend;
     cairo_filter_t filter;
-    cairo_bool_t has_component_alpha;
+    boolint has_component_alpha;
     xcb_render_transform_t transform;
 
     int x0, y0;
@@ -202,7 +202,7 @@ struct _cairo_xcb_screen {
     cairo_list_t surfaces;
     cairo_list_t pictures;
 
-    cairo_bool_t has_font_options;
+    boolint has_font_options;
     cairo_font_options_t font_options;
 };
 
@@ -243,9 +243,9 @@ struct _cairo_xcb_connection {
 };
 
 struct _cairo_xcb_resources {
-    cairo_bool_t xft_antialias;
+    boolint xft_antialias;
     int xft_lcdfilter;
-    cairo_bool_t xft_hinting;
+    boolint xft_hinting;
     int xft_hintstyle;
     int xft_rgba;
 };
@@ -293,7 +293,7 @@ cairo_private extern const cairo_surface_backend_t _cairo_xcb_surface_backend;
  *
  * Return value: %TRUE if the surface is an xcb surface
  **/
-static inline cairo_bool_t
+static inline boolint
 _cairo_surface_is_xcb (const cairo_surface_t *surface)
 {
     /* _cairo_surface_nil sets a NULL backend so be safe */
@@ -345,7 +345,7 @@ _cairo_xcb_connection_destroy (cairo_xcb_connection_t *connection)
 cairo_private cairo_int_status_t
 _cairo_xcb_connection_allocate_shm_info (cairo_xcb_connection_t *display,
 					 size_t size,
-					 cairo_bool_t might_reuse,
+					 boolint might_reuse,
 					 cairo_xcb_shm_info_t **shm_info_out);
 
 cairo_private void
@@ -411,13 +411,13 @@ _cairo_xcb_surface_create_similar (void			*abstract_other,
 cairo_private cairo_surface_t *
 _cairo_xcb_surface_create_internal (cairo_xcb_screen_t		*screen,
 				    xcb_drawable_t		 drawable,
-				    cairo_bool_t		 owns_pixmap,
+				    boolint		 owns_pixmap,
 				    pixman_format_code_t	 pixman_format,
 				    xcb_render_pictformat_t	 xrender_format,
 				    int				 width,
 				    int				 height);
 
-cairo_private_no_warn cairo_bool_t
+cairo_private_no_warn boolint
 _cairo_xcb_surface_get_extents (void *abstract_surface,
 				cairo_rectangle_int_t *extents);
 
@@ -453,7 +453,7 @@ _cairo_xcb_render_compositor_glyphs (const cairo_compositor_t     *compositor,
 				     cairo_scaled_font_t          *scaled_font,
 				     cairo_glyph_t                *glyphs,
 				     int                           num_glyphs,
-				     cairo_bool_t                  overlap);
+				     boolint                  overlap);
 cairo_private void
 _cairo_xcb_surface_scaled_font_fini (cairo_scaled_font_t *scaled_font);
 
@@ -567,7 +567,7 @@ _cairo_xcb_shm_image_create (cairo_xcb_connection_t *connection,
 cairo_private uint32_t
 _cairo_xcb_connection_shm_attach (cairo_xcb_connection_t *connection,
 				  uint32_t id,
-				  cairo_bool_t readonly);
+				  boolint readonly);
 
 cairo_private void
 _cairo_xcb_connection_shm_put_image (cairo_xcb_connection_t *connection,

@@ -52,17 +52,17 @@ static const cairo_surface_backend_t _cairo_gl_surface_backend;
 
 static cairo_status_t _cairo_gl_surface_flush(void * abstract_surface, unsigned flags);
 
-static cairo_bool_t _cairo_surface_is_gl(cairo_surface_t * surface)
+static boolint _cairo_surface_is_gl(cairo_surface_t * surface)
 {
 	return surface->backend == &_cairo_gl_surface_backend;
 }
 
-static cairo_bool_t _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pixman_format,
+static boolint _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pixman_format,
     GLenum * internal_format, GLenum * format,
-    GLenum * type, cairo_bool_t * has_alpha,
-    cairo_bool_t * needs_swap)
+    GLenum * type, boolint * has_alpha,
+    boolint * needs_swap)
 {
-	cairo_bool_t is_little_endian = _cairo_is_little_endian();
+	boolint is_little_endian = _cairo_is_little_endian();
 
 	*has_alpha = TRUE;
 
@@ -167,10 +167,10 @@ static cairo_bool_t _cairo_gl_get_image_format_and_type_gles2(pixman_format_code
 	}
 }
 
-static cairo_bool_t _cairo_gl_get_image_format_and_type_gl(pixman_format_code_t pixman_format,
+static boolint _cairo_gl_get_image_format_and_type_gl(pixman_format_code_t pixman_format,
     GLenum * internal_format, GLenum * format,
-    GLenum * type, cairo_bool_t * has_alpha,
-    cairo_bool_t * needs_swap)
+    GLenum * type, boolint * has_alpha,
+    boolint * needs_swap)
 {
 	*has_alpha = TRUE;
 	*needs_swap = FALSE;
@@ -323,11 +323,11 @@ static cairo_status_t _cairo_gl_surface_extract_image_data(cairo_image_surface_t
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_bool_t _cairo_gl_get_image_format_and_type(cairo_gl_flavor_t flavor,
+boolint _cairo_gl_get_image_format_and_type(cairo_gl_flavor_t flavor,
     pixman_format_code_t pixman_format,
     GLenum * internal_format, GLenum * format,
-    GLenum * type, cairo_bool_t * has_alpha,
-    cairo_bool_t * needs_swap)
+    GLenum * type, boolint * has_alpha,
+    boolint * needs_swap)
 {
 	if(flavor == CAIRO_GL_FLAVOR_DESKTOP)
 		return _cairo_gl_get_image_format_and_type_gl(pixman_format,
@@ -341,7 +341,7 @@ cairo_bool_t _cairo_gl_get_image_format_and_type(cairo_gl_flavor_t flavor,
 			   needs_swap);
 }
 
-cairo_bool_t _cairo_gl_operator_is_supported(cairo_operator_t op)
+boolint _cairo_gl_operator_is_supported(cairo_operator_t op)
 {
 	return op < CAIRO_OPERATOR_SATURATE;
 }
@@ -380,12 +380,12 @@ void _cairo_gl_surface_init(cairo_device_t * device, cairo_gl_surface_t * surfac
 	_cairo_gl_surface_embedded_operand_init(surface);
 }
 
-static cairo_bool_t _cairo_gl_surface_size_valid_for_context(cairo_gl_context_t * ctx, int width, int height)
+static boolint _cairo_gl_surface_size_valid_for_context(cairo_gl_context_t * ctx, int width, int height)
 {
 	return width > 0 && height > 0 && width <= ctx->max_framebuffer_size && height <= ctx->max_framebuffer_size;
 }
 
-static cairo_bool_t _cairo_gl_surface_size_valid(cairo_gl_surface_t * surface, int width, int height)
+static boolint _cairo_gl_surface_size_valid(cairo_gl_surface_t * surface, int width, int height)
 {
 	cairo_gl_context_t * ctx = (cairo_gl_context_t*)surface->base.device;
 	return _cairo_gl_surface_size_valid_for_context(ctx, width, height);
@@ -409,7 +409,7 @@ static cairo_surface_t * _cairo_gl_surface_create_scratch_for_texture(cairo_gl_c
 	return &surface->base;
 }
 
-static cairo_surface_t * _create_scratch_internal(cairo_gl_context_t * ctx, cairo_content_t content, int width, int height, cairo_bool_t for_caching)
+static cairo_surface_t * _create_scratch_internal(cairo_gl_context_t * ctx, cairo_content_t content, int width, int height, boolint for_caching)
 {
 	cairo_gl_surface_t * surface;
 	GLenum format;
@@ -780,10 +780,10 @@ cairo_status_t _cairo_gl_surface_draw_image(cairo_gl_surface_t * dst,
     int src_x, int src_y,
     int width, int height,
     int dst_x, int dst_y,
-    cairo_bool_t force_flush)
+    boolint force_flush)
 {
 	GLenum internal_format, format, type;
-	cairo_bool_t has_alpha, needs_swap;
+	boolint has_alpha, needs_swap;
 	cairo_image_surface_t * clone = NULL;
 	cairo_gl_context_t * ctx;
 	int cpp;
@@ -798,7 +798,7 @@ cairo_status_t _cairo_gl_surface_draw_image(cairo_gl_surface_t * dst,
 	    _cairo_gl_get_flavor() == CAIRO_GL_FLAVOR_ES2) {
 		pixman_format_code_t pixman_format;
 		cairo_surface_pattern_t pattern;
-		cairo_bool_t require_conversion = FALSE;
+		boolint require_conversion = FALSE;
 		pixman_format = _cairo_is_little_endian() ? PIXMAN_a8b8g8r8 : PIXMAN_r8g8b8a8;
 
 		if(src->base.content != CAIRO_CONTENT_ALPHA) {
@@ -840,7 +840,7 @@ cairo_status_t _cairo_gl_surface_draw_image(cairo_gl_surface_t * dst,
 	    &type,
 	    &has_alpha,
 	    &needs_swap)) {
-		cairo_bool_t is_supported;
+		boolint is_supported;
 
 		clone = _cairo_image_surface_coerce(src);
 		if(unlikely(status = clone->base.status))
@@ -1040,7 +1040,7 @@ static cairo_image_surface_t * _cairo_gl_surface_map_to_image(void * abstract_su
 	GLenum format, type;
 	pixman_format_code_t pixman_format;
 	uint cpp;
-	cairo_bool_t flipped, mesa_invert;
+	boolint flipped, mesa_invert;
 	cairo_status_t status;
 	int y;
 
@@ -1081,7 +1081,7 @@ static cairo_image_surface_t * _cairo_gl_surface_map_to_image(void * abstract_su
 		* support GL_PACK_ROW_LENGTH anyway, and this makes sure that the
 		* pixman image that is created has row_stride = row_width * bpp. */
 		if(surface->base.content == CAIRO_CONTENT_ALPHA || !ctx->can_read_bgra) {
-			cairo_bool_t little_endian = _cairo_is_little_endian();
+			boolint little_endian = _cairo_is_little_endian();
 			format = GL_RGBA;
 
 			if(surface->base.content == CAIRO_CONTENT_COLOR) {
@@ -1256,7 +1256,7 @@ static cairo_int_status_t _cairo_gl_surface_unmap_image(void * abstract_surface,
 	return status;
 }
 
-static cairo_bool_t _cairo_gl_surface_get_extents(void * abstract_surface,
+static boolint _cairo_gl_surface_get_extents(void * abstract_surface,
     cairo_rectangle_int_t * rectangle)
 {
 	cairo_gl_surface_t * surface = abstract_surface;

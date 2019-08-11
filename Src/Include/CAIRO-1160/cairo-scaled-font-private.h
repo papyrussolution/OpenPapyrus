@@ -101,8 +101,8 @@ struct _cairo_scaled_font {
 	cairo_mutex_t mutex; /* The mutex protects modification to all subsequent fields. */
 	cairo_hash_table_t * glyphs;
 	cairo_list_t glyph_pages;
-	cairo_bool_t cache_frozen;
-	cairo_bool_t global_cache_frozen;
+	boolint cache_frozen;
+	boolint global_cache_frozen;
 	cairo_list_t dev_privates;
 	/* font backend managing this scaled font */
 	const cairo_scaled_font_backend_t * backend;
@@ -144,7 +144,7 @@ cairo_private void _cairo_scaled_font_attach_private(cairo_scaled_font_t * scale
 cairo_private cairo_scaled_glyph_private_t * _cairo_scaled_glyph_find_private(cairo_scaled_glyph_t * scaled_glyph, const void * key);
 cairo_private void _cairo_scaled_glyph_attach_private(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_glyph_private_t * priv,
     const void * key, void (* destroy)(cairo_scaled_glyph_private_t *, cairo_scaled_glyph_t *, cairo_scaled_font_t *));
-cairo_private cairo_bool_t _cairo_scaled_font_has_color_glyphs(cairo_scaled_font_t * scaled_font);
+cairo_private boolint _cairo_scaled_font_has_color_glyphs(cairo_scaled_font_t * scaled_font);
 
 CAIRO_END_DECLS
 

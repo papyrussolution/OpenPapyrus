@@ -6,16 +6,9 @@
  * Gary Pennington <Gary.Pennington@uk.sun.com>
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#ifdef HAVE_SYS_TYPES_H
-	//#include <sys/types.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
 #ifdef HAVE_PTHREAD_H
 	#include <pthread.h>
 #elif defined HAVE_WIN32_THREADS
@@ -482,18 +475,13 @@ void __xmlGlobalInitMutexDestroy()
 	}
 #endif
 }
-
-/************************************************************************
-*									*
-*			Per thread global state handling		*
-*									*
-************************************************************************/
-
+// 
+// Per thread global state handling
+// 
 #ifdef LIBXML_THREAD_ENABLED
 #ifdef xmlLastError
-#undef xmlLastError
+	#undef xmlLastError
 #endif
-
 /**
  * xmlFreeGlobalState:
  * @state:  a thread global state

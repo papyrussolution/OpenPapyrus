@@ -58,7 +58,7 @@ typedef struct _cairo_pdf_resource {
 #define CAIRO_NUM_OPERATORS (CAIRO_OPERATOR_HSL_LUMINOSITY + 1)
 
 typedef struct _cairo_pdf_group_resources {
-    cairo_bool_t  operators[CAIRO_NUM_OPERATORS];
+    boolint  operators[CAIRO_NUM_OPERATORS];
     cairo_array_t alphas;
     cairo_array_t smasks;
     cairo_array_t patterns;
@@ -73,18 +73,18 @@ typedef struct _cairo_pdf_source_surface_entry {
     uchar *unique_id;
     ulong unique_id_length;
     cairo_operator_t Oprtr;
-    cairo_bool_t interpolate;
-    cairo_bool_t stencil_mask;
-    cairo_bool_t smask;
-    cairo_bool_t need_transp_group;
+    boolint interpolate;
+    boolint stencil_mask;
+    boolint smask;
+    boolint need_transp_group;
     cairo_pdf_resource_t surface_res;
     cairo_pdf_resource_t smask_res;
 
     /* True if surface will be emitted as an Image XObject. */
-    cairo_bool_t emit_image;
+    boolint emit_image;
 
     /* Extents of the source surface. */
-    cairo_bool_t bounded;
+    boolint bounded;
     cairo_rectangle_int_t extents;
 
     /* Union of source extents required for all operations using this source */
@@ -106,7 +106,7 @@ typedef struct _cairo_pdf_pattern {
     cairo_pdf_resource_t pattern_res;
     cairo_pdf_resource_t gstate_res;
     cairo_operator_t Oprtr;
-    cairo_bool_t is_shading;
+    boolint is_shading;
 
     /* PDF pattern space is the pattern matrix concatenated with the
  * initial space of the parent object. If the parent object is the
@@ -117,7 +117,7 @@ typedef struct _cairo_pdf_pattern {
  * when the initial space of the parent object that is drawing
  * this pattern has a flipped Y-axis.
      */
-    cairo_bool_t inverted_y_axis;
+    boolint inverted_y_axis;
 } cairo_pdf_pattern_t;
 
 typedef enum _cairo_pdf_operation {
@@ -148,7 +148,7 @@ typedef struct _cairo_pdf_smask_group {
     int			  num_glyphs;
     cairo_text_cluster_t *clusters;
     int                   num_clusters;
-    cairo_bool_t          cluster_flags;
+    boolint          cluster_flags;
     cairo_scaled_font_t	 *scaled_font;
 } cairo_pdf_smask_group_t;
 
@@ -156,7 +156,7 @@ typedef struct _cairo_pdf_jbig2_global {
     uchar *id;
     ulong id_length;
     cairo_pdf_resource_t  res;
-    cairo_bool_t emitted;
+    boolint emitted;
 } cairo_pdf_jbig2_global_t;
 
 /* cairo-pdf-interchange.c types */
@@ -168,7 +168,7 @@ struct page_mcid {
 
 struct tag_extents {
     cairo_rectangle_int_t extents;
-    cairo_bool_t valid;
+    boolint valid;
     cairo_list_t link;
 };
 
@@ -256,9 +256,9 @@ struct _cairo_pdf_surface {
     double width;
     double height;
     cairo_rectangle_int_t surface_extents;
-    cairo_bool_t surface_bounded;
+    boolint surface_bounded;
     cairo_matrix_t cairo_to_pdf;
-    cairo_bool_t in_xobject;
+    boolint in_xobject;
 
     cairo_array_t objects;
     cairo_array_t pages;
@@ -281,44 +281,44 @@ struct _cairo_pdf_surface {
     cairo_pdf_resource_t struct_tree_root;
 
     cairo_pdf_version_t pdf_version;
-    cairo_bool_t compress_content;
+    boolint compress_content;
 
     cairo_pdf_resource_t content;
     cairo_pdf_resource_t content_resources;
     cairo_pdf_group_resources_t resources;
-    cairo_bool_t has_fallback_images;
-    cairo_bool_t header_emitted;
+    boolint has_fallback_images;
+    boolint header_emitted;
 
     struct {
-	cairo_bool_t active;
+	boolint active;
 	cairo_pdf_resource_t self;
 	cairo_pdf_resource_t length;
 	long start_offset;
-	cairo_bool_t compressed;
+	boolint compressed;
 	cairo_output_stream_t *old_output;
     } pdf_stream;
 
     struct {
-	cairo_bool_t active;
+	boolint active;
 	cairo_output_stream_t *stream;
 	cairo_output_stream_t *mem_stream;
 	cairo_output_stream_t *old_output;
 	cairo_pdf_resource_t   resource;
 	cairo_box_double_t     bbox;
-	cairo_bool_t is_knockout;
+	boolint is_knockout;
     } group_stream;
 
     cairo_surface_clipper_t clipper;
 
     cairo_pdf_operators_t pdf_operators;
     cairo_paginated_mode_t paginated_mode;
-    cairo_bool_t select_pattern_gstate_saved;
+    boolint select_pattern_gstate_saved;
 
-    cairo_bool_t force_fallbacks;
+    boolint force_fallbacks;
 
     cairo_operator_t current_operator;
-    cairo_bool_t current_pattern_is_solid_color;
-    cairo_bool_t current_color_is_stroke;
+    boolint current_pattern_is_solid_color;
+    boolint current_color_is_stroke;
     double current_color_red;
     double current_color_green;
     double current_color_blue;
@@ -327,7 +327,7 @@ struct _cairo_pdf_surface {
     cairo_pdf_interchange_t interchange;
     int page_parent_tree; /* -1 if not used */
     cairo_array_t page_annots;
-    cairo_bool_t tagged;
+    boolint tagged;
     char *current_page_label;
     cairo_array_t page_labels;
     cairo_pdf_resource_t outlines_dict_res;

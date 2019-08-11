@@ -220,9 +220,9 @@ struct _cairo_test_context {
 	cairo_surface_t * ref_image;
 	cairo_surface_t * ref_image_flattened;
 	size_t num_targets;
-	cairo_bool_t limited_targets;
+	boolint limited_targets;
 	const cairo_boilerplate_target_t ** targets_to_test;
-	cairo_bool_t own_targets;
+	boolint own_targets;
 	int malloc_failure;
 	int last_fault_count;
 	int timeout;
@@ -245,9 +245,9 @@ void cairo_test_paint_checkered(cairo_t * cr);
 
 #define CAIRO_TEST_DOUBLE_EQUALS(a, b)  (fabs((a)-(b)) < 0.00001)
 
-cairo_bool_t cairo_test_is_target_enabled(const cairo_test_context_t * ctx, const char * target);
+boolint cairo_test_is_target_enabled(const cairo_test_context_t * ctx, const char * target);
 char * cairo_test_get_name(const cairo_test_t * test);
-cairo_bool_t cairo_test_malloc_failure(const cairo_test_context_t * ctx, cairo_status_t status);
+boolint cairo_test_malloc_failure(const cairo_test_context_t * ctx, cairo_status_t status);
 cairo_test_status_t cairo_test_status_from_status(const cairo_test_context_t * ctx, cairo_status_t status);
 char * cairo_test_reference_filename(const cairo_test_context_t * ctx,
     const char * base_name,
@@ -258,8 +258,8 @@ char * cairo_test_reference_filename(const cairo_test_context_t * ctx,
     const char * suffix,
     const char * extension);
 
-cairo_surface_t * cairo_test_get_reference_image(cairo_test_context_t * ctx, const char * filename, cairo_bool_t flatten);
-cairo_bool_t cairo_test_mkdir(const char * path);
+cairo_surface_t * cairo_test_get_reference_image(cairo_test_context_t * ctx, const char * filename, boolint flatten);
+boolint cairo_test_mkdir(const char * path);
 
 CAIRO_END_DECLS
 

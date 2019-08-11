@@ -114,17 +114,17 @@ static FT_Bool ft_conic_is_small_enough(FT_Vector*  base,
 			/* basically a point;                      */
 			/* do nothing to retain original direction */
 		}
-		else{
+		else {
 			*angle_in  =
 			    *angle_out = FT_Atan2(d2.x, d2.y);
 		}
 	}
-	else{ /* !close1 */
+	else { /* !close1 */
 		if(close2) {
 			*angle_in  =
 			    *angle_out = FT_Atan2(d1.x, d1.y);
 		}
-		else{
+		else {
 			*angle_in  = FT_Atan2(d1.x, d1.y);
 			*angle_out = FT_Atan2(d2.x, d2.y);
 		}
@@ -195,45 +195,45 @@ static FT_Bool ft_cubic_is_small_enough(FT_Vector*  base,
 				/* basically a point;                      */
 				/* do nothing to retain original direction */
 			}
-			else{ /* !close3 */
+			else { /* !close3 */
 				*angle_in  =
 				    *angle_mid =
 				    *angle_out = FT_Atan2(d3.x, d3.y);
 			}
 		}
-		else{ /* !close2 */
+		else { /* !close2 */
 			if(close3) {
 				*angle_in  =
 				    *angle_mid =
 				    *angle_out = FT_Atan2(d2.x, d2.y);
 			}
-			else{ /* !close3 */
+			else { /* !close3 */
 				*angle_in  =
 				    *angle_mid = FT_Atan2(d2.x, d2.y);
 				*angle_out = FT_Atan2(d3.x, d3.y);
 			}
 		}
 	}
-	else{ /* !close1 */
+	else { /* !close1 */
 		if(close2) {
 			if(close3) {
 				*angle_in  =
 				    *angle_mid =
 				    *angle_out = FT_Atan2(d1.x, d1.y);
 			}
-			else{ /* !close3 */
+			else { /* !close3 */
 				*angle_in  = FT_Atan2(d1.x, d1.y);
 				*angle_out = FT_Atan2(d3.x, d3.y);
 				*angle_mid = ft_angle_mean(*angle_in, *angle_out);
 			}
 		}
-		else{ /* !close2 */
+		else { /* !close2 */
 			if(close3) {
 				*angle_in  = FT_Atan2(d1.x, d1.y);
 				*angle_mid =
 				    *angle_out = FT_Atan2(d2.x, d2.y);
 			}
-			else{ /* !close3 */
+			else { /* !close3 */
 				*angle_in  = FT_Atan2(d1.x, d1.y);
 				*angle_mid = FT_Atan2(d2.x, d2.y);
 				*angle_out = FT_Atan2(d3.x, d3.y);
@@ -312,7 +312,7 @@ static void ft_stroke_border_close(FT_StrokeBorder border,
 	/* don't record empty paths! */
 	if(count <= start + 1U)
 		border->num_points = start;
-	else{
+	else {
 		/* copy the last point to the start of this sub-path, since */
 		/* it contains the `adjusted' starting coordinates          */
 		border->num_points    = --count;
@@ -368,7 +368,7 @@ static FT_Error ft_stroke_border_lineto(FT_StrokeBorder border,
 		/* move last point */
 		border->points[border->num_points - 1] = *to;
 	}
-	else{
+	else {
 		/* don't add zero-length lineto */
 		if(border->num_points > 0                                          &&
 		    FT_IS_SMALL(border->points[border->num_points - 1].x - to->x) &&
@@ -882,7 +882,7 @@ static FT_Error ft_stroker_inside(FT_Stroker stroker,
 	if(!border->movable || line_length == 0  ||
 	    theta > 0x59C000 || theta < -0x59C000)
 		intersect = FALSE;
-	else{
+	else {
 		/* compute minimum required length of lines */
 		FT_Fixed min_length = ft_pos_abs(FT_MulFix(stroker->radius,
 			    FT_Tan(theta) ) );
@@ -900,7 +900,7 @@ static FT_Error ft_stroker_inside(FT_Stroker stroker,
 
 		border->movable = FALSE;
 	}
-	else{
+	else {
 		/* compute median angle */
 		phi = stroker->angle_in + theta;
 
@@ -929,7 +929,7 @@ static FT_Error ft_stroker_outside(FT_Stroker stroker,
 
 	if(stroker->line_join == FT_STROKER_LINEJOIN_ROUND)
 		error = ft_stroker_arcto(stroker, side);
-	else{
+	else {
 		/* this is a mitered (pointed) or beveled (truncated) corner */
 		FT_Fixed sigma = 0, radius = stroker->radius;
 		FT_Angle theta = 0, phi = 0;
@@ -951,7 +951,7 @@ static FT_Error ft_stroker_outside(FT_Stroker stroker,
 				theta = rotate;
 				phi   = stroker->angle_in;
 			}
-			else{
+			else {
 				theta /= 2;
 				phi    = stroker->angle_in + theta + rotate;
 			}
@@ -983,7 +983,7 @@ static FT_Error ft_stroker_outside(FT_Stroker stroker,
 				border->movable = FALSE;
 				error = ft_stroke_border_lineto(border, &delta, FALSE);
 			}
-			else{ /* variable bevel */
+			else { /* variable bevel */
 				/* the miter is truncated */
 				FT_Vector middle, delta;
 				FT_Fixed length;
@@ -1030,7 +1030,7 @@ static FT_Error ft_stroker_outside(FT_Stroker stroker,
 				}
 			}
 		}
-		else{ /* this is a miter (intersection) */
+		else { /* this is a miter (intersection) */
 			FT_Fixed length;
 			FT_Vector delta;
 
@@ -1167,7 +1167,7 @@ FT_Stroker_LineTo(FT_Stroker stroker,
 		if(error)
 			goto Exit;
 	}
-	else{
+	else {
 		/* process the current corner */
 		stroker->angle_out = angle;
 		error = ft_stroker_process_corner(stroker, line_length);
@@ -1254,7 +1254,7 @@ FT_Stroker_ConicTo(FT_Stroker stroker,
 			/* process corner if necessary */
 			if(stroker->first_point)
 				error = ft_stroker_subpath_start(stroker, angle_in, 0);
-			else{
+			else {
 				stroker->angle_out = angle_in;
 				error = ft_stroker_process_corner(stroker, 0);
 			}
@@ -1444,7 +1444,7 @@ FT_Stroker_CubicTo(FT_Stroker stroker,
 			/* process corner if necessary */
 			if(stroker->first_point)
 				error = ft_stroker_subpath_start(stroker, angle_in, 0);
-			else{
+			else {
 				stroker->angle_out = angle_in;
 				error = ft_stroker_process_corner(stroker, 0);
 			}
@@ -1648,7 +1648,7 @@ static FT_Error ft_stroker_add_reverse_left(FT_Stroker stroker,
 
 				if(open)
 					dst_tag[0] &= ~FT_STROKE_TAG_BEGIN_END;
-				else{
+				else {
 					FT_Byte ttag =
 					    (FT_Byte)( dst_tag[0] & FT_STROKE_TAG_BEGIN_END );
 
@@ -1715,7 +1715,7 @@ FT_Stroker_EndSubPath(FT_Stroker stroker)
 		/* rewind and doesn't need further processing.             */
 		ft_stroke_border_close(right, FALSE);
 	}
-	else{
+	else {
 		FT_Angle turn;
 		FT_Int inside_side;
 
@@ -1925,7 +1925,7 @@ FT_Stroker_ParseOutline(FT_Stroker stroker,
 				v_start = v_last;
 				limit--;
 			}
-			else{
+			else {
 				/* if both first and last points are conic, */
 				/* start at their middle                    */
 				v_start.x = ( v_start.x + v_last.x ) / 2;

@@ -48,10 +48,10 @@ CAIRO_BEGIN_DECLS
 struct _cairo_surface_wrapper {
 	cairo_surface_t * target;
 	cairo_matrix_t transform;
-	cairo_bool_t has_extents;
+	boolint has_extents;
 	cairo_rectangle_int_t extents;
 	const cairo_clip_t * clip;
-	cairo_bool_t needs_transform;
+	boolint needs_transform;
 };
 
 cairo_private void _cairo_surface_wrapper_init(cairo_surface_wrapper_t * wrapper, cairo_surface_t * target);
@@ -60,7 +60,7 @@ cairo_private void _cairo_surface_wrapper_set_inverse_transform(cairo_surface_wr
 cairo_private void _cairo_surface_wrapper_set_clip(cairo_surface_wrapper_t * wrapper, const cairo_clip_t * clip);
 cairo_private void _cairo_surface_wrapper_fini(cairo_surface_wrapper_t * wrapper);
 
-static inline cairo_bool_t _cairo_surface_wrapper_has_fill_stroke(cairo_surface_wrapper_t * wrapper)
+static inline boolint _cairo_surface_wrapper_has_fill_stroke(cairo_surface_wrapper_t * wrapper)
 {
 	return wrapper->target->backend->fill_stroke != NULL;
 }
@@ -102,7 +102,7 @@ cairo_private cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surfa
     const cairo_clip_t * clip);
 
 cairo_private cairo_status_t _cairo_surface_wrapper_tag(cairo_surface_wrapper_t * wrapper,
-    cairo_bool_t begin,
+    boolint begin,
     const char * tag_name,
     const char * attributes,
     const cairo_pattern_t * source,
@@ -112,12 +112,12 @@ cairo_private cairo_status_t _cairo_surface_wrapper_tag(cairo_surface_wrapper_t 
     const cairo_clip_t  * clip);
 
 cairo_private cairo_surface_t * _cairo_surface_wrapper_create_similar(cairo_surface_wrapper_t * wrapper, cairo_content_t content, int width, int height);
-cairo_private cairo_bool_t _cairo_surface_wrapper_get_extents(cairo_surface_wrapper_t * wrapper, cairo_rectangle_int_t * extents);
+cairo_private boolint _cairo_surface_wrapper_get_extents(cairo_surface_wrapper_t * wrapper, cairo_rectangle_int_t * extents);
 cairo_private void _cairo_surface_wrapper_get_font_options(cairo_surface_wrapper_t  * wrapper, cairo_font_options_t * options);
 cairo_private cairo_surface_t * _cairo_surface_wrapper_snapshot(cairo_surface_wrapper_t * wrapper);
-cairo_private cairo_bool_t _cairo_surface_wrapper_has_show_text_glyphs(cairo_surface_wrapper_t * wrapper);
-static inline cairo_bool_t _cairo_surface_wrapper_is_active(cairo_surface_wrapper_t * wrapper) { return wrapper->target != (cairo_surface_t*)0; }
-cairo_private cairo_bool_t _cairo_surface_wrapper_get_target_extents(cairo_surface_wrapper_t * wrapper, cairo_bool_t surface_is_unbounded, cairo_rectangle_int_t * extents);
+cairo_private boolint _cairo_surface_wrapper_has_show_text_glyphs(cairo_surface_wrapper_t * wrapper);
+static inline boolint _cairo_surface_wrapper_is_active(cairo_surface_wrapper_t * wrapper) { return wrapper->target != (cairo_surface_t*)0; }
+cairo_private boolint _cairo_surface_wrapper_get_target_extents(cairo_surface_wrapper_t * wrapper, boolint surface_is_unbounded, cairo_rectangle_int_t * extents);
 
 CAIRO_END_DECLS
 

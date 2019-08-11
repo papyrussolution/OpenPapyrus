@@ -349,7 +349,7 @@ static FT_Error ft_gzip_file_fill_input(FT_GZipFile zip)
 			return FT_THROW(Invalid_Stream_Operation);
 		}
 	}
-	else{
+	else {
 		size = stream->size - stream->pos;
 		if(size > FT_GZIP_BUFFER_SIZE)
 			size = FT_GZIP_BUFFER_SIZE;
@@ -670,7 +670,7 @@ FT_Gzip_Uncompress(FT_Memory memory,
 		if(err == Z_OK)
 			err = Z_BUF_ERROR;
 	}
-	else{
+	else {
 		*output_len = stream.total_out;
 
 		err = inflateEnd(&stream);

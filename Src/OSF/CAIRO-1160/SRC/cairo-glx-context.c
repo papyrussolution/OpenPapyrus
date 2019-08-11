@@ -52,7 +52,7 @@ typedef struct _cairo_glx_context {
 	GLXContext context;
 	GLXDrawable previous_drawable;
 	GLXContext previous_context;
-	cairo_bool_t has_multithread_makecurrent;
+	boolint has_multithread_makecurrent;
 } cairo_glx_context_t;
 
 typedef struct _cairo_glx_surface {
@@ -60,7 +60,7 @@ typedef struct _cairo_glx_surface {
 	Window win;
 } cairo_glx_surface_t;
 
-static cairo_bool_t _context_acquisition_changed_glx_state(cairo_glx_context_t * ctx, GLXDrawable current_drawable)
+static boolint _context_acquisition_changed_glx_state(cairo_glx_context_t * ctx, GLXDrawable current_drawable)
 {
 	return ctx->previous_drawable != current_drawable || ctx->previous_context != ctx->context;
 }

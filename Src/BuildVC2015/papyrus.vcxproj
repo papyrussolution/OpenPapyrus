@@ -1322,6 +1322,7 @@
     <ClCompile Include="..\PPLib\ppjob.cpp" />
     <ClCompile Include="..\PPLib\Pplog.cpp" />
     <ClCompile Include="..\PPLib\ppmail.cpp" />
+    <ClCompile Include="..\PPLib\ppmqc.cpp" />
     <ClCompile Include="..\PPLib\Ppmsg.cpp" />
     <ClCompile Include="..\PPLib\ppNamedFilt.cpp" />
     <ClCompile Include="..\PPLib\ppngx.cpp" />

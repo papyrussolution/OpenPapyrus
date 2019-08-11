@@ -382,6 +382,7 @@ typedef char              * BCD_T;
 typedef uint16              RECORDSIZE;
 typedef unsigned long       RECORDNUMBER;
 typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
+typedef int                 boolint; // @v10.5.2 Введен с целью унифицировать "рукотворные" целочисленные булевы типы в разных включенных библиотеках
 
 // @v9.1.12 enum Boolean { False, True };
 
@@ -4313,9 +4314,9 @@ void   fnmerge(char *, const char *, const char *, const char *nameP, const char
 // If maxlen == 0, then call strcpy(dest, src)
 // If (src == 0 && dest != 0) then dest[0] = 0;
 //
-char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
-char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
-char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
+char *    FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
+char *    FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
+char *    FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
 // @v9.9.5 (unused) char * SLAPI    wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);

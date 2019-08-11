@@ -167,7 +167,7 @@ static const uchar * _jpx_get_box_contents(const uchar * p)
 	return p + 8;
 }
 
-static cairo_bool_t _jpx_match_box(const uchar * p, const uchar * end, uint32_t type)
+static boolint _jpx_match_box(const uchar * p, const uchar * end, uint32_t type)
 {
 	uint32_t length;
 
@@ -321,7 +321,7 @@ static const uchar * _jbig2_get_next_segment(const uchar * p,
     ulong * data_len)
 {
 	ulong seg_num;
-	cairo_bool_t big_page_size;
+	boolint big_page_size;
 	int num_segs;
 	int ref_seg_bytes;
 	int referred_size;

@@ -84,10 +84,10 @@ cairo_public int cairo_version(void);
 cairo_public const char* cairo_version_string(void);
 
 /**
- * cairo_bool_t:
+ * boolint:
  *
- * #cairo_bool_t is used for boolean values. Returns of type
- * #cairo_bool_t will always be either 0 or 1, but testing against
+ * #boolint is used for boolean values. Returns of type
+ * #boolint will always be either 0 or 1, but testing against
  * these values explicitly is not encouraged; just use the
  * value as a boolean condition.
  *
@@ -99,8 +99,7 @@ cairo_public const char* cairo_version_string(void);
  *
  * Since: 1.0
  **/
-typedef int cairo_bool_t;
-
+typedef int cairo_bool_t_Unused; // @v10.5.2 replaced with boolint
 /**
  * cairo_t:
  *
@@ -823,9 +822,9 @@ cairo_public void cairo_fill_preserve(cairo_t * cr);
 cairo_public void cairo_copy_page(cairo_t * cr);
 cairo_public void cairo_show_page(cairo_t * cr);
 /* Insideness testing */
-cairo_public cairo_bool_t cairo_in_stroke(cairo_t * cr, double x, double y);
-cairo_public cairo_bool_t cairo_in_fill(cairo_t * cr, double x, double y);
-cairo_public cairo_bool_t cairo_in_clip(cairo_t * cr, double x, double y);
+cairo_public boolint cairo_in_stroke(cairo_t * cr, double x, double y);
+cairo_public boolint cairo_in_fill(cairo_t * cr, double x, double y);
+cairo_public boolint cairo_in_clip(cairo_t * cr, double x, double y);
 /* Rectangular extents */
 cairo_public void cairo_stroke_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2);
 cairo_public void cairo_fill_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2);
@@ -1226,7 +1225,7 @@ cairo_public cairo_font_options_t * cairo_font_options_copy(const cairo_font_opt
 cairo_public void cairo_font_options_destroy(cairo_font_options_t * options);
 cairo_public cairo_status_t FASTCALL cairo_font_options_status(const cairo_font_options_t * options);
 cairo_public void cairo_font_options_merge(cairo_font_options_t * options, const cairo_font_options_t * other);
-cairo_public cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other);
+cairo_public boolint cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other);
 cairo_public ulong FASTCALL cairo_font_options_hash(const cairo_font_options_t * options);
 cairo_public void cairo_font_options_set_antialias(cairo_font_options_t * options, cairo_antialias_t antialias);
 cairo_public cairo_antialias_t cairo_font_options_get_antialias(const cairo_font_options_t * options);
@@ -1572,7 +1571,7 @@ cairo_public cairo_operator_t cairo_get_operator(cairo_t * cr);
 cairo_public cairo_pattern_t * cairo_get_source(cairo_t * cr);
 cairo_public double cairo_get_tolerance(cairo_t * cr);
 cairo_public cairo_antialias_t cairo_get_antialias(cairo_t * cr);
-cairo_public cairo_bool_t cairo_has_current_point(cairo_t * cr);
+cairo_public boolint cairo_has_current_point(cairo_t * cr);
 cairo_public void cairo_get_current_point(cairo_t * cr, double * x, double * y);
 cairo_public cairo_fill_rule_t cairo_get_fill_rule(cairo_t * cr);
 cairo_public double cairo_get_line_width(cairo_t * cr);
@@ -1937,7 +1936,7 @@ cairo_public cairo_status_t cairo_surface_set_user_data(cairo_surface_t * surfac
 
 cairo_public void cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_type, const uchar ** data, ulong * length);
 cairo_public cairo_status_t cairo_surface_set_mime_data(cairo_surface_t * surface, const char * mime_type, const uchar * data, ulong length, cairo_destroy_func_t destroy, void * closure);
-cairo_public cairo_bool_t cairo_surface_supports_mime_type(cairo_surface_t * surface, const char * mime_type);
+cairo_public boolint cairo_surface_supports_mime_type(cairo_surface_t * surface, const char * mime_type);
 cairo_public void cairo_surface_get_font_options(cairo_surface_t * surface, cairo_font_options_t * options);
 cairo_public void cairo_surface_flush(cairo_surface_t * surface);
 cairo_public void cairo_surface_mark_dirty(cairo_surface_t * surface);
@@ -1950,7 +1949,7 @@ cairo_public void cairo_surface_set_fallback_resolution(cairo_surface_t * surfac
 cairo_public void cairo_surface_get_fallback_resolution(const cairo_surface_t * surface, double * x_pixels_per_inch, double * y_pixels_per_inch);
 cairo_public void cairo_surface_copy_page(cairo_surface_t * surface);
 cairo_public void cairo_surface_show_page(cairo_surface_t * surface);
-cairo_public cairo_bool_t cairo_surface_has_show_text_glyphs(cairo_surface_t * surface);
+cairo_public boolint cairo_surface_has_show_text_glyphs(cairo_surface_t * surface);
 
 /* Image-surface functions */
 
@@ -1983,7 +1982,7 @@ cairo_public void cairo_recording_surface_ink_extents(cairo_surface_t * surface,
     double * width,
     double * height);
 
-cairo_public cairo_bool_t cairo_recording_surface_get_extents(cairo_surface_t * surface,
+cairo_public boolint cairo_recording_surface_get_extents(cairo_surface_t * surface,
     cairo_rectangle_t * extents);
 
 /* raster-source pattern (callback) functions */
@@ -2286,14 +2285,14 @@ cairo_public cairo_region_t * FASTCALL cairo_region_create_rectangles(const cair
 cairo_public cairo_region_t * cairo_region_copy(const cairo_region_t * original);
 cairo_public cairo_region_t * FASTCALL cairo_region_reference(cairo_region_t * region);
 cairo_public void cairo_region_destroy(cairo_region_t * region);
-cairo_public cairo_bool_t cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b);
+cairo_public boolint cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b);
 cairo_public cairo_status_t cairo_region_status(const cairo_region_t * region);
 cairo_public void cairo_region_get_extents(const cairo_region_t * region, cairo_rectangle_int_t * extents);
 cairo_public int cairo_region_num_rectangles(const cairo_region_t * region);
 cairo_public void FASTCALL cairo_region_get_rectangle(const cairo_region_t * region, int nth, cairo_rectangle_int_t * rectangle);
-cairo_public cairo_bool_t cairo_region_is_empty(const cairo_region_t * region);
+cairo_public boolint cairo_region_is_empty(const cairo_region_t * region);
 cairo_public cairo_region_overlap_t cairo_region_contains_rectangle(const cairo_region_t * region, const cairo_rectangle_int_t * rectangle);
-cairo_public cairo_bool_t cairo_region_contains_point(const cairo_region_t * region, int x, int y);
+cairo_public boolint cairo_region_contains_point(const cairo_region_t * region, int x, int y);
 cairo_public void cairo_region_translate(cairo_region_t * region, int dx, int dy);
 cairo_public cairo_status_t cairo_region_subtract(cairo_region_t * dst, const cairo_region_t * other);
 cairo_public cairo_status_t cairo_region_subtract_rectangle(cairo_region_t * dst, const cairo_rectangle_int_t * rectangle);

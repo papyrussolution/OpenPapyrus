@@ -63,7 +63,7 @@ static inline int pot(int v)
 	return v;
 }
 
-static cairo_bool_t FASTCALL _cairo_clip_contains_rectangle_box(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect, const cairo_box_t * box)
+static boolint FASTCALL _cairo_clip_contains_rectangle_box(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect, const cairo_box_t * box)
 {
 	// clip == NULL means no clip, so the clip contains everything 
 	if(clip == NULL)
@@ -86,14 +86,14 @@ static cairo_bool_t FASTCALL _cairo_clip_contains_rectangle_box(const cairo_clip
 	return FALSE;
 }
 
-cairo_bool_t FASTCALL _cairo_clip_contains_box(const cairo_clip_t * clip, const cairo_box_t * box)
+boolint FASTCALL _cairo_clip_contains_box(const cairo_clip_t * clip, const cairo_box_t * box)
 {
 	cairo_rectangle_int_t rect;
 	_cairo_box_round_to_rectangle(box, &rect);
 	return _cairo_clip_contains_rectangle_box(clip, &rect, box);
 }
 
-cairo_bool_t FASTCALL _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect)
+boolint FASTCALL _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect)
 {
 	cairo_box_t box;
 	_cairo_box_from_rectangle_int(&box, rect);
@@ -117,7 +117,7 @@ cairo_clip_t * _cairo_clip_intersect_rectilinear_path(cairo_clip_t * clip, const
 static cairo_clip_t * _cairo_clip_intersect_rectangle_box(cairo_clip_t * clip, const cairo_rectangle_int_t * r, const cairo_box_t * box)
 {
 	cairo_box_t extents_box;
-	cairo_bool_t changed = FALSE;
+	boolint changed = FALSE;
 	int i, j;
 	if(clip == NULL) {
 		clip = _cairo_clip_create();
@@ -211,7 +211,7 @@ cairo_clip_t * _cairo_clip_intersect_box(cairo_clip_t * clip, const cairo_box_t 
  * @returns      Zero if the allocation failed (the clip will be set to
  * all-clipped), otherwise non-zero.
  */
-static cairo_bool_t _cairo_boxes_copy_to_clip(const cairo_boxes_t * boxes, cairo_clip_t * clip)
+static boolint _cairo_boxes_copy_to_clip(const cairo_boxes_t * boxes, cairo_clip_t * clip)
 {
 	/* XXX cow-boxes? */
 	if(boxes->num_boxes == 1) {
@@ -292,7 +292,7 @@ struct reduce {
 	cairo_clip_t * clip;
 	cairo_box_t limit;
 	cairo_box_t extents;
-	cairo_bool_t inside;
+	boolint inside;
 	cairo_point_t current_point;
 	cairo_point_t last_move_to;
 };

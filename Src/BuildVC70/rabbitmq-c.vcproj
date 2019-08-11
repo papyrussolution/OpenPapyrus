@@ -31,6 +31,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				AssemblerListingLocation="Debug/"
 				ObjectFile="$(IntDir)"
 				WarningLevel="3"
@@ -95,6 +98,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				AssemblerListingLocation="Release/"
 				ObjectFile="$(IntDir)"
 				WarningLevel="3"
@@ -146,6 +152,25 @@
 			Name="Source Files"
 			Filter="">
 			<File
+				RelativePath="..\Osf\rabbitmq-c\amqp-pch.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough=""
+						PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough=""
+						PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\Osf\rabbitmq-c\amqp_api.c">
 			</File>
 			<File
@@ -186,9 +211,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\rabbitmq-c\amqp_url.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\win32\threads.c">
 			</File>
 		</Filter>
 		<Filter

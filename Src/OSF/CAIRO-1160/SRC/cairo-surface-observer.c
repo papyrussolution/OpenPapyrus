@@ -115,7 +115,7 @@ static void init_glyphs(struct _cairo_observation::Glyphs * g)
 	init_clip(&g->clip);
 }
 
-static cairo_status_t log_init(cairo_observation_t * log, cairo_bool_t record)
+static cairo_status_t log_init(cairo_observation_t * log, boolint record)
 {
 	memzero(log, sizeof(*log));
 	init_paint(&log->paint);
@@ -171,7 +171,7 @@ static void FASTCALL add_pattern(struct pattern * stats, const cairo_pattern_t *
 	stats->type[classify_pattern(pattern, target)]++;
 }
 
-static int classify_path(const cairo_path_fixed_t * path, cairo_bool_t is_fill)
+static int classify_path(const cairo_path_fixed_t * path, boolint is_fill)
 {
 	/* XXX improve for stroke */
 	int classify = -1;
@@ -190,7 +190,7 @@ static int classify_path(const cairo_path_fixed_t * path, cairo_bool_t is_fill)
 	return classify;
 }
 
-static void add_path(struct path * stats, const cairo_path_fixed_t * path, cairo_bool_t is_fill)
+static void add_path(struct path * stats, const cairo_path_fixed_t * path, boolint is_fill)
 {
 	stats->type[classify_path(path, is_fill)]++;
 }
@@ -288,7 +288,7 @@ static const cairo_device_backend_t _cairo_device_observer_backend = {
 	_cairo_device_observer_destroy,
 };
 
-static cairo_device_t * _cairo_device_create_observer_internal(cairo_device_t * target, cairo_bool_t record)
+static cairo_device_t * _cairo_device_create_observer_internal(cairo_device_t * target, boolint record)
 {
 	cairo_status_t status;
 	cairo_device_observer_t * device = (cairo_device_observer_t *)_cairo_malloc(sizeof(cairo_device_observer_t));
@@ -998,7 +998,7 @@ static cairo_int_status_t _cairo_surface_observer_show_page(void * abstract_surf
 	return status;
 }
 
-static cairo_bool_t _cairo_surface_observer_get_extents(void * abstract_surface, cairo_rectangle_int_t * extents)
+static boolint _cairo_surface_observer_get_extents(void * abstract_surface, cairo_rectangle_int_t * extents)
 {
 	cairo_surface_observer_t * surface = static_cast<cairo_surface_observer_t *>(abstract_surface);
 	return _cairo_surface_get_extents(surface->target, extents);
@@ -1111,7 +1111,7 @@ cairo_surface_t * cairo_surface_create_observer(cairo_surface_t * target,
 {
 	cairo_device_t * device;
 	cairo_surface_t * surface;
-	cairo_bool_t record;
+	boolint record;
 
 	if(unlikely(target->status))
 		return _cairo_surface_create_in_error(target->status);
@@ -1420,7 +1420,7 @@ static double percent(cairo_time_t a, cairo_time_t b)
 		   _cairo_time_to_s(b)) / 10;
 }
 
-static cairo_bool_t replay_record(cairo_observation_t * log,
+static boolint replay_record(cairo_observation_t * log,
     cairo_observation_record_t * r,
     cairo_device_t * script)
 {

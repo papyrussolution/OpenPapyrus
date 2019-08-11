@@ -20,13 +20,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 #include "amqp_private.h"
-#include "amqp_tcp_socket.h"
+#pragma hdrstop
+//#include "amqp_tcp_socket.h"
 //#include <errno.h>
 #if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
-	#include <winsock2.h>
+	//#include <winsock2.h>
 #else
 	#include <netinet/in.h>
 	#include <netinet/tcp.h>
@@ -173,22 +174,21 @@ static int amqp_tcp_socket_open(void * base, const char * host, int port,
 	return AMQP_STATUS_OK;
 }
 
-static int amqp_tcp_socket_close(void * base,
-    AMQP_UNUSED amqp_socket_close_enum force) {
+static int amqp_tcp_socket_close(void * base, AMQP_UNUSED amqp_socket_close_enum force) 
+{
 	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
 	if(-1 == self->sockfd) {
 		return AMQP_STATUS_SOCKET_CLOSED;
 	}
-
 	if(amqp_os_socket_close(self->sockfd)) {
 		return AMQP_STATUS_SOCKET_ERROR;
 	}
 	self->sockfd = -1;
-
 	return AMQP_STATUS_OK;
 }
 
-static int amqp_tcp_socket_get_sockfd(void * base) {
+static int amqp_tcp_socket_get_sockfd(void * base) 
+{
 	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
 	return self->sockfd;
 }
@@ -198,7 +198,7 @@ static void amqp_tcp_socket_delete(void * base)
 	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
 	if(self) {
 		amqp_tcp_socket_close(self, AMQP_SC_NONE);
-		free(self);
+		SAlloc::F(self);
 	}
 }
 
@@ -213,7 +213,7 @@ static const struct amqp_socket_class_t amqp_tcp_socket_class = {
 
 amqp_socket_t * amqp_tcp_socket_new(amqp_connection_state_t state) 
 {
-	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(calloc(1, sizeof(*self)));
+	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(SAlloc::C(1, sizeof(*self)));
 	if(!self) {
 		return NULL;
 	}

@@ -199,7 +199,7 @@ double _cairo_stroke_style_dash_stroked(const cairo_stroke_style_t * style)
  * stroking a path with the given CTM and tolerance.
  * Always %FALSE for non-dashed styles.
  */
-cairo_bool_t _cairo_stroke_style_dash_can_approximate(const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, double tolerance)
+boolint _cairo_stroke_style_dash_can_approximate(const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, double tolerance)
 {
 	if(!style->num_dashes)
 		return FALSE;
@@ -214,7 +214,7 @@ void _cairo_stroke_style_dash_approximate(const cairo_stroke_style_t * style, co
     double tolerance, double * dash_offset, double * dashes, uint * num_dashes)
 {
 	double coverage, scale, offset;
-	cairo_bool_t on = TRUE;
+	boolint on = TRUE;
 	uint i = 0;
 	coverage = _cairo_stroke_style_dash_stroked(style) / _cairo_stroke_style_dash_period(style);
 	coverage = MIN(coverage, 1.0);
