@@ -3455,7 +3455,7 @@ cairo_font_face_t * cairo_ft_font_face_create_for_pattern(FcPattern * pattern)
  *
  * font_face = cairo_ft_font_face_create_for_ft_face (ft_face, 0);
  * status = cairo_font_face_set_user_data (font_face, &key,
- *            ft_face, (cairo_destroy_func_t) FT_Done_Face);
+ *         ft_face, (cairo_destroy_func_t) FT_Done_Face);
  * if (status) {
  * cairo_font_face_destroy (font_face);
  * FT_Done_Face (ft_face);

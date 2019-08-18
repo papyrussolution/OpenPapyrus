@@ -1,6 +1,6 @@
 /*
  * schemastypes.c : implementation of the XML Schema Datatypes
- *           definition and validity checking
+ *        definition and validity checking
  *
  * See Copyright for the status of this software.
  *
@@ -663,7 +663,7 @@ xmlSchemaValPtr xmlSchemaValueGetNext(xmlSchemaValPtr cur)
  * Accessor for the string value of a computed value.
  *
  * Returns the string value or NULL if there was none, or on
- *       API errors.
+ *    API errors.
  */
 const xmlChar * xmlSchemaValueGetAsString(xmlSchemaValPtr val)
 {
@@ -1245,7 +1245,7 @@ static int FASTCALL _xmlSchemaBase64Decode(const xmlChar ch)
  * if true a value is computed and returned in @val.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTime, xmlSchemaValPtr * val, int collapse) 
 {
@@ -1418,7 +1418,7 @@ error:
  * if true a value is computed and returned in @val.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 static int xmlSchemaValidateDuration(xmlSchemaType * type ATTRIBUTE_UNUSED, const xmlChar * duration, xmlSchemaValPtr * val, int collapse) 
 {
@@ -1638,7 +1638,7 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
  * list type. if true a value is computed and returned in @ret.
  *
  * Returns the number of items if this validates, a negative error code
- *       number otherwise
+ *    number otherwise
  */
 static int xmlSchemaValAtomicListNode(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * ret, xmlNodePtr P_Node) 
 {
@@ -1760,7 +1760,7 @@ static int xmlSchemaParseUInt(const xmlChar ** str, ulong * llo, ulong * lmi, ul
  * This checks the value space for list types as well (IDREFS, NMTOKENS).
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * val, xmlNode * pNode, int flags,
     xmlSchemaWhitespaceValueType ws, int normOnTheFly, int applyNorm, int createStringValue)
@@ -2961,7 +2961,7 @@ error:
  * if true a value is computed and returned in @val.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int xmlSchemaValPredefTypeNode(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * val, xmlNodePtr P_Node) 
 {
@@ -2979,7 +2979,7 @@ int xmlSchemaValPredefTypeNode(xmlSchemaType * type, const xmlChar * value, xmlS
  * This one does apply any normalization to the value.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int xmlSchemaValPredefTypeNodeNoNorm(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * val, xmlNodePtr P_Node) 
 {
@@ -2995,7 +2995,7 @@ int xmlSchemaValPredefTypeNodeNoNorm(xmlSchemaType * type, const xmlChar * value
  * if true a value is computed and returned in @val.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int xmlSchemaValidatePredefinedType(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * val) 
 {

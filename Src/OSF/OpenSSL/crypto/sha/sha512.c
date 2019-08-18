@@ -41,7 +41,7 @@
  * As this implementation relies on 64-bit integer type, it's totally
  * inappropriate for platforms which don't support it, most notably
  * 16-bit platforms.
- *                                    <appro@fy.chalmers.se>
+ *                                 <appro@fy.chalmers.se>
  */
 
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86) ||	\

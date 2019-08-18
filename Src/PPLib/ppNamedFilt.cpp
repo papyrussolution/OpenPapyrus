@@ -1,11 +1,11 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(1), ViewID(0), Flags(0) //@erik ver(0)->ver(1)
+SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(2), ViewID(0), Flags(0) //@erik ver 0-->1 // @v10.5.3 ver 1-->2
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -22,6 +22,7 @@ PPNamedFilt & FASTCALL PPNamedFilt::operator = (const PPNamedFilt & s)
 	ViewSymb = s.ViewSymb;
 	Param = s.Param;
 	VD = s.VD;
+	DestGuaList = s.DestGuaList; // @v10.5.3
 	return *this;
 }
 
@@ -29,44 +30,45 @@ int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
 {
 	SSerializeContext sctx;
 	int    ok = 1;
-	THROW(rBuf.Write(ID));
-	THROW(rBuf.Write(Ver));
-	THROW(rBuf.Write(ViewID));
-	THROW(rBuf.Write(Flags)); // @v8.4.2 (за счет Reserve)
-	THROW(rBuf.Write(Reserve, sizeof(Reserve)));
-	THROW(rBuf.Write(Name));
-	THROW(rBuf.Write(DbSymb));
-	THROW(rBuf.Write(Symb));
-	THROW(rBuf.Write(ViewSymb));
-	THROW(rBuf.Write(Param));
-	THROW(VD.Serialize(1, rBuf, &sctx));
-	CATCH
-		ok = PPSetErrorSLib();
-	ENDCATCH
-		return ok;
+	THROW_SL(rBuf.Write(ID));
+	THROW_SL(rBuf.Write(Ver));
+	THROW_SL(rBuf.Write(ViewID));
+	THROW_SL(rBuf.Write(Flags)); // @v8.4.2 (за счет Reserve)
+	THROW_SL(rBuf.Write(Reserve, sizeof(Reserve)));
+	THROW_SL(rBuf.Write(Name));
+	THROW_SL(rBuf.Write(DbSymb));
+	THROW_SL(rBuf.Write(Symb));
+	THROW_SL(rBuf.Write(ViewSymb));
+	THROW_SL(rBuf.Write(Param));
+	THROW_SL(VD.Serialize(1, rBuf, &sctx));
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
 {
 	int    ok = 1;
-	THROW(rBuf.Read(ID));
-	THROW(rBuf.Read(Ver));
-	THROW(rBuf.Read(ViewID));
-	THROW(rBuf.Read(Flags)); // @v8.4.2 (за счет Reserve)
-	THROW(rBuf.Read(Reserve, sizeof(Reserve)));
-	THROW(rBuf.Read(Name));
-	THROW(rBuf.Read(DbSymb));
-	THROW(rBuf.Read(Symb));
-	THROW(rBuf.Read(ViewSymb));
-	THROW(rBuf.Read(Param));
+	THROW_SL(rBuf.Read(ID));
+	THROW_SL(rBuf.Read(Ver));
+	THROW_SL(rBuf.Read(ViewID));
+	THROW_SL(rBuf.Read(Flags)); // @v8.4.2 (за счет Reserve)
+	THROW_SL(rBuf.Read(Reserve, sizeof(Reserve)));
+	THROW_SL(rBuf.Read(Name));
+	THROW_SL(rBuf.Read(DbSymb));
+	THROW_SL(rBuf.Read(Symb));
+	THROW_SL(rBuf.Read(ViewSymb));
+	THROW_SL(rBuf.Read(Param));
 	if(Ver > 0) {
 		SSerializeContext sctx;
 		THROW(VD.Serialize(-1, rBuf, &sctx));
+		// @v10.5.3 {
+		if(Ver > 1) {
+			THROW(DestGuaList.Serialize(-1, rBuf, &sctx));
+		}
+		// } @v10.5.3 
 	}
-	CATCH
-		ok = PPSetErrorSLib();
-	ENDCATCH
-		return ok;
+	CATCHZOK
+	return ok;
 }
 
 SLAPI PPNamedFilt::~PPNamedFilt()
@@ -332,7 +334,6 @@ int FiltPoolDialog::setupList()
 	}
 	return ok;
 }
-
 //
 // Descr: Создает и отображает диалог "Список фильтров"
 //
@@ -368,8 +369,6 @@ public:
 	{
 		P_Mngr->GetResourceLists(&CmdSymbList, &CmdTextList);
 	}
-
-	int    ViewMobColumnList(); //@erik 10.5.0
 	//
 	// Descr: Заполняет интерфейс данными из pData
 	//
@@ -381,7 +380,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    ChangeBaseFilter();    // Обрабатывает изменение базового фильтра
-
+	int    ViewMobColumnList(); //@erik 10.5.0
 	PPNamedFilt Data;          // Собственно, редактируемый именованный фильтр
 	StrAssocArray CmdSymbList; // Список ассоциаций для обьектов PPView {id, символ}
 	StrAssocArray CmdTextList; // Список ассоциаций для обьектов PPView {id, описание} (упорядоченный по возрастанию)
@@ -556,8 +555,25 @@ int FiltPoolDialog::delItem(long pos, long id)
 	return P_Data->PutNamedFilt(&id, 0);
 }
 
+PPNamedFilt::ViewDefinition::Entry::Entry() : TotalFunc(0)
+{
+}
+
+PPNamedFilt::ViewDefinition::Entry & PPNamedFilt::ViewDefinition::Entry::Z()
+{
+	Zone.Z();
+	FieldName.Z();
+	Text.Z();
+	TotalFunc = 0;
+	return *this;
+}
+
+PPNamedFilt::ViewDefinition::ViewDefinition()
+{
+}
+
 //@erik v10.5.0
-uint PPNamedFilt::ViewDefinition::GetCount()const
+uint PPNamedFilt::ViewDefinition::GetCount() const
 {
 	return L.getCount();
 }
@@ -628,13 +644,11 @@ int PPNamedFilt::ViewDefinition::RemoveEntryByPos(uint pos)
 	return ok;
 }
 
-int XmlWriter(void * param)
+int PPNamedFilt::ViewDefinition::XmlWriter(void * param)
 {
 	int ok = 1;
-
 	return ok;
 }
-
 
 int PPNamedFilt::ViewDefinition::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -738,10 +752,8 @@ int MobileClmnValItemDialog::getDTS(PPNamedFilt::ViewDefinition::Entry * pEntry)
 	getCtrlString(sel = CTL_MOBCLEDT_TXT, entry.Text);
 	THROW(entry.Text.NotEmptyS());
 	ASSIGN_PTR(pEntry, entry);
-	CATCH
-		ok = 0;
-	ENDCATCH
-		return ok;
+	CATCHZOK
+	return ok;
 }
 
 //
@@ -751,7 +763,6 @@ int SLAPI EditMobTypeClmn(PPNamedFilt::ViewDefinition * pViewDef, PPNamedFilt::V
 {
 	DIALOG_PROC_BODY_P1(MobileClmnValItemDialog, pViewDef, pEntry);
 }
-
 //
 // Descr: загрузка и перезагрузка списка всех отображаемых полей
 //
@@ -785,7 +796,6 @@ int MobileClmnValListDialog::addItem(long * pPos, long * pID)
 	}
 	return ok;
 }
-
 //
 // Descr: Обрабатывает редактирование
 //
@@ -805,7 +815,6 @@ int MobileClmnValListDialog::editItem(long pos, long id)
 	}
 	return ok;
 }
-
 //
 // Descr: Обрабатывает удаление
 //
@@ -813,5 +822,4 @@ int MobileClmnValListDialog::delItem(long pos, long id)
 {
 	return Data.RemoveEntryByPos(pos);
 }
-
 //@erik

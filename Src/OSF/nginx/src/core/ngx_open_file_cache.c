@@ -820,7 +820,7 @@ static void ngx_expire_old_cached_files(ngx_open_file_cache_t * cache, ngx_uint_
 	/*
 	 * n == 1 deletes one or two inactive files
 	 * n == 0 deletes least recently used file by force
-	 *      and one or two inactive files
+	 *   and one or two inactive files
 	 */
 	while(n < 3) {
 		if(ngx_queue_empty(&cache->expire_queue)) {

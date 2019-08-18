@@ -11,7 +11,7 @@
  * Currently, these file formats are supported for the map file:
  * GIF: the contents of the GIF's global colormap are used.
  * PPM (either text or raw flavor): the entire file is read and
- *    each unique pixel value is entered in the map.
+ * each unique pixel value is entered in the map.
  * Note that reading a large PPM file will be horrendously slow.
  * Typically, a PPM-format map file should contain just one pixel
  * of each desired color.  Such a file can be extracted from an

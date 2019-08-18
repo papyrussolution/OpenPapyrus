@@ -7,24 +7,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,26 +37,26 @@
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function initializes a condition variable.
+ *   This function initializes a condition variable.
  *
  * PARAMETERS
- *      cond
- *              pointer to an instance of pthread_cond_t
+ *   cond
+ *           pointer to an instance of pthread_cond_t
  *
- *      attr
- *              specifies optional creation attributes.
+ *   attr
+ *           specifies optional creation attributes.
  *
  *
  * DESCRIPTION
- *      This function initializes a condition variable.
+ *   This function initializes a condition variable.
  *
  * RESULTS
- *              0               successfully created condition variable,
- *              EINVAL          'attr' is invalid,
- *              EAGAIN          insufficient resources (other than
- *                              memory,
- *              ENOMEM          insufficient memory,
- *              EBUSY           'cond' is already initialized,
+ *           0               successfully created condition variable,
+ *           EINVAL          'attr' is invalid,
+ *           EAGAIN          insufficient resources (other than
+ *                           memory,
+ *           ENOMEM          insufficient memory,
+ *           EBUSY           'cond' is already initialized,
  *
  * ------------------------------------------------------
  */
@@ -67,7 +67,7 @@ int pthread_cond_init(pthread_cond_t * cond, const pthread_condattr_t * attr)
 	if(cond == NULL) {
 		return EINVAL;
 	}
-	if((attr != NULL && *attr != NULL) && ((*attr)->pshared == PTHREAD_PROCESS_SHARED)) {
+	if((attr && *attr) && ((*attr)->pshared == PTHREAD_PROCESS_SHARED)) {
 		/*
 		 * Creating condition variable that can be shared between
 		 * processes.

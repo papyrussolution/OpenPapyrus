@@ -1,6 +1,6 @@
 /*
  * schemas.c : implementation of the XML Schema handling and
- *           schema validity checking
+ *        schema validity checking
  *
  * See Copyright for the status of this software.
  *
@@ -1219,7 +1219,7 @@ static const xmlChar * xmlSchemaWildcardPCToString(int pc)
  * The caller has to free the returned retValue.
  *
  * Returns 0 if the value could be built and -1 in case of
- *       API errors or if the value type is not supported yet.
+ *    API errors or if the value type is not supported yet.
  */
 static int xmlSchemaGetCanonValueWhtspExt(xmlSchemaValPtr val, xmlSchemaWhitespaceValueType ws, xmlChar ** retValue)
 {
@@ -5270,7 +5270,7 @@ static int xmlSchemaParseLocalAttributes(xmlSchemaParserCtxtPtr ctxt, xmlSchemaP
  * *WARNING* this interface is highly subject to change
  *
  * Returns -1 in case of error, 0 if the declaration is improper and
- *       1 in case of success.
+ *    1 in case of success.
  */
 static xmlSchemaAnnotPtr xmlSchemaParseAnnotation(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int needed)
 {
@@ -6142,8 +6142,8 @@ static xmlSchemaAttributePtr xmlSchemaParseGlobalAttribute(xmlSchemaParserCtxtPt
 	/*
 	 * 3.2.6 Schema Component Constraint: xsi: Not Allowed
 	 * @todo Move this to the component layer.
-	 *     Or better leave it here and add it to the component layer
-	 *     if we have a schema construction API.
+	 *  Or better leave it here and add it to the component layer
+	 *  if we have a schema construction API.
 	 */
 	if(sstreq(pctxt->targetNamespace, xmlSchemaInstanceNs)) {
 		xmlSchemaCustomErr(ACTXT_CAST pctxt, XML_SCHEMAP_NO_XSI, P_Node, NULL,
@@ -7372,7 +7372,7 @@ static int xmlSchemaParseUnion(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema,
  * *WARNING* this interface is highly subject to change
  *
  * Returns -1 in case of error, 0 if the declaration is improper and
- *       1 in case of success.
+ *    1 in case of success.
  */
 static xmlSchemaType * xmlSchemaParseList(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node)
 {
@@ -7734,7 +7734,7 @@ static xmlSchemaTreeItem * xmlSchemaParseModelGroupDefRef(xmlSchemaParserCtxtPtr
  * *WARNING* this interface is highly subject to change
  *
  * Returns -1 in case of error, 0 if the declaration is improper and
- *       1 in case of success.
+ *    1 in case of success.
  */
 static xmlSchemaModelGroupDefPtr xmlSchemaParseModelGroupDefinition(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node)
 {
@@ -7973,7 +7973,7 @@ exit_failure:
  * @nodes:  the list of top level nodes
  *
  * Returns the internal XML Schema structure built from the resource or
- *       NULL in case of error
+ *    NULL in case of error
  */
 static int xmlSchemaParseSchemaTopLevel(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * nodes)
 {
@@ -8216,7 +8216,7 @@ static int xmlSchemaCreatePCtxtOnVCtxt(xmlSchemaValidCtxt * vctxt)
  * Returns a schema bucket if it was already parsed.
  *
  * Returns a schema bucket if it was already parsed from
- *       @schemaLocation, NULL otherwise.
+ *    @schemaLocation, NULL otherwise.
  */
 static xmlSchemaBucketPtr xmlSchemaGetSchemaBucket(xmlSchemaParserCtxtPtr pctxt, const xmlChar * schemaLocation)
 {
@@ -8425,7 +8425,7 @@ static const xmlChar * xmlSchemaBuildAbsoluteURI(xmlDict * dict, const xmlChar* 
  * Parse an included (and to-be-redefined) XML schema document.
  *
  * Returns 0 on success, a positive error code on errors and
- *       -1 in case of an internal or API error.
+ *    -1 in case of an internal or API error.
  */
 
 static int xmlSchemaAddSchemaDoc(xmlSchemaParserCtxtPtr pctxt, int type/* import or include or redefine */,
@@ -9165,7 +9165,7 @@ static int xmlSchemaParseInclude(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr sche
  * *WARNING* this interface is highly subject to change
  *
  * Returns -1 in case of error, 0 if the declaration is improper and
- *       1 in case of success.
+ *    1 in case of success.
  */
 static xmlSchemaTreeItem * xmlSchemaParseModelGroup(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node, xmlSchemaTypeType type, int withParticle)
 {
@@ -11685,8 +11685,8 @@ static int xmlSchemaCheckDerivationOKRestriction2to4(xmlSchemaParserCtxtPtr pctx
 							 * 2.1.3.2 R's `effective value constraint` is
 							 * fixed with the same string as B's.
 							 * MAYBE TODO: Compare the computed values.
-							 *     Hmm, it says "same string" so
-							 *     string-equality might really be sufficient.
+							 *  Hmm, it says "same string" so
+							 *  string-equality might really be sufficient.
 							 */
 							if((effFixed == 0) || (!WXS_ARE_DEFAULT_STR_EQUAL(rEffValue, bEffValue))) {
 								xmlChar * str = NULL;
@@ -14127,7 +14127,7 @@ static int xmlSchemaCheckCOSParticleRestrict(xmlSchemaParserCtxtPtr ctxt, xmlSch
  * (3.9.6) Constraints on Particle Schema Components
  * Schema Component Constraint:
  * Particle Derivation OK (All/Choice/Sequence:Any --
- *                       NSRecurseCheckCardinality)
+ *                    NSRecurseCheckCardinality)
  * (rcase-NSRecurseCheckCardinality)
  *
  * STATUS: TODO: subst-groups
@@ -15413,9 +15413,9 @@ static int xmlSchemaFixupComplexType(xmlSchemaParserCtxtPtr pctxt, xmlSchemaType
 					 * This all will result in:
 					 * new-particle
 					 * --> new-sequence(
-					 *       new-particle
-					 *         --> base-model,
-					 *       this-particle
+					 *    new-particle
+					 *      --> base-model,
+					 *    this-particle
 					 *	        --> this-model
 					 *	    )
 					 */
@@ -15510,7 +15510,7 @@ static int FASTCALL xmlSchemaTypeFixup(xmlSchemaType * type, xmlSchemaAbstractCt
  * Checks and computes the values of facets.
  *
  * Returns 0 if valid, a positive error code if not valid and
- *       -1 in case of an internal or API error.
+ *    -1 in case of an internal or API error.
  */
 int xmlSchemaCheckFacet(xmlSchemaFacetPtr facet, xmlSchemaTypePtr typeDecl, xmlSchemaParserCtxtPtr pctxt, const xmlChar * name ATTRIBUTE_UNUSED)
 {
@@ -16695,7 +16695,7 @@ static void xmlSchemaResolveModelGroupParticleReferences(xmlSchemaParserCtxtPtr 
 				 * "It appears only as the value of one or both of the
 				 * following properties:"
 				 * (1.1) "the {model group} property of a model group
-				 *      definition."
+				 *   definition."
 				 * (1.2) "the {term} property of a particle [... of] the "
 				 * {content type} of a complex type definition."
 				 */
@@ -22057,7 +22057,7 @@ default_psvi:
 					 */
 					/*
 					 * VAL TODO: *actual value* is the normalized value, impl.
-					 *         this.
+					 *      this.
 					 * VAL TODO: Report invalid & expected values as well.
 					 * VAL TODO: Implement a comparison with the computed values.
 					 */
@@ -23814,7 +23814,7 @@ static void endElementNsSplit(void * ctx, const xmlChar * localname, const xmlCh
  * but the calls to the original will be maintained.
  *
  * Returns a pointer to a data structure needed to unplug the validation layer
- *       or NULL in case of errors.
+ *    or NULL in case of errors.
  */
 xmlSchemaSAXPlugPtr xmlSchemaSAXPlug(xmlSchemaValidCtxt * ctxt, xmlSAXHandler ** sax, void ** user_data)
 {
@@ -23990,7 +23990,7 @@ void xmlSchemaValidateSetLocator(xmlSchemaValidCtxt * vctxt, xmlSchemaValidityLo
  * Internal locator function for the readers
  *
  * Returns 0 in case the Schema validation could be (des)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 static int xmlSchemaValidateStreamLocator(void * ctx, const char ** file, unsigned long * line)
 {

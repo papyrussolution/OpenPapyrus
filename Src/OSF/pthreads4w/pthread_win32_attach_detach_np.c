@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,14 +67,12 @@ BOOL pthread_win32_process_attach_np()
 	}
 #else
 	#if !defined(WINCE)
-	if(GetSystemDirectory(QuserExDLLPathBuf, sizeof(QuserExDLLPathBuf)/sizeof(TCHAR)) &&
-	    0 == _tcsncat_s(QuserExDLLPathBuf, SIZEOFARRAY(QuserExDLLPathBuf), TEXT("\\QUSEREX.DLL"), 12)) {
+	if(GetSystemDirectory(QuserExDLLPathBuf, SIZEOFARRAY(QuserExDLLPathBuf)) && 0 == _tcsncat_s(QuserExDLLPathBuf, SIZEOFARRAY(QuserExDLLPathBuf), TEXT("\\QUSEREX.DLL"), 12)) {
 		__ptw32_h_quserex = LoadLibrary(QuserExDLLPathBuf);
 	}
 	#endif
 #endif
-
-	if(__ptw32_h_quserex != NULL) {
+	if(__ptw32_h_quserex) {
 		__ptw32_register_cancellation = (DWORD (*)(PAPCFUNC, HANDLE, DWORD))
 #if defined(NEED_UNICODE_CONSTS)
 		    GetProcAddress(__ptw32_h_quserex, (const TCHAR*)TEXT("QueueUserAPCEx"));
@@ -82,12 +80,10 @@ BOOL pthread_win32_process_attach_np()
 		    GetProcAddress(__ptw32_h_quserex, (LPCSTR)"QueueUserAPCEx");
 #endif
 	}
-
-	if(NULL == __ptw32_register_cancellation) {
+	if(!__ptw32_register_cancellation) {
 		__ptw32_register_cancellation = __ptw32_Registercancellation;
-		if(__ptw32_h_quserex != NULL) {
-			(void)FreeLibrary(__ptw32_h_quserex);
-		}
+		if(__ptw32_h_quserex)
+			FreeLibrary(__ptw32_h_quserex);
 		__ptw32_h_quserex = 0;
 	}
 	else {
@@ -99,9 +95,9 @@ BOOL pthread_win32_process_attach_np()
 #else
 		    GetProcAddress(__ptw32_h_quserex, (LPCSTR)"QueueUserAPCEx_Init");
 #endif
-		if(queue_user_apc_ex_init == NULL || !queue_user_apc_ex_init()) {
+		if(!queue_user_apc_ex_init || !queue_user_apc_ex_init()) {
 			__ptw32_register_cancellation = __ptw32_Registercancellation;
-			(void)FreeLibrary(__ptw32_h_quserex);
+			FreeLibrary(__ptw32_h_quserex);
 			__ptw32_h_quserex = 0;
 		}
 	}
@@ -114,9 +110,8 @@ BOOL pthread_win32_process_attach_np()
 BOOL pthread_win32_process_detach_np()
 {
 	if(__ptw32_processInitialized) {
-		__ptw32_thread_t * sp = (__ptw32_thread_t*)pthread_getspecific(__ptw32_selfThreadKey);
-
-		if(sp != NULL) {
+		__ptw32_thread_t * sp = (__ptw32_thread_t *)pthread_getspecific(__ptw32_selfThreadKey);
+		if(sp) {
 			/*
 			 * Detached threads have their resources automatically
 			 * cleaned up upon exit (others must be 'joined').
@@ -142,8 +137,7 @@ BOOL pthread_win32_process_detach_np()
 #else
 			    GetProcAddress(__ptw32_h_quserex, (LPCSTR)"QueueUserAPCEx_Fini");
 #endif
-
-			if(queue_user_apc_ex_fini != NULL) {
+			if(queue_user_apc_ex_fini) {
 				(void)queue_user_apc_ex_fini();
 			}
 			(void)FreeLibrary(__ptw32_h_quserex);
@@ -164,7 +158,7 @@ BOOL pthread_win32_thread_detach_np()
 		 * Don't use pthread_self() - to avoid creating an implicit POSIX thread handle
 		 * unnecessarily.
 		 */
-		__ptw32_thread_t * sp = (__ptw32_thread_t*)pthread_getspecific(__ptw32_selfThreadKey);
+		__ptw32_thread_t * sp = (__ptw32_thread_t *)pthread_getspecific(__ptw32_selfThreadKey);
 		if(sp != NULL) { // otherwise Win32 thread with no implicit POSIX handle.
 			__ptw32_mcs_local_node_t stateLock;
 			__ptw32_callUserDestroyRoutines(sp->ptHandle);
@@ -175,11 +169,10 @@ BOOL pthread_win32_thread_detach_np()
 			 * or detached explicitly by the application.
 			 */
 			__ptw32_mcs_lock_release(&stateLock);
-
 			/*
 			 * Robust Mutexes
 			 */
-			while(sp->robustMxList != NULL) {
+			while(sp->robustMxList) {
 				pthread_mutex_t mx = sp->robustMxList->mx;
 				__ptw32_robust_mutex_remove(&mx, sp);
 				(void)__PTW32_INTERLOCKED_EXCHANGE_LONG((__PTW32_INTERLOCKED_LONGPTR)&mx->robustNode->stateInconsistent, (__PTW32_INTERLOCKED_LONG)-1);

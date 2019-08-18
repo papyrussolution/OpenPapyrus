@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,22 +38,22 @@ void * pthread_getspecific(pthread_key_t key)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function returns the current value of key in the
- *      calling thread. If no value has been set for 'key' in
- *      the thread, NULL is returned.
+ *   This function returns the current value of key in the
+ *   calling thread. If no value has been set for 'key' in
+ *   the thread, NULL is returned.
  *
  * PARAMETERS
- *      key
- *              an instance of pthread_key_t
+ *   key
+ *           an instance of pthread_key_t
  *
  *
  * DESCRIPTION
- *      This function returns the current value of key in the
- *      calling thread. If no value has been set for 'key' in
- *      the thread, NULL is returned.
+ *   This function returns the current value of key in the
+ *   calling thread. If no value has been set for 'key' in
+ *   the thread, NULL is returned.
  *
  * RESULTS
- *              key value or NULL on failure
+ *           key value or NULL on failure
  *
  * ------------------------------------------------------
  */

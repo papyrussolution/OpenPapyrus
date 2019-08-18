@@ -1981,25 +1981,22 @@ void FixBrakes(TidyDocImpl* pDoc, Node * pParent)
 {
 	Node * pNode;
 	bool bBRDeleted = false;
-
-	if(NULL == pParent)
+	if(!pParent)
 		return;
-
 	/*  First, check the status of All My Children  */
 	pNode = pParent->content;
-	while(NULL != pNode) {
+	while(pNode) {
 		/* The node may get trimmed, so save the next pointer, if any */
 		Node * pNext = pNode->next;
 		FixBrakes(pDoc, pNode);
 		pNode = pNext;
 	}
-
 	/*  As long as my last child is a <br />, move it to my last peer  */
 	if(nodeCMIsBlock(pParent)) {
 		for(pNode = pParent->last;
 		    NULL != pNode && nodeIsBR(pNode);
 		    pNode = pParent->last) {
-			if(NULL == pNode->attributes && false == bBRDeleted) {
+			if(!pNode->attributes && false == bBRDeleted) {
 				TY_(DiscardElement) (pDoc, pNode);
 				bBRDeleted = true;
 			}

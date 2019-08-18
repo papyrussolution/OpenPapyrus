@@ -857,7 +857,7 @@ size_t LZ4F_flush(LZ4F_cctx* cctxPtr, void* dstBuffer, size_t dstCapacity, const
  *  but also properly finalize the frame, with an endMark and an (optional) checksum.
  *  LZ4F_compressOptions_t structure is optional : you can provide NULL as argument.
  * @return: the number of bytes written into dstBuffer (necessarily >= 4 (endMark size))
- *     or an error code if it fails (can be tested using LZ4F_isError())
+ *  or an error code if it fails (can be tested using LZ4F_isError())
  *  The context can then be used again to compress a new frame, starting with LZ4F_compressBegin().
  */
 size_t LZ4F_compressEnd(LZ4F_cctx* cctxPtr,
@@ -983,7 +983,7 @@ void LZ4F_resetDecompressionContext(LZ4F_dctx* dctx)
 
 /*! LZ4F_headerSize() :
  * @return : size of frame header
- *           or an error code, which can be tested using LZ4F_isError()
+ *        or an error code, which can be tested using LZ4F_isError()
  */
 static size_t LZ4F_headerSize(const void* src, size_t srcSize)
 {
@@ -1109,7 +1109,7 @@ static size_t LZ4F_decodeHeader(LZ4F_dctx* dctx, const void* src, size_t srcSize
  *  The number of bytes consumed from srcBuffer will be updated within *srcSizePtr (necessarily <= original value).
  *  Decompression must resume from (srcBuffer + *srcSizePtr).
  * @return : an hint about how many srcSize bytes LZ4F_decompress() expects for next call,
- *         or an error code which can be tested using LZ4F_isError()
+ *      or an error code which can be tested using LZ4F_isError()
  *  note 1 : in case of error, dctx is not modified. Decoding operations can resume from where they stopped.
  *  note 2 : frame parameters are *copied into* an already allocated LZ4F_frameInfo_t structure.
  */

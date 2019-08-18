@@ -21,8 +21,6 @@
  */
 #include "amqp_private.h"
 #pragma hdrstop
-//#include "amqp_tcp_socket.h"
-//#include <errno.h>
 #if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
@@ -33,8 +31,6 @@
 	#include <netinet/tcp.h>
 	#include <sys/socket.h>
 #endif
-//#include <stdio.h>
-//#include <stdlib.h>
 
 struct amqp_tcp_socket_t {
 	const struct amqp_socket_class_t * klass;
@@ -43,26 +39,23 @@ struct amqp_tcp_socket_t {
 	int state;
 };
 
-static ssize_t amqp_tcp_socket_send(void * base, const void * buf, size_t len,
-    int flags) {
-	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
+static ssize_t amqp_tcp_socket_send(void * base, const void * buf, size_t len, int flags) 
+{
+	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(base);
 	ssize_t res;
 	int flagz = 0;
-
-	if(-1 == self->sockfd) {
+	if(self->sockfd == -1) {
 		return AMQP_STATUS_SOCKET_CLOSED;
 	}
-
 #ifdef MSG_NOSIGNAL
 	flagz |= MSG_NOSIGNAL;
 #endif
-
 #if defined(MSG_MORE)
 	if(flags & AMQP_SF_MORE) {
 		flagz |= MSG_MORE;
 	}
-/* Cygwin defines TCP_NOPUSH, but trying to use it will return not
- * implemented. Disable it here. */
+// Cygwin defines TCP_NOPUSH, but trying to use it will return not
+// implemented. Disable it here. 
 #elif defined(TCP_NOPUSH) && !defined(__CYGWIN__)
 	if(flags & AMQP_SF_MORE && !(self->state & AMQP_SF_MORE)) {
 		int one = 1;
@@ -75,8 +68,7 @@ static ssize_t amqp_tcp_socket_send(void * base, const void * buf, size_t len,
 	}
 	else if(!(flags & AMQP_SF_MORE) && self->state & AMQP_SF_MORE) {
 		int zero = 0;
-		res =
-		    setsockopt(self->sockfd, IPPROTO_TCP, TCP_NOPUSH, &zero, sizeof(&zero));
+		res = setsockopt(self->sockfd, IPPROTO_TCP, TCP_NOPUSH, &zero, sizeof(&zero));
 		if(0 != res) {
 			self->internal_error = res;
 			res = AMQP_STATUS_SOCKET_ERROR;
@@ -86,14 +78,12 @@ static ssize_t amqp_tcp_socket_send(void * base, const void * buf, size_t len,
 		}
 	}
 #endif
-
 start:
 #ifdef _WIN32
 	res = send(self->sockfd, static_cast<const char *>(buf), (int)len, flagz);
 #else
 	res = send(self->sockfd, buf, len, flagz);
 #endif
-
 	if(res < 0) {
 		self->internal_error = amqp_os_socket_error();
 		switch(self->internal_error) {
@@ -113,18 +103,16 @@ start:
 			    res = AMQP_STATUS_SOCKET_ERROR;
 		}
 	}
-	else {
+	else
 		self->internal_error = 0;
-	}
-
 	return res;
 }
 
 static ssize_t amqp_tcp_socket_recv(void * base, void * buf, size_t len, int flags) 
 {
-	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
+	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(base);
 	ssize_t ret;
-	if(-1 == self->sockfd) {
+	if(self->sockfd == -1) {
 		return AMQP_STATUS_SOCKET_CLOSED;
 	}
 start:
@@ -152,50 +140,50 @@ start:
 			    ret = AMQP_STATUS_SOCKET_ERROR;
 		}
 	}
-	else if(0 == ret) {
+	else if(!ret)
 		ret = AMQP_STATUS_CONNECTION_CLOSED;
-	}
-
 	return ret;
 }
 
-static int amqp_tcp_socket_open(void * base, const char * host, int port,
-    struct timeval * timeout) {
-	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
-	if(-1 != self->sockfd) {
-		return AMQP_STATUS_SOCKET_INUSE;
+static int amqp_tcp_socket_open(void * base, const char * host, int port, struct timeval * timeout) 
+{
+	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(base);
+	int    result = AMQP_STATUS_OK;
+	if(self->sockfd != -1)
+		result = AMQP_STATUS_SOCKET_INUSE;
+	else {
+		self->sockfd = amqp_open_socket_noblock(host, port, timeout);
+		if(self->sockfd < 0) {
+			int err = self->sockfd;
+			self->sockfd = -1;
+			result = err;
+		}
 	}
-	self->sockfd = amqp_open_socket_noblock(host, port, timeout);
-	if(0 > self->sockfd) {
-		int err = self->sockfd;
-		self->sockfd = -1;
-		return err;
-	}
-	return AMQP_STATUS_OK;
+	return result;
 }
 
 static int amqp_tcp_socket_close(void * base, AMQP_UNUSED amqp_socket_close_enum force) 
 {
-	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
-	if(-1 == self->sockfd) {
+	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(base);
+	if(self->sockfd == -1)
 		return AMQP_STATUS_SOCKET_CLOSED;
-	}
-	if(amqp_os_socket_close(self->sockfd)) {
+	else if(amqp_os_socket_close(self->sockfd))
 		return AMQP_STATUS_SOCKET_ERROR;
+	else {
+		self->sockfd = -1;
+		return AMQP_STATUS_OK;
 	}
-	self->sockfd = -1;
-	return AMQP_STATUS_OK;
 }
 
 static int amqp_tcp_socket_get_sockfd(void * base) 
 {
-	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
+	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(base);
 	return self->sockfd;
 }
 
 static void amqp_tcp_socket_delete(void * base) 
 {
-	struct amqp_tcp_socket_t * self = (struct amqp_tcp_socket_t *)base;
+	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(base);
 	if(self) {
 		amqp_tcp_socket_close(self, AMQP_SC_NONE);
 		SAlloc::F(self);
@@ -214,21 +202,21 @@ static const struct amqp_socket_class_t amqp_tcp_socket_class = {
 amqp_socket_t * amqp_tcp_socket_new(amqp_connection_state_t state) 
 {
 	struct amqp_tcp_socket_t * self = static_cast<struct amqp_tcp_socket_t *>(SAlloc::C(1, sizeof(*self)));
-	if(!self) {
-		return NULL;
+	if(self) {
+		self->klass = &amqp_tcp_socket_class;
+		self->sockfd = -1;
+		amqp_set_socket(state, (amqp_socket_t*)self);
 	}
-	self->klass = &amqp_tcp_socket_class;
-	self->sockfd = -1;
-	amqp_set_socket(state, (amqp_socket_t*)self);
-	return (amqp_socket_t*)self;
+	return reinterpret_cast<amqp_socket_t *>(self);
 }
 
 void amqp_tcp_socket_set_sockfd(amqp_socket_t * base, int sockfd) 
 {
-	struct amqp_tcp_socket_t * self;
 	if(base->klass != &amqp_tcp_socket_class) {
 		amqp_abort("<%p> is not of type amqp_tcp_socket_t", base);
 	}
-	self = (struct amqp_tcp_socket_t *)base;
-	self->sockfd = sockfd;
+	{
+		struct amqp_tcp_socket_t * self = reinterpret_cast<struct amqp_tcp_socket_t *>(base);
+		self->sockfd = sockfd;
+	}
 }

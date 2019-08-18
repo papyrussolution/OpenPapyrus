@@ -751,7 +751,7 @@ newmaster_complete:
 
 /*
  * __rep_newmaster_empty
- *    Handle the case of a NEWMASTER message received when we have an empty
+ * Handle the case of a NEWMASTER message received when we have an empty
  * log.  This requires internal init.  If we can't do that because
  * AUTOINIT off, return JOIN_FAILURE.  If F_DELAY is in effect, don't even
  * consider AUTOINIT yet, because they could change it before rep_sync call.
@@ -2010,7 +2010,7 @@ void __rep_fire_event(ENV*env, uint32 event, void * info)
 
 /*
  * __rep_msg --
- *    Rep system diagnostic messaging routine.
+ * Rep system diagnostic messaging routine.
  * This function is called from the __db_msg subsystem to
  * write out diagnostic messages to replication-owned files.
  *

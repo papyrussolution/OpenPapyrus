@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,22 +67,22 @@ int pthread_cancel(pthread_t thread)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function requests cancellation of 'thread'.
+ *   This function requests cancellation of 'thread'.
  *
  * PARAMETERS
- *      thread
- *              reference to an instance of pthread_t
+ *   thread
+ *           reference to an instance of pthread_t
  *
  *
  * DESCRIPTION
- *      This function requests cancellation of 'thread'.
- *      NOTE: cancellation is asynchronous; use pthread_join to
- *                wait for termination of 'thread' if necessary.
+ *   This function requests cancellation of 'thread'.
+ *   NOTE: cancellation is asynchronous; use pthread_join to
+ *             wait for termination of 'thread' if necessary.
  *
  * RESULTS
- *              0               successfully requested cancellation,
- *              ESRCH           no thread found corresponding to 'thread',
- *              ENOMEM          implicit self thread create failed.
+ *           0               successfully requested cancellation,
+ *           ESRCH           no thread found corresponding to 'thread',
+ *           ENOMEM          implicit self thread create failed.
  * ------------------------------------------------------
  */
 {
@@ -159,5 +159,5 @@ int pthread_cancel(pthread_t thread)
 		}
 		__ptw32_mcs_lock_release(&stateLock);
 	}
-	return (result);
+	return result;
 }

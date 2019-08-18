@@ -2091,8 +2091,8 @@ namespace NWindows {
 			   to use same path that was used as main path
 
 			   GetSuperPathBase  superPath.IsEmpty() onlyIfNew
-				 false            *              *        GetCurDir Error
-				 true            false             *        use Super path
+				 false            *           *     GetCurDir Error
+				 true            false             *     use Super path
 				 true            true             true        don't use any path, we already used mainPath
 				 true            true             false       use main path as Super Path, we don't try mainMath
 															  That case is possible now if GetCurDir returns unknow

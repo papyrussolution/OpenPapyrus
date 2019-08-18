@@ -65,16 +65,16 @@ void PNGCBAPI png_default_read_data(png_structp png_ptr, png_bytep data, size_t 
  * png_ptr      - pointer to a png input data structure
  *
  * io_ptr       - pointer to user supplied structure containing info about
- *              the input functions.  May be NULL.
+ *           the input functions.  May be NULL.
  *
  * read_data_fn - pointer to a new input function that takes as its
- *              arguments a pointer to a png_struct, a pointer to
- *              a location where input data can be stored, and a 32-bit
- *              unsigned int that is the number of bytes to be read.
- *              To exit and output any fatal error messages the new write
- *              function should call png_error(png_ptr, "Error msg").
- *              May be NULL, in which case libpng's default function will
- *              be used.
+ *           arguments a pointer to a png_struct, a pointer to
+ *           a location where input data can be stored, and a 32-bit
+ *           unsigned int that is the number of bytes to be read.
+ *           To exit and output any fatal error messages the new write
+ *           function should call png_error(png_ptr, "Error msg").
+ *           May be NULL, in which case libpng's default function will
+ *           be used.
  */
 void PNGAPI png_set_read_fn(png_structrp png_ptr, void * io_ptr, png_rw_ptr read_data_fn)
 {

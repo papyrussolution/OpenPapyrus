@@ -7,24 +7,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,72 +37,72 @@
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function destroys a condition variable
+ *   This function destroys a condition variable
  *
  *
  * PARAMETERS
- *      cond
- *              pointer to an instance of pthread_cond_t
+ *   cond
+ *           pointer to an instance of pthread_cond_t
  *
  *
  * DESCRIPTION
- *      This function destroys a condition variable.
+ *   This function destroys a condition variable.
  *
- *      NOTES:
- *              1)      A condition variable can be destroyed
- *                      immediately after all the threads that
- *                      are blocked on it are awakened. e.g.
+ *   NOTES:
+ *           1)      A condition variable can be destroyed
+ *                   immediately after all the threads that
+ *                   are blocked on it are awakened. e.g.
  *
- *                      struct list {
- *                        pthread_mutex_t lm;
- *                        ...
- *                      }
+ *                   struct list {
+ *                     pthread_mutex_t lm;
+ *                     ...
+ *                   }
  *
- *                      struct elt {
- *                        key k;
- *                        int busy;
- *                        pthread_cond_t notbusy;
- *                        ...
- *                      }
+ *                   struct elt {
+ *                     key k;
+ *                     int busy;
+ *                     pthread_cond_t notbusy;
+ *                     ...
+ *                   }
  *
  *
- *                      struct elt *
- *                      list_find(struct list *lp, key k)
- *                      {
- *                        struct elt *ep;
+ *                   struct elt *
+ *                   list_find(struct list *lp, key k)
+ *                   {
+ *                     struct elt *ep;
  *
- *                        pthread_mutex_lock(&lp->lm);
- *                        while ((ep = find_elt(l,k) != NULL) && ep->busy)
- *                          pthread_cond_wait(&ep->notbusy, &lp->lm);
- *                        if (ep != NULL)
- *                          ep->busy = 1;
- *                        pthread_mutex_unlock(&lp->lm);
- *                        return(ep);
- *                      }
+ *                     pthread_mutex_lock(&lp->lm);
+ *                     while ((ep = find_elt(l,k) != NULL) && ep->busy)
+ *                       pthread_cond_wait(&ep->notbusy, &lp->lm);
+ *                     if (ep != NULL)
+ *                       ep->busy = 1;
+ *                     pthread_mutex_unlock(&lp->lm);
+ *                     return(ep);
+ *                   }
  *
- *                      delete_elt(struct list *lp, struct elt *ep)
- *                      {
- *                        pthread_mutex_lock(&lp->lm);
- *                        assert(ep->busy);
- *                        ... remove ep from list ...
- *                        ep->busy = 0;
- *                    (A) pthread_cond_broadcast(&ep->notbusy);
- *                        pthread_mutex_unlock(&lp->lm);
- *                    (B) pthread_cond_destroy(&rp->notbusy);
- *                        free(ep);
- *                      }
+ *                   delete_elt(struct list *lp, struct elt *ep)
+ *                   {
+ *                     pthread_mutex_lock(&lp->lm);
+ *                     assert(ep->busy);
+ *                     ... remove ep from list ...
+ *                     ep->busy = 0;
+ *                 (A) pthread_cond_broadcast(&ep->notbusy);
+ *                     pthread_mutex_unlock(&lp->lm);
+ *                 (B) pthread_cond_destroy(&rp->notbusy);
+ *                     free(ep);
+ *                   }
  *
- *                      In this example, the condition variable
- *                      and its list element may be freed (line B)
- *                      immediately after all threads waiting for
- *                      it are awakened (line A), since the mutex
- *                      and the code ensure that no other thread
- *                      can touch the element to be deleted.
+ *                   In this example, the condition variable
+ *                   and its list element may be freed (line B)
+ *                   immediately after all threads waiting for
+ *                   it are awakened (line A), since the mutex
+ *                   and the code ensure that no other thread
+ *                   can touch the element to be deleted.
  *
  * RESULTS
- *              0               successfully released condition variable,
- *              EINVAL          'cond' is invalid,
- *              EBUSY           'cond' is in use,
+ *           0               successfully released condition variable,
+ *           EINVAL          'cond' is invalid,
+ *           EBUSY           'cond' is in use,
  *
  * ------------------------------------------------------
  */
@@ -138,12 +138,10 @@ int pthread_cond_destroy(pthread_cond_t * cond)
 				(void)sem_post(&(cv->semBlockLock));
 			}
 		}
-
 		if(result != 0) {
 			__ptw32_mcs_lock_release(&node);
 			return result;
 		}
-
 		/*
 		 * Check whether cv is still busy (still has waiters)
 		 */
@@ -169,18 +167,14 @@ int pthread_cond_destroy(pthread_cond_t * cond)
 				result2 = pthread_mutex_destroy(&(cv->mtxUnblockLock));
 			}
 			/* Unlink the CV from the list */
-			if(__ptw32_cond_list_head == cv) {
+			if(__ptw32_cond_list_head == cv)
 				__ptw32_cond_list_head = cv->next;
-			}
-			else {
+			else
 				cv->prev->next = cv->next;
-			}
-			if(__ptw32_cond_list_tail == cv) {
+			if(__ptw32_cond_list_tail == cv)
 				__ptw32_cond_list_tail = cv->prev;
-			}
-			else {
+			else
 				cv->next->prev = cv->prev;
-			}
 			SAlloc::F(cv);
 		}
 		__ptw32_mcs_lock_release(&node);
@@ -203,13 +197,8 @@ int pthread_cond_destroy(pthread_cond_t * cond)
 			 */
 			*cond = NULL;
 		}
-		else {
-			/*
-			 * The cv has been initialised while we were waiting
-			 * so assume it's in use.
-			 */
-			result = EBUSY;
-		}
+		else
+			result = EBUSY; // The cv has been initialised while we were waiting so assume it's in use.
 		__ptw32_mcs_lock_release(&node);
 	}
 	return ((result != 0) ? result : ((result1 != 0) ? result1 : result2));

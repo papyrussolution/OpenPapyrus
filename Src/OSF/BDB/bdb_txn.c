@@ -2394,13 +2394,13 @@ int __txn_recover(ENV*env, DB_PREPLIST * txns, long count, long * retp, uint32 f
 }
 /*
  * __txn_get_prepared --
- *    Returns a list of prepared (and for XA, heuristically completed)
- *    transactions (less than or equal to the count parameter).  One of
- *    xids or txns must be set to point to an array of the appropriate type.
- *    The count parameter indicates the number of entries in the xids and/or
- *    txns array. The retp parameter will be set to indicate the number of
- *    entries returned in the xids/txns array.  Flags indicates the operation,
- *    one of DB_FIRST or DB_NEXT.
+ * Returns a list of prepared (and for XA, heuristically completed)
+ * transactions (less than or equal to the count parameter).  One of
+ * xids or txns must be set to point to an array of the appropriate type.
+ * The count parameter indicates the number of entries in the xids and/or
+ * txns array. The retp parameter will be set to indicate the number of
+ * entries returned in the xids/txns array.  Flags indicates the operation,
+ * one of DB_FIRST or DB_NEXT.
  */
 int __txn_get_prepared(ENV*env, XID * xids, DB_PREPLIST * txns, long count, long * retp, uint32 flags)
 {

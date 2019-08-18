@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -272,13 +272,13 @@ static int file_open(struct archive * a, void * client_data)
 	 * tape device.  The results are used below to select an I/O
 	 * strategy:
 	 *  = "disk-like" devices support arbitrary lseek() and will
-	 *    support I/O requests of any size.  So we get easy skipping
-	 *    and can cheat on block sizes to get better performance.
+	 * support I/O requests of any size.  So we get easy skipping
+	 * and can cheat on block sizes to get better performance.
 	 *  = "tape-like" devices require strict blocking and use
-	 *    specialized ioctls for seeking.
+	 * specialized ioctls for seeking.
 	 *  = "socket-like" devices cannot seek at all but can improve
-	 *    performance by using nonblocking I/O to read "whatever is
-	 *    available right now".
+	 * performance by using nonblocking I/O to read "whatever is
+	 * available right now".
 	 *
 	 * Right now, we only specially recognize disk-like devices,
 	 * but it should be straightforward to add probes and strategy
@@ -482,9 +482,9 @@ static int file_close2(struct archive * a, void * client_data)
 		 *   Regular files: faster to just close without flush.
 		 *   Disk-like devices:  Ditto.
 		 *   Tapes: must not flush (user might need to
-		 *      read the "next" item on a non-rewind device).
+		 *   read the "next" item on a non-rewind device).
 		 *   Pipes and sockets:  must flush (otherwise, the
-		 *      program feeding the pipe or socket may complain).
+		 *   program feeding the pipe or socket may complain).
 		 * Here, I flush everything except for regular files and
 		 * device nodes.
 		 */

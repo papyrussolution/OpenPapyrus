@@ -2853,7 +2853,7 @@ int ssl_parse_serverhello_tlsext(SSL * s, PACKET * pkt)
  * session_id: ClientHello session ID.
  * ext: ClientHello extensions (including length prefix)
  * ret: (output) on return, if a ticket was decrypted, then this is set to
- *     point to the resulting session.
+ *  point to the resulting session.
  *
  * If s->tls_session_secret_cb is set then we are expecting a pre-shared key
  * ciphersuite, in which case we have no use for session tickets and one will
@@ -2863,9 +2863,9 @@ int ssl_parse_serverhello_tlsext(SSL * s, PACKET * pkt)
  * -1: fatal error, either from parsing or decrypting the ticket.
  *  0: no ticket was found (or was ignored, based on settings).
  *  1: a zero length extension was found, indicating that the client supports
- *     session tickets but doesn't currently have one to offer.
+ *  session tickets but doesn't currently have one to offer.
  *  2: either s->tls_session_secret_cb was set, or a ticket was offered but
- *     couldn't be decrypted because of a non-fatal error.
+ *  couldn't be decrypted because of a non-fatal error.
  *  3: a ticket was successfully decrypted and *ret was set.
  *
  * Side effects:
@@ -2988,7 +2988,7 @@ end:
  * sess_id: points at the session ID.
  * sesslen: the length of the session ID.
  * psess: (output) on return, if a ticket was decrypted, then this is set to
- *     point to the resulting session.
+ *  point to the resulting session.
  *
  * Returns:
  * -2: fatal error, malloc failure.

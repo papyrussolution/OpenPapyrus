@@ -138,7 +138,7 @@ LIBSSH2_API char * libssh2_userauth_list(LIBSSH2_SESSION * session, const char *
  * libssh2_userauth_authenticated
  *
  * Returns: 0 if not yet authenticated
- *        1 if already authenticated
+ *     1 if already authenticated
  */
 LIBSSH2_API int libssh2_userauth_authenticated(LIBSSH2_SESSION * session)
 {

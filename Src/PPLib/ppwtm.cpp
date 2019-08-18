@@ -2732,14 +2732,16 @@ int  SLAPI TestLargeVlrInputOutput();
 void SLAPI Test_MailMsg_ReadFromFile();
 void SLAPI Test_MakeEmailMessage();
 int  SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
+int  SLAPI TestMqc();
 
 int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	TestMqc();
 	//Test_MailMsg_ReadFromFile();
 	//TestSArchive();
-	LuaTest();
+	//LuaTest();
 	//TestFann2();
 	//Test_MakeEmailMessage();
 	//CollectLldFileStat();

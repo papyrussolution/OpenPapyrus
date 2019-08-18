@@ -84,54 +84,30 @@ static const char * unknown_error_string = "(unknown error)";
 
 const char * amqp_error_string2(int code) 
 {
-	const char * error_string;
+	const char * error_string = 0;
 	size_t category = (((-code) & ERROR_CATEGORY_MASK) >> 8);
 	size_t error = (-code) & ERROR_MASK;
 	switch(category) {
-		case EC_base:
-		    if(error < (sizeof(base_error_strings) / sizeof(char *))) {
-			    error_string = base_error_strings[error];
-		    }
-		    else {
-			    error_string = unknown_error_string;
-		    }
-		    break;
-		case EC_tcp:
-		    if(error < (sizeof(tcp_error_strings) / sizeof(char *))) {
-			    error_string = tcp_error_strings[error];
-		    }
-		    else {
-			    error_string = unknown_error_string;
-		    }
-		    break;
-		case EC_ssl:
-		    if(error < (sizeof(ssl_error_strings) / sizeof(char *))) {
-			    error_string = ssl_error_strings[error];
-		    }
-		    else {
-			    error_string = unknown_error_string;
-		    }
-		    break;
-		default:
-		    error_string = unknown_error_string;
-		    break;
+		case EC_base: error_string = (error < SIZEOFARRAY(base_error_strings)) ? base_error_strings[error] : unknown_error_string; break;
+		case EC_tcp:  error_string = (error < SIZEOFARRAY(tcp_error_strings)) ? tcp_error_strings[error] : unknown_error_string; break;
+		case EC_ssl:  error_string = (error < SIZEOFARRAY(ssl_error_strings)) ? ssl_error_strings[error] : unknown_error_string; break;
+		default: error_string = unknown_error_string; break;
 	}
 	return error_string;
 }
 
 char * amqp_error_string(int code) 
 {
-	/* Previously sometimes clients had to flip the sign on a return value from a
-	 * function to get the correct error code. Now, all error codes are negative.
-	 * To keep people's legacy code running correctly, we map all error codes to
-	 * negative values.
-	 *
-	 * This is only done with this deprecated function.
-	 */
-	if(code > 0) {
+	// 
+	// Previously sometimes clients had to flip the sign on a return value from a
+	// function to get the correct error code. Now, all error codes are negative.
+	// To keep people's legacy code running correctly, we map all error codes to negative values.
+	// 
+	// This is only done with this deprecated function.
+	// 
+	if(code > 0)
 		code = -code;
-	}
-	return strdup(amqp_error_string2(code));
+	return _strdup(amqp_error_string2(code));
 }
 
 void amqp_abort(const char * fmt, ...) 
@@ -165,63 +141,61 @@ int amqp_basic_publish(amqp_connection_state_t state, amqp_channel_t channel, am
 	m.ticket = 0;
 	// TODO(alanxz): this heartbeat check is happening in the wrong place, it should really be done in amqp_try_send/writev 
 	res = amqp_time_has_past(state->next_recv_heartbeat);
-	if(AMQP_STATUS_TIMER_FAILURE == res) {
+	if(res == AMQP_STATUS_TIMER_FAILURE)
 		return res;
-	}
-	else if(AMQP_STATUS_TIMEOUT == res) {
+	else if(res == AMQP_STATUS_TIMEOUT) {
 		res = amqp_try_recv(state);
-		if(AMQP_STATUS_TIMEOUT == res) {
+		if(res == AMQP_STATUS_TIMEOUT)
 			return AMQP_STATUS_HEARTBEAT_TIMEOUT;
-		}
-		else if(AMQP_STATUS_OK != res) {
+		else if(res != AMQP_STATUS_OK)
 			return res;
-		}
 	}
 	res = amqp_send_method_inner(state, channel, AMQP_BASIC_PUBLISH_METHOD, &m, AMQP_SF_MORE, amqp_time_infinite());
-	if(res < 0) {
+	if(res < 0)
 		return res;
-	}
-	if(properties == NULL) {
-		memzero(&default_properties, sizeof(default_properties));
-		properties = &default_properties;
-	}
-	f.frame_type = AMQP_FRAME_HEADER;
-	f.channel = channel;
-	f.payload.properties.class_id = AMQP_BASIC_CLASS;
-	f.payload.properties.body_size = body.len;
-	f.payload.properties.decoded = (void*)properties;
-	if(body.len > 0)
-		flagz = AMQP_SF_MORE;
-	else
-		flagz = AMQP_SF_NONE;
-	res = amqp_send_frame_inner(state, &f, flagz, amqp_time_infinite());
-	if(res < 0) {
-		return res;
-	}
-	body_offset = 0;
-	while(body_offset < body.len) {
-		size_t remaining = body.len - body_offset;
-		if(remaining == 0) {
-			break;
+	else {
+		if(!properties) {
+			memzero(&default_properties, sizeof(default_properties));
+			properties = &default_properties;
 		}
-		f.frame_type = AMQP_FRAME_BODY;
+		f.frame_type = AMQP_FRAME_HEADER;
 		f.channel = channel;
-		f.payload.body_fragment.bytes = amqp_offset(body.bytes, body_offset);
-		if(remaining >= usable_body_payload_size) {
-			f.payload.body_fragment.len = usable_body_payload_size;
+		f.payload.properties.class_id = AMQP_BASIC_CLASS;
+		f.payload.properties.body_size = body.len;
+		f.payload.properties.decoded = (void*)properties;
+		if(body.len > 0)
 			flagz = AMQP_SF_MORE;
-		}
-		else {
-			f.payload.body_fragment.len = remaining;
+		else
 			flagz = AMQP_SF_NONE;
-		}
-		body_offset += f.payload.body_fragment.len;
 		res = amqp_send_frame_inner(state, &f, flagz, amqp_time_infinite());
-		if(res < 0) {
+		if(res < 0)
 			return res;
+		else {
+			body_offset = 0;
+			while(body_offset < body.len) {
+				size_t remaining = body.len - body_offset;
+				if(remaining == 0) {
+					break;
+				}
+				f.frame_type = AMQP_FRAME_BODY;
+				f.channel = channel;
+				f.payload.body_fragment.bytes = amqp_offset(body.bytes, body_offset);
+				if(remaining >= usable_body_payload_size) {
+					f.payload.body_fragment.len = usable_body_payload_size;
+					flagz = AMQP_SF_MORE;
+				}
+				else {
+					f.payload.body_fragment.len = remaining;
+					flagz = AMQP_SF_NONE;
+				}
+				body_offset += f.payload.body_fragment.len;
+				res = amqp_send_frame_inner(state, &f, flagz, amqp_time_infinite());
+				if(res < 0)
+					return res;
+			}
+			return AMQP_STATUS_OK;
 		}
 	}
-	return AMQP_STATUS_OK;
 }
 
 amqp_rpc_reply_t amqp_channel_close(amqp_connection_state_t state, amqp_channel_t channel, int code) 
@@ -232,7 +206,7 @@ amqp_rpc_reply_t amqp_channel_close(amqp_connection_state_t state, amqp_channel_
 	if(code < 0 || code > UINT16_MAX) {
 		return amqp_rpc_reply_error(AMQP_STATUS_INVALID_PARAMETER);
 	}
-	req.reply_code = (uint16_t)code;
+	req.reply_code = (uint16)code;
 	req.reply_text.bytes = codestr;
 	req.reply_text.len = sprintf(codestr, "%d", code);
 	req.class_id = 0;
@@ -248,7 +222,7 @@ amqp_rpc_reply_t amqp_connection_close(amqp_connection_state_t state, int code)
 	if(code < 0 || code > UINT16_MAX) {
 		return amqp_rpc_reply_error(AMQP_STATUS_INVALID_PARAMETER);
 	}
-	req.reply_code = (uint16_t)code;
+	req.reply_code = (uint16)code;
 	req.reply_text.bytes = codestr;
 	req.reply_text.len = sprintf(codestr, "%d", code);
 	req.class_id = 0;
@@ -256,7 +230,7 @@ amqp_rpc_reply_t amqp_connection_close(amqp_connection_state_t state, int code)
 	return amqp_simple_rpc(state, 0, AMQP_CONNECTION_CLOSE_METHOD, replies, &req);
 }
 
-int amqp_basic_ack(amqp_connection_state_t state, amqp_channel_t channel, uint64_t delivery_tag, boolint multiple) 
+int amqp_basic_ack(amqp_connection_state_t state, amqp_channel_t channel, uint64 delivery_tag, boolint multiple) 
 {
 	amqp_basic_ack_t m;
 	m.delivery_tag = delivery_tag;
@@ -275,7 +249,7 @@ amqp_rpc_reply_t amqp_basic_get(amqp_connection_state_t state, amqp_channel_t ch
 	return state->most_recent_api_result;
 }
 
-int amqp_basic_reject(amqp_connection_state_t state, amqp_channel_t channel, uint64_t delivery_tag, boolint requeue) 
+int amqp_basic_reject(amqp_connection_state_t state, amqp_channel_t channel, uint64 delivery_tag, boolint requeue) 
 {
 	amqp_basic_reject_t req;
 	req.delivery_tag = delivery_tag;
@@ -283,7 +257,7 @@ int amqp_basic_reject(amqp_connection_state_t state, amqp_channel_t channel, uin
 	return amqp_send_method(state, channel, AMQP_BASIC_REJECT_METHOD, &req);
 }
 
-int amqp_basic_nack(amqp_connection_state_t state, amqp_channel_t channel, uint64_t delivery_tag, boolint multiple, boolint requeue) 
+int amqp_basic_nack(amqp_connection_state_t state, amqp_channel_t channel, uint64 delivery_tag, boolint multiple, boolint requeue) 
 {
 	amqp_basic_nack_t req;
 	req.delivery_tag = delivery_tag;
@@ -292,7 +266,7 @@ int amqp_basic_nack(amqp_connection_state_t state, amqp_channel_t channel, uint6
 	return amqp_send_method(state, channel, AMQP_BASIC_NACK_METHOD, &req);
 }
 
-struct timeval * amqp_get_handshake_timeout(amqp_connection_state_t state) 
+const struct timeval * amqp_get_handshake_timeout(const amqp_connection_state_t state) 
 {
 	return state->handshake_timeout;
 }

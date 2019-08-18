@@ -156,9 +156,9 @@ IMPLEMENT_DYNAMIC_BIND_FN(bind_fn)
  * should under normal circumstances go via this support rather than the default
  * EVP support. There are other symbols to tweak the testing;
  *  TEST_ENC_OPENSSL_RC4_OTHERS - print a one line message to stderr each time
- *      we're asked for a cipher we don't support (should not happen).
+ *   we're asked for a cipher we don't support (should not happen).
  *  TEST_ENG_OPENSSL_RC4_P_INIT - print a one line message to stderr each time
- *      the "init_key" handler is called.
+ *   the "init_key" handler is called.
  *  TEST_ENG_OPENSSL_RC4_P_CIPHER - ditto for the "cipher" handler.
  */
 //#include <openssl/rc4.h>

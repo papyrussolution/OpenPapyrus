@@ -2048,6 +2048,9 @@
       <Project>{696dfcc9-ea0f-4232-83b5-21d0657a61c7}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="rabbitmq-c.vcxproj">
+      <Project>{8d027c7b-9821-4fb1-b62a-d33d7500720d}</Project>
+    </ProjectReference>
     <ProjectReference Include="scintilla2.vcxproj">
       <Project>{6824fe2f-b7df-4338-8025-a1b145da91b6}</Project>
     </ProjectReference>

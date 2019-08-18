@@ -391,7 +391,7 @@ typedef enum {
 
 /* LZ4HC_encodeSequence() :
  * @return : 0 if ok,
- *         1 if buffer issue detected */
+ *      1 if buffer issue detected */
 LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8** ip, uint8** op, const uint8** anchor, int matchLength, const uint8* const match, limitedOutput_directive limit, uint8* oend)
 {
 	size_t length;

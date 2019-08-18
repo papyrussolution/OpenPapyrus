@@ -65,11 +65,11 @@ bool Curl_auth_is_gssapi_supported(void)
  * service     [in]     - The service type such as http, smtp, pop or imap.
  * host        [in]     - The host name.
  * mutual_auth [in]     - Flag specifying whether or not mutual authentication
- *                      is enabled.
+ *                   is enabled.
  * chlg64      [in]     - The optional base64 encoded challenge message.
  * krb5        [in/out] - The Kerberos 5 data struct being used and modified.
  * outptr      [in/out] - The address where a pointer to newly allocated memory
- *                      holding the result will be stored upon completion.
+ *                   holding the result will be stored upon completion.
  * outlen      [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -238,7 +238,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
  * chlg64  [in]     - The optional base64 encoded challenge message.
  * krb5    [in/out] - The Kerberos 5 data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                  holding the result will be stored upon completion.
+ *               holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.

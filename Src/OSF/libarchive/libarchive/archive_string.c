@@ -7,10 +7,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -387,18 +387,14 @@ int archive_wstring_append_from_mbs(struct archive_wstring * dest, const char * 
 static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * dest, const char * s, size_t length, struct archive_string_conv * sc)
 {
 	int count, ret = 0;
-	UINT from_cp;
-	if(sc != NULL)
-		from_cp = sc->from_cp;
-	else
-		from_cp = get_current_codepage();
+	UINT from_cp = sc ? sc->from_cp : get_current_codepage();
 	if(from_cp == CP_C_LOCALE) {
 		/*
 		 * "C" locale special process.
 		 */
 		wchar_t * ws;
 		const uchar * mp;
-		if(NULL == archive_wstring_ensure(dest, dest->length + length + 1))
+		if(!archive_wstring_ensure(dest, dest->length + length + 1))
 			return -1;
 		ws = dest->s + dest->length;
 		mp = (const uchar *)s;
@@ -446,12 +442,11 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		sc->flag = saved_flag;/* restore the saved flag. */
 		return ret;
 	}
-	else if(sc != NULL && (sc->flag & SCONV_FROM_UTF16)) {
+	else if(sc && (sc->flag & SCONV_FROM_UTF16)) {
 		count = (int)utf16nbytes(s, length);
 		count >>= 1; /* to be WCS length */
 		/* Allocate memory for WCS. */
-		if(NULL == archive_wstring_ensure(dest,
-		    dest->length + count + 1))
+		if(!archive_wstring_ensure(dest, dest->length + count + 1))
 			return -1;
 		wmemcpy(dest->s + dest->length, (const wchar_t*)s, count);
 		if((sc->flag & SCONV_FROM_UTF16BE) && !is_big_endian()) {
@@ -487,7 +482,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		buffsize = dest->length + length + 1;
 		do {
 			/* Allocate memory for WCS. */
-			if(NULL == archive_wstring_ensure(dest, buffsize))
+			if(!archive_wstring_ensure(dest, buffsize))
 				return -1;
 			/* Convert MBS to WCS. */
 			count = MultiByteToWideChar(from_cp,
@@ -532,7 +527,7 @@ int archive_wstring_append_from_mbs(struct archive_wstring * dest,
 	mbstate_t shift_state;
 	memzero(&shift_state, sizeof(shift_state));
 #endif
-	if(NULL == archive_wstring_ensure(dest, dest->length + wcs_length + 1))
+	if(!archive_wstring_ensure(dest, dest->length + wcs_length + 1))
 		return -1;
 	wcs = dest->s + dest->length;
 	/*
@@ -545,8 +540,7 @@ int archive_wstring_append_from_mbs(struct archive_wstring * dest,
 			dest->length = wcs - dest->s;
 			dest->s[dest->length] = L'\0';
 			wcs_length = mbs_length;
-			if(NULL == archive_wstring_ensure(dest,
-			    dest->length + wcs_length + 1))
+			if(!archive_wstring_ensure(dest, dest->length + wcs_length + 1))
 				return -1;
 			wcs = dest->s + dest->length;
 		}
@@ -599,19 +593,15 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 {
 	BOOL defchar_used, * dp;
 	int count, ret = 0;
-	UINT to_cp;
 	int wslen = (int)len;
-	if(sc != NULL)
-		to_cp = sc->to_cp;
-	else
-		to_cp = get_current_codepage();
+	UINT to_cp = sc ? sc->to_cp : get_current_codepage();
 	if(to_cp == CP_C_LOCALE) {
 		/*
 		 * "C" locale special process.
 		 */
 		const wchar_t * wp = ws;
 		char * p;
-		if(NULL == archive_string_ensure(as, as->length + wslen +1))
+		if(!archive_string_ensure(as, as->length + wslen +1))
 			return -1;
 		p = as->s + as->length;
 		count = 0;
@@ -627,9 +617,9 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 			count++;
 		}
 	}
-	else if(sc != NULL && (sc->flag & SCONV_TO_UTF16)) {
+	else if(sc && (sc->flag & SCONV_TO_UTF16)) {
 		uint16_t * u16;
-		if(NULL == archive_string_ensure(as, as->length + len * 2 + 2))
+		if(!archive_string_ensure(as, as->length + len * 2 + 2))
 			return -1;
 		u16 = (uint16_t*)(as->s + as->length);
 		count = 0;
@@ -652,7 +642,7 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 	}
 	else {
 		/* Make sure the MBS buffer has plenty to set. */
-		if(NULL == archive_string_ensure(as, as->length + len * 2 + 1))
+		if(!archive_string_ensure(as, as->length + len * 2 + 1))
 			return -1;
 		do {
 			defchar_used = 0;
@@ -664,7 +654,7 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 			if(count == 0 &&
 			    GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 				/* Expand the MBS buffer and retry. */
-				if(NULL == archive_string_ensure(as, as->buffer_length + len))
+				if(!archive_string_ensure(as, as->buffer_length + len))
 					return -1;
 				continue;
 			}
@@ -1883,7 +1873,7 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p, 
 				if(avail < rbytes) {
 					as->length = outp - as->s;
 					bs = as->buffer_length + (remaining * to_size) + rbytes;
-					if(NULL == archive_string_ensure(as, bs))
+					if(!archive_string_ensure(as, bs))
 						return -1;
 					outp = as->s + as->length;
 					avail = as->buffer_length - as->length - to_size;
@@ -1907,11 +1897,10 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p, 
 			return_value = -1; /* failure */
 		}
 		else {
-			/* E2BIG no output buffer,
-			 * Increase an output buffer.  */
+			// E2BIG no output buffer, Increase an output buffer. 
 			as->length = outp - as->s;
 			bs = as->buffer_length + remaining * 2;
-			if(NULL == archive_string_ensure(as, bs))
+			if(!archive_string_ensure(as, bs))
 				return -1;
 			outp = as->s + as->length;
 			avail = as->buffer_length - as->length - to_size;

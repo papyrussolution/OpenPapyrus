@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -137,11 +137,11 @@ struct ctl_extr_rec {
  * The relation of struct isofile and isoent and archive_entry.
  *
  * Primary volume tree  --> struct isoent
- *                                |
- *                                v
- *                          struct isofile --> archive_entry
- *                                ^
- *                                |
+ *                             |
+ *                             v
+ *                       struct isofile --> archive_entry
+ *                             ^
+ *                             |
  * Joliet volume tree   --> struct isoent
  *
  * struct isoent has specific information for volume.
@@ -407,21 +407,21 @@ struct iso_option {
 
 	/*
 	 * Usage  : boot-type=<boot-media-type>
-	 *        : 'no-emulation' : 'no emulation' image
-	 *        :           'fd' : floppy disk image
-	 *        :    'hard-disk' : hard disk image
+	 *     : 'no-emulation' : 'no emulation' image
+	 *     :           'fd' : floppy disk image
+	 *     :    'hard-disk' : hard disk image
 	 * Type   : string
 	 * Default: Auto detect
-	 *        : We check a size of boot image;
-	 *        : If the size is just 1.22M/1.44M/2.88M,
-	 *        : we assume boot_type is 'fd';
-	 *        : otherwise boot_type is 'no-emulation'.
+	 *     : We check a size of boot image;
+	 *     : If the size is just 1.22M/1.44M/2.88M,
+	 *     : we assume boot_type is 'fd';
+	 *     : otherwise boot_type is 'no-emulation'.
 	 * COMPAT :
-	 *    boot=no-emulation
+	 * boot=no-emulation
 	 *	mkisofs -no-emul-boot
-	 *    boot=fd
+	 * boot=fd
 	 *	This is a default on the mkisofs.
-	 *    boot=hard-disk
+	 * boot=hard-disk
 	 *	mkisofs -hard-disk-boot
 	 *
 	 * Specifies a type of "El Torito" boot image.
@@ -479,25 +479,25 @@ struct iso_option {
 	 * Level 1: [DEFAULT]
 	 *   - limits each file size less than 4Gi bytes;
 	 *   - a File Name shall not contain more than eight
-	 *     d-characters or eight d1-characters;
+	 *  d-characters or eight d1-characters;
 	 *   - a File Name Extension shall not contain more than
-	 *     three d-characters or three d1-characters;
+	 *  three d-characters or three d1-characters;
 	 *   - a Directory Identifier shall not contain more
-	 *     than eight d-characters or eight d1-characters.
+	 *  than eight d-characters or eight d1-characters.
 	 * Level 2:
 	 *   - limits each file size less than 4Giga bytes;
 	 *   - a File Name shall not contain more than thirty
-	 *     d-characters or thirty d1-characters;
+	 *  d-characters or thirty d1-characters;
 	 *   - a File Name Extension shall not contain more than
-	 *     thirty d-characters or thirty d1-characters;
+	 *  thirty d-characters or thirty d1-characters;
 	 *   - a Directory Identifier shall not contain more
-	 *     than thirty-one d-characters or thirty-one
-	 *     d1-characters.
+	 *  than thirty-one d-characters or thirty-one
+	 *  d1-characters.
 	 * Level 3:
 	 *   - no limit of file size; use multi extent.
 	 * Level 4:
 	 *   - this level 4 simulates mkisofs option
-	 *     '-iso-level 4';
+	 *  '-iso-level 4';
 	 *   - crate a enhanced volume as mkisofs doing;
 	 *   - allow a File Name to have leading dot;
 	 *   - allow a File Name to have all ASCII letters;
@@ -506,23 +506,23 @@ struct iso_option {
 	 *   - disable a version number to a File Name;
 	 *   - disable a forced period to the tail of a File Name;
 	 *   - the maximum length of files and directories is raised to 193.
-	 *     if rockridge option is disabled, raised to 207.
+	 *  if rockridge option is disabled, raised to 207.
 	 */
 	uint iso_level : 3;
 #define OPT_ISO_LEVEL_DEFAULT           1       /* ISO Level 1 */
 
 	/*
 	 * Usage  : joliet[=long]
-	 *        : !joliet
-	 *        :   Do not generate Joliet Volume and Records.
-	 *        : joliet [DEFAULT]
-	 *        :   Generates Joliet Volume and Directory Records.
-	 *        :   [COMPAT: mkisofs -J/-joliet]
-	 *        : joliet=long
-	 *        :   The joliet filenames are up to 103 Unicode
-	 *        :   characters.
-	 *        :   This option breaks the Joliet specification.
-	 *        :   [COMPAT: mkisofs -J -joliet-long]
+	 *     : !joliet
+	 *     :   Do not generate Joliet Volume and Records.
+	 *     : joliet [DEFAULT]
+	 *     :   Generates Joliet Volume and Directory Records.
+	 *     :   [COMPAT: mkisofs -J/-joliet]
+	 *     : joliet=long
+	 *     :   The joliet filenames are up to 103 Unicode
+	 *     :   characters.
+	 *     :   This option breaks the Joliet specification.
+	 *     :   [COMPAT: mkisofs -J -joliet-long]
 	 * Type   : boolean/string
 	 * Default: Enabled
 	 * COMPAT : mkisofs -J / -joliet-long
@@ -590,20 +590,20 @@ struct iso_option {
 
 	/*
 	 * Usage  : rockridge
-	 *        : !rockridge
-	 *        :    disable to generate SUSP and RR records.
-	 *        : rockridge
-	 *        :    the same as 'rockridge=useful'.
-	 *        : rockridge=strict
-	 *        :    generate SUSP and RR records.
-	 *        :    [COMPAT: mkisofs -R]
-	 *        : rockridge=useful [DEFAULT]
-	 *        :    generate SUSP and RR records.
-	 *        :    [COMPAT: mkisofs -r]
-	 *        :    NOTE  Our rockridge=useful option does not set a zero
-	 *        :          to uid and gid, you should use application
-	 *        :          option such as --gid,--gname,--uid and --uname
-	 *        :          bsdtar options instead.
+	 *     : !rockridge
+	 *     :    disable to generate SUSP and RR records.
+	 *     : rockridge
+	 *     :    the same as 'rockridge=useful'.
+	 *     : rockridge=strict
+	 *     :    generate SUSP and RR records.
+	 *     :    [COMPAT: mkisofs -R]
+	 *     : rockridge=useful [DEFAULT]
+	 *     :    generate SUSP and RR records.
+	 *     :    [COMPAT: mkisofs -r]
+	 *     :    NOTE  Our rockridge=useful option does not set a zero
+	 *     :          to uid and gid, you should use application
+	 *     :          option such as --gid,--gname,--uid and --uname
+	 *     :          bsdtar options instead.
 	 * Type   : boolean/string
 	 * Default: Enabled as rockridge=useful
 	 * COMPAT : mkisofs -r / -R
@@ -630,17 +630,17 @@ struct iso_option {
 
 	/*
 	 * Usage  : !zisofs [DEFAULT]
-	 *        :    Disable to generate RRIP 'ZF' extension.
-	 *        : zisofs
-	 *        :    Make files zisofs file and generate RRIP 'ZF'
-	 *        :    extension. So you do not need mkzftree utility
-	 *        :    for making zisofs.
-	 *        :    When the file size is less than one Logical Block
-	 *        :    size, that file will not zisofs'ed since it does
-	 *        :    reduce an ISO-image size.
-	 *        :
-	 *        :    When you specify option 'boot=<boot-image>', that
-	 *        :    'boot-image' file won't be converted to zisofs file.
+	 *     :    Disable to generate RRIP 'ZF' extension.
+	 *     : zisofs
+	 *     :    Make files zisofs file and generate RRIP 'ZF'
+	 *     :    extension. So you do not need mkzftree utility
+	 *     :    for making zisofs.
+	 *     :    When the file size is less than one Logical Block
+	 *     :    size, that file will not zisofs'ed since it does
+	 *     :    reduce an ISO-image size.
+	 *     :
+	 *     :    When you specify option 'boot=<boot-image>', that
+	 *     :    'boot-image' file won't be converted to zisofs file.
 	 * Type   : boolean
 	 * Default: Disabled
 	 *
@@ -2362,14 +2362,14 @@ static int set_SUSP_CE(uchar * p, int location, int offset, int size)
 	uchar * bp = p -1;
 	/*  Extend the System Use Area
 	 *   "CE" Format:
-	 *               len  ver
-	 *    +----+----+----+----+-----------+-----------+
-	 *    | 'C'| 'E'| 1C | 01 | LOCATION1 | LOCATION2 |
-	 *    +----+----+----+----+-----------+-----------+
-	 *    0    1    2    3    4          12          20
-	 *    +-----------+
-	 *    | LOCATION3 |
-	 *    +-----------+
+	 *            len  ver
+	 * +----+----+----+----+-----------+-----------+
+	 * | 'C'| 'E'| 1C | 01 | LOCATION1 | LOCATION2 |
+	 * +----+----+----+----+-----------+-----------+
+	 * 0    1    2    3    4          12          20
+	 * +-----------+
+	 * | LOCATION3 |
+	 * +-----------+
 	 *   20          28
 	 *   LOCATION1 : Location of Continuation of System Use Area.
 	 *   LOCATION2 : Offset to Start of Continuation.
@@ -2653,12 +2653,12 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(rr_flag & RR_USE_NM) {
 		/*
 		 *   "NM" Format:
-		 *     e.g. a basename is 'foo'
-		 *               len  ver  flg
-		 *    +----+----+----+----+----+----+----+----+
-		 *    | 'N'| 'M'| 08 | 01 | 00 | 'f'| 'o'| 'o'|
-		 *    +----+----+----+----+----+----+----+----+
-		 *    <----------------- len ----------------->
+		 *  e.g. a basename is 'foo'
+		 *            len  ver  flg
+		 * +----+----+----+----+----+----+----+----+
+		 * | 'N'| 'M'| 08 | 01 | 00 | 'f'| 'o'| 'o'|
+		 * +----+----+----+----+----+----+----+----+
+		 * <----------------- len ----------------->
 		 */
 		size_t nmlen = file->basename.length;
 		const char * nm = file->basename.s;
@@ -2712,14 +2712,14 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(rr_flag & RR_USE_PX) {
 		/*
 		 *   "PX" Format:
-		 *               len  ver
-		 *    +----+----+----+----+-----------+-----------+
-		 *    | 'P'| 'X'| 2C | 01 | FILE MODE |   LINKS   |
-		 *    +----+----+----+----+-----------+-----------+
-		 *    0    1    2    3    4          12          20
-		 *    +-----------+-----------+------------------+
-		 *    |  USER ID  | GROUP ID  |FILE SERIAL NUMBER|
-		 *    +-----------+-----------+------------------+
+		 *            len  ver
+		 * +----+----+----+----+-----------+-----------+
+		 * | 'P'| 'X'| 2C | 01 | FILE MODE |   LINKS   |
+		 * +----+----+----+----+-----------+-----------+
+		 * 0    1    2    3    4          12          20
+		 * +-----------+-----------+------------------+
+		 * |  USER ID  | GROUP ID  |FILE SERIAL NUMBER|
+		 * +-----------+-----------+------------------+
 		 *   20          28          36                 44
 		 */
 		length = 44;
@@ -2781,27 +2781,27 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(rr_flag & RR_USE_SL) {
 		/*
 		 *   "SL" Format:
-		 *     e.g. a symbolic name is 'foo/bar'
-		 *               len  ver  flg
-		 *    +----+----+----+----+----+------------+
-		 *    | 'S'| 'L'| 0F | 01 | 00 | components |
-		 *    +----+----+----+----+----+-----+------+
-		 *    0    1    2    3    4    5  ...|...  15
-		 *    <----------------- len --------+------>
-		 *    components :                   |
-		 *     cflg clen                     |
-		 *    +----+----+----+----+----+     |
-		 *    | 00 | 03 | 'f'| 'o'| 'o'| <---+
-		 *    +----+----+----+----+----+     |
-		 *    5    6    7    8    9   10     |
-		 *     cflg clen                     |
-		 *    +----+----+----+----+----+     |
-		 *    | 00 | 03 | 'b'| 'a'| 'r'| <---+
-		 *    +----+----+----+----+----+
+		 *  e.g. a symbolic name is 'foo/bar'
+		 *            len  ver  flg
+		 * +----+----+----+----+----+------------+
+		 * | 'S'| 'L'| 0F | 01 | 00 | components |
+		 * +----+----+----+----+----+-----+------+
+		 * 0    1    2    3    4    5  ...|...  15
+		 * <----------------- len --------+------>
+		 * components :                   |
+		 *  cflg clen                     |
+		 * +----+----+----+----+----+     |
+		 * | 00 | 03 | 'f'| 'o'| 'o'| <---+
+		 * +----+----+----+----+----+     |
+		 * 5    6    7    8    9   10     |
+		 *  cflg clen                     |
+		 * +----+----+----+----+----+     |
+		 * | 00 | 03 | 'b'| 'a'| 'r'| <---+
+		 * +----+----+----+----+----+
 		 *   10   11   12   13   14   15
 		 *
-		 *    - cflg : flag of component
-		 *    - clen : length of component
+		 * - cflg : flag of component
+		 * - clen : length of component
 		 */
 		const char * sl;
 		char sl_last;
@@ -2831,10 +2831,10 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			while(*sl && sllen + 11 < slmax) {
 				if(sl_last == '\0' && sl[0] == '/') {
 					/*
-					 *     flg  len
-					 *    +----+----+
-					 *    | 08 | 00 | ROOT component.
-					 *    +----+----+ ("/")
+					 *  flg  len
+					 * +----+----+
+					 * | 08 | 00 | ROOT component.
+					 * +----+----+ ("/")
 					 *
 					 * Root component has to appear
 					 * at the first component only.
@@ -2857,10 +2857,10 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 				    sl[1] == '.' && sl[2] == '.' &&
 				    (sl[3] == '/' || sl[3] == '\0'))) {
 					/*
-					 *     flg  len
-					 *    +----+----+
-					 *    | 04 | 00 | PARENT component.
-					 *    +----+----+ ("..")
+					 *  flg  len
+					 * +----+----+
+					 * | 04 | 00 | PARENT component.
+					 * +----+----+ ("..")
 					 */
 					if(nc != NULL) {
 						cf = nc++;
@@ -2882,10 +2882,10 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 				    (sl[0] == '/' && sl[1] == '.' &&
 				    (sl[2] == '/' || sl[2] == '\0'))) {
 					/*
-					 *     flg  len
-					 *    +----+----+
-					 *    | 02 | 00 | CURRENT component.
-					 *    +----+----+ (".")
+					 *  flg  len
+					 * +----+----+
+					 * | 02 | 00 | CURRENT component.
+					 * +----+----+ (".")
 					 */
 					if(nc != NULL) {
 						cf = nc++;
@@ -2931,12 +2931,12 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 					 */
 					*cf |= 0x01;
 					/*
-					 *               len  ver  flg
-					 *    +----+----+----+----+----+-
-					 *    | 'S'| 'L'| XX | 01 | 01 |
-					 *    +----+----+----+----+----+-
-					 *                           ^
-					 *           continues in next "SL"
+					 *            len  ver  flg
+					 * +----+----+----+----+----+-
+					 * | 'S'| 'L'| XX | 01 | 01 |
+					 * +----+----+----+----+----+-
+					 *                        ^
+					 *        continues in next "SL"
 					 */
 					bp[3] = length;
 					bp[5] = 0x01;/* This Symbolic Link
@@ -2971,14 +2971,14 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(rr_flag & RR_USE_TF) {
 		/*
 		 *   "TF" Format:
-		 *               len  ver
-		 *    +----+----+----+----+-----+-------------+
-		 *    | 'T'| 'F'| XX | 01 |FLAGS| TIME STAMPS |
-		 *    +----+----+----+----+-----+-------------+
-		 *    0    1    2    3    4     5            XX
-		 *    TIME STAMPS : ISO 9660 Standard 9.1.5.
-		 *                  If TF_LONG_FORM FLAGS is set,
-		 *                  use ISO9660 Standard 8.4.26.1.
+		 *            len  ver
+		 * +----+----+----+----+-----+-------------+
+		 * | 'T'| 'F'| XX | 01 |FLAGS| TIME STAMPS |
+		 * +----+----+----+----+-----+-------------+
+		 * 0    1    2    3    4     5            XX
+		 * TIME STAMPS : ISO 9660 Standard 9.1.5.
+		 *               If TF_LONG_FORM FLAGS is set,
+		 *               use ISO9660 Standard 8.4.26.1.
 		 */
 #define TF_CREATION     0x01    /* Creation time recorded		*/
 #define TF_MODIFY       0x02    /* Modification time recorded		*/
@@ -3053,11 +3053,11 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(rr_flag & RR_USE_RE) {
 		/*
 		 *   "RE" Format:
-		 *               len  ver
-		 *    +----+----+----+----+
-		 *    | 'R'| 'E'| 04 | 01 |
-		 *    +----+----+----+----+
-		 *    0    1    2    3    4
+		 *            len  ver
+		 * +----+----+----+----+
+		 * | 'R'| 'E'| 04 | 01 |
+		 * +----+----+----+----+
+		 * 0    1    2    3    4
 		 */
 		length = 4;
 		if(extra_space(&ctl) < length)
@@ -3076,12 +3076,12 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(rr_flag & RR_USE_PL) {
 		/*
 		 *   "PL" Format:
-		 *               len  ver
-		 *    +----+----+----+----+------------+
-		 *    | 'P'| 'L'| 0C | 01 | *LOCATION  |
-		 *    +----+----+----+----+------------+
-		 *    0    1    2    3    4           12
-		 *    *LOCATION: location of parent directory
+		 *            len  ver
+		 * +----+----+----+----+------------+
+		 * | 'P'| 'L'| 0C | 01 | *LOCATION  |
+		 * +----+----+----+----+------------+
+		 * 0    1    2    3    4           12
+		 * *LOCATION: location of parent directory
 		 */
 		length = 12;
 		if(extra_space(&ctl) < length)
@@ -3102,12 +3102,12 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(rr_flag & RR_USE_CL) {
 		/*
 		 *   "CL" Format:
-		 *               len  ver
-		 *    +----+----+----+----+------------+
-		 *    | 'C'| 'L'| 0C | 01 | *LOCATION  |
-		 *    +----+----+----+----+------------+
-		 *    0    1    2    3    4           12
-		 *    *LOCATION: location of child directory
+		 *            len  ver
+		 * +----+----+----+----+------------+
+		 * | 'C'| 'L'| 0C | 01 | *LOCATION  |
+		 * +----+----+----+----+------------+
+		 * 0    1    2    3    4           12
+		 * *LOCATION: location of child directory
 		 */
 		length = 12;
 		if(extra_space(&ctl) < length)
@@ -3128,11 +3128,11 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(rr_flag & RR_USE_PN) {
 		/*
 		 *   "PN" Format:
-		 *               len  ver
-		 *    +----+----+----+----+------------+------------+
-		 *    | 'P'| 'N'| 14 | 01 | dev_t high | dev_t low  |
-		 *    +----+----+----+----+------------+------------+
-		 *    0    1    2    3    4           12           20
+		 *            len  ver
+		 * +----+----+----+----+------------+------------+
+		 * | 'P'| 'N'| 14 | 01 | dev_t high | dev_t low  |
+		 * +----+----+----+----+------------+------------+
+		 * 0    1    2    3    4           12           20
 		 */
 		length = 20;
 		if(extra_space(&ctl) < length)
@@ -3156,15 +3156,15 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	if(file->zisofs.header_size) {
 		/*
 		 *   "ZF" Format:
-		 *               len  ver
-		 *    +----+----+----+----+----+----+-------------+
-		 *    | 'Z'| 'F'| 10 | 01 | 'p'| 'z'| Header Size |
-		 *    +----+----+----+----+----+----+-------------+
-		 *    0    1    2    3    4    5    6             7
-		 *    +--------------------+-------------------+
-		 *    | Log2 of block Size | Uncompressed Size |
-		 *    +--------------------+-------------------+
-		 *    7                    8                   16
+		 *            len  ver
+		 * +----+----+----+----+----+----+-------------+
+		 * | 'Z'| 'F'| 10 | 01 | 'p'| 'z'| Header Size |
+		 * +----+----+----+----+----+----+-------------+
+		 * 0    1    2    3    4    5    6             7
+		 * +--------------------+-------------------+
+		 * | Log2 of block Size | Uncompressed Size |
+		 * +--------------------+-------------------+
+		 * 7                    8                   16
 		 */
 		length = 16;
 		if(extra_space(&ctl) < length)
@@ -4612,7 +4612,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 				memmove(p, p+2, strlen(p+2) + 1);
 			else if(p[1] == '.' && p[2] == '.' && p[3] == '/') {
 				/* Convert 'dir/dir1/../dir2/'
-				 *     --> 'dir/dir2/'
+				 *  --> 'dir/dir2/'
 				 */
 				char * rp = p -1;
 				while(rp >= dirname) {
@@ -5643,7 +5643,7 @@ static int isoent_gen_iso9660_identifier(struct archive_write * a, struct isoent
 		else
 			/*
 			 * XA  : CD-ROM XA System Use Extension
-			 *       Information(14).
+			 *    Information(14).
 			 * MDR - DRL - XA = 254 - 33 -14 = 207.
 			 */
 			fnmax = ffmax = dnmax = 207;
@@ -6749,7 +6749,7 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 	/*
 	 * Get a system type.
 	 * TODO: `El Torito' specification says "A copy of byte 5 from the
-	 *       Partition Table found in the boot image".
+	 *    Partition Table found in the boot image".
 	 */
 	iso9660->el_torito.system_type = 0;
 
@@ -7238,7 +7238,7 @@ static int zisofs_finish_entry(struct archive_write * a)
 	 *   4 * (((Uncompressed file size + block_size -1) / block_size) + 1)
 	 *
 	 * Write zisofs header.
-	 *    Magic number
+	 * Magic number
 	 * +----+----+----+----+----+----+----+----+
 	 * | 37 | E4 | 53 | 96 | C9 | DB | D6 | 07 |
 	 * +----+----+----+----+----+----+----+----+

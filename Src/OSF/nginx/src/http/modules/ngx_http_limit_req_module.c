@@ -368,7 +368,7 @@ static void ngx_http_limit_req_expire(ngx_http_limit_req_ctx_t * ctx, ngx_uint_t
 	/*
 	 * n == 1 deletes one or two zero rate entries
 	 * n == 0 deletes oldest entry by force
-	 *      and one or two zero rate entries
+	 *   and one or two zero rate entries
 	 */
 
 	while(n < 3) {

@@ -8,10 +8,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -256,7 +256,7 @@ static void add_pax_attr_binary(struct archive_string * as, const char * key, co
 	char tmp[1 + 3 * sizeof(int)];  /* < 3 base-10 digits per byte */
 	/*-
 	 * PAX attributes have the following layout:
-	 *     <len> <space> <key> <=> <value> <nl>
+	 *  <len> <space> <key> <=> <value> <nl>
 	 */
 	len = 1 + (int)strlen(key) + 1 + (int)value_len + 1;
 
@@ -1353,7 +1353,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
  * These sections must satisfy the following requirements:
  *   * Parts 1 & 2 together form an initial portion of the dir name.
  *   * Part 3 is specified by the caller.  (It should not contain a leading
- *     or trailing '/'.)
+ *  or trailing '/'.)
  *   * Part 4 forms an initial portion of the base filename.
  *   * The filename must be <= 99 chars to fit the ustar 'name' field.
  *   * Parts 2, 3, 4 together must be <= 99 chars to fit the ustar 'name' fld.

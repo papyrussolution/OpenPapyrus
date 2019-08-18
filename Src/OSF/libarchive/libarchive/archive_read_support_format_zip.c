@@ -8,10 +8,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -126,7 +126,7 @@ struct trad_enc_ctx {
 
 /*
  * See "WinZip - AES Encryption Information"
- *     http://www.winzip.com/aes_info.htm
+ *  http://www.winzip.com/aes_info.htm
  */
 /* Value used in compression method. */
 #define WINZIP_AES_ENCRYPTION   99
@@ -601,8 +601,8 @@ static int process_extra(struct archive_read * a, const char * p, size_t extra_l
 			     *  the future.
 			     *
 			     *  n bytes - feature bitmap: first byte has low-order
-			     *    7 bits.  If high-order bit is set, a subsequent
-			     *    byte holds the next 7 bits, etc.
+			     * 7 bits.  If high-order bit is set, a subsequent
+			     * byte holds the next 7 bits, etc.
 			     *
 			     *  if bitmap & 1, 2 byte "version made by"
 			     *  if bitmap & 2, 2 byte "internal file attributes"
@@ -1371,7 +1371,7 @@ static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 	 * $ cat /bin/ls | lzma | xxd | head -n 1
 	 * 00000000: 5d00 0080 00ff ffff ffff ffff ff00 2814
 	 *
-	 *    5 bytes        8 bytes        n bytes
+	 * 5 bytes        8 bytes        n bytes
 	 * <lzma_params><uncompressed_size><data...>
 	 *
 	 * lzma_params is a 5-byte blob that has to be decoded to extract
@@ -2587,7 +2587,7 @@ static int archive_read_format_zip_streamable_bid(struct archive_read * a, int b
 	 * Bid of 29 here comes from:
 	 *  + 16 bits for "PK",
 	 *  + next 16-bit field has 6 options so contributes
-	 *    about 16 - log_2(6) ~= 16 - 2.6 ~= 13 bits
+	 * about 16 - log_2(6) ~= 16 - 2.6 ~= 13 bits
 	 *
 	 * So we've effectively verified ~29 total bits of check data.
 	 */

@@ -1783,8 +1783,8 @@ int EGifPutCode(GifFileType * GifFile, int CodeSize, const GifByteType * CodeBlo
 	/*
 	 * Buf = CodeSize;
 	 * if (InternalWrite(GifFile, &Buf, 1) != 1) {
-	 *    GifFile->Error = E_GIF_ERR_WRITE_FAILED;
-	 *    return GIF_ERROR;
+	 * GifFile->Error = E_GIF_ERR_WRITE_FAILED;
+	 * return GIF_ERROR;
 	 * }
 	 */
 	return EGifPutCodeNext(GifFile, CodeBlock);

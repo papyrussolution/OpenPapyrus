@@ -54,7 +54,9 @@ SString & SLAPI DateToStr(LDATE dt, SString & rBuf)
 	if(dt) {
 		SString txt_month;
 		SGetMonthText(dt.month(), MONF_CASEGEN, txt_month);
-		rBuf.CatLongZ(dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat("г.");
+		SString & r_yr_buf = SLS.AcquireRvlStr(); // @v10.5.3
+		(r_yr_buf = "г.").Transf(CTRANSF_UTF8_TO_INNER); // @v10.5.3
+		rBuf.CatLongZ(dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat(r_yr_buf);
 		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
 	return rBuf;

@@ -91,28 +91,28 @@ void PNGCBAPI png_default_flush(png_structp png_ptr)
  * This function takes as its arguments:
  * png_ptr       - pointer to a png output data structure
  * io_ptr        - pointer to user supplied structure containing info about
- *               the output functions.  May be NULL.
+ *            the output functions.  May be NULL.
  * write_data_fn - pointer to a new output function that takes as its
- *               arguments a pointer to a png_struct, a pointer to
- *               data to be written, and a 32-bit unsigned int that is
- *               the number of bytes to be written.  The new write
- *               function should call png_error(png_ptr, "Error msg")
- *               to exit and output any fatal error messages.  May be
- *               NULL, in which case libpng's default function will
- *               be used.
+ *            arguments a pointer to a png_struct, a pointer to
+ *            data to be written, and a 32-bit unsigned int that is
+ *            the number of bytes to be written.  The new write
+ *            function should call png_error(png_ptr, "Error msg")
+ *            to exit and output any fatal error messages.  May be
+ *            NULL, in which case libpng's default function will
+ *            be used.
  * flush_data_fn - pointer to a new flush function that takes as its
- *               arguments a pointer to a png_struct.  After a call to
- *               the flush function, there should be no data in any buffers
- *               or pending transmission.  If the output method doesn't do
- *               any buffering of output, a function prototype must still be
- *               supplied although it doesn't have to do anything.  If
- *               PNG_WRITE_FLUSH_SUPPORTED is not defined at libpng compile
- *               time, output_flush_fn will be ignored, although it must be
- *               supplied for compatibility.  May be NULL, in which case
- *               libpng's default function will be used, if
- *               PNG_WRITE_FLUSH_SUPPORTED is defined.  This is not
- *               a good idea if io_ptr does not point to a standard
- *               *FILE structure.
+ *            arguments a pointer to a png_struct.  After a call to
+ *            the flush function, there should be no data in any buffers
+ *            or pending transmission.  If the output method doesn't do
+ *            any buffering of output, a function prototype must still be
+ *            supplied although it doesn't have to do anything.  If
+ *            PNG_WRITE_FLUSH_SUPPORTED is not defined at libpng compile
+ *            time, output_flush_fn will be ignored, although it must be
+ *            supplied for compatibility.  May be NULL, in which case
+ *            libpng's default function will be used, if
+ *            PNG_WRITE_FLUSH_SUPPORTED is defined.  This is not
+ *            a good idea if io_ptr does not point to a standard
+ *            *FILE structure.
  */
 void PNGAPI png_set_write_fn(png_structrp png_ptr, void * io_ptr,
     png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn)

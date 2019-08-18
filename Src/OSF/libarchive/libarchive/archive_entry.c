@@ -7,10 +7,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -104,7 +104,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
  * This adjustment is needed to support the following idiom for adding
  * 1000ns to the stored time:
  * archive_entry_set_atime(archive_entry_atime(),
- *                         archive_entry_atime_nsec() + 1000)
+ *                      archive_entry_atime_nsec() + 1000)
  * The additional if() here compensates for ambiguity in the C standard,
  * which permits two possible interpretations of a % b when a is negative.
  */
@@ -115,7 +115,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 		if(ns < 0) { --t; ns += 1000000000; } \
 	} while(0)
 
-static char *    ae_fflagstostr(unsigned long bitset, unsigned long bitclear);
+static char * ae_fflagstostr(unsigned long bitset, unsigned long bitclear);
 static const wchar_t    * ae_wcstofflags(const wchar_t * stringp,
     unsigned long * setp, unsigned long * clrp);
 static const char  * ae_strtofflags(const char * stringp,
@@ -1352,13 +1352,13 @@ int _archive_entry_acl_text_l(struct archive_entry * entry, int flags,
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 4. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ * may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE

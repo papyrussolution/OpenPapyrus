@@ -816,7 +816,7 @@ struct __db_rep {
 /*
  * Application type is set to be base replication API when:
  * 1. Transport send function is defined and is not the repmgr send
- *    function.
+ * function.
  */
 #define	APP_IS_BASEAPI(env) (REP_ON(env) ? F_ISSET((env)->rep_handle->region, REP_F_APP_BASEAPI) : F_ISSET((env)->rep_handle, DBREP_APP_BASEAPI))
 

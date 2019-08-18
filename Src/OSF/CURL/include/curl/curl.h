@@ -577,7 +577,7 @@ typedef enum {
  * CURLAUTH_DIGEST_IE    - HTTP Digest authentication with IE flavour
  * CURLAUTH_NTLM_WB      - HTTP NTLM authentication delegated to winbind helper
  * CURLAUTH_ONLY         - Use together with a single other type to force no
- *                       authentication or just that single type
+ *                    authentication or just that single type
  * CURLAUTH_ANY          - All fine types set
  * CURLAUTH_ANYSAFE      - All fine types except Basic
  */

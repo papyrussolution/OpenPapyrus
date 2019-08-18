@@ -15,8 +15,8 @@ NON_EMPTY_TRANSLATION_UNIT
 #include <openssl/ebcdic.h>
 
 /*-
- *    Initial Port for  Apache-1.3     by <Martin.Kraemer@Mch.SNI.De>
- *    Adapted for       OpenSSL-0.9.4  by <Martin.Kraemer@Mch.SNI.De>
+ * Initial Port for  Apache-1.3     by <Martin.Kraemer@Mch.SNI.De>
+ * Adapted for       OpenSSL-0.9.4  by <Martin.Kraemer@Mch.SNI.De>
  */
 
 # ifdef CHARSET_EBCDIC_TEST

@@ -39,9 +39,9 @@ int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash, const EVP_MD * Has
 		goto err;
 	/*-
 	 * Negative sLen has special meanings:
-	 *    -1      sLen == hLen
-	 *    -2      salt length is autorecovered from signature
-	 *    -N      reserved
+	 * -1      sLen == hLen
+	 * -2      salt length is autorecovered from signature
+	 * -N      reserved
 	 */
 	if(sLen == -1)
 		sLen = hLen;
@@ -142,9 +142,9 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM,
 		goto err;
 	/*-
 	 * Negative sLen has special meanings:
-	 *    -1      sLen == hLen
-	 *    -2      salt length is maximized
-	 *    -N      reserved
+	 * -1      sLen == hLen
+	 * -2      salt length is maximized
+	 * -N      reserved
 	 */
 	if(sLen == -1)
 		sLen = hLen;

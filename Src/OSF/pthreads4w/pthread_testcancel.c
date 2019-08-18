@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,34 +38,34 @@ void pthread_testcancel(void)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function creates a deferred cancellation point
- *      in the calling thread. The call has no effect if the
- *      current cancelability state is
- *              PTHREAD_CANCEL_DISABLE
+ *   This function creates a deferred cancellation point
+ *   in the calling thread. The call has no effect if the
+ *   current cancelability state is
+ *           PTHREAD_CANCEL_DISABLE
  *
  * PARAMETERS
- *      N/A
+ *   N/A
  *
  *
  * DESCRIPTION
- *      This function creates a deferred cancellation point
- *      in the calling thread. The call has no effect if the
- *      current cancelability state is
- *              PTHREAD_CANCEL_DISABLE
+ *   This function creates a deferred cancellation point
+ *   in the calling thread. The call has no effect if the
+ *   current cancelability state is
+ *           PTHREAD_CANCEL_DISABLE
  *
- *      NOTES:
- *      1)      Cancellation is asynchronous. Use pthread_join
- *              to wait for termination of thread if necessary
+ *   NOTES:
+ *   1)      Cancellation is asynchronous. Use pthread_join
+ *           to wait for termination of thread if necessary
  *
  * RESULTS
- *              N/A
+ *           N/A
  *
  * ------------------------------------------------------
  */
 {
 	__ptw32_mcs_local_node_t stateLock;
 	pthread_t self = pthread_self();
-	__ptw32_thread_t * sp = (__ptw32_thread_t*)self.p;
+	__ptw32_thread_t * sp = (__ptw32_thread_t *)self.p;
 
 	if(sp == NULL) {
 		return;

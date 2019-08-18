@@ -283,10 +283,10 @@ static const char * const magikWordListDesc[] = {
  * or Flow (number 3 or 4).
  *
  * \param  keywordslist The list of keywords that are scanned, they should only
- *       contain the start keywords, not the end keywords
+ *    contain the start keywords, not the end keywords
  * \param  The actual keyword
  * \return 1 if it is a folding start-keyword, -1 if it is a folding end-keyword
- *       0 otherwise
+ *    0 otherwise
  */
 static inline int IsFoldingContainer(const WordList & keywordslist, char * keyword)
 {

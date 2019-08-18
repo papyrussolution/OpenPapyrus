@@ -56,8 +56,8 @@ struct xmlParserInput {
 	int col;                      /* Current column */
 	/*
 	 * NOTE: consumed is only tested for equality in the parser code,
-	 *     so even if there is an overflow this should not give troubles
-	 *     for parsing very large instances.
+	 *  so even if there is an overflow this should not give troubles
+	 *  for parsing very large instances.
 	 */
 	unsigned long consumed;       /* How many xmlChars already consumed */
 	xmlParserInputDeallocate free; /* function to deallocate the base */
@@ -303,7 +303,7 @@ struct xmlSAXLocator {
  * the application can either:
  *  - override this resolveEntity() callback in the SAX block
  *  - or better use the xmlSetExternalEntityLoader() function to
- *    set up it's own entity resolution routine
+ * set up it's own entity resolution routine
  *
  * Returns the xmlParserInputPtr if inlined or NULL for DOM behaviour.
  */
@@ -538,7 +538,7 @@ typedef void (XMLCDECL *errorSAXFunc)(void * ctx, const char * msg, ...) LIBXML_
  *
  * Display and format fatal error messages, callback.
  * Note: so far fatalError() SAX callbacks are not used, error()
- *     get all the callbacks for errors.
+ *  get all the callbacks for errors.
  */
 typedef void (XMLCDECL *fatalErrorSAXFunc)(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
 /**
@@ -592,9 +592,9 @@ typedef int (*hasExternalSubsetSAXFunc)(void * ctx);
  * @namespaces:  pointer to the array of prefix/URI pairs namespace definitions
  * @nb_attributes:  the number of attributes on that node
  * @nb_defaulted:  the number of defaulted attributes. The defaulted
- *                ones are at the end of the array
+ *             ones are at the end of the array
  * @attributes:  pointer to the array of (localname/prefix/URI/value/end)
- *             attribute values.
+ *          attribute values.
  *
  * SAX2 callback when an element start has been detected by the parser.
  * It provides the namespace informations for the element, as well as

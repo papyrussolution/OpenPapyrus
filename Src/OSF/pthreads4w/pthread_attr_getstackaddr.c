@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,34 +43,34 @@ int pthread_attr_getstackaddr(const pthread_attr_t * attr, void ** stackaddr)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function determines the address of the stack
- *      on which threads created with 'attr' will run.
+ *   This function determines the address of the stack
+ *   on which threads created with 'attr' will run.
  *
  * PARAMETERS
- *      attr
- *              pointer to an instance of pthread_attr_t
+ *   attr
+ *           pointer to an instance of pthread_attr_t
  *
- *      stackaddr
- *              pointer into which is returned the stack address.
+ *   stackaddr
+ *           pointer into which is returned the stack address.
  *
  *
  * DESCRIPTION
- *      This function determines the address of the stack
- *      on which threads created with 'attr' will run.
+ *   This function determines the address of the stack
+ *   on which threads created with 'attr' will run.
  *
- *      NOTES:
- *              1)      Function supported only if this macro is
- *                      defined:
+ *   NOTES:
+ *           1)      Function supported only if this macro is
+ *                   defined:
  *
- *                              _POSIX_THREAD_ATTR_STACKADDR
+ *                           _POSIX_THREAD_ATTR_STACKADDR
  *
- *              2)      Create only one thread for each stack
- *                      address..
+ *           2)      Create only one thread for each stack
+ *                   address..
  *
  * RESULTS
- *              0               successfully retrieved stack address,
- *              EINVAL          'attr' is invalid
- *              ENOSYS          function not supported
+ *           0               successfully retrieved stack address,
+ *           EINVAL          'attr' is invalid
+ *           ENOSYS          function not supported
  *
  * ------------------------------------------------------
  */

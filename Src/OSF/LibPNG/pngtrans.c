@@ -442,7 +442,7 @@ void /* PRIVATE */ png_do_strip_channel(png_row_infop row_info, png_bytep row, i
 	 * the loop simply copies (channels-1) channels until sp reaches ep.
 	 *
 	 * at_start:        0 -- convert AG, XG, ARGB, XRGB, AAGG, XXGG, etc.
-	 *          nonzero -- convert GA, GX, RGBA, RGBX, GGAA, RRGGBBXX, etc.
+	 *       nonzero -- convert GA, GX, RGBA, RGBX, GGAA, RRGGBBXX, etc.
 	 */
 
 	/* GA, GX, XG cases */

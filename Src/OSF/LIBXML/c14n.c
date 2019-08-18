@@ -463,7 +463,7 @@ static int xmlC14NPrintNamespaces(const xmlNs * ns, xmlC14NCtxPtr ctx)
  *  - the element E that owns the axis is in the node-set
  *  - The nearest ancestor element of E in the node-set has a default
  *	    namespace node in the node-set (default namespace nodes always
- *    have non-empty values in XPath)
+ * have non-empty values in XPath)
  * The latter condition eliminates unnecessary occurrences of xmlns="" in
  * the canonical form since an element only receives an xmlns="" if its
  * default namespace is empty and if it has an immediate parent in the
@@ -566,11 +566,11 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
  *
  * 1. Render each namespace node iff:
  *  * it is visibly utilized by the immediate parent element or one of
- *    its attributes, or is present in InclusiveNamespaces PrefixList, and
+ * its attributes, or is present in InclusiveNamespaces PrefixList, and
  *  * its prefix and value do not appear in ns_rendered. ns_rendered is
- *    obtained by popping the state stack in order to obtain a list of
- *    prefixes and their values which have already been rendered by
- *    an output ancestor of the namespace node's parent element.
+ * obtained by popping the state stack in order to obtain a list of
+ * prefixes and their values which have already been rendered by
+ * an output ancestor of the namespace node's parent element.
  * 2. Append the rendered namespace node to the list ns_rendered of namespace
  * nodes rendered by output ancestors. Push ns_rendered on state stack and
  * recurse.

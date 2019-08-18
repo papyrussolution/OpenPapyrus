@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,13 +75,13 @@
  *   __ptw32_mcs_lock_acquire (&lock2, &node);
  *   __ptw32_mcs_lock_release (&node);
  *   {
- *      __ptw32_mcs_local_node_t nodex;
+ *   __ptw32_mcs_local_node_t nodex;
  *
- *      __ptw32_mcs_lock_acquire (&lock1, &node);
- *      __ptw32_mcs_lock_acquire (&lock2, &nodex);
+ *   __ptw32_mcs_lock_acquire (&lock1, &node);
+ *   __ptw32_mcs_lock_acquire (&lock2, &nodex);
  *
- *      __ptw32_mcs_lock_release (&nodex);
- *      __ptw32_mcs_lock_release (&node);
+ *   __ptw32_mcs_lock_release (&nodex);
+ *   __ptw32_mcs_lock_release (&node);
  *   }
  *   return (void *)0;
  * }
@@ -101,13 +101,13 @@ INLINE void __ptw32_mcs_flag_set(HANDLE * flag)
 		(__PTW32_INTERLOCKED_SIZEPTR)flag, (__PTW32_INTERLOCKED_SIZE)-1, (__PTW32_INTERLOCKED_SIZE)0);
 	/*
 	 * NOTE: when e == -1 and the MSVC debugger is attached to
-	 *       the process, we get an exception that halts the
-	 *       program noting that the handle value is invalid;
-	 *       although innocuous this behavior is cumbersome when
-	 *       debugging.  Therefore we avoid calling SetEvent()
-	 *       for 'known' invalid HANDLE values that can arise
-	 *       when the above interlocked-compare-and-exchange
-	 *       is executed.
+	 *    the process, we get an exception that halts the
+	 *    program noting that the handle value is invalid;
+	 *    although innocuous this behavior is cumbersome when
+	 *    debugging.  Therefore we avoid calling SetEvent()
+	 *    for 'known' invalid HANDLE values that can arise
+	 *    when the above interlocked-compare-and-exchange
+	 *    is executed.
 	 */
 	if(((HANDLE)0 != e) && ((HANDLE)-1 != e)) {
 		/* another thread has already stored an event handle in the flag */

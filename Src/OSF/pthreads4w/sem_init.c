@@ -11,24 +11,24 @@
  *
  * -------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,36 +41,36 @@
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function initializes a semaphore. The
- *      initial value of the semaphore is 'value'
+ *   This function initializes a semaphore. The
+ *   initial value of the semaphore is 'value'
  *
  * PARAMETERS
- *      sem
- *              pointer to an instance of sem_t
+ *   sem
+ *           pointer to an instance of sem_t
  *
- *      pshared
- *              if zero, this semaphore may only be shared between
- *              threads in the same process.
- *              if nonzero, the semaphore can be shared between
- *              processes
+ *   pshared
+ *           if zero, this semaphore may only be shared between
+ *           threads in the same process.
+ *           if nonzero, the semaphore can be shared between
+ *           processes
  *
- *      value
- *              initial value of the semaphore counter
+ *   value
+ *           initial value of the semaphore counter
  *
  * DESCRIPTION
- *      This function initializes a semaphore. The
- *      initial value of the semaphore is set to 'value'.
+ *   This function initializes a semaphore. The
+ *   initial value of the semaphore is set to 'value'.
  *
  * RESULTS
- *              0               successfully created semaphore,
- *              -1              failed, error in errno
+ *           0               successfully created semaphore,
+ *           -1              failed, error in errno
  * ERRNO
- *              EINVAL          'sem' is not a valid semaphore, or
- *                              'value' >= SEM_VALUE_MAX
- *              ENOMEM          out of memory,
- *              ENOSPC          a required resource has been exhausted,
- *              ENOSYS          semaphores are not supported,
- *              EPERM           the process lacks appropriate privilege
+ *           EINVAL          'sem' is not a valid semaphore, or
+ *                           'value' >= SEM_VALUE_MAX
+ *           ENOMEM          out of memory,
+ *           ENOSPC          a required resource has been exhausted,
+ *           ENOSYS          semaphores are not supported,
+ *           EPERM           the process lacks appropriate privilege
  *
  * ------------------------------------------------------
  */
@@ -88,8 +88,8 @@ int sem_init(sem_t * sem, int pshared, unsigned int value)
 		result = EINVAL;
 	}
 	else {
-		s = (sem_t)SAlloc::C(1, sizeof(*s));
-		if(NULL == s) {
+		s = static_cast<sem_t>(SAlloc::C(1, sizeof(*s)));
+		if(!s) {
 			result = ENOMEM;
 		}
 		else {

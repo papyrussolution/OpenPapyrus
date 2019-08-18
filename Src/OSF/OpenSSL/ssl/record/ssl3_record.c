@@ -483,10 +483,10 @@ int ssl3_do_compress(SSL * ssl, SSL3_RECORD * wr)
  *
  * Returns:
  * 0: (in non-constant time) if the record is publically invalid (i.e. too
- *     short etc).
+ *  short etc).
  * 1: if the record's padding is valid / the encryption was successful.
  * -1: if the record's padding is invalid or, if sending, an internal error
- *     occurred.
+ *  occurred.
  */
 int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
 {
@@ -553,10 +553,10 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
  *
  * Returns:
  * 0: (in non-constant time) if the record is publically invalid (i.e. too
- *     short etc).
+ *  short etc).
  * 1: if the record's padding is valid / the encryption was successful.
  * -1: if the record's padding/AEAD-authenticator is invalid or, if sending,
- *     an internal error occurred.
+ *  an internal error occurred.
  */
 int tls1_enc(SSL * s, SSL3_RECORD * recs, uint n_recs, int send)
 {
@@ -1311,7 +1311,7 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 	 * ssl->s3->rrec.length == number of bytes in record
 	 * ssl->s3->rrec.off    == offset to first valid byte
 	 * ssl->s3->rrec.data   == where to take bytes from, increment
-	 *                       after use :-).
+	 *                    after use :-).
 	 */
 
 	/* we have pulled in a full packet so zero things */

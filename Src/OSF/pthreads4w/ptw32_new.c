@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,29 +36,24 @@
 
 pthread_t __ptw32_new(void)
 {
-	pthread_t t;
 	pthread_t nil = {NULL, 0};
 	__ptw32_thread_t * tp;
 	/*
 	 * If there's a reusable pthread_t then use it.
 	 */
-	t = __ptw32_threadReusePop();
+	pthread_t t = __ptw32_threadReusePop();
 	if(NULL != t.p) {
-		tp = (__ptw32_thread_t*)t.p;
+		tp = (__ptw32_thread_t *)t.p;
 	}
 	else {
 		/* No reuse threads available */
-		tp = (__ptw32_thread_t*)SAlloc::C(1, sizeof(__ptw32_thread_t));
-
-		if(tp == NULL) {
+		tp = static_cast<__ptw32_thread_t *>(SAlloc::C(1, sizeof(__ptw32_thread_t)));
+		if(tp == NULL)
 			return nil;
-		}
-
 		/* ptHandle.p needs to point to it's parent __ptw32_thread_t. */
 		t.p = tp->ptHandle.p = tp;
 		t.x = tp->ptHandle.x = 0;
 	}
-
 	/* Set default state. */
 	tp->seqNumber = ++__ptw32_threadSeqNumber;
 	tp->sched_priority = THREAD_PRIORITY_NORMAL;
@@ -73,14 +68,10 @@ pthread_t __ptw32_new(void)
 #if defined(HAVE_CPU_AFFINITY)
 	CPU_ZERO((cpu_set_t*)&tp->cpuset);
 #endif
-	tp->cancelEvent = CreateEvent(0, (int)__PTW32_TRUE,     /* manualReset  */
-		(int)__PTW32_FALSE,                     /* setSignaled  */
-		NULL);
-
+	tp->cancelEvent = CreateEvent(0, (int)__PTW32_TRUE/* manualReset  */, (int)__PTW32_FALSE/* setSignaled  */, NULL);
 	if(tp->cancelEvent == NULL) {
 		__ptw32_threadReusePush(tp->ptHandle);
 		return nil;
 	}
-
 	return t;
 }

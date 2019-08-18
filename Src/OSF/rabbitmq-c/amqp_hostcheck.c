@@ -73,8 +73,7 @@ static int amqp_raw_equal(const char * first, const char * second)
 {
 	while(*first && *second) {
 		if(amqp_raw_toupper(*first) != amqp_raw_toupper(*second)) {
-			/* get out of the loop as soon as they don't match */
-			break;
+			break; // get out of the loop as soon as they don't match 
 		}
 		first++;
 		second++;
@@ -111,29 +110,25 @@ static int amqp_raw_nequal(const char * first, const char * second, size_t max)
  */
 static amqp_hostcheck_result amqp_hostmatch(const char * hostname, const char * pattern) 
 {
-	const char * pattern_label_end, * pattern_wildcard, * hostname_label_end;
+	const char * pattern_label_end;
+	const char * pattern_wildcard;
+	const char * hostname_label_end;
 	int wildcard_enabled;
 	size_t prefixlen, suffixlen;
 	pattern_wildcard = strchr(pattern, '*');
-	if(pattern_wildcard == NULL) {
-		return amqp_raw_equal(pattern, hostname) ? AMQP_HCR_MATCH
-		       : AMQP_HCR_NO_MATCH;
+	if(!pattern_wildcard) {
+		return amqp_raw_equal(pattern, hostname) ? AMQP_HCR_MATCH : AMQP_HCR_NO_MATCH;
 	}
 	/* We require at least 2 dots in pattern to avoid too wide wildcard match. */
 	wildcard_enabled = 1;
 	pattern_label_end = strchr(pattern, '.');
-	if(pattern_label_end == NULL || strchr(pattern_label_end + 1, '.') == NULL ||
-	    pattern_wildcard > pattern_label_end ||
-	    amqp_raw_nequal(pattern, "xn--", 4)) {
+	if(!pattern_label_end || strchr(pattern_label_end + 1, '.') == NULL || pattern_wildcard > pattern_label_end || amqp_raw_nequal(pattern, "xn--", 4))
 		wildcard_enabled = 0;
-	}
 	if(!wildcard_enabled) {
-		return amqp_raw_equal(pattern, hostname) ? AMQP_HCR_MATCH
-		       : AMQP_HCR_NO_MATCH;
+		return amqp_raw_equal(pattern, hostname) ? AMQP_HCR_MATCH : AMQP_HCR_NO_MATCH;
 	}
 	hostname_label_end = strchr(hostname, '.');
-	if(hostname_label_end == NULL ||
-	    !amqp_raw_equal(pattern_label_end, hostname_label_end)) {
+	if(!hostname_label_end || !amqp_raw_equal(pattern_label_end, hostname_label_end)) {
 		return AMQP_HCR_NO_MATCH;
 	}
 	/* The wildcard must match at least one character, so the left-most
@@ -145,22 +140,15 @@ static amqp_hostcheck_result amqp_hostmatch(const char * hostname, const char * 
 	}
 	prefixlen = pattern_wildcard - pattern;
 	suffixlen = pattern_label_end - (pattern_wildcard + 1);
-	return amqp_raw_nequal(pattern, hostname, prefixlen) &&
-	       amqp_raw_nequal(pattern_wildcard + 1,
-		   hostname_label_end - suffixlen, suffixlen)
-	       ? AMQP_HCR_MATCH
-	       : AMQP_HCR_NO_MATCH;
+	return amqp_raw_nequal(pattern, hostname, prefixlen) && amqp_raw_nequal(pattern_wildcard + 1, hostname_label_end - suffixlen, suffixlen) ? AMQP_HCR_MATCH : AMQP_HCR_NO_MATCH;
 }
 
 amqp_hostcheck_result amqp_hostcheck(const char * match_pattern, const char * hostname) 
 {
-	/* sanity check */
-	if(!match_pattern || !*match_pattern || !hostname || !*hostname) {
+	if(!match_pattern || !*match_pattern || !hostname || !*hostname) // sanity check 
 		return AMQP_HCR_NO_MATCH;
-	}
-	/* trivial case */
-	if(amqp_raw_equal(hostname, match_pattern)) {
+	else if(amqp_raw_equal(hostname, match_pattern)) // trivial case 
 		return AMQP_HCR_MATCH;
-	}
-	return amqp_hostmatch(hostname, match_pattern);
+	else
+		return amqp_hostmatch(hostname, match_pattern);
 }

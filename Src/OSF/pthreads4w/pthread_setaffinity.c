@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,9 +33,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize,
-    const cpu_set_t * cpuset)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -55,10 +52,10 @@ int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize,
  *		cpuset
  *					The new cpu set mask.
  *
- *                              The set of CPUs on which the thread will actually run
- *                              is the intersection of the set specified in the cpuset
- *                              argument and the set of CPUs actually present for
- *                              the process.
+ *                           The set of CPUs on which the thread will actually run
+ *                           is the intersection of the set specified in the cpuset
+ *                           argument and the set of CPUs actually present for
+ *                           the process.
  *
  * DESCRIPTION
  *   The pthread_setaffinity_np() function sets the CPU affinity mask
@@ -67,31 +64,26 @@ int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize,
  *   of the CPUs in cpuset, then it is migrated to one of those CPUs.
  *
  * RESULTS
- *                              0		Success
- *                              ESRCH	Thread does not exist
- *                              EFAULT	pcuset is NULL
- *                              EAGAIN	The thread affinity could not be set
- *                              ENOSYS  The platform does not support this function
+ *                           0		Success
+ *                           ESRCH	Thread does not exist
+ *                           EFAULT	pcuset is NULL
+ *                           EAGAIN	The thread affinity could not be set
+ *                           ENOSYS  The platform does not support this function
  *
  * ------------------------------------------------------
  */
+int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize, const cpu_set_t * cpuset)
 {
 #if !defined(HAVE_CPU_AFFINITY)
-
 	return ENOSYS;
-
 #else
-
 	int result = 0;
 	__ptw32_thread_t * tp;
 	__ptw32_mcs_local_node_t node;
 	cpu_set_t processCpuset;
-
 	__ptw32_mcs_lock_acquire(&__ptw32_thread_reuse_lock, &node);
-
 	tp = static_cast<__ptw32_thread_t *>(thread.p);
-
-	if(NULL == tp || thread.x != tp->ptHandle.x || NULL == tp->threadH) {
+	if(!tp || thread.x != tp->ptHandle.x || !tp->threadH) {
 		result = ESRCH;
 	}
 	else {
@@ -104,9 +96,7 @@ int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize,
 				 * Result is the intersection of available CPUs and the mask.
 				 */
 				cpu_set_t newMask;
-
 				CPU_AND(&newMask, &processCpuset, cpuset);
-
 				if(((_sched_cpu_set_vector_*)&newMask)->_cpuset) {
 					if(SetThreadAffinityMask(tp->threadH, ((_sched_cpu_set_vector_*)&newMask)->_cpuset)) {
 						/*
@@ -117,28 +107,20 @@ int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize,
 						 */
 						tp->cpuset = ((_sched_cpu_set_vector_*)&newMask)->_cpuset;
 					}
-					else {
+					else
 						result = EAGAIN;
-					}
 				}
-				else {
+				else
 					result = EINVAL;
-				}
 			}
 		}
-		else {
+		else
 			result = EFAULT;
-		}
 	}
-
 	__ptw32_mcs_lock_release(&node);
-
 	return result;
-
 #endif
 }
-
-int pthread_getaffinity_np(pthread_t thread, size_t cpusetsize, cpu_set_t * cpuset)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -163,31 +145,25 @@ int pthread_getaffinity_np(pthread_t thread, size_t cpusetsize, cpu_set_t * cpus
  *   of the thread thread in the CPU set pointed to by cpuset.
  *
  * RESULTS
- *                              0		Success
- *                              ESRCH	thread does not exist
- *                              EFAULT	cpuset is NULL
- *                                 ENOSYS  The platform does not support this function
+ *                           0		Success
+ *                           ESRCH	thread does not exist
+ *                           EFAULT	cpuset is NULL
+ *                              ENOSYS  The platform does not support this function
  *
  * ------------------------------------------------------
  */
+int pthread_getaffinity_np(pthread_t thread, size_t cpusetsize, cpu_set_t * cpuset)
 {
 #if !defined(HAVE_CPU_AFFINITY)
-
 	return ENOSYS;
-
 #else
-
 	int result = 0;
 	__ptw32_thread_t * tp;
 	__ptw32_mcs_local_node_t node;
-
 	__ptw32_mcs_lock_acquire(&__ptw32_thread_reuse_lock, &node);
-
 	tp = static_cast<__ptw32_thread_t *>(thread.p);
-
-	if(NULL == tp || thread.x != tp->ptHandle.x || NULL == tp->threadH) {
+	if(!tp || thread.x != tp->ptHandle.x || NULL == tp->threadH)
 		result = ESRCH;
-	}
 	else {
 		if(cpuset) {
 			if(tp->cpuset) {
@@ -204,14 +180,10 @@ int pthread_getaffinity_np(pthread_t thread, size_t cpusetsize, cpu_set_t * cpus
 			}
 			((_sched_cpu_set_vector_*)cpuset)->_cpuset = tp->cpuset;
 		}
-		else {
+		else
 			result = EFAULT;
-		}
 	}
-
 	__ptw32_mcs_lock_release(&node);
-
 	return result;
-
 #endif
 }

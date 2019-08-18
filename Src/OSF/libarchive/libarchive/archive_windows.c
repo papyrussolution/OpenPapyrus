@@ -7,10 +7,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -439,7 +439,7 @@ __inline static void fileTimeToUTC(const FILETIME * filetime, time_t * t, long *
  * long name path.
  * And I've added some feature.
  * 1. set st_ino by nFileIndexHigh and nFileIndexLow of
- *    BY_HANDLE_FILE_INFORMATION.
+ * BY_HANDLE_FILE_INFORMATION.
  * 2. set st_nlink by nNumberOfLinks of BY_HANDLE_FILE_INFORMATION.
  * 3. set st_dev by dwVolumeSerialNumber by BY_HANDLE_FILE_INFORMATION.
  */

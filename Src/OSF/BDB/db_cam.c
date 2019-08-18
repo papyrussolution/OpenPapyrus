@@ -1036,7 +1036,7 @@ err:
 /*
  * __dbc_put_partial --
  *	Ensure that the data item we are using is complete and correct.
- *    Otherwise we could break the secondary constraints.
+ * Otherwise we could break the secondary constraints.
  */
 static inline int __dbc_put_partial(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_data, DBT * out_data, uint32 * put_statep, uint32 flags)
 {
@@ -1084,7 +1084,7 @@ static inline int __dbc_put_partial(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_
 }
 /*
  * __dbc_put_fixed_len --
- *    Handle padding for fixed-length records.
+ * Handle padding for fixed-length records.
  */
 static inline int __dbc_put_fixed_len(DBC*dbc, DBT * data, DBT * out_data)
 {
@@ -2435,14 +2435,14 @@ err:
  *	database when an item is being deleted (dbc points at item being deleted
  *	in the foreign database.)
  *
- *    Delete happens in dbp, check for occurrences of key in pdpb.
- *    Terminology:
- *      Foreign db = Where delete occurs (dbp).
- *      Secondary db = Where references to dbp occur (sdbp, a secondary)
- *      Primary db = sdbp's primary database, references to dbp are secondary
- *                    keys here
- *      Foreign Key = Key being deleted in dbp (fkey)
- *      Primary Key = Key of the corresponding entry in sdbp's primary (pkey).
+ * Delete happens in dbp, check for occurrences of key in pdpb.
+ * Terminology:
+ *   Foreign db = Where delete occurs (dbp).
+ *   Secondary db = Where references to dbp occur (sdbp, a secondary)
+ *   Primary db = sdbp's primary database, references to dbp are secondary
+ *                 keys here
+ *   Foreign Key = Key being deleted in dbp (fkey)
+ *   Primary Key = Key of the corresponding entry in sdbp's primary (pkey).
  */
 static int __dbc_del_foreign(DBC * dbc)
 {

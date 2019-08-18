@@ -654,13 +654,13 @@ int FASTCALL xmlUTF8Strlen(const xmlChar * utf)
  * xmlGetUTF8Char:
  * @utf:  a sequence of UTF-8 encoded bytes
  * @len:  a pointer to the minimum number of bytes present in
- *      the sequence.  This is used to assure the next character
- *      is completely contained within the sequence.
+ *   the sequence.  This is used to assure the next character
+ *   is completely contained within the sequence.
  *
  * Read the first UTF8 character from @utf
  *
  * Returns the char value or -1 in case of error, and sets *len to
- *      the actual number of bytes consumed (0 in case of error)
+ *   the actual number of bytes consumed (0 in case of error)
  */
 int xmlGetUTF8Char(const uchar * utf, int * len) 
 {

@@ -2806,7 +2806,7 @@ static force_inline uint32_t convert_r5g6b5(const uint8_t * row, int x)
 }
 
 #define MAKE_SEPARABLE_CONVOLUTION_FETCHER(name, format, repeat_mode)  \
-	static uint32_t *         \
+	static uint32_t *      \
 	bits_image_fetch_separable_convolution_affine_ ## name(pixman_iter_t   *iter, \
 	    const uint32_t * mask) \
 	{                                                                   \
@@ -2823,7 +2823,7 @@ static force_inline uint32_t convert_r5g6b5(const uint8_t * row, int x)
 	}
 
 #define MAKE_BILINEAR_FETCHER(name, format, repeat_mode)                \
-	static uint32_t *         \
+	static uint32_t *      \
 	bits_image_fetch_bilinear_affine_ ## name(pixman_iter_t   *iter,   \
 	    const uint32_t * mask)   \
 	{                                                                   \
@@ -2838,7 +2838,7 @@ static force_inline uint32_t convert_r5g6b5(const uint8_t * row, int x)
 	}
 
 #define MAKE_NEAREST_FETCHER(name, format, repeat_mode)                 \
-	static uint32_t *         \
+	static uint32_t *      \
 	bits_image_fetch_nearest_affine_ ## name(pixman_iter_t   *iter,    \
 	    const uint32_t * mask)    \
 	{                                                                   \

@@ -485,42 +485,42 @@ enum {
  *
  *
  * 9$ Position
- *    Use the 9th parameter. 9 can be any number between 1 and
- *    the maximal argument
+ * Use the 9th parameter. 9 can be any number between 1 and
+ * the maximal argument
  *
  * 9 Width
- *    Set width to 9. 9 can be any number, but must not be postfixed
- *    by '$'
+ * Set width to 9. 9 can be any number, but must not be postfixed
+ * by '$'
  *
  * h  Short
  *  Numbers:
- *    (uint) short int
+ * (uint) short int
  *
  * hh Short short
  *  Numbers:
- *    (uint) char
+ * (uint) char
  *
  * l  Long
  *  Numbers:
- *    (uint) long int
+ * (uint) long int
  *  String:
- *    as the S specifier
+ * as the S specifier
  *  Char:
- *    as the C specifier
+ * as the C specifier
  *
  * ll Long Long
  *  Numbers:
- *    (uint) long long int
+ * (uint) long long int
  *
  * L  Long Double
  *  Float
- *    long double
+ * long double
  *
  * #  Alternative
  *  Float:
- *    Decimal-point is always present
+ * Decimal-point is always present
  *  String:
- *    non-printable characters are handled as \number
+ * non-printable characters are handled as \number
  *
  *  Spacing
  *
@@ -542,11 +542,11 @@ enum {
  *
  * '  Thousands/quote
  *  Numbers:
- *    Integer part grouped in thousands
+ * Integer part grouped in thousands
  *  Binary numbers:
- *    Number grouped in nibbles (4 bits)
+ * Number grouped in nibbles (4 bits)
  *  String:
- *    Quoted string
+ * Quoted string
  *
  * j  intmax_t
  * t  prtdiff_t
@@ -557,11 +557,11 @@ enum {
  *
  * I  n-bit Integer
  *  Numbers:
- *    The following options exists
- *      I8  = 8-bit integer
- *      I16 = 16-bit integer
- *      I32 = 32-bit integer
- *      I64 = 64-bit integer
+ * The following options exists
+ *   I8  = 8-bit integer
+ *   I16 = 16-bit integer
+ *   I32 = 32-bit integer
+ *   I64 = 64-bit integer
  */
 #define QUALIFIER_POSITION '$'
 #define QUALIFIER_SHORT 'h'
@@ -2718,7 +2718,7 @@ static int TrioFormat(trio_pointer_t destination, size_t destinationSize,
 	data.error = 0;
 
 #if defined(USE_LOCALE)
-	if(NULL == internalLocaleValues) {
+	if(!internalLocaleValues) {
 		TrioSetLocale();
 	}
 #endif
@@ -3436,7 +3436,7 @@ void trio_print_pointer(trio_pointer_t ref, trio_pointer_t pointer)
 	trio_reference_t * self = static_cast<trio_reference_t *>(ref);
 	trio_flags_t flags;
 	trio_uintmax_t number;
-	if(NULL == pointer) {
+	if(!pointer) {
 		const char * string = internalNullString;
 		while(*string)
 			self->data->OutStream(self->data, *string++);
@@ -3472,9 +3472,8 @@ void trio_print_pointer(trio_pointer_t ref, trio_pointer_t pointer)
 TRIO_PUBLIC void trio_locale_set_decimal_point(char * decimalPoint)
 {
 #if defined(USE_LOCALE)
-	if(NULL == internalLocaleValues) {
+	if(!internalLocaleValues)
 		TrioSetLocale();
-	}
 #endif
 	internalDecimalPointLength = sstrlen(decimalPoint);
 	if(internalDecimalPointLength == 1) {
@@ -3485,18 +3484,15 @@ TRIO_PUBLIC void trio_locale_set_decimal_point(char * decimalPoint)
 		trio_copy_max(internalDecimalPointString, sizeof(internalDecimalPointString), decimalPoint);
 	}
 }
-
-/*************************************************************************
- * trio_locale_set_thousand_separator
- *
- * See trio_locale_set_decimal_point
- */
+// 
+// trio_locale_set_thousand_separator
+// See trio_locale_set_decimal_point
+// 
 TRIO_PUBLIC void trio_locale_set_thousand_separator(char * thousandSeparator)
 {
 #if defined(USE_LOCALE)
-	if(NULL == internalLocaleValues) {
+	if(!internalLocaleValues)
 		TrioSetLocale();
-	}
 #endif
 	trio_copy_max(internalThousandSeparator, sizeof(internalThousandSeparator), thousandSeparator);
 	internalThousandSeparatorLength = sstrlen(internalThousandSeparator);
@@ -3509,7 +3505,7 @@ TRIO_PUBLIC void trio_locale_set_thousand_separator(char * thousandSeparator)
  *
  *  CHAR_MAX : No further grouping
  *  0        : Repeat last group for the remaining digits (not necessary
- *           as C strings are zero-terminated)
+ *        as C strings are zero-terminated)
  *  n        : Set current group to n
  *
  * Same order as the grouping attribute in LC_NUMERIC.
@@ -3517,19 +3513,14 @@ TRIO_PUBLIC void trio_locale_set_thousand_separator(char * thousandSeparator)
 TRIO_PUBLIC void trio_locale_set_grouping(char * grouping)
 {
 #if defined(USE_LOCALE)
-	if(NULL == internalLocaleValues) {
+	if(!internalLocaleValues)
 		TrioSetLocale();
-	}
 #endif
 	trio_copy_max(internalGrouping, sizeof(internalGrouping), grouping);
 }
-
-/*************************************************************************
- *
- * SCANNING
- *
- ************************************************************************/
-
+// 
+// SCANNING
+// 
 /*************************************************************************
  * TrioSkipWhitespaces
  */
@@ -4441,9 +4432,8 @@ static int TrioScan(void * source, size_t sourceSize, void (*InStream)(trio_clas
 	data.max = sourceSize;
 	data.error = 0;
 #if defined(USE_LOCALE)
-	if(NULL == internalLocaleValues) {
+	if(!internalLocaleValues)
 		TrioSetLocale();
-	}
 #endif
 	status = TrioParse(TYPE_SCAN, format, parameters, arglist, argarray);
 	if(status >= 0) {

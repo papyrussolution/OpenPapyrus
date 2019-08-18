@@ -302,15 +302,15 @@ int dtls1_process_buffered_records(SSL * s)
  * them until there is enough for the respective protocol (the record protocol
  * may use arbitrary fragmentation and even interleaving):
  *   Change cipher spec protocol
- *           just 1 byte needed, no need for keeping anything stored
+ *        just 1 byte needed, no need for keeping anything stored
  *   Alert protocol
- *           2 bytes needed (AlertLevel, AlertDescription)
+ *        2 bytes needed (AlertLevel, AlertDescription)
  *   Handshake protocol
- *           4 bytes needed (HandshakeType, uint24 length) -- we just have
- *           to detect unexpected Client Hello and Hello Request messages
- *           here, anything else is handled by higher layers
+ *        4 bytes needed (HandshakeType, uint24 length) -- we just have
+ *        to detect unexpected Client Hello and Hello Request messages
+ *        here, anything else is handled by higher layers
  *   Application data protocol
- *           none of our business
+ *        none of our business
  */
 int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf, int len, int peek)
 {

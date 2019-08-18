@@ -1512,7 +1512,7 @@ PNG_INTERNAL_FUNCTION(void, png_chunk_report, (png_const_structrp png_ptr, const
  * NOTE: The dangling E problem.
  * There is a PNG valid floating point number in the following:
  *
- *     PNG floating point numbers are not greedy.
+ *  PNG floating point numbers are not greedy.
  *
  * Working this out requires *TWO* character lookahead (because of the
  * sign), the parser does not do this - it will fail at the 'r' - this

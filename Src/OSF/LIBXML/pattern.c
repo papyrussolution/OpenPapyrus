@@ -255,7 +255,7 @@ void xmlFreePatternList(xmlPattern * comp)
  * @pattern:  the pattern context
  * @dict:  the inherited dictionary or NULL
  * @namespaces: the prefix definitions, array of [URI, prefix] terminated
- *            with [NULL, NULL] or NULL if no namespace is used
+ *         with [NULL, NULL] or NULL if no namespace is used
  *
  * Create a new XML pattern parser context
  *
@@ -664,7 +664,7 @@ rollback:
  * Parse an XPath Litteral:
  *
  * [29] Literal ::= '"' [^"]* '"'
- *              | "'" [^']* "'"
+ *           | "'" [^']* "'"
  *
  * Returns the Literal parsed or NULL
  */
@@ -732,7 +732,7 @@ static xmlChar * xmlPatScanLiteral(xmlPatParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' |
- *                CombiningChar | Extender
+ *             CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *
@@ -2100,7 +2100,7 @@ int xmlStreamPop(xmlStreamCtxtPtr stream)
  * need to be pushed.
  *
  * Returns: 1 in case of need of nodes of the above described types,
- *        0 otherwise. -1 on API errors.
+ *     0 otherwise. -1 on API errors.
  */
 int xmlStreamWantsAnyNode(xmlStreamCtxtPtr streamCtxt)
 {
@@ -2307,7 +2307,7 @@ int xmlPatternStreamable(xmlPattern * comp)
  * Check the maximum depth reachable by a pattern
  *
  * Returns -2 if no limit (using //), otherwise the depth,
- *       and -1 in case of error
+ *    and -1 in case of error
  */
 int xmlPatternMaxDepth(xmlPattern * comp)
 {

@@ -1352,8 +1352,8 @@ static int xmlFAGenerateTransitions(xmlRegParserCtxt * ctxt, xmlRegStatePtr from
 			    atom->quant = XML_REGEXP_QUANT_ONCE;
 			    /*
 			     * transition done to the state after end of atom.
-			     *    1. set transition from atom start to new state
-			     *    2. set transition from atom end to this state.
+			     * 1. set transition from atom start to new state
+			     * 2. set transition from atom end to this state.
 			     */
 			    if(to == NULL) {
 				    xmlFAGenerateEpsilonTransition(ctxt, atom->start, 0);
@@ -3015,7 +3015,7 @@ static void testerr(xmlRegExecCtxtPtr exec);
  * xmlRegNewExecCtxt:
  * @comp: a precompiled regular expression
  * @callback: a callback function used for handling progresses in the
- *          automata matching phase
+ *       automata matching phase
  * @data: the context data associated to the callback in this context
  *
  * Build a context used for progressive evaluation of a regexp.
@@ -4046,7 +4046,7 @@ static int xmlFAIsChar(xmlRegParserCtxt * ctxt)
  *
  * [27]   charProp   ::=   IsCategory | IsBlock
  * [28]   IsCategory ::= Letters | Marks | Numbers | Punctuation |
- *                     Separators | Symbols | Others
+ *                  Separators | Symbols | Others
  * [29]   Letters   ::=   'L' [ultmo]?
  * [30]   Marks   ::=   'M' [nce]?
  * [31]   Numbers   ::=   'N' [dlo]?
@@ -6288,7 +6288,7 @@ tail:
  * Find all the strings used in @exp and store them in @list
  *
  * Returns the number of unique strings found, -1 in case of errors and
- *       -2 if there is more than @len strings
+ *    -2 if there is more than @len strings
  */
 int xmlExpGetLanguage(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** langList, int len)
 {
@@ -6354,7 +6354,7 @@ tail:
  * it will return the list [a, c]
  *
  * Returns the number of unique strings found, -1 in case of errors and
- *       -2 if there is more than @len strings
+ *    -2 if there is more than @len strings
  */
 int xmlExpGetStart(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** tokList, int len)
 {
@@ -6543,7 +6543,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
  * so that sub{n} subsume exp
  *
  * Returns the multiple value if successful, 0 if it is not a multiple
- *       and -1 in case of internel error.
+ *    and -1 in case of internel error.
  */
 static int xmlExpDivide(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub, xmlExpNodePtr * mult, xmlExpNodePtr * remain)
 {
@@ -6720,9 +6720,9 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #endif
 				    /*
 				     * @todo assumption here that we are determinist
-				     *     i.e. we won't get to a nillable exp left
-				     *     subset which could be matched by the right
-				     *     part too.
+				     *  i.e. we won't get to a nillable exp left
+				     *  subset which could be matched by the right
+				     *  part too.
 				     * e.g.: (a | b)+,(a | c) and 'a+,a'
 				     */
 				    exp->exp_right->ref++;
@@ -6863,7 +6863,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 			    else if(!IS_NILLABLE(tmp)) {
 				    /*
 				     * @todo loop here to try to grow if working on finite
-				     *     blocks.
+				     *  blocks.
 				     */
 #ifdef DEBUG_DERIV
 				    printf("Count, Count remain not nillable => forbidden\n");
@@ -7056,7 +7056,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
  * infinite languages.
  *
  * Returns the resulting expression or NULL in case of internal error, the
- *       result must be freed
+ *    result must be freed
  */
 xmlExpNodePtr xmlExpExpDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub)
 {
@@ -7097,7 +7097,7 @@ int xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub)
 		return -1;
 	/*
 	 * @todo speedup by checking the language of sub is a subset of the
-	 *     language of exp
+	 *  language of exp
 	 */
 	/*
 	 * O(1) speedups

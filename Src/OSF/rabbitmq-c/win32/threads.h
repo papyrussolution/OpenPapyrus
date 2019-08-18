@@ -42,11 +42,10 @@
 typedef /*SRWLOCK*/void * pthread_mutex_t;
 #define PTHREAD_MUTEX_INITIALIZER SRWLOCK_INIT;
 
-DWORD pthread_self(void);
-
-int pthread_mutex_init(pthread_mutex_t *, void *attr);
-int pthread_mutex_lock(pthread_mutex_t *);
-int pthread_mutex_unlock(pthread_mutex_t *);
-int pthread_mutex_destroy(pthread_mutex_t *);
+DWORD  pthread_self();
+int    pthread_mutex_init(pthread_mutex_t *, void *attr);
+int    pthread_mutex_lock(pthread_mutex_t *);
+int    pthread_mutex_unlock(pthread_mutex_t *);
+int    pthread_mutex_destroy(pthread_mutex_t *);
 
 #endif /* AMQP_THREAD_H */

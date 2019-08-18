@@ -1,6 +1,6 @@
 /*
  * parser.c : an XML 1.0 parser, namespaces and validity support are mostly
- *          implemented on top of the SAX interfaces
+ *       implemented on top of the SAX interfaces
  *
  * References:
  * The XML specification:
@@ -795,7 +795,7 @@ struct xmlDefAttrs {
  * passing src as dst is just fine.
  *
  * Returns a pointer to the normalized value (dst) or NULL if no conversion
- *       is needed.
+ *    is needed.
  */
 static xmlChar * FASTCALL xmlAttrNormalizeSpace(const xmlChar * src, xmlChar * dst)
 {
@@ -828,7 +828,7 @@ static xmlChar * FASTCALL xmlAttrNormalizeSpace(const xmlChar * src, xmlChar * d
  * coming from the input.
  *
  * Returns a pointer to the normalized value (dst) or NULL if no conversion
- *       is needed.
+ *    is needed.
  */
 static const xmlChar * xmlAttrNormalizeSpace2(xmlParserCtxt * ctxt, xmlChar * src, int * len)
 {
@@ -1029,7 +1029,7 @@ static void FASTCALL xmlCleanSpecialAttr(xmlParserCtxt * ctxt)
  * Checks that the value conforms to the LanguageID production:
  *
  * NOTE: this is somewhat deprecated, those productions were removed from
- *     the XML Second edition.
+ *  the XML Second edition.
  *
  * [33] LanguageID ::= Langcode ('-' Subcode)*
  * [34] Langcode ::= ISO639Code |  IanaCode |  UserCode
@@ -1042,37 +1042,37 @@ static void FASTCALL xmlCleanSpecialAttr(xmlParserCtxt * ctxt)
  *
  * http://www.rfc-editor.org/rfc/rfc5646.txt
  * langtag       = language
- *               ["-" script]
- *               ["-" region]
- *               *("-" variant)
- *               *("-" extension)
- *               ["-" privateuse]
+ *            ["-" script]
+ *            ["-" region]
+ *            *("-" variant)
+ *            *("-" extension)
+ *            ["-" privateuse]
  * language      = 2*3ALPHA            ; shortest ISO 639 code
- *               ["-" extlang]       ; sometimes followed by
- *                                   ; extended language subtags
- *             / 4ALPHA              ; or reserved for future use
- *             / 5*8ALPHA            ; or registered language subtag
+ *            ["-" extlang]       ; sometimes followed by
+ *                                ; extended language subtags
+ *          / 4ALPHA              ; or reserved for future use
+ *          / 5*8ALPHA            ; or registered language subtag
  *
  * extlang       = 3ALPHA              ; selected ISO 639 codes
- *               *2("-" 3ALPHA)      ; permanently reserved
+ *            *2("-" 3ALPHA)      ; permanently reserved
  *
  * script        = 4ALPHA              ; ISO 15924 code
  *
  * region        = 2ALPHA              ; ISO 3166-1 code
- *             / 3DIGIT              ; UN M.49 code
+ *          / 3DIGIT              ; UN M.49 code
  *
  * variant       = 5*8alphanum         ; registered variants
- *             / (DIGIT 3alphanum)
+ *          / (DIGIT 3alphanum)
  *
  * extension     = singleton 1*("-" (2*8alphanum))
  *
- *                                   ; Single alphanumerics
- *                                   ; "x" reserved for private use
+ *                                ; Single alphanumerics
+ *                                ; "x" reserved for private use
  * singleton     = DIGIT               ; 0 - 9
- *             / %x41-57             ; A - W
- *             / %x59-5A             ; Y - Z
- *             / %x61-77             ; a - w
- *             / %x79-7A             ; y - z
+ *          / %x41-57             ; A - W
+ *          / %x59-5A             ; Y - Z
+ *          / %x61-77             ; a - w
+ *          / %x79-7A             ; y - z
  *
  * it sounds right to still allow Irregular i-xxx IANA and user codes too
  * The parser below doesn't try to cope with extension or privateuse
@@ -1560,30 +1560,30 @@ static int FASTCALL spacePop(xmlParserCtxt * ctxt)
  * use them
  *
  * CUR_PTR return the current pointer to the xmlChar to be parsed.
- *         To be used with extreme caution since operations consuming
- *         characters may move the input buffer to a different location !
+ *      To be used with extreme caution since operations consuming
+ *      characters may move the input buffer to a different location !
  * CUR     returns the current xmlChar value, i.e. a 8 bit value if compiled
- *         This should be used internally by the parser
- *         only to compare to ASCII values otherwise it would break when
- *         running with UTF-8 encoding.
+ *      This should be used internally by the parser
+ *      only to compare to ASCII values otherwise it would break when
+ *      running with UTF-8 encoding.
  * RAW     same as CUR but in the input buffer, bypass any token
- *         extraction that may have been done
+ *      extraction that may have been done
  * NXT(n)  returns the n'th next xmlChar. Same as CUR is should be used only
- *         to compare on ASCII based substring.
+ *      to compare on ASCII based substring.
  * SKIP(n) Skip n xmlChar, and must also be used only to skip ASCII defined
- *         strings without newlines within the parser.
+ *      strings without newlines within the parser.
  * NEXT1(l) Skip 1 xmlChar, and must also be used only to skip 1 non-newline ASCII
- *         defined char within the parser.
+ *      defined char within the parser.
  * Clean macros, not dependent of an ASCII context, expect UTF-8 encoding
  *
  * NEXT    Skip to the next character, this does the proper decoding
- *         in UTF-8 mode. It also pop-up unfinished entities on the fly.
+ *      in UTF-8 mode. It also pop-up unfinished entities on the fly.
  * NEXTL(l) Skip the current unicode character of l xmlChars long.
  * CUR_CHAR(l) returns the current unicode character (int), set l
- *         to the number of xmlChars used for the encoding [0-5].
+ *      to the number of xmlChars used for the encoding [0-5].
  * CUR_SCHAR  same but operate on a string instead of the context
  * COPY_BUF  copy the current unicode char to the target buffer, increment
- *          the index
+ *       the index
  * GROW, SHRINK  handling of input buffers
  */
 
@@ -1731,7 +1731,7 @@ int FASTCALL xmlSkipBlankChars(xmlParserCtxt * ctxt)
  * @ctxt:  an XML parser context
  *
  * xmlPopInput: the current input pointed by ctxt->input came to an end
- *        pop it and return the next char.
+ *     pop it and return the next char.
  *
  * Returns the current xmlChar in the parser context
  */
@@ -1752,7 +1752,7 @@ xmlChar FASTCALL xmlPopInput(xmlParserCtxt * ctxt)
  * @input:  an XML parser input fragment (entity, XML fragment ...).
  *
  * xmlPushInput: switch to a new input stream which is stacked on top
- *             of the previous one(s).
+ *          of the previous one(s).
  * Returns -1 in case of error or the index in the input stack
  */
 int FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input)
@@ -1888,7 +1888,7 @@ int xmlParseCharRef(xmlParserCtxt * ctxt)
  * production for Char.
  *
  * Returns the value parsed (as an int), 0 in case of error, str will be
- *       updated to the current value of the index
+ *    updated to the current value of the index
  */
 static int xmlParseStringCharRef(xmlParserCtxt * ctxt, const xmlChar ** str)
 {
@@ -2037,7 +2037,7 @@ static xmlParserInput * xmlNewBlanksWrapperInputStream(xmlParserCtxt * ctxt, xml
  *
  * A PEReference may have been detected in the current input stream
  * the handling is done accordingly to
- *    http://www.w3.org/TR/REC-xml#entproc
+ * http://www.w3.org/TR/REC-xml#entproc
  * i.e.
  * - Included in literal in entity values
  * - Included as Parameter Entity reference within DTDs
@@ -2068,10 +2068,10 @@ void FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt)
 		case XML_PARSER_ENTITY_VALUE:
 		    /*
 		     * NOTE: in the case of entity values, we don't do the
-		     *     substitution here since we need the literal
-		     *     entity value to be able to save the internal
-		     *     subset of the document.
-		     *     This will be handled by xmlStringDecodeEntities
+		     *  substitution here since we need the literal
+		     *  entity value to be able to save the internal
+		     *  subset of the document.
+		     *  This will be handled by xmlStringDecodeEntities
 		     */
 		    return;
 		case XML_PARSER_DTD:
@@ -2225,7 +2225,7 @@ void FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt)
  * [69] PEReference ::= '%' Name ';'
  *
  * Returns A newly allocated string with the substitution done. The caller
- *    must deallocate it !
+ * must deallocate it !
  */
 xmlChar * xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int len, int what, xmlChar end, xmlChar end2, xmlChar end3)
 {
@@ -2794,7 +2794,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
  * parse an XML name.
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' |
- *                CombiningChar | Extender
+ *             CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *
@@ -2902,7 +2902,7 @@ static const xmlChar * xmlParseNCNameComplex(xmlParserCtxt * ctxt)
  * parse an XML name.
  *
  * [4NS] NCNameChar ::= Letter | Digit | '.' | '-' | '_' |
- *                    CombiningChar | Extender
+ *                 CombiningChar | Extender
  *
  * [5NS] NCName ::= (Letter | '_') (NCNameChar)*
  *
@@ -3530,7 +3530,7 @@ error:
  * will be handled later in xmlStringGetNodeList
  *
  * [10] AttValue ::= '"' ([^<&"] | Reference)* '"' |
- *                 "'" ([^<&'] | Reference)* "'"
+ *              "'" ([^<&'] | Reference)* "'"
  *
  * 3.3.3 Attribute-Value Normalization:
  * Before the value of an attribute is passed to the application or
@@ -4005,21 +4005,21 @@ static void xmlParseCharDataComplex(xmlParserCtxt * ctxt, int cdata)
  * @ctxt:  an XML parser context
  * @publicID:  a xmlChar** receiving PubidLiteral
  * @strict: indicate whether we should restrict parsing to only
- *        production [75], see NOTE below
+ *     production [75], see NOTE below
  *
  * Parse an External ID or a Public ID
  *
  * NOTE: Productions [75] and [83] interact badly since [75] can generate
- *     'PUBLIC' S PubidLiteral S SystemLiteral
+ *  'PUBLIC' S PubidLiteral S SystemLiteral
  *
  * [75] ExternalID ::= 'SYSTEM' S SystemLiteral
- *                 | 'PUBLIC' S PubidLiteral S SystemLiteral
+ *              | 'PUBLIC' S PubidLiteral S SystemLiteral
  *
  * [83] PublicID ::= 'PUBLIC' S PubidLiteral
  *
  * Returns the function returns SystemLiteral and in the second
- *              case publicID receives PubidLiteral, is strict is off
- *              it is possible to return NULL and have publicID set.
+ *           case publicID receives PubidLiteral, is strict is off
+ *           it is possible to return NULL and have publicID set.
  */
 
 xmlChar * xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int strict)
@@ -4890,7 +4890,7 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
  * handled in xmlParseAttValue()
  *
  * returns: XML_ATTRIBUTE_NONE, XML_ATTRIBUTE_REQUIRED, XML_ATTRIBUTE_IMPLIED
- *        or XML_ATTRIBUTE_FIXED.
+ *     or XML_ATTRIBUTE_FIXED.
  */
 int xmlParseDefaultDecl(xmlParserCtxt * ctxt, xmlChar ** value)
 {
@@ -5114,7 +5114,7 @@ int xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumeration ** tree)
  * [55] StringType ::= 'CDATA'
  *
  * [56] TokenizedType ::= 'ID' | 'IDREF' | 'IDREFS' | 'ENTITY' |
- *                      'ENTITIES' | 'NMTOKEN' | 'NMTOKENS'
+ *                   'ENTITIES' | 'NMTOKEN' | 'NMTOKENS'
  *
  * Validity constraints for attribute values syntax are checked in
  * xmlValidateAttributeValue()
@@ -5299,7 +5299,7 @@ void xmlParseAttributeListDecl(xmlParserCtxt * ctxt)
  * The leading '(' and spaces have been skipped in xmlParseElementContentDecl
  *
  * [51] Mixed ::= '(' S? '#PCDATA' (S? '|' S? Name)* S? ')*' |
- *              '(' S? '#PCDATA' S? ')'
+ *           '(' S? '#PCDATA' S? ')'
  *
  * [VC: Proper Group/PE Nesting] applies to [51] too (see [49])
  *
@@ -7046,7 +7046,7 @@ static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntity * entity)
  * NOTE: misleading but this is handled.
  *
  * Returns the string of the entity content.
- *       str is updated to the current value of the index
+ *    str is updated to the current value of the index
  */
 static xmlEntity * xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar ** str)
 {
@@ -7134,7 +7134,7 @@ static xmlEntity * xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar
  * parse a DOCTYPE declaration
  *
  * [28] doctypedecl ::= '<!DOCTYPE' S Name (S ExternalID)? S?
- *                    ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
+ *                 ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
  *
  * [VC: Root Element Type]
  * The Name in the document type declaration must match the element
@@ -7672,7 +7672,7 @@ static const xmlChar * xmlParseQNameAndCompare(xmlParserCtxt * ctxt, xmlChar con
  *
  * parse a value for an attribute.
  * NOTE: if no normalization is needed, the routine will return pointers
- *     directly from the data buffer.
+ *  directly from the data buffer.
  *
  * 3.3.3 Attribute-Value Normalization:
  * Before the value of an attribute is passed to the application or
@@ -8009,10 +8009,10 @@ static const xmlChar * xmlParseStartTag2(xmlParserCtxt * ctxt, const xmlChar ** 
 	NEXT1;
 	/*
 	 * NOTE: it is crucial with the SAX2 API to never call SHRINK beyond that
-	 *     point since the attribute values may be stored as pointers to
-	 *     the buffer and calling SHRINK would destroy them !
-	 *     The Shrinking is only possible once the full set of attribute
-	 *     callbacks have been done.
+	 *  point since the attribute values may be stored as pointers to
+	 *  the buffer and calling SHRINK would destroy them !
+	 *  The Shrinking is only possible once the full set of attribute
+	 *  callbacks have been done.
 	 */
 reparse:
 	SHRINK;
@@ -9002,7 +9002,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
  * parse the XML standalone declaration
  *
  * [32] SDDecl ::= S 'standalone' Eq
- *               (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no')'"'))
+ *            (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no')'"'))
  *
  * [VC: Standalone Document Declaration]
  * @todo The standalone document declaration must have the value "no"
@@ -9359,7 +9359,7 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
  * [78] extParsedEnt ::= TextDecl? content
  *
  * Returns 0, -1 in case of error. the parser context is augmented
- *              as a result of the parsing.
+ *           as a result of the parsing.
  */
 
 int xmlParseExtParsedEnt(xmlParserCtxt * ctxt)
@@ -9463,7 +9463,7 @@ int xmlParseExtParsedEnt(xmlParserCtxt * ctxt)
  * parser, do not use liberally.
  *
  * Returns the index to the current parsing point if the full sequence
- *    is available, -1 otherwise.
+ * is available, -1 otherwise.
  */
 static int xmlParseLookupSequence(xmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third)
 {
@@ -9597,7 +9597,7 @@ static void xmlParseGetLasts(const xmlParserCtxt * ctxt, const xmlChar ** lastlt
  * Check that the block of characters is okay as SCdata content [20]
  *
  * Returns the number of bytes to pass if okay, a negative index where an
- *       UTF-8 error occured otherwise
+ *    UTF-8 error occured otherwise
  */
 static int xmlCheckCdataPush(const xmlChar * utf, int len)
 {
@@ -12276,7 +12276,7 @@ xmlParserCtxt * xmlCreateFileParserCtxt(const char * filename)
  * @sax:  the SAX handler block
  * @filename:  the filename
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *           documents
+ *        documents
  * @data:  the userdata
  *
  * parse an XML file and build a tree. Automatic support for ZLIB/Compress
@@ -12333,7 +12333,7 @@ xmlDoc * xmlSAXParseFileWithData(xmlSAXHandler * sax, const char * filename, int
  * @sax:  the SAX handler block
  * @filename:  the filename
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *           documents
+ *        documents
  *
  * parse an XML file and build a tree. Automatic support for ZLIB/Compress
  * compressed document is provided by default if found at compile-time.
@@ -12510,7 +12510,7 @@ xmlParserCtxt * xmlCreateMemoryParserCtxt(const char * buffer, int size)
  * @buffer:  an pointer to a char array
  * @size:  the size of the array
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *           documents
+ *        documents
  * @data:  the userdata
  *
  * parse an XML in-memory block and use the given SAX function block
@@ -12558,7 +12558,7 @@ xmlDoc * xmlSAXParseMemoryWithData(xmlSAXHandler * sax, const char * buffer, int
  * @buffer:  an pointer to a char array
  * @size:  the size of the array
  * @recovery:  work in recovery mode, i.e. tries to read not Well Formed
- *           documents
+ *        documents
  *
  * parse an XML in-memory block and use the given SAX function block
  * to handle the parsing callback. If sax is NULL, fallback to the default
@@ -12661,7 +12661,7 @@ xmlParserCtxt * xmlCreateDocParserCtxt(const xmlChar * cur)
  * @sax:  the SAX handler block
  * @cur:  a pointer to an array of xmlChar
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *           documents
+ *        documents
  *
  * parse an XML in-memory document and build a tree.
  * It use the given SAX function block to handle the parsing callback.
@@ -12819,12 +12819,12 @@ __xmlGlobalInitMutexUnlock();
  * the library for operations.
  *
  * WARNING: if your application is multithreaded or has plugin support
- *        calling this may crash the application if another thread or
- *        a plugin is still using libxml2. It's sometimes very hard to
- *        guess if libxml2 is in use in the application, some libraries
- *        or plugins may use it without notice. In case of doubt abstain
- *        from calling this function or do it just before calling exit()
- *        to avoid leak reports from valgrind !
+ *     calling this may crash the application if another thread or
+ *     a plugin is still using libxml2. It's sometimes very hard to
+ *     guess if libxml2 is in use in the application, some libraries
+ *     or plugins may use it without notice. In case of doubt abstain
+ *     from calling this function or do it just before calling exit()
+ *     to avoid leak reports from valgrind !
  */
 void xmlCleanupParser()
 {
@@ -13164,7 +13164,7 @@ static int FASTCALL xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options,
  * Applies the options to the parser context
  *
  * Returns 0 in case of success, the set of unknown or unimplemented options
- *       in case of error.
+ *    in case of error.
  */
 int xmlCtxtUseOptions(xmlParserCtxt * ctxt, int options)
 {
@@ -13271,7 +13271,7 @@ xmlDoc * xmlReadMemory(const char * buffer, int size, const char * URL, const ch
  *
  * parse an XML from a file descriptor and build a tree.
  * NOTE that the file descriptor will not be closed when the
- *    reader is closed or reset.
+ * reader is closed or reset.
  *
  * Returns the resulting document tree
  */
@@ -13447,7 +13447,7 @@ xmlDoc * xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, int size, 
  * parse an XML from a file descriptor and build a tree.
  * This reuses the existing @ctxt parser context
  * NOTE that the file descriptor will not be closed when the
- *    reader is closed or reset.
+ * reader is closed or reset.
  *
  * Returns the resulting document tree
  */

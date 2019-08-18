@@ -109,12 +109,12 @@ int xmlModuleSymbol(xmlModulePtr module, const char * name, void ** symbol)
  * data associated to the module.
  *
  * Returns 0 in case of success, -1 in case of argument error and -2
- *       if the module could not be closed/unloaded.
+ *    if the module could not be closed/unloaded.
  */
 int xmlModuleClose(xmlModulePtr module)
 {
 	int rc;
-	if(NULL == module) {
+	if(!module) {
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, NULL, 0, 0, NULL, NULL, 0, 0, "null module pointer\n");
 		return -1;
 	}
@@ -139,7 +139,7 @@ int xmlModuleClose(xmlModulePtr module)
  */
 int xmlModuleFree(xmlModulePtr module)
 {
-	if(NULL == module) {
+	if(!module) {
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "null module pointer\n");
 		return -1;
 	}

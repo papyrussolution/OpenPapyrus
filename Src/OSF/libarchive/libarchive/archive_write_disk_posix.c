@@ -7,11 +7,11 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer
- *    in this position and unchanged.
+ * notice, this list of conditions and the following disclaimer
+ * in this position and unchanged.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -937,18 +937,18 @@ static int hfs_set_compressed_fflag(struct archive_write_disk * a)
 /*
  * HFS+ Compression decmpfs
  *
- *     +------------------------------+ +0
- *     |      Magic(LE 4 bytes)       |
- *     +------------------------------+
- *     |      Type(LE 4 bytes)        |
- *     +------------------------------+
- *     | Uncompressed size(LE 8 bytes)|
- *     +------------------------------+ +16
- *     |                              |
- *     |       Compressed data        |
- *     |  (Placed only if Type == 3)  |
- *     |                              |
- *     +------------------------------+  +3802 = MAX_DECMPFS_XATTR_SIZE
+ *  +------------------------------+ +0
+ *  |      Magic(LE 4 bytes)       |
+ *  +------------------------------+
+ *  |      Type(LE 4 bytes)        |
+ *  +------------------------------+
+ *  | Uncompressed size(LE 8 bytes)|
+ *  +------------------------------+ +16
+ *  |                              |
+ *  |       Compressed data        |
+ *  |  (Placed only if Type == 3)  |
+ *  |                              |
+ *  +------------------------------+  +3802 = MAX_DECMPFS_XATTR_SIZE
  *
  *  Type is 3: decmpfs has compressed data.
  *  Type is 4: Resource Fork has compressed data.
@@ -977,11 +977,11 @@ static int hfs_write_decmpfs(struct archive_write_disk * a)
 /*
  * HFS+ Compression Resource Fork
  *
- *     +-----------------------------+
- *     |     Header(260 bytes)       |
- *     +-----------------------------+
- *     |   Block count(LE 4 bytes)   |
- *     +-----------------------------+  --+
+ *  +-----------------------------+
+ *  |     Header(260 bytes)       |
+ *  +-----------------------------+
+ *  |   Block count(LE 4 bytes)   |
+ *  +-----------------------------+  --+
  * +-- |     Offset (LE 4 bytes)     |    |
  * |   | [distance from Block count] |    | Block 0
  * |   +-----------------------------+    |
@@ -995,16 +995,16 @@ static int hfs_write_decmpfs(struct archive_write_disk * a)
  * |   +-----------------------------+    | Block (Block count -1)
  * |   | Compressed size(LE 4 bytes) |    |
  * +-> +-----------------------------+  --+
- *     |   Compressed data(n bytes)  |  Block 0
- *     +-----------------------------+
- *     |                             |
- *     |      ..................     |
- *     |                             |
- *     +-----------------------------+
- *     |   Compressed data(n bytes)  |  Block (Block count -1)
- *     +-----------------------------+
- *     |      Footer(50 bytes)       |
- *     +-----------------------------+
+ *  |   Compressed data(n bytes)  |  Block 0
+ *  +-----------------------------+
+ *  |                             |
+ *  |      ..................     |
+ *  |                             |
+ *  +-----------------------------+
+ *  |   Compressed data(n bytes)  |  Block (Block count -1)
+ *  +-----------------------------+
+ *  |      Footer(50 bytes)       |
+ *  +-----------------------------+
  *
  */
 /*
@@ -2215,13 +2215,13 @@ static int create_filesystem_object(struct archive_write_disk * a)
  * Cleanup function for archive_extract.  Mostly, this involves processing
  * the fixup list, which is used to address a number of problems:
  *   * Dir permissions might prevent us from restoring a file in that
- *     dir, so we restore the dir with minimum 0700 permissions first,
- *     then correct the mode at the end.
+ *  dir, so we restore the dir with minimum 0700 permissions first,
+ *  then correct the mode at the end.
  *   * Similarly, the act of restoring a file touches the directory
- *     and changes the timestamp on the dir, so we have to touch-up dir
- *     timestamps at the end as well.
+ *  and changes the timestamp on the dir, so we have to touch-up dir
+ *  timestamps at the end as well.
  *   * Some file flags can interfere with the restore by, for example,
- *     preventing the creation of hardlinks to those files.
+ *  preventing the creation of hardlinks to those files.
  *   * Mac OS extended metadata includes ACLs, so must be deferred on dirs.
  *
  * Note that tar/cpio do not require that archives be in a particular
@@ -2456,7 +2456,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 	 * As we go:
 	 *  head points to the current (relative) path
 	 *  tail points to the temporary \0 terminating the segment we're
-	 *      currently examining
+	 *   currently examining
 	 *  c holds what used to be in *tail
 	 *  last is 1 if this is the last tail
 	 */
@@ -2683,9 +2683,9 @@ static int check_symlinks(struct archive_write_disk * a)
 #if defined(__CYGWIN__)
 /*
  * 1. Convert a path separator from '\' to '/' .
- *    We shouldn't check multibyte character directly because some
- *    character-set have been using the '\' character for a part of
- *    its multibyte character code.
+ * We shouldn't check multibyte character directly because some
+ * character-set have been using the '\' character for a part of
+ * its multibyte character code.
  * 2. Replace unusable characters in Windows with underscore('_').
  * See also : http://msdn.microsoft.com/en-us/library/aa365247.aspx
  */

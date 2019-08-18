@@ -64,15 +64,15 @@ static struct {
 
 /*-
  * This function carries out the following tasks:
- *    - Checks if there is one and only one signer.
- *    - Search for the signing certificate in 'certs' and in the response.
- *    - Check the extended key usage and key usage fields of the signer
- *    certificate (done by the path validation).
- *    - Build and validate the certificate path.
- *    - Check if the certificate path meets the requirements of the
- *    SigningCertificate ESS signed attribute.
- *    - Verify the signature value.
- *    - Returns the signer certificate in 'signer', if 'signer' is not NULL.
+ * - Checks if there is one and only one signer.
+ * - Search for the signing certificate in 'certs' and in the response.
+ * - Check the extended key usage and key usage fields of the signer
+ * certificate (done by the path validation).
+ * - Build and validate the certificate path.
+ * - Check if the certificate path meets the requirements of the
+ * SigningCertificate ESS signed attribute.
+ * - Verify the signature value.
+ * - Returns the signer certificate in 'signer', if 'signer' is not NULL.
  */
 int TS_RESP_verify_signature(PKCS7 * token, STACK_OF(X509) * certs,
     X509_STORE * store, X509 ** signer_out)
@@ -282,8 +282,8 @@ static int ts_issuer_serial_cmp(ESS_ISSUER_SERIAL * is, X509 * cert)
 /*-
  * Verifies whether 'response' contains a valid response with regards
  * to the settings of the context:
- *    - Gives an error message if the TS_TST_INFO is not present.
- *    - Calls _TS_RESP_verify_token to verify the token content.
+ * - Gives an error message if the TS_TST_INFO is not present.
+ * - Calls _TS_RESP_verify_token to verify the token content.
  */
 int TS_RESP_verify_response(TS_VERIFY_CTX * ctx, TS_RESP * response)
 {
@@ -320,13 +320,13 @@ int TS_RESP_verify_token(TS_VERIFY_CTX * ctx, PKCS7 * token)
  * Verifies whether the 'token' contains a valid time stamp token
  * with regards to the settings of the context. Only those checks are
  * carried out that are specified in the context:
- *    - Verifies the signature of the TS_TST_INFO.
- *    - Checks the version number of the response.
- *    - Check if the requested and returned policies math.
- *    - Check if the message imprints are the same.
- *    - Check if the nonces are the same.
- *    - Check if the TSA name matches the signer.
- *    - Check if the TSA name is the expected TSA.
+ * - Verifies the signature of the TS_TST_INFO.
+ * - Checks the version number of the response.
+ * - Check if the requested and returned policies math.
+ * - Check if the message imprints are the same.
+ * - Check if the nonces are the same.
+ * - Check if the TSA name matches the signer.
+ * - Check if the TSA name is the expected TSA.
  */
 static int int_ts_RESP_verify_token(TS_VERIFY_CTX * ctx,
     PKCS7 * token, TS_TST_INFO * tst_info)

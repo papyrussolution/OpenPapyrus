@@ -3,24 +3,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,9 +50,7 @@ void SetThreadName(DWORD dwThreadID, char* threadName)
 	info.szName = threadName;
 	info.dwThreadID = dwThreadID;
 	info.dwFlags = 0;
-
-	__try
-	{
+	__try {
 		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info);
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
@@ -112,7 +110,7 @@ int pthread_setname_np(pthread_t thr, const char * name, void * arg)
 		SetThreadName(Win32ThreadID, newname);
 	}
 #endif
-	tp = (__ptw32_thread_t*)thr.p;
+	tp = (__ptw32_thread_t *)thr.p;
 	__ptw32_mcs_lock_acquire(&tp->threadLock, &threadLock);
 	oldname = tp->name;
 	tp->name = newname;
@@ -148,7 +146,7 @@ int pthread_setname_np(pthread_t thr, const char * name)
 		SetThreadName(Win32ThreadID, newname);
 	}
 #endif
-	tp = (__ptw32_thread_t*)thr.p;
+	tp = (__ptw32_thread_t *)thr.p;
 	__ptw32_mcs_lock_acquire(&tp->threadLock, &threadLock);
 	oldname = tp->name;
 	tp->name = newname;

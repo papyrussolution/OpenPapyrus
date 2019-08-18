@@ -1295,7 +1295,7 @@ static int PixarLogVSetField(TIFF* tif, uint32 tag, va_list ap)
 		default:
 		    result = (*sp->vsetparent)(tif, tag, ap);
 	}
-	return (result);
+	return result;
 }
 
 static int PixarLogVGetField(TIFF* tif, uint32 tag, va_list ap)

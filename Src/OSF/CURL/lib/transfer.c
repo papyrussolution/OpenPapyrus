@@ -110,8 +110,8 @@ CURLcode Curl_fillreadbuffer(struct connectdata * conn, int bytes, int * nreadp)
 		/* if chunked Transfer-Encoding
 		 *  build chunk:
 		 *
-		 *      <HEX SIZE> CRLF
-		 *      <DATA> CRLF
+		 *   <HEX SIZE> CRLF
+		 *   <DATA> CRLF
 		 */
 		/* On non-ASCII platforms the <DATA> may or may not be
 		   translated based on set.prefer_ascii while the protocol

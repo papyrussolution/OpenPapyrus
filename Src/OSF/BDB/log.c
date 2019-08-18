@@ -1089,7 +1089,7 @@ int __log_inmem_newfile(DB_LOG * dblp, uint32 file)
  * __log_inmem_chkspace --
  *	Ensure that the requested amount of space is available in the buffer,
  *	and invalidate the region.
- *    Note: assumes that the region lock is held on entry.
+ * Note: assumes that the region lock is held on entry.
  */
 int __log_inmem_chkspace(DB_LOG * dblp, size_t len)
 {
@@ -1153,7 +1153,7 @@ int __log_inmem_chkspace(DB_LOG * dblp, size_t len)
 /*
  * __log_inmem_copyout --
  *	Copies the given number of bytes from the buffer -- no checking.
- *    Note: assumes that the region lock is held on entry.
+ * Note: assumes that the region lock is held on entry.
  */
 void __log_inmem_copyout(DB_LOG * dblp, size_t offset, void * buf, size_t size)
 {
@@ -1166,7 +1166,7 @@ void __log_inmem_copyout(DB_LOG * dblp, size_t offset, void * buf, size_t size)
 /*
  * __log_inmem_copyin --
  *	Copies the given number of bytes into the buffer -- no checking.
- *    Note: assumes that the region lock is held on entry.
+ * Note: assumes that the region lock is held on entry.
  */
 void __log_inmem_copyin(DB_LOG * dblp, size_t offset, void * buf, size_t size)
 {

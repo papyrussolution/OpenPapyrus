@@ -1,6 +1,6 @@
 /*
  * valid.c : part of the code use to do the DTD handling and the validity
- *         checking
+ *      checking
  *
  * See Copyright for the status of this software.
  *
@@ -3325,7 +3325,7 @@ static int xmlValidateAttributeValue2(xmlValidCtxtPtr ctxt, xmlDoc * doc, const 
  *  ctxt->valid accordingly
  *
  * returns a new normalized string if normalization is needed, NULL otherwise
- *    the caller must free the returned value.
+ * the caller must free the returned value.
  */
 
 xmlChar * xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, const xmlChar * name, const xmlChar * value) 
@@ -3409,7 +3409,7 @@ xmlChar * xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDoc * doc
  * (#x20) characters by single space (#x20) character.
  *
  * Returns a new normalized string if normalization is needed, NULL otherwise
- *    the caller must free the returned value.
+ * the caller must free the returned value.
  */
 
 xmlChar * xmlValidNormalizeAttributeValue(xmlDoc * doc, xmlNode * elem, const xmlChar * name, const xmlChar * value) 
@@ -4005,8 +4005,8 @@ static xmlNode * xmlValidateSkipIgnorable(xmlNode * child)
  * Try to validate the content model of an element internal function
  *
  * returns 1 if valid or 0 ,-1 in case of error, -2 if an entity
- *         reference is found and -3 if the validation succeeded but
- *         the content model is not determinist.
+ *      reference is found and -3 if the validation succeeded but
+ *      the content model is not determinist.
  */
 
 static int xmlValidateElementType(xmlValidCtxtPtr ctxt) {
@@ -4871,7 +4871,7 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt, xmlElementContent * cont,
  * @doc:  a document instance
  * @elem:  an element instance
  * @extsubset:  pointer, (out) indicate if the declaration was found
- *            in the external subset.
+ *         in the external subset.
  *
  * Finds a declaration associated to an element in the document.
  *
@@ -4980,7 +4980,7 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, c
 				     * @todo 
 				     * VC: Standalone Document Declaration
 				     *   - element types with element content, if white space
-				     *     occurs directly within any instance of those types.
+				     *  occurs directly within any instance of those types.
 				     */
 				    if(state->exec != NULL) {
 					    ret = xmlRegExecPushString(state->exec, qname, 0);
@@ -5287,7 +5287,7 @@ child_ok:
 				    /*
 				     * VC: Standalone Document Declaration
 				     *   - element types with element content, if white space
-				     *     occurs directly within any instance of those types.
+				     *  occurs directly within any instance of those types.
 				     */
 				    child = elem->children;
 				    while(child) {

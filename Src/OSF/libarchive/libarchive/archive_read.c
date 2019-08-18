@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -1023,7 +1023,7 @@ int __archive_read_get_bidder(struct archive_read * a, struct archive_read_filte
  *
  * The two key operations:
  *  * The read-ahead function returns a pointer to a block of data
- *    that satisfies a minimum request.
+ * that satisfies a minimum request.
  *  * The consume function advances the file pointer.
  *
  * In the ideal case, filters generate blocks of data
@@ -1035,24 +1035,24 @@ int __archive_read_get_bidder(struct archive_read * a, struct archive_read_filte
  *
  * A couple of useful idioms:
  *  * "I just want some data."  Ask for 1 byte and pay attention to
- *    the "number of bytes available" from __archive_read_ahead().
- *    Consume whatever you actually use.
+ * the "number of bytes available" from __archive_read_ahead().
+ * Consume whatever you actually use.
  *  * "I want to output a large block of data."  As above, ask for 1 byte,
- *    emit all that's available (up to whatever limit you have), consume
- *    it all, then repeat until you're done.  This effectively means that
- *    you're passing along the blocks that came from your provider.
+ * emit all that's available (up to whatever limit you have), consume
+ * it all, then repeat until you're done.  This effectively means that
+ * you're passing along the blocks that came from your provider.
  *  * "I want to peek ahead by a large amount."  Ask for 4k or so, then
- *    double and repeat until you get an error or have enough.  Note
- *    that the I/O layer will likely end up expanding its copy buffer
- *    to fit your request, so use this technique cautiously.  This
- *    technique is used, for example, by some of the format tasting
- *    code that has uncertain look-ahead needs.
+ * double and repeat until you get an error or have enough.  Note
+ * that the I/O layer will likely end up expanding its copy buffer
+ * to fit your request, so use this technique cautiously.  This
+ * technique is used, for example, by some of the format tasting
+ * code that has uncertain look-ahead needs.
  */
 
 /*
  * Looks ahead in the input stream:
  *  * If 'avail' pointer is provided, that returns number of bytes available
- *    in the current buffer, which may be much larger than requested.
+ * in the current buffer, which may be much larger than requested.
  *  * If end-of-file, *avail gets set to zero.
  *  * If error, *avail gets error code.
  *  * If request can be met, returns pointer to data.

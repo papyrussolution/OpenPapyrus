@@ -9,10 +9,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -50,13 +50,13 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_gnu_tar.c 19157
 struct gnutar {
 	uint64_t entry_bytes_remaining;
 	uint64_t entry_padding;
-	const char *    linkname;
+	const char * linkname;
 	size_t linkname_length;
-	const char *    pathname;
+	const char * pathname;
 	size_t pathname_length;
-	const char *    uname;
+	const char * uname;
 	size_t uname_length;
-	const char *    gname;
+	const char * gname;
 	size_t gname_length;
 	struct archive_string_conv * opt_sconv;
 	struct archive_string_conv * sconv_default;

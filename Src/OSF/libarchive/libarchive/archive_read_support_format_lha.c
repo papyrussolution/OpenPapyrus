@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -696,7 +696,7 @@ static void lha_replace_path_separator(struct lha * lha, struct archive_entry * 
  * +---------------+----------+----------------+-------------------+
  * |header size(*1)|header sum|compression type|compressed size(*2)|
  * +---------------+----------+----------------+-------------------+
- *                             <---------------------(*1)----------*
+ *                          <---------------------(*1)----------*
  *
  * +11               +15       +17       +19            +20              +21
  * +-----------------+---------+---------+--------------+----------------+
@@ -708,7 +708,7 @@ static void lha_replace_path_separator(struct lha * lha, struct archive_entry * 
  * +---------------+---------+----------+----------------+------------------+
  * |name length(*3)|file name|file CRC16|extra header(*4)|  compressed data |
  * +---------------+---------+----------+----------------+------------------+
- *                  <--(*3)->                             <------(*2)------>
+ *               <--(*3)->                             <------(*2)------>
  * *----------------------(*1)-------------------------->
  *
  */
@@ -779,7 +779,7 @@ static int lha_read_file_header_0(struct archive_read * a, struct lha * lha)
  * +---------------+----------+----------------+-------------+
  * |header size(*1)|header sum|compression type|skip size(*2)|
  * +---------------+----------+----------------+-------------+
- *                             <---------------(*1)----------*
+ *                          <---------------(*1)----------*
  *
  * +11               +15       +17       +19            +20              +21
  * +-----------------+---------+---------+--------------+----------------+
@@ -791,7 +791,7 @@ static int lha_read_file_header_0(struct archive_read * a, struct lha * lha)
  * +---------------+---------+----------+-----------+-----------+
  * |name length(*3)|file name|file CRC16|  creator  |padding(*4)|
  * +---------------+---------+----------+-----------+-----------+
- *                  <--(*3)->
+ *               <--(*3)->
  * *----------------------------(*1)----------------------------*
  *
  * +22+(*3)+3+(*4)  +22+(*3)+3+(*4)+2     +22+(*3)+3+(*4)+2+(*5)
@@ -1731,12 +1731,12 @@ static void lzh_decode_free(struct lzh_stream * strm)
  * will use.
  *  True  : completed, there is enough data in the cache buffer.
  *  False : we met that strm->next_in is empty, we have to get following
- *          bytes. */
+ *       bytes. */
 #define lzh_br_read_ahead_0(strm, br, n)        \
 	(lzh_br_has(br, (n)) || lzh_br_fillup(strm, br))
 /*  True  : the cache buffer has some bits as much as we need.
  *  False : there are no enough bits in the cache buffer to be used,
- *          we have to get following bytes if we could. */
+ *       we have to get following bytes if we could. */
 #define lzh_br_read_ahead(strm, br, n)  \
 	(lzh_br_read_ahead_0((strm), (br), (n)) || lzh_br_has((br), (n)))
 
@@ -1832,21 +1832,21 @@ static int lzh_br_fillup(struct lzh_stream * strm, struct lzh_dec::lzh_br * br)
  * Decode LZHUF.
  *
  * 1. Returns ARCHIVE_OK if output buffer or input buffer are empty.
- *    Please set available buffer and call this function again.
+ * Please set available buffer and call this function again.
  * 2. Returns ARCHIVE_EOF if decompression has been completed.
  * 3. Returns ARCHIVE_FAILED if an error occurred; compressed data
- *    is broken or you do not set 'last' flag properly.
+ * is broken or you do not set 'last' flag properly.
  * 4. 'last' flag is very important, you must set 1 to the flag if there
- *    is no input data. The lha compressed data format does not provide how
- *    to know the compressed data is really finished.
- *    Note: lha command utility check if the total size of output bytes is
- *    reached the uncompressed size recorded in its header. it does not mind
- *    that the decoding process is properly finished.
- *    GNU ZIP can decompress another compressed file made by SCO LZH compress.
- *    it handles EOF as null to fill read buffer with zero until the decoding
- *    process meet 2 bytes of zeros at reading a size of a next chunk, so the
- *    zeros are treated as the mark of the end of the data although the zeros
- *    is dummy, not the file data.
+ * is no input data. The lha compressed data format does not provide how
+ * to know the compressed data is really finished.
+ * Note: lha command utility check if the total size of output bytes is
+ * reached the uncompressed size recorded in its header. it does not mind
+ * that the decoding process is properly finished.
+ * GNU ZIP can decompress another compressed file made by SCO LZH compress.
+ * it handles EOF as null to fill read buffer with zero until the decoding
+ * process meet 2 bytes of zeros at reading a size of a next chunk, so the
+ * zeros are treated as the mark of the end of the data although the zeros
+ * is dummy, not the file data.
  */
 static int      lzh_read_blocks(struct lzh_stream *, int);
 static int      lzh_decode_blocks(struct lzh_stream *, int);
@@ -1917,7 +1917,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 					     * It seems there are extra bits.
 					     *  1. Compressed data is broken.
 					     *  2. `last' flag does not properly
-					     *     set.
+					     *  set.
 					     */
 					    goto failed;
 				    }
@@ -2431,15 +2431,15 @@ static int lzh_read_pt_bitlen(struct lzh_stream * strm, int start, int end)
 	for(i = start; i < end;) {
 		/*
 		 *  bit pattern     the number we need
-		 *     000           ->  0
-		 *     001           ->  1
-		 *     010           ->  2
-		 *     ...
-		 *     110           ->  6
-		 *     1110          ->  7
-		 *     11110         ->  8
-		 *     ...
-		 *     1111111111110 ->  16
+		 *  000           ->  0
+		 *  001           ->  1
+		 *  010           ->  2
+		 *  ...
+		 *  110           ->  6
+		 *  1110          ->  7
+		 *  11110         ->  8
+		 *  ...
+		 *  1111111111110 ->  16
 		 */
 		if(!lzh_br_read_ahead(strm, br, 3))
 			return (i);

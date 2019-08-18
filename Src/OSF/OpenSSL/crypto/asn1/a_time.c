@@ -10,8 +10,8 @@
 /*-
  * This is an implementation of the ASN1 Time structure which is:
  *  Time ::= CHOICE {
- *    utcTime        UTCTime,
- *    generalTime    GeneralizedTime }
+ * utcTime        UTCTime,
+ * generalTime    GeneralizedTime }
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop

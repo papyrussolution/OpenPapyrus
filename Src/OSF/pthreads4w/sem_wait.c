@@ -13,24 +13,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -74,28 +74,28 @@ int sem_wait(sem_t * sem)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function  waits on a semaphore.
+ *   This function  waits on a semaphore.
  *
  * PARAMETERS
- *      sem
- *              pointer to an instance of sem_t
+ *   sem
+ *           pointer to an instance of sem_t
  *
  * DESCRIPTION
- *      This function waits on a semaphore. If the
- *      semaphore value is greater than zero, it decreases
- *      its value by one. If the semaphore value is zero, then
- *      the calling thread (or process) is blocked until it can
- *      successfully decrease the value or until interrupted by
- *      a signal.
+ *   This function waits on a semaphore. If the
+ *   semaphore value is greater than zero, it decreases
+ *   its value by one. If the semaphore value is zero, then
+ *   the calling thread (or process) is blocked until it can
+ *   successfully decrease the value or until interrupted by
+ *   a signal.
  *
  * RESULTS
- *              0               successfully decreased semaphore,
- *              -1              failed, error in errno
+ *           0               successfully decreased semaphore,
+ *           -1              failed, error in errno
  * ERRNO
- *              EINVAL          'sem' is not a valid semaphore,
- *              ENOSYS          semaphores are not supported,
- *              EINTR           the function was interrupted by a signal,
- *              EDEADLK         a deadlock condition was detected.
+ *           EINVAL          'sem' is not a valid semaphore,
+ *           ENOSYS          semaphores are not supported,
+ *           EINTR           the function was interrupted by a signal,
+ *           EDEADLK         a deadlock condition was detected.
  *
  * ------------------------------------------------------
  */

@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_SCHANNEL_H
 #define HEADER_CURL_SCHANNEL_H
 /***************************************************************************
- *                                _   _ ____  _
+ *                             _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                           / __| | | | |_) | |
- *                          | (__| |_| |  _ <| |___
- *                           \___|\___/|_| \_\_____|
+ *                        / __| | | | |_) | |
+ *                       | (__| |_| |  _ <| |___
+ *                        \___|\___/|_| \_\_____|
  *
  * Copyright (C) 2012, Marc Hoersken, <info@marc-hoersken.de>, et al.
  * Copyright (C) 2012 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.

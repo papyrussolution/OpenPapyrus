@@ -352,7 +352,7 @@ err:
 }
 /*
  * __lock_freelocker_int
- *    Common code for deleting a locker; must be called with the
+ * Common code for deleting a locker; must be called with the
  *	locker bucket locked.
  */
 static int __lock_freelocker_int(DB_LOCKTAB * lt, DB_LOCKREGION * region, DB_LOCKER * sh_locker, int reallyfree)

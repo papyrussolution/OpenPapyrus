@@ -1804,7 +1804,7 @@ static bool IsCommentLine(Sci_Position line, Accessor & styler)
  *  Neither should this:
  *
  * print "hello" \
- *    if feeling_friendly?
+ * if feeling_friendly?
  *
  *
  *  But this should:

@@ -1,5 +1,6 @@
 // ALBATROS.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -16,9 +17,42 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    EditVetisConfig();
+	int    EditMqcConfig();
 
 	PPAlbatrosConfig Data;
 };
+
+int AlbatrosConfigDialog::EditMqcConfig()
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_MQCCFG);
+	if(CheckDialogPtrErr(&dlg)) {
+		SString temp_buf;
+		Data.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+		dlg->setCtrlString(CTL_MQCCFG_HOST, temp_buf);
+		Data.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+		dlg->setCtrlString(CTL_MQCCFG_USER, temp_buf);
+		Data.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+		dlg->setCtrlString(CTL_MQCCFG_SECRET, temp_buf);
+		Data.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, temp_buf);
+		dlg->setCtrlString(CTL_MQCCFG_DATADOMAIN, temp_buf);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_MQCCFG_HOST, temp_buf);
+			Data.PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf.Strip());
+			dlg->getCtrlString(CTL_MQCCFG_USER, temp_buf);
+			Data.PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf.Strip());
+			dlg->getCtrlString(CTL_MQCCFG_SECRET, temp_buf);
+			Data.SetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+			dlg->getCtrlString(CTL_MQCCFG_DATADOMAIN, temp_buf);
+			Data.PutExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, temp_buf);
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	return ok;
+}
 
 int AlbatrosConfigDialog::EditVetisConfig()
 {
@@ -82,9 +116,10 @@ IMPL_HANDLE_EVENT(AlbatrosConfigDialog)
 		if(mac_obj.Edit(&mac_id, 0) == cmOK)
 			SetupPPObjCombo(this, CTLSEL_ALBTRCFG_SMSACC, PPOBJ_SMSPRVACCOUNT, mac_id, OLW_CANINSERT, 0);
 	}
-	else if(event.isCmd(cmVetisConfig)) {
+	else if(event.isCmd(cmVetisConfig))
 		EditVetisConfig();
-	}
+	else if(event.isCmd(cmMqcConfig))
+		EditMqcConfig();
 	else
 		return;
 	clearEvent(event);
@@ -185,13 +220,13 @@ PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Z()
 int SLAPI PPAlbatrosConfig::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int SLAPI PPAlbatrosConfig::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
 
-#define UHTT_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
+#define UHTT_PW_SIZE 20 // @attention РёР·РјРµРЅРµРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ С‚СЂРµР±СѓРµС‚ РєРѕРЅРІРµСЂС‚Р°С†РёРё С…СЂР°РЅРёРјРѕРіРѕ РїР°СЂРѕР»СЏ
 
 int SLAPI PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 {
 	int    ok = 1;
 	SString temp_buf;
-	if(oneof3(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISDOCTPASSW)) {
+	if(oneof4(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_SECRET)) {
 		Reference::Helper_EncodeOtherPw(0, pPassword, UHTT_PW_SIZE, temp_buf/*UhttPassword*/);
 		PutExtStrData(fld, temp_buf);
 	}
@@ -205,7 +240,7 @@ int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
 	rPw.Z();
 	int    ok = 1;
 	SString temp_buf;
-	if(oneof3(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISDOCTPASSW)) {
+	if(oneof4(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_SECRET)) {
 		GetExtStrData(fld, temp_buf);
 		Reference::Helper_DecodeOtherPw(0, temp_buf/*UhttPassword*/, UHTT_PW_SIZE, rPw);
 	}
@@ -216,7 +251,7 @@ int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
 
 static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN, ALBATROSEXSTR_UHTTURLPFX, ALBATROSEXSTR_UHTTACC, ALBATROSEXSTR_UHTTPASSW,
 	ALBATROSEXSTR_EGAISSRVURL, ALBATROSEXSTR_VETISUSER, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISAPIKEY,
-	ALBATROSEXSTR_VETISDOCTUSER, ALBATROSEXSTR_VETISDOCTPASSW };
+	ALBATROSEXSTR_VETISDOCTUSER, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_HOST, ALBATROSEXSTR_MQC_USER, ALBATROSEXSTR_MQC_SECRET, ALBATROSEXSTR_MQC_DATADOMAIN };
 
 //static
 int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrosConfig * pCfg, int use_ta)
@@ -282,7 +317,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCf
 		}
 		else {
 			//
-			// Пытаемся найти запись в старом формате и конвертировать в новый
+			// РџС‹С‚Р°РµРјСЃСЏ РЅР°Р№С‚Рё Р·Р°РїРёСЃСЊ РІ СЃС‚Р°СЂРѕРј С„РѕСЂРјР°С‚Рµ Рё РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ РІ РЅРѕРІС‹Р№
 			//
 			struct OldConfig {
 				PPID   Tag;            // Const PPOBJ_CONFIG
@@ -319,7 +354,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCf
 				THROW(mac_obj.Put(&mac_id, &mac, 0));
 				cfg.MailAccID = mac_id;
 				THROW(PPAlbatrosCfgMngr::Put(&cfg, 0));
-				// Удаляем старую запись
+				// РЈРґР°Р»СЏРµРј СЃС‚Р°СЂСѓСЋ Р·Р°РїРёСЃСЊ
 				THROW(pRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, 0, 0));
 				DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_ALBATROS, 0, 0, 0);
 				THROW(tra.Commit());
@@ -350,7 +385,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCf
 	THROW(r = pRef->GetPropMainConfig(PPPRP_ALBATROSCFG2, &cfg, sizeof(cfg)));
 	if(r < 0) {
 		//
-		// Пытаемся найти запись в старом формате и конвертировать в новый
+		// РџС‹С‚Р°РµРјСЃСЏ РЅР°Р№С‚Рё Р·Р°РїРёСЃСЊ РІ СЃС‚Р°СЂРѕРј С„РѕСЂРјР°С‚Рµ Рё РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ РІ РЅРѕРІС‹Р№
 		//
 		struct OldConfig {
 			PPID   Tag;            // Const PPOBJ_CONFIG
@@ -387,7 +422,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCf
 				THROW(mac_obj.Put(&mac_id, &mac, 0));
 				cfg.MailAccID = mac_id;
 				THROW(PPAlbatrosCfgMngr::Put(&cfg, 0));
-				// Удаляем старую запись
+				// РЈРґР°Р»СЏРµРј СЃС‚Р°СЂСѓСЋ Р·Р°РїРёСЃСЊ
 				THROW(pRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, 0, 0));
 				DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_ALBATROS, 0, 0, 0);
 				THROW(tra.Commit());
@@ -570,6 +605,42 @@ int SLAPI AlbatrosTagParser::ResolveArticleByPerson(PPID psnID, PPID opID, PPID 
 	CATCHZOK
 	return ok;
 }
+
+// @v10.5.3 РћРїРёСЃР°РЅРёРµ РґРёР°Р»РѕРіР° РїРµСЂРµРЅРµСЃРµРЅРѕ СЃСЋРґР° РёР· ppw.rc РґР°Р±С‹ РЅРµ Р·Р°РЅРёРјР°С‚СЊСЃСЏ РЅРµ РЅСѓР¶РЅРѕР№ СЏР·С‹РєРѕРІРѕР№ Р»РѕРєР°Р»РёР·Р°С†РёРµР№ СЃС‚СЂРѕРє {
+/* 
+DLG_CLINFO DIALOGEX 52, 0, 332, 181
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Р‘СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅР° РїРµСЂСЃРѕРЅР°Р»РёСЏ"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "@name",4001,10,10,16,8
+    EDITTEXT        CTL_CLINFO_CLNAME,45,10,130,13,ES_AUTOHSCROLL
+    LTEXT           "@country",4005,10,30,28,8
+    EDITTEXT        CTL_CLINFO_CLCOUNTRY,45,30,130,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_CLINFO_CLCOUNTRY,175,30,12,13,BS_BITMAP
+    LTEXT           "@city",4006,10,45,24,8
+    EDITTEXT        CTL_CLINFO_CLCITY,45,45,130,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_CLINFO_CLCITY,175,45,12,13,BS_BITMAP
+    LTEXT           "@address",4007,10,60,24,8
+    EDITTEXT        CTL_CLINFO_CLADDR,45,60,130,13,ES_AUTOHSCROLL
+    LTEXT           "@phone",4008,10,75,30,8
+    EDITTEXT        CTL_CLINFO_CLPHONE,45,75,130,13,ES_AUTOHSCROLL
+    LTEXT           "@elink",4009,10,95,72,8
+    EDITTEXT        CTL_CLINFO_CLMAIL,115,95,130,13,ES_AUTOHSCROLL
+    LTEXT           "&РРќРќ РєР»РёРµРЅС‚Р° РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…",4002,195,25,100,8
+    EDITTEXT        CTL_CLINFO_CLBASETPID,195,36,130,13,ES_AUTOHSCROLL
+    LTEXT           "Р&РќРќ РєР»РёРµРЅС‚Р° РІ Р·Р°РєР°Р·Рµ",4003,195,50,84,8
+    EDITTEXT        CTL_CLINFO_CLORDERTPID,195,60,130,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Р—Р°РјРµРЅРёС‚СЊ РРќРќ",4004,260,75,65,13
+    LTEXT           "Р’ РїСЂРёРЅРёРјР°РµРјРѕРј Р·Р°РєР°Р·Рµ, СѓРєР°Р·Р°РЅ РєР»РёРµРЅС‚, РєРѕС‚РѕСЂС‹Р№ РЅРµ РЅР°Р№РґРµРЅ",CTL_CLINFO_TEXT1,115,110,205,8
+    LTEXT           "РІ С‚РµРєСѓС‰РµР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…. РљРЅРѕРїРєР° РћРљ - РґРѕР±Р°РІРёС‚СЊ РєР»РёРµРЅС‚Р° Рё",CTL_CLINFO_TEXT2,115,120,205,8
+    LTEXT           "РїСЂРёРЅСЏС‚СЊ Р·Р°РєР°Р·, РєРЅРѕРїРєР° РћС‚РјРµРЅР° - РЅРµ РґРѕР±Р°РІР»СЏС‚СЊ РєР»РёРµРЅС‚Р° Рё",CTL_CLINFO_TEXT3,115,130,205,8
+    LTEXT           "РЅРµ РїСЂРёРЅРёРјР°С‚СЊ Р·Р°РєР°Р·.",CTL_CLINFO_TEXT4,115,140,205,8
+    DEFPUSHBUTTON   "@but_ok",4010,220,160,50,13
+    PUSHBUTTON      "@but_cancel",4011,275,160,50,13
+END
+*/
+// } @v10.5.3
 
 class ClientAddDialog : public TDialog {
 public:
@@ -847,7 +918,7 @@ int SLAPI AlbatrosTagParser::SaveTagVal(const char * pTag)
 int SLAPI ImportOrders()
 {
 	int    ok = -1;
-	int    clean = 0; // Очистить приемник от старых файлов
+	int    clean = 0; // РћС‡РёСЃС‚РёС‚СЊ РїСЂРёРµРјРЅРёРє РѕС‚ СЃС‚Р°СЂС‹С… С„Р°Р№Р»РѕРІ
 	char   str_ord_count[18];
 	uint   j = 0;
 	long   ord_count = 0;
@@ -924,15 +995,15 @@ int SLAPI ImportOrders()
 //
 #if 0 // @construction {
 //
-// Управление публикацией цен для проекта Universe-HTT
+// РЈРїСЂР°РІР»РµРЅРёРµ РїСѓР±Р»РёРєР°С†РёРµР№ С†РµРЅ РґР»СЏ РїСЂРѕРµРєС‚Р° Universe-HTT
 //
 /*
 table UhttGoodsValueRel {
 	autolong ID;
 	long   Kind;
-	long   SellerID;    // ->Person.ID   Продавец (избыточное поле: его значение может быть извлечено из Location по SellerLocID)
-	long   SellerLocID; // ->Location.ID Локация продавца
-	long   BuyerID;     // ->Person.ID   Если цена предлагается для конкретного контрагента, то BuyerID - ид персоналии-контрагента
+	long   SellerID;    // ->Person.ID   РџСЂРѕРґР°РІРµС† (РёР·Р±С‹С‚РѕС‡РЅРѕРµ РїРѕР»Рµ: РµРіРѕ Р·РЅР°С‡РµРЅРёРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёР·РІР»РµС‡РµРЅРѕ РёР· Location РїРѕ SellerLocID)
+	long   SellerLocID; // ->Location.ID Р›РѕРєР°С†РёСЏ РїСЂРѕРґР°РІС†Р°
+	long   BuyerID;     // ->Person.ID   Р•СЃР»Рё С†РµРЅР° РїСЂРµРґР»Р°РіР°РµС‚СЃСЏ РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°, С‚Рѕ BuyerID - РёРґ РїРµСЂСЃРѕРЅР°Р»РёРё-РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
 index:
 	ID (unique);
 	Kind, SellerLocID, BuyerID (unique mod);
@@ -946,7 +1017,7 @@ table UhttGoodsValue {
 	long   RelID;          // UhttPriceRel.ID
 	long   GoodsID;        // ->Goods2.ID
 	long   CurID;          // ->Ref(PPOBJ_CURRENCY)
-	double Value;          // Значение, сопоставленное с товаром и набором атрибутов RelID
+	double Value;          // Р—РЅР°С‡РµРЅРёРµ, СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅРѕРµ СЃ С‚РѕРІР°СЂРѕРј Рё РЅР°Р±РѕСЂРѕРј Р°С‚СЂРёР±СѓС‚РѕРІ RelID
 	date   Dt;
 	time   Tm;
 	note   Memo[128];

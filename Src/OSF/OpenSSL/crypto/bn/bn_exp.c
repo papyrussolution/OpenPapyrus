@@ -99,11 +99,11 @@ int BN_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m,
 	 * standard algorithm:
 	 *
 	 * BN_mod_exp_mont   33 .. 40 %  [AMD K6-2, Linux, debug configuration]
-	 *                   55 .. 77 %  [UltraSparc processor, but
-	 *                                debug-solaris-sparcv8-gcc conf.]
+	 *                55 .. 77 %  [UltraSparc processor, but
+	 *                             debug-solaris-sparcv8-gcc conf.]
 	 *
 	 * BN_mod_exp_recp   50 .. 70 %  [AMD K6-2, Linux, debug configuration]
-	 *                   62 .. 118 % [UltraSparc, debug-solaris-sparcv8-gcc]
+	 *                62 .. 118 % [UltraSparc, debug-solaris-sparcv8-gcc]
 	 *
 	 * On the Sparc, BN_mod_exp_recp was faster than BN_mod_exp_mont
 	 * at 2048 and more bits, but at 512 and 1024 bits, it was

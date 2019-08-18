@@ -5327,7 +5327,7 @@ static xmlRelaxNGContentType FASTCALL xmlRelaxNGCheckRules(xmlRelaxNGParserCtxtP
  * parse a Relax-NG <grammar> node
  *
  * Returns the internal xmlRelaxNGGrammarPtr built or
- *       NULL in case of error
+ *    NULL in case of error
  */
 static xmlRelaxNGGrammarPtr xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * nodes)
 {
@@ -5387,7 +5387,7 @@ static xmlRelaxNGGrammarPtr xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxtPtr ctxt,
  * xmlRelaxNG struture which can be used to validate instances.
  *
  * Returns the internal XML RelaxNG structure built or
- *       NULL in case of error
+ *    NULL in case of error
  */
 static xmlRelaxNGPtr xmlRelaxNGParseDocument(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * P_Node)
 {
@@ -5515,7 +5515,7 @@ xmlRelaxNGParserCtxtPtr xmlRelaxNGNewMemParserCtxt(const char * buffer, int size
  *
  * Create an XML RelaxNGs parser context for that document.
  * Note: since the process of compiling a RelaxNG schemas modifies the
- *     document, the @doc parameter is duplicated internally.
+ *  document, the @doc parameter is duplicated internally.
  *
  * Returns the parser context or NULL in case of error
  */
@@ -6065,7 +6065,7 @@ static xmlDoc * xmlRelaxNGCleanupDoc(xmlRelaxNGParserCtxtPtr ctxt, xmlDoc * doc)
  * XML Shema struture which can be used to validate instances.
  *
  * Returns the internal XML RelaxNG structure built from the resource or
- *       NULL in case of error
+ *    NULL in case of error
  */
 xmlRelaxNGPtr xmlRelaxNGParse(xmlRelaxNGParserCtxtPtr ctxt)
 {
@@ -6783,7 +6783,7 @@ static void xmlRelaxNGValidateProgressiveCallback(xmlRegExecCtxtPtr exec ATTRIBU
  * Push a new element start on the RelaxNG validation stack.
  *
  * returns 1 if no validation problem was found or 0 if validating the
- *       element requires a full node, and -1 in case of error.
+ *    element requires a full node, and -1 in case of error.
  */
 int xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTRIBUTE_UNUSED, xmlNode * elem)
 {

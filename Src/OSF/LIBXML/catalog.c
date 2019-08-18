@@ -2,10 +2,10 @@
  * catalog.c: set of generic Catalog related routines
  *
  * Reference:  SGML Open Technical Resolution TR9401:1997.
- *           http://www.jclark.com/sp/catalog.htm
+ *        http://www.jclark.com/sp/catalog.htm
  *
- *           XML Catalogs Working Draft 06 August 2001
- *           http://www.oasis-open.org/committees/entity/spec-2001-08-06.html
+ *        XML Catalogs Working Draft 06 August 2001
+ *        http://www.oasis-open.org/committees/entity/spec-2001-08-06.html
  *
  * See Copyright for the status of this software.
  *
@@ -650,7 +650,7 @@ int xmlConvertSGMLCatalog(xmlCatalogPtr catal)
  * Expand the URN into the equivalent Public Identifier
  *
  * Returns the new identifier or NULL, the string must be deallocated
- *       by the caller.
+ *    by the caller.
  */
 static xmlChar * xmlCatalogUnWrapURN(const xmlChar * urn) 
 {
@@ -844,7 +844,7 @@ static xmlChar * xmlLoadFileContent(const char * filename)
  * from http://www.oasis-open.org/committees/entity/spec-2001-08-06.html
  *
  * Returns the new string or NULL, the string must be deallocated
- *       by the caller.
+ *    by the caller.
  */
 static xmlChar * xmlCatalogNormalizePublic(const xmlChar * pubID)
 {
@@ -1946,7 +1946,7 @@ static xmlCatalogEntryType xmlGetSGMLCatalogEntryType(const xmlChar * name)
  * @value:  the content of the SGML Catalog serialization
  * @file:  the filepath for the catalog
  * @super:  should this be handled as a Super Catalog in which case
- *        parsing is not recursive
+ *     parsing is not recursive
  *
  * Parse an SGML catalog content and fill up the @catal hash table with
  * the new entries found.
@@ -2327,7 +2327,7 @@ static int xmlExpandCatalog(xmlCatalogPtr catal, const char * filename)
  * Try to lookup the catalog resource for a system ID
  *
  * Returns the resource if found or NULL otherwise, the value returned
- *    must be freed by the caller.
+ * must be freed by the caller.
  */
 xmlChar * xmlACatalogResolveSystem(xmlCatalogPtr catal, const xmlChar * sysID) 
 {
@@ -2353,7 +2353,7 @@ xmlChar * xmlACatalogResolveSystem(xmlCatalogPtr catal, const xmlChar * sysID)
  * Try to lookup the catalog local reference associated to a public ID in that catalog
  *
  * Returns the local resource if found or NULL otherwise, the value returned
- *    must be freed by the caller.
+ * must be freed by the caller.
  */
 xmlChar * xmlACatalogResolvePublic(xmlCatalogPtr catal, const xmlChar * pubID) 
 {
@@ -2383,7 +2383,7 @@ xmlChar * xmlACatalogResolvePublic(xmlCatalogPtr catal, const xmlChar * pubID)
  * Do a complete resolution lookup of an External Identifier
  *
  * Returns the URI of the resource or NULL if not found, it must be freed
- *    by the caller.
+ * by the caller.
  */
 xmlChar * xmlACatalogResolve(xmlCatalogPtr catal, const xmlChar * pubID, const xmlChar * sysID)
 {
@@ -2421,7 +2421,7 @@ xmlChar * xmlACatalogResolve(xmlCatalogPtr catal, const xmlChar * pubID, const x
  * Do a complete resolution lookup of an URI
  *
  * Returns the URI of the resource or NULL if not found, it must be freed
- *    by the caller.
+ * by the caller.
  */
 xmlChar * xmlACatalogResolveURI(xmlCatalogPtr catal, const xmlChar * URI) 
 {
@@ -2779,7 +2779,7 @@ void xmlCatalogCleanup()
  * Try to lookup the catalog resource for a system ID
  *
  * Returns the resource if found or NULL otherwise, the value returned
- *    must be freed by the caller.
+ * must be freed by the caller.
  */
 xmlChar * xmlCatalogResolveSystem(const xmlChar * sysID) 
 {
@@ -2794,7 +2794,7 @@ xmlChar * xmlCatalogResolveSystem(const xmlChar * sysID)
  * Try to lookup the catalog reference associated to a public ID
  *
  * Returns the resource if found or NULL otherwise, the value returned
- *    must be freed by the caller.
+ * must be freed by the caller.
  */
 xmlChar * xmlCatalogResolvePublic(const xmlChar * pubID) 
 {
@@ -2810,7 +2810,7 @@ xmlChar * xmlCatalogResolvePublic(const xmlChar * pubID)
  * Do a complete resolution lookup of an External Identifier
  *
  * Returns the URI of the resource or NULL if not found, it must be freed
- *    by the caller.
+ * by the caller.
  */
 xmlChar * xmlCatalogResolve(const xmlChar * pubID, const xmlChar * sysID) 
 {
@@ -2825,7 +2825,7 @@ xmlChar * xmlCatalogResolve(const xmlChar * pubID, const xmlChar * sysID)
  * Do a complete resolution lookup of an URI
  *
  * Returns the URI of the resource or NULL if not found, it must be freed
- *    by the caller.
+ * by the caller.
  */
 xmlChar * xmlCatalogResolveURI(const xmlChar * URI) 
 {
@@ -3050,7 +3050,7 @@ void * xmlCatalogAddLocal(void * catalogs, const xmlChar * URL)
  * document's private catalog list
  *
  * Returns the URI of the resource or NULL if not found, it must be freed
- *    by the caller.
+ * by the caller.
  */
 xmlChar * xmlCatalogLocalResolve(void * catalogs, const xmlChar * pubID, const xmlChar * sysID) 
 {

@@ -736,15 +736,15 @@ ngx_int_t ngx_list_init(ngx_list_t * list, ngx_pool_t * pool, ngx_uint_t n, size
  *  part = &list.part;
  *  data = part->elts;
  *  for(i = 0 ;; i++) {
- *    if(i >= part->nelts) {
- *        if(part->next == NULL) {
- *            break;
- *        }
- *        part = part->next;
- *        data = part->elts;
- *        i = 0;
- *    }
- *    ...  data[i] ...
+ * if(i >= part->nelts) {
+ *     if(part->next == NULL) {
+ *         break;
+ *     }
+ *     part = part->next;
+ *     data = part->elts;
+ *     i = 0;
+ * }
+ * ...  data[i] ...
  *  }
  */
 void * FASTCALL ngx_list_push(ngx_list_t * list);
@@ -1748,8 +1748,8 @@ char * ngx_resolver_strerror(ngx_int_t err);
 //#include <ngx_conf_file.h>
 //
 /*
- *      AAAA  number of arguments
- *    FF      command flags
+ *   AAAA  number of arguments
+ * FF      command flags
  *  TT        command type, i.e. HTTP "location" or "server" command
  */
 #define NGX_CONF_NOARGS      0x00000001 // The directive does not take any arguments
@@ -3354,11 +3354,11 @@ extern ngx_event_actions_t ngx_event_actions; // @global
  * The event filter is deleted just before the closing file.
  * Has no meaning for select and poll.
  * kqueue, epoll, eventport:         allows to avoid explicit delete,
- *                                 because filter automatically is deleted
- *                                 on file close,
+ *                              because filter automatically is deleted
+ *                              on file close,
  *
  * /dev/poll:                        we need to flush POLLREMOVE event
- *                                 before closing file.
+ *                              before closing file.
  */
 #define NGX_CLOSE_EVENT    1
 #define NGX_DISABLE_EVENT  2 // disable temporarily event filter, this may avoid locks in kernel malloc()/free(): kqueue.

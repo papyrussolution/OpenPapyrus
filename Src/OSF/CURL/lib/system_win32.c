@@ -64,9 +64,9 @@ typedef HMODULE (APIENTRY *LOADLIBRARYEX_FN)(LPCTSTR, HANDLE, DWORD);
  * minorVersion [in] - The minor version number.
  * platform     [in] - The optional platform identifier.
  * condition    [in] - The test condition used to specifier whether we are
- *                   checking a version less then, equal to or greater than
- *                   what is specified in the major and minor version
- *                   numbers.
+ *                checking a version less then, equal to or greater than
+ *                what is specified in the major and minor version
+ *                numbers.
  *
  * Returns TRUE if matched; otherwise FALSE.
  */
@@ -255,8 +255,8 @@ bool Curl_verify_windows_version(const uint majorVersion,
  * Parameters:
  *
  * filename  [in] - The filename or full path of the DLL to load. If only the
- *                filename is passed then the DLL will be loaded from the
- *                Windows system directory.
+ *             filename is passed then the DLL will be loaded from the
+ *             Windows system directory.
  *
  * Returns the handle of the module on success; otherwise NULL.
  */

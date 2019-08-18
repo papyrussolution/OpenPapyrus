@@ -580,7 +580,7 @@ static void xmlTextReaderEndElement(void * ctx, const xmlChar * fullname)
  * @nb_attributes:  the number of attributes on that node
  * nb_defaulted:  the number of defaulted attributes.
  * @attributes:  pointer to the array of (localname/prefix/URI/value/end)
- *             attribute values.
+ *          attribute values.
  *
  * called when an opening tag has been processed.
  */
@@ -1013,7 +1013,7 @@ static xmlNode * FASTCALL xmlTextReaderGetSuccessor(xmlNode * cur)
  * end of the call.
  *
  * Returns 1 if the node was expanded successfully, 0 if there is no more
- *        nodes to read, or -1 in case of error
+ *     nodes to read, or -1 in case of error
  */
 static int FASTCALL xmlTextReaderDoExpand(xmlTextReader * reader)
 {
@@ -1090,7 +1090,7 @@ static xmlChar * xmlTextReaderCollectSiblings(xmlNode * P_Node)
  *  the stream, exposing its properties.
  *
  *  Returns 1 if the node was read successfully, 0 if there is no more
- *        nodes to read, or -1 in case of error
+ *     nodes to read, or -1 in case of error
  */
 int FASTCALL xmlTextReaderRead(xmlTextReader * reader)
 {
@@ -1370,7 +1370,7 @@ int xmlTextReaderReadState(xmlTextReader * reader)
  * the subtree available until the next xmlTextReaderRead() call
  *
  * Returns a node pointer valid until the next xmlTextReaderRead() call
- *       or NULL in case of error.
+ *    or NULL in case of error.
  */
 xmlNode * xmlTextReaderExpand(xmlTextReader * reader) 
 {
@@ -1393,7 +1393,7 @@ xmlNode * xmlTextReaderExpand(xmlTextReader * reader)
  * avoiding the subtree if any.
  *
  * Returns 1 if the node was read successfully, 0 if there is no more
- *        nodes to read, or -1 in case of error
+ *     nodes to read, or -1 in case of error
  */
 int xmlTextReaderNext(xmlTextReader * reader) 
 {
@@ -1426,8 +1426,8 @@ int xmlTextReaderNext(xmlTextReader * reader)
  * Reads the contents of the current node, including child nodes and markup.
  *
  * Returns a string containing the XML content, or NULL if the current node
- *       is neither an element nor attribute, or has no child nodes. The
- *       string must be deallocated by the caller.
+ *    is neither an element nor attribute, or has no child nodes. The
+ *    string must be deallocated by the caller.
  */
 xmlChar * xmlTextReaderReadInnerXml(xmlTextReader * reader ATTRIBUTE_UNUSED)
 {
@@ -1465,7 +1465,7 @@ xmlChar * xmlTextReaderReadInnerXml(xmlTextReader * reader ATTRIBUTE_UNUSED)
  * Reads the contents of the current node, including child nodes and markup.
  *
  * Returns a string containing the node and any XML content, or NULL if the
- *       current node cannot be serialized. The string must be deallocated by the caller.
+ *    current node cannot be serialized. The string must be deallocated by the caller.
  */
 xmlChar * xmlTextReaderReadOuterXml(xmlTextReader * reader ATTRIBUTE_UNUSED)
 {
@@ -1499,8 +1499,8 @@ xmlChar * xmlTextReaderReadOuterXml(xmlTextReader * reader ATTRIBUTE_UNUSED)
  * Reads the contents of an element or a text node as a string.
  *
  * Returns a string containing the contents of the Element or Text node,
- *       or NULL if the reader is positioned on any other type of node.
- *       The string must be deallocated by the caller.
+ *    or NULL if the reader is positioned on any other type of node.
+ *    The string must be deallocated by the caller.
  */
 xmlChar * xmlTextReaderReadString(xmlTextReader * reader)
 {
@@ -1530,14 +1530,14 @@ xmlChar * xmlTextReaderReadString(xmlTextReader * reader)
  * @reader:  the (xmlTextReader *) used
  * @array:  a byte array to store the content.
  * @offset:  the zero-based index into array where the method should
- *         begin to write.
+ *      begin to write.
  * @len:  the number of bytes to write.
  *
  * Reads and decodes the Base64 encoded contents of an element and
  * stores the result in a byte buffer.
  *
  * Returns the number of bytes written to array, or zero if the current
- *       instance is not positioned on an element or -1 in case of error.
+ *    instance is not positioned on an element or -1 in case of error.
  */
 int xmlTextReaderReadBase64(xmlTextReader * reader, uchar * array ATTRIBUTE_UNUSED, int offset ATTRIBUTE_UNUSED, int len ATTRIBUTE_UNUSED) 
 {
@@ -1556,14 +1556,14 @@ int xmlTextReaderReadBase64(xmlTextReader * reader, uchar * array ATTRIBUTE_UNUS
  * @reader:  the (xmlTextReader *) used
  * @array:  a byte array to store the content.
  * @offset:  the zero-based index into array where the method should
- *         begin to write.
+ *      begin to write.
  * @len:  the number of bytes to write.
  *
  * Reads and decodes the BinHex encoded contents of an element and
  * stores the result in a byte buffer.
  *
  * Returns the number of bytes written to array, or zero if the current
- *       instance is not positioned on an element or -1 in case of error.
+ *    instance is not positioned on an element or -1 in case of error.
  */
 int xmlTextReaderReadBinHex(xmlTextReader * reader,
     uchar * array ATTRIBUTE_UNUSED,
@@ -1648,7 +1648,7 @@ static int xmlTextReaderNextTree(xmlTextReader * reader)
  *  the stream, exposing its properties.
  *
  *  Returns 1 if the node was read successfully, 0 if there is no more
- *        nodes to read, or -1 in case of error
+ *     nodes to read, or -1 in case of error
  */
 static int xmlTextReaderReadTree(xmlTextReader * reader) 
 {
@@ -1712,7 +1712,7 @@ found_node:
  * Currently implemented only for Readers built on a document
  *
  * Returns 1 if the node was read successfully, 0 if there is no more
- *        nodes to read, or -1 in case of error
+ *     nodes to read, or -1 in case of error
  */
 int xmlTextReaderNextSibling(xmlTextReader * reader)
 {
@@ -2169,7 +2169,7 @@ xmlParserInputBuffer * xmlTextReaderGetRemainder(xmlTextReader * reader)
  * xmlTextReaderLookupNamespace:
  * @reader:  the (xmlTextReader *) used
  * @prefix: the prefix whose namespace URI is to be resolved. To return
- *        the default namespace, specify NULL
+ *     the default namespace, specify NULL
  *
  * Resolves a namespace prefix in the scope of the current element.
  *
@@ -2190,7 +2190,7 @@ xmlChar * xmlTextReaderLookupNamespace(xmlTextReader * reader, const xmlChar * p
  * xmlTextReaderMoveToAttributeNo:
  * @reader:  the (xmlTextReader *) used
  * @no: the zero-based index of the attribute relative to the containing
- *    element.
+ * element.
  *
  * Moves the position of the current instance to the attribute with
  * the specified index relative to the containing element.
@@ -2457,8 +2457,8 @@ int xmlTextReaderMoveToElement(xmlTextReader * reader)
  * Parses an attribute value into one or more Text and EntityReference nodes.
  *
  * Returns 1 in case of success, 0 if the reader was not positionned on an
- *       ttribute node or all the attribute values have been read, or -1
- *       in case of error.
+ *    ttribute node or all the attribute values have been read, or -1
+ *    in case of error.
  */
 int xmlTextReaderReadAttributeValue(xmlTextReader * reader) 
 {
@@ -2659,7 +2659,7 @@ xmlChar * xmlTextReaderLocalName(xmlTextReader * reader)
  * The local name of the node.
  *
  * Returns the local name or NULL if not available, the
- *       string will be deallocated with the reader.
+ *    string will be deallocated with the reader.
  */
 const xmlChar * xmlTextReaderConstLocalName(xmlTextReader * reader) 
 {
@@ -2754,7 +2754,7 @@ xmlChar * xmlTextReaderName(xmlTextReader * reader)
  * The qualified name of the node, equal to Prefix :LocalName.
  *
  * Returns the local name or NULL if not available, the string is
- *       deallocated with the reader.
+ *    deallocated with the reader.
  */
 const xmlChar * xmlTextReaderConstName(xmlTextReader * reader) 
 {
@@ -3357,8 +3357,8 @@ int xmlTextReaderPreservePattern(xmlTextReader * reader, const xmlChar * pattern
  * Hacking interface allowing to get the xmlDocPtr correponding to the
  * current document being accessed by the xmlTextReader.
  * NOTE: as a result of this call, the reader will not destroy the
- *     associated XML document and calling xmlFreeDoc() on the result
- *     is needed once the reader parsing has finished.
+ *  associated XML document and calling xmlFreeDoc() on the result
+ *  is needed once the reader parsing has finished.
  *
  * Returns the xmlDocPtr or NULL in case of error.
  */
@@ -3437,7 +3437,7 @@ static void xmlTextReaderValidityStructuredRelay(void * userData, xmlErrorPtr er
  * or its use has been deactivated.
  *
  * Returns 0 in case the RelaxNG validation could be (des)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 int xmlTextReaderRelaxNGSetSchema(xmlTextReader * reader, xmlRelaxNGPtr schema)
 {
@@ -3487,7 +3487,7 @@ int xmlTextReaderRelaxNGSetSchema(xmlTextReader * reader, xmlRelaxNGPtr schema)
  * Internal locator function for the readers
  *
  * Returns 0 in case the Schema validation could be (des)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * line)
 {
@@ -3535,7 +3535,7 @@ static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * 
  * or its use has been deactivated.
  *
  * Returns 0 in case the Schema validation could be (des)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 int xmlTextReaderSetSchema(xmlTextReader * reader, xmlSchemaPtr schema)
 {
@@ -3689,7 +3689,7 @@ static int xmlTextReaderRelaxNGValidateInternal(xmlTextReader * reader, const ch
  * If both @xsd and @ctxt are NULL then XML Schema validation is deactivated.
  *
  * Returns 0 in case the schemas validation could be (de)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 static int xmlTextReaderSchemaValidateInternal(xmlTextReader * reader, const char * xsd, xmlSchemaValidCtxt * ctxt, int options ATTRIBUTE_UNUSED)
 {
@@ -3779,7 +3779,7 @@ static int xmlTextReaderSchemaValidateInternal(xmlTextReader * reader, const cha
  * If @ctxt is NULL, then XML Schema validation is deactivated.
  *
  * Returns 0 in case the schemas validation could be (de)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 int xmlTextReaderSchemaValidateCtxt(xmlTextReader * reader, xmlSchemaValidCtxt * ctxt, int options)
 {
@@ -3796,7 +3796,7 @@ int xmlTextReaderSchemaValidateCtxt(xmlTextReader * reader, xmlSchemaValidCtxt *
  * If @xsd is NULL, then XML Schema validation is deactivated.
  *
  * Returns 0 in case the schemas validation could be (de)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 int xmlTextReaderSchemaValidate(xmlTextReader * reader, const char * xsd)
 {
@@ -3814,7 +3814,7 @@ int xmlTextReaderSchemaValidate(xmlTextReader * reader, const char * xsd)
  * If @ctxt is NULL, then RelaxNG schema validation is deactivated.
  *
  * Returns 0 in case the schemas validation could be (de)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 int xmlTextReaderRelaxNGValidateCtxt(xmlTextReader * reader, xmlRelaxNGValidCtxtPtr ctxt, int options)
 {
@@ -3831,7 +3831,7 @@ int xmlTextReaderRelaxNGValidateCtxt(xmlTextReader * reader, xmlRelaxNGValidCtxt
  * If @rng is NULL, then RelaxNG schema validation is deactivated.
  *
  * Returns 0 in case the schemas validation could be (de)activated and
- *       -1 in case of error.
+ *    -1 in case of error.
  */
 int xmlTextReaderRelaxNGValidate(xmlTextReader * reader, const char * rng)
 {
@@ -4207,7 +4207,7 @@ void xmlTextReaderGetErrorHandler(xmlTextReader * reader, xmlTextReaderErrorFunc
  * xmlTextReaderSetup:
  * @reader:  an XML reader
  * @input: xmlParserInputBufferPtr used to feed the reader, will
- *       be destroyed with it.
+ *    be destroyed with it.
  * @URL:  the base URL to use for the document
  * @encoding:  the document encoding, or NULL
  * @options:  a combination of xmlParserOption
@@ -4391,7 +4391,7 @@ else {
  * See xmlBytesConsumed() for more information.
  *
  * Returns the index in bytes from the beginning of the entity or -1
- *       in case the index could not be computed.
+ *    in case the index could not be computed.
  */
 long xmlTextReaderByteConsumed(xmlTextReader * reader)
 {
@@ -4506,7 +4506,7 @@ xmlTextReader * xmlReaderForMemory(const char * buffer, int size, const char * U
  * Create an xmltextReader for an XML from a file descriptor.
  * The parsing flags @options are a combination of xmlParserOption.
  * NOTE that the file descriptor will not be closed when the
- *    reader is closed or reset.
+ * reader is closed or reset.
  *
  * Returns the new reader or NULL in case of error.
  */
@@ -4664,7 +4664,7 @@ int xmlReaderNewMemory(xmlTextReader * reader, const char * buffer, int size, co
  *
  * Setup an xmltextReader to parse an XML from a file descriptor.
  * NOTE that the file descriptor will not be closed when the
- *    reader is closed or reset.
+ * reader is closed or reset.
  * The parsing flags @options are a combination of xmlParserOption.
  * This reuses the existing @reader xmlTextReader.
  *
@@ -4732,7 +4732,7 @@ int xmlReaderNewIO(xmlTextReader * reader, xmlInputReadCallback ioread,
  * @todo tell jody when this is actually exported
  *
  * Returns 0 if all the input was consumer, 1 if the Base64 end was reached,
- *       2 if there wasn't enough space on the output or -1 in case of error.
+ *    2 if there wasn't enough space on the output or -1 in case of error.
  */
 static int xmlBase64Decode(const uchar * in, unsigned long * inlen, uchar * to, unsigned long * tolen)
 {

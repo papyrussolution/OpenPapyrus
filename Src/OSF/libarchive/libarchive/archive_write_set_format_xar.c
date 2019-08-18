@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -931,13 +931,13 @@ static int xmlwrite_heap(struct archive_write * a, xmlTextWriterPtr writer, stru
 /*
  * xar utility records fflags as following xml elements:
  *   <flags>
- *     <UserNoDump/>
- *     .....
+ *  <UserNoDump/>
+ *  .....
  *   </flags>
  * or
  *   <ext2>
- *     <NoDump/>
- *     .....
+ *  <NoDump/>
+ *  .....
  *   </ext2>
  * If xar is running on BSD platform, records <flags>..</flags>;
  * if xar is running on linux platform, records <ext2>..</ext2>;
@@ -1938,7 +1938,7 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 				memmove(p, p+2, strlen(p+2) + 1);
 			else if(p[1] == '.' && p[2] == '.' && p[3] == '/') {
 				/* Convert 'dir/dir1/../dir2/'
-				 *     --> 'dir/dir2/'
+				 *  --> 'dir/dir2/'
 				 */
 				char * rp = p -1;
 				while(rp >= dirname) {

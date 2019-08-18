@@ -26,7 +26,7 @@ int __heap_db_create(DB * dbp)
 }
 /*
  * __heap_db_close --
- *    Heap specific discard of the DB structure.
+ * Heap specific discard of the DB structure.
  *
  * PUBLIC: int __heap_db_close __P((DB *));
  */
@@ -74,7 +74,7 @@ int __heap_set_heapsize(DB * dbp, uint32 gbytes, uint32 bytes, uint32 flags)
 }
 /*
  * __heap_exist --
- *    Test to see if heap exists or not, used in Perl interface
+ * Test to see if heap exists or not, used in Perl interface
  *
  * PUBLIC: int __heap_exist();
  */

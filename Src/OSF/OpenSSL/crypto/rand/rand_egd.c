@@ -33,8 +33,8 @@ NON_EMPTY_TRANSLATION_UNIT
  * RAND_query_egd_bytes() returns with
  *   -1  if an error occurred during connection or communication.
  *   num the number of bytes read from the EGD socket. This number is either
- *       the number of bytes requested or smaller, if the EGD pool is
- *       drained and the daemon signals that the pool is empty.
+ *    the number of bytes requested or smaller, if the EGD pool is
+ *    drained and the daemon signals that the pool is empty.
  * This routine does not touch any RAND_status(). This is necessary, since
  * PRNG functions may call it during initialization.
  *
@@ -44,10 +44,10 @@ NON_EMPTY_TRANSLATION_UNIT
  * Unlike RAND_query_egd_bytes(), RAND_status() is used to test the
  * seed status so that the return value can reflect the seed state:
  *   -1  if an error occurred during connection or communication _or_
- *       if the PRNG has still not received the required seeding.
+ *    if the PRNG has still not received the required seeding.
  *   num the number of bytes read from the EGD socket. This number is either
- *       the number of bytes requested or smaller, if the EGD pool is
- *       drained and the daemon signals that the pool is empty.
+ *    the number of bytes requested or smaller, if the EGD pool is
+ *    drained and the daemon signals that the pool is empty.
  *
  * RAND_egd(path) will query 255 bytes and use the bytes retrieved to seed
  * the PRNG.

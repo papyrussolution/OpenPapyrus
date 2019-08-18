@@ -7,24 +7,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +40,7 @@
  * several generations of both colaborators original algorithms. The final
  * algorithm used here is the one referred to as
  *
- *     Algorithm 8a / IMPL_SEM,UNBLOCK_STRATEGY == UNBLOCK_ALL
+ *  Algorithm 8a / IMPL_SEM,UNBLOCK_STRATEGY == UNBLOCK_ALL
  *
  * presented below in pseudo-code as it appeared:
  *
@@ -69,42 +69,42 @@
  *
  *   lock( mtxUnblockLock );
  *   if ( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
- *     if ( bTimeout ) {                       // timeout (or canceled)
- *       if ( 0 != nWaitersBlocked ) {
- *         nWaitersBlocked--;
- *       }
- *       else {
- *         nWaitersGone++;                     // count spurious wakeups.
- *       }
- *     }
- *     if ( 0 == --nWaitersToUnblock ) {
- *       if ( 0 != nWaitersBlocked ) {
- *         sem_post( semBlockLock );           // open the gate.
- *         nSignalsWasLeft = 0;                // do not open the gate
- *                                             // below again.
- *       }
- *       else if ( 0 != (nWaitersWasGone = nWaitersGone) ) {
- *         nWaitersGone = 0;
- *       }
- *     }
+ *  if ( bTimeout ) {                       // timeout (or canceled)
+ *    if ( 0 != nWaitersBlocked ) {
+ *      nWaitersBlocked--;
+ *    }
+ *    else {
+ *      nWaitersGone++;                     // count spurious wakeups.
+ *    }
+ *  }
+ *  if ( 0 == --nWaitersToUnblock ) {
+ *    if ( 0 != nWaitersBlocked ) {
+ *      sem_post( semBlockLock );           // open the gate.
+ *      nSignalsWasLeft = 0;                // do not open the gate
+ *                                          // below again.
+ *    }
+ *    else if ( 0 != (nWaitersWasGone = nWaitersGone) ) {
+ *      nWaitersGone = 0;
+ *    }
+ *  }
  *   }
  *   else if ( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
- *                                             // spurious semaphore :-)
- *     sem_wait( semBlockLock );
- *     nWaitersBlocked -= nWaitersGone;     // something is going on here
- *                                          //  - test of timeouts? :-)
- *     sem_post( semBlockLock );
- *     nWaitersGone = 0;
+ *                                          // spurious semaphore :-)
+ *  sem_wait( semBlockLock );
+ *  nWaitersBlocked -= nWaitersGone;     // something is going on here
+ *                                       //  - test of timeouts? :-)
+ *  sem_post( semBlockLock );
+ *  nWaitersGone = 0;
  *   }
  *   unlock( mtxUnblockLock );
  *
  *   if ( 1 == nSignalsWasLeft ) {
- *     if ( 0 != nWaitersWasGone ) {
- *       // sem_adjust( semBlockQueue,-nWaitersWasGone );
- *       while ( nWaitersWasGone-- ) {
- *         sem_wait( semBlockQueue );       // better now than spurious later
- *       }
- *     } sem_post( semBlockLock );          // open the gate
+ *  if ( 0 != nWaitersWasGone ) {
+ *    // sem_adjust( semBlockQueue,-nWaitersWasGone );
+ *    while ( nWaitersWasGone-- ) {
+ *      sem_wait( semBlockQueue );       // better now than spurious later
+ *    }
+ *  } sem_post( semBlockLock );          // open the gate
  *   }
  *
  *   lock( mtxExternal );
@@ -120,36 +120,36 @@
  *   lock( mtxUnblockLock );
  *
  *   if ( 0 != nWaitersToUnblock ) {        // the gate is closed!!!
- *     if ( 0 == nWaitersBlocked ) {        // NO-OP
- *       return unlock( mtxUnblockLock );
- *     }
- *     if (bAll) {
- *       nWaitersToUnblock += nSignalsToIssue=nWaitersBlocked;
- *       nWaitersBlocked = 0;
- *     }
- *     else {
- *       nSignalsToIssue = 1;
- *       nWaitersToUnblock++;
- *       nWaitersBlocked--;
- *     }
+ *  if ( 0 == nWaitersBlocked ) {        // NO-OP
+ *    return unlock( mtxUnblockLock );
+ *  }
+ *  if (bAll) {
+ *    nWaitersToUnblock += nSignalsToIssue=nWaitersBlocked;
+ *    nWaitersBlocked = 0;
+ *  }
+ *  else {
+ *    nSignalsToIssue = 1;
+ *    nWaitersToUnblock++;
+ *    nWaitersBlocked--;
+ *  }
  *   }
  *   else if ( nWaitersBlocked > nWaitersGone ) { // HARMLESS RACE CONDITION!
- *     sem_wait( semBlockLock );                  // close the gate
- *     if ( 0 != nWaitersGone ) {
- *       nWaitersBlocked -= nWaitersGone;
- *       nWaitersGone = 0;
- *     }
- *     if (bAll) {
- *       nSignalsToIssue = nWaitersToUnblock = nWaitersBlocked;
- *       nWaitersBlocked = 0;
- *     }
- *     else {
- *       nSignalsToIssue = nWaitersToUnblock = 1;
- *       nWaitersBlocked--;
- *     }
+ *  sem_wait( semBlockLock );                  // close the gate
+ *  if ( 0 != nWaitersGone ) {
+ *    nWaitersBlocked -= nWaitersGone;
+ *    nWaitersGone = 0;
+ *  }
+ *  if (bAll) {
+ *    nSignalsToIssue = nWaitersToUnblock = nWaitersBlocked;
+ *    nWaitersBlocked = 0;
+ *  }
+ *  else {
+ *    nSignalsToIssue = nWaitersToUnblock = 1;
+ *    nWaitersBlocked--;
+ *  }
  *   }
  *   else { // NO-OP
- *     return unlock( mtxUnblockLock );
+ *  return unlock( mtxUnblockLock );
  *   }
  *
  *   unlock( mtxUnblockLock );
@@ -158,10 +158,10 @@
  * }
  * -------------------------------------------------------------
  *
- *     Algorithm 9 / IMPL_SEM,UNBLOCK_STRATEGY == UNBLOCK_ALL
+ *  Algorithm 9 / IMPL_SEM,UNBLOCK_STRATEGY == UNBLOCK_ALL
  *
  * presented below in pseudo-code; basically 8a...
- *                                      ...BUT W/O "spurious wakes" prevention:
+ *                                   ...BUT W/O "spurious wakes" prevention:
  *
  *
  * given:
@@ -187,20 +187,20 @@
  *
  *   lock( mtxUnblockLock );
  *   if ( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
- *     --nWaitersToUnblock;
+ *  --nWaitersToUnblock;
  *   }
  *   else if ( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
- *                                             // spurious semaphore :-)
- *     sem_wait( semBlockLock );
- *     nWaitersBlocked -= nWaitersGone;        // something is going on here
- *                                             //  - test of timeouts? :-)
- *     sem_post( semBlockLock );
- *     nWaitersGone = 0;
+ *                                          // spurious semaphore :-)
+ *  sem_wait( semBlockLock );
+ *  nWaitersBlocked -= nWaitersGone;        // something is going on here
+ *                                          //  - test of timeouts? :-)
+ *  sem_post( semBlockLock );
+ *  nWaitersGone = 0;
  *   }
  *   unlock( mtxUnblockLock );
  *
  *   if ( 1 == nSignalsWasLeft ) {
- *     sem_post( semBlockLock );               // open the gate
+ *  sem_post( semBlockLock );               // open the gate
  *   }
  *
  *   lock( mtxExternal );
@@ -216,36 +216,36 @@
  *   lock( mtxUnblockLock );
  *
  *   if ( 0 != nWaitersToUnblock ) {        // the gate is closed!!!
- *     if ( 0 == nWaitersBlocked ) {        // NO-OP
- *       return unlock( mtxUnblockLock );
- *     }
- *     if (bAll) {
- *       nWaitersToUnblock += nSignalsToIssue=nWaitersBlocked;
- *       nWaitersBlocked = 0;
- *     }
- *     else {
- *       nSignalsToIssue = 1;
- *       ++nWaitersToUnblock;
- *       --nWaitersBlocked;
- *     }
+ *  if ( 0 == nWaitersBlocked ) {        // NO-OP
+ *    return unlock( mtxUnblockLock );
+ *  }
+ *  if (bAll) {
+ *    nWaitersToUnblock += nSignalsToIssue=nWaitersBlocked;
+ *    nWaitersBlocked = 0;
+ *  }
+ *  else {
+ *    nSignalsToIssue = 1;
+ *    ++nWaitersToUnblock;
+ *    --nWaitersBlocked;
+ *  }
  *   }
  *   else if ( nWaitersBlocked > nWaitersGone ) { // HARMLESS RACE CONDITION!
- *     sem_wait( semBlockLock );                  // close the gate
- *     if ( 0 != nWaitersGone ) {
- *       nWaitersBlocked -= nWaitersGone;
- *       nWaitersGone = 0;
- *     }
- *     if (bAll) {
- *       nSignalsToIssue = nWaitersToUnblock = nWaitersBlocked;
- *       nWaitersBlocked = 0;
- *     }
- *     else {
- *       nSignalsToIssue = nWaitersToUnblock = 1;
- *       --nWaitersBlocked;
- *     }
+ *  sem_wait( semBlockLock );                  // close the gate
+ *  if ( 0 != nWaitersGone ) {
+ *    nWaitersBlocked -= nWaitersGone;
+ *    nWaitersGone = 0;
+ *  }
+ *  if (bAll) {
+ *    nSignalsToIssue = nWaitersToUnblock = nWaitersBlocked;
+ *    nWaitersBlocked = 0;
+ *  }
+ *  else {
+ *    nSignalsToIssue = nWaitersToUnblock = 1;
+ *    --nWaitersBlocked;
+ *  }
  *   }
  *   else { // NO-OP
- *     return unlock( mtxUnblockLock );
+ *  return unlock( mtxUnblockLock );
  *   }
  *
  *   unlock( mtxUnblockLock );
@@ -377,19 +377,19 @@ static INLINE int __ptw32_cond_timedwait(pthread_cond_t * cond, pthread_mutex_t 
 	if((result = pthread_mutex_unlock(mutex)) == 0) {
 		/*
 		 * ...wait to be awakened by
-		 *              pthread_cond_signal, or
-		 *              pthread_cond_broadcast, or
-		 *              timeout, or
-		 *              thread cancellation
+		 *           pthread_cond_signal, or
+		 *           pthread_cond_broadcast, or
+		 *           timeout, or
+		 *           thread cancellation
 		 *
 		 * Note:
 		 *
-		 *      sem_timedwait is a cancellation point,
-		 *      hence providing the mechanism for making
-		 *      pthread_cond_wait a cancellation point.
-		 *      We use the cleanup mechanism to ensure we
-		 *      re-lock the mutex and adjust (to)unblock(ed) waiters
-		 *      counts if we are cancelled, timed out or signalled.
+		 *   sem_timedwait is a cancellation point,
+		 *   hence providing the mechanism for making
+		 *   pthread_cond_wait a cancellation point.
+		 *   We use the cleanup mechanism to ensure we
+		 *   re-lock the mutex and adjust (to)unblock(ed) waiters
+		 *   counts if we are cancelled, timed out or signalled.
 		 */
 		if(sem_timedwait(&(cv->semBlockQueue), abstime) != 0) {
 			result =  __PTW32_GET_ERRNO();
@@ -410,47 +410,47 @@ static INLINE int __ptw32_cond_timedwait(pthread_cond_t * cond, pthread_mutex_t 
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function waits on a condition variable until
- *      awakened by a signal or broadcast.
+ *   This function waits on a condition variable until
+ *   awakened by a signal or broadcast.
  *
- *      Caller MUST be holding the mutex lock; the
- *      lock is released and the caller is blocked waiting
- *      on 'cond'. When 'cond' is signaled, the mutex
- *      is re-acquired before returning to the caller.
+ *   Caller MUST be holding the mutex lock; the
+ *   lock is released and the caller is blocked waiting
+ *   on 'cond'. When 'cond' is signaled, the mutex
+ *   is re-acquired before returning to the caller.
  *
  * PARAMETERS
- *      cond
- *              pointer to an instance of pthread_cond_t
+ *   cond
+ *           pointer to an instance of pthread_cond_t
  *
- *      mutex
- *              pointer to an instance of pthread_mutex_t
+ *   mutex
+ *           pointer to an instance of pthread_mutex_t
  *
  *
  * DESCRIPTION
- *      This function waits on a condition variable until
- *      awakened by a signal or broadcast.
+ *   This function waits on a condition variable until
+ *   awakened by a signal or broadcast.
  *
- *      NOTES:
+ *   NOTES:
  *
- *      1)      The function must be called with 'mutex' LOCKED
- *              by the calling thread, or undefined behaviour
- *              will result.
+ *   1)      The function must be called with 'mutex' LOCKED
+ *           by the calling thread, or undefined behaviour
+ *           will result.
  *
- *      2)      This routine atomically releases 'mutex' and causes
- *              the calling thread to block on the condition variable.
- *              The blocked thread may be awakened by
- *                      pthread_cond_signal or
- *                      pthread_cond_broadcast.
+ *   2)      This routine atomically releases 'mutex' and causes
+ *           the calling thread to block on the condition variable.
+ *           The blocked thread may be awakened by
+ *                   pthread_cond_signal or
+ *                   pthread_cond_broadcast.
  *
  * Upon successful completion, the 'mutex' has been locked and
  * is owned by the calling thread.
  *
  *
  * RESULTS
- *              0               caught condition; mutex released,
- *              EINVAL          'cond' or 'mutex' is invalid,
- *              EINVAL          different mutexes for concurrent waits,
- *              EINVAL          mutex is not held by the calling thread,
+ *           0               caught condition; mutex released,
+ *           EINVAL          'cond' or 'mutex' is invalid,
+ *           EINVAL          different mutexes for concurrent waits,
+ *           EINVAL          mutex is not held by the calling thread,
  *
  * ------------------------------------------------------
  */
@@ -464,44 +464,44 @@ int pthread_cond_wait(pthread_cond_t * cond, pthread_mutex_t * mutex)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function waits on a condition variable either until
- *      awakened by a signal or broadcast; or until the time
- *      specified by abstime passes.
+ *   This function waits on a condition variable either until
+ *   awakened by a signal or broadcast; or until the time
+ *   specified by abstime passes.
  *
  * PARAMETERS
- *      cond
- *              pointer to an instance of pthread_cond_t
+ *   cond
+ *           pointer to an instance of pthread_cond_t
  *
- *      mutex
- *              pointer to an instance of pthread_mutex_t
+ *   mutex
+ *           pointer to an instance of pthread_mutex_t
  *
- *      abstime
- *              pointer to an instance of (const struct timespec)
+ *   abstime
+ *           pointer to an instance of (const struct timespec)
  *
  *
  * DESCRIPTION
- *      This function waits on a condition variable either until
- *      awakened by a signal or broadcast; or until the time
- *      specified by abstime passes.
+ *   This function waits on a condition variable either until
+ *   awakened by a signal or broadcast; or until the time
+ *   specified by abstime passes.
  *
- *      NOTES:
- *      1)      The function must be called with 'mutex' LOCKED
- *              by the calling thread, or undefined behaviour
- *              will result.
+ *   NOTES:
+ *   1)      The function must be called with 'mutex' LOCKED
+ *           by the calling thread, or undefined behaviour
+ *           will result.
  *
- *      2)      This routine atomically releases 'mutex' and causes
- *              the calling thread to block on the condition variable.
- *              The blocked thread may be awakened by
- *                      pthread_cond_signal or
- *                      pthread_cond_broadcast.
+ *   2)      This routine atomically releases 'mutex' and causes
+ *           the calling thread to block on the condition variable.
+ *           The blocked thread may be awakened by
+ *                   pthread_cond_signal or
+ *                   pthread_cond_broadcast.
  *
  *
  * RESULTS
- *              0               caught condition; mutex released,
- *              EINVAL          'cond', 'mutex', or abstime is invalid,
- *              EINVAL          different mutexes for concurrent waits,
- *              EINVAL          mutex is not held by the calling thread,
- *              ETIMEDOUT       abstime ellapsed before cond was signaled.
+ *           0               caught condition; mutex released,
+ *           EINVAL          'cond', 'mutex', or abstime is invalid,
+ *           EINVAL          different mutexes for concurrent waits,
+ *           EINVAL          mutex is not held by the calling thread,
+ *           ETIMEDOUT       abstime ellapsed before cond was signaled.
  *
  * ------------------------------------------------------
  */

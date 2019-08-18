@@ -34,97 +34,80 @@ static int amqp_basic_properties_clone(amqp_basic_properties_t * original, amqp_
 	memzero(clone, sizeof(*clone));
 	clone->_flags = original->_flags;
 #define CLONE_BYTES_POOL(original, clone, pool)        \
-	if(0 == original.len) {                             \
+	if(!original.len) {                             \
 		clone = amqp_empty_bytes;                          \
 	} else {                                             \
 		amqp_pool_alloc_bytes(pool, original.len, &clone); \
-		if(NULL == clone.bytes) {                         \
+		if(!clone.bytes)                                   \
 			return AMQP_STATUS_NO_MEMORY;                    \
-		}                                                  \
 		memcpy(clone.bytes, original.bytes, clone.len);    \
 	}
 
 	if(clone->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
 		CLONE_BYTES_POOL(original->content_type, clone->content_type, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) {
 		CLONE_BYTES_POOL(original->content_encoding, clone->content_encoding, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_HEADERS_FLAG) {
 		int res = amqp_table_clone(&original->headers, &clone->headers, pool);
-		if(AMQP_STATUS_OK != res) {
+		if(res != AMQP_STATUS_OK)
 			return res;
-		}
 	}
-
 	if(clone->_flags & AMQP_BASIC_DELIVERY_MODE_FLAG) {
 		clone->delivery_mode = original->delivery_mode;
 	}
-
 	if(clone->_flags & AMQP_BASIC_PRIORITY_FLAG) {
 		clone->priority = original->priority;
 	}
-
 	if(clone->_flags & AMQP_BASIC_CORRELATION_ID_FLAG) {
 		CLONE_BYTES_POOL(original->correlation_id, clone->correlation_id, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_REPLY_TO_FLAG) {
 		CLONE_BYTES_POOL(original->reply_to, clone->reply_to, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_EXPIRATION_FLAG) {
 		CLONE_BYTES_POOL(original->expiration, clone->expiration, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_MESSAGE_ID_FLAG) {
 		CLONE_BYTES_POOL(original->message_id, clone->message_id, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_TIMESTAMP_FLAG) {
 		clone->timestamp = original->timestamp;
 	}
-
 	if(clone->_flags & AMQP_BASIC_TYPE_FLAG) {
 		CLONE_BYTES_POOL(original->type, clone->type, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_USER_ID_FLAG) {
 		CLONE_BYTES_POOL(original->user_id, clone->user_id, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_APP_ID_FLAG) {
 		CLONE_BYTES_POOL(original->app_id, clone->app_id, pool)
 	}
-
 	if(clone->_flags & AMQP_BASIC_CLUSTER_ID_FLAG) {
 		CLONE_BYTES_POOL(original->cluster_id, clone->cluster_id, pool)
 	}
-
 	return AMQP_STATUS_OK;
 #undef CLONE_BYTES_POOL
 }
 
-void amqp_destroy_message(amqp_message_t * message) {
+void amqp_destroy_message(amqp_message_t * message) 
+{
 	empty_amqp_pool(&message->pool);
 	amqp_bytes_free(message->body);
 }
 
-void amqp_destroy_envelope(amqp_envelope_t * envelope) {
-	amqp_destroy_message(&envelope->message);
-	amqp_bytes_free(envelope->routing_key);
-	amqp_bytes_free(envelope->exchange);
-	amqp_bytes_free(envelope->consumer_tag);
+void amqp_destroy_envelope(amqp_envelope_t * pEnvelope) 
+{
+	if(pEnvelope) {
+		amqp_destroy_message(&pEnvelope->message);
+		amqp_bytes_free(pEnvelope->routing_key);
+		amqp_bytes_free(pEnvelope->exchange);
+		amqp_bytes_free(pEnvelope->consumer_tag);
+	}
 }
 
-static int amqp_bytes_malloc_dup_failed(amqp_bytes_t bytes) {
-	if(bytes.len != 0 && bytes.bytes == NULL) {
-		return 1;
-	}
-	return 0;
-}
+static int FASTCALL amqp_bytes_malloc_dup_failed(const amqp_bytes_t & rBytes) { return BIN(rBytes.len && !rBytes.bytes); }
 
 amqp_rpc_reply_t amqp_consume_message(amqp_connection_state_t state, amqp_envelope_t * envelope, struct timeval * timeout, AMQP_UNUSED int flags) 
 {
@@ -135,7 +118,7 @@ amqp_rpc_reply_t amqp_consume_message(amqp_connection_state_t state, amqp_envelo
 	memzero(&ret, sizeof(ret));
 	memzero(envelope, sizeof(*envelope));
 	res = amqp_simple_wait_frame_noblock(state, &frame, timeout);
-	if(AMQP_STATUS_OK != res) {
+	if(res != AMQP_STATUS_OK) {
 		ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 		ret.library_error = res;
 		goto error_out1;
@@ -153,23 +136,17 @@ amqp_rpc_reply_t amqp_consume_message(amqp_connection_state_t state, amqp_envelo
 	envelope->redelivered = delivery_method->redelivered;
 	envelope->exchange = amqp_bytes_malloc_dup(delivery_method->exchange);
 	envelope->routing_key = amqp_bytes_malloc_dup(delivery_method->routing_key);
-
-	if(amqp_bytes_malloc_dup_failed(envelope->consumer_tag) ||
-	    amqp_bytes_malloc_dup_failed(envelope->exchange) ||
-	    amqp_bytes_malloc_dup_failed(envelope->routing_key)) {
+	if(amqp_bytes_malloc_dup_failed(envelope->consumer_tag) || amqp_bytes_malloc_dup_failed(envelope->exchange) || amqp_bytes_malloc_dup_failed(envelope->routing_key)) {
 		ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 		ret.library_error = AMQP_STATUS_NO_MEMORY;
 		goto error_out2;
 	}
-
 	ret = amqp_read_message(state, envelope->channel, &envelope->message, 0);
 	if(AMQP_RESPONSE_NORMAL != ret.reply_type) {
 		goto error_out2;
 	}
-
 	ret.reply_type = AMQP_RESPONSE_NORMAL;
 	return ret;
-
 error_out2:
 	amqp_bytes_free(envelope->routing_key);
 	amqp_bytes_free(envelope->exchange);
@@ -188,13 +165,13 @@ amqp_rpc_reply_t amqp_read_message(amqp_connection_state_t state, amqp_channel_t
 	memzero(&ret, sizeof(ret));
 	memzero(message, sizeof(*message));
 	res = amqp_simple_wait_frame_on_channel(state, channel, &frame);
-	if(AMQP_STATUS_OK != res) {
+	if(res != AMQP_STATUS_OK) {
 		ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 		ret.library_error = res;
 		goto error_out1;
 	}
 	if(AMQP_FRAME_HEADER != frame.frame_type) {
-		if(AMQP_FRAME_METHOD == frame.frame_type && (AMQP_CHANNEL_CLOSE_METHOD == frame.payload.method.id || AMQP_CONNECTION_CLOSE_METHOD == frame.payload.method.id)) {
+		if(frame.frame_type == AMQP_FRAME_METHOD && oneof2(frame.payload.method.id, AMQP_CHANNEL_CLOSE_METHOD, AMQP_CONNECTION_CLOSE_METHOD)) {
 			ret.reply_type = AMQP_RESPONSE_SERVER_EXCEPTION;
 			ret.reply = frame.payload.method;
 		}
@@ -207,14 +184,13 @@ amqp_rpc_reply_t amqp_read_message(amqp_connection_state_t state, amqp_channel_t
 	}
 	init_amqp_pool(&message->pool, 4096);
 	res = amqp_basic_properties_clone(static_cast<amqp_basic_properties_t *>(frame.payload.properties.decoded), &message->properties, &message->pool);
-	if(AMQP_STATUS_OK != res) {
+	if(res != AMQP_STATUS_OK) {
 		ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 		ret.library_error = res;
 		goto error_out3;
 	}
-	if(0 == frame.payload.properties.body_size) {
+	if(!frame.payload.properties.body_size)
 		message->body = amqp_empty_bytes;
-	}
 	else {
 		if(SIZE_MAX < frame.payload.properties.body_size) {
 			ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
@@ -222,7 +198,7 @@ amqp_rpc_reply_t amqp_read_message(amqp_connection_state_t state, amqp_channel_t
 			goto error_out1;
 		}
 		message->body = amqp_bytes_malloc((size_t)frame.payload.properties.body_size);
-		if(NULL == message->body.bytes) {
+		if(!message->body.bytes) {
 			ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 			ret.library_error = AMQP_STATUS_NO_MEMORY;
 			goto error_out1;
@@ -232,7 +208,7 @@ amqp_rpc_reply_t amqp_read_message(amqp_connection_state_t state, amqp_channel_t
 	body_read_ptr = static_cast<char *>(message->body.bytes);
 	while(body_read < message->body.len) {
 		res = amqp_simple_wait_frame_on_channel(state, channel, &frame);
-		if(AMQP_STATUS_OK != res) {
+		if(res != AMQP_STATUS_OK) {
 			ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 			ret.library_error = res;
 			goto error_out2;
@@ -257,10 +233,8 @@ amqp_rpc_reply_t amqp_read_message(amqp_connection_state_t state, amqp_channel_t
 		body_read += frame.payload.body_fragment.len;
 		body_read_ptr += frame.payload.body_fragment.len;
 	}
-
 	ret.reply_type = AMQP_RESPONSE_NORMAL;
 	return ret;
-
 error_out2:
 	amqp_bytes_free(message->body);
 error_out3:

@@ -195,10 +195,8 @@ int blake2sp_final(blake2sp_state * S, void * out, size_t outlen)
 
 		blake2s_final(S->S[i], hash[i], BLAKE2S_OUTBYTES);
 	}
-
 	for(i = 0; i < PARALLELISM_DEGREE; ++i)
 		blake2s_update(S->R, hash[i], BLAKE2S_OUTBYTES);
-
 	return blake2s_final(S->R, out, S->outlen);
 }
 
@@ -209,9 +207,9 @@ int blake2sp(void * out, size_t outlen, const void * in, size_t inlen, const voi
 	blake2s_state FS[1];
 	size_t i;
 	/* Verify parameters */
-	if(NULL == in && inlen > 0) return -1;
-	if(NULL == out) return -1;
-	if(NULL == key && keylen > 0) return -1;
+	if(!in && inlen > 0) return -1;
+	if(!out) return -1;
+	if(!key && keylen > 0) return -1;
 	if(!outlen || outlen > BLAKE2S_OUTBYTES) return -1;
 	if(keylen > BLAKE2S_KEYBYTES) return -1;
 	for(i = 0; i < PARALLELISM_DEGREE; ++i)

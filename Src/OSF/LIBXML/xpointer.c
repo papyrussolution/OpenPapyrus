@@ -18,10 +18,10 @@
 #pragma hdrstop
 /*
  * @todo better handling of error cases, the full expression should
- *     be parsed beforehand instead of a progressive evaluation
+ *  be parsed beforehand instead of a progressive evaluation
  * @todo Access into entities references are not supported now ...
- *     need a start to be able to pop out of entities refs since
- *     parent is the endity declaration, not the ref.
+ *  need a start to be able to pop out of entities refs since
+ *  parent is the endity declaration, not the ref.
  */
 //#include <libxml/xpathInternals.h>
 
@@ -113,7 +113,7 @@ static int FASTCALL xmlXPtrGetArity(xmlNode * cur)
  * @cur:  the node
  *
  * Returns the index of the node in its parent children list, -1
- *       in case of error
+ *    in case of error
  */
 static int xmlXPtrGetIndex(xmlNode * cur) 
 {
@@ -169,7 +169,7 @@ static xmlNode * FASTCALL xmlXPtrGetNthChild(xmlNode * cur, int no)
  * Compare two points w.r.t document order
  *
  * Returns -2 in case of error 1 if first point < second point, 0 if
- *       that's the same point, -1 otherwise
+ *    that's the same point, -1 otherwise
  */
 static int xmlXPtrCmpPoints(xmlNode * node1, int index1, xmlNode * node2, int index2) 
 {
@@ -608,7 +608,7 @@ xmlLocationSet * xmlXPtrLocationSetMerge(xmlLocationSet * val1, xmlLocationSet *
 	if(val2 == NULL) return val1;
 	/*
 	 * !!!!! this can be optimized a lot, knowing that both
-	 *     val1 and val2 already have unicity of their values.
+	 *  val1 and val2 already have unicity of their values.
 	 */
 	for(int i = 0; i < val2->locNr; i++)
 		xmlXPtrLocationSetAdd(val1, val2->locTab[i]);
@@ -767,19 +767,19 @@ static void xmlXPtrEvalChildSeq(xmlXPathParserContextPtr ctxt, xmlChar * name);
  *
  * CUR_PTR return the current pointer to the xmlChar to be parsed.
  * CUR     returns the current xmlChar value, i.e. a 8 bit value
- *         in ISO-Latin or UTF-8.
- *         This should be used internally by the parser
- *         only to compare to ASCII values otherwise it would break when
- *         running with UTF-8 encoding.
+ *      in ISO-Latin or UTF-8.
+ *      This should be used internally by the parser
+ *      only to compare to ASCII values otherwise it would break when
+ *      running with UTF-8 encoding.
  * NXT(n)  returns the n'th next xmlChar. Same as CUR is should be used only
- *         to compare on ASCII based substring.
+ *      to compare on ASCII based substring.
  * SKIP(n) Skip n xmlChar, and must also be used only to skip ASCII defined
- *         strings within the parser.
+ *      strings within the parser.
  * CURRENT Returns the current char value, with the full decoding of
- *         UTF-8 if we are using this mode. It returns an int.
+ *      UTF-8 if we are using this mode. It returns an int.
  * NEXT    Skip to the next character, this does the proper decoding
- *         in UTF-8 mode. It also pop-up unfinished entities on the fly.
- *         It returns the pointer to the current xmlChar.
+ *      in UTF-8 mode. It also pop-up unfinished entities on the fly.
+ *      It returns the pointer to the current xmlChar.
  */
 #define CUR (*ctxt->cur)
 #define SKIP(val) ctxt->cur += (val)
@@ -825,15 +825,15 @@ static void xmlXPtrGetChildNo(xmlXPathParserContextPtr ctxt, int indx)
  * @name:  the preparsed Scheme for the XPtrPart
  *
  * XPtrPart ::= 'xpointer' '(' XPtrExpr ')'
- *          | Scheme '(' SchemeSpecificExpr ')'
+ *       | Scheme '(' SchemeSpecificExpr ')'
  *
  * Scheme   ::=  NCName - 'xpointer' [VC: Non-XPointer schemes]
  *
  * SchemeSpecificExpr ::= StringWithBalancedParens
  *
  * StringWithBalancedParens ::=
- *            [^()]* ('(' StringWithBalancedParens ')' [^()]*)*
- *            [VC: Parenthesis escaping]
+ *         [^()]* ('(' StringWithBalancedParens ')' [^()]*)*
+ *         [VC: Parenthesis escaping]
  *
  * XPtrExpr ::= Expr [VC: Parenthesis escaping]
  *
@@ -1066,7 +1066,7 @@ static void xmlXPtrEvalFullXPtr(xmlXPathParserContextPtr ctxt, xmlChar * name)
  * @name:  a possible ID name of the child sequence
  *
  *  ChildSeq ::= '/1' ('/' [0-9]*)*
- *           | Name ('/' [0-9]*)+
+ *        | Name ('/' [0-9]*)+
  *
  * Parse and evaluate a Child Sequence. This routine also handle the
  * case of a Bare Name used to get a document ID.
@@ -1102,8 +1102,8 @@ static void xmlXPtrEvalChildSeq(xmlXPathParserContextPtr ctxt, xmlChar * name)
  * @ctxt:  the XPointer Parser context
  *
  *  XPointer ::= Name
- *           | ChildSeq
- *           | FullXPtr
+ *        | ChildSeq
+ *        | FullXPtr
  *
  * Parse and evaluate an XPointer
  */
@@ -1164,7 +1164,7 @@ static void xmlXPtrRangeFunction(xmlXPathParserContextPtr ctxt, int nargs);
  * @doc:  the XML document
  * @here:  the node that directly contains the XPointer being evaluated or NULL
  * @origin:  the element from which a user or program initiated traversal of
- *         the link, or NULL.
+ *      the link, or NULL.
  *
  * Create a new XPointer context
  *
@@ -1197,7 +1197,7 @@ xmlXPathContextPtr xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * ori
  * Evaluate the XPath Location Path in the given context.
  *
  * Returns the xmlXPathObjectPtr resulting from the evaluation or NULL.
- *       the caller has to free the object.
+ *    the caller has to free the object.
  */
 xmlXPathObjectPtr xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
 {
@@ -1256,7 +1256,7 @@ xmlXPathObjectPtr xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
  * Build a node list tree copy of the range
  *
  * Returns an xmlNodePtr list or NULL.
- *       the caller has to free the node tree.
+ *    the caller has to free the node tree.
  */
 static xmlNode * xmlXPtrBuildRangeNodeList(xmlXPathObjectPtr range)
 {
@@ -1435,7 +1435,7 @@ static xmlNode * xmlXPtrBuildRangeNodeList(xmlXPathObjectPtr range)
  * This will drop Attributes and Namespace declarations.
  *
  * Returns an xmlNodePtr list or NULL.
- *       the caller has to free the node tree.
+ *    the caller has to free the node tree.
  */
 xmlNode * xmlXPtrBuildNodeList(xmlXPathObject * obj)
 {
@@ -1782,7 +1782,7 @@ static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
  *
  * A covering range is a range that wholly encompasses a location
  * Section 5.3.3. Covering Ranges for All Location Types
- *      http://www.w3.org/TR/xptr#N2267
+ *   http://www.w3.org/TR/xptr#N2267
  *
  * Returns a new location or NULL in case of error
  */
@@ -2218,9 +2218,9 @@ static int xmlXPtrAdvanceChar(xmlNode ** ppNode, int * indx, int bytes)
  * (@start, @startindex) and limited by the (@end, @endindex) point
  *
  * Returns -1 in case of failure, 0 if not found, 1 if found in which case
- *          (@start, @startindex) will indicate the position of the beginning
- *          of the range and (@end, @endindex) will indicate the end
- *          of the range
+ *       (@start, @startindex) will indicate the position of the beginning
+ *       of the range and (@end, @endindex) will indicate the end
+ *       of the range
  */
 static int xmlXPtrMatchString(const xmlChar * string, xmlNode * start, int startindex, xmlNode ** end, int * endindex)
 {
@@ -2296,9 +2296,9 @@ static int xmlXPtrMatchString(const xmlChar * string, xmlNode * start, int start
  * until the (@end, @endindex) point is reached
  *
  * Returns -1 in case of failure, 0 if not found, 1 if found in which case
- *          (@start, @startindex) will indicate the position of the beginning
- *          of the range and (@end, @endindex) will indicate the end
- *          of the range
+ *       (@start, @startindex) will indicate the position of the beginning
+ *       of the range and (@end, @endindex) will indicate the end
+ *       of the range
  */
 static int xmlXPtrSearchString(const xmlChar * string, xmlNode ** start, int * startindex, xmlNode ** end, int * endindex)
 {

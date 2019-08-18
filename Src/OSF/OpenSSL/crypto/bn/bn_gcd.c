@@ -179,9 +179,9 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 	/*-
 	 * From  B = a mod |n|,  A = |n|  it follows that
 	 *
-	 *    0 <= B < A,
+	 * 0 <= B < A,
 	 *   -sign*X*a  ==  B   (mod |n|),
-	 *    sign*Y*a  ==  A   (mod |n|).
+	 * sign*Y*a  ==  A   (mod |n|).
 	 */
 
 	if(BN_is_odd(n) && (BN_num_bits(n) <= 2048)) {
@@ -195,8 +195,8 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 
 		while(!BN_is_zero(B)) {
 			/*-
-			 *    0 < B < |n|,
-			 *    0 < A <= |n|,
+			 * 0 < B < |n|,
+			 * 0 < A <= |n|,
 			 * (1) -sign*X*a  ==  B   (mod |n|),
 			 * (2)  sign*Y*a  ==  A   (mod |n|)
 			 */
@@ -250,7 +250,7 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 			 * The following computations ensure that
 			 *
 			 *   0 <= B < |n|,
-			 *    0 < A < |n|,
+			 * 0 < A < |n|,
 			 * (1) -sign*X*a  ==  B   (mod |n|),
 			 * (2)  sign*Y*a  ==  A   (mod |n|),
 			 *
@@ -285,9 +285,9 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 		while(!BN_is_zero(B)) {
 			BIGNUM * tmp;
 			/*-
-			 *    0 < B < A,
+			 * 0 < B < A,
 			 * (*) -sign*X*a  ==  B   (mod |n|),
-			 *    sign*Y*a  ==  A   (mod |n|)
+			 * sign*Y*a  ==  A   (mod |n|)
 			 */
 
 			/* (D, M) := (A/B, A%B) ... */
@@ -341,7 +341,7 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 
 			/*-
 			 * Now
-			 *    A = D*B + M;
+			 * A = D*B + M;
 			 * thus we have
 			 * (**)  sign*Y*a  ==  D*B + M   (mod |n|).
 			 */
@@ -357,20 +357,20 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 			/*-
 			 * Since the former  M  is now  B  and the former  B  is now  A,
 			 * (**) translates into
-			 *     sign*Y*a  ==  D*A + B    (mod |n|),
+			 *  sign*Y*a  ==  D*A + B    (mod |n|),
 			 * i.e.
-			 *     sign*Y*a - D*A  ==  B    (mod |n|).
+			 *  sign*Y*a - D*A  ==  B    (mod |n|).
 			 * Similarly, (*) translates into
-			 *    -sign*X*a  ==  A          (mod |n|).
+			 * -sign*X*a  ==  A          (mod |n|).
 			 *
 			 * Thus,
 			 * sign*Y*a + D*sign*X*a  ==  B  (mod |n|),
 			 * i.e.
-			 *      sign*(Y + D*X)*a  ==  B  (mod |n|).
+			 *   sign*(Y + D*X)*a  ==  B  (mod |n|).
 			 *
 			 * So if we set  (X, Y, sign) := (Y + D*X, X, -sign), we arrive back at
-			 *    -sign*X*a  ==  B   (mod |n|),
-			 *     sign*Y*a  ==  A   (mod |n|).
+			 * -sign*X*a  ==  B   (mod |n|),
+			 *  sign*Y*a  ==  A   (mod |n|).
 			 * Note that  X  and  Y  stay non-negative all the time.
 			 */
 
@@ -415,9 +415,9 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 
 	/*-
 	 * The while loop (Euclid's algorithm) ends when
-	 *    A == gcd(a,n);
+	 * A == gcd(a,n);
 	 * we have
-	 *     sign*Y*a  ==  A  (mod |n|),
+	 *  sign*Y*a  ==  A  (mod |n|),
 	 * where  Y  is non-negative.
 	 */
 
@@ -500,16 +500,16 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in, const BIGNUM * a, const BI
 	/*-
 	 * From  B = a mod |n|,  A = |n|  it follows that
 	 *
-	 *    0 <= B < A,
+	 * 0 <= B < A,
 	 *   -sign*X*a  ==  B   (mod |n|),
-	 *    sign*Y*a  ==  A   (mod |n|).
+	 * sign*Y*a  ==  A   (mod |n|).
 	 */
 	while(!BN_is_zero(B)) {
 		BIGNUM * tmp;
 		/*-
-		 *    0 < B < A,
+		 * 0 < B < A,
 		 * (*) -sign*X*a  ==  B   (mod |n|),
-		 *    sign*Y*a  ==  A   (mod |n|)
+		 * sign*Y*a  ==  A   (mod |n|)
 		 */
 
 		/*
@@ -527,7 +527,7 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in, const BIGNUM * a, const BI
 		}
 		/*-
 		 * Now
-		 *    A = D*B + M;
+		 * A = D*B + M;
 		 * thus we have
 		 * (**)  sign*Y*a  ==  D*B + M   (mod |n|).
 		 */
@@ -540,20 +540,20 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in, const BIGNUM * a, const BI
 		/*-
 		 * Since the former  M  is now  B  and the former  B  is now  A,
 		 * (**) translates into
-		 *     sign*Y*a  ==  D*A + B    (mod |n|),
+		 *  sign*Y*a  ==  D*A + B    (mod |n|),
 		 * i.e.
-		 *     sign*Y*a - D*A  ==  B    (mod |n|).
+		 *  sign*Y*a - D*A  ==  B    (mod |n|).
 		 * Similarly, (*) translates into
-		 *    -sign*X*a  ==  A          (mod |n|).
+		 * -sign*X*a  ==  A          (mod |n|).
 		 *
 		 * Thus,
 		 * sign*Y*a + D*sign*X*a  ==  B  (mod |n|),
 		 * i.e.
-		 *      sign*(Y + D*X)*a  ==  B  (mod |n|).
+		 *   sign*(Y + D*X)*a  ==  B  (mod |n|).
 		 *
 		 * So if we set  (X, Y, sign) := (Y + D*X, X, -sign), we arrive back at
-		 *    -sign*X*a  ==  B   (mod |n|),
-		 *     sign*Y*a  ==  A   (mod |n|).
+		 * -sign*X*a  ==  B   (mod |n|),
+		 *  sign*Y*a  ==  A   (mod |n|).
 		 * Note that  X  and  Y  stay non-negative all the time.
 		 */
 		if(!BN_mul(tmp, D, X, ctx))
@@ -568,9 +568,9 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in, const BIGNUM * a, const BI
 
 	/*-
 	 * The while loop (Euclid's algorithm) ends when
-	 *    A == gcd(a,n);
+	 * A == gcd(a,n);
 	 * we have
-	 *     sign*Y*a  ==  A  (mod |n|),
+	 *  sign*Y*a  ==  A  (mod |n|),
 	 * where  Y  is non-negative.
 	 */
 

@@ -7,24 +7,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,22 +46,22 @@
  * at the beginning of this file for further details.
  *
  * Notes:
- *      1)      New associations are pushed to the beginning of the
- *              chain so that the internal __ptw32_selfThreadKey association
- *              is always last, thus allowing selfThreadExit to
- *              be implicitly called last by pthread_exit.
- *      2)
+ *   1)      New associations are pushed to the beginning of the
+ *           chain so that the internal __ptw32_selfThreadKey association
+ *           is always last, thus allowing selfThreadExit to
+ *           be implicitly called last by pthread_exit.
+ *   2)
  *
  * Parameters:
- *              thread
- *                      current running thread.
- *              key
- *                      key on which to create an association.
+ *           thread
+ *                   current running thread.
+ *           key
+ *                   key on which to create an association.
  * Returns:
- *       0              - if successful,
- *       ENOMEM         - not enough memory to create assoc or other object
- *       EINVAL         - an internal error occurred
- *       ENOSYS         - an internal error occurred
+ *    0              - if successful,
+ *    ENOMEM         - not enough memory to create assoc or other object
+ *    EINVAL         - an internal error occurred
+ *    ENOSYS         - an internal error occurred
  * -------------------------------------------------------------------
  */
 int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)

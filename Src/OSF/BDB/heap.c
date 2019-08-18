@@ -1949,8 +1949,8 @@ int __heap_pitem(DBC * dbc, PAGE * pagep, uint32 indx, uint32 nbytes, DBT * hdr,
 
 /*
  * __heapc_dup --
- *    Duplicate a heap cursor, such that the new one holds appropriate
- *    locks for the position of the original.
+ * Duplicate a heap cursor, such that the new one holds appropriate
+ * locks for the position of the original.
  *
  * PUBLIC: int __heapc_dup __P((DBC *, DBC *));
  */
@@ -1963,7 +1963,7 @@ int FASTCALL __heapc_dup(DBC * orig_dbc, DBC * new_dbc)
 }
 /*
  * __heapc_gsplit --
- *    Get a heap split record.  The page pointed to by the cursor must
+ * Get a heap split record.  The page pointed to by the cursor must
  *	be the first segment of this record.
  *
  * PUBLIC: int __heapc_gsplit __P((DBC *,
@@ -2148,7 +2148,7 @@ err:
 }
 /*
  * __heapc_refresh --
- *    do the proper set up for cursor reuse.
+ * do the proper set up for cursor reuse.
  *
  * PUBLIC: int __heapc_refresh(DBC *);
  */

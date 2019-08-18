@@ -59,40 +59,7 @@
     <ClInclude Include="..\Osf\rabbitmq-c\amqp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_framing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_hostcheck.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_openssl_bio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_openssl_hostname_validation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\rabbitmq-c\amqp_private.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_socket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_ssl_socket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_table.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_tcp_socket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\rabbitmq-c\win32\threads.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

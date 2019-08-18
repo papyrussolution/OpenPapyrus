@@ -2105,36 +2105,23 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int met
 	uint ialg;
 	const LIBSSH2_COMMON_METHOD ** mlist;
 	/* to prevent coredumps due to dereferencing of NULL */
-	if(NULL == algs)
+	if(!algs)
 		return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE, "algs must not be NULL");
 	switch(method_type) {
-		case LIBSSH2_METHOD_KEX:
-		    mlist = (const LIBSSH2_COMMON_METHOD**)libssh2_kex_methods;
-		    break;
-		case LIBSSH2_METHOD_HOSTKEY:
-		    mlist = (const LIBSSH2_COMMON_METHOD**)libssh2_hostkey_methods();
-		    break;
+		case LIBSSH2_METHOD_KEX: mlist = reinterpret_cast<const LIBSSH2_COMMON_METHOD **>(libssh2_kex_methods); break;
+		case LIBSSH2_METHOD_HOSTKEY: mlist = reinterpret_cast<const LIBSSH2_COMMON_METHOD **>(libssh2_hostkey_methods()); break;
 		case LIBSSH2_METHOD_CRYPT_CS:
-		case LIBSSH2_METHOD_CRYPT_SC:
-		    mlist = (const LIBSSH2_COMMON_METHOD**)libssh2_crypt_methods();
-		    break;
+		case LIBSSH2_METHOD_CRYPT_SC: mlist = reinterpret_cast<const LIBSSH2_COMMON_METHOD **>(libssh2_crypt_methods()); break;
 		case LIBSSH2_METHOD_MAC_CS:
-		case LIBSSH2_METHOD_MAC_SC:
-		    mlist = (const LIBSSH2_COMMON_METHOD**)_libssh2_mac_methods();
-		    break;
+		case LIBSSH2_METHOD_MAC_SC: mlist = reinterpret_cast<const LIBSSH2_COMMON_METHOD **>(_libssh2_mac_methods()); break;
 		case LIBSSH2_METHOD_COMP_CS:
-		case LIBSSH2_METHOD_COMP_SC:
-		    mlist = (const LIBSSH2_COMMON_METHOD**)_libssh2_comp_methods(session);
-		    break;
-
+		case LIBSSH2_METHOD_COMP_SC: mlist = reinterpret_cast<const LIBSSH2_COMMON_METHOD **>(_libssh2_comp_methods(session)); break;
 		default:
 		    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Unknown method type");
 	} /* switch */
-
 	/* weird situation */
-	if(NULL==mlist)
+	if(!mlist)
 		return _libssh2_error(session, LIBSSH2_ERROR_INVAL, "No algorithm found");
-
 	/*
 	   mlist is looped through twice. The first time to find the number od
 	   supported algorithms (needed to allocate the proper size of array) and
@@ -2146,7 +2133,6 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int met
 	   So double looping really shouldn't be an issue and it is definitely a
 	   better solution than reallocation several times.
 	 */
-
 	/* count the number of supported algorithms */
 	for(i = 0, ialg = 0; NULL!=mlist[i]; i++) {
 		/* do not count fields with NULL name */

@@ -391,6 +391,7 @@ struct VetisStockEntry;
 struct Fann2;
 class  TsStakeEnvironment;
 class  RetailPriceExtractor;
+struct PPGlobalUserAcc;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -14988,7 +14989,6 @@ public:
 	PPJobHandler * SLAPI CreateInstance(PPID jobID, const PPJobDescr * pDescr);
 	int    SLAPI DoJob(PPID jobID, SBuffer * pParam);
 	int    SLAPI EditJobParam(PPID jobID, SBuffer * pParam);
-
 	long   SLAPI AcquireNewId();
 	void   FASTCALL UpdateLastId(long id);
 private:
@@ -14997,16 +14997,10 @@ private:
 	void   SLAPI CloseFile();
 
 	TVRez  * P_Rez;
-
 	// Путь к файлу, в котором хранится пул задач. Мы сохраняем этот
-	//   путь в переменной по тому, что при обработке задач все нужно делать
-	//   очень быстро.
+	//   путь в переменной по тому, что при обработке задач все нужно делать очень быстро.
 	SString FilePath; // @*PPJobMngr::PPJobMngr
-
-	// Время последнего вызова функции LoadPool
-	// Используется для определения факта изменения файла пула
-	// с момена последней загрузки
-	LDATETIME LastLoading;
+	LDATETIME LastLoading; // Время последнего вызова функции LoadPool. Используется для определения факта изменения файла пула с момена последней загрузки
 	long   LastId; // @persistent Используется для присвоения уникального идентификатора новым задачам
 	int    LckH;   // @transient  Дескриптор блокировки заголовка файла
 	SFile * P_F;   // Файл, из которого считаны данные в режиме 'на запись'. Если данные извлекаются только для чтения,
@@ -15021,33 +15015,21 @@ public:
 	class ViewDefinition : public SStrGroup {
 	public:
 		struct Entry { // @transient
-			Entry() : TotalFunc(0)
-			{
-			}
-
-			Entry & Z(){
-				Zone = 0;
-				FieldName = 0;
-				Text = 0;
-				TotalFunc = 0;
-				return *this;
-			}
+			Entry();
+			Entry & Z();
 
 			SString Zone;
 			SString FieldName;
 			SString Text;
 			int32  TotalFunc;
 		};
-		ViewDefinition()
-		{
-		}
+		ViewDefinition();
 		uint   GetCount() const;
 		int    GetEntry(uint pos, Entry & rE) const;
 		int    SetEntry(const Entry & rE);
 		int    RemoveEntryByPos(uint pos);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    XmlWriter(void * param);
-
 	private:
 		struct InnerEntry { // @persistent
 			uint32 ZoneP;
@@ -15056,7 +15038,7 @@ public:
 			int32  TotalFunc;
 			uint8  Reserve[16]; // @reserve
 		};
-		int SearchEntry(const char * pZone, const char * pFieldName, uint * pPos, InnerEntry * pInneEntry) const;
+		int    SearchEntry(const char * pZone, const char * pFieldName, uint * pPos, InnerEntry * pInneEntry) const;
 		TSVector <InnerEntry> L;
 	};
 	// } @v10.5.0 
@@ -15085,6 +15067,7 @@ public:
 	SString ViewSymb;   // Строка символа обьекта PPView, по которому строится фильтр
 	SBuffer Param;      // Хранит данные о настройках фильтра PPBaseFilt
 	ViewDefinition VD;  // @v10.5.0 @construction
+	ObjIdListFilt DestGuaList; // @v10.5.3 Список идентификаторов глобальных учетных записей, которым следует отправлять отчеты
 };
 
 //
@@ -17669,8 +17652,6 @@ struct GlobalBizScoreVal {
 	double Val;
 };
 
-struct PPGlobalUserAcc;
-
 class GlobalBizScoreArray : public TSCollection <GlobalBizScoreVal> {
 public:
 	SLAPI  GlobalBizScoreArray();
@@ -17856,7 +17837,6 @@ struct PPGta {
 	LDATETIME Dtm;
 	long   Count;
 	long   Duration;
-	//
 	PPID   SCardID;        // @*PPObjBill::InitGta Кредитная карта, ассоциированная с глобальной учетной записью
 	double Quot;           // @*PPObjBill::InitGta Стоимость транзакции
 	double SCardRest;      // @*PPObjBill::InitGta Остаток на карте SCardID на момент инициализации.
@@ -28195,6 +28175,10 @@ private:
 #define ALBATROSEXSTR_VETISAPIKEY      8 // @v9.8.9
 #define ALBATROSEXSTR_VETISDOCTUSER    9 // @v10.1.0
 #define ALBATROSEXSTR_VETISDOCTPASSW  10 // @v10.1.0
+#define ALBATROSEXSTR_MQC_HOST        11 // @v10.5.2 Адрес сервера брокера сообщений
+#define ALBATROSEXSTR_MQC_USER        12 // @v10.5.2 Имя доступа к брокеру сообщений
+#define ALBATROSEXSTR_MQC_SECRET      13 // @v10.5.2 Пароль доступа к брокеру сообщений
+#define ALBATROSEXSTR_MQC_DATADOMAIN  14 // @v10.5.2 Домен данных
 
 struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	enum {
@@ -28219,7 +28203,6 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 		// Примениятся для фильтрации документов при связывании с сертификатами.
 	int16  VetisTimeout;   // @v10.1.0 Таймаут ожидания ответа на application request (секунд). По умолчанию - 60
 	PPID   EgaisRetOpID;   // @v8.9.6 Вид (драфт) операции возврата от покупателя, принятого с сервера ЕГАИС
-	//
 	long   Flags;          // @v8.8.3 @flags
 	PPID   EgaisRcptOpID;  // @v8.8.0 ->Ref(PPOBJ_OPRKIND) Вид (драфт)операции прихода от поставщика, принятого с сервера ЕГАИС
     PPID   EdiOrderOpID;   // @v8.5.5 ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 OrderOpID-->EdiOrderOpID
@@ -28227,7 +28210,6 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
     PPID   EdiDesadvOpID;  // @v8.5.5 ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 DesadvOpID-->EdiDesadvOpID
     PPID   RcptTagID;      // @v8.5.5 ->Ref(PPOBJ_TAG)
     PPID   TtnTagID;       // @v8.5.5 ->Ref(PPOBJ_TAG)
-	//
 	PPID   SmsAccID;	   // ->Ref(PPOBJ_SMSPRVACCOUNT) ИД учетной записи SMS-клиента
 	PPID   OpID;           // ->Ref(PPOBJ_OPRKIND)     Вид операции приема заказов
 	PPID   MailAccID;      // ->Ref(PPOBJ_MAILACCOUNT) ИД учетной записи электронной почты
@@ -41270,7 +41252,6 @@ struct GoodsOpAnalyzeTotal {
 	double PlanQtty;
 	double PlanSum;
 	AmtList Amounts;
-
 	long   InCount;
 	double InQtty;
 	double InPhQtty;

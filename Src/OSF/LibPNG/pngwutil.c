@@ -2098,14 +2098,14 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 	 * GRR 980525:  consider also
 	 *
 	 * (1) minimum sum of absolute differences from running average (i.e.,
-	 *     keep running sum of non-absolute differences & count of bytes)
-	 *     [track dispersion, too?  restart average if dispersion too large?]
+	 *  keep running sum of non-absolute differences & count of bytes)
+	 *  [track dispersion, too?  restart average if dispersion too large?]
 	 *
 	 *  (1b) minimum sum of absolute differences from sliding average, probably
-	 *     with window size <= deflate window (usually 32K)
+	 *  with window size <= deflate window (usually 32K)
 	 *
 	 * (2) minimum sum of squared differences from zero or running average
-	 *     (i.e., ~ root-mean-square approach)
+	 *  (i.e., ~ root-mean-square approach)
 	 */
 	/* We don't need to test the 'no filter' case if this is the only filter
 	 * that has been chosen, as it doesn't actually do anything to the data.

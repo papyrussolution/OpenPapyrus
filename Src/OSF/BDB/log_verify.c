@@ -328,9 +328,9 @@ err:
 }
 /*
  * __log_verify_wrap --
- *    Wrapper function for APIs of other languages, like java/c# and
- *    script languages. It's much easier to implement the swig layer
- *    when we split up the C structure.
+ * Wrapper function for APIs of other languages, like java/c# and
+ * script languages. It's much easier to implement the swig layer
+ * when we split up the C structure.
  */
 int __log_verify_wrap(ENV * env, const char * envhome, uint32 cachesize,
 	const char * dbfile, const char * dbname, __time64_t stime, __time64_t etime, uint32 stfile, uint32 stoffset, uint32 efile, uint32 eoffset, int caf, int verbose)

@@ -288,8 +288,8 @@ err:
 
 /*-
  * returns
- *    1: correct signature
- *    0: incorrect signature
+ * 1: correct signature
+ * 0: incorrect signature
  *   -1: error
  */
 int ossl_ecdsa_verify(int type, const uchar * dgst, int dgst_len,

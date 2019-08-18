@@ -57,9 +57,9 @@ extern "C" {
  *  Compression is guaranteed to succeed if `dstCapacity >= LZ4_compressBound(srcSize)` (see "lz4.h")
  *  Max supported `srcSize` value is LZ4_MAX_INPUT_SIZE (see "lz4.h")
  * `compressionLevel` : any value between 1 and LZ4HC_CLEVEL_MAX will work.
- *                    Values > LZ4HC_CLEVEL_MAX behave the same as LZ4HC_CLEVEL_MAX.
+ *                 Values > LZ4HC_CLEVEL_MAX behave the same as LZ4HC_CLEVEL_MAX.
  * @return : the number of bytes written into 'dst'
- *         or 0 if compression fails.
+ *      or 0 if compression fails.
  */
 LZ4LIB_API int LZ4_compress_HC(const char* src, char* dst, int srcSize, int dstCapacity, int compressionLevel);
 
@@ -262,7 +262,7 @@ extern "C" {
  *  that can fit into `targetDstSize` budget.
  *  Result is provided in 2 parts :
  * @return : the number of bytes written into 'dst'
- *         or 0 if compression fails.
+ *      or 0 if compression fails.
  * `srcSizePtr` : value will be updated to indicate how much bytes were read from `src`
  */
 int LZ4_compress_HC_destSize(void* LZ4HC_Data, const char* src, char* dst, int* srcSizePtr, int targetDstSize, int compressionLevel);
@@ -272,7 +272,7 @@ int LZ4_compress_HC_destSize(void* LZ4HC_Data, const char* src, char* dst, int* 
  *  to fit into `targetDstSize` budget.
  *  Result is provided in 2 parts :
  * @return : the number of bytes written into 'dst'
- *         or 0 if compression fails.
+ *      or 0 if compression fails.
  * `srcSizePtr` : value will be updated to indicate how much bytes were read from `src`.
  */
 int LZ4_compress_HC_continue_destSize(LZ4_streamHC_t* LZ4_streamHCPtr, const char* src, char* dst, int* srcSizePtr, int targetDstSize);

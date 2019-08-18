@@ -22,7 +22,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp
 // "1B70000505"
 //
 #define DEFAULT_TS_FONTSIZE        24
-#define INSTVSRCH_THRESHOLD        50000 
+#define INSTVSRCH_THRESHOLD        50000
 #define TSGGROUPSASITEMS_FONTDELTA 4
 #define UNDEF_CHARGEGOODSID        -1000000000L
 
@@ -948,7 +948,7 @@ void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & 
 CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen) : CashNodeID(cashNodeID),
 	P_CcView(0), P_TSesObj(0), P_EgPrc(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
 	Flags(0), EgaisMode(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
-	AbstractGoodsID(0), ExtCnLocID(0), ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), CnPhnSvcID(0), UiFlags(0), 
+	AbstractGoodsID(0), ExtCnLocID(0), ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), CnPhnSvcID(0), UiFlags(0),
 	State_p(0), LastGrpListUpdTime(ZERODATETIME)
 {
 	OuterOi.Set(0, 0);
@@ -1568,7 +1568,7 @@ void CPosProcessor::CalcTotal(double * pTotal, double * pDiscount) const
 }
 
 struct CPosProcessor_SetupDiscontBlock {
-	CPosProcessor_SetupDiscontBlock(double roundingDiscount, int distributeGiftDiscount) : IsRounding(BIN(roundingDiscount != 0.0)), 
+	CPosProcessor_SetupDiscontBlock(double roundingDiscount, int distributeGiftDiscount) : IsRounding(BIN(roundingDiscount != 0.0)),
 		DistributeGiftDiscount(distributeGiftDiscount), LastIndex(0), Amount(0.0), P_Scst(0)
 	{
 	}
@@ -1692,7 +1692,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 					// @v10.2.3 {
 					if(p_item->RemoteProcessingTa[0])
 						no_discount = 1;
-					// } @v10.2.3 
+					// } @v10.2.3
 				}
 				if(!no_calcprice) {
 					p_item->Price = item_price;
@@ -1734,7 +1734,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 				// @v10.2.3 {
 				for(uint sp = 0; addendum_msg_list.get(&sp, temp_buf);)
 					MsgToDisp_Add(temp_buf);
-				// } @v10.2.3 
+				// } @v10.2.3
 			}
 		}
 		r_blk.Amount = R2(r_blk.Amount);
@@ -1879,7 +1879,7 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 			part_amount += (p * qtty); // @debug
 		}
 	}
-	//delete p_scst; // @v10.1.6 
+	//delete p_scst; // @v10.1.6
 }
 
 void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
@@ -2485,7 +2485,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 				{
 					SString new_cctext;
 					SString new_ext_cctext;
-					epb.Pack.PackTextExt(new_cctext); 
+					epb.Pack.PackTextExt(new_cctext);
 					epb.ExtPack.PackTextExt(new_ext_cctext);
 					if(new_cctext != org_cctext) {
 						THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, epb.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
@@ -3582,11 +3582,11 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 					}
 				}
 			}
-			//@erik v10.4.9{ 
+			//@erik v10.4.9{
 			if (tag_name.Len()) {
 				if (tag_value.Len()) {
 					(out_msg = (tag_name.CatChar(':'))).CR();
-					(out_msg.Cat(tag_value)).CR().CR(); 
+					(out_msg.Cat(tag_value)).CR().CR();
 				}
 				else {
 					(out_msg = tag_name).CR().CR();
@@ -4089,7 +4089,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							if(gcsb.CzSerial[0])
 								pgsb.CzSerial = gcsb.CzSerial;
 						}
-						// } @v10.4.12 
+						// } @v10.4.12
 						if(PreprocessGoodsSelection(goods_id, loc_id, /*&qtty, serial, &price*/pgsb) > 0)
 							SetupNewRow(goods_id, pgsb);
 					}
@@ -4117,7 +4117,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							}
 							else
 								MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
-							// } @v10.4.0 
+							// } @v10.4.0
 							/* @v10.4.0
 							if(PPObjSCard::PreprocessSCardCode(ss_code = code) > 0) {
 								char   card_code[64];
@@ -5532,7 +5532,7 @@ private:
 				}
 			}
 		}
-		// } @v10.2.8 
+		// } @v10.2.8
 		/* @v9.4.5 else if(event.isCbSelected(CTLSEL_CCHKDLVR_SCARD)) {
 			SCardID = getCtrlLong(CTLSEL_CCHKDLVR_SCARD);
 		} */
@@ -5846,7 +5846,7 @@ private:
 							setGroupData(GRP_SCARD, &scgrec);
 						}
 					}
-					// } @v10.2.7 
+					// } @v10.2.7
 				}
 			}
 		}
@@ -5900,8 +5900,8 @@ private:
 			setCtrlLong(CTL_CCHKDLVR_ADDRID, Data.Addr_.ID);
 			setCtrlLong(CTLSEL_CCHKDLVR_CITY, NZOR(Data.Addr_.CityID, DefCityID));
 			setCtrlString(CTL_CCHKDLVR_ADDR, LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf));
-			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf); // @v10.2.6 
-			if(temp_buf.Empty()) { // @v10.2.6 
+			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf); // @v10.2.6
+			if(temp_buf.Empty()) { // @v10.2.6
 				if(LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_PHONE, loc_phone).Empty() && PersonID)
 					loc_phone = DlvrPhone;
 				setCtrlString(CTL_CCHKDLVR_PHONE, loc_phone);
@@ -6265,7 +6265,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextSerial, serial);
 							if(egais_mark.NotEmpty())
 								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextEgaisMark, egais_mark);
-							// } @v10.2.6 
+							// } @v10.2.6
 							P_ChkPack->Discount = p_line->Dscnt;
 						}
 					}
@@ -7688,11 +7688,11 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							// @v10.2.6 {
 							chk_pack.GetLineTextExt(1, CCheckPacket::lnextEgaisMark, temp_buf);
 							STRNSCPY(r_cur_item.EgaisMark, temp_buf);
-							// } @v10.2.6 
+							// } @v10.2.6
 							// @v10.4.3 {
 							chk_pack.GetLineTextExt(1, CCheckPacket::lnextSerial, temp_buf);
 							STRNSCPY(r_cur_item.Serial, temp_buf);
-							// } @v10.4.3 
+							// } @v10.4.3
 							P.CurPos = P.getCount();
 							SetupRowData(1);
 							SetupState(sLISTSEL_BUF);
@@ -7819,7 +7819,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 				buf.CatDivIfNotEmpty(' ', 0).Cat("UTM");
 		}
 	}
-	// } @v10.3.9 
+	// } @v10.3.9
 	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
 	// @v9.9.0 {
 	if(Flags & fNoEdit) {
@@ -8522,10 +8522,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 							// @v10.2.4 {
 							const TimeRange & r_rsat = P_EgPrc->GetConfig().E.RtlSaleAllwTime;
 							if(!r_rsat.IsZero() && !r_rsat.Check(getcurtime_())) {
-								ok = MessageError(PPERR_ALCRETAILPROHIBTIME, r_rsat.ToStr(TIMF_HM, temp_buf), eomBeep|eomStatusLine); 
+								ok = MessageError(PPERR_ALCRETAILPROHIBTIME, r_rsat.ToStr(TIMF_HM, temp_buf), eomBeep|eomStatusLine);
 							}
 							else {
-								// } @v10.2.4 
+								// } @v10.2.4
 								SString egais_mark;
 								rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
 								if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
@@ -8571,7 +8571,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 																break;
 															}
 														}
-														// } @v10.4.5 
+														// } @v10.4.5
 														if(take_in_attention) {
 															CCheckCore::MakeCodeString(&cc_rec, temp_buf);
 															if(cc_rec.Flags & CCHKF_RETURN)
@@ -9087,7 +9087,7 @@ int CheckPaneDialog::AcceptRowDiscount()
 
 class SCardInfoDialog : public PPListDialog {
 public:
-	SCardInfoDialog(PPID posNodeID, int asSelector) : PPListDialog(DLG_SCARDVIEW, CTL_SCARDVIEW_LIST), 
+	SCardInfoDialog(PPID posNodeID, int asSelector) : PPListDialog(DLG_SCARDVIEW, CTL_SCARDVIEW_LIST),
 		PosNodeID(posNodeID), LocalState(0), SCardID(0), OwnerID(0)
 	{
 		if(asSelector)
@@ -9331,9 +9331,9 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			if(sc_phone.NotEmptyS()) {
 				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("phone", temp_buf)).CatDiv(':', 2).Cat(sc_phone);
 			}
-			// } @v10.1.4 
+			// } @v10.1.4
 			if(r_sc_rec.Expiry) {
-				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("validuntil-fem", temp_buf)).CatDiv(':', 2).Cat(r_sc_rec.Expiry, DATF_DMY);
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("validuntil_fem", temp_buf)).CatDiv(':', 2).Cat(r_sc_rec.Expiry, DATF_DMY);
 				if(r_sc_rec.Expiry < cur_dtm.d)
 					LocalState |= stWarnCardInfo;
 			}
@@ -9443,7 +9443,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			PPLoadString("but_edit", temp_buf);
 			setButtonText(cmCreateSCard, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 		}
-		// } @v10.1.9 
+		// } @v10.1.9
 		OwnerList.Clear();
 		updateList(-1);
 	}
@@ -9455,7 +9455,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			PPLoadString("new_fem", temp_buf);
 			setButtonText(cmCreateSCard, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 		}
-		// } @v10.1.9 
+		// } @v10.1.9
 	}
 	// @v9.8.9 {
 	{
@@ -10007,7 +10007,7 @@ int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec)
 			}
 		}
 	}
-	// } @v10.2.4 
+	// } @v10.2.4
 	return ok;
 }
 

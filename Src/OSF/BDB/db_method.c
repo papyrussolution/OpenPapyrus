@@ -544,7 +544,7 @@ static int __db_set_feedback(DB * dbp, void (*feedback)__P((DB*, int, int)))
 /*
  * __db_map_flags --
  *	Maps between public and internal flag values.
- *    This function doesn't check for validity, so it can't fail.
+ * This function doesn't check for validity, so it can't fail.
  */
 static void __db_map_flags(DB * dbp, uint32 * inflagsp, uint32 * outflagsp)
 {

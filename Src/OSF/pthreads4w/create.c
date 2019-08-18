@@ -7,24 +7,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,37 +40,37 @@
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function creates a thread running the start function,
- *      passing it the parameter value, 'arg'. The 'attr'
- *      argument specifies optional creation attributes.
- *      The identity of the new thread is returned
- *      via 'tid', which should not be NULL.
+ *   This function creates a thread running the start function,
+ *   passing it the parameter value, 'arg'. The 'attr'
+ *   argument specifies optional creation attributes.
+ *   The identity of the new thread is returned
+ *   via 'tid', which should not be NULL.
  *
  * PARAMETERS
- *      tid
- *              pointer to an instance of pthread_t
+ *   tid
+ *           pointer to an instance of pthread_t
  *
- *      attr
- *              optional pointer to an instance of pthread_attr_t
+ *   attr
+ *           optional pointer to an instance of pthread_attr_t
  *
- *      start
- *              pointer to the starting routine for the new thread
+ *   start
+ *           pointer to the starting routine for the new thread
  *
- *      arg
- *              optional parameter passed to 'start'
+ *   arg
+ *           optional parameter passed to 'start'
  *
  *
  * DESCRIPTION
- *      This function creates a thread running the start function,
- *      passing it the parameter value, 'arg'. The 'attr'
- *      argument specifies optional creation attributes.
- *      The identity of the new thread is returned
- *      via 'tid', which should not be the NULL pointer.
+ *   This function creates a thread running the start function,
+ *   passing it the parameter value, 'arg'. The 'attr'
+ *   argument specifies optional creation attributes.
+ *   The identity of the new thread is returned
+ *   via 'tid', which should not be the NULL pointer.
  *
  * RESULTS
- *              0               successfully created thread,
- *              EINVAL          attr invalid,
- *              EAGAIN          insufficient resources.
+ *           0               successfully created thread,
+ *           EINVAL          attr invalid,
+ *           EAGAIN          insufficient resources.
  *
  * ------------------------------------------------------
  */
@@ -79,7 +79,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	pthread_t thread;
 	__ptw32_thread_t * tp;
 	__ptw32_thread_t * sp;
-	register pthread_attr_t a;
+	pthread_attr_t a;
 	HANDLE threadH = 0;
 	int result = EAGAIN;
 	int run =  __PTW32_TRUE;
@@ -93,15 +93,13 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	 * This is assured by conditionally assigning *tid again at the end.
 	 */
 	tid->x = 0;
-	if(NULL == (sp = (__ptw32_thread_t*)pthread_self().p)) {
+	if(NULL == (sp = (__ptw32_thread_t *)pthread_self().p)) {
 		goto FAIL0;
 	}
-	if(attr != NULL) {
+	if(attr)
 		a = *attr;
-	}
-	else {
+	else
 		a = NULL;
-	}
 	thread = __ptw32_new();
 	if(thread.p == NULL) {
 		goto FAIL0;
@@ -290,5 +288,5 @@ FAIL0:
 	if(result == 0)
 		pthread_count++;
 #endif
-	return (result);
+	return result;
 }

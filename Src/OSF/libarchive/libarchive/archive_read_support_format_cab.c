@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -2068,12 +2068,12 @@ static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uin
  * will use.
  *  True  : completed, there is enough data in the cache buffer.
  *  False : we met that strm->next_in is empty, we have to get following
- *          bytes. */
+ *       bytes. */
 #define lzx_br_read_ahead_0(strm, br, n)        \
 	(lzx_br_has((br), (n)) || lzx_br_fillup(strm, br))
 /*  True  : the cache buffer has some bits as much as we need.
  *  False : there are no enough bits in the cache buffer to be used,
- *          we have to get following bytes if we could. */
+ *       we have to get following bytes if we could. */
 #define lzx_br_read_ahead(strm, br, n)  \
 	(lzx_br_read_ahead_0((strm), (br), (n)) || lzx_br_has((br), (n)))
 
@@ -2193,10 +2193,10 @@ static void lzx_cleanup_bitstream(struct lzx_stream * strm)
  * Decode LZX.
  *
  * 1. Returns ARCHIVE_OK if output buffer or input buffer are empty.
- *    Please set available buffer and call this function again.
+ * Please set available buffer and call this function again.
  * 2. Returns ARCHIVE_EOF if decompression has been completed.
  * 3. Returns ARCHIVE_FAILED if an error occurred; compressed data
- *    is broken or you do not set 'last' flag properly.
+ * is broken or you do not set 'last' flag properly.
  */
 #define ST_RD_TRANSLATION       0
 #define ST_RD_TRANSLATION_SIZE  1

@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -35,14 +35,14 @@ __FBSDID("$FreeBSD$");
  *
  * Todo:
  * [ ] real-world warcs can contain resources at endpoints ending in /
- *     e.g. http://bibnum.bnf.fr/warc/
- *     if you're lucky their response contains a Content-Location: header
- *     pointing to a unix-compliant filename, in the example above it's
- *     Content-Location: http://bibnum.bnf.fr/warc/index.html
- *     however, that's not mandated and github for example doesn't follow
- *     this convention.
- *     We need a set of archive options to control what to do with
- *     entries like these, at the moment care is taken to skip them.
+ *  e.g. http://bibnum.bnf.fr/warc/
+ *  if you're lucky their response contains a Content-Location: header
+ *  pointing to a unix-compliant filename, in the example above it's
+ *  Content-Location: http://bibnum.bnf.fr/warc/index.html
+ *  however, that's not mandated and github for example doesn't follow
+ *  this convention.
+ *  We need a set of archive options to control what to do with
+ *  entries like these, at the moment care is taken to skip them.
  *
  **/
 //#ifdef HAVE_SYS_STAT_H

@@ -397,7 +397,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
  * the application can either:
  *  - override this xmlSAX2ResolveEntity() callback in the SAX block
  *  - or better use the xmlSetExternalEntityLoader() function to
- *    set up it's own entity resolution routine
+ * set up it's own entity resolution routine
  *
  * Returns the xmlParserInputPtr if inlined or NULL for DOM behaviour.
  */
@@ -1285,8 +1285,8 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	name = xmlSplitQName(ctxt, fullname, &prefix);
 	/*
 	 * Note : the namespace__ resolution is deferred until the end of the
-	 *      attributes parsing, since local namespace__ can be defined as
-	 *      an attribute at this level.
+	 *   attributes parsing, since local namespace__ can be defined as
+	 *   an attribute at this level.
 	 */
 	ret = xmlNewDocNodeEatName(ctxt->myDoc, NULL, name, 0);
 	if(!ret) {
@@ -1776,7 +1776,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
  * @nb_attributes:  the number of attributes on that node
  * @nb_defaulted:  the number of defaulted attributes.
  * @attributes:  pointer to the array of (localname/prefix/URI/value/end)
- *             attribute values.
+ *          attribute values.
  *
  * SAX2 callback when an element start has been detected by the parser.
  * It provides the namespace__ informations for the element, as well as

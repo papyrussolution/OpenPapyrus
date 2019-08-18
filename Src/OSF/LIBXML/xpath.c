@@ -1,7 +1,7 @@
 /*
  * xpath.c: XML Path Language implementation
- *        XPath is a language for addressing parts of an XML document,
- *        designed to be used by both XSLT and XPointer
+ *     XPath is a language for addressing parts of an XML document,
+ *     designed to be used by both XSLT and XPointer
  **f
  * Reference: W3C Recommendation 16 November 1999
  *   http://www.w3.org/TR/1999/REC-xpath-19991116
@@ -115,7 +115,7 @@
  * This one is optimized for handling of non-element nodes.
  *
  * Returns -2 in case of error 1 if first point < second point, 0 if
- *       it's the same node, -1 otherwise
+ *    it's the same node, -1 otherwise
  */
 static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2) 
 {
@@ -401,7 +401,7 @@ turtle_comparison:
  * Comparison function for the Timsort implementation
  *
  * Returns -2 in case of error -1 if first point < second point, 0 if
- *       it's the same node, +1 otherwise
+ *    it's the same node, +1 otherwise
  */
 static int wrap_cmp(xmlNode * x, xmlNode * y);
 #ifdef XP_OPTIMIZED_NON_ELEM_COMPARISON
@@ -501,7 +501,7 @@ static int FASTCALL xmlXPathGetSign(double val)
 }
 /*
  * @todo when compatibility allows remove all "fake node libxslt" strings
- *     the test should just be name[0] = ' '
+ *  the test should just be name[0] = ' '
  */
 #ifdef DEBUG_XPATH_EXPRESSION
 	#define DEBUG_STEP
@@ -2032,11 +2032,11 @@ static void xmlXPathFreeCache(xmlXPathContextCachePtr cache)
  * to be reused.
  * @options:
  * 0: This will set the XPath object caching:
- *    @value:
- *      This will set the maximum number of XPath objects
- *      to be cached per slot
- *      There are 5 slots for: node-set, string, number, boolean, and
- *      misc objects. Use <0 for the default number (100).
+ * @value:
+ *   This will set the maximum number of XPath objects
+ *   to be cached per slot
+ *   There are 5 slots for: node-set, string, number, boolean, and
+ *   misc objects. Use <0 for the default number (100).
  * Other values for @options have currently no effect.
  *
  * Returns 0 if the setting succeeded, and -1 on API or internal errors.
@@ -2349,7 +2349,7 @@ static xmlXPathObjectPtr xmlXPathCacheNewFloat(xmlXPathContextPtr ctxt, double v
  * Converts an existing object to its string() equivalent
  *
  * Returns a created or reused object, the old one is freed (cached)
- *       (or the operation is done directly on @val)
+ *    (or the operation is done directly on @val)
  */
 
 static xmlXPathObjectPtr xmlXPathCacheConvertString(xmlXPathContextPtr ctxt, xmlXPathObjectPtr val)
@@ -2419,7 +2419,7 @@ static xmlXPathObjectPtr xmlXPathCacheObjectCopy(xmlXPathContextPtr ctxt, xmlXPa
  * Converts an existing object to its boolean() equivalent
  *
  * Returns a created or reused object, the old one is freed (or the operation
- *       is done directly on @val)
+ *    is done directly on @val)
  */
 static xmlXPathObjectPtr xmlXPathCacheConvertBoolean(xmlXPathContextPtr ctxt, xmlXPathObjectPtr val)
 {
@@ -2442,7 +2442,7 @@ static xmlXPathObjectPtr xmlXPathCacheConvertBoolean(xmlXPathContextPtr ctxt, xm
  * Converts an existing object to its number() equivalent
  *
  * Returns a created or reused object, the old one is freed (or the operation
- *       is done directly on @val)
+ *    is done directly on @val)
  */
 static xmlXPathObjectPtr xmlXPathCacheConvertNumber(xmlXPathContextPtr ctxt, xmlXPathObjectPtr val)
 {
@@ -2697,19 +2697,19 @@ void * xmlXPathPopExternal(xmlXPathParserContextPtr ctxt)
  *
  * CUR_PTR return the current pointer to the xmlChar to be parsed.
  * CUR     returns the current xmlChar value, i.e. a 8 bit value
- *         in ISO-Latin or UTF-8.
- *         This should be used internally by the parser
- *         only to compare to ASCII values otherwise it would break when
- *         running with UTF-8 encoding.
+ *      in ISO-Latin or UTF-8.
+ *      This should be used internally by the parser
+ *      only to compare to ASCII values otherwise it would break when
+ *      running with UTF-8 encoding.
  * NXT(n)  returns the n'th next xmlChar. Same as CUR is should be used only
- *         to compare on ASCII based substring.
+ *      to compare on ASCII based substring.
  * SKIP(n) Skip n xmlChar, and must also be used only to skip ASCII defined
- *         strings within the parser.
+ *      strings within the parser.
  * CURRENT Returns the current char value, with the full decoding of
- *         UTF-8 if we are using this mode. It returns an int.
+ *      UTF-8 if we are using this mode. It returns an int.
  * NEXT    Skip to the next character, this does the proper decoding
- *         in UTF-8 mode. It also pop-up unfinished entities on the fly.
- *         It returns the pointer to the current xmlChar.
+ *      in UTF-8 mode. It also pop-up unfinished entities on the fly.
+ *      It returns the pointer to the current xmlChar.
  */
 
 #define CUR (*ctxt->cur)
@@ -2917,7 +2917,7 @@ long xmlXPathOrderDocElems(xmlDoc * doc)
  * Compare two nodes w.r.t document order
  *
  * Returns -2 in case of error 1 if first point < second point, 0 if
- *       it's the same node, -1 otherwise
+ *    it's the same node, -1 otherwise
  */
 int xmlXPathCmpNodes(xmlNode * node1, xmlNode * node2) 
 {
@@ -4006,7 +4006,7 @@ void xmlXPathFreeNodeSetList(xmlXPathObject * obj)
  *  node-set set:difference (node-set, node-set)
  *
  * Returns the difference between the two node sets, or nodes1 if
- *       nodes2 is empty
+ *    nodes2 is empty
  */
 xmlNodeSetPtr xmlXPathDifference(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 {
@@ -4037,7 +4037,7 @@ xmlNodeSetPtr xmlXPathDifference(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
  *  node-set set:intersection (node-set, node-set)
  *
  * Returns a node set comprising the nodes that are within both the
- *       node sets passed as arguments
+ *    node sets passed as arguments
  */
 xmlNodeSetPtr xmlXPathIntersection(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 {
@@ -4069,7 +4069,7 @@ xmlNodeSetPtr xmlXPathIntersection(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
  *  node-set set:distinct (node-set)
  *
  * Returns a subset of the nodes contained in @nodes, or @nodes if
- *       it is empty
+ *    it is empty
  */
 xmlNodeSetPtr xmlXPathDistinctSorted(xmlNodeSetPtr nodes)
 {
@@ -4111,7 +4111,7 @@ xmlNodeSetPtr xmlXPathDistinctSorted(xmlNodeSetPtr nodes)
  * is called with the sorted node-set
  *
  * Returns a subset of the nodes contained in @nodes, or @nodes if
- *       it is empty
+ *    it is empty
  */
 xmlNodeSetPtr xmlXPathDistinct(xmlNodeSetPtr nodes)
 {
@@ -4129,7 +4129,7 @@ xmlNodeSetPtr xmlXPathDistinct(xmlNodeSetPtr nodes)
  *  boolean set:has-same-node(node-set, node-set)
  *
  * Returns true (1) if @nodes1 shares any node with @nodes2, false (0)
- *       otherwise
+ *    otherwise
  */
 int xmlXPathHasSameNodes(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 {
@@ -4154,8 +4154,8 @@ int xmlXPathHasSameNodes(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
  *  node-set set:leading (node-set, node-set)
  *
  * Returns the nodes in @nodes that precede @node in document order,
- *       @nodes if @node is NULL or an empty node-set if @nodes
- *       doesn't contain @node
+ *    @nodes if @node is NULL or an empty node-set if @nodes
+ *    doesn't contain @node
  */
 xmlNodeSetPtr xmlXPathNodeLeadingSorted(xmlNodeSetPtr nodes, xmlNode * P_Node)
 {
@@ -4190,8 +4190,8 @@ xmlNodeSetPtr xmlXPathNodeLeadingSorted(xmlNodeSetPtr nodes, xmlNode * P_Node)
  * is called.
  *
  * Returns the nodes in @nodes that precede @node in document order,
- *       @nodes if @node is NULL or an empty node-set if @nodes
- *       doesn't contain @node
+ *    @nodes if @node is NULL or an empty node-set if @nodes
+ *    doesn't contain @node
  */
 xmlNodeSetPtr xmlXPathNodeLeading(xmlNodeSetPtr nodes, xmlNode * P_Node)
 {
@@ -4208,8 +4208,8 @@ xmlNodeSetPtr xmlXPathNodeLeading(xmlNodeSetPtr nodes, xmlNode * P_Node)
  *  node-set set:leading (node-set, node-set)
  *
  * Returns the nodes in @nodes1 that precede the first node in @nodes2
- *       in document order, @nodes1 if @nodes2 is NULL or empty or
- *       an empty node-set if @nodes1 doesn't contain @nodes2
+ *    in document order, @nodes1 if @nodes2 is NULL or empty or
+ *    an empty node-set if @nodes1 doesn't contain @nodes2
  */
 xmlNodeSetPtr xmlXPathLeadingSorted(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 {
@@ -4228,8 +4228,8 @@ xmlNodeSetPtr xmlXPathLeadingSorted(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
  * #exslSetsLeadingSorted is called.
  *
  * Returns the nodes in @nodes1 that precede the first node in @nodes2
- *       in document order, @nodes1 if @nodes2 is NULL or empty or
- *       an empty node-set if @nodes1 doesn't contain @nodes2
+ *    in document order, @nodes1 if @nodes2 is NULL or empty or
+ *    an empty node-set if @nodes1 doesn't contain @nodes2
  */
 xmlNodeSetPtr xmlXPathLeading(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 {
@@ -4250,8 +4250,8 @@ xmlNodeSetPtr xmlXPathLeading(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
  *  node-set set:trailing (node-set, node-set)
  *
  * Returns the nodes in @nodes that follow @node in document order,
- *       @nodes if @node is NULL or an empty node-set if @nodes
- *       doesn't contain @node
+ *    @nodes if @node is NULL or an empty node-set if @nodes
+ *    doesn't contain @node
  */
 xmlNodeSetPtr xmlXPathNodeTrailingSorted(xmlNodeSetPtr nodes, xmlNode * P_Node)
 {
@@ -4286,8 +4286,8 @@ xmlNodeSetPtr xmlXPathNodeTrailingSorted(xmlNodeSetPtr nodes, xmlNode * P_Node)
  * is called.
  *
  * Returns the nodes in @nodes that follow @node in document order,
- *       @nodes if @node is NULL or an empty node-set if @nodes
- *       doesn't contain @node
+ *    @nodes if @node is NULL or an empty node-set if @nodes
+ *    doesn't contain @node
  */
 xmlNodeSetPtr xmlXPathNodeTrailing(xmlNodeSetPtr nodes, xmlNode * P_Node)
 {
@@ -4304,8 +4304,8 @@ xmlNodeSetPtr xmlXPathNodeTrailing(xmlNodeSetPtr nodes, xmlNode * P_Node)
  *  node-set set:trailing (node-set, node-set)
  *
  * Returns the nodes in @nodes1 that follow the first node in @nodes2
- *       in document order, @nodes1 if @nodes2 is NULL or empty or
- *       an empty node-set if @nodes1 doesn't contain @nodes2
+ *    in document order, @nodes1 if @nodes2 is NULL or empty or
+ *    an empty node-set if @nodes1 doesn't contain @nodes2
  */
 xmlNodeSetPtr xmlXPathTrailingSorted(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 {
@@ -4322,8 +4322,8 @@ xmlNodeSetPtr xmlXPathTrailingSorted(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
  * #xmlXPathTrailingSorted is called.
  *
  * Returns the nodes in @nodes1 that follow the first node in @nodes2
- *       in document order, @nodes1 if @nodes2 is NULL or empty or
- *       an empty node-set if @nodes1 doesn't contain @nodes2
+ *    in document order, @nodes1 if @nodes2 is NULL or empty or
+ *    an empty node-set if @nodes1 doesn't contain @nodes2
  */
 xmlNodeSetPtr xmlXPathTrailing(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2)
 {
@@ -5162,7 +5162,7 @@ xmlChar * xmlXPathCastNodeSetToString(xmlNodeSetPtr ns)
  * Converts an existing object to its string() equivalent
  *
  * Returns the allocated string value of the object, NULL in case of error.
- *       It's up to the caller to free the string memory with SAlloc::F().
+ *    It's up to the caller to free the string memory with SAlloc::F().
  */
 xmlChar * xmlXPathCastToString(xmlXPathObject * val)
 {
@@ -5198,7 +5198,7 @@ xmlChar * xmlXPathCastToString(xmlXPathObject * val)
  * Converts an existing object to its string() equivalent
  *
  * Returns the new object, the old one is freed (or the operation
- *       is done directly on @val)
+ *    is done directly on @val)
  */
 xmlXPathObjectPtr xmlXPathConvertString(xmlXPathObject * val) 
 {
@@ -5343,7 +5343,7 @@ double xmlXPathCastToNumber(xmlXPathObject * val)
  * Converts an existing object to its number() equivalent
  *
  * Returns the new object, the old one is freed (or the operation
- *       is done directly on @val)
+ *    is done directly on @val)
  */
 xmlXPathObjectPtr xmlXPathConvertNumber(xmlXPathObject * val)
 {
@@ -5446,7 +5446,7 @@ int xmlXPathCastToBoolean(xmlXPathObject * val)
  * Converts an existing object to its boolean() equivalent
  *
  * Returns the new object, the old one is freed (or the operation
- *       is done directly on @val)
+ *    is done directly on @val)
  */
 xmlXPathObjectPtr xmlXPathConvertBoolean(xmlXPathObject * val)
 {
@@ -8085,29 +8085,29 @@ static void xmlXPathNameFunction(xmlXPathParserContextPtr ctxt, int nargs)
  *  string string(object?)
  * The string function converts an object to a string as follows:
  *  - A node-set is converted to a string by returning the value of
- *    the node in the node-set that is first in document order.
- *    If the node-set is empty, an empty string is returned.
+ * the node in the node-set that is first in document order.
+ * If the node-set is empty, an empty string is returned.
  *  - A number is converted to a string as follows
- *    + NaN is converted to the string NaN
- *    + positive zero is converted to the string 0
- *    + negative zero is converted to the string 0
- *    + positive infinity is converted to the string Infinity
- *    + negative infinity is converted to the string -Infinity
- *    + if the number is an integer, the number is represented in
- *      decimal form as a Number with no decimal point and no leading
- *      zeros, preceded by a minus sign (-) if the number is negative
- *    + otherwise, the number is represented in decimal form as a
- *      Number including a decimal point with at least one digit
- *      before the decimal point and at least one digit after the
- *      decimal point, preceded by a minus sign (-) if the number
- *      is negative; there must be no leading zeros before the decimal
- *      point apart possibly from the one required digit immediately
- *      before the decimal point; beyond the one required digit
- *      after the decimal point there must be as many, but only as
- *      many, more digits as are needed to uniquely distinguish the
- *      number from all other IEEE 754 numeric values.
+ * + NaN is converted to the string NaN
+ * + positive zero is converted to the string 0
+ * + negative zero is converted to the string 0
+ * + positive infinity is converted to the string Infinity
+ * + negative infinity is converted to the string -Infinity
+ * + if the number is an integer, the number is represented in
+ *   decimal form as a Number with no decimal point and no leading
+ *   zeros, preceded by a minus sign (-) if the number is negative
+ * + otherwise, the number is represented in decimal form as a
+ *   Number including a decimal point with at least one digit
+ *   before the decimal point and at least one digit after the
+ *   decimal point, preceded by a minus sign (-) if the number
+ *   is negative; there must be no leading zeros before the decimal
+ *   point apart possibly from the one required digit immediately
+ *   before the decimal point; beyond the one required digit
+ *   after the decimal point there must be as many, but only as
+ *   many, more digits as are needed to uniquely distinguish the
+ *   number from all other IEEE 754 numeric values.
  *  - The boolean false value is converted to the string false.
- *    The boolean true value is converted to the string true.
+ * The boolean true value is converted to the string true.
  *
  * If the argument is omitted, it defaults to a node-set with the
  * context node as its only member.
@@ -8623,7 +8623,7 @@ void xmlXPathTranslateFunction(xmlXPathParserContextPtr ctxt, int nargs)
  *  boolean boolean(object)
  * The boolean function converts its argument to a boolean as follows:
  *  - a number is true if and only if it is neither positive or
- *    negative zero nor NaN
+ * negative zero nor NaN
  *  - a node-set is true if and only if it is non-empty
  *  - a string is true if and only if its length is non-zero
  */
@@ -8996,7 +8996,7 @@ encoding_error:
  * [NS 3] NCName ::= (Letter | '_') (NCNameChar)*
  *
  * [NS 4] NCNameChar ::= Letter | Digit | '.' | '-' | '_' |
- *                     CombiningChar | Extender
+ *                  CombiningChar | Extender
  *
  * Returns the namespace name or NULL
  */
@@ -9062,7 +9062,7 @@ static xmlChar * xmlXPathParseQName(xmlXPathParserContextPtr ctxt, xmlChar ** pr
  * parse an XML name
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' |
- *                CombiningChar | Extender
+ *             CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *
@@ -9181,7 +9181,7 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qua
  *  [30a]  Float  ::= Number ('e' Digits?)?
  *
  *  [30]   Number ::=   Digits ('.' Digits?)?
- *                  | '.' Digits
+ *               | '.' Digits
  *  [31]   Digits ::=   [0-9]+
  *
  * Compile a Number in the string
@@ -9370,7 +9370,7 @@ static void xmlXPathCompNumber(xmlXPathParserContextPtr ctxt)
  * Parse a Literal
  *
  *  [29]   Literal ::=   '"' [^"]* '"'
- *                  | "'" [^']* "'"
+ *               | "'" [^']* "'"
  *
  * Returns the value found or NULL in case of error
  */
@@ -9417,7 +9417,7 @@ static xmlChar * xmlXPathParseLiteral(xmlXPathParserContextPtr ctxt)
  * Parse a Literal and push it on the stack.
  *
  *  [29]   Literal ::=   '"' [^"]* '"'
- *                  | "'" [^']* "'"
+ *               | "'" [^']* "'"
  *
  * @todo xmlXPathCompLiteral memory allocation could be improved.
  */
@@ -9505,9 +9505,9 @@ static void xmlXPathCompVariableReference(xmlXPathParserContextPtr ctxt)
  * Is the name given a NodeType one.
  *
  *  [38]   NodeType ::=   'comment'
- *                  | 'text'
- *                  | 'processing-instruction'
- *                  | 'node'
+ *               | 'text'
+ *               | 'processing-instruction'
+ *               | 'node'
  *
  * Returns 1 if true 0 otherwise
  */
@@ -9596,10 +9596,10 @@ static void xmlXPathCompFunctionCall(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [15]   PrimaryExpr ::=   VariableReference
- *              | '(' Expr ')'
- *              | Literal
- *              | Number
- *              | FunctionCall
+ *           | '(' Expr ')'
+ *           | Literal
+ *           | Number
+ *           | FunctionCall
  *
  * Compile a primary expression.
  */
@@ -9635,7 +9635,7 @@ static void xmlXPathCompPrimaryExpr(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [20]   FilterExpr ::=   PrimaryExpr
- *             | FilterExpr Predicate
+ *          | FilterExpr Predicate
  *
  * Compile a filter expression.
  * Square brackets are used to filter expressions in the same way that
@@ -9664,7 +9664,7 @@ static void xmlXPathCompFilterExpr(xmlXPathParserContextPtr ctxt) {
  * Needed to avoid insanity in the parser state.
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' |
- *                CombiningChar | Extender
+ *             CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *
@@ -9708,9 +9708,9 @@ static xmlChar * xmlXPathScanName(xmlXPathParserContextPtr ctxt) {
  * @ctxt:  the XPath Parser context
  *
  *  [19]   PathExpr ::=   LocationPath
- *             | FilterExpr
- *             | FilterExpr '/' RelativeLocationPath
- *             | FilterExpr '//' RelativeLocationPath
+ *          | FilterExpr
+ *          | FilterExpr '/' RelativeLocationPath
+ *          | FilterExpr '//' RelativeLocationPath
  *
  * Compile a path expression.
  * The / operator and // operators combine an arbitrary expression
@@ -9869,7 +9869,7 @@ static void xmlXPathCompPathExpr(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [18]   UnionExpr ::=   PathExpr
- *             | UnionExpr '|' PathExpr
+ *          | UnionExpr '|' PathExpr
  *
  * Compile an union expression.
  */
@@ -9894,7 +9894,7 @@ static void xmlXPathCompUnionExpr(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [27]   UnaryExpr ::=   UnionExpr
- *                 | '-' UnaryExpr
+ *              | '-' UnaryExpr
  *
  * Compile an unary expression.
  */
@@ -9924,9 +9924,9 @@ static void xmlXPathCompUnaryExpr(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [26]   MultiplicativeExpr ::=   UnaryExpr
- *                 | MultiplicativeExpr MultiplyOperator UnaryExpr
- *                 | MultiplicativeExpr 'div' UnaryExpr
- *                 | MultiplicativeExpr 'mod' UnaryExpr
+ *              | MultiplicativeExpr MultiplyOperator UnaryExpr
+ *              | MultiplicativeExpr 'div' UnaryExpr
+ *              | MultiplicativeExpr 'mod' UnaryExpr
  *  [34]   MultiplyOperator ::=   '*'
  *
  * Compile an Additive expression.
@@ -9963,8 +9963,8 @@ static void xmlXPathCompMultiplicativeExpr(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [25]   AdditiveExpr ::=   MultiplicativeExpr
- *                 | AdditiveExpr '+' MultiplicativeExpr
- *                 | AdditiveExpr '-' MultiplicativeExpr
+ *              | AdditiveExpr '+' MultiplicativeExpr
+ *              | AdditiveExpr '-' MultiplicativeExpr
  *
  * Compile an Additive expression.
  */
@@ -9993,10 +9993,10 @@ static void xmlXPathCompAdditiveExpr(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [24]   RelationalExpr ::=   AdditiveExpr
- *               | RelationalExpr '<' AdditiveExpr
- *               | RelationalExpr '>' AdditiveExpr
- *               | RelationalExpr '<=' AdditiveExpr
- *               | RelationalExpr '>=' AdditiveExpr
+ *            | RelationalExpr '<' AdditiveExpr
+ *            | RelationalExpr '>' AdditiveExpr
+ *            | RelationalExpr '<=' AdditiveExpr
+ *            | RelationalExpr '>=' AdditiveExpr
  *
  *  A <= B > C is allowed ? Answer from James, yes with
  *  (AdditiveExpr <= AdditiveExpr) > AdditiveExpr
@@ -10036,8 +10036,8 @@ static void xmlXPathCompRelationalExpr(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [23]   EqualityExpr ::=   RelationalExpr
- *               | EqualityExpr '=' RelationalExpr
- *               | EqualityExpr '!=' RelationalExpr
+ *            | EqualityExpr '=' RelationalExpr
+ *            | EqualityExpr '!=' RelationalExpr
  *
  *  A != B != C is allowed ? Answer from James, yes with
  *  (RelationalExpr = RelationalExpr) = RelationalExpr
@@ -10074,7 +10074,7 @@ static void xmlXPathCompEqualityExpr(xmlXPathParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [22]   AndExpr ::=   EqualityExpr
- *               | AndExpr 'and' EqualityExpr
+ *            | AndExpr 'and' EqualityExpr
  *
  * Compile an AND expression.
  *
@@ -10100,7 +10100,7 @@ static void xmlXPathCompAndExpr(xmlXPathParserContextPtr ctxt)
  *
  *  [14]   Expr ::=   OrExpr
  *  [21]   OrExpr ::=   AndExpr
- *               | OrExpr 'or' AndExpr
+ *            | OrExpr 'or' AndExpr
  *
  * Parse and compile an expression
  */
@@ -10310,18 +10310,18 @@ static xmlChar * xmlXPathCompNodeTest(xmlXPathParserContextPtr ctxt, xmlXPathTes
  * @name:  a preparsed name token
  *
  * [6] AxisName ::=   'ancestor'
- *                | 'ancestor-or-self'
- *                | 'attribute'
- *                | 'child'
- *                | 'descendant'
- *                | 'descendant-or-self'
- *                | 'following'
- *                | 'following-sibling'
- *                | 'namespace'
- *                | 'parent'
- *                | 'preceding'
- *                | 'preceding-sibling'
- *                | 'self'
+ *             | 'ancestor-or-self'
+ *             | 'attribute'
+ *             | 'child'
+ *             | 'descendant'
+ *             | 'descendant-or-self'
+ *             | 'following'
+ *             | 'following-sibling'
+ *             | 'namespace'
+ *             | 'parent'
+ *             | 'preceding'
+ *             | 'preceding-sibling'
+ *             | 'self'
  *
  * Returns the axis or 0
  */
@@ -10377,20 +10377,20 @@ static xmlXPathAxisVal xmlXPathIsAxisName(const xmlChar * name)
  * @ctxt:  the XPath Parser context
  *
  * [4] Step ::=   AxisSpecifier NodeTest Predicate*
- *                | AbbreviatedStep
+ *             | AbbreviatedStep
  *
  * [12] AbbreviatedStep ::=   '.' | '..'
  *
  * [5] AxisSpecifier ::= AxisName '::'
- *                | AbbreviatedAxisSpecifier
+ *             | AbbreviatedAxisSpecifier
  *
  * [13] AbbreviatedAxisSpecifier ::= '@'?
  *
  * Modified for XPtr range support as:
  *
  *  [4xptr] Step ::= AxisSpecifier NodeTest Predicate*
- *                   | AbbreviatedStep
- *                   | 'range-to' '(' Expr ')' Predicate*
+ *                | AbbreviatedStep
+ *                | 'range-to' '(' Expr ')' Predicate*
  *
  * Compile one step in a Location Path
  * A location step of . is short for self::node(). This is
@@ -10548,8 +10548,8 @@ eval_predicates:
  * @ctxt:  the XPath Parser context
  *
  *  [3]   RelativeLocationPath ::=   Step
- *                   | RelativeLocationPath '/' Step
- *                   | AbbreviatedRelativeLocationPath
+ *                | RelativeLocationPath '/' Step
+ *                | AbbreviatedRelativeLocationPath
  *  [11]  AbbreviatedRelativeLocationPath ::=   RelativeLocationPath '//' Step
  *
  * Compile a relative location path.
@@ -10591,11 +10591,11 @@ static void xmlXPathCompRelativeLocationPath(xmlXPathParserContextPtr ctxt) {
  * @ctxt:  the XPath Parser context
  *
  *  [1]   LocationPath ::=   RelativeLocationPath
- *                   | AbsoluteLocationPath
+ *                | AbsoluteLocationPath
  *  [2]   AbsoluteLocationPath ::=   '/' RelativeLocationPath?
- *                   | AbbreviatedAbsoluteLocationPath
+ *                | AbbreviatedAbsoluteLocationPath
  *  [10]   AbbreviatedAbsoluteLocationPath ::=
- *                         '//' RelativeLocationPath
+ *                      '//' RelativeLocationPath
  *
  * Compile a location path
  *
@@ -11085,7 +11085,7 @@ static int xmlXPathIsPositionalPredicate(xmlXPathParserContextPtr ctxt, xmlXPath
 	 * 2) For filters (XPATH_OP_FILTER):
 	 *  - an inner filter operater OR
 	 *  - an expression selecting the node set.
-	 *    E.g. "key('a', 'b')" or "(//foo | //bar)".
+	 * E.g. "key('a', 'b')" or "(//foo | //bar)".
 	 */
 	if((op->op != XPATH_OP_PREDICATE) && (op->op != XPATH_OP_FILTER))
 		return 0;
@@ -11300,9 +11300,9 @@ static int xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt, xmlXPathSte
 	 * ROOT                               -- op->ch1
 	 * PREDICATE                          -- op->ch2 (predOp)
 	 *   PREDICATE                          -- predOp->ch1 = [parent::bar]
-	 *     SORT
-	 *       COLLECT  'parent' 'name' 'node' bar
-	 *         NODE
+	 *  SORT
+	 *    COLLECT  'parent' 'name' 'node' bar
+	 *      NODE
 	 *   ELEM Object is a number : 1        -- predOp->ch2 = [1]
 	 *
 	 */
@@ -12603,9 +12603,9 @@ static int xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr o
 			    * ...
 			    * PREDICATE   <-- we are here "[1]"
 			    *   PREDICATE <-- process "[parent::book]" first
-			    *     SORT
-			    *       COLLECT  'parent' 'name' 'node' book
-			    *         NODE
+			    *  SORT
+			    *    COLLECT  'parent' 'name' 'node' book
+			    *      NODE
 			    *   ELEM Object is a number : 1
 			    */
 			if(op->ch1 != -1)
@@ -13534,7 +13534,7 @@ static void xmlXPathOptimizeExpression(xmlXPathCompExprPtr comp, xmlXPathStepOpP
  * Compile an XPath expression
  *
  * Returns the xmlXPathCompExprPtr resulting from the compilation or NULL.
- *       the caller has to free the object.
+ *    the caller has to free the object.
  */
 xmlXPathCompExprPtr xmlXPathCtxtCompile(xmlXPathContextPtr ctxt, const xmlChar * str)
 {
@@ -13588,7 +13588,7 @@ xmlXPathCompExprPtr xmlXPathCtxtCompile(xmlXPathContextPtr ctxt, const xmlChar *
  * Compile an XPath expression
  *
  * Returns the xmlXPathCompExprPtr resulting from the compilation or NULL.
- *       the caller has to free the object.
+ *    the caller has to free the object.
  */
 xmlXPathCompExprPtr xmlXPathCompile(const xmlChar * str)
 {
@@ -13605,7 +13605,7 @@ xmlXPathCompExprPtr xmlXPathCompile(const xmlChar * str)
  * The caller has to free @resObj.
  *
  * Returns the xmlXPathObjectPtr resulting from the evaluation or NULL.
- *       the caller has to free the object.
+ *    the caller has to free the object.
  */
 	static int xmlXPathCompiledEvalInternal(xmlXPathCompExprPtr comp, xmlXPathContextPtr ctxt, xmlXPathObjectPtr * resObj, int toBool)
 	{
@@ -13679,7 +13679,7 @@ xmlXPathCompExprPtr xmlXPathCompile(const xmlChar * str)
  * Evaluate the Precompiled XPath expression in the given context.
  *
  * Returns the xmlXPathObjectPtr resulting from the evaluation or NULL.
- *       the caller has to free the object.
+ *    the caller has to free the object.
  */
 xmlXPathObjectPtr xmlXPathCompiledEval(xmlXPathCompExprPtr comp, xmlXPathContextPtr ctx)
 {
@@ -13696,7 +13696,7 @@ xmlXPathObjectPtr xmlXPathCompiledEval(xmlXPathCompExprPtr comp, xmlXPathContext
  * compiled expression.
  *
  * Returns 1 if the expression evaluated to true, 0 if to false and
- *       -1 in API and internal errors.
+ *    -1 in API and internal errors.
  */
 int xmlXPathCompiledEvalToBoolean(xmlXPathCompExprPtr comp, xmlXPathContextPtr ctxt)
 {
@@ -13744,7 +13744,7 @@ void xmlXPathEvalExpr(xmlXPathParserContextPtr ctxt)
  * Evaluate the XPath Location Path in the given context.
  *
  * Returns the xmlXPathObjectPtr resulting from the evaluation or NULL.
- *       the caller has to free the object.
+ *    the caller has to free the object.
  */
 xmlXPathObjectPtr xmlXPathEval(const xmlChar * str, xmlXPathContextPtr ctx)
 {
@@ -13820,7 +13820,7 @@ xmlXPathObjectPtr xmlXPathEval(const xmlChar * str, xmlXPathContextPtr ctx)
  * is set as the context node. The context node is not restored.
  *
  * Returns the xmlXPathObjectPtr resulting from the evaluation or NULL.
- *       the caller has to free the object.
+ *    the caller has to free the object.
  */
 	xmlXPathObjectPtr xmlXPathNodeEval(xmlNode * P_Node, const xmlChar * str, xmlXPathContextPtr ctx)
 	{
@@ -13835,7 +13835,7 @@ xmlXPathObjectPtr xmlXPathEval(const xmlChar * str, xmlXPathContextPtr ctx)
  * Evaluate the XPath expression in the given context.
  *
  * Returns the xmlXPathObjectPtr resulting from the evaluation or NULL.
- *       the caller has to free the object.
+ *    the caller has to free the object.
  */
 	xmlXPathObjectPtr xmlXPathEvalExpression(const xmlChar * str, xmlXPathContextPtr ctxt)
 	{

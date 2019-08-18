@@ -1,6 +1,6 @@
 /*
  * xlink.c : implementation of the hyperlinks detection module
- *         This version supports both XML XLinks and HTML simple links
+ *      This version supports both XML XLinks and HTML simple links
  *
  * See Copyright for the status of this software.
  *
@@ -96,7 +96,7 @@ void xlinkSetDefaultDetect(xlinkNodeDetectFunc func)
  * but tries to detect and return the appropriate link type.
  *
  * Returns the xlinkType of the node (XLINK_TYPE_NONE if there is no
- *       link detected.
+ *    link detected.
  */
 xlinkType xlinkIsLink(xmlDoc * doc, xmlNodePtr P_Node) 
 {

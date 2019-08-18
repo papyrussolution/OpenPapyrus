@@ -33,12 +33,12 @@ static const uchar default_aiv[] = { 0xA6, 0x59, 0x59, 0xA6 };
  *  @param[in]  in     Plaintext as n 64-bit blocks, n >= 2.
  *  @param[in]  inlen  Length of in.
  *  @param[out] out    Ciphertext. Minimal buffer length = (inlen + 8) bytes.
- *                   Input and output buffers can overlap if block function
- *                   supports that.
+ *                Input and output buffers can overlap if block function
+ *                supports that.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen does not consist of n 64-bit blocks, n >= 2.
- *                   or if inlen > CRYPTO128_WRAP_MAX.
- *                   Output length if wrapping succeeded.
+ *                or if inlen > CRYPTO128_WRAP_MAX.
+ *                Output length if wrapping succeeded.
  */
 size_t CRYPTO_128_wrap(void * key, const uchar * iv, uchar * out, const uchar * in, size_t inlen, block128_f block)
 {
@@ -75,15 +75,15 @@ size_t CRYPTO_128_wrap(void * key, const uchar * iv, uchar * out, const uchar * 
  *  @param[in]  key    Key value.
  *  @param[out] iv     Unchecked IV value. Minimal buffer length = 8 bytes.
  *  @param[out] out    Plaintext without IV.
- *                   Minimal buffer length = (inlen - 8) bytes.
- *                   Input and output buffers can overlap if block function
- *                   supports that.
+ *                Minimal buffer length = (inlen - 8) bytes.
+ *                Input and output buffers can overlap if block function
+ *                supports that.
  *  @param[in]  in     Ciphertext as n 64-bit blocks.
  *  @param[in]  inlen  Length of in.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen is out of range [24, CRYPTO128_WRAP_MAX]
- *                   or if inlen is not a multiple of 8.
- *                   Output length otherwise.
+ *                or if inlen is not a multiple of 8.
+ *                Output length otherwise.
  */
 static size_t crypto_128_unwrap_raw(void * key, uchar * iv, uchar * out, const uchar * in, size_t inlen, block128_f block)
 {
@@ -120,18 +120,18 @@ static size_t crypto_128_unwrap_raw(void * key, uchar * iv, uchar * out, const u
  *
  *  @param[in]  key    Key value.
  *  @param[out] iv     IV value to match against. Length = 8 bytes.
- *                   NULL = use default_iv.
+ *                NULL = use default_iv.
  *  @param[out] out    Plaintext without IV.
- *                   Minimal buffer length = (inlen - 8) bytes.
- *                   Input and output buffers can overlap if block function
- *                   supports that.
+ *                Minimal buffer length = (inlen - 8) bytes.
+ *                Input and output buffers can overlap if block function
+ *                supports that.
  *  @param[in]  in     Ciphertext as n 64-bit blocks.
  *  @param[in]  inlen  Length of in.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen is out of range [24, CRYPTO128_WRAP_MAX]
- *                   or if inlen is not a multiple of 8
- *                   or if IV doesn't match expected value.
- *                   Output length otherwise.
+ *                or if inlen is not a multiple of 8
+ *                or if IV doesn't match expected value.
+ *                Output length otherwise.
  */
 size_t CRYPTO_128_unwrap(void * key, const uchar * iv, uchar * out, const uchar * in, size_t inlen, block128_f block)
 {
@@ -153,13 +153,13 @@ size_t CRYPTO_128_unwrap(void * key, const uchar * iv, uchar * out, const uchar 
  *  @param[in]  key    Key value.
  *  @param[in]  icv    (Non-standard) IV, 4 bytes. NULL = use default_aiv.
  *  @param[out] out    Ciphertext. Minimal buffer length = (inlen + 15) bytes.
- *                   Input and output buffers can overlap if block function
- *                   supports that.
+ *                Input and output buffers can overlap if block function
+ *                supports that.
  *  @param[in]  in     Plaintext as n 64-bit blocks, n >= 2.
  *  @param[in]  inlen  Length of in.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen is out of range [1, CRYPTO128_WRAP_MAX].
- *                   Output length if wrapping succeeded.
+ *                Output length if wrapping succeeded.
  */
 size_t CRYPTO_128_wrap_pad(void * key, const uchar * icv,
     uchar * out,
@@ -219,15 +219,15 @@ size_t CRYPTO_128_wrap_pad(void * key, const uchar * icv,
  *  @param[in]  key    Key value.
  *  @param[in]  icv    (Non-standard) IV, 4 bytes. NULL = use default_aiv.
  *  @param[out] out    Plaintext. Minimal buffer length = inlen bytes.
- *                   Input and output buffers can overlap if block function
- *                   supports that.
+ *                Input and output buffers can overlap if block function
+ *                supports that.
  *  @param[in]  in     Ciphertext as n 64-bit blocks.
  *  @param[in]  inlen  Length of in.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen is out of range [16, CRYPTO128_WRAP_MAX],
- *                   or if inlen is not a multiple of 8
- *                   or if IV and message length indicator doesn't match.
- *                   Output length if unwrapping succeeded and IV matches.
+ *                or if inlen is not a multiple of 8
+ *                or if IV and message length indicator doesn't match.
+ *                Output length if unwrapping succeeded and IV matches.
  */
 size_t CRYPTO_128_unwrap_pad(void * key, const uchar * icv,
     uchar * out,

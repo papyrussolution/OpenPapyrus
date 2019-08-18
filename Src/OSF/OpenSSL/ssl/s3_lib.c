@@ -54,12 +54,12 @@
 /*
  * The list of available ciphers, mostly organized into the following
  * groups:
- *    Always there
- *    EC
- *    PSK
- *    SRP (within that: RSA EC PSK)
- *    Cipher families: Chacha/poly, Camellila, Gost, IDEA, SEED
- *    Weak ciphers
+ * Always there
+ * EC
+ * PSK
+ * SRP (within that: RSA EC PSK)
+ * Cipher families: Chacha/poly, Camellila, Gost, IDEA, SEED
+ * Weak ciphers
  */
 static SSL_CIPHER ssl3_ciphers[] = {
 	{

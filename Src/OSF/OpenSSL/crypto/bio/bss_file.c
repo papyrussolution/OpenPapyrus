@@ -9,8 +9,8 @@
 
 /*-
  * 03-Dec-1997  rdenny@dc3.com  Fix bug preventing use of stdin/stdout
- *            with binary data (e.g. asn1parse -inform DER < xxx) under
- *            Windows
+ *         with binary data (e.g. asn1parse -inform DER < xxx) under
+ *         Windows
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop

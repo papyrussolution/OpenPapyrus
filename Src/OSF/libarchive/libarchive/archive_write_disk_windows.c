@@ -7,11 +7,11 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer
- *    in this position and unchanged.
+ * notice, this list of conditions and the following disclaimer
+ * in this position and unchanged.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -1514,13 +1514,13 @@ static int create_filesystem_object(struct archive_write_disk * a)
  * Cleanup function for archive_extract.  Mostly, this involves processing
  * the fixup list, which is used to address a number of problems:
  *   * Dir permissions might prevent us from restoring a file in that
- *     dir, so we restore the dir with minimum 0700 permissions first,
- *     then correct the mode at the end.
+ *  dir, so we restore the dir with minimum 0700 permissions first,
+ *  then correct the mode at the end.
  *   * Similarly, the act of restoring a file touches the directory
- *     and changes the timestamp on the dir, so we have to touch-up dir
- *     timestamps at the end as well.
+ *  and changes the timestamp on the dir, so we have to touch-up dir
+ *  timestamps at the end as well.
  *   * Some file flags can interfere with the restore by, for example,
- *     preventing the creation of hardlinks to those files.
+ *  preventing the creation of hardlinks to those files.
  *   * Mac OS extended metadata includes ACLs, so must be deferred on dirs.
  *
  * Note that tar/cpio do not require that archives be in a particular

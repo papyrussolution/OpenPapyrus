@@ -2082,7 +2082,7 @@ static void png_do_scale_16_to_8(png_row_infop row_info, png_bytep row)
 			 * is:
 			 *
 			 *  error = floor(((V-vhi.vhi) + 128.5) / 257)
-			 *        = floor(((vlo-vhi) + 128.5) / 257)
+			 *     = floor(((vlo-vhi) + 128.5) / 257)
 			 *
 			 * This can be approximated using integer arithmetic (and a signed
 			 * shift):
@@ -4028,21 +4028,21 @@ void /* PRIVATE */ png_do_read_transformations(png_structrp png_ptr, png_row_inf
  *
  * To summarize, the current flow is:
  * - Gray + simple transparency -> compare 1 or 2 gray bytes and composite
- *                                 with background "in place" if transparent,
- *                                 convert to RGB if necessary
+ *                              with background "in place" if transparent,
+ *                              convert to RGB if necessary
  * - Gray + alpha -> composite with gray background and remove alpha bytes,
- *                                 convert to RGB if necessary
+ *                              convert to RGB if necessary
  *
  * To support RGB backgrounds for gray images we need:
  * - Gray + simple transparency -> convert to RGB + simple transparency,
- *                                 compare 3 or 6 bytes and composite with
- *                                 background "in place" if transparent
- *                                 (3x compare/pixel compared to doing
- *                                 composite with gray bkgrnd)
+ *                              compare 3 or 6 bytes and composite with
+ *                              background "in place" if transparent
+ *                              (3x compare/pixel compared to doing
+ *                              composite with gray bkgrnd)
  * - Gray + alpha -> convert to RGB + alpha, composite with background and
- *                                 remove alpha bytes (3x float
- *                                 operations/pixel compared with composite
- *                                 on gray background)
+ *                              remove alpha bytes (3x float
+ *                              operations/pixel compared with composite
+ *                              on gray background)
  *
  *  Greg's change will do this.  The reason it wasn't done before is for
  *  performance, as this increases the per-pixel operations.  If we would check

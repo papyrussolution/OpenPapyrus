@@ -50,7 +50,7 @@ int docbEncodeEntities(uchar * out ATTRIBUTE_UNUSED, int * outlen ATTRIBUTE_UNUS
  * interface).
  *
  * Returns 0, -1 in case of error. the parser context is augmented
- *              as a result of the parsing.
+ *           as a result of the parsing.
  */
 
 int docbParseDocument(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)

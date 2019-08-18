@@ -246,9 +246,9 @@ int blake2s(void * out, size_t outlen, const void * in, size_t inlen, const void
 {
 	blake2s_state S[1];
 	/* Verify parameters */
-	if(NULL == in && inlen > 0) return -1;
-	if(NULL == out) return -1;
-	if(NULL == key && keylen > 0) return -1;
+	if(!in && inlen > 0) return -1;
+	if(!out) return -1;
+	if(!key && keylen > 0) return -1;
 	if(!outlen || outlen > BLAKE2S_OUTBYTES) return -1;
 	if(keylen > BLAKE2S_KEYBYTES) return -1;
 	if(keylen > 0) {

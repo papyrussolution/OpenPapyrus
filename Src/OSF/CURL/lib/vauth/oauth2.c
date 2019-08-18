@@ -43,7 +43,7 @@
  * port[in]         - The port(for OAUTHBEARER when not Port 80).
  * bearer[in]       - The bearer token.
  * outptr[in / out] - The address where a pointer to newly allocated memory
- *                  holding the result will be stored upon completion.
+ *               holding the result will be stored upon completion.
  * outlen[out]      - The length of the output message.
  *
  * Returns CURLE_OK on success.

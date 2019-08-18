@@ -1,8 +1,8 @@
 /*
  * Summary: internals routines and limits exported by the parser.
  * Description: this module exports a number of internal parsing routines
- *            they are not really all intended for applications but
- *            can prove useful doing low level processing.
+ *         they are not really all intended for applications but
+ *         can prove useful doing low level processing.
  * Copy: See Copyright for the status of this software.
  * Author: Daniel Veillard
  */
@@ -85,7 +85,7 @@ XMLPUBVAR uint xmlParserMaxDepth;
  * Macro to check the following production in the XML spec:
  *
  * [2] Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD]
- *                | [#x10000-#x10FFFF]
+ *             | [#x10000-#x10FFFF]
  * any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.
  */
 #define IS_CHAR(c)   xmlIsCharQ(c)

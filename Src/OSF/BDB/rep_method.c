@@ -547,27 +547,27 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 		 * When becoming a master, clear the following flags:
 		 * CLIENT: Site is no longer a client.
 		 * ABBREVIATED: Indicates abbreviated internal init, which
-		 *     cannot occur on a master.
+		 *  cannot occur on a master.
 		 * MASTERELECT: Indicates that this master is elected
-		 *     rather than appointed. If we're changing roles we
-		 *     used this flag above for error checks and election
-		 *     cleanup.
+		 *  rather than appointed. If we're changing roles we
+		 *  used this flag above for error checks and election
+		 *  cleanup.
 		 * SKIPPED_APPLY: Indicates that client apply skipped
-		 *     some log records during an election, no longer
-		 *     applicable on master.
+		 *  some log records during an election, no longer
+		 *  applicable on master.
 		 * DELAY: Indicates user config to delay initial client
-		 *     sync with new master, doesn't apply to master.
+		 *  sync with new master, doesn't apply to master.
 		 * LEASE_EXPIRED: Applies to client leases which are
-		 *     now defunct on master.
+		 *  now defunct on master.
 		 * NEWFILE: Used to delay client apply during newfile
-		 *     operation, not applicable to master.
+		 *  operation, not applicable to master.
 		 */
 		F_CLR(rep, REP_F_CLIENT|REP_F_ABBREVIATED|REP_F_MASTERELECT|REP_F_SKIPPED_APPLY|REP_F_DELAY|REP_F_LEASE_EXPIRED|REP_F_NEWFILE);
 		/*
 		 * When becoming a master, set the following flags:
 		 * MASTER: Indicate that this site is master.
 		 * GROUP_ESTD: Having a master means a that replication
-		 *     group exists.
+		 *  group exists.
 		 * NIMDBS_LOADED: Inmem dbs are always present on a master.
 		 */
 		F_SET(rep, REP_F_MASTER|REP_F_GROUP_ESTD|REP_F_NIMDBS_LOADED);
@@ -592,9 +592,9 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 		/*
 		 * When becoming a master, clear the following lockouts:
 		 * ARCHIVE: Used to keep logs while client may be
-		 *     inconsistent, not needed on master.
+		 *  inconsistent, not needed on master.
 		 * MSG: We set this above to block message processing while
-		 *     becoming a master, can turn messages back on here.
+		 *  becoming a master, can turn messages back on here.
 		 */
 		FLD_CLR(rep->lockout_flags, REP_LOCKOUT_ARCHIVE|REP_LOCKOUT_MSG);
 		REP_SYSTEM_UNLOCK(env);
@@ -689,7 +689,7 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 		 * When becoming a client, clear the following flags:
 		 * MASTER: Site is no longer a master.
 		 * MASTERELECT: Indicates that a master is elected
-		 *     rather than appointed, not applicable on client.
+		 *  rather than appointed, not applicable on client.
 		 */
 		F_CLR(rep, REP_F_MASTER|REP_F_MASTERELECT);
 		F_SET(rep, REP_F_CLIENT);

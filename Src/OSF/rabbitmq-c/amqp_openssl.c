@@ -25,31 +25,24 @@
  */
 #include "amqp_private.h"
 #pragma hdrstop
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/bn.h>
-#include <openssl/conf.h>
-#include <openssl/bio.h>
-#include <openssl/engine.h>
-#include <openssl/evp.h>
-#include <openssl/rsa.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include "amqp_openssl_bio.h"
-#include "amqp_openssl_hostname_validation.h"
-//#include "amqp_socket.h"
-#include "amqp_ssl_socket.h"
-//#include "amqp_time.h"
-// @sobolev #include "threads.h"
-#include "pthread.h" // @sobolev
-//#include <ctype.h>
-//#include <limits.h>
-//#include <stdlib.h>
-//#include <string.h>
+//#include <openssl/ssl.h>
+//#include <openssl/err.h>
+//#include <openssl/bn.h>
+//#include <openssl/conf.h>
+//#include <openssl/bio.h>
+//#include <openssl/engine.h>
+//#include <openssl/evp.h>
+//#include <openssl/rsa.h>
+//#include <openssl/x509.h>
+//#include <openssl/x509v3.h>
+//#include "amqp_openssl_bio.h"
+//#include "amqp_openssl_hostname_validation.h"
+//#include "amqp_ssl_socket.h"
+//#include "pthread.h" // @sobolev
 
-static int initialize_ssl_and_increment_connections(void);
-static int decrement_ssl_connections(void);
-static /*unsigned long*/pthread_t ssl_threadid_callback(void);
+static int initialize_ssl_and_increment_connections();
+static int decrement_ssl_connections();
+static /*unsigned long*/pthread_t ssl_threadid_callback();
 static void ssl_locking_callback(int mode, int n, const char * file, int line);
 static pthread_mutex_t * amqp_openssl_lockarray = NULL;
 static pthread_mutex_t openssl_init_mutex = 0; //PTHREAD_MUTEX_INITIALIZER;
@@ -80,7 +73,7 @@ static ssize_t amqp_ssl_socket_send(void * base, const void * buf, size_t len, A
 {
 	struct amqp_ssl_socket_t * self = static_cast<struct amqp_ssl_socket_t *>(base);
 	int res;
-	if(-1 == self->sockfd) {
+	if(self->sockfd == -1) {
 		return AMQP_STATUS_SOCKET_CLOSED;
 	}
 	/* SSL_write takes an int for length of buffer, protect against len being
@@ -110,47 +103,35 @@ static ssize_t amqp_ssl_socket_send(void * base, const void * buf, size_t len, A
 	return (ssize_t)res;
 }
 
-static ssize_t amqp_ssl_socket_recv(void * base, void * buf, size_t len,
-    AMQP_UNUSED int flags) {
+static ssize_t amqp_ssl_socket_recv(void * base, void * buf, size_t len, AMQP_UNUSED int flags) 
+{
 	struct amqp_ssl_socket_t * self = static_cast<struct amqp_ssl_socket_t *>(base);
 	int received;
-	if(-1 == self->sockfd) {
+	if(self->sockfd == -1) {
 		return AMQP_STATUS_SOCKET_CLOSED;
 	}
-
 	/* SSL_read takes an int for length of buffer, protect against len being
 	 * larger than larger than what SSL_read can take */
 	if(len > INT_MAX) {
 		return AMQP_STATUS_INVALID_PARAMETER;
 	}
-
 	ERR_clear_error();
 	self->internal_error = 0;
-
 	received = SSL_read(self->ssl, buf, (int)len);
 	if(0 >= received) {
 		self->internal_error = SSL_get_error(self->ssl, received);
 		switch(self->internal_error) {
-			case SSL_ERROR_WANT_READ:
-			    received = AMQP_PRIVATE_STATUS_SOCKET_NEEDREAD;
-			    break;
-			case SSL_ERROR_WANT_WRITE:
-			    received = AMQP_PRIVATE_STATUS_SOCKET_NEEDWRITE;
-			    break;
-			case SSL_ERROR_ZERO_RETURN:
-			    received = AMQP_STATUS_CONNECTION_CLOSED;
-			    break;
-			default:
-			    received = AMQP_STATUS_SSL_ERROR;
-			    break;
+			case SSL_ERROR_WANT_READ: received = AMQP_PRIVATE_STATUS_SOCKET_NEEDREAD; break;
+			case SSL_ERROR_WANT_WRITE: received = AMQP_PRIVATE_STATUS_SOCKET_NEEDWRITE; break;
+			case SSL_ERROR_ZERO_RETURN: received = AMQP_STATUS_CONNECTION_CLOSED; break;
+			default: received = AMQP_STATUS_SSL_ERROR; break;
 		}
 	}
-
 	return (ssize_t)received;
 }
 
-static int amqp_ssl_socket_open(void * base, const char * host, int port,
-    struct timeval * timeout) {
+static int amqp_ssl_socket_open(void * base, const char * host, int port, struct timeval * timeout) 
+{
 	struct amqp_ssl_socket_t * self = static_cast<struct amqp_ssl_socket_t *>(base);
 	long result;
 	int status;
@@ -161,19 +142,16 @@ static int amqp_ssl_socket_open(void * base, const char * host, int port,
 		return AMQP_STATUS_SOCKET_INUSE;
 	}
 	ERR_clear_error();
-
 	self->ssl = SSL_new(self->ctx);
 	if(!self->ssl) {
 		self->internal_error = ERR_peek_error();
 		status = AMQP_STATUS_SSL_ERROR;
 		goto exit;
 	}
-
 	status = amqp_time_from_now(&deadline, timeout);
 	if(AMQP_STATUS_OK != status) {
 		return status;
 	}
-
 	self->sockfd = amqp_open_socket_inner(host, port, deadline);
 	if(0 > self->sockfd) {
 		status = self->sockfd;
@@ -181,52 +159,40 @@ static int amqp_ssl_socket_open(void * base, const char * host, int port,
 		self->sockfd = -1;
 		goto error_out1;
 	}
-
 	bio = BIO_new(amqp_openssl_bio());
 	if(!bio) {
 		status = AMQP_STATUS_NO_MEMORY;
 		goto error_out2;
 	}
-
 	BIO_set_fd(bio, self->sockfd, BIO_NOCLOSE);
 	SSL_set_bio(self->ssl, bio, bio);
-
 	status = SSL_set_tlsext_host_name(self->ssl, host);
 	if(!status) {
 		self->internal_error = SSL_get_error(self->ssl, status);
 		status = AMQP_STATUS_SSL_ERROR;
 		goto error_out2;
 	}
-
 start_connect:
 	status = SSL_connect(self->ssl);
 	if(status != 1) {
 		self->internal_error = SSL_get_error(self->ssl, status);
 		switch(self->internal_error) {
-			case SSL_ERROR_WANT_READ:
-			    status = amqp_poll(self->sockfd, AMQP_SF_POLLIN, deadline);
-			    break;
-			case SSL_ERROR_WANT_WRITE:
-			    status = amqp_poll(self->sockfd, AMQP_SF_POLLOUT, deadline);
-			    break;
-			default:
-			    status = AMQP_STATUS_SSL_CONNECTION_FAILED;
+			case SSL_ERROR_WANT_READ: status = amqp_poll(self->sockfd, AMQP_SF_POLLIN, deadline); break;
+			case SSL_ERROR_WANT_WRITE: status = amqp_poll(self->sockfd, AMQP_SF_POLLOUT, deadline); break;
+			default: status = AMQP_STATUS_SSL_CONNECTION_FAILED;
 		}
 		if(AMQP_STATUS_OK == status) {
 			goto start_connect;
 		}
 		goto error_out2;
 	}
-
 	cert = SSL_get_peer_certificate(self->ssl);
-
 	if(self->verify_peer) {
 		if(!cert) {
 			self->internal_error = 0;
 			status = AMQP_STATUS_SSL_PEER_VERIFY_FAILED;
 			goto error_out3;
 		}
-
 		result = SSL_get_verify_result(self->ssl);
 		if(X509_V_OK != result) {
 			self->internal_error = result;
@@ -240,21 +206,17 @@ start_connect:
 			status = AMQP_STATUS_SSL_HOSTNAME_VERIFY_FAILED;
 			goto error_out3;
 		}
-
 		if(AMQP_HVR_MATCH_FOUND != amqp_ssl_validate_hostname(host, cert)) {
 			self->internal_error = 0;
 			status = AMQP_STATUS_SSL_HOSTNAME_VERIFY_FAILED;
 			goto error_out4;
 		}
 	}
-
 	X509_free(cert);
 	self->internal_error = 0;
 	status = AMQP_STATUS_OK;
-
 exit:
 	return status;
-
 error_out4:
 	X509_free(cert);
 error_out3:
@@ -268,26 +230,22 @@ error_out1:
 	goto exit;
 }
 
-static int amqp_ssl_socket_close(void * base, amqp_socket_close_enum force) {
+static int amqp_ssl_socket_close(void * base, amqp_socket_close_enum force) 
+{
 	struct amqp_ssl_socket_t * self = static_cast<struct amqp_ssl_socket_t *>(base);
-
-	if(-1 == self->sockfd) {
+	if(self->sockfd == -1) {
 		return AMQP_STATUS_SOCKET_CLOSED;
 	}
-
 	if(AMQP_SC_NONE == force) {
 		/* don't try too hard to shutdown the connection */
 		SSL_shutdown(self->ssl);
 	}
-
 	SSL_free(self->ssl);
 	self->ssl = NULL;
-
 	if(amqp_os_socket_close(self->sockfd)) {
 		return AMQP_STATUS_SOCKET_ERROR;
 	}
 	self->sockfd = -1;
-
 	return AMQP_STATUS_OK;
 }
 
@@ -309,12 +267,12 @@ static void amqp_ssl_socket_delete(void * base)
 }
 
 static const struct amqp_socket_class_t amqp_ssl_socket_class = {
-	amqp_ssl_socket_send,   /* send */
-	amqp_ssl_socket_recv,   /* recv */
-	amqp_ssl_socket_open,   /* open */
-	amqp_ssl_socket_close,  /* close */
-	amqp_ssl_socket_get_sockfd, /* get_sockfd */
-	amqp_ssl_socket_delete  /* delete */
+	amqp_ssl_socket_send,
+	amqp_ssl_socket_recv,
+	amqp_ssl_socket_open,
+	amqp_ssl_socket_close,
+	amqp_ssl_socket_get_sockfd,
+	amqp_ssl_socket_delete
 };
 
 amqp_socket_t * amqp_ssl_socket_new(amqp_connection_state_t state) 
@@ -345,44 +303,46 @@ error:
 	return NULL;
 }
 
-void * amqp_ssl_socket_get_context(amqp_socket_t * base) {
+void * amqp_ssl_socket_get_context(amqp_socket_t * base) 
+{
 	if(base->klass != &amqp_ssl_socket_class) {
 		amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
 	}
-	return ((struct amqp_ssl_socket_t *)base)->ctx;
+	return reinterpret_cast<struct amqp_ssl_socket_t *>(base)->ctx;
 }
 
-int amqp_ssl_socket_set_cacert(amqp_socket_t * base, const char * cacert) {
-	int status;
-	struct amqp_ssl_socket_t * self;
+int amqp_ssl_socket_set_cacert(amqp_socket_t * base, const char * cacert) 
+{
 	if(base->klass != &amqp_ssl_socket_class) {
 		amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
 	}
-	self = reinterpret_cast<struct amqp_ssl_socket_t *>(base);
-	status = SSL_CTX_load_verify_locations(self->ctx, cacert, NULL);
-	if(1 != status) {
-		return AMQP_STATUS_SSL_ERROR;
+	{
+		struct amqp_ssl_socket_t * self = reinterpret_cast<struct amqp_ssl_socket_t *>(base);
+		int status = SSL_CTX_load_verify_locations(self->ctx, cacert, NULL);
+		if(1 != status) {
+			return AMQP_STATUS_SSL_ERROR;
+		}
+		return AMQP_STATUS_OK;
 	}
-	return AMQP_STATUS_OK;
 }
 
-int amqp_ssl_socket_set_key(amqp_socket_t * base, const char * cert,
-    const char * key) {
-	int status;
-	struct amqp_ssl_socket_t * self;
+int amqp_ssl_socket_set_key(amqp_socket_t * base, const char * cert, const char * key) 
+{
 	if(base->klass != &amqp_ssl_socket_class) {
 		amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
 	}
-	self = reinterpret_cast<struct amqp_ssl_socket_t *>(base);
-	status = SSL_CTX_use_certificate_chain_file(self->ctx, cert);
-	if(1 != status) {
-		return AMQP_STATUS_SSL_ERROR;
+	{
+		struct amqp_ssl_socket_t * self = reinterpret_cast<struct amqp_ssl_socket_t *>(base);
+		int status = SSL_CTX_use_certificate_chain_file(self->ctx, cert);
+		if(1 != status) {
+			return AMQP_STATUS_SSL_ERROR;
+		}
+		status = SSL_CTX_use_PrivateKey_file(self->ctx, key, SSL_FILETYPE_PEM);
+		if(1 != status) {
+			return AMQP_STATUS_SSL_ERROR;
+		}
+		return AMQP_STATUS_OK;
 	}
-	status = SSL_CTX_use_PrivateKey_file(self->ctx, key, SSL_FILETYPE_PEM);
-	if(1 != status) {
-		return AMQP_STATUS_SSL_ERROR;
-	}
-	return AMQP_STATUS_OK;
 }
 
 static int password_cb(AMQP_UNUSED char * buffer, AMQP_UNUSED int length, AMQP_UNUSED int rwflag, AMQP_UNUSED void * user_data) 
@@ -531,7 +491,7 @@ void amqp_set_initialize_ssl_library(boolint do_initialize)
 	CHECK_SUCCESS(pthread_mutex_unlock(&openssl_init_mutex));
 }
 
-static /*unsigned long*/pthread_t ssl_threadid_callback(void) 
+static /*unsigned long*/pthread_t ssl_threadid_callback() 
 {
 	return /*(unsigned long)*/pthread_self();
 }
@@ -546,7 +506,7 @@ static void ssl_locking_callback(int mode, int n, AMQP_UNUSED const char * file,
 	}
 }
 
-static int setup_openssl(void)
+static int setup_openssl()
 {
 	int status;
 	amqp_openssl_lockarray = static_cast<pthread_mutex_t *>(SAlloc::C(CRYPTO_num_locks(), sizeof(pthread_mutex_t)));
@@ -581,7 +541,7 @@ out:
 	return status;
 }
 
-int amqp_initialize_ssl_library(void) 
+int amqp_initialize_ssl_library() 
 {
 	int status;
 	CHECK_SUCCESS(pthread_mutex_lock(&openssl_init_mutex));
@@ -623,7 +583,7 @@ exit:
 	return status;
 }
 
-static int decrement_ssl_connections(void) 
+static int decrement_ssl_connections() 
 {
 	CHECK_SUCCESS(pthread_mutex_lock(&openssl_init_mutex));
 	if(openssl_connections > 0) {
@@ -633,7 +593,7 @@ static int decrement_ssl_connections(void)
 	return AMQP_STATUS_OK;
 }
 
-int amqp_uninitialize_ssl_library(void) 
+int amqp_uninitialize_ssl_library() 
 {
 	int status;
 	CHECK_SUCCESS(pthread_mutex_lock(&openssl_init_mutex));

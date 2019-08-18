@@ -7,24 +7,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -396,98 +396,98 @@ typedef struct ThreadKeyAssoc ThreadKeyAssoc;
 struct ThreadKeyAssoc {
 	/*
 	 * Purpose:
-	 *      This structure creates an association between a thread and a key.
-	 *      It is used to implement the implicit invocation of a user defined
-	 *      destroy routine for thread specific data registered by a user upon
-	 *      exiting a thread.
+	 *   This structure creates an association between a thread and a key.
+	 *   It is used to implement the implicit invocation of a user defined
+	 *   destroy routine for thread specific data registered by a user upon
+	 *   exiting a thread.
 	 *
-	 *      Graphically, the arrangement is as follows, where:
+	 *   Graphically, the arrangement is as follows, where:
 	 *
-	 *         K - Key with destructor
-	 *            (head of chain is key->threads)
-	 *         T - Thread that has called pthread_setspecific(Kn)
-	 *            (head of chain is thread->keys)
-	 *         A - Association. Each association is a node at the
-	 *             intersection of two doubly-linked lists.
+	 *      K - Key with destructor
+	 *         (head of chain is key->threads)
+	 *      T - Thread that has called pthread_setspecific(Kn)
+	 *         (head of chain is thread->keys)
+	 *      A - Association. Each association is a node at the
+	 *          intersection of two doubly-linked lists.
 	 *
-	 *                 T1    T2    T3
-	 *                 |     |     |
-	 *                 |     |     |
-	 *         K1 -----+-----A-----A----->
-	 *                 |     |     |
-	 *                 |     |     |
-	 *         K2 -----A-----A-----+----->
-	 *                 |     |     |
-	 *                 |     |     |
-	 *         K3 -----A-----+-----A----->
-	 *                 |     |     |
-	 *                 |     |     |
-	 *                 V     V     V
+	 *              T1    T2    T3
+	 *              |     |     |
+	 *              |     |     |
+	 *      K1 -----+-----A-----A----->
+	 *              |     |     |
+	 *              |     |     |
+	 *      K2 -----A-----A-----+----->
+	 *              |     |     |
+	 *              |     |     |
+	 *      K3 -----A-----+-----A----->
+	 *              |     |     |
+	 *              |     |     |
+	 *              V     V     V
 	 *
-	 *      Access to the association is guarded by two locks: the key's
-	 *      general lock (guarding the row) and the thread's general
-	 *      lock (guarding the column). This avoids the need for a
-	 *      dedicated lock for each association, which not only consumes
-	 *      more handles but requires that the lock resources persist
-	 *      until both the key is deleted and the thread has called the
-	 *      destructor. The two-lock arrangement allows those resources
-	 *      to be freed as soon as either thread or key is concluded.
+	 *   Access to the association is guarded by two locks: the key's
+	 *   general lock (guarding the row) and the thread's general
+	 *   lock (guarding the column). This avoids the need for a
+	 *   dedicated lock for each association, which not only consumes
+	 *   more handles but requires that the lock resources persist
+	 *   until both the key is deleted and the thread has called the
+	 *   destructor. The two-lock arrangement allows those resources
+	 *   to be freed as soon as either thread or key is concluded.
 	 *
-	 *      To avoid deadlock, whenever both locks are required both the
-	 *      key and thread locks are acquired consistently in the order
-	 *      "key lock then thread lock". An exception to this exists
-	 *      when a thread calls the destructors, however, this is done
-	 *      carefully (but inelegantly) to avoid deadlock.
+	 *   To avoid deadlock, whenever both locks are required both the
+	 *   key and thread locks are acquired consistently in the order
+	 *   "key lock then thread lock". An exception to this exists
+	 *   when a thread calls the destructors, however, this is done
+	 *   carefully (but inelegantly) to avoid deadlock.
 	 *
-	 *      An association is created when a thread first calls
-	 *      pthread_setspecific() on a key that has a specified
-	 *      destructor.
+	 *   An association is created when a thread first calls
+	 *   pthread_setspecific() on a key that has a specified
+	 *   destructor.
 	 *
-	 *      An association is destroyed either immediately after the
-	 *      thread calls the key destructor function on thread exit, or
-	 *      when the key is deleted.
+	 *   An association is destroyed either immediately after the
+	 *   thread calls the key destructor function on thread exit, or
+	 *   when the key is deleted.
 	 *
 	 * Attributes:
-	 *      thread
-	 *              reference to the thread that owns the
-	 *              association. This is actually the pointer to the
-	 *              thread struct itself. Since the association is
-	 *              destroyed before the thread exits, this can never
-	 *              point to a different logical thread to the one that
-	 *              created the assoc, i.e. after thread struct reuse.
+	 *   thread
+	 *           reference to the thread that owns the
+	 *           association. This is actually the pointer to the
+	 *           thread struct itself. Since the association is
+	 *           destroyed before the thread exits, this can never
+	 *           point to a different logical thread to the one that
+	 *           created the assoc, i.e. after thread struct reuse.
 	 *
-	 *      key
-	 *              reference to the key that owns the association.
+	 *   key
+	 *           reference to the key that owns the association.
 	 *
-	 *      nextKey
-	 *              The pthread_t->keys attribute is the head of a
-	 *              chain of associations that runs through the nextKey
-	 *              link. This chain provides the 1 to many relationship
-	 *              between a pthread_t and all pthread_key_t on which
-	 *              it called pthread_setspecific.
+	 *   nextKey
+	 *           The pthread_t->keys attribute is the head of a
+	 *           chain of associations that runs through the nextKey
+	 *           link. This chain provides the 1 to many relationship
+	 *           between a pthread_t and all pthread_key_t on which
+	 *           it called pthread_setspecific.
 	 *
-	 *      prevKey
-	 *              Similarly.
+	 *   prevKey
+	 *           Similarly.
 	 *
-	 *      nextThread
-	 *              The pthread_key_t->threads attribute is the head of
-	 *              a chain of associations that runs through the
-	 *              nextThreads link. This chain provides the 1 to many
-	 *              relationship between a pthread_key_t and all the
-	 *              PThreads that have called pthread_setspecific for
-	 *              this pthread_key_t.
+	 *   nextThread
+	 *           The pthread_key_t->threads attribute is the head of
+	 *           a chain of associations that runs through the
+	 *           nextThreads link. This chain provides the 1 to many
+	 *           relationship between a pthread_key_t and all the
+	 *           PThreads that have called pthread_setspecific for
+	 *           this pthread_key_t.
 	 *
-	 *      prevThread
-	 *              Similarly.
+	 *   prevThread
+	 *           Similarly.
 	 *
 	 * Notes:
-	 *      1)      As soon as either the key or the thread is no longer
-	 *              referencing the association, it can be destroyed. The
-	 *              association will be removed from both chains.
+	 *   1)      As soon as either the key or the thread is no longer
+	 *           referencing the association, it can be destroyed. The
+	 *           association will be removed from both chains.
 	 *
-	 *      2)      Under WIN32, an association is only created by
-	 *              pthread_setspecific if the user provided a
-	 *              destroyRoutine when they created the key.
+	 *   2)      Under WIN32, an association is only created by
+	 *           pthread_setspecific if the user provided a
+	 *           destroyRoutine when they created the key.
 	 *
 	 *
 	 */
@@ -503,9 +503,9 @@ struct ThreadKeyAssoc {
 /*
  * --------------------------------------------------------------
  * MAKE_SOFTWARE_EXCEPTION
- *      This macro constructs a software exception code following
- *      the same format as the standard Win32 error codes as defined
- *      in WINERROR.H
+ *   This macro constructs a software exception code following
+ *   the same format as the standard Win32 error codes as defined
+ *   in WINERROR.H
  *  Values are 32 bit values laid out as follows:
  *
  *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0

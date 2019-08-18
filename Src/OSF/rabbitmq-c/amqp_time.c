@@ -35,22 +35,17 @@
 	#define WIN32_LEAN_AND_MEAN
 #endif
 
-uint64_t amqp_get_monotonic_timestamp(void) 
+uint64 amqp_get_monotonic_timestamp() 
 {
-	static double NS_PER_COUNT = 0;
+	static double NS_PER_COUNT = 0.0;
 	LARGE_INTEGER perf_count;
-	if(0 == NS_PER_COUNT) {
+	if(NS_PER_COUNT == 0.0) {
 		LARGE_INTEGER perf_frequency;
-		if(!QueryPerformanceFrequency(&perf_frequency)) {
+		if(!QueryPerformanceFrequency(&perf_frequency))
 			return 0;
-		}
 		NS_PER_COUNT = (double)AMQP_NS_PER_S / perf_frequency.QuadPart;
 	}
-
-	if(!QueryPerformanceCounter(&perf_count)) {
-		return 0;
-	}
-	return (uint64_t)(perf_count.QuadPart * NS_PER_COUNT);
+	return QueryPerformanceCounter(&perf_count) ? static_cast<uint64>(perf_count.QuadPart * NS_PER_COUNT) : 0;
 }
 
 #endif /* AMQP_WIN_TIMER_API */
@@ -58,18 +53,18 @@ uint64_t amqp_get_monotonic_timestamp(void)
 #ifdef AMQP_MAC_TIMER_API
 #include <mach/mach_time.h>
 
-uint64_t amqp_get_monotonic_timestamp(void) 
+uint64 amqp_get_monotonic_timestamp() 
 {
 	static mach_timebase_info_data_t s_timebase = {0, 0};
-	uint64_t timestamp = mach_absolute_time();
+	uint64 timestamp = mach_absolute_time();
 	if(s_timebase.denom == 0) {
 		mach_timebase_info(&s_timebase);
 		if(0 == s_timebase.denom) {
 			return 0;
 		}
 	}
-	timestamp *= (uint64_t)s_timebase.numer;
-	timestamp /= (uint64_t)s_timebase.denom;
+	timestamp *= (uint64)s_timebase.numer;
+	timestamp /= (uint64)s_timebase.denom;
 	return timestamp;
 }
 
@@ -78,16 +73,16 @@ uint64_t amqp_get_monotonic_timestamp(void)
 #ifdef AMQP_POSIX_TIMER_API
 #include <time.h>
 
-uint64_t amqp_get_monotonic_timestamp(void) {
+uint64 amqp_get_monotonic_timestamp() 
+{
 #ifdef __hpux
-	return (uint64_t)gethrtime();
+	return (uint64)gethrtime();
 #else
 	struct timespec tp;
 	if(-1 == clock_gettime(CLOCK_MONOTONIC, &tp)) {
 		return 0;
 	}
-
-	return ((uint64_t)tp.tv_sec * AMQP_NS_PER_S + (uint64_t)tp.tv_nsec);
+	return ((uint64)tp.tv_sec * AMQP_NS_PER_S + (uint64)tp.tv_nsec);
 #endif
 }
 
@@ -95,42 +90,35 @@ uint64_t amqp_get_monotonic_timestamp(void) {
 
 int amqp_time_from_now(amqp_time_t * time, struct timeval * timeout) 
 {
-	uint64_t now_ns;
-	uint64_t delta_ns;
-	assert(NULL != time);
-	if(NULL == timeout) {
+	assert(time);
+	if(!timeout) {
 		*time = amqp_time_infinite();
 		return AMQP_STATUS_OK;
 	}
-	if(0 == timeout->tv_sec && 0 == timeout->tv_usec) {
+	else if(!timeout->tv_sec && !timeout->tv_usec) {
 		*time = amqp_time_immediate();
 		return AMQP_STATUS_OK;
 	}
-	if(timeout->tv_sec < 0 || timeout->tv_usec < 0) {
+	else if(timeout->tv_sec < 0 || timeout->tv_usec < 0) {
 		return AMQP_STATUS_INVALID_PARAMETER;
 	}
-
-	delta_ns = (uint64_t)timeout->tv_sec * AMQP_NS_PER_S +
-	    (uint64_t)timeout->tv_usec * AMQP_NS_PER_US;
-
-	now_ns = amqp_get_monotonic_timestamp();
-	if(0 == now_ns) {
-		return AMQP_STATUS_TIMER_FAILURE;
+	else {
+		uint64 delta_ns = (uint64)timeout->tv_sec * AMQP_NS_PER_S + (uint64)timeout->tv_usec * AMQP_NS_PER_US;
+		uint64 now_ns = amqp_get_monotonic_timestamp();
+		if(!now_ns)
+			return AMQP_STATUS_TIMER_FAILURE;
+		else {
+			time->time_point_ns = now_ns + delta_ns;
+			return (now_ns > time->time_point_ns || delta_ns > time->time_point_ns) ? AMQP_STATUS_INVALID_PARAMETER : AMQP_STATUS_OK;
+		}
 	}
-
-	time->time_point_ns = now_ns + delta_ns;
-	if(now_ns > time->time_point_ns || delta_ns > time->time_point_ns) {
-		return AMQP_STATUS_INVALID_PARAMETER;
-	}
-
-	return AMQP_STATUS_OK;
 }
 
-int amqp_time_s_from_now(amqp_time_t * time, int seconds) 
+int FASTCALL amqp_time_s_from_now(amqp_time_t * time, int seconds) 
 {
-	uint64_t now_ns;
-	uint64_t delta_ns;
-	assert(NULL != time);
+	uint64 now_ns;
+	uint64 delta_ns;
+	assert(time);
 	if(0 >= seconds) {
 		*time = amqp_time_infinite();
 		return AMQP_STATUS_OK;
@@ -139,22 +127,19 @@ int amqp_time_s_from_now(amqp_time_t * time, int seconds)
 	if(0 == now_ns) {
 		return AMQP_STATUS_TIMER_FAILURE;
 	}
-	delta_ns = (uint64_t)seconds * AMQP_NS_PER_S;
+	delta_ns = (uint64)seconds * AMQP_NS_PER_S;
 	time->time_point_ns = now_ns + delta_ns;
-	if(now_ns > time->time_point_ns || delta_ns > time->time_point_ns) {
-		return AMQP_STATUS_INVALID_PARAMETER;
-	}
-	return AMQP_STATUS_OK;
+	return (now_ns > time->time_point_ns || delta_ns > time->time_point_ns) ? AMQP_STATUS_INVALID_PARAMETER : AMQP_STATUS_OK;
 }
 
-amqp_time_t amqp_time_immediate(void) 
+amqp_time_t amqp_time_immediate() 
 {
 	amqp_time_t time;
 	time.time_point_ns = 0;
 	return time;
 }
 
-amqp_time_t amqp_time_infinite(void) 
+amqp_time_t amqp_time_infinite() 
 {
 	amqp_time_t time;
 	time.time_point_ns = UINT64_MAX;
@@ -163,47 +148,43 @@ amqp_time_t amqp_time_infinite(void)
 
 int amqp_time_ms_until(amqp_time_t time) 
 {
-	uint64_t now_ns;
-	uint64_t delta_ns;
-	int left_ms;
-	if(UINT64_MAX == time.time_point_ns) {
+	if(UINT64_MAX == time.time_point_ns)
 		return -1;
-	}
-	if(0 == time.time_point_ns) {
+	else if(!time.time_point_ns)
 		return 0;
+	else {
+		uint64 now_ns = amqp_get_monotonic_timestamp();
+		if(!now_ns)
+			return AMQP_STATUS_TIMER_FAILURE;
+		else if(now_ns >= time.time_point_ns)
+			return 0;
+		else {
+			uint64 delta_ns = time.time_point_ns - now_ns;
+			int left_ms = (int)(delta_ns / AMQP_NS_PER_MS);
+			return left_ms;
+		}
 	}
-	now_ns = amqp_get_monotonic_timestamp();
-	if(0 == now_ns) {
-		return AMQP_STATUS_TIMER_FAILURE;
-	}
-	if(now_ns >= time.time_point_ns) {
-		return 0;
-	}
-	delta_ns = time.time_point_ns - now_ns;
-	left_ms = (int)(delta_ns / AMQP_NS_PER_MS);
-	return left_ms;
 }
 
-int amqp_time_tv_until(amqp_time_t time, struct timeval * in, struct timeval ** out) 
+int FASTCALL amqp_time_tv_until(amqp_time_t time, struct timeval * in, struct timeval ** out) 
 {
-	uint64_t now_ns;
-	uint64_t delta_ns;
+	uint64 now_ns;
+	uint64 delta_ns;
 	assert(in != NULL);
-	if(UINT64_MAX == time.time_point_ns) {
+	if(time.time_point_ns == UINT64_MAX) {
 		*out = NULL;
 		return AMQP_STATUS_OK;
 	}
-	if(0 == time.time_point_ns) {
+	if(!time.time_point_ns) {
 		in->tv_sec = 0;
 		in->tv_usec = 0;
 		*out = in;
 		return AMQP_STATUS_OK;
 	}
 	now_ns = amqp_get_monotonic_timestamp();
-	if(0 == now_ns) {
+	if(!now_ns) {
 		return AMQP_STATUS_TIMER_FAILURE;
 	}
-
 	if(now_ns >= time.time_point_ns) {
 		in->tv_sec = 0;
 		in->tv_usec = 0;
@@ -219,29 +200,18 @@ int amqp_time_tv_until(amqp_time_t time, struct timeval * in, struct timeval ** 
 
 int amqp_time_has_past(amqp_time_t time) 
 {
-	uint64_t now_ns;
-	if(UINT64_MAX == time.time_point_ns) {
+	if(time.time_point_ns == UINT64_MAX)
 		return AMQP_STATUS_OK;
+	else {
+		uint64 now_ns = amqp_get_monotonic_timestamp();
+		if(!now_ns)
+			return AMQP_STATUS_TIMER_FAILURE;
+		else if(now_ns > time.time_point_ns)
+			return AMQP_STATUS_TIMEOUT;
+		else
+			return AMQP_STATUS_OK;
 	}
-	now_ns = amqp_get_monotonic_timestamp();
-	if(0 == now_ns) {
-		return AMQP_STATUS_TIMER_FAILURE;
-	}
-	if(now_ns > time.time_point_ns) {
-		return AMQP_STATUS_TIMEOUT;
-	}
-	return AMQP_STATUS_OK;
 }
 
-amqp_time_t amqp_time_first(amqp_time_t l, amqp_time_t r) 
-{
-	if(l.time_point_ns < r.time_point_ns) {
-		return l;
-	}
-	return r;
-}
-
-int amqp_time_equal(amqp_time_t l, amqp_time_t r) 
-{
-	return l.time_point_ns == r.time_point_ns;
-}
+amqp_time_t amqp_time_first(amqp_time_t l, amqp_time_t r) { return (l.time_point_ns < r.time_point_ns) ? l : r; }
+int amqp_time_equal(amqp_time_t l, amqp_time_t r) { return l.time_point_ns == r.time_point_ns; }

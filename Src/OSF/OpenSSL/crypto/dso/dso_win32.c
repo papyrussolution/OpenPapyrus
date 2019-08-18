@@ -309,7 +309,7 @@ static struct file_st * win32_splitter(DSO * dso, const char * filename,
 	if(!result->filelen)
 		result->file = NULL;
 
-	return (result);
+	return result;
 }
 
 static char * win32_joiner(DSO * dso, const struct file_st * file_split)
@@ -397,7 +397,7 @@ static char * win32_joiner(DSO * dso, const struct file_st * file_split)
 	strncpy(&result[offset], file_split->file, file_split->filelen);
 	offset += file_split->filelen;
 	result[offset] = '\0';
-	return (result);
+	return result;
 }
 
 static char * win32_merger(DSO * dso, const char * filespec1,

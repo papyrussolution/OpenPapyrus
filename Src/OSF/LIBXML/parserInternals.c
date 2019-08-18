@@ -1,6 +1,6 @@
 /*
  * parserInternals.c : Internal routines (and obsolete ones) needed for the
- *                   XML and HTML parsers.
+ *                XML and HTML parsers.
  *
  * See Copyright for the status of this software.
  *
@@ -225,9 +225,9 @@ int FASTCALL xmlParserInputGrow(xmlParserInput * in, int len)
 		return 0;
 	/*
 	 * NOTE : in->base may be a "dangling" i.e. freed pointer in this
-	 *      block, but we use it really as an integer to do some
-	 *      pointer arithmetic. Insure will raise it as a bug but in
-	 *      that specific case, that's not !
+	 *   block, but we use it really as an integer to do some
+	 *   pointer arithmetic. Insure will raise it as a bug but in
+	 *   that specific case, that's not !
 	 */
 	content = xmlBufContent(in->buf->buffer);
 	if(in->base != content) {

@@ -72,7 +72,7 @@ static uint U8TOU32(const uchar * p)
  * implementation is not necessarily optimal choice in every situation,
  * rather contrary...
  *
- *                                            <appro@openssl.org>
+ *                                         <appro@openssl.org>
  */
 
 typedef uint u32;
@@ -93,8 +93,8 @@ typedef uint u32;
  * it's caller(*)'s responsibility to comply.
  *
  * (*)  In the context "caller" is not application code, but higher
- *    level Poly1305_* from this very module, so that quirks are
- *    handled locally.
+ * level Poly1305_* from this very module, so that quirks are
+ * handled locally.
  */
 static void poly1305_blocks(void * ctx, const uchar * inp, size_t len, u32 padbit);
 

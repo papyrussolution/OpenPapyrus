@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,20 +38,20 @@
  *
  * DESCRIPTION
  *
- *       This routine causes a thread to delay execution for a specific period of time.
- *       This period ends at the current time plus the specified interval. The routine
- *       will not return before the end of the period is reached, but may return an
- *       arbitrary amount of time after the period has gone by. This can be due to
- *       system load, thread priorities, and system timer granularity.
+ *    This routine causes a thread to delay execution for a specific period of time.
+ *    This period ends at the current time plus the specified interval. The routine
+ *    will not return before the end of the period is reached, but may return an
+ *    arbitrary amount of time after the period has gone by. This can be due to
+ *    system load, thread priorities, and system timer granularity.
  *
- *       Specifying an interval of zero (0) seconds and zero (0) nanoseconds is
- *       allowed and can be used to force the thread to give up the processor or to
- *       deliver a pending cancellation request.
+ *    Specifying an interval of zero (0) seconds and zero (0) nanoseconds is
+ *    allowed and can be used to force the thread to give up the processor or to
+ *    deliver a pending cancellation request.
  *
- *       The timespec structure contains the following two fields:
+ *    The timespec structure contains the following two fields:
  *
- *            tv_sec is an integer number of seconds.
- *            tv_nsec is an integer number of nanoseconds.
+ *         tv_sec is an integer number of seconds.
+ *         tv_nsec is an integer number of nanoseconds.
  *
  *  Return Values
  *
@@ -59,9 +59,9 @@
  *  the type of error. Possible return values are as follows:
  *
  *  0
- *           Successful completion.
+ *        Successful completion.
  *  [EINVAL]
- *           The value specified by interval is invalid.
+ *        The value specified by interval is invalid.
  *
  * Example
  *
@@ -110,7 +110,7 @@ int pthread_delay_np(struct timespec * interval)
 	if(NULL == (self = pthread_self()).p) {
 		return ENOMEM;
 	}
-	sp = (__ptw32_thread_t*)self.p;
+	sp = (__ptw32_thread_t *)self.p;
 	if(sp->cancelState == PTHREAD_CANCEL_ENABLE) {
 		/*
 		 * Async cancellation won't catch us until wait_time is up.

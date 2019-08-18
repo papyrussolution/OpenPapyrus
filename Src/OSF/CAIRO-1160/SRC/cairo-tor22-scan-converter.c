@@ -530,15 +530,12 @@ static void pool_fini(struct pool * pool)
  * allocation from the current chunk in the pool. */
 static void * _pool_alloc_from_new_chunk(struct pool * pool, size_t size)
 {
-	struct _pool_chunk * chunk;
 	void * obj;
-	size_t capacity;
-
 	/* If the allocation is smaller than the default chunk size then
 	 * try getting a chunk off the free list.  Force alloc of a new
 	 * chunk for large requests. */
-	capacity = size;
-	chunk = NULL;
+	size_t capacity = size;
+	struct _pool_chunk * chunk = NULL;
 	if(size < pool->default_capacity) {
 		capacity = pool->default_capacity;
 		chunk = pool->first_free;
@@ -547,8 +544,7 @@ static void * _pool_alloc_from_new_chunk(struct pool * pool, size_t size)
 			_pool_chunk_init(chunk, pool->current, chunk->capacity);
 		}
 	}
-
-	if(NULL == chunk)
+	if(!chunk)
 		chunk = _pool_chunk_create(pool, capacity);
 	pool->current = chunk;
 	obj = ((uchar *)chunk + sizeof(*chunk) + chunk->size);

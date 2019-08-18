@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,24 +36,24 @@
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function sets the value of the thread specific
- *      key in the calling thread.
+ *   This function sets the value of the thread specific
+ *   key in the calling thread.
  *
  * PARAMETERS
- *      key
- *              an instance of pthread_key_t
- *      value
- *              the value to set key to
+ *   key
+ *           an instance of pthread_key_t
+ *   value
+ *           the value to set key to
  *
  *
  * DESCRIPTION
- *      This function sets the value of the thread specific
- *      key in the calling thread.
+ *   This function sets the value of the thread specific
+ *   key in the calling thread.
  *
  * RESULTS
- *              0               successfully set value
- *              EAGAIN          could not set value
- *              ENOENT          SERIOUS!!
+ *           0               successfully set value
+ *           EAGAIN          could not set value
+ *           ENOENT          SERIOUS!!
  *
  * ------------------------------------------------------
  */
@@ -73,27 +73,23 @@ int pthread_setspecific(pthread_key_t key, const void * value)
 		}
 	}
 	else {
-		/*
-		 * Resolve catch-22 of registering thread with selfThread
-		 * key
-		 */
-		__ptw32_thread_t * sp = (__ptw32_thread_t*)pthread_getspecific(__ptw32_selfThreadKey);
+		// Resolve catch-22 of registering thread with selfThread key
+		__ptw32_thread_t * sp = static_cast<__ptw32_thread_t *>(pthread_getspecific(__ptw32_selfThreadKey));
 		if(sp == NULL) {
 			if(value == NULL) {
 				return ENOENT;
 			}
 			self = *((pthread_t*)value);
 		}
-		else {
+		else
 			self = sp->ptHandle;
-		}
 	}
 	result = 0;
 	if(key != NULL) {
 		if(self.p != NULL && key->destructor != NULL && value != NULL) {
 			__ptw32_mcs_local_node_t keyLock;
 			__ptw32_mcs_local_node_t threadLock;
-			__ptw32_thread_t * sp = (__ptw32_thread_t*)self.p;
+			__ptw32_thread_t * sp = (__ptw32_thread_t *)self.p;
 			/*
 			 * Only require associations if we have to
 			 * call user destroy routine.
@@ -129,10 +125,9 @@ int pthread_setspecific(pthread_key_t key, const void * value)
 			__ptw32_mcs_lock_release(&keyLock);
 		}
 		if(result == 0) {
-			if(!TlsSetValue(key->key, (LPVOID)value)) {
+			if(!TlsSetValue(key->key, (LPVOID)value))
 				result = EAGAIN;
-			}
 		}
 	}
-	return (result);
+	return result;
 }

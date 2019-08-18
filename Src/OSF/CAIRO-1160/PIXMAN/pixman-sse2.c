@@ -479,7 +479,7 @@ static force_inline __m128i combine4(const __m128i * ps, const __m128i * pm)
 	return s;
 }
 
-static force_inline void core_combine_over_u_sse2_mask(uint32_t *       pd,
+static force_inline void core_combine_over_u_sse2_mask(uint32_t *    pd,
     const uint32_t*    ps,
     const uint32_t*    pm,
     int w)
@@ -558,7 +558,7 @@ static force_inline void core_combine_over_u_sse2_mask(uint32_t *       pd,
 	}
 }
 
-static force_inline void core_combine_over_u_sse2_no_mask(uint32_t *    pd,
+static force_inline void core_combine_over_u_sse2_no_mask(uint32_t * pd,
     const uint32_t*    ps,
     int w)
 {

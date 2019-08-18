@@ -7,11 +7,11 @@
  * [ISO-10646]    UTF-8 and UTF-16 in Annexes
  * [ISO-8859-1]   ISO Latin-1 characters codes.
  * [UNICODE]      The Unicode Consortium, "The Unicode Standard --
- *              Worldwide Character Encoding -- Version 1.0", Addison-
- *              Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is
- *              described in Unicode Technical Report #4.
+ *           Worldwide Character Encoding -- Version 1.0", Addison-
+ *           Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is
+ *           described in Unicode Technical Report #4.
  * [US-ASCII]     Coded Character Set--7-bit American Standard Code for
- *              Information Interchange, ANSI X3.4-1986.
+ *           Information Interchange, ANSI X3.4-1986.
  *
  * See Copyright for the status of this software.
  *
@@ -946,7 +946,7 @@ static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen
 /**
  * xmlDetectCharEncoding:
  * @in:  a pointer to the first bytes of the XML entity, must be at least
- *     2 bytes long (at least 4 if encoding is UTF4 variant).
+ *  2 bytes long (at least 4 if encoding is UTF4 variant).
  * @len:  pointer to the length of the buffer
  *
  * Guess the encoding of the entity using the first bytes of the entity content
@@ -1310,7 +1310,7 @@ xmlCharEncodingHandler * xmlNewCharEncodingHandler(const char * name, xmlCharEnc
  * Initialize the char encoding support, it registers the default
  * encoding supported.
  * NOTE: while public, this function usually doesn't need to be called
- *     in normal processing.
+ *  in normal processing.
  */
 void xmlInitCharEncodingHandlers()
 {
@@ -1379,7 +1379,7 @@ xmlCharEncodingHandler * FASTCALL xmlFindCharEncodingHandler(const char * name)
  * Returns 0 if success, or
  *   -1 by lack of space, or
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  *   -3 if there the last byte can't form a single output char.
  *
  * The value of @inlen after return is the number of octets consumed
@@ -1448,7 +1448,7 @@ static int xmlIconvWrapper(iconv_t cd, uchar * out, int * outlen, const uchar * 
  * Returns 0 if success, or
  *   -1 by lack of space, or
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  *   -3 if there the last byte can't form a single output char.
  *
  * The value of @inlen after return is the number of octets consumed
@@ -1511,7 +1511,7 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
  * Returns the number of byte written if success, or
  *   -1 general error
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in, int len)
 {
@@ -1591,7 +1591,7 @@ int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBuffer * out, xm
  * Returns the number of byte written if success, or
  *   -1 general error
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncFirstLine(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
@@ -1611,7 +1611,7 @@ int xmlCharEncFirstLine(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBu
  * Returns the number of byte written if success, or
  *   -1 general error
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncFirstLineInput(xmlParserInputBuffer * input, int len)
 {
@@ -1717,7 +1717,7 @@ int xmlCharEncFirstLineInput(xmlParserInputBuffer * input, int len)
  * Returns the number of byte written if success, or
  *   -1 general error
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncInput(xmlParserInputBuffer * input, int flush)
 {
@@ -1816,7 +1816,7 @@ int xmlCharEncInput(xmlParserInputBuffer * input, int flush)
  * Returns the number of byte written if success, or
  *   -1 general error
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
@@ -1910,7 +1910,7 @@ int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffe
  * Returns the number of byte written if success, or
  *   -1 general error
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  */
 int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init)
 {
@@ -2103,7 +2103,7 @@ retry:
  * Returns the number of byte written if success, or
  *   -1 general error
  *   -2 if the transcoding fails (for *in is not valid utf8 string or
- *      the result of transformation can't fit into the encoding we want), or
+ *   the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncOutFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
@@ -2297,7 +2297,7 @@ int xmlCharEncCloseFunc(xmlCharEncodingHandler * handler)
  * on non-UTF-8 input.
  *
  * Returns the index in bytes from the beginning of the entity or -1
- *       in case the index could not be computed.
+ *    in case the index could not be computed.
  */
 long xmlByteConsumed(xmlParserCtxt * ctxt)
 {

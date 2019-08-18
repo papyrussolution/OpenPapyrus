@@ -970,11 +970,11 @@ int ec_GFp_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
 
 	/*-
 	 * We have a curve defined by a Weierstrass equation
-	 *    y^2 = x^3 + a*x + b.
+	 * y^2 = x^3 + a*x + b.
 	 * The point to consider is given in Jacobian projective coordinates
 	 * where  (X, Y, Z)  represents  (x, y) = (X/Z^2, Y/Z^3).
 	 * Substituting this and multiplying by  Z^6  transforms the above equation into
-	 *    Y^2 = X^3 + a*X*Z^4 + b*Z^6.
+	 * Y^2 = X^3 + a*X*Z^4 + b*Z^6.
 	 * To test this, we add up the right-hand side in 'rh'.
 	 */
 

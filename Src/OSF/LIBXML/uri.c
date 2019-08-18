@@ -42,16 +42,16 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
 
 /*
  * lowalpha = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" |
- *          "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" |
- *          "u" | "v" | "w" | "x" | "y" | "z"
+ *       "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" |
+ *       "u" | "v" | "w" | "x" | "y" | "z"
  */
 
 #define IS_LOWALPHA(x) (((x) >= 'a') && ((x) <= 'z'))
 
 /*
  * upalpha = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" |
- *         "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" |
- *         "U" | "V" | "W" | "X" | "Y" | "Z"
+ *      "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" |
+ *      "U" | "V" | "W" | "X" | "Y" | "Z"
  */
 #define IS_UPALPHA(x) (((x) >= 'A') && ((x) <= 'Z'))
 #ifdef IS_DIGIT
@@ -75,7 +75,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
 #define IS_UNWISE(p) (((*(p) == '{')) || ((*(p) == '}')) || ((*(p) == '|')) || ((*(p) == '\\')) || ((*(p) == '^')) || ((*(p) == '[')) || ((*(p) == ']')) || ((*(p) == '`')))
 /*
  * reserved = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | "," |
- *          "[" | "]"
+ *       "[" | "]"
  */
 #define IS_RESERVED(x) (((x) == ';') || ((x) == '/') || ((x) == '?') ||	\
 	((x) == ':') || ((x) == '@') || ((x) == '&') || ((x) == '=') || ((x) == '+') || ((x) == '$') || ((x) == ',') || ((x) == '[') || ((x) == ']'))
@@ -92,7 +92,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  *
  *  authority     = server | reg_name
  *  reg_name      = 1*( unreserved | escaped | "$" | "," |
- *                      ";" | ":" | "@" | "&" | "=" | "+" )
+ *                   ";" | ":" | "@" | "&" | "=" | "+" )
  *
  * path          = [ abs_path | opaque_part ]
  */
@@ -105,7 +105,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
 #define ISA_HEXDIG(p) (ISA_DIGIT(p) || ((*(p) >= 'a') && (*(p) <= 'f')) || ((*(p) >= 'A') && (*(p) <= 'F')))
 /*
  *  sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
- *                   / "*" / "+" / "," / ";" / "="
+ *                / "*" / "+" / "," / ";" / "="
  */
 #define ISA_SUB_DELIM(p)						\
 	(((*(p) == '!')) || ((*(p) == '$')) || ((*(p) == '&')) ||	  \
@@ -176,9 +176,9 @@ static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
  *
  * fragment      = *( pchar / "/" / "?" )
  * NOTE: the strict syntax as defined by 3986 does not allow '[' and ']'
- *     in the fragment identifier but this is used very broadly for
- *     xpointer scheme selection, so we are allowing it here to not break
- *     for example all the DocBook processing chains.
+ *  in the fragment identifier but this is used very broadly for
+ *  xpointer scheme selection, so we are allowing it here to not break
+ *  for example all the DocBook processing chains.
  *
  * Returns 0 or the error code
  */
@@ -294,10 +294,10 @@ static int xmlParse3986Userinfo(xmlURIPtr uri, const char ** str)
  * @str:  the string to analyze
  *
  *  dec-octet     = DIGIT                 ; 0-9
- *                / %x31-39 DIGIT         ; 10-99
- *                / "1" 2DIGIT            ; 100-199
- *                / "2" %x30-34 DIGIT     ; 200-249
- *                / "25" %x30-35          ; 250-255
+ *             / %x31-39 DIGIT         ; 10-99
+ *             / "1" 2DIGIT            ; 100-199
+ *             / "2" %x30-34 DIGIT     ; 200-249
+ *             / "25" %x30-35          ; 250-255
  *
  * Skip a dec-octet.
  *
@@ -444,7 +444,7 @@ static int xmlParse3986Authority(xmlURIPtr uri, const char ** str)
  * segment       = *pchar
  * segment-nz    = 1*pchar
  * segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
- *             ; non-zero-length segment without any colon ":"
+ *          ; non-zero-length segment without any colon ":"
  *
  * Returns 0 or the error code
  */
@@ -619,9 +619,9 @@ static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
  * of the @uri structure
  *
  * hier-part     = "//" authority path-abempty
- *              / path-absolute
- *              / path-rootless
- *              / path-empty
+ *           / path-absolute
+ *           / path-rootless
+ *           / path-empty
  *
  * Returns 0 or the error code
  */
@@ -668,9 +668,9 @@ static int xmlParse3986HierPart(xmlURIPtr uri, const char ** str)
  *
  * relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
  * relative-part = "//" authority path-abempty
- *             / path-absolute
- *             / path-noscheme
- *             / path-empty
+ *          / path-absolute
+ *          / path-noscheme
+ *          / path-empty
  *
  * Returns 0 or the error code
  */
@@ -1872,7 +1872,7 @@ done:
  * Expresses the URI of the reference in terms relative to the
  * base.  Some examples of this operation include:
  *   base = "http://site1.com/docs/book1.html"
- *      URI input                        URI returned
+ *   URI input                        URI returned
  *   docs/pic1.gif                    pic1.gif
  *   docs/img/pic1.gif                img/pic1.gif
  *   img/pic1.gif                     ../img/pic1.gif
@@ -1880,7 +1880,7 @@ done:
  *   http://site2.com/docs/pic1.gif   http://site2.com/docs/pic1.gif
  *
  *   base = "docs/book1.html"
- *      URI input                        URI returned
+ *   URI input                        URI returned
  *   docs/pic1.gif                    pic1.gif
  *   docs/img/pic1.gif                img/pic1.gif
  *   img/pic1.gif                     ../img/pic1.gif
@@ -1888,10 +1888,10 @@ done:
  *
  *
  * Note: if the URI reference is really wierd or complicated, it may be
- *     worthwhile to first convert it into a "nice" one by calling
- *     xmlBuildURI (using 'base') before calling this routine,
- *     since this routine (for reasonable efficiency) assumes URI has
- *     already been through some validation.
+ *  worthwhile to first convert it into a "nice" one by calling
+ *  xmlBuildURI (using 'base') before calling this routine,
+ *  since this routine (for reasonable efficiency) assumes URI has
+ *  already been through some validation.
  *
  * Returns a new URI string (to be freed by the caller) or NULL in case
  * error.

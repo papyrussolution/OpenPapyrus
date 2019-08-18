@@ -738,7 +738,7 @@ xmlNode * xmlXPtrAdvanceNode(xmlNode * cur, int * level); /* in xpointer.c */
  * Build a node list tree copy of the XPointer result.
  *
  * Returns an xmlNode * list or NULL.
- *       The caller has to free the node tree.
+ *    The caller has to free the node tree.
  */
 static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlXPathObjectPtr range)
 {
@@ -962,7 +962,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, 
  * This will drop Attributes and Namespace declarations.
  *
  * Returns an xmlNode * list or NULL.
- *       the caller has to free the node tree.
+ *    the caller has to free the node tree.
  */
 static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlXPathObject * obj) 
 {
@@ -1606,9 +1606,9 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	if(encoding) {
 		/*
 		 * @todo we should not have to remap to the xmlCharEncoding
-		 *     predefined set, a better interface than
-		 *     xmlParserInputBufferCreateFilename should allow any
-		 *     encoding supported by iconv
+		 *  predefined set, a better interface than
+		 *  xmlParserInputBufferCreateFilename should allow any
+		 *  encoding supported by iconv
 		 */
 		enc = xmlParseCharEncoding(reinterpret_cast<const char *>(encoding));
 		if(enc == XML_CHAR_ENCODING_ERROR) {
@@ -2116,7 +2116,7 @@ int xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags)
  * @tree: an XML node
  * @flags: a set of xmlParserOption used for parsing XML includes
  * @data: application data that will be passed to the parser context
- *      in the _private field of the parser context(s)
+ *   in the _private field of the parser context(s)
  *
  * Implement the XInclude substitution on the XML node @tree
  *
@@ -2149,7 +2149,7 @@ int xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data)
  * @doc: an XML document
  * @flags: a set of xmlParserOption used for parsing XML includes
  * @data: application data that will be passed to the parser context
- *      in the _private field of the parser context(s)
+ *   in the _private field of the parser context(s)
  *
  * Implement the XInclude substitution on the XML document @doc
  *

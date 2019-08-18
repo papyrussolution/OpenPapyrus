@@ -8,10 +8,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -87,7 +87,7 @@ enum encryption {
 #define TRAD_HEADER_SIZE        12
 /*
  * See "WinZip - AES Encryption Information"
- *     http://www.winzip.com/aes_info.htm
+ *  http://www.winzip.com/aes_info.htm
  */
 /* Value used in compression method. */
 #define WINZIP_AES_ENCRYPTION   99
@@ -674,9 +674,9 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		 * mailing list):
 		 *  = Zip64 is being forced by user
 		 *  = File is over 4GiB uncompressed
-		 *    (including encryption header, if any)
+		 * (including encryption header, if any)
 		 *  = File is close to 4GiB and is being compressed
-		 *    (compression might make file larger)
+		 * (compression might make file larger)
 		 */
 		if((zip->flags & ZIP_FLAG_FORCE_ZIP64)
 		    || (zip->entry_uncompressed_size + additional_size > ZIP_4GB_MAX)

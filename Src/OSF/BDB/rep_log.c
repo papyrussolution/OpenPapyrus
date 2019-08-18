@@ -13,7 +13,7 @@ static int __rep_chk_newfile(ENV*, DB_LOGC*, REP*, __rep_control_args*, int);
 static int __rep_log_split(ENV*, DB_THREAD_INFO*, __rep_control_args*, DBT*, DB_LSN*, DB_LSN *);
 /*
  * __rep_allreq --
- *    Handle a REP_ALL_REQ message.
+ * Handle a REP_ALL_REQ message.
  *
  * PUBLIC: int __rep_allreq __P((ENV *, __rep_control_args *, int));
  */
@@ -198,7 +198,7 @@ err:
 }
 /*
  * __rep_log --
- *    Handle a REP_LOG/REP_LOG_MORE message.
+ * Handle a REP_LOG/REP_LOG_MORE message.
  *
  * PUBLIC: int __rep_log __P((ENV *, DB_THREAD_INFO *,
  * PUBLIC:     __rep_control_args *, DBT *, int, __time64_t, DB_LSN *));
@@ -301,7 +301,7 @@ out:
 }
 /*
  * __rep_bulk_log --
- *    Handle a REP_BULK_LOG message.
+ * Handle a REP_BULK_LOG message.
  *
  * PUBLIC: int __rep_bulk_log __P((ENV *, DB_THREAD_INFO *,
  * PUBLIC:     __rep_control_args *, DBT *, __time64_t, DB_LSN *));
@@ -450,7 +450,7 @@ out:
 }
 /*
  * __rep_log_req --
- *    Handle a REP_LOG_REQ message.
+ * Handle a REP_LOG_REQ message.
  *
  * PUBLIC: int __rep_logreq __P((ENV *, __rep_control_args *, DBT *, int));
  */

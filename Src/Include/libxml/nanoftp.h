@@ -1,7 +1,7 @@
 /*
  * Summary: minimal FTP implementation
  * Description: minimal FTP implementation allowing to fetch resources
- *            like external subset.
+ *         like external subset.
  *
  * Copy: See Copyright for the status of this software.
  *

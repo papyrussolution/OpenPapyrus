@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,12 +33,10 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      Sets the CPU affinity mask of the process whose ID is pid
+ *   Sets the CPU affinity mask of the process whose ID is pid
  *	     to the value specified by mask.  If pid is zero, then the
  *	     calling process is used.  The argument cpusetsize is the
  *	     length (in bytes) of the data pointed to by mask.  Normally
@@ -49,18 +47,18 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
  *	     migrated to one of the CPUs specified in mask.
  *
  * PARAMETERS
- *      pid
- *                              Process ID
+ *   pid
+ *                           Process ID
  *
- *      cpusetsize
- *                              Currently ignored in pthreads4w.
- *                              Usually set to sizeof(cpu_set_t)
+ *   cpusetsize
+ *                           Currently ignored in pthreads4w.
+ *                           Usually set to sizeof(cpu_set_t)
  *
- *      mask
- *                              Pointer to the CPU mask to set (cpu_set_t).
+ *   mask
+ *                           Pointer to the CPU mask to set (cpu_set_t).
  *
  * DESCRIPTION
- *      Sets the CPU affinity mask of the process whose ID is pid
+ *   Sets the CPU affinity mask of the process whose ID is pid
  *	     to the value specified by mask.  If pid is zero, then the
  *	     calling process is used.  The argument cpusetsize is the
  *	     length (in bytes) of the data pointed to by mask.  Normally
@@ -71,20 +69,21 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
  *	     migrated to one of the CPUs specified in mask.
  *
  * RESULTS
- *              0               successfully created semaphore,
- *              EFAULT          'mask' is a NULL pointer.
- *              EINVAL          '*mask' contains no CPUs in the set
- *                              of available CPUs.
- *              EAGAIN          The system available CPUs could not
- *                              be obtained.
- *              EPERM           The process referred to by 'pid' is
- *                              not modifiable by us.
- *              ESRCH           The process referred to by 'pid' was
- *                              not found.
- *              ENOSYS			 Function not supported.
+ *           0               successfully created semaphore,
+ *           EFAULT          'mask' is a NULL pointer.
+ *           EINVAL          '*mask' contains no CPUs in the set
+ *                           of available CPUs.
+ *           EAGAIN          The system available CPUs could not
+ *                           be obtained.
+ *           EPERM           The process referred to by 'pid' is
+ *                           not modifiable by us.
+ *           ESRCH           The process referred to by 'pid' was
+ *                           not found.
+ *           ENOSYS			 Function not supported.
  *
  * ------------------------------------------------------
  */
+int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 {
 #if !defined(NEED_PROCESS_AFFINITY_MASK)
 
@@ -93,18 +92,15 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 	HANDLE h;
 	int targetPid = (int)(size_t)pid;
 	int result = 0;
-
-	if(NULL == set) {
+	if(!set) {
 		result = EFAULT;
 	}
 	else {
 		if(0 == targetPid) {
 			targetPid = (int)GetCurrentProcessId();
 		}
-
 		h = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,  __PTW32_FALSE, (DWORD)targetPid);
-
-		if(NULL == h) {
+		if(!h) {
 			result = (((0xFF & ERROR_ACCESS_DENIED) == GetLastError()) ? EPERM : ESRCH);
 		}
 		else {
@@ -113,20 +109,12 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 				 * Result is the intersection of available CPUs and the mask.
 				 */
 				DWORD_PTR newMask = vSystemMask & ((_sched_cpu_set_vector_*)set)->_cpuset;
-
 				if(newMask) {
 					if(SetProcessAffinityMask(h, newMask) == 0) {
-						switch(GetLastError())
-						{
-							case (0xFF & ERROR_ACCESS_DENIED):
-							    result = EPERM;
-							    break;
-							case (0xFF & ERROR_INVALID_PARAMETER):
-							    result = EINVAL;
-							    break;
-							default:
-							    result = EAGAIN;
-							    break;
+						switch(GetLastError()) {
+							case (0xFF & ERROR_ACCESS_DENIED): result = EPERM; break;
+							case (0xFF & ERROR_INVALID_PARAMETER): result = EINVAL; break;
+							default: result = EAGAIN; break;
 						}
 					}
 				}
@@ -159,67 +147,62 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 
 #endif
 }
-
-int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      Gets the CPU affinity mask of the process whose ID is pid
+ *   Gets the CPU affinity mask of the process whose ID is pid
  *	     to the value specified by mask.  If pid is zero, then the
  *	     calling process is used.  The argument cpusetsize is the
  *	     length (in bytes) of the data pointed to by mask.  Normally
  *	     this argument would be specified as sizeof(cpu_set_t).
  *
  * PARAMETERS
- *      pid
- *                              Process ID
+ *   pid
+ *                           Process ID
  *
- *      cpusetsize
- *                              Currently ignored in pthreads4w.
- *                              Usually set to sizeof(cpu_set_t)
+ *   cpusetsize
+ *                           Currently ignored in pthreads4w.
+ *                           Usually set to sizeof(cpu_set_t)
  *
- *      mask
- *                              Pointer to the CPU mask to set (cpu_set_t).
+ *   mask
+ *                           Pointer to the CPU mask to set (cpu_set_t).
  *
  * DESCRIPTION
- *      Sets the CPU affinity mask of the process whose ID is pid
+ *   Sets the CPU affinity mask of the process whose ID is pid
  *	     to the value specified by mask.  If pid is zero, then the
  *	     calling process is used.  The argument cpusetsize is the
  *	     length (in bytes) of the data pointed to by mask.  Normally
  *	     this argument would be specified as sizeof(cpu_set_t).
  *
  * RESULTS
- *              0               successfully created semaphore,
- *              EFAULT          'mask' is a NULL pointer.
- *              EAGAIN          The system available CPUs could not
- *                              be obtained.
- *              EPERM           The process referred to by 'pid' is
- *                              not modifiable by us.
- *              ESRCH           The process referred to by 'pid' was
- *                              not found.
+ *           0               successfully created semaphore,
+ *           EFAULT          'mask' is a NULL pointer.
+ *           EAGAIN          The system available CPUs could not
+ *                           be obtained.
+ *           EPERM           The process referred to by 'pid' is
+ *                           not modifiable by us.
+ *           ESRCH           The process referred to by 'pid' was
+ *                           not found.
  *
  * ------------------------------------------------------
  */
+int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 {
 	DWORD_PTR vProcessMask;
 	DWORD_PTR vSystemMask;
 	HANDLE h;
 	int targetPid = (int)(size_t)pid;
 	int result = 0;
-
-	if(NULL == set) {
+	if(!set) {
 		result = EFAULT;
 	}
 	else {
 #if !defined(NEED_PROCESS_AFFINITY_MASK)
-
 		if(0 == targetPid) {
 			targetPid = (int)GetCurrentProcessId();
 		}
-
 		h = OpenProcess(PROCESS_QUERY_INFORMATION,  __PTW32_FALSE, (DWORD)targetPid);
-
-		if(NULL == h) {
+		if(!h) {
 			result = (((0xFF & ERROR_ACCESS_DENIED) == GetLastError()) ? EPERM : ESRCH);
 		}
 		else {
@@ -231,7 +214,6 @@ int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 			}
 		}
 		CloseHandle(h);
-
 #else
 		((_sched_cpu_set_vector_*)set)->_cpuset = (size_t)0x1;
 #endif

@@ -343,7 +343,7 @@ XMLPUBVAR double xmlXPathNINF;
  * Implements a functionality similar to the DOM NodeList.item().
  *
  * Returns the xmlNodePtr at the given @index in @ns or NULL if
- *       @index is out of range (0 to length-1)
+ *    @index is out of range (0 to length-1)
  */
 #define xmlXPathNodeSetItem(ns, index) ((((ns) != NULL) && ((index) >= 0) && ((index) < (ns)->nodeNr)) ? (ns)->PP_NodeTab[(index)] : NULL)
 /**

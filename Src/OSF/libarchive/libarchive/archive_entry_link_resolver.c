@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -48,13 +48,13 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_link_resolver.c 201100 200
  * match up links.  These strategies match those used by various
  * archiving formats:
  *   tar - content stored with first link, remainder refer back to it.
- *       This requires us to match each subsequent link up with the
- *       first appearance.
+ *    This requires us to match each subsequent link up with the
+ *    first appearance.
  *   cpio - Old cpio just stored body with each link, match-ups were
- *       implicit.  This is trivial.
+ *    implicit.  This is trivial.
  *   new cpio - New cpio only stores body with last link, match-ups
- *       are implicit.  This is actually quite tricky; see the notes
- *       below.
+ *    are implicit.  This is actually quite tricky; see the notes
+ *    below.
  */
 
 /* Users pass us a format code, we translate that into a strategy here. */

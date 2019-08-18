@@ -437,22 +437,22 @@ typedef enum { clearedTable = 0, byPtr, byU32, byU16 } tableType_t;
  *
  * - noDict        : There is no preceding content.
  * - withPrefix64k : Table entries up to ctx->dictSize before the current blob
- *                 blob being compressed are valid and refer to the preceding
- *                 content (of length ctx->dictSize), which is available
- *                 contiguously preceding in memory the content currently
- *                 being compressed.
+ *              blob being compressed are valid and refer to the preceding
+ *              content (of length ctx->dictSize), which is available
+ *              contiguously preceding in memory the content currently
+ *              being compressed.
  * - usingExtDict  : Like withPrefix64k, but the preceding content is somewhere
- *                 else in memory, starting at ctx->dictionary with length
- *                 ctx->dictSize.
+ *              else in memory, starting at ctx->dictionary with length
+ *              ctx->dictSize.
  * - usingDictCtx  : Like usingExtDict, but everything concerning the preceding
- *                 content is in a separate context, pointed to by
- *                 ctx->dictCtx. ctx->dictionary, ctx->dictSize, and table
- *                 entries in the current context that refer to positions
- *                 preceding the beginning of the current compression are
- *                 ignored. Instead, ctx->dictCtx->dictionary and ctx->dictCtx
- *                 ->dictSize describe the location and size of the preceding
- *                 content, and matches are found by looking in the ctx
- *                 ->dictCtx->hashTable.
+ *              content is in a separate context, pointed to by
+ *              ctx->dictCtx. ctx->dictionary, ctx->dictSize, and table
+ *              entries in the current context that refer to positions
+ *              preceding the beginning of the current compression are
+ *              ignored. Instead, ctx->dictCtx->dictionary and ctx->dictCtx
+ *              ->dictSize describe the location and size of the preceding
+ *              content, and matches are found by looking in the ctx
+ *              ->dictCtx->hashTable.
  */
 typedef enum { noDict = 0, withPrefix64k, usingExtDict, usingDictCtx } dict_directive;
 typedef enum { noDictIssue = 0, dictSmall } dictIssue_directive;
@@ -1688,7 +1688,7 @@ int LZ4_setStreamDecode(LZ4_streamDecode_t* LZ4_streamDecode, const char* dictio
  *  When not enough space remains for next block (remainingSize < maxBlockSize),
  *  decoding resumes from beginning of ring buffer.
  * @return : minimum ring buffer size,
- *         or 0 if there is an error (invalid maxBlockSize).
+ *      or 0 if there is an error (invalid maxBlockSize).
  */
 int LZ4_decoderRingBufferSize(int maxBlockSize)
 {

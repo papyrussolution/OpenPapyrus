@@ -720,14 +720,14 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
  *  weight_top          - weight of the top row for interpolation
  *  weight_bottom       - weight of the bottom row for interpolation
  *  vx                  - initial position for fetching the first pair of
- *    pixels from the source buffer
+ * pixels from the source buffer
  *  unit_x              - position increment needed to move to the next pair
- *    of pixels
+ * of pixels
  *  max_vx              - image size as a fixed point value, can be used for
- *    implementing NORMAL repeat (when it is supported)
+ * implementing NORMAL repeat (when it is supported)
  *  zero_src            - boolean hint variable, which is set to TRUE when
- *    all source pixels are fetched from zero padding
- *    zone for NONE repeat
+ * all source pixels are fetched from zero padding
+ * zone for NONE repeat
  *
  * Note: normally the sum of 'weight_top' and 'weight_bottom' is equal to
  *  BILINEAR_INTERPOLATION_RANGE, but sometimes it may be less than that

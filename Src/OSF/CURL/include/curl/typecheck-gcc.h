@@ -1,11 +1,11 @@
 #ifndef __CURL_TYPECHECK_GCC_H
 #define __CURL_TYPECHECK_GCC_H
 /***************************************************************************
- *                                _   _ ____  _
+ *                             _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                           / __| | | | |_) | |
- *                          | (__| |_| |  _ <| |___
- *                           \___|\___/|_| \_\_____|
+ *                        / __| | | | |_) | |
+ *                       | (__| |_| |  _ <| |___
+ *                        \___|\___/|_| \_\_____|
  *
  * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -27,13 +27,13 @@
 /* To add a new kind of warning, add an
  * if(_curl_is_sometype_option(_curl_opt))
  *   if(!_curl_is_sometype(value))
- *     _curl_easy_setopt_err_sometype();
+ *  _curl_easy_setopt_err_sometype();
  * block and define _curl_is_sometype_option, _curl_is_sometype and
  * _curl_easy_setopt_err_sometype below
  *
  * NOTE: We use two nested 'if' statements here instead of the && operator, in
- *     order to work around gcc bug #32061.  It affects only gcc 4.3.x/4.4.x
- *     when compiling with -Wlogical-op.
+ *  order to work around gcc bug #32061.  It affects only gcc 4.3.x/4.4.x
+ *  when compiling with -Wlogical-op.
  *
  * To add an option that uses the same type as an existing option, you'll just
  * need to extend the appropriate _curl_*_option macro

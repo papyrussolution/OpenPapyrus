@@ -1,6 +1,6 @@
 /**
  * xzlib.c: front end for the transparent suport of lzma compression
- *        at the I/O layer, based on an example file from lzma project
+ *     at the I/O layer, based on an example file from lzma project
  *
  * See Copyright for the status of this software.
  *

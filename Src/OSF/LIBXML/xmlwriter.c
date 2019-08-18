@@ -144,7 +144,7 @@ static void xmlWriterErrMsgInt(xmlTextWriter * ctxt, xmlParserErrors error, cons
  *
  * Create a new xmlNewTextWriter structure using an xmlOutputBufferPtr
  * NOTE: the @out parameter will be deallocated when the writer is closed
- *     (if the call succeed.)
+ *  (if the call succeed.)
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */

@@ -8,8 +8,8 @@
 /*
  * @todo 
  * + double check the semantic, especially
- *      - multiple rules applying in a single pattern/node
- *      - the semantic of libxml2 patterns vs. XSLT production referenced by the spec.
+ *   - multiple rules applying in a single pattern/node
+ *   - the semantic of libxml2 patterns vs. XSLT production referenced by the spec.
  * + export of results in SVRL
  * + full parsing and coverage of the spec, conformance of the input to the spec
  * + divergences between the draft and the ISO proposed standard :-(
@@ -638,7 +638,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDoc * d
  * Pop an include level. The included document is being freed
  *
  * Returns the node immediately following the include or NULL if the
- *       include list was empty.
+ *    include list was empty.
  */
 static xmlNode * xmlSchematronPopInclude(xmlSchematronParserCtxtPtr ctxt)
 {
@@ -883,7 +883,7 @@ done:
  * XML Shema struture which can be used to validate instances.
  *
  * Returns the internal XML Schematron structure built from the resource or
- *       NULL in case of error
+ *    NULL in case of error
  */
 xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 {
@@ -1061,7 +1061,7 @@ static void xmlSchematronReportOutput(xmlSchematronValidCtxtPtr ctxt ATTRIBUTE_U
  * Build the string being reported to the user.
  *
  * Returns a report string or NULL in case of error. The string needs
- *       to be deallocated by teh caller
+ *    to be deallocated by teh caller
  */
 static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNode * test, xmlNode * cur)
 {
@@ -1384,7 +1384,7 @@ static int xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
  * Validate a tree instance against the schematron
  *
  * Returns 0 in case of success, -1 in case of internal error
- *       and an error count otherwise.
+ *    and an error count otherwise.
  */
 int xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDoc * instance)
 {

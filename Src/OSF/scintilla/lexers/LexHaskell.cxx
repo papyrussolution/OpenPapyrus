@@ -14,8 +14,8 @@
  *
  *  TODO:
  *  * A proper lexical folder to fold group declarations, comments, pragmas,
- *    #ifdefs, explicit layout, lists, tuples, quasi-quotes, splces, etc, etc,
- *    etc.
+ * #ifdefs, explicit layout, lists, tuples, quasi-quotes, splces, etc, etc,
+ * etc.
  *
  *****************************************************************/
 #include <Platform.h>

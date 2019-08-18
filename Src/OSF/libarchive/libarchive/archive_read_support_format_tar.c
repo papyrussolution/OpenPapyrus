@@ -8,10 +8,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -254,19 +254,19 @@ static int archive_read_format_tar_cleanup(struct archive_read * a)
  * This has to be pretty lenient in order to accommodate the enormous
  * variety of tar writers in the world:
  *  = POSIX (IEEE Std 1003.1-1988) ustar requires octal values with leading
- *    zeros and allows fields to be terminated with space or null characters
+ * zeros and allows fields to be terminated with space or null characters
  *  = Many writers use different termination (in particular, libarchive
- *    omits terminator bytes to squeeze one or two more digits)
+ * omits terminator bytes to squeeze one or two more digits)
  *  = Many writers pad with space and omit leading zeros
  *  = GNU tar and star write base-256 values if numbers are too
- *    big to be represented in octal
+ * big to be represented in octal
  *
  *  Examples of specific tar headers that we should support:
  *  = Perl Archive::Tar terminates uid, gid, devminor and devmajor with two
- *    null bytes, pads size with spaces and other numeric fields with zeroes
+ * null bytes, pads size with spaces and other numeric fields with zeroes
  *  = plexus-archiver prior to 2.6.3 (before switching to commons-compress)
- *    may have uid and gid fields filled with spaces without any octal digits
- *    at all and pads all numeric fields with spaces
+ * may have uid and gid fields filled with spaces without any octal digits
+ * at all and pads all numeric fields with spaces
  *
  * This should tolerate all variants in use.  It will reject a field
  * where the writer just left garbage after a trailing NUL.
@@ -1138,10 +1138,10 @@ static int header_common(struct archive_read * a, struct tar * tar,
 		    /*
 		     * TODO: There are still two cases I'd like to handle:
 		     *   = a ustar non-pax archive with a hardlink entry at
-		     *     end-of-archive.  (Look for block of nulls following?)
+		     *  end-of-archive.  (Look for block of nulls following?)
 		     *   = a pax archive that has not seen any pax headers
-		     *     and has an entry which is a hardlink entry storing
-		     *     a body containing an uncompressed tar archive.
+		     *  and has an entry which is a hardlink entry storing
+		     *  a body containing an uncompressed tar archive.
 		     * The first is worth addressing; I don't see any reliable
 		     * way to deal with the second possibility.
 		     */
@@ -2431,7 +2431,7 @@ static int solaris_sparse_parse(struct archive_read * a, struct tar * tar,
  * There are two workarounds for this:
  *   = pax extended headers, which use variable-length string fields
  *   = GNU tar and STAR both allow either base-8 or base-256 in
- *      most fields.  The high bit is set to indicate base-256.
+ *   most fields.  The high bit is set to indicate base-256.
  *
  * On read, this implementation supports both extensions.
  */
@@ -2624,8 +2624,8 @@ static ssize_t readline(struct archive_read * a, struct tar * tar, const char **
  * base64_decode - Base64 decode
  *
  * This accepts most variations of base-64 encoding, including:
- *    * with or without line breaks
- *    * with or without the final group padded with '=' or '_' characters
+ * * with or without line breaks
+ * * with or without the final group padded with '=' or '_' characters
  * (The most economical Base-64 variant does not pad the last group and
  * omits line breaks; RFC1341 used for MIME requires both.)
  */

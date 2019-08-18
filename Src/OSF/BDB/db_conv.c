@@ -254,7 +254,7 @@ int __db_pgout(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 }
 /*
  * __db_decrypt_pg --
- *    Utility function to decrypt a db page.
+ * Utility function to decrypt a db page.
  *
  * PUBLIC: int __db_decrypt_pg __P((ENV *, DB *, PAGE *));
  */

@@ -95,7 +95,7 @@ end:
  * - divl doesn't only calculate quotient, but also leaves
  * remainder in %edx which we can definitely use here:-)
  *
- *                                 <appro@fy.chalmers.se>
+ *                              <appro@fy.chalmers.se>
  */
 #    undef bn_div_words
 #    define bn_div_words(n0, n1, d0)		    \
@@ -110,7 +110,7 @@ end:
 #   elif defined(__x86_64) && defined(SIXTY_FOUR_BIT_LONG)
 /*
  * Same story here, but it's 128-bit by 64-bit division. Wow!
- *                                 <appro@fy.chalmers.se>
+ *                              <appro@fy.chalmers.se>
  */
 #    undef bn_div_words
 #    define bn_div_words(n0, n1, d0)		    \

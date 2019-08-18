@@ -104,13 +104,13 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 		return __os_strdup(env, file, namep);
 	/*
 	 * DB_APP_NONE:
-	 *    DB_HOME/file
+	 * DB_HOME/file
 	 * DB_APP_DATA:
-	 *    DB_HOME/DB_DATA_DIR/file
+	 * DB_HOME/DB_DATA_DIR/file
 	 * DB_APP_LOG:
-	 *    DB_HOME/DB_LOG_DIR/file
+	 * DB_HOME/DB_LOG_DIR/file
 	 * DB_APP_TMP:
-	 *    DB_HOME/DB_TMP_DIR/<create>
+	 * DB_HOME/DB_TMP_DIR/<create>
 	 */
 	switch(appname) {
 	    case DB_APP_NONE:

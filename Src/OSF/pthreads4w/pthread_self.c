@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,52 +33,46 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-pthread_t pthread_self(void)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function returns a reference to the current running
- *      thread.
+ *   This function returns a reference to the current running
+ *   thread.
  *
  * PARAMETERS
- *      N/A
+ *   N/A
  *
  *
  * DESCRIPTION
- *      This function returns a reference to the current running
- *      thread.
+ *   This function returns a reference to the current running
+ *   thread.
  *
  * RESULTS
- *              pthread_t       reference to the current thread
+ *           pthread_t       reference to the current thread
  *
  * ------------------------------------------------------
  */
+pthread_t pthread_self(void)
 {
 	pthread_t self;
 	pthread_t nil = {NULL, 0};
 	__ptw32_thread_t * sp;
-
 #if defined(_UWIN)
 	if(!__ptw32_selfThreadKey)
 		return nil;
 #endif
-
-	sp = (__ptw32_thread_t*)pthread_getspecific(__ptw32_selfThreadKey);
-
+	sp = (__ptw32_thread_t *)pthread_getspecific(__ptw32_selfThreadKey);
 	if(sp != NULL) {
 		self = sp->ptHandle;
 	}
 	else {
 		int fail =  __PTW32_FALSE;
-
 		/*
 		 * Need to create an implicit 'self' for the currently
 		 * executing thread.
 		 */
 		self = __ptw32_new();
-		sp = (__ptw32_thread_t*)self.p;
-
+		sp = (__ptw32_thread_t *)self.p;
 		if(sp != NULL) {
 			/*
 			 * This is a non-POSIX thread which has chosen to call
@@ -89,7 +83,6 @@ pthread_t pthread_self(void)
 			sp->implicit = 1;
 			sp->detachState = PTHREAD_CREATE_DETACHED;
 			sp->thread = GetCurrentThreadId();
-
 #if defined(NEED_DUPLICATEHANDLE)
 			/*
 			 * DuplicateHandle does not exist on WinCE.
@@ -110,7 +103,6 @@ pthread_t pthread_self(void)
 				fail =  __PTW32_TRUE;
 			}
 #endif
-
 			if(!fail) {
 #if defined(HAVE_CPU_AFFINITY)
 
@@ -131,14 +123,11 @@ pthread_t pthread_self(void)
 					else fail =  __PTW32_TRUE;
 				}
 				else fail =  __PTW32_TRUE;
-
 #endif
-
 				sp->sched_priority = GetThreadPriority(sp->threadH);
 				pthread_setspecific(__ptw32_selfThreadKey, (void*)sp);
 			}
 		}
-
 		if(fail) {
 			/*
 			 * Thread structs are never freed but are reused so if this
@@ -161,6 +150,5 @@ pthread_t pthread_self(void)
 			sp->state = PThreadStateRunning;
 		}
 	}
-
 	return (self);
 }

@@ -181,15 +181,15 @@ static info_cb get_callback(SSL * s)
  * transitions are as follows:
  *
  * MSG_FLOW_UNINITED     MSG_FLOW_RENEGOTIATE
- *      |                       |
- *      +-----------------------+
- *      v
+ *   |                       |
+ *   +-----------------------+
+ *   v
  * MSG_FLOW_WRITING <---> MSG_FLOW_READING
- *      |
- *      V
+ *   |
+ *   V
  * MSG_FLOW_FINISHED
- *      |
- *      V
+ *   |
+ *   V
  *  [SUCCESS]
  *
  * We may exit at any point due to an error or NBIO event. If an NBIO event
@@ -417,12 +417,12 @@ static int grow_init_buf(SSL * s, size_t size)
  * MSG_FLOW_READING. The valid sub-states and transitions are:
  *
  * READ_STATE_HEADER <--+<-------------+
- *      |             |              |
- *      v             |              |
+ *   |             |              |
+ *   v             |              |
  * READ_STATE_BODY -----+-->READ_STATE_POST_PROCESS
- *      |                            |
- *      +----------------------------+
- *      v
+ *   |                            |
+ *   +----------------------------+
+ *   v
  * [SUB_STATE_FINISHED]
  *
  * READ_STATE_HEADER has the responsibility for reading in the message header

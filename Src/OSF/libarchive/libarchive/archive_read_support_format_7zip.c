@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -1663,9 +1663,9 @@ static int read_Folder(struct archive_read * a, struct _7z_folder * f)
 		/*
 		 * 0:3 CodecIdSize
 		 * 4:  0 - IsSimple
-		 *     1 - Is not Simple
+		 *  1 - Is not Simple
 		 * 5:  0 - No Attributes
-		 *     1 - There are Attributes;
+		 *  1 - There are Attributes;
 		 * 7:  Must be zero.
 		 */
 		codec_size = *p & 0xf;
@@ -3109,11 +3109,11 @@ static int setup_decode_folder(struct archive_read * a, struct _7z_folder * fold
 				 * NOTE: Some patterns do not work.
 				 * work:
 				 *  7z a -m0=BCJ2 -m1=COPY -m2=COPY
-				 *       -m3=(any)
+				 *    -m3=(any)
 				 *  7z a -m0=BCJ2 -m1=COPY -m2=(any)
-				 *       -m3=COPY
+				 *    -m3=COPY
 				 *  7z a -m0=BCJ2 -m1=(any) -m2=COPY
-				 *       -m3=COPY
+				 *    -m3=COPY
 				 * not work:
 				 *  other patterns.
 				 *

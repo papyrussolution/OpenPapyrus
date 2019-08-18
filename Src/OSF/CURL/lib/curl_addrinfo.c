@@ -201,25 +201,25 @@ int Curl_getaddrinfo_ex(const char * nodename, const char * servname, const stru
  * Curl_addrinfo defined in "lib/curl_addrinfo.h"
  *
  *   struct Curl_addrinfo {
- *     int                   ai_flags;
- *     int                   ai_family;
- *     int                   ai_socktype;
- *     int                   ai_protocol;
- *     curl_socklen_t        ai_addrlen;   * Follow rfc3493 struct addrinfo *
- *     char                 *ai_canonname;
- *     struct sockaddr      *ai_addr;
- *     struct Curl_addrinfo *ai_next;
+ *  int                   ai_flags;
+ *  int                   ai_family;
+ *  int                   ai_socktype;
+ *  int                   ai_protocol;
+ *  curl_socklen_t        ai_addrlen;   * Follow rfc3493 struct addrinfo *
+ *  char                 *ai_canonname;
+ *  struct sockaddr      *ai_addr;
+ *  struct Curl_addrinfo *ai_next;
  *   };
  *   typedef struct Curl_addrinfo Curl_addrinfo;
  *
  * hostent defined in <netdb.h>
  *
  *   struct hostent {
- *     char    *h_name;
- *     char    **h_aliases;
- *     int     h_addrtype;
- *     int     h_length;
- *     char    **h_addr_list;
+ *  char    *h_name;
+ *  char    **h_aliases;
+ *  int     h_addrtype;
+ *  int     h_length;
+ *  char    **h_addr_list;
  *   };
  *
  * for backward compatibility:

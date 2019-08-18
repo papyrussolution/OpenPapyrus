@@ -236,7 +236,7 @@ void _cairo_stroke_style_dash_approximate(const cairo_stroke_style_t * style, co
 	 * Based on the formula in _cairo_stroke_style_dash_stroked:
 	 * scale * coverage = dashes[0] + cap_scale * MIN (dashes[1], line_width)
 	 * = MIN (dashes[0] + cap_scale * (scale - dashes[0]),
-	 *     dashes[0] + cap_scale * line_width) =
+	 *  dashes[0] + cap_scale * line_width) =
 	 * = MIN (dashes[0] * (1 - cap_scale) + cap_scale * scale,
 	 *	                       dashes[0] + cap_scale * line_width)
 	 *

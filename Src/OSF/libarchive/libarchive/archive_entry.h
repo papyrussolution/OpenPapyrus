@@ -7,10 +7,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -369,7 +369,7 @@ __LA_DECL void archive_entry_copy_mac_metadata(struct archive_entry *, const voi
  *   = clients need control over uname/uid and gname/gid mappings
  *   = there are many different ACL text formats
  *   = would like to be able to read/convert archives containing ACLs
- *     on platforms that lack ACL libraries
+ *  on platforms that lack ACL libraries
  *
  *  This last point, in particular, forces me to implement a reasonably
  *  complete set of ACL support routines.
@@ -552,10 +552,10 @@ __LA_DECL int	archive_entry_sparse_next(struct archive_entry *, la_int64_t * /* 
  *   1. Create a lookup object with archive_entry_linkresolver_new()
  *   2. Tell it the archive format you're using.
  *   3. Hand each archive_entry to archive_entry_linkify().
- *      That function will return 0, 1, or 2 entries that should
- *      be written.
+ *   That function will return 0, 1, or 2 entries that should
+ *   be written.
  *   4. Call archive_entry_linkify(resolver, NULL) until
- *      no more entries are returned.
+ *   no more entries are returned.
  *   5. Call archive_entry_linkresolver_free(resolver) to free resources.
  *
  * The entries returned have their hardlink and size fields updated
@@ -580,38 +580,38 @@ struct archive_entry_linkresolver;
  * formats that rely on each strategy:
  *
  * "Old cpio" is the simplest, it always returns any entry unmodified.
- *    As far as I know, only cpio formats use this.  Old cpio archives
- *    store every link with the full body; the onus is on the dearchiver
- *    to detect and properly link the files as they are restored.
+ * As far as I know, only cpio formats use this.  Old cpio archives
+ * store every link with the full body; the onus is on the dearchiver
+ * to detect and properly link the files as they are restored.
  * "tar" is also pretty simple; it caches a copy the first time it sees
- *    any link.  Subsequent appearances are modified to be hardlink
- *    references to the first one without any body.  Used by all tar
- *    formats, although the newest tar formats permit the "old cpio" strategy
- *    as well.  This strategy is very simple for the dearchiver,
- *    and reasonably straightforward for the archiver.
+ * any link.  Subsequent appearances are modified to be hardlink
+ * references to the first one without any body.  Used by all tar
+ * formats, although the newest tar formats permit the "old cpio" strategy
+ * as well.  This strategy is very simple for the dearchiver,
+ * and reasonably straightforward for the archiver.
  * "new cpio" is trickier.  It stores the body only with the last
- *    occurrence.  The complication is that we might not
- *    see every link to a particular file in a single session, so
- *    there's no easy way to know when we've seen the last occurrence.
- *    The solution here is to queue one link until we see the next.
- *    At the end of the session, you can enumerate any remaining
- *    entries by calling archive_entry_linkify(NULL) and store those
- *    bodies.  If you have a file with three links l1, l2, and l3,
- *    you'll get the following behavior if you see all three links:
- *           linkify(l1) => NULL   (the resolver stores l1 internally)
- *           linkify(l2) => l1     (resolver stores l2, you write l1)
- *           linkify(l3) => l2, l3 (all links seen, you can write both).
- *    If you only see l1 and l2, you'll get this behavior:
- *           linkify(l1) => NULL
- *           linkify(l2) => l1
- *           linkify(NULL) => l2   (at end, you retrieve remaining links)
- *    As the name suggests, this strategy is used by newer cpio variants.
- *    It's noticeably more complex for the archiver, slightly more complex
- *    for the dearchiver than the tar strategy, but makes it straightforward
- *    to restore a file using any link by simply continuing to scan until
- *    you see a link that is stored with a body.  In contrast, the tar
- *    strategy requires you to rescan the archive from the beginning to
- *    correctly extract an arbitrary link.
+ * occurrence.  The complication is that we might not
+ * see every link to a particular file in a single session, so
+ * there's no easy way to know when we've seen the last occurrence.
+ * The solution here is to queue one link until we see the next.
+ * At the end of the session, you can enumerate any remaining
+ * entries by calling archive_entry_linkify(NULL) and store those
+ * bodies.  If you have a file with three links l1, l2, and l3,
+ * you'll get the following behavior if you see all three links:
+ *        linkify(l1) => NULL   (the resolver stores l1 internally)
+ *        linkify(l2) => l1     (resolver stores l2, you write l1)
+ *        linkify(l3) => l2, l3 (all links seen, you can write both).
+ * If you only see l1 and l2, you'll get this behavior:
+ *        linkify(l1) => NULL
+ *        linkify(l2) => l1
+ *        linkify(NULL) => l2   (at end, you retrieve remaining links)
+ * As the name suggests, this strategy is used by newer cpio variants.
+ * It's noticeably more complex for the archiver, slightly more complex
+ * for the dearchiver than the tar strategy, but makes it straightforward
+ * to restore a file using any link by simply continuing to scan until
+ * you see a link that is stored with a body.  In contrast, the tar
+ * strategy requires you to rescan the archive from the beginning to
+ * correctly extract an arbitrary link.
  */
 __LA_DECL struct archive_entry_linkresolver *archive_entry_linkresolver_new(void);
 __LA_DECL void archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver *, int /* format_code */);

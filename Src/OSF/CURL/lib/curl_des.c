@@ -39,7 +39,7 @@
  * Parameters:
  *
  * bytes       [in/out] - The data whose parity bits are to be adjusted for
- *                      odd parity.
+ *                   odd parity.
  * len         [out]    - The length of the data.
  */
 void Curl_des_set_odd_parity(uchar * bytes, size_t len)

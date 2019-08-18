@@ -268,19 +268,19 @@ static bool pickoneauth(struct auth * pick)
  * If we are doing POST or PUT {
  * If we have more data to send {
  *   If we are doing NTLM {
- *     Keep sending since we must not disconnect
+ *  Keep sending since we must not disconnect
  *   }
  *   else {
- *     If there is more than just a little data left to send, close
- *     the current connection by force.
+ *  If there is more than just a little data left to send, close
+ *  the current connection by force.
  *   }
  * }
  * If we have sent any data {
  *   If we don't have track of all the data {
- *     call app to tell it to rewind
+ *  call app to tell it to rewind
  *   }
  *   else {
- *     rewind internally so that the operation can restart fine
+ *  rewind internally so that the operation can restart fine
  *   }
  * }
  * }

@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -40,15 +40,15 @@ struct archive_read_filter;
 /*
  * How bidding works for filters:
  *   * The bid manager initializes the client-provided reader as the
- *     first filter.
+ *  first filter.
  *   * It invokes the bidder for each registered filter with the
- *     current head filter.
+ *  current head filter.
  *   * The bidders can use archive_read_filter_ahead() to peek ahead
- *     at the incoming data to compose their bids.
+ *  at the incoming data to compose their bids.
  *   * The bid manager creates a new filter structure for the winning
- *     bidder and gives the winning bidder a chance to initialize it.
+ *  bidder and gives the winning bidder a chance to initialize it.
  *   * The new filter becomes the new top filter and we repeat the
- *     process.
+ *  process.
  * This ends only when no bidder provides a non-zero bid.  Then
  * we perform a similar dance with the registered format handlers.
  */

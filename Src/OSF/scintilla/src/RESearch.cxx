@@ -7,8 +7,8 @@
  * regex - Regular expression pattern matching and replacement
  *
  * By:  Ozan S. Yigit (oz)
- *    Dept. of Computer Science
- *    York University
+ * Dept. of Computer Science
+ * York University
  *
  * Original code available from http://www.cs.yorku.ca/~oz/
  * Translation to C++ by Neil Hodgson neilh@scintilla.org
@@ -34,124 +34,124 @@
  * Interfaces:
  *  RESearch::Compile:      compile a regular expression into a NFA.
  *
- *        const char *RESearch::Compile(const char *pattern, int length,
- *                                      bool caseSensitive, bool posix)
+ *     const char *RESearch::Compile(const char *pattern, int length,
+ *                                   bool caseSensitive, bool posix)
  *
  * Returns a short error string if they fail.
  *
  *  RESearch::Execute:      execute the NFA to match a pattern.
  *
- *        int RESearch::Execute(characterIndexer &ci, int lp, int endp)
+ *     int RESearch::Execute(characterIndexer &ci, int lp, int endp)
  *
  *  re_fail:                failure routine for RESearch::Execute. (no longer used)
  *
- *        void re_fail(char *msg, char op)
+ *     void re_fail(char *msg, char op)
  *
  * Regular Expressions:
  *
- *    [1]     char    matches itself, unless it is a special
- *                    character (metachar): . \ [ ] * + ? ^ $
- *                    and ( ) if posix option.
+ * [1]     char    matches itself, unless it is a special
+ *                 character (metachar): . \ [ ] * + ? ^ $
+ *                 and ( ) if posix option.
  *
- *    [2]     .       matches any character.
+ * [2]     .       matches any character.
  *
- *    [3]     \       matches the character following it, except:
- *                    - \a, \b, \f, \n, \r, \t, \v match the corresponding C
- *                    escape char, respectively BEL, BS, FF, LF, CR, TAB and VT;
- *                    Note that \r and \n are never matched because Scintilla
- *                    regex searches are made line per line
- *                    (stripped of end-of-line chars).
- *                    - if not in posix mode, when followed by a
- *                    left or right round bracket (see [8]);
- *                    - when followed by a digit 1 to 9 (see [9]);
- *                    - when followed by a left or right angle bracket
- *                    (see [10]);
- *                    - when followed by d, D, s, S, w or W (see [11]);
- *                    - when followed by x and two hexa digits (see [12].
- *                    Backslash is used as an escape character for all
- *                    other meta-characters, and itself.
+ * [3]     \       matches the character following it, except:
+ *                 - \a, \b, \f, \n, \r, \t, \v match the corresponding C
+ *                 escape char, respectively BEL, BS, FF, LF, CR, TAB and VT;
+ *                 Note that \r and \n are never matched because Scintilla
+ *                 regex searches are made line per line
+ *                 (stripped of end-of-line chars).
+ *                 - if not in posix mode, when followed by a
+ *                 left or right round bracket (see [8]);
+ *                 - when followed by a digit 1 to 9 (see [9]);
+ *                 - when followed by a left or right angle bracket
+ *                 (see [10]);
+ *                 - when followed by d, D, s, S, w or W (see [11]);
+ *                 - when followed by x and two hexa digits (see [12].
+ *                 Backslash is used as an escape character for all
+ *                 other meta-characters, and itself.
  *
- *    [4]     [set]   matches one of the characters in the set.
- *                    If the first character in the set is "^",
- *                    it matches the characters NOT in the set, i.e.
- *                    complements the set. A shorthand S-E (start dash end)
- *                    is used to specify a set of characters S up to
- *                    E, inclusive. S and E must be characters, otherwise
- *                    the dash is taken literally (eg. in expression [\d-a]).
- *                    The special characters "]" and "-" have no special
- *                    meaning if they appear as the first chars in the set.
- *                    To include both, put - first: [-]A-Z]
- *                    (or just backslash them).
- *                    examples:        match:
+ * [4]     [set]   matches one of the characters in the set.
+ *                 If the first character in the set is "^",
+ *                 it matches the characters NOT in the set, i.e.
+ *                 complements the set. A shorthand S-E (start dash end)
+ *                 is used to specify a set of characters S up to
+ *                 E, inclusive. S and E must be characters, otherwise
+ *                 the dash is taken literally (eg. in expression [\d-a]).
+ *                 The special characters "]" and "-" have no special
+ *                 meaning if they appear as the first chars in the set.
+ *                 To include both, put - first: [-]A-Z]
+ *                 (or just backslash them).
+ *                 examples:        match:
  *
- *                            [-]|]    matches these 3 chars,
+ *                         [-]|]    matches these 3 chars,
  *
- *                            []-|]    matches from ] to | chars
+ *                         []-|]    matches from ] to | chars
  *
- *                            [a-z]    any lowercase alpha
+ *                         [a-z]    any lowercase alpha
  *
- *                            [^-]]    any char except - and ]
+ *                         [^-]]    any char except - and ]
  *
- *                            [^A-Z]   any char except uppercase
- *                                     alpha
+ *                         [^A-Z]   any char except uppercase
+ *                                  alpha
  *
- *                            [a-zA-Z] any alpha
+ *                         [a-zA-Z] any alpha
  *
- *    [5]     *     any regular expression form [1] to [4]
- *                    (except [8], [9] and [10] forms of [3]),
- *                    followed by closure char (*)
- *                    matches zero or more matches of that form.
+ * [5]     *  any regular expression form [1] to [4]
+ *                 (except [8], [9] and [10] forms of [3]),
+ *                 followed by closure char (*)
+ *                 matches zero or more matches of that form.
  *
- *    [6]     +       same as [5], except it matches one or more.
+ * [6]     +       same as [5], except it matches one or more.
  *
- *    [5-6]           Both [5] and [6] are greedy (they match as much as possible).
- *                    Unless they are followed by the 'lazy' quantifier (?)
- *                    In which case both [5] and [6] try to match as little as possible
+ * [5-6]           Both [5] and [6] are greedy (they match as much as possible).
+ *                 Unless they are followed by the 'lazy' quantifier (?)
+ *                 In which case both [5] and [6] try to match as little as possible
  *
- *    [7]     ?       same as [5] except it matches zero or one.
+ * [7]     ?       same as [5] except it matches zero or one.
  *
- *    [8]             a regular expression in the form [1] to [13], enclosed
- *                    as \(form\) (or (form) with posix flag) matches what
- *                    form matches. The enclosure creates a set of tags,
- *                    used for [9] and for pattern substitution.
- *                    The tagged forms are numbered starting from 1.
+ * [8]             a regular expression in the form [1] to [13], enclosed
+ *                 as \(form\) (or (form) with posix flag) matches what
+ *                 form matches. The enclosure creates a set of tags,
+ *                 used for [9] and for pattern substitution.
+ *                 The tagged forms are numbered starting from 1.
  *
- *    [9]             a \ followed by a digit 1 to 9 matches whatever a
- *                    previously tagged regular expression ([8]) matched.
+ * [9]             a \ followed by a digit 1 to 9 matches whatever a
+ *                 previously tagged regular expression ([8]) matched.
  *
- *    [10]    \<      a regular expression starting with a \< construct
- *            \>      and/or ending with a \> construct, restricts the
- *                    pattern matching to the beginning of a word, and/or
- *                    the end of a word. A word is defined to be a character
- *                    string beginning and/or ending with the characters
- *                    A-Z a-z 0-9 and _. Scintilla extends this definition
- *                    by user setting. The word must also be preceded and/or
- *                    followed by any character outside those mentioned.
+ * [10]    \<      a regular expression starting with a \< construct
+ *         \>      and/or ending with a \> construct, restricts the
+ *                 pattern matching to the beginning of a word, and/or
+ *                 the end of a word. A word is defined to be a character
+ *                 string beginning and/or ending with the characters
+ *                 A-Z a-z 0-9 and _. Scintilla extends this definition
+ *                 by user setting. The word must also be preceded and/or
+ *                 followed by any character outside those mentioned.
  *
- *    [11]    \l      a backslash followed by d, D, s, S, w or W,
- *                    becomes a character class (both inside and
- *                    outside sets []).
- *                      d: decimal digits
- *                      D: any char except decimal digits
- *                      s: whitespace (space, \t \n \r \f \v)
- *                      S: any char except whitespace (see above)
- *                      w: alphanumeric & underscore (changed by user setting)
- *                      W: any char except alphanumeric & underscore (see above)
+ * [11]    \l      a backslash followed by d, D, s, S, w or W,
+ *                 becomes a character class (both inside and
+ *                 outside sets []).
+ *                   d: decimal digits
+ *                   D: any char except decimal digits
+ *                   s: whitespace (space, \t \n \r \f \v)
+ *                   S: any char except whitespace (see above)
+ *                   w: alphanumeric & underscore (changed by user setting)
+ *                   W: any char except alphanumeric & underscore (see above)
  *
- *    [12]    \xHH    a backslash followed by x and two hexa digits,
- *                    becomes the character whose Ascii code is equal
- *                    to these digits. If not followed by two digits,
- *                    it is 'x' char itself.
+ * [12]    \xHH    a backslash followed by x and two hexa digits,
+ *                 becomes the character whose Ascii code is equal
+ *                 to these digits. If not followed by two digits,
+ *                 it is 'x' char itself.
  *
- *    [13]            a composite regular expression xy where x and y
- *                    are in the form [1] to [12] matches the longest
- *                    match of x followed by a match for y.
+ * [13]            a composite regular expression xy where x and y
+ *                 are in the form [1] to [12] matches the longest
+ *                 match of x followed by a match for y.
  *
- *    [14]    ^       a regular expression starting with a ^ character
- *            $       and/or ending with a $ character, restricts the
- *                    pattern matching to the beginning of the line,
- *                    or the end of line. [anchors] Elsewhere in the
- *                    pattern, ^ and $ are treated as ordinary characters.
+ * [14]    ^       a regular expression starting with a ^ character
+ *         $       and/or ending with a $ character, restricts the
+ *                 pattern matching to the beginning of the line,
+ *                 or the end of line. [anchors] Elsewhere in the
+ *                 pattern, ^ and $ are treated as ordinary characters.
  *
  *
  * Acknowledgements:
@@ -162,12 +162,12 @@
  *  the University of Toronto.
  *
  * References:
- *            Software tools                  Kernighan & Plauger
- *            Software tools in Pascal        Kernighan & Plauger
- *            Grep [rsx-11 C dist]            David Conroy
- *            ed - text editor                Un*x Programmer's Manual
- *            Advanced editing on Un*x        B. W. Kernighan
- *            RegExp routines                 Henry Spencer
+ *         Software tools                  Kernighan & Plauger
+ *         Software tools in Pascal        Kernighan & Plauger
+ *         Grep [rsx-11 C dist]            David Conroy
+ *         ed - text editor                Un*x Programmer's Manual
+ *         Advanced editing on Un*x        B. W. Kernighan
+ *         RegExp routines                 Henry Spencer
  *
  * Notes:
  *
@@ -763,16 +763,16 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
  * execute nfa to find a match.
  *
  *  special cases: (nfa[0])
- *    BOL
- *        Match only once, starting from the
- *        beginning.
- *    CHR
- *        First locate the character without
- *        calling PMatch, and if found, call
- *        PMatch for the remaining string.
- *    END
- *        RESearch::Compile failed, poor luser did not
- *        check for it. Fail fast.
+ * BOL
+ *     Match only once, starting from the
+ *     beginning.
+ * CHR
+ *     First locate the character without
+ *     calling PMatch, and if found, call
+ *     PMatch for the remaining string.
+ * END
+ *     RESearch::Compile failed, poor luser did not
+ *     check for it. Fail fast.
  *
  *  If a match is found, bopat[0] and eopat[0] are set
  *  to the beginning and the end of the matched fragment,
@@ -834,21 +834,21 @@ int RESearch::Execute(CharacterIndexer &ci, int lp, int endp)
  *  innovations are by oz.
  *
  *  special case optimizations: (nfa[n], nfa[n+1])
- *    CLO ANY
- *        We KNOW .* will match everything up to the
- *        end of line. Thus, directly go to the end of
- *        line, without recursive PMatch calls. As in
- *        the other closure cases, the remaining pattern
- *        must be matched by moving backwards on the
- *        string recursively, to find a match for xy
- *        (x is ".*" and y is the remaining pattern)
- *        where the match satisfies the LONGEST match for
- *        x followed by a match for y.
- *    CLO CHR
- *        We can again scan the string forward for the
- *        single char and at the point of failure, we
- *        execute the remaining nfa recursively, same as
- *        above.
+ * CLO ANY
+ *     We KNOW .* will match everything up to the
+ *     end of line. Thus, directly go to the end of
+ *     line, without recursive PMatch calls. As in
+ *     the other closure cases, the remaining pattern
+ *     must be matched by moving backwards on the
+ *     string recursively, to find a match for xy
+ *     (x is ".*" and y is the remaining pattern)
+ *     where the match satisfies the LONGEST match for
+ *     x followed by a match for y.
+ * CLO CHR
+ *     We can again scan the string forward for the
+ *     single char and at the point of failure, we
+ *     execute the remaining nfa recursively, same as
+ *     above.
  *
  *  At the end of a successful match, bopat[n] and eopat[n]
  *  are set to the beginning and end of subpatterns matched

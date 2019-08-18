@@ -204,23 +204,23 @@ static htmlParserNodeInfo * htmlNodeInfoPop(htmlParserCtxt * ctxt)
  *
  * CUR_PTR return the current pointer to the xmlChar to be parsed.
  * CUR     returns the current xmlChar value, i.e. a 8 bit value if compiled
- *         in ISO-Latin or UTF-8, and the current 16 bit value if compiled
- *         in UNICODE mode. This should be used internally by the parser
- *         only to compare to ASCII values otherwise it would break when
- *         running with UTF-8 encoding.
+ *      in ISO-Latin or UTF-8, and the current 16 bit value if compiled
+ *      in UNICODE mode. This should be used internally by the parser
+ *      only to compare to ASCII values otherwise it would break when
+ *      running with UTF-8 encoding.
  * NXT(n)  returns the n'th next xmlChar. Same as CUR is should be used only
- *         to compare on ASCII based substring.
+ *      to compare on ASCII based substring.
  * UPP(n)  returns the n'th next xmlChar converted to uppercase. Same as CUR
- *         it should be used only to compare on ASCII based substring.
+ *      it should be used only to compare on ASCII based substring.
  * SKIP(n) Skip n xmlChar, and must also be used only to skip ASCII defined
- *         strings without newlines within the parser.
+ *      strings without newlines within the parser.
  *
  * Clean macros, not dependent of an ASCII context, expect UTF-8 encoding
  *
  * CURRENT Returns the current char value, with the full decoding of
- *         UTF-8 if we are using this mode. It returns an int.
+ *      UTF-8 if we are using this mode. It returns an int.
  * NEXT    Skip to the next character, this does the proper decoding
- *         in UTF-8 mode. It also pop-up unfinished entities on the fly.
+ *      in UTF-8 mode. It also pop-up unfinished entities on the fly.
  * NEXTL(l) Skip the current unicode character of l xmlChars long.
  * COPY(to) copy one char to *to, increment CUR_PTR and to accordingly
  */
@@ -499,11 +499,11 @@ static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 /*
  *  Start Tag: 1 means the start tag can be ommited
  *  End Tag:   1 means the end tag can be ommited
- *           2 means it's forbidden (empty elements)
- *           3 means the tag is stylistic and should be closed easily
+ *        2 means it's forbidden (empty elements)
+ *        3 means the tag is stylistic and should be closed easily
  *  Depr:      this element is deprecated
  *  DTD:       1 means that this element is valid only in the Loose DTD
- *           2 means that this element is valid only in the Frameset DTD
+ *        2 means that this element is valid only in the Frameset DTD
  *
  * Name,Start Tag,End Tag,Save End,Empty,Deprecated,DTD,inline,Description
         , subElements , impliedsubelt , Attributes, userdata
@@ -848,7 +848,7 @@ static const char * const htmlStartClose[] = {
  * CDATA content and where a p element will be implied
  *
  * @todo extend that list by reading the HTML SGML DTD on
- *     implied paragraph
+ *  implied paragraph
  */
 static const char * const htmlNoContentElements[] = {
 	"html",
@@ -859,7 +859,7 @@ static const char * const htmlNoContentElements[] = {
 /*
  * The list of HTML attributes which are of content %Script;
  * NOTE: when adding ones, check htmlIsScriptAttribute() since
- *     it assumes the name starts with 'on'
+ *  it assumes the name starts with 'on'
  */
 static const char * const htmlScriptAttributes[] = {
 	"onclick",
@@ -1200,7 +1200,7 @@ static void htmlCheckImplied(htmlParserCtxt * ctxt, const xmlChar * newtag)
  * characters in the current element.
  *
  * Returns 1 if a paragraph has been inserted, 0 if not and -1
- *       in case of error.
+ *    in case of error.
  */
 static int FASTCALL htmlCheckParagraph(htmlParserCtxt * ctxt) 
 {
@@ -2278,7 +2278,7 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
  * [68] EntityRef ::= '&' Name ';'
  *
  * Returns the associated htmlEntityDescPtr if found, or NULL otherwise,
- *       if non-NULL *str will have to be freed by the caller.
+ *    if non-NULL *str will have to be freed by the caller.
  */
 const htmlEntityDesc * htmlParseEntityRef(htmlParserCtxt * ctxt, const xmlChar ** str) 
 {
@@ -2642,13 +2642,13 @@ static void htmlParseCharData(htmlParserCtxt * ctxt)
  * Parse an External ID or a Public ID
  *
  * [75] ExternalID ::= 'SYSTEM' S SystemLiteral
- *                 | 'PUBLIC' S PubidLiteral S SystemLiteral
+ *              | 'PUBLIC' S PubidLiteral S SystemLiteral
  *
  * [83] PublicID ::= 'PUBLIC' S PubidLiteral
  *
  * Returns the function returns SystemLiteral and in the second
- *              case publicID receives PubidLiteral, is strict is off
- *              it is possible to return NULL and have publicID set.
+ *           case publicID receives PubidLiteral, is strict is off
+ *           it is possible to return NULL and have publicID set.
  */
 
 static xmlChar * htmlParseExternalID(htmlParserCtxt * ctxt, xmlChar ** publicID) 
@@ -2876,7 +2876,7 @@ static void htmlParseComment(htmlParserCtxt * ctxt)
  * parse Reference declarations
  *
  * [66] CharRef ::= '&#' [0-9]+ ';' |
- *                '&#x' [0-9a-fA-F]+ ';'
+ *             '&#x' [0-9a-fA-F]+ ';'
  *
  * Returns the value parsed (as an int)
  */
@@ -2942,7 +2942,7 @@ int htmlParseCharRef(htmlParserCtxt * ctxt)
  * parse a DOCTYPE declaration
  *
  * [28] doctypedecl ::= '<!DOCTYPE' S Name (S ExternalID)? S?
- *                    ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
+ *                 ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
  */
 
 static void htmlParseDocTypeDecl(htmlParserCtxt * ctxt) 
@@ -4009,7 +4009,7 @@ void __htmlParseContent(void * ctxt)
  * interface).
  *
  * Returns 0, -1 in case of error. the parser context is augmented
- *              as a result of the parsing.
+ *           as a result of the parsing.
  */
 int htmlParseDocument(htmlParserCtxt * ctxt)
 {
@@ -4342,7 +4342,7 @@ static htmlParserCtxt * htmlCreateDocParserCtxt(const xmlChar * cur, const char 
  * This is basically similar to xmlParseLookupSequence()
  *
  * Returns the index to the current parsing point if the full sequence
- *    is available, -1 otherwise.
+ * is available, -1 otherwise.
  */
 static int htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third, int iscomment, int ignoreattrval)
 {
@@ -4452,7 +4452,7 @@ static int htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar
  * parser, do not use liberally.
  *
  * Returns the index to the current parsing point if a stopChar
- *    is available, -1 otherwise.
+ * is available, -1 otherwise.
  */
 static int htmlParseLookupChars(htmlParserCtxt * ctxt, const xmlChar * stop, int stopLen)
 {
@@ -5651,7 +5651,7 @@ void htmlCtxtReset(htmlParserCtxt * ctxt)
  * Applies the options to the parser context
  *
  * Returns 0 in case of success, the set of unknown or unimplemented options
- *       in case of error.
+ *    in case of error.
  */
 int htmlCtxtUseOptions(htmlParserCtxt * ctxt, int options)
 {

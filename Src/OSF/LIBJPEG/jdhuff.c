@@ -120,9 +120,9 @@ typedef struct {                /* Bitreading working state within an MCU */
  * but the state struct might not be (jpeg_huff_decode needs this).
  *	CHECK_BIT_BUFFER(state,n,action);
  *		Ensure there are N bits in get_buffer; if suspend, take action.
- *    val = GET_BITS(n);
+ * val = GET_BITS(n);
  *		Fetch next N bits.
- *    val = PEEK_BITS(n);
+ * val = PEEK_BITS(n);
  *		Fetch next N bits without removing them from the buffer.
  *	DROP_BITS(n);
  *		Discard next N bits.

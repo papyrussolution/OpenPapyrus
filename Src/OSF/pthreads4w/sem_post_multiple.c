@@ -13,24 +13,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,43 +40,40 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int sem_post_multiple(sem_t * sem, int count)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function posts multiple wakeups to a semaphore.
+ *   This function posts multiple wakeups to a semaphore.
  *
  * PARAMETERS
- *      sem
- *              pointer to an instance of sem_t
+ *   sem
+ *           pointer to an instance of sem_t
  *
- *      count
- *              counter, must be greater than zero.
+ *   count
+ *           counter, must be greater than zero.
  *
  * DESCRIPTION
- *      This function posts multiple wakeups to a semaphore. If there
- *      are waiting threads (or processes), n <= count are awakened;
- *      the semaphore value is incremented by count - n.
+ *   This function posts multiple wakeups to a semaphore. If there
+ *   are waiting threads (or processes), n <= count are awakened;
+ *   the semaphore value is incremented by count - n.
  *
  * RESULTS
- *              0               successfully posted semaphore,
- *              -1              failed, error in errno
+ *           0               successfully posted semaphore,
+ *           -1              failed, error in errno
  * ERRNO
- *              EINVAL          'sem' is not a valid semaphore
- *                              or count is less than or equal to zero.
- *              ERANGE          semaphore count is too big
+ *           EINVAL          'sem' is not a valid semaphore
+ *                           or count is less than or equal to zero.
+ *           ERANGE          semaphore count is too big
  *
  * ------------------------------------------------------
  */
+int sem_post_multiple(sem_t * sem, int count)
 {
 	__ptw32_mcs_local_node_t node;
 	int result = 0;
 	long waiters;
 	sem_t s = *sem;
-
 	__ptw32_mcs_lock_acquire(&s->lock, &node);
-
 	if(s->value <= (SEM_VALUE_MAX - count)) {
 		waiters = -s->value;
 		s->value += count;

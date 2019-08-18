@@ -74,8 +74,8 @@ static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t * r, ngx_http_v
 /*
  * @todo 
  *   Apache CGI: AUTH_TYPE, PATH_INFO (null), PATH_TRANSLATED
- *               REMOTE_HOST (null), REMOTE_IDENT (null),
- *               SERVER_SOFTWARE
+ *            REMOTE_HOST (null), REMOTE_IDENT (null),
+ *            SERVER_SOFTWARE
  *
  *   Apache SSI: DOCUMENT_NAME, LAST_MODIFIED, USER_NAME (file owner)
  */

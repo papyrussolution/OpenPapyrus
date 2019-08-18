@@ -4314,9 +4314,9 @@ void   fnmerge(char *, const char *, const char *, const char *nameP, const char
 // If maxlen == 0, then call strcpy(dest, src)
 // If (src == 0 && dest != 0) then dest[0] = 0;
 //
-char *    FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
-char *    FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
-char *    FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
+char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
+char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
+char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
 // @v9.9.5 (unused) char * SLAPI    wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
@@ -4501,8 +4501,8 @@ int    FASTCALL _koi8_to_866(int);
 char * FASTCALL SOemToChar(char * pStr);
 char * FASTCALL SCharToOem(char * pStr);
 const wchar_t * FASTCALL SUcSwitchW(const char * pStr);
-const char *    FASTCALL SUcSwitchW(const wchar_t * pStr);
-inline const char *    FASTCALL SUcSwitchA(const char * pStr) { return pStr; }
+const char * FASTCALL SUcSwitchW(const wchar_t * pStr);
+inline const char * FASTCALL SUcSwitchA(const char * pStr) { return pStr; }
 inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; }
 #ifdef _UNICODE
 	#define SUcSwitch SUcSwitchW

@@ -6986,6 +6986,7 @@
 	#define CTL_AUSERSLST_UNIQMACS       (4 + WINDOWS_ID_BIAS)
 #define DLG_ALBTRCFG2             720
 	#define cmVetisConfig          101
+	#define cmMqcConfig            102 // @v10.5.3
 	#define CTL_ALBTRCFG_MSRVADDR        (1 + WINDOWS_ID_BIAS) // not used since @v4.2.9
 	#define CTL_ALBTRCFG_LOGIN           (2 + WINDOWS_ID_BIAS) // not used since @v4.2.9
 	#define CTL_ALBTRCFG_OPKINDID        (3 + WINDOWS_ID_BIAS)
@@ -10704,6 +10705,11 @@
 	#define CTLSEL_VETISPI_ORG        (13 + WINDOWS_ID_BIAS)
 	#define CTL_VETISPI_BENTY         (14 + WINDOWS_ID_BIAS)
 	#define CTL_VETISPI_ENT           (15 + WINDOWS_ID_BIAS)
+#define DLG_MQCCFG                1370
+	#define CTL_MQCCFG_HOST           (1 + WINDOWS_ID_BIAS)
+	#define CTL_MQCCFG_USER           (2 + WINDOWS_ID_BIAS)
+	#define CTL_MQCCFG_SECRET         (3 + WINDOWS_ID_BIAS)
+	#define CTL_MQCCFG_DATADOMAIN     (4 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

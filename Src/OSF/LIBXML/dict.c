@@ -1,6 +1,6 @@
 /*
  * dict.c: dictionary of reusable strings, just used to avoid allocation
- *       and freeing operations.
+ *    and freeing operations.
  *
  * Copyright (C) 2003-2012 Daniel Veillard.
  *

@@ -267,7 +267,7 @@ char * DSO_merge(DSO * dso, const char * filespec1, const char * filespec2)
 		else if(dso->meth->dso_merger != NULL)
 			result = dso->meth->dso_merger(dso, filespec1, filespec2);
 	}
-	return (result);
+	return result;
 }
 
 char * DSO_convert_filename(DSO * dso, const char * filename)
@@ -297,7 +297,7 @@ char * DSO_convert_filename(DSO * dso, const char * filename)
 			return NULL;
 		}
 	}
-	return (result);
+	return result;
 }
 
 int DSO_pathbyaddr(void * addr, char * path, int sz)

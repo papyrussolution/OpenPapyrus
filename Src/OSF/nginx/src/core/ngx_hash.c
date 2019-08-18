@@ -579,7 +579,7 @@ wildcard:
 	if(skip) {
 		/*
 		 * convert "*.example.com" to "com.example.\0"
-		 *    and ".example.com" to "com.example\0"
+		 * and ".example.com" to "com.example\0"
 		 */
 		p = (u_char *)ngx_pnalloc(ha->temp_pool, last);
 		if(!p) {

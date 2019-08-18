@@ -839,7 +839,7 @@ static force_inline void blend_hsl_hue(rgb_t * res,
  * as * ad * B(s/as, d/ad)
  * = as * ad * set_lum (set_sat (d/ad, SAT (s/as)), LUM (d/ad), 1)
  * = set_lum (as * ad * set_sat (d/ad, SAT (s/as)),
- *                   as * LUM (d), as * ad)
+ *                as * LUM (d), as * ad)
  * = set_lum (set_sat (as * d, ad * SAT (s), as * LUM (d), as * ad))
  */
 static force_inline void blend_hsl_saturation(rgb_t * res,

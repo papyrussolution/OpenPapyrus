@@ -83,22 +83,22 @@ extern "C" {
 /*-
  * This pair helps declare a SEQUENCE. We can do:
  *
- *    ASN1_SEQUENCE(stname) = {
- *            ... SEQUENCE components ...
- *    } ASN1_SEQUENCE_END(stname)
+ * ASN1_SEQUENCE(stname) = {
+ *      ... SEQUENCE components ...
+ * } ASN1_SEQUENCE_END(stname)
  *
- *    This will produce an ASN1_ITEM called stname_it
- *    for a structure called stname.
+ * This will produce an ASN1_ITEM called stname_it
+ * for a structure called stname.
  *
- *    If you want the same structure but a different
- *    name then use:
+ * If you want the same structure but a different
+ * name then use:
  *
- *    ASN1_SEQUENCE(itname) = {
- *            ... SEQUENCE components ...
- *    } ASN1_SEQUENCE_END_name(stname, itname)
+ * ASN1_SEQUENCE(itname) = {
+ *      ... SEQUENCE components ...
+ * } ASN1_SEQUENCE_END_name(stname, itname)
  *
- *    This will create an item called itname_it using
- *    a structure called stname.
+ * This will create an item called itname_it using
+ * a structure called stname.
  */
 #define ASN1_SEQUENCE(tname) static const ASN1_TEMPLATE tname ## _seq_tt[]
 #define ASN1_SEQUENCE_END(stname) ASN1_SEQUENCE_END_name(stname, stname)
@@ -175,24 +175,24 @@ extern "C" {
 /*-
  * This pair helps declare a CHOICE type. We can do:
  *
- *    ASN1_CHOICE(chname) = {
- *            ... CHOICE options ...
- *    ASN1_CHOICE_END(chname)
+ * ASN1_CHOICE(chname) = {
+ *      ... CHOICE options ...
+ * ASN1_CHOICE_END(chname)
  *
- *    This will produce an ASN1_ITEM called chname_it
- *    for a structure called chname. The structure
- *    definition must look like this:
- *    typedef struct {
- *            int type;
- *            union {
- *                    ASN1_SOMETHING *opt1;
- *                    ASN1_SOMEOTHER *opt2;
- *            } value;
- *    } chname;
+ * This will produce an ASN1_ITEM called chname_it
+ * for a structure called chname. The structure
+ * definition must look like this:
+ * typedef struct {
+ *      int type;
+ *      union {
+ *              ASN1_SOMETHING *opt1;
+ *              ASN1_SOMEOTHER *opt2;
+ *      } value;
+ * } chname;
  *
- *    the name of the selector must be 'type'.
- *    to use an alternative selector name use the
- *    ASN1_CHOICE_END_selector() version.
+ * the name of the selector must be 'type'.
+ * to use an alternative selector name use the
+ * ASN1_CHOICE_END_selector() version.
  */
 #define ASN1_CHOICE(tname) static const ASN1_TEMPLATE tname ## _ch_tt[]
 #define ASN1_CHOICE_cb(tname, cb) static const ASN1_AUX tname ## _aux = {NULL, 0, 0, 0, cb, 0}; ASN1_CHOICE(tname)

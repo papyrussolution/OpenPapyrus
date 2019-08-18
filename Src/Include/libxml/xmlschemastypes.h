@@ -1,7 +1,7 @@
 /*
  * Summary: implementation of XML Schema Datatypes
  * Description: module providing the XML Schema Datatypes implementation
- *            both definition and validity checking
+ *         both definition and validity checking
  *
  * Copy: See Copyright for the status of this software.
  *

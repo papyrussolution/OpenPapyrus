@@ -2445,10 +2445,10 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 			/* ret is:
 			 * negative: An error occurred; png_chunk_error will be called.
 			 *   zero: The chunk was not handled, the chunk will be discarded
-			 *         unless png_set_keep_unknown_chunks has been used to set
-			 *         a 'keep' behavior for this particular chunk, in which
-			 *         case that will be used.  A critical chunk will cause an
-			 *         error at this point unless it is to be saved.
+			 *      unless png_set_keep_unknown_chunks has been used to set
+			 *      a 'keep' behavior for this particular chunk, in which
+			 *      case that will be used.  A critical chunk will cause an
+			 *      error at this point unless it is to be saved.
 			 * positive: The chunk was handled, libpng will ignore/discard it.
 			 */
 			if(ret < 0)

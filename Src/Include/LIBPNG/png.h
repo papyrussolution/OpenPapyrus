@@ -111,10 +111,10 @@
  * 1. The origin of this source code must not be misrepresented.
  *
  * 2. Altered versions must be plainly marked as such and must not
- *    be misrepresented as being the original source.
+ * be misrepresented as being the original source.
  *
  * 3. This Copyright notice may not be removed or altered from any
- *    source or altered source distribution.
+ * source or altered source distribution.
  *
  * The Contributing Authors and Group 42, Inc. specifically permit, without
  * fee, and encourage the use of this source code as a component to
@@ -259,22 +259,22 @@
  *  holds the date in text format, and will hold years up to 9999.
  *
  *  The integer is
- *      "png_uint_16 year" in png_time_struct.
+ *   "png_uint_16 year" in png_time_struct.
  *
  *  The string is
- *      "char time_buffer[29]" in png_struct.  This is no longer used
+ *   "char time_buffer[29]" in png_struct.  This is no longer used
  *  in libpng-1.6.x and will be removed from libpng-1.7.0.
  *
  *  There are seven time-related functions:
- *      png.c: png_convert_to_rfc_1123_buffer() in png.c
- *        (formerly png_convert_to_rfc_1123() prior to libpng-1.5.x and
- *        png_convert_to_rfc_1152() in error prior to libpng-0.98)
- *      png_convert_from_struct_tm() in pngwrite.c, called in pngwrite.c
- *      png_convert_from_time_t() in pngwrite.c
- *      png_get_tIME() in pngget.c
- *      png_handle_tIME() in pngrutil.c, called in pngread.c
- *      png_set_tIME() in pngset.c
- *      png_write_tIME() in pngwutil.c, called in pngwrite.c
+ *   png.c: png_convert_to_rfc_1123_buffer() in png.c
+ *     (formerly png_convert_to_rfc_1123() prior to libpng-1.5.x and
+ *     png_convert_to_rfc_1152() in error prior to libpng-0.98)
+ *   png_convert_from_struct_tm() in pngwrite.c, called in pngwrite.c
+ *   png_convert_from_time_t() in pngwrite.c
+ *   png_get_tIME() in pngget.c
+ *   png_handle_tIME() in pngrutil.c, called in pngread.c
+ *   png_set_tIME() in pngset.c
+ *   png_write_tIME() in pngwutil.c, called in pngwrite.c
  *
  *  All handle dates properly in a Y2K environment.  The
  *  png_convert_from_time_t() function calls gmtime() to convert from system
@@ -293,9 +293,9 @@
  *  zlib, upon which libpng depends, is also Y2K compliant.  It contains
  *  no date-related code.
  *
- *     Glenn Randers-Pehrson
- *     libpng maintainer
- *     PNG Development Group
+ *  Glenn Randers-Pehrson
+ *  libpng maintainer
+ *  PNG Development Group
  */
 
 #ifndef PNG_H
@@ -443,13 +443,13 @@ extern "C" {
  * Use the alternative algorithm for compositing alpha samples that
  * does not use division?
  * PNG_READ_COMPOSITE_NODIV_SUPPORTED: use the 'no division'
- *    algorithm.
+ * algorithm.
  * PNG_NO_READ_COMPOSITE_NODIV: use the 'division' algorithm.
  *
  * How to handle benign errors if PNG_ALLOW_BENIGN_ERRORS is
  * false?
  * PNG_ALLOW_BENIGN_ERRORS: map calls to the benign error
- *    APIs to png_warning.
+ * APIs to png_warning.
  * Otherwise the calls are mapped to png_error.
  */
 
@@ -893,22 +893,22 @@ typedef PNG_CALLBACK(void, *png_free_ptr, (png_structp, void *));
  *
  * PNG_EXPORT(ordinal, type, name, (args));
  *
- *     ordinal:    ordinal that is used while building
- *                 *.def files. The ordinal value is only
- *                 relevant when preprocessing png.h with
- *                 the *.dfn files for building symbol table
- *                 entries, and are removed by pngconf.h.
- *     type:       return type of the function
- *     name:       function name
- *     args:       function arguments, with types
+ *  ordinal:    ordinal that is used while building
+ *              *.def files. The ordinal value is only
+ *              relevant when preprocessing png.h with
+ *              the *.dfn files for building symbol table
+ *              entries, and are removed by pngconf.h.
+ *  type:       return type of the function
+ *  name:       function name
+ *  args:       function arguments, with types
  *
  * When we wish to append attributes to a function prototype we use
  * the PNG_EXPORTA() macro instead.
  *
  * PNG_EXPORTA(ordinal, type, name, (args), attributes);
  *
- *     ordinal, type, name, and args: same as in PNG_EXPORT().
- *     attributes: function attributes
+ *  ordinal, type, name, and args: same as in PNG_EXPORT().
+ *  attributes: function attributes
  */
 
 /* Returns the version number of the library */
@@ -1431,7 +1431,7 @@ PNG_EXPORT(66, void, png_set_crc_action, (png_structrp png_ptr, int crit_action,
  * whereas in version 0.90 and later, the action for CRC errors in ancillary
  * chunks is warn/discard.  These values should NOT be changed.
  *
- *    value                       action:critical     action:ancillary
+ * value                       action:critical     action:ancillary
  */
 #define PNG_CRC_DEFAULT       0  /* error/quit          warn/discard data */
 #define PNG_CRC_ERROR_QUIT    1  /* error/quit          error/quit        */
@@ -1641,7 +1641,7 @@ PNG_EXPORT(218, uint8, png_get_current_pass_number, (png_const_structrp));
  *
  * negative: An error occurred; png_chunk_error will be called.
  *   zero: The chunk was not handled, the chunk will be saved. A critical
- *         chunk will cause an error at this point unless it is to be saved.
+ *      chunk will cause an error at this point unless it is to be saved.
  * positive: The chunk was handled, libpng will ignore/discard it.
  *
  * See "INTERACTION WTIH USER CHUNK CALLBACKS" below for important notes about
@@ -2091,17 +2091,17 @@ PNG_EXPORT(171, void, png_set_sCAL_s, (png_const_structrp png_ptr,
  *
  * READ:
  *  PNG_HANDLE_CHUNK_AS_DEFAULT:
- *     Known chunks: do normal libpng processing, do not keep the chunk (but
- *        see the comments below about PNG_HANDLE_AS_UNKNOWN_SUPPORTED)
- *     Unknown chunks: for a specific chunk use the global default, when used
- *        as the default discard the chunk data.
+ *  Known chunks: do normal libpng processing, do not keep the chunk (but
+ *     see the comments below about PNG_HANDLE_AS_UNKNOWN_SUPPORTED)
+ *  Unknown chunks: for a specific chunk use the global default, when used
+ *     as the default discard the chunk data.
  *  PNG_HANDLE_CHUNK_NEVER:
- *     Discard the chunk data.
+ *  Discard the chunk data.
  *  PNG_HANDLE_CHUNK_IF_SAFE:
- *     Keep the chunk data if the chunk is not critical else raise a chunk
- *     error.
+ *  Keep the chunk data if the chunk is not critical else raise a chunk
+ *  error.
  *  PNG_HANDLE_CHUNK_ALWAYS:
- *     Keep the chunk data.
+ *  Keep the chunk data.
  *
  * If the chunk data is saved it can be retrieved using png_get_unknown_chunks,
  * below.  Notice that specifying "AS_DEFAULT" as a global default is equivalent
@@ -2146,14 +2146,14 @@ PNG_EXPORT(171, void, png_set_sCAL_s, (png_const_structrp png_ptr,
  *  interpreted as follows:
  *
  *  PNG_HANDLE_CHUNK_AS_DEFAULT:
- *     Write safe-to-copy chunks and write other chunks if the global
- *     default is set to _ALWAYS, otherwise don't write this chunk.
+ *  Write safe-to-copy chunks and write other chunks if the global
+ *  default is set to _ALWAYS, otherwise don't write this chunk.
  *  PNG_HANDLE_CHUNK_NEVER:
- *     Do not write the chunk.
+ *  Do not write the chunk.
  *  PNG_HANDLE_CHUNK_IF_SAFE:
- *     Write the chunk if it is safe-to-copy, otherwise do not write it.
+ *  Write the chunk if it is safe-to-copy, otherwise do not write it.
  *  PNG_HANDLE_CHUNK_ALWAYS:
- *     Write the chunk.
+ *  Write the chunk.
  *
  * Note that the default behavior is effectively the opposite of the read case -
  * in read unknown chunks are not stored by default, in write they are written
@@ -3025,16 +3025,16 @@ PNG_EXPORT(245, int, png_image_write_to_memory, (png_imagep image, void *memory,
  * by the PNG_OPTION_ defines below.
  *
  * HARDWARE: normally hardware capabilites, such as the Intel SSE instructions,
- *         are detected at run time, however sometimes it may be impossible
- *         to do this in user mode, in which case it is necessary to discover
- *         the capabilities in an OS specific way.  Such capabilities are
- *         listed here when libpng has support for them and must be turned
- *         ON by the application if present.
+ *      are detected at run time, however sometimes it may be impossible
+ *      to do this in user mode, in which case it is necessary to discover
+ *      the capabilities in an OS specific way.  Such capabilities are
+ *      listed here when libpng has support for them and must be turned
+ *      ON by the application if present.
  *
  * SOFTWARE: sometimes software optimizations actually result in performance
- *         decrease on some architectures or systems, or with some sets of
- *         PNG images.  'Software' options allow such optimizations to be
- *         selected at run time.
+ *      decrease on some architectures or systems, or with some sets of
+ *      PNG images.  'Software' options allow such optimizations to be
+ *      selected at run time.
  */
 #ifdef PNG_SET_OPTION_SUPPORTED
 #ifdef PNG_ARM_NEON_API_SUPPORTED

@@ -317,7 +317,7 @@ static void unicodecpy(uchar * dest, const char * src, size_t length)
  * passdwp [in]     - The user's password.
  * ntlm    [in/out] - The NTLM data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                  holding the result will be stored upon completion.
+ *               holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -425,7 +425,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp, const char * pa
  * passdwp [in]     - The user's password.
  * ntlm    [in/out] - The NTLM data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                  holding the result will be stored upon completion.
+ *               holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.

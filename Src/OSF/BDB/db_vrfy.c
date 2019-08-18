@@ -2136,8 +2136,8 @@ err:
 }
 /*
  * __db_salvage --
- *    Given a meta page number, salvage all data from leaf pages found by
- *    walking the meta page's tree.
+ * Given a meta page number, salvage all data from leaf pages found by
+ * walking the meta page's tree.
  */
 static int __db_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta_pgno, void * handle, int (*callback)__P((void *, const void *)), uint32 flags)
 {

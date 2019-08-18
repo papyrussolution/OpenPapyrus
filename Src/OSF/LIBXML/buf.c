@@ -770,7 +770,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
  * str is recomputed.
  *
  * Returns 0 successful, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
 {
@@ -817,7 +817,7 @@ int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
  * if len == -1, the length of @str is recomputed.
  *
  * Returns 0 successful, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
 {
@@ -881,7 +881,7 @@ int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
  * Append a zero terminated string to an XML buffer.
  *
  * Returns 0 successful, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufCat(xmlBuf * buf, const xmlChar * str)
 {
@@ -900,7 +900,7 @@ int FASTCALL xmlBufCat(xmlBuf * buf, const xmlChar * str)
  * Append a zero terminated C string to an XML buffer.
  *
  * Returns 0 successful, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufCCat(xmlBuf * buf, const char * str)
 {
@@ -938,7 +938,7 @@ int FASTCALL xmlBufCCat(xmlBuf * buf, const char * str)
  * xmlChars at the end of the buffer.
  *
  * Returns 0 if successful, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufWriteCHAR(xmlBuf * buf, const xmlChar * string) 
 {
@@ -956,7 +956,7 @@ int FASTCALL xmlBufWriteCHAR(xmlBuf * buf, const xmlChar * string)
  * C chars at the end of the array.
  *
  * Returns 0 if successful, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufWriteChar(xmlBuf * buf, const char * string) 
 {
@@ -975,7 +975,7 @@ int FASTCALL xmlBufWriteChar(xmlBuf * buf, const char * string)
  * quote or double-quotes internally
  *
  * Returns 0 if successful, a positive error code number otherwise
- *       and -1 in case of internal or API error.
+ *    and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
 {

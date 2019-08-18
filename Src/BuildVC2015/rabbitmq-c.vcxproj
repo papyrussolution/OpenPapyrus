@@ -109,7 +109,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\develop\rabbitmq-c\__build_vc70_\librabbitmq\Debug\librabbitmq.4.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\develop\rabbitmq-c\__build_vc70_\librabbitmq;D:\develop\rabbitmq-c\librabbitmq;D:\develop\rabbitmq-c\librabbitmq\win32;D:\develop\rabbitmq-c\librabbitmq\win32\msinttypes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -154,7 +154,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\develop\rabbitmq-c\__build_vc70_\librabbitmq\Debug\librabbitmq.4.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\develop\rabbitmq-c\__build_vc70_\librabbitmq;D:\develop\rabbitmq-c\librabbitmq;D:\develop\rabbitmq-c\librabbitmq\win32;D:\develop\rabbitmq-c\librabbitmq\win32\msinttypes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -198,7 +198,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\develop\rabbitmq-c\__build_vc70_\librabbitmq\Release\librabbitmq.4.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\develop\rabbitmq-c\__build_vc70_\librabbitmq;D:\develop\rabbitmq-c\librabbitmq;D:\develop\rabbitmq-c\librabbitmq\win32;D:\develop\rabbitmq-c\librabbitmq\win32\msinttypes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -243,7 +243,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>D:\develop\rabbitmq-c\__build_vc70_\librabbitmq\Release\librabbitmq.4.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\develop\rabbitmq-c\__build_vc70_\librabbitmq;D:\develop\rabbitmq-c\librabbitmq;D:\develop\rabbitmq-c\librabbitmq\win32;D:\develop\rabbitmq-c\librabbitmq\win32\msinttypes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -286,18 +286,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Osf\rabbitmq-c\amqp.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_framing.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_hostcheck.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_openssl_bio.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_openssl_hostname_validation.h" />
     <ClInclude Include="..\Osf\rabbitmq-c\amqp_private.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_socket.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_ssl_socket.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_table.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_tcp_socket.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\amqp_time.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\config.h" />
-    <ClInclude Include="..\Osf\rabbitmq-c\win32\threads.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

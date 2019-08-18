@@ -109,29 +109,29 @@ static ngx_http_modern_browser_mask_t ngx_http_modern_browser_masks[] = {
 	 * "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020610"
 	 * "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru-RU; rv:1.5) Gecko/20031006"
 	 * "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru-RU; rv:1.6) Gecko/20040206
-	 *            Firefox/0.8"
+	 *         Firefox/0.8"
 	 * "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru-RU; rv:1.7.8)
-	 *            Gecko/20050511 Firefox/1.0.4"
+	 *         Gecko/20050511 Firefox/1.0.4"
 	 * "Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.8.0.5) Gecko/20060729
-	 *            Firefox/1.5.0.5"
+	 *         Firefox/1.5.0.5"
 	 */
 	{ "gecko", sizeof("Mozilla/5.0 (") - 1, sizeof("rv:") - 1, "rv:"},
 	/*
 	 * "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; ru-ru) AppleWebKit/125.2
-	 *            (KHTML, like Gecko) Safari/125.7"
+	 *         (KHTML, like Gecko) Safari/125.7"
 	 * "Mozilla/5.0 (SymbianOS/9.1; U; en-us) AppleWebKit/413
-	 *            (KHTML, like Gecko) Safari/413"
+	 *         (KHTML, like Gecko) Safari/413"
 	 * "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/418
-	 *            (KHTML, like Gecko) Safari/417.9.3"
+	 *         (KHTML, like Gecko) Safari/417.9.3"
 	 * "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; ru-ru) AppleWebKit/418.8
-	 *            (KHTML, like Gecko) Safari/419.3"
+	 *         (KHTML, like Gecko) Safari/419.3"
 	 */
 	{ "safari", sizeof("Mozilla/5.0 (") - 1, sizeof("Safari/") - 1, "Safari/"},
 	/*
 	 * "Mozilla/5.0 (compatible; Konqueror/3.1; Linux)"
 	 * "Mozilla/5.0 (compatible; Konqueror/3.4; Linux) KHTML/3.4.2 (like Gecko)"
 	 * "Mozilla/5.0 (compatible; Konqueror/3.5; FreeBSD) KHTML/3.5.1
-	 *            (like Gecko)"
+	 *         (like Gecko)"
 	 */
 	{ "konqueror", sizeof("Mozilla/5.0 (compatible; ") - 1, sizeof("Konqueror/") - 1, "Konqueror/"},
 	{ "", 0, 0, "" }

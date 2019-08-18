@@ -125,7 +125,7 @@ static unsigned shell_quotearg(const char * path, uchar * buf,
 	/*
 	 * Processing States:
 	 *  UQSTRING:       unquoted string: ... -- used for quoting exclamation
-	 *                marks. This is the initial state
+	 *             marks. This is the initial state
 	 *  SQSTRING:       single-quoted-string: '... -- any character may follow
 	 *  QSTRING:        quoted string: "... -- only apostrophes may follow
 	 */

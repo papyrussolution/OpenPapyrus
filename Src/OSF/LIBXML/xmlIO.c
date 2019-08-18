@@ -1338,8 +1338,8 @@ static int xmlXzfileClose(void * context)
 #ifdef LIBXML_OUTPUT_ENABLED
 typedef struct xmlIOHTTPWriteCtxt_ {
 	int compression;
-	char *            uri;
-	void *            doc_buff;
+	char *         uri;
+	void *         doc_buff;
 } xmlIOHTTPWriteCtxt, * xmlIOHTTPWriteCtxtPtr;
 
 #ifdef HAVE_ZLIB_H
@@ -1360,7 +1360,7 @@ typedef struct xmlIOHTTPWriteCtxt_ {
 typedef struct xmlZMemBuff_ {
 	unsigned long size;
 	unsigned long crc;
-	uchar *    zbuff;
+	uchar * zbuff;
 	z_stream zctrl;
 } xmlZMemBuff, * xmlZMemBuffPtr;
 
@@ -1860,9 +1860,9 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 #ifdef DEBUG_HTTP
 			/*  If testing/debugging - dump reply with request content  */
 
-			FILE *    tst_file = NULL;
+			FILE * tst_file = NULL;
 			char buffer[ 4096 ];
-			char *    dump_name = NULL;
+			char * dump_name = NULL;
 			int avail;
 			xmlGenericError(0, "xmlNanoHTTPCloseWrite:  HTTP %s to\n%s returned %d.\n",
 			    http_mthd, ctxt->uri, xmlNanoHTTPReturnCode(http_ctxt) );
@@ -2543,7 +2543,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
  * Automatic support for ZLIB/Compress compressed document is provided
  * by default if found at compile-time.
  * @todo currently if compression is set, the library only support
- *     writing to a local file.
+ *  writing to a local file.
  *
  * Returns the new output or NULL
  */
@@ -2868,7 +2868,7 @@ xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameDefault(xmlOutput
  * This is used when operating the parser in progressive (push) mode.
  *
  * Returns the number of chars read and stored in the buffer, or -1
- *       in case of error.
+ *    in case of error.
  */
 int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * buf) 
 {
@@ -2932,10 +2932,10 @@ static int endOfInput(void * context ATTRIBUTE_UNUSED, char * buffer ATTRIBUTE_U
  * This routine is used when operating the parser in normal (pull) mode
  *
  * @todo one should be able to remove one extra copy by copying directly
- *     onto in->buffer or in->raw
+ *  onto in->buffer or in->raw
  *
  * Returns the number of chars read and stored in the buffer, or -1
- *       in case of error.
+ *    in case of error.
  */
 int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 {
@@ -3024,7 +3024,7 @@ int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
  * This routine handle the I18N transcoding to internal UTF-8
  *
  * Returns the number of chars read and stored in the buffer, or -1
- *       in case of error.
+ *    in case of error.
  */
 int xmlParserInputBufferRead(xmlParserInputBuffer * in, int len)
 {
@@ -3051,7 +3051,7 @@ int xmlParserInputBufferRead(xmlParserInputBuffer * in, int len)
  * or delayed writes.
  *
  * Returns the number of chars immediately written, or -1
- *       in case of error.
+ *    in case of error.
  */
 int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * buf)
 {
@@ -3210,7 +3210,7 @@ static int xmlEscapeContent(uchar* out, int * outlen, const xmlChar* in, int * i
  * or delayed writes.
  *
  * Returns the number of chars immediately written, or -1
- *       in case of error.
+ *    in case of error.
  */
 int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCharEncodingOutputFunc escaping)
 {
@@ -3326,7 +3326,7 @@ done:
  * or delayed writes.
  *
  * Returns the number of chars immediately written, or -1
- *       in case of error.
+ *    in case of error.
  */
 int FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char * str)
 {

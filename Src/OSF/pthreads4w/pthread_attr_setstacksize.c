@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,39 +38,39 @@ int pthread_attr_setstacksize(pthread_attr_t * attr, size_t stacksize)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function specifies the size of the stack on
- *      which threads created with 'attr' will run.
+ *   This function specifies the size of the stack on
+ *   which threads created with 'attr' will run.
  *
  * PARAMETERS
- *      attr
- *              pointer to an instance of pthread_attr_t
+ *   attr
+ *           pointer to an instance of pthread_attr_t
  *
- *      stacksize
- *              stack size, in bytes.
+ *   stacksize
+ *           stack size, in bytes.
  *
  *
  * DESCRIPTION
- *      This function specifies the size of the stack on
- *      which threads created with 'attr' will run.
+ *   This function specifies the size of the stack on
+ *   which threads created with 'attr' will run.
  *
- *      NOTES:
- *              1)      Function supported only if this macro is
- *                      defined:
+ *   NOTES:
+ *           1)      Function supported only if this macro is
+ *                   defined:
  *
- *                              _POSIX_THREAD_ATTR_STACKSIZE
+ *                           _POSIX_THREAD_ATTR_STACKSIZE
  *
- *              2)      Find the default first (using
- *                      pthread_attr_getstacksize), then increase
- *                      by multiplying.
+ *           2)      Find the default first (using
+ *                   pthread_attr_getstacksize), then increase
+ *                   by multiplying.
  *
- *              3)      Only use if thread needs more than the
- *                      default.
+ *           3)      Only use if thread needs more than the
+ *                   default.
  *
  * RESULTS
- *              0               successfully set stack size,
- *              EINVAL          'attr' is invalid or stacksize too
- *                              small or too big.
- *              ENOSYS          function not supported
+ *           0               successfully set stack size,
+ *           EINVAL          'attr' is invalid or stacksize too
+ *                           small or too big.
+ *           ENOSYS          function not supported
  *
  * ------------------------------------------------------
  */

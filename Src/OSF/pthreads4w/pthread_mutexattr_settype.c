@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,8 +33,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int pthread_mutexattr_settype(pthread_mutexattr_t * attr, int kind)
 /*
  * ------------------------------------------------------
  *
@@ -45,19 +43,19 @@ int pthread_mutexattr_settype(pthread_mutexattr_t * attr, int kind)
  * type parameter to these functions.
  *
  * PARAMETERS
- *      attr
- *              pointer to an instance of pthread_mutexattr_t
+ *   attr
+ *           pointer to an instance of pthread_mutexattr_t
  *
- *      type
- *              must be one of:
+ *   type
+ *           must be one of:
  *
- *                      PTHREAD_MUTEX_DEFAULT
+ *                   PTHREAD_MUTEX_DEFAULT
  *
- *                      PTHREAD_MUTEX_NORMAL
+ *                   PTHREAD_MUTEX_NORMAL
  *
- *                      PTHREAD_MUTEX_ERRORCHECK
+ *                   PTHREAD_MUTEX_ERRORCHECK
  *
- *                      PTHREAD_MUTEX_RECURSIVE
+ *                   PTHREAD_MUTEX_RECURSIVE
  *
  * DESCRIPTION
  * The pthread_mutexattr_settype() and
@@ -70,51 +68,52 @@ int pthread_mutexattr_settype(pthread_mutexattr_t * attr, int kind)
  * mutex attributes. Valid mutex types include:
  *
  * PTHREAD_MUTEX_NORMAL
- *          This type of mutex does  not  detect  deadlock.  A
- *          thread  attempting  to  relock  this mutex without
- *          first unlocking it will  deadlock.  Attempting  to
- *          unlock  a  mutex  locked  by  a  different  thread
- *          results  in  undefined  behavior.  Attempting   to
- *          unlock  an  unlocked  mutex  results  in undefined
- *          behavior.
+ *       This type of mutex does  not  detect  deadlock.  A
+ *       thread  attempting  to  relock  this mutex without
+ *       first unlocking it will  deadlock.  Attempting  to
+ *       unlock  a  mutex  locked  by  a  different  thread
+ *       results  in  undefined  behavior.  Attempting   to
+ *       unlock  an  unlocked  mutex  results  in undefined
+ *       behavior.
  *
  * PTHREAD_MUTEX_ERRORCHECK
- *          This type of  mutex  provides  error  checking.  A
- *          thread  attempting  to  relock  this mutex without
- *          first unlocking it will return with  an  error.  A
- *          thread  attempting to unlock a mutex which another
- *          thread has locked will return  with  an  error.  A
- *          thread attempting to unlock an unlocked mutex will
- *          return with an error.
+ *       This type of  mutex  provides  error  checking.  A
+ *       thread  attempting  to  relock  this mutex without
+ *       first unlocking it will return with  an  error.  A
+ *       thread  attempting to unlock a mutex which another
+ *       thread has locked will return  with  an  error.  A
+ *       thread attempting to unlock an unlocked mutex will
+ *       return with an error.
  *
  * PTHREAD_MUTEX_DEFAULT
- *          Same as PTHREAD_MUTEX_NORMAL.
+ *       Same as PTHREAD_MUTEX_NORMAL.
  *
  * PTHREAD_MUTEX_RECURSIVE
- *          A thread attempting to relock this  mutex  without
- *          first  unlocking  it  will  succeed in locking the
- *          mutex. The relocking deadlock which can occur with
- *          mutexes of type  PTHREAD_MUTEX_NORMAL cannot occur
- *          with this type of mutex. Multiple  locks  of  this
- *          mutex  require  the  same  number  of  unlocks  to
- *          release  the  mutex  before  another  thread   can
- *          acquire the mutex. A thread attempting to unlock a
- *          mutex which another thread has locked will  return
- *          with  an  error. A thread attempting to  unlock an
- *          unlocked mutex will return  with  an  error.  This
- *          type  of mutex is only supported for mutexes whose
- *          process        shared         attribute         is
- *          PTHREAD_PROCESS_PRIVATE.
+ *       A thread attempting to relock this  mutex  without
+ *       first  unlocking  it  will  succeed in locking the
+ *       mutex. The relocking deadlock which can occur with
+ *       mutexes of type  PTHREAD_MUTEX_NORMAL cannot occur
+ *       with this type of mutex. Multiple  locks  of  this
+ *       mutex  require  the  same  number  of  unlocks  to
+ *       release  the  mutex  before  another  thread   can
+ *       acquire the mutex. A thread attempting to unlock a
+ *       mutex which another thread has locked will  return
+ *       with  an  error. A thread attempting to  unlock an
+ *       unlocked mutex will return  with  an  error.  This
+ *       type  of mutex is only supported for mutexes whose
+ *       process        shared         attribute         is
+ *       PTHREAD_PROCESS_PRIVATE.
  *
  * RESULTS
- *              0               successfully set attribute,
- *              EINVAL          'attr' or 'type' is invalid,
+ *           0               successfully set attribute,
+ *           EINVAL          'attr' or 'type' is invalid,
  *
  * ------------------------------------------------------
  */
+int pthread_mutexattr_settype(pthread_mutexattr_t * attr, int kind)
 {
 	int result = 0;
-	if((attr != NULL && *attr != NULL)) {
+	if(attr && *attr) {
 		switch(kind) {
 			case PTHREAD_MUTEX_FAST_NP:
 			case PTHREAD_MUTEX_RECURSIVE_NP:
@@ -126,8 +125,7 @@ int pthread_mutexattr_settype(pthread_mutexattr_t * attr, int kind)
 			    break;
 		}
 	}
-	else {
+	else
 		result = EINVAL;
-	}
-	return (result);
-}                               /* pthread_mutexattr_settype */
+	return result;
+}

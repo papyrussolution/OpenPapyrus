@@ -473,7 +473,7 @@ static void * _pool_alloc_from_new_chunk(struct pool * pool, size_t size)
 			_pool_chunk_init(chunk, pool->current, chunk->capacity);
 		}
 	}
-	if(NULL == chunk)
+	if(!chunk)
 		chunk = _pool_chunk_create(pool, capacity);
 	pool->current = chunk;
 	obj = ((uchar *)chunk + sizeof(*chunk) + chunk->size);
@@ -1077,14 +1077,11 @@ inline static void active_list_substep_edges(struct active_list * active)
 	grid_scaled_x_t prev_x = INT_MIN;
 	struct edge * unsorted = NULL;
 	struct edge * edge = *cursor;
-
 	do {
 		UNROLL3({
 			struct edge * next;
-
-			if(NULL == edge)
+			if(!edge)
 				break;
-
 			next = edge->next;
 			if(--edge->height_left) {
 				edge->x.quo += edge->dxdy.quo;
@@ -1119,29 +1116,26 @@ inline static void active_list_substep_edges(struct active_list * active)
 
 inline static void apply_nonzero_fill_rule_for_subrow(struct active_list * active, struct cell_list * coverages)
 {
-	struct edge * edge = active->head;
-	int winding = 0;
-	int xstart;
-	int xend;
 	cell_list_rewind(coverages);
-	while(NULL != edge) {
-		xstart = edge->x.quo;
-		winding = edge->dir;
+	for(struct edge * p_edge = active->head; p_edge; p_edge = p_edge->next) {
+		int xstart = p_edge->x.quo;
+		int winding = p_edge->dir;
 		while(1) {
-			edge = edge->next;
-			if(NULL == edge) {
+			p_edge = p_edge->next;
+			if(!p_edge) {
 				ASSERT_NOT_REACHED;
 				return;
 			}
-			winding += edge->dir;
+			winding += p_edge->dir;
 			if(0 == winding) {
-				if(edge->next == NULL || edge->next->x.quo != edge->x.quo)
+				if(!p_edge->next || p_edge->next->x.quo != p_edge->x.quo)
 					break;
 			}
 		}
-		xend = edge->x.quo;
-		cell_list_add_subspan(coverages, xstart, xend);
-		edge = edge->next;
+		{
+			int xend = p_edge->x.quo;
+			cell_list_add_subspan(coverages, xstart, xend);
+		}
 	}
 }
 
@@ -1155,11 +1149,11 @@ static void apply_evenodd_fill_rule_for_subrow(struct active_list * active, stru
 		xstart = edge->x.quo;
 		while(1) {
 			edge = edge->next;
-			if(NULL == edge) {
+			if(!edge) {
 				ASSERT_NOT_REACHED;
 				return;
 			}
-			if(edge->next == NULL || edge->next->x.quo != edge->x.quo)
+			if(!edge->next || edge->next->x.quo != edge->x.quo)
 				break;
 			edge = edge->next;
 		}
@@ -1173,7 +1167,7 @@ static void apply_nonzero_fill_rule_and_step_edges(struct active_list * active, 
 {
 	struct edge ** cursor = &active->head;
 	struct edge * left_edge = *cursor;
-	while(NULL != left_edge) {
+	while(left_edge) {
 		struct edge * right_edge;
 		int winding = left_edge->dir;
 		left_edge->height_left -= GRID_Y;
@@ -1183,7 +1177,7 @@ static void apply_nonzero_fill_rule_and_step_edges(struct active_list * active, 
 			*cursor = left_edge->next;
 		while(1) {
 			right_edge = *cursor;
-			if(NULL == right_edge) {
+			if(!right_edge) {
 				cell_list_render_edge(coverages, left_edge, +1);
 				return;
 			}
@@ -1193,8 +1187,8 @@ static void apply_nonzero_fill_rule_and_step_edges(struct active_list * active, 
 			else
 				*cursor = right_edge->next;
 			winding += right_edge->dir;
-			if(0 == winding) {
-				if(right_edge->next == NULL || right_edge->next->x.quo != right_edge->x.quo) {
+			if(!winding) {
+				if(!right_edge->next || right_edge->next->x.quo != right_edge->x.quo) {
 					break;
 				}
 			}
@@ -1217,7 +1211,7 @@ static void apply_evenodd_fill_rule_and_step_edges(struct active_list * active, 
 {
 	struct edge ** cursor = &active->head;
 	struct edge * left_edge = *cursor;
-	while(NULL != left_edge) {
+	while(left_edge) {
 		struct edge * right_edge;
 		left_edge->height_left -= GRID_Y;
 		if(left_edge->height_left)
@@ -1226,7 +1220,7 @@ static void apply_evenodd_fill_rule_and_step_edges(struct active_list * active, 
 			*cursor = left_edge->next;
 		while(1) {
 			right_edge = *cursor;
-			if(NULL == right_edge) {
+			if(!right_edge) {
 				cell_list_render_edge(coverages, left_edge, +1);
 				return;
 			}
@@ -1235,7 +1229,7 @@ static void apply_evenodd_fill_rule_and_step_edges(struct active_list * active, 
 				cursor = &right_edge->next;
 			else
 				*cursor = right_edge->next;
-			if(right_edge->next == NULL || right_edge->next->x.quo != right_edge->x.quo) {
+			if(!right_edge->next || right_edge->next->x.quo != right_edge->x.quo) {
 				break;
 			}
 			if(!right_edge->vertical) {

@@ -106,8 +106,8 @@
  * PNGAPI    Calling convention for exported functions.
  * PNGCBAPI  Calling convention for user provided (callback) functions.
  * PNGCAPI   Calling convention used by the ANSI-C library (required
- *         for longjmp callbacks and sometimes used internally to
- *         specify the calling convention for zlib).
+ *      for longjmp callbacks and sometimes used internally to
+ *      specify the calling convention for zlib).
  *
  * These macros should never be overridden.  If it is necessary to
  * change calling convention in a private build this can be done
@@ -115,13 +115,13 @@
  * below to select the correct 'API' variants.
  *
  * PNG_API_RULE=0 Use PNGCAPI - the 'C' calling convention - throughout.
- *              This is correct in every known environment.
+ *           This is correct in every known environment.
  * PNG_API_RULE=1 Use the operating system convention for PNGAPI and
- *              the 'C' calling convention (from PNGCAPI) for
- *              callbacks (PNGCBAPI).  This is no longer required
- *              in any known environment - if it has to be used
- *              please post an explanation of the problem to the
- *              libpng mailing list.
+ *           the 'C' calling convention (from PNGCAPI) for
+ *           callbacks (PNGCBAPI).  This is no longer required
+ *           in any known environment - if it has to be used
+ *           please post an explanation of the problem to the
+ *           libpng mailing list.
  *
  * These cases only differ if the operating system does not use the C
  * calling convention, at present this just means the above cases
@@ -154,20 +154,20 @@
  * Four additional macros are used to make this happen:
  *
  * PNG_IMPEXP The magic (if any) to cause a symbol to be exported from
- *          the build or imported if PNG_USE_DLL is set - compiler
- *          and system specific.
+ *       the build or imported if PNG_USE_DLL is set - compiler
+ *       and system specific.
  *
  * PNG_EXPORT_TYPE(type) A macro that pre or appends PNG_IMPEXP to
- *                     'type', compiler specific.
+ *                  'type', compiler specific.
  *
  * PNG_DLL_EXPORT Set to the magic to use during a libpng build to
- *              make a symbol exported from the DLL.  Not used in the
- *              public header files; see pngpriv.h for how it is used
- *              in the libpng build.
+ *           make a symbol exported from the DLL.  Not used in the
+ *           public header files; see pngpriv.h for how it is used
+ *           in the libpng build.
  *
  * PNG_DLL_IMPORT Set to the magic to force the libpng symbols to come
- *              from a DLL - used to define PNG_IMPEXP when
- *              PNG_USE_DLL is set.
+ *           from a DLL - used to define PNG_IMPEXP when
+ *           PNG_USE_DLL is set.
  */
 
 /* System specific discovery.

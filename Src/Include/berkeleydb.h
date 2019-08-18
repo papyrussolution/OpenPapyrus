@@ -39,8 +39,8 @@
  * higher warning levels cleanly.
  *
  * 4820: 'bytes' bytes padding added after member 'member'
- *     The type and order of elements caused the compiler to
- *     add padding to the end of a struct.
+ *  The type and order of elements caused the compiler to
+ *  add padding to the end of a struct.
  */
   #pragma warning(push)
   #pragma warning(disable: 4820)

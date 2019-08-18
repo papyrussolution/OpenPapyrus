@@ -596,12 +596,12 @@ struct __channel {
  * be:
  *
  * a) When we accept an incoming connection, we don't know what site it
- *    comes from until we read the initial handshake message.
+ * comes from until we read the initial handshake message.
  *
  * b) When an error occurs on a connection, we first mark it as DEFUNCT
- *    and stop using it.  Then, at a later, well-defined time, we close
- *    the connection's file descriptor and get rid of the connection
- *    struct.
+ * and stop using it.  Then, at a later, well-defined time, we close
+ * the connection's file descriptor and get rid of the connection
+ * struct.
  *
  * In light of the above, we can see that the following describes the
  * rules for how connections may be moved among these three kinds of
@@ -741,9 +741,9 @@ typedef struct {
  * less frequent of course.
  *   When it's necessary to acquire more than one of these mutexes, the
  * ordering priority (or "lock ordering protocol") is:
- *      db_rep->mutex (first)
- *      mtx_repmgr    (briefly)
- *      mtx_regenv    (last, and most briefly)
+ *   db_rep->mutex (first)
+ *   mtx_repmgr    (briefly)
+ *   mtx_regenv    (last, and most briefly)
  *
  * There are also mutexes for app message "channels".  Each channel has a mutex,
  * which is used to serialize any connection re-establishment that may become
@@ -754,8 +754,8 @@ typedef struct {
  *   When re-establishing a connection, the channel lock is held while
  * grabbing first the mtx_repmgr, and then the db_rep mutex (but not both
  * together).  I.e., we have:
- *      channel->mutex (first)
- *      [mtx_repmgr (very briefly)] and then [db_rep->mutex (very briefly)]
+ *   channel->mutex (first)
+ *   [mtx_repmgr (very briefly)] and then [db_rep->mutex (very briefly)]
  */
 
 #define	LOCK_MUTEX(m) do {						\

@@ -2679,7 +2679,7 @@ private:
 				if(Data.AddValidation(set)) {
 					ok++;
 				}
-				//else{
+				//else {
 				//	PPError();
 				//}
 			}
@@ -2884,10 +2884,11 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		//  @erik v10.5.2
 		//  функция вставки всех марок из буфера(если они там есть)
 		//
-		virtual int pasteFromClipboardAll() {
-			int ok = 0;
+		virtual int pasteFromClipboardAll() 
+		{
+			int    ok = 0;
 			uint   sel = 0;
-			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
+			//TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
 			SString temp_buf;
 			StringSet ss;
 			PPLotExtCodeContainer::MarkSet set;

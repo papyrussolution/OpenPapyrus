@@ -279,7 +279,7 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 			 * registers to accommodate more data.
 			 * I'd unroll it 8-wise otherwise:-)
 			 *
-			 *            <appro@fy.chalmers.se>
+			 *         <appro@fy.chalmers.se>
 			 */
 			BN_ULONG a0, a1, a2, a3;
 			a0 = B[0];

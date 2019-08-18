@@ -591,7 +591,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char * user, size_t userlen, const 
  * ntlm             [in] - The ntlm data struct being used to read TargetInfo
                            and Server challenge received in the type-2 message
  * ntresp          [out] - The address where a pointer to newly allocated
- *                       memory holding the NTLMv2 response.
+ *                    memory holding the NTLMv2 response.
  * ntresp_len      [out] - The length of the output message.
  *
  * Returns CURLE_OK on success.

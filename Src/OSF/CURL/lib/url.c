@@ -4160,14 +4160,14 @@ out:
  * strip them out of the host name
  *
  * Inputs: data->set.use_netrc (CURLOPT_NETRC)
- *       conn->host.name
+ *    conn->host.name
  *
  * Outputs: (almost :- all currently undefined)
- *        conn->bits.user_passwd  - non-zero if non-default passwords exist
- *        user                    - non-zero length if defined
- *        passwd                  - non-zero length if defined
- *        options                 - non-zero length if defined
- *        conn->host.name         - remove user name and password
+ *     conn->bits.user_passwd  - non-zero if non-default passwords exist
+ *     user                    - non-zero length if defined
+ *     passwd                  - non-zero length if defined
+ *     options                 - non-zero length if defined
+ *     conn->host.name         - remove user name and password
  */
 static CURLcode parse_url_login(struct Curl_easy * data, struct connectdata * conn, char ** user, char ** passwd, char ** options)
 {
@@ -4266,11 +4266,11 @@ out:
  * login    [in]     - The login string.
  * len      [in]     - The length of the login string.
  * userp    [in/out] - The address where a pointer to newly allocated memory
- *                   holding the user will be stored upon completion.
+ *                holding the user will be stored upon completion.
  * passdwp  [in/out] - The address where a pointer to newly allocated memory
- *                   holding the password will be stored upon completion.
+ *                holding the password will be stored upon completion.
  * optionsp [in/out] - The address where a pointer to newly allocated memory
- *                   holding the options will be stored upon completion.
+ *                holding the options will be stored upon completion.
  *
  * Returns CURLE_OK on success.
  */

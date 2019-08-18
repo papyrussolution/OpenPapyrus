@@ -6,10 +6,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -149,7 +149,7 @@ __LA_DECL const char *	archive_version_string(void);
 /*
  * Detailed textual name/version of the library and its dependencies.
  * This has the form:
- *    "libarchive x.y.z zlib/a.b.c liblzma/d.e.f ... etc ..."
+ * "libarchive x.y.z zlib/a.b.c liblzma/d.e.f ... etc ..."
  * the list of libraries described here will vary depending on how
  * libarchive was compiled.
  */
@@ -335,12 +335,12 @@ typedef const char *archive_passphrase_callback(struct archive *, void *_client_
  * Basic outline for reading an archive:
  *   1) Ask archive_read_new for an archive reader object.
  *   2) Update any global properties as appropriate.
- *      In particular, you'll certainly want to call appropriate
- *      archive_read_support_XXX functions.
+ *   In particular, you'll certainly want to call appropriate
+ *   archive_read_support_XXX functions.
  *   3) Call archive_read_open_XXX to open the archive
  *   4) Repeatedly call archive_read_next_header to get information about
- *      successive archive entries.  Call archive_read_data to extract
- *      data for entries of interest.
+ *   successive archive entries.  Call archive_read_data to extract
+ *   data for entries of interest.
  *   5) Call archive_read_free to end processing.
  */
 __LA_DECL struct archive * archive_read_new(void);
@@ -540,11 +540,11 @@ __LA_DECL int archive_read_set_passphrase_callback(struct archive *, void *clien
  * This does quite a bit more than just copy data to disk. It also:
  *  - Creates intermediate directories as required.
  *  - Manages directory permissions:  non-writable directories will
- *    be initially created with write permission enabled; when the
- *    archive is closed, dir permissions are edited to the values specified
- *    in the archive.
+ * be initially created with write permission enabled; when the
+ * archive is closed, dir permissions are edited to the values specified
+ * in the archive.
  *  - Checks hardlinks:  hardlinks will not be extracted unless the
- *    linked-to file was also extracted within the same session. (TODO)
+ * linked-to file was also extracted within the same session. (TODO)
  */
 
 /* The "flags" argument selects optional behavior, 'OR' the flags you want. */
@@ -598,14 +598,14 @@ __LA_DECL int  archive_read_finish(struct archive *) __LA_DEPRECATED;
  * To create an archive:
  *   1) Ask archive_write_new for an archive writer object.
  *   2) Set any global properties.  In particular, you should set
- *      the compression and format to use.
+ *   the compression and format to use.
  *   3) Call archive_write_open to open the file (most people
- *       will use archive_write_open_file or archive_write_open_fd,
- *       which provide convenient canned I/O callbacks for you).
+ *    will use archive_write_open_file or archive_write_open_fd,
+ *    which provide convenient canned I/O callbacks for you).
  *   4) For each entry:
- *      - construct an appropriate struct archive_entry structure
- *      - archive_write_header to write the header
- *      - archive_write_data to write the entry data
+ *   - construct an appropriate struct archive_entry structure
+ *   - archive_write_header to write the header
+ *   - archive_write_data to write the entry data
  *   5) archive_write_close to close the output
  *   6) archive_write_free to cleanup the writer and release resources
  */
@@ -732,9 +732,9 @@ __LA_DECL int archive_write_set_passphrase_callback(struct archive *, void *clie
  *   1) Ask archive_write_disk_new for a new archive_write_disk object.
  *   2) Set any global properties.  In particular, you probably want to set the options.
  *   3) For each entry:
- *      - construct an appropriate struct archive_entry structure
- *      - archive_write_header to create the file/dir/etc on disk
- *      - archive_write_data to write the entry data
+ *   - construct an appropriate struct archive_entry structure
+ *   - archive_write_header to create the file/dir/etc on disk
+ *   - archive_write_data to write the entry data
  *   4) archive_write_free to cleanup the writer and release resources
  *
  * In particular, you can use this in conjunction with archive_read()

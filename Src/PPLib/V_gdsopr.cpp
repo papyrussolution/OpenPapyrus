@@ -18,34 +18,28 @@ struct GoaAddingBlock {
 		fIncomeWithoutExcise = 0x0002, // (profitable && Filt.Flags & GoodsOpAnalyzeFilt::fPriceWithoutExcise)
 		fTradePlan           = 0x0004  // Блок используется для вставки торгового плана
 	};
-	PPID   ArID;           // (Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) ? pPack->Rec.Object : 0L;
-	PPID   OpID;           //
-	PPID   LocID;          // EachLoc ? pPack->Rec.LocID : Filt.LocList.GetSingle();
-	int    Sign;           //
-	int    BillSign;       // bill_sign = (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogSelected && sign) ? sign : 1; // AHTOXA
-	long   Flags;          // GoaAddingBlock::fXXX
+	PPID   ArID;         // (Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) ? pPack->Rec.Object : 0L;
+	PPID   OpID;         //
+	PPID   LocID;        // EachLoc ? pPack->Rec.LocID : Filt.LocList.GetSingle();
+	int    Sign;         //
+	int    BillSign;     // bill_sign = (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogSelected && sign) ? sign : 1; // AHTOXA
+	long   Flags;        // GoaAddingBlock::fXXX
 	double Part;
-	//
-	//
-	//
 	Goods2Tbl::Rec GoodsRec;
 	PPID   ParentGrpID;
-	PPID   FinalGoodsID;   // ИД товара после подстановки
-	int    TiSign;         // _sign = (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogSelected) ? 0 : sign;
+	PPID   FinalGoodsID; // ИД товара после подстановки
+	int    TiSign;       // _sign = (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogSelected) ? 0 : sign;
 	double UnitPerPack;
 	double Qtty;
-	double PhQtty;         // При установленом флаге GoodsOpAnlyzeFilt::fCompareWithReceipt
-		// используется для хранения количества товара документа закупки
+	double PhQtty;       // При установленом флаге GoodsOpAnlyzeFilt::fCompareWithReceipt используется для хранения количества товара документа закупки
 	double Cost;
 	double Price;
-	double OldCost;        // При установленом флаге GoodsOpAnlyzeFilt::fCompareWithReceipt
-		// используется для хранения сумм цен поступления товара документа закупки
-	double OldPrice;       // При установленом флаге GoodsOpAnlyzeFilt::fCompareWithReceipt
-		// используется для хранения сумм цен реализации  товара документа закупки
-	double Rest;           //
-	double PhRest;         //
-	double RestCostSum;    //
-	double RestPriceSum;   //
+	double OldCost;      // При установленом флаге GoodsOpAnlyzeFilt::fCompareWithReceipt используется для хранения сумм цен поступления товара документа закупки
+	double OldPrice;     // При установленом флаге GoodsOpAnlyzeFilt::fCompareWithReceipt используется для хранения сумм цен реализации  товара документа закупки
+	double Rest;         //
+	double PhRest;       //
+	double RestCostSum;  //
+	double RestPriceSum; //
 };
 
 struct GoaCacheItem {      // size=156
@@ -1633,31 +1627,31 @@ void ABCGroupingRecsStorage::Init(const ABCAnlzFilt * pFilt, double totalSum, lo
 double ABCGroupingRecsStorage::GetMaxFraction(short * pABCGrp)
 {
 	int    idx = -1;
-	double max = 0.0;
+	double max_val = 0.0;
 	for(int i = 0; i < ABC_GRPSCOUNT; i++)
-		if(Filt.GrpFract[i] > max && !ExcludedGrps.lsearch(i)) {
+		if(Filt.GrpFract[i] > max_val && !ExcludedGrps.lsearch(i)) {
 			idx = i;
-			max = Filt.GrpFract[i];
+			max_val = Filt.GrpFract[i];
 		}
 	if(idx > -1)
 		ExcludedGrps.add(idx);
-	ASSIGN_PTR(pABCGrp, (short)idx);
-	return fdiv100r(max) * TotalSum;
+	ASSIGN_PTR(pABCGrp, static_cast<short>(idx));
+	return fdiv100r(max_val) * TotalSum;
 }
 
 double ABCGroupingRecsStorage::GetMinFraction(short * pABCGrp)
 {
 	int    idx = -1;
-	double min = SMathConst::Max;
+	double min_val = SMathConst::Max;
 	for(int i = 0; i < ABC_GRPSCOUNT; i++)
-		if(Filt.GrpFract[i] <= min && Filt.GrpFract[i] > 0) {
+		if(Filt.GrpFract[i] <= min_val && Filt.GrpFract[i] > 0) {
 			idx = i;
-			min = Filt.GrpFract[i];
+			min_val = Filt.GrpFract[i];
 		}
 	if(idx > -1)
 		ExcludedGrps.add(idx);
-	ASSIGN_PTR(pABCGrp, (short)idx);
-	return fdiv100r(min) * TotalSum;
+	ASSIGN_PTR(pABCGrp, static_cast<short>(idx));
+	return fdiv100r(min_val) * TotalSum;
 }
 
 //static

@@ -677,7 +677,7 @@ pixman_image_t * pixman_image_create_bits_no_clear(pixman_format_code_t format, 
 pixman_image_t * FASTCALL pixman_image_ref(pixman_image_t * image);
 pixman_bool_t   FASTCALL pixman_image_unref(pixman_image_t * image);
 void            pixman_image_set_destroy_function(pixman_image_t * image, pixman_image_destroy_func_t function, void * data);
-void *        pixman_image_get_destroy_data(pixman_image_t * image);
+void *     pixman_image_get_destroy_data(pixman_image_t * image);
 
 /* Set properties */
 pixman_bool_t   pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region);
@@ -871,9 +871,9 @@ void           pixman_rasterize_edges(pixman_image_t * image, pixman_edge_t * l,
 void           pixman_add_traps(pixman_image_t * image, int16_t x_off, int16_t y_off, int ntrap, const pixman_trap_t * traps);
 void           pixman_add_trapezoids(pixman_image_t * image, int16_t x_off, int y_off, int ntraps, const pixman_trapezoid_t * traps);
 void           pixman_rasterize_trapezoid(pixman_image_t * image, const pixman_trapezoid_t * trap, int x_off, int y_off);
-void          pixman_composite_trapezoids(pixman_op_t op, pixman_image_t *          src, pixman_image_t *          dst, pixman_format_code_t mask_format,
+void          pixman_composite_trapezoids(pixman_op_t op, pixman_image_t *       src, pixman_image_t *       dst, pixman_format_code_t mask_format,
     int x_src, int y_src, int x_dst, int y_dst, int n_traps, const pixman_trapezoid_t *  traps);
-void          pixman_composite_triangles(pixman_op_t op, pixman_image_t *           src, pixman_image_t *           dst, pixman_format_code_t mask_format,
+void          pixman_composite_triangles(pixman_op_t op, pixman_image_t *        src, pixman_image_t *        dst, pixman_format_code_t mask_format,
     int x_src, int y_src, int x_dst, int y_dst, int n_tris, const pixman_triangle_t * tris);
 void          pixman_add_triangles(pixman_image_t * image, int32_t x_off, int32_t y_off, int n_tris, const pixman_triangle_t * tris);
 

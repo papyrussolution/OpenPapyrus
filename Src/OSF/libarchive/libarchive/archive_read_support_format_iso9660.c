@@ -8,10 +8,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -58,16 +58,16 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_iso9660.c 20
  * Each disk is laid out as follows:
  *   * 32k reserved for private use
  *   * Volume descriptor table.  Each volume descriptor
- *     is 2k and specifies basic format information.
- *     The "Primary Volume Descriptor" (PVD) is defined by the
- *     standard and should always be present; other volume
- *     descriptors include various vendor-specific extensions.
+ *  is 2k and specifies basic format information.
+ *  The "Primary Volume Descriptor" (PVD) is defined by the
+ *  standard and should always be present; other volume
+ *  descriptors include various vendor-specific extensions.
  *   * Files and directories.  Each file/dir is specified by
- *     an "extent" (starting sector and length in bytes).
- *     Dirs are just files with directory records packed one
- *     after another.  The PVD contains a single dir entry
- *     specifying the location of the root directory.  Everything
- *     else follows from there.
+ *  an "extent" (starting sector and length in bytes).
+ *  Dirs are just files with directory records packed one
+ *  after another.  The PVD contains a single dir entry
+ *  specifying the location of the root directory.  Everything
+ *  else follows from there.
  *
  * This module works by first reading the volume descriptors, then
  * building a list of directory entries, sorted by starting
@@ -1614,8 +1614,8 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 		 * 16 bits big endian characters on Joliet.
 		 *
 		 * TODO: sanitize filename?
-		 *       Joliet allows any UCS-2 char except:
-		 *       *, /, :, ;, ? and \.
+		 *    Joliet allows any UCS-2 char except:
+		 *    *, /, :, ;, ? and \.
 		 */
 		/* Chop off trailing ';1' from files. */
 		if(name_len > 4 && p[name_len-4] == 0 && p[name_len-3] == ';'
@@ -1932,7 +1932,7 @@ static int parse_rockridge(struct archive_read * a, struct file_info * file, con
 			    else if(p[1] == 'R' && version == 1) {
 				    /*
 				     * RR extension comprises:
-				     *    one byte flag value
+				     * one byte flag value
 				     * This extension is obsolete,
 				     * so contents are always ignored.
 				     */
@@ -2139,12 +2139,12 @@ static void parse_rockridge_NM1(struct file_info * file,
 	/*
 	 * NM version 1 extension comprises:
 	 *   1 byte flag, value is one of:
-	 *     = 0: remainder is name
-	 *     = 1: remainder is name, next NM entry continues name
-	 *     = 2: "."
-	 *     = 4: ".."
-	 *     = 32: Implementation specific
-	 *     All other values are reserved.
+	 *  = 0: remainder is name
+	 *  = 1: remainder is name, next NM entry continues name
+	 *  = 2: "."
+	 *  = 4: ".."
+	 *  = 32: Implementation specific
+	 *  All other values are reserved.
 	 */
 	switch(data[0]) {
 		case 0:

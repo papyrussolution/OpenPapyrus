@@ -193,9 +193,9 @@
 	#define HELP_BROWSER_CHARGES                                 77
 #define BROWSER_DRAFTWROFFS                             78 // Документы списания драфт-документа (%s)
 	#define HELP_BROWSER_DRAFTWROFFS                             78
-#define BROWSER_SHIPMANLZ                               79 // Анализ отгрузки
+#define BROWSER_SHIPMANLZ                               79 // @view_shipmanalyze
 	#define HELP_BROWSER_SHIPMANLZ                               79
-#define BROWSER_SHIPMANLZBYBILL                         80 // Анализ отгрузки
+#define BROWSER_SHIPMANLZBYBILL                         80 // @view_shipmanalyze
 	#define HELP_BROWSER_SHIPMANLZBYBILL                         80
 #define BROWSER_PSALESGOODS                             81 // Продажи товаров (%s)
 	#define HELP_BROWSER_PSALESGOODS                             81

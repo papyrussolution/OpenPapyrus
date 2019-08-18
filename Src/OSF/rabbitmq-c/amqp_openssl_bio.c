@@ -22,7 +22,7 @@
  */
 #include "amqp_private.h"
 #pragma hdrstop
-#include "amqp_openssl_bio.h"
+//#include "amqp_openssl_bio.h"
 #if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
@@ -42,7 +42,8 @@ static int amqp_ssl_bio_initialized = 0;
 
 static BIO_METHOD * amqp_bio_method;
 
-static int amqp_openssl_bio_should_retry(int res) {
+static int amqp_openssl_bio_should_retry(int res) 
+{
 	if(res == -1) {
 		int err = amqp_os_socket_error();
 		if(
@@ -126,14 +127,14 @@ static int amqp_openssl_bio_read(BIO * b, char * out, int outl)
 #endif /* AQP_OPENSSL_V110 */
 #endif /* AMQP_USE_AMQP_BIO */
 
-int amqp_openssl_bio_init(void) {
+int amqp_openssl_bio_init() 
+{
 	assert(!amqp_ssl_bio_initialized);
 #ifdef AMQP_USE_AMQP_BIO
 #ifdef AMQP_OPENSSL_V110
 	if(!(amqp_bio_method = BIO_meth_new(BIO_TYPE_SOCKET, "amqp_bio_method"))) {
 		return AMQP_STATUS_NO_MEMORY;
 	}
-
 	// casting away const is necessary until
 	// https://github.com/openssl/openssl/pull/2181/, which is targeted for
 	// openssl 1.1.1
@@ -159,7 +160,7 @@ int amqp_openssl_bio_init(void) {
 	return AMQP_STATUS_OK;
 }
 
-void amqp_openssl_bio_destroy(void)
+void amqp_openssl_bio_destroy()
 {
 	assert(amqp_ssl_bio_initialized);
 #ifdef AMQP_USE_AMQP_BIO
@@ -173,7 +174,7 @@ void amqp_openssl_bio_destroy(void)
 	amqp_ssl_bio_initialized = 0;
 }
 
-BIO_METHOD_PTR amqp_openssl_bio(void)
+BIO_METHOD_PTR amqp_openssl_bio()
 {
 	assert(amqp_ssl_bio_initialized);
 #ifdef AMQP_USE_AMQP_BIO

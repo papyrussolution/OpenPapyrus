@@ -9,10 +9,10 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
@@ -455,7 +455,7 @@ void __archive_rb_tree_remove_node(struct archive_rb_tree * rbt, struct archive_
 	 * The simplest case is a childless red node or a childless root node:
 	 *
 	 * |    T  -->    T  |    or    |  R  -->  *  |
-	 * |  s    -->  *    |
+	 * |  s    -->  * |
 	 */
 	if(RB_CHILDLESS_P(self)) {
 		const int rebalance = RB_BLACK_P(self) && !RB_ROOT_P(rbt, self);
@@ -469,7 +469,7 @@ void __archive_rb_tree_remove_node(struct archive_rb_tree * rbt, struct archive_
 		 *
 		 * |      T  -->      T  -->      T  |
 		 * |    S    -->  R      -->  R      |
-		 * |  r      -->    s    -->    *    |
+		 * |  r      -->    s    -->    * |
 		 */
 		which = RB_LEFT_SENTINEL_P(self) ? RB_DIR_RIGHT : RB_DIR_LEFT;
 		__archive_rb_tree_prune_blackred_branch(self, which);
@@ -509,9 +509,9 @@ static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree * rbt, st
 				 * has a red child which is case 3; thus no
 				 * explicit branch to case 2b).
 				 *
-				 *    B         ->        D
+				 * B         ->        D
 				 *  A     d     ->    b     E
-				 *      C   E   ->  A   C
+				 *   C   E   ->  A   C
 				 */
 				__archive_rb_tree_reparent_nodes(parent, other);
 				brother = parent->rb_nodes[other];
@@ -524,9 +524,9 @@ static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree * rbt, st
 				 * Change our brother to red, advance up rank
 				 * and go through the loop again.
 				 *
-				 *    B         ->   *B
+				 * B         ->   *B
 				 * *A     D     ->  A     d
-				 *      C   E   ->      C   E
+				 *   C   E   ->      C   E
 				 */
 				RB_MARK_RED(brother);
 				if(RB_ROOT_P(rbt, parent))
@@ -548,7 +548,7 @@ static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree * rbt, st
 			 * respectively).
 			 *
 			 *	|    f        -->    F        |
-			 *	|  *     B    -->  *     b    |
+			 *	|  *  B    -->  *  b    |
 			 *	|      N   N  -->      N   N  |
 			 */
 			RB_MARK_BLACK(parent);

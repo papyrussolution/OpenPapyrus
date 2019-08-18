@@ -6,24 +6,24 @@
  *
  * --------------------------------------------------------------------------
  *
- *      Pthreads4w - POSIX Threads for Windows
- *      Copyright 1998 John E. Bossom
- *      Copyright 1999-2018, Pthreads4w contributors
+ *   Pthreads4w - POSIX Threads for Windows
+ *   Copyright 1998 John E. Bossom
+ *   Copyright 1999-2018, Pthreads4w contributors
  *
- *      Homepage: https://sourceforge.net/projects/pthreads4w/
+ *   Homepage: https://sourceforge.net/projects/pthreads4w/
  *
- *      The current list of contributors is contained
- *      in the file CONTRIBUTORS included with the source
- *      code distribution. The list can also be seen at the
- *      following World Wide Web location:
+ *   The current list of contributors is contained
+ *   in the file CONTRIBUTORS included with the source
+ *   code distribution. The list can also be seen at the
+ *   following World Wide Web location:
  *
- *      https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,39 +33,37 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int pthread_key_delete(pthread_key_t key)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *      This function deletes a thread-specific data key. This
- *      does not change the value of the thread specific data key
- *      for any thread and does not run the key's destructor
- *      in any thread so it should be used with caution.
+ *   This function deletes a thread-specific data key. This
+ *   does not change the value of the thread specific data key
+ *   for any thread and does not run the key's destructor
+ *   in any thread so it should be used with caution.
  *
  * PARAMETERS
- *      key
- *              pointer to an instance of pthread_key_t
+ *   key
+ *           pointer to an instance of pthread_key_t
  *
  *
  * DESCRIPTION
- *      This function deletes a thread-specific data key. This
- *      does not change the value of the thread specific data key
- *      for any thread and does not run the key's destructor
- *      in any thread so it should be used with caution.
+ *   This function deletes a thread-specific data key. This
+ *   does not change the value of the thread specific data key
+ *   for any thread and does not run the key's destructor
+ *   in any thread so it should be used with caution.
  *
  * RESULTS
- *              0               successfully deleted the key,
- *              EINVAL          key is invalid,
+ *           0               successfully deleted the key,
+ *           EINVAL          key is invalid,
  *
  * ------------------------------------------------------
  */
+int pthread_key_delete(pthread_key_t key)
 {
 	__ptw32_mcs_local_node_t keyLock;
 	int result = 0;
-
-	if(key != NULL) {
-		if(key->threads != NULL && key->destructor != NULL) {
+	if(key) {
+		if(key->threads && key->destructor) {
 			ThreadKeyAssoc * assoc;
 			__ptw32_mcs_lock_acquire(&(key->keyLock), &keyLock);
 			/*
@@ -79,12 +77,10 @@ int pthread_key_delete(pthread_key_t key)
 			while((assoc = (ThreadKeyAssoc*)key->threads) != NULL) {
 				__ptw32_mcs_local_node_t threadLock;
 				__ptw32_thread_t * thread = assoc->thread;
-
 				if(assoc == NULL) {
 					/* Finished */
 					break;
 				}
-
 				__ptw32_mcs_lock_acquire(&(thread->threadLock), &threadLock);
 				/*
 				 * Since we are starting at the head of the key's threads
@@ -108,5 +104,5 @@ int pthread_key_delete(pthread_key_t key)
 #endif
 		SAlloc::F(key);
 	}
-	return (result);
+	return result;
 }
