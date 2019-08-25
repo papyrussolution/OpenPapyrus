@@ -140,18 +140,11 @@ typedef enum {
 	PThreadStateReuse,      /* In reuse pool.                       */
 	PThreadStateRunning,    /* Thread alive & kicking               */
 	PThreadStateSuspended,  /* Thread alive but suspended           */
-	PThreadStateCancelPending, /* Thread alive but                     */
-	                           /* has cancellation pending.            */
-	PThreadStateCanceling,  /* Thread alive but is                  */
-	                        /* in the process of terminating        */
-	                        /* due to a cancellation request        */
-	PThreadStateExiting,    /* Thread alive but exiting             */
-	                        /* due to an exception                  */
-	PThreadStateLast        /* All handlers have been run and now   */
-	                        /* final cleanup can be done.           */
-}
-
-PThreadState;
+	PThreadStateCancelPending, // Thread alive but has cancellation pending.
+	PThreadStateCanceling,  // Thread alive but is in the process of terminating due to a cancellation request
+	PThreadStateExiting,    // Thread alive but exiting due to an exception
+	PThreadStateLast        // All handlers have been run and now final cleanup can be done.
+} PThreadState;
 
 typedef struct __ptw32_mcs_node_t_ __ptw32_mcs_local_node_t;
 typedef struct __ptw32_mcs_node_t_*    __ptw32_mcs_lock_t;
@@ -177,10 +170,8 @@ struct __ptw32_thread_t_ {
 #if defined(HAVE_SIGSET_T)
 	sigset_t sigmask;
 #endif                          /* HAVE_SIGSET_T */
-	__ptw32_mcs_lock_t
-	    robustMxListLock;   /* robustMxList lock */
-	__ptw32_robust_node_t*
-	    robustMxList;       /* List of currenty held robust mutexes */
+	__ptw32_mcs_lock_t robustMxListLock;   /* robustMxList lock */
+	__ptw32_robust_node_t* robustMxList;       /* List of currenty held robust mutexes */
 	int ptErrno;
 	int detachState;
 	int sched_priority;     /* As set, not as currently is */
@@ -197,7 +188,6 @@ struct __ptw32_thread_t_ {
 #endif
 	size_t align;           /* Force alignment if this struct is packed */
 };
-
 /*
  * Special value to mark attribute objects as valid.
  */
@@ -239,21 +229,13 @@ struct sem_t_ {
 #define  __PTW32_OBJECT_INVALID   NULL
 
 struct pthread_mutex_t_ {
-	LONG lock_idx;          /* Provides exclusive access to mutex state
-	                           via the Interlocked* mechanism.
-	                            0: unlocked/free.
-	                            1: locked - no other waiters.
-	                           -1: locked - with possible other waiters.
-	                         */
-	int recursive_count;    /* Number of unlocks a thread needs to perform
-	                           before the lock is released (recursive
-	                           mutexes only). */
+	LONG lock_idx; // Provides exclusive access to mutex state via the Interlocked* mechanism.
+		// 0: unlocked/free; 1: locked - no other waiters; -1: locked - with possible other waiters.
+	int recursive_count; // Number of unlocks a thread needs to perform before the lock is released (recursive mutexes only). 
 	int kind;               /* Mutex type. */
 	pthread_t ownerThread;
-	HANDLE event;           /* Mutex release notification to waiting
-	                           threads. */
-	__ptw32_robust_node_t*
-	    robustNode;         /* Extra state for robust mutexes  */
+	HANDLE event; // Mutex release notification to waiting threads. 
+	__ptw32_robust_node_t* robustNode; // Extra state for robust mutexes 
 };
 
 enum __ptw32_robust_state_t_ {

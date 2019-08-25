@@ -629,7 +629,7 @@ int32 DL6ICLS_PPObjSalCharge::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPID   id = 0;
 	PPSalChargePacket pack;
 	SString temp_buf;
-	SPpyO_SalCharge * p_outer_rec = (SPpyO_SalCharge *)pRec;
+	const SPpyO_SalCharge * p_outer_rec = static_cast<const SPpyO_SalCharge *>(pRec);
 	PPObjSalCharge  * p_obj = static_cast<PPObjSalCharge *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_outer_rec->RecTag == ppoSalCharge, PPERR_INVSTRUCTAG, "ppoSalCharge");

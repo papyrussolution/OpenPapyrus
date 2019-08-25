@@ -1,6 +1,6 @@
 // OBJUTIL.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -9,9 +9,9 @@
 
 #define UNREGISTERED_OBJECT 0
 //
-// Ó÷èòûâàÿ, ÷òî âñå èäåíòèôèêàòîðû òèïîâ îáúåêòîâ óìåùàþòñÿ â
-// 2-õ áàéòîâîå öåëîå çíà÷åíèå è ðàäè ýêîíîìèè ïàìÿòè ýòîò ìàññèâ
-// îïðåäåëåí êàê ushort [].
+// Ð£Ñ‡Ð¸Ñ‚Ñ‹Ð²Ð°Ñ, Ñ‡Ñ‚Ð¾ Ð²ÑÐµ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ñ‹ Ñ‚Ð¸Ð¿Ð¾Ð² Ð¾Ð±ÑŠÐµÐºÑ‚Ð¾Ð² ÑƒÐ¼ÐµÑ‰Ð°ÑŽÑ‚ÑÑ Ð²
+// 2-Ñ… Ð±Ð°Ð¹Ñ‚Ð¾Ð²Ð¾Ðµ Ñ†ÐµÐ»Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ð¸ Ñ€Ð°Ð´Ð¸ ÑÐºÐ¾Ð½Ð¾Ð¼Ð¸Ð¸ Ð¿Ð°Ð¼ÑÑ‚Ð¸ ÑÑ‚Ð¾Ñ‚ Ð¼Ð°ÑÑÐ¸Ð²
+// Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½ ÐºÐ°Ðº ushort [].
 //
 static const ushort _Objects[] = {
 	PPOBJ_CONFIG,       // ?
@@ -342,7 +342,7 @@ int SLAPI PPObject::ReplaceObj(PPID objType, PPID dest, PPID src, uint options)
 	THROW_PP(dest != src, PPERR_REPLSAMEOBJ);
 	if(obj_sync.SearchPrivate(objType, dest, 0, 0) > 0)
 		dest_comm_id = obj_sync.data;
-	THROW(o = GetPPObject(objType, 0)); // @v8.0.0 ïåðåíåñåíî èç #1 äëÿ òîãî, ÷òîáû íå ñîçäàâàòü îáúåêò âíóòðè òðàíçàêöèè
+	THROW(o = GetPPObject(objType, 0)); // @v8.0.0 Ð¿ÐµÑ€ÐµÐ½ÐµÑÐµÐ½Ð¾ Ð¸Ð· #1 Ð´Ð»Ñ Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ ÑÐ¾Ð·Ð´Ð°Ð²Ð°Ñ‚ÑŒ Ð¾Ð±ÑŠÐµÐºÑ‚ Ð²Ð½ÑƒÑ‚Ñ€Ð¸ Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¸
 	{
 		PPTransaction tra(BIN(options & use_transaction)); // @v9.8.6 1-->BIN(options & use_transaction)
 		THROW(tra);
@@ -461,7 +461,7 @@ SLAPI PPObjPack::PPObjPack() : Data(0), Mod(ZERODATETIME), Priority(PPObjectTran
 
 int SLAPI PPObject::CreateReservedObjects(long flags)
 {
-	// @todo Âûäàâàòü íà ýêðàí ñïèñîê îáúåêòîâ, ñîçäàííûõ â ðåçóëüòàòå ðàáîòû ôóíêöèè
+	// @todo Ð’Ñ‹Ð´Ð°Ð²Ð°Ñ‚ÑŒ Ð½Ð° ÑÐºÑ€Ð°Ð½ ÑÐ¿Ð¸ÑÐ¾Ðº Ð¾Ð±ÑŠÐµÐºÑ‚Ð¾Ð², ÑÐ¾Ð·Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð² Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ðµ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸
 	int    ok = 1;
 	PPIDArray obj_type_list;
 	PPWait(1);
@@ -973,9 +973,12 @@ int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, 
 		PPTransaction tra(BIN(options & use_transaction));
 		THROW(tra);
 		if(!(options & not_objnotify)) {
-			r = SendObjMessage(DBMSG_OBJDELETE, 0, Obj, id, pExtraParam, pObjColl);
-			THROW(r == DBRPL_OK && Search(id) > 0 && DeleteObj(id));
+			THROW(SendObjMessage(DBMSG_OBJDELETE, 0, Obj, id, pExtraParam, pObjColl) == DBRPL_OK);
 		}
+		// @v10.5.3 @fix Ð¡Ð»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ðµ 2 Ð¾Ð¿ÐµÑ€Ð°Ñ‚Ð¾Ñ€Ð° Ð½Ð°Ñ…Ð¾Ð´Ð¸Ð»Ð¸ÑÑŒ Ð² Ð±Ð»Ð¾ÐºÐµ Ð²Ñ‹ÑˆÐµ. ÐŸÐ¾-ÑÑ‚Ð¾Ð¼Ñƒ Ð¿Ñ€Ð¸ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½Ð½Ð¾Ð¹ Ð¾Ð¿Ñ†Ð¸Ð¸ not_objnotify Ð¾Ð±ÑŠÐµÐºÑ‚ Ñ„Ð°ÐºÑ‚Ð¸Ñ‡ÐµÑÐºÐ¸ Ð½Ðµ ÑƒÐ´Ð°Ð»ÑÐ»ÑÑ!
+		THROW(Search(id) > 0);
+		THROW(DeleteObj(id));
+		//
 		THROW(PPRef->RemoveProperty(Obj, id, 0, 0));
 		THROW(RemoveSync(id));
 		if(!(options & not_addtolog))
@@ -1158,7 +1161,7 @@ static int FASTCALL Helper_SendObjMessage(int msg, PPID destObj, PPID obj, PPID 
 				if(pDestObjColl) {
 					ppobj = pDestObjColl->GetObjectPtr(obj_type);
 					r = ppobj ? ppobj->HandleMsg(msg, obj, id, msgExtraPtr) : DBRPL_ERROR;
-					ppobj = 0; // Óêàçàòåëü - ñîáñòâåííîñòü êîëëåêöèè pDestObjColl è íå ìîæåò áûòü ðàçðóøåí
+					ppobj = 0; // Ð£ÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ - ÑÐ¾Ð±ÑÑ‚Ð²ÐµÐ½Ð½Ð¾ÑÑ‚ÑŒ ÐºÐ¾Ð»Ð»ÐµÐºÑ†Ð¸Ð¸ pDestObjColl Ð¸ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ñ€Ð°Ð·Ñ€ÑƒÑˆÐµÐ½
 				}
 				else {
 					ppobj = GetPPObject(obj_type, 0);
@@ -1816,7 +1819,7 @@ int SLAPI ObjLinkFiles::SplitInnerFileName(const char * pFileName, Fns * pS)
 			pS->ObjType = temp_buf.ToLong();
 			if(ss.get(&i, temp_buf)) {
 				pS->ObjID = temp_buf.ToLong();
-				if(ss.getCount() > 3) { // Èçâëå÷åì AddedID
+				if(ss.getCount() > 3) { // Ð˜Ð·Ð²Ð»ÐµÑ‡ÐµÐ¼ AddedID
 					if(ss.get(&i, temp_buf)) {
 						// @v9.3.9 pS->AddedID = temp_buf.ToLong();
 						pS->AddedStr = temp_buf; // @v9.3.9
@@ -1990,7 +1993,7 @@ int SLAPI ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer
 	const size_t file_chunk_size = 8 * 1024 * 1024;
 
 	int    ok = 1;
-	uint32 _c = 0; // Êîëè÷åñòâî ôàéëîâ
+	uint32 _c = 0; // ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ñ„Ð°Ð¹Ð»Ð¾Ð²
 	int32  transmission_not_supported = BIN(dir > 0 && transmissionNotSupported);
 	SString file_path, org_file_name;
 	State &= ~stTransmissionNotSupported;
@@ -2515,7 +2518,7 @@ int PPALDD_UhttCurRateArray::NextIteration(long iterId)
 	return ok;
 }
 //
-//
+// @construction {
 //
 struct UniFindObjParam {
 	UniFindObjParam() : WFlags(0), DFlags(0)
@@ -2569,3 +2572,4 @@ int SLAPI UniFindObj()
 
 	return ok;
 }
+// } @construction

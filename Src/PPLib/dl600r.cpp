@@ -1302,22 +1302,32 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 		if(rParam.P_ViewDef) { //надеюсь, список всех entry  отсортирован по Zone. При обратном ничего плохого конечно не случится, но XML будет некрасивый
 			const PPNamedFilt::ViewDefinition * p_vd = static_cast<const PPNamedFilt::ViewDefinition *>(rParam.P_ViewDef);
 			PPNamedFilt::ViewDefinition::Entry tmp_entry;
-			for(uint i = 0; i < p_vd->GetCount(); i++){
-				p_vd->GetEntry(i, tmp_entry);
-				if(i == 0){
-					suffix = tmp_entry.Zone;
+			suffix = "ViewDescription";
+			xmlTextWriterStartElement(p_writer, suffix.ucptr());
+			for(uint i = 0; i < p_vd->GetCount(); i++) {
+				if(p_vd->GetEntry(i, tmp_entry)){
+					if(oneof2(rParam.Cp, cpANSI, cp1251)){
+						tmp_entry.Zone.Transf(CTRANSF_INNER_TO_OUTER);
+						tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_OUTER);
+						tmp_entry.Text.Transf(CTRANSF_INNER_TO_OUTER);
+					}
+					else if(rParam.Cp == cpUTF8){
+						tmp_entry.Zone.Transf(CTRANSF_INNER_TO_UTF8);
+						tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_UTF8);
+						tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
+					}
+					suffix = "Item";
 					xmlTextWriterStartElement(p_writer, suffix.ucptr());
-				}
-				else if(suffix != tmp_entry.Zone){
+					suffix = "Zone";
+					xmlTextWriterWriteElement(p_writer, suffix.ucptr() , tmp_entry.Zone.ucptr());
+					suffix = "FieldName";
+					xmlTextWriterWriteElement(p_writer, suffix.ucptr(), tmp_entry.FieldName.ucptr());
+					suffix = "Text";
+					xmlTextWriterWriteElement(p_writer, suffix.ucptr(), tmp_entry.Text.ucptr());
+					suffix = "TotalFunc";
+					xmlTextWriterWriteElement(p_writer, suffix.ucptr(), temp_buf.Z().Cat(tmp_entry.TotalFunc).ucptr());
 					xmlTextWriterEndElement(p_writer);
-					suffix = tmp_entry.Zone;
-					xmlTextWriterStartElement(p_writer, suffix.ucptr());
 				}
-				if(oneof2(rParam.Cp, cpANSI, cp1251))
-					tmp_entry.Text.Transf(CTRANSF_INNER_TO_OUTER);
-				else if(rParam.Cp == cpUTF8)
-					tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
-				xmlTextWriterWriteElement(p_writer, tmp_entry.FieldName.ucptr(), tmp_entry.Text.ucptr());
 			}
 			xmlTextWriterEndElement(p_writer);
 		}

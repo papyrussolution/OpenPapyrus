@@ -993,13 +993,15 @@ int SLAPI PPObjPerson::EditConfig()
 
 TLP_IMPL(PPObjPerson, PersonCore, P_Tbl);
 
-SLAPI PPObjPerson::PPObjPerson(SCtrLite sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), ExtraPtr(0)
+SLAPI PPObjPerson::PPObjPerson(SCtrLite sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), ExtraPtr(0), 
+	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON) // @v10.5.3
 {
 	TLP_OPEN(P_Tbl);
 	Cfg.Flags &= ~PPPersonConfig::fValid;
 }
 
-SLAPI PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON), LocObj(), P_ArObj(new PPObjArticle), P_PrcObj(new PPObjProcessor), ExtraPtr(extraPtr)
+SLAPI PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON), LocObj(), P_ArObj(new PPObjArticle), P_PrcObj(new PPObjProcessor), ExtraPtr(extraPtr),
+	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON) // @v10.5.3
 {
 	TLP_OPEN(P_Tbl);
 	Cfg.Flags &= ~PPPersonConfig::fValid;
@@ -1101,10 +1103,8 @@ int SLAPI PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPack
 	return eq;
 }
 
-int SLAPI PPObjPerson::Search(PPID id, void * b)
-	{ return SearchByID(P_Tbl, Obj, id, b); }
-int SLAPI PPObjPerson::DeleteObj(PPID id)
-	{ return PutPacket(&id, 0, 0); }
+int SLAPI PPObjPerson::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+int SLAPI PPObjPerson::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
 
 ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 {
@@ -1173,9 +1173,8 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 		RECORDNUMBER nr = 0;
 		P_Tbl->getNumRecs(&nr);
 		if(nr > 200000) {
-			if(pDef) {
+			if(pDef)
 				pDef->refresh();
-			}
 			else {
 				THROW(CheckTblPtr(t = new PersonTbl));
 				p_q = &select(t->ID, t->Name, 0L).from(t, 0L).orderBy(t->Name, 0L);
@@ -1226,14 +1225,10 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 
 int SLAPI PPObjPerson::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 	{ return EditSpcRightFlags(DLG_RTPERSON, 0, 0, bufSize, rt, pDlg); }
-const char * SLAPI PPObjPerson::GetNamePtr()
-	{ return P_Tbl->data.Name; }
-ListBoxDef * SLAPI PPObjPerson::Selector(void * extraPtr)
-	{ return _Selector2(0, extraPtr); }
-int SLAPI PPObjPerson::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
-	{ return BIN(_Selector2(pDef, extraPtr)); }
-int SLAPI PPObjPerson::Browse(void * extraPtr)
-	{ return ViewPerson(0); }
+const char * SLAPI PPObjPerson::GetNamePtr() { return P_Tbl->data.Name; }
+ListBoxDef * SLAPI PPObjPerson::Selector(void * extraPtr) { return _Selector2(0, extraPtr); }
+int SLAPI PPObjPerson::UpdateSelector(ListBoxDef * pDef, void * extraPtr) { return BIN(_Selector2(pDef, extraPtr)); }
+int SLAPI PPObjPerson::Browse(void * extraPtr) { return ViewPerson(0); }
 
 const PPPersonConfig & SLAPI PPObjPerson::GetConfig()
 {
@@ -2785,6 +2780,13 @@ int SLAPI PPObjPerson::UpdateAddress(PPID * pLocID, PPLocationPacket * pLocPack)
 	return ok;
 }
 
+//virtual
+int  SLAPI PPObjPerson::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+{
+	SETFLAG(options, not_addtolog, 1);
+	return PPObject::RemoveObjV(id, pObjColl, options, pExtraParam);
+}
+
 int SLAPI PPObjPerson::Helper_PutSCard(PPID personID, PPPersonPacket * pPack, PPObjSCard * pScObj)
 {
 	int    ok = -1;
@@ -2807,280 +2809,310 @@ int SLAPI PPObjPerson::Helper_PutSCard(PPID personID, PPPersonPacket * pPack, PP
 
 int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	int    no_changes = 0;
 	//
 	// Признак наличия в БД адресов, имеющих не верного владельца.
 	// В случае ошибки необходимо попытаться установить правильного владельца у 'тих адресов.
 	//
 	int    is_in_db_mism_owner_loc = 0;
-	//
 	uint   i;
-	const  int is_new = BIN(pPack && *pID == 0);
+	PPID   id = pID ? *pID : 0;
+	const  int is_new = BIN(pPack && !id);
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
-	PPID   id = *pID;
 	PPID   action = 0;
 	PPID   dirty_id = 0;
 	SString temp_buf;
+	PPID   hid = 0; // @v10.5.3 Версионный идентификатор для сохранения в системном журнале
+	SBuffer hist_buf; // @v10.5.3
 	Reference * p_ref = PPRef;
+	ObjVersioningCore * p_ovc = p_ref->P_OvT; // @v10.5.3
 	PPPersonPacket org_pack;
 	PPObjSCard * p_sc_obj = 0;
 	PPLocationPacket loc_pack;
-	PPIDArray dlvr_loc_list, * p_dlvr_loc_list = 0;
+	PPIDArray dlvr_loc_list;
+	PPIDArray * p_dlvr_loc_list = 0;
+	const int is_rt_mod = CheckRights(PPR_MOD, 0);
 	if(pPack && pPack->GetSCard())
 		THROW_MEM(p_sc_obj = new PPObjSCard);
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(*pID && !CheckRights(PPR_MOD, 0) && p_sc_obj) {
-		//
-		// Специальный случай: нет прав доступа на изменение персоналии, но есть право на создание (изменение) карты,
-		// прикрепленной к пакету персоналии.
-		//
-		THROW(Helper_PutSCard(*pID, pPack, p_sc_obj));
-	}
-	else {
-		if(pPack) {
-			if(id) {  // Update packet
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID && !is_rt_mod && p_sc_obj) {
+			//
+			// Специальный случай: нет прав доступа на изменение персоналии, но есть право на создание (изменение) карты,
+			// прикрепленной к пакету персоналии.
+			//
+			THROW(Helper_PutSCard(*pID, pPack, p_sc_obj));
+		}
+		else {
+			if(id) { // Update or Delete packet: we have to extract original packet (org_pack) in order to compare with new one and store history
 				THROW(GetPacket(id, &org_pack, 0) > 0);
-				{
-					for(i = 0; i < pPack->Regs.getCount(); i++) {
-						RegisterTbl::Rec & r_reg_rec = pPack->Regs.at(i);
-						r_reg_rec.ObjType = PPOBJ_PERSON;
-						r_reg_rec.ObjID = id;
+			}
+			if(pPack) {
+				if(id) { // Update packet
+					{
+						for(i = 0; i < pPack->Regs.getCount(); i++) {
+							RegisterTbl::Rec & r_reg_rec = pPack->Regs.at(i);
+							r_reg_rec.ObjType = PPOBJ_PERSON;
+							r_reg_rec.ObjID = id;
+						}
+						if(IsPacketEq(*pPack, org_pack, 0))
+							no_changes = 1;
 					}
-					if(IsPacketEq(*pPack, org_pack, 0)) {
-						no_changes = 1;
+					for(i = 0; !is_in_db_mism_owner_loc && org_pack.EnumDlvrLoc(&i, &loc_pack) > 0;) {
+						if(loc_pack.OwnerID != id)
+							is_in_db_mism_owner_loc = 1;
 					}
-				}
-				for(i = 0; !is_in_db_mism_owner_loc && org_pack.EnumDlvrLoc(&i, &loc_pack) > 0;) {
-					if(loc_pack.OwnerID != id)
-						is_in_db_mism_owner_loc = 1;
-				}
-				if(no_changes) {
-					ok = -1;
-					//
-					// Необходимо обработать специальный случай: проверка и, если необходимо, установка
-					// идентификатора владельца адресов доставки.
-					//
-					for(i = 0; pPack->EnumDlvrLoc(&i, &loc_pack) > 0;) {
-						if(loc_pack.OwnerID != id) {
-							loc_pack.OwnerID = id;
-							THROW(UpdateAddress(&loc_pack.ID, &loc_pack));
-							ok = 1;
+					if(no_changes) {
+						ok = -1;
+						//
+						// Необходимо обработать специальный случай: проверка и, если необходимо, установка
+						// идентификатора владельца адресов доставки.
+						//
+						for(i = 0; pPack->EnumDlvrLoc(&i, &loc_pack) > 0;) {
+							if(loc_pack.OwnerID != id) {
+								loc_pack.OwnerID = id;
+								THROW(UpdateAddress(&loc_pack.ID, &loc_pack));
+								ok = 1;
+							}
 						}
 					}
-				}
-				else {
-					int    is_name_updated = 0;
-					PersonTbl::Rec org_rec;
-					PPIDArray losed_kinds;
-					PPIDArray kind_list;
-					THROW(CheckRights(PPR_MOD));
-
-					THROW(P_Tbl->GetKindList(pPack->Rec.ID, &kind_list));
-					THROW_SL(losed_kinds.addUniqueExclusive(&kind_list, &pPack->Kinds));
-					THROW(Search(id, &org_rec) > 0);
-					THROW(UpdateAddress(&pPack->Rec.MainLoc, &pPack->Loc));
-					THROW(UpdateAddress(&pPack->Rec.RLoc, &pPack->RLoc));
-					//
-					// Обновление списка адресов доставки {
-					//
-					THROW(GetDlvrLocList(id, &dlvr_loc_list));
-					{
-						LAssocArray bill_dlvr_addr_list;
-						int    bill_dlvr_addr_list_inited = 0;
-						for(uint k = 0; k < dlvr_loc_list.getCount(); k++) {
-							PPID   loc_id = dlvr_loc_list.get(k);
-							int    found = 0;
-							if(loc_id && LocObj.GetPacket(loc_id, &loc_pack) > 0) {
-								{
-									// @todo Добавить в PPPersonPacket функцию GetDlvrLocByID()
-									PPLocationPacket loc_pack2;
-									for(uint j = 0; !found && pPack->EnumDlvrLoc(&j, &loc_pack2) > 0;)
-										if(loc_pack2.ID == loc_id)
-											found = 1;
-								}
-								if(!found) {
-									PPID   ref_bill_id = 0;
-									if(pPack->UpdFlags & PPPersonPacket::ufDontRmvDlvrLoc) {
-										THROW(pPack->AddDlvrLoc(loc_pack));
+					else {
+						int    is_name_updated = 0;
+						PersonTbl::Rec org_rec;
+						PPIDArray losed_kinds;
+						PPIDArray kind_list;
+						THROW(is_rt_mod);
+						// @v10.5.3 {
+						if(!is_new && DoObjVer_Person) {
+							if(p_ovc && p_ovc->InitSerializeContext(0)) {
+								SSerializeContext & r_sctx = p_ovc->GetSCtx();
+								THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
+							}
+						}
+						// } @v10.5.3 
+						THROW(P_Tbl->GetKindList(pPack->Rec.ID, &kind_list));
+						THROW_SL(losed_kinds.addUniqueExclusive(&kind_list, &pPack->Kinds));
+						THROW(Search(id, &org_rec) > 0);
+						THROW(UpdateAddress(&pPack->Rec.MainLoc, &pPack->Loc));
+						THROW(UpdateAddress(&pPack->Rec.RLoc, &pPack->RLoc));
+						//
+						// Обновление списка адресов доставки {
+						//
+						THROW(GetDlvrLocList(id, &dlvr_loc_list));
+						{
+							LAssocArray bill_dlvr_addr_list;
+							int    bill_dlvr_addr_list_inited = 0;
+							for(uint k = 0; k < dlvr_loc_list.getCount(); k++) {
+								PPID   loc_id = dlvr_loc_list.get(k);
+								int    found = 0;
+								if(loc_id && LocObj.GetPacket(loc_id, &loc_pack) > 0) {
+									{
+										// @todo Добавить в PPPersonPacket функцию GetDlvrLocByID()
+										PPLocationPacket loc_pack2;
+										for(uint j = 0; !found && pPack->EnumDlvrLoc(&j, &loc_pack2) > 0;)
+											if(loc_pack2.ID == loc_id)
+												found = 1;
 									}
-									else {
-										int    is_there_another_link = 0;
-										PPIDArray link_psn_list;
-										if(GetPersonListByDlvrLoc(loc_id, &link_psn_list) > 0) {
-											for(uint n = 0; n < link_psn_list.getCount(); n++) {
-												if(link_psn_list.get(n) != id && Search(link_psn_list.get(n), 0) > 0) {
-													is_there_another_link = 1;
-													break;
+									if(!found) {
+										PPID   ref_bill_id = 0;
+										if(pPack->UpdFlags & PPPersonPacket::ufDontRmvDlvrLoc) {
+											THROW(pPack->AddDlvrLoc(loc_pack));
+										}
+										else {
+											int    is_there_another_link = 0;
+											PPIDArray link_psn_list;
+											if(GetPersonListByDlvrLoc(loc_id, &link_psn_list) > 0) {
+												for(uint n = 0; n < link_psn_list.getCount(); n++) {
+													if(link_psn_list.get(n) != id && Search(link_psn_list.get(n), 0) > 0) {
+														is_there_another_link = 1;
+														break;
+													}
+												}
+											}
+											if(!is_there_another_link) {
+												//
+												// Если нет других персоналий, ссылающихся на удаляемый адрес, то...
+												//
+												// Прежде чем удалить адрес необходимо убедиться, что не существует документов,
+												// которые на него ссылаются.
+												//
+												if(!bill_dlvr_addr_list_inited) {
+													BillObj->P_Tbl->GetDlvrAddrList(&bill_dlvr_addr_list);
+													bill_dlvr_addr_list_inited = 1;
+												}
+												if(bill_dlvr_addr_list.SearchByVal(loc_id, &ref_bill_id, 0)) {
+													THROW(pPack->AddDlvrLoc(loc_pack));
+												}
+												else {
+													THROW(LocObj.PutRecord(&loc_id, 0, 0));
 												}
 											}
 										}
-										if(!is_there_another_link) {
-											//
-											// Если нет других персоналий, ссылающихся на удаляемый адрес, то...
-											//
-											// Прежде чем удалить адрес необходимо убедиться, что не существует документов,
-											// которые на него ссылаются.
-											//
-											if(!bill_dlvr_addr_list_inited) {
-												BillObj->P_Tbl->GetDlvrAddrList(&bill_dlvr_addr_list);
-												bill_dlvr_addr_list_inited = 1;
-											}
-											if(bill_dlvr_addr_list.SearchByVal(loc_id, &ref_bill_id, 0)) {
-												THROW(pPack->AddDlvrLoc(loc_pack));
-											}
-											else {
-												THROW(LocObj.PutRecord(&loc_id, 0, 0));
-											}
-										}
 									}
 								}
 							}
 						}
+						dlvr_loc_list.freeAll();
+						for(i = 0; pPack->EnumDlvrLoc(&i, &loc_pack) > 0;) {
+							loc_pack.OwnerID = id;
+							THROW(UpdateAddress(&loc_pack.ID, &loc_pack));
+							if(loc_pack.ID)
+								dlvr_loc_list.add(loc_pack.ID);
+						}
+						p_dlvr_loc_list = dlvr_loc_list.getCount() ? &dlvr_loc_list : 0;
+						THROW(p_ref->PutPropArray(Obj, id, PSNPRP_DLVRLOCLIST, p_dlvr_loc_list, 0));
+						// }
+						if(pPack->UpdFlags & PPPersonPacket::ufDontChgImgFlag)
+							SETFLAG(pPack->Rec.Flags, PSNF_HASIMAGES, org_rec.Flags & GF_HASIMAGES);
+						if(!(pPack->UpdFlags & PPPersonPacket::ufDontChgStaffAmt))
+							THROW(PutStaffAmtList(id, &pPack->Amounts));
+						THROW(P_Tbl->Put(&id, pPack, 0));
+						if(strcmp(pPack->Rec.Name, org_rec.Name) != 0)
+							THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, PPOBJ_PERSON, id, pPack->Rec.Name, 0));
+						action = PPACN_OBJUPD;
+						dirty_id = id;
 					}
-					dlvr_loc_list.freeAll();
-					for(i = 0; pPack->EnumDlvrLoc(&i, &loc_pack) > 0;) {
-						loc_pack.OwnerID = id;
-						THROW(UpdateAddress(&loc_pack.ID, &loc_pack));
-						if(loc_pack.ID)
-							dlvr_loc_list.add(loc_pack.ID);
-					}
-					p_dlvr_loc_list = dlvr_loc_list.getCount() ? &dlvr_loc_list : 0;
-					THROW(p_ref->PutPropArray(Obj, id, PSNPRP_DLVRLOCLIST, p_dlvr_loc_list, 0));
-					// }
-					if(pPack->UpdFlags & PPPersonPacket::ufDontChgImgFlag)
-						SETFLAG(pPack->Rec.Flags, PSNF_HASIMAGES, org_rec.Flags & GF_HASIMAGES);
-					if(!(pPack->UpdFlags & PPPersonPacket::ufDontChgStaffAmt))
-						THROW(PutStaffAmtList(id, &pPack->Amounts));
+				}
+				else { // Add packet
+					THROW(CheckRights(PPR_INS));
+					SETIFZ(pPack->Loc.Type, LOCTYP_ADDRESS);
+					THROW(LocObj.PutRecord(&pPack->Rec.MainLoc, &pPack->Loc, 0));
+					SETIFZ(pPack->RLoc.Type, LOCTYP_ADDRESS);
+					THROW(LocObj.PutRecord(&pPack->Rec.RLoc, &pPack->RLoc, 0));
 					THROW(P_Tbl->Put(&id, pPack, 0));
-					if(strcmp(pPack->Rec.Name, org_rec.Name) != 0)
-						THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, PPOBJ_PERSON, id, pPack->Rec.Name, 0));
-					action = PPACN_OBJUPD;
-					dirty_id = id;
+					for(i = 0; pPack->EnumDlvrLoc(&i, &loc_pack) > 0;) {
+						SETIFZ(loc_pack.Type, LOCTYP_ADDRESS);
+						loc_pack.OwnerID = id;
+						THROW(LocObj.PutPacket(&loc_pack.ID, &loc_pack, 0));
+						dlvr_loc_list.add(loc_pack.ID);
+						p_dlvr_loc_list = &dlvr_loc_list;
+					}
+					THROW(p_ref->PutPropArray(Obj, id, PSNPRP_DLVRLOCLIST, p_dlvr_loc_list, 0));
+					THROW(p_ref->PutPropArray(Obj, id, SLPPRP_AMTLIST, &pPack->Amounts, 0));
+					pPack->Rec.ID = id;
+					*pID = id;
+					action = PPACN_OBJADD;
 				}
-			}
-			else { // Add packet
-				THROW(CheckRights(PPR_INS));
-				SETIFZ(pPack->Loc.Type, LOCTYP_ADDRESS);
-				THROW(LocObj.PutRecord(&pPack->Rec.MainLoc, &pPack->Loc, 0));
-				SETIFZ(pPack->RLoc.Type, LOCTYP_ADDRESS);
-				THROW(LocObj.PutRecord(&pPack->Rec.RLoc, &pPack->RLoc, 0));
-				THROW(P_Tbl->Put(&id, pPack, 0));
-				for(i = 0; pPack->EnumDlvrLoc(&i, &loc_pack) > 0;) {
-					SETIFZ(loc_pack.Type, LOCTYP_ADDRESS);
-					loc_pack.OwnerID = id;
-					THROW(LocObj.PutPacket(&loc_pack.ID, &loc_pack, 0));
-					dlvr_loc_list.add(loc_pack.ID);
-					p_dlvr_loc_list = &dlvr_loc_list;
-				}
-				THROW(p_ref->PutPropArray(Obj, id, PSNPRP_DLVRLOCLIST, p_dlvr_loc_list, 0));
-				THROW(p_ref->PutPropArray(Obj, id, SLPPRP_AMTLIST, &pPack->Amounts, 0));
-				pPack->Rec.ID = id;
-				*pID = id;
-				action = PPACN_OBJADD;
-			}
-			if(!no_changes) {
-				THROW(RegObj.P_Tbl->PutByPerson(id, &pPack->Regs, 0));
-				if(do_index_phones) {
-					StringSet phone_list;
-					pPack->ELA.GetListByType(ELNKRT_PHONE, phone_list);
-					pPack->ELA.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
-					PPObjID objid;
-					objid.Set(Obj, id);
-					// @v10.0.0 {
-					if(action != PPACN_OBJADD) {
-						StringSet org_phone_list;
-						org_pack.ELA.GetListByType(ELNKRT_PHONE, org_phone_list);
-						org_pack.ELA.GetListByType(ELNKRT_INTERNALEXTEN, org_phone_list);
-						for(uint orgplp = 0; org_phone_list.get(&orgplp, temp_buf);) {
-							if(!phone_list.search(temp_buf, 0, 1)) {
-								THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
+				if(!no_changes) {
+					THROW(RegObj.P_Tbl->PutByPerson(id, &pPack->Regs, 0));
+					if(do_index_phones) {
+						StringSet phone_list;
+						pPack->ELA.GetListByType(ELNKRT_PHONE, phone_list);
+						pPack->ELA.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
+						PPObjID objid;
+						objid.Set(Obj, id);
+						// @v10.0.0 {
+						if(action != PPACN_OBJADD) {
+							StringSet org_phone_list;
+							org_pack.ELA.GetListByType(ELNKRT_PHONE, org_phone_list);
+							org_pack.ELA.GetListByType(ELNKRT_INTERNALEXTEN, org_phone_list);
+							for(uint orgplp = 0; org_phone_list.get(&orgplp, temp_buf);) {
+								if(!phone_list.search(temp_buf, 0, 1)) {
+									THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
+								}
 							}
 						}
+						// } @v10.0.0
+						for(uint plp = 0; phone_list.get(&plp, temp_buf);) {
+							THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
+						}
 					}
-					// } @v10.0.0
+					THROW(P_Tbl->PutELinks(id, &pPack->ELA, 0));
+					if(pPack->CshrInfo.Flags & CIF_MODIFIED) {
+						PropertyTbl::Rec  cshr_prop;
+						strnzcpy((char *)cshr_prop.Text,  pPack->CshrInfo.Password, sizeof(cshr_prop.Text));
+						cshr_prop.Val1 = pPack->CshrInfo.Rights;
+						THROW(p_ref->PutProp(Obj, id, PSNPRP_CASHIERINFO, (pPack->CshrInfo.Flags & CIF_CASHIER) ? &cshr_prop : 0));
+					}
+					//
+					pPack->GetExtName(temp_buf.Z());
+					THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, temp_buf));
+					//
+					// @v9.0.4 THROW(BaObj.UpdateList(id, &pPack->BAA, 0));
+					if(pPack->LinkFiles.IsChanged(id, 0L)) {
+						THROW_PP(CheckRights(PSNRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
+						pPack->LinkFiles.Save(id, 0L);
+					}
+					for(i = 0; i < pPack->Kinds.getCount(); i++) {
+						const PPID kind_id = pPack->Kinds.at(i);
+						THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_ARTICLE,   PPOBJ_PERSON, id, reinterpret_cast<void *>(kind_id), 0));
+						THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_PROCESSOR, PPOBJ_PERSON, id, reinterpret_cast<void *>(kind_id), 0));
+					}
+					THROW(p_ref->Ot.PutList(Obj, pPack->Rec.ID, &pPack->TagL, 0));
+				}
+				THROW(Helper_PutSCard(id, pPack, p_sc_obj));
+			}
+			else if(id) { // Remove packet
+				ObjLinkFiles _lf(PPOBJ_PERSON);
+				THROW(CheckRights(PPR_DEL));
+				_lf.Save(id, 0L);
+				// @v10.5.3 (мы уже извлекли оригинальный пакет выше) THROW(Search(id, 0) > 0);
+				// @v10.5.3 {
+				if(DoObjVer_Person && p_ovc && p_ovc->InitSerializeContext(0)) {
+					SSerializeContext & r_sctx = p_ovc->GetSCtx();
+					THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
+				}
+				// } @v10.5.3 
+				if(org_pack.Rec.MainLoc)
+					THROW(LocObj.PutRecord(&org_pack.Rec.MainLoc, 0, 0));
+				if(org_pack.Rec.RLoc)
+					THROW(LocObj.PutRecord(&org_pack.Rec.RLoc, 0, 0));
+				//
+				// Удаляем список адресов доставки {
+				//
+				THROW(GetDlvrLocList(id, &dlvr_loc_list));
+				for(i = 0; i < dlvr_loc_list.getCount(); i++) {
+					PPID dlvr_loc_id = dlvr_loc_list.get(i);
+					if(dlvr_loc_id)
+						THROW(LocObj.PutRecord(&dlvr_loc_id, 0, 0));
+				}
+				THROW(p_ref->PutPropArray(Obj, id, PSNPRP_DLVRLOCLIST, 0, 0));
+				// }
+				THROW(RegObj.P_Tbl->PutByPerson(id, 0, 0));
+				if(do_index_phones) {
+					PPELinkArray ela;
+					StringSet phone_list;
+					THROW(P_Tbl->GetELinks(id, &ela));
+					ela.GetListByType(ELNKRT_PHONE, phone_list);
+					ela.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
+					PPObjID objid;
+					objid.Set(Obj, id);
 					for(uint plp = 0; phone_list.get(&plp, temp_buf);) {
-						THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
+						THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 					}
 				}
-				THROW(P_Tbl->PutELinks(id, &pPack->ELA, 0));
-				if(pPack->CshrInfo.Flags & CIF_MODIFIED) {
-					PropertyTbl::Rec  cshr_prop;
-					strnzcpy((char *)cshr_prop.Text,  pPack->CshrInfo.Password, sizeof(cshr_prop.Text));
-					cshr_prop.Val1 = pPack->CshrInfo.Rights;
-					THROW(p_ref->PutProp(Obj, id, PSNPRP_CASHIERINFO, (pPack->CshrInfo.Flags & CIF_CASHIER) ? &cshr_prop : 0));
-				}
-				//
-				pPack->GetExtName(temp_buf.Z());
-				THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, temp_buf));
-				//
-				// @v9.0.4 THROW(BaObj.UpdateList(id, &pPack->BAA, 0));
-				if(pPack->LinkFiles.IsChanged(id, 0L)) {
-					THROW_PP(CheckRights(PSNRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
-					pPack->LinkFiles.Save(id, 0L);
-				}
-				for(i = 0; i < pPack->Kinds.getCount(); i++) {
-					const PPID kind_id = pPack->Kinds.at(i);
-					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_ARTICLE,   PPOBJ_PERSON, id, reinterpret_cast<void *>(kind_id), 0));
-					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_PROCESSOR, PPOBJ_PERSON, id, reinterpret_cast<void *>(kind_id), 0));
-				}
-				THROW(p_ref->Ot.PutList(Obj, pPack->Rec.ID, &pPack->TagL, 0));
-				DS.LogAction(action, Obj, id, 0, 0);
+				THROW(P_Tbl->PutELinks(id, 0, 0));
+				// @v10.5.3THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, 0));
+				// @v9.0.4 THROW(BaObj.P_Tbl->RemoveList(id, 0));
+				// @v10.5.3 THROW(p_ref->PutProp(Obj, id, PSNPRP_CASHIERINFO, 0));
+				// @v10.5.3 THROW(p_ref->PutPropArray(Obj, id, SLPPRP_AMTLIST, 0, 0));
+				THROW(P_Tbl->Put(&id, 0, 0));
+				THROW(p_ref->RemoveProperty(Obj, id, 0, 0)); // @v10.5.3
+				THROW(RemoveSync(id)); // @v10.5.3
+				THROW(p_ref->Ot.PutList(Obj, id, 0, 0));
+				action = PPACN_OBJRMV;
+				dirty_id = id;
 			}
-			THROW(Helper_PutSCard(id, pPack, p_sc_obj));
+			// @v10.5.3 {
+			if(id && DoObjVer_Person && hist_buf.GetAvailableSize()) {
+				if(p_ovc && p_ovc->InitSerializeContext(0)) {
+					PPObjID oid;
+					THROW(p_ovc->Add(&hid, oid.Set(Obj, id), &hist_buf, 0));
+				}
+			}		
+			// } @v10.5.3 
 		}
-		else if(id) { // Remove packet
-			ObjLinkFiles _lf(PPOBJ_PERSON);
-			THROW(CheckRights(PPR_DEL));
-			_lf.Save(id, 0L);
-			THROW(Search(id, 0) > 0);
-			if(P_Tbl->data.MainLoc || P_Tbl->data.RLoc) {
-				if(P_Tbl->data.MainLoc)
-					THROW(LocObj.PutRecord(&P_Tbl->data.MainLoc, 0, 0));
-				if(P_Tbl->data.RLoc)
-					THROW(LocObj.PutRecord(&P_Tbl->data.RLoc, 0, 0));
-			}
-			//
-			// Удаляем список адресов доставки {
-			//
-			THROW(GetDlvrLocList(id, &dlvr_loc_list));
-			for(i = 0; i < dlvr_loc_list.getCount(); i++) {
-				PPID dlvr_loc_id = dlvr_loc_list.get(i);
-				if(dlvr_loc_id)
-					THROW(LocObj.PutRecord(&dlvr_loc_id, 0, 0));
-			}
-			THROW(p_ref->PutPropArray(Obj, id, PSNPRP_DLVRLOCLIST, 0, 0));
-			// }
-			THROW(RegObj.P_Tbl->PutByPerson(id, 0, 0));
-			if(do_index_phones) {
-				PPELinkArray ela;
-				THROW(P_Tbl->GetELinks(id, &ela));
-				StringSet phone_list;
-				ela.GetListByType(ELNKRT_PHONE, phone_list);
-				ela.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
-				PPObjID objid;
-				objid.Set(Obj, id);
-				for(uint plp = 0; phone_list.get(&plp, temp_buf);) {
-					THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
-				}
-			}
-			THROW(P_Tbl->PutELinks(id, 0, 0));
-			THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, 0));
-			// @v9.0.4 THROW(BaObj.P_Tbl->RemoveList(id, 0));
-			THROW(p_ref->PutProp(Obj, id, PSNPRP_CASHIERINFO, 0));
-			THROW(p_ref->PutPropArray(Obj, id, SLPPRP_AMTLIST, 0, 0));
-			THROW(P_Tbl->Put(&id, 0, 0));
-			THROW(p_ref->Ot.PutList(Obj, id, 0, 0));
-			dirty_id = id;
-		}
+		if(action && id)
+			DS.LogAction(action, Obj, id, hid, 0);
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
 	if(dirty_id)
 		Dirty(dirty_id); // @v9.5.10 @fix id-->dirty_id
 	CATCH
 		{
 			int do_recover_loc_owners = BIN(BTROKORNFOUND && pPack && *pID && is_in_db_mism_owner_loc);
-			PPRollbackWork(&ta);
 			if(do_recover_loc_owners) {
 				//
 				// Специальная процедура, корректирующая владельцев адресов персоналии в случае сбоя.
@@ -4340,7 +4372,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 	if(short_dlg_kind_id) {
 		THROW(CheckDialogPtr(&(dlg = new ShortPersonDialog(dlg_id, short_dlg_kind_id, rBlk.SCardSeriesID))));
 		{
-			ShortPersonDialog * p_dlg = (ShortPersonDialog *)dlg;
+			ShortPersonDialog * p_dlg = static_cast<ShortPersonDialog *>(dlg);
 			p_dlg->enableCommand(cmFullPersonDialog, 1);
 			if(!is_new && !CheckRights(PPR_MOD))
 				p_dlg->enableCommand(cmOK, 0);
@@ -4369,11 +4401,10 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 	else {
 		THROW(CheckDialogPtr(&(dlg = new PersonDialog(dlg_id))));
 		{
-			PersonDialog * p_dlg = (PersonDialog *)dlg;
+			PersonDialog * p_dlg = static_cast<PersonDialog *>(dlg);
 			// @v10.0.01 {
-			if(rBlk.InitPhone.NotEmpty()) {
+			if(rBlk.InitPhone.NotEmpty())
 				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
-			}
 			// } @v10.0.01
 			p_dlg->setDTS(&info);
 			if(!is_new && !CheckRights(PPR_MOD))
@@ -4404,6 +4435,34 @@ int SLAPI PPObjPerson::Edit(PPID * pID, void * extraPtr)
 	EditBlock eb;
 	InitEditBlock(reinterpret_cast<PPID>(extraPtr), eb);
 	return Edit_(pID, eb);
+}
+
+int SLAPI PPObjPerson::ViewVersion(PPID histID)
+{
+	int    ok = -1;
+	PersonDialog * dlg = 0;
+	if(histID) {
+		SBuffer buf;
+		PPPersonPacket pack;
+		ObjVersioningCore * p_ovc = PPRef->P_OvT;
+		if(p_ovc && p_ovc->InitSerializeContext(1)) {
+			SSerializeContext & r_sctx = p_ovc->GetSCtx();
+			PPObjID oid;
+			long   vv = 0;
+			THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
+			THROW(SerializePacket(-1, &pack, buf, &r_sctx));
+			{
+				THROW(CheckDialogPtr(&(dlg = new PersonDialog(DLG_PERSON))));
+				dlg->setDTS(&pack);
+				dlg->enableCommand(cmOK, 0);
+				ExecView(dlg);
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok;
 }
 
 ListBoxDef * PersonDialog::createKindListDef()

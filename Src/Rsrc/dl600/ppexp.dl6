@@ -167,8 +167,8 @@ data Global {
 	key    ID;                     // @id
 	link   Person MainOrgID;       // ИД главной организации
 	link   Currency BaseCurID;     // Базовая валюта
-	link   Location MainAddrID;    // @v7.6.2 Ссылка на юридический адрес главной организации
-	link   Location MainRAddrID;   // @v7.6.2 Ссылка на фактический адрес главной организации. Если в базе данных фактический адрес
+	link   Location MainAddrID;    // Ссылка на юридический адрес главной организации
+	link   Location MainRAddrID;   // Ссылка на фактический адрес главной организации. Если в базе данных фактический адрес
 		// не определен, то ссылка получает значение равное MainAddrID
 	string MainOrgName[48];        // Наименование главной организации
 	string ShortOrgName[48];       // Сокращенное наименование главной организации
@@ -281,7 +281,7 @@ data SysJournalEntry {
 //
 data DBDiv {
 	key    ID;                     // @id
-	string Name[48];               // @name @v7.1.10 [30]-->[48]
+	string Name[48];               // @name
 }
 //
 // Валюта
@@ -331,7 +331,7 @@ data OprKind {
 	key    ID;                     // @id
 	string Name[48];               // @name
 	string Symb[20];               // @symb
-	string ExpSymb[48];            // @v7.3.5 Символ вида операции для экспорта. Papyrus не поддерживает уникальность этого символа.
+	string ExpSymb[48];            // Символ вида операции для экспорта. Papyrus не поддерживает уникальность этого символа.
 	link   AccSheet AccSheetID;    // Основная таблица статей
 	link   AccSheet AccSheet2ID;   // Дополнительная таблица статей
 	link   OprKind  LinkOpID;      // Связанная операция //
@@ -520,17 +520,16 @@ data Location {
 	link   City CityID;            //
 	double Latitude;               // Географическая широта
 	double Longitude;              // Географическая долгота
-	string Text[128];              // @v7.6.1 Строка короткого адреса (без города и индекса)
+	string Text[128];              // Строка короткого адреса (без города и индекса)
 	string Addr[128];              // @todo must be [256] Синтезированная строка полного адреса
-	string Phone[48];              // @v7.0.9 Телефон (специализированное поле)
-	string Contact[64];            // @v7.3.3 Наименование контакта, ассоциированное с адресом
+	string Phone[48];              // Телефон (специализированное поле)
+	string Contact[64];            // Наименование контакта, ассоциированное с адресом
 	//
 	// Descr: Возвращает текст дополнительного поля адреса по идентификатору
 	//   поля addedStringId.
 	//
 	string GetAddedString[64](long addedStringId);
 	//
-	// @v7.5.0
 	// Descr: Возвращает длинную строку адреса.
 	// Note: Функция введена для того, чтобы избежать увеличения ширины поля Addr
 	//   и следующей за этим верификации значительного числа отчетов.
@@ -670,11 +669,11 @@ data Person {
 	string Name[128];              // Наименование персоналии
 	string Memo[128];              // Примечание
 	string Passport[48];           // Текстовое представление паспортных данных
-	long   Flags;                  // @v7.9.10
+	long   Flags;                  //
 	int16  fNativeLand;            // Признак того, что персоналия является государством
 		// которое является родным для главной организации
-	int16  fHasImage;              // @v7.9.10 Запись имеет изображение
-	int16  fNoVat;                 // @v7.9.10 Персоналия освобождена от уплаты НДС
+	int16  fHasImage;              // Запись имеет изображение
+	int16  fNoVat;                 // Персоналия освобождена от уплаты НДС
 	int16  fReserve;               // @reserve
 	Address = LocID.Addr;          // Текст юридического адреса
 	RAddr   = RLocID.Addr;         // Текст фактического адреса
@@ -698,7 +697,7 @@ data Person {
 	// Descr: Возвращает ссылку на аналитическую статью, связанную с данной персоналией
 	//   посредством таблицы статей accSheetID.
 	//
-	link   Article GetArticle(long accSheetID);   // @v7.1.10
+	link   Article GetArticle(long accSheetID);
 	//
 	// Descr: Возвращает ссылку на персоналию, с которой у данной персоналии установлено отношение
 	//   с типом, определяемым символом relSymb.
@@ -706,7 +705,7 @@ data Person {
 	//   однако, может существовать более одной персоналии, с которыми у данной установлено отношение
 	//   одного типа.
 	//
-	link   Person  GetSingleRelation(string relSymb[20]); // @v7.2.9
+	link   Person  GetSingleRelation(string relSymb[20]);
 	//
 	// Descr: Возвращает один email адрес персоналии. Если персоналия имеет более одного адреса,
 	//   то возвращается только первый.
@@ -876,7 +875,7 @@ data QuotKind {
 data Agreement {
 	key    ID;                     // @id
 	link   Article  AgentID;       // Агент, закрепленный за клиентом/поставщиком
-	link   Article  ExtObjectID;   // @v7.5.9 Дополнительный объект для документов по этому соглашению
+	link   Article  ExtObjectID;   // Дополнительный объект для документов по этому соглашению
 	link   QuotKind QKindID;       // Вид котировки, закрепленный за клиентом
 	string Code[24];               // Номер соглашения // @v10.4.2 [12]-->[24]
 	date   BegDt;                  // Начало действия //
@@ -966,17 +965,17 @@ data SCard {
 	key    ID;                     // @id
 	link   SCardSeries SeriesID;   // Ссылка на серию карт
 	link   PersonReq OwnerReqID;   // Ссылка на владельца карты
-	link   Goods     AutoGoodsID;  // @v7.9.7 Товар для автоматического включения в чек
+	link   Goods     AutoGoodsID;  // Товар для автоматического включения в чек
 	string Code[24];               // Номер карты
 	string Hash[12];               // Хэш
 	string Phone[24];              // @v10.1.3
 	date   IssueDate;              // Дата выпуска
 	date   Expiry;                 // Дата окончания срока действия //
-	time   UsageTmStart;           // @v7.9.7
-	time   UsageTmEnd;             // @v7.9.7
-	string UsageTmStr[16];         // @v7.9.7 Строковое представление ограничения времени использования (hh:mm)
-	int16  PeriodTerm;             // @v7.9.7 Тип периода длительности срока действия [1; 7; 30; 90; 180; 360] //
-	int16  PeriodCount;            // @v7.9.7 Количество периодов длительности срока действия //
+	time   UsageTmStart;           //
+	time   UsageTmEnd;             //
+	string UsageTmStr[16];         // Строковое представление ограничения времени использования (hh:mm)
+	int16  PeriodTerm;             // Тип периода длительности срока действия [1; 7; 30; 90; 180; 360] //
+	int16  PeriodCount;            // Количество периодов длительности срока действия //
 	double PDis;                   // Discount (percents)
 	double Overdraft;              // Maximum credit overdraft (for credit cards)
 	double Debit;                  // Приходы по карте (для кредитных карт)
@@ -986,9 +985,9 @@ data SCard {
 	int16  fCredit;                // Кредитная карта
 	int16  fClosed;                // Закрытая карта
 	int16  fInherited;             // Карта наследует IssueDate, Expiry, PDis, Overdraft от серии
-	int16  fNoGift;                // @v7.9.7 При использовании карты в кассовой панели, подарки предоставляться не будут
-	int16  fNeedActivation;        // @v7.9.7 Карта требует активации
-	int16  fAutoActivation;        // @v7.9.7 Карта, требующая активации, активируется автоматически при первом использовании.
+	int16  fNoGift;                // При использовании карты в кассовой панели, подарки предоставляться не будут
+	int16  fNeedActivation;        // Карта требует активации
+	int16  fAutoActivation;        // Карта, требующая активации, активируется автоматически при первом использовании.
 	string Memo[128];              // @v10.1.3 Примечание к карте
 
 	link   SysJournalEntry GetCreationEvent();   // Возвращает ссылку на запись системного журнала, соответствующую созданию карты.
@@ -1000,7 +999,7 @@ data SCard {
 data Transport {
 	key    ID;                     // @id
 	long   TrType;                 // 1 - Автомобиль, 2 - Судно
-	double Capacity;               // @v7.2.8 Грузоподъемность, кг
+	double Capacity;               // Грузоподъемность, кг
 	string Name[64];               // @name
 	string Code[16];               // Номер транспортного средства
 	string TrailerCode[16];        // Номер прицепа (для автотранспорта)
@@ -1064,7 +1063,7 @@ data Bill {
 	int16  fPayout;                // Оплачен
 	int16  fWL;                    // WL-метка
 	int16  Pad1;                   // @alignment
-	date   DueDate;                // @v7.8.6 Срок исполнения (заказа, заявки поставщику и т.д.)
+	date   DueDate;                // Срок исполнения (заказа, заявки поставщику и т.д.)
 	double Amount;                 // Bill.Amount
 	double CostSum;                // PPAMT_BUYING
 	double PriceSum;               // PPAMT_SELLING
@@ -1520,7 +1519,6 @@ data Goods {
 	//
 	double GetMinStock(long locID);
 	//
-	// @v7.1.2
 	// Descr: Возвращает тег товара по символу tagSymb
 	//
 	link   ObjectTag GetTag(string tagSymb[20]);
@@ -1961,9 +1959,9 @@ data GoodsOpAnlz {
 		double Income;          // Доходность (SumPrice-SumCost)
 		double PctVal;          // Процентаная величина доходности
 		double Rest;            // Остаток на указаную в фильтре дату (или текущий) в торговых единицах
-		double PhRest;          // @v7.5.5 Остаток в физических единицах
-		double RestCost;        // @v7.5.5 Остаток в ценах поступления //
-		double RestPrice;       // @v7.5.5 Остаток в ценах реализации
+		double PhRest;          // Остаток в физических единицах
+		double RestCost;        // Остаток в ценах поступления //
+		double RestPrice;       // Остаток в ценах реализации
 		string CQtty[16];       // Текстовое представление количества (в зависимости от конфигурации - в упаковках)
 		string CRest[16];       // Текстовое представление остатка (в зависимости от конфигурации - в упаковках)
 
@@ -2037,7 +2035,7 @@ data GoodsOpAnlzCmp {
 		double SumPrice;              // Сумма в ценах реализации (скидка учтена)
 		double Income;                // Доходность (SumPrice-SumCost)
 		double Rest;                  // Остаток на указаную в фильтре дату (или текущий)
-		double PhRest;                // @v7.5.4 Остаток в физических единицах
+		double PhRest;                // Остаток в физических единицах
 		double RestCostSum;           // Остаток на указаную в фильтре дату (или текущий) в ценах поступления //
 		double RestPriceSum;          // Остаток на указаную в фильтре дату (или текущий) в ценах реализации
 		double CmpQtty;               // Количество торговых единиц для сравнения //
@@ -2045,7 +2043,7 @@ data GoodsOpAnlzCmp {
 		double CmpSumPrice;           // Сумма в ценах реализации (скидка учтена) для сравнения //
 		double CmpIncome;             // Доходность (SumPrice-SumCost) для сравнения //
 		double CmpRest;               // Остаток на указаную в фильтре дату (или текущий) для сравнения //
-		double CmpPhRest;             // @v7.5.4 Остаток на указаную в фильтре дату (или текущий) в физических единицах для сравнения //
+		double CmpPhRest;             // Остаток на указаную в фильтре дату (или текущий) в физических единицах для сравнения //
 		double CmpRestCostSum;        // Остаток на указаную в фильтре дату (или текущий) в ценах поступления //
 		double CmpRestPriceSum;       // Остаток на указаную в фильтре дату (или текущий) в ценах реализации
 	}
@@ -2533,13 +2531,13 @@ data GoodsReval {
 	iteration {
 		link   Goods GoodsID;
 		long   nn;
-		link   Lot LotID; // @v7.5.8
-		double OldCost;
-		double NewCost;
-		double OldPrice;
-		double NewPrice;
-		double Quantity;
-		double OldQtty;   // @v8.1.2
+		link   Lot LotID; //
+		double OldCost;   //
+		double NewCost;   //
+		double OldPrice;  //
+		double NewPrice;  //
+		double Quantity;  //
+		double OldQtty;   //
 		double VATRate;   // Ставка НДС (%)
 		double VATSum;    // Сумма НДС
 		double ExcRate;   // Ставка акциза (%)
@@ -2868,7 +2866,7 @@ data BnkPaymOrder {
 
 	date   LclDt;              // may be not eq BillID.Dt
 	string LclCode[24];        // may be not eq BillID.Code
-	string LclMemo[512];       // may be not eq BillID.Memo // @v7.0.0 [160]-->[512]
+	string LclMemo[512];       // may be not eq BillID.Memo
 
 	long   PayerBnkAccID;
 	string PayerBnkCity[48];
@@ -4226,7 +4224,7 @@ data VatBook {
 		int16  fVatFree;         // Признак документа, освобожденного от НДС
 		int16  fFixed;           // Признак фиксированной записи
 		int16  fPartPayment;     // Признак частичной оплаты
-		int16  fSlVatAddendum;   // @v7.2.9 Признак дополнительной строки в упрощенной книге доходов/расходов, отражающей сумму НДС в расходной части.
+		int16  fSlVatAddendum;   // Признак дополнительной строки в упрощенной книге доходов/расходов, отражающей сумму НДС в расходной части.
 		int16  Reserve;          // @reserve
 		string Code[24];         // Номер документа
 		string ManufCountry[30]; // Страна производителя //
@@ -4254,8 +4252,8 @@ data VatBook {
 		double Vat3Sum;          // Сумма НДС по ставке с индексом 3 (HVat3Rate)
 		double VatFreeAmount;    // Сумма сделки, освобожденная от НДС
 
-		date   CBillDt;          // @v7.3.11 Дата корректирующего документа
-		string CBillCode[24];    // @v7.3.11 Номер корректирующего документа
+		date   CBillDt;          // Дата корректирующего документа
+		string CBillCode[24];    // Номер корректирующего документа
 
 		OpName      = OpID.Name;                   // Наименование вида операции документа, связанного с записью
 		OpMemo      = LinkBillID.Memo;             // Примечание к документу, связанного с записью
@@ -4698,19 +4696,19 @@ data CCheck {
 	link   SCard    AddCrdCardID; // Дополнительная кредитная карта, используемая для оплаты чека.
 	link   Article  AgentID;      // Агент по чеку
 	link   CCheck   LinkCheckID;  // Ссылка на связанный чек (например, чек заказа стола).
-	link   Location DlvrLocID;    // @v7.0.9 Ссылка на адрес доставки (для чеков с доставкой)
+	link   Location DlvrLocID;    // Ссылка на адрес доставки (для чеков с доставкой)
 	long   TableNo;               // Номер стола
 	int16  GuestCount;            // Количество гостей за столом
 	int16  Reserve;               // @alignment
 	long   Flags;                 // Флаги чека
-	int16  fPrinted;              // @v7.0.9 Чек отпечатан
-	int16  fBanking;              // @v7.0.9 Чек оплачен банковской картой
-	int16  fIncorpCard;           // @v7.0.9 Чек оплачен корпоративной кредитной картой
-	int16  fSuspended;            // @v7.0.9 Отложенный чек
-	int16  fOrder;                // @v7.0.9 Чек заказа стола
-	int16  fDelivery;             // @v7.0.9 Чек требует доставки
-	int16  fClosedOrder;          // @v7.0.9 Закрытый заказ (выполненная доставка)
-	int16  fReturn;               // @v7.0.9 Чек возврата
+	int16  fPrinted;              // Чек отпечатан
+	int16  fBanking;              // Чек оплачен банковской картой
+	int16  fIncorpCard;           // Чек оплачен корпоративной кредитной картой
+	int16  fSuspended;            // Отложенный чек
+	int16  fOrder;                // Чек заказа стола
+	int16  fDelivery;             // Чек требует доставки
+	int16  fClosedOrder;          // Закрытый заказ (выполненная доставка)
+	int16  fReturn;               // Чек возврата
 	date   Dt;                    // Дата проведения чека
 	time   Tm;                    // Время проведения чека
 	double Amount;                // Общая сумма чека (сумма к оплате).
@@ -4729,8 +4727,8 @@ data CCheck {
 		// Для чеков с доставкой - планируемое время доставки
 	date   OrderEndDt;            // (Для чеков заказа стола) дата завершения обслуживания //
 	time   OrderEndTm;            // (Для чеков заказа стола) время завершения обслуживания //
-	string OrderStartTxt[32];     // @v7.0.9 Текстовое представление даты/времени начала обслуживания (исполнения доставки)
-	string OrderEndTxt[32];       // @v7.0.9 Текстовое представление даты/времени завершения обслуживания //
+	string OrderStartTxt[32];     // Текстовое представление даты/времени начала обслуживания (исполнения доставки)
+	string OrderEndTxt[32];       // Текстовое представление даты/времени завершения обслуживания //
 	string CreationTxt[32];       // @v8.0.11 Текстовое представление даты/времени создания чека //
 	string SCardCode[24];         // Номер карты (SCardID)
 }
@@ -4753,7 +4751,7 @@ data CCheckView {
 	double AmountQuant; // Квант группировки чеков по сумме или кол-ву
 	date   FltBeg;
 	date   FltEnd;
-	long   FltFlags;    // @v7.0.9 Флаги фильтрации
+	long   FltFlags;    // Флаги фильтрации
 	/*
 		@todo Добавить поля из фильтра
 	*/
@@ -4761,10 +4759,10 @@ data CCheckView {
 		// 4 (day of week and hour); (5 (machine); 6 (card); 7 (amount);
 		// 8 (quantity); 9 (goods); 10 (cashier); 11 (agent)
 	int16  FltTableNo;     // Номер стола
-	int16  fSuspendedOnly; // @v7.0.9 Только отложенные чеки
-	int16  fGiftOnly;      // @v7.0.9 Только чеки с подарками
-	int16  fOrderOnly;     // @v7.0.9 Только чеки заказа столов
-	int16  fDeliveryOnly;  // @v7.0.9 Только чеки с доставкой
+	int16  fSuspendedOnly; // Только отложенные чеки
+	int16  fGiftOnly;      // Только чеки с подарками
+	int16  fOrderOnly;     // Только чеки заказа столов
+	int16  fDeliveryOnly;  // Только чеки с доставкой
 	Period  = formatperiod(FltBeg, FltEnd);
 	CurDt   = Glb.CurDate;
 	OrgName = Glb.MainOrgName;
@@ -4962,7 +4960,7 @@ data CCheckDetail {
 	link   Article    AgentID; // Агент (официант)
 	link   CCheck     CheckID; //
 	link   CCheck     LinkCheckID; // Ссылка на связанный чек (чек заказа)
-	link   Location   DlvrLocID; // @v7.0.9 ИД Адреса доставки
+	link   Location   DlvrLocID;   // ИД Адреса доставки
 	long   CheckNumber;        // Номер чека
 	date   CheckDt;            // Дата проведения чека
 	time   CheckTm;            // Время проведения чека
@@ -4978,27 +4976,27 @@ data CCheckDetail {
 	int32  TableNo;            // Номер столика
 	int16  GuestCount;         // Количество гостей за столом
 	int16  Reserve;            // @alignment
-	int16  fPrinted;           // @v7.0.9 Чек отпечатан
-	int16  fBanking;           // @v7.0.9 Чек оплачен банковской картой
-	int16  fIncorpCard;        // @v7.0.9 Чек оплачен корпоративной кредитной картой
-	int16  fSuspended;         // @v7.0.9 Отложенный чек
-	int16  fOrder;             // @v7.0.9 Чек заказа стола
-	int16  fDelivery;          // @v7.0.9 Чек требует доставки
-	int16  fClosedOrder;       // @v7.0.9 Закрытый заказ (выполненная доставка)
-	int16  fReturn;            // @v7.0.9 Чек возврата
+	int16  fPrinted;           // Чек отпечатан
+	int16  fBanking;           // Чек оплачен банковской картой
+	int16  fIncorpCard;        // Чек оплачен корпоративной кредитной картой
+	int16  fSuspended;         // Отложенный чек
+	int16  fOrder;             // Чек заказа стола
+	int16  fDelivery;          // Чек требует доставки
+	int16  fClosedOrder;       // Закрытый заказ (выполненная доставка)
+	int16  fReturn;            // Чек возврата
 	date   OrderStartDt;       //
 	time   OrderStartTm;       //
 	date   OrderEndDt;         //
 	time   OrderEndTm;         //
 	date   CreationDt;         // @v8.1.10 Дата создания чека
 	time   CreationTm;         // @v8.1.10 Время создания чека
-	string OrderStartTxt[32];  // @v7.0.9 Текстовое представление даты/времени начала обслуживания (исполнения доставки)
-	string OrderEndTxt[32];    // @v7.0.9 Текстовое представление даты/времени завершения обслуживания //
+	string OrderStartTxt[32];  // Текстовое представление даты/времени начала обслуживания (исполнения доставки)
+	string OrderEndTxt[32];    // Текстовое представление даты/времени завершения обслуживания //
 	string OrderCode[16];      // Специальный штрихкод, позволяющий идентифицировать заказ.
 	string CreationTxt[32];    // @v8.1.10 Текстовое представление даты/времени создания чека //
 	string Memo[256];          // Примечание к чеку
-	string DlvrAddr[128];      // @v7.0.10 Адрес доставки (fDelivery != 0)
-	string DlvrPhone[48];      // @v7.0.10 Контактный телефон доставки (fDelivery != 0)
+	string DlvrAddr[128];      // Адрес доставки (fDelivery != 0)
+	string DlvrPhone[48];      // Контактный телефон доставки (fDelivery != 0)
 	string DlvrContact[64];    // @v8.1.9  Текст контактной информации (fDelivery != 0)
 	//
 	// Возвращает строку коду чека с префексом отложенного чека, заданным в конфигурации оборудования //
@@ -5023,13 +5021,13 @@ data CCheckDetail {
 	iteration {
 		link   Goods GoodsID;
 		int16  LineGrpN;       // Номер группы (если строка сгруппирована)
-		int16  LineQueue;      // @v7.1.5 Порядковый номер очередности подачи
+		int16  LineQueue;      // Порядковый номер очередности подачи
 		int16  fPrinted;       // Строка отправлена на принтер для изготовления //
 		int16  fGift;          // Товар является подарком
 		int16  fUsedByGift;    // По строке был предоставлен подарок
 		int16  fQuotedByGift;  // Подарок по строке был предоставлен в виде котировочной цены
 		int16  fPartOfComplex; // Строка является частью комплексного товара
-		int16  fModifier;      // @v7.2.0 Признак модификатора предыдущего товара. На печати следует выделять такой товар.
+		int16  fModifier;      // Признак модификатора предыдущего товара. На печати следует выделять такой товар.
 		double Price;          // Цена торговой единицы товара (без скидки)
 		double Discount;       // Скидка по строке
 		double Quantity;       // Количество торговых единиц в строке
@@ -5552,7 +5550,7 @@ data Invent {
 	int16  fWrOff;         // Показывать списанные строки
 	int16  fUnwrOff;       // Показывать не списанные строки
 	int16  fZeroByDefault; // По умолчанию остаток нулевой
-	int16  fReserve;       // @alignment @v7.7.1
+	int16  fReserve;       // @alignment
 	link   GoodsGroup FltGrpID;
 	FltGrpName  = if(FltGrpID) ("Группа:"*FltGrpID.Name) else "";
 	FltKindText =
@@ -5580,7 +5578,7 @@ data Invent {
 		double Price;           // Фактическая цена
 		double StockPrice;      // Учетная цена
 		int16  DiffSign;        // Знак рассогласований (-1 - lack, 1 - surplus, 0 - equal)
-		int16  Reserve;         // @alignment @v7.7.1
+		int16  Reserve;         // @alignment
 		double DiffQtty;        // Абсолютная величина рассогласования //
 		double DiffPctQtty;     // Абсолютная величина рассогласования в процентах
 		double UnwritedDiff;    // Не списанная величина рассогласования //
@@ -5588,7 +5586,7 @@ data Invent {
 		double WrOffPrice;      // цена списани
 		double CSesDfctQtty;    // Дефицит товара по кассовым сессиям за период, начиная с даты, указанной в документе
 		double CSesDfctPrice;   // Средняя цена дефицита товара по кассовым сессиям за период, начиная с даты, указанной в документе
-		string Serial[24];      // @v7.7.1 Серийный номер
+		string Serial[24];      // Серийный номер
 
 		MFSum  = Quantity * Price;
 		STkSum = StockRest * Price;
@@ -5852,7 +5850,7 @@ data AdvanceRep {
 		long   Flags;
 		double Amt;
 		double ExtAmt;
-		string Memo[128]; // @v7.8.2
+		string Memo[128]; //
 
 		AccNo = AccID.AccNo;
 	}
@@ -6123,7 +6121,7 @@ data PersonList {
 		(CityID    ? "Город:"     * CityID.Name : "");
 	iteration {
 		link Person PersonID;
-		link Location AddrID; // @v7.0.9 Ид адреса (если отчет поднимается с дополнительным адресным атрибутом [5,7,8])
+		link Location AddrID;   // Ид адреса (если отчет поднимается с дополнительным адресным атрибутом [5,7,8])
 		Name   = PersonID.Name;
 		Status = PersonID.Status.Name;
 		Info   = PersonID.Memo;
@@ -8243,7 +8241,7 @@ data TransportView {
 		CountryName = TransportID.CountryID.WID.CountryID.Name;
 		Code        = TransportID.Code;
 		TrailCode   = TransportID.TrailerCode;
-		Capacity    = TransportID.Capacity; // @v7.2.8 Грузоподъемность, кг
+		Capacity    = TransportID.Capacity; // Грузоподъемность, кг
 	}
 }
 //
@@ -8477,12 +8475,12 @@ data UhttPerson {
 	declare "Set"
 	//
 	key    ID;
-	link   Person PsnID;            // @v7.1.9
+	link   Person PsnID;            //
 	link   PersonCat    CategoryID; // ИД категории, к которой относится персоналия //
 	link   PersonStatus StatusID;   // ИД юридического статуса
-	string Name[128];
-	string Code[32];
-	string Memo[256];               // @v7.1.9
+	string Name[128];               //
+	string Code[32];                //
+	string Memo[256];               //
 	CategoryName = CategoryID.Name;
 	StatusName   = StatusID.Name;
 	//
@@ -8584,7 +8582,7 @@ data GlobalUserAcc {
 	declare "Set"
 	//
 	key    ID;
-	link   Person PersonID; // @v7.1.9
+	link   Person PersonID; //
 	string Name[48];
 	string Symb[20];
 	string Password[40];
@@ -8745,7 +8743,7 @@ data UhttStore {
 	string Symb[20];              //
 	int    Kind;                  // @v8.7.5 Вид магазина: 0 - generic store, 1 - tsessio cip
 	int    Flags;                 // @flags
-	double UpRestShowThreshold;   // @v7.9.1 Порог остатка, после которого следует отображать значение в виде "более 8"
+	double UpRestShowThreshold;   // Порог остатка, после которого следует отображать значение в виде "более 8"
 	iteration TagList {
 		link   TagType  TagTypeID;
 		string TagSymb[20];

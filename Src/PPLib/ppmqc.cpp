@@ -10,144 +10,65 @@ static inline amqp_connection_state_t GetNativeConnHandle(void * pConn)
 	return static_cast<amqp_connection_state_t>(pConn);
 }
 
-class PPMqbClient {
-public:
-	SLAPI  PPMqbClient();
-	SLAPI ~PPMqbClient();
-	int    SLAPI Connect(const char * pHost, int port);
-	int    SLAPI Disconnect();
+PPMqbClient::LoginParam::LoginParam() : Method(1)
+{
+}
 
-	struct LoginParam {
-		LoginParam() : Method(1)
-		{
-		}
-		int    Method;
-		SString Auth;
-		SString Secret;
-	};
-	int    SLAPI Login(const LoginParam & rP);
+PPMqbClient::InitParam::InitParam() : Port(0)
+{
+}
 
-	struct InitParam : public LoginParam {
-		InitParam() : Port(0)
-		{
-		}
-		SString Host;
-		int    Port;
-	};
+PPMqbClient::MessageProperties::MessageProperties() : Flags(0), ContentType(0), Encoding(0), DeliveryMode(0), Priority(0), TimeStamp(ZERODATETIME)
+{
+}
 
-	static int SLAPI InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP);
+PPMqbClient::MessageProperties & PPMqbClient::MessageProperties::Z()
+{
+	Flags = 0;
+	ContentType = 0;
+	Encoding = 0;
+	DeliveryMode = 0;
+	Priority = 0;
+	TimeStamp = ZERODATETIME;
+	CorrelationId.Z();
+	ReplyTo.Z();
+	Expiration.Z();
+	MessageId.Z();
+	Type.Z();
+	UserId.Z();
+	AppId.Z();
+	ClusterId.Z();
+	Headers.Clear();
+	return *this;
+}
 
-	enum {
-		mqofPassive    = 0x0001, // queue exchange
-		mqofDurable    = 0x0002, // queue exchange
-		mqofExclusive  = 0x0004, // queue exchange consume
-		mqofAutoDelete = 0x0008, // queue exchange
-		mqofNoLocal    = 0x0010, // consume
-		mqofNoAck      = 0x0020, // consume
-		mqofInternal   = 0x0040  // exchange
-	};
+PPMqbClient::Message::Message()
+{
+}
 
-	struct MessageProperties {
-		MessageProperties() : Flags(0), ContentType(0), Encoding(0), DeliveryMode(0), Priority(0), TimeStamp(0)
-		{
-		}
-		MessageProperties & Z()
-		{
-			Flags = 0;
-			ContentType = 0;
-			Encoding = 0;
-			DeliveryMode = 0;
-			Priority = 0;
-			TimeStamp = 0;
-			CorrelationId.Z();
-			ReplyTo.Z();
-			Expiration.Z();
-			MessageId.Z();
-			Type.Z();
-			UserId.Z();
-			AppId.Z();
-			ClusterId.Z();
-			Headers.Clear();
-			return *this;
-		}
-		uint   Flags;
-		int    ContentType; // SFileFormat
-		int    Encoding;    // SEncodingFormat
-		uint   DeliveryMode;
-		uint   Priority;
-		uint64 TimeStamp;
-		SString CorrelationId;
-		SString ReplyTo;
-		SString Expiration;
-		SString MessageId;
-		SString Type;
-		SString UserId;
-		SString AppId;
-		SString ClusterId;
-		StrStrAssocArray Headers;
-	};
-	struct Message {
-		Message()
-		{
-		}
-		Message & Z()
-		{
-			Props.Z();
-			Body.Z();
-			return *this;
-		}
-		MessageProperties Props;
-		SBuffer Body;
-	};
-	struct Envelope {
-		Envelope() : ChannelN(0), Reserve(0), DeliveryTag(0), Flags(0)
-		{
-		}
-		Envelope & Z()
-		{
-			ChannelN = 0;
-			Reserve = 0;
-			DeliveryTag = 0;
-			Flags = 0;
-			ConsumerTag.Z();
-			Exchange.Z();
-			RoutingKey.Z();
-			Msg.Z();
-			return *this;
-		}
-		enum {
-			fRedelivered = 0x0001
-		};
-		uint16 ChannelN;
-		uint16 Reserve; // @alignment
-		uint64 DeliveryTag;
-		uint   Flags;
-		SString ConsumerTag;
-		SString Exchange;
-		SString RoutingKey;
-		Message Msg;
-	};
-	int    SLAPI QueueDeclare(const char * pQueue, long queueFlags);
-	int    SLAPI ExchangeDeclare(const char * pExchange, const char * pType, long exchangeFlags);
-	int    SLAPI QueueBind(const char * pQueue, const char * pExchange, const char * pRoutingKey);
-	int    SLAPI QueueUnbind(const char * pQueue, const char * pExchange, const char * pRoutingKey);
-	//AMQP_PUBLIC_FUNCTION amqp_queue_unbind_ok_t * amqp_queue_unbind(amqp_connection_state_t state, amqp_channel_t channel, amqp_bytes_t queue,
-		//amqp_bytes_t exchange, amqp_bytes_t routing_key, amqp_table_t arguments);
+PPMqbClient::Message & PPMqbClient::Message::Z()
+{
+	Props.Z();
+	Body.Z();
+	return *this;
+}
 
-	int    SLAPI Publish(const char * pExchangeName, const char * pQueue, const void * pData, size_t dataLen);
-	int    SLAPI Consume(const char * pQueue, const char * pConsumerTag, long consumeFlags);
-	int    SLAPI ConsumeMessage(Envelope & rEnv, long timeoutMs);
-private:
-	static int  FASTCALL ProcessAmqpRpcReply(const amqp_rpc_reply_t & rR);
-	int    SLAPI VerifyRpcReply();
-	void * P_Conn;
-	void * P_Sock;
-	//amqp_channel_t ChannelN;
-	uint16 ChannelN;
-	uint16 Reserve; // @alignment
-	SString Host;
-	int    Port;
-};
+PPMqbClient::Envelope::Envelope() : ChannelN(0), Reserve(0), DeliveryTag(0), Flags(0)
+{
+}
+
+PPMqbClient::Envelope & PPMqbClient::Envelope::Z()
+{
+	ChannelN = 0;
+	Reserve = 0;
+	DeliveryTag = 0;
+	Flags = 0;
+	ConsumerTag.Z();
+	Exchange.Z();
+	RoutingKey.Z();
+	Msg.Z();
+	return *this;
+}
 
 SLAPI  PPMqbClient::PPMqbClient() : P_Conn(0), P_Sock(0), Port(0), ChannelN(0)
 {
@@ -233,17 +154,46 @@ int SLAPI PPMqbClient::Login(const LoginParam & rP)
 	return ok;
 }
 
-int SLAPI PPMqbClient::Publish(const char * pExchangeName, const char * pQueue, const void * pData, size_t dataLen)
+int SLAPI PPMqbClient::Publish(const char * pExchangeName, const char * pQueue, const MessageProperties * pProps, const void * pData, size_t dataLen)
 {
 	int    ok = 1;
 	THROW(P_Conn);
 	{
+		amqp_basic_properties_t * p_local_props = 0;
+		amqp_basic_properties_t local_props;
 		amqp_bytes_t exchange = amqp_cstring_bytes(/*"amq.direct"*/pExchangeName);
 		amqp_bytes_t queue = amqp_cstring_bytes(pQueue);
 		amqp_bytes_t data;
 		data.bytes = const_cast<void *>(pData); // @badcast
 		data.len = dataLen;
-		int pr = amqp_basic_publish(GetNativeConnHandle(P_Conn), ChannelN, exchange, queue, 0, 0, NULL, data);
+		if(pProps) {
+			MEMSZERO(local_props);
+			if(pProps->ContentType) {
+				SString & r_rb = SLS.AcquireRvlStr();
+				SFileFormat::GetMime(pProps->ContentType, r_rb);
+				local_props.content_type = amqp_cstring_bytes(r_rb);
+			}
+			if(pProps->Encoding) {
+				SString & r_rb = SLS.AcquireRvlStr();
+				SFileFormat::GetContentTransferEncName(pProps->Encoding, r_rb);
+				local_props.content_encoding = amqp_cstring_bytes(r_rb);
+			}
+			local_props._flags = pProps->Flags;
+			local_props.timestamp = pProps->TimeStamp.GetTimeT();
+			local_props.delivery_mode = inrangeordefault(pProps->DeliveryMode, 1U, 2U, 1U);
+			local_props.priority = inrangeordefault(pProps->Priority, 0U, 9U, 0U);
+			local_props.correlation_id = amqp_cstring_bytes(pProps->CorrelationId);
+			local_props.reply_to = amqp_cstring_bytes(pProps->ReplyTo);
+			local_props.expiration = amqp_cstring_bytes(pProps->Expiration);
+			local_props.message_id = amqp_cstring_bytes(pProps->MessageId);
+			local_props.type = amqp_cstring_bytes(pProps->Type);
+			local_props.user_id = amqp_cstring_bytes(pProps->UserId);
+			local_props.app_id = amqp_cstring_bytes(pProps->AppId);
+			local_props.cluster_id = amqp_cstring_bytes(pProps->ClusterId);
+			// @todo local_props.headers
+			p_local_props = &local_props;
+		}
+		int pr = amqp_basic_publish(GetNativeConnHandle(P_Conn), ChannelN, exchange, queue, 0, 0, p_local_props, data);
 		THROW(pr == AMQP_STATUS_OK);
 	}
 	CATCHZOK
@@ -296,7 +246,7 @@ int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 			rEnv.Msg.Props.Flags = envelope.message.properties._flags;
 			rEnv.Msg.Props.DeliveryMode = envelope.message.properties.delivery_mode;
 			rEnv.Msg.Props.Priority = envelope.message.properties.priority;
-			rEnv.Msg.Props.TimeStamp = envelope.message.properties.timestamp;
+			rEnv.Msg.Props.TimeStamp.SetTimeT(envelope.message.properties.timestamp);
 			AmpqBytesToSString(envelope.message.properties.content_type, temp_buf);
 			rEnv.Msg.Props.ContentType = SFileFormat::IdentifyMimeType(temp_buf);
 			AmpqBytesToSString(envelope.message.properties.content_encoding, temp_buf);
@@ -323,7 +273,18 @@ int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 	CATCHZOK
 	return ok;
 }
-//amqp_rpc_reply_t amqp_consume_message(amqp_connection_state_t state, amqp_envelope_t * envelope, struct timeval * timeout, AMQP_UNUSED int flags) 
+
+int SLAPI PPMqbClient::Ack(uint64 deliveryTag, long flags /*mqofMultiple*/)
+{
+	int    ok = 1;
+	THROW(P_Conn);
+	{
+		int pr = amqp_basic_ack(GetNativeConnHandle(P_Conn), ChannelN, deliveryTag, BIN(flags & mqofMultiple));
+		THROW(pr >= AMQP_STATUS_OK);
+	}
+	CATCHZOK
+	return ok;
+}
 
 int SLAPI PPMqbClient::QueueDeclare(const char * pQueue, long queueFlags)
 {
@@ -384,7 +345,7 @@ int SLAPI PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, 
 int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP)
 {
 	int    ok = 1;
-	THROW(rC.Connect(rP.Host, NZOR(rP.Port, 5672)));
+	THROW(rC.Connect(rP.Host, NZOR(rP.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
 	THROW(rC.Login(rP));
 	CATCHZOK
 	return ok;
@@ -421,13 +382,13 @@ int SLAPI TestMqc()
 			THROW(mqc.QueueDeclare(P_TestQueueName, 0));
 			THROW(mqc.ExchangeDeclare(p_exchange_name, "fanout", 0));
 			THROW(mqc.QueueBind(P_TestQueueName, p_exchange_name, ""));
-
 		}
 		{
 			ulong random_id = SLS.GetTLA().Rg.GetUniformInt(1000000);
 			(temp_buf = "This is a some stupid message").CatChar('-').Cat(random_id);
 			//THROW(mqc.Publish("", P_TestQueueName, temp_buf.cptr(), temp_buf.Len()));
-			THROW(mqc.Publish(p_exchange_name, /*P_TestQueueName*/"", temp_buf.cptr(), temp_buf.Len()));
+			PPMqbClient::MessageProperties props;
+			THROW(mqc.Publish(p_exchange_name, /*P_TestQueueName*/"", 0 /*props*/, temp_buf.cptr(), temp_buf.Len()));
 		}
 	}
 	{

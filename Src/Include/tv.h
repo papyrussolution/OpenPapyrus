@@ -3957,28 +3957,6 @@ private:
 	TSArray <StItem> Items; // @todo Заменить на StringSet
 };
 //
-// Окно вкладок
-//
-class ShortcutsWindow {
-public:
-	static INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	ShortcutsWindow();
-	~ShortcutsWindow();
-	HWND   Create(HWND parentWnd);
-	void   Destroy();
-	void   SelItem(void * ptr);
-	void   AddItem(const char * pTitle, void * ptr);
-	void   UpdateItem(const char * pTitle, void * ptr);
-	void   DelItem(void * ptr);
-	int    IsVisible() const;
-	void   GetRect(RECT & rRect);
-	int    MoveWindow(const RECT & rRect);
-
-	HWND   Hwnd;
-private:
-	HWND   HwndTT;
-};
-//
 // Боковое окно
 //
 class TreeWindow {
@@ -3990,7 +3968,7 @@ public:
 		ListWindow * P_Lw;
 	};
 
-	TreeWindow(HWND parentWnd);
+	explicit TreeWindow(HWND parentWnd);
 	~TreeWindow();
 	static INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void   DelItemCmdList(void * ptr);
@@ -4007,6 +3985,25 @@ public:
 
 	HWND   Hwnd;
 private:
+	class ShortcutsWindow {
+	public:
+		static INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+		ShortcutsWindow();
+		~ShortcutsWindow();
+		HWND   Create(HWND parentWnd);
+		void   Destroy();
+		void   SelItem(void * ptr);
+		void   AddItem(const char * pTitle, void * ptr);
+		void   UpdateItem(const char * pTitle, void * ptr);
+		void   DelItem(void * ptr);
+		int    IsVisible() const;
+		void   GetRect(RECT & rRect);
+		int    MoveWindow(const RECT & rRect);
+
+		HWND   Hwnd;
+	private:
+		HWND   HwndTT;
+	};
 	ListWindowItem * GetListWinByCmd(long cmd, uint * pPos);
 	ListWindowItem * GetListWinByHwnd(HWND hWnd, uint * pPos);
 	void   MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList);

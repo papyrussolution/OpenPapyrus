@@ -9,6 +9,10 @@
 //
 //
 //
+SInvariantParam::SInvariantParam() : LocalOk(1), Time(0)
+{
+}
+
 STestDataArray::Item::Item()
 {
 	THISZERO();

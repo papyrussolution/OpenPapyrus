@@ -945,9 +945,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\SLib\shortwnd.cpp">
-			</File>
-			<File
 				RelativePath="..\SLib\simage.cpp">
 			</File>
 			<File

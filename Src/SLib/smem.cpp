@@ -1,6 +1,6 @@
 // SMEM.CPP
 // Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -25,7 +25,7 @@ void FASTCALL memmovo(void * pDest, const void * pSrc, size_t sz)
 #define INCPTR8C(p)  (p) = (PTR8C(p)+1)
 #define DECPTR32C(p) (p) = (PTR32C(p)-1)
 #define DECPTR8C(p)  (p) = (PTR8C(p)-1)
-	// Алгоритм заточен на выравнивание адреса источника по границе 32 байт (2^5)
+	// РђР»РіРѕСЂРёС‚Рј Р·Р°С‚РѕС‡РµРЅ РЅР° РІС‹СЂР°РІРЅРёРІР°РЅРёРµ Р°РґСЂРµСЃР° РёСЃС‚РѕС‡РЅРёРєР° РїРѕ РіСЂР°РЅРёС†Рµ 32 Р±Р°Р№С‚ (2^5)
 	if(pDest != pSrc) {
 		switch(sz) {
 			case 1: *PTR8(pDest)  = *PTR8C(pSrc);  return;
@@ -401,7 +401,7 @@ void operator delete(void * ptr)
 #define MEMPAIR_COUNT 1000
 #define MEMBLK_SIZE   (36*1024)
 #define MEMBLK_EXT_SIZE 32
-#define BYTES_SIZE    (5 * 1024) // Величина должна превышать размер страницы памяти
+#define BYTES_SIZE    (5 * 1024) // Р’РµР»РёС‡РёРЅР° РґРѕР»Р¶РЅР° РїСЂРµРІС‹С€Р°С‚СЊ СЂР°Р·РјРµСЂ СЃС‚СЂР°РЅРёС†С‹ РїР°РјСЏС‚Рё
 
 #include <asmlib.h> // @v7.0.12
 
@@ -460,9 +460,9 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 				assert(dest >= start && dest < start+zone);
 				if(bm == 0) {
 					//
-					// Тестируем A_memmove
-					// Она должна скопировать блок длиной s из одной части F.P_Bytes в другую не задев
-					// сопредельные участки памяти. Результат копирования сравниваем с F.P_Pattern
+					// РўРµСЃС‚РёСЂСѓРµРј A_memmove
+					// РћРЅР° РґРѕР»Р¶РЅР° СЃРєРѕРїРёСЂРѕРІР°С‚СЊ Р±Р»РѕРє РґР»РёРЅРѕР№ s РёР· РѕРґРЅРѕР№ С‡Р°СЃС‚Рё F.P_Bytes РІ РґСЂСѓРіСѓСЋ РЅРµ Р·Р°РґРµРІ
+					// СЃРѕРїСЂРµРґРµР»СЊРЅС‹Рµ СѓС‡Р°СЃС‚РєРё РїР°РјСЏС‚Рё. Р РµР·СѓР»СЊС‚Р°С‚ РєРѕРїРёСЂРѕРІР°РЅРёСЏ СЃСЂР°РІРЅРёРІР°РµРј СЃ F.P_Pattern
 					//
 					//memmovo(F.P_Bytes+dest, F.P_Bytes+src, s);
 					A_memmove(F.P_Bytes+dest, F.P_Bytes+src, s);
@@ -470,10 +470,10 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
 					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
 					//
-					// Стандартная процедура копирования для восстановления эквивалентности P_Bytes и P_Pattern
-					// Закладываемся на то, что memmove работает правильно.
-					// В случае бенчмарка этот вызов "разбавляет" кэш за счет обращения к отличному от F.P_Bytes
-					// блоку памяти.
+					// РЎС‚Р°РЅРґР°СЂС‚РЅР°СЏ РїСЂРѕС†РµРґСѓСЂР° РєРѕРїРёСЂРѕРІР°РЅРёСЏ РґР»СЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚Рё P_Bytes Рё P_Pattern
+					// Р—Р°РєР»Р°РґС‹РІР°РµРјСЃСЏ РЅР° С‚Рѕ, С‡С‚Рѕ memmove СЂР°Р±РѕС‚Р°РµС‚ РїСЂР°РІРёР»СЊРЅРѕ.
+					// Р’ СЃР»СѓС‡Р°Рµ Р±РµРЅС‡РјР°СЂРєР° СЌС‚РѕС‚ РІС‹Р·РѕРІ "СЂР°Р·Р±Р°РІР»СЏРµС‚" РєСЌС€ Р·Р° СЃС‡РµС‚ РѕР±СЂР°С‰РµРЅРёСЏ Рє РѕС‚Р»РёС‡РЅРѕРјСѓ РѕС‚ F.P_Bytes
+					// Р±Р»РѕРєСѓ РїР°РјСЏС‚Рё.
 					//
 					memmove(F.P_Pattern+dest, F.P_Pattern+src, s);
 				}
@@ -492,7 +492,7 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 			}
 		}
 		//
-		// Тестирование A_memset и ismemzero
+		// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ A_memset Рё ismemzero
 		//
 		if(bm == 0) {
 			for(s = 1; s <= bs/4; s++) {
@@ -504,15 +504,15 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 					assert(src >= start && src < start+zone);
 					assert(dest >= start && dest < start+zone);
 					//
-					// Тестируем A_memset
-					// Она должна обнулить заданный участок памяти не задев сопредельные участки.
+					// РўРµСЃС‚РёСЂСѓРµРј A_memset
+					// РћРЅР° РґРѕР»Р¶РЅР° РѕР±РЅСѓР»РёС‚СЊ Р·Р°РґР°РЅРЅС‹Р№ СѓС‡Р°СЃС‚РѕРє РїР°РјСЏС‚Рё РЅРµ Р·Р°РґРµРІ СЃРѕРїСЂРµРґРµР»СЊРЅС‹Рµ СѓС‡Р°СЃС‚РєРё.
 					//
 					A_memset(F.P_Bytes+dest, 0, s);
 					THROW(SLTEST_CHECK_NZ(ismemzero(F.P_Bytes+dest, s)));
 					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
 					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
 					//
-					// Возвращаем назад содержимое F.P_Bytes[dest..s-1]
+					// Р’РѕР·РІСЂР°С‰Р°РµРј РЅР°Р·Р°Рґ СЃРѕРґРµСЂР¶РёРјРѕРµ F.P_Bytes[dest..s-1]
 					//
 					memmove(F.P_Bytes+dest, F.P_Pattern+dest, s);
 				}

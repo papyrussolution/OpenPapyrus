@@ -3737,3 +3737,54 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(TIMESERIESSA);
+//
+//
+//
+class CMD_HDL_CLS(EXPORTVIEW) : public PPCommandHandler {
+public:
+	SLAPI  CMD_HDL_CLS(EXPORTVIEW)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PPView::ExecNfViewParam filt;
+			filt.Read(*pParam, 0);
+			if(PPView::EditExecNfViewParam(filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = 1;
+		PPView::ExecNfViewParam param;
+		SString result_fname, dest_fname;
+		// @debug {
+			const PPThreadLocalArea & r_tla = DS.GetConstTLA();
+			assert((&r_tla) != 0);
+		// } @debug
+		THROW_INVARG(pParam);
+		THROW(param.Read(*pParam, 0));
+		THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
+		if(param.FileName.NotEmpty()) {
+			SPathStruc dest_ps(param.FileName);
+			if(dest_ps.Nam.Empty()) {
+				SPathStruc src_ps(result_fname);
+				dest_ps.Nam = src_ps.Nam;
+				dest_ps.Ext = src_ps.Ext;
+			}
+			dest_ps.Merge(dest_fname);
+			THROW(SCopyFile(result_fname, dest_fname, 0, FILE_SHARE_READ, 0));
+			SFile::Remove(result_fname);
+		}
+		CATCHZOK
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(EXPORTVIEW);

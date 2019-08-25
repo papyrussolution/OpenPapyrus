@@ -30,12 +30,10 @@ void CommCfgDialog::setDTS(const PPCommConfig * pData)
 	setCtrlData(CTL_COMMCFG_CASHACC,    &cfg.CashAcct);
 	setCtrlData(CTL_COMMCFG_IMPRESTACC, &cfg.ImprestAcct);
 	setCtrlData(CTL_COMMCFG_ASSETACC,   &cfg.AssetAcct);
-
 	AddClusterAssocDef(CTL_COMMCFG_INCM,  0, INCM_DEFAULT);
 	AddClusterAssoc(CTL_COMMCFG_INCM,  1, INCM_BYSHIPMENT);
 	AddClusterAssoc(CTL_COMMCFG_INCM,  2, INCM_BYPAYMENT);
 	SetClusterData(CTL_COMMCFG_INCM, cfg.IncomeCalcMethod);
-
 	AddClusterAssoc(CTL_COMMCFG_FLAGS, 0, CCFLG_PRICEWOEXCISE);
 	AddClusterAssoc(CTL_COMMCFG_FLAGS, 1, CCFLG_TGGLEXCSNPRICE);
 	AddClusterAssoc(CTL_COMMCFG_FLAGS, 2, CCFLG_SETWLONLINK);
@@ -74,6 +72,12 @@ int CommCfgDialog::editSysParams()
 {
 	class SysParamsDialog : public TDialog {
 	public:
+		enum {
+			usehistobjBill   = 0x0001,
+			usehistobjGoods  = 0x0002,
+			usehistobjPerson = 0x0004,
+			usehistobjSCard  = 0x0008,
+		};
 		SysParamsDialog() : TDialog(DLG_CCFGSYS)
 		{
 		}
@@ -89,17 +93,17 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  0, CCFLG_USEGDSCLS);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  1, CCFLG_USEGOODSPCKG);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  2, CCFLG_USEDRAFTBILL); // @v9.8.11 @obsolete
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  3, CCFLG_USEHISTBILL);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  4, CCFLG_CHECKSPOILAGE);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  5, CCFLG_THROUGHSCARDUNIQ);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  6, CCFLG_USEHISTGOODS);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  7, CCFLG_USECCHECKEXT);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  8, CCFLG_USECCHECKLINEEXT);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  9, CCFLG_GENLOTONUNLIMORDER);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS, 10, CCFLG_USEARGOODSCODE);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS, 11, CCFLG_INDIVIDBILLEXTFILT);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS, 12, CCFLG_USEDISTRIBCOST);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS, 13, CCFLG_RSRVSJ);
+			// @v10.5.3 AddClusterAssoc(CTL_CCFGSYS_FLAGS,  3, CCFLG_USEHISTBILL);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  3, CCFLG_CHECKSPOILAGE);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  4, CCFLG_THROUGHSCARDUNIQ);
+			// @v10.5.3 AddClusterAssoc(CTL_CCFGSYS_FLAGS,  6, CCFLG_USEHISTGOODS);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  5, CCFLG_USECCHECKEXT);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  6, CCFLG_USECCHECKLINEEXT);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  7, CCFLG_GENLOTONUNLIMORDER);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  8, CCFLG_USEARGOODSCODE);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  9, CCFLG_INDIVIDBILLEXTFILT);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS, 10, CCFLG_USEDISTRIBCOST);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS, 11, CCFLG_RSRVSJ);
 			SetClusterData(CTL_CCFGSYS_FLAGS, Data.Flags);
 			AddClusterAssocDef(CTL_CCFGSYS_LCRUSAGE, 0, 0);
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 1, 1);
@@ -118,6 +122,20 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 5, CCFLG2_USESARTREDB); // @v9.7.11
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 6, CCFLG2_USELOTXCODE); // @v9.8.11
 			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2);
+			// @v10.5.3 {
+			{
+				long   usehistobj = 0;
+				SETFLAG(usehistobj, usehistobjBill,   Data.Flags & CCFLG_USEHISTBILL);
+				SETFLAG(usehistobj, usehistobjGoods,  Data.Flags & CCFLG_USEHISTGOODS);
+				SETFLAG(usehistobj, usehistobjPerson, Data.Flags2 & CCFLG2_USEHISTPERSON);
+				SETFLAG(usehistobj, usehistobjSCard,  Data.Flags2 & CCFLG2_USEHISTSCARD);
+				AddClusterAssoc(CTL_CCFGSYS_OBJHISTF, 0, usehistobjBill);
+				AddClusterAssoc(CTL_CCFGSYS_OBJHISTF, 1, usehistobjGoods);
+				AddClusterAssoc(CTL_CCFGSYS_OBJHISTF, 2, usehistobjPerson);
+				AddClusterAssoc(CTL_CCFGSYS_OBJHISTF, 3, usehistobjSCard);
+				SetClusterData(CTL_CCFGSYS_OBJHISTF, usehistobj);
+			}
+			// } @v10.5.3 
 			{
 				SString db_path;
 				PPGetPath(PPPATH_SARTREDB, db_path);
@@ -140,6 +158,15 @@ int CommCfgDialog::editSysParams()
 			getCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
 			// } @v10.1.5
 			GetClusterData(CTL_CCFGSYS_FLAGS2, &Data.Flags2);
+			// @v10.5.3 {
+			{
+				long   usehistobj = GetClusterData(CTL_CCFGSYS_OBJHISTF);
+				SETFLAG(Data.Flags, CCFLG_USEHISTBILL, usehistobj & usehistobjBill);
+				SETFLAG(Data.Flags, CCFLG_USEHISTGOODS, usehistobj & usehistobjGoods);
+				SETFLAG(Data.Flags2, CCFLG2_USEHISTPERSON, usehistobj & usehistobjPerson);
+				SETFLAG(Data.Flags2, CCFLG2_USEHISTSCARD, usehistobj & usehistobjSCard);
+			}
+			// } @v10.5.3 
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}

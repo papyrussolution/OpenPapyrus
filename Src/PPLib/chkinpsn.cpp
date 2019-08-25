@@ -283,7 +283,6 @@ IMPL_INVARIANT_C(PPCheckInPersonArray)
 	S_ASSERT_P(Ver.IsGt(7, 8, 0), pInvP);
 	{
 		SInvariantParam invp;
-		invp.LocalOk = 1;
 		for(uint i = 0; invp.LocalOk && i < getCount(); i++) {
 			const PPCheckInPersonItem & r_item = at(i);
 			S_ASSERT_P(r_item.InvariantC(&invp), pInvP);

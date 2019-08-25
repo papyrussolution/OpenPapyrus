@@ -303,7 +303,7 @@ SLAPI PalmPaneData::PalmPaneData()
 static int SLAPI StyloPalmListFilt(void * pRec, void * extraPtr)
 {
 	const long extra_param = reinterpret_cast<long>(extraPtr);
-	PPStyloPalm * p_rec = (PPStyloPalm *)pRec;
+	const PPStyloPalm * p_rec = static_cast<const PPStyloPalm *>(pRec);
 	return extra_param ? ((p_rec->Flags & extra_param) == extra_param) : 1;
 }
 

@@ -27,7 +27,7 @@
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
-	#include <winsock2.h>
+	//#include <winsock2.h>
 #else
 	#include <sys/socket.h>
 	#include <sys/types.h>
@@ -40,92 +40,91 @@ static int amqp_ssl_bio_initialized = 0;
 
 #ifdef AMQP_USE_AMQP_BIO
 
-static BIO_METHOD * amqp_bio_method;
+	static BIO_METHOD * amqp_bio_method;
 
-static int amqp_openssl_bio_should_retry(int res) 
-{
-	if(res == -1) {
-		int err = amqp_os_socket_error();
-		if(
-#ifdef EWOULDBLOCK
-			err == EWOULDBLOCK ||
-#endif
-#ifdef WSAEWOULDBLOCK
-			err == WSAEWOULDBLOCK ||
-#endif
-#ifdef ENOTCONN
-			err == ENOTCONN ||
-#endif
-#ifdef EINTR
-			err == EINTR ||
-#endif
-#ifdef EAGAIN
-			err == EAGAIN ||
-#endif
-#ifdef EPROTO
-			err == EPROTO ||
-#endif
-#ifdef EINPROGRESS
-			err == EINPROGRESS ||
-#endif
-#ifdef EALREADY
-			err == EALREADY ||
-#endif
-			0) {
-			return 1;
+	static int amqp_openssl_bio_should_retry(int res) 
+	{
+		if(res == -1) {
+			int err = amqp_os_socket_error();
+			if(
+	#ifdef EWOULDBLOCK
+				err == EWOULDBLOCK ||
+	#endif
+	#ifdef WSAEWOULDBLOCK
+				err == WSAEWOULDBLOCK ||
+	#endif
+	#ifdef ENOTCONN
+				err == ENOTCONN ||
+	#endif
+	#ifdef EINTR
+				err == EINTR ||
+	#endif
+	#ifdef EAGAIN
+				err == EAGAIN ||
+	#endif
+	#ifdef EPROTO
+				err == EPROTO ||
+	#endif
+	#ifdef EINPROGRESS
+				err == EINPROGRESS ||
+	#endif
+	#ifdef EALREADY
+				err == EALREADY ||
+	#endif
+				0) {
+				return 1;
+			}
 		}
-	}
-	return 0;
-}
-
-static int amqp_openssl_bio_write(BIO * b, const char * in, int inl) 
-{
-	int flags = 0;
-	int fd;
-	int res;
-#ifdef MSG_NOSIGNAL
-	flags |= MSG_NOSIGNAL;
-#endif
-	BIO_get_fd(b, &fd);
-	res = send(fd, in, inl, flags);
-	BIO_clear_retry_flags(b);
-	if(res <= 0 && amqp_openssl_bio_should_retry(res)) {
-		BIO_set_retry_write(b);
-	}
-	return res;
-}
-
-static int amqp_openssl_bio_read(BIO * b, char * out, int outl) 
-{
-	int flags = 0;
-	int fd;
-	int res;
-#ifdef MSG_NOSIGNAL
-	flags |= MSG_NOSIGNAL;
-#endif
-	BIO_get_fd(b, &fd);
-	res = recv(fd, out, outl, flags);
-	BIO_clear_retry_flags(b);
-	if(res <= 0 && amqp_openssl_bio_should_retry(res)) {
-		BIO_set_retry_read(b);
-	}
-	return res;
-}
-
-#ifndef AMQP_OPENSSL_V110
-	static int BIO_meth_set_write(BIO_METHOD * biom, int (*wfn)(BIO *, const char *, int)) 
-	{
-		biom->bwrite = wfn;
 		return 0;
 	}
 
-	static int BIO_meth_set_read(BIO_METHOD * biom, int (*rfn)(BIO *, char *, int)) 
+	static int amqp_openssl_bio_write(BIO * b, const char * in, int inl) 
 	{
-		biom->bread = rfn;
-		return 0;
+		int flags = 0;
+		int fd;
+		int res;
+	#ifdef MSG_NOSIGNAL
+		flags |= MSG_NOSIGNAL;
+	#endif
+		BIO_get_fd(b, &fd);
+		res = send(fd, in, inl, flags);
+		BIO_clear_retry_flags(b);
+		if(res <= 0 && amqp_openssl_bio_should_retry(res)) {
+			BIO_set_retry_write(b);
+		}
+		return res;
 	}
-#endif /* AQP_OPENSSL_V110 */
-#endif /* AMQP_USE_AMQP_BIO */
+
+	static int amqp_openssl_bio_read(BIO * b, char * out, int outl) 
+	{
+		int flags = 0;
+		int fd;
+		int res;
+	#ifdef MSG_NOSIGNAL
+		flags |= MSG_NOSIGNAL;
+	#endif
+		BIO_get_fd(b, &fd);
+		res = recv(fd, out, outl, flags);
+		BIO_clear_retry_flags(b);
+		if(res <= 0 && amqp_openssl_bio_should_retry(res)) {
+			BIO_set_retry_read(b);
+		}
+		return res;
+	}
+
+	#ifndef AMQP_OPENSSL_V110
+		static int BIO_meth_set_write(BIO_METHOD * biom, int (*wfn)(BIO *, const char *, int)) 
+		{
+			biom->bwrite = wfn;
+			return 0;
+		}
+		static int BIO_meth_set_read(BIO_METHOD * biom, int (*rfn)(BIO *, char *, int)) 
+		{
+			biom->bread = rfn;
+			return 0;
+		}
+	#endif
+#endif // AMQP_USE_AMQP_BIO 
 
 int amqp_openssl_bio_init() 
 {

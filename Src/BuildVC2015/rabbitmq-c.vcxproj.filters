@@ -9,24 +9,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_api.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_connection.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_consumer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_framing.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_hostcheck.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_mem.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\rabbitmq-c\amqp_openssl.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,22 +18,10 @@
     <ClCompile Include="..\Osf\rabbitmq-c\amqp_openssl_hostname_validation.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_socket.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_table.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_tcp_socket.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_time.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_url.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\rabbitmq-c\amqp-pch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\rabbitmq-c\ppamqp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

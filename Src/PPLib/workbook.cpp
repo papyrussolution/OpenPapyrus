@@ -160,17 +160,18 @@ int FASTCALL PPWorkbookPacket::IsEqual(const PPWorkbookPacket & rS) const
 	NRECFLD(Tm);
 	if(!sstreq(Rec.Name, rS.Rec.Name))
 		return 0;
-	if(!sstreq(Rec.Symb, rS.Rec.Symb))
+	else if(!sstreq(Rec.Symb, rS.Rec.Symb))
 		return 0;
-	if(!sstreq(Rec.Version, rS.Rec.Version)) // @v9.3.8
+	else if(!sstreq(Rec.Version, rS.Rec.Version)) // @v9.3.8
 		return 0;
-	if(!TagL.IsEqual(rS.TagL))
+	else if(!TagL.IsEqual(rS.TagL))
 		return 0;
-	if(ExtString != rS.ExtString)
+	else if(ExtString != rS.ExtString)
 		return 0;
-	if(F.IsChanged(Rec.ID, 0L))
+	else if(F.IsChanged(Rec.ID, 0L))
 		return 0;
-	return 1;
+	else
+		return 1;
 #undef NRECFLD
 }
 
@@ -438,41 +439,6 @@ int SLAPI PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuf
 	CATCHZOK
 	return ok;
 }
-
-/*
-int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
-{
-	int    r;
-	if(!(options & not_checkrights))
-		THROW(CheckRights(PPR_DEL));
-	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) : cmYes;
-	if(r == cmYes) {
-		if(!(options & no_wait_indicator))
-			PPWait(1);
-		PPTransaction tra(BIN(options & use_transaction));
-		THROW(tra);
-		if(!(options & not_objnotify)) { // @v8.0.4
-			r = SendObjMessage(DBMSG_OBJDELETE, 0, Obj, id, pExtraParam, pObjColl);
-			THROW(r == DBRPL_OK && Search(id) > 0 && DeleteObj(id));
-		}
-		THROW(PPRef->RemoveProp(Obj, id, 0, 0));
-		THROW(RemoveSync(id));
-		if(!(options & not_addtolog))
-			DS.LogAction(PPACN_OBJRMV, Obj, id, 0, 0);
-		THROW(tra.Commit());
-		r = 1;
-	}
-	else
-		r = -1;
-	CATCH
-		if(options & PPObject::user_request)
-			PPError();
-		r = 0;
-	ENDCATCH
-	if(!(options & no_wait_indicator))
-		PPWait(0);
-	return r;
-}*/
 
 //virtual
 int  SLAPI PPObjWorkbook::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)

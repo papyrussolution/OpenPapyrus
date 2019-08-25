@@ -772,7 +772,6 @@ static int xmlFdClose(void * context)
 		xmlIOErr(0, "close()");
 	return ret;
 }
-
 /**
  * xmlFileMatch:
  * @filename:  the URI for matching
@@ -785,7 +784,6 @@ int xmlFileMatch(const char * filename ATTRIBUTE_UNUSED)
 {
 	return 1;
 }
-
 /**
  * xmlFileOpen_real:
  * @filename:  the URI for matching
@@ -803,7 +801,7 @@ static void * xmlFileOpen_real(const char * filename)
 		return 0;
 	if(sstreq(filename, "-")) {
 		fd = stdin;
-		return (void *)fd;
+		return fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file://localhost/"), 17)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -836,9 +834,8 @@ static void * xmlFileOpen_real(const char * filename)
 #endif /* WIN32 */
 	if(fd == NULL)
 		xmlIOErr(0, path);
-	return (void *)fd;
+	return fd;
 }
-
 /**
  * xmlFileOpen:
  * @filename:  the URI for matching
@@ -851,7 +848,7 @@ static void * xmlFileOpen_real(const char * filename)
 void * xmlFileOpen(const char * filename)
 {
 	void * retval = xmlFileOpen_real(filename);
-	if(retval == NULL) {
+	if(!retval) {
 		char * unescaped = xmlURIUnescapeString(filename, 0, 0);
 		if(unescaped) {
 			retval = xmlFileOpen_real(unescaped);
@@ -877,7 +874,7 @@ static void * xmlFileOpenW(const char * filename)
 	FILE * fd;
 	if(sstreq(filename, "-")) {
 		fd = stdout;
-		return (void *)fd;
+		return fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file://localhost/"), 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -900,14 +897,13 @@ static void * xmlFileOpenW(const char * filename)
 	fd = xmlWrapOpen(path, 1);
 #else
 	fd = fopen(path, "wb");
-#endif /* WIN32 */
-	if(fd == NULL)
+#endif
+	if(!fd)
 		xmlIOErr(0, path);
-	return (void *)fd;
+	return fd;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
 /**
  * xmlFileRead:
  * @context:  the I/O context
@@ -922,7 +918,7 @@ int xmlFileRead(void * context, char * buffer, int len)
 {
 	int ret = -1;
 	if(context && buffer) {
-		ret = fread(&buffer[0], 1,  len, (FILE *)context);
+		ret = fread(&buffer[0], 1,  len, static_cast<FILE *>(context));
 		if(ret < 0)
 			xmlIOErr(0, "fread()");
 	}
@@ -956,7 +952,6 @@ static int xmlFileWrite(void * context, const char * buffer, int len)
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
 /**
  * xmlFileClose:
  * @context:  the I/O context
@@ -986,7 +981,6 @@ int xmlFileClose(void * context)
 	}
 	return ret;
 }
-
 /**
  * xmlFileFlush:
  * @context:  the I/O context
@@ -1024,11 +1018,9 @@ static int xmlBufferWrite(void * context, const char * buffer, int len)
 #endif
 
 #ifdef HAVE_ZLIB_H
-/************************************************************************
-*									*
-*		I/O for compressed file accesses			*
-*									*
-************************************************************************/
+// 
+// I/O for compressed file accesses
+//
 /**
  * xmlGzfileMatch:
  * @filename:  the URI for matching
@@ -1086,9 +1078,8 @@ static void * xmlGzfileOpen_real(const char * filename)
 #else
 	fd = gzopen(path, "rb");
 #endif
-	return (void *)fd;
+	return fd;
 }
-
 /**
  * xmlGzfileOpen:
  * @filename:  the URI for matching
@@ -1099,7 +1090,7 @@ static void * xmlGzfileOpen_real(const char * filename)
 static void * xmlGzfileOpen(const char * filename)
 {
 	void * retval = xmlGzfileOpen_real(filename);
-	if(retval == NULL) {
+	if(!retval) {
 		char * unescaped = xmlURIUnescapeString(filename, 0, 0);
 		if(unescaped) {
 			retval = xmlGzfileOpen_real(unescaped);
@@ -1271,7 +1262,6 @@ static void * xmlXzfileOpen_real(const char * filename)
 	fd = __libxml2_xzopen(path, "rb");
 	return (void *)fd;
 }
-
 /**
  * xmlXzfileOpen:
  * @filename:  the URI for matching
@@ -1284,16 +1274,14 @@ static void * xmlXzfileOpen_real(const char * filename)
 static void * xmlXzfileOpen(const char * filename)
 {
 	void * retval = xmlXzfileOpen_real(filename);
-	if(retval == NULL) {
+	if(!retval) {
 		char * unescaped = xmlURIUnescapeString(filename, 0, 0);
-		if(unescaped) {
+		if(unescaped)
 			retval = xmlXzfileOpen_real(unescaped);
-		}
 		SAlloc::F(unescaped);
 	}
 	return retval;
 }
-
 /**
  * xmlXzfileRead:
  * @context:  the I/O context

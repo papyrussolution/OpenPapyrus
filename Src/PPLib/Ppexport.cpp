@@ -1,7 +1,7 @@
 // PPEXPORT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018
-// @codepage windows-1251
-// ������/������� ������
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
+// Импорт/Экспорт данных
 //
 #include <pp.h>
 #pragma hdrstop
@@ -11,6 +11,20 @@
 	//"LP15",
 	//"GLABEL"
 //};
+
+#if 0 // @v10.5.3 @obsolete-dialog-form {
+DLG_E_MONRCH DIALOGEX 57, 64, 260, 69
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Подготовка данных для принтера Monarch"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "@goodsgroup",4001,10,20,60,8
+    EDITTEXT        CTL_E_MONRCH_GGRP,93,20,139,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_E_MONRCH_GGRP,233,20,12,13,BS_BITMAP
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,140,41,51,14
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,195,41,51,14
+END
+#endif // } 0
 
 int SLAPI ProcessExportJob(const char * pJobName)
 {
@@ -328,5 +342,3 @@ int PPDbTableXmlExporter_Bill::Next()
 		Cntr.Increment();
 	return ok;
 }
-
-

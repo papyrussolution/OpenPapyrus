@@ -1207,13 +1207,13 @@ typedef enum {
 		amqp_bytes_t content_type;     // content-type
 		amqp_bytes_t content_encoding; // content-encoding
 		amqp_table_t headers;          // headers
-		uint8 delivery_mode;         // delivery-mode
-		uint8 priority;              // priority
+		uint8  delivery_mode;          // delivery-mode
+		uint8  priority;               // priority
 		amqp_bytes_t correlation_id;   // correlation-id
 		amqp_bytes_t reply_to;         // reply-to
 		amqp_bytes_t expiration;       // expiration
 		amqp_bytes_t message_id;       // message-id
-		uint64 timestamp;            // timestamp
+		uint64 timestamp;              // timestamp
 		amqp_bytes_t type;             // type
 		amqp_bytes_t user_id;          // user-id
 		amqp_bytes_t app_id;           // app-id 
@@ -1890,10 +1890,8 @@ AMQP_PUBLIC_FUNCTION int amqp_table_entry_cmp(void const *entry1, void const *en
  * the specified portnumber. It also sets various options on the socket to
  * improve performance and correctness.
  *
- * \param [in] hostname this can be a hostname or IP address.
- *           Both IPv4 and IPv6 are acceptable
- * \param [in] portnumber the port to connect on. RabbitMQ brokers
- *           listen on port 5672, and 5671 for SSL
+ * \param [in] hostname this can be a hostname or IP address. Both IPv4 and IPv6 are acceptable
+ * \param [in] portnumber the port to connect on. RabbitMQ brokers listen on port 5672, and 5671 for SSL
  * \return a positive value indicates success and is the sockfd. A negative
  *  value (see amqp_status_enum)is returned on failure. Possible error codes:
  *  - AMQP_STATUS_TCP_SOCKETLIB_INIT_ERROR Initialization of underlying socket

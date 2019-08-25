@@ -49,26 +49,22 @@ static void TIDY_CALL filesrc_ungetByte(void* sourceData, byte bv)
 #endif
 int TY_(initFileSource) (TidyAllocator *allocator, TidyInputSource* inp, FILE* fp)
 {
-	FileSource* fin = NULL;
-
-	fin = (FileSource*)TidyAlloc(allocator, sizeof(FileSource));
+	FileSource * fin = static_cast<FileSource *>(TidyAlloc(allocator, sizeof(FileSource)));
 	if(!fin)
 		return -1;
 	TidyClearMemory(fin, sizeof(FileSource));
 	fin->unget.allocator = allocator;
 	fin->fp = fp;
-
 	inp->getByte    = filesrc_getByte;
 	inp->eof        = filesrc_eof;
 	inp->ungetByte  = filesrc_ungetByte;
 	inp->sourceData = fin;
-
 	return 0;
 }
 
 void TY_(freeFileSource) (TidyInputSource* inp, bool closeIt)
 {
-	FileSource* fin = (FileSource*)inp->sourceData;
+	FileSource * fin = static_cast<FileSource *>(inp->sourceData);
 	if(closeIt && fin && fin->fp)
 		fclose(fin->fp);
 	tidyBufFree(&fin->unget);
@@ -77,7 +73,7 @@ void TY_(freeFileSource) (TidyInputSource* inp, bool closeIt)
 
 void TIDY_CALL TY_(filesink_putByte) (void* sinkData, byte bv)
 {
-	FILE* fout = (FILE *)sinkData;
+	FILE * fout = static_cast<FILE *>(sinkData);
 	fputc(bv, fout);
 }
 

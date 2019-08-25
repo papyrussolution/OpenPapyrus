@@ -339,15 +339,12 @@ int SLAPI TrnovrRngDis::GetResult(double currentValue, double * pResult) const
 {
 	int    ok = 0;
 	double result = currentValue;
-    if(Flags & fDiscountAddValue) {
+    if(Flags & fDiscountAddValue)
 		result = currentValue + Value;
-    }
-	else if(Flags & fDiscountMultValue)	{
+	else if(Flags & fDiscountMultValue)
 		result = currentValue * Value;
-	}
-	else {
+	else
 		result = Value;
-	}
 	ok = (result != currentValue) ? 1 : -1;
 	ASSIGN_PTR(pResult, result);
 	return ok;
@@ -623,7 +620,6 @@ private:
 	virtual int  editItem(long pos, long id);
 	int    EditTrnovrRng(long pos);
 
-	//int    IsCCheckRule;
 	int    RuleType;
 	PPSCardSerRule Data;
 };
@@ -693,8 +689,8 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 
 int SCardRuleDlg::addItem(long * pPos, long * pID)
 {
-	int    ok = -1;
-	if((ok = EditTrnovrRng(-1)) > 0)
+	int    ok = EditTrnovrRng(-1);
+	if(ok > 0)
 		ASSIGN_PTR(pPos, 0);
 	return ok;
 }
@@ -1775,7 +1771,8 @@ SLAPI PPObjSCard::Filt::Filt() : Signature(FiltSignature), SeriesID(0), OwnerID(
 
 TLP_IMPL(PPObjSCard, CCheckCore, P_CcTbl);
 
-SLAPI PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD), ExtraPtr(extraPtr), P_CsObj(0)
+SLAPI PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD), ExtraPtr(extraPtr), P_CsObj(0),
+	DoObjVer_SCard(CConfig.Flags2 & CCFLG2_USEHISTSCARD) // @v10.5.3
 {
 	TLP_OPEN(P_CcTbl);
 	P_Tbl = P_CcTbl ? &P_CcTbl->Cards : 0;
@@ -3553,6 +3550,34 @@ int SLAPI PPObjSCard::Edit(PPID * pID, const AddParam & rParam)
 	return Helper_Edit(pID, &rParam);
 }
 
+int SLAPI PPObjSCard::ViewVersion(PPID histID)
+{
+	int    ok = -1;
+	SCardDialog * dlg = 0;
+	if(histID) {
+		SBuffer buf;
+		PPSCardPacket pack;
+		ObjVersioningCore * p_ovc = PPRef->P_OvT;
+		if(p_ovc && p_ovc->InitSerializeContext(1)) {
+			SSerializeContext & r_sctx = p_ovc->GetSCtx();
+			PPObjID oid;
+			long   vv = 0;
+			THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
+			THROW(SerializePacket(-1, &pack, buf, &r_sctx));
+			{
+				THROW(CheckDialogPtr(&(dlg = new SCardDialog())));
+				dlg->setDTS(&pack, 0/**/);
+				dlg->enableCommand(cmOK, 0);
+				ExecView(dlg);
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok;
+}
+
 int SLAPI PPObjSCard::IsPacketEq(const PPSCardPacket & rS1, const PPSCardPacket & rS2, long flags)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
@@ -3625,8 +3650,12 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
+	ObjVersioningCore * p_ovc = p_ref->P_OvT; // @v10.5.3
 	LocationCore * p_loc_core = LocObj.P_Tbl;
+	PPID   hid = 0; // @v10.5.3 Версионный идентификатор для сохранения в системном журнале
+	SBuffer hist_buf; // @v10.5.3
 	int    do_dirty = 0;
+	PPID   id = pID ? *pID : 0;
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	SString temp_buf;
 	PPID   log_action_id = 0;
@@ -3637,25 +3666,33 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 		PPObjSCardSeries scs_obj;
 		THROW_PP(pPack->Rec.SeriesID, PPERR_UNDEFSCARDSER);
 		THROW(scs_obj.GetPacket(pPack->Rec.SeriesID, &scs_pack) > 0);
-		if(*pID != 0) {
+		if(id != 0) {
 			THROW_PP(pPack->Rec.Code[0], PPERR_UNDEFSCARDCODE);
 		}
 	}
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(*pID) {
-			THROW(GetPacket(*pID, &org_pack) > 0);
+		if(id) {
+			THROW(GetPacket(id, &org_pack) > 0);
 			if(pPack == 0) {
 				//
 				// Удаление пакета
 				//
 				THROW(CheckRights(PPR_DEL));
-				THROW(RemoveObjV(*pID, 0, 0, 0));
+				// @v10.5.3 {
+				if(DoObjVer_SCard) {
+					if(p_ovc && p_ovc->InitSerializeContext(0)) {
+						SSerializeContext & r_sctx = p_ovc->GetSCtx();
+						THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
+					}
+				}
+				// } @v10.5.3 
+				THROW(RemoveObjV(id, 0, 0, 0));
 				if(do_index_phones) {
 					org_pack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 					PPObjID objid;
-					objid.Set(Obj, *pID);
+					objid.Set(Obj, id);
 					THROW(p_loc_core->IndexPhone(temp_buf, &objid, 1, 0));
 				}
 				do_dirty = 1;
@@ -3674,10 +3711,18 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 					SCardTbl::Rec same_code_rec;
 					THROW(CheckRights(PPR_MOD));
 					THROW(r = SearchCode(pPack->Rec.SeriesID, pPack->Rec.Code, &same_code_rec));
-					THROW_PP_S(r < 0 || same_code_rec.ID == *pID, PPERR_DUPLSCARDFOUND, pPack->Rec.Code);
-					THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
+					THROW_PP_S(r < 0 || same_code_rec.ID == id, PPERR_DUPLSCARDFOUND, pPack->Rec.Code);
+					// @v10.5.3 {
+					if(DoObjVer_SCard) {
+						if(p_ovc && p_ovc->InitSerializeContext(0)) {
+							SSerializeContext & r_sctx = p_ovc->GetSCtx();
+							THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
+						}
+					}
+					// } @v10.5.3 
+					THROW(UpdateByID(P_Tbl, Obj, id, &pPack->Rec, 0));
 					(ext_buffer = pPack->GetBuffer()).Strip();
-					THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					// @v9.4.7 {
 					if(do_index_phones) {
 						SString org_pack_phone; // @v10.0.01
@@ -3685,7 +3730,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 						pPack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 						if(temp_buf != org_pack_phone) { // @v10.0.01
 							PPObjID objid;
-							objid.Set(Obj, *pID);
+							objid.Set(Obj, id);
 							THROW(p_loc_core->IndexPhone(org_pack_phone, &objid, 1, 0)); // @v10.0.01
 							THROW(p_loc_core->IndexPhone(temp_buf, &objid, 0, 0));
 						}
@@ -3693,7 +3738,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 					// } @v9.4.7
 					log_action_id = PPACN_OBJUPD;
 					if(pPack->Rec.PDis != org_pack.Rec.PDis)
-						DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, *pID, org_pack.Rec.PDis, 0);
+						DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, id, org_pack.Rec.PDis, 0);
 					do_dirty = 1;
 				}
 			}
@@ -3711,25 +3756,36 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 			}
 			THROW(r = SearchCode(pPack->Rec.SeriesID, pPack->Rec.Code, 0));
 			THROW_PP_S(r < 0, PPERR_DUPLSCARDFOUND, pPack->Rec.Code);
-			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
+			THROW(AddObjRecByID(P_Tbl, Obj, &id, &pPack->Rec, 0));
 			(ext_buffer = pPack->GetBuffer()).Strip();
-			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			// @v9.4.7 {
 			if(do_index_phones) {
 				pPack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 				PPObjID objid;
-				objid.Set(Obj, *pID);
+				objid.Set(Obj, id);
 				THROW(p_loc_core->IndexPhone(temp_buf, &objid, 0, 0));
 			}
 			// } @v9.4.7
-			pPack->Rec.ID = *pID;
+			pPack->Rec.ID = id;
+			*pID = id;
 			log_action_id = PPACN_OBJADD;
 		}
-		DS.LogAction(log_action_id, Obj, *pID, 0, 0);
+		// @v10.5.3 {
+		if(id && DoObjVer_SCard && hist_buf.GetAvailableSize()) {
+			if(p_ovc && p_ovc->InitSerializeContext(0)) {
+				PPObjID oid;
+				THROW(p_ovc->Add(&hid, oid.Set(Obj, id), &hist_buf, 0));
+			}
+		}		
+		// } @v10.5.3 
+		if(log_action_id) {
+			DS.LogAction(log_action_id, Obj, id, hid, 0);
+		}
 		THROW(tra.Commit());
 	}
 	if(do_dirty)
-		Dirty(*pID);
+		Dirty(id);
 	CATCHZOK
 	return ok;
 }
@@ -4011,6 +4067,15 @@ int SLAPI PPObjSCard::SerializePacket(int dir, SCardTransmitPacket * pPack, SBuf
 	THROW_SL(pSCtx->Serialize(dir, pPack->Since, rBuf));
 	THROW_SL(P_CcTbl->SerializeArrayOfRecords(dir, &pPack->CheckList, rBuf, pSCtx));
 	THROW_SL(P_Tbl->ScOp.SerializeArrayOfRecords(dir, &pPack->ScOpList, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjSCard::SerializePacket(int dir, PPSCardPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW(pPack->SerializeB(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
 }

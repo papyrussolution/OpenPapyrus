@@ -640,7 +640,6 @@ int SLAPI PPObjBill::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-//int SLAPI PPObjBill::Remove(PPID id, long, uint options)
 //virtual
 int  SLAPI PPObjBill::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {

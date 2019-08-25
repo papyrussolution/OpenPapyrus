@@ -3164,7 +3164,7 @@ int32 DL6ICLS_PPObjStyloPalm::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	int    ok = -1;
 	PPID id = 0;
 	SString temp_buf;
-	SPpyO_StyloPalm * p_rec = (SPpyO_StyloPalm *)pRec;
+	SPpyO_StyloPalm * p_rec = static_cast<SPpyO_StyloPalm *>(pRec);
 	PPStyloPalmPacket pack;
 	PPObjStyloPalm * p_obj = static_cast<PPObjStyloPalm *>(ExtraPtr);
 
@@ -3451,7 +3451,7 @@ int32 DL6ICLS_PPObjGoodsClass::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	int    ok = -1;
 	PPID   id = 0;
 	SString temp_buf;
-	SPpyO_GoodsClass * p_rec = (SPpyO_GoodsClass *)pRec;
+	SPpyO_GoodsClass * p_rec = static_cast<SPpyO_GoodsClass *>(pRec);
 	PPGdsClsPacket pack;
 	PPObjGoodsClass * p_obj = static_cast<PPObjGoodsClass *>(ExtraPtr);
 	THROW(p_obj);
@@ -3470,7 +3470,7 @@ int32 DL6ICLS_PPObjGoodsClass::Update(int32 id, int32 flags, PPYOBJREC pRec)
 {
 	int    ok = -1;
 	SString temp_buf;
-	SPpyO_GoodsClass * p_rec = (SPpyO_GoodsClass *)pRec;
+	SPpyO_GoodsClass * p_rec = static_cast<SPpyO_GoodsClass *>(pRec);
 	PPGdsClsPacket pack;
 	PPObjGoodsClass * p_obj = static_cast<PPObjGoodsClass *>(ExtraPtr);
 	THROW(p_obj);
@@ -4084,7 +4084,7 @@ int32 DL6ICLS_PPObjGoodsGroup::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPObjGoodsGroup * p_obj = static_cast<PPObjGoodsGroup *>(ExtraPtr);
 	SString name_buf;
 	THROW(p_obj);
-	SPpyO_Goods * p_rec = (SPpyO_Goods *)pRec;
+	SPpyO_Goods * p_rec = static_cast<SPpyO_Goods *>(pRec);
 	THROW_PP_S(p_rec->RecTag == ppoGoodsGroup, PPERR_INVSTRUCTAG, "ppoGoodsGroup");
 	{
 		Goods2Tbl::Rec ex_rec;
@@ -6986,7 +6986,7 @@ int32 DL6ICLS_PPObjPrjTask::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 {
 	int    ok = 0;
 	PPObjPrjTask * p_obj = static_cast<PPObjPrjTask *>(ExtraPtr);
-	SPpyO_PrjTask * p_rec = (SPpyO_PrjTask *)pRec;
+	SPpyO_PrjTask * p_rec = static_cast<SPpyO_PrjTask *>(pRec);
 	THROW_PP_S(p_rec->RecTag == ppoPrjTask, PPERR_INVSTRUCTAG, "ppoPrjTask");
 	if(p_obj) {
 		PrjTaskTbl::Rec init_rec, rec;
@@ -7009,7 +7009,7 @@ int32 DL6ICLS_PPObjPrjTask::Update(int32 id, int32 flags, PPYOBJREC pRec)
 {
 	int    ok = 0;
 	PPObjPrjTask * p_obj = static_cast<PPObjPrjTask *>(ExtraPtr);
-	SPpyO_PrjTask * p_rec = (SPpyO_PrjTask *)pRec;
+	SPpyO_PrjTask * p_rec = static_cast<SPpyO_PrjTask *>(pRec);
 	PrjTaskTbl::Rec rec;
 	THROW_PP_S(p_rec->RecTag == ppoPrjTask, PPERR_INVSTRUCTAG, "ppoPrjTask");
 	if(p_obj) {
@@ -7123,7 +7123,7 @@ int32 DL6ICLS_PPObjProject::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 {
 	int    ok = 0;
 	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
-	SPpyO_Project * p_rec = (SPpyO_Project *)pRec;
+	SPpyO_Project * p_rec = static_cast<SPpyO_Project *>(pRec);
 	THROW_PP_S(p_rec->RecTag == ppoProject, PPERR_INVSTRUCTAG, "ppoProject");
 	if(p_obj) {
 		ProjectTbl::Rec init_rec, rec;
@@ -7150,7 +7150,7 @@ int32 DL6ICLS_PPObjProject::Update(int32 id, int32 flags, PPYOBJREC pRec)
 {
 	int    ok = 0;
 	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
-	SPpyO_Project * p_rec = (SPpyO_Project *)pRec;
+	SPpyO_Project * p_rec = static_cast<SPpyO_Project *>(pRec);
 	ProjectTbl::Rec rec;
 	THROW_PP_S(p_rec->RecTag == ppoProject, PPERR_INVSTRUCTAG, "ppoProject");
 	if(p_obj) {

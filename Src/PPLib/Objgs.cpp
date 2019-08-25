@@ -53,14 +53,7 @@ int    SLAPI PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Childs.
 int    SLAPI PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
 int    SLAPI PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
 int    SLAPI PPGoodsStruc::CanReduce() const { return (Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1) ? 1 : 0; }
-double SLAPI PPGoodsStruc::GetDenom() const 
-{ 
-	if(Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) { 
-		return Rec.CommDenom;
-	}
-	else
-		return 1.0; 
-}
+double SLAPI PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
 int    SLAPI PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
 SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
 	{ return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1); }
@@ -202,7 +195,7 @@ int SLAPI PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
 {
 	if(Rec.Flags & GSF_FOLDER) {
 		for(uint i = 0; i < Childs.getCount(); i++) {
-			PPGoodsStruc * p_child = Childs.at(i);
+			const PPGoodsStruc * p_child = Childs.at(i);
 			if(p_child && p_child->Select(pIdent, pGs)) // @recursion
 				return 1;
 		}
@@ -2091,7 +2084,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(!pData || (pData->IsEmpty() && !pData->IsNamed())) {
+		if(!pData || (pData->IsEmpty() && !pData->IsNamed() && !(pData->Rec.Flags & GSF_FOLDER))) { // @V10.5.3 && !(pData->Rec.Flags & GSF_FOLDER)
 			if(*pID) {
 				THROW(ref->RemoveItem(Obj, *pID, 0));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
@@ -2330,7 +2323,7 @@ int SLAPI PPObjGoodsStruc::Read(PPObjPack * pPack, PPID id, void * stream, ObjTr
 int SLAPI PPObjGoodsStruc::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
-	PPGoodsStruc * p_gs = (PPGoodsStruc*)pPack->Data;
+	PPGoodsStruc * p_gs = static_cast<PPGoodsStruc *>(pPack->Data);
 	if(p_gs) {
 		if(stream == 0) {
 			if(*pID == 0) {

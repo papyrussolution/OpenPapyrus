@@ -373,7 +373,7 @@ static SString & PreprocessFnText(SString & rT)
 		if(oneof8(c, ',', '\\', '/', '.', '\"', '*', ':', '?')) 
 			temp_buf.CatChar(' ');
 		else
-			temp_buf.CatChar('c');
+			temp_buf.CatChar(c); // @v10.5.3
 	}
 	temp_buf.ReplaceStr("  ", " ", 0).Strip();
 	/*rT.ReplaceChar(',', ' ').ReplaceChar('\\', ' ').ReplaceChar('/', ' ').ReplaceChar('.', ' ').

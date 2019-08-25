@@ -321,7 +321,7 @@ public:
 	}
 	int SLAPI ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
 	{
-		ReceiptTbl::Rec * data = (ReceiptTbl::Rec*)tbl->getDataBuf();
+		ReceiptTbl::Rec * data = static_cast<ReceiptTbl::Rec *>(tbl->getDataBuf());
 		memcpy(data, rec, sizeof(ReceiptTbl::Rec) - sizeof(LDATE));
 		data->Expiry = ZERODATE;
 		return 1;
@@ -358,7 +358,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
 	{
-		VATBookTbl::Rec * data = (VATBookTbl::Rec*)tbl->getDataBuf();
+		VATBookTbl::Rec * data = static_cast<VATBookTbl::Rec *>(tbl->getDataBuf());
 		memcpy(data, rec, sizeof(VATBookTbl::Rec));
 		return 1;
 	}
@@ -599,7 +599,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
 	{
-		PPAccount * data = (PPAccount*)tbl->getDataBuf();
+		PPAccount * data = static_cast<PPAccount *>(tbl->getDataBuf());
 		OldAccountTbl::Rec * old_rec = (OldAccountTbl::Rec *)rec;
 		tbl->clearDataBuf();
 		data->ID    = old_rec->ID;
@@ -636,7 +636,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
 	{
-		AcctRelTbl::Rec * data = (AcctRelTbl::Rec*)tbl->getDataBuf();
+		AcctRelTbl::Rec * data = static_cast<AcctRelTbl::Rec *>(tbl->getDataBuf());
 		OldAcctRelTbl::Rec * old_rec = (OldAcctRelTbl::Rec *)rec;
 		tbl->clearDataBuf();
 		data->ID          = old_rec->ID;
@@ -670,7 +670,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
 	{
-		BalanceTbl::Rec * data = (BalanceTbl::Rec*)tbl->getDataBuf();
+		BalanceTbl::Rec * data = static_cast<BalanceTbl::Rec *>(tbl->getDataBuf());
 		OldBalanceTbl::Rec * old_rec = (OldBalanceTbl::Rec *)rec;
 		tbl->clearDataBuf();
 		data->Dt    = old_rec->Dt;
@@ -696,7 +696,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
-		BillTbl::Rec    * data = (BillTbl::Rec*)tbl->getDataBuf();
+		BillTbl::Rec    * data = static_cast<BillTbl::Rec *>(tbl->getDataBuf());
 		OldBillTbl::Rec * old_rec = (OldBillTbl::Rec *)rec;
 		tbl->clearDataBuf();
 		data->ID = old_rec->ID;
@@ -735,8 +735,8 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
 	{
-		BillAmountTbl::Rec * data = (BillAmountTbl::Rec*)tbl->getDataBuf();
-		OldBillAmountTbl::Rec * old_rec = (OldBillAmountTbl::Rec *)rec;
+		BillAmountTbl::Rec * data = static_cast<BillAmountTbl::Rec *>(tbl->getDataBuf());
+		const OldBillAmountTbl::Rec * old_rec = static_cast<const OldBillAmountTbl::Rec *>(rec);
 		tbl->clearDataBuf();
 		data->BillID    = old_rec->BillID;
 		data->AmtTypeID = old_rec->AmtType;
@@ -1298,7 +1298,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		struct OldCCheckRec {
+		const struct OldCCheckRec {
 			long    ID;
 			long    Code;
 			long    CashID;
@@ -1309,9 +1309,9 @@ public:
 			long    Flags;
 			char    Amount[8];
 			char    Discount[8];
-		} * p_old_data = (OldCCheckRec*)pRec;
+		} * p_old_data = static_cast<const OldCCheckRec *>(pRec);
 
-		CCheckTbl::Rec * p_data = (CCheckTbl::Rec*)pTbl->getDataBuf();
+		CCheckTbl::Rec * p_data = static_cast<CCheckTbl::Rec *>(pTbl->getDataBuf());
 		memzero(p_data, sizeof(CCheckTbl::Rec));
 		p_data->ID     = p_old_data->ID;
 		p_data->Code   = p_old_data->Code;
@@ -1347,7 +1347,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		struct OldAccRec {
+		const struct OldAccRec {
 			long    ID;
 			short   Ac;
 			short   Sb;
@@ -1364,9 +1364,8 @@ public:
 			short   AccessLevel;
 			LDATE   FRRL_Date;
 			char    Reserve2[8];
-		} * p_old_data = (OldAccRec*)pRec;
-
-		PPAccount * p_data = (PPAccount*)pTbl->getDataBuf();
+		} * p_old_data = static_cast<const OldAccRec *>(pRec);
+		PPAccount * p_data = static_cast<PPAccount *>(pTbl->getDataBuf());
 		memzero(p_data, sizeof(PPAccount));
 
 		p_data->ID = p_old_data->ID;
@@ -1413,7 +1412,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		ObjTagTbl::Rec * p_data = (ObjTagTbl::Rec*)pTbl->getDataBuf();
+		ObjTagTbl::Rec * p_data = static_cast<ObjTagTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(ObjTagTbl::Rec));
 		return 1;
 	}
@@ -1446,7 +1445,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		CCheckTbl::Rec * p_data = (CCheckTbl::Rec*)pTbl->getDataBuf();
+		CCheckTbl::Rec * p_data = static_cast<CCheckTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(CCheckTbl::Rec));
 		return 1;
 	}
@@ -1545,7 +1544,7 @@ DBTable * SLAPI PPCvtCCheckLine4108::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtCCheckLine4108::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldCCheckLineRec {
+	const struct OldCCheckLineRec {
 		long   CheckID;      // -> CCheck.ID
 		long   RByCheck;     // Счетчик строк по чеку
 		long   DivID;        // Отдел магазина
@@ -1553,8 +1552,8 @@ int SLAPI PPCvtCCheckLine4108::ConvertRec(DBTable * pTbl, void * pRec, int * /*p
 		double Quantity;     // Количество товара
 		char   Price[8];     // Цена
 		char   Discount[8];  // Скидка
-	} * p_old_data = (OldCCheckLineRec*)pRec;
-	CCheckLineTbl::Rec * p_data = (CCheckLineTbl::Rec*)pTbl->getDataBuf();
+	} * p_old_data = static_cast<const OldCCheckLineRec *>(pRec);
+	CCheckLineTbl::Rec * p_data = static_cast<CCheckLineTbl::Rec *>(pTbl->getDataBuf());
 	memzero(p_data, sizeof(CCheckLineTbl::Rec));
 	p_data->CheckID = p_old_data->CheckID;
 	p_data->RByCheck = (short)p_old_data->RByCheck;
@@ -1589,7 +1588,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		SCardOpTbl::Rec * p_data = (SCardOpTbl::Rec*)pTbl->getDataBuf();
+		SCardOpTbl::Rec * p_data = static_cast<SCardOpTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(SCardOpTbl::Rec));
 		return 1;
 	}
@@ -1681,7 +1680,7 @@ DBTable * SLAPI PPCvtVatBook4402::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtVatBook4402::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldRec {
+	const struct OldRec {
 		long    ID;
 		char    Code[10];
 		long    LineType;
@@ -1704,9 +1703,8 @@ int SLAPI PPCvtVatBook4402::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNew
 		short   Excluded;
 		long    OpID;
 		char    VAT3[8];
-	} * p_old_rec = (OldRec *)pRec;
-
-	VATBookTbl::Rec * p_data = (VATBookTbl::Rec*)pTbl->getDataBuf();
+	} * p_old_rec = static_cast<const OldRec *>(pRec);
+	VATBookTbl::Rec * p_data = static_cast<VATBookTbl::Rec *>(pTbl->getDataBuf());
 	memcpy(p_data, pRec, sizeof(VATBookTbl::Rec));
 
 	p_data->ID = p_old_rec->ID;
@@ -1762,7 +1760,7 @@ DBTable * SLAPI PPCvtGoods4405::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtGoods4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldRec {
+	const struct OldRec {
 		long    ID;
 		long    Kind;
 		char    Name[48];
@@ -1779,9 +1777,8 @@ int SLAPI PPCvtGoods4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRe
 		long    Flags;
 		long    GdsClsID;
 		long    BrandID;
-	} * p_old_rec = (OldRec *)pRec;
-
-	Goods2Tbl::Rec * p_data = (Goods2Tbl::Rec*)pTbl->getDataBuf();
+	} * p_old_rec = static_cast<const OldRec *>(pRec);
+	Goods2Tbl::Rec * p_data = static_cast<Goods2Tbl::Rec *>(pTbl->getDataBuf());
 	memzero(p_data, sizeof(Goods2Tbl::Rec));
 
 	p_data->ID = p_old_rec->ID;
@@ -1821,7 +1818,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		QualityCertTbl::Rec * p_data = (QualityCertTbl::Rec*)pTbl->getDataBuf();
+		QualityCertTbl::Rec * p_data = static_cast<QualityCertTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(QualityCertTbl::Rec));
 		return 1;
 	}
@@ -2193,7 +2190,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		PriceListTbl::Rec * p_data = (PriceListTbl::Rec*)pTbl->getDataBuf();
+		PriceListTbl::Rec * p_data = static_cast<PriceListTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(PriceListTbl::Rec));
 		p_data->UserID  = -1;
 		return 1;
@@ -2576,7 +2573,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * pRec, int * pNewRecLen)
 	{
-		struct OldRec { // size=92
+		const struct OldRec { // size=92
 			long   BillID;
 			long   OprNo;
 			long   GoodsID;
@@ -2594,8 +2591,8 @@ public:
 			double DiffPctQtty;
 			double UnwritedDiff;
 			char   Reserve2[4];
-		} * p_old_rec = (OldRec *)pRec;
-		InventoryTbl::Rec * p_rec = (InventoryTbl::Rec*)tbl->getDataBuf();
+		} * p_old_rec = static_cast<const OldRec *>(pRec);
+		InventoryTbl::Rec * p_rec = static_cast<InventoryTbl::Rec *>(tbl->getDataBuf());
 		tbl->clearDataBuf();
 		p_rec->BillID        = p_old_rec->BillID;
 		p_rec->OprNo         = p_old_rec->OprNo;
@@ -2676,9 +2673,9 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * pNewRecLen)
 	{
-		Goods2Tbl::Rec * p_data = (Goods2Tbl::Rec*)pTbl->getDataBuf();
+		Goods2Tbl::Rec * p_data = static_cast<Goods2Tbl::Rec *>(pTbl->getDataBuf());
 		if(RecSizeChanged) {
-			struct OldRec {
+			const struct OldRec {
 				long    ID;
 				long    Kind;
 				char    Name[48];
@@ -2695,10 +2692,8 @@ public:
 				long    Flags;
 				long    GdsClsID;
 				long    BrandID;
-			} * p_old_rec = (OldRec *)pRec;
-
+			} * p_old_rec = static_cast<const OldRec *>(pRec);
 			memzero(p_data, sizeof(Goods2Tbl::Rec));
-
 			p_data->ID   = p_old_rec->ID;
 			p_data->Kind = p_old_rec->Kind;
 			memcpy(p_data->Name, p_old_rec->Name, sizeof(p_old_rec->Name));
@@ -2775,7 +2770,7 @@ DBTable * SLAPI PPCvtCCheckLine5207::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldCCheckLineRec {
+	const struct OldCCheckLineRec {
 		long   CheckID;      // -> CCheck.ID
 		long   RByCheck;     // Счетчик строк по чеку
 		long   DivID;        // Отдел магазина
@@ -2783,8 +2778,8 @@ int SLAPI PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*p
 		double Quantity;     // Количество товара
 		char   Price[8];     // Цена
 		char   Discount[8];  // Скидка
-	} * p_4108_data = (OldCCheckLineRec*)pRec;
-	struct CCheckLineBefore5207 { // Size = 28 /* before @v4.1.8 - 40 bytes */
+	} * p_4108_data = static_cast<const OldCCheckLineRec *>(pRec);
+	const struct CCheckLineBefore5207 { // Size = 28 /* before @v4.1.8 - 40 bytes */
 		long   CheckID;      // ->CCheck.ID
 		int16  RByCheck;     // Счетчик строк по чеку
 		int16  DivID;        // Отдел магазина
@@ -2792,8 +2787,8 @@ int SLAPI PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*p
 		double Quantity;     // Количество товара
 		long   Price;        // Цена 0.01
 		long   Discount;     // Скидка 0.01
-	} * p_5207_data = (CCheckLineBefore5207*)pRec;
-	CCheckLineTbl::Rec * p_data = (CCheckLineTbl::Rec*)pTbl->getDataBuf();
+	} * p_5207_data = static_cast<const CCheckLineBefore5207 *>(pRec);
+	CCheckLineTbl::Rec * p_data = static_cast<CCheckLineTbl::Rec *>(pTbl->getDataBuf());
 	memzero(p_data, sizeof(CCheckLineTbl::Rec));
 	if(ver == 2) {
 		p_data->CheckID  = p_4108_data->CheckID;
@@ -2813,9 +2808,8 @@ int SLAPI PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*p
 		p_data->Price    = p_5207_data->Price;
 		p_data->Dscnt    = intmnytodbl(p_5207_data->Discount);
 	}
-	else {
-		*p_data = *(CCheckLineTbl::Rec *)pRec;
-	}
+	else
+		*p_data = *static_cast<const CCheckLineTbl::Rec *>(pRec);
 	return 1;
 }
 //
@@ -2839,7 +2833,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		struct OldLocationRec {
+		const struct OldLocationRec {
 			long   ID;
 			long   Counter;
 			long   ParentID;
@@ -2853,8 +2847,8 @@ public:
 			char   Reserve[2];
 			long   RspnsPersonID;
 			char   Code[10];
-		} * p_old_data = (OldLocationRec*)pRec;
-		LocationTbl::Rec * p_data = (LocationTbl::Rec*)pTbl->getDataBuf();
+		} * p_old_data = static_cast<const OldLocationRec *>(pRec);
+		LocationTbl::Rec * p_data = static_cast<LocationTbl::Rec *>(pTbl->getDataBuf());
 		memzero(p_data, sizeof(LocationTbl::Rec));
 	#define CPY_FLD(Fld) p_data->Fld=p_old_data->Fld
 		CPY_FLD(ID);
@@ -2930,13 +2924,13 @@ DBTable * SLAPI PPCvtBarcode5305::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtBarcode5305::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldBarcodeRec {
+	const struct OldBarcodeRec {
 		long   GoodsID;     // Ид товара
 		double Qtty;        // Количество единиц товара в упаковке
 		long   BarcodeType; // Тип кодировки
 		char   Code[16];    // Штрихкод
-	} * p_old_data = (OldBarcodeRec *)pRec;
-	BarcodeTbl::Rec * p_data = (BarcodeTbl::Rec*)pTbl->getDataBuf();
+	} * p_old_data = static_cast<const OldBarcodeRec *>(pRec);
+	BarcodeTbl::Rec * p_data = static_cast<BarcodeTbl::Rec *>(pTbl->getDataBuf());
 	memzero(p_data, sizeof(LocationTbl::Rec));
 	p_data->GoodsID = p_old_data->GoodsID;
 	p_data->Pack    = (long)(p_old_data->Qtty * 1000L);
@@ -2964,7 +2958,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * newTbl, void * pRec, int * pNewRecLen)
 	{
-		struct OldRec {
+		const struct OldRec {
 			long    ID;
 			char    Code[12];
 			long    PostID;
@@ -2973,8 +2967,8 @@ public:
 			char    Name[48];
 			long    OrgID;
 			long    DivID;
-		} * p_old_rec = (OldRec *)pRec;
-		PersonPostTbl::Rec * p_data = (PersonPostTbl::Rec *)newTbl->getDataBuf();
+		} * p_old_rec = static_cast<const OldRec *>(pRec);
+		PersonPostTbl::Rec * p_data = static_cast<PersonPostTbl::Rec *>(newTbl->getDataBuf());
 		newTbl->clearDataBuf();
 		p_data->ID = p_old_rec->ID;
 		STRNSCPY(p_data->Code, p_old_rec->Code);
@@ -3004,7 +2998,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * pNewRecLen)
 	{
-		StaffCalendarTbl::Rec * p_data = (StaffCalendarTbl::Rec*)pTbl->getDataBuf();
+		StaffCalendarTbl::Rec * p_data = static_cast<StaffCalendarTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(StaffCalendarTbl::Rec));
 		return 1;
 	}
@@ -3202,9 +3196,9 @@ public:
 			int16  Deleted;
 			int32  Flags;
 		};
-		ObjSyncTbl::Rec * p_data = (ObjSyncTbl::Rec *)tbl->getDataBuf();
+		ObjSyncTbl::Rec * p_data = static_cast<ObjSyncTbl::Rec *>(tbl->getDataBuf());
 		tbl->clearDataBuf();
-		const OldObjSyncRec * p_old_rec = (OldObjSyncRec *)rec;
+		const OldObjSyncRec * p_old_rec = static_cast<const OldObjSyncRec *>(rec);
 		if(p_old_rec->DBID > 0) {
 			p_data->DBID      = (short)p_old_rec->DBID;
 			p_data->ObjType   = (short)p_old_rec->ObjType;
@@ -3810,7 +3804,7 @@ DBTable * SLAPI PPCvtCGoodsLine5810::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtCGoodsLine5810::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
-	struct OldCGoodsLineRec4911 { //
+	const struct OldCGoodsLineRec4911 { //
 		LDATE  Dt;
 		long   SessID;
 		long   GoodsID;
@@ -3819,8 +3813,8 @@ int SLAPI PPCvtCGoodsLine5810::ConvertRec(DBTable * tbl, void * rec, int * pNewR
 		char   Sum[8];
 		long   AltGoodsID;
 		float  AltGoodsQtty;
-	} * p_old_rec_4911 = (OldCGoodsLineRec4911 *)rec;
-	struct OldCGoodsLineRec { //
+	} * p_old_rec_4911 = static_cast<const OldCGoodsLineRec4911 *>(rec);
+	const struct OldCGoodsLineRec { //
 		LDATE  Dt;
 		int16  Sign;
 		int16  Flags;
@@ -3831,9 +3825,8 @@ int SLAPI PPCvtCGoodsLine5810::ConvertRec(DBTable * tbl, void * rec, int * pNewR
 		double Sum;
 		long   AltGoodsID;
 		float  AltGoodsQtty;
-	} * p_old_rec = (OldCGoodsLineRec *)rec;
-
-	CGoodsLineTbl::Rec * p_data = (CGoodsLineTbl::Rec *)tbl->getDataBuf();
+	} * p_old_rec = static_cast<const OldCGoodsLineRec *>(rec);
+	CGoodsLineTbl::Rec * p_data = static_cast<CGoodsLineTbl::Rec *>(tbl->getDataBuf());
 	tbl->clearDataBuf();
 	if(C4911 > 0) {
 #define FLD_ASSIGN(f) p_data->f = p_old_rec_4911->f
@@ -3888,7 +3881,7 @@ DBTable * SLAPI PPCvtBankAccount5810::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtBankAccount5810::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
-	struct OldBankAccountRec {
+	const struct OldBankAccountRec {
 		long   ID;
 		long   PersonID;
 		long   BankID;
@@ -3898,8 +3891,8 @@ int SLAPI PPCvtBankAccount5810::ConvertRec(DBTable * tbl, void * rec, int * pNew
 		long   Flags;
 		long   CorrAcc;
 		long   CorrArt;
-	} * p_old_rec = (OldBankAccountRec *)rec;
-	BankAccount_Pre9004Tbl::Rec * p_data = (BankAccount_Pre9004Tbl::Rec *)tbl->getDataBuf();
+	} * p_old_rec = static_cast<const OldBankAccountRec *>(rec);
+	BankAccount_Pre9004Tbl::Rec * p_data = static_cast<BankAccount_Pre9004Tbl::Rec *>(tbl->getDataBuf());
 	tbl->clearDataBuf();
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 	FLD_ASSIGN(ID);
@@ -3953,7 +3946,7 @@ DBTable * SLAPI PPCvtSpecSeries6109::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtSpecSeries6109::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
-	struct OldSpecSeriesRec {
+	const struct OldSpecSeriesRec {
 		char   Serial[24];
 		char   Barcode[24];
 		char   GoodsName[64];
@@ -3962,8 +3955,8 @@ int SLAPI PPCvtSpecSeries6109::ConvertRec(DBTable * tbl, void * rec, int * pNewR
 		int32  InfoKind;
 		char   InfoIdent[24];
 		uint8  Reserve[48];
-	} * p_old_rec = (OldSpecSeriesRec *)rec;
-	SpecSeriesTbl::Rec * p_data = (SpecSeriesTbl::Rec *)tbl->getDataBuf();
+	} * p_old_rec = static_cast<const OldSpecSeriesRec *>(rec);
+	SpecSeriesTbl::Rec * p_data = static_cast<SpecSeriesTbl::Rec *>(tbl->getDataBuf());
 	tbl->clearDataBuf();
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 	FLD_ASSIGN(InfoKind);
@@ -4513,9 +4506,9 @@ public:
 		int    ok = 1;
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		pTbl->clearDataBuf();
-		Goods2Tbl::Rec * p_data = (Goods2Tbl::Rec *)pTbl->getDataBuf();
+		Goods2Tbl::Rec * p_data = static_cast<Goods2Tbl::Rec *>(pTbl->getDataBuf());
 		if(Before4405) {
-			Goods2_Before4405 * p_old_rec = (Goods2_Before4405 *)pOldRec;
+			const Goods2_Before4405 * p_old_rec = static_cast<const Goods2_Before4405 *>(pOldRec);
 			FLD_ASSIGN(ID);
 			FLD_ASSIGN(Kind);
 			FLD_ASSIGN(ParentID);
@@ -4534,13 +4527,13 @@ public:
 			STRNSCPY(p_data->Abbr, p_old_rec->Abbr);
 		}
 		else {
-			Goods2_Before6202 * p_old_rec = (Goods2_Before6202 *)pOldRec;
+			const Goods2_Before6202 * p_old_rec = static_cast<const Goods2_Before6202 *>(pOldRec);
 			if(p_old_rec->Kind == PPGDSK_TRANSPORT) {
 				PPTransport tr_rec;
 				BarcodeArray bc_list;
 				GetTransport_Before6202(p_old_rec->ID, p_old_rec, &tr_rec);
 				THROW(PPObjTransport::MakeStorage(p_old_rec->ID, &tr_rec, p_data, &bc_list));
-				THROW(((GoodsCore *)pTbl)->UpdateBarcodes(p_old_rec->ID, &bc_list, 0));
+				THROW(static_cast<GoodsCore *>(pTbl)->UpdateBarcodes(p_old_rec->ID, &bc_list, 0));
 			}
 			else {
 				FLD_ASSIGN(ID);
@@ -4563,9 +4556,7 @@ public:
 				STRNSCPY(p_data->Abbr, p_old_rec->Abbr);
 			}
 		}
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 		return ok;
 	}
 #undef FLD_ASSIGN
@@ -4923,7 +4914,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
-		SalaryTbl::Rec * p_data = (SalaryTbl::Rec *)tbl->getDataBuf();
+		SalaryTbl::Rec * p_data = static_cast<SalaryTbl::Rec *>(tbl->getDataBuf());
 		tbl->clearDataBuf();
 		memcpy(p_data, rec, sizeof(SalaryTbl::Rec));
 		*pNewRecLen = -1;
@@ -4967,10 +4958,10 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * pRec, int * pNewRecLen)
 	{
-		InventoryTbl::Rec * p_rec = (InventoryTbl::Rec*)tbl->getDataBuf();
+		InventoryTbl::Rec * p_rec = static_cast<InventoryTbl::Rec *>(tbl->getDataBuf());
 		tbl->clearDataBuf();
 		if(Before5009) {
-			struct Rec_Before5009 { // size=92
+			const struct Rec_Before5009 { // size=92
 				long   BillID;
 				long   OprNo;
 				long   GoodsID;
@@ -4988,7 +4979,7 @@ public:
 				double DiffPctQtty;
 				double UnwritedDiff;
 				char   Reserve2[4];
-			} * p_old_rec = (Rec_Before5009 *)pRec;
+			} * p_old_rec = static_cast<const Rec_Before5009 *>(pRec);
 #define FLD_ASSIGN(f) p_rec->f = p_old_rec->f
 			FLD_ASSIGN(BillID);
 			FLD_ASSIGN(OprNo);
@@ -5011,7 +5002,7 @@ public:
 			p_rec->WrOffPrice    = p_rec->StockPrice;
 		}
 		else {
-			struct Rec_Before6407 {
+			const struct Rec_Before6407 {
 				int32  BillID;
 				int32  OprNo;
 				int32  GoodsID;
@@ -5027,7 +5018,7 @@ public:
 				double CSesDfctQtty;
 				double CSesDfctPrice;
 				double WrOffPrice;
-			} * p_old_rec = (Rec_Before6407 *)pRec;
+			} * p_old_rec = static_cast<const Rec_Before6407 *>(pRec);
 #define FLD_ASSIGN(f) p_rec->f = p_old_rec->f
 			FLD_ASSIGN(BillID);
 			FLD_ASSIGN(OprNo);
@@ -5404,7 +5395,7 @@ public:
 	}
 	int SLAPI PPCvtVatBook7311::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		struct OldRec {
+		const struct OldRec {
 			int32  ID;
 			char   Code[24];
 			int16  LineType_;
@@ -5432,16 +5423,15 @@ public:
 			int32  Object2;
 			int32  LocID;
 			uint16 Reserve;
-		} * p_old_rec = (OldRec *)pRec;
-
-		VATBookTbl::Rec * p_data = (VATBookTbl::Rec*)pTbl->getDataBuf();
+		} * p_old_rec = static_cast<const OldRec *>(pRec);
+		VATBookTbl::Rec * p_data = static_cast<VATBookTbl::Rec *>(pTbl->getDataBuf());
 		memzero(p_data, sizeof(*p_data));
 #define CPYFLD(f)    p_data->f = p_old_rec->f
 #define CPYBUFFLD(f) memcpy(p_data->f, p_old_rec->f, sizeof(p_data->f))
 			CPYFLD(ID);
 			if(Pre7208) {
-				long * p_old_line_type = (long *)(&p_old_rec->LineType_);
-				p_data->LineType_ = (int16)*p_old_line_type;
+				const long * p_old_line_type = reinterpret_cast<const long *>(&p_old_rec->LineType_);
+				p_data->LineType_ = static_cast<int16>(*p_old_line_type);
 				p_data->LineSubType = 0;
 			}
 			else {
@@ -5791,9 +5781,8 @@ public:
 			double Rest;
 			long   DestSCardID;
 		};
-
-		SCardOpTbl::Rec * p_data = (SCardOpTbl::Rec*)pTbl->getDataBuf();
-		SCardOpRec_Before7712 * p_old_rec = (SCardOpRec_Before7712 *)pRec;
+		SCardOpTbl::Rec * p_data = static_cast<SCardOpTbl::Rec *>(pTbl->getDataBuf());
+		const SCardOpRec_Before7712 * p_old_rec = static_cast<const SCardOpRec_Before7712 *>(pRec);
 		memzero(p_data, sizeof(*p_data));
 #define CPYFLD(f) p_data->f = p_old_rec->f
 		CPYFLD(SCardID);
@@ -5885,8 +5874,8 @@ public:
 			int32  GoodsID;
 		};
 
-		CheckOpJrnlTbl::Rec * p_data = (CheckOpJrnlTbl::Rec*)pTbl->getDataBuf();
-		CheckOpJrnlRec_Before7909 * p_old_rec = (CheckOpJrnlRec_Before7909 *)pRec;
+		CheckOpJrnlTbl::Rec * p_data = static_cast<CheckOpJrnlTbl::Rec *>(pTbl->getDataBuf());
+		const CheckOpJrnlRec_Before7909 * p_old_rec = static_cast<const CheckOpJrnlRec_Before7909 *>(pRec);
 		memzero(p_data, sizeof(*p_data));
 #define CPYFLD(f) p_data->f = p_old_rec->f
 		CPYFLD(Dt);
@@ -6259,13 +6248,13 @@ DBTable * SLAPI PPCvtArGoodsCode8800::CreateTableInstance(int * pNeedConversion)
 
 int SLAPI PPCvtArGoodsCode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
-	struct OldArGoodsCodeRec {
+	const struct OldArGoodsCodeRec {
 		long   GoodsID;
 		long   ArID;
 		long   Pack;
 		char   Code[16];
-	} * p_old_data = (OldArGoodsCodeRec *)pRec;
-	ArGoodsCodeTbl::Rec * p_data = (ArGoodsCodeTbl::Rec*)pTbl->getDataBuf();
+	} * p_old_data = static_cast<const OldArGoodsCodeRec *>(pRec);
+	ArGoodsCodeTbl::Rec * p_data = static_cast<ArGoodsCodeTbl::Rec *>(pTbl->getDataBuf());
 	memzero(p_data, sizeof(ArGoodsCodeTbl::Rec));
 	p_data->GoodsID = p_old_data->GoodsID;
 	p_data->ArID = p_old_data->ArID;
@@ -6330,8 +6319,8 @@ public:
 			char   Clb[24];       // Номер ГТД
 			uint8  Reserve2[28];  // @reserve
 		};
-		CpTransfRec_Before8910 * p_old_data = (CpTransfRec_Before8910 *)rec;
-		CpTransfTbl::Rec * data = (CpTransfTbl::Rec*)tbl->getDataBuf();
+		const CpTransfRec_Before8910 * p_old_data = static_cast<const CpTransfRec_Before8910 *>(rec);
+		CpTransfTbl::Rec * data = static_cast<CpTransfTbl::Rec *>(tbl->getDataBuf());
 		#define FLD(f) data->f = p_old_data->f
 		FLD(BillID);
 		FLD(RByBill);
@@ -6676,14 +6665,14 @@ public:
 	}
 	int    SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
-		struct OldCCheckPaymRec {
+		const struct OldCCheckPaymRec {
 			long   CheckID;
 			int16  RByCheck;
 			int16  PaymType;
 			long   Amount;
 			long   SCardID;
-		} * p_old_data = (OldCCheckPaymRec *)pRec;
-		CCheckPaymTbl::Rec * p_data = (CCheckPaymTbl::Rec *)pTbl->getDataBuf();
+		} * p_old_data = static_cast<const OldCCheckPaymRec *>(pRec);
+		CCheckPaymTbl::Rec * p_data = static_cast<CCheckPaymTbl::Rec *>(pTbl->getDataBuf());
 		memzero(p_data, sizeof(CCheckPaymTbl::Rec));
 		p_data->CheckID  = p_old_data->CheckID;
 		p_data->RByCheck = p_old_data->RByCheck;

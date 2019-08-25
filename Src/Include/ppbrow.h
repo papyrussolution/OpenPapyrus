@@ -129,7 +129,7 @@
 	#define HELP_BROWSER_SUPPLTRNOVR                             45
 #define BROWSER_GOODSBILL                               46 // @{commoditydocument_pl} {%s}
 	#define HELP_BROWSER_GOODSBILL                               46
-#define BROWSER_INVENTORYBILL                           47 // Документы инвентаризации {%s}
+#define BROWSER_INVENTORYBILL                           47 // @{inventorydocument_pl} {%s}
 	#define HELP_BROWSER_INVENTORYBILL                           47
 #define BROWSER_GOODSBILLCUR                            48 // @{commoditydocument_pl} {%s}
 	#define HELP_BROWSER_GOODSBILLCUR                            48
@@ -411,7 +411,7 @@
 	#define HELP_BROWSER_CSESS_EXT                              184
 #define BROWSER_CSESSEXC                               185 // Дефицит по кассовым сессиям
 	#define HELP_BROWSER_CSESSEXC                               185
-#define BROWSER_OBJSYNC                                186 // Таблица синхронизации {%s}
+#define BROWSER_OBJSYNC                                186 // @{view_objsync} {%s}
 	#define HELP_BROWSER_OBJSYNC                                186
 #define BROWSER_OBJSYNCQUEUE                           187 // Очередь синхронизации
 	#define HELP_BROWSER_OBJSYNCQUEUE                           187
@@ -478,7 +478,7 @@
 	#define HELP_BROWSER_COMPLETE                               217
 #define BROWSER_MRPTAB                                 218 // MRP-таблицы {%s}
 	#define HELP_BROWSER_MRPTAB                                 218
-#define BROWSER_MRPLINE                                219 // Строки MRP-таблицы {%s}
+#define BROWSER_MRPLINE                                219 // @{view_mrpline} {%s}
 	#define HELP_BROWSER_MRPLINE                                219
 #define BROWSER_MRPLINE_SUBST                          220 // Замещение товара '%s' в MRP-таблице
 	#define HELP_BROWSER_MRPLINE_SUBST                          220
@@ -568,7 +568,7 @@
 	#define HELP_BROWSER_DIALOG                                 262
 #define BROWSER_SPECSERIES                             263 // Специальные серии
 	#define HELP_BROWSER_SPECSERIES                             263
-#define BROWSER_GLOBALUSERACC                          264 // Глобальные учетные записи
+#define BROWSER_GLOBALUSERACC                          264 // @{globaluseracc_pl}
 	#define HELP_BROWSER_GLOBALUSERACC                          264
 #define BROWSER_DBDIV                                  265 // @{dbdiv_pl}
 	#define HELP_BROWSER_DBDIV                                  265
@@ -1005,115 +1005,114 @@
 #define PPVCMD_TEST                                   167
 #define PPVCMD_ADDTOALTGRP                            168
 #define PPVCMD_VIEWHISTORY                            169
-#define PPVCMD_VIEWGOODSHISTORY                       170
-#define PPVCMD_RESTOREGOODS                           171
-#define PPVCMD_SPCFUNC                                172
-#define PPVCMD_IMPORT                                 173
-#define PPVCMD_SETPASSIVTAG                           174
-#define PPVCMD_EDITITEMSIMPLE                         175
-#define PPVCMD_EDITQUOTKIND                           176
-#define PPVCMD_VIEWMTXBYGGRP                          177
-#define PPVCMD_VIEWSERIES                             178
-#define PPVCMD_GOODSCORR                              179
-#define PPVCMD_EDITPSNOPKIND                          180
-#define PPVCMD_STAFFPOST                              181
-#define PPVCMD_SALARY                                 182
-#define PPVCMD_EDIT                                   183
-#define PPVCMD_TIMEGRAPH                              184
-#define PPVCMD_EDITITEMSPC                            185
-#define PPVCMD_VIEWDEFICIT                            186
-#define PPVCMD_VIEWGOODSTAXANLZ                       187
-#define PPVCMD_CCHECKS                                188
-#define PPVCMD_WROFFBILLS                             189
-#define PPVCMD_WROFFBILLSALL                          190
-#define PPVCMD_DFCTBILLS                              191
-#define PPVCMD_DETACH                                 192
-#define PPVCMD_CLOSESESS                              193
-#define PPVCMD_WROFFSESS                              194
-#define PPVCMD_CREATEDRAFT                            195
-#define PPVCMD_PRINTITEM                              196
-#define PPVCMD_PRINTCHECK                             197
-#define PPVCMD_SETALTGOODS                            198
-#define PPVCMD_EDITOBJ                                199
-#define PPVCMD_RECEIVE                                200
-#define PPVCMD_FINDANDEDIT                            201
-#define PPVCMD_OPERATIONS                             202
-#define PPVCMD_CHNGDSCNT                              203
-#define PPVCMD_CALCTRNOVR                             204
-#define PPVCMD_AUTOFILL                               205
-#define PPVCMD_REPLACECARD                            206
-#define PPVCMD_AFILLDEFPSN                            207
-#define PPVCMD_RENAMEDUP                              208
-#define PPVCMD_PROCESSSELECTION                       209
-#define PPVCMD_PRINTDETAIL                            210
-#define PPVCMD_ADDFREEZING                            211
-#define PPVCMD_EDITSCARD                              212
-#define PPVCMD_VIEWPREDICTCOEFF                       213
-#define PPVCMD_EDITVAL                                214
-#define PPVCMD_MAKEPURCHASEBILL                       215
-#define PPVCMD_PRINTBILL                              216
-#define PPVCMD_PRINTBILLLIST                          217
-#define PPVCMD_PRINTBILLINFOLIST                      218
-#define PPVCMD_VIEWPRJPHASE                           219
-#define PPVCMD_EDITBILLPOOL                           220
-#define PPVCMD_PRNPRJTASKS                            221
-#define PPVCMD_LINKTASKS                              222
-#define PPVCMD_EDITLINKTASK                           223
-#define PPVCMD_EXPORTVCAL                             224
-#define PPVCMD_VIEWLINKOPS                            225
-#define PPVCMD_EDITITEM2                              226
-#define PPVCMD_MOVEUP                                 227
-#define PPVCMD_MOVEDOWN                               228
-#define PPVCMD_EDITPRC                                229
-#define PPVCMD_VIEWSUBSESS                            230
-#define PPVCMD_EDITTECH                               231
-#define PPVCMD_TSESSANLZ                              232
-#define PPVCMD_COMPLETE                               233
-#define PPVCMD_CHECKPAN                               234
-#define PPVCMD_EXTADDGOODSITEM                        235
-#define PPVCMD_EDITTSESS                              236
-#define PPVCMD_SCARDS                                 237
-#define PPVCMD_EDITDEVICE                             238
-#define PPVCMD_EXPORTREDOSINCE                        239
-#define PPVCMD_QUOTS                                  240
-#define PPVCMD_VERIFY                                 241
-#define PPVCMD_MAILRPT                                242
-#define PPVCMD_CALLCRR                                243
-#define PPVCMD_VIEWTSESSLINES                         244
-#define PPVCMD_EDITITEM1                              245
-#define PPVCMD_UNITE                                  246
-#define PPVCMD_PREPAREDATA                            247
-#define PPVCMD_LOADDATA                               248
-#define PPVCMD_LOADSTAT                               249
-#define PPVCMD_CHECKSTATUS                            250
-#define PPVCMD_CSESSIONS                              251
-#define PPVCMD_OPPANEL                                252
-#define PPVCMD_PRINTZEROCHECK                         253
-#define PPVCMD_BIZSCOREVAL                            254
-#define PPVCMD_VIEWBIZSCORE                           255
-#define PPVCMD_CONFIG                                 256
-#define PPVCMD_EDITWHCELL                             257
-#define PPVCMD_RMVBILL                                258
-#define PPVCMD_DISPOSE                                259
-#define PPVCMD_RESETCACHE                             260
-#define PPVCMD_LOGLOCKSTACK                           261
-#define PPVCMD_VIEWPERSONS                            262
-#define PPVCMD_VIEWACC                                263
-#define PPVCMD_CALCVALUES                             264
-#define PPVCMD_VIEWTEMPLATE                           265
-#define PPVCMD_VIEWCHECK                              266
-#define PPVCMD_IMPORTUHTT                             267
-#define PPVCMD_TRANSACTJ                              268
-#define PPVCMD_TRYSTRATEGIES                          269
-#define PPVCMD_UPDATEITEMS                            270
-#define PPVCMD_LOTOPS                                 271
-#define PPVCMD_VIEWLINKREST                           272
-#define PPVCMD_MATCHPERSON                            273
-#define PPVCMD_UTILIZEDVDOC                           274
-#define PPVCMD_SETUPOUTGOING                          275
-#define PPVCMD_SENDOUTGOING                           276
-#define PPVCMD_VETISWAREHOUSE                         277
-#define PPVCMD_VETISPRODUCT                           278
+#define PPVCMD_RESTOREGOODS                           170
+#define PPVCMD_SPCFUNC                                171
+#define PPVCMD_IMPORT                                 172
+#define PPVCMD_SETPASSIVTAG                           173
+#define PPVCMD_EDITITEMSIMPLE                         174
+#define PPVCMD_EDITQUOTKIND                           175
+#define PPVCMD_VIEWMTXBYGGRP                          176
+#define PPVCMD_VIEWSERIES                             177
+#define PPVCMD_GOODSCORR                              178
+#define PPVCMD_EDITPSNOPKIND                          179
+#define PPVCMD_STAFFPOST                              180
+#define PPVCMD_SALARY                                 181
+#define PPVCMD_EDIT                                   182
+#define PPVCMD_TIMEGRAPH                              183
+#define PPVCMD_EDITITEMSPC                            184
+#define PPVCMD_VIEWDEFICIT                            185
+#define PPVCMD_VIEWGOODSTAXANLZ                       186
+#define PPVCMD_CCHECKS                                187
+#define PPVCMD_WROFFBILLS                             188
+#define PPVCMD_WROFFBILLSALL                          189
+#define PPVCMD_DFCTBILLS                              190
+#define PPVCMD_DETACH                                 191
+#define PPVCMD_CLOSESESS                              192
+#define PPVCMD_WROFFSESS                              193
+#define PPVCMD_CREATEDRAFT                            194
+#define PPVCMD_PRINTITEM                              195
+#define PPVCMD_PRINTCHECK                             196
+#define PPVCMD_SETALTGOODS                            197
+#define PPVCMD_EDITOBJ                                198
+#define PPVCMD_RECEIVE                                199
+#define PPVCMD_FINDANDEDIT                            200
+#define PPVCMD_OPERATIONS                             201
+#define PPVCMD_CHNGDSCNT                              202
+#define PPVCMD_CALCTRNOVR                             203
+#define PPVCMD_AUTOFILL                               204
+#define PPVCMD_REPLACECARD                            205
+#define PPVCMD_AFILLDEFPSN                            206
+#define PPVCMD_RENAMEDUP                              207
+#define PPVCMD_PROCESSSELECTION                       208
+#define PPVCMD_PRINTDETAIL                            209
+#define PPVCMD_ADDFREEZING                            210
+#define PPVCMD_EDITSCARD                              211
+#define PPVCMD_VIEWPREDICTCOEFF                       212
+#define PPVCMD_EDITVAL                                213
+#define PPVCMD_MAKEPURCHASEBILL                       214
+#define PPVCMD_PRINTBILL                              215
+#define PPVCMD_PRINTBILLLIST                          216
+#define PPVCMD_PRINTBILLINFOLIST                      217
+#define PPVCMD_VIEWPRJPHASE                           218
+#define PPVCMD_EDITBILLPOOL                           219
+#define PPVCMD_PRNPRJTASKS                            220
+#define PPVCMD_LINKTASKS                              221
+#define PPVCMD_EDITLINKTASK                           222
+#define PPVCMD_EXPORTVCAL                             223
+#define PPVCMD_VIEWLINKOPS                            224
+#define PPVCMD_EDITITEM2                              225
+#define PPVCMD_MOVEUP                                 226
+#define PPVCMD_MOVEDOWN                               227
+#define PPVCMD_EDITPRC                                228
+#define PPVCMD_VIEWSUBSESS                            229
+#define PPVCMD_EDITTECH                               230
+#define PPVCMD_TSESSANLZ                              231
+#define PPVCMD_COMPLETE                               232
+#define PPVCMD_CHECKPAN                               233
+#define PPVCMD_EXTADDGOODSITEM                        234
+#define PPVCMD_EDITTSESS                              235
+#define PPVCMD_SCARDS                                 236
+#define PPVCMD_EDITDEVICE                             237
+#define PPVCMD_EXPORTREDOSINCE                        238
+#define PPVCMD_QUOTS                                  239
+#define PPVCMD_VERIFY                                 240
+#define PPVCMD_MAILRPT                                241
+#define PPVCMD_CALLCRR                                242
+#define PPVCMD_VIEWTSESSLINES                         243
+#define PPVCMD_EDITITEM1                              244
+#define PPVCMD_UNITE                                  245
+#define PPVCMD_PREPAREDATA                            246
+#define PPVCMD_LOADDATA                               247
+#define PPVCMD_LOADSTAT                               248
+#define PPVCMD_CHECKSTATUS                            249
+#define PPVCMD_CSESSIONS                              250
+#define PPVCMD_OPPANEL                                251
+#define PPVCMD_PRINTZEROCHECK                         252
+#define PPVCMD_BIZSCOREVAL                            253
+#define PPVCMD_VIEWBIZSCORE                           254
+#define PPVCMD_CONFIG                                 255
+#define PPVCMD_EDITWHCELL                             256
+#define PPVCMD_RMVBILL                                257
+#define PPVCMD_DISPOSE                                258
+#define PPVCMD_RESETCACHE                             259
+#define PPVCMD_LOGLOCKSTACK                           260
+#define PPVCMD_VIEWPERSONS                            261
+#define PPVCMD_VIEWACC                                262
+#define PPVCMD_CALCVALUES                             263
+#define PPVCMD_VIEWTEMPLATE                           264
+#define PPVCMD_VIEWCHECK                              265
+#define PPVCMD_IMPORTUHTT                             266
+#define PPVCMD_TRANSACTJ                              267
+#define PPVCMD_TRYSTRATEGIES                          268
+#define PPVCMD_UPDATEITEMS                            269
+#define PPVCMD_LOTOPS                                 270
+#define PPVCMD_VIEWLINKREST                           271
+#define PPVCMD_MATCHPERSON                            272
+#define PPVCMD_UTILIZEDVDOC                           273
+#define PPVCMD_SETUPOUTGOING                          274
+#define PPVCMD_SENDOUTGOING                           275
+#define PPVCMD_VETISWAREHOUSE                         276
+#define PPVCMD_VETISPRODUCT                           277
 //
 // PPCMD definitions
 //
@@ -1455,6 +1454,7 @@
 #define PPCMD_TIMESERIESCONFIG                      1336
 #define PPCMD_SENDBILLSWITHFILT                     1337
 #define PPCMD_FREIGHTPACKAGETYPE                    1338
+#define PPCMD_EXPORTVIEW                            1339
 //
 // PPJOB definitions
 //
@@ -2109,99 +2109,100 @@ struct Sdr_Bill {
 	#define PPFLD_BROW_LOTID                                    5
 	#define PPFLD_BROW_GOODSNAME                                6
 	#define PPFLD_BROW_GOODSGROUP                               7
-	#define PPFLD_BROW_UNITNAME                                 8
-	#define PPFLD_BROW_PHUNITNAME                               9
-	#define PPFLD_BROW_UNITCODE                                10
-	#define PPFLD_BROW_BARCODE                                 11
-	#define PPFLD_BROW_ARCODE                                  12
-	#define PPFLD_BROW_ARCODEOWN                               13
-	#define PPFLD_BROW_ALCOCATCODE                             14
-	#define PPFLD_BROW_QUANTITY                                15
-	#define PPFLD_BROW_PHQTTY                                  16
-	#define PPFLD_BROW_UNITPERPACK                             17
-	#define PPFLD_BROW_PCKGQTTY                                18
-	#define PPFLD_BROW_COST                                    19
-	#define PPFLD_BROW_PRICE                                   20
-	#define PPFLD_BROW_DISCOUNT                                21
-	#define PPFLD_BROW_CVATRATE                                22
-	#define PPFLD_BROW_CVATSUM                                 23
-	#define PPFLD_BROW_VATRATE                                 24
-	#define PPFLD_BROW_VATSUM                                  25
-	#define PPFLD_BROW_EXPIRY                                  26
-	#define PPFLD_BROW_SERIAL                                  27
-	#define PPFLD_BROW_CLB                                     28
-	#define PPFLD_BROW_QCCODE                                  29
-	#define PPFLD_BROW_QCBC                                    30
-	#define PPFLD_BROW_QCMANUF                                 31
-	#define PPFLD_BROW_QCPRDATE                                32
-	#define PPFLD_BROW_QCINITDATE                              33
-	#define PPFLD_BROW_QCEXPIRY                                34
-	#define PPFLD_BROW_QCREGORG                                35
-	#define PPFLD_BROW_QCETC                                   36
-	#define PPFLD_BROW_BILLCODE                                37
-	#define PPFLD_BROW_BILLDATE                                38
-	#define PPFLD_BROW_OPID                                    39
-	#define PPFLD_BROW_OPSYMB                                  40
-	#define PPFLD_BROW_INVCCODE                                41
-	#define PPFLD_BROW_INVCDATE                                42
-	#define PPFLD_BROW_INN                                     43
-	#define PPFLD_BROW_CNTRAGID                                44
-	#define PPFLD_BROW_CNTRAGNAME                              45
-	#define PPFLD_BROW_CNTRAGNO                                46
-	#define PPFLD_BROW_REGISTRYCODE                            47
-	#define PPFLD_BROW_OBJ2ID                                  48
-	#define PPFLD_BROW_OBJ2NAME                                49
-	#define PPFLD_BROW_OBJ2INN                                 50
-	#define PPFLD_BROW_OBJ2NO                                  51
-	#define PPFLD_BROW_DUEDATE                                 52
-	#define PPFLD_BROW_PAYMDATE                                53
-	#define PPFLD_BROW_BILLAMT                                 54
-	#define PPFLD_BROW_CRATE                                   55
-	#define PPFLD_BROW_CURID                                   56
-	#define PPFLD_BROW_BASEAMOUNT                              57
-	#define PPFLD_BROW_BILLVATSUM                              58
-	#define PPFLD_BROW_BILLMEMO                                59
-	#define PPFLD_BROW_LOCID                                   60
-	#define PPFLD_BROW_LOCNAME                                 61
-	#define PPFLD_BROW_LOCCODE                                 62
-	#define PPFLD_BROW_CITY                                    63
-	#define PPFLD_BROW_ADDR                                    64
-	#define PPFLD_BROW_ORDERBILLID                             65
-	#define PPFLD_BROW_ORDERBILLNO                             66
-	#define PPFLD_BROW_DLVRADDRID                              67
-	#define PPFLD_BROW_DLVRADDRCODE                            68
-	#define PPFLD_BROW_DLVRADDR                                69
-	#define PPFLD_BROW_AGENTNAME                               70
-	#define PPFLD_BROW_AGENTINN                                71
-	#define PPFLD_BROW_AGENTPERSONID                           72
-	#define PPFLD_BROW_COSTWITHSTAX                            73
-	#define PPFLD_BROW_GOODKINDCODE                            74
-	#define PPFLD_BROW_GOODGRPID                               75
-	#define PPFLD_BROW_TTN                                     76
-	#define PPFLD_BROW_GTD                                     77
-	#define PPFLD_BROW_LICENSEID                               78
-	#define PPFLD_BROW_LICENSENUM                              79
-	#define PPFLD_BROW_LICENSEDATE                             80
-	#define PPFLD_BROW_LICENSEEXPIRY                           81
-	#define PPFLD_BROW_LICENSESERIAL                           82
-	#define PPFLD_BROW_REGAUTHORITY                            83
-	#define PPFLD_BROW_LOTMANUF                                84
-	#define PPFLD_BROW_MANUFINN                                85
-	#define PPFLD_BROW_MANUFKPP                                86
-	#define PPFLD_BROW_MANUFCITYNAME                           87
-	#define PPFLD_BROW_MANUFREGIONNAME                         88
-	#define PPFLD_BROW_MANUFINDEX                              89
-	#define PPFLD_BROW_MANUFREGIONCODE                         90
-	#define PPFLD_BROW_MANUFDISTRICT                           91
-	#define PPFLD_BROW_MANUFSTREET                             92
-	#define PPFLD_BROW_MANUFHOUSE                              93
-	#define PPFLD_BROW_MANUFHOUSING                            94
-	#define PPFLD_BROW_MANUFCOUNTRYNAME                        95
-	#define PPFLD_BROW_MANUFCOUNTRYOKSM                        96
-	#define PPFLD_BROW_ISMANUF                                 97
-	#define PPFLD_BROW_LOTDOCDATE                              98
-	#define PPFLD_BROW_ISBEER                                  99
-	#define PPFLD_BROW_ISALCO                                 100
+	#define PPFLD_BROW_BRANDNAME                                8
+	#define PPFLD_BROW_UNITNAME                                 9
+	#define PPFLD_BROW_PHUNITNAME                              10
+	#define PPFLD_BROW_UNITCODE                                11
+	#define PPFLD_BROW_BARCODE                                 12
+	#define PPFLD_BROW_ARCODE                                  13
+	#define PPFLD_BROW_ARCODEOWN                               14
+	#define PPFLD_BROW_ALCOCATCODE                             15
+	#define PPFLD_BROW_QUANTITY                                16
+	#define PPFLD_BROW_PHQTTY                                  17
+	#define PPFLD_BROW_UNITPERPACK                             18
+	#define PPFLD_BROW_PCKGQTTY                                19
+	#define PPFLD_BROW_COST                                    20
+	#define PPFLD_BROW_PRICE                                   21
+	#define PPFLD_BROW_DISCOUNT                                22
+	#define PPFLD_BROW_CVATRATE                                23
+	#define PPFLD_BROW_CVATSUM                                 24
+	#define PPFLD_BROW_VATRATE                                 25
+	#define PPFLD_BROW_VATSUM                                  26
+	#define PPFLD_BROW_EXPIRY                                  27
+	#define PPFLD_BROW_SERIAL                                  28
+	#define PPFLD_BROW_CLB                                     29
+	#define PPFLD_BROW_QCCODE                                  30
+	#define PPFLD_BROW_QCBC                                    31
+	#define PPFLD_BROW_QCMANUF                                 32
+	#define PPFLD_BROW_QCPRDATE                                33
+	#define PPFLD_BROW_QCINITDATE                              34
+	#define PPFLD_BROW_QCEXPIRY                                35
+	#define PPFLD_BROW_QCREGORG                                36
+	#define PPFLD_BROW_QCETC                                   37
+	#define PPFLD_BROW_BILLCODE                                38
+	#define PPFLD_BROW_BILLDATE                                39
+	#define PPFLD_BROW_OPID                                    40
+	#define PPFLD_BROW_OPSYMB                                  41
+	#define PPFLD_BROW_INVCCODE                                42
+	#define PPFLD_BROW_INVCDATE                                43
+	#define PPFLD_BROW_INN                                     44
+	#define PPFLD_BROW_CNTRAGID                                45
+	#define PPFLD_BROW_CNTRAGNAME                              46
+	#define PPFLD_BROW_CNTRAGNO                                47
+	#define PPFLD_BROW_REGISTRYCODE                            48
+	#define PPFLD_BROW_OBJ2ID                                  49
+	#define PPFLD_BROW_OBJ2NAME                                50
+	#define PPFLD_BROW_OBJ2INN                                 51
+	#define PPFLD_BROW_OBJ2NO                                  52
+	#define PPFLD_BROW_DUEDATE                                 53
+	#define PPFLD_BROW_PAYMDATE                                54
+	#define PPFLD_BROW_BILLAMT                                 55
+	#define PPFLD_BROW_CRATE                                   56
+	#define PPFLD_BROW_CURID                                   57
+	#define PPFLD_BROW_BASEAMOUNT                              58
+	#define PPFLD_BROW_BILLVATSUM                              59
+	#define PPFLD_BROW_BILLMEMO                                60
+	#define PPFLD_BROW_LOCID                                   61
+	#define PPFLD_BROW_LOCNAME                                 62
+	#define PPFLD_BROW_LOCCODE                                 63
+	#define PPFLD_BROW_CITY                                    64
+	#define PPFLD_BROW_ADDR                                    65
+	#define PPFLD_BROW_ORDERBILLID                             66
+	#define PPFLD_BROW_ORDERBILLNO                             67
+	#define PPFLD_BROW_DLVRADDRID                              68
+	#define PPFLD_BROW_DLVRADDRCODE                            69
+	#define PPFLD_BROW_DLVRADDR                                70
+	#define PPFLD_BROW_AGENTNAME                               71
+	#define PPFLD_BROW_AGENTINN                                72
+	#define PPFLD_BROW_AGENTPERSONID                           73
+	#define PPFLD_BROW_COSTWITHSTAX                            74
+	#define PPFLD_BROW_GOODKINDCODE                            75
+	#define PPFLD_BROW_GOODGRPID                               76
+	#define PPFLD_BROW_TTN                                     77
+	#define PPFLD_BROW_GTD                                     78
+	#define PPFLD_BROW_LICENSEID                               79
+	#define PPFLD_BROW_LICENSENUM                              80
+	#define PPFLD_BROW_LICENSEDATE                             81
+	#define PPFLD_BROW_LICENSEEXPIRY                           82
+	#define PPFLD_BROW_LICENSESERIAL                           83
+	#define PPFLD_BROW_REGAUTHORITY                            84
+	#define PPFLD_BROW_LOTMANUF                                85
+	#define PPFLD_BROW_MANUFINN                                86
+	#define PPFLD_BROW_MANUFKPP                                87
+	#define PPFLD_BROW_MANUFCITYNAME                           88
+	#define PPFLD_BROW_MANUFREGIONNAME                         89
+	#define PPFLD_BROW_MANUFINDEX                              90
+	#define PPFLD_BROW_MANUFREGIONCODE                         91
+	#define PPFLD_BROW_MANUFDISTRICT                           92
+	#define PPFLD_BROW_MANUFSTREET                             93
+	#define PPFLD_BROW_MANUFHOUSE                              94
+	#define PPFLD_BROW_MANUFHOUSING                            95
+	#define PPFLD_BROW_MANUFCOUNTRYNAME                        96
+	#define PPFLD_BROW_MANUFCOUNTRYOKSM                        97
+	#define PPFLD_BROW_ISMANUF                                 98
+	#define PPFLD_BROW_LOTDOCDATE                              99
+	#define PPFLD_BROW_ISBEER                                 100
+	#define PPFLD_BROW_ISALCO                                 101
 
 struct Sdr_BRow {
 	char   BillID[32];
@@ -2211,6 +2212,7 @@ struct Sdr_BRow {
 	int32  LotID;
 	char   GoodsName[128];
 	char   GoodsGroup[128];
+	char   BrandName[128];
 	char   UnitName[48];
 	char   PhUnitName[48];
 	char   UnitCode[20];
@@ -4606,119 +4608,129 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_CLIENTPRINTER01                 32784
 #define PPDV_CLIENTPRINTER01MARK             32785
 #define PPDV_RETURN01                        32786
-#define PPDV_CARD01                          32787
-#define PPDV_CARD02                          32788
-#define PPDV_TABLE01                         32789
-#define PPDV_TABLE02                         32790
-#define PPDV_TABLEORDER02                    32791
-#define PPDV_CHANGE01                        32792
-#define PPDV_CASHBOX01                       32793
-#define PPDV_CASHBOX02                       32794
-#define PPDV_CASHBOX03                       32795
-#define PPDV_CASHBOX04                       32796
-#define PPDV_CALCULATOR01                    32797
-#define PPDV_CALCULATOR02                    32798
-#define PPDV_CALCULATOR03                    32799
-#define PPDV_RETURN02                        32800
-#define PPDV_UP01                            32801
-#define PPDV_DOWN01                          32802
-#define PPDV_CALENDAR01                      32803
-#define PPDV_CALENDAR02                      32804
-#define PPDV_CALENDAR03                      32805
-#define PPDV_CALENDARDAY01                   32806
-#define PPDV_CALENDARDAY02                   32807
-#define PPDV_TAGS01                          32808
-#define PPDV_TAGS02                          32809
-#define PPDV_EDITFILE01                      32810
-#define PPDV_EDITFILE02                      32811
-#define PPDV_ADDFILE01                       32812
-#define PPDV_ADDFILE02                       32813
-#define PPDV_DELETEFILE01                    32814
-#define PPDV_DELETEFILE02                    32815
-#define PPDV_VIEWOPTIONS01                   32816
-#define PPDV_VIEWOPTIONS02                   32817
-#define PPDV_REGISTERS01                     32818
-#define PPDV_FOLDER01                        32819
-#define PPDV_FOLDER02                        32820
-#define PPDV_SAVE01                          32821
-#define PPDV_SAVE02                          32822
-#define PPDV_FUNCTION01                      32823
-#define PPDV_NUMBERZERO01                    32824
-#define PPDV_NUMBERONE01                     32825
-#define PPDV_NUMBERTWO01                     32826
-#define PPDV_NUMBERTHREE01                   32827
-#define PPDV_NUMBERFOUR01                    32828
-#define PPDV_NUMBERFIVE01                    32829
-#define PPDV_NUMBERSIX01                     32830
-#define PPDV_NUMBERSEVEN01                   32831
-#define PPDV_NUMBEREIGHT01                   32832
-#define PPDV_NUMBERNINE01                    32833
-#define PPDV_PLUS01                          32834
-#define PPDV_CROSS01                         32835
-#define PPDV_MINUS01                         32836
-#define PPDV_EQUAL01                         32837
-#define PPDV_DIVIDE01                        32838
-#define PPDV_DOT01                           32839
-#define PPDV_PLUSMINUS01                     32840
-#define PPDV_CLOCK01                         32841
-#define PPDV_CLOCK02                         32842
-#define PPDV_C                               32843
-#define PPDV_CE                              32844
-#define PPDV_TESTFLOWER                      32845
-#define PPDV_ANGLEARROWLEFT01                32846
-#define PPDV_ANGLEARROWRIGHT01               32847
-#define PPDV_DOUBLEANGLEARROWLEFT01          32848
-#define PPDV_DOUBLEANGLEARROWRIGHT01         32849
-#define PPDV_AGREEMENT01                     32850
-#define PPDV_PERSON01                        32851
-#define PPDV_QUANTITY01                      32852
-#define PPDV_DIVISION01                      32853
-#define PPDV_BACK01                          32854
-#define PPDV_BOX01                           32855
-#define PPDV_CLIPBOARDCOPY01                 32856
-#define PPDV_CLIPBOARDCUT01                  32857
-#define PPDV_CLIPBOARDPASTE01                32858
-#define PPDV_PAYMCASH01                      32859
-#define PPDV_PAYMBANK01                      32860
-#define PPDV_PAYMBANKDISABLED01              32861
-#define PPDV_PAYMCARD01                      32862
-#define PPDV_BANK01                          32863
-#define PPDV_KEY01                           32864
-#define PPDV_MONEY01                         32865
-#define PPDV_WALLET01                        32866
-#define PPDV_WALLET02                        32867
-#define PPDV_PRICE01                         32868
-#define PPDV_DISCOUNT01                      32869
-#define PPDV_GOODSGROUP01                    32870
-#define PPDV_CATEGORY01                      32871
-#define PPDV_CATEGORYHEART01                 32872
-#define PPDV_CATEGORY02                      32873
-#define PPDV_CATEGORYFAW02                   32874
-#define PPDV_GUESTCOUNT01                    32875
-#define PPDV_DELIVERY01                      32876
-#define PPDV_PHONE01                         32877
-#define PPDV_PHONE02                         32878
-#define PPDV_PHONE03                         32879
-#define PPDV_PHONEFORWARDED01                32880
-#define PPDV_SCARDBONUS                      32881
-#define PPDV_SCARDCREDIT                     32882
-#define PPDV_SCARDDISCOUNT                   32883
-#define PPDV_GEAR01                          32884
-#define PPDV_GEARDOUBLE01                    32885
-#define PPDV_GEARTRIPLE01                    32886
-#define PPDV_REFRESH01                       32887
-#define PPDV_SIGMA01                         32888
-#define PPDV_SIGMA02                         32889
-#define PPDV_WAREHOUSE01                     32890
-#define PPDV_WAREHOUSE02                     32891
-#define PPDV_LINS01                          32892
-#define PPDV_LINS02                          32893
-#define PPDV_FILTER01                        32894
-#define PPDV_DIAMOND01                       32895
-#define PPDV_NOICON                          32896
-#define PPDV_VETISREFRESH                    32897
-#define PPDV_VETISWAREHOUSE                  32898
-#define PPDV_SHOPPINGCART01                  32899
-#define PPDV_SHOPPINGCART02                  32900
-#define PPDV_LOGOPAPYRUS                     32901
+#define PPDV_RETURN02                        32787
+#define PPDV_REFUND01                        32788
+#define PPDV_CARD01                          32789
+#define PPDV_CARD02                          32790
+#define PPDV_TABLE01                         32791
+#define PPDV_TABLE02                         32792
+#define PPDV_TABLEORDER02                    32793
+#define PPDV_CHANGE01                        32794
+#define PPDV_CASHBOX01                       32795
+#define PPDV_CASHBOX02                       32796
+#define PPDV_CASHBOX03                       32797
+#define PPDV_CASHBOX04                       32798
+#define PPDV_CALCULATOR01                    32799
+#define PPDV_CALCULATOR02                    32800
+#define PPDV_CALCULATOR03                    32801
+#define PPDV_UP01                            32802
+#define PPDV_DOWN01                          32803
+#define PPDV_CALENDAR01                      32804
+#define PPDV_CALENDAR02                      32805
+#define PPDV_CALENDAR03                      32806
+#define PPDV_CALENDARDAY01                   32807
+#define PPDV_CALENDARDAY02                   32808
+#define PPDV_TAGS01                          32809
+#define PPDV_TAGS02                          32810
+#define PPDV_EDITFILE01                      32811
+#define PPDV_EDITFILE02                      32812
+#define PPDV_ADDFILE01                       32813
+#define PPDV_ADDFILE02                       32814
+#define PPDV_DELETEFILE01                    32815
+#define PPDV_DELETEFILE02                    32816
+#define PPDV_VIEWOPTIONS01                   32817
+#define PPDV_VIEWOPTIONS02                   32818
+#define PPDV_REGISTERS01                     32819
+#define PPDV_FOLDER01                        32820
+#define PPDV_FOLDER02                        32821
+#define PPDV_SAVE01                          32822
+#define PPDV_SAVE02                          32823
+#define PPDV_FUNCTION01                      32824
+#define PPDV_NUMBERZERO01                    32825
+#define PPDV_NUMBERONE01                     32826
+#define PPDV_NUMBERTWO01                     32827
+#define PPDV_NUMBERTHREE01                   32828
+#define PPDV_NUMBERFOUR01                    32829
+#define PPDV_NUMBERFIVE01                    32830
+#define PPDV_NUMBERSIX01                     32831
+#define PPDV_NUMBERSEVEN01                   32832
+#define PPDV_NUMBEREIGHT01                   32833
+#define PPDV_NUMBERNINE01                    32834
+#define PPDV_PLUS01                          32835
+#define PPDV_CROSS01                         32836
+#define PPDV_MINUS01                         32837
+#define PPDV_EQUAL01                         32838
+#define PPDV_DIVIDE01                        32839
+#define PPDV_DOT01                           32840
+#define PPDV_PLUSMINUS01                     32841
+#define PPDV_CLOCK01                         32842
+#define PPDV_CLOCK02                         32843
+#define PPDV_C                               32844
+#define PPDV_CE                              32845
+#define PPDV_TESTFLOWER                      32846
+#define PPDV_ANGLEARROWLEFT01                32847
+#define PPDV_ANGLEARROWRIGHT01               32848
+#define PPDV_DOUBLEANGLEARROWLEFT01          32849
+#define PPDV_DOUBLEANGLEARROWRIGHT01         32850
+#define PPDV_AGREEMENT01                     32851
+#define PPDV_PERSON01                        32852
+#define PPDV_QUANTITY01                      32853
+#define PPDV_DIVISION01                      32854
+#define PPDV_BACK01                          32855
+#define PPDV_BOX01                           32856
+#define PPDV_CLIPBOARDCOPY01                 32857
+#define PPDV_CLIPBOARDCUT01                  32858
+#define PPDV_CLIPBOARDPASTE01                32859
+#define PPDV_PAYMCASH01                      32860
+#define PPDV_PAYMBANK01                      32861
+#define PPDV_PAYMBANKDISABLED01              32862
+#define PPDV_PAYMCARD01                      32863
+#define PPDV_BANK01                          32864
+#define PPDV_KEY01                           32865
+#define PPDV_MONEY01                         32866
+#define PPDV_WALLET01                        32867
+#define PPDV_WALLET02                        32868
+#define PPDV_PRICE01                         32869
+#define PPDV_DISCOUNT01                      32870
+#define PPDV_GOODSGROUP01                    32871
+#define PPDV_CATEGORY01                      32872
+#define PPDV_CATEGORYHEART01                 32873
+#define PPDV_CATEGORY02                      32874
+#define PPDV_CATEGORYFAW02                   32875
+#define PPDV_GUESTCOUNT01                    32876
+#define PPDV_DELIVERY01                      32877
+#define PPDV_PHONE01                         32878
+#define PPDV_PHONE02                         32879
+#define PPDV_PHONE03                         32880
+#define PPDV_PHONEFORWARDED01                32881
+#define PPDV_SCARDBONUS                      32882
+#define PPDV_SCARDCREDIT                     32883
+#define PPDV_SCARDDISCOUNT                   32884
+#define PPDV_GEAR01                          32885
+#define PPDV_GEARDOUBLE01                    32886
+#define PPDV_GEARTRIPLE01                    32887
+#define PPDV_REFRESH01                       32888
+#define PPDV_SIGMA01                         32889
+#define PPDV_SIGMA02                         32890
+#define PPDV_WAREHOUSE01                     32891
+#define PPDV_WAREHOUSE02                     32892
+#define PPDV_LINS01                          32893
+#define PPDV_LINS02                          32894
+#define PPDV_FILTER01                        32895
+#define PPDV_DIAMOND01                       32896
+#define PPDV_NOICON                          32897
+#define PPDV_VETISREFRESH                    32898
+#define PPDV_VETISWAREHOUSE                  32899
+#define PPDV_SHOPPINGCART01                  32900
+#define PPDV_SHOPPINGCART02                  32901
+#define PPDV_SYNC01                          32902
+#define PPDV_SYNC02                          32903
+#define PPDV_SYNC03                          32904
+#define PPDV_SYNC04                          32905
+#define PPDV_SYSJOURNAL                      32906
+#define PPDV_COMPARE01                       32907
+#define PPDV_EXPORT01                        32908
+#define PPDV_EXPORT02                        32909
+#define PPDV_EXPORT03                        32910
+#define PPDV_LOGOPAPYRUS                     32911
 

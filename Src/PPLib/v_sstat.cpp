@@ -1111,7 +1111,7 @@ int SLAPI PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAct
 {
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
-		const  DBQBrowserDef * p_def = (DBQBrowserDef *)pBrw->getDef();
+		const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
 		if(p_def && col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
 			const PPID goods_id = P_Ct ? ((PPID *)pData)[1] : ((PPID *)pData)[0];

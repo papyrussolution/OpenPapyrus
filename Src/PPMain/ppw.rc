@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -599,7 +599,7 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",IDC_STATIC,5,5,275,180
     LISTBOX         CTL_SELQCERT_LIST,10,15,170,165,LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | WS_TABSTOP
-    PUSHBUTTON      "&Редакт <F3>...",STDCTL_EDITBUTTON,185,15,90,13
+    PUSHBUTTON      "@{edit_s} <F3>...",STDCTL_EDITBUTTON,185,15,90,13
     PUSHBUTTON      "@{add} <Ins>...",STDCTL_INSBUTTON,185,35,90,13
     PUSHBUTTON      "@{doaddbysample_short} <ALT-F2>...",4002,185,55,90,13
     PUSHBUTTON      "@{but_delete} <Del>",STDCTL_DELBUTTON,185,75,90,13
@@ -1329,7 +1329,7 @@ END
 
 DLG_APNCORLIST DIALOGEX 46, 32, 381, 182
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Корреспондирующие кассовые узлы"
+CAPTION "@cashnode_apncorr_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "",CTL_APNCORLIST_INFO,5,5,370,13,0,WS_EX_STATICEDGE
@@ -1343,7 +1343,7 @@ END
 
 DLG_APNCORITEM DIALOGEX 72, 40, 271, 92
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Корреспондирующий кассовый узел"
+CAPTION "@cashnode_apncorr"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@number",4001,10,10,50,8
@@ -2066,7 +2066,7 @@ END
 
 DLG_ACCOUNT DIALOGEX 10, 24, 337, 207
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Бухгалтерский счет"
+CAPTION "@account_accounting"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@account",4001,10,20,65,8
@@ -2104,7 +2104,7 @@ END
 
 DLG_ACCREGISTER DIALOGEX 31, 16, 297, 200
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Бухгалтерский регистр"
+CAPTION "@account_register"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@code",4001,10,15,75,8
@@ -2148,8 +2148,8 @@ BEGIN
     CONTROL         "@no",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,75,155,10
     CONTROL         "@person_pl",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,85,155,10
     CONTROL         "@warehouse_pl",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,95,155,10
-    CONTROL         "Бух&галтерские счета",17586,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,105,155,10
-    CONTROL         "Глобальные учетные записи",21682,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,115,155,10
+    CONTROL         "@account_accounting_pl",17586,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,105,155,10
+    CONTROL         "@globaluseracc_pl",21682,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,115,155,10
     EDITTEXT        CTL_ACCSHEET_GROUP,180,75,180,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@accsheet_objgroup",4004,180,65,180,8
     PUSHBUTTON      "",CTLSEL_ACCSHEET_GROUP,360,75,12,13,BS_BITMAP | NOT WS_TABSTOP
@@ -2184,16 +2184,16 @@ END
 
 DLG_ACCSHEETVIEW DIALOGEX 72, 32, 252, 205
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Таблицы аналитического учета"
+CAPTION "@accsheet_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LISTBOX         CTL_OBJVIEW_LIST,0,0,180,205,LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | WS_TABSTOP
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,185,5,60,14
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,185,25,60,14
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,185,45,60,14
-    PUSHBUTTON      "&Статьи...",4001,185,90,60,14
-    PUSHBUTTON      "@but_transmit",4002,185,120,60,13
-    PUSHBUTTON      "@but_sysj",4003,185,140,60,13
+    PUSHBUTTON      "@{article_pl}...",4001,185,90,60,14
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,185,120,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,185,140,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,185,185,60,14
 END
 
@@ -2234,7 +2234,7 @@ END
 
 DLG_ADDEXTFLD DIALOGEX 10, 16, 252, 90
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Дополнительное поле адреса доставки"
+CAPTION "@daddressextfield"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@appellation",4001,10,10,185,8
@@ -2575,9 +2575,9 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,175,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,175,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,175,45,60,13
-    PUSHBUTTON      "@but_transmit",4001,175,75,60,13
-    PUSHBUTTON      "@{dotransmitcharry}...",4002,175,95,70,13
-    PUSHBUTTON      "@but_sysj",4003,175,120,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,175,75,60,13
+    PUSHBUTTON      "@{dotransmitcharry}...",4001,175,95,70,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,175,120,60,13
     PUSHBUTTON      "@but_print",STDCTL_PRINTBUTTON,175,140,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,175,245,60,13
 END
@@ -2939,9 +2939,9 @@ BEGIN
     EDITTEXT        CTL_AUSERSLST_USERSCOUNT,240,145,35,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Количество уникальных mac адресов",4002,285,145,115,8
     EDITTEXT        CTL_AUSERSLST_UNIQMACS,405,145,35,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "@but_sysj",4003,370,165,50,13
-    PUSHBUTTON      "@refresh",4004,430,165,50,13
-    PUSHBUTTON      "@but_close",4005,490,165,50,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,370,165,50,13
+    PUSHBUTTON      "@refresh",4003,430,165,50,13
+    PUSHBUTTON      "@but_close",4004,490,165,50,13
 END
 
 DLG_AUTONEWP DIALOGEX 0, 0, 416, 231
@@ -3303,7 +3303,7 @@ CAPTION "Загрузка программы на BHT-терминал"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_BHTSEND_BHT,10,25,125,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Терминал",4001,10,15,36,8
+    LTEXT           "@terminal",4001,10,15,36,8
     PUSHBUTTON      "",CTLSEL_BHTSEND_BHT,135,25,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "Файл для загрузки",4002,10,45,72,8
     EDITTEXT        CTL_BHTSEND_FILENAME,10,55,225,13,ES_AUTOHSCROLL
@@ -3318,7 +3318,7 @@ CAPTION "Загрузка данных из BHT-терминала"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_BHTRCV_BHT,35,20,190,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Терминал",4001,35,10,155,8
+    LTEXT           "@terminal",4001,35,10,155,8
     PUSHBUTTON      "",CTLSEL_BHTRCV_BHT,225,20,12,13,BS_BITMAP
     EDITTEXT        CTL_BHTRCV_DINTRLOC,35,45,190,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Склад назначения для внутренней передачи",4002,35,35,210,8
@@ -3332,7 +3332,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Загрузка данных в BHT-терминал"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Терминал",4001,10,10,36,8
+    LTEXT           "@terminal",4001,10,10,36,8
     EDITTEXT        CTL_BHTSEND_BHT,10,20,125,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_BHTSEND_BHT,135,20,13,13,BS_BITMAP
     GROUPBOX        "",CTL_BHTSEND_WHAT,10,35,125,65,WS_GROUP
@@ -3482,9 +3482,9 @@ BEGIN
     CONTROL         "@bill_billf2_ackpending",9401,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,276,125,10
     GROUPBOX        "@bill_billf2_recadv_accp",CTL_BILLINFO_RECADV,165,235,205,55,WS_GROUP
     CONTROL         "@undefined",5308,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,245,100,10
-    CONTROL         "Полностью принят",9404,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,255,95,10
-    CONTROL         "Частично принят",13500,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,265,95,10
-    CONTROL         "Отклонен",17596,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,275,100,10
+    CONTROL         "@accepted_fully",9404,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,255,95,10
+    CONTROL         "@accepted_partly",13500,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,265,95,10
+    CONTROL         "@rejected",17596,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,275,100,10
     LTEXT           "@billamount_pl",4007,165,80,190,8
     CONTROL         "",CTL_BILLINFO_AMTLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,165,90,205,145
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,375,90,60,13
@@ -3611,9 +3611,9 @@ BEGIN
     LTEXT           "@appellation",4003,120,0,235,8
     EDITTEXT        CTL_BIZSCT_NAME,120,10,265,13,ES_AUTOHSCROLL
     LTEXT           "",CTL_BIZSCT_CELLTEXT,40,25,295,10,0,WS_EX_STATICEDGE
-    LTEXT           "Столбцы",4004,5,25,32,8
+    LTEXT           "@column_pl",4004,5,25,32,8
     CONTROL         "",CTL_BIZSCT_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,5,36,330,89
-    LTEXT           "Строки",4005,5,130,28,8
+    LTEXT           "@line_pl",4005,5,130,28,8
     CONTROL         "",CTL_BIZSCT_ROWS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,5,150,330,89
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,45,130,54,13
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,105,130,54,13
@@ -3753,20 +3753,20 @@ END
 
 DLG_BNKTERM DIALOGEX 98, 40, 200, 110
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Банковский терминал"
+CAPTION "@bankingterminal"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,77,84,51,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,135,84,51,13
     EDITTEXT        CTL_BNKTERM_TYPE,10,15,164,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Банковский терминал",4001,10,7,80,8
+    LTEXT           "@bankingterminal",4001,10,7,80,8
     PUSHBUTTON      "",CTLSEL_BNKTERM_TYPE,174,15,12,13,BS_BITMAP
     LTEXT           "@port",4002,80,30,20,8
     EDITTEXT        CTL_BNKTERM_PORT,79,39,64,13,ES_AUTOHSCROLL
     LTEXT           "Путь к файлу dll устройства",4003,10,56,112,8
     EDITTEXT        CTL_BNKTERM_PATH,10,65,161,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_BNKTERM_FILENAME,172,65,14,13
-    LTEXT           "Логический номер",4004,10,30,68,8
+    LTEXT           "@logicalnumber",4004,10,30,68,8
     EDITTEXT        CTL_BNKTERM_LOGNUM,10,39,32,13,ES_AUTOHSCROLL
     CONTROL         "Пинпад",5303,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,146,39,48,13
 END
@@ -4302,7 +4302,7 @@ END
 
 DLG_BILL_DEBTINVENT DIALOGEX 41, 16, 287, 125
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Инвентаризация долгов"
+CAPTION "@opsubt_debtinvent"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@billno",4001,10,10,64,8
@@ -4640,7 +4640,7 @@ END
 
 DLG_RCPTBILL DIALOGEX 0, 0, 412, 286
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Приход товара от поставщика"
+CAPTION "@roptype_goodsreceipt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@billno",4001,5,10,64,8
@@ -4748,7 +4748,7 @@ END
 
 DLG_MODIFBILL DIALOGEX 31, 0, 417, 213
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Модификация товаров"
+CAPTION "@roptype_goodsmodif"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@billno",4001,5,10,64,8
@@ -4971,7 +4971,7 @@ BEGIN
     LTEXT           "Дата платежа",4001,15,10,52,8
     EDITTEXT        CTL_PAYPLANITEM_DT,115,10,55,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLCAL_PAYPLANITEM_DT,170,10,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Сумма платежа",4002,15,30,56,8
+    LTEXT           "@paymentamount",4002,15,30,56,8
     EDITTEXT        CTL_PAYPLANITEM_AMOUNT,115,30,55,13,ES_AUTOHSCROLL
     LTEXT           "Сумма процентных выплат",4003,15,50,96,8
     EDITTEXT        CTL_PAYPLANITEM_INTEREST,115,50,55,13,ES_AUTOHSCROLL
@@ -5004,7 +5004,7 @@ BEGIN
     LTEXT           "@qtty",4002,10,40,75,8
     EDITTEXT        CTL_PUGLSPLI_QTTY,10,50,56,13,ES_AUTOHSCROLL
     GROUPBOX        "",CTL_PUGLSPLI_UNIT,100,35,120,35,WS_GROUP
-    CONTROL         "Абослютное значение",5350,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,105,45,110,10
+    CONTROL         "@absolutevalue",5350,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,105,45,110,10
     CONTROL         "В процентах",9446,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,105,55,110,10
     LTEXT           "",CTL_PUGLSPLI_ST_INFO,10,75,210,12,0,WS_EX_STATICEDGE
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,105,95,50,13
@@ -5711,7 +5711,7 @@ BEGIN
     EDITTEXT        CTL_WTMTOOLPARAM_NAME,5,15,275,13,ES_AUTOHSCROLL
     LTEXT           "@symbol",4002,285,5,95,8
     EDITTEXT        CTL_WTMTOOLPARAM_SYMB,285,15,96,13,ES_AUTOHSCROLL
-    LTEXT           "Размер иконки",4003,5,35,56,8
+    LTEXT           "@piciconsize",4003,5,35,56,8
     EDITTEXT        CTL_WTMTOOLPARAM_PICSIZE,5,45,75,13,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,165,45,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,230,45,50,13
@@ -5737,10 +5737,10 @@ BEGIN
     GROUPBOX        "",CTL_WTMTOOL_FLAGS,5,105,200,35,WS_GROUP
     CONTROL         "Не увеличивать размер изображения",5309,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,115,150,10
     CONTROL         "Не сохранять пропорции изображения",9405,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,125,150,10
-    LTEXT           "Файл иконки",4006,5,150,48,8
+    LTEXT           "@piciconfile",4006,5,150,48,8
     EDITTEXT        CTL_WTMTOOL_PICPATH,5,160,275,13,ES_AUTOHSCROLL
     PUSHBUTTON      " ",CTLBRW_WTMTOOL_PICPATH,280,160,14,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Размер иконки",4007,315,150,80,8,0,WS_EX_RIGHT
+    LTEXT           "@piciconsize",4007,315,150,80,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_WTMTOOL_PICSIZE,315,160,80,13,ES_AUTOHSCROLL
     PUSHBUTTON      "@but_ok",STDCTL_OKBUTTON,170,180,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,230,180,50,13
@@ -5875,9 +5875,9 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@staffpost",4001,5,5,76,8
     EDITTEXT        CTL_TESTSTAFFCAL_POST,5,15,270,13,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    LTEXT           "Календарь (символ)",4002,5,35,76,8
+    LTEXT           "@{calendar} (@{symbol})",4002,5,35,76,8
     EDITTEXT        CTL_TESTSTAFFCAL_CSYM,5,45,90,13,ES_AUTOHSCROLL
-    LTEXT           "Проецирующий календарь (символ)",4003,105,35,128,8
+    LTEXT           "Проецирующий календарь (@{symbol})",4003,105,35,128,8
     EDITTEXT        CTL_TESTSTAFFCAL_PCSYM,105,45,90,13,ES_AUTOHSCROLL
     LTEXT           "@daterange",4004,65,65,28,8
     EDITTEXT        CTL_TESTSTAFFCAL_PERIOD,105,65,90,13,ES_AUTOHSCROLL
@@ -5920,7 +5920,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "LaTex2Html convertion"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Путь к исходному файлу",4001,10,5,255,8
+    LTEXT           "@path_sourcefile",4001,10,5,255,8
     EDITTEXT        CTL_TEX2HTM_INFILE,10,15,265,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_TEX2HTM_INFILE,275,15,15,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "Путь к каталогу с исходными изображениями",4002,10,35,260,8
@@ -6424,10 +6424,10 @@ BEGIN
     LTEXT           "@op",4002,80,40,36,8
     EDITTEXT        CTL_CALCTAXPRICE_OP,80,50,140,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CALCTAXPRICE_OP,220,50,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Цена без налогов",4003,80,70,68,8
+    LTEXT           "@priceaftertaxes",4003,80,70,68,8
     EDITTEXT        CTL_CALCTAXPRICE_WOTAX,175,70,45,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",4255,220,70,13,13,BS_BITMAP
-    LTEXT           "Цена с налогами",4004,80,90,64,8
+    LTEXT           "@pricebeforetaxes",4004,80,90,64,8
     EDITTEXT        CTL_CALCTAXPRICE_WTAX,175,90,45,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",4254,220,90,13,13,BS_BITMAP
     CONTROL         "Цена без налогов по цене с налогами",5304,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,105,145,10
@@ -6591,7 +6591,7 @@ BEGIN
     EDITTEXT        CTL_CASHDISP_CASHAMT,105,105,65,13,ES_AUTOHSCROLL
     LTEXT           "Сумма безнал оплат",4005,185,105,76,8
     EDITTEXT        CTL_CASHDISP_BANKAMT,280,105,65,13,ES_AUTOHSCROLL
-    LTEXT           "Сумма возвратов",4006,10,130,64,8
+    LTEXT           "@refundamount",4006,10,130,64,8
     EDITTEXT        CTL_CASHDISP_RETAMT,105,130,65,13,ES_AUTOHSCROLL
     LTEXT           "@discountamount",4007,185,130,52,8
     EDITTEXT        CTL_CASHDISP_DSCNTAMT,280,130,65,13,ES_AUTOHSCROLL
@@ -6624,7 +6624,7 @@ BEGIN
     EDITTEXT        CTL_CASHDISP_CASHAMT,280,125,65,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
     LTEXT           "@paymt_bank",4005,155,145,120,8
     EDITTEXT        CTL_CASHDISP_BANKAMT,280,145,65,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма возвратов",4006,15,75,64,8
+    LTEXT           "@refundamount",4006,15,75,64,8
     EDITTEXT        CTL_CASHDISP_RETAMT,105,75,65,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
     LTEXT           "@discountamount",4007,15,90,52,8
     EDITTEXT        CTL_CASHDISP_DSCNTAMT,105,90,65,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
@@ -6711,7 +6711,7 @@ BEGIN
     PUSHBUTTON      "@{group}-@{department}...",4014,5,305,105,13
     PUSHBUTTON      "Параметры импорта...",CTL_CASHN_IMPPARAM,120,305,105,13
     PUSHBUTTON      "@but_tags",STDCTL_TAGSBUTTON,235,305,60,13
-    PUSHBUTTON      "Корреспондирующие узлы",4015,415,125,125,13
+    PUSHBUTTON      "@cashnode_apncorr_pl_s",4015,415,125,125,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,425,305,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,490,305,50,13
     LTEXT           "",CTL_CASHN_ST_CRBILL,5,290,290,13,0,WS_EX_STATICEDGE
@@ -7032,7 +7032,7 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,415,215,50,13
 END
 
-DLG_CCFGSYS DIALOGEX 20, 8, 505, 257
+DLG_CCFGSYS DIALOGEX 20, 8, 505, 277
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@cfgcomm_system"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -7051,28 +7051,26 @@ BEGIN
     EDITTEXT        CTL_CCFGSYS_CSUNITPRD,215,85,40,13,ES_AUTOHSCROLL
     LTEXT           "@cfgcomm_csessfwasscperiod",4006,15,100,195,8
     EDITTEXT        CTL_CCFGSYS_CSFWPRD,215,100,40,13,ES_AUTOHSCROLL
-    GROUPBOX        "",CTL_CCFGSYS_FLAGS,265,0,230,160,WS_GROUP
+    GROUPBOX        "",CTL_CCFGSYS_FLAGS,265,0,230,145,WS_GROUP
     CONTROL         "@cfgcomm_ccflg_usegdscls",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,10,219,10
     CONTROL         "@cfgcomm_ccflg_usegoodspckg",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,20,219,10
     CONTROL         "@cfgcomm_ccflg_usedraftbill",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,30,219,10
-    CONTROL         "@cfgcomm_ccflg_usehistbill",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,40,219,10
-    CONTROL         "@cfgcomm_ccflg_checkspoilage",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,50,219,10
-    CONTROL         "@cfgcomm_ccflg_throughscarduniq",25779,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,60,219,10
-    CONTROL         "@cfgcomm_ccflg_usehistgoods",29875,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,70,219,10
-    CONTROL         "@cfgcomm_ccflg_useccheckext",33971,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,80,219,10
-    CONTROL         "@cfgcomm_ccflg_usecchecklineext",38067,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,90,219,10
-    CONTROL         "@cfgcomm_ccflg_genlotonunlimorder",42163,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,100,219,10
-    CONTROL         "@cfgcomm_ccflg_useargoodscode",46259,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,110,219,10
-    CONTROL         "@cfgcomm_ccflg_individbillextfilt",50355,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,120,219,10
-    CONTROL         "@cfgcomm_ccflg_usedistribcost",54451,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,130,219,10
-    CONTROL         "@cfgcomm_ccflg_rsrvsj",58547,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,140,219,10
-    GROUPBOX        "@cfgcomm_lcrusage",CTL_CCFGSYS_LCRUSAGE,270,170,185,45,WS_GROUP
-    CONTROL         "@cfgcomm_lcrusage_none",5303,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,276,180,170,10
-    CONTROL         "@cfgcomm_lcrusage_maintainuptodate",9399,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,276,190,175,10
-    CONTROL         "@cfgcomm_lcrusage_use",13495,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,276,200,170,10
-    CONTROL         "Применять 2-ю версию",5306,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,215,175,13
-    LTEXT           "Применять начиная с",4008,275,230,80,8
-    EDITTEXT        CTL_CCFGSYS_LCRSINCE,410,230,45,13,ES_AUTOHSCROLL
+    CONTROL         "@cfgcomm_ccflg_checkspoilage",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,40,219,10
+    CONTROL         "@cfgcomm_ccflg_throughscarduniq",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,50,219,10
+    CONTROL         "@cfgcomm_ccflg_useccheckext",25779,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,60,219,10
+    CONTROL         "@cfgcomm_ccflg_usecchecklineext",29875,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,70,219,10
+    CONTROL         "@cfgcomm_ccflg_genlotonunlimorder",33971,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,80,219,10
+    CONTROL         "@cfgcomm_ccflg_useargoodscode",38067,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,90,219,10
+    CONTROL         "@cfgcomm_ccflg_individbillextfilt",42163,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,100,219,10
+    CONTROL         "@cfgcomm_ccflg_usedistribcost",46259,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,110,219,10
+    CONTROL         "@cfgcomm_ccflg_rsrvsj",50355,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,120,219,10
+    GROUPBOX        "@cfgcomm_lcrusage",CTL_CCFGSYS_LCRUSAGE,270,155,185,45,WS_GROUP
+    CONTROL         "@cfgcomm_lcrusage_none",5303,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,276,166,170,10
+    CONTROL         "@cfgcomm_lcrusage_maintainuptodate",9399,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,276,175,175,10
+    CONTROL         "@cfgcomm_lcrusage_use",13495,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,276,185,170,10
+    CONTROL         "@cfgcomm_ccflg_uselcr2",5306,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,200,175,13
+    LTEXT           "@cfgcomm_lcrusagesince",4008,275,215,120,8
+    EDITTEXT        CTL_CCFGSYS_LCRSINCE,410,215,45,13,ES_AUTOHSCROLL
     GROUPBOX        "",CTL_CCFGSYS_FLAGS2,10,120,250,90,WS_GROUP
     CONTROL         "@cfgcomm_ccflg_quot2",5304,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,130,240,10
     CONTROL         "@cfgcomm_ccflg_indexeaddr",9400,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,140,240,10
@@ -7081,9 +7079,14 @@ BEGIN
     CONTROL         "@cfgcomm_ccflg_useomtpaymamt",21688,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,170,240,10
     CONTROL         "@cfgcomm_ccflg_usesartredb",25784,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,180,240,10
     CONTROL         "@cfgcomm_ccflg_uselotxcode",29880,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,190,240,10
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,10,230,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,75,230,50,13
-    GROUPBOX        "",IDC_STATIC,265,160,235,90
+    GROUPBOX        "@cfgcomm_useobjhistory",CTL_CCFGSYS_OBJHISTF,10,210,250,60,WS_GROUP
+    CONTROL         "@cfgcomm_ccflg_usehistbill",5308,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,13,220,192,10
+    CONTROL         "@cfgcomm_ccflg_usehistgoods",9404,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,13,230,192,10
+    CONTROL         "@cfgcomm_ccflg_usehistperson",13500,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,13,239,187,10
+    CONTROL         "@cfgcomm_ccflg_usehistscard",17596,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,13,250,192,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,385,245,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,451,245,50,13
+    GROUPBOX        "",IDC_STATIC,265,145,235,90
 END
 
 DLG_CCHKDLVR DIALOGEX 72, 24, 365, 292
@@ -7426,31 +7429,31 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@cfg_keybwkeycfg"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Чеки возврата",4001,10,25,145,8
+    LTEXT           "@csessrt_retcheck",4001,10,25,145,8
     EDITTEXT        CTL_CFGKBDWKEY1,160,25,105,13,ES_AUTOHSCROLL
-    LTEXT           "Удаление покупки из чека",4002,10,40,145,8
+    LTEXT           "@csessrt_esccline",4002,10,40,145,8
     EDITTEXT        CTL_CFGKBDWKEY2,160,40,105,13,ES_AUTOHSCROLL
     LTEXT           "@cashlesspayment",4003,10,55,145,8
     EDITTEXT        CTL_CFGKBDWKEY3,160,55,105,13,ES_AUTOHSCROLL
     LTEXT           "Снятие Z-отчета",4004,10,70,145,8
     EDITTEXT        CTL_CFGKBDWKEY4,160,70,105,13,ES_AUTOHSCROLL
-    LTEXT           "Отмена чека",4005,10,85,145,8
+    LTEXT           "@csessrt_esccheck",4005,10,85,145,8
     EDITTEXT        CTL_CFGKBDWKEY5,160,85,105,13,ES_AUTOHSCROLL
-    LTEXT           "Копия чека",4006,10,100,145,8
+    LTEXT           "@csessrt_copycheck",4006,10,100,145,8
     EDITTEXT        CTL_CFGKBDWKEY6,160,100,105,13,ES_AUTOHSCROLL
-    LTEXT           "Копия Z-отчета",4007,10,115,145,8
+    LTEXT           "@csessrt_copyzrept",4007,10,115,145,8
     EDITTEXT        CTL_CFGKBDWKEY7,160,115,105,13,ES_AUTOHSCROLL
-    LTEXT           "Скидка на отдельную позицию",4008,10,130,145,8
+    LTEXT           "@csessrt_rowdiscount",4008,10,130,145,8
     EDITTEXT        CTL_CFGKBDWKEY8,160,130,105,13,ES_AUTOHSCROLL
-    LTEXT           "Снятие X-отчета",4009,10,145,145,8
+    LTEXT           "@csessrt_xrep",4009,10,145,145,8
     EDITTEXT        CTL_CFGKBDWKEY9,160,145,105,13,ES_AUTOHSCROLL
-    LTEXT           "Разделение чека",4010,10,160,145,8
+    LTEXT           "@csessrt_splitchk",4010,10,160,145,8
     EDITTEXT        CTL_CFGKBDWKEY10,160,160,105,13,ES_AUTOHSCROLL
-    LTEXT           "Объединение чеков",4011,10,175,145,8
+    LTEXT           "@csessrt_mergechk",4011,10,175,145,8
     EDITTEXT        CTL_CFGKBDWKEY11,160,175,105,13,ES_AUTOHSCROLL
-    LTEXT           "Изменение чека после печати счета",4012,10,190,145,8
+    LTEXT           "@csessrt_chgprintedchk",4012,10,190,145,8
     EDITTEXT        CTL_CFGKBDWKEY12,160,190,105,13,ES_AUTOHSCROLL
-    LTEXT           "Изменение агента в чеке",4013,10,205,145,8
+    LTEXT           "@csessrt_chgccagent",4013,10,205,145,8
     EDITTEXT        CTL_CFGKBDWKEY13,160,205,105,13,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,155,225,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,215,225,50,13
@@ -7561,18 +7564,17 @@ BEGIN
     LTEXT           "",CTL_CFM_RECKONING_INFO,5,5,325,55,0,WS_EX_STATICEDGE
 END
 
-DLG_CHGSCARDDISC DIALOGEX 52, 48, 342, 58
+DLG_CHGSCARDDISC DIALOGEX 52, 48, 343, 72
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Изменение процента скидки по выборке карточек"
+CAPTION "@scardchangedis"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    RTEXT           "В результате этой операции все карточки текущей выборки",4001,95,5,240,8
-    LTEXT           "Новый процент скидки",4002,95,40,84,8
-    EDITTEXT        CTL_CHGSCARDDISC_VAL,185,40,40,13,ES_AUTOHSCROLL
-    RTEXT           "будут иметь новый, указанный вами, процент скидки",4003,95,15,240,8
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,230,40,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,285,40,50,13
-    CONTROL         ICON_EXCLAM,IDC_STATIC,"Static",SS_BITMAP,0,0,85,59
+    RTEXT           "@scardchangedis_hint",4001,95,5,240,25
+    LTEXT           "@scardchangedis_newpctdis",4002,95,40,110,8
+    EDITTEXT        CTL_CHGSCARDDISC_VAL,95,50,40,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,210,50,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,285,50,50,13
+    CONTROL         ICON_EXCLAM,IDC_STATIC,"Static",SS_BITMAP,0,0,15,13
 END
 
 DLG_CHKINP DIALOGEX 83, 0, 312, 250
@@ -7597,7 +7599,7 @@ BEGIN
     LTEXT           "Подтвержденное количество",4005,115,105,120,8
     EDITTEXT        CTL_CHKINP_CICOUNT,240,105,49,13,ES_AUTOHSCROLL
     CONTROL         "",CTLSPN_CHKINP_CICOUNT,"msctls_updown32",UDS_SETBUDDYINT | UDS_AUTOBUDDY | UDS_ARROWKEYS,290,105,11,13
-    LTEXT           "Время регистрации",4006,80,135,90,8,0,WS_EX_RIGHT
+    LTEXT           "@registertime",4006,80,135,90,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_CHKINP_REGDT,175,135,50,13,ES_AUTOHSCROLL
     EDITTEXT        CTL_CHKINP_REGTM,240,135,50,13,ES_AUTOHSCROLL
     LTEXT           "Время подтверждения",4007,80,150,90,8,0,WS_EX_RIGHT
@@ -7993,7 +7995,7 @@ BEGIN
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,130,155,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,200,155,50,13
     GROUPBOX        "",IDC_STATIC,5,105,265,45
-    GROUPBOX        "Иконка",IDC_STATIC,5,55,265,50
+    GROUPBOX        "@picicon",IDC_STATIC,5,55,265,50
 END
 
 DLG_CNROUND DIALOGEX 67, 48, 255, 110
@@ -8470,7 +8472,7 @@ BEGIN
     LTEXT           "@currency",4001,15,10,28,8
     EDITTEXT        CTL_CURRATE_CUR,80,10,130,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CURRATE_CUR,210,10,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "&Тип курса",4002,15,30,35,8
+    LTEXT           "@curratetype",4002,15,30,35,8
     EDITTEXT        CTL_CURRATE_RATETYPE,80,30,130,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CURRATE_RATETYPE,210,30,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@basecurrency",4003,15,50,60,8
@@ -8519,7 +8521,7 @@ END
 
 DLG_CUSTDISP DIALOGEX 93, 56, 210, 95
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Дисплей покупателя"
+CAPTION "@customerdisplay"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@device",4001,10,10,44,8
@@ -8657,7 +8659,7 @@ END
 
 DLG_CORATURN DIALOGEX 52, 40, 271, 142
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Корректировка бухгалтерских проводок"
+CAPTION "@cmd_correctaccturn"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@logfilename",4001,15,20,200,8
@@ -8692,7 +8694,7 @@ END
 
 DLG_CBAL DIALOGEX 88, 40, 200, 141
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Корректировка балансов"
+CAPTION "@cmd_correctbalance"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@daterange",4001,8,16,28,8
@@ -8743,7 +8745,7 @@ END
 
 DLG_CORCREST DIALOGEX 57, 64, 235, 86
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Корректировка текущих остатков"
+CAPTION "@cmd_correctcurrest"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@logfilename",4001,10,10,185,8
@@ -8995,18 +8997,17 @@ END
 
 DLG_DBTEXPBILL DIALOGEX 93, 32, 272, 146
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "DBTExport Bill"
+CAPTION "@dbtblexpparam_bill"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "@daterange",4001,5,10,44,8
+    LTEXT           "@dbtblexpparam_period",4001,5,10,44,8
     EDITTEXT        CTL_DBTEXP_PERIOD,5,20,110,13,ES_AUTOHSCROLL
-    LTEXT           "@filename",4002,5,40,110,8
+    LTEXT           "@dbtblexpparam_filename",4002,5,40,110,8
     EDITTEXT        CTL_DBTEXP_PATH,5,50,245,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_DBTEXP_PATH,250,50,14,13,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "Подстановка идентификаторов объектов из таблицы синхронизации",5351,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,5,75,245,13
+    CONTROL         "@dbtblexpparam_freplaceidsbysync",5351,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,5,75,245,13
     EDITTEXT        CTL_DBTEXP_REFDBDIV,5,100,190,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Базовый раздел для подстановки",4003,5,90,210,8
+    LTEXT           "@dbtblexpparam_refdb",4003,5,90,210,8
     PUSHBUTTON      "",CTLSEL_DBTEXP_REFDBDIV,195,100,12,13,BS_BITMAP | NOT WS_TABSTOP
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,75,125,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,145,125,50,13
@@ -9015,18 +9016,17 @@ END
 
 DLG_DBTEXPTRFR DIALOGEX 93, 48, 272, 146
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "DBTExport Transfer"
+CAPTION "@dbtblexpparam_trfr"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "@daterange",4001,5,10,95,8
+    LTEXT           "@dbtblexpparam_period",4001,5,10,95,8
     EDITTEXT        CTL_DBTEXP_PERIOD,5,20,110,13,ES_AUTOHSCROLL
-    LTEXT           "@filename",4002,5,40,125,8
+    LTEXT           "@dbtblexpparam_filename",4002,5,40,125,8
     EDITTEXT        CTL_DBTEXP_PATH,5,50,245,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_DBTEXP_PATH,251,50,14,13,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "Подстановка идентификаторов объектов из таблицы синхронизации",5351,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,5,75,260,13
+    CONTROL         "@dbtblexpparam_freplaceidsbysync",5351,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,5,75,260,13
     EDITTEXT        CTL_DBTEXP_REFDBDIV,5,100,190,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Базовый раздел для подстановки",4003,5,90,140,8
+    LTEXT           "@dbtblexpparam_refdb",4003,5,90,140,8
     PUSHBUTTON      "",CTLSEL_DBTEXP_REFDBDIV,195,100,12,13,BS_BITMAP | NOT WS_TABSTOP
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,75,125,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,145,125,50,13
@@ -9510,7 +9510,7 @@ BEGIN
     LTEXT           "@agent",4002,5,30,215,8
     EDITTEXT        CTL_DEBTEXF_AGENT,5,40,225,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_DEBTEXF_AGENT,230,40,12,13,BS_BITMAP
-    LTEXT           "&Таблица статей дополнительного объекта",4003,5,65,230,8
+    LTEXT           "@accsheet_extobj",4003,5,65,230,8
     EDITTEXT        CTL_DEBTEXF_EOBJSHEET,5,76,190,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_DEBTEXF_EOBJSHEET,195,76,12,13,BS_BITMAP
     LTEXT           "@bill_object2",4004,5,90,175,8
@@ -9638,7 +9638,7 @@ BEGIN
     LTEXT           "@id",4002,250,10,24,8
     EDITTEXT        CTL_DUTYSCHED_ID,250,20,55,13,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP,WS_EX_RIGHT
     GROUPBOX        "@dutysched_objtype",CTL_DUTYSCHED_OBJTYPE,20,45,110,35,WS_GROUP
-    CONTROL         "Аналитические статьи",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,25,55,99,10
+    CONTROL         "@accsheet_pl",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,25,55,99,10
     CONTROL         "@person_pl",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,25,65,80,10
     EDITTEXT        CTL_DUTYSCHED_OBJGRP,20,95,165,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@dutysched_objgroup",4004,20,85,140,8
@@ -9650,7 +9650,7 @@ BEGIN
     LISTBOX         CTL_DUTYSCHED_CPLIST,240,45,70,64,LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | WS_TABSTOP
     PUSHBUTTON      "&+",4006,215,75,20,13
     PUSHBUTTON      "&-",4007,215,95,20,13
-    PUSHBUTTON      "Календари...",4008,15,240,65,13
+    PUSHBUTTON      "@{calendar_pl}...",4008,15,240,65,13
     PUSHBUTTON      "Заполнить календарь...",4009,85,240,90,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,205,240,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,260,240,50,13
@@ -9728,18 +9728,6 @@ BEGIN
     PUSHBUTTON      "",CTLSEL_DWOITEM_LOC,185,39,12,13,BS_BITMAP | NOT WS_TABSTOP
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,70,65,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,135,65,50,13
-END
-
-DLG_E_MONRCH DIALOGEX 57, 64, 260, 69
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Подготовка данных для принтера Monarch"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    LTEXT           "@goodsgroup",4001,10,20,60,8
-    EDITTEXT        CTL_E_MONRCH_GGRP,93,20,139,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "",CTLSEL_E_MONRCH_GGRP,233,20,12,13,BS_BITMAP
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,140,41,51,14
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,195,41,51,14
 END
 
 DLG_EDDIVSUM DIALOGEX 15, 0, 547, 220
@@ -9922,7 +9910,7 @@ END
 
 DLG_ELNKLST DIALOGEX 57, 24, 312, 165
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Список электронных адресов"
+CAPTION "@elinkkind_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     CONTROL         "",CTL_ELNKLST_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,5,7,300,129
@@ -10079,7 +10067,7 @@ END
 
 DLG_DLVREXTFLDS DIALOGEX 10, 0, 415, 186
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Дополнительные поля адреса доставки"
+CAPTION "@daddressextfield_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     CONTROL         "",CTL_LBXSEL_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,0,0,415,165
@@ -10220,16 +10208,16 @@ BEGIN
     EDITTEXT        CTL_BILLEXT_DUEPERIOD,10,100,130,13,ES_AUTOHSCROLL
     GROUPBOX        "@billfilt_ft_stax",CTL_BILLEXTFLT_STAXTGGL,10,120,125,45,WS_GROUP
     CONTROL         "@nomatter",5317,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,130,59,10
-    CONTROL         "&Включен (A)",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,140,59,10
-    CONTROL         "В&ыключен",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,150,110,10
+    CONTROL         "@{turnedon} (A)",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,140,59,10
+    CONTROL         "@turnedoff",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,150,110,10
     GROUPBOX        "@billfilt_ft_declined",CTL_BILLEXTFLT_DCLTGGL,145,120,150,45,WS_GROUP
     CONTROL         "@nomatter",5322,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,151,130,59,10
-    CONTROL         "Включен",9418,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,151,140,59,10
-    CONTROL         "Выключен",13514,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,151,150,59,10
+    CONTROL         "@turnedon",9418,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,151,140,59,10
+    CONTROL         "@turnedoff",13514,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,151,150,59,10
     GROUPBOX        "@billfilt_edirecadvstatus",CTL_BILLEXTFLT_RECADV,10,170,125,65,WS_GROUP
     CONTROL         "@nomatter",5326,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,180,105,10
     CONTROL         "@accepted",9422,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,190,105,10
-    CONTROL         "Частично принят",13518,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,200,105,10
+    CONTROL         "@accepted_partly",13518,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,200,105,10
     CONTROL         "@rejected",17614,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,210,110,10
     CONTROL         "@undefined",21710,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,220,110,10
     GROUPBOX        "@billfilt_edirecadvconfstatus",CTL_BILLEXTFLT_RECADVCFM,145,170,150,65,WS_GROUP
@@ -11148,8 +11136,8 @@ BEGIN
     LTEXT           "@code",4003,10,30,95,8
     EDITTEXT        CTL_WORKBOOK_CODE,10,40,120,13,ES_AUTOHSCROLL
     GROUPBOX        "@flags",CTL_WORKBOOK_FLAGS,140,55,115,35,WS_GROUP
-    CONTROL         "Скрытый",5306,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,145,65,105,10
-    CONTROL         "Не показывать детей",9402,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,145,75,105,10
+    CONTROL         "@workbook_ppwbf_hidden",5306,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,145,65,105,10
+    CONTROL         "@workbook_ppwbf_dontshowchildren",9402,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,145,75,105,10
     CONTROL         "Не показывать основной контент",5321,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | BS_NOTIFY | WS_TABSTOP,145,90,105,25
     LTEXT           "@rank",4006,205,30,45,8
     EDITTEXT        CTL_WORKBOOK_RANK,205,40,50,13,ES_AUTOHSCROLL
@@ -11163,9 +11151,9 @@ BEGIN
     PUSHBUTTON      "",CTL_WORKBOOK_EDIT_FILE,267,141,14,13,BS_BITMAP | WS_DISABLED | NOT WS_TABSTOP
     EDITTEXT        CTL_WORKBOOK_PARENT,5,165,245,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_WORKBOOK_PARENT,251,165,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Родительский элемент",4010,5,154,230,8
+    LTEXT           "@workbook_parent",4010,5,154,230,8
     EDITTEXT        CTL_WORKBOOK_CSS,265,165,125,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Связанная таблица стилей CSS",4011,265,154,120,8
+    LTEXT           "@workbook_css",4011,265,154,120,8
     PUSHBUTTON      "",CTLSEL_WORKBOOK_CSS,390,165,12,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "",CTL_WORKBOOK_IMAGE,335,0,170,150,0,WS_EX_STATICEDGE
     PUSHBUTTON      " ",STDCTL_IMGADDBUTTON,440,150,15,13,BS_BITMAP | NOT WS_TABSTOP
@@ -12695,10 +12683,10 @@ BEGIN
     LTEXT           "Диапазон суммы",4004,10,105,60,8
     EDITTEXT        CTL_SCOPFLT_AMTR,10,115,120,13,ES_AUTOHSCROLL
     GROUPBOX        "@sorting",CTL_SCOPFLT_ORD,205,30,140,65,WS_GROUP
-    CONTROL         "По времени операции",5354,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,210,40,125,10
-    CONTROL         "По номеру карты",9450,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,210,50,125,10
-    CONTROL         "По владельцу карты",13546,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,210,60,125,10
-    CONTROL         "По сумме",17642,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,210,70,125,10
+    CONTROL         "@sortby_timeop",5354,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,210,40,125,10
+    CONTROL         "@sortby_scardno",9450,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,210,50,125,10
+    CONTROL         "@sortby_scardowner",13546,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,210,60,125,10
+    CONTROL         "@sortby_amount",17642,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,210,70,125,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,225,115,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,295,115,50,13
     GROUPBOX        "",IDC_STATIC,5,30,195,65
@@ -13211,7 +13199,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Version2Html convertion"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Путь к исходному файлу",4001,10,5,200,8
+    LTEXT           "@path_sourcefile",4001,10,5,200,8
     EDITTEXT        CTL_VER2HTM_INFILE,10,15,265,13,ES_AUTOHSCROLL
     PUSHBUTTON      "...",CTLBRW_VER2HTM_INFILE,275,15,15,13
     LTEXT           "Путь к каталогу с изображениями",4002,10,35,260,8
@@ -13462,7 +13450,7 @@ BEGIN
     EDITTEXT        CTL_VETVDOC_VDSTATUS,140,65,120,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@qtty",4015,300,220,85,8
     EDITTEXT        CTL_VETVDOC_QTTY,300,231,55,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Связанный документ",4016,10,255,255,8
+    LTEXT           "@linkdocument",4016,10,255,255,8
     EDITTEXT        CTL_VETVDOC_LINKBILL,10,265,345,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "...",4017,355,265,15,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,465,265,50,13
@@ -13562,7 +13550,7 @@ BEGIN
     LTEXT           "@amount",4010,10,175,65,8
     EDITTEXT        CTL_TODO_AMOUNT,10,185,70,13,ES_RIGHT | ES_AUTOHSCROLL
     EDITTEXT        CTL_TODO_CREATOR,165,70,255,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Создал",4011,165,60,115,8
+    LTEXT           "@prjtask_creator",4011,165,60,115,8
     PUSHBUTTON      "",CTLSEL_TODO_CREATOR,420,70,13,13,BS_BITMAP
     EDITTEXT        CTL_TODO_EMPLOYER,165,100,255,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@executor",4012,165,90,205,8
@@ -13586,7 +13574,7 @@ BEGIN
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,310,325,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,370,325,50,13
     EDITTEXT        CTL_TODO_BILLAR,165,210,255,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Аналитическая статья для документа разноски",4019,165,200,176,8
+    LTEXT           "@prjtask_billar",4019,165,200,176,8
     PUSHBUTTON      "",CTLSEL_TODO_BILLAR,420,210,13,13,BS_BITMAP
     PUSHBUTTON      "",CTLCAL_TODO_DT,60,70,13,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",IDC_STATIC,5,81,140,90
@@ -13888,7 +13876,7 @@ BEGIN
     LTEXT           "@prjtask_dt",4002,145,25,80,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_TODO_DT,230,25,50,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLCAL_TODO_DT,280,25,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Создал",4003,10,40,160,8
+    LTEXT           "@prjtask_creator",4003,10,40,160,8
     EDITTEXT        CTL_TODO_CREATOR,10,50,270,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_TODO_CREATOR,280,50,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@executor",4004,10,65,125,8
@@ -13903,7 +13891,7 @@ BEGIN
     LTEXT           "@project",4009,10,150,110,8
     EDITTEXT        CTL_TODO_PRJ,10,160,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_TODO_PRJ,210,160,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Аналитическая статья для документа разноски",4010,10,175,176,8
+    LTEXT           "@prjtask_billar",4010,10,175,176,8
     EDITTEXT        CTL_TODO_BILLAR,10,185,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_TODO_BILLAR,210,185,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@prjtask_priority",4007,240,150,80,8
@@ -14121,25 +14109,26 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,245,45,60,13
 END
 
-DLG_FILTITEM DIALOGEX 46, 128, 257, 151
+DLG_FILTITEM DIALOGEX 46, 128, 281, 177
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@namedfilt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@namedfilt_name",4001,15,10,195,8
-    EDITTEXT        CTL_FILTITEM_NAME,15,20,215,13,ES_AUTOHSCROLL
-    LTEXT           "@namedfilt_symb",4002,15,35,80,8
+    EDITTEXT        CTL_FILTITEM_NAME,15,20,240,13,ES_AUTOHSCROLL
+    LTEXT           "@namedfilt_symb",4002,15,35,135,8
     EDITTEXT        CTL_FILTITEM_SYMB,15,45,145,13,ES_AUTOHSCROLL
-    LTEXT           "@id",4003,195,35,35,8
-    EDITTEXT        CTL_FILTITEM_ID,195,45,35,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    EDITTEXT        CTL_FILTITEM_CMD,15,80,215,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "@id",4003,220,35,35,8
+    EDITTEXT        CTL_FILTITEM_ID,220,45,35,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
+    EDITTEXT        CTL_FILTITEM_CMD,15,80,240,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@namedfilt_view",4004,15,70,175,8
-    PUSHBUTTON      "",CTLSEL_FILTITEM_CMD,230,80,12,13,BS_BITMAP | NOT WS_TABSTOP
+    PUSHBUTTON      "",CTLSEL_FILTITEM_CMD,255,80,12,13,BS_BITMAP | NOT WS_TABSTOP
     CONTROL         "@namedfilt_fdontwritexmldtd",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,100,190,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,140,130,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,195,130,50,13
     PUSHBUTTON      "@but_filt",4005,10,130,60,13
     PUSHBUTTON      "@but_outfields",4006,75,130,60,13
+    PUSHBUTTON      "@{globaluseracc_pl}...",4007,140,130,115,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,140,155,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,205,155,50,13
 END
 
 DLG_FILTPOOL DIALOGEX 20, 8, 432, 210
@@ -14687,7 +14676,7 @@ BEGIN
     EDITTEXT        CTL_GTAJFILT_USER,20,105,195,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@user",4005,20,95,150,8
     PUSHBUTTON      "",CTLSEL_GTAJFILT_USER,215,105,12,13,BS_BITMAP
-    CONTROL         "Показывать объекты",5305,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,125,96,13
+    CONTROL         "@toshowobjects",5305,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,125,96,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,105,145,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,165,145,50,13
     PUSHBUTTON      "",CTLCAL_GTAJFILT_PERIOD,140,15,13,13,BS_BITMAP | NOT WS_TABSTOP
@@ -14695,53 +14684,51 @@ END
 
 DLG_GDSGRPRLZ DIALOGEX 5, 0, 542, 206
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "@view_goodstaxanalyze"
+CAPTION "@goodstaxanalyzefilt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "@daterange",4001,5,5,95,8
+    LTEXT           "@goodstaxanalyzefilt_period",4001,5,5,95,8
     EDITTEXT        CTL_GDSGRPRLZ_PERIOD,5,15,115,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLCAL_GDSGRPRLZ_PERIOD,121,15,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "",CTL_GDSGRPRLZ_LABEL,281,15,10,10
-    LTEXT           "Период поступления товаров",4002,141,5,114,8
+    LTEXT           "",CTL_GDSGRPRLZ_LABEL,281,15,10,10,0,WS_EX_STATICEDGE
+    LTEXT           "@goodstaxanalyzefilt_lotsperiod",4002,141,5,129,8
     EDITTEXT        CTL_GDSGRPRLZ_LOTSPRD,141,15,115,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLCAL_GDSGRPRLZ_LOTSPRD,255,15,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@warehouse",4003,5,39,175,8
+    LTEXT           "@goodstaxanalyzefilt_loc",4003,5,40,175,8
     EDITTEXT        CTL_GDSGRPRLZ_LOC,5,50,210,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GDSGRPRLZ_LOC,215,50,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@oprkind",4004,5,65,160,8
+    LTEXT           "@goodstaxanalyzefilt_op",4004,5,65,160,8
     EDITTEXT        CTL_GDSGRPRLZ_OP,5,74,210,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GDSGRPRLZ_OP,215,74,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@goodsgroup",4005,241,39,155,8
+    LTEXT           "@goodstaxanalyzefilt_goodsgrp",4005,241,39,155,8
     EDITTEXT        CTL_GDSGRPRLZ_GRP,241,49,230,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GDSGRPRLZ_GRP,471,49,13,13,BS_BITMAP | NOT WS_TABSTOP
     PUSHBUTTON      "@but_filt",4006,486,49,42,13
-    LTEXT           "@supplier",4008,241,65,170,8
+    LTEXT           "@goodstaxanalyzefilt_suppl",4008,241,65,170,8
     EDITTEXT        CTL_GDSGRPRLZ_SUPPL,241,74,230,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GDSGRPRLZ_SUPPL,471,74,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@supplagent",4009,241,89,140,8
+    LTEXT           "@goodstaxanalyzefilt_supplagent",4009,241,89,140,8
     EDITTEXT        CTL_GDSGRPRLZ_SUPPLAG,241,99,230,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GDSGRPRLZ_SUPPLAG,471,99,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@repsubstgoods",4007,5,90,135,8
+    LTEXT           "@goodstaxanalyzefilt_sgg",4007,5,90,135,8
     EDITTEXT        CTL_GDSGRPRLZ_GSUBST,5,100,160,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GDSGRPRLZ_GSUBST,165,100,13,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",CTL_GDSGRPRLZ_FLAGS,5,115,230,65,WS_GROUP
-    CONTROL         "Только под&акцизные товары",5300,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,125,115,10
-    CONTROL         "Игнорировать признак освобождения поставщика от НДС",9396,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,135,215,10
-    CONTROL         "Рассчитывать по оплатам",13492,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,145,105,10
-    CONTROL         "Книга учета без учета платежей поставщикам",17588,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,155,219,10
-    GROUPBOX        "Дифференциация",CTL_GDSGRPRLZ_DIFFTAX,241,115,136,65,WS_GROUP
+    CONTROL         "@goodstaxanalyzefilt_fnozeroexciseonly",5300,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,125,215,10
+    CONTROL         "@goodstaxanalyzefilt_fignorevatfreetag",9396,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,135,215,10
+    CONTROL         "@goodstaxanalyzefilt_fbypayment",13492,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,145,215,10
+    CONTROL         "@goodstaxanalyzefilt_foldstyleledger",17588,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,155,219,10
+    GROUPBOX        "@goodstaxanalyzefilt_diff",CTL_GDSGRPRLZ_DIFFTAX,241,115,136,65,WS_GROUP
     CONTROL         "@no",5317,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,125,123,10
-    CONTROL         "По налоговым ставкам",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,135,123,10
-    CONTROL         "По входящим НДС",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,145,123,10
-    CONTROL         "По исходящим НДС",17605,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,155,123,10
-    CONTROL         "По входящим и исходящим НДС",21701,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,165,123,10
-    GROUPBOX        "Книга учета частного предпринимателя",CTL_GDSGRPRLZ_CCL,385,115,145,65,WS_GROUP
+    CONTROL         "@goodstaxanalyzefilt_fdiffall",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,135,123,10
+    CONTROL         "@goodstaxanalyzefilt_fdiffbyinvat",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,145,123,10
+    CONTROL         "@goodstaxanalyzefilt_fdiffbyoutvat",17605,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,155,123,10
+    CONTROL         "@goodstaxanalyzefilt_fdiffbyinoutvat",21701,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,165,125,10
+    GROUPBOX        "@goodstaxanalyzefilt_freeentledger",CTL_GDSGRPRLZ_CCL,385,115,145,65,WS_GROUP
     CONTROL         "@no",5308,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,390,125,135,10
-    CONTROL         "Расходы по дням",9404,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,390,135,135,10
-    CONTROL         "Расходы по месяцам",13500,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,390,145,135,10
-    CONTROL         "Приходы",17596,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,390,155,135,10
+    CONTROL         "@goodstaxanalyzefilt_fdayly",9404,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,390,135,135,10
+    CONTROL         "@goodstaxanalyzefilt_fmonthly",13500,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,390,145,135,10
+    CONTROL         "@goodstaxanalyzefilt_fledgerbylots",17596,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,390,155,135,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,415,185,52,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,480,185,52,13
 END
@@ -15180,8 +15167,8 @@ BEGIN
     PUSHBUTTON      "Контракт...",4003,325,155,60,13
     PUSHBUTTON      "@{matrix}...",4004,325,170,60,13
     PUSHBUTTON      "Огр. матрицы...",4005,325,185,60,13
-    PUSHBUTTON      "@but_transmit",4006,325,215,60,13
-    PUSHBUTTON      "@but_sysj",4007,325,235,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,325,215,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,325,235,60,13
     PUSHBUTTON      "@but_print",STDCTL_PRINTBUTTON,325,260,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,325,280,60,13
 END
@@ -15878,7 +15865,7 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,235,10,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,235,30,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,235,50,60,13
-    PUSHBUTTON      "@but_sysj",4001,235,135,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,235,135,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,235,250,60,13
 END
 
@@ -16400,7 +16387,7 @@ CAPTION "Задача экспорта по именованному фильтру"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_JOB_EXPVIEW_FILT,10,15,220,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Именованный фильтр",4001,10,5,200,8
+    LTEXT           "@namedfilter",4001,10,5,200,8
     PUSHBUTTON      "",CTLSEL_JOB_EXPVIEW_FILT,230,15,12,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "Имя структуры данных DL600",4002,10,35,108,8
     EDITTEXT        CTL_JOB_EXPVIEW_DL6STRUC,10,45,220,13,ES_AUTOHSCROLL
@@ -16416,7 +16403,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Common Controls"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    LTEXT           "&Приложение",4001,10,10,175,8
+    LTEXT           "@application",4001,10,10,175,8
     EDITTEXT        CTL_LAUNCHAPP_APP,10,20,210,13,ES_LOWERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Обзор",CTLBRW_LAUNCHAPP_APP,225,20,42,13
     LTEXT           "П&араметры",4002,10,35,145,8
@@ -16553,7 +16540,7 @@ CAPTION "@tsstrategyanalyze"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_TSSA_TS,5,20,155,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Временная серия",4001,5,10,155,8
+    LTEXT           "@timeseries",4001,5,10,155,8
     PUSHBUTTON      "",CTLSEL_TSSA_TS,161,20,12,13,BS_BITMAP
     PUSHBUTTON      "...",4002,175,20,25,13
     GROUPBOX        "",CTL_TSSA_FLAGS,5,39,135,81,WS_GROUP
@@ -16572,7 +16559,7 @@ END
 
 DLG_TSVIEW DIALOGEX 67, 8, 261, 212
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Временные серии"
+CAPTION "@timeseries_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LISTBOX         CTL_OBJVIEW_LIST,5,5,175,200,LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | WS_TABSTOP
@@ -16580,7 +16567,7 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,190,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,190,45,60,13
     PUSHBUTTON      "Test...",4001,190,90,60,13
-    PUSHBUTTON      "@but_sysj",4002,190,120,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,190,120,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,190,190,60,13
 END
 
@@ -16745,7 +16732,7 @@ END
 
 DLG_LOCPRN DIALOGEX 72, 24, 265, 161
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Локальный принтер"
+CAPTION "@locprinter"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@appellation",4001,5,5,165,8
@@ -16774,14 +16761,14 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,185,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,185,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,185,45,60,13
-    PUSHBUTTON      "@but_sysj",4001,185,80,60,13
-    PUSHBUTTON      "@test",4002,185,115,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,185,80,60,13
+    PUSHBUTTON      "@test",4001,185,115,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,185,190,60,13
 END
 
 DLG_LOCTRANSF DIALOGEX 15, 8, 513, 202
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Складская операция"
+CAPTION "@roptype_warehouse"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "",CTL_LOCTRANSF_BILLTITLE,5,0,375,10,0,WS_EX_STATICEDGE
@@ -16813,7 +16800,7 @@ BEGIN
     EDITTEXT        CTL_LOCTRANSF_PLTC,345,120,50,13,ES_AUTOHSCROLL
     LTEXT           "Емкость паллета",4010,345,84,85,8
     EDITTEXT        CTL_LOCTRANSF_PLT,345,95,50,13,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP,WS_EX_RIGHT
-    LTEXT           "Упаковка",4011,450,85,50,8,0,WS_EX_RIGHT
+    LTEXT           "@cargopckg",4011,450,85,50,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_LOCTRANSF_PCKG,450,95,50,13,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP,WS_EX_RIGHT
     LTEXT           "@packqtty",4012,420,110,80,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_LOCTRANSF_PCKGC,450,120,48,13,ES_AUTOHSCROLL
@@ -16838,9 +16825,9 @@ BEGIN
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,250,45,65,13
     PUSHBUTTON      "@{storageplace_pl}...",4001,250,70,65,30,BS_MULTILINE
     PUSHBUTTON      "Товарные\nассоциации...",4002,250,105,65,30,BS_MULTILINE
-    PUSHBUTTON      "@but_transmit",4003,250,145,65,13
-    PUSHBUTTON      "@{dotransmitcharry}...",4004,250,165,65,13
-    PUSHBUTTON      "@but_sysj",4005,250,195,65,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,250,145,65,13
+    PUSHBUTTON      "@{dotransmitcharry}...",4003,250,165,65,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,250,195,65,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,250,275,65,13
 END
 
@@ -17228,7 +17215,7 @@ BEGIN
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,180,45,60,13
     PUSHBUTTON      "@{export}...",4001,180,75,60,13
     PUSHBUTTON      "@dotransmitcharry",4002,180,95,60,13
-    PUSHBUTTON      "@but_sysj",4003,180,115,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,180,115,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,180,155,60,13
 END
 
@@ -17312,50 +17299,50 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,245,100,50,13
 END
 
-DLG_MAINORG2 DIALOGEX 0, 0, 377, 250
+DLG_MAINORG2 DIALOGEX 0, 0, 615, 202
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@mainorg"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "@person_status",4001,10,10,65,8
-    EDITTEXT        CTL_MAINORG2_STATUS,80,10,120,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "",CTLSEL_MAINORG2_STATUS,200,10,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@name",4002,10,25,60,8
-    EDITTEXT        CTL_MAINORG2_NAME,80,25,195,13,ES_AUTOHSCROLL
-    LTEXT           "@person_extname",4003,10,40,64,8
-    EDITTEXT        CTL_MAINORG2_EXTNAME,80,40,270,13,ES_AUTOHSCROLL
-    LTEXT           "@inn",4004,285,15,50,8
-    EDITTEXT        CTL_MAINORG2_INN,285,25,65,13,ES_AUTOHSCROLL
-    LTEXT           "@city",4006,10,75,24,8
-    EDITTEXT        CTL_MAINORG2_CITY,40,75,150,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "",CTLSEL_MAINORG2_CITY,190,75,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@address",4007,10,90,24,8
-    EDITTEXT        CTL_MAINORG2_ADDRESS,40,90,310,13,ES_AUTOHSCROLL
-    LTEXT           "@phone",4005,210,75,32,8
-    EDITTEXT        CTL_MAINORG2_PHONE,245,75,105,12,ES_AUTOHSCROLL
-    LTEXT           "@bank",4008,10,120,65,8
-    EDITTEXT        CTL_MAINORG2_BANK,80,120,210,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "",CTLSEL_MAINORG2_BANK,290,120,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@bic",4010,10,135,65,8
-    EDITTEXT        CTL_MAINORG2_BIC,80,135,90,13,ES_AUTOHSCROLL
-    LTEXT           "&Корр. счет",4009,10,150,65,8
-    EDITTEXT        CTL_MAINORG2_CORRACC,80,150,90,13,ES_AUTOHSCROLL
-    LTEXT           "@account",4011,185,140,85,8
-    EDITTEXT        CTL_MAINORG2_ACC,185,150,90,13,ES_AUTOHSCROLL
-    LTEXT           "@director",4012,10,180,36,8
-    EDITTEXT        CTL_MAINORG2_DIRECTOR,80,180,210,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "",CTLSEL_MAINORG2_DIRECTOR,290,180,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@chiefaccountant",4013,10,196,60,8
-    EDITTEXT        CTL_MAINORG2_ACCTNT,80,196,210,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "",CTLSEL_MAINORG2_ACCTNT,290,196,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@memo",4014,10,220,135,8
-    EDITTEXT        CTL_MAINORG2_MEMO,10,230,300,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,320,175,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,320,200,50,13
-    GROUPBOX        "",IDC_STATIC,5,0,350,60
-    GROUPBOX        "",IDC_STATIC,5,60,350,50
-    GROUPBOX        "",IDC_STATIC,5,110,305,60
-    GROUPBOX        "",IDC_STATIC,5,170,305,45
+    LTEXT           "@person_status",4001,10,15,130,8
+    EDITTEXT        CTL_MAINORG2_STATUS,10,25,130,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_MAINORG2_STATUS,140,25,12,13,BS_BITMAP | NOT WS_TABSTOP
+    LTEXT           "@name",4002,10,44,165,8
+    EDITTEXT        CTL_MAINORG2_NAME,10,55,195,13,ES_AUTOHSCROLL
+    LTEXT           "@person_extname",4003,10,70,190,8
+    EDITTEXT        CTL_MAINORG2_EXTNAME,10,79,270,13,ES_AUTOHSCROLL
+    LTEXT           "@inn",4004,210,44,50,8
+    EDITTEXT        CTL_MAINORG2_INN,210,55,70,13,ES_AUTOHSCROLL
+    LTEXT           "@city",4006,295,15,140,8
+    EDITTEXT        CTL_MAINORG2_CITY,295,25,175,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_MAINORG2_CITY,470,25,12,13,BS_BITMAP | NOT WS_TABSTOP
+    LTEXT           "@address",4007,295,45,240,8
+    EDITTEXT        CTL_MAINORG2_ADDRESS,295,55,310,13,ES_AUTOHSCROLL
+    LTEXT           "@phone",4005,490,15,85,8
+    EDITTEXT        CTL_MAINORG2_PHONE,490,25,115,12,ES_AUTOHSCROLL
+    LTEXT           "@bank",4008,295,89,130,8
+    EDITTEXT        CTL_MAINORG2_BANK,295,99,280,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_MAINORG2_BANK,575,99,12,13,BS_BITMAP | NOT WS_TABSTOP
+    LTEXT           "@bic",4010,295,114,110,8
+    EDITTEXT        CTL_MAINORG2_BIC,295,124,105,13,ES_AUTOHSCROLL
+    LTEXT           "@correspondentaccount",4009,295,139,145,8
+    EDITTEXT        CTL_MAINORG2_CORRACC,295,149,150,13,ES_AUTOHSCROLL
+    LTEXT           "@account",4011,455,140,130,8
+    EDITTEXT        CTL_MAINORG2_ACC,455,150,145,13,ES_AUTOHSCROLL
+    LTEXT           "@director",4012,10,110,145,8
+    EDITTEXT        CTL_MAINORG2_DIRECTOR,10,120,210,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_MAINORG2_DIRECTOR,220,120,12,13,BS_BITMAP | NOT WS_TABSTOP
+    LTEXT           "@chiefaccountant",4013,10,135,140,8
+    EDITTEXT        CTL_MAINORG2_ACCTNT,10,145,210,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_MAINORG2_ACCTNT,220,145,12,13,BS_BITMAP | NOT WS_TABSTOP
+    LTEXT           "@memo",4014,10,170,135,8
+    EDITTEXT        CTL_MAINORG2_MEMO,5,180,440,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,480,180,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,550,180,50,13
+    GROUPBOX        "",IDC_STATIC,5,5,280,95
+    GROUPBOX        "",IDC_STATIC,290,5,320,70
+    GROUPBOX        "",IDC_STATIC,290,79,320,90
+    GROUPBOX        "",IDC_STATIC,5,100,235,65
 END
 
 DLG_MKRPTFLS DIALOGEX 57, 64, 332, 95
@@ -17610,7 +17597,7 @@ END
 
 DLG_NEWDAY DIALOGEX 93, 72, 220, 35
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Дата нового кассового дня"
+CAPTION "@newcsessdate"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@date",4001,10,10,20,8
@@ -17622,7 +17609,7 @@ END
 
 DLG_NEWDAY_L DIALOGEX 93, 72, 220, 35
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Дата нового кассового дня"
+CAPTION "@newcsessdate"
 FONT 16, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@date",4001,10,10,20,8
@@ -17641,7 +17628,7 @@ BEGIN
     EDITTEXT        CTL_NEWPRICE_LOC,10,25,255,13,ES_AUTOHSCROLL
     LTEXT           "@ware",4002,10,45,215,8
     EDITTEXT        CTL_NEWPRICE_GOODS,10,55,255,13,ES_AUTOHSCROLL
-    LTEXT           "Новая &цена",4003,10,75,44,8
+    LTEXT           "@newprice",4003,10,75,44,8
     EDITTEXT        CTL_NEWPRICE_PRICE,60,75,70,13,ES_AUTOHSCROLL
     PUSHBUTTON      "@but_lot",CTL_NEWPRICE_LOT,10,100,45,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,165,100,45,13
@@ -17658,9 +17645,9 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,255,10,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,255,30,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,255,70,60,13
-    PUSHBUTTON      "@but_transmit",4001,255,95,60,13
-    PUSHBUTTON      "@but_sysj",4002,255,120,60,13
-    PUSHBUTTON      "@{cmd_goods}...",4003,255,145,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,255,95,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,255,120,60,13
+    PUSHBUTTON      "@{cmd_goods}...",4001,255,145,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,255,290,60,13
 END
 
@@ -17676,7 +17663,7 @@ BEGIN
     PUSHBUTTON      "Новый заказ...",STDCTL_INSBUTTON,80,210,70,13
     PUSHBUTTON      "Изменить заказ...",STDCTL_EDITBUTTON,155,210,70,13
     PUSHBUTTON      "Отменить заказ",STDCTL_DELBUTTON,230,210,70,13
-    PUSHBUTTON      "Новый чек",4002,305,210,70,13
+    PUSHBUTTON      "@newccheck",4002,305,210,70,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,385,210,55,13
     PUSHBUTTON      "",CTLCAL_SELCHECK_DATE,55,210,13,13,BS_BITMAP | NOT WS_TABSTOP
 END
@@ -17692,7 +17679,7 @@ BEGIN
     PUSHBUTTON      "@{create}...",STDCTL_INSBUTTON,65,120,45,13
     PUSHBUTTON      "@{update}...",STDCTL_EDITBUTTON,115,120,45,13
     PUSHBUTTON      "@{docancel}",STDCTL_DELBUTTON,165,120,45,13
-    PUSHBUTTON      "Новый чек",4002,215,120,45,13
+    PUSHBUTTON      "@newccheck",4002,215,120,45,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,265,120,45,13
     EDITTEXT        CTL_SELCHECK_DATE,5,120,45,13,ES_AUTOHSCROLL | NOT WS_TABSTOP
     PUSHBUTTON      "",CTLCAL_SELCHECK_DATE,50,120,10,13,BS_BITMAP | NOT WS_TABSTOP
@@ -17704,12 +17691,12 @@ CAPTION "Сортировка товарного отчета"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "@sorting",CTL_GOPANLZORD_ORDER,5,10,130,75,WS_GROUP
-    CONTROL         "по наименованию товара",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,20,120,10
-    CONTROL         "по количеству",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,30,120,10
-    CONTROL         "по сумме в ценах поступления",13489,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,40,120,10
-    CONTROL         "по сумме в ценах реализации",17585,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,120,10
-    CONTROL         "по доходности",21681,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,120,10
-    CONTROL         "по остатку",25777,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,120,10
+    CONTROL         "@sortby_goodsname",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,20,120,10
+    CONTROL         "@sortby_quantity",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,30,120,10
+    CONTROL         "@sortby_costamount",13489,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,40,120,10
+    CONTROL         "@sortby_priceamount",17585,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,50,120,10
+    CONTROL         "@sortby_incomeamount",21681,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,120,10
+    CONTROL         "@sortby_rest",25777,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,70,120,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,145,50,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,145,70,50,13
 END
@@ -17786,8 +17773,8 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,210,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,210,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,210,45,60,13
-    PUSHBUTTON      "@but_transmit",4001,210,95,60,13
-    PUSHBUTTON      "@but_sysj",4002,210,120,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,210,95,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,210,120,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,210,220,60,13
 END
 
@@ -17800,8 +17787,8 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,210,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,210,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,210,45,60,13
-    PUSHBUTTON      "@but_transmit",4001,210,95,60,13
-    PUSHBUTTON      "@but_sysj",4002,210,120,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,210,95,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,210,120,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,210,220,60,13
 END
 
@@ -18582,7 +18569,7 @@ BEGIN
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,10,245,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,85,245,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,160,245,60,13
-    PUSHBUTTON      "Р&едакт операцию...",4006,225,205,50,35,BS_MULTILINE
+    PUSHBUTTON      "@{doeditop}...",4006,225,205,50,35,BS_MULTILINE
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,165,265,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,225,265,50,13
 END
@@ -18898,24 +18885,24 @@ END
 
 DLG_PATH DIALOGEX 83, 32, 212, 228
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Каталоги"
+CAPTION "@directory_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "&Драйвер",4001,10,5,165,8
+    LTEXT           "Драйвер",4001,10,5,165,8
     EDITTEXT        CTL_PATH_DRV,10,15,185,13,ES_AUTOHSCROLL
-    LTEXT           "&Корень",4002,10,30,135,8
+    LTEXT           "Корень",4002,10,30,135,8
     EDITTEXT        CTL_PATH_ROOT,10,40,185,13,ES_AUTOHSCROLL
-    LTEXT           "&Бинарный",4003,10,55,165,8
+    LTEXT           "Бинарный",4003,10,55,165,8
     EDITTEXT        CTL_PATH_BIN,10,65,185,13,ES_AUTOHSCROLL
-    LTEXT           "Да&нные",4004,10,80,165,8
+    LTEXT           "Данные",4004,10,80,165,8
     EDITTEXT        CTL_PATH_DAT,10,90,185,13,ES_AUTOHSCROLL
-    LTEXT           "&Архив",4005,10,105,175,8
+    LTEXT           "Архив",4005,10,105,175,8
     EDITTEXT        CTL_PATH_ARC,10,115,185,13,ES_AUTOHSCROLL
     LTEXT           "@input",4006,10,130,180,8
     EDITTEXT        CTL_PATH_IN,10,140,185,13,ES_AUTOHSCROLL
     LTEXT           "@output",4007,10,155,170,8
     EDITTEXT        CTL_PATH_OUT,10,165,185,13,ES_AUTOHSCROLL
-    LTEXT           "Вре&менный",4008,10,180,175,8
+    LTEXT           "Временный",4008,10,180,175,8
     EDITTEXT        CTL_PATH_TMP,10,190,185,13,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,80,210,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,145,210,50,13
@@ -18931,11 +18918,11 @@ END
 
 DLG_PCKG DIALOGEX 93, 32, 177, 146
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Упаковка"
+CAPTION "@cargopckg"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_PCKG_TYPE,10,15,145,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Тип пакета",4001,10,5,44,8
+    LTEXT           "@packagetype",4001,10,5,44,8
     PUSHBUTTON      "",CTLSEL_PCKG_TYPE,155,15,12,13,BS_BITMAP
     LTEXT           "@code",4002,10,35,16,8
     EDITTEXT        CTL_PCKG_CODE,30,35,70,13,ES_AUTOHSCROLL
@@ -18953,7 +18940,7 @@ END
 
 DLG_PCKGTYPE DIALOGEX 62, 16, 187, 206
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Тип товарных пакетов"
+CAPTION "@packagetype"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@appellation",4001,10,5,52,8
@@ -19199,9 +19186,9 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,185,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,185,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,185,45,60,13
-    PUSHBUTTON      "@but_sysj",4001,185,80,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,185,80,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,185,190,60,13
-    PUSHBUTTON      "@test",4002,185,125,60,13
+    PUSHBUTTON      "@test",4001,185,125,60,13
 END
 
 DLG_PLINE DIALOGEX 36, 8, 321, 292
@@ -19697,8 +19684,8 @@ BEGIN
     CONTROL         "Сумму дол&га и дату оплаты",17585,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,13,55,143,10
     GROUPBOX        "@sorting",CTL_PRNBLST_ORDER,194,15,100,43,WS_GROUP
     CONTROL         "@bydate",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,197,25,91,10
-    CONTROL         "@sort_by_docno",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,197,35,91,10
-    CONTROL         "По контра&генту",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,197,45,91,10
+    CONTROL         "@sortby_docno",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,197,35,91,10
+    CONTROL         "@sortby_contractor",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,197,45,91,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,190,74,49,14
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,245,73,49,14
 END
@@ -19711,8 +19698,8 @@ BEGIN
     CONTROL         "С содержанием",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,15,80,13
     GROUPBOX        "@sorting",CTL_PRNBLST_ORDER,10,30,105,45,WS_GROUP
     CONTROL         "@bydate",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,40,50,10
-    CONTROL         "@sort_by_docno",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,50,91,10
-    CONTROL         "По контра&генту",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,60,75,10
+    CONTROL         "@sortby_docno",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,50,91,10
+    CONTROL         "@sortby_contractor",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,60,75,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,120,40,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,120,60,50,13
 END
@@ -19963,11 +19950,11 @@ CAPTION "Печать товарного отчета"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "Сортировать...",CTL_GOPANLZPRN_ORDER,5,5,145,70,WS_GROUP
-    CONTROL         "по наименованию товара",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,15,105,10
-    CONTROL         "по количеству",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,25,70,10
-    CONTROL         "по сумме в ценах поступления",13489,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,35,120,10
-    CONTROL         "по сумме в ценах реализации",17585,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,45,120,10
-    CONTROL         "по доходности",21681,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,55,75,10
+    CONTROL         "@sortby_goodsname",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,15,105,10
+    CONTROL         "@sortby_quantity",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,25,70,10
+    CONTROL         "@sortby_costamount",13489,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,35,120,10
+    CONTROL         "@sortby_priceamount",17585,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,45,120,10
+    CONTROL         "@sortby_incomeamount",21681,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,55,75,10
     CONTROL         "Не печатать цены поступления",5298,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,80,125,13
     CONTROL         "&Специальный отчет",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,95,90,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,45,115,50,13
@@ -19981,7 +19968,7 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "@sorting",CTL_PRNLOTS_ORDER,10,10,140,35,WS_GROUP
     CONTROL         "@bydate",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,20,122,10
-    CONTROL         "по наименованию",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,30,121,10
+    CONTROL         "@sortby_name",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,30,121,10
     CONTROL         "Использовать параметры упаковки",5298,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,50,135,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,45,70,50,14
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,100,70,50,15
@@ -20316,15 +20303,15 @@ END
 
 DLG_PSNOPKINDVIEW DIALOGEX 72, 24, 302, 241
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Виды персональных операций"
+CAPTION "@personopkind_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     CONTROL         "",CTL_OBJVIEW_LIST,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,0,0,230,240,WS_EX_CLIENTEDGE
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,235,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,235,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,235,45,60,13
-    PUSHBUTTON      "@but_sysj",4001,235,80,60,13
-    PUSHBUTTON      "@but_transmit",4002,235,110,58,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,235,80,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,235,110,58,13
     PUSHBUTTON      "@but_print",STDCTL_PRINTBUTTON,235,140,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,235,220,60,13
 END
@@ -20795,7 +20782,7 @@ BEGIN
     LTEXT           "@database",4001,10,10,165,8
     EDITTEXT        CTL_RECOVER_DB,10,20,220,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_RECOVER_DB,230,20,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Таблица",4002,10,40,180,8
+    LTEXT           "@databasetable",4002,10,40,180,8
     EDITTEXT        CTL_RECOVER_TBL,10,50,220,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_RECOVER_TBL,230,50,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@directory",4003,10,70,145,8
@@ -20817,8 +20804,8 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,190,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,190,45,60,13
     PUSHBUTTON      "@dotransmitcharry",4001,190,70,60,13
-    PUSHBUTTON      "@but_transmit",4002,190,90,60,13
-    PUSHBUTTON      "@but_sysj",4003,190,110,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,190,90,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,190,110,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,190,195,60,13
 END
 
@@ -20868,7 +20855,7 @@ END
 
 DLG_REGISTER DIALOGEX 62, 16, 317, 161
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Регистрационный документ"
+CAPTION "@registerdocument"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@register_regtype",4001,5,20,130,8
@@ -20898,7 +20885,7 @@ END
 
 DLG_REGLST DIALOGEX 57, 40, 422, 141
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Регистрационные документы"
+CAPTION "@registerdocument_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     CONTROL         "",CTL_REGLST_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,5,15,410,105
@@ -21476,7 +21463,7 @@ BEGIN
     LTEXT           "@account",4001,5,10,20,8
     EDITTEXT        CTL_RTACCLI_ACC,5,20,240,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_RTACCLI_ACC,245,20,12,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "Доступен?",CTL_RTACCLI_FLAGS,5,35,80,25,WS_GROUP
+    GROUPBOX        "@{accessible}?",CTL_RTACCLI_FLAGS,5,35,80,25,WS_GROUP
     CONTROL         "@yes",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,45,25,10
     CONTROL         "@no",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,45,45,30,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,135,45,50,13
@@ -21753,21 +21740,21 @@ CAPTION "Права доступа к кассовым операциям для персоналии"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",CTL_RTPOSAGENT_FLAGS,5,5,170,175,WS_GROUP
-    CONTROL         "Чеки возвратов",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,15,139,10
-    CONTROL         "Удаление строк в чеке",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,25,139,10
+    CONTROL         "@csessrt_retcheck",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,15,139,10
+    CONTROL         "@csessrt_esccline",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,25,139,10
     CONTROL         "@cashlesspayment",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,35,139,10
     CONTROL         "Снятие Z-отчета",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,45,139,10
-    CONTROL         "Отмена чека",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,55,139,10
-    CONTROL         "Копия чека",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,65,139,10
-    CONTROL         "Копия Z-отчета",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,75,139,10
-    CONTROL         "Скидка на отдельную позицию",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,85,139,10
-    CONTROL         "Снятие X-отчета",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,95,139,10
-    CONTROL         "Разделение чека",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,105,139,10
-    CONTROL         "Слияние чеков",46257,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,115,139,10
-    CONTROL         "Изменение чека после печати счета",50353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,125,139,10
+    CONTROL         "@csessrt_esccheck",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,55,139,10
+    CONTROL         "@csessrt_copycheck",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,65,139,10
+    CONTROL         "@csessrt_copyzrept",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,75,139,10
+    CONTROL         "@csessrt_rowdiscount",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,85,139,10
+    CONTROL         "@csessrt_xrep",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,95,139,10
+    CONTROL         "@csessrt_splitchk",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,105,139,10
+    CONTROL         "@csessrt_mergechk",46257,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,115,139,10
+    CONTROL         "@csessrt_chgprintedchk",50353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,125,139,10
     CONTROL         "Проведение чека",54449,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,135,145,10
-    CONTROL         "Изменение агента в чеке",58545,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,145,139,10
-    CONTROL         "Удаление строки чека до отправки заказа",62641,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,155,160,10
+    CONTROL         "@csessrt_chgccagent",58545,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,145,139,10
+    CONTROL         "@csessrt_escclinebord",62641,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,155,160,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,65,185,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,125,185,50,13
     LTEXT           "Используются для модификации прав агента, выбранного в кассовой панели",IDC_STATIC,180,10,80,100
@@ -22131,7 +22118,7 @@ BEGIN
     PUSHBUTTON      "&Добавить группу...",4001,185,45,60,20,BS_MULTILINE
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,185,75,60,13
     PUSHBUTTON      "@dotransmitcharry",4002,185,105,60,20,BS_MULTILINE
-    PUSHBUTTON      "@but_sysj",4003,185,135,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,185,135,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,185,225,60,13
 END
 
@@ -22312,7 +22299,7 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,235,40,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,235,60,60,13
     PUSHBUTTON      "@{dotransmitcharry}...",4001,235,90,60,20,BS_MULTILINE
-    PUSHBUTTON      "@but_sysj",4002,235,125,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,235,125,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,235,220,60,13
     LTEXT           "",CTL_STAFFCALVIEW_ST_TTL,0,5,230,10,0,WS_EX_STATICEDGE
 END
@@ -22668,8 +22655,8 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,200,30,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,200,50,60,13
     PUSHBUTTON      "&Карты...",4001,200,80,60,13
-    PUSHBUTTON      "@but_sysj",4002,200,110,60,13
-    PUSHBUTTON      "@but_transmit",4003,200,135,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,200,110,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,200,135,60,13
     PUSHBUTTON      "@but_print",STDCTL_PRINT,200,160,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,200,210,60,13
 END
@@ -22807,7 +22794,7 @@ BEGIN
     LTEXT           "@currency",4001,15,10,28,8
     PUSHBUTTON      "",CTLSEL_SELCRATE_CUR,185,10,12,13,BS_BITMAP | NOT WS_TABSTOP
     EDITTEXT        CTL_SELCRATE_RATE,55,25,130,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Тип курса",4002,15,25,35,8
+    LTEXT           "@curratetype",4002,15,25,35,8
     PUSHBUTTON      "",CTLSEL_SELCRATE_RATE,185,25,12,13,BS_BITMAP | NOT WS_TABSTOP
     CONTROL         "",CTL_SELCRATE_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,15,50,110,150
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,135,50,60,13
@@ -22826,7 +22813,7 @@ BEGIN
     LTEXT           "@daterange",4001,11,10,80,8
     EDITTEXT        CTL_CSESSEXC_PERIOD,11,20,110,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLCAL_CSESSEXC_PERIOD,121,20,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Кассовый &узел",4002,141,10,120,8
+    LTEXT           "@posnode",4002,141,10,120,8
     EDITTEXT        CTL_CSESSEXC_NODE,141,20,185,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CSESSEXC_NODE,325,20,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@goodsgroup",4003,11,44,130,8
@@ -24324,7 +24311,7 @@ BEGIN
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,210,50,60,13
     PUSHBUTTON      "@typenumeration",4001,210,125,60,13
     PUSHBUTTON      "@dotransmitcharry",4002,210,80,60,13
-    PUSHBUTTON      "@but_sysj",4003,210,160,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,210,160,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,210,250,60,13
 END
 
@@ -24644,7 +24631,7 @@ END
 
 DLG_ASSETLOTITEM DIALOGEX 15, 16, 285, 206
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Поступление объекта основных средств"
+CAPTION "@trfr_assetrcv"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@group",4001,10,10,28,8
@@ -24675,7 +24662,7 @@ BEGIN
     LTEXT           "@serial",4008,105,145,60,8
     EDITTEXT        CTL_LOT_SERIAL,170,145,95,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLMNU_LOT_SERIAL,265,145,13,13,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "Немедленный ввод в эксплуатацию",5336,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,45,165,148,13
+    CONTROL         "@trfr_pptfr_assetexpl",5336,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,45,165,148,13
     PUSHBUTTON      "@but_lot",CTL_LOT_LOT,45,185,50,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,160,185,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,215,185,50,13
@@ -24684,7 +24671,7 @@ END
 
 DLG_ASSETMODIFLOTITEM DIALOGEX 15, 16, 285, 231
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Поступление объекта основных средств"
+CAPTION "@trfr_assetrcv"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@group",4001,10,10,25,8
@@ -24719,7 +24706,7 @@ BEGIN
     LTEXT           "@serial",4009,115,172,60,8
     EDITTEXT        CTL_LOT_SERIAL,180,172,85,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLMNU_LOT_SERIAL,265,172,13,13,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "Немедленный ввод в эксплуатацию",5336,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,55,191,148,13
+    CONTROL         "@trfr_pptfr_assetexpl",5336,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,55,191,148,13
     PUSHBUTTON      "@but_lot",CTL_LOT_LOT,50,210,51,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,160,210,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,215,210,50,13
@@ -24859,7 +24846,7 @@ END
 
 DLG_TI_LOCTR DIALOGEX 15, 8, 372, 231
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Складская операция"
+CAPTION "@roptype_warehouse"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "",CTL_LOT_ST_BILLTITLE,10,10,264,8
@@ -26916,8 +26903,8 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,180,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,180,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,180,45,60,13
-    PUSHBUTTON      "@but_sysj",4001,180,75,60,13
-    PUSHBUTTON      "@{association_pl}...",4002,180,100,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,180,75,60,13
+    PUSHBUTTON      "@{association_pl}...",4001,180,100,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,180,165,60,13
 END
 
@@ -26930,10 +26917,10 @@ BEGIN
     EDITTEXT        CTL_CBFLDS_SECTNAME,55,5,230,13,ES_AUTOHSCROLL
     LTEXT           "@filename",4002,5,20,39,8
     EDITTEXT        CTL_CBFLDS_FILENAME,55,20,230,13,ES_AUTOHSCROLL
-    LTEXT           "&Кодовая страница",4003,5,40,63,8
+    LTEXT           "@codepage",4003,5,40,63,8
     EDITTEXT        CTL_CBFLDS_CODEPAGE,75,40,110,13,ES_AUTOHSCROLL
     EDITTEXT        CTL_CBFLDS_FMT,75,55,110,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Тип &файла",4004,5,55,39,8
+    LTEXT           "@filetype",4004,5,55,39,8
     PUSHBUTTON      "",CTLSEL_CBFLDS_FMT,185,55,12,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@{divider}",4005,5,70,45,8
     EDITTEXT        CTL_CBFLDS_FLDDIV,75,70,45,13,ES_AUTOHSCROLL
@@ -26953,7 +26940,7 @@ BEGIN
     EDITTEXT        CTL_CBFLDS_TYPE,335,120,50,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@type",4008,300,120,14,8
     PUSHBUTTON      "",CTLSEL_CBFLDS_TYPE,385,120,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "&Размер",4009,300,135,27,8
+    LTEXT           "@size",4009,300,135,27,8
     EDITTEXT        CTL_CBFLDS_SIZE,335,135,50,13,ES_AUTOHSCROLL
     LTEXT           "@precision",4010,300,150,32,8
     EDITTEXT        CTL_CBFLDS_DEC,335,150,50,13,ES_AUTOHSCROLL
@@ -27399,7 +27386,7 @@ CAPTION "Задачи"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LISTBOX         CTL_VIEWTASKS_LIST,5,5,305,210,LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | WS_TABSTOP
-    PUSHBUTTON      "Просмотр...",4001,315,5,55,13
+    PUSHBUTTON      "@{dobrowse}...",4001,315,5,55,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,315,200,55,13
 END
 
@@ -27414,13 +27401,13 @@ BEGIN
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,255,45,60,13
     PUSHBUTTON      "@{cmd_goods}...",4001,255,95,60,13
     PUSHBUTTON      "@{selsuspcheck_merge}...",4002,255,130,60,13
-    PUSHBUTTON      "@but_sysj",4003,255,265,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,255,265,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,255,300,60,13
 END
 
 DLG_DYNOBJ DIALOGEX 20, 24, 262, 111
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Динамический объект"
+CAPTION "@dynobject"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@appellation",4001,5,5,155,8
@@ -27485,7 +27472,7 @@ END
 
 DLG_DYNOBJSVIEW DIALOGEX 72, 24, 282, 266
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Динамические объекты"
+CAPTION "@dynobject_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LISTBOX         CTL_OBJVIEW_LIST,0,0,205,265,LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | WS_TABSTOP
@@ -27493,8 +27480,8 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,215,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,215,40,60,13
     PUSHBUTTON      "@{objects}...",4001,215,70,60,13
-    PUSHBUTTON      "@but_transmit",4002,215,120,60,13
-    PUSHBUTTON      "@but_sysj",4003,215,90,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,215,120,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,215,90,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,215,245,60,13
 END
 
@@ -27508,8 +27495,8 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,190,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,190,45,60,13
     PUSHBUTTON      "@{cmd_goods}...",4001,190,80,60,13
-    PUSHBUTTON      "@but_transmit",4002,190,100,60,13
-    PUSHBUTTON      "@but_sysj",4003,190,120,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,190,100,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,190,120,60,13
     PUSHBUTTON      "@but_print",STDCTL_PRINT,190,155,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,190,190,60,13
 END
@@ -27523,14 +27510,14 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,185,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,185,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,185,45,60,13
-    PUSHBUTTON      "@but_sysj",4001,185,80,60,13
-    PUSHBUTTON      "Объединить похожие",4002,185,100,60,25,BS_MULTILINE
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,185,80,60,13
+    PUSHBUTTON      "Объединить похожие",4001,185,100,60,25,BS_MULTILINE
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,185,190,60,13
 END
 
 DLG_WORLDVIEW DIALOGEX 72, 8, 292, 260
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Географические объекты"
+CAPTION "@geoobject_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     CONTROL         "",CTL_OBJVIEW_LIST,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,0,0,220,260,WS_EX_CLIENTEDGE
@@ -27538,8 +27525,8 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,225,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,225,45,60,13
     PUSHBUTTON      "@{street_pl}...",4001,225,75,60,13
-    PUSHBUTTON      "@but_transmit",4002,225,135,60,13
-    PUSHBUTTON      "@but_sysj",4003,225,155,60,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,225,135,60,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,225,155,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,225,240,60,13
 END
 
@@ -27547,7 +27534,7 @@ DLG_WAIT DIALOGEX 291, 8, 330, 22
 STYLE DS_ABSALIGN | DS_SETFONT | DS_3DLOOK | WS_POPUP | WS_BORDER
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CTEXT           "Подождите",CTL_WAIT_TEXT,0,5,330,8
+    CTEXT           "@wait",CTL_WAIT_TEXT,0,5,330,8
     CONTROL         "Progress2",101,"msctls_progress32",NOT WS_VISIBLE,0,16,330,6
 END
 
@@ -27576,49 +27563,49 @@ END
 
 DLG_GTANLZTOTAL DIALOGEX 72, 0, 277, 257
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги налогового анализа товарооборота"
+CAPTION "@goodstaxanalyzetotal"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    LTEXT           "@plucount",4001,15,5,76,8
+    LTEXT           "@goodstaxanalyzetotal_count",4001,15,5,76,8
     EDITTEXT        CTL_GTANLZTOTAL_COUNT,215,5,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Оборот в ценах поступления",4002,15,25,100,8
+    LTEXT           "@goodstaxanalyzetotal_trnovrcost",4002,15,25,185,8
     EDITTEXT        CTL_GTANLZTOTAL_TOCOST,215,25,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Оборот в ценах реализации",4003,15,40,95,8
+    LTEXT           "@goodstaxanalyzetotal_trnovrprice",4003,15,40,185,8
     EDITTEXT        CTL_GTANLZTOTAL_TOPRICE,215,40,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "@income",4004,15,60,24,8
+    LTEXT           "@goodstaxanalyzetotal_income",4004,15,60,185,8
     EDITTEXT        CTL_GTANLZTOTAL_INCOME,215,60,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма акциза",4005,15,80,52,8
+    LTEXT           "@goodstaxanalyzetotal_excisesum",4005,15,80,190,8
     EDITTEXT        CTL_GTANLZTOTAL_EXCISE,215,80,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма НДС с реализации",4006,15,95,92,8
+    LTEXT           "@goodstaxanalyzetotal_vatsum",4006,15,95,185,8
     EDITTEXT        CTL_GTANLZTOTAL_VAT,215,95,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма НДС к зачету",4007,15,110,76,8
+    LTEXT           "@goodstaxanalyzetotal_c_vatsum",4007,15,110,185,8
     EDITTEXT        CTL_GTANLZTOTAL_CVAT,215,110,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма НДС с дохода",4008,15,126,76,8
+    LTEXT           "@goodstaxanalyzetotal_incvatsum",4008,15,126,185,8
     EDITTEXT        CTL_GTANLZTOTAL_INCVAT,215,126,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма налога с продаж",4009,15,140,85,8
+    LTEXT           "@goodstaxanalyzetotal_staxsum",4009,15,140,195,8
     EDITTEXT        CTL_GTANLZTOTAL_STAX,215,140,50,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
     CONTROL         "",CTL_GTANLZTOTAL_INOUTVL,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,15,165,250,65
     PUSHBUTTON      "@but_print",STDCTL_PRINT,10,240,50,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,220,240,50,13
     GROUPBOX        "",IDC_STATIC,10,20,260,55
     GROUPBOX        "",IDC_STATIC,10,75,260,80
-    GROUPBOX        "Входящий/Исходящий НДС",IDC_STATIC,10,155,260,80
+    GROUPBOX        "@goodstaxanalyzetotal_vatinout",IDC_STATIC,10,155,260,80
 END
 
-DLG_GTANLZTOTAL_PIL DIALOGEX 72, 24, 217, 127
+DLG_GTANLZTOTAL_PIL DIALOGEX 72, 24, 285, 127
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги налогового анализа товарооборота"
+CAPTION "@goodstaxanalyzetotal"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "@plucount",4001,10,15,76,8
-    EDITTEXT        CTL_GTANLZTOTAL_COUNT,140,15,56,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма оплаченных приходов",4002,10,40,104,8
-    EDITTEXT        CTL_GTANLZTOTAL_RCPT,140,40,56,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма оплаченных расходов",4003,10,60,104,8
-    EDITTEXT        CTL_GTANLZTOTAL_EXP,140,60,56,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    LTEXT           "Сумма остатка",4004,10,80,56,8
-    EDITTEXT        CTL_GTANLZTOTAL_REST,140,80,56,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
-    PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,145,105,50,13
+    LTEXT           "@plucount",4001,10,15,140,8
+    EDITTEXT        CTL_GTANLZTOTAL_COUNT,175,15,56,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
+    LTEXT           "@goodstaxanalyzetotal_pilrcptsum",4002,10,40,140,8
+    EDITTEXT        CTL_GTANLZTOTAL_RCPT,175,40,56,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
+    LTEXT           "@goodstaxanalyzetotal_pilexpsum",4003,10,60,140,8
+    EDITTEXT        CTL_GTANLZTOTAL_EXP,175,60,56,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
+    LTEXT           "@goodstaxanalyzetotal_pilrestsum",4004,10,80,120,8
+    EDITTEXT        CTL_GTANLZTOTAL_REST,175,80,56,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
+    PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,181,105,50,13
 END
 
 DLG_AANLZTOTAL DIALOGEX 31, 32, 302, 181
@@ -27670,7 +27657,7 @@ BEGIN
     PUSHBUTTON      "",CTLSEL_SELACNBYPHN_EXT,225,160,12,13,BS_BITMAP
     LTEXT           "@person",4002,10,20,200,8
     EDITTEXT        CTL_SELACNBYPHN_PERSON,10,30,270,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Карта",4003,285,20,150,8
+    LTEXT           "@card",4003,285,20,150,8
     EDITTEXT        CTL_SELACNBYPHN_SCARD,285,30,165,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@location",4004,10,45,210,8
     EDITTEXT        CTL_SELACNBYPHN_LOC,10,55,270,13,ES_AUTOHSCROLL | ES_READONLY
@@ -27750,8 +27737,8 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,180,30,80,13
     PUSHBUTTON      "@{doaddbysample_short} <Alt-F2>...",4001,180,45,80,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,180,65,80,13
-    PUSHBUTTON      "@but_transmit",4002,180,95,80,13
-    PUSHBUTTON      "@but_sysj",4003,180,115,80,13
+    PUSHBUTTON      "@but_transmit",STDCTL_TRANSMITBUTTON,180,95,80,13
+    PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,180,115,80,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,180,195,80,13
 END
 
@@ -27802,7 +27789,7 @@ END
 
 DLG_HOLIDAY DIALOGEX 52, 40, 252, 101
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выходной день"
+CAPTION "@dayoff"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     GROUPBOX        "Вид выходного дня",CTL_HOLIDAY_KIND,5,25,90,45,WS_GROUP
@@ -27822,7 +27809,7 @@ END
 
 DLG_HOLIDAYS DIALOGEX 104, 8, 197, 226
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выходные дни"
+CAPTION "@dayoff_pl"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_HOLIDAYS_LOC,5,15,175,13,ES_AUTOHSCROLL | ES_READONLY
@@ -28030,7 +28017,7 @@ BEGIN
     EDITTEXT        CTL_INFKIOSK_CODE,50,30,205,15,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP,WS_EX_STATICEDGE
     LTEXT           "@price",4003,10,50,35,8
     EDITTEXT        CTL_INFKIOSK_PRICE,50,50,55,15,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP,WS_EX_STATICEDGE
-    LTEXT           "Цена со скидкой",4004,140,50,55,8
+    LTEXT           "@pricewithdiscount",4004,140,50,55,8
     EDITTEXT        CTL_INFKIOSK_DSCNTPRICE,200,50,55,15,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP,WS_EX_STATICEDGE
     LTEXT           "",CTL_INFKIOSK_STATUS,50,70,205,15,0,WS_EX_STATICEDGE
     GROUPBOX        "Дополнительная информация о товаре",CTL_INFKIOSK_GRPBOX2,50,90,205,85
@@ -28221,7 +28208,7 @@ BEGIN
     LTEXT           "@price",4002,120,29,50,8
     EDITTEXT        CTL_INFKIOSK_PRICE,180,29,60,19,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "",CTL_INFKIOSK_STATUS,5,53,105,19,0,WS_EX_STATICEDGE
-    LTEXT           "Цена со скидкой",4003,120,53,55,8
+    LTEXT           "@pricewithdiscount",4003,120,53,55,8
     EDITTEXT        CTL_INFKIOSK_DSCNTPRICE,180,53,60,19,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "",CTL_INFKIOSK_IMAGE,5,78,105,74
     GROUPBOX        "Дополнительная информация о товаре",CTL_INFKIOSK_GRPBOX1,115,74,125,78
@@ -28684,7 +28671,7 @@ CAPTION "Привязка файла к элементу рабочей книги"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_WBATTACHF_FT,10,15,195,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Тип файла",4001,10,5,110,8
+    LTEXT           "@filetype",4001,10,5,110,8
     PUSHBUTTON      "",CTLSEL_WBATTACHF_FT,205,15,12,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "Имя внешнего файла",4002,10,35,115,8
     EDITTEXT        CTL_WBATTACHF_FILE,10,45,195,13,ES_AUTOHSCROLL
@@ -30243,7 +30230,7 @@ BEGIN
     DLG_CCFGSYS, DIALOG
     BEGIN
         RIGHTMARGIN, 495
-        BOTTOMMARGIN, 120
+        BOTTOMMARGIN, 140
     END
 
     DLG_CCHKDLVR, DIALOG
@@ -30300,6 +30287,12 @@ BEGIN
     DLG_CFM_RECKONDEBT, DIALOG
     BEGIN
         BOTTOMMARGIN, 250
+    END
+
+    DLG_CHGSCARDDISC, DIALOG
+    BEGIN
+        RIGHTMARGIN, 342
+        BOTTOMMARGIN, 58
     END
 
     DLG_CHKINP, DIALOG
@@ -31114,6 +31107,8 @@ BEGIN
 
     DLG_FILTITEM, DIALOG
     BEGIN
+        RIGHTMARGIN, 77
+        BOTTOMMARGIN, 151
     END
 
     DLG_FILTPOOL, DIALOG
@@ -31577,6 +31572,12 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 217
         BOTTOMMARGIN, 252
+    END
+
+    DLG_MAINORG2, DIALOG
+    BEGIN
+        RIGHTMARGIN, 491
+        BOTTOMMARGIN, 100
     END
 
     DLG_MKRPTFLS, DIALOG
@@ -32871,6 +32872,15 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 152
         BOTTOMMARGIN, 60
+    END
+
+    DLG_GTANLZTOTAL, DIALOG
+    BEGIN
+    END
+
+    DLG_GTANLZTOTAL_PIL, DIALOG
+    BEGIN
+        RIGHTMARGIN, 217
     END
 
     DLG_AANLZTOTAL, DIALOG
@@ -35225,6 +35235,31 @@ BEGIN
 END
 
 DLG_GDSOPRTOTALCMP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_GTANLZTOTAL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_GTANLZTOTAL_PIL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_GDSGRPRLZ AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_MAINORG2 AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_CHGSCARDDISC AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

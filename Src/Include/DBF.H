@@ -1,7 +1,7 @@
 // DBF.H
 // Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018, 2019
-// @codepage windows-1251
-// Номера записей и полей идут от 1 и далее
+// @codepage UTF-8
+// РќРѕРјРµСЂР° Р·Р°РїРёСЃРµР№ Рё РїРѕР»РµР№ РёРґСѓС‚ РѕС‚ 1 Рё РґР°Р»РµРµ
 //
 #ifndef __DBF_H
 #define __DBF_H
@@ -14,32 +14,32 @@
 
 class DbfTable;
 //
-// Нулевой заголовочный байт
+// РќСѓР»РµРІРѕР№ Р·Р°РіРѕР»РѕРІРѕС‡РЅС‹Р№ Р±Р°Р№С‚
 //
 struct DbfNilInfoByte {
-	unsigned dbt_flag   : 1;  //  Подключение файла DBT
-	unsigned sql_flag   : 2;  //  Флаг SQL только для dBASE IV
-	unsigned res        : 1;  //  Зарезервировано
-	unsigned dbt_dbase4 : 1;  //  Файл DBT в dBASE IV
-	unsigned ver        : 3;  //  Номер версии dBASE
+	unsigned dbt_flag   : 1;  //  РџРѕРґРєР»СЋС‡РµРЅРёРµ С„Р°Р№Р»Р° DBT
+	unsigned sql_flag   : 2;  //  Р¤Р»Р°Рі SQL С‚РѕР»СЊРєРѕ РґР»СЏ dBASE IV
+	unsigned res        : 1;  //  Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ
+	unsigned dbt_dbase4 : 1;  //  Р¤Р°Р№Р» DBT РІ dBASE IV
+	unsigned ver        : 3;  //  РќРѕРјРµСЂ РІРµСЂСЃРёРё dBASE
 };
 //
-// Заголовок файла dbf
+// Р—Р°РіРѕР»РѕРІРѕРє С„Р°Р№Р»Р° dbf
 //
 struct DBFH { // Size=32
-	uint8  Info;         //  Нулевой заголовочный байт
-	uint8  Year;         //  Год
-	uint8  Month;        //  @#{1..12} месяц
-	uint8  Day;          //  @#{1..32} день последней редакции
-	uint32 NumRecs;      //  Число записей в файле
-	uint16 HeadSize;     //  @#{32..8192} Длина заголовка файла в купе с дескрипторами полей
-	uint16 RecSize;      //  @#{0..16384} Длина записи
-	uint16 Reserve1;     //  Зарезервировано
-	uint8  Transaction;  //  Флаг задержки транзакции только для dBASE IV
-	uint8  Reserve2[13]; //  Зарезервировано
-	uint8  Mdx;          //  Флаг MDX  только для dBASE IV
+	uint8  Info;         //  РќСѓР»РµРІРѕР№ Р·Р°РіРѕР»РѕРІРѕС‡РЅС‹Р№ Р±Р°Р№С‚
+	uint8  Year;         //  Р“РѕРґ
+	uint8  Month;        //  @#{1..12} РјРµСЃСЏС†
+	uint8  Day;          //  @#{1..32} РґРµРЅСЊ РїРѕСЃР»РµРґРЅРµР№ СЂРµРґР°РєС†РёРё
+	uint32 NumRecs;      //  Р§РёСЃР»Рѕ Р·Р°РїРёСЃРµР№ РІ С„Р°Р№Р»Рµ
+	uint16 HeadSize;     //  @#{32..8192} Р”Р»РёРЅР° Р·Р°РіРѕР»РѕРІРєР° С„Р°Р№Р»Р° РІ РєСѓРїРµ СЃ РґРµСЃРєСЂРёРїС‚РѕСЂР°РјРё РїРѕР»РµР№
+	uint16 RecSize;      //  @#{0..16384} Р”Р»РёРЅР° Р·Р°РїРёСЃРё
+	uint16 Reserve1;     //  Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ
+	uint8  Transaction;  //  Р¤Р»Р°Рі Р·Р°РґРµСЂР¶РєРё С‚СЂР°РЅР·Р°РєС†РёРё С‚РѕР»СЊРєРѕ РґР»СЏ dBASE IV
+	uint8  Reserve2[13]; //  Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ
+	uint8  Mdx;          //  Р¤Р»Р°Рі MDX  С‚РѕР»СЊРєРѕ РґР»СЏ dBASE IV
 	uint8  LdID;         //  DBF Language Driver ID
-	uint8  Reserve3[2];  //  Зарезервировано
+	uint8  Reserve3[2];  //  Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ
 };
 /*
 DBF Language Driver IDs
@@ -66,20 +66,20 @@ DBF Language Driver IDs
 	Codepage_1253_Greek_Windows = &HCB
 */
 //
-// Дескриптор поля //
+// Р”РµСЃРєСЂРёРїС‚РѕСЂ РїРѕР»СЏ //
 //
 struct DBFF { // Size = 32
 #ifndef _WIN32_WCE // @v5.1.7 AHTOXA
 	int    GetSType(TYPEID * pTyp, long * pFmt) const;
 #endif
-	char   fname[11];    //  Имя поля //
-	uint8  ftype;        //  Тип поля (C,L,N,M,F,D)
-	uint16 offset;       //  Смещение поля относительно начала записи
-	uint8  resv1[2];     //  Зарезервировано
-	uint8  fsize;        //  Длина поля //
-	uint8  fprec;        //  Число знаков после точки
-	uint8  resv2[13];    //  Зарезервировано
-	uint8  mdx_tag;      //  Флаг тега файла MDX только для dBASE IV
+	char   fname[11];    //  РРјСЏ РїРѕР»СЏ //
+	uint8  ftype;        //  РўРёРї РїРѕР»СЏ (C,L,N,M,F,D)
+	uint16 offset;       //  РЎРјРµС‰РµРЅРёРµ РїРѕР»СЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РЅР°С‡Р°Р»Р° Р·Р°РїРёСЃРё
+	uint8  resv1[2];     //  Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ
+	uint8  fsize;        //  Р”Р»РёРЅР° РїРѕР»СЏ //
+	uint8  fprec;        //  Р§РёСЃР»Рѕ Р·РЅР°РєРѕРІ РїРѕСЃР»Рµ С‚РѕС‡РєРё
+	uint8  resv2[13];    //  Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ
+	uint8  mdx_tag;      //  Р¤Р»Р°Рі С‚РµРіР° С„Р°Р№Р»Р° MDX С‚РѕР»СЊРєРѕ РґР»СЏ dBASE IV
 };
 
 struct DBFCreateFld {
@@ -107,7 +107,7 @@ public:
 	int    SLAPI copy(DbfRecord * toRec);
 	int    SLAPI empty();
 	//
-	// Для параметра fldN во всех следующих функциях диапазон [1..]
+	// Р”Р»СЏ РїР°СЂР°РјРµС‚СЂР° fldN РІРѕ РІСЃРµС… СЃР»РµРґСѓСЋС‰РёС… С„СѓРЅРєС†РёСЏС… РґРёР°РїР°Р·РѕРЅ [1..]
 	//
 #ifndef _WIN32_WCE // @v5.1.7 AHTOXA
 	int    SLAPI put(int fldN, TYPEID, const void *);
@@ -206,7 +206,7 @@ private:
 	ulong  BLast;
 	size_t BufSize;
 	char * P_Buffer;
-	int    Mod; // Признак модификации таблицы
+	int    Mod; // РџСЂРёР·РЅР°Рє РјРѕРґРёС„РёРєР°С†РёРё С‚Р°Р±Р»РёС†С‹
 };
 
 #endif //  __DBF_H

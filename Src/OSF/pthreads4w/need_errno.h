@@ -12,72 +12,56 @@
 *       [Public]
 *
 ****/
-
 #if     _MSC_VER > 1000
-#pragma once
+	#pragma once
 #endif
-
 #if !defined(_INC_ERRNO)
 #define _INC_ERRNO
-
 #if !defined(_WIN32)
-#error ERROR: Only Win32 targets supported!
+	#error ERROR: Only Win32 targets supported!
 #endif
-
 //#include <winsock.h>
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-
-
 /* Define _CRTIMP */
-
 #ifndef _CRTIMP
-#if defined(_DLL)
-#define _CRTIMP __declspec(dllimport)
-#else   /* ndef _DLL */
-#define _CRTIMP
-#endif  /* _DLL */
+	#if defined(_DLL)
+		#define _CRTIMP __declspec(dllimport)
+	#else   /* ndef _DLL */
+		#define _CRTIMP
+	#endif  /* _DLL */
 #endif  /* _CRTIMP */
-
-
-/* Define __cdecl for non-Microsoft compilers */
-
+// Define __cdecl for non-Microsoft compilers 
 #if ( !defined(_MSC_VER) && !defined(__cdecl) )
-#define __cdecl
+	#define __cdecl
 #endif
-
-/* Define _CRTAPI1 (for compatibility with the NT SDK) */
-
+// Define _CRTAPI1 (for compatibility with the NT SDK) 
 #if !defined(_CRTAPI1)
-#if	_MSC_VER >= 800 && _M_IX86 >= 300
-#define _CRTAPI1 __cdecl
-#else
-#define _CRTAPI1
+	#if	_MSC_VER >= 800 && _M_IX86 >= 300
+		#define _CRTAPI1 __cdecl
+	#else
+		#define _CRTAPI1
+	#endif
 #endif
-#endif
-
 #if defined(__PTW32_STATIC_LIB) && defined(_MSC_VER) && _MSC_VER >= 1400
-#  define __PTW32_STATIC_TLSLIB
+	#define __PTW32_STATIC_TLSLIB
 #endif
-
 #if defined (__PTW32_STATIC_LIB) || defined (__PTW32_STATIC_TLSLIB)
-#  define  __PTW32_DLLPORT
+	#define  __PTW32_DLLPORT
 #elif defined (__PTW32_BUILD)
-#    define  __PTW32_DLLPORT __declspec (dllexport)
-#  else
-#    define  __PTW32_DLLPORT __declspec (dllimport)
-#  endif
-
-/* declare reference to errno */
-
+	#define  __PTW32_DLLPORT __declspec (dllexport)
+#else
+	#define  __PTW32_DLLPORT __declspec (dllimport)
+#endif
+// declare reference to errno 
 #if (defined(_MT) || defined(_MD) || defined(_DLL)) && !defined(_MAC)
-__PTW32_DLLPORT int * __cdecl _errno(void);
-#define errno   (*_errno())
+	__PTW32_DLLPORT int * __cdecl _errno(void);
+	#define errno   (*_errno())
 #else   /* ndef _MT && ndef _MD && ndef _DLL */
-_CRTIMP extern int errno;
+	_CRTIMP extern int errno;
 #endif  /* _MT || _MD || _DLL */
 
 /* Error Codes */
@@ -115,12 +99,10 @@ _CRTIMP extern int errno;
 #define EDOM            33
 #define ERANGE          34
 #define EDEADLK         36
-
-/* defined differently in winsock.h on WinCE
- * We don't use this value.
- */
+// defined differently in winsock.h on WinCE
+// We don't use this value.
 //#if !defined(ENAMETOOLONG)
-//#define ENAMETOOLONG    38
+	//#define ENAMETOOLONG    38
 //#endif
 
 #define ENOLCK          39
@@ -134,26 +116,24 @@ _CRTIMP extern int errno;
 //#endif
 
 #define EILSEQ          42
-
 /*
  * POSIX 2008 - robust mutexes.
  */
 #if  __PTW32_VERSION_MAJOR > 2
-#  if !defined(EOWNERDEAD)
-#    define EOWNERDEAD 1000
-#  endif
-#  if !defined(ENOTRECOVERABLE)
-#    define ENOTRECOVERABLE 1001
-#  endif
+	#if !defined(EOWNERDEAD)
+		#define EOWNERDEAD 1000
+	#endif
+	#if !defined(ENOTRECOVERABLE)
+		#define ENOTRECOVERABLE 1001
+	#endif
 #else
-#  if !defined(EOWNERDEAD)
-#    define EOWNERDEAD 42
-#  endif
-#  if !defined(ENOTRECOVERABLE)
-#    define ENOTRECOVERABLE 43
-#  endif
+	#if !defined(EOWNERDEAD)
+		#define EOWNERDEAD 42
+	#endif
+	#if !defined(ENOTRECOVERABLE)
+		#define ENOTRECOVERABLE 43
+	#endif
 #endif
-
 /*
  * Support EDEADLOCK for compatibility with older MS-C versions.
  */

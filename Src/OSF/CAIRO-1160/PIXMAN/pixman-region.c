@@ -1224,20 +1224,15 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_union) (region_type_t *new_reg,
 	if(!reg2->data && SUBSUMES(&reg2->extents, &reg1->extents)) {
 		if(new_reg != reg2)
 			return PREFIX(_copy) (new_reg, reg2);
-
 		return TRUE;
 	}
-
 	if(!pixman_op(new_reg, reg1, reg2, pixman_region_union_o, TRUE, TRUE))
 		return FALSE;
-
 	new_reg->extents.x1 = MIN(reg1->extents.x1, reg2->extents.x1);
 	new_reg->extents.y1 = MIN(reg1->extents.y1, reg2->extents.y1);
 	new_reg->extents.x2 = MAX(reg1->extents.x2, reg2->extents.x2);
 	new_reg->extents.y2 = MAX(reg1->extents.y2, reg2->extents.y2);
-
 	GOOD(new_reg);
-
 	return TRUE;
 }
 
@@ -1253,67 +1248,50 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_union) (region_type_t *new_reg,
 		rects[b] = t;           \
 	}
 
-static void quick_sort_rects(box_type_t rects[],
-    int numRects)
+static void quick_sort_rects(box_type_t rects[], int numRects)
 {
 	int y1;
 	int x1;
 	int i, j;
 	box_type_t * r;
-
 	/* Always called with numRects > 1 */
-
 	do {
 		if(numRects == 2) {
-			if(rects[0].y1 > rects[1].y1 ||
-			    (rects[0].y1 == rects[1].y1 && rects[0].x1 > rects[1].x1)) {
+			if(rects[0].y1 > rects[1].y1 || (rects[0].y1 == rects[1].y1 && rects[0].x1 > rects[1].x1)) {
 				EXCHANGE_RECTS(0, 1);
 			}
 
 			return;
 		}
-
 		/* Choose partition element, stick in location 0 */
 		EXCHANGE_RECTS(0, numRects >> 1);
 		y1 = rects[0].y1;
 		x1 = rects[0].x1;
-
 		/* Partition array */
 		i = 0;
 		j = numRects;
-
 		do {
 			r = &(rects[i]);
 			do {
 				r++;
 				i++;
-			}
-			while(i != numRects && (r->y1 < y1 || (r->y1 == y1 && r->x1 < x1)));
-
+			} while(i != numRects && (r->y1 < y1 || (r->y1 == y1 && r->x1 < x1)));
 			r = &(rects[j]);
 			do {
 				r--;
 				j--;
-			}
-			while(y1 < r->y1 || (y1 == r->y1 && x1 < r->x1));
-
+			} while(y1 < r->y1 || (y1 == r->y1 && x1 < r->x1));
 			if(i < j)
 				EXCHANGE_RECTS(i, j);
-		}
-		while(i < j);
-
+		} while(i < j);
 		/* Move partition element back to middle */
 		EXCHANGE_RECTS(0, j);
-
 		/* Recurse */
 		if(numRects - j - 1 > 1)
 			quick_sort_rects(&rects[j + 1], numRects - j - 1);
-
 		numRects = j;
-	}
-	while(numRects > 1);
+	} while(numRects > 1);
 }
-
 /*-
  *-----------------------------------------------------------------------
  * pixman_region_validate --

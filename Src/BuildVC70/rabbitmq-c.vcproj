@@ -171,24 +171,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_api.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_connection.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_consumer.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_framing.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_hostcheck.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_mem.c">
-			</File>
-			<File
 				RelativePath="..\Osf\rabbitmq-c\amqp_openssl.c">
 			</File>
 			<File
@@ -198,19 +180,7 @@
 				RelativePath="..\Osf\rabbitmq-c\amqp_openssl_hostname_validation.c">
 			</File>
 			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_socket.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_table.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_tcp_socket.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_time.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_url.c">
+				RelativePath="..\Osf\rabbitmq-c\ppamqp.cpp">
 			</File>
 		</Filter>
 		<Filter

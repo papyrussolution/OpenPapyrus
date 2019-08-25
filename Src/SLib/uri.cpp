@@ -1074,18 +1074,14 @@ static int FASTCALL UriCompareRange(const UriTextRange * a, const UriTextRange *
 int UriEqualsUri(const UriUri * a, const UriUri * b)
 {
 	
-	if(!a || !b) { // NOTE: Both NULL means equal! 
+	if(!a || !b) // NOTE: Both NULL means equal! 
 		return BIN(!a && !b);
-	}
-	else if(UriCompareRange(&(a->Scheme), &(b->Scheme))) { // scheme 
+	else if(UriCompareRange(&(a->Scheme), &(b->Scheme))) // scheme 
 		return FALSE;
-	}
-	else if(!a->Scheme.P_First && (a->IsAbsolutePath != b->IsAbsolutePath)) { // absolutePath 
+	else if(!a->Scheme.P_First && (a->IsAbsolutePath != b->IsAbsolutePath)) // absolutePath 
 		return FALSE;
-	}
-	else if(UriCompareRange(&(a->UserInfo), &(b->UserInfo))) { // userInfo 
+	else if(UriCompareRange(&(a->UserInfo), &(b->UserInfo))) // userInfo 
 		return FALSE;
-	}
 	else if(((a->HostData.ip4 == NULL) != (b->HostData.ip4 == NULL)) || ((a->HostData.ip6 == NULL) != (b->HostData.ip6 == NULL)) || ((a->HostData.ipFuture.P_First == NULL)
 	    !=(b->HostData.ipFuture.P_First == NULL))) { // Host 
 		return FALSE;
@@ -3270,7 +3266,7 @@ const char * FASTCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst
 			return NULL;
 		}
 		else {
-			P_Uri->Scheme.P_First = NULL; /* Not a scheme, reset */
+			P_Uri->Scheme.P_First = NULL; // Not a scheme, reset 
 			return afterLast;
 		}
 	}
@@ -3312,12 +3308,12 @@ const char * FASTCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst
 					}
 				}
 			default:
-				if(!PushPathSegment(P_Uri->Scheme.P_First, pFirst)) { /* SEGMENT BOTH */
+				if(!PushPathSegment(P_Uri->Scheme.P_First, pFirst)) { // SEGMENT BOTH 
 					StopMalloc();
 					return NULL;
 				}
 				else {
-					P_Uri->Scheme.P_First = NULL; /* Not a scheme, reset */
+					P_Uri->Scheme.P_First = NULL; // Not a scheme, reset 
 					return ParseUriTail(pFirst, afterLast);
 				}
 		}

@@ -1285,6 +1285,7 @@
 	// не может быть представлена целым числом [1..30000]
 #define PPTAG_LOT_FREIGHTPACKAGE    86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
 #define PPTAG_GOODS_VETISGUID       87L // @v10.5.1 GUID товара в справочнике ВЕТИС
+#define PPTAG_GUA_GUID              88L // @v10.5.3 GUID глобальной учетной записи
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -1731,6 +1732,7 @@
 #define STDCTL_FILTERBUTTON       159 // @v9.7.10 Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
 #define STDCTL_VERIFYBUTTON       160 // @v10.1.5 Кнопка "Верифицировать"
 #define STDCTL_LAYOUTBUTTON       161 // @v10.4.9 Кнопка "Layout"
+#define STDCTL_TRANSMITBUTTON     162 // @v10.5.3 Кнопка "Передать"
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -3301,6 +3303,7 @@
 	#define CTL_CCFGSYS_ICQTTYEPS        (9 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_LCRV2            (10 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_LCRSINCE         (11 + WINDOWS_ID_BIAS)
+	#define CTL_CCFGSYS_OBJHISTF         (12 + WINDOWS_ID_BIAS)
 #define DLG_QCERTFLT              222 // Фильтр по сертификатам
 	#define CTL_QCERTFLT_EXPIRY          (1 + WINDOWS_ID_BIAS)
 	#define CTL_QCERTFLT_INITDATE        (2 + WINDOWS_ID_BIAS)
@@ -4525,9 +4528,9 @@
 	#define CTLSEL_POVERB_TAG            (8 + WINDOWS_ID_BIAS)
 	#define CTL_POVERB_CMDTXT            (9 + WINDOWS_ID_BIAS)
 	#define CTL_POVERB_FLAGS             (10 + WINDOWS_ID_BIAS)
-#define DLG_E_MONRCH              387 // Экспорт данных для принтера "Monarch"
-	#define CTL_E_MONRCH_GGRP            (1 + WINDOWS_ID_BIAS)
-	#define CTLSEL_E_MONRCH_GGRP         (2 + WINDOWS_ID_BIAS)
+// @v10.5.3 @obsolete-dialog-form #define DLG_E_MONRCH              387 // Экспорт данных для принтера "Monarch"
+// @v10.5.3 @obsolete-dialog-form 	#define CTL_E_MONRCH_GGRP            (1 + WINDOWS_ID_BIAS)
+// @v10.5.3 @obsolete-dialog-form 	#define CTLSEL_E_MONRCH_GGRP         (2 + WINDOWS_ID_BIAS)
 #define DLG_GSDATA                388 // Выбор структуры товара
 	#define cmShowGoodsStruc             101
 	#define CTL_GSDATA_NAMEDSTRUC        (1 + WINDOWS_ID_BIAS)
@@ -9510,6 +9513,7 @@
 #define DLG_FILTITEM              1174
 	#define cmFiltParam                102
 	#define cmOutFields                103
+	#define cmGuaList                  104 // @v10.5.3
 	#define CTL_FILTITEM_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_FILTITEM_NAME          (2 + WINDOWS_ID_BIAS)
 	#define CTL_FILTITEM_CMD           (3 + WINDOWS_ID_BIAS)
@@ -10966,34 +10970,34 @@
 // @v10.3.6 #define PPERR_GOODSGROUPNEEDED     38 // Необходимо выбрать товарную группу
 // @v10.3.6 #define PPERR_MANUFACTURERNEEDED   39 // @unused Необходимо выбрать производителя товара
 // @v10.3.6 #define PPERR_INVALIDPHUPERU       40 // Если для товара введена физическая единица измерения, то необходимо задать корректное соотношение физической единицы к торговой
-#define PPERR_ACCHASBRANCH         41 // Счет нельзя удалить поскольку он имеет субсчета
-#define PPERR_NOTFOUND             42
-#define PPERR_ACCNFOUND            43 // Счет не найден
-#define PPERR_ACCHASNTBRANCHES     44 // Счет не имеет "потомков" (указана лишняя составляющая счета)
-#define PPERR_ARTICLENFOUND        45 // Статья не найдена
-#define PPERR_ACTNDEF              48 // Неопределенный вид счета
-#define PPERR_TURNDATETOOLOW       49
-#define PPERR_TURNDATETOOHIGH      50
-#define PPERR_INVBILLID            51
-#define PPERR_FWTURNLOWBOUND       52
-#define PPERR_FWTURNUPPBOUND       53
-#define PPERR_FWBALLOWBOUND        54
-#define PPERR_FWBALUPPBOUND        55
-#define PPERR_BALLOWBOUND          56
-#define PPERR_BALUPPBOUND          57
-#define PPERR_DATEBALNFOUND        58 // Не найдена запись баланса на заданную дату
+// @v10.5.3 #define PPERR_ACCHASBRANCH         41 // Счет нельзя удалить поскольку он имеет субсчета
+// @v10.5.3 #define PPERR_NOTFOUND             42
+// @v10.5.3 #define PPERR_ACCNFOUND            43 // Счет не найден
+// @v10.5.3 #define PPERR_ACCHASNTBRANCHES     44 // Счет не имеет "потомков" (указана лишняя составляющая счета)
+// @v10.5.3 #define PPERR_ARTICLENFOUND        45 // Статья не найдена
+// @v10.5.3 #define PPERR_ACTNDEF              48 // Неопределенный вид счета
+// @v10.5.3 #define PPERR_TURNDATETOOLOW       49
+// @v10.5.3 #define PPERR_TURNDATETOOHIGH      50
+// @v10.5.3 #define PPERR_INVBILLID            51
+// @v10.5.3 #define PPERR_FWTURNLOWBOUND       52
+// @v10.5.3 #define PPERR_FWTURNUPPBOUND       53
+// @v10.5.3 #define PPERR_FWBALLOWBOUND        54
+// @v10.5.3 #define PPERR_FWBALUPPBOUND        55
+// @v10.5.3 #define PPERR_BALLOWBOUND          56
+// @v10.5.3 #define PPERR_BALUPPBOUND          57
+// @v10.5.3 #define PPERR_DATEBALNFOUND        58 // Не найдена запись баланса на заданную дату
 	// Это является ошибкой только в некоторых случаях, но зато серьезной. Один из них: попытка откатить проводку за дату,
 	// за которую в балансе нет записи. Это означает, что либо баланс либо AccTurn испорчен.
-#define PPERR_BALROLLBACKBOUND     59 // Попытка откатить баланс на сумму, превышающую остаток
-#define PPERR_TURNLOWBOUND         60
-#define PPERR_TURNUPPBOUND         61
-#define PPERR_ACCTCLOSED           62
-#define PPERR_MAINAMTNEEDED        63 // Требуется сумма типа PPAMT_MAIN (BILL.CPP)
-#define PPERR_INVTURNAMOUNT        64 // Неверная сумма проводки (== 0)
-#define PPERR_TURNMIRRORINGFAULT   65 // Отсутствие зеркальной проводки
-#define PPERR_INVPERIODINPUT       66 // Неправильный ввод периода
-#define PPERR_ACCNEEDED            67 // Необходимо ввести (выбрать) счет
-#define PPERR_PASSNOTIDENT         68 // Два ввода пароля не совпадают
+// @v10.5.3 #define PPERR_BALROLLBACKBOUND     59 // Попытка откатить баланс на сумму, превышающую остаток
+// @v10.5.3 #define PPERR_TURNLOWBOUND         60
+// @v10.5.3 #define PPERR_TURNUPPBOUND         61
+// @v10.5.3 #define PPERR_ACCTCLOSED           62
+// @v10.5.3 #define PPERR_MAINAMTNEEDED        63 // Требуется сумма типа PPAMT_MAIN (BILL.CPP)
+// @v10.5.3 #define PPERR_INVTURNAMOUNT        64 // Неверная сумма проводки (== 0)
+// @v10.5.3 #define PPERR_TURNMIRRORINGFAULT   65 // Отсутствие зеркальной проводки
+// @v10.5.3 #define PPERR_INVPERIODINPUT       66 // Неправильный ввод периода
+// @v10.5.3 #define PPERR_ACCNEEDED            67 // Необходимо ввести (выбрать) счет
+// @v10.5.3 #define PPERR_PASSNOTIDENT         68 // Два ввода пароля не совпадают
 // @v10.4.6 #define PPERR_TOOFEWFILES          76
 // @v10.4.6 #define PPERR_NOPERSBYLOT          77 // На указанную дату по лоту операций не было
 // @v10.4.6 #define PPERR_FWLOTRESTBOUND       78
@@ -11099,41 +11103,41 @@
 // @v10.4.6 #define PPERR_CRESTCORRUPT_NEQ    187 // Неверный остаток в CurRest
 // @v10.4.6 #define PPERR_CRESTCORRUPT_ABS    188 // Отсутствует запись в CurRest
 // @v10.4.6 #define PPERR_CRESTCORRUPT_EXREC  189 // Лишняя запись в CurRest
-#define PPERR_NQUOTID             221 // лот не яляется котировкой (внутренний сбой или ошибка в БД)
-#define PPERR_BACKQUOT            222 // Котировка задним числом не допустима
-#define PPERR_QUOTNEEDED          223 // Отсутствует котировка для заданного товара
-#define PPERR_INIOPENFAULT        224 // Ошибка открытия ini-файла
-#define PPERR_INVFILESET          225 // Неверно задан набор файлов
-#define PPERR_DUPTEMPCHECK        226 // Дублирование чека в кассовой сессии (%s)
-#define PPERR_INVCASHNODEID       227 // Неверный ид кассового узла
-#define PPERR_SYNCCSNOTSUPP       228 // ККМ не поддерживает синхронный интерфейс
-#define PPERR_ASYNCCSNOTSUPP      229 // ККМ не поддерживает асинхронный интерфейс
-#define PPERR_ZEROBILLLOC         230 // Нулевая локация в документе
-#define PPERR_NOTINTRRCPTOP       231 // Требуется операция межскладского прихода
-#define PPERR_GMODIFITEMSIGN      232 // Неопределенный знак строки модификации товара
-#define PPERR_MAINORGASSUPPL      233 // Главная организация должна быть поставщиком
-#define PPERR_DUPGSTRUCITEM       234 // Дублирование в структуре товара
-#define PPERR_NMATCHBILLAMT       235 // Сумма в документе не совпадает с суммой по тов. строкам
-#define PPERR_NMATCHBILLMAINAMT   236 // Номин сумма документа не совпадает с суммой по тов. строкам
-#define PPERR_DUPAMTSYMB          237 // Дублирование символа для типа суммы
-#define PPERR_INVFORMULA          238 // Неверное (или пустое) выражение формулы
-#define PPERR_DUPFORMSYMB         239 // Дублирование символа формулы
-#define PPERR_INVDBSYMB           240 // Неверный символ базы данных '%s' // @todo(eliminate)
-#define PPERR_OKA500NOTSUPPORTED  241 // С v2.0.1 ККМ ОКА-500 не поддерживается //
-#define PPERR_OBJTSTACKFAULT      242 // Сбой стека ссылок при приеме данных
-#define PPERR_CLICRDOVERFLOW      243 // Документ превышает предельный кредит клиента
-#define PPERR_NOMAINORGID         244 // Заявленная персоналия не является главной организацией
-#define PPERR_CNTOGGLESYNC        246 // Попытка изменения синхронности кассового узла
-#define PPERR_CMSYNCNOTSUPP       247 // Выбранный тип ККМ не поддерживает (а)синхронный режим
-#define PPERR_UNDEFDBPATHS        271 // Не определены пути доступа к данным
-#define PPERR_DESTDIRNEEDED       272 // Необходимо задать каталог вывода
-#define PPERR_AUTOCOMPLREST       273 // Недостаточно ресурсов для автокомплектации
-#define PPERR_UNDEFGOODSSTRUC     274 // Для товара не определена структура
-#define PPERR_UNDEFAUTOCOMPLOP    275 // Не определена операция автокомплектации
-#define PPERR_INVAUTOCOMPLOP      276 // Неверно определена операция автокомплектации
-#define PPERR_NOTGENGOODS         277 // Заданный товар не является обобщенным
-#define PPERR_TOOGENGOODS         278 // Товар уже принадлежит другому обобщению %s
-#define PPERR_SCALEGRPNEEDED      279 // Необходимо задать группу товаров для весов
+// @10.5.3 #define PPERR_NQUOTID              221 // лот не яляется котировкой (внутренний сбой или ошибка в БД)
+// @10.5.3 #define PPERR_BACKQUOT             222 // Котировка задним числом не допустима
+// @10.5.3 #define PPERR_QUOTNEEDED           223 // Отсутствует котировка для заданного товара
+// @10.5.3 #define PPERR_INIOPENFAULT         224 // Ошибка открытия ini-файла
+// @10.5.3 #define PPERR_INVFILESET           225 // Неверно задан набор файлов
+// @10.5.3 #define PPERR_DUPTEMPCHECK         226 // Дублирование чека в кассовой сессии (%s)
+// @10.5.3 #define PPERR_INVCASHNODEID        227 // Неверный ид кассового узла
+// @10.5.3 #define PPERR_SYNCCSNOTSUPP        228 // ККМ не поддерживает синхронный интерфейс
+// @10.5.3 #define PPERR_ASYNCCSNOTSUPP       229 // ККМ не поддерживает асинхронный интерфейс
+// @10.5.3 #define PPERR_ZEROBILLLOC          230 // Нулевая локация в документе
+// @10.5.3 #define PPERR_NOTINTRRCPTOP        231 // Требуется операция межскладского прихода
+// @10.5.3 #define PPERR_GMODIFITEMSIGN       232 // Неопределенный знак строки модификации товара
+// @10.5.3 #define PPERR_MAINORGASSUPPL       233 // Главная организация должна быть поставщиком
+// @10.5.3 #define PPERR_DUPGSTRUCITEM        234 // Дублирование в структуре товара
+// @10.5.3 #define PPERR_NMATCHBILLAMT        235 // Сумма в документе не совпадает с суммой по тов. строкам
+// @10.5.3 #define PPERR_NMATCHBILLMAINAMT    236 // Номин сумма документа не совпадает с суммой по тов. строкам
+// @10.5.3 #define PPERR_DUPAMTSYMB           237 // Дублирование символа для типа суммы
+// @10.5.3 #define PPERR_INVFORMULA           238 // Неверное (или пустое) выражение формулы
+// @10.5.3 #define PPERR_DUPFORMSYMB          239 // Дублирование символа формулы
+// @10.5.3 #define PPERR_INVDBSYMB            240 // Неверный символ базы данных '%s' // @todo(eliminate)
+// @10.5.3 #define PPERR_OKA500NOTSUPPORTED   241 // С v2.0.1 ККМ ОКА-500 не поддерживается //
+// @10.5.3 #define PPERR_OBJTSTACKFAULT       242 // Сбой стека ссылок при приеме данных
+// @10.5.3 #define PPERR_CLICRDOVERFLOW       243 // Документ превышает предельный кредит клиента
+// @10.5.3 #define PPERR_NOMAINORGID          244 // Заявленная персоналия не является главной организацией
+// @10.5.3 #define PPERR_CNTOGGLESYNC         246 // Попытка изменения синхронности кассового узла
+// @10.5.3 #define PPERR_CMSYNCNOTSUPP        247 // Выбранный тип ККМ не поддерживает (а)синхронный режим
+// @10.5.3 #define PPERR_UNDEFDBPATHS         271 // Не определены пути доступа к данным
+// @10.5.3 #define PPERR_DESTDIRNEEDED        272 // Необходимо задать каталог вывода
+// @10.5.3 #define PPERR_AUTOCOMPLREST        273 // Недостаточно ресурсов для автокомплектации
+// @10.5.3 #define PPERR_UNDEFGOODSSTRUC      274 // Для товара не определена структура
+// @10.5.3 #define PPERR_UNDEFAUTOCOMPLOP     275 // Не определена операция автокомплектации
+// @10.5.3 #define PPERR_INVAUTOCOMPLOP       276 // Неверно определена операция автокомплектации
+// @10.5.3 #define PPERR_NOTGENGOODS          277 // Заданный товар не является обобщенным
+// @10.5.3 #define PPERR_TOOGENGOODS          278 // Товар уже принадлежит другому обобщению %s
+// @10.5.3 #define PPERR_SCALEGRPNEEDED       279 // Необходимо задать группу товаров для весов
 // @v10.3.9 #define PPERR_SCALE_FOPEN         280 // Ошибка открытия входного файла
 // @v10.3.9 #define PPERR_SCALE_INVPORT       281 // Неверный порт вывода для весов
 // @v10.3.9 #define PPERR_SCALE_NOTREADY      282 // Весы не готовы для обмена данными

@@ -1,6 +1,6 @@
 // V_BUDGET.CPP
 // Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
-//
+// @codepage UTF-8
 // PPViewBudget
 //
 #include <pp.h>
@@ -250,7 +250,7 @@ int SLAPI PPObjBudget::GetPacket(PPID id, PPBudgetPacket * pPack)
 	if(Search(id, &pPack->Rec) > 0) {
 		PPIDArray scen_list;
 		//
-		// Извлекаем сценарии
+		// РР·РІР»РµРєР°РµРј СЃС†РµРЅР°СЂРёРё
 		//
 		{
 			SString buf;
@@ -266,7 +266,7 @@ int SLAPI PPObjBudget::GetPacket(PPID id, PPBudgetPacket * pPack)
 					pPack->ScenList.insert(&rec);
 			}
 		//
-		// Извлекаем список доходных/расходных статей
+		// РР·РІР»РµРєР°РµРј СЃРїРёСЃРѕРє РґРѕС…РѕРґРЅС‹С…/СЂР°СЃС…РѕРґРЅС‹С… СЃС‚Р°С‚РµР№
 		//
 		{
 			BudgetItemsList items_list;
@@ -311,11 +311,11 @@ int SLAPI PPObjBudget::PutPacket(PPID * pID, PPBudgetPacket * pPack, int use_ta)
 				GetPacket(*pID, &prev_pack);
 		}
 		//
-		// Модифицируем запись бюджета
+		// РњРѕРґРёС„РёС†РёСЂСѓРµРј Р·Р°РїРёСЃСЊ Р±СЋРґР¶РµС‚Р°
 		//
 		THROW(PutRec(pID, (pPack) ? &pPack->Rec : 0, 0));
 		//
-		// Модифицируем записи сценариев
+		// РњРѕРґРёС„РёС†РёСЂСѓРµРј Р·Р°РїРёСЃРё СЃС†РµРЅР°СЂРёРµРІ
 		//
 		for(uint i = 0; i < prev_pack.ScenList.getCount(); i++) {
 			PPBudget & r_scen_rec = prev_pack.ScenList.at(i);
@@ -325,7 +325,7 @@ int SLAPI PPObjBudget::PutPacket(PPID * pID, PPBudgetPacket * pPack, int use_ta)
 			}
 		}
 		//
-		// Модифицируем записи доходных/расходных статей
+		// РњРѕРґРёС„РёС†РёСЂСѓРµРј Р·Р°РїРёСЃРё РґРѕС…РѕРґРЅС‹С…/СЂР°СЃС…РѕРґРЅС‹С… СЃС‚Р°С‚РµР№
 		//
 		deleteFrom(&ItemsTbl, 0, ItemsTbl.BudgetID == *pID);
 		if(*pID && pPack != 0) {
@@ -1161,10 +1161,10 @@ int SLAPI PPViewBudget::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-void SLAPI PPViewBudget::MakeTempRec(void * pRec, void * pTempRec)
+void SLAPI PPViewBudget::MakeTempRec(const void * pRec, void * pTempRec)
 {
 	if(Filt.Kind == BudgetFilt::kBudget) {
-		PPBudget * p_rec = (PPBudget*)pRec;
+		const PPBudget * p_rec = static_cast<const PPBudget *>(pRec);
 		TempBudgetTbl::Rec temp_rec;
 		MEMSZERO(temp_rec);
 		if(p_rec) {
@@ -1176,10 +1176,10 @@ void SLAPI PPViewBudget::MakeTempRec(void * pRec, void * pTempRec)
 			temp_rec.LowDt = p_rec->LowDt;
 			temp_rec.UppDt = p_rec->UppDt;
 		}
-		ASSIGN_PTR((TempBudgetTbl::Rec*)pTempRec, temp_rec);
+		ASSIGN_PTR(static_cast<TempBudgetTbl::Rec *>(pTempRec), temp_rec);
 	}
 	else {
-		BudgetItemTbl::Rec * p_rec = (BudgetItemTbl::Rec*)pRec;
+		const BudgetItemTbl::Rec * p_rec = static_cast<const BudgetItemTbl::Rec *>(pRec);
 		TempBudgItemTbl::Rec temp_rec;
 		if(p_rec) {
 			SString buf;
@@ -1197,7 +1197,7 @@ void SLAPI PPViewBudget::MakeTempRec(void * pRec, void * pTempRec)
 			buf.CopyTo(temp_rec.DtText, sizeof(temp_rec.DtText));
 			if(ObjAcct.Fetch(p_rec->Acc, &acc_rec) > 0)
 				STRNSCPY(temp_rec.AccText, acc_rec.Name);
-			ASSIGN_PTR((TempBudgItemTbl::Rec*)pTempRec, temp_rec);
+			ASSIGN_PTR(static_cast<TempBudgItemTbl::Rec *>(pTempRec), temp_rec);
 		}
 	}
 }
@@ -1264,10 +1264,8 @@ int SLAPI PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 			BudgetItemTbl::Rec rec;
 			TempBudgItemTbl::Rec  temp_rec;
 			TempBudgItemTbl::Key0 k0;
-
 			MEMSZERO(temp_rec);
 			MEMSZERO(rec);
-
 			k0.ID = id;
 			if(ObjBudg.ItemsTbl.Search(id, &rec) > 0 && CheckForFilt(&rec) > 0) {
 				MakeTempRec(&rec, &temp_rec);
@@ -1281,8 +1279,8 @@ int SLAPI PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 			else
 				deleteFrom(P_TempBudgItemTbl, 0, P_TempBudgItemTbl->ID == id);
 			//
-			// Если счет введенного элемента не удовлетворяет фильтру, попробуем отыскать элемент с родительским счетом, который бы подходил под
-			// условия фильтра.
+			// Р•СЃР»Рё СЃС‡РµС‚ РІРІРµРґРµРЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РЅРµ СѓРґРѕРІР»РµС‚РІРѕСЂСЏРµС‚ С„РёР»СЊС‚СЂСѓ, РїРѕРїСЂРѕР±СѓРµРј РѕС‚С‹СЃРєР°С‚СЊ СЌР»РµРјРµРЅС‚ СЃ СЂРѕРґРёС‚РµР»СЊСЃРєРёРј СЃС‡РµС‚РѕРј, РєРѕС‚РѕСЂС‹Р№ Р±С‹ РїРѕРґС…РѕРґРёР» РїРѕРґ
+			// СѓСЃР»РѕРІРёСЏ С„РёР»СЊС‚СЂР°.
 			//
 			{
 				PPAccount acc_rec;
@@ -1389,7 +1387,7 @@ int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
 			private:
 				virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 				{
-					return (pVal && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+					return (pVal && P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
 				}
 				PPViewBudget * P_V;
 			};
@@ -1570,7 +1568,7 @@ IMPL_HANDLE_EVENT(BudgetTotalDialog)
 		if(p_dc && getCtrlHandle(CTL_BUDGTOTAL_DEFICITTXT) == p_dc->H_Ctl && Diff != 0.0) {
 			::SetBkMode(p_dc->H_DC, TRANSPARENT);
 			::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-			p_dc->H_Br = (HBRUSH)Ptb.Get((Diff > 0) ? proficitBrush : deficitBrush);
+			p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((Diff > 0) ? proficitBrush : deficitBrush));
 			clearEvent(event);
 		}
 	}
@@ -1770,8 +1768,7 @@ int SLAPI PPViewBudget::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 						BudgetItemTbl::Rec rec;
 						if(ObjBudg.ItemsTbl.Search(id, &rec) > 0 && sstrlen(rec.Memo))
 							PPTooltipMessage(rec.Memo, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-								SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|
-								SMessageWindow::fChildWindow);
+								SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 					}
 					ok = 1;
 				}
@@ -1788,7 +1785,7 @@ int SLAPI PPViewBudget::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 		idlist.add(id);
 	if(ok > 0 && oneof6(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_ADDBYSAMPLE, PPVCMD_VIEWACC, PPVCMD_RECEIVEDFOCUS) && idlist.getCount()) {
 		//
-		// Полностью перестраиваем таблицу, так как это Crosstab
+		// РџРѕР»РЅРѕСЃС‚СЊСЋ РїРµСЂРµСЃС‚СЂР°РёРІР°РµРј С‚Р°Р±Р»РёС†Сѓ, С‚Р°Рє РєР°Рє СЌС‚Рѕ Crosstab
 		//
 		if(P_Ct && Filt.Kind == BudgetFilt::kBudgetItems) {
 			if((ok = ChangeFilt(1, pBrw)) > 0 && idlist.getCount()) {
@@ -1859,7 +1856,7 @@ int PPALDD_Budget::InitData(PPFilt & rFilt, long rsrv)
 {
 	PPBudgetPacket * p_pack = 0;
 	if(rsrv)
-		Extra[1].Ptr = p_pack = (PPBudgetPacket*)rFilt.Ptr;
+		Extra[1].Ptr = p_pack = static_cast<PPBudgetPacket *>(rFilt.Ptr);
 	if(p_pack) {
 		STRNSCPY(H.Name, p_pack->Rec.Name);
 		STRNSCPY(H.Code, p_pack->Rec.Code);

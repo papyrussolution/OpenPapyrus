@@ -5,7 +5,9 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(2), ViewID(0), Flags(0) //@erik ver 0-->1 // @v10.5.3 ver 1-->2
+static const long Current_PPNamedFilt_Ver = 2;
+
+SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(Current_PPNamedFilt_Ver), ViewID(0), Flags(0) //@erik ver 0-->1 // @v10.5.3 ver 1-->2
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -30,17 +32,19 @@ int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
 {
 	SSerializeContext sctx;
 	int    ok = 1;
+	Ver = Current_PPNamedFilt_Ver; // @v10.5.3
 	THROW_SL(rBuf.Write(ID));
 	THROW_SL(rBuf.Write(Ver));
 	THROW_SL(rBuf.Write(ViewID));
-	THROW_SL(rBuf.Write(Flags)); // @v8.4.2 (за счет Reserve)
+	THROW_SL(rBuf.Write(Flags));
 	THROW_SL(rBuf.Write(Reserve, sizeof(Reserve)));
 	THROW_SL(rBuf.Write(Name));
 	THROW_SL(rBuf.Write(DbSymb));
 	THROW_SL(rBuf.Write(Symb));
 	THROW_SL(rBuf.Write(ViewSymb));
 	THROW_SL(rBuf.Write(Param));
-	THROW_SL(VD.Serialize(1, rBuf, &sctx));
+	THROW_SL(VD.Serialize(+1, rBuf, &sctx));
+	THROW(DestGuaList.Serialize(+1, rBuf, &sctx)); // @v10.5.3
 	CATCHZOK
 	return ok;
 }
@@ -119,7 +123,7 @@ int SLAPI PPNamedFiltPool::CheckUniqueNamedFilt(const PPNamedFilt * pNFilt) cons
 		}
 	}
 	CATCHZOK
-		return ok;
+	return ok;
 }
 
 int SLAPI PPNamedFiltPool::Enum(PPID * pID, PPNamedFilt * pNFilt, int ignoreDbSymb) const
@@ -186,7 +190,7 @@ int SLAPI PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt *
 		ASSIGN_PTR(pNamedFiltID, p_nfilt->ID);
 	}
 	CATCHZOK
-		return ok;
+	return ok;
 }
 
 SLAPI PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
@@ -213,7 +217,7 @@ int SLAPI PPNamedFiltMngr::LoadResource(PPID viewID, SString & rSymb, SString & 
 		pFlags = &flags;
 	}
 	CATCHZOK
-		return ok;
+	return ok;
 }
 
 int SLAPI PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocArray * pTextList) const
@@ -237,7 +241,7 @@ int SLAPI PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocA
 		pTextList->SortByText();
 	}
 	CATCHZOK
-		return ok;
+	return ok;
 }
 
 #define NFSTRGSIGN 'SFPP'
@@ -275,7 +279,7 @@ int SLAPI PPNamedFiltMngr::LoadPool(const char * pDbSymb, PPNamedFiltPool * pPoo
 	LastLoading = getcurdatetime_();
 	pPool->DbSymb = pDbSymb;
 	CATCHZOK
-		SETFLAG(pPool->Flags, PPNamedFiltPool::fReadOnly, readOnly);
+	SETFLAG(pPool->Flags, PPNamedFiltPool::fReadOnly, readOnly);
 	return ok;
 }
 
@@ -297,7 +301,7 @@ int SLAPI PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
 		THROW_SL(f.Write(buf));
 	}
 	CATCHZOK
-		return ok;
+	return ok;
 }
 //
 // Descr: Отвечает за диалог "Список фильтров"
@@ -306,6 +310,7 @@ class FiltPoolDialog : public PPListDialog {
 public:
 	FiltPoolDialog(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pData) : PPListDialog(DLG_FILTPOOL, CTL_FILTPOOL_LIST), P_Mngr(pMngr), P_Data(pData)
 	{
+		CALLPTRMEMB(P_Mngr, GetResourceLists(&CmdSymbList, &CmdTextList));
 		updateList(-1);
 	}
 private:
@@ -316,6 +321,8 @@ private:
 
 	PPNamedFiltMngr * P_Mngr; // @notowned
 	PPNamedFiltPool * P_Data; // @notowned
+	StrAssocArray CmdSymbList;
+	StrAssocArray CmdTextList;
 };
 
 //
@@ -324,11 +331,23 @@ private:
 int FiltPoolDialog::setupList()
 {
 	int    ok = 1;
+	SString temp_buf;
 	PPNamedFilt  nfilt;
 	StringSet ss(SLBColumnDelim);
 	for(PPID id = 0; ok && P_Data->Enum(&id, &nfilt, 0/*1 - ForAllDb*/);) {
 		ss.clear();
-		(ss += nfilt.Name) += nfilt.Symb;
+		ss.add(temp_buf.Z().Cat(nfilt.ID));
+		ss.add(nfilt.Name);
+		ss.add(nfilt.Symb);
+		uint    pos = 0;
+		temp_buf.Z();
+		if(CmdSymbList.SearchByText(nfilt.ViewSymb, 1, &pos)) {
+			StrAssocArray::Item symb_item = CmdSymbList.at_WithoutParent(pos);
+			uint  tpos = 0;
+			if(CmdTextList.Search(symb_item.Id, &tpos))
+				temp_buf = CmdTextList.at_WithoutParent(tpos).Txt;
+		}
+		ss.add(temp_buf);
 		if(!addStringToList(id, ss.getBuf()))
 			ok = 0;
 	}
@@ -356,7 +375,7 @@ int SLAPI ViewFiltPool()
 			PPError();
 	}
 	CATCHZOKPPERR
-		delete dlg;
+	delete dlg;
 	return ok;
 }
 
@@ -426,6 +445,16 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 	else if(event.isCmd(cmOutFields)) {
 		ViewMobColumnList();
 	}
+	// @v10.5.3 {
+	else if(event.isCmd(cmGuaList)) {
+		PPIDArray id_list;
+		Data.DestGuaList.Get(id_list);
+		ListToListData ltld(PPOBJ_GLOBALUSERACC, 0, &id_list);
+		ltld.TitleStrID = 0; // PPTXT_XXX;
+		if(ListToListDialog(&ltld) > 0)
+			Data.DestGuaList.Set(&id_list);
+	}
+	// } @v10.5.3 
 	clearEvent(event);
 }
 
@@ -456,7 +485,7 @@ int FiltItemDialog::ChangeBaseFilter()
 	CATCH
 		Data.Param.SetRdOffs(sav_offs);
 	ENDCATCH
-		ZDELETE(p_filt);
+	ZDELETE(p_filt);
 	ZDELETE(p_view);
 	return ok;
 }
@@ -503,7 +532,7 @@ int FiltItemDialog::getDTS(PPNamedFilt * pData)
 		// Вывести сообщение о ошибке и активировать породивший его управляющий элемент
 		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
-		return ok;
+	return ok;
 }
 
 //
@@ -541,9 +570,8 @@ int FiltPoolDialog::editItem(long pos, long id)
 		if(!ok)
 			PPError();
 	}
-	else {
+	else
 		ok = PPError();
-	}
 	return ok;
 }
 

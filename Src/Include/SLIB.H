@@ -14127,7 +14127,6 @@ public:
 	//   0  - проблемы
 	//
 	static int Check();
-
 	SLAPI  MemHeapTracer();
 	int    SLAPI CalcStat(Stat * pSize);
 	int    SLAPI Dump(const char * pFileName, long flags);
@@ -14144,6 +14143,7 @@ void FASTCALL TraceFunc(const char * pFuncName, const char * pAddedMsg);
 #endif
 
 struct SInvariantParam {
+	SInvariantParam();
 	int    LocalOk;
 	ulong  Time;           // Время исполнения //
 	SString MsgBuf;
@@ -14329,10 +14329,7 @@ public:
 	//		}
 	//
 	SEnumImp * EnumTab(const char * pTabName);
-	int    GetCurrentStatus() const
-	{
-		return CurrentStatus;
-	}
+	int    GetCurrentStatus() const { return CurrentStatus; }
 protected:
 	const  STestSuite::Entry * GetSuiteEntry() const;
 	const char * MakeInputFilePath(const char * pFileName);

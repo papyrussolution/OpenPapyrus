@@ -119,7 +119,9 @@ public:
 		protLDAPS    = 35,
 		protMailFrom = 36, // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется
 			// для внутреннего представления описания параметров приема данных из почтовых сообщений.
-		protPapyrusServer = 37 // @v10.2.3 private-протокол системы Papyrus
+		protPapyrusServer = 37, // @v10.2.3 private-протокол системы Papyrus
+		protAMQP     = 38, // @v10.5.3
+		protAMQPS    = 39  // @v10.5.3
 	};
 	//
 	// Descr: Компоненты URL

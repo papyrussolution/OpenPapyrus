@@ -109,7 +109,7 @@ int GoodsTaxAnalyzeFiltDialog::setDTS(const GoodsTaxAnalyzeFilt * pData)
 	SetupArCombo(this, CTLSEL_GDSGRPRLZ_SUPPL,   Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	SetupArCombo(this, CTLSEL_GDSGRPRLZ_SUPPLAG, Data.SupplAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	disableCtrls(Data.BillList.IsExists(), CTLSEL_GDSGRPRLZ_OP, CTLSEL_GDSGRPRLZ_LOC, 0);
-	SetupSubstGoodsCombo(this, CTLSEL_GDSGRPRLZ_GSUBST, Data.Sgg); // @v6.0.2 AHTOXA
+	SetupSubstGoodsCombo(this, CTLSEL_GDSGRPRLZ_GSUBST, Data.Sgg);
 	return 1;
 }
 
@@ -976,11 +976,10 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 {
 	class GTaxAnlzTotalDialog : public TDialog {
 	public:
-		GTaxAnlzTotalDialog(GoodsTaxAnalyzeTotal * pTotal, PPViewGoodsTaxAnalyze * pV) : TDialog(DLG_GTANLZTOTAL)
+		GTaxAnlzTotalDialog(GoodsTaxAnalyzeTotal * pTotal, PPViewGoodsTaxAnalyze * pV) : TDialog(DLG_GTANLZTOTAL), P_V(pV)
 		{
 			if(!RVALUEPTR(Total, pTotal))
 				MEMSZERO(Total);
-			P_V = pV;
 		}
 		int  setDTS()
 		{
@@ -1113,8 +1112,8 @@ int PPALDD_GoodsTaxAnlz::InitData(PPFilt & rFilt, long rsrv)
 	H.FltLotsBeg = p_filt->LotsPeriod.low;
 	H.FltLotsEnd = p_filt->LotsPeriod.upp;
 	H.IncomeMethod = (p_filt->Flags & GoodsTaxAnalyzeFilt::fByPayment) ? INCM_BYPAYMENT : INCM_BYSHIPMENT;
-	PPFormatPeriod((DateRange *)&p_filt->Period, temp_buf).CopyTo(H.Prd, sizeof(H.Prd));
-	PPFormatPeriod((DateRange *)&p_filt->LotsPeriod, temp_buf).CopyTo(H.LotsPrd, sizeof(H.LotsPrd));
+	PPFormatPeriod(&p_filt->Period, temp_buf).CopyTo(H.Prd, sizeof(H.Prd));
+	PPFormatPeriod(&p_filt->LotsPeriod, temp_buf).CopyTo(H.LotsPrd, sizeof(H.LotsPrd));
 	H.FltCycle   = p_filt->Cycl.Cycle;
 	H.FltNumCycles = p_filt->Cycl.NumCycles;
 	H.FltFlags   = p_filt->Flags;

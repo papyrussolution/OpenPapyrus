@@ -1,7 +1,7 @@
 // OBJSTAFF.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-// Штатное расписание
+// @codepage UTF-8
+// РЁС‚Р°С‚РЅРѕРµ СЂР°СЃРїРёСЃР°РЅРёРµ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -274,7 +274,7 @@ int SLAPI PPObjStaffList::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				//
-				// Для объекта PPObjStaffList зарезервированное пространство [1..PP_FIRSTUSRREF-1] не применимо
+				// Р”Р»СЏ РѕР±СЉРµРєС‚Р° PPObjStaffList Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ [1..PP_FIRSTUSRREF-1] РЅРµ РїСЂРёРјРµРЅРёРјРѕ
 				//
 				if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPStaffEntry, Name)) > 0 ||
 					ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPStaffEntry, Symb)) > 0) {
@@ -442,7 +442,7 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 	SString msg_buf;
 	PPStaffEntry sl_rec;
 	PersonTbl::Rec psn_rec;
-	PersonPostTbl::Rec post_rec; // Временная запись
+	PersonPostTbl::Rec post_rec; // Р’СЂРµРјРµРЅРЅР°СЏ Р·Р°РїРёСЃСЊ
 	SalaryCore * p_sal_tbl = (*pID && pPack == 0) ? new SalaryCore : 0;
 	{
 		PPTransaction tra(use_ta);
@@ -452,32 +452,32 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 			THROW(SearchPost(*pID, &org_rec) > 0);
 			if(pPack) {
 				//
-				// Если запись не изменилась, то и суетиться не следует
+				// Р•СЃР»Рё Р·Р°РїРёСЃСЊ РЅРµ РёР·РјРµРЅРёР»Р°СЃСЊ, С‚Рѕ Рё СЃСѓРµС‚РёС‚СЊСЃСЏ РЅРµ СЃР»РµРґСѓРµС‚
 				//
 				int    was_updated = 0;
 				// @v10.3.0 (never used) int    was_list_updated = 0;
 				if(memcmp(&org_rec, &pPack->Rec, sizeof(PersonPostTbl::Rec)) != 0) {
 					was_updated = 1;
 					//
-					// Извлекаем должность и персоналию для проверки ссылок и вспомогательных целей
+					// РР·РІР»РµРєР°РµРј РґРѕР»Р¶РЅРѕСЃС‚СЊ Рё РїРµСЂСЃРѕРЅР°Р»РёСЋ РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃСЃС‹Р»РѕРє Рё РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹С… С†РµР»РµР№
 					//
 					THROW(Fetch(pPack->Rec.StaffID, &sl_rec) > 0);
 					THROW(PsnObj.Fetch(pPack->Rec.PersonID, &psn_rec) > 0);
 					if(pPack->Rec.Closed) {
 						//
-						// У закрытого назначения нельзя менять ни персоналию ни должность
+						// РЈ Р·Р°РєСЂС‹С‚РѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ РЅРµР»СЊР·СЏ РјРµРЅСЏС‚СЊ РЅРё РїРµСЂСЃРѕРЅР°Р»РёСЋ РЅРё РґРѕР»Р¶РЅРѕСЃС‚СЊ
 						//
 						THROW_PP(pPack->Rec.PersonID == org_rec.PersonID, PPERR_CLOSEDPOSTUPD);
 						THROW_PP(pPack->Rec.StaffID == org_rec.StaffID, PPERR_CLOSEDPOSTUPD);
 						if(org_rec.Closed == 0) {
 							//
-							// Если статус назначения изменился с "открытого" на закрытый, то
-							// устанавливаем значение Closed (максимальным+1) для сочетания {StaffID, PersonID}
+							// Р•СЃР»Рё СЃС‚Р°С‚СѓСЃ РЅР°Р·РЅР°С‡РµРЅРёСЏ РёР·РјРµРЅРёР»СЃСЏ СЃ "РѕС‚РєСЂС‹С‚РѕРіРѕ" РЅР° Р·Р°РєСЂС‹С‚С‹Р№, С‚Рѕ
+							// СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р·РЅР°С‡РµРЅРёРµ Closed (РјР°РєСЃРёРјР°Р»СЊРЅС‹Рј+1) РґР»СЏ СЃРѕС‡РµС‚Р°РЅРёСЏ {StaffID, PersonID}
 							//
 							THROW(r = GetPersonPost(-1, pPack->Rec.StaffID, pPack->Rec.PersonID, &post_rec));
 							pPack->Rec.Closed = (r > 0) ? (post_rec.Closed + 1) : 1;
 							//
-							// Уменьшаем (с проверкой корректности) количество занятых вакансий
+							// РЈРјРµРЅСЊС€Р°РµРј (СЃ РїСЂРѕРІРµСЂРєРѕР№ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё) РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РЅСЏС‚С‹С… РІР°РєР°РЅСЃРёР№
 							//
 							THROW(IncrementStaffVacancy(pPack->Rec.StaffID, 1, 0));
 						}
@@ -498,11 +498,11 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 			}
 			else {
 				//
-				// Удаление назначения //
-				// Не путать с закрытием:
-				// Удаление - радикальная операция, стирающая все следы назначения.
-				// Закрытие - аккуратная учетная операция, отмечающая назначение как закрытое, но
-				//   не удаляющая его.
+				// РЈРґР°Р»РµРЅРёРµ РЅР°Р·РЅР°С‡РµРЅРёСЏ //
+				// РќРµ РїСѓС‚Р°С‚СЊ СЃ Р·Р°РєСЂС‹С‚РёРµРј:
+				// РЈРґР°Р»РµРЅРёРµ - СЂР°РґРёРєР°Р»СЊРЅР°СЏ РѕРїРµСЂР°С†РёСЏ, СЃС‚РёСЂР°СЋС‰Р°СЏ РІСЃРµ СЃР»РµРґС‹ РЅР°Р·РЅР°С‡РµРЅРёСЏ.
+				// Р—Р°РєСЂС‹С‚РёРµ - Р°РєРєСѓСЂР°С‚РЅР°СЏ СѓС‡РµС‚РЅР°СЏ РѕРїРµСЂР°С†РёСЏ, РѕС‚РјРµС‡Р°СЋС‰Р°СЏ РЅР°Р·РЅР°С‡РµРЅРёРµ РєР°Рє Р·Р°РєСЂС‹С‚РѕРµ, РЅРѕ
+				//   РЅРµ СѓРґР°Р»СЏСЋС‰Р°СЏ РµРіРѕ.
 				//
 				if(p_sal_tbl) {
 					DateRange period;
@@ -515,7 +515,7 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 				THROW(RemoveByID(P_PostTbl, *pID, 0));
 				THROW(ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, 0, 0));
 				//
-				// Уменьшаем (с проверкой корректности) количество занятых вакансий
+				// РЈРјРµРЅСЊС€Р°РµРј (СЃ РїСЂРѕРІРµСЂРєРѕР№ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё) РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РЅСЏС‚С‹С… РІР°РєР°РЅСЃРёР№
 				//
 				THROW(IncrementStaffVacancy(org_rec.StaffID, 1, 0));
 				DS.LogAction(PPACN_OBJRMV, PPOBJ_PERSONPOST, *pID, 0, 0);
@@ -524,17 +524,17 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 		}
 		else if(pPack) {
 			//
-			// Закрытое штатное назначение создавать нельзя (оно может возникнуть только
-			// в результате отзыва должности у персоналии).
+			// Р—Р°РєСЂС‹С‚РѕРµ С€С‚Р°С‚РЅРѕРµ РЅР°Р·РЅР°С‡РµРЅРёРµ СЃРѕР·РґР°РІР°С‚СЊ РЅРµР»СЊР·СЏ (РѕРЅРѕ РјРѕР¶РµС‚ РІРѕР·РЅРёРєРЅСѓС‚СЊ С‚РѕР»СЊРєРѕ
+			// РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РѕС‚Р·С‹РІР° РґРѕР»Р¶РЅРѕСЃС‚Рё Сѓ РїРµСЂСЃРѕРЅР°Р»РёРё).
 			//
 			THROW_PP(pPack->Rec.Closed == 0, PPERR_CLOSEDPPOSTCREATING);
 			//
-			// Извлекаем должность и персоналию для проверки ссылок и вспомогательных целей
+			// РР·РІР»РµРєР°РµРј РґРѕР»Р¶РЅРѕСЃС‚СЊ Рё РїРµСЂСЃРѕРЅР°Р»РёСЋ РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃСЃС‹Р»РѕРє Рё РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹С… С†РµР»РµР№
 			//
 			THROW(Fetch(pPack->Rec.StaffID, &sl_rec) > 0);
 			THROW(PsnObj.Fetch(pPack->Rec.PersonID, &psn_rec) > 0);
 			//
-			// Проверяем, чтобы персоналия не назначалась дважды на одну должность.
+			// РџСЂРѕРІРµСЂСЏРµРј, С‡С‚РѕР±С‹ РїРµСЂСЃРѕРЅР°Р»РёСЏ РЅРµ РЅР°Р·РЅР°С‡Р°Р»Р°СЃСЊ РґРІР°Р¶РґС‹ РЅР° РѕРґРЅСѓ РґРѕР»Р¶РЅРѕСЃС‚СЊ.
 			//
 			THROW(r = GetPersonPost(0, pPack->Rec.StaffID, pPack->Rec.PersonID, &post_rec));
 			msg_buf.Z().Cat(psn_rec.Name).CatDiv('-', 1).Cat(sl_rec.Name);
@@ -542,7 +542,7 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 			THROW(AddObjRecByID(P_PostTbl, PPOBJ_PERSONPOST, pID, &pPack->Rec, 0));
 			THROW(ref->PutPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &pPack->Amounts, 0));
 			//
-			// Увеличиваем (с проверкой корректности) количество занятых вакансий
+			// РЈРІРµР»РёС‡РёРІР°РµРј (СЃ РїСЂРѕРІРµСЂРєРѕР№ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё) РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РЅСЏС‚С‹С… РІР°РєР°РЅСЃРёР№
 			//
 			THROW(IncrementStaffVacancy(pPack->Rec.StaffID, 0, 0));
 			DS.LogAction(PPACN_OBJADD, PPOBJ_PERSONPOST, *pID, 0, 0);
@@ -1283,12 +1283,12 @@ int SLAPI PPObjStaffList::SetupPostCombo(TDialog * dlg, uint ctl, PPID id,
 class StaffListCache : public ObjCache {
 public:
 	struct Data : public ObjCacheEntry {
-		PPID   OrgID;         // ->Person.ID Работодатель
+		PPID   OrgID;         // ->Person.ID Р Р°Р±РѕС‚РѕРґР°С‚РµР»СЊ
 		PPID   DivisionID;    // ->Location.ID (LOCTYP_DIVISION)
 		long   Rank;
 		long   Flags;
-		long   FixedStaff;    // Зарезервированный ИД должности (PPFIXSTF_XXX)
-		long   ChargeGrpID;   // ->Ref(PPOBJ_SALCHARGE) Группа начислений, используемая для этой должности
+		long   FixedStaff;    // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Р№ РР” РґРѕР»Р¶РЅРѕСЃС‚Рё (PPFIXSTF_XXX)
+		long   ChargeGrpID;   // ->Ref(PPOBJ_SALCHARGE) Р“СЂСѓРїРїР° РЅР°С‡РёСЃР»РµРЅРёР№, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ СЌС‚РѕР№ РґРѕР»Р¶РЅРѕСЃС‚Рё
 	};
 	SLAPI  StaffListCache() : ObjCache(PPOBJ_STAFFLIST2, sizeof(Data))
 	{
@@ -1354,9 +1354,9 @@ int FASTCALL PPObjStaffList::Dirty(PPID id)
 class PersonPostCache : public ObjCache {
 public:
 	struct Data : public ObjCacheEntry {
-		PPID   StaffID;       // ->Person.ID Работодатель
+		PPID   StaffID;       // ->Person.ID Р Р°Р±РѕС‚РѕРґР°С‚РµР»СЊ
 		PPID   PersonID;      // ->Location.ID (LOCTYP_DIVISION)
-		long   ChargeGrpID;   // ->Ref(PPOBJ_SALCHARGE) Группа начислений, используемая для этой должности
+		long   ChargeGrpID;   // ->Ref(PPOBJ_SALCHARGE) Р“СЂСѓРїРїР° РЅР°С‡РёСЃР»РµРЅРёР№, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ СЌС‚РѕР№ РґРѕР»Р¶РЅРѕСЃС‚Рё
 		long   Flags;
 		int16  Closed;
 		int16  Reserve;       // @alignment
@@ -1578,7 +1578,7 @@ int32 DL6ICLS_PPObjStaff::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPID   id = 0;
 	PPStaffPacket pack;
 	SString temp_buf;
-	SPpyO_Staff * p_outer_rec = (SPpyO_Staff *)pRec;
+	const SPpyO_Staff * p_outer_rec = static_cast<const SPpyO_Staff *>(pRec);
 	PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_outer_rec->RecTag == ppoStaff, PPERR_INVSTRUCTAG, "ppoStaff");

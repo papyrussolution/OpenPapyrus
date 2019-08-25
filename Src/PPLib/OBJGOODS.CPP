@@ -1053,7 +1053,6 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 		p_tec_obj = new PPObjTech;
 		p_prc_obj = new PPObjProcessor;
 	}
-	//
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1091,8 +1090,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				pPack->ExtRec.UniqCntr = 0;
 				{
 					//
-					// Из другого раздела может прийти товар с незначащими записями
-					// в MinStockList.
+					// Из другого раздела может прийти товар с незначащими записями в MinStockList.
 					//
 					i = pPack->Stock.MinStockList.getCount();
 					if(i) do {

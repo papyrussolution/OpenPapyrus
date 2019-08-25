@@ -3140,7 +3140,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				if(CheckExtFlag(ECF_SYSSERVICE)) {
 					if(is_new_cdb_entry) {
 						PPDbDispatchSession * p_sess = new PPDbDispatchSession(db_path_id, db_symb);
-						p_sess->Start(0 /* @v8.5.10 1-->0*/);
+						p_sess->Start(0);
 					}
 				}
 				else {
@@ -4172,7 +4172,7 @@ SEnumImp * PPSession::EnumRFileInfo()
 		virtual int Next(void * pRec)
 		{
 			int    ok = 0;
-			PPRFile * p_info = (PPRFile *)pRec;
+			PPRFile * p_info = static_cast<PPRFile *>(pRec);
 			if(P_Rez && p_info && p_info->IsConsistent()) {
 				uint   file_id = 0;
 				if(P_Rez->enumResources(PP_RCDECLRFILE, &file_id, &DwPos) > 0)

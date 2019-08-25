@@ -440,7 +440,7 @@ int UhttDocumentPacket::SetFile(const char * pFileName)
 		SString temp_str;
 		THROW(f.CalcSize(&Size));
 		for(int64 rest_size = Size; rest_size > 0;) {
-			size_t temp_sz = (size_t)MIN(rest_size, tbuf.GetSize());
+			size_t temp_sz = static_cast<size_t>(MIN(rest_size, tbuf.GetSize()));
 			if(temp_sz) {
 				THROW(f.ReadV(tbuf, temp_sz));
 				ContentMime.Cat(temp_str.EncodeMime64(tbuf, temp_sz));

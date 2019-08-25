@@ -11,9 +11,7 @@ SLAPI PersonEventCore::PairIdent::PairIdent()
 {
 	THISZERO();
 }
-//
-//
-//
+
 SLAPI PersonEventCore::PersonEventCore() : PersonEventTbl()
 {
 }

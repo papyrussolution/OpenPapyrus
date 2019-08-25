@@ -436,9 +436,9 @@ struct PPBillExtra_Strg_Before6407 {  // sizeof(PPBillExtra_Strg) == PROPRECFIXS
 int SLAPI ConvertBillExtRec_6407(PropertyTbl::Rec * pRec)
 {
 	int    ok = -1;
-	BillCore::Extra_Strg * p_rec = (BillCore::Extra_Strg *)pRec;
+	BillCore::Extra_Strg * p_rec = reinterpret_cast<BillCore::Extra_Strg *>(pRec);
 	if(p_rec->CvtTag != 1) {
-		PPBillExtra_Strg_Before6407 * p_b6407 = (PPBillExtra_Strg_Before6407 *)pRec;
+		PPBillExtra_Strg_Before6407 * p_b6407 = reinterpret_cast<PPBillExtra_Strg_Before6407 *>(pRec);
 		BillCore::Extra_Strg rec;
 		MEMSZERO(rec);
 #define __FLD(f) rec.f = p_b6407->f

@@ -1,14 +1,14 @@
 // V_TSANLZ.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // @ModuleDef(PPViewTSessAnlz)
 //
-IMPLEMENT_PPFILT_FACTORY(TSessAnlz); SLAPI TSessAnlzFilt::TSessAnlzFilt() : PPBaseFilt(PPFILT_TSESSANLZ, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(TSessAnlz); SLAPI TSessAnlzFilt::TSessAnlzFilt() : PPBaseFilt(PPFILT_TSESSANLZ, 0, 0), P_TSesFilt(0)
 {
-	P_TSesFilt = 0;
 	SetFlatChunk(offsetof(TSessAnlzFilt, ReserveStart),
 		offsetof(TSessAnlzFilt, SessIdList)-offsetof(TSessAnlzFilt, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(TSessAnlzFilt, SessIdList));
@@ -39,11 +39,11 @@ int SLAPI TSessAnlzFilt::IsDiffFlag() const { return (DiffPrc || DiffMg || DiffD
 //
 struct TSessAnlzEntry { // @flat
 	int    IsTotalRow() const { return (DtVal == MAXLONG && PrcID == MAXLONG && PrmrGoodsID == MAXLONG); }
-	long   DtVal;       // Дата операции
+	long   DtVal;       // Р”Р°С‚Р° РѕРїРµСЂР°С†РёРё
 	PPID   PrcID;
-	PPID   PrmrGoodsID; // Основной товар технологии, к которому относится движение товара GoodsID
+	PPID   PrmrGoodsID; // РћСЃРЅРѕРІРЅРѕР№ С‚РѕРІР°СЂ С‚РµС…РЅРѕР»РѕРіРёРё, Рє РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РЅРѕСЃРёС‚СЃСЏ РґРІРёР¶РµРЅРёРµ С‚РѕРІР°СЂР° GoodsID
 	PPID   GoodsID;
-	int16  PlanPhUnit;  // Количество представлено в физических единицах
+	int16  PlanPhUnit;  // РљРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРµРґСЃС‚Р°РІР»РµРЅРѕ РІ С„РёР·РёС‡РµСЃРєРёС… РµРґРёРЅРёС†Р°С…
 	uint16 Flags;
 	double InQtty;
 	double OutQtty;
@@ -51,8 +51,8 @@ struct TSessAnlzEntry { // @flat
 	double PlanOutQtty;
 	double PlanDev;
 	double OutRest;
-	double InCompPart;  // Часть компонента в общей сумме входа  (в физ единицах)
-	double OutCompPart; // Часть компонента в общей сумме выхода (в физ единицах)
+	double InCompPart;  // Р§Р°СЃС‚СЊ РєРѕРјРїРѕРЅРµРЅС‚Р° РІ РѕР±С‰РµР№ СЃСѓРјРјРµ РІС…РѕРґР°  (РІ С„РёР· РµРґРёРЅРёС†Р°С…)
+	double OutCompPart; // Р§Р°СЃС‚СЊ РєРѕРјРїРѕРЅРµРЅС‚Р° РІ РѕР±С‰РµР№ СЃСѓРјРјРµ РІС‹С…РѕРґР° (РІ С„РёР· РµРґРёРЅРёС†Р°С…)
 };
 
 struct AddQttyBlock {
@@ -65,8 +65,8 @@ struct AddQttyBlock {
 	int    PlanPhUnit;
 	double Qtty;
 	/* @construction
-	double PhQtty;         // Количество физических единиц (когда для товара применяется независимая //
-		// физическая единица не удается однозначно рассчитать PhQtty зная Qtty).
+	double PhQtty;         // РљРѕР»РёС‡РµСЃС‚РІРѕ С„РёР·РёС‡РµСЃРєРёС… РµРґРёРЅРёС† (РєРѕРіРґР° РґР»СЏ С‚РѕРІР°СЂР° РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РЅРµР·Р°РІРёСЃРёРјР°СЏ //
+		// С„РёР·РёС‡РµСЃРєР°СЏ РµРґРёРЅРёС†Р° РЅРµ СѓРґР°РµС‚СЃСЏ РѕРґРЅРѕР·РЅР°С‡РЅРѕ СЂР°СЃСЃС‡РёС‚Р°С‚СЊ PhQtty Р·РЅР°СЏ Qtty).
 	*/
 	double CompPart;
 };
@@ -103,7 +103,7 @@ public:
 	GoodsSubstList * P_ScndSggList;
 	PPObjGoods GObj;
 	//
-	// Хранит пары {scndGoodsID, prmrGoodsID}
+	// РҐСЂР°РЅРёС‚ РїР°СЂС‹ {scndGoodsID, prmrGoodsID}
 	//
 	LAssocArray ProcessedGoodsList;
 	int    IsScndSggListOwn;
@@ -289,9 +289,9 @@ int SLAPI TSessAnlzList::AddQtty(const AddQttyBlock & rBlk, int planned, int sig
 		THROW_SL(insert(&entry));
 	}
 	//
-	// Вставка итогов по товарным позициям
+	// Р’СЃС‚Р°РІРєР° РёС‚РѕРіРѕРІ РїРѕ С‚РѕРІР°СЂРЅС‹Рј РїРѕР·РёС†РёСЏРј
 	//
-	if(AddTotal && rBlk.DtVal != MAXLONG && rBlk.PrcID != MAXLONG) { // Избегаем зацикливания //
+	if(AddTotal && rBlk.DtVal != MAXLONG && rBlk.PrcID != MAXLONG) { // РР·Р±РµРіР°РµРј Р·Р°С†РёРєР»РёРІР°РЅРёСЏ //
 		if(AddTotal != 2 || rBlk.PrmrGoodsID != rBlk.GoodsID) {
 			AddQttyBlock inner_blk = rBlk;
 			inner_blk.DtVal = MAXLONG;
@@ -530,10 +530,10 @@ int SLAPI PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAn
 {
 	int    ok = 1;
 	//
-	// Общая физическая единица измерения, используемая для расчета долей компонентов
-	// в общем производстве.
-	// В дальнейшем следует организованть поле в структуре товара, определяющее общую
-	// единицу измерения.
+	// РћР±С‰Р°СЏ С„РёР·РёС‡РµСЃРєР°СЏ РµРґРёРЅРёС†Р° РёР·РјРµСЂРµРЅРёСЏ, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ СЂР°СЃС‡РµС‚Р° РґРѕР»РµР№ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ
+	// РІ РѕР±С‰РµРј РїСЂРѕРёР·РІРѕРґСЃС‚РІРµ.
+	// Р’ РґР°Р»СЊРЅРµР№С€РµРј СЃР»РµРґСѓРµС‚ РѕСЂРіР°РЅРёР·РѕРІР°РЅС‚СЊ РїРѕР»Рµ РІ СЃС‚СЂСѓРєС‚СѓСЂРµ С‚РѕРІР°СЂР°, РѕРїСЂРµРґРµР»СЏСЋС‰РµРµ РѕР±С‰СѓСЋ
+	// РµРґРёРЅРёС†Сѓ РёР·РјРµСЂРµРЅРёСЏ.
 	//
 	const  PPID   comm_ph_unit_id = PPUNT_KILOGRAM;
 	AddQttyBlock blk;
@@ -554,9 +554,9 @@ int SLAPI PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAn
 		blk.PrcID = pRec->ArID;
 	double prmr_qtty = 0.0;
 	double prmr_plan = 0.0;
-	PPIDArray seen_goods_list; // Список товаров (не основных) плановое количество по которым
-		// уже добавлено в таблицу. Поддержка этого списка позволяет избежать множественного
-		// учета плана расхода (выход) по неосновным позициям, которые встречаются в сессии несколько раз
+	PPIDArray seen_goods_list; // РЎРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ (РЅРµ РѕСЃРЅРѕРІРЅС‹С…) РїР»Р°РЅРѕРІРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕ РєРѕС‚РѕСЂС‹Рј
+		// СѓР¶Рµ РґРѕР±Р°РІР»РµРЅРѕ РІ С‚Р°Р±Р»РёС†Сѓ. РџРѕРґРґРµСЂР¶РєР° СЌС‚РѕРіРѕ СЃРїРёСЃРєР° РїРѕР·РІРѕР»СЏРµС‚ РёР·Р±РµР¶Р°С‚СЊ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕРіРѕ
+		// СѓС‡РµС‚Р° РїР»Р°РЅР° СЂР°СЃС…РѕРґР° (РІС‹С…РѕРґ) РїРѕ РЅРµРѕСЃРЅРѕРІРЅС‹Рј РїРѕР·РёС†РёСЏРј, РєРѕС‚РѕСЂС‹Рµ РІСЃС‚СЂРµС‡Р°СЋС‚СЃСЏ РІ СЃРµСЃСЃРёРё РЅРµСЃРєРѕР»СЊРєРѕ СЂР°Р·
 	PPGoodsStruc gs;
 	TechTbl::Rec tec_rec;
 	TSessLineTbl::Rec line_rec;
@@ -577,9 +577,9 @@ int SLAPI PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAn
 		}
 		if(!(Filt.Flags & TSessAnlzFilt::fNmgAllRestrict) || GObj.BelongToGroup(tec_rec.GoodsID, Filt.NmGoodsGrpID) > 0) {
 			//
-			// Устанавливаем плановые количества.
-			// Если есть плановая сессия, то плановые величины берем из нее, в противном
-			// случае, плановые величины берем из рабочих сессий.
+			// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїР»Р°РЅРѕРІС‹Рµ РєРѕР»РёС‡РµСЃС‚РІР°.
+			// Р•СЃР»Рё РµСЃС‚СЊ РїР»Р°РЅРѕРІР°СЏ СЃРµСЃСЃРёСЏ, С‚Рѕ РїР»Р°РЅРѕРІС‹Рµ РІРµР»РёС‡РёРЅС‹ Р±РµСЂРµРј РёР· РЅРµРµ, РІ РїСЂРѕС‚РёРІРЅРѕРј
+			// СЃР»СѓС‡Р°Рµ, РїР»Р°РЅРѕРІС‹Рµ РІРµР»РёС‡РёРЅС‹ Р±РµСЂРµРј РёР· СЂР°Р±РѕС‡РёС… СЃРµСЃСЃРёР№.
 			//
 			if(Filt.PlanSessID) {
 				double plan = 0.0;
@@ -599,10 +599,10 @@ int SLAPI PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAn
 	else
 		MEMSZERO(tec_rec);
 	//
-	// Если не требуется дифференцировать отчет по основному товару,
-	// то реализуем это, обнуляя ид основного товара.
-	// При этом плановое количество зависимых позиций все равно рассчитываем исходя из
-	// полученного (израсходованного) количества основного товара
+	// Р•СЃР»Рё РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ РґРёС„С„РµСЂРµРЅС†РёСЂРѕРІР°С‚СЊ РѕС‚С‡РµС‚ РїРѕ РѕСЃРЅРѕРІРЅРѕРјСѓ С‚РѕРІР°СЂСѓ,
+	// С‚Рѕ СЂРµР°Р»РёР·СѓРµРј СЌС‚Рѕ, РѕР±РЅСѓР»СЏСЏ РёРґ РѕСЃРЅРѕРІРЅРѕРіРѕ С‚РѕРІР°СЂР°.
+	// РџСЂРё СЌС‚РѕРј РїР»Р°РЅРѕРІРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РІРёСЃРёРјС‹С… РїРѕР·РёС†РёР№ РІСЃРµ СЂР°РІРЅРѕ СЂР°СЃСЃС‡РёС‚С‹РІР°РµРј РёСЃС…РѕРґСЏ РёР·
+	// РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ (РёР·СЂР°СЃС…РѕРґРѕРІР°РЅРЅРѕРіРѕ) РєРѕР»РёС‡РµСЃС‚РІР° РѕСЃРЅРѕРІРЅРѕРіРѕ С‚РѕРІР°СЂР°
 	//
 	if(!Filt.DiffMg)
 		blk.PrmrGoodsID = 0;
@@ -642,7 +642,7 @@ int SLAPI PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAn
 				const  int sign = line_rec.Sign;
 				int    plan_ph_unit = 0;
 				double comppart = 0.0;
-				double fact = line_rec.Qtty; // Фактически произведенное (израсходованное) количество.
+				double fact = line_rec.Qtty; // Р¤Р°РєС‚РёС‡РµСЃРєРё РїСЂРѕРёР·РІРµРґРµРЅРЅРѕРµ (РёР·СЂР°СЃС…РѕРґРѕРІР°РЅРЅРѕРµ) РєРѕР»РёС‡РµСЃС‚РІРѕ.
 				blk.GoodsID = line_rec.GoodsID;
 				if(Filt.PlanSessID) {
 					int    _sign = line_rec.Sign;
@@ -650,11 +650,11 @@ int SLAPI PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAn
 					int    r = GetPlanWithSubst(ar_id, &blk.GoodsID, &_plan, &_sign);
 					if(PhTagPlanList.bsearch(blk.GoodsID)) {
 						//
-						// Факт должен быть представлен в физических единицах
+						// Р¤Р°РєС‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїСЂРµРґСЃС‚Р°РІР»РµРЅ РІ С„РёР·РёС‡РµСЃРєРёС… РµРґРёРЅРёС†Р°С…
 						//
 						plan_ph_unit = 1;
 						if(line_rec.Flags & TSESLF_INDEPPHQTTY)
-							fact = line_rec.WtQtty; // Независимый учет в физических единицах
+							fact = line_rec.WtQtty; // РќРµР·Р°РІРёСЃРёРјС‹Р№ СѓС‡РµС‚ РІ С„РёР·РёС‡РµСЃРєРёС… РµРґРёРЅРёС†Р°С…
 						else {
 							GObj.GetPhUPerU(blk.GoodsID, 0, &phuperu);
 							fact *= phuperu;
@@ -697,7 +697,7 @@ int SLAPI PPViewTSessAnlz::CreateBySess(PPID sessID, TSessAnlzList * pResult, PP
 				for(uint i = 0; i < child_list.getCount(); i++)
 					THROW(CreateBySess(child_list.at(i), pResult, pProcessedList)); // @recursion
 				//
-				// Расчет фиксированных остатков
+				// Р Р°СЃС‡РµС‚ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ
 				//
 				if(Filt.Flags & TSessAnlzFilt::fShowRest && !Filt.DiffPrc)
 					if(TSesObj.GetPrc(sess_rec.PrcID, &prc_rec, 0, 1) > 0 && prc_rec.Flags & PRCF_STOREGOODSREST) {
@@ -783,9 +783,9 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		if(add_total)
 			if(!Filt.DiffDt && !Filt.DiffPrc) {
 				//
-				// Если нет дифференциации по процессору и дате, то устанавливаем
-				// условие, согласно которому не будут суммироваться итоги по строкам,
-				// в которых PrmrGoodsID == scndGoodsID (вторичный товар эквивалентен первичному)
+				// Р•СЃР»Рё РЅРµС‚ РґРёС„С„РµСЂРµРЅС†РёР°С†РёРё РїРѕ РїСЂРѕС†РµСЃСЃРѕСЂСѓ Рё РґР°С‚Рµ, С‚Рѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј
+				// СѓСЃР»РѕРІРёРµ, СЃРѕРіР»Р°СЃРЅРѕ РєРѕС‚РѕСЂРѕРјСѓ РЅРµ Р±СѓРґСѓС‚ СЃСѓРјРјРёСЂРѕРІР°С‚СЊСЃСЏ РёС‚РѕРіРё РїРѕ СЃС‚СЂРѕРєР°Рј,
+				// РІ РєРѕС‚РѕСЂС‹С… PrmrGoodsID == scndGoodsID (РІС‚РѕСЂРёС‡РЅС‹Р№ С‚РѕРІР°СЂ СЌРєРІРёРІР°Р»РµРЅС‚РµРЅ РїРµСЂРІРёС‡РЅРѕРјСѓ)
 				//
 				add_total = 2;
 			}
@@ -810,8 +810,8 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 			TSesObj.P_Tbl->DestroyIter(h);
 			PhTagPlanList.sort();
 			if(TSesObj.Search(Filt.PlanSessID, &sess_rec) > 0) {
-				long   plan_hours = 0; // Количество часов в плановом периоде
-				long   fact_hours = 0; // Количество уже отработанных часов
+				long   plan_hours = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ С‡Р°СЃРѕРІ РІ РїР»Р°РЅРѕРІРѕРј РїРµСЂРёРѕРґРµ
+				long   fact_hours = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР¶Рµ РѕС‚СЂР°Р±РѕС‚Р°РЅРЅС‹С… С‡Р°СЃРѕРІ
 				if(Filt.Flags & TSessAnlzFilt::fExtrapolToPeriod)
 					if(sess_rec.StDt && sess_rec.FinDt && sess_rec.FinDt >= sess_rec.StDt) {
 						plan_hours  = diffdate(sess_rec.FinDt, sess_rec.StDt) * 24;
@@ -869,8 +869,8 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		if(Filt.PlanSessID) {
 			if(!Filt.IsDiffFlag()) {
 				//
-				// Если отчет строится по плану и фильтрация не предусматривает дифференциацию,
-				// то добавляем в отчет позиции, которые есть в плане, но не было в производстве.
+				// Р•СЃР»Рё РѕС‚С‡РµС‚ СЃС‚СЂРѕРёС‚СЃСЏ РїРѕ РїР»Р°РЅСѓ Рё С„РёР»СЊС‚СЂР°С†РёСЏ РЅРµ РїСЂРµРґСѓСЃРјР°С‚СЂРёРІР°РµС‚ РґРёС„С„РµСЂРµРЅС†РёР°С†РёСЋ,
+				// С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РІ РѕС‚С‡РµС‚ РїРѕР·РёС†РёРё, РєРѕС‚РѕСЂС‹Рµ РµСЃС‚СЊ РІ РїР»Р°РЅРµ, РЅРѕ РЅРµ Р±С‹Р»Рѕ РІ РїСЂРѕРёР·РІРѕРґСЃС‚РІРµ.
 				//
 				result.CompletePlan(0, 0, &PlanList);
 			}
@@ -889,7 +889,7 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		THROW(P_TempTbl = CreateTempFile <TempTSessRepTbl> ());
 		{
 			//
-			// Из буфера отчета формируем записи таблицы
+			// РР· Р±СѓС„РµСЂР° РѕС‚С‡РµС‚Р° С„РѕСЂРјРёСЂСѓРµРј Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹
 			//
 			SString temp_buf, word_total;
 			PPGetWord(PPWORD_TOTAL, 0, word_total);
@@ -1033,7 +1033,7 @@ DBQuery * SLAPI PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 void SLAPI PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && P_TempTbl) {
-		DBQBrowserDef * p_def = (DBQBrowserDef *)pBrw->getDef();
+		DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pBrw->getDef());
 		const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
 		if(p_q) {
 			uint   col_no = 0;
@@ -1043,9 +1043,8 @@ void SLAPI PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 					// @v9.2.7 PPGetWord(PPWORD_SUPERSESS, 0, buf);
 					PPLoadString("supersession", buf); // @v9.2.7
 				}
-				else { //if(Filt.DiffDt == TSessAnlzFilt::difdtDt)
+				else //if(Filt.DiffDt == TSessAnlzFilt::difdtDt)
 					PPLoadString("date", buf);
-				}
 				pBrw->insertColumn(col_no++, buf, 1, 0, 0, 0);
 			}
 			if(Filt.DiffPrc) {
@@ -1291,12 +1290,12 @@ int PPALDD_TSessAnlz::NextIteration(PPIterID iterId)
 	STRNSCPY(I.PrcName,       item.PrcName);
 	STRNSCPY(I.DtText,        item.DtText);
 	if(item.PrcID == MAXLONG) {
-		// @v9.7.4 memset(I.Intrn_PrcName, 'я', sizeof(I.Intrn_PrcName)-1);
+		// @v9.7.4 memset(I.Intrn_PrcName, 'СЏ', sizeof(I.Intrn_PrcName)-1);
 		// @v9.7.4 I.Intrn_PrcName[sizeof(I.Intrn_PrcName)-1] = 0;
 		// @v9.7.4 SCharToOem(I.Intrn_PrcName);
 		// @v9.7.4 {
 		SString temp_buf;
-		temp_buf.CatCharN('я', sizeof(I.Intrn_PrcName)-1).Transf(CTRANSF_OUTER_TO_INNER);
+		temp_buf.CatCharN(255, sizeof(I.Intrn_PrcName)-1); // @v10.5.3 'СЏ'-->255
 		STRNSCPY(I.Intrn_PrcName, temp_buf);
 		// } @v9.7.4
 	}

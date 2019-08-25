@@ -3440,7 +3440,7 @@ int SLAPI PPViewGoodsOpAnalyze::ViewGraph()
 
 void SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	DBQBrowserDef * p_def = (pBrw) ? (DBQBrowserDef *)pBrw->getDef() : 0;
+	DBQBrowserDef * p_def = pBrw ? static_cast<DBQBrowserDef *>(pBrw->getDef()) : 0;
 	const DBQuery * p_q = (p_def) ? p_def->getQuery() : 0;
 	if(p_q) {
 		int    loc_ins_col = (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogInOutAnalyze) ? 2 : 1;

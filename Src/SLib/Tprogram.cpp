@@ -10,7 +10,7 @@
 //
 #define CLOSEBTN_BITMAPID  132 // defined in ppdefs.h as IDB_CLOSE
 #define MENUTREE_LIST     1014
-#define ROUNDRECT_RADIUS     2 
+#define ROUNDRECT_RADIUS     2
 #define USE_CANVAS2_DRAWING
 //
 //
@@ -787,7 +787,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 						}
 					}
 				}
-				p_pgm->H_CloseWnd = CreateWindow(_T("BUTTON"), _T("X"), 
+				p_pgm->H_CloseWnd = CreateWindow(_T("BUTTON"), _T("X"),
 					WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS, 2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0); // @unicodeproblem
 				p_pgm->SetWindowViewByKind(p_pgm->H_ShortcutsWnd, TProgram::wndtypNone);
 				p_pgm->SetWindowViewByKind(p_pgm->H_CloseWnd, TProgram::wndtypNone);
@@ -901,7 +901,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		case WM_TIMER:
 		case WM_ENTERIDLE:
-			//APPL->idle(); // @v10.0.02 
+			//APPL->idle(); // @v10.0.02
 			// @v10.0.02 {
 			{
 				TGroup * targets[] = { APPL->P_DeskTop, APPL };
@@ -1000,7 +1000,7 @@ void TProgram::NotifyFrame(int post)
 			::SendMessage(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
 }
 
-/* @v10.0.02 
+/* @v10.0.02
 void TProgram::idle()
 {
 	TView::messageBroadcast(P_DeskTop, cmIdle);
@@ -1010,7 +1010,7 @@ void TProgram::idle()
 // Public variables
 
 TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : TGroup(TRect()),
-	State(0), H_MainWnd(0), H_FrameWnd(0), H_CloseWnd(0), H_LogWnd(0), H_Desktop(0), H_ShortcutsWnd(0), 
+	State(0), H_MainWnd(0), H_FrameWnd(0), H_CloseWnd(0), H_LogWnd(0), H_Desktop(0), H_ShortcutsWnd(0),
 	H_TopOfStack(0), H_Accel(0), P_Stw(0), P_DeskTop(0), P_TopView(0), P_Toolbar(0), P_TreeWnd(0), AppSymbol(pAppSymb)
 {
 	hInstance = hInst;
@@ -1036,7 +1036,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.cbWndExtra    = sizeof(long);
 		::RegisterClassEx(&wc); // @unicodeproblem
 	}
-	hWnd = ::CreateWindow(SUcSwitch(AppSymbol), SUcSwitch(AppTitle), 
+	hWnd = ::CreateWindow(SUcSwitch(AppSymbol), SUcSwitch(AppTitle),
 		WS_OVERLAPPEDWINDOW|WS_EX_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this); // @unicodeproblem
 	ShowWindow(hWnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);
 	UpdateWindow(hWnd);
@@ -1248,7 +1248,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 						title_rect.left    = 10;
 						title_rect.right   = r.right - r.left - 50;
 						title_rect.bottom  = 24;
-						title_hwnd = ::CreateWindow(_T("STATIC"), SUcSwitch(title_buf), WS_CHILD, 
+						title_hwnd = ::CreateWindow(_T("STATIC"), SUcSwitch(title_buf), WS_CHILD,
 							title_rect.left, title_rect.top, title_rect.right, title_rect.bottom, hWnd, 0, TProgram::hInstance, 0); // @unicodeproblem
 						font_face = "MS Sans Serif";
 						TView::setFont(title_hwnd, font_face, 24);
@@ -1934,6 +1934,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 								case STDCTL_VIEWOPTBUTTON:   dv_id = PPDV_VIEWOPTIONS02; break;
 								case STDCTL_PERSONBUTTON:    dv_id = PPDV_PERSON01; break;
 								case STDCTL_IMGPSTBUTTON:    dv_id = PPDV_CLIPBOARDPASTE01; break;
+								case STDCTL_SJBUTTON:        dv_id = PPDV_SYSJOURNAL; break; // @v10.5.3
+								case STDCTL_TRANSMITBUTTON:  dv_id = PPDV_SYNC01; break; // @v10.5.3
 								case STDCTL_INSBUTTON:
 									dv_id = PPDV_ADDFILE02;
 									if(text_buf == "+") // Специальный случай: иногда кнопка "Добавить" содержит текст "+" - его надо элиминировать

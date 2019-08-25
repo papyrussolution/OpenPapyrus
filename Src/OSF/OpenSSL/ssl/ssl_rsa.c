@@ -686,11 +686,10 @@ static int serverinfo_srv_add_cb(SSL * s, uint ext_type, const uchar ** out, siz
 			return -1; /* Error */
 		}
 		if(retval == 0)
-			return 0;  /* No extension found, don't send extension */
-		return 1;       /* Send extension */
+			return 0/* No extension found, don't send extension */;
+		return 1/* Send extension */;
 	}
-	return 0;               /* No serverinfo data found, don't send
-	                         * extension */
+	return 0; // No serverinfo data found, don't send extension 
 }
 
 /*

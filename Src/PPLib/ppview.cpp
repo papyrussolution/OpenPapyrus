@@ -1242,11 +1242,77 @@ int SLAPI PPView::Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 	return ok;
 }
 
+static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	if(pNf && pNf->DestGuaList.GetCount()) {
+		int    is_there_acceptable_gua = 0;
+		{
+			for(uint dgidx = 0; !is_there_acceptable_gua && dgidx < pNf->DestGuaList.GetCount(); dgidx++) {
+				const PPID gua_id = pNf->DestGuaList.Get(dgidx);
+				S_GUID gua_guid;
+				if(gua_id && p_ref->Ot.GetTagGuid(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_GUID, gua_guid) > 0)
+					is_there_acceptable_gua = 1;
+			}
+		}
+		if(is_there_acceptable_gua) {
+			PPMqbClient mqc;
+			PPAlbatrosConfig acfg;
+			if(DS.FetchAlbatrosConfig(&acfg) > 0) {
+				PPMqbClient::InitParam lp;
+				SString data_domain;
+				{
+					acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+					lp.Host = temp_buf;
+					acfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+					lp.Auth = temp_buf;
+					acfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+					lp.Secret = temp_buf;
+					acfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, data_domain);
+					lp.Method = 1;
+				}
+				if(data_domain.NotEmpty()) {
+					SString queue_name;
+					SString exchange_name;
+					THROW(PPMqbClient::InitClient(mqc, lp));
+					{
+						int64 _fsize = 0;
+						SFile f_in(pFileName, SFile::mRead|SFile::mBinary);
+						THROW_SL(f_in.IsValid());
+						f_in.CalcSize(&_fsize);
+						if(_fsize > 0) {
+							STempBuffer data_buf(static_cast<size_t>(_fsize)+1024); // +1024 - insurance
+							size_t actual_rd_size = 0;
+							THROW_SL(data_buf.IsValid());
+							THROW_SL(f_in.Read(data_buf, data_buf.GetSize(), &actual_rd_size));
+							for(uint dgidx = 0; dgidx < pNf->DestGuaList.GetCount(); dgidx++) {
+								const PPID gua_id = pNf->DestGuaList.Get(dgidx);
+								S_GUID gua_guid;
+								if(gua_id && p_ref->Ot.GetTagGuid(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_GUID, gua_guid) > 0) {
+									// nfview.domain.guid
+									queue_name.Z().Cat("nfview").Dot().Cat(data_domain).Dot().Cat(gua_guid, S_GUID::fmtIDL|S_GUID::fmtLower);
+									THROW(mqc.QueueDeclare(queue_name, 0));
+									(exchange_name = " ").Z();
+									THROW(mqc.Publish(exchange_name, queue_name, 0/* props */, data_buf, actual_rd_size));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 //static
 int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName)
 {
-	int    ok = 1;
 	rResultFileName.Z();
+	int    ok = 1;
 	PPView * p_view = 0;
 	PPBaseFilt * p_filt = 0;
 	DlRtm  * p_rtm = 0;
@@ -1298,6 +1364,7 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 				//ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
 				ep.Cp = cpUTF8; // @v10.5.0 DS.GetConstTLA().DL600XmlCp-->cpUTF8
 				THROW(p_rtm->ExportXML(ep, rResultFileName));
+				PublishNfViewToMqb(p_nf, rResultFileName); // @v10.5.3 
 			}
 		}
 	}
@@ -1305,6 +1372,77 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 	delete p_rtm;
 	delete p_filt;
 	delete p_view;
+	return ok;
+}
+
+PPView::ExecNfViewParam::ExecNfViewParam() : Flags(0)
+{
+	memzero(ReserveStart, sizeof(ReserveStart));
+}
+
+int PPView::ExecNfViewParam::Write(SBuffer & rBuf, long)
+{
+	int    ok = 1;
+	THROW_SL(rBuf.Write(ReserveStart, sizeof(ReserveStart)));
+	THROW_SL(rBuf.Write(Flags));
+	THROW_SL(rBuf.Write(NfSymb));
+	THROW_SL(rBuf.Write(Dl600_Name));
+	THROW_SL(rBuf.Write(FileName));
+	CATCHZOK
+	return ok;
+}
+
+int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
+{
+	int    ok = 1;
+	THROW_SL(rBuf.ReadV(ReserveStart, sizeof(ReserveStart)));
+	THROW_SL(rBuf.Read(Flags));
+	THROW_SL(rBuf.Read(NfSymb));
+	THROW_SL(rBuf.Read(Dl600_Name));
+	THROW_SL(rBuf.Read(FileName));
+	CATCHZOK
+	return ok;
+}
+
+//static 
+int SLAPI PPView::EditExecNfViewParam(ExecNfViewParam & rData)
+{
+	int    ok = -1;
+	TDialog * dlg = 0;
+	PPNamedFiltMngr nf_mngr;
+	SString db_symb;
+	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
+	dlg = new TDialog(DLG_JOB_EXPVIEW);
+	THROW(CheckDialogPtrErr(&dlg));
+	{
+		PPNamedFiltPool nf_pool(0, 1);
+		PPNamedFilt nf;
+		PPID   nf_id = 0, sel_nf_id = 0;
+		StrAssocArray nf_list;
+		THROW(nf_mngr.LoadPool(db_symb, &nf_pool, 0));
+		for(nf_id = 0; nf_pool.Enum(&nf_id, &nf) > 0;) {
+			if(rData.NfSymb.NotEmpty() && rData.NfSymb.CmpNC(nf.Symb) == 0)
+				sel_nf_id = nf.ID;
+			nf_list.Add(nf.ID, nf.Name);
+		}
+		SetupStrAssocCombo(dlg, CTLSEL_JOB_EXPVIEW_FILT, &nf_list, sel_nf_id, 0, 0, 0);
+		dlg->setCtrlString(CTL_JOB_EXPVIEW_DL6STRUC, rData.Dl600_Name);
+		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_JOB_EXPVIEW_OUT, CTL_JOB_EXPVIEW_OUT, 1, 0, 0,
+			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfAllowNExists);
+		dlg->setCtrlString(CTL_JOB_EXPVIEW_OUT, rData.FileName);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			nf_id = dlg->getCtrlLong(CTLSEL_JOB_EXPVIEW_FILT);
+			const  PPNamedFilt * p_nf = nf_id ? nf_pool.GetByID(nf_id) : 0;
+			if(p_nf && p_nf->Symb.NotEmpty()) {
+				rData.NfSymb = p_nf->Symb;
+				dlg->getCtrlString(CTL_JOB_EXPVIEW_DL6STRUC, rData.Dl600_Name);
+				dlg->getCtrlString(CTL_JOB_EXPVIEW_OUT, rData.FileName);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	delete dlg;
 	return ok;
 }
 

@@ -99,7 +99,7 @@ void __ptw32_callUserDestroyRoutines(pthread_t thread)
 			for(;;) {
 				void * value;
 				pthread_key_t k;
-				void (* destructor) (void *);
+				void (* destructor)(void *);
 				/*
 				 * First we need to serialise with pthread_key_delete by locking
 				 * both assoc guards, but in the reverse order to our convention,
@@ -191,7 +191,6 @@ void __ptw32_callUserDestroyRoutines(pthread_t thread)
 					__ptw32_mcs_lock_release(&keyLock);
 				}
 			}
-		}
-		while(assocsRemaining);
+		} while(assocsRemaining);
 	}
 }                               /* __ptw32_callUserDestroyRoutines */

@@ -101,9 +101,6 @@ int SLAPI PPViewUserProfile::InitIteration()
 {
 	int    ok = 0;
 	BExtQuery::ZDelete(&P_IterQuery);
-	/*
-	CATCHZOK
-	*/
 	return ok;
 }
 

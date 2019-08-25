@@ -1,5 +1,6 @@
 // OBJARTCL.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,7 +9,7 @@
 //
 int FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _accSheetID, /*int disableIfZeroSheet*/long sacf)
 {
-	// @v9.2.3 flags &= ~OLW_LOADDEFONOPEN; // @v9.2.1 Из-за того, что ExtraPtr теперь - сложный объект этот флаг использовать нельзя
+	// @v9.2.3 flags &= ~OLW_LOADDEFONOPEN; // @v9.2.1 РР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ ExtraPtr С‚РµРїРµСЂСЊ - СЃР»РѕР¶РЅС‹Р№ РѕР±СЉРµРєС‚ СЌС‚РѕС‚ С„Р»Р°Рі РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РЅРµР»СЊР·СЏ
 	int    ok = 1;
 	int    create_ctl_grp = 0;
 	ArticleFilt filt;
@@ -431,7 +432,7 @@ IMPL_HANDLE_EVENT(ArticleAutoAddDialog)
 		switch(TVCMD) {
 			case cmCancel:
 				endModal(cmCancel);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			case cmOK:
 				if(save() <= 0)
 					break;
@@ -482,9 +483,9 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			acc_rec.AcctId.ac = Data.Val;
 			acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
 			//
-			// Если необходимо, чтобы в качестве подставляемого счета можно было выбрать только
-			// счет, имеющий таблицу статей, совпадающую с той, которой принадлежит эта статья,
-			// то следует использовать конструкцию (1000+P_Pack->Rec.AccSheetID) вместо ACY_SEL_BALOBAL.
+			// Р•СЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ, С‡С‚РѕР±С‹ РІ РєР°С‡РµСЃС‚РІРµ РїРѕРґСЃС‚Р°РІР»СЏРµРјРѕРіРѕ СЃС‡РµС‚Р° РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РІС‹Р±СЂР°С‚СЊ С‚РѕР»СЊРєРѕ
+			// СЃС‡РµС‚, РёРјРµСЋС‰РёР№ С‚Р°Р±Р»РёС†Сѓ СЃС‚Р°С‚РµР№, СЃРѕРІРїР°РґР°СЋС‰СѓСЋ СЃ С‚РѕР№, РєРѕС‚РѕСЂРѕР№ РїСЂРёРЅР°РґР»РµР¶РёС‚ СЌС‚Р° СЃС‚Р°С‚СЊСЏ,
+			// С‚Рѕ СЃР»РµРґСѓРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєРѕРЅСЃС‚СЂСѓРєС†РёСЋ (1000+P_Pack->Rec.AccSheetID) РІРјРµСЃС‚Рѕ ACY_SEL_BALOBAL.
 			//
 			acc_rec.AccSelParam = ACY_SEL_BALOBAL;
 			setGroupData(GRP_ACC, &acc_rec);
@@ -1180,7 +1181,7 @@ int SLAPI PPObjArticle::Helper_PutAgreement(PPID id, PPArticlePacket * pPack)
 			ok = 1;
 		}
 		else {
-			// Нет прав на изменение клиентского соглашения (статья '%s')
+			// РќРµС‚ РїСЂР°РІ РЅР° РёР·РјРµРЅРµРЅРёРµ РєР»РёРµРЅС‚СЃРєРѕРіРѕ СЃРѕРіР»Р°С€РµРЅРёСЏ (СЃС‚Р°С‚СЊСЏ '%s')
 			PPLoadText(PPTXT_LOG_NORT_CLIAGTUPD, fmt_buf);
 			msg_buf.Printf(fmt_buf, pPack->Rec.Name);
 			PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
@@ -1192,7 +1193,7 @@ int SLAPI PPObjArticle::Helper_PutAgreement(PPID id, PPArticlePacket * pPack)
 			ok = 1;
 		}
 		else {
-			// Нет прав на изменение соглашения с поставщиком (статья '%s')
+			// РќРµС‚ РїСЂР°РІ РЅР° РёР·РјРµРЅРµРЅРёРµ СЃРѕРіР»Р°С€РµРЅРёСЏ СЃ РїРѕСЃС‚Р°РІС‰РёРєРѕРј (СЃС‚Р°С‚СЊСЏ '%s')
 			PPLoadText(PPTXT_LOG_NORT_SPLAGTUPD, fmt_buf);
 			msg_buf.Printf(fmt_buf, pPack->Rec.Name);
 			PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
@@ -1214,9 +1215,9 @@ int SLAPI PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_t
 			if(pPack) {
 				//
 				// @todo
-				// Здесь следует проверить право на создание записи.
-				// Однако, есть опасность, что при проверке этого флага, возникнет ситуация когда
-				// из другого раздела не удасться принять новую статью. По этому, пока оставляем как есть.
+				// Р—РґРµСЃСЊ СЃР»РµРґСѓРµС‚ РїСЂРѕРІРµСЂРёС‚СЊ РїСЂР°РІРѕ РЅР° СЃРѕР·РґР°РЅРёРµ Р·Р°РїРёСЃРё.
+				// РћРґРЅР°РєРѕ, РµСЃС‚СЊ РѕРїР°СЃРЅРѕСЃС‚СЊ, С‡С‚Рѕ РїСЂРё РїСЂРѕРІРµСЂРєРµ СЌС‚РѕРіРѕ С„Р»Р°РіР°, РІРѕР·РЅРёРєРЅРµС‚ СЃРёС‚СѓР°С†РёСЏ РєРѕРіРґР°
+				// РёР· РґСЂСѓРіРѕРіРѕ СЂР°Р·РґРµР»Р° РЅРµ СѓРґР°СЃС‚СЊСЃСЏ РїСЂРёРЅСЏС‚СЊ РЅРѕРІСѓСЋ СЃС‚Р°С‚СЊСЋ. РџРѕ СЌС‚РѕРјСѓ, РїРѕРєР° РѕСЃС‚Р°РІР»СЏРµРј РєР°Рє РµСЃС‚СЊ.
 				//
 				pPack->Rec.ID = 0;
 				pPack->Rec.Article = 0;
@@ -1321,7 +1322,7 @@ int SLAPI PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 
 StrAssocArray * SLAPI PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(ArticleFilt*)*/ )
 {
-//#define DO_GET_NAME_FROM_CACHE // Вариант с раздельным извлечением строк (значительно медленнее прямого метода)q
+//#define DO_GET_NAME_FROM_CACHE // Р’Р°СЂРёР°РЅС‚ СЃ СЂР°Р·РґРµР»СЊРЅС‹Рј РёР·РІР»РµС‡РµРЅРёРµРј СЃС‚СЂРѕРє (Р·РЅР°С‡РёС‚РµР»СЊРЅРѕ РјРµРґР»РµРЅРЅРµРµ РїСЂСЏРјРѕРіРѕ РјРµС‚РѕРґР°)q
 	StrAssocArray * p_list = 0;
 	PROFILE_START
 	// @v9.2.1 PPID   acs_id = (PPID)extraPtr;
@@ -1718,8 +1719,8 @@ int SLAPI PPObjArticle::ReplyArticleReplace(PPID dest, PPID src)
 int SLAPI PPObjArticle::SerializePacket(int dir, PPArticlePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	uint8  cli_agt_ind   = 0; // 1 - соглашение отсутствует
-	uint8  suppl_agt_ind = 0; // 1 - соглашение отсутствует
+	uint8  cli_agt_ind   = 0; // 1 - СЃРѕРіР»Р°С€РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚
+	uint8  suppl_agt_ind = 0; // 1 - СЃРѕРіР»Р°С€РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->Assoc, rBuf));
 	if(dir > 0) {
@@ -1769,7 +1770,7 @@ int SLAPI PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 			*pID = rec.ID;
 		{
 			//
-			// Запрещаем изменение номера статьи при изменении записи
+			// Р—Р°РїСЂРµС‰Р°РµРј РёР·РјРµРЅРµРЅРёРµ РЅРѕРјРµСЂР° СЃС‚Р°С‚СЊРё РїСЂРё РёР·РјРµРЅРµРЅРёРё Р·Р°РїРёСЃРё
 			//
 			if(*pID) {
 				if(Search(*pID, &rec) > 0)
@@ -1781,7 +1782,7 @@ int SLAPI PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 				is_new = 1;
 			p_pack->DontUpdateAliasSubst = 1;
 			//
-			// Запрещаем изменение параметров формирования автозаказа при изменении записи
+			// Р—Р°РїСЂРµС‰Р°РµРј РёР·РјРµРЅРµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ Р°РІС‚РѕР·Р°РєР°Р·Р° РїСЂРё РёР·РјРµРЅРµРЅРёРё Р·Р°РїРёСЃРё
 			//
 			if(pID && p_pack && p_pack->P_SupplAgt) {
 				PPSupplAgreement spl_agt;

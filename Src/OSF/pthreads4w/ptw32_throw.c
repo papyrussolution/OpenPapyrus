@@ -119,7 +119,8 @@ void __ptw32_throw(DWORD exception)
 
 void __ptw32_pop_cleanup_all(int execute)
 {
-	while(NULL != __ptw32_pop_cleanup(execute)) {
+	while(__ptw32_pop_cleanup(execute)) {
+		;
 	}
 }
 

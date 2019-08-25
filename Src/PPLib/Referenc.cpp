@@ -2705,7 +2705,7 @@ int UnxTextRefCore::_Enum::Next(void * pRec)
 {
 	int    ok = 0;
 	if(P_T && P_T->EnumList.NextIter(H) > 0) {
-		TextRefEnumItem * p_result = (TextRefEnumItem *)pRec;
+		TextRefEnumItem * p_result = static_cast<TextRefEnumItem *>(pRec);
 		p_result->O.Set(P_T->data.ObjType, P_T->data.ObjID);
 		p_result->P = P_T->data.Prop;
 		p_result->L = P_T->data.Lang;

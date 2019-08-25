@@ -1737,6 +1737,10 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 		(temp_buf = brow_.GoodsGroup).Transf(CTRANSF_OUTER_TO_INNER); 
 		STRNSCPY(brow_.GoodsGroup, temp_buf);
 		// } @v10.5.0 
+		// @v10.5.3 {
+		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER); 
+		STRNSCPY(brow_.BrandName, temp_buf);
+		// } @v10.5.3 
 		if(mode == 1/*linkByLastInsBill*/)
 			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount() - 1).ID);
 		else if(mode == 2) {
@@ -2437,6 +2441,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 				ResolveGoodsItem item;
 				STRNSCPY(item.GoodsName, r_row.GoodsName);
 				STRNSCPY(item.GroupName, r_row.GoodsGroup); // @v10.5.0
+				STRNSCPY(item.BrandName, r_row.BrandName); // @v10.5.3
 				item.VatRate = r_row.VatRate; // @v10.5.9
 				STRNSCPY(item.Barcode, r_row.Barcode);
 				// @v10.4.12 {
@@ -2458,6 +2463,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 			if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
 				if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
 					PPObjGoodsGroup gg_obj;
+					PPObjBrand brand_obj;
 					PPTransaction tra(useTa);
 					THROW(tra);
 					for(uint i = 0; i < goods_list.getCount(); i++) {
@@ -2477,7 +2483,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 									}
 								}
 							}
-							// } @v10.5.0 
+							// } @v10.5.0
 							SETIFZ(parent_id, r_gcfg.DefGroupID);
 							if(GObj.InitPacket(&gpack, gpkndGoods, parent_id, 0, r_rgi.Barcode)) {
 								const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
@@ -2512,6 +2518,16 @@ int SLAPI PPBillImporter::Import(int useTa)
 										gpack.Rec.ManufID = manuf_id;
 									}
 								}
+								// @v10.5.3 {
+								if(r_rgi.BrandName[0]) {
+									temp_buf = r_rgi.BrandName;
+									if(temp_buf.NotEmptyS()) {
+										PPID   brand_id = 0;
+										THROW(brand_obj.AddSimple(&brand_id, temp_buf, 0, 0));
+										gpack.Rec.BrandID = brand_id;
+									}
+								}
+								// } @v10.5.3
 								// @v10.5.0 {
 								if(r_rgi.VatRate > 0.0 && r_rgi.VatRate <= 40.0) {
 									PPID   tax_grp_id = 0;
@@ -4032,6 +4048,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			const PPID goods_id = labs(p_ti->GoodsID);
 			Goods2Tbl::Rec goods_rec;
 			Goods2Tbl::Rec gg_rec; // @v10.5.0
+			Goods2Tbl::Rec brand_rec; // @v10.5.3
 			Sdr_BRow brow;
 			BarcodeArray bcd_ary;
 			MEMSZERO(brow);
@@ -4046,6 +4063,10 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			if(goods_rec.ParentID && GObj.Fetch(goods_rec.ParentID, &gg_rec) > 0)
 				(temp_buf = gg_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.GoodsGroup, sizeof(brow.GoodsGroup));
 			// } @v10.5.0 
+			// @v10.5.3 {
+			if(goods_rec.BrandID && GObj.Fetch(goods_rec.BrandID, &brand_rec) > 0)
+				(temp_buf = brand_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.BrandName, sizeof(brow.BrandName));
+			// } @v10.5.3 
 			if(use_ar_code) {
 				if(GObj.P_Tbl->GetArCode(pPack->Rec.Object, goods_id, temp_buf, 0) > 0) {
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5

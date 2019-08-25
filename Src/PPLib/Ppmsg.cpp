@@ -664,10 +664,33 @@ SLAPI PPThreadLocalArea::WaitBlock::~WaitBlock()
 {
 	Stop();
 	DestroyCursor(WaitCur);
+	State &= ~stValid; // @v10.5.3
 }
 
 int PPThreadLocalArea::WaitBlock::IsValid() const { return BIN(State & stValid); }
 HWND PPThreadLocalArea::WaitBlock::GetWindowHandle() const { return WaitDlg; }
+
+static INT_PTR CALLBACK WaitDialogWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	PPThreadLocalArea::WaitBlock * p_blk = static_cast<PPThreadLocalArea::WaitBlock *>(TView::GetWindowUserData(hWnd));
+	switch(message) {
+		case WM_INITDIALOG:
+			{
+				TView::SetWindowUserData(hWnd, reinterpret_cast<void *>(lParam));
+				HWND hw_text_ctrl = GetDlgItem(hWnd, CTL_WAIT_TEXT);
+				if(hw_text_ctrl) {
+					SString temp_buf;
+					PPLoadString("wait", temp_buf);
+					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+					SetWindowText(hw_text_ctrl, SUcSwitch(temp_buf));
+				}
+			}
+			break;
+		default:
+			return 0;
+	}
+	return 1;
+}
 
 int SLAPI PPThreadLocalArea::WaitBlock::Start()
 {
@@ -675,7 +698,7 @@ int SLAPI PPThreadLocalArea::WaitBlock::Start()
 	State |= stValid;
 	if(!WaitDlg) {
 		PrevView = 0;
-		WaitDlg = APPL->CreateDlg(DLG_WAIT, APPL->H_MainWnd, static_cast<DLGPROC>(0), 0);
+		WaitDlg = APPL->CreateDlg(DLG_WAIT, APPL->H_MainWnd, WaitDialogWndProc, reinterpret_cast<LPARAM>(this));
 		PrevPercent = -1;
 		IdleTimer.Restart(1000);
 		if(WaitDlg) {
@@ -708,11 +731,11 @@ int SLAPI PPThreadLocalArea::WaitBlock::Stop()
 			save = PrevView->ViewOptions;
 			PrevView->ViewOptions |= ofSelectable;
 		}
-		DestroyWindow(WaitDlg);
+		::DestroyWindow(WaitDlg);
 		WaitDlg = 0;
-		SetActiveWindow(APPL->H_TopOfStack);
+		::SetActiveWindow(APPL->H_TopOfStack);
 		if(OrgCur)
-			SetCursor(OrgCur);
+			::SetCursor(OrgCur);
 		if(PrevView && PrevView->IsConsistent())
 			PrevView->ViewOptions = save;
 	}
@@ -726,7 +749,7 @@ int SLAPI PPThreadLocalArea::WaitBlock::Hide()
 	int    ok = 0;
 	if(WaitDlg) {
 		if(!(State & stHide)) {
-			ShowWindow(WaitDlg, SW_HIDE);
+			::ShowWindow(WaitDlg, SW_HIDE);
 			State |= stHide;
 			ok = 1;
 		}
@@ -741,7 +764,7 @@ int SLAPI PPThreadLocalArea::WaitBlock::Show()
 	int    ok = 0;
 	if(WaitDlg) {
 		if(State & stHide) {
-			ShowWindow(WaitDlg, SW_SHOWNA);
+			::ShowWindow(WaitDlg, SW_SHOWNA);
 			State &= ~stHide;
 			ok = 1;
 		}
@@ -765,8 +788,7 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 		for(uint j = 0; adv_list.Enum(&j, &adv_blk);) {
 			if(adv_blk.Proc) {
 				ev.Clear();
-				// @v9.8.12 ev.ExtStr = pMsg;
-				ev.PutExtStrData(PPNotifyEvent::extssMessage, pMsg); // @v9.8.12
+				ev.PutExtStrData(PPNotifyEvent::extssMessage, pMsg);
 				adv_blk.Proc(PPAdviseBlock::evWaitMsg, &ev, adv_blk.ProcExtPtr);
 			}
 		}
@@ -776,13 +798,11 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 		if(pMsg) {
 			if(Text.Cmp(pMsg, 0) != 0) {
 				(Text = pMsg).Transf(CTRANSF_INNER_TO_OUTER);
-				// @v9.1.5 ::SetWindowText(hwndST, (const char *)Text); // @unicodeproblem
-				TView::SSetWindowText(hwndST, Text); // @v9.1.5
+				TView::SSetWindowText(hwndST, Text);
 			}
 		}
 		else if(Text.NotEmpty()) {
-			// @v9.1.5 ::SetWindowText(hwndST, (const char *)(Text = 0)); // @unicodeproblem
-			TView::SSetWindowText(hwndST, Text = 0); // @v9.1.5
+			TView::SSetWindowText(hwndST, Text.Z());
 		}
 		TProgram::IdlePaint();
 	}
@@ -862,19 +882,15 @@ int FASTCALL PPWaitPercent(ulong v, const char * pMsg) { return PPWaitPercent(v,
 
 int FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
 {
-	//char   buf[128], * p;
 	int    ok = 0;
 	SString fmt_buf;
 	if(PPLoadString(msgGrpID, msgID, fmt_buf)) {
 		if(addInfo) {
-			//sprintf(p = buf, msg, addInfo);
 			SString msg_buf;
 			ok = PPWaitMsg(msg_buf.Printf(fmt_buf, addInfo));
 		}
-		else {
-			//p = msg;
+		else
 			ok = PPWaitMsg(fmt_buf);
-		}
 	}
 	return ok;
 }

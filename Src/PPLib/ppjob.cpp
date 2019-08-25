@@ -3051,7 +3051,7 @@ IMPLEMENT_JOB_HDL_FACTORY(UPDATEQUOTS);
 //
 class JOB_HDL_CLS(EXPORTVIEW) : public PPJobHandler {
 public:
-	struct Param {
+	/*struct Param {
 		Param() : Flags(0)
 		{
 			memzero(ReserveStart, sizeof(ReserveStart));
@@ -3078,20 +3078,38 @@ public:
 			CATCHZOK
 			return ok;
 		}
-
 		uint8  ReserveStart[32];
 		long   Flags;
 		SString NfSymb;
 		SString Dl600_Name;
 		SString FileName;
-	};
+	};*/
 	SLAPI JOB_HDL_CLS(EXPORTVIEW)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
 	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
-		Param  param;
+		PPView::ExecNfViewParam param;
+		THROW_INVARG(pParam);
+		const size_t sav_offs = pParam->GetRdOffs();
+		if(pParam->GetAvailableSize()) {
+			THROW(param.Read(*pParam, 0));
+		}
+		if(PPView::EditExecNfViewParam(param) > 0) {
+			THROW(param.Write(pParam->Z(), 0));
+			ok = 1;
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	/* @v10.5.3 virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		PPView::ExecNfViewParam param;
 		TDialog * dlg = 0;
 		PPNamedFiltMngr nf_mngr;
 		SString db_symb;
@@ -3137,11 +3155,11 @@ public:
 		ENDCATCH
 		delete dlg;
 		return ok;
-	}
+	} */
 	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
-		Param  param;
+		PPView::ExecNfViewParam param;
 		SString result_fname, dest_fname;
 		// @debug {
 			const PPThreadLocalArea & r_tla = DS.GetConstTLA();
@@ -3161,7 +3179,6 @@ public:
 			THROW(SCopyFile(result_fname, dest_fname, 0, FILE_SHARE_READ, 0));
 			SFile::Remove(result_fname);
 		}
-		// @v8.1.2 ok = -1;
 		CATCHZOK
 		return ok;
 	}

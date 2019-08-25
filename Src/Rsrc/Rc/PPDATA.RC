@@ -985,13 +985,13 @@ ROD_REGISTERTYPE PP_RCDATA {
 //
 ROD_ELINKKIND PP_RCDATA {
 	7,
-	1, "Рабочий телефон\0",        "P\0", 0,
-	2, "Домашний телефон\0",       "P\0", 0,
-	3, "Альтернативный телефон\0", "P\0", 0,
-	4, "Факс\0",                   "F\0", 0,
-	5, "Электронная почта\0",      "E\0", 0,
-	6, "Мобильный телефон\0",      "P\0", 0,
-	7, "Web-страница\0",           "W\0", 0
+	1, "Рабочий телефон\0",           "P\0", 0,
+	2, "Домашний телефон\0",          "P\0", 0,
+	3, "Альтернативный телефон\0",    "P\0", 0,
+	4, "Факс\0",                      "F\0", 0,
+	5, "@{elinkkind_type_email}\0",   "E\0", 0,
+	6, "Мобильный телефон\0",         "P\0", 0,
+	7, "@{elinkkind_type_webaddr}\0", "W\0", 0
 };
 //
 // Зарезервированные записи объекта PPOBJ_QUOTKIND
@@ -1006,7 +1006,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	78,
+	79,
 	 1, "@{rtag_lotclb}\0",                   "LOTCLB\0",             "LOT\0",        "STRING\0" // @v9.8.11
 	 2, "@{rtag_lotserial}\0",                "LOTSERIAL\0",          "LOT\0",        "STRING\0" // @v9.8.11
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",          "PERSON\0",     "STRING\0"
@@ -1085,6 +1085,7 @@ ROD_TAG PP_RCDATA {
 	85, "@{rtag_orglineident}\0",             "ORGLINEIDENT\0",       "LOT\0",        "STRING\0"
 	86, "@{rtag_locfreightpackage}\0",        "FREIGHTPACKAGE\0",     "LOT\0",        "STRING\0"
 	87, "@{rtag_goodsvetisguid}\0",           "GOODSVETISGUID\0",     "GOODS\0",      "UUID\0"
+	88, "@{rtag_guaguid}\0",                  "GUAGUID\0",            "GLOBALUSER\0", "UUID\0"
 	// 40, "ФСРАР код товара\0",             "FSRARGOODSCODE\0",    "GOODS\0",      "STRING\0"
 	// @postponed 80, "@{rtag_locvetisentityguid}\0",       "LOCVETISENTITYGUID\0", "LOCATION\0",   "UUID\0"
 	// @postponed 81, "@{rtag_locvetisuser}\0",             "LOCVETISUSER\0",       "LOCATION\0",   "STRING\0"

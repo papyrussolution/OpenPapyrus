@@ -843,7 +843,7 @@ int main(int argc, char ** argv)
 							cmd = r_se.Cmd;
 							if(arg_line.Len() > cmd_len) {
 								if(arg_line.C(cmd_len) == ':' || arg_line.C(cmd_len) == '=') {
-									(arg_val = (const char *)arg_line + cmd_len + 1).Strip();
+									(arg_val = arg_line.cptr() + cmd_len + 1).Strip();
 								}
 								else
 									cmd = 0;
@@ -858,24 +858,12 @@ int main(int argc, char ** argv)
 							(arg_val = argv[i]).Strip();
 					}
 					switch(cmd) {
-						case cmdlInFile:
-							inp_file_name = arg_val;
-							break;
-						case cmdlInList:
-							inp_file_name_list = arg_val;
-							break;
-						case cmdlInPath:
-							inp_file_path = arg_val;
-							break;
-						case cmdlOutFile:
-							out_file_name = arg_val;
-							break;
-						case cmdlDlgDsnPath:
-							dlgdsn_exec_path = arg_val;
-							break;
-						case cmdlToolsPath:
-							tools_path = arg_val;
-							break;
+						case cmdlInFile: inp_file_name = arg_val; break;
+						case cmdlInList: inp_file_name_list = arg_val; break;
+						case cmdlInPath: inp_file_path = arg_val; break;
+						case cmdlOutFile: out_file_name = arg_val; break;
+						case cmdlDlgDsnPath: dlgdsn_exec_path = arg_val; break;
+						case cmdlToolsPath: tools_path = arg_val; break;
 					}
 				}
 				else {
@@ -916,7 +904,7 @@ int main(int argc, char ** argv)
 			}
 			SFile rspf(inp_file_name_list, SFile::mRead);
 			if(!rspf.IsValid()) {
-				msg_buf.Printf("Unable open list file %s", (const char *)inp_file_name_list);
+				msg_buf.Printf("Unable open list file %s", inp_file_name_list.cptr());
 				error(msg_buf);
 			}
 			int    do_process = 0;
@@ -930,17 +918,19 @@ int main(int argc, char ** argv)
 					SPathStruc ps_path;
 					while(!do_process && rspf.ReadLine(temp_buf)) {
 						if(temp_buf.Chomp().NotEmptyS()) {
-							LDATETIME  depf_dtm;
-							ps.Split(temp_buf);
-							ps_path.Split(inp_file_path);
-							if(ps.Drv.Empty() && ps_path.Drv.NotEmpty())
-								ps.Drv = ps_path.Drv;
-							if(ps.Dir.Empty() && ps_path.Dir.NotEmpty())
-								ps.Dir = ps_path.Dir;
-							ps.Merge(temp_buf);
-							SFile depf(temp_buf, SFile::mRead);
-							if(depf.IsValid() && depf.GetDateTime(0, 0, &depf_dtm) && cmp(depf_dtm, finalf_dtm) > 0)
-								do_process = 1;
+							if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) { // @v10.5.3 comments
+								LDATETIME  depf_dtm;
+								ps.Split(temp_buf);
+								ps_path.Split(inp_file_path);
+								if(ps.Drv.Empty() && ps_path.Drv.NotEmpty())
+									ps.Drv = ps_path.Drv;
+								if(ps.Dir.Empty() && ps_path.Dir.NotEmpty())
+									ps.Dir = ps_path.Dir;
+								ps.Merge(temp_buf);
+								SFile depf(temp_buf, SFile::mRead);
+								if(depf.IsValid() && depf.GetDateTime(0, 0, &depf_dtm) && cmp(depf_dtm, finalf_dtm) > 0)
+									do_process = 1;
+							}
 						}
 					}
 				}
@@ -953,7 +943,7 @@ int main(int argc, char ** argv)
 			if(do_process) {
 				SFile outf(out_file_name, SFile::mWrite);
 				if(!outf.IsValid()) {
-					msg_buf.Printf("Unable open output file %s", (const char *)out_file_name);
+					msg_buf.Printf("Unable open output file %s", out_file_name.cptr());
 					error(msg_buf);
 				}
 				// Проверяя время модификации файлов мы переместили текущую позицию - вернем назад
@@ -972,8 +962,10 @@ int main(int argc, char ** argv)
 					StringSet ss_out_files;
 					while(rspf.ReadLine(temp_buf)) {
 						if(temp_buf.Chomp().NotEmptyS()) {
-							//printf((msg_buf = "Processing file").Space().Cat(temp_buf).CR());
-							ss_in_files.add(temp_buf);
+							if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) { // @v10.5.3 comments
+								//printf((msg_buf = "Processing file").Space().Cat(temp_buf).CR());
+								ss_in_files.add(temp_buf);
+							}
 						}
 					}
 					(evd_param.ExePath = tools_path).SetLastSlash().Cat("vdos");
@@ -1064,7 +1056,7 @@ int main(int argc, char ** argv)
 		else {
 			SFile outf(out_file_name, SFile::mWrite);
 			if(!outf.IsValid()) {
-				msg_buf.Printf("Unable open output file %s", (const char *)out_file_name);
+				msg_buf.Printf("Unable open output file %s", out_file_name.cptr());
 				error(msg_buf);
 			}
 			if(!fileExists(inp_file_name)) {

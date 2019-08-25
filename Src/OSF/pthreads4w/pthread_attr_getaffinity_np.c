@@ -36,9 +36,10 @@
 
 int pthread_attr_getaffinity_np(const pthread_attr_t * attr, size_t cpusetsize, cpu_set_t * cpuset)
 {
-	if(__ptw32_is_attr(attr) != 0 || cpuset == NULL) {
+	if(__ptw32_is_attr(attr) != 0 || !cpuset)
 		return EINVAL;
+	else {
+		reinterpret_cast<_sched_cpu_set_vector_ *>(cpuset)->_cpuset = (*attr)->cpuset;
+		return 0;
 	}
-	((_sched_cpu_set_vector_*)cpuset)->_cpuset = (*attr)->cpuset;
-	return 0;
 }

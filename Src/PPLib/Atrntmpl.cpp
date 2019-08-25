@@ -1,8 +1,7 @@
 // ATRNTMPL.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-//
-// Шаблон бухгалтерской проводки
+// @codepage UTF-8
+// РЁР°Р±Р»РѕРЅ Р±СѓС…РіР°Р»С‚РµСЂСЃРєРѕР№ РїСЂРѕРІРѕРґРєРё
 //
 #include <pp.h>
 #pragma hdrstop
@@ -17,13 +16,13 @@ int FASTCALL PPAccTurn::IsEqual(const PPAccTurn & rS) const
 	int    eq = 1;
 	if(DbtID != rS.DbtID)
 		eq = 0;
-	/* @v9.0.0 DbtSheet избыточное поле и инициализируется по DbtID
+	/* @v9.0.0 DbtSheet РёР·Р±С‹С‚РѕС‡РЅРѕРµ РїРѕР»Рµ Рё РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ РїРѕ DbtID
 	else if(DbtSheet != rS.DbtSheet)
 		eq = 0;
 	*/
 	else if(CrdID != rS.CrdID)
 		eq = 0;
-	/* @v9.0.0 CrdSheet избыточное поле и инициализируется по CrdID
+	/* @v9.0.0 CrdSheet РёР·Р±С‹С‚РѕС‡РЅРѕРµ РїРѕР»Рµ Рё РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ РїРѕ CrdID
 	else if(CrdSheet != rS.CrdSheet)
 		eq = 0;
 	*/
@@ -77,33 +76,33 @@ class PPAccTurnTempl_Before6406 { // size=PROPRECFIXSIZE
 public:
 	PPID   ObjType;       // Const=PPOBJ_OPRKIND
 	PPID   ObjID;         // ->Ref(PPOBJ_OPRKIND)
-	PPID   ID;            // Номер шаблона для операции (1..PP_MAXATURNTEMPLATES)
+	PPID   ID;            // РќРѕРјРµСЂ С€Р°Р±Р»РѕРЅР° РґР»СЏ РѕРїРµСЂР°С†РёРё (1..PP_MAXATURNTEMPLATES)
 	AcctID DbtID;
 	AcctID CrdID;
 	long   Flags;
-	char   Expr[52];      // Формула для суммы проводки (текст)
+	char   Expr[52];      // Р¤РѕСЂРјСѓР»Р° РґР»СЏ СЃСѓРјРјС‹ РїСЂРѕРІРѕРґРєРё (С‚РµРєСЃС‚)
 	//
-	// Следующее поле целиком содержится в хвосте переменной длины записи таблицы Property.
-	// Для того, чтобы после прочтения из БД оно содержало корректное значение, его необходимо
-	// обнулить перед вызовом Reference::GetProp.
+	// РЎР»РµРґСѓСЋС‰РµРµ РїРѕР»Рµ С†РµР»РёРєРѕРј СЃРѕРґРµСЂР¶РёС‚СЃСЏ РІ С…РІРѕСЃС‚Рµ РїРµСЂРµРјРµРЅРЅРѕР№ РґР»РёРЅС‹ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹ Property.
+	// Р”Р»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїРѕСЃР»Рµ РїСЂРѕС‡С‚РµРЅРёСЏ РёР· Р‘Р” РѕРЅРѕ СЃРѕРґРµСЂР¶Р°Р»Рѕ РєРѕСЂСЂРµРєС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, РµРіРѕ РЅРµРѕР±С…РѕРґРёРјРѕ
+	// РѕР±РЅСѓР»РёС‚СЊ РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј Reference::GetProp.
 	//
-	// В это поле сначала заносится порядок подстановки для первичного объекта, затем разделитель -1L,
-	// затем порядок подстановки для вторичного объекта, затем двоичный нуль (0L).
-	// Если для первичного объекта нет явного порядка, то Subst[0] == -1L.
-	// Завершающий нуль должен присутствовать всегда (смотри предыдущий параграф).
+	// Р’ СЌС‚Рѕ РїРѕР»Рµ СЃРЅР°С‡Р°Р»Р° Р·Р°РЅРѕСЃРёС‚СЃСЏ РїРѕСЂСЏРґРѕРє РїРѕРґСЃС‚Р°РЅРѕРІРєРё РґР»СЏ РїРµСЂРІРёС‡РЅРѕРіРѕ РѕР±СЉРµРєС‚Р°, Р·Р°С‚РµРј СЂР°Р·РґРµР»РёС‚РµР»СЊ -1L,
+	// Р·Р°С‚РµРј РїРѕСЂСЏРґРѕРє РїРѕРґСЃС‚Р°РЅРѕРІРєРё РґР»СЏ РІС‚РѕСЂРёС‡РЅРѕРіРѕ РѕР±СЉРµРєС‚Р°, Р·Р°С‚РµРј РґРІРѕРёС‡РЅС‹Р№ РЅСѓР»СЊ (0L).
+	// Р•СЃР»Рё РґР»СЏ РїРµСЂРІРёС‡РЅРѕРіРѕ РѕР±СЉРµРєС‚Р° РЅРµС‚ СЏРІРЅРѕРіРѕ РїРѕСЂСЏРґРєР°, С‚Рѕ Subst[0] == -1L.
+	// Р—Р°РІРµСЂС€Р°СЋС‰РёР№ РЅСѓР»СЊ РґРѕР»Р¶РµРЅ РїСЂРёСЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ РІСЃРµРіРґР° (СЃРјРѕС‚СЂРё РїСЂРµРґС‹РґСѓС‰РёР№ РїР°СЂР°РіСЂР°С„).
 	//
-	// Теоретически реальное поле Subst может иметь длину больше чем sizeof(Subst).
-	// Если это случится (Subst[7] != 0), то необходимо как-то сигнализировать об исключительной ситуации.
+	// РўРµРѕСЂРµС‚РёС‡РµСЃРєРё СЂРµР°Р»СЊРЅРѕРµ РїРѕР»Рµ Subst РјРѕР¶РµС‚ РёРјРµС‚СЊ РґР»РёРЅСѓ Р±РѕР»СЊС€Рµ С‡РµРј sizeof(Subst).
+	// Р•СЃР»Рё СЌС‚Рѕ СЃР»СѓС‡РёС‚СЃСЏ (Subst[7] != 0), С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РєР°Рє-С‚Рѕ СЃРёРіРЅР°Р»РёР·РёСЂРѕРІР°С‚СЊ РѕР± РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅРѕР№ СЃРёС‚СѓР°С†РёРё.
 	//
-	PPID   Subst[8];      // Переменные объектов для подстановки в проводку
-	DateRange Period;     // Период действия шаблона
+	PPID   Subst[8];      // РџРµСЂРµРјРµРЅРЅС‹Рµ РѕР±СЉРµРєС‚РѕРІ РґР»СЏ РїРѕРґСЃС‚Р°РЅРѕРІРєРё РІ РїСЂРѕРІРѕРґРєСѓ
+	DateRange Period;     // РџРµСЂРёРѕРґ РґРµР№СЃС‚РІРёСЏ С€Р°Р±Р»РѕРЅР°
 };
 
 //static
 int SLAPI PPAccTurnTempl::Convert_6407(PropertyTbl::Rec * pRec)
 {
 	int    ok = 1;
-	PPAccTurnTempl_Before6406 * p_b6406 = (PPAccTurnTempl_Before6406 *)pRec;
+	PPAccTurnTempl_Before6406 * p_b6406 = reinterpret_cast<PPAccTurnTempl_Before6406 *>(pRec);
 	if(p_b6406->Flags & ATTF_CVT6406) {
 		ok = -1;
 	}
@@ -303,12 +302,10 @@ int SLAPI PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects *
 					item.Aid.ar = temp_ar_id;
 				}
 				if(item.Aid.ac || item.Aid.ar) {
-					if(ord == 0) {
+					if(ord == 0)
 						pAtso->PrimList.insert(&item);
-					}
-					else {
+					else
 						pAtso->ForeignList.insert(&item);
-					}
 				}
 			}
 		}
@@ -331,24 +328,20 @@ int SLAPI PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects *
 		uint c = pAtso->PrimList.getCount();
 		if(c) do {
 			ATSubstObjects::Item & r_item = pAtso->PrimList.at(--c);
-			if(byAcc && !r_item.Aid.ac && !IsAccAssocArticle(r_item.Aid.ar, &r_item.Aid.ac)) {
+			if(byAcc && !r_item.Aid.ac && !IsAccAssocArticle(r_item.Aid.ar, &r_item.Aid.ac))
 				pAtso->PrimList.atFree(c);
-			}
-			else if(!byAcc && GetArticleSheetID(r_item.Aid.ar, &r_item.AcsID) <= 0) {
+			else if(!byAcc && GetArticleSheetID(r_item.Aid.ar, &r_item.AcsID) <= 0)
 				pAtso->PrimList.atFree(c);
-			}
 		} while(c);
 	}
 	{
 		uint c = pAtso->ForeignList.getCount();
 		if(c) do {
 			ATSubstObjects::Item & r_item = pAtso->ForeignList.at(--c);
-			if(byAcc && !r_item.Aid.ac && !IsAccAssocArticle(r_item.Aid.ar, &r_item.Aid.ac)) {
+			if(byAcc && !r_item.Aid.ac && !IsAccAssocArticle(r_item.Aid.ar, &r_item.Aid.ac))
 				pAtso->ForeignList.atFree(c);
-			}
-			else if(GetArticleSheetID(r_item.Aid.ar, &r_item.AcsID) <= 0) {
+			else if(GetArticleSheetID(r_item.Aid.ar, &r_item.AcsID) <= 0)
 				pAtso->ForeignList.atFree(c);
-			}
 		} while(c);
 	}
 	CATCHZOK
@@ -449,7 +442,7 @@ int SLAPI PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstOb
 	PPAccount acc_rec;
 	if(pAcct->ac && r_acc_obj.Fetch(pAcct->ac, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
 		LAssocArray alias_subst;
-		PPID   unresolved_ar_id = 0; // Для сообщения об ошибке
+		PPID   unresolved_ar_id = 0; // Р”Р»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєРµ
 		const  TSVector <ATSubstObjects::Item> * p_atso_list = 0; // @v9.8.4 TSArray-->TSVector
 		if(side == PPDEBIT) {
 			p_atso_list = (Flags & ATTF_PRIMONCREDIT) ? &pAtso->ForeignList : &pAtso->PrimList;
@@ -604,7 +597,7 @@ int SLAPI PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccT
 					}
 				}
 			}
-			THROW(GetSubstObjects(&rParam, &atso, 0)); // Инициализация atso. Далее этот блок не меняется.
+			THROW(GetSubstObjects(&rParam, &atso, 0)); // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ atso. Р”Р°Р»РµРµ СЌС‚РѕС‚ Р±Р»РѕРє РЅРµ РјРµРЅСЏРµС‚СЃСЏ.
 			// @# atso=const {
 			if((!atso.PrimList.getCount() || !atso.PrimList.at(0).Aid.ar) && Flags & ATTF_PSKIPONZOBJ)
 				ok = -1;
@@ -1028,7 +1021,7 @@ int SLAPI PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 	return ok;
 }
 //
-// Диалог шаблона бухгалтерской проводки
+// Р”РёР°Р»РѕРі С€Р°Р±Р»РѕРЅР° Р±СѓС…РіР°Р»С‚РµСЂСЃРєРѕР№ РїСЂРѕРІРѕРґРєРё
 //
 class ATurnTmplDialog : public TDialog {
 public:
@@ -1211,7 +1204,7 @@ int ATurnTmplDialog::getDTS(PPAccTurnTempl * pData)
 
 int SLAPI EditAccTurnTemplate(PPObjAccTurn * pObj, PPAccTurnTempl * pData) { DIALOG_PROC_BODY_P2(ATurnTmplDialog, DLG_ATRNTMPL, pObj, pData); }
 //
-// Список сумм и формул
+// РЎРїРёСЃРѕРє СЃСѓРјРј Рё С„РѕСЂРјСѓР»
 //
 class SelAmtSymbDialog : public TDialog {
 public:
@@ -1274,7 +1267,7 @@ IMPL_HANDLE_EVENT(SelAmtSymbDialog)
 			SelID = (i & ~0xff000000L);
 		}
 		clearEvent(event);
-		endModal(cmOK); // После endModal не следует обращаться к this
+		endModal(cmOK); // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 	}
 	else {
 		TDialog::handleEvent(event);

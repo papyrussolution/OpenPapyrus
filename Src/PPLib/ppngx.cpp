@@ -1,5 +1,5 @@
 // PPNGX.CPP
-// Copyright (c) A.Sobolev 2017, 2018
+// Copyright (c) A.Sobolev 2017, 2018, 2019
 // @codepage UTF-8
 // Взаимодействие с NGINX
 //
@@ -13,7 +13,6 @@ ngx_thread_value_t __stdcall ngx_worker_thread(void * data);
 int SLAPI RunNginxServer()
 {
 	NgxStartUpOptions o;
-	//PPGetPath(PPPATH_WORKSPACE, o.Prefix);
 	SString temp_buf;
 	SLS.QueryPath("workspace", temp_buf);
 	if(temp_buf.NotEmpty()) {

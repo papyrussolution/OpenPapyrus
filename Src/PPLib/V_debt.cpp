@@ -2280,7 +2280,7 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 void SLAPI PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && P_TempTbl && !P_Ct) {
-		DBQBrowserDef * p_def = (DBQBrowserDef *)pBrw->getDef();
+		DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pBrw->getDef());
 		const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
 		if(p_q) {
 			if(!(Filt.Flags & DebtTrnovrFilt::fShowExpiryDebt)) {

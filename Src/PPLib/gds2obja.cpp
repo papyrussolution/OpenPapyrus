@@ -1,10 +1,11 @@
 // GDS2OBJA.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
-// Список соответствий Товар(Группа товаров) - Объект
-// Используется для автоматического формирования документов
-// производства и передачи со складов, на которых товар производится //
-// на склады, на которых он потребляется.
+// РЎРїРёСЃРѕРє СЃРѕРѕС‚РІРµС‚СЃС‚РІРёР№ РўРѕРІР°СЂ(Р“СЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ) - РћР±СЉРµРєС‚
+// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
+// РїСЂРѕРёР·РІРѕРґСЃС‚РІР° Рё РїРµСЂРµРґР°С‡Рё СЃРѕ СЃРєР»Р°РґРѕРІ, РЅР° РєРѕС‚РѕСЂС‹С… С‚РѕРІР°СЂ РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ //
+// РЅР° СЃРєР»Р°РґС‹, РЅР° РєРѕС‚РѕСЂС‹С… РѕРЅ РїРѕС‚СЂРµР±Р»СЏРµС‚СЃСЏ.
 //
 #include <pp.h>
 #pragma hdrstop
@@ -194,7 +195,7 @@ PPBaseFilt * SLAPI PPViewGoodsToObjAssoc::CreateFilt(void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_GOODSTOOBJASSOC, &p_base_filt)) {
-		GoodsToObjAssocFilt * p_filt = (GoodsToObjAssocFilt *)p_base_filt;
+		GoodsToObjAssocFilt * p_filt = static_cast<GoodsToObjAssocFilt *>(p_base_filt);
 		if(extraPtr) {
 			p_filt->AsscType = reinterpret_cast<long>(extraPtr);
 			if(p_filt->AsscType == PPASS_GOODS2WAREPLACE) {
@@ -299,15 +300,13 @@ int SLAPI PPViewGoodsToObjAssoc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(p_item->Key); break; // GoodsID
 			case 1: pBlk->Set(p_item->Val); break; // ObjID
-			case 2: // Наименование товара
-				if(P_Assoc) {
-					P_Assoc->GetKeyName(p_item->Key, temp_buf);
-				}
-				if(temp_buf.Len() == 0)
+			case 2: // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
+				CALLPTRMEMB(P_Assoc, GetKeyName(p_item->Key, temp_buf));
+				if(!temp_buf.NotEmpty())
 					ideqvalstr(p_item->Key, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
-			case 3: // Наименование ассоциированного объекта
+			case 3: // РќР°РёРјРµРЅРѕРІР°РЅРёРµ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
 				GetObjectName(Filt.ObjType, p_item->Val, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
@@ -442,7 +441,7 @@ int SLAPI PPViewGoodsToObjAssoc::DeleteItem(const BrwHdr * pHdr)
 {
 	int    ok = -1;
 	if(pHdr && P_Assoc) {
-		if(P_Assoc->Get(pHdr->GoodsID, 0) > 0)
+		// @v10.5.3 (РјРµС€Р°РµС‚ СѓРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ СЃ РІРёСЃСЏС‡РёРј pHdr->GoodsID) if(P_Assoc->Get(pHdr->GoodsID, 0) > 0)
 			if(!P_Assoc->Remove(pHdr->GoodsID, pHdr->ObjID) || !P_Assoc->Save())
 				ok = PPError(PPERR_DBENGINE);
 			else
@@ -571,7 +570,6 @@ int NamedObjAssocDialog::setDTS(const PPNamedObjAssoc * pData)
 {
 	int    ok = 1;
 	Data = *pData;
-
 	PPIDArray obj_type_list;
 	obj_type_list.addzlist(PPOBJ_GOODS, 0L);
 	SetupObjListCombo(this, CTLSEL_NOBJASSC_PRMR, Data.PrmrObjType, &obj_type_list);

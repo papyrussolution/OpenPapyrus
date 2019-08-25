@@ -3894,7 +3894,7 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 int PersonListCtrlGroup::setData(TDialog * pDlg, void * pRec)
 {
 	if(pRec)
-		Data = *(Rec *)pRec;
+		Data = *static_cast<const Rec *>(pRec);
 	else
 		Data.Init();
 	SetupPPObjCombo(pDlg, CtlselPsnKind, PPOBJ_PRSNKIND, Data.PsnKindID, 0, 0);
@@ -3907,7 +3907,7 @@ int PersonListCtrlGroup::getData(TDialog * pDlg, void * pRec)
 	Data.PsnKindID = pDlg->getCtrlLong(CtlselPsnKind);
 	Data.List.freeAll();
 	if(ListData.P_RList && ListData.P_RList->getCount()) {
-		TaggedStringArray * p_psn_list = (TaggedStringArray*)ListData.P_RList;
+		const TaggedStringArray * p_psn_list = static_cast<const TaggedStringArray *>(ListData.P_RList);
 		for(uint i = 0; i < p_psn_list->getCount(); i++)
 			Data.List.add(p_psn_list->at(i).Id);
 	}

@@ -113,7 +113,6 @@
     <ClCompile Include="..\PPLib\Objartcl.cpp" />
     <ClCompile Include="..\PPLib\OBJASSOC.CPP" />
     <ClCompile Include="..\PPLib\Objaturn.cpp" />
-    <ClCompile Include="..\PPLib\Objbacct.cpp" />
     <ClCompile Include="..\PPLib\Objbill.cpp" />
     <ClCompile Include="..\PPLib\objbilst.cpp" />
     <ClCompile Include="..\PPLib\objbizsc.cpp" />

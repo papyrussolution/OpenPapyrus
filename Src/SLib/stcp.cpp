@@ -828,6 +828,8 @@ int FASTCALL InetUrl::GetDefProtocolPort(int protocol)
 		case protLDAP:     port = 389; break;
 		case protLDAPS:    port = 636; break;
 		case protPapyrusServer: port = 28015; break;
+		case protAMQP:     port = 5672; break; // @v10.5.3
+		case protAMQPS:    port = 5671; break; // @v10.5.3
 	}
 	return port;
 }
@@ -931,7 +933,10 @@ static const char * SchemeMnem[] = {
 	"rtmps",   // #33
 	"ldap",    // #34
 	"ldaps",   // #35
-	"mailfrom" // #36 fixion
+	"mailfrom", // #36 fixion
+	"",         // #37 private PapyrusServer
+	"amqp",     // #38
+	"amqps",    // #39
 };
 
 //static

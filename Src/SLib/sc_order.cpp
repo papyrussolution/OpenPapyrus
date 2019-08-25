@@ -93,13 +93,13 @@ int SCDBObjOrder::PutHdrRec(void * pRec)
 	uint32 ver = P_Ctx->PalmCfg.Ver;
 	LDATE dt = ZERODATE;
 	union  {
-		OrdHdr    * p_rec;
-		OrdHdr700 * p_rec700;
+		const OrdHdr    * p_rec;
+		const OrdHdr700 * p_rec700;
 	} b;
 	DbfRecord out_rec(P_HdrTbl);
 
 	if(ver >= 700) {
-		b.p_rec700 = (OrdHdr700*)pRec;
+		b.p_rec700 = static_cast<const OrdHdr700 *>(pRec);
 		id = SyncHHToHostDWord(b.p_rec700->ID);
 		shifted_id = id + LastID;
 		IdAsscList.Add(id, shifted_id, 0, 0);
@@ -117,7 +117,7 @@ int SCDBObjOrder::PutHdrRec(void * pRec)
 		out_rec.put(10, (long)SyncHHToHostDWord(b.p_rec700->LocID));
 	}
 	else {
-		b.p_rec = (OrdHdr*)pRec;
+		b.p_rec = static_cast<const OrdHdr *>(pRec);
 		id = SyncHHToHostDWord(b.p_rec->ID);
 		shifted_id = id + LastID;
 		IdAsscList.Add(id, shifted_id, 0, 0);
@@ -182,13 +182,13 @@ int SCDBObjOrder::PutLineRec(void * pRec)
 	long   goods_id = 0;
 	double qtty = 0, price = 0;
 	union {
-		OrdLine *  p_rec;
-		OrdLine158 * p_rec158;
+		const OrdLine *  p_rec;
+		const OrdLine158 * p_rec158;
 	} b;
 	if(ver < 158)
-		b.p_rec = (OrdLine*)pRec;
+		b.p_rec = static_cast<const OrdLine *>(pRec);
 	else
-		b.p_rec158 = (OrdLine158*)pRec;
+		b.p_rec158 = static_cast<const OrdLine158 *>(pRec);
 
 	DbfRecord out_rec(P_LineTbl);
 
@@ -355,15 +355,12 @@ int SCDBObjCliInv::Init(const char * pExpPath, const char * pImpPath)
 int SCDBObjCliInv::PutHdrRec(void * pRec)
 {
 	int    ok = 1;
-	long   id = 0, shifted_id = 0;
-	OrdHdr * p_rec = (OrdHdr*)pRec;
+	const  OrdHdr * p_rec = static_cast<const OrdHdr *>(pRec);
 	DbfRecord out_rec(P_HdrTbl);
-	LDATE dt = ZERODATE;
-
-	id = SyncHHToHostDWord(p_rec->ID);
-	shifted_id = id + LastID;
+	LDATE  dt = ZERODATE;
+	long   id = SyncHHToHostDWord(p_rec->ID);
+	long   shifted_id = id + LastID;
 	IdAsscList.Add(id, shifted_id, 0, 0);
-
 	out_rec.put(1, shifted_id);
 	dt = plusdate(encodedate(31, 12, 1995), SyncHHToHostWord(p_rec->Date));
 	out_rec.put(2, dt);
@@ -402,7 +399,7 @@ int SCDBObjCliInv::PutLineRec(void * pRec)
 	int    ok = 1;
 	char   log_buf[256];
 	long   ord_id = 0, ord_shifted_id = 0;
-	OrdLine * p_rec = (OrdLine*)pRec;
+	const  OrdLine * p_rec = static_cast<const OrdLine *>(pRec);
 	DbfRecord out_rec(P_LineTbl);
 	ord_id = SyncHHToHostDWord(p_rec->InvID);
 	if(IdAsscList.Search(ord_id, &ord_shifted_id, 0)) {

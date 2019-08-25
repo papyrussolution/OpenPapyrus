@@ -518,5 +518,6 @@
 #define cmCorrectZeroDebtDimRefs       623 // @v10.2.8 Обнуление висячих ссылок на долговые размерности
 #define cmTimeSeriesConfig             624 // @v10.3.1
 #define cmFreightPackageType           625 // @v10.4.1 Типы транспортной упаковки
+#define cmExportView                   626 // @v10.5.3 Экспорт данных по именованному фильтру
 
 #endif /* __PPMENU_H */

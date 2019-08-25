@@ -1516,7 +1516,6 @@
     <ClCompile Include="..\SLib\sfxtree2.cpp" />
     <ClCompile Include="..\SLib\sgeo.cpp" />
     <ClCompile Include="..\SLib\sgiflib.cpp" />
-    <ClCompile Include="..\SLib\shortwnd.cpp" />
     <ClCompile Include="..\SLib\simage.cpp" />
     <ClCompile Include="..\SLib\sinifile.cpp" />
     <ClCompile Include="..\SLib\slib-pch.cpp">

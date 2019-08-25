@@ -29,14 +29,11 @@ static int verbose = 0;
 static char * filename = NULL;
 
 #ifndef XML_SGML_DEFAULT_CATALOG
-#define XML_SGML_DEFAULT_CATALOG "/etc/sgml/catalog"
+	#define XML_SGML_DEFAULT_CATALOG "/etc/sgml/catalog"
 #endif
-
-/************************************************************************
-*									*
-*			Shell Interface					*
-*									*
-************************************************************************/
+// 
+// Shell Interface
+// 
 /**
  * xmlShellReadline:
  * @prompt:  the prompt value
@@ -72,7 +69,8 @@ static char * xmlShellReadline(const char * prompt) {
 #endif
 }
 
-static void usershell() {
+static void usershell() 
+{
 	char * cmdline = NULL, * cur;
 	int nbargs;
 	char command[100];
@@ -172,9 +170,8 @@ static void usershell() {
 			}
 			else {
 				ans = xmlCatalogResolvePublic((const xmlChar *)argv[0]);
-				if(ans == NULL) {
+				if(!ans)
 					printf("No entry for PUBLIC %s\n", argv[0]);
-				}
 				else {
 					printf("%s\n", (char *)ans);
 					SAlloc::F(ans);
@@ -182,14 +179,12 @@ static void usershell() {
 			}
 		}
 		else if(sstreq(command, "system")) {
-			if(nbargs != 1) {
+			if(nbargs != 1)
 				printf("system requires 1 arguments\n");
-			}
 			else {
 				ans = xmlCatalogResolveSystem((const xmlChar *)argv[0]);
-				if(ans == NULL) {
+				if(!ans)
 					printf("No entry for SYSTEM %s\n", argv[0]);
-				}
 				else {
 					printf("%s\n", (char *)ans);
 					SAlloc::F(ans);
@@ -203,8 +198,7 @@ static void usershell() {
 				}
 				else {
 					if(argv[2] == NULL)
-						ret = xmlCatalogAdd(BAD_CAST argv[0], NULL,
-						    BAD_CAST argv[1]);
+						ret = xmlCatalogAdd(BAD_CAST argv[0], NULL, BAD_CAST argv[1]);
 					else
 						ret = xmlCatalogAdd(BAD_CAST argv[0], BAD_CAST argv[1], BAD_CAST argv[2]);
 					if(ret != 0)
@@ -212,9 +206,8 @@ static void usershell() {
 				}
 			}
 			else {
-				if((nbargs != 3) && (nbargs != 2)) {
+				if((nbargs != 3) && (nbargs != 2))
 					printf("add requires 2 or 3 arguments\n");
-				}
 				else {
 					if(argv[2] == NULL)
 						ret = xmlCatalogAdd(BAD_CAST argv[0], NULL, BAD_CAST argv[1]);
@@ -226,9 +219,8 @@ static void usershell() {
 			}
 		}
 		else if(sstreq(command, "del")) {
-			if(nbargs != 1) {
+			if(nbargs != 1)
 				printf("del requires 1\n");
-			}
 			else {
 				ret = xmlCatalogRemove(BAD_CAST argv[0]);
 				if(ret <= 0)
@@ -236,15 +228,12 @@ static void usershell() {
 			}
 		}
 		else if(sstreq(command, "resolve")) {
-			if(nbargs != 2) {
+			if(nbargs != 2)
 				printf("resolve requires 2 arguments\n");
-			}
 			else {
-				ans = xmlCatalogResolve(BAD_CAST argv[0],
-				    BAD_CAST argv[1]);
-				if(ans == NULL) {
+				ans = xmlCatalogResolve(BAD_CAST argv[0], BAD_CAST argv[1]);
+				if(!ans)
 					printf("Resolver failed to find an answer\n");
-				}
 				else {
 					printf("%s\n", (char *)ans);
 					SAlloc::F(ans);
@@ -296,13 +285,11 @@ static void usershell() {
 		SAlloc::F(cmdline); /* not free here ! */
 	}
 }
-
-/************************************************************************
-*									*
-*			Main						*
-*									*
-************************************************************************/
-static void usage(const char * name) {
+// 
+// Main
+// 
+static void usage(const char * name) 
+{
 	/* split into 2 printf's to avoid overly long string (gcc warning) */
 	printf(
 	    "\
@@ -329,17 +316,14 @@ int main(int argc, char ** argv)
 	int i;
 	int ret;
 	int exit_value = 0;
-
 	if(argc <= 1) {
 		usage(argv[0]);
 		return 1;
 	}
-
 	LIBXML_TEST_VERSION
 	for(i = 1; i < argc; i++) {
 		if(sstreq(argv[i], "-"))
 			break;
-
 		if(argv[i][0] != '-')
 			break;
 		if(sstreq(argv[i], "-verbose") || sstreq(argv[i], "-v") || sstreq(argv[i], "--verbose")) {
@@ -584,9 +568,9 @@ int main(int argc, char ** argv)
 }
 
 #else
-int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
+int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
+{
 	fprintf(stderr, "libxml was not compiled with catalog and output support\n");
 	return 1;
 }
-
 #endif

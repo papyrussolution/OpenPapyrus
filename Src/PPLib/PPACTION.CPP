@@ -769,7 +769,6 @@ int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
 	int    ok = 1;
 	if(!(State & stSCtxInited)) {
 		SCtx.Init(SSerializeContext::fSeparateDataStruct|SSerializeContext::fDontProcessAttachment, ZERODATE);
-
 		const uint32 sysver = DS.GetMinCompatVersion();
 		PPObjID oid_dummy;
 		oid_dummy.Set(0, 0);
@@ -784,6 +783,7 @@ int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
 			if(p_bobj && p_ref) {
 				PPObjGoods goods_obj;
 				PPObjPerson psn_obj;
+				PPObjSCard sc_obj; // @v10.5.3
 				const DBTable * table_list[] = {
 					p_ref,
 					p_bobj->P_Tbl,
@@ -793,7 +793,8 @@ int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
 					&goods_obj.P_Tbl->GetBcTbl_(),
 					&goods_obj.P_Tbl->GetACodTbl_(),
 					psn_obj.P_Tbl, 
-					psn_obj.RegObj.P_Tbl
+					psn_obj.RegObj.P_Tbl,
+					sc_obj.P_Tbl // @v10.5.3
 				};
 				for(uint i = 0; i < SIZEOFARRAY(table_list); i++) {
 					const DBTable * p_tbl = table_list[i];

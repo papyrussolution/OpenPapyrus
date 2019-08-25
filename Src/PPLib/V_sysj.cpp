@@ -328,7 +328,8 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 						// @v9.9.2
 						if(Filt.Flags & Filt.fShowHistoryObj && p_ovc && r_rec.Extra) {
 							temp_buf.Z();
-							if(oneof4(r_rec.Action, PPACN_OBJRMV, PPACN_RMVBILL, PPACN_OBJUPD, PPACN_UPDBILL) && oneof2(r_rec.ObjType, PPOBJ_BILL, PPOBJ_GOODS)) {
+							if(oneof4(r_rec.Action, PPACN_OBJRMV, PPACN_RMVBILL, PPACN_OBJUPD, PPACN_UPDBILL) && 
+								oneof4(r_rec.ObjType, PPOBJ_BILL, PPOBJ_GOODS, PPOBJ_PERSON, PPOBJ_SCARD)) {
 								SSerializeContext & r_sctx = p_ovc->GetSCtx();
 								long   vv = 0;
 								EvVerEntry ev_entry;
@@ -338,7 +339,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 									PPObject * ppobj = P_ObjColl->GetObjectPtr(ev_entry.Obj);
 									if(ev_entry.Obj == PPOBJ_BILL) {
 										PPBillPacket pack;
-										PPObjBill * p_bobj = (PPObjBill *)ppobj;
+										PPObjBill * p_bobj = static_cast<PPObjBill *>(ppobj);
 										if(p_bobj->SerializePacket__(-1, &pack, ov_buf, &r_sctx)) {
 											pack.ProcessFlags |= (PPBillPacket::pfZombie|PPBillPacket::pfUpdateProhibited); // @v9.9.12
 											PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, temp_buf);
@@ -376,8 +377,20 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 									}
 									else if(ev_entry.Obj == PPOBJ_GOODS) {
 										PPGoodsPacket pack;
-										if(((PPObjGoods *)ppobj)->SerializePacket(-1, &pack, ov_buf, &r_sctx, 0)) {
+										if(static_cast<PPObjGoods *>(ppobj)->SerializePacket(-1, &pack, ov_buf, &r_sctx, 0)) {
 											temp_buf = pack.Rec.Name;
+										}
+									}
+									else if(ev_entry.Obj == PPOBJ_PERSON) {
+										PPPersonPacket pack;
+										if(static_cast<PPObjPerson *>(ppobj)->SerializePacket(-1, &pack, ov_buf, &r_sctx)) {
+											temp_buf = pack.Rec.Name;
+										}
+									}
+									else if(ev_entry.Obj == PPOBJ_SCARD) {
+										PPSCardPacket pack;
+										if(static_cast<PPObjSCard *>(ppobj)->SerializePacket(-1, &pack, ov_buf, &r_sctx)) {
+											temp_buf = pack.Rec.Code;
 										}
 									}
 								}
@@ -568,9 +581,9 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvsj_iip)
 		oid.Set(params[0].lval, params[1].lval);
 		const PPViewSysJournal * p_view = static_cast<const PPViewSysJournal *>(params[2].ptrval);
 		if(p_view) {
-			SString temp_buf;
-			p_view->GetObjName(oid, temp_buf);
-			STRNSCPY(buf, temp_buf);
+			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.5.3 revolver
+			p_view->GetObjName(oid, r_temp_buf);
+			STRNSCPY(buf, r_temp_buf);
 		}
 		else
 			buf[0] = 0;
@@ -832,14 +845,31 @@ int SLAPI PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 				ViewBillHistory(R0i(hdr.Extra), ev_dtm);
 				ok = -1;
 			}
+			// @v10.5.3 {
+			else if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
+				PPObjGoods goods_obj;
+				goods_obj.ViewVersion(R0i(hdr.Extra));
+				ok = -1;
+			}
+			else if(hdr.Obj == PPOBJ_PERSON && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
+				PPObjPerson psn_obj;
+				psn_obj.ViewVersion(R0i(hdr.Extra));
+				ok = -1;
+			}
+			else if(hdr.Obj == PPOBJ_SCARD && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
+				PPObjSCard sc_obj;
+				sc_obj.ViewVersion(R0i(hdr.Extra));
+				ok = -1;
+			}
+			// } @v10.5.3 
 		}
-		else if(ppvCmd == PPVCMD_VIEWGOODSHISTORY) {
+		/* @v10.5.3 else if(ppvCmd == PPVCMD_VIEWGOODSHISTORY) {
 			if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
 				PPObjGoods goods_obj;
 				goods_obj.ViewVersion(R0i(hdr.Extra));
 				ok = -1;
 			}
-		}
+		}*/
 		else if(ppvCmd == PPVCMD_RESTOREGOODS) {
 			if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
 				ok = -1;
