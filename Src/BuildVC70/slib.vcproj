@@ -732,6 +732,9 @@
 				RelativePath="..\SLib\s_crc32.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\samqp.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\sarc.cpp">
 			</File>
 			<File
@@ -3523,6 +3526,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath="..\Include\amqp.h">
+			</File>
+			<File
 				RelativePath="..\Include\Db.h">
 			</File>
 			<File
@@ -3544,6 +3550,9 @@
 				RelativePath="..\Include\Slib.h">
 			</File>
 			<File
+				RelativePath="..\Include\stdint.h">
+			</File>
+			<File
 				RelativePath="..\Include\StyloConduit.h">
 			</File>
 			<File
@@ -3557,67 +3566,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\uchardet.h">
-			</File>
-			<File
-				RelativePath="..\Slib\xtagpars.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						StructMemberAlignment="1"
-						DefaultCharIsUnsigned="TRUE"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""
-						BrowseInformation="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						StructMemberAlignment="1"
-						DefaultCharIsUnsigned="TRUE"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						StructMemberAlignment="1"
-						DefaultCharIsUnsigned="TRUE"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""
-						BrowseInformation="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						StructMemberAlignment="1"
-						DefaultCharIsUnsigned="TRUE"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""
-						BrowseInformation="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						StructMemberAlignment="1"
-						DefaultCharIsUnsigned="TRUE"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""
-						BrowseInformation="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						StructMemberAlignment="1"
-						DefaultCharIsUnsigned="TRUE"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""
-						BrowseInformation="0"/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

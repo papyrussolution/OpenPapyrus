@@ -44,6 +44,7 @@
 	#endif
 	#define _CRT_SECURE_NO_WARNINGS
 #endif
+#define __STDC_LIMIT_MACROS // @v10.5.4
 
 /* Remove comment if clarion date format is needed
 #define USE_DF_CLARION */

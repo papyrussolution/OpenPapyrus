@@ -1759,7 +1759,8 @@ int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const ch
 //
 //
 //
-static int SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize, uint8 * pBuf, void ** ppItems)
+#if 0 // @v10.5.4 (inlined) {
+static void SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize, uint8 * pBuf, void ** ppItems)
 {
 	for(uint idx = 0; idx < numItems; idx++) {
 		char   item_buf[128];
@@ -1782,12 +1783,12 @@ static int SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize,
 			p = temp_buf;
 		}
 		uint8 * ptr = pBuf+(sizeof(int16)+strSize)*idx;
-		*(int16 *)ptr = (int16)id;
+		*reinterpret_cast<int16 *>(ptr) = (int16)id;
 		strnzcpy((char *)(ptr+sizeof(int16)), p, strSize);
 		ppItems[idx] = ptr;
 	}
-	return 1;
 }
+#endif // } 0 @v10.5.4 (inlined)
 
 SLAPI DbqStringSubst::DbqStringSubst(size_t numItems) : NumItems(numItems), IsInited(0)
 {
@@ -1807,8 +1808,42 @@ void FASTCALL DbqStringSubst::Init(uint strID)
 {
 	if(!IsInited) {
 		ENTER_CRITICAL_SECTION
-		if(!IsInited)
-			LoadDbqStringSubst(strID, NumItems, sizeof(((Subst *)0)->Str), (uint8 *)Items, (void **)P_Items);
+		if(!IsInited) {
+			// @v10.5.4 (inlined) LoadDbqStringSubst(strID, NumItems, sizeof(static_cast<Subst *>(0)->Str), reinterpret_cast<uint8 *>(Items), (void **)P_Items);
+			//static void SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize, uint8 * pBuf, void ** ppItems)
+			// @v10.5.4 (inlined) {
+			{
+				const size_t str_size = sizeof(static_cast<Subst *>(0)->Str);
+				uint8 * p_items_buf = reinterpret_cast<uint8 *>(Items);
+				void ** pp_items = reinterpret_cast<void **>(P_Items);
+				char   item_buf[256];
+				char   temp_buf[32];
+				for(uint idx = 0; idx < NumItems; idx++) {
+					long   id = 0;
+					char * p = 0;
+					if(PPGetSubStr(strID, idx, item_buf, sizeof(item_buf)) > 0) {
+						if((p = sstrchr(item_buf, ',')) != 0) {
+							*p++ = 0;
+							id = atol(item_buf);
+						}
+						else {
+							p = item_buf;
+							id = idx + 1;
+						}
+					}
+					else {
+						id = idx+1;
+						itoa(id, temp_buf, 10);
+						p = temp_buf;
+					}
+					uint8 * ptr = p_items_buf+(sizeof(int16)+str_size)*idx;
+					*reinterpret_cast<int16 *>(ptr) = (int16)id;
+					strnzcpy(reinterpret_cast<char *>(ptr+sizeof(int16)), p, str_size);
+					pp_items[idx] = ptr;
+				}
+			}
+			// } @v10.5.4 (inlined)
+		}
 		LEAVE_CRITICAL_SECTION
 	}
 }

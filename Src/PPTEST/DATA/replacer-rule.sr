@@ -142,6 +142,7 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%f%)%s%zгbit/s%>%1gbit/s
 %(%f%)%zlb%.%>%1lb
 %(%f%)%zlbs%.%>%1lb
+%(%f%)%zounce%>%1oz
 %(%f%)%zounces%>%1oz
 %(%f%)%zliquid ounces%>%1floz
 
@@ -606,6 +607,7 @@ powder%<pwdr%|powd%.%|pwd%.%|powdr%.%|pwder
 powdered%<pwdrd
 princess%<prncs%|prncss%|prncess
 royal canin%<роял канин
+teva pharmaceutical%<teva pharmaceuticals
 rj-45%<rj45%|rj 45
 rj-45m%<rj-45%z(m)
 soft gel%<sftgl%|sftgel%|softgel%|softgels%|soft gels
@@ -3702,7 +3704,8 @@ caboodles
 %^%(%d%) %(sk hand tools%) %(%*%)%$%>%2 %3 %1
 %^#%(%d%) %(sk hand tools%) %(%*%)%$%>%2 %3 %1
 
-%^%(%doz%) %(%*%)%$%>%2 %1
+%^%(%foz%) %(%*%)%$%>%2 %1
+%^%(%ffloz%) %(%*%)%$%>%2 %1
 
 %{
 %z,%z
@@ -3837,6 +3840,7 @@ becton dickinson
 щетка стеклоочистителя
 selecta switch
 solgar
+teva pharmaceutical
 teva
 westinghouse
 nature's blend

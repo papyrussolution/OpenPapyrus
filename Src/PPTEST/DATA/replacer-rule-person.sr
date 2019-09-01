@@ -29,15 +29,25 @@
 лтд
 фгуп
 фгу
+gmbh
 llc
+lp
 ltd
 ltda
 pty
 spa
+sa
+sas
+sarl
 %}%=jrs
 
 %{
 america
+australia
+switzerland
+england
+france
+new zealand
 австрия
 англия
 аргентина
@@ -99,7 +109,7 @@ america
 
 
 .%$%>%E
-,%>%E
+,%>%_
 .%>%E
 "%>%E
 >%>%E
@@ -115,10 +125,35 @@ america
 
 %{
 %@country.
+new york
+dakota
+texas
+adler
+alexander
+beverly
+bowman
+rosie
+zanetti
+waldbaum
+clark
+cooper
+nelson
+o'neill
+leonard
+phillips
+walter
+walker
+seagram
+james
+disney
+meyer
+rosenthal
+europe
 %}%K
 
 %{
 usa
+uk
 сша
 кнр
 %@jrs.
@@ -128,3 +163,7 @@ mfg
 inc%$%>Inc.
 incorporated%$%>Inc.
 co%$%>Co.
+corp%$%>Corp.
+corporation%$%>Corp.
+sa de cv%$%>SA de CV
+sl%$%>S.L.

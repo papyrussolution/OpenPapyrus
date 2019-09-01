@@ -50,7 +50,7 @@
  * In case windows.h doesn't define it (e.g. WinCE perhaps)
  */
 #if 1 // @sobolev defined(WINCE)-->1
-	typedef VOID (APIENTRY *PAPCFUNC)(DWORD dwParam);
+	typedef void (CALLBACK *PAPCFUNC)(/*DWORD*/ULONG_PTR dwParam);
 #endif
 /*
  * Designed to allow error values to be set and retrieved in builds where

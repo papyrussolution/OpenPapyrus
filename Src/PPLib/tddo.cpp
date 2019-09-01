@@ -1225,10 +1225,10 @@ SLTEST_R(Tddo)
 		in_buf.Cat(temp_buf);
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		ext_param_list.clear();
-		ext_param_list.add(temp_buf.Z().Cat(id_list.get(i)), 0);
-		ext_param_list.add("Param 02", 0);
-		ext_param_list.add("Param 03", 0);
-		ext_param_list.add("Param 04", 0);
+		ext_param_list.add(temp_buf.Z().Cat(id_list.get(i)));
+		ext_param_list.add("Param 02");
+		ext_param_list.add("Param 03");
+		ext_param_list.add("Param 04");
 		{
 			DlRtm::ExportParam ep;
 			PPFilt _f(id_list.get(i));

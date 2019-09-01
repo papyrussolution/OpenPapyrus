@@ -404,7 +404,10 @@ typedef LongArray PPIDArray;
 //
 class PPConstParam {
 public:
-	SLAPI  PPConstParam() : UseAdvEvQueue(1), Flags(/*fDoSeparateNonFiscalCcItems*/)
+	SLAPI  PPConstParam() : UseAdvEvQueue(1), Flags(/*fDoSeparateNonFiscalCcItems*/), 
+		P_SubjectDbDiv("$PpyDbDivTransmission$"),
+		P_SubjectOrder("$PpyOrderTransmission$"),
+		P_SubjectCharry("$PpyCharryTransmission$")
 	{
 	}
 	enum {
@@ -412,6 +415,9 @@ public:
 	};
 	const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
 	const uint32 Flags;
+	const char * P_SubjectDbDiv;
+	const char * P_SubjectOrder;
+	const char * P_SubjectCharry;
 };
 
 extern const PPConstParam _PPConst;
@@ -11958,11 +11964,9 @@ struct CpTrfrExt {
 
 class CpTransfCore : public CpTransfTbl {
 public:
-	SLAPI  CpTransfCore();
-
 	static int FASTCALL PutExt__(CpTransfTbl::Rec & rRec, const CpTrfrExt * pExt);
 	static int FASTCALL GetExt__(CpTransfTbl::Rec & rRec, CpTrfrExt * pExt);
-
+	SLAPI  CpTransfCore();
 	int    SLAPI PutItem(PPTransferItem * pTi, int16 forceRByBill, const CpTrfrExt * pExt, int use_ta);
 	int    SLAPI RemoveItem(PPID billID, int rByBill, int use_ta);
 	int    SLAPI EnumItems(PPID billID, int * pRByBill, PPTransferItem *, CpTrfrExt *);
@@ -12952,7 +12956,7 @@ public:
 #define PSSF_USELSSLIN  0x0001 // Рассчитывать параметры линейной аппроксимации
 
 struct PredictSalesStat {
-	SLAPI  PredictSalesStat(PPID coeffQkID = 0, const  PPQuotArray * pCoeffQList = 0);
+	SLAPI  PredictSalesStat(PPID coeffQkID = 0, const PPQuotArray * pCoeffQList = 0);
 	SLAPI ~PredictSalesStat();
 	PredictSalesStat & FASTCALL operator = (const PredictSalesStat &);
 	void   SLAPI Init();
@@ -14294,7 +14298,7 @@ public:
 
 class CGoodsLine : public CGoodsLineTbl {
 public:
-	SLAPI  CGoodsLine(char * pFileName = 0);
+	explicit SLAPI CGoodsLine(char * pFileName = 0);
 	int    SLAPI Add(PPID sessID, const CCheckGoodsArray * pList, int use_ta);
 	int    SLAPI Update(const CGoodsLineTbl::Rec & rRec, int use_ta);
 	int    SLAPI UndoWritingOff(PPID);                       // Without transaction
@@ -14373,7 +14377,7 @@ void foo()
 
 class DbqStringSubst {
 public:
-	SLAPI  DbqStringSubst(size_t numItems);
+	explicit SLAPI DbqStringSubst(size_t numItems);
 	SLAPI ~DbqStringSubst();
 	char ** FASTCALL Get(uint strID);
 private:
@@ -14392,20 +14396,11 @@ DBTable * FASTCALL __PreprocessCreatedDbTable(DBTable * pT);
 //
 // Макрос для генерации функции создания временного файла
 //
-/*#define PP_CREATE_TEMP_FILE_PROC(proc,nam)                 \
-static nam##Tbl * SLAPI proc() { nam##Tbl * t = new nam##Tbl(DBTable::CrTempFileNamePtr); \
-  if(t && t->IsOpened()) return t; else { delete t; t = 0; return (PPSetErrorDB(), (nam##Tbl *)0); }}*/
 #define PP_CREATE_TEMP_FILE_PROC(proc,nam)                 \
-static nam##Tbl * SLAPI proc() { return static_cast<nam##Tbl *>(__PreprocessCreatedDbTable(new nam##Tbl(DBTable::CrTempFileNamePtr))); }
+	static nam##Tbl * SLAPI proc() { return static_cast<nam##Tbl *>(__PreprocessCreatedDbTable(new nam##Tbl(DBTable::CrTempFileNamePtr))); }
 
 template <class T> inline T * CreateTempFile()
 {
-	/*T * t = new T(DBTable::CrTempFileNamePtr);
-	if(!t || !t->IsOpened()) {
-		ZDELETE(t);
-		PPSetErrorDB();
-	}
-	return t;*/
 	return static_cast<T *>(__PreprocessCreatedDbTable(new T(DBTable::CrTempFileNamePtr)));
 }
 
@@ -15873,6 +15868,11 @@ public:
 		double VolumeReal; // Объем для текущей цены Last c повышенной точностью
 		double MarginReq;  // Требуемая величина маржи на минимальный объем сделки (исходя из цены Last)
 	};
+	struct TerminalInfo { // @flag @v10.5.4
+		SLAPI  TerminalInfo();
+		int32  GmtOffset; // TimeGMT - TimeLocal Разница между временем GMT и локальным на терминале.
+		uint8  Reserve[64];
+	};
 	struct AccountInfo {
 		SLAPI  AccountInfo();
 		int    ID;           // Ид счета в торговой системе
@@ -15992,6 +15992,7 @@ public:
 
 	const Tick * FASTCALL SearchTickBySymb(const char * pSymb) const;
 
+	TerminalInfo Term; // @v10.5.4
 	AccountInfo Acc;
 	TSVector <Tick>  TL; // Список последних тиков по выбранному набору инструментов
 	TSVector <Stake> SL; // Список текущих ордеров на счету Acc
@@ -16379,13 +16380,60 @@ private:
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI MakeList();
+	int    SLAPI DeleteItem(PPID id);
+	int    SLAPI DeleteAll();
 
 	SArray * P_DsList;
 	TimeSeriesFilt Filt;
 	PPObjTimeSeries Obj;
 	PPObjTimeSeries::Config Cfg;
+};
+//
+//
+//
+class TimSerDetailFilt : public PPBaseFilt {
+public:
+	SLAPI  TimSerDetailFilt();
+
+	uint8  ReserveStart[128]; // @anchor
+	long   Flags;
+	PPID   TsID;             // Идент временной серии 
+	DateRange Period;        //
+	long   Reserve;          // @anchor
+};
+
+class TimSerDetailViewItem {
+public:
+	TimSerDetailViewItem();
+	uint   ItemIdx;
+	SUniTime T;
+	RealArray VL;
+};
+
+class PPViewTimSerDetail : public PPView {
+public:
+	SLAPI  PPViewTimSerDetail();
+	SLAPI ~PPViewTimSerDetail();
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
+	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    SLAPI InitIteration();
+	int    FASTCALL NextIteration(TimSerDetailViewItem *);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI MakeList();
+
+	SArray * P_DsList;
+	TimSerDetailFilt Filt;
+	PPObjTimeSeries Obj;
+	STimeSeries Ts;
 };
 //
 //
@@ -20543,6 +20591,11 @@ public:
 	};
 
 	static int SLAPI InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP);
+	//
+	// Descr: Высокоуровневый вариант инициализации клиента, использующий
+	//   конфигурацию глобального обмена.
+	//
+	static int SLAPI InitClient(PPMqbClient & rC, SString * pDomain);
 
 	enum {
 		mqofPassive    = 0x0001, // queue exchange
@@ -21360,6 +21413,7 @@ public:
 	// разделов (документы без товарных строк)
 #define DBDIVF_PASSIVE               0x0010L // Пассивный раздел
 #define DBDIVF_FOREIGN               0x0020L // @v8.0.12 "Чужой" раздел. Используется для маршрутизации передачи пакетов между разделами
+#define DBDIVF_MQBEXCHANGE           0x0040L // @v10.5.4 Раздел обменивается посредством брокера сообщений
 
 struct PPDBDiv2 {          // @persistent @store(Reference2Tbl+)
 	//
@@ -21373,7 +21427,9 @@ struct PPDBDiv2 {          // @persistent @store(Reference2Tbl+)
 			// Если этот флаг установлен, то функция PPObjectTransmit::PutObjectToIndex пропускает документы
 			// списания кассовых сессий несмотря на флаг DBDXF_SENDCSESSION в конфигурации обмена данными.
 		fConsolid              = 0x0008, // Раздел, принимающий консолидирующую информацию из других разделов (документы без товарных строк)
-		fPassive               = 0x0010  // Пассивный раздел
+		fPassive               = 0x0010, // Пассивный раздел
+		fForeign               = 0x0020,
+		fMqbExchange           = 0x0040  // @v10.5.4 Раздел обменивается посредством брокера сообщений
 	};
 	long   Tag;           // Const=PPOBJ_DBDIV
 	long   ID;            // @id
@@ -26468,7 +26524,7 @@ private:
 	virtual int SLAPI Describe(long flags, SString & rBuf) const;
 	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
 	char * SLAPI WriteObjIdListFilt(char * p, const ObjIdListFilt & rList) const;
-	char * SLAPI ReadObjIdListFilt(char * p, ObjIdListFilt & rList);
+	const  void * SLAPI ReadObjIdListFilt(const /*char*/void * p, ObjIdListFilt & rList);
 	int    SLAPI ReadFromProp_Before8604(PPID obj, PPID id, PPID prop);
 
 	ObjIdListFilt ResultBrandList; // @transient @*GoodsFilt::Setup @v7.7.9 Результирующий список бр'ндов, агрегирующий BrandList и BrandOwnerList
@@ -44497,9 +44553,9 @@ private:
 #define ORDEXT            ".ord"
 #define MAILHDREXT        ".mhd"
 #define SUBJSIZE          96L
-#define SUBJECTDBDIV      "$PpyDbDivTransmission$"
-#define SUBJECTORDER      "$PpyOrderTransmission$"
-#define SUBJECTCHARRY     "$PpyCharryTransmission$"
+// @v10.5.4 replaced-with(_PPConst.P_SubjectDbDiv)  #define SUBJECTDBDIV      "$PpyDbDivTransmission$"
+// @v10.5.4 replaced-with(_PPConst.P_SubjectOrder)  #define SUBJECTORDER      "$PpyOrderTransmission$"
+// @v10.5.4 replaced-with(_PPConst.P_SubjectCharry) #define SUBJECTCHARRY     "$PpyCharryTransmission$"
 #define SUBJECTFRONTOL    "ATOL_RMK_CHANGE_"
 #define MIN_INET_PSW_SIZE 1
 

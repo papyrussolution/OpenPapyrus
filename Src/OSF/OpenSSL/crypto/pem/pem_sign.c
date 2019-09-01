@@ -24,7 +24,7 @@ int PEM_SignFinal(EVP_MD_CTX * ctx, uchar * sigret, uint * siglen, EVP_PKEY * pk
 	int i, ret = 0;
 	uint m_len;
 	uchar * m = (uchar *)OPENSSL_malloc(EVP_PKEY_size(pkey) + 2);
-	if(m == NULL) {
+	if(!m) {
 		PEMerr(PEM_F_PEM_SIGNFINAL, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

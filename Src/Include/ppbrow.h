@@ -197,7 +197,7 @@
 	#define HELP_BROWSER_SHIPMANLZ                               79
 #define BROWSER_SHIPMANLZBYBILL                         80 // @view_shipmanalyze
 	#define HELP_BROWSER_SHIPMANLZBYBILL                         80
-#define BROWSER_PSALESGOODS                             81 // Продажи товаров (%s)
+#define BROWSER_PSALESGOODS                             81 // @{view_predictsales} (%s)
 	#define HELP_BROWSER_PSALESGOODS                             81
 #define TOOLBAR_TRFRANLZ                      36
 #define BROWSER_GOODSCARD                               82 // Карточка товара {%s}
@@ -392,9 +392,9 @@
 	#define HELP_BROWSER_PERSONPOST                             175
 #define BROWSER_STAFF                                  176 // Кадры {%s}
 	#define HELP_BROWSER_STAFF                                  176
-#define BROWSER_SALARY                                 177 // Начисление зарплаты
+#define BROWSER_SALARY                                 177 // @{salaryaccrual}
 	#define HELP_BROWSER_SALARY                                 177
-#define BROWSER_SALARYCT                               178 // Начисление зарплаты
+#define BROWSER_SALARYCT                               178 // @{salaryaccrual}
 	#define HELP_BROWSER_SALARYCT                               178
 #define BROWSER_STAFFCAL_DT                            179 // @{view_staffcal} {%s}
 	#define HELP_BROWSER_STAFFCAL_DT                            179
@@ -574,20 +574,22 @@
 	#define HELP_BROWSER_DBDIV                                  265
 #define BROWSER_TIMESERIES                             266 // @{timeseries_p}
 	#define HELP_BROWSER_TIMESERIES                             266
-#define BROWSER_DBMONITOR                              267 // Монитор базы данных
-	#define HELP_BROWSER_DBMONITOR                              267
-#define BROWSER_SUPRWARE                               268 // Базовые товары и компоненты
-	#define HELP_BROWSER_SUPRWARE                               268
-#define BROWSER_USERPROFILE                            269 // Профайлер пользовательских функций
-	#define HELP_BROWSER_USERPROFILE                            269
-#define BROWSER_JOB                                    270 // Серверные задачи
-	#define HELP_BROWSER_JOB                                    270
-#define BROWSER_PHNSVCMONITOR                          271 // @{view_phnsvcmonitor}
-	#define HELP_BROWSER_PHNSVCMONITOR                          271
-#define BROWSER_TSSTKENVMONITOR                        272 // TSSTKENVMONITOR
-	#define HELP_BROWSER_TSSTKENVMONITOR                        272
-#define BROWSER_VETISDOCUMENT                          273 // @{view_vetisdocument}
-	#define HELP_BROWSER_VETISDOCUMENT                          273
+#define BROWSER_TIMSERDETAIL                           267 // @{timeseries_p}
+	#define HELP_BROWSER_TIMSERDETAIL                           267
+#define BROWSER_DBMONITOR                              268 // Монитор базы данных
+	#define HELP_BROWSER_DBMONITOR                              268
+#define BROWSER_SUPRWARE                               269 // Базовые товары и компоненты
+	#define HELP_BROWSER_SUPRWARE                               269
+#define BROWSER_USERPROFILE                            270 // Профайлер пользовательских функций
+	#define HELP_BROWSER_USERPROFILE                            270
+#define BROWSER_JOB                                    271 // @{jobtask_pl}
+	#define HELP_BROWSER_JOB                                    271
+#define BROWSER_PHNSVCMONITOR                          272 // @{view_phnsvcmonitor}
+	#define HELP_BROWSER_PHNSVCMONITOR                          272
+#define BROWSER_TSSTKENVMONITOR                        273 // TSSTKENVMONITOR
+	#define HELP_BROWSER_TSSTKENVMONITOR                        273
+#define BROWSER_VETISDOCUMENT                          274 // @{view_vetisdocument}
+	#define HELP_BROWSER_VETISDOCUMENT                          274
 
 //
 // PPVIEW COMMAND definitions
@@ -1820,6 +1822,9 @@
 #define PPVIEW_TIMESERIES                            1170
 	#define PPFILT_TIMESERIES                            1171
 	#define PPVIEWITEM_TIMESERIES                            1172
+#define PPVIEW_TIMSERDETAIL                          1180
+	#define PPFILT_TIMSERDETAIL                          1181
+	#define PPVIEWITEM_TIMSERDETAIL                          1182
 //
 // RECORD definitions
 //
@@ -4732,5 +4737,6 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_EXPORT01                        32908
 #define PPDV_EXPORT02                        32909
 #define PPDV_EXPORT03                        32910
-#define PPDV_LOGOPAPYRUS                     32911
+#define PPDV_DELETEALL02                     32911
+#define PPDV_LOGOPAPYRUS                     32912
 

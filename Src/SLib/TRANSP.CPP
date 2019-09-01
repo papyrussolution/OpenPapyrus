@@ -37,12 +37,12 @@ void Transpos::Init(long sz, long stop, const long pattern[])
 {
 	int    i;
 	Size = sz;
-	P_List = (long *)SAlloc::M((size_t)(sizeof(long) * Size));
+	P_List = static_cast<long *>(SAlloc::M((size_t)(sizeof(long) * Size)));
 	for(i = 0; i < Size; i++)
 		P_List[i] = i+1;
 	P_Pattern = 0;
 	if(pattern) {
-		P_Pattern = (long *)SAlloc::M((size_t)(sizeof(long) * Size));
+		P_Pattern = static_cast<long *>(SAlloc::M((size_t)(sizeof(long) * Size)));
 		for(i = 0; i < Size; i++)
 			P_Pattern[i] = pattern[i];
 	}
@@ -111,7 +111,7 @@ int Transpos::Transposition(long order)
 	return 0;
 }
 
-long GetTranspositionNumber(long list[], long count)
+long GetTranspositionNumber(const long list[], long count)
 {
 	Transpos trans;
 	trans.Init(count, 0, list);

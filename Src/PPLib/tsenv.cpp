@@ -40,7 +40,12 @@ POSITION_TYPE_BUY	0
 POSITION_TYPE_SELL	1
 */
 
-static const int TsStakeEnvironment_CurrentVersion = 1;
+static const int TsStakeEnvironment_CurrentVersion = 2; // @v10.5.4 1-->2
+
+SLAPI TsStakeEnvironment::TerminalInfo::TerminalInfo() : GmtOffset(0)
+{
+	memzero(Reserve, sizeof(Reserve));
+}
 
 SLAPI TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0), Margin(0.0), MarginFree(0.0)
 {
@@ -105,6 +110,7 @@ int SLAPI TsStakeEnvironment::Serialize(int dir, SBuffer & rBuf, SSerializeConte
 		ok = -1;
 	}
 	else {
+		THROW_SL(pSCtx->SerializeBlock(dir, sizeof(Term), &Term, rBuf, 1)); // @v10.5.4
 		THROW_SL(pSCtx->Serialize(dir, Acc.ID, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, Acc.ActualDtm, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, Acc.Balance, rBuf));
@@ -123,6 +129,7 @@ int FASTCALL TsStakeEnvironment::Copy(const TsStakeEnvironment & rS)
 {
 	int    ok = 1;
 	SStrGroup::CopyS(rS);
+	Term = rS.Term; // @v10.5.4
 	Acc = rS.Acc;
 	TL = rS.TL;
 	SL = rS.SL;

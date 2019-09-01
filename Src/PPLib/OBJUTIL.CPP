@@ -2112,7 +2112,7 @@ int PPALDD_DataObject::InitData(PPFilt & rFilt, long rsrv)
 //
 PPGlobalAccRights::Rec::Rec() : Flags(0)
 {
-	Scope[0] = 0;
+	PTR32(Scope)[0] = 0;
 }
 
 PPGlobalAccRights::PPGlobalAccRights(const int tagID)

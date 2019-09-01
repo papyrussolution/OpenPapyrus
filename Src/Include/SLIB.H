@@ -9635,32 +9635,6 @@ enum {
 //
 int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 //
-// Tag parser
-//
-class XTagParser {
-public:
-	SLAPI  XTagParser();
-	SLAPI ~XTagParser();
-
-	int    SLAPI Run(const char * pFileName);
-protected:
-	enum {
-		tokEOF = -1,
-		tokErr = 0,
-		tokChar,
-		tokTag,
-		tokEndTag
-	};
-	virtual int SLAPI ProcessTag(const char * pTag, long) = 0;
-	//
-	// Returns tokXXX
-	//
-	int    SLAPI GetToken(const char * pCurTag, char * pTagBuf, size_t bufLen);
-private:
-	char   FileName[MAXPATH];
-	FILE * P_Stream;
-};
-//
 // Descr: Идентификаторы распознаваемых натуральных токенов.
 //   @persistent
 //   Символьные обозначения токенов находятся в строке PPTXT_NATURALTOKENID
@@ -9811,7 +9785,7 @@ double fgetneginf(); // -INF
 //
 int    SLAPI Factorize(ulong val, UlongArray * pList);
 int    SLAPI MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, UlongArray * pReduceList);
-long   GetTranspositionNumber(long list[], long count);
+long   GetTranspositionNumber(const long list[], long count);
 int    GetNthTransposition(long list[], long count, long n);
 
 #ifndef _WIN32_WCE // {
@@ -9860,7 +9834,6 @@ public:
 	long   SLAPI Put(double val);
 	const  StatBase * SLAPI GetDeviationStat() const;
 	int    SLAPI GetDeviationParams(double * pMean, double * pWidth) const;
-
 	uint   SLAPI GetResultCount() const;
 	int    SLAPI GetResult(uint pos, Result * pResult) const;
 private:
@@ -10214,6 +10187,8 @@ public:
 	int    SLAPI SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const;
 	int    FASTCALL GetTime(uint itemIdx, SUniTime * pT) const;
 	int    SLAPI AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx);
+	uint   SLAPI GetValueVecCount() const;
+	int    SLAPI GetValueVecParam(uint vecIdx, TYPEID * pTyp, SString * pSymb, int * pFxPrec, uint * pFlags) const;
 	int    SLAPI GetValueVecIndex(const char * pSymb, uint * pIdx) const;
     int    SLAPI GetValue(uint itemIdx, uint vecIdx, double * pValue) const;
 	int    SLAPI GetValue(uint itemIdx, uint vecIdx, float * pValue) const;

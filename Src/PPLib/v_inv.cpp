@@ -579,6 +579,30 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 									else if(Filt.GoodsGrpID && !GObj.BelongToGroup(org_goods_id, Filt.GoodsGrpID, 0))
 										do_skip = 1;
 								}
+								 //@erik @v10.5.4 {
+								if((Filt.Flags & InventoryFilt::fWrOff)) {
+									if(!(inv_rec.Flags & INVENTF_WRITEDOFF))
+										do_skip = 1;
+								}
+								if((Filt.Flags & InventoryFilt::fUnwrOff)) {
+									if((inv_rec.Flags & INVENTF_WRITEDOFF))
+										do_skip = 1;
+								}
+								if(Filt.Flags & (InventoryFilt::fLack | InventoryFilt::fSurplus)){
+									if((Filt.Flags & InventoryFilt::fLack) && !(Filt.Flags & InventoryFilt::fSurplus)) {
+										if(!(inv_rec.Flags & INVENTF_LACK))
+											do_skip = 1;
+									}
+									else if((Filt.Flags & InventoryFilt::fSurplus) && !(Filt.Flags & InventoryFilt::fLack)) {
+										if(!(inv_rec.Flags & INVENTF_SURPLUS))
+											do_skip = 1;
+									}
+									else{
+										if(!(inv_rec.Flags & INVENTF_SURPLUS) && !(inv_rec.Flags & INVENTF_LACK))
+											do_skip = 1;
+									}
+								}								
+								// } @erik
 								if(!do_skip) {
 									ExtraEntry new_entry;
 									MEMSZERO(new_entry);

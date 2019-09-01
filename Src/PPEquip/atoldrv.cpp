@@ -1226,7 +1226,10 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		//
 		// Имя кассира
 		//
-		if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
+		if(PPObjPerson::GetCurUserPerson(0, &temp_buf) > 0) {
+			(operator_name = temp_buf).Transf(CTRANSF_INNER_TO_OUTER); // @v10.5.4 @fix
+		}
+		else {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
 			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)

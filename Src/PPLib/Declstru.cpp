@@ -281,11 +281,9 @@ int SLAPI PrcssrMailCharry::Run()
 	SString src_path;
 	SaveParam(&P);
 	PPGetPath(PPPATH_OUT, src_path);
-	//PPFileNameArray fary;
 	SFileEntryPool fep;
-	//THROW(fary.Scan(src_path, "*" CHARRYEXT));
 	THROW(fep.Scan(src_path, "*" CHARRYEXT, 0));
-	THROW(PutFilesToEmail(/*&fary*/&fep, P.MailAccID, P.DestAddr, SUBJECTCHARRY, 0));
+	THROW(PutFilesToEmail(/*&fary*/&fep, P.MailAccID, P.DestAddr, _PPConst.P_SubjectCharry, 0));
 	CATCHZOK
 	return ok;
 }

@@ -178,6 +178,7 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 			case PPVIEW_PHNSVCMONITOR:  p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
 			case PPVIEW_VETISDOCUMENT:  p_v = new PPViewVetisDocument(); break; // @v10.0.12
 			case PPVIEW_TIMESERIES:     p_v = new PPViewTimeSeries();    break; // @v10.4.4
+			case PPVIEW_TIMSERDETAIL:   p_v = new PPViewTimSerDetail();  break; // @v10.5.4
 			case PPVIEW_BRAND:          p_v = new PPViewBrand();         break; // @v10.4.7
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
@@ -1259,44 +1260,41 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 		}
 		if(is_there_acceptable_gua) {
 			PPMqbClient mqc;
-			PPAlbatrosConfig acfg;
-			if(DS.FetchAlbatrosConfig(&acfg) > 0) {
-				PPMqbClient::InitParam lp;
-				SString data_domain;
+			SString data_domain;
+			if(PPMqbClient::InitClient(mqc, &data_domain)) {
+				SString queue_name;
+				SString exchange_name;
 				{
-					acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-					lp.Host = temp_buf;
-					acfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
-					lp.Auth = temp_buf;
-					acfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
-					lp.Secret = temp_buf;
-					acfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, data_domain);
-					lp.Method = 1;
-				}
-				if(data_domain.NotEmpty()) {
-					SString queue_name;
-					SString exchange_name;
-					THROW(PPMqbClient::InitClient(mqc, lp));
-					{
-						int64 _fsize = 0;
-						SFile f_in(pFileName, SFile::mRead|SFile::mBinary);
-						THROW_SL(f_in.IsValid());
-						f_in.CalcSize(&_fsize);
-						if(_fsize > 0) {
-							STempBuffer data_buf(static_cast<size_t>(_fsize)+1024); // +1024 - insurance
-							size_t actual_rd_size = 0;
-							THROW_SL(data_buf.IsValid());
-							THROW_SL(f_in.Read(data_buf, data_buf.GetSize(), &actual_rd_size));
-							for(uint dgidx = 0; dgidx < pNf->DestGuaList.GetCount(); dgidx++) {
-								const PPID gua_id = pNf->DestGuaList.Get(dgidx);
-								S_GUID gua_guid;
-								if(gua_id && p_ref->Ot.GetTagGuid(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_GUID, gua_guid) > 0) {
-									// nfview.domain.guid
-									queue_name.Z().Cat("nfview").Dot().Cat(data_domain).Dot().Cat(gua_guid, S_GUID::fmtIDL|S_GUID::fmtLower);
-									THROW(mqc.QueueDeclare(queue_name, 0));
-									(exchange_name = " ").Z();
-									THROW(mqc.Publish(exchange_name, queue_name, 0/* props */, data_buf, actual_rd_size));
-								}
+					int64 _fsize = 0;
+					SFile f_in(pFileName, SFile::mRead|SFile::mBinary);
+					THROW_SL(f_in.IsValid());
+					f_in.CalcSize(&_fsize);
+					if(_fsize > 0) {
+						STempBuffer data_buf(static_cast<size_t>(_fsize)+1024); // +1024 - insurance
+						size_t actual_rd_size = 0;
+						THROW_SL(data_buf.IsValid());
+						THROW_SL(f_in.Read(data_buf, data_buf.GetSize(), &actual_rd_size));
+						for(uint dgidx = 0; dgidx < pNf->DestGuaList.GetCount(); dgidx++) {
+							const PPID gua_id = pNf->DestGuaList.Get(dgidx);
+							S_GUID gua_guid;
+							if(gua_id && p_ref->Ot.GetTagGuid(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_GUID, gua_guid) > 0) {
+								// nfview.domain.guid
+								PPMqbClient::MessageProperties props;
+								props.ContentType = SFileFormat::Xml;
+								props.Encoding = SEncodingFormat::Unkn;
+								props.Priority = 5;
+								props.TimeStamp = getcurdatetime_();
+								SPathStruc ps(pFileName);
+								ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+								props.Headers.Add("filename", temp_buf.Transf(CTRANSF_OUTER_TO_UTF8));
+								props.Headers.Add("namedfilt-name", (temp_buf = pNf->Name).Transf(CTRANSF_INNER_TO_UTF8));
+								props.Headers.Add("namedfilt-symb", (temp_buf = pNf->Symb).Transf(CTRANSF_INNER_TO_UTF8));
+								props.Headers.Add("namedfilt-viewsymb", (temp_buf = pNf->ViewSymb).Transf(CTRANSF_INNER_TO_UTF8));
+								props.Headers.Add("namedfilt-dbsymb", (temp_buf = pNf->DbSymb).Transf(CTRANSF_INNER_TO_UTF8));
+								queue_name.Z().Cat("nfview").Dot().Cat(data_domain).Dot().Cat(gua_guid, S_GUID::fmtIDL|S_GUID::fmtLower);
+								THROW(mqc.QueueDeclare(queue_name, 0));
+								(exchange_name = " ").Z();
+								THROW(mqc.Publish(exchange_name, queue_name, &props, data_buf, actual_rd_size));
 							}
 						}
 					}

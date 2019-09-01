@@ -222,33 +222,22 @@ LOCAL(noreturn_t) out_of_memory(j_common_ptr cinfo, int which)
  * NOTE: the values given work fairly well on both 16- and 32-bit-int
  * machines, but may be too small if longs are 64 bits or more.
  */
-
-static const size_t first_pool_slop[JPOOL_NUMPOOLS] =
-{
-	1600,                   /* first PERMANENT pool */
-	16000                   /* first IMAGE pool */
-};
-
-static const size_t extra_pool_slop[JPOOL_NUMPOOLS] =
-{
-	0,                      /* additional PERMANENT pools */
-	5000                    /* additional IMAGE pools */
-};
+static const size_t first_pool_slop[JPOOL_NUMPOOLS] = { 1600/* first PERMANENT pool */, 16000/* first IMAGE pool */ };
+static const size_t extra_pool_slop[JPOOL_NUMPOOLS] = { 0/* additional PERMANENT pools */, 5000/* additional IMAGE pools */ };
 
 #define MIN_SLOP  50            /* greater than 0 to avoid futile looping */
-
+//
+// Descr: Allocate a "small" object 
+//
 METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
-/* Allocate a "small" object */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	small_pool_ptr hdr_ptr, prev_hdr_ptr;
 	char * data_ptr;
 	size_t odd_bytes, min_request, slop;
-
 	/* Check for unsatisfiable request (do now to ensure no overflow below) */
 	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-SIZEOF(small_pool_hdr)))
 		out_of_memory(cinfo, 1);  /* request exceeds SAlloc::M's ability */
-
 	/* Round up the requested size to a multiple of SIZEOF(ALIGN_TYPE) */
 	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
 	if(odd_bytes > 0)

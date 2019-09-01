@@ -1447,10 +1447,10 @@ int64 SLAPI SFile::Tell64()
 		else if(IH >= 0) {
 			t = _telli64(IH);
 			if(t >= 0) {
-				const size_t bo = BufR.GetWrOffs();
-				assert(static_cast<int64>(bo) <= t);
+				const int64 bo = static_cast<int64>(BufR.GetWrOffs());
+				assert(bo <= t);
 				if(bo <= t)
-					t -= static_cast<int64>(bo);
+					t -= bo;
 			}
 		}
 		else
@@ -1547,9 +1547,7 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 					if(is_eof)
 						ok = -1;
 					else if(Mode & SFile::mBuffRd) {
-						//
 						const size_t SFile_MaxRdBuf_Size = 1024 * 1024;
-						//
 						assert(!is_eof); // Флаг должен был быть установлен на предыдущей итерации. Если мы сюда попали с этим флагом, значит что-то не так!
 						assert(SFile_MaxRdBuf_Size > BufR.GetAvailableSize());
 						STempBuffer temp_buf(SFile_MaxRdBuf_Size - BufR.GetAvailableSize());

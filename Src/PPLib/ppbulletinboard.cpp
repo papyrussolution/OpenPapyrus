@@ -395,9 +395,8 @@ private:
 	LDATETIME LastFlashDtm;
 	enum {
 		stConfigLoaded = 0x0001,
-		stDataTestMode = 0x0002 // @v10.4.0 Режим тестирования данных. Отправляется запрос
-			// на большее количество значений и после получения результата тестируются внутренние
-			// последовательности.
+		stDataTestMode = 0x0002 // @v10.4.0 Режим тестирования данных. Отправляется запрос на большее количество значений и 
+			// после получения результата тестируются внутренние последовательности.
 	};
 	long   State;
 	PPObjTimeSeries::Config Cfg;
@@ -760,7 +759,7 @@ int SLAPI TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::
 		for(uint i = 0; i < pTan->L.getCount(); i++) {
 			const TsStakeEnvironment::TransactionNotification::Ta & r_ta = pTan->L.at(i);
 			log_msg.Z().Cat("TaNotification").CatDiv(':', 2);
-			log_msg.CatEq("Time", temp_buf.Z().Cat(r_ta.NotifyTime, DATF_ISO8601, 0)).Space();
+			log_msg.CatEq("Time", temp_buf.Z().Cat(r_ta.NotifyTime, DATF_ISO8601|DATF_CENTURY, 0)).Space();
 			switch(r_ta.TaType) {
 				case TsStakeEnvironment::ttratOrderAdd:      temp_buf = "ORDER-ADD"; break;
 				case TsStakeEnvironment::ttratOrderUpdate:   temp_buf = "ORDER-UPD"; break;
@@ -789,7 +788,7 @@ int SLAPI TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::
 			log_msg.CatEq("DealType", r_ta.DealType).Space();
 			log_msg.CatEq("OrdTypeTime", r_ta.OrdTypeTime).Space();
 			if(r_ta.Expiration.d.year() < 1980)
-				log_msg.CatEq("Expiration", temp_buf.Z().Cat(r_ta.Expiration, DATF_ISO8601, 0)).Space();
+				log_msg.CatEq("Expiration", temp_buf.Z().Cat(r_ta.Expiration, DATF_ISO8601|DATF_CENTURY, 0)).Space();
 			if(r_ta.Price > 0.0)
 				log_msg.CatEq("Price", r_ta.Price, MKSFMTD(0, 5, 0)).Space();
 			if(r_ta.PriceTrigger > 0.0)
@@ -1419,7 +1418,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 			if(p_blk) {
 				// @v10.4.10 {
 				if(0) {
-					log_msg.Z().Cat(r_tk.Dtm, DATF_ISO8601, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
+					log_msg.Z().Cat(r_tk.Dtm, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
 					for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
 						const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
 						if(p_tre) {
@@ -1741,7 +1740,7 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSer
 						ut.Get(t);
 						p_fblk->T_.GetValue(j, vec_idx, &v);
 						long td = j ? diffdatetimesec(t, t_prev) : 0;
-						line_buf.Z().Cat(t, DATF_ISO8601, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
+						line_buf.Z().Cat(t, DATF_ISO8601|DATF_CENTURY, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
 						f_out.WriteLine(line_buf.CR());
 						t_prev = t;
 					}

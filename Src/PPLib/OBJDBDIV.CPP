@@ -1,7 +1,7 @@
 // OBJDBDIV.CPP
 // Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-// Объект, управляющий разделами БД
+// @codepage UTF-8
+// РћР±СЉРµРєС‚, СѓРїСЂР°РІР»СЏСЋС‰РёР№ СЂР°Р·РґРµР»Р°РјРё Р‘Р”
 //
 #include <pp.h>
 #pragma hdrstop
@@ -270,7 +270,7 @@ void DBDivDialog::updateList()
 		p_list->freeAll();
 		SString text;
 		for(uint i = 0; i < data.LocList.getCount(); i++) {
-			PPID   id = data.LocList.at(i);
+			const PPID id = data.LocList.at(i);
 			GetLocationName(id, text);
 			if(!p_list->addItem(id, text)) {
 				PPError(PPERR_SLIB, 0);
@@ -316,6 +316,13 @@ IMPL_HANDLE_EVENT(DBDivDialog)
 			SetupAddr(addr_list);
 		}
 	}
+	// @v10.5.4 {
+	else if(event.isClusterClk(CTL_DBDIV_MQBEXCHG)) {
+		GetClusterData(CTL_DBDIV_MQBEXCHG, &data.Rec.Flags); 
+		disableCtrl(CTL_DBDIV_ADDR, (data.Rec.Flags & DBDIVF_MQBEXCHANGE));
+		enableCommand(cmAddrList, !(data.Rec.Flags & DBDIVF_MQBEXCHANGE));
+	}
+	// } @v10.5.4 
 	else
 		return;
 	clearEvent(event);
@@ -340,12 +347,22 @@ int DBDivDialog::setDTS(const DBDivPack * p)
 	data.GetExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
 	setCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
 	SetupPPObjCombo(this, CTLSEL_DBDIV_INTRRCPT, PPOBJ_OPRKIND, data.Rec.IntrRcptOpr, OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
+	// @v10.5.4 {
+	AddClusterAssoc(CTL_DBDIV_MQBEXCHG, 0, DBDIVF_MQBEXCHANGE);
+	SetClusterData(CTL_DBDIV_MQBEXCHG, data.Rec.Flags); 
+	// } @v10.5.4 
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 0, DBDIVF_DISPATCH);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 1, DBDIVF_SCARDSONLY);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 2, DBDIVF_RCVCSESSANDWROFFBILLS);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 3, DBDIVF_CONSOLID);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 4, DBDIVF_PASSIVE);
 	SetClusterData(CTL_DBDIV_FLAGS, data.Rec.Flags);
+	// @v10.5.4 {
+	{
+		disableCtrl(CTL_DBDIV_ADDR, (data.Rec.Flags & DBDIVF_MQBEXCHANGE));
+		enableCommand(cmAddrList, !(data.Rec.Flags & DBDIVF_MQBEXCHANGE));
+	}
+	// } @v10.5.4 
 	return 1;
 }
 
@@ -376,6 +393,7 @@ int DBDivDialog::getDTS(DBDivPack * p)
 	THROW_PP(IsIntrOp(data.Rec.IntrRcptOpr) == INTRRCPT, PPERR_NOTINTRRCPTOP);
 	getCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
 	data.PutExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
+	GetClusterData(CTL_DBDIV_MQBEXCHG, &data.Rec.Flags); // @v10.5.4
 	GetClusterData(CTL_DBDIV_FLAGS, &data.Rec.Flags);
 	ASSIGN_PTR(p, data);
 	CATCH
@@ -384,16 +402,18 @@ int DBDivDialog::getDTS(DBDivPack * p)
 	return ok;
 }
 
-int SLAPI PPObjDBDiv::Get(PPID id, DBDivPack * pack)
+int SLAPI PPObjDBDiv::Get(PPID id, DBDivPack * pPack)
 {
 	int    ok = 1;
-	THROW(ref->GetItem(Obj, id, &pack->Rec) > 0);
-	THROW(ref->GetPropArray(Obj, id, DBDPRP_LOCLIST, &pack->LocList));
-	THROW(ref->GetPropVlrString(Obj, id, DBDPRP_EXTSTRING, pack->ExtString));
-	pack->ExtString.Strip();
+	if(pPack) {
+		THROW(ref->GetItem(Obj, id, &pPack->Rec) > 0);
+		THROW(ref->GetPropArray(Obj, id, DBDPRP_LOCLIST, &pPack->LocList));
+		THROW(ref->GetPropVlrString(Obj, id, DBDPRP_EXTSTRING, pPack->ExtString));
+		pPack->ExtString.Strip();
+	}
 	CATCH
 		ok = 0;
-		pack->Init();
+		CALLPTRMEMB(pPack, Init());
 	ENDCATCH
 	return ok;
 }
@@ -488,7 +508,7 @@ int SLAPI PPObjDBDiv::GetCounter(PPID dbid, long * pCounter, int use_ta)
 		THROW(tra);
 		THROW(ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
 		*pCounter = ++rec.OutCounter;
-		if(rec.OutCounter >= 1000000L) // @v7.4.7 10000L-->1000000L
+		if(rec.OutCounter >= 1000000L)
 			rec.OutCounter = 0;
 		THROW(ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
 		THROW(tra.Commit());
@@ -558,7 +578,6 @@ int SLAPI PPObjDBDiv::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					return RetRefsExistsErr(Obj, rec.ID);
 			}
 		}
-		// @v7.0.9 {
 		else if(_obj == PPOBJ_LOCATION) {
 			for(SEnum en = ref->Enum(Obj, Reference::eoIdName); en.Next(&rec) > 0;) {
 				DBDivPack pack;
@@ -566,7 +585,6 @@ int SLAPI PPObjDBDiv::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					return RetRefsExistsErr(Obj, rec.ID);
 			}
 		}
-		// } @v7.0.9
 	}
 	return DBRPL_OK;
 }

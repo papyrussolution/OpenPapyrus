@@ -42,52 +42,20 @@ pthread_key_t __ptw32_selfThreadKey = NULL;
 pthread_key_t __ptw32_cleanupKey = NULL;
 pthread_cond_t __ptw32_cond_list_head = NULL;
 pthread_cond_t __ptw32_cond_list_tail = NULL;
-
 int __ptw32_concurrency = 0;
-
-/* What features have been auto-detected */
-int __ptw32_features = 0;
-
-/*
- * Global [process wide] thread sequence Number
- */
-unsigned __int64 __ptw32_threadSeqNumber = 0;
-
+int __ptw32_features = 0; // What features have been auto-detected 
+unsigned __int64 __ptw32_threadSeqNumber = 0; // Global [process wide] thread sequence Number
 /*
  * Function pointer to QueueUserAPCEx if it exists, otherwise
  * it will be set at runtime to a substitute routine which cannot unblock
  * blocked threads.
  */
-DWORD (*__ptw32_register_cancellation) (PAPCFUNC, HANDLE, DWORD) = NULL;
-
-/*
- * Global lock for managing pthread_t struct reuse.
- */
-__ptw32_mcs_lock_t __ptw32_thread_reuse_lock = 0;
-
-/*
- * Global lock for testing internal state of statically declared mutexes.
- */
-__ptw32_mcs_lock_t __ptw32_mutex_test_init_lock = 0;
-
-/*
- * Global lock for testing internal state of PTHREAD_COND_INITIALIZER
- * created condition variables.
- */
-__ptw32_mcs_lock_t __ptw32_cond_test_init_lock = 0;
-
-/*
- * Global lock for testing internal state of PTHREAD_RWLOCK_INITIALIZER
- * created read/write locks.
- */
-__ptw32_mcs_lock_t __ptw32_rwlock_test_init_lock = 0;
-
-/*
- * Global lock for testing internal state of PTHREAD_SPINLOCK_INITIALIZER
- * created spin locks.
- */
-__ptw32_mcs_lock_t __ptw32_spinlock_test_init_lock = 0;
-
+DWORD (*__ptw32_register_cancellation)(PAPCFUNC, HANDLE, DWORD) = NULL;
+__ptw32_mcs_lock_t __ptw32_thread_reuse_lock = 0; // Global lock for managing pthread_t struct reuse.
+__ptw32_mcs_lock_t __ptw32_mutex_test_init_lock = 0; // Global lock for testing internal state of statically declared mutexes.
+__ptw32_mcs_lock_t __ptw32_cond_test_init_lock = 0; // Global lock for testing internal state of PTHREAD_COND_INITIALIZER created condition variables.
+__ptw32_mcs_lock_t __ptw32_rwlock_test_init_lock = 0; // Global lock for testing internal state of PTHREAD_RWLOCK_INITIALIZER created read/write locks.
+__ptw32_mcs_lock_t __ptw32_spinlock_test_init_lock = 0; // Global lock for testing internal state of PTHREAD_SPINLOCK_INITIALIZER created spin locks.
 /*
  * Global lock for condition variable linked list. The list exists
  * to wake up CVs when a WM_TIMECHANGE message arrives. See

@@ -1342,11 +1342,11 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 					MEMSZERO(k1);
 					k1.ObjType = sct_rec.ObjType;
 					k1.SrcID   = sct_rec.SrcID;
-					if(SearchByKey(pTbl, 1, &k1, &ex_rec) > 0) { // @v8.5.5 SearchByKey_ForUpdate-->SearchByKey
+					if(SearchByKey(pTbl, 1, &k1, &ex_rec) > 0) {
 						if(cmp(dtm, ex_rec.SrcModDt, ex_rec.SrcModTm) <= 0)
 							skip = 1;
 						else {
-							THROW_DB(pTbl->rereadForUpdate(1, 0)); // @v8.5.5
+							THROW_DB(pTbl->rereadForUpdate(1, 0));
 							THROW_DB(pTbl->deleteRec()); // @sfu
 						}
 					}
@@ -1387,7 +1387,7 @@ int SLAPI PPObjectTransmit::RestoreObjBlock::PushRestoredObj(PPID dbID, PPObjID 
 int SLAPI PPObjectTransmit::RestoreObjBlock::DetectRecur(PPID dbID, PPObjID oi) const
 {
 	for(uint n = 0; n < S.getPointer(); n++) {
-		const RestoreStackItem & r_si = *(RestoreStackItem *)S.at(n);
+		const RestoreStackItem & r_si = *static_cast<const RestoreStackItem *>(S.at(n));
 		if(r_si.Oi == oi && r_si.DbID == dbID)
 			return 1;
 	}
@@ -1590,7 +1590,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 	}
 	if(ok > 0) {
 		const int nro = NeedRestoreObj(oi_f.Obj, rItem, &primary_id);
-		if(nro > 0 && !(rItem.Flags & PPObjPack::fNoObj)) { // @v7.6.1 (&& !(rItem.Flags & PPObjPack::fNoObj))
+		if(nro > 0 && !(rItem.Flags & PPObjPack::fNoObj)) {
 			if(rBlk.DetectRecur(rItem.DBID, oi_f)) {
 				//
 				// Рекурсивная ссылка обнуляется //
@@ -1619,7 +1619,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 					Ctx.LastStreamId = p_fpi->FileId;
 				}
 				p_fpi->F.Seek(rItem.ObjOffs);
-				THROW(ppobj->Read(&pack, oi_f.Id, (FILE *)p_fpi->F, &Ctx));
+				THROW(ppobj->Read(&pack, oi_f.Id, static_cast<FILE *>(p_fpi->F), &Ctx));
 				SETFLAG(pack.Flags, PPObjPack::fDispatcher, DestDbDivPack.Rec.Flags & DBDIVF_DISPATCH);
 				THROW(ppobj->ProcessObjRefs(&pack, &temp, 0, &Ctx));
 				for(uint i = 0; temp.enumItems(&i, (void **)&p_entry);) {
@@ -1661,7 +1661,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 				if(r == -2)
 					r = -1;
 				else if(oi_f.Obj == PPOBJ_BILL) {
-					THROW(r = ConvertInBill((ILBillPacket*)pack.Data, &Ctx));
+					THROW(r = ConvertInBill(static_cast<ILBillPacket *>(pack.Data), &Ctx));
 				}
 				else
 					r = 1;
@@ -1898,9 +1898,9 @@ int SLAPI PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncI
 	rCommID.Z();
 	int    ok = 1;
 	ObjSyncQueueTbl::Key1 k;
-	k.ObjType = (short)objid.Obj;
+	k.ObjType = static_cast<short>(objid.Obj);
 	k.ObjID   = objid.Id;
-	k.DBID    = (short)LConfig.DBDiv;
+	k.DBID    = static_cast<short>(LConfig.DBDiv);
 	PPTransaction tra(use_ta);
 	THROW(tra);
 	if(P_TmpIdxTbl->searchForUpdate(1, &k, spEq)) {
@@ -2021,7 +2021,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 				if(!SyncCmpTransmit) {
 					PPObjID iter_objid;
 					for(MEMSZERO(iter_objid); EnumObjectsByIndex(&iter_objid, &rec) > 0; PPWaitPercent(cntr.Increment(), wait_msg)) {
-						objid = iter_objid; // @v7.9.11 objid внутри блока может измениться //
+						objid = iter_objid; // objid внутри блока может измениться //
 						if(!(rec.Flags & PPObjPack::fNoObj)) {
 							DBRowId rowid;
 							PPObjPack  pack;

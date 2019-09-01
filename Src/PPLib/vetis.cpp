@@ -886,6 +886,20 @@ struct VetisShipmentRoutePoint : public VetisGenericEntity {
 	VetisTransportInfo * P_NextTransport;
 };
 
+struct VetisCargoReloadingPoint {
+	VetisCargoReloadingPoint()
+	{
+	}
+	VetisCargoReloadingPoint & Z()
+	{
+		Name.Z();
+		NextTransport.Z();
+		return *this;
+	}
+	SString Name;
+	VetisTransportInfo NextTransport;
+};
+
 struct VetisCertifiedConsignment {
 	VetisCertifiedConsignment() : TransportStorageType(0)
 	{
@@ -898,6 +912,7 @@ struct VetisCertifiedConsignment {
 		TransportInfo = rS.TransportInfo;
 		TransportStorageType = rS.TransportStorageType;
 		TSCollection_Copy(RoutePointList, rS.RoutePointList);
+		TSCollection_Copy(CargoReloadingPointList, rS.CargoReloadingPointList); // @v10.5.4
 		Batch = rS.Batch;
 		return *this;
 	}
@@ -909,6 +924,7 @@ struct VetisCertifiedConsignment {
 		TransportInfo.Z();
 		TransportStorageType = 0;
 		RoutePointList.freeAll();
+		CargoReloadingPointList.freeAll(); // @v10.5.4
 		Batch.Z();
 		return *this;
 	}
@@ -918,6 +934,7 @@ struct VetisCertifiedConsignment {
 	VetisTransportInfo TransportInfo;
 	int    TransportStorageType; // TransportationStorageType
 	TSCollection <VetisShipmentRoutePoint> RoutePointList;
+	TSCollection <VetisCargoReloadingPoint> CargoReloadingPointList; // @v10.5.4
 	VetisBatch Batch;
 };
 
@@ -4051,6 +4068,24 @@ int SLAPI PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, Vet
 			r = ParseTransportInfo(p_a, rResult.TransportInfo);
 		else if(SXml::GetContentByName(p_a, "transportStorageType", temp_buf))
 			rResult.TransportStorageType = SIntToSymbTab_GetId(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), temp_buf);
+		// @v10.5.4 {
+		else if(SXml::IsName(p_a, "cargoReloadingPointList")) {
+			for(xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
+				if(SXml::IsName(p_b, "cargoReloadingPoint")) {
+					VetisCargoReloadingPoint * p_new_point = rResult.CargoReloadingPointList.CreateNewItem();
+					THROW_SL(p_new_point);
+					for(xmlNode * p_c = p_b ? p_b->children : 0; p_c; p_c = p_c->next) {
+						if(SXml::GetContentByName(p_c, "name", temp_buf)) {
+							p_new_point->Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						}
+						else if(SXml::IsName(p_c, "nextTransport")) {
+							THROW(ParseTransportInfo(p_c, p_new_point->NextTransport));
+						}
+					}
+				}
+			}
+		}
+		// } @v10.5.4 
 		THROW(r);
 	}
 	CATCHZOK
@@ -5627,7 +5662,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 						n_app.PutInner(SXml::nst(/*"app"*/0, "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst(/*"app"*/0, "data"));
 						{
-							VetisProcessIncomingConsignmentRequest * p_req = (VetisProcessIncomingConsignmentRequest *)rAppBlk.P_AppParam;
+							const VetisProcessIncomingConsignmentRequest * p_req = static_cast<const VetisProcessIncomingConsignmentRequest *>(rAppBlk.P_AppParam);
 							const VetisVetDocument & r_doc = p_req->Doc;
 							const VetisBatch & r_bat = r_doc.CertifiedConsignment.Batch;
 							SXml::WNode n_req(srb, "processIncomingConsignmentRequest");
@@ -5745,9 +5780,6 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									}
 								}
 								{
-									//SXml::WNode n_c(srb, SXml::nst("vd", "transportInfo"));
-								}
-								{
 									SXml::WNode n_af(srb, SXml::nst("d7p1", "accompanyingForms"));
 									{
 										SXml::WNode n_wb(srb, SXml::nst("d7p1", "waybill"));
@@ -5793,6 +5825,34 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 												n_n2.PutInner(SXml::nst("d9p1", "transportStorageType"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 											}
 										}
+										// @v10.5.4 {
+										if(r_doc.CertifiedConsignment.CargoReloadingPointList.getCount()) {
+											SXml::WNode n_crpl(srb, SXml::nst("d9p1", "cargoReloadingPointList"));
+											for(uint crpidx = 0; crpidx < r_doc.CertifiedConsignment.CargoReloadingPointList.getCount(); crpidx++) {
+												const VetisCargoReloadingPoint * p_crp = r_doc.CertifiedConsignment.CargoReloadingPointList.at(crpidx);
+												if(p_crp) {
+													SXml::WNode n_crp(srb, SXml::nst("d9p1", "cargoReloadingPoint"));
+													PutNonEmptyText(n_crp, "d9p1", "name", (temp_buf = p_crp->Name).Transf(CTRANSF_INNER_TO_UTF8));
+													if(!p_crp->NextTransport.TransportNumber.IsEmpty()) {
+														SXml::WNode n_tr(srb, SXml::nst("d9p1", "transportInfo"));
+														if(p_crp->NextTransport.TransportType) {
+															temp_buf.Z().Cat(p_crp->NextTransport.TransportType);
+															n_tr.PutInner(SXml::nst("d9p1", "transportType"), temp_buf);
+														}
+														if(!p_crp->NextTransport.TransportNumber.IsEmpty()) {
+															SXml::WNode n_tn(srb, SXml::nst("d9p1", "transportNumber"));
+															PutNonEmptyText(n_tn, "d9p1", "vehicleNumber", temp_buf = p_crp->NextTransport.TransportNumber.VehicleNumber);
+															PutNonEmptyText(n_tn, "d9p1", "trailerNumber", temp_buf = p_crp->NextTransport.TransportNumber.TrailerNumber);
+															// @v10.3.2 PutNonEmptyText(n_tn, "d9p1", "containerNumber", temp_buf = p_crp->NextTransport.TransportNumber.ContainerNumber);
+															PutNonEmptyText(n_tn, "d9p1", "wagonNumber", temp_buf = p_crp->NextTransport.TransportNumber.WagonNumber);
+															PutNonEmptyText(n_tn, "d9p1", "shipName", temp_buf = p_crp->NextTransport.TransportNumber.ShipName);
+															PutNonEmptyText(n_tn, "d9p1", "flightNumber", temp_buf = p_crp->NextTransport.TransportNumber.FlightNumber);
+														}
+													}
+												}
+											}
+										}
+										// } @v10.5.4 
 									}
 									{
 										SXml::WNode n_vc(srb, SXml::nst("d7p1", "vetCertificate"));
@@ -8582,6 +8642,8 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 							logger.Save(PPFILNAM_VETISINFO_LOG, 0);
 						}
 					}
+					else
+						PPError(); // @v10.5.4
 				}
 				clearEvent(event);
 			}

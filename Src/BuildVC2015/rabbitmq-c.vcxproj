@@ -269,14 +269,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_openssl.c" />
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_openssl_bio.c" />
-    <ClCompile Include="..\Osf\rabbitmq-c\amqp_openssl_hostname_validation.c" />
     <ClCompile Include="..\OSF\rabbitmq-c\ppamqp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Osf\rabbitmq-c\amqp.h" />
     <ClInclude Include="..\Osf\rabbitmq-c\amqp_private.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="pthreads4w.vcxproj">
+      <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

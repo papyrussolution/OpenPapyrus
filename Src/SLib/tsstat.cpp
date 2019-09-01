@@ -1046,6 +1046,27 @@ int SLAPI STimeSeries::AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, u
 	return ok;
 }
 
+uint SLAPI STimeSeries::GetValueVecCount() const
+{
+	return VL.getCount();
+}
+
+int  SLAPI STimeSeries::GetValueVecParam(uint vecIdx, TYPEID * pTyp, SString * pSymb, int * pFxPrec, uint * pFlags) const
+{
+	int    ok = 0;
+	if(vecIdx < VL.getCount()) {
+		const STimeSeries::ValuVec * p_vec = VL.at(vecIdx);
+		if(p_vec) {
+			ASSIGN_PTR(pTyp, p_vec->Typ);
+			ASSIGN_PTR(pSymb, p_vec->Symb);
+			ASSIGN_PTR(pFxPrec, p_vec->FxPrec);
+			ASSIGN_PTR(pFlags, p_vec->Flags);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 int SLAPI STimeSeries::GetValueVecIndex(const char * pSymb, uint * pIdx) const
 {
 	return BIN(GetVecBySymb(pSymb, pIdx));

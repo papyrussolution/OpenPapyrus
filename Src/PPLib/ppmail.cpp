@@ -774,11 +774,11 @@ int SLAPI PPMailFile::ProcessMsgHeaderLine(const char * pLine)
 		//SCodepageIdent cpi;
 		//buf.Decode_EncodedWordRFC2047(temp_buf, &cpi, 0);
 		Msg.SetField(SMailMessage::fldSubj, buf);
-		if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTDBDIV) == 0)
+		if(Msg.CmpField(SMailMessage::fldSubj, _PPConst.P_SubjectDbDiv) == 0)
 			Msg.Flags |= SMailMessage::fPpyObject;
-		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTORDER) == 0)
+		else if(Msg.CmpField(SMailMessage::fldSubj, _PPConst.P_SubjectOrder) == 0)
 			Msg.Flags |= SMailMessage::fPpyOrder;
-		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTCHARRY) == 0)
+		else if(Msg.CmpField(SMailMessage::fldSubj, _PPConst.P_SubjectCharry) == 0)
 			Msg.Flags |= SMailMessage::fPpyCharry;
 		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTFRONTOL, sstrlen(SUBJECTFRONTOL)) == 0)
 			Msg.Flags |= SMailMessage::fFrontol;
@@ -1196,11 +1196,11 @@ int SLAPI PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMessage * pM
 	SString buf, temp_buf;
 	if(GetField(pLine, PPMAILFLD_SUBJ, buf) > 0) {
 		pMsg->SetField(SMailMessage::fldSubj, buf);
-		if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTDBDIV) == 0)
+		if(pMsg->CmpField(SMailMessage::fldSubj, _PPConst.P_SubjectDbDiv) == 0)
 			pMsg->Flags |= SMailMessage::fPpyObject;
-		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTORDER) == 0)
+		else if(pMsg->CmpField(SMailMessage::fldSubj, _PPConst.P_SubjectOrder) == 0)
 			pMsg->Flags |= SMailMessage::fPpyOrder;
-		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTCHARRY) == 0)
+		else if(pMsg->CmpField(SMailMessage::fldSubj, _PPConst.P_SubjectCharry) == 0)
 			pMsg->Flags |= SMailMessage::fPpyCharry;
 		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTFRONTOL, sstrlen(SUBJECTFRONTOL)) == 0)
 			pMsg->Flags |= SMailMessage::fFrontol;
@@ -1474,7 +1474,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 	PutField(PPMAILFLD_TO, pMsg->GetField(SMailMessage::fldTo, temp_buf), buf);
 	_PUTS(buf, out);
 	{
-		if(pMsg->GetField(SMailMessage::fldSubj, temp_buf) == SUBJECTDBDIV) {
+		if(pMsg->GetField(SMailMessage::fldSubj, temp_buf) == _PPConst.P_SubjectDbDiv) {
 			//
 			// Специальный случай: так как кодировка в UTF8 введена с версии 7.6.3, которая не предполагает
 			// обновлений во всех разделах, то дабы более старые версии могли принять почту из 7.6.3 и выше,

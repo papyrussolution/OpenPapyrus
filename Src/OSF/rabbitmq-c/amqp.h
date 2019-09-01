@@ -36,6 +36,7 @@
 #ifndef AMQP_H
 #define AMQP_H
 /** \cond HIDE_FROM_DOXYGEN */
+#define AMQP_STATIC
 #ifdef __cplusplus
 	#define AMQP_BEGIN_DECLS // extern "C" {
 	#define AMQP_END_DECLS // }
@@ -442,6 +443,10 @@ struct amqp_method_t {
 // Descr: An AMQP frame
 // 
 struct amqp_frame_t {
+	amqp_frame_t() : frame_type(0), channel(0)
+	{
+		MEMSZERO(payload);
+	}
 	uint8 frame_type; // frame type. The types: AMQP_FRAME_METHOD - use the method union member; AMQP_FRAME_HEADER - use the properties union member;
 		// AMQP_FRAME_BODY - use the body_fragment union member
 	amqp_channel_t channel; /**< the channel the frame was received on */
@@ -465,16 +470,21 @@ struct amqp_frame_t {
 // 
 // Descr: Response type
 // 
-typedef enum amqp_response_type_enum_ {
-	AMQP_RESPONSE_NONE = 0, /**< the library got an EOF from the socket */
-	AMQP_RESPONSE_NORMAL, /**< response normal, the RPC completed successfully */
+enum amqp_response_type_enum {
+	AMQP_RESPONSE_NONE = 0,          // the library got an EOF from the socket 
+	AMQP_RESPONSE_NORMAL,            // response normal, the RPC completed successfully 
 	AMQP_RESPONSE_LIBRARY_EXCEPTION, // library error, an error occurred in the library, examine the library_error 
 	AMQP_RESPONSE_SERVER_EXCEPTION   // server exception, the broker returned an error, check replay 
-} amqp_response_type_enum;
+};
 // 
 // Descr: Reply from a RPC method on the broker
 // 
 struct amqp_rpc_reply_t {
+	amqp_rpc_reply_t() : reply_type(AMQP_RESPONSE_NONE), library_error(0)
+	{
+		reply.id = 0;
+		reply.decoded = 0;
+	}
 	amqp_response_type_enum reply_type; // the reply type: AMQP_RESPONSE_NORMAL - the RPC completed successfully; 
 		// AMQP_RESPONSE_SERVER_EXCEPTION - the broker returned an exception, check the reply field
 		// AMQP_RESPONSE_LIBRARY_EXCEPTION - the library encountered an error, check the library_error field
@@ -3106,7 +3116,7 @@ AMQP_BEGIN_DECLS
 	int amqp_open_socket_inner(char const * hostname, int portnumber, amqp_time_t deadline);
 	// Wait up to dealline for fd to become readable or writeable depending on
 	// event (AMQP_SF_POLLIN, AMQP_SF_POLLOUT) 
-	int amqp_poll(int fd, int event, amqp_time_t deadline);
+	int FASTCALL amqp_poll(int fd, int event, amqp_time_t deadline);
 	int amqp_send_method_inner(amqp_connection_state_t state, amqp_channel_t channel, amqp_method_number_t id, void * decoded, int flags, amqp_time_t deadline);
 	int amqp_queue_frame(amqp_connection_state_t state, amqp_frame_t * frame);
 	int amqp_put_back_frame(amqp_connection_state_t state, amqp_frame_t * frame);

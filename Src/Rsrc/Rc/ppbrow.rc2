@@ -17,9 +17,10 @@
 // @v10.5.1 TBBM_BASKET-->PPDV_SHOPPINGCART01
 // @v10.5.3 TBBM_SENDOBJ-->PPDV_SYNC01
 // @v10.5.3 TBBM_SYSJ-->PPDV_SYSJOURNAL
-// @v10.5.3 TBBM_COMPARE_-->PPDV_COMPARE01
-// @v10.5.3 TBBM_EXPORT_-->PPDV_EXPORT01
-// @v10.5.3 TBBM_GOODSRET_-->PPDV_REFUND01
+// @v10.5.3 TBBM_COMPARE-->PPDV_COMPARE01
+// @v10.5.3 TBBM_EXPORT-->PPDV_EXPORT01
+// @v10.5.3 TBBM_GOODSRET-->PPDV_REFUND01
+// @v10.5.4 TBBM_DELETEALL-->PPDV_DELETEALL02
 //
 declare command DEFAULT     // kbEnter
 declare command ADDITEM     // kbInsert
@@ -330,7 +331,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	ADDITEM          :  kbIns,      PPDV_ADDFILE02,       "@{doadddocument}\tInsert"
 	ADDBYSAMPLE      :  kbAltF2,    TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2"
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
-	DELETEALL        :  kbCtrlF8,   TBBM_DELETEALL,       "@{doremoveall}\tCtrl-F8"
+	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,  "@{doadddocumentbyscard}\tF2"
 	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,        "Редактировать документ подтверждения\tCtrl-K"
@@ -390,7 +391,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	ADDITEM          :  kbIns,      PPDV_ADDFILE02,       "@{doadddocument}\tInsert"
 	ADDBYSAMPLE      :  kbAltF2,    TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2"
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
-	DELETEALL        :  kbCtrlF8,   TBBM_DELETEALL,       "@{doremoveall}\tCtrl-F8"
+	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,  "@{doadddocumentbyscard}\tF2"
 	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,        "Редактировать документ подтверждения\tCtrl-K"
@@ -451,7 +452,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	ADDITEM          :  kbIns,      PPDV_ADDFILE02,       "@{doadddocument}\tInsert"
 	ADDBYSAMPLE      :  kbAltF2,    TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2"
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
-	DELETEALL        :  kbCtrlF8,   TBBM_DELETEALL,       "@{doremoveall}\tCtrl-F8"
+	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
 	EDITBILLFREIGHT  :  kbCtrlF4,   TBBM_TRANSPORT,       "@{freight}\tCtrl-F4" // @v9.3.12
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,  "@{doadddocumentbyscard}\tF2"
@@ -512,7 +513,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	ADDITEM          :  kbIns,      PPDV_ADDFILE02,       "@{doadddocument}\tInsert"
 	ADDBYSAMPLE      :  kbAltF2,    TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2"
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
-	DELETEALL        :  kbCtrlF8,   TBBM_DELETEALL,       "@{doremoveall}\tCtrl-F8"
+	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
 	separator
 	BROWSE           :  kbF3,       PPDV_LINS02,          "@{viewbillitems}\tF3"
@@ -551,7 +552,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	ADDITEM          :  kbIns,      PPDV_ADDFILE02,       "@{doadddocument}\tInsert"
 	ADDBYSAMPLE      :  kbAltF2,    TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2"
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
-	DELETEALL        :  kbCtrlF8,   TBBM_DELETEALL,       "@{doremoveall}\tCtrl-F8"
+	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
 	EDITBILLFREIGHT  :  kbCtrlF4,   TBBM_TRANSPORT,       "@{freight}\tCtrl-F4"
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,  "@{doadddocumentbyscard}\tF2"
@@ -693,40 +694,40 @@ toolbar export GOODSREST TB_FIRST_TOOLBAR {
 }
 
 toolbar export PERSON TB_FIRST_TOOLBAR {
-	EDITITEM       : kbEnter,     PPDV_EDITFILE02,          "@{edit}\tEnter"
-	ADDITEM        : kbIns,       PPDV_ADDFILE02,        "@{add}\tInsert"
-	DELETEITEM     : kbDel,       PPDV_DELETEFILE02,        "@{delete}\tDelete"
-	DELETEALL      : kbCtrlF8,    TBBM_DELETEALL,     "@{doremoveall}\tCtrl-F8"
+	EDITITEM       : kbEnter,     PPDV_EDITFILE02,      "@{edit}\tEnter"
+	ADDITEM        : kbIns,       PPDV_ADDFILE02,       "@{add}\tInsert"
+	DELETEITEM     : kbDel,       PPDV_DELETEFILE02,    "@{delete}\tDelete"
+	DELETEALL      : kbCtrlF8,    PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	separator
 	TAGS           : kbF2,        PPDV_TAGS01,          "@{tags}\tF2"
-	EVENTS         : kbF3,        TBBM_PSNEVENTS,     "@{personevent_pl}\tF3"
-	REGISTERS      : kbF5,        TBBM_REGISTER,      "@{register_pl}\tF5"
-	CURREG         : kbCtrlF5,    TBBM_CURPERSONATTR, "Текущий регистр\tCtrl-F5"
-	DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,        "@{daddressextfield_pl}"
-	AMOUNTS        : kbShiftF5,   TBBM_AMOUNTS,       "Штатные суммы работодателя\tShift-F5"
-	RELATIONS      : kbF6,        TBBM_PERSONRELLIST, "@{relation_pl}\tF6"
+	EVENTS         : kbF3,        TBBM_PSNEVENTS,       "@{personevent_pl}\tF3"
+	REGISTERS      : kbF5,        TBBM_REGISTER,        "@{register_pl}\tF5"
+	CURREG         : kbCtrlF5,    TBBM_CURPERSONATTR,   "Текущий регистр\tCtrl-F5"
+	DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "@{daddressextfield_pl}"
+	AMOUNTS        : kbShiftF5,   TBBM_AMOUNTS,         "Штатные суммы работодателя\tShift-F5"
+	RELATIONS      : kbF6,        TBBM_PERSONRELLIST,   "@{relation_pl}\tF6"
 	REVERSEREL     : kbShiftF6,   TBBM_PERSONRELLIST_R, "Обратные отношения\tShift-F6"
-	ADDREL         : kbCtrlF6,    TBBM_ADDPERSONREL,  "Добавить отношение\tCtrl-F6"
+	ADDREL         : kbCtrlF6,    TBBM_ADDPERSONREL,    "Добавить отношение\tCtrl-F6"
 	RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "Удалить зависшие адреса\tCtrl-X"
-	PRINT          : kbF7,        PPDV_PRINTER01,         "@{print}\tF7"
-	SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,          "@{view_sysjournal}\tCtrl-J"
-	TRANSMIT       : kbCtrlH,     PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
-	TRANSMKIND     : kbCtrlB,     PPDV_NOICON,        "Передать выборку видов персоналий\tCtrl-B"
-	EXPORTVCARD    : kbCtrlD,     PPDV_NOICON,        "Передать персоналию в формате vCard\tCtrl-D"
-	FOLDER         : kbF4,        TBBM_FOLDER,        "Папка клиента\tF4"
-	ARTICLES       : kbCtrlA,     PPDV_NOICON,        "@{cmd_accarticle}\tCtrl-A"
-	TASKS          : kbCtrlT,     TBBM_PRJTASK,       "Просмотр задач по персоналии\tCtrl-T"
-	VIEWSCARDS     : kbCtrlS,     TBBM_SCARD,         "Просмотр персональных карт\tCtrl-S"
-	UNITEOBJ       : kbCtrlU,     TBBM_UNITE,         "@{unite_persons}\tCtrl-U"
-	EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,        "Редактировать фиксированную должность\tCtrl-Q"
-	STAFFCAL       : kbCtrlE,     TBBM_STAFFCAL,      "@{view_staffcal}\tCtrl-E"
-	TRANSPOWNER    : kbCtrlG,     TBBM_TRANSPORT,     "Является владельцем транспортных средств\tCtrl-R"
-	TOTAL          : kbF9,        PPDV_SIGMA02,          "@{totals}\tF9"
-	DORECOVER      : kbCtrlR,     TBBM_HAMMER,        "@{verificationandrecovery}\tCtrl-R"
-	SENDSMS	       : kbCtrlM,	  PPDV_NOICON,        "Разослать SMS\tCtrl-M"
+	PRINT          : kbF7,        PPDV_PRINTER01,       "@{print}\tF7"
+	SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
+	TRANSMIT       : kbCtrlH,     PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
+	TRANSMKIND     : kbCtrlB,     PPDV_NOICON,          "Передать выборку видов персоналий\tCtrl-B"
+	EXPORTVCARD    : kbCtrlD,     PPDV_NOICON,          "Передать персоналию в формате vCard\tCtrl-D"
+	FOLDER         : kbF4,        TBBM_FOLDER,          "Папка клиента\tF4"
+	ARTICLES       : kbCtrlA,     PPDV_NOICON,          "@{cmd_accarticle}\tCtrl-A"
+	TASKS          : kbCtrlT,     TBBM_PRJTASK,         "Просмотр задач по персоналии\tCtrl-T"
+	VIEWSCARDS     : kbCtrlS,     TBBM_SCARD,           "Просмотр персональных карт\tCtrl-S"
+	UNITEOBJ       : kbCtrlU,     TBBM_UNITE,           "@{unite_persons}\tCtrl-U"
+	EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "Редактировать фиксированную должность\tCtrl-Q"
+	STAFFCAL       : kbCtrlE,     TBBM_STAFFCAL,        "@{view_staffcal}\tCtrl-E"
+	TRANSPOWNER    : kbCtrlG,     TBBM_TRANSPORT,       "Является владельцем транспортных средств\tCtrl-R"
+	TOTAL          : kbF9,        PPDV_SIGMA02,         "@{totals}\tF9"
+	DORECOVER      : kbCtrlR,     TBBM_HAMMER,          "@{verificationandrecovery}\tCtrl-R"
+	SENDSMS	       : kbCtrlM,	  PPDV_NOICON,          "Разослать SMS\tCtrl-M"
 	separator
 	CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,        "@{filter}\tCtrl-V"
-	CREATEAUTHFILE : kbCtrlZ,     PPDV_NOICON,        "Создание файла авторизации\tCtrl-Z"
+	CREATEAUTHFILE : kbCtrlZ,     PPDV_NOICON,          "Создание файла авторизации\tCtrl-Z"
 }
 
 toolbar export ACCOUNT TB_FIRST_TOOLBAR {
@@ -784,7 +785,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	ADDITEM        : kbIns,       PPDV_ADDFILE02,        "@{add}\tInsert"
 	ADDBYSAMPLE    : kbAltF2,     TBBM_COPYBYSAMPLE,     "@{doaddbysample}\tAlt-F2"
 	DELETEITEM     : kbDel,       PPDV_DELETEFILE02,     "@{delete}\tDelete"
-	DELETEALL      : kbCtrlF8,    TBBM_DELETEALL,        "@{doupdateall}\tCtrl-F8"
+	DELETEALL      : kbCtrlF8,    PPDV_DELETEALL02,      "@{doupdateall}\tCtrl-F8"
 	UNITEOBJ       : kbCtrlU,     TBBM_UNITE,            "@{unite_goods}\tCtrl-U"
 	separator
 	ADDTOBASKET    : kbCtrlF4,    PPDV_SHOPPINGCART01,   "@{doputtobasket}\tCtrl-F4"
@@ -841,21 +842,21 @@ toolbar export GOODSOPER TB_FIRST_TOOLBAR {
 }
 
 toolbar export SALARY TB_FIRST_TOOLBAR {
-	EDITITEM      : kbEnter,  PPDV_EDITFILE02,      "@{edit}\tEnter"
+	EDITITEM      : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
 	ADDITEM       : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
-	DELETEITEM    : kbDel,    PPDV_DELETEFILE02,    "@{delete}\tDelete"
-	DELETEALL     : kbCtrlF8, TBBM_DELETEALL, "@{doremoveall}\tCtrl-F8"
+	DELETEITEM    : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
+	DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,  "@{doremoveall}\tCtrl-F8"
 	separator
-	EDITPERSON    : kbF2,     TBBM_PERSONS,   "@{person}\tF2"
-	EDITSTAFF     : kbF3,     PPDV_NOICON,    "@{person_position}\tF3"
-	EDITSALCHARGE : kbF4,     PPDV_NOICON,    "Вид начисления\tF4"
-	EDITBILL      : kbCtrlF3, TBBM_BILLS,     "@{linkdocument}\tCtrl-F3"
+	EDITPERSON    : kbF2,     TBBM_PERSONS,      "@{person}\tF2"
+	EDITSTAFF     : kbF3,     PPDV_NOICON,       "@{person_position}\tF3"
+	EDITSALCHARGE : kbF4,     PPDV_NOICON,       "Вид начисления\tF4"
+	EDITBILL      : kbCtrlF3, TBBM_BILLS,        "@{linkdocument}\tCtrl-F3"
 	separator
-	CHARGE        : kbF6,     TBBM_CHARGE,    "Начисление\tF6"
+	CHARGE        : kbF6,     TBBM_CHARGE,       "@{accrual}\tF6"
 	separator
-	PRINT         : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
+	PRINT         : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
 	separator
-	CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,    "@{filter}\tCtrl-V"
+	CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 }
 
 toolbar export ARTICLE TB_FIRST_TOOLBAR {
@@ -863,20 +864,20 @@ toolbar export ARTICLE TB_FIRST_TOOLBAR {
 	ADDITEM       : kbIns,    PPDV_ADDFILE02,       "@{add}\tInsert"
 	ADDGROUP      : kbCtrlA,  TBBM_NEWFOLDER,       "Создать группирующую папку\tCtrl-A"
 	DELETEITEM    : kbDel,    PPDV_DELETEFILE02,    "@{delete}\tDelete"
-	DELETEALL     : kbCtrlF8, TBBM_DELETEALL,       "@{doupdateall}\tCtrl-F8"
+	DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,     "@{doupdateall}\tCtrl-F8"
 	separator
-	EDTILINKOBJ   : kbF2,     TBBM_LINK,      "@{linkobject}\tF2"
-	VIEWBILLS     : kbF3,     TBBM_BILLS,     "Документы по статье\tF3"
-	EDITAGREEMENT : kbF4,     TBBM_HANDSHAKE, "@{agreement}\tF4"
-	EDITDEBTLIMS  : kbCtrlD,  PPDV_NOICON,    "Ограничения по долговым размерностям\tCtrl-D"
-	VIEWQUOT      : kbCtrlQ,  TBBM_QUOTATION, "@{quotes}\tCtrl-Q"
-	VIEWGOODS     : kbF5,     TBBM_GOODS,     "Товары, связанные со статьей кодом\tF5"
+	EDTILINKOBJ   : kbF2,     TBBM_LINK,            "@{linkobject}\tF2"
+	VIEWBILLS     : kbF3,     TBBM_BILLS,           "Документы по статье\tF3"
+	EDITAGREEMENT : kbF4,     TBBM_HANDSHAKE,       "@{agreement}\tF4"
+	EDITDEBTLIMS  : kbCtrlD,  PPDV_NOICON,          "Ограничения по долговым размерностям\tCtrl-D"
+	VIEWQUOT      : kbCtrlQ,  TBBM_QUOTATION,       "@{quotes}\tCtrl-Q"
+	VIEWGOODS     : kbF5,     TBBM_GOODS,           "Товары, связанные со статьей кодом\tF5"
 	separator
-	SYSJ          : kbCtrlJ,  PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
-	TRANSMIT      : kbCtrlH,  PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
-	PRINT         : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
+	SYSJ          : kbCtrlJ,  PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
+	TRANSMIT      : kbCtrlH,  PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
+	PRINT         : kbF7,     PPDV_PRINTER01,       "@{print}\tF7"
 	separator
-	CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
+	CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,        "@{filter}\tCtrl-V"
 }
 
 toolbar export ACCANLZ1 TB_FIRST_TOOLBAR {
@@ -1145,25 +1146,25 @@ browser PERSONATTR_STDALNADDR north(100), 1, 0, "Автономные адреса", OWNER|GRID,
 	// @construction "@email",       9, notype, 0, 30
 	//toolbar PERSON
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM       : kbEnter,     PPDV_EDITFILE02,          "@{edit}\tEnter"
-		ADDITEM        : kbIns,       PPDV_ADDFILE02,        "@{add}\tInsert"
-		DELETEITEM     : kbDel,       PPDV_DELETEFILE02,        "@{delete}\tDelete"
-		DELETEALL      : kbCtrlF8,    TBBM_DELETEALL,     "@{doremoveall}\tCtrl-F8"
+		EDITITEM       : kbEnter,     PPDV_EDITFILE02,      "@{edit}\tEnter"
+		ADDITEM        : kbIns,       PPDV_ADDFILE02,       "@{add}\tInsert"
+		DELETEITEM     : kbDel,       PPDV_DELETEFILE02,    "@{delete}\tDelete"
+		DELETEALL      : kbCtrlF8,    PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 		separator
-		VIEWCCHECKS    : kbF3,        TBBM_CCHECKS,       "@{check_pl}\tF3"
-		VIEWSCARDS     : kbCtrlS,     TBBM_SCARD,         "Просмотр персональных карт\tCtrl-S"
-		DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,        "Дополнительные поля адреса"
+		VIEWCCHECKS    : kbF3,        TBBM_CCHECKS,         "@{check_pl}\tF3"
+		VIEWSCARDS     : kbCtrlS,     TBBM_SCARD,           "Просмотр персональных карт\tCtrl-S"
+		DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "Дополнительные поля адреса"
 		RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "Удалить зависшие адреса\tCtrl-X"
-		PRINT          : kbF7,        PPDV_PRINTER01,         "@{print}\tF7"
-		SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,          "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT       : kbCtrlH,     PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
-		TRANSMKIND     : kbCtrlB,     PPDV_NOICON,        "Передать выборку видов персоналий\tCtrl-B"
-		EXPORTVCARD    : kbCtrlD,     PPDV_NOICON,        "Передать персоналию в формате vCard\tCtrl-D"
-		EXPORTUHTT     : kbAltU,      TBBM_EXPORTUHTT,    "@{exporttouhtt}\tAlt-U" // @v8.3.2
-		UNITEOBJ       : kbCtrlU,     TBBM_UNITE,         "@{unite_abstract}\tCtrl-U"
-		TOTAL          : kbF9,        PPDV_SIGMA02,          "@{totals}\tF9"
-		DORECOVER      : kbCtrlR,     TBBM_HAMMER,        "@{verificationandrecovery}\tCtrl-R"
-		SENDSMS	       : kbCtrlM,	  PPDV_NOICON,        "Разослать SMS\tCtrl-M"
+		PRINT          : kbF7,        PPDV_PRINTER01,       "@{print}\tF7"
+		SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
+		TRANSMIT       : kbCtrlH,     PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
+		TRANSMKIND     : kbCtrlB,     PPDV_NOICON,          "Передать выборку видов персоналий\tCtrl-B"
+		EXPORTVCARD    : kbCtrlD,     PPDV_NOICON,          "Передать персоналию в формате vCard\tCtrl-D"
+		EXPORTUHTT     : kbAltU,      TBBM_EXPORTUHTT,      "@{exporttouhtt}\tAlt-U" // @v8.3.2
+		UNITEOBJ       : kbCtrlU,     TBBM_UNITE,           "@{unite_abstract}\tCtrl-U"
+		TOTAL          : kbF9,        PPDV_SIGMA02,         "@{totals}\tF9"
+		DORECOVER      : kbCtrlR,     TBBM_HAMMER,          "@{verificationandrecovery}\tCtrl-R"
+		SENDSMS	       : kbCtrlM,	  PPDV_NOICON,          "Разослать SMS\tCtrl-M"
 		separator
 		CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	}
@@ -2410,7 +2411,7 @@ browser SHIPMANLZBYBILL north(100), 3, 1, "@view_shipmanalyze", OWNER|GRID, 0
 	}
 }
 
-browser PSALESGOODS north(100), 3, 1, "Продажи товаров (%s)", OWNER|GRID, 0
+browser PSALESGOODS north(100), 3, 1, "@{view_predictsales} (%s)", OWNER|GRID, 0
 {
 	"@date", 0, notype, DATF_DMY, 8
 	group "@byqtty" {
@@ -3401,7 +3402,7 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,       "@{doeditrow}\tEnter"
 		ADDITEM          : kbIns,      PPDV_ADDFILE02,        "@{doaddrow}\tInsert"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,     "@{doremoverow}\tDelete"
-		DELETEALL        : kbCtrlF8,   TBBM_DELETEALL,        "Удаление все строки\tCtrl-F8"
+		DELETEALL        : kbCtrlF8,   PPDV_DELETEALL02,      "Удаление все строки\tCtrl-F8"
 		EDITGOODS        : kbF2,       TBBM_GOODS,            "@{ware}\tF2"
 		VIEWLOTS         : kbF3,       TBBM_LOTS,             "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,   "@{doputtobasket}\tCtrl-F4"
@@ -3431,7 +3432,7 @@ browser PLINES_BYALLQUOTS north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,          "@{doeditrow}\tEnter"
 		ADDITEM          : kbIns,      PPDV_ADDFILE02,           "@{doaddrow}\tInsert"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,        "@{doremoverow}\tDelete"
-		DELETEALL        : kbCtrlF8,   TBBM_DELETEALL,           "Удалить все строки\tCtrl-F8"
+		DELETEALL        : kbCtrlF8,   PPDV_DELETEALL02,         "Удалить все строки\tCtrl-F8"
 		EDITGOODS        : kbF2,       TBBM_GOODS,               "@{ware}\tF2"
 		VIEWLOTS         : kbF3,       TBBM_LOTS,                "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,      "@{doputtobasket}\tCtrl-F4"
@@ -3481,7 +3482,7 @@ toolbar export VATBOOK TB_FIRST_TOOLBAR {
 	ADDITEM      : kbIns,     PPDV_ADDFILE02,    "@{doaddrow}\tInsert"
 	ADDBYSAMPLE  : kbAltF2,   TBBM_COPYBYSAMPLE, "@{doaddbysample}\tAlt-F2"
 	DELETEITEM   : kbDel,     PPDV_DELETEFILE02, "@{doremoverow}\tDelete"
-	DELETEALL    : kbCtrlF8,  TBBM_DELETEALL,    "Удалить все строки по фильтру\tCtrl-F8"
+	DELETEALL    : kbCtrlF8,  PPDV_DELETEALL02,  "Удалить все строки по фильтру\tCtrl-F8"
 	separator
 	REFRESH      : kbF8,      TBBM_REFRESH,      "@{refresh}\tF8"
 	separator
@@ -3665,7 +3666,7 @@ browser CCHECK north(100), 1, 1, "@{poscheck_pl}", OWNER|GRID, 0
 		ADDTOBASKET : kbCtrlF4, PPDV_SHOPPINGCART01,  "Положить в корзину товары из чека\tCtrl-F4"
 		separator
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,    "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,       "Удалить все чеки с неопределенной сессией\tCtrl-F8"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,     "Удалить все чеки с неопределенной сессией\tCtrl-F8"
 		TOTAL       : kbF9,     PPDV_SIGMA02,         "@{totals}\tF9"
 		PRINT       : kbF7,     PPDV_PRINTER01,       "@{print}\tF7"
 		POSPRINT    : kbCtrlZ,  TBBM_POSPRINT,        "Печать чека на POS-принтер\tCtrl-Z"
@@ -4065,7 +4066,7 @@ browser STAFF north(100), 1, 1, "Кадры {%s}", OWNER|GRID, 0
 	}
 }
 
-browser SALARY north(100), 2, 1, "Начисление зарплаты", OWNER|GRID, 0
+browser SALARY north(100), 2, 1, "@{salaryaccrual}", OWNER|GRID, 0
 {
 	"От",                1, notype, 0,  8
 	"До",                2, notype, 0,  8
@@ -4077,7 +4078,7 @@ browser SALARY north(100), 2, 1, "Начисление зарплаты", OWNER|GRID, 0
 	toolbar SALARY
 }
 
-browser SALARYCT north(100), 1, 1, "Начисление зарплаты", OWNER|GRID, 0
+browser SALARYCT north(100), 1, 1, "@{salaryaccrual}", OWNER|GRID, 0
 {
 	"От",              1, notype, 0,  8
 	"До",              4, notype, 0,  8
@@ -4302,36 +4303,36 @@ browser OBJSYNCQUEUE north(100), 1, 1, "Очередь синхронизации", OWNER|GRID, 0
 	"@flags",               10, notype, NMBF_NOZERO,  4
 	toolbar TB_FIRST_TOOLBAR {
 		RECEIVE    :  kbF8,       PPDV_NOICON,          "Принять данные (фиксировать транзакцию)\tF8"
-		DELETEALL  :  kbCtrlF8,   TBBM_DELETEALL,       "Очистить очередь\tCtrl-F8"
+		DELETEALL  :  kbCtrlF8,   PPDV_DELETEALL02,     "Очистить очередь\tCtrl-F8"
 		separator
-		CHANGEFILT :  kbCtrlV,    PPDV_FILTER01,          "@{filter}\tCtrl-V"
+		CHANGEFILT :  kbCtrlV,    PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	}
 }
 
 toolbar export SCARD TB_FIRST_TOOLBAR {
 	EDITITEM    : kbEnter,   PPDV_EDITFILE02,      "@{edit}\tEnter"
-	ADDITEM     : kbIns,     PPDV_ADDFILE02,    "@{add}\tInsert"
+	ADDITEM     : kbIns,     PPDV_ADDFILE02,       "@{add}\tInsert"
 	DELETEITEM  : kbDel,     PPDV_DELETEFILE02,    "@{delete}\tDelete"
-	FINDANDEDIT : kbF2,      PPDV_LINS01,      "Найти и редактировать\tF2"
+	FINDANDEDIT : kbF2,      PPDV_LINS01,          "Найти и редактировать\tF2"
 	separator
-	CCHECKS     : kbF3,      TBBM_CCHECKS,   "@{check_pl}\tF3"
-	OPERATIONS  : kbF4,      PPDV_LINS01,      "@{op_pl}\tF4"
-	CHARGE      : kbF6,      TBBM_CHARGE,    "Начисление по всем картам\tF6"
-	CHNGDSCNT   : kbCtrlD,   TBBM_PERCENT,   "Изменение скидки по выборке карточек\tCtrl-D"
-	CALCTRNOVR  : kbCtrlR,   TBBM_HAMMER,    "Пересчет оборотов\tCtrl-R"
+	CCHECKS     : kbF3,      TBBM_CCHECKS,         "@{check_pl}\tF3"
+	OPERATIONS  : kbF4,      PPDV_LINS01,          "@{op_pl}\tF4"
+	CHARGE      : kbF6,      TBBM_CHARGE,          "Начисление по всем картам\tF6"
+	CHNGDSCNT   : kbCtrlD,   TBBM_PERCENT,         "Изменение скидки по выборке карточек\tCtrl-D"
+	CALCTRNOVR  : kbCtrlR,   TBBM_HAMMER,          "Пересчет оборотов\tCtrl-R"
 	SYSJ        : kbCtrlJ,   PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
-	TRANSMIT    : kbCtrlH,   PPDV_SYNC01,   "@{dotransmit}\tCtrl-H"
-	AUTOFILL    : kbF8,      PPDV_NOICON,    "@{autofill}\tF8"
-	DELETEALL   : kbCtrlF8,  TBBM_DELETEALL, "Удалить выборку\tCtrl-F8"
-	REPLACECARD : kbCtrlM,   TBBM_REPLACE,   "Заменить в чеках\tCtrl-M"
-	AFILLDEFPSN : kbCtrlP,   PPDV_NOICON,    "Авотозаполнение персоналии по умолч.\tCtrl-P"
+	TRANSMIT    : kbCtrlH,   PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
+	AUTOFILL    : kbF8,      PPDV_NOICON,          "@{autofill}\tF8"
+	DELETEALL   : kbCtrlF8,  PPDV_DELETEALL02,     "Удалить выборку\tCtrl-F8"
+	REPLACECARD : kbCtrlM,   TBBM_REPLACE,         "Заменить в чеках\tCtrl-M"
+	AFILLDEFPSN : kbCtrlP,   PPDV_NOICON,          "Авотозаполнение персоналии по умолч.\tCtrl-P"
 	// @v7.7.3 CHNGFLAGS   : kbShiftF3, TBBM_CHGFLAGS,  "@{doupdateflags}\tShift-F3"
-	RENAMEDUP   : kbCtrlX,   PPDV_NOICON,    "Переименовать дублирующиеся карты\tCtrl-X"
-	PROCESSSELECTION : kbCtrlA, PPDV_NOICON, "Обработать выборку\tCtrl-A"
+	RENAMEDUP   : kbCtrlX,   PPDV_NOICON,          "Переименовать дублирующиеся карты\tCtrl-X"
+	PROCESSSELECTION : kbCtrlA, PPDV_NOICON,       "Обработать выборку\tCtrl-A"
 	separator
-	PRINT       : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
-	TOTAL       : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
-	CHANGEFILT  : kbCtrlV,   PPDV_FILTER01,    "@{filter}\tCtrl-V"
+	PRINT       : kbF7,      PPDV_PRINTER01,       "@{print}\tF7"
+	TOTAL       : kbF9,      PPDV_SIGMA02,         "@{totals}\tF9"
+	CHANGEFILT  : kbCtrlV,   PPDV_FILTER01,        "@{filter}\tCtrl-V"
 }
 
 browser SCARD north(100), 1, 1, "@{scard_pl} {%s}", OWNER|GRID, 0
@@ -4514,14 +4515,14 @@ browser SYNCCMP north(100), 3, 1, "Сравнение синхронизации объектов", OWNER|GRID
 		"@time",         13, notype, TIMF_HMS, 8
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		EDITOBJ     : kbEnter,  PPDV_EDITFILE02,           "@{viewobject}\tEnter"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,         "Удалить информацию о синхронизации объекта (по общему ид-ру)\tDelete"
-		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,      "Удалить информацию о синхронизации по всей выборке\tCtrl-F8"
+		EDITOBJ     : kbEnter,  PPDV_EDITFILE02,     "@{viewobject}\tEnter"
+		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,   "Удалить информацию о синхронизации объекта (по общему ид-ру)\tDelete"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,    "Удалить информацию о синхронизации по всей выборке\tCtrl-F8"
 		PUTTOBASKET : kbCtrlF4, TBBM_ADDTISTOBASKET, "Положить товар в корзину\tCtrl-F4"
 		separator
-		PRINT       : kbF7,    PPDV_PRINTER01,           "@{print}\tF7"
-		TOTAL       : kbF9,    PPDV_SIGMA02,            "@{totals}\tF9"
-		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,          "@{filter}\tCtrl-V"
+		PRINT       : kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
+		TOTAL       : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
+		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	}
 }
 
@@ -4863,23 +4864,23 @@ browser PRJTASK north(100), 2, 1, "@{prjtask_pl} {%s}", OWNER|GRID, 0
 	"Ответственный",         9, notype, 0, 30
 	"@description",         10, notype, 0, 60 //, BCO_RESIZEABLE
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_EDITFILE02,         "@{edit}\tEnter"
-		ADDITEM     : kbIns,    PPDV_ADDFILE02,       "@{add}\tInsert"
+		EDITITEM    : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
+		ADDITEM     : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,       "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,    "@{doremoveall}\tCtrl-F8"
+		DELETEITEM  : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,  "@{doremoveall}\tCtrl-F8"
 		LINKTASKS   : kbF4,     TBBM_PRJTASK,      "Связанные задачи\tF4"
 		EDITLINKTASK: kbCtrlL,  TBBM_LINK,         "Просмотр связанной задачи\tCtrl-L"
 		EDITBILLPOOL: kbF5,     TBBM_BILLS,        "@{documents}\tF5"
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,         "@{view_sysjournal}\tCtrl-J"
+		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 		separator
 		BUILD       : kbF6,     TBBM_CHARGE,       "Формирование задач по шаблону\tF6"
-		TRANSMIT    : kbCtrlH,  PPDV_SYNC01,      "@{dotransmit}\tCtrl-H"
+		TRANSMIT    : kbCtrlH,  PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
 		EXPORTVCAL  : kbCtrlN,  PPDV_NOICON,       "Передать выборку задач в vCalendar\tCtrl-N"
-		PRINT       : kbF7,     PPDV_PRINTER01,        "@{print}\tF7"
-		TOTAL       : kbF9,     PPDV_SIGMA02,         "@{totals}\tF9"
+		PRINT       : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
+		TOTAL       : kbF9,     PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
-		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 		TIMEGRAPH   : kbCtrlA,  TBBM_TIMEGRAPH,    "@{timechart}\tCtrl-A"
 	}
 }
@@ -4893,8 +4894,8 @@ browser PRJTASK_DATEHOURCT north(100), 3, 1, "Задачи с табуляцией Дата/Час", OWN
 		ADDITEM     : kbIns,    PPDV_ADDFILE02,       "@{add}\tInsert"
 		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2"
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,    "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,       "@{doremoveall}\tCtrl-F8"
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,            "@{view_sysjournal}\tCtrl-J"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
+		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
 		separator
 		BUILD       : kbF6,     TBBM_CHARGE,          "Формирование задач по шаблону\tF6"
 		PRINT       : kbF7,     PPDV_PRINTER01,       "@{print}\tF7"
@@ -4909,16 +4910,16 @@ browser PRJTASK_CLIENTDATECT north(100), 3, 1, "Задачи с табуляцией Клиент/Дата"
 	"@client", 2, notype, 0, 32
 	crosstab "@date", notype, NMBF_NOZERO, 5
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_EDITFILE02,         "@{edit}\tEnter"
-		ADDITEM     : kbIns,    PPDV_ADDFILE02,       "@{add}\tInsert"
-		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,       "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,    "@{doremoveall}\tCtrl-F8"
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,         "@{view_sysjournal}\tCtrl-J"
+		EDITITEM    : kbEnter,  PPDV_EDITFILE02,     "@{edit}\tEnter"
+		ADDITEM     : kbIns,    PPDV_ADDFILE02,      "@{add}\tInsert"
+		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE,   "@{doaddbysample}\tAlt-F2"
+		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,   "@{delete}\tDelete"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,    "@{doremoveall}\tCtrl-F8"
+		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,       "Формирование задач по шаблону\tF6"
-		PRINT       : kbF7,     PPDV_PRINTER01,        "@{print}\tF7"
-		TOTAL       : kbF9,     PPDV_SIGMA02,         "@{totals}\tF9"
+		BUILD       : kbF6,     TBBM_CHARGE,         "Формирование задач по шаблону\tF6"
+		PRINT       : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
+		TOTAL       : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		separator
 		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
@@ -4929,16 +4930,16 @@ browser PRJTASK_EMPLOYERDATECT north(100), 3, 1, "Задачи с табуляцией @{executor
 	"@executor",  2, notype, 0, 32
 	crosstab "@date", notype, NMBF_NOZERO, 5
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_EDITFILE02,         "@{edit}\tEnter"
-		ADDITEM     : kbIns,    PPDV_ADDFILE02,       "@{add}\tInsert"
-		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,       "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,    "@{doremoveall}\tCtrl-F8"
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,         "@{view_sysjournal}\tCtrl-J"
+		EDITITEM    : kbEnter,  PPDV_EDITFILE02,     "@{edit}\tEnter"
+		ADDITEM     : kbIns,    PPDV_ADDFILE02,      "@{add}\tInsert"
+		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE,   "@{doaddbysample}\tAlt-F2"
+		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,   "@{delete}\tDelete"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,    "@{doremoveall}\tCtrl-F8"
+		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,       "Формирование задач по шаблону\tF6"
-		PRINT       : kbF7,     PPDV_PRINTER01,        "@{print}\tF7"
-		TOTAL       : kbF9,     PPDV_SIGMA02,         "@{totals}\tF9"
+		BUILD       : kbF6,     TBBM_CHARGE,         "Формирование задач по шаблону\tF6"
+		PRINT       : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
+		TOTAL       : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		separator
 		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
@@ -4949,16 +4950,16 @@ browser PRJTASK_CLIENTEMPLOYERCT north(100), 3, 1, "Задачи с табуляцией @{client
 	"@client", 2, notype, 0, 32
 	crosstab "@executor", notype, NMBF_NOZERO, 5
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_EDITFILE02,         "@{edit}\tEnter"
-		ADDITEM     : kbIns,    PPDV_ADDFILE02,       "@{add}\tInsert"
-		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,       "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,    "@{doremoveall}\tCtrl-F8"
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,         "@{view_sysjournal}\tCtrl-J"
+		EDITITEM    : kbEnter,  PPDV_EDITFILE02,     "@{edit}\tEnter"
+		ADDITEM     : kbIns,    PPDV_ADDFILE02,      "@{add}\tInsert"
+		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE,   "@{doaddbysample}\tAlt-F2"
+		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,   "@{delete}\tDelete"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,    "@{doremoveall}\tCtrl-F8"
+		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,       "Формирование задач по шаблону\tF6"
-		PRINT       : kbF7,     PPDV_PRINTER01,        "@{print}\tF7"
-		TOTAL       : kbF9,     PPDV_SIGMA02,         "@{totals}\tF9"
+		BUILD       : kbF6,     TBBM_CHARGE,         "Формирование задач по шаблону\tF6"
+		PRINT       : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
+		TOTAL       : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		separator
 		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
@@ -4978,9 +4979,9 @@ browser PRJTASKTEMPL north(100), 2, 1, "Шаблоны задач {%s}", OWNER|GRID, 0
 		ADDITEM     : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		ADDBYSAMPLE : kbAltF2,  TBBM_COPYBYSAMPLE, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, TBBM_DELETEALL,    "@{doremoveall}\tCtrl-F8"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,  "@{doremoveall}\tCtrl-F8"
 		DETAIL      : kbF3,     TBBM_PRJTASK,      "@{prjtask_pl}\tF3"
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,         "@{view_sysjournal}\tCtrl-J"
+		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 		separator
 		BUILD       : kbF6,     TBBM_CHARGE,       "Формирование задач\tF6"
 		PRINT       : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
@@ -5159,13 +5160,13 @@ browser PROCESSOR north(100), 1, 1, "@{view_processor} {%s}", OWNER|GRID, 0
 browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 {
 	"@appellation",              1, notype, 0, 30
-	"Родительская\nтехнология", 10, notype, 0, 20
+	"@tech_parent",             10, notype, 0, 20
 	"Порядковый\nномер",        11, notype, 0,  5
 	"@processor",                2, notype, 0, 20
 	"@ware",                     3, notype, 0, 30
 	"@structure",                4, notype, 0, 10
 	"Знак",                      5, notype, 0,  6
-	"Производительность",        6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+	"@productivity",             6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	"Количество по\nумолчанию",  9, notype, NMBF_NOZERO, 8.1
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM   : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
@@ -5190,7 +5191,7 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 browser TECHTOOLING north(100), 1, 1, "@{reconftech_pl} {%s}", OWNER|GRID, 0
 {
 	"@appellation",              1, notype, 0, 30
-	"Родительская\nтехнология", 10, notype, 0, 20
+	"@tech_parent",             10, notype, 0, 20
 	"Порядковый\nномер",        11, notype, 0,  5
 	"@processor",                2, notype, 0, 20
 	"@ware",                     3, notype, 0, 30
@@ -5717,14 +5718,14 @@ browser BIZSCOREVAL north(100), 3, 1, "Значения бизнес-показателей", OWNER|GRID,
 	"@value",          5, notype, NMBF_NOZERO, 12.2
 	"Строка",          6, notype, 0, 40
 	toolbar TB_FIRST_TOOLBAR {
-		VIEWBIZSCORE  : kbF2,     PPDV_NOICON, "@{bizscore}\tF2"
-		CHARGE        : kbF6,     TBBM_CHARGE, "Расчет\tF6"
-		DELETEITEM    : kbDel,    PPDV_DELETEFILE02, "Удалить значение\tDelete"
-		DELETEALL     : kbCtrlF8, TBBM_DELETEALL, "@{doremoveall}\tCtrl-F8"
+		VIEWBIZSCORE  : kbF2,     PPDV_NOICON,        "@{bizscore}\tF2"
+		CHARGE        : kbF6,     TBBM_CHARGE,        "Расчет\tF6"
+		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,  "Удалить значение\tDelete"
+		DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
 		separator
-		GRAPH         : kbCtrlN,  TBBM_PLOT,   "@{plot}\tCtrl-N"
-		PRINT         : kbF7,     PPDV_PRINTER01,  "@{print}\tF7"
-		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01, "@{filter}\tCtrl-V"
+		GRAPH         : kbCtrlN,  TBBM_PLOT,          "@{plot}\tCtrl-N"
+		PRINT         : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
+		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
 }
 
@@ -5750,7 +5751,7 @@ browser DEBTORSTAT north(100), 3, 1, "Статистика по дебиторам", OWNER|GRID, 0
 		EDITARTICLE   : kbF2,     PPDV_LINS02,  "Аналитическая статья\tF2"
 		EDITPERSON    : kbF4,     TBBM_PERSONS, "@{person}\tF4"
 		GRAPH         : kbCtrlN,  TBBM_PLOT,    "@{plot}\tCtrl-N"
-		CONFIG        : kbF8,     TBBM_CONFIG,  "Изменить конфигурацию и пересчитать\tF8"
+		CONFIG        : kbF8,     PPDV_GEAR01,  "Изменить конфигурацию и пересчитать\tF8"
 		PRINT         : kbF7,     PPDV_PRINTER01,   "@{print}\tF7"
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,  "@{filter}\tCtrl-V"
 	}
@@ -6181,12 +6182,24 @@ browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 		ADDITEM        : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
 		EDITITEM       : kbEnter,  PPDV_EDITFILE02,    "@{edit}\tEnter"
 		DELETEITEM     : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
+		DELETEALL      : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
 		separator
-		CONFIG         : kbF8,     TBBM_CONFIG,        "@{config}\tF8"
+		CONFIG         : kbF8,     PPDV_GEAR01,        "@{config}\tF8"
 		separator
+		DETAIL         : kbF3,     PPDV_LINS01,        "@{detail}\tF3"
 		EXPORT         : kbCtrlR,  PPDV_EXPORT01,      "@{export}\tCtrl-R"
 		TRYSTRATEGIES  : kbCtrlT,  PPDV_EXPORT01,      "Try Strategies\tCtrl-T"
 		REFRESH        : kbCtrlV,  PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
+	}
+}
+
+browser TIMSERDETAIL north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
+{
+	"Idx",           0, int32,       0, 10, BCO_USERPROC
+	"Time",          1, zstring(20), 0, 12, BCO_USERPROC
+	"Diff Sec",      2, int32,       0, 10, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EXPORT         : kbCtrlR,  PPDV_EXPORT01,      "@{export}\tCtrl-R"
 	}
 }
 
@@ -6212,7 +6225,7 @@ browser SUPRWARE north(100), 3, 0, "Базовые товары и компоненты", OWNER|GRID, 0
 		DELETEITEM   : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
 
 		DETAIL       : kbF3,     PPDV_EDITFILE02,   "@{detail}\tF3"
-		DELETEALL    : kbCtrlF8, TBBM_DELETEALL,    "@{doremoveall}\tCtrl-F8"
+		DELETEALL    : kbCtrlF8, PPDV_DELETEALL02,  "@{doremoveall}\tCtrl-F8"
 		TOTAL        : kbF9,     PPDV_SIGMA02,      "@{totals}\tF9"
 		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 	}
@@ -6233,13 +6246,13 @@ browser USERPROFILE north(100), 1, 0, "Профайлер пользовательских функций", OWNE
 	"Фактор 2",          13, notype, 0,            8
 	"Фактор 3",          14, notype, 0,            8
 	toolbar TB_FIRST_TOOLBAR {
-		UPDATEITEMS  : kbF5,     PPDV_EDITFILE02, "@{refresh}\tkbF5"
-		DELETEALL    : kbCtrlF8, TBBM_DELETEALL,  "Очистить статус загрузки\tCtrl-F8"
-		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,   "@{filter}\tCtrl-V"
+		UPDATEITEMS  : kbF5,     PPDV_EDITFILE02,  "@{refresh}\tkbF5"
+		DELETEALL    : kbCtrlF8, PPDV_DELETEALL02, "Очистить статус загрузки\tCtrl-F8"
+		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,    "@{filter}\tCtrl-V"
 	}
 }
 
-browser JOB north(100), 1, 0, "Серверные задачи", OWNER|GRID, 0
+browser JOB north(100), 1, 0, "@{jobtask_pl}", OWNER|GRID, 0
 {
 	"@jobitem_name",      1,  zstring(64), 0,  20, BCO_USERPROC
 	"@jobitem_symb",      2,  zstring(32), 0,  15, BCO_USERPROC
@@ -6845,6 +6858,7 @@ view   PhnSvcMonitor           { "@{view_phnsvcmonitor}" } // @v9.9.10
 view   VetisDocument           { "@{view_vetisdocument}" } // @v10.0.12
 filter PrcssrTsStrategyAnalyze { "@{tsstrategyanalyze}"  } // @v10.2.11
 view   TimeSeries              { "@{view_timeseries}" } // @v10.4.4
+view   TimSerDetail            { "@{view_timserdetail}" } // @v10.5.4
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -8354,7 +8368,7 @@ reportstub ExtBillList		{ dl600data=ContentBList,		"Реестр документов по операци
 reportstub DBillList		{ dl600data=DebetBillList,		"Реестр документов по операции в номинальных ценах с суммой задолженности и датой оплаты"}
 reportstub BillTotal		{ dl600data=BillTotal,			"Итоги по документам"}
 reportstub BillInfoList		{ dl600data=BillInfoList,		"Специальная информация по списку документов"}
-reportstub GoodsBillCmp		{ dl600data=GoodsBillCmp,		"Доверенность"}
+reportstub GoodsBillCmp		{ dl600data=GoodsBillCmp,		"@{warrant}"}
 reportstub Balance			{ dl600data=Balance,			"Баланс"}
 reportstub AturnCycleGrpng	{ dl600data=AccturnList,		"Циклическая группировка описи проводок по счетам"}
 reportstub AturnGrpng		{ dl600data=AccturnList,		"Группировка описи бух проводок по счетам"}
@@ -8387,8 +8401,8 @@ reportstub BnkPaymReq		{ dl600data=BnkPaymOrder,		"Банковское платежное требован
 reportstub BnkPaymOrder		{ dl600data=BnkPaymOrder,		"Банковское платежное поручение (заглушка)"}
 reportstub GRevalBill		{ dl600data=GoodsReval,			"Документ на переоценку"}
 reportstub GRevalBillP		{ dl600data=GoodsReval,			"Документ на переоценку в ценах реализации"}
-reportstub Warrant			{ dl600data=Warrant,			"Доверенность"}
-reportstub AdvanceRep		{ dl600data=AdvanceRep,			"Авансовый отчет"}
+reportstub Warrant			{ dl600data=Warrant,			"@{warrant}"}
+reportstub AdvanceRep		{ dl600data=AdvanceRep,			"@{advancerep}"}
 reportstub BillPayPlan		{ dl600data=BillPayPlan,		"план платежей по документу"}
 reportstub InvoiceCur		{ dl600data=InvoiceData,		"Счет-фактура в валюте"}
 reportstub GoodsBillModif	{ dl600data=GoodsBillModif,		"Документ на модификацию товара"}
@@ -8685,6 +8699,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_EXPORT01  #030104
 	PPDV_EXPORT02
 	PPDV_EXPORT03
+	PPDV_DELETEALL02
 }
 //
 // Следующие изображения используются без замещения цвета

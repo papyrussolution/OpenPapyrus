@@ -3,7 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <..\OSF\rabbitmq-c\amqp.h>
+#include <amqp.h>
 
 static inline amqp_connection_state_t GetNativeConnHandle(void * pConn)
 {
@@ -134,8 +134,7 @@ int FASTCALL PPMqbClient::ProcessAmqpRpcReply(const amqp_rpc_reply_t & rR)
 
 int SLAPI PPMqbClient::VerifyRpcReply()
 {
-	amqp_rpc_reply_t amqp_reply;
-	amqp_reply = amqp_get_rpc_reply(GetNativeConnHandle(P_Conn));
+	amqp_rpc_reply_t amqp_reply = amqp_get_rpc_reply(GetNativeConnHandle(P_Conn));
 	return ProcessAmqpRpcReply(amqp_reply);
 }
 
@@ -143,8 +142,7 @@ int SLAPI PPMqbClient::Login(const LoginParam & rP)
 {
 	int    ok = 1;
 	if(P_Conn) {
-		amqp_rpc_reply_t amqp_reply;
-		amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), "papyrus", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());
+		amqp_rpc_reply_t amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), "papyrus", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());
 		THROW(ProcessAmqpRpcReply(amqp_reply));
 		ChannelN = 1;
 		amqp_channel_open(GetNativeConnHandle(P_Conn), ChannelN);
@@ -157,6 +155,7 @@ int SLAPI PPMqbClient::Login(const LoginParam & rP)
 int SLAPI PPMqbClient::Publish(const char * pExchangeName, const char * pQueue, const MessageProperties * pProps, const void * pData, size_t dataLen)
 {
 	int    ok = 1;
+	amqp_table_entry_t * p_amqp_tbl_entries = 0;
 	THROW(P_Conn);
 	{
 		amqp_basic_properties_t * p_local_props = 0;
@@ -168,35 +167,82 @@ int SLAPI PPMqbClient::Publish(const char * pExchangeName, const char * pQueue, 
 		data.len = dataLen;
 		if(pProps) {
 			MEMSZERO(local_props);
+			local_props._flags = 0;
 			if(pProps->ContentType) {
 				SString & r_rb = SLS.AcquireRvlStr();
 				SFileFormat::GetMime(pProps->ContentType, r_rb);
 				local_props.content_type = amqp_cstring_bytes(r_rb);
+				local_props._flags |= AMQP_BASIC_CONTENT_TYPE_FLAG;
 			}
 			if(pProps->Encoding) {
 				SString & r_rb = SLS.AcquireRvlStr();
 				SFileFormat::GetContentTransferEncName(pProps->Encoding, r_rb);
 				local_props.content_encoding = amqp_cstring_bytes(r_rb);
+				local_props._flags |= AMQP_BASIC_CONTENT_ENCODING_FLAG;
 			}
-			local_props._flags = pProps->Flags;
-			local_props.timestamp = pProps->TimeStamp.GetTimeT();
-			local_props.delivery_mode = inrangeordefault(pProps->DeliveryMode, 1U, 2U, 1U);
-			local_props.priority = inrangeordefault(pProps->Priority, 0U, 9U, 0U);
-			local_props.correlation_id = amqp_cstring_bytes(pProps->CorrelationId);
-			local_props.reply_to = amqp_cstring_bytes(pProps->ReplyTo);
-			local_props.expiration = amqp_cstring_bytes(pProps->Expiration);
-			local_props.message_id = amqp_cstring_bytes(pProps->MessageId);
-			local_props.type = amqp_cstring_bytes(pProps->Type);
-			local_props.user_id = amqp_cstring_bytes(pProps->UserId);
-			local_props.app_id = amqp_cstring_bytes(pProps->AppId);
-			local_props.cluster_id = amqp_cstring_bytes(pProps->ClusterId);
-			// @todo local_props.headers
+			if(!!pProps->TimeStamp) {
+				local_props.timestamp = pProps->TimeStamp.GetTimeT();
+				local_props._flags |= AMQP_BASIC_TIMESTAMP_FLAG;
+			}
+			if(oneof2(pProps->DeliveryMode, 1, 2)) {
+				local_props.delivery_mode = pProps->DeliveryMode;
+				local_props._flags |= AMQP_BASIC_DELIVERY_MODE_FLAG;
+			}
+			if(pProps->Priority >= 0 && pProps->Priority <= 9) {
+				local_props.priority = pProps->Priority;
+				local_props._flags |= AMQP_BASIC_PRIORITY_FLAG;
+			}
+			if(pProps->CorrelationId.NotEmpty()) {
+				local_props.correlation_id = amqp_cstring_bytes(pProps->CorrelationId);
+				local_props._flags |= AMQP_BASIC_CORRELATION_ID_FLAG;
+			}
+			if(pProps->ReplyTo.NotEmpty()) {
+				local_props.reply_to = amqp_cstring_bytes(pProps->ReplyTo);
+				local_props._flags |= AMQP_BASIC_REPLY_TO_FLAG;
+			}
+			if(pProps->Expiration.NotEmpty()) {
+				local_props.expiration = amqp_cstring_bytes(pProps->Expiration);
+				local_props._flags |= AMQP_BASIC_EXPIRATION_FLAG;
+			}
+			if(pProps->MessageId.NotEmpty()) {
+				local_props.message_id = amqp_cstring_bytes(pProps->MessageId);
+				local_props._flags |= AMQP_BASIC_MESSAGE_ID_FLAG;
+			}
+			if(pProps->Type.NotEmpty()) {
+				local_props.type = amqp_cstring_bytes(pProps->Type);
+				local_props._flags |= AMQP_BASIC_TYPE_FLAG;
+			}
+			if(pProps->UserId.NotEmpty()) {
+				local_props.user_id = amqp_cstring_bytes(pProps->UserId);
+				local_props._flags |= AMQP_BASIC_USER_ID_FLAG;
+			}
+			if(pProps->AppId.NotEmpty()) {
+				local_props.app_id = amqp_cstring_bytes(pProps->AppId);
+				local_props._flags |= AMQP_BASIC_APP_ID_FLAG;
+			}
+			if(pProps->ClusterId.NotEmpty()) {
+				local_props.cluster_id = amqp_cstring_bytes(pProps->ClusterId);
+				local_props._flags |= AMQP_BASIC_CLUSTER_ID_FLAG;
+			}
+			if(pProps->Headers.getCount()) {
+				THROW_SL(p_amqp_tbl_entries = new amqp_table_entry_t[pProps->Headers.getCount()]);
+				local_props.headers.entries = p_amqp_tbl_entries;
+				local_props.headers.num_entries = pProps->Headers.getCount();
+				for(uint pidx = 0; pidx < pProps->Headers.getCount(); pidx++) {
+					StrStrAssocArray::Item pitem = pProps->Headers.at(pidx);
+					p_amqp_tbl_entries[pidx].key = amqp_cstring_bytes(pitem.Key);
+					p_amqp_tbl_entries[pidx].value.kind = AMQP_FIELD_KIND_UTF8; // AMQP_FIELD_KIND_BYTES
+					p_amqp_tbl_entries[pidx].value.value.bytes = amqp_cstring_bytes(pitem.Val);
+				}
+				local_props._flags |= AMQP_BASIC_HEADERS_FLAG;
+			}
 			p_local_props = &local_props;
 		}
 		int pr = amqp_basic_publish(GetNativeConnHandle(P_Conn), ChannelN, exchange, queue, 0, 0, p_local_props, data);
 		THROW(pr == AMQP_STATUS_OK);
 	}
 	CATCHZOK
+	delete [] p_amqp_tbl_entries;
 	return ok;
 }
 
@@ -227,6 +273,7 @@ int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 	rEnv.Z();
 	int    ok = -1;
 	SString temp_buf;
+	SString val_buf;
 	THROW(P_Conn);
 	{
 		amqp_envelope_t envelope;
@@ -248,10 +295,45 @@ int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 			rEnv.Msg.Props.Priority = envelope.message.properties.priority;
 			rEnv.Msg.Props.TimeStamp.SetTimeT(envelope.message.properties.timestamp);
 			AmpqBytesToSString(envelope.message.properties.content_type, temp_buf);
-			rEnv.Msg.Props.ContentType = SFileFormat::IdentifyMimeType(temp_buf);
+			{
+				SFileFormat ft;
+				if(ft.IdentifyMime(temp_buf))
+					rEnv.Msg.Props.ContentType = ft;
+			}
 			AmpqBytesToSString(envelope.message.properties.content_encoding, temp_buf);
 			rEnv.Msg.Props.Encoding = SFileFormat::IdentifyMimeType(temp_buf);
 			// @todo amqp_table_t headers --> rEnv.Msg.Props.Headers
+			{
+				const amqp_table_t & r_tbl = envelope.message.properties.headers;
+				if(r_tbl.num_entries && r_tbl.entries) {
+					for(int i = 0; i < r_tbl.num_entries; i++) {
+						const amqp_table_entry_t & r_te = r_tbl.entries[i];
+						AmpqBytesToSString(r_te.key, temp_buf);
+						val_buf.Z();
+						switch(r_te.value.kind) {
+							case AMQP_FIELD_KIND_BOOLEAN: val_buf.Cat(r_te.value.value.boolean ? "true" : "false"); break;
+							case AMQP_FIELD_KIND_I8:  val_buf.Cat(r_te.value.value.i8); break;
+							case AMQP_FIELD_KIND_U8:  val_buf.Cat(r_te.value.value.u8); break;
+							case AMQP_FIELD_KIND_I16: val_buf.Cat(r_te.value.value.i16); break;
+							case AMQP_FIELD_KIND_U16: val_buf.Cat(r_te.value.value.u16); break;
+							case AMQP_FIELD_KIND_I32: val_buf.Cat(r_te.value.value.i32); break;
+							case AMQP_FIELD_KIND_U32: val_buf.Cat(r_te.value.value.u32); break;
+							case AMQP_FIELD_KIND_I64: val_buf.Cat(r_te.value.value.i64); break;
+							case AMQP_FIELD_KIND_U64: val_buf.Cat(r_te.value.value.u64); break;
+							case AMQP_FIELD_KIND_F32: val_buf.Cat(r_te.value.value.f32, MKSFMTD(0,  8, 0)); break;
+							case AMQP_FIELD_KIND_F64: val_buf.Cat(r_te.value.value.f64, MKSFMTD(0, 10, 0)); break;
+							case AMQP_FIELD_KIND_DECIMAL: break; // @todo
+							case AMQP_FIELD_KIND_UTF8: AmpqBytesToSString(r_te.value.value.bytes, val_buf); break;
+							case AMQP_FIELD_KIND_ARRAY: break; // @todo
+							case AMQP_FIELD_KIND_TIMESTAMP: break; // @todo
+							case AMQP_FIELD_KIND_TABLE: break; // @todo
+							case AMQP_FIELD_KIND_VOID: break; // @todo
+							case AMQP_FIELD_KIND_BYTES: break; // @todo
+						}
+						rEnv.Msg.Props.Headers.Add(temp_buf, val_buf);
+					}
+				}
+			}
 			AmpqBytesToSString(envelope.message.properties.correlation_id, rEnv.Msg.Props.CorrelationId);
 			AmpqBytesToSString(envelope.message.properties.reply_to, rEnv.Msg.Props.ReplyTo);
 			AmpqBytesToSString(envelope.message.properties.expiration, rEnv.Msg.Props.Expiration);
@@ -348,6 +430,34 @@ int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam
 	THROW(rC.Connect(rP.Host, NZOR(rP.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
 	THROW(rC.Login(rP));
 	CATCHZOK
+	return ok;
+}
+
+//static 
+int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, SString * pDomain)
+{
+	int    ok = 1;
+	SString data_domain;
+	SString temp_buf;
+	PPMqbClient::InitParam lp;
+	PPAlbatrosConfig acfg;
+	THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
+	{
+		acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+		lp.Host = temp_buf;
+		acfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+		lp.Auth = temp_buf;
+		acfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+		lp.Secret = temp_buf;
+		acfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, data_domain);
+		lp.Method = 1;
+	}
+	THROW_PP(data_domain.NotEmpty(), PPERR_GLOBALDATADOMAINUNDEF);
+	THROW(PPMqbClient::InitClient(rC, lp));
+	THROW(rC.Connect(lp.Host, NZOR(lp.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
+	THROW(rC.Login(lp));
+	CATCHZOK
+	ASSIGN_PTR(pDomain, data_domain);
 	return ok;
 }
 

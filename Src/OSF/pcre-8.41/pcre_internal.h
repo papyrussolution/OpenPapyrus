@@ -2281,14 +2281,11 @@ typedef struct {
 	extern const int PRIV(utf8_table3)[];
 	extern const pcre_uint8 PRIV(utf8_table4)[];
 #endif
-
 extern const char PRIV(utt_names)[];
 extern const ucp_type_table PRIV(utt)[];
 extern const int PRIV(utt_size);
-
 extern const pcre_uint8 PRIV(OP_lengths)[];
 extern const pcre_uint8 PRIV(default_tables)[];
-
 extern const uint32 PRIV(hspace_list)[];
 extern const uint32 PRIV(vspace_list)[];
 // 

@@ -624,18 +624,19 @@ char * SLAPI GoodsFilt::WriteObjIdListFilt(char * p, const ObjIdListFilt & rList
 	return p;
 }
 
-char * SLAPI GoodsFilt::ReadObjIdListFilt(char * p, ObjIdListFilt & rList)
+const void * SLAPI GoodsFilt::ReadObjIdListFilt(const /*char*/void * p, ObjIdListFilt & rList)
 {
-	uint   list_count = (uint)*(uint32 *)p;
-	p += sizeof(uint32);
+	const  uint8 * _ptr = static_cast<const uint8 *>(p);
+	uint   list_count = (uint)*reinterpret_cast<const uint32 *>(_ptr);
+	_ptr += sizeof(uint32);
 	rList.Set(0);
 	for(uint i = 0; i < list_count; i++) {
-		PPID   id = *(PPID *)p;
+		PPID   id = *reinterpret_cast<const PPID *>(_ptr);
 		if(id > 0)
 			rList.Add(id);
-		p += sizeof(PPID);
+		_ptr += sizeof(PPID);
 	}
-	return p;
+	return _ptr;
 }
 
 #if 0 // {
@@ -825,13 +826,14 @@ int SLAPI GoodsFilt::ReadFromProp(PPID obj, PPID id, PPID prop, PPID propBefore8
 int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	uint   i, c;
 	__GoodsFilt * p_buf = 0;
-	char * p = 0;
+	const uint8 * p = 0;
 	size_t prop_size = 0;
-	if(PPRef->GetPropActualSize(obj, id, prop, &prop_size) > 0) {
+	if(p_ref->GetPropActualSize(obj, id, prop, &prop_size) > 0) {
 		THROW_MEM(p_buf = static_cast<__GoodsFilt *>(SAlloc::C(1, prop_size)));
-		THROW(PPRef->GetProperty(obj, id, prop, p_buf, prop_size) > 0);
+		THROW(p_ref->GetProperty(obj, id, prop, p_buf, prop_size) > 0);
 		if(p_buf->VerTag <= -11 && p_buf->VerTag > -100) {
 			GrpID       = p_buf->GrpID;
 			ManufID     = p_buf->ManufID;
@@ -858,27 +860,27 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 							MtxLocID = p_buf->MtxLocID;
 							InitOrder = p_buf->InitOrder;
 						}
-						p = (char *)(p_buf+1);
+						p = PTR8C(p_buf+1);
 					}
 					else {
-						p = (char *)(p_buf+1) - sizeof(p_buf->VatRate) - sizeof(p_buf->VatDate)  - sizeof(p_buf->BrandID) -
+						p = PTR8C(p_buf+1) - sizeof(p_buf->VatRate) - sizeof(p_buf->VatDate)  - sizeof(p_buf->BrandID) -
 							sizeof(p_buf->CodeArID) - sizeof(p_buf->BrandOwnerID) - 20;
 					}
 				}
 				else
-					p = (char *)(p_buf+1) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
+					p = PTR8C(p_buf+1) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
 			}
 			else
-				p = (char *)(p_buf+1) - sizeof(p_buf->ManufCountryID) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
-			SrchStr_ = p;
+				p = PTR8C(p_buf+1) - sizeof(p_buf->ManufCountryID) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
+			SrchStr_ = reinterpret_cast<const char *>(p);
 			p += sstrlen(p) + 1;
-			p = ReadObjIdListFilt(p, GrpIDList);
+			p = PTR8C(ReadObjIdListFilt(p, GrpIDList));
 			if(p_buf->VerTag <= -14) {
-				BarcodeLen = p;
+				BarcodeLen = reinterpret_cast<const char *>(p);
 				p += sstrlen(p) + 1;
 			}
 			if(p_buf->VerTag <= -17) {
-				const PPID gds_cls_id = *(PPID *)p;
+				const PPID gds_cls_id = *reinterpret_cast<const PPID *>(p);
 				Ep.Z();
 				if(gds_cls_id) {
 					ExtParams_Before24 _ep;
@@ -899,7 +901,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				}
 			}
 			else if(p_buf->VerTag <= -16) {
-				const PPID gds_cls_id = *(PPID *)p;
+				const PPID gds_cls_id = *reinterpret_cast<const PPID *>(p);
 				Ep.Z();
 				if(gds_cls_id) {
 					//
@@ -914,7 +916,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 						RealRange DimY;
 						RealRange DimZ;
 					};
-					ExtParams_16 * p_ep16 = (ExtParams_16 *)p;
+					const ExtParams_16 * p_ep16 = reinterpret_cast<const ExtParams_16 *>(p);
 					Ep.GdsClsID   = p_ep16->GdsClsID;
 					Ep.KindList   = p_ep16->KindID;
 					Ep.AddObjList = p_ep16->AddObjID;
@@ -928,12 +930,12 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 					p += sizeof(Ep.GdsClsID);
 			}
 			if(p_buf->VerTag <= -19) {
-				p = ReadObjIdListFilt(p, LocList);
-				p = ReadObjIdListFilt(p, BrandList);
+				p = PTR8C(ReadObjIdListFilt(p, LocList));
+				p = PTR8C(ReadObjIdListFilt(p, BrandList));
 			}
 			ZDELETE(P_SjF);
 			if(p_buf->VerTag <= -21) {
-				int32  sjf_ver = *(int32 *)p;
+				int32  sjf_ver = *reinterpret_cast<const int32 *>(p);
 				p += sizeof(int32);
 				if(sjf_ver) {
 					P_SjF = new SysJournalFilt;
@@ -943,21 +945,22 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 					CPY(UserID, PPID);
 					CPY(Flags, long);
 #undef CPY
-					uint16 c = *(uint16 *)p; p += sizeof(uint16);
+					uint16 c = *reinterpret_cast<const uint16 *>(p); 
+					p += sizeof(uint16);
 					for(uint16 i = 0; i < c; i++) {
-						P_SjF->ActionIDList.add(*(int32 *)p);
+						P_SjF->ActionIDList.add(*reinterpret_cast<const int32 *>(p));
 						p += sizeof(int32);
 					}
 				}
 			}
 			if(p_buf->VerTag <= -22) {
-				int32  tf_ver = *(int32 *)p;
+				int32  tf_ver = *reinterpret_cast<const int32 *>(p);
 				p += sizeof(int32);
 				if(tf_ver) {
 					P_TagF = new TagFilt;
-					P_TagF->Flags = *(int32 *)p;
+					P_TagF->Flags = *reinterpret_cast<const int32 *>(p);
 					p += sizeof(int32);
-					uint32 s = *(uint32 *)p;
+					uint32 s = *reinterpret_cast<const uint32 *>(p);
 					p += sizeof(uint32);
 
 					SBuffer temp_ser_buf;
@@ -967,11 +970,11 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				}
 			}
 			if(p_buf->VerTag <= -23) {
-				p = ReadObjIdListFilt(p, BrandOwnerList);
+				p = PTR8C(ReadObjIdListFilt(p, BrandOwnerList));
 			}
 		}
 		else {
-			struct GoodsFilt_0 {
+			const struct GoodsFilt_0 {
 				PPID   GrpID;       //
 				PPID   ManufID;     //
 				PPID   UnitID;      //
@@ -979,7 +982,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				PPID   SupplID;     // 20 bytes
 				PPID   GoodsTypeID; //
 				PPID   PhUnitID;    // 28 bytes
-			} * p_old_data = (GoodsFilt_0*)p_buf;
+			} * p_old_data = reinterpret_cast<const GoodsFilt_0 *>(p_buf);
 
 			GrpID       = p_old_data->GrpID;
 			ManufID     = p_old_data->ManufID;

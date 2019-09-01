@@ -171,15 +171,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_openssl.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_openssl_bio.c">
-			</File>
-			<File
-				RelativePath="..\Osf\rabbitmq-c\amqp_openssl_hostname_validation.c">
-			</File>
-			<File
 				RelativePath="..\Osf\rabbitmq-c\ppamqp.cpp">
 			</File>
 		</Filter>

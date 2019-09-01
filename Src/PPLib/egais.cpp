@@ -2871,7 +2871,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											qtty_fmt = MKSFMTD(0, 3, 0);
 										}
 										w_p.PutInner(SXml::nst("awr", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
-										w_p.PutInner(SXml::nst("awr", "SumSale"), EncText(temp_buf.Z().Cat(item_amount, MKSFMTD(0, 2, 0)))); // @v10.3.10
+										if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V3) { // @v10.5.4
+											w_p.PutInner(SXml::nst("awr", "SumSale"), EncText(temp_buf.Z().Cat(item_amount, MKSFMTD(0, 2, 0)))); // @v10.3.10
+										}
 										// @v9.8.11 {
 										/* @v9.9.1 Не туда воткнул блок!
 										if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V2 && p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0) {

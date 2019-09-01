@@ -4361,9 +4361,7 @@ int PPALDD_CCheckView::NextIteration(PPIterID iterId)
 	I.GSCardID  = 0;
 	I.CcAgentID = item.AgentID; // @v9.3.0
 	const int _grp = static_cast<const CCheckFilt *>(p_v->GetBaseFilt())->Grp;
-	if(_grp == CCheckFilt::gCard)
-		I.GSCardID = item.SCardID;
-	else if(_grp == CCheckFilt::gAgentGoodsSCSer) // @v9.6.6
+	if(oneof3(_grp, CCheckFilt::gCard, CCheckFilt::gAgentGoodsSCSer, CCheckFilt::gGoodsCard)) // @v10.5.4 CCheckFilt::gGoodsCard
 		I.GSCardID = item.SCardID;
 	STRNSCPY(I.GrpngItemText, item.G_Text_);
 	PPWaitPercent(p_v->GetCounter());

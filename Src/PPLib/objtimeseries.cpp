@@ -672,12 +672,25 @@ int SLAPI PPViewTimeSeries::EditBaseFilt(PPBaseFilt * pBaseFilt)
 
 int SLAPI PPViewTimeSeries::InitIteration()
 {
-	return 0;
+	int    ok = 1;
+	if(!P_DsList) {
+		THROW(MakeList());
+	}
+	CALLPTRMEMB(P_DsList, setPointer(0));
+	CATCHZOK
+	return ok;
 }
 
-int FASTCALL PPViewTimeSeries::NextIteration(TimeSeriesViewItem *)
+int FASTCALL PPViewTimeSeries::NextIteration(TimeSeriesViewItem * pItem)
 {
-	return 0;
+	int    ok = -1;
+	while(ok < 0 && P_DsList && P_DsList->getPointer() < P_DsList->getCount()) {
+		const BrwItem * p_item = static_cast<const BrwItem *>(P_DsList->at(P_DsList->getPointer()));
+		if(p_item && Obj.Search(p_item->ID, pItem) > 0)
+			ok = 1;
+		P_DsList->incPointer();
+	}
+	return ok;
 }
 
 //static 
@@ -826,13 +839,151 @@ int SLAPI PPViewTimeSeries::OnExecBrowser(PPViewBrowser *)
 	return -1;
 }
 
+int SLAPI PPViewTimeSeries::Detail(const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	if(id) {
+		TimSerDetailFilt filt;
+		filt.TsID = id;
+		PPView::Execute(PPVIEW_TIMSERDETAIL, &filt, /*PPView::exefModeless*/0, 0);
+	}
+	return ok;
+}
+
+enum {
+	removetimeseriesStrategies = 0x0001,
+	removetimeseriesTimSer     = 0x0002,
+	removetimeseriesCompletely = 0x0004,
+};
+
+static int CallRemoveTimeSeriesDialog(const char * pWarnTextSign, long * pData)
+{
+	class RemoveTimeSeriesDialog : public TDialog {
+	public:
+		RemoveTimeSeriesDialog(const char * pWarnTextSign) : TDialog(DLG_RMVTIMSER), Data(0)
+		{
+			if(pWarnTextSign) {
+				SString text_buf;
+				if(PPLoadString(pWarnTextSign, text_buf)) {
+					setStaticText(CTL_RMVTIMSER_WARN, text_buf);
+				}
+			}
+		}
+		int    setDTS(const long * pData)
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			AddClusterAssoc(CTL_RMVTIMSER_WHAT, 0, removetimeseriesStrategies);
+			AddClusterAssoc(CTL_RMVTIMSER_WHAT, 1, removetimeseriesTimSer);
+			AddClusterAssoc(CTL_RMVTIMSER_WHAT, 2, removetimeseriesCompletely);
+			SetClusterData(CTL_RMVTIMSER_WHAT, Data);
+			DisableClusterItem(CTL_RMVTIMSER_WHAT, 0, Data & removetimeseriesCompletely);
+			DisableClusterItem(CTL_RMVTIMSER_WHAT, 1, Data & removetimeseriesCompletely);
+			return ok;
+		}
+		int    getDTS(long * pData)
+		{
+			int    ok = 1;
+			GetClusterData(CTL_RMVTIMSER_WHAT, &Data);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_RMVTIMSER_WHAT)) {
+				const long preserve_data = Data;
+				GetClusterData(CTL_RMVTIMSER_WHAT, &Data);
+				if(preserve_data != Data) {
+					DisableClusterItem(CTL_RMVTIMSER_WHAT, 0, Data & removetimeseriesCompletely);
+					DisableClusterItem(CTL_RMVTIMSER_WHAT, 1, Data & removetimeseriesCompletely);
+					if(Data & removetimeseriesCompletely) {
+						Data |= (removetimeseriesStrategies|removetimeseriesTimSer);
+					}
+				}
+				clearEvent(event);
+			}
+		}
+		long   Data;
+	};
+	DIALOG_PROC_BODY_P1(RemoveTimeSeriesDialog, pWarnTextSign, pData);
+}
+
+int SLAPI PPViewTimeSeries::DeleteItem(PPID id)
+{
+	int    ok = -1;
+	long   flags = 0;
+	PPTimeSeries rec;
+	if(id && Obj.Search(id, &rec) > 0) {
+		if(CallRemoveTimeSeriesDialog(0, &flags) > 0) {
+			PPTransaction tra(1);
+			THROW(tra);
+			if(flags & removetimeseriesCompletely) {
+				THROW(Obj.PutPacket(&id, 0, 0));
+			}
+			else {
+				if(flags & removetimeseriesStrategies) {
+					THROW(Obj.PutStrategies(id, PPObjTimeSeries::sstAll, 0, 0));
+					THROW(Obj.PutStrategies(id, PPObjTimeSeries::sstSelection, 0, 0));
+				}
+				if(flags & removetimeseriesTimSer) {
+					THROW(Obj.SetTimeSeries(id, 0, 0));
+				}
+			}
+			THROW(tra.Commit());
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
+int SLAPI PPViewTimeSeries::DeleteAll()
+{
+	int    ok = -1;
+	long   flags = 0;
+	PPTimeSeries rec;
+	if(CallRemoveTimeSeriesDialog("removetimeseries_warn", &flags) > 0) {
+		TimeSeriesViewItem item;
+		PPTransaction tra(1);
+		THROW(tra);
+		for(InitIteration(); NextIteration(&item) > 0;) {
+			if(flags & removetimeseriesCompletely) {
+				THROW(Obj.PutPacket(&item.ID, 0, 0));
+			}
+			else {
+				if(flags & removetimeseriesStrategies) {
+					THROW(Obj.PutStrategies(item.ID, PPObjTimeSeries::sstAll, 0, 0));
+					THROW(Obj.PutStrategies(item.ID, PPObjTimeSeries::sstSelection, 0, 0));
+				}
+				if(flags & removetimeseriesTimSer) {
+					THROW(Obj.SetTimeSeries(item.ID, 0, 0));
+				}
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 int SLAPI PPViewTimeSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	int    ok = -2;
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	const  PPID preserve_id = id;
+	if(ppvCmd == PPVCMD_DELETEITEM) { // Перехват обработки команды до PPView::ProcessCommand
+		ok = DeleteItem(id);
+	}
+	else {
+		ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	}
 	if(ok == -2) {
 		switch(ppvCmd) {
+			case PPVCMD_DELETEALL:
+				ok = DeleteAll();
+				break;
 			case PPVCMD_CONFIG:
 				ok = -1;
 				if(PPObjTimeSeries::EditConfig(0) > 0) {
@@ -904,7 +1055,7 @@ int SLAPI PPObjTimeSeries::Export(PPID id)
 						ut.Get(t);
 						ts.GetValue(j, vec_idx, &v);
 						long td = j ? diffdatetimesec(t, t_prev) : 0;
-						line_buf.Z().Cat(t, DATF_ISO8601, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
+						line_buf.Z().Cat(t, DATF_ISO8601|DATF_CENTURY, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
 						f_out.WriteLine(line_buf.CR());
 						t_prev = t;
 					}
@@ -4748,3 +4899,204 @@ int SLAPI PPObjTimeSeries::TryStrategies(PPID id)
 		PPError();
 	return ok;
 }
+//
+// 
+//
+TimSerDetailViewItem::TimSerDetailViewItem() : ItemIdx(0)
+{
+}
+
+IMPLEMENT_PPFILT_FACTORY(TimSerDetail); SLAPI TimSerDetailFilt::TimSerDetailFilt() : PPBaseFilt(PPFILT_TIMSERDETAIL, 0, 0)
+{
+	SetFlatChunk(offsetof(TimSerDetailFilt, ReserveStart),
+		offsetof(TimSerDetailFilt, Reserve)-offsetof(TimSerDetailFilt, ReserveStart)+sizeof(Reserve));
+	Init(1, 0);
+}
+
+SLAPI PPViewTimSerDetail::PPViewTimSerDetail() : PPView(0, &Filt, PPVIEW_TIMSERDETAIL), P_DsList(0)
+{
+	ImplementFlags |= (implBrowseArray);
+}
+
+SLAPI PPViewTimSerDetail::~PPViewTimSerDetail()
+{
+	ZDELETE(P_DsList);
+}
+
+int SLAPI PPViewTimSerDetail::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	Ts.Z();
+	CALLPTRMEMB(P_DsList, clear());
+	if(Filt.TsID) {
+		Obj.GetTimeSeries(Filt.TsID, Ts);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPViewTimSerDetail::MakeList()
+{
+	int    ok = 1;
+	PPTimeSeries item;
+	if(P_DsList)
+		P_DsList->clear();
+	else {
+		THROW_SL(P_DsList = new SArray(sizeof(uint)));
+	}
+	for(uint i = 0; i < Ts.GetCount(); i++) {
+		uint idx = i+1;
+		THROW_SL(P_DsList->insert(&idx));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPViewTimSerDetail::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 1;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData) - 1;
+		int    r = 0;
+		if(pBlk->ColumnN == 0)
+			pBlk->Set(static_cast<int32>(idx));
+		else {
+			if(pBlk->ColumnN == 1) {
+				SUniTime ut;
+				LDATETIME dtm;
+				Ts.GetTime(idx, &ut);
+				ut.Get(dtm);
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				r_temp_buf.Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+				pBlk->Set(r_temp_buf);
+			}
+			else if(pBlk->ColumnN == 2) {
+				int32 diffsec = 0;
+				if(idx > 0) {
+					SUniTime ut;
+					LDATETIME dtm;
+					LDATETIME dtm2;
+					Ts.GetTime(idx, &ut);
+					ut.Get(dtm);
+					Ts.GetTime(idx-1, &ut);
+					ut.Get(dtm2);
+					diffsec = diffdatetimesec(dtm, dtm2);
+				}
+				pBlk->Set(diffsec);
+			}
+			else if(pBlk->ColumnN > 2 && pBlk->ColumnN < static_cast<int>(Ts.GetValueVecCount()+3)) {
+				double value = 0.0;
+				Ts.GetValue(idx, pBlk->ColumnN-3, &value);
+				pBlk->Set(value);
+			}
+		}
+	}
+	return ok;
+}
+
+//static 
+int FASTCALL PPViewTimSerDetail::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewTimSerDetail * p_v = static_cast<PPViewTimSerDetail *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+
+void SLAPI PPViewTimSerDetail::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		STimeSeries d;
+		const uint tsvc = Ts.GetValueVecCount();
+		if(tsvc) {
+			SString symb_buf;
+			uint   fld_no = 2;
+			for(uint i = 0; i < tsvc; i++) {
+				int    fxprec = 0;
+				TYPEID typ = 0;
+				if(Ts.GetValueVecParam(i, &typ, &symb_buf, &fxprec, 0)) {
+					const int  prec = (GETSTYPE(typ) == S_FLOAT) ? 5 : fxprec;
+					long fmt = MKSFMTD(0, prec, 0);
+					fld_no++;
+					pBrw->InsColumn(-1, symb_buf, fld_no, T_DOUBLE, fmt, BCO_USERPROC);
+				}
+			}
+		}
+		pBrw->SetDefUserProc(PPViewTimSerDetail::GetDataForBrowser, this);
+		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
+}
+
+int SLAPI PPViewTimSerDetail::OnExecBrowser(PPViewBrowser * pBrw)
+{
+	return -1;
+}
+
+int SLAPI PPViewTimSerDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	const  PPID preserve_id = id;
+	if(ok == -2) {
+		switch(ppvCmd) {
+			case PPVCMD_EXPORT:
+				ok = -1;
+				//Obj.Export(id);
+				break;
+			case PPVCMD_REFRESH:
+				ok = 1;
+				break;
+		}
+	}
+	if(ok > 0) {
+		MakeList();
+		if(pBrw) {
+			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+			if(p_def) {
+				SArray * p_array = new SArray(*P_DsList);
+				p_def->setArray(p_array, 0, 1);
+				pBrw->setRange(p_array->getCount());
+				uint   temp_pos = 0;
+				long   update_pos = -1;
+				if(preserve_id > 0 && P_DsList->lsearch(&preserve_id, &temp_pos, CMPF_LONG))
+					update_pos = temp_pos;
+				if(update_pos >= 0)
+					pBrw->go(update_pos);
+				else if(update_pos == MAXLONG)
+					pBrw->go(p_array->getCount()-1);
+			}
+			pBrw->Update();
+		}
+	}
+	return ok;
+}
+
+SArray * SLAPI PPViewTimSerDetail::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	uint   brw_id = BROWSER_TIMSERDETAIL;
+	SArray * p_array = 0;
+	THROW(MakeList());
+	p_array = new SArray(*P_DsList);
+	CATCH
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, brw_id);
+	return p_array;
+}
+
+int SLAPI PPViewTimSerDetail::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	int    ok = -1;
+	return ok;
+}
+
+int SLAPI PPViewTimSerDetail::InitIteration()
+{
+	return -1;
+}
+
+int FASTCALL PPViewTimSerDetail::NextIteration(TimSerDetailViewItem * pItem)
+{
+	return -1;
+}
+// } @construction

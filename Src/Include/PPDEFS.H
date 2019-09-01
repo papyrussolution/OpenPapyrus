@@ -3366,6 +3366,7 @@
 	#define CTL_DBDIV_CNT                (8 + WINDOWS_ID_BIAS)
 	#define CTL_DBDIV_ACCLIST            (9 + WINDOWS_ID_BIAS)
 	#define CTL_DBDIV_UUID               (10 + WINDOWS_ID_BIAS)
+	#define CTL_DBDIV_MQBEXCHG           (11 + WINDOWS_ID_BIAS)
 #define DLG_SELFSYNC              237
 	#define CTL_SELFSYNC_DBDIV           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELFSYNC_DBDIV        (2 + WINDOWS_ID_BIAS)
@@ -10714,6 +10715,9 @@
 	#define CTL_MQCCFG_USER           (2 + WINDOWS_ID_BIAS)
 	#define CTL_MQCCFG_SECRET         (3 + WINDOWS_ID_BIAS)
 	#define CTL_MQCCFG_DATADOMAIN     (4 + WINDOWS_ID_BIAS)
+#define DLG_RMVTIMSER             1371
+	#define CTL_RMVTIMSER_WHAT        (1 + WINDOWS_ID_BIAS)
+	#define CTL_RMVTIMSER_WARN        (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

@@ -2387,7 +2387,7 @@ SString & FASTCALL SString::CatDivConditionally(int c, int addSpaces, bool condi
 
 SString & FASTCALL SString::CatDivIfNotEmpty(int c, int addSpaces)
 {
-	return CatDivConditionally(c, addSpaces, Strip().NotEmpty());
+	return CatDivConditionally(c, addSpaces, LOGIC(Strip().NotEmpty()));
 }
 
 SString & FASTCALL SString::Cat(long i)

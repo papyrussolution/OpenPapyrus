@@ -37,17 +37,14 @@
 static void __ptw32_cancel_self(void)
 {
 	__ptw32_throw(__PTW32_EPS_CANCEL);
-
 	/* Never reached */
 }
 
 static void CALLBACK __ptw32_cancel_callback(ULONG_PTR unused)
 {
 	__ptw32_throw(__PTW32_EPS_CANCEL);
-
 	/* Never reached */
 }
-
 /*
  * __ptw32_Registercancellation() -
  * Must have args of same type as QueueUserAPCEx because this function

@@ -2480,7 +2480,7 @@ int PPVer2HtmlPrcssr::Run()
 	return ok;
 }
 
-int SLAPI PPVer2Html() // @construction
+int SLAPI PPVer2Html()
 {
 	int    ok = 1;
 	PPVer2HtmlPrcssr::Param param;

@@ -112,7 +112,6 @@
     <ClCompile Include="..\SLib\winreg.cpp" />
     <ClCompile Include="..\Slib\winsrvc.cpp" />
     <ClCompile Include="..\SLib\wmi.cpp" />
-    <ClCompile Include="..\Slib\xtagpars.cpp" />
     <ClCompile Include="..\SLib\suc.cpp" />
     <ClCompile Include="..\SLib\curl-parsedate.cpp" />
     <ClCompile Include="..\SLib\uchardet.cpp" />
@@ -152,6 +151,7 @@
     <ClCompile Include="..\SLib\sclipboard.cpp" />
     <ClCompile Include="..\SLib\tlayout.cpp" />
     <ClCompile Include="..\SLib\sxmlad.cpp" />
+    <ClCompile Include="..\SLib\samqp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -200,6 +200,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\fann2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\amqp.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

@@ -132,7 +132,7 @@ static int rand_add(const void * buf, int num, double add)
 	 */
 
 	m = EVP_MD_CTX_new();
-	if(m == NULL)
+	if(!m)
 		goto err;
 
 	if(!RUN_ONCE(&rand_lock_init, do_rand_lock_init))
@@ -314,7 +314,7 @@ static int rand_bytes(uchar * buf, int num, int pseudo)
 		return 1;
 
 	m = EVP_MD_CTX_new();
-	if(m == NULL)
+	if(!m)
 		goto err_mem;
 
 	/* round upwards to multiple of MD_DIGEST_LENGTH/2 */

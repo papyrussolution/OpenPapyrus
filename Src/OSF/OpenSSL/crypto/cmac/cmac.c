@@ -137,7 +137,7 @@ int CMAC_Init(CMAC_CTX * ctx, const void * key, size_t keylen,
 
 int CMAC_Update(CMAC_CTX * ctx, const void * in, size_t dlen)
 {
-	const uchar * data = (const uchar *)in;
+	const uchar * data = static_cast<const uchar *>(in);
 	size_t bl;
 	if(ctx->nlast_block == -1)
 		return 0;
@@ -146,8 +146,7 @@ int CMAC_Update(CMAC_CTX * ctx, const void * in, size_t dlen)
 	bl = EVP_CIPHER_CTX_block_size(ctx->cctx);
 	/* Copy into partial block if we need to */
 	if(ctx->nlast_block > 0) {
-		size_t nleft;
-		nleft = bl - ctx->nlast_block;
+		size_t nleft = bl - ctx->nlast_block;
 		if(dlen < nleft)
 			nleft = dlen;
 		memcpy(ctx->last_block + ctx->nlast_block, data, nleft);

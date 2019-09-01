@@ -1249,7 +1249,7 @@ void PPLogMsgSession::Run()
 						uint32  FalseNonEmptyEvSwitchCount; // Количество срабатываний события PPLogMsgQueue::NonEmptyEv при которых очередь была пуста
 					*/
 					P_Queue->GetStat(S);
-					diag_msg_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
+					diag_msg_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
                         CatEq("max count", S.MaxLenght).Space().CatEq("max size", S.MaxStrPoolSize).Space().
                         CatEq("false switch count", S.FalseNonEmptyEvSwitchCount);
 					DS.SetThreadNotification(PPSession::stntMessage, diag_msg_buf);

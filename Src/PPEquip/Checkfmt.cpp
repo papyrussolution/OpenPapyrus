@@ -2480,7 +2480,7 @@ SLTEST_R(PPSlipFormatLexer)
 	//result._CATFLD((long)fmt.Paper);
 	result.Cat("ZoneList").Space().CatChar('{').CR();
 	for(uint i = 0; i < fmt.ZoneList.getCount(); i++) {
-		PPSlipFormatZone * p_zone = fmt.ZoneList.at(i);
+		PPSlipFormat::Zone * p_zone = fmt.ZoneList.at(i);
 		result._CATFLD((long)p_zone->Kind);
 		result.Cat("EntryList").Space().CatChar('{').CR();
 		for(uint j = 0; j < p_zone->getCount(); j++) {
@@ -2559,13 +2559,13 @@ SLTEST_R(PPSlipFormatOutput)
 				continue;
 		fmt.SetSource(&pack);
 		PPSlipFormat::Iter iter;
-		if(fmt.InitIteration(PPSlipFormatZone::kHeader, &iter))
+		if(fmt.InitIteration(PPSlipFormat::Zone::kHeader, &iter))
 			while(fmt.NextIteration(&iter, line_buf) > 0)
 				f_out.WriteLine(line_buf.CR());
-		if(fmt.InitIteration(PPSlipFormatZone::kDetail, &iter))
+		if(fmt.InitIteration(PPSlipFormat::Zone::kDetail, &iter))
 			while(fmt.NextIteration(&iter, line_buf) > 0)
 				f_out.WriteLine(line_buf.CR());
-		if(fmt.InitIteration(PPSlipFormatZone::kFooter, &iter))
+		if(fmt.InitIteration(PPSlipFormat::Zone::kFooter, &iter))
 			while(fmt.NextIteration(&iter, line_buf) > 0)
 				f_out.WriteLine(line_buf.CR());
 		line_buf.Z().CatCharN('*', 32).CR();

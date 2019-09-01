@@ -1,6 +1,6 @@
 // PATH.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -91,7 +91,7 @@ PPPaths & FASTCALL PPPaths::operator = (const PPPaths & src)
 
 size_t SLAPI PPPaths::Size() const
 {
-	return P ? (sizeof(PathData) + (size_t)P->TailSize) : 0;
+	return P ? (sizeof(PathData) + P->TailSize) : 0;
 }
 
 int SLAPI PPPaths::Resize(size_t sz)
@@ -136,7 +136,7 @@ int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 	rBuf.Z();
 	if(P) {
 		for(uint s = 0; s < P->TailSize;) {
-			const PathItem * p = (const PathItem*)(((const char *)(P + 1)) + s);
+			const PathItem * p = reinterpret_cast<const PathItem *>(PTR8C(P + 1) + s);
 			if(p->ID == pathID) {
 				ASSIGN_PTR(pFlags, p->Flags);
 				return p->GetPath(rBuf).NotEmpty() ? 1 : -1;
@@ -151,7 +151,7 @@ int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
 {
 	int    ok = 1;
-	char * cp = 0;
+	uint8 * cp = 0;
 	size_t hs = sizeof(PathData);
 	size_t ts = 0;
 	size_t s  = 0;
@@ -159,17 +159,17 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 	PathItem * pi = 0;
 	if(P == 0)
 		THROW(Resize(sizeof(PathData)));
-	cp = (char *)(P + 1);
+	cp = PTR8(P + 1);
 	hs = sizeof(PathData);
 	ts = (size_t)P->TailSize;
 	THROW(pi = new(pBuf) PathItem(pathID, flags, pBuf));
 	while(s < ts && !found) {
-		PathItem * p = (PathItem*)(cp + s);
+		PathItem * p = reinterpret_cast<PathItem *>(cp + s);
 		const size_t os = p->Size;
 		if(p->ID == 0 || os == 0) {
 			//
-			// Такая ситуация встречаться не должна, но на всякий случай обработать ее стоит.
-			// В этом случае будем считать, что достигли конца структуры и не нашли заданный путь.
+			// РўР°РєР°СЏ СЃРёС‚СѓР°С†РёСЏ РІСЃС‚СЂРµС‡Р°С‚СЊСЃСЏ РЅРµ РґРѕР»Р¶РЅР°, РЅРѕ РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РµРµ СЃС‚РѕРёС‚.
+			// Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ Р±СѓРґРµРј СЃС‡РёС‚Р°С‚СЊ, С‡С‚Рѕ РґРѕСЃС‚РёРіР»Рё РєРѕРЅС†Р° СЃС‚СЂСѓРєС‚СѓСЂС‹ Рё РЅРµ РЅР°С€Р»Рё Р·Р°РґР°РЅРЅС‹Р№ РїСѓС‚СЊ.
 			//
 			P->TailSize = s;
 			ts = (size_t)P->TailSize;
@@ -195,13 +195,13 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 					//
 					if(pi->Size > os) {
 						THROW(Resize(hs + ts + pi->Size - os));
-						cp = (char *)(P + 1);
+						cp = PTR8(P + 1);
 					}
 					memmove(cp + s + pi->Size, cp + s + os, ts - s - os);
 					memmove(cp + s, pi, pi->Size);
 					if(pi->Size < os) {
 						THROW(Resize(hs + ts + pi->Size - os));
-						cp = (char *)(P + 1);
+						cp = PTR8(P + 1);
 					}
 				}
 			}
@@ -212,7 +212,7 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 	}
 	if(!found && pBuf && pBuf[0]) {
 		THROW(Resize(hs + ts + pi->Size));
-		cp = (char *)(P + 1);
+		cp = PTR8(P + 1);
 		memmove(cp + s, pi, pi->Size);
 	}
 	CATCHZOK
@@ -239,7 +239,7 @@ int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 	if(pathID == PPPATH_DRIVE) {
 		if(rBuf.Empty()) {
 			// @v5.5.9 rBuf.CatChar('A'+getdisk()).CatChar(':');
-			; // @v5.5.9 Видимо, не следует подставлять текущий диск, ибо возможно указание относительных каталогов
+			; // @v5.5.9 Р’РёРґРёРјРѕ, РЅРµ СЃР»РµРґСѓРµС‚ РїРѕРґСЃС‚Р°РІР»СЏС‚СЊ С‚РµРєСѓС‰РёР№ РґРёСЃРє, РёР±Рѕ РІРѕР·РјРѕР¶РЅРѕ СѓРєР°Р·Р°РЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹С… РєР°С‚Р°Р»РѕРіРѕРІ
 		}
 		else if(rBuf.Len() == 1)
 			rBuf.CatChar(':');
@@ -248,11 +248,11 @@ int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 		ps.Split(rBuf.SetLastSlash());
 		if(!(ps.Flags & SPathStruc::fDrv)) {
 			//
-			// Обработка неполного каталога
+			// РћР±СЂР°Р±РѕС‚РєР° РЅРµРїРѕР»РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
 			//
 			if(pathID == PPPATH_ROOT) {
 				//
-				// Если извлекаем корневой каталог, то остается добавить только драйвер
+				// Р•СЃР»Рё РёР·РІР»РµРєР°РµРј РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі, С‚Рѕ РѕСЃС‚Р°РµС‚СЃСЏ РґРѕР±Р°РІРёС‚СЊ С‚РѕР»СЊРєРѕ РґСЂР°Р№РІРµСЂ
 				//
 				THROW(Get(0, 0, PPPATH_DRIVE, ps.Drv)); // @recursion
 				if(ps.Drv.NotEmpty()) {
@@ -264,20 +264,20 @@ int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 			}
 			else {
 				//
-				// Если извлекаем что-то кроме корня или драйвера, то
-				// два случая:
+				// Р•СЃР»Рё РёР·РІР»РµРєР°РµРј С‡С‚Рѕ-С‚Рѕ РєСЂРѕРјРµ РєРѕСЂРЅСЏ РёР»Рё РґСЂР°Р№РІРµСЂР°, С‚Рѕ
+				// РґРІР° СЃР»СѓС‡Р°СЏ:
 				//
 				if(ps.Flags & SPathStruc::fDir && oneof2(ps.Dir.C(0), '/', '\\')) {
 					//
-					// 1. Если путь rBuf содержит каталог и начинается с '\', то
-					//    добавляем к имени спереди только драйвер
+					// 1. Р•СЃР»Рё РїСѓС‚СЊ rBuf СЃРѕРґРµСЂР¶РёС‚ РєР°С‚Р°Р»РѕРі Рё РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ '\', С‚Рѕ
+					//    РґРѕР±Р°РІР»СЏРµРј Рє РёРјРµРЅРё СЃРїРµСЂРµРґРё С‚РѕР»СЊРєРѕ РґСЂР°Р№РІРµСЂ
 					//
 					THROW(Get(0, 0, PPPATH_DRIVE, ps.Dir)); // @recursion
 					ps.Dir.RmvLastSlash();
 				}
 				else {
 					//
-					// 2. В противном случае добавляем к имени спереди весь корневой каталог
+					// 2. Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РґРѕР±Р°РІР»СЏРµРј Рє РёРјРµРЅРё СЃРїРµСЂРµРґРё РІРµСЃСЊ РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі
 					//
 					THROW(Get(0, 0, PPPATH_ROOT, ps.Dir)); // @recursion
 				}
@@ -300,9 +300,9 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	size_t sz = 2048;
 	uint   s;
 	//
-	// Каталоги TEMP, LOG, PACK могут быть устанавлены до считывания из базы данных.
-	// В этом случае не допускаем переписывания уже установленных значений теми, что указаны
-	// в конфигурации.
+	// РљР°С‚Р°Р»РѕРіРё TEMP, LOG, PACK РјРѕРіСѓС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅР°РІР»РµРЅС‹ РґРѕ СЃС‡РёС‚С‹РІР°РЅРёСЏ РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С….
+	// Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РЅРµ РґРѕРїСѓСЃРєР°РµРј РїРµСЂРµРїРёСЃС‹РІР°РЅРёСЏ СѓР¶Рµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ С‚РµРјРё, С‡С‚Рѕ СѓРєР°Р·Р°РЅС‹
+	// РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё.
 	//
 	SString temp_path;
 	SString log_path;
@@ -333,8 +333,8 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 		}
 		if(oneof2(P->SecurObj, PPOBJ_USRGRP, PPOBJ_USR)) {
 			//
-			// Необходимо унаследовать от более высоких уровней иерархии
-			// пути, которые не определены на заданном уровне (Рекурсия)
+			// РќРµРѕР±С…РѕРґРёРјРѕ СѓРЅР°СЃР»РµРґРѕРІР°С‚СЊ РѕС‚ Р±РѕР»РµРµ РІС‹СЃРѕРєРёС… СѓСЂРѕРІРЅРµР№ РёРµСЂР°СЂС…РёРё
+			// РїСѓС‚Рё, РєРѕС‚РѕСЂС‹Рµ РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹ РЅР° Р·Р°РґР°РЅРЅРѕРј СѓСЂРѕРІРЅРµ (Р РµРєСѓСЂСЃРёСЏ)
 			//
 			PPPaths temp;
 			PPID   prev_type = (securType == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
@@ -343,7 +343,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 			uint prev_s = UINT_MAX;
 			for(s = 0; s < temp.P->TailSize; s += p->Size) {
 				//
-				// Защита от бесконечного цикла {
+				// Р—Р°С‰РёС‚Р° РѕС‚ Р±РµСЃРєРѕРЅРµС‡РЅРѕРіРѕ С†РёРєР»Р° {
 				//
 				if(s == prev_s)
 					break;
@@ -360,7 +360,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	else
 		Empty();
 	//
-	// Восстановление значений сохраненных ранее TEMP и LOG каталогов
+	// Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ Р·РЅР°С‡РµРЅРёР№ СЃРѕС…СЂР°РЅРµРЅРЅС‹С… СЂР°РЅРµРµ TEMP Рё LOG РєР°С‚Р°Р»РѕРіРѕРІ
 	//
 	if(temp_path.NotEmptyS())
 		SetPath(PPPATH_TEMP, temp_path, 0, 1);
@@ -393,7 +393,7 @@ int SLAPI PPPaths::Put(PPID securType, PPID securID)
 		memzero(P->Reserve1, sizeof(P->Reserve2));
 		P->Reserve2 = 0;
 		for(uint s = 0; s < P->TailSize;) {
-			PathItem * p = (PathItem*)(((char *)(P + 1)) + s);
+			PathItem * p = reinterpret_cast<PathItem *>(PTR8(P + 1) + s);
 			if(!p->Path() || p->Flags & PATHF_INHERITED) {
 				THROW(SetPath(p->ID, 0, 0, 1));
 			}
@@ -466,7 +466,6 @@ int FASTCALL PPGetFilePath(PPID pathID, uint fileNameID, SString & rBuf)
 
 SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf)
 {
-	// PPGetSubStr(PPTXT_FILENAMES, fnameID, rBuf);
 	PPLoadText(fnameID, rBuf);
 	return rBuf;
 }
@@ -478,14 +477,13 @@ SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, l
 	return MakeTempFileName(path.SetLastSlash(), pPrefix, pExt, pStart, rBuf);
 }
 
-int SLAPI PPRemoveFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount)
+int SLAPI PPRemoveFiles(const SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount)
 {
 	int    ok = -1;
 	uint   succ_count = 0;
 	uint   err_count = 0;
 	if(pFileList) {
 		SString file_path;
-		//for(uint i = 0; pFileList->Enum(&i, 0, &file_path);) {
 		for(uint i = 0; i < pFileList->GetCount(); i++) {
 			if(pFileList->Get(i, 0, &file_path)) {
 				if(SFile::Remove(file_path))
@@ -503,16 +501,14 @@ int SLAPI PPRemoveFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, uin
 
 int SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount)
 {
-	//PPFileNameArray fary;
 	SFileEntryPool fep;
 	SString wildcard;
 	wildcard.CatChar('*');
 	if(pExt && pExt[0] != '.')
 		wildcard.Dot();
 	wildcard.Cat(pExt);
-	//fary.Scan(pSrc, wildcard);
 	fep.Scan(pSrc, wildcard, 0);
-	return PPRemoveFiles(&/*fary*/fep, pSuccCount, pErrCount);
+	return PPRemoveFiles(&fep, pSuccCount, pErrCount);
 }
 //
 //

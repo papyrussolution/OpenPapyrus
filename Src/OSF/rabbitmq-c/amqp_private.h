@@ -36,9 +36,6 @@
  */
 #define __STDC_LIMIT_MACROS
 #include <slib.h>
-//#ifdef HAVE_CONFIG_H
-	//#include "config.h"
-//#endif
 // config.h {
 #ifndef __cplusplus
 	#define inline __inline
@@ -51,14 +48,7 @@
 #define AMQ_COPYRIGHT "Copyright (c) 2007-2014 VMWare Inc, Tony Garnock-Jones, and Alan Antonuk."
 #include "amqp.h"
 #include <openssl/ssl.h>
-//#include <openssl/err.h>
-//#include <openssl/bn.h>
-//#include <openssl/conf.h>
-//#include <openssl/bio.h>
 #include <openssl/engine.h>
-//#include <openssl/evp.h>
-//#include <openssl/rsa.h>
-//#include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include "pthread.h" // @sobolev
 
@@ -76,7 +66,7 @@
 	#include <arpa/inet.h>
 	#include <sys/uio.h>
 #endif
-/* GCC attributes */
+// GCC attributes 
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
 	#define AMQP_NORETURN __attribute__((__noreturn__))
 	#define AMQP_UNUSED __attribute__((__unused__))
@@ -250,7 +240,7 @@ amqp_pool_t * amqp_get_channel_pool(amqp_connection_state_t state, amqp_channel_
 int amqp_try_recv(amqp_connection_state_t state);
 static inline int amqp_heartbeat_send(const amqp_connection_state_t state) { return state->heartbeat; }
 static inline int amqp_heartbeat_recv(const amqp_connection_state_t state) { return 2 * state->heartbeat; }
-static inline void * amqp_offset(void * data, size_t offset)  { return (char*)data + offset; }
+static inline void * amqp_offset(void * data, size_t offset)  { return PTR8(data) + offset; }
 //
 // This macro defines the encoding and decoding functions associated with a simple type. 
 //

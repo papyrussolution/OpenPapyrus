@@ -42,25 +42,7 @@
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
-// to have *_MAX definitions for all types when compiling with g++ 
-#define __STDC_LIMIT_MACROS
-#ifdef _WIN32
-	//#define ZIP_EXTERN __declspec(dllexport)
-	// for dup(), close(), etc. 
-	//#include <io.h>
-	//#include <fcntl.h>
-#endif
 #define ZIP_EXTERN // @sobolev
-/*
-#ifdef HAVE_STDBOOL_H
-#include <stdbool.h>
-#else
-typedef char bool;
-#define true    1
-#define false   0
-#endif
-*/
-//#include <errno.h>
 //
 // at least MinGW does not provide EOPNOTSUPP, see
 // http://sourceforge.net/p/mingw/bugs/263/

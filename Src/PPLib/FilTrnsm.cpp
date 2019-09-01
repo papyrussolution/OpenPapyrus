@@ -211,6 +211,7 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString eq_buf;
 	SString enc_buf;
 	PPID   mail_acc_id = mailAccID;
 	PPObjInternetAccount mac_obj;
@@ -251,17 +252,17 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 			temp_buf.EncodeUrl("/*.pps", 0);
 			url.SetComponent(InetUrl::cPath, temp_buf);
 			//
-			temp_buf.EncodeUrl("subject=" SUBJECTDBDIV, 0);
+			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", _PPConst.P_SubjectDbDiv), 0);
 			url.SetComponent(InetUrl::cQuery, temp_buf);
 		}
 		else if(filtFlags & SMailMessage::fPpyCharry) {
 			temp_buf.EncodeUrl("/*.chy", 0);
 			url.SetComponent(InetUrl::cPath, temp_buf);
-			temp_buf.EncodeUrl("subject=" SUBJECTCHARRY, 0);
+			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", _PPConst.P_SubjectCharry), 0);
 			url.SetComponent(InetUrl::cQuery, temp_buf);
 		}
 		else if(filtFlags & SMailMessage::fPpyOrder) {
-			temp_buf.EncodeUrl("subject=" SUBJECTORDER, 0);
+			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", _PPConst.P_SubjectOrder), 0);
 			url.SetComponent(InetUrl::cQuery, temp_buf);
 		}
 		url.Composite(0, temp_buf);
@@ -636,22 +637,23 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 {
 	int    ok = 1, user_accept = 1;
 	const  PPConfig & r_cfg = LConfig;
-	int    check_email = 0, check_ftp = 0;
+	int    check_email = 0;
+	int    check_ftp = 0;
+	int    check_mqb = 0; // @v10.5.4
 	uint   i;
 	SString dest, src, msg_buf, file_path;
 	SString dest_dir;
-	//PPFileNameArray fary;
-	//SDirEntry fb;
 	SFileEntryPool fep;
 	SFileEntryPool::Entry fe;
 	DBDivPack dbdiv_pack;
 	PPObjDBDiv obj_dbdiv;
 	PPDBDiv db_div_rec;
 	PPID   db_div_id = 0;
-
 	PPGetPath(PPPATH_IN, dest);
 	THROW(obj_dbdiv.Get(r_cfg.DBDiv, &dbdiv_pack) > 0);
-	while((!check_email || !check_ftp) && obj_dbdiv.EnumItems(&db_div_id, &db_div_rec) > 0) {
+	if(dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE)
+		check_mqb = 1;
+	while(!(check_email && check_ftp) && obj_dbdiv.EnumItems(&db_div_id, &db_div_rec) > 0) {
 		if(db_div_id != r_cfg.DBDiv)
 			check_email = BIN(check_email || IsEmailAddr(strip(db_div_rec.Addr)));
 		check_ftp   = BIN(check_ftp || IsFtpAddr(db_div_rec.Addr));
@@ -661,7 +663,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 		user_accept = 1;
 	else {
 		pParam->Flags |= (ObjReceiveParam::fGetFromOutSrcr | ObjReceiveParam::fClearInpBefore);
-		THROW(user_accept = EditObjReceiveParam(pParam, src.NotEmpty() || check_email || check_ftp));
+		THROW(user_accept = EditObjReceiveParam(pParam, src.NotEmpty() || check_email || check_ftp || check_mqb));
 	}
 	if(user_accept < 0)
 		ok = -1;
@@ -671,7 +673,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 			PPRemoveFilesByExt(dest, PPSEXT, 0, 0);
 		}
 		if(pParam->SenderDbDivList.getCount()) {
-			for(i = 0; (!use_src || !use_email) && i < pParam->SenderDbDivList.getCount(); i++) {
+			for(i = 0; !(use_src && use_email) && i < pParam->SenderDbDivList.getCount(); i++) {
 				THROW(obj_dbdiv.Get(pParam->SenderDbDivList.at(i), &dbdiv_pack) > 0);
 				if(IsEmailAddr(strip(dbdiv_pack.Rec.Addr)))
 					use_email = 1;
@@ -681,9 +683,43 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 		}
 		else
 			use_src = use_email = use_ftp = 1;
-		if(use_src && src.NotEmpty() && IsEmailAddr(src) == 0 && IsFtpAddr(src) == 0) {
+		// @v10.5.4 {
+		if(check_mqb) {
+			PPMqbClient mqc;
+			SString data_domain;
+			if(PPMqbClient::InitClient(mqc, &data_domain)) {
+				SString queue_name;
+				queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
+				if(mqc.QueueDeclare(queue_name, 0)) {
+					if(mqc.Consume(queue_name, "", 0)) {
+						PPMqbClient::Envelope env;
+						int cmr = 0;
+						while((cmr = mqc.ConsumeMessage(env, 500)) > 0) {
+							if(env.Msg.Body.GetAvailableSize()) {
+								if(env.Msg.Props.ContentType == SFileFormat::PapyruDbDivXchg) {
+									for(uint propidx = 0; propidx < env.Msg.Props.Headers.getCount(); propidx++) {
+										StrStrAssocArray::Item prop_item = env.Msg.Props.Headers.at(propidx);
+										/*
+											"filename"
+											"dbdiv-id-source"
+											"dbdiv-guid-source"
+											"dbdiv-id-dest"
+											"dbdiv-guid-dest"
+										*/
+
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		// } @v10.5.4 
+		if(use_src && src.NotEmpty() && !IsEmailAddr(src) && !IsFtpAddr(src)) {
 			int    removable_drive = 0;
-			char   drive = 'C', ext[10];
+			char   drive = 'C';
+			char   ext[16];
 			fnsplit(src, &drive, 0, 0, ext);
 			PPSetAddedMsgString(src);
 			THROW_PP(driveValid(src), PPERR_NEXISTPATH);
@@ -706,15 +742,10 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 			//
 			// copy files to PPPATH_IN
 			//
-			//THROW(fary.Scan(src, "*" PPSEXT));
 			THROW(fep.Scan(src, "*" PPSEXT, 0));
-			//for(i = 0; fary.Enum(&i, &fb, &file_path);) {
 			for(i = 0; i < fep.GetCount(); i++) {
 				if(fep.Get(i, &fe, &file_path)) {
-					//char   dest_dir[MAXPATH];
 					PPWaitMsg(fe.Name);
-					//STRNSCPY(dest_dir, file_path);
-					//::replacePath(dest_dir, dest, 1);
 					SPathStruc::ReplacePath(dest_dir = file_path, dest, 1);
 					if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
 						THROW_SL(copyFileByName(file_path, dest_dir));
@@ -737,9 +768,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 	THROW(fep.Scan(dest, "*" PPSEXT, 0));
 	{
 		// Пропускаем файлы, заголовок которых не читается {
-		//SDirEntry fb;
 		LongArray to_remove_pos_list;
-		//for(i = 0; fary.Enum(&i, &fb, &file_path);) {
 		for(i = 0; i < fep.GetCount(); i++) {
 			if(fep.Get(i, 0, &file_path)) {
 				PPObjectTransmit::Header hdr;
@@ -750,14 +779,13 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 		}
 		if(to_remove_pos_list.getCount()) {
 			for(i = 0; i < to_remove_pos_list.getCount(); i++) {
-				const uint fa_pos = (uint)to_remove_pos_list.get(i);
-				//fary.atFree(fa_pos);
+				const uint fa_pos = static_cast<uint>(to_remove_pos_list.get(i));
 				fep.Remove(fa_pos);
 			}
 		}
 		// }
 	}
-	THROW(PackTransmitFiles(/*&fary*/&fep, 0));
+	THROW(PackTransmitFiles(&fep, 0));
 	// } AHTOXA
 	CATCHZOK
 	PPWait(0);
@@ -821,16 +849,18 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 {
 	int    ok = 1;
 	SString dest, src;
+	SString temp_buf;
+	SString file_name;
 	DBDivPack dbdiv_pack;
 	PPObjDBDiv obj_dbdiv;
+	SFileEntryPool::Entry fe;
 	PPGetPath(PPPATH_OUT, src);
 	THROW(obj_dbdiv.Get(dbDivID, &dbdiv_pack) > 0);
-	if((dest = dbdiv_pack.Rec.Addr).NotEmptyS()) {
+	dest = dbdiv_pack.Rec.Addr;
+	if(dest.NotEmptyS() || dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE) {
 		SFileEntryPool fep;
 		THROW(fep.Scan(src, "*" PPSEXT, 0));
 		{
-			SFileEntryPool::Entry fe;
-			SString file_name;
 			PPObjectTransmit ot(PPObjectTransmit::tmReading, 0, 0);
 			uint i = fep.GetCount();
 			if(i) do {
@@ -856,8 +886,51 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 				THROW(PackTransmitFiles(&fep, 1));
 			}
 			// } AHTOXA
+			// @v10.5.4 {
+			if(dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE) {
+				PPMqbClient mqc;
+				SString data_domain;
+				if(PPMqbClient::InitClient(mqc, &data_domain)) {
+					SString queue_name;
+					SString exchange_name;
+					for(uint fepidx = 0; fepidx < fep.GetCount(); fepidx++) {
+						int64 _fsize = 0;
+						fep.Get(fepidx, &fe, &file_name);
+						SFile f_in(file_name, SFile::mRead|SFile::mBinary);
+						THROW_SL(f_in.IsValid());
+						f_in.CalcSize(&_fsize);
+						if(_fsize > 0) {
+							STempBuffer data_buf(static_cast<size_t>(_fsize)+1024); // +1024 - insurance
+							size_t actual_rd_size = 0;
+							THROW_SL(data_buf.IsValid());
+							THROW_SL(f_in.Read(data_buf, data_buf.GetSize(), &actual_rd_size));
+							{
+								PPMqbClient::MessageProperties props;
+								props.ContentType = SFileFormat::PapyruDbDivXchg;
+								props.Encoding = SEncodingFormat::Unkn;
+								props.Priority = 0;
+								props.TimeStamp = getcurdatetime_();
+								SPathStruc ps(file_name);
+								ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+								props.Headers.Add("filename", temp_buf.Transf(CTRANSF_OUTER_TO_UTF8));
+								props.Headers.Add("dbdiv-id-source", temp_buf.Z().Cat(LConfig.DBDiv));
+								//props.Headers.Add("dbdiv-guid-source", temp_buf.Z().Cat(LConfig.DBDiv).Transf(CTRANSF_INNER_TO_UTF8));
+								props.Headers.Add("dbdiv-id-dest", temp_buf.Z().Cat(dbdiv_pack.Rec.ID));
+								if(!dbdiv_pack.Rec.Uuid.IsZero()) {
+									props.Headers.Add("dbdiv-guid-dest", temp_buf.Z().Cat(dbdiv_pack.Rec.Uuid, S_GUID::fmtIDL));
+								}
+								queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
+								THROW(mqc.QueueDeclare(queue_name, 0));
+								(exchange_name = " ").Z();
+								THROW(mqc.Publish(exchange_name, queue_name, &props, data_buf, actual_rd_size));
+							}
+						}
+					}
+				}
+			}
+			// } @v10.5.4 
 			if(IsEmailAddr(dest)) {
-				THROW(PutFilesToEmail(&fep, 0, dest, SUBJECTDBDIV, trnsmFlags));
+				THROW(PutFilesToEmail(&fep, 0, dest, _PPConst.P_SubjectDbDiv, trnsmFlags));
 			}
 			else if(IsFtpAddr(dest)) {
 				THROW(PutFilesToFtp(&fep, 0, dest, trnsmFlags));
