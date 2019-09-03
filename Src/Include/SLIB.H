@@ -3750,6 +3750,7 @@ public:
 	SString & FASTCALL CopyFrom(const char *);
 	SString & FASTCALL SetIfEmpty(const char *);
 	SString & FASTCALL SetIfEmpty(const SString &);
+	int    SLAPI IsAscii() const;
 	int    SLAPI IsLegalUtf8() const;
 	int    SLAPI CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//

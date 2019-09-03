@@ -560,7 +560,7 @@
 	#define HELP_BROWSER_BIZSCVALBYTEMPL                        258
 #define BROWSER_CHKOPJ                                 259 // Журнал чековых операций
 	#define HELP_BROWSER_CHKOPJ                                 259
-#define BROWSER_STOCKOPT_ITEMS                         260 // Оптимизация товарных запасов
+#define BROWSER_STOCKOPT_ITEMS                         260 // @view_stockopt
 	#define HELP_BROWSER_STOCKOPT_ITEMS                         260
 #define BROWSER_STOCKOPT_RESULT                        261 // Результат оптимизации товарных запасов
 	#define HELP_BROWSER_STOCKOPT_RESULT                        261

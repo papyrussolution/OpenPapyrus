@@ -3957,6 +3957,18 @@ uint FASTCALL SUnicode::Utf8Length(const wchar_t * pUcBuf, uint tlen)
 	return len;
 }
 
+int SString::IsAscii() const
+{
+	int    ok = 1;
+	const  size_t _len = Len();
+	for(size_t idx = 0; ok && idx < _len; idx++) {
+		const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf+idx);
+		if(*p >= 0x80)
+			ok = 0;
+	}
+	return ok;
+}
+
 int SString::IsLegalUtf8() const
 {
 	int    ok = 1;

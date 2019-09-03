@@ -406,7 +406,6 @@ private:
 	PPNamedFiltPool * P_Pool;  // @notowned
 	PPNamedFiltMngr * P_Mngr;  // @notowned
 };
-
 //
 // Descr: Отображает диалог редактирования именованного фильтра
 //
@@ -699,9 +698,8 @@ public:
 		Data = *pData;	
 		PPNamedFilt::ViewDefinition::Entry mobTypeClmn;
 		StringSet ss(SLBColumnDelim);
-		PPID id = 0;
-		for(int i = 0; ok && i < Data.GetCount(); i++) {
-			id = i + 1;
+		for(uint i = 0; ok && i < Data.GetCount(); i++) {
+			PPID id = static_cast<PPID>(i + 1);
 			Data.GetEntry(i, mobTypeClmn);
 			ss.clear();
 			((ss += mobTypeClmn.Zone) += mobTypeClmn.FieldName) += mobTypeClmn.Text;
@@ -799,9 +797,8 @@ int MobileClmnValListDialog::setupList()
 	int    ok = 1;
 	PPNamedFilt::ViewDefinition::Entry entry;
 	StringSet ss(SLBColumnDelim);
-	PPID id = 0;
-	for(int i = 0; ok && i < Data.GetCount(); i++) {
-		id = i + 1;
+	for(uint i = 0; ok && i < Data.GetCount(); i++) {
+		PPID id = static_cast<PPID>(i + 1);
 		Data.GetEntry(i, entry);
 		ss.clear();
 		((ss += entry.Zone) += entry.FieldName) += entry.Text;

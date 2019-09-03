@@ -96,9 +96,8 @@ public:
 	{
 		int    ok = 1;
 		Data = *pData;
-		setDTS((PPStockOpt::Config *)0);
+		setDTS(static_cast<const PPStockOpt::Config *>(0));
 		DataSrc = 1;
-
 		AddClusterAssocDef(CTL_STOCKOPTCFG_MODE, 0, StockOptFilt::modeGoods);
 		AddClusterAssoc(CTL_STOCKOPTCFG_MODE, 1, StockOptFilt::modePreproc);
 		AddClusterAssoc(CTL_STOCKOPTCFG_MODE, 2, StockOptFilt::modeOptimum);

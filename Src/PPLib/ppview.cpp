@@ -445,9 +445,11 @@ int SLAPI PPBaseFilt::Describe(long flags, SString & rBuf) const
 //static
 void FASTCALL PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf)
 {
-	SString obj_name;
-	if(objID && GetObjectName(objType, objID, obj_name) > 0)
-		PutMembToBuf(obj_name, pMembName, rBuf);
+	if(objID) {
+		SString & r_obj_name = SLS.AcquireRvlStr(); // @v10.5.4 SLS.AcquireRvlStr()
+		if(GetObjectName(objType, objID, r_obj_name) > 0)
+			PutMembToBuf(r_obj_name, pMembName, rBuf);
+	}
 }
 
 //static

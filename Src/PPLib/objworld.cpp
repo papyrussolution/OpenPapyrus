@@ -1,5 +1,6 @@
 // OBJWORLD.CPP
 // Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -483,7 +484,7 @@ private:
 				if(CheckDuplicateName(&same_id) == 2) {
 					DupID = same_id;
 					endModal(cmOK);
-					return; // После endModal не следует обращаться к this
+					return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 				}
 				clearEvent(event);
 			}
@@ -498,9 +499,9 @@ private:
 	PPObjWorld ObjWorld;
 	PPWorldPacket Data;
 	//
-	// Если при вводе нового объекта обнаружен дубликат и пользователь
-	// подтвердил его использование, то DupID получает значение идентификатора
-	// этого дубликата и диалог завершается с командой cmOK.
+	// Р•СЃР»Рё РїСЂРё РІРІРѕРґРµ РЅРѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р° РѕР±РЅР°СЂСѓР¶РµРЅ РґСѓР±Р»РёРєР°С‚ Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ
+	// РїРѕРґС‚РІРµСЂРґРёР» РµРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ, С‚Рѕ DupID РїРѕР»СѓС‡Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°
+	// СЌС‚РѕРіРѕ РґСѓР±Р»РёРєР°С‚Р° Рё РґРёР°Р»РѕРі Р·Р°РІРµСЂС€Р°РµС‚СЃСЏ СЃ РєРѕРјР°РЅРґРѕР№ cmOK.
 	//
 	int    DupID;
 };
@@ -603,7 +604,7 @@ int EditWorldDialog::setDTS(const PPWorldPacket * pData)
 		if(Id == DLG_COUNTRY)
 			extra_ptr = PPObjWorld::MakeExtraParam(WORLDOBJ_CONTINENT, 0, 0);
 		else if(oneof2(Id, DLG_CITY, DLG_REGION)) {
-			SetupPPObjCombo(this, CTLSEL_WORLD_STATUS,  PPOBJ_STATUS, Data.Rec.Status, OLW_CANINSERT);
+			SetupPPObjCombo(this, CTLSEL_WORLD_STATUS,  PPOBJ_CITYSTATUS, Data.Rec.Status, OLW_CANINSERT); // @v10.5.4 @fix PPOBJ_STATUS-->PPOBJ_CITYSTATUS
 			SetupPPObjCombo(this, CTLSEL_WORLD_COUNTRY, PPOBJ_WORLD,  Data.Rec.CountryID, OLW_CANINSERT|OLW_CANSELUPLEVEL,
 				PPObjWorld::MakeExtraParam(WORLDOBJ_COUNTRY, 0, 0));
 			kind_list.addzlist(WORLDOBJ_REGION, WORLDOBJ_COUNTRY, 0);
@@ -1353,7 +1354,7 @@ int SLAPI PPObjWorld::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 					ok = -1;
 				}
 				else if(r > 0)
-					ok = 102; // @ObjectUpdated Пакет действительно был изменен
+					ok = 102; // @ObjectUpdated РџР°РєРµС‚ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ Р±С‹Р» РёР·РјРµРЅРµРЅ
 			}
 			else {
 				p_pack->Rec.ID = *pID = 0;
@@ -1461,7 +1462,7 @@ const char * SLAPI PPObjWorld::GetNamePtr()
 	return P_Tbl->data.Name;
 }
 //
-// @todo Срочно!!!
+// @todo РЎСЂРѕС‡РЅРѕ!!!
 //
 int SLAPI PPObjWorld::Recover(PPLogger * pLogger)
 {
@@ -1825,7 +1826,7 @@ int SLAPI PPObjWorld::Convert()
 			}
 			{
 				//
-				// Фиксируем факт конвертации
+				// Р¤РёРєСЃРёСЂСѓРµРј С„Р°РєС‚ РєРѕРЅРІРµСЂС‚Р°С†РёРё
 				//
 				MEMSZERO(wrec);
 				wrec.ID = id;
@@ -1905,7 +1906,7 @@ int GeoCityImportBlock::Import(const char * pPath)
 	StringSet ss("\t");
 	{
 		//
-		// Импорт государств
+		// РРјРїРѕСЂС‚ РіРѕСЃСѓРґР°СЂСЃС‚РІ
 		//
 		(file_name = pPath).SetLastSlash().Cat("net_country.txt");
 		SFile f_in(file_name, SFile::mRead);
@@ -1939,7 +1940,7 @@ int GeoCityImportBlock::Import(const char * pPath)
 	}
 	{
 		//
-		// Импорт городов
+		// РРјРїРѕСЂС‚ РіРѕСЂРѕРґРѕРІ
 		//
 		(file_name = pPath).SetLastSlash().Cat("net_city.txt");
 		SFile f_in(file_name, SFile::mRead);
@@ -2130,15 +2131,15 @@ SLTEST_R(ObjWorld)
 	{
 		PPID   city_id1 = 0;
 		PPID   city_id2 = 0;
-		const  char * p_city_name1 = "Акрополь Великий";
-		const  char * p_city_name2 = "АКРОПОЛЬ ВЕЛИКИЙ";
+		const  char * p_city_name1 = "РђРєСЂРѕРїРѕР»СЊ Р’РµР»РёРєРёР№";
+		const  char * p_city_name2 = "РђРљР РћРџРћР›Р¬ Р’Р•Р›РРљРР™";
 		PPTransaction tra(1);
 		THROW(SLTEST_CHECK_NZ(tra));
 		//
-		// Проверка функции AddSimple.
+		// РџСЂРѕРІРµСЂРєР° С„СѓРЅРєС†РёРё AddSimple.
 		//
-		THROW(SLTEST_CHECK_NZ(r = w_obj.AddSimple(&city_id1, WORLDOBJ_CITY, (temp_buf = p_city_name1).ToOem(), 0, 0)));
-		THROW(SLTEST_CHECK_NZ(r = w_obj.AddSimple(&city_id2, WORLDOBJ_CITY, (temp_buf = p_city_name2).ToOem(), 0, 0)));
+		THROW(SLTEST_CHECK_NZ(r = w_obj.AddSimple(&city_id1, WORLDOBJ_CITY, (temp_buf = p_city_name1).Transf(CTRANSF_UTF8_TO_INNER), 0, 0)));
+		THROW(SLTEST_CHECK_NZ(r = w_obj.AddSimple(&city_id2, WORLDOBJ_CITY, (temp_buf = p_city_name2).Transf(CTRANSF_UTF8_TO_INNER), 0, 0)));
 		THROW(SLTEST_CHECK_EQ(city_id1, city_id2));
 		THROW(SLTEST_CHECK_NZ(w_obj.PutPacket(&city_id1, 0, 0)));
 		THROW(SLTEST_CHECK_NZ(tra.Commit()));

@@ -16021,6 +16021,23 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
+//
+// Descr: Пакет временной серии. Содержит основную запись и дополнительные свойства.
+//
+class PPTimeSeriesPacket {
+public:
+	SLAPI  PPTimeSeriesPacket();
+	int    FASTCALL IsEqual(const PPTimeSeriesPacket & rS) const;
+
+	struct Extension {
+		SLAPI  Extension();
+		int    FASTCALL IsEqual(const Extension & rS) const;
+		double MarginManual; // Торговая маржина, используемая для расчетов и устанавливаемая в ручную.
+			// Требуется в случае, если необходимое для расчетов значение отличается от того, что возвращается торговым сервером.
+	};
+	PPTimeSeries Rec;
+	Extension E;
+};
 
 class PPObjTimeSeries : public PPObjReference {
 public:
@@ -16287,7 +16304,7 @@ public:
 	static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const PPObjTimeSeries::BestStrategyBlock * pBestResult, SString & rBuf);
 	static int SLAPI TryStrategies(PPID id);
 
-	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
+	explicit SLAPI  PPObjTimeSeries(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	int    SLAPI PutPacket(PPID * pID, PPTimeSeries * pPack, int use_ta);

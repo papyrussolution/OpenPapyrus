@@ -991,6 +991,8 @@
 	#define TIMSERPRP_STAKEMODEL_SEL   1L // @v10.4.3
 	#define TIMSERPRP_STAKEMODEL_ALL   2L // @v10.4.3
 	#define TIMSERPRP_STAKEMODEL_SELTF 3L // @v10.4.3
+	#define TIMSERPRP_EXTENSION       10L // @v10.5.4
+
 #define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 Тип транспортной упаковки
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //

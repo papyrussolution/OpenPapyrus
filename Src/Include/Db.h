@@ -659,7 +659,7 @@ public:
 		fOneRecPerFile = 0x0010  // Одна запись в файле
 	};
 	struct Param {
-		Param(long flags = 0);
+		explicit Param(long flags = 0);
 		void  Init();
 		int   Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 

@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -5764,37 +5764,37 @@ BEGIN
     PUSHBUTTON      "@docanceloperation",STDCTL_CANCELBUTTON,145,80,80,13
 END
 
-DLG_XLSDBPARAM DIALOGEX 57, 8, 322, 185
+DLG_XLSDBPARAM DIALOGEX 57, 8, 445, 152
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Параметры файла данных excel"
+CAPTION "@impexpparam_xlsdb"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",CTL_XLSDBPARAM_FLAGS,5,5,160,45,WS_GROUP
-    CONTROL         "Первая запись - наименования полей",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,15,146,10
-    CONTROL         "Текстовые поля обрамлены кавычками",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,25,151,10
-    CONTROL         "Одна запись в файле",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,35,91,10
-    GROUPBOX        "Ориентация записей",CTL_XLSDBPARAM_ORIENT,170,5,144,45,WS_GROUP
-    CONTROL         "Горизонтальная",5301,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,15,75,10
-    CONTROL         "Вертикальная (строка - запись)",9397,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,175,25,125,10
-    LTEXT           "Признак конца данных",4002,5,55,80,8
-    EDITTEXT        CTL_XLSDBPARAM_ENDSTR,90,55,220,13,ES_AUTOHSCROLL
-    GROUPBOX        "",IDC_STATIC,5,70,310,45
-    LTEXT           "Количество незначащих строк в начале листа",4003,10,80,160,8
-    EDITTEXT        CTL_XLSDBPARAM_HDRCOUNT,275,80,35,13,ES_AUTOHSCROLL
-    LTEXT           "Количество незначащих столбцов в начале листа",4004,10,95,170,8
-    EDITTEXT        CTL_XLSDBPARAM_COLCOUNT,275,95,35,13,ES_AUTOHSCROLL
-    GROUPBOX        "Выводить данные на лист",IDC_STATIC,5,115,310,45
-    LTEXT           "Номер листа",4006,10,125,48,8
-    EDITTEXT        CTL_XLSDBPARAM_SHEETNUM,275,125,35,13,ES_AUTOHSCROLL
-    LTEXT           "Имя листа",4005,10,140,40,8
-    EDITTEXT        CTL_XLSDBPARAM_SHEETNAME,90,140,220,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,220,165,45,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,270,165,45,13
+    GROUPBOX        "",CTL_XLSDBPARAM_FLAGS,5,5,175,50,WS_GROUP
+    CONTROL         "@impexpparam_xlsdb_ffldnamerec",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,15,165,10
+    CONTROL         "@impexpparam_xlsdb_fquottext",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,25,165,10
+    CONTROL         "@impexpparam_xlsdb_fonerecperfile",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,35,165,10
+    GROUPBOX        "@impexpparam_xlsdb_recorien",CTL_XLSDBPARAM_ORIENT,5,60,175,45,WS_GROUP
+    CONTROL         "@impexpparam_xlsdb_recorien_horz",5301,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,70,164,10
+    CONTROL         "@impexpparam_xlsdb_recorien_vert",9397,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,81,164,10
+    LTEXT           "@impexpparam_xlsdb_endstr",4002,200,5,190,8
+    EDITTEXT        CTL_XLSDBPARAM_ENDSTR,200,15,220,13,ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,190,30,245,65
+    LTEXT           "@impexpparam_xlsdb_hdrlinescount",4003,200,40,220,8
+    EDITTEXT        CTL_XLSDBPARAM_HDRCOUNT,200,50,35,13,ES_AUTOHSCROLL
+    LTEXT           "@impexpparam_xlsdb_columnscount",4004,200,65,220,8
+    EDITTEXT        CTL_XLSDBPARAM_COLCOUNT,200,75,35,13,ES_AUTOHSCROLL
+    GROUPBOX        "@impexpparam_xlsdb_sheet",IDC_STATIC,190,100,245,45
+    LTEXT           "@impexpparam_xlsdb_sheetnum",4006,195,114,60,8
+    EDITTEXT        CTL_XLSDBPARAM_SHEETNUM,195,124,35,13,ES_AUTOHSCROLL
+    LTEXT           "@impexpparam_xlsdb_sheetname",4005,265,114,150,8
+    EDITTEXT        CTL_XLSDBPARAM_SHEETNAME,265,124,155,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,5,125,45,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,71,125,45,13
 END
 
 DLG_XMLDBPARAM DIALOGEX 46, 48, 322, 156
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Параметры XML файла данных"
+CAPTION "@impexpparam_xmldb"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Тег записи",4001,10,30,175,8
@@ -12928,53 +12928,53 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,485,250,50,13
 END
 
-DLG_STOCKOPTCFG DIALOGEX 67, 24, 252, 116
+DLG_STOCKOPTCFG DIALOGEX 67, 24, 441, 117
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@cfg_stockopt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Норма прибыли (простой годовой процент)",4001,10,10,175,8
-    EDITTEXT        CTL_STOCKOPTCFG_RATE,190,10,50,13,ES_AUTOHSCROLL
-    LTEXT           "Коэффициент запаса при учете срока годности",4002,10,25,176,8
-    EDITTEXT        CTL_STOCKOPTCFG_EXPSAFC,190,25,50,13,ES_AUTOHSCROLL
-    LTEXT           "Максимальная сумма запасов",4003,10,39,108,8
-    EDITTEXT        CTL_STOCKOPTCFG_MAXCOST,190,39,50,13,ES_AUTOHSCROLL
-    LTEXT           "Максимальные дневные продажи",4004,10,55,175,8
-    EDITTEXT        CTL_STOCKOPTCFG_MAXSALES,190,55,50,13,ES_AUTOHSCROLL
-    LTEXT           "Максимальное количество позиций",4005,10,70,175,8
-    EDITTEXT        CTL_STOCKOPTCFG_MAXITEMS,190,70,50,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,130,95,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,190,95,50,13
+    LTEXT           "@stockoptconfig_rateofret",4001,15,10,190,8
+    EDITTEXT        CTL_STOCKOPTCFG_RATE,15,20,50,13,ES_AUTOHSCROLL
+    LTEXT           "@stockoptconfig_expirysafetyfactor",4002,15,35,190,8
+    EDITTEXT        CTL_STOCKOPTCFG_EXPSAFC,15,45,50,13,ES_AUTOHSCROLL
+    LTEXT           "@stockoptconfig_maxcost",4003,225,10,190,8
+    EDITTEXT        CTL_STOCKOPTCFG_MAXCOST,225,20,50,13,ES_AUTOHSCROLL
+    LTEXT           "@stockoptconfig_maxsales",4004,225,34,190,8
+    EDITTEXT        CTL_STOCKOPTCFG_MAXSALES,225,44,50,13,ES_AUTOHSCROLL
+    LTEXT           "@stockoptconfig_maxitems",4005,225,58,185,8
+    EDITTEXT        CTL_STOCKOPTCFG_MAXITEMS,225,70,50,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,155,95,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,225,95,50,13
 END
 
-DLG_STOCKOPTFLT DIALOGEX 67, 24, 397, 146
+DLG_STOCKOPTFLT DIALOGEX 67, 24, 351, 162
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Фильтр оптимизации товарных запасов"
+CAPTION "@stockoptfilt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Норма прибыли (простой годовой процент)",4001,10,20,185,8
-    EDITTEXT        CTL_STOCKOPTCFG_RATE,200,20,50,13,ES_AUTOHSCROLL
-    LTEXT           "Коэффициент запаса при учете срока годности",4002,10,35,185,8
-    EDITTEXT        CTL_STOCKOPTCFG_EXPSAFC,200,35,50,13,ES_AUTOHSCROLL
-    LTEXT           "Максимальная сумма запасов",4003,10,50,185,8
-    EDITTEXT        CTL_STOCKOPTCFG_MAXCOST,200,50,50,13,ES_AUTOHSCROLL
-    LTEXT           "Максимальные дневные продажи",4004,10,65,185,8
-    EDITTEXT        CTL_STOCKOPTCFG_MAXSALES,200,65,50,13,ES_AUTOHSCROLL
-    LTEXT           "Максимальное количество позиций",4005,10,80,185,8
-    EDITTEXT        CTL_STOCKOPTCFG_MAXITEMS,200,80,50,13,ES_AUTOHSCROLL
-    GROUPBOX        "Режим",CTL_STOCKOPTCFG_MODE,265,10,120,45,WS_GROUP
-    CONTROL         "@ware_pl",5302,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,20,110,10
-    CONTROL         "Препроцессинг",9398,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,30,110,10
-    CONTROL         "Оптимизация",13494,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,40,110,10
-    GROUPBOX        "@sorting",CTL_STOCKOPTCFG_ORDER,265,60,120,75,WS_GROUP
-    CONTROL         "@byware",5303,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,70,100,10
-    CONTROL         "По сумме доходов",9399,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,80,100,10
-    CONTROL         "По сумме расходов",13495,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,90,100,10
-    CONTROL         "По прибыли",17591,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,100,100,10
-    CONTROL         "@byqtty",21687,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,110,100,10
-    CONTROL         "По периоду расхода",25783,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,271,120,100,10
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,135,120,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,200,120,50,13
+    LTEXT           "@stockoptconfig_rateofret",4001,10,5,185,8
+    EDITTEXT        CTL_STOCKOPTCFG_RATE,10,15,50,13,ES_AUTOHSCROLL
+    LTEXT           "@stockoptconfig_expirysafetyfactor",4002,10,30,185,8
+    EDITTEXT        CTL_STOCKOPTCFG_EXPSAFC,10,40,50,13,ES_AUTOHSCROLL
+    LTEXT           "@stockoptconfig_maxcost",4003,10,55,185,8
+    EDITTEXT        CTL_STOCKOPTCFG_MAXCOST,10,65,50,13,ES_AUTOHSCROLL
+    LTEXT           "@stockoptconfig_maxsales",4004,10,80,185,8
+    EDITTEXT        CTL_STOCKOPTCFG_MAXSALES,10,90,50,13,ES_AUTOHSCROLL
+    LTEXT           "@stockoptconfig_maxitems",4005,10,105,185,8
+    EDITTEXT        CTL_STOCKOPTCFG_MAXITEMS,10,115,50,13,ES_AUTOHSCROLL
+    GROUPBOX        "@stockoptfilt_mode",CTL_STOCKOPTCFG_MODE,220,5,120,45,WS_GROUP
+    CONTROL         "@stockoptfilt_modegoods",5302,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,15,110,10
+    CONTROL         "@stockoptfilt_modepreproc",9398,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,25,110,10
+    CONTROL         "@stockoptfilt_modeoptimum",13494,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,35,110,10
+    GROUPBOX        "@stockoptfilt_initorder",CTL_STOCKOPTCFG_ORDER,220,55,120,75,WS_GROUP
+    CONTROL         "@byware",5303,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,65,100,10
+    CONTROL         "По сумме доходов",9399,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,75,100,10
+    CONTROL         "По сумме расходов",13495,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,85,100,10
+    CONTROL         "По прибыли",17591,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,95,100,10
+    CONTROL         "@byqtty",21687,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,105,100,10
+    CONTROL         "По периоду расхода",25783,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,226,115,100,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,220,140,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,290,140,50,13
 END
 
 DLG_SUPLEXPFLT DIALOGEX 15, 8, 317, 218
@@ -13806,7 +13806,7 @@ BEGIN
     GROUPBOX        "@prjtaskfilt_statuslist",CTL_TODOFILT_STATUS,250,165,95,65,WS_GROUP
     CONTROL         "@new_fem",5313,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,255,175,85,10
     CONTROL         "Отложенная",9409,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,255,185,85,10
-    CONTROL         "Выполняется",13505,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,255,195,85,10
+    CONTROL         "@inprogress",13505,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,255,195,85,10
     CONTROL         "В ожидании",17601,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,255,205,85,10
     CONTROL         "@completed_fem",21697,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,255,215,85,10
     GROUPBOX        "",IDC_STATIC,155,95,190,65
@@ -16777,7 +16777,7 @@ BEGIN
     EDITTEXT        CTL_LOCTRANSF_TM,295,34,85,13,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
     EDITTEXT        CTL_LOCTRANSF_LOCCODE,5,34,70,13,ES_AUTOHSCROLL
     EDITTEXT        CTL_LOCTRANSF_LOC,75,34,200,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Ячейка",4002,5,25,125,8
+    LTEXT           "@whcell",4002,5,25,125,8
     PUSHBUTTON      "",CTLSEL_LOCTRANSF_LOC,275,34,12,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",CTL_LOCTRANSF_OP,400,5,105,45,WS_GROUP
     CONTROL         "Положить",5302,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,405,15,75,10
@@ -16937,7 +16937,7 @@ BEGIN
     EDITTEXT        CTL_LOCTRFILT_GOODS,10,80,250,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@ware",4003,10,70,160,8
     PUSHBUTTON      "",CTLSEL_LOCTRFILT_GOODS,260,80,12,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "Режим",CTL_LOCTRFILT_MODE,10,95,120,55,WS_GROUP
+    GROUPBOX        "@mode",CTL_LOCTRFILT_MODE,10,95,120,55,WS_GROUP
     CONTROL         "Общий",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,105,110,10
     CONTROL         "Состояние остатков",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,115,110,10
     CONTROL         "Пустые ячейки",13496,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,125,110,10
@@ -24847,7 +24847,7 @@ BEGIN
     EDITTEXT        CTL_LOT_TM,290,40,75,13,ES_AUTOHSCROLL | ES_READONLY
     EDITTEXT        CTL_LOT_LOCCODE,10,40,60,13,ES_AUTOHSCROLL
     EDITTEXT        CTL_LOT_LOC,70,40,195,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Ячейка",4002,10,30,28,8
+    LTEXT           "@whcell",4002,10,30,28,8
     PUSHBUTTON      "",CTLSEL_LOT_LOC,265,40,12,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",CTL_LOT_LOCTROP,10,55,105,60,WS_GROUP
     CONTROL         "Положить",5361,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,70,87,10
@@ -25497,7 +25497,7 @@ BEGIN
     GROUPBOX        "Статус плана",CTL_TSESS_STATUS,240,5,80,65,WS_GROUP
     CONTROL         "Планирование",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,15,63,10
     CONTROL         "В ожидании",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,25,63,10
-    CONTROL         "Выполняется",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,35,63,10
+    CONTROL         "@inprogress",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,35,63,10
     CONTROL         "@closed_mas",17587,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,45,50,10
     CONTROL         "@canceled",21683,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,55,50,10
     LTEXT           "@processor",4004,5,40,50,8
@@ -26090,28 +26090,28 @@ END
 
 DLG_TXTDBPARAM DIALOGEX 26, 8, 377, 166
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Параметры текстового файла данных"
+CAPTION "@impexpparam_textdb"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Имя файла данных",4001,5,10,68,8
+    LTEXT           "@impexpparam_textdb_deffilename",4001,5,10,285,8
     EDITTEXT        CTL_TXTDBPARAM_FILENAME,5,20,350,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_TXTDBPARAM_FNAME,355,20,13,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "Ориентация записей",CTL_TXTDBPARAM_ORIENT,5,40,165,35,WS_GROUP
-    CONTROL         "Горизонтальная",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,50,95,10
-    CONTROL         "Вертикальная (строка - запись)",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,60,125,10
+    GROUPBOX        "@impexpparam_textdb_recorien",CTL_TXTDBPARAM_ORIENT,5,40,165,35,WS_GROUP
+    CONTROL         "@impexpparam_textdb_recorien_horz",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,50,149,10
+    CONTROL         "@impexpparam_textdb_recorien_vert",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,60,149,10
     GROUPBOX        "",CTL_TXTDBPARAM_FLAGS,5,75,165,65,WS_GROUP
-    CONTROL         "Первая запись - наименования полей",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,85,151,10
-    CONTROL         "Поля фиксированной длины",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,95,151,10
-    CONTROL         "Формат поля: имя=значение",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,105,151,10
-    CONTROL         "Текст имеет OEM-кодировку",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,115,151,10
-    CONTROL         "Текстовые поля обрамлены кавычками",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,125,151,10
-    LTEXT           "Строка-разделитель полей (вертикальных записей)",4003,181,50,180,8
+    CONTROL         "@impexpparam_textdb_ffldnamerec",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,85,151,10
+    CONTROL         "@impexpparam_textdb_ffixedfields",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,95,151,10
+    CONTROL         "@impexpparam_textdb_ffldeqval",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,105,151,10
+    CONTROL         "@impexpparam_textdb_foemtext",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,115,151,10
+    CONTROL         "@impexpparam_textdb_fquottext",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,125,151,10
+    LTEXT           "@impexpparam_textdb_vertrecterm",4003,181,50,194,8
     EDITTEXT        CTL_TXTDBPARAM_DIV,181,60,84,13,ES_AUTOHSCROLL
-    LTEXT           "Количество незначащих строк в начале файла",4004,181,80,172,8
+    LTEXT           "@impexpparam_textdb_hdrlinescount",4004,181,80,172,8
     EDITTEXT        CTL_TXTDBPARAM_HDRCOUNT,181,90,40,13,ES_AUTOHSCROLL
-    LTEXT           "Завершающая строка файла",4005,181,105,165,8
+    LTEXT           "@impexpparam_textdb_footerline",4005,181,105,174,8
     EDITTEXT        CTL_TXTDBPARAM_FOOTER,181,115,175,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "Поля заголовка...",4006,5,145,85,13
+    PUSHBUTTON      "@{impexpparam_textdb_headers}...",4006,5,145,85,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,245,145,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,305,145,50,13
 END
@@ -30088,7 +30088,8 @@ BEGIN
 
     DLG_XLSDBPARAM, DIALOG
     BEGIN
-        RIGHTMARGIN, 301
+        RIGHTMARGIN, 424
+        BOTTOMMARGIN, 75
     END
 
     DLG_XMLDBPARAM, DIALOG
@@ -30962,6 +30963,18 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 537
         BOTTOMMARGIN, 250
+    END
+
+    DLG_STOCKOPTCFG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 332
+        BOTTOMMARGIN, 21
+    END
+
+    DLG_STOCKOPTFLT, DIALOG
+    BEGIN
+        RIGHTMARGIN, 167
+        BOTTOMMARGIN, 31
     END
 
     DLG_SUPPLAGT, DIALOG
@@ -32725,6 +32738,10 @@ BEGIN
     DLG_TXM, DIALOG
     BEGIN
         BOTTOMMARGIN, 186
+    END
+
+    DLG_TXTDBPARAM, DIALOG
+    BEGIN
     END
 
     DLG_UHTTSTORE, DIALOG
@@ -35432,6 +35449,31 @@ BEGIN
 END
 
 DLG_GUART AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_STOCKOPTCFG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_STOCKOPTFLT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_TXTDBPARAM AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_XLSDBPARAM AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_XMLDBPARAM AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

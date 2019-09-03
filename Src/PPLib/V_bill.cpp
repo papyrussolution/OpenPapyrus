@@ -147,7 +147,7 @@ int SLAPI BillFilt::Describe(long flags, SString & rBuf) const
 	PutObjMembToBuf(PPOBJ_OPRKIND,     OpID,       STRINGIZE(OpID),        rBuf);
 	PutObjMembToBuf(PPOBJ_BILL,        PoolBillID, STRINGIZE(PoolOpID),    rBuf);
 	PutObjMembToBuf(PPOBJ_CURRENCY,    CurID,      STRINGIZE(CurID),       rBuf);
-	PutObjMembToBuf(PPOBJ_STATUS,      StatusID,   STRINGIZE(StatusID),    rBuf);
+	PutObjMembToBuf(PPOBJ_BILLSTATUS,  StatusID,   STRINGIZE(StatusID),    rBuf); // @v10.5.4 @fix PPOBJ_STATUS-->PPOBJ_BILLSTATUS
 	PutMembToBuf(&Period,              STRINGIZE(Period),     rBuf);
 	PutMembToBuf(&PaymPeriod,          STRINGIZE(PaymPeriod), rBuf);
 	PutMembToBuf(&DuePeriod,           STRINGIZE(DuePeriod),  rBuf);

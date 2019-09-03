@@ -151,6 +151,12 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 		else if(SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER) > 0) { // @v9.2.1 
 			TView::SSetWindowText(hwnd, temp_buf);
 		}
+		// @v10.5.4 {
+		else if(!temp_buf.IsAscii() && temp_buf.IsLegalUtf8()) {
+			temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
+			TView::SSetWindowText(hwnd, temp_buf);
+		}
+		// } @v10.5.4 
 	}
 	return TRUE;
 }

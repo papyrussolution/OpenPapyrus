@@ -52,6 +52,32 @@ int FASTCALL PPTimeSeries::IsEqual(const PPTimeSeries & rS) const
 	return eq;
 }
 
+SLAPI PPTimeSeriesPacket::Extension::Extension() : MarginManual(0.0)
+{
+}
+
+int FASTCALL PPTimeSeriesPacket::Extension::IsEqual(const PPTimeSeriesPacket::Extension & rS) const
+{
+	int    eq = 1;
+	if(MarginManual != rS.MarginManual)
+		eq = 0;
+	return eq;
+}
+
+SLAPI PPTimeSeriesPacket::PPTimeSeriesPacket()
+{
+}
+
+int FASTCALL PPTimeSeriesPacket::IsEqual(const PPTimeSeriesPacket & rS) const
+{
+	int    eq = 1;
+	if(!Rec.IsEqual(rS.Rec))
+		eq = 0;
+	else if(!E.IsEqual(rS.E))
+		eq = 0;
+	return eq;
+}
+
 SLAPI PPObjTimeSeries::Config::Entry::Entry() : TsID(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));

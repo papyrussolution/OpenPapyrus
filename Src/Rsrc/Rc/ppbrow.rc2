@@ -2025,7 +2025,7 @@ browser GOODSITEM_USERPROC south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER
 browser GOODSITEM_LOCTR south(73), 1, 1, "Строки складского документа {%s}", OWNER|GRID, 0
 {
 	"#",           0, int32,        0,  4, BCO_USERPROC
-	"Ячейка",     26, zstring(48),  0, 20, BCO_USERPROC
+	"@whcell",    26, zstring(48),  0, 20, BCO_USERPROC
 	"@ware",       1, zstring(128), 0, 25, BCO_USERPROC
 	"@barcode",   27, zstring(16),  0, 10, BCO_USERPROC
 	"@serial",    28, zstring(24),  0, 10, BCO_USERPROC
@@ -5759,7 +5759,7 @@ browser DEBTORSTAT north(100), 3, 1, "Статистика по дебиторам", OWNER|GRID, 0
 
 browser LOCTRANSF north(100), 3, 1, "Складские операции {%s}", OWNER|GRID, 0
 {
-	"Ячейка",         10, notype, 0, 20
+	"@whcell",        10, notype, 0, 20
 	"@ware",          11, notype, 0, 30
 	"@barcode",       14, notype, 0, 10
 	"@qtty",          04, notype, NMBF_NOTRAILZ, 10.6
@@ -5775,7 +5775,7 @@ browser LOCTRANSF north(100), 3, 1, "Складские операции {%s}", OWNER|GRID, 0
 		ADDITEM       : kbIns,    PPDV_ADDFILE02,     "Добавить операцию\tInsert"
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,  "Удалить операцию\tDelete"
 		separator
-		EDITWHCELL    : kbF5,     TBBM_WHCELL,    "Ячейка\tF5"
+		EDITWHCELL    : kbF5,     TBBM_WHCELL,    "@{whcell}\tF5"
 		EDITGOODS     : kbF2,     TBBM_GOODS,     "@{ware}\tF2"
 		EDITBILL      : kbF3,     PPDV_NOICON,    "@{document}\tF3"
 		DETAIL        : kbF4,     PPDV_LINS01,    "Остатки по ячейке\tF4"
@@ -5788,13 +5788,13 @@ browser LOCTRANSF north(100), 3, 1, "Складские операции {%s}", OWNER|GRID, 0
 
 browser LOCTRANSFREST north(100), 3, 1, "Состояние складских ячеек {%s}", OWNER|GRID, 0
 {
-	"Ячейка",         10, notype, 0, 20
+	"@whcell",        10, notype, 0, 20
 	"@ware",          11, notype, 0, 30
 	//"Лот",
 	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  PPDV_LINS01,    "@{op_pl}\tEnter"
-		EDITWHCELL    : kbF5,     TBBM_WHCELL,    "Ячейка\tF5"
+		EDITWHCELL    : kbF5,     TBBM_WHCELL,    "@{whcell}\tF5"
 		EDITGOODS     : kbF2,     TBBM_GOODS,     "@{ware}\tF2"
 		separator
 		TOTAL         : kbF9,     PPDV_SIGMA02,   "@{totals}\tF9"
@@ -5805,13 +5805,13 @@ browser LOCTRANSFREST north(100), 3, 1, "Состояние складских ячеек {%s}", OWNER|
 
 browser LOCTRANSF_EMPTY north(100), 3, 1, "Пустые складские ячейки {%s}", OWNER|GRID, 0
 {
-	"Ячейка",          10, notype, 0, 20
+	"@whcell",          10, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
-		ADDITEM       : kbIns,    PPDV_ADDFILE02,  "Добавить операцию\tInsert"
+		ADDITEM       : kbIns,    PPDV_ADDFILE02, "Добавить операцию\tInsert"
 		DETAIL        : kbEnter,  PPDV_LINS01,    "@{op_pl}\tEnter"
-		EDITWHCELL    : kbF5,     TBBM_WHCELL,  "Ячейка\tF5"
+		EDITWHCELL    : kbF5,     TBBM_WHCELL,    "@{whcell}\tF5"
 		separator
-		TOTAL         : kbF9,     PPDV_SIGMA02,    "@{totals}\tF9"
+		TOTAL         : kbF9,     PPDV_SIGMA02,   "@{totals}\tF9"
 		separator
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,  "@{filter}\tCtrl-V"
 	}
@@ -5825,7 +5825,7 @@ browser LOCTRANSF_DISP north(100), 3, 1, "Складское размещение документов {%s}",
 	"Количество\nв документе", 15, notype, NMBF_NOTRAILZ, 10.6
 	"Размещенное\nколичество", 04, notype, NMBF_NOTRAILZ, 10.6
 	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
-	"Ячейка",         10, notype, 0, 20
+	"@whcell",        10, notype, 0, 20
 	group "Время и оператор" {
 		"@date",          07, notype, DATF_DMY, 8
 		"@time",          08, notype, TIMF_HMS, 8
@@ -6059,7 +6059,7 @@ browser CHKOPJ north(100), 1, 1, "Журнал чековых операций", OWNER|GRID, 0
 	}
 }
 
-browser STOCKOPT_ITEMS north(100), 2, 1, "Оптимизация товарных запасов", OWNER|GRID, 0
+browser STOCKOPT_ITEMS north(100), 2, 1, "@view_stockopt", OWNER|GRID, 0
 {
 	"@id",                   0, int32,        0,  4, BCO_USERPROC
 	"@ware",                 1, zstring(128), 0, 25, BCO_USERPROC

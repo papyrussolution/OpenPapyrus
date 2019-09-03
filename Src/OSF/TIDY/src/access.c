@@ -1597,32 +1597,23 @@ static void CheckASCII(TidyDocImpl* doc, Node* node)
 {
 	Node* temp1;
 	Node* temp2;
-
 	tmbstr skipOver = NULL;
 	bool IsAscii = false;
 	int HasSkipOverLink = 0;
-
 	uint i, x;
 	int newLines = -1;
 	tmbchar compareLetter;
 	int matchingCount = 0;
 	AttVal* av;
-
 	if(Level1_Enabled(doc) && node->content) {
-                /*
-                   Checks the text within the PRE and XMP tags to see if ascii
-                   art is present
-                 */
+		// Checks the text within the PRE and XMP tags to see if ascii art is present
 		for(i = node->content->start + 1; i < node->content->end; i++) {
 			matchingCount = 0;
-
                         /* Counts the number of lines of text */
 			if(doc->lexer->lexbuf[i] == '\n') {
 				newLines++;
 			}
-
 			compareLetter = doc->lexer->lexbuf[i];
-
                         /* Counts consecutive character matches */
 			for(x = i; x < i + 5; x++) {
 				if(doc->lexer->lexbuf[x] == compareLetter) {

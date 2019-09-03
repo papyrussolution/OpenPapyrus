@@ -372,9 +372,6 @@ long FASTCALL TView::GetWindowExStyle(HWND hWnd) { return ::GetWindowLong(hWnd, 
 static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 {
 	int    ok = -1;
-	//char   text[512];
-	//::GetWindowText(hwnd, text, sizeof(text));
-	//size_t tlen = sstrlen(text);
 	SString text_buf;
 	TView::SGetWindowText(hwnd, text_buf); // @v9.1.5
 	if(text_buf.Len() > 1) {
@@ -387,9 +384,15 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		}
 		else if(SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER) > 0)
 			do_replace = 1;
+		// @v10.5.4 {
+		else {
+			if(!temp_buf.IsAscii() && temp_buf.IsLegalUtf8()) {
+				temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
+				do_replace = 1;
+			}
+		}
+		// } @v10.5.4 
 		if(do_replace) {
-			//temp_buf.CopyTo(text, sizeof(text));
-			//ok = ::SetWindowText(hwnd, text) ? 1 : 0;
 			ok = TView::SSetWindowText(hwnd, temp_buf);
 		}
 	}
@@ -409,8 +412,7 @@ int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
 	rBuf.Z();
 #ifdef UNICODE
 	wchar_t buf[256];
-	int    buf_len = sizeof(buf) / sizeof(buf[0]);
-	if(::GetClassName(hWnd, buf, buf_len)) {
+	if(::GetClassName(hWnd, buf, SIZEOFARRAY(buf))) {
 		rBuf.CopyUtf8FromUnicode(buf, sstrlen(buf), 0);
 		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 	}
@@ -419,8 +421,7 @@ int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
 	}
 #else
 	char   buf[256];
-	int    buf_len = sizeof(buf) / sizeof(buf[0]);
-	if(::GetClassName(hWnd, buf, buf_len)) {
+	if(::GetClassName(hWnd, buf, SIZEOFARRAY(buf))) {
 		rBuf = buf;
 	}
 	else {
