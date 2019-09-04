@@ -17758,6 +17758,15 @@ struct PPGlobalUserAccConfig {
 	char   Reserve1[52];   // @reserve
 	long   Reserve2[2];    // @reserve
 };
+//
+// Descr: Идентификаторы глобальных сервисов, с которыми могут быть связаны глобальные учетные записи
+// All values ar @persistent
+//
+#define PPGLS_UNDEF         0
+#define PPGLS_TWITTER       1 // 
+#define PPGLS_FACEBOOK      2 // 
+#define PPGLS_VK            3 // 
+#define PPGLS_VETIS         4 // 
 
 struct PPGlobalUserAcc {
 	long   Tag;            // Const=PPOBJ_GLOBALUSERACC
@@ -17766,7 +17775,7 @@ struct PPGlobalUserAcc {
 	char   Symb[20];       // Символ //
 	S_GUID_Base LocalDbUuid; // GUID локальной базы данных
 	char   Password[40];   // Пароль (зашифрован и свернут в строку кодировкой MIME64)
-	long   Reserve;        // @reserve
+	PPID   ServiceIdent;   // @v10.5.5 Идентификатор сервиса, с которым связана запись
 	long   Flags;          // @flags
 	long   LocalUserID;    // Ид пользователя, относительно локальной базы данных
 	PPID   PersonID;       // -->Person.ID

@@ -723,6 +723,10 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 				dsbl = 0;
 				SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PRSNKIND, Data.LinkObjGrp, OLW_CANINSERT, 0);
 			}
+			else if(obj_type == PPOBJ_GLOBALUSERACC) { // @v10.5.5
+				dsbl = 0;
+				SetupStringCombo(this, CTLSEL_OBJTAG_OBJGRP, PPTXT_GLOBALSERVICELIST, Data.LinkObjGrp);
+			}
 			else
 				setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);
 			disableCtrl(CTLSEL_OBJTAG_OBJGRP, dsbl);
@@ -1041,6 +1045,10 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 				if(Data.Rec.TagEnumID == PPOBJ_PERSON) {
 					dsbl = 0;
 					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PRSNKIND, Data.Rec.LinkObjGrp, OLW_CANINSERT, 0);
+				}
+				else if(Data.Rec.TagEnumID == PPOBJ_GLOBALUSERACC) { // @v10.5.5
+					dsbl = 0;
+					SetupStringCombo(this, CTLSEL_OBJTAG_OBJGRP, PPTXT_GLOBALSERVICELIST, Data.Rec.LinkObjGrp);
 				}
 				else
 					setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);

@@ -12,20 +12,9 @@
 #ifndef OPENSSL_NO_RMD160
 //#include <openssl/ripemd.h>
 
-static int init(EVP_MD_CTX *ctx)
-{
-    return RIPEMD160_Init((RIPEMD160_CTX *)EVP_MD_CTX_md_data(ctx));
-}
-
-static int update(EVP_MD_CTX *ctx, const void *data, size_t count)
-{
-    return RIPEMD160_Update((RIPEMD160_CTX *)EVP_MD_CTX_md_data(ctx), data, count);
-}
-
-static int final(EVP_MD_CTX *ctx, uchar *md)
-{
-    return RIPEMD160_Final(md, (RIPEMD160_CTX *)EVP_MD_CTX_md_data(ctx));
-}
+static int init(EVP_MD_CTX *ctx) { return RIPEMD160_Init(static_cast<RIPEMD160_CTX *>(EVP_MD_CTX_md_data(ctx))); }
+static int update(EVP_MD_CTX *ctx, const void *data, size_t count) { return RIPEMD160_Update(static_cast<RIPEMD160_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count); }
+static int final(EVP_MD_CTX *ctx, uchar *md) { return RIPEMD160_Final(md, static_cast<RIPEMD160_CTX *>(EVP_MD_CTX_md_data(ctx))); }
 
 static const EVP_MD ripemd160_md = {
     NID_ripemd160,

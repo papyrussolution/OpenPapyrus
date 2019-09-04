@@ -1273,8 +1273,7 @@
 #define PPTAG_LOT_VETIS_UUID        76L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
 #define PPTAG_LOC_VETIS_GUID        77L // @v10.1.0 ВЕТИС-идент локации (склад или адрес доставки) // в терминах ВЕТИС - enterprise GUID (не UUID)
 #define PPTAG_GUA_SECRET            78L // @v10.1.3 Строка секрета авторизации для глобальной учетной записи. Необходим в том случае,
-	// если эта строка не может быть помещена в штатный пароль записи из-за нарушения требования максимальной длины, либо по каким-то
-	// иным причинам.
+	// если эта строка не может быть помещена в штатный пароль записи из-за нарушения требования максимальной длины, либо по каким-то иным причинам.
 #define PPTAG_GOODS_VETISPURPOSE    79L // @v10.1.12 Цель отгрузки товара для ВЕТИС. Размещение этого признака в товаре
 	// спорно, однако, на момент создания это - быстрое решение проблемы автоматической дифференциации целей отгрузки
 	// в зависимости от товара.
@@ -1288,6 +1287,7 @@
 #define PPTAG_LOT_FREIGHTPACKAGE    86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
 #define PPTAG_GOODS_VETISGUID       87L // @v10.5.1 GUID товара в справочнике ВЕТИС
 #define PPTAG_GUA_GUID              88L // @v10.5.3 GUID глобальной учетной записи
+#define PPTAG_GUA_ACCESSKEY         89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -2963,7 +2963,7 @@
 #define DLG_NEWDAY_L             1030
 	#define CTL_NEWDAY_DATE              (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_NEWDAY_DATE           (2 + WINDOWS_ID_BIAS) // @alena
-#define DLG_CASHDISP              146 // Состояние кассы
+// @v10.5.5 (unused) #define DLG_CASHDISP              146 // Состояние кассы
 #define DLG_CASHDISP_WCFM        1014
 	#define CTL_CASHDISP_BEGSUM          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CASHDISP_INCOME          (2 + WINDOWS_ID_BIAS)
@@ -8787,6 +8787,8 @@
 	#define CTL_GLOBUSERACC_LOCALID       (6 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_PSN           (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GLOBUSERACC_PSN        (8 + WINDOWS_ID_BIAS)
+	#define CTL_GLOBUSERACC_SVC           (9 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GLOBUSERACC_SVC        (10 + WINDOWS_ID_BIAS)
 #define DLG_NEWACCT              1055 //
 	#define cmPassword                    110
 	#define CTL_NEWACCT_USER              (1 + WINDOWS_ID_BIAS)

@@ -1,5 +1,6 @@
 // V_STAFF.CPP
 // Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -223,10 +224,10 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		SString temp_buf;
 		const BrwEntry * p_item = static_cast<const BrwEntry *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
-			case 0: // ИД
+			case 0: // РР”
 				pBlk->Set(p_item->ID);
 				break;
-			case 1: // Наименование
+			case 1: // РќР°РёРјРµРЅРѕРІР°РЅРёРµ
 				{
 					PPStaffEntry se;
 					if(SlObj.Fetch(p_item->ID, &se) > 0)
@@ -236,7 +237,7 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					pBlk->Set(temp_buf);
 				}
 				break;
-			case 2: // Подразделение
+			case 2: // РџРѕРґСЂР°Р·РґРµР»РµРЅРёРµ
 				if(p_item->DivisionID)
 					GetLocationName(p_item->DivisionID, temp_buf);
 				else
@@ -246,13 +247,13 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			case 3: // Rank
 				pBlk->Set(p_item->Rank);
 				break;
-			case 4: // Количество ставок
+			case 4: // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚Р°РІРѕРє
 				pBlk->Set((int32)p_item->VacancyCount);
 				break;
-			case 5: // Занято вакансий
+			case 5: // Р—Р°РЅСЏС‚Рѕ РІР°РєР°РЅСЃРёР№
 				pBlk->Set((int32)p_item->VacancyBusy);
 				break;
-			case 6: // Группа начислений
+			case 6: // Р“СЂСѓРїРїР° РЅР°С‡РёСЃР»РµРЅРёР№
 				temp_buf.Z();
 				if(p_item->ChargeGrpID) {
 					PPObjSalCharge sc_obj;
@@ -842,8 +843,7 @@ int GetAmountList(PPID realDivID, DivType divt, StaffAmtList * pAmtList)
 		THROW(obj_staff.GetPostPacket(realDivID, &post_pack) > 0);
 		amt_list.copy(post_pack.Amounts);
 	}
-	if(pAmtList)
-		pAmtList->copy(amt_list);
+	CALLPTRMEMB(pAmtList, copy(amt_list));
 	CATCHZOK
 	return ok;
 }
@@ -889,14 +889,12 @@ private:
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	virtual int setupList();
-
 	int   EditAmount(long * pPos);
-
 	StrAssocArray * MakeDivList();
 	StrAssocArray * MakeSumList(long divID);
-	int SetupDivList();
+	int    SetupDivList();
 
-	PPID CurDivID;
+	PPID   CurDivID;
 	PPObjStaffList  ObjStaffL;
 	PPObjStaffCal   ObjStaffCal;
 	PPObjPerson     ObjPsn;
@@ -931,13 +929,12 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 	SString buf;
 	StrAssocArray empl_list, * p_ret_list = 0;
 	PPIDArray empl_idlist;
-
 	THROW_MEM(p_ret_list = new StrAssocArray);
 	// @v9.4.12 PPGetWord(PPWORD_ALL, 0, buf);
 	PPLoadString("all", buf); // @v9.4.12
 	p_ret_list->Add(TOP_ID, 0, buf);
 	//
-	// Заносим работодателей
+	// Р—Р°РЅРѕСЃРёРј СЂР°Р±РѕС‚РѕРґР°С‚РµР»РµР№
 	//
 	if(ObjPsn.GetListByKind(PPPRK_EMPLOYER, &empl_idlist, &empl_list) > 0) {
 		PPIDArray staff_idlist;
@@ -946,7 +943,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 			p_ret_list->Add(empl.Id, TOP_ID, empl.Txt);
 		}
 		//
-		// Заносим штатные должности
+		// Р—Р°РЅРѕСЃРёРј С€С‚Р°С‚РЅС‹Рµ РґРѕР»Р¶РЅРѕСЃС‚Рё
 		//
 		{
 			StrAssocArray staff_entry_list;
@@ -965,7 +962,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 			}
 		 }
 		 //
-		 // Заносим штатные назначения и персоналии им соотвествующие
+		 // Р—Р°РЅРѕСЃРёРј С€С‚Р°С‚РЅС‹Рµ РЅР°Р·РЅР°С‡РµРЅРёСЏ Рё РїРµСЂСЃРѕРЅР°Р»РёРё РёРј СЃРѕРѕС‚РІРµСЃС‚РІСѓСЋС‰РёРµ
 		 //
 		 {
 			DBQ * post_dbq = 0;
@@ -1004,7 +1001,6 @@ StrAssocArray * FastEditSumByDivDlg::MakeSumList(long divID)
 		StaffAmtList amt_list;
 		StaffCalFilt sc_flt;
 		THROW_MEM(p_ret_list = new StrAssocArray);
-
 		GetAmountList(real_div_id, divt, &amt_list);
 		if(oneof2(divt, divtEmployer, divtPerson))
 			sc_flt.LinkObjType = PPOBJ_PERSON;
@@ -1015,12 +1011,11 @@ StrAssocArray * FastEditSumByDivDlg::MakeSumList(long divID)
 		if(divt != divtTop)
 			sc_flt.LinkObjList.Add(real_div_id);
 		if(ObjAmtT.CheckRights(PPR_READ)) {
+			SString sub;
 			for(uint i = 0; i < amt_list.getCount(); i++) {
-				SString sub;
 				StringSet ss(SLBColumnDelim);
 				StaffAmtEntry & r_amt_e = amt_list.at(i);
 				PPAmountType amtt_rec;
-
 				THROW(ObjAmtT.Fetch(r_amt_e.AmtTypeID, &amtt_rec) > 0);
 				ss.add((sub = amtt_rec.Name));
 				ss.add(sub.Z().Cat(r_amt_e.Period));
@@ -1215,14 +1210,13 @@ private:
 	DECL_HANDLE_EVENT;
 	virtual int editItem(long pos, long id);
 	virtual int setupList();
-
-	int  EditAmount(PPID divID, PPID amtID);
-	int  EditCalendar(PPID divID, PPID parentCalID);
-	int  SetupSumList();
+	int    EditAmount(PPID divID, PPID amtID);
+	int    EditCalendar(PPID divID, PPID parentCalID);
+	int    SetupSumList();
 	StrAssocArray * MakeDivList(PPID amtID);
 	StrAssocArray * MakeSumList();
-	int PutDivEntryToList(PPID objType, PPID objID, StrAssocArray * pDivList);
-	int PutDivListByAmt(PPID objType, PPID propID, PPID amtID, StrAssocArray * pList);
+	int   PutDivEntryToList(PPID objType, PPID objID, StrAssocArray * pDivList);
+	int   PutDivListByAmt(PPID objType, PPID propID, PPID amtID, StrAssocArray * pList);
 
 	PPID   CurAmtID;
 	PPObjStaffList  ObjStaffL;
@@ -1297,7 +1291,6 @@ int FastEditDivBySumDlg::PutDivListByAmt(PPID objType, PPID propID, PPID amtID, 
 	Reference * p_ref = PPRef;
 	PropertyTbl & r_prop = p_ref->Prop;
 	BExtQuery bext(&r_prop, 0, 64);
-
 	MEMSZERO(k0);
 	k0.ObjType = objType;
 	k0.Prop    = propID;
@@ -1333,11 +1326,11 @@ StrAssocArray * FastEditDivBySumDlg::MakeDivList(PPID amtID)
 	else {
 		PPID amt_id = (amtID - AMOUNTTYPE_OFFS);
 		StaffAmtList amt_list;
-		// Извлечем персоналии у которых есть штатная сумма amtID
+		// РР·РІР»РµС‡РµРј РїРµСЂСЃРѕРЅР°Р»РёРё Сѓ РєРѕС‚РѕСЂС‹С… РµСЃС‚СЊ С€С‚Р°С‚РЅР°СЏ СЃСѓРјРјР° amtID
 		THROW(PutDivListByAmt(PPOBJ_PERSON,     SLPPRP_AMTLIST,   amt_id, p_ret_list));
-		// Извлечем штатные должности у которых есть штатная сумма amtID
+		// РР·РІР»РµС‡РµРј С€С‚Р°С‚РЅС‹Рµ РґРѕР»Р¶РЅРѕСЃС‚Рё Сѓ РєРѕС‚РѕСЂС‹С… РµСЃС‚СЊ С€С‚Р°С‚РЅР°СЏ СЃСѓРјРјР° amtID
 		THROW(PutDivListByAmt(PPOBJ_STAFFLIST2, SLPPRP_AMTLIST,   amt_id, p_ret_list));
-		// Извлечем штатные назначения у которых есть штатная сумма amtID
+		// РР·РІР»РµС‡РµРј С€С‚Р°С‚РЅС‹Рµ РЅР°Р·РЅР°С‡РµРЅРёСЏ Сѓ РєРѕС‚РѕСЂС‹С… РµСЃС‚СЊ С€С‚Р°С‚РЅР°СЏ СЃСѓРјРјР° amtID
 		THROW(PutDivListByAmt(PPOBJ_PERSONPOST, PSNPPPRP_AMTLIST, amt_id, p_ret_list));
 	}
 	CATCH
@@ -1403,14 +1396,13 @@ int FastEditDivBySumDlg::SetupSumList()
 int FastEditDivBySumDlg::EditAmount(PPID divID, PPID amtID)
 {
 	int    ok = -1;
-	long pos = -1;
+	long   pos = -1;
 	DivType divt;
-	PPID real_div_id = GetRealDivID(&ObjPsn, divID, &divt);
+	PPID   real_div_id = GetRealDivID(&ObjPsn, divID, &divt);
 	SString amt_name;
 	StaffAmtList amt_list;
 	StrAssocArray sel_amt_list;
 	StaffAmtEntry * p_entry = 0;
-
 	THROW(ObjAmtT.CheckRights(PPR_MOD));
 	THROW(GetAmountList(real_div_id, divt, &amt_list));
 	GetObjectName(PPOBJ_AMOUNTTYPE, amtID, amt_name);
@@ -1452,7 +1444,7 @@ int FastEditDivBySumDlg::EditCalendar(PPID divID, PPID parentCalID)
 		sc_flt.CalList.Add(parentCalID);
 		if((p_div_cal_list = ObjStaffCal.MakeStrAssocList(&sc_flt)) != 0 && p_div_cal_list->getCount()) {
 			//
-			// Выбор из списка календаря для редактирования //
+			// Р’С‹Р±РѕСЂ РёР· СЃРїРёСЃРєР° РєР°Р»РµРЅРґР°СЂСЏ РґР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ //
 			//
 			PPID   cal_id = 0;
 			if(p_div_cal_list->getCount() > 1) {

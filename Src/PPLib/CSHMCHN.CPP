@@ -74,16 +74,8 @@ int SLAPI PPCashMachine::SyncOrAsync(int cashID, int & rS)
 	int    local_pos_id = 0;
 	uint   sync_count = 0;
 	SString path_str;
-	//PPGetPath(PPPATH_BIN, path_str);
-	//path_str.Cat("ppdrv.ini");
 	PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path_str);
 	PPIniFile ini_file(path_str);
-	/*
-	SString line_buf;
-	uint   idx = 0;
-	while(PPGetSubStr(PPTXT_CMT, idx, line_buf) > 0)
-		idx++;
-	*/
 	local_pos_id = cashID - PPCMT_FIRST_DYN_DVC/*idx*/;
 	if(local_pos_id < 0) // @v10.0.04 (<=)-->(<)
 		ok = -1;
@@ -507,6 +499,41 @@ int SLAPI PPCashMachine::SyncCloseSession()
 	return ok;
 }
 
+/* @v10.5.5 Перенесено в архивных целях из ppw.rc поскольку не используется //
+DLG_CASHDISP DIALOGEX 98, 8, 321, 242
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "@cashmachinestat"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "",IDC_STATIC,5,0,150,90
+    LTEXT           "@cashmachinestat_begsum",4001,15,10,125,8
+    EDITTEXT        CTL_CASHDISP_BEGSUM,15,20,65,13,ES_AUTOHSCROLL
+    LTEXT           "@cashmachinestat_income",4002,15,35,130,8
+    EDITTEXT        CTL_CASHDISP_INCOME,15,45,65,13,ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,160,0,150,90
+    LTEXT           "@cashmachinestat_currentsum",4003,170,10,130,8
+    EDITTEXT        CTL_CASHDISP_CURSUM,170,20,65,13,ES_AUTOHSCROLL
+    LTEXT           "@cashmachinestat_cash",4009,170,35,125,8
+    EDITTEXT        CTL_CASHDISP_CASHSUM,170,45,65,13,ES_AUTOHSCROLL
+    LTEXT           "@difference",4010,170,60,125,8
+    EDITTEXT        CTL_CASHDISP_DIFF,170,70,65,13,ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,5,95,305,90
+    LTEXT           "Сумма наличных оплат",4004,10,105,140,8
+    EDITTEXT        CTL_CASHDISP_CASHAMT,10,115,65,13,ES_AUTOHSCROLL
+    LTEXT           "Сумма безнал оплат",4005,170,105,130,8
+    EDITTEXT        CTL_CASHDISP_BANKAMT,170,115,65,13,ES_AUTOHSCROLL
+    LTEXT           "@refundamount",4006,10,130,130,8
+    EDITTEXT        CTL_CASHDISP_RETAMT,10,140,65,13,ES_AUTOHSCROLL
+    LTEXT           "@discountamount",4007,170,130,130,8
+    EDITTEXT        CTL_CASHDISP_DSCNTAMT,170,140,65,13,ES_AUTOHSCROLL
+    LTEXT           "Сумма по кред картам",4008,10,155,135,8
+    EDITTEXT        CTL_CASHDISP_SCARDAMT,10,165,65,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,175,220,60,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,250,220,60,13
+    LTEXT           "@cashmachinestat_warn",IDC_STATIC,5,190,305,20
+END
+*/
+
 struct CashStat {
 	CashStat()
 	{
@@ -657,7 +684,8 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 		PPLoadString("zreport", msg_buf);
 		dlg->setStaticText(CTL_CASHDISP_ST_TITLE, msg_buf);
 		//
-		PPLoadText(PPTXT_CSESSTOTAL_ZREP, msg_buf);
+		// @v10.5.5 PPLoadText(PPTXT_CSESSTOTAL_ZREP, msg_buf);
+		PPLoadString("cashmachinestat_warn", msg_buf); // @v10.5.5
 		dlg->setStaticText(CTL_CASHDISP_ST_INFO, msg_buf);
 	}
 	else if(options & cssoXReport) {
@@ -1429,7 +1457,7 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 {
 	int    ok = -1, valid_data = 0;
 	LDATE  dt = getcurdate_();
-	PPObjCSession cs_obj; // @v10.4.2 
+	PPObjCSession cs_obj; // @v10.4.2
 	// @v10.4.2 CCheckCore    cc_core;
 	// @v10.4.2 CSessionCore  cs_core;
 	CSessInfo     cs_info;

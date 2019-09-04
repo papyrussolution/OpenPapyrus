@@ -742,6 +742,7 @@ struct VetisBatch {
 		ExpiryDate = rS.ExpiryDate;
 		ProductMarkingList = rS.ProductMarkingList;
 		Flags = rS.Flags;
+		BatchID = rS.BatchID; // @v10.5.5
 		Origin = rS.Origin;
 		TSCollection_Copy(PackageList, rS.PackageList); // @v10.4.0
 		TSCollection_Copy(PackingList, rS.PackingList);
@@ -766,6 +767,7 @@ struct VetisBatch {
 		ExpiryDate.Z();
 		ProductMarkingList.freeAll();
 		Flags = 0;
+		BatchID.Z(); // @v10.5.5
 		Origin.Z();
 		PackageList.freeAll(); // @v10.4.0
 		PackingList.freeAll();
@@ -791,6 +793,7 @@ struct VetisBatch {
 		fLowGradeCargo = 0x0002
 	};
 	long   Flags;
+	SString BatchID; // @v10.5.5
 	VetisBatchOrigin Origin;
 	TSCollection <VetisPackage> PackageList; // @v10.4.0
 	TSCollection <VetisNamedGenericVersioningEntity> PackingList;
@@ -3996,6 +3999,8 @@ int SLAPI PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResu
 			if(temp_buf.IsEqiAscii("true"))
 				rResult.Flags |= rResult.fLowGradeCargo;
 		}
+		else if(SXml::GetContentByName(p_a, "batchID", temp_buf)) // @v10.5.5
+			rResult.BatchID = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		else if(SXml::IsName(p_a, "countryOfOrigin"))
 			ParseCountry(p_a, rResult.Origin.Country);
 		else if(SXml::IsName(p_a, "origin")) { // @v10.5.4 BatchOrigin
@@ -4225,21 +4230,24 @@ int SLAPI PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocu
 			ParseCertifiedConsignment(p_a, r_crtc);
 		}
 		else if(SXml::IsName(p_a, "referencedDocument")) { // ver2
-			for(xmlNode * p_c = p_a ? p_a->children : 0; p_c; p_c = p_c->next) {
-				if(SXml::GetContentByName(p_c, "issueSeries", temp_buf)) {
-					rResult.WayBillSeries = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				}
-				else if(SXml::GetContentByName(p_c, "issueNumber", temp_buf)) {
-					rResult.WayBillNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				}
-				else if(SXml::GetContentByName(p_c, "issueDate", temp_buf)) {
-					rResult.WayBillDate = strtodate_(temp_buf, DATF_ISO8601);
-				}
-				else if(SXml::GetContentByName(p_c, "type", temp_buf)) {
-					rResult.WayBillType = temp_buf.ToLong();
-				}
-				else if(SXml::GetContentByName(p_c, "relationshipType", temp_buf)) {
-					;
+			VetisVetDocument::ReferencedDocument * p_rd = rResult.ReferencedDocumentList.CreateNewItem();
+			if(p_rd) {
+				for(xmlNode * p_c = p_a ? p_a->children : 0; p_c; p_c = p_c->next) {
+					if(SXml::GetContentByName(p_c, "issueSeries", temp_buf)) {
+						p_rd->IssueSeries = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					}
+					else if(SXml::GetContentByName(p_c, "issueNumber", temp_buf)) {
+						p_rd->IssueNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					}
+					else if(SXml::GetContentByName(p_c, "issueDate", temp_buf)) {
+						p_rd->IssueDate = strtodate_(temp_buf, DATF_ISO8601);
+					}
+					else if(SXml::GetContentByName(p_c, "type", temp_buf)) {
+						p_rd->DocumentType = temp_buf.ToLong();
+					}
+					else if(SXml::GetContentByName(p_c, "relationshipType", temp_buf)) {
+						p_rd->RelationshipType = temp_buf.ToLong();
+					}
 				}
 			}
 		}
@@ -4757,10 +4765,6 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 			n_env.PutAttrib(SXml::nst("xmlns", "com"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
 			n_env.PutAttrib(SXml::nst("xmlns", "ent"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/cerberus/enterprise"));
 			n_env.PutAttrib(SXml::nst("xmlns", "ikar"),   InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
-			//n_env.PutAttrib(SXml::nst("xmlns", "merc"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/g2b/applications/v2")); // merc
-			//n_env.PutAttrib(SXml::nst("xmlns", "ws"),      InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application/ws-definitions")); // alpdef
-			//n_env.PutAttrib(SXml::nst("xmlns", "app"),     InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application")); // apl
-			//n_env.PutAttrib(SXml::nst("xmlns", "vd"),      InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/vet-document/v2")); // vd
 			{
 				SXml::WNode n_hdr(srb, SXml::nst("soapenv", "Header"));
 			}
@@ -5602,6 +5606,10 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										PutGoodsDate(srb, SXml::nst("vd", "firstDate"), "dt", r_bat.ExpiryDate.FirstDate);
 										// @v10.5.4 PutGoodsDate(srb, SXml::nst("vd", "secondDate"), "bs", r_bat.ExpiryDate.SecondDate);
 									}
+									if(r_bat.BatchID.NotEmpty()) { // @v10.5.5
+										//<vd:batchID>BN1529656417</vd:batchID>
+										n_c.PutInner(SXml::nst("vd", "batchID"), (temp_buf = r_bat.BatchID).Transf(CTRANSF_INNER_TO_UTF8));
+									}
 									n_c.PutInner(SXml::nst("vd", "perishable"), temp_buf.Z().Cat((r_bat.Flags & VetisBatch::fPerishable) ? "true" : "false"));
 									{
 										SXml::WNode n_org(srb, SXml::nst("vd", "origin"));
@@ -5712,19 +5720,25 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 								// } @v10.5.4 
 								{
 									SXml::WNode n_af(srb, SXml::nst("vd", "accompanyingForms"));
-									{
+									const VetisVetDocument::ReferencedDocument * p_waybill_ref_doc = 0;
+									for(uint rdidx = 0; !p_waybill_ref_doc && rdidx < r_doc.ReferencedDocumentList.getCount(); rdidx++) {
+										const VetisVetDocument::ReferencedDocument * p_rd_item = r_doc.ReferencedDocumentList.at(rdidx);
+										if(p_rd_item && p_rd_item->DocumentType == 1)
+											p_waybill_ref_doc = p_rd_item;
+									}
+									if(p_waybill_ref_doc) {
 										SXml::WNode n_wb(srb, SXml::nst("vd", "waybill"));
 										// @v10.1.6 {
-										if(r_doc.WayBillSeries.NotEmpty()) {
-											n_wb.PutInner(SXml::nst("vd", "issueSeries"), (temp_buf = r_doc.WayBillSeries).Transf(CTRANSF_INNER_TO_UTF8));
+										if(p_waybill_ref_doc->IssueSeries.NotEmpty()) {
+											n_wb.PutInner(SXml::nst("vd", "issueSeries"), (temp_buf = p_waybill_ref_doc->IssueSeries).Transf(CTRANSF_INNER_TO_UTF8));
 										}
 										// } @v10.1.6
-										if(r_doc.WayBillNumber.NotEmpty()) // @v10.5.1
-											n_wb.PutInner(SXml::nst("vd", "issueNumber"), (temp_buf = r_doc.WayBillNumber).Transf(CTRANSF_INNER_TO_UTF8));
-										if(checkdate(r_doc.WayBillDate)) // @v10.5.1
-											n_wb.PutInner(SXml::nst("vd", "issueDate"), temp_buf.Z().Cat(r_doc.WayBillDate, DATF_ISO8601|DATF_CENTURY));
-										if(r_doc.WayBillType > 0) {
-											n_wb.PutInner(SXml::nst("vd", "type"), temp_buf.Z().Cat(r_doc.WayBillType));
+										if(p_waybill_ref_doc->IssueNumber.NotEmpty()) // @v10.5.1
+											n_wb.PutInner(SXml::nst("vd", "issueNumber"), (temp_buf = p_waybill_ref_doc->IssueNumber).Transf(CTRANSF_INNER_TO_UTF8));
+										if(checkdate(p_waybill_ref_doc->IssueDate)) // @v10.5.1
+											n_wb.PutInner(SXml::nst("vd", "issueDate"), temp_buf.Z().Cat(p_waybill_ref_doc->IssueDate, DATF_ISO8601|DATF_CENTURY));
+										if(p_waybill_ref_doc->DocumentType > 0) {
+											n_wb.PutInner(SXml::nst("vd", "type"), temp_buf.Z().Cat(p_waybill_ref_doc->DocumentType));
 										}
 										/* @v10.5.4
 										// @v10.3.4 {

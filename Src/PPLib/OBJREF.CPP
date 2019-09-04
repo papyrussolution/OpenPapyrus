@@ -1974,6 +1974,8 @@ int FASTCALL PPGlobalUserAccPacket::IsEqual(const PPGlobalUserAccPacket & rS) co
 		return 0;
 	else if(NRECFLD(PersonID))
 		return 0;
+	else if(NRECFLD(ServiceIdent)) // @v10.5.5
+		return 0;
 	else if(stricmp(Rec.Name, rS.Rec.Name) != 0)
 		return 0;
 	else if(stricmp(Rec.Symb, rS.Rec.Symb) != 0)
@@ -2210,6 +2212,7 @@ public:
 		setCtrlLong(CTL_GLOBUSERACC_LOCALID, Data.Rec.LocalUserID);
 		enableCommand(cmOK, GuaObj.CheckRights(PPR_MOD));
 		SetupPPObjCombo(this, CTLSEL_GLOBUSERACC_PSN, PPOBJ_PERSON, Data.Rec.PersonID, 0, reinterpret_cast<void *>(cfg.PersonKindID));
+		SetupStringCombo(this, CTLSEL_GLOBUSERACC_SVC, PPTXT_GLOBALSERVICELIST, Data.Rec.ServiceIdent); // @v10.5.5
 		return 1;
 	}
 	int    getDTS(PPGlobalUserAccPacket * pData)
@@ -2227,6 +2230,7 @@ public:
 		Data.Rec.LocalUserID = getCtrlLong(CTL_GLOBUSERACC_LOCALID);
 		THROW(GuaObj.CheckName(Data.Rec.ID, Data.Rec.Name, 1));
 		getCtrlData(CTLSEL_GLOBUSERACC_PSN, &Data.Rec.PersonID);
+		getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			ok = PPErrorByDialog(this, sel);
@@ -2439,17 +2443,15 @@ public:
 		long   Flags;
 		long   LocalUserID;
 		PPID   PersonID;
+		PPID   ServiceIdent; // @v10.5.5
 	};
 };
 
 int SLAPI GlobalUserAccCache::GetConfig(PPGlobalUserAccConfig * pCfg, int enforce)
 {
 	{
-		//CfgLock.ReadLock();
 		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
 		if(!(Cfg.Flags & PPGlobalUserAccConfig::fValid) || enforce) {
-			//CfgLock.Unlock();
-			//CfgLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!(Cfg.Flags & PPGlobalUserAccConfig::fValid) || enforce) {
 				PPObjGlobalUserAcc::ReadConfig(&Cfg);
@@ -2457,7 +2459,6 @@ int SLAPI GlobalUserAccCache::GetConfig(PPGlobalUserAccConfig * pCfg, int enforc
 			}
 		}
 		ASSIGN_PTR(pCfg, Cfg);
-		//CfgLock.Unlock();
 	}
 	return 1;
 }
@@ -2473,6 +2474,7 @@ int SLAPI GlobalUserAccCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->Flags = rec.Flags;
 		p_cache_rec->LocalUserID = rec.LocalUserID;
 		p_cache_rec->PersonID = rec.PersonID;
+		p_cache_rec->ServiceIdent = rec.ServiceIdent; // @v10.5.5
 
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -2495,6 +2497,7 @@ void SLAPI GlobalUserAccCache::EntryToData(const ObjCacheEntry * pEntry, void * 
 	p_data_rec->Flags       = p_cache_rec->Flags;
 	p_data_rec->LocalUserID = p_cache_rec->LocalUserID;
 	p_data_rec->PersonID    = p_cache_rec->PersonID;
+	p_data_rec->ServiceIdent = p_cache_rec->ServiceIdent; // @v10.5.5
 
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
@@ -2527,7 +2530,6 @@ int SLAPI PPObjGlobalUserAcc::DirtyConfig()
 }
 
 #if 0 // {
-
 int SLAPI PPObjGlobalUserAcc::Unregister(const char * pName, const char * pPassword)
 {
 }
@@ -2535,7 +2537,6 @@ int SLAPI PPObjGlobalUserAcc::Unregister(const char * pName, const char * pPassw
 int SLAPI PPObjGlobalUserAcc::ChangePassword(const char * pName, const char * pOldPassword, const char * pNewPassword)
 {
 }
-
 #endif // } 0
 //
 //

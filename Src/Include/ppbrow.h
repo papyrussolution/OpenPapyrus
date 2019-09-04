@@ -4738,5 +4738,7 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_EXPORT02                        32909
 #define PPDV_EXPORT03                        32910
 #define PPDV_DELETEALL02                     32911
-#define PPDV_LOGOPAPYRUS                     32912
+#define PPDV_REPAIR01                        32912
+#define PPDV_REPAIR02                        32913
+#define PPDV_LOGOPAPYRUS                     32914
 
