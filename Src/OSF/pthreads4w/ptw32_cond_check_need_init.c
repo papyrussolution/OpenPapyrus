@@ -45,7 +45,6 @@ INLINE int __ptw32_cond_check_need_init(pthread_cond_t * cond)
 	 * initialised condition variables (via PTHREAD_OBJECT_INITIALIZER).
 	 */
 	__ptw32_mcs_lock_acquire(&__ptw32_cond_test_init_lock, &node);
-
 	/*
 	 * We got here possibly under race
 	 * conditions. Check again inside the critical section.
@@ -64,8 +63,6 @@ INLINE int __ptw32_cond_check_need_init(pthread_cond_t * cond)
 		 */
 		result = EINVAL;
 	}
-
 	__ptw32_mcs_lock_release(&node);
-
 	return result;
 }

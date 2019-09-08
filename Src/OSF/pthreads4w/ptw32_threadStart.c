@@ -42,19 +42,15 @@
 
 static DWORD ExceptionFilter(EXCEPTION_POINTERS * ep, DWORD * ei)
 {
-	switch(ep->ExceptionRecord->ExceptionCode)
-	{
+	switch(ep->ExceptionRecord->ExceptionCode) {
 		case EXCEPTION_PTW32_SERVICES:
 	    {
 		    DWORD param;
 		    DWORD numParams = ep->ExceptionRecord->NumberParameters;
-
 		    numParams = (numParams > 3) ? 3 : numParams;
-
 		    for(param = 0; param < numParams; param++) {
 			    ei[param] = (DWORD)ep->ExceptionRecord->ExceptionInformation[param];
 		    }
-
 		    return EXCEPTION_EXECUTE_HANDLER;
 		    break;
 	    }

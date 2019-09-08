@@ -33,8 +33,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int pthread_attr_setstackaddr(pthread_attr_t * attr, void * stackaddr)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -45,7 +43,6 @@ int pthread_attr_setstackaddr(pthread_attr_t * attr, void * stackaddr)
  * PARAMETERS
  *   attr
  *           pointer to an instance of pthread_attr_t
- *
  *   stackaddr
  *           the address of the stack to use
  *
@@ -56,15 +53,10 @@ int pthread_attr_setstackaddr(pthread_attr_t * attr, void * stackaddr)
  *   Stack must be at least PTHREAD_STACK_MIN bytes.
  *
  *   NOTES:
- *           1)      Function supported only if this macro is
- *                   defined:
- *
- *                           _POSIX_THREAD_ATTR_STACKADDR
- *
- *           2)      Create only one thread for each stack
- *                   address..
- *
- *           3)      Ensure that stackaddr is aligned.
+ *           1)      Function supported only if this macro is defined:
+  *                           _POSIX_THREAD_ATTR_STACKADDR
+  *           2)      Create only one thread for each stack address..
+  *           3)      Ensure that stackaddr is aligned.
  *
  * RESULTS
  *           0               successfully set stack address,
@@ -73,6 +65,7 @@ int pthread_attr_setstackaddr(pthread_attr_t * attr, void * stackaddr)
  *
  * ------------------------------------------------------
  */
+int pthread_attr_setstackaddr(pthread_attr_t * attr, void * stackaddr)
 {
 #if defined( _POSIX_THREAD_ATTR_STACKADDR ) && _POSIX_THREAD_ATTR_STACKADDR != -1
 

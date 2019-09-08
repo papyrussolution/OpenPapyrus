@@ -34,10 +34,8 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 
-static struct pthread_mutexattr_t_ __ptw32_recursive_mutexattr_s =
-{PTHREAD_PROCESS_PRIVATE, PTHREAD_MUTEX_RECURSIVE, PTHREAD_MUTEX_STALLED};
-static struct pthread_mutexattr_t_ __ptw32_errorcheck_mutexattr_s =
-{PTHREAD_PROCESS_PRIVATE, PTHREAD_MUTEX_ERRORCHECK, PTHREAD_MUTEX_STALLED};
+static struct pthread_mutexattr_t_ __ptw32_recursive_mutexattr_s = {PTHREAD_PROCESS_PRIVATE, PTHREAD_MUTEX_RECURSIVE, PTHREAD_MUTEX_STALLED};
+static struct pthread_mutexattr_t_ __ptw32_errorcheck_mutexattr_s = {PTHREAD_PROCESS_PRIVATE, PTHREAD_MUTEX_ERRORCHECK, PTHREAD_MUTEX_STALLED};
 static pthread_mutexattr_t __ptw32_recursive_mutexattr = &__ptw32_recursive_mutexattr_s;
 static pthread_mutexattr_t __ptw32_errorcheck_mutexattr = &__ptw32_errorcheck_mutexattr_s;
 

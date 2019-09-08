@@ -321,7 +321,7 @@ void SMessageWindow::Destroy()
 #endif
 	}
 	HWnd  = 0;
-	Text  = 0;
+	Text.Z();
 	Cmd   = 0;
 	Extra = 0;
 	ZDeleteWinGdiObject(&Brush);
@@ -336,11 +336,9 @@ int SMessageWindow::Move()
 		RECT   img_rect;
 		HWND   h_ctl = GetDlgItem(HWnd, 1201/*CTL_TOOLTIP_TEXT*/);
 		HWND   h_img = GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
-
 		::GetWindowRect(HWnd, &toolt_rect);
 		::GetWindowRect(GetParent(HWnd), &parent_rect);
 		::GetWindowRect(h_img, &img_rect);
-
 		int    top_delta = h_img ? (img_rect.bottom - img_rect.top) : 0;
 		int    toolt_h = toolt_rect.bottom - toolt_rect.top;
 		int    toolt_w = toolt_rect.right  - toolt_rect.left;
@@ -348,14 +346,14 @@ int SMessageWindow::Move()
 			toolt_h = 100;
 			toolt_w = 100;
 			if(Flags & SMessageWindow::fSizeByText) {
+				const  int  max_w = (parent_rect.right - parent_rect.left) / 5;
 				int    w = 0;
 				int    h = 0;
-				int    max_w = (parent_rect.right - parent_rect.left) / 5;
 				HDC    hdc = GetDC(h_ctl);
 				RECT   ctl_rect;
 				SString buf, buf2;
 				StringSet ss('\n', Text);
-				Text = 0;
+				Text.Z();
 				if(Font)
 					SelectObject(hdc, Font);
 				for(uint i = 0; ss.get(&i, buf) > 0;) {
@@ -382,12 +380,12 @@ int SMessageWindow::Move()
 					}
 					Text.Cat(buf);
 				}
-				toolt_h = h + 12;
-				toolt_w = w + 12;
+				toolt_h = h + 16; // 12-->16
+				toolt_w = w + 16; // 12-->16
 				ctl_rect.left = 5;
 				ctl_rect.top  = 5 + top_delta;
-				ctl_rect.right  = toolt_w - 10;
-				ctl_rect.bottom = toolt_h - 10;
+				ctl_rect.right  = toolt_w -10;
+				ctl_rect.bottom = toolt_h -10;
 				::MoveWindow(h_ctl, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, FALSE);
 				::ReleaseDC(h_ctl, hdc);
 			}
@@ -397,8 +395,8 @@ int SMessageWindow::Move()
 				toolt_w = 200;
 				ctl_rect.top    = 5;
 				ctl_rect.left   = 5;
-				ctl_rect.bottom = toolt_h - 10;
-				ctl_rect.right  = toolt_w - 10;
+				ctl_rect.bottom = toolt_h -10;
+				ctl_rect.right  = toolt_w -10;
 				::MoveWindow(h_ctl, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, FALSE);
 			}
 		}
@@ -419,20 +417,19 @@ int SMessageWindow::Move()
 			toolt_rect.top  = (toolt_rect.top + toolt_h  > parent_rect.bottom) ? (parent_rect.bottom - toolt_h - 1) : toolt_rect.top;
 			toolt_rect.left = (toolt_rect.left + toolt_w > parent_rect.right)  ? (parent_rect.right - toolt_w + 2) : toolt_rect.left;
 
-			toolt_rect.top  += 5;
-			toolt_rect.left -= 5;
+			toolt_rect.top  += 8; // @v10.5.5 5-->8
+			toolt_rect.left -= 8; // @v10.5.5 5-->8
 		}
 		else {
-			toolt_rect.top  = parent_rect.bottom - toolt_h - 5;
-			toolt_rect.left = parent_rect.right  - toolt_w - 5;
+			toolt_rect.top  = parent_rect.bottom - toolt_h - 64; // @v10.5.5 5-->64
+			toolt_rect.left = parent_rect.right  - toolt_w - 32; // @v10.5.5 5-->32
 		}
 		if(Flags & SMessageWindow::fChildWindow) {
 			// toolt_rect.left -= parent_rect.left;
 			toolt_rect.top  -= parent_rect.top;
 		}
 		::SetWindowPos(HWnd, (Flags & fTopmost) ? HWND_TOP : 0, toolt_rect.left, toolt_rect.top, toolt_w, toolt_h, (Flags & fTopmost) ? 0 : SWP_NOZORDER);
-		// @v9.1.5 ::SendMessage(h_ctl, WM_SETTEXT, 0, (LPARAM)(const char *)Text);
-		TView::SSetWindowText(h_ctl, Text); // @v9.1.5 
+		TView::SSetWindowText(h_ctl, Text);
 	}
 	return 1;
 }

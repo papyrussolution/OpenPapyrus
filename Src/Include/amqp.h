@@ -1574,7 +1574,7 @@ AMQP_PUBLIC_FUNCTION void FASTCALL amqp_pool_alloc_bytes(amqp_pool_t * pool, siz
  *
  * \since v0.1
  */
-AMQP_PUBLIC_FUNCTION amqp_bytes_t amqp_cstring_bytes(char const *cstr);
+AMQP_PUBLIC_FUNCTION amqp_bytes_t FASTCALL amqp_cstring_bytes(char const *cstr);
 /**
  * Duplicates an amqp_bytes_t buffer.
  *

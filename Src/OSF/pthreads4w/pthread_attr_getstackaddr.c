@@ -38,8 +38,6 @@
 #if defined(_MSC_VER)
 	#pragma warning( disable : 4100 )
 #endif
-
-int pthread_attr_getstackaddr(const pthread_attr_t * attr, void ** stackaddr)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -59,13 +57,11 @@ int pthread_attr_getstackaddr(const pthread_attr_t * attr, void ** stackaddr)
  *   on which threads created with 'attr' will run.
  *
  *   NOTES:
- *           1)      Function supported only if this macro is
- *                   defined:
+ *           1)      Function supported only if this macro is defined:
  *
  *                           _POSIX_THREAD_ATTR_STACKADDR
  *
- *           2)      Create only one thread for each stack
- *                   address..
+ *           2)      Create only one thread for each stack address..
  *
  * RESULTS
  *           0               successfully retrieved stack address,
@@ -74,6 +70,7 @@ int pthread_attr_getstackaddr(const pthread_attr_t * attr, void ** stackaddr)
  *
  * ------------------------------------------------------
  */
+int pthread_attr_getstackaddr(const pthread_attr_t * attr, void ** stackaddr)
 {
 #if defined( _POSIX_THREAD_ATTR_STACKADDR ) && _POSIX_THREAD_ATTR_STACKADDR != -1
 

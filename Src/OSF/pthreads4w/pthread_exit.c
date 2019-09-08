@@ -61,10 +61,9 @@
 void pthread_exit(void * value_ptr)
 {
 	/*
-	 * Don't use pthread_self() to avoid creating an implicit POSIX thread handle
-	 * unnecessarily.
+	 * Don't use pthread_self() to avoid creating an implicit POSIX thread handle unnecessarily.
 	 */
-	__ptw32_thread_t * sp = (__ptw32_thread_t *)pthread_getspecific(__ptw32_selfThreadKey);
+	__ptw32_thread_t * sp = static_cast<__ptw32_thread_t *>(pthread_getspecific(__ptw32_selfThreadKey));
 #if defined(_UWIN)
 	if(--pthread_count <= 0)
 		exit((int)value_ptr);

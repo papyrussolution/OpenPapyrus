@@ -287,6 +287,20 @@ struct VetisAddress {
 	SString EnAddressView;
 };
 
+struct VetisLocation {
+	VetisLocation()
+	{
+	}
+	VetisLocation & Z()
+	{
+		Name.Z();
+		Address.Z();
+		return *this;
+	}
+	SString Name;
+	VetisAddress Address;
+};
+
 struct VetisOrganization {
 	SString ID;
 	SString Name;
@@ -868,11 +882,6 @@ struct VetisTransportInfo {
 	VetisTransportNumber TransportNumber;
 };
 
-struct VetisLocation {
-	SString Name;
-	SString Address;
-};
-
 struct VetisShipmentRoutePoint : public VetisGenericEntity {
 	VetisShipmentRoutePoint() : UnionShipmentRoutePoint(0), Flags(0), P_Location(0), P_Enterprise(0), P_NextTransport(0)
 	{
@@ -882,6 +891,43 @@ struct VetisShipmentRoutePoint : public VetisGenericEntity {
 		delete P_NextTransport;
 		delete P_Location;
 		delete P_Enterprise;
+	}
+	VetisShipmentRoutePoint & FASTCALL operator = (const VetisShipmentRoutePoint & rS)
+	{
+		VetisGenericEntity::operator = (static_cast<const VetisGenericEntity &>(rS));
+		SqnId = rS.SqnId;
+		UnionShipmentRoutePoint = rS.UnionShipmentRoutePoint;
+		Flags = rS.Flags;
+		if(rS.P_Location && SETIFZ(P_Location, new VetisLocation)) {
+			*P_Location = *rS.P_Location;
+		}
+		else {
+			ZDELETE(P_Location);
+		}
+		if(rS.P_Enterprise && SETIFZ(P_Enterprise, new VetisEnterprise)) {
+			*P_Enterprise = *rS.P_Enterprise;
+		}
+		else {
+			ZDELETE(P_Enterprise);
+		}
+		if(rS.P_NextTransport && SETIFZ(P_NextTransport, new VetisTransportInfo)) {
+			*P_NextTransport = *rS.P_NextTransport;
+		}
+		else {
+			ZDELETE(P_NextTransport);
+		}
+		return *this;
+	}
+	VetisShipmentRoutePoint & Z()
+	{
+		VetisGenericEntity::Z();
+		SqnId.Z();
+		UnionShipmentRoutePoint = 0;
+		Flags = 0;
+		ZDELETE(P_Location);
+		ZDELETE(P_Enterprise);
+		ZDELETE(P_NextTransport);
+		return *this;
 	}
 	SString SqnId;
 	//
@@ -1120,6 +1166,7 @@ struct VetisVetDocument : public VetisDocument {
 			*P_CertifiedBatch = *rS.P_CertifiedBatch;
 		}
 		CertifiedConsignment = rS.CertifiedConsignment;
+		TSCollection_Copy(ReferencedDocumentList, rS.ReferencedDocumentList); // @v10.5.5
 		//TSCollection_Copy(ActivityLocationList, rS.ActivityLocationList);
 		return *this;
 	}
@@ -3250,6 +3297,7 @@ private:
 	int    SLAPI ParseCountry(xmlNode * pParentNode, VetisCountry & rResult);
 	int    SLAPI ParseRegion(xmlNode * pParentNode, VetisAddressObjectView & rResult);
 	int    SLAPI ParseAddress(xmlNode * pParentNode, VetisAddress & rResult);
+	int    SLAPI ParseLocation(xmlNode * pParentNode, VetisLocation & rResult);
 	int    SLAPI ParseBusinessMember(xmlNode * pParentNode, VetisBusinessMember & rResult);
 	int    SLAPI ParseEnterprise(xmlNode * pParentNode, VetisEnterprise & rResult);
 	int    SLAPI ParseProducer(xmlNode * pParentNode, VetisProducer & rResult);
@@ -3737,6 +3785,21 @@ int SLAPI PPVetisInterface::ParseAddress(xmlNode * pParentNode, VetisAddress & r
 	return ok;
 }
 
+int SLAPI PPVetisInterface::ParseLocation(xmlNode * pParentNode, VetisLocation & rResult)
+{
+	int    ok = 1;
+	SString temp_buf;
+	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+		if(SXml::GetContentByName(p_a, "name", temp_buf)) {
+			rResult.Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		else if(SXml::IsName(p_a, "address")) {
+			ParseAddress(p_a, rResult.Address);
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPVetisInterface::ParseEnterprise(xmlNode * pParentNode, VetisEnterprise & rResult)
 {
 	int    ok = 1;
@@ -4136,7 +4199,42 @@ int SLAPI PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, Vet
 				}
 			}
 		}
-		// } @v10.5.4 
+		// } @v10.5.4
+		else if(SXml::IsName(p_a, "shipmentRoute")) {
+			for(xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
+				if(SXml::IsName(p_b, "routePoint")) {
+					VetisShipmentRoutePoint * p_new_point = rResult.RoutePointList.CreateNewItem();
+					if(p_new_point) {
+						for(xmlNode * p_c = p_b ? p_b->children : 0; p_c; p_c = p_c->next) {
+							if(SXml::GetContentByName(p_c, "uuid", temp_buf)) {
+								p_new_point->Uuid.FromStr(temp_buf);
+							}
+							else if(SXml::GetContentByName(p_c, "sqnId", temp_buf)) {
+								p_new_point->SqnId = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							}
+							else if(SXml::GetContentByName(p_c, "transshipment", temp_buf)) {
+								SETFLAG(p_new_point->Flags, VetisShipmentRoutePoint::fTransShipment, temp_buf.IsEqiAscii("true"));
+							}
+							else if(SXml::GetContentByName(p_c, "nextTransport", temp_buf)) {
+								if(SETIFZ(p_new_point->P_NextTransport, new VetisTransportInfo)) {
+									THROW(ParseTransportInfo(p_c, *p_new_point->P_NextTransport));
+								}
+							}
+							else if(SXml::IsName(p_c, "location")) {
+								if(SETIFZ(p_new_point->P_Location, new VetisLocation)) {
+									THROW(ParseLocation(p_c, *p_new_point->P_Location));
+								}
+							}
+							else if(SXml::IsName(p_c, "enterprise")) {
+								if(SETIFZ(p_new_point->P_Enterprise, new VetisEnterprise)) {
+									THROW(ParseEnterprise(p_c, *p_new_point->P_Enterprise));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		THROW(r);
 	}
 	CATCHZOK
@@ -5387,137 +5485,6 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 			}
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signProcessIncomingConsignment) {
-			/*
-				<SOAP-ENV:Envelope xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2" 
-					xmlns:bs="http://api.vetrf.ru/schema/cdm/base" 
-					xmlns:merc="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2" 
-					xmlns:apldef="http://api.vetrf.ru/schema/cdm/application/ws-definitions" 
-					xmlns:apl="http://api.vetrf.ru/schema/cdm/application" 
-					xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" 
-					xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-				  <SOAP-ENV:Header/>
-				  <SOAP-ENV:Body>
-					<apldef:submitApplicationRequest>
-					  <apldef:apiKey>apikey</apldef:apiKey>
-					  <apl:application>
-						<apl:serviceId>mercury-g2b.service:2.0</apl:serviceId>
-						<apl:issuerId>Id</apl:issuerId>
-						<apl:issueDate>2017-11-01T11:14:27</apl:issueDate>
-						<apl:data>
-						  <merc:processIncomingConsignmentRequest>
-							<merc:localTransactionId>q1234</merc:localTransactionId>
-							<merc:initiator>
-							  <vd:login>login</vd:login>
-							</merc:initiator>
-							<merc:delivery>
-							  <vd:deliveryDate>2015-09-28T17:00:00</vd:deliveryDate>
-							  <vd:consignor>
-								<dt:businessEntity>
-								  <bs:guid>fcd89443-218a-11e2-a69b-b499babae7ea</bs:guid>
-								</dt:businessEntity>
-								<dt:enterprise>
-								  <bs:guid>ac264dc6-a3eb-4b0f-a86a-9c9577209d6f</bs:guid>
-								</dt:enterprise>
-							  </vd:consignor>
-							  <vd:consignee>
-								<dt:businessEntity>
-								  <bs:guid>4277703a-7b49-455c-a2c3-3215faeca5d2</bs:guid>
-								</dt:businessEntity>
-								<dt:enterprise>
-								  <bs:guid>01c5c8be-08d5-405d-a7fa-9da5960f560c</bs:guid>
-								</dt:enterprise>
-							  </vd:consignee>
-							  <vd:consignment>
-								<vd:productType>5</vd:productType>
-								<vd:product>
-								  <bs:guid>d34504bb-7a93-e1c8-4859-339eafd97c6c</bs:guid>
-								</vd:product>
-								<vd:subProduct>
-								  <bs:guid>9540bfdd-4cd6-6f47-ae83-a32a36c36bfe</bs:guid>
-								</vd:subProduct>
-								<vd:productItem>
-								  <bs:guid>1f8142f6-fbde-4c4a-bf94-e70c5961c1fe</bs:guid>
-								</vd:productItem>
-								<vd:volume>30</vd:volume>
-								<vd:unit>
-								  <bs:guid>21ed96c9-337b-4a27-8761-c6e6ad3c9f5b</bs:guid>
-								</vd:unit>
-								<vd:dateOfProduction>
-								  <vd:firstDate>
-									<dt:year>2020</dt:year>
-									<dt:month>12</dt:month>
-									<dt:day>6</dt:day>
-									<dt:hour>0</dt:hour>
-								  </vd:firstDate>
-								</vd:dateOfProduction>
-								<vd:expiryDate>
-								  <vd:firstDate>
-									<dt:year>2021</dt:year>
-									<dt:month>12</dt:month>
-									<dt:day>6</dt:day>
-									<dt:hour>1</dt:hour>
-								  </vd:firstDate>
-								</vd:expiryDate>
-								<vd:batchID>BN1529656417</vd:batchID>
-								<vd:perishable>false</vd:perishable>
-								<vd:origin>
-								  <vd:country>
-									<bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
-								  </vd:country>
-								  <vd:producer>
-									<dt:enterprise>
-									  <bs:guid>ac264dc6-a3eb-4b0f-a86a-9c9577209d6f</bs:guid>
-									</dt:enterprise>
-									<dt:role>PRODUCER</dt:role>
-								  </vd:producer>
-								</vd:origin>
-								<vd:lowGradeCargo>false</vd:lowGradeCargo>
-							  </vd:consignment>
-							  <vd:broker>
-								<bs:guid>4277703a-7b49-455c-a2c3-3215faeca5d2</bs:guid>
-							  </vd:broker>
-							  <vd:transportInfo>
-								<vd:transportType>1</vd:transportType>
-								<vd:transportNumber>
-								  <vd:vehicleNumber>vehicleNumber</vd:vehicleNumber>
-								</vd:transportNumber>
-							  </vd:transportInfo>
-							  <vd:transportStorageType>VENTILATED</vd:transportStorageType>
-							  <vd:accompanyingForms>
-								<vd:waybill>
-								  <vd:issueSeries>wbSeries</vd:issueSeries>
-								  <vd:issueNumber>waybillNumber</vd:issueNumber>
-								  <vd:issueDate>2017-02-13</vd:issueDate>
-								  <vd:type>1</vd:type>
-								</vd:waybill>
-								<vd:vetCertificate>
-								  <bs:uuid>36e9e22a-c81e-4cd0-b4e0-5ee1ac9d8ada</bs:uuid>
-								</vd:vetCertificate>
-							  </vd:accompanyingForms>
-							</merc:delivery>
-							<merc:deliveryFacts>
-							  <vd:vetCertificatePresence>ELECTRONIC</vd:vetCertificatePresence>
-							  <vd:docInspection>
-								<vd:responsible>
-								  <vd:login>login</vd:login>
-								</vd:responsible>
-								<vd:result>CORRESPONDS</vd:result>
-							  </vd:docInspection>
-							  <vd:vetInspection>
-								<vd:responsible>
-								  <vd:login>login</vd:login>
-								</vd:responsible>
-								<vd:result>CORRESPONDS</vd:result>
-							  </vd:vetInspection>
-							  <vd:decision>ACCEPT_ALL</vd:decision>
-							</merc:deliveryFacts>
-						  </merc:processIncomingConsignmentRequest>
-						</apl:data>
-					  </apl:application>
-					</apldef:submitApplicationRequest>
-				  </SOAP-ENV:Body>
-				</SOAP-ENV:Envelope>
-			*/
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
@@ -5656,7 +5623,12 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 															SXml::WNode n_mark(srb, SXml::nst("dt", "productMarks"));
 															SIntToSymbTab_GetSymb(VetisProductMarkingClass_SymbTab, SIZEOFARRAY(VetisProductMarkingClass_SymbTab), p_mark->Cls, temp_buf);
 															n_mark.PutAttribSkipEmpty("class", temp_buf);
-															n_mark.SetValue((temp_buf = p_mark->Item).Transf(CTRANSF_INNER_TO_UTF8));
+															{
+																temp_buf = p_mark->Item;
+																XMLReplaceSpecSymb(temp_buf, "<>&");
+																temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+																n_mark.SetValue(temp_buf);
+															}
 														}
 													}
 												}
@@ -5689,11 +5661,20 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 								{
 									const VetisTransportInfo * p_trinfo = 0;
 									const TSCollection <VetisCargoReloadingPoint> & r_crpl = r_doc.CertifiedConsignment.CargoReloadingPointList;
+									const TSCollection <VetisShipmentRoutePoint> & r_srpl = r_doc.CertifiedConsignment.RoutePointList;
 									if(r_crpl.getCount()) {
 										p_trinfo = &r_crpl.at(r_crpl.getCount()-1)->NextTransport;
 									}
-									else
-										p_trinfo = &r_doc.CertifiedConsignment.TransportInfo;
+									else {
+										uint srplp = r_srpl.getCount();
+										if(srplp) do {
+											const VetisShipmentRoutePoint * p_rp = r_srpl.at(--srplp);
+											if(p_rp && (p_rp->Flags & p_rp->fTransShipment) && p_rp->P_NextTransport) {
+												p_trinfo = p_rp->P_NextTransport;
+											}
+										} while(!p_trinfo && srplp);
+									}
+									SETIFZ(p_trinfo, &r_doc.CertifiedConsignment.TransportInfo);
 									{
 										SXml::WNode n_tr(srb, SXml::nst("vd", "transportInfo"));
 										if(p_trinfo->TransportType) {
@@ -5721,10 +5702,13 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 								{
 									SXml::WNode n_af(srb, SXml::nst("vd", "accompanyingForms"));
 									const VetisVetDocument::ReferencedDocument * p_waybill_ref_doc = 0;
-									for(uint rdidx = 0; !p_waybill_ref_doc && rdidx < r_doc.ReferencedDocumentList.getCount(); rdidx++) {
-										const VetisVetDocument::ReferencedDocument * p_rd_item = r_doc.ReferencedDocumentList.at(rdidx);
-										if(p_rd_item && p_rd_item->DocumentType == 1)
-											p_waybill_ref_doc = p_rd_item;
+									static const int acceptable_as_waybill_doc_types[] = { 1, 5, 6 };
+									for(uint adtidx = 0; !p_waybill_ref_doc && adtidx < SIZEOFARRAY(acceptable_as_waybill_doc_types); adtidx++) {
+										for(uint rdidx = 0; !p_waybill_ref_doc && rdidx < r_doc.ReferencedDocumentList.getCount(); rdidx++) {
+											const VetisVetDocument::ReferencedDocument * p_rd_item = r_doc.ReferencedDocumentList.at(rdidx);
+											if(p_rd_item && p_rd_item->DocumentType == acceptable_as_waybill_doc_types[adtidx])
+												p_waybill_ref_doc = p_rd_item;
+										}
 									}
 									if(p_waybill_ref_doc) {
 										SXml::WNode n_wb(srb, SXml::nst("vd", "waybill"));

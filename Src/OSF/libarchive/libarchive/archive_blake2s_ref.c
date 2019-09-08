@@ -14,7 +14,7 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#include <stdint.h>
+//#include <stdint.h>
 //#include <string.h>
 //#include <stdio.h>
 #include "archive_blake2.h"

@@ -80,7 +80,7 @@ int pthread_setname_np(pthread_t thr, const char * name, void * arg)
 	 * method is not portable.
 	 */
 	result = pthread_kill(thr, 0);
-	if(0 != result) {
+	if(result) {
 		return result;
 	}
 
@@ -123,7 +123,6 @@ int pthread_setname_np(pthread_t thr, const char * name, void * arg)
 int pthread_setname_np(pthread_t thr, const char * name)
 {
 	__ptw32_mcs_local_node_t threadLock;
-	int result;
 	char * newname;
 	char * oldname;
 	__ptw32_thread_t * tp;
@@ -135,8 +134,8 @@ int pthread_setname_np(pthread_t thr, const char * name)
 	 * pthread_kill and pthread_t are designed to accommodate it, but the
 	 * method is not portable.
 	 */
-	result = pthread_kill(thr, 0);
-	if(0 != result) {
+	int result = pthread_kill(thr, 0);
+	if(result) {
 		return result;
 	}
 	newname = _strdup(name);

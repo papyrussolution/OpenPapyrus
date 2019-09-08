@@ -99,7 +99,7 @@ int pthread_mutex_init(pthread_mutex_t * mutex, const pthread_mutexattr_t * attr
 			}
 		}
 	}
-	if(0 != result) {
+	if(result) {
 		SAlloc::F(mx->robustNode);
 		SAlloc::F(mx);
 		mx = NULL;

@@ -33,8 +33,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int pthread_attr_setdetachstate(pthread_attr_t * attr, int detachstate)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -69,6 +67,7 @@ int pthread_attr_setdetachstate(pthread_attr_t * attr, int detachstate)
  *
  * ------------------------------------------------------
  */
+int pthread_attr_setdetachstate(pthread_attr_t * attr, int detachstate)
 {
 	if(__ptw32_is_attr(attr) != 0) {
 		return EINVAL;

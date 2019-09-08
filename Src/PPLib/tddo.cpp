@@ -725,7 +725,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 								arg_pos_list.Add(arg_sp);
 								rArgList.GetText(arg_no, arg_buf);
 								if(te.T.IsZStr(&(slen = 0))) {
-									SString * p_str = *(SString **)S.GetPtr(arg_sp);
+									SString * p_str = *static_cast<SString **>(S.GetPtr(arg_sp));
 									assert(p_str);
 									*p_str = arg_buf;
 								}
@@ -742,7 +742,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 							//
 							rT = ret_te.T;
 							if(ret_te.T.IsZStr(&(slen = 0))) {
-								SString * p_str = *(SString **)S.GetPtr(ret_sp);
+								SString * p_str = *static_cast<SString **>(S.GetPtr(ret_sp));
 								assert(p_str);
 								rResult = *p_str;
 							}

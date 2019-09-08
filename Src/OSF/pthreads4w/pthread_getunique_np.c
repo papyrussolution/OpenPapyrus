@@ -33,9 +33,7 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-/*
- *
- */
+
 unsigned __int64 pthread_getunique_np(pthread_t thread)
 {
 	return (static_cast<__ptw32_thread_t *>(thread.p))->seqNumber;

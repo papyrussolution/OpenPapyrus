@@ -404,7 +404,10 @@ typedef LongArray PPIDArray;
 //
 class PPConstParam {
 public:
-	SLAPI  PPConstParam() : UseAdvEvQueue(1), Flags(/*fDoSeparateNonFiscalCcItems*/), 
+	SLAPI  PPConstParam() : UseAdvEvQueue(1), Flags(/*fDoSeparateNonFiscalCcItems*/),
+		PPObjSCard_FiltSignature(0xfbefffffU),
+		DbDumpSignature(0x44445050),
+		LaunchAppParam_Signature(0x4c484150L), // 'LHAP'
 		P_SubjectDbDiv("$PpyDbDivTransmission$"),
 		P_SubjectOrder("$PpyOrderTransmission$"),
 		P_SubjectCharry("$PpyCharryTransmission$")
@@ -415,6 +418,9 @@ public:
 	};
 	const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
 	const uint32 Flags;
+	const uint32 DbDumpSignature;
+	const uint32 PPObjSCard_FiltSignature; // Специальная сигнатура объекта PPObjSCard::Filt
+	const long   LaunchAppParam_Signature;
 	const char * P_SubjectDbDiv;
 	const char * P_SubjectOrder;
 	const char * P_SubjectCharry;
@@ -16028,9 +16034,12 @@ class PPTimeSeriesPacket {
 public:
 	SLAPI  PPTimeSeriesPacket();
 	int    FASTCALL IsEqual(const PPTimeSeriesPacket & rS) const;
+	double SLAPI GetMargin(int sell) const;
+	const char * SLAPI GetSymb() const;
 
 	struct Extension {
 		SLAPI  Extension();
+		int    SLAPI IsEmpty() const;
 		int    FASTCALL IsEqual(const Extension & rS) const;
 		double MarginManual; // Торговая маржина, используемая для расчетов и устанавливаемая в ручную.
 			// Требуется в случае, если необходимое для расчетов значение отличается от того, что возвращается торговым сервером.
@@ -16079,7 +16088,8 @@ public:
 			int32  TsFlashTimer;  // @v10.3.3 default(600) Период времени (секунд) по истечении которого необходимо сбросить накопленные серии в БД
 			int32  MinLossQuantForReverse;  // @v10.4.2 Минимальное количество квантов потерь для реверса ставки
 			int32  MinAgeSecondsForReverse; // @v10.4.2 Минимальный возраст ставки для реверса (в секундах)
-			uint8  Reserve[48]; // @v10.4.2 [56]-->[48]
+			int32  TerminalTimeAdjustment;  // @v10.5.5 Поправка времени терминала для сравнения с текущим моментом (в секундах)
+			uint8  Reserve[44]; // @v10.4.2 [56]-->[48]
 		};
 		ExtBlock   E;
 		TSVector <Entry> List;
@@ -16262,7 +16272,7 @@ public:
 	};
 	struct TrainNnParam : public Strategy {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
-		SLAPI  TrainNnParam(const PPTimeSeries & rTsRec, long flags);
+		SLAPI  TrainNnParam(const PPTimeSeriesPacket & rTsPack, long flags);
 		void   SLAPI Reset();
 		SString & SLAPI MakeFileName(SString & rBuf) const;
 		enum {
@@ -16307,8 +16317,8 @@ public:
 	explicit SLAPI  PPObjTimeSeries(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
-	int    SLAPI PutPacket(PPID * pID, PPTimeSeries * pPack, int use_ta);
-	int    SLAPI GetPacket(PPID id, PPTimeSeries * pPack);
+	int    SLAPI PutPacket(PPID * pID, PPTimeSeriesPacket * pPack, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPTimeSeriesPacket * pPack);
 	//
 	// Descr: Типы наборов стратегий
 	//
@@ -16349,7 +16359,7 @@ public:
 		int lastIdx, const Strategy & rS, double & rResult, double & rWinRatio, double & rTv, double & rTv2);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
-	int    SLAPI EditDialog(PPTimeSeries * pEntry);
+	int    SLAPI EditDialog(PPTimeSeriesPacket * pEntry);
 };
 
 struct TimeSeriesFilt : public PPBaseFilt {
@@ -16417,7 +16427,7 @@ public:
 
 	uint8  ReserveStart[128]; // @anchor
 	long   Flags;
-	PPID   TsID;             // Идент временной серии 
+	PPID   TsID;             // Идент временной серии
 	DateRange Period;        //
 	long   Reserve;          // @anchor
 };
@@ -17763,10 +17773,10 @@ struct PPGlobalUserAccConfig {
 // All values ar @persistent
 //
 #define PPGLS_UNDEF         0
-#define PPGLS_TWITTER       1 // 
-#define PPGLS_FACEBOOK      2 // 
-#define PPGLS_VK            3 // 
-#define PPGLS_VETIS         4 // 
+#define PPGLS_TWITTER       1 //
+#define PPGLS_FACEBOOK      2 //
+#define PPGLS_VK            3 //
+#define PPGLS_VETIS         4 //
 
 struct PPGlobalUserAcc {
 	long   Tag;            // Const=PPOBJ_GLOBALUSERACC
@@ -20617,6 +20627,7 @@ public:
 	};
 
 	static int SLAPI InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP);
+	static int SLAPI SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain);
 	//
 	// Descr: Высокоуровневый вариант инициализации клиента, использующий
 	//   конфигурацию глобального обмена.
@@ -20683,7 +20694,7 @@ public:
 	int    SLAPI ConsumeMessage(Envelope & rEnv, long timeoutMs);
 	//
 	// Descr: Клиент отправляет подтверждение о получении сообщения с меткой deliveryTag. Эта метка
-	//   берется из поля Envelope::DeliveryTag. 
+	//   берется из поля Envelope::DeliveryTag.
 	//
 	int    SLAPI Ack(uint64 deliveryTag, long flags /*mqofMultiple*/);
 private:
@@ -20691,7 +20702,7 @@ private:
 	int    SLAPI VerifyRpcReply();
 	void * P_Conn;
 	void * P_Sock;
-	uint16 ChannelN; // amqp_channel_t 
+	uint16 ChannelN; // amqp_channel_t
 	uint16 Reserve; // @alignment
 	SString Host;
 	int    Port;
@@ -32931,8 +32942,8 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	PPID   BonusGrpID;         // Товарная группа, по которой зачитываются бонусы на карты
 	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как списание по кредитной карте в количественном выражении.
 	// @v9.8.9 char   CodeTempl[20];      // Шаблон номеров карт
-	uint8  Reserve3[4];        // @v9.8.9 // @v10.1.3 [12]-->[8]
-	PPID   RsrvPoolDestSerID;  // @v10.2.7 Серия, в котороую должна переносится карта из резервного пула (которым является данная серия) при
+	int32  FixedBonus;         // @v10.5.5 (.01) Фиксированная сумма бонуса на один чек. Специальный сценарий. (для бонусных и кредитных карт)
+	PPID   RsrvPoolDestSerID;  // @v10.2.7 Серия, в которую должна переносится карта из резервного пула (которым является данная серия) при
 		// активации (динамическом сопоставлении с телефоном или персоналией)
 	long   SpecialTreatment;   // @v10.1.3 Идентификатор специальной трактовки операций с картами серии.
 	long   QuotKindID_s;       // @v9.8.9 Вид котировки
@@ -33088,7 +33099,6 @@ public:
 	static int SLAPI SetSCardsByRule(const SCardChargeRule * pSelRule);
 	static int SLAPI SelectRule(SCardChargeRule * pSelRule);
 	static int FASTCALL FetchConfig(PPSCardConfig * pCfg);
-
 	explicit SLAPI  PPObjSCardSeries(void * extraPtr = 0);
 	SLAPI ~PPObjSCardSeries();
 	virtual int    SLAPI Search(PPID id, void * b);
@@ -33155,7 +33165,7 @@ private:
 class PPSCardPacket : public PPExtStrContainer {
 public:
 	SLAPI  PPSCardPacket();
-	void   SLAPI Clear();
+	PPSCardPacket & SLAPI Z();
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке ExtString
 	//
@@ -33178,7 +33188,7 @@ public:
 		SString Code;
 	};
 
-	static const uint32 FiltSignature; // = 0xfbefffffU;
+	// @v10.5.5 (moved to PPConstParam) static const uint32 FiltSignature; // = 0xfbefffffU;
 	//
 	// Descr: Фильтр селектора (MakeStrAssocList)
 	//
@@ -33275,7 +33285,7 @@ public:
 	// Descr: Выводит диалог редактирования версии histID пакета карты.
 	//
 	int    SLAPI ViewVersion(PPID histID);
-	
+
 	enum {
 		cdfCreditCard = 0x0001
 	};

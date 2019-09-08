@@ -5619,6 +5619,7 @@
 	#define CTLSEL_SCARDSER_SPCTRT       (29 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_RPDEST          (30 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDSER_RPDEST       (31 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDSER_FIXBON          (32 + WINDOWS_ID_BIAS)
 #define DLG_SCARD                 530 // Персональная карта
 	#define cmNotifyOptions              101
 	#define cmSCardAction1               102
@@ -5652,6 +5653,7 @@
 	#define CTL_SCARD_ACN1               (28 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_POOLDSER           (29 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARD_POOLDSER        (30 + WINDOWS_ID_BIAS)
+	#define CTL_SCARD_FIXBON             (31 + WINDOWS_ID_BIAS)
 #define DLG_SCARDFLT              531 // F_SCARD Фильтр по пластиковым карточкам
 	#define cmExcludeOwnerScFilt         101
 	#define CTL_SCARDFLT_SERIES          (1 + WINDOWS_ID_BIAS)
@@ -10460,6 +10462,8 @@
 	#define cmNewContact              101
 	#define cmAttachContact           102
 	#define cmPhnCPaneAction          103
+	#define cmEditContact             104 // @v10.5.5
+	#define cmMinimizeWindow          105 // @v10.5.5
 	#define CTL_PHNCPANE_PHN          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PHNCPANE_NAME         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PHNCPANE_NAME      (3 + WINDOWS_ID_BIAS)
@@ -10606,6 +10610,7 @@
 	#define CTL_TIMSER_OPTMDS         (17 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_AVGSPRD        (18 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_TGTQUANT       (19 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_MANMARG        (20 + WINDOWS_ID_BIAS)
 #define DLG_TSSA                  1353 //
 	#define cmTsList                  101
 	#define CTL_TSSA_TS               (1 + WINDOWS_ID_BIAS)
@@ -10626,6 +10631,7 @@
 	#define CTL_TIMSERCFG_TSFLSHTMR   (7 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_RVRMLQ      (8 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_RVRMAS      (9 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERCFG_TERMTMADJ   (10 + WINDOWS_ID_BIAS)
 #define DLG_TIMSERCFGITEM         1356
 	#define CTL_TIMSERCFGITEM_FLAGS   (1 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFGITEM_TS      (2 + WINDOWS_ID_BIAS)

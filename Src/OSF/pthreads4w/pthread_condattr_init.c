@@ -65,7 +65,7 @@
 int pthread_condattr_init(pthread_condattr_t * attr)
 {
 	int result = 0;
-	pthread_condattr_t attr_result = (pthread_condattr_t)SAlloc::C(1, sizeof(*attr_result));
+	pthread_condattr_t attr_result = static_cast<pthread_condattr_t>(SAlloc::C(1, sizeof(*attr_result)));
 	if(attr_result == NULL)
 		result = ENOMEM;
 	*attr = attr_result;

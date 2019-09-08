@@ -570,7 +570,7 @@ __PTW32_BEGIN_C_DECLS
  * =====================
  * =====================
  */
-int __ptw32_is_attr(const pthread_attr_t * attr);
+int FASTCALL __ptw32_is_attr(const pthread_attr_t * attr);
 int __ptw32_cond_check_need_init(pthread_cond_t * cond);
 int __ptw32_mutex_check_need_init(pthread_mutex_t * mutex);
 int __ptw32_rwlock_check_need_init(pthread_rwlock_t * rwlock);

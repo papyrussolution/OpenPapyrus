@@ -866,7 +866,7 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 					THROW_SL(temp_buf.IsValid());
 					memcpy(temp_buf, &cfg, offs);
 					THROW_SL(ser_buf.Read(static_cast<char *>(temp_buf)+offs, sz - offs));
-					THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, (char *)temp_buf, sz));
+					THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, temp_buf.vcptr(), sz));
 				}
 			}
 			else {

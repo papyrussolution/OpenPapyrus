@@ -6703,7 +6703,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
-	#define _RET_DATE    (*(LDATE *)rS.GetPtr(pApl->Get(0)))
+	#define _RET_DATE    (*static_cast<LDATE *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	enum {
 		tNone = 0,

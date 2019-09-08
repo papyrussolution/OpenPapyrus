@@ -46,10 +46,8 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 	DWORD milliseconds;
 	int64_t tmpAbsNanoseconds;
 	int64_t tmpCurrNanoseconds;
-
 	struct timespec currSysTime;
 	FILETIME ft;
-
 # if defined(WINCE)
 	SYSTEMTIME st;
 #endif
@@ -75,14 +73,10 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 # else
 	GetSystemTimeAsFileTime(&ft);
 # endif
-
 	__ptw32_filetime_to_timespec(&ft, &currSysTime);
-
 	tmpCurrNanoseconds = (int64_t)currSysTime.tv_nsec + ((int64_t)currSysTime.tv_sec * NANOSEC_PER_SEC);
-
 	if(tmpAbsNanoseconds > tmpCurrNanoseconds) {
 		int64_t deltaNanoseconds = tmpAbsNanoseconds - tmpCurrNanoseconds;
-
 		if(deltaNanoseconds >= ((int64_t)INFINITE * NANOSEC_PER_MILLISEC)) {
 			/* Timeouts must be finite */
 			milliseconds = INFINITE - 1;
@@ -95,7 +89,6 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 		/* The abstime given is in the past */
 		milliseconds = 0;
 	}
-
 	if(milliseconds == 0 && tmpAbsNanoseconds > tmpCurrNanoseconds) {
 		/*
 		 * millisecond granularity was too small to represent the wait time.
@@ -103,7 +96,6 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 		 */
 		milliseconds = 1;
 	}
-
 	return milliseconds;
 }
 
@@ -112,29 +104,23 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
  * If "relative" is not NULL it represents an interval to add to "abstime".
  */
 
-struct timespec * pthread_win32_getabstime_np(struct timespec * abstime, const struct timespec * relative)                  {
+struct timespec * pthread_win32_getabstime_np(struct timespec * abstime, const struct timespec * relative)                  
+{
 	int64_t sec;
 	int64_t nsec;
-
 	struct timespec currSysTime;
 	FILETIME ft;
-
 	/* get current system time */
-
 # if defined(WINCE)
-
 	SYSTEMTIME st;
 	GetSystemTime(&st);
 	SystemTimeToFileTime(&st, &ft);
 # else
 	GetSystemTimeAsFileTime(&ft);
 # endif
-
 	__ptw32_filetime_to_timespec(&ft, &currSysTime);
-
 	sec = currSysTime.tv_sec;
 	nsec = currSysTime.tv_nsec;
-
 	if(NULL != relative) {
 		nsec += relative->tv_nsec;
 		if(nsec >= NANOSEC_PER_SEC) {
@@ -143,9 +129,7 @@ struct timespec * pthread_win32_getabstime_np(struct timespec * abstime, const s
 		}
 		sec += relative->tv_sec;
 	}
-
 	abstime->tv_sec = (time_t)sec;
 	abstime->tv_nsec = (long)nsec;
-
 	return abstime;
 }

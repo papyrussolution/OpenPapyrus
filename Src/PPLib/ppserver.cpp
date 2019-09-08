@@ -675,7 +675,7 @@ private:
 void SLAPI PPJobSession::Startup()
 {
 	PPThread::Startup();
-	Job = *(PPJob *)P_InitData;
+	Job = *(PPJob *)(P_InitData);
 	SignalStartup();
 }
 

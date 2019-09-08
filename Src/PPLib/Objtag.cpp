@@ -1185,8 +1185,8 @@ SArray * SLAPI PPObjTag::CreateList(long current, long parent)
 	PPObjectTag tag;
 	long   lplus = 0x202b20L, lminus = 0x202d20L;
 	BExtQuery q(ref, 1);
-	SArray * ary = new SArray(sizeof(item));
-	THROW_MEM(ary);
+	SArray * p_ary = new SArray(sizeof(item));
+	THROW_MEM(p_ary);
 	parent = (Search(current, &tag) > 0) ? tag.TagGroupID : labs(parent);
 	if(parent == 1)
 		parent = 0;
@@ -1195,25 +1195,25 @@ SArray * SLAPI PPObjTag::CreateList(long current, long parent)
 	q.selectAll().where(ref->ObjType == PPOBJ_TAG && ref->Val2 == parent);
 	if(parent) {
 		item.id = 0;
-		STRNSCPY(item.text, (char *)&lminus);
-		THROW_SL(ary->insert(&item));
+		STRNSCPY(item.text, reinterpret_cast<const char *>(&lminus));
+		THROW_SL(p_ary->insert(&item));
 	}
 	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
-		PPObjectTag * rec = (PPObjectTag*)&ref->data;
-		if(!grpOnly || rec->TagDataType == 0) {
-			item.id = rec->ID;
-			if(!rec->TagDataType)
-				strcpy(stpcpy(item.text, (char *)&lplus), rec->Name);
+		const PPObjectTag * p_rec = reinterpret_cast<const PPObjectTag *>(&ref->data);
+		if(!grpOnly || p_rec->TagDataType == 0) {
+			item.id = p_rec->ID;
+			if(!p_rec->TagDataType)
+				strcpy(stpcpy(item.text, reinterpret_cast<const char *>(&lplus)), p_rec->Name);
 			else
-				STRNSCPY(item.text, rec->Name);
-			THROW_SL(ary->insert(&item));
+				STRNSCPY(item.text, p_rec->Name);
+			THROW_SL(p_ary->insert(&item));
 		}
 	}
 	THROW_DB(BTROKORNFOUND);
 	CATCH
-		ZDELETE(ary);
+		ZDELETE(p_ary);
 	ENDCATCH
-	return ary;
+	return p_ary;
 }
 
 int SLAPI PPObjTag::CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & rRec) const

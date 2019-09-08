@@ -145,13 +145,13 @@ INLINE
 #endif /*  __PTW32_BUILD_INLINED */
 void __ptw32_mcs_lock_acquire(__ptw32_mcs_lock_t * lock, __ptw32_mcs_local_node_t * node)
 {
-	__ptw32_mcs_local_node_t  * pred;
+	__ptw32_mcs_local_node_t * pred;
 	node->lock = lock;
 	node->nextFlag = 0;
 	node->readyFlag = 0;
 	node->next = 0; /* initially, no successor */
 	/* queue for the lock */
-	pred = (__ptw32_mcs_local_node_t*)__PTW32_INTERLOCKED_EXCHANGE_PTR((__PTW32_INTERLOCKED_PVOID_PTR)lock, (__PTW32_INTERLOCKED_PVOID)node);
+	pred = static_cast<__ptw32_mcs_local_node_t *>(__PTW32_INTERLOCKED_EXCHANGE_PTR((__PTW32_INTERLOCKED_PVOID_PTR)lock, (__PTW32_INTERLOCKED_PVOID)node));
 	if(0 != pred) {
 		/* the lock was not free. link behind predecessor. */
 		__PTW32_INTERLOCKED_EXCHANGE_PTR((__PTW32_INTERLOCKED_PVOID_PTR)&pred->next,  (__PTW32_INTERLOCKED_PVOID)node);
@@ -173,38 +173,21 @@ INLINE
 void __ptw32_mcs_lock_release(__ptw32_mcs_local_node_t * node)
 {
 	__ptw32_mcs_lock_t * lock = node->lock;
-	__ptw32_mcs_local_node_t * next =
-	    (__ptw32_mcs_local_node_t*)
-	    __PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE((__PTW32_INTERLOCKED_SIZEPTR)&node->next,  (__PTW32_INTERLOCKED_SIZE)0);/*
-	                                                                                                                     MBR
-	                                                                                                                     fence
-	                                                                                                                     */
-
+	__ptw32_mcs_local_node_t * next = (__ptw32_mcs_local_node_t*)__PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE((__PTW32_INTERLOCKED_SIZEPTR)&node->next,  (__PTW32_INTERLOCKED_SIZE)0); // MBR fence 
 	if(0 == next) {
 		/* no known successor */
-
-		if(node == (__ptw32_mcs_local_node_t*)
-		    __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR((__PTW32_INTERLOCKED_PVOID_PTR)lock,
-		    (__PTW32_INTERLOCKED_PVOID)0,
-		    (__PTW32_INTERLOCKED_PVOID)node)) {
+		if(node == (__ptw32_mcs_local_node_t*)__PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR((__PTW32_INTERLOCKED_PVOID_PTR)lock, (__PTW32_INTERLOCKED_PVOID)0, (__PTW32_INTERLOCKED_PVOID)node)) {
 			/* no successor, lock is free now */
 			return;
 		}
-
 		/* wait for successor */
 		__ptw32_mcs_flag_wait(&node->nextFlag);
-		next = (__ptw32_mcs_local_node_t*)
-		    __PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE((__PTW32_INTERLOCKED_SIZEPTR)&node->next,  (__PTW32_INTERLOCKED_SIZE)0);/*
-		                                                                                                                     MBR
-		                                                                                                                     fence
-		                                                                                                                     */
+		next = (__ptw32_mcs_local_node_t*)__PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE((__PTW32_INTERLOCKED_SIZEPTR)&node->next,  (__PTW32_INTERLOCKED_SIZE)0); // MBR fence
 	}
 	else {
-		/* Even if the next is non-0, the successor may still be trying to set the next flag on us, therefore we
-		   must wait. */
+		// Even if the next is non-0, the successor may still be trying to set the next flag on us, therefore we must wait. 
 		__ptw32_mcs_flag_wait(&node->nextFlag);
 	}
-
 	/* pass the lock */
 	__ptw32_mcs_flag_set(&next->readyFlag);
 }

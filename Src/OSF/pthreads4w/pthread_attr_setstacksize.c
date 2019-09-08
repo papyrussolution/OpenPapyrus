@@ -33,8 +33,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int pthread_attr_setstacksize(pthread_attr_t * attr, size_t stacksize)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -74,6 +72,7 @@ int pthread_attr_setstacksize(pthread_attr_t * attr, size_t stacksize)
  *
  * ------------------------------------------------------
  */
+int pthread_attr_setstacksize(pthread_attr_t * attr, size_t stacksize)
 {
 #if defined(_POSIX_THREAD_ATTR_STACKSIZE) && _POSIX_THREAD_ATTR_STACKSIZE != -1
 

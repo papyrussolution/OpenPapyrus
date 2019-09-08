@@ -37,8 +37,6 @@
 #if !defined(_UWIN)
 /*#   include <process.h> */
 #endif
-
-int __ptw32_semwait(sem_t * sem)
 /*
  * ------------------------------------------------------
  * DESCRIPTION
@@ -61,16 +59,15 @@ int __ptw32_semwait(sem_t * sem)
  *
  * ------------------------------------------------------
  */
+int __ptw32_semwait(sem_t * sem)
 {
 	__ptw32_mcs_local_node_t node;
 	int v;
 	int result = 0;
 	sem_t s = *sem;
-
 	__ptw32_mcs_lock_acquire(&s->lock, &node);
 	v = --s->value;
 	__ptw32_mcs_lock_release(&node);
-
 	if(v < 0) {
 		/* Must wait */
 		if(WaitForSingleObject(s->sem, INFINITE) == WAIT_OBJECT_0) {
@@ -88,11 +85,9 @@ int __ptw32_semwait(sem_t * sem)
 	else {
 		return 0;
 	}
-
 	if(result != 0) {
 		__PTW32_SET_ERRNO(result);
 		return -1;
 	}
-
 	return 0;
-}                               /* __ptw32_semwait */
+}

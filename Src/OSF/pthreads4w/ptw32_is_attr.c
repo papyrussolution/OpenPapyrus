@@ -33,9 +33,10 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int __ptw32_is_attr(const pthread_attr_t * attr)
+//
+// Descr: Return 0 if the attr object is valid, non-zero otherwise. 
+//
+int FASTCALL __ptw32_is_attr(const pthread_attr_t * attr)
 {
-	/* Return 0 if the attr object is valid, non-zero otherwise. */
 	return (attr == NULL || *attr == NULL || (*attr)->valid !=  __PTW32_ATTR_VALID);
 }

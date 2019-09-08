@@ -915,7 +915,7 @@ int SLAPI PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int u
 			pPack->Rec.ExValSrc = (pPack->Rec.ExValGrp == POKEVG_TAG) ? 0 : pPack->Rec.ExValSrc;
 			THROW(EditItem(Obj, *pID, &pPack->Rec, 0));
 			*pID = pPack->Rec.ID;
-			p_ex = (_POKExtra *)pPack->AllocExtraProp(&extra_sz);
+			p_ex = static_cast<_POKExtra *>(pPack->AllocExtraProp(&extra_sz));
 			THROW(extra_sz == 0 || p_ex);
 			THROW(ref->PutProp(Obj, *pID, POKPRP_EXTRA, p_ex, extra_sz, 0));
 			THROW_DB(deleteFrom(&ref->Prop, 0, (ref->Prop.ObjType == Obj && ref->Prop.ObjID == *pID &&
@@ -925,7 +925,7 @@ int SLAPI PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int u
 				if((prop_id = POKPRP_FIRSTCLAUSE + i) <= POKPRP_LASTCLAUSE) {
 					STempBuffer sbuf(0);
 					THROW(clause.PutToPropBuf(sbuf));
-					THROW(ref->PutProp(Obj, *pID, prop_id, (char *)sbuf, sbuf.GetSize(), 0));
+					THROW(ref->PutProp(Obj, *pID, prop_id, sbuf.vcptr(), sbuf.GetSize(), 0));
 				}
 			}
 			/* @v7.8.9 {

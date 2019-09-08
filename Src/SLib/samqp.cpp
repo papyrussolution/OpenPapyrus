@@ -238,7 +238,7 @@ static inline void * amqp_offset(void * data, size_t offset)  { return PTR8(data
 // This macro defines the encoding and decoding functions associated with a simple type. 
 //
 #define DECLARE_CODEC_BASE_TYPE(bits)                                        \
-	static inline int amqp_encode_ ## bits(amqp_bytes_t encoded, size_t *offset, uint ## bits input) { \
+	static /*inline*/ int FASTCALL amqp_encode_ ## bits(amqp_bytes_t encoded, size_t *offset, uint ## bits input) { \
 		size_t o = *offset;                                                      \
 		if((*offset = o + bits / 8) <= encoded.len) {                           \
 			amqp_e ## bits(input, amqp_offset(encoded.bytes, o));                    \
@@ -246,7 +246,7 @@ static inline void * amqp_offset(void * data, size_t offset)  { return PTR8(data
 		}                                                                        \
 		return 0;                                                                \
 	}                                                                          \
-	static inline int amqp_decode_ ## bits(amqp_bytes_t encoded, size_t *offset, uint ## bits *output) { \
+	static /*inline*/ int FASTCALL amqp_decode_ ## bits(amqp_bytes_t encoded, size_t *offset, uint ## bits *output) { \
 		size_t o = *offset;                                                      \
 		if((*offset = o + bits / 8) <= encoded.len) {                           \
 			*output = amqp_d ## bits(amqp_offset(encoded.bytes, o));                 \
@@ -266,14 +266,18 @@ static inline int is_bigendian()
 
 static inline void amqp_e8(uint8 val, void * data) 
 {
-	memcpy(data, &val, sizeof(val));
+	//memcpy(data, &val, sizeof(val));
+	PTR8(data)[0] = val;
 }
 
 static inline uint8 amqp_d8(const void * data) 
 {
+	/*
 	uint8 val;
 	memcpy(&val, data, sizeof(val));
 	return val;
+	*/
+	return PTR8C(data)[0];
 }
 
 static inline void amqp_e16(uint16 val, void * data) 
@@ -341,7 +345,7 @@ DECLARE_CODEC_BASE_TYPE(16)
 DECLARE_CODEC_BASE_TYPE(32)
 DECLARE_CODEC_BASE_TYPE(64)
 
-static inline int amqp_encode_bytes(amqp_bytes_t encoded, size_t * offset, const amqp_bytes_t input) 
+static /*inline*/ int FASTCALL amqp_encode_bytes(amqp_bytes_t encoded, size_t * offset, const amqp_bytes_t input) 
 {
 	size_t o = *offset;
 	// The memcpy below has undefined behavior if the input is NULL. It is valid
@@ -356,7 +360,7 @@ static inline int amqp_encode_bytes(amqp_bytes_t encoded, size_t * offset, const
 		return 0;
 }
 
-static inline int amqp_decode_bytes(amqp_bytes_t encoded, size_t * offset, amqp_bytes_t * output, size_t len) 
+static /*inline*/ int FASTCALL amqp_decode_bytes(amqp_bytes_t encoded, size_t * offset, amqp_bytes_t * output, size_t len) 
 {
 	size_t o = *offset;
 	if((*offset = o + len) <= encoded.len) {
@@ -371,7 +375,7 @@ static inline int amqp_decode_bytes(amqp_bytes_t encoded, size_t * offset, amqp_
 AMQP_NORETURN void amqp_abort(const char * fmt, ...);
 int amqp_bytes_equal(const amqp_bytes_t r, const amqp_bytes_t l);
 
-static inline amqp_rpc_reply_t amqp_rpc_reply_error(amqp_status_enum status) 
+static /*inline*/ amqp_rpc_reply_t FASTCALL amqp_rpc_reply_error(amqp_status_enum status) 
 {
 	amqp_rpc_reply_t reply;
 	reply.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
@@ -3830,7 +3834,7 @@ void FASTCALL amqp_pool_alloc_bytes(amqp_pool_t * pool, size_t amount, amqp_byte
 	output->bytes = amqp_pool_alloc(pool, amount);
 }
 
-amqp_bytes_t amqp_cstring_bytes(char const * cstr) 
+amqp_bytes_t FASTCALL amqp_cstring_bytes(char const * cstr) 
 {
 	amqp_bytes_t result;
 	result.len = sstrlen(cstr);

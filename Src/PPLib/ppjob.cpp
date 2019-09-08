@@ -137,7 +137,7 @@ int SLAPI PPJobMngr::GetResourceList(int loadText, StrAssocArray * pList)
 struct JobStrgHeader {     // @persistent @size=64
 	long   Signature;      // const=JOBSTRGSIGN
 	uint32 Locking;        // @v7.7.9 Отрезок, блокируемый для предотвращения множественного доступа на изменение
-	SVerT Ver;            // @anchor Версия сессии, создавшей файл
+	SVerT  Ver;            // @anchor Версия сессии, создавшей файл
 	uint32 Count;          // Количество задач
 	int32  LastId;         // @v7.7.9
 	char   Reserve2[44];
@@ -1415,9 +1415,9 @@ public:
 	SString UserPassword;
 };
 
-#define SIGNATURE_LAUNCHAPPPARAM 0x4c484150L // 'LHAP'
+// @v10.5.5 (replaced with _PPConst.LaunchAppParam_Signature)#define SIGNATURE_LAUNCHAPPPARAM 0x4c484150L // 'LHAP'
 
-SLAPI LaunchAppParam::LaunchAppParam() : Signature(SIGNATURE_LAUNCHAPPPARAM), Ver(0), Flags(0)
+SLAPI LaunchAppParam::LaunchAppParam() : Signature(_PPConst.LaunchAppParam_Signature), Ver(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -1425,7 +1425,7 @@ SLAPI LaunchAppParam::LaunchAppParam() : Signature(SIGNATURE_LAUNCHAPPPARAM), Ve
 int SLAPI LaunchAppParam::Write(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
-	long   sign = SIGNATURE_LAUNCHAPPPARAM;
+	long   sign = _PPConst.LaunchAppParam_Signature;
 	THROW_SL(rBuf.Write(sign));
 	THROW_SL(rBuf.Write(Ver));
 	THROW_SL(rBuf.Write(Flags));
@@ -1444,7 +1444,7 @@ int SLAPI LaunchAppParam::Read(SBuffer & rBuf, long)
 	int    ok = -1;
 	if(rBuf.GetAvailableSize()) {
 		THROW_SL(rBuf.Read(Signature));
-		if(Signature == SIGNATURE_LAUNCHAPPPARAM) {
+		if(Signature == _PPConst.LaunchAppParam_Signature) {
 			THROW_SL(rBuf.Read(Ver));
 			THROW_SL(rBuf.Read(Flags));
 			THROW_SL(rBuf.Read(Reserve, sizeof(Reserve)));

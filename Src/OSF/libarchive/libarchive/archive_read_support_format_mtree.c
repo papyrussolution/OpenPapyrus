@@ -1818,7 +1818,7 @@ static int64_t mtree_atol(char ** p, int base)
 
 	if(**p == '-') {
 		limit = INT64_MIN / base;
-		last_digit_limit = INT64_MIN % base;
+		last_digit_limit = static_cast<int>(INT64_MIN % base);
 		++(*p);
 
 		l = 0;
@@ -1833,8 +1833,7 @@ static int64_t mtree_atol(char ** p, int base)
 	}
 	else {
 		limit = INT64_MAX / base;
-		last_digit_limit = INT64_MAX % base;
-
+		last_digit_limit = static_cast<int>(INT64_MAX % base);
 		l = 0;
 		digit = parsedigit(**p);
 		while(digit >= 0 && digit < base) {

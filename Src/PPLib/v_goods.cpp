@@ -945,7 +945,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 					CPY(UserID, PPID);
 					CPY(Flags, long);
 #undef CPY
-					uint16 c = *reinterpret_cast<const uint16 *>(p); 
+					uint16 c = *reinterpret_cast<const uint16 *>(p);
 					p += sizeof(uint16);
 					for(uint16 i = 0; i < c; i++) {
 						P_SjF->ActionIDList.add(*reinterpret_cast<const int32 *>(p));
@@ -4793,7 +4793,7 @@ int PPALDD_GoodsFilt::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		size_t data_len = 0;
 		MEMSZERO(H);
-		const void * p_sur_data = (const void *)DS.GetTLA().SurIdList.Get(rFilt.ID, &data_len);
+		const void * p_sur_data = DS.GetTLA().SurIdList.Get(rFilt.ID, &data_len);
         SBuffer buffer;
         buffer.Write(p_sur_data, data_len);
         GoodsFilt filt;

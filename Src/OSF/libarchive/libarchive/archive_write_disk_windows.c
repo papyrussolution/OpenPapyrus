@@ -636,7 +636,7 @@ int archive_write_disk_set_options(struct archive * _a, int flags)
  */
 static int _archive_write_disk_header(struct archive * _a, struct archive_entry * entry)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	struct fixup_entry * fe;
 	int ret, r;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_disk_header");
@@ -851,7 +851,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 
 int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_set_skip_file");
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
@@ -933,7 +933,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 
 static ssize_t _archive_write_disk_data_block(struct archive * _a, const void * buff, size_t size, int64_t offset)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	ssize_t r;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_write_data_block");
 	a->offset = offset;
@@ -953,14 +953,14 @@ static ssize_t _archive_write_disk_data_block(struct archive * _a, const void * 
 
 static ssize_t _archive_write_disk_data(struct archive * _a, const void * buff, size_t size)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_write_data");
 	return (write_data_block(a, (const char *)buff, size));
 }
 
 static int _archive_write_disk_finish_entry(struct archive * _a)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	int ret = ARCHIVE_OK;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_finish_entry");
 	if(a->archive.state & ARCHIVE_STATE_HEADER)
@@ -1078,7 +1078,7 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data,
     la_int64_t (*lookup_gid)(void * pPrivate, const char * gname, la_int64_t gid), void (*cleanup_gid)(void * pPrivate))
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_set_group_lookup");
 	if(a->cleanup_gid != NULL && a->lookup_gid_data != NULL)
 		(a->cleanup_gid)(a->lookup_gid_data);
@@ -1091,7 +1091,7 @@ int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data
 int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
     int64_t (*lookup_uid)(void * pPrivate, const char * uname, int64_t uid), void (*cleanup_uid)(void * pPrivate))
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_set_user_lookup");
 	if(a->cleanup_uid != NULL && a->lookup_uid_data != NULL)
 		(a->cleanup_uid)(a->lookup_uid_data);
@@ -1103,7 +1103,7 @@ int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
 
 int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_gid");
 	if(a->lookup_gid)
 		return (a->lookup_gid)(a->lookup_gid_data, name, id);
@@ -1112,7 +1112,7 @@ int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_
 
 int64_t archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_uid");
 	if(a->lookup_uid)
 		return (a->lookup_uid)(a->lookup_uid_data, name, id);
@@ -1482,8 +1482,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			    /* Never use an immediate chmod(). */
 			    /* We can't avoid the chmod() entirely if EXTRACT_PERM
 			     * because of SysV SGID inheritance. */
-			    if((mode != final_mode)
-				|| (a->flags & ARCHIVE_EXTRACT_PERM))
+			    if((mode != final_mode) || (a->flags & ARCHIVE_EXTRACT_PERM))
 				    a->deferred |= (a->todo & TODO_MODE);
 			    a->todo &= ~TODO_MODE;
 		    }
@@ -1534,7 +1533,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
  */
 static int _archive_write_disk_close(struct archive * _a)
 {
-	struct archive_write_disk * a = (struct archive_write_disk *)_a;
+	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	struct fixup_entry * next, * p;
 	int ret;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_disk_close");
@@ -1567,7 +1566,7 @@ static int _archive_write_disk_free(struct archive * _a)
 	if(_a == NULL)
 		return ARCHIVE_OK;
 	archive_check_magic(_a, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_disk_free");
-	a = (struct archive_write_disk *)_a;
+	a = reinterpret_cast<struct archive_write_disk *>(_a);
 	ret = _archive_write_disk_close(&a->archive);
 	archive_write_disk_set_group_lookup(&a->archive, NULL, NULL, NULL);
 	archive_write_disk_set_user_lookup(&a->archive, NULL, NULL, NULL);

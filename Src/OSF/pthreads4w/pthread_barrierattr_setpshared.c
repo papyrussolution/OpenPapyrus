@@ -33,8 +33,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-int pthread_barrierattr_setpshared(pthread_barrierattr_t * attr, int pshared)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -75,6 +73,7 @@ int pthread_barrierattr_setpshared(pthread_barrierattr_t * attr, int pshared)
  *
  * ------------------------------------------------------
  */
+int pthread_barrierattr_setpshared(pthread_barrierattr_t * attr, int pshared)
 {
 	int result;
 	if((attr && *attr) && ((pshared == PTHREAD_PROCESS_SHARED) || (pshared == PTHREAD_PROCESS_PRIVATE))) {
@@ -84,18 +83,13 @@ int pthread_barrierattr_setpshared(pthread_barrierattr_t * attr, int pshared)
 			pshared = PTHREAD_PROCESS_PRIVATE;
 #else
 			result = 0;
-
-#endif /* _POSIX_THREAD_PROCESS_SHARED */
+#endif
 		}
-		else {
+		else
 			result = 0;
-		}
-
 		(*attr)->pshared = pshared;
 	}
-	else {
+	else
 		result = EINVAL;
-	}
-
 	return result;
-}                               /* pthread_barrierattr_setpshared */
+}

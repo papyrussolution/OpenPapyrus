@@ -38,21 +38,17 @@
 #if defined(_MSC_VER)
 #pragma warning( disable : 4100 )
 #endif
-
-int pthread_attr_getstacksize(const pthread_attr_t * attr, size_t * stacksize)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *   This function determines the size of the stack on
- *   which threads created with 'attr' will run.
+ *   This function determines the size of the stack on which threads created with 'attr' will run.
  *
  * PARAMETERS
  *   attr
  *           pointer to an instance of pthread_attr_t
  *
  *   stacksize
- *           pointer to size_t into which is returned the
- *           stack size, in bytes.
+ *           pointer to size_t into which is returned the stack size, in bytes.
  *
  *
  * DESCRIPTION
@@ -60,13 +56,11 @@ int pthread_attr_getstacksize(const pthread_attr_t * attr, size_t * stacksize)
  *   which threads created with 'attr' will run.
  *
  *   NOTES:
- *           1)      Function supported only if this macro is
- *                   defined:
+ *           1)      Function supported only if this macro is defined:
  *
  *                           _POSIX_THREAD_ATTR_STACKSIZE
  *
- *           2)      Use on newly created attributes object to
- *                   find the default stack size.
+ *           2)      Use on newly created attributes object to find the default stack size.
  *
  * RESULTS
  *           0               successfully retrieved stack size,
@@ -75,6 +69,7 @@ int pthread_attr_getstacksize(const pthread_attr_t * attr, size_t * stacksize)
  *
  * ------------------------------------------------------
  */
+int pthread_attr_getstacksize(const pthread_attr_t * attr, size_t * stacksize)
 {
 #if defined(_POSIX_THREAD_ATTR_STACKSIZE) && _POSIX_THREAD_ATTR_STACKSIZE != -1
 

@@ -3522,7 +3522,8 @@ public:
 		int16  PeriodCount;
 		int32  LocID;
 		int32  PoolDestSerID;
-		uint8  Reserve[12]; // raw
+		int32  FixedBonus;
+		uint8  Reserve[8]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -3560,6 +3561,7 @@ public:
 	DBField PeriodCount;
 	DBField LocID;
 	DBField PoolDestSerID;
+	DBField FixedBonus;
 	DBField Reserve;
 };
 

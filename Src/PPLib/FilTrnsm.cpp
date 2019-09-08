@@ -633,6 +633,70 @@ static int SLAPI PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileLi
 	return ok;
 }
 
+struct ObjTransmMqProps {
+	ObjTransmMqProps() : SrcDbDivID(0), DestDbDivID(0)
+	{
+	}
+	ObjTransmMqProps & Z()
+	{
+		SrcDbDivID = 0;
+		DestDbDivID = 0;
+		SrcDbGUID.Z();
+		DestDbGUID.Z();
+		FileName.Z();
+		QueueName.Z();
+		return *this;
+	}
+	int    PutToMqbMessage(PPMqbClient::MessageProperties & rProps) const
+	{
+		int    ok = 1;
+		SString temp_buf;
+		rProps.Headers.Add("filename", (temp_buf = FileName).Transf(CTRANSF_OUTER_TO_UTF8));
+		rProps.Headers.Add("dbdiv-id-source", temp_buf.Z().Cat(SrcDbDivID));
+		if(!SrcDbGUID.IsZero())
+			rProps.Headers.Add("dbdiv-guid-source", temp_buf.Z().Cat(SrcDbGUID, S_GUID::fmtIDL));
+		rProps.Headers.Add("dbdiv-id-dest", temp_buf.Z().Cat(DestDbDivID));
+		if(!DestDbGUID.IsZero()) {
+			rProps.Headers.Add("dbdiv-guid-dest", temp_buf.Z().Cat(DestDbGUID, S_GUID::fmtIDL));
+		}
+		return ok;
+	}
+	int    GetFromMqbMessage(const PPMqbClient::MessageProperties & rProps)
+	{
+		int    ok = 1;
+		SString temp_buf;
+		if(rProps.ContentType == SFileFormat::PapyruDbDivXchg) {
+			for(uint propidx = 0; propidx < rProps.Headers.getCount(); propidx++) {
+				StrStrAssocArray::Item prop_item = rProps.Headers.at(propidx);
+				if(sstreqi_ascii(prop_item.Key, "filename")) {
+					(FileName = prop_item.Val).Strip().Transf(CTRANSF_UTF8_TO_OUTER);
+				}
+				else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-source")) {
+					SrcDbDivID = (temp_buf = prop_item.Val).ToLong();
+				}
+				else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-source")) {
+					SrcDbGUID.FromStr(prop_item.Val);
+				}
+				else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-dest")) {
+					DestDbDivID = (temp_buf = prop_item.Val).ToLong();
+				}
+				else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-dest")) {
+					DestDbGUID.FromStr(prop_item.Val);
+				}
+			}
+		}
+		else
+			ok = -1;
+		return ok;
+	}
+	PPID   SrcDbDivID;
+	PPID   DestDbDivID;
+	S_GUID SrcDbGUID;
+	S_GUID DestDbGUID;
+	SString FileName;
+	SString QueueName;
+};
+
 int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 {
 	int    ok = 1, user_accept = 1;
@@ -696,17 +760,16 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 						int cmr = 0;
 						while((cmr = mqc.ConsumeMessage(env, 500)) > 0) {
 							if(env.Msg.Body.GetAvailableSize()) {
-								if(env.Msg.Props.ContentType == SFileFormat::PapyruDbDivXchg) {
-									for(uint propidx = 0; propidx < env.Msg.Props.Headers.getCount(); propidx++) {
-										StrStrAssocArray::Item prop_item = env.Msg.Props.Headers.at(propidx);
-										/*
-											"filename"
-											"dbdiv-id-source"
-											"dbdiv-guid-source"
-											"dbdiv-id-dest"
-											"dbdiv-guid-dest"
-										*/
-
+								ObjTransmMqProps otmp;
+								if(otmp.GetFromMqbMessage(env.Msg.Props) > 0) {
+									if(otmp.FileName.NotEmpty()) {
+										PPGetFilePath(PPPATH_IN, otmp.FileName, file_path);
+										SFile f_out(file_path, SFile::mWrite|SFile::mBinary);
+										if(f_out.IsValid()) {
+											if(f_out.Write(env.Msg.Body.GetBuf(env.Msg.Body.GetRdOffs()), env.Msg.Body.GetAvailableSize())) {
+												mqc.Ack(env.DeliveryTag, 0);
+											}
+										}
 									}
 								}
 							}
@@ -912,17 +975,28 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 								props.TimeStamp = getcurdatetime_();
 								SPathStruc ps(file_name);
 								ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
-								props.Headers.Add("filename", temp_buf.Transf(CTRANSF_OUTER_TO_UTF8));
-								props.Headers.Add("dbdiv-id-source", temp_buf.Z().Cat(LConfig.DBDiv));
-								//props.Headers.Add("dbdiv-guid-source", temp_buf.Z().Cat(LConfig.DBDiv).Transf(CTRANSF_INNER_TO_UTF8));
-								props.Headers.Add("dbdiv-id-dest", temp_buf.Z().Cat(dbdiv_pack.Rec.ID));
-								if(!dbdiv_pack.Rec.Uuid.IsZero()) {
-									props.Headers.Add("dbdiv-guid-dest", temp_buf.Z().Cat(dbdiv_pack.Rec.Uuid, S_GUID::fmtIDL));
+								
+								ObjTransmMqProps otmp;
+								otmp.FileName = temp_buf;
+								otmp.SrcDbDivID = LConfig.DBDiv;
+								otmp.SrcDbGUID.Z();
+								otmp.DestDbDivID = dbdiv_pack.Rec.ID;
+								otmp.DestDbGUID = dbdiv_pack.Rec.Uuid;
+								if(otmp.PutToMqbMessage(props) > 0) {
+									/*
+									props.Headers.Add("filename", temp_buf.Transf(CTRANSF_OUTER_TO_UTF8));
+									props.Headers.Add("dbdiv-id-source", temp_buf.Z().Cat(LConfig.DBDiv));
+									//props.Headers.Add("dbdiv-guid-source", temp_buf.Z().Cat(LConfig.DBDiv).Transf(CTRANSF_INNER_TO_UTF8));
+									props.Headers.Add("dbdiv-id-dest", temp_buf.Z().Cat(dbdiv_pack.Rec.ID));
+									if(!dbdiv_pack.Rec.Uuid.IsZero()) {
+										props.Headers.Add("dbdiv-guid-dest", temp_buf.Z().Cat(dbdiv_pack.Rec.Uuid, S_GUID::fmtIDL));
+									}
+									*/
+									queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
+									THROW(mqc.QueueDeclare(queue_name, 0));
+									(exchange_name = " ").Z();
+									THROW(mqc.Publish(exchange_name, queue_name, &props, data_buf, actual_rd_size));
 								}
-								queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
-								THROW(mqc.QueueDeclare(queue_name, 0));
-								(exchange_name = " ").Z();
-								THROW(mqc.Publish(exchange_name, queue_name, &props, data_buf, actual_rd_size));
 							}
 						}
 					}

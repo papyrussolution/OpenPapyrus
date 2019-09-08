@@ -973,21 +973,21 @@ int FASTCALL DlContext::BuiltinOp(const DlFunc * pF, SV_Uint32 * pApl)
 		char   temp_buf[128];
 		#define CTONLY(f)
 	#endif
-	#define _ARG_INT(n)  (*(int *)S.GetPtr(pApl->Get(n)))
-	#define _ARG_UINT(n) (*(uint *)S.GetPtr(pApl->Get(n)))
-	#define _ARG_DBL(n)  (*(double *)S.GetPtr(pApl->Get(n)))
-	#define _ARG_DT(n)   (*(LDATE *)S.GetPtr(pApl->Get(n)))
-	#define _ARG_TM(n)   (*(LTIME *)S.GetPtr(pApl->Get(n)))
-	#define _ARG_STR(n)  (**(SString **)S.GetPtr(pApl->Get(n)))
+	#define _ARG_INT(n)  (*static_cast<const int *>(S.GetPtr(pApl->Get(n))))
+	#define _ARG_UINT(n) (*static_cast<const uint *>(S.GetPtr(pApl->Get(n))))
+	#define _ARG_DBL(n)  (*static_cast<const double *>(S.GetPtr(pApl->Get(n))))
+	#define _ARG_DT(n)   (*static_cast<const LDATE *>(S.GetPtr(pApl->Get(n))))
+	#define _ARG_TM(n)   (*static_cast<const LTIME *>(S.GetPtr(pApl->Get(n))))
+	#define _ARG_STR(n)  (**static_cast<SString **>(S.GetPtr(pApl->Get(n))))
 	#define _ARG1        (S.GetPtr(pApl->Get(1)))
 	#define _ARG2        (S.GetPtr(pApl->Get(2)))
 	#define _RET         (S.GetPtr(pApl->Get(0)))
-	#define _RET_STR     (**(SString **)S.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)S.GetPtr(pApl->Get(0)))
-	#define _RET_UINT    (*(uint *)S.GetPtr(pApl->Get(0)))
-	#define _RET_DBL     (*(double *)S.GetPtr(pApl->Get(0)))
-	#define _RET_DT      (*(LDATE *)S.GetPtr(pApl->Get(0)))
-	#define _RET_TM      (*(LTIME *)S.GetPtr(pApl->Get(0)))
+	#define _RET_STR     (**static_cast<SString **>(S.GetPtr(pApl->Get(0))))
+	#define _RET_INT     (*static_cast<int *>(S.GetPtr(pApl->Get(0))))
+	#define _RET_UINT    (*static_cast<uint *>(S.GetPtr(pApl->Get(0))))
+	#define _RET_DBL     (*static_cast<double *>(S.GetPtr(pApl->Get(0))))
+	#define _RET_DT      (*static_cast<LDATE *>(S.GetPtr(pApl->Get(0))))
+	#define _RET_TM      (*static_cast<LTIME *>(S.GetPtr(pApl->Get(0))))
 
 	int    ok = 1;
 	if(!pF)
@@ -1033,7 +1033,7 @@ _skip_switch:
 			else { _RET_DBL = _ARG_DBL(1)-_ARG_DBL(2); break; }
 			// дата - дни = дата
 		case 13: if(!pF) CTONLY(AddBOp(dlopSub, 13, "date", "date", "int", 0));
-			else { *(LDATE *)_RET = plusdate(_ARG_DT(1), -_ARG_INT(2)); break; }
+			else { *static_cast<LDATE *>(_RET) = plusdate(_ARG_DT(1), -_ARG_INT(2)); break; }
 			// дата - дата = дни
 		case 14: if(!pF) CTONLY(AddBOp(dlopSub, 14, "int", "date", "date", 0));
 			else { _RET_INT = diffdate(_ARG_DT(1), _ARG_DT(2)); break; }
@@ -1203,7 +1203,7 @@ _skip_switch:
 			}
 			else {
 				long fmt = ParseFormat(_ARG_STR(2), MKSTYPE(S_DATE, 4));
-				_RET_STR.Z().Cat(*(LDATE *)_ARG1, fmt);
+				_RET_STR.Z().Cat(*static_cast<const LDATE *>(_ARG1), fmt);
 				break;
 			}
 		case 93:
@@ -1215,7 +1215,7 @@ _skip_switch:
 			}
 			else {
 				long fmt = ParseFormat(_ARG_STR(2), MKSTYPE(S_TIME, 4));
-				_RET_STR.Z().Cat(*(LTIME *)_ARG1, fmt);
+				_RET_STR.Z().Cat(*static_cast<const LTIME *>(_ARG1), fmt);
 				break;
 			}
 		case 94:

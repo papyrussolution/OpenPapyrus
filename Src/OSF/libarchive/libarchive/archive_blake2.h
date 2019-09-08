@@ -15,13 +15,13 @@
 #ifndef BLAKE2_H
 #define BLAKE2_H
 
-#include <stddef.h>
-#include <stdint.h>
+// #include <stddef.h>
+// #include <stdint.h>
 
 #if defined(_MSC_VER)
-#define BLAKE2_PACKED(x) __pragma(pack(push, 1)) x __pragma(pack(pop))
+	#define BLAKE2_PACKED(x) __pragma(pack(push, 1)) x __pragma(pack(pop))
 #else
-#define BLAKE2_PACKED(x) x __attribute__((packed))
+	#define BLAKE2_PACKED(x) x __attribute__((packed))
 #endif
 
 #if defined(__cplusplus)
@@ -126,8 +126,8 @@ typedef struct blake2xb_state__ {
 
 // Padded structs result in a compile-time error 
 enum {
-	BLAKE2_DUMMY_1 = 1/(sizeof(blake2s_param) == BLAKE2S_OUTBYTES),
-	BLAKE2_DUMMY_2 = 1/(sizeof(blake2b_param) == BLAKE2B_OUTBYTES)
+	BLAKE2_DUMMY_1 = 1/BIN(sizeof(blake2s_param) == BLAKE2S_OUTBYTES),
+	BLAKE2_DUMMY_2 = 1/BIN(sizeof(blake2b_param) == BLAKE2B_OUTBYTES)
 };
 
 /* Streaming API */

@@ -33,8 +33,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-void * pthread_getspecific(pthread_key_t key)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -57,9 +55,9 @@ void * pthread_getspecific(pthread_key_t key)
  *
  * ------------------------------------------------------
  */
+void * pthread_getspecific(pthread_key_t key)
 {
 	void * ptr;
-
 	if(key == NULL) {
 		ptr = NULL;
 	}
@@ -69,12 +67,10 @@ void * pthread_getspecific(pthread_key_t key)
 		int lastWSAerror = WSAGetLastError();
 #endif
 		ptr = TlsGetValue(key->key);
-
 		SetLastError(lasterror);
 #if defined(RETAIN_WSALASTERROR)
 		WSASetLastError(lastWSAerror);
 #endif
 	}
-
 	return ptr;
 }

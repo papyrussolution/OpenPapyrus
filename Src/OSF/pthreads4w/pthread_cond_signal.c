@@ -38,8 +38,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-static INLINE int __ptw32_cond_unblock(pthread_cond_t * cond, int unblockAll)
 /*
  * Notes.
  *
@@ -59,17 +57,15 @@ static INLINE int __ptw32_cond_unblock(pthread_cond_t * cond, int unblockAll)
  *   semBlockLock
  *   semBlockQueue
  */
+static INLINE int __ptw32_cond_unblock(pthread_cond_t * cond, int unblockAll)
 {
 	int result;
 	pthread_cond_t cv;
 	int nSignalsToIssue;
-
 	if(cond == NULL || *cond == NULL) {
 		return EINVAL;
 	}
-
 	cv = *cond;
-
 	/*
 	 * No-op if the CV is static and hasn't been initialised yet.
 	 * Assuming that any race condition is harmless.
@@ -77,11 +73,9 @@ static INLINE int __ptw32_cond_unblock(pthread_cond_t * cond, int unblockAll)
 	if(cv == PTHREAD_COND_INITIALIZER) {
 		return 0;
 	}
-
 	if((result = pthread_mutex_lock(&(cv->mtxUnblockLock))) != 0) {
 		return result;
 	}
-
 	if(0 != cv->nWaitersToUnblock) {
 		if(0 == cv->nWaitersBlocked) {
 			return pthread_mutex_unlock(&(cv->mtxUnblockLock));
@@ -125,11 +119,8 @@ static INLINE int __ptw32_cond_unblock(pthread_cond_t * cond, int unblockAll)
 			result =  __PTW32_GET_ERRNO();
 		}
 	}
-
 	return result;
-}                               /* __ptw32_cond_unblock */
-
-int pthread_cond_signal(pthread_cond_t * cond)
+}
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -162,14 +153,13 @@ int pthread_cond_signal(pthread_cond_t * cond)
  *
  * ------------------------------------------------------
  */
+int pthread_cond_signal(pthread_cond_t * cond)
 {
 	/*
 	 * The '0'(FALSE) unblockAll arg means unblock ONE waiter.
 	 */
 	return (__ptw32_cond_unblock(cond, 0));
-}                               /* pthread_cond_signal */
-
-int pthread_cond_broadcast(pthread_cond_t * cond)
+}
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -199,9 +189,10 @@ int pthread_cond_broadcast(pthread_cond_t * cond)
  *
  * ------------------------------------------------------
  */
+int pthread_cond_broadcast(pthread_cond_t * cond)
 {
 	/*
 	 * The TRUE unblockAll arg means unblock ALL waiters.
 	 */
 	return (__ptw32_cond_unblock(cond,  __PTW32_TRUE));
-}                               /* pthread_cond_broadcast */
+}

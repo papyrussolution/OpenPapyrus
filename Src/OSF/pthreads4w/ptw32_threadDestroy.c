@@ -68,4 +68,4 @@ void __ptw32_threadDestroy(pthread_t thread)
 		}
 #endif
 	}
-}                               /* __ptw32_threadDestroy */
+}

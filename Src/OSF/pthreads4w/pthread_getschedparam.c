@@ -34,28 +34,22 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 
-int pthread_getschedparam(pthread_t thread, int * policy,
-    struct sched_param * param)
+int pthread_getschedparam(pthread_t thread, int * policy, struct sched_param * param)
 {
-	int result;
-
 	/*
 	 * Validate the thread id. This method works for pthreads-win32 because
 	 * pthread_kill and pthread_t are designed to accommodate it, but the
 	 * method is not portable.
 	 */
-	result = pthread_kill(thread, 0);
-	if(0 != result) {
+	int result = pthread_kill(thread, 0);
+	if(result) {
 		return result;
 	}
-
 	if(policy == NULL) {
 		return EINVAL;
 	}
-
 	/* Fill out the policy. */
 	*policy = SCHED_OTHER;
-
 	/*
 	 * This function must return the priority value set by
 	 * the most recent pthread_setschedparam() or pthread_create()
@@ -63,6 +57,5 @@ int pthread_getschedparam(pthread_t thread, int * policy,
 	 * priority as altered by any system priority adjustments etc.
 	 */
 	param->sched_priority = (static_cast<__ptw32_thread_t *>(thread.p))->sched_priority;
-
 	return 0;
 }

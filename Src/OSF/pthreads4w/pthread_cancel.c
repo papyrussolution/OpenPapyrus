@@ -59,8 +59,6 @@ DWORD __ptw32_Registercancellation(PAPCFUNC unused1, HANDLE threadH, DWORD unuse
 	SetThreadContext(threadH, &context);
 	return 0;
 }
-
-int pthread_cancel(pthread_t thread)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -82,6 +80,7 @@ int pthread_cancel(pthread_t thread)
  *           ENOMEM          implicit self thread create failed.
  * ------------------------------------------------------
  */
+int pthread_cancel(pthread_t thread)
 {
 	int result;
 	int cancel_self;
@@ -94,7 +93,7 @@ int pthread_cancel(pthread_t thread)
 	 * method is not portable.
 	 */
 	result = pthread_kill(thread, 0);
-	if(0 != result) {
+	if(result) {
 		return result;
 	}
 	if((self = pthread_self()).p == NULL) {

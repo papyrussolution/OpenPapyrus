@@ -102,7 +102,7 @@ private:
 				}
 				setCtrlString(CTL_SELACNBYPHN_SCARD, temp_buf);
 			}
-			else 
+			else
 				showCtrl(CTL_SELACNBYPHN_SCARD, 0);
 			if(Data.LocID) {
 				LocationTbl::Rec loc_rec;
@@ -395,7 +395,7 @@ private:
 	SCycleTimer ChnlStatusReqTmr;
 	//
 	// Descr: Унифицированная структура для отображения различных данных в общем списке
-	//   Применяется для отражения следующих типов данных: документы, задачи, персональные события, 
+	//   Применяется для отражения следующих типов данных: документы, задачи, персональные события,
 	//   операции по персональным картам, кассовые чеки, списки телефонов для переключения вызова
 	//
 	struct InfoListEntry {
@@ -424,7 +424,7 @@ private:
 	};
 };
 
-//static 
+//static
 PhonePaneDialog * PhonePaneDialog::FindAnalogue(const char * pChannel)
 {
 	const long res_id = DLG_PHNCPANE;
@@ -435,7 +435,7 @@ PhonePaneDialog * PhonePaneDialog::FindAnalogue(const char * pChannel)
 	return 0;
 }
 
-PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) : 
+PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) :
 	TDialog(DLG_PHNCPANE), P_PSER(pPSER), P_Box(0), P_PhnSvcCli(0), ChnlStatusReqTmr(1000)
 {
 	P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_PHNCPANE_INFOLIST));
@@ -457,7 +457,7 @@ PhonePaneDialog::~PhonePaneDialog()
 {
 	ZDELETE(P_PhnSvcCli);
 }
-	
+
 int PhonePaneDialog::SetupInfo()
 {
 	int   result = 1;
@@ -607,8 +607,14 @@ IMPL_HANDLE_EVENT(PhonePaneDialog)
 	else if(event.isCmd(cmNewContact)) {
 		NewContact();
 	}
+	else if(event.isCmd(cmEditContact)) { // @v10.5.5
+		// @todo
+	}
 	else if(event.isCmd(cmPhnCPaneAction)) {
 		DoAction();
+	}
+	else if(event.isCmd(cmMinimizeWindow)) { // @v10.5.5
+		::ShowWindow(H(), SW_MINIMIZE);
 	}
 	else if(event.isCmd(cmLBDblClk)) {
 		if(event.isCtlEvent(CTL_PHNCPANE_INFOLIST) && P_Box) {
@@ -760,7 +766,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				PrjTaskTbl::Rec todo_rec;
 				{
 					for(SEnum en = TodoObj.P_Tbl->EnumByClient(S.PersonID, &period, 0); en.Next(&todo_rec) > 0;) {
-						// Так как Enum заполняет не все поля в записи нам придется извляечь полную запись 
+						// Так как Enum заполняет не все поля в записи нам придется извляечь полную запись
 						if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED) && TodoObj.Search(todo_rec.ID, &todo_rec) > 0) {
 							InfoListEntry new_entry;
 							new_entry.ID = todo_rec.ID;
@@ -779,7 +785,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				}
 				{
 					for(SEnum en = TodoObj.P_Tbl->EnumByEmployer(S.PersonID, &period, 0); en.Next(&todo_rec) > 0;) {
-						// Так как Enum заполняет не все поля в записи нам придется извлечь полную запись 
+						// Так как Enum заполняет не все поля в записи нам придется извлечь полную запись
 						if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED) && TodoObj.Search(todo_rec.ID, &todo_rec) > 0) {
 							InfoListEntry new_entry;
 							new_entry.ID = todo_rec.ID;
@@ -825,7 +831,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 		}
 		else if(mode == State::lmPersonEvent) {
-			// columns: 
+			// columns:
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@time",         20, 0, 2);
@@ -858,7 +864,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 						const InfoListEntry & r_entry = new_list.at(ilidx);
 						ss.clear();
 						ss.add(temp_buf.Z().Cat(r_entry.Dtm, DATF_DMY, TIMF_HMS));
-						if(pok_obj.Fetch(r_entry.OpID, &pok_rec) > 0) 
+						if(pok_obj.Fetch(r_entry.OpID, &pok_rec) > 0)
 							temp_buf = pok_rec.Name;
 						else
 							temp_buf.Z();
@@ -875,7 +881,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 		}
 		else if(mode == State::lmScOp) {
-			// columns: 
+			// columns:
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@time",     20, 0, 2);
@@ -912,7 +918,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 		}
 		else if(mode == State::lmScCCheck) {
-			// columns: 
+			// columns:
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@time",         20, 0, 2);
@@ -945,7 +951,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 		}
 		else if(mode == State::lmLocCCheck) {
-			// columns: 
+			// columns:
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@time",         20, 0, 2);
@@ -978,7 +984,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 		}
 		else if(mode == State::lmSwitchTo) {
-			// columns: 
+			// columns:
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@name",        50, 0, 2);
@@ -1093,7 +1099,7 @@ static const uint32 PhoneServiceEventResponder_Signature = 0x5A6B7C8E;
 int SLAPI PhoneServiceEventResponder::IsConsistent() const
 	{ return (Signature == PhoneServiceEventResponder_Signature); }
 
-SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(PhoneServiceEventResponder_Signature), 
+SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(PhoneServiceEventResponder_Signature),
 	AdvCookie_Ringing(0), AdvCookie_Up(0), P_PsnObj(0), P_InternalPhoneList(0)
 {
 	{
@@ -1153,7 +1159,7 @@ int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObj
 	return ok;
 }
 
-//static 
+//static
 int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
@@ -1164,7 +1170,7 @@ int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * p
 	SString connected_line;
 	SString bridge;
 	if(kind == PPAdviseBlock::evPhoneRinging) {
-		PhoneServiceEventResponder * p_self = (PhoneServiceEventResponder *)procExtPtr;
+		PhoneServiceEventResponder * p_self = static_cast<PhoneServiceEventResponder *>(procExtPtr);
 		if(p_self) {
 			(msg_buf = "PhoneRinging").CatDiv(':', 2);
 			pEv->GetExtStrData(pEv->extssChannel, channel);
@@ -1199,15 +1205,15 @@ int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * p
 						temp_buf.Space().CatParStr(contact_buf);
 					}
 					msg_buf.Printf(fmt_buf, temp_buf.cptr());
-					p_win->Open(msg_buf, 0, /*H()*/0, 0, 5000, GetColorRef(SClrCadetblue),
-						SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus, 0);
+					p_win->Open(msg_buf, 0, /*H()*/0, 0, 5000, /*GetColorRef(SClrCadetblue)*/RGB(0x8E, 0xE4, 0xAF),
+						SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText, 0); // @v10.5.5 SMessageWindow::fLargeText
 				}
 			}
 			ok = 1;
 		}
 	}
 	else if(kind == PPAdviseBlock::evPhoneUp) {
-		PhoneServiceEventResponder * p_self = (PhoneServiceEventResponder *)procExtPtr;
+		PhoneServiceEventResponder * p_self = static_cast<PhoneServiceEventResponder *>(procExtPtr);
 		if(p_self) {
 			(msg_buf = "PhoneUp").CatDiv(':', 2);
 			pEv->GetExtStrData(pEv->extssChannel, channel);
@@ -1396,7 +1402,7 @@ int SLAPI PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-//static 
+//static
 int FASTCALL PPViewPhnSvcMonitor::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewPhnSvcMonitor * p_v = static_cast<PPViewPhnSvcMonitor *>(pBlk->ExtraPtr);

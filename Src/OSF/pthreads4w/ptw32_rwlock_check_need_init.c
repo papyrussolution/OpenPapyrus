@@ -64,8 +64,6 @@ INLINE int __ptw32_rwlock_check_need_init(pthread_rwlock_t * rwlock)
 		 */
 		result = EINVAL;
 	}
-
 	__ptw32_mcs_lock_release(&node);
-
 	return result;
 }

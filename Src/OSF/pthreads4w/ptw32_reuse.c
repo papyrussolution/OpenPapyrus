@@ -73,27 +73,17 @@ pthread_t __ptw32_threadReusePop(void)
 {
 	pthread_t t = {NULL, 0};
 	__ptw32_mcs_local_node_t node;
-
 	__ptw32_mcs_lock_acquire(&__ptw32_thread_reuse_lock, &node);
-
 	if(__PTW32_THREAD_REUSE_EMPTY != __ptw32_threadReuseTop) {
-		__ptw32_thread_t * tp;
-
-		tp = __ptw32_threadReuseTop;
-
+		__ptw32_thread_t * tp = __ptw32_threadReuseTop;
 		__ptw32_threadReuseTop = tp->prevReuse;
-
 		if(__PTW32_THREAD_REUSE_EMPTY == __ptw32_threadReuseTop) {
 			__ptw32_threadReuseBottom =  __PTW32_THREAD_REUSE_EMPTY;
 		}
-
 		tp->prevReuse = NULL;
-
 		t = tp->ptHandle;
 	}
-
 	__ptw32_mcs_lock_release(&node);
-
 	return t;
 }
 

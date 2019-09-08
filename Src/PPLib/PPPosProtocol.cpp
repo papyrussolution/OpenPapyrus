@@ -5316,7 +5316,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 			InitStartupSignal();
 		}
 	private:
-		void SLAPI Startup()
+		virtual void SLAPI Startup()
 		{
 			PPThread::Startup();
 			SignalStartup();

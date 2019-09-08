@@ -457,9 +457,8 @@ static int run_e8e9_filter(struct rar5* rar, struct filter_info* flt, int extend
 		/* 0xE8 = x86's call <relative_addr_uint32> (function call)
 		 * 0xE9 = x86's jmp <relative_addr_uint32> (unconditional jump) */
 		if(b == 0xE8 || (extended && b == 0xE9)) {
-			uint32_t addr;
 			uint32_t offset = static_cast<uint32_t>((i + flt->block_start) % file_size);
-			addr = read_filter_data(rar, (rar->cstate.solid_offset + flt->block_start + i) & rar->cstate.window_mask);
+			uint32_t addr = read_filter_data(rar, (rar->cstate.solid_offset + flt->block_start + i) & rar->cstate.window_mask);
 			if(addr & 0x80000000) {
 				if(((addr + offset) & 0x80000000) == 0) {
 					write_filter_data(rar, i, addr + file_size);
@@ -550,7 +549,6 @@ static void push_data(struct archive_read* a, struct rar5* rar, const uint8_t* b
 	 * If it's not wrapped, it can be copied out by using a single memcpy,
 	 * but when it's wrapped, we need to copy the first part with one
 	 * memcpy, and the second part with another memcpy. */
-
 	if((idx_begin & wmask) > (idx_end & wmask)) {
 		/* The data is wrapped (begin offset sis bigger than end offset). */
 		const ssize_t frag1_size = static_cast<const ssize_t>(rar->cstate.window_size - (idx_begin & wmask));
@@ -562,8 +560,7 @@ static void push_data(struct archive_read* a, struct rar5* rar, const uint8_t* b
 		rar->cstate.last_write_ptr += frag1_size + frag2_size;
 	}
 	else {
-		/* Data is not wrapped, so we can just use one call to copy the
-		 * data. */
+		// Data is not wrapped, so we can just use one call to copy the data.
 		push_data_ready(a, rar, buf + solid_write_ptr, (idx_end - idx_begin) & wmask, rar->cstate.last_write_ptr);
 		rar->cstate.last_write_ptr += idx_end - idx_begin;
 	}
@@ -1008,8 +1005,7 @@ static uint64_t time_win_to_unix(uint64_t win_time) {
 	return win_time / ns_in_sec - sec_to_unix;
 }
 
-static int parse_htime_item(struct archive_read* a, char unix_time,
-    uint64_t* where, ssize_t* extra_data_size)
+static int parse_htime_item(struct archive_read* a, char unix_time, uint64_t* where, ssize_t* extra_data_size)
 {
 	if(unix_time) {
 		uint32_t time_val;
@@ -1023,22 +1019,17 @@ static int parse_htime_item(struct archive_read* a, char unix_time,
 		uint64_t windows_time;
 		if(!read_u64(a, &windows_time))
 			return ARCHIVE_EOF;
-
 		*where = time_win_to_unix(windows_time);
 		*extra_data_size -= 8;
 	}
-
 	return ARCHIVE_OK;
 }
 
-static int parse_file_extra_htime(struct archive_read* a,
-    struct archive_entry* e, struct rar5* rar,
-    ssize_t* extra_data_size)
+static int parse_file_extra_htime(struct archive_read* a, struct archive_entry* e, struct rar5* rar, ssize_t* extra_data_size)
 {
 	char unix_time = 0;
 	size_t flags;
 	size_t value_len;
-
 	enum HTIME_FLAGS {
 		IS_UNIX       = 0x01,
 		HAS_MTIME     = 0x02,
@@ -1046,22 +1037,17 @@ static int parse_file_extra_htime(struct archive_read* a,
 		HAS_ATIME     = 0x08,
 		HAS_UNIX_NS   = 0x10,
 	};
-
 	if(!read_var_sized(a, &flags, &value_len))
 		return ARCHIVE_EOF;
-
 	*extra_data_size -= value_len;
 	if(ARCHIVE_OK != consume(a, value_len)) {
 		return ARCHIVE_EOF;
 	}
-
 	unix_time = flags & IS_UNIX;
-
 	if(flags & HAS_MTIME) {
 		parse_htime_item(a, unix_time, &rar->file.e_mtime, extra_data_size);
 		archive_entry_set_mtime(e, rar->file.e_mtime, 0);
 	}
-
 	if(flags & HAS_CTIME) {
 		parse_htime_item(a, unix_time, &rar->file.e_ctime, extra_data_size);
 		archive_entry_set_ctime(e, rar->file.e_ctime, 0);
@@ -1075,22 +1061,17 @@ static int parse_file_extra_htime(struct archive_read* a,
 	if(flags & HAS_UNIX_NS) {
 		if(!read_u32(a, &rar->file.e_unix_ns))
 			return ARCHIVE_EOF;
-
 		*extra_data_size -= 4;
 	}
-
 	return ARCHIVE_OK;
 }
 
-static int process_head_file_extra(struct archive_read* a,
-    struct archive_entry* e, struct rar5* rar,
-    ssize_t extra_data_size)
+static int process_head_file_extra(struct archive_read* a, struct archive_entry* e, struct rar5* rar, ssize_t extra_data_size)
 {
 	size_t extra_field_size;
 	size_t extra_field_id = 0;
 	int ret = ARCHIVE_FATAL;
 	size_t var_size;
-
 	enum EXTRA {
 		CRYPT = 0x01, HASH = 0x02, HTIME = 0x03, VERSION_ = 0x04,
 		REDIR = 0x05, UOWNER = 0x06, SUBDATA = 0x07

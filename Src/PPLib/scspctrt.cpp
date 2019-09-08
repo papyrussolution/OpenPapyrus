@@ -39,7 +39,7 @@ int FASTCALL SCardSpecialTreatment::InitSpecialCardBlock(PPID scID, PPID posNode
 	rBlk.SpecialTreatment = 0;
 	rBlk.PosNodeID = 0;
 	rBlk.PosNodeCode.Z();
-	rBlk.ScPack.Clear();
+	rBlk.ScPack.Z();
 	PPObjSCard sc_obj;
 	if(sc_obj.GetPacket(scID, &rBlk.ScPack) > 0) {
 		PPObjSCardSeries scs_obj;

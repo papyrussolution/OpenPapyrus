@@ -118,7 +118,7 @@ int DlContext::CreateDlIClsInstance(const DlScope * pScope, SCoClass ** ppInstan
 	SString ffn;
 	Use001(); // чтобы линковались модули с коклассами
 	ffn.Cat("DL6CF_").Cat(pScope->Name);
-	FN_DL6CLS_FACTORY f = (FN_DL6CLS_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);
+	FN_DL6CLS_FACTORY f = reinterpret_cast<FN_DL6CLS_FACTORY>(::GetProcAddress(SLS.GetHInst(), ffn));
 	THROW_PP_S(f, PPERR_DL6_ICLSNOTIMPL, ffn);
 	THROW(p_inst = f(this, pScope));
 	CATCH
@@ -219,7 +219,7 @@ uint DlContext::AllocStackType(DLSYMBID typeID, TypeEntry * pTe)
 		SString * p_s = StP.Alloc(0);
 		sp = S.Alloc(sizeof(p_s));
 		void * ptr = S.GetPtr(sp);
-		*(SString **)ptr = p_s;
+		*static_cast<SString **>(ptr) = p_s;
 		Pss.insert(&sp);
 	}
 	else {
@@ -235,7 +235,7 @@ int FASTCALL DlContext::ReleaseStack(uint pos)
 	if(c) do {
 		uint   sp = Pss.at(--c);
 		if(sp >= pos) {
-			StP.Free(*(SString **)S.GetPtr(sp));
+			StP.Free(*static_cast<SString **>(S.GetPtr(sp)));
 			Pss.atFree(c);
 		}
 	} while(c);
@@ -316,8 +316,8 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 		case CtmExpr::kConst:
 			THROW(SearchTypeID(pExpr->U.C.TypeId, 0, &te));
 			if(te.T.IsZStr(&slen)) {
-				SString * p_str = *(SString **)S.GetPtr(ret_pos);
-				*p_str = (const char *)ConstList.GetPtr(&pExpr->U.C, slen);
+				SString * p_str = *static_cast<SString **>(S.GetPtr(ret_pos));
+				*p_str = static_cast<const char *>(ConstList.GetPtr(&pExpr->U.C, slen));
 				PPExpandString(*p_str, CTRANSF_UTF8_TO_OUTER); // @v9.2.8
 				p_str->Transf(CTRANSF_OUTER_TO_INNER);
 			}
@@ -331,8 +331,8 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 				const STypEx * p_t = p_scope->GetFieldExType(pExpr->U.V.Pos);
 				assert(p_t != 0); // @debug
 				if(p_t->IsZStr(&slen)) {
-					SString * p_str = *(SString **)S.GetPtr(ret_pos);
-					*p_str = (const char *)p_scope->GetDataC(pExpr->U.V.Pos);
+					SString * p_str = *static_cast<SString **>(S.GetPtr(ret_pos));
+					*p_str = static_cast<const char *>(p_scope->GetDataC(pExpr->U.V.Pos));
 				}
 				else
 					memcpy(S.GetPtr(ret_pos), p_scope->GetDataC(pExpr->U.V.Pos), p_t->GetBinSize());
@@ -366,7 +366,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 							DlRtm * p_rtm = GetRtm(te.T.Link);
 							THROW(p_rtm);
 							{
-								PPFilt pf(*(long *)S.GetPtr(ret_sp));
+								PPFilt pf(*static_cast<const long *>(S.GetPtr(ret_sp)));
 								THROW(r = p_rtm->InitData(pf));
 								//
 								// Если порожденный класс не смог инициализировать данные, то
@@ -382,11 +382,11 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 							break;
 						}
 						else if(func.ImplID == DL6FI_REF) {
-							*(long *)S.GetPtr(ret_pos) = *(long *)S.GetPtr(ret_sp);
+							*static_cast<long *>(S.GetPtr(ret_pos)) = *static_cast<const long *>(S.GetPtr(ret_sp));
 							break;
 						}
 						else {
-							int    ret_bool = *(int *)S.GetPtr(ret_sp);
+							int    ret_bool = *static_cast<const int *>(S.GetPtr(ret_sp));
 							if(func.ImplID == DL6FI_AND) {
 								if(ret_bool) {
 									p_arg = p_arg->P_Next;
@@ -394,7 +394,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 									THROW(EvaluateExpr(pCallerRtm, pCallerScope, pCallerRtm, pCallerScope, p_arg, ret_pos)); // @recursion (use caller scope)
 								}
 								else
-									*(int *)S.GetPtr(ret_pos) = ret_bool;
+									*static_cast<int *>(S.GetPtr(ret_pos)) = ret_bool;
 								break;
 							}
 							else if(func.ImplID == DL6FI_OR) {
@@ -404,7 +404,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 									THROW(EvaluateExpr(pCallerRtm, pCallerScope, pCallerRtm, pCallerScope, p_arg, ret_pos)); // @recursion (use caller scope)
 								}
 								else
-									*(int *)S.GetPtr(ret_pos) = ret_bool;
+									*static_cast<int *>(S.GetPtr(ret_pos)) = ret_bool;
 								break;
 							}
 							else if(func.ImplID == DL6FI_QUEST) {
@@ -430,7 +430,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 									//
 									THROW(SearchTypeID(pExpr->GetOrgTypeID(), 0, &te));
 									if(te.T.IsZStr(&slen)) {
-										SString * p_str = *(SString **)S.GetPtr(ret_pos);
+										SString * p_str = *static_cast<SString **>(S.GetPtr(ret_pos));
 										p_str->Z();
 									}
 									else
@@ -466,9 +466,9 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 	ReleaseStack(cur_pos);
 	// @debug {
 #ifdef _DEBUG
-	SString * debug_p_s = *(SString **)S.GetPtr(sp);
-	double debug_r = *(double *)S.GetPtr(sp);
-	int    debug_i = *(int *)S.GetPtr(sp);
+	SString * debug_p_s = *static_cast<SString **>(S.GetPtr(sp));
+	double debug_r = *static_cast<const double *>(S.GetPtr(sp));
+	int    debug_i = *static_cast<const int *>(S.GetPtr(sp));
 #endif
 	// } @debug
 	if(pCallerRtm && pRtm != pCallerRtm)

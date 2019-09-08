@@ -45,8 +45,7 @@
  *
  *
  * DESCRIPTION
- *   Initializes a thread attributes object with default
- *   attributes.
+ *   Initializes a thread attributes object with default attributes.
  *
  *   NOTES:
  *           1)      Used to define thread attributes

@@ -1882,7 +1882,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			if(p_btn->IsConsistent()) {
 				if(item_state == 0 && p_btn->IsDefault())
 					item_state = tbisDefault;
-				uint   bmp_id = p_btn->GetBmpID();
+				const uint bmp_id = p_btn->GetBmpID();
 				switch(bmp_id) {
 					case IDB_MENU:          dv_id = PPDV_FUNCTION01; break;
 					case IDB_FILEBROWSE:    dv_id = PPDV_FOLDER02; break;
@@ -1918,7 +1918,10 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					case IDB_PHONEFORWARDED: dv_id = PPDV_PHONEFORWARDED01; break; // @v10.0.04
 					case IDB_GEAR:           dv_id = PPDV_GEAR01; break; // @v10.4.11
 					default:
-						{
+						if(bmp_id & 0x00008000) { // @v10.5.5
+							dv_id = bmp_id;
+						}
+						else {
 							const uint button_id = p_btn->GetId();
 							switch(button_id) {
 								case STDCTL_CANCELBUTTON:    dv_id = PPDV_CANCEL01; break;
@@ -1950,11 +1953,11 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 									if(p_btn->GetSubSign() == TV_SUBSIGN_COMBOBOX) {
 										dv_id = PPDV_DROPDOWN01;
 									}
-									else if(p_btn->GetBmpID() == OBM_UPARROWD) {
+									else if(bmp_id == OBM_UPARROWD) {
 										dv_id = PPDV_UP01;
 										erase_text = 1;
 									}
-									else if(p_btn->GetBmpID() == OBM_DNARROWD) {
+									else if(bmp_id == OBM_DNARROWD) {
 										dv_id = PPDV_DOWN01;
 										erase_text = 1;
 									}
@@ -2063,18 +2066,14 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				}
 			}
 			else {
-				if(sstreq(static_cast<const char *>(p_user_data), "papyruscalendarperiod")) { // GetCalCtrlSignature(1)
+				if(sstreq(static_cast<const char *>(p_user_data), "papyruscalendarperiod")) // GetCalCtrlSignature(1)
 					dv_id = PPDV_CALENDAR03;
-				}
-				else if(sstreq(static_cast<const char *>(p_user_data), "papyruscalendardate")) { // GetCalCtrlSignature(0)
+				else if(sstreq(static_cast<const char *>(p_user_data), "papyruscalendardate")) // GetCalCtrlSignature(0)
 					dv_id = PPDV_CALENDARDAY01;
-				}
-				else if(sstreq(static_cast<const char *>(p_user_data), "papyruscalculator")) {
+				else if(sstreq(static_cast<const char *>(p_user_data), "papyruscalculator"))
 					dv_id = PPDV_CALCULATOR02;
-				}
-				else if(sstreq(static_cast<const char *>(p_user_data), "papyrusclock")) { // @v9.2.11
+				else if(sstreq(static_cast<const char *>(p_user_data), "papyrusclock")) // @v9.2.11
 					dv_id = PPDV_CLOCK02;
-				}
 			}
 		}
 		if(!erase_text && draw_text) {

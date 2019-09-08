@@ -1067,8 +1067,7 @@ static int header_common(struct archive_read * a, struct tar * tar,
 	if(tar->entry_bytes_remaining == INT64_MAX) {
 		/* Note: tar_atol returns INT64_MAX on overflow */
 		tar->entry_bytes_remaining = 0;
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Tar entry size overflow");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Tar entry size overflow");
 		return ARCHIVE_FATAL;
 	}
 	tar->realsize = tar->entry_bytes_remaining;

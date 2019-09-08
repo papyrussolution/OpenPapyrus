@@ -261,7 +261,7 @@ int SLAPI PPMqbClient::Consume(const char * pQueue, const char * pConsumerTag, l
 	return ok;
 }
 
-static void AmpqBytesToSString(const amqp_bytes_t & rS, SString & rDest)
+static void FASTCALL AmpqBytesToSString(const amqp_bytes_t & rS, SString & rDest)
 {
 	rDest.Z();
 	if(rS.len && rS.bytes)
@@ -350,6 +350,7 @@ int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 				ok = -1;
 			}
 		}
+		amqp_destroy_envelope(&envelope);
 		THROW(VerifyRpcReply());
 	}
 	CATCHZOK
@@ -434,34 +435,147 @@ int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam
 }
 
 //static 
-int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, SString * pDomain)
+int SLAPI PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain)
 {
 	int    ok = 1;
 	SString data_domain;
 	SString temp_buf;
-	PPMqbClient::InitParam lp;
 	PPAlbatrosConfig acfg;
 	THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
 	{
 		acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-		lp.Host = temp_buf;
+		rP.Host = temp_buf;
 		acfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
-		lp.Auth = temp_buf;
+		rP.Auth = temp_buf;
 		acfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
-		lp.Secret = temp_buf;
+		rP.Secret = temp_buf;
 		acfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, data_domain);
-		lp.Method = 1;
+		rP.Method = 1;
 	}
-	THROW_PP(data_domain.NotEmpty(), PPERR_GLOBALDATADOMAINUNDEF);
-	THROW(PPMqbClient::InitClient(rC, lp));
-	THROW(rC.Connect(lp.Host, NZOR(lp.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
-	THROW(rC.Login(lp));
+	THROW_PP(!pDomain || data_domain.NotEmpty(), PPERR_GLOBALDATADOMAINUNDEF);
 	CATCHZOK
 	ASSIGN_PTR(pDomain, data_domain);
 	return ok;
 }
 
+//static 
+int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, SString * pDomain)
+{
+	int    ok = 1;
+	PPMqbClient::InitParam lp;
+	THROW(SetupInitParam(lp, pDomain));
+	THROW(PPMqbClient::InitClient(rC, lp));
+	THROW(rC.Connect(lp.Host, NZOR(lp.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
+	THROW(rC.Login(lp));
+	CATCHZOK
+	return ok;
+}
+
 static const char * P_TestQueueName = "test-papyrus-queue";
+
+class TestMqcThread : public PPThread {
+public:
+	TestMqcThread(const PPMqbClient::InitParam & rP) : PPThread(kUnknown, "", 0), MqbcParam(rP)
+	{
+	}
+	virtual void SLAPI Startup()
+	{
+		PPThread::Startup();
+		SignalStartup();
+	}
+protected:
+	int    Helper_InitRun(PPMqbClient & rCli)
+	{
+		int    ok = 1;
+		THROW(PPMqbClient::InitClient(rCli, MqbcParam));
+		CATCHZOK
+		return ok;
+	}
+	PPMqbClient::InitParam MqbcParam;
+};
+
+class TestMqcProducer : public TestMqcThread {
+public:
+	TestMqcProducer(const PPMqbClient::InitParam & rP, const char * pQueueName) : TestMqcThread(rP), QueueName(pQueueName)
+	{
+	}
+	virtual void Run()
+	{
+		const char * p_exchange_name = "papyrus-exchange-fanout-test";
+		int    ok = 1;
+		PPMqbClient mqc;
+		SString log_file_name;
+		PPGetFilePath(PPPATH_LOG, "TestMqcProducer.log", log_file_name);
+		if(Helper_InitRun(mqc)) {
+			int    stop = 0;
+			SString temp_buf;
+			PPLogMessage(log_file_name, "OK: Helper_InitRun", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			{
+				THROW(mqc.QueueDeclare(QueueName, 0));
+				PPLogMessage(log_file_name, "OK: QueueDeclare", LOGMSGF_TIME|LOGMSGF_DBINFO);
+				THROW(mqc.ExchangeDeclare(p_exchange_name, "fanout", 0));
+				PPLogMessage(log_file_name, "OK: ExchangeDeclare", LOGMSGF_TIME|LOGMSGF_DBINFO);
+				THROW(mqc.QueueBind(QueueName, p_exchange_name, ""));
+				PPLogMessage(log_file_name, "OK: QueueBind", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			}
+			SDelay(1000);
+			do {
+				ulong random_id = SLS.GetTLA().Rg.GetUniformInt(1000000);
+				(temp_buf = "This is a some stupid message").CatChar('-').Cat(random_id);
+				//THROW(mqc.Publish("", P_TestQueueName, temp_buf.cptr(), temp_buf.Len()));
+				PPMqbClient::MessageProperties props;
+				if(mqc.Publish(p_exchange_name, /*P_TestQueueName*/"", 0 /*props*/, temp_buf.cptr(), temp_buf.Len())) {
+					PPLogMessage(log_file_name, "OK: Publish", LOGMSGF_TIME|LOGMSGF_DBINFO);
+					SDelay(100);
+				}
+				else {
+					PPLogMessage(log_file_name, "ERR: Publish", LOGMSGF_TIME|LOGMSGF_DBINFO);
+				}
+			} while(!stop);
+		}
+		CATCH
+			ok = 0;
+		ENDCATCH
+	}
+	const SString QueueName;
+};
+
+class TestMqcConsumer : public TestMqcThread {
+public:
+	TestMqcConsumer(const PPMqbClient::InitParam & rP, const char * pQueueName) : TestMqcThread(rP), QueueName(pQueueName)
+	{
+	}
+	virtual void Run()
+	{
+		int    ok = 1;
+		PPMqbClient mqc;
+		SString log_file_name;
+		PPGetFilePath(PPPATH_LOG, "TestMqcConsumer.log", log_file_name);
+		if(Helper_InitRun(mqc)) {
+			int    stop = 0;
+			PPLogMessage(log_file_name, "OK: Helper_InitRun", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			THROW(mqc.QueueDeclare(QueueName, 0));
+			PPLogMessage(log_file_name, "OK: QueueDeclare", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			THROW(mqc.Consume(QueueName, "", 0));
+			PPLogMessage(log_file_name, "OK: Consume", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			SDelay(1500);
+			do {
+				PPMqbClient::Envelope env;
+				int cmr = mqc.ConsumeMessage(env, 10);
+				if(cmr > 0) {
+					PPLogMessage(log_file_name, "OK: ConsumeMessage", LOGMSGF_TIME|LOGMSGF_DBINFO);
+				}
+				else if(cmr == 0) {
+					PPLogMessage(log_file_name, "ERR: ConsumeMessage", LOGMSGF_TIME|LOGMSGF_DBINFO);
+				}
+			} while(!stop);
+		}
+		CATCH
+			ok = 0;
+		ENDCATCH
+	}
+	const SString QueueName;
+};
 
 int SLAPI TestMqc()
 {
@@ -473,6 +587,15 @@ int SLAPI TestMqc()
 	//lp.Method = 1;
 	//lp.Auth = "Admin";
 	//lp.Secret = "123";
+	if(0) {
+		const char * p_queue_name = "papyrus-test-queue";
+		PPMqbClient::InitParam mqbcp;
+		if(PPMqbClient::SetupInitParam(mqbcp, 0)) {
+			TestMqcProducer * p_thr_mqc_producer = new TestMqcProducer(mqbcp, p_queue_name);
+			p_thr_mqc_producer->Start(1);
+			TestMqcConsumer * p_thr_mqc_consumer = new TestMqcConsumer(mqbcp, p_queue_name);
+		}
+	}
 	{
 		PPMqbClient mqc;
 		PPAlbatrosConfig acfg;

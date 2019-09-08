@@ -42,7 +42,7 @@ int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param
 	 * method is not portable.
 	 */
 	int result = pthread_kill(thread, 0);
-	if(0 != result) {
+	if(result) {
 		return result;
 	}
 	/* Validate the scheduling policy. */
