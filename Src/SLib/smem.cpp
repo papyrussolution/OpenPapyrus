@@ -143,7 +143,7 @@ void * FASTCALL memzero(void * p, size_t s)
 int SLAPI memdword(void * p, size_t size, uint32 key, size_t * pOffs)
 {
 	const size_t s4 = size / 4;
-	uint32 * p32 = (uint32 *)p;
+	uint32 * p32 = static_cast<uint32 *>(p);
 	for(size_t i = 0; i < s4; i++)
 		if(*p32 == key) {
 			ASSIGN_PTR(pOffs, i * 4);

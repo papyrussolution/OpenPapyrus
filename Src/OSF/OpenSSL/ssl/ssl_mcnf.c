@@ -8,10 +8,7 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
 #include <openssl/conf.h>
-//#include <openssl/ssl.h>
-//#include "ssl_locl.h"
 
 /* SSL library configuration module. */
 

@@ -4964,9 +4964,7 @@ int RemoveAllDialog::getDTS(RemoveAllParam * pData)
 	THROW_PP(Data.Action != RemoveAllParam::aMoveToGroup || Data.DestGrpID,
 		resourceID == DLG_GOODSRMVALL ? PPERR_GOODSGROUPNEEDED : PPERR_SCARDSERIESNEEDED);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

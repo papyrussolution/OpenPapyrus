@@ -4,8 +4,6 @@
 
 #include "archive_platform.h"
 #pragma hdrstop
-
-//#include <string.h>
 #include "archive_ppmd8_private.h"
 
 const Byte PPMD8_kExpEscape[16] = { 25, 14, 9, 7, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2 };

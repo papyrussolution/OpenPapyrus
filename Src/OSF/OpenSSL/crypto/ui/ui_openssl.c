@@ -23,9 +23,6 @@
 	#endif
 #endif
 #include <signal.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <errno.h>
 #if !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
 	#ifdef OPENSSL_UNISTD
 		#include OPENSSL_UNISTD

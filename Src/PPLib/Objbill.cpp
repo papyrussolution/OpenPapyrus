@@ -3329,9 +3329,7 @@ public:
 		getCtrlData(CTL_BILLCFG_WLED, &Data.WarnLotExpirDays);
 		// } @v10.4.4
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 };

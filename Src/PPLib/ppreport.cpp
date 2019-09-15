@@ -409,19 +409,19 @@ int SLAPI SReport::calcAggr(int grp, int mode)
 			fields[agr->fld - 1].type = MKSTYPE(S_FLOAT, 8);
 		if(mode == 1 || agr->scope == grp) {
 			switch(agr->aggr) {
-				case AGGR_COUNT:
+				case AGGRFUNC_COUNT:
 					if(mode == 0)
 						agr->rtemp = 0;
 					else if(mode == 1)
 						agr->rtemp += 1;
 					break;
-				case AGGR_SUM:
+				case AGGRFUNC_SUM:
 					if(mode == 0)
 						agr->rtemp = 0;
 					else if(mode == 1)
 						agr->rtemp += dd;
 					break;
-				case AGGR_AVG:
+				case AGGRFUNC_AVG:
 					switch(mode) {
 						case 0:
 							agr->ptemp = new double[2];
@@ -444,14 +444,14 @@ int SLAPI SReport::calcAggr(int grp, int mode)
 							break;
 					}
 					break;
-				case AGGR_MIN:
+				case AGGRFUNC_MIN:
 					if(mode == 0)
 						agr->rtemp = SMathConst::Max;
 					else if(mode == 1)
 						if(dd < agr->rtemp)
 							agr->rtemp = dd;
 					break;
-				case AGGR_MAX:
+				case AGGRFUNC_MAX:
 					if(mode == 0)
 						agr->rtemp = -SMathConst::Max;
 					else if(mode == 1)

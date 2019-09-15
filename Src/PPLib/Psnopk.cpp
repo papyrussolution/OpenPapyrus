@@ -1534,9 +1534,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 			getCtrlString(CTL_POVERB_CMDTXT, data.CmdText);
 			GetClusterData(CTL_POVERB_FLAGS, &data.Flags);
 			ASSIGN_PTR(pClause, data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

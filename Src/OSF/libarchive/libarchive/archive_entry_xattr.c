@@ -25,15 +25,9 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 02:41:27Z kientzle $");
-//#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-//#endif
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
 #ifdef HAVE_LINUX_FS_H
 	#include <linux/fs.h>   /* for Linux file flags */
 #endif
@@ -48,20 +42,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 
 	#include <ext2fs/ext2_fs.h>     /* for Linux file flags */
 #endif
 #include <stddef.h>
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_WCHAR_H
-//#include <wchar.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_entry_private.h"
 /*
  * extended attribute handling
  */

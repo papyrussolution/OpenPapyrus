@@ -8,12 +8,6 @@
 
 #define lauxlib_c
 #define LUA_LIB
-
-//#include <errno.h>
-//#include <stdarg.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 /*
 ** This file uses only the official API of Lua.
 ** Any function declared here could be written as an application function.

@@ -544,7 +544,7 @@ int TView::RestoreOnDestruction()
 int TView::SetupText(SString * pText)
 {
 	int    ok = -1;
-	if(P_Owner && P_Owner->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog *)P_Owner)->CheckFlag(TDialog::fExport))
+	if(P_Owner && P_Owner->IsSubSign(TV_SUBSIGN_DIALOG) && static_cast<TDialog *>(P_Owner)->CheckFlag(TDialog::fExport))
 		ok = -1;
 	else {
 		SString temp_buf;

@@ -25,23 +25,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_link_resolver.c 201100 2009-12-28 03:05:31Z kientzle $");
-
-//#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-//#endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-
 /*
  * This is mostly a pretty straightforward hash table implementation.
  * The only interesting bit is the different strategies used to

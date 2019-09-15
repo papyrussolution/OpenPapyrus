@@ -9,8 +9,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <openssl/err.h>
 #include <openssl/ssl.h>
 
 /* BEGIN ERROR CODES */

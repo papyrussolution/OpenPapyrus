@@ -329,9 +329,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 				}
 				ASSIGN_PTR(pData, Data);
 			}
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

@@ -2107,9 +2107,7 @@ int SLAPI PPViewGoods::RemoveAll()
                 }
 			}
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

@@ -21,8 +21,8 @@
 #define _DB_H_
 
 #ifndef __NO_SYSTEM_INCLUDES
-	#include <sys/types.h>
-	#include <stddef.h>
+	//#include <sys/types.h>
+	//#include <stddef.h>
 	//#include <stdio.h>
 #endif
 

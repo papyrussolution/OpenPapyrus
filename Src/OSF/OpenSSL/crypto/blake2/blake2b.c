@@ -15,15 +15,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <assert.h>
-//#include <string.h>
-//#include <openssl/crypto.h>
-//#include "e_os.h"
-//#include "blake2_locl.h"
 #include "blake2_impl.h"
 
-static const uint64_t blake2b_IV[8] =
-{
+static const uint64_t blake2b_IV[8] = {
 	0x6a09e667f3bcc908U, 0xbb67ae8584caa73bU,
 	0x3c6ef372fe94f82bU, 0xa54ff53a5f1d36f1U,
 	0x510e527fade682d1U, 0x9b05688c2b3e6c1fU,

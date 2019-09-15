@@ -355,16 +355,6 @@ extern "C" {
 		#endif
 	#endif
 #endif
-#include <ctype.h>
-#include <stdio.h>
-#include <setjmp.h>  /* for longjmp on error exit */
-#include <stdlib.h>
-#include <stdarg.h>  /* may need <varargs.h> for Unix V */
-#include <string.h>
-#include <assert.h>
-#ifdef NEEDS_MALLOC_H
-	#include <SAlloc::M.h>
-#endif
 #ifdef SUPPORT_GETPWNAM
 	#include <pwd.h>
 #endif

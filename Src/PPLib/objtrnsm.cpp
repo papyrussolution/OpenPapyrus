@@ -127,9 +127,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 			Data.PctAdd = (long)(getCtrlReal(CTL_DBXCHGCFG_PCTADD) * 100.0);
 			ok = 1;
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -2309,9 +2307,7 @@ public:
 			ASSIGN_PTR(pData, Data);
 			ok = 1;
 		}
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

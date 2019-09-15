@@ -295,6 +295,17 @@
 #define UNIT_GR_DIALOG       26 // Графическая единица: одна диалоговая единица (неизоморфна, контекстно-зависима)
 #define UNIT_MINUTE          27 // Минута
 //
+// Descr: Агрегатный функции для комбинирования выборки значений
+// @persistent
+//
+#define AGGRFUNC_NONE         0
+#define AGGRFUNC_COUNT        1
+#define AGGRFUNC_SUM          2
+#define AGGRFUNC_AVG          3 // Среднее арифметическое
+#define AGGRFUNC_MIN          4
+#define AGGRFUNC_MAX          5
+#define AGGRFUNC_STDDEV       6 // @v10.5.6 Стандартное отклонение
+//
 //
 //
 #define WIN32_LEAN_AND_MEAN
@@ -423,6 +434,18 @@ class  SoapPacketArray;
 class  DBTable;
 struct _finddatai64_t;
 // @construction struct archive; // @v10.4.4
+//
+//
+//
+class SlConstParam {
+public:
+	SlConstParam() : VectorImageMask(0x00008000U)
+	{
+	}
+	const uint VectorImageMask;
+};
+
+extern const SlConstParam _SlConst;
 //
 // Прототип функций сравнения и макросы для использования этих функций
 //
@@ -1462,22 +1485,16 @@ public:
 //
 // Макро-константы конвертации UTF-символов
 //
-#define UNI_SUR_HIGH_START    (uint32)0xD800     // SURROGATE LEAD FIRST
-#define UNI_SUR_HIGH_END      (uint32)0xDBFF     // SURROGATE LEAD LAST
-#define UNI_SUR_LOW_START     (uint32)0xDC00     // SURROGATE TRAIL FIRST
-#define UNI_SUR_LOW_END       (uint32)0xDFFF     // SURROGATE TRAIL LAST
-#define UNI_REPLACEMENT_CHAR  (uint32)0x0000FFFD
-#define UNI_MAX_BMP           (uint32)0x0000FFFF
-#define UNI_MAX_UTF16         (uint32)0x0010FFFF
-#define UNI_MAX_UTF32         (uint32)0x7FFFFFFF
-#define UNI_MAX_LEGAL_UTF32   (uint32)0x0010FFFF
-#define UNI_SUPPL_PLANE_START (uint32)0x10000    // SUPPLEMENTAL PLANE FIRST
-
-	//enum { SURROGATE_LEAD_FIRST = 0xD800 };
-	//enum { SURROGATE_LEAD_LAST = 0xDBFF };
-	//enum { SURROGATE_TRAIL_FIRST = 0xDC00 };
-	//enum { SURROGATE_TRAIL_LAST = 0xDFFF };
-	//enum { SUPPLEMENTAL_PLANE_FIRST = 0x10000 };
+#define UNI_SUR_HIGH_START    static_cast<uint32>(0x0000D800U)     // SURROGATE LEAD FIRST
+#define UNI_SUR_HIGH_END      static_cast<uint32>(0x0000DBFFU)     // SURROGATE LEAD LAST
+#define UNI_SUR_LOW_START     static_cast<uint32>(0x0000DC00U)     // SURROGATE TRAIL FIRST
+#define UNI_SUR_LOW_END       static_cast<uint32>(0x0000DFFFU)     // SURROGATE TRAIL LAST
+#define UNI_REPLACEMENT_CHAR  static_cast<uint32>(0x0000FFFDU)
+#define UNI_MAX_BMP           static_cast<uint32>(0x0000FFFFU)
+#define UNI_MAX_UTF16         static_cast<uint32>(0x0010FFFFU)
+#define UNI_MAX_UTF32         static_cast<uint32>(0x7FFFFFFFU)
+#define UNI_MAX_LEGAL_UTF32   static_cast<uint32>(0x0010FFFFU)
+#define UNI_SUPPL_PLANE_START static_cast<uint32>(0x00010000U)    // SUPPLEMENTAL PLANE FIRST
 
 class SUnicode {
 public:
@@ -4896,8 +4913,8 @@ public:
 };
 
 int	   SLAPI pathToUNC(const char * pPath, SString & rUncPath);
-char * SLAPI replacePath(char * fileName, const char * newPath, int force);
-char * SLAPI replaceExt(char * fileName, const char * newExt, int force);
+// @v10.5.6 char * SLAPI replacePath(char * fileName, const char * newPath, int force);
+// @v10.5.6 char * SLAPI replaceExt(char * fileName, const char * newExt, int force);
 char * SLAPI setLastSlash(char *);
 char * SLAPI rmvLastSlash(char *);
 //
@@ -5485,9 +5502,126 @@ private:
 	ulong * P_Tab;
 };
 //
-// Descr: Расчитывает хеш блока pData размером len по алгоритму Bob Jenkins
+// Descr: Реализации хэш-функций
 //
-uint32 FASTCALL BobJencHash(const void * pData, size_t len);
+class SlHash {
+public:
+	//
+	// Descr: Расчитывает хеш блока pData размером len по алгоритму Bob Jenkins
+	//
+	static uint32 FASTCALL BobJenc(const void * pData, size_t len);
+	//
+	// Descr: DJB Hash Function
+	//   An algorithm produced by Professor Daniel J. Bernstein and shown first to the world on the
+	//   usenet newsgroup comp.lang.c. It is one of the most efficient hash functions ever published.
+	//
+	static uint32 FASTCALL DJB(const void * pData, size_t len);
+	//
+	// Descr: RS Hash Function
+	//   A simple hash function from Robert Sedgwicks Algorithms in C book.
+	//
+	static uint32 FASTCALL RS(const void * pData, size_t len);
+	//
+	// Descr: JS Hash Function
+	//   A bitwise hash function written by Justin Sobel
+	//
+	static uint32 FASTCALL JS(const void * pData, size_t len);
+	//
+	// Descr: P.J. Weinberger Hash Function
+	//   This hash algorithm is based on work by Peter J. Weinberger of AT&T Bell Labs.
+	//   The book Compilers (Principles, Techniques and Tools) by Aho, Sethi and Ulman, recommends
+	//   the use of hash functions that employ the hashing methodology found in this particular algorithm.
+	//
+	static uint32 FASTCALL PJW(const void * pData, size_t len);
+	//
+	// Descr: ELF Hash Function
+	//   Similar to the PJW Hash function, but tweaked for 32-bit processors.
+	//   Its the hash function widely used on most UNIX systems.
+	//
+	static uint32 FASTCALL ELF(const void * pData, size_t len);
+	//
+	// Descr: BKDR Hash Function
+	//   This hash function comes from Brian Kernighan and Dennis Ritchie's book "The C Programming Language".
+	//   It is a simple hash function using a strange set of possible seeds which all constitute
+	//   a pattern of 31....31...31 etc, it seems to be very similar to the DJB hash function.
+	//
+	static uint32 FASTCALL BKDR(const void * pData, size_t len);
+	//
+	// Descr: SDBM Hash Function
+	//   This is the algorithm of choice which is used in the open source SDBM project.
+	//   The hash function seems to have a good over-all distribution for many different data sets.
+	//   It seems to work well in situations where there is a high variance in the MSBs of the elements in a data set.
+	//
+	static uint32 FASTCALL SDBM(const void * pData, size_t len);
+	//
+	// Descr: DEK Hash Function
+	//   An algorithm proposed by Donald E. Knuth in The Art Of Computer Programming Volume 3,
+	//   under the topic of sorting and search chapter 6.4.
+	//
+	static uint32 FASTCALL DEK(const void * pData, size_t len);
+	//
+	// Descr: BP Hash Function
+	//
+	static uint32 FASTCALL BP(const void * pData, size_t len);
+	//
+	// Descr: FNV Hash Function
+	//
+	static uint32 FASTCALL FNV(const void * pData, size_t len);
+	//
+	// Descr: End Of AP Hash Function
+	//   An algorithm produced by me Arash Partow. I took ideas from all of the above hash functions
+	//   making a hybrid rotative and additive hash function algorithm. There isn't any real mathematical
+	//   analysis explaining why one should use this hash function instead of the others described above
+	//   other than the fact that I tired to resemble the design as close as possible to a simple LFSR.
+	//   An empirical result which demonstrated the distributive abilities of the hash algorithm
+	//   was obtained using a hash-table with 100003 buckets, hashing The Project Gutenberg Etext
+	//   of Webster's Unabridged Dictionary, the longest encountered chain length was 7, the average
+	//   chain length was 2, the number of empty buckets was 4579.
+	// Note: For uses where high throughput is a requirement for computing hashes using the algorithms
+	//   described above, one should consider unrolling the internal loops and adjusting the hash value
+	//    memory foot-print to be appropriate for the targeted architecture(s).
+	//
+	static uint32 FASTCALL AP(const void * pData, size_t len);
+	static uint32 FASTCALL XX32(const void * pData, size_t len, uint seed);
+	static uint64 FASTCALL XX64(const void * pData, size_t len, uint64 seed);
+
+	class State {
+	public:
+		friend class SlHash;
+
+		SLAPI  State();
+		SLAPI ~State();
+		State & Z();
+		uint8  GetResult8() const { return Result.R8; }
+		uint16 GetResult16() const { return Result.R16; }
+		uint32 GetResult32() const { return Result.R32; }
+		uint64 GetResult64() const { return Result.R64; }
+	private:
+		union R {
+			R() : R64(0)
+			{
+			}
+			uint8  R8;
+			uint16 R16;
+			uint32 R32;
+			uint64 R64;
+		} Result;
+		enum {
+			fEmpty = 0x0001
+		};
+		uint32 Flags;
+		static uint8  * P_Tab_Crc8;
+		static uint16 * P_Tab_Crc16;
+		static uint32 * P_Tab_Crc32;
+		static uint64 * P_Tab_Crc64;
+	};
+
+	static uint8  FASTCALL CRC8(State * pS, const void * pData, size_t len);
+	static uint32 FASTCALL CRC24(State * pS, const void * pData, size_t len);
+	static uint32 FASTCALL CRC32(State * pS, const void * pData, size_t len);
+	static uint32 FASTCALL Adler32(State * pS, const void * pData, size_t len);
+private:
+};
 //
 // Descr: Алгоритмы расчета контрольной цифры
 //
@@ -5541,20 +5675,21 @@ class S_MD5 {
 public:
 	S_MD5();
 	~S_MD5();
-	void Init();
-	void Update(const void *data, uint32 len);
-	void Final(uint8 digest[16]);
+	void   Init();
+	void   Update(const void *data, uint32 len);
+	void   Final(uint8 digest[16]);
 	/* internal function */
 	static void Transform(uint32 buf[4], uint32 in_data[16]);
 	static void Calc(const void *data, uint32 length, uint8 digest[16]);
 private:
+	void   reverse_u32(uint8 *buf, int n_u32);
+
 	uint32 m_buf[4];
 	uint32 m_bits[2];
 	uint8  m_in[64];
 	bool   m_need_byteswap;
-	bool   m_big_endian;
-
-	void reverse_u32(uint8 *buf, int n_u32);
+	//bool   m_big_endian;
+	uint8  Reserve[3]; // @alignment
 };
 
 //#endif /* MD5_H_INCLUDED */
@@ -7727,7 +7862,11 @@ public:
 	UintHashTable();
 	UintHashTable & FASTCALL operator = (const UintHashTable &);
 	int    FASTCALL Copy(const UintHashTable *);
-	int    FASTCALL Add(ulong);
+	int    FASTCALL Add(ulong value);
+	//
+	// Descr: Вставляет в таблицу новый элемент value при условии, что value != 0
+	//
+	int    FASTCALL AddNZ(ulong value);
 	int    FASTCALL Add(const UintHashTable & rS);
 	int    FASTCALL Intersect(const UintHashTable & rS);
 	int    FASTCALL Remove(ulong);
@@ -14264,6 +14403,7 @@ public:
 	int    _check_nz(int result, const char * pV);
 	int    _check_z(int result, const char * pV);
 	int    _check_eq(const void * a, const void * b, const char * pA, const char * pB);
+	int    _check_eq(const void * a, const void * b, size_t sz, const char * pA, const char * pB);
 	int    _check_eq(uint8 a, uint8 b, const char * pA, const char * pB);
 	int    _check_eq(uint a, uint b, const char * pA, const char * pB);
 	int    _check_eq(long a, long b, const char * pA, const char * pB);
@@ -14410,6 +14550,7 @@ extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 #define SLTEST_CHECK_NZ(v)                _check_nz(!!(v), #v)
 #define SLTEST_CHECK_Z(v)                 _check_z(!!(v), #v)
 #define SLTEST_CHECK_EQ(a, b)             _check_eq((a), (b), #a, #b)
+#define SLTEST_CHECK_EQMEM(a, b, sz)      _check_eq((a), (b), (sz), #a, #b)
 #define SLTEST_CHECK_EQ_TOL(a, b, tol)    _check_eq_tolerance((a), (b), (tol), #a, #b)
 #define SLTEST_CHECK_LT(a, b)             _check_lt((a), (b), #a, #b)
 #define SLTEST_CHECK_LE(a, b)             _check_le((a), (b), #a, #b)

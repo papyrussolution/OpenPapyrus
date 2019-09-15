@@ -470,9 +470,7 @@ int DLSFiltDialog::getDTS(DvcLoadingStatFilt * pData)
 		Data.GoodsID    = ggrp_rec.GoodsID;
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

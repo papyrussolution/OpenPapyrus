@@ -27,9 +27,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:27Z kientzle $");
 
-//#ifdef HAVE_SYS_STAT_H
-//#include <sys/stat.h>
-//#endif
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
@@ -40,14 +37,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 #include <sys/sysmacros.h>
 #define HAVE_MAJOR
 #endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-#endif
 #ifdef HAVE_LINUX_FS_H
-#include <linux/fs.h>   /* for Linux file flags */
+	#include <linux/fs.h>   /* for Linux file flags */
 #endif
 /*
  * Some Linux distributions have both linux/ext2_fs.h and ext2fs/ext2_fs.h.
@@ -60,22 +51,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 #include <ext2fs/ext2_fs.h>     /* for Linux file flags */
 #endif
 #include <stddef.h>
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_WCHAR_H
-	//#include <wchar.h>
-//#endif
-//#include "archive.h"
-//#include "archive_acl_private.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_entry_private.h"
 
 #if !defined(HAVE_MAJOR) && !defined(major)
 	/* Replacement for major/minor/makedev. */
@@ -1760,5 +1735,4 @@ int main(int argc, char ** argv)
 	wprintf(L"new flags='%s'\n", archive_entry_fflags_text(entry));
 	return 0;
 }
-
 #endif

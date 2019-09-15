@@ -2577,7 +2577,7 @@ void LibXmlEncoderBlock::InitCharEncodingHandlers()
 	if(!PP_Tab) {
 		ushort tst = 0x1234;
 		uchar * ptr = (uchar *)&tst;
-		PP_Tab = (xmlCharEncodingHandler **)SAlloc::M(MAX_ENCODING_HANDLERS * sizeof(xmlCharEncodingHandler *));
+		PP_Tab = static_cast<xmlCharEncodingHandler **>(SAlloc::M(MAX_ENCODING_HANDLERS * sizeof(xmlCharEncodingHandler *)));
 		if(*ptr == 0x12)
 			xmlLittleEndian = 0;
 		else if(*ptr == 0x34)

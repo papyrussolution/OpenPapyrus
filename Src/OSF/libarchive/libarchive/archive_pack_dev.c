@@ -40,31 +40,15 @@
 #if !defined(lint)
 __RCSID("$NetBSD$");
 #endif /* not lint */
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
-//#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-//#endif
 #ifdef HAVE_SYS_SYSMACROS_H
 	#include <sys/sysmacros.h>
 #endif
 #ifdef HAVE_SYS_MKDEV_H
 	#include <sys/mkdev.h>
 #endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
 #include "archive_pack_dev.h"
 
 static pack_t pack_netbsd;

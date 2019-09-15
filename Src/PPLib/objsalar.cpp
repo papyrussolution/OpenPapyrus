@@ -1461,9 +1461,7 @@ int StaffCalDayDialog::getDTS(StaffCalendarTbl::Rec * pData)
 	GetClusterData(CTL_STAFFCALD_FLAGS, &Data.Flags);
 	THROW(PPStaffCalPacket::SetupEntry(&Data));
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

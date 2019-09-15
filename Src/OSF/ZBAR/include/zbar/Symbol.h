@@ -27,13 +27,13 @@
 /// Symbol C++ wrapper
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Symbol.h"
+	#error "include zbar.h in your application, **not** zbar/Symbol.h"
 #endif
 
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <string>
 #include <ostream>
-#include <assert.h>
+//#include <assert.h>
 
 //namespace zbar {
 

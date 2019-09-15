@@ -36,10 +36,6 @@ static char sccsid[] = "@(#)getopt.c	8.3 (Berkeley) 4/27/95";
 __RCSID("$NetBSD: getopt.c,v 1.26 2003/08/07 16:43:40 agc Exp $");
 #endif
 
-//#include <stdio.h>
-//#include <string.h>
-//#include "libport.h"
-
 int opterr = 1,                 /* if error message should be printed */
     optind = 1,                 /* index into parent argv vector */
     optopt,                     /* character checked for validity */

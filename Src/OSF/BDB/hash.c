@@ -45,7 +45,7 @@
 
 static int __ham_bulk(DBC*, DBT*, uint32);
 static int __hamc_close(DBC*, db_pgno_t, int *);
-static int __hamc_del (DBC*, uint32);
+static int __hamc_del(DBC*, uint32);
 static int __hamc_destroy(DBC *);
 static int __hamc_get(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
 static int __hamc_put(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
@@ -223,19 +223,13 @@ static int __hamc_destroy(DBC*dbc)
  */
 int __hamc_count(DBC*dbc, db_recno_t * recnop)
 {
-	DB * dbp;
-	DB_MPOOLFILE * mpf;
-	HASH_CURSOR * hcp;
 	db_indx_t len;
-	db_recno_t recno;
 	int ret, t_ret;
 	uint8 * p, * pend;
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	hcp = (HASH_CURSOR *)dbc->internal;
-
-	recno = 0;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
+	db_recno_t recno = 0;
 	if((ret = __ham_get_cpage(dbc, DB_LOCK_READ)) != 0)
 		return ret;
 	if(hcp->indx >= NUM_ENT(hcp->page)) {
@@ -267,7 +261,6 @@ err:
 	hcp->page = NULL;
 	return ret;
 }
-
 /*
  * __hamc_cmp --
  *	Compare two hash cursors for equality.
@@ -281,12 +274,9 @@ err:
  */
 int __hamc_cmp(DBC*dbc, DBC*other_dbc, int * result)
 {
-	ENV * env;
-	HASH_CURSOR * hcp, * ohcp;
-	env = dbc->env;
-	hcp = (HASH_CURSOR *)dbc->internal;
-	ohcp = (HASH_CURSOR *)other_dbc->internal;
-
+	ENV * env = dbc->env;
+	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
+	HASH_CURSOR * ohcp = (HASH_CURSOR *)other_dbc->internal;
 	DB_ASSERT(env, hcp->pgno == ohcp->pgno);
 	DB_ASSERT(env, hcp->indx == ohcp->indx);
 	/* Only compare the duplicate offsets if this is a duplicate item. */

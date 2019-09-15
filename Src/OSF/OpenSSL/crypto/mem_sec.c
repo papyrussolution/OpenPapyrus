@@ -21,14 +21,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include <e_os.h>
-//#include <string.h>
 
 #if defined(OPENSSL_SYS_LINUX) || defined(OPENSSL_SYS_UNIX)
 	#define IMPLEMENTED
-	//#include <stdlib.h>
-	//#include <assert.h>
 	#include <unistd.h>
 	#include <sys/types.h>
 	#include <sys/mman.h>
@@ -44,9 +39,7 @@
 
 #ifdef IMPLEMENTED
 static size_t secure_mem_used;
-
 static int secure_mem_initialized;
-
 static CRYPTO_RWLOCK * sec_malloc_lock = NULL;
 
 /*

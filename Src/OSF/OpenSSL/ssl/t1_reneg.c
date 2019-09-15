@@ -8,9 +8,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <openssl/objects.h>
-//#include "ssl_locl.h"
 
 /* Add the client's renegotiation binding */
 int ssl_add_clienthello_renegotiate_ext(SSL * s, uchar * p, int * len, int maxlen)

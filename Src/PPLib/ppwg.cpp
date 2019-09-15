@@ -560,9 +560,7 @@ int DutySchedDialog::getDTS(PPDutySchedPacket * pData)
 	THROW_PP(Data.Rec.ObjGroup, PPERR_OBJGRPNEEDED);
 	Data.Normalyze();
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

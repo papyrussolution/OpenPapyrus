@@ -12,6 +12,8 @@
 // } htmlhelp.h
 #define USE_OPENSSL_STATIC
 //
+const SlConstParam _SlConst;
+//
 //
 //
 SlExtraProcBlock::SlExtraProcBlock()
@@ -994,11 +996,10 @@ SCodepage SLAPI SlSession::GetCodepage() const
 //
 //
 //
-uint32 FASTCALL RSHash(const void * pData, size_t len); // @prototype
-
+// @v10.5.6 uint32 FASTCALL RSHash(const void * pData, size_t len); // @prototype
 void __LinkFile_HASHFUNC()
 {
-	RSHash("", 0);
+	SlHash::RS("", 0);
 }
 
 #pragma warning(disable:4073)

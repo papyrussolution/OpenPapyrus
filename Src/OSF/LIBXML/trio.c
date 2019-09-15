@@ -78,8 +78,6 @@
 #if !(defined(DEBUG) || defined(NDEBUG))
 	#define NDEBUG
 #endif
-//#include <assert.h>
-//#include <ctype.h>
 #if !defined(TRIO_COMPILER_SUPPORTS_C99)
 	#define isblank(x) (((x)==32) || ((x)==9))
 #endif

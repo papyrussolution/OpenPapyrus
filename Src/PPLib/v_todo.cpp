@@ -1167,9 +1167,7 @@ int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
 		else
 			Data.ExcludeStatus(i);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

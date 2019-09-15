@@ -1449,9 +1449,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 	}
 	if(ok)
 		ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 //
@@ -1737,9 +1735,7 @@ int TSessLineDialog::getDTS(TSessLineTbl::Rec * pData)
 	getCtrlData(CTL_TSESSLN_TM, &Data.Tm);
 	getCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 //

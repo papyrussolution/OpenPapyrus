@@ -182,7 +182,7 @@ private:
 			stInitialized = 0x0001
 		};
 		AtolFptr10() : State(0), Handler(0), 
-			CreateHandleProc(0), DestroyHandleProc(0), GetSettingsProc(0), GetErrorCodeProc(0), GetErrorDescrProc(0),
+			CreateHandleProc(0), DestroyHandleProc(0), GetVersionString(0), GetSettingsProc(0), GetErrorCodeProc(0), GetErrorDescrProc(0),
 			OpenProc(0), CloseProc(0), IsOpenedProc(0), SetParamBoolProc(0), SetParamIntProc(0), SetParamDoubleProc(0), 
 			SetParamStrProc(0), SetParamDatetimeProc(0), SetParamByteArrayProc(0), PrintTextProc(0), PaymentProc(0), CutProc(0), BeepProc(0),
 			QueryDataProc(0), GetParamIntProc(0), GetParamDoubleProc(0), GetParamBoolProc(0), GetParamStrProc(0), GetParamDateTimeProc(0),
@@ -196,6 +196,7 @@ private:
 			THROW_SL(Lib.Load(dll_path));
 			THROW_SL(CreateHandleProc  = reinterpret_cast<int (* cdecl)(void **)>(Lib.GetProcAddr("libfptr_create")));
 			THROW_SL(DestroyHandleProc = reinterpret_cast<int (* cdecl)(void **)>(Lib.GetProcAddr("libfptr_destroy")));
+			THROW_SL(GetVersionString  = reinterpret_cast<const char * (* cdecl)()>(Lib.GetProcAddr("libfptr_get_version_string"))); // @v10.5.6
 			THROW_SL(GetSettingsProc   = reinterpret_cast<int (* cdecl)(void *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_settings")));
 			THROW_SL(PrintTextProc           = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_print_text")));
 			THROW_SL(PaymentProc             = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_payment")));
@@ -258,6 +259,8 @@ private:
 		void * Handler;
 		int (* cdecl CreateHandleProc)(void **);
 		int (* cdecl DestroyHandleProc)(void **);
+		const char * (* cdecl GetVersionString)();
+		//DTOX_SHARED_EXPORT const char * DTOX_SHARED_CCA libfptr_get_version_string();
 		int (* cdecl GetSettingsProc)(void *, wchar_t *, int);
 		int (* cdecl GetSingleSettingProc)(void *, const wchar_t *, wchar_t *, int);
 		int (* cdecl SetSingleSettingProc)(void *, const wchar_t *, const wchar_t *);

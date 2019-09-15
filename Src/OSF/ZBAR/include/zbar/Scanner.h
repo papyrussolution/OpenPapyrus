@@ -30,8 +30,6 @@
 	#error "include zbar.h in your application, **not** zbar/Scanner.h"
 #endif
 
-//#include <stdio.h>
-
 //namespace zbar {
 
 /// low-level linear intensity sample stream scanner interface.

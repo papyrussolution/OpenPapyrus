@@ -35,29 +35,18 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include "ssl_locl.h"
 #include <openssl/comp.h>
-//#include <openssl/evp.h>
 #include <openssl/kdf.h>
-//#include <openssl/rand.h>
 
 /* seed1 through seed5 are concatenated */
-static int tls1_PRF(SSL * s,
-    const void * seed1, int seed1_len,
-    const void * seed2, int seed2_len,
-    const void * seed3, int seed3_len,
-    const void * seed4, int seed4_len,
-    const void * seed5, int seed5_len,
-    const uchar * sec, int slen,
-    uchar * out, int olen)
+static int tls1_PRF(SSL * s, const void * seed1, int seed1_len, const void * seed2, int seed2_len,
+    const void * seed3, int seed3_len, const void * seed4, int seed4_len, const void * seed5, int seed5_len,
+    const uchar * sec, int slen, uchar * out, int olen)
 {
 	const EVP_MD * md = ssl_prf_md(s);
 	EVP_PKEY_CTX * pctx = NULL;
-
 	int ret = 0;
 	size_t outlen = olen;
-
 	if(md == NULL) {
 		/* Should never happen */
 		SSLerr(SSL_F_TLS1_PRF, ERR_R_INTERNAL_ERROR);

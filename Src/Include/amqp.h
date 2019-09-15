@@ -359,7 +359,7 @@ of the other two, so this will work for both 0-8 and 0-9-1 branches of the code.
 // 
 struct amqp_field_value_t {
 	uint8 kind; /**< the type of the entry /sa amqp_field_value_kind_t */
-	union {
+	union V {
 		boolint boolean; /**< boolean type AMQP_FIELD_KIND_BOOLEAN */
 		int8   i8;              /**< int8 type AMQP_FIELD_KIND_I8 */
 		uint8  u8;             /**< uint8 type AMQP_FIELD_KIND_U8 */

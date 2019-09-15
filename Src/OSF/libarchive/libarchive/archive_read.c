@@ -34,24 +34,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read.c 201157 2009-12-29 05:30:23Z kientzle $");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-	//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-	//#include <string.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-
 #define minimum(a, b) (a < b ? a : b)
 
 static int      choose_filters(struct archive_read *);

@@ -358,4 +358,4 @@ static void sha256_block_data_order(SHA256_CTX * ctx, const void * in, size_t nu
 }
 
 # endif
-#endif                         /* SHA256_ASM */
+#endif /* SHA256_ASM */

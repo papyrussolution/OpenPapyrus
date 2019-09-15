@@ -396,7 +396,7 @@ int SLAPI SFSortChunkInfoList::Merge(uint firstIdx, uint lastIdx, SFSortChunkInf
 static SString & FASTCALL _SfSortMakeFinishEvntName(const char * pSrcFileName, SString & rBuf)
 {
     const size_t len = sstrlen(pSrcFileName);
-    const uint32 hash = BobJencHash(pSrcFileName, len);
+    const uint32 hash = SlHash::BobJenc(pSrcFileName, len);
 	(rBuf = "SFSORTFINISHEVNT").CatChar('-').Cat(hash);
 	return rBuf;
 }

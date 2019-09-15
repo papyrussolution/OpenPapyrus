@@ -240,9 +240,7 @@ int FreightFiltDialog::getDTS(FreightFilt * pData)
 	v = getCtrlUInt16(CTL_FRGHTFLT_CARGOPAR);
 	SETFLAG(Data.Flags, FreightFilt::fUseCargoParam, (v & 0x01) && Data.OpID);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

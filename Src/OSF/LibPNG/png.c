@@ -2026,8 +2026,7 @@ static int png_compare_ICC_profile_with_sRGB(png_const_structrp png_ptr, png_con
 				intent = png_get_uint_32(profile+64);
 			}
 			// Length *and* intent must match
-			if(length == (uint32)png_sRGB_checks[i].length &&
-			    intent == (uint32)png_sRGB_checks[i].intent) {
+			if(length == (uint32)png_sRGB_checks[i].length && intent == (uint32)png_sRGB_checks[i].intent) {
 				// Now calculate the adler32 if not done already
 				if(adler == 0) {
 					adler = adler32(0, NULL, 0);

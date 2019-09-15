@@ -32,31 +32,10 @@
 #ifdef HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#include <stdio.h>
 #include <stdarg.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#include <time.h>
-//#ifdef HAVE_UNISTD_H
-//#include <unistd.h>
-//#endif
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>
 #endif
-//#include "archive.h"
-//#include "archive_endian.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_rb.h"
-//#include "archive_write_private.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	#define getuid()                        0
@@ -4907,21 +4886,20 @@ static struct isoent * isoent_create_virtual_dir(struct archive_write * a, struc
 
 static int isoent_cmp_node(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
-	const struct isoent * e1 = (const struct isoent *)n1;
-	const struct isoent * e2 = (const struct isoent *)n2;
+	const struct isoent * e1 = reinterpret_cast<const struct isoent *>(n1);
+	const struct isoent * e2 = reinterpret_cast<const struct isoent *>(n2);
 	return (strcmp(e1->file->basename.s, e2->file->basename.s));
 }
 
 static int isoent_cmp_key(const struct archive_rb_node * n, const void * key)
 {
-	const struct isoent * e = (const struct isoent *)n;
-	return (strcmp(e->file->basename.s, (const char *)key));
+	const struct isoent * e = reinterpret_cast<const struct isoent *>(n);
+	return (strcmp(e->file->basename.s, static_cast<const char *>(key)));
 }
 
 static int isoent_add_child_head(struct isoent * parent, struct isoent * child)
 {
-	if(!__archive_rb_tree_insert_node(
-		    &(parent->rbtree), (struct archive_rb_node *)child))
+	if(!__archive_rb_tree_insert_node(&(parent->rbtree), (struct archive_rb_node *)child))
 		return 0;
 	if((child->chnext = parent->children.first) == NULL)
 		parent->children.last = &(child->chnext);
@@ -5025,10 +5003,8 @@ static int isoent_clone_tree(struct archive_write * a, struct isoent ** nroot, s
 			}
 		}
 	} while(np != np->parent);
-
 	return ARCHIVE_OK;
 }
-
 /*
  * Setup directory locations.
  */
@@ -5959,15 +5935,11 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
  */
 static int isoent_cmp_iso9660_identifier(const struct isoent * p1, const struct isoent * p2)
 {
-	const char * s1, * s2;
 	int cmp;
-	int l;
-
-	s1 = p1->identifier;
-	s2 = p2->identifier;
-
+	const char * s1 = p1->identifier;
+	const char * s2 = p2->identifier;
 	/* Compare File Name */
-	l = p1->ext_off;
+	int l = p1->ext_off;
 	if(l > p2->ext_off)
 		l = p2->ext_off;
 	cmp = memcmp(s1, s2, l);
@@ -5978,16 +5950,14 @@ static int isoent_cmp_iso9660_identifier(const struct isoent * p1, const struct 
 		l = p2->ext_off - p1->ext_off;
 		while(l--)
 			if(0x20 != *s2++)
-				return (0x20
-				       - *(const uchar *)(s2 - 1));
+				return (0x20 - *(const uchar *)(s2 - 1));
 	}
 	else if(p1->ext_off > p2->ext_off) {
 		s1 += l;
 		l = p1->ext_off - p2->ext_off;
 		while(l--)
 			if(0x20 != *s1++)
-				return (*(const uchar *)(s1 - 1)
-				       - 0x20);
+				return (*(const uchar *)(s1 - 1) - 0x20);
 	}
 	/* Compare File Name Extension */
 	if(p1->ext_len == 0 && p2->ext_len == 0)
@@ -6013,16 +5983,14 @@ static int isoent_cmp_iso9660_identifier(const struct isoent * p1, const struct 
 		l = p2->ext_len - p1->ext_len;
 		while(l--)
 			if(0x20 != *s2++)
-				return (0x20
-				       - *(const uchar *)(s2 - 1));
+				return (0x20 - *(const uchar *)(s2 - 1));
 	}
 	else if(p1->ext_len > p2->ext_len) {
 		s1 += l;
 		l = p1->ext_len - p2->ext_len;
 		while(l--)
 			if(0x20 != *s1++)
-				return (*(const uchar *)(s1 - 1)
-				       - 0x20);
+				return (*(const uchar *)(s1 - 1) - 0x20);
 	}
 	/* Compare File Version Number */
 	/* No operation. The File Version Number is always one. */
@@ -6032,8 +6000,8 @@ static int isoent_cmp_iso9660_identifier(const struct isoent * p1, const struct 
 
 static int isoent_cmp_node_iso9660(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
-	const struct idr::idrent * e1 = (const struct idr::idrent *)n1;
-	const struct idr::idrent * e2 = (const struct idr::idrent *)n2;
+	const struct idr::idrent * e1 = reinterpret_cast<const struct idr::idrent *>(n1);
+	const struct idr::idrent * e2 = reinterpret_cast<const struct idr::idrent *>(n2);
 	return (isoent_cmp_iso9660_identifier(e2->isoent, e1->isoent));
 }
 
@@ -6253,8 +6221,7 @@ static int isoent_collect_dirs(struct iso9660::vdd * vdd, struct isoent * rooten
  * The entry whose number of levels in a directory hierarchy is
  * large than eight relocate to rr_move directory.
  */
-static int isoent_rr_move_dir(struct archive_write * a, struct isoent ** rr_moved,
-    struct isoent * curent, struct isoent ** newent)
+static int isoent_rr_move_dir(struct archive_write * a, struct isoent ** rr_moved, struct isoent * curent, struct isoent ** newent)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	struct isoent * rrmoved, * mvent, * np;
@@ -6611,16 +6578,14 @@ static int isoent_make_path_table(struct archive_write * a)
 	 */
 	dir_number = 1;
 	for(depth = 0; depth < iso9660->primary.max_depth; depth++) {
-		r = isoent_make_path_table_2(a, &(iso9660->primary),
-			depth, &dir_number);
+		r = isoent_make_path_table_2(a, &(iso9660->primary), depth, &dir_number);
 		if(r < 0)
 			return r;
 	}
 	if(iso9660->opt.joliet) {
 		dir_number = 1;
 		for(depth = 0; depth < iso9660->joliet.max_depth; depth++) {
-			r = isoent_make_path_table_2(a, &(iso9660->joliet),
-				depth, &dir_number);
+			r = isoent_make_path_table_2(a, &(iso9660->joliet), depth, &dir_number);
 			if(r < 0)
 				return r;
 		}
@@ -6711,26 +6676,16 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 		    /* Try detecting a media type of the boot image. */
 		    entry = iso9660->el_torito.boot->file->entry;
 		    if(archive_entry_size(entry) == FD_1_2M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_1_2M_DISKETTE;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_1_2M_DISKETTE;
 		    else if(archive_entry_size(entry) == FD_1_44M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_1_44M_DISKETTE;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_1_44M_DISKETTE;
 		    else if(archive_entry_size(entry) == FD_2_88M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_2_88M_DISKETTE;
-		    else
-			    /* We cannot decide whether the boot image is
-			     * hard-disk. */
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_NO_EMULATION;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_2_88M_DISKETTE;
+		    else // We cannot decide whether the boot image is hard-disk. 
+			    iso9660->el_torito.media_type = BOOT_MEDIA_NO_EMULATION;
 		    break;
-		case OPT_BOOT_TYPE_NO_EMU:
-		    iso9660->el_torito.media_type = BOOT_MEDIA_NO_EMULATION;
-		    break;
-		case OPT_BOOT_TYPE_HARD_DISK:
-		    iso9660->el_torito.media_type = BOOT_MEDIA_HARD_DISK;
-		    break;
+		case OPT_BOOT_TYPE_NO_EMU: iso9660->el_torito.media_type = BOOT_MEDIA_NO_EMULATION; break;
+		case OPT_BOOT_TYPE_HARD_DISK: iso9660->el_torito.media_type = BOOT_MEDIA_HARD_DISK; break;
 		case OPT_BOOT_TYPE_FD:
 		    entry = iso9660->el_torito.boot->file->entry;
 		    if(archive_entry_size(entry) <= FD_1_2M_SIZE)
@@ -6757,12 +6712,9 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 	 * Get an ID.
 	 */
 	if(iso9660->opt.publisher)
-		archive_string_copy(&(iso9660->el_torito.id),
-		    &(iso9660->publisher_identifier));
-
+		archive_string_copy(&(iso9660->el_torito.id), &(iso9660->publisher_identifier));
 	return ARCHIVE_OK;
 }
-
 /*
  * If a media type is floppy, return its image size.
  * otherwise return 0.
@@ -6770,17 +6722,12 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 static size_t fd_boot_image_size(int media_type)
 {
 	switch(media_type) {
-		case BOOT_MEDIA_1_2M_DISKETTE:
-		    return (FD_1_2M_SIZE);
-		case BOOT_MEDIA_1_44M_DISKETTE:
-		    return (FD_1_44M_SIZE);
-		case BOOT_MEDIA_2_88M_DISKETTE:
-		    return (FD_2_88M_SIZE);
-		default:
-		    return 0;
+		case BOOT_MEDIA_1_2M_DISKETTE: return (FD_1_2M_SIZE);
+		case BOOT_MEDIA_1_44M_DISKETTE: return (FD_1_44M_SIZE);
+		case BOOT_MEDIA_2_88M_DISKETTE: return (FD_2_88M_SIZE);
+		default: return 0;
 	}
 }
-
 /*
  * Make a boot catalog image data.
  */
@@ -7023,9 +6970,7 @@ static void zisofs_detect_magic(struct archive_write * a, const void * buff, siz
 	size_t _ceil, doff;
 	uint32_t bst, bed;
 	int magic_max;
-	int64_t entry_size;
-
-	entry_size = archive_entry_size(file->entry);
+	int64_t entry_size = archive_entry_size(file->entry);
 	if((int64_t)sizeof(iso9660->zisofs.magic_buffer) > entry_size)
 		magic_max = (int)entry_size;
 	else
@@ -7036,14 +6981,10 @@ static void zisofs_detect_magic(struct archive_write * a, const void * buff, siz
 		magic_buff = static_cast<const uchar *>(buff);
 	else {
 		if(iso9660->zisofs.magic_cnt < magic_max) {
-			size_t l;
-
-			l = sizeof(iso9660->zisofs.magic_buffer)
-			    - iso9660->zisofs.magic_cnt;
+			size_t l = sizeof(iso9660->zisofs.magic_buffer) - iso9660->zisofs.magic_cnt;
 			if(l > s)
 				l = s;
-			memcpy(iso9660->zisofs.magic_buffer
-			    + iso9660->zisofs.magic_cnt, buff, l);
+			memcpy(iso9660->zisofs.magic_buffer + iso9660->zisofs.magic_cnt, buff, l);
 			iso9660->zisofs.magic_cnt += (int)l;
 			if(iso9660->zisofs.magic_cnt < magic_max)
 				return;
@@ -7110,7 +7051,6 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 	z_stream * zstrm;
 	size_t avail, csize;
 	int flush, r;
-
 	zstrm = &(iso9660->zisofs.stream);
 	zstrm->next_out = wb_buffptr(a);
 	zstrm->avail_out = (uInt)wb_remaining(a);
@@ -7126,17 +7066,14 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 		iso9660->zisofs.remaining -= avail;
 		if(iso9660->zisofs.remaining <= 0)
 			flush = Z_FINISH;
-
 		zstrm->next_in = (Bytef *)(uintptr_t)(const void *)b;
 		zstrm->avail_in = (uInt)avail;
-
 		/*
 		 * Check if current data block are all zero.
 		 */
 		if(iso9660->zisofs.allzero) {
 			const uchar * nonzero = b;
 			const uchar * nonzeroend = b + avail;
-
 			while(nonzero < nonzeroend)
 				if(*nonzero++) {
 					iso9660->zisofs.allzero = 0;
@@ -7150,19 +7087,13 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 		 * If current data block are all zero, we do not use
 		 * compressed data.
 		 */
-		if(flush == Z_FINISH && iso9660->zisofs.allzero &&
-		    avail + zstrm->total_in == ZF_BLOCK_SIZE) {
-			if(iso9660->zisofs.block_offset !=
-			    file->cur_content->size) {
+		if(flush == Z_FINISH && iso9660->zisofs.allzero && avail + zstrm->total_in == ZF_BLOCK_SIZE) {
+			if(iso9660->zisofs.block_offset != file->cur_content->size) {
 				int64_t diff;
-
-				r = wb_set_offset(a,
-					file->cur_content->offset_of_temp +
-					iso9660->zisofs.block_offset);
+				r = wb_set_offset(a, file->cur_content->offset_of_temp + iso9660->zisofs.block_offset);
 				if(r != ARCHIVE_OK)
 					return r;
-				diff = file->cur_content->size -
-				    iso9660->zisofs.block_offset;
+				diff = file->cur_content->size - iso9660->zisofs.block_offset;
 				file->cur_content->size -= diff;
 				iso9660->zisofs.total_size -= diff;
 			}
@@ -7197,9 +7128,7 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 			 * Save the information of one zisofs block.
 			 */
 			iso9660->zisofs.block_pointers_idx++;
-			archive_le32enc(&(iso9660->zisofs.block_pointers[
-				    iso9660->zisofs.block_pointers_idx]),
-			    (uint32_t)iso9660->zisofs.total_size);
+			archive_le32enc(&(iso9660->zisofs.block_pointers[iso9660->zisofs.block_pointers_idx]), (uint32_t)iso9660->zisofs.total_size);
 			r = zisofs_init_zstream(a);
 			if(r != ARCHIVE_OK)
 				return ARCHIVE_FATAL;
@@ -7207,7 +7136,6 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 			iso9660->zisofs.block_offset = file->cur_content->size;
 		}
 	} while(s);
-
 	return ARCHIVE_OK;
 }
 
@@ -7218,15 +7146,12 @@ static int zisofs_finish_entry(struct archive_write * a)
 	uchar buff[16];
 	size_t s;
 	int64_t tail;
-
 	/* Direct temp file stream to zisofs temp file stream. */
 	archive_entry_set_size(file->entry, iso9660->zisofs.total_size);
-
 	/*
 	 * Save a file pointer which points the end of current zisofs data.
 	 */
 	tail = wb_offset(a);
-
 	/*
 	 * Make a header.
 	 *
@@ -7259,21 +7184,16 @@ static int zisofs_finish_entry(struct archive_write * a)
 	buff[12] = file->zisofs.header_size;
 	buff[13] = file->zisofs.log2_bs;
 	buff[14] = buff[15] = 0;/* Reserved */
-
 	/* Move to the right position to write the header. */
 	wb_set_offset(a, file->content.offset_of_temp);
-
 	/* Write the header. */
 	if(wb_write_to_temp(a, buff, 16) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/*
 	 * Write zisofs Block Pointers.
 	 */
-	s = iso9660->zisofs.block_pointers_cnt *
-	    sizeof(iso9660->zisofs.block_pointers[0]);
-	if(wb_write_to_temp(a, iso9660->zisofs.block_pointers, s)
-	    != ARCHIVE_OK)
+	s = iso9660->zisofs.block_pointers_cnt * sizeof(iso9660->zisofs.block_pointers[0]);
+	if(wb_write_to_temp(a, iso9660->zisofs.block_pointers, s) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 
 	/* Set a file pointer back to the end of the temporary file. */
@@ -7300,17 +7220,14 @@ struct zisofs_extract {
 	int pz_log2_bs;              /* Log2 of block size */
 	uint64_t pz_uncompressed_size;
 	size_t uncompressed_buffer_size;
-
 	int initialized : 1;
 	int header_passed : 1;
-
 	uint32_t pz_offset;
 	uchar   * block_pointers;
 	size_t block_pointers_size;
 	size_t block_pointers_avail;
 	size_t block_off;
 	uint32_t block_avail;
-
 	z_stream stream;
 	int stream_valid;
 };
@@ -7360,20 +7277,15 @@ static ssize_t zisofs_extract_init(struct archive_write * a, struct zisofs_extra
 	/*
 	 * Read block pointers.
 	 */
-	if(zisofs->header_passed &&
-	    zisofs->block_pointers_avail < zisofs->block_pointers_size) {
-		xsize = zisofs->block_pointers_size
-		    - zisofs->block_pointers_avail;
+	if(zisofs->header_passed && zisofs->block_pointers_avail < zisofs->block_pointers_size) {
+		xsize = zisofs->block_pointers_size - zisofs->block_pointers_avail;
 		if(avail < xsize)
 			xsize = avail;
-		memcpy(zisofs->block_pointers
-		    + zisofs->block_pointers_avail, p, xsize);
+		memcpy(zisofs->block_pointers + zisofs->block_pointers_avail, p, xsize);
 		zisofs->block_pointers_avail += xsize;
 		avail -= xsize;
-		if(zisofs->block_pointers_avail
-		    == zisofs->block_pointers_size) {
-			/* We've got all block pointers and initialize
-			 * related variables.	*/
+		if(zisofs->block_pointers_avail == zisofs->block_pointers_size) {
+			// We've got all block pointers and initialize related variables.
 			zisofs->block_off = 0;
 			zisofs->block_avail = 0;
 			/* Complete a initialization */

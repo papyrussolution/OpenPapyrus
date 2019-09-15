@@ -59,8 +59,8 @@ static int DotFound(char * pB)
 
 int _fnsplit(const char * pathP, char * driveP, char * dirP, char * nameP, char * extP)
 {
-	register char * pB;
-	register int Wrk;
+	char * pB;
+	int    Wrk;
 	int    Ret;
 	char   buf[MAXPATH+2];
 	/*

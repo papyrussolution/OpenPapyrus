@@ -18,10 +18,6 @@
 #ifndef TRIO_TRIOSTR_H
 #define TRIO_TRIOSTR_H
 
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <time.h>
 #include "triodef.h"
 #include "triop.h"
 

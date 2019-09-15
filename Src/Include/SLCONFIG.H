@@ -75,6 +75,7 @@
 #define SALLOC_NEDMALLOC 1
 
 #define SALLOCATOR       SALLOC_STD
+#define XXH_STATIC_LINKING_ONLY // @v10.5.6 for xxhash
 //
 // @v9.8.1 Если !0, то ведется отладочная трассировка внутренних блокировок.
 // Актуально только для сервера.

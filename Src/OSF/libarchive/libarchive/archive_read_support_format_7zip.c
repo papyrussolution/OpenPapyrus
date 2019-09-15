@@ -26,32 +26,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_BZLIB_H
-//#include <bzlib.h>
-//#endif
-//#ifdef HAVE_LZMA_H
-	//#include <lzma.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-//#include "archive_endian.h"
-//#ifndef HAVE_ZLIB_H
-	//#include "archive_crc32.h"
-//#endif
 
 #define _7ZIP_SIGNATURE "7z\xBC\xAF\x27\x1C"
 #define SFX_MIN_ADDR    0x27000

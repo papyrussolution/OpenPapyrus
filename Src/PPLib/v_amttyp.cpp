@@ -302,11 +302,7 @@ int AmtTypeFiltDialog::getDTS(AmountTypeFilt * pData)
 			Data.Flags |= PPAmountType::fReplaceDiscount;
 	}
 	*pData = Data;
-	/*
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
-	*/
+	//CATCHZOKPPERRBYDLG
 	return ok;
 }
 

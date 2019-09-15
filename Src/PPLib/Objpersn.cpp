@@ -3619,9 +3619,7 @@ public:
 		sel = CTL_PERSON_NAME;
 		THROW(PsnObj.ValidatePacket(&Data, 0));
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -3839,9 +3837,7 @@ int ShortPersonDialog::getDTS(PPPersonPacket * pData)
 	sel = CTL_PERSON_NAME;
 	THROW(PsnObj.ValidatePacket(&Data, 0));
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -5246,9 +5242,7 @@ int MainOrg2Dialog::getDTS()
 	else if(*strip(buf))
 		P_Pack->ELA.AddItem(PPELK_WORKPHONE, buf);
 	// Get Phone
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -5514,9 +5508,7 @@ static int EditPersonRel(PersonLink * pData)
 			getCtrlData(sel = CTLSEL_PERSONLINK_LTYPE, &Data.LinkTypeID);
 			THROW_PP(Data.LinkTypeID, PPERR_RELTYPENEEDED);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

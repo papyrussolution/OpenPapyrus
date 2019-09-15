@@ -26,9 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#include "archive_private.h"
-//#include "archive_entry.h"
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)

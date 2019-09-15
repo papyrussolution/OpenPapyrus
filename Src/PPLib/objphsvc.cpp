@@ -365,9 +365,7 @@ public:
 		getCtrlString(CTL_PHNSVC_LOCALCHNLSYMB, Data.LocalChannelSymb);
 		getCtrlString(CTL_PHNSVC_SCANCHNL, Data.ScanChannelSymb); // @v9.9.11
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

@@ -28,12 +28,6 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <math.h>
-//#include <assert.h>
-//#include "pixman-private.h"
 
 typedef double (* kernel_func_t) (double x);
 

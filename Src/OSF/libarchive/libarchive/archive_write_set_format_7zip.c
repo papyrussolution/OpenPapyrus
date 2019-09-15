@@ -491,8 +491,7 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 		zip->temp_offset = 0;
 		zip->temp_fd = __archive_mktemp(NULL);
 		if(zip->temp_fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Couldn't create temporary file");
+			archive_set_error(&a->archive, errno, "Couldn't create temporary file");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -501,8 +500,7 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 	while(s) {
 		ws = write(zip->temp_fd, p, s);
 		if(ws < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "fwrite function failed");
+			archive_set_error(&(a->archive), errno, "fwrite function failed");
 			return ARCHIVE_FATAL;
 		}
 		s -= ws;
@@ -613,10 +611,8 @@ static int flush_wbuff(struct archive_write * a)
 
 static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 {
-	struct _7zip * zip;
 	int r;
-
-	zip = (struct _7zip *)a->format_data;
+	struct _7zip * zip = (struct _7zip *)a->format_data;
 	if(zip->temp_offset > 0 &&
 	    lseek(zip->temp_fd, offset, SEEK_SET) < 0) {
 		archive_set_error(&(a->archive), errno, "lseek failed");
@@ -626,7 +622,6 @@ static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 		size_t rsize;
 		ssize_t rs;
 		uchar * wb;
-
 		if(length > zip->wbuff_remaining)
 			rsize = zip->wbuff_remaining;
 		else
@@ -634,14 +629,11 @@ static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 		wb = zip->wbuff + (sizeof(zip->wbuff) - zip->wbuff_remaining);
 		rs = read(zip->temp_fd, wb, rsize);
 		if(rs < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "Can't read temporary file(%jd)",
-			    (intmax_t)rs);
+			archive_set_error(&(a->archive), errno, "Can't read temporary file(%jd)", (intmax_t)rs);
 			return ARCHIVE_FATAL;
 		}
 		if(rs == 0) {
-			archive_set_error(&(a->archive), 0,
-			    "Truncated 7-Zip archive");
+			archive_set_error(&(a->archive), 0, "Truncated 7-Zip archive");
 			return ARCHIVE_FATAL;
 		}
 		zip->wbuff_remaining -= rs;
@@ -1446,8 +1438,7 @@ static int file_new(struct archive_write * a, struct archive_entry * entry,
 	file->utf16name = (uint8_t *)SAlloc::M(u16len + 2);
 	if(file->utf16name == NULL) {
 		SAlloc::F(file);
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory for Name");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Name");
 		return ARCHIVE_FATAL;
 	}
 	memcpy(file->utf16name, u16, u16len);
@@ -1527,18 +1518,14 @@ static void file_init_register_empty(struct _7zip * zip)
 	zip->empty_list.last = &(zip->empty_list.first);
 }
 
-#if !defined(HAVE_ZLIB_H) || !defined(HAVE_BZLIB_H) || \
-	!defined(BZ_CONFIG_ERROR) || !defined(HAVE_LZMA_H)
-static int compression_unsupported_encoder(struct archive * a,
-    struct la_zstream * lastrm, const char * name)
-{
-	archive_set_error(a, ARCHIVE_ERRNO_MISC,
-	    "%s compression not supported on this platform", name);
-	lastrm->valid = 0;
-	lastrm->real_stream = NULL;
-	return ARCHIVE_FAILED;
-}
-
+#if !defined(HAVE_ZLIB_H) || !defined(HAVE_BZLIB_H) || !defined(BZ_CONFIG_ERROR) || !defined(HAVE_LZMA_H)
+	static int compression_unsupported_encoder(struct archive * a, struct la_zstream * lastrm, const char * name)
+	{
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "%s compression not supported on this platform", name);
+		lastrm->valid = 0;
+		lastrm->real_stream = NULL;
+		return ARCHIVE_FAILED;
+	}
 #endif
 
 /*
@@ -1596,8 +1583,7 @@ static int compression_init_encoder_deflate(struct archive * a, struct la_zstrea
 		compression_end(a, lastrm);
 	strm = (z_stream *)SAlloc::C(1, sizeof(*strm));
 	if(strm == NULL) {
-		archive_set_error(a, ENOMEM,
-		    "Can't allocate memory for gzip stream");
+		archive_set_error(a, ENOMEM, "Can't allocate memory for gzip stream");
 		return ARCHIVE_FATAL;
 	}
 	/* zlib.h is not const-correct, so we need this one bit
@@ -1614,8 +1600,7 @@ static int compression_init_encoder_deflate(struct archive * a, struct la_zstrea
 	    8, Z_DEFAULT_STRATEGY) != Z_OK) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Internal error initializing compression library");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
 		return ARCHIVE_FATAL;
 	}
 	lastrm->real_stream = strm;
@@ -1655,34 +1640,27 @@ static int compression_code_deflate(struct archive * a,
 		case Z_STREAM_END:
 		    return (ARCHIVE_EOF);
 		default:
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"GZip compression failed:"
-			" deflate() call returned status %d", r);
-		    return ARCHIVE_FATAL;
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "GZip compression failed: deflate() call returned status %d", r);
+			return ARCHIVE_FATAL;
 	}
 }
 
 static int compression_end_deflate(struct archive * a, struct la_zstream * lastrm)
 {
-	z_stream * strm;
-	int r;
-
-	strm = (z_stream *)lastrm->real_stream;
-	r = deflateEnd(strm);
+	z_stream * strm = (z_stream *)lastrm->real_stream;
+	int r = deflateEnd(strm);
 	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
 	lastrm->valid = 0;
 	if(r != Z_OK) {
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Failed to clean up compressor");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
 }
 
 #else
-static int compression_init_encoder_deflate(struct archive * a,
-    struct la_zstream * lastrm, int level, int withheader)
+static int compression_init_encoder_deflate(struct archive * a, struct la_zstream * lastrm, int level, int withheader)
 {
 	(void)level;  /* UNUSED */
 	(void)withheader;  /* UNUSED */

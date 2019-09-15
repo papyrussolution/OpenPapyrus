@@ -213,9 +213,7 @@ public:
 		getCtrlString(sel = CTL_DBTEXP_PATH, Data.FileName);
 		THROW_PP(Data.FileName.NotEmptyS(), PPERR_FILENAMENEEDED);
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 protected:

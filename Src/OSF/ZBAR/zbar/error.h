@@ -26,17 +26,12 @@
 //#include <config.h>
 #include <slib.h>
 #include <zbar.h>
-//#include <stdint.h> // @sobolev
 #ifdef HAVE_INTTYPES_H
 	#include <inttypes.h>
 #endif
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <string.h>
 #ifdef HAVE_ERRNO_H
 	#include <errno.h>
 #endif
-//#include <assert.h>
 #ifdef _WIN32
 	#include <windows.h>
 #endif

@@ -331,7 +331,7 @@ static bool encrypt_des(const uchar * in, uchar * out,
 	Curl_des_set_odd_parity((uchar *)blob.key, sizeof(blob.key));
 
 	/* Import the key */
-	if(!CryptImportKey(hprov, (BYTE*)&blob, sizeof(blob), 0, 0, &hkey)) {
+	if(!CryptImportKey(hprov, (BYTE *)&blob, sizeof(blob), 0, 0, &hkey)) {
 		CryptReleaseContext(hprov, 0);
 
 		return FALSE;

@@ -410,9 +410,7 @@ int AdvBillItemDialog::getDTS(PPAdvBillItemList::Item * pData)
 	Data.AccID = acc_rec.AcctId.ac;
 	Data.ArID  = acc_rec.AcctId.ar;
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 //

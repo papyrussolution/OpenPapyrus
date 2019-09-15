@@ -1627,9 +1627,7 @@ public:
 			Data.Sgb.S2.Sgp = sgpNone;
 		//
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -1911,9 +1909,7 @@ int DebtTrnovrCycleDialog::getDTS(DebtTrnovrFilt * pData)
 	GetClusterData(CTL_DEBTTOC_KIND, &Data.CycleKind);
 	CALLPTRMEMB(P_ChildDlg, TransmitData(-1, &Data.Cf));
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

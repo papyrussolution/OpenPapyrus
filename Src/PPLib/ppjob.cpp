@@ -1520,9 +1520,7 @@ int LaunchAppDialog::getDTS(LaunchAppParam * pData)
 	IdeaEncrypt(0, pw_buf, sizeof(pw_buf));
 	Data.UserPassword.EncodeMime64(pw_buf, sizeof(pw_buf));
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -2223,9 +2221,7 @@ public:
 		CfgList.GetText(id, sect);
 		Data.ExpCfg = sect;
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

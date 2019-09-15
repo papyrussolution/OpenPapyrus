@@ -154,9 +154,7 @@ int QuotImpExpDialog::getDTS(PPQuotImpExpParam * pData)
 		Data.LocID = 0;
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -696,9 +694,7 @@ int GoodsImpExpDialog::getDTS(PPGoodsImpExpParam * pData)
 	}
 	GetClusterData(CTL_IMPEXPGOODS_FLAGS,  &Data.Flags); // @v8.4.2
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

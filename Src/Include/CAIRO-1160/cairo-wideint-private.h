@@ -201,13 +201,10 @@ static inline int32_t _cairo_int64_32_div(cairo_int64_t num, int32_t den)
 	return static_cast<int32_t>(num / den);
 #endif
 }
-
 /*
  * 128-bit datatypes.  Again, provide two implementations in
- * case the machine has a native 128-bit datatype.  GCC supports int128_t
- * on ia64
+ * case the machine has a native 128-bit datatype.  GCC supports int128_t on ia64
  */
-
 #if !HAVE_UINT128_T
 
 cairo_uint128_t I       _cairo_uint32_to_uint128(uint32_t i);

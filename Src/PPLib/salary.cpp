@@ -348,9 +348,7 @@ public:
 		getCtrlData(sel = CTL_SALARY_AMOUNT, &Data.Amount);
 		THROW_PP(fabs(Data.Amount) < 100000000., PPERR_USERINPUT);
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

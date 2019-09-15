@@ -24,17 +24,10 @@
 #define _IMAGE_H_
 
 //#include <config.h>
-#include <slib.h>
-#include <stdint.h>
 #ifdef HAVE_INTTYPES_H
 	#include <inttypes.h>
 #endif
-//#include <stdlib.h>
-//#include <assert.h>
-
 #include <zbar.h>
-//#include "error.h"
 #include "symbol.h"
-//#include "refcnt.h"
 
 #endif

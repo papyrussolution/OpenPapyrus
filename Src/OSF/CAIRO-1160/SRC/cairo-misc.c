@@ -705,10 +705,9 @@ int _cairo_lround(double d)
 }
 
 #endif
-
-/* Convert a 32-bit IEEE single precision floating point number to a
- * 'half' representation (s10.5)
- */
+// 
+// Descr: Convert a 32-bit IEEE single precision floating point number to a 'half' representation (s10.5)
+//
 uint16_t _cairo_half_from_float(float f)
 {
 	union {
@@ -725,9 +724,7 @@ uint16_t _cairo_half_from_float(float f)
 			/* underflow */
 			return 0;
 		}
-
 		m = (m | 0x00800000) >> (1 - e);
-
 		/* round to nearest, round 0.5 up. */
 		if(m &  0x00001000)
 			m += 0x00002000;

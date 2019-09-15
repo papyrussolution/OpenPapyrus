@@ -28,34 +28,12 @@
 #pragma hdrstop
 
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
 #ifdef HAVE_LZO_LZOCONF_H
 	#include <lzo/lzoconf.h>
 #endif
 #ifdef HAVE_LZO_LZO1X_H
 	#include <lzo/lzo1x.h>
 #endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h> /* for crc32 and adler32 */
-//#endif
-//#include "archive.h"
-//#if !defined(HAVE_ZLIB_H) && defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
-//#include "archive_crc32.h"
-//#endif
-//#include "archive_endian.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
 #ifndef HAVE_ZLIB_H
 	#define adler32 lzo_adler32
 #endif

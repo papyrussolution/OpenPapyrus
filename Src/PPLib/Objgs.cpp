@@ -1175,9 +1175,7 @@ int GSDialog::getDTS(PPGoodsStruc * pData)
 		}
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -1691,9 +1689,7 @@ int GSDialog::addItemBySample()
 			getCtrlData(sel = CTLSEL_GSCOPY_GSTRUC, &Data.GStrucID);
 			THROW_PP(Data.GStrucID, PPERR_GSTRUCNEEDED);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

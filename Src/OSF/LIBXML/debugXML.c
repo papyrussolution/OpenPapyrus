@@ -765,21 +765,11 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * pNode)
 					fprintf(ctxt->output, "NOTATION\n");
 				}
 				break;
-			case XML_DTD_NODE:
-				xmlCtxtDumpDtdNode(ctxt, (xmlDtd *)pNode);
-				return;
-			case XML_ELEMENT_DECL:
-				xmlCtxtDumpElemDecl(ctxt, (xmlElement *)pNode);
-				return;
-			case XML_ATTRIBUTE_DECL:
-				xmlCtxtDumpAttrDecl(ctxt, (xmlAttribute *)pNode);
-				return;
-			case XML_ENTITY_DECL:
-				xmlCtxtDumpEntityDecl(ctxt, (xmlEntity *)pNode);
-				return;
-			case XML_NAMESPACE_DECL:
-				xmlCtxtDumpNamespace(ctxt, (xmlNs *)pNode);
-				return;
+			case XML_DTD_NODE: xmlCtxtDumpDtdNode(ctxt, (xmlDtd *)pNode); return;
+			case XML_ELEMENT_DECL: xmlCtxtDumpElemDecl(ctxt, (xmlElement *)pNode); return;
+			case XML_ATTRIBUTE_DECL: xmlCtxtDumpAttrDecl(ctxt, (xmlAttribute *)pNode); return;
+			case XML_ENTITY_DECL: xmlCtxtDumpEntityDecl(ctxt, (xmlEntity *)pNode); return;
+			case XML_NAMESPACE_DECL: xmlCtxtDumpNamespace(ctxt, (xmlNs *)pNode); return;
 			case XML_XINCLUDE_START:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);

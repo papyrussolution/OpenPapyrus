@@ -35,8 +35,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include "ssl_locl.h"
 
 const char * SSL_state_string_long(const SSL * s)
 {

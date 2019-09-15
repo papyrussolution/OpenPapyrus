@@ -247,9 +247,7 @@ static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 				THROW_PP(GObj.CheckFlag(Data.EgaFolderID, GF_FOLDER), PPERR_GGRPFOLDERNEEDED);
 			}
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -2716,9 +2714,7 @@ public:
 		getCtrlData(CTLSEL_SUPRWARE_CAT, &Data.Rec.SuprWareCat);
 		THROW(oneof2(Data.Rec.SuprWareType, SUPRWARETYPE_GOODS, SUPRWARETYPE_COMPONENT));
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

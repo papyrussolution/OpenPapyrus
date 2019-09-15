@@ -221,9 +221,7 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			else
 				Data.RoundDir = 0;
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

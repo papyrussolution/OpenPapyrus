@@ -27,16 +27,6 @@
 
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_STRING_H
-	//#include <string.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-	//#include <stdlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_cmdline_private.h"
-//#include "archive_string.h"
-
 static int cmdline_set_path(struct archive_cmdline *, const char *);
 static int cmdline_add_arg(struct archive_cmdline *, const char *);
 

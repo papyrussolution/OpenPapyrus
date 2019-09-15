@@ -245,13 +245,11 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 		SETFLAG(Data.Flags, QuotUpdFilt::fExistOnly, 1);
 		SETFLAG(Data.Flags, QuotUpdFilt::fSetupIfNotExists, 0);
 		SETFLAG(Data.Flags, QuotUpdFilt::fNonExistOnly, 0);
-		Data.QuotVal = 0;
+		Data.QuotVal = 0.0;
 	}
 	if(ok)
 		ASSIGN_PTR(pFilt, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

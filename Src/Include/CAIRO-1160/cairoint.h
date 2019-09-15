@@ -51,22 +51,13 @@
 	#define cairo_public __declspec(dllexport)
 #endif
 #include <slib.h> // @sobolev
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <stdarg.h>
-//#include <stddef.h>
 #include <setjmp.h>
 #ifdef _MSC_VER
 	#define _USE_MATH_DEFINES
 #endif
-//#include <math.h>
-//#include <limits.h>
-//#include <stdio.h>
 #include "cairo.h"
 #include <pixman-private.h>
 #include <pixman-accessor.h>
-//#include <pixman.h>
 #include "cairo-compiler-private.h"
 #include "cairo-error-private.h"
 

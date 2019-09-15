@@ -599,9 +599,7 @@ int NamedObjAssocDialog::getDTS(PPNamedObjAssoc * pData)
 	THROW_PP(Data.ScndObjType, PPERR_OBJTYPENEEDED);
 	getCtrlData(CTLSEL_NOBJASSC_SCNDGRP, &Data.ScndObjGrp);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

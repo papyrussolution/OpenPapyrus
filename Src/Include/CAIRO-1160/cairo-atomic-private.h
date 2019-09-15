@@ -36,12 +36,6 @@
 #ifndef CAIRO_ATOMIC_PRIVATE_H
 #define CAIRO_ATOMIC_PRIVATE_H
 
-//#include "cairo-compiler-private.h"
-//#if HAVE_CONFIG_H
-	//#include "config.h"
-//#endif
-//#include <assert.h>
-
 // The autoconf on OpenBSD 4.5 produces the malformed constant name
 // SIZEOF_VOID__ rather than SIZEOF_VOID_P.  Work around that here. 
 #if !defined(SIZEOF_VOID_P) && defined(SIZEOF_VOID__)

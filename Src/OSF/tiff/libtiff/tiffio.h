@@ -242,9 +242,6 @@ typedef struct {
 	TIFFInitMethod init;
 } TIFFCodec;
 
-//#include <stdio.h>
-//#include <stdarg.h>
-
 /* share internal LogLuv conversion routines? */
 #ifndef LOGLUV_PUBLIC
 	#define LOGLUV_PUBLIC 1

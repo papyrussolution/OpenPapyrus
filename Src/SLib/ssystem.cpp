@@ -6,10 +6,21 @@
 #pragma hdrstop
 #include <wininet.h>
 
+static int is_bigendian_for_test() 
+{
+	union {
+		uint32 i;
+		char c[4];
+	} bint = {0x01020304};
+	return bint.c[0] == 1;
+}
+
 //static
 int SSystem::BigEndian()
 {
-    return BIN((reinterpret_cast<const int *>("\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
+    int yes = BIN((reinterpret_cast<const int *>("\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
+	assert(is_bigendian_for_test() == yes); // @v10.5.6
+	return yes;
 }
 
 char FASTCALL SSystem::TranslateWmCharToAnsi(uintptr_t wparam)

@@ -29,23 +29,6 @@
 
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_bzip2.c 201091 2009-12-28 02:22:41Z kientzle $");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_BZLIB_H
-//#include <bzlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_private.h"
-//#include "archive_write_private.h"
-
 #if ARCHIVE_VERSION_NUMBER < 4000000
 int archive_write_set_compression_bzip2(struct archive * a)
 {

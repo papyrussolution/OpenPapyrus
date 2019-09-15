@@ -8,16 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <string.h>
-//#include <openssl/opensslconf.h>
-//#include <openssl/crypto.h>
-//#include <openssl/engine.h>
-//#include <openssl/evp.h>
-//#include <openssl/aes.h>
-//#include <openssl/rand.h>
-//#include <openssl/err.h>
-//#include <openssl/modes.h>
 
 #ifndef OPENSSL_NO_HW
 # ifndef OPENSSL_NO_HW_PADLOCK

@@ -4480,11 +4480,9 @@ int ScaleDialog::getDTS(PPScale * pData, SString & rExpPaths)
 			THROW(GetPort(Data.Port, 0));
 		}
 	}
-	ASSIGN_PTR(pData, Data);
 	rExpPaths = ExpPaths;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pData, Data);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

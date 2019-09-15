@@ -506,8 +506,8 @@ LZ4_FORCE_INLINE uint32 LZ4_hashPosition(const void* const p, tableType_t const 
 static void LZ4_putIndexOnHash(uint32 idx, uint32 h, void* tableBase, tableType_t const tableType)
 {
 	switch(tableType) {
-		default: /* fallthrough */
-		case clearedTable: /* fallthrough */
+		default: // @fallthrough
+		case clearedTable: // @fallthrough
 		case byPtr: { /* illegal! */ assert(0); return; }
 		case byU32: { uint32* hashTable = (uint32 *)tableBase; hashTable[h] = idx; return; }
 		case byU16: { uint16* hashTable = (uint16 *)tableBase; assert(idx < 65536); hashTable[h] = (uint16)idx; return; }

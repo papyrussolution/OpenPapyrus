@@ -38,15 +38,6 @@
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
-//#include "misc.h"
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#ifdef HAVE_SYS_TIME_H
-	//#include <sys/time.h>
-//#endif
-//#include <stdio.h>
-//#include <errno.h>
 
 int FASTCALL _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char* errmsg, int errflags)
 {

@@ -201,6 +201,7 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
 		case PPEDIOP_EGAIS_QUERYAP: P_Data = new StrStrAssocArray; break;
 		case PPEDIOP_EGAIS_QUERYRESENDDOC: // @v10.2.12
+		case PPEDIOP_EGAIS_QUERYRESTBCODE: // @v10.5.6
 		case PPEDIOP_EGAIS_QUERYFORMA:
 		case PPEDIOP_EGAIS_QUERYFORMB: P_Data = new SString; break;
 		case PPEDIOP_EGAIS_TICKET: P_Data = new Ticket; break;
@@ -246,6 +247,7 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
 		case PPEDIOP_EGAIS_QUERYAP: delete static_cast<StrStrAssocArray *>(P_Data); break;
 		case PPEDIOP_EGAIS_QUERYRESENDDOC: // @v10.2.12
+		case PPEDIOP_EGAIS_QUERYRESTBCODE: // @v10.5.6
 		case PPEDIOP_EGAIS_QUERYFORMA:
 		case PPEDIOP_EGAIS_QUERYFORMB: delete static_cast<SString *>(P_Data); break;
 		case PPEDIOP_EGAIS_TICKET: delete static_cast<Ticket *>(P_Data); break;
@@ -1082,7 +1084,8 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_WAYBILL_V3,       "WayBill_v3" }, // @v9.9.5
 	{ PPEDIOP_EGAIS_WAYBILLACT_V3,    "WayBillAct_v3" }, // @v9.9.5
 	{ PPEDIOP_EGAIS_ACTWRITEOFF_V3,   "ActWriteOff_v3" }, // @v9.9.5
-	{ PPEDIOP_EGAIS_QUERYRESENDDOC,   "QueryResendDoc" } // @v10.2.12
+	{ PPEDIOP_EGAIS_QUERYRESENDDOC,   "QueryResendDoc" }, // @v10.2.12
+	{ PPEDIOP_EGAIS_QUERYRESTBCODE,   "QueryRestBCode" } // @v10.5.6
 };
 
 //static
@@ -2265,6 +2268,17 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								SXml::WNode n_p(_doc, SXml::nst("qp", "Parameter"));
 								n_p.PutInner(SXml::nst("qp", "Name"), EncText(temp_buf = "WBREGID"));
 								n_p.PutInner(SXml::nst("qp", "Value"), EncText(temp_buf = *p_doc_id));
+							}
+						}
+					}
+					else if(doc_type == PPEDIOP_EGAIS_QUERYRESTBCODE) { // @v10.5.6
+						const SString * p_param = static_cast<const SString *>(rPack.P_Data);
+						if(p_param && p_param->NotEmpty()) {
+							SXml::WNode n_arglist(_doc, SXml::nst("qp", "Parameters"));
+							{
+								SXml::WNode n_p(_doc, SXml::nst("qp", "Parameter"));
+								n_p.PutInner(SXml::nst("qp", "Name"), EncText((temp_buf = "ФОРМА2").Transf(CTRANSF_UTF8_TO_INNER))); // current srcfile is in UTF-8
+								n_p.PutInner(SXml::nst("qp", "Value"), EncText(temp_buf = *p_param));
 							}
 						}
 					}
@@ -8080,6 +8094,7 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 			AddClusterAssoc(CTL_EGAISQ_WHAT, 10, PPEDIOP_EGAIS_NOTIFY_WBVER2); // @v9.7.2
 			AddClusterAssoc(CTL_EGAISQ_WHAT, 11, PPEDIOP_EGAIS_NOTIFY_WBVER3); // @v9.9.7
 			AddClusterAssoc(CTL_EGAISQ_WHAT, 12, PPEDIOP_EGAIS_QUERYRESENDDOC); // @v10.2.12
+			AddClusterAssoc(CTL_EGAISQ_WHAT, 13, PPEDIOP_EGAIS_QUERYRESTBCODE); // @v10.5.6
 			SetClusterData(CTL_EGAISQ_WHAT, Data.DocType);
 			setCtrlString(CTL_EGAISQ_QADD, Data.ParamString);
 			SetupPersonCombo(this, CTLSEL_EGAISQ_MAINORG, Data.MainOrgID, 0, PPPRK_MAIN, 1);
@@ -8136,6 +8151,7 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 						case PPEDIOP_EGAIS_NOTIFY_WBVER2: info_text_id = PPTXT_HINT_EGAIS_NOTIFY_WBVER2; break;
 						case PPEDIOP_EGAIS_NOTIFY_WBVER3: info_text_id = PPTXT_HINT_EGAIS_NOTIFY_WBVER3; break;
 						case PPEDIOP_EGAIS_QUERYRESENDDOC: info_text_id = PPTXT_HINT_EGAIS_QUERYRESENDDOC; break; // @v10.2.12
+						case PPEDIOP_EGAIS_QUERYRESTBCODE: info_text_id = PPTXT_HINT_EGAIS_QUERYRESTBCODE; break; // @v10.5.6
 					}
 				}
 				DisplayInfo(info_text_id ? PPLoadTextS(info_text_id, msg_buf).cptr() : 0);
@@ -8446,6 +8462,17 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 		if(qp.P_Data) {
 			*static_cast<SString *>(qp.P_Data) = rParam.ParamString;
 			if(PutQuery(qp, rParam.LocID, "QueryResendDoc", ack))
+				query_sended = 1;
+			else
+				do_report_error = 1;
+		}
+	}
+	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESTBCODE) { // @v10.5.6
+		Ack    ack;
+		Packet qp(rParam.DocType);
+		if(qp.P_Data) {
+			*static_cast<SString *>(qp.P_Data) = rParam.ParamString;
+			if(PutQuery(qp, rParam.LocID, "QueryRestBCode", ack))
 				query_sended = 1;
 			else
 				do_report_error = 1;

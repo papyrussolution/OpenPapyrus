@@ -527,10 +527,7 @@ int FiltItemDialog::getDTS(PPNamedFilt * pData)
 	Data.ViewSymb = CmdSymbList.Get(pos).Txt;
 	Data.ViewID = view_id;
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		// Вывести сообщение о ошибке и активировать породивший его управляющий элемент
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG // Вывести сообщение о ошибке и активировать породивший его управляющий элемент
 	return ok;
 }
 
@@ -605,9 +602,14 @@ uint PPNamedFilt::ViewDefinition::GetCount() const
 	return L.getCount();
 }
 
+int PPNamedFilt::ViewDefinition::Swap(uint p1, uint p2)
+{
+	return L.swap(p1, p2);
+}
+
 int PPNamedFilt::ViewDefinition::SearchEntry(const char * pZone, const char *pFieldName, uint * pPos, InnerEntry * pInnerEntry) const
 {
-	int ok = 0;
+	int    ok = 0;
 	SString temp_buf;
 	for(uint i = 0; !ok && i < L.getCount(); i++) {
 		const InnerEntry & r_inner_entry = L.at(i);
@@ -699,7 +701,7 @@ public:
 		PPNamedFilt::ViewDefinition::Entry mobTypeClmn;
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; ok && i < Data.GetCount(); i++) {
-			PPID id = static_cast<PPID>(i + 1);
+			const PPID id = static_cast<PPID>(i + 1);
 			Data.GetEntry(i, mobTypeClmn);
 			ss.clear();
 			((ss += mobTypeClmn.Zone) += mobTypeClmn.FieldName) += mobTypeClmn.Text;
@@ -712,11 +714,7 @@ public:
 	int getDTS(PPNamedFilt::ViewDefinition * pData)
 	{
 		int    ok = 1;
-		if(Data.GetCount() >= 0){
-			ASSIGN_PTR(pData, Data);
-		}
-		else
-			ok = 0;
+		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
 private:
@@ -724,6 +722,17 @@ private:
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
+	virtual int moveItem(long pos, long id, int up)
+	{
+		int    ok = 1;
+		if(up && pos > 0)
+			Data.Swap(pos, pos-1);
+		else if(!up && pos < (long)(Data.GetCount()-1))
+			Data.Swap(pos, pos+1);
+		else
+			ok = -1;
+		return ok;
+	}
 
 	PPNamedFilt::ViewDefinition Data;
 };
@@ -741,44 +750,50 @@ int FiltItemDialog::ViewMobColumnList()
 //
 class MobileClmnValItemDialog : public TDialog {
 public:
-	MobileClmnValItemDialog(PPNamedFilt::ViewDefinition * pViewDef) : TDialog(DLG_MOBCLEDT), P_Data(pViewDef)
+	MobileClmnValItemDialog(PPNamedFilt::ViewDefinition * pViewDef) : TDialog(DLG_MOBCLEDT)/*, P_Data(pViewDef)*/
 	{
 	}
 	int    setDTS(const PPNamedFilt::ViewDefinition::Entry * pData);
 	int    getDTS(PPNamedFilt::ViewDefinition::Entry * pData);
 private:
+	PPNamedFilt::ViewDefinition::Entry Data;
 	// Собственно, редактируемый элемент
-	PPNamedFilt::ViewDefinition * P_Data;  // @notowned
+	//PPNamedFilt::ViewDefinition * P_Data;  // @notowned
 };
 
 //
 // Descr: Заполняет интерфейс данными из pData
 //
-int MobileClmnValItemDialog::setDTS(const PPNamedFilt::ViewDefinition::Entry * pEntry)
+int MobileClmnValItemDialog::setDTS(const PPNamedFilt::ViewDefinition::Entry * pData)
 {
 	int    ok = 1;
-	PPNamedFilt::ViewDefinition::Entry entry = *pEntry;
-	setCtrlString(CTL_MOBCLEDT_Z, entry.Zone); // Поле "Zone"
-	setCtrlString(CTL_MOBCLEDT_FN, entry.FieldName); // Поле "FieldName"
-	setCtrlString(CTL_MOBCLEDT_TXT, entry.Text); // Поле "Text"
+	RVALUEPTR(Data, pData);
+	//PPNamedFilt::ViewDefinition::Entry entry = *pEntry;
+	setCtrlString(CTL_MOBCLEDT_Z, Data.Zone); // Поле "Zone"
+	setCtrlString(CTL_MOBCLEDT_FN, Data.FieldName); // Поле "FieldName"
+	setCtrlString(CTL_MOBCLEDT_TXT, Data.Text); // Поле "Text"
+	SetupStringCombo(this, CTLSEL_MOBCLEDT_AGGR, PPTXT_AGGRFUNCNAMELIST, Data.TotalFunc);
 	return ok;
 }
 //
 // Descr: Заполняет pData данными из интерфейса
 //
-int MobileClmnValItemDialog::getDTS(PPNamedFilt::ViewDefinition::Entry * pEntry)
+int MobileClmnValItemDialog::getDTS(PPNamedFilt::ViewDefinition::Entry * pData)
 {
 	int    ok = 1;
 	uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
-	PPNamedFilt::ViewDefinition::Entry entry;
-	getCtrlString(sel = CTL_MOBCLEDT_Z, entry.Zone);
-	THROW(entry.Zone.NotEmptyS());
-	getCtrlString(sel = CTL_MOBCLEDT_FN, entry.FieldName);
-	THROW(entry.FieldName.NotEmptyS());
-	getCtrlString(sel = CTL_MOBCLEDT_TXT, entry.Text);
-	THROW(entry.Text.NotEmptyS());
-	ASSIGN_PTR(pEntry, entry);
-	CATCHZOK
+	//PPNamedFilt::ViewDefinition::Entry entry;
+	getCtrlString(sel = CTL_MOBCLEDT_Z, Data.Zone);
+	THROW_PP(Data.Zone.NotEmptyS(), PPERR_USERINPUT);
+	getCtrlString(sel = CTL_MOBCLEDT_FN, Data.FieldName);
+	THROW_PP(Data.FieldName.NotEmptyS(), PPERR_USERINPUT);
+	getCtrlString(sel = CTL_MOBCLEDT_TXT, Data.Text);
+	THROW_PP(Data.Text.NotEmptyS(), PPERR_USERINPUT);
+	getCtrlData(CTLSEL_MOBCLEDT_AGGR, &Data.TotalFunc);
+	ASSIGN_PTR(pData, Data);
+	CATCH
+		PPErrorByDialog(this, sel);
+	ENDCATCH
 	return ok;
 }
 
@@ -795,19 +810,35 @@ int SLAPI EditMobTypeClmn(PPNamedFilt::ViewDefinition * pViewDef, PPNamedFilt::V
 int MobileClmnValListDialog::setupList()
 {
 	int    ok = 1;
+	SString temp_buf;
 	PPNamedFilt::ViewDefinition::Entry entry;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; ok && i < Data.GetCount(); i++) {
 		PPID id = static_cast<PPID>(i + 1);
 		Data.GetEntry(i, entry);
 		ss.clear();
-		((ss += entry.Zone) += entry.FieldName) += entry.Text;
+		ss.add(entry.Zone);
+		ss.add(entry.FieldName);
+		ss.add(entry.Text);
+		const char * p_aggrfunc_sign = 0;
+		switch(entry.TotalFunc) {
+			case AGGRFUNC_COUNT:  p_aggrfunc_sign = "aggrfunc_count"; break;
+			case AGGRFUNC_SUM:    p_aggrfunc_sign = "aggrfunc_sum"; break;
+			case AGGRFUNC_AVG:    p_aggrfunc_sign = "aggrfunc_average"; break;
+			case AGGRFUNC_MIN:    p_aggrfunc_sign = "aggrfunc_min"; break;
+			case AGGRFUNC_MAX:    p_aggrfunc_sign = "aggrfunc_max"; break;
+			case AGGRFUNC_STDDEV: p_aggrfunc_sign = "aggrfunc_stddev"; break;
+		}
+		if(p_aggrfunc_sign)
+			PPLoadString(p_aggrfunc_sign, temp_buf);
+		else
+			temp_buf.Z();
+		ss.add(temp_buf);
 		if(!addStringToList(id, ss.getBuf()))
 			ok = 0;
 	}
 	return ok;
 }
-
 //
 //Descr: Обрабатывает нажатие кнопки "Добавить.."
 //

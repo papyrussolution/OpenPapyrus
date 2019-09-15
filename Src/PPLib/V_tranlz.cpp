@@ -5019,7 +5019,7 @@ int SLAPI PrcssrAlcReport::ProcessRegisterRec(RegisterTbl::Rec * pRegRec, PPID p
     sib.RegID = pRegRec->ID;
     sib.PsnID = psnID;
     sib.LocID = locID;
-	uint32 sur_id = BobJencHash(&sib, sizeof(sib));
+	uint32 sur_id = SlHash::BobJenc(&sib, sizeof(sib));
     pRegRec->ExtID = labs((long)sur_id); // @note Для банковских счетов поле RegisterTbl::Rec::ExtID значимо
     {
 		SString serial, left, right;

@@ -16,12 +16,7 @@
 #ifndef HEADER_CRYPTO_H
 #define HEADER_CRYPTO_H
 
- //#include <stdlib.h>
-//#include <time.h>
 #include <openssl/e_os2.h>
-#ifndef OPENSSL_NO_STDIO
-	//#include <stdio.h>
-#endif
 #include <openssl/stack.h>
 #include <openssl/safestack.h>
 #include <openssl/opensslv.h>

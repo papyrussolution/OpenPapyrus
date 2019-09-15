@@ -31,7 +31,7 @@
 void S_MD5::reverse_u32(uint8 * buf, int n_u32)
 {
 	uint8 tmp;
-	if(m_big_endian) {
+	if(SLS.GetSSys().Flags & SSystem::fBigEndian) {
 		/* change { 4, 3, 2, 1 } => { 1, 2, 3, 4 } */
 		while(n_u32-- > 0) {
 			tmp    = buf[0];
@@ -72,13 +72,12 @@ S_MD5::S_MD5()
 	 * The MD5 stuff is written for little endian.
 	 */
 	m_need_byteswap = *(uint8 *)m_buf != 4;
-	m_big_endian    = *(uint8 *)m_buf == 1;
+	//m_big_endian    = *(uint8 *)m_buf == 1;
 }
 
 S_MD5::~S_MD5()
 {
 }
-
 /**
  * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
  * initialization constants.
@@ -314,7 +313,7 @@ SLTEST_R(TestMd5)
 	for (int k = 0; k < (int)num_of_rows; k++) {
 		input[0] = 0;
 		output[0] = 0;
-		memset (md_buf, 0, 16);
+		memset(md_buf, 0, 16);
 		in_buf = 0;
 		out_buf = 0;
 		THROW(SLTEST_CHECK_NZ(tab_obj.GetRow(k, row_obj)));

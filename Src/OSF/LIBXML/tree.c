@@ -122,8 +122,8 @@ static void FASTCALL __UpdateLastChildAndParent(xmlNode * pNode)
 static xmlEntity * xmlGetEntityFromDtd(const xmlDtd * dtd, const xmlChar * name)
 {
 	if(dtd && dtd->entities) {
-		xmlEntitiesTable * table = (xmlEntitiesTable *)dtd->entities;
-		return (xmlEntity *)xmlHashLookup(table, name);
+		xmlEntitiesTable * table = static_cast<xmlEntitiesTable *>(dtd->entities);
+		return static_cast<xmlEntity *>(xmlHashLookup(table, name));
 		// return (xmlGetEntityFromTable(table, name)); 
 	}
 	else
@@ -142,8 +142,8 @@ static xmlEntity * xmlGetEntityFromDtd(const xmlDtd * dtd, const xmlChar * name)
 static xmlEntity * xmlGetParameterEntityFromDtd(const xmlDtd * dtd, const xmlChar * name)
 {
 	if(dtd && dtd->pentities) {
-		xmlEntitiesTable * table = (xmlEntitiesTable *)dtd->pentities;
-		return (xmlEntity *)xmlHashLookup(table, name);
+		xmlEntitiesTable * table = static_cast<xmlEntitiesTable *>(dtd->pentities);
+		return static_cast<xmlEntity *>(xmlHashLookup(table, name));
 		// return (xmlGetEntityFromTable(table, name)); 
 	}
 	else

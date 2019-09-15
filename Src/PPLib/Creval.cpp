@@ -83,10 +83,8 @@ int CRevalDialog::getDTS(CurRevalParam * pData)
 			}
 		}
 	}
-	*pData = Data;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pData, Data);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

@@ -346,10 +346,8 @@ int AmtTypeDialog::getDTS(PPAmountTypePacket * pData)
 		getCtrlString(CTL_AMOUNTTYPE_FORMULA, Data.Formula);
 	else
 		Data.Formula = 0;
-	*pData = Data;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pData, Data);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

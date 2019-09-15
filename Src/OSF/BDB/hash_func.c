@@ -95,20 +95,13 @@ uint32 __ham_func3(DB * dbp, const void * key, uint32 len)
 	    case 0:
 		do {
 			HASHC;
-		    case 7:
-			HASHC;
-		    case 6:
-			HASHC;
-		    case 5:
-			HASHC;
-		    case 4:
-			HASHC;
-		    case 3:
-			HASHC;
-		    case 2:
-			HASHC;
-		    case 1:
-			HASHC;
+		    case 7: HASHC;
+		    case 6: HASHC;
+		    case 5: HASHC;
+		    case 4: HASHC;
+		    case 3: HASHC;
+		    case 2: HASHC;
+		    case 1: HASHC;
 		} while(--loop);
 	}
 	return n;
@@ -135,20 +128,13 @@ uint32 __ham_func4(DB * dbp, const void * key, uint32 len)
 	    case 0:
 		do {
 			HASH4;
-		    case 7:
-			HASH4;
-		    case 6:
-			HASH4;
-		    case 5:
-			HASH4;
-		    case 4:
-			HASH4;
-		    case 3:
-			HASH4;
-		    case 2:
-			HASH4;
-		    case 1:
-			HASH4;
+		    case 7: HASH4;
+		    case 6: HASH4;
+		    case 5: HASH4;
+		    case 4: HASH4;
+		    case 3: HASH4;
+		    case 2: HASH4;
+		    case 1: HASH4;
 		} while(--loop);
 	}
 	return h;

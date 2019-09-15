@@ -24,11 +24,6 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <assert.h>
-//#include "pixman-private.h"
 
 static const pixman_color_t transparent_black = { 0, 0, 0, 0 };
 

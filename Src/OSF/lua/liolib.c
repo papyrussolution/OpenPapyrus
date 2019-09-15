@@ -9,12 +9,7 @@
 #define liolib_c
 #define LUA_LIB
 
-//#include <ctype.h>
-//#include <errno.h>
 #include <locale.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"

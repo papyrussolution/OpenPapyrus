@@ -731,9 +731,7 @@ int PredictionParamDialog::getDTS(PrcssrPrediction::Param * pData)
 	GetClusterData(CTL_FILLSALESTBL_CONT, &Data.Flags);
 	GetClusterData(CTL_FILLSALESTBL_FLAGS, &Data.Flags);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

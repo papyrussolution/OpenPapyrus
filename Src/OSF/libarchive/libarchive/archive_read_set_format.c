@@ -25,12 +25,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include "archive.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
 
 int archive_read_set_format(struct archive * _a, int code)
 {

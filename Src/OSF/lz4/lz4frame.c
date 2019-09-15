@@ -255,7 +255,7 @@ static size_t LZ4F_getBlockSize(unsigned blockSizeID)
     return blockSizes[blockSizeID];
 }
 
-static uint8 LZ4F_headerChecksum (const void* header, size_t length)
+static uint8 LZ4F_headerChecksum(const void* header, size_t length)
 {
     uint32 const xxh = XXH32(header, length, 0);
     return (uint8)(xxh >> 8);
@@ -1450,7 +1450,8 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void* dstBuffer, size_t* dstSizePtr,
             if(dctx->frameInfo.blockChecksumFlag) {
                 dctx->tmpInTarget -= 4;
                 assert(selectedIn != NULL);  /* selectedIn is defined at this stage (either srcPtr, or dctx->tmpIn) */
-                {   uint32 const readBlockCrc = LZ4F_readLE32(selectedIn + dctx->tmpInTarget);
+                {   
+					uint32 const readBlockCrc = LZ4F_readLE32(selectedIn + dctx->tmpInTarget);
                     uint32 const calcBlockCrc = XXH32(selectedIn, dctx->tmpInTarget, 0);
                     if(readBlockCrc != calcBlockCrc)
                         return err0r(LZ4F_ERROR_blockChecksum_invalid);

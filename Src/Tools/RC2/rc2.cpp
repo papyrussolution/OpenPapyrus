@@ -1170,22 +1170,46 @@ void main(int argc, char ** argv)
 		printf("Usage: %s src[.rc2] [result.rc] [result.h]\n", argv[0]);
 	else {
 		SLS.Init("RC2");
-		char   rc2_name[MAXPATH], rc_name[MAXPATH], h_name[MAXPATH], embed_rc_name[MAXPATH];
+		// @v10.5.6 char   rc2_name[MAXPATH];
+		// @v10.5.6 char   rc_name[MAXPATH];
+		// @v10.5.6 char   h_name[MAXPATH];
+		SString rc2_name; // @v10.5.6
+		SString rc_name;  // @v10.5.6
+		SString h_name;  // @v10.5.6
+		char   embed_rc_name[MAXPATH];
 		SString drawvector_storage_name;
-		STRNSCPY(rc2_name, argv[1]);
-		replaceExt(rc2_name, "rc2", 0);
+		// @v10.5.6 STRNSCPY(rc2_name, argv[1]);
+		// @v10.5.6 replaceExt(rc2_name, "rc2", 0);
+		rc2_name = argv[1]; // @v10.5.6 
+		SPathStruc::ReplaceExt(rc2_name, "rc2", 0); // @v10.5.6 
+		/* @v10.5.6 
 		if(argc >= 3)
 			STRNSCPY(rc_name,  argv[2]);
 		else {
 			STRNSCPY(rc_name,  argv[1]);
 			replaceExt(rc_name, "rc", 1);
-		}
+		} 
 		if(argc >= 4)
 			STRNSCPY(h_name,  argv[3]);
 		else {
 			STRNSCPY(h_name,  argv[1]);
 			replaceExt(h_name, "h", 1);
 		}
+		*/
+		// @v10.5.6 {
+		if(argc >= 3)
+			rc_name = argv[2];
+		else {
+			rc_name = argv[1];
+			SPathStruc::ReplaceExt(rc_name, "rc", 1);
+		}
+		if(argc >= 4)
+			h_name = argv[3];
+		else {
+			h_name = argv[1];
+			SPathStruc::ReplaceExt(h_name, "h", 1);
+		}
+		// } @v10.5.6 
 		if(argc >= 5) {
 			STRNSCPY(embed_rc_name, argv[4]);
 		}

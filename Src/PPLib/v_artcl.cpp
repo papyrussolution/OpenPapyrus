@@ -397,9 +397,7 @@ int SLAPI PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			Data.Ft_Stop = (int16)temp_long;
 			GetClusterData(CTL_ARTICLEFLT_FLAGS, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

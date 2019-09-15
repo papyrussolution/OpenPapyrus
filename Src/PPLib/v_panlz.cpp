@@ -136,9 +136,7 @@ int PriceAnlzFiltDialog::getDTS(PriceAnlzFilt * pData)
 	GetClusterData(CTL_PANLZFLT_COSTALG, &Data.CostAlg);
 	GetClusterData(CTL_PANLZFLT_FLAGS,    &Data.Flags);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

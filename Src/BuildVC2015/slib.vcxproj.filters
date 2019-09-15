@@ -88,7 +88,6 @@
     <ClCompile Include="..\SLib\Stype.cpp" />
     <ClCompile Include="..\SLib\sunit.cpp" />
     <ClCompile Include="..\SLib\sxml.cpp" />
-    <ClCompile Include="..\SLib\s_crc32.cpp" />
     <ClCompile Include="..\SLib\tab.cpp" />
     <ClCompile Include="..\SLib\TCanvas.cpp" />
     <ClCompile Include="..\SLib\tcontrol.cpp" />
@@ -152,6 +151,7 @@
     <ClCompile Include="..\SLib\tlayout.cpp" />
     <ClCompile Include="..\SLib\sxmlad.cpp" />
     <ClCompile Include="..\SLib\samqp.cpp" />
+    <ClCompile Include="..\SLib\xxhash.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -203,6 +203,12 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\amqp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\xxh3.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\xxhash.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

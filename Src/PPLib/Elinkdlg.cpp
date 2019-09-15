@@ -280,9 +280,7 @@ int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
 					Data.atFree(j);
 			}
 			CALLPTRMEMB(pData, copy(Data));
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

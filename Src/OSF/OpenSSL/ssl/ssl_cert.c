@@ -14,13 +14,10 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include "e_os.h"
 #ifndef NO_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
 #include "internal/o_dir.h"
-//#include <openssl/x509v3.h>
 #include "internal/thread_once.h"
 
 static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx, int op, int bits, int nid, void * other, void * ex);

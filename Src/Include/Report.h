@@ -49,6 +49,7 @@ class TVRez;
 #define GRPFMT_REPRINTHEAD     0x0008
 #define GRPFMT_RESETPGNMB      0x0010
 #define GRPFMT_SUMMARYONBOTTOM 0x0020 // Итог на дно страницы
+/* @v10.5.6 replaced with AGGRFUNC_XXX (slib.h)
 //
 // Агрегатные функции для группировки
 //
@@ -58,6 +59,7 @@ class TVRez;
 #define AGGR_AVG                    3
 #define AGGR_MIN                    4
 #define AGGR_MAX                    5
+*/
 //
 // Опции печати
 //

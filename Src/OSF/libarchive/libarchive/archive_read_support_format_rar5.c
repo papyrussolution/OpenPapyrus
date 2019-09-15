@@ -512,7 +512,7 @@ static int run_filter(struct archive_read* a, struct filter_info* flt)
 		    ret = run_delta_filter(rar, flt);
 		    break;
 		case FILTER_E8:
-		/* fallthrough */
+		// @fallthrough
 		case FILTER_E8E9:
 		    ret = run_e8e9_filter(rar, flt, flt->type == FILTER_E8E9);
 		    break;
@@ -1102,15 +1102,15 @@ static int process_head_file_extra(struct archive_read* a, struct archive_entry*
 			    ret = parse_file_extra_htime(a, e, rar, &extra_data_size);
 			    break;
 			case CRYPT:
-			/* fallthrough */
+			// @fallthrough
 			case VERSION_:
-			/* fallthrough */
+			// @fallthrough
 			case REDIR:
-			/* fallthrough */
+			// @fallthrough
 			case UOWNER:
-			/* fallthrough */
+			// @fallthrough
 			case SUBDATA:
-			/* fallthrough */
+			// @fallthrough
 			default:
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unknown extra field in file/service block: 0x%02x", (int)extra_field_id);
 			    return ARCHIVE_FATAL;
@@ -2931,13 +2931,13 @@ static int do_unpack(struct archive_read* a, struct rar5* rar,
 			case STORE:
 			    return do_unstore_file(a, rar, buf, size, offset);
 			case FASTEST:
-			/* fallthrough */
+			// @fallthrough
 			case FAST:
-			/* fallthrough */
+			// @fallthrough
 			case NORMAL:
-			/* fallthrough */
+			// @fallthrough
 			case GOOD:
-			/* fallthrough */
+			// @fallthrough
 			case BEST:
 			    return uncompress_file(a);
 			default:

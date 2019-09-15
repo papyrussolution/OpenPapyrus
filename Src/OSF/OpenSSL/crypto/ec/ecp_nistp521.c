@@ -503,26 +503,11 @@ static void felem_mul(largefelem out, const felem in1, const felem in2)
 {
 	felem in2x2;
 	felem_scalar(in2x2, in2, 2);
-
 	out[0] = ((uint128_t)in1[0]) * in2[0];
-
-	out[1] = ((uint128_t)in1[0]) * in2[1] +
-	    ((uint128_t)in1[1]) * in2[0];
-
-	out[2] = ((uint128_t)in1[0]) * in2[2] +
-	    ((uint128_t)in1[1]) * in2[1] +
-	    ((uint128_t)in1[2]) * in2[0];
-
-	out[3] = ((uint128_t)in1[0]) * in2[3] +
-	    ((uint128_t)in1[1]) * in2[2] +
-	    ((uint128_t)in1[2]) * in2[1] +
-	    ((uint128_t)in1[3]) * in2[0];
-
-	out[4] = ((uint128_t)in1[0]) * in2[4] +
-	    ((uint128_t)in1[1]) * in2[3] +
-	    ((uint128_t)in1[2]) * in2[2] +
-	    ((uint128_t)in1[3]) * in2[1] +
-	    ((uint128_t)in1[4]) * in2[0];
+	out[1] = ((uint128_t)in1[0]) * in2[1] + ((uint128_t)in1[1]) * in2[0];
+	out[2] = ((uint128_t)in1[0]) * in2[2] + ((uint128_t)in1[1]) * in2[1] + ((uint128_t)in1[2]) * in2[0];
+	out[3] = ((uint128_t)in1[0]) * in2[3] + ((uint128_t)in1[1]) * in2[2] + ((uint128_t)in1[2]) * in2[1] + ((uint128_t)in1[3]) * in2[0];
+	out[4] = ((uint128_t)in1[0]) * in2[4] + ((uint128_t)in1[1]) * in2[3] + ((uint128_t)in1[2]) * in2[2] + ((uint128_t)in1[3]) * in2[1] + ((uint128_t)in1[4]) * in2[0];
 
 	out[5] = ((uint128_t)in1[0]) * in2[5] +
 	    ((uint128_t)in1[1]) * in2[4] +

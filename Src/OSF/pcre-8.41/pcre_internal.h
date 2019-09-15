@@ -104,12 +104,6 @@
 // Standard C headers plus the external interface definition. The only time
 // setjmp and stdarg are used is when NO_RECURSE is set. 
 //
-//#include <ctype.h>
-//#include <limits.h>
-//#include <stddef.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #ifdef SUPPORT_VALGRIND
 	#include <valgrind/memcheck.h> // Valgrind (memcheck) support 
 #endif

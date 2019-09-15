@@ -124,10 +124,8 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					q.select(pt->ID, pt->MainLoc, pt->RLoc, 0);
 					MEMSZERO(k0);
 					for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
-						if(pt->data.MainLoc)
-							id_list.Add(pt->data.MainLoc);
-						if(pt->data.RLoc)
-							id_list.Add(pt->data.RLoc);
+						id_list.AddNZ(pt->data.MainLoc);
+						id_list.AddNZ(pt->data.RLoc);
 						dlvr_loc_list.clear();
 						if(PsnObj.GetDlvrLocList(pt->data.ID, &dlvr_loc_list) > 0) {
 							for(uint i = 0; i < dlvr_loc_list.getCount(); i++)
@@ -610,9 +608,7 @@ public:
 			THROW_PP(stricmp866(answ, yes_str) == 0, PPERR_STRICTCONFIRMTEXTIGNORED);
 		}
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

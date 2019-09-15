@@ -1909,9 +1909,7 @@ int PrjTaskDialog::getDTS(PrjTaskTbl::Rec * pData)
 	getCtrlData(CTL_TODO_AMOUNT, &Data.Amount);
 	getCtrlData(CTLSEL_TODO_BILLAR, &Data.BillArID);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

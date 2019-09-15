@@ -45,8 +45,8 @@
 #pragma hdrstop // Not Using Precompiled Headers
 #include "triodef.h"
 #include "trionan.h"
-#include <math.h>
-#include <float.h>
+//#include <math.h>
+//#include <float.h>
 #if defined(TRIO_PLATFORM_UNIX)
 	#include <signal.h>
 #endif
@@ -57,7 +57,7 @@
 		#include <fp_class.h>
 	#endif
 #endif
-#include <assert.h>
+//#include <assert.h>
 #if defined(TRIO_DOCUMENTATION)
 	#include "doc/doc_nan.h"
 #endif
@@ -600,7 +600,7 @@ TRIO_PUBLIC int trio_fpclassify(double number)
  *  VMS  : /DEFINE=(STANDALONE)
  */
 #if defined(STANDALONE)
-#include <stdio.h>
+//#include <stdio.h>
 
 static const char * getClassification(int type)
 {

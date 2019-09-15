@@ -1,5 +1,5 @@
 // PPTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -294,15 +294,14 @@ int Test_Hash_And_Search(const char * pInputFileName)
 			// В результате мы должны получить файл, содержащий ровно столько же строк, что и входящий файл.
 			//
 			{
-				char fn[MAXPATH];
-				STRNSCPY(fn, pInputFileName);
-				replaceExt(fn, "OUT", 1);
+				SString fn = pInputFileName;
+				//replaceExt(fn, "OUT", 1);
+				SPathStruc::ReplaceExt(fn, "out", 1);
 				SFile out_file(fn, SFile::mWrite);
 				if(out_file.IsValid()) {
 					SymbHashTable::Iter iter;
-					for(tab.InitIteration(&iter); tab.NextIteration(&iter, &i, 0, &word_buf);) {
+					for(tab.InitIteration(&iter); tab.NextIteration(&iter, &i, 0, &word_buf);)
 						out_file.WriteLine(word_buf.CR());
-					}
 				}
 				else
 					ok = 0;

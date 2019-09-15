@@ -777,7 +777,6 @@ int StaffDialog::getDTS(PPStaffPacket * pData)
 	getCtrlData(CTLSEL_STAFF_FIX, &Data.Rec.FixedStaff);
 	{
 		DivisionCtrlGroup::Rec grp_rec;
-		MEMSZERO(grp_rec);
 		getGroupData(GRP_DIV, &grp_rec);
 		Data.Rec.OrgID      = grp_rec.OrgID;
 		Data.Rec.DivisionID = grp_rec.DivID;
@@ -785,9 +784,7 @@ int StaffDialog::getDTS(PPStaffPacket * pData)
 	getCtrlData(CTL_STAFF_RANK,   &Data.Rec.Rank);
 	getCtrlData(CTL_STAFF_CHARGE, &Data.Rec.ChargeGrpID);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

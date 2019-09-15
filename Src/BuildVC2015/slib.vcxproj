@@ -1641,7 +1641,6 @@
     <ClCompile Include="..\SLib\sunit.cpp" />
     <ClCompile Include="..\SLib\sxml.cpp" />
     <ClCompile Include="..\SLib\sxmlad.cpp" />
-    <ClCompile Include="..\SLib\s_crc32.cpp" />
     <ClCompile Include="..\SLib\tab.cpp" />
     <ClCompile Include="..\SLib\TCanvas.cpp" />
     <ClCompile Include="..\SLib\tcontrol.cpp" />
@@ -1709,6 +1708,7 @@
       </BrowseInformation>
     </ClCompile>
     <ClCompile Include="..\SLib\wmi.cpp" />
+    <ClCompile Include="..\SLib\xxhash.c" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">
@@ -3586,6 +3586,8 @@
     <ClInclude Include="..\Include\Tvdefs.h" />
     <ClInclude Include="..\Include\uchardet.h" />
     <ClInclude Include="..\Include\Uri.h" />
+    <ClInclude Include="..\Include\xxh3.h" />
+    <ClInclude Include="..\Include\xxhash.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\ASMLIB\cachesize64.asm">

@@ -1943,9 +1943,7 @@ int PhoneListImpExpDialog::getDTS(PPPhoneListImpExpParam * pData)
 	THROW(ImpExpParamDialog::getDTS(&Data));
 	getCtrlString(sel = CTL_IMPEXPPHONE_DEFPFX, Data.DefCityPhonePrefix);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -2066,9 +2064,7 @@ int PrcssrPhoneListImport::EditParam(Param * pParam)
 			THROW_PP(CfgList.GetText(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
 			Data.DefCityID = getCtrlLong(sel = CTLSEL_IEPHONE_DEFCITY);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -3026,9 +3022,7 @@ int PersonImpExpDialog::getDTS(PPPersonImpExpParam * pData)
 		Data.Flags = 0;
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -3116,9 +3110,7 @@ int PersonImportDialog::getDTS(PrcssrPersonImport::Param * pData)
 	THROW_PP(CfgList.GetText(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
 	getCtrlData(CTLSEL_IEPERSON_CAT, &Data.CategoryID);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -3273,7 +3265,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexEMailText(const char * pText, PPPers
 
 static uint FASTCALL MakeTextHash(const SString & rText)
 {
-	return BobJencHash(rText.cptr(), rText.Len());
+	return SlHash::BobJenc(rText.cptr(), rText.Len());
 }
 
 int SLAPI PrcssrPersonImport::Run()
@@ -4946,9 +4938,7 @@ int FiasImporter::EditParam(Param & rP)
 			THROW(pathValid(Data.Path, 1));
 			GetClusterData(CTL_FIASIMP_FLAGS, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

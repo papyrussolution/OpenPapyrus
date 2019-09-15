@@ -533,7 +533,7 @@ uint FASTCALL ObjCacheHash::Hash(PPID id, uint n) const
 	uint32 d[2];
 	d[0] = id;
 	d[1] = n;
-	return (BobJencHash(d, sizeof(d)) % (long)MaxItems);
+	return (SlHash::BobJenc(d, sizeof(d)) % (long)MaxItems);
 	// } @v7.8.3
 	// @v7.8.3 return (uint)((id + (long)(n * n)) % (long)MaxItems);
 }

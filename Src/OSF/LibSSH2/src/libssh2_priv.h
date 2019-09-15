@@ -53,8 +53,6 @@
 #ifdef HAVE_WS2TCPIP_H
 	#include <ws2tcpip.h>
 #endif
-//#include <stdio.h>
-//#include <time.h>
 
 /* The following CPP block should really only be in session.c and
    packet.c.  However, AIX have #define's for 'events' and 'revents'

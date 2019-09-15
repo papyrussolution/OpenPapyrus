@@ -388,6 +388,7 @@ struct VetisProductItem;
 struct VetisProduct;
 struct VetisSubProduct;
 struct VetisStockEntry;
+class  PPVetisInterface;
 struct Fann2;
 class  TsStakeEnvironment;
 class  RetailPriceExtractor;
@@ -1303,6 +1304,10 @@ public:
 #define CATCHZOKPPERR \
 	goto __sendcatch;__scatch:\
 	ok = PPErrorZ();\
+	__sendcatch:;
+#define CATCHZOKPPERRBYDLG \
+	goto __sendcatch;__scatch:\
+	ok = PPErrorByDialog(this, sel);\
 	__sendcatch:;
 
 #define BR2(v) R2(v) // Используется для округления сумм документов
@@ -4212,7 +4217,6 @@ public:
 	int    SLAPI Set(const PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, int noRmv, int use_ta);
 	int    SLAPI RemoveAllForQuotKind(PPID quotKindID, int use_ta);
 	int    SLAPI GetAddressLocList(PPIDArray & rList);
-
 	int    SLAPI FetchRel(PPID relID, PPQuot * pVal);
 	void   SLAPI RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot);
 	void   SLAPI RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot);
@@ -8304,7 +8308,6 @@ protected:
 #define LOCTYP_ADDRESS         3L // Адрес персоналии
 #define LOCTYP_DIVISION        4L // Структурное подразделение организации
 #define LOCTYP_WAREHOUSEGROUP  5L // Группа складов
-
 #define LOCTYP_WHCOLUMN        6L // Колонка зоны хранения //
 #define LOCTYP_WHCELL          7L // Ячейка зоны хранения //
 #define LOCTYP_WHAISLE         8L // Складской проход
@@ -8327,7 +8330,7 @@ protected:
 #define LOCF_INTERNAL_DISABLED 0x80000000L // @v10.0.05 @internal @transient Флаг, ассоциированный со складом, на который у пользователя нет прав
 
 struct LocationFilt : public PPBaseFilt {
-	SLAPI  LocationFilt(PPID locType = 0, PPID ownerID = 0, PPID parentID = 0);
+	explicit SLAPI LocationFilt(PPID locType = 0, PPID ownerID = 0, PPID parentID = 0);
 	LocationFilt & FASTCALL operator = (const LocationFilt & rS);
 	int    SLAPI GetExField(int fldId, SString & rBuf) const;
 	int    SLAPI SetExField(int fldId, const char * pBuf);
@@ -15039,7 +15042,7 @@ public:
 			SString Zone;
 			SString FieldName;
 			SString Text;
-			int32  TotalFunc;
+			int32  TotalFunc; // AGGRFUNC_XXX
 		};
 		ViewDefinition();
 		uint   GetCount() const;
@@ -15048,6 +15051,7 @@ public:
 		int    RemoveEntryByPos(uint pos);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    XmlWriter(void * param);
+		int    Swap(uint p1, uint p2);
 	private:
 		struct InnerEntry { // @persistent
 			uint32 ZoneP;
@@ -16008,6 +16012,11 @@ private:
 
 struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	SLAPI  PPTimeSeries();
+	enum {
+		tUnkn   = 0,
+		tForex  = 1,
+		tStocks = 2
+	};
 	int    FASTCALL IsEqual(const PPTimeSeries & rS) const;
 	PPID   Tag;            // Const=PPOBJ_TIMESERIES
 	PPID   ID;             // @id
@@ -16025,7 +16034,8 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	uint16 PeakAvgQuant_S; // @v10.3.3
 	uint16 TargetQuant;    // @v10.4.2
 	long   Flags;          //
-	long   Reserve2[2];    // @reserve
+	long   Type;           // @v10.5.6 PPTimeSeries::kXXX
+	long   Reserve2;       // @reserve @v10.5.6 [2]-->[1]
 };
 //
 // Descr: Пакет временной серии. Содержит основную запись и дополнительные свойства.
@@ -16376,12 +16386,14 @@ typedef PPTimeSeries TimeSeriesViewItem;
 class PPViewTimeSeries : public PPView {
 public:
 	struct BrwItem { // @persistent @store(Reference2Tbl)
-		BrwItem(const PPTimeSeries * pTs);
+		explicit BrwItem(const PPTimeSeriesPacket * pTs);
 		PPID   ID;             // @id
 		char   Name[48];       // @name @!refname
 		char   Symb[20];       //
 		double BuyMarg;
 		double SellMarg;
+		double ManualMarg;     // @v10.5.6
+		int16  Type;           // @v10.5.6
 		int16  Prec;
 		char   CurrencySymb[12];
 		double SpikeQuant;     //
@@ -30541,8 +30553,10 @@ struct InventoryFilt : public PPBaseFilt {
 };
 
 struct AutoFillInvFilt {
+	SLAPI  AutoFillInvFilt();
 	enum {
-		fFillWithZeroQtty = 0x0001
+		fFillWithZeroQtty        = 0x0001,
+		fRestrictZeroRestWithMtx = 0x0002 // @v10.5.6 Не добавлять в документ товары, которых нет на остатке и которые вне матрицы
 	};
 	PPID   BillID;
 	PPID   GoodsGrpID;
@@ -31688,17 +31702,17 @@ public:
 	class InvBlock {
 	public:
 		enum {
-			fPriceByLastLot    = 0x0001, // Цену брать из последнего лота
-			fFailOnDup         = 0x0002, // При существовании аналогичной позиции сигнализировать об ошибке
-				// (не складывать количества).
-			fSkipZeroRest      = 0x0004, //
-			fUseCurrent        = 0x0008, // Функция AcceptInventoryItem определяет учетные характеристики
+			fPriceByLastLot          = 0x0001, // Цену брать из последнего лота
+			fFailOnDup               = 0x0002, // При существовании аналогичной позиции сигнализировать об ошибке (не складывать количества).
+			fSkipZeroRest            = 0x0004, //
+			fUseCurrent              = 0x0008, // Функция AcceptInventoryItem определяет учетные характеристики
 				// по текущему состоянию, но не на дату документа инвентаризации
-			fAutoLine          = 0x0010,
-			fAutoLineAllowZero = 0x0020,
-			fAutoLineZero      = 0x0040
+			fAutoLine                = 0x0010,
+			fAutoLineAllowZero       = 0x0020,
+			fAutoLineZero            = 0x0040,
+			fRestrictZeroRestWithMtx = 0x0080 // @v10.5.6 Проекция флага AutoFillInvFilt::fRestrictZeroRestWithMtx
 		};
-		InvBlock(long flags = 0);
+		explicit InvBlock(long flags = 0);
 	private:
 		friend class PPObjBill;
 		enum {
@@ -31770,10 +31784,7 @@ public:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-
-	// Realy private function. Accessed only from PPObject::ReceivePackets()
-	static int   SLAPI TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextPassNeeded);
-
+	static int   SLAPI TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextPassNeeded); // Realy private function. Accessed only from PPObject::ReceivePackets()
 	int    SLAPI GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArID);
 	int    SLAPI GetPayableOpListByReckonOp(const PPReckonOpEx *, PPID arID, ReckonOpArList *);
 	int    SLAPI GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList * pList);
@@ -33186,6 +33197,7 @@ public:
 		PPID   OwnerID;
 		PPID   LocID;
 		SString Code;
+		SString Phone; // @v10.5.6
 	};
 
 	// @v10.5.5 (moved to PPConstParam) static const uint32 FiltSignature; // = 0xfbefffffU;
@@ -36659,7 +36671,7 @@ public:
 	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI Print(const void *);
-	int    SLAPI SetOuterPack(PPBillPacket * pPack);
+	void   SLAPI SetOuterPack(PPBillPacket * pPack);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(InventoryViewItem *);
 	int    SLAPI GetZeroByDefaultStatus() const;
@@ -45870,6 +45882,7 @@ private:
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int    SLAPI ViewTotal();
 	int    SLAPI LoadDocuments();
+	int    SLAPI Helper_ProcessIncoming(const S_GUID & rVetDocUuid, const void * pIfcParam, PPVetisInterface & rIfc, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList);
 	int    SLAPI ProcessIncoming(PPID entityID);
 	int    SLAPI ProcessOutcoming(PPID entityID);
 	int    SLAPI ViewWarehouse();

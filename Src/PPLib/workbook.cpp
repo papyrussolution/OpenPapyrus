@@ -769,9 +769,7 @@ public:
 		getCtrlString(CTL_WORKBOOK_VER, temp_buf);
 		temp_buf.CopyTo(Data.Rec.Version, sizeof(Data.Rec.Version));
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

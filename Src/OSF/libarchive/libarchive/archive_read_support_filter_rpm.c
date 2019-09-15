@@ -24,16 +24,6 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_endian.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
 
 struct rpm {
 	int64_t total_in;

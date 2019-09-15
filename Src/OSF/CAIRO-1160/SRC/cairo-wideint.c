@@ -319,16 +319,13 @@ cairo_uquorem64_t _cairo_uint64_divrem(cairo_uint64_t num, cairo_uint64_t den)
 	cairo_uquorem64_t qr;
 	cairo_uint64_t bit;
 	cairo_uint64_t quo;
-
 	bit = _cairo_uint32_to_uint64(1);
-
 	/* normalize to make den >= num, but not overflow */
 	while(_cairo_uint64_lt(den, num) && (den.hi & 0x80000000) == 0) {
 		bit = _cairo_uint64_lsl(bit, 1);
 		den = _cairo_uint64_lsl(den, 1);
 	}
 	quo = _cairo_uint32_to_uint64(0);
-
 	/* generate quotient, one bit at a time */
 	while(bit.hi | bit.lo) {
 		if(_cairo_uint64_le(den, num)) {
@@ -349,18 +346,15 @@ cairo_uquorem64_t _cairo_uint64_divrem(cairo_uint64_t num, cairo_uint64_t den)
 cairo_uquorem128_t _cairo_uint128_divrem(cairo_uint128_t num, cairo_uint128_t den)
 {
 	cairo_uquorem128_t qr;
-
 	qr.quo = num / den;
 	qr.rem = num % den;
 	return qr;
 }
-
 #else
 
 cairo_uint128_t _cairo_uint32_to_uint128(uint32_t i)
 {
 	cairo_uint128_t q;
-
 	q.lo = _cairo_uint32_to_uint64(i);
 	q.hi = _cairo_uint32_to_uint64(0);
 	return q;
@@ -369,7 +363,6 @@ cairo_uint128_t _cairo_uint32_to_uint128(uint32_t i)
 cairo_int128_t _cairo_int32_to_int128(int32_t i)
 {
 	cairo_int128_t q;
-
 	q.lo = _cairo_int32_to_int64(i);
 	q.hi = _cairo_int32_to_int64(i < 0 ? -1 : 0);
 	return q;
@@ -378,7 +371,6 @@ cairo_int128_t _cairo_int32_to_int128(int32_t i)
 cairo_uint128_t _cairo_uint64_to_uint128(cairo_uint64_t i)
 {
 	cairo_uint128_t q;
-
 	q.lo = i;
 	q.hi = _cairo_uint32_to_uint64(0);
 	return q;
@@ -387,7 +379,6 @@ cairo_uint128_t _cairo_uint64_to_uint128(cairo_uint64_t i)
 cairo_int128_t _cairo_int64_to_int128(cairo_int64_t i)
 {
 	cairo_int128_t q;
-
 	q.lo = i;
 	q.hi = _cairo_int32_to_int64(_cairo_int64_negative(i) ? -1 : 0);
 	return q;
@@ -396,7 +387,6 @@ cairo_int128_t _cairo_int64_to_int128(cairo_int64_t i)
 cairo_uint128_t _cairo_uint128_add(cairo_uint128_t a, cairo_uint128_t b)
 {
 	cairo_uint128_t s;
-
 	s.hi = _cairo_uint64_add(a.hi, b.hi);
 	s.lo = _cairo_uint64_add(a.lo, b.lo);
 	if(_cairo_uint64_lt(s.lo, a.lo))
@@ -407,7 +397,6 @@ cairo_uint128_t _cairo_uint128_add(cairo_uint128_t a, cairo_uint128_t b)
 cairo_uint128_t _cairo_uint128_sub(cairo_uint128_t a, cairo_uint128_t b)
 {
 	cairo_uint128_t s;
-
 	s.hi = _cairo_uint64_sub(a.hi, b.hi);
 	s.lo = _cairo_uint64_sub(a.lo, b.lo);
 	if(_cairo_uint64_gt(s.lo, a.lo))
@@ -435,36 +424,28 @@ cairo_uint128_t _cairo_uint64x64_128_mul(cairo_uint64_t a, cairo_uint64_t b)
 	r1 = _cairo_uint64_add(r1, r2);             /* but this can carry */
 	if(_cairo_uint64_lt(r1, r2))                /* check */
 		r3 = _cairo_uint64_add(r3, uint64_carry32);
-
 	s.hi = _cairo_uint64_add(r3, uint64_hi(r1));
-	s.lo = _cairo_uint64_add(uint64_shift32(r1),
-		uint64_lo(r0));
+	s.lo = _cairo_uint64_add(uint64_shift32(r1), uint64_lo(r0));
 	return s;
 }
 
 cairo_int128_t _cairo_int64x64_128_mul(cairo_int64_t a, cairo_int64_t b)
 {
 	cairo_int128_t s;
-	s = _cairo_uint64x64_128_mul(_cairo_int64_to_uint64(a),
-		_cairo_int64_to_uint64(b));
+	s = _cairo_uint64x64_128_mul(_cairo_int64_to_uint64(a), _cairo_int64_to_uint64(b));
 	if(_cairo_int64_negative(a))
-		s.hi = _cairo_uint64_sub(s.hi,
-			_cairo_int64_to_uint64(b));
+		s.hi = _cairo_uint64_sub(s.hi, _cairo_int64_to_uint64(b));
 	if(_cairo_int64_negative(b))
-		s.hi = _cairo_uint64_sub(s.hi,
-			_cairo_int64_to_uint64(a));
+		s.hi = _cairo_uint64_sub(s.hi, _cairo_int64_to_uint64(a));
 	return s;
 }
 
 cairo_uint128_t _cairo_uint128_mul(cairo_uint128_t a, cairo_uint128_t b)
 {
 	cairo_uint128_t s;
-
 	s = _cairo_uint64x64_128_mul(a.lo, b.lo);
-	s.hi = _cairo_uint64_add(s.hi,
-		_cairo_uint64_mul(a.lo, b.hi));
-	s.hi = _cairo_uint64_add(s.hi,
-		_cairo_uint64_mul(a.hi, b.lo));
+	s.hi = _cairo_uint64_add(s.hi, _cairo_uint64_mul(a.lo, b.hi));
+	s.hi = _cairo_uint64_add(s.hi, _cairo_uint64_mul(a.hi, b.lo));
 	return s;
 }
 
@@ -476,8 +457,7 @@ cairo_uint128_t _cairo_uint128_lsl(cairo_uint128_t a, int shift)
 		shift -= 64;
 	}
 	if(shift) {
-		a.hi = _cairo_uint64_add(_cairo_uint64_lsl(a.hi, shift),
-			_cairo_uint64_rsl(a.lo, (64 - shift)));
+		a.hi = _cairo_uint64_add(_cairo_uint64_lsl(a.hi, shift), _cairo_uint64_rsl(a.lo, (64 - shift)));
 		a.lo = _cairo_uint64_lsl(a.lo, shift);
 	}
 	return a;

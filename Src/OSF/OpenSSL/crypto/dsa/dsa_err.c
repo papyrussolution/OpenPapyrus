@@ -9,11 +9,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <openssl/err.h>
-//#include <openssl/dsa.h>
 
-/* BEGIN ERROR CODES */
+ /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
 #define ERR_FUNC(func) ERR_PACK(ERR_LIB_DSA, func, 0)

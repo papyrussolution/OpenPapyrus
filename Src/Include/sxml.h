@@ -105,6 +105,19 @@ public:
     static int SLAPI GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult);
 };
 //
+// Descr: (ситуативный) Класс, реализующий обертку вокруг xmlTexWriter
+//
+class SXmlWriter {
+public:
+	SLAPI  SXmlWriter();
+	SLAPI ~SXmlWriter();
+	operator xmlTextWriter * SLAPI () const { return P_Writer; }
+	operator xmlBuffer * SLAPI () const { return P_XmlBuf; }
+private:
+	xmlBuffer * P_XmlBuf;
+	xmlTextWriter * P_Writer;
+};
+//
 //
 //
 class SXmlSaxParser {

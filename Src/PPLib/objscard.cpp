@@ -164,9 +164,7 @@ int SLAPI PPObjSCard::EditConfig()
 			THROW_PP(!rec.GoodsID || GObj.CheckFlag(rec.GoodsID, GF_UNLIM), PPERR_INVSCARDCHARGEGOODS);
 			Data.ChargeGoodsID = rec.GoodsID;
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -1400,9 +1398,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			}
 			getCtrlData(CTLSEL_SCARDSER_SPCTRT, &Data.Rec.SpecialTreatment); // @v10.1.3
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -3323,9 +3319,7 @@ int SCardDialog::getDTS(PPSCardPacket * pData)
 	}
 	// } @v10.2.7
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -3532,6 +3526,7 @@ int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 				pack.Rec.LocID = pParam->LocID;
 			// } @v9.4.5
 			pParam->Code.CopyTo(pack.Rec.Code, sizeof(pack.Rec.Code));
+			pack.PutExtStrData(pack.extssPhone, pParam->Phone); // @v10.5.6
 		}
 		if(pack.Rec.SeriesID && ser_obj.GetPacket(pack.Rec.SeriesID, &scs_pack) > 0) {
 			if(pack.Rec.Code[0] == 0 && scs_pack.Eb.CodeTempl) { // @v9.8.9 scs_pack.Rec.CodeTempl[0]-->scs_pack.Eb.CodeTempl
@@ -4832,9 +4827,7 @@ int SCardImpExpDialog::getDTS(PPSCardImpExpParam * pData)
 	getCtrlString(sel = CTL_IMPEXPSCARD_SERSYMB, Data.DefSeriesSymb);
 	getCtrlString(sel = CTL_IMPEXPSCARD_REGCODE, Data.OwnerRegTypeCode);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

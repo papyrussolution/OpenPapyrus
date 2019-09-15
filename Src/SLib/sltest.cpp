@@ -215,6 +215,18 @@ int STestCase::_check_math_result(SMathResult & r, double val, double tol, const
 		return 1;
 }
 
+int STestCase::_check_eq(const void * a, const void * b, size_t sz, const char * pA, const char * pB)
+{
+	if(memcmp(a, b, sz) != 0) {
+		SString buf;
+		buf.Cat(pA).Cat("!=").Cat(pB);
+		SetInfo(buf, 0);
+		return 0;
+	}
+	else
+		return 1;
+}
+
 int STestCase::_check_eq(const void * a, const void * b, const char * pA, const char * pB)
 {
 #ifdef _WIN64

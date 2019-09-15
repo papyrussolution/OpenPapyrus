@@ -286,10 +286,8 @@ int GoodsSaldoParamDlg::getDTS(PrcssrGoodsSaldo::Param * pPar)
 	getCtrlData(CTLSEL_GDSSALDO_PERIOD,   &GSParam.CalcPeriod);
 	getCtrlData(CTL_GDSSALDO_HOW, &v);
 	GSParam.FullCalc = v;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
 	ASSIGN_PTR(pPar, GSParam);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 //

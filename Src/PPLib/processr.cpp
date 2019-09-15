@@ -1639,9 +1639,7 @@ int ProcessorDialog::getDTS(PPProcessorPacket * pData)
 			Data.Rec.TcbQuant = (int16)(tcbquant / 5);
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

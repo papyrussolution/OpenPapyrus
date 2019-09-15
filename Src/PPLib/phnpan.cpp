@@ -19,7 +19,8 @@ public:
 			lmSwitchTo
 		};
 		enum {
-			fLockAutoExit = 0x0001
+			fLockAutoExit               = 0x0001,
+			fCloseButtonInMinimizeState = 0x0002  // Кнопка "Закрыть" находится в состоянии "Свернуть"
 		};
 		SLAPI  State() : Mode(lmNone), Status(0), Flags(0), PhnSvcID(0), PersonID(0), SCardID(0), LocID(0), SinceUp(getcurdatetime_()),
 			SinceDown(ZERODATETIME)
@@ -35,7 +36,6 @@ public:
 		SString CallerID;
 		SString ConnectedLine;
 		SString BridgeID;
-		//
 		PPObjIDArray RelEntries;
 		PPID   PersonID; // Персоналия ассоциированная с выбранным номером звонящего
 		PPID   SCardID;  // Персональная карта ассоциированная с выбранным номером звонящего
@@ -46,6 +46,7 @@ public:
 	~PhonePaneDialog();
 	int    SetupInfo();
 	void   Setup(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
+	void   SetupOidList();
 private:
 	class ActionByPhoneDialog : public TDialog {
 	public:
@@ -382,6 +383,7 @@ private:
 		delete dlg;
 	}
 	void   NewContact();
+	int    QueryPhnState(int * pStillUp);
 	State  S;
 	SmartListBox * P_Box;
 	PhoneServiceEventResponder * P_PSER;
@@ -430,7 +432,7 @@ PhonePaneDialog * PhonePaneDialog::FindAnalogue(const char * pChannel)
 	const long res_id = DLG_PHNCPANE;
 	for(TView * p = APPL->P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
 		if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && ((TDialog *)p)->resourceID == res_id)
-			return (PhonePaneDialog *)p;
+			return static_cast<PhonePaneDialog *>(p);
 	}
 	return 0;
 }
@@ -500,6 +502,54 @@ int PhonePaneDialog::SetupInfo()
 	return result;
 }
 
+void PhonePaneDialog::SetupOidList()
+{
+	SString temp_buf;
+	SString name_buf;
+	StrAssocArray name_list;
+	PPID   init_id = 0;
+	SString list_item_buf;
+	for(uint i = 0; i < OidList.getCount(); i++) {
+		const PPObjID & r_oid = OidList.at(i);
+		list_item_buf.Z();
+		if(r_oid.Obj == PPOBJ_PERSON) {
+			GetPersonName(r_oid.Id, temp_buf);
+			GetObjectTitle(r_oid.Obj, list_item_buf);
+			list_item_buf.CatDiv(':', 2).Cat(temp_buf);
+		}
+		else if(r_oid.Obj == PPOBJ_LOCATION) {
+			LocationTbl::Rec loc_rec;
+			if(PsnObj.LocObj.Search(r_oid.Id, &loc_rec) > 0) {
+				name_buf.Z();
+				temp_buf = loc_rec.Name;
+				if(temp_buf.NotEmpty())
+					name_buf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+				LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
+				if(temp_buf.NotEmpty())
+					name_buf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+				GetObjectTitle(r_oid.Obj, list_item_buf);
+				list_item_buf.CatDiv(':', 2).Cat(name_buf);
+			}
+		}
+		else if(r_oid.Obj == PPOBJ_SCARD) {
+			SCardTbl::Rec sc_rec;
+			if(ScObj.Search(r_oid.Id, &sc_rec) > 0) {
+				GetObjectTitle(r_oid.Obj, list_item_buf);
+				list_item_buf.CatDiv(':', 2).Cat(sc_rec.Code);
+				PersonTbl::Rec psn_rec;
+				if(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0) {
+					list_item_buf.Space().Cat(psn_rec.Name);
+				}
+			}
+		}
+		if(list_item_buf.NotEmpty()) {
+			name_list.Add(i+1, list_item_buf);
+			SETIFZ(init_id, i+1);
+		}
+	}
+	SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
+}
+
 void PhonePaneDialog::Setup(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
 {
 	if(pSt->Channel != S.Channel) {
@@ -517,76 +567,81 @@ void PhonePaneDialog::Setup(PhoneServiceEventResponder * pPSER, const PhonePaneD
 		if(SetupInfo() == 100)
 			return;
 		else {
-			StrAssocArray name_list;
-			PPID   init_id = 0;
-			SString list_item_buf;
 			if(P_PSER && P_PSER->IsConsistent())
 				P_PSER->IdentifyCaller(S.ConnectedLine, OidList);
 			else
 				OidList.clear();
-			for(uint i = 0; i < OidList.getCount(); i++) {
-				const PPObjID & r_oid = OidList.at(i);
-				list_item_buf.Z();
-				if(r_oid.Obj == PPOBJ_PERSON) {
-					GetPersonName(r_oid.Id, temp_buf);
-					GetObjectTitle(r_oid.Obj, list_item_buf);
-					list_item_buf.CatDiv(':', 2).Cat(temp_buf);
-				}
-				else if(r_oid.Obj == PPOBJ_LOCATION) {
-					LocationTbl::Rec loc_rec;
-					if(PsnObj.LocObj.Search(r_oid.Id, &loc_rec) > 0) {
-						LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
-						GetObjectTitle(r_oid.Obj, list_item_buf);
-						list_item_buf.CatDiv(':', 2).Cat(temp_buf);
-					}
-				}
-				else if(r_oid.Obj == PPOBJ_SCARD) {
-					SCardTbl::Rec sc_rec;
-					if(ScObj.Search(r_oid.Id, &sc_rec) > 0) {
-						GetObjectTitle(r_oid.Obj, list_item_buf);
-						list_item_buf.CatDiv(':', 2).Cat(sc_rec.Code);
-						PersonTbl::Rec psn_rec;
-						if(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0) {
-							list_item_buf.Space().Cat(psn_rec.Name);
-						}
-					}
-				}
-				if(list_item_buf.NotEmpty()) {
-					name_list.Add(i+1, list_item_buf);
-					if(init_id == 0)
-						init_id = i+1;
-				}
-			}
-			SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
+			SetupOidList();
 			OnContactSelection(1);
 		}
 	}
 }
 
+int PhonePaneDialog::QueryPhnState(int * pStillUp)
+{
+	int    still_up = 0;
+	int    state = 0;
+	if(P_PhnSvcCli && S.Channel) {
+		PhnSvcChannelStatusPool status_list;
+		PhnSvcChannelStatus cnl_status;
+		P_PhnSvcCli->GetChannelStatus(S.Channel, status_list);
+		for(uint i = 0; !still_up && i < status_list.GetCount(); i++) {
+			status_list.Get(i, cnl_status);
+			if(cnl_status.Channel == S.Channel) {
+				state = cnl_status.State;
+				if(cnl_status.State == PhnSvcChannelStatus::stUp)
+					still_up = 1;
+			}
+		}
+	}
+	ASSIGN_PTR(pStillUp, still_up);
+	return state;
+}
+
 IMPL_HANDLE_EVENT(PhonePaneDialog)
 {
+	if(event.isCmd(cmClose)) {
+		int    still_up = 0;
+		int    state = QueryPhnState(&still_up);
+		if(still_up) {
+			::ShowWindow(H(), SW_MINIMIZE);
+			clearEvent(event);
+		}
+		// else default processing is used by TDialog::handleEvent(event)
+	}
 	TDialog::handleEvent(event);
 	if(TVBROADCAST && TVCMD == cmIdle) {
 		if(ChnlStatusReqTmr.Check(0)) {
 			int    still_up = 0;
-			int    state = 0;
-			if(P_PhnSvcCli && S.Channel) {
-				PhnSvcChannelStatusPool status_list;
-				PhnSvcChannelStatus cnl_status;
-				P_PhnSvcCli->GetChannelStatus(S.Channel, status_list);
-				for(uint i = 0; !still_up && i < status_list.GetCount(); i++) {
-					status_list.Get(i, cnl_status);
-					if(cnl_status.Channel == S.Channel) {
-						state = cnl_status.State;
-						if(cnl_status.State == PhnSvcChannelStatus::stUp)
-							still_up = 1;
-					}
-				}
-			}
+			int    state = QueryPhnState(&still_up);
 			if(!still_up) {
 				S.Status = 0;
 				if(!S.SinceDown)
 					S.SinceDown = getcurdatetime_();
+				if(S.Flags & S.fCloseButtonInMinimizeState) {
+					TButton * p_button = static_cast<TButton *>(getCtrlView(STDCTL_CANCELBUTTON));
+					if(p_button) {
+						SString temp_buf;
+						p_button->SetBitmap(PPDV_CANCEL01);
+						PPLoadString("but_close", temp_buf);
+						setButtonText(cmClose, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+						drawCtrl(STDCTL_CANCELBUTTON);
+					}
+					S.Flags &= ~S.fCloseButtonInMinimizeState;
+				}
+			}
+			else {
+				if(!(S.Flags & S.fCloseButtonInMinimizeState)) {
+					TButton * p_button = static_cast<TButton *>(getCtrlView(STDCTL_CANCELBUTTON));
+					if(p_button) {
+						SString temp_buf;
+						p_button->SetBitmap(PPDV_MINIMIZEWINLEFT01);
+						PPLoadString("but_minimize", temp_buf);
+						setButtonText(cmClose, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+						drawCtrl(STDCTL_CANCELBUTTON);
+					}
+					S.Flags |= S.fCloseButtonInMinimizeState;
+				}
 			}
 			if(state == 0)
 				S.Channel.Z();
@@ -608,7 +663,15 @@ IMPL_HANDLE_EVENT(PhonePaneDialog)
 		NewContact();
 	}
 	else if(event.isCmd(cmEditContact)) { // @v10.5.5
-		// @todo
+		if(S.PersonID) {
+			PsnObj.Edit(&S.PersonID, 0);
+		}
+		else if(S.SCardID) {
+			ScObj.Edit(&S.SCardID, 0);
+		}
+		else if(S.LocID) {
+			PsnObj.LocObj.Edit(&S.LocID, 0);
+		}
 	}
 	else if(event.isCmd(cmPhnCPaneAction)) {
 		DoAction();
@@ -667,11 +730,37 @@ void PhonePaneDialog::NewContact()
 				PsnObj.InitEditBlock(param.ExtSelector, eb);
 				eb.InitPhone = p_phone;
 				if(PsnObj.Edit_(&psn_id, eb) > 0) {
+					OidList.Add(param.Oid.Obj, psn_id);
+					SetupOidList();
 				}
 			}
 			else if(param.Oid.Obj == PPOBJ_SCARD) {
+				PPID   sc_id = 0;
+				PPObjSCard::AddParam ap;
+				PPObjSCardSeries scs_obj;
+				PPSCardSeries scs_rec;
+				if(scs_obj.Fetch(param.ExtSelector, &scs_rec) > 0)
+					ap.SerID = param.ExtSelector;
+				ap.Phone = p_phone;
+				if(ScObj.Edit(&sc_id, ap) > 0) {
+					OidList.Add(param.Oid.Obj, sc_id);
+					SetupOidList();
+				}
 			}
 			else if(param.Oid.Obj == PPOBJ_LOCATION) {
+				PPID   loc_id = 0;
+				PPLocationPacket loc_pack;
+				loc_pack.Type = LOCTYP_ADDRESS;
+				loc_pack.Flags |= LOCF_STANDALONE;
+				LocationCore::SetExField(&loc_pack, LOCEXSTR_PHONE, p_phone);
+				if(PsnObj.LocObj.EditDialog(LOCTYP_ADDRESS, &loc_pack, 0) > 0) {
+					if(PsnObj.LocObj.PutPacket(&loc_id, &loc_pack, 1)) {
+						OidList.Add(param.Oid.Obj, loc_id);
+						SetupOidList();
+					}
+					else
+						PPError();
+				}
 			}
 		}
 	}

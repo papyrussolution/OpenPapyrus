@@ -530,26 +530,20 @@ static uint attrsHash(ctmbstr s)
 	return hashval % ATTRIBUTE_HASH_SIZE;
 }
 
-static const Attribute * attrsInstall(TidyDocImpl* doc, TidyAttribImpl * attribs,
-    const Attribute* old)
+static const Attribute * attrsInstall(TidyDocImpl* doc, TidyAttribImpl * attribs, const Attribute* old)
 {
-	AttrHash * np;
 	uint hashval;
-
 	if(old) {
-		np = (AttrHash*)TidyDocAlloc(doc, sizeof(*np));
+		AttrHash * np = static_cast<AttrHash *>(TidyDocAlloc(doc, sizeof(*np)));
 		np->attr = old;
-
 		hashval = attrsHash(old->name);
 		np->next = attribs->hashtab[hashval];
 		attribs->hashtab[hashval] = np;
 	}
-
 	return old;
 }
 
-static void attrsRemoveFromHash(TidyDocImpl* doc, TidyAttribImpl * attribs,
-    ctmbstr s)
+static void attrsRemoveFromHash(TidyDocImpl* doc, TidyAttribImpl * attribs, ctmbstr s)
 {
 	uint h = attrsHash(s);
 	AttrHash * p, * prev = NULL;

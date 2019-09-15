@@ -342,9 +342,9 @@ int GoodsFiltCtrlGroup::setData(TDialog * pDlg, void * pData)
 			}
 		}
 		if(CtlselGoodsGrp && CtlselGoods) {
-			GoodsCtrlGroup * p_grp = 0;
 			GoodsCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID, Data.LocID, Data.Flags);
-			if(!(p_grp = static_cast<GoodsCtrlGroup *>(pDlg->getGroup(CtlselGoodsGrp)))) {
+			GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(pDlg->getGroup(CtlselGoodsGrp));
+			if(!p_grp) {
 				p_grp = new GoodsCtrlGroup(CtlselGoodsGrp, CtlselGoods);
 				pDlg->addGroup(CtlselGoodsGrp, p_grp);
 			}
@@ -517,9 +517,7 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 			}
 			// } @v10.4.11 
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -777,9 +775,7 @@ int ArGoodsCodeDialog::getDTS(ArGoodsCodeTbl::Rec * pData)
 	THROW_PP(upp > 0.0, PPERR_INVUNITPPACK);
 	Data.Pack = (long)(upp * 1000.0);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -1996,9 +1992,7 @@ int GoodsVadDialog::getDTS(PPGoodsPacket * pData)
 	// } @v9.8.12
 	GetPalletData(-1);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

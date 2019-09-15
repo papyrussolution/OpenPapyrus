@@ -8,12 +8,9 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include "e_os.h"
 #include <internal/err.h>
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
-//#include <assert.h>
-//#include "ssl_locl.h"
 #include <internal/thread_once.h>
 
 static int stopped;

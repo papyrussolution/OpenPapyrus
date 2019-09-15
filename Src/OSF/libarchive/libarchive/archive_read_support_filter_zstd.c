@@ -25,33 +25,10 @@
 
 #include "archive_platform.h"
 #pragma hdrstop
-
 __FBSDID("$FreeBSD$");
-
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
 #if HAVE_ZSTD_H
 	#include <zstd.h>
 #endif
-
-//#include "archive.h"
-//#include "archive_endian.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
 
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 

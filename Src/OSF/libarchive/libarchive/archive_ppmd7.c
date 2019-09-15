@@ -6,7 +6,6 @@
 #pragma hdrstop
 
 #include <memory.h>
-
 #include "archive_ppmd7_private.h"
 
 #ifdef PPMD_32BIT

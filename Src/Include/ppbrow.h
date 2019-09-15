@@ -476,7 +476,7 @@
 	#define HELP_BROWSER_OPRKIND                                216
 #define BROWSER_COMPLETE                               217 // Состав изделия {%s}
 	#define HELP_BROWSER_COMPLETE                               217
-#define BROWSER_MRPTAB                                 218 // MRP-таблицы {%s}
+#define BROWSER_MRPTAB                                 218 // @{mrptable_pl} {%s}
 	#define HELP_BROWSER_MRPTAB                                 218
 #define BROWSER_MRPLINE                                219 // @{view_mrpline} {%s}
 	#define HELP_BROWSER_MRPLINE                                219
@@ -566,7 +566,7 @@
 	#define HELP_BROWSER_STOCKOPT_RESULT                        261
 #define BROWSER_DIALOG                                 262 // Диалоги
 	#define HELP_BROWSER_DIALOG                                 262
-#define BROWSER_SPECSERIES                             263 // Специальные серии
+#define BROWSER_SPECSERIES                             263 // @{view_specseries}
 	#define HELP_BROWSER_SPECSERIES                             263
 #define BROWSER_GLOBALUSERACC                          264 // @{globaluseracc_pl}
 	#define HELP_BROWSER_GLOBALUSERACC                          264
@@ -4745,5 +4745,14 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_MINIMIZEWINLEFT01               32916
 #define PPDV_MINIMIZEWINRIGHT01              32917
 #define PPDV_CLAPPERBOARD                    32918
-#define PPDV_LOGOPAPYRUS                     32919
+#define PPDV_CREATEBYEXAMPLE01               32919
+#define PPDV_FREIGHT01                       32920
+#define PPDV_FREIGHT02                       32921
+#define PPDV_DOCUMENT_PL02                   32922
+#define PPDV_MATRIX01                        32923
+#define PPDV_MATRIX02                        32924
+#define PPDV_LINK01                          32925
+#define PPDV_PLOT01                          32926
+#define PPDV_PLOT02                          32927
+#define PPDV_LOGOPAPYRUS                     32928
 

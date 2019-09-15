@@ -27,10 +27,10 @@
 /// Image C++ wrapper
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Image.h"
+	#error "include zbar.h in your application, **not** zbar/Image.h"
 #endif
 
-#include <assert.h>
+//#include <assert.h>
 #include <iterator>
 #include "Symbol.h"
 #include "Exception.h"

@@ -26,10 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-
 #if !defined(HAVE_ARC4RANDOM_BUF) && (!defined(_WIN32) || defined(__CYGWIN__))
 
 #ifdef HAVE_FCNTL
@@ -84,7 +80,7 @@ archive_random(void *buf, size_t nbytes)
 		    PROV_RSA_FULL, CRYPT_NEWKEYSET);
 	}
 	if (success) {
-		success = CryptGenRandom(hProv, (DWORD)nbytes, (BYTE*)buf);
+		success = CryptGenRandom(hProv, (DWORD)nbytes, (BYTE *)buf);
 		CryptReleaseContext(hProv, 0);
 		if (success)
 			return ARCHIVE_OK;

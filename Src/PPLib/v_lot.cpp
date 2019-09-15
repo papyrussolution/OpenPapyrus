@@ -2800,9 +2800,7 @@ int LotImpExpDialog::getDTS(PPLotImpExpParam * pData)
 	THROW(ImpExpParamDialog::getDTS(&Data));
 	Data.UhttGoodsCodeArID = getCtrlLong(CTLSEL_IMPEXPLOT_AR);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

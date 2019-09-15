@@ -177,9 +177,7 @@ int AccTurnDialog::getDTS(PPAccTurn * pData)
 		getCtrlData(CTL_ATURN_MEMO, P_Pack->Rec.Memo);
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -256,9 +254,7 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 			getCtrlData(sel = CTL_RENT_ACMDATE, &Data.ChargeDayOffs);
 			THROW_PP(Data.ChargeDayOffs >= -30 && Data.ChargeDayOffs <= 30, PPERR_USERINPUT);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -3244,9 +3240,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			getCtrlData(CTLSEL_FREIGHT_DLVRLOC,  &Data.DlvrAddrID);
 			GetClusterData(CTL_FREIGHT_SHIPPED,  &P_Pack->Rec.Flags);
 			*pData = Data;
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return 1;
 		}
 	private:

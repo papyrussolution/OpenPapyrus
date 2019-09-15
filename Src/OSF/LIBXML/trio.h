@@ -31,8 +31,6 @@
 	#include "config.h"
 #endif
 #include "triodef.h"
-//#include <stdio.h>
-//#include <stdlib.h>
 #if defined(TRIO_COMPILER_ANCIENT)
 	#include <varargs.h>
 #else

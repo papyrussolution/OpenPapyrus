@@ -433,9 +433,7 @@ int WrOffDraftParamDialog::getDTS(PrcssrWrOffDraftFilt * pData)
 	GetClusterData(CTL_DWOFILT_FLAGS, &Data.Flags);
 	getCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

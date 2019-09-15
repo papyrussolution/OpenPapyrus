@@ -47,7 +47,6 @@
  * last found at ftp://ftp.uu.net/pub/archiving/zip/zlib/zlib-0.99.tar.gz.
  */
 #include <zlib.h>
-//#include <stdio.h>
 /*
  * Sigh, ZLIB_VERSION is defined as a string so there's no
  * way to do a proper check here.  Instead we guess based

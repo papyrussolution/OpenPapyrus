@@ -527,9 +527,7 @@ public:
 		getCtrlString(CTL_BIZSCORE_FORMULA, Data.Formula);
 		GetRealRangeInput(this, CTL_BIZSCORE_BOUNDS, &Data.Rec.Bounds);
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -1364,9 +1362,7 @@ int SLAPI PPViewBizScoreVal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			getCtrlData(CTLSEL_BIZSCVFILT_USER, &Filt.UserID);
 			getCtrlData(CTLSEL_BIZSCVFILT_BSC,  &Filt.BizScoreID);
 			ASSIGN_PTR(pFilt, Filt);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

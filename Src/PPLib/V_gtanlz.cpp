@@ -147,10 +147,8 @@ int GoodsTaxAnalyzeFiltDialog::getDTS(GoodsTaxAnalyzeFilt * pData)
 	getCtrlData(CTLSEL_GDSGRPRLZ_SUPPL,   &Data.SupplID);
 	getCtrlData(CTLSEL_GDSGRPRLZ_SUPPLAG, &Data.SupplAgentID);
 	getCtrlData(CTLSEL_GDSGRPRLZ_GSUBST, &Data.Sgg);
-	*pData = Data;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pData, Data);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

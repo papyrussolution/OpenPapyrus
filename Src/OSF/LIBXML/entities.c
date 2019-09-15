@@ -71,7 +71,6 @@ static void FASTCALL xmlFreeEntity(xmlEntity * entity)
 		SAlloc::F(entity);
 	}
 }
-
 /*
  * xmlCreateEntity:
  *
@@ -79,7 +78,7 @@ static void FASTCALL xmlFreeEntity(xmlEntity * entity)
  */
 static xmlEntity * xmlCreateEntity(xmlDict * dict, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
-	xmlEntity * ret = (xmlEntity *)SAlloc::M(sizeof(xmlEntity));
+	xmlEntity * ret = static_cast<xmlEntity *>(SAlloc::M(sizeof(xmlEntity)));
 	if(!ret)
 		xmlEntitiesErrMemory("xmlCreateEntity: malloc failed");
 	else {
@@ -311,7 +310,7 @@ xmlEntity * xmlNewEntity(xmlDoc * doc, const xmlChar * name, int type, const xml
  */
 static xmlEntity * FASTCALL xmlGetEntityFromTable(xmlEntitiesTable * table, const xmlChar * name)
 {
-	return (xmlEntity *)xmlHashLookup(table, name);
+	return static_cast<xmlEntity *>(xmlHashLookup(table, name));
 }
 
 /**

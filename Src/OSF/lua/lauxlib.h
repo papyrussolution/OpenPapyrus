@@ -7,11 +7,7 @@
 #ifndef lauxlib_h
 #define lauxlib_h
 
-//#include <stddef.h>
-//#include <stdio.h>
-
 #include "lua.h"
-
 
 #define LUA_ERRFILE     (LUA_ERRERR+1) /* extra error code for 'luaL_loadfilex' */
 #define LUA_LOADED_TABLE        "_LOADED" /* key, in the registry, for table of loaded modules */

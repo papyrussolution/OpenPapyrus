@@ -62,9 +62,7 @@ int CommCfgDialog::getDTS(PPCommConfig * pData)
 	GetClusterData(CTL_COMMCFG_INCM,  &cfg.IncomeCalcMethod);
 	cfg.Reserve2 = 0;
 	ASSIGN_PTR(pData, cfg);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

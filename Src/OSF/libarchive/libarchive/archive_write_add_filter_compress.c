@@ -138,21 +138,16 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	int ret;
 	struct private_data * state;
 	size_t bs = 65536, bpb;
-
 	f->code = ARCHIVE_FILTER_COMPRESS;
 	f->name = "compress";
-
 	ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
 		return ret;
-
 	state = (struct private_data *)SAlloc::C(1, sizeof(*state));
 	if(state == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for compression");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression");
 		return ARCHIVE_FATAL;
 	}
-
 	if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
 		/* Buffer size should be a multiple number of the of bytes
 		 * per block for performance. */
@@ -164,10 +159,8 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	}
 	state->compressed_buffer_size = bs;
 	state->compressed = (uchar *)SAlloc::M(state->compressed_buffer_size);
-
 	if(state->compressed == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for compression buffer");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 		SAlloc::F(state);
 		return ARCHIVE_FATAL;
 	}

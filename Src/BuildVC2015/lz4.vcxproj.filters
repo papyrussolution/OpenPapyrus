@@ -24,9 +24,6 @@
     <ClCompile Include="..\OSF\lz4\lz4hc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\lz4\xxhash.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\lz4\lz4.h">
@@ -39,9 +36,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\lz4\lz4hc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\lz4\xxhash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

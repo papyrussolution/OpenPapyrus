@@ -371,8 +371,8 @@ void FASTCALL TWindow::drawCtrl(ushort ctlID)
 	if(v) {
 		HWND h = v->getHandle();
 		if(h) {
-			InvalidateRect(h, 0, 1);
-			UpdateWindow(h);
+			::InvalidateRect(h, 0, 1);
+			::UpdateWindow(h);
 		}
 	}
 }

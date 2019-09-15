@@ -95,13 +95,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-spans-private.h"
-//#include "cairo-error-private.h"
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <limits.h>
-//#include <setjmp.h>
 
 /* The input coordinate scale and the rasterisation grid scales. */
 #define GLITTER_INPUT_BITS CAIRO_FIXED_FRAC_BITS

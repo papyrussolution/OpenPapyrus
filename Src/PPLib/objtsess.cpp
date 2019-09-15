@@ -4799,9 +4799,7 @@ int SLAPI PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 			THROW(GetPeriodInput(this, sel = CTL_TSESMNT_PERIOD, &Data.Period));
 			GetClusterData(CTL_TSESMNT_ACTION, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

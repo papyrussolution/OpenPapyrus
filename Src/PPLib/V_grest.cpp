@@ -584,10 +584,8 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 	SETFLAG(Data.Flags, GoodsRestFilt::fLabelOnly, getWL());
 	Data.Flags2 &= ~GoodsRestFilt::f2CalcPrognosis; // @v9.5.8 CalcPrognosis-->Flags2
 	GetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
-	*pFilt = Data;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pFilt, Data);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -814,11 +812,9 @@ int GoodsRestWPrgnFltDlg::getDTS(GoodsRestFilt * pFilt)
 	GetClusterData(CTL_GRWPRGNFLT_FLAGS, &Filt.Flags);
 	getCtrlData(CTL_GRWPRGNFLT_EXHTERM, &Filt.ExhaustTerm);
 	Filt.Flags2 |= GoodsRestFilt::f2CalcPrognosis; // @v9.5.8 CalcPrognosis-->Flags2
-	ASSIGN_PTR(pFilt, Filt);
 	ok = 1;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pFilt, Filt);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -3634,8 +3630,7 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 		SETFLAG(exp_options, GoodsRestFilt::uefPrice, Filt.UhttExpFlags & GoodsRestFilt::uefPrice);
 		SETFLAG(exp_options, GoodsRestFilt::uefZeroAbsPrices, Filt.UhttExpFlags & GoodsRestFilt::uefZeroAbsPrices);
 		if(silent) {
-			if(exp_options == 0)
-				exp_options |= GoodsRestFilt::uefRest;
+			SETIFZ(exp_options, GoodsRestFilt::uefRest);
 		}
 		else {
 			TDialog * dlg = 0;
@@ -3691,7 +3686,7 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 			PPUhttClient uhtt_cli;
 			THROW(uhtt_cli.Auth());
 			THROW(LocObj.Fetch(src_loc_id, &loc_pack) > 0);
-			THROW_PP_S(loc_pack.Code[0], PPERR_LOCSYMBUNDEF, loc_pack.Name);
+			THROW_PP_S(!isempty(loc_pack.Code), PPERR_LOCSYMBUNDEF, loc_pack.Name);
 			THROW(uhtt_cli.GetLocationByCode(loc_pack.Code, uhtt_loc_pack) > 0);
 			uhtt_src_loc_id = uhtt_loc_pack.ID;
 			if(exp_options & GoodsRestFilt::uefRest) {
@@ -3880,7 +3875,7 @@ int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 			case PPVCMD_INPUTCHAR:
 				ok = -1;
 				if(pHdr && pBrw) {
-					char   init_char = (static_cast<const char *>(pHdr))[0];
+					char   init_char = static_cast<const char *>(pHdr)[0];
 					if(isdec(init_char)) {
 						Goods2Tbl::Rec goods_rec;
 						double qtty = 0.0;

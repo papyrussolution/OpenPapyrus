@@ -1183,18 +1183,15 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 	    const u8 * inp, size_t len) = ctx->ghash;
 # endif
 #endif
-
 	mlen += len;
 	if(mlen > ((U64(1) << 36) - 32) || (sizeof(len) == 8 && mlen < len))
 		return -1;
 	ctx->len.u[1] = mlen;
-
 	if(ctx->ares) {
 		/* First call to decrypt finalizes GHASH(AAD) */
 		GCM_MUL(ctx, Xi);
 		ctx->ares = 0;
 	}
-
 	if(is_endian.little)
 #ifdef BSWAP4
 		ctr = BSWAP4(ctx->Yi.d[3]);
@@ -1203,7 +1200,6 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 #endif
 	else
 		ctr = ctx->Yi.d[3];
-
 	n = ctx->mres;
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
 	if(16 % sizeof(size_t) == 0) { /* always true actually */
@@ -1234,7 +1230,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 				GHASH(ctx, in, GHASH_CHUNK);
 				while(j) {
 					size_t * out_t = reinterpret_cast<size_t *>(out);
-					const size_t * in_t = (const size_t *)in;
+					const size_t * in_t = reinterpret_cast<const size_t *>(in);
 					(*block)(ctx->Yi.c, ctx->EKi.c, key);
 					++ctr;
 					if(is_endian.little)
@@ -1258,7 +1254,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 				GHASH(ctx, in, i);
 				while(len >= 16) {
 					size_t * out_t = reinterpret_cast<size_t *>(out);
-					const size_t * in_t = (const size_t *)in;
+					const size_t * in_t = reinterpret_cast<const size_t *>(in);
 					(*block)(ctx->Yi.c, ctx->EKi.c, key);
 					++ctr;
 					if(is_endian.little)
@@ -1279,8 +1275,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 # else
 			while(len >= 16) {
 				size_t * out_t = static_cast<size_t *>(out);
-				const size_t * in_t = (const size_t *)in;
-
+				const size_t * in_t = reinterpret_cast<const size_t *>(in);
 				(*block)(ctx->Yi.c, ctx->EKi.c, key);
 				++ctr;
 				if(is_endian.little)
@@ -1352,9 +1347,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 	return 0;
 }
 
-int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
-    const uchar * in, uchar * out,
-    size_t len, ctr128_f stream)
+int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx, const uchar * in, uchar * out, size_t len, ctr128_f stream)
 {
 #if defined(OPENSSL_SMALL_FOOTPRINT)
 	return CRYPTO_gcm128_encrypt(ctx, in, out, len);
@@ -1374,12 +1367,10 @@ int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
 	    const u8 * inp, size_t len) = ctx->ghash;
 #  endif
 # endif
-
 	mlen += len;
 	if(mlen > ((U64(1) << 36) - 32) || (sizeof(len) == 8 && mlen < len))
 		return -1;
 	ctx->len.u[1] = mlen;
-
 	if(ctx->ares) {
 		/* First call to encrypt finalizes GHASH(AAD) */
 		GCM_MUL(ctx, Xi);

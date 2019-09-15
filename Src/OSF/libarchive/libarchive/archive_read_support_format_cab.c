@@ -26,28 +26,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-//#include "archive_endian.h"
-
 struct lzx_dec {
 	/* Decoding status. */
 	int state;
@@ -110,7 +88,6 @@ struct lzx_dec {
 		int len_size;
 		int freq[17];
 		uchar   * bitlen;
-
 		/*
 		 * Use a index table. It's faster than searching a huffman
 		 * coding tree, which is a binary tree. But a use of a large
@@ -121,15 +98,12 @@ struct lzx_dec {
 		int tree_used;
 		/* Direct access table. */
 		uint16_t   * tbl;
-	}                        at, lt, mt, pt;
-
+	} at, lt, mt, pt;
 	int loop;
 	int error;
 };
 
-static const int slots[] = {
-	30, 32, 34, 36, 38, 42, 50, 66, 98, 162, 290
-};
+static const int slots[] = { 30, 32, 34, 36, 38, 42, 50, 66, 98, 162, 290 };
 #define SLOT_BASE       15
 #define SLOT_MAX        21/*->25*/
 

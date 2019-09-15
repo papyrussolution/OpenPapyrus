@@ -10,7 +10,6 @@
 #pragma hdrstop
 //#include "e_os.h"
 #include "des_locl.h"
-//#include <assert.h>
 /*
  * The input and output are loaded in multiples of 8 bits. What this means is
  * that if you hame numbits=12 and length=2 the first 12 bits will be

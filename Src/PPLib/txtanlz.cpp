@@ -2224,9 +2224,7 @@ public:
 			THROW(PrcssrObjText::VerifyRuleFile(Data.RuleFileName));
 		}
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

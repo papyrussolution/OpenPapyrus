@@ -27,29 +27,16 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_extract.c,v 1.61 2008/05/26 17:00:22 kientzle Exp $");
 
-#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-#endif
-
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-
-int
-archive_read_extract(struct archive *_a, struct archive_entry *entry, int flags)
+int archive_read_extract(struct archive * _a, struct archive_entry * entry, int flags)
 {
-	struct archive_read_extract *extract;
 	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
-
-	extract = __archive_read_get_extract(a);
-	if (extract == NULL)
+	struct archive_read_extract * extract = __archive_read_get_extract(a);
+	if(extract == NULL)
 		return ARCHIVE_FATAL;
-
 	/* If we haven't initialized the archive_write_disk object, do it now. */
-	if (extract->ad == NULL) {
+	if(extract->ad == NULL) {
 		extract->ad = archive_write_disk_new();
-		if (extract->ad == NULL) {
+		if(extract->ad == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't extract");
 			return ARCHIVE_FATAL;
 		}

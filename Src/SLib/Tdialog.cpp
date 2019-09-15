@@ -1,12 +1,13 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
 // Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 // Release for WIN32
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <ppdefs.h> // @ Muxa При вызове findResource используется TAB_HELP, определенный в ppdefs.h
+#include <ppdefs.h> // @ Muxa РџСЂРё РІС‹Р·РѕРІРµ findResource РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ TAB_HELP, РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РІ ppdefs.h
 
 #define TV_DEBUG_STACK 0
 //
@@ -24,8 +25,8 @@ ODC OwnerDrawCtrls[32]; // @global
 // static
 void TDialog::centerDlg(HWND hWnd)
 {
-	int    sx = GetSystemMetrics(SM_CXSCREEN);
-	int    sy = GetSystemMetrics(SM_CYSCREEN);
+	const int sx = GetSystemMetrics(SM_CXSCREEN);
+	const int sy = GetSystemMetrics(SM_CYSCREEN);
 	RECT   r;
 	GetWindowRect(hWnd, &r);
 	r.right  -= r.left;
@@ -86,7 +87,7 @@ SString & TProgram::MakeModalStackDebugText(SString & rBuf) const
 	rBuf.Z();
 	SString temp_buf;
 	for(uint i = 0; i < ModalStack.getPointer(); i++) {
-		HWND _hs = *(HWND *)ModalStack.at(i);
+		HWND _hs = *static_cast<HWND *>(ModalStack.at(i));
 		if(i)
 			rBuf.Space().Cat(">>").Space();
 		if(::IsWindow(_hs))
@@ -132,7 +133,7 @@ int TProgram::PushModalWindow(TWindow * pV, HWND h)
 #if TV_DEBUG_STACK
 		void * p_prev = ModalStack.SStack::peek();
 		if(p_prev) {
-			HWND   h_prev = *(HWND *)p_prev;
+			HWND   h_prev = *static_cast<HWND *>(p_prev);
 			// @debug {
 			if(h_prev != H_TopOfStack) {
 				SString msg_buf, temp_buf;
@@ -420,7 +421,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 	dlg->Id = dialogID;
 	//
 	// @ Muxa {
-	// Получение идентификатора топика контекстной справки для данного диалога
+	// РџРѕР»СѓС‡РµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° С‚РѕРїРёРєР° РєРѕРЅС‚РµРєСЃС‚РЅРѕР№ СЃРїСЂР°РІРєРё РґР»СЏ РґР°РЅРЅРѕРіРѕ РґРёР°Р»РѕРіР°
 	//
 	uint   num_flds = 0;
 	long   res_size = 0;
@@ -482,10 +483,10 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 			dlgPreFunc(this, extraPtr);
 		//
 		// @v4.2.5
-		// Операция по сохранению текущего окна необходима из-за того, что при создании
-		// диалога указатель APPL->P_DeskTop->P_Current обнуляется. Это, как правило не страшно,
-		// но делает неработоспособными некоторые функции (например, не срабатывает функция //
-		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
+		// РћРїРµСЂР°С†РёСЏ РїРѕ СЃРѕС…СЂР°РЅРµРЅРёСЋ С‚РµРєСѓС‰РµРіРѕ РѕРєРЅР° РЅРµРѕР±С…РѕРґРёРјР° РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё СЃРѕР·РґР°РЅРёРё
+		// РґРёР°Р»РѕРіР° СѓРєР°Р·Р°С‚РµР»СЊ APPL->P_DeskTop->P_Current РѕР±РЅСѓР»СЏРµС‚СЃСЏ. Р­С‚Рѕ, РєР°Рє РїСЂР°РІРёР»Рѕ РЅРµ СЃС‚СЂР°С€РЅРѕ,
+		// РЅРѕ РґРµР»Р°РµС‚ РЅРµСЂР°Р±РѕС‚РѕСЃРїРѕСЃРѕР±РЅС‹РјРё РЅРµРєРѕС‚РѕСЂС‹Рµ С„СѓРЅРєС†РёРё (РЅР°РїСЂРёРјРµСЂ, РЅРµ СЃСЂР°Р±Р°С‚С‹РІР°РµС‚ С„СѓРЅРєС†РёСЏ //
+		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); РІ РєР°Р»СЊРєСѓР»СЏС‚РѕСЂРµ).
 		//
 		TView * preserve_current = APPL->P_DeskTop->GetCurrentView();
 		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
@@ -628,8 +629,11 @@ IMPL_HANDLE_EVENT(TDialog)
 				}
 			}
 		}
-		else
-			::MessageBox(APPL->H_MainWnd, _T("Ошибка создания окна диалога."), _T("PROJECT PAPYRUS"), MB_OK);
+		else {
+			SString errmsg_en("Error creating dialog box.");
+			//SString errmsg_ru("РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ РѕРєРЅР° РґРёР°Р»РѕРіР°.");
+			::MessageBox(APPL->H_MainWnd, SUcSwitch(errmsg_en), _T("PROJECT PAPYRUS"), MB_OK);
+		}
 		clearEvent(event);
 		event.message.infoLong = retval;
 	}
@@ -650,7 +654,7 @@ IMPL_HANDLE_EVENT(TDialog)
 						// @v9.8.12 {
 						else if(event.message.command == cmCancel) {
 							close();
-							return; // Окно разрушено - делать в этой процедуре больше нечего!
+							return; // РћРєРЅРѕ СЂР°Р·СЂСѓС€РµРЅРѕ - РґРµР»Р°С‚СЊ РІ СЌС‚РѕР№ РїСЂРѕС†РµРґСѓСЂРµ Р±РѕР»СЊС€Рµ РЅРµС‡РµРіРѕ!
 						}
 						// } @v9.8.12 
 						/* @v9.6.2
@@ -691,7 +695,7 @@ IMPL_HANDLE_EVENT(TDialog)
 							clearEvent(event);
 						}
 						else if(DlgFlags & fMouseResizing) {
-							// Если изменяется левая и/или верхняя координата, надо скорректировать ResizedRect
+							// Р•СЃР»Рё РёР·РјРµРЅСЏРµС‚СЃСЏ Р»РµРІР°СЏ Рё/РёР»Рё РІРµСЂС…РЅСЏСЏ РєРѕРѕСЂРґРёРЅР°С‚Р°, РЅР°РґРѕ СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°С‚СЊ ResizedRect
 							ResizedRect.right  += ToResizeRect.left - ResizedRect.left;
 							ResizedRect.left    = ToResizeRect.left;
 							ResizedRect.bottom += ToResizeRect.top - ResizedRect.top;
@@ -1030,7 +1034,7 @@ int TDialog::RestoreUserSettings()
 	return -1;
 }
 //
-// Изменение размеров окна диалога
+// РР·РјРµРЅРµРЅРёРµ СЂР°Р·РјРµСЂРѕРІ РѕРєРЅР° РґРёР°Р»РѕРіР°
 //
 int TDialog::SetCtrlResizeParam(long ctrlID, long lCtrl, long tCtrl, long rCtrl, long bCtrl, long ctrlResizeFlags)
 {
@@ -1540,9 +1544,9 @@ void TDialog::SetCtrlState(uint ctlID, uint state, bool enable)
 	CALLPTRMEMB(p_v, setState(state, enable));
 }
 //
-// Ассоциирует с элементом диалога специальный список выбора, который фильтруется по мере ввода текста.
-// Если proc = 0, то используется GetListFromSmartLbx
-// Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
+// РђСЃСЃРѕС†РёРёСЂСѓРµС‚ СЃ СЌР»РµРјРµРЅС‚РѕРј РґРёР°Р»РѕРіР° СЃРїРµС†РёР°Р»СЊРЅС‹Р№ СЃРїРёСЃРѕРє РІС‹Р±РѕСЂР°, РєРѕС‚РѕСЂС‹Р№ С„РёР»СЊС‚СЂСѓРµС‚СЃСЏ РїРѕ РјРµСЂРµ РІРІРѕРґР° С‚РµРєСЃС‚Р°.
+// Р•СЃР»Рё proc = 0, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ GetListFromSmartLbx
+// Р•СЃР»Рё wordSelExtra = 0 Рё СЌР»РµРјРµРЅС‚ ctlID СЏРІР»СЏРµС‚СЃСЏ СЃРїРёСЃРєРѕРј РёР»Рё РєРѕРјР±РѕР±РѕРєСЃРѕРј, С‚Рѕ wordSelExtra = (long)SmartListBox*
 //
 int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, uint16 flags)
 {
@@ -1563,7 +1567,7 @@ int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id,
 					}
 				}
 				if(p_list) {
-					// hInputDlg, в данном случае это значение будет подставлено при вызове UiSearchBlock, который является диалогом
+					// hInputDlg, РІ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ Р±СѓРґРµС‚ РїРѕРґСЃС‚Р°РІР»РµРЅРѕ РїСЂРё РІС‹Р·РѕРІРµ UiSearchBlock, РєРѕС‚РѕСЂС‹Р№ СЏРІР»СЏРµС‚СЃСЏ РґРёР°Р»РѕРіРѕРј
 					pExtra->Init(CTL_LBX_LIST, 0, p_dlg, p_list->GetId(), minSymbCount, flags);
 					p_list->SetWordSelBlock(pExtra);
 					ok = 1;

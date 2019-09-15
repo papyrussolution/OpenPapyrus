@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <strstore.h>
 
-uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
+// @v10.5.6 uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
 //
 // Testing command line params:
 //   регулярная компиляция (sc2s): D:\Papyrus\Src\Rsrc\Str\ppstr2.txt
@@ -48,8 +48,8 @@ SLAPI StringStore2::Hash::Hash(size_t sz) : HashTableBase(sz)
 
 size_t FASTCALL StringStore2::Hash::GetHash(long id) const
 {
-	uint32 __h = DJBHash(&id, sizeof(id));
-	return (size_t)(__h % Size);
+	uint32 __h = SlHash::DJB(&id, sizeof(id));
+	return static_cast<size_t>(__h % Size);
 }
 
 int SLAPI StringStore2::Hash::Add(long id, long value)

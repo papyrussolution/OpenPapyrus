@@ -885,9 +885,7 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 			sel = 0;
 			THROW(Data.Verify(Data.vfEditingOnly));
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

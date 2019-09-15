@@ -11,10 +11,6 @@
 #define HEADER_BIO_H
 
 #include <openssl/e_os2.h>
-#ifndef OPENSSL_NO_STDIO
-	//#include <stdio.h>
-#endif
-//#include <stdarg.h>
 #include <openssl/crypto.h>
 #ifndef OPENSSL_NO_SCTP
 	#ifndef OPENSSL_SYS_VMS

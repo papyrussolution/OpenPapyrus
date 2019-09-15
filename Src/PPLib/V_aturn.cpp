@@ -625,9 +625,7 @@ int AccturnFiltDialog::getDTS(AccturnFilt * pFilt)
 	getGroupData(GRP_CYCLE, &cycle_rec);
 	Filt.Cycl = cycle_rec.C;
 	ASSIGN_PTR(pFilt, Filt);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

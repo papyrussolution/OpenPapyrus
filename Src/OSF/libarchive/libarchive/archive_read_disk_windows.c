@@ -30,18 +30,7 @@ __FBSDID("$FreeBSD$");
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
 #include <winioctl.h>
-//#include "archive.h"
-//#include "archive_string.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_read_disk_private.h"
 
 #ifndef O_BINARY
 	#define O_BINARY        0

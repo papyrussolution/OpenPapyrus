@@ -649,9 +649,7 @@ int EditWorldDialog::getDTS(PPWorldPacket * pData)
 	else if(oneof2(Id, DLG_STREET, DLG_CITYAREA))
 		THROW_PP(Data.Rec.ParentID, PPERR_CITYNEEDED);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

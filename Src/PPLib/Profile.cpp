@@ -114,7 +114,7 @@ struct ProfileEntry {
 static uint32 FASTCALL PeHashString(const char * pSymb)
 {
 	const size_t len = sstrlen(pSymb);
-	return BobJencHash(pSymb, len);
+	return SlHash::BobJenc(pSymb, len);
 }
 
 SLAPI ProfileEntry::ProfileEntry() : P_FileName(0), P_AddedInfo(0)

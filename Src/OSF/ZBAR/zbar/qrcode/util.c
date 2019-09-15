@@ -131,8 +131,6 @@ int qr_ilog(uint _v)
 }
 
 #if defined(QR_TEST_SQRT)
-//#include <math.h>
-//#include <stdio.h>
 
 /*Exhaustively test the integer square root function.*/
 int main(void)

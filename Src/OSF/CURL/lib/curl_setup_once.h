@@ -24,25 +24,8 @@
 /*
  * Inclusion of common header files.
  */
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <stdarg.h>
-//#include <ctype.h>
-#ifdef HAVE_ERRNO_H
-	//#include <errno.h>
-#endif
-#ifdef HAVE_SYS_TYPES_H
-	//#include <sys/types.h>
-#endif
-#ifdef NEED_MALLOC_H
-	//#include <malloc.h>
-#endif
 #ifdef NEED_MEMORY_H
 	#include <memory.h>
-#endif
-#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
 	#include <sys/time.h>
@@ -53,10 +36,6 @@
 	#ifdef HAVE_TIME_H
 		#include <time.h>
 	#endif
-#endif
-#ifdef WIN32
-	//#include <io.h>
-	//#include <fcntl.h>
 #endif
 #if defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
 	#include <stdbool.h>

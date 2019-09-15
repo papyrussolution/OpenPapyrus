@@ -488,9 +488,7 @@ public:
 		Data.LockPrcBefore = getCtrlDate(sel = CTL_DBTLIMITEM_LOCKPRCB);
 		THROW_SL(checkdate(Data.LockPrcBefore, 1));
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -698,9 +696,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			else
 				data.RetLimPart = 0;
 			ASSIGN_PTR(pAgt, data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -1891,9 +1887,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			getCtrlData(CTLSEL_SUPLEXCHCFG_QUOT, &Data.PriceQuotID);
 			getCtrlData(CTL_SUPLEXCHCFG_VER,     &Data.ProtVer);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -1989,9 +1983,7 @@ int SupplAgtDialog::getDTS(PPSupplAgreement * pAgt)
 		// @v8.5.2 THROW_PP(!(Data.Flags & AGTF_AUTOORDER) || Data.OrdPrdDays > 0, PPERR_INVPERIODINPUT);
 	}
 	ASSIGN_PTR(pAgt, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

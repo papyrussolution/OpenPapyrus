@@ -9,13 +9,6 @@
 // #define SHOW_STAT 
 // #define SHOW_STAT2 
 
-#if defined(SHOW_STAT) || defined(SHOW_STAT2)
-	//#include <stdio.h>
-#endif
-//#include "LzmaEnc.h"
-//#ifndef _7ZIP_ST
-	//#include <LzFindMt.h>
-//#endif
 #ifdef SHOW_STAT
 	static unsigned g_STAT_OFFSET = 0;
 #endif

@@ -1143,9 +1143,7 @@ int SLAPI EditDueToKeyboardRights()
 			KWKCfg.OperRights[12].OperRightFlag = CSESSOPRT_CHGCCAGENT;
 			KWKCfg.OperRights[13].OperRightFlag = CSESSOPRT_ESCCLINEBORD;
 			ASSIGN_PTR(pCfg, KWKCfg);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 		_PPKeybordWKeyCfg  KWKCfg;
@@ -1329,9 +1327,7 @@ public:
 		THROW_PP(Data.PrepayAmount == 0.0 || Data.SCardID, PPERR_CCORDPREPAYREQSCARD);
 		getCtrlString(CTL_CTBLORD_MEMO, Data.Memo);
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -2263,9 +2259,7 @@ int CSessComplexImpExpDialog::getDTS(PPCSessComplexImpExpParam * pData)
 		getCtrlString(CTL_IMPEXPCSC_CCPAYMTAG, Data.CCPaymTag);
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

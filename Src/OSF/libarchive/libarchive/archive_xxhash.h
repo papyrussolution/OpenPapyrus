@@ -37,7 +37,7 @@ typedef enum {
 
 struct archive_xxhash {
 	uint  (*XXH32)(const void* input, uint len, uint seed);
-	void*         (*XXH32_init)(uint seed);
+	void * (*XXH32_init)(uint seed);
 	XXH_errorcode (*XXH32_update)(void* state, const void* input, uint len);
 	uint  (*XXH32_digest)(void* state);
 };

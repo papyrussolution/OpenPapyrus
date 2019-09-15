@@ -2339,9 +2339,7 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 				THROW_PP(Data.PctDis2 >= 0 && Data.PctDis2 <= 100, PPERR_PERCENTINPUT);
 			}
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -2448,9 +2446,7 @@ public:
 		getCtrlString(CTL_SUPPLIX_ADDPARAM, temp_buf); // @v9.5.0
 		Data.PutExtStrData(Data.extssParam, temp_buf); // @v9.5.0
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:

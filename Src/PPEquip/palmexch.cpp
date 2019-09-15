@@ -776,7 +776,8 @@ int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 	//char   log_msg[128];
 	SString wait_msg_buf;
 	SString msg_buf;
-	char   out_file_name[MAXPATH]; // @debug
+	//char   out_file_name[MAXPATH]; // @debug
+	SString out_file_name;
 	const  size_t blk_size = InitBlockSize; //PALMARCBUFSIZE;
 	uint8 * p_blk = 0, * p_compressed_blk = 0;
 	FILE * f = 0;
@@ -786,9 +787,11 @@ int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 	ucl_init();
 
 	THROW_S_S(f = fopen(pCtx->CompressFile, "rb"), SLERR_OPENFAULT, pCtx->CompressFile);
-	replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "out", 1);
+	// @v10.5.6 replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "out", 1);
+	SPathStruc::ReplaceExt(out_file_name = pCtx->CompressFile, "out", 1); // @v10.5.6
 	THROW_S_S(f_out = fopen(out_file_name, "wb"), SLERR_OPENFAULT, out_file_name);
-	replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "chk", 1);
+	// @v10.5.6 replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "chk", 1);
+	SPathStruc::ReplaceExt(out_file_name = pCtx->CompressFile, "chk", 1); // @v10.5.6
 	THROW_S_S(f_out2 = fopen(out_file_name, "wb"), SLERR_OPENFAULT, out_file_name);
 	if(f) {
 		TSArray <PalmArcHdr> hdr_list; // Список заголовков для хранения реального количества записей для каждой таблицы
@@ -902,10 +905,11 @@ int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 		}
 		if(pCtx->PalmCfg.Ver > 500) {
 			SFile::ZClose(&f_out);
-			replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "out", 1);
+			// @v10.5.6 replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "out", 1);
+			SPathStruc::ReplaceExt(out_file_name = pCtx->CompressFile, "out", 1); // @v10.5.6
 			{
-				long recv_size = (pCtx->PalmCfg.RecvBufSize) ? pCtx->PalmCfg.RecvBufSize : InitBlockSize/*PALMARCBUFSIZE*/;
-				long tail_len = 0;
+				long   recv_size = (pCtx->PalmCfg.RecvBufSize) ? pCtx->PalmCfg.RecvBufSize : InitBlockSize/*PALMARCBUFSIZE*/;
+				long   tail_len = 0;
 				SFileUtil::Stat fs;
 				SFileUtil::GetStat(out_file_name, &fs);
 				THROW_S_S(f_out = fopen(out_file_name, "rb"), SLERR_OPENFAULT, out_file_name);

@@ -1420,11 +1420,9 @@ static int read_header(struct archive_read * a, struct archive_entry * entry, ch
 	rar->dbo[0].end_offset = -1;
 	rar->cursor = 0;
 	rar->nodes = 1;
-
 	if(rar->file_flags & FHD_SALT) {
 		if(p + 8 > endp) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Invalid header size");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid header size");
 			return ARCHIVE_FATAL;
 		}
 		memcpy(rar->salt, p, 8);
@@ -1433,18 +1431,14 @@ static int read_header(struct archive_read * a, struct archive_entry * entry, ch
 
 	if(rar->file_flags & FHD_EXTTIME) {
 		if(read_exttime(p, rar, endp) < 0) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Invalid header size");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid header size");
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	__archive_read_consume(a, header_size - 7);
 	rar->dbo[0].start_offset = a->filter->position;
 	rar->dbo[0].end_offset = rar->dbo[0].start_offset + rar->packed_size;
-
-	switch(file_header.host_os)
-	{
+	switch(file_header.host_os) {
 		case OS_MSDOS:
 		case OS_OS2:
 		case OS_WIN32:
@@ -1461,10 +1455,8 @@ static int read_header(struct archive_read * a, struct archive_entry * entry, ch
 		case OS_BEOS:
 		    rar->mode = archive_le32dec(file_header.file_attr);
 		    break;
-
 		default:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			"Unknown file attributes from RAR file's host OS");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unknown file attributes from RAR file's host OS");
 		    return ARCHIVE_FATAL;
 	}
 
@@ -1500,13 +1492,10 @@ static int read_header(struct archive_read * a, struct archive_entry * entry, ch
 
 	if(archive_entry_copy_pathname_l(entry, filename, filename_size, fn_sconv)) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Pathname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Pathname cannot be converted from %s to current locale.",
-		    archive_string_conversion_charset_name(fn_sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Pathname cannot be converted from %s to current locale.", archive_string_conversion_charset_name(fn_sconv));
 		ret = (ARCHIVE_WARN);
 	}
 
@@ -1618,13 +1607,10 @@ static int read_symlink_stored(struct archive_read * a, struct archive_entry * e
 	if(archive_entry_copy_symlink_l(entry,
 	    p, (size_t)rar->packed_size, sconv)) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for link");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for link");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "link cannot be converted from %s to current locale.",
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "link cannot be converted from %s to current locale.", archive_string_conversion_charset_name(sconv));
 		ret = (ARCHIVE_WARN);
 	}
 	__archive_read_consume(a, rar->packed_size);
@@ -1641,8 +1627,7 @@ static int read_data_stored(struct archive_read * a, const void ** buff, size_t 
 		*size = 0;
 		*offset = rar->offset;
 		if(rar->file_crc != rar->crc_calculated) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "File CRC error");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "File CRC error");
 			return ARCHIVE_FATAL;
 		}
 		rar->entry_eof = 1;
@@ -1651,8 +1636,7 @@ static int read_data_stored(struct archive_read * a, const void ** buff, size_t 
 
 	*buff = rar_read_ahead(a, 1, &bytes_avail);
 	if(bytes_avail <= 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Truncated RAR file data");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 		return ARCHIVE_FATAL;
 	}
 
@@ -1696,8 +1680,7 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 			*size = 0;
 			*offset = rar->offset;
 			if(rar->file_crc != rar->crc_calculated) {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "File CRC error");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "File CRC error");
 				return ARCHIVE_FATAL;
 			}
 			rar->entry_eof = 1;
@@ -1740,43 +1723,31 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 				rar->bytes_uncopied++;
 			}
 			else {
-				if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-					    &rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-					archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					    "Invalid symbol");
+				if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 					return ARCHIVE_FATAL;
 				}
-
-				switch(code)
-				{
+				switch(code) {
 					case 0:
 					    rar->start_new_table = 1;
 					    return read_data_compressed(a, buff, size, offset);
-
 					case 2:
 					    rar->ppmd_eod = 1;/* End Of ppmd Data. */
 					    continue;
-
 					case 3:
-					    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-						"Parsing filters is unsupported.");
+					    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Parsing filters is unsupported.");
 					    return ARCHIVE_FAILED;
-
 					case 4:
 					    lzss_offset = 0;
 					    for(i = 2; i >= 0; i--) {
-						    if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-								&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-							    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-								"Invalid symbol");
+						    if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+							    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 							    return ARCHIVE_FATAL;
 						    }
 						    lzss_offset |= code << (i * 8);
 					    }
-					    if((length = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-							&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-						    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-							"Invalid symbol");
+					    if((length = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+						    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 						    return ARCHIVE_FATAL;
 					    }
 					    lzss_emit_match(rar, lzss_offset + 2, length + 32);
@@ -1784,10 +1755,8 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 					    break;
 
 					case 5:
-					    if((length = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-							&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-						    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-							"Invalid symbol");
+					    if((length = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+						    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 						    return ARCHIVE_FATAL;
 					    }
 					    lzss_emit_match(rar, 1, length + 4);
@@ -1804,18 +1773,15 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 			start = rar->offset;
 			end = start + rar->dictionary_size;
 			rar->filterstart = INT64_MAX;
-
 			if((actualend = expand(a, end)) < 0)
 				return ((int)actualend);
-
 			rar->bytes_uncopied = actualend - start;
 			if(rar->bytes_uncopied == 0) {
 				/* Broken RAR files cause this case.
 				 * NOTE: If this case were possible on a normal RAR file
 				 * we would find out where it was actually bad and
 				 * what we would do to solve it. */
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Internal error extracting RAR file");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Internal error extracting RAR file");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -1895,26 +1861,22 @@ static int parse_codes(struct archive_read * a)
 			/* Make sure ppmd7_contest is freed before Ppmd7_Construct
 			 * because reading a broken file cause this abnormal sequence. */
 			__archive_ppmd7_functions.Ppmd7_Free(&rar->ppmd7_context);
-
 			rar->bytein.a = a;
 			rar->bytein.Read = &ppmd_read;
 			__archive_ppmd7_functions.PpmdRAR_RangeDec_CreateVTable(&rar->range_dec);
 			rar->range_dec.Stream = &rar->bytein;
 			__archive_ppmd7_functions.Ppmd7_Construct(&rar->ppmd7_context);
-
 			if(rar->dictionary_size == 0) {
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid zero dictionary size");
 				return ARCHIVE_FATAL;
 			}
-
 			if(!__archive_ppmd7_functions.Ppmd7_Alloc(&rar->ppmd7_context,
 			    rar->dictionary_size)) {
 				archive_set_error(&a->archive, ENOMEM, "Out of memory");
 				return ARCHIVE_FATAL;
 			}
 			if(!__archive_ppmd7_functions.PpmdRAR_RangeDec_Init(&rar->range_dec)) {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Unable to initialize PPMd range decoder");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unable to initialize PPMd range decoder");
 				return ARCHIVE_FATAL;
 			}
 			__archive_ppmd7_functions.Ppmd7_Init(&rar->ppmd7_context, maxorder);
@@ -1922,13 +1884,11 @@ static int parse_codes(struct archive_read * a)
 		}
 		else {
 			if(!rar->ppmd_valid) {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Invalid PPMd sequence");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid PPMd sequence");
 				return ARCHIVE_FATAL;
 			}
 			if(!__archive_ppmd7_functions.PpmdRAR_RangeDec_Init(&rar->range_dec)) {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Unable to initialize PPMd range decoder");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unable to initialize PPMd range decoder");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -1983,8 +1943,7 @@ static int parse_codes(struct archive_read * a)
 				if(i == 0) {
 					SAlloc::F(precode.tree);
 					SAlloc::F(precode.table);
-					archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					    "Internal error extracting RAR file.");
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Internal error extracting RAR file.");
 					return ARCHIVE_FATAL;
 				}
 

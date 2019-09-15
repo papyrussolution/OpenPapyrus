@@ -1458,8 +1458,9 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 			if(init_rest < 0.0 && scst == scstBonus)
 				init_rest = 0.0;
 			double rest = 0.0;
+			const double fixed_bonus = fdiv100i(sc_rec.FixedBonus); // @v10.5.6
+			CSt.RestByCrdCard = (fixed_bonus > 0.0) ? MIN(fixed_bonus, init_rest) : init_rest;
 			Flags |= fSCardCredit;
-			CSt.RestByCrdCard = init_rest;
 			if(scst == scstBonus) {
 				PPSCardConfig sc_cfg;
 				ScObj.FetchConfig(&sc_cfg);
@@ -5377,9 +5378,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 	sel = 0;
 	THROW_PP(ChkList.getCount() || (State & stSelectFormat), PPERR_CHECKNOTFOUND);
 	getCurItem(0, &sel_chk.CheckID);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	ASSIGN_PTR(pSelCheck, sel_chk);
 	return ok;
 }

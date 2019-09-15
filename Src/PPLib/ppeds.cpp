@@ -410,9 +410,9 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 		memzero(pb_indata, cb_indata);
 		file.ReadV(pb_indata, cb_indata);
 		THROW_MEM(message_array[i] = new BYTE[cb_indata]);
-		memzero((BYTE*)message_array[i], cb_indata);
+		memzero((BYTE *)message_array[i], cb_indata);
 		message_size_array[i] = cb_indata;
-		memcpy((BYTE*)message_array[i], pb_indata, cb_indata);
+		memcpy((BYTE *)message_array[i], pb_indata, cb_indata);
 		if(pb_indata)
 			ZDELETE(pb_indata);
 	}
@@ -1376,7 +1376,7 @@ int PPEds::GetHash(void * pData, DWORD dataSize, int signNumber, BYTE * pHashedD
 	int    ok = 1;
 	HCRYPTMSG h_msg;
 	THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
-	THROW_PP(CryptMsgUpdate(h_msg, (BYTE*)pData, dataSize, true), PPERR_EDS_MSGUPDATEFAILED);
+	THROW_PP(CryptMsgUpdate(h_msg, (BYTE *)pData, dataSize, true), PPERR_EDS_MSGUPDATEFAILED);
 	if(!pHashedData)
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_COMPUTED_HASH_PARAM, signNumber - 1, NULL, &rSizeHashedData), PPERR_EDS_GETHASHFAILED)
 	else
@@ -1890,7 +1890,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	//CERT_NAME_VALUE name_val;
 	//name_val.dwValueType = CERT_RDN_VISIBLE_STRING;
 	//name_val.Value.cbData = sstrlen(HASH_ALG);
-	//name_val.Value.pbData = (BYTE*)HASH_ALG;
+	//name_val.Value.pbData = (BYTE *)HASH_ALG;
 	//if(!CryptEncodeObject(MY_ENCODING_TYPE, X509_OID,
 	//	&name_val, NULL, &size_encoded))
 	//	ShowError();

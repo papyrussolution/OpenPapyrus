@@ -513,7 +513,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 					skip = 1;
 				if(!skip) {
 					long   img_idx = -1;
-					if(item.BitmapIndex & 0x00008000) {
+					if(item.BitmapIndex & _SlConst.VectorImageMask) {
 						TWhatmanToolArray::Item tool_item;
 						const SDrawFigure * p_fig = APPL->LoadDrawFigureById(item.BitmapIndex, &tool_item);
 						const uint _w = 16;

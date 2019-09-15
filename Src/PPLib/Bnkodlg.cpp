@@ -1,7 +1,7 @@
 // BNKODLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017
-// @codepage windows-1251
-// Диалог редактирования данных для банковских платежных документов
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017, 2019
+// @codepage UTF-8
+// Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РґР°РЅРЅС‹С… РґР»СЏ Р±Р°РЅРєРѕРІСЃРєРёС… РїР»Р°С‚РµР¶РЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -32,7 +32,7 @@ IMPL_HANDLE_EVENT(TaxPeriodDialog)
 int TaxPeriodDialog::setDTS(const PPTaxPeriod * pData)
 {
 	Data = *pData;
-	ushort v = (ushort)Data.P;
+	ushort v = static_cast<ushort>(Data.P);
 	setCtrlData(CTL_TXMPERIOD_PERIOD, &v);
 	setCtrlData(CTL_TXMPERIOD_YEAR, &Data.Year);
 	setCtrlData(CTL_TXMPERIOD_DAY, &Data.Day);
@@ -82,7 +82,7 @@ public:
 	}
 	int    setDTS(const PPBankingOrder *);
 	//
-	// Функция getDTS может изменить только структуру по полю
+	// Р¤СѓРЅРєС†РёСЏ getDTS РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊ С‚РѕР»СЊРєРѕ СЃС‚СЂСѓРєС‚СѓСЂСѓ РїРѕ РїРѕР»СЋ
 	// PPBankingOrder::Txm
 	//
 	int    getDTS(PPBankingOrder *);

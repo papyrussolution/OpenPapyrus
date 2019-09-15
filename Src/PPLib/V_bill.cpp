@@ -681,10 +681,8 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	THROW((Data.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(temp_period, 1));
 	Data.Period = temp_period;
 	Data.SortOrder = (int16)GetClusterData(CTL_BILLFLT_ORDER);
-	*pFilt = Data;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pFilt, Data);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

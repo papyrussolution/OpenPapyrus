@@ -2234,7 +2234,7 @@ int SLAPI PPBillImporter::ReadData()
 						//
 						if(bill_code.Empty()) {
 							bill_code.Z().Cat(fn_for_hash).Cat(bill.Date, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
-							const uint32 _h = BobJencHash(bill_code, bill_code.Len());
+							const uint32 _h = SlHash::BobJenc(bill_code, bill_code.Len());
 							bill_code.Z().Cat("H-").Cat(_h).CatChar('-').CatLongZ(cc_, 6);
 						}
 						bill_code.CopyTo(r_row.BillCode, sizeof(r_row.BillCode));

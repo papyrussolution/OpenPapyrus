@@ -394,9 +394,7 @@ int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 			THROW_SL(XmlDbFile::CheckParam(Data));
 			GetClusterData(CTL_XMLDBPARAM_FLAGS, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

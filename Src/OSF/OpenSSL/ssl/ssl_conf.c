@@ -8,11 +8,7 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include "ssl_locl.h"
 #include <openssl/conf.h>
-//#include <openssl/objects.h>
-//#include <openssl/dh.h>
 /*
  * structure holding name tables. This is used for permitted elements in lists
  * such as TLSv1.

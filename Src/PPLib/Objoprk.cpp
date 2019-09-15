@@ -1707,9 +1707,7 @@ int OprKindDialog::getDTS(PPOprKindPacket * /*_data*/)
 			*P_Data->P_DraftData = opex_rec;
 		}
 	}
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -2605,9 +2603,7 @@ int OpCntrDialog::getDTS(PPOpCounterPacket * pData)
 	}
 	GetClusterData(CTL_OPKCOUNTER_FLAGS, &Data.Head.Flags);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

@@ -25,29 +25,10 @@
 
 #include "archive_platform.h"
 #pragma hdrstop
-
 __FBSDID("$FreeBSD$");
-
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-//#include <unistd.h>
-//#endif
 #ifdef HAVE_LZ4_H
 	#include <lz4.h>
 #endif
-//#include "archive.h"
-//#include "archive_endian.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
 #include "archive_xxhash.h"
 
 #define LZ4_MAGICNUMBER         0x184d2204

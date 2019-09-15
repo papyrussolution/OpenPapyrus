@@ -627,8 +627,6 @@ void rs_encode(const rs_gf256 * _gf, uchar * _data, int _ndata, const uchar * _g
 }
 
 #if defined(RS_TEST_ENC)
-//#include <stdio.h>
-//#include <stdlib.h>
 
 int main(void)
 {
@@ -708,7 +706,6 @@ int main(void)
 #endif
 
 #if defined(RS_TEST_DEC)
-//#include <stdio.h>
 
 int main(void)
 {
@@ -757,7 +754,6 @@ int main(void)
 #endif
 
 #if defined(RS_TEST_ROOTS)
-//#include <stdio.h>
 
 /*Exhaustively test the root finder.*/
 int main(void)

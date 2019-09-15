@@ -28,31 +28,16 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <stdlib.h>
-//#include <string.h>
-//#include <assert.h>
-//#include <math.h>
-//#include "pixman-accessor.h"
-//#include "pixman-private.h"
 
-#define CONVERT_RGB24_TO_Y15(s)                                         \
-	(((((s) >> 16) & 0xff) * 153 +                                      \
-	(((s) >>  8) & 0xff) * 301 +                                      \
-	(((s)      ) & 0xff) * 58) >> 2)
-
-#define CONVERT_RGB24_TO_RGB15(s)                                       \
-	((((s) >> 3) & 0x001f) |                                            \
-	(((s) >> 6) & 0x03e0) |                                            \
-	(((s) >> 9) & 0x7c00))
+#define CONVERT_RGB24_TO_Y15(s) (((((s) >> 16) & 0xff) * 153 + (((s) >>  8) & 0xff) * 301 + (((s)) & 0xff) * 58) >> 2)
+#define CONVERT_RGB24_TO_RGB15(s) ((((s) >> 3) & 0x001f) | (((s) >> 6) & 0x03e0) | (((s) >> 9) & 0x7c00))
 
 /* Fetch macros */
 
 #ifdef WORDS_BIGENDIAN
-#define FETCH_1(img, l, o)                                                \
-	(((READ((img), ((uint32_t *)(l)) + ((o) >> 5))) >> (0x1f - ((o) & 0x1f))) & 0x1)
+	#define FETCH_1(img, l, o) (((READ((img), ((uint32_t *)(l)) + ((o) >> 5))) >> (0x1f - ((o) & 0x1f))) & 0x1)
 #else
-#define FETCH_1(img, l, o)                                                \
-	((((READ((img), ((uint32_t *)(l)) + ((o) >> 5))) >> ((o) & 0x1f))) & 0x1)
+	#define FETCH_1(img, l, o) ((((READ((img), ((uint32_t *)(l)) + ((o) >> 5))) >> ((o) & 0x1f))) & 0x1)
 #endif
 
 #define FETCH_8(img, l, o)    (READ(img, (((uint8_t *)(l)) + ((o) >> 3))))

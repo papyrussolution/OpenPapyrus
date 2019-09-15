@@ -22,8 +22,6 @@
  *
  ***************************************************************************/
 
-//#include <stdarg.h>
-//#include <stdio.h> /* needed for FILE */
 #include "curl.h"  /* for CURL_EXTERN */
 
 #ifdef  __cplusplus

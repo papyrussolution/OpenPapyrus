@@ -160,9 +160,7 @@ int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 			else
 				data.Flags &= ~OPG_GRPBYGENGOODS;
 			ASSIGN_PTR(pData, data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

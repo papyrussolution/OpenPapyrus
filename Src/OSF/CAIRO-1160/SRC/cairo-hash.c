@@ -404,7 +404,6 @@ cairo_status_t FASTCALL _cairo_hash_table_insert(cairo_hash_table_t * hash_table
 	*entry = key_and_value;
 	hash_table->cache[key_and_value->hash & 31] = key_and_value;
 	hash_table->live_entries++;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

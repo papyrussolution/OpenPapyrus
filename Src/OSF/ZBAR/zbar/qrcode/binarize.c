@@ -609,7 +609,6 @@ uchar * qr_binarize(const uchar * _img, int _width, int _height)
 #endif
 
 #if defined(TEST_BINARIZE)
-//#include <stdio.h>
 #include "image.c"
 
 int main(int _argc, char ** _argv)

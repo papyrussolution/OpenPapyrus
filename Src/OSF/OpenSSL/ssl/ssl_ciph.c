@@ -40,13 +40,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <ctype.h>
-//#include <openssl/objects.h>
-//#include <openssl/comp.h>
-//#include <openssl/engine.h>
-//#include <openssl/crypto.h>
-//#include "ssl_locl.h"
 #include "internal/thread_once.h"
 
 #define SSL_ENC_DES_IDX         0

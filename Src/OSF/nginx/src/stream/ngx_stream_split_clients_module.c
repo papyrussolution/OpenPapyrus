@@ -54,17 +54,17 @@ ngx_module_t ngx_stream_split_clients_module = {
 
 static ngx_int_t ngx_stream_split_clients_variable(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	ngx_stream_split_clients_ctx_t * ctx = (ngx_stream_split_clients_ctx_t*)data;
+	ngx_stream_split_clients_ctx_t * ctx = reinterpret_cast<ngx_stream_split_clients_ctx_t *>(data);
 	uint32_t hash;
 	ngx_str_t val;
 	ngx_uint_t i;
-	ngx_stream_split_clients_part_t  * part;
+	ngx_stream_split_clients_part_t * part;
 	*v = ngx_stream_variable_null_value;
 	if(ngx_stream_complex_value(s, &ctx->value, &val) != NGX_OK) {
 		return NGX_OK;
 	}
 	hash = ngx_murmur_hash2(val.data, val.len);
-	part = (ngx_stream_split_clients_part_t *)ctx->parts.elts;
+	part = static_cast<ngx_stream_split_clients_part_t *>(ctx->parts.elts);
 	for(i = 0; i < ctx->parts.nelts; i++) {
 		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream split: %uD %uD", hash, part[i].percent);
 		if(hash < part[i].percent || part[i].percent == 0) {

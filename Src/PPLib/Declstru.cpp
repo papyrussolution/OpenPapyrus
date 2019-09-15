@@ -201,9 +201,7 @@ int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 			getCtrlData(CTL_MAILCHRY_FLAGS, &(v = 0));
 			SETFLAG(Data.Flags, PrcssrMailCharry::Param::fRemoveSrcFiles, v & 0x01);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

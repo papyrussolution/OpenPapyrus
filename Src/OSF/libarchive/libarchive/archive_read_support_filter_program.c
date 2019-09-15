@@ -30,31 +30,6 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_SYS_WAIT_H
 	#include <sys/wait.h>
 #endif
-//#ifdef HAVE_ERRNO_H
-	//#include <errno.h>
-//#endif
-//#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-	//#include <limits.h>
-//#endif
-//#ifdef HAVE_SIGNAL_H
-	//#include <signal.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-	//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-	//#include <string.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include "archive.h"
-//#include "archive_private.h"
-//#include "archive_string.h"
-//#include "archive_read_private.h"
 #include "filter_fork.h"
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
@@ -429,23 +404,17 @@ static ssize_t program_filter_read(struct archive_read_filter * self, const void
 		total += bytes;
 		p += bytes;
 	}
-
 	*buff = state->out_buf;
 	return total;
 }
 
 static int program_filter_close(struct archive_read_filter * self)
 {
-	struct program_filter   * state;
-	int e;
-
-	state = (struct program_filter *)self->data;
-	e = child_stop(self, state);
-
+	struct program_filter * state = (struct program_filter *)self->data;
+	int e = child_stop(self, state);
 	/* Release our private data. */
 	SAlloc::F(state->out_buf);
 	archive_string_free(&state->description);
 	SAlloc::F(state);
-
 	return (e);
 }

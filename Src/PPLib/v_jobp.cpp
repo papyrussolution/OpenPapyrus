@@ -181,9 +181,7 @@ int JobItemDialog::getDTS(PPJob * pData)
 	Data.ScheduleBeforeTime = getCtrlTime(CTL_JOBITEM_SCHDLBEFORE); // @v9.2.11
 	THROW(CheckRecursion(&Data));
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

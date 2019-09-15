@@ -44,8 +44,7 @@ NON_EMPTY_TRANSLATION_UNIT
 
 # if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
 /* even with gcc, the typedef won't work for 32-bit platforms */
-typedef __uint128_t uint128_t;  /* nonstandard; implemented by gcc on 64-bit
-                                 * platforms */
+typedef __uint128_t uint128_t;  /* nonstandard; implemented by gcc on 64-bit platforms */
 typedef __int128_t int128_t;
 # else
 #  error "Need GCC 3.1 or later to define type uint128_t"

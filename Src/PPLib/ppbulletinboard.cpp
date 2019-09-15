@@ -166,6 +166,7 @@ public:
 		uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
 		int16  Prec;
 		uint16 TargetQuant;    // @v10.4.2
+		long   Type;           // @v10.5.6
 	};
 	struct ImpactEntry {
 		ImpactEntry(LDATETIME t, double v) : T(t), Value(v)
@@ -202,11 +203,13 @@ public:
 			return ok;
 		}
 		enum {
-			fLong         = 0x0001, // Допускается покупка
-			fShort        = 0x0002, // Допускается продажа
-			fDisableStake = 0x0004, // Запрет на сделки
-			fNoConfig     = 0x0008, // Символ не представлен в конфигурации
-			fDirty        = 0x0100  // Данные по серии были изменены, но не сохранены в базе данных
+			fLong           = 0x0001, // Допускается покупка
+			fShort          = 0x0002, // Допускается продажа
+			fDisableStake   = 0x0004, // Запрет на сделки
+			fNoConfig       = 0x0008, // Символ не представлен в конфигурации
+			fDirty          = 0x0100, // Данные по серии были изменены, но не сохранены в базе данных
+			fVolumeMult1000 = 0x0200  // @v10.5.6 Параметра объема ставок заданы в масштабе 1/1000 (то есть, значения на сервере поделены на 1000)
+				// Если макс объем 100 это значит, что мы должны умножить его на 1000 а при передаче на сервер поделить на 1000
 		};
 		long   Flags;
 		// Следующие 2 поля нужны для расчета среднего спреда
@@ -822,6 +825,16 @@ int SLAPI TimeSeriesCache::SetVolumeParams(const char * pSymb, double volumeMin,
 			p_blk->VolumeMax = volumeMax;
 		if(volumeStep > 0.0)
 			p_blk->VolumeStep = volumeStep;
+		// @v10.5.6 {
+		if(p_blk->PPTS.Rec.Type == PPTimeSeries::tForex) {
+			if(p_blk->VolumeMax == 100.0 && p_blk->VolumeMin == 0.01) {
+				p_blk->Flags |= TimeSeriesBlock::fVolumeMult1000;
+				p_blk->VolumeMax *= 1000.0;
+				p_blk->VolumeMin *= 1000.0;
+				p_blk->VolumeStep *= 1000.0;
+			}
+		}
+		// } @v10.5.6 
 	}
 	else
 		ok = 0;
@@ -1077,7 +1090,10 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 					req.Type = is_short ? TsStakeEnvironment::ordtBuy : TsStakeEnvironment::ordtSell;
 					req.TsID = rBlk.PPTS.Rec.ID;
 					rResult.AddS(stk_symb, &req.SymbolP);
-					req.Volume = rStk.VolumeInit;
+					if(rBlk.Flags & TimeSeriesBlock::fVolumeMult1000) // @v10.5.6
+						req.Volume = rStk.VolumeInit / 1000.0;
+					else
+						req.Volume = rStk.VolumeInit;
 					req.SL = 0;
 					req.TP = 0;
 					rResult.AddS(stk_symb, &req.CommentP);
@@ -1242,7 +1258,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 			if(!(r_blk.Flags & r_blk.fLong))
 				sel_criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
 			PPObjTimeSeries::BestStrategyBlock _best_result;
-			int last_trend_idx = -2; // @v10.4.11 -1 --> -2
+			int last_trend_idx = -1; // @v10.4.11 -1 --> -2 // @v10.5.6 (-2)-->(-1)
 			if(r_blk.Strategies.Select(r_blk.TrendList, last_trend_idx, sel_criterion, &r_blk.StratIndex, _best_result, &matched_strategies_idx_list) > 0) {
 				// @20190515 assert(_best_result.MaxResult >= Cfg.MinPerDayPotential);
 				assert(_best_result.MaxResultIdx >= 0 && _best_result.MaxResultIdx < static_cast<int>(r_blk.Strategies.getCount()));
@@ -1410,7 +1426,10 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 	for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
 		const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
 		const long max_diff_sec = UseRegularValuesOnlyForStakes ? 130 : 40;
-		const long cur_diff_sec = diffdatetimesec(now, r_tk.Dtm);
+		// -10800
+		LDATETIME tktime = r_tk.Dtm; // Время тика скорректированное на поправку из конфигурации
+		tktime.addsec(Cfg.E.TerminalTimeAdjustment);
+		const long cur_diff_sec = diffdatetimesec(now, tktime);
 		if(cur_diff_sec <= max_diff_sec) {
 			StkEnv.GetS(r_tk.SymbP, tk_symb);
 			uint  blk_idx = 0;
@@ -1418,7 +1437,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 			if(p_blk) {
 				// @v10.4.10 {
 				if(0) {
-					log_msg.Z().Cat(r_tk.Dtm, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
+					log_msg.Z().Cat(tktime, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
 					for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
 						const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
 						if(p_tre) {
@@ -1526,7 +1545,10 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 							req.Type = (r_s.BaseFlags & r_s.bfShort) ? TsStakeEnvironment::ordtSell : TsStakeEnvironment::ordtBuy;
 							req.TsID = r_pse.R_Blk.PPTS.Rec.ID;
 							rResult.AddS(stk_symb, &req.SymbolP);
-							req.Volume = r_pse.Volume;
+							if(r_pse.R_Blk.Flags & TimeSeriesBlock::fVolumeMult1000) // @v10.5.6
+								req.Volume = r_pse.Volume / 1000.0;
+							else
+								req.Volume = r_pse.Volume;
 							req.SL = sl;
 							req.TP = tp;
 							rResult.AddS(temp_buf, &req.CommentP);
@@ -1558,6 +1580,7 @@ int SLAPI TimeSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->OptMaxDuck_S = rec.OptMaxDuck_S;
 		p_cache_rec->Prec     = rec.Prec;
 		p_cache_rec->TargetQuant = rec.TargetQuant; // @v10.4.2
+		p_cache_rec->Type = rec.Type; // @v10.5.6
 
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -1586,6 +1609,7 @@ void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	p_data_rec->OptMaxDuck_S = p_cache_rec->OptMaxDuck_S;
 	p_data_rec->Prec     = p_cache_rec->Prec;
 	p_data_rec->TargetQuant = p_cache_rec->TargetQuant; // @v10.4.2
+	p_data_rec->Type = p_cache_rec->Type; // @v10.5.6
 	//
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));

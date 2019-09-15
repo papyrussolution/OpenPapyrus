@@ -26,8 +26,6 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-//#include "archive.h"
-//#include "archive_digest_private.h"
 
 // In particular, force the configure probe to break if it tries to test a combination of OpenSSL and libmd. 
 #if defined(ARCHIVE_CRYPTO_OPENSSL) && defined(ARCHIVE_CRYPTO_LIBMD)

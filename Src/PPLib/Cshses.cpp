@@ -1205,10 +1205,8 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 						else if(action == 2) // Check existence
 							ok = 1;
 					}
-					else if(action == 1) {
-						// Если файл не найден, то полагаем, что результат удаления положительный
-						ok = 1;
-					}
+					else if(action == 1)
+						ok = 1; // Если файл не найден, то полагаем, что результат удаления положительный
 					if(action == 0) { // Copy file
 						THROW(ftp.SafePut(pFileName, ftp_path, 0, 0, 0));
 						ok = 1;
@@ -1238,7 +1236,15 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 					}
 				}
 				else {
-					replacePath(buf, path, 1);
+					// @v10.5.6 replacePath(buf, path, 1);
+					// @v10.5.6 {
+					SPathStruc sp(buf);
+					SPathStruc sp_path(path);
+					sp.Drv = sp_path.Drv;
+					sp.Dir = sp_path.Dir;
+					sp.Merge(temp_file_name);
+					STRNSCPY(buf, temp_file_name);
+					// } @v10.5.6 
 					if(fileExists(buf)) {
 						if(action == 1) { // Remove file
 							SFile::Remove(buf);
@@ -1247,10 +1253,8 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 						else if(action == 2) // Check existence
 							ok = 1;
 					}
-					else if(action == 1) {
-						// Если файл не найден, то полагаем, что результат удаления положительный
-						ok = 1;
-					}
+					else if(action == 1)
+						ok = 1; // Если файл не найден, то полагаем, что результат удаления положительный
 					if(action == 0) { // Copy file
 						copyFileByName(pFileName, buf);
 						ok = 1;

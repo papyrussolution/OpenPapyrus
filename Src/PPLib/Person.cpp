@@ -384,9 +384,7 @@ int PersonRelTypeDialog::getDTS(PPPersonRelTypePacket * pData)
 	if(GetClusterData(CTL_PSNRELTYPE_STATUSR, &(lv = Data.Rec.StatusRestriction)))
 		Data.Rec.StatusRestriction = (int16)lv;
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

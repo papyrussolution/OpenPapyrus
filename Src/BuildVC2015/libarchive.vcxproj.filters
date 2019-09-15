@@ -381,9 +381,6 @@
     <ClCompile Include="..\Osf\libarchive\libarchive\libarchive-pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\osf\libarchive\libarchive\xxhash.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\libarchive\libarchive\archive.h">

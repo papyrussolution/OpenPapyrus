@@ -77,10 +77,6 @@
 #define ZIP_INT64_MAX	 0x7fffffffffffffffLL
 #define ZIP_UINT64_MAX	 0xffffffffffffffffULL
 //
-//#include <sys/types.h>
-//#include <stdio.h>
-//#include <time.h>
-
 struct zip_t;
 struct zip_file_t;
 struct zip_source_t;

@@ -14,21 +14,14 @@
 #endif
 #ifndef DB_WINCE
 	#include <sys/types.h>
-	//#include <sys/stat.h>
 	#include <sys/timeb.h>
 	#include <direct.h>
-	//#include <fcntl.h>
 	#include <io.h>
-	//#include <limits.h>
 	#include <memory.h>
 	#include <process.h>
 	#include <signal.h>
 #endif /* DB_WINCE */
-//#include <errno.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #include <tchar.h>
-//#include <time.h>
 /*
  * To build Tcl interface libraries, the include path must be configured to
  * use the directory containing <tcl.h>, usually the include directory in

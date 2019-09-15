@@ -1835,9 +1835,7 @@ public:
 		TagFilt::SetRestriction(restrict_buf, Data.Txt);
 		TagFilt::SetColor(&color, Data.Txt);
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -2803,7 +2801,7 @@ uint ObjTagCache::Hash(PPID objID, PPID tagID, uint n) const
 	key[0] = (uint32)objID;
 	key[1] = (uint32)tagID;
 	key[2] = n;
-	uint32 h = BobJencHash(key, sizeof(key));
+	uint32 h = SlHash::BobJenc(key, sizeof(key));
 	return (uint)(h % MaxItems);
 }
 

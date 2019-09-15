@@ -24,12 +24,6 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-
-#ifdef HAVE_STRING_H
-//#include <string.h>
-#endif
-//#include "archive.h"
-//#include "archive_cryptor_private.h"
 /*
  * On systems that do not support any recognized crypto libraries,
  * this file will normally define no usable symbols.

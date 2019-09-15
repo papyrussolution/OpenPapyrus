@@ -28,23 +28,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive.h"
-//#include "archive_private.h"
-//#include "archive_entry.h"
-//#include "archive_getdate.h"
-//#include "archive_pathmatch.h"
-//#include "archive_rb.h"
-//#include "archive_string.h"
-
 struct match {
 	struct match * next;
 	int matches;

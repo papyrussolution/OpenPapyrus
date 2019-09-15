@@ -28,21 +28,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_shar.c 189438 2009-03-06 05:58:56Z kientzle $");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_write_private.h"
-
 struct shar {
 	int dump;
 	int end_of_line;

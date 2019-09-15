@@ -7,15 +7,14 @@
 #pragma hdrstop
 #include <fann2.h>
 
-SLAPI PPTimeSeries::PPTimeSeries() : Tag(PPOBJ_TIMESERIES), ID(0), Flags(0), BuyMarg(0.0), SellMarg(0.0),
+SLAPI PPTimeSeries::PPTimeSeries() : Tag(PPOBJ_TIMESERIES), ID(0), Flags(0), Type(tUnkn), BuyMarg(0.0), SellMarg(0.0),
 	SpikeQuant(0.0), Prec(0), AvgSpread(0.0), OptMaxDuck(0), OptMaxDuck_S(0), PeakAvgQuant(0), PeakAvgQuant_S(0), TargetQuant(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Symb)[0] = 0;
 	PTR32(CurrencySymb)[0] = 0;
 	//memzero(Reserve, sizeof(Reserve));
-	Reserve2[0] = 0;
-	Reserve2[1] = 0;
+	Reserve2 = 0;
 }
 
 int FASTCALL PPTimeSeries::IsEqual(const PPTimeSeries & rS) const
@@ -24,6 +23,8 @@ int FASTCALL PPTimeSeries::IsEqual(const PPTimeSeries & rS) const
 	if(!sstreq(Name, rS.Name))
 		eq = 0;
 	else if(!sstreq(Symb, rS.Symb))
+		eq = 0;
+	else if(Type != rS.Type) // @v10.5.6
 		eq = 0;
 	else if(Flags != rS.Flags)
 		eq = 0;
@@ -432,7 +433,12 @@ int SLAPI PPObjTimeSeries::EditDialog(PPTimeSeriesPacket * pEntry)
 			AddClusterAssoc(CTL_TIMSER_FLAGS, 0, PPCommObjEntry::fPassive);
 			SetClusterData(CTL_TIMSER_FLAGS, Data.Rec.Flags);
 			disableCtrl(CTL_TIMSER_ID, (!PPMaster || Data.Rec.ID));
-
+			// @v10.5.6 {
+			AddClusterAssocDef(CTL_TIMSER_TYPE, 0, PPTimeSeries::tUnkn);
+			AddClusterAssoc(CTL_TIMSER_TYPE, 1, PPTimeSeries::tForex);
+			AddClusterAssoc(CTL_TIMSER_TYPE, 2, PPTimeSeries::tStocks);
+			SetClusterData(CTL_TIMSER_TYPE, Data.Rec.Type);
+			// } @v10.5.6
 			setCtrlData(CTL_TIMSER_PREC, &Data.Rec.Prec);
 			setCtrlReal(CTL_TIMSER_BUYMARG, Data.Rec.BuyMarg);
 			setCtrlReal(CTL_TIMSER_SELLMARG, Data.Rec.SellMarg);
@@ -457,14 +463,13 @@ int SLAPI PPObjTimeSeries::EditDialog(PPTimeSeriesPacket * pEntry)
 			getCtrlString(sel = CTL_TIMSER_SYMB, temp_buf);
 			THROW(Obj.ref->CheckUniqueSymb(Obj.Obj, _id, temp_buf, offsetof(ReferenceTbl::Rec, Symb)));
 			STRNSCPY(Data.Rec.Symb, temp_buf);
+			GetClusterData(CTL_TIMSER_TYPE,  &Data.Rec.Type); // @v10.5.6
 			GetClusterData(CTL_TIMSER_FLAGS, &Data.Rec.Flags);
 			getCtrlData(CTL_TIMSER_TGTQUANT, &Data.Rec.TargetQuant); // @v10.4.2
 			getCtrlData(sel = CTL_TIMSER_MANMARG, &Data.E.MarginManual); // @v10.5.5
 			THROW_PP(Data.E.MarginManual >= 0.0 && Data.E.MarginManual <= 2.0, PPERR_USERINPUT); // @v10.5.5
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -779,24 +784,26 @@ int FASTCALL PPViewTimeSeries::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-PPViewTimeSeries::BrwItem::BrwItem(const PPTimeSeries * pTs)
+PPViewTimeSeries::BrwItem::BrwItem(const PPTimeSeriesPacket * pTs)
 {
 	if(pTs) {
-		ID = pTs->ID;
-		STRNSCPY(Name, pTs->Name);
-		STRNSCPY(Symb, pTs->Symb);
-		STRNSCPY(CurrencySymb, pTs->CurrencySymb);
-		BuyMarg = pTs->BuyMarg;
-		SellMarg = pTs->SellMarg;
-		Prec = pTs->Prec;
-		SpikeQuant = pTs->SpikeQuant;
-		AvgSpread = pTs->AvgSpread;
-		OptMaxDuck = pTs->OptMaxDuck;
-		OptMaxDuck_S = pTs->OptMaxDuck_S;
-		PeakAvgQuant = pTs->PeakAvgQuant;
-		PeakAvgQuant_S = pTs->PeakAvgQuant_S;
-		TargetQuant = pTs->TargetQuant;
-		Flags = pTs->Flags;
+		ID = pTs->Rec.ID;
+		STRNSCPY(Name, pTs->Rec.Name);
+		STRNSCPY(Symb, pTs->Rec.Symb);
+		STRNSCPY(CurrencySymb, pTs->Rec.CurrencySymb);
+		BuyMarg = pTs->Rec.BuyMarg;
+		SellMarg = pTs->Rec.SellMarg;
+		ManualMarg = pTs->E.MarginManual; // @v10.5.6
+		Type = static_cast<int16>(pTs->Rec.Type); // @v10.5.6
+		Prec = pTs->Rec.Prec;
+		SpikeQuant = pTs->Rec.SpikeQuant;
+		AvgSpread = pTs->Rec.AvgSpread;
+		OptMaxDuck = pTs->Rec.OptMaxDuck;
+		OptMaxDuck_S = pTs->Rec.OptMaxDuck_S;
+		PeakAvgQuant = pTs->Rec.PeakAvgQuant;
+		PeakAvgQuant_S = pTs->Rec.PeakAvgQuant_S;
+		TargetQuant = pTs->Rec.TargetQuant;
+		Flags = pTs->Rec.Flags;
 		CfgFlags = 0;
 	}
 	else {
@@ -813,11 +820,14 @@ int SLAPI PPViewTimeSeries::MakeList()
 	else
 		P_DsList = new SArray(sizeof(BrwItem));
 	for(SEnum en = Obj.Enum(0); en.Next(&item) > 0;) {
-		BrwItem new_item(&item);
-		const PPObjTimeSeries::Config::Entry * p_ce = Cfg.SearchEntry(item.ID);
-		if(p_ce)
-			new_item.CfgFlags = p_ce->Flags;
-		THROW_SL(P_DsList->insert(&new_item));
+		PPTimeSeriesPacket pack;
+		if(Obj.GetPacket(item.ID, &pack) > 0) {
+			BrwItem new_item(&pack);
+			const PPObjTimeSeries::Config::Entry * p_ce = Cfg.SearchEntry(item.ID);
+			if(p_ce)
+				new_item.CfgFlags = p_ce->Flags;
+			THROW_SL(P_DsList->insert(&new_item));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -840,6 +850,7 @@ int SLAPI PPViewTimeSeries::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			case 6: pBlk->Set(p_item->SellMarg); break;
 			case 7: pBlk->Set(p_item->SpikeQuant); break;
 			case 8: pBlk->Set(p_item->AvgSpread); break;
+			case 9: pBlk->Set(p_item->ManualMarg); break;
 		}
 	}
 	return ok;
@@ -883,6 +894,19 @@ int SLAPI PPViewTimeSeries::CellStyleFunc_(const void * pData, long col, int pai
 				else if(cfg_flags & PPObjTimeSeries::Config::efShort) {
 					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
 					pCellStyle->RightFigColor = GetColorRef(SClrRed);
+					ok = 1;
+				}
+			}
+			else if(col == 2) { // name
+				const int16 type = static_cast<const BrwItem *>(pData)->Type;
+				if(type == PPTimeSeries::tForex) {
+					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
+					pCellStyle->RightFigColor = GetColorRef(SClrPink);
+					ok = 1;
+				}
+				else if(type == PPTimeSeries::tStocks) {
+					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
+					pCellStyle->RightFigColor = GetColorRef(SClrLightblue);
 					ok = 1;
 				}
 			}
@@ -2632,7 +2656,7 @@ static int SLAPI TsTestStrategy2(const PrcssrTsStrategyAnalyze::ModelParam & rMp
 static SString & FASTCALL _TsFineOptFactorMakeFinishEvntName(const char * pUniq, SString & rBuf)
 {
     size_t len = sstrlen(pUniq);
-    uint32 hash = BobJencHash(pUniq, len);
+    uint32 hash = SlHash::BobJenc(pUniq, len);
 	(rBuf = "TSFINDOPTFACTORFINISHEVNT").CatChar('-').Cat(hash);
 	return rBuf;
 }
@@ -2963,6 +2987,7 @@ int SLAPI PPObjTimeSeries::StrategyContainer::CreateIndex1(PPObjTimeSeries::Stra
 				IndexEntry1::Range rng(r_s.OptDeltaRange, si);
 				p_entry->RangeList.insert(&rng);
 			}
+			/* @v10.5.6 
 			// @v10.5.0 {
 			{
 				const double trend_err_limit = (r_s.TrendErrLim * r_s.TrendErrAvg);
@@ -2978,9 +3003,10 @@ int SLAPI PPObjTimeSeries::StrategyContainer::CreateIndex1(PPObjTimeSeries::Stra
 				}
 			}
 			// } @v10.5.0 
+			@v10.5.6 */
 		}
 	}
-	rIndex.TmFrmToMaxErrList.SortByKey(); // @v10.5.0
+	// @v10.5.6 rIndex.TmFrmToMaxErrList.SortByKey(); // @v10.5.0
 	if(rIndex.getCount()) {
 		rIndex.sort(PTR_CMPFUNC(uint));
 		for(uint i = 0; i < rIndex.getCount(); i++) {
@@ -3005,28 +3031,29 @@ int SLAPI PPObjTimeSeries::StrategyContainer::Select(const TSCollection <TrendEn
 		for(uint tidx = 0; tidx < rTrendList.getCount(); tidx++) {
 			const TrendEntry * p_te = rTrendList.at(tidx);
 			uint  ip = 0;
+			int   do_skip_trend = 0;
 			// @v10.5.0 {
+			/* @v10.5.6 
 			const uint tlc = p_te->TL.getCount();
 			assert((lastTrendIdx < 0 && (-lastTrendIdx) <= static_cast<int>(tlc)) || (lastTrendIdx >= 0 && lastTrendIdx < static_cast<int>(tlc)));
 			const uint trend_idx = (lastTrendIdx < 0) ? (tlc+lastTrendIdx) : static_cast<uint>(lastTrendIdx);
 			const double trend_err = p_te->ErrL.at(trend_idx);
-			int   do_skip_trend = 0;
 			if(trend_err > 0.0 && pIndex1->TmFrmToMaxErrList.getCount()) {
 				double max_err = 0.0;
 				uint   max_err_pos = 0;
 				if(pIndex1->TmFrmToMaxErrList.Search(p_te->Stride, &max_err, &max_err_pos, 1) && max_err < trend_err)
 					do_skip_trend = 1;
-			}
+			} */
 			// } @v10.5.0 
-			if(!do_skip_trend && pIndex1->bsearch(&p_te->Stride, &ip, /*PTR_CMPFUNC(uint)*/CMPF_LONG)) {
+			if(!do_skip_trend && pIndex1->bsearch(&p_te->Stride, &ip, CMPF_LONG)) {
 				const IndexEntry1 * p_ie = pIndex1->at(ip);
 				assert(p_ie->Stride == p_te->Stride);
-				/* @v10.5.0
+				// @v10.5.6 /* @v10.5.0
 				const uint tlc = p_te->TL.getCount();
 				assert((lastTrendIdx < 0 && (-lastTrendIdx) <= static_cast<int>(tlc)) || (lastTrendIdx >= 0 && lastTrendIdx < static_cast<int>(tlc)));
 				const uint trend_idx = (lastTrendIdx < 0) ? (tlc+lastTrendIdx) : static_cast<uint>(lastTrendIdx);
 				const double trend_err = p_te->ErrL.at(trend_idx);
-				*/
+				// @v10.5.6 */
 				const double tv = p_te->TL.at(trend_idx);
 				for(uint ridx = 0; ridx < p_ie->RangeList.getCount(); ridx++) {
 					const IndexEntry1::Range & r_ri = p_ie->RangeList.at(ridx);
@@ -3398,7 +3425,7 @@ SLAPI PPObjTimeSeries::TrainNnParam::TrainNnParam(const PPTimeSeriesPacket & rTs
 	ActionFlags(flags), ForwardFrameSize(0), HiddenLayerDim(0), EpochCount(1), LearningRate(0.1f)
 {
 	Prec = rTsPack.Rec.Prec;
-	Margin = rTsPack.Rec.BuyMarg;
+	Margin = (rTsPack.E.MarginManual > 0.0) ? rTsPack.E.MarginManual : rTsPack.Rec.BuyMarg; // @v10.5.6 rTsPack.E.MarginManual
 	SpreadAvg = rTsPack.Rec.AvgSpread;
 }
 

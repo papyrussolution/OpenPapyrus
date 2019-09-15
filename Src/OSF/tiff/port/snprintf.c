@@ -9,10 +9,6 @@
 
 #ifdef _MSC_VER
 
-//#include <stdio.h>
-//#include <stdarg.h>
-//#include "libport.h"
-
 int _TIFF_vsnprintf_f(char* str, size_t size, const char* format, va_list ap)
 {
 	int count = -1;

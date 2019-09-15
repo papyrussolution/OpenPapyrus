@@ -53,7 +53,7 @@ ngx_module_t ngx_http_split_clients_module = {
 
 static ngx_int_t ngx_http_split_clients_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_http_split_clients_ctx_t * ctx = (ngx_http_split_clients_ctx_t*)data;
+	ngx_http_split_clients_ctx_t * ctx = reinterpret_cast<ngx_http_split_clients_ctx_t *>(data);
 	uint32_t hash;
 	ngx_str_t val;
 	ngx_uint_t i;
@@ -63,7 +63,7 @@ static ngx_int_t ngx_http_split_clients_variable(ngx_http_request_t * r, ngx_htt
 		return NGX_OK;
 	}
 	hash = ngx_murmur_hash2(val.data, val.len);
-	part = (ngx_http_split_clients_part_t*)ctx->parts.elts;
+	part = static_cast<ngx_http_split_clients_part_t *>(ctx->parts.elts);
 	for(i = 0; i < ctx->parts.nelts; i++) {
 		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http split: %uD %uD", hash, part[i].percent);
 		if(hash < part[i].percent || part[i].percent == 0) {

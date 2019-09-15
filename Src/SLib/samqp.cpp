@@ -45,7 +45,9 @@
 
 #define AMQ_PLATFORM "Windows"
 #define AMQ_COPYRIGHT "Copyright (c) 2007-2014 VMWare Inc, Tony Garnock-Jones, and Alan Antonuk."
-
+#ifdef _MSC_VER
+	#define _CRT_SECURE_NO_WARNINGS
+#endif
 #if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
 	#ifndef WINVER
 		// WINVER 0x0502 is WinXP SP2+, Windows Server 2003 SP1+
@@ -56,9 +58,23 @@
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	//#include <winsock2.h>
+	#include <ws2tcpip.h>
 #else
+	#include <sys/types.h> // On older BSD types.h must come before net includes 
 	#include <arpa/inet.h>
 	#include <sys/uio.h>
+	#include <netinet/in.h>
+	#include <netinet/tcp.h>
+	#include <sys/socket.h>
+	#ifdef HAVE_SELECT
+		#include <sys/select.h>
+	#endif
+	#include <fcntl.h>
+	#include <netdb.h>
+	#ifdef HAVE_POLL
+		#include <poll.h>
+	#endif
+	#include <unistd.h>
 #endif
 // GCC attributes 
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
@@ -255,14 +271,14 @@ static inline void * amqp_offset(void * data, size_t offset)  { return PTR8(data
 		return 0;                                                                \
 	}
 
-static inline int is_bigendian() 
+/*static inline int is_bigendian() 
 {
 	union {
 		uint32 i;
 		char c[4];
 	} bint = {0x01020304};
 	return bint.c[0] == 1;
-}
+}*/
 
 static inline void amqp_e8(uint8 val, void * data) 
 {
@@ -282,7 +298,7 @@ static inline uint8 amqp_d8(const void * data)
 
 static inline void amqp_e16(uint16 val, void * data) 
 {
-	if(!is_bigendian()) {
+	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
 		val = ((val & 0xFF00u) >> 8u) | ((val & 0x00FFu) << 8u);
 	}
 	memcpy(data, &val, sizeof(val));
@@ -292,7 +308,7 @@ static inline uint16 amqp_d16(const void * data)
 {
 	uint16 val;
 	memcpy(&val, data, sizeof(val));
-	if(!is_bigendian()) {
+	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
 		val = ((val & 0xFF00u) >> 8u) | ((val & 0x00FFu) << 8u);
 	}
 	return val;
@@ -300,7 +316,7 @@ static inline uint16 amqp_d16(const void * data)
 
 static inline void amqp_e32(uint32 val, void * data) 
 {
-	if(!is_bigendian()) {
+	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
 		val = ((val & 0xFF000000u) >> 24u) | ((val & 0x00FF0000u) >> 8u) | ((val & 0x0000FF00u) << 8u) | ((val & 0x000000FFu) << 24u);
 	}
 	memcpy(data, &val, sizeof(val));
@@ -310,7 +326,7 @@ static inline uint32 amqp_d32(const void * data)
 {
 	uint32 val;
 	memcpy(&val, data, sizeof(val));
-	if(!is_bigendian()) {
+	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
 		val = ((val & 0xFF000000u) >> 24u) | ((val & 0x00FF0000u) >> 8u) | ((val & 0x0000FF00u) << 8u) | ((val & 0x000000FFu) << 24u);
 	}
 	return val;
@@ -318,7 +334,7 @@ static inline uint32 amqp_d32(const void * data)
 
 static inline void amqp_e64(uint64 val, void * data) 
 {
-	if(!is_bigendian()) {
+	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
 		val = ((val & 0xFF00000000000000u) >> 56u) | ((val & 0x00FF000000000000u) >> 40u) |
 		    ((val & 0x0000FF0000000000u) >> 24u) | ((val & 0x000000FF00000000u) >> 8u) |
 		    ((val & 0x00000000FF000000u) << 8u) | ((val & 0x0000000000FF0000u) << 24u) |
@@ -331,7 +347,7 @@ static inline uint64 amqp_d64(const void * data)
 {
 	uint64 val;
 	memcpy(&val, data, sizeof(val));
-	if(!is_bigendian()) {
+	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
 		val = ((val & 0xFF00000000000000u) >> 56u) | ((val & 0x00FF000000000000u) >> 40u) |
 		    ((val & 0x0000FF0000000000u) >> 24u) | ((val & 0x000000FF00000000u) >> 8u) |
 		    ((val & 0x00000000FF000000u) << 8u) | ((val & 0x0000000000FF0000u) << 24u) |
@@ -577,17 +593,6 @@ AMQP_BEGIN_DECLS
 	AMQP_PUBLIC_FUNCTION int amqp_uninitialize_ssl_library();
 AMQP_END_DECLS
 // } amqp_ssl_socket.h
-
-#if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN
-	#endif
-	//#include <winsock2.h>
-#else
-	#include <netinet/in.h>
-	#include <netinet/tcp.h>
-	#include <sys/socket.h>
-#endif
 //
 // AMQP_API {
 //
@@ -1514,524 +1519,542 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    *decoded = m;
 		    return 0;
 	    }
-		case AMQP_QUEUE_BIND_METHOD: {
-		    amqp_queue_bind_t * m = (amqp_queue_bind_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_bind_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_16(encoded, &offset, &m->ticket))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    {
-			    int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
-			    if(res < 0) return res;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_QUEUE_BIND_OK_METHOD: {
-		    amqp_queue_bind_ok_t * m = (amqp_queue_bind_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_bind_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_QUEUE_PURGE_METHOD: {
-		    amqp_queue_purge_t * m = (amqp_queue_purge_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_purge_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_16(encoded, &offset, &m->ticket))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_QUEUE_PURGE_OK_METHOD: {
-		    amqp_queue_purge_ok_t * m = (amqp_queue_purge_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_purge_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_32(encoded, &offset, &m->message_count))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_QUEUE_DELETE_METHOD: {
-		    amqp_queue_delete_t * m = (amqp_queue_delete_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_delete_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_16(encoded, &offset, &m->ticket))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->queue, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->if_unused = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    m->if_empty = (bit_buffer & (1 << 1)) ? 1 : 0;
-		    m->nowait = (bit_buffer & (1 << 2)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_QUEUE_DELETE_OK_METHOD: {
-		    amqp_queue_delete_ok_t * m = (amqp_queue_delete_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_delete_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_32(encoded, &offset, &m->message_count))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_QUEUE_UNBIND_METHOD: {
-		    amqp_queue_unbind_t * m = (amqp_queue_unbind_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_unbind_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_16(encoded, &offset, &m->ticket))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->queue, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->exchange, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
-			    if(res < 0) return res;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_QUEUE_UNBIND_OK_METHOD: {
-		    amqp_queue_unbind_ok_t * m = (amqp_queue_unbind_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_unbind_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_QOS_METHOD: {
-		    amqp_basic_qos_t * m = (amqp_basic_qos_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_qos_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_32(encoded, &offset, &m->prefetch_size))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    if(!amqp_decode_16(encoded, &offset, &m->prefetch_count))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->global = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_QOS_OK_METHOD: {
-		    amqp_basic_qos_ok_t * m = (amqp_basic_qos_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_qos_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_CONSUME_METHOD: {
-		    amqp_basic_consume_t * m = (amqp_basic_consume_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_consume_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_16(encoded, &offset, &m->ticket))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->queue, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->no_local = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    m->no_ack = (bit_buffer & (1 << 1)) ? 1 : 0;
-		    m->exclusive = (bit_buffer & (1 << 2)) ? 1 : 0;
-		    m->nowait = (bit_buffer & (1 << 3)) ? 1 : 0;
-		    {
-			    int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
-			    if(res < 0) return res;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_CONSUME_OK_METHOD: {
-		    amqp_basic_consume_ok_t * m = (amqp_basic_consume_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_consume_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_CANCEL_METHOD: {
-		    amqp_basic_cancel_t * m = (amqp_basic_cancel_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_cancel_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_CANCEL_OK_METHOD: {
-		    amqp_basic_cancel_ok_t * m = (amqp_basic_cancel_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_cancel_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_PUBLISH_METHOD: {
-		    amqp_basic_publish_t * m = (amqp_basic_publish_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_publish_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_16(encoded, &offset, &m->ticket))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->exchange, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->mandatory = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    m->immediate = (bit_buffer & (1 << 1)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_RETURN_METHOD: {
-		    amqp_basic_return_t * m = (amqp_basic_return_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_return_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_16(encoded, &offset, &m->reply_code))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->reply_text, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->exchange, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_DELIVER_METHOD: {
-		    amqp_basic_deliver_t * m = (amqp_basic_deliver_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_deliver_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->redelivered = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->exchange, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_GET_METHOD: {
-		    amqp_basic_get_t * m = (amqp_basic_get_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_get_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_16(encoded, &offset, &m->ticket))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->no_ack = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_GET_OK_METHOD: {
-		    amqp_basic_get_ok_t * m = (amqp_basic_get_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_get_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->redelivered = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->exchange, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    if(!amqp_decode_32(encoded, &offset, &m->message_count))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_GET_EMPTY_METHOD: {
-		    amqp_basic_get_empty_t * m = (amqp_basic_get_empty_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_get_empty_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->cluster_id, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_ACK_METHOD: {
-		    amqp_basic_ack_t * m = (amqp_basic_ack_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_ack_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->multiple = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_REJECT_METHOD: {
-		    amqp_basic_reject_t * m = (amqp_basic_reject_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_reject_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_RECOVER_ASYNC_METHOD: {
-		    amqp_basic_recover_async_t * m = (amqp_basic_recover_async_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_recover_async_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_RECOVER_METHOD: {
-		    amqp_basic_recover_t * m = (amqp_basic_recover_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_recover_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_RECOVER_OK_METHOD: {
-		    amqp_basic_recover_ok_t * m = (amqp_basic_recover_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_recover_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_BASIC_NACK_METHOD: {
-		    amqp_basic_nack_t * m = (amqp_basic_nack_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_nack_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->multiple = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    m->requeue = (bit_buffer & (1 << 1)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_TX_SELECT_METHOD: {
-		    amqp_tx_select_t * m = (amqp_tx_select_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_select_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_TX_SELECT_OK_METHOD: {
-		    amqp_tx_select_ok_t * m = (amqp_tx_select_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_select_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_TX_COMMIT_METHOD: {
-		    amqp_tx_commit_t * m = (amqp_tx_commit_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_commit_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_TX_COMMIT_OK_METHOD: {
-		    amqp_tx_commit_ok_t * m = (amqp_tx_commit_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_commit_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_TX_ROLLBACK_METHOD: {
-		    amqp_tx_rollback_t * m = (amqp_tx_rollback_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_rollback_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_TX_ROLLBACK_OK_METHOD: {
-		    amqp_tx_rollback_ok_t * m = (amqp_tx_rollback_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_tx_rollback_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_CONFIRM_SELECT_METHOD: {
-		    amqp_confirm_select_t * m = (amqp_confirm_select_t*)amqp_pool_alloc(pool, sizeof(amqp_confirm_select_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
-			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
-		    *decoded = m;
-		    return 0;
-	    }
-		case AMQP_CONFIRM_SELECT_OK_METHOD: {
-		    amqp_confirm_select_ok_t * m = (amqp_confirm_select_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_confirm_select_ok_t));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
+		case AMQP_QUEUE_BIND_METHOD: 
+			{
+				amqp_queue_bind_t * m = (amqp_queue_bind_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_bind_t));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_16(encoded, &offset, &m->ticket))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+				{
+					int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
+					if(res < 0) return res;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_QUEUE_BIND_OK_METHOD: 
+			{
+				amqp_queue_bind_ok_t * m = static_cast<amqp_queue_bind_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_queue_bind_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_QUEUE_PURGE_METHOD: 
+			{
+				amqp_queue_purge_t * m = static_cast<amqp_queue_purge_t *>(amqp_pool_alloc(pool, sizeof(amqp_queue_purge_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_16(encoded, &offset, &m->ticket))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_QUEUE_PURGE_OK_METHOD: 
+			{
+				amqp_queue_purge_ok_t * m = static_cast<amqp_queue_purge_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_queue_purge_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_32(encoded, &offset, &m->message_count))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_QUEUE_DELETE_METHOD: 
+			{
+				amqp_queue_delete_t * m = static_cast<amqp_queue_delete_t *>(amqp_pool_alloc(pool, sizeof(amqp_queue_delete_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_16(encoded, &offset, &m->ticket))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->if_unused = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->if_empty = (bit_buffer & (1 << 1)) ? 1 : 0;
+				m->nowait = (bit_buffer & (1 << 2)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_QUEUE_DELETE_OK_METHOD: 
+			{
+				amqp_queue_delete_ok_t * m = static_cast<amqp_queue_delete_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_queue_delete_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_32(encoded, &offset, &m->message_count))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_QUEUE_UNBIND_METHOD: 
+			{
+				amqp_queue_unbind_t * m = static_cast<amqp_queue_unbind_t *>(amqp_pool_alloc(pool, sizeof(amqp_queue_unbind_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_16(encoded, &offset, &m->ticket))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
+					if(res < 0) 
+						return res;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_QUEUE_UNBIND_OK_METHOD: 
+			{
+				amqp_queue_unbind_ok_t * m = static_cast<amqp_queue_unbind_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_queue_unbind_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_QOS_METHOD: 
+			{
+				amqp_basic_qos_t * m = static_cast<amqp_basic_qos_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_qos_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_32(encoded, &offset, &m->prefetch_size))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				if(!amqp_decode_16(encoded, &offset, &m->prefetch_count))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->global = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_QOS_OK_METHOD: 
+			{
+				amqp_basic_qos_ok_t * m = static_cast<amqp_basic_qos_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_qos_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_CONSUME_METHOD: 
+			{
+				amqp_basic_consume_t * m = static_cast<amqp_basic_consume_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_consume_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_16(encoded, &offset, &m->ticket))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->no_local = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->no_ack = (bit_buffer & (1 << 1)) ? 1 : 0;
+				m->exclusive = (bit_buffer & (1 << 2)) ? 1 : 0;
+				m->nowait = (bit_buffer & (1 << 3)) ? 1 : 0;
+				{
+					int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
+					if(res < 0) return res;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_CONSUME_OK_METHOD: 
+			{
+				amqp_basic_consume_ok_t * m = static_cast<amqp_basic_consume_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_consume_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) ||
+					!amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_CANCEL_METHOD: 
+			{
+				amqp_basic_cancel_t * m = static_cast<amqp_basic_cancel_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_cancel_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_CANCEL_OK_METHOD: 
+			{
+				amqp_basic_cancel_ok_t * m = static_cast<amqp_basic_cancel_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_cancel_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_PUBLISH_METHOD: 
+			{
+				amqp_basic_publish_t * m = static_cast<amqp_basic_publish_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_publish_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_16(encoded, &offset, &m->ticket))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->mandatory = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->immediate = (bit_buffer & (1 << 1)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_RETURN_METHOD: 
+			{
+				amqp_basic_return_t * m = static_cast<amqp_basic_return_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_return_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_16(encoded, &offset, &m->reply_code))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->reply_text, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_DELIVER_METHOD: 
+			{
+				amqp_basic_deliver_t * m = static_cast<amqp_basic_deliver_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_deliver_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->consumer_tag, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->redelivered = (bit_buffer & (1 << 0)) ? 1 : 0;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_GET_METHOD: 
+			{
+				amqp_basic_get_t * m = static_cast<amqp_basic_get_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_get_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_16(encoded, &offset, &m->ticket))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->queue, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->no_ack = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_GET_OK_METHOD: 
+			{
+				amqp_basic_get_ok_t * m = static_cast<amqp_basic_get_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_get_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->redelivered = (bit_buffer & (1 << 0)) ? 1 : 0;
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->routing_key, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				if(!amqp_decode_32(encoded, &offset, &m->message_count))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_GET_EMPTY_METHOD: 
+			{
+				amqp_basic_get_empty_t * m = static_cast<amqp_basic_get_empty_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_get_empty_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->cluster_id, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_ACK_METHOD: 
+			{
+				amqp_basic_ack_t * m = static_cast<amqp_basic_ack_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_ack_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->multiple = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_REJECT_METHOD: 
+			{
+				amqp_basic_reject_t * m = static_cast<amqp_basic_reject_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_reject_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_RECOVER_ASYNC_METHOD: 
+			{
+				amqp_basic_recover_async_t * m = static_cast<amqp_basic_recover_async_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_recover_async_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_RECOVER_METHOD: 
+			{
+				amqp_basic_recover_t * m = static_cast<amqp_basic_recover_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_recover_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_RECOVER_OK_METHOD: 
+			{
+				amqp_basic_recover_ok_t * m = static_cast<amqp_basic_recover_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_recover_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_BASIC_NACK_METHOD: 
+			{
+				amqp_basic_nack_t * m = static_cast<amqp_basic_nack_t *>(amqp_pool_alloc(pool, sizeof(amqp_basic_nack_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_64(encoded, &offset, &m->delivery_tag))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->multiple = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->requeue = (bit_buffer & (1 << 1)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_TX_SELECT_METHOD: 
+			{
+				amqp_tx_select_t * m = static_cast<amqp_tx_select_t *>(amqp_pool_alloc(pool, sizeof(amqp_tx_select_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_TX_SELECT_OK_METHOD: 
+			{
+				amqp_tx_select_ok_t * m = static_cast<amqp_tx_select_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_tx_select_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_TX_COMMIT_METHOD: 
+			{
+				amqp_tx_commit_t * m = static_cast<amqp_tx_commit_t *>(amqp_pool_alloc(pool, sizeof(amqp_tx_commit_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_TX_COMMIT_OK_METHOD: 
+			{
+				amqp_tx_commit_ok_t * m = static_cast<amqp_tx_commit_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_tx_commit_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_TX_ROLLBACK_METHOD: 
+			{
+				amqp_tx_rollback_t * m = static_cast<amqp_tx_rollback_t *>(amqp_pool_alloc(pool, sizeof(amqp_tx_rollback_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_TX_ROLLBACK_OK_METHOD: 
+			{
+				amqp_tx_rollback_ok_t * m = static_cast<amqp_tx_rollback_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_tx_rollback_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_CONFIRM_SELECT_METHOD: 
+			{
+				amqp_confirm_select_t * m = static_cast<amqp_confirm_select_t *>(amqp_pool_alloc(pool, sizeof(amqp_confirm_select_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
+					return AMQP_STATUS_BAD_AMQP_DATA;
+				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+				*decoded = m;
+				return 0;
+			}
+		case AMQP_CONFIRM_SELECT_OK_METHOD: 
+			{
+				amqp_confirm_select_ok_t * m = static_cast<amqp_confirm_select_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_confirm_select_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				*decoded = m;
+				return 0;
+			}
 		default:
 		    return AMQP_STATUS_UNKNOWN_METHOD;
 	}
@@ -4626,33 +4649,6 @@ out:
 //
 // AMQP_SOCKET {
 //
-#ifdef _MSC_VER
-	#define _CRT_SECURE_NO_WARNINGS
-#endif
-#if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN
-	#endif
-	//#include <winsock2.h>
-	#include <ws2tcpip.h>
-#else
-	#include <sys/types.h>
-	/* On older BSD types.h must come before net includes */
-	#include <netinet/in.h>
-	#include <netinet/tcp.h>
-	#ifdef HAVE_SELECT
-		#include <sys/select.h>
-	#endif
-	#include <fcntl.h>
-	#include <netdb.h>
-	#include <sys/socket.h>
-	#include <sys/uio.h>
-	#ifdef HAVE_POLL
-		#include <poll.h>
-	#endif
-	#include <unistd.h>
-#endif
-
 static int FASTCALL amqp_id_in_reply_list(amqp_method_number_t expected, const amqp_method_number_t * list) 
 {
 	while(*list != 0) {
@@ -6318,15 +6314,6 @@ start_send:
 }
 // } AMQP_CONNECTION
 // AMQP_OPENSSL_BIO {
-#if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN
-	#endif
-	//#include <winsock2.h>
-#else
-	#include <sys/socket.h>
-	#include <sys/types.h>
-#endif
 #ifdef MSG_NOSIGNAL
 	#define AMQP_USE_AMQP_BIO
 #endif

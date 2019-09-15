@@ -2027,33 +2027,28 @@ ZEXTERN void ZEXPORT gzclearerr(gzFile file);
 
 /* checksum functions */
 
-/*
-     These functions are not related to compression but are exported
-   anyway because they might be useful in applications using the compression
-   library.
- */
+// 
+// These functions are not related to compression but are exported
+// anyway because they might be useful in applications using the compression library.
+// 
+// 
+// Descr: Update a running Adler-32 checksum with the bytes buf[0..len-1] and
+//   return the updated checksum.  If buf is Z_NULL, this function returns the
+//   required initial value for the checksum.
+// 
+//   An Adler-32 checksum is almost as reliable as a CRC-32 but can be computed much faster.
+// Usage example:
+//   uLong adler = adler32(0L, Z_NULL, 0);
+//   while (read_buffer(buffer, length) != EOF) {
+//     adler = adler32(adler, buffer, length);
+//   }
+//   if(adler != original_adler) error();
+// 
 ZEXTERN uLong ZEXPORT adler32(uLong adler, const Bytef *buf, uInt len);
-/*
-     Update a running Adler-32 checksum with the bytes buf[0..len-1] and
-   return the updated checksum.  If buf is Z_NULL, this function returns the
-   required initial value for the checksum.
-
-     An Adler-32 checksum is almost as reliable as a CRC-32 but can be computed
-   much faster.
-
-   Usage example:
-
-     uLong adler = adler32(0L, Z_NULL, 0);
-
-     while (read_buffer(buffer, length) != EOF) {
-       adler = adler32(adler, buffer, length);
-     }
-     if (adler != original_adler) error();
- */
+//
+// Descr: Same as adler32(), but with a size_t length.
+//
 ZEXTERN uLong ZEXPORT adler32_z(uLong adler, const Bytef *buf, size_t len);
-/*
-     Same as adler32(), but with a size_t length.
- */
 
 /*
    ZEXTERN uLong ZEXPORT adler32_combine(uLong adler1, uLong adler2, z_off_t len2);
@@ -2415,7 +2410,6 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	// Diagnostic functions 
 	//
 	#ifdef ZLIB_DEBUG
-		//#include <stdio.h>
 		extern int ZLIB_INTERNAL z_verbose;
 		extern void ZLIB_INTERNAL z_error OF((char* m));
 		#define Assert(cond, msg) {if(!(cond)) z_error(msg); }

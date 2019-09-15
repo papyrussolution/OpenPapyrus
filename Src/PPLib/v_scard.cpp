@@ -2725,9 +2725,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 				}
 			}
 			ASSIGN_PTR(pData, D);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

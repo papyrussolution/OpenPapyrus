@@ -27,13 +27,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_WCHAR_H
-//#include <wchar.h>
-//#endif
-//#include "archive_pathmatch.h"
 /*
  * Check whether a character 'c' is matched by a list specification [...]:
  * * Leading '!' or '^' negates the class.

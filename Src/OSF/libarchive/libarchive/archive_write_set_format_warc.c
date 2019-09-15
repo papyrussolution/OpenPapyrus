@@ -28,26 +28,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_TIME_H
-//#include <time.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_random_private.h"
-//#include "archive_write_private.h"
-
 struct warc_s {
 	uint omit_warcinfo : 1;
 	time_t now;

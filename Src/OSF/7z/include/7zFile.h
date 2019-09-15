@@ -7,11 +7,6 @@
 #ifdef _WIN32
 	#define USE_WINDOWS_FILE
 #endif
-//#ifdef USE_WINDOWS_FILE
-	//#include <windows.h>
-//#else
-	//#include <stdio.h>
-//#endif
 
 EXTERN_C_BEGIN
 

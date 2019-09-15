@@ -28,32 +28,12 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_cpio.c 201170 2009-12-29 06:34:23Z kientzle $");
 
-#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-#endif
-//#include <stdio.h>
-#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-//#include <string.h>
-#endif
-
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_write_private.h"
-
-static ssize_t  archive_write_cpio_data(struct archive_write *,
-    const void * buff, size_t s);
+static ssize_t  archive_write_cpio_data(struct archive_write *, const void * buff, size_t s);
 static int      archive_write_cpio_close(struct archive_write *);
 static int      archive_write_cpio_free(struct archive_write *);
 static int      archive_write_cpio_finish_entry(struct archive_write *);
-static int      archive_write_cpio_header(struct archive_write *,
-    struct archive_entry *);
-static int      archive_write_cpio_options(struct archive_write *,
-    const char *, const char *);
+static int      archive_write_cpio_header(struct archive_write *, struct archive_entry *);
+static int      archive_write_cpio_options(struct archive_write *, const char *, const char *);
 static int      format_octal(int64_t, void *, int);
 static int64_t  format_octal_recursive(int64_t, char *, int);
 static int      write_header(struct archive_write *, struct archive_entry *);

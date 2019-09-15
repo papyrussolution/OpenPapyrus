@@ -527,14 +527,18 @@ int main(int argc, char * argv[])
 			}
 		}
 	}
-	char   infilename[MAXPATH], outfilename[MAXPATH];
+	char   infilename[MAXPATH];
+	// @v10.5.6 char   outfilename[MAXPATH];
+	SString outfilename; // @v10.5.6 
 	STRNSCPY(infilename, argv[1]);
 	if(!fileExists(infilename)) {
 		printf("Error: file %s not found\n", infilename);
 		return -1;
 	}
-	STRNSCPY(outfilename, infilename);
-	replaceExt(outfilename, "bin", 1);
+	// @v10.5.6 STRNSCPY(outfilename, infilename);
+	// @v10.5.6 replaceExt(outfilename, "bin", 1);
+	outfilename = infilename; // @v10.5.6 
+	SPathStruc::ReplaceExt(outfilename, "bin", 1); // @v10.5.6 	
 	yyin = fopen(infilename, "r");
 	if(yyin == 0) {
 		printf("Error: Could not open file %s\n", infilename);

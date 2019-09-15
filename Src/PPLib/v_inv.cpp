@@ -49,14 +49,9 @@ SLAPI PPViewInventory::~PPViewInventory()
 	delete P_GIter;
 }
 
-int SLAPI PPViewInventory::SetOuterPack(PPBillPacket * pPack)
-{
-	P_OuterPack = pPack;
-	return 1;
-}
-
-int SLAPI PPViewInventory::GetZeroByDefaultStatus() const { return BIN(Flags & fIsZeroByDefault); }
-int SLAPI PPViewInventory::GetUpdateStatus() const { return BIN(Flags & fWasUpdated); }
+void SLAPI PPViewInventory::SetOuterPack(PPBillPacket * pPack) { P_OuterPack = pPack; }
+int  SLAPI PPViewInventory::GetZeroByDefaultStatus() const { return BIN(Flags & fIsZeroByDefault); }
+int  SLAPI PPViewInventory::GetUpdateStatus() const { return BIN(Flags & fWasUpdated); }
 
 class InventoryFiltDialog : public TDialog {
 public:
@@ -1639,8 +1634,7 @@ static int SLAPI AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 		}
 		int    setDTS(const AutoFillInvFilt * pFilt)
 		{
-			if(!RVALUEPTR(Data, pFilt))
-				MEMSZERO(Data);
+			RVALUEPTR(Data, pFilt);
 			if(Data.BillID) {
 				SString info_buf;
 				BillTbl::Rec bill_rec;
@@ -1657,7 +1651,12 @@ static int SLAPI AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 			AddClusterAssoc(CTL_FLTAFINV_METHOD,  3, PPInventoryOpEx::afmByCurLotRest);
 			SetClusterData(CTL_FLTAFINV_METHOD, Data.Method);
 			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 0, AutoFillInvFilt::fFillWithZeroQtty);
+			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 1, AutoFillInvFilt::fRestrictZeroRestWithMtx); // @v10.5.6
 			SetClusterData(CTL_FLTAFINV_FLAGS, Data.Flags);
+			{
+				PPObjGoods goods_obj;
+				DisableClusterItem(CTL_FLTAFINV_FLAGS, 1, !goods_obj.GetConfig().MtxQkID); // @v10.5.6
+			}
 			return 1;
 		}
 		int    getDTS(AutoFillInvFilt * pFilt)
@@ -1674,6 +1673,10 @@ static int SLAPI AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 	DIALOG_PROC_BODY(AutoFillInventryFiltDialog, pFilt);
 }
 
+AutoFillInvFilt::AutoFillInvFilt() : BillID(0), GoodsGrpID(0), Method(0), Flags(0), DueDate(ZERODATE)
+{
+}
+
 int SLAPI PPViewInventory::Build()
 {
 	int    ok = -1;
@@ -1683,7 +1686,6 @@ int SLAPI PPViewInventory::Build()
 		SString temp_buf;
 		BillTbl::Rec bill_rec;
 		AutoFillInvFilt filt;
-		MEMSZERO(filt);
 		PPInventoryOpEx ioe;
 		THROW(P_BObj->Search(bill_id, &bill_rec) > 0);
 		THROW(P_BObj->P_OpObj->FetchInventoryData(bill_rec.OpID, &ioe));
@@ -2066,7 +2068,7 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			double maxv = Filt.MaxVal;
 			dbq = & (it->BillID == single_bill_id);
 			if((f = CheckXORFlags(Filt.Flags, InventoryFilt::fWrOff, InventoryFilt::fUnwrOff)) != 0)
-				dbq = ppcheckflag(dbq, it->Flags, INVENTF_WRITEDOFF, BIN(Filt.Flags & InventoryFilt::fWrOff));
+				dbq = ppcheckflag(dbq, it->Flags, INVENTF_WRITEDOFF, (Filt.Flags & InventoryFilt::fWrOff) ? +1 : -1);  //v10.5.6 BIN(Filt.Flags & InventoryFilt::fWrOff) => (Filt.Flags & InventoryFilt::fWrOff) ? +1 : -1
 			if(Filt.Flags & (InventoryFilt::fLack | InventoryFilt::fSurplus))
 				if(Filt.Flags & InventoryFilt::fLack && Filt.Flags & InventoryFilt::fSurplus)
 					dbq = & (*dbq && it->DiffQtty > 0.0);
@@ -2181,4 +2183,3 @@ void PPALDD_Invent::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Inventory);
 }
-

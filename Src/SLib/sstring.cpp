@@ -3917,7 +3917,7 @@ uint  FASTCALL SUnicode::Utf32ToUtf8(uint32 u32, char * pUtf8Buf)
 		pUtf8Buf[k++] = static_cast<char>(0x80 | (u16l & 0x3f));
 	}
 	else {
-		if((u16l >= UNI_SUR_HIGH_START/*SURROGATE_LEAD_FIRST*/) && (u16l <= UNI_SUR_LOW_END/*SURROGATE_TRAIL_LAST*/)) {
+		if((u16l >= UNI_SUR_HIGH_START) && (u16l <= UNI_SUR_LOW_END/*SURROGATE_TRAIL_LAST*/)) {
 			// @todo Я не уверен в правильности этого куска кода - надо тестировать!
 			uint16 u16u = static_cast<uint16>(u32 >> 16);
 			// Half a surrogate pair
@@ -3946,7 +3946,7 @@ uint FASTCALL SUnicode::Utf8Length(const wchar_t * pUcBuf, uint tlen)
 			len++;
 		else if(uch < 0x800)
 			len += 2;
-		else if((uch >= UNI_SUR_HIGH_START/*SURROGATE_LEAD_FIRST*/) && (uch <= UNI_SUR_LOW_END/*SURROGATE_TRAIL_LAST*/)) {
+		else if((uch >= UNI_SUR_HIGH_START) && (uch <= UNI_SUR_LOW_END)) {
 			len += 4;
 			i++;
 		}
@@ -6683,10 +6683,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 				if(!(h & SNTOKSEQ_LAT))
 					h &= ~(SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR);
 			}
-			if(SNTOKSEQ_DECLAT) {
-				if(!(h & (SNTOKSEQ_LAT|SNTOKSEQ_DEC)))
-					h &= ~SNTOKSEQ_DECLAT;
-			}
+			// @v10.5.6 @fix if(SNTOKSEQ_DECLAT) { if(!(h & (SNTOKSEQ_LAT|SNTOKSEQ_DEC))) h &= ~SNTOKSEQ_DECLAT; }
 			{
 				const uint32 tf = SNTOKSEQ_HEXHYPHEN;
 				if(h & tf) {

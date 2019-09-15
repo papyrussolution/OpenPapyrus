@@ -131,8 +131,8 @@ long   SLAPI ListBoxDef::getRecsCount() { return 0; }
 void * FASTCALL ListBoxDef::getRow_(long) { return 0; }
 int    SLAPI ListBoxDef::refresh() { return 1; }
 int    SLAPI ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
-int    SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~0x00008000), 0); }
-int    SLAPI ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | 0x00008000), 0); }
+int    SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~_SlConst.VectorImageMask), 0); }
+int    SLAPI ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | _SlConst.VectorImageMask), 0); }
 int    SLAPI ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCount()); }
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
@@ -195,10 +195,10 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 		himl = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLOR8, 16, 64);
 		for(uint i = 0; i < ImageAssoc.getCount(); i++) {
 			long item_id  = ImageAssoc.at(i).Key;
-			long image_id = ImageAssoc.at(i).Val;
+			uint image_id = static_cast<uint>(ImageAssoc.at(i).Val);
 			long image_idx = -1;
 			if(added_list.Search(image_id, &image_idx, 0) <= 0) {
-				if(image_id & 0x00008000) {
+				if(image_id & _SlConst.VectorImageMask) {
 					{
 						//SETIFZ(dv_id, PPDV_TESTFLOWER);
 						TWhatmanToolArray::Item tool_item;

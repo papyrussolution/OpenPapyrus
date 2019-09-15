@@ -856,9 +856,7 @@ int TechDialog::getDTS(PPTechPacket * pData)
 	getCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
 	getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 //
@@ -978,9 +976,7 @@ int ToolingDialog::getDTS(PPTechPacket * pData)
 	}
 	getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -1515,9 +1511,7 @@ int TechFiltDialog::getDTS(TechFilt * pData)
 	GetClusterData(CTL_TECHFILT_KIND, &Data.Kind);
 	GetClusterData(CTL_TECHFILT_SIGN,  &Data.Sign);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

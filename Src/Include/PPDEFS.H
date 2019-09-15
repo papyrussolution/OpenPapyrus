@@ -1519,6 +1519,7 @@
 #define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7
 	// PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
 #define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
+#define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -1735,6 +1736,7 @@
 #define STDCTL_VERIFYBUTTON       160 // @v10.1.5 Кнопка "Верифицировать"
 #define STDCTL_LAYOUTBUTTON       161 // @v10.4.9 Кнопка "Layout"
 #define STDCTL_TRANSMITBUTTON     162 // @v10.5.3 Кнопка "Передать"
+#define STDCTL_DIAGNOSTICS        163 // @v10.5.6 Кнопка "Диагностика"
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -1809,6 +1811,7 @@
 #define cmCopyToClipboardAll     1170
 #define cmLayoutEntry            1171 // @v10.4.9
 #define cmPasteFromClipboardAll  1172 // @erik v10.5.2
+#define cmDiagnostics            1173 // @v10.5.6 Кнопка диагностики   
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -10611,6 +10614,7 @@
 	#define CTL_TIMSER_AVGSPRD        (18 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_TGTQUANT       (19 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_MANMARG        (20 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_TYPE           (21 + WINDOWS_ID_BIAS)
 #define DLG_TSSA                  1353 //
 	#define cmTsList                  101
 	#define CTL_TSSA_TS               (1 + WINDOWS_ID_BIAS)
@@ -10692,6 +10696,8 @@
 	#define CTL_MOBCLEDT_Z            (1 + WINDOWS_ID_BIAS)
 	#define CTL_MOBCLEDT_FN           (2 + WINDOWS_ID_BIAS)
 	#define CTL_MOBCLEDT_TXT          (3 + WINDOWS_ID_BIAS)
+	#define CTL_MOBCLEDT_AGGR         (4 + WINDOWS_ID_BIAS)
+	#define CTLSEL_MOBCLEDT_AGGR      (5 + WINDOWS_ID_BIAS)
 #define DLG_TESTVETIS             1367
 	#define CTL_TESTVETIS_INFO        (1 + WINDOWS_ID_BIAS)
 	#define CTL_TESTVETIS_FLAGS       (2 + WINDOWS_ID_BIAS)

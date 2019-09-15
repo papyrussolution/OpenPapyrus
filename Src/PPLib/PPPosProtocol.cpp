@@ -5269,9 +5269,7 @@ int SLAPI PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQL
 					break;
 			}
         	ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
         	return ok;
         }
 	private:

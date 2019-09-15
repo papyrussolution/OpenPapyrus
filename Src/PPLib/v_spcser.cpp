@@ -326,9 +326,7 @@ int SpecSerDlg::getDTS(SpecSeries2Tbl::Rec * pData)
 	GetClusterData(CTL_SPCSER_FLAGS, &Data.Flags);
 	Data.InfoKind = SPCSERIK_SPOILAGE;
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

@@ -878,9 +878,6 @@
 						PrecompiledHeaderThrough=""/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="..\osf\libarchive\libarchive\xxhash.c">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

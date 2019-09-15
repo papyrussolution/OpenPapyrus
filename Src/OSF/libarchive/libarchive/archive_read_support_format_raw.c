@@ -26,18 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_raw.c 201107 2009-12-28 03:25:33Z kientzle $");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-
 struct raw_info {
 	int64_t offset; /* Current position in the file. */
 	int64_t unconsumed;

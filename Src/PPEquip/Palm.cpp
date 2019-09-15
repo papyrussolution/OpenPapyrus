@@ -743,9 +743,7 @@ int StyloPalmDialog::getDTS(PPStyloPalmPacket * pData)
 		GetClusterData(CTL_PALM_REGISTERED, &Data.Rec.Flags);
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -4317,9 +4315,7 @@ int PalmPaneDialog::getDTS(PalmPaneData * pData)
 	getCtrlData(sel = CTLSEL_PALMPANE_LOC, &Data.LocID);
 	THROW_PP(Data.LocID, PPERR_LOCNEEDED);
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

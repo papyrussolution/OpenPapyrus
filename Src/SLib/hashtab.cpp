@@ -5,7 +5,7 @@
 #include <tv.h>
 #pragma hdrstop
 
-uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
+//@v10.5.6 uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
 
 HashTableBase::HashTableBase(size_t sz) : P_Tab(0), Flags(0), AddCount(0), CollCount(0), MaxTail(0)
 {
@@ -275,8 +275,8 @@ void SymbHashTable::Clear()
 size_t FASTCALL SymbHashTable::Hash(const char * pSymb) const
 {
 	const size_t len = sstrlen(pSymb);
-	uint32 __h = BobJencHash(pSymb, len);
-	//uint32 __h = DJBHash(pSymb, len);
+	uint32 __h = SlHash::BobJenc(pSymb, len);
+	//uint32 __h = SlHash::DJB(pSymb, len);
 	return (size_t)(__h % Size);
 	/*
 	ulong __h = 0;
@@ -548,7 +548,7 @@ void LAssocHashTable::Clear()
 
 size_t FASTCALL LAssocHashTable::Hash(const long & rKey) const
 {
-	uint32 __h = DJBHash(&rKey, sizeof(rKey));
+	uint32 __h = SlHash::DJB(&rKey, sizeof(rKey));
 	return (size_t)(__h % Size);
 }
 
@@ -736,7 +736,7 @@ void GuidHashTable::Clear()
 size_t FASTCALL GuidHashTable::Hash(const S_GUID & rUuid) const
 {
 	//uint32 __h = BobJencHash(&rUuid, sizeof(rUuid));
-	uint32 __h = DJBHash(&rUuid, sizeof(rUuid));
+	uint32 __h = SlHash::DJB(&rUuid, sizeof(rUuid));
 	return (size_t)(__h % Size);
 }
 
@@ -1112,7 +1112,7 @@ uint PtrHashTable::GetMaxVal() const
 */
 size_t FASTCALL PtrHashTable::Hash(const void * ptr) const
 {
-	uint32 __h = DJBHash(&ptr, sizeof(void *));
+	uint32 __h = SlHash::DJB(&ptr, sizeof(void *));
 	return (size_t)(__h % Size);
 }
 //
@@ -1176,7 +1176,7 @@ int UintHashTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 
 int FASTCALL UintHashTable::Add(ulong val)
 {
-	UhtBlock * p_blk = (UhtBlock *)GetBlock(val, 1);
+	UhtBlock * p_blk = static_cast<UhtBlock *>(GetBlock(val, 1));
 	if(p_blk) {
 		uint   shift = (1 << (val % 32));
 		if(p_blk->Busy & shift)
@@ -1188,6 +1188,11 @@ int FASTCALL UintHashTable::Add(ulong val)
 	}
 	else
 		return 0;
+}
+
+int FASTCALL UintHashTable::AddNZ(ulong value)
+{
+	return value ? Add(value) : -1;
 }
 
 int FASTCALL UintHashTable::Add(const UintHashTable & rS)

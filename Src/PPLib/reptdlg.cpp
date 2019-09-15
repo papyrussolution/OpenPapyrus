@@ -376,9 +376,7 @@ int FASTCALL RepAnnDialog::valid(ushort cmd)
 			THROW_PP(Data.Dtl.AY.WeekNo >= 1 && Data.Dtl.AY.WeekNo <= 5, PPERR_USERINPUT);
 		}
 	}
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 //

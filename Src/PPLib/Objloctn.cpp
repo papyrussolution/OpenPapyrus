@@ -1716,7 +1716,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		if(LocObj.EditDialog(LOCTYP_ADDRESS, &Data, 0) == cmOK) {
 			Data.ParentID = save_par_id;
 			setDTS(0);
-			Data.Type = (int16)save_loc_typ;
+			Data.Type = static_cast<int16>(save_loc_typ);
 		}
 		else
 			Data.ParentID = save_par_id;
@@ -2410,7 +2410,7 @@ int SLAPI PPObjLocation::Edit(PPID * pID, void * extraPtr)
 		if(extraPtr) {
 			LocationFilt flt = *static_cast<const LocationFilt *>(extraPtr);
 			loc_typ = NZOR(flt.LocType, LOCTYP_WAREHOUSE);
-			pack.Type = (int16)loc_typ;
+			pack.Type = static_cast<int16>(loc_typ);
 			pack.OwnerID  = flt.Owner;
 			pack.ParentID = flt.Parent;
 			if(flt.CurrID == 0 || Fetch(flt.CurrID, &cur_rec) <= 0)

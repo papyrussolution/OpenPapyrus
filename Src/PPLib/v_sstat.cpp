@@ -244,9 +244,7 @@ private:
 			THROW_PP(Data._MinP >= 0 && Data._MinP <= Data._P, PPERR_INVPREDICT_PMIN)
 			GetClusterData(CTL_SSTATFLT_CFLAGS, &Data._CFlags);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

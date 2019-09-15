@@ -2232,9 +2232,7 @@ public:
 		getCtrlData(CTLSEL_GLOBUSERACC_PSN, &Data.Rec.PersonID);
 		getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -2791,9 +2789,7 @@ public:
 		GetClusterData(CTL_UHTTSTORE_FLAGS, &Data.Rec.Flags);
 		Data.Rec.UpRestShowThreshold = getCtrlReal(CTL_UHTTSTORE_URST);
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorByDialog(this, sel);
-		ENDCATCH
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -3740,9 +3736,7 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			Data.Rec.AddrPort2 = getCtrlLong(CTL_EDIPRV_PORT2);
 			Data.Rec.GuaID = getCtrlLong(CTLSEL_EDIPRV_GUA);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

@@ -71,22 +71,19 @@ int archive_write_set_compression_xz(struct archive * a)
 #ifndef HAVE_LZMA_H
 int archive_write_add_filter_xz(struct archive * a)
 {
-	archive_set_error(a, ARCHIVE_ERRNO_MISC,
-	    "xz compression not supported on this platform");
+	archive_set_error(a, ARCHIVE_ERRNO_MISC, "xz compression not supported on this platform");
 	return ARCHIVE_FATAL;
 }
 
 int archive_write_add_filter_lzma(struct archive * a)
 {
-	archive_set_error(a, ARCHIVE_ERRNO_MISC,
-	    "lzma compression not supported on this platform");
+	archive_set_error(a, ARCHIVE_ERRNO_MISC, "lzma compression not supported on this platform");
 	return ARCHIVE_FATAL;
 }
 
 int archive_write_add_filter_lzip(struct archive * a)
 {
-	archive_set_error(a, ARCHIVE_ERRNO_MISC,
-	    "lzma compression not supported on this platform");
+	archive_set_error(a, ARCHIVE_ERRNO_MISC, "lzma compression not supported on this platform");
 	return ARCHIVE_FATAL;
 }
 
@@ -238,9 +235,7 @@ static int archive_compressor_xz_init_stream(struct archive_write_filter * f,
 
 		/* Calculate a coded dictionary size */
 		if(dict_size < (1 << 12) || dict_size > (1 << 27)) {
-			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			    "Unacceptable dictionary size for lzip: %d",
-			    dict_size);
+			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Unacceptable dictionary size for lzip: %d", dict_size);
 			return ARCHIVE_FATAL;
 		}
 		for(log2dic = 27; log2dic >= 12; log2dic--) {
@@ -271,17 +266,12 @@ static int archive_compressor_xz_init_stream(struct archive_write_filter * f,
 	}
 	if(ret == LZMA_OK)
 		return ARCHIVE_OK;
-
 	switch(ret) {
 		case LZMA_MEM_ERROR:
-		    archive_set_error(f->archive, ENOMEM,
-			"Internal error initializing compression library: "
-			"Cannot allocate memory");
+		    archive_set_error(f->archive, ENOMEM, "Internal error initializing compression library: Cannot allocate memory");
 		    break;
 		default:
-		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"It's a bug in liblzma");
+		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: It's a bug in liblzma");
 		    break;
 	}
 	return ARCHIVE_FATAL;
@@ -313,8 +303,7 @@ static int archive_compressor_xz_open(struct archive_write_filter * f)
 		data->compressed_buffer_size = bs;
 		data->compressed = (uchar *)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
-			archive_set_error(f->archive, ENOMEM,
-			    "Can't allocate data for compression buffer");
+			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -489,23 +478,15 @@ static int drive_compressor(struct archive_write_filter * f, struct private_data
 			    /* This return can only occur in finishing case. */
 			    if(finishing)
 				    return ARCHIVE_OK;
-			    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-				"lzma compression data error");
+			    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "lzma compression data error");
 			    return ARCHIVE_FATAL;
 			case LZMA_MEMLIMIT_ERROR:
-			    archive_set_error(f->archive, ENOMEM,
-				"lzma compression error: "
-				"%ju MiB would have been needed",
-				(uintmax_t)((lzma_memusage(&(data->stream))
-				+ 1024 * 1024 -1)
-				/ (1024 * 1024)));
+			    archive_set_error(f->archive, ENOMEM, "lzma compression error: %ju MiB would have been needed", 
+					(uintmax_t)((lzma_memusage(&(data->stream)) + 1024 * 1024 -1) / (1024 * 1024)));
 			    return ARCHIVE_FATAL;
 			default:
 			    /* Any other return value indicates an error. */
-			    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-				"lzma compression failed:"
-				" lzma_code() call returned status %d",
-				ret);
+			    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "lzma compression failed: lzma_code() call returned status %d", ret);
 			    return ARCHIVE_FATAL;
 		}
 	}

@@ -79,9 +79,9 @@ static void SLAPI cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z);
 //
 #ifdef SMALL_CACHE
 
-const static uint16 SLAPI mul(register uint16 a, register uint16 b)
+const static uint16 SLAPI mul(uint16 a, uint16 b)
 {
-	register uint32 p;
+	uint32 p;
 	if(a)
 		if(b) {
 			p = (uint32)a * b;
@@ -216,7 +216,7 @@ static void SLAPI de_key_idea(IDEAkey Z, IDEAkey DK)
 //
 #pragma warn -pia
 
-static void SLAPI cipher_idea(uint16 in[4], uint16 out[4], register IDEAkey Z)
+static void SLAPI cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z)
 {
 // Microsoft specific
 // warning C4244: '=' : conversion from 'unsigned long' to
@@ -356,7 +356,7 @@ void main(void)
 // Can be applied for any block encryption algorithm,
 // with any block size, such as the DES or the IDEA cipher.
 //
-static void SLAPI xorbuf(register uint8 * buf, register uint8 * mask, register int count)
+static void SLAPI xorbuf(uint8 * buf, uint8 * mask, int count)
 // count must be > 0
 {
 	if(count) do {
@@ -369,7 +369,7 @@ static void SLAPI xorbuf(register uint8 * buf, register uint8 * mask, register i
 // Can be applied for any block encryption algorithm with any
 // block size, such as the DES or the IDEA cipher.
 //
-static void SLAPI cfbshift(register uint8 * iv, register uint8 * buf, register int count, int blocksize)
+static void SLAPI cfbshift(uint8 * iv, uint8 * buf, int count, int blocksize)
 //
 // iv is the initialization vector.
 // buf is the buffer pointer.

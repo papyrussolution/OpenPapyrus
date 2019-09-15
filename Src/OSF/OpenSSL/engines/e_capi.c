@@ -16,20 +16,11 @@
 		#define _WIN32_WINNT 0x0400
 	#endif
 	#include <windows.h>
-	//#include <wincrypt.h>
-	//#include <stdio.h>
-	//#include <string.h>
-	//#include <stdlib.h>
-	//#include <malloc.h>
 	#ifndef alloca
 		#define alloca _alloca
 	#endif
 	//#include <openssl/crypto.h>
 	#ifndef OPENSSL_NO_CAPIENG
-		//#include <openssl/buffer.h>
-		//#include <openssl/bn.h>
-		//#include <openssl/rsa.h>
-		//#include <openssl/dsa.h>
 		/*
 		* This module uses several "new" interfaces, among which is
 		* CertGetCertificateContextProperty. CERT_KEY_PROV_INFO_PROP_ID is
@@ -1204,7 +1195,7 @@ static int capi_list_containers(CAPI_CTX * ctx, BIO * out)
 		else
 			flags = 0;
 		if(!CryptGetProvParam
-			    (hprov, PP_ENUMCONTAINERS, (BYTE*)cname, &clen, flags)) {
+			    (hprov, PP_ENUMCONTAINERS, (BYTE *)cname, &clen, flags)) {
 			err = GetLastError();
 			if(err == ERROR_NO_MORE_ITEMS)
 				goto done;

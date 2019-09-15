@@ -32,15 +32,10 @@
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 #endif
-
 #include <ctype.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include <time.h>
 
 #define __LIBARCHIVE_BUILD 1
-//#include "archive_getdate.h"
 
 /* Basic time units. */
 #define EPOCH           1970

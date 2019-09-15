@@ -25,15 +25,9 @@
 #pragma hdrstop
 #include <../osf/libjpeg/jpeglib.h>
 #include <../osf/libjpeg/jerror.h>
-//#include <jpeglib.h>
-//#include <jerror.h>
 #include <setjmp.h>
-//#include <assert.h> /* FIXME tmp debug */
 
 #undef HAVE_STDLIB_H
-//#include <zbar.h>
-//#include "image.h"
-//#include "video.h"
 
 #define HAVE_LONGJMP
 #ifdef HAVE_LONGJMP

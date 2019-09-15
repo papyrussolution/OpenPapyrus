@@ -729,9 +729,6 @@
 				RelativePath="..\SLib\round.cpp">
 			</File>
 			<File
-				RelativePath="..\SLib\s_crc32.cpp">
-			</File>
-			<File
 				RelativePath="..\SLib\samqp.cpp">
 			</File>
 			<File
@@ -1337,6 +1334,9 @@
 			</File>
 			<File
 				RelativePath="..\Db\xmltable.cpp">
+			</File>
+			<File
+				RelativePath="..\SLib\xxhash.c">
 			</File>
 			<Filter
 				Name="ASMLIB"
@@ -3566,6 +3566,12 @@
 			</File>
 			<File
 				RelativePath="..\Include\uchardet.h">
+			</File>
+			<File
+				RelativePath="..\Include\xxh3.h">
+			</File>
+			<File
+				RelativePath="..\Include\xxhash.h">
 			</File>
 		</Filter>
 		<Filter

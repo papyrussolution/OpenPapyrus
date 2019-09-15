@@ -44,12 +44,9 @@
  *                                 <appro@fy.chalmers.se>
  */
 
-#if defined(__i386) || defined(__i386__) || defined(_M_IX86) ||	\
-	defined(__x86_64) || defined(_M_AMD64) || defined(_M_X64) || \
-	defined(__s390__) || defined(__s390x__) || \
-	defined(__aarch64__) ||	\
-	defined(SHA512_ASM)
-#define SHA512_BLOCK_CAN_MANAGE_UNALIGNED_DATA
+#if defined(__i386) || defined(__i386__) || defined(_M_IX86) ||	defined(__x86_64) || defined(_M_AMD64) || defined(_M_X64) || \
+	defined(__s390__) || defined(__s390x__) || defined(__aarch64__) || defined(SHA512_ASM)
+	#define SHA512_BLOCK_CAN_MANAGE_UNALIGNED_DATA
 #endif
 
 int SHA384_Init(SHA512_CTX * c)
@@ -184,10 +181,8 @@ int SHA512_Update(SHA512_CTX * c, const void * _data, size_t len)
 	if(sizeof(len) >= 8)
 		c->Nh += (((SHA_LONG64)len) >> 61);
 	c->Nl = l;
-
 	if(c->num != 0) {
 		size_t n = sizeof(c->u) - c->num;
-
 		if(len < n) {
 			memcpy(p + c->num, data, len), c->num += (uint)len;
 			return 1;
@@ -211,7 +206,6 @@ int SHA512_Update(SHA512_CTX * c, const void * _data, size_t len)
 		sha512_block_data_order(c, data, len / sizeof(c->u)),
 		data += len, len %= sizeof(c->u), data -= len;
 	}
-
 	if(len != 0)
 		memcpy(p, data, len), c->num = (int)len;
 	return 1;
@@ -235,7 +229,6 @@ uchar * SHA384(const uchar * d, size_t n, uchar * md)
 {
 	SHA512_CTX c;
 	static uchar m[SHA384_DIGEST_LENGTH];
-
 	if(md == NULL)
 		md = m;
 	SHA384_Init(&c);
@@ -249,7 +242,6 @@ uchar * SHA512(const uchar * d, size_t n, uchar * md)
 {
 	SHA512_CTX c;
 	static uchar m[SHA512_DIGEST_LENGTH];
-
 	if(md == NULL)
 		md = m;
 	SHA512_Init(&c);
@@ -402,14 +394,12 @@ static SHA_LONG64 __fastcall __pull64be(const void * x)
 /*
  * This code should give better results on 32-bit CPU with less than
  * ~24 registers, both size and performance wise...
- */static void sha512_block_data_order(SHA512_CTX * ctx, const void * in,
-    size_t num)
+ */static void sha512_block_data_order(SHA512_CTX * ctx, const void * in, size_t num)
 {
 	const SHA_LONG64 * W = (const SHA_LONG64*)in;
 	SHA_LONG64 A, E, T;
 	SHA_LONG64 X[9 + 80], * F;
 	int i;
-
 	while(num--) {
 		F = X + 80;
 		A = ctx->h[0];
@@ -658,5 +648,4 @@ static void sha512_block_data_order(SHA512_CTX * ctx, const void * in, size_t nu
 }
 
 # endif
-
 #endif                         /* SHA512_ASM */

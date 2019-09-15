@@ -10,11 +10,6 @@
 #define LUA_CORE
 
 #include <locale.h>
-//#include <math.h>
-//#include <stdarg.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "lua.h"
 #include "lctype.h"
 #include "ldebug.h"

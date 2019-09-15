@@ -26,19 +26,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_extract.c,v 1.61 2008/05/26 17:00:22 kientzle Exp $");
-//#ifdef HAVE_SYS_TYPES_H
-//#include <sys/types.h>
-//#endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
 
 static int      copy_data(struct archive * ar, struct archive * aw);
 static int      archive_read_extract_cleanup(struct archive_read *);

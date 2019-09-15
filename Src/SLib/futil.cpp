@@ -60,16 +60,16 @@ static int Win_IsFileExists(const char * pFileName)
 
 #endif
 
-char * SLAPI replacePath(char * fileName, const char * newPath, int force)
+/* @v10.5.6 char * SLAPI replacePath(char * fileName, const char * newPath, int force)
 {
 	char   drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);
 	if(force || (*drv == 0 && *dir == 0))
 		strcat(strcat(setLastSlash(strcpy(fileName, newPath)), nam), ext);
 	return fileName;
-}
+} */
 
-char * SLAPI replaceExt(char * fileName, const char * newExt, int force)
+/* @v10.5.6 char * SLAPI replaceExt(char * fileName, const char * newExt, int force)
 {
 	char   drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);
@@ -83,7 +83,7 @@ char * SLAPI replaceExt(char * fileName, const char * newExt, int force)
 		fnmerge(fileName, drv, dir, nam, ext);
 	}
 	return fileName;
-}
+}*/
 
 char * SLAPI setLastSlash(char * p)
 {

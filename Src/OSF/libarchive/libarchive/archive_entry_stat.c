@@ -25,14 +25,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_stat.c 201100 2009-12-28 03:05:31Z kientzle $");
-//#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#include "archive_entry.h"
-//#include "archive_entry_private.h"
 
 const struct stat * archive_entry_stat(struct archive_entry * entry)
 {

@@ -251,7 +251,7 @@ int __archive_mktemp(const char * tmpdir)
 		HANDLE h;
 		/* Generate a random file name through CryptGenRandom(). */
 		wchar_t * p = xp;
-		if(!CryptGenRandom(hProv, (DWORD)(ep - p)*sizeof(wchar_t), (BYTE*)p)) {
+		if(!CryptGenRandom(hProv, (DWORD)(ep - p)*sizeof(wchar_t), (BYTE *)p)) {
 			la_dosmaperr(GetLastError());
 			goto exit_tmpfile;
 		}

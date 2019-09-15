@@ -968,9 +968,7 @@ int EditClientBankFormatDescription(const char * pIniSection)
 			getCtrlString(CTL_IMPEXPCLIBNK_PMCODES, Data.PaymMethodTransl);
 			Data.DefPayerByAmtSign = BIN(getCtrlUInt16(CTL_IMPEXPCLIBNK_FLAGS));
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

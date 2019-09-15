@@ -37,12 +37,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-private.h"
-//#include "cairo-compiler-private.h"
-//#include "cairo-error-private.h"
-
-//#include <assert.h>
-
 /**
  * _cairo_error:
  * @status: a status value indicating an error, (eg. not

@@ -147,7 +147,6 @@ uint bch15_5_encode(uint _x)
 }
 
 #if 0
-//#include <stdio.h>
 
 static uint codes[32];
 

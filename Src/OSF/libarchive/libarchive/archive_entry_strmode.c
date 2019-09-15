@@ -25,14 +25,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_entry_strmode.c,v 1.4 2008/06/15 05:14:01 kientzle Exp $");
-//#ifdef HAVE_SYS_STAT_H
-//#include <sys/stat.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive_entry.h"
-//#include "archive_entry_private.h"
 
 const char * archive_entry_strmode(struct archive_entry * entry)
 {

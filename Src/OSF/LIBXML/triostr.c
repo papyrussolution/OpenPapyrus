@@ -17,11 +17,6 @@
 
 #pragma hdrstop // Not Using Precompiled Headers
 #include <slib.h>
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <ctype.h>
-//#include <math.h>
 #include "triodef.h"
 #include "triostr.h"
 
@@ -97,17 +92,14 @@ struct _trio_string_t {
 /*************************************************************************
  * Constants
  */
-
 #if !defined(TRIO_MINIMAL)
-static const char rcsid[] = "@(#)$Id$";
+	static const char rcsid[] = "@(#)$Id$";
 #endif
-
 /*************************************************************************
  * Static String Functions
  */
-
 #if defined(TRIO_DOCUMENTATION)
-#include "doc/doc_static.h"
+	#include "doc/doc_static.h"
 #endif
 /** @addtogroup StaticStrings
     @{

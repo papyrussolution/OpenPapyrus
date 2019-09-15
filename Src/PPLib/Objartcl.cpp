@@ -505,9 +505,7 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			sel = CTL_ALSSUBST_ACC;
 			THROW_PP(Data.Val, PPERR_ACCNEEDED);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:

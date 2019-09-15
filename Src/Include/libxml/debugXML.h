@@ -10,13 +10,8 @@
 
 #ifndef __DEBUG_XML__
 #define __DEBUG_XML__
-//#include <stdio.h>
-//#include <libxml/xmlversion.h>
-//#include <libxml/tree.h>
 
 #ifdef LIBXML_DEBUG_ENABLED
-
-//#include <libxml/xpath.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,32 +29,19 @@ XMLPUBFUN void XMLCALL xmlDebugDumpDocumentHead(FILE * output, xmlDoc * doc);
 XMLPUBFUN void XMLCALL xmlDebugDumpDocument(FILE * output, xmlDoc * doc);
 XMLPUBFUN void XMLCALL xmlDebugDumpDTD(FILE * output, xmlDtd * dtd);
 XMLPUBFUN void XMLCALL xmlDebugDumpEntities(FILE * output, xmlDoc * doc);
-
-/****************************************************************
-*								*
-*			Checking routines			*
-*								*
-****************************************************************/
-
+// 
+// Checking routines
+// 
 XMLPUBFUN int XMLCALL xmlDebugCheckDocument(FILE * output, xmlDoc * doc);
-
-/****************************************************************
-*								*
-*			XML shell helpers			*
-*								*
-****************************************************************/
-
+// 
+// XML shell helpers
+// 
 XMLPUBFUN void XMLCALL xmlLsOneNode(FILE * output, xmlNode * P_Node);
 XMLPUBFUN int XMLCALL xmlLsCountNode(xmlNode * P_Node);
-
 XMLPUBFUN const char * XMLCALL xmlBoolToText(int boolval);
-
-/****************************************************************
-*								*
-*	 The XML shell related structures and functions		*
-*								*
-****************************************************************/
-
+// 
+// The XML shell related structures and functions
+// 
 #ifdef LIBXML_XPATH_ENABLED
 /**
  * xmlShellReadlineFunc:
@@ -70,7 +52,6 @@ XMLPUBFUN const char * XMLCALL xmlBoolToText(int boolval);
  * Returns a string which will be freed by the Shell.
  */
 typedef char * (*xmlShellReadlineFunc)(char * prompt);
-
 /**
  * xmlShellCtxt:
  *
@@ -89,7 +70,6 @@ struct _xmlShellCtxt {
 	FILE * output;
 	xmlShellReadlineFunc input;
 };
-
 /**
  * xmlShellCmd:
  * @ctxt:  a shell context

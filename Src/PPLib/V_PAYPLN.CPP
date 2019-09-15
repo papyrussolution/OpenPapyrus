@@ -462,7 +462,6 @@ IMPL_HANDLE_EVENT(PaymPlanFiltDialog)
 int PaymPlanFiltDialog::setDTS(const PaymPlanFilt * pData)
 {
 	Data = *pData;
-
 	CycleCtrlGroup::Rec cycle_rec;
 	SETIFZ(Data.AccSheetID, GetSellAccSheet());
 	SetPeriodInput(this, CTL_PAYPLANFLT_PERIOD, &Data.Period);
@@ -505,10 +504,8 @@ int PaymPlanFiltDialog::getDTS(PaymPlanFilt * pData)
 	else
 		Data.Sgp = sgpNone;
 	SETFLAG(Data.Flags, PaymPlanFilt::fLabelOnly, getWL());
-	*pData = Data;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pData, Data);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

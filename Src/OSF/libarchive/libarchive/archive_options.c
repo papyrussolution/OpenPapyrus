@@ -25,10 +25,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include "archive_options_private.h"
 
 static const char * parse_option(char ** str, const char ** mod, const char ** opt, const char ** val);
 

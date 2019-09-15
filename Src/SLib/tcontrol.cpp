@@ -149,8 +149,8 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				else {
 					p_view->makeDefault(BIN(wParam & BS_DEFPUSHBUTTON), 0);
 					if(LOWORD(lParam)) { // do redraw
-						InvalidateRect(hWnd, NULL, TRUE);
-						UpdateWindow(hWnd);
+						::InvalidateRect(hWnd, NULL, TRUE);
+						::UpdateWindow(hWnd);
 					}
 					return 0;
 				}

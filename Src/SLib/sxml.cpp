@@ -327,6 +327,19 @@ int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & r
     return ok;
 }
 
+SLAPI SXmlWriter::SXmlWriter()
+{
+	P_XmlBuf = xmlBufferCreate();
+	P_Writer = xmlNewTextWriterMemory(P_XmlBuf, 0);
+	xmlTextWriterSetIndent(P_Writer, 1);
+}
+
+SLAPI SXmlWriter::~SXmlWriter()
+{
+	xmlFreeTextWriter(P_Writer);
+	xmlBufferFree(P_XmlBuf);
+}
+
 //static
 void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const char * pMsg, ...)
 {

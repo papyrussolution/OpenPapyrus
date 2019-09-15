@@ -35,30 +35,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:
 #ifdef HAVE_SYS_WAIT_H
 	#include <sys/wait.h>
 #endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include <time.h>
-//#ifdef HAVE_UNISTD_H
-//#include <unistd.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_write_private.h"
 
 static struct archive_vtable * archive_write_vtable(void);
-
 static int      _archive_filter_code(struct archive *, int);
 static const char * _archive_filter_name(struct archive *, int);
 static int64_t  _archive_filter_bytes(struct archive *, int);
@@ -260,8 +238,7 @@ static int archive_write_client_open(struct archive_write_filter * f)
 	if(state == NULL || buffer == NULL) {
 		SAlloc::F(state);
 		SAlloc::F(buffer);
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for output buffering");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for output buffering");
 		return ARCHIVE_FATAL;
 	}
 
@@ -326,8 +303,7 @@ static int archive_write_client_write(struct archive_write_filter * f,
 				if(bytes_written <= 0)
 					return ARCHIVE_FATAL;
 				if((size_t)bytes_written > to_write) {
-					archive_set_error(&(a->archive),
-					    -1, "write overrun");
+					archive_set_error(&(a->archive), -1, "write overrun");
 					return ARCHIVE_FATAL;
 				}
 				p += bytes_written;
@@ -552,17 +528,11 @@ static int _archive_write_header(struct archive * _a, struct archive_entry * ent
 	}
 	if(ret < ARCHIVE_OK && ret != ARCHIVE_WARN)
 		return ret;
-
-	if(a->skip_file_set &&
-	    archive_entry_dev_is_set(entry) &&
-	    archive_entry_ino_is_set(entry) &&
-	    archive_entry_dev(entry) == (dev_t)a->skip_file_dev &&
-	    archive_entry_ino64(entry) == a->skip_file_ino) {
-		archive_set_error(&a->archive, 0,
-		    "Can't add archive to itself");
+	if(a->skip_file_set && archive_entry_dev_is_set(entry) &&
+	    archive_entry_ino_is_set(entry) && archive_entry_dev(entry) == (dev_t)a->skip_file_dev && archive_entry_ino64(entry) == a->skip_file_ino) {
+		archive_set_error(&a->archive, 0, "Can't add archive to itself");
 		return ARCHIVE_FAILED;
 	}
-
 	/* Format and write header. */
 	r2 = ((a->format_write_header)(a, entry));
 	if(r2 == ARCHIVE_FAILED) {

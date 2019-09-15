@@ -385,15 +385,8 @@ void SbEncInStream_Construct(CSbEncInStream * p, ISzAllocPtr alloc)
 	p->vt.Read = SbEncInStream_Read;
 }
 
-SRes SbEncInStream_Init(CSbEncInStream * p)
-{
-	return SbEnc_Init(&p->enc);
-}
-
-void SbEncInStream_Free(CSbEncInStream * p)
-{
-	SbEnc_Free(&p->enc);
-}
+SRes SbEncInStream_Init(CSbEncInStream * p) { return SbEnc_Init(&p->enc); }
+void SbEncInStream_Free(CSbEncInStream * p) { SbEnc_Free(&p->enc); }
 
 #endif
 
@@ -1364,14 +1357,12 @@ static uint64 FASTCALL Xz_GetPackSize(const CXzStream * p)
 		ADD_SIZE_CHECH(size, (p->blocks[i].totalSize + 3) & ~(uint64)3);
 	return size;
 }
-
 /*
    SRes XzBlock_ReadFooter(CXzBlock *p, CXzStreamFlags f, ISeqInStream *inStream)
    {
    return SeqInStream_Read(inStream, p->check, XzFlags_GetCheckSize(f));
    }
  */
-
 static SRes Xz_ReadIndex2(CXzStream * p, const Byte * buf, size_t size, ISzAllocPtr alloc)
 {
 	size_t numBlocks, pos = 1;
@@ -1516,8 +1507,7 @@ void Xzs_Construct(CXzs * p)
 
 void Xzs_Free(CXzs * p, ISzAllocPtr alloc)
 {
-	size_t i;
-	for(i = 0; i < p->num; i++)
+	for(size_t i = 0; i < p->num; i++)
 		Xz_Free(&p->streams[i], alloc);
 	ISzAlloc_Free(alloc, p->streams);
 	p->num = p->numAllocated = 0;
@@ -1527,8 +1517,7 @@ void Xzs_Free(CXzs * p, ISzAllocPtr alloc)
 uint64 Xzs_GetNumBlocks(const CXzs * p)
 {
 	uint64 num = 0;
-	size_t i;
-	for(i = 0; i < p->num; i++)
+	for(size_t i = 0; i < p->num; i++)
 		num += p->streams[i].numBlocks;
 	return num;
 }
@@ -1536,8 +1525,7 @@ uint64 Xzs_GetNumBlocks(const CXzs * p)
 uint64 Xzs_GetUnpackSize(const CXzs * p)
 {
 	uint64 size = 0;
-	size_t i;
-	for(i = 0; i < p->num; i++)
+	for(size_t i = 0; i < p->num; i++)
 		ADD_SIZE_CHECH(size, Xz_GetUnpackSize(&p->streams[i]));
 	return size;
 }

@@ -766,10 +766,8 @@ int GenAccountDialog::getDTS(PPAccountPacket * pData)
 	getCtrlData(CTLSEL_ACCAGGR_ACCSHEET, &Data.Rec.AccSheetID);
 	GetClusterData(CTL_ACCAGGR_FLAGS, &Data.Rec.Flags);
 	AtObj.P_Tbl->SortGenAccList(&Data.GenList);
-	*pData = Data;
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ASSIGN_PTR(pData, Data);
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 //

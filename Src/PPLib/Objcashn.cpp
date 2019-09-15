@@ -1398,9 +1398,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			getCtrlString(sel = CTL_EXTDEV_DRVVER, temp_buf); // @v10.0.03
 			THROW(Data.DrvVerFromStr(temp_buf)); // @v10.0.03
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -1472,9 +1470,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 						Data.ClearCDYTimeout = getCtrlUInt16(CTL_CUSTDISP_TIMEOUT);
 					}
 					ASSIGN_PTR(pData, Data);
-					CATCH
-						ok = PPErrorByDialog(this, sel);
-					ENDCATCH
+					CATCHZOKPPERRBYDLG
 					return ok;
 				}
 			private:
@@ -1814,9 +1810,7 @@ int SyncCashNodeCfgDialog::getDTS(PPSyncCashNode * pData)
 		THROW(cn_obj.Validate(&Data, 0));
 	}
 	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	CATCHZOKPPERRBYDLG
 	return ok;
 }
 
@@ -1931,9 +1925,7 @@ int SLAPI PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 				THROW(cn_obj.Validate(&Data, 0));
 			}
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -1971,9 +1963,7 @@ int SLAPI PPObjCashNode::EditDistrib(PPGenCashNode * pData)
 				THROW(cn_obj.Validate(&Data, 0));
 			}
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -2757,9 +2747,7 @@ int EquipConfigDialog::EditExtParams()
 			const int prefix_len = sstrlen(Data.AgentPrefix);
 			THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, sel);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -2894,9 +2882,7 @@ int EquipConfigDialog::getDTS(PPEquipConfig * pData)
 	GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);
 	GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags);
 	ASSIGN_PTR(pData, Data);
-	/*CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH*/
+	//CATCHZOKPPERRBYDLG
 	return ok;
 }
 
