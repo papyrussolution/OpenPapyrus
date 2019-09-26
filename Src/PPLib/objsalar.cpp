@@ -10,12 +10,11 @@ SLAPI PPSalChargePacket::PPSalChargePacket()
 	MEMSZERO(Rec);
 }
 
-int SLAPI PPSalChargePacket::Init()
+void SLAPI PPSalChargePacket::Init()
 {
 	MEMSZERO(Rec);
 	Formula.Z();
 	GrpList.freeAll();
-	return 1;
 }
 
 static int SalChargeFilt(void * pRec, void * extraPtr)
@@ -348,22 +347,7 @@ int SLAPI PPObjSalCharge::SerializePacket(int dir, PPSalChargePacket * pPack, SB
 }
 
 int SLAPI PPObjSalCharge::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPSalChargePacket * p_pack = new PPSalChargePacket;
-	p->Data = p_pack;
-	THROW_MEM(p_pack);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjSalCharge, PPSalChargePacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjSalCharge::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
@@ -946,7 +930,7 @@ PPObjStaffCal::PPObjStaffCal(void * extraPtr) : PPObjReference(PPOBJ_STAFFCAL, e
 {
 	TLP_OPEN(P_ScT);
 	if(ExtraPtr)
-		CurrFilt = *(StaffCalFilt *)ExtraPtr;
+		CurrFilt = *static_cast<const StaffCalFilt *>(ExtraPtr);
 }
 
 PPObjStaffCal::~PPObjStaffCal()
@@ -983,22 +967,7 @@ int SLAPI PPObjStaffCal::SerializePacket(int dir, PPStaffCalPacket * pPack, SBuf
 }
 
 int SLAPI PPObjStaffCal::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPStaffCalPacket * p_pack = new PPStaffCalPacket;
-	THROW_MEM(p_pack);
-	p->Data = p_pack;
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjStaffCal, PPStaffCalPacket>(this, p, id, stream, pCtx); }
 
 int  SLAPI PPObjStaffCal::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {

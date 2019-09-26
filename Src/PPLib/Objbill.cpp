@@ -5052,7 +5052,7 @@ int FASTCALL PPObjProject::FetchConfig(PPProjectConfig * pCfg)
 		return p_cache->GetPrjConfig(pCfg, 0);
 	}
 	else {
-		pCfg->Clear();
+		pCfg->Z();
 		return 0;
 	}
 }
@@ -7056,7 +7056,7 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	PPID   id = 0;
 	SString wait_msg;
 	PPTransferItem * pti = 0;
-	PPAccTurn      * pat = 0;
+	PPAccTurn * pat = 0;
 	BillUserProfileCounter ufp_counter;
 	PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(pPack->Rec.OpID, PPACN_TURNBILL));
 	// @v9.4.3 {

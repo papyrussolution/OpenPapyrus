@@ -664,11 +664,11 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 	switch((conn->msg_type = msg_hdr.type)) {
 	    case REPMGR_HEARTBEAT:
 	    /*
-	     * The underlying byte-receiving mechanism will already have
-	     * noted the fact that we got some traffic on this connection,
-	     * which is all that is needed to monitor the heartbeat.  But
-	     * we also put the heartbeat message on the message queue so
-	     * that it will perform rerequest processing.
+	 * The underlying byte-receiving mechanism will already have
+	 * noted the fact that we got some traffic on this connection,
+	 * which is all that is needed to monitor the heartbeat.  But
+	 * we also put the heartbeat message on the message queue so
+	 * that it will perform rerequest processing.
 	     */
 	    case REPMGR_REP_MESSAGE:
 		env->rep_handle->seen_repmsg = TRUE;

@@ -68,7 +68,7 @@ struct mem_st {
 };
 
 static LHASH_OF(MEM) *mh = NULL; /* hash-table of memory requests (address as
-                                  * key); access requires MALLOC2 lock */
+  * key); access requires MALLOC2 lock */
 
 /* num_disable > 0 iff mh_mode == CRYPTO_MEM_CHECK_ON (w/o ..._ENABLE) */
 static uint num_disable = 0;
@@ -139,19 +139,19 @@ int CRYPTO_mem_ctrl(int mode)
 			    if(!num_disable
 			    || !CRYPTO_THREAD_compare_id(disabling_threadid, cur)) {
 				    /*
-				     * Long-time lock long_malloc_lock must not be claimed
-				     * while we're holding malloc_lock, or we'll deadlock
-				     * if somebody else holds long_malloc_lock (and cannot
-				     * release it because we block entry to this function). Give
-				     * them a chance, first, and then claim the locks in
-				     * appropriate order (long-time lock first).
+				 * Long-time lock long_malloc_lock must not be claimed
+				 * while we're holding malloc_lock, or we'll deadlock
+				 * if somebody else holds long_malloc_lock (and cannot
+				 * release it because we block entry to this function). Give
+				 * them a chance, first, and then claim the locks in
+				 * appropriate order (long-time lock first).
 				     */
 				    CRYPTO_THREAD_unlock(malloc_lock);
 				    /*
-				     * Note that after we have waited for long_malloc_lock and
-				     * malloc_lock, we'll still be in the right "case" and
-				     * "if" branch because MemCheck_start and MemCheck_stop may
-				     * never be used while there are multiple OpenSSL threads.
+				 * Note that after we have waited for long_malloc_lock and
+				 * malloc_lock, we'll still be in the right "case" and
+				 * "if" branch because MemCheck_start and MemCheck_stop may
+				 * never be used while there are multiple OpenSSL threads.
 				     */
 				    CRYPTO_THREAD_write_lock(long_malloc_lock);
 				    CRYPTO_THREAD_write_lock(malloc_lock);

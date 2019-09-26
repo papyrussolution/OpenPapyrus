@@ -578,7 +578,7 @@ static int padlock_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const u
 	switch(key_len) {
 		case 128:
 		    /*
-		     * PadLock can generate an extended key for AES128 in hardware
+		 * PadLock can generate an extended key for AES128 in hardware
 		     */
 		    memcpy(cdata->ks.rd_key, key, AES_KEY_SIZE_128);
 		    cdata->cword.b.keygen = 0;
@@ -587,12 +587,12 @@ static int padlock_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const u
 		case 192:
 		case 256:
 		    /*
-		     * Generate an extended AES key in software. Needed for AES192/AES256
+		 * Generate an extended AES key in software. Needed for AES192/AES256
 		     */
 		    /*
-		     * Well, the above applies to Stepping 8 CPUs and is listed as
-		     * hardware errata. They most likely will fix it at some point and
-		     * then a check for stepping would be due here.
+		 * Well, the above applies to Stepping 8 CPUs and is listed as
+		 * hardware errata. They most likely will fix it at some point and
+		 * then a check for stepping would be due here.
 		     */
 		    if((mode == EVP_CIPH_ECB_MODE || mode == EVP_CIPH_CBC_MODE)
 		    && !enc)
@@ -601,7 +601,7 @@ static int padlock_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const u
 			    AES_set_encrypt_key(key, key_len, &cdata->ks);
 #   ifndef AES_ASM
 		    /*
-		     * OpenSSL C functions use byte-swapped extended key.
+		 * OpenSSL C functions use byte-swapped extended key.
 		     */
 		    padlock_key_bswap(&cdata->ks);
 #   endif

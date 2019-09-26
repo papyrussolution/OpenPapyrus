@@ -111,9 +111,9 @@ typedef enum {
 #define SR_PARENT       0x00800         /* Lock page pair. */
 #define SR_STACK        0x01000         /* Need a complete stack. */
 #define SR_PAST_EOF     0x02000         /* If doing insert search (or keyfirst
-	                                 * or keylast operations), or a split
-	                                 * on behalf of an insert, it's okay to
-	                                 * return an entry one past end-of-page.
+	 * or keylast operations), or a split
+	 * on behalf of an insert, it's okay to
+	 * return an entry one past end-of-page.
 	                                 */
 #define SR_STK_ONLY     0x04000         /* Just return info in the stack */
 #define SR_MAX          0x08000         /* Get the right most key */

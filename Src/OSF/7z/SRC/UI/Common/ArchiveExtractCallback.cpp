@@ -625,7 +625,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 				return E_FAIL;
 			UString s;
 			CReparseAttr reparse;
-			isOkReparse = reparse.Parse((const Byte*)data, dataSize);
+			isOkReparse = reparse.Parse((const Byte *)data, dataSize);
 			if(isOkReparse) {
 				isHardLink = false;
 				// isCopyLink = false;
@@ -1283,7 +1283,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 			if(dataSize != 0) {
 				if(propType != NPropDataType::kRaw)
 					return E_FAIL;
-				if(CheckNtSecure((const Byte*)data, dataSize)) {
+				if(CheckNtSecure((const Byte *)data, dataSize)) {
 					SECURITY_INFORMATION securInfo = DACL_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION|OWNER_SECURITY_INFORMATION;
 					if(_saclEnabled)
 						securInfo |= SACL_SECURITY_INFORMATION;

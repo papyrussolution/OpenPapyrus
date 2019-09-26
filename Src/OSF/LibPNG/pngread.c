@@ -1770,7 +1770,7 @@ static int png_image_read_colormap(void * argument)
 			    step = 255 / (cmap_entries - 1);
 			    output_processing = PNG_CMAP_NONE;
 			    /* If there is a tRNS chunk then this either selects a transparent
-			     * value or, if the output has no alpha, the background color.
+			 * value or, if the output has no alpha, the background color.
 			     */
 			    if(png_ptr->num_trans > 0) {
 				    trans = png_ptr->trans_color.gray;
@@ -1780,28 +1780,28 @@ static int png_image_read_colormap(void * argument)
 			    }
 
 			    /* png_create_colormap_entry just takes an RGBA and writes the
-			     * corresponding color-map entry using the format from 'image',
-			     * including the required conversion to sRGB or linear as
-			     * appropriate.  The input values are always either sRGB (if the
-			     * gamma correction flag is 0) or 0..255 scaled file encoded values
-			     * (if the function must gamma correct them).
+			 * corresponding color-map entry using the format from 'image',
+			 * including the required conversion to sRGB or linear as
+			 * appropriate.  The input values are always either sRGB (if the
+			 * gamma correction flag is 0) or 0..255 scaled file encoded values
+			 * (if the function must gamma correct them).
 			     */
 			    for(i = val = 0; i<cmap_entries; ++i, val += step) {
 				    /* 'i' is a file value.  While this will result in duplicated
-				     * entries for 8-bit non-sRGB encoded files it is necessary to
-				     * have non-gamma corrected values to do tRNS handling.
+				 * entries for 8-bit non-sRGB encoded files it is necessary to
+				 * have non-gamma corrected values to do tRNS handling.
 				     */
 				    if(i != trans)
 					    png_create_colormap_entry(display, i, val, val, val, 255,
 					    P_FILE /*8-bit with file gamma*/);
 
 				    /* Else this entry is transparent.  The colors don't matter if
-				     * there is an alpha channel (back_alpha == 0), but it does no
-				     * harm to pass them in; the values are not set above so this
-				     * passes in white.
+				 * there is an alpha channel (back_alpha == 0), but it does no
+				 * harm to pass them in; the values are not set above so this
+				 * passes in white.
 				     *
-				     * NOTE: this preserves the full precision of the application
-				     * supplied background color when it is used.
+				 * NOTE: this preserves the full precision of the application
+				 * supplied background color when it is used.
 				     */
 				    else
 					    png_create_colormap_entry(display, i, back_r, back_g, back_b,
@@ -1812,9 +1812,9 @@ static int png_image_read_colormap(void * argument)
 			    data_encoding = P_FILE;
 
 			    /* The rows from libpng, while technically gray values, are now also
-			     * color-map indices; however, they may need to be expanded to 1
-			     * byte per pixel.  This is what png_set_packing does (i.e., it
-			     * unpacks the bit values into bytes.)
+			 * color-map indices; however, they may need to be expanded to 1
+			 * byte per pixel.  This is what png_set_packing does (i.e., it
+			 * unpacks the bit values into bytes.)
 			     */
 			    if(png_ptr->bit_depth < 8)
 				    png_set_packing(png_ptr);
@@ -1876,11 +1876,11 @@ static int png_image_read_colormap(void * argument)
 				    }
 
 				    /* output_processing means that the libpng-processed row will be
-				     * 8-bit GA and it has to be processing to single byte color-map
-				     * values.  Entry 254 is replaced by either a completely
-				     * transparent entry or by the background color at full
-				     * precision (and the background color is not a simple gray
-				     * level in this case.)
+				 * 8-bit GA and it has to be processing to single byte color-map
+				 * values.  Entry 254 is replaced by either a completely
+				 * transparent entry or by the background color at full
+				 * precision (and the background color is not a simple gray
+				 * level in this case.)
 				     */
 				    expand_tRNS = 1;
 				    output_processing = PNG_CMAP_TRANS;
@@ -1897,14 +1897,14 @@ static int png_image_read_colormap(void * argument)
 		    break;
 		case PNG_COLOR_TYPE_GRAY_ALPHA:
 		    /* 8-bit or 16-bit PNG with two channels - gray and alpha.  A minimum
-		     * of 65536 combinations.  If, however, the alpha channel is to be
-		     * removed there are only 256 possibilities if the background is gray.
-		     * (Otherwise there is a subset of the 65536 possibilities defined by
-		     * the triangle between black, white and the background color.)
+		 * of 65536 combinations.  If, however, the alpha channel is to be
+		 * removed there are only 256 possibilities if the background is gray.
+		 * (Otherwise there is a subset of the 65536 possibilities defined by
+		 * the triangle between black, white and the background color.)
 		     *
-		     * Reduce 16-bit files to 8-bit and sRGB encode the result.  No need to
-		     * worry about tRNS matching - tRNS is ignored if there is an alpha
-		     * channel.
+		 * Reduce 16-bit files to 8-bit and sRGB encode the result.  No need to
+		 * worry about tRNS matching - tRNS is ignored if there is an alpha
+		 * channel.
 		     */
 		    data_encoding = P_sRGB;
 
@@ -1952,7 +1952,7 @@ static int png_image_read_colormap(void * argument)
 				    }
 
 				    /* The background passed to libpng, however, must be the sRGB
-				     * value.
+				 * value.
 				     */
 				    c.index = 0; /*unused*/
 				    c.gray = c.red = c.green = c.blue = (png_uint_16)gray;
@@ -1968,7 +1968,7 @@ static int png_image_read_colormap(void * argument)
 				    uint32 i, a;
 
 				    /* This is the same as png_make_ga_colormap, above, except that
-				     * the entries are all opaque.
+				 * the entries are all opaque.
 				     */
 				    if(PNG_GA_COLORMAP_ENTRIES > image->colormap_entries)
 					    png_error(png_ptr, "ga-alpha color-map: too few entries");
@@ -1981,13 +1981,13 @@ static int png_image_read_colormap(void * argument)
 				    }
 
 				    /* NOTE: this preserves the full precision of the application
-				     * background color.
+				 * background color.
 				     */
 				    background_index = i;
 				    png_create_colormap_entry(display, i++, back_r, back_g, back_b,
 #ifdef __COVERITY__
 				    /* Coverity claims that output_encoding cannot be 2 (P_LINEAR)
-				     * here.
+				 * here.
 				     */255U,
 #else
 				    output_encoding == P_LINEAR ? 65535U : 255U,
@@ -1995,17 +1995,17 @@ static int png_image_read_colormap(void * argument)
 				    output_encoding);
 
 				    /* For non-opaque input composite on the sRGB background - this
-				     * requires inverting the encoding for each component.  The input
-				     * is still converted to the sRGB encoding because this is a
-				     * reasonable approximate to the logarithmic curve of human
-				     * visual sensitivity, at least over the narrow range which PNG
-				     * represents.  Consequently 'G' is always sRGB encoded, while
-				     * 'A' is linear.  We need the linear background colors.
+				 * requires inverting the encoding for each component.  The input
+				 * is still converted to the sRGB encoding because this is a
+				 * reasonable approximate to the logarithmic curve of human
+				 * visual sensitivity, at least over the narrow range which PNG
+				 * represents.  Consequently 'G' is always sRGB encoded, while
+				 * 'A' is linear.  We need the linear background colors.
 				     */
 				    if(output_encoding == P_sRGB) { /* else already linear */
 					    /* This may produce a value not exactly matching the
-					     * background, but that's ok because these numbers are only
-					     * used when alpha != 0
+					 * background, but that's ok because these numbers are only
+					 * used when alpha != 0
 					     */
 					    back_r = png_sRGB_table[back_r];
 					    back_g = png_sRGB_table[back_g];
@@ -2015,7 +2015,7 @@ static int png_image_read_colormap(void * argument)
 				    for(a = 1; a<5; ++a) {
 					    uint   g;
 					    /* PNG_sRGB_FROM_LINEAR expects a 16-bit linear value scaled
-					     * by an 8-bit alpha value (0..255).
+					 * by an 8-bit alpha value (0..255).
 					     */
 					    uint32 alpha = 51 * a;
 					    uint32 back_rx = (255-alpha) * back_r;
@@ -2042,22 +2042,22 @@ static int png_image_read_colormap(void * argument)
 		    // Exclude the case where the output is gray; we can always handle this with the cases above.
 		    if((output_format & PNG_FORMAT_FLAG_COLOR) == 0) {
 			    /* The color-map will be grayscale, so we may as well convert the
-			     * input RGB values to a simple grayscale and use the grayscale
-			     * code above.
+			 * input RGB values to a simple grayscale and use the grayscale
+			 * code above.
 			     *
-			     * NOTE: calling this apparently damages the recognition of the
-			     * transparent color in background color handling; call
-			     * png_set_tRNS_to_alpha before png_set_background_fixed.
+			 * NOTE: calling this apparently damages the recognition of the
+			 * transparent color in background color handling; call
+			 * png_set_tRNS_to_alpha before png_set_background_fixed.
 			     */
 			    png_set_rgb_to_gray_fixed(png_ptr, PNG_ERROR_ACTION_NONE, -1, -1);
 			    data_encoding = P_sRGB;
 			    /* The output will now be one or two 8-bit gray or gray+alpha
-			     * channels.  The more complex case arises when the input has alpha.
+			 * channels.  The more complex case arises when the input has alpha.
 			     */
 			    if((png_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_ptr->num_trans > 0) &&
 			    (output_format & PNG_FORMAT_FLAG_ALPHA) != 0) {
 				    /* Both input and output have an alpha channel, so no background
-				     * processing is required; just map the GA bytes to the right color-map entry.
+				 * processing is required; just map the GA bytes to the right color-map entry.
 				     */
 				    expand_tRNS = 1;
 				    if(PNG_GA_COLORMAP_ENTRIES > image->colormap_entries)
@@ -2068,19 +2068,19 @@ static int png_image_read_colormap(void * argument)
 			    }
 			    else {
 				    /* Either the input or the output has no alpha channel, so there
-				     * will be no non-opaque pixels in the color-map; it will just be
-				     * grayscale.
+				 * will be no non-opaque pixels in the color-map; it will just be
+				 * grayscale.
 				     */
 				    if(PNG_GRAY_COLORMAP_ENTRIES > image->colormap_entries)
 					    png_error(png_ptr, "rgb[gray] color-map: too few entries");
 
 				    /* Ideally this code would use libpng to do the gamma correction,
-				     * but if an input alpha channel is to be removed we will hit the
-				     * libpng bug in gamma+compose+rgb-to-gray (the double gamma
-				     * correction bug).  Fix this by dropping the gamma correction in
-				     * this case and doing it in the palette; this will result in
-				     * duplicate palette entries, but that's better than the
-				     * alternative of double gamma correction.
+				 * but if an input alpha channel is to be removed we will hit the
+				 * libpng bug in gamma+compose+rgb-to-gray (the double gamma
+				 * correction bug).  Fix this by dropping the gamma correction in
+				 * this case and doing it in the palette; this will result in
+				 * duplicate palette entries, but that's better than the
+				 * alternative of double gamma correction.
 				     */
 				    if((png_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_ptr->num_trans > 0) &&
 						png_gamma_not_sRGB(png_ptr->colorspace.gamma) != 0) {
@@ -2094,21 +2094,21 @@ static int png_image_read_colormap(void * argument)
 					    png_color_16 c;
 					    uint32 gray = back_g;
 					    /* We need to ensure that the application background exists in
-					     * the colormap and that completely transparent pixels map to
-					     * it.  Achieve this simply by ensuring that the entry
-					     * selected for the background really is the background color.
+					 * the colormap and that completely transparent pixels map to
+					 * it.  Achieve this simply by ensuring that the entry
+					 * selected for the background really is the background color.
 					     */
 					    if(data_encoding == P_FILE) { /* from the fixup above */
 						    /* The app supplied a gray which is in output_encoding, we
-						     * need to convert it to a value of the input (P_FILE)
-						     * encoding then set this palette entry to the required
-						     * output encoding.
+						 * need to convert it to a value of the input (P_FILE)
+						 * encoding then set this palette entry to the required
+						 * output encoding.
 						     */
 						    if(output_encoding == P_sRGB)
 							    gray = png_sRGB_table[gray];  /* now P_LINEAR */
 						    gray = PNG_DIV257(png_gamma_16bit_correct(gray, png_ptr->colorspace.gamma)); /* now P_FILE */
 						    /* And make sure the corresponding palette entry contains
-						     * exactly the required sRGB value.
+						 * exactly the required sRGB value.
 						     */
 						    png_create_colormap_entry(display, gray, back_g, back_g, back_g, 0 /*unused*/, output_encoding);
 					    }
@@ -2119,14 +2119,14 @@ static int png_image_read_colormap(void * argument)
 						    back_g, 0 /*unused*/, P_LINEAR);
 					    }
 					    /* The background passed to libpng, however, must be the
-					     * output (normally sRGB) value.
+					 * output (normally sRGB) value.
 					     */
 					    c.index = 0; /*unused*/
 					    c.gray = c.red = c.green = c.blue = (png_uint_16)gray;
 
 					    /* NOTE: the following is apparently a bug in libpng. Without
-					     * it the transparent color recognition in
-					     * png_set_background_fixed seems to go wrong.
+					 * it the transparent color recognition in
+					 * png_set_background_fixed seems to go wrong.
 					     */
 					    expand_tRNS = 1;
 					    png_set_background_fixed(png_ptr, &c, PNG_BACKGROUND_GAMMA_SCREEN, 0 /*need_expand*/, 0 /*gamma: not used*/);
@@ -2144,7 +2144,7 @@ static int png_image_read_colormap(void * argument)
 			    // Is there any transparency or alpha? 
 			    if(png_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_ptr->num_trans > 0) {
 				    /* Is there alpha in the output too?  If so all four channels are
-				     * processed into a special RGB cube with alpha support.
+				 * processed into a special RGB cube with alpha support.
 				     */
 				    if((output_format & PNG_FORMAT_FLAG_ALPHA) != 0) {
 					    uint32 r;
@@ -2170,11 +2170,11 @@ static int png_image_read_colormap(void * argument)
 				    }
 				    else {
 					    /* Alpha/transparency must be removed.  The background must
-					     * exist in the color map (achieved by setting adding it after
-					     * the 666 color-map).  If the standard processing code will
-					     * pick up this entry automatically that's all that is
-					     * required; libpng can be called to do the background
-					     * processing.
+					 * exist in the color map (achieved by setting adding it after
+					 * the 666 color-map).  If the standard processing code will
+					 * pick up this entry automatically that's all that is
+					 * required; libpng can be called to do the background
+					 * processing.
 					     */
 					    uint   sample_size = PNG_IMAGE_SAMPLE_SIZE(output_format);
 					    uint32 r, g, b; /* sRGB background */
@@ -2195,9 +2195,9 @@ static int png_image_read_colormap(void * argument)
 					    }
 
 					    /* Compare the newly-created color-map entry with the one the
-					     * PNG_CMAP_RGB algorithm will use.  If the two entries don't
-					     * match, add the new one and set this as the background
-					     * index.
+					 * PNG_CMAP_RGB algorithm will use.  If the two entries don't
+					 * match, add the new one and set this as the background
+					 * index.
 					     */
 					    if(memcmp((png_const_bytep)display->colormap +
 						    sample_size * cmap_entries,
@@ -2208,12 +2208,12 @@ static int png_image_read_colormap(void * argument)
 						    background_index = cmap_entries++;
 
 						    /* Add 27 r,g,b entries each with created by composing with
-						     * the background at alpha 0.5.
+						 * the background at alpha 0.5.
 						     */
 						    for(r = 0; r<256; r = (r << 1) | 0x7f) {
 							    for(g = 0; g<256; g = (g << 1) | 0x7f) {
 								    /* This generates components with the values 0, 127
-								     * and 255
+								 * and 255
 								     */
 								    for(b = 0; b<256; b = (b << 1) | 0x7f)
 									    png_create_colormap_entry(display, cmap_entries++,
@@ -2434,8 +2434,8 @@ static int png_image_read_and_map(void * argument)
 						    uint   alpha = *inrow++;
 						    uint   entry;
 						    /* NOTE: this code is copied as a comment in
-						     * make_ga_colormap above.  Please update the
-						     * comment if you change this code!
+						 * make_ga_colormap above.  Please update the
+						 * comment if you change this code!
 						     */
 						    if(alpha > 229) { /* opaque */
 							    entry = (231 * gray + 128) >> 8;
@@ -2478,7 +2478,7 @@ static int png_image_read_and_map(void * argument)
 					    for(; outrow < end_row; outrow += stepx) {
 						    uint   alpha = inrow[3];
 						    /* Because the alpha entries only hold alpha==0.5 values
-						     * split the processing at alpha==0.25 (64) and 0.75 (196).
+						 * split the processing at alpha==0.25 (64) and 0.75 (196).
 						     */
 						    if(alpha >= 196)
 							    *outrow = PNG_RGB_INDEX(inrow[0], inrow[1], inrow[2]);
@@ -2486,20 +2486,20 @@ static int png_image_read_and_map(void * argument)
 							    *outrow = PNG_CMAP_RGB_ALPHA_BACKGROUND;
 						    else {
 							    /* Likewise there are three entries for each of r, g
-							     * and b.  We could select the entry by popcount on
-							     * the top two bits on those architectures that
-							     * support it, this is what the code below does,
-							     * crudely.
+							 * and b.  We could select the entry by popcount on
+							 * the top two bits on those architectures that
+							 * support it, this is what the code below does,
+							 * crudely.
 							     */
 							    uint   back_i = PNG_CMAP_RGB_ALPHA_BACKGROUND+1;
 							    /* Here are how the values map:
 							     *
-							     * 0x00 .. 0x3f -> 0
-							     * 0x40 .. 0xbf -> 1
-							     * 0xc0 .. 0xff -> 2
+							 * 0x00 .. 0x3f -> 0
+							 * 0x40 .. 0xbf -> 1
+							 * 0xc0 .. 0xff -> 2
 							     *
-							     * So, as above with the explicit alpha checks, the
-							     * breakpoints are at 64 and 196.
+							 * So, as above with the explicit alpha checks, the
+							 * breakpoints are at 64 and 196.
 							     */
 							    if(inrow[0] & 0x80) back_i += 9;  /* red */
 							    if(inrow[0] & 0x40) back_i += 9;
@@ -2545,7 +2545,7 @@ static int png_image_read_colormapped(void * argument)
 	switch(display->colormap_processing) {
 		case PNG_CMAP_NONE:
 		    /* Output must be one channel and one byte per pixel, the output
-		     * encoding can be anything.
+		 * encoding can be anything.
 		     */
 		    if((info_ptr->color_type == PNG_COLOR_TYPE_PALETTE || info_ptr->color_type == PNG_COLOR_TYPE_GRAY) && info_ptr->bit_depth == 8)
 			    break;
@@ -2554,8 +2554,8 @@ static int png_image_read_colormapped(void * argument)
 		case PNG_CMAP_TRANS:
 		case PNG_CMAP_GA:
 		    /* Output must be two channels and the 'G' one must be sRGB, the latter
-		     * can be checked with an exact number because it should have been set
-		     * to this number above!
+		 * can be checked with an exact number because it should have been set
+		 * to this number above!
 		     */
 		    if(info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA && info_ptr->bit_depth == 8 &&
 				png_ptr->screen_gamma == PNG_GAMMA_sRGB && image->colormap_entries == 256)
@@ -2776,9 +2776,9 @@ static int png_image_read_background(void * argument)
 	switch(info_ptr->bit_depth) {
 		case 8:
 		    /* 8-bit sRGB gray values with an alpha channel; the alpha channel is
-		     * to be removed by composing on a background: either the row if
-		     * display->background is NULL or display->background->green if not.
-		     * Unlike the code above ALPHA_OPTIMIZED has *not* been done.
+		 * to be removed by composing on a background: either the row if
+		 * display->background is NULL or display->background->green if not.
+		 * Unlike the code above ALPHA_OPTIMIZED has *not* been done.
 		     */
 	    {
 		    png_bytep first_row = png_voidcast(png_bytep, display->first_row);
@@ -2823,8 +2823,8 @@ static int png_image_read_background(void * argument)
 
 							    if(alpha < 255) { /* else just use component */
 								    /* Since PNG_OPTIMIZED_ALPHA was not set it is
-								     * necessary to invert the sRGB transfer
-								     * function and multiply the alpha out.
+								 * necessary to invert the sRGB transfer
+								 * function and multiply the alpha out.
 								     */
 								    component = png_sRGB_table[component] * alpha;
 								    component += png_sRGB_table[outrow[0]] *
@@ -2874,8 +2874,8 @@ static int png_image_read_background(void * argument)
 	    break;
 		case 16:
 		    /* 16-bit linear with pre-multiplied alpha; the pre-multiplication must
-		     * still be done and, maybe, the alpha channel removed.  This code also
-		     * handles the alpha-first option.
+		 * still be done and, maybe, the alpha channel removed.  This code also
+		 * handles the alpha-first option.
 		     */
 	    {
 		    png_uint_16p first_row = png_voidcast(png_uint_16p, display->first_row);

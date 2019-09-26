@@ -53,7 +53,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions="/machine:I386 "
-				OutputFile="$(OutDir)\$(ProjectName)d.lib"
+				OutputFile="$(OutDir)/$(ProjectName).lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -186,7 +186,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions="/machine:I386 "
-				OutputFile="$(OutDir)\$(ProjectName).lib"
+				OutputFile="$(OutDir)/$(ProjectName).lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>

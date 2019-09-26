@@ -1760,7 +1760,7 @@ int PsnEventDialog::getDTS(PPPsnEventPacket * pPack)
 
 struct PsnEventItemPrintStruc {
 	PPPsnEventPacket * P_Pack;
-	PPObjTag         * P_ObjTag;
+	PPObjTag    * P_ObjTag;
 };
 
 int PsnEventDialog::GetReportID()
@@ -1885,21 +1885,7 @@ void SLAPI PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, cha
 IMPL_DESTROY_OBJ_PACK(PPObjPersonEvent, PPPsnEventPacket);
 
 int SLAPI PPObjPersonEvent::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPPsnEventPacket);
-	PPPsnEventPacket * p_pack = static_cast<PPPsnEventPacket *>(p->Data);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjPersonEvent, PPPsnEventPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjPersonEvent::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

@@ -791,7 +791,7 @@ size_t SSL_get_peer_finished(const SSL *s, void *buf, size_t count);
 
 DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
 #define SSL_AD_REASON_OFFSET            1000/* offset to get SSL_R_... value
-                                              * from SSL_AD_... */
+    * from SSL_AD_... */
 /* These alert types are for SSLv3 and TLSv1 */
 #define SSL_AD_CLOSE_NOTIFY             SSL3_AD_CLOSE_NOTIFY
 /* fatal */
@@ -846,7 +846,7 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
 #define SSL_ERROR_WANT_WRITE            3
 #define SSL_ERROR_WANT_X509_LOOKUP      4
 #define SSL_ERROR_SYSCALL               5/* look at error stack/return
-                                           * value/errno */
+ * value/errno */
 #define SSL_ERROR_ZERO_RETURN           6
 #define SSL_ERROR_WANT_CONNECT          7
 #define SSL_ERROR_WANT_ACCEPT           8

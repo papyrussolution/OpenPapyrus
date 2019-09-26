@@ -388,8 +388,8 @@ typedef unsigned long long  ulonglong;
 typedef char                BCD4[4];
 typedef char                BCD8[8];
 typedef char                BCD10[10];
-typedef char              * BCD_T;
-// @v9.8.9 typedef char              * Pchar;
+typedef char   * BCD_T;
+// @v9.8.9 typedef char   * Pchar;
 typedef uint16              RECORDSIZE;
 typedef unsigned long       RECORDNUMBER;
 typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
@@ -4352,9 +4352,9 @@ FORCEINLINE int FASTCALL sstrleni(const char * pStr) { return static_cast<int>(s
 FORCEINLINE int FASTCALL sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
 const char * FASTCALL sstrchr(const char * pStr, char c);
-char       * FASTCALL sstrchr(char * pStr, char c);
+char  * FASTCALL sstrchr(char * pStr, char c);
 const wchar_t * FASTCALL sstrchr(const wchar_t * pStr, wchar_t c);
-wchar_t       * FASTCALL sstrchr(wchar_t * pStr, wchar_t c);
+wchar_t  * FASTCALL sstrchr(wchar_t * pStr, wchar_t c);
 char  * FASTCALL sstrdup(const char * pStr);
 uchar * FASTCALL sstrdup(const uchar * pStr);
 //
@@ -5588,6 +5588,7 @@ public:
 	class State {
 	public:
 		friend class SlHash;
+		friend struct ngx_sha1_t__; // @debug
 
 		SLAPI  State();
 		SLAPI ~State();
@@ -5597,18 +5598,34 @@ public:
 		uint32 GetResult32() const { return Result.R32; }
 		uint64 GetResult64() const { return Result.R64; }
 	private:
-		union R {
-			R() : R64(0)
+		struct ShaCtx {
+			ShaCtx & Z()
 			{
+				THISZERO();
+				return *this;
+			}
+			uint32 H[8];
+			uint64 Count;
+			uint32 Data[16];
+			uint   Num;
+			uint   MdLen;
+		};
+		union R {
+			R()
+			{
+				THISZERO();
 			}
 			uint8  R8;
 			uint16 R16;
 			uint32 R32;
 			uint64 R64;
+			ShaCtx Sha;
 		} Result;
 		enum {
 			fEmpty = 0x0001
 		};
+		//#define SHA256_CBLOCK   (SHA_LBLOCK*4) // SHA-256 treats input data as a contiguous array of 32 bit wide big-endian values.
+
 		uint32 Flags;
 		static uint8  * P_Tab_Crc8;
 		static uint16 * P_Tab_Crc16;
@@ -5620,7 +5637,10 @@ public:
 	static uint32 FASTCALL CRC24(State * pS, const void * pData, size_t len);
 	static uint32 FASTCALL CRC32(State * pS, const void * pData, size_t len);
 	static uint32 FASTCALL Adler32(State * pS, const void * pData, size_t len);
+	static int    FASTCALL Sha1(State * pS, const void * pData, size_t len, void * pResult, size_t resultBufLen);
+	static int    FASTCALL Sha256(State * pS, const void * pData, size_t len, void * pResult, size_t resultBufLen);
 private:
+	static const  uchar * Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size);
 };
 //
 // Descr: Алгоритмы расчета контрольной цифры
@@ -7299,13 +7319,13 @@ public:
 	SLAPI  StrStrAssocArray(const StrStrAssocArray & rS);
 	StrStrAssocArray & FASTCALL operator = (const StrStrAssocArray &);
 	int    FASTCALL Copy(const StrStrAssocArray &);
+	StrStrAssocArray & SLAPI Z();
 	int    FASTCALL IsEqual(const StrStrAssocArray & src) const;
 	uint   SLAPI getCount() const;
 	Item   FASTCALL at(uint pos) const;
 	int    SLAPI Search(const char * pKey, SString * pVal, uint * pPos) const;
 	int    SLAPI Add(const char * pKey, const char * pVal, int replaceDup = 1);
 	int    SLAPI Remove(const char * pKey);
-	StrStrAssocArray & SLAPI Clear();
 protected:
 	LAssocArray L;
 };
@@ -7957,7 +7977,7 @@ public:
 	};
 	STree(uint itemSize, uint o = O_ARRAY);
 	~STree();
-	STree & Clear();
+	STree & Z();
 	int    Insert(const void * pData, uint32 parentP, uint32 * pSvcPos);
 	int    InsertBefore(const void * pData, uint32 prevP, uint32 * pSvcPos);
 	int    UpdateNodeParent(uint32 nodeP, uint32 parentP);
@@ -9390,7 +9410,7 @@ public:
 //         [ ]  Match any one character inside the brackets
 //         [^ ] Match any character NOT inside the brackets
 //         -    Match any character in range on either side of dash
-//         *  Match preceding pattern zero or more times
+//    *  Match preceding pattern zero or more times
 //         +    Match preceding pattern one or more times
 //         ?    Match preceding pattern zero or once only
 //         ()   Save a matched expression and use it in a further match.
@@ -14094,7 +14114,7 @@ private:
 struct UsbDevDescrSt {
 	UsbDevDescrSt();
 	UsbDevDescrSt(const UsbDevDescrSt & rSrc);
-	UsbDevDescrSt & Clear();
+	UsbDevDescrSt & Z();
 
 	S_GUID ClassGUID;
 	SString Path;
@@ -14112,7 +14132,7 @@ struct UsbDevDescrSt {
 struct UsbBasicDescrSt {
 	UsbBasicDescrSt();
 	UsbBasicDescrSt(const UsbBasicDescrSt & rSrc);
-	UsbBasicDescrSt & Clear();
+	UsbBasicDescrSt & Z();
 	int    operator == (const UsbBasicDescrSt & s) const;
 
 	SUsbDevice * P_Parent; // @notowned

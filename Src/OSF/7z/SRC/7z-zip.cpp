@@ -519,7 +519,7 @@ STDMETHODIMP COutMemStream::Write(const void * data, uint32 size, uint32 * proce
 			memcpy(p, data, curSize);
 			if(processedSize != 0)
 				*processedSize += (uint32)curSize;
-			data = (const void *)((const Byte*)data + curSize);
+			data = (const void *)((const Byte *)data + curSize);
 			size -= (uint32)curSize;
 			_curBlockPos += curSize;
 			uint64 pos64 = GetPos();
@@ -1324,7 +1324,7 @@ namespace NArchive {
 			if(sb.ID != NFileHeader::NExtraID::kStrongEncrypt)
 				return false;
 			else {
-				const Byte * p = (const Byte*)sb.Data;
+				const Byte * p = (const Byte *)sb.Data;
 				if(sb.Data.Size() < 8)
 					return false;
 				else {
@@ -1429,7 +1429,7 @@ namespace NArchive {
 			uint32 size = (uint32)Data.Size();
 			if(ID != NExtraID::kNTFS || size < 32)
 				return false;
-			const Byte * p = (const Byte*)Data;
+			const Byte * p = (const Byte *)Data;
 			p += 4; // for reserved
 			size -= 4;
 			while(size > 4) {
@@ -1458,7 +1458,7 @@ namespace NArchive {
 			uint32 size = (uint32)Data.Size();
 			if(ID != NExtraID::kUnixTime || size < 5)
 				return false;
-			const Byte * p = (const Byte*)Data;
+			const Byte * p = (const Byte *)Data;
 			Byte flags = *p++;
 			size--;
 			if(isCentral) {
@@ -1490,7 +1490,7 @@ namespace NArchive {
 			unsigned offset = index * 4;
 			if(ID != NExtraID::kUnixExtra || size < offset + 4)
 				return false;
-			const Byte * p = (const Byte*)Data + offset;
+			const Byte * p = (const Byte *)Data + offset;
 			res = GetUi32(p);
 			return true;
 		}
@@ -1817,14 +1817,14 @@ namespace NArchive {
 						if(!_cryptoStreamSpec->Filter) {
 							_cryptoStreamSpec->Filter = _filterAesSpec = new NCrypto::NWzAes::CEncoder;
 							_filterAesSpec->SetKeyMode(_options.AesKeyMode);
-							RINOK(_filterAesSpec->CryptoSetPassword((const Byte*)(const char *)_options.Password, _options.Password.Len()));
+							RINOK(_filterAesSpec->CryptoSetPassword((const Byte *)(const char *)_options.Password, _options.Password.Len()));
 						}
 						RINOK(_filterAesSpec->WriteHeader(outStream));
 					}
 					else {
 						if(!_cryptoStreamSpec->Filter) {
 							_cryptoStreamSpec->Filter = _filterSpec = new NCrypto::NZip::CEncoder;
-							_filterSpec->CryptoSetPassword((const Byte*)(const char *)_options.Password, _options.Password.Len());
+							_filterSpec->CryptoSetPassword((const Byte *)(const char *)_options.Password, _options.Password.Len());
 						}
 						uint32 check;
 						if(inStream2) {
@@ -2155,7 +2155,7 @@ namespace NArchive {
 					if(avail) {
 						uint   cur = size;
 						SETMIN(cur, (uint)avail);
-						memcpy(data, (const Byte*)Buffer + _bufPos, cur);
+						memcpy(data, (const Byte *)Buffer + _bufPos, cur);
 						data += cur;
 						size -= cur;
 						processed += cur;
@@ -4806,7 +4806,7 @@ namespace NArchive {
 			const uint16 commentSize = static_cast<uint16>(comment ? comment->Size() : 0);
 			Write16((uint16)commentSize);
 			if(commentSize != 0)
-				WriteBytes((const Byte*)*comment, commentSize);
+				WriteBytes((const Byte *)*comment, commentSize);
 			m_OutBuffer.FlushWithCheck();
 		}
 
@@ -4924,7 +4924,7 @@ namespace NArchive {
 		static AString BytesToString(const CByteBuffer & data)
 		{
 			AString s;
-			s.SetFrom_CalcLen((const char *)(const Byte*)data, (uint)data.Size());
+			s.SetFrom_CalcLen((const char *)(const Byte *)data, (uint)data.Size());
 			return s;
 		}
 
@@ -5485,7 +5485,7 @@ namespace NArchive {
 						   }
 						 */
 					}
-					HRESULT result = cryptoSetPassword->CryptoSetPassword((const Byte*)(const char *)charPassword, charPassword.Len());
+					HRESULT result = cryptoSetPassword->CryptoSetPassword((const Byte *)(const char *)charPassword, charPassword.Len());
 					if(result != S_OK) {
 						res = NExtractArc::NOperationResult::kWrongPassword;
 						return S_OK;
@@ -5995,7 +5995,7 @@ namespace NArchive {
 							}
 							if(a.Len() >= (1 << 16))
 								return E_INVALIDARG;
-							ui.Comment.CopyFrom((const Byte*)(const char *)a, a.Len());
+							ui.Comment.CopyFrom((const Byte *)(const char *)a, a.Len());
 						}
 					}
 

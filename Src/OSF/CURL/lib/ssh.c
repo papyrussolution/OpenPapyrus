@@ -628,9 +628,9 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			/* fall-through */
 			case SSH_HOSTKEY:
 			    /*
-			     * Before we authenticate we should check the hostkey's fingerprint
-			     * against our known hosts. How that is handled (reading from file,
-			     * whatever) is up to us.
+			 * Before we authenticate we should check the hostkey's fingerprint
+			 * against our known hosts. How that is handled (reading from file,
+			 * whatever) is up to us.
 			     */
 			    result = ssh_check_fingerprint(conn);
 			    if(!result)
@@ -640,14 +640,14 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			case SSH_AUTHLIST:
 			    /*
-			     * Figure out authentication methods
-			     * NB: As soon as we have provided a username to an openssh server we
-			     * must never change it later. Thus, always specify the correct username
-			     * here, even though the libssh2 docs kind of indicate that it should be
-			     * possible to get a 'generic' list (not user-specific) of authentication
-			     * methods, presumably with a blank username. That won't work in my
-			     * experience.
-			     * So always specify it here.
+			 * Figure out authentication methods
+			 * NB: As soon as we have provided a username to an openssh server we
+			 * must never change it later. Thus, always specify the correct username
+			 * here, even though the libssh2 docs kind of indicate that it should be
+			 * possible to get a 'generic' list (not user-specific) of authentication
+			 * methods, presumably with a blank username. That won't work in my
+			 * experience.
+			 * So always specify it here.
 			     */
 			    sshc->authlist = libssh2_userauth_list(sshc->ssh_session,
 			    conn->user,
@@ -677,8 +677,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			case SSH_AUTH_PKEY_INIT:
 			    /*
-			     * Check the supported auth types in the order I feel is most secure
-			     * with the requested type of authentication
+			 * Check the supported auth types in the order I feel is most secure
+			 * with the requested type of authentication
 			     */
 			    sshc->authed = FALSE;
 			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) && (strstr(sshc->authlist, "publickey") != NULL)) {
@@ -716,7 +716,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 							    if(sshc->rsa && _access(sshc->rsa, R_OK) != 0) {
 								    ZFREE(sshc->rsa);
 								    /* Out of guesses. Set to the empty string to avoid
-								     * surprising info messages. */
+								 * surprising info messages. */
 								    sshc->rsa = _strdup("");
 							    }
 						    }
@@ -724,9 +724,9 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 
 				    /*
-				     * Unless the user explicitly specifies a public key file, let
-				     * libssh2 extract the public key from the private key file.
-				     * This is done by simply passing sshc->rsa_pub = NULL.
+				 * Unless the user explicitly specifies a public key file, let
+				 * libssh2 extract the public key from the private key file.
+				 * This is done by simply passing sshc->rsa_pub = NULL.
 				     */
 				    if(data->set.str[STRING_SSH_PUBLIC_KEY]
 				    /* treat empty string the same way as NULL */
@@ -962,7 +962,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 
 			    /*
-			     * At this point we have an authenticated ssh session.
+			 * At this point we have an authenticated ssh session.
 			     */
 			    infof(data, "Authentication complete\n");
 
@@ -981,7 +981,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			case SSH_SFTP_INIT:
 			    /*
-			     * Start the libssh2 sftp session
+			 * Start the libssh2 sftp session
 			     */
 			    sshc->sftp_session = libssh2_sftp_init(sshc->ssh_session);
 			    if(!sshc->sftp_session) {
@@ -1006,7 +1006,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 		    {
 			    char tempHome[PATH_MAX];
 			    /*
-			     * Get the "home" directory
+			 * Get the "home" directory
 			     */
 			    rc = sftp_libssh2_realpath(sshc->sftp_session, ".", tempHome, PATH_MAX-1);
 			    if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -1075,7 +1075,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 		    {
 			    const char * cp;
 			    /*
-			     * Support some of the "FTP" commands
+			 * Support some of the "FTP" commands
 			     */
 			    char * cmd = sshc->quote_item->data;
 			    sshc->acceptfail = FALSE;
@@ -1116,8 +1116,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(cmd) {
 				    /*
-				     * the arguments following the command must be separated from the
-				     * command with a space so we can check for it unconditionally
+				 * the arguments following the command must be separated from the
+				 * command with a space so we can check for it unconditionally
 				     */
 				    cp = sstrchr(cmd, ' ');
 				    if(cp == NULL) {
@@ -1129,8 +1129,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 
 				    /*
-				     * also, every command takes at least one argument so we get that
-				     * first argument right now
+				 * also, every command takes at least one argument so we get that
+				 * first argument right now
 				     */
 				    result = get_pathname(&cp, &sshc->quote_path1);
 				    if(result) {
@@ -1145,10 +1145,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 
 				    /*
-				     * SFTP is a binary protocol, so we don't send text commands
-				     * to the server. Instead, we scan for commands used by
-				     * OpenSSH's sftp program and call the appropriate libssh2
-				     * functions.
+				 * SFTP is a binary protocol, so we don't send text commands
+				 * to the server. Instead, we scan for commands used by
+				 * OpenSSH's sftp program and call the appropriate libssh2
+				 * functions.
 				     */
 				    if(strncasecompare(cmd, "chgrp ", 6) ||
 					    strncasecompare(cmd, "chmod ", 6) ||
@@ -1284,8 +1284,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			    if(!strncasecompare(cmd, "chmod", 5)) {
 				    /* Since chown and chgrp only set owner OR group but libssh2 wants to
-				     * set them both at once, we need to obtain the current ownership
-				     * first.  This takes an extra protocol round trip.
+				 * set them both at once, we need to obtain the current ownership
+				 * first.  This takes an extra protocol round trip.
 				     */
 				    rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshc->quote_path2,
 					    curlx_uztoui(sstrlen(sshc->quote_path2)),
@@ -1579,10 +1579,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 		    {
 			    ulong flags;
 			    /*
-			     * NOTE!!!  libssh2 requires that the destination path is a full path
-			     *     that includes the destination file and name OR ends in a "/"
-			     *     If this is not done the destination file will be named the
-			     *     same name as the last directory in the path.
+			 * NOTE!!!  libssh2 requires that the destination path is a full path
+			 *     that includes the destination file and name OR ends in a "/"
+			 *     If this is not done the destination file will be named the
+			 *     same name as the last directory in the path.
 			     */
 
 			    if(data->state.resume_from != 0) {
@@ -1785,9 +1785,9 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    ++sshc->slash_pos;
 			    if(rc < 0) {
 				    /*
-				     * Abort if failure wasn't that the dir already exists or the
-				     * permission was denied (creation might succeed further down the
-				     * path) - retry on unspecific FAILURE also
+				 * Abort if failure wasn't that the dir already exists or the
+				 * permission was denied (creation might succeed further down the
+				 * path) - retry on unspecific FAILURE also
 				     */
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
 				    if((err != LIBSSH2_FX_FILE_ALREADY_EXISTS) &&
@@ -1811,8 +1811,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 
 			    /*
-			     * This is a directory that we are trying to get, so produce a directory
-			     * listing
+			 * This is a directory that we are trying to get, so produce a directory
+			 * listing
 			     */
 			    sshc->sftp_handle = libssh2_sftp_open_ex(sshc->sftp_session,
 			    sftp_scp->path,
@@ -1992,7 +1992,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 			case SSH_SFTP_DOWNLOAD_INIT:
 			    /*
-			     * Work on getting the specified file
+			 * Work on getting the specified file
 			     */
 			    sshc->sftp_handle = libssh2_sftp_open_ex(sshc->sftp_session, sftp_scp->path, curlx_uztoui(sstrlen(sftp_scp->path)),
 					LIBSSH2_FXF_READ, data->set.new_file_perms, LIBSSH2_SFTP_OPENFILE);
@@ -2020,10 +2020,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(rc || !(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) || (attrs.filesize == 0)) {
 				    /*
-				     * libssh2_sftp_open() didn't return an error, so maybe the server
-				     * just doesn't support stat()
-				     * OR the server doesn't return a file size with a stat()
-				     * OR file size is 0
+				 * libssh2_sftp_open() didn't return an error, so maybe the server
+				 * just doesn't support stat()
+				 * OR the server doesn't return a file size with a stat()
+				 * OR file size is 0
 				     */
 				    data->req.size = -1;
 				    data->req.maxdownload = -1;
@@ -2204,10 +2204,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			case SSH_SCP_UPLOAD_INIT:
 			    /*
-			     * libssh2 requires that the destination path is a full path that
-			     * includes the destination file and name OR ends in a "/" .  If this is
-			     * not done the destination file will be named the same name as the last
-			     * directory in the path.
+			 * libssh2 requires that the destination path is a full path that
+			 * includes the destination file and name OR ends in a "/" .  If this is
+			 * not done the destination file will be named the same name as the last
+			 * directory in the path.
 			     */
 			    sshc->ssh_channel =
 			    SCP_SEND(sshc->ssh_session, sftp_scp->path, data->set.new_file_perms,
@@ -2252,12 +2252,12 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    curl_off_t bytecount;
 
 			    /*
-			     * We must check the remote file; if it is a directory no values will
-			     * be set in sb
+			 * We must check the remote file; if it is a directory no values will
+			 * be set in sb
 			     */
 
 			    /*
-			     * If support for >2GB files exists, use it.
+			 * If support for >2GB files exists, use it.
 			     */
 
 			    /* get a fresh new channel from the ssh layer */

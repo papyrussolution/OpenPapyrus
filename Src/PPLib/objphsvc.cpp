@@ -516,7 +516,7 @@ PhnSvcChannelStatus::PhnSvcChannelStatus() : State(stUndef), Flags(0), Priority(
 {
 }
 
-PhnSvcChannelStatus & PhnSvcChannelStatus::Clear()
+PhnSvcChannelStatus & PhnSvcChannelStatus::Z()
 {
 	State = stUndef;
 	Flags = 0;
@@ -548,7 +548,7 @@ PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SVector(sizeof(Item_)), SSt
 {
 }
 
-PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Clear()
+PhnSvcChannelStatusPool & SLAPI PhnSvcChannelStatusPool::Z()
 {
 	ClearS();
 	SVector::clear(); // @v9.8.11 SArray-->SVector
@@ -560,7 +560,7 @@ uint PhnSvcChannelStatusPool::GetCount() const { return getCount(); }
 int SLAPI PhnSvcChannelStatusPool::GetByChannel(const char * pChannel, PhnSvcChannelStatus & rStatus) const
 {
 	int    ok = -1;
-	rStatus.Clear();
+	rStatus.Z();
 	if(!isempty(pChannel)) {
 		SString temp_buf;
 		for(uint i = 0; ok < 0 && i < getCount(); i++) {
@@ -577,7 +577,7 @@ int SLAPI PhnSvcChannelStatusPool::GetByChannel(const char * pChannel, PhnSvcCha
 
 int SLAPI PhnSvcChannelStatusPool::GetListWithSameBridge(const char * pBridgeId, int excludePos, PhnSvcChannelStatusPool & rList) const
 {
-	rList.Clear();
+	rList.Z();
 	int    ok = -1;
 	if(!isempty(pBridgeId)) {
 		SString temp_buf;
@@ -632,7 +632,7 @@ int FASTCALL PhnSvcChannelStatusPool::Add(const PhnSvcChannelStatus & rStatus)
 int FASTCALL PhnSvcChannelStatusPool::Get(uint idx, PhnSvcChannelStatus & rStatus) const
 {
 	int    ok = 1;
-	rStatus.Clear();
+	rStatus.Z();
 	if(idx < getCount()) {
 		const Item_ & r_item = *static_cast<const Item_ *>(at(idx));
 		rStatus.State = r_item.State;
@@ -729,7 +729,7 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 	Message msg, reply;
 	Message::ReplyStatus rs;
 	SString temp_buf, key_buf, val_buf;
-	rList.Clear();
+	rList.Z();
 	THROW_PP(State & stLoggedOn, PPERR_PHNSVC_NOTAUTH);
 	msg.AddAction("CoreShowChannels");
 	const int64 action_id = ++LastActionId; // @v9.9.9
@@ -738,11 +738,11 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
 	if(rs.EventListFlag == 0) {
 		do {
-			THROW(ReadReply(reply.Clear()));
+			THROW(ReadReply(reply.Z()));
 			THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
 			if(reply.GetTag("Event", temp_buf)) {
 				if(temp_buf.IsEqiAscii("CoreShowChannel")) {
-					cnl_status.Clear();
+					cnl_status.Z();
 					int    do_insert = 0;
 					for(uint p = 0; reply.get(&p, temp_buf);) {
 						temp_buf.Divide(':', key_buf, val_buf);
@@ -826,7 +826,7 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 int AsteriskAmiClient::GetChannelListLinkedByBridge(const char * pChannel, PhnSvcChannelStatusPool & rList)
 {
 	int    ok = -1;
-	rList.Clear();
+	rList.Z();
 	if(!isempty(pChannel)) {
 		PhnSvcChannelStatusPool temp_pool;
 		THROW(GetChannelStatus(0, temp_pool));
@@ -848,7 +848,7 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 	Message::ReplyStatus rs;
 	SString temp_buf;
 	SString key_buf, val_buf;
-	rList.Clear();
+	rList.Z();
 	THROW_PP(State & stLoggedOn, PPERR_PHNSVC_NOTAUTH);
 	msg.AddAction("Status");
 	const int64 action_id = ++LastActionId; // @v9.9.9
@@ -858,11 +858,11 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 	THROW(ExecCommand(msg, &reply));
 	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
 	do {
-		THROW(ReadReply(reply.Clear()));
+		THROW(ReadReply(reply.Z()));
 		THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
 		if(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("Status")) {
 			if(!reply.GetTag("ActionID", temp_buf) || temp_buf.ToInt64() == action_id) { // @v9.9.9
-				cnl_status.Clear();
+				cnl_status.Z();
 				int    do_insert = 0;
 				for(uint p = 0; reply.get(&p, temp_buf);) {
 					temp_buf.Divide(':', key_buf, val_buf);
@@ -954,7 +954,7 @@ AsteriskAmiClient::Message::Message(const char * pReply) : StringSet()
 	ParseReply(pReply);
 }
 
-AsteriskAmiClient::Message & AsteriskAmiClient::Message::Clear()
+AsteriskAmiClient::Message & AsteriskAmiClient::Message::Z()
 {
 	StringSet::clear();
 	return *this;
@@ -1007,7 +1007,7 @@ int AsteriskAmiClient::Message::Get(uint * pPos, SString & rTag, SString & rValu
 int AsteriskAmiClient::Message::Parse(StrStrAssocArray & rTags) const
 {
 	int    ok = 0;
-	rTags.Clear();
+	rTags.Z();
 	SString temp_buf, tag, value;
 	for(uint p = 0; !ok && get(&p, temp_buf);) {
 		if(temp_buf.Divide(':', tag, value) > 0) {

@@ -276,7 +276,7 @@ size_t FASTCALL SBuffer::ReadLine(SString & rBuf)
 
 	size_t sz = 0;
 	const size_t avl_size = GetAvailableSize();
-	const char * p_buf = ((char *)P_Buf) + RdOffs;
+	const char * p_buf = static_cast<const char *>(P_Buf) + RdOffs;
 	while(sz < avl_size) {
 		const char c = p_buf[sz];
 		if(c) {
@@ -612,7 +612,7 @@ void SLAPI SBaseBuffer::Zero()
 
 void SLAPI SBaseBuffer::Set(void * pBuf, size_t size)
 {
-	P_Buf = (char *)pBuf;
+	P_Buf = static_cast<char *>(pBuf);
 	Size = size;
 }
 

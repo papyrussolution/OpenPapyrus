@@ -457,7 +457,7 @@ namespace NCrypto {
 			if(size == 0)
 				return;
 			if(pos != AES_BLOCK_SIZE) {
-				const Byte * buf = (const Byte*)buf32;
+				const Byte * buf = (const Byte *)buf32;
 				do {
 					*data++ ^= buf[pos++];
 				} while(--size != 0 && pos != AES_BLOCK_SIZE);
@@ -475,7 +475,7 @@ namespace NCrypto {
 				for(uint j = 0; j < 4; j++)
 					buf32[j] = 0;
 				g_AesCtr_Code(buf32 + 4, (Byte *)buf32, 1);
-				buf = (const Byte*)buf32;
+				buf = (const Byte *)buf32;
 				pos = 0;
 				do {
 					*data++ ^= buf[pos++];

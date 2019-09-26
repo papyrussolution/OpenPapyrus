@@ -63,7 +63,7 @@ void FASTCALL InetAddr::Copy(const InetAddr & rS)
 	Port = rS.Port;
 }
 
-InetAddr & SLAPI InetAddr::Clear()
+InetAddr & SLAPI InetAddr::Z()
 {
 	V4 = 0;
 	HostName.Z();
@@ -859,7 +859,7 @@ int FASTCALL InetUrl::ValidateComponent(int c)
 
 InetUrl::InetUrl(const char * pUrl) : InetAddr()
 {
-	Clear();
+	Z();
 	Parse(pUrl);
 }
 
@@ -886,9 +886,9 @@ void FASTCALL InetUrl::Copy(const InetUrl & rS)
 int InetUrl::Valid() const { return BIN(!(State & stError)); }
 int InetUrl::IsEmpty() const { return BIN(State & stEmpty); }
 
-InetUrl & InetUrl::Clear()
+InetUrl & InetUrl::Z()
 {
-	InetAddr::Clear();
+	InetAddr::Z();
 	State = stEmpty;
 	TermList.Z();
 	Org.Z();
@@ -964,7 +964,7 @@ int InetUrl::Parse(const char * pUrl)
 
 	int    ok = 1;
 	SString _url = pUrl;
-	Clear();
+	Z();
 	_url.Strip();
 	while(oneof2(_url.C(0), ' ', '\t'))
 		_url.ShiftLeft();
@@ -2672,7 +2672,7 @@ SProxiAuthParam::Entry::Entry() : Protocol(0), Mode(0), Flags(0)
 {
 }
 
-SProxiAuthParam & SProxiAuthParam::Clear()
+SProxiAuthParam & SProxiAuthParam::Z()
 {
 	Ver = 1;
 	List.freeAll();
@@ -2721,8 +2721,7 @@ int SProxiAuthParam::FromStr(long fmt, const char * pStr)
 	THROW(temp_buf == "SPAP");
 	THROW(ss.get(&ssp, temp_buf));
 	THROW(temp_buf.ToLong() == 1);
-
-	Clear();
+	Z();
 	while(ss.get(&ssp, temp_buf)) {
 		Entry * p_entry = new Entry;
 		THROW(p_entry);

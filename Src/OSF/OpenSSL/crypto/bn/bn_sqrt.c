@@ -237,7 +237,7 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 	 *
 	 * and it satisfies
 	 *
-	 *   X^2 = a^q * a     * y^k
+	 *   X^2 = a^q * a * y^k
 	 *    = a,
 	 *
 	 * so it is the square root that we are looking for.

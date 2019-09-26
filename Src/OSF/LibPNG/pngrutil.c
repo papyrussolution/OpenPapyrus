@@ -2549,7 +2549,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 			/* FALL THROUGH */
 			case 1:
 			    /* NOTE: prior to 1.6.0 this case resulted in an unknown critical
-			     * chunk being skipped, now there will be a hard error below.
+			 * chunk being skipped, now there will be a hard error below.
 			     */
 			    break;
 
@@ -2883,7 +2883,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 
 				case 2:
 				    /* There is a possibility of a partial copy at the end here; this
-				     * slows the code down somewhat.
+				 * slows the code down somewhat.
 				     */
 				    do {
 					    pDp[0] = sp[0];
@@ -2900,7 +2900,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 
 				case 3:
 				    /* This can only be the RGB case, so each copy is exactly one
-				     * pixel and it is not necessary to check for a partial copy.
+				 * pixel and it is not necessary to check for a partial copy.
 				     */
 				    for(;; ) {
 					    pDp[0] = sp[0];
@@ -2916,14 +2916,14 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 				default:
 #if PNG_ALIGN_TYPE != PNG_ALIGN_NONE
 				    /* Check for double byte alignment and, if possible, use a
-				     * 16-bit copy.  Don't attempt this for narrow images - ones that
-				     * are less than an interlace panel wide.  Don't attempt it for
-				     * wide bytes_to_copy either - use the memcpy there.
+				 * 16-bit copy.  Don't attempt this for narrow images - ones that
+				 * are less than an interlace panel wide.  Don't attempt it for
+				 * wide bytes_to_copy either - use the memcpy there.
 				     */
 				    if(bytes_to_copy < 16 /*else use memcpy*/ && png_isaligned(pDp, png_uint_16) &&
 				    png_isaligned(sp, png_uint_16) && bytes_to_copy % (sizeof(png_uint_16)) == 0 && bytes_to_jump % (sizeof(png_uint_16)) == 0) {
 					    /* Everything is aligned for png_uint_16 copies, but try for
-					     * uint32 first.
+					 * uint32 first.
 					     */
 					    if(png_isaligned(pDp, uint32) != 0 && png_isaligned(sp, uint32) != 0 && bytes_to_copy % (sizeof(uint32)) == 0 && bytes_to_jump % (sizeof(uint32)) == 0) {
 						    png_uint_32p dp32 = png_aligncast(png_uint_32p, pDp);
@@ -2945,8 +2945,8 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 						    while(bytes_to_copy <= row_width);
 
 						    /* Get to here when the row_width truncates the final copy.
-						     * There will be 1-3 bytes left to copy, so don't try the
-						     * 16-bit loop below.
+						 * There will be 1-3 bytes left to copy, so don't try the
+						 * 16-bit loop below.
 						     */
 						    pDp = (png_bytep)dp32;
 						    sp = (png_const_bytep)sp32;
@@ -2957,7 +2957,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 					    }
 
 					    /* Else do it in 16-bit quantities, but only if the size is
-					     * not too large.
+					 * not too large.
 					     */
 					    else {
 						    png_uint_16p dp16 = png_aligncast(png_uint_16p, pDp);

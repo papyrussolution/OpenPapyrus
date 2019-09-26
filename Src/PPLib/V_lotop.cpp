@@ -102,9 +102,9 @@ DBQuery * SLAPI PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	uint   brw_id = 0;
 	DateRange period;
 	TransferTbl * trf = 0;
-	BillTbl     * bll = 0;
-	BillTbl     * lnk_bll = 0;
-	DBQuery     * q   = 0;
+	BillTbl * bll = 0;
+	BillTbl * lnk_bll = 0;
+	DBQuery * q   = 0;
 	DBE    dbe_oprkind;
 	DBE    dbe_ar;
 	DBE    dbe_price;

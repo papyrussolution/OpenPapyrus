@@ -140,8 +140,8 @@
             DES_SPtrans[7][(t>>26L)&0x3f]; }
 
         /*-
-         * IP and FP
-         * The problem is more of a geometric problem that random bit fiddling.
+    * IP and FP
+    * The problem is more of a geometric problem that random bit fiddling.
          0  1  2  3  4  5  6  7      62 54 46 38 30 22 14  6
          8  9 10 11 12 13 14 15      60 52 44 36 28 20 12  4
         16 17 18 19 20 21 22 23      58 50 42 34 26 18 10  2

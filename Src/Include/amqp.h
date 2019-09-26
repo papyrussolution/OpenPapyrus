@@ -2347,51 +2347,39 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_login(amqp_connection_state_t state, 
  */
 AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_login_with_properties(amqp_connection_state_t state, char const *vhost, int channel_max,
 	int frame_max, int heartbeat, const amqp_table_t *properties, amqp_sasl_method_enum sasl_method, ...);
-/**
- * Publish a message to the broker
- *
- * Publish a message on an exchange with a routing key.
- *
- * Note that at the AMQ protocol level basic.publish is an async method:
- * this means error conditions that occur on the broker (such as publishing to
- * a non-existent exchange) will not be reflected in the return value of this
- * function.
- *
- * \param [in] state the connection object
- * \param [in] channel the channel identifier
- * \param [in] exchange the exchange on the broker to publish to
- * \param [in] routing_key the routing key to use when publishing the message
- * \param [in] mandatory indicate to the broker that the message MUST be routed
- *           to a queue. If the broker cannot do this it should respond with
- *           a basic.return method.
- * \param [in] immediate indicate to the broker that the message MUST be
- *          delivered to a consumer immediately. If the broker cannot do this
- *          it should respond with a basic.return method.
- * \param [in] properties the properties associated with the message
- * \param [in] body the message body
- * \return AMQP_STATUS_OK on success, amqp_status_enum value on failure. Note
- *      that basic.publish is an async method, the return value from this
- *      function only indicates that the message data was successfully
- *      transmitted to the broker. It does not indicate failures that occur
- *      on the broker, such as publishing to a non-existent exchange.
- *      Possible error values:
- *      - AMQP_STATUS_TIMER_FAILURE: system timer facility returned an error
- *        the message was not sent.
- *      - AMQP_STATUS_HEARTBEAT_TIMEOUT: connection timed out waiting for a
- *        heartbeat from the broker. The message was not sent.
- *      - AMQP_STATUS_NO_MEMORY: memory allocation failed. The message was
- *        not sent.
- *      - AMQP_STATUS_TABLE_TOO_BIG: a table in the properties was too large
- *        to fit in a single frame. Message was not sent.
- *      - AMQP_STATUS_CONNECTION_CLOSED: the connection was closed.
- *      - AMQP_STATUS_SSL_ERROR: a SSL error occurred.
- *      - AMQP_STATUS_TCP_ERROR: a TCP error occurred. errno or
- *        WSAGetLastError() may provide more information
- *
- * Note: this function does heartbeat processing as of v0.4.0
- *
- * \since v0.1
- */
+// 
+// Descr: Publish a message to the broker
+// Publish a message on an exchange with a routing key.
+// Note that at the AMQ protocol level basic.publish is an async method:
+// this means error conditions that occur on the broker (such as publishing to
+// a non-existent exchange) will not be reflected in the return value of this function.
+// 
+// \param [in] state the connection object
+// \param [in] channel the channel identifier
+// \param [in] exchange the exchange on the broker to publish to
+// \param [in] routing_key the routing key to use when publishing the message
+// \param [in] mandatory indicate to the broker that the message MUST be routed
+//   to a queue. If the broker cannot do this it should respond with a basic.return method.
+// \param [in] immediate indicate to the broker that the message MUST be
+//   delivered to a consumer immediately. If the broker cannot do this it should respond with a basic.return method.
+// \param [in] properties the properties associated with the message
+// \param [in] body the message body
+// \return AMQP_STATUS_OK on success, amqp_status_enum value on failure. Note
+//   that basic.publish is an async method, the return value from this
+//   function only indicates that the message data was successfully
+//   transmitted to the broker. It does not indicate failures that occur
+//   on the broker, such as publishing to a non-existent exchange.
+//   Possible error values:
+//     - AMQP_STATUS_TIMER_FAILURE: system timer facility returned an error the message was not sent.
+//     - AMQP_STATUS_HEARTBEAT_TIMEOUT: connection timed out waiting for a heartbeat from the broker. The message was not sent.
+//     - AMQP_STATUS_NO_MEMORY: memory allocation failed. The message was not sent.
+//     - AMQP_STATUS_TABLE_TOO_BIG: a table in the properties was too large to fit in a single frame. Message was not sent.
+//     - AMQP_STATUS_CONNECTION_CLOSED: the connection was closed.
+//     - AMQP_STATUS_SSL_ERROR: a SSL error occurred.
+//     - AMQP_STATUS_TCP_ERROR: a TCP error occurred. errno or WSAGetLastError() may provide more information
+// 
+// Note: this function does heartbeat processing as of v0.4.0
+// 
 AMQP_PUBLIC_FUNCTION int amqp_basic_publish(amqp_connection_state_t state, amqp_channel_t channel, amqp_bytes_t exchange, 
 	amqp_bytes_t routing_key, boolint mandatory, boolint immediate, amqp_basic_properties_t const * properties, amqp_bytes_t body);
 /**

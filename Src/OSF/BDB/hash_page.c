@@ -563,7 +563,7 @@ static int __ham_getindex_unsorted(DBC * dbc, PAGE * p, const DBT * key, int * m
 		    case H_DUPLICATE:
 		    case H_OFFDUP:
 		    /*
-		     * These are errors because keys are never duplicated.
+		 * These are errors because keys are never duplicated.
 		     */
 		    // @fallthrough
 		    default:

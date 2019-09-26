@@ -814,7 +814,7 @@ void /* PRIVATE */ png_zstream_error(png_structrp png_ptr, int ret)
 
 			case Z_NEED_DICT:
 			    /* This means the deflate stream did not have a dictionary; this
-			     * indicates a bogus PNG.
+			 * indicates a bogus PNG.
 			     */
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("missing LZ dictionary");
 			    break;
@@ -839,7 +839,7 @@ void /* PRIVATE */ png_zstream_error(png_structrp png_ptr, int ret)
 
 			case Z_BUF_ERROR:
 			    /* End of input or output; not a problem if the caller is doing
-			     * incremental read or write.
+			 * incremental read or write.
 			     */
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("truncated");
 			    break;
@@ -850,9 +850,9 @@ void /* PRIVATE */ png_zstream_error(png_structrp png_ptr, int ret)
 
 			case PNG_UNEXPECTED_ZLIB_RETURN:
 			    /* Compile errors here mean that zlib now uses the value co-opted in
-			     * pngpriv.h for PNG_UNEXPECTED_ZLIB_RETURN; update the switch above
-			     * and change pngpriv.h.  Note that this message is "... return",
-			     * whereas the default/Z_OK one is "... return code".
+			 * pngpriv.h for PNG_UNEXPECTED_ZLIB_RETURN; update the switch above
+			 * and change pngpriv.h.  Note that this message is "... return",
+			 * whereas the default/Z_OK one is "... return code".
 			     */
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("unexpected zlib return");
 			    break;
@@ -1508,7 +1508,7 @@ int /* PRIVATE */ png_colorspace_set_chromaticities(png_const_structrp png_ptr, 
 
 		case 1:
 		    /* We can't invert the chromaticities so we can't produce value XYZ
-		     * values.  Likely as not a color management system will fail too.
+		 * values.  Likely as not a color management system will fail too.
 		     */
 		    colorspace->flags |= PNG_COLORSPACE_INVALID;
 		    png_benign_error(png_ptr, "invalid chromaticities");
@@ -1516,7 +1516,7 @@ int /* PRIVATE */ png_colorspace_set_chromaticities(png_const_structrp png_ptr, 
 
 		default:
 		    /* libpng is broken; this should be a warning but if it happens we
-		     * want error reports so for the moment it is an error.
+		 * want error reports so for the moment it is an error.
 		     */
 		    colorspace->flags |= PNG_COLORSPACE_INVALID;
 		    png_error(png_ptr, "internal error checking chromaticities");
@@ -1869,24 +1869,24 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 		    return png_icc_profile_error(png_ptr, colorspace, name, temp, "invalid embedded Abstract ICC profile");
 		case 0x6c696e6b: /* 'link' */
 		    /* DeviceLink profiles cannot be interpreted in a non-device specific
-		     * fashion, if an app uses the AToB0Tag in the profile the results are
-		     * undefined unless the result is sent to the intended device,
-		     * therefore a DeviceLink profile should not be found embedded in a
-		     * PNG.
+		 * fashion, if an app uses the AToB0Tag in the profile the results are
+		 * undefined unless the result is sent to the intended device,
+		 * therefore a DeviceLink profile should not be found embedded in a
+		 * PNG.
 		     */
 		    return png_icc_profile_error(png_ptr, colorspace, name, temp, "unexpected DeviceLink ICC profile class");
 		case 0x6e6d636c: /* 'nmcl' */
 		    /* A NamedColor profile is also device specific, however it doesn't
-		     * contain an AToB0 tag that is open to misinterpretation.  Almost
-		     * certainly it will fail the tests below.
+		 * contain an AToB0 tag that is open to misinterpretation.  Almost
+		 * certainly it will fail the tests below.
 		     */
 		    (void)png_icc_profile_error(png_ptr, NULL, name, temp, "unexpected NamedColor ICC profile class");
 		    break;
 		default:
 		    /* To allow for future enhancements to the profile accept unrecognized
-		     * profile classes with a warning, these then hit the test below on the
-		     * tag content to ensure they are backward compatible with one of the
-		     * understood profiles.
+		 * profile classes with a warning, these then hit the test below on the
+		 * tag content to ensure they are backward compatible with one of the
+		 * understood profiles.
 		     */
 		    (void)png_icc_profile_error(png_ptr, NULL, name, temp, "unrecognized ICC profile class");
 		    break;
@@ -2403,8 +2403,8 @@ int /* PRIVATE */ png_check_fp_number(const char * string, size_t size, int * st
 
 			case PNG_FP_FRACTION + PNG_FP_SAW_E:
 			    /* This is correct because the trailing '.' on an
-			     * integer is handled above - so we can only get here
-			     * with the sequence ".E" (with no preceding digits).
+			 * integer is handled above - so we can only get here
+			 * with the sequence ".E" (with no preceding digits).
 			     */
 			    if((state & PNG_FP_SAW_DIGIT) == 0)
 				    goto PNG_FP_End;

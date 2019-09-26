@@ -208,7 +208,7 @@ struct _7zip {
 	 * We use 'next' (a member of struct file) to chain.
 	 */
 	struct {
-		struct file     * first;
+		struct file * first;
 		struct file     ** last;
 	}                        file_list, empty_list;
 
@@ -296,8 +296,7 @@ int archive_write_set_format_7zip(struct archive * _a)
 
 	zip = (_7zip *)SAlloc::C(1, sizeof(*zip));
 	if(zip == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate 7-Zip data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate 7-Zip data");
 		return ARCHIVE_FATAL;
 	}
 	zip->temp_fd = -1;
@@ -472,18 +471,14 @@ static int _7z_write_header(struct archive_write * a, struct archive_entry * ent
 
 	return r;
 }
-
 /*
  * Write data to a temporary file.
  */
 static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 {
-	struct _7zip * zip;
 	const uchar * p;
 	ssize_t ws;
-
-	zip = (struct _7zip *)a->format_data;
-
+	struct _7zip * zip = (struct _7zip *)a->format_data;
 	/*
 	 * Open a temporary file.
 	 */
@@ -495,7 +490,6 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	p = static_cast<const uchar *>(buff);
 	while(s) {
 		ws = write(zip->temp_fd, p, s);
@@ -1411,15 +1405,13 @@ static int file_cmp_key(const struct archive_rb_node * n, const void * key)
 	return (f->name_len - *(const char *)key);
 }
 
-static int file_new(struct archive_write * a, struct archive_entry * entry,
-    struct file ** newfile)
+static int file_new(struct archive_write * a, struct archive_entry * entry, struct file ** newfile)
 {
-	struct _7zip * zip;
 	struct file * file;
 	const char * u16;
 	size_t u16len;
 	int ret = ARCHIVE_OK;
-	zip = (struct _7zip *)a->format_data;
+	struct _7zip * zip = (struct _7zip *)a->format_data;
 	*newfile = NULL;
 	file = (struct file *)SAlloc::C(1, sizeof(*file));
 	if(file == NULL) {
@@ -1699,8 +1691,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	if(BZ2_bzCompressInit(strm, level, 0, 30) != BZ_OK) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Internal error initializing compression library");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
 		return ARCHIVE_FATAL;
 	}
 	lastrm->real_stream = strm;
@@ -1749,26 +1740,20 @@ static int compression_code_bzip2(struct archive * a,
 		    return (ARCHIVE_EOF);
 		default:
 		    /* Any other return value indicates an error */
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"Bzip2 compression failed:"
-			" BZ2_bzCompress() call returned status %d", r);
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Bzip2 compression failed: BZ2_bzCompress() call returned status %d", r);
 		    return ARCHIVE_FATAL;
 	}
 }
 
 static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 {
-	bz_stream * strm;
-	int r;
-
-	strm = (bz_stream *)lastrm->real_stream;
-	r = BZ2_bzCompressEnd(strm);
+	bz_stream * strm = (bz_stream *)lastrm->real_stream;
+	int r = BZ2_bzCompressEnd(strm);
 	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
 	lastrm->valid = 0;
 	if(r != BZ_OK) {
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Failed to clean up compressor");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
@@ -1837,8 +1822,7 @@ static int compression_init_encoder_lzma(struct archive * a,
 		if(r != LZMA_OK) {
 			SAlloc::F(strm);
 			lastrm->real_stream = NULL;
-			archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			    "lzma_properties_encode failed");
+			archive_set_error(a, ARCHIVE_ERRNO_MISC, "lzma_properties_encode failed");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -1856,17 +1840,13 @@ static int compression_init_encoder_lzma(struct archive * a,
 		case LZMA_MEM_ERROR:
 		    SAlloc::F(strm);
 		    lastrm->real_stream = NULL;
-		    archive_set_error(a, ENOMEM,
-			"Internal error initializing compression library: "
-			"Cannot allocate memory");
+		    archive_set_error(a, ENOMEM, "Internal error initializing compression library: Cannot allocate memory");
 		    r =  ARCHIVE_FATAL;
 		    break;
 		default:
 		    SAlloc::F(strm);
 		    lastrm->real_stream = NULL;
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"It's a bug in liblzma");
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: It's a bug in liblzma");
 		    r =  ARCHIVE_FATAL;
 		    break;
 	}
@@ -1913,17 +1893,11 @@ static int compression_code_lzma(struct archive * a,
 		    /* This return can only occur in finishing case. */
 		    return (ARCHIVE_EOF);
 		case LZMA_MEMLIMIT_ERROR:
-		    archive_set_error(a, ENOMEM,
-			"lzma compression error:"
-			" %ju MiB would have been needed",
-			(uintmax_t)((lzma_memusage(strm) + 1024 * 1024 -1)
-			/ (1024 * 1024)));
+		    archive_set_error(a, ENOMEM, "lzma compression error: %ju MiB would have been needed", (uintmax_t)((lzma_memusage(strm) + 1024 * 1024 -1) / (1024 * 1024)));
 		    return ARCHIVE_FATAL;
 		default:
 		    /* Any other return value indicates an error */
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"lzma compression failed:"
-			" lzma_code() call returned status %d", r);
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "lzma compression failed: lzma_code() call returned status %d", r);
 		    return ARCHIVE_FATAL;
 	}
 }
@@ -1931,7 +1905,6 @@ static int compression_code_lzma(struct archive * a,
 static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 {
 	lzma_stream * strm;
-
 	(void)a; /* UNUSED */
 	strm = (lzma_stream *)lastrm->real_stream;
 	lzma_end(strm);
@@ -2021,8 +1994,7 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 		SAlloc::F(strm->buff);
 		SAlloc::F(strm);
 		SAlloc::F(props);
-		archive_set_error(a, ENOMEM,
-		    "Coludn't allocate memory for PPMd");
+		archive_set_error(a, ENOMEM, "Coludn't allocate memory for PPMd");
 		return ARCHIVE_FATAL;
 	}
 	__archive_ppmd7_functions.Ppmd7_Init(&(strm->ppmd7_context), maxOrder);

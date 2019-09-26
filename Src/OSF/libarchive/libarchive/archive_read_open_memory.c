@@ -35,9 +35,9 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_open_memory.c,v 1.6 2007/07/
  */
 
 struct read_memory_data {
-	const uchar     * start;
-	const uchar     * p;
-	const uchar     * end;
+	const uchar * start;
+	const uchar * p;
+	const uchar * end;
 	ssize_t read_size;
 };
 

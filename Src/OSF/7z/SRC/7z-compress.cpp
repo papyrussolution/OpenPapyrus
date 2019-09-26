@@ -721,7 +721,7 @@ namespace NCompress {
 				SETMIN(size, (uint32)rem);
 			}
 			dec.dest = (Byte *)data;
-			dec.destLim = (const Byte*)data + size;
+			dec.destLim = (const Byte *)data + size;
 			HRESULT res = S_OK;
 			for(;; ) {
 				SRes sres = Bcj2Dec_Decode(&dec);

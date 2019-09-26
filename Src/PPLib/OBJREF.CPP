@@ -212,7 +212,7 @@ int SLAPI SimpleObjView(PPObject * pObj, void * extraPtr)
 //
 // @ModuleDef(PPObjReference)
 //
-SLAPI PPObjReference::PPObjReference(PPID aObj, /*long extraData*/void * extraPtr) : PPObject(aObj), ExtraPtr(extraPtr), ref(PPRef)
+SLAPI PPObjReference::PPObjReference(PPID aObj, void * extraPtr) : PPObject(aObj), ExtraPtr(extraPtr), ref(PPRef)
 {
 	ImplementFlags |= implStrAssocMakeList;
 	if(IS_DYN_OBJTYPE(aObj)) {
@@ -2125,20 +2125,7 @@ int SLAPI PPObjGlobalUserAcc::GetPacket(PPID id, PPGlobalUserAccPacket * pPack)
 }
 
 int SLAPI PPObjGlobalUserAcc::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPGlobalUserAccPacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPGlobalUserAccPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPGlobalUserAccPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjGlobalUserAcc, PPGlobalUserAccPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjGlobalUserAcc::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
@@ -3173,20 +3160,7 @@ int SLAPI PPObjUhttStore::SerializePacket(int dir, PPUhttStorePacket * pPack, SB
 }
 
 int SLAPI PPObjUhttStore::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPUhttStorePacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPUhttStorePacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPUhttStorePacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjUhttStore, PPUhttStorePacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjUhttStore::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
@@ -3546,7 +3520,7 @@ SLAPI PPEdiProviderPacket::~PPEdiProviderPacket()
 
 int SLAPI PPEdiProviderPacket::MakeUrl(int reserved, InetUrl & rUrl)
 {
-	rUrl.Clear();
+	rUrl.Z();
 	int    ok = 0;
 	SString temp_buf;
 	GetExtStrData(reserved ? extssAddr2 : extssAddr, temp_buf);
@@ -3776,20 +3750,7 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 IMPL_DESTROY_OBJ_PACK(PPObjEdiProvider, PPEdiProviderPacket);
 
 int SLAPI PPObjEdiProvider::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPEdiProviderPacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPEdiProviderPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPEdiProviderPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjEdiProvider, PPEdiProviderPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjEdiProvider::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

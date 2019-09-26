@@ -705,7 +705,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		pSCN->Speciality = cn_rec.Speciality;
 		memcpy(pSCN->Port,  cn_rec.Port,  sizeof(pSCN->Port));
 		if(ref->GetPropActualSize(Obj, id, CNPRP_EXTDEVICES, &ed_size) > 0) {
-			THROW_MEM(p_ed = (__PPExtDevices *)SAlloc::M(ed_size));
+			THROW_MEM(p_ed = static_cast<__PPExtDevices *>(SAlloc::M(ed_size)));
 			memzero(p_ed, ed_size);
 			if(ref->GetProperty(Obj, id, CNPRP_EXTDEVICES, p_ed, ed_size) > 0) {
 				pSCN->TouchScreenID = p_ed->TouchScreenID;
@@ -975,7 +975,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 		rec.ParentID     = pCN->ParentID;
 		rec.GoodsGrpID   = pCN->GoodsGrpID;
 		if(f & CASHF_SYNC) {
-			p_scn = (PPSyncCashNode *)pCN;
+			p_scn = static_cast<PPSyncCashNode *>(pCN);
 			rec.SleepTimeout = p_scn->SleepTimeout;
 			rec.DownBill     = p_scn->DownBill;
 			rec.CurDate      = p_scn->CurDate;
@@ -989,7 +989,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 		THROW(ref->Ot.PutList(Obj, *pID, &pCN->TagL, 0)); // @v9.6.5
 		if(!oneof2(pCN->CashType, PPCMT_CASHNGROUP, PPCMT_DISTRIB)) {
 			if(f & CASHF_SYNC) {
-				p_scn = (PPSyncCashNode *)pCN;
+				p_scn = static_cast<PPSyncCashNode *>(pCN);
 				//p_scn->ExtString = p_ed->ExtStrBuf;
 				p_scn->SetPropString(SCN_PRINTERPORT,        p_scn->PrinterPort);
 				p_scn->SetPropString(SCN_CAFETABLE_DGR_PATH, p_scn->TableSelWhatman);
@@ -997,7 +997,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 				p_scn->SetPropString(SCN_SLIPFMTPATH,        p_scn->SlipFmtPath);
 				{
 					const size_t ed_size = ALIGNSIZE(offsetof(__PPExtDevices, ExtStrBuf) + p_scn->ExtString.Len() + 1, 2);
-					THROW_MEM(p_ed = (__PPExtDevices *)SAlloc::M(ed_size));
+					THROW_MEM(p_ed = static_cast<__PPExtDevices *>(SAlloc::M(ed_size)));
 					memzero(p_ed, ed_size);
 
 					p_ed->TouchScreenID = p_scn->TouchScreenID;
@@ -1054,7 +1054,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 				}
 			}
 			else if(f & CASHF_ASYNC) {
-				p_acn = (PPAsyncCashNode *)pCN;
+				p_acn = static_cast<PPAsyncCashNode *>(pCN);
 				temp_buf.Z();
 				PPPutExtStrData(ACN_EXTSTR_FLD_IMPFILES, temp_buf, p_acn->ImpFiles);
 				PPPutExtStrData(ACN_EXTSTR_FLD_EXPPATHS, temp_buf, p_acn->ExpPaths);

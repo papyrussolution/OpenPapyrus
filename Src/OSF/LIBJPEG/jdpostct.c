@@ -60,8 +60,8 @@ METHODDEF(void) start_pass_dpost(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
 			    /* Single-pass processing with color quantization. */
 			    post->pub.post_process_data = post_process_1pass;
 			    /* We could be doing buffered-image output before starting a 2-pass
-			     * color quantization; in that case, jinit_d_post_controller did not
-			     * allocate a strip buffer.  Use the virtual-array buffer as workspace.
+			 * color quantization; in that case, jinit_d_post_controller did not
+			 * allocate a strip buffer.  Use the virtual-array buffer as workspace.
 			     */
 			    if(post->buffer == NULL) {
 				    post->buffer = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), post->whole_image, (JDIMENSION)0, post->strip_height, TRUE);
@@ -69,7 +69,7 @@ METHODDEF(void) start_pass_dpost(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
 		    }
 		    else {
 			    /* For single-pass processing without color quantization,
-			     * I have no work to do; just call the upsampler directly.
+			 * I have no work to do; just call the upsampler directly.
 			     */
 			    post->pub.post_process_data = cinfo->upsample->upsample;
 		    }

@@ -1210,7 +1210,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 					case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 					    flags |= FLAGS_WIDTH;
 					    /* &format[index - 1] is used to "rewind" the read
-					     * character from format
+					 * character from format
 					     */
 					    width = trio_to_long(&format[index - 1], &tmpformat, BASE_DECIMAL);
 					    index = (int)(tmpformat - format);
@@ -1669,13 +1669,13 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 				    if(parameters[i].flags & (FLAGS_VARSIZE_PARAMETER | FLAGS_FIXED_SIZE)) {
 					    if(parameters[i].flags & FLAGS_VARSIZE_PARAMETER) {
 						    /*
-						     * Variable sizes are mapped onto the fixed sizes, in
-						     * accordance with integer promotion.
+						 * Variable sizes are mapped onto the fixed sizes, in
+						 * accordance with integer promotion.
 						     *
-						     * Please note that this may not be portable, as we
-						     * only guess the size, not the layout of the numbers.
-						     * For example, if int is little-endian, and long is
-						     * big-endian, then this will fail.
+						 * Please note that this may not be portable, as we
+						 * only guess the size, not the layout of the numbers.
+						 * For example, if int is little-endian, and long is
+						 * big-endian, then this will fail.
 						     */
 						    varsize = (int)parameters[parameters[i].varsize].data.number.as_unsigned;
 					    }
@@ -1735,8 +1735,8 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 
 			case FORMAT_PARAMETER:
 			    /*
-			     * The parameter for the user-defined specifier is a pointer,
-			     * whereas the rest (width, precision, base) uses an integer.
+			 * The parameter for the user-defined specifier is a pointer,
+			 * whereas the rest (width, precision, base) uses an integer.
 			     */
 			    if(parameters[i].flags & FLAGS_USER_DEFINED)
 				    parameters[i].data.pointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_pointer_t) : argarray[num];
@@ -3597,17 +3597,17 @@ static int TrioGetCharacterClass(const char * format, int * indexPointer, trio_f
 			case QUALIFIER_MINUS: /* Scanlist ranges */
 
 			    /*
-			     * Both C99 and UNIX98 describes ranges as implementation-
-			     * defined.
+			 * Both C99 and UNIX98 describes ranges as implementation-
+			 * defined.
 			     *
-			     * We support the following behaviour (although this may
-			     * change as we become wiser)
-			     * - only increasing ranges, ie. [a-b] but not [b-a]
-			     * - transitive ranges, ie. [a-b-c] == [a-c]
-			     * - trailing minus, ie. [a-] is interpreted as an 'a'
-			     * and a '-'
-			     * - duplicates (although we can easily convert these
-			     * into errors)
+			 * We support the following behaviour (although this may
+			 * change as we become wiser)
+			 * - only increasing ranges, ie. [a-b] but not [b-a]
+			 * - transitive ranges, ie. [a-b-c] == [a-c]
+			 * - trailing minus, ie. [a-] is interpreted as an 'a'
+			 * and a '-'
+			 * - duplicates (although we can easily convert these
+			 * into errors)
 			     */
 			    range_begin = format[index - 1];
 			    range_end = format[++index];

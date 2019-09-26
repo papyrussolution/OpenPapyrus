@@ -158,7 +158,7 @@ static int conn_state(BIO * b, BIO_CONNECT * c)
 				    else if((c->addr_iter = BIO_ADDRINFO_next(c->addr_iter))
 				    != NULL) {
 					    /*
-					     * if there are more addresses to try, do that first
+					 * if there are more addresses to try, do that first
 					     */
 					    BIO_closesocket(b->num);
 					    c->state = BIO_CONN_S_CREATE_SOCKET;
@@ -396,8 +396,8 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    if(num == 0) {
 				    char * hold_service = data->param_service;
 				    /* We affect the hostname regardless.  However, the input
-				     * string might contain a host:service spec, so we must
-				     * parse it, which might or might not affect the service
+				 * string might contain a host:service spec, so we must
+				 * parse it, which might or might not affect the service
 				     */
 				    OPENSSL_free(data->param_hostname);
 				    data->param_hostname = NULL;
@@ -471,8 +471,8 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    BIO_set_conn_ip_family(dbio, data->connect_family);
 		    BIO_set_conn_mode(dbio, data->connect_mode);
 		    /*
-		     * FIXME: the cast of the function seems unlikely to be a good
-		     * idea
+		 * FIXME: the cast of the function seems unlikely to be a good
+		 * idea
 		     */
 		    (void)BIO_set_info_callback(dbio, (bio_info_cb*)data->info_callback);
 	    }

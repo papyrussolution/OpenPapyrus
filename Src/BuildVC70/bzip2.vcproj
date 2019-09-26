@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -39,8 +39,9 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
-				AssemblerListingLocation="Debug/"
-				ObjectFile="$(IntDir)\"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CompileAs="2"/>
@@ -49,7 +50,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions=" /machine:X86"
-				OutputFile="D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="D:\DEVELOP\bzip2;"
@@ -83,8 +84,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -112,8 +113,9 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
-				AssemblerListingLocation="Release/"
-				ObjectFile="$(IntDir)\"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				CompileAs="2"/>
 			<Tool
@@ -121,7 +123,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions=" /machine:X86"
-				OutputFile="D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="D:\DEVELOP\bzip2;"
@@ -155,8 +157,8 @@
 		</Configuration>
 		<Configuration
 			Name="MtDllRelease|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -184,8 +186,9 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
-				AssemblerListingLocation="Release/"
-				ObjectFile="$(IntDir)\"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				CompileAs="2"/>
 			<Tool
@@ -193,7 +196,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions=" /machine:X86"
-				OutputFile="D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="D:\DEVELOP\bzip2;"
@@ -227,8 +230,8 @@
 		</Configuration>
 		<Configuration
 			Name="MtDllDebug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -254,8 +257,9 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
-				AssemblerListingLocation="Debug/"
-				ObjectFile="$(IntDir)\"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CompileAs="2"/>
@@ -264,7 +268,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions=" /machine:X86"
-				OutputFile="D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="D:\DEVELOP\bzip2;"
@@ -298,8 +302,8 @@
 		</Configuration>
 		<Configuration
 			Name="ServerDebug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -325,8 +329,9 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
-				AssemblerListingLocation="Debug/"
-				ObjectFile="$(IntDir)\"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CompileAs="2"/>
@@ -335,7 +340,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions=" /machine:X86"
-				OutputFile="D:\DEVELOP\bzip2\__TEMP__\Debug\bz2.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="D:\DEVELOP\bzip2;"
@@ -369,8 +374,8 @@
 		</Configuration>
 		<Configuration
 			Name="ServerRelease|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -398,8 +403,9 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
-				AssemblerListingLocation="Release/"
-				ObjectFile="$(IntDir)\"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				CompileAs="2"/>
 			<Tool
@@ -407,7 +413,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions=" /machine:X86"
-				OutputFile="D:\DEVELOP\bzip2\__TEMP__\Release\bz2.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="D:\DEVELOP\bzip2;"

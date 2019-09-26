@@ -555,7 +555,7 @@ METHODDEF(void) prepare_for_pass(j_compress_ptr cinfo)
 	switch(master->pass_type) {
 		case main_pass:
 		    /* Initial pass: will collect input data, and do either Huffman
-		     * optimization or data output for the first scan.
+		 * optimization or data output for the first scan.
 		     */
 		    select_scan_parameters(cinfo);
 		    per_scan_setup(cinfo);
@@ -589,7 +589,7 @@ METHODDEF(void) prepare_for_pass(j_compress_ptr cinfo)
 			    break;
 		    }
 		    /* Special case: Huffman DC refinement scans need no Huffman table
-		     * and therefore we can skip the optimization pass for them.
+		 * and therefore we can skip the optimization pass for them.
 		     */
 		    master->pass_type = output_pass;
 		    master->pass_number++;
@@ -651,7 +651,7 @@ METHODDEF(void) finish_pass_master(j_compress_ptr cinfo)
 	switch(master->pass_type) {
 		case main_pass:
 		    /* next pass is either output of scan 0 (after optimization)
-		     * or output of scan 1 (if no optimization).
+		 * or output of scan 1 (if no optimization).
 		     */
 		    master->pass_type = output_pass;
 		    if(!cinfo->optimize_coding)

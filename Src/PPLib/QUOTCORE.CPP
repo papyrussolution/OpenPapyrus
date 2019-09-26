@@ -1110,7 +1110,7 @@ int SLAPI QuotationCore::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, 
 	//
 	if(search(2, &k_, spGe) && k_.GoodsID == goodsID && k_.Actual) {
 		BExtQuery q(this, 2);
-		DBQ     * dbq = & (GoodsID == goodsID && Actual == 1L);
+		DBQ * dbq = & (GoodsID == goodsID && Actual == 1L);
 		dbq = ppcheckfiltid(dbq, this->Location, locID);
 		dbq = ppcheckfiltid(dbq, this->Kind, quotKindID);
 		q.select(ID, GoodsID, Location, Kind, CurID, Flags, ArID, Quot, MinQtty, 0L).where(*dbq);

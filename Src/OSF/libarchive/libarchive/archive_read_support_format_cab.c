@@ -108,7 +108,7 @@ static const int slots[] = { 30, 32, 34, 36, 38, 42, 50, 66, 98, 162, 290 };
 #define SLOT_MAX        21/*->25*/
 
 struct lzx_stream {
-	const uchar     * next_in;
+	const uchar * next_in;
 	int64_t avail_in;
 	int64_t total_in;
 	uchar  * next_out;
@@ -339,11 +339,11 @@ static int find_cab_magic(const char * p)
 	switch(p[4]) {
 		case 0:
 		    /*
-		     * Note: Self-Extraction program has 'MSCF' string in their
-		     * program. If we were finding 'MSCF' string only, we got
-		     * wrong place for Cabinet header, thus, we have to check
-		     * following four bytes which are reserved and must be set
-		     * to zero.
+		 * Note: Self-Extraction program has 'MSCF' string in their
+		 * program. If we were finding 'MSCF' string only, we got
+		 * wrong place for Cabinet header, thus, we have to check
+		 * following four bytes which are reserved and must be set
+		 * to zero.
 		     */
 		    if(memcmp(p, "MSCF\0\0\0\0", 8) == 0)
 			    return 0;
@@ -2120,7 +2120,7 @@ static int lzx_br_fillup(struct lzx_stream * strm, struct lzx_dec::lzx_br * br)
 			    break;
 			case 0:
 			    /* We have enough compressed data in
-			     * the cache buffer.*/
+			 * the cache buffer.*/
 			    return (1);
 			default:
 			    break;
@@ -2298,10 +2298,10 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_RD_ALIGNMENT:
 			    /*
-			     * Handle an Uncompressed Block.
+			 * Handle an Uncompressed Block.
 			     */
 			    /* Skip padding to align following field on
-			     * 16-bit boundary. */
+			 * 16-bit boundary. */
 			    if(lzx_br_is_unaligned(br))
 				    lzx_br_consume_unaligned_bits(br);
 			    else {
@@ -2324,7 +2324,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			    do {
 				    uint16_t u16;
 				    /* Drain bits in the cache buffer of
-				     * bit-stream. */
+				 * bit-stream. */
 				    if(lzx_br_has(br, 32)) {
 					    u16 = lzx_br_bits(br, 16);
 					    lzx_br_consume(br, 16);
@@ -2379,7 +2379,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_COPY_UNCOMP1:
 			    /*
-			     * Copy bytes form next_in to next_out directly.
+			 * Copy bytes form next_in to next_out directly.
 			     */
 			    while(ds->block_bytes_avail) {
 				    int l;
@@ -2431,7 +2431,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/********************/
 			case ST_RD_ALIGNED_OFFSET:
 			    /*
-			     * Read Aligned offset tree.
+			 * Read Aligned offset tree.
 			     */
 			    if(!lzx_br_read_ahead(strm, br, 3 * ds->at.len_size)) {
 				    ds->state = ST_RD_ALIGNED_OFFSET;
@@ -2453,7 +2453,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_RD_PRE_MAIN_TREE_256:
 			    /*
-			     * Read Pre-tree for first 256 elements of main tree.
+			 * Read Pre-tree for first 256 elements of main tree.
 			     */
 			    if(!lzx_read_pre_tree(strm)) {
 				    ds->state = ST_RD_PRE_MAIN_TREE_256;
@@ -2467,7 +2467,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_MAIN_TREE_256:
 			    /*
-			     * Get path lengths of first 256 elements of main tree.
+			 * Get path lengths of first 256 elements of main tree.
 			     */
 			    r = lzx_read_bitlen(strm, &ds->mt, 256);
 			    if(r < 0)
@@ -2482,7 +2482,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_RD_PRE_MAIN_TREE_REM:
 			    /*
-			     * Read Pre-tree for remaining elements of main tree.
+			 * Read Pre-tree for remaining elements of main tree.
 			     */
 			    if(!lzx_read_pre_tree(strm)) {
 				    ds->state = ST_RD_PRE_MAIN_TREE_REM;
@@ -2496,7 +2496,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_MAIN_TREE_REM:
 			    /*
-			     * Get path lengths of remaining elements of main tree.
+			 * Get path lengths of remaining elements of main tree.
 			     */
 			    r = lzx_read_bitlen(strm, &ds->mt, -1);
 			    if(r < 0)
@@ -2513,7 +2513,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_RD_PRE_LENGTH_TREE:
 			    /*
-			     * Read Pre-tree for remaining elements of main tree.
+			 * Read Pre-tree for remaining elements of main tree.
 			     */
 			    if(!lzx_read_pre_tree(strm)) {
 				    ds->state = ST_RD_PRE_LENGTH_TREE;
@@ -2527,7 +2527,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_LENGTH_TREE:
 			    /*
-			     * Get path lengths of remaining elements of main tree.
+			 * Get path lengths of remaining elements of main tree.
 			     */
 			    r = lzx_read_bitlen(strm, &ds->lt, -1);
 			    if(r < 0)
@@ -2601,10 +2601,10 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 					    if(!last)
 						    goto next_data;
 					    /* Remaining bits are less than
-					     * maximum bits(mt.max_bits) but maybe
-					     * it still remains as much as we need,
-					     * so we should try to use it with
-					     * dummy bits. */
+					 * maximum bits(mt.max_bits) but maybe
+					 * it still remains as much as we need,
+					 * so we should try to use it with
+					 * dummy bits. */
 					    c = lzx_decode_huffman(mt,
 						    lzx_br_bits_forced(
 							    &bre, mt_max_bits));
@@ -2620,10 +2620,10 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 				    if(c > UCHAR_MAX)
 					    break;
 				    /*
-				     * 'c' is exactly literal code.
+				 * 'c' is exactly literal code.
 				     */
 				    /* Save a decoded code to reference it
-				     * afterward. */
+				 * afterward. */
 				    w_buff[w_pos] = c;
 				    w_pos = (w_pos + 1) & w_mask;
 				    /* Store the decoded code to output buffer. */
@@ -2631,7 +2631,7 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 				    block_bytes_avail--;
 			    }
 			    /*
-			     * Get a match code, its length and offset.
+			 * Get a match code, its length and offset.
 			     */
 			    c -= UCHAR_MAX + 1;
 			    length_header = c & 7;
@@ -2639,7 +2639,7 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_LENGTH:
 			    /*
-			     * Get a length.
+			 * Get a length.
 			     */
 			    if(length_header == 7) {
 				    if(!lzx_br_read_ahead(strm, &bre,
@@ -2667,7 +2667,7 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 			    if((size_t)copy_len > block_bytes_avail)
 				    goto failed;
 			    /*
-			     * Get an offset.
+			 * Get an offset.
 			     */
 			    switch(position_slot) {
 				    case 0: /* Use repeated offset 0. */
@@ -2695,8 +2695,8 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_OFFSET:
 			    /*
-			     * Get the offset, which is a distance from
-			     * current window position.
+			 * Get the offset, which is a distance from
+			 * current window position.
 			     */
 			    if(block_type == ALIGNED_OFFSET_BLOCK &&
 				offset_bits >= 3) {
@@ -2753,14 +2753,14 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_REAL_POS:
 			    /*
-			     * Compute a real position in window.
+			 * Compute a real position in window.
 			     */
 			    copy_pos = (w_pos - copy_pos) & w_mask;
 			/* FALL THROUGH */
 			case ST_COPY:
 			    /*
-			     * Copy several bytes as extracted data from the window
-			     * into the output buffer.
+			 * Copy several bytes as extracted data from the window
+			 * into the output buffer.
 			     */
 			    for(;;) {
 				    const uchar * s;

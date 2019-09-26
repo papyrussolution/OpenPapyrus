@@ -367,7 +367,7 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 			    actx->tls_payload_length = len;
 
 			    /*
-			     * merge record sequence number as per RFC7905
+			 * merge record sequence number as per RFC7905
 			     */
 			    actx->key.counter[1] = actx->nonce[0];
 			    actx->key.counter[2] = actx->nonce[1] ^ CHACHA_U8TOU32(aad);

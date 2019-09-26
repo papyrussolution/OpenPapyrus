@@ -614,9 +614,9 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryFloat(TIFF* tif, TIFFDirEntry* d
 			    return err;
 #if defined(__WIN32__) && (_MSC_VER < 1500)
 		    /*
-		     * XXX: MSVC 6.0 does not support conversion
-		     * of 64-bit integers into floating point
-		     * values.
+		 * XXX: MSVC 6.0 does not support conversion
+		 * of 64-bit integers into floating point
+		 * values.
 		     */
 		    *value = _TIFFUInt64ToFloat(m);
 #else
@@ -2124,9 +2124,9 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryFloatArray(TIFF* tif, TIFFDirEnt
 				    TIFFSwabLong8(ma);
 #if defined(__WIN32__) && (_MSC_VER < 1500)
 			    /*
-			     * XXX: MSVC 6.0 does not support
-			     * conversion of 64-bit integers into
-			     * floating point values.
+			 * XXX: MSVC 6.0 does not support
+			 * conversion of 64-bit integers into
+			 * floating point values.
 			     */
 			    *mb++ = _TIFFUInt64ToFloat(*ma++);
 #else
@@ -2978,14 +2978,14 @@ int TIFFReadDirectory(TIFF* tif)
 			case TIFFTAG_DATATYPE:
 			case TIFFTAG_SAMPLEFORMAT:
 			    /*
-			     * The MinSampleValue, MaxSampleValue, BitsPerSample
-			     * DataType and SampleFormat tags are supposed to be
-			     * written as one value/sample, but some vendors
-			     * incorrectly write one value only -- so we accept
-			     * that as well (yuck). Other vendors write correct
-			     * value for NumberOfSamples, but incorrect one for
-			     * BitsPerSample and friends, and we will read this
-			     * too.
+			 * The MinSampleValue, MaxSampleValue, BitsPerSample
+			 * DataType and SampleFormat tags are supposed to be
+			 * written as one value/sample, but some vendors
+			 * incorrectly write one value only -- so we accept
+			 * that as well (yuck). Other vendors write correct
+			 * value for NumberOfSamples, but incorrect one for
+			 * BitsPerSample and friends, and we will read this
+			 * too.
 			     */
 		    {
 			    uint16 value;

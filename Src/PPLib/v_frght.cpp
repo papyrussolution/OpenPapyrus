@@ -319,7 +319,7 @@ int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
 				THROW(r);
 				if(r > 0) {
 					for(ulong uid = 0; fr_bill_list.Enum(&uid);) {
-						PPID bill_id = static_cast<PPID>(uid);
+						const PPID bill_id = static_cast<PPID>(uid);
 						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0 && v_bill.CheckIDForFilt(bill_id, 0)) {
 							if(FillTempTableRec(&bill_rec, &rec) > 0)

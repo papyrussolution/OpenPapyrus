@@ -144,7 +144,7 @@ struct TS_resp_ctx {
     ASN1_INTEGER *millis;       /* accuracy, 0 means not specified. */
     ASN1_INTEGER *micros;       /* accuracy, 0 means not specified. */
     unsigned clock_precision_digits; /* fraction of seconds in time stamp
-                                      * token. */
+ * token. */
     unsigned flags;             /* Optional info, see values above. */
     /* Callback functions. */
     TS_serial_cb serial_cb;
@@ -168,8 +168,8 @@ struct TS_verify_ctx {
     /* Must be set only with TS_VFY_POLICY. */
     ASN1_OBJECT *policy;
     /*
-     * Must be set only with TS_VFY_IMPRINT. If md_alg is NULL, the
-     * algorithm from the response is used.
+ * Must be set only with TS_VFY_IMPRINT. If md_alg is NULL, the
+ * algorithm from the response is used.
      */
     X509_ALGOR *md_alg;
     unsigned char *imprint;

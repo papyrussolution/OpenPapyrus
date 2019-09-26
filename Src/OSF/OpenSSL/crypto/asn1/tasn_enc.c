@@ -460,7 +460,7 @@ static int asn1_ex_i2c(ASN1_VALUE ** pval, uchar * cout, int * putype, const ASN
 			    return -1;
 		    if(it->utype != V_ASN1_ANY) {
 			    /*
-			     * Default handling if value == size field then omit
+			 * Default handling if value == size field then omit
 			     */
 			    if(*tbool && (it->size > 0))
 				    return -1;
@@ -476,7 +476,7 @@ static int asn1_ex_i2c(ASN1_VALUE ** pval, uchar * cout, int * putype, const ASN
 		case V_ASN1_INTEGER:
 		case V_ASN1_ENUMERATED:
 		    /*
-		     * These are all have the same content format as ASN1_INTEGER
+		 * These are all have the same content format as ASN1_INTEGER
 		     */
 		    return i2c_ASN1_INTEGER((ASN1_INTEGER*)*pval, cout ? &cout : NULL);
 

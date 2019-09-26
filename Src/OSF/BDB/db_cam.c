@@ -24,9 +24,9 @@ static inline int __dbc_put_secondaries(DBC*, DBT*, DBT*, DBT*, int, DBT*, uint3
 
 #define CDB_LOCKING_INIT(env, dbc)                                      \
         /* \
-         * If we are running CDB, this had better be either a write \
-         * cursor or an immediate writer.  If it's a regular writer, \
-         * that means we have an IWRITE lock and we need to upgrade it to a write lock. \
+    * If we are running CDB, this had better be either a write \
+    * cursor or an immediate writer.  If it's a regular writer, \
+    * that means we have an IWRITE lock and we need to upgrade it to a write lock. \
          */                                                     \
 	if(CDB_LOCKING(env)) {                                         \
 		if(!F_ISSET(dbc, DBC_WRITECURSOR|DBC_WRITER))        \

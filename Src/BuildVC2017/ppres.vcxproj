@@ -1,0 +1,1661 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|Win32">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|x64">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{696DFCC9-EA0F-4232-83B5-21D0657A61C7}</ProjectGuid>
+    <RootNamespace>ppres</RootNamespace>
+    <Keyword>ManagedCProj</Keyword>
+    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>OldSyntax</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>OldSyntax</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>OldSyntax</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>OldSyntax</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>OldSyntax</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>OldSyntax</CLRSupport>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);..\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);..\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);..\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);..\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);..\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);..\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);..\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Message>Make resources</Message>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+    <PostBuildEvent>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+      <Message>Make resources</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <PostBuildEvent>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+      <Message>Make resources</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\ManWork\Help\pphelp.hhp">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\tools\HelpWorkshop\hhc.exe %(FullPath)
+copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\INCLUDE\ppbrow.H;%(RootDir)%(Directory).html;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\LaTex\ppmanual.tex">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\tools\texc2h %(FullPath) %(RootDir)%(Directory)..\Help\pphelp.hhp ..\pict\png %(RootDir)%(Directory)..\Help\prepare
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)..\Help\prepare\empty_target.txt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Rsrc\dl600\ppdbs.dl6">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DL600 compiler (database structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DL600 compiler (database structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">DL600 compiler (database structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">DL600 compiler (database structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">DL600 compiler (database structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">DL600 compiler (database structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DL600 compiler (database structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">DL600 compiler (database structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">DL600 compiler (database structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">DL600 compiler (database structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">DL600 compiler (database structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">DL600 compiler (database structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">DL600 compiler (database structure)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">DL600 compiler (database structure)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Rsrc\Dl600\ppexp.dl6">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DL600 compiler (ppexp structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DL600 compiler (ppexp structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">DL600 compiler (ppexp structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">DL600 compiler (ppexp structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">DL600 compiler (ppexp structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">DL600 compiler (ppexp structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DL600 compiler (ppexp structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">DL600 compiler (ppexp structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">DL600 compiler (ppexp structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">DL600 compiler (ppexp structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">DL600 compiler (ppexp structure)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">DL600 compiler (ppexp structure)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">DL600 compiler (ppexp structure)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Rsrc\Dl600\ppifc.dl6">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DL600 compiler (interface)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DL600 compiler (interface)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">DL600 compiler (interface)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">DL600 compiler (interface)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">DL600 compiler (interface)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">DL600 compiler (interface)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DL600 compiler (interface)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">DL600 compiler (interface)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">DL600 compiler (interface)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">DL600 compiler (interface)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">DL600 compiler (interface)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">DL600 compiler (interface)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkObjects>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">DL600 compiler (interface)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">DL600 compiler (interface)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Rsrc\Rc\charry.ds">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Rsrc\Rc\ppbrow.rc2">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Компиляция %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Компиляция %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Компиляция %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Компиляция %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Компиляция %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Компиляция %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Компиляция %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Компиляция %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Компиляция %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Компиляция %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Компиляция %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Компиляция %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Rsrc\Rc\ppdlg.list">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Сборка диалогов</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Сборка диалогов</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Сборка диалогов</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Сборка диалогов</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Сборка диалогов</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Сборка диалогов</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Сборка диалогов</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Сборка диалогов</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Сборка диалогов</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Сборка диалогов</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Сборка диалогов</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Сборка диалогов</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Сборка диалогов</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Сборка диалогов</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\Rsrc\Version\genver.dat">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Rsrc\Rc\Ppdata.rc">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+      </Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+      </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+      </Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+      </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+      </Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+      </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+      </Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+      </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+      </Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Rsrc\Str\ppstr2.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\SC2C %(FullPath)
+COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
+COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
+COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename)%(Extension)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\Ppdefs.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="..\Rsrc\dl600\ppifc.idl">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</SuppressStartupBanner>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</SuppressStartupBanner>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</SuppressStartupBanner>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</SuppressStartupBanner>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</SuppressStartupBanner>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</SuppressStartupBanner>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</SuppressStartupBanner>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+      </AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+      </AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+      </AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+      </AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+      </AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</IgnoreStandardIncludePath>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\MSVS70\Common7\Tools\Bin\Midl /W3 /env win32  /no_def_idir /I D:\MSVS70\Vc7\PlatformSDK\Include /tlb %(Filename).tlb /out %(RelativeDir) /h %(Filename)_h.h %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">D:\MSVS70\Common7\Tools\Bin\Midl /W3 /env win32  /no_def_idir /I D:\MSVS70\Vc7\PlatformSDK\Include /tlb %(Filename).tlb /out %(RelativeDir) /h %(Filename)_h.h %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">D:\MSVS70\Common7\Tools\Bin\Midl /W3 /env win32  /no_def_idir /I D:\MSVS70\Vc7\PlatformSDK\Include /tlb %(Filename).tlb /out %(RelativeDir) /h %(Filename)_h.h %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">D:\MSVS70\Common7\Tools\Bin\Midl /W3 /env win32  /no_def_idir /I D:\MSVS70\Vc7\PlatformSDK\Include /tlb %(Filename).tlb /out %(RelativeDir) /h %(Filename)_h.h %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">D:\MSVS70\Common7\Tools\Bin\Midl /W3 /env win32  /no_def_idir /I D:\MSVS70\Vc7\PlatformSDK\Include /tlb %(Filename).tlb /out %(RelativeDir) /h %(Filename)_h.h %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\MSVS70\Common7\Tools\Bin\Midl /W3 /env win32  /no_def_idir /I D:\MSVS70\Vc7\PlatformSDK\Include /tlb %(Filename).tlb /out %(RelativeDir) /h %(Filename)_h.h %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">D:\MSVS70\Common7\Tools\Bin\Midl /W3 /env win32  /no_def_idir /I D:\MSVS70\Vc7\PlatformSDK\Include /tlb %(Filename).tlb /out %(RelativeDir) /h %(Filename)_h.h %(FullPath)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)%(Filename).tlb %(RelativeDir)%(Filename)_h.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RelativeDir)%(Filename).tlb %(RelativeDir)%(Filename)_h.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RelativeDir)%(Filename).tlb %(RelativeDir)%(Filename)_h.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RelativeDir)%(Filename).tlb %(RelativeDir)%(Filename)_h.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RelativeDir)%(Filename).tlb %(RelativeDir)%(Filename)_h.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)%(Filename).tlb %(RelativeDir)%(Filename)_h.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RelativeDir)%(Filename).tlb %(RelativeDir)%(Filename)_h.h</Outputs>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)_p.c</ProxyFileName>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotSet</StructMemberAlignment>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RelativeDir)</OutputDirectory>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RelativeDir)</OutputDirectory>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)_p.c</ProxyFileName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename).tlb</TypeLibraryName>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotSet</StructMemberAlignment>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</SuppressStartupBanner>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Unsigned</DefaultCharType>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</GenerateStublessProxies>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Release|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">EnableCustom</EnableErrorChecks>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">dlldata.c</DllDataFileName>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</SuppressCompilerWarnings>
+    </Midl>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

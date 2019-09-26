@@ -334,16 +334,16 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 		case NTLMSTATE_TYPE1:
 		default:
 		    /* Use Samba's 'winbind' daemon to support NTLM authentication,
-		     * by delegating the NTLM challenge/response protocal to a helper
-		     * in ntlm_auth.
-		     * http://devel.squid-cache.org/ntlm/squid_helper_protocol.html
-		     * https://www.samba.org/samba/docs/man/manpages-3/winbindd.8.html
-		     * https://www.samba.org/samba/docs/man/manpages-3/ntlm_auth.1.html
-		     * Preprocessor symbol 'NTLM_WB_ENABLED' is defined when this
-		     * feature is enabled and 'NTLM_WB_FILE' symbol holds absolute
-		     * filename of ntlm_auth helper.
-		     * If NTLM authentication using winbind fails, go back to original
-		     * request handling process.
+		 * by delegating the NTLM challenge/response protocal to a helper
+		 * in ntlm_auth.
+		 * http://devel.squid-cache.org/ntlm/squid_helper_protocol.html
+		 * https://www.samba.org/samba/docs/man/manpages-3/winbindd.8.html
+		 * https://www.samba.org/samba/docs/man/manpages-3/ntlm_auth.1.html
+		 * Preprocessor symbol 'NTLM_WB_ENABLED' is defined when this
+		 * feature is enabled and 'NTLM_WB_FILE' symbol holds absolute
+		 * filename of ntlm_auth helper.
+		 * If NTLM authentication using winbind fails, go back to original
+		 * request handling process.
 		     */
 		    /* Create communication with ntlm_auth */
 		    res = ntlm_wb_init(conn, userp);
@@ -382,7 +382,7 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 		    break;
 		case NTLMSTATE_TYPE3:
 		    /* connection is already authenticated,
-		     * don't send a header in future requests */
+		 * don't send a header in future requests */
 		    SAlloc::F(*allocuserpwd);
 		    *allocuserpwd = NULL;
 		    authp->done = TRUE;

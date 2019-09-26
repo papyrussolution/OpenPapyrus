@@ -322,8 +322,8 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_CTRL_PUSH:
 		    if(next && (next != ssl->rbio)) {
 			    /*
-			     * We are going to pass ownership of next to the SSL object...but
-			     * we don't own a reference to pass yet - so up ref
+			 * We are going to pass ownership of next to the SSL object...but
+			 * we don't own a reference to pass yet - so up ref
 			     */
 			    BIO_up_ref(next);
 			    SSL_set_bio(ssl, next, next);
@@ -379,7 +379,7 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_CTRL_SET_CALLBACK:
 	    {
 #if 0                           /* FIXME: Should this be used? -- Richard
-			         * Levitte */
+			    * Levitte */
 		    SSLerr(SSL_F_SSL_CTRL, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		    ret = -1;
 #else
@@ -414,8 +414,8 @@ static long ssl_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 		case BIO_CTRL_SET_CALLBACK:
 	    {
 		    /*
-		     * FIXME: setting this via a completely different prototype seems
-		     * like a crap idea
+		 * FIXME: setting this via a completely different prototype seems
+		 * like a crap idea
 		     */
 		    SSL_set_info_callback(ssl, (void (*)(const SSL *, int, int))fp);
 	    }

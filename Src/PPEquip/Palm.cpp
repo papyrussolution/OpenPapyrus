@@ -205,12 +205,11 @@ int SLAPI PalmBillPacket::RemoveItem(uint idx)
 //
 //
 //
-SLAPI PPGeoTrackingMode::PPGeoTrackingMode()
+SLAPI PPGeoTrackingMode::PPGeoTrackingMode() : Mode(0), Cycle(0)
 {
-	Clear();
 }
 
-PPGeoTrackingMode & SLAPI PPGeoTrackingMode::Clear()
+PPGeoTrackingMode & SLAPI PPGeoTrackingMode::Z()
 {
 	Mode = 0;
 	Cycle = 0;
@@ -3020,11 +3019,11 @@ public:
 			h.FormatVersion  = 1;
 			STRNSCPY(h.ProductName, "StyloAndroid");
 			h.ProductVersion = 1;
-			if(DS.CheckExtFlag(ECF_USEGEOTRACKING)) { // @v8.6.11
-				h.Gtm = pPack->Rec.Gtm; // @v8.6.8
+			if(DS.CheckExtFlag(ECF_USEGEOTRACKING)) {
+				h.Gtm = pPack->Rec.Gtm;
 			}
 			else {
-				h.Gtm.Clear();
+				h.Gtm.Z();
 			}
 			h.StyloFlags = (pPack->Rec.Flags & PLMF_TRANSMITMASK);
 			getcurdatetime(&h.CreateDtm);

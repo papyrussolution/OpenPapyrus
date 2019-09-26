@@ -315,7 +315,7 @@ struct iso9660 {
 	int64_t previous_number;
 	struct archive_string previous_pathname;
 
-	struct file_info     * use_files;
+	struct file_info * use_files;
 	struct heap_queue pending_files;
 	struct {
 		struct file_info   * first;
@@ -1833,10 +1833,10 @@ static int parse_rockridge(struct archive_read * a, struct file_info * file, con
 			    if(p[1] == 'E') {
 				    if(version == 1 && data_length == 24) {
 					    /*
-					     * CE extension comprises:
-					     *   8 byte sector containing extension
-					     *   8 byte offset w/in above sector
-					     *   8 byte length of continuation
+					 * CE extension comprises:
+					 *   8 byte sector containing extension
+					 *   8 byte offset w/in above sector
+					 *   8 byte length of continuation
 					     */
 					    int32_t location = archive_le32dec(data);
 					    file->ce_offset = archive_le32dec(data+8);
@@ -1862,11 +1862,11 @@ static int parse_rockridge(struct archive_read * a, struct file_info * file, con
 			    break;
 			case 'P':
 			    /*
-			     * PD extension is padding;
-			     * contents are always ignored.
+			 * PD extension is padding;
+			 * contents are always ignored.
 			     *
-			     * PL extension won't appear;
-			     * contents are always ignored.
+			 * PL extension won't appear;
+			 * contents are always ignored.
 			     */
 			    if(p[1] == 'N') {
 				    if(version == 1 && data_length == 16) {
@@ -1878,12 +1878,12 @@ static int parse_rockridge(struct archive_read * a, struct file_info * file, con
 			    }
 			    else if(p[1] == 'X') {
 				    /*
-				     * PX extension comprises:
-				     *   8 bytes for mode,
-				     *   8 bytes for nlinks,
-				     *   8 bytes for uid,
-				     *   8 bytes for gid,
-				     *   8 bytes for inode.
+				 * PX extension comprises:
+				 *   8 bytes for mode,
+				 *   8 bytes for nlinks,
+				 *   8 bytes for uid,
+				 *   8 bytes for gid,
+				 *   8 bytes for inode.
 				     */
 				    if(version == 1) {
 					    if(data_length >= 8)
@@ -1907,10 +1907,10 @@ static int parse_rockridge(struct archive_read * a, struct file_info * file, con
 			    }
 			    else if(p[1] == 'R' && version == 1) {
 				    /*
-				     * RR extension comprises:
-				     * one byte flag value
-				     * This extension is obsolete,
-				     * so contents are always ignored.
+				 * RR extension comprises:
+				 * one byte flag value
+				 * This extension is obsolete,
+				 * so contents are always ignored.
 				     */
 			    }
 			    break;
@@ -1923,13 +1923,13 @@ static int parse_rockridge(struct archive_read * a, struct file_info * file, con
 			    }
 			    else if(p[1] == 'T' && data_length == 0 && version == 1) {
 				    /*
-				     * ST extension marks end of this
-				     * block of SUSP entries.
+				 * ST extension marks end of this
+				 * block of SUSP entries.
 				     *
-				     * It allows SUSP to coexist with
-				     * non-SUSP uses of the System
-				     * Use Area by placing non-SUSP data
-				     * after SUSP data.
+				 * It allows SUSP to coexist with
+				 * non-SUSP uses of the System
+				 * Use Area by placing non-SUSP data
+				 * after SUSP data.
 				     */
 				    iso9660->seenSUSP = 0;
 				    iso9660->seenRockridge = 0;

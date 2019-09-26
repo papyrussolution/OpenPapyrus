@@ -164,10 +164,10 @@ again:
 			    break;
 			case LITERAL_RUN: /* literal followed by a run */
 			    /*
-			     * Check to see if previous run should
-			     * be converted to a literal, in which
-			     * case we convert literal-run-literal
-			     * to a single literal.
+			 * Check to see if previous run should
+			 * be converted to a literal, in which
+			 * case we convert literal-run-literal
+			 * to a single literal.
 			     */
 			    if(n == 1 && op[-2] == (uint8) -1 &&
 			    *lastliteral < 126) {

@@ -52,7 +52,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions=" /machine:X86"
-				OutputFile="..\osf\pcre-8.41\build\Debug\pcred.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="..\osf\pcre-8.41\build;..\osf\pcre-8.41;"
@@ -127,7 +127,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalOptions=" /machine:X86"
-				OutputFile="..\osf\pcre-8.41\build\Release\pcre.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="..\osf\pcre-8.41\build;..\osf\pcre-8.41;"

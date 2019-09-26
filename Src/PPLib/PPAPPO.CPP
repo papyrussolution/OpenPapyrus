@@ -28,6 +28,7 @@ int SLAPI BuildLocalDL600(); // ppbuild.cpp
 int SLAPI TestLogWindow(); // pplog.cpp
 int SLAPI TestTddo2(); // tddo2.cpp
 int SLAPI TestVetis(); // vetis.cpp
+int SLAPI TestMqc(); // ppmqc.cpp
 int SLAPI RecoverAbsenceTrfr();
 int SLAPI PPValidateXml();
 //int SLAPI ImportSartre();
@@ -887,6 +888,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTestLogWindow:           TestLogWindow(); break; // @v9.7.0
 		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
 		case cmTestVetis:               TestVetis(); break; // @v9.8.9
+		case cmTestMqc:                 TestMqc(); break; // @v10.5.7
 		case cmConvertLatexToHtml:      PPTex2Html(); break;
 		case cmConvertVersionToHtml:    PPVer2Html(); break;
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;

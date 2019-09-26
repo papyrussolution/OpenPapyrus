@@ -1566,7 +1566,7 @@ SLAPI FiasObjCore::HouseCode::HouseCode(const char * pCode)
 		Decode(pCode);
 }
 
-FiasObjCore::HouseCode & SLAPI FiasObjCore::HouseCode::Clear()
+FiasObjCore::HouseCode & SLAPI FiasObjCore::HouseCode::Z()
 {
 	HseNum = 0;
 	BldNum = 0;

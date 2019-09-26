@@ -397,7 +397,7 @@ private:
 //
 class SdRecordBuffer : public SBaseBuffer {
 public:
-	SLAPI  SdRecordBuffer(size_t maxSize);
+	explicit SLAPI SdRecordBuffer(size_t maxSize);
 	SLAPI ~SdRecordBuffer();
 	int    SLAPI Reset();
 	//
@@ -701,7 +701,7 @@ private:
 	LongArray WidthList;
 	ComExcelWorkbook  * P_WkBook;
 	ComExcelWorksheet * P_Sheet;
-	ComExcelApp       * P_App;
+	ComExcelApp  * P_App;
 	ComExcelWorksheets * P_Sheets;
 };
 // } @v6.4.4 AHTOXA
@@ -1095,14 +1095,11 @@ struct XFile {
 	//
 	BTABLENAME XfName;  // Table name
 	BFILENAME  XfLoc;   // File location (pathname)
-	int8   XfFlags;     // File flags. If (XfFlags & 0x0010)
-	//                     then dictionary file else user-defined
+	int8   XfFlags;     // File flags. If (XfFlags & 0x0010) then dictionary file else user-defined
 	int16  XfOwnrLvl;   // Owner access level (A. Sobolev)
 	int16  XfBTFlags;   // Btrieve File flags (A. Sobolev)
 	int8   reserv[6];   // Real file has record size 97 bytes
-	/* Indexes:
-		{ XfId }
-		{ XfName } */
+	// Indexes: { XfId } { XfName } 
 };
 //
 // XField (DDF struct)
@@ -1117,12 +1114,7 @@ struct XField {
 	int8   XeDec;       // Field decimal places
 	int16  XeFlags;     // Flags (Bit 0 - case flag for str data types)
 	int16  reserv;      // Real file has record size 32 bytes
-	/* Indexes:
-		{ XeId }
-		{ XeFile DUP }
-		{ XeName DUP }
-		{ XeFile
-		XeName } */
+	// Indexes: { XeId } { XeFile DUP } { XeName DUP } { XeFile XeName } 
 };
 //
 // XIndex (DDF struct)
@@ -1133,9 +1125,7 @@ struct XIndex {
 	int16  XiNumber;
 	int16  XiPart;
 	int16  XiFlags;
-	/* Indexes:
-		{ XiFile DUP }
-		{ XiField DUP } */
+	// Indexes: { XiFile DUP } { XiField DUP } 
 };
 //
 // PageSzInfo
@@ -2644,14 +2634,8 @@ private:
 		OH() : H(0), T(0)
 		{
 		}
-		int    Valid() const
-		{
-			return (T != 0);
-		}
-		int    operator !() const
-		{
-			return (T == 0);
-		}
+		int    Valid() const { return (T != 0); }
+		int    operator !() const { return (T == 0); }
 		void   Clear()
 		{
 			H = 0;
@@ -2668,7 +2652,7 @@ private:
 		operator OCIBind * () const { return Bind; }
 		operator OCITrans * () const { return Trans; }
 		union {
-			void      * H;     // Сам манипулятор
+			void * H;     // Сам манипулятор
 			OCIEnv    * Env;   // OCI_HTYPE_ENV
 			OCIError  * Err;   // OCI_HTYPE_ERROR
 			OCIServer * Svr;   // OCI_HTYPE_SERVER
@@ -2706,7 +2690,6 @@ private:
 
 	int    LobRead(OD & rLob, TYPEID typ, SLob * pBuf, size_t * pActualSize); // v
 	int    LobWrite(OD & rLob, TYPEID typ, SLob * pBuf, size_t dataLen);      // v
-
 	SOraDbProvider::OH FASTCALL OhAlloc(int type);
 	int    FASTCALL OhFree(OH & rO);
 	SOraDbProvider::OD FASTCALL OdAlloc(int type);
@@ -2717,16 +2700,13 @@ private:
 	int    OhAttrGet(OH o, uint attr, SString & rBuf);
 	void   Helper_SetErr(int errCode, const char * pErrStr);
 	int    FASTCALL ProcessError(int retCode);
-
 	LDATE  FASTCALL GetDate(OCIDateTime *);
 	LTIME  FASTCALL GetTime(OCIDateTime *);
 	LDATETIME FASTCALL GetDateTime(OCIDateTime *);
 	int    SetDate(OCIDateTime *, LDATE);
 	int    SetTime(OCIDateTime *, LTIME);
 	int    SetDateTime(OCIDateTime *, LDATETIME);
-
 	int    RowidToStr(OD rowid, SString & rBuf);
-
 	size_t FASTCALL RawGetSize(const RAW & r);
 	int    RawResize(RAW & r, size_t newSize);
 	int    RawCopyFrom(RAW & r, const void * pBuf, size_t dataSize);
@@ -2736,9 +2716,7 @@ private:
 	int    ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType, int descrType);
 	int    ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
-
 	static OH FASTCALL StmtHandle(const SSqlStmt & rS);
-
 	int    SLAPI GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
 
 	enum {
@@ -2933,28 +2911,28 @@ typedef int (*PT_PvFreeOpenFilesData)(long hConnection);
 typedef int (*PT_PvGetOpenFileName)(long hConnection, ulong idx, ulong * pBufSize, char * pFileName);
 
 struct PVDATETIME {
-   ushort   year;           // Year (current year minus 1900)
-   ushort   month;          // Month (0 – 11; January = 0)
-   ushort   day;            // Day of month (1 – 31)
-   ushort   hour;           // Hours since midnight (0 – 23)
-   ushort   minute;         // Minutes after hour (0 – 59)
-   ushort   second;         // Seconds after minute (0 – 59)
-   ushort   millisecond;    // Milliseconds after minute (0 – 59000). Default to 0 if the smallest time unit is seconds.
+   ushort  year;           // Year (current year minus 1900)
+   ushort  month;          // Month (0 – 11; January = 0)
+   ushort  day;            // Day of month (1 – 31)
+   ushort  hour;           // Hours since midnight (0 – 23)
+   ushort  minute;         // Minutes after hour (0 – 59)
+   ushort  second;         // Seconds after minute (0 – 59)
+   ushort  millisecond;    // Milliseconds after minute (0 – 59000). Default to 0 if the smallest time unit is seconds.
 };
 
 struct PVFILEINFO {
-	uchar       openMode;            /* open mode */
-	uchar       locksFlag;           /* TRUE if locked */
-	uchar       transFlag;           /* TRUE if in transaction mode */
-	uchar       tTSFlag;             /*  */
-	uchar       readOnly;            /* TRUE if opened for read-only access */
-	uchar       continuousOpsFlag;   /*  */
-	uchar       referentialIntgFlag; /*  */
-	ulong       aFLIndex;            /*  */
-	ulong       activeCursors;       /*  */
-	ulong       pageSize;            /* page size in bytes */
-	PVDATETIME  openTimeStamp;       /* time when the file was open */
-	uchar       Reserve;
+	uchar  openMode;            /* open mode */
+	uchar  locksFlag;           /* TRUE if locked */
+	uchar  transFlag;           /* TRUE if in transaction mode */
+	uchar  tTSFlag;             /*  */
+	uchar  readOnly;            /* TRUE if opened for read-only access */
+	uchar  continuousOpsFlag;   /*  */
+	uchar  referentialIntgFlag; /*  */
+	ulong  aFLIndex;            /*  */
+	ulong  activeCursors;       /*  */
+	ulong  pageSize;            /* page size in bytes */
+	PVDATETIME openTimeStamp;  /* time when the file was open */
+	uchar  Reserve;
 };
 
 struct PVFILEHDLINFO {
@@ -2965,7 +2943,6 @@ struct PVFILEHDLINFO {
 	ushort  transState;          /* transaction state */
 	char    userName[P_MAX_NAME_SIZE];    /* user who owns this handle */
 };
-
 
 typedef int (*PT_PvGetFileInfo)(long hConnection, char * pFileName, PVFILEINFO * pInfo);
 typedef int (*PT_PvGetFileHandleInfo)(long hConnection, char * pFileName, PVFILEHDLINFO *);
@@ -3441,7 +3418,7 @@ public:
 	int    SLAPI last();
 	int    SLAPI operator++();
 	int    SLAPI operator--();
-	void   SLAPI makeRange(void *, __range &);
+	void   SLAPI makeRange(const void *, __range &) const;
 	void   SLAPI rangeToBuf(const __range &, void *, int);
 	int    SLAPI disjunction(void *);                         // OR
 	int    SLAPI conjunction(__range & /*dest*/, const __range &, int *, int *);
@@ -3846,7 +3823,7 @@ private:
 	char * SLAPI getRecImage();
 
 	DBTable * P_Tbl;
-	DBQ     * P_Restrict;
+	DBQ * P_Restrict;
 	DBTree  * P_Tree;
 	int    Index_;
 	DBFieldList Fields;
@@ -4336,7 +4313,6 @@ private:
 	class Txn {
 	public:
 		Txn();
-
 		DB_TXN * T;
 		SCollection TblList;
 	};

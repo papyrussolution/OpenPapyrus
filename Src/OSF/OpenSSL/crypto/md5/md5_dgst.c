@@ -33,7 +33,7 @@ int MD5_Init(MD5_CTX * c)
 # endif
 void md5_block_data_order(MD5_CTX * c, const void * data_, size_t num)
 {
-	const uchar * data = (const uchar*)data_;
+	const uchar * data = (const uchar *)data_;
 	register unsigned MD32_REG_T A, B, C, D, l;
 # ifndef MD32_XARRAY
 	/* See comment in crypto/sha/sha_locl.h for details. */

@@ -67,34 +67,22 @@ static cairo_status_t _cairo_gl_subsurface_clone_operand_init(cairo_gl_operand_t
 {
 	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t *)_src;
 	cairo_surface_pattern_t local_pattern;
-	cairo_surface_subsurface_t * sub;
 	cairo_gl_surface_t * surface;
 	cairo_gl_context_t * ctx;
 	cairo_surface_attributes_t * attributes;
 	cairo_status_t status;
-
-	sub = (cairo_surface_subsurface_t*)src->surface;
-
-	if(sub->snapshot &&
-	    sub->snapshot->type == CAIRO_SURFACE_TYPE_GL &&
-	    sub->snapshot->device == dst->base.device) {
-		surface = (cairo_gl_surface_t*)
-		    cairo_surface_reference(sub->snapshot);
+	cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)src->surface;
+	if(sub->snapshot && sub->snapshot->type == CAIRO_SURFACE_TYPE_GL && sub->snapshot->device == dst->base.device) {
+		surface = (cairo_gl_surface_t*)cairo_surface_reference(sub->snapshot);
 	}
 	else {
 		status = _cairo_gl_context_acquire(dst->base.device, &ctx);
 		if(unlikely(status))
 			return status;
-
 		/* XXX Trim surface to the sample area within the subsurface? */
-		surface = (cairo_gl_surface_t*)
-		    _cairo_gl_surface_create_scratch(ctx,
-			sub->target->content,
-			sub->extents.width,
-			sub->extents.height);
+		surface = (cairo_gl_surface_t*)_cairo_gl_surface_create_scratch(ctx, sub->target->content, sub->extents.width, sub->extents.height);
 		if(surface->base.status)
 			return _cairo_gl_context_release(ctx, surface->base.status);
-
 		_cairo_pattern_init_for_surface(&local_pattern, sub->target);
 		cairo_matrix_init_translate(&local_pattern.base.matrix, sub->extents.x, sub->extents.y);
 		local_pattern.base.filter = CAIRO_FILTER_NEAREST;
@@ -105,110 +93,76 @@ static cairo_status_t _cairo_gl_subsurface_clone_operand_init(cairo_gl_operand_t
 			cairo_surface_destroy(&surface->base);
 			return status;
 		}
-
 		_cairo_surface_subsurface_set_snapshot(&sub->base, &surface->base);
 	}
-
 	status = _cairo_gl_surface_resolve_multisampling(surface);
 	if(unlikely(status))
 		return status;
-
 	attributes = &operand->texture.attributes;
-
 	operand->type = CAIRO_GL_OPERAND_TEXTURE;
 	operand->texture.surface = surface;
 	operand->texture.owns_surface = surface;
 	operand->texture.tex = surface->tex;
-
 	if(_cairo_gl_device_requires_power_of_two_textures(dst->base.device)) {
 		attributes->matrix = src->base.matrix;
 	}
 	else {
 		cairo_matrix_t m;
-
-		cairo_matrix_init_scale(&m,
-		    1.0 / surface->width,
-		    1.0 / surface->height);
+		cairo_matrix_init_scale(&m, 1.0 / surface->width, 1.0 / surface->height);
 		cairo_matrix_multiply(&attributes->matrix, &src->base.matrix, &m);
 	}
-
 	attributes->extend = src->base.extend;
 	attributes->filter = src->base.filter;
 	attributes->has_component_alpha = src->base.has_component_alpha;
-
 	operand->texture.texgen = use_texgen;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_gl_subsurface_operand_init(cairo_gl_operand_t * operand,
-    const cairo_pattern_t * _src,
-    cairo_gl_surface_t * dst,
-    const cairo_rectangle_int_t * sample,
-    const cairo_rectangle_int_t * extents,
-    boolint use_texgen)
+static cairo_status_t _cairo_gl_subsurface_operand_init(cairo_gl_operand_t * operand, const cairo_pattern_t * _src,
+    cairo_gl_surface_t * dst, const cairo_rectangle_int_t * sample, const cairo_rectangle_int_t * extents, boolint use_texgen)
 {
 	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t *)_src;
-	cairo_surface_subsurface_t * sub;
 	cairo_gl_surface_t * surface;
 	cairo_surface_attributes_t * attributes;
 	cairo_int_status_t status;
-
-	sub = (cairo_surface_subsurface_t*)src->surface;
-
+	cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)src->surface;
 	if(sample->x < 0 || sample->y < 0 ||
 	    sample->x + sample->width  > sub->extents.width ||
 	    sample->y + sample->height > sub->extents.height) {
-		return _cairo_gl_subsurface_clone_operand_init(operand, _src,
-			   dst, sample, extents,
-			   use_texgen);
+		return _cairo_gl_subsurface_clone_operand_init(operand, _src, dst, sample, extents, use_texgen);
 	}
-
 	surface = (cairo_gl_surface_t*)sub->target;
 	if(surface->base.device && surface->base.device != dst->base.device)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	if(!_cairo_gl_surface_is_texture(surface))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	status = _cairo_gl_surface_resolve_multisampling(surface);
 	if(unlikely(status))
 		return status;
-
 	/* Translate the matrix from
 	 * (unnormalized src -> unnormalized src) to
 	 * (unnormalized dst -> unnormalized src)
 	 */
 	_cairo_gl_operand_copy(operand, &surface->operand);
-
 	attributes = &operand->texture.attributes;
 	attributes->matrix = src->base.matrix;
 	attributes->matrix.x0 += sub->extents.x;
 	attributes->matrix.y0 += sub->extents.y;
-	cairo_matrix_multiply(&attributes->matrix,
-	    &attributes->matrix,
-	    &surface->operand.texture.attributes.matrix);
-
+	cairo_matrix_multiply(&attributes->matrix, &attributes->matrix, &surface->operand.texture.attributes.matrix);
 	attributes->extend = src->base.extend;
 	attributes->filter = src->base.filter;
 	attributes->has_component_alpha = src->base.has_component_alpha;
-
 	operand->texture.texgen = use_texgen;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_gl_surface_operand_init(cairo_gl_operand_t * operand,
-    const cairo_pattern_t * _src,
-    cairo_gl_surface_t * dst,
-    const cairo_rectangle_int_t * sample,
-    const cairo_rectangle_int_t * extents,
-    boolint use_texgen)
+static cairo_status_t _cairo_gl_surface_operand_init(cairo_gl_operand_t * operand, const cairo_pattern_t * _src,
+    cairo_gl_surface_t * dst, const cairo_rectangle_int_t * sample, const cairo_rectangle_int_t * extents, boolint use_texgen)
 {
 	const cairo_surface_pattern_t * src = (cairo_surface_pattern_t *)_src;
-	cairo_gl_surface_t * surface;
 	cairo_surface_attributes_t * attributes;
 	cairo_int_status_t status;
-
-	surface = (cairo_gl_surface_t*)src->surface;
+	cairo_gl_surface_t * surface = (cairo_gl_surface_t*)src->surface;
 	if(surface->base.type != CAIRO_SURFACE_TYPE_GL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 

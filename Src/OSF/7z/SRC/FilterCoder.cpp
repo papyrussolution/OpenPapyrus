@@ -168,7 +168,7 @@ STDMETHODIMP CFilterCoder::Write(const void * data, uint32 size, uint32 * proces
 			uint32 num = MyMin(size, _bufSize - _bufPos);
 			memcpy(_buf + _bufPos, data, num);
 			size -= num;
-			data = (const Byte*)data + num;
+			data = (const Byte *)data + num;
 			if(processedSize)
 				*processedSize += num;
 			_bufPos += num;

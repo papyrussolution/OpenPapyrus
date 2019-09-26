@@ -835,7 +835,7 @@ int SLAPI PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t 
 	int    ok = 1;
 	union {
 		_Formula * form;
-		char     * bform;
+		char * bform;
 	};
 	size_t sz = PROPRECFIXSIZE;
 	ReferenceTbl::Rec ref_rec;
@@ -1979,8 +1979,8 @@ public:
 				c++;
 				// @v10.4.10 sprintf(tmp_rec.Serial, "%s #%d", serial_buf, c);
 				// @v10.4.10 strip(tmp_rec.Serial);
-				temp_buf.Z().Cat(serial_buf).Space().CatChar('#').Cat(c).Strip(); // @v10.4.10 
-				STRNSCPY(tmp_rec.Serial, temp_buf); // @v10.4.10 
+				temp_buf.Z().Cat(serial_buf).Space().CatChar('#').Cat(c).Strip(); // @v10.4.10
+				STRNSCPY(tmp_rec.Serial, temp_buf); // @v10.4.10
 			}
 			else {
 				pTbl->copyBufFrom(&tmp_rec);
@@ -2412,7 +2412,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
-		CpTransfTbl::Rec * data = (CpTransfTbl::Rec*)tbl->getDataBuf();
+		CpTransfTbl::Rec * data = static_cast<CpTransfTbl::Rec *>(tbl->getDataBuf());
 		memcpy(data, rec, sizeof(CpTransfTbl::Rec));
 		return 1;
 	}
@@ -3222,7 +3222,7 @@ CONVERT_PROC(Convert5608, PPCvtObjSync5608);
 //
 //
 //
-#define IMPL_REF2CVT_FUNC(rec) int ConvertRef(const rec##_ & rRec, rec##2 & rRec2) {\
+#define IMPL_REF2CVT_FUNC(rec) void ConvertRef(const rec##_ & rRec, rec##2 & rRec2) {\
 	assert(sizeof(rRec) == sizeof(Reference_Tbl::Rec)); \
 	assert(sizeof(rRec2) == sizeof(Reference2Tbl::Rec)); \
 	MEMSZERO(rRec2); \
@@ -3230,7 +3230,7 @@ CONVERT_PROC(Convert5608, PPCvtObjSync5608);
 	rRec2.ID = rRec.ID; \
 	STRNSCPY(rRec2.Name, rRec.Name);
 
-#define IMPL_REF2CVT_FUNC_NA(rec) int ConvertRef(const rec##_ & rRec, rec##2 & rRec2) {\
+#define IMPL_REF2CVT_FUNC_NA(rec) void ConvertRef(const rec##_ & rRec, rec##2 & rRec2) {\
 	MEMSZERO(rRec2); \
 	rRec2.Tag = rRec.Tag; \
 	rRec2.ID = rRec.ID; \
@@ -3246,7 +3246,6 @@ IMPL_REF2CVT_FUNC(PPObjectTag) // {
 	REF2CVT_ASSIGN(TagDataType);
 	REF2CVT_ASSIGN(ObjTypeID);
 	REF2CVT_ASSIGN(TagGroupID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPSecur) // {
@@ -3262,13 +3261,12 @@ IMPL_REF2CVT_FUNC(PPSecur) // {
 	THROW(Reference::Encrypt(Reference::crymRef2, temp_buf, rRec2.Password, sizeof(rRec2.Password)));
 	Reference::VerifySecur(&rRec2, 1);
 	CATCHZOK
-	return ok;
+	// @v10.5.7 return ok;
 }
 
 IMPL_REF2CVT_FUNC(PPBarcodeStruc) // {
 	STRNSCPY(rRec2.Templ, rRec.Templ);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPUnit) // {
@@ -3276,7 +3274,6 @@ IMPL_REF2CVT_FUNC(PPUnit) // {
 	REF2CVT_ASSIGN(BaseUnitID);
 	REF2CVT_ASSIGN(BaseRatio);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPNamedObjAssoc) // {
@@ -3285,36 +3282,30 @@ IMPL_REF2CVT_FUNC(PPNamedObjAssoc) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(PrmrObjType);
 	REF2CVT_ASSIGN(ScndObjType);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPPersonKind) // {
 	REF2CVT_ASSIGN(CodeRegTypeID);
 	REF2CVT_ASSIGN(FolderRegTypeID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPPersonStatus) // {
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPELinkKind) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Type);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPCurrency) // {
 	STRNSCPY(rRec2.Symb, rRec.Symb);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Code);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPCurRateType) // {
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPAmountType) // {
@@ -3322,12 +3313,10 @@ IMPL_REF2CVT_FUNC(PPAmountType) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Tax);
 	REF2CVT_ASSIGN(TaxRate);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPOprType) // {
 	STRNSCPY(rRec2.Pict, rRec.Pict);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPOpCounter) // {
@@ -3336,7 +3325,6 @@ IMPL_REF2CVT_FUNC(PPOpCounter) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Counter);
 	REF2CVT_ASSIGN(OwnerObjID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPGdsCls) // {
@@ -3350,7 +3338,6 @@ IMPL_REF2CVT_FUNC(PPGdsCls) // {
 	REF2CVT_ASSIGN(FiltDlgID);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(DynGenMask);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPAssetWrOffGrp) // {
@@ -3359,7 +3346,6 @@ IMPL_REF2CVT_FUNC(PPAssetWrOffGrp) // {
 	REF2CVT_ASSIGN(WrOffTerm);
 	REF2CVT_ASSIGN(Limit);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPOprKind) // {
@@ -3374,14 +3360,12 @@ IMPL_REF2CVT_FUNC(PPOprKind) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(OpTypeID);
 	REF2CVT_ASSIGN(AccSheetID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPBillStatus) // {
 	STRNSCPY(rRec2.Symb, rRec.Symb);
 	REF2CVT_ASSIGN(Rank);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPAccSheet) // {
@@ -3390,7 +3374,6 @@ IMPL_REF2CVT_FUNC(PPAccSheet) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Assoc);
 	REF2CVT_ASSIGN(ObjGroup);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPCashNode) // {
@@ -3412,14 +3395,12 @@ IMPL_REF2CVT_FUNC(PPCashNode) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(LocID);
 	REF2CVT_ASSIGN(CurDate);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPLocPrinter) // {
 	STRNSCPY(rRec2.Port, rRec.Port);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(LocID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPStyloPalm) // {
@@ -3431,7 +3412,6 @@ IMPL_REF2CVT_FUNC(PPStyloPalm) // {
 	REF2CVT_ASSIGN(GroupID);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(FTPAcctID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPTouchScreen) // {
@@ -3441,7 +3421,6 @@ IMPL_REF2CVT_FUNC(PPTouchScreen) // {
 	REF2CVT_ASSIGN(GdsListFontHight);
 	REF2CVT_ASSIGN(GdsListEntryGap);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC_NA(PPBarcodePrinter) // {
@@ -3450,14 +3429,12 @@ IMPL_REF2CVT_FUNC_NA(PPBarcodePrinter) // {
 	REF2CVT_ASSIGN(Cpp);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(PrinterType);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC_NA(PPInternetAccount) // {
 	REF2CVT_ASSIGN(SmtpAuthType);
 	REF2CVT_ASSIGN(Timeout);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPDBDiv) // {
@@ -3465,7 +3442,6 @@ IMPL_REF2CVT_FUNC(PPDBDiv) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(IntrRcptOpr);
 	REF2CVT_ASSIGN(OutCounter);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPGoodsType) // {
@@ -3475,7 +3451,6 @@ IMPL_REF2CVT_FUNC(PPGoodsType) // {
 	REF2CVT_ASSIGN(AmtPrice);
 	REF2CVT_ASSIGN(AmtDscnt);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPGoodsStrucHeader) // {
@@ -3484,7 +3459,6 @@ IMPL_REF2CVT_FUNC(PPGoodsStrucHeader) // {
 	REF2CVT_ASSIGN(CommDenom);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(ParentID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPGoodsTax) // {
@@ -3495,7 +3469,6 @@ IMPL_REF2CVT_FUNC(PPGoodsTax) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Order);
 	REF2CVT_ASSIGN(UnionVect);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPRegisterType) // {
@@ -3504,7 +3477,6 @@ IMPL_REF2CVT_FUNC(PPRegisterType) // {
 	REF2CVT_ASSIGN(RegOrgKind);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(CounterID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPQuotKind) // {
@@ -3519,7 +3491,6 @@ IMPL_REF2CVT_FUNC(PPQuotKind) // {
 	REF2CVT_ASSIGN(OpID);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(AccSheetID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPPsnOpKind) // {
@@ -3531,7 +3502,6 @@ IMPL_REF2CVT_FUNC(PPPsnOpKind) // {
 	REF2CVT_ASSIGN(PairType);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(LinkBillOpID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPWorldObjStatus) // {
@@ -3539,7 +3509,6 @@ IMPL_REF2CVT_FUNC(PPWorldObjStatus) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Kind);
 	REF2CVT_ASSIGN(Code);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPPersonRelType) // {
@@ -3547,7 +3516,6 @@ IMPL_REF2CVT_FUNC(PPPersonRelType) // {
 	REF2CVT_ASSIGN(StatusRestriction);
 	REF2CVT_ASSIGN(Cardinality);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPSalCharge) // {
@@ -3556,20 +3524,17 @@ IMPL_REF2CVT_FUNC(PPSalCharge) // {
 	REF2CVT_ASSIGN(CalID);
 	REF2CVT_ASSIGN(WrOffOpID);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPDateTimeRep) // {
 	REF2CVT_ASSIGN(Dtr);
 	REF2CVT_ASSIGN(Duration);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPDutySched) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(ObjType);
 	REF2CVT_ASSIGN(ObjGroup);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPStaffCal) // {
@@ -3580,11 +3545,14 @@ IMPL_REF2CVT_FUNC(PPStaffCal) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(LinkCalID);
 	REF2CVT_ASSIGN(LinkObjID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPScale) // {
-	memcpy(rRec2.Port, rRec.Port, sizeof(rRec.Port));
+	// @v10.5.7 Поле Port перемещено из основной записи в "хвост".
+	// Таким образом, эта конвертация не сможет правильно преобразовать запись. Но это - не проблема, ибо, скорее всего
+	// данная конвертация уже на актуальна за давностью лет.
+	// memcpy(rRec2.Port, rRec.Port, sizeof(rRec.Port));
+	//
 	REF2CVT_ASSIGN(Get_NumTries);
 	REF2CVT_ASSIGN(Get_Delay);
 	REF2CVT_ASSIGN(Put_NumTries);
@@ -3596,7 +3564,6 @@ IMPL_REF2CVT_FUNC(PPScale) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Location);
 	REF2CVT_ASSIGN(AltGoodsGrp);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPBhtTerminal) // {
@@ -3614,7 +3581,6 @@ IMPL_REF2CVT_FUNC(PPBhtTerminal) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(BhtTypeID);
 	REF2CVT_ASSIGN(ExpendOpID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPSCardSeries) // {
@@ -3626,7 +3592,6 @@ IMPL_REF2CVT_FUNC(PPSCardSeries) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(Issue);
 	REF2CVT_ASSIGN(Expiry);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPDraftWrOff) // {
@@ -3634,13 +3599,11 @@ IMPL_REF2CVT_FUNC(PPDraftWrOff) // {
 	REF2CVT_ASSIGN(DfctCompensOpID);
 	REF2CVT_ASSIGN(DfctCompensArID);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPAdvBillKind) // {
 	REF2CVT_ASSIGN(LinkOpID);
 	REF2CVT_ASSIGN(Flags);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPGoodsBasket) // {
@@ -3648,7 +3611,6 @@ IMPL_REF2CVT_FUNC(PPGoodsBasket) // {
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(User);
 	REF2CVT_ASSIGN(SupplID);
-	return 1;
 }
 
 IMPL_REF2CVT_FUNC(PPDraftCreateRule) // {
@@ -3666,12 +3628,11 @@ IMPL_REF2CVT_FUNC(PPDraftCreateRule) // {
 	REF2CVT_ASSIGN(MaxPos);
 	REF2CVT_ASSIGN(Flags);
 	REF2CVT_ASSIGN(ParentID);
-	return 1;
 }
 
 //#define IMPL_REF2CVT_FUNC(rec) int ConvertRef(const rec##_ & rRec, rec##2 & rRec2) {\
 
-#define CONVERT_REF2_OBJ(obj, rec) case obj: THROW(ConvertRef(*reinterpret_cast<const rec##_ *>(&ref.data), *reinterpret_cast<rec##2 *>(&ref2.data))); break
+#define CONVERT_REF2_OBJ(obj, rec) case obj: ConvertRef(*reinterpret_cast<const rec##_ *>(&ref.data), *reinterpret_cast<rec##2 *>(&ref2.data)); break
 
 static int SLAPI ConvertRef2()
 {
@@ -7128,4 +7089,102 @@ public:
 };
 
 CONVERT_PROC(Convert10209, PPCvtLotExtCode10209);
+//
+//
+//
+int SLAPI Convert10507()
+{
+	struct Scale_Before10507 {  // size=128
+		long   Tag;
+		long   ID;
+		char   Name[48];
+		char   Symb[20];
+		PPID   ParentID;
+		char   AddedMsgSign[8];
+		int16  MaxAddedLn;
+		int16  MaxAddedLnCount;
+		char   Reserve[8];
+		char   Port[8]; // Если Flags & SCALF_TCPIP, то IP-адрес устройства упаковывается в поле Port в виде: Port[0].Port[1].Port[2].Port[3]
+		uint16 Get_NumTries;
+		uint16 Get_Delay;
+		uint16 Put_NumTries;
+		uint16 Put_Delay;
+		int16  BcPrefix;
+		uint16 Reserve2;
+		PPID   QuotKindID;
+		PPID   ScaleTypeID;
+		long   ProtocolVer;
+		long   LogNum;
+		long   Flags;
+		long   Location;
+		long   AltGoodsGrp;
+	};
+	int    ok = 1;
+	int    ppref_allocated = 0;
+	if(!PPRef) {
+		THROW_MEM(PPRef = new Reference);
+		ppref_allocated = 0;
+	}
+	Reference * p_ref = PPRef;
+	if(p_ref) {
+		SString temp_buf;
+		Scale_Before10507 sc_rec;
+		PPObjScale sc_obj;
+		PPTransaction tra(1);
+		THROW(tra);
+		for(PPID sc_id = 0; p_ref->EnumItems(PPOBJ_SCALE, &sc_id, &sc_rec) > 0;) {
+			int v = 0, mj = 0, mn = 0;
+			reinterpret_cast<const PPScale *>(&sc_rec)->Ver_Signature.Get(&v, &mj, &mn);
+			if(v >= 10 && v <= 20 && mj >= 0 && mj <= 10 && mn >= 0 && mn <= 15) {
+				;
+			}
+			else {
+				PPScalePacket pack;
+#define CPYF(f) pack.Rec.f = sc_rec.f
+				CPYF(Tag);
+				CPYF(ID);
+				CPYF(ParentID);
+				CPYF(MaxAddedLn);
+				CPYF(MaxAddedLnCount);
+				CPYF(Get_NumTries);
+				CPYF(Get_Delay);
+				CPYF(Put_NumTries);
+				CPYF(Put_Delay);
+				CPYF(BcPrefix);
+				CPYF(QuotKindID);
+				CPYF(ScaleTypeID);
+				CPYF(ProtocolVer);
+				CPYF(LogNum);
+				CPYF(Flags);
+				CPYF(Location);
+				CPYF(AltGoodsGrp);
+#undef CPYF
+				pack.Rec.Ver_Signature = DS.GetVersion();
+				STRNSCPY(pack.Rec.Name, sc_rec.Name);
+				STRNSCPY(pack.Rec.Symb, sc_rec.Symb);
+				if(sc_rec.Flags & SCALF_TCPIP) {
+					char   ip_buf[64];
+					PPObjScale::DecodeIP(sc_rec.Port, ip_buf);
+					(temp_buf = ip_buf).Strip();
+				}
+				else
+					temp_buf = sc_rec.Port;
+				pack.PutExtStrData(pack.extssPort, temp_buf);
+				pack.PutExtStrData(pack.extssAddedMsgSign, sc_rec.AddedMsgSign);
+				if(p_ref->GetPropVlrString(PPOBJ_SCALE, sc_rec.ID, SCLPRP_EXPPATHS, temp_buf) > 0) {
+					pack.PutExtStrData(pack.extssPaths, temp_buf);
+				}
+				{
+					PPID temp_id = sc_rec.ID;
+					THROW(sc_obj.PutPacket(&temp_id, &pack, 0));
+				}
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	if(ppref_allocated)
+		ZDELETE(PPRef);
+	return ok;
+}
 

@@ -153,13 +153,11 @@ void Tddo::Meta::Clear()
 	Param.Z();
 }
 
-Tddo::Result::Result()
+Tddo::Result::Result() : RefType(0), RefID(0)
 {
-	RefType = 0;
-	RefID = 0;
 }
 
-Tddo::Result & Tddo::Result::Clear()
+Tddo::Result & Tddo::Result::Z()
 {
 	S.Z();
 	RefType = 0;
@@ -171,7 +169,7 @@ Tddo::Result & Tddo::Result::Clear()
 
 int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, SStrScan & rScan, Result & rR)
 {
-	rR.Clear();
+	rR.Z();
 	int    ok = 1, r;
 	Result temp_result;
 	SString item_name, temp_buf;
@@ -378,14 +376,12 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 					case _opNEq: _r = BIN(sc != 0); break;
 				}
 			}
-			rR.Clear().S.Cat(_r);
+			rR.Z().S.Cat(_r);
 		}
 	}
 	CATCHZOK
-	// @v8.7.8 {
 	if(pCallerRtm && pCallerRtm != pRtm)
 		pRtm->P_Ep = pCallerRtm->P_Ep;
-	// } @v8.7.8
 	return ok;
 }
 
@@ -564,7 +560,7 @@ int SLAPI Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::Export
 
 int SLAPI Tddo::ResolveArgN(const SString & rText, Result & rR)
 {
-	rR.Clear();
+	rR.Z();
 	int    ok = -1;
 	long   argn = rText.ToLong();
 	long   n = 0;
@@ -581,7 +577,7 @@ int SLAPI Tddo::ResolveArgN(const SString & rText, Result & rR)
 
 int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result & rR)
 {
-	rR.Clear();
+	rR.Z();
 	int    ok = 1;
 	SString temp_buf;
 	if(rText == "__FILE__") {

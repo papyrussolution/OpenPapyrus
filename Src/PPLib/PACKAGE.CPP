@@ -43,7 +43,7 @@ LPackage & FASTCALL LPackage::operator = (const LPackage & s)
 	return *this;
 }
 
-int SLAPI LPackage::Init()
+void SLAPI LPackage::Init()
 {
 	ID = 0;
 	PrevID = 0;
@@ -57,7 +57,6 @@ int SLAPI LPackage::Init()
 	Qtty = PhQtty = 0;
 	Cost = Price = 0;
 	freeAll();
-	return 1;
 }
 
 int SLAPI LPackage::EnumItems(uint * pI, int * pIdx, PPID * pID) const

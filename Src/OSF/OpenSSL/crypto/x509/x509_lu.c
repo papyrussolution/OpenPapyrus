@@ -608,7 +608,7 @@ int X509_STORE_CTX_get1_issuer(X509 ** issuer, X509_STORE_CTX * ctx, X509 * x)
 	CRYPTO_THREAD_write_lock(ctx->ctx->lock);
 	idx = X509_OBJECT_idx_by_subject(ctx->ctx->objs, X509_LU_X509, xn);
 	if(idx != -1) {         /* should be true as we've had at least one
-		                 * match */
+		 * match */
 		/* Look through all matching certs for suitable issuer */
 		for(i = idx; i < sk_X509_OBJECT_num(ctx->ctx->objs); i++) {
 			pobj = sk_X509_OBJECT_value(ctx->ctx->objs, i);

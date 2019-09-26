@@ -1041,9 +1041,9 @@ METHODDEF(int) read_markers(j_decompress_ptr cinfo)
 			    break;
 			default: /* must be DHP, EXP, JPGn, or RESn */
 			    /* For now, we treat the reserved markers as fatal errors since they are
-			     * likely to be used to signal incompatible JPEG Part 3 extensions.
-			     * Once the JPEG 3 version-number marker is well defined, this code
-			     * ought to change!
+			 * likely to be used to signal incompatible JPEG Part 3 extensions.
+			 * Once the JPEG 3 version-number marker is well defined, this code
+			 * ought to change!
 			     */
 			    ERREXIT1(cinfo, JERR_UNKNOWN_MARKER, cinfo->unread_marker);
 			    break;

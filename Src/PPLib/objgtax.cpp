@@ -62,7 +62,7 @@ void FASTCALL PPGoodsTax::ToEntry(PPGoodsTaxEntry * pEntry) const
 {
 	if(pEntry) {
 		pEntry->TaxGrpID = ID;
-		pEntry->VAT      = R0i(VAT      * 100L);  // @divtax
+		pEntry->VAT      = R0i(VAT * 100L);  // @divtax
 		pEntry->Excise   = R0i(Excise   * 100L);  // @divtax
 		pEntry->SalesTax = R0i(SalesTax * 100L);  // @divtax
 		pEntry->Flags = Flags;
@@ -846,21 +846,7 @@ int SLAPI PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuf
 }
 
 int  SLAPI PPObjGoodsTax::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	p->Data = new PPGoodsTaxPacket;
-	THROW_MEM(p->Data);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPGoodsTaxPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPGoodsTaxPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjGoodsTax, PPGoodsTaxPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjGoodsTax::SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PPGoodsTax * pRec)
 {

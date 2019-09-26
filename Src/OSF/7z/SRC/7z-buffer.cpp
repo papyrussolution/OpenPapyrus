@@ -63,7 +63,7 @@ void FASTCALL COutBuffer::WriteByte(Byte b)
 void FASTCALL COutBuffer::WriteBytes(const void * data, size_t size)
 {
 	for(size_t i = 0; i < size; i++)
-		WriteByte(((const Byte*)data)[i]);
+		WriteByte(((const Byte *)data)[i]);
 }
 
 uint64 COutBuffer::GetProcessedSize() const throw()
@@ -326,7 +326,7 @@ bool CInOutTempBuffer::Write(const void * data, uint32 size)
 		_bufPos += cur;
 		_size += cur;
 		size -= (uint32)cur;
-		data = ((const Byte*)data) + cur;
+		data = ((const Byte *)data) + cur;
 	}
 	return WriteToFile(data, size);
 }

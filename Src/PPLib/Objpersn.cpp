@@ -676,7 +676,8 @@ public:
 			MEMSZERO(Data);
 		if(Data.Oi.Obj == PPOBJ_OPRKIND) {
 			PPIDArray op_type_list;
-			op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GENERIC, 0L);
+			op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, 
+				PPOPT_DRAFTEXPEND, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 			SetupOprKindCombo(this, CTLSEL_NEWCNTCF_OPKIND, Data.Oi.Id, 0, &op_type_list, 0);
 		}
 		else if(Data.Oi.Obj == PPOBJ_PERSONOPKIND) {
@@ -720,7 +721,8 @@ private:
 						{
 							Data.Oi.Obj = obj_type;
 							PPIDArray op_type_list;
-							op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GENERIC, 0L);
+							op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 
+								PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 							SetupOprKindCombo(this, CTLSEL_NEWCNTCF_OPKIND, Data.Oi.Id = 0, 0, &op_type_list, 0);
 						}
 						break;
@@ -1259,7 +1261,7 @@ int SLAPI PPObjPerson::GetStatus(PPID id, PPID * pStatusID, int * pIsPrivate)
 
 int SLAPI PPObjPerson::GetCountry(PPID id, PPID * pCountryID, PPCountryBlock * pBlk)
 {
-	CALLPTRMEMB(pBlk, Clear());
+	CALLPTRMEMB(pBlk, Z());
 	PersonTbl::Rec rec;
 	if(id && Fetch(id, &rec) > 0) {
 		if(rec.Status == PPPRS_COUNTRY) {

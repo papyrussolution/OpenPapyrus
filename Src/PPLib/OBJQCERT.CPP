@@ -98,8 +98,8 @@ int SLAPI PPObjQCert::DeleteObj(PPID id)
 
 ListBoxDef * SLAPI PPObjQCert::Selector(void * extraPtr)
 {
-	ListBoxDef     * def = 0;
-	DBQuery        * q = 0;
+	ListBoxDef * def = 0;
+	DBQuery   * q = 0;
 	QualityCertTbl * t = 0;
 	if(extraPtr) {
 		const PPID goods_id = reinterpret_cast<PPID>(extraPtr);

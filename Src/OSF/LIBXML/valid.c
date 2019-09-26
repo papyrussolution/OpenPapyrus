@@ -563,7 +563,7 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
 		case XML_ELEMENT_CONTENT_SEQ: {
 		    xmlAutomataStatePtr oldend;
 		    /*
-		     * Simply iterate over the content
+		 * Simply iterate over the content
 		     */
 		    xmlAutomataStatePtr oldstate = ctxt->state;
 		    xmlElementContentOccur ocur = content->ocur;
@@ -599,8 +599,8 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
 		    oldstate = ctxt->state;
 		    oldend = xmlAutomataNewState(ctxt->am);
 		    /*
-		     * iterate over the subtypes and remerge the end with an
-		     * epsilon transition
+		 * iterate over the subtypes and remerge the end with an
+		 * epsilon transition
 		     */
 		    do {
 			    ctxt->state = oldstate;
@@ -4070,8 +4070,8 @@ cont:
 		    if(NODE->type == XML_TEXT_NODE) {
 			    DEBUG_VALID_MSG("pcdata found, skip to next");
 			    /*
-			     * go to next element in the content model
-			     * skipping ignorable elems
+			 * go to next element in the content model
+			 * skipping ignorable elems
 			     */
 			    do {
 				    NODE = NODE->next;
@@ -4114,8 +4114,8 @@ cont:
 		    if(ret == 1) {
 			    DEBUG_VALID_MSG("element found, skip to next");
 			    /*
-			     * go to next element in the content model
-			     * skipping ignorable elems
+			 * go to next element in the content model
+			 * skipping ignorable elems
 			     */
 			    do {
 				    NODE = NODE->next;
@@ -4136,7 +4136,7 @@ cont:
 		    break;
 		case XML_ELEMENT_CONTENT_OR:
 		    /*
-		     * Small optimization.
+		 * Small optimization.
 		     */
 		    if(CONT->c1->type == XML_ELEMENT_CONTENT_ELEMENT) {
 			    if((NODE == NULL) ||
@@ -4162,7 +4162,7 @@ cont:
 		    }
 
 		    /*
-		     * save the second branch 'or' branch
+		 * save the second branch 'or' branch
 		     */
 		    DEBUG_VALID_MSG("saving 'or' branch");
 		    if(vstateVPush(ctxt, CONT->c2, NODE, (uchar)(DEPTH + 1),
@@ -4173,7 +4173,7 @@ cont:
 		    goto cont;
 		case XML_ELEMENT_CONTENT_SEQ:
 		    /*
-		     * Small optimization.
+		 * Small optimization.
 		     */
 		    if((CONT->c1->type == XML_ELEMENT_CONTENT_ELEMENT) &&
 		    ((CONT->c1->ocur == XML_ELEMENT_CONTENT_OPT) ||
@@ -4519,8 +4519,8 @@ static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlE
 				switch(cur->type) {
 					case XML_ENTITY_REF_NODE:
 					    /*
-					     * Push the current node to be able to roll back
-					     * and process within the entity
+					 * Push the current node to be able to roll back
+					 * and process within the entity
 					     */
 					    if((cur->children != NULL) && (cur->children->children != NULL)) {
 						    nodeVPush(ctxt, cur);
@@ -4614,8 +4614,8 @@ fail:
 			switch(cur->type) {
 				case XML_ENTITY_REF_NODE:
 				    /*
-				     * Push the current node to be able to roll back
-				     * and process within the entity
+				 * Push the current node to be able to roll back
+				 * and process within the entity
 				     */
 				    if((cur->children != NULL) &&
 				    (cur->children->children != NULL)) {
@@ -4632,8 +4632,8 @@ fail:
 				/* no break on purpose */
 				case XML_ELEMENT_NODE:
 				    /*
-				     * Allocate a new node and minimally fills in
-				     * what's required
+				 * Allocate a new node and minimally fills in
+				 * what's required
 				     */
 				    tmp = static_cast<xmlNode *>(SAlloc::M(sizeof(xmlNode)));
 				    if(!tmp) {
@@ -4655,8 +4655,8 @@ fail:
 				    }
 				    if(cur->type == XML_CDATA_SECTION_NODE) {
 					    /*
-					     * E59 spaces in CDATA does not match the
-					     * nonterminal S
+					 * E59 spaces in CDATA does not match the
+					 * nonterminal S
 					     */
 					    tmp->content = sstrdup(reinterpret_cast<const xmlChar *>("CDATA"));
 				    }
@@ -4771,8 +4771,8 @@ static int xmlValidateOneCdataElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNod
 		switch(cur->type) {
 			case XML_ENTITY_REF_NODE:
 			    /*
-			     * Push the current node to be able to roll back
-			     * and process within the entity
+			 * Push the current node to be able to roll back
+			 * and process within the entity
 			     */
 			    if((cur->children != NULL) &&
 			    (cur->children->children != NULL)) {
@@ -4977,10 +4977,10 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, c
 				    break;
 				case XML_ELEMENT_TYPE_ELEMENT:
 				    /*
-				     * @todo 
-				     * VC: Standalone Document Declaration
-				     *   - element types with element content, if white space
-				     *  occurs directly within any instance of those types.
+				 * @todo 
+				 * VC: Standalone Document Declaration
+				 *   - element types with element content, if white space
+				 *  occurs directly within any instance of those types.
 				     */
 				    if(state->exec != NULL) {
 					    ret = xmlRegExecPushString(state->exec, qname, 0);
@@ -5051,10 +5051,10 @@ int xmlValidatePushCData(xmlValidCtxtPtr ctxt, const xmlChar * data, int len) {
 						    }
 					    }
 					    /*
-					     * @todo 
-					     * VC: Standalone Document Declaration
-					     *  element types with element content, if white space
-					     *  occurs directly within any instance of those types.
+					 * @todo 
+					 * VC: Standalone Document Declaration
+					 *  element types with element content, if white space
+					 *  occurs directly within any instance of those types.
 					     */
 				    }
 				    break;
@@ -5285,9 +5285,9 @@ child_ok:
 			case XML_ELEMENT_TYPE_ELEMENT:
 			    if((doc->standalone == 1) && (extsubset == 1)) {
 				    /*
-				     * VC: Standalone Document Declaration
-				     *   - element types with element content, if white space
-				     *  occurs directly within any instance of those types.
+				 * VC: Standalone Document Declaration
+				 *   - element types with element content, if white space
+				 *  occurs directly within any instance of those types.
 				     */
 				    child = elem->children;
 				    while(child) {

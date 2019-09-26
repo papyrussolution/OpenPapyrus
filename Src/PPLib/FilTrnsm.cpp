@@ -954,8 +954,6 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 				PPMqbClient mqc;
 				SString data_domain;
 				if(PPMqbClient::InitClient(mqc, &data_domain)) {
-					SString queue_name;
-					SString exchange_name;
 					for(uint fepidx = 0; fepidx < fep.GetCount(); fepidx++) {
 						int64 _fsize = 0;
 						fep.Get(fepidx, &fe, &file_name);
@@ -983,19 +981,10 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 								otmp.DestDbDivID = dbdiv_pack.Rec.ID;
 								otmp.DestDbGUID = dbdiv_pack.Rec.Uuid;
 								if(otmp.PutToMqbMessage(props) > 0) {
-									/*
-									props.Headers.Add("filename", temp_buf.Transf(CTRANSF_OUTER_TO_UTF8));
-									props.Headers.Add("dbdiv-id-source", temp_buf.Z().Cat(LConfig.DBDiv));
-									//props.Headers.Add("dbdiv-guid-source", temp_buf.Z().Cat(LConfig.DBDiv).Transf(CTRANSF_INNER_TO_UTF8));
-									props.Headers.Add("dbdiv-id-dest", temp_buf.Z().Cat(dbdiv_pack.Rec.ID));
-									if(!dbdiv_pack.Rec.Uuid.IsZero()) {
-										props.Headers.Add("dbdiv-guid-dest", temp_buf.Z().Cat(dbdiv_pack.Rec.Uuid, S_GUID::fmtIDL));
-									}
-									*/
-									queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
-									THROW(mqc.QueueDeclare(queue_name, 0));
-									(exchange_name = " ").Z();
-									THROW(mqc.Publish(exchange_name, queue_name, &props, data_buf, actual_rd_size));
+									PPMqbClient::RoutingParamEntry rpe;
+									THROW(rpe.SetupReserved(PPMqbClient::rtrsrvPapyrusDbx, data_domain, 0, dbdiv_pack.Rec.ID));
+									THROW(mqc.ApplyRoutingParamEntry(rpe));
+									THROW(mqc.Publish(rpe.ExchangeName, rpe.RoutingKey, &props, data_buf, actual_rd_size));
 								}
 							}
 						}

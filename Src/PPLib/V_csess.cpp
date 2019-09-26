@@ -1199,7 +1199,7 @@ SLAPI PPObjDraftCreateRule::PPObjDraftCreateRule(void * extraPtr) : PPObjReferen
 	FiltProc = RulesListFilt;
 }
 
-int SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
+void SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 {
 	PPIDArray rules;
 	PPDraftCreateRule rule;
@@ -1208,7 +1208,6 @@ int SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 		if(!ruleGrpID || rule.ParentID == ruleGrpID)
 			rules.add(id);
 	ASSIGN_PTR(pRules, rules);
-	return 1;
 }
 
 // virtual
@@ -2338,7 +2337,7 @@ int SLAPI PPViewCSessExc::MakeTempTable(PPID sessID)
 	LAssocArray rg_assoc;
 	PPObjUnit  uobj;
 	BExtQuery  * q   = 0;
-	DBQ        * dbq = 0;
+	DBQ   * dbq = 0;
 	CGoodsLineTbl::Key0 k, k_;
 	q = new BExtQuery(&Tbl, 0, 64);
 	dbq = ppcheckfiltid(dbq, Tbl.SessID, sessID);

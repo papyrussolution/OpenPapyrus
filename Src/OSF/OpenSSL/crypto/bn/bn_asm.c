@@ -173,7 +173,7 @@ void bn_sqr_words(BN_ULONG * r, const BN_ULONG * a, int n)
 }
 
 #endif                          /* !(defined(BN_LLONG) ||
-                                 * defined(BN_UMULT_HIGH)) */
+ * defined(BN_UMULT_HIGH)) */
 
 #if defined(BN_LLONG) && defined(BN_DIV2W)
 
@@ -819,7 +819,7 @@ int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp, const B
 	int i = 0, j;
 
 #   if 0                        /* template for platform-specific
-	                         * implementation */
+	    * implementation */
 	if(ap == bp)
 		return bn_sqr_mont(rp, ap, np, n0p, num);
 #   endif

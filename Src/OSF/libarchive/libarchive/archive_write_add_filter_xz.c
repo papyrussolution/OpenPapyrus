@@ -468,11 +468,11 @@ static int drive_compressor(struct archive_write_filter * f, struct private_data
 		switch(ret) {
 			case LZMA_OK:
 			    /* In non-finishing case, check if compressor
-			     * consumed everything */
+			 * consumed everything */
 			    if(!finishing && data->stream.avail_in == 0)
 				    return ARCHIVE_OK;
 			    /* In finishing case, this return always means
-			     * there's more work */
+			 * there's more work */
 			    break;
 			case LZMA_STREAM_END:
 			    /* This return can only occur in finishing case. */

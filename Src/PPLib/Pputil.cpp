@@ -973,7 +973,7 @@ DbfTable * FASTCALL CreateDbfTable(uint rezID, const char * fName, int forceRepl
 {
 	uint   num_flds = 0;
 	int    exists = 0;
-	DbfTable     * p_tbl  = 0;
+	DbfTable * p_tbl  = 0;
 	DBFCreateFld * p_flds = 0;
 	SString file_name = fName;
 	if(::fileExists(file_name)) {
@@ -1529,11 +1529,31 @@ int FASTCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
 //
 //
 SLAPI  PPExtStrContainer::PPExtStrContainer() {}
+PPExtStrContainer & SLAPI PPExtStrContainer::Z() { ExtString.Z(); return *this; }
 int    SLAPI PPExtStrContainer::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int    SLAPI PPExtStrContainer::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
 int    SLAPI PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) { return pSCtx->Serialize(dir, ExtString, rBuf) ? 1 : PPSetErrorSLib(); }
 void   FASTCALL PPExtStrContainer::SetBuffer(const char * pSrc) { ExtString = pSrc; }
 const  SString & SLAPI PPExtStrContainer::GetBuffer() const { return ExtString; }
+
+int SLAPI PPExtStrContainer::IsEqual(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const
+{
+	int    yes = 1;
+	assert(fldCount > 0);
+	if(fldCount > 0) {
+		assert(pFldList != 0);
+		SString s1;
+		SString s2;
+		for(int i = 0; yes && i < fldCount; i++) {
+			const int fld_id = pFldList[i];
+			PPGetExtStrData(fld_id, ExtString, s1);
+			PPGetExtStrData(fld_id, rS.ExtString, s2);
+			if(s1 != s2)
+				yes = 0;
+		}
+	}
+	return yes;
+}
 //
 //
 //

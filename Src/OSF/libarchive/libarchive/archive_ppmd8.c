@@ -19,7 +19,7 @@ static const UInt16 kInitBinEsc[] = { 0x3CDD, 0x1F3F, 0x59BF, 0x48F3, 0x64A1, 0x
 #ifdef PPMD_32BIT
   #define REF(ptr) (ptr)
 #else
-  #define REF(ptr) ((UInt32)((Byte*)(ptr) - (p)->Base))
+  #define REF(ptr) ((UInt32)((Byte *)(ptr) - (p)->Base))
 #endif
 
 #define STATS_REF(ptr) ((CPpmd_State_Ref)REF(ptr))
@@ -99,7 +99,7 @@ Bool Ppmd8_Alloc(CPpmd8 * p, UInt32 size)
       #else
 		    4 - (size & 3);
       #endif
-		if((p->Base = (Byte*)SAlloc::M(p->AlignOffset + size)) == 0)
+		if((p->Base = (Byte *)SAlloc::M(p->AlignOffset + size)) == 0)
 			return False;
 		p->Size = size;
 	}
@@ -126,10 +126,10 @@ static void * RemoveNode(CPpmd8 * p, unsigned indx)
 static void SplitBlock(CPpmd8 * p, void * ptr, unsigned oldIndx, unsigned newIndx)
 {
 	unsigned i, nu = I2U(oldIndx) - I2U(newIndx);
-	ptr = (Byte*)ptr + U2B(I2U(newIndx));
+	ptr = (Byte *)ptr + U2B(I2U(newIndx));
 	if(I2U(i = U2I(nu)) != nu) {
 		unsigned k = I2U(--i);
-		InsertNode(p, ((Byte*)ptr) + U2B(k), nu - k - 1);
+		InsertNode(p, ((Byte *)ptr) + U2B(k), nu - k - 1);
 	}
 	InsertNode(p, ptr, i);
 }
@@ -248,7 +248,7 @@ static void FreeUnits(CPpmd8 * p, void * ptr, unsigned nu)
 
 static void SpecialFreeUnit(CPpmd8 * p, void * ptr)
 {
-	if((Byte*)ptr != p->UnitsStart)
+	if((Byte *)ptr != p->UnitsStart)
 		InsertNode(p, ptr, 0);
 	else {
     #ifdef PPMD8_FREEZE_SUPPORT
@@ -262,11 +262,11 @@ static void * MoveUnitsUp(CPpmd8 * p, void * oldPtr, unsigned nu)
 {
 	unsigned indx = U2I(nu);
 	void * ptr;
-	if((Byte*)oldPtr > p->UnitsStart + 16 * 1024 || REF(oldPtr) > p->FreeList[indx])
+	if((Byte *)oldPtr > p->UnitsStart + 16 * 1024 || REF(oldPtr) > p->FreeList[indx])
 		return oldPtr;
 	ptr = RemoveNode(p, indx);
 	MyMem12Cpy(ptr, oldPtr, nu);
-	if((Byte*)oldPtr != p->UnitsStart)
+	if((Byte *)oldPtr != p->UnitsStart)
 		InsertNode(p, oldPtr, indx);
 	else
 		p->UnitsStart += U2B(I2U(indx));
@@ -287,7 +287,7 @@ static void ExpandTextArea(CPpmd8 * p)
 			node->Stamp = 0;
 			count[U2I(node->NU)]++;
 		}
-		p->UnitsStart = (Byte*)node;
+		p->UnitsStart = (Byte *)node;
 	}
 
 	for(i = 0; i < PPMD_NUM_INDEXES; i++) {
@@ -414,7 +414,7 @@ static CPpmd_Void_Ref CutOff(CPpmd8 * p, CTX_PTR ctx, unsigned order)
 
 	if(!ctx->NumStats) {
 		s = ONE_STATE(ctx);
-		if((Byte*)Ppmd8_GetPtr(p, SUCCESSOR(s)) >= p->UnitsStart) {
+		if((Byte *)Ppmd8_GetPtr(p, SUCCESSOR(s)) >= p->UnitsStart) {
 			if(order < p->MaxOrder)
 				SetSuccessor(s, CutOff(p, CTX(SUCCESSOR(s)), order + 1));
 			else
@@ -429,7 +429,7 @@ static CPpmd_Void_Ref CutOff(CPpmd8 * p, CTX_PTR ctx, unsigned order)
 	ctx->Stats = STATS_REF(MoveUnitsUp(p, STATS(ctx), tmp = ((unsigned)ctx->NumStats + 2) >> 1));
 
 	for(s = STATS(ctx) + (i = ctx->NumStats); s >= STATS(ctx); s--)
-		if((Byte*)Ppmd8_GetPtr(p, SUCCESSOR(s)) < p->UnitsStart) {
+		if((Byte *)Ppmd8_GetPtr(p, SUCCESSOR(s)) < p->UnitsStart) {
 			CPpmd_State * s2 = STATS(ctx) + (i--);
 			SetSuccessor(s, 0);
 			SwapStates(s, s2);
@@ -466,7 +466,7 @@ static CPpmd_Void_Ref RemoveBinContexts(CPpmd8 * p, CTX_PTR ctx, unsigned order)
 	CPpmd_State * s;
 	if(!ctx->NumStats) {
 		s = ONE_STATE(ctx);
-		if((Byte*)Ppmd8_GetPtr(p, SUCCESSOR(s)) >= p->UnitsStart && order < p->MaxOrder)
+		if((Byte *)Ppmd8_GetPtr(p, SUCCESSOR(s)) >= p->UnitsStart && order < p->MaxOrder)
 			SetSuccessor(s, RemoveBinContexts(p, CTX(SUCCESSOR(s)), order + 1));
 		else
 			SetSuccessor(s, 0);
@@ -481,7 +481,7 @@ static CPpmd_Void_Ref RemoveBinContexts(CPpmd8 * p, CTX_PTR ctx, unsigned order)
 	}
 
 	for(s = STATS(ctx) + ctx->NumStats; s >= STATS(ctx); s--)
-		if((Byte*)Ppmd8_GetPtr(p, SUCCESSOR(s)) >= p->UnitsStart && order < p->MaxOrder)
+		if((Byte *)Ppmd8_GetPtr(p, SUCCESSOR(s)) >= p->UnitsStart && order < p->MaxOrder)
 			SetSuccessor(s, RemoveBinContexts(p, CTX(SUCCESSOR(s)), order + 1));
 		else
 			SetSuccessor(s, 0);
@@ -603,7 +603,7 @@ static CTX_PTR CreateSuccessors(CPpmd8 * p, Bool skip, CPpmd_State * s1, CTX_PTR
 		ps[numPs++] = s;
 	}
 
-	upState.Symbol = *(const Byte*)Ppmd8_GetPtr(p, upBranch);
+	upState.Symbol = *(const Byte *)Ppmd8_GetPtr(p, upBranch);
 	SetSuccessor(&upState, upBranch + 1);
 	flags = (Byte)(0x10 * (p->FoundState->Symbol >= 0x40) + 0x08 * (upState.Symbol >= 0x40));
 
@@ -799,7 +799,7 @@ static void UpdateModel(CPpmd8 * p)
 		}
 		fSuccessor = REF(cs);
 	}
-	else if((Byte*)Ppmd8_GetPtr(p, fSuccessor) < p->UnitsStart) {
+	else if((Byte *)Ppmd8_GetPtr(p, fSuccessor) < p->UnitsStart) {
 		CTX_PTR cs = CreateSuccessors(p, False, s, p->MinContext);
 		if(cs == NULL) {
 			RESTORE_MODEL(c, 0);
@@ -978,7 +978,7 @@ CPpmd_See * Ppmd8_MakeEscFreq(CPpmd8 * p, unsigned numMasked1, UInt32 * escFreq)
 static void NextContext(CPpmd8 * p)
 {
 	CTX_PTR c = CTX(SUCCESSOR(p->FoundState));
-	if(p->OrderFall == 0 && (Byte*)c >= p->UnitsStart)
+	if(p->OrderFall == 0 && (Byte *)c >= p->UnitsStart)
 		p->MinContext = p->MaxContext = c;
 	else {
 		UpdateModel(p);

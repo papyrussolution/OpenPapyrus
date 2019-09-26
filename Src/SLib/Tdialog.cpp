@@ -631,7 +631,6 @@ IMPL_HANDLE_EVENT(TDialog)
 		}
 		else {
 			SString errmsg_en("Error creating dialog box.");
-			//SString errmsg_ru("Ошибка создания окна диалога.");
 			::MessageBox(APPL->H_MainWnd, SUcSwitch(errmsg_en), _T("PROJECT PAPYRUS"), MB_OK);
 		}
 		clearEvent(event);

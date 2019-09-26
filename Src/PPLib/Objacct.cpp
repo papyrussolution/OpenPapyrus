@@ -1,22 +1,17 @@
 // OBJACCT.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
-//TLP_IMPL(PPObjAccount, AccountCore, P_Tbl);
-
 SLAPI PPObjAccount::PPObjAccount(void * extraPtr) : PPObjReference(PPOBJ_ACCOUNT2, extraPtr)
 {
-	//TLP_OPEN(P_Tbl);
-	//ExtraPtr = extraPtr;
 	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 SLAPI PPObjAccount::~PPObjAccount()
 {
-	//TLP_CLOSE(P_Tbl);
 }
 
 //static
@@ -42,7 +37,7 @@ int SLAPI PPObjAccount::GenerateCode(PPAccount * pRec)
 
 int SLAPI PPObjAccount::SearchCode(const char * pCode, PPID curID, PPAccount * pRec)
 {
-	// @todo Это - дорогая функция. Для увеличения производительности необходимо оптимизировать
+	// @todo Р­С‚Рѕ - РґРѕСЂРѕРіР°СЏ С„СѓРЅРєС†РёСЏ. Р”Р»СЏ СѓРІРµР»РёС‡РµРЅРёСЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё РЅРµРѕР±С…РѕРґРёРјРѕ РѕРїС‚РёРјРёР·РёСЂРѕРІР°С‚СЊ
 	int    ok = -1;
 	PPAccount rec;
 	for(SEnum en = Enum(0); ok < 0 && en.Next(&rec) > 0;) {
@@ -396,7 +391,7 @@ int SLAPI PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 			if(!r) {
 				THROW_DB(BtrError == BE_CONFLICT && try_count > 0);
 				//
-				// Если встречаем ошибку "Конфликт блокировок на уровне записи", то повторяем попытку чтения-изменения try_count раз.
+				// Р•СЃР»Рё РІСЃС‚СЂРµС‡Р°РµРј РѕС€РёР±РєСѓ "РљРѕРЅС„Р»РёРєС‚ Р±Р»РѕРєРёСЂРѕРІРѕРє РЅР° СѓСЂРѕРІРЅРµ Р·Р°РїРёСЃРё", С‚Рѕ РїРѕРІС‚РѕСЂСЏРµРј РїРѕРїС‹С‚РєСѓ С‡С‚РµРЅРёСЏ-РёР·РјРµРЅРµРЅРёСЏ try_count СЂР°Р·.
 				//
 				ref->unlock(0);
 				SDelay(10);
@@ -1165,7 +1160,7 @@ int SLAPI PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 				*pID = same_rec.ID;
 			}
 			else {
-				if(r > 0) { // @v9.2.7 @fix(r-->(r>0)) Счет в разделе найден, но с ним ассоциирована иная таблица статей: придется присвоить счету другой номер.
+				if(r > 0) { // @v9.2.7 @fix(r-->(r>0)) РЎС‡РµС‚ РІ СЂР°Р·РґРµР»Рµ РЅР°Р№РґРµРЅ, РЅРѕ СЃ РЅРёРј Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅР° РёРЅР°СЏ С‚Р°Р±Р»РёС†Р° СЃС‚Р°С‚РµР№: РїСЂРёРґРµС‚СЃСЏ РїСЂРёСЃРІРѕРёС‚СЊ СЃС‡РµС‚Сѓ РґСЂСѓРіРѕР№ РЅРѕРјРµСЂ.
 					for(int i = 1; i < 100; i++) {
 						if(SearchNum(p_pack->Rec.A.Ac, i, 0L /* @curID */) < 0) {
 							p_pack->Rec.A.Sb = i;
@@ -1173,7 +1168,7 @@ int SLAPI PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 						}
 					}
 					{
-						// PPTXT_LOG_ACCEPTACCSAMENO      "Акцептируемый счет @zstr найден по номеру, но имеет иную таблицу статей - номер изменен на @zstr"
+						// PPTXT_LOG_ACCEPTACCSAMENO      "РђРєС†РµРїС‚РёСЂСѓРµРјС‹Р№ СЃС‡РµС‚ @zstr РЅР°Р№РґРµРЅ РїРѕ РЅРѕРјРµСЂСѓ, РЅРѕ РёРјРµРµС‚ РёРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ СЃС‚Р°С‚РµР№ - РЅРѕРјРµСЂ РёР·РјРµРЅРµРЅ РЅР° @zstr"
 						SString msg_buf;
 						PPFormatT(PPTXT_LOG_ACCEPTACCSAMENO, &msg_buf, (int)org_ac, (int)org_sb, (int)p_pack->Rec.A.Ac, (int)p_pack->Rec.A.Sb);
 						pCtx->Output(msg_buf);
@@ -1203,22 +1198,7 @@ int SLAPI PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 }
 
 int SLAPI PPObjAccount::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPAccountPacket * p_pack = new PPAccountPacket;
-	THROW_MEM(p_pack);
-	p->Data = p_pack;
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjAccount, PPAccountPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjAccount::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
@@ -1268,7 +1248,7 @@ public:
 	};
 };
 
-IMPL_CMPFUNC(AccCacheNum, i1, i2) { RET_CMPCASCADE3((const AccountCache::Data *)i1, (const AccountCache::Data *)i2, Ac, Sb, CurID); }
+IMPL_CMPFUNC(AccCacheNum, i1, i2) { RET_CMPCASCADE3(static_cast<const AccountCache::Data *>(i1), static_cast<const AccountCache::Data *>(i2), Ac, Sb, CurID); }
 
 int SLAPI AccountCache::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 {
@@ -1286,10 +1266,10 @@ int SLAPI AccountCache::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 		ok = acc_obj.SearchNum(ac, sb, curID, &acc_rec);
 		if(ok > 0) {
 			//
-			// Если запись в БД найдена, то добавляем ее в кэш и уже из кэша
-			// получаем результат для вызывающей функции.
-			// Это несколько замедляет первое обращение, но зато в дальнейшем
-			// эта запись будет в кэше и в следующий раз мы ее получим очень быстро.
+			// Р•СЃР»Рё Р·Р°РїРёСЃСЊ РІ Р‘Р” РЅР°Р№РґРµРЅР°, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РµРµ РІ РєСЌС€ Рё СѓР¶Рµ РёР· РєСЌС€Р°
+			// РїРѕР»СѓС‡Р°РµРј СЂРµР·СѓР»СЊС‚Р°С‚ РґР»СЏ РІС‹Р·С‹РІР°СЋС‰РµР№ С„СѓРЅРєС†РёРё.
+			// Р­С‚Рѕ РЅРµСЃРєРѕР»СЊРєРѕ Р·Р°РјРµРґР»СЏРµС‚ РїРµСЂРІРѕРµ РѕР±СЂР°С‰РµРЅРёРµ, РЅРѕ Р·Р°С‚Рѕ РІ РґР°Р»СЊРЅРµР№С€РµРј
+			// СЌС‚Р° Р·Р°РїРёСЃСЊ Р±СѓРґРµС‚ РІ РєСЌС€Рµ Рё РІ СЃР»РµРґСѓСЋС‰РёР№ СЂР°Р· РјС‹ РµРµ РїРѕР»СѓС‡РёРј РѕС‡РµРЅСЊ Р±С‹СЃС‚СЂРѕ.
 			//
 			ok = Get(acc_rec.ID, pRec);
 		}
@@ -1364,7 +1344,7 @@ int SLAPI PPObjAccount::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 int SLAPI PPObjAccount::GetChildList(PPID parentID, StrAssocArray * pChildList)
 {
 	int    ok = -1;
-	StrAssocArray * p_list = MakeStrAssocList((void *)ACY_SEL_BUDGET);
+	StrAssocArray * p_list = MakeStrAssocList(reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	if(p_list) {
 		for(uint i = 0; i < p_list->getCount(); i++) {
 			StrAssocArray::Item item = p_list->Get(i);
@@ -1381,7 +1361,7 @@ int SLAPI PPObjAccount::GetChildList(PPID parentID, StrAssocArray * pChildList)
 int SLAPI PPObjAccount::GetParentList(PPID acctID, StrAssocArray * pParentList)
 {
 	int    ok = -1;
-	StrAssocArray * p_list = MakeStrAssocList((void *)ACY_SEL_BUDGET);
+	StrAssocArray * p_list = MakeStrAssocList(reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	if(p_list) {
 		for(uint i = 0; i < p_list->getCount(); i++) {
 			StrAssocArray::Item item = p_list->Get(i);

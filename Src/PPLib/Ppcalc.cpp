@@ -828,7 +828,7 @@ int SLAPI CalcTaxPrice(PPID goodsID, PPID opID, LDATE dt, double price, int /*= 
 //
 PosPaymentBlock::PosPaymentBlock(const CcAmountList * pCcPl, double bonusMaxPart)
 {
-	Clear();
+	Z();
 	BonusAmt = BonusRest;
 	Kind = cpmCash;
 	DeliveryAmt = NoteAmt - CashAmt;
@@ -851,7 +851,7 @@ IMPL_INVARIANT_C(PosPaymentBlock)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-PosPaymentBlock & PosPaymentBlock::Clear()
+PosPaymentBlock & PosPaymentBlock::Z()
 {
 	Amount = 0.0;
 	CashAmt = BankAmt = ScAmt = 0.0;
@@ -878,7 +878,7 @@ PosPaymentBlock & PosPaymentBlock::Clear()
 PosPaymentBlock & PosPaymentBlock::Init(const CPosProcessor * pCpp)
 {
 	assert(pCpp);
-	Clear();
+	Z();
 	pCpp->CalcTotal(&Total, &Discount);
 	UsableBonus = pCpp->GetUsableBonus();
 	return *this;

@@ -87,7 +87,7 @@ static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 	/* Zstd frame magic values */
 	const unsigned zstd_magic = 0xFD2FB528U;
 	(void)self;  /* UNUSED */
-	buffer = (const uchar*)__archive_read_filter_ahead(filter, 4, &avail);
+	buffer = (const uchar *)__archive_read_filter_ahead(filter, 4, &avail);
 	if(buffer == NULL)
 		return 0;
 	prefix = archive_le32dec(buffer);

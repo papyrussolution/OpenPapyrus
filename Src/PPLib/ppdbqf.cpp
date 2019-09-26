@@ -681,7 +681,6 @@ static IMPL_DBE_PROC(dbqf_objname_staffcal_i) { dbqf_objname_i <PPObjStaffCal, P
 static IMPL_DBE_PROC(dbqf_objname_accsheet_i) { dbqf_objname_i <PPObjAccSheet, PPAccSheet> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_quotkind_i) { dbqf_objname_i <PPObjQuotKind, PPQuotKind> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_cashnode_i) { dbqf_objname_i <PPObjCashNode, PPCashNode> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_scale_i) { dbqf_objname_i <PPObjScale, PPScale> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_psnopkind_i) { dbqf_objname_i <PPObjPsnOpKind, PPPsnOpKind> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_brand_i) { dbqf_objname_i <PPObjBrand, PPBrand> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objsymb_currency_i) { dbqf_objsymb_i <PPObjCurrency, PPCurrency> (option, result, params); }
@@ -692,6 +691,23 @@ static IMPL_DBE_PROC(dbqf_objname_amttype_i) { dbqf_objname_i <PPObjAmountType, 
 static IMPL_DBE_PROC(dbqf_objname_psnkind_i) { dbqf_objname_i <PPObjPersonKind, PPPersonKind> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_scardser_i) { dbqf_objname_i <PPObjSCardSeries, PPSCardSeries> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_debtdim_i) { dbqf_objname_i <PPObjDebtDim, PPDebtDim> (option, result, params); }
+
+static IMPL_DBE_PROC(dbqf_objname_scale_i) 
+{ 
+	PPScalePacket pack;
+	if(option == CALC_SIZE)
+		result->init(sizeof(pack.Rec.Name));
+	else {
+		PPID   id = PPDbqFuncPool::helper_dbq_name(params, pack.Rec.Name);
+		if(id) {
+			PPObjScale sc_obj;
+			sc_obj.Fetch(id, &pack);
+			if(pack.Rec.Name[0] == 0)
+				ideqvalstr(id, pack.Rec.Name, sizeof(pack.Rec.Name));
+		}
+		result->InitForeignStr(pack.Rec.Name);
+	}
+}
 
 static IMPL_DBE_PROC(dbqf_objcode_scard_i)
 {
@@ -706,8 +722,7 @@ static IMPL_DBE_PROC(dbqf_objcode_scard_i)
 			if(rec.Code[0] == 0)
 				ideqvalstr(id, rec.Code, sizeof(rec.Code));
 		}
-		// @v9.9.4 result->init(rec.Code);
-		result->InitForeignStr(rec.Code); // @v9.9.4
+		result->InitForeignStr(rec.Code);
 	}
 }
 
@@ -1634,7 +1649,7 @@ PPID FASTCALL PPDbqFuncPool::helper_dbq_name(const DBConst * params, char * pNam
 	if(params[0].Tag == DBConst::lv)
 		id = params[0].lval;
 	else if(params[0].Tag == DBConst::rv)
-		id = (long)params[0].rval;
-	pNameBuf[0] = 0;
+		id = static_cast<long>(params[0].rval);
+	PTR32(pNameBuf)[0] = 0;
 	return id;
 }

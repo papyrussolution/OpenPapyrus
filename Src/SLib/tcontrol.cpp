@@ -1225,7 +1225,7 @@ int TCluster::TransmitData(int dir, void * pData)
 {
 	int    s = sizeof(Value);
 	if(dir > 0) {
-		Value = *(ushort *)pData;
+		Value = *static_cast<const ushort *>(pData);
 		Draw_();
 		if(Kind == RADIOBUTTONS)
 			Sel = Value;
@@ -1239,7 +1239,7 @@ int TCluster::TransmitData(int dir, void * pData)
 		}
 	}
 	else if(dir < 0) {
-		*(ushort *)pData = Value;
+		*static_cast<ushort *>(pData) = Value;
 		Draw_();
 	}
 	return s;

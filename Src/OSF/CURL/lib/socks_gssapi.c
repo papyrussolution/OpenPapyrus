@@ -228,11 +228,11 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
     /* analyse response */
 
     /*   GSS-API response looks like
-     * +----+------+-----+----------------+
-     * |VER | MTYP | LEN |     TOKEN      |
-     * +----+------+----------------------+
-     * | 1  |  1   |  2  | up to 2^16 - 1 |
-     * +----+------+-----+----------------+
+ * +----+------+-----+----------------+
+ * |VER | MTYP | LEN |     TOKEN      |
+ * +----+------+----------------------+
+ * | 1  |  1   |  2  | up to 2^16 - 1 |
+ * +----+------+-----+----------------+
      */
 
     result=Curl_blockread_all(conn, sock, (char *)socksreq, 4, &actualread);

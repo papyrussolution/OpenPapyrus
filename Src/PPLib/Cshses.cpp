@@ -1240,6 +1240,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 					// @v10.5.6 {
 					SPathStruc sp(buf);
 					SPathStruc sp_path(path);
+					SETFLAGBYSAMPLE(sp.Flags, sp.fUNC, sp_path.Flags); // @v10.5.7
 					sp.Drv = sp_path.Drv;
 					sp.Dir = sp_path.Dir;
 					sp.Merge(temp_file_name);

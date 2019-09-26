@@ -285,7 +285,7 @@ struct archive_write_disk {
 	uchar  * resource_fork;
 	size_t resource_fork_allocated_size;
 	uint decmpfs_block_count;
-	uint32_t     * decmpfs_block_info;
+	uint32_t * decmpfs_block_info;
 	/* Buffer for compressed data. */
 	uchar  * compressed_buffer;
 	size_t compressed_buffer_size;
@@ -2155,13 +2155,13 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		case AE_IFCHR:
 #ifdef HAVE_MKNOD
 		    /* Note: we use AE_IFCHR for the case label, and
-		     * S_IFCHR for the mknod() call.  This is correct.  */
+		 * S_IFCHR for the mknod() call.  This is correct.  */
 		    r = mknod(a->name, mode | S_IFCHR,
 			    archive_entry_rdev(a->entry));
 		    break;
 #else
 		    /* TODO: Find a better way to warn about our inability
-		     * to restore a char device node. */
+		 * to restore a char device node. */
 		    return (EINVAL);
 #endif /* HAVE_MKNOD */
 		case AE_IFBLK:
@@ -2171,7 +2171,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    break;
 #else
 		    /* TODO: Find a better way to warn about our inability
-		     * to restore a block device node. */
+		 * to restore a block device node. */
 		    return (EINVAL);
 #endif /* HAVE_MKNOD */
 		case AE_IFDIR:
@@ -2183,7 +2183,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			    a->todo &= ~TODO_TIMES;
 			    /* Never use an immediate chmod(). */
 			    /* We can't avoid the chmod() entirely if EXTRACT_PERM
-			     * because of SysV SGID inheritance. */
+			 * because of SysV SGID inheritance. */
 			    if((mode != final_mode)
 				|| (a->flags & ARCHIVE_EXTRACT_PERM))
 				    a->deferred |= (a->todo & TODO_MODE);
@@ -2196,7 +2196,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    break;
 #else
 		    /* TODO: Find a better way to warn about our inability
-		     * to restore a fifo. */
+		 * to restore a fifo. */
 		    return (EINVAL);
 #endif /* HAVE_MKFIFO */
 	}
@@ -3317,9 +3317,9 @@ static int set_mode(struct archive_write_disk * a, int mode)
 				case EOPNOTSUPP:
 #endif
 				    /*
-				     * if lchmod is defined but the platform
-				     * doesn't support it, silently ignore
-				     * error
+				 * if lchmod is defined but the platform
+				 * doesn't support it, silently ignore
+				 * error
 				     */
 				    break;
 				default:

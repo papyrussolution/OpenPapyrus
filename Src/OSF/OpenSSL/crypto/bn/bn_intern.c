@@ -38,7 +38,7 @@ signed char * bn_compute_wNAF(const BIGNUM * scalar, int w, size_t * ret_len)
 	}
 
 	if(w <= 0 || w > 7) {   /* 'signed char' can represent integers with
-		                 * absolute values less than 2^7 */
+		 * absolute values less than 2^7 */
 		BNerr(BN_F_BN_COMPUTE_WNAF, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
@@ -57,9 +57,9 @@ signed char * bn_compute_wNAF(const BIGNUM * scalar, int w, size_t * ret_len)
 
 	len = BN_num_bits(scalar);
 	r = (signed char*)OPENSSL_malloc(len+1); /*
-	                                            * Modified wNAF may be one digit longer than binary representation
-	                                            * (*ret_len will be set to the actual length, i.e. at most
-	                                            * BN_num_bits(scalar) + 1)
+	  * Modified wNAF may be one digit longer than binary representation
+	  * (*ret_len will be set to the actual length, i.e. at most
+	  * BN_num_bits(scalar) + 1)
 	                                            */
 	if(r == NULL) {
 		BNerr(BN_F_BN_COMPUTE_WNAF, ERR_R_MALLOC_FAILURE);
@@ -68,8 +68,8 @@ signed char * bn_compute_wNAF(const BIGNUM * scalar, int w, size_t * ret_len)
 	window_val = scalar->d[0] & mask;
 	j = 0;
 	while((window_val != 0) || (j + w + 1 < len)) { /* if j+w+1 >= len,
-		                                         * window_val will not
-		                                         * increase */
+		    * window_val will not
+		    * increase */
 		int digit = 0;
 
 		/* 0 <= window_val <= 2^(w+1) */

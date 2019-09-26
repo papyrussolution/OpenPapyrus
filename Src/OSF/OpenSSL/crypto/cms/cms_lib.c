@@ -248,7 +248,7 @@ int cms_DigestAlgorithm_find_ctx(EVP_MD_CTX * mctx, BIO * chain, X509_ALGOR * md
 		BIO_get_md_ctx(chain, &mtmp);
 		if(EVP_MD_CTX_type(mtmp) == nid
 		    /*
-		     * Workaround for broken implementations that use signature algorithm OID instead of digest.
+		 * Workaround for broken implementations that use signature algorithm OID instead of digest.
 		     */
 		    || EVP_MD_pkey_type(EVP_MD_CTX_md(mtmp)) == nid)
 			return EVP_MD_CTX_copy_ex(mctx, mtmp);

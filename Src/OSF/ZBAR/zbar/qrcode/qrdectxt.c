@@ -70,13 +70,13 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 	utf8_cd = iconv_open("UTF-8", "UTF-8");
 	for(i = 0; i<nqrdata; i++) 
 		if(!mark[i]) {
-			const qr_code_data       * qrdataj;
+			const qr_code_data  * qrdataj;
 			const qr_code_data_entry * entry;
 			iconv_t enc_list[3];
 			iconv_t eci_cd;
 			int sa[16];
 			int sa_size;
-			char                     * sa_text;
+			char * sa_text;
 			size_t sa_ntext;
 			size_t sa_ctext;
 			int fnc1;

@@ -393,7 +393,9 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\INCLUDE;&quot;..\INCLUDE\CAIRO-1160&quot;;&quot;..\INCLUDE\Cairo-1160\PIXMAN&quot;;..\INCLUDE\LIBPNG"
 				UsePrecompiledHeader="3"
-				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"/>
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

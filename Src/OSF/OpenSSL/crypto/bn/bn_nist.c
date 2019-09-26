@@ -34,7 +34,7 @@ static const BN_ULONG _nist_p_224[][BN_NIST_224_TOP] = {
 	 0xFFFFFFFFFFFFFFFFULL, 0x00000000FFFFFFFFULL},
 	{0x0000000000000002ULL, 0xFFFFFFFE00000000ULL,
 	 0xFFFFFFFFFFFFFFFFULL, 0x00000001FFFFFFFFULL} /* this one is
-	                                                * "carry-full" */
+	  * "carry-full" */
 };
 
 static const BN_ULONG _nist_p_224_sqr[] = {

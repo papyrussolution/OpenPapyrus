@@ -446,7 +446,7 @@ static int rar_br_fillup(struct archive_read * a, struct LA_Rar::rar_br * br)
 			    break;
 			case 0:
 			    /* We have enough compressed data in
-			     * the cache buffer.*/
+			 * the cache buffer.*/
 			    return (1);
 			default:
 			    break;
@@ -480,9 +480,7 @@ static int rar_br_preparation(struct archive_read * a, struct LA_Rar::rar_br * b
 	if(rar->bytes_remaining > 0) {
 		br->next_in = (const uchar *)rar_read_ahead(a, 1, &(br->avail_in));
 		if(br->next_in == NULL) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Truncated RAR file data");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 			return ARCHIVE_FATAL;
 		}
 		if(br->cache_avail == 0)
@@ -584,8 +582,7 @@ static Byte ppmd_read(void * p)
 	struct LA_Rar::rar_br * br = &(rar->br);
 	Byte b;
 	if(!rar_br_read_ahead(a, br, 8)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Truncated RAR file data");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 		rar->valid = 0;
 		return 0;
 	}

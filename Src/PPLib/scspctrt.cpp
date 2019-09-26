@@ -196,8 +196,7 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBl
 		json_free_value(&p_query);
 		if(last_query_status > 0 && VerifyPhoneNumberBySms(phone_buf, 0, &check_code, 1) > 0) {
 			MakeUrl("confirm_code", temp_buf);
-			url.Clear();
-			url.Parse(temp_buf);
+			url.Z().Parse(temp_buf);
 			//
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);

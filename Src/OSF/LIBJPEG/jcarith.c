@@ -25,7 +25,7 @@ typedef struct {
 	INT32 a;         /* A register, normalized size of coding interval */
 	INT32 sc;  /* counter for stacked 0xFF values which might overflow */
 	INT32 zc;    /* counter for pending 0x00 output values which might *
-	              * be discarded at the end ("Pacman" termination) */
+	   * be discarded at the end ("Pacman" termination) */
 	int ct; /* bit shift counter, determines when next byte will be written */
 	int buffer;          /* buffer for most recent output byte != 0xFF */
 	int last_dc_val[MAX_COMPS_IN_SCAN]; /* last DC coef for each component */

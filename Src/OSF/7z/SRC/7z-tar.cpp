@@ -1370,7 +1370,7 @@ namespace NArchive {
 				return S_OK;
 			}
 			else if(item.IsSymLink()) {
-				Create_BufInStream_WithReference((const Byte*)(const char *)item.LinkName, item.LinkName.Len(), (IInArchive*)this, stream);
+				Create_BufInStream_WithReference((const Byte *)(const char *)item.LinkName, item.LinkName.Len(), (IInArchive*)this, stream);
 				return S_OK;
 			}
 			else

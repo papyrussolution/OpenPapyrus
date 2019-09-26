@@ -475,30 +475,12 @@ int SLAPI PPObjGoodsBasket::SerializePacket(int dir, PPBasketPacket * pPack, SBu
 }
 
 int SLAPI PPObjGoodsBasket::Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPBasketPacket * p_pack = new PPBasketPacket;
-	THROW_MEM(p_pack);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack));
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCH
-		ok = 0;
-		ZDELETE(p_pack);
-	ENDCATCH
-	pPack->Data = p_pack;
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjGoodsBasket, PPBasketPacket>(this, pPack, id, stream, pCtx); }
 
 int SLAPI PPObjGoodsBasket::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
-	PPBasketPacket * p_pack = (PPBasketPacket*)pPack->Data;
+	PPBasketPacket * p_pack = static_cast<PPBasketPacket *>(pPack->Data);
 	if(p_pack) {
 		if(stream == 0) {
 			if(*pID == 0) {

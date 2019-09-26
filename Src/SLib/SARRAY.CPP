@@ -2964,7 +2964,7 @@ int SLAPI StrStrAssocArray::Remove(const char * pKey)
 	return ok;
 }
 
-StrStrAssocArray & SLAPI StrStrAssocArray::Clear()
+StrStrAssocArray & SLAPI StrStrAssocArray::Z()
 {
 	L.clear();
 	SStrGroup::ClearS();
@@ -3750,7 +3750,7 @@ STree::STree(uint itemSize, uint o) : SArray(itemSize, /*32,*/ (o & (aryDataOwne
 	TreeList.insert(&stub);
 }
 
-STree & STree::Clear()
+STree & STree::Z()
 {
 	clear();
 	TreeList.clear();

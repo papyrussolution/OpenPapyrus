@@ -55,14 +55,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved)
 
 		case DLL_THREAD_ATTACH:
 		    /*
-		     * A thread is being created
+		 * A thread is being created
 		     */
 		    result = pthread_win32_thread_attach_np();
 		    break;
 
 		case DLL_THREAD_DETACH:
 		    /*
-		     * A thread is exiting cleanly
+		 * A thread is exiting cleanly
 		     */
 		    result = pthread_win32_thread_detach_np();
 		    break;

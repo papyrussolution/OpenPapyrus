@@ -512,11 +512,11 @@ int cert_stuff(struct connectdata * conn,
 			    if(ca) {
 				    while(sk_X509_num(ca)) {
 					    /*
-					     * Note that sk_X509_pop() is used below to make sure the cert is
-					     * removed from the stack properly before getting passed to
-					     * SSL_CTX_add_extra_chain_cert(), which takes ownership. Previously
-					     * we used sk_X509_value() instead, but then we'd clean it in the
-					     * subsequent sk_X509_pop_free() call.
+					 * Note that sk_X509_pop() is used below to make sure the cert is
+					 * removed from the stack properly before getting passed to
+					 * SSL_CTX_add_extra_chain_cert(), which takes ownership. Previously
+					 * we used sk_X509_value() instead, but then we'd clean it in the
+					 * subsequent sk_X509_pop_free() call.
 					     */
 					    X509 * x = sk_X509_pop(ca);
 					    if(!SSL_CTX_add_client_CA(ctx, x)) {
@@ -1257,7 +1257,7 @@ static CURLcode verifystatus(struct connectdata * conn, struct ssl_connect_data 
 
 	OCSP_RESPONSE * rsp = NULL;
 	OCSP_BASICRESP * br = NULL;
-	X509_STORE     * st = NULL;
+	X509_STORE * st = NULL;
 	STACK_OF(X509) *ch = NULL;
 
 	long len = SSL_get_tlsext_status_ocsp_resp(connssl->handle, &p);

@@ -38,7 +38,7 @@ uint32 FASTCALL CrcCalc(const void * data, size_t size) { return g_CrcUpdate(CRC
 
 uint32 FASTCALL CrcUpdateT1(uint32 v, const void * data, size_t size, const uint32 * table)
 {
-	const Byte * p = (const Byte*)data;
+	const Byte * p = (const Byte *)data;
 	const Byte * pEnd = p + size;
 	for(; p != pEnd; p++)
 		v = CRC_UPDATE_BYTE_2(v, *p);
@@ -76,7 +76,7 @@ void FASTCALL CrcGenerateTable()
 	{
     #ifndef MY_CPU_BE
 		uint32 k = 0x01020304;
-		const Byte * p = (const Byte*)&k;
+		const Byte * p = (const Byte *)&k;
 		if(p[0] == 4 && p[1] == 3) {
 			g_CrcUpdateT4 = CrcUpdateT4;
 			g_CrcUpdate = CrcUpdateT4;
@@ -113,7 +113,7 @@ void FASTCALL CrcGenerateTable()
 
 	uint32 FASTCALL CrcUpdateT4(uint32 v, const void * data, size_t size, const uint32 * table)
 	{
-		const Byte * p = (const Byte*)data;
+		const Byte * p = (const Byte *)data;
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 3) != 0; size--, p++)
 			v = CRC_UPDATE_BYTE_2(v, *p);
 		for(; size >= 4; size -= 4, p += 4) {
@@ -127,7 +127,7 @@ void FASTCALL CrcGenerateTable()
 
 	uint32 FASTCALL CrcUpdateT8(uint32 v, const void * data, size_t size, const uint32 * table)
 	{
-		const Byte * p = (const Byte*)data;
+		const Byte * p = (const Byte *)data;
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 7) != 0; size--, p++)
 			v = CRC_UPDATE_BYTE_2(v, *p);
 		for(; size >= 8; size -= 8, p += 8) {
@@ -148,7 +148,7 @@ void FASTCALL CrcGenerateTable()
 
 	uint32 FASTCALL CrcUpdateT1_BeT4(uint32 v, const void * data, size_t size, const uint32 * table)
 	{
-		const Byte * p = (const Byte*)data;
+		const Byte * p = (const Byte *)data;
 		table += 0x100;
 		v = CRC_UINT32_SWAP(v);
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 3) != 0; size--, p++)
@@ -164,7 +164,7 @@ void FASTCALL CrcGenerateTable()
 
 	uint32 FASTCALL CrcUpdateT1_BeT8(uint32 v, const void * data, size_t size, const uint32 * table)
 	{
-		const Byte * p = (const Byte*)data;
+		const Byte * p = (const Byte *)data;
 		table += 0x100;
 		v = CRC_UINT32_SWAP(v);
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 7) != 0; size--, p++)
@@ -225,7 +225,7 @@ void FASTCALL Crc64GenerateTable()
 	{
     #ifndef MY_CPU_BE
 		uint32 k = 1;
-		if(*(const Byte*)&k == 1)
+		if(*(const Byte *)&k == 1)
 			g_Crc64Update = XzCrc64UpdateT4;
 		else
     #endif
@@ -246,7 +246,7 @@ void FASTCALL Crc64GenerateTable()
 
 	uint64 FASTCALL XzCrc64UpdateT4(uint64 v, const void * data, size_t size, const uint64 * table)
 	{
-		const Byte * p = (const Byte*)data;
+		const Byte * p = (const Byte *)data;
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 3) != 0; size--, p++)
 			v = CRC_UPDATE_BYTE_2(v, *p);
 		for(; size >= 4; size -= 4, p += 4) {
@@ -265,7 +265,7 @@ void FASTCALL Crc64GenerateTable()
 
 	uint64 FASTCALL XzCrc64UpdateT1_BeT4(uint64 v, const void * data, size_t size, const uint64 * table)
 	{
-		const Byte * p = (const Byte*)data;
+		const Byte * p = (const Byte *)data;
 		table += 0x100;
 		v = CRC_UINT64_SWAP(v);
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 3) != 0; size--, p++)

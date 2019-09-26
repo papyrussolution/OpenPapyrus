@@ -82,23 +82,23 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 
 		case TLS_ST_SW_SRVR_DONE:
 		    /*
-		     * If we get a CKE message after a ServerDone then either
-		     * 1) We didn't request a Certificate
-		     * OR
-		     * 2) If we did request one then
-		     * a) We allow no Certificate to be returned
-		     * AND
-		     * b) We are running SSL3 (in TLS1.0+ the client must return a 0
-		     *    list if we requested a certificate)
+		 * If we get a CKE message after a ServerDone then either
+		 * 1) We didn't request a Certificate
+		 * OR
+		 * 2) If we did request one then
+		 * a) We allow no Certificate to be returned
+		 * AND
+		 * b) We are running SSL3 (in TLS1.0+ the client must return a 0
+		 *    list if we requested a certificate)
 		     */
 		    if(mt == SSL3_MT_CLIENT_KEY_EXCHANGE) {
 			    if(s->s3->tmp.cert_request) {
 				    if(s->version == SSL3_VERSION) {
 					    if((s->verify_mode & SSL_VERIFY_PEER) && (s->verify_mode & SSL_VERIFY_FAIL_IF_NO_PEER_CERT)) {
 						    /*
-						     * This isn't an unexpected message as such - we're just
-						     * not going to accept it because we require a client
-						     * cert.
+						 * This isn't an unexpected message as such - we're just
+						 * not going to accept it because we require a client
+						 * cert.
 						     */
 						    ssl3_send_alert(s, SSL3_AL_FATAL, SSL3_AD_HANDSHAKE_FAILURE);
 						    SSLerr(SSL_F_OSSL_STATEM_SERVER_READ_TRANSITION, SSL_R_PEER_DID_NOT_RETURN_A_CERTIFICATE);
@@ -128,20 +128,20 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 		    break;
 		case TLS_ST_SR_KEY_EXCH:
 		    /*
-		     * We should only process a CertificateVerify message if we have
-		     * received a Certificate from the client. If so then |s->session->peer|
-		     * will be non NULL. In some instances a CertificateVerify message is
-		     * not required even if the peer has sent a Certificate (e.g. such as in
-		     * the case of static DH). In that case |st->no_cert_verify| should be
-		     * set.
+		 * We should only process a CertificateVerify message if we have
+		 * received a Certificate from the client. If so then |s->session->peer|
+		 * will be non NULL. In some instances a CertificateVerify message is
+		 * not required even if the peer has sent a Certificate (e.g. such as in
+		 * the case of static DH). In that case |st->no_cert_verify| should be
+		 * set.
 		     */
 		    if(s->session->peer == NULL || st->no_cert_verify) {
 			    if(mt == SSL3_MT_CHANGE_CIPHER_SPEC) {
 				    /*
-				     * For the ECDH ciphersuites when the client sends its ECDH
-				     * pub key in a certificate, the CertificateVerify message is
-				     * not sent. Also for GOST ciphersuites when the client uses
-				     * its key from the certificate for key exchange.
+				 * For the ECDH ciphersuites when the client sends its ECDH
+				 * pub key in a certificate, the CertificateVerify message is
+				 * not sent. Also for GOST ciphersuites when the client uses
+				 * its key from the certificate for key exchange.
 				     */
 				    st->hand_state = TLS_ST_SR_CHANGE;
 				    return 1;
@@ -223,7 +223,7 @@ static int send_server_key_exchange(SSL * s)
 	 */
 	if(alg_k & (SSL_kDHE | SSL_kECDHE)
 	    /*
-	     * PSK: send ServerKeyExchange if PSK identity hint if provided
+	 * PSK: send ServerKeyExchange if PSK identity hint if provided
 	     */
 #ifndef OPENSSL_NO_PSK
 	    /* Only send SKE if we have identity hint for plain PSK */
@@ -255,27 +255,27 @@ static int send_certificate_request(SSL * s)
 	    /* don't request cert unless asked for it: */
 	    s->verify_mode & SSL_VERIFY_PEER
 	    /*
-	     * if SSL_VERIFY_CLIENT_ONCE is set, don't request cert
-	     * during re-negotiation:
+	 * if SSL_VERIFY_CLIENT_ONCE is set, don't request cert
+	 * during re-negotiation:
 	     */
 	    && (s->s3->tmp.finish_md_len == 0 || !(s->verify_mode & SSL_VERIFY_CLIENT_ONCE))
 	    /*
-	     * never request cert in anonymous ciphersuites (see
-	     * section "Certificate request" in SSL 3 drafts and in
-	     * RFC 2246):
+	 * never request cert in anonymous ciphersuites (see
+	 * section "Certificate request" in SSL 3 drafts and in
+	 * RFC 2246):
 	     */
 	    && (!(s->s3->tmp.new_cipher->algorithm_auth & SSL_aNULL)
 	            /*
-	             * ... except when the application insists on
-	             * verification (against the specs, but statem_clnt.c accepts
-	             * this for SSL 3)
+	  * ... except when the application insists on
+	  * verification (against the specs, but statem_clnt.c accepts
+	  * this for SSL 3)
 	             */
 		    || (s->verify_mode & SSL_VERIFY_FAIL_IF_NO_PEER_CERT))
 	    /* don't request certificate for SRP auth */
 	    && !(s->s3->tmp.new_cipher->algorithm_auth & SSL_aSRP)
 	    /*
-	     * With normal PSK Certificates and Certificate Requests
-	     * are omitted
+	 * With normal PSK Certificates and Certificate Requests
+	 * are omitted
 	     */
 	    && !(s->s3->tmp.new_cipher->algorithm_auth & SSL_aPSK)) {
 		return 1;
@@ -416,8 +416,8 @@ WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 		case TLS_ST_SW_SRVR_HELLO:
 		    if(SSL_IS_DTLS(s)) {
 			    /*
-			     * Messages we write from now on should be bufferred and
-			     * retransmitted if necessary, so we need to use the timer now
+			 * Messages we write from now on should be bufferred and
+			 * retransmitted if necessary, so we need to use the timer now
 			     */
 			    st->use_timer = 1;
 		    }
@@ -433,8 +433,8 @@ WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 		case TLS_ST_SW_SESSION_TICKET:
 		    if(SSL_IS_DTLS(s)) {
 			    /*
-			     * We're into the last flight. We don't retransmit the last flight
-			     * unless we need to, so we don't use the timer
+			 * We're into the last flight. We don't retransmit the last flight
+			 * unless we need to, so we don't use the timer
 			     */
 			    st->use_timer = 0;
 		    }
@@ -448,10 +448,10 @@ WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 		    }
 		    if(SSL_IS_DTLS(s)) {
 			    /*
-			     * We're into the last flight. We don't retransmit the last flight
-			     * unless we need to, so we don't use the timer. This might have
-			     * already been set to 0 if we sent a NewSessionTicket message,
-			     * but we'll set it again here in case we didn't.
+			 * We're into the last flight. We don't retransmit the last flight
+			 * unless we need to, so we don't use the timer. This might have
+			 * already been set to 0 if we sent a NewSessionTicket message,
+			 * but we'll set it again here in case we didn't.
 			     */
 			    st->use_timer = 0;
 		    }
@@ -497,8 +497,8 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
 			    return WORK_ERROR;
 		    }
 		    /*
-		     * The next message should be another ClientHello which we need to
-		     * treat like it was the first packet
+		 * The next message should be another ClientHello which we need to
+		 * treat like it was the first packet
 		     */
 		    s->first_packet = 1;
 		    break;
@@ -510,8 +510,8 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
 			    char labelbuffer[sizeof(DTLS1_SCTP_AUTH_LABEL)];
 
 			    /*
-			     * Add new shared key for SCTP-Auth, will be ignored if no
-			     * SCTP used.
+			 * Add new shared key for SCTP-Auth, will be ignored if no
+			 * SCTP used.
 			     */
 			    memcpy(labelbuffer, DTLS1_SCTP_AUTH_LABEL,
 			    sizeof(DTLS1_SCTP_AUTH_LABEL));
@@ -534,8 +534,8 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
 #ifndef OPENSSL_NO_SCTP
 		    if(SSL_IS_DTLS(s) && !s->hit) {
 			    /*
-			     * Change to new shared key of SCTP-Auth, will be ignored if
-			     * no SCTP used.
+			 * Change to new shared key of SCTP-Auth, will be ignored if
+			 * no SCTP used.
 			     */
 			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY,
 			    0, 0);
@@ -562,8 +562,8 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
 #ifndef OPENSSL_NO_SCTP
 		    if(SSL_IS_DTLS(s) && s->hit) {
 			    /*
-			     * Change to new shared key of SCTP-Auth, will be ignored if
-			     * no SCTP used.
+			 * Change to new shared key of SCTP-Auth, will be ignored if
+			 * no SCTP used.
 			     */
 			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY,
 			    0, 0);

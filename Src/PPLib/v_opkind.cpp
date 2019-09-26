@@ -432,7 +432,7 @@ int SLAPI PPViewOprKind::ViewBills(PPID opID)
 		// @v9.7.10 flt.OpID = opID;
 		// @v9.7.10 {
 		const PPID op_type_id = GetOpType(opID);
-		if(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT))
+		if(oneof4(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) // @v10.5.7 PPOPT_DRAFTQUOTREQ
 			flt.Bbt = bbtDraftBills;
 		else if(op_type_id == PPOPT_ACCTURN)
 			flt.Bbt = bbtAccturnBills;

@@ -110,20 +110,15 @@ int archive_write_set_format_cpio_newc(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_write_newc_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_newc_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct cpio * cpio = (struct cpio *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
 	if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
-			cpio->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			cpio->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(cpio->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -131,7 +126,6 @@ static int archive_write_newc_options(struct archive_write * a, const char * key
 		}
 		return ret;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -253,30 +247,23 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	ret = archive_entry_symlink_l(entry, &p, &len, sconv);
 	if(ret != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Likname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Likname");
 			ret_final = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate linkname '%s' to %s",
-		    archive_entry_symlink(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s",
+		    archive_entry_symlink(entry), archive_string_conversion_charset_name(sconv));
 		ret_final = ARCHIVE_WARN;
 	}
 	if(len > 0 && p != NULL  &&  *p != '\0')
-		ret = format_hex(strlen(p), h + c_filesize_offset,
-			c_filesize_size);
+		ret = format_hex(strlen(p), h + c_filesize_offset, c_filesize_size);
 	else
-		ret = format_hex(archive_entry_size(entry),
-			h + c_filesize_offset, c_filesize_size);
+		ret = format_hex(archive_entry_size(entry), h + c_filesize_offset, c_filesize_size);
 	if(ret) {
-		archive_set_error(&a->archive, ERANGE,
-		    "File is too large for this format.");
+		archive_set_error(&a->archive, ERANGE, "File is too large for this format.");
 		ret_final = ARCHIVE_FAILED;
 		goto exit_write_header;
 	}
-
 	ret = __archive_write_output(a, h, c_header_size);
 	if(ret != ARCHIVE_OK) {
 		ret_final = ARCHIVE_FATAL;

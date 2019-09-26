@@ -421,7 +421,7 @@ start:
 	/* we now have a packet which can be read and processed */
 
 	if(s->s3->change_cipher_spec /* set when we receive ChangeCipherSpec,
-	                              * reset by ssl3_get_finished */
+	   * reset by ssl3_get_finished */
 	    && (SSL3_RECORD_get_type(rr) != SSL3_RT_HANDSHAKE)) {
 		/*
 		 * We now have application data between CCS and Finished. Most likely
@@ -770,7 +770,7 @@ start:
 	}
 
 	if(s->shutdown & SSL_SENT_SHUTDOWN) { /* but we have not received a
-		                               * shutdown */
+		    * shutdown */
 		s->rwstate = SSL_NOTHING;
 		SSL3_RECORD_set_length(rr, 0);
 		return 0;
@@ -860,20 +860,20 @@ start:
 		case SSL3_RT_ALERT:
 		case SSL3_RT_HANDSHAKE:
 		    /*
-		     * we already handled all of these, with the possible exception of
-		     * SSL3_RT_HANDSHAKE when ossl_statem_get_in_handshake(s) is true, but
-		     * that should not happen when type != rr->type
+		 * we already handled all of these, with the possible exception of
+		 * SSL3_RT_HANDSHAKE when ossl_statem_get_in_handshake(s) is true, but
+		 * that should not happen when type != rr->type
 		     */
 		    al = SSL_AD_UNEXPECTED_MESSAGE;
 		    SSLerr(SSL_F_DTLS1_READ_BYTES, ERR_R_INTERNAL_ERROR);
 		    goto f_err;
 		case SSL3_RT_APPLICATION_DATA:
 		    /*
-		     * At this point, we were expecting handshake data, but have
-		     * application data.  If the library was running inside ssl3_read()
-		     * (i.e. in_read_app_data is set) and it makes sense to read
-		     * application data at this point (session renegotiation not yet
-		     * started), we will indulge it.
+		 * At this point, we were expecting handshake data, but have
+		 * application data.  If the library was running inside ssl3_read()
+		 * (i.e. in_read_app_data is set) and it makes sense to read
+		 * application data at this point (session renegotiation not yet
+		 * started), we will indulge it.
 		     */
 		    if(s->s3->in_read_app_data &&
 		    (s->s3->total_renegotiations != 0) &&

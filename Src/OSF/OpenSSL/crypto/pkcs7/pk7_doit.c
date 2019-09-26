@@ -370,10 +370,10 @@ BIO * PKCS7_dataDecode(PKCS7 * p7, EVP_PKEY * pkey, BIO * in_bio, X509 * pcert)
 	switch(i) {
 		case NID_pkcs7_signed:
 		    /*
-		     * p7->d.sign->contents is a PKCS7 structure consisting of a contentType
-		     * field and optional content.
-		     * data_body is NULL if that structure has no (=detached) content
-		     * or if the contentType is wrong (i.e., not "data").
+		 * p7->d.sign->contents is a PKCS7 structure consisting of a contentType
+		 * field and optional content.
+		 * data_body is NULL if that structure has no (=detached) content
+		 * or if the contentType is wrong (i.e., not "data").
 		     */
 		    data_body = PKCS7_get_octet_string(p7->d.sign->contents);
 		    if(!PKCS7_is_detached(p7) && data_body == NULL) {

@@ -1533,8 +1533,8 @@ static int process_base_block(struct archive_read* a,
 		    ret = process_head_main(a, rar, entry, header_flags);
 
 		    /* Main header doesn't have any files in it, so it's pointless
-		     * to return to the caller. Retry to next header, which should be
-		     * HEAD_FILE/HEAD_SERVICE. */
+		 * to return to the caller. Retry to next header, which should be
+		 * HEAD_FILE/HEAD_SERVICE. */
 		    if(ret == ARCHIVE_OK)
 			    return ARCHIVE_RETRY;
 
@@ -1552,11 +1552,11 @@ static int process_base_block(struct archive_read* a,
 		    rar->main.endarc = 1;
 
 		    /* After encountering an end of file marker, we need to take
-		     * into consideration if this archive is continued in another
-		     * file (i.e. is it part01.rar: is there a part02.rar?) */
+		 * into consideration if this archive is continued in another
+		 * file (i.e. is it part01.rar: is there a part02.rar?) */
 		    if(rar->main.volume) {
 			    /* In case there is part02.rar, position the read pointer
-			     * in a proper place, so we can resume parsing. */
+			 * in a proper place, so we can resume parsing. */
 
 			    ret = scan_for_signature(a);
 			    if(ret == ARCHIVE_FATAL) {
@@ -1579,7 +1579,7 @@ static int process_base_block(struct archive_read* a,
 		    }
 		    else {
 			    /* If the block is marked as 'skip if unknown', do as the flag
-			     * says: skip the block instead on failing on it. */
+			 * says: skip the block instead on failing on it. */
 			    return ARCHIVE_RETRY;
 		    }
 	}

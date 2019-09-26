@@ -81,14 +81,14 @@ struct _xmlSchemaValQName {
 typedef struct _xmlSchemaValHex xmlSchemaValHex;
 typedef xmlSchemaValHex * xmlSchemaValHexPtr;
 struct _xmlSchemaValHex {
-	xmlChar     * str;
+	xmlChar * str;
 	uint total;
 };
 
 typedef struct _xmlSchemaValBase64 xmlSchemaValBase64;
 typedef xmlSchemaValBase64 * xmlSchemaValBase64Ptr;
 struct _xmlSchemaValBase64 {
-	xmlChar     * str;
+	xmlChar * str;
 	uint total;
 };
 
@@ -105,7 +105,7 @@ struct xmlSchemaVal {
 		float f;
 		double d;
 		int b;
-		xmlChar                * str;
+		xmlChar * str;
 	} value;
 };
 
@@ -1903,13 +1903,13 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    goto return1;
 
 		    /*
-		     * xs:decimal has a whitespace-facet value of 'collapse'.
+		 * xs:decimal has a whitespace-facet value of 'collapse'.
 		     */
 		    if(normOnTheFly)
 			    while IS_WSP_BLANK_CH(*cur) cur++;
 
 		    /*
-		     * First we handle an optional sign.
+		 * First we handle an optional sign.
 		     */
 		    neg = 0;
 		    if(*cur == '-') {
@@ -1919,21 +1919,21 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    else if(*cur == '+')
 			    cur++;
 		    /*
-		     * Disallow: "", "-", "- "
+		 * Disallow: "", "-", "- "
 		     */
 		    if(*cur == 0)
 			    goto return1;
 		    /*
-		     * Next we "pre-parse" the number, in preparation for calling
-		     * the common routine xmlSchemaParseUInt.  We get rid of any
-		     * leading zeroes (because we have reserved only 25 chars),
-		     * and note the position of a decimal point.
+		 * Next we "pre-parse" the number, in preparation for calling
+		 * the common routine xmlSchemaParseUInt.  We get rid of any
+		 * leading zeroes (because we have reserved only 25 chars),
+		 * and note the position of a decimal point.
 		     */
 		    len = 0;
 		    integ = ~0u;
 		    hasLeadingZeroes = 0;
 		    /*
-		     * Skip leading zeroes.
+		 * Skip leading zeroes.
 		     */
 		    while(*cur == '0') {
 			    cur++;
@@ -1957,7 +1957,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 							    break;
 					    } while(len < 24);
 					    /*
-					     * Disallow "." but allow "00."
+					 * Disallow "." but allow "00."
 					     */
 					    if((len == 0) && (!hasLeadingZeroes))
 						    goto return1;
@@ -1975,13 +1975,13 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    v = xmlSchemaNewValue(XML_SCHEMAS_DECIMAL);
 			    if(v) {
 				    /*
-				     * Now evaluate the significant digits of the number
+				 * Now evaluate the significant digits of the number
 				     */
 				    if(len != 0) {
 					    if(integ != ~0u) {
 						    /*
-						     * Get rid of trailing zeroes in the
-						     * fractional part.
+						 * Get rid of trailing zeroes in the
+						 * fractional part.
 						     */
 						    while((len != integ) && (*(cptr-1) == '0')) {
 							    cptr--;
@@ -1989,7 +1989,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 						    }
 					    }
 					    /*
-					     * Terminate the (preparsed) string.
+					 * Terminate the (preparsed) string.
 					     */
 					    if(len != 0) {
 						    *cptr = 0;
@@ -2002,7 +2002,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 					    }
 				    }
 				    /*
-				     * Set the total digits to 1 if a zero value.
+				 * Set the total digits to 1 if a zero value.
 				     */
 				    v->value.decimal.sign = neg;
 				    if(len == 0) {
@@ -2142,9 +2142,9 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 				    v = xmlSchemaNewValue(XML_SCHEMAS_FLOAT);
 				    if(v) {
 					    /*
-					     * @todo sscanf seems not to give the correct
-					     * value for extremely high/low values.
-					     * E.g. "1E-149" results in zero.
+					 * @todo sscanf seems not to give the correct
+					 * value for extremely high/low values.
+					 * E.g. "1E-149" results in zero.
 					     */
 					    if(sscanf((const char *)value, "%f",
 							    &(v->value.f)) == 1) {
@@ -2163,8 +2163,8 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 				    v = xmlSchemaNewValue(XML_SCHEMAS_DOUBLE);
 				    if(v) {
 					    /*
-					     * @todo sscanf seems not to give the correct
-					     * value for extremely high/low values.
+					 * @todo sscanf seems not to give the correct
+					 * value for extremely high/low values.
 					     */
 					    if(sscanf((const char *)value, "%lf",
 							    &(v->value.d)) == 1) {
@@ -2408,7 +2408,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    if((ret == 0) && pNode && (pNode->type == XML_ATTRIBUTE_NODE)) {
 			    xmlAttr * attr = (xmlAttr *)pNode;
 			    /*
-			     * NOTE: the IDness might have already be declared in the DTD
+			 * NOTE: the IDness might have already be declared in the DTD
 			     */
 			    if(attr->atype != XML_ATTRIBUTE_ID) {
 				    xmlIDPtr res;
@@ -2596,8 +2596,8 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    if(!v)
 				    goto error;
 			    /*
-			     * Copy only the normalized piece.
-			     * CRITICAL TODO: Check this.
+			 * Copy only the normalized piece.
+			 * CRITICAL TODO: Check this.
 			     */
 			    cur = xmlStrndup(start, i);
 			    if(!cur) {
@@ -2621,19 +2621,19 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		case XML_SCHEMAS_BASE64BINARY: {
 		    /* ISSUE:
 		     *
-		     * Ignore all stray characters? (yes, currently)
-		     * Worry about long lines? (no, currently)
+		 * Ignore all stray characters? (yes, currently)
+		 * Worry about long lines? (no, currently)
 		     *
-		     * rfc2045.txt:
+		 * rfc2045.txt:
 		     *
-		     * "The encoded output stream must be represented in lines of
-		     * no more than 76 characters each.  All line breaks or other
-		     * characters not found in Table 1 must be ignored by decoding
-		     * software.  In base64 data, characters other than those in
-		     * Table 1, line breaks, and other white space probably
-		     * indicate a transmission error, about which a warning
-		     * message or even a message rejection might be appropriate
-		     * under some circumstances." */
+		 * "The encoded output stream must be represented in lines of
+		 * no more than 76 characters each.  All line breaks or other
+		 * characters not found in Table 1 must be ignored by decoding
+		 * software.  In base64 data, characters other than those in
+		 * Table 1, line breaks, and other white space probably
+		 * indicate a transmission error, about which a warning
+		 * message or even a message rejection might be appropriate
+		 * under some circumstances." */
 		    const xmlChar * cur = value;
 		    xmlChar * base;
 		    int total, i = 0, pad = 0;
@@ -2659,25 +2659,25 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    }
 
 		    /* rfc2045.txt: "Special processing is performed if fewer than
-		     * 24 bits are available at the end of the data being encoded.
-		     * A full encoding quantum is always completed at the end of a
-		     * body.  When fewer than 24 input bits are available in an
-		     * input group, zero bits are added (on the right) to form an
-		     * integral number of 6-bit groups.  Padding at the end of the
-		     * data is performed using the "=" character.  Since all
-		     * base64 input is an integral number of octets, only the
-		     * following cases can arise: (1) the final quantum of
-		     * encoding input is an integral multiple of 24 bits; here,
-		     * the final unit of encoded output will be an integral
-		     * multiple ofindent: Standard input:701: Warning:old style
-		     * assignment ambiguity in "=*".  Assuming "= *" 4 characters
-		     * with no "=" padding, (2) the final
-		     * quantum of encoding input is exactly 8 bits; here, the
-		     * final unit of encoded output will be two characters
-		     * followed by two "=" padding characters, or (3) the final
-		     * quantum of encoding input is exactly 16 bits; here, the
-		     * final unit of encoded output will be three characters
-		     * followed by one "=" padding character." */
+		 * 24 bits are available at the end of the data being encoded.
+		 * A full encoding quantum is always completed at the end of a
+		 * body.  When fewer than 24 input bits are available in an
+		 * input group, zero bits are added (on the right) to form an
+		 * integral number of 6-bit groups.  Padding at the end of the
+		 * data is performed using the "=" character.  Since all
+		 * base64 input is an integral number of octets, only the
+		 * following cases can arise: (1) the final quantum of
+		 * encoding input is an integral multiple of 24 bits; here,
+		 * the final unit of encoded output will be an integral
+		 * multiple ofindent: Standard input:701: Warning:old style
+		 * assignment ambiguity in "=*".  Assuming "= *" 4 characters
+		 * with no "=" padding, (2) the final
+		 * quantum of encoding input is exactly 8 bits; here, the
+		 * final unit of encoded output will be two characters
+		 * followed by two "=" padding characters, or (3) the final
+		 * quantum of encoding input is exactly 16 bits; here, the
+		 * final unit of encoded output will be three characters
+		 * followed by one "=" padding character." */
 
 		    total = 3 * (i / 4);
 		    if(pad == 0) {
@@ -4268,7 +4268,7 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype, xmlSchemaValPt
 		    const xmlChar * xv = x ? x->value.str : xvalue;
 		    const xmlChar * yv = y ? y->value.str : yvalue;
 		    /*
-		     * @todo Compare those against QName.
+		 * @todo Compare those against QName.
 		     */
 		    if(ytype == XML_SCHEMAS_QNAME) {
 			    TODO
@@ -4613,10 +4613,10 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
 			case XML_SCHEMAS_NORMSTRING:
 			    if(ws == XML_SCHEMA_WHITESPACE_UNKNOWN) {
 				    /*
-				     * This is to ensure API compatibility with the old
-				     * xmlSchemaValidateLengthFacet(). Anyway, this was and
-				     * is not the correct handling.
-				     * @todo Get rid of this case somehow.
+				 * This is to ensure API compatibility with the old
+				 * xmlSchemaValidateLengthFacet(). Anyway, this was and
+				 * is not the correct handling.
+				 * @todo Get rid of this case somehow.
 				     */
 				    if(valType == XML_SCHEMAS_STRING)
 					    len = xmlUTF8Strlen(value);
@@ -4628,7 +4628,7 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
 					    len = xmlSchemaNormLen(value);
 				    else
 					    /*
-					     * Should be OK for "preserve" as well.
+					 * Should be OK for "preserve" as well.
 					     */
 					    len = xmlUTF8Strlen(value);
 			    }
@@ -4650,8 +4650,8 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
 			case XML_SCHEMAS_QNAME:
 			case XML_SCHEMAS_NOTATION:
 			    /*
-			     * For QName and NOTATION, those facets are
-			     * deprecated and should be ignored.
+			 * For QName and NOTATION, those facets are
+			 * deprecated and should be ignored.
 			     */
 			    return 0;
 			default:
@@ -4743,8 +4743,8 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet, xmlSchemaWhit
 	switch(facet->type) {
 		case XML_SCHEMA_FACET_PATTERN:
 		    /*
-		     * NOTE that for patterns, the @value needs to be the normalized
-		     * value, *not* the lexical initial value or the canonical value.
+		 * NOTE that for patterns, the @value needs to be the normalized
+		 * value, *not* the lexical initial value or the canonical value.
 		     */
 		    if(!value)
 			    return -1;
@@ -4785,17 +4785,17 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet, xmlSchemaWhit
 		case XML_SCHEMA_FACET_WHITESPACE:
 		    /* @todo whitespaces */
 		    /*
-		     * NOTE: Whitespace should be handled to normalize
-		     * the value to be validated against a the facets;
-		     * not to normalize the value in-between.
+		 * NOTE: Whitespace should be handled to normalize
+		 * the value to be validated against a the facets;
+		 * not to normalize the value in-between.
 		     */
 		    return 0;
 		case  XML_SCHEMA_FACET_ENUMERATION:
 		    if(ws == XML_SCHEMA_WHITESPACE_UNKNOWN) {
 			    /*
-			     * This is to ensure API compatibility with the old
-			     * xmlSchemaValidateFacet().
-			     * @todo Get rid of this case.
+			 * This is to ensure API compatibility with the old
+			 * xmlSchemaValidateFacet().
+			 * @todo Get rid of this case.
 			     */
 			    if(facet->value && sstreq(facet->value, value))
 				    return 0;
@@ -4810,8 +4810,8 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet, xmlSchemaWhit
 		    return (XML_SCHEMAV_CVC_ENUMERATION_VALID);
 		case XML_SCHEMA_FACET_LENGTH:
 		    /*
-		     * SPEC (1.3) "if {primitive type definition} is QName or NOTATION,
-		     * then any {value} is facet-valid."
+		 * SPEC (1.3) "if {primitive type definition} is QName or NOTATION,
+		 * then any {value} is facet-valid."
 		     */
 		    if(oneof2(valType, XML_SCHEMAS_QNAME, XML_SCHEMAS_NOTATION))
 			    return 0;
@@ -4822,8 +4822,8 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet, xmlSchemaWhit
 		    if(oneof2(valType, XML_SCHEMAS_QNAME, XML_SCHEMAS_NOTATION))
 			    return 0;
 		    /*
-		     * @todo length, maxLength and minLength must be of type
-		     * nonNegativeInteger only. Check if decimal is used somehow.
+		 * @todo length, maxLength and minLength must be of type
+		 * nonNegativeInteger only. Check if decimal is used somehow.
 		     */
 		    if(!facet->val || !oneof2(facet->val->type, XML_SCHEMAS_DECIMAL, XML_SCHEMAS_NNINTEGER) || (facet->val->value.decimal.frac != 0)) {
 			    return -1;
@@ -5012,9 +5012,9 @@ static void xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
 			    absolute_value = fabs(number);
 
 			    /*
-			     * Result is in work, and after_fraction points
-			     * just past the fractional part.
-			     * Use scientific notation
+			 * Result is in work, and after_fraction points
+			 * just past the fractional part.
+			 * Use scientific notation
 			     */
 			    integer_place = DBL_DIG + EXPONENT_DIGITS + 1;
 			    fraction_place = DBL_DIG - 1;
@@ -5114,7 +5114,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    break;
 		case XML_SCHEMAS_DECIMAL:
 		    /*
-		     * @todo Lookout for a more simple implementation.
+		 * @todo Lookout for a more simple implementation.
 		     */
 		    if((val->value.decimal.total == 1) && (val->value.decimal.lo == 0)) {
 			    *retValue = sstrdup(reinterpret_cast<const xmlChar *>("0.0"));
@@ -5150,7 +5150,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 				    if(dec.frac != dec.total) {
 					    int diff = dec.total - dec.frac;
 					    /*
-					     * Insert the decimal point.
+					 * Insert the decimal point.
 					     */
 					    memmove(offs + diff + 1, offs + diff, dec.frac +1);
 					    offs[diff] = '.';
@@ -5158,7 +5158,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 				    else {
 					    uint i = 0;
 					    /*
-					     * Insert missing zeroes behind the decimal point.
+					 * Insert missing zeroes behind the decimal point.
 					     */
 					    while(*(offs + i) != 0)
 						    i++;
@@ -5170,7 +5170,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    }
 			    else {
 				    /*
-				     * Append decimal point and zero.
+				 * Append decimal point and zero.
 				     */
 				    offs = buf + bufsize - 1;
 				    *offs-- = 0;
@@ -5234,11 +5234,11 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    double sec = 0, left;
 		    /* @todo Unclear in XML Schema 1.0 */
 		    /*
-		     * @todo This results in a normalized output of the value
-		     * - which is NOT conformant to the spec -
-		     * since the exact values of each property are not
-		     * recoverable. Think about extending the structure to
-		     * provide a field for every property.
+		 * @todo This results in a normalized output of the value
+		 * - which is NOT conformant to the spec -
+		 * since the exact values of each property are not
+		 * recoverable. Think about extending the structure to
+		 * provide a field for every property.
 		     */
 		    year = (ulong)FQUOTIENT(labs(val->value.dur.mon), 12);
 		    mon = labs(val->value.dur.mon) - 12 * year;
@@ -5313,7 +5313,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    if(norm == NULL)
 				    return -1;
 			    /*
-			     * @todo Check if "%.14g" is portable.
+			 * @todo Check if "%.14g" is portable.
 			     */
 			    snprintf(buf, 30, "%02u:%02u:%02.14gZ", norm->value.date.hour, norm->value.date.min, norm->value.date.sec);
 			    xmlSchemaFreeValue(norm);
@@ -5332,8 +5332,8 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    if(norm == NULL)
 				    return -1;
 			    /*
-			     * @todo Append the canonical value of the
-			     * recoverable timezone and not "Z".
+			 * @todo Append the canonical value of the
+			 * recoverable timezone and not "Z".
 			     */
 			    snprintf(buf, 30, "%04ld:%02u:%02uZ", norm->value.date.year, norm->value.date.mon, norm->value.date.day);
 			    xmlSchemaFreeValue(norm);
@@ -5352,7 +5352,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    if(norm == NULL)
 				    return -1;
 			    /*
-			     * @todo Check if "%.14g" is portable.
+			 * @todo Check if "%.14g" is portable.
 			     */
 			    snprintf(buf, 50, "%04ld:%02u:%02uT%02u:%02u:%02.14gZ",
 				    norm->value.date.year, norm->value.date.mon, norm->value.date.day, norm->value.date.hour, norm->value.date.min, norm->value.date.sec);
@@ -5370,20 +5370,20 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    break;
 		case XML_SCHEMAS_BASE64BINARY:
 		    /*
-		     * @todo Is the following spec piece implemented?:
-		     * SPEC: "Note: For some values the canonical form defined
-		     * above does not conform to [RFC 2045], which requires breaking
-		     * with linefeeds at appropriate intervals."
+		 * @todo Is the following spec piece implemented?:
+		 * SPEC: "Note: For some values the canonical form defined
+		 * above does not conform to [RFC 2045], which requires breaking
+		 * with linefeeds at appropriate intervals."
 		     */
 		    *retValue = sstrdup(BAD_CAST val->value.base64.str);
 		    break;
 		case XML_SCHEMAS_FLOAT: {
 		    char buf[30];
 		    /*
-		     * |m| < 16777216, -149 <= e <= 104.
-		     * @todo Handle, NaN, INF, -INF. The format is not
-		     * yet conformant. The c type float does not cover
-		     * the whole range.
+		 * |m| < 16777216, -149 <= e <= 104.
+		 * @todo Handle, NaN, INF, -INF. The format is not
+		 * yet conformant. The c type float does not cover
+		 * the whole range.
 		     */
 		    snprintf(buf, 30, "%01.14e", val->value.f);
 		    *retValue = sstrdup(BAD_CAST buf);
@@ -5393,9 +5393,9 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    char buf[40];
 		    /* |m| < 9007199254740992, -1075 <= e <= 970 */
 		    /*
-		     * @todo Handle, NaN, INF, -INF. The format is not
-		     * yet conformant. The c type float does not cover
-		     * the whole range.
+		 * @todo Handle, NaN, INF, -INF. The format is not
+		 * yet conformant. The c type float does not cover
+		 * the whole range.
 		     */
 		    snprintf(buf, 40, "%01.14e", val->value.d);
 		    *retValue = sstrdup(BAD_CAST buf);

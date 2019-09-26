@@ -32,8 +32,8 @@ typedef enum {
     /* We've finished reading - swap to writing */
     MSG_PROCESS_FINISHED_READING,
     /*
-     * We've completed the main processing of this message but there is some
-     * post processing to be done.
+ * We've completed the main processing of this message but there is some
+ * post processing to be done.
      */
     MSG_PROCESS_CONTINUE_PROCESSING,
     /* We've finished this message - read the next message */

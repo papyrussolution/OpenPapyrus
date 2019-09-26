@@ -316,8 +316,8 @@ retry:
 	    // @fallthrough
 	    case DB_NEXT_NODUP:
 	    /*
-	     * Recno databases don't have duplicates, set flags to DB_NEXT
-	     * and keep going.
+	 * Recno databases don't have duplicates, set flags to DB_NEXT
+	 * and keep going.
 	     */
 	    // @fallthrough
 	    case DB_NEXT:
@@ -355,8 +355,8 @@ retry:
 	    // @fallthrough
 	    case DB_PREV_NODUP:
 	    /*
-	     * Recno databases don't have duplicates, set flags to DB_PREV
-	     * and keep going.
+	 * Recno databases don't have duplicates, set flags to DB_PREV
+	 * and keep going.
 	     */
 	    // @fallthrough
 	    case DB_PREV:

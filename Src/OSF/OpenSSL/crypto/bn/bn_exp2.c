@@ -128,9 +128,9 @@ int BN_mod_exp2_mont(BIGNUM * rr, const BIGNUM * a1, const BIGNUM * p1,
 	wvalue1 = 0;            /* The 'value' of the first window */
 	wvalue2 = 0;            /* The 'value' of the second window */
 	wpos1 = 0;              /* If wvalue1 > 0, the bottom bit of the
-	                         * first window */
+	    * first window */
 	wpos2 = 0;              /* If wvalue2 > 0, the bottom bit of the
-	                         * second window */
+	    * second window */
 
 	if(!BN_to_montgomery(r, BN_value_one(), mont, ctx))
 		goto err;

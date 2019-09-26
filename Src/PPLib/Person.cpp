@@ -147,22 +147,7 @@ int SLAPI PPObjPersonRelType::SerializePacket(int dir, PPPersonRelTypePacket * p
 }
 
 int SLAPI PPObjPersonRelType::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPPersonRelTypePacket * p_pack = new PPPersonRelTypePacket;
-	p->Data = p_pack;
-	THROW_MEM(p->Data);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjPersonRelType, PPPersonRelTypePacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjPersonRelType::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {

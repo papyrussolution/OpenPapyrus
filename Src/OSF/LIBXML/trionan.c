@@ -339,11 +339,11 @@ TRIO_PUBLIC int trio_isnan(double number)
 	void (* signal_handler)(int) = signal(SIGFPE, SIG_IGN);
 # endif
 	status = ( /*
-	            * NaN is the only number which does not compare to itself
+	 * NaN is the only number which does not compare to itself
 	            */
 	    ((TRIO_VOLATILE double)number != (TRIO_VOLATILE double)number) ||
 	    /*
-	     * Fallback solution if NaN compares to NaN
+	 * Fallback solution if NaN compares to NaN
 	     */
 	    ((number != 0.0) && (fraction = modf(number, &integral), integral == fraction)));
 

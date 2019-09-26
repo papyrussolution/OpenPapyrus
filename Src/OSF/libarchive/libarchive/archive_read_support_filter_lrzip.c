@@ -68,7 +68,7 @@ static int lrzip_bidder_bid(struct archive_read_filter_bidder * self, struct arc
 	/* Start by looking at the first six bytes of the header, which
 	 * is all fixed layout. */
 	len = 6;
-	p = (const uchar*)__archive_read_filter_ahead(filter, len, &avail);
+	p = (const uchar *)__archive_read_filter_ahead(filter, len, &avail);
 	if(p == NULL || avail == 0)
 		return 0;
 	if(memcmp(p, LRZIP_HEADER_MAGIC, LRZIP_HEADER_MAGIC_LEN))

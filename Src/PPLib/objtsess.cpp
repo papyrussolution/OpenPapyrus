@@ -4838,7 +4838,7 @@ int SLAPI PrcssrTSessMaintenance::Run()
 					const long cto = prc_ext.GetCipCancelTimeout();
 					const long lto = prc_ext.GetCipLockTimeout();
 					if(cto > 0 || lto > 0) {
-						ci_list.Clear();
+						ci_list.Z();
 						int    ci_list_updated = 0;
 						if(ci_mgr.GetList(PPCheckInPersonItem::kTSession, item.ID, ci_list) > 0) {
 							LDATETIME stdtm;

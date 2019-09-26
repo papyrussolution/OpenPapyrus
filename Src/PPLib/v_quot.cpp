@@ -1415,7 +1415,7 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	DbqFuncTab::RegisterDyn(&DynFuncPeriod, BTS_STRING, dbqf_quotperiod_i, 1, BTS_INT);
 
 	uint   brw_id = 0;
-	DBQuery     * q = 0;
+	DBQuery * q = 0;
 	TempQuotTbl * tbl = 0;
 	TempQuotSerialTbl * p_ts = 0;
 	TempOrderTbl * p_ot = 0;

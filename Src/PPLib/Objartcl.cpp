@@ -1806,22 +1806,7 @@ int SLAPI PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 }
 
 int SLAPI PPObjArticle::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPArticlePacket * p_pack = new PPArticlePacket;
-	THROW_MEM(p_pack);
-	p->Data = p_pack;
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjArticle, PPArticlePacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
@@ -2417,23 +2402,8 @@ int SLAPI PPObjDebtDim::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
-int  SLAPI PPObjDebtDim::Read(PPObjPack *p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPDebtDimPacket * p_pack = new PPDebtDimPacket;
-	THROW_MEM(p_pack);
-	p->Data = p_pack;
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+int SLAPI PPObjDebtDim::Read(PPObjPack *p, PPID id, void * stream, ObjTransmContext * pCtx)
+	{ return Implement_ObjReadPacket<PPObjDebtDim, PPDebtDimPacket>(this, p, id, stream, pCtx); }
 
 int  SLAPI PPObjDebtDim::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

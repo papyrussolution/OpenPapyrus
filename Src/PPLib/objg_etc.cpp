@@ -647,22 +647,8 @@ int SLAPI PPObjGoodsValRestr::SerializePacket(int dir, PPGoodsValRestrPacket * p
 
 IMPL_DESTROY_OBJ_PACK(PPObjGoodsValRestr, PPGoodsValRestrPacket);
 
-//virtual
 int  SLAPI PPObjGoodsValRestr::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPGoodsValRestrPacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPGoodsValRestrPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPGoodsValRestrPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjGoodsValRestr, PPGoodsValRestrPacket>(this, p, id, stream, pCtx); }
 
 //virtual
 int  SLAPI PPObjGoodsValRestr::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)

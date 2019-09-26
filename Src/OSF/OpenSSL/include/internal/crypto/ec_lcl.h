@@ -53,8 +53,8 @@ struct ec_method_st {
     /* used by EC_METHOD_get_field_type: */
     int field_type;             /* a NID */
     /*
-     * used by EC_GROUP_new, EC_GROUP_free, EC_GROUP_clear_free,
-     * EC_GROUP_copy:
+ * used by EC_GROUP_new, EC_GROUP_free, EC_GROUP_clear_free,
+ * EC_GROUP_copy:
      */
     int (*group_init) (EC_GROUP *);
     void (*group_finish) (EC_GROUP *);
@@ -72,20 +72,20 @@ struct ec_method_st {
     /* used by EC_GROUP_check: */
     int (*group_check_discriminant) (const EC_GROUP *, BN_CTX *);
     /*
-     * used by EC_POINT_new, EC_POINT_free, EC_POINT_clear_free,
-     * EC_POINT_copy:
+ * used by EC_POINT_new, EC_POINT_free, EC_POINT_clear_free,
+ * EC_POINT_copy:
      */
     int (*point_init) (EC_POINT *);
     void (*point_finish) (EC_POINT *);
     void (*point_clear_finish) (EC_POINT *);
     int (*point_copy) (EC_POINT *, const EC_POINT *);
     /*-
-     * used by EC_POINT_set_to_infinity,
-     * EC_POINT_set_Jprojective_coordinates_GFp,
-     * EC_POINT_get_Jprojective_coordinates_GFp,
-     * EC_POINT_set_affine_coordinates_GFp,     ..._GF2m,
-     * EC_POINT_get_affine_coordinates_GFp,     ..._GF2m,
-     * EC_POINT_set_compressed_coordinates_GFp, ..._GF2m:
+ * used by EC_POINT_set_to_infinity,
+ * EC_POINT_set_Jprojective_coordinates_GFp,
+ * EC_POINT_get_Jprojective_coordinates_GFp,
+ * EC_POINT_set_affine_coordinates_GFp,     ..._GF2m,
+ * EC_POINT_get_affine_coordinates_GFp,     ..._GF2m,
+ * EC_POINT_set_compressed_coordinates_GFp, ..._GF2m:
      */
     int (*point_set_to_infinity) (const EC_GROUP *, EC_POINT *);
     int (*point_set_Jprojective_coordinates_GFp) (const EC_GROUP *,
@@ -116,7 +116,7 @@ struct ec_method_st {
     int (*dbl) (const EC_GROUP *, EC_POINT *r, const EC_POINT *a, BN_CTX *);
     int (*invert) (const EC_GROUP *, EC_POINT *, BN_CTX *);
     /*
-     * used by EC_POINT_is_at_infinity, EC_POINT_is_on_curve, EC_POINT_cmp:
+ * used by EC_POINT_is_at_infinity, EC_POINT_is_on_curve, EC_POINT_cmp:
      */
     int (*is_at_infinity) (const EC_GROUP *, const EC_POINT *);
     int (*is_on_curve) (const EC_GROUP *, const EC_POINT *, BN_CTX *);
@@ -127,9 +127,9 @@ struct ec_method_st {
     int (*points_make_affine) (const EC_GROUP *, size_t num, EC_POINT *[],
                                BN_CTX *);
     /*
-     * used by EC_POINTs_mul, EC_POINT_mul, EC_POINT_precompute_mult,
-     * EC_POINT_have_precompute_mult (default implementations are used if the
-     * 'mul' pointer is 0):
+ * used by EC_POINTs_mul, EC_POINT_mul, EC_POINT_precompute_mult,
+ * EC_POINT_have_precompute_mult (default implementations are used if the
+ * 'mul' pointer is 0):
      */
     int (*mul) (const EC_GROUP *group, EC_POINT *r, const BIGNUM *scalar,
                 size_t num, const EC_POINT *points[], const BIGNUM *scalars[],
@@ -138,10 +138,10 @@ struct ec_method_st {
     int (*have_precompute_mult) (const EC_GROUP *group);
     /* internal functions */
     /*
-     * 'field_mul', 'field_sqr', and 'field_div' can be used by 'add' and
-     * 'dbl' so that the same implementations of point operations can be used
-     * with different optimized implementations of expensive field
-     * operations:
+ * 'field_mul', 'field_sqr', and 'field_div' can be used by 'add' and
+ * 'dbl' so that the same implementations of point operations can be used
+ * with different optimized implementations of expensive field
+ * operations:
      */
     int (*field_mul) (const EC_GROUP *, BIGNUM *r, const BIGNUM *a,
                       const BIGNUM *b, BN_CTX *);
@@ -186,32 +186,32 @@ struct ec_group_st {
     int asn1_flag;              /* flag to control the asn1 encoding */
     point_conversion_form_t asn1_form;
     unsigned char *seed;        /* optional seed for parameters (appears in
-                                 * ASN1) */
+ * ASN1) */
     size_t seed_len;
     /*
-     * The following members are handled by the method functions, even if
-     * they appear generic
+ * The following members are handled by the method functions, even if
+ * they appear generic
      */
     /*
-     * Field specification. For curves over GF(p), this is the modulus; for
-     * curves over GF(2^m), this is the irreducible polynomial defining the
-     * field.
+ * Field specification. For curves over GF(p), this is the modulus; for
+ * curves over GF(2^m), this is the irreducible polynomial defining the
+ * field.
      */
     BIGNUM *field;
     /*
-     * Field specification for curves over GF(2^m). The irreducible f(t) is
-     * then of the form: t^poly[0] + t^poly[1] + ... + t^poly[k] where m =
-     * poly[0] > poly[1] > ... > poly[k] = 0. The array is terminated with
-     * poly[k+1]=-1. All elliptic curve irreducibles have at most 5 non-zero
-     * terms.
+ * Field specification for curves over GF(2^m). The irreducible f(t) is
+ * then of the form: t^poly[0] + t^poly[1] + ... + t^poly[k] where m =
+ * poly[0] > poly[1] > ... > poly[k] = 0. The array is terminated with
+ * poly[k+1]=-1. All elliptic curve irreducibles have at most 5 non-zero
+ * terms.
      */
     int poly[6];
     /*
-     * Curve coefficients. (Here the assumption is that BIGNUMs can be used
-     * or abused for all kinds of fields, not just GF(p).) For characteristic
-     * > 3, the curve is defined by a Weierstrass equation of the form y^2 =
-     * x^3 + a*x + b. For characteristic 2, the curve is defined by an
-     * equation of the form y^2 + x*y = x^3 + a*x^2 + b.
+ * Curve coefficients. (Here the assumption is that BIGNUMs can be used
+ * or abused for all kinds of fields, not just GF(p).) For characteristic
+ * > 3, the curve is defined by a Weierstrass equation of the form y^2 =
+ * x^3 + a*x + b. For characteristic 2, the curve is defined by an
+ * equation of the form y^2 + x*y = x^3 + a*x^2 + b.
      */
     BIGNUM *a, *b;
     /* enable optimized point arithmetics for special case */
@@ -227,9 +227,9 @@ struct ec_group_st {
     BN_MONT_CTX *mont_data;
 
     /*
-     * Precomputed values for speed. The PCT_xxx names match the
-     * pre_comp.xxx union names; see the SETPRECOMP and HAVEPRECOMP
-     * macros, below.
+ * Precomputed values for speed. The PCT_xxx names match the
+ * pre_comp.xxx union names; see the SETPRECOMP and HAVEPRECOMP
+ * macros, below.
      */
     enum {
         PCT_none,
@@ -269,15 +269,15 @@ struct ec_key_st {
 struct ec_point_st {
     const EC_METHOD *meth;
     /*
-     * All members except 'meth' are handled by the method functions, even if
-     * they appear generic
+ * All members except 'meth' are handled by the method functions, even if
+ * they appear generic
      */
     BIGNUM *X;
     BIGNUM *Y;
     BIGNUM *Z;                  /* Jacobian projective coordinates: * (X, Y,
-                                 * Z) represents (X/Z^2, Y/Z^3) if Z != 0 */
+ * Z) represents (X/Z^2, Y/Z^3) if Z != 0 */
     int Z_is_one;               /* enable optimized point arithmetics for
-                                 * special case */
+ * special case */
 };
 
 NISTP224_PRE_COMP *EC_nistp224_pre_comp_dup(NISTP224_PRE_COMP *);

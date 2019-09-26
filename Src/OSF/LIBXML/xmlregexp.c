@@ -1351,9 +1351,9 @@ static int xmlFAGenerateTransitions(xmlRegParserCtxt * ctxt, xmlRegStatePtr from
 			case XML_REGEXP_QUANT_OPT:
 			    atom->quant = XML_REGEXP_QUANT_ONCE;
 			    /*
-			     * transition done to the state after end of atom.
-			     * 1. set transition from atom start to new state
-			     * 2. set transition from atom end to this state.
+			 * transition done to the state after end of atom.
+			 * 1. set transition from atom start to new state
+			 * 2. set transition from atom end to this state.
 			     */
 			    if(to == NULL) {
 				    xmlFAGenerateEpsilonTransition(ctxt, atom->start, 0);
@@ -2205,7 +2205,7 @@ static int xmlFACompareAtoms(xmlRegAtom * atom1, xmlRegAtom * atom2, int deep)
 			    xmlRegRangePtr r1, r2;
 
 			    /*
-			     * need to check that none of the ranges eventually matches
+			 * need to check that none of the ranges eventually matches
 			     */
 			    for(i = 0; i < atom1->nbRanges; i++) {
 				    for(j = 0; j < atom2->nbRanges; j++) {
@@ -6719,11 +6719,11 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 				    printf("Seq trying left only worked\n");
 #endif
 				    /*
-				     * @todo assumption here that we are determinist
-				     *  i.e. we won't get to a nillable exp left
-				     *  subset which could be matched by the right
-				     *  part too.
-				     * e.g.: (a | b)+,(a | c) and 'a+,a'
+				 * @todo assumption here that we are determinist
+				 *  i.e. we won't get to a nillable exp left
+				 *  subset which could be matched by the right
+				 *  part too.
+				 * e.g.: (a | b)+,(a | c) and 'a+,a'
 				     */
 				    exp->exp_right->ref++;
 				    return (xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret,
@@ -6796,7 +6796,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 
 		    if(sub->type == XML_EXP_COUNT) {
 			    /*
-			     * Try to see if the loop is completely subsumed
+			 * Try to see if the loop is completely subsumed
 			     */
 			    tmp = xmlExpExpDeriveInt(ctxt, exp->exp_left, sub->exp_left);
 			    if(!tmp)
@@ -6862,8 +6862,8 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 			    }
 			    else if(!IS_NILLABLE(tmp)) {
 				    /*
-				     * @todo loop here to try to grow if working on finite
-				     *  blocks.
+				 * @todo loop here to try to grow if working on finite
+				 *  blocks.
 				     */
 #ifdef DEBUG_DERIV
 				    printf("Count, Count remain not nillable => forbidden\n");

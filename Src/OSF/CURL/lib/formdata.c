@@ -296,8 +296,8 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 			case CURLFORM_PTRNAME:
 #ifdef CURL_DOES_CONVERSIONS
 			    /* Treat CURLFORM_PTR like CURLFORM_COPYNAME so that libcurl will copy
-			     * the data in all cases so that we'll have safe memory for the eventual
-			     * conversion.
+			 * the data in all cases so that we'll have safe memory for the eventual
+			 * conversion.
 			     */
 #else
 			    current_form->flags |= HTTPPOST_PTRNAME; // @fallthrough

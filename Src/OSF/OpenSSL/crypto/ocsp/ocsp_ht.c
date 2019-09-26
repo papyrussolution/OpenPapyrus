@@ -331,9 +331,9 @@ next_io:
 
 next_line:
 		    /*
-		     * Due to &%^*$" memory BIO behaviour with BIO_gets we have to check
-		     * there's a complete line in there before calling BIO_gets or we'll
-		     * just get a partial read.
+		 * Due to &%^*$" memory BIO behaviour with BIO_gets we have to check
+		 * there's a complete line in there before calling BIO_gets or we'll
+		 * just get a partial read.
 		     */
 		    n = BIO_get_mem_data(rctx->mem, &p);
 		    if((n <= 0) || !memchr(p, '\n', n)) {
@@ -385,9 +385,9 @@ next_line:
 
 		case OHS_ASN1_HEADER:
 		    /*
-		     * Now reading ASN1 header: can read at least 2 bytes which is enough
-		     * for ASN1 SEQUENCE header and either length field or at least the
-		     * length of the length field.
+		 * Now reading ASN1 header: can read at least 2 bytes which is enough
+		 * for ASN1 SEQUENCE header and either length field or at least the
+		 * length of the length field.
 		     */
 		    n = BIO_get_mem_data(rctx->mem, &p);
 		    if(n < 2)
@@ -402,8 +402,8 @@ next_line:
 		    /* Check out length field */
 		    if(*p & 0x80) {
 			    /*
-			     * If MSB set on initial length octet we can now always read 6
-			     * octets: make sure we have them.
+			 * If MSB set on initial length octet we can now always read 6
+			 * octets: make sure we have them.
 			     */
 			    if(n < 6)
 				    goto next_io;

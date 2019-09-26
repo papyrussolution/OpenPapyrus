@@ -3214,7 +3214,7 @@ int FASTCALL GoodsCore::FetchConfig(PPGoodsConfig * pCfg)
 		return p_cache->GetConfig(pCfg, 0);
 	}
 	else {
-		pCfg->Clear();
+		pCfg->Z();
 		return 0;
 	}
 }

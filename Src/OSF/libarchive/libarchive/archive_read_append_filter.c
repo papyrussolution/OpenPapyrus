@@ -46,8 +46,8 @@ int archive_read_append_filter(struct archive * _a, int code)
 	switch(code) {
 		case ARCHIVE_FILTER_NONE:
 		    /* No filter to add, so do nothing.
-		     * NOTE: An initial "NONE" type filter is always set at the end of the
-		     * filter chain.
+		 * NOTE: An initial "NONE" type filter is always set at the end of the
+		 * filter chain.
 		     */
 		    r1 = (ARCHIVE_OK);
 		    break;

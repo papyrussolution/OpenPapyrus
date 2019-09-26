@@ -157,9 +157,9 @@ int ENGINE_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 		    if(!ctrl_exists) {
 			    ENGINEerr(ENGINE_F_ENGINE_CTRL, ENGINE_R_NO_CONTROL_FUNCTION);
 			    /*
-			     * For these cmd-related functions, failure is indicated by a -1
-			     * return value (because 0 is used as a valid return in some
-			     * places).
+			 * For these cmd-related functions, failure is indicated by a -1
+			 * return value (because 0 is used as a valid return in some
+			 * places).
 			     */
 			    return -1;
 		    }

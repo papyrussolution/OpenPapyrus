@@ -89,75 +89,47 @@ void ngx_sha1_final(u_char result[20], ngx_sha1_t * ctx)
 	result[19] = (u_char)ctx->e;
 	memzero(ctx, sizeof(*ctx));
 }
-/*
- * Helper functions.
- */
+// 
+// Helper functions.
+// 
 #define ROTATE(bits, word)  (((word) << (bits)) | ((word) >> (32 - (bits))))
-
 #define F1(b, c, d)  (((b) & (c)) | ((~(b)) & (d)))
 #define F2(b, c, d)  ((b) ^ (c) ^ (d))
 #define F3(b, c, d)  (((b) & (c)) | ((b) & (d)) | ((c) & (d)))
-
-#define STEP(f, a, b, c, d, e, w, t)					      \
-	temp = ROTATE(5, (a)) + f((b), (c), (d)) + (e) + (w) + (t);		  \
-	(e) = (d);								  \
-	(d) = (c);								  \
-	(c) = ROTATE(30, (b));							  \
-	(b) = (a);								  \
-	(a) = temp;
-
-/*
- * GET() reads 4 input bytes in big-endian byte order and returns
- * them as uint32_t.
- */
-
-#define GET(n)								      \
-	((uint32_t)p[n * 4 + 3] |						 \
-	    ((uint32_t)p[n * 4 + 2] << 8) |					     \
-	    ((uint32_t)p[n * 4 + 1] << 16) |					     \
-	    ((uint32_t)p[n * 4] << 24))
-
-/*
- * This processes one or more 64-byte data blocks, but does not update
- * the bit counters.  There are no alignment requirements.
- */
-
+#define STEP(f, a, b, c, d, e, w, t) temp = ROTATE(5, (a)) + f((b), (c), (d)) + (e) + (w) + (t); (e) = (d); (d) = (c); (c) = ROTATE(30, (b)); (b) = (a); (a) = temp;
+// 
+// GET() reads 4 input bytes in big-endian byte order and returns them as uint32_t.
+// 
+#define GET(n) ((uint32_t)p[n * 4 + 3] | ((uint32_t)p[n * 4 + 2] << 8) | ((uint32_t)p[n * 4 + 1] << 16) | ((uint32_t)p[n * 4] << 24))
+// 
+// This processes one or more 64-byte data blocks, but does not update
+// the bit counters.  There are no alignment requirements.
+// 
 static const u_char * ngx_sha1_body(ngx_sha1_t * ctx, const u_char * data, size_t size)
 {
-	uint32_t a, b, c, d, e, temp;
-	uint32_t saved_a, saved_b, saved_c, saved_d, saved_e;
+	uint32_t temp;
 	uint32_t words[80];
 	ngx_uint_t i;
-	const u_char  * p;
-
-	p = data;
-
-	a = ctx->a;
-	b = ctx->b;
-	c = ctx->c;
-	d = ctx->d;
-	e = ctx->e;
-
+	const u_char * p = data;
+	uint32_t a = ctx->a;
+	uint32_t b = ctx->b;
+	uint32_t c = ctx->c;
+	uint32_t d = ctx->d;
+	uint32_t e = ctx->e;
 	do {
-		saved_a = a;
-		saved_b = b;
-		saved_c = c;
-		saved_d = d;
-		saved_e = e;
-
+		uint32_t saved_a = a;
+		uint32_t saved_b = b;
+		uint32_t saved_c = c;
+		uint32_t saved_d = d;
+		uint32_t saved_e = e;
 		/* Load data block into the words array */
-
 		for(i = 0; i < 16; i++) {
 			words[i] = GET(i);
 		}
-
 		for(i = 16; i < 80; i++) {
-			words[i] = ROTATE(1, words[i - 3] ^ words[i - 8] ^ words[i - 14]
-			    ^ words[i - 16]);
+			words[i] = ROTATE(1, words[i-3] ^ words[i-8] ^ words[i-14] ^ words[i-16]);
 		}
-
 		/* Transformations */
-
 		STEP(F1, a, b, c, d, e, words[0],  0x5a827999);
 		STEP(F1, a, b, c, d, e, words[1],  0x5a827999);
 		STEP(F1, a, b, c, d, e, words[2],  0x5a827999);
@@ -250,13 +222,11 @@ static const u_char * ngx_sha1_body(ngx_sha1_t * ctx, const u_char * data, size_
 
 		p += 64;
 	} while(size -= 64);
-
 	ctx->a = a;
 	ctx->b = b;
 	ctx->c = c;
 	ctx->d = d;
 	ctx->e = e;
-
 	return p;
 }
 

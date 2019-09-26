@@ -674,6 +674,7 @@ static uint SLAPI GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 		case PPOPT_CHARGE : return /*DLG_CHARGE*/DLG_PAYMENT;
 		case PPOPT_DRAFTRECEIPT:
 		case PPOPT_DRAFTTRANSIT:
+		case PPOPT_DRAFTQUOTREQ: // @v10.5.7
 		case PPOPT_GOODSRECEIPT:
 			return (IsIntrOp(pack->Rec.OpID) == INTRRCPT) ? DLG_INTRRCPT : DLG_RCPTBILL;
 		case PPOPT_DRAFTEXPEND:

@@ -383,8 +383,7 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 	if(state->flags.preset_dictionary)
 		descriptor_bytes += 4;
 	if(bytes_remaining < descriptor_bytes) {
-		read_buf = __archive_read_filter_ahead(self->upstream,
-			descriptor_bytes, &bytes_remaining);
+		read_buf = __archive_read_filter_ahead(self->upstream, descriptor_bytes, &bytes_remaining);
 		if(read_buf == NULL) {
 			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated lz4 input");
 			return ARCHIVE_FATAL;
@@ -422,12 +421,9 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 	int checksum_size;
 	ssize_t uncompressed_size;
 	size_t prefix64k;
-
 	*p = NULL;
-
 	/* Make sure we have 4 bytes for a block size. */
-	read_buf = __archive_read_filter_ahead(self->upstream, 4,
-		&bytes_remaining);
+	read_buf = __archive_read_filter_ahead(self->upstream, 4, &bytes_remaining);
 	if(read_buf == NULL)
 		goto truncated_error;
 	compressed_size = archive_le32dec(read_buf);

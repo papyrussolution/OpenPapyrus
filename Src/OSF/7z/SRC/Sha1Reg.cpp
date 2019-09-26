@@ -17,7 +17,7 @@ public:
 };
 
 STDMETHODIMP_(void) CSha1Hasher::Init() throw() { Sha1_Init(&_sha); }
-STDMETHODIMP_(void) CSha1Hasher::Update(const void * data, uint32 size) throw() { Sha1_Update(&_sha, (const Byte*)data, size); }
+STDMETHODIMP_(void) CSha1Hasher::Update(const void * data, uint32 size) throw() { Sha1_Update(&_sha, (const Byte *)data, size); }
 STDMETHODIMP_(void) CSha1Hasher::Final(Byte *digest) throw() { Sha1_Final(&_sha, digest); }
 
 REGISTER_HASHER(CSha1Hasher, 0x201, "SHA1", SHA1_DIGEST_SIZE)

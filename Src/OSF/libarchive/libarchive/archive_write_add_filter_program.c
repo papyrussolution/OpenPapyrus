@@ -66,7 +66,6 @@ struct archive_write_program_data {
 	pid_t child;
 #endif
 	int child_stdin, child_stdout;
-
 	char * child_buf;
 	size_t child_buf_len, child_buf_avail;
 	char * program_name;
@@ -79,11 +78,9 @@ struct private_data {
 };
 
 static int archive_compressor_program_open(struct archive_write_filter *);
-static int archive_compressor_program_write(struct archive_write_filter *,
-    const void *, size_t);
+static int archive_compressor_program_write(struct archive_write_filter *, const void *, size_t);
 static int archive_compressor_program_close(struct archive_write_filter *);
 static int archive_compressor_program_free(struct archive_write_filter *);
-
 /*
  * Add a filter to this write handle that passes all data through an
  * external program.
@@ -119,23 +116,19 @@ int archive_write_add_filter_program(struct archive * _a, const char * cmd)
 	return ARCHIVE_OK;
 memerr:
 	archive_compressor_program_free(f);
-	archive_set_error(_a, ENOMEM,
-	    "Can't allocate memory for filter program");
+	archive_set_error(_a, ENOMEM, "Can't allocate memory for filter program");
 	return ARCHIVE_FATAL;
 }
 
 static int archive_compressor_program_open(struct archive_write_filter * f)
 {
 	struct private_data * data = static_cast<struct private_data *>(f->data);
-
 	return __archive_write_program_open(f, data->pdata, data->cmd);
 }
 
-static int archive_compressor_program_write(struct archive_write_filter * f,
-    const void * buff, size_t length)
+static int archive_compressor_program_write(struct archive_write_filter * f, const void * buff, size_t length)
 {
 	struct private_data * data = static_cast<struct private_data *>(f->data);
-
 	return __archive_write_program_write(f, data->pdata, buff, length);
 }
 
@@ -188,33 +181,24 @@ int __archive_write_program_free(struct archive_write_program_data * data)
 	return ARCHIVE_OK;
 }
 
-int __archive_write_program_open(struct archive_write_filter * f,
-    struct archive_write_program_data * data, const char * cmd)
+int __archive_write_program_open(struct archive_write_filter * f, struct archive_write_program_data * data, const char * cmd)
 {
 	pid_t child;
-	int ret;
-
-	ret = __archive_write_open_filter(f->next_filter);
+	int ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
 		return ret;
-
 	if(data->child_buf == NULL) {
 		data->child_buf_len = 65536;
 		data->child_buf_avail = 0;
 		data->child_buf = (char *)SAlloc::M(data->child_buf_len);
-
 		if(data->child_buf == NULL) {
-			archive_set_error(f->archive, ENOMEM,
-			    "Can't allocate compression buffer");
+			archive_set_error(f->archive, ENOMEM, "Can't allocate compression buffer");
 			return ARCHIVE_FATAL;
 		}
 	}
-
-	child = __archive_create_child(cmd, &data->child_stdin,
-		&data->child_stdout);
+	child = __archive_create_child(cmd, &data->child_stdin, &data->child_stdout);
 	if(child == -1) {
-		archive_set_error(f->archive, EINVAL,
-		    "Can't launch external program: %s", cmd);
+		archive_set_error(f->archive, EINVAL, "Can't launch external program: %s", cmd);
 		return ARCHIVE_FATAL;
 	}
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -224,8 +208,7 @@ int __archive_write_program_open(struct archive_write_filter * f,
 		data->child_stdin = -1;
 		close(data->child_stdout);
 		data->child_stdout = -1;
-		archive_set_error(f->archive, EINVAL,
-		    "Can't launch external program: %s", cmd);
+		archive_set_error(f->archive, EINVAL, "Can't launch external program: %s", cmd);
 		return ARCHIVE_FATAL;
 	}
 #else

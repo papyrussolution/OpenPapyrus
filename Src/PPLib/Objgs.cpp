@@ -2872,10 +2872,10 @@ int SLAPI SaGiftItem::CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPI
 
 SaGiftArray::Gift::Gift()
 {
-	Init();
+	Z();
 }
 
-SaGiftArray::Gift & SaGiftArray::Gift::Init()
+SaGiftArray::Gift & SaGiftArray::Gift::Z()
 {
 	ID = 0;
 	Qtty = 0.0;
@@ -2962,8 +2962,7 @@ int SaGiftArray::CreateIndex()
 
 int SaGiftArray::SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const // @v9.8.6 TSArray-->TSVector
 {
-	rGift.Init();
-
+	rGift.Z();
 	int    ok = -1;
 	const  PPCommConfig & r_ccfg = CConfig;
 	uint   i;

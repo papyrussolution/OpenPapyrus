@@ -283,7 +283,7 @@ BOOL FASTCALL PATH_AddEntry(PPATH pPath, const POINT * pPoint, BYTE flags)
 {
     assert(pPath != NULL);
     /* FIXME: If newStroke is true, perhaps we want to check that we're
-     * getting a PT_MOVETO
+ * getting a PT_MOVETO
      */
     /* Check that path is open */
     if(pPath->state != PATH_Open)

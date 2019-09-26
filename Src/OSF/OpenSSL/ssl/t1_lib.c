@@ -1044,7 +1044,7 @@ uchar * ssl_add_clienthello_tlsext(SSL * s, uchar * buf,
 #ifndef OPENSSL_NO_SRP
 	/* Add SRP username if there is one */
 	if(s->srp_ctx.login != NULL) { /* Add TLS extension SRP username to the
-		                        * Client Hello message */
+		   * Client Hello message */
 		size_t login_len = strlen(s->srp_ctx.login);
 		if(login_len > 255 || login_len == 0) {
 			SSLerr(SSL_F_SSL_ADD_CLIENTHELLO_TLSEXT, ERR_R_INTERNAL_ERROR);

@@ -244,9 +244,9 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRow
 					case CodeB:
 					    /* >> Check switching to CodeC */
 					    /* Switch if :
-					     *  - Character not FNC1
-					     *  - 4 real Digits will fit in line
-					     *  - an odd Start will not be better
+					 *  - Character not FNC1
+					 *  - 4 real Digits will fit in line
+					 *  - an odd Start will not be better
 					     */
 					    if(T[charCur].CharacterSet==ZTNum
 					    && (CPaires = RemainingDigits(T, charCur, emptyColumns-1))>=4

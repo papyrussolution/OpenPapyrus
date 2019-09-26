@@ -942,7 +942,7 @@ int QuotKindDialog::setDTS(const PPQuotKindPacket * pPack)
 	setCtrlData(CTL_QUOTKIND_ID,   &Data.Rec.ID);
 	disableCtrl(CTL_QUOTKIND_ID, (int)Data.Rec.ID || !PPMaster);
 	op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSORDER,
-		PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GENERIC, 0); // @v10.3.11 PPOPT_DRAFTRECEIPT
+		PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0); // @v10.3.11 PPOPT_DRAFTRECEIPT // @v10.5.7 PPOPT_DRAFTQUOTREQ
 	SetupOprKindCombo(this, CTLSEL_QUOTKIND_OP, Data.Rec.OpID, 0, &op_type_list, 0);
 	SetupPPObjCombo(this, CTLSEL_QUOTKIND_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, OLW_CANINSERT, 0);
 	setCtrlData(CTL_QUOTKIND_RANK, &Data.Rec.Rank);
@@ -1092,20 +1092,7 @@ int SLAPI PPObjQuotKind::SerializePacket(int dir, PPQuotKindPacket * pPack, SBuf
 }
 
 int SLAPI PPObjQuotKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPQuotKindPacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPQuotKindPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPQuotKindPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjQuotKind, PPQuotKindPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjQuotKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

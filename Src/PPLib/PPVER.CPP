@@ -202,7 +202,7 @@ int SLAPI PPVersionInfo::GetSecret(char * pBuf, size_t bufSize)
 {
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
-			__VerInfo * p_info = (__VerInfo*)P_Info_Pre9303;
+			const __VerInfo * p_info = static_cast<const __VerInfo *>(P_Info_Pre9303);
 			strnzcpy(pBuf, p_info->Secret, bufSize);
 		}
 		else if(P_Info_) {
@@ -221,7 +221,7 @@ int SLAPI PPVersionInfo::GetDevYears(uint * pStart, uint * pLast)
 {
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
-			__VerInfo * p_info = (__VerInfo*)P_Info_Pre9303;
+			const __VerInfo * p_info = static_cast<const __VerInfo *>(P_Info_Pre9303);
 			ASSIGN_PTR(pStart, p_info->StartDevYear);
 			ASSIGN_PTR(pLast, p_info->LastDevYear);
 		}

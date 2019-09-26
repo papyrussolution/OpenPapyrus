@@ -1,6 +1,6 @@
 // DBTABLE.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -34,9 +34,9 @@ int FASTCALL SLib2BtrType(int t)
 	else {
 		if(t == S_RAW) {
 			//
-			// Note: PSQL почему-то не воспринимает тип UBINARY.
-			// Для правильной работы навигатора PSQL файлы словарей для RAW-полей должны
-			// иметь тип S_CHAR. Однако сейчас оставляем все по прежнему.
+			// Note: PSQL РїРѕС‡РµРјСѓ-С‚Рѕ РЅРµ РІРѕСЃРїСЂРёРЅРёРјР°РµС‚ С‚РёРї UBINARY.
+			// Р”Р»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ СЂР°Р±РѕС‚С‹ РЅР°РІРёРіР°С‚РѕСЂР° PSQL С„Р°Р№Р»С‹ СЃР»РѕРІР°СЂРµР№ РґР»СЏ RAW-РїРѕР»РµР№ РґРѕР»Р¶РЅС‹
+			// РёРјРµС‚СЊ С‚РёРї S_CHAR. РћРґРЅР°РєРѕ СЃРµР№С‡Р°СЃ РѕСЃС‚Р°РІР»СЏРµРј РІСЃРµ РїРѕ РїСЂРµР¶РЅРµРјСѓ.
 			//
 			t = S_UBINARY; // @v8.7.0 S_CHAR-->S_UBINARY
 		}
@@ -94,7 +94,7 @@ int FASTCALL DBTable::copyBufLobFrom(const void * pBuf, size_t srcBufSize)
 
 void FASTCALL DBTable::SetPageSize(uint newPageSize)
 {
-	PageSize = (uint16)newPageSize; // @todo Надо проверять валидность передаваемого размера.
+	PageSize = (uint16)newPageSize; // @todo РќР°РґРѕ РїСЂРѕРІРµСЂСЏС‚СЊ РІР°Р»РёРґРЅРѕСЃС‚СЊ РїРµСЂРµРґР°РІР°РµРјРѕРіРѕ СЂР°Р·РјРµСЂР°.
 }
 
 void   FASTCALL DBTable::SetTableID(BTBLID _id) { tableID = _id; }
@@ -124,9 +124,9 @@ int SLAPI DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 	if(Ret(BTRV(B_OPEN, FPB, pPassword, &bl, temp_buf, WBTRVTAIL_Z))) {
 		State |= sOpened_;
 		//
-		// Определяем размер фиксированной части записи.
-		// В дальнейшем, инициализированное таким образом значение будет возвращаться //
-		// функцией DBTable::getRecSize().
+		// РћРїСЂРµРґРµР»СЏРµРј СЂР°Р·РјРµСЂ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕР№ С‡Р°СЃС‚Рё Р·Р°РїРёСЃРё.
+		// Р’ РґР°Р»СЊРЅРµР№С€РµРј, РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕРµ С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј Р·РЅР°С‡РµРЅРёРµ Р±СѓРґРµС‚ РІРѕР·РІСЂР°С‰Р°С‚СЊСЃСЏ //
+		// С„СѓРЅРєС†РёРµР№ DBTable::getRecSize().
 		//
 		DBFileSpec * p_info = 0;
 		uint16 buf_size;
@@ -204,15 +204,15 @@ int DBTable::Btr_ProcessLobOnReading()
 						THROW(lob_buffer.Write(temp_buf, retBufLen));
 					}
 					rec_offs += chunk_size;
-				} while(tla.LastBtrErr == 0 && retBufLen == chunk_size); // Цикл вращается до тех пор пока не получим ошибку BE_CHUNK_OFFSET_TOO_LONG (103)
+				} while(tla.LastBtrErr == 0 && retBufLen == chunk_size); // Р¦РёРєР» РІСЂР°С‰Р°РµС‚СЃСЏ РґРѕ С‚РµС… РїРѕСЂ РїРѕРєР° РЅРµ РїРѕР»СѓС‡РёРј РѕС€РёР±РєСѓ BE_CHUNK_OFFSET_TOO_LONG (103)
 			}
 			if(oneof2(tla.LastBtrErr, 0, BE_CHUNK_OFFSET_TOO_LONG))
 				ok = 1;
 			//const void * p_lob_data = PTR8(temp_size ? temp_buf : buf) + FixRecSize;
 			{
 				//
-				// Попытка бороться с сигнатурой структурированного Lob-буфера,
-				// по ошибке занесенной в базу данных (в версиях до @v6.7.0).
+				// РџРѕРїС‹С‚РєР° Р±РѕСЂРѕС‚СЊСЃСЏ СЃ СЃРёРіРЅР°С‚СѓСЂРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅРѕРіРѕ Lob-Р±СѓС„РµСЂР°,
+				// РїРѕ РѕС€РёР±РєРµ Р·Р°РЅРµСЃРµРЅРЅРѕР№ РІ Р±Р°Р·Сѓ РґР°РЅРЅС‹С… (РІ РІРµСЂСЃРёСЏС… РґРѕ @v6.7.0).
 				//
 				size_t sz;
 				if(LobB.GetSize((uint)last_fld.fld, &sz) > 0)
@@ -235,8 +235,8 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 {
 	const DbSession::Config & r_dbcfg = DBS.GetConfig();
 	//
-	// Так как функция вызывается очень часто, то код оптимизирован за счет
-	// явного вызова потокобезопасных переменных и методов
+	// РўР°Рє РєР°Рє С„СѓРЅРєС†РёСЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РѕС‡РµРЅСЊ С‡Р°СЃС‚Рѕ, С‚Рѕ РєРѕРґ РѕРїС‚РёРјРёР·РёСЂРѕРІР°РЅ Р·Р° СЃС‡РµС‚
+	// СЏРІРЅРѕРіРѕ РІС‹Р·РѕРІР° РїРѕС‚РѕРєРѕР±РµР·РѕРїР°СЃРЅС‹С… РїРµСЂРµРјРµРЅРЅС‹С… Рё РјРµС‚РѕРґРѕРІ
 	//
 	if(idx >= 0)
 		index = (int16)idx;
@@ -373,7 +373,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 	char * p_data_buf = static_cast<char *>(P_DBuf);
 	SBuffer temp_buf;
 	SBuffer lob_buffer;
-	size_t  lob_size = 0; // Размер хвоста переменной длины
+	size_t  lob_size = 0; // Р Р°Р·РјРµСЂ С…РІРѕСЃС‚Р° РїРµСЂРµРјРµРЅРЅРѕР№ РґР»РёРЅС‹
 	int     do_use_chunk_op = 0;
 	DBField last_fld;
 	if(HasLob(&last_fld) > 0) {
@@ -385,10 +385,10 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 			assert(lob_buffer.GetAvailableSize() == lob_size);
 			if((lob_size+FixRecSize) > MAX_ONEOP_LOBSIZE) {
 				//
-				// Если хвост очень большой, то сначала вставим фиксированную
-				// часть, а затем операцией UPDATE CHUNK длинный хвост.
+				// Р•СЃР»Рё С…РІРѕСЃС‚ РѕС‡РµРЅСЊ Р±РѕР»СЊС€РѕР№, С‚Рѕ СЃРЅР°С‡Р°Р»Р° РІСЃС‚Р°РІРёРј С„РёРєСЃРёСЂРѕРІР°РЅРЅСѓСЋ
+				// С‡Р°СЃС‚СЊ, Р° Р·Р°С‚РµРј РѕРїРµСЂР°С†РёРµР№ UPDATE CHUNK РґР»РёРЅРЅС‹Р№ С…РІРѕСЃС‚.
 				//
-				retBufLen = (uint16)FixRecSize;
+				retBufLen = static_cast<uint16>(FixRecSize);
 				do_use_chunk_op = 1;
 			}
 			else {
@@ -396,18 +396,18 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 				temp_buf.Write(lob_buffer.constptr(), lob_buffer.GetAvailableSize());
 				p_data_buf = (char *)temp_buf.constptr(); // @badcast
 				// @v9.1.12 @fix retBufLen = (uint16)lob_size;
-				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize(); // @v9.1.12 @fix
+				retBufLen = static_cast<RECORDSIZE>(temp_buf.GetAvailableSize()); // @v9.1.12 @fix
 			}
 		}
 		else {
-			retBufLen = (int16)(FixRecSize + lob_size);
+			retBufLen = static_cast<int16>(FixRecSize + lob_size);
 		}
 	}
 	else if(HasNote(&last_fld) > 0) {
-		size_t tail_len = sstrlen(((char *)P_DBuf) + FixRecSize);
+		size_t tail_len = sstrlen(static_cast<const char *>(P_DBuf) + FixRecSize);
 		if(tail_len > 0)
 			tail_len++;
-		retBufLen = (RECORDSIZE)(FixRecSize + tail_len);
+		retBufLen = static_cast<RECORDSIZE>(FixRecSize + tail_len);
 	}
 	int result = Ret(BTRV(B_INSERT, FPB, p_data_buf, reinterpret_cast<uint16 *>(&retBufLen), static_cast<char *>(pKeyBuf), WBTRVTAIL));
 	if(result) {
@@ -461,7 +461,7 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 	char * p_data_buf = static_cast<char *>(P_DBuf);
 	SBuffer temp_buf;
 	SBuffer lob_buffer;
-	size_t  lob_size = 0; // Размер хвоста переменной длины
+	size_t  lob_size = 0; // Р Р°Р·РјРµСЂ С…РІРѕСЃС‚Р° РїРµСЂРµРјРµРЅРЅРѕР№ РґР»РёРЅС‹
 	int     do_use_chunk_op = 0;
 	DBField last_fld;
 	if(HasLob(&last_fld) > 0) {
@@ -473,8 +473,8 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 			assert(lob_buffer.GetAvailableSize() == lob_size);
 			if((lob_size+FixRecSize) > MAX_ONEOP_LOBSIZE) {
 				//
-				// Если хвост очень большой, то сначала изменим фиксированную
-				// часть, а затем операцией UPDATE CHUNK длинный хвост.
+				// Р•СЃР»Рё С…РІРѕСЃС‚ РѕС‡РµРЅСЊ Р±РѕР»СЊС€РѕР№, С‚Рѕ СЃРЅР°С‡Р°Р»Р° РёР·РјРµРЅРёРј С„РёРєСЃРёСЂРѕРІР°РЅРЅСѓСЋ
+				// С‡Р°СЃС‚СЊ, Р° Р·Р°С‚РµРј РѕРїРµСЂР°С†РёРµР№ UPDATE CHUNK РґР»РёРЅРЅС‹Р№ С…РІРѕСЃС‚.
 				//
 				retBufLen = static_cast<uint16>(FixRecSize);
 				do_use_chunk_op = 1;

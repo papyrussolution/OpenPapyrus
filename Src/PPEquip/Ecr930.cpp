@@ -90,7 +90,7 @@ int SLAPI ACS_ECR930::ConvertWareList(int num)
 {
 	int    ok = 1;
 	long   prevChk = -1;
-	DbfTable      * dbft = OpenDBFTable(num, warelist);
+	DbfTable * dbft = OpenDBFTable(num, warelist);
 	BarcodeTbl    * bct = 0;
 	BarcodeTbl::Rec bcr;
 	RowEntry        row;

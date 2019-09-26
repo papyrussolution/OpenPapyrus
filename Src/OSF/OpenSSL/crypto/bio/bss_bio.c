@@ -51,9 +51,9 @@ const BIO_METHOD * BIO_s_bio(void)
 
 struct bio_bio_st {
 	BIO * peer;             /* NULL if buf == NULL. If peer != NULL, then
-	                         * peer->ptr is also a bio_bio_st, and its
-	                         * "peer" member points back to us. peer !=
-	                         * NULL iff init != 0 in the BIO. */
+	    * peer->ptr is also a bio_bio_st, and its
+	    * "peer" member points back to us. peer !=
+	    * NULL iff init != 0 in the BIO. */
 	/* This is for what we write (i.e. reading uses peer's struct): */
 	int closed;             /* valid iff peer != NULL */
 	size_t len;             /* valid iff buf != NULL; 0 if peer == NULL */
@@ -61,10 +61,10 @@ struct bio_bio_st {
 	size_t size;
 	char * buf;             /* "size" elements (if != NULL) */
 	size_t request;         /* valid iff peer != NULL; 0 if len != 0,
-	                         * otherwise set by peer to number of bytes
-	                         * it (unsuccessfully) tried to read, never
-	                         * more than buffer space (size-len)
-	                         * warrants. */
+	    * otherwise set by peer to number of bytes
+	    * it (unsuccessfully) tried to read, never
+	    * more than buffer space (size-len)
+	    * warrants. */
 };
 
 static int bio_new(BIO * bio)
@@ -385,16 +385,16 @@ static long bio_ctrl(BIO * bio, int cmd, long num, void * ptr)
 			break;
 		case BIO_C_DESTROY_BIO_PAIR:
 		    /*
-		     * Affects both BIOs in the pair -- call just once! Or let
-		     * BIO_free(bio1); BIO_free(bio2); do the job.
+		 * Affects both BIOs in the pair -- call just once! Or let
+		 * BIO_free(bio1); BIO_free(bio2); do the job.
 		     */
 		    bio_destroy_pair(bio);
 		    ret = 1;
 		    break;
 		case BIO_C_GET_WRITE_GUARANTEE:
 		    /*
-		     * How many bytes can the caller feed to the next write without
-		     * having to keep any?
+		 * How many bytes can the caller feed to the next write without
+		 * having to keep any?
 		     */
 		    if(b->peer == NULL || b->closed)
 			    ret = 0;
@@ -403,17 +403,17 @@ static long bio_ctrl(BIO * bio, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_GET_READ_REQUEST:
 		    /*
-		     * If the peer unsuccessfully tried to read, how many bytes were
-		     * requested? (As with BIO_CTRL_PENDING, that number can usually be
-		     * treated as boolean.)
+		 * If the peer unsuccessfully tried to read, how many bytes were
+		 * requested? (As with BIO_CTRL_PENDING, that number can usually be
+		 * treated as boolean.)
 		     */
 		    ret = (long)b->request;
 		    break;
 		case BIO_C_RESET_READ_REQUEST:
 		    /*
-		     * Reset request.  (Can be useful after read attempts at the other
-		     * side that are meant to be non-blocking, e.g. when probing SSL_read
-		     * to see if any data is available.)
+		 * Reset request.  (Can be useful after read attempts at the other
+		 * side that are meant to be non-blocking, e.g. when probing SSL_read
+		 * to see if any data is available.)
 		     */
 		    b->request = 0;
 		    ret = 1;

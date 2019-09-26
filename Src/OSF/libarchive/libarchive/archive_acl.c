@@ -638,8 +638,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
  * Generate a wide text version of the ACL. The flags parameter controls
  * the type and style of the generated ACL.
  */
-wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, int flags,
-    struct archive * a)
+wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, int flags, struct archive * a)
 {
 	int count;
 	ssize_t length;
@@ -650,13 +649,10 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 	struct archive_acl_entry * ap;
 	int id, r, want_type;
 	wchar_t * wp, * ws;
-
 	want_type = archive_acl_text_want_type(acl, flags);
-
 	/* Both NFSv4 and POSIX.1 types found */
 	if(want_type == 0)
 		return NULL;
-
 	if(want_type == ARCHIVE_ENTRY_ACL_TYPE_POSIX1E)
 		flags |= ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT;
 	length = archive_acl_text_len(acl, want_type, flags, 1, a, NULL);

@@ -193,7 +193,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 	PPObjUnit unit_obj;
 	PPAsyncCashNode               cn_data;
 	AsyncCashGoodsInfo            gds_info;
-	AsyncCashGoodsIterator      * p_gds_iter = 0;
+	AsyncCashGoodsIterator * p_gds_iter = 0;
 	AsyncCashGoodsGroupInfo       grp_info;
 	AsyncCashGoodsGroupIterator * p_grp_iter = 0;
 	PPGoodsConfig goods_cfg = GetGoodsCfg();

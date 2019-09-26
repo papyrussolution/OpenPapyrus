@@ -705,8 +705,7 @@ private:
 		PPProcessorPacket::PlaceDescription item;
 		for(uint i = 0; i < Data.Ext.GetPlaceDescriptionCount(); i++) {
 			if(!Data.Ext.GetPlaceDescription(i, item)) {
-				item.Clear();
-				item.Range = "#ERROR";
+				item.Z().Range = "#ERROR";
 			}
 			ss.clear();
 			ss.add(item.Range);

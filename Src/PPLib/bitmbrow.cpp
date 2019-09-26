@@ -910,7 +910,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 	PPID   id = 0;
 	BillGoodsBrwItemArray * p_packed_list = 0;
 	PPBillPacket * p_pack = NZOR(pPack, P_Pack);
-	LPackage     * p_pckg = 0;
+	LPackage * p_pckg = 0;
 	PPTransferItem * p_ti;
 	SString temp_buf, lines;
 	uint   i, lines_count = 0;

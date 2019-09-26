@@ -553,7 +553,7 @@ static CURLcode tftp_rx(tftp_state_data_t * state, tftp_event_t event)
 		    setpacketblock(&state->spacket, state->block);
 		    (void)sendto(state->sockfd, (const char *)state->spacket.data, 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 		    /* don't bother with the return code, but if the socket is still up we
-		     * should be a good TFTP client and let the server know we're done */
+		 * should be a good TFTP client and let the server know we're done */
 		    state->state = TFTP_STATE_FIN;
 		    break;
 
@@ -587,10 +587,10 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 			    rblock = getrpacketblock(&state->rpacket);
 			    if(rblock != state->block &&
 			    /* There's a bug in tftpd-hpa that causes it to send us an ack for
-			     * 65535 when the block number wraps to 0. So when we're expecting
-			     * 0, also accept 65535. See
-			     * http://syslinux.zytor.com/archives/2010-September/015253.html
-			     * */
+			 * 65535 when the block number wraps to 0. So when we're expecting
+			 * 0, also accept 65535. See
+			 * http://syslinux.zytor.com/archives/2010-September/015253.html
+			 * */
 			    !(state->block == 0 && rblock == 65535)) {
 				    /* This isn't the expected block.  Log it and up the retry counter */
 				    infof(data, "Received ACK for block %d, expecting %d\n", rblock, state->block);
@@ -625,9 +625,9 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 			    return CURLE_OK;
 		    }
 		    /* TFTP considers data block size < 512 bytes as an end of session. So
-		     * in some cases we must wait for additional data to build full (512 bytes)
-		     * data block.
-		     * */
+		 * in some cases we must wait for additional data to build full (512 bytes)
+		 * data block.
+		 * */
 		    state->sbytes = 0;
 		    state->conn->data->req.upload_fromhere = (char *)state->spacket.data+4;
 		    do {
@@ -675,7 +675,7 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 		    setpacketblock(&state->spacket, state->block);
 		    (void)sendto(state->sockfd, (const char *)state->spacket.data, 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 		    /* don't bother with the return code, but if the socket is still up we
-		     * should be a good TFTP client and let the server know we're done */
+		 * should be a good TFTP client and let the server know we're done */
 		    state->state = TFTP_STATE_FIN;
 		    break;
 
@@ -888,7 +888,7 @@ static CURLcode tftp_receive_packet(struct connectdata * conn)
 	struct Curl_sockaddr_storage fromaddr;
 	CURLcode result = CURLE_OK;
 	struct Curl_easy  * data = conn->data;
-	tftp_state_data_t     * state = (tftp_state_data_t*)conn->proto.tftpc;
+	tftp_state_data_t * state = (tftp_state_data_t*)conn->proto.tftpc;
 	struct SingleRequest  * k = &data->req;
 	/* Receive the packet */
 	curl_socklen_t fromlen = sizeof(fromaddr);
@@ -987,7 +987,7 @@ static CURLcode tftp_multi_statemach(struct connectdata * conn, bool * done)
 	tftp_event_t event;
 	CURLcode result = CURLE_OK;
 	struct Curl_easy  * data = conn->data;
-	tftp_state_data_t     * state = (tftp_state_data_t*)conn->proto.tftpc;
+	tftp_state_data_t * state = (tftp_state_data_t*)conn->proto.tftpc;
 	long timeout_ms = tftp_state_timeout(conn, &event);
 	*done = FALSE;
 	if(timeout_ms <= 0) {
@@ -1065,7 +1065,7 @@ static CURLcode tftp_doing(struct connectdata * conn, bool * dophase_done)
 static CURLcode tftp_perform(struct connectdata * conn, bool * dophase_done)
 {
 	CURLcode result = CURLE_OK;
-	tftp_state_data_t     * state = (tftp_state_data_t*)conn->proto.tftpc;
+	tftp_state_data_t * state = (tftp_state_data_t*)conn->proto.tftpc;
 	*dophase_done = FALSE;
 	result = tftp_state_machine(state, TFTP_EVENT_INIT);
 	if((state->state == TFTP_STATE_FIN) || result)

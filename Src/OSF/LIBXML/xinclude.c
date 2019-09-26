@@ -925,8 +925,8 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, 
 				    break;
 				default:
 				    /*
-				     * Middle of the range - need to take care of
-				     * properties and namespaces
+				 * Middle of the range - need to take care of
+				 * properties and namespaces
 				     */
 				    tmp = xmlDocCopyNode(cur, target, 2);
 				    break;

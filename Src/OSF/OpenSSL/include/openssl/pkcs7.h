@@ -106,8 +106,8 @@ typedef struct pkcs7_encrypted_st {
 
 typedef struct pkcs7_st {
     /*
-     * The following is non NULL if it contains ASN1 encoding of this
-     * structure
+ * The following is non NULL if it contains ASN1 encoding of this
+ * structure
      */
     uchar *asn1;
     long length;
@@ -119,8 +119,8 @@ typedef struct pkcs7_st {
     ASN1_OBJECT *type;
     /* content as defined by the type */
     /*
-     * all encryption/message digests are applied to the 'contents', leaving
-     * out the 'type' field.
+ * all encryption/message digests are applied to the 'contents', leaving
+ * out the 'type' field.
      */
     union {
         char *ptr;

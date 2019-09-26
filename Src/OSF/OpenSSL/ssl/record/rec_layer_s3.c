@@ -803,7 +803,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 		 * wr->length long
 		 */
 		SSL3_RECORD_set_type(&wr[j], type); /* not needed but helps for
-		                                     * debugging */
+		 * debugging */
 		SSL3_RECORD_add_length(&wr[j], SSL3_RT_HEADER_LENGTH);
 
 		if(create_empty_fragment) {
@@ -1337,11 +1337,11 @@ start:
 	switch(SSL3_RECORD_get_type(rr)) {
 		default:
 		    /*
-		     * TLS 1.0 and 1.1 say you SHOULD ignore unrecognised record types, but
-		     * TLS 1.2 says you MUST send an unexpected message alert. We use the
-		     * TLS 1.2 behaviour for all protocol versions to prevent issues where
-		     * no progress is being made and the peer continually sends unrecognised
-		     * record types, using up resources processing them.
+		 * TLS 1.0 and 1.1 say you SHOULD ignore unrecognised record types, but
+		 * TLS 1.2 says you MUST send an unexpected message alert. We use the
+		 * TLS 1.2 behaviour for all protocol versions to prevent issues where
+		 * no progress is being made and the peer continually sends unrecognised
+		 * record types, using up resources processing them.
 		     */
 		    al = SSL_AD_UNEXPECTED_MESSAGE;
 		    SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_UNEXPECTED_RECORD);
@@ -1350,20 +1350,20 @@ start:
 		case SSL3_RT_ALERT:
 		case SSL3_RT_HANDSHAKE:
 		    /*
-		     * we already handled all of these, with the possible exception of
-		     * SSL3_RT_HANDSHAKE when ossl_statem_get_in_handshake(s) is true, but
-		     * that should not happen when type != rr->type
+		 * we already handled all of these, with the possible exception of
+		 * SSL3_RT_HANDSHAKE when ossl_statem_get_in_handshake(s) is true, but
+		 * that should not happen when type != rr->type
 		     */
 		    al = SSL_AD_UNEXPECTED_MESSAGE;
 		    SSLerr(SSL_F_SSL3_READ_BYTES, ERR_R_INTERNAL_ERROR);
 		    goto f_err;
 		case SSL3_RT_APPLICATION_DATA:
 		    /*
-		     * At this point, we were expecting handshake data, but have
-		     * application data.  If the library was running inside ssl3_read()
-		     * (i.e. in_read_app_data is set) and it makes sense to read
-		     * application data at this point (session renegotiation not yet
-		     * started), we will indulge it.
+		 * At this point, we were expecting handshake data, but have
+		 * application data.  If the library was running inside ssl3_read()
+		 * (i.e. in_read_app_data is set) and it makes sense to read
+		 * application data at this point (session renegotiation not yet
+		 * started), we will indulge it.
 		     */
 		    if(ossl_statem_app_data_allowed(s)) {
 			    s->s3->in_read_app_data = 2;

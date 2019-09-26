@@ -64,7 +64,7 @@ SLAPI PPCheckInPersonItem::PPCheckInPersonItem()
 	THISZERO();
 }
 
-PPCheckInPersonItem & SLAPI PPCheckInPersonItem::Clear()
+PPCheckInPersonItem & SLAPI PPCheckInPersonItem::Z()
 {
 	THISZERO();
 	return *this;
@@ -318,7 +318,7 @@ PPCheckInPersonArray & FASTCALL PPCheckInPersonArray::operator = (const PPCheckI
 
 PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Init(int kind, PPID prmrID)
 {
-	Clear();
+	Z();
 	Ver = DS.GetVersion();
 	Kind = kind;
 	PrmrID = prmrID;
@@ -327,13 +327,13 @@ PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Init(int kind, PPID prmrID)
 
 void FASTCALL PPCheckInPersonArray::InitItem(PPCheckInPersonItem & rItem) const
 {
-	rItem.Clear();
+	rItem.Z();
 	rItem.Kind = Kind;
 	rItem.PrmrID = PrmrID;
 	rItem.RegDtm = getcurdatetime_();
 }
 
-PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Clear()
+PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Z()
 {
 	LastAnonymN = 0;
 	SVector::clear(); // @v9.8.6 SArray-->SVector
@@ -498,7 +498,7 @@ int FASTCALL PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)
 		rItem = at(SVector::incPointer()); // @v9.8.6 SArray-->SVector
 	}
 	else {
-		rItem.Clear();
+		rItem.Z();
 		ok = 0;
 	}
 	return ok;
@@ -858,7 +858,7 @@ int FASTCALL PPCheckInPersonMngr::StorageToItem(const ObjAssocTbl::Rec & rRec, P
 {
 	assert(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;
-	rItem.Clear();
+	rItem.Z();
 	const PPCheckInPersonItem_Strg & r_rec = *reinterpret_cast<const PPCheckInPersonItem_Strg *>(&rRec);
 	#define FLD(f) rItem.f = r_rec.f
 	FLD(ID);

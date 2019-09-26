@@ -27,7 +27,7 @@ static RSA_METHOD rsa_pkcs1_ossl_meth = {
 	rsa_ossl_private_decrypt,
 	rsa_ossl_mod_exp,
 	BN_mod_exp_mont,        /* XXX probably we should not use Montgomery
-	                         * if e == 3 */
+	    * if e == 3 */
 	rsa_ossl_init,
 	rsa_ossl_finish,
 	RSA_FLAG_FIPS_METHOD,   /* flags */

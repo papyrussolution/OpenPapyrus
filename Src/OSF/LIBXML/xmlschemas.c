@@ -1116,7 +1116,7 @@ static const xmlChar * xmlSchemaGetComponentName(const xmlSchemaBasicItem * item
 		case XML_SCHEMA_TYPE_NOTATION:  return (((xmlSchemaNotation *)item)->name);
 		default:
 		    /*
-		     * Other components cannot have names.
+		 * Other components cannot have names.
 		     */
 		    break;
 	}
@@ -1164,7 +1164,7 @@ static const xmlChar * xmlSchemaGetComponentTargetNs(const xmlSchemaBasicItem * 
 		    return reinterpret_cast<const xmlSchemaNotation *>(item)->targetNamespace;
 		default:
 		    /*
-		     * Other components cannot have names.
+		 * Other components cannot have names.
 		     */
 		    break;
 	}
@@ -10462,14 +10462,14 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 		    if(particle->maxOccurs == 1) {
 			    if(wild->any == 1) {
 				    /*
-				     * We need to add both transitions:
+				 * We need to add both transitions:
 				     *
-				     * 1. the {"*", "*"} for elements in a namespace.
+				 * 1. the {"*", "*"} for elements in a namespace.
 				     */
 				    pctxt->state = xmlAutomataNewTransition2(pctxt->am, start, NULL, reinterpret_cast<const xmlChar *>("*"), reinterpret_cast<const xmlChar *>("*"), wild);
 				    xmlAutomataNewEpsilon(pctxt->am, pctxt->state, end);
 				    /*
-				     * 2. the {"*"} for elements in no namespace.
+				 * 2. the {"*"} for elements in no namespace.
 				     */
 				    pctxt->state = xmlAutomataNewTransition2(pctxt->am, start, NULL, reinterpret_cast<const xmlChar *>("*"), NULL, wild);
 				    xmlAutomataNewEpsilon(pctxt->am, pctxt->state, end);
@@ -10528,8 +10528,8 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 		    xmlSchemaTreeItem * sub;
 		    ret = 1;
 		    /*
-		     * If max and min occurances are default (1) then
-		     * simply iterate over the particles of the <sequence>.
+		 * If max and min occurances are default (1) then
+		 * simply iterate over the particles of the <sequence>.
 		     */
 		    if((particle->minOccurs == 1) && (particle->maxOccurs == 1)) {
 			    sub = particle->children->children;
@@ -10574,9 +10574,9 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 					    }
 					    xmlAutomataNewEpsilon(pctxt->am, pctxt->state, oldstate);
 					    /*
-					     * epsilon needed to block previous trans from
-					     * being allowed to enter back from another
-					     * construct
+					 * epsilon needed to block previous trans from
+					 * being allowed to enter back from another
+					 * construct
 					     */
 					    pctxt->state = xmlAutomataNewEpsilon(pctxt->am, pctxt->state, 0);
 					    if(particle->minOccurs == 0) {
@@ -10615,9 +10615,9 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 					    sub = sub->next;
 				    }
 				    /*
-				     * epsilon needed to block previous trans from
-				     * being allowed to enter back from another
-				     * construct
+				 * epsilon needed to block previous trans from
+				 * being allowed to enter back from another
+				 * construct
 				     */
 				    pctxt->state = xmlAutomataNewEpsilon(pctxt->am, pctxt->state, 0);
 				    if(particle->minOccurs == 0) {
@@ -10635,8 +10635,8 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 		    start = pctxt->state;
 		    end = xmlAutomataNewState(pctxt->am);
 		    /*
-		     * iterate over the subtypes and remerge the end with an
-		     * epsilon transition
+		 * iterate over the subtypes and remerge the end with an
+		 * epsilon transition
 		     */
 		    if(particle->maxOccurs == 1) {
 			    sub = particle->children->children;
@@ -10655,8 +10655,8 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 			    int maxOccurs = particle->maxOccurs == UNBOUNDED ? UNBOUNDED : particle->maxOccurs - 1;
 			    int minOccurs = particle->minOccurs < 1 ? 0 : particle->minOccurs - 1;
 			    /*
-			     * use a counter to keep track of the number of transtions
-			     * which went through the choice.
+			 * use a counter to keep track of the number of transtions
+			 * which went through the choice.
 			     */
 			    counter = xmlAutomataNewCounter(pctxt->am, minOccurs, maxOccurs);
 			    hop = xmlAutomataNewState(pctxt->am);
@@ -10705,16 +10705,16 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 			    }
 			    ;
 			    /*
-			     * NOTE: The {max occurs} of all the particles in the
-			     * {particles} of the group must be 0 or 1; this is
-			     * already ensured during the parse of the content of
-			     * <all>.
+			 * NOTE: The {max occurs} of all the particles in the
+			 * {particles} of the group must be 0 or 1; this is
+			 * already ensured during the parse of the content of
+			 * <all>.
 			     */
 			    if(elemDecl->flags & XML_SCHEMAS_ELEM_SUBST_GROUP_HEAD) {
 				    /*
-				     * This is an abstract group, we need to share
-				     * the same counter for all the element transitions
-				     * derived from the group
+				 * This is an abstract group, we need to share
+				 * the same counter for all the element transitions
+				 * derived from the group
 				     */
 				    int counter = xmlAutomataNewCounter(pctxt->am, sub->minOccurs, sub->maxOccurs);
 				    xmlSchemaBuildContentModelForSubstGroup(pctxt, sub, counter, pctxt->state);
@@ -10738,11 +10738,11 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 	    }
 		case XML_SCHEMA_TYPE_GROUP:
 		    /*
-		     * If we hit a model group definition, then this means that
-		     * it was empty, thus was not substituted for the containing
-		     * model group. Just do nothing in this case.
-		     * @todo But the group should be substituted and not occur at
-		     * all in the content model at this point. Fix this.
+		 * If we hit a model group definition, then this means that
+		 * it was empty, thus was not substituted for the containing
+		 * model group. Just do nothing in this case.
+		 * @todo But the group should be substituted and not occur at
+		 * all in the content model at this point. Fix this.
 		     */
 		    ret = 1;
 		    break;
@@ -12785,8 +12785,8 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 						default: {
 						    xmlSchemaPIllegalFacetListUnionErr(pctxt, XML_SCHEMAP_COS_ST_RESTRICTS_2_3_2_4, type, facet);
 						    /*
-						     * We could return, but it's nicer to report all
-						     * invalid facets.
+						 * We could return, but it's nicer to report all
+						 * invalid facets.
 						     */
 						    ok = 0;
 					    }
@@ -13371,7 +13371,7 @@ static int xmlSchemaCheckCOSCTExtends(xmlSchemaParserCtxtPtr ctxt, xmlSchemaType
 							    xmlChar * str = NULL;
 							    xmlSchemaCustomErr(ACTXT_CAST ctxt, XML_SCHEMAP_COS_CT_EXTENDS_1_2, NULL, WXS_BASIC_CAST type,
 						                    /*
-						                     * @todo The report does not indicate that also the type needs to be the same.
+						 * @todo The report does not indicate that also the type needs to be the same.
 						                     */
 								    "This type is missing a matching correspondent for its {base type}'s %s in its {attribute uses}",
 								    xmlSchemaGetComponentDesignation(&str, buse->children),
@@ -13381,17 +13381,17 @@ static int xmlSchemaCheckCOSCTExtends(xmlSchemaParserCtxtPtr ctxt, xmlSchemaType
 						    }
 						    }
 						    /*
-						     * SPEC (1.3) "If it has an {attribute wildcard}, the complex type
-						     * definition must also have one, and the base type definition's
-						     * {attribute  wildcard}'s {namespace constraint} must be a subset
-						     * of the complex  type definition's {attribute wildcard}'s
+						 * SPEC (1.3) "If it has an {attribute wildcard}, the complex type
+						 * definition must also have one, and the base type definition's
+						 * {attribute  wildcard}'s {namespace constraint} must be a subset
+						 * of the complex  type definition's {attribute wildcard}'s
 						     *{namespace
-						     * constraint}, as defined by Wildcard Subset ($3.10.6)."
+						 * constraint}, as defined by Wildcard Subset ($3.10.6)."
 						     */
 
 						    /*
-						     * MAYBE TODO: Enable if ever needed. But this will be needed only
-						     * if created the type via a schema construction API.
+						 * MAYBE TODO: Enable if ever needed. But this will be needed only
+						 * if created the type via a schema construction API.
 						     */
 						    if(base->attributeWildcard) {
 							    if(type->attributeWilcard == NULL) {
@@ -14699,7 +14699,7 @@ static int xmlSchemaDeriveAndValidateFacets(xmlSchemaParserCtxtPtr pctxt, xmlSch
 				switch(facet->type) {
 					case XML_SCHEMA_FACET_WHITESPACE:
 					    /*
-					     * The whitespace must be stronger.
+					 * The whitespace must be stronger.
 					     */
 					    if(facet->whitespace < bfacet->whitespace) {
 						    FACET_RESTR_ERR(facet, "The 'whitespace' value has to be equal to or stronger than the 'whitespace' value of the base type")
@@ -15528,27 +15528,27 @@ int xmlSchemaCheckFacet(xmlSchemaFacetPtr facet, xmlSchemaTypePtr typeDecl, xmlS
 		case XML_SCHEMA_FACET_MAXEXCLUSIVE:
 		case XML_SCHEMA_FACET_ENUMERATION: {
 		    /*
-		     * Okay we need to validate the value at that point.
+		 * Okay we need to validate the value at that point.
 		     */
 		    xmlSchemaTypePtr base;
 
 		    /* 4.3.5.5 Constraints on enumeration Schema Components
-		     * Schema Component Constraint: enumeration valid restriction
-		     * It is an `error` if any member of {value} is not in the
-		     * `value space` of {base type definition}.
+		 * Schema Component Constraint: enumeration valid restriction
+		 * It is an `error` if any member of {value} is not in the
+		 * `value space` of {base type definition}.
 		     *
-		     * minInclusive, maxInclusive, minExclusive, maxExclusive:
-		     * The value `must` be in the
-		     * `value space` of the `base type`.
+		 * minInclusive, maxInclusive, minExclusive, maxExclusive:
+		 * The value `must` be in the
+		 * `value space` of the `base type`.
 		     */
 		    /*
-		     * This function is intended to deliver a compiled value
-		     * on the facet. In this implementation of XML Schemata the
-		     * type holding a facet, won't be a built-in type.
-		     * Thus to ensure that other API
-		     * calls (relaxng) do work, if the given type is a built-in
-		     * type, we will assume that the given built-in type *is
-		     * already* the base type.
+		 * This function is intended to deliver a compiled value
+		 * on the facet. In this implementation of XML Schemata the
+		 * type holding a facet, won't be a built-in type.
+		 * Thus to ensure that other API
+		 * calls (relaxng) do work, if the given type is a built-in
+		 * type, we will assume that the given built-in type *is
+		 * already* the base type.
 		     */
 		    if(typeDecl->type != XML_SCHEMA_TYPE_BASIC) {
 			    base = typeDecl->baseType;
@@ -15562,18 +15562,18 @@ int xmlSchemaCheckFacet(xmlSchemaFacetPtr facet, xmlSchemaTypePtr typeDecl, xmlS
 
 		    if(!ctxtGiven) {
 			    /*
-			     * A context is needed if called from RelaxNG.
+			 * A context is needed if called from RelaxNG.
 			     */
 			    pctxt = xmlSchemaNewParserCtxt("*");
 			    if(pctxt == NULL)
 				    return -1;
 		    }
 		    /*
-		     * NOTE: This call does not check the content nodes,
-		     * since they are not available:
-		     * facet->node is just the node holding the facet
-		     * definition, *not* the attribute holding the *value*
-		     * of the facet.
+		 * NOTE: This call does not check the content nodes,
+		 * since they are not available:
+		 * facet->node is just the node holding the facet
+		 * definition, *not* the attribute holding the *value*
+		 * of the facet.
 		     */
 		    ret = xmlSchemaVCheckCVCSimpleType(ACTXT_CAST pctxt, facet->P_Node, base, facet->value, &(facet->val), 1, 1, 0);
 		    if(ret != 0) {
@@ -16557,14 +16557,14 @@ static int xmlSchemaCheckElementDeclConsistent(xmlSchemaParserCtxtPtr pctxt,
 				    xmlSchemaElementPtr elem =
 				    WXS_ELEM_CAST(WXS_PARTICLE_TERM(cur));
 				    /*
-				     * SPEC Element Declarations Consistent:
-				     * "If the {particles} contains, either directly,
-				     * indirectly (that is, within the {particles} of a
-				     * contained model group, recursively) or `implicitly`
-				     * two or more element declaration particles with
-				     * the same {name} and {target namespace}, then
-				     * all their type definitions must be the same
-				     * top-level definition [...]"
+				 * SPEC Element Declarations Consistent:
+				 * "If the {particles} contains, either directly,
+				 * indirectly (that is, within the {particles} of a
+				 * contained model group, recursively) or `implicitly`
+				 * two or more element declaration particles with
+				 * the same {name} and {target namespace}, then
+				 * all their type definitions must be the same
+				 * top-level definition [...]"
 				     */
 				    if(sstreq(WXS_PARTICLE_TERM_AS_ELEM(cur)->name,
 					    WXS_PARTICLE_TERM_AS_ELEM(searchParticle)->name) &&
@@ -17035,9 +17035,9 @@ static int xmlSchemaCheckSRCRedefineFirst(xmlSchemaParserCtxtPtr pctxt)
 				P_Node = WXS_ITEM_NODE(item);
 			xmlSchemaCustomErr(ACTXT_CAST pctxt,
 			    /*
-			     * @todo error code.
-			     * Probably XML_SCHEMAP_SRC_RESOLVE, if this is using the
-			     * reference kind.
+			 * @todo error code.
+			 * Probably XML_SCHEMAP_SRC_RESOLVE, if this is using the
+			 * reference kind.
 			     */
 			    XML_SCHEMAP_SRC_REDEFINE, P_Node, NULL, "The %s '%s' to be redefined could not be found in the redefined schema",
 					WXS_ITEM_TYPE_NAME(item), xmlSchemaFormatQName(&str, redef->refTargetNs, redef->refName));
@@ -17061,9 +17061,9 @@ static int xmlSchemaCheckSRCRedefineFirst(xmlSchemaParserCtxtPtr pctxt)
 			    /* Mark it as redefined. */
 			    (WXS_TYPE_CAST prev)->flags |= XML_SCHEMAS_TYPE_REDEFINED;
 			    /*
-			     * Assign the redefined type to the
-			     * base type of the redefining type.
-			     * @todo How
+			 * Assign the redefined type to the
+			 * base type of the redefining type.
+			 * @todo How
 			     */
 			    ((xmlSchemaType *)item)->baseType = (xmlSchemaType *)prev;
 			    break;
@@ -17076,8 +17076,8 @@ static int xmlSchemaCheckSRCRedefineFirst(xmlSchemaParserCtxtPtr pctxt)
 			    (WXS_MODEL_GROUPDEF_CAST prev)->flags |= XML_SCHEMA_MODEL_GROUP_DEF_REDEFINED;
 			    if(redef->reference != NULL) {
 				    /*
-				     * Overwrite the QName-reference with the
-				     * referenced model group def.
+				 * Overwrite the QName-reference with the
+				 * referenced model group def.
 				     */
 				    (WXS_PTC_CAST redef->reference)->children = WXS_TREE_CAST prev;
 			    }
@@ -17091,21 +17091,21 @@ static int xmlSchemaCheckSRCRedefineFirst(xmlSchemaParserCtxtPtr pctxt)
 			    (WXS_ATTR_GROUP_CAST prev)->flags |= XML_SCHEMAS_ATTRGROUP_REDEFINED;
 			    if(redef->reference != NULL) {
 				    /*
-				     * Assign the redefined attribute group to the
-				     * QName-reference component.
-				     * This is the easy case, since we will just
-				     * expand the redefined group.
+				 * Assign the redefined attribute group to the
+				 * QName-reference component.
+				 * This is the easy case, since we will just
+				 * expand the redefined group.
 				     */
 				    (WXS_QNAME_CAST redef->reference)->item = prev;
 				    redef->target = NULL;
 			    }
 			    else {
 				    /*
-				     * This is the complicated case: we need
-				     * to apply src-redefine (7.2.2) at a later
-				     * stage, i.e. when attribute group references
-				     * have beed expanded and simple types have
-				     * beed fixed.
+				 * This is the complicated case: we need
+				 * to apply src-redefine (7.2.2) at a later
+				 * stage, i.e. when attribute group references
+				 * have beed expanded and simple types have
+				 * beed fixed.
 				     */
 				    redef->target = prev;
 			    }
@@ -17150,41 +17150,41 @@ static int xmlSchemaCheckSRCRedefineSecond(xmlSchemaParserCtxtPtr pctxt)
 			case XML_SCHEMA_TYPE_SIMPLE:
 			case XML_SCHEMA_TYPE_COMPLEX:
 			    /*
-			     * Since the spec wants the {name} of the redefined
-			     * type to be 'absent', we'll NULL it.
+			 * Since the spec wants the {name} of the redefined
+			 * type to be 'absent', we'll NULL it.
 			     */
 			    (WXS_TYPE_CAST redef->target)->name = NULL;
 
 			    /*
-			     * @todo Seems like there's nothing more to do. The normal
-			     * inheritance mechanism is used. But not 100% sure.
+			 * @todo Seems like there's nothing more to do. The normal
+			 * inheritance mechanism is used. But not 100% sure.
 			     */
 			    break;
 			case XML_SCHEMA_TYPE_GROUP:
 			    /*
-			     * URGENT TODO:
-			     * SPEC src-redefine:
-			     * (6.2.2) "The {model group} of the model group definition
-			     * which corresponds to it per XML Representation of Model
-			     * Group Definition Schema Components ($3.7.2) must be a
-			     * `valid restriction` of the {model group} of that model
-			     * group definition in I, as defined in Particle Valid
-			     * (Restriction) ($3.9.6)."
+			 * URGENT TODO:
+			 * SPEC src-redefine:
+			 * (6.2.2) "The {model group} of the model group definition
+			 * which corresponds to it per XML Representation of Model
+			 * Group Definition Schema Components ($3.7.2) must be a
+			 * `valid restriction` of the {model group} of that model
+			 * group definition in I, as defined in Particle Valid
+			 * (Restriction) ($3.9.6)."
 			     */
 			    break;
 			case XML_SCHEMA_TYPE_ATTRIBUTEGROUP:
 			    /*
-			     * SPEC src-redefine:
-			     * (7.2.2) "The {attribute uses} and {attribute wildcard} of
-			     * the attribute group definition which corresponds to it
-			     * per XML Representation of Attribute Group Definition Schema
-			     * Components ($3.6.2) must be `valid restrictions` of the
-			     * {attribute uses} and {attribute wildcard} of that attribute
-			     * group definition in I, as defined in clause 2, clause 3 and
-			     * clause 4 of Derivation Valid (Restriction, Complex)
-			     * ($3.4.6) (where references to the base type definition are
-			     * understood as references to the attribute group definition
-			     * in I)."
+			 * SPEC src-redefine:
+			 * (7.2.2) "The {attribute uses} and {attribute wildcard} of
+			 * the attribute group definition which corresponds to it
+			 * per XML Representation of Attribute Group Definition Schema
+			 * Components ($3.6.2) must be `valid restrictions` of the
+			 * {attribute uses} and {attribute wildcard} of that attribute
+			 * group definition in I, as defined in clause 2, clause 3 and
+			 * clause 4 of Derivation Valid (Restriction, Complex)
+			 * ($3.4.6) (where references to the base type definition are
+			 * understood as references to the attribute group definition
+			 * in I)."
 			     */
 			    err = xmlSchemaCheckDerivationOKRestriction2to4(pctxt, XML_SCHEMA_ACTION_REDEFINE, item, redef->target,
 					(xmlSchemaItemListPtr)(WXS_ATTR_GROUP_CAST item)->attrUses, (xmlSchemaItemListPtr)(WXS_ATTR_GROUP_CAST redef->target)->attrUses,
@@ -17406,8 +17406,8 @@ static int xmlSchemaFixupComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucke
 			    break;
 			case XML_SCHEMA_EXTRA_ATTR_USE_PROHIB:
 			    /*
-			     * Handle attribue prohibition which had a
-			     * "ref" attribute.
+			 * Handle attribue prohibition which had a
+			 * "ref" attribute.
 			     */
 			    xmlSchemaResolveAttrUseProhibReferences(WXS_ATTR_PROHIB_CAST item, pctxt);
 			    FIXHFAILURE;
@@ -17652,8 +17652,8 @@ static int xmlSchemaFixupComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucke
 			    }
 #ifdef WXS_ELEM_DECL_CONS_ENABLED
 			    /*
-			     * Schema Component Constraint: Element Declarations Consistent
-			     * Apply this constraint to local types of element declarations.
+			 * Schema Component Constraint: Element Declarations Consistent
+			 * Apply this constraint to local types of element declarations.
 			     */
 			    if(WXS_ELEM_TYPEDEF(elemDecl) && (WXS_IS_COMPLEX(WXS_ELEM_TYPEDEF(elemDecl))) && (WXS_TYPE_IS_LOCAL(WXS_ELEM_TYPEDEF(elemDecl)))) {
 				    xmlSchemaCheckElementDeclConsistent(pctxt, WXS_BASIC_CAST elemDecl, WXS_TYPE_PARTICLE(WXS_ELEM_TYPEDEF(elemDecl)), NULL, NULL, 0);
@@ -21587,8 +21587,8 @@ eval_idcs:
 			    if(iattr->metaType)
 				    break;
 			    /*
-			     * MAYBE VAL TODO: One might report different error messages
-			     * for the following errors.
+			 * MAYBE VAL TODO: One might report different error messages
+			 * for the following errors.
 			     */
 			    if(type->attributeWildcard == NULL) {
 				    xmlSchemaIllegalAttrErr(ACTXT_CAST vctxt, XML_SCHEMAV_CVC_COMPLEX_TYPE_3_2_1, iattr, 0);
@@ -22244,9 +22244,9 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxt * vctxt)
 	switch(ptype->contentType) {
 		case XML_SCHEMA_CONTENT_EMPTY:
 		    /*
-		     * SPEC (2.1) "If the {content type} is empty, then the
-		     * element information item has no character or element
-		     * information item [children]."
+		 * SPEC (2.1) "If the {content type} is empty, then the
+		 * element information item has no character or element
+		 * information item [children]."
 		     */
 		    ACTIVATE_PARENT_ELEM
 		    ret = XML_SCHEMAV_CVC_COMPLEX_TYPE_2_1;
@@ -22268,8 +22268,8 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxt * vctxt)
 			    return -1;
 		    }
 		    /*
-		     * Safety belf for evaluation if the cont. model was already
-		     * examined to be invalid.
+		 * Safety belf for evaluation if the cont. model was already
+		 * examined to be invalid.
 		     */
 		    if(pielem->flags & XML_SCHEMA_ELEM_INFO_ERR_BAD_CONTENT) {
 			    VERROR_INT("xmlSchemaValidateChildElem", "validating elem, but elem content is already invalid");
@@ -22278,7 +22278,7 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxt * vctxt)
 		    regexCtxt = pielem->regexCtxt;
 		    if(regexCtxt == NULL) {
 			    /*
-			     * Create the regex context.
+			 * Create the regex context.
 			     */
 			    regexCtxt = xmlRegNewExecCtxt(ptype->contModel, (xmlRegExecCallbacks)xmlSchemaVContentModelCallback, vctxt);
 			    if(regexCtxt == NULL) {
@@ -22292,12 +22292,12 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxt * vctxt)
 		    }
 
 		    /*
-		     * SPEC (2.4) "If the {content type} is element-only or mixed,
-		     * then the sequence of the element information item's
-		     * element information item [children], if any, taken in
-		     * order, is `valid` with respect to the {content type}'s
-		     * particle, as defined in Element Sequence Locally Valid
-		     * (Particle) ($3.9.4)."
+		 * SPEC (2.4) "If the {content type} is element-only or mixed,
+		 * then the sequence of the element information item's
+		 * element information item [children], if any, taken in
+		 * order, is `valid` with respect to the {content type}'s
+		 * particle, as defined in Element Sequence Locally Valid
+		 * (Particle) ($3.9.4)."
 		     */
 		    ret = xmlRegExecPushString2(regexCtxt, vctxt->inode->localName, vctxt->inode->nsName, vctxt->inode);
 #ifdef DEBUG_AUTOMATA
@@ -22325,18 +22325,18 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxt * vctxt)
 		    ACTIVATE_PARENT_ELEM
 		    if(WXS_IS_COMPLEX(ptype)) {
 			    /*
-			     * SPEC (cvc-complex-type) (2.2)
-			     * "If the {content type} is a simple type definition, then
-			     * the element information item has no element information
-			     * item [children], ..."
+			 * SPEC (cvc-complex-type) (2.2)
+			 * "If the {content type} is a simple type definition, then
+			 * the element information item has no element information
+			 * item [children], ..."
 			     */
 			    ret = XML_SCHEMAV_CVC_COMPLEX_TYPE_2_2;
 			    VERROR(ret, NULL, "Element content is not allowed, because the content type is a simple type definition");
 		    }
 		    else {
 			    /*
-			     * SPEC (cvc-type) (3.1.2) "The element information item must
-			     * have no element information item [children]."
+			 * SPEC (cvc-type) (3.1.2) "The element information item must
+			 * have no element information item [children]."
 			     */
 			    ret = XML_SCHEMAV_CVC_TYPE_3_1_2;
 			    VERROR(ret, NULL, "Element content is not allowed, because the type definition is simple");

@@ -106,7 +106,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	StrPool.ClearS(); // @v9.8.4
 	if(IsTempTblNeeded()) {
 		IterCounter cntr;
-		PersonTbl     * pt = PsnObj.P_Tbl;
+		PersonTbl * pt = PsnObj.P_Tbl;
 		PersonKindTbl * kt = & PsnObj.P_Tbl->Kind;
 		THROW(P_TempPsn = CreateTempPersonFile());
 		{
@@ -1609,7 +1609,7 @@ int SLAPI GetExtRegListIds(PPID psnKindID, PPID statusID, PPIDArray * pList)
 	int    ok = -1;
 	uint   c;
 	PersonFilt filt;
-	SArray      * p_list = 0;
+	SArray * p_list = 0;
 	ExtRegEntry * p_entry;
 	filt.Kind   = psnKindID;
 	filt.Status = statusID;
@@ -2113,7 +2113,7 @@ void SLAPI PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
 DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
-	PersonTbl      * p  = 0;
+	PersonTbl * p  = 0;
 	TempPersonTbl  * tmp_pt = 0;
 	PersonKindTbl  * k  = 0;
 	LocationTbl    * lt = 0;

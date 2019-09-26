@@ -379,7 +379,7 @@ static HRESULT GetProp_RawData(Func_GetHandlerProperty getProp, Func_GetHandlerP
 	RINOK(GetProp(getProp, getProp2, index, propID, prop));
 	if(prop.vt == VT_BSTR) {
 		UINT len = ::SysStringByteLen(prop.bstrVal);
-		bb.CopyFrom((const Byte*)prop.bstrVal, len);
+		bb.CopyFrom((const Byte *)prop.bstrVal, len);
 	}
 	else if(prop.vt != VT_EMPTY)
 		return E_FAIL;

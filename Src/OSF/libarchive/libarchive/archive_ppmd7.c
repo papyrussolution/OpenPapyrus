@@ -36,7 +36,7 @@
 #ifdef PPMD_32BIT
   #define REF(ptr) (ptr)
 #else
-  #define REF(ptr) ((UInt32)((Byte*)(ptr) - (p)->Base))
+  #define REF(ptr) ((UInt32)((Byte *)(ptr) - (p)->Base))
 #endif
 
 #define STATS_REF(ptr) ((CPpmd_State_Ref)REF(ptr))
@@ -131,7 +131,7 @@ static Bool Ppmd7_Alloc(CPpmd7 * p, UInt32 size)
       #else
 		    4 - (size & 3);
       #endif
-		if((p->Base = (Byte*)SAlloc::M(p->AlignOffset + size
+		if((p->Base = (Byte *)SAlloc::M(p->AlignOffset + size
 	#ifndef PPMD_32BIT
 		    + UNIT_SIZE
 	#endif
@@ -158,10 +158,10 @@ static void * RemoveNode(CPpmd7 * p, unsigned indx)
 static void SplitBlock(CPpmd7 * p, void * ptr, unsigned oldIndx, unsigned newIndx)
 {
 	unsigned i, nu = I2U(oldIndx) - I2U(newIndx);
-	ptr = (Byte*)ptr + U2B(I2U(newIndx));
+	ptr = (Byte *)ptr + U2B(I2U(newIndx));
 	if(I2U(i = U2I(nu)) != nu) {
 		unsigned k = I2U(--i);
-		InsertNode(p, ((Byte*)ptr) + U2B(k), nu - k - 1);
+		InsertNode(p, ((Byte *)ptr) + U2B(k), nu - k - 1);
 	}
 	InsertNode(p, ptr, i);
 }
@@ -379,7 +379,7 @@ static CTX_PTR CreateSuccessors(CPpmd7 * p, Bool skip)
 		ps[numPs++] = s;
 	}
 
-	upState.Symbol = *(const Byte*)Ppmd7_GetPtr(p, upBranch);
+	upState.Symbol = *(const Byte *)Ppmd7_GetPtr(p, upBranch);
 	SetSuccessor(&upState, upBranch + 1);
 
 	if(c->NumStats == 1)
@@ -637,7 +637,7 @@ static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, UInt32 * es
 static void NextContext(CPpmd7 * p)
 {
 	CTX_PTR c = CTX(SUCCESSOR(p->FoundState));
-	if(p->OrderFall == 0 && (Byte*)c > p->Text)
+	if(p->OrderFall == 0 && (Byte *)c > p->Text)
 		p->MinContext = p->MaxContext = c;
 	else
 		UpdateModel(p);

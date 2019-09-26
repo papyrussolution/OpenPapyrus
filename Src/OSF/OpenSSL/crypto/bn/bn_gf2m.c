@@ -631,9 +631,9 @@ int BN_GF2m_mod_inv(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, BN_CTX * ctx
 			cdp[i] = 0;
 		c->top = top;
 		vdp = v->d;     /* It pays off to "cache" *->d pointers,
-		                 * because it allows optimizer to be more
-		                 * aggressive. But we don't have to "cache"
-		                 * p->d, because *p is declared 'const'... */
+		 * because it allows optimizer to be more
+		 * aggressive. But we don't have to "cache"
+		 * p->d, because *p is declared 'const'... */
 		while(1) {
 			while(ubits && !(udp[0] & 1)) {
 				BN_ULONG u0, u1, b0, b1, mask;
@@ -699,7 +699,7 @@ int BN_GF2m_mod_inv(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, BN_CTX * ctx
 
 err:
 # ifdef BN_DEBUG                /* BN_CTX_end would complain about the
-	                         * expanded form */
+	    * expanded form */
 	bn_correct_top(c);
 	bn_correct_top(u);
 	bn_correct_top(v);

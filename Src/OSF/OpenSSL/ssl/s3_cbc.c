@@ -214,8 +214,8 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 		    break;
 		default:
 		    /*
-		     * ssl3_cbc_record_digest_supported should have been called first to
-		     * check that the hash function is supported.
+		 * ssl3_cbc_record_digest_supported should have been called first to
+		 * check that the hash function is supported.
 		     */
 		    OPENSSL_assert(0);
 		    if(md_out_size)
@@ -230,7 +230,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 	header_length = 13;
 	if(is_sslv3) {
 		header_length = mac_secret_length + sslv3_pad_length + 8 /* sequence
-		                                                         * number */+
+		           * number */+
 		    1 /* record type */  +
 		    2 /* record length */;
 	}

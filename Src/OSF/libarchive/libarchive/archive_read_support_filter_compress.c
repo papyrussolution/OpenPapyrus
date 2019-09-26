@@ -72,7 +72,7 @@ __FBSDID("$FreeBSD$");
  */
 struct private_data {
 	/* Input variables. */
-	const uchar     * next_in;
+	const uchar * next_in;
 	size_t avail_in;
 	size_t consume_unnotified;
 	int bit_buffer;

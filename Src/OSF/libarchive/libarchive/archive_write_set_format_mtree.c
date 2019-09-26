@@ -196,7 +196,7 @@ struct mtree_writer {
 #define F_MODE          0x00000200              /* mode */
 #define F_NLINK         0x00000400              /* number of links */
 #define F_NOCHANGE      0x00000800              /* If owner/mode "wrong", do
-	        * not change */
+	   * not change */
 #define F_OPT           0x00001000              /* existence optional */
 #define F_RMD160        0x00002000              /* RIPEMD160 digest */
 #define F_SHA1          0x00004000              /* SHA-1 digest */
@@ -213,15 +213,15 @@ struct mtree_writer {
 #define F_SHA512        0x02000000              /* SHA-512 digest */
 #define F_INO           0x04000000              /* inode number */
 #define F_RESDEV        0x08000000              /* device ID on which the
-	        * entry resides */
+	   * entry resides */
 
 	/* Options */
 	int dironly;            /* If it is set, ignore all files except
-	     * directory files, like mtree(8) -d option. */
+	 * directory files, like mtree(8) -d option. */
 	int indent;             /* If it is set, indent output data. */
 	int output_global_set;  /* If it is set, use /set keyword to set
-	     * global values. When generating mtree
-	     * classic format, it is set by default. */
+	 * global values. When generating mtree
+	 * classic format, it is set by default. */
 };
 
 #define DEFAULT_KEYS    (F_DEV | F_FLAGS | F_GID | F_GNAME | F_SLINK | F_MODE \
@@ -834,8 +834,7 @@ static int mtree_entry_new(struct archive_write * a, struct archive_entry * entr
 		me->dir_info = (struct dir_info *)SAlloc::C(1, sizeof(*me->dir_info));
 		if(me->dir_info == NULL) {
 			mtree_entry_free(me);
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for a mtree entry");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a mtree entry");
 			*m_entry = NULL;
 			return ARCHIVE_FATAL;
 		}
@@ -848,8 +847,7 @@ static int mtree_entry_new(struct archive_write * a, struct archive_entry * entr
 		me->reg_info = (struct reg_info *)SAlloc::C(1, sizeof(*me->reg_info));
 		if(me->reg_info == NULL) {
 			mtree_entry_free(me);
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for a mtree entry");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a mtree entry");
 			*m_entry = NULL;
 			return ARCHIVE_FATAL;
 		}
@@ -1117,8 +1115,7 @@ static int write_mtree_entry_tree(struct archive_write * a)
 			ARCHIVE_RB_TREE_FOREACH(n, &(np->dir_info->rbtree)) {
 				struct mtree_entry * e = (struct mtree_entry *)n;
 				if(attr_counter_set_collect(mtree, e) < 0) {
-					archive_set_error(&a->archive, ENOMEM,
-					    "Can't allocate memory");
+					archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 					return ARCHIVE_FATAL;
 				}
 			}
@@ -1679,14 +1676,12 @@ static void cleanup_backslash_2(wchar_t * p)
 /*
  * Generate a parent directory name and a base name from a pathname.
  */
-static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_entry * file,
-    struct archive_entry * entry)
+static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_entry * file, struct archive_entry * entry)
 {
 	const char * pathname;
 	char * p, * dirname, * slash;
 	size_t len;
 	int ret = ARCHIVE_OK;
-
 	archive_strcpy(&file->pathname, archive_entry_pathname(entry));
 #if defined(_WIN32) || defined(__CYGWIN__)
 	/*
@@ -1695,19 +1690,16 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 	if(cleanup_backslash_1(file->pathname.s) != 0) {
 		const wchar_t * wp = archive_entry_pathname_w(entry);
 		struct archive_wstring ws;
-
 		if(wp != NULL) {
 			int r;
 			archive_string_init(&ws);
 			archive_wstrcpy(&ws, wp);
 			cleanup_backslash_2(ws.s);
 			archive_string_empty(&(file->pathname));
-			r = archive_string_append_from_wcs(&(file->pathname),
-				ws.s, ws.length);
+			r = archive_string_append_from_wcs(&(file->pathname), ws.s, ws.length);
 			archive_wstring_free(&ws);
 			if(r < 0 && errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -1720,12 +1712,9 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 		archive_strcpy(&file->basename, ".");
 		return ARCHIVE_OK;
 	}
-
 	archive_strcpy(&(file->parentdir), pathname);
-
 	len = file->parentdir.length;
 	p = dirname = file->parentdir.s;
-
 	/*
 	 * Remove leading '/' and '../' elements
 	 */
@@ -1850,14 +1839,11 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 	return ret;
 }
 
-static int mtree_entry_create_virtual_dir(struct archive_write * a, const char * pathname,
-    struct mtree_entry ** m_entry)
+static int mtree_entry_create_virtual_dir(struct archive_write * a, const char * pathname, struct mtree_entry ** m_entry)
 {
-	struct archive_entry * entry;
 	struct mtree_entry * file;
 	int r;
-
-	entry = archive_entry_new();
+	struct archive_entry * entry = archive_entry_new();
 	if(entry == NULL) {
 		*m_entry = NULL;
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
@@ -1866,7 +1852,6 @@ static int mtree_entry_create_virtual_dir(struct archive_write * a, const char *
 	archive_entry_copy_pathname(entry, pathname);
 	archive_entry_set_mode(entry, AE_IFDIR | 0755);
 	archive_entry_set_mtime(entry, time(NULL), 0);
-
 	r = mtree_entry_new(a, entry, &file);
 	archive_entry_free(entry);
 	if(r < ARCHIVE_WARN) {

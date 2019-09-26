@@ -172,11 +172,11 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		case TIFFTAG_BITSPERSAMPLE:
 		    td->td_bitspersample = (uint16)va_arg(ap, uint16_vap);
 		    /*
-		     * If the data require post-decoding processing to byte-swap
-		     * samples, set it up here.  Note that since tags are required
-		     * to be ordered, compression code can override this behaviour
-		     * in the setup method if it wants to roll the post decoding
-		     * work in with its normal work.
+		 * If the data require post-decoding processing to byte-swap
+		 * samples, set it up here.  Note that since tags are required
+		 * to be ordered, compression code can override this behaviour
+		 * in the setup method if it wants to roll the post decoding
+		 * work in with its normal work.
 		     */
 		    if(tif->tif_flags & TIFF_SWAB) {
 			    if(td->td_bitspersample == 8)
@@ -196,9 +196,9 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		case TIFFTAG_COMPRESSION:
 		    v = (uint16)va_arg(ap, uint16_vap);
 		    /*
-		     * If we're changing the compression scheme, the notify the
-		     * previous module so that it can cleanup any state it's
-		     * setup.
+		 * If we're changing the compression scheme, the notify the
+		 * previous module so that it can cleanup any state it's
+		 * setup.
 		     */
 		    if(TIFFFieldSet(tif, FIELD_COMPRESSION)) {
 			    if((uint32)td->td_compression == v)
@@ -207,7 +207,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    tif->tif_flags &= ~TIFF_CODERSETUP;
 		    }
 		    /*
-		     * Setup new compression routine state.
+		 * Setup new compression routine state.
 		     */
 		    if( (status = TIFFSetCompressionScheme(tif, v)) != 0)
 			    td->td_compression = static_cast<uint16>(v);
@@ -427,13 +427,13 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    TIFFTagValue * tv;
 		    int tv_size, iCustom;
 		    /*
-		     * This can happen if multiple images are open with different
-		     * codecs which have private tags.  The global tag information
-		     * table may then have tags that are valid for one file but not
-		     * the other. If the client tries to set a tag that is not valid
-		     * for the image's codec then we'll arrive here.  This
-		     * happens, for example, when tiffcp is used to convert between
-		     * compression schemes and codec-specific tags are blindly copied.
+		 * This can happen if multiple images are open with different
+		 * codecs which have private tags.  The global tag information
+		 * table may then have tags that are valid for one file but not
+		 * the other. If the client tries to set a tag that is not valid
+		 * for the image's codec then we'll arrive here.  This
+		 * happens, for example, when tiffcp is used to convert between
+		 * compression schemes and codec-specific tags are blindly copied.
 		     */
 		    if(fip->field_bit != FIELD_CUSTOM) {
 			    TIFFErrorExt(tif->tif_clientdata, module, "%s: Invalid %stag \"%s\" (not supported by codec)", tif->tif_name, isPseudoTag(tag) ? "pseudo-" : "", fip->field_name);
@@ -441,7 +441,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    break;
 		    }
 		    /*
-		     * Find the existing entry for this custom value.
+		 * Find the existing entry for this custom value.
 		     */
 		    tv = NULL;
 		    for(iCustom = 0; iCustom < td->td_customValueCount; iCustom++) {
@@ -453,7 +453,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    }
 		    }
 		    /*
-		     * Grow the custom list if the entry was not found.
+		 * Grow the custom list if the entry was not found.
 		     */
 		    if(tv == NULL) {
 			    TIFFTagValue * new_customValues;
@@ -471,7 +471,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    tv->count = 0;
 		    }
 		    /*
-		     * Set custom value ... save a copy of the custom tag value.
+		 * Set custom value ... save a copy of the custom tag value.
 		     */
 		    tv_size = _TIFFDataSize(fip->field_type);
 		    if(tv_size == 0) {
@@ -874,13 +874,13 @@ static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 	    {
 		    int i;
 		    /*
-		     * This can happen if multiple images are open
-		     * with different codecs which have private
-		     * tags.  The global tag information table may
-		     * then have tags that are valid for one file
-		     * but not the other. If the client tries to
-		     * get a tag that is not valid for the image's
-		     * codec then we'll arrive here.
+		 * This can happen if multiple images are open
+		 * with different codecs which have private
+		 * tags.  The global tag information table may
+		 * then have tags that are valid for one file
+		 * but not the other. If the client tries to
+		 * get a tag that is not valid for the image's
+		 * codec then we'll arrive here.
 		     */
 		    if(fip->field_bit != FIELD_CUSTOM) {
 			    TIFFErrorExt(tif->tif_clientdata, "_TIFFVGetField", "%s: Invalid %stag \"%s\" (not supported by codec)", tif->tif_name, isPseudoTag(tag) ? "pseudo-" : "", fip->field_name);
@@ -888,7 +888,7 @@ static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 			    break;
 		    }
 		    /*
-		     * Do we have a custom value?
+		 * Do we have a custom value?
 		     */
 		    ret_val = 0;
 		    for(i = 0; i < td->td_customValueCount; i++) {

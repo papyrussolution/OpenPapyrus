@@ -519,5 +519,6 @@
 #define cmTimeSeriesConfig             624 // @v10.3.1
 #define cmFreightPackageType           625 // @v10.4.1 Типы транспортной упаковки
 #define cmExportView                   626 // @v10.5.3 Экспорт данных по именованному фильтру
+#define cmTestMqc                      627 // @v10.5.7 Тест клиента брокера сообщений
 
 #endif /* __PPMENU_H */

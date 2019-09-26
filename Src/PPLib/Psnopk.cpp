@@ -66,7 +66,7 @@ int SLAPI PoClauseArray_::IsEqual(const PoClauseArray_ & rS, int options) const
 	}
 }
 
-PoClauseArray_ & SLAPI PoClauseArray_::Clear()
+PoClauseArray_ & SLAPI PoClauseArray_::Z()
 {
 	L.clear();
 	Pool.clear();
@@ -161,7 +161,7 @@ int SLAPI PoClauseArray_::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 	}
 	else if(dir < 0) {
 		THROW_SL(pCtx->Serialize(dir, &list_pre780, rBuf));
-		Clear();
+		Z();
 		PoClause_ clause;
 		for(uint i = 0; i < list_pre780.getCount(); i++) {
 			const PoClause_Pre780 & r_item_pre780 = list_pre780.at(i);
@@ -306,12 +306,11 @@ int FASTCALL PPPsnOpKindPacket::IsEqual(const PPPsnOpKindPacket & rS) const
 #undef TEST_FLD
 }
 
-PPPsnOpKindPacket::PsnConstr::PsnConstr()
+PPPsnOpKindPacket::PsnConstr::PsnConstr() : PersonKindID(0), StatusType(0), Reserve1(0), DefaultID(0), RestrictTagID(0)
 {
-	Clear();
 }
 
-PPPsnOpKindPacket::PsnConstr & PPPsnOpKindPacket::PsnConstr::Clear()
+PPPsnOpKindPacket::PsnConstr & PPPsnOpKindPacket::PsnConstr::Z()
 {
 	PersonKindID = 0;
 	StatusType = 0;
@@ -324,15 +323,15 @@ PPPsnOpKindPacket::PsnConstr & PPPsnOpKindPacket::PsnConstr::Clear()
 
 SLAPI PPPsnOpKindPacket::PPPsnOpKindPacket()
 {
-	destroy();
+	MEMSZERO(Rec);
 }
 
 void SLAPI PPPsnOpKindPacket::destroy()
 {
 	MEMSZERO(Rec);
-	PCPrmr.Clear();
-	PCScnd.Clear();
-	ClauseList.Clear();
+	PCPrmr.Z();
+	PCScnd.Z();
+	ClauseList.Z();
 	AllowedTags.FreeAll();
 }
 
@@ -978,26 +977,10 @@ StrAssocArray * SLAPI PPObjPsnOpKind::MakeList(const PsnOpKindFilt * pFilt)
 }
 
 StrAssocArray * SLAPI PPObjPsnOpKind::MakeStrAssocList(void * extraPtr)
-{
-	return MakeList(static_cast<const PsnOpKindFilt *>(extraPtr));
-}
+	{ return MakeList(static_cast<const PsnOpKindFilt *>(extraPtr)); }
 
 int SLAPI PPObjPsnOpKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPPsnOpKindPacket);
-	PPPsnOpKindPacket * p_pack = static_cast<PPPsnOpKindPacket *>(p->Data);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjPsnOpKind, PPPsnOpKindPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

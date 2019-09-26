@@ -544,7 +544,7 @@ HRESULT CArc::GetItemPath(uint32 index, UString &result) const
 				wchar_t * s = result.GetBuf(len);
 				for(uint i = 0; i < len; i++) {
 					wchar_t c = GetUi16(p);
-					p = (const void *)((const Byte*)p + 2);
+					p = (const void *)((const Byte *)p + 2);
 	  #if WCHAR_PATH_SEPARATOR != L'/'
 					if(c == L'/')
 						c = WCHAR_PATH_SEPARATOR;

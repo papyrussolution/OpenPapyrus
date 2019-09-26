@@ -1708,7 +1708,7 @@ namespace NArchive {
 							if(offset > _buf.Size() || _buf.Size() - offset < item.Size)
 								continue;
 							CTextFile f;
-							if(ParseVersion((const Byte*)_buf + offset, item.Size, f, _versionKeys)) {
+							if(ParseVersion((const Byte *)_buf + offset, item.Size, f, _versionKeys)) {
 								CMixItem mixItem;
 								mixItem.VersionIndex = _versionFiles.Size();
 								mixItem.SectionIndex = sectionIndex; // check it !!!!

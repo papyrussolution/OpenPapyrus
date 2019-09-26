@@ -23,25 +23,19 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_STRERROR_R
-#  if (!defined(HAVE_POSIX_STRERROR_R) && \
-	!defined(HAVE_GLIBC_STRERROR_R) && \
-	!defined(HAVE_VXWORKS_STRERROR_R)) || \
-	(defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_VXWORKS_STRERROR_R)) ||	\
-	(defined(HAVE_GLIBC_STRERROR_R) && defined(HAVE_VXWORKS_STRERROR_R)) ||	\
-	(defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R))
-#    error "strerror_r MUST be either POSIX, glibc or vxworks-style"
-#  endif
+	#if (!defined(HAVE_POSIX_STRERROR_R) && !defined(HAVE_GLIBC_STRERROR_R) && !defined(HAVE_VXWORKS_STRERROR_R)) || \
+		(defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_VXWORKS_STRERROR_R)) ||	(defined(HAVE_GLIBC_STRERROR_R) && defined(HAVE_VXWORKS_STRERROR_R)) ||	\
+		(defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R))
+		#error "strerror_r MUST be either POSIX, glibc or vxworks-style"
+	#endif
 #endif
-
-//#include <curl/curl.h>
 #ifdef USE_LIBIDN2
 	#include <idn2.h>
 #endif
 #ifdef USE_WINDOWS_SSPI
 	#include "curl_sspi.h"
 #endif
-//#include "strerror.h"
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"
 #include "memdebug.h"
@@ -292,20 +286,13 @@ const char * curl_share_strerror(CURLSHcode error)
 {
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 	switch(error) {
-		case CURLSHE_OK:
-		    return "No error";
-		case CURLSHE_BAD_OPTION:
-		    return "Unknown share option";
-		case CURLSHE_IN_USE:
-		    return "Share currently in use";
-		case CURLSHE_INVALID:
-		    return "Invalid share handle";
-		case CURLSHE_NOMEM:
-		    return "Out of memory";
-		case CURLSHE_NOT_BUILT_IN:
-		    return "Feature not enabled in this library";
-		case CURLSHE_LAST:
-		    break;
+		case CURLSHE_OK: return "No error"; 
+		case CURLSHE_BAD_OPTION: return "Unknown share option"; 
+		case CURLSHE_IN_USE: return "Share currently in use";
+		case CURLSHE_INVALID: return "Invalid share handle";
+		case CURLSHE_NOMEM: return "Out of memory";
+		case CURLSHE_NOT_BUILT_IN: return "Feature not enabled in this library";
+		case CURLSHE_LAST: break;
 	}
 	return "CURLSHcode unknown";
 #else
@@ -322,176 +309,68 @@ const char * curl_share_strerror(CURLSHcode error)
  */
 static const char * get_winsock_error(int err, char * buf, size_t len)
 {
-	const char * p;
-
+	const char * p = 0;
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 	switch(err) {
-		case WSAEINTR:
-		    p = "Call interrupted";
-		    break;
-		case WSAEBADF:
-		    p = "Bad file";
-		    break;
-		case WSAEACCES:
-		    p = "Bad access";
-		    break;
-		case WSAEFAULT:
-		    p = "Bad argument";
-		    break;
-		case WSAEINVAL:
-		    p = "Invalid arguments";
-		    break;
-		case WSAEMFILE:
-		    p = "Out of file descriptors";
-		    break;
-		case WSAEWOULDBLOCK:
-		    p = "Call would block";
-		    break;
-		case WSAEINPROGRESS:
-		case WSAEALREADY:
-		    p = "Blocking call in progress";
-		    break;
-		case WSAENOTSOCK:
-		    p = "Descriptor is not a socket";
-		    break;
-		case WSAEDESTADDRREQ:
-		    p = "Need destination address";
-		    break;
-		case WSAEMSGSIZE:
-		    p = "Bad message size";
-		    break;
-		case WSAEPROTOTYPE:
-		    p = "Bad protocol";
-		    break;
-		case WSAENOPROTOOPT:
-		    p = "Protocol option is unsupported";
-		    break;
-		case WSAEPROTONOSUPPORT:
-		    p = "Protocol is unsupported";
-		    break;
-		case WSAESOCKTNOSUPPORT:
-		    p = "Socket is unsupported";
-		    break;
-		case WSAEOPNOTSUPP:
-		    p = "Operation not supported";
-		    break;
-		case WSAEAFNOSUPPORT:
-		    p = "Address family not supported";
-		    break;
-		case WSAEPFNOSUPPORT:
-		    p = "Protocol family not supported";
-		    break;
-		case WSAEADDRINUSE:
-		    p = "Address already in use";
-		    break;
-		case WSAEADDRNOTAVAIL:
-		    p = "Address not available";
-		    break;
-		case WSAENETDOWN:
-		    p = "Network down";
-		    break;
-		case WSAENETUNREACH:
-		    p = "Network unreachable";
-		    break;
-		case WSAENETRESET:
-		    p = "Network has been reset";
-		    break;
-		case WSAECONNABORTED:
-		    p = "Connection was aborted";
-		    break;
-		case WSAECONNRESET:
-		    p = "Connection was reset";
-		    break;
-		case WSAENOBUFS:
-		    p = "No buffer space";
-		    break;
-		case WSAEISCONN:
-		    p = "Socket is already connected";
-		    break;
-		case WSAENOTCONN:
-		    p = "Socket is not connected";
-		    break;
-		case WSAESHUTDOWN:
-		    p = "Socket has been shut down";
-		    break;
-		case WSAETOOMANYREFS:
-		    p = "Too many references";
-		    break;
-		case WSAETIMEDOUT:
-		    p = "Timed out";
-		    break;
-		case WSAECONNREFUSED:
-		    p = "Connection refused";
-		    break;
-		case WSAELOOP:
-		    p = "Loop??";
-		    break;
-		case WSAENAMETOOLONG:
-		    p = "Name too long";
-		    break;
-		case WSAEHOSTDOWN:
-		    p = "Host down";
-		    break;
-		case WSAEHOSTUNREACH:
-		    p = "Host unreachable";
-		    break;
-		case WSAENOTEMPTY:
-		    p = "Not empty";
-		    break;
-		case WSAEPROCLIM:
-		    p = "Process limit reached";
-		    break;
-		case WSAEUSERS:
-		    p = "Too many users";
-		    break;
-		case WSAEDQUOT:
-		    p = "Bad quota";
-		    break;
-		case WSAESTALE:
-		    p = "Something is stale";
-		    break;
-		case WSAEREMOTE:
-		    p = "Remote error";
-		    break;
+		case WSAEINTR: p = "Call interrupted"; break;
+		case WSAEBADF: p = "Bad file"; break;
+		case WSAEACCES: p = "Bad access"; break;
+		case WSAEFAULT: p = "Bad argument"; break;
+		case WSAEINVAL: p = "Invalid arguments"; break;
+		case WSAEMFILE: p = "Out of file descriptors"; break;
+		case WSAEWOULDBLOCK: p = "Call would block"; break;
+		case WSAEINPROGRESS: 
+		case WSAEALREADY: p = "Blocking call in progress"; break;
+		case WSAENOTSOCK: p = "Descriptor is not a socket"; break;
+		case WSAEDESTADDRREQ: p = "Need destination address"; break;
+		case WSAEMSGSIZE: p = "Bad message size"; break;
+		case WSAEPROTOTYPE: p = "Bad protocol"; break;
+		case WSAENOPROTOOPT: p = "Protocol option is unsupported"; break;
+		case WSAEPROTONOSUPPORT: p = "Protocol is unsupported"; break;
+		case WSAESOCKTNOSUPPORT: p = "Socket is unsupported"; break;
+		case WSAEOPNOTSUPP: p = "Operation not supported"; break;
+		case WSAEAFNOSUPPORT: p = "Address family not supported"; break;
+		case WSAEPFNOSUPPORT: p = "Protocol family not supported"; break;
+		case WSAEADDRINUSE: p = "Address already in use"; break;
+		case WSAEADDRNOTAVAIL: p = "Address not available"; break;
+		case WSAENETDOWN: p = "Network down"; break;
+		case WSAENETUNREACH: p = "Network unreachable"; break;
+		case WSAENETRESET: p = "Network has been reset"; break;
+		case WSAECONNABORTED: p = "Connection was aborted"; break;
+		case WSAECONNRESET: p = "Connection was reset"; break;
+		case WSAENOBUFS: p = "No buffer space"; break;
+		case WSAEISCONN: p = "Socket is already connected"; break;
+		case WSAENOTCONN: p = "Socket is not connected"; break;
+		case WSAESHUTDOWN: p = "Socket has been shut down"; break;
+		case WSAETOOMANYREFS: p = "Too many references"; break;
+		case WSAETIMEDOUT: p = "Timed out"; break;
+		case WSAECONNREFUSED: p = "Connection refused"; break;
+		case WSAELOOP: p = "Loop??"; break;
+		case WSAENAMETOOLONG: p = "Name too long"; break;
+		case WSAEHOSTDOWN: p = "Host down"; break;
+		case WSAEHOSTUNREACH: p = "Host unreachable"; break;
+		case WSAENOTEMPTY: p = "Not empty"; break;
+		case WSAEPROCLIM: p = "Process limit reached"; break;
+		case WSAEUSERS: p = "Too many users"; break;
+		case WSAEDQUOT: p = "Bad quota"; break;
+		case WSAESTALE: p = "Something is stale"; break;
+		case WSAEREMOTE: p = "Remote error"; break;
 #ifdef WSAEDISCON  /* missing in SalfordC! */
-		case WSAEDISCON:
-		    p = "Disconnected";
-		    break;
+		case WSAEDISCON: p = "Disconnected"; break;
 #endif
 		/* Extended Winsock errors */
-		case WSASYSNOTREADY:
-		    p = "Winsock library is not ready";
-		    break;
-		case WSANOTINITIALISED:
-		    p = "Winsock library not initialised";
-		    break;
-		case WSAVERNOTSUPPORTED:
-		    p = "Winsock version not supported";
-		    break;
-
-		/* getXbyY() errors (already handled in herrmsg):
-		 * Authoritative Answer: Host not found */
-		case WSAHOST_NOT_FOUND:
-		    p = "Host not found";
-		    break;
-
+		case WSASYSNOTREADY: p = "Winsock library is not ready"; break;
+		case WSANOTINITIALISED: p = "Winsock library not initialised"; break;
+		case WSAVERNOTSUPPORTED: p = "Winsock version not supported"; break;
+		/* getXbyY() errors (already handled in herrmsg): Authoritative Answer: Host not found */
+		case WSAHOST_NOT_FOUND: p = "Host not found"; break;
 		/* Non-Authoritative: Host not found, or SERVERFAIL */
-		case WSATRY_AGAIN:
-		    p = "Host not found, try again";
-		    break;
-
+		case WSATRY_AGAIN: p = "Host not found, try again"; break;
 		/* Non recoverable errors, FORMERR, REFUSED, NOTIMP */
-		case WSANO_RECOVERY:
-		    p = "Unrecoverable error in call to nameserver";
-		    break;
-
+		case WSANO_RECOVERY: p = "Unrecoverable error in call to nameserver"; break;
 		/* Valid name, no data record of requested type */
-		case WSANO_DATA:
-		    p = "No data record of requested type";
-		    break;
-
-		default:
-		    return NULL;
+		case WSANO_DATA: p = "No data record of requested type"; break;
+		default: return NULL;
 	}
 #else
 	if(!err)
@@ -635,262 +514,95 @@ const char * Curl_sspi_strerror(struct connectdata * conn, int err)
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 
 	old_errno = ERRNO;
-
 	switch(err) {
-		case SEC_E_OK:
-		    txt = "No error";
-		    break;
-		case CRYPT_E_REVOKED:
-		    txt = "CRYPT_E_REVOKED";
-		    break;
-		case SEC_E_ALGORITHM_MISMATCH:
-		    txt = "SEC_E_ALGORITHM_MISMATCH";
-		    break;
-		case SEC_E_BAD_BINDINGS:
-		    txt = "SEC_E_BAD_BINDINGS";
-		    break;
-		case SEC_E_BAD_PKGID:
-		    txt = "SEC_E_BAD_PKGID";
-		    break;
-		case SEC_E_BUFFER_TOO_SMALL:
-		    txt = "SEC_E_BUFFER_TOO_SMALL";
-		    break;
-		case SEC_E_CANNOT_INSTALL:
-		    txt = "SEC_E_CANNOT_INSTALL";
-		    break;
-		case SEC_E_CANNOT_PACK:
-		    txt = "SEC_E_CANNOT_PACK";
-		    break;
-		case SEC_E_CERT_EXPIRED:
-		    txt = "SEC_E_CERT_EXPIRED";
-		    break;
-		case SEC_E_CERT_UNKNOWN:
-		    txt = "SEC_E_CERT_UNKNOWN";
-		    break;
-		case SEC_E_CERT_WRONG_USAGE:
-		    txt = "SEC_E_CERT_WRONG_USAGE";
-		    break;
-		case SEC_E_CONTEXT_EXPIRED:
-		    txt = "SEC_E_CONTEXT_EXPIRED";
-		    break;
-		case SEC_E_CROSSREALM_DELEGATION_FAILURE:
-		    txt = "SEC_E_CROSSREALM_DELEGATION_FAILURE";
-		    break;
-		case SEC_E_CRYPTO_SYSTEM_INVALID:
-		    txt = "SEC_E_CRYPTO_SYSTEM_INVALID";
-		    break;
-		case SEC_E_DECRYPT_FAILURE:
-		    txt = "SEC_E_DECRYPT_FAILURE";
-		    break;
-		case SEC_E_DELEGATION_POLICY:
-		    txt = "SEC_E_DELEGATION_POLICY";
-		    break;
-		case SEC_E_DELEGATION_REQUIRED:
-		    txt = "SEC_E_DELEGATION_REQUIRED";
-		    break;
-		case SEC_E_DOWNGRADE_DETECTED:
-		    txt = "SEC_E_DOWNGRADE_DETECTED";
-		    break;
-		case SEC_E_ENCRYPT_FAILURE:
-		    txt = "SEC_E_ENCRYPT_FAILURE";
-		    break;
-		case SEC_E_ILLEGAL_MESSAGE:
-		    txt = "SEC_E_ILLEGAL_MESSAGE";
-		    break;
-		case SEC_E_INCOMPLETE_CREDENTIALS:
-		    txt = "SEC_E_INCOMPLETE_CREDENTIALS";
-		    break;
-		case SEC_E_INCOMPLETE_MESSAGE:
-		    txt = "SEC_E_INCOMPLETE_MESSAGE";
-		    break;
-		case SEC_E_INSUFFICIENT_MEMORY:
-		    txt = "SEC_E_INSUFFICIENT_MEMORY";
-		    break;
-		case SEC_E_INTERNAL_ERROR:
-		    txt = "SEC_E_INTERNAL_ERROR";
-		    break;
-		case SEC_E_INVALID_HANDLE:
-		    txt = "SEC_E_INVALID_HANDLE";
-		    break;
-		case SEC_E_INVALID_PARAMETER:
-		    txt = "SEC_E_INVALID_PARAMETER";
-		    break;
-		case SEC_E_INVALID_TOKEN:
-		    txt = "SEC_E_INVALID_TOKEN";
-		    break;
-		case SEC_E_ISSUING_CA_UNTRUSTED:
-		    txt = "SEC_E_ISSUING_CA_UNTRUSTED";
-		    break;
-		case SEC_E_ISSUING_CA_UNTRUSTED_KDC:
-		    txt = "SEC_E_ISSUING_CA_UNTRUSTED_KDC";
-		    break;
-		case SEC_E_KDC_CERT_EXPIRED:
-		    txt = "SEC_E_KDC_CERT_EXPIRED";
-		    break;
-		case SEC_E_KDC_CERT_REVOKED:
-		    txt = "SEC_E_KDC_CERT_REVOKED";
-		    break;
-		case SEC_E_KDC_INVALID_REQUEST:
-		    txt = "SEC_E_KDC_INVALID_REQUEST";
-		    break;
-		case SEC_E_KDC_UNABLE_TO_REFER:
-		    txt = "SEC_E_KDC_UNABLE_TO_REFER";
-		    break;
-		case SEC_E_KDC_UNKNOWN_ETYPE:
-		    txt = "SEC_E_KDC_UNKNOWN_ETYPE";
-		    break;
-		case SEC_E_LOGON_DENIED:
-		    txt = "SEC_E_LOGON_DENIED";
-		    break;
-		case SEC_E_MAX_REFERRALS_EXCEEDED:
-		    txt = "SEC_E_MAX_REFERRALS_EXCEEDED";
-		    break;
-		case SEC_E_MESSAGE_ALTERED:
-		    txt = "SEC_E_MESSAGE_ALTERED";
-		    break;
-		case SEC_E_MULTIPLE_ACCOUNTS:
-		    txt = "SEC_E_MULTIPLE_ACCOUNTS";
-		    break;
-		case SEC_E_MUST_BE_KDC:
-		    txt = "SEC_E_MUST_BE_KDC";
-		    break;
-		case SEC_E_NOT_OWNER:
-		    txt = "SEC_E_NOT_OWNER";
-		    break;
-		case SEC_E_NO_AUTHENTICATING_AUTHORITY:
-		    txt = "SEC_E_NO_AUTHENTICATING_AUTHORITY";
-		    break;
-		case SEC_E_NO_CREDENTIALS:
-		    txt = "SEC_E_NO_CREDENTIALS";
-		    break;
-		case SEC_E_NO_IMPERSONATION:
-		    txt = "SEC_E_NO_IMPERSONATION";
-		    break;
-		case SEC_E_NO_IP_ADDRESSES:
-		    txt = "SEC_E_NO_IP_ADDRESSES";
-		    break;
-		case SEC_E_NO_KERB_KEY:
-		    txt = "SEC_E_NO_KERB_KEY";
-		    break;
-		case SEC_E_NO_PA_DATA:
-		    txt = "SEC_E_NO_PA_DATA";
-		    break;
-		case SEC_E_NO_S4U_PROT_SUPPORT:
-		    txt = "SEC_E_NO_S4U_PROT_SUPPORT";
-		    break;
-		case SEC_E_NO_TGT_REPLY:
-		    txt = "SEC_E_NO_TGT_REPLY";
-		    break;
-		case SEC_E_OUT_OF_SEQUENCE:
-		    txt = "SEC_E_OUT_OF_SEQUENCE";
-		    break;
-		case SEC_E_PKINIT_CLIENT_FAILURE:
-		    txt = "SEC_E_PKINIT_CLIENT_FAILURE";
-		    break;
-		case SEC_E_PKINIT_NAME_MISMATCH:
-		    txt = "SEC_E_PKINIT_NAME_MISMATCH";
-		    break;
-		case SEC_E_POLICY_NLTM_ONLY:
-		    txt = "SEC_E_POLICY_NLTM_ONLY";
-		    break;
-		case SEC_E_QOP_NOT_SUPPORTED:
-		    txt = "SEC_E_QOP_NOT_SUPPORTED";
-		    break;
-		case SEC_E_REVOCATION_OFFLINE_C:
-		    txt = "SEC_E_REVOCATION_OFFLINE_C";
-		    break;
-		case SEC_E_REVOCATION_OFFLINE_KDC:
-		    txt = "SEC_E_REVOCATION_OFFLINE_KDC";
-		    break;
-		case SEC_E_SECPKG_NOT_FOUND:
-		    txt = "SEC_E_SECPKG_NOT_FOUND";
-		    break;
-		case SEC_E_SECURITY_QOS_FAILED:
-		    txt = "SEC_E_SECURITY_QOS_FAILED";
-		    break;
-		case SEC_E_SHUTDOWN_IN_PROGRESS:
-		    txt = "SEC_E_SHUTDOWN_IN_PROGRESS";
-		    break;
-		case SEC_E_SMARTCARD_CERT_EXPIRED:
-		    txt = "SEC_E_SMARTCARD_CERT_EXPIRED";
-		    break;
-		case SEC_E_SMARTCARD_CERT_REVOKED:
-		    txt = "SEC_E_SMARTCARD_CERT_REVOKED";
-		    break;
-		case SEC_E_SMARTCARD_LOGON_REQUIRED:
-		    txt = "SEC_E_SMARTCARD_LOGON_REQUIRED";
-		    break;
-		case SEC_E_STRONG_CRYPTO_NOT_SUPPORTED:
-		    txt = "SEC_E_STRONG_CRYPTO_NOT_SUPPORTED";
-		    break;
-		case SEC_E_TARGET_UNKNOWN:
-		    txt = "SEC_E_TARGET_UNKNOWN";
-		    break;
-		case SEC_E_TIME_SKEW:
-		    txt = "SEC_E_TIME_SKEW";
-		    break;
-		case SEC_E_TOO_MANY_PRINCIPALS:
-		    txt = "SEC_E_TOO_MANY_PRINCIPALS";
-		    break;
-		case SEC_E_UNFINISHED_CONTEXT_DELETED:
-		    txt = "SEC_E_UNFINISHED_CONTEXT_DELETED";
-		    break;
-		case SEC_E_UNKNOWN_CREDENTIALS:
-		    txt = "SEC_E_UNKNOWN_CREDENTIALS";
-		    break;
-		case SEC_E_UNSUPPORTED_FUNCTION:
-		    txt = "SEC_E_UNSUPPORTED_FUNCTION";
-		    break;
-		case SEC_E_UNSUPPORTED_PREAUTH:
-		    txt = "SEC_E_UNSUPPORTED_PREAUTH";
-		    break;
-		case SEC_E_UNTRUSTED_ROOT:
-		    txt = "SEC_E_UNTRUSTED_ROOT";
-		    break;
-		case SEC_E_WRONG_CREDENTIAL_HANDLE:
-		    txt = "SEC_E_WRONG_CREDENTIAL_HANDLE";
-		    break;
-		case SEC_E_WRONG_PRINCIPAL:
-		    txt = "SEC_E_WRONG_PRINCIPAL";
-		    break;
-		case SEC_I_COMPLETE_AND_CONTINUE:
-		    txt = "SEC_I_COMPLETE_AND_CONTINUE";
-		    break;
-		case SEC_I_COMPLETE_NEEDED:
-		    txt = "SEC_I_COMPLETE_NEEDED";
-		    break;
-		case SEC_I_CONTEXT_EXPIRED:
-		    txt = "SEC_I_CONTEXT_EXPIRED";
-		    break;
-		case SEC_I_CONTINUE_NEEDED:
-		    txt = "SEC_I_CONTINUE_NEEDED";
-		    break;
-		case SEC_I_INCOMPLETE_CREDENTIALS:
-		    txt = "SEC_I_INCOMPLETE_CREDENTIALS";
-		    break;
-		case SEC_I_LOCAL_LOGON:
-		    txt = "SEC_I_LOCAL_LOGON";
-		    break;
-		case SEC_I_NO_LSA_CONTEXT:
-		    txt = "SEC_I_NO_LSA_CONTEXT";
-		    break;
-		case SEC_I_RENEGOTIATE:
-		    txt = "SEC_I_RENEGOTIATE";
-		    break;
-		case SEC_I_SIGNATURE_NEEDED:
-		    txt = "SEC_I_SIGNATURE_NEEDED";
-		    break;
-		default:
-		    txt = "Unknown error";
+		case SEC_E_OK: txt = "No error"; break;
+		case CRYPT_E_REVOKED: txt = "CRYPT_E_REVOKED"; break;
+		case SEC_E_ALGORITHM_MISMATCH: txt = "SEC_E_ALGORITHM_MISMATCH"; break;
+		case SEC_E_BAD_BINDINGS: txt = "SEC_E_BAD_BINDINGS"; break;
+		case SEC_E_BAD_PKGID: txt = "SEC_E_BAD_PKGID"; break;
+		case SEC_E_BUFFER_TOO_SMALL: txt = "SEC_E_BUFFER_TOO_SMALL"; break;
+		case SEC_E_CANNOT_INSTALL: txt = "SEC_E_CANNOT_INSTALL"; break;
+		case SEC_E_CANNOT_PACK: txt = "SEC_E_CANNOT_PACK"; break;
+		case SEC_E_CERT_EXPIRED: txt = "SEC_E_CERT_EXPIRED"; break;
+		case SEC_E_CERT_UNKNOWN: txt = "SEC_E_CERT_UNKNOWN"; break;
+		case SEC_E_CERT_WRONG_USAGE: txt = "SEC_E_CERT_WRONG_USAGE"; break;
+		case SEC_E_CONTEXT_EXPIRED: txt = "SEC_E_CONTEXT_EXPIRED"; break;
+		case SEC_E_CROSSREALM_DELEGATION_FAILURE: txt = "SEC_E_CROSSREALM_DELEGATION_FAILURE"; break;
+		case SEC_E_CRYPTO_SYSTEM_INVALID: txt = "SEC_E_CRYPTO_SYSTEM_INVALID"; break;
+		case SEC_E_DECRYPT_FAILURE: txt = "SEC_E_DECRYPT_FAILURE"; break;
+		case SEC_E_DELEGATION_POLICY: txt = "SEC_E_DELEGATION_POLICY"; break;
+		case SEC_E_DELEGATION_REQUIRED: txt = "SEC_E_DELEGATION_REQUIRED"; break;
+		case SEC_E_DOWNGRADE_DETECTED: txt = "SEC_E_DOWNGRADE_DETECTED"; break;
+		case SEC_E_ENCRYPT_FAILURE: txt = "SEC_E_ENCRYPT_FAILURE"; break;
+		case SEC_E_ILLEGAL_MESSAGE: txt = "SEC_E_ILLEGAL_MESSAGE"; break;
+		case SEC_E_INCOMPLETE_CREDENTIALS: txt = "SEC_E_INCOMPLETE_CREDENTIALS"; break;
+		case SEC_E_INCOMPLETE_MESSAGE: txt = "SEC_E_INCOMPLETE_MESSAGE"; break;
+		case SEC_E_INSUFFICIENT_MEMORY: txt = "SEC_E_INSUFFICIENT_MEMORY"; break;
+		case SEC_E_INTERNAL_ERROR: txt = "SEC_E_INTERNAL_ERROR"; break;
+		case SEC_E_INVALID_HANDLE: txt = "SEC_E_INVALID_HANDLE"; break;
+		case SEC_E_INVALID_PARAMETER: txt = "SEC_E_INVALID_PARAMETER"; break;
+		case SEC_E_INVALID_TOKEN: txt = "SEC_E_INVALID_TOKEN"; break;
+		case SEC_E_ISSUING_CA_UNTRUSTED: txt = "SEC_E_ISSUING_CA_UNTRUSTED"; break;
+		case SEC_E_ISSUING_CA_UNTRUSTED_KDC: txt = "SEC_E_ISSUING_CA_UNTRUSTED_KDC"; break;
+		case SEC_E_KDC_CERT_EXPIRED: txt = "SEC_E_KDC_CERT_EXPIRED"; break;
+		case SEC_E_KDC_CERT_REVOKED: txt = "SEC_E_KDC_CERT_REVOKED"; break;
+		case SEC_E_KDC_INVALID_REQUEST: txt = "SEC_E_KDC_INVALID_REQUEST"; break;
+		case SEC_E_KDC_UNABLE_TO_REFER: txt = "SEC_E_KDC_UNABLE_TO_REFER"; break;
+		case SEC_E_KDC_UNKNOWN_ETYPE: txt = "SEC_E_KDC_UNKNOWN_ETYPE"; break;
+		case SEC_E_LOGON_DENIED: txt = "SEC_E_LOGON_DENIED"; break;
+		case SEC_E_MAX_REFERRALS_EXCEEDED: txt = "SEC_E_MAX_REFERRALS_EXCEEDED"; break;
+		case SEC_E_MESSAGE_ALTERED: txt = "SEC_E_MESSAGE_ALTERED"; break;
+		case SEC_E_MULTIPLE_ACCOUNTS: txt = "SEC_E_MULTIPLE_ACCOUNTS"; break;
+		case SEC_E_MUST_BE_KDC: txt = "SEC_E_MUST_BE_KDC"; break;
+		case SEC_E_NOT_OWNER: txt = "SEC_E_NOT_OWNER"; break;
+		case SEC_E_NO_AUTHENTICATING_AUTHORITY: txt = "SEC_E_NO_AUTHENTICATING_AUTHORITY"; break;
+		case SEC_E_NO_CREDENTIALS: txt = "SEC_E_NO_CREDENTIALS"; break;
+		case SEC_E_NO_IMPERSONATION: txt = "SEC_E_NO_IMPERSONATION"; break;
+		case SEC_E_NO_IP_ADDRESSES: txt = "SEC_E_NO_IP_ADDRESSES"; break;
+		case SEC_E_NO_KERB_KEY: txt = "SEC_E_NO_KERB_KEY"; break;
+		case SEC_E_NO_PA_DATA: txt = "SEC_E_NO_PA_DATA"; break;
+		case SEC_E_NO_S4U_PROT_SUPPORT: txt = "SEC_E_NO_S4U_PROT_SUPPORT"; break;
+		case SEC_E_NO_TGT_REPLY: txt = "SEC_E_NO_TGT_REPLY"; break;
+		case SEC_E_OUT_OF_SEQUENCE: txt = "SEC_E_OUT_OF_SEQUENCE"; break;
+		case SEC_E_PKINIT_CLIENT_FAILURE: txt = "SEC_E_PKINIT_CLIENT_FAILURE"; break;
+		case SEC_E_PKINIT_NAME_MISMATCH: txt = "SEC_E_PKINIT_NAME_MISMATCH"; break;
+		case SEC_E_POLICY_NLTM_ONLY: txt = "SEC_E_POLICY_NLTM_ONLY"; break;
+		case SEC_E_QOP_NOT_SUPPORTED: txt = "SEC_E_QOP_NOT_SUPPORTED"; break;
+		case SEC_E_REVOCATION_OFFLINE_C: txt = "SEC_E_REVOCATION_OFFLINE_C"; break;
+		case SEC_E_REVOCATION_OFFLINE_KDC: txt = "SEC_E_REVOCATION_OFFLINE_KDC"; break;
+		case SEC_E_SECPKG_NOT_FOUND: txt = "SEC_E_SECPKG_NOT_FOUND"; break;
+		case SEC_E_SECURITY_QOS_FAILED: txt = "SEC_E_SECURITY_QOS_FAILED"; break;
+		case SEC_E_SHUTDOWN_IN_PROGRESS: txt = "SEC_E_SHUTDOWN_IN_PROGRESS"; break;
+		case SEC_E_SMARTCARD_CERT_EXPIRED: txt = "SEC_E_SMARTCARD_CERT_EXPIRED"; break;
+		case SEC_E_SMARTCARD_CERT_REVOKED: txt = "SEC_E_SMARTCARD_CERT_REVOKED"; break;
+		case SEC_E_SMARTCARD_LOGON_REQUIRED: txt = "SEC_E_SMARTCARD_LOGON_REQUIRED"; break;
+		case SEC_E_STRONG_CRYPTO_NOT_SUPPORTED: txt = "SEC_E_STRONG_CRYPTO_NOT_SUPPORTED"; break;
+		case SEC_E_TARGET_UNKNOWN: txt = "SEC_E_TARGET_UNKNOWN"; break;
+		case SEC_E_TIME_SKEW: txt = "SEC_E_TIME_SKEW"; break;
+		case SEC_E_TOO_MANY_PRINCIPALS: txt = "SEC_E_TOO_MANY_PRINCIPALS"; break;
+		case SEC_E_UNFINISHED_CONTEXT_DELETED: txt = "SEC_E_UNFINISHED_CONTEXT_DELETED"; break;
+		case SEC_E_UNKNOWN_CREDENTIALS: txt = "SEC_E_UNKNOWN_CREDENTIALS"; break;
+		case SEC_E_UNSUPPORTED_FUNCTION: txt = "SEC_E_UNSUPPORTED_FUNCTION"; break;
+		case SEC_E_UNSUPPORTED_PREAUTH: txt = "SEC_E_UNSUPPORTED_PREAUTH"; break;
+		case SEC_E_UNTRUSTED_ROOT: txt = "SEC_E_UNTRUSTED_ROOT"; break;
+		case SEC_E_WRONG_CREDENTIAL_HANDLE: txt = "SEC_E_WRONG_CREDENTIAL_HANDLE"; break;
+		case SEC_E_WRONG_PRINCIPAL: txt = "SEC_E_WRONG_PRINCIPAL"; break;
+		case SEC_I_COMPLETE_AND_CONTINUE: txt = "SEC_I_COMPLETE_AND_CONTINUE"; break;
+		case SEC_I_COMPLETE_NEEDED: txt = "SEC_I_COMPLETE_NEEDED"; break;
+		case SEC_I_CONTEXT_EXPIRED: txt = "SEC_I_CONTEXT_EXPIRED"; break;
+		case SEC_I_CONTINUE_NEEDED: txt = "SEC_I_CONTINUE_NEEDED"; break;
+		case SEC_I_INCOMPLETE_CREDENTIALS: txt = "SEC_I_INCOMPLETE_CREDENTIALS"; break;
+		case SEC_I_LOCAL_LOGON: txt = "SEC_I_LOCAL_LOGON"; break;
+		case SEC_I_NO_LSA_CONTEXT: txt = "SEC_I_NO_LSA_CONTEXT"; break;
+		case SEC_I_RENEGOTIATE: txt = "SEC_I_RENEGOTIATE"; break;
+		case SEC_I_SIGNATURE_NEEDED: txt = "SEC_I_SIGNATURE_NEEDED"; break;
+		default: txt = "Unknown error";
 	}
-
 	if(err == SEC_E_OK)
 		strncpy(outbuf, txt, outmax);
 	else if(err == SEC_E_ILLEGAL_MESSAGE)
-		snprintf(outbuf, outmax,
-		    "SEC_E_ILLEGAL_MESSAGE (0x%08X) - This error usually occurs "
-		    "when a fatal SSL/TLS alert is received (e.g. handshake failed). "
-		    "More detail may be available in the Windows System event log.",
+		snprintf(outbuf, outmax, "SEC_E_ILLEGAL_MESSAGE (0x%08X) - This error usually occurs "
+		    "when a fatal SSL/TLS alert is received (e.g. handshake failed). More detail may be available in the Windows System event log.",
 		    err);
 	else {
 		str = txtbuf;
@@ -927,23 +639,16 @@ const char * Curl_sspi_strerror(struct connectdata * conn, int err)
 		else
 			strncpy(outbuf, str, outmax);
 	}
-
 	if(old_errno != ERRNO)
 		SET_ERRNO(old_errno);
-
 #else
-
 	if(err == SEC_E_OK)
 		txt = "No error";
 	else
 		txt = "Error";
-
 	strncpy(outbuf, txt, outmax);
-
 #endif
-
 	outbuf[outmax] = '\0';
-
 	return outbuf;
 }
 

@@ -1,5 +1,6 @@
 // DBSQL.CPP
 // Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -10,7 +11,7 @@
 // @example: SELECT employees_seq.nextval FROM DUAL;
 //
 /*
-	Параметры для создания базы данных:
+	РџР°СЂР°РјРµС‚СЂС‹ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…:
 
 	name          descr       sample
 	-----------   ----------- ---------------
@@ -20,7 +21,7 @@
 	SID                       next02
 
 //
-// Системная таблица Oracle
+// РЎРёСЃС‚РµРјРЅР°СЏ С‚Р°Р±Р»РёС†Р° Oracle
 //
 table OraAllTables {
 	string OWNER[31];
@@ -212,7 +213,7 @@ int SSqlStmt::IsValid() const
 int SSqlStmt::SetupBindingSubstBuffer(int dir, uint count)
 {
 	int    ok = 1;
-	size_t size = 4; // Первые 4 байта буфера зарезервированы.
+	size_t size = 4; // РџРµСЂРІС‹Рµ 4 Р±Р°Р№С‚Р° Р±СѓС„РµСЂР° Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅС‹.
 	uint   col_count = 0;
 	for(uint i = 0; i < BL.getCount(); i++) {
 		Bind & r_bind = BL.at(i);
@@ -225,11 +226,11 @@ int SSqlStmt::SetupBindingSubstBuffer(int dir, uint count)
 		}
 	}
 	if(dir < 0) {
-		size += col_count * count * sizeof(uint16); // Резервируем пространство для значений индикаторов
+		size += col_count * count * sizeof(uint16); // Р РµР·РµСЂРІРёСЂСѓРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РґР»СЏ Р·РЅР°С‡РµРЅРёР№ РёРЅРґРёРєР°С‚РѕСЂРѕРІ
 	}
 	else if(dir > 0) {
-		size += col_count * count * sizeof(uint16); // Резервируем пространство для значений индикаторов
-		size += col_count * count * sizeof(uint16); // Резервируем пространство для значений длин выборок (FSL)
+		size += col_count * count * sizeof(uint16); // Р РµР·РµСЂРІРёСЂСѓРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РґР»СЏ Р·РЅР°С‡РµРЅРёР№ РёРЅРґРёРєР°С‚РѕСЂРѕРІ
+		size += col_count * count * sizeof(uint16); // Р РµР·РµСЂРІРёСЂСѓРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РґР»СЏ Р·РЅР°С‡РµРЅРёР№ РґР»РёРЅ РІС‹Р±РѕСЂРѕРє (FSL)
 	}
 	BS.Alloc(size);
 	CATCHZOK
@@ -326,9 +327,9 @@ int SSqlStmt::InitBinding()
 	BL.clear(); // @v9.9.0 freeAll-->clear
 	BL.Dim = 1;
 	BS.Destroy();
-	BS.Alloc(SKILOBYTE(16)); // @todo Указатель должен быть неперемещаемым. В дальнейшем надо
-		// придумать более умную схему распределения памяти под binding
-	TopBindSubst = 4; // Нулевое смещение резервируется как неиспользование буфера
+	BS.Alloc(SKILOBYTE(16)); // @todo РЈРєР°Р·Р°С‚РµР»СЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРµРїРµСЂРµРјРµС‰Р°РµРјС‹Рј. Р’ РґР°Р»СЊРЅРµР№С€РµРј РЅР°РґРѕ
+		// РїСЂРёРґСѓРјР°С‚СЊ Р±РѕР»РµРµ СѓРјРЅСѓСЋ СЃС…РµРјСѓ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё РїРѕРґ binding
+	TopBindSubst = 4; // РќСѓР»РµРІРѕРµ СЃРјРµС‰РµРЅРёРµ СЂРµР·РµСЂРІРёСЂСѓРµС‚СЃСЏ РєР°Рє РЅРµРёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ Р±СѓС„РµСЂР°
 	IndSubstPlus = 0;
 	IndSubstMinus = 0;
 	FslSubst = 0;
@@ -388,8 +389,8 @@ int SSqlStmt::BindData(int dir, uint count, const BNFieldList & rFldList, const 
 int SSqlStmt::BindData(int dir, uint count, const DBFieldList & rFldList, const void * pDataBuf, DBLobBlock * pLob)
 {
 	//
-	// Принципиальное отличие этой функции от SSqlStmt::BindData(int, uint, const BNFieldList &, const void *)
-	// в том, что здесь смещение рассчитывается, а не извлекается из BNField
+	// РџСЂРёРЅС†РёРїРёР°Р»СЊРЅРѕРµ РѕС‚Р»РёС‡РёРµ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РѕС‚ SSqlStmt::BindData(int, uint, const BNFieldList &, const void *)
+	// РІ С‚РѕРј, С‡С‚Рѕ Р·РґРµСЃСЊ СЃРјРµС‰РµРЅРёРµ СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ, Р° РЅРµ РёР·РІР»РµРєР°РµС‚СЃСЏ РёР· BNField
 	//
 	int    ok = 1;
 	const  uint fld_count = rFldList.GetCount();
@@ -587,10 +588,10 @@ int SOraDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlS
 }
 //
 // ARG(action IN):
-//   0 - инициализация структуры SSqlStmt::Bind
-//   1 - извлечение данных из внешнего источника во внутренние буферы
-//  -1 - перенос данных из внутренних буферов во внещний источник
-//  1000 - разрушение специфичных для SQL-сервера элементов структуры SSqlStmt::Bind
+//   0 - РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ SSqlStmt::Bind
+//   1 - РёР·РІР»РµС‡РµРЅРёРµ РґР°РЅРЅС‹С… РёР· РІРЅРµС€РЅРµРіРѕ РёСЃС‚РѕС‡РЅРёРєР° РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёРµ Р±СѓС„РµСЂС‹
+//  -1 - РїРµСЂРµРЅРѕСЃ РґР°РЅРЅС‹С… РёР· РІРЅСѓС‚СЂРµРЅРЅРёС… Р±СѓС„РµСЂРѕРІ РІРѕ РІРЅРµС‰РЅРёР№ РёСЃС‚РѕС‡РЅРёРє
+//  1000 - СЂР°Р·СЂСѓС€РµРЅРёРµ СЃРїРµС†РёС„РёС‡РЅС‹С… РґР»СЏ SQL-СЃРµСЂРІРµСЂР° СЌР»РµРјРµРЅС‚РѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹ SSqlStmt::Bind
 //
 int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
 {
@@ -630,9 +631,9 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 			if(action == 0)
 				ProcessBinding_AllocDescr(count, pStmt, pBind, SQLT_TIMESTAMP, OCI_DTYPE_TIMESTAMP);
 			else if(action < 0)
-				SetTime(*(OD *)pStmt->GetBindOuterPtr(pBind, count), *(LTIME *)pBind->P_Data);
+				SetTime(*(OD *)pStmt->GetBindOuterPtr(pBind, count), *static_cast<const LTIME *>(pBind->P_Data));
 			else if(action == 1)
-				*(LTIME *)pBind->P_Data = GetTime(*(OD *)pStmt->GetBindOuterPtr(pBind, count));
+				*static_cast<LTIME *>(pBind->P_Data) = GetTime(*(OD *)pStmt->GetBindOuterPtr(pBind, count));
 			else if(action == 1000)
 				ProcessBinding_FreeDescr(count, pStmt, pBind);
 			break;
@@ -640,9 +641,9 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 			if(action == 0)
 				ProcessBinding_AllocDescr(count, pStmt, pBind, SQLT_TIMESTAMP, OCI_DTYPE_TIMESTAMP);
 			else if(action < 0)
-				SetDateTime(*(OD *)pStmt->GetBindOuterPtr(pBind, count), *(LDATETIME *)pBind->P_Data);
+				SetDateTime(*(OD *)pStmt->GetBindOuterPtr(pBind, count), *static_cast<const LDATETIME *>(pBind->P_Data));
 			else if(action == 1)
-				*(LDATETIME *)pBind->P_Data = GetDateTime(*(OD *)pStmt->GetBindOuterPtr(pBind, count));
+				*static_cast<LDATETIME *>(pBind->P_Data) = GetDateTime(*(OD *)pStmt->GetBindOuterPtr(pBind, count));
 			else if(action == 1000)
 				ProcessBinding_FreeDescr(count, pStmt, pBind);
 			break;
@@ -705,11 +706,11 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 			else if(action < 0) {
 				char * p_outer = (char *)pStmt->GetBindOuterPtr(pBind, count);
 				//
-				// 1. Необходимо защититься от ситуации, когда в конце буфера отсутствует '\0'
-				// 2. Необходимо конвертировать OEM кодировку (используется в btrieve данных и
-				//    в проекте в целом) в CHAR кодировку, которая используется для хранения строк
-				//    в SQL-базах.
-				// 3. Пустая строка для критериев запроса извлечения данных должна быть представлена единственным пробелом.
+				// 1. РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°С‰РёС‚РёС‚СЊСЃСЏ РѕС‚ СЃРёС‚СѓР°С†РёРё, РєРѕРіРґР° РІ РєРѕРЅС†Рµ Р±СѓС„РµСЂР° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ '\0'
+				// 2. РќРµРѕР±С…РѕРґРёРјРѕ РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ OEM РєРѕРґРёСЂРѕРІРєСѓ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ btrieve РґР°РЅРЅС‹С… Рё
+				//    РІ РїСЂРѕРµРєС‚Рµ РІ С†РµР»РѕРј) РІ CHAR РєРѕРґРёСЂРѕРІРєСѓ, РєРѕС‚РѕСЂР°СЏ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СЃС‚СЂРѕРє
+				//    РІ SQL-Р±Р°Р·Р°С….
+				// 3. РџСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР° РґР»СЏ РєСЂРёС‚РµСЂРёРµРІ Р·Р°РїСЂРѕСЃР° РёР·РІР»РµС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїСЂРµРґСЃС‚Р°РІР»РµРЅР° РµРґРёРЅСЃС‚РІРµРЅРЅС‹Рј РїСЂРѕР±РµР»РѕРј.
 				//
 				if(PTR8(pBind->P_Data)[0] == 0) {
 					if(action == -1) {
@@ -721,9 +722,9 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				}
 				else {
 					//
-					// Особый случай: все элементы заполнены символами 255.
-					// Это - максимальное значение, используемое в сравнениях.
-					// Его не следует преобразовывать функцией SOemToChar
+					// РћСЃРѕР±С‹Р№ СЃР»СѓС‡Р°Р№: РІСЃРµ СЌР»РµРјРµРЅС‚С‹ Р·Р°РїРѕР»РЅРµРЅС‹ СЃРёРјРІРѕР»Р°РјРё 255.
+					// Р­С‚Рѕ - РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, РёСЃРїРѕР»СЊР·СѓРµРјРѕРµ РІ СЃСЂР°РІРЅРµРЅРёСЏС….
+					// Р•РіРѕ РЅРµ СЃР»РµРґСѓРµС‚ РїСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°С‚СЊ С„СѓРЅРєС†РёРµР№ SOemToChar
 					//
 					int    is_max = 0;
 					if(PTR8(pBind->P_Data)[0] == 255) {
@@ -800,10 +801,10 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 		//case S_NUMERIC:
 	}
 	//
-	// Распределяем пространство для переменных индикаторов и FSL.
-	// При сигнале SSqlStmt::Bind::fCalcOnly ничего не делаем
-	// поскольку функция SSqlStmt::SetupBindingSubstBuffer должна была
-	// предусмотреть необходимость в пространстве для специальных значений.
+	// Р Р°СЃРїСЂРµРґРµР»СЏРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РґР»СЏ РїРµСЂРµРјРµРЅРЅС‹С… РёРЅРґРёРєР°С‚РѕСЂРѕРІ Рё FSL.
+	// РџСЂРё СЃРёРіРЅР°Р»Рµ SSqlStmt::Bind::fCalcOnly РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
+	// РїРѕСЃРєРѕР»СЊРєСѓ С„СѓРЅРєС†РёСЏ SSqlStmt::SetupBindingSubstBuffer РґРѕР»Р¶РЅР° Р±С‹Р»Р°
+	// РїСЂРµРґСѓСЃРјРѕС‚СЂРµС‚СЊ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РІ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРµ РґР»СЏ СЃРїРµС†РёР°Р»СЊРЅС‹С… Р·РЅР°С‡РµРЅРёР№.
 	//
 	if(action == 0 && !(pBind->Flags & SSqlStmt::Bind::fCalcOnly)) {
 		pStmt->AllocIndSubst(count, pBind);
@@ -1069,8 +1070,8 @@ int SOraDbProvider::GetAutolongVal(const DBTable & rTbl, uint fldN, long * pVal)
 	long   val = 0;
 	uint   actual = 0;
 	SString seq_name;
-	Generator_SQL sg(sqlstORA, 0); // Так как эта функция используется внутри других вызовов SOraDbProvider,
-		// здесь мы создадим локальный Generator_SQL (не будем пользоваться SqlGen).
+	Generator_SQL sg(sqlstORA, 0); // РўР°Рє РєР°Рє СЌС‚Р° С„СѓРЅРєС†РёСЏ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІРЅСѓС‚СЂРё РґСЂСѓРіРёС… РІС‹Р·РѕРІРѕРІ SOraDbProvider,
+		// Р·РґРµСЃСЊ РјС‹ СЃРѕР·РґР°РґРёРј Р»РѕРєР°Р»СЊРЅС‹Р№ Generator_SQL (РЅРµ Р±СѓРґРµРј РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ SqlGen).
 	// SELECT secXXX.nextval FROM DUAL;
 	sg.GetSequenceNameOnField(rTbl, fldN, seq_name);
 	seq_name.Dot().Cat("nextval");
@@ -1267,7 +1268,7 @@ LDATE FASTCALL SOraDbProvider::GetDate(OCIDateTime * pOciDtm)
 	return ProcessError(OCIDateTimeGetDate(Env, Err, pOciDtm, &y, &m, &d)) ? encodedate(d, m, y) : ZERODATE;
 }
 //
-// Descr: Величина, на которую надо умножить сотые доли секунды, чтобы получить OCI fractional second value
+// Descr: Р’РµР»РёС‡РёРЅР°, РЅР° РєРѕС‚РѕСЂСѓСЋ РЅР°РґРѕ СѓРјРЅРѕР¶РёС‚СЊ СЃРѕС‚С‹Рµ РґРѕР»Рё СЃРµРєСѓРЅРґС‹, С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ OCI fractional second value
 //
 #define OCI_TIME_FRACT 10000000
 
@@ -1341,21 +1342,21 @@ void * FASTCALL SOraDbProvider::RawGetPtr(const RAW & r)
 int SOraDbProvider::LobRead(OD & rLob, TYPEID typ, SLob * pBuf, size_t * pActualSize)
 {
 	//
-	// @todo Учесть особенность CLOB - параметр sz в функцию OCILobRead передается и
-	//   возвращается в терминах символов (не байт)
+	// @todo РЈС‡РµСЃС‚СЊ РѕСЃРѕР±РµРЅРЅРѕСЃС‚СЊ CLOB - РїР°СЂР°РјРµС‚СЂ sz РІ С„СѓРЅРєС†РёСЋ OCILobRead РїРµСЂРµРґР°РµС‚СЃСЏ Рё
+	//   РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РІ С‚РµСЂРјРёРЅР°С… СЃРёРјРІРѕР»РѕРІ (РЅРµ Р±Р°Р№С‚)
 	//
 	int    ok = 1;
 	const  uint32 raw_buf_size = GETSSIZE(typ);
-	uint32 rd_size = 0; // Количество прочитанных байт
-	uint32 offs = 1;    // Смещение для функции OCILobRead начинается с 1 (не с 0).
+	uint32 rd_size = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… Р±Р°Р№С‚
+	uint32 offs = 1;    // РЎРјРµС‰РµРЅРёРµ РґР»СЏ С„СѓРЅРєС†РёРё OCILobRead РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ 1 (РЅРµ СЃ 0).
 	uint32 chunk_size = 0;
 	void * ptr = 0;
 	SBuffer large_buf;
 	STempBuffer temp_buf(0);
-	pBuf->Init(0); // Инициализируем неструктурированный буфер
+	pBuf->Init(0); // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РЅРµСЃС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅС‹Р№ Р±СѓС„РµСЂ
 	//
-	// Руководство по OCI рекомендует обрабатывать LOB-данные отрезками кратными chunk_size,
-	// значение которого специфично для конкретного LOB.
+	// Р СѓРєРѕРІРѕРґСЃС‚РІРѕ РїРѕ OCI СЂРµРєРѕРјРµРЅРґСѓРµС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ LOB-РґР°РЅРЅС‹Рµ РѕС‚СЂРµР·РєР°РјРё РєСЂР°С‚РЅС‹РјРё chunk_size,
+	// Р·РЅР°С‡РµРЅРёРµ РєРѕС‚РѕСЂРѕРіРѕ СЃРїРµС†РёС„РёС‡РЅРѕ РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ LOB.
 	//
 	THROW(ProcessError(OCILobGetChunkSize(Srvc, Err, rLob, &chunk_size)));
 	//
@@ -1407,11 +1408,11 @@ int SOraDbProvider::LobRead(OD & rLob, TYPEID typ, SLob * pBuf, size_t * pActual
 int SOraDbProvider::LobWrite(OD & rLob, TYPEID typ, SLob * pBuf, size_t dataLen)
 {
 	//
-	// @todo Учесть особенность CLOB - параметр sz в функцию OCILobRead передается и
-	//   возвращается в терминах символов (не байт)
+	// @todo РЈС‡РµСЃС‚СЊ РѕСЃРѕР±РµРЅРЅРѕСЃС‚СЊ CLOB - РїР°СЂР°РјРµС‚СЂ sz РІ С„СѓРЅРєС†РёСЋ OCILobRead РїРµСЂРµРґР°РµС‚СЃСЏ Рё
+	//   РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РІ С‚РµСЂРјРёРЅР°С… СЃРёРјРІРѕР»РѕРІ (РЅРµ Р±Р°Р№С‚)
 	//
 	int    ok = 1;
-	uint32 offs = 1; // Смещение для функции OCILobRead начинается с 1 (не с 0).
+	uint32 offs = 1; // РЎРјРµС‰РµРЅРёРµ РґР»СЏ С„СѓРЅРєС†РёРё OCILobRead РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ 1 (РЅРµ СЃ 0).
 	uint32 sz = dataLen;
 	void * ptr = pBuf ? pBuf->GetRawDataPtr() : 0;
 	if(!dataLen || !ptr) {
@@ -1486,8 +1487,8 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 	THROW(OhAttrSet(Srvc, OCI_ATTR_SERVER, Svr.H, 0));
 	{
 		//
-		// Устанавливаем символ базы данных как INTERNAL_NAME.
-		// Этот атрибут необходим для правильной работы транзакций.
+		// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃРёРјРІРѕР» Р±Р°Р·С‹ РґР°РЅРЅС‹С… РєР°Рє INTERNAL_NAME.
+		// Р­С‚РѕС‚ Р°С‚СЂРёР±СѓС‚ РЅРµРѕР±С…РѕРґРёРј РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ СЂР°Р±РѕС‚С‹ С‚СЂР°РЅР·Р°РєС†РёР№.
 		//
 		pBlk->GetAttr(DbLoginBlock::attrDbSymb, attr);
 		if(attr.Len())
@@ -1619,7 +1620,7 @@ int SLAPI SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFil
 	}
 	if(createMode < 0 && IS_CRM_TEMP(createMode)) {
 		//
-		// Регистрируем имя временного файла в драйвере БД для последующего удаления //
+		// Р РµРіРёСЃС‚СЂРёСЂСѓРµРј РёРјСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РІ РґСЂР°Р№РІРµСЂРµ Р‘Р” РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµРіРѕ СѓРґР°Р»РµРЅРёСЏ //
 		//
 		AddTempFileName(pFileName);
 	}
@@ -1727,13 +1728,13 @@ int SLAPI SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey,
 	//
 	int    ok = 1;
 	//
-	// Если can_continue == 1, то допускается последующий запрос spNext или spPrev
-	// Соответственно, stmt сохраняется в pTbl.
+	// Р•СЃР»Рё can_continue == 1, С‚Рѕ РґРѕРїСѓСЃРєР°РµС‚СЃСЏ РїРѕСЃР»РµРґСѓСЋС‰РёР№ Р·Р°РїСЂРѕСЃ spNext РёР»Рё spPrev
+	// РЎРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ, stmt СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ РІ pTbl.
 	//
 	int    can_continue = 0;
 	int    new_stmt = 0;
 	uint   actual = 0;
-	LongArray seg_map; // Карта номеров сегментов индекса, которые должны быть привязаны
+	LongArray seg_map; // РљР°СЂС‚Р° РЅРѕРјРµСЂРѕРІ СЃРµРіРјРµРЅС‚РѕРІ РёРЅРґРµРєСЃР°, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РїСЂРёРІСЏР·Р°РЅС‹
 	DBTable::SelectStmt * p_stmt = 0;
 	THROW(idx < (int)pTbl->indexes.getNumKeys());
 	if(oneof2(srchMode, spNext, spPrev)) {
@@ -1775,18 +1776,18 @@ int SLAPI SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey,
 	}
 	else {
 		//
-		// Для того, чтобы hint'ы работали, необхоидмо и в hint'е и в
-		// префиксах списков полей указывать либо алиас, либо наименование таблицы,
-		// но не смешивать.
-		// Например конструкция //
+		// Р”Р»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ hint'С‹ СЂР°Р±РѕС‚Р°Р»Рё, РЅРµРѕР±С…РѕРёРґРјРѕ Рё РІ hint'Рµ Рё РІ
+		// РїСЂРµС„РёРєСЃР°С… СЃРїРёСЃРєРѕРІ РїРѕР»РµР№ СѓРєР°Р·С‹РІР°С‚СЊ Р»РёР±Рѕ Р°Р»РёР°СЃ, Р»РёР±Рѕ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С‚Р°Р±Р»РёС†С‹,
+		// РЅРѕ РЅРµ СЃРјРµС€РёРІР°С‚СЊ.
+		// РќР°РїСЂРёРјРµСЂ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ //
 		// SELECT/*+INDEX_DESC(Reference2 idxReference2Key0)*/ t.*, t.ROWID FROM Reference2 t WHERE ObjType<=6 AND (ObjID<0 OR (ObjType<>6 ))
-		// работать будет не по hint'у поскольку в хинте указано наименование таблицы, а в списке
-		// полей - алиас.
+		// СЂР°Р±РѕС‚Р°С‚СЊ Р±СѓРґРµС‚ РЅРµ РїРѕ hint'Сѓ РїРѕСЃРєРѕР»СЊРєСѓ РІ С…РёРЅС‚Рµ СѓРєР°Р·Р°РЅРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С‚Р°Р±Р»РёС†С‹, Р° РІ СЃРїРёСЃРєРµ
+		// РїРѕР»РµР№ - Р°Р»РёР°СЃ.
 		//
 
 		//
-		// Алиас нужен в том случае, если кроме списка полей необходимо достать rowid
-		// (for update и так возвращает rowid, то есть явно его указывать в этом случае не надо).
+		// РђР»РёР°СЃ РЅСѓР¶РµРЅ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РєСЂРѕРјРµ СЃРїРёСЃРєР° РїРѕР»РµР№ РЅРµРѕР±С…РѕРґРёРјРѕ РґРѕСЃС‚Р°С‚СЊ rowid
+		// (for update Рё С‚Р°Рє РІРѕР·РІСЂР°С‰Р°РµС‚ rowid, С‚Рѕ РµСЃС‚СЊ СЏРІРЅРѕ РµРіРѕ СѓРєР°Р·С‹РІР°С‚СЊ РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РЅРµ РЅР°РґРѕ).
 		//
 		const char * p_alias = (sf & DBTable::sfForUpdate) ? 0 : "t";
 		SString temp_buf;
@@ -1823,7 +1824,7 @@ int SLAPI SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey,
 			for(int i = 0; i < ns; i++) {
 				int fldid = key.getFieldID(i);
 				const BNField fld = pTbl->indexes.field(idx, i);
-				if(i > 0) { // НЕ первый сегмент
+				if(i > 0) { // РќР• РїРµСЂРІС‹Р№ СЃРµРіРјРµРЅС‚
 					SqlGen.Tok(Generator_SQL::tokAnd).Sp();
 					if(srchMode != spEq)
 						SqlGen.LPar();
@@ -1831,10 +1832,10 @@ int SLAPI SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey,
 
 				if(key.getFlags(i) & XIF_ACS) {
 					//
-					// Для ORACLE нечувствительность к регистру символов
-					// реализуется функциональным сегментом индекса nls_lower(fld).
-					// Аналогичная конструкция применяется при генерации скрипта создания индекса
-					// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
+					// Р”Р»СЏ ORACLE РЅРµС‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚СЊ Рє СЂРµРіРёСЃС‚СЂСѓ СЃРёРјРІРѕР»РѕРІ
+					// СЂРµР°Р»РёР·СѓРµС‚СЃСЏ С„СѓРЅРєС†РёРѕРЅР°Р»СЊРЅС‹Рј СЃРµРіРјРµРЅС‚РѕРј РёРЅРґРµРєСЃР° nls_lower(fld).
+					// РђРЅР°Р»РѕРіРёС‡РЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РїСЂРё РіРµРЅРµСЂР°С†РёРё СЃРєСЂРёРїС‚Р° СЃРѕР·РґР°РЅРёСЏ РёРЅРґРµРєСЃР°
+					// РЎРј. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
 					//
 					SqlGen.Func(Generator_SQL::tokNlsLower, fld.Name);
 				}
@@ -1858,11 +1859,11 @@ int SLAPI SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey,
 
 				if(i > 0 && srchMode != spEq) {
 					//
-					// При каскадном сравнении ключа второй и последующие сегменты
-					// должны удовлетворять условиям неравенства только при равенстве
-					// всех предыдущих сегментов.
+					// РџСЂРё РєР°СЃРєР°РґРЅРѕРј СЃСЂР°РІРЅРµРЅРёРё РєР»СЋС‡Р° РІС‚РѕСЂРѕР№ Рё РїРѕСЃР»РµРґСѓСЋС‰РёРµ СЃРµРіРјРµРЅС‚С‹
+					// РґРѕР»Р¶РЅС‹ СѓРґРѕРІР»РµС‚РІРѕСЂСЏС‚СЊ СѓСЃР»РѕРІРёСЏРј РЅРµСЂР°РІРµРЅСЃС‚РІР° С‚РѕР»СЊРєРѕ РїСЂРё СЂР°РІРµРЅСЃС‚РІРµ
+					// РІСЃРµС… РїСЂРµРґС‹РґСѓС‰РёС… СЃРµРіРјРµРЅС‚РѕРІ.
 					//
-					// Пример:
+					// РџСЂРёРјРµСЂ:
 					//
 					// index {X, Y, Z}
 					// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
@@ -1994,7 +1995,7 @@ int SLAPI SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pK
 	SqlGen.RPar();
 	SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
 	//
-	// temp_buf будет содержать список переменных, в которые должны заносится возвращаемые значения //
+	// temp_buf Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ СЃРїРёСЃРѕРє РїРµСЂРµРјРµРЅРЅС‹С…, РІ РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ Р·Р°РЅРѕСЃРёС‚СЃСЏ РІРѕР·РІСЂР°С‰Р°РµРјС‹Рµ Р·РЅР°С‡РµРЅРёСЏ //
 	//
 	let_buf.NumberToLat(subst_no++);
 	temp_buf.Z().CatChar(':').Cat(let_buf);
@@ -2020,10 +2021,10 @@ int SLAPI SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pK
 		THROW(stmt.GetOutData(0));
 		if(do_process_lob) {
 			//
-			// Если в записи были не пустые значения LOB-полей, то придется перечитать
-			// вставленную запись и изменить значения LOB-полей.
+			// Р•СЃР»Рё РІ Р·Р°РїРёСЃРё Р±С‹Р»Рё РЅРµ РїСѓСЃС‚С‹Рµ Р·РЅР°С‡РµРЅРёСЏ LOB-РїРѕР»РµР№, С‚Рѕ РїСЂРёРґРµС‚СЃСЏ РїРµСЂРµС‡РёС‚Р°С‚СЊ
+			// РІСЃС‚Р°РІР»РµРЅРЅСѓСЋ Р·Р°РїРёСЃСЊ Рё РёР·РјРµРЅРёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ LOB-РїРѕР»РµР№.
 			//
-			// @todo Надо обновлять только LOB-поля, а не всю запись.
+			// @todo РќР°РґРѕ РѕР±РЅРѕРІР»СЏС‚СЊ С‚РѕР»СЊРєРѕ LOB-РїРѕР»СЏ, Р° РЅРµ РІСЃСЋ Р·Р°РїРёСЃСЊ.
 			//
 			DBRowId row_id = *pTbl->getCurRowIdPtr();
 			THROW(Implement_Search(pTbl, -1, &row_id, spEq, DBTable::sfDirect | DBTable::sfForUpdate));
@@ -2115,8 +2116,8 @@ int SLAPI SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 {
 	int    ok = -1;
 	//
-	// Чтобы не затирать содержимое внутреннего буфера таблицы pBei->P_Tbl распределяем
-	// временный буфер rec_buf.
+	// Р§С‚РѕР±С‹ РЅРµ Р·Р°С‚РёСЂР°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ Р±СѓС„РµСЂР° С‚Р°Р±Р»РёС†С‹ pBei->P_Tbl СЂР°СЃРїСЂРµРґРµР»СЏРµРј
+	// РІСЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ rec_buf.
 	//
 	SBaseBuffer rec_buf;
 	rec_buf.Init();

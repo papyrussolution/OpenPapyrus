@@ -496,8 +496,8 @@ METHODDEF(int) consume_markers(j_decompress_ptr cinfo)
 				    }
 				    inputctl->inheaders = 0;
 				    /* Note: start_input_pass must be called by jdmaster.c
-				     * before any more input can be consumed.  jdapimin.c is
-				     * responsible for enforcing this sequencing.
+				 * before any more input can be consumed.  jdapimin.c is
+				 * responsible for enforcing this sequencing.
 				     */
 			    }
 			    else { /* 2nd or later SOS marker */
@@ -516,7 +516,7 @@ METHODDEF(int) consume_markers(j_decompress_ptr cinfo)
 			    }
 			    else {
 				    /* Prevent infinite loop in coef ctlr's decompress_data routine
-				     * if user set output_scan_number larger than number of scans.
+				 * if user set output_scan_number larger than number of scans.
 				     */
 				    if(cinfo->output_scan_number > cinfo->input_scan_number)
 					    cinfo->output_scan_number = cinfo->input_scan_number;

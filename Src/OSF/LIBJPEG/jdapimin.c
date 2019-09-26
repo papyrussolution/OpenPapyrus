@@ -225,8 +225,8 @@ GLOBAL(int) jpeg_read_header(j_decompress_ptr cinfo, boolean require_image)
 		    if(require_image) /* Complain if application wanted an image */
 			    ERREXIT(cinfo, JERR_NO_IMAGE);
 		    /* Reset to start state; it would be safer to require the application to
-		     * call jpeg_abort, but we can't change it now for compatibility reasons.
-		     * A side effect is to free any temporary memory (there shouldn't be any).
+		 * call jpeg_abort, but we can't change it now for compatibility reasons.
+		 * A side effect is to free any temporary memory (there shouldn't be any).
 		     */
 		    jpeg_abort(reinterpret_cast<j_common_ptr>(cinfo)); /* sets state = DSTATE_START */
 		    retcode = JPEG_HEADER_TABLES_ONLY;

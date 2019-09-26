@@ -577,7 +577,7 @@ static CTX_PTR CreateSuccessors(CPpmd8 * p, Bool skip, CPpmd_State * s1, CTX_PTR
 		ps[numPs++] = s;
 	}
 
-	upState.Symbol = *(const Byte*)Ppmd8_GetPtr(p, upBranch);
+	upState.Symbol = *(const Byte *)Ppmd8_GetPtr(p, upBranch);
 	SetSuccessor(&upState, upBranch + 1);
 	flags = (Byte)(0x10 * (p->FoundState->Symbol >= 0x40) + 0x08 * (upState.Symbol >= 0x40));
 

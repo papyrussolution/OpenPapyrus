@@ -1698,7 +1698,7 @@ static cairo_status_t _cairo_ps_surface_acquire_source_surface_from_pattern(cair
 			if(_cairo_surface_is_snapshot(surf))
 				surf = _cairo_surface_snapshot_get_target(surf);
 			if(surf->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
-				cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t*)surf;
+				cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)surf;
 				*src_surface_extents = sub->extents;
 				*src_surface_bounded = TRUE;
 				*x_offset = -sub->extents.x;
@@ -3320,7 +3320,7 @@ static cairo_int_status_t _cairo_ps_surface_emit_surface(cairo_ps_surface_t * su
 	if(params->src_surface->type == CAIRO_SURFACE_TYPE_RECORDING) {
 		params->is_image = FALSE;
 		if(params->src_surface->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
-			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t*)params->src_surface;
+			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)params->src_surface;
 			status = _cairo_ps_surface_emit_recording_surface(surface,
 				sub->target,
 				&sub->extents,

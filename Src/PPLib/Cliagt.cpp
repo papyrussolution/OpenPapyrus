@@ -818,7 +818,7 @@ int SLAPI PPObjArticle::DefaultClientAgreement()
 //
 SLAPI PPSupplAgreement::ExchangeParam::ExchangeParam()
 {
-	Clear();
+	Z();
 }
 
 int FASTCALL PPSupplAgreement::ExchangeParam::Copy(const PPSupplAgreement::ExchangeParam & rS)
@@ -890,7 +890,7 @@ struct PPSupplExchangeCfg { // @persistent @store(PropertyTbl)
 
 PPSupplAgreement::ExchangeParam & FASTCALL PPSupplAgreement::ExchangeParam::operator = (const PPSupplExchangeCfg & rS)
 {
-	Clear();
+	Z();
 	LastDt = rS.LastDt;
 	GoodsGrpID = rS.GGrpID;
 	ExpendOp = rS.ExpendOp;
@@ -910,7 +910,7 @@ PPSupplAgreement::ExchangeParam & FASTCALL PPSupplAgreement::ExchangeParam::oper
 	return *this;
 }
 
-PPSupplAgreement::ExchangeParam & SLAPI PPSupplAgreement::ExchangeParam::Clear()
+PPSupplAgreement::ExchangeParam & SLAPI PPSupplAgreement::ExchangeParam::Z()
 {
 	LastDt = ZERODATE;
 	GoodsGrpID = 0;
@@ -922,7 +922,7 @@ PPSupplAgreement::ExchangeParam & SLAPI PPSupplAgreement::ExchangeParam::Clear()
 	MovOutOp = 0;
 	PriceQuotID = 0;
 	ProtVer = 0;
-	ConnAddr.Clear();
+	ConnAddr.Z();
 	ExtString.Z();
 	MEMSZERO(Fb);
 	DebtDimList.Set(0); // @v9.1.3
@@ -1064,7 +1064,7 @@ int SLAPI PPSupplAgreement::OrderParamEntry::Serialize(int dir, SBuffer & rBuf, 
 
 SLAPI PPSupplAgreement::PPSupplAgreement()
 {
-	Clear();
+	Z();
 }
 
 int FASTCALL PPSupplAgreement::IsEqual(const PPSupplAgreement & rS) const
@@ -1107,10 +1107,10 @@ int FASTCALL PPSupplAgreement::IsEqual(const PPSupplAgreement & rS) const
 	return 1;
 }
 
-PPSupplAgreement & PPSupplAgreement::Clear()
+PPSupplAgreement & SLAPI PPSupplAgreement::Z()
 {
 	memzero(this, offsetof(PPSupplAgreement, Ep));
-	Ep.Clear();
+	Ep.Z();
 	OrderParamList.clear();
 	return *this;
 }
@@ -1276,7 +1276,7 @@ int FASTCALL PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, i
 {
 	int    ok = -1;
 	if(pAgt) {
-		pAgt->Clear();
+		pAgt->Z();
 		int    r = 0;
 		SBuffer _buf;
 		Reference * p_ref = PPRef;
@@ -1606,7 +1606,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 		int    setDTS(const PPSupplAgreement::ExchangeParam * pData)
 		{
 			if(!RVALUEPTR(Data, pData))
-				Data.Clear();
+				Data.Z();
 			{
 				PPOprKind op_kind;
 				PPIDArray op_list_exp;
@@ -1781,7 +1781,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			PPOprKind op_kind;
 			PPIDArray op_list;
 			if(!RVALUEPTR(Data, pData))
-				Data.Clear();
+				Data.Z();
 			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_GGRP,  PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
 			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_STYLO, PPOBJ_STYLOPALM,  Data.Fb.StyloPalmID, OLW_CANSELUPLEVEL, 0); // @v9.5.5
 			MEMSZERO(op_kind);

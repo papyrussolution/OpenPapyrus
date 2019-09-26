@@ -444,8 +444,8 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 				    }
 			    }
 			    /*
-			     * _libssh2_debug will actually truncate this for us so
-			     * that it's not an inordinate about of data
+			 * _libssh2_debug will actually truncate this for us so
+			 * that it's not an inordinate about of data
 			     */
 			    _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Debug Packet: %s", message);
 			    LIBSSH2_FREE(session, data);
@@ -543,21 +543,21 @@ libssh2_packet_add_jump_point1:
 				    return 0;
 			    }
 			    /*
-			     * REMEMBER! remote means remote as source of data,
-			     * NOT remote window!
+			 * REMEMBER! remote means remote as source of data,
+			 * NOT remote window!
 			     */
 			    if(channelp->remote.packet_size < (datalen - data_head)) {
 				    /*
-				     * Spec says we MAY ignore bytes sent beyond
-				     * packet_size
+				 * Spec says we MAY ignore bytes sent beyond
+				 * packet_size
 				     */
 				    _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED, "Packet contains more data than we offered to receive, truncating");
 				    datalen = channelp->remote.packet_size + data_head;
 			    }
 			    if(channelp->remote.window_size <= channelp->read_avail) {
 				    /*
-				     * Spec says we MAY ignore bytes sent beyond
-				     * window_size
+				 * Spec says we MAY ignore bytes sent beyond
+				 * window_size
 				     */
 				    _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED, "The current receive window is full, data ignored");
 				    LIBSSH2_FREE(session, data);
@@ -574,8 +574,8 @@ libssh2_packet_add_jump_point1:
 				    channelp->read_avail + data_head;
 			    }
 			    /* Update the read_avail counter. The window size will be
-			     * updated once the data is actually read from the queue
-			     * from an upper layer */
+			 * updated once the data is actually read from the queue
+			 * from an upper layer */
 			    channelp->read_avail += datalen - data_head;
 			    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "increasing read_avail by %lu bytes to %lu/%lu",
 					(long)(datalen - data_head), (long)channelp->read_avail, (long)channelp->remote.window_size);

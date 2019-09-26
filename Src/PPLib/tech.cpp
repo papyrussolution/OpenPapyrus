@@ -1258,25 +1258,7 @@ int SLAPI PPObjTech::SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rB
 }
 
 int  SLAPI PPObjTech::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPTechPacket * p_pack = new PPTechPacket;
-	THROW_MEM(p_pack);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	p->Data = p_pack;
-	CATCH
-		ok = 0;
-		delete p_pack;
-	ENDCATCH
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjTech, PPTechPacket>(this, p, id, stream, pCtx); }
 
 int  SLAPI PPObjTech::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
@@ -1609,7 +1591,7 @@ void * SLAPI PPViewTech::GetEditExtraParam()
 DBQuery * SLAPI PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = (Filt.Kind == 1) ? BROWSER_TECHTOOLING : BROWSER_TECH;
-	TechTbl      * p_tect = 0;
+	TechTbl * p_tect = 0;
 	ReferenceTbl * p_reft = 0;
 	DBQuery * q  = 0;
 	DBQ  * dbq = 0;

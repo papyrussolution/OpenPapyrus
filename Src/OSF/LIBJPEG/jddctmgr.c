@@ -271,7 +271,7 @@ METHODDEF(void) start_pass(j_decompress_ptr cinfo)
 			case JDCT_ISLOW:
 		    {
 			    /* For LL&M IDCT method, multipliers are equal to raw quantization
-			     * coefficients, but are stored as ints to ensure access efficiency.
+			 * coefficients, but are stored as ints to ensure access efficiency.
 			     */
 			    ISLOW_MULT_TYPE * ismtbl = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 			    for(i = 0; i < DCTSIZE2; i++) {
@@ -284,11 +284,11 @@ METHODDEF(void) start_pass(j_decompress_ptr cinfo)
 			case JDCT_IFAST:
 		    {
 			    /* For AA&N IDCT method, multipliers are equal to quantization
-			     * coefficients scaled by scalefactor[row]*scalefactor[col], where
-			     * scalefactor[0] = 1
-			     * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
-			     * For integer operation, the multiplier table is to be scaled by
-			     * IFAST_SCALE_BITS.
+			 * coefficients scaled by scalefactor[row]*scalefactor[col], where
+			 * scalefactor[0] = 1
+			 * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
+			 * For integer operation, the multiplier table is to be scaled by
+			 * IFAST_SCALE_BITS.
 			     */
 			    IFAST_MULT_TYPE * ifmtbl = (IFAST_MULT_TYPE*)compptr->dct_table;
 #define CONST_BITS 14
@@ -318,10 +318,10 @@ METHODDEF(void) start_pass(j_decompress_ptr cinfo)
 			case JDCT_FLOAT:
 		    {
 			    /* For float AA&N IDCT method, multipliers are equal to quantization
-			     * coefficients scaled by scalefactor[row]*scalefactor[col], where
-			     * scalefactor[0] = 1
-			     * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
-			     * We apply a further scale factor of 1/8.
+			 * coefficients scaled by scalefactor[row]*scalefactor[col], where
+			 * scalefactor[0] = 1
+			 * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
+			 * We apply a further scale factor of 1/8.
 			     */
 			    FLOAT_MULT_TYPE * fmtbl = (FLOAT_MULT_TYPE*)compptr->dct_table;
 			    int row, col;

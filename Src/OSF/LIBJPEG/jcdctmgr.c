@@ -355,7 +355,7 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 #ifdef PROVIDE_ISLOW_TABLES
 			case JDCT_ISLOW:
 			    /* For LL&M IDCT method, divisors are equal to raw quantization
-			     * coefficients multiplied by 8 (to counteract scaling).
+			 * coefficients multiplied by 8 (to counteract scaling).
 			     */
 			    dtbl = (DCTELEM*)compptr->dct_table;
 			    for(i = 0; i < DCTSIZE2; i++) {
@@ -368,10 +368,10 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 			case JDCT_IFAST:
 		    {
 			    /* For AA&N IDCT method, divisors are equal to quantization
-			     * coefficients scaled by scalefactor[row]*scalefactor[col], where
-			     * scalefactor[0] = 1
-			     * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
-			     * We apply a further scale factor of 8.
+			 * coefficients scaled by scalefactor[row]*scalefactor[col], where
+			 * scalefactor[0] = 1
+			 * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
+			 * We apply a further scale factor of 8.
 			     */
 #define CONST_BITS 14
 			    static const int16 aanscales[DCTSIZE2] = {
@@ -399,12 +399,12 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 			case JDCT_FLOAT:
 		    {
 			    /* For float AA&N IDCT method, divisors are equal to quantization
-			     * coefficients scaled by scalefactor[row]*scalefactor[col], where
-			     * scalefactor[0] = 1
-			     * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
-			     * We apply a further scale factor of 8.
-			     * What's actually stored is 1/divisor so that the inner loop can
-			     * use a multiplication rather than a division.
+			 * coefficients scaled by scalefactor[row]*scalefactor[col], where
+			 * scalefactor[0] = 1
+			 * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
+			 * We apply a further scale factor of 8.
+			 * What's actually stored is 1/divisor so that the inner loop can
+			 * use a multiplication rather than a division.
 			     */
 			    FAST_FLOAT * fdtbl = (FAST_FLOAT*)compptr->dct_table;
 			    int row, col;

@@ -143,20 +143,20 @@ extern "C" {
 #define ENGINE_CTRL_SET_LOGSTREAM               1
 #define ENGINE_CTRL_SET_PASSWORD_CALLBACK       2
 #define ENGINE_CTRL_HUP                         3 /* Close and reinitialise
-	                                           * any handles/connections
-	                                           * etc. */
+	 * any handles/connections
+	 * etc. */
 #define ENGINE_CTRL_SET_USER_INTERFACE          4 /* Alternative to callback */
 #define ENGINE_CTRL_SET_CALLBACK_DATA           5 /* User-specific data, used
-	                                           * when calling the password
-	                                           * callback and the user
-	                                           * interface */
+	 * when calling the password
+	 * callback and the user
+	 * interface */
 #define ENGINE_CTRL_LOAD_CONFIGURATION          6 /* Load a configuration,
-	                                           * given a string that
-	                                           * represents a file name
-	                                           * or so */
+	 * given a string that
+	 * represents a file name
+	 * or so */
 #define ENGINE_CTRL_LOAD_SECTION                7 /* Load data from a given
-	                                          * section in the already
-	                                          * loaded configuration */
+	 * section in the already
+	 * loaded configuration */
 
 /*
  * These control commands allow an application to deal with an arbitrary

@@ -250,206 +250,333 @@ int SLAPI CreateByExample(const char * pPath)
 	return ok;
 }
 
+struct MakeDatabaseParam {
+	MakeDatabaseParam() : How(howBySample), AutoPosNodeHostID(0)
+	{
+	}
+	enum {
+		howBySample    = 1,
+		howEmpty       = 2,
+		howAutoPosNode = 3
+	};
+	long   How;
+	PPID   AutoPosNodeHostID;
+	SString DbName;
+	SString DbSymb;
+	SString Path;
+};
+
+#define FBB_GROUP1 1
+
+class MakeDatabaseParamDialog : public TDialog {
+public:
+	MakeDatabaseParamDialog() : TDialog(DLG_MAKENEWDB)
+	{
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_MAKENEWDB_PATH, CTL_MAKENEWDB_PATH, FBB_GROUP1, PPTXT_SELNEWBASEDIR, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
+	}
+	int    setDTS(const MakeDatabaseParam * pData)
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		AddClusterAssocDef(CTL_MAKENEWDB_TYPE, 0, Data.howBySample);
+		AddClusterAssoc(CTL_MAKENEWDB_TYPE, 1, Data.howEmpty);
+		AddClusterAssoc(CTL_MAKENEWDB_TYPE, 2, Data.howAutoPosNode);
+		SetClusterData(CTL_MAKENEWDB_TYPE, Data.How);
+		setCtrlString(CTL_MAKENEWDB_NAME, Data.DbName);
+		setCtrlString(CTL_MAKENEWDB_SYMBOL, Data.DbSymb);
+		{
+			PPObjCashNode::SelFilt filt;
+			filt.OnlyGroups = -1;
+			filt.SyncGroup = 2; // async only 
+			SetupPPObjCombo(this, CTLSEL_MAKENEWDB_POSHOST, PPOBJ_CASHNODE, Data.AutoPosNodeHostID, 0, &filt);
+		}
+		disableCtrl(CTLSEL_MAKENEWDB_POSHOST, Data.How != Data.howAutoPosNode);
+		return ok;
+	}
+	int    getDTS(MakeDatabaseParam * pData)
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GetClusterData(CTL_MAKENEWDB_TYPE, &Data.How);
+		getCtrlString(sel = CTL_MAKENEWDB_NAME, Data.DbName);
+		THROW_PP(Data.DbName.NotEmptyS(), PPERR_USERINPUT);
+		getCtrlString(sel = CTL_MAKENEWDB_SYMBOL, Data.DbSymb);
+		THROW_PP(Data.DbSymb.NotEmptyS(), PPERR_USERINPUT);
+		getCtrlString(CTL_MAKENEWDB_PATH, Data.Path);
+		THROW_PP(Data.Path.NotEmptyS(), PPERR_USERINPUT);
+		getCtrlData(CTLSEL_MAKENEWDB_POSHOST, &Data.AutoPosNodeHostID);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_MAKENEWDB_TYPE)) {
+			GetClusterData(CTL_MAKENEWDB_TYPE, &Data.How);
+			disableCtrl(CTLSEL_MAKENEWDB_POSHOST, Data.How != Data.howAutoPosNode);
+			clearEvent(event);
+		}
+	}
+	MakeDatabaseParam Data;
+};
+
 int SLAPI MakeDatabase()
 {
-	#define FBB_GROUP1 1
-	int    ok = -1, valid_data = 0;
-	TDialog * dlg = new TDialog(DLG_MAKENEWDB);
+	int    ok = -1;
 	PPIniFile ini_file;
-	PPID   dbid = 0;
-	SString dbname, dbentry, dbpath;
+	MakeDatabaseParam param;
 	PPDbEntrySet2 dbes;
-	THROW(CheckDialogPtr(&dlg));
-	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_MAKENEWDB_PATH, CTL_MAKENEWDB_PATH, FBB_GROUP1, PPTXT_SELNEWBASEDIR, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
 	dbes.ReadFromProfile(&ini_file);
 	{
 		SString temp_buf;
 		const char * p_pattern = "new-database";
 		long    _uc = 0;
-		dbname = p_pattern;
-		dbentry = p_pattern;
+		param.DbName = p_pattern;
+		param.DbSymb = p_pattern;
 		int    found = 0;
 		DbLoginBlock dblb;
 		do {
 			if(found) {
 				_uc++;
-				(dbname = p_pattern).CatChar('-').Cat(_uc);
-				(dbentry = p_pattern).CatChar('-').Cat(_uc);
+				(param.DbName = p_pattern).CatChar('-').Cat(_uc);
+				(param.DbSymb = p_pattern).CatChar('-').Cat(_uc);
 				found = 0;
 			}
 			for(uint i = 0; !found && i < dbes.GetCount(); i++) {
 				if(dbes.GetByPos(i, &dblb)) {
 					dblb.GetAttr(dblb.attrDbSymb, temp_buf);
-					if(temp_buf.CmpNC(dbentry) == 0)
+					if(temp_buf.CmpNC(param.DbSymb) == 0)
 						found = 1;
 					else {
 						dblb.GetAttr(dblb.attrDbName, temp_buf);
-						if(temp_buf.CmpNC(dbname) == 0)
+						if(temp_buf.CmpNC(param.DbName) == 0)
 							found = 1;
 					}
 				}
 			}
 		} while(found);
 	}
-	dlg->setCtrlString(CTL_MAKENEWDB_NAME, dbname);
-	dlg->setCtrlString(CTL_MAKENEWDB_SYMBOL, dbentry);
-	while(!valid_data && ExecView(dlg) == cmOK) {
-		dlg->getCtrlData(CTL_MAKENEWDB_TYPE, &dbid);
-		dlg->getCtrlString(CTL_MAKENEWDB_NAME, dbname);
-		dbname.Strip();
-		dlg->getCtrlString(CTL_MAKENEWDB_SYMBOL, dbentry);
-		dbentry.Strip();
-		dlg->getCtrlString(CTL_MAKENEWDB_PATH, dbpath);
-		if((dbname.Empty() && dbentry.Empty()) || dbpath.Empty())
-			PPMessage(mfInfo | mfCancel, PPINF_EMPTYFIELD);
-		else {
-			dbname.SetIfEmpty(dbentry);
-			dbentry.SetIfEmpty(dbname);
-			PPID   i;
-			SString n, pn;
-			for(i = 0; i < static_cast<int>(dbes.GetCount()); i++) {
-				DbLoginBlock blk;
-				dbes.GetByPos(i, &blk);
-				blk.GetAttr(DbLoginBlock::attrDbSymb, n);
-				blk.GetAttr(DbLoginBlock::attrDbFriendlyName, pn);
-				pn.SetIfEmpty(n);
-				if(pn.NotEmptyS())
-					if(pn.CmpNC(dbname) == 0) {
-						PPMessage(mfInfo|mfCancel, PPINF_BDEXISTNAME);
-						i = -1;
-						break;
-					}
-					else if(n.CmpNC(dbentry) == 0) {
-						PPMessage(mfInfo|mfCancel, PPINF_BDSYMBOLEXIST);
-						i = -1;
-						break;
-					}
+	if(PPDialogProcBody <MakeDatabaseParamDialog, MakeDatabaseParam>(&param) > 0) {
+		param.DbName.SetIfEmpty(param.DbSymb);
+		param.DbSymb.SetIfEmpty(param.DbName);
+		PPID   i;
+		SString n, pn;
+		for(i = 0; i < static_cast<int>(dbes.GetCount()); i++) {
+			DbLoginBlock blk;
+			dbes.GetByPos(i, &blk);
+			blk.GetAttr(DbLoginBlock::attrDbSymb, n);
+			blk.GetAttr(DbLoginBlock::attrDbFriendlyName, pn);
+			pn.SetIfEmpty(n);
+			if(pn.NotEmptyS())
+				if(pn.CmpNC(param.DbName) == 0) {
+					PPMessage(mfInfo|mfCancel, PPINF_BDEXISTNAME);
+					i = -1;
+					break;
+				}
+				else if(n.CmpNC(param.DbSymb) == 0) {
+					PPMessage(mfInfo|mfCancel, PPINF_BDSYMBOLEXIST);
+					i = -1;
+					break;
+				}
+		}
+		if(i >= 0) {
+			i = 1;
+			SPathStruc ps(param.Path.SetLastSlash());
+			if(!(ps.Flags & SPathStruc::fDrv && ps.Flags & SPathStruc::fDir)) {
+				PPMessage(mfInfo | mfCancel, PPINF_NEEDFULLPATH, param.Path);
+				i = 0;
 			}
-			if(i >= 0) {
+			else if(IsDirectory(param.Path)) {
+				//
+				// Проверка на то, что бы каталог назначения был пустым
+				//
+				SString src_file;
+				SDirEntry sd_entry;
 				i = 1;
-				SPathStruc ps(dbpath.SetLastSlash());
-				if(!(ps.Flags & SPathStruc::fDrv && ps.Flags & SPathStruc::fDir)) {
-					PPMessage(mfInfo | mfCancel, PPINF_NEEDFULLPATH, dbpath);
-					i = 0;
-				}
-				else if(IsDirectory(dbpath)) {
-					//
-					// Проверка на то, что бы каталог назначения был пустым
-					//
-					SString src_file;
-					SDirEntry sd_entry;
-					i = 1;
-					(src_file = dbpath).SetLastSlash().Cat("*.*");
-					for(SDirec sd(src_file); sd.Next(&sd_entry) > 0;) {
-						if(sd_entry.IsFile()) {
-							PPMessage(mfInfo | mfCancel, PPINF_DIRNOTEMPTY, dbpath);
-							i = 0;
-							break;
-						}
+				(src_file = param.Path).SetLastSlash().Cat("*.*");
+				for(SDirec sd(src_file); sd.Next(&sd_entry) > 0;) {
+					if(sd_entry.IsFile()) {
+						PPMessage(mfInfo | mfCancel, PPINF_DIRNOTEMPTY, param.Path);
+						i = 0;
+						break;
 					}
-					if(i)
-						i = (PPMessage(mfConf | mfYesNo, PPCFM_EXISTDIR, dbpath) == cmYes);
 				}
-				else if(!createDir(dbpath)) {
-					i = 0;
-					PPError(PPERR_SLIB, dbpath);
-					// PPMessage(mfInfo | mfCancel, PPINF_CANTMKDIR);
-				}
-				if(i) {
-					if(dbid == 0) {
-						valid_data = CreateByExample(dbpath);
-						if(valid_data > 0) {
-							dbname.Comma().Cat(dbpath.RmvLastSlash());
-							ini_file.AppendParam("dbname", dbentry, dbname, 1);
-							ok = 1;
-						}
-					}
-					else {
-						//valid_data = CreateEmpty(dbpath);
-						//int SLAPI CreateEmpty(const char * pPath)
+				if(i)
+					i = (PPMessage(mfConf | mfYesNo, PPCFM_EXISTDIR, param.Path) == cmYes);
+			}
+			else if(!createDir(param.Path)) {
+				i = 0;
+				PPError(PPERR_SLIB, param.Path);
+				// PPMessage(mfInfo | mfCancel, PPINF_CANTMKDIR);
+			}
+			if(i) {
+				class PPCreateDatabaseSession : public PPThread {
+				public:
+					struct Param {
+						Param() : Action(acnNone)
 						{
-							class PPCreateDatabaseSession : public PPThread {
-							public:
-								explicit SLAPI PPCreateDatabaseSession(const char * pDbSymb) : PPThread(PPThread::kUnknown, 0, 0), DbSymb(pDbSymb)
-								{
-									InitStartupSignal();
-								}
-							private:
-								void SLAPI Startup()
-								{
-									PPThread::Startup();
-									SignalStartup();
-								}
-								virtual void Run()
-								{
-									char    secret[256];
-									PPVersionInfo vi = DS.GetVersionInfo();
-									THROW(vi.GetSecret(secret, sizeof(secret)));
-									THROW(DS.Login(DbSymb, PPSession::P_EmptyBaseCreationLogin, secret));
-									DS.Logout();
-									CATCH
-										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-									ENDCATCH
-									memzero(secret, sizeof(secret));
-								}
-								SString DbSymb;
-							};
-
-							ok = 1;
-							SString empty_path;
-							SString pack_path;
-
-							PPWait(1);
-							//
-							// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
-							//
-							int64  disk_total = 0, disk_avail = 0;
-							SFileUtil::GetDiskSpace(dbpath, &disk_total, &disk_avail);
-							// *3/2 - коэффициент запаса
-							if((calcNeededSize(1) * 3 / 2) > disk_avail) {
-								DBErrCode = SDBERR_BU_NOFREESPACE;
-								CALLEXCEPT_PP(PPERR_DBLIB);
+						}
+						enum {
+							acnNone = 0,
+							acnCreatePosNode
+						};
+						int    Action;
+						S_GUID PosHostGuid;
+						S_GUID NewPosNodeGuid;
+						SString DbSymb;
+					};
+					explicit SLAPI PPCreateDatabaseSession(const Param & rParam) : PPThread(PPThread::kUnknown, 0, 0), P(rParam)
+					{
+						InitStartupSignal();
+					}
+				private:
+					void SLAPI Startup()
+					{
+						PPThread::Startup();
+						SignalStartup();
+					}
+					virtual void Run()
+					{
+						char    secret[256];
+						PPVersionInfo vi = DS.GetVersionInfo();
+						THROW(vi.GetSecret(secret, sizeof(secret)));
+						THROW(DS.Login(P.DbSymb, PPSession::P_EmptyBaseCreationLogin, secret));
+						if(P.Action == P.acnCreatePosNode) {
+							PPID   cn_id = 0;
+							PPObjCashNode cn_obj;
+							PPSyncCashNode cn_pack;
+							STRNSCPY(cn_pack.Name, "POS-node");
+							cn_pack.CashType = PPCMT_SYNCSYM;
+							cn_pack.Flags |= CASHF_SYNC;
+							if(!P.PosHostGuid.IsZero()) {
+								ObjTagItem tag_item;
+								if(tag_item.SetGuid(PPTAG_POSNODE_HOSTUUID, &P.PosHostGuid))
+									cn_pack.TagL.PutItem(PPTAG_POSNODE_HOSTUUID, &tag_item);
 							}
-							/*
+							if(!P.NewPosNodeGuid.IsZero()) {
+								ObjTagItem tag_item;
+								if(tag_item.SetGuid(PPTAG_POSNODE_UUID, &P.NewPosNodeGuid))
+									cn_pack.TagL.PutItem(PPTAG_POSNODE_UUID, &tag_item);
+							}
+							cn_obj.Put(&cn_id, &cn_pack, 1);
+						}
+						DS.Logout();
+						CATCH
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						ENDCATCH
+						memzero(secret, sizeof(secret));
+					}
+					Param  P;
+				};
+				SString empty_path;
+				SString pack_path;
+				if(param.How == param.howBySample) {
+					if(CreateByExample(param.Path) > 0) {
+						param.DbName.Comma().Cat(param.Path.RmvLastSlash());
+						ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1);
+						ok = 1;
+					}
+				}
+				else if(param.How == param.howEmpty) {
+					ok = 1;
+					PPWait(1);
+					//
+					// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
+					//
+					int64  disk_total = 0, disk_avail = 0;
+					SFileUtil::GetDiskSpace(param.Path, &disk_total, &disk_avail);
+					// *3/2 - коэффициент запаса
+					if((calcNeededSize(1) * 3 / 2) > disk_avail) {
+						DBErrCode = SDBERR_BU_NOFREESPACE;
+						CALLEXCEPT_PP(PPERR_DBLIB);
+					}
+					/*
+					{
+						SArchive arc;
+						PPGetFilePath(PPPATH_PACK, "empty.zip", pack_path);
+						if(fileExists(pack_path)) {
+							THROW_SL(arc.Open(SArchive::tZip, pack_path, SFile::mRead));
 							{
-								SArchive arc;
-								PPGetFilePath(PPPATH_PACK, "empty.zip", pack_path);
-								if(fileExists(pack_path)) {
-									THROW_SL(arc.Open(SArchive::tZip, pack_path, SFile::mRead));
-									{
-										const int64 c = arc.GetEntriesCount();
-										if(c > 0) {
-											(empty_path = dbpath).SetLastSlash();
-											for(int64 i = 0; i < c; i++) {
-												THROW(arc.ExtractEntry(i, empty_path));
-											}
-										}
+								const int64 c = arc.GetEntriesCount();
+								if(c > 0) {
+									(empty_path = dbpath).SetLastSlash();
+									for(int64 i = 0; i < c; i++) {
+										THROW(arc.ExtractEntry(i, empty_path));
 									}
-									arc.Close();
 								}
 							}
-							*/
-							dbname.Comma().Cat(dbpath.RmvLastSlash());
-							ini_file.AppendParam("dbname", dbentry, dbname, 1);
-							{
-								PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(dbentry);
-								p_sess->Start(1);
-							}
-							/*CATCH
-								if(PPErrCode == PPERR_USERBREAK) {
-									RemoveDir(dbpath);
-								}
-								valid_data = PPErrorZ();
-							ENDCATCH*/
-							PPWait(0);
+							arc.Close();
 						}
 					}
+					*/
+					param.DbName.Comma().Cat(param.Path.RmvLastSlash());
+					ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1);
+					{
+						PPCreateDatabaseSession::Param sess_param;
+						sess_param.DbSymb = param.DbSymb;
+						if(param.How == param.howAutoPosNode) {
+							PPRef->Ot.GetTagGuid(PPOBJ_CASHNODE, param.AutoPosNodeHostID, PPTAG_POSNODE_UUID, sess_param.PosHostGuid);
+							sess_param.NewPosNodeGuid.Generate();
+						}
+						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
+						p_sess->Start(1);
+					}
+					PPWait(0);
+				}
+				else if(param.How == param.howAutoPosNode) {
+					ok = 1;
+					PPWait(1);
+					//
+					// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
+					//
+					int64  disk_total = 0, disk_avail = 0;
+					SFileUtil::GetDiskSpace(param.Path, &disk_total, &disk_avail);
+					// *3/2 - коэффициент запаса
+					if((calcNeededSize(1) * 3 / 2) > disk_avail) {
+						DBErrCode = SDBERR_BU_NOFREESPACE;
+						CALLEXCEPT_PP(PPERR_DBLIB);
+					}
+					/*
+					{
+						SArchive arc;
+						PPGetFilePath(PPPATH_PACK, "empty.zip", pack_path);
+						if(fileExists(pack_path)) {
+							THROW_SL(arc.Open(SArchive::tZip, pack_path, SFile::mRead));
+							{
+								const int64 c = arc.GetEntriesCount();
+								if(c > 0) {
+									(empty_path = dbpath).SetLastSlash();
+									for(int64 i = 0; i < c; i++) {
+										THROW(arc.ExtractEntry(i, empty_path));
+									}
+								}
+							}
+							arc.Close();
+						}
+					}
+					*/
+					param.DbName.Comma().Cat(param.Path.RmvLastSlash());
+					ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1);
+					{
+						PPCreateDatabaseSession::Param sess_param;
+						sess_param.Action = sess_param.acnCreatePosNode;
+						sess_param.DbSymb = param.DbSymb;
+						if(param.How == param.howAutoPosNode) {
+							PPRef->Ot.GetTagGuid(PPOBJ_CASHNODE, param.AutoPosNodeHostID, PPTAG_POSNODE_UUID, sess_param.PosHostGuid);
+							sess_param.NewPosNodeGuid.Generate();
+						}
+						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
+						p_sess->Start(1);
+					}
+					PPWait(0);
 				}
 			}
 		}
 	}
 	CATCHZOKPPERR
-	delete dlg;
+	//delete dlg;
 	return ok;
-	#undef FBB_GROUP1
 }
+#undef FBB_GROUP1

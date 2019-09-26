@@ -509,40 +509,29 @@ static int dprintf_Pass1(const char * format, va_stack_t * vto, char ** endpos,
 			case FORMAT_INT:
 #ifdef HAVE_LONG_LONG_TYPE
 			    if((vto[i].flags & FLAGS_LONGLONG) && (vto[i].flags & FLAGS_UNSIGNED))
-				    vto[i].data.num.as_unsigned =
-				    (mp_uintmax_t)va_arg(arglist, mp_uintmax_t);
+				    vto[i].data.num.as_unsigned = (mp_uintmax_t)va_arg(arglist, mp_uintmax_t);
 			    else if(vto[i].flags & FLAGS_LONGLONG)
-				    vto[i].data.num.as_signed =
-				    (mp_intmax_t)va_arg(arglist, mp_intmax_t);
+				    vto[i].data.num.as_signed = (mp_intmax_t)va_arg(arglist, mp_intmax_t);
 			    else
 #endif
 			    {
-				    if((vto[i].flags & FLAGS_LONG) && (vto[i].flags & FLAGS_UNSIGNED))
-					    vto[i].data.num.as_unsigned =
-					    (mp_uintmax_t)va_arg(arglist, ulong);
+				    if((vto[i].flags & FLAGS_LONG) && (vto[i].flags & FLAGS_UNSIGNED)) 
+						vto[i].data.num.as_unsigned = (mp_uintmax_t)va_arg(arglist, ulong);
 				    else if(vto[i].flags & FLAGS_LONG)
-					    vto[i].data.num.as_signed =
-					    (mp_intmax_t)va_arg(arglist, long);
+					    vto[i].data.num.as_signed = (mp_intmax_t)va_arg(arglist, long);
 				    else if(vto[i].flags & FLAGS_UNSIGNED)
-					    vto[i].data.num.as_unsigned =
-					    (mp_uintmax_t)va_arg(arglist, uint);
+					    vto[i].data.num.as_unsigned = (mp_uintmax_t)va_arg(arglist, uint);
 				    else
-					    vto[i].data.num.as_signed =
-					    (mp_intmax_t)va_arg(arglist, int);
+					    vto[i].data.num.as_signed = (mp_intmax_t)va_arg(arglist, int);
 			    }
 			    break;
-
 			case FORMAT_DOUBLE:
 			    vto[i].data.dnum = va_arg(arglist, double);
 			    break;
-
 			case FORMAT_WIDTH:
-			    /* Argument has been read. Silently convert it into an integer
-			     * for later use
-			     */
+			    // Argument has been read. Silently convert it into an integer for later use
 			    vto[i].type = FORMAT_INT;
 			    break;
-
 			default:
 			    break;
 		}
@@ -1005,12 +994,10 @@ char * curl_mvaprintf(const char * format, va_list ap_save)
 {
 	int retcode;
 	struct asprintf info;
-
 	info.buffer = NULL;
 	info.len = 0;
 	info.alloc = 0;
 	info.fail = 0;
-
 	retcode = dprintf_formatf(&info, alloc_addbyter, format, ap_save);
 	if((-1 == retcode) || info.fail) {
 		if(info.alloc)
@@ -1050,7 +1037,6 @@ int curl_mprintf(const char * format, ...)
 	int retcode;
 	va_list ap_save; /* argument pointer */
 	va_start(ap_save, format);
-
 	retcode = dprintf_formatf(stdout, fputc, format, ap_save);
 	va_end(ap_save);
 	return retcode;
@@ -1068,8 +1054,7 @@ int curl_mfprintf(FILE * whereto, const char * format, ...)
 
 int curl_mvsprintf(char * buffer, const char * format, va_list ap_save)
 {
-	int retcode;
-	retcode = dprintf_formatf(&buffer, storebuffer, format, ap_save);
+	int retcode = dprintf_formatf(&buffer, storebuffer, format, ap_save);
 	*buffer = 0; /* we terminate this with a zero byte */
 	return retcode;
 }

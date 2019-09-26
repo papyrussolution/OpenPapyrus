@@ -294,9 +294,9 @@ window_adjust:
 			    rc = _libssh2_channel_read(channel, 0, (char *)&packet[sftp->partial_received], sftp->partial_len - sftp->partial_received);
 			    if(rc == LIBSSH2_ERROR_EAGAIN) {
 				    /*
-				     * We received EAGAIN, save what we have and return EAGAIN to
-				     * the caller. Set 'partial_packet' so that this function
-				     * knows how to continue on the next invoke.
+				 * We received EAGAIN, save what we have and return EAGAIN to
+				 * the caller. Set 'partial_packet' so that this function
+				 * knows how to continue on the next invoke.
 				     */
 				    sftp->packet_state = libssh2_NB_state_sent1;
 				    return rc;
@@ -1144,8 +1144,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 
 				    if(chunk->lefttosend) {
 					    /* We still have data left to send for this chunk.
-					     * If there is at least one completely sent chunk,
-					     * we can get out of this loop and start reading.  */
+					 * If there is at least one completely sent chunk,
+					 * we can get out of this loop and start reading.  */
 					    if(chunk != _libssh2_list_first(&handle->packet_list)) {
 						    break;
 					    }
@@ -1161,7 +1161,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 		case libssh2_NB_state_sent2:
 		    sftp->read_state = libssh2_NB_state_idle;
 		    /*
-		     * Count all ACKed packets and act on the contents of them.
+		 * Count all ACKed packets and act on the contents of them.
 		     */
 		    chunk = (struct sftp_pipeline_chunk *)_libssh2_list_first(&handle->packet_list);
 		    while(chunk) {
@@ -1190,7 +1190,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 
 			    if(rc==LIBSSH2_ERROR_EAGAIN && bytes_in_buffer != 0) {
 				    /* do not return EAGAIN if we have already
-				     * written data into the buffer */
+				 * written data into the buffer */
 				    return bytes_in_buffer;
 			    }
 
@@ -1200,8 +1200,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 			    }
 
 			    /*
-			     * We get DATA or STATUS back. STATUS can be error, or it is
-			     * FX_EOF when we reach the end of the file.
+			 * We get DATA or STATUS back. STATUS can be error, or it is
+			 * FX_EOF when we reach the end of the file.
 			     */
 
 			    switch(data[0]) {
@@ -1619,7 +1619,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char * buffer,
 		case libssh2_NB_state_sent:
 		    sftp->write_state = libssh2_NB_state_idle;
 		    /*
-		     * Count all ACKed packets
+		 * Count all ACKed packets
 		     */
 		    chunk = (struct sftp_pipeline_chunk *)_libssh2_list_first(&handle->packet_list);
 

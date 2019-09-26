@@ -1356,9 +1356,9 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 				    }
 				    else if((CURLE_SEND_ERROR == result) && data->easy_conn->bits.reuse) {
 					    /*
-					     * In this situation, a connection that we were trying to use
-					     * may have unexpectedly died.  If possible, send the connection
-					     * back to the CONNECT phase so we can try again.
+					 * In this situation, a connection that we were trying to use
+					 * may have unexpectedly died.  If possible, send the connection
+					 * back to the CONNECT phase so we can try again.
 					     */
 					    char * newurl = NULL;
 					    followtype follow = FOLLOW_NONE;
@@ -1430,7 +1430,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 			    break;
 			case CURLM_STATE_DO_MORE:
 			    /*
-			     * When we are connected, DO MORE and then go DO_DONE
+			 * When we are connected, DO MORE and then go DO_DONE
 			     */
 			    result = multi_do_more(data->easy_conn, &control);
 			    /* No need to remove this handle from the send pipeline here since that
@@ -1521,8 +1521,8 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 				    Curl_pipeline_leave_write(data->easy_conn);
 			    if(done || (result == CURLE_RECV_ERROR)) {
 				    /* If CURLE_RECV_ERROR happens early enough, we assume it was a race
-				     * condition and the server closed the re-used connection exactly when
-				     * we wanted to use it, so figure out if that is indeed the case.
+				 * condition and the server closed the re-used connection exactly when
+				 * we wanted to use it, so figure out if that is indeed the case.
 				     */
 				    CURLcode ret = Curl_retry_request(data->easy_conn, &newurl);
 				    if(!ret)
@@ -1535,11 +1535,11 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 			    }
 			    if(result) {
 				    /*
-				     * The transfer phase returned error, we mark the connection to get
-				     * closed to prevent being re-used. This is because we can't possibly
-				     * know if the connection is in a good shape or not now.  Unless it is
-				     * a protocol which uses two "channels" like FTP, as then the error
-				     * happened in the data connection.
+				 * The transfer phase returned error, we mark the connection to get
+				 * closed to prevent being re-used. This is because we can't possibly
+				 * know if the connection is in a good shape or not now.  Unless it is
+				 * a protocol which uses two "channels" like FTP, as then the error
+				 * happened in the data connection.
 				     */
 				    if(!(data->easy_conn->handler->flags & PROTOPT_DUAL) && result != CURLE_HTTP2_STREAM)
 					    streamclose(data->easy_conn, "Transfer returned error");
@@ -1618,10 +1618,10 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 				    /* allow a previously set error code take precedence */
 					SETIFZ(result, res);
 				    /*
-				     * If there are other handles on the pipeline, multi_done won't set
-				     * easy_conn to NULL.  In such a case, curl_multi_remove_handle() can
-				     * access free'd data, if the connection is free'd and the handle
-				     * removed before we perform the processing in CURLM_STATE_COMPLETED
+				 * If there are other handles on the pipeline, multi_done won't set
+				 * easy_conn to NULL.  In such a case, curl_multi_remove_handle() can
+				 * access free'd data, if the connection is free'd and the handle
+				 * removed before we perform the processing in CURLM_STATE_COMPLETED
 				     */
 					if(data->easy_conn)
 					    data->easy_conn = NULL;

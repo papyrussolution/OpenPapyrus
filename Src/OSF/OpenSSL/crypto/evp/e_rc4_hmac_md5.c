@@ -60,7 +60,7 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	EVP_RC4_HMAC_MD5 * key = data(ctx);
 # if defined(STITCHED_CALL)
 	size_t rc4_off = 32 - 1 - (key->ks.x & (32 - 1)), /* 32 is $MOD from
-	                                                   * rc4_md5-x86_64.pl */
+	     * rc4_md5-x86_64.pl */
 	    md5_off = MD5_CBLOCK - key->md.num, blocks;
 	uint l;
 	extern uint OPENSSL_ia32cap_P[];

@@ -627,7 +627,7 @@ namespace NArchive {
 					strUsed[index2] = 1;
 			#endif
 
-				const Byte * p = (const Byte*)(_data + _stringsPos);
+				const Byte * p = (const Byte *)(_data + _stringsPos);
 				int id = -1;
 				if(IsUnicode) {
 					p += offset * 2;
@@ -1111,7 +1111,7 @@ namespace NArchive {
 		uint32 CInArchive::GetNumUsedVars() const
 		{
 			uint32 numUsedVars = 0;
-			const Byte * data = (const Byte*)_data + _stringsPos;
+			const Byte * data = (const Byte *)_data + _stringsPos;
 			unsigned npi = 0;
 			for(uint32 i = 0; i < NumStringChars; ) {
 				bool process = true;
@@ -1503,7 +1503,7 @@ namespace NArchive {
 			if(IsUnicode)
 				return AreStringsEqual_16and8(_data + _stringsPos + offset * 2, s);
 			else
-				return strcmp((const char *)(const Byte*)_data + _stringsPos + offset, s) == 0;
+				return strcmp((const char *)(const Byte *)_data + _stringsPos + offset, s) == 0;
 		}
 
 		static bool StringToUInt32(const char * s, uint32 &res)
@@ -4874,9 +4874,9 @@ namespace NArchive {
 					NewLine();
 				}
 				if(IsUnicode)
-					i += GetUi16Str_Len((const Byte*)_data + _stringsPos + i * 2);
+					i += GetUi16Str_Len((const Byte *)_data + _stringsPos + i * 2);
 				else
-					i += (uint32)strlen((const char *)(const Byte*)_data + _stringsPos + i);
+					i += (uint32)strlen((const char *)(const Byte *)_data + _stringsPos + i);
 				i++;
 			}
 			CommentClose();
@@ -4995,7 +4995,7 @@ namespace NArchive {
 					RINOK(Decoder.Read(buf, &processedSize));
 					if(processedSize != 4)
 						return S_FALSE;
-					if(Get32((const Byte*)buf) != FirstHeader.HeaderSize)
+					if(Get32((const Byte *)buf) != FirstHeader.HeaderSize)
 						return S_FALSE;
 				}
 				size_t processedSize = FirstHeader.HeaderSize;
@@ -5316,7 +5316,7 @@ namespace NArchive {
 				const unsigned kPropsSize = LZMA_PROPS_SIZE;
 				Byte props[kPropsSize];
 				RINOK(ReadStream_FALSE(inStream, props, kPropsSize));
-				RINOK(_lzmaDecoder->SetDecoderProperties2((const Byte*)props, kPropsSize));
+				RINOK(_lzmaDecoder->SetDecoderProperties2((const Byte *)props, kPropsSize));
 			}
 			{
 				CMyComPtr<ICompressSetInStream> setInStream;
@@ -5879,7 +5879,7 @@ namespace NArchive {
 					const void * data;
 					size_t size;
 					if(index == (uint32)_archive.Items.Size()) {
-						data = (const Byte*)_archive.Script;
+						data = (const Byte *)_archive.Script;
 						size = _archive.Script.Len();
 					}
 					else {

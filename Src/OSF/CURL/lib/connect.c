@@ -246,7 +246,7 @@ static CURLcode bindlocal(struct connectdata * conn,
 				case IF2IP_FOUND:
 				    is_interface = TRUE;
 				    /*
-				     * We now have the numerical IP address in the 'myhost' buffer
+				 * We now have the numerical IP address in the 'myhost' buffer
 				     */
 				    infof(data, "Local Interface %s is ip %s using address family %i\n",
 				    dev, myhost, af);
@@ -254,15 +254,15 @@ static CURLcode bindlocal(struct connectdata * conn,
 
 #ifdef SO_BINDTODEVICE
 				    /* I am not sure any other OSs than Linux that provide this feature,
-				     * and at the least I cannot test. --Ben
+				 * and at the least I cannot test. --Ben
 				     *
-				     * This feature allows one to tightly bind the local socket to a
-				     * particular interface.  This will force even requests to other
-				     * local interfaces to go out the external interface.
+				 * This feature allows one to tightly bind the local socket to a
+				 * particular interface.  This will force even requests to other
+				 * local interfaces to go out the external interface.
 				     *
 				     *
-				     * Only bind to the interface when specified as interface, not just
-				     * as a hostname or ip address.
+				 * Only bind to the interface when specified as interface, not just
+				 * as a hostname or ip address.
 				     */
 				    if(setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE, dev, (curl_socklen_t)sstrlen(dev)+1) != 0) {
 					    error = SOCKERRNO;

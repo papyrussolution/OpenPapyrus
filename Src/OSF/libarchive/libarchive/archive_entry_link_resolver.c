@@ -173,8 +173,8 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res, struct archi
 		    le = find_entry(res, *e);
 		    if(le != NULL) {
 			    /*
-			     * Put the new entry in le, return the
-			     * old entry from le.
+			 * Put the new entry in le, return the
+			 * old entry from le.
 			     */
 			    t = *e;
 			    *e = le->entry;
@@ -184,7 +184,7 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res, struct archi
 			    archive_entry_copy_hardlink(*e,
 				archive_entry_pathname(le->canonical));
 			    /* If we ran out of links, return the
-			     * final entry as well. */
+			 * final entry as well. */
 			    if(le->links == 0) {
 				    *f = le->entry;
 				    le->entry = NULL;
@@ -192,8 +192,8 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res, struct archi
 		    }
 		    else {
 			    /*
-			     * If we haven't seen it, tuck it away
-			     * for future use.
+			 * If we haven't seen it, tuck it away
+			 * for future use.
 			     */
 			    le = insert_entry(res, *e);
 			    if(le == NULL)

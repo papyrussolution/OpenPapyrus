@@ -4530,14 +4530,14 @@ typedef struct ngx_stream_upstream_rr_peers_s ngx_stream_upstream_rr_peers_t;
 struct ngx_stream_upstream_rr_peers_s {
 	ngx_uint_t number;
 #if (NGX_STREAM_UPSTREAM_ZONE)
-	ngx_slab_pool_t                 * shpool;
+	ngx_slab_pool_t * shpool;
 	ngx_atomic_t rwlock;
 	ngx_stream_upstream_rr_peers_t  * zone_next;
 #endif
 	ngx_uint_t total_weight;
 	unsigned single : 1;
 	unsigned weighted : 1;
-	ngx_str_t                       * name;
+	ngx_str_t  * name;
 	ngx_stream_upstream_rr_peers_t  * next;
 	ngx_stream_upstream_rr_peer_t   * peer;
 };
@@ -4560,7 +4560,7 @@ struct ngx_stream_upstream_rr_peer_data_t {
 	ngx_uint_t config;
 	ngx_stream_upstream_rr_peers_t  * peers;
 	ngx_stream_upstream_rr_peer_t   * current;
-	uintptr_t                       * tried;
+	uintptr_t  * tried;
 	uintptr_t data;
 };
 

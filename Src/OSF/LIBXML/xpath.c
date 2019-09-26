@@ -162,7 +162,7 @@ static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2)
 		case XML_PI_NODE: {
 		    miscNode1 = node1;
 		    /*
-		     * Find nearest element node.
+		 * Find nearest element node.
 		     */
 		    if(node1->prev) {
 			    do {
@@ -174,8 +174,8 @@ static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2)
 				    if(node1->prev == NULL) {
 					    precedence1 = 2; /* element is parent */
 					    /*
-					     * URGENT TODO: Are there any cases, where the
-					     * parent of such a node is not an element node?
+					 * URGENT TODO: Are there any cases, where the
+					 * parent of such a node is not an element node?
 					     */
 					    node1 = node1->P_ParentNode;
 					    break;
@@ -188,7 +188,7 @@ static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2)
 		    }
 		    if((node1 == NULL) || (node1->type != XML_ELEMENT_NODE) || (0 <= (long)node1->content)) {
 			    /*
-			     * Fallback for whatever case.
+			 * Fallback for whatever case.
 			     */
 			    node1 = miscNode1;
 			    precedence1 = 0;
@@ -199,7 +199,7 @@ static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2)
 	    break;
 		case XML_NAMESPACE_DECL:
 		    /*
-		     * @todo why do we return 1 for namespace nodes?
+		 * @todo why do we return 1 for namespace nodes?
 		     */
 		    return 1;
 		default:
@@ -2804,9 +2804,9 @@ static void xmlXPathFormatNumber(double number, char buffer[], int buffersize)
 			    int size;
 			    absolute_value = fabs(number);
 			    /*
-			     * First choose format - scientific or regular floating point.
-			     * In either case, result is in work, and after_fraction points
-			     * just past the fractional part.
+			 * First choose format - scientific or regular floating point.
+			 * In either case, result is in work, and after_fraction points
+			 * just past the fractional part.
 			     */
 			    if(((absolute_value > UPPER_DOUBLE) || (absolute_value < LOWER_DOUBLE)) && (absolute_value != 0.0) ) {
 				    /* Use scientific notation */
@@ -11224,7 +11224,7 @@ static int xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt, xmlXPathSte
 		    if(((test == NODE_TEST_NAME) || (test == NODE_TEST_ALL)) &&
 		    (type == NODE_TYPE_NODE)) {
 			    /*
-			     * Optimization if an element node type is 'element'.
+			 * Optimization if an element node type is 'element'.
 			     */
 			    next = xmlXPathNextChildElement;
 		    }
@@ -11415,9 +11415,9 @@ static int xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt, xmlXPathSte
 				    goto error;
 				case NODE_TEST_TYPE:
 				    /*
-				     * @todo Don't we need to use
-				     *  xmlXPathNodeSetAddNs() for namespace nodes here?
-				     *  Surprisingly, some c14n tests fail, if we do this.
+				 * @todo Don't we need to use
+				 *  xmlXPathNodeSetAddNs() for namespace nodes here?
+				 *  Surprisingly, some c14n tests fail, if we do this.
 				     */
 				    if(type == NODE_TYPE_NODE) {
 					    switch(cur->type) {
@@ -11750,14 +11750,14 @@ error:
 			    CHECK_ERROR0;
 			    if(ctxt->value && (ctxt->value->type == XPATH_NODESET) && ctxt->value->nodesetval && (ctxt->value->nodesetval->nodeNr >= 1)) {
 				    /*
-				     * limit tree traversing to first node in the result
+				 * limit tree traversing to first node in the result
 				     */
 				    /*
-				     * OPTIMIZE TODO: This implicitely sorts
-				     *  the result, even if not needed. E.g. if the argument
-				     *  of the count() function, no sorting is needed.
-				     * OPTIMIZE TODO: How do we know if the node-list wasn't
-				     *  aready sorted?
+				 * OPTIMIZE TODO: This implicitely sorts
+				 *  the result, even if not needed. E.g. if the argument
+				 *  of the count() function, no sorting is needed.
+				 * OPTIMIZE TODO: How do we know if the node-list wasn't
+				 *  aready sorted?
 				     */
 				    if(ctxt->value->nodesetval->nodeNr > 1)
 					    xmlXPathNodeSetSort(ctxt->value->nodesetval);
@@ -11864,7 +11864,7 @@ error:
 			    CHECK_ERROR0;
 			    if(ctxt->value && (ctxt->value->type == XPATH_NODESET) && ctxt->value->nodesetval && (ctxt->value->nodesetval->nodeNr >= 1)) {
 				    /*
-				     * limit tree traversing to first node in the result
+				 * limit tree traversing to first node in the result
 				     */
 				    if(ctxt->value->nodesetval->nodeNr > 1)
 					    xmlXPathNodeSetSort(ctxt->value->nodesetval);
@@ -12548,13 +12548,13 @@ static int xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr o
 			if((op->ch1 != -1) && (op->ch2 != -1) &&
 #ifdef XP_OPTIMIZED_FILTER_FIRST
 			        /*
-			            * FILTER TODO: Can we assume that the inner processing
-			            *  will result in an ordered list if we have an
-			            *  XPATH_OP_FILTER?
-			            *  What about an additional field or flag on
-			            *  xmlXPathObject like @sorted ? This way we wouln'd need
-			            *  to assume anything, so it would be more robust and
-			            *  easier to optimize.
+			 * FILTER TODO: Can we assume that the inner processing
+			 *  will result in an ordered list if we have an
+			 *  XPATH_OP_FILTER?
+			 *  What about an additional field or flag on
+			 *  xmlXPathObject like @sorted ? This way we wouln'd need
+			 *  to assume anything, so it would be more robust and
+			 *  easier to optimize.
 			            */
 				((comp->steps[op->ch1].op == XPATH_OP_SORT) || /* 18 */ (comp->steps[op->ch1].op == XPATH_OP_FILTER)) && /* 17 */
 #else

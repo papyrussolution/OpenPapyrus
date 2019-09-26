@@ -57,7 +57,7 @@ private:
 	// Descr: Возвращает !0 если с редактируемой строкой может быть сопоставлен серийный номер или иные теги.
 	//   Применяется для определения возможности редактировать серийный номер или иные теги.
 	//
-	int    IsTaggedItem() const { return BIN(oneof3(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER) || isModifPlus()); }
+	int    IsTaggedItem() const { return BIN(oneof4(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER, PPOPT_DRAFTQUOTREQ) || isModifPlus()); }
 	int    IsSourceSerialUsed();
 	int    GetGoodsListSuitableForSourceSerial(PPID goodsID, PPIDArray & rList);
 	int    readQttyFld(uint master, uint ctl, double * val);
@@ -230,6 +230,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 		case PPOPT_GOODSORDER:  dlg_id = DLG_ORDLOTITEM;    break;
 		case PPOPT_GOODSACK:    dlg_id = DLG_ACKITEM;       break;
 		case PPOPT_DRAFTRECEIPT:
+		case PPOPT_DRAFTQUOTREQ: // @v10.5.7
 		case PPOPT_DRAFTTRANSIT: dlg_id = /*allow_suppl_sel ? DLG_SLOTITEM :*/ DLG_LOTITEM; break;
 		case PPOPT_GOODSREVAL:   dlg_id = (GetOpSubType(op_id) == OPSUBT_ASSETEXPL) ? DLG_ASSETEXPLITEM : DLG_REVALITEM; break;
 		case PPOPT_GOODSEXPEND:
@@ -1269,10 +1270,16 @@ void TrfrItemDialog::setupQttyFldPrec()
 
 int TrfrItemDialog::isAllowZeroPrice()
 {
-	PPGoodsType gt_rec;
-	Goods2Tbl::Rec goods_rec;
-	return BIN(GObj.Fetch(Item.GoodsID, &goods_rec) > 0 &&
-		GTObj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ALLOWZEROPRICE);
+	int    yes = 0;
+	if(P_Pack && P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ)
+		yes = 1;
+	else {
+		PPGoodsType gt_rec;
+		Goods2Tbl::Rec goods_rec;
+		yes = BIN(GObj.Fetch(Item.GoodsID, &goods_rec) > 0 &&
+			GTObj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ALLOWZEROPRICE);
+	}
+	return yes;
 }
 
 int TrfrItemDialog::checkQuantityForIntVal()

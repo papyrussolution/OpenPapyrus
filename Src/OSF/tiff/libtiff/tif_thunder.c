@@ -90,8 +90,8 @@ static int ThunderDecode(TIFF* tif, uint8* op, tmsize_t maxpixels)
 		switch(n & THUNDER_CODE) {
 			case THUNDER_RUN:       /* pixel run */
 			    /*
-			     * Replicate the last pixel n times,
-			     * where n is the lower-order 6 bits.
+			 * Replicate the last pixel n times,
+			 * where n is the lower-order 6 bits.
 			     */
 			    if(npixels & 1) {
 				    op[0] |= lastpixel;

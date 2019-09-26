@@ -21,7 +21,7 @@ HRESULT FindSignatureInStream(ISequentialInStream * stream, const Byte * signatu
 	CByteBuffer byteBuffer(kBufferSize);
 	Byte * buffer = byteBuffer;
 	uint32 numPrevBytes = signatureSize - 1;
-	memcpy(buffer, (const Byte*)byteBuffer2 + 1, numPrevBytes);
+	memcpy(buffer, (const Byte *)byteBuffer2 + 1, numPrevBytes);
 	resPos = 1;
 	for(;; ) {
 		if(limit)
@@ -3021,7 +3021,7 @@ namespace NCompress {
 				default:
 					_unsupportedFilter = true;
 			}
-			return WriteData(useDest ? (const Byte*)_filterDst : (const Byte*)_filterSrc, f.Size);
+			return WriteData(useDest ? (const Byte *)_filterDst : (const Byte *)_filterSrc, f.Size);
 		}
 
 		HRESULT CDecoder::WriteBuf()
@@ -4059,7 +4059,7 @@ namespace NArchive {
 						((Byte *)buffer)[i * 2 + 1] = (Byte)(c >> 8);
 					}
 
-					m_RarAESSpec->SetPassword((const Byte*)buffer, len * 2);
+					m_RarAESSpec->SetPassword((const Byte *)buffer, len * 2);
 
 					const uint32 kDecryptedBufferSize = (1 << 12);
 					if(m_DecryptedData.Size() == 0) {
@@ -4941,7 +4941,7 @@ namespace NArchive {
 								((Byte *)buffer)[k * 2] = (Byte)c;
 								((Byte *)buffer)[k * 2 + 1] = (Byte)(c >> 8);
 							}
-							rar3CryptoDecoderSpec->SetPassword((const Byte*)buffer, len * 2);
+							rar3CryptoDecoderSpec->SetPassword((const Byte *)buffer, len * 2);
 						}
 						else {
 							AString oemPassword;
@@ -4951,7 +4951,7 @@ namespace NArchive {
 									unicode.DeleteFrom(kPasswordLen_MAX);
 								oemPassword = UnicodeStringToMultiByte(unicode, CP_OEMCP);
 							}
-							rar20CryptoDecoderSpec->SetPassword((const Byte*)(const char *)oemPassword, oemPassword.Len());
+							rar20CryptoDecoderSpec->SetPassword((const Byte *)(const char *)oemPassword, oemPassword.Len());
 						}
 					}
 					/*
@@ -5452,7 +5452,7 @@ namespace NArchive {
 			if(_calcCRC)
 				_crc = CrcUpdate(_crc, data, size);
 			if(_blakeOffset >= 0)
-				Blake2sp_Update(&_blake, (const Byte*)data, size);
+				Blake2sp_Update(&_blake, (const Byte *)data, size);
 		}
 
 		bool CHash::Check(const CItem &item, NCrypto::NRar5::CDecoder * cryptoDecoderSpec)
@@ -5604,7 +5604,7 @@ namespace NArchive {
 			if(unicode.Len() > kPasswordLen_MAX)
 				unicode.DeleteFrom(kPasswordLen_MAX);
 			ConvertUnicodeToUTF8(unicode, utf8);
-			cryptoDecoderSpec->SetPassword((const Byte*)(const char *)utf8, utf8.Len());
+			cryptoDecoderSpec->SetPassword((const Byte *)(const char *)utf8, utf8.Len());
 			return S_OK;
 		}
 		bool CInArchive::ReadVar(uint64 &val)
@@ -6239,7 +6239,7 @@ namespace NArchive {
 						const CByteBuffer &cmt = _comment;
 						if(cmt.Size() != 0 && cmt.Size() < (1 << 16)) {
 							AString s;
-							s.SetFrom_CalcLen((const char *)(const Byte*)cmt, (uint)cmt.Size());
+							s.SetFrom_CalcLen((const char *)(const Byte *)cmt, (uint)cmt.Size());
 							UString unicode;
 							if(ConvertUTF8ToUnicode(s, unicode))
 								prop = unicode;
@@ -6347,7 +6347,7 @@ namespace NArchive {
 					const CByteBuffer &buf = _acls[item.ACL];
 					*dataSize = (uint32)buf.Size();
 					*propType = NPropDataType::kRaw;
-					*data = (const Byte*)buf;
+					*data = (const Byte *)buf;
 				}
 				return S_OK;
 			}
@@ -7383,7 +7383,7 @@ private:
 };
 
 STDMETHODIMP_(void) CBlake2spHasher::Init() throw() { Blake2sp_Init(&_blake); }
-STDMETHODIMP_(void) CBlake2spHasher::Update(const void * data, uint32 size) throw() { Blake2sp_Update(&_blake, (const Byte*)data, size); }
+STDMETHODIMP_(void) CBlake2spHasher::Update(const void * data, uint32 size) throw() { Blake2sp_Update(&_blake, (const Byte *)data, size); }
 STDMETHODIMP_(void) CBlake2spHasher::Final(Byte *digest) throw() { Blake2sp_Final(&_blake, digest); }
 
 REGISTER_HASHER(CBlake2spHasher, 0x202, "BLAKE2sp", BLAKE2S_DIGEST_SIZE)

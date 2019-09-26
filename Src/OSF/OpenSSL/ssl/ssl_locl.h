@@ -529,7 +529,7 @@ struct ssl_session_st {
 	unsigned char * tlsext_tick; /* Session ticket */
 	size_t tlsext_ticklen;  /* Session ticket length */
 	unsigned long tlsext_tick_lifetime_hint; /* Session lifetime hint in
-	                                          * seconds */
+	 * seconds */
 # ifndef OPENSSL_NO_SRP
 	char * srp_username;
 # endif

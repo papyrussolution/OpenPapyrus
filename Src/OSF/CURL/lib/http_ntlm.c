@@ -182,7 +182,7 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 
 		case NTLMSTATE_TYPE3:
 		    /* connection is already authenticated,
-		     * don't send a header in future requests */
+		 * don't send a header in future requests */
 		    ntlm->state = NTLMSTATE_LAST;
 		/* fall-through */
 		case NTLMSTATE_LAST:

@@ -2067,20 +2067,20 @@ void FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt)
 		case XML_PARSER_EPILOG: xmlFatalErr(ctxt, XML_ERR_PEREF_IN_EPILOG, 0); return;
 		case XML_PARSER_ENTITY_VALUE:
 		    /*
-		     * NOTE: in the case of entity values, we don't do the
-		     *  substitution here since we need the literal
-		     *  entity value to be able to save the internal
-		     *  subset of the document.
-		     *  This will be handled by xmlStringDecodeEntities
+		 * NOTE: in the case of entity values, we don't do the
+		 *  substitution here since we need the literal
+		 *  entity value to be able to save the internal
+		 *  subset of the document.
+		 *  This will be handled by xmlStringDecodeEntities
 		     */
 		    return;
 		case XML_PARSER_DTD:
 		    /*
-		     * [WFC: Well-Formedness Constraint: PEs in Internal Subset]
-		     * In the internal DTD subset, parameter-entity references
-		     * can occur only where markup declarations can occur, not
-		     * within markup declarations.
-		     * In that case this is handled in xmlParseMarkupDecl
+		 * [WFC: Well-Formedness Constraint: PEs in Internal Subset]
+		 * In the internal DTD subset, parameter-entity references
+		 * can occur only where markup declarations can occur, not
+		 * within markup declarations.
+		 * In that case this is handled in xmlParseMarkupDecl
 		     */
 		    if((ctxt->external == 0) && (ctxt->inputNr == 1))
 			    return;
@@ -9732,7 +9732,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 		switch(ctxt->instate) {
 			case XML_PARSER_EOF:
 			    /*
-			     * Document parsing is done !
+			 * Document parsing is done !
 			     */
 			    goto done;
 			case XML_PARSER_START:
@@ -9740,15 +9740,15 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				    xmlChar start[4];
 				    xmlCharEncoding enc;
 				    /*
-				     * Very first chars read from the document flow.
+				 * Very first chars read from the document flow.
 				     */
 				    if(avail < 4)
 					    goto done;
 				    /*
-				     * Get the 4 first bytes and decode the charset
-				     * if enc != XML_CHAR_ENCODING_NONE
-				     * plug some encoding conversion routines,
-				     * else xmlSwitchEncoding will set to (default) UTF8.
+				 * Get the 4 first bytes and decode the charset
+				 * if enc != XML_CHAR_ENCODING_NONE
+				 * plug some encoding conversion routines,
+				 * else xmlSwitchEncoding will set to (default) UTF8.
 				     */
 				    start[0] = RAW;
 				    start[1] = NXT(1);
@@ -9794,8 +9794,8 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 					    xmlParseXMLDecl(ctxt);
 					    if(ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
 						    /*
-						     * The XML REC instructs us to stop parsing right
-						     * here
+						 * The XML REC instructs us to stop parsing right
+						 * here
 						     */
 						    ctxt->instate = XML_PARSER_EOF;
 						    return 0;
@@ -9886,9 +9886,9 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 			    }
 #ifdef LIBXML_VALID_ENABLED
 			    /*
-			     * [VC: Root Element Type]
-			     * The Name in the document type declaration must match
-			     * the element type of the root element.
+			 * [VC: Root Element Type]
+			 * The Name in the document type declaration must match
+			 * the element type of the root element.
 			     */
 			    if(ctxt->validate && ctxt->wellFormed && ctxt->myDoc &&
 				    ctxt->P_Node && (ctxt->P_Node == ctxt->myDoc->children))
@@ -9896,7 +9896,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 #endif /* LIBXML_VALID_ENABLED */
 
 			    /*
-			     * Check for an Empty Element.
+			 * Check for an Empty Element.
 			     */
 			    if((RAW == '/') && (NXT(1) == '>')) {
 				    SKIP(2);
@@ -10008,15 +10008,15 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 			    else {
 				    /* @todo Avoid the extra copy, handle directly !!! */
 				    /*
-				     * Goal of the following test is:
-				     *  - minimize calls to the SAX 'character' callback
-				     *  when they are mergeable
-				     *  - handle an problem for isBlank when we only parse
-				     *  a sequence of blank chars and the next one is
-				     *  not available to check against '<' presence.
-				     *  - tries to homogenize the differences in SAX
-				     *  callbacks between the push and pull versions
-				     *  of the parser.
+				 * Goal of the following test is:
+				 *  - minimize calls to the SAX 'character' callback
+				 *  when they are mergeable
+				 *  - handle an problem for isBlank when we only parse
+				 *  a sequence of blank chars and the next one is
+				 *  not available to check against '<' presence.
+				 *  - tries to homogenize the differences in SAX
+				 *  callbacks between the push and pull versions
+				 *  of the parser.
 				     */
 				    if((ctxt->inputNr == 1) && (avail < XML_PARSER_BIG_BUFFER_SIZE)) {
 					    if(!terminate) {
@@ -10033,7 +10033,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				    xmlParseCharData(ctxt, 0);
 			    }
 			    /*
-			     * Pop-up of finished entities.
+			 * Pop-up of finished entities.
 			     */
 			    while((RAW == 0) && (ctxt->inputNr > 1))
 				    xmlPopInput(ctxt);
@@ -10078,8 +10078,8 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 			    break;
 			case XML_PARSER_CDATA_SECTION: {
 			    /*
-			     * The Push mode need to have the SAX callback for
-			     * cdataBlock merge back contiguous callbacks.
+			 * The Push mode need to have the SAX callback for
+			 * cdataBlock merge back contiguous callbacks.
 			     */
 			    int base;
 
@@ -10114,9 +10114,9 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				    }
 				    if(ctxt->sax && (base == 0) && (ctxt->sax->cdataBlock != NULL) && (!ctxt->disableSAX)) {
 					    /*
-					     * Special case to provide identical behaviour
-					     * between pull and push parsers on enpty CDATA
-					     * sections
+					 * Special case to provide identical behaviour
+					 * between pull and push parsers on enpty CDATA
+					 * sections
 					     */
 					    if((ctxt->input->cur - ctxt->input->base >= 9) && (!strncmp((const char *)&ctxt->input->cur[-9], "<![CDATA[", 9)))
 						    ctxt->sax->cdataBlock(ctxt->userData, reinterpret_cast<const xmlChar *>(""), 0);
@@ -10202,7 +10202,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				    }
 				    else {
 					    /*
-					     * Create and update the external subset.
+					 * Create and update the external subset.
 					     */
 					    ctxt->inSubset = 2;
 					    if(ctxt->sax && (!ctxt->disableSAX) && (ctxt->sax->externalSubset != NULL))
@@ -10331,14 +10331,14 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 			    break;
 			case XML_PARSER_DTD: {
 			    /*
-			     * Sorry but progressive parsing of the internal subset
-			     * is not expected to be supported. We first check that
-			     * the full content of the internal subset is available and
-			     * the parsing is launched only at that point.
-			     * Internal subset ends up with "']' S? '>'" in an unescaped
-			     * section and not in a ']]>' sequence which are conditional
-			     * sections (whoever argued to keep that crap in XML deserve
-			     * a place in hell !).
+			 * Sorry but progressive parsing of the internal subset
+			 * is not expected to be supported. We first check that
+			 * the full content of the internal subset is available and
+			 * the parsing is launched only at that point.
+			 * Internal subset ends up with "']' S? '>'" in an unescaped
+			 * section and not in a ']]>' sequence which are conditional
+			 * sections (whoever argued to keep that crap in XML deserve
+			 * a place in hell !).
 			     */
 			    int i;
 			    xmlChar * buf;
@@ -10419,7 +10419,7 @@ not_end_of_int_subset:
 				    continue; /* for */
 			    }
 			    /*
-			     * We didn't found the end of the Internal subset
+			 * We didn't found the end of the Internal subset
 			     */
 				ctxt->CheckIndex = (quote == 0) ? base : 0;
 #ifdef DEBUG_PUSH

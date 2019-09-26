@@ -91,10 +91,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 	} while(0)
 
 static char * ae_fflagstostr(unsigned long bitset, unsigned long bitclear);
-static const wchar_t    * ae_wcstofflags(const wchar_t * stringp,
-    unsigned long * setp, unsigned long * clrp);
-static const char  * ae_strtofflags(const char * stringp,
-    unsigned long * setp, unsigned long * clrp);
+static const wchar_t    * ae_wcstofflags(const wchar_t * stringp, unsigned long * setp, unsigned long * clrp);
+static const char  * ae_strtofflags(const char * stringp, unsigned long * setp, unsigned long * clrp);
 
 #ifndef HAVE_WCSCPY
 static wchar_t * wcscpy(wchar_t * s1, const wchar_t * s2)
@@ -1098,11 +1096,9 @@ void archive_entry_set_is_metadata_encrypted(struct archive_entry * entry, char 
 	}
 }
 
-int _archive_entry_copy_uname_l(struct archive_entry * entry,
-    const char * name, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_uname_l(struct archive_entry * entry, const char * name, size_t len, struct archive_string_conv * sc)
 {
-	return (archive_mstring_copy_mbs_len_l(&entry->ae_uname,
-	       name, len, sc));
+	return (archive_mstring_copy_mbs_len_l(&entry->ae_uname, name, len, sc));
 }
 
 const void * archive_entry_mac_metadata(struct archive_entry * entry, size_t * s)
@@ -1111,8 +1107,7 @@ const void * archive_entry_mac_metadata(struct archive_entry * entry, size_t * s
 	return entry->mac_metadata;
 }
 
-void archive_entry_copy_mac_metadata(struct archive_entry * entry,
-    const void * p, size_t s)
+void archive_entry_copy_mac_metadata(struct archive_entry * entry, const void * p, size_t s)
 {
 	SAlloc::F(entry->mac_metadata);
 	if(p == NULL || s == 0) {
@@ -1127,7 +1122,6 @@ void archive_entry_copy_mac_metadata(struct archive_entry * entry,
 		memcpy(entry->mac_metadata, p, s);
 	}
 }
-
 /*
  * ACL management.  The following would, of course, be a lot simpler
  * if: 1) the last draft of POSIX.1e were a really thorough and
@@ -1137,7 +1131,8 @@ void archive_entry_copy_mac_metadata(struct archive_entry * entry,
  * uninitiated.
  */
 
-struct archive_acl * archive_entry_acl(struct archive_entry * entry)                      {
+struct archive_acl * archive_entry_acl(struct archive_entry * entry)                      
+{
 	return &entry->acl;
 }
 
@@ -1145,26 +1140,20 @@ void archive_entry_acl_clear(struct archive_entry * entry)
 {
 	archive_acl_clear(&entry->acl);
 }
-
 /*
  * Add a single ACL entry to the internal list of ACL data.
  */
-int archive_entry_acl_add_entry(struct archive_entry * entry,
-    int type, int permset, int tag, int id, const char * name)
+int archive_entry_acl_add_entry(struct archive_entry * entry, int type, int permset, int tag, int id, const char * name)
 {
 	return archive_acl_add_entry(&entry->acl, type, permset, tag, id, name);
 }
-
 /*
  * As above, but with a wide-character name.
  */
-int archive_entry_acl_add_entry_w(struct archive_entry * entry,
-    int type, int permset, int tag, int id, const wchar_t * name)
+int archive_entry_acl_add_entry_w(struct archive_entry * entry, int type, int permset, int tag, int id, const wchar_t * name)
 {
-	return archive_acl_add_entry_w_len(&entry->acl,
-		   type, permset, tag, id, name, wcslen(name));
+	return archive_acl_add_entry_w_len(&entry->acl, type, permset, tag, id, name, wcslen(name));
 }
-
 /*
  * Return a bitmask of ACL types in an archive entry ACL list
  */
@@ -1172,7 +1161,6 @@ int archive_entry_acl_types(struct archive_entry * entry)
 {
 	return (archive_acl_types(&entry->acl));
 }
-
 /*
  * Return a count of entries matching "want_type".
  */
@@ -1180,7 +1168,6 @@ int archive_entry_acl_count(struct archive_entry * entry, int want_type)
 {
 	return archive_acl_count(&entry->acl, want_type);
 }
-
 /*
  * Prepare for reading entries from the ACL data.  Returns a count
  * of entries matching "want_type", or zero if there are no
@@ -1195,57 +1182,45 @@ int archive_entry_acl_reset(struct archive_entry * entry, int want_type)
  * Return the next ACL entry in the list.  Fake entries for the
  * standard permissions and include them in the returned list.
  */
-int archive_entry_acl_next(struct archive_entry * entry, int want_type, int * type,
-    int * permset, int * tag, int * id, const char ** name)
+int archive_entry_acl_next(struct archive_entry * entry, int want_type, int * type, int * permset, int * tag, int * id, const char ** name)
 {
-	int r;
-	r = archive_acl_next(entry->archive, &entry->acl, want_type, type,
-		permset, tag, id, name);
+	int r = archive_acl_next(entry->archive, &entry->acl, want_type, type, permset, tag, id, name);
 	if(r == ARCHIVE_FATAL && errno == ENOMEM)
 		__archive_errx_nomem(1);
 	return r;
 }
-
 /*
  * Generate a text version of the ACL. The flags parameter controls
  * the style of the generated ACL.
  */
-wchar_t * archive_entry_acl_to_text_w(struct archive_entry * entry, la_ssize_t * len,
-    int flags)
+wchar_t * archive_entry_acl_to_text_w(struct archive_entry * entry, la_ssize_t * len, int flags)
 {
-	return (archive_acl_to_text_w(&entry->acl, len, flags,
-	       entry->archive));
+	return (archive_acl_to_text_w(&entry->acl, len, flags, entry->archive));
 }
 
-char * archive_entry_acl_to_text(struct archive_entry * entry, la_ssize_t * len,
-    int flags)
+char * archive_entry_acl_to_text(struct archive_entry * entry, la_ssize_t * len, int flags)
 {
 	return (archive_acl_to_text_l(&entry->acl, len, flags, NULL));
 }
 
-char * _archive_entry_acl_to_text_l(struct archive_entry * entry, ssize_t * len,
-    int flags, struct archive_string_conv * sc)
+char * _archive_entry_acl_to_text_l(struct archive_entry * entry, ssize_t * len, int flags, struct archive_string_conv * sc)
 {
 	return (archive_acl_to_text_l(&entry->acl, len, flags, sc));
 }
-
 /*
  * ACL text parser.
  */
-int archive_entry_acl_from_text_w(struct archive_entry * entry,
-    const wchar_t * wtext, int type)
+int archive_entry_acl_from_text_w(struct archive_entry * entry, const wchar_t * wtext, int type)
 {
 	return (archive_acl_from_text_w(&entry->acl, wtext, type));
 }
 
-int archive_entry_acl_from_text(struct archive_entry * entry,
-    const char * text, int type)
+int archive_entry_acl_from_text(struct archive_entry * entry, const char * text, int type)
 {
 	return (archive_acl_from_text_l(&entry->acl, text, type, NULL));
 }
 
-int _archive_entry_acl_from_text_l(struct archive_entry * entry, const char * text,
-    int type, struct archive_string_conv * sc)
+int _archive_entry_acl_from_text_l(struct archive_entry * entry, const char * text, int type, struct archive_string_conv * sc)
 {
 	return (archive_acl_from_text_l(&entry->acl, text, type, sc));
 }
@@ -1255,17 +1230,13 @@ static int archive_entry_acl_text_compat(int * flags)
 {
 	if((*flags & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) == 0)
 		return (1);
-
 	/* ABI compat with old ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID */
 	if((*flags & OLD_ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID) != 0)
 		*flags |= ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID;
-
 	/* ABI compat with old ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT */
 	if((*flags & OLD_ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT) != 0)
 		*flags |=  ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT;
-
 	*flags |= ARCHIVE_ENTRY_ACL_STYLE_SEPARATOR_COMMA;
-
 	return 0;
 }
 
@@ -1277,8 +1248,7 @@ const wchar_t * archive_entry_acl_text_w(struct archive_entry * entry, int flags
 		entry->acl.acl_text_w = NULL;
 	}
 	if(archive_entry_acl_text_compat(&flags) == 0)
-		entry->acl.acl_text_w = archive_acl_to_text_w(&entry->acl,
-			NULL, flags, entry->archive);
+		entry->acl.acl_text_w = archive_acl_to_text_w(&entry->acl, NULL, flags, entry->archive);
 	return (entry->acl.acl_text_w);
 }
 
@@ -1290,30 +1260,22 @@ const char * archive_entry_acl_text(struct archive_entry * entry, int flags)
 		entry->acl.acl_text = NULL;
 	}
 	if(archive_entry_acl_text_compat(&flags) == 0)
-		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl, NULL,
-			flags, NULL);
-
+		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl, NULL, flags, NULL);
 	return (entry->acl.acl_text);
 }
 
 /* Deprecated */
-int _archive_entry_acl_text_l(struct archive_entry * entry, int flags,
-    const char ** acl_text, size_t * len, struct archive_string_conv * sc)
+int _archive_entry_acl_text_l(struct archive_entry * entry, int flags, const char ** acl_text, size_t * len, struct archive_string_conv * sc)
 {
 	if(entry->acl.acl_text != NULL) {
 		SAlloc::F(entry->acl.acl_text);
 		entry->acl.acl_text = NULL;
 	}
-
 	if(archive_entry_acl_text_compat(&flags) == 0)
-		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl,
-			(ssize_t*)len, flags, sc);
-
+		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl, (ssize_t*)len, flags, sc);
 	*acl_text = entry->acl.acl_text;
-
 	return 0;
 }
-
 /*
  * Following code is modified from UC Berkeley sources, and
  * is subject to the following copyright notice.
@@ -1551,12 +1513,9 @@ static char * ae_fflagstostr(unsigned long bitset, unsigned long bitclear)
 {
 	char * string, * dp;
 	const char * sp;
-	unsigned long bits;
 	const struct flag * flag;
-	size_t length;
-
-	bits = bitset | bitclear;
-	length = 0;
+	unsigned long bits = bitset | bitclear;
+	size_t length = 0;
 	for(flag = flags; flag->name != NULL; flag++)
 		if(bits & (flag->set | flag->clear)) {
 			length += strlen(flag->name) + 1;
@@ -1591,7 +1550,6 @@ static char * ae_fflagstostr(unsigned long bitset, unsigned long bitclear)
 	*dp = '\0';
 	return (string);
 }
-
 /*
  * strtofflags --
  *	Take string of arguments and return file flags.  This
@@ -1606,12 +1564,10 @@ static const char * ae_strtofflags(const char * s, unsigned long * setp, unsigne
 {
 	const char * start, * end;
 	const struct flag * flag;
-	unsigned long set, clear;
-	const char * failed;
-
-	set = clear = 0;
+	unsigned long set = 0;
+	unsigned long clear = 0;
+	const char * failed = 0;
 	start = s;
-	failed = NULL;
 	/* Find start of first token. */
 	while(*start == '\t'  ||  *start == ' '  ||  *start == ',')
 		start++;
@@ -1619,8 +1575,7 @@ static const char * ae_strtofflags(const char * s, unsigned long * setp, unsigne
 		size_t length;
 		/* Locate end of token. */
 		end = start;
-		while(*end != '\0'  &&  *end != '\t'  &&
-		    *end != ' '  &&  *end != ',')
+		while(*end != '\0'  &&  *end != '\t'  && *end != ' '  &&  *end != ',')
 			end++;
 		length = end - start;
 		for(flag = flags; flag->name != NULL; flag++) {

@@ -2245,7 +2245,7 @@ public:
 			Data.Period.SetDate(LConfig.OperDate);
 		SetPeriodInput(this, CTL_BTRAN_PERIOD, &Data.Period);
 		op_list.addzlist(PPOPT_ACCTURN, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT,
-			PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GENERIC, 0);
+			PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		SetupOprKindCombo(this, CTLSEL_BTRAN_OP, Data.OpID, 0, &op_list, 0);
 		{
 			op_list.clear();
@@ -2906,7 +2906,7 @@ public:
 	int getDTS(ObjTransmitParam * pParam, PPBaseFilt * pFilt);
 private:
 	PPBaseFilt * P_Filt;
-	PPView     * P_View;
+	PPView * P_View;
 	DECL_HANDLE_EVENT;
 };
 

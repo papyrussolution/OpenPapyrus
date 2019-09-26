@@ -116,10 +116,10 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 		case ASN1_ITYPE_PRIMITIVE:
 		    if(it->templates) {
 			    /*
-			     * tagging or OPTIONAL is currently illegal on an item template
-			     * because the flags can't get passed down. In practice this
-			     * isn't a problem: we include the relevant flags from the item
-			     * template in the template itself.
+			 * tagging or OPTIONAL is currently illegal on an item template
+			 * because the flags can't get passed down. In practice this
+			 * isn't a problem: we include the relevant flags from the item
+			 * template in the template itself.
 			     */
 			    if((tag != -1) || opt) {
 				    ASN1err(ASN1_F_ASN1_ITEM_EMBED_D2I, ASN1_R_ILLEGAL_OPTIONS_ON_ITEM_TEMPLATE);
@@ -185,7 +185,7 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 		    for(i = 0, tt = it->templates; i < it->tcount; i++, tt++) {
 			    pchptr = asn1_get_field_ptr(pval, tt);
 			    /*
-			     * We mark field as OPTIONAL so its absence can be recognised.
+			 * We mark field as OPTIONAL so its absence can be recognised.
 			     */
 			    ret = asn1_template_ex_d2i(pchptr, &p, len, tt, 1, ctx);
 			    /* If field not present, try the next one */
@@ -195,8 +195,8 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 			    if(ret > 0)
 				    break;
 			    /*
-			     * Must be an ASN1 parsing error.
-			     * Free up any partial choice value
+			 * Must be an ASN1 parsing error.
+			 * Free up any partial choice value
 			     */
 			    asn1_template_free(pchptr, tt);
 			    errtt = tt;
@@ -295,17 +295,17 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 				    break;
 			    }
 			    /*
-			     * This determines the OPTIONAL flag value. The field cannot be
-			     * omitted if it is the last of a SEQUENCE and there is still
-			     * data to be read. This isn't strictly necessary but it
-			     * increases efficiency in some cases.
+			 * This determines the OPTIONAL flag value. The field cannot be
+			 * omitted if it is the last of a SEQUENCE and there is still
+			 * data to be read. This isn't strictly necessary but it
+			 * increases efficiency in some cases.
 			     */
 			    if(i == (it->tcount - 1))
 				    isopt = 0;
 			    else
 				    isopt = (char)(seqtt->flags & ASN1_TFLG_OPTIONAL);
 			    /*
-			     * attempt to read in field, allowing each to be OPTIONAL
+			 * attempt to read in field, allowing each to be OPTIONAL
 			     */
 
 			    ret = asn1_template_ex_d2i(pseqval, &p, len, seqtt, isopt, ctx);
@@ -315,7 +315,7 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 			    }
 			    else if(ret == -1) {
 				    /*
-				     * OPTIONAL component absent. Free and zero the field.
+				 * OPTIONAL component absent. Free and zero the field.
 				     */
 				    asn1_template_free(pseqval, seqtt);
 				    continue;
@@ -335,9 +335,9 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 			    goto err;
 		    }
 		    /*
-		     * If we get here we've got no more data in the SEQUENCE, however we
-		     * may not have read all fields so check all remaining are OPTIONAL
-		     * and clear any that are.
+		 * If we get here we've got no more data in the SEQUENCE, however we
+		 * may not have read all fields so check all remaining are OPTIONAL
+		 * and clear any that are.
 		     */
 		    for(; i < it->tcount; tt++, i++) {
 			    const ASN1_TEMPLATE * seqtt = asn1_do_adb(pval, tt, 1);

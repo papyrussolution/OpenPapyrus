@@ -51,12 +51,18 @@ enum {
 typedef struct {
 	CPpmd8_Context * MinContext, * MaxContext;
 	CPpmd_State * FoundState;
-	unsigned OrderFall, InitEsc, PrevSuccess, MaxOrder;
-	Int32 RunLength, InitRL; /* must be 32-bit at least */
-
+	uint   OrderFall;
+	uint   InitEsc;
+	uint   PrevSuccess;
+	uint   MaxOrder;
+	Int32  RunLength, InitRL; /* must be 32-bit at least */
 	UInt32 Size;
 	UInt32 GlueCount;
-	Byte * Base, * LoUnit, * HiUnit, * Text, * UnitsStart;
+	Byte * Base;
+	Byte * LoUnit;
+	Byte * HiUnit;
+	Byte * Text;
+	Byte * UnitsStart;
 	UInt32 AlignOffset;
 	unsigned RestoreMethod;
 

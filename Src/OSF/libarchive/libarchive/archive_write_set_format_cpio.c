@@ -237,8 +237,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	 * are all slash '/', not the Windows path separator '\'. */
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate ustar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 		return ARCHIVE_FATAL;
 	}
 	if(entry != entry_main)
@@ -252,15 +251,12 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	ret = archive_entry_pathname_l(entry, &path, &len, sconv);
 	if(ret != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Pathname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			ret_final = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate pathname '%s' to %s",
-		    archive_entry_pathname(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate pathname '%s' to %s",
+		    archive_entry_pathname(entry), archive_string_conversion_charset_name(sconv));
 		ret_final = ARCHIVE_WARN;
 	}
 	/* Include trailing null. */
@@ -302,44 +298,34 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	ret = archive_entry_symlink_l(entry, &p, &len, sconv);
 	if(ret != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Linkname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			ret_final = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate linkname '%s' to %s",
-		    archive_entry_symlink(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s",
+		    archive_entry_symlink(entry), archive_string_conversion_charset_name(sconv));
 		ret_final = ARCHIVE_WARN;
 	}
 	if(len > 0 && p != NULL  &&  *p != '\0')
-		ret = format_octal(strlen(p), h + c_filesize_offset,
-			c_filesize_size);
+		ret = format_octal(strlen(p), h + c_filesize_offset, c_filesize_size);
 	else
-		ret = format_octal(archive_entry_size(entry),
-			h + c_filesize_offset, c_filesize_size);
+		ret = format_octal(archive_entry_size(entry), h + c_filesize_offset, c_filesize_size);
 	if(ret) {
-		archive_set_error(&a->archive, ERANGE,
-		    "File is too large for cpio format.");
+		archive_set_error(&a->archive, ERANGE, "File is too large for cpio format.");
 		ret_final = ARCHIVE_FAILED;
 		goto exit_write_header;
 	}
-
 	ret = __archive_write_output(a, h, sizeof(h));
 	if(ret != ARCHIVE_OK) {
 		ret_final = ARCHIVE_FATAL;
 		goto exit_write_header;
 	}
-
 	ret = __archive_write_output(a, path, pathlength);
 	if(ret != ARCHIVE_OK) {
 		ret_final = ARCHIVE_FATAL;
 		goto exit_write_header;
 	}
-
 	cpio->entry_bytes_remaining = archive_entry_size(entry);
-
 	/* Write the symlink now. */
 	if(p != NULL  &&  *p != '\0') {
 		ret = __archive_write_output(a, p, strlen(p));

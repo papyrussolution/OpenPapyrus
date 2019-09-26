@@ -218,20 +218,20 @@ int __rep_log(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * rec
 	ret = __rep_apply(env, ip, rp, rec, ret_lsnp, &is_dup, &last_lsn);
 	switch(ret) {
 	    /*
-	     * We're in an internal backup and we've gotten
-	     * all the log we need to run recovery.  Do so now.
+	 * We're in an internal backup and we've gotten
+	 * all the log we need to run recovery.  Do so now.
 	     */
 	    case DB_REP_LOGREADY:
 		if((ret = __rep_logready(env, rep, savetime, &last_lsn)) != 0)
 			goto out;
 		break;
 	    /*
-	     * If we get any of the "normal" returns, we only process
-	     * LOG_MORE if this is not a duplicate record.  If the
-	     * record is a duplicate we don't want to handle LOG_MORE
-	     * and request a multiple data stream (or trigger internal
-	     * initialization) since this could be a very old record
-	     * that no longer exists on the master.
+	 * If we get any of the "normal" returns, we only process
+	 * LOG_MORE if this is not a duplicate record.  If the
+	 * record is a duplicate we don't want to handle LOG_MORE
+	 * and request a multiple data stream (or trigger internal
+	 * initialization) since this could be a very old record
+	 * that no longer exists on the master.
 	     */
 	    case DB_REP_ISPERM:
 	    case DB_REP_NOTPERM:
@@ -241,7 +241,7 @@ int __rep_log(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * rec
 		else
 			break;
 	    /*
-	     * Any other return (errors), we're done.
+	 * Any other return (errors), we're done.
 	     */
 	    default:
 		goto out;
@@ -314,14 +314,14 @@ int __rep_bulk_log(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT 
 	int ret = __rep_log_split(env, ip, rp, rec, ret_lsnp, &last_lsn);
 	switch(ret) {
 	    /*
-	     * We're in an internal backup and we've gotten
-	     * all the log we need to run recovery.  Do so now.
+	 * We're in an internal backup and we've gotten
+	 * all the log we need to run recovery.  Do so now.
 	     */
 	    case DB_REP_LOGREADY:
 		ret = __rep_logready(env, rep, savetime, &last_lsn);
 		break;
 	    /*
-	     * Any other return (errors), we're done.
+	 * Any other return (errors), we're done.
 	     */
 	    default:
 		break;
@@ -410,14 +410,14 @@ static int __rep_log_split(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * 
 			next_new_lsn = tmp_lsn;
 		switch(ret) {
 		    /*
-		     * If we received the pieces we need for running recovery,
-		     * short-circuit because recovery will truncate the log to
-		     * the LSN we want anyway.
+		 * If we received the pieces we need for running recovery,
+		 * short-circuit because recovery will truncate the log to
+		 * the LSN we want anyway.
 		     */
 		    case DB_REP_LOGREADY:
 			goto out;
 		    /*
-		     * If we just handled a special record, retain that information.
+		 * If we just handled a special record, retain that information.
 		     */
 		    case DB_REP_ISPERM:
 		    case DB_REP_NOTPERM:
@@ -426,12 +426,12 @@ static int __rep_log_split(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * 
 			ret = 0;
 			break;
 		    /*
-		     * Normal processing, do nothing, just continue.
+		 * Normal processing, do nothing, just continue.
 		     */
 		    case 0:
 			break;
 		    /*
-		     * If we get an error, then stop immediately.
+		 * If we get an error, then stop immediately.
 		     */
 		    default:
 			goto out;

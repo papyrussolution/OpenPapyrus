@@ -2645,7 +2645,7 @@ int  FASTCALL PPExportDL600DataToJson(const char * pDataName, PPView * pV, SStri
 {
 	int         ok = 1;
 	DlContext * p_ctx = 0;
-	DlRtm     * p_rtm = 0;
+	DlRtm * p_rtm = 0;
 	THROW(p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData));
 	if(pV) {
 		THROW(p_rtm = p_ctx->GetRtm(pDataName));
@@ -2662,7 +2662,7 @@ int FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pSt
 {
 	int         ok = 1;
 	DlContext * p_ctx = 0;
-	DlRtm     * p_rtm = 0;
+	DlRtm * p_rtm = 0;
 	THROW(p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData));
 	if(pStrAssocAry) {
 		THROW(p_rtm = p_ctx->GetRtm(isempty(pDataName) ? "StrAssocArray" : pDataName));

@@ -90,16 +90,16 @@ union bio_addr_st {
 
 typedef struct bio_f_buffer_ctx_struct {
     /*-
-     * Buffers are setup like this:
+ * Buffers are setup like this:
      *
-     * <---------------------- size ----------------------->
-     * +---------------------------------------------------+
-     * | consumed | remaining          | free space        |
-     * +---------------------------------------------------+
-     * <-- off --><------- len ------->
+ * <---------------------- size ----------------------->
+ * +---------------------------------------------------+
+ * | consumed | remaining          | free space        |
+ * +---------------------------------------------------+
+ * <-- off --><------- len ------->
      */
     /*- BIO *bio; *//*
-     * this is now in the BIO struct
+ * this is now in the BIO struct
      */
     int ibuf_size;              /* how big is the input buffer */
     int obuf_size;              /* how big is the output buffer */

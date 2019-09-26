@@ -2320,10 +2320,10 @@
 				RelativePath="..\Osf\OpenSSL\crypto\include\internal\async.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL\include\internal\bio.h">
+				RelativePath="..\Osf\OpenSSL\include\openssl\bio.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL\include\openssl\bio.h">
+				RelativePath="..\Osf\OpenSSL\include\internal\bio.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\include\openssl\bn.h">

@@ -214,8 +214,8 @@ long dtls1_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    return (long)dtls1_link_min_mtu();
 		case SSL_CTRL_SET_MTU:
 		    /*
-		     *  We may not have a BIO set yet so can't call dtls1_min_mtu()
-		     *  We'll have to make do with dtls1_link_min_mtu() and max overhead
+		 *  We may not have a BIO set yet so can't call dtls1_min_mtu()
+		 *  We'll have to make do with dtls1_link_min_mtu() and max overhead
 		     */
 		    if(larg < (long)dtls1_link_min_mtu() - DTLS1_MAX_MTU_OVERHEAD)
 			    return 0;

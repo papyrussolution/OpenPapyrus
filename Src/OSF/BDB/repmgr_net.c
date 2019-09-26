@@ -1144,8 +1144,8 @@ int __repmgr_destroy_conn(ENV * env, REPMGR_CONNECTION * conn)
 				break;
 		    case REPMGR_RESP_ERROR:
 		    /*
-		     * This type doesn't use a DATA_PHASE, so this should be
-		     * impossible.
+		 * This type doesn't use a DATA_PHASE, so this should be
+		 * impossible.
 		     */
 		    default:
 			ret = __db_unknown_path(env, "destroy_conn");

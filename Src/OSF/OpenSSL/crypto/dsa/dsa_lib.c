@@ -152,9 +152,9 @@ int DSA_size(const DSA * r)
 	int ret, i;
 	ASN1_INTEGER bs;
 	uchar buf[4];   /* 4 bytes looks really small. However,
-	                 * i2d_ASN1_INTEGER() will not look beyond
-	                 * the first byte, as long as the second
-	                 * parameter is NULL. */
+	 * i2d_ASN1_INTEGER() will not look beyond
+	 * the first byte, as long as the second
+	 * parameter is NULL. */
 
 	i = BN_num_bits(r->q);
 	bs.length = (i + 7) / 8;

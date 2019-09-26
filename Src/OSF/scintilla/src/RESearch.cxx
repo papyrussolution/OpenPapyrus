@@ -97,7 +97,7 @@
  *
  *                         [a-zA-Z] any alpha
  *
- * [5]     *  any regular expression form [1] to [4]
+ * [5] *  any regular expression form [1] to [4]
  *                 (except [8], [9] and [10] forms of [3]),
  *                 followed by closure char (*)
  *                 matches zero or more matches of that form.

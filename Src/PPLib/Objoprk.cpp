@@ -501,7 +501,7 @@ int SLAPI PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 			THROW_MEM(pack->P_GenList = new ObjRestrictArray);
 			THROW(GetGenericList(id, pack->P_GenList));
 		}
-		else if(oneof3(pack->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
+		else if(oneof4(pack->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
 			PPDraftOpEx doe;
 			ZDELETE(pack->P_DraftData);
 			if(GetDraftExData(id, &doe) > 0) {
@@ -596,7 +596,7 @@ int SLAPI PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta
 		else if(pack->Rec.OpTypeID == PPOPT_POOL) {
 			THROW(SetPoolExData(*pID, pack->P_PoolData, 0));
 		}
-		else if(oneof3(pack->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
+		else if(oneof4(pack->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
 			THROW(SetDraftExData(*pID, pack->P_DraftData));
 		}
 		if(pack->Rec.Flags & OPKF_RECKON) {
@@ -1332,7 +1332,7 @@ public:
 	{
 		P_ListBox = static_cast<SmartListBox *>(getCtrlView(CTL_OPRKIND_LIST));
 		IsGeneric = BIN(P_Data->Rec.OpTypeID == PPOPT_GENERIC);
-		IsDraft   = BIN(oneof3(P_Data->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT));
+		IsDraft   = BIN(oneof4(P_Data->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		if(P_ListBox) {
 			if(!SetupStrListBox(P_ListBox))
 				PPError();
@@ -1497,7 +1497,7 @@ static void SLAPI MakeOpTypeListForGeneric(PPIDArray & rList)
 	rList.clear();
 	rList.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
 		PPOPT_GOODSREVAL, PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK, PPOPT_PAYMENT,
-		PPOPT_CHARGE, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, 0L);
+		PPOPT_CHARGE, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 }
 
 static int SLAPI AddGenOpItems(ObjRestrictArray & rList)
@@ -2673,7 +2673,7 @@ void OprKindDialog::editPoolOptions()
 		THROW_MEM(SETIFZ(P_Data->P_PoolData, new PPBillPoolOpEx));
 		op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 			PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK,
-			PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
+			PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		THROW(CheckDialogPtr(&(dlg = new OpkPoolDialog(&op_type_list))));
 		dlg->setDTS(P_Data);
 		if(ExecView(dlg) == cmOK)
@@ -2738,7 +2738,7 @@ int SLAPI PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 		dlg_id = DLG_GENOPRKIND;
 		SETIFZ(pPack->P_GenList, new ObjRestrictArray);
 	}
-	else if(oneof3(pPack->Rec.OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
+	else if(oneof4(pPack->Rec.OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		dlg_id = DLG_OPRDRAFT;
 	}
 	else if(pPack->Rec.OpTypeID == PPOPT_ACCTURN) {
@@ -2853,20 +2853,7 @@ int SLAPI PPObjOprKind::SerializePacket(int dir, PPOprKindPacket * pPack, SBuffe
 }
 
 int SLAPI PPObjOprKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPOprKindPacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPOprKindPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPOprKindPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjOprKind, PPOprKindPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjOprKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
@@ -3420,14 +3407,14 @@ int FASTCALL IsGenericOp(PPID opID) { return opID ? BIN(GetOpType(opID) == PPOPT
 int FASTCALL IsDraftOp(PPID opID)
 {
 	const PPID op_type_id = GetOpType(opID);
-	return BIN(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT));
+	return BIN(oneof4(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 }
 
 int FASTCALL IsGoodsDetailOp(PPID opID)
 {
 	const PPID op_type_id = GetOpType(opID);
-	return BIN(oneof11(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
-		PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER));
+	return BIN(oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
+		PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER, PPOPT_DRAFTQUOTREQ)); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 }
 
 int FASTCALL IsSellingOp(PPID opID)

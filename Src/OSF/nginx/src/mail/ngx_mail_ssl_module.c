@@ -147,7 +147,7 @@ static char * ngx_mail_ssl_merge_conf(ngx_conf_t * cf, void * parent, void * chi
 {
 	ngx_mail_ssl_conf_t * prev = (ngx_mail_ssl_conf_t*)parent;
 	ngx_mail_ssl_conf_t * conf = (ngx_mail_ssl_conf_t*)child;
-	char                * mode;
+	char * mode;
 	ngx_pool_cleanup_t  * cln;
 	ngx_conf_merge_value(conf->enable, prev->enable, 0);
 	ngx_conf_merge_uint_value(conf->starttls, prev->starttls, NGX_MAIL_STARTTLS_OFF);

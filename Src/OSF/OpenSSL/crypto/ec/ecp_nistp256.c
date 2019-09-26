@@ -1679,7 +1679,7 @@ static void batch_mul(felem x_out, felem y_out, felem z_out,
 	 * other points multiples (every 5th round).
 	 */
 	skip = 1;               /* save two point operations in the first
-	                         * round */
+	    * round */
 	for(i = (num_points ? 255 : 31); i >= 0; --i) {
 		/* double */
 		if(!skip)
@@ -1736,7 +1736,7 @@ static void batch_mul(felem x_out, felem y_out, felem z_out,
 				 */
 				select_point(digit, 17, pre_comp[num], tmp);
 				smallfelem_neg(ftmp, tmp[1]); /* (X, -Y, Z) is the negative
-				                               * point */
+				    * point */
 				copy_small_conditional(ftmp, tmp[1], (((limb)sign) - 1));
 				felem_contract(tmp[1], ftmp);
 

@@ -347,7 +347,7 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 			 */
 
 			tmp = A; /* keep the BIGNUM object, the value does not
-			          * matter */
+			 * matter */
 
 			/* (A, B) := (B, A mod B) ... */
 			A = B;
@@ -406,7 +406,7 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 			}
 
 			M = Y;  /* keep the BIGNUM object, the value does not
-			         * matter */
+			    * matter */
 			Y = X;
 			X = tmp;
 			sign = -sign;

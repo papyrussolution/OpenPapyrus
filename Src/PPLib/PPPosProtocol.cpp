@@ -1753,6 +1753,13 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 		w_s.PutInnerValidDate("expiry", rInfo.Rec.Expiry, DATF_ISO8601|DATF_CENTURY);
 		if(rInfo.Rec.PDis > 0)
 			w_s.PutInner("discount", temp_buf.Z().Cat(fdiv100i(rInfo.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)));
+		// @v10.5.7 {
+		{
+			double fixed_bonus = fdiv100i(rInfo.Rec.FixedBonus);
+			if(fixed_bonus > 0.0 && fixed_bonus <= 100000.0)
+				w_s.PutInner("fixedbonus", temp_buf.Z().Cat(fixed_bonus, MKSFMTD(0, 2, NMBF_NOTRAILZ)));
+		}
+		// } @v10.5.7 
 		//if(rInfo.P_QuotByQttyList)
 	}
 	CATCHZOK
@@ -1906,7 +1913,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obGoods, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						if(link_type == obCcLine) {
-							GoodsBlock * p_item = (GoodsBlock *)RdB.GetItemWithTest(ref_pos, obGoods);
+							GoodsBlock * p_item = static_cast<GoodsBlock *>(RdB.GetItemWithTest(ref_pos, obGoods));
 							p_item->Flags_ |= ObjectBlock::fRefItem;
 						}
 					}
@@ -1921,7 +1928,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obUnit, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						if(link_type == obGoods) {
-							UnitBlock * p_item = (UnitBlock *)RdB.GetItemWithTest(ref_pos, obUnit);
+							UnitBlock * p_item = static_cast<UnitBlock *>(RdB.GetItemWithTest(ref_pos, obUnit));
 							p_item->Flags_ |= ObjectBlock::fRefItem;
 						}
 					}
@@ -1932,7 +1939,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obUnit, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						if(oneof2(link_type, obUnit, obGoods)) {
-							UnitBlock * p_item = (UnitBlock *)RdB.GetItemWithTest(ref_pos, obUnit);
+							UnitBlock * p_item = static_cast<UnitBlock *>(RdB.GetItemWithTest(ref_pos, obUnit));
 							p_item->Flags_ |= ObjectBlock::fRefItem;
 						}
 					}
@@ -1943,7 +1950,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obLot, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						{
-							LotBlock * p_item = (LotBlock *)RdB.GetItemWithTest(ref_pos, obLot);
+							LotBlock * p_item = static_cast<LotBlock *>(RdB.GetItemWithTest(ref_pos, obLot));
 							if(link_type == obGoods)
 								p_item->GoodsBlkP = link_ref_pos; // Лот ссылается на позицию товара, которому принадлежит
 						}
@@ -1956,7 +1963,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obSCardSeries, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						{
-							SCardSeriesBlock * p_item = (SCardSeriesBlock *)RdB.GetItemWithTest(ref_pos, obSCardSeries);
+							SCardSeriesBlock * p_item = static_cast<SCardSeriesBlock *>(RdB.GetItemWithTest(ref_pos, obSCardSeries));
 							p_item->RefP = ref_pos;
 							if(link_type == obSCard) {
 								p_item->Flags_ |= ObjectBlock::fRefItem;
@@ -1969,7 +1976,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
 						THROW(RdB.CreateItem(obSCard, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
-						SCardBlock * p_item = (SCardBlock *)RdB.GetItemWithTest(ref_pos, obSCard);
+						SCardBlock * p_item = static_cast<SCardBlock *>(RdB.GetItemWithTest(ref_pos, obSCard));
 						if(oneof2(link_type, obCCheck, obPayment)) {
 							p_item->Flags_ |= ObjectBlock::fRefItem;
 						}
@@ -1984,7 +1991,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obQuot, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						{
-							QuotBlock * p_item = (QuotBlock *)RdB.GetItemWithTest(ref_pos, obQuot);
+							QuotBlock * p_item = static_cast<QuotBlock *>(RdB.GetItemWithTest(ref_pos, obQuot));
 							if(link_type == obGoods) {
 								p_item->GoodsBlkP = link_ref_pos; // Котировка ссылается на позицию товара, которому принадлежит
 							}
@@ -2003,7 +2010,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 							uint   qk_ref_pos = 0;
 							THROW(RdB.CreateItem(obQuotKind, &qk_ref_pos));
 							{
-								QuotKindBlock * p_qk_blk = (QuotKindBlock *)RdB.GetItemWithTest(qk_ref_pos, obQuotKind);
+								QuotKindBlock * p_qk_blk = static_cast<QuotKindBlock *>(RdB.GetItemWithTest(qk_ref_pos, obQuotKind));
 								p_qk_blk->Flags_ |= ObjectBlock::fRefItem;
 							}
 							RdB.RefPosStack.push(qk_ref_pos);
@@ -2016,7 +2023,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obQuotKind, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						if(link_type == obSCardSeries) {
-							QuotKindBlock * p_item = (QuotKindBlock *)RdB.GetItemWithTest(ref_pos, obQuotKind);
+							QuotKindBlock * p_item = static_cast<QuotKindBlock *>(RdB.GetItemWithTest(ref_pos, obQuotKind));
 							p_item->Flags_ |= ObjectBlock::fRefItem;
 						}
 					}
@@ -2033,7 +2040,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						RdB.RefPosStack.push(ref_pos);
 						assert(link_type == obCSession);
 						if(link_type == obCSession) {
-							CCheckBlock * p_item = (CCheckBlock *)RdB.GetItemWithTest(ref_pos, obCCheck);
+							CCheckBlock * p_item = static_cast<CCheckBlock *>(RdB.GetItemWithTest(ref_pos, obCCheck));
 							p_item->CSessionBlkP = link_ref_pos; // Чек ссылается на позицию сессии, которой принадлежит
 							assert(p_item->CSessionBlkP);
 						}
@@ -2045,7 +2052,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obCcLine, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						if(link_type == obCCheck) {
-							CcLineBlock * p_item = (CcLineBlock *)RdB.GetItemWithTest(ref_pos, obCcLine);
+							CcLineBlock * p_item = static_cast<CcLineBlock *>(RdB.GetItemWithTest(ref_pos, obCcLine));
 							p_item->CCheckBlkP = link_ref_pos; // Строка ссылается на позицию чека, которому принадлежит
 						}
 					}
@@ -2056,7 +2063,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						THROW(RdB.CreateItem(obPayment, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
 						if(link_type == obCCheck) {
-							CcPaymentBlock * p_item = (CcPaymentBlock *)RdB.GetItemWithTest(ref_pos, obPayment);
+							CcPaymentBlock * p_item = static_cast<CcPaymentBlock *>(RdB.GetItemWithTest(ref_pos, obPayment));
 							p_item->CCheckBlkP = link_ref_pos; // Оплата ссылается на позицию чека, которому принадлежит
 						}
 					}
@@ -2078,7 +2085,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 							THROW(RdB.CreateItem(obGoodsCode, &goods_code_ref_pos));
 							RdB.RefPosStack.push(goods_code_ref_pos);
 							{
-								GoodsCode * p_item = (GoodsCode *)RdB.GetItemWithTest(goods_code_ref_pos, obGoodsCode);
+								GoodsCode * p_item = static_cast<GoodsCode *>(RdB.GetItemWithTest(goods_code_ref_pos, obGoodsCode));
 								p_item->GoodsBlkP = ref_pos; // Код ссылается на позицию товара, которому принадлежит
 							}
 						}
@@ -2098,6 +2105,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_PRICE:
 				case PPHS_DISCOUNT:
 				case PPHS_RETURN:
+				case PPHS_FIXEDBONUS: // @v10.5.7
 				case PPHS_RESTRICTION:
 				case PPHS_PERIOD:
 				case PPHS_WEEKDAY:
@@ -2616,62 +2624,62 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_NAME:
 				p_item = PeekRefItem(&ref_pos, &type);
 				switch(type) {
-					case obPosNode: Helper_AddStringToPool(&((PosNodeBlock *)p_item)->NameP); break;
-					case obGoods:   Helper_AddStringToPool(&((GoodsBlock *)p_item)->NameP); break;
-					case obGoodsGroup: Helper_AddStringToPool(&((GoodsGroupBlock *)p_item)->NameP); break;
-					case obPerson: Helper_AddStringToPool(&((PersonBlock *)p_item)->NameP); break;
-					case obSCardSeries: Helper_AddStringToPool(&((SCardSeriesBlock *)p_item)->NameP); break;
+					case obPosNode: Helper_AddStringToPool(&static_cast<PosNodeBlock *>(p_item)->NameP); break;
+					case obGoods:   Helper_AddStringToPool(&static_cast<GoodsBlock *>(p_item)->NameP); break;
+					case obGoodsGroup: Helper_AddStringToPool(&static_cast<GoodsGroupBlock *>(p_item)->NameP); break;
+					case obPerson: Helper_AddStringToPool(&static_cast<PersonBlock *>(p_item)->NameP); break;
+					case obSCardSeries: Helper_AddStringToPool(&static_cast<SCardSeriesBlock *>(p_item)->NameP); break;
 					case obSCard: break;
-					case obQuotKind: Helper_AddStringToPool(&((QuotKindBlock *)p_item)->NameP); break;
-					case obUnit: Helper_AddStringToPool(&((UnitBlock *)p_item)->NameP); break; // @v9.8.6
+					case obQuotKind: Helper_AddStringToPool(&static_cast<QuotKindBlock *>(p_item)->NameP); break;
+					case obUnit: Helper_AddStringToPool(&static_cast<UnitBlock *>(p_item)->NameP); break; // @v9.8.6
 				}
 				break;
 			case PPHS_NODISCOUNT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
 					if(RdB.IsTagValueBoolTrue())
-						((GoodsBlock *)p_item)->GoodsFlags |= GF_NODISCOUNT;
+						static_cast<GoodsBlock *>(p_item)->GoodsFlags |= GF_NODISCOUNT;
 				}
 				break;
 			case PPHS_VATRATE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
 					const double _value = RdB.TagValue.ToReal();
-					((GoodsBlock *)p_item)->VatRate = dbltoint2(_value);
+					static_cast<GoodsBlock *>(p_item)->VatRate = dbltoint2(_value);
 				}
 				break;
 			case PPHS_SALESTAXRATE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
 					const double _value = RdB.TagValue.ToReal();
-					((GoodsBlock *)p_item)->SalesTaxRate = dbltoint2(_value);
+					static_cast<GoodsBlock *>(p_item)->SalesTaxRate = dbltoint2(_value);
 				}
 				break;
 			case PPHS_ALCOPROOF:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
 					const double _value = RdB.TagValue.ToReal();
-					((GoodsBlock *)p_item)->AlcoProof = dbltoint2(_value);
+					static_cast<GoodsBlock *>(p_item)->AlcoProof = dbltoint2(_value);
 				}
 				break;
 			case PPHS_ALCORUCAT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
-					Helper_AddStringToPool(&((GoodsBlock *)p_item)->AlcoRuCatP);
+					Helper_AddStringToPool(&static_cast<GoodsBlock *>(p_item)->AlcoRuCatP);
 				}
 				break;
 			case PPHS_UNLIMITED:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
 					if(RdB.IsTagValueBoolTrue())
-						((GoodsBlock *)p_item)->SpecialFlags |= GoodsBlock::spcfUnlim;
+						static_cast<GoodsBlock *>(p_item)->SpecialFlags |= GoodsBlock::spcfUnlim;
 				}
 				break;
 			case PPHS_LOOKBACKPRICES:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
 					if(RdB.IsTagValueBoolTrue())
-						((GoodsBlock *)p_item)->SpecialFlags |= GoodsBlock::spcfLookBackPrices;
+						static_cast<GoodsBlock *>(p_item)->SpecialFlags |= GoodsBlock::spcfLookBackPrices;
 				}
 				break;
 			case PPHS_SERIAL:
@@ -2690,32 +2698,32 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_CODE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				switch(type) {
-					case obPosNode:     Helper_AddStringToPool(&((PosNodeBlock *)p_item)->CodeP); break;
-					case obGoodsGroup:  Helper_AddStringToPool(&((GoodsGroupBlock *)p_item)->CodeP); break;
-					case obPerson:      Helper_AddStringToPool(&((PersonBlock *)p_item)->CodeP); break;
-					case obSCardSeries: Helper_AddStringToPool(&((PersonBlock *)p_item)->CodeP); break;
-					case obSCard:       Helper_AddStringToPool(&((SCardBlock *)p_item)->CodeP); break;
-					case obParent:      Helper_AddStringToPool(&((ParentBlock *)p_item)->CodeP); break;
-					case obQuotKind:    Helper_AddStringToPool(&((QuotKindBlock *)p_item)->CodeP); break;
-					case obUnit:        Helper_AddStringToPool(&((UnitBlock *)p_item)->CodeP); break; // @v9.8.6
+					case obPosNode:     Helper_AddStringToPool(&static_cast<PosNodeBlock *>(p_item)->CodeP); break;
+					case obGoodsGroup:  Helper_AddStringToPool(&static_cast<GoodsGroupBlock *>(p_item)->CodeP); break;
+					case obPerson:      Helper_AddStringToPool(&static_cast<PersonBlock *>(p_item)->CodeP); break;
+					case obSCardSeries: Helper_AddStringToPool(&static_cast<PersonBlock *>(p_item)->CodeP); break;
+					case obSCard:       Helper_AddStringToPool(&static_cast<SCardBlock *>(p_item)->CodeP); break;
+					case obParent:      Helper_AddStringToPool(&static_cast<ParentBlock *>(p_item)->CodeP); break;
+					case obQuotKind:    Helper_AddStringToPool(&static_cast<QuotKindBlock *>(p_item)->CodeP); break;
+					case obUnit:        Helper_AddStringToPool(&static_cast<UnitBlock *>(p_item)->CodeP); break; // @v9.8.6
 					case obSource:
-					case obDestination: Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->CodeP); break;
+					case obDestination: Helper_AddStringToPool(&static_cast<RouteObjectBlock *>(p_item)->CodeP); break;
 					case obGoods:
 						break;
 					case obGoodsCode:
-						Helper_AddStringToPool(&((GoodsCode *)p_item)->CodeP);
+						Helper_AddStringToPool(&static_cast<GoodsCode *>(p_item)->CodeP);
 						RdB.RefPosStack.pop(ref_pos);
 						break;
 					case obCSession:
 						if(RdB.TagValue.NotEmptyS()) {
 							long   icode = RdB.TagValue.ToLong();
-							((CSessionBlock *)p_item)->Code = icode;
+							static_cast<CSessionBlock *>(p_item)->Code = icode;
 						}
 						break;
 					case obCCheck:
 						if(RdB.TagValue.NotEmptyS()) {
 							long   icode = RdB.TagValue.ToLong();
-							((CCheckBlock *)p_item)->Code = icode;
+							static_cast<CCheckBlock *>(p_item)->Code = icode;
 						}
 						break;
 					case obQuery:
@@ -2737,16 +2745,15 @@ int PPPosProtocol::EndElement(const char * pName)
 				break;
 			case PPHS_BASE:
 				p_item = PeekRefItem(&ref_pos, &type);
-				if(type == obUnit) {
-					((UnitBlock *)p_item)->BaseId = RdB.TagValue.ToLong();
-				}
+				if(type == obUnit)
+					static_cast<UnitBlock *>(p_item)->BaseId = RdB.TagValue.ToLong();
 				break;
 			case PPHS_BASERATIO:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
 					const double _value = RdB.TagValue.ToReal();
 					if(_value >= 0.0)
-						((UnitBlock *)p_item)->BaseRatio = _value;
+						static_cast<UnitBlock *>(p_item)->BaseRatio = _value;
 				}
 				break;
 			case PPHS_RATIO:
@@ -2754,34 +2761,34 @@ int PPPosProtocol::EndElement(const char * pName)
 				if(type == obUnit) {
 					const double _value = RdB.TagValue.ToReal();
 					if(_value >= 0.0)
-						((UnitBlock *)p_item)->PhRatio = _value;
+						static_cast<UnitBlock *>(p_item)->PhRatio = _value;
 				}
 				break;
 			case PPHS_PHYSICAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
 					if(RdB.IsTagValueBoolTrue())
-						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Physical;
+						static_cast<UnitBlock *>(p_item)->UnitFlags |= PPUnit::Physical;
 					else
-						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Physical;
+						static_cast<UnitBlock *>(p_item)->UnitFlags &= ~PPUnit::Physical;
 				}
 				break;
 			case PPHS_INTEGER: // @v10.2.7
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
 					if(RdB.IsTagValueBoolTrue())
-						((UnitBlock *)p_item)->UnitFlags |= PPUnit::IntVal;
+						static_cast<UnitBlock *>(p_item)->UnitFlags |= PPUnit::IntVal;
 					else
-						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::IntVal;
+						static_cast<UnitBlock *>(p_item)->UnitFlags &= ~PPUnit::IntVal;
 				}
 				break;
 			case PPHS_DEFAULT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
 					if(RdB.IsTagValueBoolTrue())
-						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Default;
+						static_cast<UnitBlock *>(p_item)->UnitFlags |= PPUnit::Default;
 					else
-						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Default;
+						static_cast<UnitBlock *>(p_item)->UnitFlags &= ~PPUnit::Default;
 				}
 				break;
 			case PPHS_REST:
@@ -2790,80 +2797,83 @@ int PPPosProtocol::EndElement(const char * pName)
 					p_item = PeekRefItem(&ref_pos, &type);
 					if(type == obLot) {
 						if(_value >= 0.0)
-							((LotBlock *)p_item)->Rest = _value;
+							static_cast<LotBlock *>(p_item)->Rest = _value;
 					}
 					else if(type == obGoods) {
 						if(_value >= 0.0)
-							((GoodsBlock *)p_item)->Rest = _value;
+							static_cast<GoodsBlock *>(p_item)->Rest = _value;
 					}
 				}
 				break;
 			case PPHS_COST:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obLot)
-					((LotBlock *)p_item)->Cost = RdB.TagValue.ToReal();
+					static_cast<LotBlock *>(p_item)->Cost = RdB.TagValue.ToReal();
 				break;
 			case PPHS_PRICE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods)
-					((GoodsBlock *)p_item)->Price = RdB.TagValue.ToReal();
+					static_cast<GoodsBlock *>(p_item)->Price = RdB.TagValue.ToReal();
 				else if(type == obCcLine)
-					((CcLineBlock *)p_item)->Price = RdB.TagValue.ToReal();
+					static_cast<CcLineBlock *>(p_item)->Price = RdB.TagValue.ToReal();
 				else if(type == obLot)
-					((LotBlock *)p_item)->Price = RdB.TagValue.ToReal();
+					static_cast<LotBlock *>(p_item)->Price = RdB.TagValue.ToReal();
 				break;
 			case PPHS_DISCOUNT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obSCard)
-					((SCardBlock *)p_item)->Discount = RdB.TagValue.ToReal();
+					static_cast<SCardBlock *>(p_item)->Discount = RdB.TagValue.ToReal();
 				else if(type == obCCheck)
-					((CCheckBlock *)p_item)->Discount = RdB.TagValue.ToReal();
+					static_cast<CCheckBlock *>(p_item)->Discount = RdB.TagValue.ToReal();
 				else if(type == obCcLine)
-					((CcLineBlock *)p_item)->Discount = RdB.TagValue.ToReal();
+					static_cast<CcLineBlock *>(p_item)->Discount = RdB.TagValue.ToReal();
+				break;
+			case PPHS_FIXEDBONUS: // @v10.5.7
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obSCard)
+					static_cast<SCardBlock *>(p_item)->FixedBonus = RdB.TagValue.ToReal();
 				break;
 			case PPHS_RETURN:
 				p_item = PeekRefItem(&ref_pos, &type);
 				THROW_PP_S(type == obCCheck, PPERR_PPPP_MISPL_RETURN, RdB.SrcFileName);
-				((CCheckBlock *)p_item)->SaCcFlags |= CCHKF_RETURN;
+				static_cast<CCheckBlock *>(p_item)->SaCcFlags |= CCHKF_RETURN;
 				break;
 			case PPHS_SUMDISCOUNT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obCcLine)
-					((CcLineBlock *)p_item)->SumDiscount = RdB.TagValue.ToReal();
+					static_cast<CcLineBlock *>(p_item)->SumDiscount = RdB.TagValue.ToReal();
 				break;
 			case PPHS_QTTY:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obCcLine)
-					((CcLineBlock *)p_item)->Qtty = RdB.TagValue.ToReal();
+					static_cast<CcLineBlock *>(p_item)->Qtty = RdB.TagValue.ToReal();
 				break;
 			case PPHS_SYSTEM:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(oneof2(type, obSource, obDestination)) {
-					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->SystemP);
+					Helper_AddStringToPool(&static_cast<RouteObjectBlock *>(p_item)->SystemP);
 				}
 				break;
 			case PPHS_VERSION:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(oneof2(type, obSource, obDestination)) {
-					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->VersionP);
+					Helper_AddStringToPool(&static_cast<RouteObjectBlock *>(p_item)->VersionP);
 				}
 				break;
 			case PPHS_DATE:
 				{
 					LDATE dt = strtodate_(RdB.TagValue, DATF_ISO8601);
 					p_item = PeekRefItem(&ref_pos, &type);
-					if(type == obLot) {
-						((LotBlock *)p_item)->Dt = dt;
-					}
+					if(type == obLot)
+						static_cast<LotBlock *>(p_item)->Dt = dt;
 				}
 				break;
 			case PPHS_EXPIRY:
 				{
 					LDATE dt = strtodate_(RdB.TagValue, DATF_ISO8601);
 					p_item = PeekRefItem(&ref_pos, &type);
-					if(type == obLot) {
-						((LotBlock *)p_item)->Expiry = dt;
-					}
+					if(type == obLot)
+						static_cast<LotBlock *>(p_item)->Expiry = dt;
 				}
 				break;
 			case PPHS_TIME:
@@ -2872,8 +2882,8 @@ int PPPosProtocol::EndElement(const char * pName)
 					strtodatetime(RdB.TagValue, &dtm, DATF_ISO8601, 0);
 					p_item = PeekRefItem(&ref_pos, &type);
 					switch(type) {
-						case obCSession: ((CSessionBlock *)p_item)->Dtm = dtm; break;
-						case obCCheck:   ((CCheckBlock *)p_item)->Dtm = dtm; break;
+						case obCSession: static_cast<CSessionBlock *>(p_item)->Dtm = dtm; break;
+						case obCCheck:   static_cast<CCheckBlock *>(p_item)->Dtm = dtm; break;
 					}
 				}
 				break;
@@ -2885,9 +2895,8 @@ int PPPosProtocol::EndElement(const char * pName)
 							uint32 _f = 0;
 							size_t real_len = 0;
 							RdB.TagValue.DecodeHex(0, &_f, sizeof(_f), &real_len);
-							if(real_len == sizeof(_f)) {
-								((CCheckBlock *)p_item)->CcFlags = _f;
-							}
+							if(real_len == sizeof(_f))
+								static_cast<CCheckBlock *>(p_item)->CcFlags = _f;
 						}
 						break;
 				}
@@ -2897,9 +2906,9 @@ int PPPosProtocol::EndElement(const char * pName)
 					p_item = PeekRefItem(&ref_pos, &type);
 					const double _value = RdB.TagValue.ToReal();
 					switch(type) {
-						case obCCheck: ((CCheckBlock *)p_item)->Amount = _value; break;
-						case obCcLine: ((CcLineBlock *)p_item)->Amount = _value; break;
-						case obPayment: ((CcPaymentBlock *)p_item)->Amount = _value; break;
+						case obCCheck: static_cast<CCheckBlock *>(p_item)->Amount = _value; break;
+						case obCcLine: static_cast<CcLineBlock *>(p_item)->Amount = _value; break;
+						case obPayment: static_cast<CcPaymentBlock *>(p_item)->Amount = _value; break;
 					}
 				}
 				break;
@@ -4280,9 +4289,12 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 							// @v10.2.9 sc_pack.Rec.PDis = R0i(r_blk.Discount * 100);
 							sc_pack.Rec.PDis = fmul100i(r_blk.Discount); // @v10.2.9
 						}
+						if(r_blk.FixedBonus > 0.0 && r_blk.FixedBonus <= 100000.0) { // @v10.5.7
+							sc_pack.Rec.FixedBonus = fmul100i(r_blk.FixedBonus);
+						}
 						if(r_blk.SeriesBlkP) {
 							int   inner_type = 0;
-							SCardSeriesBlock * p_scs_blk = (SCardSeriesBlock *)RdB.GetItem(r_blk.SeriesBlkP, &inner_type);
+							SCardSeriesBlock * p_scs_blk = static_cast<SCardSeriesBlock *>(RdB.GetItem(r_blk.SeriesBlkP, &inner_type));
 							if(p_scs_blk && inner_type == obSCardSeries)
 								sc_pack.Rec.SeriesID = p_scs_blk->NativeID;
 						}

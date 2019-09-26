@@ -499,6 +499,7 @@
 	#define PPOPT_DRAFTTRANSIT  21L // @v7.2.7 Специальная категория драфт-документов, которые
 		// отражают транзакции и отчеты сторонних контрагентов, для обмена друг с другом посредством системы, но
 		// без посредничества главной организации.
+	#define PPOPT_DRAFTQUOTREQ  22L // @v10.5.7 Запрос котировок (запрос на возможность, сроки и стоимость поставки товаров)
 #define PPOBJ_OPRKIND            12L  // $ Виды операций
 	#define PPOPK_GENERICACCTURN       1L // Общая бух. проводка
 	#define PPOPK_RECEIPT              2L // Прием товара от поставщика
@@ -717,6 +718,7 @@
 	#define PPEVNT_PHNS_RING     1002L // PhoneService event: Line is ringing
 	#define PPEVNT_PHNS_RINGING  1003L // PhoneService event: Remote end is ringing
 	#define PPEVNT_PHNC_UP       1004L // PhoneService event: Line is up
+	#define PPEVNT_MQB_MESSAGE   1101L // @v10.5.7 MessageQueueBroker event: message
 //
 // Фантомный объект. В таблице Reference для него не существует записей.
 // Могут существовать записи в таблице Property, реализующие линейный
@@ -1288,6 +1290,7 @@
 #define PPTAG_GOODS_VETISGUID       87L // @v10.5.1 GUID товара в справочнике ВЕТИС
 #define PPTAG_GUA_GUID              88L // @v10.5.3 GUID глобальной учетной записи
 #define PPTAG_GUA_ACCESSKEY         89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
+#define PPTAG_LOT_LINKBILLROW       90L // @v10.5.7 Связанная строка документа
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -1811,7 +1814,7 @@
 #define cmCopyToClipboardAll     1170
 #define cmLayoutEntry            1171 // @v10.4.9
 #define cmPasteFromClipboardAll  1172 // @erik v10.5.2
-#define cmDiagnostics            1173 // @v10.5.6 Кнопка диагностики   
+#define cmDiagnostics            1173 // @v10.5.6 Кнопка диагностики
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -3088,6 +3091,7 @@
 	#define CTL_RTCOMM_ONLYGGRPSTRIC    (17 + WINDOWS_ID_BIAS)
 	#define CTL_RTCOMM_OWNBILLRESTR     (18 + WINDOWS_ID_BIAS)
 	#define CTL_RTCOMM_PRDFORCSESS      (19 + WINDOWS_ID_BIAS)
+	#define CTL_RTCOMM_DBXRCV           (20 + WINDOWS_ID_BIAS)
 #define DLG_RTOBJ                 162 // Права доступа обобщенного объекта
 	#define CTL_RTOBJ_FLAGS              (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTOBJ_SFLAGS            (11 + WINDOWS_ID_BIAS)
@@ -6886,6 +6890,8 @@
 	#define CTL_MAKENEWDB_NAME           (3 + WINDOWS_ID_BIAS)
 	#define CTL_MAKENEWDB_SYMBOL         (4 + WINDOWS_ID_BIAS)
 	#define CTLBRW_MAKENEWDB_PATH        (5 + WINDOWS_ID_BIAS)
+	#define CTL_MAKENEWDB_POSHOST        (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_MAKENEWDB_POSHOST     (7 + WINDOWS_ID_BIAS)
 #define DLG_REGISTRATION          705 // Регистрация лицензии
 	#define CTL_REGISTRATION_NAME        (1 + WINDOWS_ID_BIAS)
 	#define CTL_REGISTRATION_SERIAL      (2 + WINDOWS_ID_BIAS)
@@ -10734,6 +10740,11 @@
 #define DLG_RMVTIMSER             1371
 	#define CTL_RMVTIMSER_WHAT        (1 + WINDOWS_ID_BIAS)
 	#define CTL_RMVTIMSER_WARN        (2 + WINDOWS_ID_BIAS)
+#define DLG_TESTMQC               1372
+	#define CTL_TESTMQC_CMD           (1 + WINDOWS_ID_BIAS)
+	#define CTL_TESTMQC_INFO          (2 + WINDOWS_ID_BIAS)
+	#define CTL_TESTMQC_RESULT        (3 + WINDOWS_ID_BIAS)
+	#define CTL_TESTMQC_TIMING        (4 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

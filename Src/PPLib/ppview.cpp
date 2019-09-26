@@ -244,7 +244,7 @@ SLAPI PPViewDisplayExtList::PPViewDisplayExtList() : SStrGroup()
 {
 }
 
-PPViewDisplayExtList & PPViewDisplayExtList::Clear()
+PPViewDisplayExtList & SLAPI PPViewDisplayExtList::Z()
 {
 	L.clear();
 	SStrGroup::ClearS();
@@ -706,7 +706,7 @@ int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
 		else if(p_b->Type == Branch::tStrAssocArray)
 			reinterpret_cast<StrAssocArray *>(PTR8(this) + p_b->Offs)->Z();
 		else if(p_b->Type == Branch::tDisplayExtList)
-			reinterpret_cast<PPViewDisplayExtList *>(PTR8(this) + p_b->Offs)->Clear();
+			reinterpret_cast<PPViewDisplayExtList *>(PTR8(this) + p_b->Offs)->Z();
 		else if(p_b->Type == Branch::tBaseFiltPtr) {
 			PPBaseFilt ** pp_filt = reinterpret_cast<PPBaseFilt **>(PTR8(this) + p_b->Offs);
 			if(*pp_filt) {
@@ -1264,39 +1264,36 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 			PPMqbClient mqc;
 			SString data_domain;
 			if(PPMqbClient::InitClient(mqc, &data_domain)) {
-				SString queue_name;
-				SString exchange_name;
-				{
-					int64 _fsize = 0;
-					SFile f_in(pFileName, SFile::mRead|SFile::mBinary);
-					THROW_SL(f_in.IsValid());
-					f_in.CalcSize(&_fsize);
-					if(_fsize > 0) {
-						STempBuffer data_buf(static_cast<size_t>(_fsize)+1024); // +1024 - insurance
-						size_t actual_rd_size = 0;
-						THROW_SL(data_buf.IsValid());
-						THROW_SL(f_in.Read(data_buf, data_buf.GetSize(), &actual_rd_size));
-						for(uint dgidx = 0; dgidx < pNf->DestGuaList.GetCount(); dgidx++) {
-							const PPID gua_id = pNf->DestGuaList.Get(dgidx);
-							S_GUID gua_guid;
-							if(gua_id && p_ref->Ot.GetTagGuid(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_GUID, gua_guid) > 0) {
-								// nfview.domain.guid
-								PPMqbClient::MessageProperties props;
-								props.ContentType = SFileFormat::Xml;
-								props.Encoding = SEncodingFormat::Unkn;
-								props.Priority = 5;
-								props.TimeStamp = getcurdatetime_();
-								SPathStruc ps(pFileName);
-								ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
-								props.Headers.Add("filename", temp_buf.Transf(CTRANSF_OUTER_TO_UTF8));
-								props.Headers.Add("namedfilt-name", (temp_buf = pNf->Name).Transf(CTRANSF_INNER_TO_UTF8));
-								props.Headers.Add("namedfilt-symb", (temp_buf = pNf->Symb).Transf(CTRANSF_INNER_TO_UTF8));
-								props.Headers.Add("namedfilt-viewsymb", (temp_buf = pNf->ViewSymb).Transf(CTRANSF_INNER_TO_UTF8));
-								props.Headers.Add("namedfilt-dbsymb", (temp_buf = pNf->DbSymb).Transf(CTRANSF_INNER_TO_UTF8));
-								queue_name.Z().Cat("nfview").Dot().Cat(data_domain).Dot().Cat(gua_guid, S_GUID::fmtIDL|S_GUID::fmtLower);
-								THROW(mqc.QueueDeclare(queue_name, 0));
-								(exchange_name = " ").Z();
-								THROW(mqc.Publish(exchange_name, queue_name, &props, data_buf, actual_rd_size));
+				int64 _fsize = 0;
+				SFile f_in(pFileName, SFile::mRead|SFile::mBinary);
+				THROW_SL(f_in.IsValid());
+				f_in.CalcSize(&_fsize);
+				if(_fsize > 0) {
+					STempBuffer data_buf(static_cast<size_t>(_fsize)+1024); // +1024 - insurance
+					size_t actual_rd_size = 0;
+					THROW_SL(data_buf.IsValid());
+					THROW_SL(f_in.Read(data_buf, data_buf.GetSize(), &actual_rd_size));
+					for(uint dgidx = 0; dgidx < pNf->DestGuaList.GetCount(); dgidx++) {
+						const PPID gua_id = pNf->DestGuaList.Get(dgidx);
+						S_GUID gua_guid;
+						if(gua_id && p_ref->Ot.GetTagGuid(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_GUID, gua_guid) > 0) {
+							PPMqbClient::MessageProperties props;
+							props.ContentType = SFileFormat::Xml;
+							props.Encoding = SEncodingFormat::Unkn;
+							props.Priority = 5;
+							props.TimeStamp = getcurdatetime_();
+							SPathStruc ps(pFileName);
+							ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+							props.Headers.Add("filename", temp_buf.Transf(CTRANSF_OUTER_TO_UTF8));
+							props.Headers.Add("namedfilt-name", (temp_buf = pNf->Name).Transf(CTRANSF_INNER_TO_UTF8));
+							props.Headers.Add("namedfilt-symb", (temp_buf = pNf->Symb).Transf(CTRANSF_INNER_TO_UTF8));
+							props.Headers.Add("namedfilt-viewsymb", (temp_buf = pNf->ViewSymb).Transf(CTRANSF_INNER_TO_UTF8));
+							props.Headers.Add("namedfilt-dbsymb", (temp_buf = pNf->DbSymb).Transf(CTRANSF_INNER_TO_UTF8));
+							{
+								PPMqbClient::RoutingParamEntry rpe;
+								THROW(rpe.SetupReserved(PPMqbClient::rtrsrvStyloView, data_domain, &gua_guid, 0));
+								THROW(mqc.ApplyRoutingParamEntry(rpe));
+								THROW(mqc.Publish(rpe.ExchangeName, rpe.RoutingKey, &props, data_buf, actual_rd_size));
 							}
 						}
 					}

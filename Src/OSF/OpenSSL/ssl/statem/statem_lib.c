@@ -733,11 +733,11 @@ int ssl_set_version_bound(int method_version, int version, int * bound)
 	switch(method_version) {
 		default:
 		    /*
-		     * XXX For fixed version methods, should we always fail and not set any
-		     * bounds, always succeed and not set any bounds, or set the bounds and
-		     * arrange to fail later if they are not met?  At present fixed-version
-		     * methods are not subject to controls that disable individual protocol
-		     * versions.
+		 * XXX For fixed version methods, should we always fail and not set any
+		 * bounds, always succeed and not set any bounds, or set the bounds and
+		 * arrange to fail later if they are not met?  At present fixed-version
+		 * methods are not subject to controls that disable individual protocol
+		 * versions.
 		     */
 		    return 0;
 
@@ -788,11 +788,11 @@ int ssl_choose_server_version(SSL * s)
 		    if(version_cmp(s, client_version, s->version) < 0)
 			    return SSL_R_WRONG_SSL_VERSION;
 		    /*
-		     * If this SSL handle is not from a version flexible method we don't
-		     * (and never did) check min/max FIPS or Suite B constraints.  Hope
-		     * that's OK.  It is up to the caller to not choose fixed protocol
-		     * versions they don't want.  If not, then easy to fix, just return
-		     * ssl_method_error(s, s->method)
+		 * If this SSL handle is not from a version flexible method we don't
+		 * (and never did) check min/max FIPS or Suite B constraints.  Hope
+		 * that's OK.  It is up to the caller to not choose fixed protocol
+		 * versions they don't want.  If not, then easy to fix, just return
+		 * ssl_method_error(s, s->method)
 		     */
 		    return 0;
 		case TLS_ANY_VERSION:
@@ -840,11 +840,11 @@ int ssl_choose_client_version(SSL * s, int version)
 		    if(version != s->version)
 			    return SSL_R_WRONG_SSL_VERSION;
 		    /*
-		     * If this SSL handle is not from a version flexible method we don't
-		     * (and never did) check min/max, FIPS or Suite B constraints.  Hope
-		     * that's OK.  It is up to the caller to not choose fixed protocol
-		     * versions they don't want.  If not, then easy to fix, just return
-		     * ssl_method_error(s, s->method)
+		 * If this SSL handle is not from a version flexible method we don't
+		 * (and never did) check min/max, FIPS or Suite B constraints.  Hope
+		 * that's OK.  It is up to the caller to not choose fixed protocol
+		 * versions they don't want.  If not, then easy to fix, just return
+		 * ssl_method_error(s, s->method)
 		     */
 		    return 0;
 		case TLS_ANY_VERSION:
@@ -907,11 +907,11 @@ int ssl_get_client_min_max_version(const SSL * s, int * min_version,
 	switch(s->method->version) {
 		default:
 		    /*
-		     * If this SSL handle is not from a version flexible method we don't
-		     * (and never did) check min/max FIPS or Suite B constraints.  Hope
-		     * that's OK.  It is up to the caller to not choose fixed protocol
-		     * versions they don't want.  If not, then easy to fix, just return
-		     * ssl_method_error(s, s->method)
+		 * If this SSL handle is not from a version flexible method we don't
+		 * (and never did) check min/max FIPS or Suite B constraints.  Hope
+		 * that's OK.  It is up to the caller to not choose fixed protocol
+		 * versions they don't want.  If not, then easy to fix, just return
+		 * ssl_method_error(s, s->method)
 		     */
 		    *min_version = *max_version = s->version;
 		    return 0;

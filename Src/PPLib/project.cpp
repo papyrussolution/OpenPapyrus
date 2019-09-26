@@ -8,10 +8,10 @@
 //
 PPProjectConfig::PPProjectConfig()
 {
-	Clear();
+	Z();
 }
 
-PPProjectConfig & PPProjectConfig::Clear()
+PPProjectConfig & PPProjectConfig::Z()
 {
 	THISZERO();
 	return *this;

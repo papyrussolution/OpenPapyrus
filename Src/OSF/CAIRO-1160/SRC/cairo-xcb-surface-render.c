@@ -1095,7 +1095,7 @@ static cairo_xcb_picture_t * _cairo_xcb_surface_picture(cairo_xcb_surface_t * ta
 			}
 		}
 		else if(source->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
-			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t*)source;
+			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)source;
 			cairo_xcb_surface_t * xcb = (cairo_xcb_surface_t*)sub->target;
 
 			/* XXX repeat interval with source clipping? */
@@ -1124,7 +1124,6 @@ static cairo_xcb_picture_t * _cairo_xcb_surface_picture(cairo_xcb_surface_t * ta
 		else if(_cairo_surface_is_snapshot(source)) {
 			cairo_surface_snapshot_t * snap = (cairo_surface_snapshot_t*)source;
 			cairo_xcb_surface_t * xcb = (cairo_xcb_surface_t*)snap->target;
-
 			if(xcb->screen == target->screen && xcb->fallback == NULL) {
 				picture = _copy_to_picture(xcb);
 				if(unlikely(picture->base.status))
@@ -1143,25 +1142,18 @@ static cairo_xcb_picture_t * _cairo_xcb_surface_picture(cairo_xcb_surface_t * ta
 			}
 		}
 		else if(source->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
-			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t*)source;
+			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)source;
 			cairo_xcb_surface_t * xcb = ((cairo_xlib_xcb_surface_t*)sub->target)->xcb;
-
 			if(FALSE && xcb->screen == target->screen && xcb->fallback == NULL) {
 				xcb_rectangle_t rect;
-
 				picture = _copy_to_picture(xcb);
 				if(unlikely(picture->base.status))
 					return picture;
-
 				rect.x = sub->extents.x;
 				rect.y = sub->extents.y;
 				rect.width  = sub->extents.width;
 				rect.height = sub->extents.height;
-
-				_cairo_xcb_connection_render_set_picture_clip_rectangles(xcb->connection,
-				    picture->picture,
-				    0, 0,
-				    1, &rect);
+				_cairo_xcb_connection_render_set_picture_clip_rectangles(xcb->connection, picture->picture, 0, 0, 1, &rect);
 				picture->x0 = rect.x;
 				picture->y0 = rect.y;
 				picture->width  = rect.width;

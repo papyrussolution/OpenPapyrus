@@ -250,20 +250,7 @@ int SLAPI PPObjStaffList::SerializePacket(int dir, PPStaffPacket * pPack, SBuffe
 }
 
 int SLAPI PPObjStaffList::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPStaffPacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPStaffPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPStaffPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjStaffList, PPStaffPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjStaffList::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

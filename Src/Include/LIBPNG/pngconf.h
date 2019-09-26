@@ -542,30 +542,30 @@ typedef size_t png_alloc_size_t;
 typedef png_int_32 png_fixed_point;
 
 /* Add typedefs for pointers */
-typedef void                  * png_voidp_Removed;
-typedef const void            * png_const_voidp_Removed;
-typedef uint8              * png_bytep;
-typedef const uint8        * png_const_bytep;
-typedef uint32           * png_uint_32p;
-typedef const uint32     * png_const_uint_32p;
-typedef png_int_32            * png_int_32p;
-typedef const png_int_32      * png_const_int_32p;
-typedef png_uint_16           * png_uint_16p;
-typedef const png_uint_16     * png_const_uint_16p;
-typedef png_int_16            * png_int_16p;
-typedef const png_int_16      * png_const_int_16p;
-typedef char                  * png_charp_Removed;
-//typedef const char            * png_const_charp_Removed;
-typedef png_fixed_point       * png_fixed_point_p;
+typedef void  * png_voidp_Removed;
+typedef const void * png_const_voidp_Removed;
+typedef uint8   * png_bytep;
+typedef const uint8   * png_const_bytep;
+typedef uint32 * png_uint_32p;
+typedef const uint32 * png_const_uint_32p;
+typedef png_int_32 * png_int_32p;
+typedef const png_int_32 * png_const_int_32p;
+typedef png_uint_16 * png_uint_16p;
+typedef const png_uint_16 * png_const_uint_16p;
+typedef png_int_16 * png_int_16p;
+typedef const png_int_16 * png_const_int_16p;
+typedef char  * png_charp_Removed;
+//typedef const char * png_const_charp_Removed;
+typedef png_fixed_point  * png_fixed_point_p;
 typedef const png_fixed_point * png_const_fixed_point_p;
-typedef size_t            * png_size_tp;
-typedef const size_t      * png_const_size_tp;
+typedef size_t * png_size_tp;
+typedef const size_t * png_const_size_tp;
 
 #ifdef PNG_STDIO_SUPPORTED
-	typedef FILE            * png_FILE_p;
+	typedef FILE * png_FILE_p;
 #endif
 #ifdef PNG_FLOATING_POINT_SUPPORTED
-	typedef double       * png_doublep;
+	typedef double  * png_doublep;
 	typedef const double * png_const_doublep;
 #endif
 

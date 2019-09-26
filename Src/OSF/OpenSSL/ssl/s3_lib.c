@@ -1977,7 +1977,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 	},
 # endif                         /* OPENSSL_NO_PSK */
 #endif                          /* !defined(OPENSSL_NO_CHACHA) &&
-	                         * !defined(OPENSSL_NO_POLY1305) */
+	    * !defined(OPENSSL_NO_POLY1305) */
 
 #ifndef OPENSSL_NO_CAMELLIA
 	{
@@ -3069,8 +3069,8 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    if(!cipher)
 				    return 0;
 			    /*
-			     * No certificate for unauthenticated ciphersuites or using SRP
-			     * authentication
+			 * No certificate for unauthenticated ciphersuites or using SRP
+			 * authentication
 			     */
 			    if(cipher->algorithm_auth & (SSL_aNULL | SSL_aSRP))
 				    return 2;

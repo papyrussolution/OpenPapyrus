@@ -1237,7 +1237,7 @@ static cairo_int_status_t _emit_surface_pattern(cairo_script_surface_t * surface
 		    status = _emit_script_surface_pattern(surface, (cairo_script_surface_t*)source);
 		    break;
 		case CAIRO_SURFACE_TYPE_SUBSURFACE:
-		    status = _emit_subsurface_pattern(surface, (cairo_surface_subsurface_t*)source);
+		    status = _emit_subsurface_pattern(surface, (cairo_surface_subsurface_t *)source);
 		    break;
 		default:
 		    status = _emit_image_surface_pattern(surface, source);

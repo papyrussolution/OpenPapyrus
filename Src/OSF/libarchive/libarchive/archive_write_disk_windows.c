@@ -1423,7 +1423,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			    a->todo &= ~TODO_TIMES;
 			    /* Never use an immediate chmod(). */
 			    /* We can't avoid the chmod() entirely if EXTRACT_PERM
-			     * because of SysV SGID inheritance. */
+			 * because of SysV SGID inheritance. */
 			    if((mode != final_mode) || (a->flags & ARCHIVE_EXTRACT_PERM))
 				    a->deferred |= (a->todo & TODO_MODE);
 			    a->todo &= ~TODO_MODE;
@@ -1437,7 +1437,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    break;
 		case AE_IFIFO:
 		    /* TODO: Find a better way to warn about our inability
-		     * to restore a fifo. */
+		 * to restore a fifo. */
 		    return (EINVAL);
 	}
 

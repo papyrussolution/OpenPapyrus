@@ -11,13 +11,9 @@
 	#include <openssl/evp.h>
 #endif
 
-//static 
 uint8  * SlHash::State::P_Tab_Crc8 = 0;
-//static 
 uint16 * SlHash::State::P_Tab_Crc16 = 0;
-//static 
 uint32 * SlHash::State::P_Tab_Crc32 = 0;
-//static 
 uint64 * SlHash::State::P_Tab_Crc64 = 0;
 
 struct BdtTestItem {
@@ -1570,23 +1566,280 @@ uint32 FASTCALL SlHash::Adler32(State * pS, const void * pData, size_t dataLen)
 	}
 	return result;
 }
+// 
+// Helper functions.
+// 
+#define SHA1_ROTATE(bits, word)  (((word) << (bits)) | ((word) >> (32 - (bits))))
+#define SHA1_F1(b, c, d)  (((b) & (c)) | ((~(b)) & (d)))
+#define SHA1_F2(b, c, d)  ((b) ^ (c) ^ (d))
+#define SHA1_F3(b, c, d)  (((b) & (c)) | ((b) & (d)) | ((c) & (d)))
+#define SHA1_STEP(f, a, b, c, d, e, w, t) temp = SHA1_ROTATE(5, (a)) + f((b), (c), (d)) + (e) + (w) + (t); (e) = (d); (d) = (c); (c) = SHA1_ROTATE(30, (b)); (b) = (a); (a) = temp;
+// 
+// This processes one or more 64-byte data blocks, but does not update
+// the bit counters.  There are no alignment requirements.
+// 
+//static 
+const  uchar * SlHash::Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size)
+{
+	uint32 words[80];
+	uint   i;
+	const  uchar * p = data;
+	uint32 a = pCtx->H[0];
+	uint32 b = pCtx->H[1];
+	uint32 c = pCtx->H[2];
+	uint32 d = pCtx->H[3];
+	uint32 e = pCtx->H[4];
+	do {
+		const uint32 saved_a = a;
+		const uint32 saved_b = b;
+		const uint32 saved_c = c;
+		const uint32 saved_d = d;
+		const uint32 saved_e = e;
+		uint32 temp;
+		// Load data block into the words array 
+		// 
+		// GET() reads 4 input bytes in big-endian byte order and returns them as uint32_t.
+		// 
+		#define SHA1_GET(n) ((uint32)p[n * 4 + 3] | ((uint32)p[n * 4 + 2] << 8) | ((uint32)p[n * 4 + 1] << 16) | ((uint32)p[n * 4] << 24))
+		for(i = 0; i < 16; i++) {
+			words[i] = SHA1_GET(i);
+		}
+		#undef SHA1_GET
+		for(i = 16; i < 80; i++) {
+			words[i] = SHA1_ROTATE(1, words[i-3] ^ words[i-8] ^ words[i-14] ^ words[i-16]);
+		}
+		// Transformations 
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[0],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[1],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[2],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[3],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[4],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[5],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[6],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[7],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[8],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[9],  0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[10], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[11], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[12], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[13], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[14], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[15], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[16], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[17], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[18], 0x5a827999);
+		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[19], 0x5a827999);
+
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[20], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[21], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[22], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[23], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[24], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[25], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[26], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[27], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[28], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[29], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[30], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[31], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[32], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[33], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[34], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[35], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[36], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[37], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[38], 0x6ed9eba1);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[39], 0x6ed9eba1);
+
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[40], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[41], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[42], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[43], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[44], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[45], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[46], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[47], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[48], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[49], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[50], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[51], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[52], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[53], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[54], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[55], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[56], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[57], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[58], 0x8f1bbcdc);
+		SHA1_STEP(SHA1_F3, a, b, c, d, e, words[59], 0x8f1bbcdc);
+
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[60], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[61], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[62], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[63], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[64], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[65], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[66], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[67], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[68], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[69], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[70], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[71], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[72], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[73], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[74], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[75], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[76], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[77], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[78], 0xca62c1d6);
+		SHA1_STEP(SHA1_F2, a, b, c, d, e, words[79], 0xca62c1d6);
+
+		a += saved_a;
+		b += saved_b;
+		c += saved_c;
+		d += saved_d;
+		e += saved_e;
+
+		p += 64;
+	} while(size -= 64);
+	pCtx->H[0] = a;
+	pCtx->H[1] = b;
+	pCtx->H[2] = c;
+	pCtx->H[3] = d;
+	pCtx->H[4] = e;
+	return p;
+}
+
+//static 
+int FASTCALL SlHash::Sha1(State * pS, const void * pData, size_t dataLen, void * pResult, size_t resultBufLen)
+{
+	int    ok = 1;
+	if(!pS) {
+		State st;
+		ok = Sha1(&st, pData, dataLen, pResult, resultBufLen);
+		if(pData && dataLen)
+			ok = Sha1(&st, 0, 0, pResult, resultBufLen);
+	}
+	else {
+		State::ShaCtx & r_ctx = pS->Result.Sha;
+		if(pS->Flags & pS->fEmpty) {
+			r_ctx.H[0] = 0x67452301;
+			r_ctx.H[1] = 0xefcdab89;
+			r_ctx.H[2] = 0x98badcfe;
+			r_ctx.H[3] = 0x10325476;
+			r_ctx.H[4] = 0xc3d2e1f0;
+			r_ctx.Count = 0;
+			pS->Flags &= ~pS->fEmpty;
+		}
+		if(pData && dataLen) {
+			int    done = 0;
+			const  size_t used = (size_t)(r_ctx.Count & 0x3f);
+			r_ctx.Count += dataLen;
+			if(used) {
+				const size_t free__ = 64 - used;
+				if(dataLen < free__) {
+					memcpy(PTR8(r_ctx.Data)+used, pData, dataLen);
+					done = 1;
+				}
+				else {
+					memcpy(PTR8(r_ctx.Data)+used, pData, free__);
+					pData = PTR8C(pData) + free__;
+					dataLen -= free__;
+					Sha1_Body(&r_ctx, reinterpret_cast<const uchar *>(r_ctx.Data), 64);
+				}
+			}
+			if(!done) {
+				if(dataLen >= 64) {
+					pData = Sha1_Body(&r_ctx, static_cast<const uchar *>(pData), dataLen & ~(size_t)0x3f);
+					dataLen &= 0x3f;
+				}
+				assert(dataLen <= sizeof(r_ctx.Data));
+				memcpy(r_ctx.Data, pData, dataLen);
+			}
+		}
+		else { // final
+			{
+				size_t used = (size_t)(r_ctx.Count & 0x3f);
+				PTR8(r_ctx.Data)[used++] = 0x80;
+				size_t free__ = 64 - used;
+				if(free__ < 8) {
+					memzero(PTR8(r_ctx.Data) + used, free__);
+					Sha1_Body(&r_ctx, PTR8(r_ctx.Data), 64);
+					used = 0;
+					free__ = 64;
+				}
+				memzero(PTR8(r_ctx.Data) + used, free__ - 8);
+				r_ctx.Count <<= 3;
+				PTR8(r_ctx.Data)[56] = static_cast<uchar>(r_ctx.Count >> 56);
+				PTR8(r_ctx.Data)[57] = static_cast<uchar>(r_ctx.Count >> 48);
+				PTR8(r_ctx.Data)[58] = static_cast<uchar>(r_ctx.Count >> 40);
+				PTR8(r_ctx.Data)[59] = static_cast<uchar>(r_ctx.Count >> 32);
+				PTR8(r_ctx.Data)[60] = static_cast<uchar>(r_ctx.Count >> 24);
+				PTR8(r_ctx.Data)[61] = static_cast<uchar>(r_ctx.Count >> 16);
+				PTR8(r_ctx.Data)[62] = static_cast<uchar>(r_ctx.Count >> 8);
+				PTR8(r_ctx.Data)[63] = (uchar)r_ctx.Count;
+				{
+					Sha1_Body(&r_ctx, PTR8(r_ctx.Data), 64);
+				}
+				PTR8(pResult)[0]  = static_cast<uchar>(r_ctx.H[0] >> 24);
+				PTR8(pResult)[1]  = static_cast<uchar>(r_ctx.H[0] >> 16);
+				PTR8(pResult)[2]  = static_cast<uchar>(r_ctx.H[0] >> 8);
+				PTR8(pResult)[3]  = static_cast<uchar>(r_ctx.H[0]);
+				PTR8(pResult)[4]  = static_cast<uchar>(r_ctx.H[1] >> 24);
+				PTR8(pResult)[5]  = static_cast<uchar>(r_ctx.H[1] >> 16);
+				PTR8(pResult)[6]  = static_cast<uchar>(r_ctx.H[1] >> 8);
+				PTR8(pResult)[7]  = static_cast<uchar>(r_ctx.H[1]);
+				PTR8(pResult)[8]  = static_cast<uchar>(r_ctx.H[2] >> 24);
+				PTR8(pResult)[9]  = static_cast<uchar>(r_ctx.H[2] >> 16);
+				PTR8(pResult)[10] = static_cast<uchar>(r_ctx.H[2] >> 8);
+				PTR8(pResult)[11] = static_cast<uchar>(r_ctx.H[2]);
+				PTR8(pResult)[12] = static_cast<uchar>(r_ctx.H[3] >> 24);
+				PTR8(pResult)[13] = static_cast<uchar>(r_ctx.H[3] >> 16);
+				PTR8(pResult)[14] = static_cast<uchar>(r_ctx.H[3] >> 8);
+				PTR8(pResult)[15] = static_cast<uchar>(r_ctx.H[3]);
+				PTR8(pResult)[16] = static_cast<uchar>(r_ctx.H[4] >> 24);
+				PTR8(pResult)[17] = static_cast<uchar>(r_ctx.H[4] >> 16);
+				PTR8(pResult)[18] = static_cast<uchar>(r_ctx.H[4] >> 8);
+				PTR8(pResult)[19] = static_cast<uchar>(r_ctx.H[4]);
+				r_ctx.Z();
+			}
+		}
+	}
+	return ok;
+}
+
+//static 
+int FASTCALL SlHash::Sha256(State * pS, const void * pData, size_t dataLen, void * pResult, size_t resultBufLen)
+{
+	int    ok = 0;
+	if(!pS) {
+		State st;
+		Sha256(&st, pData, dataLen, pResult, resultBufLen);
+		ok = Sha256(&st, 0, 0, pResult, resultBufLen);
+	}
+	else {
+		if(pS->Flags & pS->fEmpty) {
+			pS->Flags &= ~pS->fEmpty;
+		}
+	}
+	return ok;
+}
 
 void TestCRC()
 {
+	SString data_trasform_path;
+	SLS.QueryPath("testroot", data_trasform_path);
+	data_trasform_path.SetLastDSlash().Cat("data/DataTransform").SetLastDSlash();
 	SString in_file_name;
+	TSCollection <BdtTestItem> data_set;
 	{
-		SLS.QueryPath("testroot", in_file_name);
-		in_file_name.SetLastDSlash().Cat("data/DataTransform").SetLastDSlash().Cat("crc24.vec");
-		TSCollection <BdtTestItem> data_set;
+		(in_file_name = data_trasform_path).Cat("crc24.vec");
+		data_set.freeAll();
 		ReadBdtTestData(in_file_name, "CRC24", data_set);
 		for(uint i = 0; i < data_set.getCount(); i++) {
 			const BdtTestItem * p_item = data_set.at(i);
 			const size_t src_size = p_item->In.GetLen();
 			const uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0] & 0x00ffffff;
 			const void * p_src_buf = p_item->In.GetBufC();
-			//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-			//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-			//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 			{
 				uint32 r = SlHash::CRC24(0, p_src_buf, src_size);
 				assert(r == pattern_value);
@@ -1606,9 +1859,8 @@ void TestCRC()
 		}
 	}
 	{
-		SLS.QueryPath("testroot", in_file_name);
-		in_file_name.SetLastDSlash().Cat("data/DataTransform").SetLastDSlash().Cat("crc32.vec");
-		TSCollection <BdtTestItem> data_set;
+		(in_file_name = data_trasform_path).Cat("crc32.vec");
+		data_set.freeAll();
 		ReadBdtTestData(in_file_name, "CRC32", data_set);
 		for(uint i = 0; i < data_set.getCount(); i++) {
 			const BdtTestItem * p_item = data_set.at(i);
@@ -1637,9 +1889,8 @@ void TestCRC()
 		}
 	}
 	{
-		SLS.QueryPath("testroot", in_file_name);
-		in_file_name.SetLastDSlash().Cat("data/DataTransform").SetLastDSlash().Cat("adler32.vec");
-		TSCollection <BdtTestItem> data_set;
+		(in_file_name = data_trasform_path).Cat("adler32.vec");
+		data_set.freeAll();
 		ReadBdtTestData(in_file_name, "Adler32", data_set);
 		for(uint i = 0; i < data_set.getCount(); i++) {
 			const BdtTestItem * p_item = data_set.at(i);
@@ -1664,6 +1915,33 @@ void TestCRC()
 				SlHash::Adler32(&st, 0, 0); // finalize
 				r = st.GetResult32();
 				assert(r == pattern_value);
+			}
+		}
+	}
+	{
+		(in_file_name = data_trasform_path).Cat("sha1.vec");
+		data_set.freeAll();
+		ReadBdtTestData(in_file_name, "SHA-160", data_set);
+		for(uint i = 0; i < data_set.getCount(); i++) {
+			const BdtTestItem * p_item = data_set.at(i);
+			const size_t src_size = p_item->In.GetLen();
+			const void * p_src_buf = p_item->In.GetBufC();
+			uint8 result_buf[128];
+			const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
+			{
+				SlHash::Sha1(0, p_src_buf, src_size, result_buf, sizeof(result_buf));
+				assert(memcmp(result_buf, p_pattern_buf, 20) == 0);
+			}
+			if(src_size > 10) {
+				SlHash::State st;
+				size_t total_sz = 0;
+				uint32 r = 0;
+				for(size_t ps = 1; total_sz < src_size; ps++) {
+					SlHash::Sha1(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)), result_buf, sizeof(result_buf));
+					total_sz += ps;
+				}
+				SlHash::Sha1(&st, 0, 0, result_buf, sizeof(result_buf)); // finalize
+				assert(memcmp(result_buf, p_pattern_buf, 20) == 0);
 			}
 		}
 	}
@@ -1928,8 +2206,8 @@ int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen)
 					}
 					else if((_do_check && len == 12) || (!_do_check && len == 11)) {
 						if(_do_check) {
-							const int8 w1[] = {7,2,4,10, 3,5,9,4,6,8,0};
-							const int8 w2[] = {3,7,2, 4,10,3,5,9,4,6,8,0};
+							static const int8 w1[] = {7,2,4,10, 3,5,9,4,6,8,0};
+							static const int8 w2[] = {3,7,2, 4,10,3,5,9,4,6,8,0};
 							ulong  sum1 = 0, sum2 = 0;
 							for(i = 0; i < 11; i++) {
 								uint   p = (code[i] - '0');

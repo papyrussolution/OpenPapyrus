@@ -2534,11 +2534,11 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 				switch(k->httpcode) {
 					case 100:
 					    /*
-					     * We have made a HTTP PUT or POST and this is 1.1-lingo
-					     * that tells us that the server is OK with this and ready
-					     * to receive the data.
-					     * However, we'll get more headers now so we must get
-					     * back into the header-parsing state!
+					 * We have made a HTTP PUT or POST and this is 1.1-lingo
+					 * that tells us that the server is OK with this and ready
+					 * to receive the data.
+					 * However, we'll get more headers now so we must get
+					 * back into the header-parsing state!
 					     */
 					    k->header = TRUE;
 					    k->headerline = 0; /* restart the header line counter */
@@ -2643,8 +2643,8 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 						case HTTPREQ_POST:
 						case HTTPREQ_POST_FORM:
 						    /* We got an error response. If this happened before the whole
-						     * request body has been sent we stop sending and mark the
-						     * connection for closure after we've read the entire response.
+						 * request body has been sent we stop sending and mark the
+						 * connection for closure after we've read the entire response.
 						     */
 						    if(!k->upload_done) {
 							    if(data->set.http_keep_sending_on_error) {
@@ -2884,9 +2884,9 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					// @fallthrough
 					case 304:
 					    /* (quote from RFC2616, section 10.3.5): The 304 response
-					     * MUST NOT contain a message-body, and thus is always
-					     * terminated by the first empty line after the header
-					     * fields.  */
+					 * MUST NOT contain a message-body, and thus is always
+					 * terminated by the first empty line after the header
+					 * fields.  */
 					    if(data->set.timecondition)
 						    data->info.timecond = TRUE;
 					    k->size = 0;

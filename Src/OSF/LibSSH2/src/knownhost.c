@@ -636,9 +636,9 @@ static int hostline(LIBSSH2_KNOWNHOSTS * hosts,
 		    key_type = LIBSSH2_KNOWNHOST_KEY_RSA1;
 
 		    /* Note that the old-style keys (RSA1) aren't truly base64, but we
-		     * claim it is for now since we can get away with strcmp()ing the
-		     * entire anything anyway! We need to check and fix these to make them
-		     * work properly.
+		 * claim it is for now since we can get away with strcmp()ing the
+		 * entire anything anyway! We need to check and fix these to make them
+		 * work properly.
 		     */
 		    break;
 

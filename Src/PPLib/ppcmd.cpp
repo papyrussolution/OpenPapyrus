@@ -1157,7 +1157,7 @@ int SLAPI EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr)
 	int    ok = 1;
 	size_t sav_offs = 0;
 	PPBaseFilt * p_filt = 0;
-	PPView     * p_view = 0;
+	PPView * p_view = 0;
 	THROW_INVARG(pParam);
 	sav_offs = pParam->GetRdOffs();
 	THROW(PPView::CreateInstance(viewID, &p_view) > 0);
@@ -1183,7 +1183,7 @@ int SLAPI RunPPViewCmd(int viewID, SBuffer * pParam, long menuCm, long cmdID, vo
 {
 	int    ok = 1;
 	PPBaseFilt * p_filt = 0;
-	PPView     * p_view = 0;
+	PPView * p_view = 0;
 	if((menuCm || cmdID) && APPL) {
 		static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : menuCm;
 		if(pParam)
@@ -2081,7 +2081,7 @@ int AddBillFiltDlg::OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList)
 	else if(bbt == bbtInventoryBills)
 		pOpTypeList->add(PPOPT_INVENTORY);
 	else if(bbt == bbtDraftBills)
-		pOpTypeList->addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
+		pOpTypeList->addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 	pOpTypeList->sort();
 	CATCHZOK
 	return ok;

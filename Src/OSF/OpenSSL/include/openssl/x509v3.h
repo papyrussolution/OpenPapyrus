@@ -137,7 +137,7 @@ typedef struct GENERAL_NAME_st {
 		ASN1_OCTET_STRING * ip; /* iPAddress */
 		X509_NAME * dirn; /* dirn */
 		ASN1_IA5STRING * ia5; /* rfc822Name, dNSName,
-		                       * uniformResourceIdentifier */
+		  * uniformResourceIdentifier */
 		ASN1_OBJECT * rid; /* registeredID */
 		ASN1_TYPE * other; /* x400Address */
 	} d;

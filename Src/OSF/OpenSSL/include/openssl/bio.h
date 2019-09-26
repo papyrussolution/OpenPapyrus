@@ -89,7 +89,7 @@ extern "C" {
 /* dgram BIO stuff */
 #define BIO_CTRL_DGRAM_CONNECT       31/* BIO dgram special */
 #define BIO_CTRL_DGRAM_SET_CONNECTED 32/* allow for an externally connected
-                                         * socket to be passed in */
+    * socket to be passed in */
 #define BIO_CTRL_DGRAM_SET_RECV_TIMEOUT 33/* setsockopt, essentially */
 #define BIO_CTRL_DGRAM_GET_RECV_TIMEOUT 34/* getsockopt, essentially */
 #define BIO_CTRL_DGRAM_SET_SEND_TIMEOUT 35/* setsockopt, essentially */
@@ -288,7 +288,7 @@ struct bio_dgram_sctp_prinfo {
 #define BIO_C_FILE_SEEK                         128
 #define BIO_C_GET_CIPHER_CTX                    129
 #define BIO_C_SET_BUF_MEM_EOF_RETURN            130/* return end of input
-                                                     * value */
+       * value */
 #define BIO_C_SET_BIND_MODE                     131
 #define BIO_C_GET_BIND_MODE                     132
 #define BIO_C_FILE_TELL                         133

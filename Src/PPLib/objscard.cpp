@@ -1577,25 +1577,7 @@ int SLAPI PPObjSCardSeries::SerializePacket(int dir, PPSCardSerPacket * pPack, S
 }
 
 int SLAPI PPObjSCardSeries::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPSCardSerPacket * p_pack = new PPSCardSerPacket;
-	THROW_MEM(p_pack);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	p->Data = p_pack;
-	CATCH
-		ok = 0;
-		delete p_pack;
-	ENDCATCH
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjSCardSeries, PPSCardSerPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjSCardSeries::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

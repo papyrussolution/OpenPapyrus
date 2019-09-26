@@ -1411,10 +1411,10 @@ static int LogLuvVSetField(TIFF* tif, uint32 tag, va_list ap)
 		case TIFFTAG_SGILOGDATAFMT:
 		    sp->user_datafmt = (int)va_arg(ap, int);
 		    /*
-		     * Tweak the TIFF header so that the rest of libtiff knows what
-		     * size of data will be passed between app and library, and
-		     * assume that the app knows what it is doing and is not
-		     * confused by these header manipulations...
+		 * Tweak the TIFF header so that the rest of libtiff knows what
+		 * size of data will be passed between app and library, and
+		 * assume that the app knows what it is doing and is not
+		 * confused by these header manipulations...
 		     */
 		    switch(sp->user_datafmt) {
 			    case SGILOGDATAFMT_FLOAT: bps = 32; fmt = SAMPLEFORMAT_IEEEFP; break;
@@ -1426,7 +1426,7 @@ static int LogLuvVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, bps);
 		    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, fmt);
 		    /*
-		     * Must recalculate sizes should bits/sample change.
+		 * Must recalculate sizes should bits/sample change.
 		     */
 		    tif->tif_tilesize = isTiled(tif) ? TIFFTileSize(tif) : (tmsize_t)-1;
 		    tif->tif_scanlinesize = TIFFScanlineSize(tif);

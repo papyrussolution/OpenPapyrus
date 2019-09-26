@@ -112,13 +112,15 @@ int RightsDialog::setDTS(const PPRights * pRt)
 	AddClusterAssocDef(CTL_RTCOMM_OWNBILLRESTR, 0, 0);
 	AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 1, PPAccessRestriction::cfOwnBillRestr);
 	AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 2, PPAccessRestriction::cfOwnBillRestr2);
-	SetClusterData(CTL_RTCOMM_OWNBILLRESTR,
-		(accsr.CFlags & (PPAccessRestriction::cfOwnBillRestr | PPAccessRestriction::cfOwnBillRestr2)));
+	SetClusterData(CTL_RTCOMM_OWNBILLRESTR, (accsr.CFlags & (PPAccessRestriction::cfOwnBillRestr | PPAccessRestriction::cfOwnBillRestr2)));
 
 	SetupPPObjCombo(this, CTLSEL_RTCOMM_ONLYGGRP, PPOBJ_GOODSGROUP, accsr.OnlyGoodsGrpID, OLW_CANSELUPLEVEL, 0);
 	AddClusterAssoc(CTL_RTCOMM_ONLYGGRPSTRIC, 0, PPAccessRestriction::cfStrictOnlyGoodsGrp);
 	SetClusterData(CTL_RTCOMM_ONLYGGRPSTRIC, accsr.CFlags);
-
+	// @v10.5.7 {
+	AddClusterAssoc(CTL_RTCOMM_DBXRCV, 0, PPAccessRestriction::cfAllowDbxReceive);
+	SetClusterData(CTL_RTCOMM_DBXRCV, accsr.CFlags);
+	// } @v10.5.7
 	DisableClusterItem(CTL_RTCOMM_ONLYGGRPSTRIC, 0, accsr.OnlyGoodsGrpID == 0);
 	updateList(-1);
 	return 1;
@@ -147,6 +149,7 @@ int RightsDialog::getDTS(PPRights * pRt)
 		accsr.CFlags |= temp;
 	}
 	GetClusterData(CTL_RTCOMM_ONLYGGRPSTRIC, &accsr.CFlags);
+	GetClusterData(CTL_RTCOMM_DBXRCV, &accsr.CFlags); // @v10.5.7
 	accsr.SetSaveMode(1);
 	Data.SetAccessRestriction(&accsr);
 	accsr.SetSaveMode(0);
@@ -244,9 +247,9 @@ public:
 	{
 		int    s = 0;
 		if(dir > 0)
-			s = setDTS((ObjRestrictArray *)pData);
+			s = setDTS(static_cast<const ObjRestrictArray *>(pData));
 		else if(dir < 0)
-			s = getDTS((ObjRestrictArray *)pData);
+			s = getDTS(static_cast<ObjRestrictArray *>(pData));
 		else
 			s = ObjRestrictListDialog::TransmitData(dir, pData);
 		return s;
@@ -406,9 +409,9 @@ public:
 	{
 		int    s = 0;
 		if(dir > 0)
-			s = setDTS((ObjRestrictArray*)pData);
+			s = setDTS(static_cast<const ObjRestrictArray *>(pData));
 		else if(dir < 0)
-			s = getDTS((ObjRestrictArray*)pData);
+			s = getDTS(static_cast<ObjRestrictArray *>(pData));
 		else
 			s = ObjRestrictListDialog::TransmitData(dir, pData);
 		return s;
@@ -614,9 +617,9 @@ public:
 	{
 		int    s = 0;
 		if(dir > 0)
-			s = setDTS((ObjRestrictArray *)pData);
+			s = setDTS(static_cast<const ObjRestrictArray *>(pData));
 		else if(dir < 0)
-			s = getDTS((ObjRestrictArray *)pData);
+			s = getDTS(static_cast<ObjRestrictArray *>(pData));
 		else
 			s = ObjRestrictListDialog::TransmitData(dir, pData);
 		return s;
@@ -893,9 +896,9 @@ public:
 	{
 		int    s = 0;
 		if(dir > 0)
-			s = setDTS((ObjRestrictArray *)pData);
+			s = setDTS(static_cast<const ObjRestrictArray *>(pData));
 		else if(dir < 0)
-			s = getDTS((ObjRestrictArray *)pData);
+			s = getDTS(static_cast<ObjRestrictArray *>(pData));
 		else
 			s = ObjRestrictListDialog::TransmitData(dir, pData);
 		return s;
@@ -920,7 +923,7 @@ private:
 	}
 	virtual int editItem(long pos, long id)
 	{
-		uint   p = (uint)pos;
+		uint   p = static_cast<uint>(pos);
 		if(p < Data.getCount()) {
 			ObjRestrictItem item = Data.at(p);
 			if(editItemDialog(&item, 0) > 0) {
@@ -932,7 +935,7 @@ private:
 	}
 	virtual int delItem(long pos, long id)
 	{
-		return (pos >= 0 && pos < (long)Data.getCount()) ? ObjRestrictListDialog::delItem(pos, id) : -1;
+		return (pos >= 0 && pos < static_cast<long>(Data.getCount())) ? ObjRestrictListDialog::delItem(pos, id) : -1;
 	}
 	int editItemDialog(ObjRestrictItem * pItem, int isNew)
 	{
@@ -1048,7 +1051,6 @@ int SLAPI SecurCollection::copy(const SecurCollection & aSrc)
 	if(aSrc.VFlags & aryDataOwner) {
 		freeAll();
 		isize = aSrc.isize;
-		//delta = aSrc.delta;
 		Limit = 0;
 		count = 0;
 		VFlags = aSrc.VFlags;
@@ -1079,7 +1081,6 @@ void SLAPI PPAccessRestriction::SetSaveMode(int saveData)
 int SLAPI PPAccessRestriction::GetRBillPeriod(DateRange * pPeriod) const
 {
 	DateRange  period = RBillPeriod;
-	//period.Set(LowRBillDate, UppRBillDate);
 	if(!ShowInnerDates) {
 		period.Actualize(ZERODATE);
 	}
@@ -1090,7 +1091,6 @@ int SLAPI PPAccessRestriction::GetRBillPeriod(DateRange * pPeriod) const
 int SLAPI PPAccessRestriction::GetWBillPeriod(DateRange * pPeriod) const
 {
 	DateRange  period = WBillPeriod;
-	//period.Set(LowWBillDate, UppWBillDate);
 	if(!ShowInnerDates) {
         period.Actualize(ZERODATE);
 	}
@@ -1102,7 +1102,6 @@ int SLAPI PPAccessRestriction::SetBillPeriod(const DateRange * pPeriod, int setR
 {
 	int    ok = -1;
 	if(pPeriod && oneof2(setROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW)) {
-		//*(DateRange *)((setROrW == PPAccessRestriction::pparR) ? &LowRBillDate : &LowWBillDate) = *pPeriod;
 		if(setROrW == PPAccessRestriction::pparR)
 			RBillPeriod = *pPeriod;
 		else
@@ -1206,9 +1205,9 @@ public:
 	{
 		int    s = 0;
 		if(dir > 0)
-			s = setDTS((PPAccessRestriction*)pData);
+			s = setDTS(static_cast<const PPAccessRestriction *>(pData));
 		else if(dir < 0)
-			s = getDTS((PPAccessRestriction*)pData);
+			s = getDTS(static_cast<PPAccessRestriction *>(pData));
 		else
 			s = TDialog::TransmitData(dir, pData);
 		return s;

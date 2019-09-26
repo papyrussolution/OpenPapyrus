@@ -1265,15 +1265,15 @@ int LZ4_compress_fast_continue(LZ4_stream_t* LZ4_stream, const char* source, cha
 		int result;
 	    if(streamPtr->dictCtx) {
 		    /* We depend here on the fact that dictCtx'es (produced by
-		     * LZ4_loadDict) guarantee that their tables contain no references
-		     * to offsets between dictCtx->currentOffset - 64 KB and
-		     * dictCtx->currentOffset - dictCtx->dictSize. This makes it safe
-		     * to use noDictIssue even when the dict isn't a full 64 KB.
+		 * LZ4_loadDict) guarantee that their tables contain no references
+		 * to offsets between dictCtx->currentOffset - 64 KB and
+		 * dictCtx->currentOffset - dictCtx->dictSize. This makes it safe
+		 * to use noDictIssue even when the dict isn't a full 64 KB.
 		     */
 		    if(inputSize > 4 KB) {
 			    /* For compressing large blobs, it is faster to pay the setup
-			     * cost to copy the dictionary's tables into the active context,
-			     * so that the compression loop is only looking into one table.
+			 * cost to copy the dictionary's tables into the active context,
+			 * so that the compression loop is only looking into one table.
 			     */
 			    memcpy(streamPtr, streamPtr->dictCtx, sizeof(LZ4_stream_t));
 			    result = LZ4_compress_generic(streamPtr, source, dest, inputSize, NULL, maxOutputSize, limitedOutput, tableType, usingExtDict, noDictIssue, acceleration);
@@ -1386,13 +1386,13 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 		    size_t length = token >> ML_BITS; /* literal length */
 		    assert(!endOnInput || ip <= iend); /* ip < iend before the increment */
 		    /* A two-stage shortcut for the most common case:
-		     * 1) If the literal length is 0..14, and there is enough space,
-		     * enter the shortcut and copy 16 bytes on behalf of the literals
-		     * (in the fast mode, only 8 bytes can be safely copied this way).
-		     * 2) Further if the match length is 4..18, copy 18 bytes in a similar
-		     * manner; but we ensure that there's enough space in the output for
-		     * those 18 bytes earlier, upon entering the shortcut (in other words,
-		     * there is a combined check for both stages).
+		 * 1) If the literal length is 0..14, and there is enough space,
+		 * enter the shortcut and copy 16 bytes on behalf of the literals
+		 * (in the fast mode, only 8 bytes can be safely copied this way).
+		 * 2) Further if the match length is 4..18, copy 18 bytes in a similar
+		 * manner; but we ensure that there's enough space in the output for
+		 * those 18 bytes earlier, upon entering the shortcut (in other words,
+		 * there is a combined check for both stages).
 		     */
 		    if((endOnInput ? length != RUN_MASK : length <= 8)
 		        /* strictly "less than" on input, to re-enter the loop with at least one byte */
@@ -1401,7 +1401,7 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 			    memcpy(op, ip, endOnInput ? 16 : 8);
 			    op += length; ip += length;
 			    /* The second stage: prepare for match copying, decode full info.
-			     * If it doesn't work out, the info won't be wasted. */
+			 * If it doesn't work out, the info won't be wasted. */
 			    length = token & ML_MASK; /* match length */
 			    offset = LZ4_readLE16(ip); 
 				ip += 2;
@@ -1418,7 +1418,7 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 				    continue;
 			    }
 			    /* The second stage didn't work out, but the info is ready.
-			     * Propel it right to the point of match copying. */
+			 * Propel it right to the point of match copying. */
 			    goto _copy_match;
 		    }
 		    /* decode literal length */

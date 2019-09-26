@@ -459,7 +459,7 @@ typedef struct {
 	TIFFPredictorState predict;
 	z_stream stream;
 	tmsize_t tbuf_size;                /* only set/used on reading for now */
-	uint16                  * tbuf;
+	uint16  * tbuf;
 	uint16 stride;
 	int state;
 	int user_datafmt;
@@ -1258,9 +1258,9 @@ static int PixarLogVSetField(TIFF* tif, uint32 tag, va_list ap)
 		case TIFFTAG_PIXARLOGDATAFMT:
 		    sp->user_datafmt = (int)va_arg(ap, int);
 		    /* Tweak the TIFF header so that the rest of libtiff knows what
-		     * size of data will be passed between app and library, and
-		     * assume that the app knows what it is doing and is not
-		     * confused by these header manipulations...
+		 * size of data will be passed between app and library, and
+		 * assume that the app knows what it is doing and is not
+		 * confused by these header manipulations...
 		     */
 		    switch(sp->user_datafmt) {
 			    case PIXARLOGDATAFMT_8BIT:
@@ -1286,7 +1286,7 @@ static int PixarLogVSetField(TIFF* tif, uint32 tag, va_list ap)
 				break;
 		    }
 		    /*
-		     * Must recalculate sizes should bits/sample change.
+		 * Must recalculate sizes should bits/sample change.
 		     */
 		    tif->tif_tilesize = isTiled(tif) ? TIFFTileSize(tif) : (tmsize_t)(-1);
 		    tif->tif_scanlinesize = TIFFScanlineSize(tif);

@@ -751,10 +751,10 @@ EXTERN_C_BEGIN
 		#define SetUi32(p, v) { *(uint32 *)(p) = (v); }
 		#define SetUi64(p, v) { *(uint64 *)(p) = (v); }
 	#else
-		#define GetUi16(p) ( static_cast<uint16>(((const Byte*)(p))[0] | (static_cast<uint16>((const Byte*)(p))[1] << 8) ))
-		#define GetUi32(p) ( ((const Byte*)(p))[0]        | \
-			((uint32)((const Byte*)(p))[1] <<  8) | ((uint32)((const Byte*)(p))[2] << 16) | ((uint32)((const Byte*)(p))[3] << 24))
-		#define GetUi64(p) (GetUi32(p) | ((uint64)GetUi32(((const Byte*)(p)) + 4) << 32))
+		#define GetUi16(p) ( static_cast<uint16>(((const Byte *)(p))[0] | (static_cast<uint16>((const Byte *)(p))[1] << 8) ))
+		#define GetUi32(p) ( ((const Byte *)(p))[0]        | \
+			((uint32)((const Byte *)(p))[1] <<  8) | ((uint32)((const Byte *)(p))[2] << 16) | ((uint32)((const Byte *)(p))[3] << 24))
+		#define GetUi64(p) (GetUi32(p) | ((uint64)GetUi32(((const Byte *)(p)) + 4) << 32))
 		#define SetUi16(p, v) { Byte * _ppp_ = (Byte *)(p); uint32 _vvv_ = (v); \
 			_ppp_[0] = (Byte)_vvv_;	_ppp_[1] = (Byte)(_vvv_ >> 8); }
 		#define SetUi32(p, v) { Byte * _ppp_ = (Byte *)(p); uint32 _vvv_ = (v); \
@@ -767,22 +767,22 @@ EXTERN_C_BEGIN
 		//#include <stdlib.h>
 		#pragma intrinsic(_byteswap_ulong)
 		#pragma intrinsic(_byteswap_uint64)
-		#define GetBe32(p) _byteswap_ulong(*(const uint32*)(const Byte*)(p))
-		#define GetBe64(p) _byteswap_uint64(*(const uint64*)(const Byte*)(p))
+		#define GetBe32(p) _byteswap_ulong(*(const uint32*)(const Byte *)(p))
+		#define GetBe64(p) _byteswap_uint64(*(const uint64*)(const Byte *)(p))
 		#define SetBe32(p, v) (*(uint32 *)(void *)(p)) = _byteswap_ulong(v)
 	#elif defined(MY_CPU_LE_UNALIGN) && defined (__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
-		#define GetBe32(p) __builtin_bswap32(*(const uint32*)(const Byte*)(p))
-		#define GetBe64(p) __builtin_bswap64(*(const uint64*)(const Byte*)(p))
+		#define GetBe32(p) __builtin_bswap32(*(const uint32*)(const Byte *)(p))
+		#define GetBe64(p) __builtin_bswap64(*(const uint64*)(const Byte *)(p))
 		#define SetBe32(p, v) (*(uint32 *)(void *)(p)) = __builtin_bswap32(v)
 	#else
-		#define GetBe32(p) (((uint32)((const Byte*)(p))[0] << 24) | \
-				((uint32)((const Byte*)(p))[1] << 16) | ((uint32)((const Byte*)(p))[2] <<  8) | \
-				((const Byte*)(p))[3] )
-		#define GetBe64(p) (((uint64)GetBe32(p) << 32) | GetBe32(((const Byte*)(p)) + 4))
+		#define GetBe32(p) (((uint32)((const Byte *)(p))[0] << 24) | \
+				((uint32)((const Byte *)(p))[1] << 16) | ((uint32)((const Byte *)(p))[2] <<  8) | \
+				((const Byte *)(p))[3] )
+		#define GetBe64(p) (((uint64)GetBe32(p) << 32) | GetBe32(((const Byte *)(p)) + 4))
 		#define SetBe32(p, v) { Byte * _ppp_ = (Byte *)(p); uint32 _vvv_ = (v); _ppp_[0] = (Byte)(_vvv_ >> 24);	\
 			_ppp_[1] = (Byte)(_vvv_ >> 16);	_ppp_[2] = (Byte)(_vvv_ >> 8); _ppp_[3] = (Byte)_vvv_; }
 	#endif
-	#define GetBe16(p) (static_cast<uint16>(((uint16)((const Byte*)(p))[0] << 8) | ((const Byte*)(p))[1]))
+	#define GetBe16(p) (static_cast<uint16>(((uint16)((const Byte *)(p))[0] << 8) | ((const Byte *)(p))[1]))
 	#ifdef MY_CPU_X86_OR_AMD64
 		typedef struct {
 			uint32 maxFunc;
@@ -5282,7 +5282,7 @@ namespace NArchive {
 				if(size < 1 + 4)
 					return false;
 				else {
-					const Byte * p = (const Byte*)Data;
+					const Byte * p = (const Byte *)Data;
 					if(p[0] > 1)
 						return false;
 					else if(crc != GetUi32(p + 1))
@@ -5314,7 +5314,7 @@ namespace NArchive {
 				else if(sb.Data.Size() < k_WzAesExtra_Size)
 					return false;
 				else {
-					const Byte * p = (const Byte*)sb.Data;
+					const Byte * p = (const Byte *)sb.Data;
 					VendorVersion = GetUi16(p);
 					if(p[2] != 'A' || p[3] != 'E')
 						return false;
@@ -8017,7 +8017,7 @@ namespace NCompress {
 			};
 
 			class CVm {
-				static uint32 GetValue(bool byteMode, const void * addr) { return byteMode ? *(const Byte*)addr : GetUi32(addr); }
+				static uint32 GetValue(bool byteMode, const void * addr) { return byteMode ? *(const Byte *)addr : GetUi32(addr); }
 				static void SetValue(bool byteMode, void * addr, uint32 value)
 				{
 					if(byteMode)
@@ -8602,7 +8602,7 @@ namespace NArchive {
 			{
 				if(FileId.Size() != 1)
 					return false;
-				Byte b = *(const Byte*)FileId;
+				Byte b = *(const Byte *)FileId;
 				return (b == 0 || b == 1);
 			}
 			const Byte* FindSuspRecord(unsigned skipSize, Byte id0, Byte id1, unsigned &lenRes) const
@@ -8610,7 +8610,7 @@ namespace NArchive {
 				lenRes = 0;
 				if(SystemUse.Size() < skipSize)
 					return 0;
-				const Byte * p = (const Byte*)SystemUse + skipSize;
+				const Byte * p = (const Byte *)SystemUse + skipSize;
 				unsigned rem = (uint)(SystemUse.Size() - skipSize);
 				while(rem >= 5) {
 					uint len = p[2];
@@ -8635,7 +8635,7 @@ namespace NArchive {
 				if(checkSusp)
 					res = FindSuspRecord(skipSize, 'N', 'M', len);
 				if(!res || len < 1) {
-					res = (const Byte*)FileId;
+					res = (const Byte *)FileId;
 					len = (uint)FileId.Size();
 				}
 				else {
@@ -8784,7 +8784,7 @@ namespace NArchive {
 			}
 			bool CheckSusp(unsigned &startPos) const
 			{
-				const Byte * p = (const Byte*)SystemUse;
+				const Byte * p = (const Byte *)SystemUse;
 				uint len = (int)SystemUse.Size();
 				const uint kMinLen = 7;
 				if(len < kMinLen)

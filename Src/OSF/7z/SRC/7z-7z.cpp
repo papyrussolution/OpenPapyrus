@@ -98,7 +98,7 @@ Byte * CDynBufSeqOutStream::GetBufPtrForWriting(size_t addSize)
 
 void CDynBufSeqOutStream::CopyToBuffer(CByteBuffer &dest) const
 {
-	dest.CopyFrom((const Byte*)_buffer, _size);
+	dest.CopyFrom((const Byte *)_buffer, _size);
 }
 
 STDMETHODIMP CDynBufSeqOutStream::Write(const void * data, uint32 size, uint32 * processedSize)
@@ -297,7 +297,7 @@ namespace NArchive {
 						((Byte *)buffer)[i * 2] = (Byte)c;
 						((Byte *)buffer)[i * 2 + 1] = (Byte)(c >> 8);
 					}
-					RINOK(cryptoSetPassword->CryptoSetPassword((const Byte*)buffer, (uint32)sizeInBytes));
+					RINOK(cryptoSetPassword->CryptoSetPassword((const Byte *)buffer, (uint32)sizeInBytes));
 				}
 				_mixer->AddCoder(cod);
 			}
@@ -883,7 +883,7 @@ namespace NArchive {
 						size_t size = props.Size();
 						if(size > 0xFFFFFFFF)
 							return E_NOTIMPL;
-						HRESULT res = setDecoderProperties->SetDecoderProperties2((const Byte*)props, (uint32)size);
+						HRESULT res = setDecoderProperties->SetDecoderProperties2((const Byte *)props, (uint32)size);
 						if(res == E_INVALIDARG)
 							res = E_NOTIMPL;
 						RINOK(res);
@@ -922,7 +922,7 @@ namespace NArchive {
 							((Byte *)buffer)[k * 2] = (Byte)c;
 							((Byte *)buffer)[k * 2 + 1] = (Byte)(c >> 8);
 						}
-						RINOK(cryptoSetPassword->CryptoSetPassword((const Byte*)buffer, (uint32)buffer.Size()));
+						RINOK(cryptoSetPassword->CryptoSetPassword((const Byte *)buffer, (uint32)buffer.Size()));
 					}
 				}
 			#endif
@@ -1128,7 +1128,7 @@ namespace NArchive {
 						_crc = CrcUpdate(_crc, data, cur);
 					if(processedSize)
 						*processedSize += cur;
-					data = (const Byte*)data + cur;
+					data = (const Byte *)data + cur;
 					size -= cur;
 					_rem -= cur;
 					if(_rem == 0) {
@@ -1930,7 +1930,7 @@ namespace NArchive {
 			if(size >= (1 << 28))
 				return;
 			wchar_t * s = path.GetBuf((uint)size - 1);
-			const Byte * p = ((const Byte*)NamesBuf + offset * 2);
+			const Byte * p = ((const Byte *)NamesBuf + offset * 2);
 		  #if defined(_WIN32) && defined(MY_CPU_LE)
 			wmemcpy(s, (const wchar_t*)p, size);
 		  #else
@@ -1954,7 +1954,7 @@ namespace NArchive {
 				return S_OK;
 			RINOK(PropVarEm_Alloc_Bstr(path, (uint)size - 1));
 			wchar_t * s = path->bstrVal;
-			const Byte * p = ((const Byte*)NamesBuf + offset * 2);
+			const Byte * p = ((const Byte *)NamesBuf + offset * 2);
 			for(size_t i = 0; i < size; i++) {
 				wchar_t c = Get16(p);
 				p += 2;
@@ -5096,7 +5096,7 @@ namespace NArchive {
 						_crc = CrcUpdate(_crc, data, cur);
 					if(processedSize)
 						*processedSize += cur;
-					data = (const Byte*)data + cur;
+					data = (const Byte *)data + cur;
 					size -= cur;
 					_rem -= cur;
 					if(_rem == 0) {
@@ -6412,7 +6412,7 @@ namespace NArchive {
 						if(id == k_LZMA) {
 							name = "LZMA";
 							if(propsSize == 5) {
-								uint32 dicSize = GetUi32((const Byte*)props + 1);
+								uint32 dicSize = GetUi32((const Byte *)props + 1);
 								char * dest = s + GetStringForSizeValue(s, dicSize);
 								uint32 d = props[0];
 								if(d != 0x5D) {

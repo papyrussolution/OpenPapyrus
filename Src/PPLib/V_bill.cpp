@@ -124,7 +124,7 @@ int SLAPI BillFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		}
 		else
 			ZDELETE(P_TagF);
-		Dl.Clear(); // new field
+		Dl.Z(); // new field
 		ok = 1;
 	}
 	CATCHZOK
@@ -557,7 +557,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		else if(Data.Flags & BillFilt::fPoolOnly)
 			types.add(PPOPT_POOL);
 		else if(Data.Flags & BillFilt::fDraftOnly)
-			types.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_GENERIC, 0L); // @v9.1.4 PPOPT_GENERIC
+			types.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GENERIC, 0L); // @v9.1.4 PPOPT_GENERIC // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		else if(Data.Flags & BillFilt::fWmsOnly)
 			types.addzlist(PPOPT_WAREHOUSE, 0L);
 		else {
@@ -973,7 +973,7 @@ int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID 
 		else if(pFilt->Flags & BillFilt::fAccturnOnly)
 			ot_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L);
 		else if(pFilt->Flags & BillFilt::fDraftOnly)
-			ot_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, 0L);
+			ot_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		else if(pFilt->Flags & BillFilt::fWmsOnly)
 			ot_list.add(PPOPT_WAREHOUSE);
 		else if(pFilt->Flags & BillFilt::fPaymNeeded) {
@@ -999,6 +999,7 @@ int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID 
 				ot_list.add(PPOPT_CHARGE);
 				ot_list.add(PPOPT_CORRECTION);
 				ot_list.add(PPOPT_AGREEMENT); // @v10.1.12
+				ot_list.add(PPOPT_DRAFTQUOTREQ); // @v10.5.7
 			}
 			else {
 				ot_list.add(PPOPT_GOODSRECEIPT);
@@ -1011,6 +1012,7 @@ int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID 
 					ot_list.add(PPOPT_DRAFTRECEIPT);
 					ot_list.add(PPOPT_DRAFTEXPEND);
 					ot_list.add(PPOPT_DRAFTTRANSIT);
+					ot_list.add(PPOPT_DRAFTQUOTREQ); // @v10.5.7
 					ot_list.add(PPOPT_GOODSORDER);
 					ot_list.add(PPOPT_ACCTURN);
 				}
@@ -2160,7 +2162,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 				else if(r_col.OrgOffs == 10) { // Status
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
 						const PPID op_type_id = GetOpType(bill_rec.OpID);
-						if(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
+						if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
 							if(bill_rec.Flags2 & BILLF2_DECLINED) {
 								pStyle->Color2 = GetColorRef(SClrGrey);
 								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
@@ -2375,11 +2377,11 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 {
 	const int use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	PPID   single_loc_id = LocList_.getSingle();
-	BillTbl       * bll  = 0;
+	BillTbl  * bll  = 0;
 	TempBillTbl   * bllt = 0;
 	TempOrderTbl  * ordt = 0;
 	BillAmountTbl * t_amt  = 0;
-	DBQuery       * q    = 0;
+	DBQuery  * q    = 0;
 	DBQ  * dbq  = 0;
 	DBE    dbe_debt;
 	DBE    dbe_status;
@@ -2723,7 +2725,7 @@ int SLAPI PPViewBill::AddItem(PPID * pID, PPID opID)
 					else if(Filt.Flags & BillFilt::fPoolOnly)
 						op_type_list.add(PPOPT_POOL);
 					else if(Filt.Flags & BillFilt::fDraftOnly)
-						op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, 0L);
+						op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 					else if(Filt.Flags & BillFilt::fWmsOnly)
 						op_type_list.addzlist(PPOPT_WAREHOUSE, 0L);
 					else
@@ -3848,7 +3850,7 @@ int SLAPI PPViewBill::AddBillToPool()
 			else if(param.AddedBillKind == bbtGoodsBills)
 				op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, 0L);
 			else if(param.AddedBillKind == bbtDraftBills)
-				op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, 0L);
+				op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7
 			else
 				op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 					PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND,
@@ -4339,11 +4341,11 @@ int SLAPI PPViewBill::ViewVATaxList()
 	double s_cost     = 0.0, s_price     = 0.0;
 	double snf_cost   = 0.0, snf_price   = 0.0; // Сумма по документам для тех, кто платит
 	SString sub;
-	BVATAccm     * p_item, total;
+	BVATAccm * p_item, total;
 	StrAssocArray * p_ary = 0;
 	SmartListBox * p_list = 0;
 	ListBoxDef   * p_def  = 0;
-	TDialog      * dlg    = 0;
+	TDialog * dlg    = 0;
 	PPWait(1);
 	THROW(CalcBillVATax(&dest));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_VATAXLST))));

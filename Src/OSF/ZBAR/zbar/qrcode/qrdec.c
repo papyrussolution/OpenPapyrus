@@ -374,9 +374,9 @@ static int qr_finder_centers_locate(qr_finder_center ** _centers,
     qr_finder_edge_pt ** _edge_pts, qr_reader * reader,
     int _width, int _height)
 {
-	qr_finder_line     * hlines = reader->finder_lines[0].lines;
+	qr_finder_line * hlines = reader->finder_lines[0].lines;
 	int nhlines = reader->finder_lines[0].nlines;
-	qr_finder_line     * vlines = reader->finder_lines[1].lines;
+	qr_finder_line * vlines = reader->finder_lines[1].lines;
 	int nvlines = reader->finder_lines[1].nlines;
 
 	qr_finder_line    ** hneighbors;
@@ -1043,7 +1043,7 @@ static void qr_finder_ransac(qr_finder * _f, const qr_aff * _hom, isaac_ctx * _i
 static int qr_line_fit_finder_edge(qr_line _l, const qr_finder * _f, int _e, int _res)
 {
 	qr_finder_edge_pt * edge_pts;
-	qr_point          * pts;
+	qr_point * pts;
 	int npts;
 	int i;
 	npts = _f->ninliers[_e];
@@ -2456,7 +2456,7 @@ static int qr_finder_fmt_info_decode(qr_finder * _ul, qr_finder * _ur,
    during decode.*/
 struct qr_sampling_grid {
 	qr_hom_cell    * cells[6];
-	uint       * fpmask;
+	uint  * fpmask;
 	int cell_limits[6];
 	int ncells;
 };
@@ -3476,9 +3476,9 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
     const uchar * _img, int _width, int _height)
 {
 	qr_sampling_grid grid;
-	uint          * data_bits;
+	uint * data_bits;
 	uchar    ** blocks;
-	uchar     * block_data;
+	uchar * block_data;
 	int nblocks;
 	int nshort_blocks;
 	int ncodewords;

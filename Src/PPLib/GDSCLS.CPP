@@ -125,20 +125,7 @@ int SLAPI PPObjGoodsClass::SerializePacket(int dir, PPGdsClsPacket * pPack, SBuf
 }
 
 int SLAPI PPObjGoodsClass::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPGdsClsPacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPGdsClsPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPGdsClsPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjGoodsClass, PPGdsClsPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjGoodsClass::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {

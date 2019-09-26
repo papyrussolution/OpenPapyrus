@@ -380,7 +380,7 @@ METHODDEF(void) process_data_context_main(j_decompress_ptr cinfo, JSAMPARRAY out
 		    mainp->rowgroup_ctr = 0;
 		    mainp->rowgroups_avail = (JDIMENSION)(cinfo->min_DCT_v_scaled_size - 1);
 		    /* Check for bottom of image: if so, tweak pointers to "duplicate"
-		     * the last sample row, and adjust rowgroups_avail to ignore padding rows.
+		 * the last sample row, and adjust rowgroups_avail to ignore padding rows.
 		     */
 		    if(mainp->iMCU_row_ctr == cinfo->total_iMCU_rows)
 			    set_bottom_pointers(cinfo);

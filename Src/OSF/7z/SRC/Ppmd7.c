@@ -343,7 +343,7 @@ static CTX_PTR CreateSuccessors(CPpmd7 * p, Bool skip)
 		ps[numPs++] = s;
 	}
 
-	upState.Symbol = *(const Byte*)Ppmd7_GetPtr(p, upBranch);
+	upState.Symbol = *(const Byte *)Ppmd7_GetPtr(p, upBranch);
 	SetSuccessor(&upState, upBranch + 1);
 
 	if(c->NumStats == 1)

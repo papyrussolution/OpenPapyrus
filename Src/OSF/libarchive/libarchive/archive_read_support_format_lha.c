@@ -136,10 +136,10 @@ struct lzh_dec {
 };
 
 struct lzh_stream {
-	const uchar     * next_in;
+	const uchar * next_in;
 	int avail_in;
 	int64_t total_in;
-	const uchar     * ref_ptr;
+	const uchar * ref_ptr;
 	int avail_out;
 	int64_t total_out;
 	struct lzh_dec * ds;
@@ -1090,7 +1090,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 		switch(extdtype) {
 			case EXT_HEADER_CRC:
 			    /* We only use a header CRC. Following data will not
-			     * be used. */
+			 * be used. */
 			    if(datasize >= 2) {
 				    lha->header_crc = archive_le16dec(extdheader);
 				    if(crc != NULL) {
@@ -1123,8 +1123,8 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			    archive_strncpy(&lha->dirname,
 				(const char *)extdheader, datasize);
 			    /*
-			     * Convert directory delimiter from 0xFF
-			     * to '/' for local system.
+			 * Convert directory delimiter from 0xFF
+			 * to '/' for local system.
 			     */
 			    for(i = 0; i < lha->dirname.length; i++) {
 				    if((uchar)lha->dirname.s[i] == 0xFF)
@@ -1166,8 +1166,8 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			    break;
 			case EXT_CODEPAGE:
 			    /* Get an archived filename charset from codepage.
-			     * This overwrites the charset specified by
-			     * hdrcharset option. */
+			 * This overwrites the charset specified by
+			 * hdrcharset option. */
 			    if(datasize == sizeof(uint32_t)) {
 				    struct archive_string cp;
 				    const char * charset;
@@ -1809,7 +1809,7 @@ static int lzh_br_fillup(struct lzh_stream * strm, struct lzh_dec::lzh_br * br)
 				    return (1);
 				case 0:
 				    /* We have enough compressed data in
-				     * the cache buffer.*/
+				 * the cache buffer.*/
 				    return (1);
 				default:
 				    break;
@@ -1902,11 +1902,11 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 		switch(ds->state) {
 			case ST_RD_BLOCK:
 			    /*
-			     * Read a block number indicates how many blocks
-			     * we will handle. The block is composed of a
-			     * literal and a match, sometimes a literal only
-			     * in particular, there are no reference data at
-			     * the beginning of the decompression.
+			 * Read a block number indicates how many blocks
+			 * we will handle. The block is composed of a
+			 * literal and a match, sometimes a literal only
+			 * in particular, there are no reference data at
+			 * the beginning of the decompression.
 			     */
 			    if(!lzh_br_read_ahead_0(strm, br, 16)) {
 				    if(!last)
@@ -1914,10 +1914,10 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 					    return ARCHIVE_OK;
 				    if(lzh_br_has(br, 8)) {
 					    /*
-					     * It seems there are extra bits.
-					     *  1. Compressed data is broken.
-					     *  2. `last' flag does not properly
-					     *  set.
+					 * It seems there are extra bits.
+					 *  1. Compressed data is broken.
+					 *  2. `last' flag does not properly
+					 *  set.
 					     */
 					    goto failed;
 				    }
@@ -1927,7 +1927,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 					    return ARCHIVE_OK;
 				    }
 				    /* End of compressed data; we have completely
-				     * handled all compressed data. */
+				 * handled all compressed data. */
 				    return (ARCHIVE_EOF);
 			    }
 			    ds->blocks_avail = lzh_br_bits(br, 16);
@@ -1935,8 +1935,8 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 				    goto failed;
 			    lzh_br_consume(br, 16);
 			    /*
-			     * Read a literal table compressed in huffman
-			     * coding.
+			 * Read a literal table compressed in huffman
+			 * coding.
 			     */
 			    ds->pt.len_size = ds->literal_pt_len_size;
 			    ds->pt.len_bits = ds->literal_pt_len_bits;
@@ -1944,8 +1944,8 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_RD_PT_1:
 			    /* Note: ST_RD_PT_1, ST_RD_PT_2 and ST_RD_PT_4 are
-			     * used in reading both a literal table and a
-			     * position table. */
+			 * used in reading both a literal table and a
+			 * position table. */
 			    if(!lzh_br_read_ahead(strm, br, ds->pt.len_bits)) {
 				    if(last)
 					    goto failed; /* Truncated data. */
@@ -2072,10 +2072,10 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 				    c = lzh_decode_huffman(&(ds->pt), rbits);
 				    if(c > 2) {
 					    /* Note: 'c' will never be more than
-					     * eighteen since it's limited by
-					     * PT_BITLEN_SIZE, which is being set
-					     * to ds->pt.len_size through
-					     * ds->literal_pt_len_size. */
+					 * eighteen since it's limited by
+					 * PT_BITLEN_SIZE, which is being set
+					 * to ds->pt.len_size through
+					 * ds->literal_pt_len_size. */
 					    lzh_br_consume(br, ds->pt.bitlen[c]);
 					    c -= 2;
 					    ds->lt.freq[c]++;
@@ -2112,8 +2112,8 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 			/* FALL THROUGH */
 			case ST_RD_POS_DATA_1:
 			    /*
-			     * Read a position table compressed in huffman
-			     * coding.
+			 * Read a position table compressed in huffman
+			 * coding.
 			     */
 			    ds->pt.len_size = ds->pos_pt_len_size;
 			    ds->pt.len_bits = ds->pos_pt_len_bits;
@@ -2159,21 +2159,21 @@ static int lzh_decode_blocks(struct lzh_stream * strm, int last)
 				    }
 
 				    /* lzh_br_read_ahead() always try to fill the
-				     * cache buffer up. In specific situation we
-				     * are close to the end of the data, the cache
-				     * buffer will not be full and thus we have to
-				     * determine if the cache buffer has some bits
-				     * as much as we need after lzh_br_read_ahead()
-				     * failed. */
+				 * cache buffer up. In specific situation we
+				 * are close to the end of the data, the cache
+				 * buffer will not be full and thus we have to
+				 * determine if the cache buffer has some bits
+				 * as much as we need after lzh_br_read_ahead()
+				 * failed. */
 				    if(!lzh_br_read_ahead(strm, &bre,
 					lt_max_bits)) {
 					    if(!last)
 						    goto next_data;
 					    /* Remaining bits are less than
-					     * maximum bits(lt.max_bits) but maybe
-					     * it still remains as much as we need,
-					     * so we should try to use it with
-					     * dummy bits. */
+					 * maximum bits(lt.max_bits) but maybe
+					 * it still remains as much as we need,
+					 * so we should try to use it with
+					 * dummy bits. */
 					    c = lzh_decode_huffman(lt,
 						    lzh_br_bits_forced(&bre,
 						    lt_max_bits));
@@ -2191,10 +2191,10 @@ static int lzh_decode_blocks(struct lzh_stream * strm, int last)
 					    /* Current block is a match data. */
 					    break;
 				    /*
-				     * 'c' is exactly a literal code.
+				 * 'c' is exactly a literal code.
 				     */
 				    /* Save a decoded code to reference it
-				     * afterward. */
+				 * afterward. */
 				    w_buff[w_pos] = c;
 				    if(++w_pos >= w_size) {
 					    w_pos = 0;
@@ -2203,13 +2203,13 @@ static int lzh_decode_blocks(struct lzh_stream * strm, int last)
 				    }
 			    }
 			    /* 'c' is the length of a match pattern we have
-			     * already extracted, which has be stored in
-			     * window(ds->w_buff). */
+			 * already extracted, which has be stored in
+			 * window(ds->w_buff). */
 			    copy_len = c - (UCHAR_MAX + 1) + MINMATCH;
 			/* FALL THROUGH */
 			case ST_GET_POS_1:
 			    /*
-			     * Get a reference position.
+			 * Get a reference position.
 			     */
 			    if(!lzh_br_read_ahead(strm, &bre, pt_max_bits)) {
 				    if(!last) {
@@ -2232,7 +2232,7 @@ static int lzh_decode_blocks(struct lzh_stream * strm, int last)
 			case ST_GET_POS_2:
 			    if(copy_pos > 1) {
 				    /* We need an additional adjustment number to
-				     * the position. */
+				 * the position. */
 				    int p = copy_pos - 1;
 				    if(!lzh_br_read_ahead(strm, &bre, p)) {
 					    if(last)
@@ -2246,14 +2246,14 @@ static int lzh_decode_blocks(struct lzh_stream * strm, int last)
 				    lzh_br_consume(&bre, p);
 			    }
 			    /* The position is actually a distance from the last
-			     * code we had extracted and thus we have to convert
-			     * it to a position of the window. */
+			 * code we had extracted and thus we have to convert
+			 * it to a position of the window. */
 			    copy_pos = (w_pos - copy_pos - 1) & w_mask;
 			/* FALL THROUGH */
 			case ST_COPY_DATA:
 			    /*
-			     * Copy `copy_len' bytes as extracted data from
-			     * the window into the output buffer.
+			 * Copy `copy_len' bytes as extracted data from
+			 * the window into the output buffer.
 			     */
 			    for(;;) {
 				    int l;

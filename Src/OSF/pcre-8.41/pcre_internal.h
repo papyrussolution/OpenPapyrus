@@ -1958,7 +1958,7 @@ struct real_pcre8_or_16 {
 	pcre_uint16 dummy2;       /* To ensure size is a multiple of 8 */
 	pcre_uint16 dummy3;       /* To ensure size is a multiple of 8 */
 	const pcre_uint8 * tables; /* Pointer to tables or NULL for std */
-	void             * nullpad; /* NULL padding */
+	void  * nullpad; /* NULL padding */
 };
 
 // @sobolev typedef struct real_pcre8_or_16 real_pcre8_or_16;
@@ -1983,7 +1983,7 @@ typedef struct real_pcre32 {
 	pcre_uint16 ref_count;    /* Reference count */
 	pcre_uint16 dummy;        /* To ensure size is a multiple of 8 */
 	const pcre_uint8 * tables; /* Pointer to tables or NULL for std */
-	void             * nullpad; /* NULL padding */
+	void  * nullpad; /* NULL padding */
 } real_pcre32;
 
 #if defined COMPILE_PCRE8

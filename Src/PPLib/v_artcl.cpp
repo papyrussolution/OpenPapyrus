@@ -863,7 +863,7 @@ int SLAPI PPViewArticle::OnExecBrowser(PPViewBrowser * pBrw) // @v10.2.8
 DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst stop_subst(2);  // @global @threadsafe
-	DBQuery      * p_q = 0;
+	DBQuery * p_q = 0;
 	ArticleTbl   * a  = 0;
 	ReferenceTbl * rf = 0;
 	TempArAgtTbl * tt = 0;

@@ -400,14 +400,14 @@ typedef struct pcre_callout_block {
 	int version;              /* Identifies version of block */
 	/* ------------------------ Version 0 ------------------------------- */
 	int callout_number;       /* Number compiled into pattern */
-	int         * offset_vector; /* The offset vector */
+	int    * offset_vector; /* The offset vector */
 	PCRE_SPTR subject;        /* The subject being matched */
 	int subject_length;       /* The length of the subject */
 	int start_match;          /* Offset to start of this match attempt */
 	int current_position;     /* Where we currently are in the subject */
 	int capture_top;          /* Max current capture */
 	int capture_last;         /* Most recently closed capture */
-	void        * callout_data; /* Data passed in with the call */
+	void   * callout_data; /* Data passed in with the call */
 	/* ------------------- Added for Version 1 -------------------------- */
 	int pattern_position;     /* Offset to next item in the pattern */
 	int next_item_length;     /* Length of next item in the pattern */
@@ -422,14 +422,14 @@ typedef struct pcre16_callout_block {
 	int version;              /* Identifies version of block */
 	/* ------------------------ Version 0 ------------------------------- */
 	int callout_number;       /* Number compiled into pattern */
-	int         * offset_vector; /* The offset vector */
+	int    * offset_vector; /* The offset vector */
 	PCRE_SPTR16 subject;      /* The subject being matched */
 	int subject_length;       /* The length of the subject */
 	int start_match;          /* Offset to start of this match attempt */
 	int current_position;     /* Where we currently are in the subject */
 	int capture_top;          /* Max current capture */
 	int capture_last;         /* Most recently closed capture */
-	void        * callout_data; /* Data passed in with the call */
+	void   * callout_data; /* Data passed in with the call */
 	/* ------------------- Added for Version 1 -------------------------- */
 	int pattern_position;     /* Offset to next item in the pattern */
 	int next_item_length;     /* Length of next item in the pattern */

@@ -632,8 +632,8 @@ static int showit(struct Curl_easy * data, curl_infotype type, char * ptr, size_
 		    conv_size = size;
 		    memcpy(buf, ptr, size);
 		    /* Special processing is needed for this block if it
-		     * contains both headers and data (separated by CRLFCRLF).
-		     * We want to convert just the headers, leaving the data as-is.
+		 * contains both headers and data (separated by CRLFCRLF).
+		 * We want to convert just the headers, leaving the data as-is.
 		     */
 		    if(size > 4) {
 			    size_t i;

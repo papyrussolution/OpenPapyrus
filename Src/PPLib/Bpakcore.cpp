@@ -1682,7 +1682,7 @@ void SLAPI PPBillPacket::SetupObjectBlock::Clear_()
 	Name.Z();
 	RegInfoList.freeAll();
 	CliAgt.Init();
-	SupplAgt.Clear();
+	SupplAgt.Z();
 }
 
 int SLAPI PPBillPacket::SetGuid(const S_GUID & rGuid)

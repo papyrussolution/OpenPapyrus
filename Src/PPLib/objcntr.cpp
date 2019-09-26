@@ -121,7 +121,7 @@ PPOpCounterPacket & FASTCALL PPOpCounterPacket::operator = (const PPOpCounterPac
 
 static int SLAPI OpCounterListFilt(void * rec, void * extraPtr)
 {
-	return (((PPOpCounter*)rec)->OwnerObjID == 0);
+	return (static_cast<PPOpCounter *>(rec)->OwnerObjID == 0);
 }
 
 SLAPI PPObjOpCounter::PPObjOpCounter(void * extraPtr) : PPObjReference(PPOBJ_OPCOUNTER, extraPtr)

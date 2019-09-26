@@ -1458,9 +1458,9 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 				bp += dbt->size;
 			break;
 		    /*
-		     * Page header and data -- we assume that the header
-		     * is listed first and the data follows sometime later.
-		     * There should be only one header/data pair per record.
+		 * Page header and data -- we assume that the header
+		 * is listed first and the data follows sometime later.
+		 * There should be only one header/data pair per record.
 		     */
 		    case LOGREC_PGDBT:
 			header = va_arg(argp, DBT *);

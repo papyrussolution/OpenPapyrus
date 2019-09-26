@@ -89,7 +89,7 @@ private:
 			fHasFill   = 0x0002
 		};
 		StyleBlock();
-		int    Init();
+		void   Init();
 		SPaintObj::Pen Pen;
 		SPaintObj::Brush Brush;
 		SColor GradientColor;
@@ -102,7 +102,7 @@ private:
 	class CommonFigAttr : public StyleBlock {
 	public:
 		CommonFigAttr();
-		int    Init();
+		void   Init();
 
 		SString Sid;
 		LMatrix2D * P_Mtx;
@@ -146,7 +146,7 @@ SSvg::StyleBlock::StyleBlock()
 	Init();
 }
 
-int SSvg::StyleBlock::Init()
+void SSvg::StyleBlock::Init()
 {
 	Pen.SetSimple(SColor(SClrBlack));
 	Pen.S = SPaintObj::psNull;
@@ -157,20 +157,18 @@ int SSvg::StyleBlock::Init()
 	IdBrush = 0;
 	Flags = 0;
 	Opacity = 1.0f;
-	return 1;
 }
 
 SSvg::CommonFigAttr::CommonFigAttr() : SSvg::StyleBlock(), P_Mtx(0)
 {
 }
 
-int SSvg::CommonFigAttr::Init()
+void SSvg::CommonFigAttr::Init()
 {
 	StyleBlock::Init();
 	Sid = 0;
 	P_Mtx = 0;
 	Mtx.InitUnit();
-	return 1;
 }
 
 SSvg::SSvg() : TTab(1024, 0), P_Result(0), LastOwnSymbNo(0), ReScpNumber(0)

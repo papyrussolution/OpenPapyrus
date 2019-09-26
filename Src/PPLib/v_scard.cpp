@@ -3528,7 +3528,7 @@ int SLAPI PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 			SCardOpTbl tbl;
 			SCardOpTbl::Rec rec;
 			BExtQuery  iter_query(&tbl, 1);
-			DBQ        * dbq = 0;
+			DBQ   * dbq = 0;
 			char       k[MAXKEYLEN];
 			memzero(&k, sizeof(k));
 			Filt.Period.Actualize(ZERODATE);

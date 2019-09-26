@@ -256,7 +256,7 @@ static int drive_compressor(struct archive_write_filter * f, struct private_data
 		switch(ret) {
 			case BZ_RUN_OK:
 			    /* In non-finishing case, did compressor
-			     * consume everything? */
+			 * consume everything? */
 			    if(!finishing && data->stream.avail_in == 0)
 				    return ARCHIVE_OK;
 			    break;

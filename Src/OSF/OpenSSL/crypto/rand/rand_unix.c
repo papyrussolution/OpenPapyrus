@@ -25,7 +25,7 @@
 #include <unistd.h>
 #include <time.h>
 # if defined(OPENSSL_SYS_LINUX) /* should actually be available virtually
-                                 * everywhere */
+ * everywhere */
 #  include <poll.h>
 # endif
 #include <limits.h>
@@ -177,7 +177,7 @@ int RAND_poll(void)
 				    | O_BINARY
 #   endif
 #   ifdef O_NOCTTY              /* If it happens to be a TTY (god forbid), do
-		                 * not make it our controlling tty */
+		 * not make it our controlling tty */
 				    | O_NOCTTY
 #   endif
 				    )) >= 0) {
@@ -298,9 +298,9 @@ int RAND_poll(void)
 
 # endif                         /* defined(__OpenBSD__) */
 #endif                          /* !(defined(OPENSSL_SYS_WINDOWS) ||
-                                 * defined(OPENSSL_SYS_WIN32) ||
-                                 * defined(OPENSSL_SYS_VMS) ||
-                                 * defined(OPENSSL_SYS_VXWORKS) */
+ * defined(OPENSSL_SYS_WIN32) ||
+ * defined(OPENSSL_SYS_VMS) ||
+ * defined(OPENSSL_SYS_VXWORKS) */
 
 #if defined(OPENSSL_SYS_VXWORKS) || defined(OPENSSL_SYS_UEFI)
 int RAND_poll(void)

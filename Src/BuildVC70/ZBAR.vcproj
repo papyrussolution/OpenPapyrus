@@ -46,7 +46,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/ZBAR.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -104,7 +104,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/ZBAR.lib"/>
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -1788,10 +1788,10 @@
 				RelativePath="..\Osf\Zbar\zbar\debug.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Decoder.h">
+				RelativePath="..\Osf\Zbar\zbar\decoder.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Decoder.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\decoder\ean.h">
@@ -1809,10 +1809,10 @@
 				RelativePath="..\Osf\Zbar\zbar\decoder\i25.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\image.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Image.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Image.h">
+				RelativePath="..\Osf\Zbar\zbar\image.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\include\zbar\ImageScanner.h">
@@ -1836,10 +1836,10 @@
 				RelativePath="..\Osf\Zbar\zbar\processor\posix.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Processor.h">
+				RelativePath="..\Osf\Zbar\zbar\processor.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\processor.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Processor.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\decoder\qr_finder.h">
@@ -1884,19 +1884,19 @@
 				RelativePath="..\Osf\Zbar\zbar\qrcode\util.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\video.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Video.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Video.h">
+				RelativePath="..\Osf\Zbar\zbar\video.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\window\win.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\window.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Window.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Window.h">
+				RelativePath="..\Osf\Zbar\zbar\window.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\window\x.h">

@@ -44,7 +44,7 @@ NON_EMPTY_TRANSLATION_UNIT
 # if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
 /* even with gcc, the typedef won't work for 32-bit platforms */
 typedef __uint128_t uint128_t;  /* nonstandard; implemented by gcc on 64-bit
-                                 * platforms */
+ * platforms */
 # else
 #  error "Need GCC 3.1 or later to define type uint128_t"
 # endif
@@ -1138,7 +1138,7 @@ static void batch_mul(felem x_out, felem y_out, felem z_out,
 	 * other points multiples (every 5th round).
 	 */
 	skip = 1;               /* save two point operations in the first
-	                         * round */
+	    * round */
 	for(i = (num_points ? 220 : 27); i >= 0; --i) {
 		/* double */
 		if(!skip)
@@ -1191,7 +1191,7 @@ static void batch_mul(felem x_out, felem y_out, felem z_out,
 				/* select the point to add or subtract */
 				select_point(digit, 17, pre_comp[num], tmp);
 				felem_neg(tmp[3], tmp[1]); /* (X, -Y, Z) is the negative
-				                            * point */
+				 * point */
 				copy_conditional(tmp[1], tmp[3], sign);
 
 				if(!skip) {

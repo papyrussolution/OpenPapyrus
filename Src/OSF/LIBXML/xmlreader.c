@@ -3628,19 +3628,16 @@ static int xmlTextReaderRelaxNGValidateInternal(xmlTextReader * reader, const ch
 	reader->rngPreserveCtxt = 0;
 	xmlRelaxNGFree(reader->rngSchemas);
 	reader->rngSchemas = NULL;
-	if((rng == NULL) && (ctxt == NULL)) {
-		// We just want to deactivate the validation, so get out
-		return 0;
+	if(!rng && !ctxt) {
+		return 0; // We just want to deactivate the validation, so get out
 	}
-	if(rng != NULL) {
-		/* Parse the schema and create validation environment. */
-		xmlRelaxNGParserCtxtPtr pctxt = xmlRelaxNGNewParserCtxt(rng);
-		if(reader->errorFunc != NULL) {
+	if(rng) {
+		// Parse the schema and create validation environment. 
+		xmlRelaxNGParserCtxt * pctxt = xmlRelaxNGNewParserCtxt(rng);
+		if(reader->errorFunc)
 			xmlRelaxNGSetParserErrors(pctxt, xmlTextReaderValidityErrorRelay, xmlTextReaderValidityWarningRelay, reader);
-		}
-		if(reader->sErrorFunc != NULL) {
+		if(reader->sErrorFunc)
 			xmlRelaxNGSetValidStructuredErrors(reader->rngValidCtxt, xmlTextReaderValidityStructuredRelay, reader);
-		}
 		reader->rngSchemas = xmlRelaxNGParse(pctxt);
 		xmlRelaxNGFreeParserCtxt(pctxt);
 		if(reader->rngSchemas == NULL)

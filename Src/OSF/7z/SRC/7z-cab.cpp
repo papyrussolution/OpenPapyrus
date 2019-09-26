@@ -981,7 +981,7 @@ namespace NArchive {
 							m_IsOk = false;
 						if(m_RealOutStream) {
 							uint32 processedSizeLocal = 0;
-							res = m_RealOutStream->Write((const Byte*)data, numBytesToWrite, &processedSizeLocal);
+							res = m_RealOutStream->Write((const Byte *)data, numBytesToWrite, &processedSizeLocal);
 							numBytesToWrite = processedSizeLocal;
 						}
 						if(TempBufMode && TempBuf)
@@ -989,7 +989,7 @@ namespace NArchive {
 					}
 					realProcessed += numBytesToWrite;
 					ASSIGN_PTR(processedSize, realProcessed);
-					data = (const void *)((const Byte*)data + numBytesToWrite);
+					data = (const void *)((const Byte *)data + numBytesToWrite);
 					size -= numBytesToWrite;
 					m_RemainFileSize -= numBytesToWrite;
 					m_PosInFolder += numBytesToWrite;
@@ -1035,7 +1035,7 @@ namespace NArchive {
 						uint32 numBytesToWrite = MyMin(fileOffset - (uint32)m_PosInFolder, size);
 						realProcessed += numBytesToWrite;
 						ASSIGN_PTR(processedSize, realProcessed);
-						data = (const void *)((const Byte*)data + numBytesToWrite);
+						data = (const void *)((const Byte *)data + numBytesToWrite);
 						size -= numBytesToWrite;
 						m_PosInFolder += numBytesToWrite;
 					}
@@ -1381,7 +1381,7 @@ namespace NArchive {
 				if(!_inBuffer.ReadByte(b))
 					throw CUnexpectedEndException();
 				if(b == 0) {
-					s.SetFrom((const char *)(const Byte*)_tempBuf, (uint)i);
+					s.SetFrom((const char *)(const Byte *)_tempBuf, (uint)i);
 					return;
 				}
 				if(_tempBuf.Size() == i)

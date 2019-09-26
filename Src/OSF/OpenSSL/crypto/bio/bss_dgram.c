@@ -321,7 +321,7 @@ static long dgram_get_mtu_overhead(bio_dgram_data * data)
 	switch(BIO_ADDR_family(&data->peer)) {
 		case AF_INET:
 		    /*
-		     * Assume this is UDP - 20 bytes for IP, 8 bytes for UDP
+		 * Assume this is UDP - 20 bytes for IP, 8 bytes for UDP
 		     */
 		    ret = 28;
 		    break;
@@ -334,13 +334,13 @@ static long dgram_get_mtu_overhead(bio_dgram_data * data)
 		    if(BIO_ADDR_rawaddress(&data->peer, &tmp_addr, NULL)
 			    && IN6_IS_ADDR_V4MAPPED(&tmp_addr))
 			    /*
-			     * Assume this is UDP - 20 bytes for IP, 8 bytes for UDP
+			 * Assume this is UDP - 20 bytes for IP, 8 bytes for UDP
 			     */
 			    ret = 28;
 		    else
 #  endif
 		    /*
-		     * Assume this is UDP - 40 bytes for IP, 8 bytes for UDP
+		 * Assume this is UDP - 40 bytes for IP, 8 bytes for UDP
 		     */
 		    ret = 48;
 	    }
@@ -363,7 +363,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 	int d_errno;
 # if defined(OPENSSL_SYS_LINUX) && (defined(IP_MTU_DISCOVER) || defined(IP_MTU))
 	socklen_t sockopt_len;  /* assume that system supporting IP_MTU is
-	                         * modern enough to define socklen_t */
+	    * modern enough to define socklen_t */
 	socklen_t addr_len;
 	BIO_ADDR addr;
 # endif
@@ -1287,16 +1287,16 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 	switch(cmd) {
 		case BIO_CTRL_DGRAM_QUERY_MTU:
 		    /*
-		     * Set to maximum (2^14) and ignore user input to enable transport
-		     * protocol fragmentation. Returns always 2^14.
+		 * Set to maximum (2^14) and ignore user input to enable transport
+		 * protocol fragmentation. Returns always 2^14.
 		     */
 		    data->mtu = 16384;
 		    ret = data->mtu;
 		    break;
 		case BIO_CTRL_DGRAM_SET_MTU:
 		    /*
-		     * Set to maximum (2^14) and ignore input to enable transport
-		     * protocol fragmentation. Returns always 2^14.
+		 * Set to maximum (2^14) and ignore input to enable transport
+		 * protocol fragmentation. Returns always 2^14.
 		     */
 		    data->mtu = 16384;
 		    ret = data->mtu;
@@ -1308,12 +1308,12 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT:
 		    /*
-		     * SCTP doesn't need the DTLS timer Returns always 1.
+		 * SCTP doesn't need the DTLS timer Returns always 1.
 		     */
 		    break;
 		case BIO_CTRL_DGRAM_GET_MTU_OVERHEAD:
 		    /*
-		     * We allow transport protocol fragmentation so this is irrelevant
+		 * We allow transport protocol fragmentation so this is irrelevant
 		     */
 		    ret = 0;
 		    break;
@@ -1326,7 +1326,7 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_CTRL_DGRAM_SCTP_ADD_AUTH_KEY:
 		    /*
-		     * New shared key for SCTP AUTH. Returns 0 on success, -1 otherwise.
+		 * New shared key for SCTP AUTH. Returns 0 on success, -1 otherwise.
 		     */
 		    /* Get active key */
 		    sockopt_len = sizeof(struct sctp_authkeyid);
@@ -1344,8 +1344,8 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    authkey->sca_keynumber = authkeyid.scact_keynumber + 1;
 #  ifndef __FreeBSD__
 		    /*
-		     * This field is missing in FreeBSD 8.2 and earlier, and FreeBSD 8.3
-		     * and higher work without it.
+		 * This field is missing in FreeBSD 8.2 and earlier, and FreeBSD 8.3
+		 * and higher work without it.
 		     */
 		    authkey->sca_keylength = 64;
 #  endif
@@ -1375,8 +1375,8 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    break;
 
 		    /*
-		     * CCS has been sent, so remember that and fall through to check if
-		     * we need to deactivate an old key
+		 * CCS has been sent, so remember that and fall through to check if
+		 * we need to deactivate an old key
 		     */
 		    data->ccs_sent = 1;
 
@@ -1384,14 +1384,14 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    /* Returns 0 on success, -1 otherwise. */
 
 		    /*
-		     * Has this command really been called or is this just a
-		     * fall-through?
+		 * Has this command really been called or is this just a
+		 * fall-through?
 		     */
 		    if(cmd == BIO_CTRL_DGRAM_SCTP_AUTH_CCS_RCVD)
 			    data->ccs_rcvd = 1;
 
 		    /*
-		     * CSS has been both, received and sent, so deactivate an old key
+		 * CSS has been both, received and sent, so deactivate an old key
 		     */
 		    if(data->ccs_rcvd == 1 && data->ccs_sent == 1) {
 			    /* Get active key */
@@ -1403,8 +1403,8 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    break;
 
 			    /*
-			     * Deactivate key or delete second last key if
-			     * SCTP_AUTHENTICATION_EVENT is not available.
+			 * Deactivate key or delete second last key if
+			 * SCTP_AUTHENTICATION_EVENT is not available.
 			     */
 			    authkeyid.scact_keynumber = authkeyid.scact_keynumber - 1;
 #  ifdef SCTP_AUTH_DEACTIVATE_KEY
@@ -1482,7 +1482,7 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 
 		default:
 		    /*
-		     * Pass to default ctrl function to process SCTP unspecific commands
+		 * Pass to default ctrl function to process SCTP unspecific commands
 		     */
 		    ret = dgram_ctrl(b, cmd, num, ptr);
 		    break;

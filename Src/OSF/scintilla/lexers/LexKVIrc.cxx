@@ -59,15 +59,15 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 			case SCE_KVIRC_DEFAULT:
 
 			    /* Detecting single-line comments
-			     * Unfortunately KVIrc script allows raw '#<channel
-			     * name>' to be used, and appending # to an array returns
-			     * its length...
-			     * Going for a compromise where single line comments not
-			     * starting on a newline are allowed in all cases except
-			     * when they are preceeded with an opening bracket or comma
-			     * (this will probably be the most common style a valid
-			     * string-less channel name will be used with), with the
-			     * array length case included
+			 * Unfortunately KVIrc script allows raw '#<channel
+			 * name>' to be used, and appending # to an array returns
+			 * its length...
+			 * Going for a compromise where single line comments not
+			 * starting on a newline are allowed in all cases except
+			 * when they are preceeded with an opening bracket or comma
+			 * (this will probably be the most common style a valid
+			 * string-less channel name will be used with), with the
+			 * array length case included
 			     */
 			    if(
 			    (sc.ch == '#' && sc.atLineStart) ||
@@ -105,7 +105,7 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 			    }
 
 			    /* Detecting numbers - isdigit is unsafe as it does not
-			     * validate, use CharacterSet.h functions */
+			 * validate, use CharacterSet.h functions */
 			    if(IsADigit(sc.ch)) {
 				    sc.SetState(SCE_KVIRC_NUMBER);
 				    break;
@@ -129,7 +129,7 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 			case SCE_KVIRC_COMMENT:
 
 			    /* Breaking out of single line comment when a newline
-			     * is introduced */
+			 * is introduced */
 			    if(sc.ch == '\r' || sc.ch == '\n') {
 				    sc.SetState(SCE_KVIRC_DEFAULT);
 				    break;
@@ -147,9 +147,9 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 				    sc.SetState(SCE_KVIRC_DEFAULT);
 
 				    /* Comment has been exited and the current position
-				     * moved forward, yet the new current character
-				     * has yet to be defined - loop without moving
-				     * forward again */
+				 * moved forward, yet the new current character
+				 * has yet to be defined - loop without moving
+				 * forward again */
 				    next = false;
 				    break;
 			    }
@@ -165,19 +165,19 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 					    break;
 
 				    /* Moving the current position forward to capture the
-				     * terminating speechmarks, and ending string */
+				 * terminating speechmarks, and ending string */
 				    sc.ForwardSetState(SCE_KVIRC_DEFAULT);
 
 				    /* String has been exited and the current position
-				     * moved forward, yet the new current character
-				     * has yet to be defined - loop without moving
-				     * forward again */
+				 * moved forward, yet the new current character
+				 * has yet to be defined - loop without moving
+				 * forward again */
 				    next = false;
 				    break;
 			    }
 
 			    /* Functions and variables are now highlighted in strings
-			     * Detecting functions */
+			 * Detecting functions */
 			    if(sc.ch == '$') {
 				    /* Allowing escaped functions to pass */
 				    if(sc.chPrev == '\\')
@@ -217,8 +217,8 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 				    sc.SetState(SCE_KVIRC_DEFAULT);
 
 				    /* Word has been exited yet the current character
-				     * has yet to be defined - loop without moving
-				     * forward again */
+				 * has yet to be defined - loop without moving
+				 * forward again */
 				    next = false;
 				    break;
 			    }
@@ -229,13 +229,13 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 			case SCE_KVIRC_STRING_VARIABLE:
 
 			    /* A function or variable in a string
-			     * Detecting the end of a function/variable (word) */
+			 * Detecting the end of a function/variable (word) */
 			    if(!IsAWordChar(sc.ch)) {
 				    sc.SetState(SCE_KVIRC_STRING);
 
 				    /* Word has been exited yet the current character
-				     * has yet to be defined - loop without moving
-				     * forward again */
+				 * has yet to be defined - loop without moving
+				 * forward again */
 				    next = false;
 				    break;
 			    }
@@ -249,8 +249,8 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 				    sc.SetState(SCE_KVIRC_DEFAULT);
 
 				    /* Number has been exited yet the current character
-				     * has yet to be defined - loop without moving
-				     * forward */
+				 * has yet to be defined - loop without moving
+				 * forward */
 				    next = false;
 				    break;
 			    }
@@ -260,14 +260,14 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 			case SCE_KVIRC_OPERATOR:
 
 			    /* Because '%' is an operator but is also the marker for
-			     * a variable, I need to always treat operators as single
-			     * character strings and therefore redo their detection
-			     * after every character */
+			 * a variable, I need to always treat operators as single
+			 * character strings and therefore redo their detection
+			 * after every character */
 			    sc.SetState(SCE_KVIRC_DEFAULT);
 
 			    /* Operator has been exited yet the current character
-			     * has yet to be defined - loop without moving
-			     * forward */
+			 * has yet to be defined - loop without moving
+			 * forward */
 			    next = false;
 			    break;
 
@@ -276,8 +276,8 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 			    /* Detecting the end of a word */
 			    if(!IsAWordChar(sc.ch)) {
 				    /* Checking if the word was actually a keyword -
-				     * fetching the current word, NULL-terminated like
-				     * the keyword list */
+				 * fetching the current word, NULL-terminated like
+				 * the keyword list */
 				    char s[100];
 				    Sci_Position wordLen = sc.currentPos - styler.GetStartSegment();
 				    if(wordLen > 99)
@@ -291,7 +291,7 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 				    /* Actually detecting keywords and fixing the state */
 				    if(keywords.InList(s)) {
 					    /* The SetState call actually commits the
-					     * previous keyword state */
+					 * previous keyword state */
 					    sc.ChangeState(SCE_KVIRC_KEYWORD);
 				    }
 				    else if(functionKeywords.InList(s)) {
@@ -300,12 +300,12 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 				    }
 
 				    /* Transitioning to default and committing the previous
-				     * word state */
+				 * word state */
 				    sc.SetState(SCE_KVIRC_DEFAULT);
 
 				    /* Word has been exited yet the current character
-				     * has yet to be defined - loop without moving
-				     * forward again */
+				 * has yet to be defined - loop without moving
+				 * forward again */
 				    next = false;
 				    break;
 			    }
@@ -360,7 +360,7 @@ static void FoldKVIrcDoc(Sci_PositionU startPos, Sci_Position length, int /*init
 			case '{':
 
 			    /* Indenting only when the braces are not contained in
-			     * a comment */
+			 * a comment */
 			    if(state != SCE_KVIRC_COMMENT &&
 			    state != SCE_KVIRC_COMMENTBLOCK)
 				    ++nextLevel;
@@ -369,7 +369,7 @@ static void FoldKVIrcDoc(Sci_PositionU startPos, Sci_Position length, int /*init
 			case '}':
 
 			    /* Outdenting only when the braces are not contained in
-			     * a comment */
+			 * a comment */
 			    if(state != SCE_KVIRC_COMMENT &&
 			    state != SCE_KVIRC_COMMENTBLOCK)
 				    --nextLevel;
@@ -379,12 +379,12 @@ static void FoldKVIrcDoc(Sci_PositionU startPos, Sci_Position length, int /*init
 			case '\r':
 
 			    /* Preparing indentation information to return - combining
-			     * current and next level data */
+			 * current and next level data */
 			    int lev = currentLevel | nextLevel << 16;
 
 			    /* If the next level increases the indent level, mark the
-			     * current line as a fold point - current level data is
-			     * in the least significant bits */
+			 * current line as a fold point - current level data is
+			 * in the least significant bits */
 			    if(nextLevel > currentLevel)
 				    lev |= SC_FOLDLEVELHEADERFLAG;
 
@@ -397,8 +397,8 @@ static void FoldKVIrcDoc(Sci_PositionU startPos, Sci_Position length, int /*init
 			    currentLevel = nextLevel;
 
 			    /* Dealing with problematic Windows newlines -
-			     * incrementing to avoid the extra newline breaking the
-			     * fold point */
+			 * incrementing to avoid the extra newline breaking the
+			 * fold point */
 			    if(styler.SafeGetCharAt(i) == '\r' &&
 			    styler.SafeGetCharAt(i + 1) == '\n')
 				    ++i;

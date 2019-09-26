@@ -147,9 +147,9 @@ int BZ_API(BZ2_bzCompressInit)(bz_stream* strm, int blockSize100k, int verbosity
 	s->ftab = NULL;
 
 	n       = 100000 * blockSize100k;
-	s->arr1 = (uint32 *)BZALLOC(n                  * sizeof(uint32) );
+	s->arr1 = (uint32 *)BZALLOC(n  * sizeof(uint32) );
 	s->arr2 = (uint32 *)BZALLOC( (n+BZ_N_OVERSHOOT) * sizeof(uint32) );
-	s->ftab = (uint32 *)BZALLOC(65537              * sizeof(uint32) );
+	s->ftab = (uint32 *)BZALLOC(65537   * sizeof(uint32) );
 	if(s->arr1 == NULL || s->arr2 == NULL || s->ftab == NULL) {
 		if(s->arr1 != NULL) BZFREE(s->arr1);
 		if(s->arr2 != NULL) BZFREE(s->arr2);

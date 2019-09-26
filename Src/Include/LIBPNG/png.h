@@ -358,7 +358,7 @@
  */
 #ifndef PNGLCONF_H
     /* If pnglibconf.h is missing, you can
-     * copy scripts/pnglibconf.h.prebuilt to pnglibconf.h
+ * copy scripts/pnglibconf.h.prebuilt to pnglibconf.h
      */
 #   include "pnglibconf.h"
 #endif
@@ -649,10 +649,10 @@ typedef struct png_unknown_chunk_t
     size_t size;
 
     /* On write 'location' must be set using the flag values listed below.
-     * Notice that on read it is set by libpng however the values stored have
-     * more bits set than are listed below.  Always treat the value as a
-     * bitmask.  On write set only one bit - setting multiple bits may cause the
-     * chunk to be written in multiple places.
+ * Notice that on read it is set by libpng however the values stored have
+ * more bits set than are listed below.  Always treat the value as a
+ * bitmask.  On write set only one bit - setting multiple bits may cause the
+ * chunk to be written in multiple places.
      */
     uint8 location; /* mode of operation at read time */
 }

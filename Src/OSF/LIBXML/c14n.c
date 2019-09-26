@@ -491,7 +491,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
 	xmlList * list;
 	int already_rendered;
 	int has_empty_ns = 0;
-	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
+	if(!ctx || !cur || (cur->type != XML_ELEMENT_NODE)) {
 		xmlC14NErrParam("processing namespaces axis (c14n)");
 		return -1;
 	}
@@ -540,8 +540,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
 	/*
 	 * print out all elements from list
 	 */
-	xmlListWalk(list, (xmlListWalker)xmlC14NPrintNamespaces, (const void *)ctx);
-
+	xmlListWalk(list, (xmlListWalker)xmlC14NPrintNamespaces, ctx);
 	/*
 	 * Cleanup
 	 */
@@ -588,7 +587,7 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, in
 	int has_empty_ns = 0;
 	int has_visibly_utilized_empty_ns = 0;
 	int has_empty_ns_in_inclusive_list = 0;
-	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
+	if(!ctx || !cur || (cur->type != XML_ELEMENT_NODE)) {
 		xmlC14NErrParam("processing namespaces axis (exc c14n)");
 		return -1;
 	}
@@ -636,7 +635,6 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, in
 			}
 		}
 	}
-
 	/* add node namespace */
 	if(cur->ns) {
 		ns = cur->ns;
@@ -681,7 +679,6 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, in
 			has_visibly_utilized_empty_ns = 1;
 		}
 	}
-
 	/*
 	 * Process xmlns=""
 	 */
@@ -971,18 +968,18 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 	switch(ctx->mode) {
 		case XML_C14N_1_0:
 		    /* The processing of an element node E MUST be modified slightly when an XPath node-set is
-		     * given as input and the element's parent is omitted from the node-set. The method for processing
-		     * the attribute axis of an element E in the node-set is enhanced. All element nodes along E's
-		     * ancestor axis are examined for nearest occurrences of attributes in the xml namespace, such
-		     * as xml:lang and xml:space (whether or not they are in the node-set). From this list of
+		 * given as input and the element's parent is omitted from the node-set. The method for processing
+		 * the attribute axis of an element E in the node-set is enhanced. All element nodes along E's
+		 * ancestor axis are examined for nearest occurrences of attributes in the xml namespace, such
+		 * as xml:lang and xml:space (whether or not they are in the node-set). From this list of
 		     *attributes,
-		     * remove any that are in E's attribute axis (whether or not they are in the node-set). Then,
-		     * lexicographically merge this attribute list with the nodes of E's attribute axis that are in
-		     * the node-set. The result of visiting the attribute axis is computed by processing the attribute
-		     * nodes in this merged attribute list.
+		 * remove any that are in E's attribute axis (whether or not they are in the node-set). Then,
+		 * lexicographically merge this attribute list with the nodes of E's attribute axis that are in
+		 * the node-set. The result of visiting the attribute axis is computed by processing the attribute
+		 * nodes in this merged attribute list.
 		     */
 		    /*
-		     * Add all visible attributes from current node.
+		 * Add all visible attributes from current node.
 		     */
 		    attr = cur->properties;
 		    while(attr) {
@@ -993,7 +990,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 			    attr = attr->next;
 		    }
 		    /*
-		     * Handle xml attributes
+		 * Handle xml attributes
 		     */
 		    if(parent_visible && cur->P_ParentNode && (!xmlC14NIsVisible(ctx, cur->P_ParentNode, cur->P_ParentNode->P_ParentNode))) {
 				// If XPath node-set is not specified then the parent is always visible!
@@ -1015,10 +1012,10 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 		    break;
 		case XML_C14N_EXCLUSIVE_1_0:
 		    /* attributes in the XML namespace, such as xml:lang and xml:space
-		     * are not imported into orphan nodes of the document subset
+		 * are not imported into orphan nodes of the document subset
 		     */
 		    /*
-		     * Add all visible attributes from current node.
+		 * Add all visible attributes from current node.
 		     */
 		    attr = cur->properties;
 		    while(attr) {
@@ -1032,35 +1029,35 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 		    break;
 		case XML_C14N_1_1:
 		    /* The processing of an element node E MUST be modified slightly when an XPath node-set is
-		     * given as input and some of the element's ancestors are omitted from the node-set.
+		 * given as input and some of the element's ancestors are omitted from the node-set.
 		     *
-		     * Simple inheritable attributes are attributes that have a value that requires at most a simple
-		     * redeclaration. This redeclaration is done by supplying a new value in the child axis. The
-		     * redeclaration of a simple inheritable attribute A contained in one of E's ancestors is done
-		     * by supplying a value to an attribute Ae inside E with the same name. Simple inheritable attributes
-		     * are xml:lang and xml:space.
+		 * Simple inheritable attributes are attributes that have a value that requires at most a simple
+		 * redeclaration. This redeclaration is done by supplying a new value in the child axis. The
+		 * redeclaration of a simple inheritable attribute A contained in one of E's ancestors is done
+		 * by supplying a value to an attribute Ae inside E with the same name. Simple inheritable attributes
+		 * are xml:lang and xml:space.
 		     *
-		     * The method for processing the attribute axis of an element E in the node-set is hence enhanced.
-		     * All element nodes along E's ancestor axis are examined for the nearest occurrences of simple
-		     * inheritable attributes in the xml namespace, such as xml:lang and xml:space (whether or not they
-		     * are in the node-set). From this list of attributes, any simple inheritable attributes that are
-		     * already in E's attribute axis (whether or not they are in the node-set) are removed. Then,
-		     * lexicographically merge this attribute list with the nodes of E's attribute axis that are in
-		     * the node-set. The result of visiting the attribute axis is computed by processing the attribute
-		     * nodes in this merged attribute list.
+		 * The method for processing the attribute axis of an element E in the node-set is hence enhanced.
+		 * All element nodes along E's ancestor axis are examined for the nearest occurrences of simple
+		 * inheritable attributes in the xml namespace, such as xml:lang and xml:space (whether or not they
+		 * are in the node-set). From this list of attributes, any simple inheritable attributes that are
+		 * already in E's attribute axis (whether or not they are in the node-set) are removed. Then,
+		 * lexicographically merge this attribute list with the nodes of E's attribute axis that are in
+		 * the node-set. The result of visiting the attribute axis is computed by processing the attribute
+		 * nodes in this merged attribute list.
 		     *
-		     * The xml:id attribute is not a simple inheritable attribute and no processing of these attributes is
-		     * performed.
+		 * The xml:id attribute is not a simple inheritable attribute and no processing of these attributes is
+		 * performed.
 		     *
-		     * The xml:base attribute is not a simple inheritable attribute and requires special processing beyond
-		     * a simple redeclaration.
+		 * The xml:base attribute is not a simple inheritable attribute and requires special processing beyond
+		 * a simple redeclaration.
 		     *
-		     * Attributes in the XML namespace other than xml:base, xml:id, xml:lang, and xml:space MUST be processed
-		     * as ordinary attributes.
+		 * Attributes in the XML namespace other than xml:base, xml:id, xml:lang, and xml:space MUST be processed
+		 * as ordinary attributes.
 		     */
 
 		    /*
-		     * Add all visible attributes from current node.
+		 * Add all visible attributes from current node.
 		     */
 		    attr = cur->properties;
 		    while(attr) {
@@ -1174,7 +1171,6 @@ static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNode * cur)
 		return 0;
 	}
 }
-
 /**
  * xmlC14NProcessElementNode:
  * @ctx:		the pointer to C14N context object
@@ -1311,11 +1307,11 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 		case XML_CDATA_SECTION_NODE:
 		case XML_TEXT_NODE:
 		    /*
-		     * Text Nodes
-		     * the string value, except all ampersands are replaced
-		     * by &amp;, all open angle brackets (<) are replaced by &lt;, all closing
-		     * angle brackets (>) are replaced by &gt;, and all #xD characters are
-		     * replaced by &#xD;.
+		 * Text Nodes
+		 * the string value, except all ampersands are replaced
+		 * by &amp;, all open angle brackets (<) are replaced by &lt;, all closing
+		 * angle brackets (>) are replaced by &gt;, and all #xD characters are
+		 * replaced by &#xD;.
 		     */
 		    /* cdata sections are processed as text nodes */
 		    /* todo: verify that cdata sections are included in XPath nodes set */
@@ -1333,16 +1329,16 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 		    break;
 		case XML_PI_NODE:
 		    /*
-		     * Processing Instruction (PI) Nodes-
-		     * The opening PI symbol (<?), the PI target name of the node,
-		     * a leading space and the string value if it is not empty, and
-		     * the closing PI symbol (?>). If the string value is empty,
-		     * then the leading space is not added. Also, a trailing #xA is
-		     * rendered after the closing PI symbol for PI children of the
-		     * root node with a lesser document order than the document
-		     * element, and a leading #xA is rendered before the opening PI
-		     * symbol of PI children of the root node with a greater document
-		     * order than the document element.
+		 * Processing Instruction (PI) Nodes-
+		 * The opening PI symbol (<?), the PI target name of the node,
+		 * a leading space and the string value if it is not empty, and
+		 * the closing PI symbol (?>). If the string value is empty,
+		 * then the leading space is not added. Also, a trailing #xA is
+		 * rendered after the closing PI symbol for PI children of the
+		 * root node with a lesser document order than the document
+		 * element, and a leading #xA is rendered before the opening PI
+		 * symbol of PI children of the root node with a greater document
+		 * order than the document element.
 		     */
 		    if(visible) {
 			    if(ctx->pos == XMLC14N_AFTER_DOCUMENT_ELEMENT) {
@@ -1351,7 +1347,6 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 			    else {
 				    xmlOutputBufferWriteString(ctx->buf, "<?");
 			    }
-
 			    xmlOutputBufferWriteString(ctx->buf, reinterpret_cast<const char *>(cur->name));
 			    if(cur->content && (*(cur->content) != '\0')) {
 				    xmlChar * buffer;
@@ -1377,19 +1372,19 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 		    break;
 		case XML_COMMENT_NODE:
 		    /*
-		     * Comment Nodes
-		     * Nothing if generating canonical XML without  comments. For
-		     * canonical XML with comments, generate the opening comment
-		     * symbol (<!--), the string value of the node, and the
-		     * closing comment symbol (-->). Also, a trailing #xA is rendered
-		     * after the closing comment symbol for comment children of the
-		     * root node with a lesser document order than the document
-		     * element, and a leading #xA is rendered before the opening
-		     * comment symbol of comment children of the root node with a
-		     * greater document order than the document element. (Comment
-		     * children of the root node represent comments outside of the
-		     * top-level document element and outside of the document type
-		     * declaration).
+		 * Comment Nodes
+		 * Nothing if generating canonical XML without  comments. For
+		 * canonical XML with comments, generate the opening comment
+		 * symbol (<!--), the string value of the node, and the
+		 * closing comment symbol (-->). Also, a trailing #xA is rendered
+		 * after the closing comment symbol for comment children of the
+		 * root node with a lesser document order than the document
+		 * element, and a leading #xA is rendered before the opening
+		 * comment symbol of comment children of the root node with a
+		 * greater document order than the document element. (Comment
+		 * children of the root node represent comments outside of the
+		 * top-level document element and outside of the document type
+		 * declaration).
 		     */
 		    if(visible && ctx->with_comments) {
 			    if(ctx->pos == XMLC14N_AFTER_DOCUMENT_ELEMENT) {
@@ -1447,7 +1442,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 		case XML_XINCLUDE_END:
 #endif
 		    /*
-		     * should be ignored according to "W3C Canonical XML"
+		 * should be ignored according to "W3C Canonical XML"
 		     */
 		    break;
 		default:
@@ -1469,13 +1464,13 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
  */
 static int xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNode * cur)
 {
-	int ret;
+	int ret = -1;
 	if(!ctx) {
 		xmlC14NErrParam("processing node list");
-		return -1;
 	}
-	for(ret = 0; cur && ret >= 0; cur = cur->next) {
-		ret = xmlC14NProcessNode(ctx, cur);
+	else {
+		for(ret = 0; cur && ret >= 0; cur = cur->next)
+			ret = xmlC14NProcessNode(ctx, cur);
 	}
 	return ret;
 }
@@ -1497,7 +1492,6 @@ static void xmlC14NFreeCtx(xmlC14NCtxPtr ctx)
 		SAlloc::F(ctx);
 	}
 }
-
 /**
  * xmlC14NNewCtx:
  * @doc:		the XML document for canonization
@@ -1665,7 +1659,6 @@ int xmlC14NExecute(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, v
 	xmlC14NFreeCtx(ctx);
 	return ret;
 }
-
 /**
  * xmlC14NDocSaveTo:
  * @doc:		the XML document for canonization
@@ -1749,7 +1742,6 @@ int xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar **
 	}
 	return ret;
 }
-
 /**
  * xmlC14NDocSave:
  * @doc:		the XML document for canonization
@@ -1819,7 +1811,6 @@ int xmlC14NDocSave(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclu
 			return 0;							\
 		}								    \
 }
-
 /**
  * xmlC11NNormalizeString:
  * @input:		the input string

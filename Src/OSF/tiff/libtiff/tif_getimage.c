@@ -114,17 +114,17 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 			    return 0;
 		    }
 		    /*
-		     * We should likely validate that any extra samples are either
-		     * to be ignored, or are alpha, and if alpha we should try to use
-		     * them.  But for now we won't bother with this.
+		 * We should likely validate that any extra samples are either
+		 * to be ignored, or are alpha, and if alpha we should try to use
+		 * them.  But for now we won't bother with this.
 		     */
 		    break;
 		case PHOTOMETRIC_YCBCR:
 		    /*
-		     * TODO: if at all meaningful and useful, make more complete
-		     * support check here, or better still, refactor to let supporting
-		     * code decide whether there is support and what meaningful
-		     * error to return
+		 * TODO: if at all meaningful and useful, make more complete
+		 * support check here, or better still, refactor to let supporting
+		 * code decide whether there is support and what meaningful
+		 * error to return
 		     */
 		    break;
 		case PHOTOMETRIC_RGB:
@@ -333,10 +333,10 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 					break;
 			    }
 		    /*
-		     * TODO: if at all meaningful and useful, make more complete
-		     * support check here, or better still, refactor to let supporting
-		     * code decide whether there is support and what meaningful
-		     * error to return
+		 * TODO: if at all meaningful and useful, make more complete
+		 * support check here, or better still, refactor to let supporting
+		 * code decide whether there is support and what meaningful
+		 * error to return
 		     */
 		    break;
 		case PHOTOMETRIC_RGB:
@@ -2155,16 +2155,16 @@ static int buildMap(TIFFRGBAImage* img)
 		    break;
 		case PHOTOMETRIC_PALETTE:
 		    /*
-		     * Convert 16-bit colormap to 8-bit (unless it looks
-		     * like an old-style 8-bit colormap).
+		 * Convert 16-bit colormap to 8-bit (unless it looks
+		 * like an old-style 8-bit colormap).
 		     */
 		    if(checkcmap(img) == 16)
 			    cvtcmap(img);
 		    else
 			    TIFFWarningExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "Assuming 8-bit colormap");
 		    /*
-		     * Use mapping table and colormap to construct
-		     * unpacking tables for samples < 8 bits.
+		 * Use mapping table and colormap to construct
+		 * unpacking tables for samples < 8 bits.
 		     */
 		    if(img->bitspersample <= 8 && !makecmap(img))
 			    return 0;
@@ -2266,13 +2266,13 @@ static int PickContigCase(TIFFRGBAImage* img)
 		    if((img->bitspersample==8) && (img->samplesperpixel==3)) {
 			    if(initYCbCrConversion(img)!=0) {
 				    /*
-				     * The 6.0 spec says that subsampling must be
-				     * one of 1, 2, or 4, and that vertical subsampling
-				     * must always be <= horizontal subsampling; so
-				     * there are only a few possibilities and we just
-				     * enumerate the cases.
-				     * Joris: added support for the [1,2] case, nonetheless, to accommodate
-				     * some OJPEG files
+				 * The 6.0 spec says that subsampling must be
+				 * one of 1, 2, or 4, and that vertical subsampling
+				 * must always be <= horizontal subsampling; so
+				 * there are only a few possibilities and we just
+				 * enumerate the cases.
+				 * Joris: added support for the [1,2] case, nonetheless, to accommodate
+				 * some OJPEG files
 				     */
 				    uint16 SubsamplingHor;
 				    uint16 SubsamplingVer;

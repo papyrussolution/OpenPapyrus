@@ -104,10 +104,10 @@ struct _7z_folder {
 	} * bindPairs;
 
 	uint64_t numPackedStreams;
-	uint64_t     * packedStreams;
+	uint64_t * packedStreams;
 	uint64_t numInStreams;
 	uint64_t numOutStreams;
-	uint64_t     * unPackSize;
+	uint64_t * unPackSize;
 	uchar digest_defined;
 	uint32_t digest;
 	uint64_t numUnpackStreams;
@@ -125,17 +125,17 @@ struct _7z_coders_info {
 struct _7z_pack_info {
 	uint64_t pos;
 	uint64_t numPackStreams;
-	uint64_t     * sizes;
+	uint64_t * sizes;
 	struct _7z_digests digest;
 	/* Calculated from pos and numPackStreams. */
-	uint64_t     * positions;
+	uint64_t * positions;
 };
 
 struct _7z_substream_info {
 	size_t unpack_streams;
-	uint64_t     * unpackSizes;
+	uint64_t * unpackSizes;
 	uchar  * digestsDefined;
-	uint32_t     * digests;
+	uint32_t * digests;
 };
 
 struct _7z_stream_info {
@@ -257,7 +257,7 @@ struct _7zip {
 	CPpmd7z_RangeDec range_dec;
 	IByteIn bytein;
 	struct {
-		const uchar     * next_in;
+		const uchar * next_in;
 		int64_t avail_in;
 		int64_t total_in;
 		uchar  * next_out;
@@ -455,9 +455,9 @@ static int check_7zip_header_in_sfx(const char * p)
 		    if(memcmp(p, _7ZIP_SIGNATURE, 6) != 0)
 			    return (6);
 		    /*
-		     * Test the CRC because its extraction code has 7-Zip
-		     * Magic Code, so we should do this in order not to
-		     * make a mis-detection.
+		 * Test the CRC because its extraction code has 7-Zip
+		 * Magic Code, so we should do this in order not to
+		 * make a mis-detection.
 		     */
 		    if(crc32(0, (const uchar *)p + 12, 20)
 			!= archive_le32dec(p + 8))
@@ -905,22 +905,22 @@ static int init_decompression(struct archive_read * a, struct _7zip * zip, const
 				    zip->lzstream_valid = 0;
 			    }
 			    /*
-			     * NOTE: liblzma incompletely handle the BCJ+LZMA compressed
-			     * data made by 7-Zip because 7-Zip does not add End-Of-
-			     * Payload Marker(EOPM) at the end of LZMA compressed data,
-			     * and so liblzma cannot know the end of the compressed data
-			     * without EOPM. So consequently liblzma will not return last
-			     * three or four bytes of uncompressed data because
-			     * LZMA_FILTER_X86 filter does not handle input data if its
-			     * data size is less than five bytes. If liblzma detect EOPM
-			     * or know the uncompressed data size, liblzma will flush out
-			     * the remaining that three or four bytes of uncompressed
-			     * data. That is why we have to use our converting program
-			     * for BCJ+LZMA. If we were able to tell the uncompressed
-			     * size to liblzma when using lzma_raw_decoder() liblzma
-			     * could correctly deal with BCJ+LZMA. But unfortunately
-			     * there is no way to do that.
-			     * Discussion about this can be found at XZ Utils forum.
+			 * NOTE: liblzma incompletely handle the BCJ+LZMA compressed
+			 * data made by 7-Zip because 7-Zip does not add End-Of-
+			 * Payload Marker(EOPM) at the end of LZMA compressed data,
+			 * and so liblzma cannot know the end of the compressed data
+			 * without EOPM. So consequently liblzma will not return last
+			 * three or four bytes of uncompressed data because
+			 * LZMA_FILTER_X86 filter does not handle input data if its
+			 * data size is less than five bytes. If liblzma detect EOPM
+			 * or know the uncompressed data size, liblzma will flush out
+			 * the remaining that three or four bytes of uncompressed
+			 * data. That is why we have to use our converting program
+			 * for BCJ+LZMA. If we were able to tell the uncompressed
+			 * size to liblzma when using lzma_raw_decoder() liblzma
+			 * could correctly deal with BCJ+LZMA. But unfortunately
+			 * there is no way to do that.
+			 * Discussion about this can be found at XZ Utils forum.
 			     */
 			    if(coder2 != NULL) {
 				    zip->codec2 = coder2->codec;
@@ -2234,10 +2234,10 @@ static int read_Header(struct archive_read * a, struct _7z_header_info * h,
 			    np = zip->entry_names;
 			    nb = ll;
 			    /*
-			     * Copy whole file names.
-			     * NOTE: This loop prevents from expanding
-			     * the uncompressed buffer in order not to
-			     * use extra memory resource.
+			 * Copy whole file names.
+			 * NOTE: This loop prevents from expanding
+			 * the uncompressed buffer in order not to
+			 * use extra memory resource.
 			     */
 			    while(nb) {
 				    size_t b;
@@ -2594,8 +2594,8 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 	switch(p[0]) {
 		case kEncodedHeader:
 		    /*
-		     * The archive has an encoded header and we have to decode it
-		     * in order to parse the header correctly.
+		 * The archive has an encoded header and we have to decode it
+		 * in order to parse the header correctly.
 		     */
 		    r = decode_encoded_header_info(a, &(zip->si));
 
@@ -2628,7 +2628,7 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 		/* FALL THROUGH */
 		case kHeader:
 		    /*
-		     * Parse the header.
+		 * Parse the header.
 		     */
 		    errno = 0;
 		    r = read_Header(a, header, zip->header_is_encoded);
@@ -2641,7 +2641,7 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 		    }
 
 		    /*
-		     *  Must be kEnd.
+		 *  Must be kEnd.
 		     */
 		    if((p = header_bytes(a, 1)) == NULL ||*p != kEnd) {
 			    archive_set_error(&a->archive, -1, "Malformed 7-Zip archive");

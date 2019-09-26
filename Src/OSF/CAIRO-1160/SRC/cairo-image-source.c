@@ -1158,32 +1158,23 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
 				cairo_surface_destroy(defer_free);
 				return NULL;
 			}
-
 			if(defer_free) {
-				pixman_image_set_destroy_function(pixman_image,
-				    _defer_free_cleanup,
-				    defer_free);
+				pixman_image_set_destroy_function(pixman_image, _defer_free_cleanup, defer_free);
 			}
 		}
 		else if(type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
-			cairo_surface_subsurface_t * sub;
 			boolint is_contained = FALSE;
-
-			sub = (cairo_surface_subsurface_t*)source;
+			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)source;
 			source = (cairo_image_surface_t*)sub->target;
-
 			if(sample->x >= 0 &&
 			    sample->y >= 0 &&
 			    sample->x + sample->width  <= sub->extents.width &&
 			    sample->y + sample->height <= sub->extents.height) {
 				is_contained = TRUE;
 			}
-
 			if(sample->width == 1 && sample->height == 1) {
 				if(is_contained) {
-					pixman_image = _pixel_to_solid(source,
-						sub->extents.x + sample->x,
-						sub->extents.y + sample->y);
+					pixman_image = _pixel_to_solid(source, sub->extents.x + sample->x, sub->extents.y + sample->y);
 					if(pixman_image)
 						return pixman_image;
 				}
@@ -1192,18 +1183,13 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
 						return _pixman_transparent_image();
 				}
 			}
-
 #if PIXMAN_HAS_ATOMIC_OPS
 			*ix = sub->extents.x;
 			*iy = sub->extents.y;
-			if(is_contained &&
-			    _cairo_matrix_is_pixman_translation(&pattern->base.matrix,
-			    pattern->base.filter,
-			    ix, iy)) {
+			if(is_contained && _cairo_matrix_is_pixman_translation(&pattern->base.matrix, pattern->base.filter, ix, iy)) {
 				return pixman_image_ref(source->pixman_image);
 			}
 #endif
-
 			/* Avoid sub-byte offsets, force a copy in that case. */
 			if(PIXMAN_FORMAT_BPP(source->pixman_format) >= 8) {
 				if(is_contained) {

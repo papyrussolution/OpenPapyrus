@@ -144,7 +144,6 @@ int amqp_basic_publish(amqp_connection_state_t state, amqp_channel_t channel, am
     boolint mandatory, boolint immediate, amqp_basic_properties_t const * properties, amqp_bytes_t body) 
 {
 	amqp_frame_t f;
-	size_t body_offset;
 	size_t usable_body_payload_size = state->frame_max - (HEADER_SIZE + FOOTER_SIZE);
 	int res;
 	int flagz;
@@ -187,9 +186,9 @@ int amqp_basic_publish(amqp_connection_state_t state, amqp_channel_t channel, am
 		if(res < 0)
 			return res;
 		else {
-			body_offset = 0;
-			while(body_offset < body.len) {
-				size_t remaining = body.len - body_offset;
+			for(size_t body_offset = 0; body_offset < body.len;) {
+				const size_t remaining = body.len - body_offset;
+				assert(remaining > 0); // @sobolev (see while-condition above)
 				if(remaining == 0) {
 					break;
 				}

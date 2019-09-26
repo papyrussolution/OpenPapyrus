@@ -1,5 +1,5 @@
 // V_SCALE.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -31,46 +31,45 @@ PPViewScale::~PPViewScale()
 	ZDELETE(P_TempTbl);
 }
 
-int SLAPI PPViewScale::CheckForFilt(const PPScale * pRec) const
+int SLAPI PPViewScale::CheckForFilt(const PPScalePacket * pPack) const
 {
-	if(pRec) {
-		int    is_tcp = BIN(pRec->Flags & SCALF_TCPIP);
-		if(Filt.LocID && Filt.LocID != pRec->Location)
+	if(pPack) {
+		const int is_tcp = BIN(pPack->Rec.Flags & SCALF_TCPIP);
+		if(Filt.LocID && Filt.LocID != pPack->Rec.Location)
 			return 0;
-		if(Filt.ScaleTypeID && Filt.ScaleTypeID != pRec->ScaleTypeID)
+		if(Filt.ScaleTypeID && Filt.ScaleTypeID != pPack->Rec.ScaleTypeID)
 			return 0;
-		if(Filt.AltGoodsGrpID && Filt.AltGoodsGrpID != pRec->AltGoodsGrp)
+		if(Filt.AltGoodsGrpID && Filt.AltGoodsGrpID != pPack->Rec.AltGoodsGrp)
 			return 0;
 		if((Filt.Protocol == ScaleFilt::protTcpIp && !is_tcp) || (Filt.Protocol == ScaleFilt::protCom && is_tcp))
 			return 0;
-		if(Filt.GroupID && pRec->ParentID != Filt.GroupID) // @v6.x.x. AHTOXA
+		if(Filt.GroupID && pPack->Rec.ParentID != Filt.GroupID)
 			return 0;
-		if(Filt.Flags && (pRec->Flags & Filt.Flags) != Filt.Flags) // @v6.x.x. AHTOXA
+		if(Filt.Flags && (pPack->Rec.Flags & Filt.Flags) != Filt.Flags)
 			return 0;
 	}
 	return 1;
 }
 
-int SLAPI PPViewScale::MakeTempEntry(const PPScale * pRec, TempScaleTbl::Rec * pTempRec)
+int SLAPI PPViewScale::MakeTempEntry(const PPScalePacket * pPack, TempScaleTbl::Rec * pTempRec)
 {
 	int    ok = -1;
-	if(pRec && pTempRec) {
-		pTempRec->ID = pRec->ID;
-		STRNSCPY(pTempRec->Name, pRec->Name);
-		pTempRec->QuotKindID = pRec->QuotKindID;
-		pTempRec->ScaleTypeID = pRec->ScaleTypeID;
-		pTempRec->ProtocolVer = pRec->ProtocolVer;
-		pTempRec->LogNum = pRec->LogNum;
-		pTempRec->LocID = pRec->Location;
-		pTempRec->AltGoodsGrp = pRec->AltGoodsGrp;
-		if(pRec->Flags & SCALF_TCPIP)
-			PPObjScale::DecodeIP(pRec->Port, pTempRec->Port);
-		else
-			STRNSCPY(pTempRec->Port, pRec->Port);
+	if(pPack && pTempRec) {
+		SString temp_buf;
+		pTempRec->ID = pPack->Rec.ID;
+		STRNSCPY(pTempRec->Name, pPack->Rec.Name);
+		pTempRec->QuotKindID = pPack->Rec.QuotKindID;
+		pTempRec->ScaleTypeID = pPack->Rec.ScaleTypeID;
+		pTempRec->ProtocolVer = pPack->Rec.ProtocolVer;
+		pTempRec->LogNum = pPack->Rec.LogNum;
+		pTempRec->LocID = pPack->Rec.Location;
+		pTempRec->AltGoodsGrp = pPack->Rec.AltGoodsGrp;
+		pPack->GetExtStrData(pPack->extssPort, temp_buf);
+		STRNSCPY(pTempRec->Port, temp_buf);
 		{
-			SString buf, buf1, buf2;
-			PPGetSubStr(ScaleTypeNames, pTempRec->ScaleTypeID - 1, buf);
-			buf.Divide(',', buf1, buf2);
+			SString buf1, buf2;
+			PPGetSubStr(ScaleTypeNames, pTempRec->ScaleTypeID - 1, temp_buf);
+			temp_buf.Divide(',', buf1, buf2);
 			buf2.CopyTo(pTempRec->ScaleTypeName, sizeof(pTempRec->ScaleTypeName));
 		}
 		ok = 1;
@@ -126,10 +125,13 @@ int SLAPI PPViewScale::Init_(const PPBaseFilt * pFilt)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
 		for(PPID id = 0; ObjScale.EnumItems(&id, &rec) > 0;) {
-			if(CheckForFilt(&rec) > 0) {
-				TempScaleTbl::Rec temp_rec;
-				MakeTempEntry(&rec, &temp_rec);
-				THROW_DB(bei.insert(&temp_rec));
+			PPScalePacket pack;
+			if(ObjScale.GetPacket(rec.ID, &pack) > 0) {
+				if(CheckForFilt(&pack) > 0) {
+					TempScaleTbl::Rec temp_rec;
+					MakeTempEntry(&pack, &temp_rec);
+					THROW_DB(bei.insert(&temp_rec));
+				}
 			}
 		}
 		THROW_DB(bei.flash());
@@ -149,11 +151,11 @@ int SLAPI PPViewScale::UpdateTempTable(const PPIDArray * pIdList)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
 		for(uint i = 0; i < pIdList->getCount(); i++) {
-			PPID id = pIdList->at(i);
-			PPScale rec;
+			const PPID id = pIdList->at(i);
+			PPScalePacket pack;
 			TempScaleTbl::Rec temp_rec;
-			if(ObjScale.Search(id, &rec) > 0 && CheckForFilt(&rec)) {
-				MakeTempEntry(&rec, &temp_rec);
+			if(ObjScale.GetPacket(id, &pack) > 0 && CheckForFilt(&pack)) {
+				MakeTempEntry(&pack, &temp_rec);
 				if(SearchByID_ForUpdate(P_TempTbl, 0,  id, 0) > 0) {
 					THROW_DB(P_TempTbl->updateRecBuf(&temp_rec));
 				}
@@ -189,11 +191,12 @@ int SLAPI PPViewScale::InitIteration()
 int FASTCALL PPViewScale::NextIteration(ScaleViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		PPScale rec;
+		PPScalePacket pack;
 		TempScaleTbl * p_t = P_TempTbl;
 		Counter.Increment();
-		if(ObjScale.Search(p_t->data.ID, &rec) > 0) {
-			ASSIGN_PTR(pItem, rec);
+		if(ObjScale.GetPacket(p_t->data.ID, &pack) > 0) {
+			*static_cast<PPScale *>(pItem) = pack.Rec;
+			pack.GetExtStrData(pack.extssPort, pItem->Port);
 			return 1;
 		}
 	}
@@ -202,24 +205,27 @@ int FASTCALL PPViewScale::NextIteration(ScaleViewItem * pItem)
 
 int SLAPI PPViewScale::CheckScaleStatus(PPID scaleID, int statusFromList)
 {
-	long ok = 0;
+	long   ok = 0;
 	if(statusFromList) {
 		if(ScaleStatusList.Search(scaleID, &ok, 0) <= 0)
 			ok = -2;
 	}
 	else  {
-		PPScale scale;
-		if(ObjScale.Search(scaleID, &scale) > 0)
-			if(scale.Flags & SCALF_TCPIP) {
-				char ip[16];
-				THROW(PPObjScale::DecodeIP(scale.Port, ip));
-				ok = (long)PPObjScale::CheckForConnection(ip, 1000, 5);
+		PPScalePacket pack;
+		if(ObjScale.GetPacket(scaleID, &pack) > 0) {
+			if(pack.Rec.Flags & SCALF_TCPIP) {
+				SString port_buf;
+				pack.GetExtStrData(pack.extssPort, port_buf);
+				//char ip[16];
+				//THROW(PPObjScale::DecodeIP(scale.Port, ip));
+				ok = static_cast<long>(PPObjScale::CheckForConnection(port_buf, 1000, 5));
 			}
 			else
 				ok = -1;
+		}
 		ScaleStatusList.AddUnique(scaleID, ok, 0);
 	}
-	CATCHZOK
+	//CATCHZOK
 	return (int)ok;
 }
 

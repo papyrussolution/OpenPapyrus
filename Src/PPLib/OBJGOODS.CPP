@@ -2570,7 +2570,7 @@ int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 int SLAPI PPObjGoods::GetManufCountry(PPID goodsID, const Goods2Tbl::Rec * pRec, PPID * pCountryID, PPCountryBlock * pBlk)
 {
 	Goods2Tbl::Rec rec;
-	CALLPTRMEMB(pBlk, Clear());
+	CALLPTRMEMB(pBlk, Z());
 	if(pRec == 0)
 		if(Fetch(goodsID, &rec) > 0)
 			pRec = &rec;

@@ -273,8 +273,8 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			    if(pp != NULL && pp[1] == '\0')
 				    *pp = '\0';
 			    /*
-			     * TODO: Put dir name/mode on a list to be fixed
-			     * up at end of archive.
+			 * TODO: Put dir name/mode on a list to be fixed
+			 * up at end of archive.
 			     */
 			    break;
 			case AE_IFIFO:
@@ -371,7 +371,7 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 
 static void uuencode_group(const char _in[3], char out[4])
 {
-	const uchar * in = (const uchar*)_in;
+	const uchar * in = (const uchar *)_in;
 	int t;
 
 	t = (in[0] << 16) | (in[1] << 8) | in[2];

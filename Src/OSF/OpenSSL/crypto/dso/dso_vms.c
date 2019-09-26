@@ -31,7 +31,7 @@ void * _malloc32(__size_t);
 #   pragma pointer_size restore
 #  endif                        /* __INITIAL_POINTER_SIZE == 64 */
 # endif                         /* __INITIAL_POINTER_SIZE && defined
-                                 * _ANSI_C_SOURCE */
+ * _ANSI_C_SOURCE */
 
 # pragma message disable DOLLARID
 

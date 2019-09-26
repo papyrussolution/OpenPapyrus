@@ -145,8 +145,8 @@ void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 			    }
 			    else {
 				    /* There simply isn't any code in libpng to strip out bits
-				     * from bytes when the components are less than a byte in
-				     * size!
+				 * from bytes when the components are less than a byte in
+				 * size!
 				     */
 				    png_app_error(png_ptr, "png_set_filler is invalid for low bit depth gray output");
 				    return;
@@ -616,7 +616,7 @@ void /* PRIVATE */ png_do_check_palette_indexes(png_structrp png_ptr, png_row_in
 			case 1:
 		    {
 			    /* in this case, all bytes must be 0 so we don't need
-			     * to unpack the pixels except for the rightmost one.
+			 * to unpack the pixels except for the rightmost one.
 			     */
 			    for(; rp > png_ptr->row_buf; rp--) {
 				    if((*rp >> padding) != 0)

@@ -6349,6 +6349,17 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
 }
+
+browser QUOTEREQANALYZE north(100), 1, 0, "@{view_quotereqanalyze}", OWNER|GRID, 0
+{
+	"LeadBillID",            0,  int32,       0,   6, BCO_USERPROC
+	"LeadBillDate",          1,  date,        0,   6, BCO_USERPROC
+	"LeadBillCode",          2,  zstring(32), 0,   6, BCO_USERPROC
+	"@ware",                 3,  int32,       0,   6, BCO_USERPROC
+	"ReqQtty",               4,  double,      0,   8, BCO_USERPROC
+	"ReqCurrency",           5,  double,      0,   8, BCO_USERPROC
+	"ReqPrice",              6,  double,      0,   8, BCO_USERPROC
+}
 //
 // -------------- Описания команд меню и рабочих столов
 //
@@ -6694,6 +6705,7 @@ cmd TimeSeriesConfig      { "@{cmd_timeseriesconfig}"                      none 
 cmd SendBillsWithFilt     { "@{cmd_sendbillsbyfilt}"                       none                   none cmSendBillsByFilt } // @v10.4.1
 cmd FreightPackageType    { "@{cmd_freightpackagetype}"                    none                   none cmFreightPackageType } // @v10.4.1
 cmd ExportView            { "@{cmd_exportview}"                            none                   none cmExportView } // @v10.5.3
+cmd TestMqc               { "@{cmd_testmqc}"                               ICON_TEST              none cmTestMqc } // @v10.5.7
 //
 // -------------- Описания серверных задач
 //
@@ -6868,6 +6880,7 @@ view   VetisDocument           { "@{view_vetisdocument}" } // @v10.0.12
 filter PrcssrTsStrategyAnalyze { "@{tsstrategyanalyze}"  } // @v10.2.11
 view   TimeSeries              { "@{view_timeseries}" } // @v10.4.4
 view   TimSerDetail            { "@{view_timserdetail}" } // @v10.5.4
+view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" } // @v10.5.7
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

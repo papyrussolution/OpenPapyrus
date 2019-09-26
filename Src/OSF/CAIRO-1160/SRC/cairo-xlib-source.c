@@ -703,7 +703,7 @@ static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
 	XRenderPictureAttributes pa;
 	unsigned mask = 0;
 
-	sub = (cairo_surface_subsurface_t*)pattern->surface;
+	sub = (cairo_surface_subsurface_t *)pattern->surface;
 
 	if(sample->x >= 0 && sample->y >= 0 &&
 	    sample->x + sample->width  <= sub->extents.width &&

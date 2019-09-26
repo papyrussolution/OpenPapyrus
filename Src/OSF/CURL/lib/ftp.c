@@ -2185,9 +2185,9 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 
 			    /* RFC2228 (page 5) says:
 			     *
-			     * If the server is willing to accept the named security mechanism,
-			     * and does not require any security data, it must respond with
-			     * reply code 234/334.
+			 * If the server is willing to accept the named security mechanism,
+			 * and does not require any security data, it must respond with
+			 * reply code 234/334.
 			     */
 			    if((ftpcode == 234) || (ftpcode == 334)) {
 				    /* Curl_ssl_connect is BLOCKING */
@@ -2723,8 +2723,8 @@ static CURLcode ftp_done(struct connectdata * conn, CURLcode status, bool premat
 		if((-1 != data->req.size) && (data->req.size != *ftp->bytecountp) &&
 #ifdef CURL_DO_LINEEND_CONV
 		    /* Most FTP servers don't adjust their file SIZE response for CRLFs, so
-		     * we'll check to see if the discrepancy can be explained by the number
-		     * of CRLFs we've changed to LFs.
+		 * we'll check to see if the discrepancy can be explained by the number
+		 * of CRLFs we've changed to LFs.
 		     */
 		    ((data->req.size + data->state.crlf_conversions) !=
 			    *ftp->bytecountp) &&

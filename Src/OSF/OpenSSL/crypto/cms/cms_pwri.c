@@ -153,9 +153,9 @@ static int kek_unwrap_key(uchar * out, size_t * outlen,
 	if(!EVP_DecryptUpdate(ctx, tmp + inlen - 2 * blocklen, &outl,
 		    in + inlen - 2 * blocklen, blocklen * 2)
 	    /*
-	     * Do a decrypt of last decrypted block to set IV to correct value
-	     * output it to start of buffer so we don't corrupt decrypted block
-	     * this works because buffer is at least two block lengths long.
+	 * Do a decrypt of last decrypted block to set IV to correct value
+	 * output it to start of buffer so we don't corrupt decrypted block
+	 * this works because buffer is at least two block lengths long.
 	     */
 	    || !EVP_DecryptUpdate(ctx, tmp, &outl,
 		    tmp + inlen - blocklen, blocklen)

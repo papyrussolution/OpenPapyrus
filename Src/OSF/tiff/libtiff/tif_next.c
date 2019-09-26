@@ -74,7 +74,7 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 		switch(n) {
 			case LITERALROW:
 			    /*
-			     * The entire scanline is given as literal values.
+			 * The entire scanline is given as literal values.
 			     */
 			    if(cc < scanline)
 				    goto bad;
@@ -85,8 +85,8 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 			case LITERALSPAN: {
 			    tmsize_t off;
 			    /*
-			     * The scanline has a literal span that begins at some
-			     * offset.
+			 * The scanline has a literal span that begins at some
+			 * offset.
 			     */
 			    if(cc < 4)
 				    goto bad;
@@ -107,19 +107,19 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 				    imagewidth = tif->tif_dir.td_tilewidth;
 
 			    /*
-			     * The scanline is composed of a sequence of constant
-			     * color ``runs''.  We shift into ``run mode'' and
-			     * interpret bytes as codes of the form
-			     * <color><npixels> until we've filled the scanline.
+			 * The scanline is composed of a sequence of constant
+			 * color ``runs''.  We shift into ``run mode'' and
+			 * interpret bytes as codes of the form
+			 * <color><npixels> until we've filled the scanline.
 			     */
 			    op = row;
 			    for(;; ) {
 				    grey = (uint32)((n>>6) & 0x3);
 				    n &= 0x3f;
 				    /*
-				     * Ensure the run does not exceed the scanline
-				     * bounds, potentially resulting in a security
-				     * issue.
+				 * Ensure the run does not exceed the scanline
+				 * bounds, potentially resulting in a security
+				 * issue.
 				     */
 				    while(n-- > 0 && npixels < imagewidth && op_offset < scanline)
 					    SETPIXEL(op, grey);

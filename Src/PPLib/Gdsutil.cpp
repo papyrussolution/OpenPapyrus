@@ -39,9 +39,17 @@ int SLAPI ChestnyZnakCodeStruc::Parse(const char * pRawCode)
 	if(raw_len >= 25) {
 		SString temp_buf;
 		SString raw_buf;
+		uint   forward_dig_count = 0;
 		{
+			int   non_dec = 0;
 			for(size_t i = 0; i < raw_len; i++) {
 				const char c = pRawCode[i];
+				if(isdec(c)) {
+					if(!non_dec)
+						forward_dig_count++;
+				}
+				else
+					non_dec = 1;
 				if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z') && !oneof4(c, '=', '/', '+', '-')) {
 					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
 					KeyDownCommand kd;
@@ -51,8 +59,9 @@ int SLAPI ChestnyZnakCodeStruc::Parse(const char * pRawCode)
 					else
 						raw_buf.CatChar(c);
 				}
-				else 
+				else {
 					raw_buf.CatChar(c);
+				}
 			}
 		}
 		pRawCode = raw_buf.cptr();
@@ -452,13 +461,13 @@ int SLAPI PPObjGoods::GenerateScaleBarcode(PPID goodsID, PPID scaleID, SString &
 	InitConfig();
 	if(GetConfig().Flags & GCF_USESCALEBCPREFIX) {
 		PPObjScale sc_obj;
-		PPScale sc_rec;
-		if(sc_obj.Fetch(scaleID, &sc_rec) > 0 && sc_rec.AltGoodsGrp && sc_rec.IsValidBcPrefix()) {
+		PPScalePacket sc_pack;
+		if(sc_obj.Fetch(scaleID, &sc_pack) > 0 && sc_pack.Rec.AltGoodsGrp && sc_pack.Rec.IsValidBcPrefix()) {
 			//ObjAssocTbl::Rec assc_rec;
 			// @v9.2.2 if(PPRef->Assc.Search(PPASS_ALTGOODSGRP, sc_rec.AltGoodsGrp, goodsID, &assc_rec) > 0) {
 			long    inner_num = 0;
-			if(P_Tbl->GetGoodsCodeInAltGrp(goodsID, sc_rec.AltGoodsGrp, &inner_num) > 0) { // @v9.2.2
-				rCode.Cat(sc_rec.BcPrefix);
+			if(P_Tbl->GetGoodsCodeInAltGrp(goodsID, sc_pack.Rec.AltGoodsGrp, &inner_num) > 0) { // @v9.2.2
+				rCode.Cat(sc_pack.Rec.BcPrefix);
 				rCode.CatLongZ(/*assc_rec.InnerNum*/inner_num, (rCode.Len() == 3) ? 3 : 4);
 				if(rCode.Len() == 6) {
 					rCode.CatChar('0');
@@ -526,11 +535,11 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 					}
 				}
 				if(scale_id) {
-					PPScale sc_rec;
+					PPScalePacket sc_pack;
 					ObjAssocTbl::Rec assc_rec;
 					long   plu = 0;
 					ok = 1;
-					if(sc_obj.Fetch(scale_id, &sc_rec) > 0 && sc_rec.AltGoodsGrp) {
+					if(sc_obj.Fetch(scale_id, &sc_pack) > 0 && sc_pack.Rec.AltGoodsGrp) {
 						code[12] = 0;
 						qtty = fdiv1000i(atol(code+7));
 						//
@@ -538,7 +547,7 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 						//
 						code[6] = 0;
 						plu = atol(code+max_len);
-						if(PPRef->Assc.SearchNum(PPASS_ALTGOODSGRP, sc_rec.AltGoodsGrp, plu, &assc_rec) > 0) {
+						if(PPRef->Assc.SearchNum(PPASS_ALTGOODSGRP, sc_pack.Rec.AltGoodsGrp, plu, &assc_rec) > 0) {
 							goods_id = assc_rec.ScndObjID;
 							if(Fetch(goods_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS)
 								ok = 2;
@@ -895,7 +904,7 @@ int FASTCALL PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	assert(pCfg);
-	pCfg->Clear();
+	pCfg->Z();
 	pCfg->Ver__ = DS.GetVersion(); // @v9.7.2
 	size_t sz = 0;
 	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, &sz) > 0) {
@@ -991,12 +1000,12 @@ int SLAPI PPObjGoods::GenerateOwnArCode(SString & rCode, int use_ta)
 //
 SLAPI PPGoodsConfig::PPGoodsConfig()
 {
-	Clear();
+	Z();
 }
 
-PPGoodsConfig & PPGoodsConfig::Clear()
+PPGoodsConfig & SLAPI PPGoodsConfig::Z()
 {
-	memzero(this, (size_t)(PTR8(&TagIndFilt) - PTR8(this)));
+	memzero(this, static_cast<size_t>(PTR8(&TagIndFilt) - PTR8(this)));
 	// @v9.7.2 (expensive call) Ver = DS.GetVersion();
 	TagIndFilt.Init(1, 0);
 	return *this;
@@ -3341,7 +3350,7 @@ int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <
 			}
 		}
     	{
-			const uint32 * p_src_buf = (const uint32 *)p_ib->GetData();
+			const uint32 * p_src_buf = reinterpret_cast<const uint32 *>(p_ib->GetData());
 			const SImageBuffer::PixF pf(SImageBuffer::PixF::s8GrayScale);
 			for(uint i = 0; i < src_height; i++) {
 				const size_t offs = src_width * i;

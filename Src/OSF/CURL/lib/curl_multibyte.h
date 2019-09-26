@@ -60,9 +60,9 @@ char * Curl_convert_wchar_to_UTF8(const wchar_t * str_w);
 #define Curl_unicodefree(ptr) do {if((ptr)) {SAlloc::F((ptr)); (ptr) = NULL; }} WHILE_FALSE
 
 typedef union {
-	ushort       * tchar_ptr;
+	ushort  * tchar_ptr;
 	const ushort * const_tchar_ptr;
-	ushort       * tbyte_ptr;
+	ushort  * tbyte_ptr;
 	const ushort * const_tbyte_ptr;
 } xcharp_u;
 

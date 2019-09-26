@@ -1200,7 +1200,7 @@ struct VetisVetDocument : public VetisDocument {
 	const VetisVetDocument::ReferencedDocument * GetWayBillRef() const
 	{
 		const VetisVetDocument::ReferencedDocument * p_waybill_ref_doc = 0;
-		static const int acceptable_as_waybill_doc_types[] = { 1, 5, 6 };
+		static const int acceptable_as_waybill_doc_types[] = { 1, 5/*, 6*/ };
 		for(uint adtidx = 0; !p_waybill_ref_doc && adtidx < SIZEOFARRAY(acceptable_as_waybill_doc_types); adtidx++) {
 			for(uint rdidx = 0; !p_waybill_ref_doc && rdidx < ReferencedDocumentList.getCount(); rdidx++) {
 				const VetisVetDocument::ReferencedDocument * p_rd_item = ReferencedDocumentList.at(rdidx);
@@ -9618,7 +9618,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 	DbqFuncTab::RegisterDyn(&DynFuncVetUUID, BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  //@erik v10.4.11
 
 	uint   brw_id = BROWSER_VETISDOCUMENT;
-	DBQ     * dbq = 0;
+	DBQ * dbq = 0;
 	DBQuery * q = 0;
 	VetisDocumentTbl * t = 0;
 	PPIDArray status_list;
@@ -10927,17 +10927,12 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 				if(id) {
 					const  int ccol = pBrw->GetCurColumn();
 					int    obj_to_match = 0;
-					if(ccol == 8) { // from
-						obj_to_match = otmFrom;
-					}
-					else if(ccol == 9) { // to
-						obj_to_match = otmTo;
-					}
-					else if(oneof2(ccol, 6, 7)) { // bill
-						obj_to_match = otmBill;
-					}
-					else if(ccol == 10) { // goods --> match lot
-						obj_to_match = otmLot;
+					switch(ccol) {
+						case 7: obj_to_match = otmFrom; break; // to
+						case 8: obj_to_match = otmTo; break; // to
+						case 5:
+						case 6: obj_to_match = otmBill; break; // bill
+						case 9: obj_to_match = otmLot; break; // goods --> match lot
 					}
 					if(obj_to_match == 0) {
 						uint   v = 0;

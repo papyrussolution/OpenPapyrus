@@ -70,7 +70,7 @@ STDMETHODIMP CBufferInStream::Read(void * data, uint32 size, uint32 * processedS
 	size_t rem = Buf.Size() - (size_t)_pos;
 	if(rem > size)
 		rem = (size_t)size;
-	memcpy(data, (const Byte*)Buf + (size_t)_pos, rem);
+	memcpy(data, (const Byte *)Buf + (size_t)_pos, rem);
 	_pos += rem;
 	ASSIGN_PTR(processedSize, (uint32)rem);
 	return S_OK;
@@ -142,7 +142,7 @@ void Create_BufInStream_WithReference(const void * data, size_t size, IUnknown *
 	*stream = NULL;
 	CBufInStream * inStreamSpec = new CBufInStream;
 	CMyComPtr<ISequentialInStream> streamTemp = inStreamSpec;
-	inStreamSpec->Init((const Byte*)data, size, ref);
+	inStreamSpec->Init((const Byte *)data, size, ref);
 	*stream = streamTemp.Detach();
 }
 
@@ -151,7 +151,7 @@ void Create_BufInStream_WithNewBuffer(const void * data, size_t size, ISequentia
 	*stream = NULL;
 	CBufferInStream * inStreamSpec = new CBufferInStream;
 	CMyComPtr<ISequentialInStream> streamTemp = inStreamSpec;
-	inStreamSpec->Buf.CopyFrom((const Byte*)data, size);
+	inStreamSpec->Buf.CopyFrom((const Byte *)data, size);
 	inStreamSpec->Init();
 	*stream = streamTemp.Detach();
 }
@@ -355,7 +355,7 @@ HRESULT CStreamBinder::Read(void * data, uint32 size, uint32 * processedSize)
 		SETMIN(size, _bufSize);
 		if(size != 0) {
 			memcpy(data, _buf, size);
-			_buf = ((const Byte*)_buf) + size;
+			_buf = ((const Byte *)_buf) + size;
 			ProcessedSize += size;
 			ASSIGN_PTR(processedSize, size);
 			_bufSize -= size;

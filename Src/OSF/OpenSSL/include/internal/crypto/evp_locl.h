@@ -45,9 +45,9 @@ struct evp_Encode_Ctx_st {
     /* number saved in a partial encode/decode */
     int    num;
     /*
-     * The length is either the output line length (in input bytes) or the
-     * shortest input line length that is ok.  Once decoding begins, the
-     * length is adjusted up each time a longer line is decoded
+ * The length is either the output line length (in input bytes) or the
+ * shortest input line length that is ok.  Once decoding begins, the
+ * length is adjusted up each time a longer line is decoded
      */
     int    length;
     uchar  enc_data[80]; /* data to encode */

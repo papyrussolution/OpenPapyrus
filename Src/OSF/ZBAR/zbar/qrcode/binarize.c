@@ -114,8 +114,8 @@ void qr_wiener_filter(uchar * _img, int _width, int _height)
    large.*/
 void qr_wiener_filter(uchar * _img, int _width, int _height)
 {
-	uint           * m_buf[4];
-	uint           * sn2_buf[4];
+	uint * m_buf[4];
+	uint * sn2_buf[4];
 	uchar g;
 	int x;
 	int y;

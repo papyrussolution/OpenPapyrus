@@ -50,8 +50,8 @@ static struct curl_slist * slist_get_last(struct curl_slist * list)
  */
 struct curl_slist * Curl_slist_append_nodup(struct curl_slist * list, char * data)
 {
-	struct curl_slist     * last;
-	struct curl_slist     * new_item;
+	struct curl_slist * last;
+	struct curl_slist * new_item;
 	DEBUGASSERT(data);
 	new_item = (struct curl_slist *)SAlloc::M(sizeof(struct curl_slist));
 	if(!new_item)

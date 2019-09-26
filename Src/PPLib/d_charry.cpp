@@ -23,7 +23,7 @@ int SLAPI PPDS_CrrAddress::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 	else if(op == idoExtract) {
 		if(dataPtr) {
 			WorldTbl::Rec w_rec;
-			Data = *(LocationTbl::Rec *)dataPtr;
+			Data = *static_cast<const LocationTbl::Rec *>(dataPtr);
 			if(WObj.Fetch(Data.CityID, &w_rec) > 0) {
 				CityName = w_rec.Name;
 				if(WObj.GetCountryByChild(w_rec.ID, &w_rec))
@@ -71,8 +71,7 @@ int SLAPI PPDS_CrrBnkAcct::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 	else if(op == idoExtract) {
 		if(dataPtr) {
 			PPObjPerson psn_obj;
-			// @v9.0.4 Data = *(BankAccountTbl::Rec *)dataPtr;
-			Data = *(PPBankAccount *)dataPtr; // @v9.0.4
+			Data = *static_cast<const PPBankAccount *>(dataPtr);
 			IntrData.InitFlags = BADIF_INITALLBR;
 			psn_obj.GetBnkAcctData(0, &Data, &IntrData);
 		}
@@ -180,7 +179,7 @@ int SLAPI PPDS_CrrPerson::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(PPPersonPacket *)dataPtr;
+			Data = *static_cast<const PPPersonPacket *>(dataPtr);
 		}
 		else if(addedParam) {
 			PPObjPerson psn_obj;
@@ -258,20 +257,20 @@ int SLAPI PPDS_CrrPerson::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTra
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRPERSON_ADDR) {
-			Data.Loc = ((PPDS_CrrAddress *)pData)->Data;
+			Data.Loc = static_cast<const PPDS_CrrAddress *>(pData)->Data;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRPERSON_RADDR) {
-			Data.RLoc = ((PPDS_CrrAddress *)pData)->Data;
+			Data.RLoc = static_cast<const PPDS_CrrAddress *>(pData)->Data;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRPERSON_ELINK) {
-			PPELink el_rec = ((PPDS_ELinkAddr *)pData)->Data;
+			PPELink el_rec = static_cast<const PPDS_ELinkAddr *>(pData)->Data;
 			Data.ELA.AddItem(el_rec.KindID, el_rec.Addr);
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRPERSON_BNKACC) {
-			PPDS_CrrBnkAcct * p_data = (PPDS_CrrBnkAcct *)pData;
+			const PPDS_CrrBnkAcct * p_data = static_cast<const PPDS_CrrBnkAcct *>(pData);
 			// @v9.0.4 ok = Data.BAA.insert(&p_data->Data) ? 1 : PPSetErrorSLib();
 			ok = Data.Regs.SetBankAccount(&p_data->Data, static_cast<uint>(-1)); // @v9.0.4
 		}
@@ -915,23 +914,23 @@ int SLAPI PPDS_CrrBill::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTrans
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRBILL_SELLER) {
-			Seller = ((PPDS_CrrPerson *)pData)->Data;
+			Seller = static_cast<const PPDS_CrrPerson *>(pData)->Data;
 			THROW(IdentifySuppl(&SellerArID, 1));
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRBILL_BUYER) {
-			Buyer = ((PPDS_CrrPerson *)pData)->Data;
+			Buyer = static_cast<const PPDS_CrrPerson *>(pData)->Data;
 			ok = 1;
 		}
 		if(fldID == DSF_CRRBILL_DLVRADDR) {
-			DlvrAddr = ((PPDS_CrrAddress *)pData)->Data;
+			DlvrAddr = static_cast<const PPDS_CrrAddress *>(pData)->Data;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRBILL_ITEMS) {
 			char   clb[32];
 			LongArray poslist;
-			PPTransferItem item = ((PPDS_CrrBillItem *)pData)->Data;
-			STRNSCPY(clb, ((PPDS_CrrBillItem *)pData)->CLB);
+			PPTransferItem item = static_cast<const PPDS_CrrBillItem *>(pData)->Data;
+			STRNSCPY(clb, static_cast<const PPDS_CrrBillItem *>(pData)->CLB);
 			THROW(Data.InsertRow(&item, &poslist));
 			for(uint i = 0; i < poslist.getCount(); i++) {
 				// @v9.8.11 Data.ClbL.AddNumber(poslist.at(i), clb);
@@ -1000,7 +999,7 @@ int SLAPI PPDS_CrrAmountType::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Pack = *(PPAmountTypePacket *)dataPtr;
+			Pack = *static_cast<PPAmountTypePacket *>(dataPtr);
 			ok = 1;
 		}
 		else if(addedParam) {
@@ -1157,7 +1156,7 @@ int SLAPI PPDS_CrrSalCharge::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(PPSalChargePacket *)dataPtr;
+			Data = *static_cast<const PPSalChargePacket *>(dataPtr);
 			ok = 1;
 		}
 		else if(addedParam) {
@@ -1220,7 +1219,7 @@ int SLAPI PPDS_CrrSalChargeGroup::InitData(Ido op, void * dataPtr, long addedPar
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(PPSalChargePacket *)dataPtr;
+			Data = *static_cast<const PPSalChargePacket *>(dataPtr);
 			ok = 1;
 		}
 		else if(addedParam) {
@@ -1339,7 +1338,7 @@ int SLAPI PPDS_CrrStaffCalEntry::TransferField(long fldID, Tfd dir, uint * pIter
 			cdt.v = Data.DtVal;
 			kind = cdt.GetKind();
 			if((dir == tfdDataToBuf && kind == CALDATE::kDate) || dir == tfdBufToData) {
-				ok = TransferData((LDATE *)&Data.DtVal, dir, rBuf);
+				ok = TransferData(reinterpret_cast<LDATE *>(&Data.DtVal), dir, rBuf);
 			}
 			break;
 		case DSF_CRRSTAFFCALENTRY_CALDATE:
@@ -1447,7 +1446,7 @@ int SLAPI PPDS_CrrStaffCal::AcceptListItem(long fldID, PPDeclStruc * pData, ObjT
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRSTAFFCAL_ENTRIES) {
-			PPDS_CrrStaffCalEntry * p_data = (PPDS_CrrStaffCalEntry *)pData;
+			PPDS_CrrStaffCalEntry * p_data = static_cast<PPDS_CrrStaffCalEntry *>(pData);
 			ok = Data.Items.insert(&p_data->Data) ? 1 : PPSetErrorSLib();
 		}
 	}
@@ -1478,7 +1477,7 @@ int SLAPI PPDS_CrrDbDiv::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(DBDivPack *)dataPtr;
+			Data = *static_cast<DBDivPack *>(dataPtr);
 			ok = 1;
 		}
 		else if(addedParam) {
@@ -1625,7 +1624,7 @@ int SLAPI PPDS_CrrBarcodeStruc::InitData(Ido op, void * dataPtr, long addedParam
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPBarcodeStruc*)dataPtr;
+			Data = *static_cast<const PPBarcodeStruc *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -1646,14 +1645,9 @@ int SLAPI PPDS_CrrBarcodeStruc::InitData(Ido op, void * dataPtr, long addedParam
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {
-						case DSF_CRRBARCODESTRUC_ID:
-							break;
-						case DSF_CRRBARCODESTRUC_NAME:
-							STRNSCPY(rec.Name, Data.Name);
-							break;
-						case DSF_CRRBARCODESTRUC_TEMPL:
-							STRNSCPY(rec.Templ, Data.Templ);
-							break;
+						case DSF_CRRBARCODESTRUC_ID: break;
+						case DSF_CRRBARCODESTRUC_NAME: STRNSCPY(rec.Name, Data.Name); break;
+						case DSF_CRRBARCODESTRUC_TEMPL: STRNSCPY(rec.Templ, Data.Templ); break;
 					}
 				}
 				ok = Obj.UpdateItem(id, &rec, 1);
@@ -1680,12 +1674,8 @@ int SLAPI PPDS_CrrBarcodeStruc::TransferField(long fldID, Tfd dir, uint * pIter,
 				}
 			}
 			break;
-		case DSF_CRRBARCODESTRUC_NAME:
-			ok = TransferData(Data.Name, sizeof(Data.Name), dir, rBuf);
-			break;
-		case DSF_CRRBARCODESTRUC_TEMPL:
-			ok = TransferData(Data.Templ, sizeof(Data.Templ), dir, rBuf);
-			break;
+		case DSF_CRRBARCODESTRUC_NAME: ok = TransferData(Data.Name, sizeof(Data.Name), dir, rBuf); break;
+		case DSF_CRRBARCODESTRUC_TEMPL: ok = TransferData(Data.Templ, sizeof(Data.Templ), dir, rBuf); break;
 	}
 	if(ok > 0)
 		(*pIter)++;
@@ -1869,7 +1859,7 @@ int SLAPI PPDS_CrrFormula::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(Formula*)dataPtr;
+			Data = *static_cast<const Formula *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Get(addedParam, Data.Name, Data.Expr) > 0) {
 				Data.ID = addedParam;
@@ -1947,7 +1937,7 @@ int SLAPI PPDS_CrrPersonKind::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPPersonKind*)dataPtr;
+			Data = *static_cast<const PPPersonKind *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2043,7 +2033,7 @@ int SLAPI PPDS_CrrCurrency::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPCurrency*)dataPtr;
+			Data = *static_cast<const PPCurrency *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2130,7 +2120,7 @@ int SLAPI PPDS_CrrCurRateType::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPCurRateType*)dataPtr;
+			Data = *static_cast<const PPCurRateType *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2201,7 +2191,7 @@ int SLAPI PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPScale*)dataPtr;
+			Data = *static_cast<const PPScalePacket *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2212,75 +2202,51 @@ int SLAPI PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = -1;
 	}
 	else if(op == idoAccept) {
-		PPID id = 0;
-		Data.Tag = PPOBJ_SCALE;
-		if(Data.Flags & SCALF_TCPIP)
-			PPObjScale::EncodeIP(StrPort, Data.Port, sstrlen(StrPort) + 1);
-		else
-			STRNSCPY(Data.Port, StrPort);
-		if(*strip(Data.Name) != 0 && Obj.SearchByName(Data.Name, &id, 0) > 0) {
+		PPID   id = 0;
+		SString temp_buf;
+		Data.Rec.Tag = PPOBJ_SCALE;
+		Data.PutExtStrData(Data.extssPort, StrPort);
+		if(*strip(Data.Rec.Name) != 0 && Obj.SearchByName(Data.Rec.Name, &id, 0) > 0) {
 			if(UpdateProtocol == updForce) {
-				Data.ID = id;
-				PPScale rec;
-				MEMSZERO(rec);
-				THROW(Obj.Search(id, &rec) > 0);
+				Data.Rec.ID = id;
+				PPScalePacket pack;
+				THROW(Obj.GetPacket(id, &pack) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {
-						case DSF_CRRSCALE_ID:
+						case DSF_CRRSCALE_ID: break;
+						case DSF_CRRSCALE_NAME: STRNSCPY(pack.Rec.Name, Data.Rec.Name); break;
+						case DSF_CRRSCALE_GET_NUMTRIES: pack.Rec.Get_NumTries = Data.Rec.Get_NumTries; break;
+						case DSF_CRRSCALE_GET_DELAY: pack.Rec.Get_Delay = Data.Rec.Get_Delay; break;
+						case DSF_CRRSCALE_PUT_NUMTRIES: pack.Rec.Put_NumTries = Data.Rec.Put_NumTries; break;
+						case DSF_CRRSCALE_PUT_DELAY: pack.Rec.Put_Delay = Data.Rec.Put_Delay; break;
+						case DSF_CRRSCALE_QUOTKINDID: pack.Rec.QuotKindID = Data.Rec.QuotKindID; break;
+						case DSF_CRRSCALE_PORT: 
+							{
+								//STRNSCPY(pack.Rec.Port, Data.Rec.Port); 
+								Data.GetExtStrData(Data.extssPort, temp_buf);
+								pack.PutExtStrData(pack.extssPort, temp_buf);
+							}
 							break;
-						case DSF_CRRSCALE_NAME:
-							STRNSCPY(rec.Name, Data.Name);
-							break;
-						case DSF_CRRSCALE_GET_NUMTRIES:
-							rec.Get_NumTries = Data.Get_NumTries;
-							break;
-						case DSF_CRRSCALE_GET_DELAY:
-							rec.Get_Delay = Data.Get_Delay;
-							break;
-						case DSF_CRRSCALE_PUT_NUMTRIES:
-							rec.Put_NumTries = Data.Put_NumTries;
-							break;
-						case DSF_CRRSCALE_PUT_DELAY:
-							rec.Put_Delay = Data.Put_Delay;
-							break;
-						case DSF_CRRSCALE_QUOTKINDID:
-							rec.QuotKindID = Data.QuotKindID;
-							break;
-						case DSF_CRRSCALE_PORT:
-							STRNSCPY(rec.Port, Data.Port);
-							break;
-						case DSF_CRRSCALE_SCALETYPEID:
-							rec.ScaleTypeID = Data.ScaleTypeID;
-							break;
-						case DSF_CRRSCALE_PROTOCOLVER:
-							rec.ProtocolVer = Data.ProtocolVer;
-							break;
-						case DSF_CRRSCALE_LOGNUM:
-							rec.LogNum = Data.LogNum;
-							break;
-						case DSF_CRRSCALE_LOCATION:
-							rec.Location = Data.Location;
-							break;
-						case DSF_CRRSCALE_ALTGOODSGRP:
-							rec.AltGoodsGrp = Data.AltGoodsGrp;
-							break; // @v10.3.2 @fix (отсутствовал break)
-						case DSF_CRRSCALE_FSTRIPWP:
-							SETFLAGBYSAMPLE(rec.Flags, SCALF_STRIPWP, Data.Flags); break;
-						case DSF_CRRSCALE_FEXSGOODS:
-							SETFLAGBYSAMPLE(rec.Flags, SCALF_EXSGOODS, Data.Flags); break;
-						case DSF_CRRSCALE_FSYSPINITED:
-							SETFLAGBYSAMPLE(rec.Flags, SCALF_SYSPINITED, Data.Flags); break;
-						case DSF_CRRSCALE_FTCPIP:
-							SETFLAGBYSAMPLE(rec.Flags, SCALF_TCPIP, Data.Flags); break;
-						case DSF_CRRSCALE_FCHKINVPAR:
-							SETFLAGBYSAMPLE(rec.Flags, SCALF_CHKINVPAR, Data.Flags); break;
+						case DSF_CRRSCALE_SCALETYPEID: pack.Rec.ScaleTypeID = Data.Rec.ScaleTypeID; break;
+						case DSF_CRRSCALE_PROTOCOLVER: pack.Rec.ProtocolVer = Data.Rec.ProtocolVer; break;
+						case DSF_CRRSCALE_LOGNUM: pack.Rec.LogNum = Data.Rec.LogNum; break;
+						case DSF_CRRSCALE_LOCATION: pack.Rec.Location = Data.Rec.Location; break;
+						case DSF_CRRSCALE_ALTGOODSGRP: pack.Rec.AltGoodsGrp = Data.Rec.AltGoodsGrp; break; // @v10.3.2 @fix (отсутствовал break)
+						case DSF_CRRSCALE_FSTRIPWP: SETFLAGBYSAMPLE(pack.Rec.Flags, SCALF_STRIPWP, Data.Rec.Flags); break;
+						case DSF_CRRSCALE_FEXSGOODS: SETFLAGBYSAMPLE(pack.Rec.Flags, SCALF_EXSGOODS, Data.Rec.Flags); break;
+						case DSF_CRRSCALE_FSYSPINITED: SETFLAGBYSAMPLE(pack.Rec.Flags, SCALF_SYSPINITED, Data.Rec.Flags); break;
+						case DSF_CRRSCALE_FTCPIP: SETFLAGBYSAMPLE(pack.Rec.Flags, SCALF_TCPIP, Data.Rec.Flags); break;
+						case DSF_CRRSCALE_FCHKINVPAR: SETFLAGBYSAMPLE(pack.Rec.Flags, SCALF_CHKINVPAR, Data.Rec.Flags); break;
 					}
 				}
-				ok = Obj.UpdateItem(id, &rec, 1);
+				//ok = Obj.UpdateItem(id, &rec, 1);
+				ok = Obj.PutPacket(&id, &pack, 1);
 			}
 		}
-		else
-			ok = Obj.AddItem(&id, &Data, 1);
+		else {
+			//ok = Obj.AddItem(&id, &Data, 1);
+			ok = Obj.PutPacket(&id, &Data, 1);
+		}
 	}
 	else
 		ok = PPSetErrorInvParam();
@@ -2294,49 +2260,35 @@ int SLAPI PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 	switch(fldID) {
 		case DSF_CRRSCALE_ID:
 			if(dir == tfdDataToBuf) {
-				PPID id = Data.ID;
+				PPID id = Data.Rec.ID;
 				ok = TransferData(&id, dir, rBuf);
 			}
 			break;
-		case DSF_CRRSCALE_NAME:
-			ok = TransferData(Data.Name, sizeof(Data.Name), dir, rBuf);
-			break;
-		case DSF_CRRSCALE_GET_NUMTRIES:
-			ok = TransferData(&Data.Get_NumTries, dir, rBuf);
-			break;
-		case DSF_CRRSCALE_GET_DELAY:
-			ok = TransferData(&Data.Get_Delay, dir, rBuf);
-			break;
-		case DSF_CRRSCALE_PUT_NUMTRIES:
-			ok = TransferData(&Data.Put_NumTries, dir, rBuf);
-			break;
-		case DSF_CRRSCALE_PUT_DELAY:
-			ok = TransferData(&Data.Put_Delay, dir, rBuf);
-			break;
+		case DSF_CRRSCALE_NAME: ok = TransferData(Data.Rec.Name, sizeof(Data.Rec.Name), dir, rBuf); break;
+		case DSF_CRRSCALE_GET_NUMTRIES: ok = TransferData(&Data.Rec.Get_NumTries, dir, rBuf); break;
+		case DSF_CRRSCALE_GET_DELAY: ok = TransferData(&Data.Rec.Get_Delay, dir, rBuf); break;
+		case DSF_CRRSCALE_PUT_NUMTRIES: ok = TransferData(&Data.Rec.Put_NumTries, dir, rBuf); break;
+		case DSF_CRRSCALE_PUT_DELAY: ok = TransferData(&Data.Rec.Put_Delay, dir, rBuf); break;
 		case DSF_CRRSCALE_QUOTKINDID:
 			{
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPQuotKind qk_rec;
 					MEMSZERO(qk_rec);
-					if(QKObj.Search(Data.QuotKindID, &qk_rec) > 0)
+					if(QKObj.Search(Data.Rec.QuotKindID, &qk_rec) > 0)
 						buf.CopyFrom(qk_rec.Symb);
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)
-					ok = QKObj.SearchSymb(&Data.QuotKindID, buf);
+					ok = QKObj.SearchSymb(&Data.Rec.QuotKindID, buf);
 			}
 			break;
 		case DSF_CRRSCALE_PORT:
 			{
-				char buf[16];
-				memzero(buf, sizeof(buf));
 				if(dir == tfdDataToBuf) {
-					if(Data.Flags & SCALF_TCPIP)
-						PPObjScale::DecodeIP(Data.Port, buf);
-					else
-						STRNSCPY(buf, Data.Port);
-					ok = TransferData(buf, sizeof(buf), dir, rBuf);
+					SString temp_buf;
+					Data.GetExtStrData(Data.extssPort, temp_buf);
+					ok = TransferData(temp_buf, dir, rBuf);
 				}
 				else
 					ok = TransferData(StrPort, sizeof(StrPort), dir, rBuf);
@@ -2346,32 +2298,28 @@ int SLAPI PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 			{
 				const char * p_list = "CAS;MASSA-K;METTLER-TOLEDO;CRYSTAL-CASH-SERVER;WEIGHT-TERMINAL;DIGI;BIZEBRA;SHTRIHPRINT";
 				if(dir == tfdDataToBuf)
-					TempBuf.GetSubFrom(p_list, ';', Data.ScaleTypeID - 1);
+					TempBuf.GetSubFrom(p_list, ';', Data.Rec.ScaleTypeID - 1);
 				ok = TransferData(TempBuf, dir, rBuf);
 				if(dir == tfdBufToData) {
 					int idx = 0;
 					if(PPSearchSubStr(p_list, &idx, TempBuf, 1))
-						Data.ScaleTypeID = idx + 1;
+						Data.Rec.ScaleTypeID = idx + 1;
 					else
-						Data.ScaleTypeID = 0;
+						Data.Rec.ScaleTypeID = 0;
 				}
 			}
 			break;
-		case DSF_CRRSCALE_PROTOCOLVER:
-			ok = TransferData(&Data.ProtocolVer, dir, rBuf);
-			break;
-		case DSF_CRRSCALE_LOGNUM:
-			ok = TransferData(&Data.LogNum, dir, rBuf);
-			break;
+		case DSF_CRRSCALE_PROTOCOLVER: ok = TransferData(&Data.Rec.ProtocolVer, dir, rBuf); break;
+		case DSF_CRRSCALE_LOGNUM: ok = TransferData(&Data.Rec.LogNum, dir, rBuf); break;
 		case DSF_CRRSCALE_LOCATION:
 			if(dir == tfdDataToBuf) {
 				LocationTbl::Rec lrec;
 				MEMSZERO(lrec);
-				if(LocObj.Search(Data.Location, &lrec) > 0)
+				if(LocObj.Search(Data.Rec.Location, &lrec) > 0)
 					ok = TransferData(lrec.Code, sizeof(lrec.Code), dir, rBuf);
 			}
 			else
-				ok = LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, rBuf, &Data.Location);
+				ok = LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, rBuf, &Data.Rec.Location);
 			break;
 		case DSF_CRRSCALE_ALTGOODSGRP:
 			{
@@ -2379,27 +2327,22 @@ int SLAPI PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 				Goods2Tbl::Rec ggrec;
 				MEMSZERO(ggrec);
 				if(dir == tfdDataToBuf) {
-					if(GGObj.Search(Data.AltGoodsGrp, &ggrec) > 0)
+					if(GGObj.Search(Data.Rec.AltGoodsGrp, &ggrec) > 0)
 						buf.CopyFrom(ggrec.Name);
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData) {
 					PPID ggid = 0;
 					if(GGObj.SearchByName(buf, &ggid, &ggrec) > 0 && (ggrec.Flags & GF_ALTGROUP))
-						Data.AltGoodsGrp = ggid;
+						Data.Rec.AltGoodsGrp = ggid;
 				}
 			}
 			break;
-		case DSF_CRRSCALE_FSTRIPWP:
-			ok = TransferDataFlag(&Data.Flags, SCALF_STRIPWP, dir, rBuf); break;
-		case DSF_CRRSCALE_FEXSGOODS:
-			ok = TransferDataFlag(&Data.Flags, SCALF_EXSGOODS, dir, rBuf); break;
-		case DSF_CRRSCALE_FSYSPINITED:
-			ok = TransferDataFlag(&Data.Flags, SCALF_SYSPINITED, dir, rBuf); break;
-		case DSF_CRRSCALE_FTCPIP:
-			ok = TransferDataFlag(&Data.Flags, SCALF_TCPIP, dir, rBuf); break;
-		case DSF_CRRSCALE_FCHKINVPAR:
-			ok = TransferDataFlag(&Data.Flags, SCALF_CHKINVPAR, dir, rBuf); break;
+		case DSF_CRRSCALE_FSTRIPWP: ok = TransferDataFlag(&Data.Rec.Flags, SCALF_STRIPWP, dir, rBuf); break;
+		case DSF_CRRSCALE_FEXSGOODS: ok = TransferDataFlag(&Data.Rec.Flags, SCALF_EXSGOODS, dir, rBuf); break;
+		case DSF_CRRSCALE_FSYSPINITED: ok = TransferDataFlag(&Data.Rec.Flags, SCALF_SYSPINITED, dir, rBuf); break;
+		case DSF_CRRSCALE_FTCPIP: ok = TransferDataFlag(&Data.Rec.Flags, SCALF_TCPIP, dir, rBuf); break;
+		case DSF_CRRSCALE_FCHKINVPAR: ok = TransferDataFlag(&Data.Rec.Flags, SCALF_CHKINVPAR, dir, rBuf); break;
 	}
 	if(ok > 0)
 		(*pIter)++;

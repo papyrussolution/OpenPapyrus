@@ -1407,14 +1407,14 @@ namespace NCompress {
 
 		  #ifdef BZIP2_BYTE_MODE
 
-			unsigned c = ((const Byte*)(tt + kBlockSizeMax))[0];
+			unsigned c = ((const Byte *)(tt + kBlockSizeMax))[0];
 
 			for(uint32 i = 0; i < blockSize; i++) {
 				unsigned c1 = c;
 				const uint32 pos = counters[c];
-				c = ((const Byte*)(tt + kBlockSizeMax))[(size_t)i + 1];
+				c = ((const Byte *)(tt + kBlockSizeMax))[(size_t)i + 1];
 				counters[c1] = pos + 1;
-				tt[pos] = (i << 8) | ((const Byte*)(tt + kBlockSizeMax))[pos];
+				tt[pos] = (i << 8) | ((const Byte *)(tt + kBlockSizeMax))[pos];
 			}
 
 			/*

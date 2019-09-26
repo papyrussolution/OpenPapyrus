@@ -1115,7 +1115,7 @@ int Lst2LstObjDialog::setupRightTList()
 	SString name_buf;
 	StdTreeListBoxDef * p_def = 0;
 	StdTreeListBoxDef * p_l_def = static_cast<StdTreeListBoxDef *>(GetLeftList()->def);
-	SmartListBox      * p_r_lbx = GetRightList();
+	SmartListBox * p_r_lbx = GetRightList();
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
 	for(i = 0; Data.P_List->enumItems(&i, (void **)&p_id);) {

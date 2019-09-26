@@ -44,7 +44,7 @@ extern "C" {
 #define RSA_F4  0x10001L
 
 #define RSA_METHOD_FLAG_NO_CHECK        0x0001/* don't check pub/private
-                                                * match */
+  * match */
 
 #define RSA_FLAG_CACHE_PUBLIC           0x0002
 #define RSA_FLAG_CACHE_PRIVATE          0x0004

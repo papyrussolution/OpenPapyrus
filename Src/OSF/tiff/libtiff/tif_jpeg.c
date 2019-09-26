@@ -1505,9 +1505,9 @@ static int JPEGSetupEncode(TIFF* tif)
 			    return 0;
 		    }
 		    /*
-		     * A ReferenceBlackWhite field *must* be present since the
-		     * default value is inappropriate for YCbCr.  Fill in the
-		     * proper value if application didn't set it.
+		 * A ReferenceBlackWhite field *must* be present since the
+		 * default value is inappropriate for YCbCr.  Fill in the
+		 * proper value if application didn't set it.
 		     */
 		    {
 			    float * ref;

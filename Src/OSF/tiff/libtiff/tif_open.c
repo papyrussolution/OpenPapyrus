@@ -384,9 +384,9 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		    else
 			    tif->tif_nextdiroff = tif->tif_header.big.tiff_diroff;
 		    /*
-		     * Try to use a memory-mapped file if the client
-		     * has not explicitly suppressed usage with the
-		     * 'm' flag in the open mode (see above).
+		 * Try to use a memory-mapped file if the client
+		 * has not explicitly suppressed usage with the
+		 * 'm' flag in the open mode (see above).
 		     */
 		    if(tif->tif_flags & TIFF_MAPPED) {
 			    toff_t n;
@@ -398,15 +398,15 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 				    tif->tif_flags &= ~TIFF_MAPPED;
 		    }
 		    /*
-		     * Sometimes we do not want to read the first directory (for example,
-		     * it may be broken) and want to proceed to other directories. I this
-		     * case we use the TIFF_HEADERONLY flag to open file and return
-		     * immediately after reading TIFF header.
+		 * Sometimes we do not want to read the first directory (for example,
+		 * it may be broken) and want to proceed to other directories. I this
+		 * case we use the TIFF_HEADERONLY flag to open file and return
+		 * immediately after reading TIFF header.
 		     */
 		    if(tif->tif_flags & TIFF_HEADERONLY)
 			    return (tif);
 		    /*
-		     * Setup initial directory.
+		 * Setup initial directory.
 		     */
 		    if(TIFFReadDirectory(tif)) {
 			    tif->tif_rawcc = (tmsize_t)-1;
@@ -416,9 +416,9 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		    break;
 		case 'a':
 		    /*
-		     * New directories are automatically append
-		     * to the end of the directory chain when they
-		     * are written out (see TIFFWriteDirectory).
+		 * New directories are automatically append
+		 * to the end of the directory chain when they
+		 * are written out (see TIFFWriteDirectory).
 		     */
 		    if(!TIFFDefaultDirectory(tif))
 			    goto bad;

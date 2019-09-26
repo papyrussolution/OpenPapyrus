@@ -156,8 +156,8 @@ static int acpt_state(BIO * b, BIO_ACCEPT * c)
 			    }
 
 			    /* Because we're starting a new bind, any cached name and serv
-			     * are now obsolete and need to be cleaned out.
-			     * QUESTION: should this be done in acpt_close_socket() instead?
+			 * are now obsolete and need to be cleaned out.
+			 * QUESTION: should this be done in acpt_close_socket() instead?
 			     */
 			    OPENSSL_free(c->cache_accepting_name);
 			    c->cache_accepting_name = NULL;
@@ -208,7 +208,7 @@ static int acpt_state(BIO * b, BIO_ACCEPT * c)
 				    goto exit_loop;
 			    }
 			    /* We're currently not iterating, but set this as preparation
-			     * for possible future development in that regard
+			 * for possible future development in that regard
 			     */
 			    c->addr_iter = c->addr_first;
 			    c->state = ACPT_S_CREATE_SOCKET;
@@ -271,7 +271,7 @@ static int acpt_state(BIO * b, BIO_ACCEPT * c)
 			    c->accepted_mode);
 
 			    /* If the returned socket is invalid, this might still be
-			     * retryable
+			 * retryable
 			     */
 			    if(s < 0) {
 				    if(BIO_sock_should_retry(s)) {
@@ -295,8 +295,8 @@ static int acpt_state(BIO * b, BIO_ACCEPT * c)
 			    BIO_set_callback_arg(bio, BIO_get_callback_arg(b));
 
 			    /*
-			     * If the accept BIO has an bio_chain, we dup it and put the new
-			     * socket at the end.
+			 * If the accept BIO has an bio_chain, we dup it and put the new
+			 * socket at the end.
 			     */
 			    if(c->bio_chain != NULL) {
 				    if((dbio = BIO_dup_chain(c->bio_chain)) == NULL)
@@ -397,8 +397,8 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    if(num == 0) {
 				    char * hold_serv = data->param_serv;
 				    /* We affect the hostname regardless.  However, the input
-				     * string might contain a host:service spec, so we must
-				     * parse it, which might or might not affect the service
+				 * string might contain a host:service spec, so we must
+				 * parse it, which might or might not affect the service
 				     */
 				    OPENSSL_free(data->param_addr);
 				    data->param_addr = NULL;

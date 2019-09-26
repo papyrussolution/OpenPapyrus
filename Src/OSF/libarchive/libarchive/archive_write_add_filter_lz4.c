@@ -125,8 +125,7 @@ int archive_write_add_filter_lz4(struct archive * _a)
 		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Using external lz4 program");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Using external lz4 program");
 	return (ARCHIVE_WARN);
 #endif
 }
@@ -134,11 +133,9 @@ int archive_write_add_filter_lz4(struct archive * _a)
 /*
  * Set write options.
  */
-static int archive_filter_lz4_options(struct archive_write_filter * f,
-    const char * key, const char * value)
+static int archive_filter_lz4_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_data * data = static_cast<struct private_data *>(f->data);
-
 	if(strcmp(key, "compression-level") == 0) {
 		int val;
 		if(value == NULL || !((val = value[0] - '0') >= 1 && val <= 9) ||
@@ -147,8 +144,7 @@ static int archive_filter_lz4_options(struct archive_write_filter * f,
 
 #ifndef HAVE_LZ4HC_H
 		if(val >= 3) {
-			archive_set_error(f->archive, ARCHIVE_ERRNO_PROGRAMMER,
-			    "High compression not included in this build");
+			archive_set_error(f->archive, ARCHIVE_ERRNO_PROGRAMMER, "High compression not included in this build");
 			return ARCHIVE_FATAL;
 		}
 #endif
@@ -249,18 +245,13 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 		data->in = data->in_buffer;
 		data->in_buffer_size = data->block_size;
 	}
-
 	if(data->out_buffer == NULL || data->in_buffer_allocated == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for compression buffer");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 		return ARCHIVE_FATAL;
 	}
-
 	f->write = archive_filter_lz4_write;
-
 	return ARCHIVE_OK;
 }
-
 /*
  * Write data to the out stream.
  *
@@ -527,9 +518,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 			    LZ4_createHC(data->in_buffer_allocated);
 #endif
 			if(data->lz4_stream == NULL) {
-				archive_set_error(f->archive, ENOMEM,
-				    "Can't allocate data for compression"
-				    " buffer");
+				archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -552,9 +541,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 		if(data->lz4_stream == NULL) {
 			data->lz4_stream = LZ4_createStream();
 			if(data->lz4_stream == NULL) {
-				archive_set_error(f->archive, ENOMEM,
-				    "Can't allocate data for compression"
-				    " buffer");
+				archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 				return ARCHIVE_FATAL;
 			}
 		}

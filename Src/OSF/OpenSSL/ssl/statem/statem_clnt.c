@@ -148,10 +148,10 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 			    && s->session->tlsext_tick != NULL
 			    && mt == SSL3_MT_CHANGE_CIPHER_SPEC) {
 				    /*
-				     * Normally, we can tell if the server is resuming the session
-				     * from the session ID. EAP-FAST (RFC 4851), however, relies on
-				     * the next server message after the ServerHello to determine if
-				     * the server is resuming.
+				 * Normally, we can tell if the server is resuming the session
+				 * from the session ID. EAP-FAST (RFC 4851), however, relies on
+				 * the next server message after the ServerHello to determine if
+				 * the server is resuming.
 				     */
 				    s->hit = 1;
 				    st->hand_state = TLS_ST_CR_CHANGE;
@@ -190,8 +190,8 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 
 		case TLS_ST_CR_CERT:
 		    /*
-		     * The CertificateStatus message is optional even if
-		     * |tlsext_status_expected| is set
+		 * The CertificateStatus message is optional even if
+		 * |tlsext_status_expected| is set
 		     */
 		    if(s->tlsext_status_expected && mt == SSL3_MT_CERTIFICATE_STATUS) {
 			    st->hand_state = TLS_ST_CR_CERT_STATUS;
@@ -284,8 +284,8 @@ WRITE_TRAN ossl_statem_client_write_transition(SSL * s)
 
 		case TLS_ST_CW_CLNT_HELLO:
 		    /*
-		     * No transition at the end of writing because we don't know what
-		     * we will be sent
+		 * No transition at the end of writing because we don't know what
+		 * we will be sent
 		     */
 		    return WRITE_TRAN_FINISHED;
 
@@ -306,14 +306,14 @@ WRITE_TRAN ossl_statem_client_write_transition(SSL * s)
 
 		case TLS_ST_CW_KEY_EXCH:
 		    /*
-		     * For TLS, cert_req is set to 2, so a cert chain of nothing is
-		     * sent, but no verify packet is sent
+		 * For TLS, cert_req is set to 2, so a cert chain of nothing is
+		 * sent, but no verify packet is sent
 		     */
 		    /*
-		     * XXX: For now, we do not support client authentication in ECDH
-		     * cipher suites with ECDH (rather than ECDSA) certificates. We
-		     * need to skip the certificate verify message when client's
-		     * ECDH public key is sent inside the client certificate.
+		 * XXX: For now, we do not support client authentication in ECDH
+		 * cipher suites with ECDH (rather than ECDSA) certificates. We
+		 * need to skip the certificate verify message when client's
+		 * ECDH public key is sent inside the client certificate.
 		     */
 		    if(s->s3->tmp.cert_req == 1) {
 			    st->hand_state = TLS_ST_CW_CERT_VRFY;
@@ -398,8 +398,8 @@ WORK_STATE ossl_statem_client_pre_work(SSL * s, WORK_STATE wst)
 		    if(SSL_IS_DTLS(s)) {
 			    if(s->hit) {
 				    /*
-				     * We're into the last flight so we don't retransmit these
-				     * messages unless we need to.
+				 * We're into the last flight so we don't retransmit these
+				 * messages unless we need to.
 				     */
 				    st->use_timer = 0;
 			    }
@@ -468,8 +468,8 @@ WORK_STATE ossl_statem_client_post_work(SSL * s, WORK_STATE wst)
 #ifndef OPENSSL_NO_SCTP
 			    if(s->hit) {
 				    /*
-				     * Change to new shared key of SCTP-Auth, will be ignored if
-				     * no SCTP used.
+				 * Change to new shared key of SCTP-Auth, will be ignored if
+				 * no SCTP used.
 				     */
 				    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY,
 				    0, 0);
@@ -484,8 +484,8 @@ WORK_STATE ossl_statem_client_post_work(SSL * s, WORK_STATE wst)
 #ifndef OPENSSL_NO_SCTP
 		    if(wst == WORK_MORE_A && SSL_IS_DTLS(s) && s->hit == 0) {
 			    /*
-			     * Change to new shared key of SCTP-Auth, will be ignored if
-			     * no SCTP used.
+			 * Change to new shared key of SCTP-Auth, will be ignored if
+			 * no SCTP used.
 			     */
 			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY,
 			    0, 0);
@@ -578,9 +578,9 @@ unsigned long ossl_statem_client_max_message_size(SSL * s)
 
 		case TLS_ST_CR_CERT_REQ:
 		    /*
-		     * Set to s->max_cert_list for compatibility with previous releases. In
-		     * practice these messages can get quite long if servers are configured
-		     * to provide a long list of acceptable CAs
+		 * Set to s->max_cert_list for compatibility with previous releases. In
+		 * practice these messages can get quite long if servers are configured
+		 * to provide a long list of acceptable CAs
 		     */
 		    return s->max_cert_list;
 
@@ -712,8 +712,8 @@ int tls_construct_client_hello(SSL * s)
 
 	if((sess == NULL) || !ssl_version_supported(s, sess->ssl_version) ||
 	    /*
-	     * In the case of EAP-FAST, we can have a pre-shared
-	     * "ticket" without a session ID.
+	 * In the case of EAP-FAST, we can have a pre-shared
+	 * "ticket" without a session ID.
 	     */
 	    (!sess->session_id_length && !sess->tlsext_tick) ||
 	    (sess->not_resumable)) {

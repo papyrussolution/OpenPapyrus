@@ -696,8 +696,8 @@ METHODDEF(void) start_pass_1_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 			    cquantize->pub.color_quantize = quantize_ord_dither;
 		    cquantize->row_index = 0; /* initialize state for ordered dither */
 		    /* If user changed to ordered dither from another mode,
-		     * we must recreate the color index table with padding.
-		     * This will cost extra space, but probably isn't very likely.
+		 * we must recreate the color index table with padding.
+		 * This will cost extra space, but probably isn't very likely.
 		     */
 		    if(!cquantize->is_padded)
 			    create_colorindex(cinfo);

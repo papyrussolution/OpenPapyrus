@@ -300,9 +300,9 @@ struct X509_req_info_st {
     X509_NAME *subject;         /* certificate request DN */
     X509_PUBKEY *pubkey;        /* public key of request */
     /*
-     * Zero or more attributes.
-     * NB: although attributes is a mandatory field some broken
-     * encodings omit it so this may be NULL in that case.
+ * Zero or more attributes.
+ * NB: although attributes is a mandatory field some broken
+ * encodings omit it so this may be NULL in that case.
      */
     STACK_OF(X509_ATTRIBUTE) *attributes;
 };
@@ -333,8 +333,8 @@ struct X509_crl_st {
     int references;
     int flags;
     /*
-     * Cached copies of decoded extension values, since extensions
-     * are optional any of these can be NULL.
+ * Cached copies of decoded extension values, since extensions
+ * are optional any of these can be NULL.
      */
     AUTHORITY_KEYID *akid;
     ISSUING_DIST_POINT *idp;
@@ -360,8 +360,8 @@ struct x509_revoked_st {
     /* revocation reason: set to CRL_REASON_NONE if reason extension absent */
     int reason;
     /*
-     * CRL entries are reordered for faster lookup of serial numbers. This
-     * field contains the original load sequence for this entry.
+ * CRL entries are reordered for faster lookup of serial numbers. This
+ * field contains the original load sequence for this entry.
      */
     int sequence;
 };

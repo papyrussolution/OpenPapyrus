@@ -947,16 +947,16 @@ public:
 	//BDbTable::Buffer & SLAPI AcquireRvlBuf() { return RvlBuf.Get(); }
 //private:
 public:
-	BDbDatabase      * P_Db;
-	SrGrammarTbl     * P_GrT;
-	SrWordTbl        * P_WdT;
+	BDbDatabase * P_Db;
+	SrGrammarTbl * P_GrT;
+	SrWordTbl   * P_WdT;
 	SrWordAssocTbl   * P_WaT;
-	SrConceptTbl     * P_CT;
+	SrConceptTbl * P_CT;
 	SrConceptPropTbl * P_CpT;
-	SrNGramTbl       * P_NgT;
+	SrNGramTbl  * P_NgT;
 	SrConceptNgTbl   * P_CNgT;
-	SrGeoNodeTbl     * P_GnT;
-	SrGeoWayTbl      * P_GwT;
+	SrGeoNodeTbl * P_GnT;
+	SrGeoWayTbl * P_GwT;
 	LEXID  ZeroWordID;
 private:
 	int    Helper_GetConceptHier(int rcIdent, int firstOnly, CONCEPTID cID, Int64Array & rConceptHier);

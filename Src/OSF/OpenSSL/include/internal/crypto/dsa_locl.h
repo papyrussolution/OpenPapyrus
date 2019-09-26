@@ -11,8 +11,8 @@
 
 struct dsa_st {
     /*
-     * This first variable is used to pick up errors where a DSA is passed
-     * instead of of a EVP_PKEY
+ * This first variable is used to pick up errors where a DSA is passed
+ * instead of of a EVP_PKEY
      */
     int pad;
     long version;

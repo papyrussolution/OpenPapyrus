@@ -283,7 +283,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
@@ -1440,6 +1440,7 @@
     <ClCompile Include="..\PPLib\v_psnev.cpp" />
     <ClCompile Include="..\PPLib\v_psnrel.cpp" />
     <ClCompile Include="..\PPLib\v_qcert.cpp" />
+    <ClCompile Include="..\PPLib\v_qreq.cpp" />
     <ClCompile Include="..\PPLib\v_quot.cpp" />
     <ClCompile Include="..\PPLib\v_regtyp.cpp" />
     <ClCompile Include="..\PPLib\v_report.cpp" />

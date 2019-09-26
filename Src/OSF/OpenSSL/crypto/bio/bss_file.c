@@ -287,7 +287,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    b->ptr = fp;
 		    b->init = 1;
 		    BIO_clear_flags(b, BIO_FLAGS_UPLINK); /* we did fopen -> we disengage
-		                                           * UPLINK */
+		 * UPLINK */
 		    break;
 		case BIO_C_GET_FILE_PTR:
 		    /* the ptr parameter is actually a FILE ** in this case. */

@@ -6830,7 +6830,7 @@ int32 DL6ICLS_PPPersonRelTypePacket::PutInhRegTypeList(IStrAssocList * pList)
 {
 	int    ok = -1;
 	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(ExtraPtr);
-	StrAssocArray         * p_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(pList));
+	StrAssocArray    * p_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(pList));
 	if(p_pack && pList) {
 		p_pack->InhRegTypeList.freeAll();
 		for(uint i = 0; i < p_list->getCount(); i++)

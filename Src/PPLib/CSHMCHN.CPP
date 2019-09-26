@@ -715,7 +715,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 	PPObjCashNode   cn_obj;
 	PPID   ext_cash_node_id = 0;  // ИД спаренного узла
 	PPCashMachine * p_cm_ext = 0; // Движок спаренного узла
-	CmLocking     * p_cml_x = 0;  // Блокировка для спаренного узла
+	CmLocking * p_cml_x = 0;  // Блокировка для спаренного узла
 	THROW(p_bobj->CheckRights(BILLRT_CASH));
 	THROW(GetSyncIntrf());
 	THROW(GetNode() > 0);
@@ -1499,7 +1499,7 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 	PPID   ext_cash_node_id = 0;
 	PPCashMachine * p_cm = 0;
 	PPCashMachine * p_cm_ext = 0;
-	CSPanel       * dlg  = 0;
+	CSPanel  * dlg  = 0;
 	PPBnkTerminal * p_bnk_term = 0;
 	PPID   cn_id = (pFilt && pFilt->CashNodeID) ? (is_single = 1, pFilt->CashNodeID) : PPObjCashNode::Select(0, 0, &is_single);
 	if(cn_id > 0) {

@@ -1864,7 +1864,7 @@ static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNode * 
 	xmlRelaxNGPtr relaxngschemas;
 	xmlRelaxNGValidCtxtPtr vctxt;
 	int ret;
-	xmlRelaxNGParserCtxtPtr ctxt = xmlRelaxNGNewParserCtxt(schemas);
+	xmlRelaxNGParserCtxt * ctxt = xmlRelaxNGNewParserCtxt(schemas);
 	xmlRelaxNGSetParserErrors(ctxt, (xmlRelaxNGValidityErrorFunc)fprintf, (xmlRelaxNGValidityWarningFunc)fprintf, stderr);
 	relaxngschemas = xmlRelaxNGParse(ctxt);
 	xmlRelaxNGFreeParserCtxt(ctxt);

@@ -1260,7 +1260,7 @@ int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * p
 	SString bridge;
 	if(kind == PPAdviseBlock::evPhoneRinging) {
 		PhoneServiceEventResponder * p_self = static_cast<PhoneServiceEventResponder *>(procExtPtr);
-		if(p_self) {
+		if(p_self && p_self->IsConsistent()) {
 			(msg_buf = "PhoneRinging").CatDiv(':', 2);
 			pEv->GetExtStrData(pEv->extssChannel, channel);
 			msg_buf.CatEq("channel", channel).CatDiv(';', 2);
@@ -1303,7 +1303,7 @@ int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * p
 	}
 	else if(kind == PPAdviseBlock::evPhoneUp) {
 		PhoneServiceEventResponder * p_self = static_cast<PhoneServiceEventResponder *>(procExtPtr);
-		if(p_self) {
+		if(p_self && p_self->IsConsistent()) {
 			(msg_buf = "PhoneUp").CatDiv(':', 2);
 			pEv->GetExtStrData(pEv->extssChannel, channel);
 			msg_buf.CatEq("channel", channel).CatDiv(';', 2);
@@ -1436,7 +1436,7 @@ int SLAPI PPViewPhnSvcMonitor::Update()
 		}
 	}
 	else
-		List.Clear();
+		List.Z();
 	return ok;
 }
 

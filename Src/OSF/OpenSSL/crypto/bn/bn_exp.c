@@ -642,7 +642,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, c
 #if defined(OPENSSL_BN_ASM_MONT5)
 	if(window >= 5) {
 		window = 5;     /* ~5% improvement for RSA2048 sign, and even
-		                 * for RSA4096 */
+		 * for RSA4096 */
 		/* reserve space for mont->N.d[] copy */
 		powerbufLen += top * sizeof(mont->N.d[0]);
 	}

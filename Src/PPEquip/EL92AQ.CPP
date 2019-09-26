@@ -126,7 +126,7 @@ int SLAPI ACS_EL92AQ::ConvertWareList(int num)
 {
 	int    ok = 1, ta = 0, r;
 	int    fld_idx_list[32];
-	DbfTable      * p_in_tbl = OpenDBFTable(num, warelist);
+	DbfTable * p_in_tbl = OpenDBFTable(num, warelist);
 	BarcodeTbl    * p_bc_tbl = 0;
 	BarcodeTbl::Rec bc_rec;
 	BExtInsert      bei(P_TmpCclTbl);

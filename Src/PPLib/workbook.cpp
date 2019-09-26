@@ -1388,28 +1388,14 @@ int SLAPI PPObjWorkbook::SearchAnalog(const WorkbookTbl::Rec * pSample, PPID * p
 }
 
 int SLAPI PPObjWorkbook::Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(pPack->Data = new PPWorkbookPacket);
-	PPWorkbookPacket * p_pack = (PPWorkbookPacket *)pPack->Data;
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjWorkbook, PPWorkbookPacket>(this, pPack, id, stream, pCtx); }
 
 int SLAPI PPObjWorkbook::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1, r;
 	if(pPack && pPack->Data) {
 		SString msg_buf, fmt_buf;
-		PPWorkbookPacket * p_pack = (PPWorkbookPacket *)pPack->Data;
+		PPWorkbookPacket * p_pack = static_cast<PPWorkbookPacket *>(pPack->Data);
 		if(stream == 0) {
 			int    is_analog = 0;
 			if((*pID) == 0) {

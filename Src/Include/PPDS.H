@@ -413,7 +413,7 @@ private:
 class PPDS_CrrScale : public PPDeclStruc {
 public:
 	SLAPI PPDS_CrrScale() : PPDeclStruc() {}
-	PPScale Data;
+	PPScalePacket Data;
 private:
 	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);

@@ -1042,8 +1042,8 @@ static int aes_gcm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 			    return 1;
 		    }
 		    /*
-		     * Fixed field must be at least 4 bytes and invocation field at least
-		     * 8.
+		 * Fixed field must be at least 4 bytes and invocation field at least
+		 * 8.
 		     */
 		    if((arg < 4) || (gctx->ivlen - arg) < 8)
 			    return 0;
@@ -1061,8 +1061,8 @@ static int aes_gcm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 			    arg = gctx->ivlen;
 		    memcpy(ptr, gctx->iv + gctx->ivlen - arg, arg);
 		    /*
-		     * Invocation field will be at least 8 bytes in size and so no need
-		     * to check wrap around or increment more than last 8 bytes.
+		 * Invocation field will be at least 8 bytes in size and so no need
+		 * to check wrap around or increment more than last 8 bytes.
 		     */
 		    ctr64_inc(gctx->iv + gctx->ivlen - 8);
 		    gctx->iv_set = 1;

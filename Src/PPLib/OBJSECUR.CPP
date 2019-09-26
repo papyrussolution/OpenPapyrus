@@ -353,20 +353,7 @@ int SLAPI PPObjSecur::SerializePacket(int dir, PPSecurPacket * pPack, SBuffer & 
 }
 
 int SLAPI PPObjSecur::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	THROW_MEM(p->Data = new PPSecurPacket);
-	if(stream == 0) {
-		THROW(GetPacket(id, static_cast<PPSecurPacket *>(p->Data)) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, static_cast<PPSecurPacket *>(p->Data), buffer, &pCtx->SCtx));
-	}
-	CATCHZOK
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjSecur, PPSecurPacket>(this, p, id, stream, pCtx); }
 
 int SLAPI PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

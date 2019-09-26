@@ -2046,8 +2046,8 @@ retry:
 		    int cur = xmlGetUTF8Char(content, &len);
 		    if(charref_len && c_out < charref_len) {
 			    /*
-			     * We attempted to insert a character reference and failed.
-			     * Undo what was written and skip the remaining charref.
+			 * We attempted to insert a character reference and failed.
+			 * Undo what was written and skip the remaining charref.
 			     */
 			    xmlBufErase(out, c_out);
 			    writtentot -= c_out;
@@ -2063,9 +2063,9 @@ retry:
 			    xmlGenericError(0, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", content[0], content[1], content[2], content[3]);
 #endif
 			    /*
-			     * Removes the UTF8 sequence, and replace it by a charref
-			     * and continue the transcoding phase, hoping the error
-			     * did not mangle the encoder state.
+			 * Removes the UTF8 sequence, and replace it by a charref
+			 * and continue the transcoding phase, hoping the error
+			 * did not mangle the encoder state.
 			     */
 			    charref_len = snprintf((char *)&charref[0], sizeof(charref), "&#%d;", cur);
 			    xmlBufShrink(in, len);

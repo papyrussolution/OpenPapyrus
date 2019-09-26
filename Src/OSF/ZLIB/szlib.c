@@ -7416,7 +7416,7 @@ void makefixed()
 	struct inflate_state state;
 	fixedtables(&state);
 	puts("    /* inffixed.h -- table for decoding fixed codes");
-	puts("     * Generated automatically by makefixed().");
+	puts(" * Generated automatically by makefixed().");
 	puts("     */");
 	puts("");
 	puts("    /* WARNING: this file should *not* be used by applications.");

@@ -721,7 +721,7 @@ DBQuery * SLAPI PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 		brw_id = BROWSER_SALARYCT; // @v5.6.14 AHTOXA
 	else {
 		brw_id = BROWSER_SALARY;
-		SalaryTbl     * p_slr = 0;
+		SalaryTbl * p_slr = 0;
 		PersonPostTbl * p_pp = 0;
 		TempSalaryTbl * p_tmp = 0;
 		DBQ  * dbq = 0;

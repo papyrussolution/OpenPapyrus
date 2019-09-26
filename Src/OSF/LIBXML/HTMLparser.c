@@ -4587,12 +4587,12 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 		switch(ctxt->instate) {
 			case XML_PARSER_EOF:
 			    /*
-			     * Document parsing is done !
+			 * Document parsing is done !
 			     */
 			    goto done;
 			case XML_PARSER_START:
 			    /*
-			     * Very first chars read from the document flow.
+			 * Very first chars read from the document flow.
 			     */
 			    cur = in->cur[0];
 			    if(IS_BLANK_CH(cur)) {
@@ -4628,12 +4628,12 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 			    SKIP_BLANKS;
 				avail = in->buf ? (xmlBufUse(in->buf->buffer) - (in->cur - in->base)) : (in->length - (in->cur - in->base));
 			    /*
-			     * no chars in buffer
+			 * no chars in buffer
 			     */
 			    if(avail < 1)
 				    goto done;
 			    /*
-			     * not enouth chars in buffer
+			 * not enouth chars in buffer
 			     */
 			    if(avail < 2) {
 				    if(!terminate)
@@ -4771,12 +4771,12 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 			    int failed;
 			    const htmlElemDesc * info;
 			    /*
-			     * no chars in buffer
+			 * no chars in buffer
 			     */
 			    if(avail < 1)
 				    goto done;
 			    /*
-			     * not enouth chars in buffer
+			 * not enouth chars in buffer
 			     */
 			    if(avail < 2) {
 				    if(!terminate)
@@ -4819,13 +4819,13 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 				    break;
 			    }
 			    /*
-			     * Lookup the info for that element.
+			 * Lookup the info for that element.
 			     */
 			    info = htmlTagLookup(name);
 			    if(!info)
 				    htmlParseErr(ctxt, XML_HTML_UNKNOWN_TAG, "Tag %s invalid\n", name, 0);
 			    /*
-			     * Check for an Empty Element labeled the XML/SGML way
+			 * Check for an Empty Element labeled the XML/SGML way
 			     */
 			    if((CUR == '/') && (NXT(1) == '>')) {
 				    SKIP(2);
@@ -4844,7 +4844,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 			    else {
 				    htmlParseErr(ctxt, XML_ERR_GT_REQUIRED, "Couldn't find end of Start Tag %s\n", name, 0);
 				    /*
-				     * end of parsing of this node.
+				 * end of parsing of this node.
 				     */
 				    if(sstreq(name, ctxt->name)) {
 					    nodePop(ctxt);
@@ -4859,7 +4859,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 				    break;
 			    }
 			    /*
-			     * Check for an Empty Element from DTD definition
+			 * Check for an Empty Element from DTD definition
 			     */
 			    if(info && info->empty) {
 				    if(ctxt->sax && ctxt->sax->endElement)
@@ -4921,7 +4921,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 			    cons = ctxt->nbChars;
 			    if((sstreq(ctxt->name, "script")) || (sstreq(ctxt->name, "style"))) {
 				    /*
-				     * Handle SCRIPT/STYLE separately
+				 * Handle SCRIPT/STYLE separately
 				     */
 				    if(!terminate) {
 					    xmlChar val;
@@ -4944,7 +4944,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 			    }
 			    else {
 				    /*
-				     * Sometimes DOCTYPE arrives in the middle of the document
+				 * Sometimes DOCTYPE arrives in the middle of the document
 				     */
 				    if((cur == '<') && (next == '!') && (UPP(2) == 'D') && (UPP(3) == 'O') &&
 					    (UPP(4) == 'C') && (UPP(5) == 'T') && (UPP(6) == 'Y') && (UPP(7) == 'P') && (UPP(8) == 'E')) {
@@ -5001,10 +5001,10 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 				    }
 				    else {
 					    /*
-					     * check that the text sequence is complete
-					     * before handing out the data to the parser
-					     * to avoid problems with erroneous end of
-					     * data detection.
+					 * check that the text sequence is complete
+					 * before handing out the data to the parser
+					 * to avoid problems with erroneous end of
+					 * data detection.
 					     */
 					    if((!terminate) && (htmlParseLookupChars(ctxt, reinterpret_cast<const xmlChar *>("<&"), 2) < 0))
 						    goto done;

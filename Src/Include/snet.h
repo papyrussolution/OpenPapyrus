@@ -55,7 +55,7 @@ public:
 	InetAddr & FASTCALL operator = (const InetAddr & rS);
 	void   FASTCALL Copy(const InetAddr & rS);
 	SLAPI  operator ulong() const { return V4; }
-	InetAddr & SLAPI Clear();
+	InetAddr & SLAPI Z();
 	int    FASTCALL IsEqual(const InetAddr & rS) const;
 	int    FASTCALL operator == (const InetAddr & rS) const;
 	int    FASTCALL operator != (const InetAddr & rS) const;
@@ -161,7 +161,7 @@ public:
 	InetUrl(const InetUrl & rS);
 	InetUrl & FASTCALL operator = (const InetUrl & rS);
 	void   FASTCALL Copy(const InetUrl & rS);
-	InetUrl & Clear();
+	InetUrl & Z();
 	long   GetState() const { return State; }
 	int    Valid() const;
 	int    IsEmpty() const;
@@ -476,7 +476,7 @@ public:
 	};
 
 	SProxiAuthParam();
-	SProxiAuthParam & Clear();
+	SProxiAuthParam & Z();
 	int    SetEntry(SProxiAuthParam::Entry & rEntry);
 	int    GetEntry(int protocol, SProxiAuthParam::Entry & rEntry) const;
 	int    ToStr(long fmt, SString & rBuf) const;

@@ -778,8 +778,8 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 		    /* default encoding, no conversion should be needed */
 		    ctxt->charset = XML_CHAR_ENCODING_UTF8;
 		    /*
-		     * Errata on XML-1.0 June 20 2001
-		     * Specific handling of the Byte Order Mark for UTF-8
+		 * Errata on XML-1.0 June 20 2001
+		 * Specific handling of the Byte Order Mark for UTF-8
 		     */
 		    if(ctxt->input && (ctxt->input->cur[0] == 0xEF) && (ctxt->input->cur[1] == 0xBB) && (ctxt->input->cur[2] == 0xBF)) {
 			    ctxt->input->cur += 3;
@@ -862,10 +862,10 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 			case XML_CHAR_ENCODING_8859_8:
 			case XML_CHAR_ENCODING_8859_9:
 			    /*
-			     * We used to keep the internal content in the
-			     * document encoding however this turns being unmaintainable
-			     * So xmlGetCharEncodingHandler() will return non-null
-			     * values for this now.
+			 * We used to keep the internal content in the
+			 * document encoding however this turns being unmaintainable
+			 * So xmlGetCharEncodingHandler() will return non-null
+			 * values for this now.
 			     */
 			    if((ctxt->inputNr == 1) && !ctxt->encoding && ctxt->input && ctxt->input->encoding) {
 				    ctxt->encoding = sstrdup(ctxt->input->encoding);

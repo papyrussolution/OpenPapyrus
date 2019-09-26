@@ -890,7 +890,7 @@ static OSStatus CopyIdentityWithLabel(char * label,
 		values[1] = kCFBooleanTrue; /* we want a reference */
 		keys[1] = kSecReturnRef;
 		values[2] = kSecMatchLimitAll; /* kSecMatchLimitOne would be better if the
-		                                * label matching below worked correctly */
+		 * label matching below worked correctly */
 		keys[2] = kSecMatchLimit;
 		/* identity searches need a SecPolicyRef in order to work */
 		values[3] = SecPolicyCreateSSL(false, 0);

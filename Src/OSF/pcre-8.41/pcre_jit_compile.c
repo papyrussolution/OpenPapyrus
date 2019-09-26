@@ -10758,13 +10758,13 @@ void PRIV(jit_compile) (const REAL_PCRE *re, PUBL(extra) *extra, int mode)
 		functions = (executable_functions*)extra->executable_jit;
 	else {
                 /* Note: If your memory-checker has flagged the allocation below as a
-                 * memory leak, it is probably because you either forgot to call
-                 * pcre_free_study() (or pcre16_free_study()) on the pcre_extra (or
-                 * pcre16_extra) object, or you called said function after having
-                 * cleared the PCRE_EXTRA_EXECUTABLE_JIT bit from the "flags" field
-                 * of the object. (The function will only free the JIT data if the
-                 * bit remains set, as the bit indicates that the pointer to the data
-                 * is valid.)
+ * memory leak, it is probably because you either forgot to call
+ * pcre_free_study() (or pcre16_free_study()) on the pcre_extra (or
+ * pcre16_extra) object, or you called said function after having
+ * cleared the PCRE_EXTRA_EXECUTABLE_JIT bit from the "flags" field
+ * of the object. (The function will only free the JIT data if the
+ * bit remains set, as the bit indicates that the pointer to the data
+ * is valid.)
                  */
 		functions = SLJIT_MALLOC(sizeof(executable_functions), compiler->allocator_data);
 		if(functions == NULL) {

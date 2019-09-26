@@ -212,11 +212,11 @@ PPProcessorPacket::PlaceDescription::PlaceDescription() : GoodsID(0)
 {
 }
 
-PPProcessorPacket::PlaceDescription & PPProcessorPacket::PlaceDescription::Clear()
+PPProcessorPacket::PlaceDescription & PPProcessorPacket::PlaceDescription::Z()
 {
 	GoodsID = 0;
-	Range = 0;
-	Descr = 0;
+	Range.Z();
+	Descr.Z();
 	return *this;
 }
 
@@ -231,7 +231,7 @@ PPProcessorPacket::ExtBlock & PPProcessorPacket::ExtBlock::destroy()
 	CheckInTime = ZEROTIME;
 	CheckOutTime = ZEROTIME;
 	TimeFlags = 0;
-	InitSessStatus = 0; // @v8.2.9
+	InitSessStatus = 0;
 	ExtStrP = 0;
 	MEMSZERO(Fb);
 	DestroyS();
@@ -354,7 +354,7 @@ uint PPProcessorPacket::ExtBlock::GetPlaceDescriptionCount() const
 int PPProcessorPacket::ExtBlock::GetPlaceDescription(uint pos, PPProcessorPacket::PlaceDescription & rItem) const
 {
 	int    ok = 0;
-	rItem.Clear();
+	rItem.Z();
     if(pos < Places.getCount()) {
         const InnerPlaceDescription & r_item = Places.at(pos);
         rItem.GoodsID = r_item.GoodsID;
@@ -1323,7 +1323,7 @@ int ProcessorDialog::EditExt()
 			PPProcessorPacket::PlaceDescription item;
 			for(uint i = 0; i < Data.Ext.GetPlaceDescriptionCount(); i++) {
 				if(!Data.Ext.GetPlaceDescription(i, item)) {
-					item.Clear();
+					item.Z();
 					item.Range = "#ERROR";
 				}
 				ss.clear();
@@ -1806,25 +1806,7 @@ int SLAPI PPObjProcessor::SerializePacket(int dir, PPProcessorPacket * pPack, SB
 }
 
 int SLAPI PPObjProcessor::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
-{
-	int    ok = 1;
-	PPProcessorPacket * p_pack = new PPProcessorPacket;
-	THROW_MEM(p_pack);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack) > 0);
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW_SL(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-	}
-	p->Data = p_pack;
-	CATCH
-		ok = 0;
-		delete p_pack;
-	ENDCATCH
-	return ok;
-}
+	{ return Implement_ObjReadPacket<PPObjProcessor, PPProcessorPacket>(this, p, id, stream, pCtx); }
 
 int  SLAPI PPObjProcessor::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {

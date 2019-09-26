@@ -1446,8 +1446,8 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	DBE    dbe_group;
 	DBQ  * dbq = 0;
 	ObjAssocTbl    * oa     = 0;
-	Goods2Tbl      * g      = 0;
-	BarcodeTbl     * p_bc_t = 0;
+	Goods2Tbl * g      = 0;
+	BarcodeTbl * p_bc_t = 0;
 	ArGoodsCodeTbl * p_ac_t = 0;
 	TempOrderTbl   * tmp_t  = 0;
 	uint   brw_id = 0;

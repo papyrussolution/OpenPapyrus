@@ -579,7 +579,7 @@ int SLAPI StdTreeListBoxDef::setArray(StrAssocArray * pList)
 		delete P_SaList;
 	}
 	P_SaList = pList;
-	T.Clear();
+	T.Z();
 	Helper_CreateTree();
 	top();
 	return 1;

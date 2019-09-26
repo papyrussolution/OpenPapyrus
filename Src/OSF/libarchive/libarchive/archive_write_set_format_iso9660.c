@@ -1251,8 +1251,8 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 #ifdef DEBUG
 		    /* Specifies Volume creation date and time;
-		     * year(4),month(2),day(2),hour(2),minute(2),second(2).
-		     * e.g. "20090929033757"
+		 * year(4),month(2),day(2),hour(2),minute(2),second(2).
+		 * e.g. "20090929033757"
 		     */
 		    if(strcmp(key, "creation") == 0) {
 			    struct tm tm;
@@ -3327,8 +3327,8 @@ static int set_directory_record(uchar * p, size_t n, struct isoent * isoent, str
 		switch(t) {
 			case DIR_REC_VD:
 			    /* This case does not come, but compiler
-			     * complains that DIR_REC_VD not handled
-			     *  in switch ....  */
+			 * complains that DIR_REC_VD not handled
+			 *  in switch ....  */
 			    break;
 			case DIR_REC_SELF:
 			    isoent->dr_len.self = (int)dr_len; break;

@@ -282,8 +282,8 @@ static int setcharset(uchar ** p, uchar * charset)
 			    }
 			    else
 				    /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
-				     * nonsense warning 'statement not reached' at end of the fnc when
-				     * compiling on Solaris */
+				 * nonsense warning 'statement not reached' at end of the fnc when
+				 * compiling on Solaris */
 				    goto fail;
 			    break;
 			case CURLFNM_SCHS_RIGHTBRLEFTBR:

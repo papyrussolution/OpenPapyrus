@@ -27,7 +27,7 @@ static const char tv_browser_flags[] = "BRO_OWNER;BRO_GRID";
 const char browser_flags[] = "OWNER;GRID";
 const char base[] = "center;north;south;west;east";
 
-Rc2Data Rc2;
+Rc2Data Rc2; // @global
 //
 //
 //

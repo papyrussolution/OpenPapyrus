@@ -65,31 +65,31 @@ struct _ZBarGtk {
     /* properties */
 
     /**
-     * ZBarGtk:video-device:
+ * ZBarGtk:video-device:
      *
-     * the currently set video device.
+ * the currently set video device.
      *
-     * setting a new device opens it and automatically sets
-     * #ZBarGtk:video-enabled.  set the empty string ("") or NULL to
-     * close.
+ * setting a new device opens it and automatically sets
+ * #ZBarGtk:video-enabled.  set the empty string ("") or NULL to
+ * close.
      */
 
     /**
-     * ZBarGtk:video-enabled:
+ * ZBarGtk:video-enabled:
      *
-     * video device streaming state.
+ * video device streaming state.
      *
-     * use to pause/resume video scanning.
+ * use to pause/resume video scanning.
      */
 
     /**
-     * ZBarGtk:video-opened:
+ * ZBarGtk:video-opened:
      *
-     * video device opened state.
+ * video device opened state.
      *
-     * (re)setting #ZBarGtk:video-device should eventually cause it
-     * to be opened or closed.  any errors while streaming/scanning
-     * will also cause the device to be closed
+ * (re)setting #ZBarGtk:video-device should eventually cause it
+ * to be opened or closed.  any errors while streaming/scanning
+ * will also cause the device to be closed
      */
 };
 
@@ -99,36 +99,36 @@ struct _ZBarGtkClass {
     /* signals */
 
     /**
-     * ZBarGtk::decoded:
-     * @widget: the object that received the signal
-     * @symbol_type: the type of symbol decoded (a zbar_symbol_type_t)
-     * @data: the data decoded from the symbol
-     * 
-     * emitted when a barcode is decoded from an image.
-     * the symbol type and contained data are provided as separate
-     * parameters
+ * ZBarGtk::decoded:
+ * @widget: the object that received the signal
+ * @symbol_type: the type of symbol decoded (a zbar_symbol_type_t)
+ * @data: the data decoded from the symbol
+ * 
+ * emitted when a barcode is decoded from an image.
+ * the symbol type and contained data are provided as separate
+ * parameters
      */
     void (*decoded) (ZBarGtk *zbar,
                      zbar_symbol_type_t symbol_type,
                      const char *data);
 
     /**
-     * ZBarGtk::decoded-text:
-     * @widget: the object that received the signal
-     * @text: the decoded data prefixed by the string name of the
-     * symbol type (separated by a colon)
+ * ZBarGtk::decoded-text:
+ * @widget: the object that received the signal
+ * @text: the decoded data prefixed by the string name of the
+ * symbol type (separated by a colon)
      *
-     * emitted when a barcode is decoded from an image.
-     * the symbol type name is prefixed to the data, separated by a
-     * colon
+ * emitted when a barcode is decoded from an image.
+ * the symbol type name is prefixed to the data, separated by a
+ * colon
      */
     void (*decoded_text) (ZBarGtk *zbar,
                           const char *text);
 
     /**
-     * ZBarGtk::scan-image:
-     * @widget: the object that received the signal
-     * @image: the image to scan for barcodes
+ * ZBarGtk::scan-image:
+ * @widget: the object that received the signal
+ * @image: the image to scan for barcodes
      */
     void (*scan_image) (ZBarGtk *zbar,
                         GdkPixbuf *image);

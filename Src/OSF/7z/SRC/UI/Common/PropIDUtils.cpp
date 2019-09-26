@@ -490,7 +490,7 @@ bool ConvertNtReparseToString(const Byte * data, uint32 size, UString &s)
 	s.Add_Space();
 	data += 8;
 	for(uint32 i = 0; i < len; i++) {
-		uint b = ((const Byte*)data)[i];
+		uint b = ((const Byte *)data)[i];
 		s += (char)GetHex((b >> 4) & 0xF);
 		s += (char)GetHex(b & 0xF);
 	}

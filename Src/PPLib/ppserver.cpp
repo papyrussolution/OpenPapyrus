@@ -89,6 +89,48 @@ int SLAPI PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 //
 //
 //
+int SLAPI PPTextCommandBlock::GetWord(const char * pBuf, size_t * pPos)
+{
+	int    ok = 1;
+	size_t p = DEREFPTRORZ(pPos);
+	Term.Z();
+	while(oneof2(pBuf[p], ' ', '\t'))
+		p++;
+	if(pBuf[p]) {
+		int    q = 0;
+		if(pBuf[p] == '\"') {
+			p++;
+			q = 1;
+		}
+		/*char*/int c = pBuf[p];
+		while(c != 0) {
+			if(q && c == '\"') {
+				p++;
+				break;
+			}
+			else if(!q && oneof2(c, ' ', '\t')) {
+				break;
+			}
+			else {
+				if(q && c == '\\' && pBuf[p+1] == '\"') {
+					c = '\"';
+					p++;
+				}
+				Term.CatChar(c);
+				c = pBuf[++p];
+			}
+		}
+		while(pBuf[p] == ' ' || pBuf[p] == '\t')
+			p++;
+	}
+	else
+		ok = 0;
+	ASSIGN_PTR(pPos, p);
+	return ok;
+}
+//
+//
+//
 SLAPI PPServerCmd::PPServerCmd() : PPJobSrvCmd(), P_SoBlk(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
 {
 	Init();
@@ -103,7 +145,6 @@ SLAPI PPServerCmd::~PPServerCmd()
 void SLAPI PPServerCmd::Init()
 {
 	SessID = 0;
-	//Params.Z();
 	ClearParams();
 	ZDELETE(P_SoBlk);
 }
@@ -127,6 +168,7 @@ int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
 	return ok;
 }
 
+#if 0 // @v10.5.7 (moved to PPTextCommandBlock) {
 int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
 {
 	int    ok = 1;
@@ -166,6 +208,7 @@ int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
 	ASSIGN_PTR(pPos, p);
 	return ok;
 }
+#endif // } 0
 
 int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 {
@@ -1604,11 +1647,7 @@ int SLAPI CPosNodeBlock::OpenSession(PPID cnId, const S_GUID_Base * pUuid)
 
 int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rReply)
 {
-	struct SymbItem {
-		long   ID;
-		const  char * P_Text;
-	};
-	static const SymbItem crit_titles[] = {
+	static const SIntToSymbTabEntry crit_titles[] = {
 		{ cPosNode, "POSNODE" },
 		{ cAgent,   "AGENT" },
 		{ cGoods,   "GOODS" },
@@ -1620,7 +1659,7 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 		{ cCCheck,  "CCHECK" },
 		{ cCTable,  "CTABLE" }
 	};
-	static const SymbItem subcrit_titles[] = {
+	static const SIntToSymbTabEntry subcrit_titles[] = {
 		{ scID,            "ID"   },
 		{ scCode,          "CODE" },
 		{ scCheck,         "CHECKID" },
@@ -1647,19 +1686,22 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 	if(scan.Skip().GetIdent(temp_buf)) {
 		SString arg_buf;
 		do {
-			int    criterion = 0;
 			int    sub_criterion = 0;
 			arg_buf.Z();
-			for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
-				if(temp_buf.CmpNC(crit_titles[i].P_Text) == 0) {
+			// @v10.5.7 {
+			int    criterion = SIntToSymbTab_GetId(crit_titles, SIZEOFARRAY(crit_titles), temp_buf);
+			if(criterion) 
+				crit = temp_buf;
+			// } @v10.5.7
+			/* @v10.5.7 for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
+				if(temp_buf.IsEqiAscii(crit_titles[i].P_Symb)) {
 					crit = temp_buf;
-					criterion = crit_titles[i].ID;
+					criterion = crit_titles[i].Id;
 				}
-			}
+			}*/
 			if(criterion == scLast) {
 				//
-				// Одиночные критерии (не требующие параметров):
-				// 'ACTUAL' 'LAST'
+				// Одиночные критерии (не требующие параметров): 'ACTUAL' 'LAST'
 				//
 				sub_criterion = 0;
 				arg_buf.Z();
@@ -1668,13 +1710,20 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 				if(scan[0] == '.') {
 					scan.Incr();
 					THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_SUBCRITERION);
-					for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
-						if(temp_buf.CmpNC(subcrit_titles[i].P_Text) == 0) {
+					// @v10.5.7 {
+					sub_criterion = SIntToSymbTab_GetId(subcrit_titles, SIZEOFARRAY(subcrit_titles), temp_buf);
+					if(sub_criterion) {
+						sub_crit = temp_buf;
+						(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
+					}
+					// } @v10.5.7 
+					/* @v10.5.7 for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
+						if(temp_buf.IsEqiAscii(subcrit_titles[i].P_Symb)) {
 							sub_crit = temp_buf;
-							sub_criterion = subcrit_titles[i].ID;
+							sub_criterion = subcrit_titles[i].Id;
 							(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
 						}
-					}
+					}*/
 				}
 				THROW_PP(scan.Skip()[0] == '(', PPERR_CMDSEL_EXP_LEFTPAR);
 				{
@@ -1919,7 +1968,6 @@ private:
 	static int TestSend(TcpSocket & rSo, const void * pBuf, size_t sz, size_t * pActualSize);
 	static int TestRecv(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
 	static int TestRecvBlock(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
-
 	virtual void SLAPI Run();
 	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
 	CmdRet SLAPI Testing();
@@ -1933,7 +1981,6 @@ private:
 	uint32 SuspendTimeout;     // Таймаут (ms) ожидания восстановления приостановленной сессии         //
 	uint32 CloseSocketTimeout; // Таймаут (ms) ожидания восстановления сессии после разрыва соединения //
 	uint32 SleepTimeout;       // Таймаут (ms) ожидания хоть какого-то события в активной сессии.
-
 	TcpSocket So;
 	StyloBhtIIExchanger * P_SbiiBlk;
 	Evnt   EvSubstSockStart;
@@ -2119,7 +2166,7 @@ void FASTCALL PPWorkerSession::RealeasFtbEntry(uint pos)
 
 PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply)
 {
-	const uint32 DefFileChunkSize = 4 * 1024 * 1024; // 4Mb
+	const uint32 DefFileChunkSize = SMEGABYTE(4);
 
 	CmdRet ret = cmdretOK;
 	int    set_more_flag = 0;
@@ -2357,17 +2404,18 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		// }
 		//
 		case PPSCMD_HELLO:
-			{
-				if(HelloReplyText.Empty()) {
-					PPVersionInfo vi = DS.GetVersionInfo();
-					vi.GetProductName(HelloReplyText);
-				}
-				rReply.SetString(HelloReplyText);
+			if(HelloReplyText.Empty()) {
+				PPVersionInfo vi = DS.GetVersionInfo();
+				vi.GetProductName(HelloReplyText);
 			}
+			rReply.SetString(HelloReplyText);
 			break;
-		case PPSCMD_HSH:
-			rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));
-			break;
+		case PPSCMD_HSH: rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId())); break;
+		case PPSCMD_LOGLOCKSTACK: DS.LogLocStk(); break; // @v9.8.1
+		case PPSCMD_CREATEVIEW: ok = PPView::ExecuteServer(*pEv, rReply) ? cmdretOK : cmdretError; break;
+		case PPSCMD_DESTROYVIEW: ok = PPView::Destroy(*pEv, rReply) ? cmdretOK : cmdretError; break;
+		case PPSCMD_REFRESHVIEW: ok = PPView::Refresh(*pEv, rReply) ? cmdretOK : cmdretError; break;
+		case PPSCMD_QUERYNATURALTOKEN: ok = Helper_QueryNaturalToken(pEv, rReply); break;
 		case PPSCMD_GETLASTERRMSG:
 			PPGetLastErrorMessage(1, temp_buf);
 			rReply.SetString(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
@@ -2408,9 +2456,6 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			rReply.SetAck();
 			ok = cmdretQuit;
 			break;
-		case PPSCMD_LOGLOCKSTACK: // @v9.8.1
-			DS.LogLocStk();
-			break;
 		case PPSCMD_RESETCACHE:
 			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
@@ -2418,19 +2463,13 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				long   obj_type_ext = 0;
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				THROW(obj_type = GetObjectTypeBySymb(temp_buf, &obj_type_ext));
-				if(obj_type == PPOBJ_GOODS) {
-					pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
-					if(temp_buf.CmpNC("NAMEPOOL") == 0) {
-						PPObjGoods goods_obj;
-						goods_obj.P_Tbl->ResetFullList();
-						ok = cmdretOK;
-					}
-					else {
-						CALLEXCEPT_PP(PPERR_RESETCACHE_NOTSUPP);
-					}
-				}
-				else {
-					CALLEXCEPT_PP_S(PPERR_RESETCACHE_OBJ_NOTSUPP, temp_buf);
+				THROW_PP_S(obj_type == PPOBJ_GOODS, PPERR_RESETCACHE_OBJ_NOTSUPP, temp_buf);
+				pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
+				THROW_PP(temp_buf.IsEqiAscii("NAMEPOOL"), PPERR_RESETCACHE_NOTSUPP);
+				{
+					PPObjGoods goods_obj;
+					goods_obj.P_Tbl->ResetFullList();
+					ok = cmdretOK;
 				}
 			}
 			break;
@@ -2490,9 +2529,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				MEMSZERO(rec);
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				temp_buf.Divide(' ', left, right);
-				memcpy(&rec, (const char *)right, sizeof(rec));
+				memcpy(&rec, right.cptr(), sizeof(rec));
 				decrypt(&rec, sizeof(rec));
-				rReply.Write((const char *)&rec, sizeof(rec));
+				rReply.Write(&rec, sizeof(rec));
 				rReply.SetDataType(PPJobSrvReply::htFile, 0);
 			}
 			break;
@@ -2699,15 +2738,6 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					PPLogMessage(PPFILNAM_SERVER_LOG, msg, LOGMSGF_TIME);
 				}
 			}
-			break;
-		case PPSCMD_CREATEVIEW:
-			ok = PPView::ExecuteServer(*pEv, rReply) ? cmdretOK : cmdretError;
-			break;
-		case PPSCMD_DESTROYVIEW:
-			ok = PPView::Destroy(*pEv, rReply) ? cmdretOK : cmdretError;
-			break;
-		case PPSCMD_REFRESHVIEW:
-			ok = PPView::Refresh(*pEv, rReply) ? cmdretOK : cmdretError;
 			break;
 		case PPSCMD_SETGLOBALUSER:
 			{
@@ -3006,9 +3036,6 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 						THROW(p_gtaj->CheckInOp(gta_blk, 1));
 				}
 			}
-			break;
-		case PPSCMD_QUERYNATURALTOKEN:
-			ok = Helper_QueryNaturalToken(pEv, rReply);
 			break;
 		case PPSCMD_GETPERSONBYARTICLE:
 			{

@@ -1,6 +1,6 @@
 // KR.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -161,9 +161,9 @@ int SLAPI KR::remove()
 	return ok;
 }
 
-void SLAPI KR::makeRange(void * d, __range & r)
+void SLAPI KR::makeRange(const void * d, __range & r) const
 {
-	I * ih = (I*)d;
+	const I * ih = static_cast<const I *>(d);
 	r.ol = r.ou = 0;
 	if(ih->low == 0)
 		r.low = 0;
@@ -175,7 +175,7 @@ void SLAPI KR::makeRange(void * d, __range & r)
 	if(ih->upp == 0)
 		r.upp = (ih->low == _EQ_) ? ih+1 : 0;
 	else {
-		r.upp = ih->low ? ((char *)d + sizeof(I) + P_h->keyLen) : (char *)(ih+1);
+		r.upp = ih->low ? (PTR8C(d) + sizeof(I) + P_h->keyLen) : PTR8C(ih+1);
 		if(ih->upp == _LT_)
 			r.ou = 1;
 	}
@@ -183,8 +183,8 @@ void SLAPI KR::makeRange(void * d, __range & r)
 
 void SLAPI KR::rangeToBuf(const __range & C, void * buf, int equal)
 {
-	KR::I & ih = *(KR::I*)buf;
-	char * ptr = ((char *)buf)+sizeof(KR::I);
+	KR::I & ih = *static_cast<KR::I *>(buf);
+	uint8 * ptr = PTR8(buf)+sizeof(KR::I);
 	uint keylen = P_h->keyLen;
 	if(C.low == 0 || C.upp == 0 || equal) {
    		memcpy(ptr, C.low ? C.low : C.upp, keylen);
@@ -369,12 +369,9 @@ int SLAPI KR::link(int logic, KR kr)
 	else if(kr.first())
 		do {
 			switch(disjunction(kr.P_b + kr.P_h->current)) {
-				case 0:
-					return 0;
-				case -1:
-					return -2;
-				case 1:
-					break;
+				case  0: return 0;
+				case -1: return -2;
+				case  1: break;
 			}
 		} while(++kr);
 	else
@@ -395,7 +392,7 @@ int SLAPI KR::getKey(void * d, int * sp)
 	}
 	else {
 		const char * c = P_b + P_h->current;
-		KR::I & ih = *(KR::I*)c;
+		const KR::I & ih = *reinterpret_cast<const KR::I *>(c);
 		if(ih.low == _EQ_) {
 			const int dup = (_GetTable(P_h->hdlTable)->GetIndices()[P_h->keyNum].getFlags() & (XIF_DUP|XIF_REPDUP));
 			memcpy(d, c+sizeof(KR::I), P_h->keyLen);
@@ -424,7 +421,7 @@ int SLAPI KR::getKey(void * d, int * sp)
 				*sp = (ih.upp == _LT_) ? spLt : spLe;
 			}
 			else
-				;//CHECK(INVALID_KR_ITEM); /* Такого быть не должно */
+				;//CHECK(INVALID_KR_ITEM); /* РўР°РєРѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ */
 		}
 		return 1;
 	}
@@ -438,8 +435,8 @@ int FASTCALL KR::checkKey(const void * d) const
 		return 1;
 	else {
 		const char * c = P_b + P_h->current;
-		const uchar  low = ((KR::I*)c)->low;
-		const uchar  upp = ((KR::I*)c)->upp;
+		const uchar  low = reinterpret_cast<const KR::I *>(c)->low;
+		const uchar  upp = reinterpret_cast<const KR::I *>(c)->upp;
 		c += sizeof(KR::I);
 		const  BNKeyList * idxs = &_GetTable(P_h->hdlTable)->GetIndices();
 		int    cmp = idxs->compareKey(P_h->keyNum, d, c);
@@ -462,26 +459,26 @@ int FASTCALL KR::checkKey(const void * d) const
 	}
 }
 /*
-	Шкала предпочтительности ключей:
-		  1 Только равенства по уникальному ключу
-		201 - (количество сегментов по которым задано равенство)
-			Присутствует(ют) равенства по неуникальному ключу
-			Двухсторонние ограничения, представляющие равенства
-			по первым сегментам ключа оцениваются как равенства
-			по неуникальному ключу с поправкой на количество
-			заполненных сегментов (это число вычитается из 201)
-		201 Только двухсторонние ограничения по уникальному ключу
-		301 Только двухсторонние ограничения по неуникальному ключу
-		401 Присутствует(ют) односторонние неравенства по уникальному ключу
-		501 Присутствует(ют) односторонние неравенства по неуникальному ключу
-	Если у двух ключей рейтинг предпочтительности одинаков, то
-	выбирается тот, который имеет меньше диапазонов ограничений
-	(поле KR::h->count).
+	РЁРєР°Р»Р° РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅРѕСЃС‚Рё РєР»СЋС‡РµР№:
+		  1 РўРѕР»СЊРєРѕ СЂР°РІРµРЅСЃС‚РІР° РїРѕ СѓРЅРёРєР°Р»СЊРЅРѕРјСѓ РєР»СЋС‡Сѓ
+		201 - (РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРµРіРјРµРЅС‚РѕРІ РїРѕ РєРѕС‚РѕСЂС‹Рј Р·Р°РґР°РЅРѕ СЂР°РІРµРЅСЃС‚РІРѕ)
+			РџСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚(СЋС‚) СЂР°РІРµРЅСЃС‚РІР° РїРѕ РЅРµСѓРЅРёРєР°Р»СЊРЅРѕРјСѓ РєР»СЋС‡Сѓ
+			Р”РІСѓС…СЃС‚РѕСЂРѕРЅРЅРёРµ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ, РїСЂРµРґСЃС‚Р°РІР»СЏСЋС‰РёРµ СЂР°РІРµРЅСЃС‚РІР°
+			РїРѕ РїРµСЂРІС‹Рј СЃРµРіРјРµРЅС‚Р°Рј РєР»СЋС‡Р° РѕС†РµРЅРёРІР°СЋС‚СЃСЏ РєР°Рє СЂР°РІРµРЅСЃС‚РІР°
+			РїРѕ РЅРµСѓРЅРёРєР°Р»СЊРЅРѕРјСѓ РєР»СЋС‡Сѓ СЃ РїРѕРїСЂР°РІРєРѕР№ РЅР° РєРѕР»РёС‡РµСЃС‚РІРѕ
+			Р·Р°РїРѕР»РЅРµРЅРЅС‹С… СЃРµРіРјРµРЅС‚РѕРІ (СЌС‚Рѕ С‡РёСЃР»Рѕ РІС‹С‡РёС‚Р°РµС‚СЃСЏ РёР· 201)
+		201 РўРѕР»СЊРєРѕ РґРІСѓС…СЃС‚РѕСЂРѕРЅРЅРёРµ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РїРѕ СѓРЅРёРєР°Р»СЊРЅРѕРјСѓ РєР»СЋС‡Сѓ
+		301 РўРѕР»СЊРєРѕ РґРІСѓС…СЃС‚РѕСЂРѕРЅРЅРёРµ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РїРѕ РЅРµСѓРЅРёРєР°Р»СЊРЅРѕРјСѓ РєР»СЋС‡Сѓ
+		401 РџСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚(СЋС‚) РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРёРµ РЅРµСЂР°РІРµРЅСЃС‚РІР° РїРѕ СѓРЅРёРєР°Р»СЊРЅРѕРјСѓ РєР»СЋС‡Сѓ
+		501 РџСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚(СЋС‚) РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРёРµ РЅРµСЂР°РІРµРЅСЃС‚РІР° РїРѕ РЅРµСѓРЅРёРєР°Р»СЊРЅРѕРјСѓ РєР»СЋС‡Сѓ
+	Р•СЃР»Рё Сѓ РґРІСѓС… РєР»СЋС‡РµР№ СЂРµР№С‚РёРЅРі РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅРѕСЃС‚Рё РѕРґРёРЅР°РєРѕРІ, С‚Рѕ
+	РІС‹Р±РёСЂР°РµС‚СЃСЏ С‚РѕС‚, РєРѕС‚РѕСЂС‹Р№ РёРјРµРµС‚ РјРµРЅСЊС€Рµ РґРёР°РїР°Р·РѕРЅРѕРІ РѕРіСЂР°РЅРёС‡РµРЅРёР№
+	(РїРѕР»Рµ KR::h->count).
 
-	Следующий критерий - длина ключа в байтах.
+	РЎР»РµРґСѓСЋС‰РёР№ РєСЂРёС‚РµСЂРёР№ - РґР»РёРЅР° РєР»СЋС‡Р° РІ Р±Р°Р№С‚Р°С….
 
-	Если и после этого ключи оказываются эквивалентны, то для //
-	определенности предпочтем ключ с меньшим номером.
+	Р•СЃР»Рё Рё РїРѕСЃР»Рµ СЌС‚РѕРіРѕ РєР»СЋС‡Рё РѕРєР°Р·С‹РІР°СЋС‚СЃСЏ СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹, С‚Рѕ РґР»СЏ //
+	РѕРїСЂРµРґРµР»РµРЅРЅРѕСЃС‚Рё РїСЂРµРґРїРѕС‡С‚РµРј РєР»СЋС‡ СЃ РјРµРЅСЊС€РёРј РЅРѕРјРµСЂРѕРј.
 */
 int SLAPI KR::rating()
 {
@@ -494,7 +491,7 @@ int SLAPI KR::rating()
 	const int unique = (flags & (XIF_DUP|XIF_REPDUP)) ? 0 : 1;
 	do {
 		int g;
-		I * ih = (I*)(P_b + P_h->current);
+		const I * ih = reinterpret_cast<const I *>(P_b + P_h->current);
 		if(ih->low == _EQ_)
 			g = unique ? 1 : (201 - key.getNumSeg());
 		else if(ih->low && ih->upp) {
@@ -502,8 +499,8 @@ int SLAPI KR::rating()
 			if(ih->low == _GE_ && ih->upp == _LE_) {
 				uint   ofs = 0;
 				int    ns  = key.getNumSeg();
-				char * c1  = P_b + P_h->current+sizeof(I);
-				char * c2  = c1 + P_h->keyLen;
+				const char * c1  = P_b + P_h->current+sizeof(I);
+				const char * c2  = c1 + P_h->keyLen;
 				for(int i = 0; i < ns; i++) {
 					const BNField & f = p_tbl->GetFields()[key.getFieldID(i)];
 					if(stcomp(f.T, c1+ofs, c2+ofs) == 0) {
@@ -527,9 +524,9 @@ int SLAPI KR::rating()
 	return mark;
 }
 //
-// Возвращает (> 0) если kr1 предпочтительнее чем kr2 и (< 0) в противном
-// случае. Если вернул 0, то это означает, что оба ограничения не пригодны
-// для ключевки.
+// Р’РѕР·РІСЂР°С‰Р°РµС‚ (> 0) РµСЃР»Рё kr1 РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅРµРµ С‡РµРј kr2 Рё (< 0) РІ РїСЂРѕС‚РёРІРЅРѕРј
+// СЃР»СѓС‡Р°Рµ. Р•СЃР»Рё РІРµСЂРЅСѓР» 0, С‚Рѕ СЌС‚Рѕ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ РѕР±Р° РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РЅРµ РїСЂРёРіРѕРґРЅС‹
+// РґР»СЏ РєР»СЋС‡РµРІРєРё.
 //
 int FASTCALL compare(KR kr1, KR kr2)
 {

@@ -90,7 +90,7 @@ extern "C" {
 # ifdef OPENSSL_SYS_WINDOWS
 #  ifndef OPENSSL_OPT_WINDLL
 #   if defined(_WINDLL)         /* This is used when building OpenSSL to
-                                 * indicate that DLL linkage should be used */
+ * indicate that DLL linkage should be used */
 #    define OPENSSL_OPT_WINDLL
 #   endif
 #  endif

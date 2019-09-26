@@ -1099,40 +1099,30 @@ static void _cairo_pdf_surface_release_source_image_from_pattern(cairo_pdf_surfa
 		case CAIRO_PATTERN_TYPE_RADIAL:
 		case CAIRO_PATTERN_TYPE_MESH:
 		default:
-
 		    ASSERT_NOT_REACHED;
 		    break;
 	}
 }
 
-static cairo_int_status_t _get_source_surface_extents(cairo_surface_t * source,
-    cairo_rectangle_int_t * extents,
-    boolint * bounded,
-    boolint * subsurface)
+static cairo_int_status_t _get_source_surface_extents(cairo_surface_t * source, cairo_rectangle_int_t * extents, boolint * bounded, boolint * subsurface)
 {
 	cairo_int_status_t status;
-
 	*bounded = TRUE;
 	*subsurface = FALSE;
 	if(source->type == CAIRO_SURFACE_TYPE_RECORDING) {
 		cairo_surface_t * free_me = NULL;
-
 		if(_cairo_surface_is_snapshot(source))
 			free_me = source = _cairo_surface_snapshot_get_target(source);
-
 		if(source->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
-			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t*)source;
-
+			cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)source;
 			*extents = sub->extents;
 			*subsurface = TRUE;
 		}
 		else {
 			cairo_box_t box;
-
 			*bounded = _cairo_surface_get_extents(source, extents);
 			if(!*bounded) {
-				status = _cairo_recording_surface_get_ink_bbox((cairo_recording_surface_t*)source,
-					&box, NULL);
+				status = _cairo_recording_surface_get_ink_bbox((cairo_recording_surface_t*)source, &box, NULL);
 				if(unlikely(status)) {
 					cairo_surface_destroy(free_me);
 					return status;
@@ -1145,10 +1135,8 @@ static cairo_int_status_t _get_source_surface_extents(cairo_surface_t * source,
 	else {
 		*bounded =  _cairo_surface_get_extents(source, extents);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /**
  * _cairo_pdf_surface_add_source_surface:
  * @surface: [in] the pdf surface
@@ -2826,9 +2814,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t
 }
 
 static cairo_int_status_t _cairo_pdf_surface_emit_ccitt_image(cairo_pdf_surface_t * surface,
-    cairo_surface_t * source,
-    cairo_pdf_source_surface_entry_t * surface_entry,
-    boolint test)
+    cairo_surface_t * source, cairo_pdf_source_surface_entry_t * surface_entry, boolint test)
 {
 	cairo_status_t status;
 	const uchar * ccitt_data;
@@ -2838,16 +2824,12 @@ static cairo_int_status_t _cairo_pdf_surface_emit_ccitt_image(cairo_pdf_surface_
 	char * params, * p, * end;
 	cairo_ccitt_params_t ccitt_params;
 	char buf[300];
-
-	cairo_surface_get_mime_data(source, CAIRO_MIME_TYPE_CCITT_FAX,
-	    &ccitt_data, &ccitt_data_len);
+	cairo_surface_get_mime_data(source, CAIRO_MIME_TYPE_CCITT_FAX, &ccitt_data, &ccitt_data_len);
 	if(unlikely(source->status))
 		return source->status;
 	if(ccitt_data == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
-	cairo_surface_get_mime_data(source, CAIRO_MIME_TYPE_CCITT_FAX_PARAMS,
-	    &ccitt_params_string, &ccitt_params_string_len);
+	cairo_surface_get_mime_data(source, CAIRO_MIME_TYPE_CCITT_FAX_PARAMS, &ccitt_params_string, &ccitt_params_string_len);
 	if(unlikely(source->status))
 		return source->status;
 	if(ccitt_params_string == NULL)
@@ -2915,10 +2897,8 @@ static cairo_int_status_t _cairo_pdf_surface_emit_ccitt_image(cairo_pdf_surface_
 	}
 	if(unlikely(status))
 		return status;
-
 	_cairo_output_stream_write(surface->output, ccitt_data, ccitt_data_len);
 	status = _cairo_pdf_surface_close_stream(surface);
-
 	return status;
 }
 
@@ -2948,15 +2928,12 @@ static cairo_int_status_t _cairo_pdf_surface_emit_recording_surface(cairo_pdf_su
 	else {
 		extents = &pdf_source->hash_entry->required_extents;
 	}
-
 	is_subsurface = FALSE;
 	source = pdf_source->surface;
 	if(_cairo_surface_is_snapshot(source))
 		free_me = source = _cairo_surface_snapshot_get_target(source);
-
 	if(source->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
-		cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t*)source;
-
+		cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)source;
 		source = sub->target;
 		extents = &sub->extents;
 		is_subsurface = TRUE;

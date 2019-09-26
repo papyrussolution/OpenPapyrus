@@ -34,7 +34,7 @@ struct ngx_http_ssi_ctx_t {
 	ngx_uint_t key;
 	ngx_str_t command;
 	ngx_array_t params;
-	ngx_table_elt_t          * param;
+	ngx_table_elt_t * param;
 	ngx_table_elt_t params_array[NGX_HTTP_SSI_PARAMS_N];
 	ngx_chain_t * in;
 	ngx_chain_t * out;
@@ -58,7 +58,7 @@ struct ngx_http_ssi_ctx_t {
 	unsigned block : 1;
 	unsigned output : 1;
 	unsigned output_chosen : 1;
-	ngx_http_request_t       * wait;
+	ngx_http_request_t  * wait;
 	void   * value_buf;
 	ngx_str_t timefmt;
 	ngx_str_t errmsg;
@@ -76,7 +76,7 @@ struct ngx_http_ssi_param_t {
 struct ngx_http_ssi_command_t {
 	ngx_str_t name;
 	ngx_http_ssi_command_pt handler;
-	ngx_http_ssi_param_t     * params;
+	ngx_http_ssi_param_t * params;
 	unsigned conditional : 2;
 	unsigned block : 1;
 	unsigned flush : 1;

@@ -67,7 +67,7 @@ UsbDevDescrSt::UsbDevDescrSt(const UsbDevDescrSt & rSrc)
 	ServiceName = rSrc.ServiceName;
 }
 
-UsbDevDescrSt & UsbDevDescrSt::Clear()
+UsbDevDescrSt & UsbDevDescrSt::Z()
 {
 	ClassGUID.Z();
 	Path.Z();
@@ -94,7 +94,7 @@ UsbBasicDescrSt::UsbBasicDescrSt(const UsbBasicDescrSt & rSrc)  : P_Parent(0)
 	SerialNumber = rSrc.SerialNumber;
 }
 
-UsbBasicDescrSt & UsbBasicDescrSt::Clear()
+UsbBasicDescrSt & UsbBasicDescrSt::Z()
 {
 	P_Parent = 0;
 	Pid.Z();
@@ -108,17 +108,12 @@ int UsbBasicDescrSt::operator == (const UsbBasicDescrSt & s) const
 	return BIN(Vid.CmpNC(s.Vid) == 0 && Pid.CmpNC(s.Pid) == 0 && SerialNumber.CmpNC(s.SerialNumber) == 0);
 }
 
-SUsbDevice::SUsbDevice()
+SUsbDevice::SUsbDevice() : DevClass(0), OutputReportByteLength(0), IntputReportByteLength(0), Handle(INVALID_HANDLE_VALUE), Event(INVALID_HANDLE_VALUE)
 {
-	DevClass = 0;
-	OutputReportByteLength = 0;
-	IntputReportByteLength = 0;
-	Handle = INVALID_HANDLE_VALUE;
-	Event = INVALID_HANDLE_VALUE; // new
 	Ovl.hEvent = INVALID_HANDLE_VALUE; // new
 	Ovl.Offset = 0; // new
 	Ovl.OffsetHigh = 0; // new
-	Description.Clear();
+	Description.Z();
 }
 
 SUsbDevice::SUsbDevice(const UsbDevDescrSt * pDevDescr)
@@ -360,7 +355,7 @@ int SUsbDevice::GetDeviceList(TSCollection <SUsbDevice> & rList)
 		memzero(&dev_ifc_data, sizeof(SP_DEVICE_INTERFACE_DATA));
 		dev_ifc_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
 		if(SetupDiEnumDeviceInterfaces(pnp_handle, NULL, reinterpret_cast<const GUID *>(usb_guid.Data), cur_dev_index, &dev_ifc_data)) {
-			dev_descr.Clear();
+			dev_descr.Z();
 			THROW(did.Get(pnp_handle, &dev_ifc_data));
 			// »м€ PnP-устройства
 			dev_descr.Path = did.Path;
@@ -371,7 +366,7 @@ int SUsbDevice::GetDeviceList(TSCollection <SUsbDevice> & rList)
 			//		\\?\usb#vid_05f9&pid_2203#s#n_e12g14133#{a5dcbf10-6530-11d2-901f-00c04fb951ed}
 			// s#n_e12g14133 - принимаем за серийный номер. ” других устройств может быть написано просто
 			//					e12g14133, то есть без s#n_
-			basic_descr.Clear();
+			basic_descr.Z();
 			ParsePath(dev_descr.Path, basic_descr);
 			dev_descr.SerialNumber = basic_descr.SerialNumber;
 			//
@@ -425,7 +420,7 @@ int SUsbDevice::GetDeviceList(TSCollection <SUsbDevice> & rList)
 					//		HID\VID_05F9&PID_2203\7&3B4F0974&0&0000
 					if(CM_Get_Device_ID(device_ret, buf, SIZEOFARRAY(buf), 0) == CR_SUCCESS) { // @unicodeproblem
 						// ƒелим ее на pid, vid и серийный номер
-						basic_descr.Clear();
+						basic_descr.Z();
 						ParseSymbPath(SUcSwitch(buf), basic_descr);
 						UsbBasicDescrSt * p_child = new UsbBasicDescrSt(basic_descr);
 						THROW_S(p_child, SLERR_NOMEM);

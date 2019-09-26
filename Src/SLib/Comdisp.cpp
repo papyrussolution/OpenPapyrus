@@ -1,7 +1,7 @@
 // COMDISP.CPP
 // Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-// Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
+// @codepage UTF-8
+// РРЅС‚РµСЂС„РµР№СЃ IDispatch РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ COM-РїСЂРёР»РѕР¶РµРЅРёСЏРјРё (СЂРµР¶РёРј InProcServer) (only WIN32)
 //
 //#include <pp.h>
 //#pragma hdrstop
@@ -485,7 +485,8 @@ int SLAPI ComDispInterface::SetParam(ComDispInterface * pParam)
 
 int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 {
-	int    ok = 1, rcv_res = pVarArg ? 1 : 0;
+	int    ok = 1;
+	const  int rcv_res = BIN(pVarArg);
 	const  DispIDEntry * p_die = 0;
 	VARTYPE    vt;
 	VARIANTARG var_arg;
@@ -514,7 +515,7 @@ int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 	CATCH
 		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 		/*if(CConfig.Flags & CCFLG_DEBUG) {
-			//PPTXT_LOG_DISPINVOKEFAULT         "Ошибка вызова Dispatch-метода '@zstr': @zstr"
+			//PPTXT_LOG_DISPINVOKEFAULT         "РћС€РёР±РєР° РІС‹Р·РѕРІР° Dispatch-РјРµС‚РѕРґР° '@zstr': @zstr"
 			SString msg_buf;
 			PPFormatT(PPTXT_LOG_DISPINVOKEFAULT, &msg_buf, (p_die ? p_die->Name : ""), "");
 			PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
@@ -567,7 +568,7 @@ void SLAPI ComDispInterface::SetErrCode()
 //
 // Excel disp interface
 //
-#define COM_WORD  "Word.Application"
+//#define COM_WORD  "Word.Application"
 //
 // ComExcelFont
 //
@@ -589,15 +590,8 @@ int SLAPI ComExcelFont::Init(IDispatch * pDisp)
 	return ok;
 }
 
-int SLAPI ComExcelFont::SetBold(int bold)
-{
-	return SetProperty(Bold, bold);
-}
-
-int SLAPI ComExcelFont::SetColor(long color)
-{
-	return SetProperty(Color, color);
-}
+int SLAPI ComExcelFont::SetBold(int bold) { return SetProperty(Bold, bold); }
+int SLAPI ComExcelFont::SetColor(long color) { return SetProperty(Color, color); }
 //
 // ComExcelShapes
 //
@@ -752,25 +746,10 @@ int SLAPI ComExcelRange::SetBgColor(long color)
 	return ok;
 }
 
-int SLAPI ComExcelRange::SetWidth(long width)
-{
-	return BIN(SetParam(width) > 0 && SetProperty(ColumnWidth, width) > 0);
-}
-
-int SLAPI ComExcelRange::SetHeight(long height)
-{
-	return BIN(SetParam(height) > 0 && SetProperty(RowHeight, height) > 0);
-}
-
-int SLAPI ComExcelRange::DoClear()
-{
-	return CallMethod(Clear);
-}
-
-int SLAPI ComExcelRange::DoMerge()
-{
-	return CallMethod(Merge);
-}
+int SLAPI ComExcelRange::SetWidth(long width) { return BIN(SetParam(width) > 0 && SetProperty(ColumnWidth, width) > 0); }
+int SLAPI ComExcelRange::SetHeight(long height) { return BIN(SetParam(height) > 0 && SetProperty(RowHeight, height) > 0); }
+int SLAPI ComExcelRange::DoClear() { return CallMethod(Clear); }
+int SLAPI ComExcelRange::DoMerge() { return CallMethod(Merge); }
 
 ComExcelRange * SLAPI ComExcelRange::_Columns()
 {
@@ -808,25 +787,10 @@ int SLAPI ComExcelWorksheet::Init(IDispatch * pIDisp)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::_Activate()
-{
-	return CallMethod(Activate);
-}
-
-int SLAPI ComExcelWorksheet::Print()
-{
-	return CallMethod(PrintOut);
-}
-
-int SLAPI ComExcelWorksheet::Preview()
-{
-	return CallMethod(PrintPreview);
-}
-
-int SLAPI ComExcelWorksheet::SetName(const char * pName)
-{
-	return pName ? SetProperty(Name, pName) : 1;
-}
+int SLAPI ComExcelWorksheet::_Activate() { return CallMethod(Activate); }
+int SLAPI ComExcelWorksheet::Print() { return CallMethod(PrintOut); }
+int SLAPI ComExcelWorksheet::Preview() { return CallMethod(PrintPreview); }
+int SLAPI ComExcelWorksheet::SetName(const char * pName) { return pName ? SetProperty(Name, pName) : 1; }
 
 int SLAPI ComExcelWorksheet::GetName(SString & rName)
 {
@@ -1068,7 +1032,6 @@ ComExcelWorksheet * SLAPI ComExcelWorksheets::_Add(long before, long after, cons
 	ComExcelWorksheet * p_sheet = new ComExcelWorksheet;
 	ComExcelWorksheet * p_before_sheet = Get(before);
 	ComExcelWorksheet * p_after_sheet = Get(after);
-
 	THROW(SetParam(p_before_sheet) > 0);
 	THROW(SetParam(p_after_sheet) > 0);
 	THROW(CallMethod(Add, static_cast<ComDispInterface *>(p_sheet)) > 0);
@@ -1212,9 +1175,7 @@ ComExcelWorksheet * ComExcelWorkbook::_ActiveSheet()
 ComExcelWorksheet * ComExcelWorkbook::GetWorksheet(long pos)
 {
 	ComExcelWorksheets * p_sheets = Get();
-	ComExcelWorksheet * p_sheet = 0;
-	if(p_sheets)
-		p_sheet = p_sheets->Get(pos);
+	ComExcelWorksheet * p_sheet = p_sheets ? p_sheets->Get(pos) : 0;
 	ZDELETE(p_sheets);
 	return p_sheet;
 }
@@ -1301,18 +1262,16 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::_Open(const char * pFileName)
 
 int SLAPI ComExcelWorkbooks::SaveAs(long pos, const char * pPath)
 {
-	int    ok = 1;
 	ComExcelWorkbook * p_wkbook = Get(pos);
-	ok = p_wkbook ? p_wkbook->_SaveAs(pPath) : 0;
+	int    ok = p_wkbook ? p_wkbook->_SaveAs(pPath) : 0;
 	ZDELETE(p_wkbook);
 	return ok;
 }
 
 int SLAPI ComExcelWorkbooks::Close(long pos)
 {
-	int    ok = 1;
 	ComExcelWorkbook * p_wkbook = Get(pos);
-	ok = p_wkbook ? p_wkbook->_Close() : 0;
+	int    ok = p_wkbook ? p_wkbook->_Close() : 0;
 	ZDELETE(p_wkbook);
 	return ok;
 }
@@ -1320,9 +1279,7 @@ int SLAPI ComExcelWorkbooks::Close(long pos)
 ComExcelWorksheet * SLAPI ComExcelWorkbooks::GetWorksheet(long bookPos, long sheetPos)
 {
 	ComExcelWorkbook * p_wkbook = Get(bookPos);
-	ComExcelWorksheet * p_sheet = 0;
-	if(p_wkbook)
-		p_sheet = p_wkbook->GetWorksheet(sheetPos);
+	ComExcelWorksheet * p_sheet = p_wkbook ? p_wkbook->GetWorksheet(sheetPos) : 0;
 	ZDELETE(p_wkbook);
 	return p_sheet;
 }
@@ -1393,11 +1350,9 @@ int SLAPI ComExcelApp::_DisplayAlerts(int yes)
 
 ComExcelShapes * SLAPI ComExcelApp::GetShapes(long bookPos, long sheetPos)
 {
-	ComExcelShapes   * p_shapes = 0;
 	ComExcelWorkbooks * p_wkbooks = Get();
 	ComExcelWorksheet * p_sheet = p_wkbooks ? p_wkbooks->GetWorksheet(bookPos, sheetPos) : 0;
-	if(p_sheet)
-		p_shapes = p_sheet->GetShapes();
+	ComExcelShapes * p_shapes = p_sheet ? p_sheet->GetShapes() : 0;
 	ZDELETE(p_sheet);
 	ZDELETE(p_wkbooks);
 	return p_shapes;

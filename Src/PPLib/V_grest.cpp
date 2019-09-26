@@ -291,7 +291,7 @@ int SLAPI PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 			Filt.Flags |= GoodsRestFilt::fCalcOrder;
 		// @v10.3.2 {
 		if(Filt.Flags2 & GoodsRestFilt::f2RetailPrice && (Filt.GetQuotUsage() != 1 || !Filt.QuotKindID)) {
-			PPID   loc_id = Filt.LocList.GetSingle();
+			const PPID loc_id = Filt.LocList.GetSingle();
 			if(loc_id) {
 				RetailPriceExtractor::ExtQuotBlock eqb(Filt.QuotKindID);
 				long   rtlpf = 0;
@@ -309,10 +309,10 @@ int SLAPI PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 					LAssocArray bcp_list;
 					if(sc_obj.GetListWithBcPrefix(&bcp_list) > 0) {
 						for(uint i = 0; i < bcp_list.getCount(); i++) {
-							PPScale sc_rec;
-							if(sc_obj.Fetch(bcp_list.at(i).Key, &sc_rec) > 0 && sc_rec.AltGoodsGrp == Filt.GoodsGrpID) {
+							PPScalePacket sc_pack;
+							if(sc_obj.Fetch(bcp_list.at(i).Key, &sc_pack) > 0 && sc_pack.Rec.AltGoodsGrp == Filt.GoodsGrpID) {
 								Flags |= fScalePrefixAltGroup;
-								ScalePrefixID = sc_rec.ID;
+								ScalePrefixID = sc_pack.Rec.ID;
 								break;
 							}
 						}

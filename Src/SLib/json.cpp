@@ -95,8 +95,9 @@ static rstring_code FASTCALL rcs_catcs(RcString * pre, const char * pos, const s
 	if(pre->max < (pre->length + length))
 		if(rcs_resize(pre, pre->length + length + RSTRING_INCSTEP) != RS_OK)
 			return RS_MEMORY;
-	strncpy(pre->P_Text + pre->length, pos, length);
-	pre->P_Text[pre->length + length] = '\0';
+	// @v10.5.7 strncpy(pre->P_Text + pre->length, pos, length);
+	// @v10.5.7 pre->P_Text[pre->length + length] = '\0';
+	strnzcpy(pre->P_Text + pre->length, pos, length); // @v10.5.7
 	pre->length += length;
 	return RS_OK;
 }

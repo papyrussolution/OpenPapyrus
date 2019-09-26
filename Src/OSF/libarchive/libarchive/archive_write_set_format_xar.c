@@ -136,7 +136,7 @@ enum la_zaction {
  * Universal zstream.
  */
 struct la_zstream {
-	const uchar     * next_in;
+	const uchar * next_in;
 	size_t avail_in;
 	uint64_t total_in;
 
@@ -189,7 +189,7 @@ struct file {
 	 * We use 'chnext' (a member of struct file) to chain.
 	 */
 	struct {
-		struct file     * first;
+		struct file * first;
 		struct file     ** last;
 	}                        children;
 
@@ -215,7 +215,7 @@ struct hardlink {
 	struct archive_rb_node rbnode;
 	int nlink;
 	struct {
-		struct file     * first;
+		struct file * first;
 		struct file     ** last;
 	}                        file_list;
 };
@@ -256,7 +256,7 @@ struct xar {
 	 * We use 'next' (a member of struct file) to chain.
 	 */
 	struct {
-		struct file     * first;
+		struct file * first;
 		struct file     ** last;
 	}                        file_list;
 
@@ -1142,22 +1142,22 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	switch(archive_entry_filetype(file->entry)) {
 		case AE_IFLNK:
 		    /*
-		     * xar utility has checked a file type, which
-		     * a symbolic-link file has referenced.
-		     * For example:
-		     *   <link type="directory">../ref/</link>
-		     *   The symlink target file is "../ref/" and its
-		     *   file type is a directory.
+		 * xar utility has checked a file type, which
+		 * a symbolic-link file has referenced.
+		 * For example:
+		 *   <link type="directory">../ref/</link>
+		 *   The symlink target file is "../ref/" and its
+		 *   file type is a directory.
 		     *
-		     *   <link type="file">../f</link>
-		     *   The symlink target file is "../f" and its
-		     *   file type is a regular file.
+		 *   <link type="file">../f</link>
+		 *   The symlink target file is "../f" and its
+		 *   file type is a regular file.
 		     *
-		     * But our implementation cannot do it, and then we
-		     * always record that a attribute "type" is "broken",
-		     * for example:
-		     *   <link type="broken">foo/bar</link>
-		     *   It means "foo/bar" is not reachable.
+		 * But our implementation cannot do it, and then we
+		 * always record that a attribute "type" is "broken",
+		 * for example:
+		 *   <link type="broken">foo/bar</link>
+		 *   It means "foo/bar" is not reachable.
 		     */
 		    r = xmlwrite_string_attr(a, writer, "link", file->symlink.s, "type", "broken");
 		    if(r < 0)
@@ -1495,19 +1495,13 @@ static int make_toc(struct archive_write * a)
 				r = xmlTextWriterStartElement(writer,
 					(const xmlChar *)("file"));
 				if(r < 0) {
-					archive_set_error(&a->archive,
-					    ARCHIVE_ERRNO_MISC,
-					    "xmlTextWriterStartElement() "
-					    "failed: %d", r);
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 					goto exit_toc;
 				}
 				r = xmlTextWriterWriteFormatAttribute(
 					writer, (const xmlChar *)("id"), "%d", np->id);
 				if(r < 0) {
-					archive_set_error(&a->archive,
-					    ARCHIVE_ERRNO_MISC,
-					    "xmlTextWriterWriteAttribute() "
-					    "failed: %d", r);
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 					goto exit_toc;
 				}
 				break;
@@ -1517,9 +1511,7 @@ static int make_toc(struct archive_write * a)
 
 	r = xmlTextWriterEndDocument(writer);
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterEndDocument() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndDocument() failed: %d", r);
 		goto exit_toc;
 	}
 #if DEBUG_PRINT_TOC
@@ -1594,10 +1586,8 @@ static int flush_wbuff(struct archive_write * a)
 
 static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 {
-	struct xar * xar;
 	int r;
-
-	xar = (struct xar *)a->format_data;
+	struct xar * xar = (struct xar *)a->format_data;
 	if(lseek(xar->temp_fd, offset, SEEK_SET) < 0) {
 		archive_set_error(&(a->archive), errno, "lseek failed");
 		return ARCHIVE_FATAL;
@@ -1606,7 +1596,6 @@ static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 		size_t rsize;
 		ssize_t rs;
 		uchar * wb;
-
 		if(length > xar->wbuff_remaining)
 			rsize = xar->wbuff_remaining;
 		else
@@ -1614,14 +1603,11 @@ static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 		wb = xar->wbuff + (sizeof(xar->wbuff) - xar->wbuff_remaining);
 		rs = read(xar->temp_fd, wb, rsize);
 		if(rs < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "Can't read temporary file(%jd)",
-			    (intmax_t)rs);
+			archive_set_error(&(a->archive), errno, "Can't read temporary file(%jd)", (intmax_t)rs);
 			return ARCHIVE_FATAL;
 		}
 		if(rs == 0) {
-			archive_set_error(&(a->archive), 0,
-			    "Truncated xar archive");
+			archive_set_error(&(a->archive), 0, "Truncated xar archive");
 			return ARCHIVE_FATAL;
 		}
 		xar->wbuff_remaining -= rs;
@@ -1859,14 +1845,10 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 	if(archive_entry_pathname_l(file->entry, &pp, &len, xar->sconv)
 	    != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Pathname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate pathname '%s' to UTF-8",
-		    archive_entry_pathname(file->entry));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate pathname '%s' to UTF-8", archive_entry_pathname(file->entry));
 		r = ARCHIVE_WARN;
 	}
 	archive_strncpy(&(file->parentdir), pp, len);
@@ -1970,14 +1952,10 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 		if(archive_entry_symlink_l(file->entry, &pp, &len2,
 		    xar->sconv) != 0) {
 			if(errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for Linkname");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				return ARCHIVE_FATAL;
 			}
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Can't translate symlink '%s' to UTF-8",
-			    archive_entry_symlink(file->entry));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate symlink '%s' to UTF-8", archive_entry_symlink(file->entry));
 			r = ARCHIVE_WARN;
 		}
 		archive_strncpy(&(file->symlink), pp, len2);
@@ -2073,26 +2051,19 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 			break;
 		}
 		if(l < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "A name buffer is too small");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A name buffer is too small");
 			file_free(file);
 			*filepp = NULL;
 			return ARCHIVE_FATAL;
 		}
-
 		np = file_find_child(dent, name);
 		if(np == NULL || fn[0] == '\0')
 			break;
-
 		/* Find next subdirectory. */
 		if(!np->dir) {
 			/* NOT Directory! */
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "`%s' is not directory, we cannot insert `%s' ",
-			    archive_entry_pathname(np->entry),
-			    archive_entry_pathname(file->entry));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "`%s' is not directory, we cannot insert `%s' ", 
+				archive_entry_pathname(np->entry), archive_entry_pathname(file->entry));
 			file_free(file);
 			*filepp = NULL;
 			return ARCHIVE_FAILED;
@@ -2119,8 +2090,7 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 			vp = file_create_virtual_dir(a, xar, as.s);
 			if(vp == NULL) {
 				archive_string_free(&as);
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 				file_free(file);
 				*filepp = NULL;
 				return ARCHIVE_FATAL;
@@ -2138,9 +2108,7 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 			l = get_path_component(name, sizeof(name), fn);
 			if(l < 0) {
 				archive_string_free(&as);
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "A name buffer is too small");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A name buffer is too small");
 				file_free(file);
 				*filepp = NULL;
 				return ARCHIVE_FATAL;
@@ -2167,31 +2135,22 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 			archive_string_concat(&(xar->cur_dirstr),
 			    &(dent->basename));
 		}
-
 		if(!file_add_child_tail(dent, file)) {
-			np = (struct file *)__archive_rb_tree_find_node(
-				&(dent->rbtree), file->basename.s);
+			np = (struct file *)__archive_rb_tree_find_node(&(dent->rbtree), file->basename.s);
 			goto same_entry;
 		}
 		return ARCHIVE_OK;
 	}
-
 same_entry:
 	/*
-	 * We have already has the entry the filename of which is
-	 * the same.
+	 * We have already has the entry the filename of which is the same.
 	 */
-	if(archive_entry_filetype(np->entry) !=
-	    archive_entry_filetype(file->entry)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Found duplicate entries `%s' and its file type is "
-		    "different",
-		    archive_entry_pathname(np->entry));
+	if(archive_entry_filetype(np->entry) != archive_entry_filetype(file->entry)) {
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Found duplicate entries `%s' and its file type is different", archive_entry_pathname(np->entry));
 		file_free(file);
 		*filepp = NULL;
 		return ARCHIVE_FAILED;
 	}
-
 	/* Swap files. */
 	ent = np->entry;
 	np->entry = file->entry;

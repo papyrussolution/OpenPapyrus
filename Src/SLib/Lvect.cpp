@@ -1,6 +1,6 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -314,8 +314,7 @@ LVect * FASTCALL operator * (const LMatrix & m, const LVect & v)
 LVect * SLAPI gaxpy(const LMatrix & a, const LVect & x, const LVect & y)
 {
 	LVect * p_result = a * x;
-	if(p_result)
-		p_result->add(y);
+	CALLPTRMEMB(p_result, add(y));
 	return p_result;
 }
 
@@ -505,34 +504,34 @@ int SLAPI minv(LMatrix & a)
 	LVect q0;
 	q0.init(N);
 	/*
-		Цикл по столбцам матрицы a
-		pa - начальная позиция j-го столбца
-		pd - диагональный элемент матрицы a
-		j  - индекс столбца
+		Р¦РёРєР» РїРѕ СЃС‚РѕР»Р±С†Р°Рј РјР°С‚СЂРёС†С‹ a
+		pa - РЅР°С‡Р°Р»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ j-РіРѕ СЃС‚РѕР»Р±С†Р°
+		pd - РґРёР°РіРѕРЅР°Р»СЊРЅС‹Р№ СЌР»РµРјРµРЅС‚ РјР°С‚СЂРёС†С‹ a
+		j  - РёРЅРґРµРєСЃ СЃС‚РѕР»Р±С†Р°
 	*/
 	for(j = 0, pa = pd = 0; j < N; j++, pa++, pd++) {
 		if(j > 0) {
 			/*
-				В вектор q0 записывается столбец по позиции pa (j-й)
+				Р’ РІРµРєС‚РѕСЂ q0 Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ СЃС‚РѕР»Р±РµС† РїРѕ РїРѕР·РёС†РёРё pa (j-Р№)
 			*/
 			for(i = 0; i < N; i++)
 				q0.set(i, a.get(i, j));
 			/*
-				Цикл по строкам матрицы a
-				i - индекс строки
+				Р¦РёРєР» РїРѕ СЃС‚СЂРѕРєР°Рј РјР°С‚СЂРёС†С‹ a
+				i - РёРЅРґРµРєСЃ СЃС‚СЂРѕРєРё
 			*/
 			for(i = 1; i < N; i++) {
 				lc = i < j ? i : j;
 				/*
-					p - начальный элемент строки i
-					t - скалярное произведение первых lc элементов строки i
-						на первые lc элементов столбца j
+					p - РЅР°С‡Р°Р»СЊРЅС‹Р№ СЌР»РµРјРµРЅС‚ СЃС‚СЂРѕРєРё i
+					t - СЃРєР°Р»СЏСЂРЅРѕРµ РїСЂРѕРёР·РІРµРґРµРЅРёРµ РїРµСЂРІС‹С… lc СЌР»РµРјРµРЅС‚РѕРІ СЃС‚СЂРѕРєРё i
+						РЅР° РїРµСЂРІС‹Рµ lc СЌР»РµРјРµРЅС‚РѕРІ СЃС‚РѕР»Р±С†Р° j
 				*/
 				t = 0;
 				for(k = 0; k < lc; k++)
 					t += a.get(i, k) * q0.get(k);
 				/*
-					Из i-го элемента столбца q0 вычитаем t
+					РР· i-РіРѕ СЌР»РµРјРµРЅС‚Р° СЃС‚РѕР»Р±С†Р° q0 РІС‹С‡РёС‚Р°РµРј t
 				*/
 				q0.set(i, q0.get(i) - t);
 			}
@@ -561,7 +560,7 @@ int SLAPI minv(LMatrix & a)
 		a.set(j, j, t);
 	}
 	/*
-		Цикл по столбцам матрицы a
+		Р¦РёРєР» РїРѕ СЃС‚РѕР»Р±С†Р°Рј РјР°С‚СЂРёС†С‹ a
 	*/
 	for(j = 1; j < N; j++)
 		for(k = 1; k <= j; k++)
@@ -928,34 +927,17 @@ LMatrix2D & LMatrix2D::InitSkew(double angleX, double angleY)
 }
 
 LMatrix2D & LMatrix2D::InitSkewDeg(double angleXDeg, double angleYDeg)
-{
-	return InitSkew(SMathConst::PiDiv180 * angleXDeg, SMathConst::PiDiv180 * angleYDeg);
-}
-
+	{ return InitSkew(SMathConst::PiDiv180 * angleXDeg, SMathConst::PiDiv180 * angleYDeg); }
 int LMatrix2D::IsIdentical() const
-{
-	return (xx == yy && xx == 1.0 && x0 == 0.0 && y0 == 0.0 && yx == 0.0 && xy == 0.0);
-}
-
+	{ return (xx == yy && xx == 1.0 && x0 == 0.0 && y0 == 0.0 && yx == 0.0 && xy == 0.0); }
 double LMatrix2D::GetDeterminant() const
-{
-	return xx * yy - yx * xy;
-}
-
+	{ return xx * yy - yx * xy; }
 RPoint & FASTCALL LMatrix2D::TransformDistance(RPoint & rP) const
-{
-	return rP.Set(xx * rP.x + xy * rP.y, yx * rP.x + yy * rP.y);
-}
-
+	{ return rP.Set(xx * rP.x + xy * rP.y, yx * rP.x + yy * rP.y); }
 RPoint & FASTCALL LMatrix2D::Transform(RPoint & rP) const
-{
-	return rP.Set(xx * rP.x + xy * rP.y + x0, yx * rP.x + yy * rP.y + y0);
-}
-
+	{ return rP.Set(xx * rP.x + xy * rP.y + x0, yx * rP.x + yy * rP.y + y0); }
 static LMatrix2D & FASTCALL Push_LMatrix2D(LMatrix2D & rMtx)
-{
-	return PushRecycledObject <LMatrix2D, 64> (rMtx);
-}
+	{ return PushRecycledObject <LMatrix2D, 64> (rMtx); }
 
 const LMatrix2D & FASTCALL operator * (const LMatrix2D & rLeft, const LMatrix2D & rRight)
 {
@@ -1151,8 +1133,8 @@ LMatrix3D & SLAPI LMatrix3D::Mult(const LMatrix3D & rM1, const LMatrix3D & rM2)
 }
 
 //#define TEST_LMATRIX
-
-#ifdef TEST_LMATRIX
+// @todo Р—Р°РјРµРЅРёС‚СЊ РЅР° СЂРµРіСѓР»СЏСЂРЅС‹Р№ SLTEST
+#ifdef TEST_LMATRIX 
 
 void main()
 {

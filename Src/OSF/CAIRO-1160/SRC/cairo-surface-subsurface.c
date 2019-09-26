@@ -34,13 +34,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-recording-surface-private.h"
-//#include "cairo-surface-offset-private.h"
-//#include "cairo-surface-snapshot-private.h"
-//#include "cairo-surface-subsurface-private.h"
 
 extern const cairo_surface_backend_t _cairo_surface_subsurface_backend;
 
@@ -54,7 +47,7 @@ static cairo_status_t _cairo_surface_subsurface_finish(void * abstract_surface)
 
 static cairo_surface_t * _cairo_surface_subsurface_create_similar(void * other, cairo_content_t content, int width, int height)
 {
-	cairo_surface_subsurface_t * surface = (cairo_surface_subsurface_t *)other;
+	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(other);
 	if(surface->target->backend->create_similar == NULL)
 		return NULL;
 	return surface->target->backend->create_similar(surface->target, content, width, height);
@@ -62,7 +55,7 @@ static cairo_surface_t * _cairo_surface_subsurface_create_similar(void * other, 
 
 static cairo_surface_t * _cairo_surface_subsurface_create_similar_image(void * other, cairo_format_t format, int width, int height)
 {
-	cairo_surface_subsurface_t * surface = (cairo_surface_subsurface_t *)other;
+	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(other);
 	if(surface->target->backend->create_similar_image == NULL)
 		return NULL;
 	return surface->target->backend->create_similar_image(surface->target, format, width, height);
@@ -427,7 +420,7 @@ cairo_surface_t * _cairo_surface_create_for_rectangle_int(cairo_surface_t * targ
 
 static void _cairo_surface_subsurface_detach_snapshot(cairo_surface_t * surface)
 {
-	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t*)surface;
+	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t *)surface;
 	TRACE((stderr, "%s: target=%d\n", __FUNCTION__, ss->target->unique_id));
 	cairo_surface_destroy(ss->snapshot);
 	ss->snapshot = NULL;
@@ -435,7 +428,7 @@ static void _cairo_surface_subsurface_detach_snapshot(cairo_surface_t * surface)
 
 void _cairo_surface_subsurface_set_snapshot(cairo_surface_t * surface, cairo_surface_t * snapshot)
 {
-	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t*)surface;
+	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t *)surface;
 	TRACE((stderr, "%s: target=%d, snapshot=%d\n", __FUNCTION__, ss->target->unique_id, snapshot->unique_id));
 	/* FIXME: attaching the subsurface as a snapshot to its target creates
 	 * a reference cycle.  Let's make this call as a no-op until that bug

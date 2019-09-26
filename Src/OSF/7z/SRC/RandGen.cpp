@@ -20,7 +20,7 @@
 // Other generated data blocks depend from previous state
 // Maybe it's possible to restore original timer value from generated value.
 
-#define HASH_UPD(x) Sha256_Update(&hash, (const Byte*)&x, sizeof(x));
+#define HASH_UPD(x) Sha256_Update(&hash, (const Byte *)&x, sizeof(x));
 
 void CRandomGenerator::Init()
 {

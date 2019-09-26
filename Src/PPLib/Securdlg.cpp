@@ -330,8 +330,7 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 			dlg->getDTS(&spack);
 			if(ValidateSecurData(dlg, obj, &spack.Secur)) {
 				THROW(p_ref->EditSecur(obj, dlg->ObjID, &spack, *pID == 0, 1));
-				// @v9.8.4 *pID = dlg->ObjID;
-				ASSIGN_PTR(pID, spack.Secur.ID); // @v9.8.4
+				ASSIGN_PTR(pID, spack.Secur.ID);
 				valid_data = 1;
 			}
 		}

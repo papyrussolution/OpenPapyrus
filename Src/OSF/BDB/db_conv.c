@@ -220,8 +220,8 @@ int __db_pgout(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 	    case P_HASH:
 	    case P_HASH_UNSORTED:
 	    /*
-	     * Support pgout of unsorted hash pages - since online
-	     * replication upgrade can cause pages of this type to be written out.
+	 * Support pgout of unsorted hash pages - since online
+	 * replication upgrade can cause pages of this type to be written out.
 	     */
 		// @fallthrough
 	    case P_HASHMETA:

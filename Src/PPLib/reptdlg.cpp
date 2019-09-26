@@ -288,7 +288,7 @@ public:
 		int    s = 1;
 		if(dir > 0) {
 			Data = *static_cast<const DateRepeating *>(pData);
-			long   kind = (long)Data.RepeatKind;
+			long   kind = static_cast<long>(Data.RepeatKind);
 			PrevKind = kind;
 			SetupStringCombo(this, CTLSEL_REPEATING_DTLMON, PPTXT_MONTHES, Data.Dtl.AY.Month);
 			AddClusterAssoc(CTL_REPEATING_KIND, 0, 1);
@@ -392,7 +392,7 @@ public:
 		int    s = 1;
 		if(dir > 0) {
 			Data = *static_cast<const DateRepeating *>(pData);
-			long   kind = (long)Data.RepeatKind;
+			long   kind = static_cast<long>(Data.RepeatKind);
 			setCtrlLong(CTL_REPEATING_NUMPRD, (long)Data.Dtl.RA.NumPrd);
 			AddClusterAssocDef(CTL_REPEATING_KIND,  0, PRD_DAY);
 			AddClusterAssoc(CTL_REPEATING_KIND,  1, PRD_WEEK);

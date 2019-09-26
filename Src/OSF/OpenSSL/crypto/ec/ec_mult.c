@@ -27,11 +27,11 @@ struct ec_pre_comp_st {
 	const EC_GROUP * group; /* parent EC_GROUP object */
 	size_t blocksize;       /* block size for wNAF splitting */
 	size_t numblocks;       /* max. number of blocks for which we have
-	                         * precomputation */
+	    * precomputation */
 	size_t w;               /* window size */
 	EC_POINT ** points;     /* array with pre-calculated multiples of
-	                         * generator: 'num' pointers to EC_POINT
-	                         * objects followed by a NULL */
+	    * generator: 'num' pointers to EC_POINT
+	    * objects followed by a NULL */
 	size_t num;             /* numblocks * 2^(w-1) */
 	int references;
 	CRYPTO_RWLOCK * lock;

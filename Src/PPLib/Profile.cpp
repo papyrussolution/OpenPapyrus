@@ -682,10 +682,10 @@ double SLAPI PPUserFuncProfiler::GetFactor(uint factorN) const
 //
 SLAPI PPUserProfileCore::StateItem::StateItem()
 {
-	Clear();
+	Z();
 }
 
-PPUserProfileCore::StateItem & SLAPI PPUserProfileCore::StateItem::Clear()
+PPUserProfileCore::StateItem & SLAPI PPUserProfileCore::StateItem::Z()
 {
 	DbID.Z();
 	SessCrDtm.Z();
@@ -702,7 +702,7 @@ PPUserProfileCore::StateBlock::StateBlock() : SStrGroup(), Ver(DS.GetVersion())
 {
 }
 
-PPUserProfileCore::StateBlock & PPUserProfileCore::StateBlock::Clear()
+PPUserProfileCore::StateBlock & PPUserProfileCore::StateBlock::Z()
 {
 	L.clear();
 	ClearS();
@@ -808,7 +808,7 @@ int PPUserProfileCore::StateBlock::Serialize(int dir, SBuffer & rBuf, SSerialize
 		}
 	}
 	else if(dir < 0) {
-		Clear();
+		Z();
 		THROW_SL(Ver.Serialize(dir, rBuf, pCtx));
 		THROW(SStrGroup::SerializeS(dir, rBuf, pCtx));
 		THROW_SL(pCtx->Serialize(dir, c, rBuf));
@@ -859,7 +859,7 @@ int SLAPI PPUserProfileCore::ReadState()
 		THROW(StB.Serialize(-1, buf, &sctx));
 	}
 	else {
-		StB.Clear();
+		StB.Z();
 		ok = -1;
 	}
 	CATCHZOK
@@ -964,10 +964,10 @@ struct UserProfileLoadCacheFinishEntry { // @flat
 
 PPUserProfileCore::UfpLine::UfpLine()
 {
-	Clear();
+	Z();
 }
 
-PPUserProfileCore::UfpLine & PPUserProfileCore::UfpLine::Clear()
+PPUserProfileCore::UfpLine & PPUserProfileCore::UfpLine::Z()
 {
 	Kind = 0;
 	memzero(this, offsetof(UfpLine, DbSymb));
@@ -983,7 +983,7 @@ int SLAPI PPUserProfileCore::ParseUfpLine(StringSet & rSs, SString & rTempBuf, i
 	assert(oneof3(kind, Profile::fkSession, Profile::fkStart, Profile::fkFinish));
 	int    ok = 1;
 	uint   p = 0;
-	rItem.Clear();
+	rItem.Z();
 	THROW(rSs.get(&p, rTempBuf));
 	THROW(rItem.SessUuid.FromStr(rTempBuf));
 	THROW(rSs.get(&p, rTempBuf));
@@ -1253,7 +1253,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 			//int64  foffs_finish = 0;
 			const  UfpFileSet * p_set = file_set_list.at(i);
 			if(!StB.GetItem(p_set->DbUuid, sti)) {
-				sti.Clear();
+				sti.Z();
 				sti.DbID = p_set->DbUuid;
 			}
 			if(sti.DbSymb != p_set->DbSymb) {

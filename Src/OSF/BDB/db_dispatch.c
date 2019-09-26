@@ -129,9 +129,9 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 		 */
 		switch(rectype) {
 		    /*
-		     * These either do not belong to a transaction or (regop)
-		     * must be processed regardless of the status of the
-		     * transaction.
+		 * These either do not belong to a transaction or (regop)
+		 * must be processed regardless of the status of the
+		 * transaction.
 		     */
 		    case DB___txn_regop:
 		    case DB___txn_recycle:
@@ -139,8 +139,8 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 			make_call = 1;
 			break;
 		    /*
-		     * These belong to a transaction whose status must be
-		     * checked.
+		 * These belong to a transaction whose status must be
+		 * checked.
 		     */
 		    case DB___txn_child:
 		    case DB___db_noop:

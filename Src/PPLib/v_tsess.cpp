@@ -50,22 +50,26 @@ int FASTCALL TSessionFilt::GetStatusList(PPIDArray & rList) const
 //
 //
 //
-SLAPI TSessionViewItem::TSessionViewItem()
+SLAPI TSessionViewItem::TSessionViewItem() : WrOffBillID(0)
 {
-	Init();
+	Z();
 }
 
-TSessionViewItem & SLAPI TSessionViewItem::Init()
+TSessionViewItem & SLAPI TSessionViewItem::Z()
 {
 	memzero(static_cast<TSessionTbl::Rec *>(this), sizeof(TSessionTbl::Rec));
-	CipItem.Clear();
+	CipItem.Z();
 	WrOffBillID = 0;
 	return *this;
 }
 //
 //
 //
-PPViewTSession::UhttStoreExt & PPViewTSession::UhttStoreExt::Clear()
+PPViewTSession::UhttStoreExt::UhttStoreExt() : ID(0)
+{
+}
+
+PPViewTSession::UhttStoreExt & SLAPI PPViewTSession::UhttStoreExt::Z()
 {
 	ID = 0;
 	SfList.Z();
@@ -80,9 +84,9 @@ PPViewTSession::IterBlock::IterBlock()
 PPViewTSession::IterBlock & FASTCALL PPViewTSession::IterBlock::Init(int order)
 {
 	Order = order;
-	CipList.Clear();
+	CipList.Z();
 	WrOffBillList.clear();
-	CurItem.Init();
+	CurItem.Z();
 	return *this;
 }
 //
@@ -230,8 +234,8 @@ void SLAPI PPViewTSession::MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrd
 	memzero(pDestRec, sizeof(*pDestRec));
 	pDestRec->ID = pSrcRec->ID;
 	SString temp_buf, st_buf, fin_buf;
-	st_buf.Cat(*(LDATETIME *)&pSrcRec->StDt, DATF_YMD|DATF_CENTURY, TIMF_HMS);
-	fin_buf.Cat(*(LDATETIME *)&pSrcRec->FinDt, DATF_YMD|DATF_CENTURY, TIMF_HMS);
+	st_buf.Cat(*reinterpret_cast<const LDATETIME *>(&pSrcRec->StDt), DATF_YMD|DATF_CENTURY, TIMF_HMS);
+	fin_buf.Cat(*reinterpret_cast<const LDATETIME *>(&pSrcRec->FinDt), DATF_YMD|DATF_CENTURY, TIMF_HMS);
 	if(Filt.Order == TSessionFilt::ordByFnTime) {
 		temp_buf.Cat(fin_buf).Cat(st_buf);
 	}
@@ -570,7 +574,7 @@ int FASTCALL PPViewTSession::NextIteration(TSessionViewItem * pItem)
 int SLAPI PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, PPViewTSession::UhttStoreExt & rExt)
 {
     int    ok = 1;
-    rExt.Clear();
+    rExt.Z();
     rExt.ID = rItem.ID;
 
 	PPUhttStoreSelDescr::Entry sd_entry;
@@ -645,7 +649,7 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	TempOrderTbl * p_ord = 0;
 	TSessionTbl  * p_tsst = 0;
 	DBQuery * q  = 0;
-	DBQ     * dbq = 0;
+	DBQ * dbq = 0;
 	DBE  * dbe_status = 0, * dbe_diff_qtty = 0;
 	DBE    dbe_tech, dbe_prc, dbe_ar, dbe_goods;
 	PPIDArray status_list;
@@ -1546,7 +1550,7 @@ DBQuery * SLAPI PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	TSessLineTbl * p_tslt = 0;
 	TSessionTbl  * p_tst = 0;
 	DBQuery * q  = 0;
-	DBQ     * dbq = 0;
+	DBQ * dbq = 0;
 	DBE    dbe_user, dbe_prc, dbe_datetime, dbe_goods, dbe_phqtty, dbe_flags;
 	DBE  * p_dbe_price  = 0;
 	DBE  * p_dbe_amount = 0;
@@ -2370,7 +2374,7 @@ int SLAPI PPObjTSession::ImportUHTT()
 						if(GetPacket(org_pack_id, &org_pack, 0) > 0) {
 							PPCheckInPersonConfig cipc(*this, org_pack);
 							THROW(cipc);
-							org_pack.CiList.Clear();
+							org_pack.CiList.Z();
 							for(uint j = 0; j < pack.CiList.GetCount(); j++) {
 								const PPCheckInPersonItem & r_cip_item = pack.CiList.Get(j);
                                 THROW(org_pack.CiList.AddItem(r_cip_item, &cipc, 0));

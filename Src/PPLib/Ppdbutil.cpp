@@ -476,7 +476,7 @@ private:
 	int    deleteEntry();
 	PPDbEntrySet2 DBES;
 	SmartListBox * P_List;
-	SArray       * P_ScenList;
+	SArray  * P_ScenList;
 	PPIniFile    * P_IniFile;
 };
 

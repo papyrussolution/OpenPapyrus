@@ -594,7 +594,7 @@ restart:
 			    if(!P_Node)
 				    goto rollback;
 			    /*
-			     * prepare a potential rollback from here for ancestors of that node.
+			 * prepare a potential rollback from here for ancestors of that node.
 			     */
 			    if(step->op == XML_OP_ANCESTOR)
 				    xmlPatPushState(&states, i, P_Node);

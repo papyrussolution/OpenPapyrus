@@ -1008,10 +1008,6 @@ Backend_SelectObjectBlock::~Backend_SelectObjectBlock()
 
 int Backend_SelectObjectBlock::Parse(const char * pStr)
 {
-	/*struct SymbItem {
-		long   ID;
-		const  char * P_Text;
-	};*/
 	static const SIntToSymbTabEntry crit_titles[] = {
 		{ cID,            "ID"   },
 		{ cCode,          "CODE" },
@@ -1762,7 +1758,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								p_jitem->Insert("PrcName", json_new_string((temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								p_jitem->Insert("PrcSymb", json_new_string((temp_buf = prc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								p_jitem->Insert("CipMax", json_new_string(temp_buf.Z().Cat(prc_rec.CipMax)));
-								ci_list.Clear();
+								ci_list.Z();
 								if(ci_mgr.GetList(PPCheckInPersonItem::kTSession, tses_rec.ID, ci_list) > 0) {
 									//ci_list.Count(&reg_count, &ci_count, &cancel_count);
 									ci_list.Count(rcount);
@@ -5927,6 +5923,25 @@ STYLOPALM
 							break;
 						case cGtaOp:
 							{
+								// @v10.5.7 {
+								static const SIntToSymbTabEntry gta_op_list[] = {
+									{ GTAOP_NOOP, "NOOP" },
+									{ GTAOP_OBJGET, "OBJGET" },
+									{ GTAOP_OBJADD, "OBJADD" },
+									{ GTAOP_OBJMOD, "OBJMOD" },
+									{ GTAOP_OBJRMV, "OBJRMV" },
+									{ GTAOP_CCHECKCREATE, "CCHECKCREATE" },
+									{ GTAOP_SCARDWITHDRAW, "SCARDWITHDRAW" },
+									{ GTAOP_SCARDDEPOSIT, "SCARDDEPOSIT" },
+									{ GTAOP_FILEUPLOAD, "FILEUPLOAD" },
+									{ GTAOP_FILEDOWNLOAD, "FILEDOWNLOAD" },
+									{ GTAOP_BILLCREATE, "BILLCREATE" },
+									{ GTAOP_SMSSEND, "SMSSEND" }
+								};
+								P_SetBlk->U.GT.GtaOp = SIntToSymbTab_GetId(gta_op_list, SIZEOFARRAY(gta_op_list), rArg);
+								SETIFZ(P_SetBlk->U.GT.GtaOp, GTAOP_NOOP);
+								// } @v10.5.7 
+								/* @v10.5.7 
 								if(rArg.IsEqiAscii("NOOP"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_NOOP;
 								else if(rArg.IsEqiAscii("OBJGET"))
@@ -5953,6 +5968,7 @@ STYLOPALM
 									P_SetBlk->U.GT.GtaOp = GTAOP_SMSSEND;
 								else
 									P_SetBlk->U.GT.GtaOp = GTAOP_NOOP;
+								*/
 							}
 							break;
 						case cCount:

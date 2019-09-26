@@ -1,13 +1,13 @@
 // BIST.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// @codepage UTF-8
 // @threadsafe
-// Реализация стандартных типов данных семейства SType
+// Р РµР°Р»РёР·Р°С†РёСЏ СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… С‚РёРїРѕРІ РґР°РЅРЅС‹С… СЃРµРјРµР№СЃС‚РІР° SType
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-// @todo библиотека DB не должна включаться в slib #include <db.h> // DBRowId
+// @todo Р±РёР±Р»РёРѕС‚РµРєР° DB РЅРµ РґРѕР»Р¶РЅР° РІРєР»СЋС‡Р°С‚СЊСЃСЏ РІ slib #include <db.h> // DBRowId
 
 class SVoid : public DataType {
 public:
@@ -166,7 +166,7 @@ typedef SZString SNote;
 class SWcString : public DataType {
 public:
 	//
-	// Размер указывается в байтах (не символах)
+	// Р Р°Р·РјРµСЂ СѓРєР°Р·С‹РІР°РµС‚СЃСЏ РІ Р±Р°Р№С‚Р°С… (РЅРµ СЃРёРјРІРѕР»Р°С…)
 	//
 	explicit SLAPI SWcString(uint32 = sizeof(wchar_t));
 	int    SLAPI comp(const void *, const void *) const;
@@ -252,7 +252,7 @@ public:
 	// @baseused int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 //
-// Функция регистрации встроенных типов
+// Р¤СѓРЅРєС†РёСЏ СЂРµРіРёСЃС‚СЂР°С†РёРё РІСЃС‚СЂРѕРµРЅРЅС‹С… С‚РёРїРѕРІ
 //
 void SLAPI RegisterBIST()
 {
@@ -1077,7 +1077,7 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 			long   lv = static_cast<long>(v);
 			if((double)lv == v) {
 				//
-				// Целочисленное значение
+				// Р¦РµР»РѕС‡РёСЃР»РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 				//
 				if(labs(lv) <= 0x7f) {
 					*pInd = 2;
@@ -1096,8 +1096,8 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 			}
 			else if(S == sizeof(double)) {
 				//
-				// Если преобразование (double)-->(float) не приводит к потере
-				// значимости, то в потоке сохраняем значение как float
+				// Р•СЃР»Рё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ (double)-->(float) РЅРµ РїСЂРёРІРѕРґРёС‚ Рє РїРѕС‚РµСЂРµ
+				// Р·РЅР°С‡РёРјРѕСЃС‚Рё, С‚Рѕ РІ РїРѕС‚РѕРєРµ СЃРѕС…СЂР°РЅСЏРµРј Р·РЅР°С‡РµРЅРёРµ РєР°Рє float
 				//
 				float fv = static_cast<float>(v);
 				double dv = fv;
@@ -1239,8 +1239,8 @@ int SLAPI SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 			if(supp_date) {
 				long   d = diffdate(v, supp_date);
 				//
-				// Если есть опорная дата и разница в днях между сохраняемой датой
-				// и опорной датой умещается в 1 или 2 байта, то воспользуемся этим.
+				// Р•СЃР»Рё РµСЃС‚СЊ РѕРїРѕСЂРЅР°СЏ РґР°С‚Р° Рё СЂР°Р·РЅРёС†Р° РІ РґРЅСЏС… РјРµР¶РґСѓ СЃРѕС…СЂР°РЅСЏРµРјРѕР№ РґР°С‚РѕР№
+				// Рё РѕРїРѕСЂРЅРѕР№ РґР°С‚РѕР№ СѓРјРµС‰Р°РµС‚СЃСЏ РІ 1 РёР»Рё 2 Р±Р°Р№С‚Р°, С‚Рѕ РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ СЌС‚РёРј.
 				//
 				if(labs(d) <= 0x7f) {
 					*pInd = 2;

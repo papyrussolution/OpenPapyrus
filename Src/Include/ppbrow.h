@@ -590,6 +590,8 @@
 	#define HELP_BROWSER_TSSTKENVMONITOR                        273
 #define BROWSER_VETISDOCUMENT                          274 // @{view_vetisdocument}
 	#define HELP_BROWSER_VETISDOCUMENT                          274
+#define BROWSER_QUOTEREQANALYZE                        275 // @{view_quotereqanalyze}
+	#define HELP_BROWSER_QUOTEREQANALYZE                        275
 
 //
 // PPVIEW COMMAND definitions
@@ -1457,6 +1459,7 @@
 #define PPCMD_SENDBILLSWITHFILT                     1337
 #define PPCMD_FREIGHTPACKAGETYPE                    1338
 #define PPCMD_EXPORTVIEW                            1339
+#define PPCMD_TESTMQC                               1340
 //
 // PPJOB definitions
 //
@@ -1825,6 +1828,9 @@
 #define PPVIEW_TIMSERDETAIL                          1180
 	#define PPFILT_TIMSERDETAIL                          1181
 	#define PPVIEWITEM_TIMSERDETAIL                          1182
+#define PPVIEW_QUOTEREQANALYZE                       1190
+	#define PPFILT_QUOTEREQANALYZE                       1191
+	#define PPVIEWITEM_QUOTEREQANALYZE                       1192
 //
 // RECORD definitions
 //

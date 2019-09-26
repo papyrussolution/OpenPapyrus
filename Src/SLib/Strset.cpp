@@ -656,17 +656,16 @@ int SLAPI SStrGroup::Pack_Finish(void * pHandle)
 int SLAPI SStrGroup::Pack_Replace(void * pHandle, uint & rPos) const
 {
 	int    ok = 1;
-	StringSet * p_handle = (StringSet *)pHandle;
+	uint   new_pos = 0; // @v10.5.7 =rPos --> =0
+	StringSet * p_handle = static_cast<StringSet *>(pHandle);
 	if(p_handle) {
-		uint   new_pos = rPos;
 		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5
 		Pool.getnz(rPos, r_temp_buf);
-		if(r_temp_buf.NotEmpty()) {
+		if(r_temp_buf.NotEmpty())
 			p_handle->add(r_temp_buf, &new_pos);
-		}
-		rPos = new_pos;
 	}
 	else
 		ok = 0;
+	rPos = new_pos;
 	return ok;
 }

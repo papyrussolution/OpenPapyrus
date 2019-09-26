@@ -121,7 +121,7 @@ DBQuery * SLAPI PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * p
 	int    func_name = 0;
 	uint   brw_id = BROWSER_OBJLIKENESS;
 	SString sub_title;
-	DBQuery        * q  = 0;
+	DBQuery   * q  = 0;
 	ObjLikenessTbl * l = 0;
 	DBE dbe_pct_rate, dbe_name1, dbe_name2;
 	DBQ  * dbq = 0;

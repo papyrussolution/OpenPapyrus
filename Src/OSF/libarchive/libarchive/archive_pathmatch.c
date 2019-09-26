@@ -197,8 +197,8 @@ static int pm(const char * p, const char * s, int flags)
 			    return 0;
 			case '[':
 			    /*
-			     * Find the end of the [...] character class,
-			     * ignoring \] that might occur within the class.
+			 * Find the end of the [...] character class,
+			 * ignoring \] that might occur within the class.
 			     */
 			    end = p + 1;
 			    while(*end != '\0' && *end != ']') {
@@ -234,7 +234,7 @@ static int pm(const char * p, const char * s, int flags)
 			    if(*s != '/' && *s != '\0')
 				    return 0;
 			    /* Note: pattern "/\./" won't match "/";
-			     * pm_slashskip() correctly stops at backslash. */
+			 * pm_slashskip() correctly stops at backslash. */
 			    p = pm_slashskip(p);
 			    s = pm_slashskip(s);
 			    if(*p == '\0' && (flags & PATHMATCH_NO_ANCHOR_END))
@@ -244,7 +244,7 @@ static int pm(const char * p, const char * s, int flags)
 			    break;
 			case '$':
 			    /* '$' is special only at end of pattern and only
-			     * if PATHMATCH_NO_ANCHOR_END is specified. */
+			 * if PATHMATCH_NO_ANCHOR_END is specified. */
 			    if(p[1] == '\0' && (flags & PATHMATCH_NO_ANCHOR_END)) {
 				    /* "dir" == "dir/" == "dir/." */
 				    return (*pm_slashskip(s) == '\0');
@@ -303,8 +303,8 @@ static int pm_w(const wchar_t * p, const wchar_t * s, int flags)
 			    return 0;
 			case L'[':
 			    /*
-			     * Find the end of the [...] character class,
-			     * ignoring \] that might occur within the class.
+			 * Find the end of the [...] character class,
+			 * ignoring \] that might occur within the class.
 			     */
 			    end = p + 1;
 			    while(*end != L'\0' && *end != L']') {
@@ -340,7 +340,7 @@ static int pm_w(const wchar_t * p, const wchar_t * s, int flags)
 			    if(*s != L'/' && *s != L'\0')
 				    return 0;
 			    /* Note: pattern "/\./" won't match "/";
-			     * pm_slashskip() correctly stops at backslash. */
+			 * pm_slashskip() correctly stops at backslash. */
 			    p = pm_slashskip_w(p);
 			    s = pm_slashskip_w(s);
 			    if(*p == L'\0' && (flags & PATHMATCH_NO_ANCHOR_END))
@@ -350,7 +350,7 @@ static int pm_w(const wchar_t * p, const wchar_t * s, int flags)
 			    break;
 			case L'$':
 			    /* '$' is special only at end of pattern and only
-			     * if PATHMATCH_NO_ANCHOR_END is specified. */
+			 * if PATHMATCH_NO_ANCHOR_END is specified. */
 			    if(p[1] == L'\0' && (flags & PATHMATCH_NO_ANCHOR_END)) {
 				    /* "dir" == "dir/" == "dir/." */
 				    return (*pm_slashskip_w(s) == L'\0');

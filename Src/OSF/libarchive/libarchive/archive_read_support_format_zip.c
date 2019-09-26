@@ -503,8 +503,8 @@ static int process_extra(struct archive_read * a, const char * p, size_t extra_l
 				    datasize -= 8;
 			    }
 			    /* archive_le32dec(p + offset) gives disk
-			     * on which file starts, but we don't handle
-			     * multi-volume Zip files. */
+			 * on which file starts, but we don't handle
+			 * multi-volume Zip files. */
 			    break;
 #ifdef DEBUG
 			case 0x0017:
@@ -584,30 +584,30 @@ static int process_extra(struct archive_read * a, const char * p, size_t extra_l
 		    {
 			    /* Experimental 'xl' field */
 			    /*
-			     * Introduced Dec 2013 to provide a way to
-			     * include external file attributes (and other
-			     * fields that ordinarily appear only in
-			     * central directory) in local file header.
-			     * This provides file type and permission
-			     * information necessary to support full
-			     * streaming extraction.  Currently being
-			     * discussed with other Zip developers
-			     * ... subject to change.
+			 * Introduced Dec 2013 to provide a way to
+			 * include external file attributes (and other
+			 * fields that ordinarily appear only in
+			 * central directory) in local file header.
+			 * This provides file type and permission
+			 * information necessary to support full
+			 * streaming extraction.  Currently being
+			 * discussed with other Zip developers
+			 * ... subject to change.
 			     *
-			     * Format:
-			     *  The field starts with a bitmap that specifies
-			     *  which additional fields are included.  The
-			     *  bitmap is variable length and can be extended in
-			     *  the future.
+			 * Format:
+			 *  The field starts with a bitmap that specifies
+			 *  which additional fields are included.  The
+			 *  bitmap is variable length and can be extended in
+			 *  the future.
 			     *
-			     *  n bytes - feature bitmap: first byte has low-order
-			     * 7 bits.  If high-order bit is set, a subsequent
-			     * byte holds the next 7 bits, etc.
+			 *  n bytes - feature bitmap: first byte has low-order
+			 * 7 bits.  If high-order bit is set, a subsequent
+			 * byte holds the next 7 bits, etc.
 			     *
-			     *  if bitmap & 1, 2 byte "version made by"
-			     *  if bitmap & 2, 2 byte "internal file attributes"
-			     *  if bitmap & 4, 4 byte "external file attributes"
-			     *  if bitmap & 8, 2 byte comment length + n byte comment
+			 *  if bitmap & 1, 2 byte "version made by"
+			 *  if bitmap & 2, 2 byte "internal file attributes"
+			 *  if bitmap & 4, 4 byte "external file attributes"
+			 *  if bitmap & 8, 2 byte comment length + n byte comment
 			     */
 			    int bitmap, bitmap_last;
 
@@ -1558,7 +1558,7 @@ static int zip_read_data_zipx_lzma_alone(struct archive_read * a, const void ** 
 	zip->zipx_lzma_stream.next_out = zip->uncompressed_buffer;
 	zip->zipx_lzma_stream.avail_out =
 	    /* These lzma_alone streams lack end of stream marker, so let's make
-	     * sure the unpacker won't try to unpack more than it's supposed to. */
+	 * sure the unpacker won't try to unpack more than it's supposed to. */
 	    zipmin((int64_t)zip->uncompressed_buffer_size,
 		zip->entry->uncompressed_size -
 		zip->entry_uncompressed_bytes_read);
@@ -1823,7 +1823,7 @@ static int zip_read_data_zipx_bzip2(struct archive_read * a, const void ** buff,
 	switch(r) {
 		case BZ_STREAM_END:
 		    /* If we're at the end of the stream, deinitialize the
-		     * decompression context now. */
+		 * decompression context now. */
 		    switch(BZ2_bzDecompressEnd(&zip->bzstream)) {
 			    case BZ_OK:
 				break;
@@ -1836,7 +1836,7 @@ static int zip_read_data_zipx_bzip2(struct archive_read * a, const void ** buff,
 		    break;
 		case BZ_OK:
 		    /* The decompressor has successfully decoded this chunk of
-		     * data, but more data is still in queue. */
+		 * data, but more data is still in queue. */
 		    break;
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "bzip2 decompression failed");
@@ -2401,7 +2401,7 @@ static int archive_read_format_zip_read_data(struct archive_read * a,
 		    /* Return a warning. */
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported ZIP compression method (%d: %s)", zip->entry->compression, compression_name(zip->entry->compression));
 		    /* We can't decompress this entry, but we will
-		     * be able to skip() it and try the next entry. */
+		 * be able to skip() it and try the next entry. */
 		    return ARCHIVE_FAILED;
 		    break;
 	}
@@ -2939,7 +2939,7 @@ static int archive_read_format_zip_seekable_bid(struct archive_read * a, int bes
 				    int ret = read_eocd(zip, p + i,
 					    current_offset + i);
 				    /* Zip64 EOCD locator precedes
-				     * regular EOCD if present. */
+				 * regular EOCD if present. */
 				    if(i >= 20 && memcmp(p + i - 20, "PK\006\007", 4) == 0) {
 					    int ret_zip64 = read_zip64_eocd(a, zip, p + i - 20);
 					    if(ret_zip64 > ret)

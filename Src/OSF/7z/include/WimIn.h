@@ -507,10 +507,10 @@ public:
 
 	/*
 	   imageIndex showImageNumber NumImages
-	 *   true           *  Show Image_Number
-	      -1           *  >1       Show Image_Number
+	 *   true *  Show Image_Number
+	      -1 *  >1       Show Image_Number
 	      -1        false          1       Don't show Image_Number
-	       N        false          *  Don't show Image_Number
+	       N        false *  Don't show Image_Number
 	 */
 	HRESULT GenerateSortedItems(int imageIndex, bool showImageNumber);
 

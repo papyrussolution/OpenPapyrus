@@ -101,7 +101,7 @@ struct archive_string_conv {
 #if HAVE_ICONV
 	iconv_t cd;
 	iconv_t cd_w;                         /* Use at archive_mstring on
-	      * Windows. */
+	 * Windows. */
 #endif
 	/* A temporary buffer for normalization. */
 	struct archive_string utftmp;
@@ -1669,7 +1669,7 @@ void archive_string_conversion_set_opt(struct archive_string_conv * sc, int opt)
 		case SCONV_SET_OPT_UTF8_LIBARCHIVE2X:
 #if (defined(_WIN32) && !defined(__CYGWIN__)) || defined(__STDC_ISO_10646__) || defined(__APPLE__)
 		    /*
-		     * Nothing to do for it since wchar_t on these platforms is really Unicode.
+		 * Nothing to do for it since wchar_t on these platforms is really Unicode.
 		     */
 		    (void)sc; /* UNUSED */
 #else
@@ -1691,8 +1691,8 @@ void archive_string_conversion_set_opt(struct archive_string_conv * sc, int opt)
 		case SCONV_SET_OPT_NORMALIZATION_D:
 #if defined(HAVE_ICONV)
 		    /*
-		     * If iconv will take the string, do not change the
-		     * setting of the normalization.
+		 * If iconv will take the string, do not change the
+		 * setting of the normalization.
 		     */
 		    if(!(sc->flag & SCONV_WIN_CP) &&
 			(sc->flag & (SCONV_FROM_UTF16 | SCONV_FROM_UTF8)) &&

@@ -44,7 +44,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_pax.c 201162 20
 //#include "archive_write_private.h"
 
 struct sparse_block {
-	struct sparse_block     * next;
+	struct sparse_block * next;
 	int is_hole;
 	uint64_t offset;
 	uint64_t remaining;
@@ -57,8 +57,8 @@ struct pax {
 	struct archive_string pax_header;
 	struct archive_string sparse_map;
 	size_t sparse_map_padding;
-	struct sparse_block     * sparse_list;
-	struct sparse_block     * sparse_tail;
+	struct sparse_block * sparse_list;
+	struct sparse_block * sparse_tail;
 	struct archive_string_conv * sconv_utf8;
 	int opt_binary;
 
@@ -566,8 +566,8 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			case AE_IFDIR:
 		    {
 			    /*
-			     * Ensure a trailing '/'.  Modify the original
-			     * entry so the client sees the change.
+			 * Ensure a trailing '/'.  Modify the original
+			 * entry so the client sees the change.
 			     */
 #if defined(_WIN32) && !defined(__CYGWIN__)
 			    const wchar_t * wp;
@@ -599,9 +599,9 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 #endif
 			    p = archive_entry_pathname(entry_original);
 			    /*
-			     * On Windows, this is a backup operation just in
-			     * case getting WCS failed. On POSIX, this is a
-			     * normal operation.
+			 * On Windows, this is a backup operation just in
+			 * case getting WCS failed. On POSIX, this is a
+			 * normal operation.
 			     */
 			    if(p != NULL && p[0] != '\0' && p[strlen(p) - 1] != '/') {
 				    struct archive_string as;
@@ -617,9 +617,9 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 				    }
 #if defined(_WIN32) && !defined(__CYGWIN__)
 				    /* NOTE: This might break the pathname
-				     * if the current code page is CP932 and
-				     * the pathname includes a character '\'
-				     * as a part of its multibyte pathname. */
+				 * if the current code page is CP932 and
+				 * the pathname includes a character '\'
+				 * as a part of its multibyte pathname. */
 				    if(p[strlen(p) -1] == '\\')
 					    path_length--;
 				    else

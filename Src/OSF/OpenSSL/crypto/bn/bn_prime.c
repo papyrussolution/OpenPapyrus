@@ -70,7 +70,7 @@ static const int prime_offsets[480] = {
 static const int prime_offset_count = 480;
 static const int prime_multiplier = 2310;
 static const int prime_multiplier_bits = 11; /* 2^|prime_multiplier_bits| <=
-                                              * |prime_multiplier| */
+    * |prime_multiplier| */
 static const int first_prime_index = 5;
 
 int BN_GENCB_call(BN_GENCB * cb, int a, int b)

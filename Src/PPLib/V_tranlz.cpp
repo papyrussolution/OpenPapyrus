@@ -2000,7 +2000,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	uint   brw_id = 0;
 	TempTrfrAnlzTbl  * tat = 0;
 	TempTrfrGrpngTbl * tgt = 0;
-	TempOrderTbl     * tot = 0;
+	TempOrderTbl * tot = 0;
 	ArticleTbl   * at2 = 0;
 	DBE    dbe_oprkind;
 	DBE    dbe_ar;
@@ -2985,7 +2985,7 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	SetupPPObjCombo(this, CTLSEL_GTO_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.1.6
 	{
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
-			PPOPT_GOODSORDER, PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, 0L);
+			PPOPT_GOODSORDER, PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		SetupOprKindCombo(this, CTLSEL_GTO_OPR, Data.OpID, 0, &types, 0);
 		ArticleCtrlGroup::Rec grp_rec(Data.AcsID, Data.OpID, &Data.ArList);
 		setGroupData(ctlgroupArticle, &grp_rec);
@@ -3886,7 +3886,7 @@ int SLAPI PrcssrAlcReport::Init()
 	AlcGoodsList.clear();
 	BeerGoodsList.clear();
 	{
-		CategoryNameList.Clear();
+		CategoryNameList.Z();
 		SString file_name;
 		PPGetFilePath(PPPATH_DD, "RAR-AlcoholCategory.txt", file_name);
 		THROW_SL(fileExists(file_name));

@@ -160,11 +160,11 @@ struct engine_st {
     /* reference count on the structure itself */
     int struct_ref;
     /*
-     * reference count on usability of the engine type. NB: This controls the
-     * loading and initialisation of any functionality required by this
-     * engine, whereas the previous count is simply to cope with
-     * (de)allocation of this structure. Hence, running_ref <= struct_ref at
-     * all times.
+ * reference count on usability of the engine type. NB: This controls the
+ * loading and initialisation of any functionality required by this
+ * engine, whereas the previous count is simply to cope with
+ * (de)allocation of this structure. Hence, running_ref <= struct_ref at
+ * all times.
      */
     int funct_ref;
     /* A place to store per-ENGINE data */

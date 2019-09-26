@@ -942,38 +942,28 @@ static cairo_status_t cairo_type1_font_for_each_subr(cairo_type1_font_subset_t *
 }
 
 static cairo_status_t cairo_type1_font_subset_build_glyph_list(cairo_type1_font_subset_t * font,
-    int glyph_number,
-    const char * name, int name_length,
-    const char * encrypted_charstring, int encrypted_charstring_length)
+    int glyph_number, const char * name, int name_length, const char * encrypted_charstring, int encrypted_charstring_length)
 {
-	char * s;
 	glyph_data_t glyph;
 	cairo_status_t status;
-
-	s = (char *)_cairo_malloc(name_length + 1);
+	char * s = (char *)_cairo_malloc(name_length + 1);
 	if(unlikely(s == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	strncpy(s, name, name_length);
 	s[name_length] = 0;
-
 	status = _cairo_array_append(&font->glyph_names_array, &s);
 	if(unlikely(status))
 		return status;
-
 	glyph.subset_index = -1;
 	glyph.width = 0;
 	glyph.encrypted_charstring = encrypted_charstring;
 	glyph.encrypted_charstring_length = encrypted_charstring_length;
 	status = _cairo_array_append(&font->glyphs_array, &glyph);
-
 	return status;
 }
 
-static cairo_status_t write_used_glyphs(cairo_type1_font_subset_t * font,
-    int glyph_number,
-    const char * name, int name_length,
-    const char * charstring, int charstring_length)
+static cairo_status_t write_used_glyphs(cairo_type1_font_subset_t * font, int glyph_number,
+    const char * name, int name_length, const char * charstring, int charstring_length)
 {
 	cairo_status_t status;
 	char buffer[256];
@@ -981,10 +971,8 @@ static cairo_status_t write_used_glyphs(cairo_type1_font_subset_t * font,
 	uint subset_id;
 	int ch;
 	const char * wa_name;
-
 	if(font->glyphs[glyph_number].subset_index < 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(font->scaled_font_subset->is_latin) {
 		/* When using the WinAnsi encoding in PDF, the /Encoding array
 		 * is ignored and instead glyphs are keyed by glyph names. To
@@ -1020,23 +1008,16 @@ static cairo_status_t write_used_glyphs(cairo_type1_font_subset_t * font,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-typedef cairo_status_t (* glyph_func_t) (cairo_type1_font_subset_t * font,
-    int glyph_number,
-    const char * name, int name_length,
-    const char * charstring, int charstring_length);
+typedef cairo_status_t (* glyph_func_t) (cairo_type1_font_subset_t * font, int glyph_number,
+    const char * name, int name_length, const char * charstring, int charstring_length);
 
 static cairo_status_t cairo_type1_font_subset_for_each_glyph(cairo_type1_font_subset_t * font,
-    const char * dict_start,
-    const char * dict_end,
-    glyph_func_t func,
-    const char ** dict_out)
+    const char * dict_start, const char * dict_end, glyph_func_t func, const char ** dict_out)
 {
 	int charstring_length, name_length;
-	const char * p, * charstring, * name;
+	const char * charstring, * name;
 	char * end;
 	cairo_status_t status;
-	int glyph_count;
-
 	/* We're looking at '/' in the name of the first glyph.  The glyph
 	 * definitions are on the form:
 	 *
@@ -1050,46 +1031,33 @@ static cairo_status_t cairo_type1_font_subset_for_each_glyph(cairo_type1_font_su
 	 * through a glyph definition; we can't just find the next '/',
 	 * since the binary data could contain a '/'.
 	 */
-
-	p = dict_start;
-	glyph_count = 0;
+	const char * p = dict_start;
+	int glyph_count = 0;
 	while(*p == '/') {
 		name = p + 1;
 		p = skip_token(p, dict_end);
 		name_length = p - name;
-
 		charstring_length = strtol(p, &end, 10);
 		if(p == end)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
-
-		/* Skip past -| or RD to binary data.  There is exactly one space
-		 * between the -| or RD token and the encrypted data, thus '+ 1'. */
+		// Skip past -| or RD to binary data.  There is exactly one space between the -| or RD token and the encrypted data, thus '+ 1'.
 		charstring = skip_token(end, dict_end) + 1;
-
-		/* Skip binary data and |- or ND token. */
+		// Skip binary data and |- or ND token. 
 		p = skip_token(charstring + charstring_length, dict_end);
 		while(p < dict_end && _cairo_isspace(*p))
 			p++;
-
-		/* In case any of the skip_token() calls above reached EOF, p will
-		 * be equal to dict_end. */
+		// In case any of the skip_token() calls above reached EOF, p will be equal to dict_end. 
 		if(p == dict_end)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
-
-		status = func(font, glyph_count++,
-			name, name_length,
-			charstring, charstring_length);
+		status = func(font, glyph_count++, name, name_length, charstring, charstring_length);
 		if(unlikely(status))
 			return status;
 	}
-
 	*dict_out = p;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t cairo_type1_font_subset_write_private_dict(cairo_type1_font_subset_t * font,
-    const char * name)
+static cairo_status_t cairo_type1_font_subset_write_private_dict(cairo_type1_font_subset_t * font, const char * name)
 {
 	cairo_status_t status;
 	const char * p, * subrs, * charstrings, * array_start, * array_end, * dict_start, * dict_end;
@@ -1099,7 +1067,6 @@ static cairo_status_t cairo_type1_font_subset_write_private_dict(cairo_type1_fon
 	const cairo_scaled_font_backend_t * backend;
 	uint i;
 	int glyph, j;
-
 	/* The private dict holds hint information, common subroutines and
 	 * the actual glyph definitions (charstrings).
 	 *
@@ -1435,13 +1402,11 @@ cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t * type1_subset, con
 	ulong length;
 	uint i;
 	char buf[30];
-
 	/* We need to use a fallback font if this font differs from the type1 outlines. */
 	if(scaled_font_subset->scaled_font->backend->is_synthetic) {
 		status = scaled_font_subset->scaled_font->backend->is_synthetic(scaled_font_subset->scaled_font, &is_synthetic);
 		if(unlikely(status))
 			return status;
-
 		if(is_synthetic)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
@@ -1504,22 +1469,17 @@ boolint _cairo_type1_scaled_font_is_type1(cairo_scaled_font_t * scaled_font)
 	cairo_status_t status;
 	ulong length;
 	uchar buf[64];
-
 	if(!scaled_font->backend->load_type1_data)
 		return FALSE;
-
 	status = scaled_font->backend->load_type1_data(scaled_font, 0, NULL, &length);
 	if(status)
 		return FALSE;
-
 	/* We only need a few bytes to test for Type 1 */
 	if(length > sizeof(buf))
 		length = sizeof(buf);
-
 	status = scaled_font->backend->load_type1_data(scaled_font, 0, buf, &length);
 	if(status)
 		return FALSE;
-
 	return check_fontdata_is_type1(buf, length);
 }
 

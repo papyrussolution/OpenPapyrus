@@ -377,7 +377,7 @@ int SLAPI PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
 		GdsOpTotal.Qtty     += rec.Qtty   * sign;
 		GdsOpTotal.PhQtty   += rec.PhQtty * sign;
 	}
-	GdsOpTotal.Cost     += rec.Cost     * sign;
+	GdsOpTotal.Cost     += rec.Cost * sign;
 	GdsOpTotal.Price    += (rec.Price+rec.Discount) * sign;
 	GdsOpTotal.Amount   += rec.Amount;
 	GdsOpTotal.ExtCost  += rec.ExtCost  * sign;

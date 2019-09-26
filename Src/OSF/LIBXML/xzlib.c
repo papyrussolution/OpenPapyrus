@@ -581,7 +581,7 @@ static int xz_decomp(xz_statep state)
 			return -1;
 		}
 		state->how = LOOK; /* ready for next stream, once have is 0 (leave
-		                    * state->direct unchanged to remember how) */
+		    * state->direct unchanged to remember how) */
 	}
 
 	/* good decompression */

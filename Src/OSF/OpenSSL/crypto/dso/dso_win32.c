@@ -241,7 +241,7 @@ static struct file_st * win32_splitter(DSO * dso, const char * filename,
 			    if(position != IN_DEVICE) {
 				    DSOerr(DSO_F_WIN32_SPLITTER, DSO_R_INCORRECT_FILE_SYNTAX);
 				    /*
-				     * goto err;
+				 * goto err;
 				     */
 				    OPENSSL_free(result);
 				    return NULL;

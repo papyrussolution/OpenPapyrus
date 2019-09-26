@@ -218,7 +218,6 @@ void Sha1_Final(CSha1 * p, Byte * digest)
 		SetBe32(digest, v);
 		digest += 4;
 	}
-
 	Sha1_Init(p);
 }
 

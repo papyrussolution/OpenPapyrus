@@ -57,9 +57,9 @@ static DWORD ExceptionFilter(EXCEPTION_POINTERS * ep, DWORD * ei)
 		default:
 	    {
 		    /*
-		     * A system unexpected exception has occurred running the user's
-		     * routine. We need to cleanup before letting the exception
-		     * out of thread scope.
+		 * A system unexpected exception has occurred running the user's
+		 * routine. We need to cleanup before letting the exception
+		 * out of thread scope.
 		     */
 		    pthread_t self = pthread_self();
 

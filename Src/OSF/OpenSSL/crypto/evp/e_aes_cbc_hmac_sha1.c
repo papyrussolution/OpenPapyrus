@@ -371,7 +371,7 @@ static int aesni_cbc_hmac_sha1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	EVP_AES_HMAC_SHA1 * key = data(ctx);
 	uint l;
 	size_t plen = key->payload_length, iv = 0, /* explicit IV in TLS 1.1 and
-	                                            * later */
+	  * later */
 	    sha_off = 0;
 # if defined(STITCHED_CALL)
 	size_t aes_off = 0, blocks;

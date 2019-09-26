@@ -318,11 +318,11 @@ static int dane_tlsa_add(SSL_DANE * dane, uint8_t usage, uint8_t selector, uint8
 			    }
 
 			    /*
-			     * For usage DANE-TA(2), we support authentication via "2 0 0" TLSA
-			     * records that contain full certificates of trust-anchors that are
-			     * not present in the wire chain.  For usage PKIX-TA(0), we augment
-			     * the chain with untrusted Full(0) certificates from DNS, in case
-			     * they are missing from the chain.
+			 * For usage DANE-TA(2), we support authentication via "2 0 0" TLSA
+			 * records that contain full certificates of trust-anchors that are
+			 * not present in the wire chain.  For usage PKIX-TA(0), we augment
+			 * the chain with untrusted Full(0) certificates from DNS, in case
+			 * they are missing from the chain.
 			     */
 			    if((!dane->certs && (dane->certs = sk_X509_new_null()) == NULL) || !sk_X509_push(dane->certs, cert)) {
 				    SSLerr(SSL_F_DANE_TLSA_ADD, ERR_R_MALLOC_FAILURE);
@@ -340,9 +340,9 @@ static int dane_tlsa_add(SSL_DANE * dane, uint8_t usage, uint8_t selector, uint8
 			    }
 
 			    /*
-			     * For usage DANE-TA(2), we support authentication via "2 1 0" TLSA
-			     * records that contain full bare keys of trust-anchors that are
-			     * not present in the wire chain.
+			 * For usage DANE-TA(2), we support authentication via "2 1 0" TLSA
+			 * records that contain full bare keys of trust-anchors that are
+			 * not present in the wire chain.
 			     */
 			    if(usage == DANETLS_USAGE_DANE_TA)
 				    t->spki = pkey;

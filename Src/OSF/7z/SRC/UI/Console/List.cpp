@@ -440,14 +440,14 @@ HRESULT CFieldPrinter::PrintItemInfo(uint32 index, const CListStat &st)
 					if(propType != NPropDataType::kRaw)
 						return E_FAIL;
 	  #ifndef _SFX
-					ConvertNtSecureToString((const Byte*)data, dataSize, TempAString);
+					ConvertNtSecureToString((const Byte *)data, dataSize, TempAString);
 					g_StdOut << TempAString;
 					needPrint = false;
 	  #endif
 				}
 				else if(f.PropID == kpidNtReparse) {
 					UString s;
-					if(ConvertNtReparseToString((const Byte*)data, dataSize, s)) {
+					if(ConvertNtReparseToString((const Byte *)data, dataSize, s)) {
 						needPrint = false;
 						g_StdOut.PrintUString(s, TempAString);
 					}
@@ -462,7 +462,7 @@ HRESULT CFieldPrinter::PrintItemInfo(uint32 index, const CListStat &st)
 					}
 					else {
 						char hexStr[kMaxDataSize * 2 + 4];
-						HexToString(hexStr, (const Byte*)data, dataSize);
+						HexToString(hexStr, (const Byte *)data, dataSize);
 						g_StdOut << hexStr;
 					}
 				}
