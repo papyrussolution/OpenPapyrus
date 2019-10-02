@@ -1041,7 +1041,7 @@ private:
 	virtual int  editItem(long pos, long id);
 	virtual int  delItem(long pos, long id);
 	virtual int  moveItem(long pos, long id, int up);
-	void   setupCtrls();
+	void   SetupCtrls();
 	int    addItemExt(long * pPos, long * pID);
 	int    addItemBySample();
 	int    editItemDialog(int pos, PPGoodsStrucItem *);
@@ -1103,7 +1103,7 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 	AddClusterAssoc(CTL_GSTRUC_FLAGS, 4, GSF_OVRLAPGIFT);
 	AddClusterAssoc(CTL_GSTRUC_FLAGS, 5, GSF_POSMODIFIER);
 	SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
-	setupCtrls();
+	SetupCtrls();
 	setCtrlReal(CTL_GSTRUC_GIFTAMTRESTR, Data.Rec.GiftAmtRestrict);
 	{
 		ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_GSTRUC_GIFTQK));
@@ -1198,7 +1198,7 @@ int GSDialog::enableEditRecurStruc()
 	return ok;
 }
 
-void GSDialog::setupCtrls()
+void GSDialog::SetupCtrls()
 {
 	long   kind = PPGoodsStruc::kUndef;
 	GetClusterData(CTL_GSTRUC_KIND, &kind);
@@ -1225,7 +1225,7 @@ IMPL_HANDLE_EVENT(GSDialog)
 {
 	PPListDialog::handleEvent(event);
 	if(event.isClusterClk(CTL_GSTRUC_KIND) || event.isClusterClk(CTL_GSTRUC_FLAGS)) {
-		setupCtrls();
+		SetupCtrls();
 		clearEvent(event);
 	}
 	else if(event.isCmd(cmSelNamedGS))

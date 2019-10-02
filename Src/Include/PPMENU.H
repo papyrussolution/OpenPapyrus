@@ -520,5 +520,6 @@
 #define cmFreightPackageType           625 // @v10.4.1 Типы транспортной упаковки
 #define cmExportView                   626 // @v10.5.3 Экспорт данных по именованному фильтру
 #define cmTestMqc                      627 // @v10.5.7 Тест клиента брокера сообщений
+#define cmQuoteReqAnalyze              628 // @v10.5.7 Анализ котировочных запросов
 
 #endif /* __PPMENU_H */

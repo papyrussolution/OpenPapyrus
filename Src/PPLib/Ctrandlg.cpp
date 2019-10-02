@@ -1,15 +1,16 @@
 // CTRANDLG.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2003, 2005, 2006, 2007, 2008, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2003, 2005, 2006, 2007, 2008, 2016, 2017, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
 
-#define GRP_INCURAMT  1
-#define GRP_OUTCURAMT 2
-
 class CurTransBillDialog : public TDialog {
 public:
+	enum {
+		ctlgroupInCurAmt  = 1,
+		ctlgroupOutCurAmt = 2
+	};
 	CurTransBillDialog() : TDialog(DLG_C_TRANS), P_Pack(0), HasAmtIDList(0)
 	{
 		MEMSZERO(Data);
@@ -17,10 +18,10 @@ public:
 		setCtrlOption(CTL_BILL_FRAME2, ofFramed, 1);
 		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILL_AMOUNT, CTLSEL_BILL_CUR,
 			CTL_BILL_CRATE, CTL_BILL_BASEAMT, CTL_BILL_DATE, cmSelInRate, 0);
-		addGroup(GRP_INCURAMT, p_ca_grp);
+		addGroup(ctlgroupInCurAmt, p_ca_grp);
 		p_ca_grp = new CurAmtCtrlGroup(CTL_BILL_OUTCTAMOUNT, CTLSEL_BILL_OUTCTCUR,
 			CTL_BILL_OUTCTRATE, CTL_BILL_OUTCTBASE, CTL_BILL_DATE, cmSelOutRate, 0);
-		addGroup(GRP_OUTCURAMT, p_ca_grp);
+		addGroup(ctlgroupOutCurAmt, p_ca_grp);
 		SetupCalDate(CTLCAL_BILL_DATE, CTL_BILL_DATE);
 	}
 	int    setDTS(PPBillPacket *);
@@ -86,8 +87,8 @@ void CurTransBillDialog::swapCurrencies()
 {
 	PPID   tmp_id = 0;
 	double tmp_val;
-	getCurGroupData(GRP_INCURAMT);
-	getCurGroupData(GRP_OUTCURAMT);
+	getCurGroupData(ctlgroupInCurAmt);
+	getCurGroupData(ctlgroupOutCurAmt);
 	getCtrlData(CTL_BILL_CTRATE, &Data.TransitCRate);
 	tmp_id            = Data.InCurID;
 	Data.InCurID      = Data.OutCurID;
@@ -103,13 +104,13 @@ void CurTransBillDialog::swapCurrencies()
 	ca_cg_rec.CurID  = Data.InCurID;
 	ca_cg_rec.Amount = Data.InCurAmount;
 	ca_cg_rec.CRate  = Data.InCRate;
-	setGroupData(GRP_INCURAMT, &ca_cg_rec);
+	setGroupData(ctlgroupInCurAmt, &ca_cg_rec);
 
 	MEMSZERO(ca_cg_rec);
 	ca_cg_rec.CurID  = Data.OutCurID;
 	ca_cg_rec.Amount = Data.OutCurAmount;
 	ca_cg_rec.CRate  = Data.OutCRate;
-	setGroupData(GRP_OUTCURAMT, &ca_cg_rec);
+	setGroupData(ctlgroupOutCurAmt, &ca_cg_rec);
 	if(Data.InCurAmount > 0.0 && Data.OutCurAmount > 0.0)
 		Data.TransitCRate = R6(Data.OutCurAmount / Data.InCurAmount);
 	else if(Data.TransitCRate != 0.0)
@@ -166,8 +167,8 @@ int CurTransBillDialog::setDTS(PPBillPacket * pPack)
 	setCtrlData(CTL_BILL_DOC,  Data.BillCode);
 	setCtrlData(CTL_BILL_DATE, &Data.Date);
 	SetupArCombo(this, CTLSEL_BILL_OBJECT, Data.ObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, Data.AccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
-	setCurGroupData(GRP_INCURAMT);
-	setCurGroupData(GRP_OUTCURAMT);
+	setCurGroupData(ctlgroupInCurAmt);
+	setCurGroupData(ctlgroupOutCurAmt);
 	setCtrlData(CTL_BILL_CTRATE, &Data.TransitCRate);
 	setCtrlData(CTL_BILL_MEMO,   Data.Memo);
 	disableCtrls(Data.BillID ? 1 : 0, CTLSEL_BILL_CUR, CTLSEL_BILL_OUTCTCUR, 0);
@@ -180,12 +181,12 @@ int CurTransBillDialog::getCurGroupData(int ctlGrpID)
 	int    ok = 1;
 	CurAmtCtrlGroup::Rec ca_cg_rec;
 	getGroupData(ctlGrpID, &ca_cg_rec);
-	if(ctlGrpID == GRP_INCURAMT) {
+	if(ctlGrpID == ctlgroupInCurAmt) {
 		Data.InCurID      = ca_cg_rec.CurID;
 		Data.InCurAmount  = ca_cg_rec.Amount;
 		Data.InCRate      = ca_cg_rec.CRate;
 	}
-	else if(ctlGrpID == GRP_OUTCURAMT) {
+	else if(ctlGrpID == ctlgroupOutCurAmt) {
 		Data.OutCurID     = ca_cg_rec.CurID;
 		Data.OutCurAmount = ca_cg_rec.Amount;
 		Data.OutCRate     = ca_cg_rec.CRate;
@@ -198,12 +199,12 @@ int CurTransBillDialog::getCurGroupData(int ctlGrpID)
 int CurTransBillDialog::setCurGroupData(int ctlGrpID)
 {
 	CurAmtCtrlGroup::Rec ca_cg_rec;
-	if(ctlGrpID == GRP_INCURAMT) {
+	if(ctlGrpID == ctlgroupInCurAmt) {
 		ca_cg_rec.CurID  = Data.InCurID;
 		ca_cg_rec.Amount = Data.InCurAmount;
 		ca_cg_rec.CRate  = Data.InCRate;
 	}
-	else if(ctlGrpID == GRP_OUTCURAMT) {
+	else if(ctlGrpID == ctlgroupOutCurAmt) {
 		ca_cg_rec.CurID  = Data.OutCurID;
 		ca_cg_rec.Amount = Data.OutCurAmount;
 		ca_cg_rec.CRate  = Data.OutCRate;
@@ -224,8 +225,8 @@ void CurTransBillDialog::editExtAmounts()
 		//
 		LDATE bill_date;
 		getCtrlData(CTL_BILL_DATE, &bill_date);
-		getCurGroupData(GRP_INCURAMT);
-		getCurGroupData(GRP_OUTCURAMT);
+		getCurGroupData(ctlgroupInCurAmt);
+		getCurGroupData(ctlgroupOutCurAmt);
 		P_Pack->Amounts.Remove(PPAMT_CRATE, Data.InCurID);
 		P_Pack->Amounts.Remove(PPAMT_CRATE, Data.OutCurID);
 		P_Pack->Amounts.Put(PPAMT_CRATE, Data.InCurID,  Data.InCRate,  0, 1);
@@ -234,8 +235,8 @@ void CurTransBillDialog::editExtAmounts()
 			bill_date, 0, OLW_CANEDIT | OLW_CANDELETE | OLW_CANINSERT) > 0) {
 			Data.InCRate  = P_Pack->Amounts.Get(PPAMT_CRATE, Data.InCurID);
 			Data.OutCRate = P_Pack->Amounts.Get(PPAMT_CRATE, Data.OutCurID);
-			setCurGroupData(GRP_INCURAMT);
-			setCurGroupData(GRP_OUTCURAMT);
+			setCurGroupData(ctlgroupInCurAmt);
+			setCurGroupData(ctlgroupOutCurAmt);
 		}
 	}
 }
@@ -243,8 +244,8 @@ void CurTransBillDialog::editExtAmounts()
 int CurTransBillDialog::getDTS()
 {
 	int    ok = 1;
-	getCurGroupData(GRP_INCURAMT);
-	getCurGroupData(GRP_OUTCURAMT);
+	getCurGroupData(ctlgroupInCurAmt);
+	getCurGroupData(ctlgroupOutCurAmt);
 	THROW_PP(Data.InCurID != Data.OutCurID, PPERR_EQCTCUR);
 	THROW_PP(Data.InCurID != 0,  PPERR_UNDEFCTINCUR);
 	THROW_PP(Data.OutCurID != 0, PPERR_UNDEFCTOUTCUR);

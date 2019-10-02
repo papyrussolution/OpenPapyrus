@@ -77,22 +77,22 @@
  * Create NUMTHREADS threads in addition to the Main thread.
  */
 enum {
-  NUMTHREADS = 10
+	NUMTHREADS = 10
 };
 
 typedef struct bag_t_ bag_t;
 struct bag_t_ {
-  int threadnum;
-  int started;
-  /* Add more per-thread state variables here */
-  int count;
+	int threadnum;
+	int started;
+	/* Add more per-thread state variables here */
+	int count;
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
 
 typedef struct {
-  int i;
-  CRITICAL_SECTION cs;
+	int i;
+	CRITICAL_SECTION cs;
 } sharedInt_t;
 
 static sharedInt_t pop_count;
@@ -103,143 +103,134 @@ __cdecl
 #endif
 increment_pop_count(void * arg)
 {
-  sharedInt_t * sI = (sharedInt_t *) arg;
+	sharedInt_t * sI = (sharedInt_t*)arg;
 
-  EnterCriticalSection(&sI->cs);
-  sI->i++;
-  LeaveCriticalSection(&sI->cs);
+	EnterCriticalSection(&sI->cs);
+	sI->i++;
+	LeaveCriticalSection(&sI->cs);
 }
 
-void *
-mythread(void * arg)
+void * mythread(void * arg)
 {
-  int result = 0;
-  bag_t * bag = (bag_t *) arg;
+	int result = 0;
+	bag_t * bag = (bag_t*)arg;
 
-  assert(bag == &threadbag[bag->threadnum]);
-  assert(bag->started == 0);
-  bag->started = 1;
+	assert(bag == &threadbag[bag->threadnum]);
+	assert(bag->started == 0);
+	bag->started = 1;
 
-  /* Set to known state and type */
+	/* Set to known state and type */
 
-  assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+	assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
 
-  assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+	assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
 
 #ifdef _MSC_VER
 #pragma inline_depth(0)
 #endif
-  pthread_cleanup_push(increment_pop_count, (void *) &pop_count);
-  /*
-   * We don't have true async cancellation - it relies on the thread
-   * at least re-entering the run state at some point.
-   * We wait up to 10 seconds, waking every 0.1 seconds,
-   * for a cancellation to be applied to us.
-   */
-  for (bag->count = 0; bag->count < 100; bag->count++)
-    Sleep(100);
+	pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+	/*
+	 * We don't have true async cancellation - it relies on the thread
+	 * at least re-entering the run state at some point.
+	 * We wait up to 10 seconds, waking every 0.1 seconds,
+	 * for a cancellation to be applied to us.
+	 */
+	for(bag->count = 0; bag->count < 100; bag->count++)
+		Sleep(100);
 
-  pthread_cleanup_pop(0);
+	pthread_cleanup_pop(0);
 #ifdef _MSC_VER
 #pragma inline_depth()
 #endif
 
-  return (void *) (size_t)result;
+	return (void*)(size_t)result;
 }
 
-int
-main()
+int main()
 {
-  int failed = 0;
-  int i;
-  pthread_t t[NUMTHREADS + 1];
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
 
-  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
-  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 
-  memset(&pop_count, 0, sizeof(sharedInt_t));
+	memset(&pop_count, 0, sizeof(sharedInt_t));
 
-  InitializeCriticalSection(&pop_count.cs);
+	InitializeCriticalSection(&pop_count.cs);
 
-  assert((t[0] = pthread_self()).p != NULL);
+	assert((t[0] = pthread_self()).p != NULL);
 
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      threadbag[i].started = 0;
-      threadbag[i].threadnum = i;
-      assert(pthread_create(&t[i], NULL, mythread, (void *) &threadbag[i]) == 0);
-    }
-
-  /*
-   * Code to control or manipulate child threads should probably go here.
-   */
-  Sleep(500);
-
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      assert(pthread_cancel(t[i]) == 0);
-    }
-
-  /*
-   * Give threads time to run.
-   */
-  Sleep(NUMTHREADS * 100);
-
-  /*
-   * Standard check that all threads started.
-   */
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      if (!threadbag[i].started)
-	    {
-    	  failed |= !threadbag[i].started;
-    	  fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
-	    }
-    }
-
-  assert(!failed);
-
-  /*
-   * Check any results here. Set "failed" and only print output on failure.
-   */
-  failed = 0;
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      int fail = 0;
-      void* result = (void*)0;
-
-      assert(pthread_join(t[i], &result) == 0);
-
-      fail = (result != PTHREAD_CANCELED);
-
-      if (fail)
-	{
-	  fprintf(stderr, "Thread %d: started %d: result %d\n",
-		  i,
-		  threadbag[i].started,
-		  (int)(size_t)result);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, mythread, (void*)&threadbag[i]) == 0);
 	}
-      failed = (failed || fail);
-    }
 
-  assert(!failed);
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
 
-  assert(pop_count.i == NUMTHREADS);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
+	}
 
-  DeleteCriticalSection(&pop_count.cs);
+	/*
+	 * Give threads time to run.
+	 */
+	Sleep(NUMTHREADS * 100);
 
-  /*
-   * Success.
-   */
-  return 0;
+	/*
+	 * Standard check that all threads started.
+	 */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+
+	assert(!failed);
+
+	/*
+	 * Check any results here. Set "failed" and only print output on failure.
+	 */
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+
+		assert(pthread_join(t[i], &result) == 0);
+
+		fail = (result != PTHREAD_CANCELED);
+
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: result %d\n",
+			    i,
+			    threadbag[i].started,
+			    (int)(size_t)result);
+		}
+		failed = (failed || fail);
+	}
+
+	assert(!failed);
+
+	assert(pop_count.i == NUMTHREADS);
+
+	DeleteCriticalSection(&pop_count.cs);
+
+	/*
+	 * Success.
+	 */
+	return 0;
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */
 
-int
-main()
+int main()
 {
-  return 0;
+	return 0;
 }
 
 #endif /* defined(_MSC_VER) || defined(__cplusplus) */

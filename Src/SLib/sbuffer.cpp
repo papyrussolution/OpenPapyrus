@@ -725,19 +725,17 @@ struct SscDbtItem {
 	BNFieldList Fields;
 };
 
-static const uint64 Ssc_CompressionSignature = 0xFDB975312468ACE0ULL;
-
 //static 
 size_t FASTCALL SSerializeContext::GetCompressPrefix(uint8 * pBuf) // size of pBuf >= 8
 {
 	if(pBuf)
-		*(uint64 *)pBuf = Ssc_CompressionSignature;
-	return sizeof(Ssc_CompressionSignature);
+		*reinterpret_cast<uint64 *>(pBuf) = _SlConst.Ssc_CompressionSignature;
+	return sizeof(_SlConst.Ssc_CompressionSignature);
 }
 //static 
 int  FASTCALL SSerializeContext::IsCompressPrefix(const void * pBuf)
 {
-	return BIN(*(uint64 *)pBuf == Ssc_CompressionSignature);
+	return BIN(*reinterpret_cast<const uint64 *>(pBuf) == _SlConst.Ssc_CompressionSignature);
 }
 
 SLAPI SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0), LastSymbId(0), SuppDate(ZERODATE), State(0), Flags(0), P_DbtDescrList(0)
@@ -758,15 +756,8 @@ void SLAPI SSerializeContext::Init(long flags, LDATE suppDate)
 	SymbTbl.Clear();
 }
 
-int FASTCALL SSerializeContext::CheckFlag(long f) const
-{
-	return BIN(Flags & f);
-}
-
-LDATE SLAPI SSerializeContext::GetSupportingDate() const
-{
-	return SuppDate;
-}
+int FASTCALL SSerializeContext::CheckFlag(long f) const { return BIN(Flags & f); }
+LDATE SLAPI SSerializeContext::GetSupportingDate() const { return SuppDate; }
 
 int SLAPI SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID)
 {
@@ -1234,135 +1225,32 @@ SLAPI  SSerializer::SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSC
 {
 }
 
-int    SLAPI SSerializer::Serialize(TYPEID typ, void * pData, uint8 * pInd)
-{
-	return P_SCtx->Serialize(Dir, typ, pData, pInd, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(SString & rStr)
-{
-	return P_SCtx->Serialize(Dir, rStr, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(SStringU & rStr)
-{
-	return P_SCtx->Serialize(Dir, rStr, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(int64 & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(int32 & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(int16 & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(int8 & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(int & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(uint64 & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(uint32 & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(uint16 & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(uint8 & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(LDATE & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(LTIME & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(LDATETIME & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(float & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(double & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(S_GUID & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    SLAPI SSerializer::Serialize(char * pV, size_t valBufLen)
-{
-	return P_SCtx->Serialize(Dir, pV, valBufLen, R_Buf);
-}
-
-int    SLAPI SSerializer::SerializeFieldList(BNFieldList * pFldList)
-{
-	return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(TPoint & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(FPoint & rV)
-{
-	return P_SCtx->Serialize(Dir, rV, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(SArray * pArray)
-{
-	return P_SCtx->Serialize(Dir, pArray, R_Buf);
-}
-
-int    FASTCALL SSerializer::Serialize(SStrCollection * pColl)
-{
-	return P_SCtx->Serialize(Dir, pColl, R_Buf);
-}
-
-int FASTCALL SSerializer::Serialize(StrAssocArray & rArray)
-{
-	return P_SCtx->Serialize(Dir, rArray, R_Buf);
-}
-
-int    SLAPI SSerializer::SerializeBlock(uint32 size, void * pData, int skipMissizedBlock)
-{
-	return P_SCtx->SerializeBlock(Dir, size, pData, R_Buf, skipMissizedBlock);
-}
+int SLAPI SSerializer::Serialize(TYPEID typ, void * pData, uint8 * pInd) { return P_SCtx->Serialize(Dir, typ, pData, pInd, R_Buf); }
+int FASTCALL SSerializer::Serialize(SString & rStr) { return P_SCtx->Serialize(Dir, rStr, R_Buf); }
+int FASTCALL SSerializer::Serialize(SStringU & rStr) { return P_SCtx->Serialize(Dir, rStr, R_Buf); }
+int FASTCALL SSerializer::Serialize(int64 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(int32 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(int16 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(int8 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(int & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(uint64 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(uint32 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(uint16 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(uint8 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(LDATE & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(LTIME & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(LDATETIME & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(float & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(double & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(S_GUID & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int SLAPI SSerializer::Serialize(char * pV, size_t valBufLen) { return P_SCtx->Serialize(Dir, pV, valBufLen, R_Buf); }
+int SLAPI SSerializer::SerializeFieldList(BNFieldList * pFldList) { return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf); }
+int FASTCALL SSerializer::Serialize(TPoint & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(FPoint & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(SArray * pArray) { return P_SCtx->Serialize(Dir, pArray, R_Buf); }
+int FASTCALL SSerializer::Serialize(SStrCollection * pColl) { return P_SCtx->Serialize(Dir, pColl, R_Buf); }
+int FASTCALL SSerializer::Serialize(StrAssocArray & rArray) { return P_SCtx->Serialize(Dir, rArray, R_Buf); }
+int SLAPI SSerializer::SerializeBlock(uint32 size, void * pData, int skipMissizedBlock) { return P_SCtx->SerializeBlock(Dir, size, pData, R_Buf, skipMissizedBlock); }
 //
 //
 //

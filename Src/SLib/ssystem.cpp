@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <wininet.h>
 
-static int is_bigendian_for_test() 
+static int is_bigendian_for_test()
 {
 	union {
 		uint32 i;
@@ -103,13 +103,32 @@ uint SSystem::SFormatMessage(SString & rMsg)
 	return SFormatMessage(::GetLastError(), rMsg);
 }
 
-SSystem::SSystem(int imm) : Flags(0), CpuV(cpuvUnkn), CpuCs(cpucsUnkn), CpuCacheSizeL0(0), CpuCacheSizeL1(0), CpuCacheSizeL2(0), CpuA(0), CpuB(0), CpuC(0), CpuD(0)
+SSystem::SSystem(int imm) : Flags(0), CpuV(cpuvUnkn), CpuCs(cpucsUnkn), CpuCacheSizeL0(0), CpuCacheSizeL1(0), CpuCacheSizeL2(0), CpuA(0), CpuB(0), CpuC(0), CpuD(0), PerfFreq(0LL)
 {
 	if(imm) {
 		GetCpuInfo();
 		if(SSystem::BigEndian())
 			Flags |= fBigEndian;
+        // @v10.5.7 {
+        {
+			LARGE_INTEGER perf_frequency;
+			if(::QueryPerformanceFrequency(&perf_frequency)) {
+				PerfFreq = perf_frequency.QuadPart;
+				Flags |= fPerfFreqIsOk;
+			}
+        }
+        // } @v10.5.7
 	}
+}
+
+int64 SSystem::GetSystemTimestampMks() const
+{
+	LARGE_INTEGER perf_count;
+	if(Flags & fPerfFreqIsOk && ::QueryPerformanceCounter(&perf_count)) {
+		return ((perf_count.QuadPart * 1000000) / PerfFreq);
+	}
+	else
+		return 0;
 }
 
 int SSystem::CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const

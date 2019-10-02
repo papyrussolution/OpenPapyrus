@@ -84,102 +84,103 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 	}
 	if(!p_v) {
 		switch(viewID) {
-			case PPVIEW_TRFRANLZ:       p_v = new PPViewTrfrAnlz;       break;
-			case PPVIEW_CCHECK:         p_v = new PPViewCCheck;         break;
-			case PPVIEW_STAFFLIST:      p_v = new PPViewStaffList;      break;
-			case PPVIEW_STAFFPOST:      p_v = new PPViewStaffPost;      break;
-			case PPVIEW_SALARY:         p_v = new PPViewSalary;         break;
-			case PPVIEW_LOT:            p_v = new PPViewLot;            break;
-			case PPVIEW_PERSONEVENT:    p_v = new PPViewPersonEvent;    break;
-			case PPVIEW_PROCESSOR:      p_v = new PPViewProcessor;      break;
-			case PPVIEW_GOODSOPANALYZE: p_v = new PPViewGoodsOpAnalyze; break;
-			case PPVIEW_QUOT:           p_v = new PPViewQuot;           break;
-			case PPVIEW_PRCBUSY:        p_v = new PPViewPrcBusy;        break;
-			case PPVIEW_STAFFCAL:       p_v = new PPViewStaffCal;       break;
-			case PPVIEW_SYSJOURNAL:     p_v = new PPViewSysJournal;     break;
-			case PPVIEW_GOODS:          p_v = new PPViewGoods;          break;
-			case PPVIEW_GOODSREST:      p_v = new PPViewGoodsRest;      break;
-			case PPVIEW_BILL:           p_v = new PPViewBill;           break;
-			case PPVIEW_PRJTASK:        p_v = new PPViewPrjTask;        break;
-			case PPVIEW_OBJSYNC:        p_v = new PPViewObjSync;        break;
-			case PPVIEW_PERSON:         p_v = new PPViewPerson;         break;
-			case PPVIEW_OBJSYNCCMP:     p_v = new PPViewObjSyncCmp;     break;
-			case PPVIEW_OBJSYNCQUEUE:   p_v = new PPViewObjSyncQueue;   break;
-			case PPVIEW_SSTAT:          p_v = new PPViewSStat;          break;
-			case PPVIEW_SCARD:          p_v = new PPViewSCard;          break;
-			case PPVIEW_SCARDOP:        p_v = new PPViewSCardOp;        break;
-			case PPVIEW_FREIGHT:        p_v = new PPViewFreight;        break;
-			case PPVIEW_OPGROUPING:     p_v = new PPViewOpGrouping;     break;
-			case PPVIEW_PERSONREL:      p_v = new PPViewPersonRel;      break;
-			case PPVIEW_CSESSEXC:       p_v = new PPViewCSessExc;       break;
-			case PPVIEW_DEBTTRNOVR:     p_v = new PPViewDebtTrnovr;     break;
-			case PPVIEW_PAYMPLAN:       p_v = new PPViewPaymPlan;       break;
-			case PPVIEW_PROJECT:        p_v = new PPViewProject;        break;
-			case PPVIEW_GOODSSTRUC:     p_v = new PPViewGoodsStruc;     break;
-			case PPVIEW_TSESSION:       p_v = new PPViewTSession;       break;
-			case PPVIEW_TSESSANLZ:      p_v = new PPViewTSessAnlz;      break;
-			case PPVIEW_CURRATE:        p_v = new PPViewCurRate;        break;
-			case PPVIEW_OBJLIKENESS:    p_v = new PPViewObjLikeness;    break;
+			case PPVIEW_TRFRANLZ:        p_v = new PPViewTrfrAnlz;       break;
+			case PPVIEW_CCHECK:          p_v = new PPViewCCheck;         break;
+			case PPVIEW_STAFFLIST:       p_v = new PPViewStaffList;      break;
+			case PPVIEW_STAFFPOST:       p_v = new PPViewStaffPost;      break;
+			case PPVIEW_SALARY:          p_v = new PPViewSalary;         break;
+			case PPVIEW_LOT:             p_v = new PPViewLot;            break;
+			case PPVIEW_PERSONEVENT:     p_v = new PPViewPersonEvent;    break;
+			case PPVIEW_PROCESSOR:       p_v = new PPViewProcessor;      break;
+			case PPVIEW_GOODSOPANALYZE:  p_v = new PPViewGoodsOpAnalyze; break;
+			case PPVIEW_QUOT:            p_v = new PPViewQuot;           break;
+			case PPVIEW_PRCBUSY:         p_v = new PPViewPrcBusy;        break;
+			case PPVIEW_STAFFCAL:        p_v = new PPViewStaffCal;       break;
+			case PPVIEW_SYSJOURNAL:      p_v = new PPViewSysJournal;     break;
+			case PPVIEW_GOODS:           p_v = new PPViewGoods;          break;
+			case PPVIEW_GOODSREST:       p_v = new PPViewGoodsRest;      break;
+			case PPVIEW_BILL:            p_v = new PPViewBill;           break;
+			case PPVIEW_PRJTASK:         p_v = new PPViewPrjTask;        break;
+			case PPVIEW_OBJSYNC:         p_v = new PPViewObjSync;        break;
+			case PPVIEW_PERSON:          p_v = new PPViewPerson;         break;
+			case PPVIEW_OBJSYNCCMP:      p_v = new PPViewObjSyncCmp;     break;
+			case PPVIEW_OBJSYNCQUEUE:    p_v = new PPViewObjSyncQueue;   break;
+			case PPVIEW_SSTAT:           p_v = new PPViewSStat;          break;
+			case PPVIEW_SCARD:           p_v = new PPViewSCard;          break;
+			case PPVIEW_SCARDOP:         p_v = new PPViewSCardOp;        break;
+			case PPVIEW_FREIGHT:         p_v = new PPViewFreight;        break;
+			case PPVIEW_OPGROUPING:      p_v = new PPViewOpGrouping;     break;
+			case PPVIEW_PERSONREL:       p_v = new PPViewPersonRel;      break;
+			case PPVIEW_CSESSEXC:        p_v = new PPViewCSessExc;       break;
+			case PPVIEW_DEBTTRNOVR:      p_v = new PPViewDebtTrnovr;     break;
+			case PPVIEW_PAYMPLAN:        p_v = new PPViewPaymPlan;       break;
+			case PPVIEW_PROJECT:         p_v = new PPViewProject;        break;
+			case PPVIEW_GOODSSTRUC:      p_v = new PPViewGoodsStruc;     break;
+			case PPVIEW_TSESSION:        p_v = new PPViewTSession;       break;
+			case PPVIEW_TSESSANLZ:       p_v = new PPViewTSessAnlz;      break;
+			case PPVIEW_CURRATE:         p_v = new PPViewCurRate;        break;
+			case PPVIEW_OBJLIKENESS:     p_v = new PPViewObjLikeness;    break;
 			case PPVIEW_GOODSTOOBJASSOC: p_v = new PPViewGoodsToObjAssoc; break;
-			case PPVIEW_QCERT:          p_v = new PPViewQCert;          break;
-			case PPVIEW_ARTICLE:        p_v = new PPViewArticle;        break;
-			case PPVIEW_ACCANLZ:        p_v = new PPViewAccAnlz;        break;
-			case PPVIEW_PRICELIST:      p_v = new PPViewPriceList;      break;
-			case PPVIEW_VATBOOK:        p_v = new PPViewVatBook;        break;
-			case PPVIEW_CSESS:          p_v = new PPViewCSess;          break;
-			case PPVIEW_PRICEANLZ:      p_v = new PPViewPriceAnlz;      break;
-			case PPVIEW_SCALE:          p_v = new PPViewScale;          break;
-			case PPVIEW_CASHNODE:       p_v = new PPViewCashNode;       break;
-			case PPVIEW_REPORT:         p_v = new PPViewReport;         break;
-			case PPVIEW_LOGSMONITOR:	p_v = new PPViewLogsMonitor;	break;
-			case PPVIEW_BIZSCORE:       p_v = new PPViewBizScore;       break;
-			case PPVIEW_BIZSCOREVAL:    p_v = new PPViewBizScoreVal;    break;
-			case PPVIEW_PREDICTSALES:   p_v = new PPViewPredictSales;   break;
+			case PPVIEW_QCERT:           p_v = new PPViewQCert;          break;
+			case PPVIEW_ARTICLE:         p_v = new PPViewArticle;        break;
+			case PPVIEW_ACCANLZ:         p_v = new PPViewAccAnlz;        break;
+			case PPVIEW_PRICELIST:       p_v = new PPViewPriceList;      break;
+			case PPVIEW_VATBOOK:         p_v = new PPViewVatBook;        break;
+			case PPVIEW_CSESS:           p_v = new PPViewCSess;          break;
+			case PPVIEW_PRICEANLZ:       p_v = new PPViewPriceAnlz;      break;
+			case PPVIEW_SCALE:           p_v = new PPViewScale;          break;
+			case PPVIEW_CASHNODE:        p_v = new PPViewCashNode;       break;
+			case PPVIEW_REPORT:          p_v = new PPViewReport;         break;
+			case PPVIEW_LOGSMONITOR:	 p_v = new PPViewLogsMonitor;	break;
+			case PPVIEW_BIZSCORE:        p_v = new PPViewBizScore;       break;
+			case PPVIEW_BIZSCOREVAL:     p_v = new PPViewBizScoreVal;    break;
+			case PPVIEW_PREDICTSALES:    p_v = new PPViewPredictSales;   break;
 			case PPVIEW_GOODSTAXANALYZE: p_v = new PPViewGoodsTaxAnalyze; break;
-			case PPVIEW_DEBTORSTAT:     p_v = new PPViewDebtorStat;     break;
-			case PPVIEW_ACCTURN:        p_v = new PPViewAccturn;        break;
-			case PPVIEW_ACCOUNT:        p_v = new PPViewAccount;        break;
-			case PPVIEW_LOCTRANSF:      p_v = new PPViewLocTransf;      break;
-			case PPVIEW_PALM:           p_v = new PPViewPalm;           break;
-			case PPVIEW_SERVERSTAT:     p_v = new PPViewServerStat;     break;
-			case PPVIEW_ASSET:          p_v = new PPViewAsset;          break;
-			case PPVIEW_SHIPMANALYZE:   p_v = new PPViewShipmAnalyze;   break;
-			case PPVIEW_TRANSPORT:      p_v = new PPViewTransport;      break;
-			case PPVIEW_GOODSBILLCMP:   p_v = new PPViewGoodsBillCmp;   break;
-			case PPVIEW_AMOUNTTYPE:     p_v = new PPViewAmountType;     break;
-			case PPVIEW_REGISTERTYPE:   p_v = new PPViewRegisterType;   break;
-			case PPVIEW_GOODSMOV:       p_v = new PPViewGoodsMov;       break;
-			case PPVIEW_LOTOP:          p_v = new PPViewLotOp;          break;
-			case PPVIEW_LOTEXTCODE:     p_v = new PPViewLotExtCode;     break;
-			case PPVIEW_BUDGET:         p_v = new PPViewBudget;         break;
-			case PPVIEW_BIZSCTEMPL:     p_v = new PPViewBizScTempl;     break;
+			case PPVIEW_DEBTORSTAT:      p_v = new PPViewDebtorStat;     break;
+			case PPVIEW_ACCTURN:         p_v = new PPViewAccturn;        break;
+			case PPVIEW_ACCOUNT:         p_v = new PPViewAccount;        break;
+			case PPVIEW_LOCTRANSF:       p_v = new PPViewLocTransf;      break;
+			case PPVIEW_PALM:            p_v = new PPViewPalm;           break;
+			case PPVIEW_SERVERSTAT:      p_v = new PPViewServerStat;     break;
+			case PPVIEW_ASSET:           p_v = new PPViewAsset;          break;
+			case PPVIEW_SHIPMANALYZE:    p_v = new PPViewShipmAnalyze;   break;
+			case PPVIEW_TRANSPORT:       p_v = new PPViewTransport;      break;
+			case PPVIEW_GOODSBILLCMP:    p_v = new PPViewGoodsBillCmp;   break;
+			case PPVIEW_AMOUNTTYPE:      p_v = new PPViewAmountType;     break;
+			case PPVIEW_REGISTERTYPE:    p_v = new PPViewRegisterType;   break;
+			case PPVIEW_GOODSMOV:        p_v = new PPViewGoodsMov;       break;
+			case PPVIEW_LOTOP:           p_v = new PPViewLotOp;          break;
+			case PPVIEW_LOTEXTCODE:      p_v = new PPViewLotExtCode;     break;
+			case PPVIEW_BUDGET:          p_v = new PPViewBudget;         break;
+			case PPVIEW_BIZSCTEMPL:      p_v = new PPViewBizScTempl;     break;
 			case PPVIEW_BIZSCVALBYTEMPL: p_v = new PPViewBizScValByTempl; break;
-			case PPVIEW_CHECKOPJRNL:    p_v = new PPViewCheckOpJrnl;    break;
-			case PPVIEW_GOODSMOV2:      p_v = new PPViewGoodsMov2;      break;
-			case PPVIEW_INVENTORY:      p_v = new PPViewInventory;      break;
-			case PPVIEW_STOCKOPT:       p_v = new PPViewStockOpt;       break;
-			case PPVIEW_MRPTAB:         p_v = new PPViewMrpTab;         break;
-			case PPVIEW_MRPLINE:        p_v = new PPViewMrpLine;        break;
-			case PPVIEW_LINKEDBILL:     p_v = new PPViewLinkedBill;     break;
-			case PPVIEW_BALANCE:        p_v = new PPViewBalance;        break;
-			case PPVIEW_DIALOG:         p_v = new PPViewDialog;         break;
-			case PPVIEW_DVCLOADINGSTAT: p_v = new PPViewDvcLoadingStat; break;
-			case PPVIEW_SPECSERIES:     p_v = new PPViewSpecSeries;     break;
-			case PPVIEW_GTAJOURNAL:     p_v = new PPViewGtaJournal;     break;
-			case PPVIEW_GLOBALUSERACC:  p_v = new PPViewGlobalUserAcc;  break;
-			case PPVIEW_TECH:           p_v = new PPViewTech;           break;
-			case PPVIEW_DBDIV:          p_v = new PPViewDBDiv;          break;
-			case PPVIEW_SUPRWARE:       p_v = new PPViewSuprWare;       break;
+			case PPVIEW_CHECKOPJRNL:     p_v = new PPViewCheckOpJrnl;    break;
+			case PPVIEW_GOODSMOV2:       p_v = new PPViewGoodsMov2;      break;
+			case PPVIEW_INVENTORY:       p_v = new PPViewInventory;      break;
+			case PPVIEW_STOCKOPT:        p_v = new PPViewStockOpt;       break;
+			case PPVIEW_MRPTAB:          p_v = new PPViewMrpTab;         break;
+			case PPVIEW_MRPLINE:         p_v = new PPViewMrpLine;        break;
+			case PPVIEW_LINKEDBILL:      p_v = new PPViewLinkedBill;     break;
+			case PPVIEW_BALANCE:         p_v = new PPViewBalance;        break;
+			case PPVIEW_DIALOG:          p_v = new PPViewDialog;         break;
+			case PPVIEW_DVCLOADINGSTAT:  p_v = new PPViewDvcLoadingStat; break;
+			case PPVIEW_SPECSERIES:      p_v = new PPViewSpecSeries;     break;
+			case PPVIEW_GTAJOURNAL:      p_v = new PPViewGtaJournal;     break;
+			case PPVIEW_GLOBALUSERACC:   p_v = new PPViewGlobalUserAcc;  break;
+			case PPVIEW_TECH:            p_v = new PPViewTech;           break;
+			case PPVIEW_DBDIV:           p_v = new PPViewDBDiv;          break;
+			case PPVIEW_SUPRWARE:        p_v = new PPViewSuprWare;       break;
 			// case PPVIEW_DBMONITOR:      p_v = new PPViewDBMonitor;      break; // @v7.x.x
-			case PPVIEW_USERPROFILE:    p_v = new PPViewUserProfile();  break;
-			case PPVIEW_JOB:            p_v = new PPViewJob();          break;
-			case PPVIEW_GEOTRACKING:    p_v = new PPViewGeoTracking();  break;
-			case PPVIEW_OPRKIND:        p_v = new PPViewOprKind();      break; // @v9.3.6
-			case PPVIEW_PHNSVCMONITOR:  p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
-			case PPVIEW_VETISDOCUMENT:  p_v = new PPViewVetisDocument(); break; // @v10.0.12
-			case PPVIEW_TIMESERIES:     p_v = new PPViewTimeSeries();    break; // @v10.4.4
-			case PPVIEW_TIMSERDETAIL:   p_v = new PPViewTimSerDetail();  break; // @v10.5.4
-			case PPVIEW_BRAND:          p_v = new PPViewBrand();         break; // @v10.4.7
+			case PPVIEW_USERPROFILE:     p_v = new PPViewUserProfile();  break;
+			case PPVIEW_JOB:             p_v = new PPViewJob();          break;
+			case PPVIEW_GEOTRACKING:     p_v = new PPViewGeoTracking();  break;
+			case PPVIEW_OPRKIND:         p_v = new PPViewOprKind();      break; // @v9.3.6
+			case PPVIEW_PHNSVCMONITOR:   p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
+			case PPVIEW_VETISDOCUMENT:   p_v = new PPViewVetisDocument(); break; // @v10.0.12
+			case PPVIEW_TIMESERIES:      p_v = new PPViewTimeSeries();    break; // @v10.4.4
+			case PPVIEW_TIMSERDETAIL:    p_v = new PPViewTimSerDetail();  break; // @v10.5.4
+			case PPVIEW_BRAND:           p_v = new PPViewBrand();         break; // @v10.4.7
+			case PPVIEW_QUOTEREQANALYZE: p_v = new PPViewQuoteReqAnalyze(); break; // @v10.5.7
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v && p_v->Symb.Empty()) {
@@ -1361,7 +1362,7 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 				//ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
 				ep.Cp = cpUTF8; // @v10.5.0 DS.GetConstTLA().DL600XmlCp-->cpUTF8
 				THROW(p_rtm->ExportXML(ep, rResultFileName));
-				PublishNfViewToMqb(p_nf, rResultFileName); // @v10.5.3 
+				PublishNfViewToMqb(p_nf, rResultFileName); // @v10.5.3
 			}
 		}
 	}
@@ -1401,7 +1402,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-//static 
+//static
 int SLAPI PPView::EditExecNfViewParam(ExecNfViewParam & rData)
 {
 	int    ok = -1;

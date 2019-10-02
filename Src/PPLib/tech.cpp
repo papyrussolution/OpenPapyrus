@@ -670,7 +670,7 @@ public:
 	int    getDTS(PPTechPacket *);
 private:
 	DECL_HANDLE_EVENT;
-	void   setupCtrls();
+	void   SetupCtrls();
 	void   calcCapacity();
 	void   setCapacity()
 	{
@@ -737,9 +737,9 @@ IMPL_HANDLE_EVENT(TechDialog)
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_TECH_PRC))
-		setupCtrls();
+		SetupCtrls();
 	else if(event.isClusterClk(CTL_TECH_SIGN))
-		setupCtrls();
+		SetupCtrls();
 	else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_TECH_CAPACITY))
 		calcCapacity();
 	else
@@ -747,7 +747,7 @@ IMPL_HANDLE_EVENT(TechDialog)
 	clearEvent(event);
 }
 
-void TechDialog::setupCtrls()
+void TechDialog::SetupCtrls()
 {
 	long   temp_long = 0;
 	PrcCtrlGroup::Rec prc_grp_rec;
@@ -809,7 +809,7 @@ int TechDialog::setDTS(const PPTechPacket * pData)
 	setCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
 	setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
 	setCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
-	setupCtrls();
+	SetupCtrls();
 	return 1;
 }
 

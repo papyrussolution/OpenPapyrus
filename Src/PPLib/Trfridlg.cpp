@@ -24,7 +24,7 @@ private:
 	int    getCtrlCost();
 	int    setCtrlCost();
 	void   setupQttyFldPrec();
-	void   setupCtrls();
+	void   SetupCtrls();
 	void   setupCtrlsOnGoodsSelection();
 	void   setupRest();
 	void   setupVaPct();
@@ -135,6 +135,14 @@ static int SLAPI CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
 		else if(itemNo >= 0 && pBp->TI(itemNo).Flags & PPTFR_FORCESUPPL)
 			yes = 1;
 	}
+	// @v10.5.8 {
+	else if(pBp->OpTypeID == PPOPT_DRAFTQUOTREQ) {
+		PPOprKind op_rec;
+		GetOpData(pBp->Rec.OpID, &op_rec);
+		if(op_rec.AccSheetID && op_rec.AccSheetID == GetSupplAccSheet())
+			yes = 1;
+	}
+	// } @v10.5.8 
 	return yes;
 }
 
@@ -230,8 +238,14 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 		case PPOPT_GOODSORDER:  dlg_id = DLG_ORDLOTITEM;    break;
 		case PPOPT_GOODSACK:    dlg_id = DLG_ACKITEM;       break;
 		case PPOPT_DRAFTRECEIPT:
-		case PPOPT_DRAFTQUOTREQ: // @v10.5.7
 		case PPOPT_DRAFTTRANSIT: dlg_id = /*allow_suppl_sel ? DLG_SLOTITEM :*/ DLG_LOTITEM; break;
+		case PPOPT_DRAFTQUOTREQ: // @v10.5.7
+			if(pInitData && pInitData->Flags & TIDIF_SEQQREQ) {
+				dlg_id = DLG_QUOTEREQSEQ;
+			}
+			else
+				dlg_id = DLG_LOTITEM;
+			break;
 		case PPOPT_GOODSREVAL:   dlg_id = (GetOpSubType(op_id) == OPSUBT_ASSETEXPL) ? DLG_ASSETEXPLITEM : DLG_REVALITEM; break;
 		case PPOPT_GOODSEXPEND:
 			if(IsIntrOp(op_id))
@@ -460,7 +474,7 @@ int TrfrItemDialog::isModifPlus() const
 	return BIN(OpTypeID == PPOPT_GOODSMODIF && Item.Flags & PPTFR_PLUS);
 }
 
-void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
+void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 {
 	const PPConfig & r_cfg = LConfig;
 	int    disable_goods = 0;
@@ -1718,8 +1732,7 @@ void TrfrItemDialog::setupVatSum()
 				GTaxVect vect;
 				vect.CalcTI(Item, P_Pack->Rec.OpID, (OpTypeID == PPOPT_GOODSRECEIPT) ? TIAMT_COST : TIAMT_AMOUNT);
 				vat_sum = vect.GetValue(GTAXVF_VAT);
-				// @v9.0.2 PPGetWord(PPWORD_VAT, 0, out_buf);
-				PPLoadString("vat", out_buf); // @v9.0.2
+				PPLoadString("vat", out_buf);
 				out_buf.CatDiv(':', 2).Cat(vat_sum, MKSFMTD(0, 4, 0));
 			}
 		}
@@ -1845,7 +1858,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	Item  = *pItem;
 	Price = Item.Price;
 	setCtrlCost();
-	setupCtrls();
+	SetupCtrls();
 	if(Item.GoodsID) {
 		Goods2Tbl::Rec goods_rec;
 		THROW(GObj.Fetch(Item.GoodsID, &goods_rec) > 0);
@@ -2583,10 +2596,8 @@ int TrfrItemDialog::setupLot()
 		setCtrlData(CTL_LOT_PRICE,  &Item.Price);
 	setCtrlLong(CTLSEL_LOT_INTAXGRP, Item.LotTaxGrpID);
 	{
-		if(Item.Flags & PPTFR_COSTWOVAT) {
-			// @v9.2.2 PPGetSubStr(Strings, strNoVAT, temp_buf);
-			PPLoadString("novat", temp_buf); // @v9.2.2
-		}
+		if(Item.Flags & PPTFR_COSTWOVAT)
+			PPLoadString("novat", temp_buf);
 		else
 			temp_buf.Space();
 		setStaticText(CTL_LOT_NOVATTAG, temp_buf);

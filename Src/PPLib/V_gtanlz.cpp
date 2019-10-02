@@ -1,8 +1,7 @@
 // V_GTANLZ.CPP
 // Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019
-// @codepage windows-1251
-//
-// Налоговый анализ товарооборота
+// @codepage UTF-8
+// РќР°Р»РѕРіРѕРІС‹Р№ Р°РЅР°Р»РёР· С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Р°
 //
 #include <pp.h>
 #pragma hdrstop
@@ -187,7 +186,7 @@ int SLAPI PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(GoodsTaxAnalyzeFiltDialog, static_cast<GoodsTaxAnalyzeFilt *>(pBaseFilt));
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size_t bufLen)
+void SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size_t bufLen)
 {
 	PPGoodsTax gtx;
 	PPGoodsTaxEntry gtx_entry;
@@ -225,7 +224,6 @@ int SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf,
 			}
 	}
 	temp_buf.CopyTo(pBuf, bufLen);
-	return 1;
 }
 
 void SLAPI PPViewGoodsTaxAnalyze::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
@@ -270,8 +268,8 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 	THROW(P_TempTbl = CreateTempFile());
 	{
 		uint   i;
-		int    monthly = 0; // Признак того, что отчет рассчитывается по месяцам (фактически
-			// расчет осуществляется по дням, но группируется в месяцы).
+		int    monthly = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РѕС‚С‡РµС‚ СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ РїРѕ РјРµСЃСЏС†Р°Рј (С„Р°РєС‚РёС‡РµСЃРєРё
+			// СЂР°СЃС‡РµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РїРѕ РґРЅСЏРј, РЅРѕ РіСЂСѓРїРїРёСЂСѓРµС‚СЃСЏ РІ РјРµСЃСЏС†С‹).
 		//PPObjGoodsTax gtx_obj;
 		PPGoodsTaxEntry gtx;
 		GoodsGrpngArray gga;
@@ -308,10 +306,10 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 			THROW(tra);
 			for(lot_view.InitIteration(); lot_view.NextIteration(&lot_item) > 0; PPWaitPercent(lot_view.GetCounter())) {
 				/*
-					Paym - оплаченная часть отгрузки до конца периода
-					PaymBefore - оплаченная часть отгрузки до начала периода
-					LotPaym - оплаченная часть прихода до конца периода
-					LotPaymBefore - оплаченная часть прихода до начала периода
+					Paym - РѕРїР»Р°С‡РµРЅРЅР°СЏ С‡Р°СЃС‚СЊ РѕС‚РіСЂСѓР·РєРё РґРѕ РєРѕРЅС†Р° РїРµСЂРёРѕРґР°
+					PaymBefore - РѕРїР»Р°С‡РµРЅРЅР°СЏ С‡Р°СЃС‚СЊ РѕС‚РіСЂСѓР·РєРё РґРѕ РЅР°С‡Р°Р»Р° РїРµСЂРёРѕРґР°
+					LotPaym - РѕРїР»Р°С‡РµРЅРЅР°СЏ С‡Р°СЃС‚СЊ РїСЂРёС…РѕРґР° РґРѕ РєРѕРЅС†Р° РїРµСЂРёРѕРґР°
+					LotPaymBefore - РѕРїР»Р°С‡РµРЅРЅР°СЏ С‡Р°СЃС‚СЊ РїСЂРёС…РѕРґР° РґРѕ РЅР°С‡Р°Р»Р° РїРµСЂРёРѕРґР°
 
 					expend1 = (LotPaym - LotPaymBefore) * PaymBefore;
 					expend2 = (Paym - PaymBefore) * LotPaym
@@ -325,8 +323,8 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 					if(r == 1) {
 						const double tolerance = 1.0e-7;
 						//
-						// Все рассчитываем только для оригинальных лотов чтобы не увеличивать
-						// результат при обработке порожденных.
+						// Р’СЃРµ СЂР°СЃСЃС‡РёС‚С‹РІР°РµРј С‚РѕР»СЊРєРѕ РґР»СЏ РѕСЂРёРіРёРЅР°Р»СЊРЅС‹С… Р»РѕС‚РѕРІ С‡С‚РѕР±С‹ РЅРµ СѓРІРµР»РёС‡РёРІР°С‚СЊ
+						// СЂРµР·СѓР»СЊС‚Р°С‚ РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РїРѕСЂРѕР¶РґРµРЅРЅС‹С….
 						//
 						const double lot_paym_part = ppl_blk.Part;               // LotPaym
 						const double lot_paym_part_before = ppl_blk.PartBefore;  // LotPaymBefore
@@ -458,9 +456,9 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 				if(Filt.HasCycleFlags() && Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment && !(Filt.Flags & GoodsTaxAnalyzeFilt::fOldStyleLedger))
 					gctf.Flags |= OPG_COSTBYPAYM;
 				if(Filt.Flags & GoodsTaxAnalyzeFilt::fNozeroExciseOnly)
-					gctf.Flags |= (uint)OPG_NOZEROEXCISE;
+					gctf.Flags |= static_cast<uint>(OPG_NOZEROEXCISE);
 				if(Filt.Flags & GoodsTaxAnalyzeFilt::fLabelOnly)
-					gctf.Flags |= (uint)OPG_LABELONLY;
+					gctf.Flags |= static_cast<uint>(OPG_LABELONLY);
 				if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent))
 					gctf.Flags |= OPG_PROCESSBYLOTS;
 				THROW(agg.BeginGoodsGroupingProcess(&gctf));
@@ -470,7 +468,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 					const PPIDArray & r_bill_list = gctf.BillList.Get();
 					for(i = 0; i < r_bill_list.getCount(); i++)
 						THROW(p_bobj->trfr->CalcBillTotal(r_bill_list.get(i), 0, &local_goods_list));
-					local_goods_list.sortAndUndup(); // @v8.1.0
+					local_goods_list.sortAndUndup();
 					for(i = 0; i < local_goods_list.getCount(); i++) {
 						const PPID goods_id = local_goods_list.get(i);
 						if(GObj.Fetch(goods_id, &goods_rec) > 0 && !(goods_rec.Flags & GF_GENERIC) && GObj.BelongToGroup(goods_id, Filt.GoodsGrpID))
@@ -526,7 +524,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 									THROW(GObj.SubstGoods(goods_id, &final_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 								}
 								//
-								// Ищем аналогичную запись
+								// РС‰РµРј Р°РЅР°Р»РѕРіРёС‡РЅСѓСЋ Р·Р°РїРёСЃСЊ
 								//
 								int32  _goods_tax_grp_id = 0;
 								int32  _lot_tax_grp_id = 0;
@@ -612,14 +610,14 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 										out_item.PTrnovr  = trnovr_p;
 										out_item.Discount = discount;
 										//
-										// Рассчитываем НДС с дохода
+										// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј РќР”РЎ СЃ РґРѕС…РѕРґР°
 										//
 										double income_minus_stax = income - vect.GetValue(GTAXVF_SALESTAX);
 										vect.Calc_(&gtx, income_minus_stax, fabs(p_gge->TaxFactor), GTAXVF_BEFORETAXES, GTAXVF_SALESTAX);
 										rec.IncVATSum += vect.GetValue(GTAXVF_VAT);
 									}
 									//
-									// Рассчитываем НДС в ценах поступления //
+									// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј РќР”РЎ РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
 									//
 									if(PPObjGoodsTax::FetchByID(lot_tax_grp_id, &gtx) > 0) {
 										excl_flags = 0L;
@@ -860,9 +858,9 @@ int SLAPI PPViewGoodsTaxAnalyze::Print(const void *)
 	}
 	if(rpt_id) {
 		//
-		// При сортировке OrdByGrp_Name  InitIteration;NextIteration не находят товары для печати из-за того,
-		// что товары привязываются к временной альт. группе через ассоциации, а не через свои родительские группы,
-		// поэтому приходится при печати в фмльтре не указывать эту альт. группу.
+		// РџСЂРё СЃРѕСЂС‚РёСЂРѕРІРєРµ OrdByGrp_Name  InitIteration;NextIteration РЅРµ РЅР°С…РѕРґСЏС‚ С‚РѕРІР°СЂС‹ РґР»СЏ РїРµС‡Р°С‚Рё РёР·-Р·Р° С‚РѕРіРѕ,
+		// С‡С‚Рѕ С‚РѕРІР°СЂС‹ РїСЂРёРІСЏР·С‹РІР°СЋС‚СЃСЏ Рє РІСЂРµРјРµРЅРЅРѕР№ Р°Р»СЊС‚. РіСЂСѓРїРїРµ С‡РµСЂРµР· Р°СЃСЃРѕС†РёР°С†РёРё, Р° РЅРµ С‡РµСЂРµР· СЃРІРѕРё СЂРѕРґРёС‚РµР»СЊСЃРєРёРµ РіСЂСѓРїРїС‹,
+		// РїРѕСЌС‚РѕРјСѓ РїСЂРёС…РѕРґРёС‚СЃСЏ РїСЂРё РїРµС‡Р°С‚Рё РІ С„РјР»СЊС‚СЂРµ РЅРµ СѓРєР°Р·С‹РІР°С‚СЊ СЌС‚Сѓ Р°Р»СЊС‚. РіСЂСѓРїРїСѓ.
 		//
 		PPID  cur_grp_id = 0;
 		if(order == OrdByGrp_Name && Filt.GoodsGrpID && PPObjGoodsGroup::IsTempAlt(Filt.GoodsGrpID) > 0) {

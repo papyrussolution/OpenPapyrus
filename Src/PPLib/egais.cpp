@@ -190,6 +190,10 @@ PPEgaisProcessor::QueryBarcode::QueryBarcode() : RowId(0), CodeType(0)
 {
 }
 
+PPEgaisProcessor::ReplyRestBCode::ReplyRestBCode() : RestTime(ZERODATETIME)
+{
+}
+
 SLAPI PPEgaisProcessor::UtmEntry::UtmEntry()
 {
 	THISZERO();
@@ -238,6 +242,7 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_CONFIRMREPEALWB: P_Data = new RepealWb(); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
 		case PPEDIOP_EGAIS_REPLYBARCODE: P_Data = new TSCollection <QueryBarcode>; break;
+		case PPEDIOP_EGAIS_REPLYRESTBCODE: P_Data = new ReplyRestBCode; break; // @v10.5.8
 	}
 }
 
@@ -281,6 +286,7 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_CONFIRMREPEALWB: delete static_cast<RepealWb *>(P_Data); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
 		case PPEDIOP_EGAIS_REPLYBARCODE: delete static_cast<TSCollection <QueryBarcode> *>(P_Data); break;
+		case PPEDIOP_EGAIS_REPLYRESTBCODE: delete static_cast<ReplyRestBCode *>(P_Data); break; // @v10.5.8
 	}
 }
 
@@ -1085,7 +1091,8 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_WAYBILLACT_V3,    "WayBillAct_v3" }, // @v9.9.5
 	{ PPEDIOP_EGAIS_ACTWRITEOFF_V3,   "ActWriteOff_v3" }, // @v9.9.5
 	{ PPEDIOP_EGAIS_QUERYRESENDDOC,   "QueryResendDoc" }, // @v10.2.12
-	{ PPEDIOP_EGAIS_QUERYRESTBCODE,   "QueryRestBCode" } // @v10.5.6
+	{ PPEDIOP_EGAIS_QUERYRESTBCODE,   "QueryRestBCode" }, // @v10.5.6
+	{ PPEDIOP_EGAIS_REPLYRESTBCODE,   "ReplyRestBCode" }  // @v10.5.8
 };
 
 //static
@@ -6221,6 +6228,27 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 						THROW(Helper_FinalizeNewPack(&p_new_pack, srcReplyPos, pPackList));
 						ok = 1;
 					}
+					else if(doc_type == PPEDIOP_EGAIS_REPLYRESTBCODE) { // @v10.5.8
+						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
+						{
+							ReplyRestBCode * p_rrbc = static_cast<ReplyRestBCode *>(p_new_pack->P_Data);
+							for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
+								if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
+									strtodatetime(temp_buf, &p_rrbc->RestTime, DATF_ISO8601|DATF_CENTURY, TIMF_HMS);
+								}
+								else if(SXml::GetContentByName(p_n, "Inform2RegId", temp_buf)) {
+									p_rrbc->Inform2RegId = temp_buf;
+								}
+								else if(SXml::IsName(p_n, "MarkInfo")) {
+									for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
+										if(SXml::GetContentByName(p_c, "amc", temp_buf)) {
+											p_rrbc->MarkSet.add(temp_buf);
+										}
+									}
+								}
+							}
+						}
+					}
 					else if(doc_type == PPEDIOP_EGAIS_REPLYBARCODE) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
                         {
@@ -6836,7 +6864,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 			PPEDIOP_EGAIS_TICKET, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP,
 			PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_REPLYAP,
 			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3,
-			PPEDIOP_EGAIS_REQUESTREPEALWB, 0);
+			PPEDIOP_EGAIS_REQUESTREPEALWB, PPEDIOP_EGAIS_REPLYRESTBCODE, 0);
 		ediop_list.sortAndUndup();
 		THROW_MEM(SETIFZ(P_RefC, new RefCollection));
 		for(uint i = 0; i < reply_count; i++) {
@@ -7020,6 +7048,22 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						refai.ActualDate = p_ref_a->ActualDate;
 						refai.BottlingDate = p_ref_a->BottlingDate;
 						THROW(P_RefC->SetRefA(refai));
+					}
+				}
+				else if(p_pack->DocType == PPEDIOP_EGAIS_REPLYRESTBCODE) {
+					const ReplyRestBCode * p_rrbc = static_cast<const ReplyRestBCode *>(p_pack->P_Data);
+					if(p_rrbc) {
+						SString out_file_name;
+						PPGetFilePath(PPPATH_OUT, "egais-replyrestbcode.txt", out_file_name);
+						SFile f_out(out_file_name, SFile::mAppend);
+						if(f_out.IsValid()) {
+							temp_buf.Z().Cat(p_rrbc->RestTime, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(p_rrbc->Inform2RegId).CR();
+							f_out.WriteLine(temp_buf);
+							for(uint ssp = 0; p_rrbc->MarkSet.get(&ssp, temp_buf);) {
+								temp_buf.Strip().CR();
+								f_out.WriteLine(temp_buf);
+							}
+						}
 					}
 				}
 			}
@@ -7349,7 +7393,6 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP,
 	Reference * p_ref = PPRef;
 	uint   i;
 	SString temp_buf;
-	PPObjOprKind op_obj;
 	PPIDArray temp_bill_list;
 	PPIDArray base_op_list;
 	PPIDArray op_list;

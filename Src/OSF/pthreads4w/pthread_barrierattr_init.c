@@ -36,8 +36,7 @@
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *   Initializes a barrier attributes object with default
- *   attributes.
+ *   Initializes a barrier attributes object with default attributes.
  *
  * PARAMETERS
  *   attr
@@ -45,8 +44,7 @@
  *
  *
  * DESCRIPTION
- *   Initializes a barrier attributes object with default
- *   attributes.
+ *   Initializes a barrier attributes object with default attributes.
  *
  *   NOTES:
  *           1)      Used to define barrier types
@@ -59,15 +57,12 @@
  */
 int pthread_barrierattr_init(pthread_barrierattr_t * attr)
 {
-	pthread_barrierattr_t ba;
 	int result = 0;
-	ba = (pthread_barrierattr_t)SAlloc::C(1, sizeof(*ba));
-	if(ba == NULL) {
+	pthread_barrierattr_t ba = static_cast<pthread_barrierattr_t>(SAlloc::C(1, sizeof(*ba)));
+	if(!ba)
 		result = ENOMEM;
-	}
-	else {
+	else
 		ba->pshared = PTHREAD_PROCESS_PRIVATE;
-	}
 	*attr = ba;
 	return result;
 }

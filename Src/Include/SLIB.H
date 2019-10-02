@@ -439,10 +439,13 @@ struct _finddatai64_t;
 //
 class SlConstParam {
 public:
-	SlConstParam() : VectorImageMask(0x00008000U)
+	SlConstParam() :
+		VectorImageMask(0x00008000U),
+		Ssc_CompressionSignature(0xFDB975312468ACE0ULL)
 	{
 	}
 	const uint VectorImageMask;
+	const uint64 Ssc_CompressionSignature; // Сигнатура сжатия в буфере SBuffer
 };
 
 extern const SlConstParam _SlConst;
@@ -3894,6 +3897,7 @@ public:
 	SString & SLAPI CatEq(const char * pKey, double val, long fmt = SFMT_QTTY);
 	SString & SLAPI CatEq(const char * pKey, LDATE val, long fmt = DATF_DMY|DATF_CENTURY);
 	SString & SLAPI CatEq(const char * pKey, LTIME val, long fmt = TIMF_HMS);
+	SString & SLAPI CatEq(const char * pKey, LDATETIME val, long dtFmt = DATF_DMY|DATF_CENTURY, long tmFmt = TIMF_HMS);
 	//
 	// Descr: Вставляет в позицию pos строки this другую строку pStr.
 	//   Если pos > this->Len(), то ничего не делает,
@@ -8264,7 +8268,8 @@ public:
 		cpucsAVVX512F  = 15, // @v9.9.6 or above = AVVX512F
 	};
 	enum {
-		fBigEndian = 0x0001 // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
+		fBigEndian    = 0x0001, // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
+		fPerfFreqIsOk = 0x0002  // @v10.5.7
 	};
 
 	static int     BigEndian();
@@ -8275,7 +8280,12 @@ public:
 	explicit SSystem(int imm);
 	int    FASTCALL GetCpuInfo();
 	int    CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const;
+	//
+	// Descr: Возвращает значение системного таймера в микросекундах
+	//
+	int64  GetSystemTimestampMks() const;
 
+	int64  PerfFreq; // @firstmember @v10.5.7 Frequency of the performance counter. Если !(Flags & fPerfFreqIsOk) то при инициализации PerfFreq произошла ошибка.
 	CpuVendor CpuV;
 	CpuCmdSet CpuCs;
 	size_t CpuCacheSizeL0;

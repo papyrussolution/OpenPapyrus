@@ -2504,22 +2504,20 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 		k0.ObjID = rI.O.Id;
 		k0.Lang = rI.L;
 		if(search(0, &k0, spEq)) {
-			{
-				SSerializeContext sctx;
-				SBuffer temp_buf;
-				readLobData(VT, temp_buf);
-				destroyLobData(VT); // @v10.2.11 @fix
-				const size_t actual_size = temp_buf.GetAvailableSize();
-				const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
-				if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_buf.GetBuf(temp_buf.GetRdOffs()))) {
-					SCompressor compr(SCompressor::tZLib);
-					SBuffer dbuf;
-					THROW_SL(compr.DecompressBlock(temp_buf.GetBuf(temp_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
-					THROW_SL(rTs.Serialize(-1, dbuf, &sctx));
-				}
-				else {
-					THROW_SL(rTs.Serialize(-1, temp_buf, &sctx));
-				}
+			SSerializeContext sctx;
+			SBuffer temp_buf;
+			readLobData(VT, temp_buf);
+			destroyLobData(VT); // @v10.2.11 @fix
+			const size_t actual_size = temp_buf.GetAvailableSize();
+			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_buf.GetBuf(temp_buf.GetRdOffs()))) {
+				SCompressor compr(SCompressor::tZLib);
+				SBuffer dbuf;
+				THROW_SL(compr.DecompressBlock(temp_buf.GetBuf(temp_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
+				THROW_SL(rTs.Serialize(-1, dbuf, &sctx));
+			}
+			else {
+				THROW_SL(rTs.Serialize(-1, temp_buf, &sctx));
 			}
 		}
 		else
@@ -2545,9 +2543,9 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, i
 	int    ok = -1;
 	const  size_t src_len = sstrlen(pText);
 	if(src_len) {
-		SStringU temp_buf;
-		temp_buf.CopyFromUtf8(pText, src_len);
-		ok = SetText(rI, temp_buf, use_ta);
+		SStringU & r_temp_buf = SLS.AcquireRvlStrU(); // @v10.5.6 @revolver
+		r_temp_buf.CopyFromUtf8(pText, src_len);
+		ok = SetText(rI, r_temp_buf, use_ta);
 	}
 	else
 		ok = SetText(rI, static_cast<const wchar_t *>(0), use_ta);
@@ -2636,7 +2634,7 @@ int SLAPI UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * p
 		THROW_SL(pTs->Serialize(+1, sbuf, &sctx));
 		if(sbuf.GetAvailableSize() > 128) {
 			uint8 cs[32];
-			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			const size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 			THROW_SL(cbuf.Write(cs, cs_size));
 			THROW_SL(compr.CompressBlock(sbuf.GetBuf(0), sbuf.GetAvailableSize(), cbuf, 0, 0));
 		}

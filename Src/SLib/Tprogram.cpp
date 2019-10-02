@@ -813,7 +813,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		case WM_COMMAND:
 			{
-				p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
+				p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 				MENUITEMINFO mii;
 				MEMSZERO(mii);
 				mii.cbSize = sizeof(MENUITEMINFO);
@@ -884,7 +884,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 		case WM_SIZE:
 			if(wParam != SIZE_MINIMIZED) {
 				// @v9.1.3 AlignWaitDlg();
-				p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
+				p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 				p_pgm->SizeMainWnd(hWnd);
 				EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
 			}

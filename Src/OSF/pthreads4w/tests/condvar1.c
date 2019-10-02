@@ -38,20 +38,20 @@
  * - Validation
  *
  * Requirements Tested:
- * - 
+ * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
  * - Creates and then imediately destroys a CV. Does not
  *   test the CV.
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -61,7 +61,7 @@
  * - No output on success.
  *
  * Assumptions:
- * - 
+ * -
  *
  * Pass Criteria:
  * - pthread_cond_init returns 0, and
@@ -78,18 +78,12 @@
 
 static pthread_cond_t cv = NULL;
 
-int
-main()
+int main()
 {
-  assert(cv == NULL);
-
-  assert(pthread_cond_init(&cv, NULL) == 0);
-
-  assert(cv != NULL);
-
-  assert(pthread_cond_destroy(&cv) == 0);
-
-  assert(cv == NULL);
-
-  return 0;
+	assert(cv == NULL);
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(cv != NULL);
+	assert(pthread_cond_destroy(&cv) == 0);
+	assert(cv == NULL);
+	return 0;
 }

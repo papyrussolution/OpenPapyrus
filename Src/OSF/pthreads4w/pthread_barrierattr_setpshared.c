@@ -46,12 +46,8 @@
  *
  *   pshared
  *           must be one of:
- *
- *                   PTHREAD_PROCESS_SHARED
- *                           May be shared if in shared memory
- *
- *                   PTHREAD_PROCESS_PRIVATE
- *                           Cannot be shared.
+ *                   PTHREAD_PROCESS_SHARED May be shared if in shared memory
+ *                   PTHREAD_PROCESS_PRIVATE Cannot be shared.
  *
  * DESCRIPTION
  *   Mutexes creatd with 'attr' can be shared between
@@ -59,12 +55,9 @@
  *   in memory shared by these processes.
  *
  *   NOTES:
- *           1)      pshared barriers MUST be allocated in shared
- *                   memory.
- *
+ *           1)      pshared barriers MUST be allocated in shared memory.
  *           2)      The following macro is defined if shared barriers
- *                   are supported:
- *                           _POSIX_THREAD_PROCESS_SHARED
+ *                   are supported: _POSIX_THREAD_PROCESS_SHARED
  *
  * RESULTS
  *           0               successfully set attribute,

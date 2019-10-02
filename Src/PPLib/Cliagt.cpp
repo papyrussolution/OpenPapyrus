@@ -1436,7 +1436,7 @@ private:
 			EditOrderCalendar(&Data.Dr);
 		}
 		else if(event.isClusterClk(CTL_SUPPLAGT_FLAGS)) {
-			setupCtrls(GetClusterData(CTL_SUPPLAGT_FLAGS));
+			SetupCtrls(GetClusterData(CTL_SUPPLAGT_FLAGS));
 		}
 		else
 			return;
@@ -1514,7 +1514,7 @@ private:
 	}
 	int    EditExchangeCfg();
 	int    EditOrdCalendar();
-	int    setupCtrls(long flags);
+	int    SetupCtrls(long flags);
 	int    EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEntry * pEntry, int pos);
 
 	PPID   ArID;
@@ -1572,7 +1572,7 @@ int SupplAgtDialog::EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEnt
     DIALOG_PROC_BODY_P1(SOrdParamEntryDialog, arID, pEntry);
 }
 
-int SupplAgtDialog::setupCtrls(long flags)
+int SupplAgtDialog::SetupCtrls(long flags)
 {
 	int    to_disable = BIN(!(flags & AGTF_AUTOORDER));
 	disableCtrl(CTL_SUPPLAGT_ORDPRD, to_disable);
@@ -1951,7 +1951,7 @@ int SupplAgtDialog::setDTS(const PPSupplAgreement * pAgt)
 		AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 2, AGTF_AUTOORDER);
 		SetClusterData(CTL_SUPPLAGT_FLAGS, Data.Flags);
 	}
-	setupCtrls(Data.Flags);
+	SetupCtrls(Data.Flags);
 	updateList(-1);
 	return 1;
 }

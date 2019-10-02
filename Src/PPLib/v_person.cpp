@@ -24,13 +24,11 @@ int SLAPI ViewPersonInfoBySCard(const char * pCode)
 				link_files.Load(psn_rec.ID, 0L);
 				link_files.At(0, img_path);
 			}
-			// @v9.0.2 PPGetWord(PPWORD_CARD, 0, word);
-			PPLoadString("card", word); // @v9.0.2
+			PPLoadString("card", word);
 			buf.CR().Cat(word).CatDiv(':', 2).Space().Cat(scard_rec.Code);
 			PPLoadString("rest", word);
 			buf.CR().Cat(word).CatDiv(':', 2).Space().Cat(scard_rec.Rest);
-			// @v9.0.2 PPGetWord(PPWORD_NAME, 0, word.Z());
-			PPLoadString("name", word); // @v9.0.2
+			PPLoadString("name", word);
 			buf.CR().Cat(word).CatDiv(':', 2).Space().Cat(psn_rec.Name);
 			if(scard_rec.Expiry) {
 				PPSCardConfig sc_cfg;
@@ -391,10 +389,9 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewPerson::GetTabTitle(long tabID, SString & rBuf) const
-{
-	return GetObjectName(PPOBJ_TAG, tabID, rBuf.Z());
-}
+int SLAPI PPViewPerson::GetTabTitle(long tabID, SString & rBuf) const { return GetObjectName(PPOBJ_TAG, tabID, rBuf.Z()); }
+int SLAPI PPViewPerson::ViewRelations(PPID id) { return PsnObj.EditRelationList(id); }
+int SLAPI PPViewPerson::AddRelation(PPID id) { return PsnObj.EditRelation(&id, 0, 0); }
 
 int SLAPI PPViewPerson::UpdateHungedAddr(PPID addrID)
 {
@@ -815,16 +812,6 @@ int SLAPI PPViewPerson::ViewPersonEvents(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewPerson::ViewRelations(PPID id)
-{
-	return PsnObj.EditRelationList(id);
-}
-
-int SLAPI PPViewPerson::AddRelation(PPID id)
-{
-	return PsnObj.EditRelation(&id, 0, 0); // (EditRelation)
-}
-
 int SLAPI PPViewPerson::Transmit(PPID id, int transmitKind)
 {
 	int    ok = -1;
@@ -1167,7 +1154,6 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 	ASSIGN_PTR(pItem, item);
 	return ok;
 }
-
 
 int SLAPI PPViewPerson::Helper_InsertTempRec(TempPersonTbl::Rec & rRec)
 {

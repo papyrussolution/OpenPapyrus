@@ -692,7 +692,7 @@ LDATE FASTCALL encodedate(int day, int month, int year)
 
 LDATE FASTCALL plusdate(LDATE d, long a)
 {
-	if(a) // @v10.0.02
+	if(a)
 		plusdate(&d, (int)a, 0);
 	return d;
 }
@@ -3385,7 +3385,6 @@ SLTEST_R(LDATE)
 		{"Tue, 30 Dec 2008 21:32:11 +0200", "30/12/2008 21:32:11"},
 		{"Wed, 11 Dec 2008 01:17:02 +0200", "31/12/2008 01:17:02"}
 	};
-
 	uint i;
 	_datefmt(20, 9, getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[2].Out);
 	_datefmt(12, getcurdate_().month(), getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[4].Out);
@@ -3557,7 +3556,6 @@ SLTEST_R(LDATE)
 		}
 	}
 	{
-		char  txt_mon[128];
 		SString mon_buf;
 		for(i = 1; i <= 12; i++) {
 			/*
@@ -3567,6 +3565,7 @@ SLTEST_R(LDATE)
 				#define MONF_OEM       0x0080 // OEM-coding
 			*/
 #if 0 // @v10.4.5 {
+			char  txt_mon[128];
 			{
 				long fmt = MONF_SHORT;
 				getMonthText(i, fmt, txt_mon);

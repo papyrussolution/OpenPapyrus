@@ -970,7 +970,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		const char * p_subj_type = "GOOD";
 		const char * p_type = "MAX_DISCOUNT_PERCENT";
 		SString restr_id;
-		_MaxDisEntry * p_entry = static_cast<_MaxDisEntry *>(max_dis_list.at(i));
+		const _MaxDisEntry * p_entry = static_cast<const _MaxDisEntry *>(max_dis_list.at(i));
 		(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
 		p_writer->StartElement("max-discount-restriction");
 	 	p_writer->AddAttrib("id", restr_id.cptr());
@@ -985,10 +985,8 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
 		p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
 		// @v10.4.6 {
-		if(store_index.NotEmpty()) {
-			//<shop-indices>2</shop-indices>
-			p_writer->PutElement("shop-indices", store_index);
-		}
+		if(store_index.NotEmpty())
+			p_writer->PutElement("shop-indices", store_index); //<shop-indices>2</shop-indices>
 		// } @v10.4.6 
 		p_writer->EndElement(); // </max-discount-restriction>
 		PPWaitPercent(i + 1, max_dis_count, iter_msg);
@@ -1038,14 +1036,12 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		SString ser_ident;
 		LDATETIME cur_dtm;
 		SPathStruc sp;
-		PPSCardSeries ser_rec;
+		PPSCardSeries2 ser_rec;
 		PPObjSCardSeries scs_obj;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		PPLoadText(PPTXT_EXPSCARD, iter_msg);
 		PPGetWord(PPWORD_SERIES, 0, series_word);
-
-		scard_quot_ary.freeAll();
-		MEMSZERO(ser_rec);
+		scard_quot_ary.clear();
 		sp.Split(path_cards);
 		getcurdatetime(&cur_dtm);
 		// @v9.0.9 name.Printf("%s_%02d-%02d-%04d_%02d-%02d-%02d", (const char *)sp.Nam, cur_dtm.d.day(), cur_dtm.d.month(), cur_dtm.d.year(), cur_dtm.t.hour(), cur_dtm.t.minut(), cur_dtm.t.sec());

@@ -42,10 +42,8 @@
  * PARAMETERS
  *   cond
  *           pointer to an instance of pthread_cond_t
- *
  *   attr
  *           specifies optional creation attributes.
- *
  *
  * DESCRIPTION
  *   This function initializes a condition variable.
@@ -53,8 +51,7 @@
  * RESULTS
  *           0               successfully created condition variable,
  *           EINVAL          'attr' is invalid,
- *           EAGAIN          insufficient resources (other than
- *                           memory,
+ *           EAGAIN          insufficient resources (other than memory,
  *           ENOMEM          insufficient memory,
  *           EBUSY           'cond' is already initialized,
  *
@@ -68,14 +65,11 @@ int pthread_cond_init(pthread_cond_t * cond, const pthread_condattr_t * attr)
 		return EINVAL;
 	}
 	if((attr && *attr) && ((*attr)->pshared == PTHREAD_PROCESS_SHARED)) {
-		/*
-		 * Creating condition variable that can be shared between
-		 * processes.
-		 */
+		// Creating condition variable that can be shared between processes.
 		result = ENOSYS;
 		goto DONE;
 	}
-	cv = (pthread_cond_t)SAlloc::C(1, sizeof(*cv));
+	cv = static_cast<pthread_cond_t>(SAlloc::C(1, sizeof(*cv)));
 	if(cv == NULL) {
 		result = ENOMEM;
 		goto DONE;

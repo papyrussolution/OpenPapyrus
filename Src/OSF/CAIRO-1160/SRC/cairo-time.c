@@ -146,7 +146,6 @@ cairo_time_t _cairo_time_get(void)
 	r = _cairo_int64_add(r, _cairo_int32_to_int64(t.tv_usec));
 	return r;
 }
-
 #endif
 
 int _cairo_time_cmp(const void * a, const void * b)

@@ -4312,8 +4312,8 @@ int Backend_SelectObjectBlock::ResolveCrit_Cur(int subcriterion, const SString &
 		case scID: id = rArg.ToLong(); break;
 		case scCode:
 			{
-				PPObjCurrency c_obj;
-				c_obj.SearchSymb(&id, rArg);
+				PPObjCurrency cur_obj;
+				cur_obj.SearchSymb(&id, rArg);
 			}
 			break;
 		default:

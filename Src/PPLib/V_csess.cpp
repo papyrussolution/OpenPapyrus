@@ -909,7 +909,7 @@ public:
 	int    getDTS(PPDfCreateRulePacket *);
 private:
 	DECL_HANDLE_EVENT;
-	int    setupCtrls();
+	int    SetupCtrls();
 
 	PPDfCreateRulePacket Data;
 };
@@ -919,11 +919,11 @@ IMPL_HANDLE_EVENT(DraftCreateRuleDialog)
 	TDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_DFRULE_PQUOT)) {
 		getCtrlData(CTLSEL_DFRULE_PQUOT, &Data.Rec.PQuot);
-		setupCtrls();
+		SetupCtrls();
 	}
 	else if(event.isCbSelected(CTLSEL_DFRULE_CQUOT)) {
 		getCtrlData(CTLSEL_DFRULE_CQUOT, &Data.Rec.CQuot);
-		setupCtrls();
+		SetupCtrls();
 	}
 	else if(event.isCbSelected(CTLSEL_DFRULE_OPKIND)) {
 		PPOprKind op_kind;
@@ -933,19 +933,19 @@ IMPL_HANDLE_EVENT(DraftCreateRuleDialog)
 	}
 	else if(event.isCbSelected(CTLSEL_DFRULE_GGRP)) {
 		getCtrlData(CTLSEL_DFRULE_GGRP, &Data.Rec.GoodsGrpID);
-		setupCtrls();
+		SetupCtrls();
 	}
 	else if(event.isCbSelected(CTLSEL_DFRULE_SCARDSER))
-		setupCtrls();
+		SetupCtrls();
 	else if(event.isClusterClk(CTL_DFRULE_COSTALG) || event.isClusterClk(CTL_DFRULE_PRICEALG) || event.isClusterClk(CTL_DFRULE_WOSCARD)) {
-		setupCtrls();
+		SetupCtrls();
 	}
 	else
 		return;
 	clearEvent(event);
 }
 
-int DraftCreateRuleDialog::setupCtrls()
+int DraftCreateRuleDialog::SetupCtrls()
 {
 	int    disable_all = BIN(Data.Rec.Flags & PPDraftCreateRule::fIsRulesGroup);
 	ushort v = getCtrlUInt16(CTL_DFRULE_PRICEALG);
@@ -1042,7 +1042,7 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 		// } @v10.3.5
 		SetupPPObjCombo(this, CTLSEL_DFRULE_SCARDSER, PPOBJ_SCARDSERIES, Data.Rec.SCardSerID, OLW_CANEDIT, 0);
 	}
-	setupCtrls();
+	SetupCtrls();
 	return 1;
 }
 
@@ -1528,7 +1528,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 
 			const  int cost_nominal = BIN(IsSellingOp(rule.Rec.OpID) <= 0);
 			long   pos  = 0;
-			long   prev_loc_id = (goods.getCount()) ? ((_E *)goods.at(0))->LocID : def_loc_id;
+			long   prev_loc_id = goods.getCount() ? static_cast<const _E *>(goods.at(0))->LocID : def_loc_id;
 			double sum = 0.0;
 			double add_sum = 0.0;
 			{

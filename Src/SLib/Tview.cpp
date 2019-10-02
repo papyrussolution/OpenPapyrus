@@ -714,7 +714,7 @@ void TView::setState(uint aState, bool enable)
 			switch(aState) {
 				case sfVisible:
 					{
-						TView * p_label = (TView *)TView::messageBroadcast(P_Owner, cmSearchLabel, this);
+						TView * p_label = static_cast<TView *>(TView::messageBroadcast(P_Owner, cmSearchLabel, this));
 						CALLPTRMEMB(p_label, setState(aState, enable));
 						Show(enable);
 					}

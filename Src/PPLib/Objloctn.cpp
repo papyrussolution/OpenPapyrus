@@ -2906,10 +2906,8 @@ public:
 	int    SLAPI GetConfig(PPLocationConfig * pCfg, int enforce);
 	int    SLAPI GetCellList(PPID locID, PPIDArray * pList); // @sync_w
 	int    SLAPI DirtyCellList(PPID locID); // @sync_w
-
 	int    SLAPI ReleaseFullEaList(const StrAssocArray * pList);
 	const  StrAssocArray * SLAPI GetFullEaList();
-
 	virtual int  FASTCALL Dirty(PPID); // @sync_w
 private:
 	struct WHObjEntry { // @flat
@@ -2945,12 +2943,10 @@ private:
 
 	FealArray FullEaList;
 	ReadWriteLock FealLock;
-
 	int    IsWhObjTabInited;
 	SVector WhObjList; // @v10.0.05 SArray-->SVector
 	TSCollection <WHCellEntry> WhCellList;
 	PPLocationConfig Cfg;
-	//
 	ReadWriteLock CfgLock;
 	ReadWriteLock WhclLock; // Блокировка для WhCellList.
 public:

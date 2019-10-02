@@ -353,7 +353,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 							long   cmd = 0;
 							KeyDownCommand k;
 							k.SetTvKeyCode(LOWORD(wParam));
-							if(p_view->KeyAccel.BSearch(*(long *)&k, &cmd, 0)) {
+							if(p_view->KeyAccel.BSearch(*reinterpret_cast<const long *>(&k), &cmd, 0)) {
 								p_view->ProcessCommand(cmd, 0, p_view);
 							}
 						}
@@ -493,7 +493,7 @@ LRESULT CALLBACK LogListWindowSCI::ScintillaWindowProc(HWND hwnd, UINT msg, WPAR
 					}
 					else if(p_this->KeyAccel.getCount()) {
 						long   cmd = 0;
-						if(p_this->KeyAccel.BSearch(*(long *)&k, &cmd, 0)) {
+						if(p_this->KeyAccel.BSearch(*reinterpret_cast<const long *>(&k), &cmd, 0)) {
 							p_this->SysState |= p_this->sstLastKeyDownConsumed;
 							p_this->ProcessCommand(cmd, 0, p_this);
 							processed = 1;
@@ -549,20 +549,9 @@ long SLAPI PPMsgLog::ImplPutMsg(const char * pText, long flags)
 	return 0;
 }
 
-long SLAPI PPMsgLog::GetCount() const
-{
-	return AllCount;
-}
-
-long SLAPI PPMsgLog::GetCurMsg() const
-{
-	return CurMsg;
-}
-
-long SLAPI PPMsgLog::GetVisCount() const
-{
-	return P_Index->getCount();
-}
+long SLAPI PPMsgLog::GetCount() const { return AllCount; }
+long SLAPI PPMsgLog::GetCurMsg() const { return CurMsg; }
+long SLAPI PPMsgLog::GetVisCount() const { return SVectorBase::GetCount(P_Index); }
 
 void * SLAPI PPMsgLog::GetRow(long r)
 {
@@ -571,7 +560,7 @@ void * SLAPI PPMsgLog::GetRow(long r)
 		return 0;
 	CurMsg = 0;
 	EnumMessages(GetVisibleMessage(r), TmpText+sizeof(long), LF_BUFFSIZE-sizeof(long), &rr, &hh);
-	*(long *)(TmpText+hh) = r;
+	*reinterpret_cast<long *>(TmpText+hh) = r;
 	if((rr = (int16)sstrlen(TmpText+hh+4)) >= 256)
 		TmpText[hh+259] = '\0';
 	return (TmpText+hh);
@@ -651,11 +640,6 @@ long SLAPI PPMsgLog::Init()
 		return 0;
 	{
 		SString fname;
-		/*
-		SString path;
-		if(!PPGetPath(PPPATH_TEMP, path))
-			PPGetPath(PPPATH_OUT, path);
-		*/
 		PPMakeTempFileName("logl", 0, 0, FileName);
 		PPMakeTempFileName("logi", 0, 0, InFileName);
 	}
@@ -799,7 +783,7 @@ SLAPI TVMsgLog::TVMsgLog() : PPMsgLog(), P_LWnd(0), HorzRange(0)
 // static
 void TVMsgLog::Delete_(TVMsgLog * pMsgLog, int winDestroy)
 {
-	if(winDestroy)
+	if(pMsgLog && winDestroy)
 		ZDELETE(pMsgLog);
 }
 
@@ -871,14 +855,12 @@ SLAPI PPLogger::PPLogger(long flags) : Flags(flags), P_Log(0)
 
 SLAPI PPLogger::~PPLogger()
 {
-	if(P_Log)
-		TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log), BIN(CS_SERVER));
+	TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log), BIN(CS_SERVER));
 }
 
 void SLAPI PPLogger::Clear()
 {
-	if(P_Log)
-		TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log));
+	TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log));
 }
 
 int FASTCALL PPLogger::Log(const char * pMsg)
@@ -1368,6 +1350,9 @@ int SLAPI PPSession::Log(const char * pFileName, const char * pStr, long options
 		}
 		if(options & LOGMSGF_THREADID) {
 			item.Prefix.Cat(GetConstTLA().GetThreadID()).Tab();
+		}
+		if(options & LOGMSGF_SLSSESSGUID) { // @v10.5.7
+			item.Prefix.Cat(SLS.GetSessUuid(), S_GUID::fmtIDL).Tab();
 		}
 		if(options & LOGMSGF_THREADINFO) {
 			SetThreadNotification(PPSession::stntMessage, item.Text);

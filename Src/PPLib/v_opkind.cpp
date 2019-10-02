@@ -431,17 +431,16 @@ int SLAPI PPViewOprKind::ViewBills(PPID opID)
 		//flt.LocID = LConfig.Location;
 		// @v9.7.10 flt.OpID = opID;
 		// @v9.7.10 {
-		const PPID op_type_id = GetOpType(opID);
-		if(oneof4(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) // @v10.5.7 PPOPT_DRAFTQUOTREQ
-			flt.Bbt = bbtDraftBills;
-		else if(op_type_id == PPOPT_ACCTURN)
-			flt.Bbt = bbtAccturnBills;
-		else if(op_type_id == PPOPT_INVENTORY)
-			flt.Bbt = bbtInventoryBills;
-		else if(op_type_id == PPOPT_GOODSORDER)
-			flt.Bbt = bbtOrderBills;
-		else if(op_type_id == PPOPT_POOL)
-			flt.Bbt = bbtPoolBills;
+		switch(GetOpType(opID)) {
+			case PPOPT_DRAFTEXPEND:
+			case PPOPT_DRAFTRECEIPT:
+			case PPOPT_DRAFTQUOTREQ: // @v10.5.7
+			case PPOPT_DRAFTTRANSIT: flt.Bbt = bbtDraftBills; break;
+			case PPOPT_ACCTURN: flt.Bbt = bbtAccturnBills; break;
+			case PPOPT_INVENTORY: flt.Bbt = bbtInventoryBills; break;
+			case PPOPT_GOODSORDER: flt.Bbt = bbtOrderBills; break;
+			case PPOPT_POOL: flt.Bbt = bbtPoolBills;
+		}
 		flt.SetupBrowseBillsType(flt.Bbt);
 		flt.OpID = opID;
 		{

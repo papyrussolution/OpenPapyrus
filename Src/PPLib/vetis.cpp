@@ -11,6 +11,7 @@
 // ModifyActivityLocationsOperation
 // ResolveDiscrepancyOperation
 // RegisterProductionOperation
+// @todo MergeStockEntriesOperation 
 
 static const char * P_VetisGuid_Country_Ru   = "74a3cbb1-56fa-94f3-ab3f-e8db4940d96b"; // Россия
 static const char * P_VetisGuid_Region_Ru_10 = "248d8071-06e1-425e-a1cf-d1ff4c4a14a8"; // Карелия
@@ -5591,12 +5592,12 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									if(!!r_bat.DateOfProduction.FirstDate || !!r_bat.DateOfProduction.SecondDate) {
 										SXml::WNode n_dt(srb, SXml::nst("vd", "dateOfProduction"));
 										PutGoodsDate(srb, SXml::nst("vd", "firstDate"), "dt", r_bat.DateOfProduction.FirstDate);
-										// @v10.5.4 PutGoodsDate(srb, SXml::nst("vd", "secondDate"), "bs", r_bat.DateOfProduction.SecondDate);
+										PutGoodsDate(srb, SXml::nst("vd", "secondDate"), "dt", r_bat.DateOfProduction.SecondDate);
 									}
 									if(!!r_bat.ExpiryDate.FirstDate || !!r_bat.ExpiryDate.SecondDate) {
 										SXml::WNode n_dt(srb, SXml::nst("vd", "expiryDate"));
 										PutGoodsDate(srb, SXml::nst("vd", "firstDate"), "dt", r_bat.ExpiryDate.FirstDate);
-										// @v10.5.4 PutGoodsDate(srb, SXml::nst("vd", "secondDate"), "bs", r_bat.ExpiryDate.SecondDate);
+										PutGoodsDate(srb, SXml::nst("vd", "secondDate"), "dt", r_bat.ExpiryDate.SecondDate);
 									}
 									// @v10.5.6 {
 									if(r_bat.BatchIdList.getCount()) {
@@ -5721,9 +5722,10 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										}
 										if(!p_trinfo->TransportNumber.IsEmpty()) {
 											SXml::WNode n_tn(srb, SXml::nst("vd", "transportNumber"));
+											// @v10.3.2 PutNonEmptyText(n_tn, "d9p1", "containerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
+											PutNonEmptyText(n_tn, "vd", "containerNumber", temp_buf = p_trinfo->TransportNumber.ContainerNumber); // @v10.5.8
 											PutNonEmptyText(n_tn, "vd", "vehicleNumber", temp_buf = p_trinfo->TransportNumber.VehicleNumber);
 											PutNonEmptyText(n_tn, "vd", "trailerNumber", temp_buf = p_trinfo->TransportNumber.TrailerNumber);
-											// @v10.3.2 PutNonEmptyText(n_tn, "d9p1", "containerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
 											PutNonEmptyText(n_tn, "vd", "wagonNumber", temp_buf = p_trinfo->TransportNumber.WagonNumber);
 											PutNonEmptyText(n_tn, "vd", "shipName", temp_buf = p_trinfo->TransportNumber.ShipName);
 											PutNonEmptyText(n_tn, "vd", "flightNumber", temp_buf = p_trinfo->TransportNumber.FlightNumber);

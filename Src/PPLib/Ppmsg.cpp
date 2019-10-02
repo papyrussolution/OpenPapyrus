@@ -778,7 +778,7 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 {
 	PROFILE_START
 	if(IdleTimer.Check(0) && APPL && APPL->H_MainWnd)
-		SendMessage(APPL->H_MainWnd, WM_ENTERIDLE, 0, 0);
+		::SendMessage(APPL->H_MainWnd, WM_ENTERIDLE, 0, 0);
 	DS.SetThreadNotification(PPSession::stntMessage, pMsg);
 	//
 	PPAdviseList adv_list;

@@ -1091,7 +1091,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 					req.TsID = rBlk.PPTS.Rec.ID;
 					rResult.AddS(stk_symb, &req.SymbolP);
 					if(rBlk.Flags & TimeSeriesBlock::fVolumeMult1000) // @v10.5.6
-						req.Volume = rStk.VolumeInit / 1000.0;
+						req.Volume = rStk.VolumeInit / 100.0; // @v10.5.7 1000.0-->100.0
 					else
 						req.Volume = rStk.VolumeInit;
 					req.SL = 0;
@@ -1546,7 +1546,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 							req.TsID = r_pse.R_Blk.PPTS.Rec.ID;
 							rResult.AddS(stk_symb, &req.SymbolP);
 							if(r_pse.R_Blk.Flags & TimeSeriesBlock::fVolumeMult1000) // @v10.5.6
-								req.Volume = r_pse.Volume / 1000.0;
+								req.Volume = r_pse.Volume / 100.0; // @v10.5.7 1000.0-->100.0
 							else
 								req.Volume = r_pse.Volume;
 							req.SL = sl;

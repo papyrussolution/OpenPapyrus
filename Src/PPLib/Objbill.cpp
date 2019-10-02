@@ -4716,6 +4716,7 @@ public:
 		long   Flags2;
 		LDATE  DueDate; // @v10.0.04
 		double Amount;
+		PPID   CurID;   // @v10.5.8
 	};
 	SLAPI  BillCache() : ObjCacheHash(PPOBJ_BILL, sizeof(Data),
 		(DS.CheckExtFlag(ECF_SYSSERVICE) ? (12*1024*1024) : (4*1024U*1024U)),
@@ -4939,6 +4940,7 @@ int SLAPI BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 			FLD(Flags2);
 			FLD(DueDate); // @v10.0.04
 			FLD(Amount);
+			FLD(CurID); // @v10.5.8
 			#undef FLD
 
 			MultTextBlock b;
@@ -4970,6 +4972,7 @@ void SLAPI BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	FLD(Flags2);
 	FLD(DueDate); // @v10.0.04
 	FLD(Amount);
+	FLD(CurID); // @v10.5.8
 	#undef FLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));

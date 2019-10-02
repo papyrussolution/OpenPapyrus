@@ -1515,6 +1515,9 @@ int ChangeDBList()
 //
 //
 struct BackupDlgData {
+	BackupDlgData() : Scen(), DBID(0), CopyID(0), Cmd(0)
+	{
+	}
 	PPID   DBID;
 	PPBackupScen Scen;
 	long   CopyID;
@@ -1532,7 +1535,7 @@ public:
 		enableCommand(cmBuRemove,  1);
 		enableCommand(cmBuCheck,   1);
 		Data.Cmd = 0;
-		P_List   = static_cast<SmartListBox *>(getCtrlView(CTL_BU_BACKUP_LIST));
+		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_BU_BACKUP_LIST));
 		SetupStrListBox(this, CTL_BU_BACKUP_LIST);
 		setupScenCombo();
 		setupCopyList();
@@ -1662,7 +1665,7 @@ void BackupDialog::setupCopyList()
 			p_list->addItem(0, text);
 		}
 		for(uint i = 0; bcset.enumItems(&i, (void **)&bcdata);) {
-			text = 0;
+			text.Z();
 			text.Cat(bcdata->Dtm, MKSFMT(12, ALIGN_LEFT | DATF_DMY), MKSFMT(12, ALIGN_LEFT | TIMF_HMS));
 			text.Cat(bcdata->Set);
 			if(!p_list->addItem(bcdata->ID, text)) {
@@ -2274,7 +2277,9 @@ int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 	int    ok = -1;
 	BCopyData copy_data;
 	if(pBDD->CopyID) {
-		SString copy_dir, wildcard, temp_buf;
+		SString temp_buf;
+		SString copy_dir;
+		SString wildcard;
 		int64  copy_size = 0;
 		LDATE  copy_dt = ZERODATE;
 		THROW_PP(pPB->GetCopyData(pBDD->CopyID, &copy_data), PPERR_DBLIB);
@@ -2354,7 +2359,8 @@ int SLAPI DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 						rez_id = DLG_BU_BACKUP;
 					else if(reply == cmBuRestore)
 						rez_id = DLG_BU_RSTR;
-					if((ppb = PPBackup::CreateInstance(pDbes)) != 0) {
+					ppb = PPBackup::CreateInstance(pDbes);
+					if(ppb) {
 						BackupDlgData bdd;
 						if(reply == cmRecover) {
 							_DoRecover(pDbes, ppb);
@@ -2365,10 +2371,9 @@ int SLAPI DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 							reply = cmCancel;
 						}
 						else {
-							BackupDialog * dlg = 0;
-							MEMSZERO(bdd);
 							bdd.Cmd = reply;
-							THROW(CheckDialogPtr(&(dlg = new BackupDialog(rez_id, &bdd, ppb))));
+							BackupDialog * dlg = new BackupDialog(rez_id, &bdd, ppb);
+							THROW(CheckDialogPtr(&dlg));
 							while((reply = ExecView(dlg)) != cmCancel) {
 								int    r = -1;
 								dlg->getDTS(&bdd);

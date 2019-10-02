@@ -2390,7 +2390,7 @@ GoodsCtrlGroup::~GoodsCtrlGroup()
 	PPObjGoodsGroup::RemoveDynamicAlt(TempAltGrpID, 0, 1, 1);
 }
 
-void GoodsCtrlGroup::setupCtrls(TDialog * dlg)
+void GoodsCtrlGroup::SetupCtrls(TDialog * dlg)
 {
 	if(!CtlGrp && !CtlGoods) {
 		CtlGrp   = GetComboBoxLinkID(dlg, CtlselGrp);
@@ -2561,7 +2561,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 			SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, reinterpret_cast<void *>(grp));
 			TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 			if(Flags & activateGoodsListOnGroupSelection) {
-				setupCtrls(dlg);
+				SetupCtrls(dlg);
 				dlg->selectCtrl(CtlGoods);
 				dlg->messageToCtrl(CtlselGoods, cmCBActivate, 0);
 			}
@@ -2569,7 +2569,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 		}
 	}
 	else if(TVKEYDOWN && TVKEY == kbF2 && dlg->GetCurrentView()) {
-		setupCtrls(dlg);
+		SetupCtrls(dlg);
 		if(isComboCurrent(dlg, dlg->getCtrlView(CtlGrp)) || isComboCurrent(dlg, dlg->getCtrlView(CtlGoods))) {
 			PPObjGoods gobj;
 			Goods2Tbl::Rec rec;
@@ -3301,7 +3301,7 @@ public:
 	int    getDTS(GoodsFilt * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    setupCtrls();
+	int    SetupCtrls();
 	PPID   AcsID;        // PPOBJ_ACCSHEET
 	PPObjArticle ArObj;
 	GoodsFilt Data;
@@ -3311,7 +3311,7 @@ IMPL_HANDLE_EVENT(GoodsAdvOptDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isClusterClk(CTL_GDSFVOPT_FLAGS))
-		setupCtrls();
+		SetupCtrls();
 	else if(event.isClusterClk(CTL_GDSFVOPT_OWNCODES)) {
 		if(getCtrlUInt16(CTL_GDSFVOPT_OWNCODES) & 0x01) {
 			setCtrlLong(CTLSEL_GDSFVOPT_AR, 0);
@@ -3333,7 +3333,7 @@ IMPL_HANDLE_EVENT(GoodsAdvOptDialog)
 	clearEvent(event);
 }
 
-int GoodsAdvOptDialog::setupCtrls()
+int GoodsAdvOptDialog::SetupCtrls()
 {
 	int    disable_struc = 0, disable_cargo = 0;
 	GetClusterData(CTL_GDSFVOPT_FLAGS, &Data.Flags);
@@ -3388,7 +3388,7 @@ int GoodsAdvOptDialog::setDTS(const GoodsFilt * pData)
 		AddClusterAssoc(CTL_GDSFVOPT_OWNCODES, 1, GoodsFilt::fShowWoArCode);
 		SetClusterData(CTL_GDSFVOPT_OWNCODES, Data.Flags);
 	}
-	setupCtrls();
+	SetupCtrls();
 	return 1;
 }
 

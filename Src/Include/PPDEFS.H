@@ -1523,6 +1523,7 @@
 	// PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
 #define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
 #define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
+#define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 Ответ на запрос марок по справке Б
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -2449,6 +2450,7 @@
 #define DLG_ASSETLOTITEM          100 // Поступление объекта основных средств
 #define DLG_ASSETEXPLITEM         111 // Ввод в эксплуатацию объекта основных средств
 #define DLG_SELLITEMDRAFT         694 // Продажа (клиент, розница)
+#define DLG_QUOTEREQSEQ           122 // @v10.5.8 Последовательный запрос котировки у поставщика в ответ на запрос от покупателя //
 #define DLG_TI_LOCTR             1135 // @unused Складская операция //
 	#define cmQCert                   101
 	#define cmLot                     102
@@ -2674,7 +2676,7 @@
 	#define CTL_REVAL_LOTTEXT           (17 + WINDOWS_ID_BIAS) // StaticText
 	#define CTL_REVAL_MEMO              (18 + WINDOWS_ID_BIAS)
 	#define CTL_REVAL_AMOUNT            (19 + WINDOWS_ID_BIAS)
-//       112, 113, 114, 115, 116, 117, 118, 120 // Occupied
+//       112, 113, 114, 115, 116, 117, 118, 120, 122 // Occupied
 #define DLG_FLTLOT                130 // Фильтр по лотам
 #define DLG_FLTLOTORD             395 // Фильтр по лотам заказов
 	#define CTL_FLTLOT_PERIOD            (1 + WINDOWS_ID_BIAS)
@@ -10745,6 +10747,14 @@
 	#define CTL_TESTMQC_INFO          (2 + WINDOWS_ID_BIAS)
 	#define CTL_TESTMQC_RESULT        (3 + WINDOWS_ID_BIAS)
 	#define CTL_TESTMQC_TIMING        (4 + WINDOWS_ID_BIAS)
+#define DLG_QUOTEREQFLT           1373
+    #define CTL_QUOTEREQFLT_PERIOD    (1 + WINDOWS_ID_BIAS)
+    #define CTLCAL_QUOTEREQFLT_PERIOD (2 + WINDOWS_ID_BIAS)
+    #define CTL_QUOTEREQFLT_OP        (3 + WINDOWS_ID_BIAS)
+    #define CTLSEL_QUOTEREQFLT_OP     (4 + WINDOWS_ID_BIAS)
+    #define CTL_QUOTEREQFLT_AR        (5 + WINDOWS_ID_BIAS)
+    #define CTLSEL_QUOTEREQFLT_AR     (6 + WINDOWS_ID_BIAS)
+    #define CTL_QUOTEREQFLT_FLAGS     (7 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

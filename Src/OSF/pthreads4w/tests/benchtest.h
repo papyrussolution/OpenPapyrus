@@ -30,39 +30,46 @@
  *
  */
 
-#include "../config.h"
+//#include "../config.h"
 
 enum {
-  OLD_WIN32CS,
-  OLD_WIN32MUTEX
+	OLD_WIN32CS,
+	OLD_WIN32MUTEX
 };
 
 extern int old_mutex_use;
 
 struct old_mutex_t_ {
-  HANDLE mutex;
-  CRITICAL_SECTION cs;
+	HANDLE mutex;
+	CRITICAL_SECTION cs;
 };
 
 typedef struct old_mutex_t_ * old_mutex_t;
 
 struct old_mutexattr_t_ {
-  int pshared;
+	int pshared;
 };
 
 typedef struct old_mutexattr_t_ * old_mutexattr_t;
 
-extern BOOL (WINAPI *__ptw32_try_enter_critical_section)(LPCRITICAL_SECTION);
+extern BOOL(WINAPI *__ptw32_try_enter_critical_section)(LPCRITICAL_SECTION);
 extern HINSTANCE __ptw32_h_kernel32;
 
-#define  __PTW32_OBJECT_AUTO_INIT ((void *) -1)
+#define  __PTW32_OBJECT_AUTO_INIT ((void*)-1)
 
 void dummy_call(int * a);
-void interlocked_inc_with_conditionals(int *a);
-void interlocked_dec_with_conditionals(int *a);
-int old_mutex_init(old_mutex_t *mutex, const old_mutexattr_t *attr);
-int old_mutex_lock(old_mutex_t *mutex);
-int old_mutex_unlock(old_mutex_t *mutex);
-int old_mutex_trylock(old_mutex_t *mutex);
-int old_mutex_destroy(old_mutex_t *mutex);
+void interlocked_inc_with_conditionals(int * a);
+void interlocked_dec_with_conditionals(int * a);
+int old_mutex_init(old_mutex_t * mutex, const old_mutexattr_t * attr);
+int old_mutex_lock(old_mutex_t * mutex);
+int old_mutex_unlock(old_mutex_t * mutex);
+int old_mutex_trylock(old_mutex_t * mutex);
+int old_mutex_destroy(old_mutex_t * mutex);
 /****************************************************************************************/
+
+// 
+// Dummy use of j, otherwise the loop may be removed by the optimiser
+// when doing the overhead timing with an empty loop.
+// 
+#define TESTSTART { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for (i = 0; i < ITERATIONS; i++) { j++;
+#define TESTSTOP };  __PTW32_FTIME(&currSysTimeStop); if (j + k == i) j++; }

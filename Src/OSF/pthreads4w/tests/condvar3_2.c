@@ -38,13 +38,13 @@
  * - Validation
  *
  * Requirements Tested:
- * - 
+ * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
  * - Because some CVs are never signaled, we expect their waits to time out.
@@ -62,7 +62,7 @@
  * - No output on success.
  *
  * Assumptions:
- * - 
+ * -
  *
  * Pass Criteria:
  * - pthread_cond_timedwait returns ETIMEDOUT.
@@ -73,7 +73,7 @@
  * - Process returns non-zero exit status.
  */
 
-#define _WIN32_WINNT 0x400
+// @sobolev #define _WIN32_WINNT 0x400
 
 #include "test.h"
 #include <sys/timeb.h>
@@ -86,103 +86,91 @@ static int timedout = 0;
 static int awoken = 0;
 
 enum {
-  NUMTHREADS = 30
+	NUMTHREADS = 30
 };
 
-void *
-mythread(void * arg)
+void * mythread(void * arg)
 {
-  int result;
+	int result;
 
-  assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
 
-  abstime2.tv_sec = abstime.tv_sec;
+	abstime2.tv_sec = abstime.tv_sec;
 
-  if ((int) (size_t)arg % 3 == 0)
-    {
-      abstime2.tv_sec += 2;
-    }
+	if((int)(size_t)arg % 3 == 0) {
+		abstime2.tv_sec += 2;
+	}
 
-  result = pthread_cond_timedwait(&cv, &mutex, &abstime2);
-  assert(pthread_mutex_unlock(&mutex) == 0);
-  if (result == ETIMEDOUT)
-    {
-      InterlockedIncrement((LPLONG)&timedout);
-    }
-  else
-    {
-      InterlockedIncrement((LPLONG)&awoken);
-    }
+	result = pthread_cond_timedwait(&cv, &mutex, &abstime2);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	if(result == ETIMEDOUT) {
+		InterlockedIncrement((LPLONG)&timedout);
+	}
+	else{
+		InterlockedIncrement((LPLONG)&awoken);
+	}
 
-  return arg;
+	return arg;
 }
 
 /* Cheating here - sneaking a peek at library internals */
-#include "../config.h"
-#include "../implement.h"
+//#include "../config.h"
+#include <ptw32_config.h>
+#include <implement.h>
 
-int
-main()
+int main()
 {
-  int i;
-  pthread_t t[NUMTHREADS + 1];
-  void* result = (void*)0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	void* result = (void*)0;
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	abstime2.tv_sec = abstime.tv_sec;
+	abstime2.tv_nsec = abstime.tv_nsec;
 
-  assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
 
-  assert(pthread_mutex_init(&mutex, NULL) == 0);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_create(&t[i], NULL, mythread, (void*)(size_t)i) == 0);
+	}
 
-  (void) pthread_win32_getabstime_np(&abstime, &reltime);
-  abstime2.tv_sec = abstime.tv_sec;
-  abstime2.tv_nsec = abstime.tv_nsec;
+	assert(pthread_mutex_unlock(&mutex) == 0);
 
-  assert(pthread_mutex_lock(&mutex) == 0);
-
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      assert(pthread_create(&t[i], NULL, mythread, (void *)(size_t)i) == 0);
-    }
-
-  assert(pthread_mutex_unlock(&mutex) == 0);
-
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      assert(pthread_join(t[i], &result) == 0);
-	assert((int)(size_t)result == i);
-      /*
-       * Approximately 2/3rds of the threads are expected to time out.
-       * Signal the remainder after some threads have woken up and exited
-       * and while some are still waking up after timeout.
-       * Also tests that redundant broadcasts don't return errors.
-       */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_join(t[i], &result) == 0);
+		assert((int)(size_t)result == i);
+		/*
+		 * Approximately 2/3rds of the threads are expected to time out.
+		 * Signal the remainder after some threads have woken up and exited
+		 * and while some are still waking up after timeout.
+		 * Also tests that redundant broadcasts don't return errors.
+		 */
 
 //      assert(pthread_mutex_lock(&mutex) == 0);
 
-      if (InterlockedExchangeAdd((LPLONG)&awoken, 0L) > NUMTHREADS/3)
-        {
-          assert(pthread_cond_broadcast(&cv) == 0);
-        }
+		if(InterlockedExchangeAdd((LPLONG)&awoken, 0L) > NUMTHREADS/3) {
+			assert(pthread_cond_broadcast(&cv) == 0);
+		}
 
 //      assert(pthread_mutex_unlock(&mutex) == 0);
+	}
 
-    }
+	assert(awoken == NUMTHREADS - timedout);
 
-  assert(awoken == NUMTHREADS - timedout);
+	{
+		int result = pthread_cond_destroy(&cv);
+		if(result != 0) {
+			fprintf(stderr, "Result = %s\n", error_string[result]);
+			fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
+			fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
+			fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
+			fflush(stderr);
+		}
+		assert(result == 0);
+	}
 
-  {
-  int result = pthread_cond_destroy(&cv);
-  if (result != 0)
-    {
-      fprintf(stderr, "Result = %s\n", error_string[result]);
-	fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
-	fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
-	fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
-	fflush(stderr);
-    }
-  assert(result == 0);
-  }
+	assert(pthread_mutex_destroy(&mutex) == 0);
 
-  assert(pthread_mutex_destroy(&mutex) == 0);
-
-  return 0;
+	return 0;
 }

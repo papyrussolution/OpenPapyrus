@@ -34,22 +34,22 @@
  * Test Synopsis: Test running of user supplied terminate() function.
  *
  * Test Method (Validation or Falsification):
- * - 
+ * -
  *
  * Requirements Tested:
  * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
- * - 
+ * -
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -68,7 +68,6 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
 
 /*
@@ -76,134 +75,121 @@
  * built with /MD and an unhandled exception occurs, the runtime does not
  * properly call the terminate handler specified by set_terminate().
  */
-#if defined(__cplusplus) \
-	&& !(defined(_MSC_VER) && _MSC_VER == 1400 && defined(_DLL) && !defined(_DEBUG))
-
+#if defined(__cplusplus) && !(defined(_MSC_VER) && _MSC_VER == 1400 && defined(_DLL) && !defined(_DEBUG))
 #if defined(_MSC_VER)
-# include <eh.h>
+	#include <eh.h>
 #else
-# if defined(__GNUC__) && __GNUC__ < 3
-#   include <new.h>
-# else
-#   include <new>
-    using std::set_terminate;
-# endif
+	#if defined(__GNUC__) && __GNUC__ < 3
+		#include <new.h>
+	#else
+		#include <new>
+		using std::set_terminate;
+	#endif
 #endif
-
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
  */
 enum {
-  NUMTHREADS = 10
+	NUMTHREADS = 10
 };
 
 int caught = 0;
 pthread_mutex_t caughtLock;
 
-void
-terminateFunction ()
+void terminateFunction()
 {
-  assert(pthread_mutex_lock(&caughtLock) == 0);
-  caught++;
+	assert(pthread_mutex_lock(&caughtLock) == 0);
+	caught++;
 #if 0
-  {
-     FILE * fp = fopen("pthread.log", "a");
-     fprintf(fp, "Caught = %d\n", caught);
-     fclose(fp);
-  }
+	{
+		FILE * fp = fopen("pthread.log", "a");
+		fprintf(fp, "Caught = %d\n", caught);
+		fclose(fp);
+	}
 #endif
-  assert_e(pthread_mutex_unlock(&caughtLock), ==, 0);
+	assert_e(pthread_mutex_unlock(&caughtLock), ==, 0);
 
-  /*
-   * Notes from the MSVC++ manual:
-   *       1) A term_func() should call exit(), otherwise
-   *          abort() will be called on return to the caller.
-   *          abort() raises SIGABRT. The default signal handler
-   *          for all signals terminates the calling program with
-   *          exit code 3.
-   *       2) A term_func() must not throw an exception. Dev: Therefore
-   *          term_func() should not call pthread_exit() if an
-   *          exception-using version of pthreads-win32 library
-   *          is being used (i.e. either pthreadVCE or pthreadVSE).
-   */
-  /*
-   * Allow time for all threads to reach here before exit, otherwise
-   * threads will be terminated while holding the lock and cause
-   * the next unlock to return EPERM (we're using ERRORCHECK mutexes).
-   * Perhaps this would be a good test for robust mutexes.
-   */
-  Sleep(20);
+	/*
+	 * Notes from the MSVC++ manual:
+	 *       1) A term_func() should call exit(), otherwise
+	 *          abort() will be called on return to the caller.
+	 *          abort() raises SIGABRT. The default signal handler
+	 *          for all signals terminates the calling program with
+	 *          exit code 3.
+	 *       2) A term_func() must not throw an exception. Dev: Therefore
+	 *          term_func() should not call pthread_exit() if an
+	 *          exception-using version of pthreads-win32 library
+	 *          is being used (i.e. either pthreadVCE or pthreadVSE).
+	 */
+	/*
+	 * Allow time for all threads to reach here before exit, otherwise
+	 * threads will be terminated while holding the lock and cause
+	 * the next unlock to return EPERM (we're using ERRORCHECK mutexes).
+	 * Perhaps this would be a good test for robust mutexes.
+	 */
+	Sleep(20);
 
-  exit(0);
+	exit(0);
 }
 
-void
-wrongTerminateFunction ()
+void wrongTerminateFunction()
 {
-  fputs("This is not the termination routine that should have been called!\n", stderr);
-  exit(1);
+	fputs("This is not the termination routine that should have been called!\n", stderr);
+	exit(1);
 }
 
-void *
-exceptionedThread(void * arg)
+void * exceptionedThread(void * arg)
 {
-  int dummy = 0x1;
+	int dummy = 0x1;
 
 #if defined (__PTW32_USES_SEPARATE_CRT) && (defined(__PTW32_CLEANUP_CXX) || defined(__PTW32_CLEANUP_SEH))
-  printf("PTW32_USES_SEPARATE_CRT is defined\n");
-  pthread_win32_set_terminate_np(&terminateFunction);
-  set_terminate(&wrongTerminateFunction);
+	printf("PTW32_USES_SEPARATE_CRT is defined\n");
+	pthread_win32_set_terminate_np(&terminateFunction);
+	set_terminate(&wrongTerminateFunction);
 #else
-  set_terminate(&terminateFunction);
+	set_terminate(&terminateFunction);
 #endif
 
-  throw dummy;
+	throw dummy;
 
-  return (void *) 0;
+	return (void*)0;
 }
 
-int
-main()
+int main()
 {
-  int i;
-  pthread_t mt;
-  pthread_t et[NUMTHREADS];
-  pthread_mutexattr_t ma;
+	int i;
+	pthread_t mt;
+	pthread_t et[NUMTHREADS];
+	pthread_mutexattr_t ma;
 
-  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
-  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 
-  assert((mt = pthread_self()).p != NULL);
+	assert((mt = pthread_self()).p != NULL);
 
-  printf("See the notes inside of exception3.c re term_funcs.\n");
+	printf("See the notes inside of exception3.c re term_funcs.\n");
 
-  assert(pthread_mutexattr_init(&ma) == 0);
-  assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
-  assert(pthread_mutex_init(&caughtLock, &ma) == 0);
-  assert(pthread_mutexattr_destroy(&ma) == 0);
+	assert(pthread_mutexattr_init(&ma) == 0);
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutex_init(&caughtLock, &ma) == 0);
+	assert(pthread_mutexattr_destroy(&ma) == 0);
 
-  for (i = 0; i < NUMTHREADS; i++)
-    {
-      assert(pthread_create(&et[i], NULL, exceptionedThread, NULL) == 0);
-    }
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_create(&et[i], NULL, exceptionedThread, NULL) == 0);
+	}
 
-  while (true);
+	while(true);
 
-  /*
-   * Should never be reached.
-   */
-  return 1;
+	/*
+	 * Should never be reached.
+	 */
+	return 1;
 }
 
 #else /* defined(__cplusplus) */
-
-#include <stdio.h>
-
-int
-main()
-{
-  fprintf(stderr, "Test N/A for this compiler environment.\n");
-  return 0;
-}
-
+	int main()
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
 #endif /* defined(__cplusplus) */

@@ -73,126 +73,108 @@
 #include "test.h"
 #include <windows.h>
 
-
-void *
-test_udp (void *arg)
+void * test_udp(void * arg)
 {
-  struct sockaddr_in serverAddress;
-  struct sockaddr_in clientAddress;
-  SOCKET UDPSocket;
-  int addr_len;
-  int nbyte;
-  char buffer[4096];
-  WORD wsaVersion = MAKEWORD (2, 2);
-  WSADATA wsaData;
+	struct sockaddr_in serverAddress;
+	struct sockaddr_in clientAddress;
+	SOCKET UDPSocket;
+	int addr_len;
+	int nbyte;
+	char buffer[4096];
+	WORD wsaVersion = MAKEWORD(2, 2);
+	WSADATA wsaData;
 
-  pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-  if (WSAStartup (wsaVersion, &wsaData) != 0)
-    {
-      return NULL;
-    }
+	if(WSAStartup(wsaVersion, &wsaData) != 0) {
+		return NULL;
+	}
 
-  UDPSocket = socket (AF_INET, SOCK_DGRAM, 0);
-  if ((int)UDPSocket == -1)
-    {
-      printf ("Server: socket ERROR \n");
-      exit (-1);
-    }
+	UDPSocket = socket(AF_INET, SOCK_DGRAM, 0);
+	if((int)UDPSocket == -1) {
+		printf("Server: socket ERROR \n");
+		exit(-1);
+	}
 
-  serverAddress.sin_family = AF_INET;
-  serverAddress.sin_addr.s_addr = INADDR_ANY;
-  serverAddress.sin_port = htons (9003);
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_port = htons(9003);
 
-  if (bind
-      (UDPSocket, (struct sockaddr *) &serverAddress,
-       sizeof (struct sockaddr_in)))
-    {
-      printf ("Server: ERROR can't bind UDPSocket");
-      exit (-1);
-    }
+	if(bind
+		    (UDPSocket, (struct sockaddr *)&serverAddress,
+	    sizeof(struct sockaddr_in))) {
+		printf("Server: ERROR can't bind UDPSocket");
+		exit(-1);
+	}
 
-  addr_len = sizeof (struct sockaddr);
+	addr_len = sizeof(struct sockaddr);
 
-  nbyte = 512;
+	nbyte = 512;
 
-  (void) recvfrom (UDPSocket, (char *) buffer, nbyte, 0,
-	           (struct sockaddr *) &clientAddress, &addr_len);
+	(void)recvfrom(UDPSocket, (char*)buffer, nbyte, 0,
+	    (struct sockaddr *)&clientAddress, &addr_len);
 
-  closesocket (UDPSocket);
-  WSACleanup ();
+	closesocket(UDPSocket);
+	WSACleanup();
 
-  return NULL;
+	return NULL;
 }
 
-
-void *
-test_sleep (void *arg)
+void * test_sleep(void * arg)
 {
-  pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-  Sleep (1000);
-  return NULL;
-
+	Sleep(1000);
+	return NULL;
 }
 
-void *
-test_wait (void *arg)
+void * test_wait(void * arg)
 {
-  HANDLE hEvent;
-
-  pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-
-  hEvent = CreateEvent (NULL, FALSE, FALSE, NULL);
-
-  (void) WaitForSingleObject (hEvent, 1000);	/* WAIT_IO_COMPLETION */
-
-  return NULL;
+	HANDLE hEvent;
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	(void)WaitForSingleObject(hEvent, 1000); /* WAIT_IO_COMPLETION */
+	return NULL;
 }
 
-
-int
-main ()
+int main()
 {
-  pthread_t t;
-  void *result;
+	pthread_t t;
+	void * result;
+	if(pthread_win32_test_features_np(__PTW32_ALERTABLE_ASYNC_CANCEL)) {
+		printf("Cancel sleeping thread.\n");
+		assert(pthread_create(&t, NULL, test_sleep, NULL) == 0);
+		/* Sleep for a while; then cancel */
+		Sleep(100);
+		assert(pthread_cancel(t) == 0);
+		assert(pthread_join(t, &result) == 0);
+		assert(result == PTHREAD_CANCELED && "test_sleep");
 
-  if (pthread_win32_test_features_np  (__PTW32_ALERTABLE_ASYNC_CANCEL))
-    {
-      printf ("Cancel sleeping thread.\n");
-      assert (pthread_create (&t, NULL, test_sleep, NULL) == 0);
-      /* Sleep for a while; then cancel */
-      Sleep (100);
-      assert (pthread_cancel (t) == 0);
-      assert (pthread_join (t, &result) == 0);
-      assert (result == PTHREAD_CANCELED && "test_sleep");
+		printf("Cancel waiting thread.\n");
+		assert(pthread_create(&t, NULL, test_wait, NULL) == 0);
+		/* Sleep for a while; then cancel. */
+		Sleep(100);
+		assert(pthread_cancel(t) == 0);
+		assert(pthread_join(t, &result) == 0);
+		assert(result == PTHREAD_CANCELED && "test_wait");
 
-      printf ("Cancel waiting thread.\n");
-      assert (pthread_create (&t, NULL, test_wait, NULL) == 0);
-      /* Sleep for a while; then cancel. */
-      Sleep (100);
-      assert (pthread_cancel (t) == 0);
-      assert (pthread_join (t, &result) == 0);
-      assert (result == PTHREAD_CANCELED && "test_wait");
+		printf("Cancel blocked thread (blocked on network I/O).\n");
+		assert(pthread_create(&t, NULL, test_udp, NULL) == 0);
+		/* Sleep for a while; then cancel. */
+		Sleep(100);
+		assert(pthread_cancel(t) == 0);
+		assert(pthread_join(t, &result) == 0);
+		assert(result == PTHREAD_CANCELED && "test_udp");
+	}
+	else{
+		printf("Alertable async cancel not available.\n");
+	}
 
-      printf ("Cancel blocked thread (blocked on network I/O).\n");
-      assert (pthread_create (&t, NULL, test_udp, NULL) == 0);
-      /* Sleep for a while; then cancel. */
-      Sleep (100);
-      assert (pthread_cancel (t) == 0);
-      assert (pthread_join (t, &result) == 0);
-      assert (result == PTHREAD_CANCELED && "test_udp");
-    }
-  else
-    {
-      printf ("Alertable async cancel not available.\n");
-    }
-
-  /*
-   * Success.
-   */
-  return 0;
+	/*
+	 * Success.
+	 */
+	return 0;
 }

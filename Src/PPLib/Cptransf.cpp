@@ -17,6 +17,12 @@ int FASTCALL CpTransfCore::PutExt__(CpTransfTbl::Rec & rRec, const CpTrfrExt * p
 	SString ext_buf, temp_buf;
     PPPutExtStrData(CPTFREXSTR_SERIAL, ext_buf, (temp_buf = pExt ? pExt->PartNo : 0).Strip());
     PPPutExtStrData(CPTFREXSTR_CLB, ext_buf, (temp_buf = pExt ? pExt->Clb : 0).Strip());
+    // @v10.5.8 {
+    if(pExt && pExt->LinkBillID > 0 && pExt->LinkRbb > 0) {
+		temp_buf.Z().Cat(pExt->LinkBillID).Semicol().Cat(pExt->LinkRbb);
+		PPPutExtStrData(CPTFREXSTR_LINKBILLROW, ext_buf, temp_buf);
+    }
+    // } @v10.5.8
     STRNSCPY(rRec.Tail, ext_buf);
 	return ok;
 }
@@ -30,6 +36,8 @@ int FASTCALL CpTransfCore::GetExt__(CpTransfTbl::Rec & rRec, CpTrfrExt * pExt)
 	if(pExt) {
 		pExt->PartNo[0] = 0;
 		pExt->Clb[0] = 0;
+		pExt->LinkBillID = 0;
+		pExt->LinkRbb = 0;
 	}
 	PPGetExtStrData(CPTFREXSTR_SERIAL, ext_buf, temp_buf.Z());
     if(pExt) {
@@ -39,6 +47,24 @@ int FASTCALL CpTransfCore::GetExt__(CpTransfTbl::Rec & rRec, CpTrfrExt * pExt)
     if(pExt) {
 		STRNSCPY(pExt->Clb, temp_buf);
     }
+    // @v10.5.8 {
+    {
+		PPGetExtStrData(CPTFREXSTR_LINKBILLROW, ext_buf, temp_buf.Z());
+        if(temp_buf.NotEmptyS()) {
+            SString left_buf, right_buf;
+            if(temp_buf.Divide(';', left_buf, right_buf) > 0) {
+				PPID link_bill_id = left_buf.ToLong();
+				int  link_rbb = right_buf.ToLong();
+				if(link_bill_id > 0 && link_rbb > 0) {
+					if(pExt) {
+						pExt->LinkBillID = link_bill_id;
+						pExt->LinkRbb = link_rbb;
+					}
+				}
+            }
+        }
+    }
+    // } @v10.5.8
     return ok;
 }
 
@@ -1117,10 +1143,10 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 									{
 										// @v10.2.9 blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
 										// @v10.2.9 p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
-										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set); // @v10.2.9 
-										p_pack->XcL.Set_2(dest_pos+1, &lotxcode_set); // @v10.2.9 
+										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set); // @v10.2.9
+										p_pack->XcL.Set_2(dest_pos+1, &lotxcode_set); // @v10.2.9
 									}
-									// } @v10.2.7 
+									// } @v10.2.7
 								}
 							}
 							p_pack->ProcessFlags |= PPBillPacket::pfForceRByBill;

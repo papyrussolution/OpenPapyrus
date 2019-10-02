@@ -107,6 +107,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z", "7z.vcproj", "{B742E28
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pthreads4w-test", "pthreads4w-test.vcproj", "{E379E543-9F4B-48F0-95F7-85F47839F7E2}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pthreads4w", "pthreads4w.vcproj", "{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -666,6 +674,50 @@ Global
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.ServerRelease.Build.0 = ServerRelease|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Universe-HTT.ActiveCfg = MtDllDebug|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Universe-HTT.Build.0 = MtDllDebug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.Debug.ActiveCfg = Debug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.Debug.Build.0 = Debug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.DebugU.ActiveCfg = Debug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.DebugU.Build.0 = Debug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.MinSizeRel.ActiveCfg = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.MinSizeRel.Build.0 = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.MtDllDebug.ActiveCfg = Debug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.MtDllDebug.Build.0 = Debug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.MtDllRelease.ActiveCfg = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.MtDllRelease.Build.0 = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.Release.ActiveCfg = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.Release.Build.0 = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.ReleaseU.ActiveCfg = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.ReleaseU.Build.0 = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.RelWithDebInfo.ActiveCfg = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.RelWithDebInfo.Build.0 = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.ServerDebug.ActiveCfg = Debug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.ServerDebug.Build.0 = Debug|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.ServerRelease.ActiveCfg = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.ServerRelease.Build.0 = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.Universe-HTT.ActiveCfg = Release|Win32
+		{E379E543-9F4B-48F0-95F7-85F47839F7E2}.Universe-HTT.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Debug.ActiveCfg = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Debug.Build.0 = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.DebugU.ActiveCfg = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.DebugU.Build.0 = Debug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MinSizeRel.ActiveCfg = MtDllDebug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MinSizeRel.Build.0 = MtDllDebug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllDebug.Build.0 = MtDllDebug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllRelease.Build.0 = MtDllRelease|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Release.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Release.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ReleaseU.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ReleaseU.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.RelWithDebInfo.ActiveCfg = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.RelWithDebInfo.Build.0 = Release|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerDebug.ActiveCfg = ServerDebug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerDebug.Build.0 = ServerDebug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerRelease.ActiveCfg = ServerRelease|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerRelease.Build.0 = ServerRelease|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Universe-HTT.ActiveCfg = MtDllDebug|Win32
+		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Universe-HTT.Build.0 = MtDllDebug|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

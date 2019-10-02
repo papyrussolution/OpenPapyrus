@@ -410,7 +410,8 @@ class PPConstParam {
 public:
 	SLAPI  PPConstParam() : UseAdvEvQueue(1), Flags(/*fDoSeparateNonFiscalCcItems*/),
 		PPObjSCard_FiltSignature(0xfbefffffU),
-		DbDumpSignature(0x44445050),
+		DbDumpSignature(0x44445050UL),
+		VerHistSignature(0x48565050UL), // 'PPVH'
 		LaunchAppParam_Signature(0x4c484150L), // 'LHAP'
 		P_SubjectDbDiv("$PpyDbDivTransmission$"),
 		P_SubjectOrder("$PpyOrderTransmission$"),
@@ -423,6 +424,7 @@ public:
 	const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
 	const uint32 Flags;
 	const uint32 DbDumpSignature;
+	const uint32 VerHistSignature;         // Сигнатура файла истории обновления версий
 	const uint32 PPObjSCard_FiltSignature; // Специальная сигнатура объекта PPObjSCard::Filt
 	const long   LaunchAppParam_Signature;
 	const char * P_SubjectDbDiv;
@@ -1748,6 +1750,7 @@ private:
 #define LOGMSGF_THREADID    0x0080L // Выводить идент потока
 #define LOGMSGF_DIRECTOUTP  0x0100L // @v9.2.0 Сообщение выводится без посредничества специального потока, управляющего выводом в журналы
 #define LOGMSGF_NODUPFORJOB 0x0200L // @v9.2.11 Сообщение не следует дублировать в спец журнале для рассылки результатов выполнения задач
+#define LOGMSGF_SLSSESSGUID 0x0400L // Выводить GUID сессии
 
 int FASTCALL PPLogMessage(const char * pFileName, const char * pStr, long options);
 int FASTCALL PPLogMessage(uint fileNameId, const char * pMsg, long options);
@@ -5817,7 +5820,7 @@ public:
 		mqofExclusive  = 0x0004, // queue exchange consume
 		mqofAutoDelete = 0x0008, // queue exchange
 		mqofNoLocal    = 0x0010, // consume
-		mqofNoAck      = 0x0020, // consume
+		mqofNoAck      = 0x0020, // consume cancel
 		mqofInternal   = 0x0040, // exchange
 		mqofMultiple   = 0x0080  // ack
 	};
@@ -5943,7 +5946,8 @@ public:
 	int    SLAPI QueueUnbind(const char * pQueue, const char * pExchange, const char * pRoutingKey);
 	int    SLAPI ApplyRoutingParamEntry(const RoutingParamEntry & rP);
 	int    SLAPI Publish(const char * pExchangeName, const char * pRoutingKey, const MessageProperties * pProps, const void * pData, size_t dataLen);
-	int    SLAPI Consume(const char * pQueue, const char * pConsumerTag, long consumeFlags);
+	int    SLAPI Consume(const char * pQueue, SString * pConsumerTag, long consumeFlags);
+	int    SLAPI Cancel(const char * pConsumerTag, long flags);
 	int    SLAPI ConsumeMessage(Envelope & rEnv, long timeoutMs);
 	//
 	// Descr: Клиент отправляет подтверждение о получении сообщения с меткой deliveryTag. Эта метка
@@ -6152,7 +6156,7 @@ public:
 	int32  SLAPI CreatePPViewPtr(PPView *);
 	int    SLAPI ReleasePPViewPtr(int32 id);
 	//
-	// Descr: Идентификаторы event-responder'ов - автономных объектов, привязанных к потоку и отвечающих 
+	// Descr: Идентификаторы event-responder'ов - автономных объектов, привязанных к потоку и отвечающих
 	//   за высокоуровневую реакцию на различные внешние события.
 	//
 	enum {
@@ -6419,7 +6423,7 @@ struct PPAdviseBlock {
 		evPhoneRinging,         // @v9.8.11 Телефонный сервис: звонит телефон
 		evPhoneUp,              // @v9.8.11 Телефонный сервис: поднята телефонная трубка
 		evConfigChanged,        // @v10.3.1 Оповещать об изменениях конфигураций
-		evMqbMessage            // @v10.5.7 Принято сообщение от брокера сообщений 
+		evMqbMessage            // @v10.5.7 Принято сообщение от брокера сообщений
 	};
 	long   Cookie;     // for internal use
 	int    Kind;       // PPAdivseBlock::evXXX Тип извещения, для которого сформирован этот блок.
@@ -7226,7 +7230,7 @@ public:
 		//
 		uint32 ReserveStart; // @anchor
 		LDATETIME InitTime;
-		SVerT Ver;
+		SVerT  Ver;
 		long   Flags;
 		uint8  Reserve[28];
 	};
@@ -9554,14 +9558,19 @@ public:
 	double UnitPerPack; // Емкость упаковки (количество торговых единиц в одной упаковке)
 	double Quantity_;   // Количество товара (до v7.8.10 при переоценке - старая цена поступления)
 	double WtQtty;      // Независимо учитываемое количество в физических единицах
+	struct LinkBillRow { // @flat @size=8
+		PPID   ID;
+		int32  RByBill;
+	};
 	union {
-		double SpoilQtty;   // Количество товара, вычтенное из поступившего количества, как бракованное.
+		// @v10.5.8 double SpoilQtty;   // Количество товара, вычтенное из поступившего количества, как бракованное.
 			// Поле Quantity содержит значение, поправленное на величину SpoilQtty. Таким образом,
 			// изначально поступившее от поставщика количество равно Quantity+SpoilQtty.
 			// Расчет SpoilQtty осуществляется по частичным структурам в документах прихода от поставщика.
 		double RevalCost;   // Старая цена поступления при переоценке
 			// До версии v7.8.10 для этой цели использовалось поле Quanitity.
 			// При корректировке расхода - старая цена реализации
+		LinkBillRow Lbr; // @v10.5.8 Для документов котировочных запросов - ссылка на связанную строку другого документа
 	};
 	double Rest_;       // Остаток после операции (при проводке игнорируется)
 	double Cost;        // Цена поступления (при переоценке - новая цена поступления)
@@ -13591,8 +13600,7 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 			// кассовых машин к экспорту данных из Papyrus'а. Если этот флаг установлен,
 			// то функция PPAsyncCashSession::OpenSession игнорирует результат вызова
 			// функции PPAsyncCashSession::IsReadyForExport (но все равно вызывает ее).
-		fIgnGenGoodsOnDeficit      = 0x00000010, // Не использовать обобщенные товары
-			// для компенсации дефицита по кассовым сессиям
+		fIgnGenGoodsOnDeficit      = 0x00000010, // Не использовать обобщенные товары для компенсации дефицита по кассовым сессиям
 		fUseQuotAsPrice            = 0x00000020, // Для определения цены на товар с приоритетом
 			// используется базовая котировка. Если котировка для заданных условий не определена,
 			// тогда используется учетная цена реализации. Если этот флаг не установлен, то
@@ -17612,6 +17620,11 @@ public:
 	int    SLAPI FetchInventoryData(PPID, PPInventoryOpEx *);
 	int    SLAPI GetPaymentOpList(PPID linkOpID, PPIDArray *);
 	int    SLAPI GetCorrectionOpList(PPID linkOpID, PPIDArray * pList);
+	//
+	// Descr: Возвращает список видов операций, предназначенных для формирования ведомого
+	//   запроса котировок в ответ на оригинальный.
+	//
+	int    SLAPI GetQuoteReqSeqOpList(PPID linkOpID, PPIDArray * pList);
 	//
 	// Descr: Возвращает список видов операций, требующих оплаты и связанных
 	//   с таблицей статей accSheetID.
@@ -22301,6 +22314,7 @@ struct PPGoodsTaxEntry { // @flat
 };
 
 struct PPGoodsTax2 {       // @persistent @store(Reference2Tbl+)
+	SLAPI  PPGoodsTax2();
 	void   FASTCALL ToEntry(PPGoodsTaxEntry *) const;
 	void   FASTCALL FromEntry(const PPGoodsTaxEntry *);
 	PPID   Tag;            // Const=PPOBJ_GOODSTAX
@@ -22349,7 +22363,7 @@ public:
 	int    SLAPI Search(PPID id, PPGoodsTax * pRec);
 	int    SLAPI AddBySample(PPID * pID, long sampleID);
 	int    SLAPI GetByScheme(PPID * pID, double vat, double excise, double stax, long flags, int use_ta);
-	int    SLAPI GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen);
+	void   SLAPI GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen);
 	//
 	// Descr: Ищет налоговую группу, аналогичную по схеме налогообложения записи pPattern.
 	//
@@ -26053,7 +26067,6 @@ private:
 	PPIDArray AcsList;
 	PPIDArray PsnOpList;
 	PPIDArray ScOpList;
-
 	PPPersonConfig PsnCfg;
 	PPObjPersonEvent * P_PeObj;
 	PPObjArticle * P_ArObj;
@@ -26105,8 +26118,6 @@ struct PPArticlePacket {
 	SLAPI  PPArticlePacket();
 	SLAPI ~PPArticlePacket();
 	PPArticlePacket & FASTCALL operator = (const PPArticlePacket &);
-	//int    SLAPI operator == (const PPArticlePacket &) const;
-
 	void   SLAPI Init();
 	//
 	// Descr: Устанавливает параметры соглашения с клиентом в пакет записи.
@@ -36860,7 +36871,6 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI UpdatePacket(PPID billID);
-	//
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	struct BrwHdr {
@@ -36893,7 +36903,6 @@ private:
 	};
 	long   Flags;
 	InventoryArray IterByGoods;
-	//PPInventoryOpEx Ioe; // @*PPViewInventory::Init
 	InventoryCore InvTbl;
 	PPObjGoods GObj;
 	GoodsIterator * P_GIter;
@@ -36925,6 +36934,74 @@ private:
 	GoodsSubstList    Gsl;
 	PPObjBill::SubstParam Bsp; // Параметр подстановки по документам
 	PPBillPacket * P_OuterPack; // @v9.9.12 @notowned Поставляемый из-вне пакет документа, соджержащий строки в поле P_OuterPack->InvList
+};
+//
+// @moduledecl(PPViewQuoteReq)
+//
+class QuoteReqAnalyzeFilt : public PPBaseFilt {
+public:
+	SLAPI  QuoteReqAnalyzeFilt();
+
+	uint8  ReserveStart[128]; // @anchor
+	DateRange Period;
+	PPID   OpID;
+	PPID   ArID;
+	PPID   LocID;
+	long   Flags;
+	long   SortOrd;
+	long   ReserveEnd;        // @anchor
+};
+
+struct QuoteReqAnalyzeViewItem {
+	PPID   LeadBillID;
+	int    LeadRbb;
+	PPID   LinkBillID;
+	int    LinkRbb;
+	PPID   GoodsID;
+};
+
+class PPViewQuoteReqAnalyze : public PPView {
+public:
+	struct BrwItem {
+		PPID   LeadBillID;
+		int    LeadRbb;
+		PPID   LeadArID;
+		PPID   GoodsID;
+		double ReqQtty;
+		double ReqPrice;
+		PPID   ReqCurID;
+		int    ReqShipmTerm; // Требуемый срок поставки в днях
+		PPID   LinkBillID;
+		int    LinkRbb;
+		PPID   LinkArID;
+		double RepQtty;
+		double RepPrice;
+		PPID   RepCurID;
+		int    RepShipmTerm; // Возможный срок поставки в днях
+	};
+	SLAPI  PPViewQuoteReqAnalyze();
+	SLAPI ~PPViewQuoteReqAnalyze();
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
+	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    SLAPI InitIteration();
+	int    FASTCALL NextIteration(QuoteReqAnalyzeViewItem *);
+	static int SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  SLAPI Detail(const void *, PPViewBrowser * pBrw);
+	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI MakeList();
+	int    SLAPI CreateLinkedRequest(PPID leadBillID, int leadRbb);
+
+	QuoteReqAnalyzeFilt Filt;
+	PPObjBill * P_BObj;
+	PPObjCurrency CurObj;
+	TSArray <BrwItem> List;
+	SArray * P_DsList;
 };
 //
 // @ModuleDecl(PPViewAccturn)
@@ -38719,7 +38796,7 @@ private:
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	int    SLAPI CalcTotal(GoodsTaxAnalyzeTotal *);
-	int    SLAPI MakeTaxStr(GoodsGrpngEntry *, char * pBuf, size_t bufLen);
+	void   SLAPI MakeTaxStr(GoodsGrpngEntry *, char * pBuf, size_t bufLen);
 		// @<<PPViewGoodsTaxAnalyze::AddEntry
 	int    SLAPI InitIterQuery(PPID grpID);
 	int    SLAPI NextOuterIteration();
@@ -45481,9 +45558,7 @@ public:
         Result R;   // Result
         Result OpR; // OperationResult
 	};
-	//
-	//
-	//
+
 	struct ConfirmTicket {
 		SLAPI  ConfirmTicket();
 		PPID   BillID;
@@ -45493,9 +45568,7 @@ public:
 		SString RegIdent;
 		SString Comment;
 	};
-	//
-	//
-	//
+
 	struct InformAReg {
 		SLAPI  InformAReg();
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -45509,9 +45582,7 @@ public:
         LDATE  EGAISDate;
         SString EGAISCode;
 	};
-	//
-	//
-	//
+
 	struct InformBItem { // @flat
 		InformBItem();
 		void   Clear();
@@ -45576,6 +45647,16 @@ public:
         SString Number;
         SString Result;
     };
+	//
+	// Descr: Структура ответа на запрос остатков марок по справке Б
+	//
+	struct ReplyRestBCode {
+		ReplyRestBCode();
+
+		LDATETIME RestTime;
+		SString Inform2RegId;
+		StringSet MarkSet;
+	};
     //
     // Descr: Дескриптор сервера УТМ
     //
@@ -48669,7 +48750,6 @@ private:
 	void   setupCurrencyCombo();
 
 	PPObjBill    * P_BObj;
-	//AccountCore  * P_AccT;
 	PPObjAccount AccObj;
 	PPBillPacket * P_Pack;
 	PPAccTurn      Data; // В форме идентификаторов
@@ -48703,7 +48783,7 @@ public:
 	int    setFilt(TDialog * pDlg, const GoodsFilt * pFilt);
 private:
 	virtual void   handleEvent(TDialog *, TEvent &);
-	void   setupCtrls(TDialog *);
+	void   SetupCtrls(TDialog *);
 	uint   CtlselGrp;
 	uint   CtlselGoods;
 	uint   CtlGrp;
@@ -49021,6 +49101,7 @@ private:
 #define TIDIF_AUTOCLOSE 0x00000002L // Автоматом закрывать диалог если Quantity != 0
 #define TIDIF_DSBLGSEL  0x00000004L // Запретить выбор товара, отличного от TIDlgInitData::GoodsID
 #define TIDIF_AUTOQTTY  0x00000008L // автоматическое добавление 1-цы товара, без вывода диалога
+#define TIDIF_SEQQREQ   0x00000010L // @v10.5.8 Последовательный запрос котировки
 
 struct TIDlgInitData {
 	SLAPI  TIDlgInitData();
@@ -49041,7 +49122,7 @@ struct TIDlgInitData {
 	PPID   ArID;       // Контекстная статья для поиска товара по артикулу и проверки принадлежности
 		// товара к матрице (для внутренней передачи)
 	long   Flags;
-	int    ModifMode;  // @v8.4.12 режим ввода строки модификации TISIGN_MINUS||TISIGN_PLUS||TISIGN_RECOMPLETE
+	int    ModifMode;  // Режим ввода строки модификации TISIGN_MINUS||TISIGN_PLUS||TISIGN_RECOMPLETE
 	char   Serial[32]; // Выбранный пользователем серийный номер
 	double Quantity;
 	RealRange QttyBounds;
@@ -51025,8 +51106,6 @@ private:
 	int    IconSize; // default=32
 	int    IconGap;  // default=8
 	long   Selected;
-	//long   IsIconMove;
-	//int    IsChanged;           // Рабочий стол был изменен и его нужно сохранить в файле
 	enum {
 		stChanged  = 0x0001, // Рабочий стол был изменен и его нужно сохранить в файле
 		stIconMove = 0x0002  // Состояние перемещения иконки

@@ -467,12 +467,12 @@ private:
 	void   setupAccSheet(PPID accSheetID);
 	int    editCompareItems();
 	int    editABCAnlzFilt(ABCAnlzFilt * pFilt);
-	void   setupCtrls(long prevFlags);
+	void   SetupCtrls(long prevFlags);
 	void   SetupFlags();
 	GoodsOpAnalyzeFilt Data;
 };
 
-void GoodsOpAnlzFiltDialog::setupCtrls(long prevFlags)
+void GoodsOpAnlzFiltDialog::SetupCtrls(long prevFlags)
 {
 	PPID   op_type = GetOpType(Data.OpID);
 	uint   enbl = (Data.OpGrpID != GoodsOpAnalyzeFilt::ogInOutAnalyze && !(Data.Flags & GoodsOpAnalyzeFilt::fIntrReval) && op_type != PPOPT_GOODSREVAL);
@@ -606,7 +606,7 @@ int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
 	SetClusterData(CTL_BILLFLT_EACHLOC, Data.Flags);
 	AddClusterAssoc(CTL_BILLFLT_USEABCANLZ, 0, GoodsOpAnalyzeFilt::fUseABCAnlz);
 	AddClusterAssoc(CTL_BILLFLT_USEABCANLZ, 1, GoodsOpAnalyzeFilt::fABCAnlzByGGrps);
-	setupCtrls(Data.Flags);
+	SetupCtrls(Data.Flags);
 	disableCtrls(Data.BillList.IsExists(), CTL_BILLFLT_OPRSET,
 		CTLSEL_BILLFLT_OBJECT, CTLSEL_BILLFLT_OPRKIND, CTL_BILLFLT_PERIOD, CTLCAL_BILLFLT_PERIOD, 0);
 	if(Data.BillList.IsExists()) {
@@ -982,7 +982,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 				setCtrlUInt16(CTL_BILLFLT_INTRREVAL, 0);
 			}
 		}
-		setupCtrls(Data.Flags);
+		SetupCtrls(Data.Flags);
 	}
 	else if(event.isCmd(cmClusterClk)) {
 		const uint ctl_id = event.getCtlID();
@@ -1001,12 +1001,12 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 			SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fPriceDeviation, v & 1);
 			GetClusterData(CTL_BILLFLT_INTRREVAL, &Data.Flags);
 			GetClusterData(CTL_BILLFLT_FLAGS, &Data.Flags);
-			setupCtrls(prev_flags);
+			SetupCtrls(prev_flags);
 		}
 		else if(ctl_id == CTL_BILLFLT_EACHLOC) {
 			GetClusterData(CTL_BILLFLT_EACHLOC, &Data.Flags);
 			Data.ZeroCompareItems();
-			setupCtrls(Data.Flags);
+			SetupCtrls(Data.Flags);
 		}
 		else
 			return;
@@ -1024,7 +1024,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 				while(!valid_data && ExecView(p_dlg) == cmOK) {
 					if(p_dlg->getDTS(&Data) > 0) {
 						valid_data = 1;
-						setupCtrls(Data.Flags);
+						SetupCtrls(Data.Flags);
 						SetupFlags();
 					}
 					else
@@ -1049,7 +1049,7 @@ void GoodsOpAnlzFiltDialog::replyOprGrpChanged()
 	ushort v = 0;
 	if(getCtrlData(CTL_BILLFLT_OPRSET, &v)) {
 		Data.OpGrpID = v;
-		setupCtrls(Data.Flags);
+		SetupCtrls(Data.Flags);
 		setupOpCombo();
 		if(!oneof2(Data.OpGrpID, GoodsOpAnalyzeFilt::ogSelected, GoodsOpAnalyzeFilt::ogInOutAnalyze)) {
 			disableCtrl(CTLSEL_BILLFLT_OPRKIND, 1);

@@ -129,14 +129,14 @@ void SLAPI PPReckonOpEx::PeriodToStr(SString & rBuf) const
 {
 	char   temp[64];
 	char * p = temp;
-	if(Beg == 0)
+	if(!Beg)
 		if(Flags & ROXF_BEGISBILLDT)
 			*p++ = '@';
 	DateRange period;
 	period.low = Beg;
 	period.upp = End;
 	periodfmt(&period, p);
-	if(End == 0) {
+	if(!End) {
 		if(Flags & ROXF_ENDISBILLDT) {
 			if(*(p-1) != '@') {
 				if(Beg == 0 && !(Flags & ROXF_BEGISBILLDT)) {
@@ -216,7 +216,7 @@ void SLAPI PPBillPoolOpEx::Init()
 {
 	Flags = 0;
 	memzero(Reserve, sizeof(Reserve));
-	OpList.freeAll();
+	OpList.clear();
 }
 
 PPBillPoolOpEx & FASTCALL PPBillPoolOpEx::operator = (const PPBillPoolOpEx & src)
@@ -277,8 +277,7 @@ PPOprKindPacket & FASTCALL PPOprKindPacket::operator = (const PPOprKindPacket & 
 		ASSIGN_PTR(P_DIOE, *rSrc.P_DIOE);
 	}
 	if(rSrc.P_GenList) {
-		P_GenList = new ObjRestrictArray;
-		ASSIGN_PTR(P_GenList, *rSrc.P_GenList);
+		P_GenList = new ObjRestrictArray(*rSrc.P_GenList);
 	}
 	if(rSrc.P_ReckonData) {
 		P_ReckonData = new PPReckonOpEx;
@@ -756,24 +755,21 @@ int SLAPI PPObjOprKind::SetPoolExData(PPID id, const PPBillPoolOpEx * pData, int
 
 int SLAPI PPObjOprKind::GetPoolExData(PPID id, PPBillPoolOpEx * pData)
 {
+	int    ok = -1;
 	PPIDArray temp;
-	if(ref->GetPropArray(Obj, id, OPKPRP_BILLPOOL, &temp) > 0) {
-		if(temp.getCount() < BPOX_HDR_DW_COUNT) {
-			CALLPTRMEMB(pData, Init());
-	   	    return -1;
-		}
+	CALLPTRMEMB(pData, Init());
+	if(ref->GetPropArray(Obj, id, OPKPRP_BILLPOOL, &temp) > 0 && temp.getCount() >= BPOX_HDR_DW_COUNT) {
 		if(pData) {
 			pData->Flags = temp.at(0);
 			memzero(pData->Reserve, sizeof(pData->Reserve));
-			for(uint i = BPOX_HDR_DW_COUNT; i < temp.getCount(); i++)
-				if(!pData->OpList.add(temp.at(i))) {
-					pData->Init();
-					return PPSetErrorSLib();
-				}
+			for(uint i = BPOX_HDR_DW_COUNT; i < temp.getCount(); i++) {
+				THROW_SL(pData->OpList.add(temp.at(i)));
+			}
 		}
-		return 1;
+		ok = 1;
 	}
-	return -1;
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI PPObjOprKind::Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray * pList)
@@ -795,6 +791,7 @@ int SLAPI PPObjOprKind::Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPI
 
 int SLAPI PPObjOprKind::GetPaymentOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_PAYMENT, linkOpID, pList); }
 int SLAPI PPObjOprKind::GetCorrectionOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_CORRECTION, linkOpID, pList); }
+int SLAPI PPObjOprKind::GetQuoteReqSeqOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_DRAFTQUOTREQ, linkOpID, pList); }
 
 int FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList)
 {
@@ -1354,7 +1351,6 @@ private:
 	void   moreDialog();
 	void   editPaymList();
 	void   editCounter();
-	//void   cdecl editOptions(uint dlgID, int useMainAmt, const PPIDArray *, ...);
 	void   editOptions2(uint dlgID, int useMainAmt, const PPIDArray * pSubTypeList, PPIDArray * pFlagsList, PPIDArray * pExtFlagsList);
 	void   editInventoryOptions();
 	void   editPoolOptions();
@@ -1375,7 +1371,8 @@ void OprKindDialog::setup()
 {
 	PPIDArray types;
 	SString temp_buf;
-	int    modatt = OpObj.CheckRights(OPKRT_MODIFYATT);
+	const  int  modatt = OpObj.CheckRights(OPKRT_MODIFYATT);
+	const  PPID op_type_id = P_Data->Rec.OpTypeID;
 	setCtrlData(CTL_OPRKIND_NAME, P_Data->Rec.Name);
 	setCtrlData(CTL_OPRKIND_SYMB, P_Data->Rec.Symb);
 	{
@@ -1387,7 +1384,7 @@ void OprKindDialog::setup()
 	setCtrlUInt16(CTL_OPRKIND_PASSIVE, BIN(P_Data->Rec.Flags & OPKF_PASSIVE));
 	setCtrlUInt16(CTL_OPRKIND_PAYMF, BIN(P_Data->Rec.Flags & OPKF_RECKON));
 	disableCtrl(CTL_OPRKIND_ID,      (!PPMaster || P_Data->Rec.ID));
-	disableCtrl(CTLSEL_OPRKIND_TYPE, P_Data->Rec.ID || P_Data->Rec.OpTypeID);
+	disableCtrl(CTLSEL_OPRKIND_TYPE, P_Data->Rec.ID || op_type_id);
 	enableCommand(cmOprKindPaymList, BIN(P_Data->Rec.Flags & OPKF_RECKON));
 	if(!IsGeneric) {
 		enableCommand(cmaInsert, modatt);
@@ -1397,19 +1394,25 @@ void OprKindDialog::setup()
 	enableCommand(cmaMore,   OpObj.CheckRights(OPKRT_MODIFYOPTIONS));
 	enableCommand(cmOprKindPrnOpt, OpObj.CheckRights(OPKRT_MODIFYOPTIONS));
 	disableCtrl(CTL_OPRKIND_CVAL, !OpObj.CheckRights(OPKRT_MODIFYCOUNTER));
-	SetupPPObjCombo(this, CTLSEL_OPRKIND_TYPE, PPOBJ_OPRTYPE, P_Data->Rec.OpTypeID, OLW_CANINSERT, 0);
+	SetupPPObjCombo(this, CTLSEL_OPRKIND_TYPE, PPOBJ_OPRTYPE, op_type_id, OLW_CANINSERT, 0);
 	SetupPPObjCombo(this, CTLSEL_OPRKIND_ACCSHEET, PPOBJ_ACCSHEET, P_Data->Rec.AccSheetID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(this, CTLSEL_OPRKIND_ACCSHEET2, PPOBJ_ACCSHEET, P_Data->Rec.AccSheet2ID, OLW_CANINSERT, 0);
-	if(P_Data->Rec.OpTypeID == PPOPT_CORRECTION) {
+	if(op_type_id == PPOPT_CORRECTION) {
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L); // @v9.4.3 PPOPT_GOODSEXPEND
+	}
+	else if(op_type_id == PPOPT_DRAFTQUOTREQ) { // @v10.5.8
+		types.addzlist(PPOPT_DRAFTQUOTREQ, 0L);
+	}
+	else if(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) { // @v10.5.8
+		; // nothing
 	}
 	else {
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L);
-		if(P_Data->Rec.OpTypeID == PPOPT_PAYMENT) {
+		if(op_type_id == PPOPT_PAYMENT) {
 			types.addzlist(PPOPT_ACCTURN, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT,
 				PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, 0L); // @v10.3.2 PPOPT_CORRECTION
 		}
-		else if(P_Data->Rec.OpTypeID == PPOPT_CHARGE)
+		else if(op_type_id == PPOPT_CHARGE)
 			types.add(PPOPT_ACCTURN);
 	}
 	SetupOprKindCombo(this, CTLSEL_OPRKIND_LINK, P_Data->Rec.LinkOpID, 0, &types, P_Data->Rec.ID ? OPKLF_SHOWPASSIVE : 0);
@@ -1418,10 +1421,10 @@ void OprKindDialog::setup()
 		PPDraftOpEx opex_rec;
 		if(P_Data->P_DraftData)
 			opex_rec = *P_Data->P_DraftData;
-		types.freeAll();
-		if(P_Data->Rec.OpTypeID == PPOPT_DRAFTRECEIPT)
+		types.clear();
+		if(op_type_id == PPOPT_DRAFTRECEIPT)
 			types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT, 0L);
-		else if(P_Data->Rec.OpTypeID == PPOPT_DRAFTEXPEND)
+		else if(op_type_id == PPOPT_DRAFTEXPEND)
 			types.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, 0L); // @v8.6.2 PPOPT_DRAFTRECEIPT
 		if(P_Data->Rec.SubType == OPSUBT_TRADEPLAN)
 			types.add(PPOPT_GENERIC);
@@ -1441,7 +1444,7 @@ void OprKindDialog::setup()
 		AddClusterAssoc(CTL_OPRKIND_DRFTOPTION, 6, DROXF_SELSUPPLONCOMPL); // @v9.1.12
 		SetClusterData(CTL_OPRKIND_DRFTOPTION, opex_rec.Flags);
 	}
-	enableCommand(cmOprKindExt, P_Data->Rec.OpTypeID == PPOPT_ACCTURN && P_Data->Rec.SubType == OPSUBT_DEBTINVENT);
+	enableCommand(cmOprKindExt, op_type_id == PPOPT_ACCTURN && P_Data->Rec.SubType == OPSUBT_DEBTINVENT);
 	updateList();
 }
 
@@ -2688,15 +2691,9 @@ void OprKindDialog::editPoolOptions()
 //
 //
 int SLAPI PPObjOprKind::Browse(void * extraPtr)
-{
-	return PPView::Execute(PPVIEW_OPRKIND, 0, 1, 0);
-}
-
-// virtual
+	{ return PPView::Execute(PPVIEW_OPRKIND, 0, 1, 0); }
 int SLAPI PPObjOprKind::Edit(PPID * pID, void * extraPtr /*opTypeID*/)
-{
-	return Edit(pID, reinterpret_cast<PPID>(extraPtr), 0);
-}
+	{ return Edit(pID, reinterpret_cast<PPID>(extraPtr), 0); }
 
 // non-virtual
 int SLAPI PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)

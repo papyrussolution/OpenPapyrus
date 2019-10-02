@@ -36,11 +36,7 @@
 
 #if !defined (__PTW32_STATIC_LIB)
 #if defined(_MSC_VER)
-/*
- * lpvReserved yields an unreferenced formal parameter;
- * ignore it
- */
-#pragma warning( disable : 4100 )
+	#pragma warning( disable : 4100 ) // lpvReserved yields an unreferenced formal parameter; ignore it
 #endif
 
 __PTW32_BEGIN_C_DECLS
@@ -52,48 +48,33 @@ BOOL WINAPI DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved)
 		case DLL_PROCESS_ATTACH:
 		    result = pthread_win32_process_attach_np();
 		    break;
-
-		case DLL_THREAD_ATTACH:
-		    /*
-		 * A thread is being created
-		     */
+		case DLL_THREAD_ATTACH: // A thread is being created
 		    result = pthread_win32_thread_attach_np();
 		    break;
-
-		case DLL_THREAD_DETACH:
-		    /*
-		 * A thread is exiting cleanly
-		     */
+		case DLL_THREAD_DETACH: // A thread is exiting cleanly
 		    result = pthread_win32_thread_detach_np();
 		    break;
-
 		case DLL_PROCESS_DETACH:
 		    (void)pthread_win32_thread_detach_np();
 		    result = pthread_win32_process_detach_np();
 		    break;
 	}
-
 	return result;
-}                               /* DllMain */
+}
 
 __PTW32_END_C_DECLS
 
 #endif /* !PTW32_STATIC_LIB */
 
 #if !defined (__PTW32_BUILD_INLINED)
-/*
- * Avoid "translation unit is empty" warnings
- */
-typedef int foo;
+	typedef int foo; // Avoid "translation unit is empty" warnings
 #endif
 
 #if defined(__PTW32_STATIC_LIB)
-
 /*
  * Note: MSVC 8 and higher use code in dll.c, which enables TLS cleanup
  * on thread exit. Code here can only do process init and exit functions.
  */
-
 #if defined(__MINGW32__) || defined(_MSC_VER)
 
 /* For an explanation of this code (at least the MSVC parts), refer to
@@ -159,7 +140,8 @@ __PTW32_BEGIN_C_DECLS
  * (whole library single translation unit)
  * Leaving it here in case it affects small-static builds.
  */
-void __ptw32_autostatic_anchor(void) {
+void __ptw32_autostatic_anchor(void) 
+{
 	abort();
 }
 

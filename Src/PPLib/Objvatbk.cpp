@@ -1417,7 +1417,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   setupObj();
-	void   setupCtrls();
+	void   SetupCtrls();
 
 	VatBookFilt Data;
 	PPObjVATBook * P_VBObj;
@@ -1428,10 +1428,10 @@ IMPL_HANDLE_EVENT(VATBFiltDialog)
 	TDialog::handleEvent(event);
 	if(event.isClusterClk(CTL_VATBFLT_WHAT)) {
 		setupObj();
-		setupCtrls();
+		SetupCtrls();
 	}
 	else if(event.isClusterClk(CTL_VATBFLT_FLAGS))
-		setupCtrls();
+		SetupCtrls();
 	else if(event.isCbSelected(CTLSEL_VATBFLT_EOBJSHEET)) {
 		getCtrlData(CTLSEL_VATBFLT_EOBJSHEET, &Data.AccSheet2ID);
 		SetupArCombo(this, CTLSEL_VATBFLT_EXTOBJ, Data.Article2ID, OLW_LOADDEFONOPEN, Data.AccSheet2ID, sacfDisableIfZeroSheet);
@@ -1449,7 +1449,7 @@ void VATBFiltDialog::setupObj()
 	SetupArCombo(this, CTLSEL_VATBFLT_OBJ, Data.ArticleID, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet);
 }
 
-void VATBFiltDialog::setupCtrls()
+void VATBFiltDialog::SetupCtrls()
 {
 	long   kind = 0;
 	GetClusterData(CTL_VATBFLT_WHAT, &kind);
@@ -1491,7 +1491,7 @@ int VATBFiltDialog::setDTS(const VatBookFilt * pFilt)
 	AddClusterAssoc(CTL_VATBFLT_FLAGS, 0, VatBookFilt::fShowExcluded);
 	AddClusterAssoc(CTL_VATBFLT_FLAGS, 1, VatBookFilt::fOnlyEmptyExtAr);
 	SetClusterData(CTL_VATBFLT_FLAGS, Data.Flags);
-	setupCtrls();
+	SetupCtrls();
 	return 1;
 }
 

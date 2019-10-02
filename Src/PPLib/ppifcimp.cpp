@@ -2439,7 +2439,7 @@ int32 DL6ICLS_PPObjOprKind::Search(int32 id, PPYOBJREC rec)
 	if(p_obj) {
 		PPOprKind oprk_rec;
 		ok = p_obj->Search(id, &oprk_rec);
-		FillOprKindRec(&oprk_rec, (SPpyO_OprKind *)rec);
+		FillOprKindRec(&oprk_rec, static_cast<SPpyO_OprKind *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2463,7 +2463,7 @@ int32 DL6ICLS_PPObjOprKind::SearchByName(SString & text, int32 kind, int32 extra
 		else { // (kind == 0)
 			ok = p_obj->SearchByName(text, &id, &op_rec);
 		}
-		FillOprKindRec(&op_rec, (SPpyO_OprKind *)rec);
+		FillOprKindRec(&op_rec, static_cast<SPpyO_OprKind *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2507,7 +2507,7 @@ int32 DL6ICLS_PPObjOprKind::GetDraftExData(int32 opID, SPpyO_DraftOpEx * pData)
 		FLD(WrOffOpID);
 		FLD(WrOffObjID);
 		FLD(WrOffComplOpID);
-		pData->Flags = (PpyODraftOpFlags)doe.Flags;
+		pData->Flags = static_cast<PpyODraftOpFlags>(doe.Flags);
 #undef FLD
 		}
 	}
@@ -2555,7 +2555,7 @@ int32 DL6ICLS_PPObjAccSheet::Search(int32 id, PPYOBJREC rec)
 	if(p_obj) {
 		PPAccSheet acs_rec;
 		ok = p_obj->Fetch(id, &acs_rec);
-		FillAccSheetRec(&acs_rec, (SPpyO_AccSheet *)rec);
+		FillAccSheetRec(&acs_rec, static_cast<SPpyO_AccSheet *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2569,7 +2569,7 @@ int32 DL6ICLS_PPObjAccSheet::SearchByName(SString & text, int32 kind, int32 extr
 		PPAccSheet acs_rec;
 		PPID   id = 0;
 		ok = p_obj->SearchByName(text, &id, &acs_rec);
-		FillAccSheetRec(&acs_rec, (SPpyO_AccSheet *)rec);
+		FillAccSheetRec(&acs_rec, static_cast<SPpyO_AccSheet *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2838,7 +2838,7 @@ int32 DL6ICLS_PPObjCashNode::Search(int32 id, PPYOBJREC rec)
 		PPCashNode cn_rec;
 		MEMSZERO(cn_rec);
 		ok = p_obj->Search(id, &cn_rec);
-		FillCashNodeRec(&cn_rec, (SPpyO_CashNode *)rec);
+		FillCashNodeRec(&cn_rec, static_cast<SPpyO_CashNode *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2853,7 +2853,7 @@ int32 DL6ICLS_PPObjCashNode::SearchByName(SString & text, int32 kind, int32 extr
 		PPID   id = 0;
 		MEMSZERO(cn_rec);
 		ok = p_obj->SearchByName(text, &id, &cn_rec);
-		FillCashNodeRec(&cn_rec, (SPpyO_CashNode *)rec);
+		FillCashNodeRec(&cn_rec, static_cast<SPpyO_CashNode *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2903,10 +2903,10 @@ static void FASTCALL FillQuotKindRec(const PPQuotKind * pInner, SPpyO_QuotKind *
 	FLD(EndTm);
 	FLD(Rank);
 	FLD(OpID);
-	pOuter->Flags = (PpyOQuotKindFlags)pInner->Flags;
+	pOuter->Flags = static_cast<PpyOQuotKindFlags>(pInner->Flags);
 	FLD(AccSheetID);
 	FLD(DaysOfWeek);
-	pOuter->UsingWSCard = (PpyUsingWithSCard)pInner->UsingWSCard;
+	pOuter->UsingWSCard = static_cast<PpyUsingWithSCard>(pInner->UsingWSCard);
 	#undef FLD
 	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
 	(temp_buf = pInner->Symb).CopyToOleStr(&pOuter->Symb);
@@ -2920,7 +2920,7 @@ int32 DL6ICLS_PPObjQuotKind::Search(int32 id, PPYOBJREC rec)
 		PPQuotKind qk_rec;
 		MEMSZERO(qk_rec);
 		ok = p_obj->Search(id, &qk_rec);
-		FillQuotKindRec(&qk_rec, (SPpyO_QuotKind *)rec);
+		FillQuotKindRec(&qk_rec, static_cast<SPpyO_QuotKind *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2948,7 +2948,7 @@ int32 DL6ICLS_PPObjQuotKind::SearchByName(SString & text, int32 kind, int32 extr
 			ok = p_obj->SearchByName(text, &id, &qk_rec);
 		}
 		// } @v9.0.8
-		FillQuotKindRec(&qk_rec, (SPpyO_QuotKind *)rec);
+		FillQuotKindRec(&qk_rec, static_cast<SPpyO_QuotKind *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3005,12 +3005,11 @@ static void FASTCALL FillGoodsTaxRec(const PPGoodsTax * pInner, SPpyO_GoodsTax *
 int32 DL6ICLS_PPObjGoodsTax::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjGoodsTax * p_obj = (PPObjGoodsTax *)ExtraPtr;
+	PPObjGoodsTax * p_obj = static_cast<PPObjGoodsTax *>(ExtraPtr);
 	if(p_obj) {
 		PPGoodsTax gt_rec;
-		MEMSZERO(gt_rec);
 		ok = p_obj->Search(id, &gt_rec);
-		FillGoodsTaxRec(&gt_rec, (SPpyO_GoodsTax *)rec);
+		FillGoodsTaxRec(&gt_rec, static_cast<SPpyO_GoodsTax *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3019,13 +3018,12 @@ int32 DL6ICLS_PPObjGoodsTax::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjGoodsTax::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjGoodsTax * p_obj = (PPObjGoodsTax *)ExtraPtr;
+	PPObjGoodsTax * p_obj = static_cast<PPObjGoodsTax *>(ExtraPtr);
 	if(p_obj) {
 		PPGoodsTax gt_rec;
 		PPID   id = 0;
-		MEMSZERO(gt_rec);
 		ok = p_obj->SearchByName(text, &id, &gt_rec);
-		FillGoodsTaxRec(&gt_rec, (SPpyO_GoodsTax *)rec);
+		FillGoodsTaxRec(&gt_rec, static_cast<SPpyO_GoodsTax *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3034,7 +3032,7 @@ int32 DL6ICLS_PPObjGoodsTax::SearchByName(SString & text, int32 kind, int32 extr
 SString & DL6ICLS_PPObjGoodsTax::GetName(int32 id)
 {
 	char   name_buf[64];
-	PPObjGoodsTax * p_obj = (PPObjGoodsTax *)ExtraPtr;
+	PPObjGoodsTax * p_obj = static_cast<PPObjGoodsTax *>(ExtraPtr);
 	int    ok = p_obj->GetName(id, name_buf, sizeof(name_buf));
 	return (RetStrBuf = name_buf);
 }
@@ -3064,15 +3062,14 @@ static void FASTCALL FillStyloPalmRec(const PPStyloPalmPacket * pInner, SPpyO_St
 	SString temp_buf;
 	#define FLD(f) pOuter->f = pInner->Rec.f
 	FLD(ID);
-	// @v8.6.8 FLD(LocID);
 	FLD(GoodsGrpID);
 	FLD(AgentID);
 	FLD(GroupID);
 	FLD(OrderOpID);
-	pOuter->Flags = (PpyOPalmFlags)pInner->Rec.Flags;
+	pOuter->Flags = static_cast<PpyOPalmFlags>(pInner->Rec.Flags);
 	FLD(FTPAcctID);
 	#undef FLD
-	pOuter->LocID = pInner->LocList.GetSingle(); // @v8.6.8
+	pOuter->LocID = pInner->LocList.GetSingle();
 	(temp_buf = pInner->Rec.Name).CopyToOleStr(&pOuter->Name);
 	(temp_buf = pInner->P_Path).CopyToOleStr(&pOuter->Path);
 	(temp_buf = pInner->P_FTPPath).CopyToOleStr(&pOuter->FTPPath);

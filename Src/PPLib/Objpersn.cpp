@@ -263,22 +263,20 @@ int SLAPI VCard::PutProp(Property prop, const void * pData, PropAttribute attrib
 		SString str_prop, val;
 		add_attrib = paNone;
 		switch(prop) {
-			case propBirthDay:
-				val.Cat(*(LDATE*)pData);
-				break;
+			case propBirthDay: val.Cat(*static_cast<const LDATE *>(pData)); break;
 			case propPhone:
 				add_attrib = paVoice;
-				val = *(SString*)pData;
+				val = *static_cast<const SString *>(pData);
 				break;
 			case propFax:
 				add_attrib = paFax;
-				val = *(SString*)pData;
+				val = *static_cast<const SString *>(pData);
 				break;
 			case propName:
 			case propOrg:
 			case propAddr:
 			case propEmail:
-				val = *(SString*)pData;
+				val = *static_cast<const SString *>(pData);
 				break;
 		}
 		str_prop.GetSubFrom(Properties, ';', prop);
@@ -390,7 +388,7 @@ int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 			if(ext_size)
 				ext_size++; // Нулевая позиция - исключительная //
 			sz += ext_size;
-			p_cfg = (Storage_PPPersonConfig *)SAlloc::M(sz);
+			p_cfg = static_cast<Storage_PPPersonConfig *>(SAlloc::M(sz));
 			memzero(p_cfg, sz);
 			p_cfg->Tag               = PPOBJ_CONFIG;
 			p_cfg->ID                = PPCFG_MAIN;
@@ -404,7 +402,7 @@ int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 			p_cfg->SmsProhibitedTr   = pCfg->SmsProhibitedTr; // @v10.2.3
 			if(ext_size) {
 				size_t pos = 0;
-				char * p_buf = (char *)(p_cfg+1);
+				char * p_buf = reinterpret_cast<char *>(p_cfg+1);
 				p_buf[pos++] = 0;
 				if(pCfg->TopFolder.NotEmpty()) {
 					p_cfg->StrPosTopFolder = (uint16)pos;
@@ -438,7 +436,7 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 	int    ok = -1, r;
 	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPPersonConfig) + 256;
-	Storage_PPPersonConfig * p_cfg = (Storage_PPPersonConfig *)SAlloc::M(sz);
+	Storage_PPPersonConfig * p_cfg = static_cast<Storage_PPPersonConfig *>(SAlloc::M(sz));
 	THROW_MEM(p_cfg);
 	THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
@@ -4845,13 +4843,13 @@ IMPL_HANDLE_EVENT(PersonDialog)
 							if(pInfo)
 								CshrInfo = *pInfo;
 							setCtrlData(CTL_CSHRRTS_RIGHTS, &CshrInfo.Rights);
-							setCtrlData(CTL_CSHRRTS_RPTRIGHTS, (ushort *)(&CshrInfo.Rights) + 1);
+							setCtrlData(CTL_CSHRRTS_RPTRIGHTS, reinterpret_cast<ushort *>(&CshrInfo.Rights) + 1);
 							SetPrnRights();
 						}
 						void getDTS(CashierInfo * pInfo)
 						{
 							getCtrlData(CTL_CSHRRTS_RIGHTS, &CshrInfo.Rights);
-							getCtrlData(CTL_CSHRRTS_RPTRIGHTS, (ushort *)(&CshrInfo.Rights) + 1);
+							getCtrlData(CTL_CSHRRTS_RPTRIGHTS, reinterpret_cast<ushort *>(&CshrInfo.Rights) + 1);
 							ASSIGN_PTR(pInfo, CshrInfo);
 						}
 					private:
@@ -4878,8 +4876,8 @@ IMPL_HANDLE_EVENT(PersonDialog)
 						int    OnlyView;
 						CashierInfo  CshrInfo;
 					};
-					CashierRightsDialog * dlg = 0;
-					if(CheckDialogPtrErr(&(dlg = new CashierRightsDialog()))) {
+					CashierRightsDialog * dlg = new CashierRightsDialog();
+					if(CheckDialogPtrErr(&dlg)) {
 						dlg->setDTS(&Data.CshrInfo);
 						if(ExecView(dlg) == cmOK) {
 							dlg->getDTS(&Data.CshrInfo);

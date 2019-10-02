@@ -1713,8 +1713,8 @@ int SLAPI SetupCurrencyCombo(TDialog * dlg, uint ctl, PPID id, uint /*flags*/, i
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(p_combo) {
-		PPObjCurrency curobj;
-		StrAssocArray * p_list = curobj.CreateSelectorList(asSymb, pInclList, 0);
+		PPObjCurrency cur_obj;
+		StrAssocArray * p_list = cur_obj.CreateSelectorList(asSymb, pInclList, 0);
 		if(p_list) {
 			PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_CURRENCY, p_list, 0/*flags*/, 0);
 			if(p_lw) {

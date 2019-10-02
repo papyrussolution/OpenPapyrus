@@ -38,13 +38,13 @@
  * - Validation
  *
  * Requirements Tested:
- * - 
+ * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
  * - Because the CV is never signaled, we expect the wait to time out.
@@ -60,7 +60,7 @@
  * - No output on success.
  *
  * Assumptions:
- * - 
+ * -
  *
  * Pass Criteria:
  * - pthread_cond_timedwait returns ETIMEDOUT.
@@ -71,7 +71,7 @@
  * - Process returns non-zero exit status.
  */
 
-#define _WIN32_WINNT 0x400
+// @sobolev #define _WIN32_WINNT 0x400
 
 #include "test.h"
 #include <sys/timeb.h>
@@ -80,38 +80,30 @@ pthread_cond_t cv;
 pthread_mutex_t mutex;
 
 /* Cheating here - sneaking a peek at library internals */
-#include "../config.h"
-#include "../implement.h"
+//#include "../config.h"
+#include <ptw32_config.h>
+#include <implement.h>
 
-int
-main()
+int main()
 {
-  struct timespec abstime = { 0, 0 }, reltime = { 1, 0 };
+	struct timespec abstime = { 0, 0 }, reltime = { 1, 0 };
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == ETIMEDOUT);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	{
+		int result = pthread_cond_destroy(&cv);
+		if(result != 0) {
+			fprintf(stderr, "Result = %s\n", error_string[result]);
+			fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
+			fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
+			fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
+			fflush(stderr);
+		}
+		assert(result == 0);
+	}
 
-  assert(pthread_cond_init(&cv, NULL) == 0);
-
-  assert(pthread_mutex_init(&mutex, NULL) == 0);
-
-  assert(pthread_mutex_lock(&mutex) == 0);
-
-  (void) pthread_win32_getabstime_np(&abstime, &reltime);
-
-  assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == ETIMEDOUT);
-  
-  assert(pthread_mutex_unlock(&mutex) == 0);
-
-  {
-  int result = pthread_cond_destroy(&cv);
-  if (result != 0)
-    {
-      fprintf(stderr, "Result = %s\n", error_string[result]);
-      fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
-      fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
-      fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
-      fflush(stderr);
-    }
-  assert(result == 0);
-  }
-
-  return 0;
+	return 0;
 }

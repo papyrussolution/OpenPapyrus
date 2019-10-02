@@ -2594,13 +2594,13 @@ int PPALDD_Currency::InitData(PPFilt & rFilt, long rsrv)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	else {
 		H.ID = rFilt.ID;
-		PPObjCurrency c_obj;
-		PPCurrency c_rec;
-		if(c_obj.Fetch(rFilt.ID, &c_rec) > 0) {
-			H.ID = c_rec.ID;
-			H.DigitCode = c_rec.Code;
-			STRNSCPY(H.Name, c_rec.Name);
-			STRNSCPY(H.Symb, c_rec.Symb);
+		PPObjCurrency cur_obj;
+		PPCurrency cur_rec;
+		if(cur_obj.Fetch(rFilt.ID, &cur_rec) > 0) {
+			H.ID = cur_rec.ID;
+			H.DigitCode = cur_rec.Code;
+			STRNSCPY(H.Name, cur_rec.Name);
+			STRNSCPY(H.Symb, cur_rec.Symb);
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}
@@ -2625,7 +2625,7 @@ int PPALDD_Currency::Set(long iterId, int commit)
 		PPObjCurrency cur_obj;
 		PPID  id = 0;
 		THROW(cur_obj.AddItem(&id, p_cur_rec, 1));
-		Extra[4].Ptr = (void *)p_cur_rec->ID;
+		Extra[4].Ptr = reinterpret_cast<void *>(p_cur_rec->ID);
 	}
 	CATCHZOK
 	if(commit) {

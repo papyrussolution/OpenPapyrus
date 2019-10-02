@@ -832,6 +832,7 @@ SString & SLAPI SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey)
 SString & SLAPI SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
 SString & SLAPI SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
 SString & SLAPI SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SLAPI SString::CatEq(const char * pKey, LDATETIME val, long dtFmt, long tmFmt) { return Cat(pKey).CatChar('=').Cat(val, dtFmt, tmFmt); }
 // } trivial functions
 
 void SLAPI SString::Obfuscate()
@@ -1802,12 +1803,8 @@ SString & FASTCALL SString::Transf(int ctransf)
 {
 	if(Len()) {
 		switch(ctransf) {
-			case CTRANSF_INNER_TO_OUTER:
-				OemToCharA(P_Buf, P_Buf); // @unicodeproblem
-				break;
-			case CTRANSF_OUTER_TO_INNER:
-				CharToOemA(P_Buf, P_Buf); // @unicodeproblem
-				break;
+			case CTRANSF_INNER_TO_OUTER: OemToCharA(P_Buf, P_Buf); break; // @unicodeproblem
+			case CTRANSF_OUTER_TO_INNER: CharToOemA(P_Buf, P_Buf); break; // @unicodeproblem
 			case CTRANSF_INNER_TO_UTF8:
 				OemToCharA(P_Buf, P_Buf); // @unicodeproblem
 				return Helper_MbToMb(CP_ACP, CP_UTF8);

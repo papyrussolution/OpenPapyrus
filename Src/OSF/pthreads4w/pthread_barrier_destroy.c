@@ -39,17 +39,13 @@ int pthread_barrier_destroy(pthread_barrier_t * barrier)
 	int result = 0;
 	pthread_barrier_t b;
 	__ptw32_mcs_local_node_t node;
-
 	if(barrier == NULL || *barrier == (pthread_barrier_t)__PTW32_OBJECT_INVALID) {
 		return EINVAL;
 	}
-
 	if(0 != __ptw32_mcs_lock_try_acquire(&(*barrier)->lock, &node)) {
 		return EBUSY;
 	}
-
 	b = *barrier;
-
 	if(b->nCurrentBarrierHeight < b->nInitialBarrierHeight) {
 		result = EBUSY;
 	}
@@ -77,16 +73,11 @@ int pthread_barrier_destroy(pthread_barrier_t * barrier)
 			 */
 			(void)sem_init(&(b->semBarrierBreeched), b->pshared, 0);
 		}
-
 		if(result != 0) {
-			/*
-			 * The barrier still exists and is valid
-			 * in the event of any error above.
-			 */
+			// The barrier still exists and is valid in the event of any error above.
 			result = EBUSY;
 		}
 	}
-
 	__ptw32_mcs_lock_release(&node);
 	return result;
 }

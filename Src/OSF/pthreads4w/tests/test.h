@@ -43,17 +43,14 @@
  */
 #define  __PTW32_TEST_SNEAK_PEEK
 
+#include <slib.h>
 #include "pthread.h"
 #include "sched.h"
 #include "semaphore.h"
-
-#include <windows.h>
-#include <stdio.h>
+//#include <windows.h>
+//#include <stdio.h>
 #include <sys/timeb.h>
-/*
- * FIXME: May not be available on all platforms.
- */
-#include <errno.h>
+//#include <errno.h> // FIXME: May not be available on all platforms.
 
 #define  __PTW32_THREAD_NULL_ID {NULL,0}
 
@@ -61,8 +58,7 @@
  * Some non-thread POSIX API substitutes
  */
 #if !defined(__MINGW64_VERSION_MAJOR)
-#  define rand_r( _seed ) \
-        ( _seed == _seed? rand() : rand() )
+	#define rand_r( _seed ) ( _seed == _seed? rand() : rand() )
 #endif
 
 #if defined(__MINGW32__)

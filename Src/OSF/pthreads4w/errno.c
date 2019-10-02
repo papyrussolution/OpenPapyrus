@@ -41,7 +41,6 @@
 //#include "implement.h"
 
 static int reallyBad = ENOMEM;
-
 /*
  * Re-entrant errno.
  *
@@ -67,7 +66,6 @@ static int reallyBad = ENOMEM;
  * #endif
  *
  */
-
 int * _errno(void)
 {
 	pthread_t self;
@@ -83,7 +81,7 @@ int * _errno(void)
 		result = (int*)(&((__ptw32_thread_t *)self.p)->exitStatus);
 	}
 	return result;
-}                               /* _errno */
+}
 
 #endif /* (NEED_ERRNO) */
 

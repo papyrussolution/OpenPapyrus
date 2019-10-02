@@ -150,17 +150,17 @@ SLAPI Profile::~Profile()
 }
 
 //virtual
-void FASTCALL Profile::freeItem(void * pItem) { ((ProfileEntry *)pItem)->Destroy(); }
+void FASTCALL Profile::freeItem(void * pItem) { static_cast<ProfileEntry *>(pItem)->Destroy(); }
 
 ProfileEntry & FASTCALL Profile::at(uint p) const
 {
-	return *(ProfileEntry*)SArray::at(p);
+	return *static_cast<ProfileEntry *>(SArray::at(p));
 }
 
 IMPL_CMPFUNC(PrflEnKey, i1, i2)
 {
-	const  ProfileEntry * k1 = (const ProfileEntry*)i1;
-	const  ProfileEntry * k2 = (const ProfileEntry*)i2;
+	const  ProfileEntry * k1 = static_cast<const ProfileEntry *>(i1);
+	const  ProfileEntry * k2 = static_cast<const ProfileEntry *>(i2);
 	int    r = ((k1->Hash)>(k2->Hash)) ? 1 : (((k1->Hash)<(k2->Hash)) ? -1 : 0);
 	if(r == 0)
 		r = ((k1->LineNum)>(k2->LineNum)) ? 1 : (((k1->LineNum)<(k2->LineNum)) ? -1 : 0);
@@ -224,7 +224,7 @@ int SLAPI Profile::AddEntry(const char * pFileName, long lineNum, int iterOp, co
 	int64  finish = NSec100Clock();
 	int64  finish_mks = Helper_GetAbsTimeMicroseconds();
 	uint   pos = 0;
-	ProfileEntry * p_entry = (ProfileEntry *)Search(pFileName, lineNum);
+	ProfileEntry * p_entry = static_cast<ProfileEntry *>(Search(pFileName, lineNum));
 	if(p_entry) {
 		int    do_zero_entry = 1;
 		if(iterOp == addIter) {

@@ -70,16 +70,14 @@
 int pthread_key_create(pthread_key_t * key, void (__PTW32_CDECL * destructor)(void *))
 {
 	int result = 0;
-	pthread_key_t newkey;
-	if((newkey = (pthread_key_t)SAlloc::C(1, sizeof(*newkey))) == NULL) {
+	pthread_key_t newkey = static_cast<pthread_key_t>(SAlloc::C(1, sizeof(*newkey)));
+	if(!newkey)
 		result = ENOMEM;
-	}
 	else if((newkey->key = TlsAlloc()) == TLS_OUT_OF_INDEXES) {
 		result = EAGAIN;
-		SAlloc::F(newkey);
-		newkey = NULL;
+		ZFREE(newkey);
 	}
-	else if(destructor != NULL) {
+	else if(destructor) {
 		/*
 		 * Have to manage associations between thread and key;
 		 * Therefore, need a lock that allows competing threads

@@ -141,7 +141,7 @@ int SLAPI PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, i
 		SETFLAG(Flags, PPTFR_RECEIPT, (oneof2(op_type_id, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT) ||
 			(Flags & PPTFR_PCKG && Flags & PPTFR_MODIF)) && !noupdlotrest && !force_no_rcpt);
 		SETFLAG(Flags, PPTFR_ACK,   op_type_id == PPOPT_GOODSACK || noupdlotrest);
-		SETFLAG(Flags, PPTFR_DRAFT, oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT));
+		SETFLAG(Flags, PPTFR_DRAFT, oneof4(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)); // @v10.5.8 PPOPT_DRAFTQUOTREQ
 		if(op_type_id == PPOPT_GOODSRECEIPT) {
 			SETFLAG(Flags, PPTFR_COSTWSTAX, pBillRec->Flags & BILLF_RMVEXCISE);
 		}

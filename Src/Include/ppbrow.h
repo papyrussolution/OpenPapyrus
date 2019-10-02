@@ -544,7 +544,7 @@
 	#define HELP_BROWSER_BBOARD                                 250
 #define BROWSER_SERVERSTAT                             251 // Статистика сервера %s
 	#define HELP_BROWSER_SERVERSTAT                             251
-#define BROWSER_AMOUNTTYPE                             252 // Типы сумм документов
+#define BROWSER_AMOUNTTYPE                             252 // @view_amounttype
 	#define HELP_BROWSER_AMOUNTTYPE                             252
 #define BROWSER_REGISTERTYPE                           253 // Типы регистрационных документов
 	#define HELP_BROWSER_REGISTERTYPE                           253
@@ -1117,6 +1117,8 @@
 #define PPVCMD_SENDOUTGOING                           275
 #define PPVCMD_VETISWAREHOUSE                         276
 #define PPVCMD_VETISPRODUCT                           277
+#define PPVCMD_EDITLINKQR                             278
+#define PPVCMD_CREATELINKQR                           279
 //
 // PPCMD definitions
 //
@@ -1460,6 +1462,7 @@
 #define PPCMD_FREIGHTPACKAGETYPE                    1338
 #define PPCMD_EXPORTVIEW                            1339
 #define PPCMD_TESTMQC                               1340
+#define PPCMD_QUOTEREQANALYZE                       1341
 //
 // PPJOB definitions
 //

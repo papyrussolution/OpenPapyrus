@@ -392,7 +392,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
-	void    setupCtrls();
+	void    SetupCtrls();
 	int     EditSupplAssoc(long selId)
 	{
 		int    ok = -1;
@@ -432,13 +432,13 @@ IMPL_HANDLE_EVENT(PuglDialog)
 		}
 	}
 	else if(event.isClusterClk(CTL_MSGNCMPL_ACTION) || event.isClusterClk(CTL_MSGNCMPL_COSTALG))
-		setupCtrls();
+		SetupCtrls();
 	else
 		return;
 	clearEvent(event);
 }
 
-void PuglDialog::setupCtrls()
+void PuglDialog::SetupCtrls()
 {
 	ushort v1 = 999, v2 = 0;
 	if(Data.ActionsCount)
@@ -464,7 +464,7 @@ int PuglDialog::setDTS(const PUGL * pData)
 	disableCtrl(CTL_MSGNCMPL_ACTION, !Data.ActionsCount);
 	setCtrlUInt16(CTL_MSGNCMPL_COSTALG, BIN(Data.CostByCalc));
 	setCtrlData(CTL_MSGNCMPL_CPCTVAL, &Data.CalcCostPct);
-	setupCtrls();
+	SetupCtrls();
 	updateList(-1);
 	{
 		long   sel_id = 0;

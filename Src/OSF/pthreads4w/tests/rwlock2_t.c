@@ -1,4 +1,4 @@
-/* 
+/*
  * rwlock2_t.c
  *
  *
@@ -31,7 +31,7 @@
  *
  * --------------------------------------------------------------------------
  *
- * Declare a static rwlock object, timed-lock it, 
+ * Declare a static rwlock object, timed-lock it,
  * and then unlock it again.
  *
  * Depends on API functions:
@@ -44,26 +44,16 @@
 
 pthread_rwlock_t rwlock = PTHREAD_RWLOCK_INITIALIZER;
 
-int
-main()
+int main()
 {
-  struct timespec abstime, reltime = { 1, 0 };
-
-  (void) pthread_win32_getabstime_np(&abstime, &reltime);
-
-  assert(rwlock == PTHREAD_RWLOCK_INITIALIZER);
-
-  assert(pthread_rwlock_timedrdlock(&rwlock, &abstime) == 0);
-
-  assert(rwlock != PTHREAD_RWLOCK_INITIALIZER);
-
-  assert(rwlock != NULL);
-
-  assert(pthread_rwlock_unlock(&rwlock) == 0);
-
-  assert(pthread_rwlock_destroy(&rwlock) == 0);
-
-  assert(rwlock == NULL);
-
-  return 0;
+	struct timespec abstime, reltime = { 1, 0 };
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(rwlock == PTHREAD_RWLOCK_INITIALIZER);
+	assert(pthread_rwlock_timedrdlock(&rwlock, &abstime) == 0);
+	assert(rwlock != PTHREAD_RWLOCK_INITIALIZER);
+	assert(rwlock != NULL);
+	assert(pthread_rwlock_unlock(&rwlock) == 0);
+	assert(pthread_rwlock_destroy(&rwlock) == 0);
+	assert(rwlock == NULL);
+	return 0;
 }

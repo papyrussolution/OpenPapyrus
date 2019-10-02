@@ -105,7 +105,7 @@ int SLAPI PPObjProject::EditConfig()
 				SetupOprKindCombo(this, CTLSEL_PRJCFG_BILLOP, Data.Cfg.BillOpID, 0, &types, 0);
 			}
 			SetRealRangeInput(this, CTL_PRJCFG_WORKHOURS, Data.Cfg.WorkHoursBeg, Data.Cfg.WorkHoursEnd);
-			setupCtrls();
+			SetupCtrls();
 			return 1;
 		}
 		int getDTS(Rec * pData)
@@ -148,11 +148,11 @@ int SLAPI PPObjProject::EditConfig()
 		{
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_PRJCFG_FLAGS)) {
-				setupCtrls();
+				SetupCtrls();
 				clearEvent(event);
 			}
 		}
-		void   setupCtrls()
+		void   SetupCtrls()
 		{
 			long   flags = 0;
 			GetClusterData(CTL_PRJCFG_FLAGS, &flags);

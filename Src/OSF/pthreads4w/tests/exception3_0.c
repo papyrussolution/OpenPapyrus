@@ -68,7 +68,6 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
 
 /*
@@ -76,112 +75,100 @@
  * built with /MD and an unhandled exception occurs, the runtime does not
  * properly call the terminate handler specified by set_terminate().
  */
-#if defined(__cplusplus) \
-	&& !(defined(_MSC_VER) && _MSC_VER == 1400 && defined(_DLL) && !defined(_DEBUG))
-
+#if defined(__cplusplus) && !(defined(_MSC_VER) && _MSC_VER == 1400 && defined(_DLL) && !defined(_DEBUG))
 #if defined(_MSC_VER)
-# include <eh.h>
+	#include <eh.h>
 #else
-# if defined(__GNUC__) && __GNUC__ < 3
-#   include <new.h>
-# else
-#   include <new>
-    using std::set_terminate;
-# endif
+	#if defined(__GNUC__) && __GNUC__ < 3
+		#include <new.h>
+	#else
+		#include <new>
+		using std::set_terminate;
+	#endif
 #endif
-
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
  */
 enum {
-  NUMTHREADS = 10
+	NUMTHREADS = 10
 };
 
 int caught = 0;
 CRITICAL_SECTION caughtLock;
 
-void
-terminateFunction ()
+void terminateFunction()
 {
-  EnterCriticalSection(&caughtLock);
-  caught++;
+	EnterCriticalSection(&caughtLock);
+	caught++;
 #if 0
-  {
-     FILE * fp = fopen("pthread.log", "a");
-     fprintf(fp, "Caught = %d\n", caught);
-     fclose(fp);
-  }
+	{
+		FILE * fp = fopen("pthread.log", "a");
+		fprintf(fp, "Caught = %d\n", caught);
+		fclose(fp);
+	}
 #endif
-  LeaveCriticalSection(&caughtLock);
+	LeaveCriticalSection(&caughtLock);
 
-  /*
-   * Notes from the MSVC++ manual:
-   *       1) A term_func() should call exit(), otherwise
-   *          abort() will be called on return to the caller.
-   *          abort() raises SIGABRT. The default signal handler
-   *          for all signals terminates the calling program with
-   *          exit code 3.
-   *       2) A term_func() must not throw an exception. Dev: Therefore
-   *          term_func() should not call pthread_exit() if an
-   *          exception-using version of pthreads-win32 library
-   *          is being used (i.e. either pthreadVCE or pthreadVSE).
-   */
-  exit(0);
+	/*
+	 * Notes from the MSVC++ manual:
+	 *       1) A term_func() should call exit(), otherwise
+	 *          abort() will be called on return to the caller.
+	 *          abort() raises SIGABRT. The default signal handler
+	 *          for all signals terminates the calling program with
+	 *          exit code 3.
+	 *       2) A term_func() must not throw an exception. Dev: Therefore
+	 *          term_func() should not call pthread_exit() if an
+	 *          exception-using version of pthreads-win32 library
+	 *          is being used (i.e. either pthreadVCE or pthreadVSE).
+	 */
+	exit(0);
 }
 
-void *
-exceptionedThread(void * arg)
+void * exceptionedThread(void * arg)
 {
-  int dummy = 0x1;
+	int dummy = 0x1;
 
-  set_terminate(&terminateFunction);
-  assert(set_terminate(&terminateFunction) == &terminateFunction);
+	set_terminate(&terminateFunction);
+	assert(set_terminate(&terminateFunction) == &terminateFunction);
 
-  throw dummy;
+	throw dummy;
 
-  return (void *) 2;
+	return (void*)2;
 }
 
-int
-main()
+int main()
 {
-  int i;
-  DWORD et[NUMTHREADS];
+	int i;
+	DWORD et[NUMTHREADS];
 
-  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
-  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 
-  InitializeCriticalSection(&caughtLock);
+	InitializeCriticalSection(&caughtLock);
 
-  for (i = 0; i < NUMTHREADS; i++)
-    {
-      CreateThread(NULL, //Choose default security
-        0, //Default stack size
-        (LPTHREAD_START_ROUTINE)&exceptionedThread, //Routine to execute
-        NULL, //Thread parameter
-        0, //Immediately run the thread
-        &et[i] //Thread Id
-        );
-    }
+	for(i = 0; i < NUMTHREADS; i++) {
+		CreateThread(NULL, //Choose default security
+		    0, //Default stack size
+		    (LPTHREAD_START_ROUTINE)&exceptionedThread, //Routine to execute
+		    NULL, //Thread parameter
+		    0, //Immediately run the thread
+		    &et[i] //Thread Id
+		    );
+	}
 
-  Sleep(NUMTHREADS * 10);
+	Sleep(NUMTHREADS * 10);
 
-  DeleteCriticalSection(&caughtLock);
-  /*
-   * Fail. Should never be reached.
-   */
-  return 1;
+	DeleteCriticalSection(&caughtLock);
+	/*
+	 * Fail. Should never be reached.
+	 */
+	return 1;
 }
 
 #else /* defined(__cplusplus) */
-
-#include <stdio.h>
-
-int
-main()
-{
-  fprintf(stderr, "Test N/A for this compiler environment.\n");
-  return 0;
-}
-
+	int main()
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
 #endif /* defined(__cplusplus) */

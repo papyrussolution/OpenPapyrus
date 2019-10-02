@@ -62,11 +62,10 @@ int pthread_setspecific(pthread_key_t key, const void * value)
 	pthread_t self;
 	int result = 0;
 	if(key != __ptw32_selfThreadKey) {
-		/*
-		 * Using pthread_self will implicitly create
-		 * an instance of pthread_t for the current
-		 * thread if one wasn't explicitly created
-		 */
+		// 
+		// Using pthread_self will implicitly create an instance of pthread_t for the current
+		// thread if one wasn't explicitly created
+		// 
 		self = pthread_self();
 		if(self.p == NULL) {
 			return ENOENT;
@@ -79,7 +78,7 @@ int pthread_setspecific(pthread_key_t key, const void * value)
 			if(value == NULL) {
 				return ENOENT;
 			}
-			self = *((pthread_t*)value);
+			self = *static_cast<const pthread_t *>(value);
 		}
 		else
 			self = sp->ptHandle;
@@ -91,12 +90,9 @@ int pthread_setspecific(pthread_key_t key, const void * value)
 			__ptw32_mcs_local_node_t threadLock;
 			__ptw32_thread_t * sp = (__ptw32_thread_t *)self.p;
 			/*
-			 * Only require associations if we have to
-			 * call user destroy routine.
-			 * Don't need to locate an existing association
-			 * when setting data to NULL for WIN32 since the
-			 * data is stored with the operating system; not
-			 * on the association; setting assoc to NULL short
+			 * Only require associations if we have to call user destroy routine.
+			 * Don't need to locate an existing association when setting data to NULL for WIN32 since the
+			 * data is stored with the operating system; not on the association; setting assoc to NULL short
 			 * circuits the search.
 			 */
 			ThreadKeyAssoc * assoc;
@@ -106,12 +102,9 @@ int pthread_setspecific(pthread_key_t key, const void * value)
 			/*
 			 * Locate existing association
 			 */
-			while(assoc != NULL) {
+			while(assoc) {
 				if(assoc->key == key) {
-					/*
-					 * Association already exists
-					 */
-					break;
+					break; // Association already exists
 				}
 				assoc = assoc->nextKey;
 			}

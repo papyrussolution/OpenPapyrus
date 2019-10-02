@@ -28,13 +28,14 @@ PPViewSpecSeries::~PPViewSpecSeries()
 {
 }
 
-#define GRP_GOODS 1
-
 class SpecSerFiltDlg : public TDialog {
 public:
+	enum {
+		ctlgroupGoods = 1
+	};
 	SpecSerFiltDlg() : TDialog(DLG_SPCSERFLT)
 	{
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_SPCSERFLT_GGRP, CTLSEL_SPCSERFLT_GOODS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_SPCSERFLT_GGRP, CTLSEL_SPCSERFLT_GOODS));
 		SetupCalPeriod(CTLCAL_SPCSERFLT_PERIOD, CTL_SPCSERFLT_PERIOD);
 	}
 	int setDTS(const SpecSeriesFilt *);
@@ -48,7 +49,7 @@ int SpecSerFiltDlg::setDTS(const SpecSeriesFilt * pData)
 	if(!RVALUEPTR(Data, pData))
 		Data.Init(1, 0);
 	GoodsCtrlGroup::Rec ggrp_rec(Data.GoodsGrpID, Data.GoodsID);
-	setGroupData(GRP_GOODS, &ggrp_rec);
+	setGroupData(ctlgroupGoods, &ggrp_rec);
 	AddClusterAssoc(CTL_SPCSERFLT_KIND, -1, SPCSERIK_SPOILAGE);
 	AddClusterAssoc(CTL_SPCSERFLT_KIND, 0, SPCSERIK_SPOILAGE);
 	SetClusterData(CTL_SPCSERFLT_KIND, Data.InfoKind);
@@ -61,7 +62,7 @@ int SpecSerFiltDlg::getDTS(SpecSeriesFilt * pData)
 	int    ok = 1;
 	ushort sel_ctl = 0;
 	GoodsCtrlGroup::Rec ggrp_rec;
-	getGroupData(GRP_GOODS, &ggrp_rec);
+	getGroupData(ctlgroupGoods, &ggrp_rec);
 	Data.GoodsGrpID = ggrp_rec.GrpID;
 	Data.GoodsID    = ggrp_rec.GoodsID;
 	GetClusterData(CTL_SPCSERFLT_KIND, &Data.InfoKind);
@@ -223,6 +224,9 @@ void SLAPI PPViewSpecSeries::PreprocessBrowser(PPViewBrowser * pBrw)
 
 class SpecSerDlg : public TDialog {
 public:
+	enum {
+		ctlgroupGoods = 1
+	};
 	SpecSerDlg();
 	int    setDTS(const SpecSeries2Tbl::Rec *);
 	int    getDTS(SpecSeries2Tbl::Rec *);
@@ -237,7 +241,7 @@ SpecSerDlg::SpecSerDlg() : TDialog(DLG_SPCSER)
 {
 	SetupCalDate(CTLCAL_SPCSER_DT, CTL_SPCSER_DT);
 	SetupCalDate(CTLCAL_SPCSER_ALLOWDT, CTL_SPCSER_ALLOWDT);
-	addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_SPCSER_GGRP, CTLSEL_SPCSER_GOODS));
+	addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_SPCSER_GGRP, CTLSEL_SPCSER_GOODS));
 }
 
 IMPL_HANDLE_EVENT(SpecSerDlg)
@@ -294,7 +298,7 @@ int SpecSerDlg::setDTS(const SpecSeries2Tbl::Rec * pData)
 	AddClusterAssoc(CTL_SPCSER_FLAGS, 0, SPCSELIF_FALSIFICATION);
 	AddClusterAssoc(CTL_SPCSER_FLAGS, 1, SPCSELIF_ALLOW);
 	SetClusterData(CTL_SPCSER_FLAGS, Data.Flags);
-	setGroupData(GRP_GOODS, &ggrp_rec);
+	setGroupData(ctlgroupGoods, &ggrp_rec);
 	SetupPersonCombo(this, CTLSEL_SPCSER_MANUF, Data.ManufID, 0, PPPRK_MANUF, 0);
 	SetupCtrls();
 	return 1;

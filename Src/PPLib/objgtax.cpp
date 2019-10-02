@@ -58,6 +58,11 @@ char * SLAPI PPGoodsTaxEntry::FormatExcise(char * pBuf, size_t bufLen) const
 	return temp_buf.CopyTo(pBuf, bufLen);
 }
 
+SLAPI PPGoodsTax2::PPGoodsTax2()
+{
+	THISZERO();
+}
+
 void FASTCALL PPGoodsTax::ToEntry(PPGoodsTaxEntry * pEntry) const
 {
 	if(pEntry) {
@@ -84,7 +89,6 @@ void FASTCALL PPGoodsTax::FromEntry(const PPGoodsTaxEntry * pEntry)
 
 SLAPI PPGoodsTaxPacket::PPGoodsTaxPacket() : SVector(sizeof(PPGoodsTaxEntry)) // @v10.1.6 SArray-->SVector
 {
-	MEMSZERO(Rec);
 }
 
 PPGoodsTaxPacket & FASTCALL PPGoodsTaxPacket::operator = (const PPGoodsTaxPacket & s)
@@ -352,7 +356,9 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 {
 	int    ok = 1;
 	const  PPCommConfig & r_ccfg = CConfig;
+	PPObjBill * p_bobj = BillObj;
 	const  int calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? 0 : 1;
+	const  LDATE date_of_relevance = checkdate(rTi.LotDate) ? rTi.LotDate : rTi.Date; // @v10.5.8 Драфт-документы имеют нулевой LotDate
 	int    cost_wo_vat = 0;
 	int    is_asset = 0;
 	int    is_exclvat = 0;
@@ -369,7 +375,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 		if(goods_rec.Flags & GF_ASSETS)
 			is_asset = 1;
 		tax_grp_id = goods_rec.TaxGrpID;
-		if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && rTi.LotID && BillObj->GetSupplAgent(rTi.LotID) > 0) {
+		if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && rTi.LotID && p_bobj->GetSupplAgent(rTi.LotID) > 0) {
 			PPObjGoodsType gt_obj;
 			PPGoodsType gt_rec;
 			if(gt_obj.Fetch(r_ccfg.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
@@ -386,7 +392,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 		if(!(exclFlags & GTAXVF_NOMINAL) && rTi.LotTaxGrpID)
 			tax_grp_id = rTi.LotTaxGrpID;
 		// @v10.2.5 (ctr) MEMSZERO(gtx);
-		gobj.GTxObj.Fetch(tax_grp_id, rTi.LotDate, 0, &gtx);
+		gobj.GTxObj.Fetch(tax_grp_id, date_of_relevance, 0, &gtx);
 		const double q_pre = fabs(rTi.QuotPrice);
 		qtty = fabs(rTi.Quantity_);
 		const double q_diff = (qtty - q_pre);
@@ -405,7 +411,6 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 	// @v10.3.3 {
 	else if(rTi.IsCorrectionExp()) {
 		// @v10.3.4 {
-		PPObjBill * p_bobj = BillObj;
 		BillTbl::Rec bill_rec;
 		BillTbl::Rec link_bill_rec;
 		LDATE   tax_date = rTi.Date;
@@ -452,7 +457,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 			if(!(exclFlags & GTAXVF_NOMINAL) && rTi.LotTaxGrpID)
 				tax_grp_id = rTi.LotTaxGrpID;
 			// @v10.2.5 (ctr) MEMSZERO(gtx);
-			gobj.GTxObj.Fetch(tax_grp_id, rTi.LotDate, 0, &gtx);
+			gobj.GTxObj.Fetch(tax_grp_id, date_of_relevance, 0, &gtx);
 			if(rTi.Flags & PPTFR_COSTWOVAT) {
 				amt_flags &= ~GTAXVF_VAT;
 				if(calcti_costwovat_byprice)
@@ -597,7 +602,7 @@ int SLAPI PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID
 	return ok;
 }
 
-int SLAPI PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen)
+void SLAPI PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen)
 {
 	SString text;
 	if(R6(pRec->VAT) != 0)
@@ -612,7 +617,6 @@ int SLAPI PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, siz
 	if(text.Empty())
 		text.CatCharN('0', 3);
 	strnzcpy(buf, text, buflen);
-	return 1;
 }
 
 int SLAPI PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, double stax, long flags, int use_ta)
@@ -620,7 +624,6 @@ int SLAPI PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, doub
 	int    ok = 1;
 	PPID   id = 0;
 	PPGoodsTax pattern, rec;
-	MEMSZERO(pattern);
 	pattern.VAT      = vat;
 	pattern.Excise   = excise;
 	pattern.SalesTax = stax;

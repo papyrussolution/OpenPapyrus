@@ -547,6 +547,7 @@ int PPApp::processCommand(uint cmd)
 		case cmGetPrognosis:         PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, reinterpret_cast<void *>(1)); break;
 		case cmViewPhnSvcMonitor:    PPView::Execute(PPVIEW_PHNSVCMONITOR,   0, PPView::exefModeless, 0); break; // @v9.9.10
 		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break; // @v10.0.12
+		case cmQuoteReqAnalyze:      PPView::Execute(PPVIEW_QUOTEREQANALYZE, 0, PPView::exefModeless, 0); break; // @v10.5.7
 		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break; // @v10.1.2
 		case cmTimeSeriesSA: // @construction
 			break;
@@ -1151,8 +1152,6 @@ SLAPI PPVerHistory::PPVerHistory()
 {
 }
 
-static const uint32 PPVerHistSignature = 0x48565050UL; // PPVH
-
 int SLAPI PPVerHistory::Read(const char * pDataPath, Info * pInfo)
 {
 	int    ok = -1;
@@ -1169,7 +1168,7 @@ int SLAPI PPVerHistory::Read(const char * pDataPath, Info * pInfo)
 			MEMSZERO(hdr);
 			THROW_SL(f.Open(path, SFile::mRead|SFile::mBinary) > 0);
 			THROW_PP(f.Read(&hdr, hdr_size, &len) > 0 && len == hdr_size, PPERR_INVHDRSIZE);
-			THROW_PP_S(hdr.Signature == PPVerHistSignature, PPERR_VERHISTINVSIGN, path);
+			THROW_PP_S(hdr.Signature == _PPConst.VerHistSignature, PPERR_VERHISTINVSIGN, path);
 			THROW_SL(f.CalcCRC(hdr_size, &crc));
 			SLibError = SLERR_INVALIDCRC;
 			THROW_SL(crc == hdr.CRC);
@@ -1208,7 +1207,7 @@ int SLAPI PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 	MEMSZERO(hdr);
 	MEMSZERO(rec);
 	f.Seek(0);
-	hdr.Signature = PPVerHistSignature;
+	hdr.Signature = _PPConst.VerHistSignature;
 	hdr.CRC       = crc;
 	hdr.CurVer    = pInfo->CurVer;
 	hdr.MinVer    = pInfo->MinVer;
@@ -1759,18 +1758,16 @@ void PPApp::login(int processCmdLine)
 	}
 	// @v9.7.8 else if(GetStartUpOption(cmdlSartrTest, arg_buf)) { SartTest(); }
 	else {
-		int    valid = 0, force_prompt = 0, retry_login = 0, sys_acc_login = 0;
-		int    prot = 0, recover = 0;
-		/*
-		union {
-			char   usr[64];
-			char   path[64];
-		};
-		*/
+		int    valid = 0;
+		int    force_prompt = 0;
+		int    retry_login = 0;
+		int    sys_acc_login = 0;
+		int    prot = 0;
+		int    recover = 0;
 		char   pw[20];
+		LDATE  oper_date = getcurdate_();
 		SString lua_script; // @v10.0.1 @experimental
 		SString usr_;
-		PPIniFile  ini_file;
 		PPID   dbentry_id = 0;
 		PPDbEntrySet2 dbes; // @
 		if(_argc > 1 && *_argv[1] != '/' && *_argv[1] != '-') {
@@ -1783,38 +1780,40 @@ void PPApp::login(int processCmdLine)
 				usr_.Transf(CTRANSF_OUTER_TO_INNER);
 			}
 		}
-		pw[0] = 0;
-		dbes.ReadFromProfile(&ini_file);
-		if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
-			dbentry_id = dbes.GetBySymb(arg_buf, 0);
-			if(dbentry_id <= 0) {
-				PPError();
-				TView::messageCommand(this, cmQuit);
-				return;
+		PTR32(pw)[0] = 0;
+		{ // @v10.5.7 Зона видимости ini_file. Ее необходимо изолировать - PPLoginDialog может затребовать эксклюзивный доступ к pp.ini для редактирования.
+			PPIniFile  ini_file;
+			dbes.ReadFromProfile(&ini_file);
+			if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
+				dbentry_id = dbes.GetBySymb(arg_buf, 0);
+				if(dbentry_id <= 0) {
+					PPError();
+					TView::messageCommand(this, cmQuit);
+					return;
+				}
 			}
+			else if(dbes.GetCount() == 1)
+				dbentry_id = 1;
+			dbes.SetSelection(dbentry_id);
+			InitStatusBar();
+			StoreLastBinPath();
+			ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_SYSAUTH, &sys_acc_login);
+			//
+			// Если определен сервер синхронизации времени, то пытаемся установить
+			// системное время на рабочей станции в соответствии с сервером.
+			// Время устанавливается только в том случае, если текущее время на
+			// станции отличается от сервера более чем на 1 секунду
+			//
+			SetDatetimeByServer(&ini_file, 0);
+			// @v10.1.5 PPBackupSystemFiles();
+			PPBackupSystemFiles_Arc(); // @v10.1.5
+			// @v10.0.1 @experimental {
+			/*if(lua_script.NotEmpty()) {
+				ExecuteLuaScriptFile(lua_script);
+			}*/
+			// } @v10.0.1
 		}
-		else if(dbes.GetCount() == 1)
-			dbentry_id = 1;
-		dbes.SetSelection(dbentry_id);
-		InitStatusBar();
-		StoreLastBinPath();
-		ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_SYSAUTH, &sys_acc_login);
-		//
-		// Если определен сервер синхронизации времени, то пытаемся установить
-		// системное время на рабочей станции в соответствии с сервером.
-		// Время устанавливается только в том случае, если текущее время на
-		// станции отличается от сервера более чем на 1 секунду
-		//
-		SetDatetimeByServer(&ini_file, 0);
-		LDATE  dt = getcurdate_();
-		// @v10.1.5 PPBackupSystemFiles();
-		PPBackupSystemFiles_Arc(); // @v10.1.5
-		// @v10.0.1 @experimental {
-		/*if(lua_script.NotEmpty()) {
-			ExecuteLuaScriptFile(lua_script);
-		}*/
-		// } @v10.0.1
-		while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &dt, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
+		while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &oper_date, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
 			SString db_symb;
 			PPID   db_id = NZOR(dbes.GetSelection(), dbes.SetDefaultSelection());
 			DbLoginBlock dlb;
@@ -1822,7 +1821,7 @@ void PPApp::login(int processCmdLine)
 				PPWait(1);
 				dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb);
 				if(DS.Login(db_symb, usr_, pw) && InitMenuBar()) {
-					if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && dt != getcurdate_()) {
+					if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && oper_date != getcurdate_()) {
 						DS.Logout();
 						PPSetError(PPERR_OPERDATEDIFSYSDATE);
 					}
@@ -1844,7 +1843,7 @@ void PPApp::login(int processCmdLine)
 			}
 		}
 		if(valid && !prot && !recover) {
-			DS.SetOperDate(dt);
+			DS.SetOperDate(oper_date);
 			StatusWinChange(1);
 			PPDesktop::RegWindowClass(TProgram::GetInst());
 			PPDesktop::Open(LConfig.DesktopID, 1); // @todo должна вызываться после того, как будут созданы основные окна.
@@ -1938,11 +1937,10 @@ int PPApp::InitMenuBar()
 {
 	const  PPConfig & r_cfg = LConfig;
 	const  int is_master = BIN(PPMaster);
-	int    from_rc = (r_cfg.MenuID && !is_master) ? 0 : 1;
-	HMENU  m;
+	const  int from_rc = (r_cfg.MenuID && !is_master) ? 0 : 1;
 	if(r_cfg.Menu || r_cfg.MenuID || is_master) {
 		int not_found = 0;
-		m = PPLoadMenu(P_SlRez, from_rc ? r_cfg.Menu : r_cfg.MenuID, from_rc, &not_found);
+		HMENU  m = PPLoadMenu(P_SlRez, from_rc ? r_cfg.Menu : r_cfg.MenuID, from_rc, &not_found);
 		if(!m || not_found) {
 			if(is_master) {
 				DS.GetTLA().Lc.Menu = 1;
@@ -2086,15 +2084,12 @@ int PPApp::RegisterComServer()
 			(subkey = param.ExcelRegKeyDir).SetLastSlash().Cat("Options").SetLastSlash();
 			opt_param = "OPEN";
 			if(reg_key.Open(HKEY_CURRENT_USER, subkey, 0) > 0) {
-				//char buf[MAXPATH];
 				SString subkey2;
 				WinRegValue reg_val;
 				for(uint idx = 0; reg_key.EnumValues(&idx, &subkey2.Z(), &reg_val) > 0;) {
 					if(subkey2.CmpPrefix(p_open_name, 1) == 0) {
-						long open_idx = 0;
 						SString open_idx_str;
-						open_idx = (open_idx_str = subkey2).ShiftLeft(4).ToLong();
-						//memzero(buf, sizeof(buf));
+						long open_idx = (open_idx_str = subkey2).ShiftLeft(4).ToLong();
 						if(reg_key.GetString(subkey2, param_buf) > 0 && src_path.CmpNC(param_buf) == 0)
 							delreg_list.add(open_idx);
 						(opt_param = p_open_name).Cat(open_idx + 1);

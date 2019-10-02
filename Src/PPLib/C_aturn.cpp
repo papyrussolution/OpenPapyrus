@@ -1,7 +1,7 @@
 // C_ATURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2016
-//
-// Процедуры корректировки бух. проводок
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2016, 2019
+// @codepage UTF-8
+// РџСЂРѕС†РµРґСѓСЂС‹ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёС… РїСЂРѕРІРѕРґРѕРє
 //
 #include <pp.h>
 #pragma hdrstop
@@ -13,7 +13,7 @@ struct CorrectAccturnRestParam {
 
 static int ReplyProc(PPID accRelID, LDATE dt, long oprno, double delta, void * paramPtr)
 {
-	CorrectAccturnRestParam * p = (CorrectAccturnRestParam *)paramPtr;
+	CorrectAccturnRestParam * p = static_cast<CorrectAccturnRestParam *>(paramPtr);
 	if(p) {
 		SString buf, buf1, buf2;
 		PPLoadString(PPMSG_INFORMATION, PPINF_INVATURNREST, buf2);
@@ -88,7 +88,7 @@ static int CorrectAccturnMsgProc(int msgCode, PPID accID, PPID billID, LDATE dt,
 {
 	int    ok = 1;
 	if(PPCheckUserBreak()) {
-		CorrectAccturnParam * p = (CorrectAccturnParam *)paramPtr;
+		CorrectAccturnParam * p = static_cast<CorrectAccturnParam *>(paramPtr);
 		if(p) {
 			SString buf, buf1, buf2;
 			PPLoadString(PPMSG_ERROR, msgCode, buf1);
@@ -131,5 +131,6 @@ int SLAPI CorrectAccturn()
 	}
 	CATCHZOKPPERR
 	param.Logger.Save(log_fname, 0);
+	delete dlg; // @v10.5.8 @fix
 	return ok;
 }

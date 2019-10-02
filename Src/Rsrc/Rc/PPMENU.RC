@@ -394,6 +394,7 @@
 		MENUITEM "@cmd_viewordlots",						cmViewOrdLots
 		MENUITEM "@cmd_trfranalyze",						cmTrfrAnalyze
 		MENUITEM "@cmd_shipmanalyze"						cmShipmAnalyze
+		MENUITEM "@cmd_quotereqanalyze"						cmQuoteReqAnalyze // @v10.5.7
 		MENUITEM "@cmd_priceanlz",							cmPriceAnlz
 		MENUITEM "@cmd_goodsrest",							cmGoodsRest
 		POPUP "@cmdpu_settlementsdebtncred" {

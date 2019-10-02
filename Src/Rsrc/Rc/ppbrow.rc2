@@ -1102,13 +1102,13 @@ browser PERSONATTR_REGISTER north(100), 1, 0, "@{person_pl} {%s}", OWNER|GRID, 0
 
 browser PERSONATTR_BNKACCT north(100), 1, 0, "@{bankaccount_pl} {%s}", OWNER|GRID, 0
 {
-	"@id",           0, notype, 0,  4
-	"@name",         2, notype, 0, 40
-	"Тип счета",     5, notype, 0, 10
-	"@bank",         3, notype, 0, 40
-	"@bic",          7, notype, 0, 10
-	"@account",      4, notype, 0, 12
-	"Дата открытия", 6, notype, 0, 10
+	"@id",              0, notype, 0,  4
+	"@name",            2, notype, 0, 40
+	"@bacct_acctype",   5, notype, 0, 10
+	"@bank",            3, notype, 0, 40
+	"@bic",             7, notype, 0, 10
+	"@account",         4, notype, 0, 12
+	"@bacct_opendate",  6, notype, 0, 10
 	toolbar PERSON
 }
 
@@ -4543,7 +4543,7 @@ browser ASSET north(100), 2, 1, "Объекты основных средств", OWNER|GRID, 0
 	"Срок\nсписания,мес",         6, notype, ALIGN_RIGHT|NMBF_NOZERO, 8
 	"Первоначальная\nстоимость",  7, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
 	"@rest",                      8, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
-	"Амортизация",                9, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
+	"@amortization",              9, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter, TBBM_LOTSOPER,   "@{view_lotop}\tEnter"
 		VIEWCOMPLETE: kbSpace, TBBM_DIVISION,   "@{lotstruc}\tПробел"
@@ -4565,18 +4565,18 @@ browser ASSETOPER north(100), 4, 1, "Объекты основных средств {%s}", OWNER|GRID,
 	"Дата ввода\nв эксплуатацию", 5, notype, DATF_DMY, 8
 	"Срок\nсписания,мес",         6, notype, NMBF_NOZERO, 8
 	group "На начало периода" {
-		"Баланс",      10, notype, NMBF_NOZERO, 12.2
-		"@rest",     11, notype, NMBF_NOZERO, 12.2
-		"Амортизация", 12, notype, NMBF_NOZERO, 11.2
+		"Баланс",        10, notype, NMBF_NOZERO, 12.2
+		"@rest",         11, notype, NMBF_NOZERO, 12.2
+		"@amortization", 12, notype, NMBF_NOZERO, 11.2
 	}
 	group "Изменение за период" {
-		"Баланс",      13, notype, NMBF_NOZERO, 10.2
-		"Амортизация", 14, notype, NMBF_NOZERO, 11.2
+		"Баланс",        13, notype, NMBF_NOZERO, 10.2
+		"@amortization", 14, notype, NMBF_NOZERO, 11.2
 	}
 	group "На конец периода" {
-		"Баланс",       7, notype, NMBF_NOZERO, 12.2
-		"@rest",      8, notype, NMBF_NOZERO, 12.2
-		"Амортизация",  9, notype, NMBF_NOZERO, 11.2
+		"Баланс",         7, notype, NMBF_NOZERO, 12.2
+		"@rest",          8, notype, NMBF_NOZERO, 12.2
+		"@amortization",  9, notype, NMBF_NOZERO, 11.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		VIEWCOMPLETE: kbSpace, TBBM_DIVISION,   "@{lotstruc}\tПробел"
@@ -5906,7 +5906,7 @@ browser SERVERSTAT north(100), 1, 1, "Статистика сервера %s", OWNER|GRID, 0
 	}
 }
 
-browser AMOUNTTYPE north(100), 1, 1, "Типы сумм документов", OWNER|GRID, 0
+browser AMOUNTTYPE north(100), 1, 1, "@view_amounttype", OWNER|GRID, 0
 {
 	"@id",                    0, int32,        0, 6,  BCO_USERPROC
 	"@appellation",           1, zstring(48),  0, 30, BCO_USERPROC
@@ -6352,13 +6352,32 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 
 browser QUOTEREQANALYZE north(100), 1, 0, "@{view_quotereqanalyze}", OWNER|GRID, 0
 {
-	"LeadBillID",            0,  int32,       0,   6, BCO_USERPROC
-	"LeadBillDate",          1,  date,        0,   6, BCO_USERPROC
-	"LeadBillCode",          2,  zstring(32), 0,   6, BCO_USERPROC
-	"@ware",                 3,  int32,       0,   6, BCO_USERPROC
-	"ReqQtty",               4,  double,      0,   8, BCO_USERPROC
-	"ReqCurrency",           5,  double,      0,   8, BCO_USERPROC
-	"ReqPrice",              6,  double,      0,   8, BCO_USERPROC
+	// 0 - idx
+	"LeadBillID",            1,  int32,        0,   6,   BCO_USERPROC
+	"LeadBillDate",          2,  date,         0,   6,   BCO_USERPROC
+	"LeadBillCode",          3,  zstring(32),  0,  10,   BCO_USERPROC
+	"LeadContractor",        4,  zstring(128), 0,  40,   BCO_USERPROC
+	"@ware",                 5,  zstring(128), 0,  40,   BCO_USERPROC
+	"ReqQtty",               6,  double,       0,   8.3, BCO_USERPROC
+	"ReqCurrency",           7,  zstring(16),  0,   8,   BCO_USERPROC
+	"ReqPrice",              8,  double,       0,   8.2, BCO_USERPROC
+	"ReqShipmTerm",          9,  zstring(32),  0,   8,   BCO_USERPROC
+
+	"LinkBillDate",         10,  date,         0,   6,   BCO_USERPROC
+	"LinkBillCode",         11,  zstring(32),  0,  10,   BCO_USERPROC
+	"LinkContractor",       12,  zstring(128), 0,  40,   BCO_USERPROC
+	"RepQtty",              13,  double,       0,   8.3, BCO_USERPROC
+	"RepCurrency",          14,  zstring(16),  0,   8,   BCO_USERPROC
+	"RepPrice",             15,  double,       0,   8.2, BCO_USERPROC
+	"RepShipmTerm",         16,  zstring(32),  0,   8,   BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "Документ\tEnter"
+		EDITLINKQR       : kbF3,       PPDV_NOICON,         "Связанный документ\tEnter"
+		CREATELINKQR     : kbAltF3,    PPDV_NOICON,         "Создать связанный запрос\tAlt-F3"
+		separator
+		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
+		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
+	}
 }
 //
 // -------------- Описания команд меню и рабочих столов
@@ -6706,6 +6725,7 @@ cmd SendBillsWithFilt     { "@{cmd_sendbillsbyfilt}"                       none 
 cmd FreightPackageType    { "@{cmd_freightpackagetype}"                    none                   none cmFreightPackageType } // @v10.4.1
 cmd ExportView            { "@{cmd_exportview}"                            none                   none cmExportView } // @v10.5.3
 cmd TestMqc               { "@{cmd_testmqc}"                               ICON_TEST              none cmTestMqc } // @v10.5.7
+cmd QuoteReqAnalyze       { "@{}"                                          none                   none cmQuoteReqAnalyze } // @v10.5.7
 //
 // -------------- Описания серверных задач
 //
@@ -7364,7 +7384,7 @@ record EmailAccount {
 	Pop3Port     int16        "Порт сервера входящей почты";
 	RcvName      zstring(32)  "Имя доступа к входящей почте";
 	RcvPassword  zstring(255) "Пароль доступа к входящей почте";
-	Timeout      int16        "Таймаут";
+	Timeout      int16        "@{timeout}";
 }
 
 record SupplPrice {

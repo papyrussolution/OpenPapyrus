@@ -34,22 +34,22 @@
  * Test Synopsis: Test passing of exceptions out of thread scope.
  *
  * Test Method (Validation or Falsification):
- * - 
+ * -
  *
  * Requirements Tested:
  * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
- * - 
+ * -
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -68,103 +68,86 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
+#include "test.h"
 
 #if defined(_MSC_VER) || defined(__cplusplus)
 
 #if defined(_MSC_VER) && defined(__cplusplus)
-#include <eh.h>
+	#include <eh.h>
 #elif defined(__cplusplus)
-#include <exception>
+	#include <exception>
 #endif
-
-#ifdef __GNUC__
-#include <stdlib.h>
-#endif
-
-#include "test.h"
-
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
  */
 enum {
-  NUMTHREADS = 1
+	NUMTHREADS = 1
 };
 
-
-void *
-exceptionedThread(void * arg)
+void * exceptionedThread(void * arg)
 {
-  int dummy = 0x1;
+	int dummy = 0x1;
 
 #if defined(_MSC_VER) && !defined(__cplusplus)
 
-  RaiseException(dummy, 0, 0, NULL);
+	RaiseException(dummy, 0, 0, NULL);
 
 #elif defined(__cplusplus)
 
-  throw dummy;
+	throw dummy;
 
 #endif
 
-  return (void *) 100;
+	return (void*)100;
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
-  int i;
-  pthread_t mt;
-  pthread_t et[NUMTHREADS];
+	int i;
+	pthread_t mt;
+	pthread_t et[NUMTHREADS];
 
-  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
-  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 
-  if (argc <= 1)
-    {
-      int result;
+	if(argc <= 1) {
+		int result;
 
-      printf("You should see an \"abnormal termination\" message\n");
-      fflush(stdout);
+		printf("You should see an \"abnormal termination\" message\n");
+		fflush(stdout);
 
-      result = system("exception2.exe die");
+		result = system("exception2.exe die");
 
-      printf("\"exception2.exe die\" returned status %d\n", result);
+		printf("\"exception2.exe die\" returned status %d\n", result);
 
-      /*
-       * result should be 0, 1 or 3 depending on build settings
-       */
-      exit((result == 0 || result == 1 || result == 3) ? 0 : 1);
-    }
+		/*
+		 * result should be 0, 1 or 3 depending on build settings
+		 */
+		exit((result == 0 || result == 1 || result == 3) ? 0 : 1);
+	}
 
 #if defined(NO_ERROR_DIALOGS)
-  SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(SEM_NOGPFAULTERRORBOX);
 #endif
 
-  assert((mt = pthread_self()).p != NULL);
+	assert((mt = pthread_self()).p != NULL);
 
-  for (i = 0; i < NUMTHREADS; i++)
-    {
-      assert(pthread_create(&et[i], NULL, exceptionedThread, NULL) == 0);
-    }
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_create(&et[i], NULL, exceptionedThread, NULL) == 0);
+	}
 
-  Sleep(100);
+	Sleep(100);
 
-  /*
-   * Success.
-   */
-  return 0;
+	/*
+	 * Success.
+	 */
+	return 0;
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */
-
-#include <stdio.h>
-
-int
-main()
-{
-  fprintf(stderr, "Test N/A for this compiler environment.\n");
-  return 0;
-}
-
+	int main()
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
 #endif /* defined(_MSC_VER) || defined(__cplusplus) */

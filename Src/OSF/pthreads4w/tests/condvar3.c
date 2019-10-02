@@ -38,13 +38,13 @@
  * - Validation
  *
  * Requirements Tested:
- * - 
+ * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
  * - The primary thread takes the lock before creating any threads.
@@ -54,7 +54,7 @@
  *   primary thread.
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -64,7 +64,7 @@
  * - No output on success.
  *
  * Assumptions:
- * - 
+ * -
  *
  * Pass Criteria:
  * - pthread_cond_timedwait returns 0.
@@ -83,56 +83,52 @@ static pthread_mutex_t mutex;
 static int shared = 0;
 
 enum {
-  NUMTHREADS = 2         /* Including the primary thread. */
+	NUMTHREADS = 2   /* Including the primary thread. */
 };
 
-void *
-mythread(void * arg)
+void * mythread(void * arg)
 {
-  int result = 0;
+	int result = 0;
 
-  assert(pthread_mutex_lock(&mutex) == 0);
-  shared++;
-  assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	shared++;
+	assert(pthread_mutex_unlock(&mutex) == 0);
 
-  if ((result = pthread_cond_signal(&cv)) != 0)
-    {
-      printf("Error = %s\n", error_string[result]);
-    }
-  assert(result == 0);
+	if((result = pthread_cond_signal(&cv)) != 0) {
+		printf("Error = %s\n", error_string[result]);
+	}
+	assert(result == 0);
 
-
-  return (void *) 0;
+	return (void*)0;
 }
 
-int
-main()
+int main()
 {
-  pthread_t t[NUMTHREADS];
-  struct timespec abstime, reltime = { 5, 0 };
+	pthread_t t[NUMTHREADS];
+	struct timespec abstime, reltime = { 5, 0 };
 
-  assert((t[0] = pthread_self()).p != NULL);
+	assert((t[0] = pthread_self()).p != NULL);
 
-  assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_cond_init(&cv, NULL) == 0);
 
-  assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
 
-  assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
 
-  assert(pthread_create(&t[1], NULL, mythread, (void *) 1) == 0);
+	assert(pthread_create(&t[1], NULL, mythread, (void*)1) == 0);
 
-  (void) pthread_win32_getabstime_np(&abstime, &reltime);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
 
-  while (! (shared > 0))
-    assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == 0);
+	while(!(shared > 0))
+		assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == 0);
 
-  assert(shared > 0);
+	assert(shared > 0);
 
-  assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
 
-  assert(pthread_join(t[1], NULL) == 0);
+	assert(pthread_join(t[1], NULL) == 0);
 
-  assert(pthread_cond_destroy(&cv) == 0);
+	assert(pthread_cond_destroy(&cv) == 0);
 
-  return 0;
+	return 0;
 }

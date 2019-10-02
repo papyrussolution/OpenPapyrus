@@ -76,102 +76,86 @@
  * Create NUMTHREADS threads in addition to the Main thread.
  */
 enum {
-  NUMTHREADS = 2
+	NUMTHREADS = 2
 };
 
 typedef struct bag_t_ bag_t;
 struct bag_t_ {
-  int threadnum;
-  int started;
-  /* Add more per-thread state variables here */
+	int threadnum;
+	int started;
+	/* Add more per-thread state variables here */
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
 
-void *
-mythread(void * arg)
+void * mythread(void * arg)
 {
-  bag_t * bag = (bag_t *) arg;
+	bag_t * bag = (bag_t*)arg;
 
-  assert(bag == &threadbag[bag->threadnum]);
-  assert(bag->started == 0);
-  bag->started = 1;
+	assert(bag == &threadbag[bag->threadnum]);
+	assert(bag->started == 0);
+	bag->started = 1;
 
-  /* ... */
-  {
-    int oldstate;
-    int oldtype;
+	/* ... */
+	{
+		int oldstate;
+		int oldtype;
 
-    assert(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate) == 0);
-    assert(oldstate == PTHREAD_CANCEL_ENABLE); /* Check default */
-    assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
-    assert(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL) == 0);
-    assert(pthread_setcancelstate(oldstate, &oldstate) == 0);
-    assert(oldstate == PTHREAD_CANCEL_DISABLE); /* Check setting */
+		assert(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate) == 0);
+		assert(oldstate == PTHREAD_CANCEL_ENABLE); /* Check default */
+		assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+		assert(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL) == 0);
+		assert(pthread_setcancelstate(oldstate, &oldstate) == 0);
+		assert(oldstate == PTHREAD_CANCEL_DISABLE); /* Check setting */
 
-    assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype) == 0);
-    assert(oldtype == PTHREAD_CANCEL_DEFERRED); /* Check default */
-    assert(pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL) == 0);
-    assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
-    assert(pthread_setcanceltype(oldtype, &oldtype) == 0);
-    assert(oldtype == PTHREAD_CANCEL_ASYNCHRONOUS); /* Check setting */
-  }
+		assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype) == 0);
+		assert(oldtype == PTHREAD_CANCEL_DEFERRED); /* Check default */
+		assert(pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL) == 0);
+		assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+		assert(pthread_setcanceltype(oldtype, &oldtype) == 0);
+		assert(oldtype == PTHREAD_CANCEL_ASYNCHRONOUS); /* Check setting */
+	}
 
-  return 0;
+	return 0;
 }
 
-int
-main()
+int main()
 {
-  int failed = 0;
-  int i;
-  pthread_t t[NUMTHREADS + 1];
-
-  assert((t[0] = pthread_self()).p != NULL);
-
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      threadbag[i].started = 0;
-      threadbag[i].threadnum = i;
-      assert(pthread_create(&t[i], NULL, mythread, (void *) &threadbag[i]) == 0);
-    }
-
-  /*
-   * Code to control or manipulate child threads should probably go here.
-   */
-
-  /*
-   * Give threads time to run.
-   */
-  Sleep(NUMTHREADS * 100);
-
-  /*
-   * Standard check that all threads started.
-   */
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      failed = !threadbag[i].started;
-
-      if (failed)
-	{
-	  fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, mythread, (void*)&threadbag[i]) == 0);
 	}
-    }
-
-  assert(!failed);
-
-  /*
-   * Check any results here. Set "failed" and only print output on failure.
-   */
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      /* ... */
-    }
-
-  assert(!failed);
-
-  /*
-   * Success.
-   */
-  return 0;
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	/*
+	 * Give threads time to run.
+	 */
+	Sleep(NUMTHREADS * 100);
+	/*
+	 * Standard check that all threads started.
+	 */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		failed = !threadbag[i].started;
+		if(failed) {
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	/*
+	 * Check any results here. Set "failed" and only print output on failure.
+	 */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		/* ... */
+	}
+	assert(!failed);
+	/*
+	 * Success.
+	 */
+	return 0;
 }

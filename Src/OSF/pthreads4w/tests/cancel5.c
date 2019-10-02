@@ -35,22 +35,22 @@
  *                without calling pthread_self() in main.
  *
  * Test Method (Validation or Falsification):
- * - 
+ * -
  *
  * Requirements Tested:
  * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
- * - 
+ * -
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -75,126 +75,116 @@
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
  */
-enum
-{
-  NUMTHREADS = 4
+enum {
+	NUMTHREADS = 4
 };
 
 typedef struct bag_t_ bag_t;
-struct bag_t_
-{
-  int threadnum;
-  int started;
-  /* Add more per-thread state variables here */
-  int count;
+struct bag_t_ {
+	int threadnum;
+	int started;
+	/* Add more per-thread state variables here */
+	int count;
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
 
-void *
-mythread (void *arg)
+void * mythread(void * arg)
 {
-  void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
-  bag_t *bag = (bag_t *) arg;
+	void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+	bag_t * bag = (bag_t*)arg;
 
-  assert (bag == &threadbag[bag->threadnum]);
-  assert (bag->started == 0);
-  bag->started = 1;
+	assert(bag == &threadbag[bag->threadnum]);
+	assert(bag->started == 0);
+	bag->started = 1;
 
-  /* Set to known state and type */
+	/* Set to known state and type */
 
-  assert (pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL) == 0);
+	assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
 
-  assert (pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+	assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
 
-  /*
-   * We wait up to 10 seconds, waking every 0.1 seconds,
-   * for a cancellation to be applied to us.
-   */
-  for (bag->count = 0; bag->count < 100; bag->count++)
-    Sleep (100);
+	/*
+	 * We wait up to 10 seconds, waking every 0.1 seconds,
+	 * for a cancellation to be applied to us.
+	 */
+	for(bag->count = 0; bag->count < 100; bag->count++)
+		Sleep(100);
 
-  return result;
+	return result;
 }
 
-int
-main ()
+int main()
 {
-  int failed = 0;
-  int i;
-  pthread_t t[NUMTHREADS + 1];
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
 
-  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
-  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      threadbag[i].started = 0;
-      threadbag[i].threadnum = i;
-      assert (pthread_create (&t[i], NULL, mythread, (void *) &threadbag[i])
-	      == 0);
-    }
-
-  /*
-   * Code to control or manipulate child threads should probably go here.
-   */
-  Sleep (500);
-
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      assert (pthread_cancel (t[i]) == 0);
-    }
-
-  /*
-   * Give threads time to run.
-   */
-  Sleep (NUMTHREADS * 100);
-
-  /*
-   * Standard check that all threads started.
-   */
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      if (!threadbag[i].started)
-	{
-	  failed |= !threadbag[i].started;
-	  fprintf (stderr, "Thread %d: started %d\n", i,
-		   threadbag[i].started);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, mythread, (void*)&threadbag[i])
+		    == 0);
 	}
-    }
 
-  assert (!failed);
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
 
-  /*
-   * Check any results here. Set "failed" and only print output on failure.
-   */
-  failed = 0;
-  for (i = 1; i <= NUMTHREADS; i++)
-    {
-      int fail = 0;
-      void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
-
-      /*
-       * The thread does not contain any cancellation points, so
-       * a return value of PTHREAD_CANCELED confirms that async
-       * cancellation succeeded.
-       */
-      assert (pthread_join (t[i], &result) == 0);
-
-      fail = (result != PTHREAD_CANCELED);
-
-      if (fail)
-	{
-	  fprintf (stderr, "Thread %d: started %d: count %d\n",
-		   i, threadbag[i].started, threadbag[i].count);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
 	}
-      failed = (failed || fail);
-    }
 
-  assert (!failed);
+	/*
+	 * Give threads time to run.
+	 */
+	Sleep(NUMTHREADS * 100);
 
-  /*
-   * Success.
-   */
-  return 0;
+	/*
+	 * Standard check that all threads started.
+	 */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i,
+			    threadbag[i].started);
+		}
+	}
+
+	assert(!failed);
+
+	/*
+	 * Check any results here. Set "failed" and only print output on failure.
+	 */
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+
+		/*
+		 * The thread does not contain any cancellation points, so
+		 * a return value of PTHREAD_CANCELED confirms that async
+		 * cancellation succeeded.
+		 */
+		assert(pthread_join(t[i], &result) == 0);
+
+		fail = (result != PTHREAD_CANCELED);
+
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n",
+			    i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+
+	assert(!failed);
+
+	/*
+	 * Success.
+	 */
+	return 0;
 }

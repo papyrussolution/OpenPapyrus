@@ -755,7 +755,8 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 				SString queue_name;
 				queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
 				if(mqc.QueueDeclare(queue_name, 0)) {
-					if(mqc.Consume(queue_name, "", 0)) {
+					SString consumer_tag;
+					if(mqc.Consume(queue_name, &consumer_tag, 0)) {
 						PPMqbClient::Envelope env;
 						int cmr = 0;
 						while((cmr = mqc.ConsumeMessage(env, 500)) > 0) {
@@ -774,6 +775,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 								}
 							}
 						}
+						mqc.Cancel(consumer_tag, 0);
 					}
 				}
 			}

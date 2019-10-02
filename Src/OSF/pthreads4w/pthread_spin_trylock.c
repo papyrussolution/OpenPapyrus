@@ -36,22 +36,19 @@
 
 int pthread_spin_trylock(pthread_spinlock_t * lock)
 {
-	pthread_spinlock_t s;
-	if(NULL == lock || NULL == *lock) {
-		return (EINVAL);
-	}
-	if(*lock == PTHREAD_SPINLOCK_INITIALIZER) {
-		int result;
-		if((result = __ptw32_spinlock_check_need_init(lock)) != 0) {
-			return result;
+	if(lock && *lock) {
+		if(*lock == PTHREAD_SPINLOCK_INITIALIZER) {
+			int result = __ptw32_spinlock_check_need_init(lock);
+			if(result != 0)
+				return result;
 		}
-	}
-	s = *lock;
-	switch((long)__PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG((__PTW32_INTERLOCKED_LONGPTR)&s->interlock,
-	    (__PTW32_INTERLOCKED_LONG)__PTW32_SPIN_LOCKED, (__PTW32_INTERLOCKED_LONG)__PTW32_SPIN_UNLOCKED)) {
-		case  __PTW32_SPIN_UNLOCKED: return 0;
-		case  __PTW32_SPIN_LOCKED: return EBUSY;
-		case  __PTW32_SPIN_USE_MUTEX: return pthread_mutex_trylock(&(s->u.mutex));
+		pthread_spinlock_t s = *lock;
+		switch((long)__PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG((__PTW32_INTERLOCKED_LONGPTR)&s->interlock,
+			(__PTW32_INTERLOCKED_LONG)__PTW32_SPIN_LOCKED, (__PTW32_INTERLOCKED_LONG)__PTW32_SPIN_UNLOCKED)) {
+			case  __PTW32_SPIN_UNLOCKED: return 0;
+			case  __PTW32_SPIN_LOCKED: return EBUSY;
+			case  __PTW32_SPIN_USE_MUTEX: return pthread_mutex_trylock(&(s->u.mutex));
+		}
 	}
 	return EINVAL;
 }

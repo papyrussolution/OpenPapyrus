@@ -396,13 +396,14 @@ IMPLEMENT_PPFILT_FACTORY(DvcLoadingStat); SLAPI DvcLoadingStatFilt::DvcLoadingSt
 //
 //
 //
-#define GRP_GOODS 1
-
 class DLSFiltDialog : public TDialog {
 public:
+	enum {
+		ctlgroupGoods = 1
+	};
 	DLSFiltDialog() : TDialog(DLG_DLSFLT), LastDvcTypeSel(0)
 	{
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_DLSFLT_GGRP, CTLSEL_DLSFLT_GOODS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_DLSFLT_GGRP, CTLSEL_DLSFLT_GOODS));
 	}
 	int    setDTS(const DvcLoadingStatFilt *);
 	int    getDTS(DvcLoadingStatFilt *);
@@ -446,7 +447,7 @@ int DLSFiltDialog::setDTS(const DvcLoadingStatFilt * pData)
 	SetPeriodInput(this, CTL_DLSFLT_PERIOD, &Data.Period);
 	{
 		GoodsCtrlGroup::Rec ggrp_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODS, &ggrp_rec);
+		setGroupData(ctlgroupGoods, &ggrp_rec);
 	}
 	return 1;
 }
@@ -465,7 +466,7 @@ int DLSFiltDialog::getDTS(DvcLoadingStatFilt * pData)
 	THROW(GetPeriodInput(this, CTL_DLSFLT_PERIOD, &Data.Period));
 	{
 		GoodsCtrlGroup::Rec ggrp_rec;
-		getGroupData(GRP_GOODS, &ggrp_rec);
+		getGroupData(ctlgroupGoods, &ggrp_rec);
 		Data.GoodsGrpID = ggrp_rec.GrpID;
 		Data.GoodsID    = ggrp_rec.GoodsID;
 	}

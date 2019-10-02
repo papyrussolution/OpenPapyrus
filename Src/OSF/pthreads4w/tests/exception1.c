@@ -68,197 +68,179 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
-#if defined(_MSC_VER) || defined(__cplusplus)
-
 #include "test.h"
 
+#if defined(_MSC_VER) || defined(__cplusplus)
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
  */
 enum {
-  NUMTHREADS = 4
+	NUMTHREADS = 4
 };
 
-void *
-exceptionedThread(void * arg)
+void * exceptionedThread(void * arg)
 {
-  int dummy = 0;
-  void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
-  /* Set to async cancelable */
-
-  assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
-
-  assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
-
-  Sleep(100);
-
+	int dummy = 0;
+	void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+	/* Set to async cancelable */
+	assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+	assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+	Sleep(100);
 #if defined(_MSC_VER) && !defined(__cplusplus)
-  __try
-  {
-    int zero = (int) (size_t)arg; /* Passed in from arg to avoid compiler error */
-    int one = 1;
-    /*
-     * The deliberate exception condition (zero divide) is
-     * in an "if" to avoid being optimised out.
-     */
-    if (dummy == one/zero)
-      Sleep(0);
-  }
-  __except (EXCEPTION_EXECUTE_HANDLER)
-  {
-    /* Should get into here. */
-    result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
-  }
+	__try {
+		int zero = (int)(size_t)arg; /* Passed in from arg to avoid compiler error */
+		int one = 1;
+		/*
+		 * The deliberate exception condition (zero divide) is
+		 * in an "if" to avoid being optimised out.
+		 */
+		if(dummy == one/zero)
+			Sleep(0);
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		/* Should get into here. */
+		result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+	}
 #elif defined(__cplusplus)
-  try
-  {
-    /*
-     * I had a zero divide exception here but it
-     * wasn't being caught by the catch(...)
-     * below under Mingw32. That could be a problem.
-     */
-    throw dummy;
-  }
+	try
+	{
+		/*
+		 * I had a zero divide exception here but it
+		 * wasn't being caught by the catch(...)
+		 * below under Mingw32. That could be a problem.
+		 */
+		throw dummy;
+	}
 #if defined(__PtW32CatchAll)
-  __PtW32CatchAll
+	__PtW32CatchAll
 #else
-  catch (...)
+	catch(...)
 #endif
-  {
-    /* Should get into here. */
-    result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
-  }
+	{
+		/* Should get into here. */
+		result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+	}
 #endif
-
-  return (void *) (size_t)result;
+	return (void*)(size_t)result;
 }
 
-void *
-canceledThread(void * arg)
+void * canceledThread(void * arg)
 {
-  void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
-  int count;
+	void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+	int count;
 
-  /* Set to async cancelable */
+	/* Set to async cancelable */
 
-  assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+	assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
 
-  assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+	assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
 
 #if defined(_MSC_VER) && !defined(__cplusplus)
-  __try
-  {
-    /*
-     * We wait up to 10 seconds, waking every 0.1 seconds,
-     * for a cancellation to be applied to us.
-     */
-    for (count = 0; count < 100; count++)
-      Sleep(100);
-  }
-  __except (EXCEPTION_EXECUTE_HANDLER)
-  {
-    /* Should NOT get into here. */
-    result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
-  }
+	__try
+	{
+		/*
+		 * We wait up to 10 seconds, waking every 0.1 seconds,
+		 * for a cancellation to be applied to us.
+		 */
+		for(count = 0; count < 100; count++)
+			Sleep(100);
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		/* Should NOT get into here. */
+		result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+	}
 #elif defined(__cplusplus)
-  try
-  {
-    /*
-     * We wait up to 10 seconds, waking every 0.1 seconds,
-     * for a cancellation to be applied to us.
-     */
-    for (count = 0; count < 100; count++)
-      Sleep(100);
-  }
+	try
+	{
+		/*
+		 * We wait up to 10 seconds, waking every 0.1 seconds,
+		 * for a cancellation to be applied to us.
+		 */
+		for(count = 0; count < 100; count++)
+			Sleep(100);
+	}
 #if defined(__PtW32CatchAll)
-  __PtW32CatchAll
+	__PtW32CatchAll
 #else
-  catch (...)
+	catch(...)
 #endif
-  {
-    /* Should NOT get into here. */
-    result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
-  }
+	{
+		/* Should NOT get into here. */
+		result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+	}
+
 #endif
 
-  return (void *) (size_t)result;
+	return (void*)(size_t)result;
 }
 
-int
-main()
+int main()
 {
-  int failed = 0;
-  int i;
-  pthread_t mt;
-  pthread_t et[NUMTHREADS];
-  pthread_t ct[NUMTHREADS];
+	int failed = 0;
+	int i;
+	pthread_t mt;
+	pthread_t et[NUMTHREADS];
+	pthread_t ct[NUMTHREADS];
 
-  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
-  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 
-  assert((mt = pthread_self()).p != NULL);
+	assert((mt = pthread_self()).p != NULL);
 
-  for (i = 0; i < NUMTHREADS; i++)
-    {
-      assert(pthread_create(&et[i], NULL, exceptionedThread, (void *) 0) == 0);
-      assert(pthread_create(&ct[i], NULL, canceledThread, NULL) == 0);
-    }
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_create(&et[i], NULL, exceptionedThread, (void*)0) == 0);
+		assert(pthread_create(&ct[i], NULL, canceledThread, NULL) == 0);
+	}
 
-  /*
-   * Code to control or manipulate child threads should probably go here.
-   */
-  Sleep(100);
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(100);
 
-  for (i = 0; i < NUMTHREADS; i++)
-    {
-      assert(pthread_cancel(ct[i]) == 0);
-    }
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_cancel(ct[i]) == 0);
+	}
 
-  /*
-   * Give threads time to run.
-   */
-  Sleep(NUMTHREADS * 100);
+	/*
+	 * Give threads time to run.
+	 */
+	Sleep(NUMTHREADS * 100);
 
-  /*
-   * Check any results here. Set "failed" and only print output on failure.
-   */
-  failed = 0;
-  for (i = 0; i < NUMTHREADS; i++)
-    {
-      int fail = 0;
-      void* result = (void*)0;
+	/*
+	 * Check any results here. Set "failed" and only print output on failure.
+	 */
+	failed = 0;
+	for(i = 0; i < NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
 
-	/* Canceled thread */
-      assert(pthread_join(ct[i], &result) == 0);
-      assert(!(fail = (result != PTHREAD_CANCELED)));
+		/* Canceled thread */
+		assert(pthread_join(ct[i], &result) == 0);
+		assert(!(fail = (result != PTHREAD_CANCELED)));
 
-      failed = (failed || fail);
+		failed = (failed || fail);
 
-      /* Exceptioned thread */
-      assert(pthread_join(et[i], &result) == 0);
-      assert(!(fail = (result != (void*)((int)(size_t)PTHREAD_CANCELED + 2))));
+		/* Exceptioned thread */
+		assert(pthread_join(et[i], &result) == 0);
+		assert(!(fail = (result != (void*)((int)(size_t)PTHREAD_CANCELED + 2))));
 
-      failed = (failed || fail);
-    }
+		failed = (failed || fail);
+	}
 
-  assert(!failed);
+	assert(!failed);
 
-  /*
-   * Success.
-   */
-  return 0;
+	/*
+	 * Success.
+	 */
+	return 0;
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */
-
-#include <stdio.h>
-
-int
-main()
-{
-  fprintf(stderr, "Test N/A for this compiler environment.\n");
-  return 0;
-}
-
+	int main()
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
 #endif /* defined(_MSC_VER) || defined(__cplusplus) */

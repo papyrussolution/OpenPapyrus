@@ -32,9 +32,56 @@
 
 \chapter{Инструментарий}
 
-\section{Компилятор}
+В этой главе рассмотрены инструментальные средства разработки и сборки системы.
 
-\section{Среда разработки}
+\section{Компилятор и среда разработки}
+
+Для работы собственно над ядром системы используется среда разработки Microsoft Visual Studio.
+В состав исходных кодов входят каталоги, содержащие файлы решений (solution) и проектов (project) для
+Visual Studio версий 7.10 (Visual Studio 2003), 14.0 (Visual Studio 2015) и 15.0 (Visual Studio 2017).
+
+Проект одинаково успешно компилируется в каждой из указанных версий среды.
+
+Важно: дистрибутивы релизов собираются на Visual Studio 7.10. Связано это с тем, что при попытке
+сборки дистрибутивов на другой версии от некоторых пользователей поступали жалобы на аварийные завершения
+сеансов. Вероятно это связано с различными версиями Windows, но тем не менее мы пока не решаемся
+собирать дистрибутивы на иных версиях среды.
+
+\subsection{Опции компиляции и компоновки}
+
+\subsubsection{Конфигурации решения (Solution Configurations)}
+
+Решение содержит 6 конфигураций:
+
+\begin{description}
+	\item[Debug]
+	\item[Release]
+	\item[ServerDebug]
+	\item[ServerRelease]
+	\item[MtDllDebug]
+	\item[MtDllRelease]
+\end{description}
+
+\subsubsection{Каталоги для формирования промежуточных результатов сборки (Output и Intermediate directories)}
+
+Головной каталог проекта обычно называется Papyrus, однако это может быть и любое иное имя, например OpenPapyrus.
+
+\begin{description}
+	\item[Visual Studio 2003]
+		\tiny{\textdollar(ProjectDir)../../\_\_TEMP\_\_/VC70/\textdollar(ConfigurationName)/\textdollar(ProjectName)/}
+	\item[Visual Studio 2015]
+		\tiny{\textdollar(ProjectDir)../../\_\_TEMP\_\_/VC2015/\textdollar(PlatformShortName)/\textdollar(Configuration)/\textdollar(ProjectName)/}
+	\item[Visual Studio 2017]
+		\tiny{\textdollar(ProjectDir)../../\_\_TEMP\_\_/VC2017/\textdollar(PlatformShortName)/\textdollar(Configuration)/\textdollar(ProjectName)/}
+\end{description}
+
+Обратите внимание, в шаблоне путей для Visual Studio 2015 и Visual Studio 2017 включены дополнительные подкаталоги
+для символа платформы.
+
+Такие шаблоны применяются ко всем проектам решения.
+
+\subsubsection{Character Set}
+Все проекты решения компилируются в режиме Unicode.
 
 \chapter{Базовые типы данных}
 

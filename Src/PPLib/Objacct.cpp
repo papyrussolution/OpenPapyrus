@@ -978,9 +978,9 @@ int AccountDialog::addItem(long *, long * pID)
 	int    r;
 	PPID   cur_id = 0;
 	PPIDArray exclude_list;
-	PPObjCurrency curobj;
+	PPObjCurrency cur_obj;
 	exclude_list.copy(AccPack.CurList);
-	if((r = curobj.Select(1, 0, &exclude_list, &cur_id)) > 0) {
+	if((r = cur_obj.Select(1, 0, &exclude_list, &cur_id)) > 0) {
 		*pID = cur_id;
 		AccPack.CurList.insert(&cur_id);
 		return 1;

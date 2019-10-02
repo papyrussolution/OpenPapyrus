@@ -58,99 +58,74 @@ int one = 1;
 int zero = 0;
 
 #define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) \
-                                               - (_TStart.time*1000+_TStart.millitm)))
+	- (_TStart.time*1000+_TStart.millitm)))
 
-/*
- * Dummy use of j, otherwise the loop may be removed by the optimiser
- * when doing the overhead timing with an empty loop.
- */
-#define TESTSTART \
-  { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for (i = 0; i < ITERATIONS; i++) { j++;
+//
+// Dummy use of j, otherwise the loop may be removed by the optimiser
+// when doing the overhead timing with an empty loop.
+//
+//#define TESTSTART { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for (i = 0; i < ITERATIONS; i++) { j++;
+//#define TESTSTOP };  __PTW32_FTIME(&currSysTimeStop); if (j + k == i) j++; }
 
-#define TESTSTOP \
-  };  __PTW32_FTIME(&currSysTimeStop); if (j + k == i) j++; }
-
-
-void
-reportTest (char * testNameString)
+void reportTest(char * testNameString)
 {
-  durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
-
-  printf( "%-45s %15ld %15.3f\n",
-	    testNameString,
-          durationMilliSecs,
-          (float) durationMilliSecs * 1E3 / ITERATIONS);
+	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+	printf("%-45s %15ld %15.3f\n", testNameString, durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 }
 
-
-int
-main (int argc, char *argv[])
+int main(int argc, char * argv[])
 {
-  printf( "=============================================================================\n");
-  printf( "\nOperations on a semaphore.\n%ld iterations\n\n",
-          ITERATIONS);
-  printf( "%-45s %15s %15s\n",
+	printf("=============================================================================\n");
+	printf("\nOperations on a semaphore.\n%ld iterations\n\n",
+	    ITERATIONS);
+	printf("%-45s %15s %15s\n",
 	    "Test",
 	    "Total(msec)",
 	    "average(usec)");
-  printf( "-----------------------------------------------------------------------------\n");
+	printf("-----------------------------------------------------------------------------\n");
 
-  /*
-   * Time the loop overhead so we can subtract it from the actual test times.
-   */
+	/*
+	 * Time the loop overhead so we can subtract it from the actual test times.
+	 */
 
-  TESTSTART
-  assert(1 == one);
-  TESTSTOP
+	TESTSTART assert(1 == one);
+	TESTSTOP
 
-  durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
-  overHeadMilliSecs = durationMilliSecs;
+	    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+	overHeadMilliSecs = durationMilliSecs;
 
+	/*
+	 * Now we can start the actual tests
+	 */
+	assert((w32sema = CreateSemaphore(NULL, (long)0, (long)ITERATIONS, NULL)) != 0);
+	TESTSTART assert((ReleaseSemaphore(w32sema, 1, NULL), 1) == one);
+	TESTSTOP assert(CloseHandle(w32sema) != 0);
 
-  /*
-   * Now we can start the actual tests
-   */
-  assert((w32sema = CreateSemaphore(NULL, (long) 0, (long) ITERATIONS, NULL)) != 0);
-  TESTSTART
-  assert((ReleaseSemaphore(w32sema, 1, NULL),1) == one);
-  TESTSTOP
-  assert(CloseHandle(w32sema) != 0);
+	reportTest("W32 Post with no waiters");
 
-  reportTest("W32 Post with no waiters");
+	assert((w32sema = CreateSemaphore(NULL, (long)ITERATIONS, (long)ITERATIONS, NULL)) != 0);
+	TESTSTART assert((WaitForSingleObject(w32sema, INFINITE), 1) == one);
+	TESTSTOP assert(CloseHandle(w32sema) != 0);
 
+	reportTest("W32 Wait without blocking");
 
-  assert((w32sema = CreateSemaphore(NULL, (long) ITERATIONS, (long) ITERATIONS, NULL)) != 0);
-  TESTSTART
-  assert((WaitForSingleObject(w32sema, INFINITE),1) == one);
-  TESTSTOP
-  assert(CloseHandle(w32sema) != 0);
+	assert(sem_init(&sema, 0, 0) == 0);
+	TESTSTART assert((sem_post(&sema), 1) == one);
+	TESTSTOP assert(sem_destroy(&sema) == 0);
 
-  reportTest("W32 Wait without blocking");
+	reportTest("POSIX Post with no waiters");
 
+	assert(sem_init(&sema, 0, ITERATIONS) == 0);
+	TESTSTART assert((sem_wait(&sema), 1) == one);
+	TESTSTOP assert(sem_destroy(&sema) == 0);
 
-  assert(sem_init(&sema, 0, 0) == 0);
-  TESTSTART
-  assert((sem_post(&sema),1) == one);
-  TESTSTOP
-  assert(sem_destroy(&sema) == 0);
+	reportTest("POSIX Wait without blocking");
 
-  reportTest("POSIX Post with no waiters");
+	printf("=============================================================================\n");
 
+	/*
+	 * End of tests.
+	 */
 
-  assert(sem_init(&sema, 0, ITERATIONS) == 0);
-  TESTSTART
-  assert((sem_wait(&sema),1) == one);
-  TESTSTOP
-  assert(sem_destroy(&sema) == 0);
-
-  reportTest("POSIX Wait without blocking");
-
-
-  printf( "=============================================================================\n");
-
-  /*
-   * End of tests.
-   */
-
-  return 0;
+	return 0;
 }

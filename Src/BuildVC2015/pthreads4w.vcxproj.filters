@@ -30,66 +30,6 @@
     <ClCompile Include="..\Osf\pthreads4w\global.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getaffinity_np.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getdetachstate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getinheritsched.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getname_np.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getschedparam.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getschedpolicy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getscope.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getstackaddr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_getstacksize.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setaffinity_np.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setdetachstate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setinheritsched.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setname_np.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setschedparam.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setschedpolicy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setscope.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setstackaddr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_attr_setstacksize.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\pthread_barrier_destroy.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -180,100 +120,10 @@
     <ClCompile Include="..\Osf\pthreads4w\pthread_kill.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutex_consistent.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutex_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutex_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutex_lock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutex_timedlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutex_trylock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutex_unlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_getkind_np.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_getpshared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_getrobust.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_gettype.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_setkind_np.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_setpshared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_setrobust.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_mutexattr_settype.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\pthread_num_processors_np.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\pthread_once.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_rdlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_timedrdlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_timedwrlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_tryrdlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_trywrlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_unlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlock_wrlock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlockattr_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlockattr_getpshared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlockattr_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_rwlockattr_setpshared.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\pthread_self.c">
@@ -396,57 +246,6 @@
     <ClCompile Include="..\Osf\pthreads4w\ptw32_tkAssocDestroy.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sched_get_priority_max.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sched_get_priority_min.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sched_getscheduler.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sched_setaffinity.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sched_setscheduler.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sched_yield.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_close.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_getvalue.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_open.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_post.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_post_multiple.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_timedwait.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_trywait.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_unlink.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\sem_wait.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\signal.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -457,6 +256,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\pthread4w-pch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\pthread_attr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\pthread_mutex.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\pthread_rwlock.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\sem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\sched.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

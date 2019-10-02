@@ -1,4 +1,4 @@
-/* 
+/*
  * rwlock4_t.c
  *
  *
@@ -31,10 +31,10 @@
  *
  * --------------------------------------------------------------------------
  *
- * Declare a static rwlock object, timed-rdlock it, trywrlock it, 
+ * Declare a static rwlock object, timed-rdlock it, trywrlock it,
  * and then unlock it again.
  *
- * Depends on API functions: 
+ * Depends on API functions:
  *	pthread_rwlock_timedrdlock()
  *	pthread_rwlock_trywrlock()
  *	pthread_rwlock_unlock()
@@ -49,29 +49,20 @@ static int washere = 0;
 
 void * func(void * arg)
 {
-  assert(pthread_rwlock_trywrlock(&rwlock1) == EBUSY);
-
-  washere = 1;
-
-  return 0; 
+	assert(pthread_rwlock_trywrlock(&rwlock1) == EBUSY);
+	washere = 1;
+	return 0;
 }
- 
-int
-main()
+
+int main()
 {
-  pthread_t t;
-  struct timespec abstime = { 0, 0 };
-  struct timespec reltime = { 1, 0 };
-
-  assert(pthread_rwlock_timedrdlock(&rwlock1, pthread_win32_getabstime_np(&abstime, &reltime)) == 0);
-
-  assert(pthread_create(&t, NULL, func, NULL) == 0);
-
-  Sleep(2000);
-
-  assert(pthread_rwlock_unlock(&rwlock1) == 0);
-
-  assert(washere == 1);
-
-  return 0;
+	pthread_t t;
+	struct timespec abstime = { 0, 0 };
+	struct timespec reltime = { 1, 0 };
+	assert(pthread_rwlock_timedrdlock(&rwlock1, pthread_win32_getabstime_np(&abstime, &reltime)) == 0);
+	assert(pthread_create(&t, NULL, func, NULL) == 0);
+	Sleep(2000);
+	assert(pthread_rwlock_unlock(&rwlock1) == 0);
+	assert(washere == 1);
+	return 0;
 }

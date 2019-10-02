@@ -397,8 +397,7 @@ PPID SLAPI PPViewStaffList::GetSalaryAmountType(int typeNo)
 //
 // @ModuleDef(PPViewStaffPost)
 //
-IMPLEMENT_PPFILT_FACTORY(StaffPost); SLAPI StaffPostFilt::StaffPostFilt() :
-	PPBaseFilt(PPFILT_STAFFPOST, 0, 1) // @v6.2.2 ver 0-->1
+IMPLEMENT_PPFILT_FACTORY(StaffPost); SLAPI StaffPostFilt::StaffPostFilt() : PPBaseFilt(PPFILT_STAFFPOST, 0, 1) // @v6.2.2 ver 0-->1
 {
 	SetFlatChunk(offsetof(StaffPostFilt, ReserveStart),
 		offsetof(StaffPostFilt, Reserve)-offsetof(StaffPostFilt, ReserveStart)+sizeof(Reserve));
@@ -790,7 +789,6 @@ int SLAPI PPViewStaffPost::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 #define TOP_ID         1000000000L
 #define STAFF_OFFS     (TOP_ID + 1L)
 #define STAFFPOST_OFFS (STAFF_OFFS + 100000000L)
-
 #define AMOUNTTYPE_OFFS 100000L
 
 enum DivType {
@@ -930,8 +928,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 	StrAssocArray empl_list, * p_ret_list = 0;
 	PPIDArray empl_idlist;
 	THROW_MEM(p_ret_list = new StrAssocArray);
-	// @v9.4.12 PPGetWord(PPWORD_ALL, 0, buf);
-	PPLoadString("all", buf); // @v9.4.12
+	PPLoadString("all", buf);
 	p_ret_list->Add(TOP_ID, 0, buf);
 	//
 	// Заносим работодателей
@@ -1508,17 +1505,8 @@ int FastEditDivBySumDlg::setupList()
 	return ok;
 }
 
-int SLAPI FastEditSumByDivDialog()
-{
-	FastEditSumByDivDlg * p_dlg = new FastEditSumByDivDlg();
-	return ExecViewAndDestroy(p_dlg);
-}
-
-int SLAPI FastViewDivBySumDialog()
-{
-	FastEditDivBySumDlg * p_dlg = new FastEditDivBySumDlg;
-	return ExecViewAndDestroy(p_dlg);
-}
+int SLAPI FastEditSumByDivDialog() { return ExecViewAndDestroy(new FastEditSumByDivDlg()); }
+int SLAPI FastViewDivBySumDialog() { return ExecViewAndDestroy(new FastEditDivBySumDlg()); }
 //
 // Implementation of PPALDD_StaffListView
 //
