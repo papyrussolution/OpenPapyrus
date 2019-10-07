@@ -575,7 +575,11 @@
 /* #undef off_t */ /* Define to `long long' if <sys/types.h> does not define. */
 #define pid_t int /* Define to `int' if <sys/types.h> doesn't define. */
 /* #undef size_t */ /* Define to `uint' if <sys/types.h> does not define. */
-#define ssize_t long /* Define to `int' if <sys/types.h> does not define. */
+#ifdef _WIN64
+	#define ssize_t long long /* Define to `int' if <sys/types.h> does not define. */
+#else
+	#define ssize_t long /* Define to `int' if <sys/types.h> does not define. */
+#endif
 #define uid_t short /* Define to `int' if <sys/types.h> doesn't define. */
 /* #undef intptr_t */ /* Define to `int' if <sys/types.h> does not define. */
 /* #undef uintptr_t */ /* Define to `uint' if <sys/types.h> does not define. */

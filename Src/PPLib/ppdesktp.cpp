@@ -503,7 +503,7 @@ int PPBizScoreWindow::DoCommand(TPoint p)
 }
 
 // static
-BOOL CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PPBizScoreWindow * p_win = static_cast<PPBizScoreWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {

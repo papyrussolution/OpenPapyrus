@@ -44,7 +44,7 @@ typedef union {
 	unsigned long int bits;  /* To stop GCC complaining about %lx args to printf */
 } cpuset_to_ulint;
 
-void * mythread(void * arg)
+static void * mythread(void * arg)
 {
 	pthread_attr_t * attrPtr = (pthread_attr_t*)arg;
 	cpu_set_t threadCpus, attrCpus;

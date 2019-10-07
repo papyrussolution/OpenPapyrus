@@ -397,12 +397,12 @@ static cairo_status_t _cairo_rectilinear_stroker_line_to(void * closure, const c
 	cairo_rectilinear_stroker_t * stroker = static_cast<cairo_rectilinear_stroker_t *>(closure);
 	cairo_point_t * a = &stroker->current_point;
 	cairo_status_t status;
-	/* We only support horizontal or vertical elements. */
+	// We only support horizontal or vertical elements. 
 	assert(a->x == b->x || a->y == b->y);
-	/* We don't draw anything for degenerate paths. */
+	// We don't draw anything for degenerate paths. 
 	if(a->x == b->x && a->y == b->y)
 		return CAIRO_STATUS_SUCCESS;
-	status = _cairo_rectilinear_stroker_add_segment(stroker, a, b, (a->y == b->y) | JOIN);
+	status = _cairo_rectilinear_stroker_add_segment(stroker, a, b, BIN(a->y == b->y) | JOIN);
 	stroker->current_point = *b;
 	stroker->open_sub_path = TRUE;
 	return status;

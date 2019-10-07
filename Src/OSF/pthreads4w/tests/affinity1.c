@@ -85,7 +85,6 @@
 		CPU_XOR(&newmask, &src1mask, &src3mask);
 		memset(&src2mask, 0, sizeof(cpu_set_t));
 		assert(memcmp(&newmask, &src2mask, sizeof(cpu_set_t)) == 0);
-
 		/*
 		* Need to confirm the bitwise logical right-shift in CpuCount().
 		* i.e. zeros inserted into MSB on shift because cpu_set_t is
@@ -97,7 +96,6 @@
 		}
 		assert(CPU_ISSET(sizeof(cpu_set_t)*8-1, &src1mask));
 		assert(CPU_COUNT(&src1mask) == (sizeof(cpu_set_t)*4));
-
 		return 0;
 	}
 #else

@@ -33,25 +33,20 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-
-void pthread_testcancel(void)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
  *   This function creates a deferred cancellation point
  *   in the calling thread. The call has no effect if the
- *   current cancelability state is
- *           PTHREAD_CANCEL_DISABLE
+ *   current cancelability state is PTHREAD_CANCEL_DISABLE
  *
  * PARAMETERS
  *   N/A
  *
- *
  * DESCRIPTION
  *   This function creates a deferred cancellation point
  *   in the calling thread. The call has no effect if the
- *   current cancelability state is
- *           PTHREAD_CANCEL_DISABLE
+ *   current cancelability state is PTHREAD_CANCEL_DISABLE
  *
  *   NOTES:
  *   1)      Cancellation is asynchronous. Use pthread_join
@@ -62,34 +57,29 @@ void pthread_testcancel(void)
  *
  * ------------------------------------------------------
  */
+void pthread_testcancel(void)
 {
 	__ptw32_mcs_local_node_t stateLock;
 	pthread_t self = pthread_self();
-	__ptw32_thread_t * sp = (__ptw32_thread_t *)self.p;
-
-	if(sp == NULL) {
-		return;
-	}
-
-	/*
-	 * Pthread_cancel() will have set sp->state to PThreadStateCancelPending
-	 * and set an event, so no need to enter kernel space if
-	 * sp->state != PThreadStateCancelPending - that only slows us down.
-	 */
-	if(sp->state != PThreadStateCancelPending) {
-		return;
-	}
-
-	__ptw32_mcs_lock_acquire(&sp->stateLock, &stateLock);
-
-	if(sp->cancelState != PTHREAD_CANCEL_DISABLE) {
-		ResetEvent(sp->cancelEvent);
-		sp->state = PThreadStateCanceling;
-		sp->cancelState = PTHREAD_CANCEL_DISABLE;
+	__ptw32_thread_t * sp = static_cast<__ptw32_thread_t *>(self.p);
+	if(sp) {
+		/*
+		 * Pthread_cancel() will have set sp->state to PThreadStateCancelPending
+		 * and set an event, so no need to enter kernel space if
+		 * sp->state != PThreadStateCancelPending - that only slows us down.
+		 */
+		if(sp->state != PThreadStateCancelPending) {
+			return;
+		}
+		__ptw32_mcs_lock_acquire(&sp->stateLock, &stateLock);
+		if(sp->cancelState != PTHREAD_CANCEL_DISABLE) {
+			ResetEvent(sp->cancelEvent);
+			sp->state = PThreadStateCanceling;
+			sp->cancelState = PTHREAD_CANCEL_DISABLE;
+			__ptw32_mcs_lock_release(&stateLock);
+			__ptw32_throw(__PTW32_EPS_CANCEL);
+			/* Never returns here */
+		}
 		__ptw32_mcs_lock_release(&stateLock);
-		__ptw32_throw(__PTW32_EPS_CANCEL);
-		/* Never returns here */
 	}
-
-	__ptw32_mcs_lock_release(&stateLock);
-}                               /* pthread_testcancel */
+}

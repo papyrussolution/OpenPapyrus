@@ -38,10 +38,6 @@
 /* Provide definitions for standalone compilation */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-boxes-private.h"
-//#include "cairo-combsort-inline.h"
-//#include "cairo-error-private.h"
-//#include "cairo-traps-private.h"
 
 typedef struct _cairo_bo_edge cairo_bo_edge_t;
 typedef struct _cairo_bo_trap cairo_bo_trap_t;
@@ -533,15 +529,10 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_traps(cairo_traps_t
 		j++;
 		k++;
 	}
-
 	_cairo_traps_clear(traps);
-	status = _cairo_bentley_ottmann_tessellate_rectilinear(event_ptrs, j,
-		fill_rule,
-		TRUE, traps);
+	status = _cairo_bentley_ottmann_tessellate_rectilinear(event_ptrs, j, fill_rule, TRUE, traps);
 	traps->is_rectilinear = TRUE;
-
 	if(events != stack_events)
 		SAlloc::F(events);
-
 	return status;
 }

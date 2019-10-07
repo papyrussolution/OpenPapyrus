@@ -2060,7 +2060,7 @@ void BillItemBrowser::editItem()
 		else if(!AsSelector) {
 			TIDlgInitData tidi;
 			GetMinMaxQtty((uint)c, tidi.QttyBounds);
-			while(!valid_data && EditTransferItem(P_Pack, (int) c, &tidi, 0) == cmOK) {
+			while(!valid_data && EditTransferItem(P_Pack, static_cast<int>(c), &tidi, 0) == cmOK) {
 				valid_data = 1;
 				//
 				// Проверка на то, чтобы возврат не превышал взятое количество

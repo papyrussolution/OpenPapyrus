@@ -68,14 +68,10 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
 
-
-int
-main()
+int main()
 {
-  assert(pthread_kill(pthread_self(), 1) == EINVAL);
-
-  return 0;
+	assert(pthread_kill(pthread_self(), 1) == EINVAL);
+	return 0;
 }

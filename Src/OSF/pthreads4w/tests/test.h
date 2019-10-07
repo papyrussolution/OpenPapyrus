@@ -53,34 +53,50 @@
 //#include <errno.h> // FIXME: May not be available on all platforms.
 
 #define  __PTW32_THREAD_NULL_ID {NULL,0}
-
 /*
  * Some non-thread POSIX API substitutes
  */
 #if !defined(__MINGW64_VERSION_MAJOR)
 	#define rand_r( _seed ) ( _seed == _seed? rand() : rand() )
 #endif
-
 #if defined(__MINGW32__)
-# include <stdint.h>
+	#include <stdint.h>
 #elif defined(__BORLANDC__)
-# define int64_t ULONGLONG
+	#define int64_t ULONGLONG
 #else
-# define int64_t _int64
+	#define int64_t _int64
 #endif
-
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-#  define  __PTW32_FTIME(x) _ftime64_s(x)
-#  define  __PTW32_STRUCT_TIMEB struct __timeb64
-#elif ( defined(_MSC_VER) && _MSC_VER >= 1300 ) || \
-      ( defined(__MINGW32__) && __MSVCRT_VERSION__ >= 0x0601 )
-#  define  __PTW32_FTIME(x) _ftime64(x)
-#  define  __PTW32_STRUCT_TIMEB struct __timeb64
+	#define  __PTW32_FTIME(x) _ftime64_s(x)
+	#define  __PTW32_STRUCT_TIMEB struct __timeb64
+#elif ( defined(_MSC_VER) && _MSC_VER >= 1300 ) || ( defined(__MINGW32__) && __MSVCRT_VERSION__ >= 0x0601 )
+	#define  __PTW32_FTIME(x) _ftime64(x)
+	#define  __PTW32_STRUCT_TIMEB struct __timeb64
 #else
-#  define  __PTW32_FTIME(x) _ftime(x)
-#  define  __PTW32_STRUCT_TIMEB struct _timeb
+	#define  __PTW32_FTIME(x) _ftime(x)
+	#define  __PTW32_STRUCT_TIMEB struct _timeb
 #endif
 
+struct cvthing_t {
+	pthread_cond_t notbusy;
+	pthread_mutex_t lock;
+	int shared;
+};
+
+struct bag_t {
+	bag_t() : threadnum(0), started(0), finished(0), count(0), oncenum(0), myPrio(0), w32Thread(0) //, self(0)
+	{
+	}
+	int threadnum;
+	int started;
+	int finished;
+	// Add more per-thread state variables here
+	int count;
+	pthread_t self;
+	int oncenum;
+	int myPrio;
+	HANDLE w32Thread;
+};
 
 const char * error_string[] = {
   "ZERO_or_EOK",
@@ -132,61 +148,49 @@ const char * error_string[] = {
   "ENOTRECOVERABLE"
 #endif
 };
-
 /*
  * The Mingw32 assert macro calls the CRTDLL _assert function
  * which pops up a dialog. We want to run in batch mode so
  * we define our own assert macro.
  */
 #ifdef assert
-# undef assert
+	#undef assert
 #endif
-
 #ifndef ASSERT_TRACE
-# define ASSERT_TRACE 0
+	#define ASSERT_TRACE 0
 #else
-# undef ASSERT_TRACE
-# define ASSERT_TRACE 1
+	#undef ASSERT_TRACE
+	#define ASSERT_TRACE 1
 #endif
 
-# define assert(e) \
-   ((e) ? ((ASSERT_TRACE) ? fprintf(stderr, \
-                                    "Assertion succeeded: (%s), file %s, line %d\n", \
-			            #e, __FILE__, (int) __LINE__), \
-	                            fflush(stderr) : \
-                             0) : \
+#define assert(e) \
+   ((e) ? ((ASSERT_TRACE) ? fprintf(stderr, "Assertion succeeded: (%s), file %s, line %d\n", \
+			            #e, __FILE__, (int) __LINE__), fflush(stderr) : 0) : \
           (fprintf(stderr, "Assertion failed: (%s), file %s, line %d\n", \
                    #e, __FILE__, (int) __LINE__), exit(1), 0))
 
 int assertE;
-# define assert_e(e, o, r) \
-   (((assertE = e) o (r)) ? ((ASSERT_TRACE) ? fprintf(stderr, \
-                                    "Assertion succeeded: (%s), file %s, line %d\n", \
-			            #e, __FILE__, (int) __LINE__), \
-	                            fflush(stderr) : \
-                             0) : \
+#define assert_e(e, o, r) \
+   (((assertE = e) o (r)) ? ((ASSERT_TRACE) ? fprintf(stderr, "Assertion succeeded: (%s), file %s, line %d\n", \
+			            #e, __FILE__, (int) __LINE__), fflush(stderr) : 0) : \
        (assertE <= (int) (sizeof(error_string)/sizeof(error_string[0]))) ? \
 	   (fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %s\n", \
 			    #e,#o,#r, __FILE__, (int) __LINE__, error_string[assertE]), exit(1), 0) :\
-		   (fprintf(stderr, \
-			    "Assertion failed: (%s %s %s), file %s, line %d, error %d\n", \
+		   (fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %d\n", \
 		            #e,#o,#r, __FILE__, (int) __LINE__, assertE), exit(1), 0))
 
 #endif
-
-# define BEGIN_MUTEX_STALLED_ROBUST(mxAttr) \
-  for(;;) \
-    { \
+#define BEGIN_MUTEX_STALLED_ROBUST(mxAttr) \
+  for(;;) { \
       static int _i=0; \
       static int _robust; \
       pthread_mutexattr_getrobust(&(mxAttr), &_robust);
 
-# define END_MUTEX_STALLED_ROBUST(mxAttr) \
+#define END_MUTEX_STALLED_ROBUST(mxAttr) \
       printf("Pass %s\n", _robust==PTHREAD_MUTEX_ROBUST?"Robust":"Non-robust"); \
-      if (++_i > 1) \
+      if(++_i > 1) \
         break; \
-      else \
-        { \
+      else { \
           pthread_mutexattr_t *pma, *pmaEnd; \
           for(pma = &(mxAttr), pmaEnd = pma + sizeof(mxAttr)/sizeof(pthread_mutexattr_t); \
               pma < pmaEnd; \
@@ -194,4 +198,4 @@ int assertE;
         } \
     }
 
-# define IS_ROBUST (_robust==PTHREAD_MUTEX_ROBUST)
+#define IS_ROBUST (_robust==PTHREAD_MUTEX_ROBUST)

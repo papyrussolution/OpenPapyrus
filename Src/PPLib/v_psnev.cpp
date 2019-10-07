@@ -80,15 +80,20 @@ SLAPI PPViewPersonEvent::~PPViewPersonEvent()
 
 int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	#define GRP_PSNOP 1L
+	//#define GRP_PSNOP 1L
 	class PersonEventFiltDialog : public TDialog {
+		typedef PersonEventFilt DlgDataType;
+		DlgDataType Data;
+		enum {
+			ctlgroupPsnOp = 1
+		};
 	public:
 		PersonEventFiltDialog() : TDialog(DLG_PSNEVFLT)
 		{
 			SetupCalPeriod(CTLCAL_PSNEVFLT_PERIOD, CTL_PSNEVFLT_PERIOD);
-			addGroup(GRP_PSNOP, new PersonOpCtrlGroup(CTLSEL_PSNEVFLT_OP, CTLSEL_PSNEVFLT_PRMR, CTLSEL_PSNEVFLT_SCND, cmOpList));
+			addGroup(ctlgroupPsnOp, new PersonOpCtrlGroup(CTLSEL_PSNEVFLT_OP, CTLSEL_PSNEVFLT_PRMR, CTLSEL_PSNEVFLT_SCND, cmOpList));
 		}
-		int    setDTS(const PersonEventFilt * pData)
+		int    setDTS(const DlgDataType * pData)
 		{
 			Data = *pData;
 			PPID   kind = 0;
@@ -97,8 +102,9 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetPeriodInput(this, CTL_PSNEVFLT_PERIOD, &Data.Period);
 			{
 				PersonOpCtrlGroup::Rec op_rec(&Data.PsnOpList, Data.PrmrID, Data.ScndID);
-				PersonOpCtrlGroup * p_grp = static_cast<PersonOpCtrlGroup *>(getGroup(GRP_PSNOP));
-				CALLPTRMEMB(p_grp, setData(this, &op_rec));
+				// @v10.5.8 PersonOpCtrlGroup * p_grp = static_cast<PersonOpCtrlGroup *>(getGroup(GRP_PSNOP));
+				// @v10.5.8 CALLPTRMEMB(p_grp, setData(this, &op_rec));
+				setGroupData(ctlgroupPsnOp, &op_rec); // @v10.5.8
 			}
 			SetupStringCombo(this, CTLSEL_PSNEVFLT_SUBST, PPTXT_SUBSTPSNEVLIST, Data.Sgpe);
 			SetupSubstDateCombo(this, CTLSEL_PSNEVFLT_SUBSTDT, Data.Sgd);
@@ -106,14 +112,14 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetClusterData(CTL_PSNEVFLT_FLAGS, Data.Flags);
 			return 1;
 		}
-		int    getDTS(PersonEventFilt * pData)
+		int    getDTS(DlgDataType * pData)
 		{
 			GetPeriodInput(this, CTL_PSNEVFLT_PERIOD, &Data.Period);
 			getCtrlData(CTLSEL_PSNEVFLT_PRMR, &Data.PrmrID);
 			getCtrlData(CTLSEL_PSNEVFLT_SCND, &Data.ScndID);
 			{
 				PersonOpCtrlGroup::Rec op_rec;
-				PersonOpCtrlGroup * p_grp = static_cast<PersonOpCtrlGroup *>(getGroup(GRP_PSNOP));
+				PersonOpCtrlGroup * p_grp = static_cast<PersonOpCtrlGroup *>(getGroup(ctlgroupPsnOp));
 				CALLPTRMEMB(p_grp, getData(this, &op_rec));
 				Data.PsnOpList = op_rec.PsnOpList;
 				if(Data.PsnOpList.GetCount() == 0)
@@ -125,8 +131,6 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			*pData = Data;
 			return 1;
 		}
-	private:
-		PersonEventFilt Data;
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;

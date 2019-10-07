@@ -2167,8 +2167,7 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 				else {
 					if(in_box) {
 						/* end box */
-						rects = bitmap_addrect(region, rects, &first_rect,
-							rx1, h, base + ib, h + 1);
+						rects = bitmap_addrect(region, rects, &first_rect, rx1, h, base + ib, h + 1);
 						if(rects == NULL)
 							goto error;
 						in_box = FALSE;
@@ -2178,7 +2177,6 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 				w = SCREEN_SHIFT_LEFT(w, 1);
 			}
 		}
-
 		if(width & 31) {
 			/* Process final partial word on line */
 			w = READ(pw++);
@@ -2195,8 +2193,7 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 				else {
 					if(in_box) {
 						/* end box */
-						rects = bitmap_addrect(region, rects, &first_rect,
-							rx1, h, base + ib, h + 1);
+						rects = bitmap_addrect(region, rects, &first_rect, rx1, h, base + ib, h + 1);
 						if(rects == NULL)
 							goto error;
 						in_box = FALSE;
@@ -2208,8 +2205,7 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 		}
 		/* If scanline ended with last bit set, end the box */
 		if(in_box) {
-			rects = bitmap_addrect(region, rects, &first_rect,
-				rx1, h, base + (width & 31), h + 1);
+			rects = bitmap_addrect(region, rects, &first_rect, rx1, h, base + (width & 31), h + 1);
 			if(rects == NULL)
 				goto error;
 		}
@@ -2253,8 +2249,7 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 		region->extents.y1 = PIXREGION_BOXPTR(region)->y1;
 		region->extents.y2 = PIXREGION_END(region)->y2;
 		if(region->data->numRects == 1) {
-			free(region->data);
-			region->data = NULL;
+			ZFREE(region->data);
 		}
 	}
 

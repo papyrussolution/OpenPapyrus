@@ -35,15 +35,9 @@
  *	Carl D. Worth <cworth@cworth.org>
  *	Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 /* Provide definitions for standalone compilation */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-boxes-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-combsort-inline.h"
-//#include "cairo-list-private.h"
-//#include <setjmp.h>
 
 typedef struct _rectangle rectangle_t;
 typedef struct _edge edge_t;
@@ -83,7 +77,6 @@ typedef struct _sweep_line {
 	edge_t * insert_left, * insert_right;
 	int32_t current_y;
 	int32_t last_y;
-
 	jmp_buf unwind;
 } sweep_line_t;
 
@@ -120,14 +113,12 @@ static void dump_traps(cairo_traps_t * traps, const char * filename)
 #define dump_traps(traps, filename)
 #endif
 
-static inline int rectangle_compare_start(const rectangle_t * a,
-    const rectangle_t * b)
+static inline int rectangle_compare_start(const rectangle_t * a, const rectangle_t * b)
 {
 	return a->top - b->top;
 }
 
-static inline int rectangle_compare_stop(const rectangle_t * a,
-    const rectangle_t * b)
+static inline int rectangle_compare_stop(const rectangle_t * a, const rectangle_t * b)
 {
 	return a->bottom - b->bottom;
 }
@@ -136,7 +127,6 @@ static inline void pqueue_init(pqueue_t * pq)
 {
 	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
 	pq->size = 0;
-
 	pq->elements = pq->elements_embedded;
 	pq->elements[PQ_FIRST_ENTRY] = NULL;
 }

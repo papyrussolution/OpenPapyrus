@@ -278,6 +278,7 @@
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_unifygoodsprice",					cmUnifyGoodsPrice
 		MENUITEM "@cmd_updatequots",						cmUpdateQuots
+		MENUITEM "@cmd_rollbackquots",						cmRollbackQuots
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_autocharge"							cmAutoCharge
 		MENUITEM "@cmd_writeoffdrafts"						cmWriteOffDrafts

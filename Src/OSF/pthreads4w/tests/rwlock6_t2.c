@@ -38,9 +38,7 @@
  *      pthread_rwlock_timedwrlock()
  *      pthread_rwlock_unlock()
  */
-
 #include "test.h"
-#include <sys/timeb.h>
 
 static pthread_rwlock_t rwlock1 = PTHREAD_RWLOCK_INITIALIZER;
 

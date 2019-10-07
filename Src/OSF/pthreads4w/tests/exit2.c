@@ -35,33 +35,24 @@
  *	pthread_create()
  *	pthread_exit()
  */
-
 #include "test.h"
 
-void *
-func(void * arg)
+static void * func(void * arg)
 {
-  int failed = (int) arg;
-
-  pthread_exit(arg);
-
-  /* Never reached. */
-  /*
-   * Trick gcc compiler into not issuing a warning here
-   */
-  assert(failed - (int)arg);
-
-  return NULL;
+	int failed = (int)arg;
+	pthread_exit(arg);
+	/* Never reached. */
+	/*
+	 * Trick gcc compiler into not issuing a warning here
+	 */
+	assert(failed - (int)arg);
+	return NULL;
 }
 
-int
-main(int argc, char * argv[])
+int main(int argc, char * argv[])
 {
-  pthread_t t;
-
-  assert(pthread_create(&t, NULL, func, (void *) NULL) == 0);
-
-  Sleep(100);
-
-  return 0;
+	pthread_t t;
+	assert(pthread_create(&t, NULL, func, (void*)NULL) == 0);
+	Sleep(100);
+	return 0;
 }

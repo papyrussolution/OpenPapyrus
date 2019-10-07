@@ -1,9 +1,6 @@
-
-/*-------------------------------------------------------------*/
-/*--- Compression machinery (not incl block sorting)        ---*/
-/*---                                            compress.c ---*/
-/*-------------------------------------------------------------*/
-
+// compress.c
+// Compression machinery (not incl block sorting)
+//
 /* ------------------------------------------------------------------
    This file is part of bzip2/libbzip2, a program and library for
    lossless, block-sorting data compression.
@@ -11,11 +8,9 @@
    bzip2/libbzip2 version 1.0.6 of 6 September 2010
    Copyright (C) 1996-2010 Julian Seward <jseward@bzip.org>
 
-   Please read the WARNING, DISCLAIMER and PATENTS sections in the
-   README file.
+   Please read the WARNING, DISCLAIMER and PATENTS sections in the README file.
 
-   This program is released under the terms of the license contained
-   in the file LICENSE.
+   This program is released under the terms of the license contained in the file LICENSE.
    ------------------------------------------------------------------ */
 
 /* CHANGES
@@ -119,8 +114,7 @@ static void generateMTFValues(EState* s)
 	   with MTF values only when they are no longer needed.
 
 	   The final compressed bitstream is generated into the
-	   area starting at
-	      (uchar *) (&((uchar *)s->arr2)[s->nblock])
+	   area starting at (uchar *)(&((uchar *)s->arr2)[s->nblock])
 
 	   These storage aliases are set up in bzCompressInit(),
 	   except for the last one, which is arranged in
@@ -129,7 +123,6 @@ static void generateMTFValues(EState* s)
 	uint32* ptr   = s->ptr;
 	uchar* block  = s->block;
 	uint16* mtfv  = s->mtfv;
-
 	makeMaps_e(s);
 	EOB = s->nInUse+1;
 	for(i = 0; i <= EOB; i++) 
@@ -224,7 +217,6 @@ static void sendMTFValues(EState* s)
 	int32 v, t, i, j, gs, ge, totc, bt, bc, iter;
 	int32 nSelectors, alphaSize, minLen, maxLen, selCtr;
 	int32 nGroups, nBytes;
-
 	/*--
 	   uchar  len [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
 	   is a global since the decoder also needs it.
@@ -234,17 +226,11 @@ static void sendMTFValues(EState* s)
 	   are also globals only used in this proc.
 	   Made global to keep stack frame size small.
 	   --*/
-
 	uint16 cost[BZ_N_GROUPS];
 	int32 fave[BZ_N_GROUPS];
-
 	uint16* mtfv = s->mtfv;
-
 	if(s->verbosity >= 3)
-		VPrintf3("      %d in block, %d after MTF & 1-2 coding, "
-		    "%d+2 syms in use\n",
-		    s->nblock, s->nMTF, s->nInUse);
-
+		VPrintf3("      %d in block, %d after MTF & 1-2 coding, %d+2 syms in use\n", s->nblock, s->nMTF, s->nInUse);
 	alphaSize = s->nInUse+2;
 	for(t = 0; t < BZ_N_GROUPS; t++)
 		for(v = 0; v < alphaSize; v++)
@@ -313,7 +299,6 @@ static void sendMTFValues(EState* s)
 				s->len_pack[v][2] = (s->len[5][v] << 16) | s->len[4][v];
 			}
 		}
-
 		nSelectors = 0;
 		totc = 0;
 		gs = 0;

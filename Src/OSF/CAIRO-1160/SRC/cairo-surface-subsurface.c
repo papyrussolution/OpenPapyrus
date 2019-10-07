@@ -72,106 +72,65 @@ static cairo_image_surface_t * _cairo_surface_subsurface_map_to_image(void * abs
 	return _cairo_surface_map_to_image(surface->target, &target_extents);
 }
 
-static cairo_int_status_t _cairo_surface_subsurface_unmap_image(void * abstract_surface,
-    cairo_image_surface_t * image)
+static cairo_int_status_t _cairo_surface_subsurface_unmap_image(void * abstract_surface, cairo_image_surface_t * image)
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
 	return _cairo_surface_unmap_image(surface->target, image);
 }
 
-static cairo_int_status_t _cairo_surface_subsurface_paint(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_surface_subsurface_paint(void * abstract_surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
 	cairo_rectangle_int_t rect = { 0, 0, surface->extents.width, surface->extents.height };
-	cairo_status_t status;
-	cairo_clip_t * target_clip;
-
-	target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
-	status = _cairo_surface_offset_paint(surface->target,
-		-surface->extents.x, -surface->extents.y,
+	cairo_clip_t * target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
+	cairo_status_t status = _cairo_surface_offset_paint(surface->target, -surface->extents.x, -surface->extents.y,
 		op, source, target_clip);
 	_cairo_clip_destroy(target_clip);
 	return status;
 }
 
-static cairo_int_status_t _cairo_surface_subsurface_mask(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_pattern_t * mask,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_surface_subsurface_mask(void * abstract_surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
 	cairo_rectangle_int_t rect = { 0, 0, surface->extents.width, surface->extents.height };
-	cairo_status_t status;
-	cairo_clip_t * target_clip;
-
-	target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
-	status = _cairo_surface_offset_mask(surface->target,
-		-surface->extents.x, -surface->extents.y,
+	cairo_clip_t * target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
+	cairo_status_t status = _cairo_surface_offset_mask(surface->target, -surface->extents.x, -surface->extents.y,
 		op, source, mask, target_clip);
 	_cairo_clip_destroy(target_clip);
 	return status;
 }
 
-static cairo_int_status_t _cairo_surface_subsurface_fill(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    double tolerance,
-    cairo_antialias_t antialias,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_surface_subsurface_fill(void * abstract_surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule,
+    double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
 	cairo_rectangle_int_t rect = { 0, 0, surface->extents.width, surface->extents.height };
-	cairo_status_t status;
-	cairo_clip_t * target_clip;
-
-	target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
-	status = _cairo_surface_offset_fill(surface->target,
-		-surface->extents.x, -surface->extents.y,
-		op, source, path, fill_rule, tolerance, antialias,
-		target_clip);
+	cairo_clip_t * target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
+	cairo_status_t status = _cairo_surface_offset_fill(surface->target, -surface->extents.x, -surface->extents.y,
+		op, source, path, fill_rule, tolerance, antialias, target_clip);
 	_cairo_clip_destroy(target_clip);
 	return status;
 }
 
-static cairo_int_status_t _cairo_surface_subsurface_stroke(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * stroke_style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_antialias_t antialias,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_surface_subsurface_stroke(void * abstract_surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_path_fixed_t * path, const cairo_stroke_style_t * stroke_style,
+    const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance,
+    cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
 	cairo_rectangle_int_t rect = { 0, 0, surface->extents.width, surface->extents.height };
-	cairo_status_t status;
-	cairo_clip_t * target_clip;
-
-	target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
-	status = _cairo_surface_offset_stroke(surface->target,
-		-surface->extents.x, -surface->extents.y,
-		op, source, path, stroke_style, ctm, ctm_inverse,
-		tolerance, antialias,
-		target_clip);
+	cairo_clip_t * target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
+	cairo_status_t status = _cairo_surface_offset_stroke(surface->target, -surface->extents.x, -surface->extents.y,
+		op, source, path, stroke_style, ctm, ctm_inverse, tolerance, antialias, target_clip);
 	_cairo_clip_destroy(target_clip);
 	return status;
 }
 
-static cairo_int_status_t _cairo_surface_subsurface_glyphs(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_scaled_font_t * scaled_font,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_surface_subsurface_glyphs(void * abstract_surface, cairo_operator_t op,
+    const cairo_pattern_t * source, cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip)
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
 	cairo_rectangle_int_t rect = { 0, 0, surface->extents.width, surface->extents.height };
@@ -254,8 +213,7 @@ static cairo_status_t _cairo_surface_subsurface_acquire_source_image(void * abst
 		cairo_surface_destroy(image);
 		return status;
 	}
-
-	*image_out = (cairo_image_surface_t*)image;
+	*image_out = reinterpret_cast<cairo_image_surface_t *>(image);
 	*extra_out = NULL;
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -289,7 +247,7 @@ static cairo_surface_t * _cairo_surface_subsurface_snapshot(void * abstract_surf
 
 static cairo_t * _cairo_surface_subsurface_create_context(void * target)
 {
-	cairo_surface_subsurface_t * surface = (cairo_surface_subsurface_t *)target;
+	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(target);
 	return surface->target->backend->create_context(&surface->base);
 }
 
@@ -352,14 +310,13 @@ static const cairo_surface_backend_t _cairo_surface_subsurface_backend = {
  **/
 cairo_surface_t * cairo_surface_create_for_rectangle(cairo_surface_t * target, double x, double y, double width, double height)
 {
-	cairo_surface_subsurface_t * surface;
 	if(unlikely(width < 0 || height < 0))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 	if(unlikely(target->status))
 		return _cairo_surface_create_in_error(target->status);
 	if(unlikely(target->finished))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
-	surface = (cairo_surface_subsurface_t *)_cairo_malloc(sizeof(cairo_surface_subsurface_t));
+	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(_cairo_malloc(sizeof(cairo_surface_subsurface_t)));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	x *= target->device_transform.xx;
@@ -392,13 +349,12 @@ cairo_surface_t * cairo_surface_create_for_rectangle(cairo_surface_t * target, d
 
 cairo_surface_t * _cairo_surface_create_for_rectangle_int(cairo_surface_t * target, const cairo_rectangle_int_t * extents)
 {
-	cairo_surface_subsurface_t * surface;
 	if(unlikely(target->status))
 		return _cairo_surface_create_in_error(target->status);
 	if(unlikely(target->finished))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 	assert(target->backend->type != CAIRO_SURFACE_TYPE_SUBSURFACE);
-	surface = static_cast<cairo_surface_subsurface_t *>(_cairo_malloc(sizeof(cairo_surface_subsurface_t)));
+	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(_cairo_malloc(sizeof(cairo_surface_subsurface_t)));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_surface_subsurface_backend, NULL/* device */, target->content, target->is_vector);
@@ -420,7 +376,7 @@ cairo_surface_t * _cairo_surface_create_for_rectangle_int(cairo_surface_t * targ
 
 static void _cairo_surface_subsurface_detach_snapshot(cairo_surface_t * surface)
 {
-	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t *)surface;
+	cairo_surface_subsurface_t * ss = reinterpret_cast<cairo_surface_subsurface_t *>(surface);
 	TRACE((stderr, "%s: target=%d\n", __FUNCTION__, ss->target->unique_id));
 	cairo_surface_destroy(ss->snapshot);
 	ss->snapshot = NULL;
@@ -428,12 +384,10 @@ static void _cairo_surface_subsurface_detach_snapshot(cairo_surface_t * surface)
 
 void _cairo_surface_subsurface_set_snapshot(cairo_surface_t * surface, cairo_surface_t * snapshot)
 {
-	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t *)surface;
+	cairo_surface_subsurface_t * ss = reinterpret_cast<cairo_surface_subsurface_t *>(surface);
 	TRACE((stderr, "%s: target=%d, snapshot=%d\n", __FUNCTION__, ss->target->unique_id, snapshot->unique_id));
-	/* FIXME: attaching the subsurface as a snapshot to its target creates
-	 * a reference cycle.  Let's make this call as a no-op until that bug
-	 * is fixed.
-	 */
+	// FIXME: attaching the subsurface as a snapshot to its target creates
+	// a reference cycle.  Let's make this call as a no-op until that bug is fixed.
 	return;
 	if(ss->snapshot)
 		_cairo_surface_detach_snapshot(ss->snapshot);

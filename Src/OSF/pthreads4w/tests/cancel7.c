@@ -69,10 +69,9 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
 #ifndef _UWIN
-#include <process.h>
+	#include <process.h>
 #endif
 
 /*
@@ -80,15 +79,6 @@
  */
 enum {
 	NUMTHREADS = 4
-};
-
-typedef struct bag_t_ bag_t;
-struct bag_t_ {
-	int threadnum;
-	int started;
-	/* Add more per-thread state variables here */
-	int count;
-	pthread_t self;
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
@@ -101,7 +91,7 @@ void
 Win32thread(void * arg)
 {
 	int i;
-	bag_t * bag = (bag_t*)arg;
+	bag_t * bag = static_cast<bag_t *>(arg);
 
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
@@ -149,59 +139,34 @@ int main()
 		assert(pthread_kill(threadbag[i].self, 0) == 0);
 		assert(pthread_cancel(threadbag[i].self) == 0);
 	}
-
-	/*
-	 * Give threads time to run.
-	 */
-	Sleep(NUMTHREADS * 100);
-
-	/*
-	 * Standard check that all threads started.
-	 */
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
 	for(i = 1; i <= NUMTHREADS; i++) {
 		if(!threadbag[i].started) {
 			failed |= !threadbag[i].started;
 			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
 		}
 	}
-
 	assert(!failed);
-
-	/*
-	 * Check any results here. Set "failed" and only print output on failure.
-	 */
+	// Check any results here. Set "failed" and only print output on failure.
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
 		int result = 0;
-
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
 		assert(GetExitCodeThread(h[i], (LPDWORD)&result) == TRUE);
 #else
-		/*
-		 * Can't get a result code.
-		 */
+		// Can't get a result code.
 		result = (int)(size_t)PTHREAD_CANCELED;
 #endif
-
 		assert(threadbag[i].self.p != NULL);
 		assert(pthread_kill(threadbag[i].self, 0) == ESRCH);
-
 		fail = (result != (int)(size_t)PTHREAD_CANCELED);
-
 		if(fail) {
-			fprintf(stderr, "Thread %d: started %d: count %d\n",
-			    i,
-			    threadbag[i].started,
-			    threadbag[i].count);
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
 		}
 		failed = (failed || fail);
 	}
-
 	assert(!failed);
-
-	/*
-	 * Success.
-	 */
-	return 0;
+	return 0; // Success
 }

@@ -81,22 +81,13 @@ enum {
 	NUMTHREADS = 4
 };
 
-typedef struct bag_t_ bag_t;
-struct bag_t_ {
-	int threadnum;
-	int started;
-	/* Add more per-thread state variables here */
-};
-
 static bag_t threadbag[NUMTHREADS + 1];
-
 static pthread_barrier_t go = NULL;
 
-void * mythread(void * arg)
+static void * mythread(void * arg)
 {
 	int result = 0;
-	bag_t * bag = (bag_t*)arg;
-
+	bag_t * bag = static_cast<bag_t *>(arg);
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
 	bag->started = 1;
@@ -157,57 +148,38 @@ int main()
 		threadbag[i].threadnum = i;
 		assert(pthread_create(&t[i], NULL, mythread, (void*)&threadbag[i]) == 0);
 	}
-
 	/*
 	 * Code to control or manipulate child threads should probably go here.
 	 */
-
 	pthread_barrier_wait(&go);
-
 	for(i = 1; i <= NUMTHREADS; i++) {
 		assert(pthread_cancel(t[i]) == 0);
 	}
-
 	pthread_barrier_wait(&go);
-
-	/*
-	 * Standard check that all threads started.
-	 */
+	// Standard check that all threads started.
 	for(i = 1; i <= NUMTHREADS; i++) {
 		if(!threadbag[i].started) {
 			failed |= !threadbag[i].started;
 			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
 		}
 	}
-
 	assert(!failed);
-
-	/*
-	 * Check any results here. Set "failed" and only print output on failure.
-	 */
+	// Check any results here. Set "failed" and only print output on failure.
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
 		void* result = (void*)0;
-
 		assert(pthread_join(t[i], &result) == 0);
 		fail = (result != PTHREAD_CANCELED);
 		if(fail) {
-			fprintf(stderr, "Thread %d: started %d: location %d\n",
-			    i,
-			    threadbag[i].started,
-			    (int)(size_t)result);
+			fprintf(stderr, "Thread %d: started %d: location %d\n", i, threadbag[i].started, (int)(size_t)result);
 		}
 		failed |= fail;
 	}
 
 	assert(!failed);
 	assert(pthread_barrier_destroy(&go) == 0);
-
-	/*
-	 * Success.
-	 */
-	return 0;
+	return 0; // Success
 }
 
 #else /* defined(__cplusplus) */

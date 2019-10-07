@@ -29,25 +29,24 @@
 /*---------------------------------------------*/
 static __inline__ void fallbackSimpleSort(uint32* fmap, uint32* eclass, int32 lo, int32 hi)
 {
-	int32 i, j, tmp;
-	uint32 ec_tmp;
-	if(lo == hi) 
-		return;
-	if(hi - lo > 3) {
-		for(i = hi-4; i >= lo; i--) {
-			tmp = fmap[i];
-			ec_tmp = eclass[tmp];
-			for(j = i+4; j <= hi && ec_tmp > eclass[fmap[j]]; j += 4)
-				fmap[j-4] = fmap[j];
-			fmap[j-4] = tmp;
+	int32 i, j;
+	if(lo != hi) {
+		if(hi - lo > 3) {
+			for(i = hi-4; i >= lo; i--) {
+				const int32 tmp = fmap[i];
+				const uint32 ec_tmp = eclass[tmp];
+				for(j = i+4; j <= hi && ec_tmp > eclass[fmap[j]]; j += 4)
+					fmap[j-4] = fmap[j];
+				fmap[j-4] = tmp;
+			}
 		}
-	}
-	for(i = hi-1; i >= lo; i--) {
-		tmp = fmap[i];
-		ec_tmp = eclass[tmp];
-		for(j = i+1; j <= hi && ec_tmp > eclass[fmap[j]]; j++)
-			fmap[j-1] = fmap[j];
-		fmap[j-1] = tmp;
+		for(i = hi-1; i >= lo; i--) {
+			const int32 tmp = fmap[i];
+			const uint32 ec_tmp = eclass[tmp];
+			for(j = i+1; j <= hi && ec_tmp > eclass[fmap[j]]; j++)
+				fmap[j-1] = fmap[j];
+			fmap[j-1] = tmp;
+		}
 	}
 }
 
@@ -676,14 +675,7 @@ static void mainQSort3(uint32* ptr, uchar*  block, uint16* quadrant, int32 nbloc
 #define SETMASK (1 << 21)
 #define CLEARMASK (~(SETMASK))
 
-static
-void mainSort(uint32* ptr,
-    uchar*  block,
-    uint16* quadrant,
-    uint32* ftab,
-    int32 nblock,
-    int32 verb,
-    int32*  budget)
+static void mainSort(uint32* ptr, uchar*  block, uint16* quadrant, uint32* ftab, int32 nblock, int32 verb, int32*  budget)
 {
 	int32 i, j, k, ss, sb;
 	int32 runningOrder[256];
@@ -693,11 +685,11 @@ void mainSort(uint32* ptr,
 	uchar c1;
 	int32 numQSorted;
 	uint16 s;
-	if(verb >= 4) VPrintf0("        main sort initialise ...\n");
-
+	if(verb >= 4) 
+		VPrintf0("        main sort initialise ...\n");
 	/*-- set up the 2-byte frequency table --*/
-	for(i = 65536; i >= 0; i--) ftab[i] = 0;
-
+	for(i = 65536; i >= 0; i--) 
+		ftab[i] = 0;
 	j = block[0] << 8;
 	i = nblock-1;
 	for(; i >= 3; i -= 4) {
@@ -719,18 +711,16 @@ void mainSort(uint32* ptr,
 		j = (j >> 8) | ( ((uint16)block[i]) << 8);
 		ftab[j]++;
 	}
-
 	/*-- (emphasises close relationship of block & quadrant) --*/
 	for(i = 0; i < BZ_N_OVERSHOOT; i++) {
-		block   [nblock+i] = block[i];
+		block[nblock+i] = block[i];
 		quadrant[nblock+i] = 0;
 	}
-
-	if(verb >= 4) VPrintf0("        bucket sorting ...\n");
-
+	if(verb >= 4) 
+		VPrintf0("        bucket sorting ...\n");
 	/*-- Complete the initial radix sort --*/
-	for(i = 1; i <= 65536; i++) ftab[i] += ftab[i-1];
-
+	for(i = 1; i <= 65536; i++) 
+		ftab[i] += ftab[i-1];
 	s = block[0] << 8;
 	i = nblock-1;
 	for(; i >= 3; i -= 4) {
@@ -757,7 +747,6 @@ void mainSort(uint32* ptr,
 		ftab[s] = j;
 		ptr[j] = i;
 	}
-
 	/*--
 	   Now ftab contains the first loc of every small bucket.
 	   Calculate the running order, from smallest to largest
@@ -788,13 +777,10 @@ zero:
 			}
 		} while(h != 1);
 	}
-
-	/*--
-	   The main sorting loop.
-	   --*/
-
+	//
+	// The main sorting loop.
+	//
 	numQSorted = 0;
-
 	for(i = 0; i <= 255; i++) {
 		/*--
 		   Process big buckets, starting with the least full.
@@ -803,7 +789,6 @@ zero:
 		   also make a big effort to avoid the calls if we can.
 		   --*/
 		ss = runningOrder[i];
-
 		/*--
 		   Step 1:
 		   Complete the big bucket [ss] by quicksorting
@@ -829,9 +814,7 @@ zero:
 				ftab[sb] |= SETMASK;
 			}
 		}
-
 		AssertH(!bigDone[ss], 1006);
-
 		/*--
 		   Step 2:
 		   Now scan this big bucket [ss] so as to synthesise the
@@ -857,7 +840,6 @@ zero:
 					ptr[ copyEnd[c1]-- ] = k;
 			}
 		}
-
 		AssertH( (copyStart[ss]-1 == copyEnd[ss])
 		    ||
 		    /* Extremely rare case missing in bzip2-1.0.0 and 1.0.1.

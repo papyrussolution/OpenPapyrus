@@ -68,7 +68,6 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 // @sobolev #define _WIN32_WINNT 0x400
 
 #include "test.h"
@@ -116,7 +115,7 @@ int main()
 		SetThreadContext(hThread, &context);
 		ResumeThread(hThread);
 	}
-	else{
+	else {
 		printf("Exited early\n");
 		fflush(stdout);
 	}

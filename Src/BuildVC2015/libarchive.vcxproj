@@ -247,8 +247,9 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\libarchive\libarchive;..\__build__;D:\TOOLS\MinGW\msys\1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -297,8 +298,9 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\libarchive\libarchive;..\__build__;D:\TOOLS\MinGW\msys\1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -348,8 +350,9 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\libarchive\libarchive;..\__build__;D:\TOOLS\MinGW\msys\1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -399,7 +402,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -449,7 +452,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -499,7 +502,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -545,8 +548,9 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\libarchive\libarchive;..\__build__;D:\TOOLS\MinGW\msys\1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -593,8 +597,9 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\libarchive\libarchive;..\__build__;D:\TOOLS\MinGW\msys\1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -642,8 +647,9 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\libarchive\libarchive;..\__build__;D:\TOOLS\MinGW\msys\1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -691,7 +697,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -739,7 +745,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -787,7 +793,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>

@@ -1133,8 +1133,6 @@ SString & SLAPI PPObjPrjTask::GetStatusText(int statusId, SString & rBuf)
 SString & SLAPI PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
 	{ return _GetEnumText(PPTXT_TODO_PRIOR, priorId, rBuf); }
 
-#define GRP_FILENAME 1L
-
 class VCalImportParamDlg : public TDialog {
 public:
 	struct Param {
@@ -1153,50 +1151,50 @@ public:
 		PPID   DefEmployerID;
 		SString FilePath;
 	};
+private:
+	typedef Param DlgDataType;
+	DlgDataType Data;
+	enum {
+		ctlgroupFileName = 1
+	};
+public:
 	VCalImportParamDlg() : TDialog(DLG_VCALPAR)
 	{
-		addGroup(GRP_FILENAME, new FileBrowseCtrlGroup(CTLBRW_VCALPAR_FILE, CTL_VCALPAR_FILE, 0, 0));
+		addGroup(ctlgroupFileName, new FileBrowseCtrlGroup(CTLBRW_VCALPAR_FILE, CTL_VCALPAR_FILE, 0, 0));
 	}
-
-	int setDTS(const Param * pData);
-	int getDTS(Param * pData);
-private:
-	Param Data;
-};
-
-int VCalImportParamDlg::setDTS(const Param * pData)
-{
-	FileBrowseCtrlGroup * p_grp = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_FILENAME));
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	SetupPersonCombo(this, CTLSEL_VCALPAR_CREATOR, Data.DefCreatorID,  0, (PPID)PPPRK_EMPL, 0);
-	SetupPersonCombo(this, CTLSEL_VCALPAR_EMPL,    Data.DefEmployerID, 0, (PPID)PPPRK_EMPL, 0);
-	SetupPersonCombo(this, CTLSEL_VCALPAR_CLIENT,  Data.DefClientID,  0, (PPID)PPPRK_CLIENT, 0);
-	CALLPTRMEMB(p_grp, addPattern(PPTXT_FILPAT_VCALENDAR));
-	return 1;
-}
-
-int VCalImportParamDlg::getDTS(Param * pData)
-{
-	int    ok = -1;
-	uint   sel = 0;
-	getCtrlData(sel = CTLSEL_VCALPAR_CREATOR, &Data.DefCreatorID);
-	THROW_PP(Data.DefCreatorID, PPERR_INVDEFCREATOR);
-	getCtrlData(CTLSEL_VCALPAR_EMPL,    &Data.DefClientID);
-	getCtrlData(CTLSEL_VCALPAR_CLIENT,  &Data.DefEmployerID);
+	int setDTS(const DlgDataType * pData)
 	{
-		getCtrlString(sel = CTL_VCALPAR_FILE, Data.FilePath);
-		SLibError = SLERR_OPENFAULT;
-		PPSetAddedMsgString(Data.FilePath);
-		THROW_SL(access(Data.FilePath, 0) == 0);
-		ok = 1;
+		FileBrowseCtrlGroup * p_grp = static_cast<FileBrowseCtrlGroup *>(getGroup(ctlgroupFileName));
+		if(!RVALUEPTR(Data, pData))
+			Data.Init();
+		SetupPersonCombo(this, CTLSEL_VCALPAR_CREATOR, Data.DefCreatorID,  0, PPPRK_EMPL, 0);
+		SetupPersonCombo(this, CTLSEL_VCALPAR_EMPL,    Data.DefEmployerID, 0, PPPRK_EMPL, 0);
+		SetupPersonCombo(this, CTLSEL_VCALPAR_CLIENT,  Data.DefClientID,   0, PPPRK_CLIENT, 0);
+		CALLPTRMEMB(p_grp, addPattern(PPTXT_FILPAT_VCALENDAR));
+		return 1;
 	}
-	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = (selectCtrl(sel), 0);
-	ENDCATCH
-	return ok;
-}
+	int getDTS(DlgDataType * pData)
+	{
+		int    ok = -1;
+		uint   sel = 0;
+		getCtrlData(sel = CTLSEL_VCALPAR_CREATOR, &Data.DefCreatorID);
+		THROW_PP(Data.DefCreatorID, PPERR_INVDEFCREATOR);
+		getCtrlData(CTLSEL_VCALPAR_EMPL,    &Data.DefClientID);
+		getCtrlData(CTLSEL_VCALPAR_CLIENT,  &Data.DefEmployerID);
+		{
+			getCtrlString(sel = CTL_VCALPAR_FILE, Data.FilePath);
+			SLibError = SLERR_OPENFAULT;
+			PPSetAddedMsgString(Data.FilePath);
+			THROW_SL(access(Data.FilePath, 0) == 0);
+			ok = 1;
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			ok = (selectCtrl(sel), 0);
+		ENDCATCH
+		return ok;
+	}
+};
 
 // Static
 int SLAPI PPObjPrjTask::ImportFromVCal()

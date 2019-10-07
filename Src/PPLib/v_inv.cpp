@@ -1606,14 +1606,12 @@ int SLAPI PPViewInventory::ConvertBasketToBill()
 		p_dlg->setCtrlUInt16(CTL_BSKTTOINV_RULEPRICE, 0);
 		if(ExecView(p_dlg) == cmOK) {
 			ushort v = p_dlg->getCtrlUInt16(CTL_BSKTTOINV_SGOPTION);
-			if(v == 0)
-				sgo = PPObjBill::imsgoAdd;
-			else if(v == 1)
-				sgo = PPObjBill::imsgoSkip;
-			else if(v == 2)
-				sgo = PPObjBill::imsgoFail;
-			else
-				sgo = PPObjBill::imsgoAdd;
+			switch(v) {
+				case 0: sgo = PPObjBill::imsgoAdd; break;
+				case 1: sgo = PPObjBill::imsgoSkip; break;
+				case 2: sgo = PPObjBill::imsgoFail; break;
+				default: sgo = PPObjBill::imsgoAdd; break;
+			}
 			v = p_dlg->getCtrlUInt16(CTL_BSKTTOINV_RULEPRICE);
 			THROW(ok = ConvertBasket(&basket.Pack, sgo, (int)v, 1));
 		}
@@ -1975,6 +1973,22 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 						ok = 1;
 					}
 				}
+				// @v10.5.8 {
+				else if(r_col.OrgOffs == 14) { // Status
+					if(p_hdr->Flags & INVENTF_WRITEDOFF) {
+						pStyle->Color = GetColorRef(SClrLightblue);
+						ok = 1;
+					}
+					else if(p_hdr->Flags & (INVENTF_LACK|INVENTF_SURPLUS)) {
+						pStyle->Color = GetColorRef(SClrYellow);
+						ok = 1;
+					}
+					else {
+						pStyle->Color = GetColorRef(SClrIvory);
+						ok = 1;
+					}
+				}
+				// } @v10.5.8 
 			}
 		}
 	}
@@ -1996,11 +2010,13 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	size_t tbl_count = 0;
 	DBTable * tbl_l[2];
 	DBQ  * dbq = 0;
-	DBE  * dbe_tmp1 = 0, * dbe_tmp2 = 0;
+	DBE  * dbe_tmp1 = 0;
+	DBE  * dbe_tmp2 = 0;
 	DBE    dbe_diffqtty;
 	DBE    dbe_goods;
 	DBE    dbe_barcode;
 	DBE    dbe_strgloc;
+	DBE    dbe_status;
 	uint   brw_id = 0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
 	const  int is_subst = Filt.HasSubst();
@@ -2041,6 +2057,11 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			dbe_strgloc.push(it->BillID);
 			dbe_strgloc.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillFrghtStrgLoc));
 		}
+		{
+			dbe_status.init();
+			dbe_status.push(it->Flags);
+			dbe_status.push(static_cast<DBFunc>(PPDbqFuncPool::IdInventLnStatus));
+		}
 		if(p_tord)
 			tbl_l[tbl_count++] = p_tord;
 		tbl_l[tbl_count++] = it;
@@ -2059,6 +2080,7 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			it->Serial,     // #11 // @v9.7.9 #+1
 			dbe_barcode,    // #12 // @v9.7.9 #+1
 			dbe_strgloc,    // #13 // @v9.7.9 #+1
+			dbe_status,     // #14 // @v10.5.8
 			0L).from(tbl_l[0], tbl_l[1], 0L));
 		ZDELETE(dbe_tmp1);
 		ZDELETE(dbe_tmp2);

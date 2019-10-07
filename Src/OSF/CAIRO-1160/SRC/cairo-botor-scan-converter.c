@@ -42,11 +42,6 @@
 /* Provide definitions for standalone compilation */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-combsort-inline.h"
-//#include <setjmp.h>
 
 #define STEP_X CAIRO_FIXED_ONE
 #define STEP_Y CAIRO_FIXED_ONE

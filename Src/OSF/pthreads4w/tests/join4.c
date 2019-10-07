@@ -33,46 +33,34 @@
  *
  * Depends on API functions: pthread_create().
  */
-
 #include "test.h"
 
-void *
-func(void * arg)
+static void * func(void * arg)
 {
-        Sleep(1200);
-        return arg;
+	Sleep(1200);
+	return arg;
 }
 
-int
-main(int argc, char * argv[])
+int main(int argc, char * argv[])
 {
-        pthread_t id;
-        struct timespec abstime, reltime = { 1, 0 };
-        void* result = (void*)-1;
-
-        assert(pthread_create(&id, NULL, func, (void *)(size_t)999) == 0);
-
-        /*
-         * Let thread start before we attempt to join it.
-         */
-        Sleep(100);
-
-        (void) pthread_win32_getabstime_np(&abstime, &reltime);
-
-        /* Test for pthread_timedjoin_np timeout */
-        assert(pthread_timedjoin_np(id, &result, &abstime) == ETIMEDOUT);
-        assert((int)(size_t)result == -1);
-
-        /* Test for pthread_tryjoin_np behaviour before thread has exited */
-        assert(pthread_tryjoin_np(id, &result) == EBUSY);
-        assert((int)(size_t)result == -1);
-
-        Sleep(500);
-
-        /* Test for pthread_tryjoin_np behaviour after thread has exited */
-        assert(pthread_tryjoin_np(id, &result) == 0);
-        assert((int)(size_t)result == 999);
-
-        /* Success. */
-        return 0;
+	pthread_t id;
+	struct timespec abstime, reltime = { 1, 0 };
+	void* result = (void*)-1;
+	assert(pthread_create(&id, NULL, func, (void*)(size_t)999) == 0);
+	/*
+	 * Let thread start before we attempt to join it.
+	 */
+	Sleep(100);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	/* Test for pthread_timedjoin_np timeout */
+	assert(pthread_timedjoin_np(id, &result, &abstime) == ETIMEDOUT);
+	assert((int)(size_t)result == -1);
+	/* Test for pthread_tryjoin_np behaviour before thread has exited */
+	assert(pthread_tryjoin_np(id, &result) == EBUSY);
+	assert((int)(size_t)result == -1);
+	Sleep(500);
+	/* Test for pthread_tryjoin_np behaviour after thread has exited */
+	assert(pthread_tryjoin_np(id, &result) == 0);
+	assert((int)(size_t)result == 999);
+	return 0; // Success
 }

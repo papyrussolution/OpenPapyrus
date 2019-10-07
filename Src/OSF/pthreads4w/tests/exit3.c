@@ -33,39 +33,28 @@
  *
  * Depends on API functions: pthread_create().
  */
-
 #include "test.h"
 
-void *
-func(void * arg)
+static void * func(void * arg)
 {
-	int failed = (int) arg;
-
+	int failed = (int)arg;
 	pthread_exit(arg);
-
 	/* Never reached. */
-        /*
-         * assert(0) in a way to prevent warning or optimising away.
-         */
-	assert(failed - (int) arg);
-
+	/*
+	 * assert(0) in a way to prevent warning or optimising away.
+	 */
+	assert(failed - (int)arg);
 	return NULL;
 }
 
-int
-main(int argc, char * argv[])
+int main(int argc, char * argv[])
 {
 	pthread_t id[4];
 	int i;
-
 	/* Create a few threads and then exit. */
-	for (i = 0; i < 4; i++)
-	  {
-	    assert(pthread_create(&id[i], NULL, func, (void *)(size_t)i) == 0);
-	  }
-
+	for(i = 0; i < 4; i++) {
+		assert(pthread_create(&id[i], NULL, func, (void*)(size_t)i) == 0);
+	}
 	Sleep(400);
-
-	/* Success. */
-	return 0;
+	return 0; // Success
 }

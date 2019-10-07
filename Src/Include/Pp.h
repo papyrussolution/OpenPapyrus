@@ -1225,6 +1225,7 @@ public:
 	static int IdDateTime;          // (fldDate, fldTime)
 	static int IdDurationToTime;    // (fldLong)
 	static int IdInventDiffQtty;    // (fldFlags, fldDiffQtty)
+	static int IdInventLnStatus;    // @v10.5.8 (fldFlags)
 	static int IdTSesLnPhQtty;      // (fldGoodsID, fldFlags, fldQtty, fldWtQtty)
 	static int IdTSesLnFlags;       // (fldFlags)
 	static int IdPercent;           // (fldDividend, fldDivisor) =(100 * div / divisor)
@@ -4212,8 +4213,10 @@ public:
 	int    SLAPI Verify();
 	int    SLAPI GetRelByID(PPID relID, PPQuot * pVal);
 	int    SLAPI GetRel(const PPQuot * pVal, PPID * pID, int createIfNExists, int use_ta);
-	int    SLAPI GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList);
+	int    SLAPI GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList); 
 	int    SLAPI Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQuotArray * pList);
+	int    SLAPI GetAfterDT(const LDATETIME & rAfter, PPQuotArray *pList); //v10.5.8 @erik
+	int    SLAPI SLAPI Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot); //v10.5.8 @erik
 	int    SLAPI GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray & rQuotList);
 	int    SLAPI GetCurrListByRelList(PPID goodsID, const PPIDArray & rRelList, PPQuotArray & rQuotList);
 	int    SLAPI GetCurr(PPID goodsID, const QuotIdent & pIdent, double cost, double price, double * pQ, int useCache);
@@ -11330,7 +11333,7 @@ public:
 	int    SLAPI EnumByObj(PPID arID, DateIter *, void * = 0);
 	int    SLAPI EnumByOpr(PPID opID, DateIter *, void * = 0);
 	int    SLAPI EnumByDate(DateIter *, BillTbl::Rec * pRec = 0);
-	SEnumImp * SLAPI EnumByOp(PPID opID, DateRange * pPeriod, int options);
+	SEnumImp * SLAPI EnumByOp(PPID opID, const DateRange * pPeriod, int options);
 	//
 	// Descr: Находит список документов заказа, по которым отгружен документ billID.
 	// Returns:
@@ -12249,6 +12252,7 @@ private:
 #define CPTFREXSTR_LINKBILLROW 3 // @v10.5.7
 
 struct CpTrfrExt {
+	SLAPI  CpTrfrExt();
 	char   PartNo[24];
 	char   Clb[24];
 	PPID   LinkBillID; // @v10.5.7 (PPOPT_DRAFTQUOTREQ) Ид связанного документа
@@ -18883,9 +18887,9 @@ public:
 	//   0 - ошибка (аргумент ctblN <= 0)
 	//
 	static int  SLAPI GetCafeTableName(int ctblN, SString & rBuf);
-	static const int SubstCTblID; // Специализированный идентификатор стола, применяемый для замещения не определенного списка столов. =999
+	static const int SubstCTblID; // Специализированный идентификатор стола, применяемый для замещения неопределенного списка столов. =999
 
-	SLAPI  PPObjCashNode(void * extraPtr = 0);
+	explicit SLAPI PPObjCashNode(void * extraPtr = 0);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int  SLAPI DeleteObj(PPID);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
@@ -18899,8 +18903,8 @@ public:
 	int    SLAPI GetAsync(PPID, PPAsyncCashNode *);
 	int    SLAPI EditGroup(PPGenCashNode * pData);
 	int    SLAPI EditDistrib(PPGenCashNode * pData);
-	int    SLAPI Get(PPID, PPGenCashNode *, PPCashNode * = 0);
-	int    SLAPI Put(PPID *, PPGenCashNode *, int use_ta);
+	int    SLAPI Get(PPID id, PPGenCashNode * pPack, PPCashNode * pRec = 0);
+	int    SLAPI Put(PPID * pID, PPGenCashNode * pPack, int use_ta);
 	int    SLAPI Validate(PPGenCashNode * pRec, long);
 	//
 	// Descr: Возвращает список кассовых узлов, привязанных к складу locID.
@@ -31947,6 +31951,13 @@ public:
 	int    SLAPI GetDraftRcptList(const DateRange *, const PPIDArray * pLocList, DraftRcptArray *);
 	int    SLAPI ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * pPugl, PPLogger * pLogger, int use_ta);
 	int    SLAPI CalcDraftTransitRest(PPID restOpID, PPID orderOpID, PPID goodsID, PPID locID, long flags, double * pRest, LDATE * pDt);
+	struct QuoteReqLink {
+		PPID   LeadBillID;
+		int    LeadRbb;
+		PPID   SeqBillID;
+		int    SeqRbb;
+	};
+	int    SLAPI SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <QuoteReqLink> & rList);
 	//
 	// Packages
 	//
@@ -36965,6 +36976,7 @@ public:
 	struct BrwItem {
 		PPID   LeadBillID;
 		int    LeadRbb;
+		LDATE  LeadDt;
 		PPID   LeadArID;
 		PPID   GoodsID;
 		double ReqQtty;
@@ -36973,6 +36985,7 @@ public:
 		int    ReqShipmTerm; // Требуемый срок поставки в днях
 		PPID   LinkBillID;
 		int    LinkRbb;
+		LDATE  LinkDt;
 		PPID   LinkArID;
 		double RepQtty;
 		double RepPrice;
@@ -36994,7 +37007,9 @@ private:
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	int    SLAPI MakeList();
+	int    SLAPI CreateList(PPID leadBillID, int leadRbb);
+	int    SLAPI FinishListBySeq(PPID leadBillID, int leadRbb);
+	int    SLAPI MakeViewList();
 	int    SLAPI CreateLinkedRequest(PPID leadBillID, int leadRbb);
 
 	QuoteReqAnalyzeFilt Filt;
@@ -50940,7 +50955,7 @@ int SelectMenu(long * pID, SString * pName, int isDesktop, const PPCommandGroup 
 
 class PPBizScoreWindow : public TWindow {
 public:
-	static BOOL CALLBACK Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	explicit PPBizScoreWindow(HWND hParentWnd);
 	~PPBizScoreWindow();
@@ -52436,6 +52451,8 @@ int    SLAPI EditQuotVal(PPQuot * pQ, int quotCls);
 int    SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt);
 int    SLAPI ViewQuotValueInfo(const PPQuot & rQuot);
 int    SLAPI UpdateQuots(const QuotUpdFilt *);
+int    SLAPI EditQuotRollbackDialog(LDATETIME *pDateTime); // @erik v10.5.8
+int    SLAPI RollbackQuots(const LDATETIME * pDateTime); // @erik v10.5.8
 int    SLAPI MakeCRptDataFiles(int verifyAll = 0);    // PPLIB\PPTVUTIL.CPP
 int    SLAPI RecoverAbsenceLots();   // PPBILL\C_TRFR.CPP
 int    SLAPI RecoverAbsenceGoods();  // PPBILL\C_TRFR.CPP

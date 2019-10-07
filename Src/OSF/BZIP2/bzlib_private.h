@@ -1,9 +1,6 @@
-
-/*-------------------------------------------------------------*/
-/*--- Private header file for the library.                  ---*/
-/*---                                       bzlib_private.h ---*/
-/*-------------------------------------------------------------*/
-
+// bzlib_private.h
+// Private header file for the library.
+//
 /* ------------------------------------------------------------------
    This file is part of bzip2/libbzip2, a program and library for
    lossless, block-sorting data compression.
@@ -22,15 +19,6 @@
 #define _BZLIB_PRIVATE_H
 
 #include <slib.h> // @sobolev
-
-//#include <stdlib.h>
-
-#ifndef BZ_NO_STDIO
-	//#include <stdio.h>
-	//#include <ctype.h>
-	//#include <string.h>
-#endif
-
 #include "bzlib.h"
 
 /*-- General stuff. --*/
@@ -66,8 +54,7 @@ extern void BZ2_bz__AssertH__fail(int errcode);
 #else
 
 extern void bz_internal_error(int errcode);
-#define AssertH(cond, errcode) \
-	{ if(!(cond)) bz_internal_error(errcode); }
+#define AssertH(cond, errcode)            { if(!(cond)) bz_internal_error(errcode); }
 #define AssertD(cond, msg)                do { } while(0)
 #define VPrintf0(zf)                     do { } while(0)
 #define VPrintf1(zf, za1)                 do { } while(0)
@@ -212,24 +199,15 @@ typedef struct {
 	int32 rfreq   [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
 	/* second dimension: only 3 needed; 4 makes index calculations faster */
 	uint32 len_pack[BZ_MAX_ALPHA_SIZE][4];
-}
-
-EState;
+} EState;
 
 /*-- externs for compression. --*/
 
 extern void BZ2_blockSort(EState*);
-
-extern void
-BZ2_compressBlock(EState*, bool);
-
+extern void BZ2_compressBlock(EState*, bool);
 extern void BZ2_bsInitWrite(EState*);
-
-extern void
-BZ2_hbAssignCodes(int32*, uchar*, int32, int32, int32);
-
-extern void
-BZ2_hbMakeCodeLengths(uchar*, int32*, int32, int32);
+extern void BZ2_hbAssignCodes(int32*, uchar*, int32, int32, int32);
+extern void BZ2_hbMakeCodeLengths(uchar*, int32*, int32, int32);
 
 /*-- states for decompression. --*/
 
@@ -414,11 +392,7 @@ extern void BZ2_hbCreateDecodeTables(int32*, int32*, int32*, uchar*, int32,  int
 /*-- BZ_NO_STDIO seems to make NULL disappear on some platforms. --*/
 
 #ifdef BZ_NO_STDIO
-#ifndef NULL
-#define NULL 0
+	#ifndef NULL
+		#define NULL 0
+	#endif
 #endif
-#endif
-
-/*-------------------------------------------------------------*/
-/*--- end                                   bzlib_private.h ---*/
-/*-------------------------------------------------------------*/

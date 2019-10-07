@@ -453,8 +453,6 @@ int QuotUpdDialog::editAdvOptions()
 	};
 	DIALOG_PROC_BODY(QuotUpdAdvDialog, &Data);
 }
-
-int SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt) { DIALOG_PROC_BODY(QuotUpdDialog, pFilt); }
 //
 //
 //
@@ -1157,7 +1155,124 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 	CATCHZOKPPERR
 	return ok;
 }
+
+int SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt) { DIALOG_PROC_BODY(QuotUpdDialog, pFilt); }
+
+
+//v10.5.8 @erik{
 //
+//
+//
+class QuotRollbackDialog : public TDialog {
+public:
+	QuotRollbackDialog(): TDialog(DLG_QUOT_RB)/*, P_Data(pViewDef)*/
+	{
+	}
+	int    setDTS(const LDATETIME * pDateTime);
+	int    getDTS(LDATETIME * pDateTime);
+private:
+	LDATETIME Data;
+};
+
+int QuotRollbackDialog::setDTS(const LDATETIME * pDateTime)
+{
+	int    ok = 1;
+	if(pDateTime) {
+		RVALUEPTR(Data, pDateTime);
+		//setCtrlString(CTL_QUOTROLLBACK_DATE, Data.d.encode);
+		//setCtrlString(CTL_QUOTROLLBACK_TIME, Data.t.encode);
+	}
+	return ok;
+}
+//
+// Descr: Заполняет pData данными из интерфейса
+//
+int QuotRollbackDialog::getDTS(LDATETIME * pDateTime)
+{
+	int    ok = 1;
+	uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
+	SString date_str, time_str;
+	LDATE date;
+	LTIME time;
+	getCtrlString(sel = CTL_MOBCLEDT_Z, date_str);
+	THROW_PP(date_str.NotEmptyS(), PPERR_USERINPUT);
+	getCtrlString(sel = CTL_MOBCLEDT_FN, time_str);
+	THROW_PP(time_str.NotEmptyS(), PPERR_USERINPUT);
+	strtodate(date_str, DATF_DMY, &date);
+	strtotime(time_str, TIMF_HMS, &time);
+	Data.Set(date, time);
+	ASSIGN_PTR(pDateTime, Data);
+	CATCH
+	PPErrorByDialog(this, sel);
+	ENDCATCH
+	return ok;
+}
+
+int SLAPI EditQuotRollbackDialog(LDATETIME *pDateTime) { DIALOG_PROC_BODY(QuotRollbackDialog, pDateTime); }
+
+//
+int SLAPI RollbackQuots(const LDATETIME * pDateTime)
+{	
+	int    ok = -1;
+	int state_flag = 0;
+	Quotation2Core * p_qc2 = new Quotation2Core();
+	PPObjQuotKind qk_obj;
+	PPObjGoods goods_obj;
+	LDATETIME ldt;
+	THROW(qk_obj.CheckRights(QUOTRT_UPDQUOTS, 0) && goods_obj.CheckRights(GOODSRT_UPDQUOTS, 0));
+	while(pDateTime || EditQuotRollbackDialog(&ldt) > 0) {
+		PPQuotArray qlist_after;
+		PPQuot q_before;
+		PPQuotArray org_qlist_by_good;
+		PPQuotArray tmp_qlist;
+		PPIDArray goods_id_array;
+		THROW(p_qc2->GetAfterDT(ldt, &qlist_after)); // берем все котировки, созданные после ldt
+		for(uint qlaidx = 0; qlaidx < qlist_after.getCount(); qlaidx++) {  // берем все ID товаров из "новых" котировок
+			const PPQuot quoteTMP = qlist_after.at(qlaidx);
+			goods_id_array.add(qlist_after.at(qlaidx).GoodsID);
+		}
+		goods_id_array.sortAndUndup();  //  оставляем только уникальные 
+		for(uint goodsidx = 0; goodsidx < goods_id_array.getCount(); goodsidx++) {
+			const PPID goods_id = goods_id_array.get(goodsidx);
+			org_qlist_by_good.clear();
+			p_qc2->GetCurrList(goods_id, 0, 0, org_qlist_by_good); //берем список котировок по товару
+			tmp_qlist = org_qlist_by_good; //работаем с копией
+			q_before.Clear();
+			for(uint j = 0; j < org_qlist_by_good.getCount(); j++) {
+				PPQuot r_vola_q = org_qlist_by_good.at(j);
+				for(uint i = 0; i < qlist_after.getCount(); i++) {
+					const PPQuot & r_org_q = qlist_after.at(i);
+					if(r_vola_q.IsEqual(r_org_q)) {
+						state_flag = p_qc2->GetBeforeDT(ldt, r_vola_q.GoodsID, r_vola_q.RelID, &q_before);
+						if(state_flag == 1) {
+							//r_vola_q.Flags = r_vola_q.Flags & (~PPQuot().fActual);  // меняю флаг у актуальной котировки на не аутуальный(это все в массиве котировок, доступ по ссылке)
+							q_before.Flags = q_before.Flags | PPQuot().fActual;
+							tmp_qlist.insert(&q_before);
+						}
+						else if(state_flag == 2) {
+							for(uint del_index = 0; del_index < tmp_qlist.getCount(); del_index++) {
+								if(tmp_qlist.at(del_index).IsEqual(r_vola_q)) {
+									tmp_qlist.atFree(del_index);
+								}
+							}
+						}
+						else if(state_flag == 0) {
+							THROW(0);
+						}
+					}
+				}
+			}
+			THROW(p_qc2->Set(tmp_qlist, 0, 0, 0, 0) > 0)
+			tmp_qlist.clear();
+			ok = 1;
+		}
+		break;
+	}
+	CATCHZOK
+	return ok;
+}
+
+// } @erik
 //
 //
 #if SLTEST_RUNNING // {
@@ -1517,4 +1632,5 @@ int PrcssrQuotTester::Run()
 }
 
 #endif // } SLTEST_RUNNING
+
 

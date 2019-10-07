@@ -632,6 +632,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTSessWrOffOrder:      PPObjTSession::EditWrOffOrder(); break;
 		case cmUnifyGoodsPrice:      UnifyGoodsPrice();               break;
 		case cmUpdateQuots:          UpdateQuots(0);                  break;
+		case cmRollbackQuots:        RollbackQuots(0);                break; // v10.5.8 @erik
 		case cmCommConfig:           EditCommConfig();                break;
 		case cmCashNodePanel:        ExecCSPanel(0);                  break;
 		case cmRemoveEmptyAcctRels:  RemoveEmptyAcctRels();           break;

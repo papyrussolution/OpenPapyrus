@@ -10755,6 +10755,9 @@
     #define CTL_QUOTEREQFLT_AR        (5 + WINDOWS_ID_BIAS)
     #define CTLSEL_QUOTEREQFLT_AR     (6 + WINDOWS_ID_BIAS)
     #define CTL_QUOTEREQFLT_FLAGS     (7 + WINDOWS_ID_BIAS)
+#define DLG_QUOT_RB               1374 // @erik v10.5.8
+    #define CTL_QUOTROLLBACK_DATE     (1 + WINDOWS_ID_BIAS)
+    #define CTL_QUOTROLLBACK_TIME     (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

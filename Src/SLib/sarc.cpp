@@ -8,6 +8,7 @@
 #include <..\osf\lz4\lz4frame.h>
 #include <..\osf\lz4\lz4.h>
 #include <zlib.h>
+#include <..\osf\bzip2\bzlib.h>
 // @construction #include <..\osf\libarchive\libarchive\archive.h> // @v10.4.4
 //
 //
@@ -165,6 +166,15 @@ int SLAPI SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffe
 //
 //
 //
+struct SArc_Bz2_Block {
+	SArc_Bz2_Block() : Handle(0), OpenMode(0)
+	{
+	}
+	void * Handle;
+	int    OpenMode;
+	SString FileName;
+};
+
 SLAPI SArchive::SArchive() : Type(0), H(0)/*, P_Cb_Blk(0)*/
 {
 }
@@ -185,6 +195,12 @@ int SLAPI SArchive::Close()
 	if(Type == tZip) {
 		if(H) {
 			THROW(zip_close(static_cast<zip_t *>(H)) == 0);
+		}
+	}
+	else if(Type == tBz2) {
+		if(H) {
+			BZ2_bzclose(static_cast<SArc_Bz2_Block *>(H)->Handle);
+			delete static_cast<SArc_Bz2_Block *>(H);
 		}
 	}
 	/*else if(Type == tLA) {
@@ -276,6 +292,29 @@ int SLAPI SArchive::Open(int type, const char * pName, int mode /*SFile::mXXX*/,
 		H = zip_open(pName, flags, &zip_err);
 		THROW(H);
 	}
+	else if(type == tBz2) {
+		Type = type;
+		const char * p_mode = 0;
+		if(mm == SFile::mRead)
+			p_mode = "rb";
+		else if(mm == SFile::mWrite)
+			p_mode = "wb";
+		else {
+			; // @error invalid mode
+		}
+		if(p_mode) {
+			SArc_Bz2_Block * p_blk = new SArc_Bz2_Block;
+			p_blk->Handle = BZ2_bzopen(pName, "wb");
+			if(p_blk->Handle) {
+				p_blk->FileName = pName;
+				p_blk->OpenMode = mm;
+			}
+			else {
+				ZDELETE(p_blk);
+				CALLEXCEPT();
+			}
+		}
+	}
 	// @v10.4.4 {
 #if 0 // @construction {
 	else if(type == tLA) {
@@ -332,6 +371,10 @@ int64 SLAPI SArchive::GetEntriesCount() const
 			if(c < 0)
 				c = 0;
 		}
+		else if(Type == tBz2) {
+			if(H)
+				c = 1;
+		}
 	// @v10.4.4 {
 #if 0 // @construction {
 		else if(Type == tLA) {
@@ -356,6 +399,19 @@ int FASTCALL SArchive::GetEntryName(int64 idx, SString & rBuf)
 			const char * p = zip_get_name(static_cast<zip_t *>(H), (uint64)idx, 0);
 			if(p)
 				rBuf = p;
+			else
+				ok = 0;
+		}
+		else if(Type == tBz2) {
+			if(idx == 0) {
+				const SArc_Bz2_Block * p_blk = static_cast<const SArc_Bz2_Block *>(H);
+				if(p_blk->Handle && p_blk->FileName.NotEmpty()) {
+					SPathStruc ps(p_blk->FileName);
+					rBuf = ps.Nam;
+				}
+				else
+					ok = 0;
+			}
 			else
 				ok = 0;
 		}
@@ -384,17 +440,29 @@ int SLAPI SArchive::ExtractEntry(int64 idx, const char * pDestName)
 				temp_buf = pDestName;
 			SPathStruc::NormalizePath(temp_buf, 0, dest_file_name);
         }
-		THROW(p_zf = zip_fopen_index(static_cast<zip_t *>(H), idx, 0 /*flags*/));
-		{
+		if(Type == tZip) {
+			THROW(p_zf = zip_fopen_index(static_cast<zip_t *>(H), idx, 0 /*flags*/));
+			{
+				int64  actual_rd_size = 0;
+				STempBuffer buffer(SKILOBYTE(1024));
+				THROW(buffer.IsValid());
+				THROW(f_dest.Open(dest_file_name, SFile::mWrite|SFile::mBinary));
+				do {
+					actual_rd_size = zip_fread(p_zf, buffer, buffer.GetSize());
+					THROW(actual_rd_size >= 0);
+					if(actual_rd_size > 0)
+						THROW(f_dest.Write(buffer, (size_t)actual_rd_size));
+				} while(actual_rd_size == buffer.GetSize());
+			}
+		}
+		else if(Type == tBz2) {
+			SArc_Bz2_Block * p_blk = static_cast<SArc_Bz2_Block *>(H);
 			int64  actual_rd_size = 0;
-			STempBuffer buffer(1024*1024);
+			STempBuffer buffer(SKILOBYTE(1024));
 			THROW(buffer.IsValid());
-			THROW(f_dest.Open(dest_file_name, SFile::mWrite|SFile::mBinary));
 			do {
-				actual_rd_size = zip_fread(p_zf, buffer, buffer.GetSize());
+				actual_rd_size = BZ2_bzread(p_blk->Handle, buffer, buffer.GetSize());
 				THROW(actual_rd_size >= 0);
-				if(actual_rd_size > 0)
-					THROW(f_dest.Write(buffer, (size_t)actual_rd_size));
 			} while(actual_rd_size == buffer.GetSize());
 		}
     }
@@ -406,10 +474,10 @@ int SLAPI SArchive::ExtractEntry(int64 idx, const char * pDestName)
 int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int flags)
 {
     int    ok = 1;
+	SString temp_buf;
 	zip_source_t * p_zsrc = 0;
     THROW(IsValid());
 	if(Type == tZip) {
-		SString temp_buf;
 		SPathStruc::NormalizePath(pSrcFileName, SPathStruc::npfSlash, temp_buf);
         THROW(fileExists(temp_buf));
 		{
@@ -437,6 +505,19 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
 				}
 			}
 		}
+	}
+	else if(Type == tBz2) {
+		SPathStruc::NormalizePath(pSrcFileName, SPathStruc::npfSlash, temp_buf);
+        THROW(fileExists(temp_buf));
+		THROW(!(flags & (aefDirectory|aefRecursive)));
+		if(isempty(pName)) {
+			SPathStruc ps(temp_buf);
+			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		}
+		else {
+			SPathStruc::NormalizePath(pName, SPathStruc::npfSlash, temp_buf);
+		}
+
 	}
 	CATCH
 		if(Type == tZip && p_zsrc) {

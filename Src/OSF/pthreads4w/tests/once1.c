@@ -37,39 +37,28 @@
  *	pthread_once()
  *	pthread_create()
  */
-
 #include "test.h"
 
 pthread_once_t once = PTHREAD_ONCE_INIT;
-
 static int washere = 0;
 
-void
-myfunc(void)
+void myfunc(void)
 {
-  washere++;
+	washere++;
 }
 
-void *
-mythread(void * arg)
+static void * mythread(void * arg)
 {
-   assert(pthread_once(&once, myfunc) == 0);
-
-   return 0;
+	assert(pthread_once(&once, myfunc) == 0);
+	return 0;
 }
 
-int
-main()
+int main()
 {
-  pthread_t t1, t2;
-  
-  assert(pthread_create(&t1, NULL, mythread, NULL) == 0);
-
-  assert(pthread_create(&t2, NULL, mythread, NULL) == 0);
-
-  Sleep(2000);
-
-  assert(washere == 1);
-
-  return 0;
+	pthread_t t1, t2;
+	assert(pthread_create(&t1, NULL, mythread, NULL) == 0);
+	assert(pthread_create(&t2, NULL, mythread, NULL) == 0);
+	Sleep(2000);
+	assert(washere == 1);
+	return 0;
 }

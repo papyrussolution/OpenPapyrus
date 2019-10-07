@@ -68,72 +68,56 @@
  * - unique sequence numbers are generated for every new thread.
  *
  * Fail Criteria:
- * - 
+ * -
  */
-
 #include "test.h"
-
 /*
  */
-
 enum {
 	NUMTHREADS = PTHREAD_THREADS_MAX
 };
-
 
 static long done = 0;
 /*
  * seqmap should have 1 in every element except [0]
  * Thread sequence numbers start at 1 and we will also
  * include this main thread so we need NUMTHREADS+2
- * elements. 
+ * elements.
  */
 static UINT64 seqmap[NUMTHREADS+2];
 
-void * func(void * arg)
+static void * func(void * arg)
 {
-  sched_yield();
-  seqmap[(int)pthread_getunique_np(pthread_self())] = 1;
-  InterlockedIncrement(&done);
+	sched_yield();
+	seqmap[(int)pthread_getunique_np(pthread_self())] = 1;
+	InterlockedIncrement(&done);
 
-  return (void *) 0; 
+	return (void*)0;
 }
- 
-int
-main()
+
+int main()
 {
-  pthread_t t[NUMTHREADS];
-  pthread_attr_t attr;
-  int i;
-
-  assert(pthread_attr_init(&attr) == 0);
-  assert(pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) == 0);
-
-  for (i = 0; i < NUMTHREADS+2; i++)
-    {
-      seqmap[i] = 0;
-    }
-
-  for (i = 0; i < NUMTHREADS; i++)
-    {
-      if (NUMTHREADS/2 == i)
-        {
-          /* Include this main thread, which will be an implicit pthread_t */
-          seqmap[(int)pthread_getunique_np(pthread_self())] = 1;
-        }
-      assert(pthread_create(&t[i], &attr, func, NULL) == 0);
-    }
-
-  while (NUMTHREADS > InterlockedExchangeAdd((LPLONG)&done, 0L))
-    Sleep(100);
-
-  Sleep(100);
-
-  assert(seqmap[0] == 0);
-  for (i = 1; i < NUMTHREADS+2; i++)
-    {
-      assert(seqmap[i] == 1);
-    }
-
-  return 0;
+	pthread_t t[NUMTHREADS];
+	pthread_attr_t attr;
+	int i;
+	assert(pthread_attr_init(&attr) == 0);
+	assert(pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) == 0);
+	for(i = 0; i < NUMTHREADS+2; i++) {
+		seqmap[i] = 0;
+	}
+	for(i = 0; i < NUMTHREADS; i++) {
+		if(NUMTHREADS/2 == i) {
+			/* Include this main thread, which will be an implicit pthread_t */
+			seqmap[(int)pthread_getunique_np(pthread_self())] = 1;
+		}
+		assert(pthread_create(&t[i], &attr, func, NULL) == 0);
+	}
+	while(NUMTHREADS > InterlockedExchangeAdd((LPLONG)&done, 0L))
+		Sleep(100);
+	Sleep(100);
+	assert(seqmap[0] == 0);
+	for(i = 1; i < NUMTHREADS+2; i++) {
+		assert(seqmap[i] == 1);
+	}
+	return 0;
 }

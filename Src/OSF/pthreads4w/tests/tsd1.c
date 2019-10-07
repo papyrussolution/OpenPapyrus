@@ -71,7 +71,6 @@
  * Fail Criteria:
  */
 #include "test.h"
-#include <sched.h>
 
 enum {
 	NUM_THREADS = 100
@@ -85,44 +84,31 @@ static pthread_barrier_t startBarrier;
 
 static void destroy_key(void * arg)
 {
-	int * j = (int*)arg;
-
+	int * j = static_cast<int *>(arg);
 	(*j)++;
-
 	assert(*j == 2);
-
 	thread_destroyed[j - accesscount] = 1;
 }
 
 static void setkey(void * arg)
 {
-	int * j = (int*)arg;
-
+	int * j = static_cast<int *>(arg);
 	thread_set[j - accesscount] = 1;
-
 	assert(*j == 0);
-
 	assert(pthread_getspecific(key) == NULL);
-
 	assert(pthread_setspecific(key, arg) == 0);
 	assert(pthread_setspecific(key, arg) == 0);
 	assert(pthread_setspecific(key, arg) == 0);
-
 	assert(pthread_getspecific(key) == arg);
-
 	(*j)++;
-
 	assert(*j == 1);
 }
 
 static void * mythread(void * arg)
 {
 	(void)pthread_barrier_wait(&startBarrier);
-
 	setkey(arg);
-
 	return 0;
-
 	/* Exiting the thread will call the key destructor. */
 }
 

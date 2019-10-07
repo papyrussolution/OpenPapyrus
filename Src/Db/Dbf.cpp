@@ -158,35 +158,34 @@ int FASTCALL DbfRecord::getFieldType(uint fldN, int * pType)
 int SLAPI DbfRecord::put(int fldN, TYPEID typ, const void * pData)
 {
 	char   temp_buf[256];
-	int    bt = stbase(typ);
-	if(bt == BTS_STRING) {
-		sttobase(typ, pData, temp_buf);
-		put(fldN, temp_buf);
-	}
-	else if(bt == BTS_INT) {
-		long base_long;
-		sttobase(typ, pData, &base_long);
-		put(fldN, base_long);
-	}
-	else if(bt == BTS_REAL) {
-		double base_real;
-		sttobase(typ, pData, &base_real);
-		put(fldN, base_real);
-	}
-	else if(bt == BTS_DATE) {
-		LDATE base_date;
-		sttobase(typ, pData, &base_date);
-		put(fldN, base_date);
-	}
-	// @v8.1.2 {
-	else if(bt == BTS_BOOL) {
-		long base_long = 0;
-		sttobase(typ, pData, &base_long);
-		put(fldN, base_long ? 'T' : 'F');
-	}
-	// } @v8.1.2
-	else {
-		put(fldN, sttostr(typ, pData, TIMF_HMS, temp_buf));
+	long   base_long = 0;
+	double base_real;
+	LDATE  base_date;
+	const  int bt = stbase(typ);
+	switch(bt) {
+		case BTS_STRING:
+			sttobase(typ, pData, temp_buf);
+			put(fldN, temp_buf);
+			break;
+		case BTS_INT:
+			sttobase(typ, pData, &base_long);
+			put(fldN, base_long);
+			break;
+		case BTS_REAL:
+			sttobase(typ, pData, &base_real);
+			put(fldN, base_real);
+			break;
+		case BTS_DATE:
+			sttobase(typ, pData, &base_date);
+			put(fldN, base_date);
+			break;
+		case BTS_BOOL:
+			sttobase(typ, pData, &base_long);
+			put(fldN, base_long ? 'T' : 'F');
+			break;
+		default:
+			put(fldN, sttostr(typ, pData, TIMF_HMS, temp_buf));
+			break;
 	}
 	return 1;
 }

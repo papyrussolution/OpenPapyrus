@@ -2428,6 +2428,61 @@ int SLAPI Quotation2Core::Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQu
 	return ok;
 }
 
+int SLAPI  Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray *pList)  // @erik v10.5.8
+{
+	int    ok = -1;
+	Quotation2Tbl::Key4 k4;
+	DBQ * dbq = 0;
+	BExtQuery q(this, 4);
+	MEMSZERO(k4);
+	k4.Dt = rAfter.d;
+	k4.Tm = rAfter.t;
+	dbq = &(*dbq && this->Dt >= rAfter.d);
+	q.selectAll().where(*dbq);
+	for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
+		if(pList) {
+			PPQuot q;
+			RecToQuot(&data, q);
+			if(!rAfter || cmp(q.Dtm, rAfter) > 0){
+				THROW_SL(pList->insert(&q));
+				ok = 1;
+			}
+		}		
+	}
+	CATCHZOK
+	return ok;
+}
+
+int    SLAPI Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot) //v10.5.8 @erik
+{
+	int    ok = 0;
+	Quotation2Tbl::Key0 k0;
+	DBQ * dbq = 0;
+	BExtQuery q(this, 0);
+	MEMSZERO(k0);
+	k0.GoodsID = rGoodsID;
+	k0.RelID = rRelID;
+	dbq = &(this->GoodsID == rGoodsID && this->RelID == rRelID);  // dbq = &(this->GoodsID == rGoodsID && this->RelID == rRelID); => dbq = &(this->GoodsID == rGoodsID);
+	k0.Dt = rBefore.d;
+	k0.Tm = rBefore.t;
+	dbq = &(*dbq && this->Dt < rBefore.d);
+	q.selectAll().where(*dbq);
+	for(q.initIteration(0, &k0, spLt); q.nextIteration() > 0;) {
+		PPQuot q;
+		RecToQuot(&data, q);
+		if(!rBefore || cmp(rBefore, q.Dtm) > 0){
+			//THROW_SL(pList->insert(&q));
+			*pQuot = q;
+			ok = 1;
+		}					
+	}
+	if(pQuot->IsEmpty()){
+		ok = 2;
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList)
 {
 	class SellerLocWorldCritBlock {
@@ -3800,3 +3855,6 @@ int SLAPI Quotation2Core::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * 
 	}
 	return ok;
 }
+
+
+

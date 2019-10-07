@@ -629,15 +629,13 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 	}
 	else if(count == 0)
 		return 0;
-
 	/* The terminating character is included in count */
 	return (length);
 }
-
-/*
- * Generate a wide text version of the ACL. The flags parameter controls
- * the type and style of the generated ACL.
- */
+// 
+// Generate a wide text version of the ACL. The flags parameter controls
+// the type and style of the generated ACL.
+// 
 wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, int flags, struct archive * a)
 {
 	int count;
@@ -855,8 +853,7 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type,
  * Generate a text version of the ACL. The flags parameter controls
  * the type and style of the generated ACL.
  */
-char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int flags,
-    struct archive_string_conv * sc)
+char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int flags, struct archive_string_conv * sc)
 {
 	int count;
 	ssize_t length;

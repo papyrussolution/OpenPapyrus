@@ -69,124 +69,105 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
 
 #define MAX_COUNT 100
 
 const long NANOSEC_PER_SEC = 1000000000L;
+static sem_t s;
 
-sem_t s;
-
-void *
-thr (void * arg)
+static void * thr(void * arg)
 {
-  assert(sem_timedwait(&s, NULL) == 0);
-  return NULL;
+	assert(sem_timedwait(&s, NULL) == 0);
+	return NULL;
 }
 
-int
-timeoutwithnanos(sem_t sem, int nanoseconds)
+int timeoutwithnanos(sem_t sem, int nanoseconds)
 {
-  struct timespec ts, rel;
-  FILETIME ft_before, ft_after;
-  int rc;
+	struct timespec ts, rel;
+	FILETIME ft_before, ft_after;
+	int rc;
 
-  rel.tv_sec = 0;
-  rel.tv_nsec = nanoseconds;
+	rel.tv_sec = 0;
+	rel.tv_nsec = nanoseconds;
 
-  GetSystemTimeAsFileTime(&ft_before);
-  rc = sem_timedwait(&sem, pthread_win32_getabstime_np(&ts, &rel));
+	GetSystemTimeAsFileTime(&ft_before);
+	rc = sem_timedwait(&sem, pthread_win32_getabstime_np(&ts, &rel));
 
-  /* This should have timed out */
-  assert(rc != 0);
-  assert(errno == ETIMEDOUT);
-  GetSystemTimeAsFileTime(&ft_after);
-  // We specified a non-zero wait. Time must advance.
-  if (ft_before.dwLowDateTime == ft_after.dwLowDateTime && ft_before.dwHighDateTime == ft_after.dwHighDateTime)
-    {
-      printf("nanoseconds: %d, rc: %d, errno: %d. before filetime: %d, %d; after filetime: %d, %d\n",
-          nanoseconds, rc, errno,
-          (int)ft_before.dwLowDateTime, (int)ft_before.dwHighDateTime,
-          (int)ft_after.dwLowDateTime, (int)ft_after.dwHighDateTime);
-      printf("time must advance during sem_timedwait.");
-      return 1;
-    }
-  return 0;
+	/* This should have timed out */
+	assert(rc != 0);
+	assert(errno == ETIMEDOUT);
+	GetSystemTimeAsFileTime(&ft_after);
+	// We specified a non-zero wait. Time must advance.
+	if(ft_before.dwLowDateTime == ft_after.dwLowDateTime && ft_before.dwHighDateTime == ft_after.dwHighDateTime) {
+		printf("nanoseconds: %d, rc: %d, errno: %d. before filetime: %d, %d; after filetime: %d, %d\n",
+		    nanoseconds, rc, errno,
+		    (int)ft_before.dwLowDateTime, (int)ft_before.dwHighDateTime,
+		    (int)ft_after.dwLowDateTime, (int)ft_after.dwHighDateTime);
+		printf("time must advance during sem_timedwait.");
+		return 1;
+	}
+	return 0;
 }
 
-int
-testtimeout()
+int testtimeout()
 {
-  int rc = 0;
-  sem_t s2;
-  int value = 0;
-  assert(sem_init(&s2, PTHREAD_PROCESS_PRIVATE, 0) == 0);
-  assert(sem_getvalue(&s2, &value) == 0);
-  assert(value == 0);
+	int rc = 0;
+	sem_t s2;
+	int value = 0;
+	assert(sem_init(&s2, PTHREAD_PROCESS_PRIVATE, 0) == 0);
+	assert(sem_getvalue(&s2, &value) == 0);
+	assert(value == 0);
 
-  rc += timeoutwithnanos(s2, 1000);        // 1 microsecond
-  rc += timeoutwithnanos(s2, 10 * 1000);   // 10 microseconds
-  rc += timeoutwithnanos(s2, 100 * 1000);  // 100 microseconds
-  rc += timeoutwithnanos(s2, 1000 * 1000); // 1 millisecond
+	rc += timeoutwithnanos(s2, 1000);  // 1 microsecond
+	rc += timeoutwithnanos(s2, 10 * 1000); // 10 microseconds
+	rc += timeoutwithnanos(s2, 100 * 1000); // 100 microseconds
+	rc += timeoutwithnanos(s2, 1000 * 1000); // 1 millisecond
 
-  return rc;
+	return rc;
 }
 
-int
-testmainstuff()
+int testmainstuff()
 {
-  int value = 0;
-  int i;
-  pthread_t t[MAX_COUNT+1];
+	int value = 0;
+	int i;
+	pthread_t t[MAX_COUNT+1];
 
-  assert(sem_init(&s, PTHREAD_PROCESS_PRIVATE, 0) == 0);
-  assert(sem_getvalue(&s, &value) == 0);
-  assert(value == 0);
+	assert(sem_init(&s, PTHREAD_PROCESS_PRIVATE, 0) == 0);
+	assert(sem_getvalue(&s, &value) == 0);
+	assert(value == 0);
 
-  for (i = 1; i <= MAX_COUNT; i++)
-    {
-      assert(pthread_create(&t[i], NULL, thr, NULL) == 0);
-      do {
-          sched_yield();
-          assert(sem_getvalue(&s, &value) == 0);
-      } while (value != -i);
-      assert(-value == i);
-    }
-
-  assert(sem_getvalue(&s, &value) == 0);
-  assert(-value == MAX_COUNT);
-  assert(pthread_cancel(t[50]) == 0);
-  assert(pthread_join(t[50], NULL) == 0);
-  assert(sem_getvalue(&s, &value) == 0);
-  assert(-value == MAX_COUNT - 1);
-
-  for (i = MAX_COUNT - 2; i >= 0; i--)
-    {
-      assert(sem_post(&s) == 0);
-      assert(sem_getvalue(&s, &value) == 0);
-      assert(-value == i);
-    }
-
-  for (i = 1; i <= MAX_COUNT; i++)
-    {
-      if (i != 50)
-        {
-          assert(pthread_join(t[i], NULL) == 0);
-        }
-    }
-
-  return 0;
+	for(i = 1; i <= MAX_COUNT; i++) {
+		assert(pthread_create(&t[i], NULL, thr, NULL) == 0);
+		do {
+			sched_yield();
+			assert(sem_getvalue(&s, &value) == 0);
+		} while(value != -i);
+		assert(-value == i);
+	}
+	assert(sem_getvalue(&s, &value) == 0);
+	assert(-value == MAX_COUNT);
+	assert(pthread_cancel(t[50]) == 0);
+	assert(pthread_join(t[50], NULL) == 0);
+	assert(sem_getvalue(&s, &value) == 0);
+	assert(-value == MAX_COUNT - 1);
+	for(i = MAX_COUNT - 2; i >= 0; i--) {
+		assert(sem_post(&s) == 0);
+		assert(sem_getvalue(&s, &value) == 0);
+		assert(-value == i);
+	}
+	for(i = 1; i <= MAX_COUNT; i++) {
+		if(i != 50) {
+			assert(pthread_join(t[i], NULL) == 0);
+		}
+	}
+	return 0;
 }
 
-int
-main()
+int main()
 {
-  int rc = 0;
-
-  rc += testmainstuff();
-  rc += testtimeout();
-
-  return rc;
+	int rc = 0;
+	rc += testmainstuff();
+	rc += testtimeout();
+	return rc;
 }
-

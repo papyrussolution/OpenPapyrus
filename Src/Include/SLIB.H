@@ -8693,7 +8693,8 @@ public:
 	enum {
 		tUnkn = 0,
 		tZip  = 1, // LibZIP
-		// @construction tLA   = 2  // @v10.4.4 LibArchive
+		tBz2  = 2
+		// @construction tLA   = 3  // @v10.4.4 LibArchive
 		//t7Z // @construction
 	};
 	//

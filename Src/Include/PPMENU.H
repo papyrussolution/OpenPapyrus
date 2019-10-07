@@ -521,5 +521,6 @@
 #define cmExportView                   626 // @v10.5.3 Экспорт данных по именованному фильтру
 #define cmTestMqc                      627 // @v10.5.7 Тест клиента брокера сообщений
 #define cmQuoteReqAnalyze              628 // @v10.5.7 Анализ котировочных запросов
+#define cmRollbackQuots                629 // @v10.5.8 Анализ котировочных запросов @erik
 
 #endif /* __PPMENU_H */

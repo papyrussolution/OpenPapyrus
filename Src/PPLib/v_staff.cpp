@@ -1489,14 +1489,12 @@ int FastEditDivBySumDlg::setupList()
 			StrAssocArray::Item item = p_list->Get(i);
 			DivType divt;
 			PPID real_div_id = GetRealDivID(&ObjPsn, item.Id, &divt);
-			if(divt == divtEmployer)
-				img_id = ICON_SMALLEMPLOYER;
-			else if(divt == divtStaff)
-				img_id = ICON_SMALLSTAFF;
-			else if(divt == divtStaffPost)
-				img_id = ICON_SMALLSTAFFPOST;
-			else if(divt == divtPerson)
-				img_id = ICON_SMALLPERSON;
+			switch(divt) {
+				case divtEmployer: img_id = ICON_SMALLEMPLOYER; break;
+				case divtStaff: img_id = ICON_SMALLSTAFF; break;
+				case divtStaffPost: img_id = ICON_SMALLSTAFFPOST; break;
+				case divtPerson: img_id = ICON_SMALLPERSON; break;
+			}
 			p_def->AddImageAssoc(item.Id, img_id);
 		}
 		p_lb->setDef(p_def);

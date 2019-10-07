@@ -1,4 +1,4 @@
-/* 
+/*
  * mutex6s.c
  *
  *
@@ -36,59 +36,44 @@
  * Thread locks mutex twice (recursive lock).
  * Locking thread should deadlock on second attempt.
  *
- * Depends on API functions: 
+ * Depends on API functions:
  *	pthread_mutex_lock()
  *	pthread_mutex_trylock()
  *	pthread_mutex_unlock()
  */
-
 #include "test.h"
 
 static int lockCount = 0;
-
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void * locker(void * arg)
 {
-  assert(pthread_mutex_lock(&mutex) == 0);
-  lockCount++;
-
-  /* Should wait here (deadlocked) */
-  assert(pthread_mutex_lock(&mutex) == 0);
-  lockCount++;
-  assert(pthread_mutex_unlock(&mutex) == 0);
-
-  return 0;
+	assert(pthread_mutex_lock(&mutex) == 0);
+	lockCount++;
+	/* Should wait here (deadlocked) */
+	assert(pthread_mutex_lock(&mutex) == 0);
+	lockCount++;
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	return 0;
 }
- 
-int
-main()
+
+int main()
 {
-  pthread_t t;
-
-  assert(mutex == PTHREAD_MUTEX_INITIALIZER);
-
-  assert(pthread_create(&t, NULL, locker, NULL) == 0);
-
-  while (lockCount < 1)
-    {
-      Sleep(1);
-    }
-
-  assert(lockCount == 1);
-
-  /*
-   * Should succeed even though we don't own the lock
-   * because FAST mutexes don't check ownership.
-   */
-  assert(pthread_mutex_unlock(&mutex) == 0);
-
-  while (lockCount < 2)
-    {
-      Sleep(1);
-    }
-
-  assert(lockCount == 2);
-
-  return 0;
+	pthread_t t;
+	assert(mutex == PTHREAD_MUTEX_INITIALIZER);
+	assert(pthread_create(&t, NULL, locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	/*
+	 * Should succeed even though we don't own the lock
+	 * because FAST mutexes don't check ownership.
+	 */
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	return 0;
 }

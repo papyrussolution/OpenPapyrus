@@ -48,67 +48,55 @@ pthread_once_t o = PTHREAD_ONCE_INIT;
 pthread_once_t once[NUM_ONCE];
 
 typedef struct {
-  int i;
-  CRITICAL_SECTION cs;
+	int i;
+	CRITICAL_SECTION cs;
 } sharedInt_t;
 
 static sharedInt_t numOnce;
 static sharedInt_t numThreads;
 
-void
-myfunc(void)
+void myfunc(void)
 {
-  EnterCriticalSection(&numOnce.cs);
-  numOnce.i++;
-  LeaveCriticalSection(&numOnce.cs);
-  /* Simulate slow once routine so that following threads pile up behind it */
-  Sleep(100);
+	EnterCriticalSection(&numOnce.cs);
+	numOnce.i++;
+	LeaveCriticalSection(&numOnce.cs);
+	/* Simulate slow once routine so that following threads pile up behind it */
+	Sleep(100);
 }
 
-void *
-mythread(void * arg)
+static void * mythread(void * arg)
 {
-   assert(pthread_once(&once[(int)(size_t)arg], myfunc) == 0);
-   EnterCriticalSection(&numThreads.cs);
-   numThreads.i++;   
-   LeaveCriticalSection(&numThreads.cs);
-   return (void*)(size_t)0;
+	assert(pthread_once(&once[(int)(size_t)arg], myfunc) == 0);
+	EnterCriticalSection(&numThreads.cs);
+	numThreads.i++;
+	LeaveCriticalSection(&numThreads.cs);
+	return (void*)(size_t)0;
 }
 
-int
-main()
+int main()
 {
-  pthread_t t[NUM_THREADS][NUM_ONCE];
-  int i, j;
-  
-  memset(&numOnce, 0, sizeof(sharedInt_t));
-  memset(&numThreads, 0, sizeof(sharedInt_t));
+	pthread_t t[NUM_THREADS][NUM_ONCE];
+	int i, j;
+	memset(&numOnce, 0, sizeof(sharedInt_t));
+	memset(&numThreads, 0, sizeof(sharedInt_t));
+	InitializeCriticalSection(&numThreads.cs);
+	InitializeCriticalSection(&numOnce.cs);
+	for(j = 0; j < NUM_ONCE; j++) {
+		once[j] = o;
+		for(i = 0; i < NUM_THREADS; i++) {
+			/* GCC build: create was failing with EAGAIN after 790 threads */
+			while(0 != pthread_create(&t[i][j], NULL, mythread, (void*)(size_t)j))
+				sched_yield();
+		}
+	}
+	for(j = 0; j < NUM_ONCE; j++)
+		for(i = 0; i < NUM_THREADS; i++)
+			if(pthread_join(t[i][j], NULL) != 0)
+				printf("Join failed for [thread,once] = [%d,%d]\n", i, j);
 
-  InitializeCriticalSection(&numThreads.cs);
-  InitializeCriticalSection(&numOnce.cs);
-
-  for (j = 0; j < NUM_ONCE; j++)
-    {
-      once[j] = o;
-
-      for (i = 0; i < NUM_THREADS; i++)
-        {
-	  /* GCC build: create was failing with EAGAIN after 790 threads */
-          while (0 != pthread_create(&t[i][j], NULL, mythread, (void *)(size_t)j))
-	    sched_yield();
-        }
-    }
-
-  for (j = 0; j < NUM_ONCE; j++)
-    for (i = 0; i < NUM_THREADS; i++)
-      if (pthread_join(t[i][j], NULL) != 0)
-        printf("Join failed for [thread,once] = [%d,%d]\n", i, j);
-
-  assert(numOnce.i == NUM_ONCE);
-  assert(numThreads.i == NUM_THREADS * NUM_ONCE);
-
-  DeleteCriticalSection(&numOnce.cs);
-  DeleteCriticalSection(&numThreads.cs);
-
-  return 0;
+	assert(numOnce.i == NUM_ONCE);
+	assert(numThreads.i == NUM_THREADS * NUM_ONCE);
+	DeleteCriticalSection(&numOnce.cs);
+	DeleteCriticalSection(&numThreads.cs);
+	return 0;
 }

@@ -1068,7 +1068,7 @@ int SLAPI BillCore::NextEnum(long enumHandle, BillTbl::Rec * pRec)
 int SLAPI BillCore::DestroyIter(long enumHandle)
 	{ return EnumList.DestroyIterHandler(enumHandle); }
 
-SEnumImp * SLAPI BillCore::EnumByOp(PPID opID, DateRange * pPeriod, int options)
+SEnumImp * SLAPI BillCore::EnumByOp(PPID opID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	return InitEnumByOp(opID, pPeriod, options, &h) ? new PPTblEnum <BillCore>(this, h) : 0;

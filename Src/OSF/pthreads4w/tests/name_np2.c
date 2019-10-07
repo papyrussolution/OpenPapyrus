@@ -51,7 +51,6 @@
  *      pthread_barrier_init
  *      pthread_barrier_wait
  */
-
 #include "test.h"
 
 static int washere = 0;
@@ -61,47 +60,37 @@ static pthread_barrier_t sync;
 static int seqno = 0;
 #endif
 
-void * func(void * arg)
+static void * func(void * arg)
 {
-  char buf[32];
-  pthread_t self = pthread_self();
-
-  washere = 1;
-  pthread_barrier_wait(&sync);
-  assert(pthread_getname_np(self, buf, 32) == 0);
-  printf("Thread name: %s\n", buf);
-  pthread_barrier_wait(&sync);
-
-  return 0;
+	char buf[32];
+	pthread_t self = pthread_self();
+	washere = 1;
+	pthread_barrier_wait(&sync);
+	assert(pthread_getname_np(self, buf, 32) == 0);
+	printf("Thread name: %s\n", buf);
+	pthread_barrier_wait(&sync);
+	return 0;
 }
 
-int
-main()
+int main()
 {
-  pthread_t t;
-
-  assert(pthread_attr_init(&attr) == 0);
+	pthread_t t;
+	assert(pthread_attr_init(&attr) == 0);
 #if defined (__PTW32_COMPATIBILITY_BSD)
-  seqno++;
-  assert(pthread_attr_setname_np(&attr, "MyThread%d", (void *)&seqno) == 0);
+	seqno++;
+	assert(pthread_attr_setname_np(&attr, "MyThread%d", (void*)&seqno) == 0);
 #elif defined (__PTW32_COMPATIBILITY_TRU64)
-  assert(pthread_attr_setname_np(&attr, "MyThread1", NULL) == 0);
+	assert(pthread_attr_setname_np(&attr, "MyThread1", NULL) == 0);
 #else
-  assert(pthread_attr_setname_np(&attr, "MyThread1") == 0);
+	assert(pthread_attr_setname_np(&attr, "MyThread1") == 0);
 #endif
-
-  assert(pthread_barrier_init(&sync, NULL, 2) == 0);
-
-  assert(pthread_create(&t, &attr, func, NULL) == 0);
-  pthread_barrier_wait(&sync);
-  pthread_barrier_wait(&sync);
-
-  assert(pthread_join(t, NULL) == 0);
-
-  assert(pthread_barrier_destroy(&sync) == 0);
-  assert(pthread_attr_destroy(&attr) == 0);
-
-  assert(washere == 1);
-
-  return 0;
+	assert(pthread_barrier_init(&sync, NULL, 2) == 0);
+	assert(pthread_create(&t, &attr, func, NULL) == 0);
+	pthread_barrier_wait(&sync);
+	pthread_barrier_wait(&sync);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_barrier_destroy(&sync) == 0);
+	assert(pthread_attr_destroy(&attr) == 0);
+	assert(washere == 1);
+	return 0;
 }

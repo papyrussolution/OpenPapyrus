@@ -1,9 +1,6 @@
-
-/*-------------------------------------------------------------*/
-/*--- Table for doing CRCs                                  ---*/
-/*---                                            crctable.c ---*/
-/*-------------------------------------------------------------*/
-
+// crctable.c
+// Table for doing CRCs
+//
 /* ------------------------------------------------------------------
    This file is part of bzip2/libbzip2, a program and library for
    lossless, block-sorting data compression.
@@ -11,13 +8,10 @@
    bzip2/libbzip2 version 1.0.6 of 6 September 2010
    Copyright (C) 1996-2010 Julian Seward <jseward@bzip.org>
 
-   Please read the WARNING, DISCLAIMER and PATENTS sections in the
-   README file.
+   Please read the WARNING, DISCLAIMER and PATENTS sections in the README file.
 
-   This program is released under the terms of the license contained
-   in the file LICENSE.
+   This program is released under the terms of the license contained in the file LICENSE.
    ------------------------------------------------------------------ */
-
 #include "bzlib_private.h"
 #pragma hdrstop
 /*--
@@ -95,7 +89,3 @@ uint32 BZ2_crc32Table[256] = {
 	0xafb010b1L, 0xab710d06L, 0xa6322bdfL, 0xa2f33668L,
 	0xbcb4666dL, 0xb8757bdaL, 0xb5365d03L, 0xb1f740b4L
 };
-
-/*-------------------------------------------------------------*/
-/*--- end                                        crctable.c ---*/
-/*-------------------------------------------------------------*/

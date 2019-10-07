@@ -2042,7 +2042,7 @@ void LoginDialogParam::GetDBSel(HWND hDlg)
 	}
 }
 
-BOOL CALLBACK LoginDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK LoginDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LoginDialogParam * p_param = static_cast<LoginDialogParam *>(TView::GetWindowUserData(hwndDlg));
 	switch(uMsg) {
@@ -2281,7 +2281,7 @@ int32 DL6ICLS_PPObjTag::Search(int32 id, PPYOBJREC rec)
 		PPObjectTag tag_rec;
 		MEMSZERO(tag_rec);
 		ok = p_obj->Search(id, &tag_rec);
-		FillObjTagRec(&tag_rec, (SPpyO_Tag*)rec);
+		FillObjTagRec(&tag_rec, static_cast<SPpyO_Tag *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2306,7 +2306,7 @@ int32 DL6ICLS_PPObjTag::SearchByName(SString & text, int32 kind, int32 extraPara
 		else { // (kind == 0)
 			ok = p_obj->SearchByName(text, &id, &tag_rec);
 		}
-		FillObjTagRec(&tag_rec, (SPpyO_Tag *)rec);
+		FillObjTagRec(&tag_rec, static_cast<SPpyO_Tag *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2357,7 +2357,7 @@ int32 DL6ICLS_PPObjUnit::Search(int32 id, PPYOBJREC rec)
 		PPUnit u_rec;
 		MEMSZERO(u_rec);
 		ok = p_obj->Search(id, &u_rec);
-		FillUnitRec(&u_rec, (SPpyO_Unit*)rec);
+		FillUnitRec(&u_rec, static_cast<SPpyO_Unit *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2372,7 +2372,7 @@ int32 DL6ICLS_PPObjUnit::SearchByName(SString & text, int32 kind, int32 extraPar
 		PPID   id = 0;
 		MEMSZERO(u_rec);
 		ok = p_obj->SearchByName(text, &id, &u_rec);
-		FillUnitRec(&u_rec, (SPpyO_Unit *)rec);
+		FillUnitRec(&u_rec, static_cast<SPpyO_Unit *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2683,7 +2683,7 @@ int32 DL6ICLS_PPObjArticle::Search(int32 id, PPYOBJREC rec)
 	PPObjArticle * p_obj = static_cast<PPObjArticle *>(ExtraPtr);
 	if(p_obj) {
 		PPArticlePacket pack;
-		SPpyO_Article * p_rec = (SPpyO_Article *)rec;
+		SPpyO_Article * p_rec = static_cast<SPpyO_Article *>(rec);
 		if((ok = p_obj->GetPacket(id, &pack)) != 0) {
 			p_rec->ID = id;
 			FillArticleRec(&pack, p_rec);
@@ -2702,7 +2702,7 @@ int32 DL6ICLS_PPObjArticle::SearchByName(SString & text, int32 kind, int32 extra
 	PPObjArticle * p_obj = static_cast<PPObjArticle *>(ExtraPtr);
 	if(p_obj) {
 		ArticleTbl::Rec art_rec;
-		SPpyO_Article * p_rec = (SPpyO_Article *)rec;
+		SPpyO_Article * p_rec = static_cast<SPpyO_Article *>(rec);
 		MEMSZERO(art_rec);
 		if((ok = p_obj->P_Tbl->SearchName(extraParam, text, &art_rec)) > 0) {
 			PPArticlePacket pack;
@@ -2761,7 +2761,7 @@ int32 DL6ICLS_PPObjArticle::Update(int32 id, int32 flags, PPYOBJREC rec)
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
 	THROW(p_obj);
-	SPpyO_Article * p_rec = (SPpyO_Article *)rec;
+	SPpyO_Article * p_rec = static_cast<SPpyO_Article *>(rec);
 	THROW_PP_S(p_rec->RecTag == ppoArticle, PPERR_INVSTRUCTAG, "ppoArticle");
 	{
 		PPTransaction tra((flags & 0x0001) ? 0 : 1);
@@ -3118,7 +3118,7 @@ int32 DL6ICLS_PPObjStyloPalm::Search(int32 id, PPYOBJREC rec)
 	if(p_obj) {
 		PPStyloPalmPacket pack;
 		ok = p_obj->GetPacket(id, &pack);
-		FillStyloPalmRec(&pack, (SPpyO_StyloPalm *)rec);
+		FillStyloPalmRec(&pack, static_cast<SPpyO_StyloPalm *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3135,7 +3135,7 @@ int32 DL6ICLS_PPObjStyloPalm::SearchByName(SString & text, int32 kind, int32 ext
 		MEMSZERO(stylo_rec);
 		if((ok = p_obj->SearchByName(text, &id, &stylo_rec)) > 0)
 			ok = p_obj->GetPacket(stylo_rec.ID, &pack);
-		FillStyloPalmRec(&pack, (SPpyO_StyloPalm *)rec);
+		FillStyloPalmRec(&pack, static_cast<SPpyO_StyloPalm *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3181,7 +3181,7 @@ int32 DL6ICLS_PPObjStyloPalm::Update(int32 id, int32 flags, PPYOBJREC rec)
 {
 	int    ok = -1;
 	SString temp_buf;
-	SPpyO_StyloPalm * p_rec = (SPpyO_StyloPalm *)rec;
+	SPpyO_StyloPalm * p_rec = static_cast<SPpyO_StyloPalm *>(rec);
 	PPStyloPalmPacket pack;
 	PPObjStyloPalm * p_obj = static_cast<PPObjStyloPalm *>(ExtraPtr);
 	THROW(p_obj);
@@ -3229,11 +3229,11 @@ static void Copy_CurrencyRec(const SPpyO_Currency * pOuter, PPCurrency * pInner)
 int32 DL6ICLS_PPObjCurrency::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjCurrency * p_obj = (PPObjCurrency *)ExtraPtr;
+	PPObjCurrency * p_obj = static_cast<PPObjCurrency *>(ExtraPtr);
 	if(p_obj) {
 		PPCurrency pack;
 		ok = p_obj->Fetch(id, &pack);
-		Copy_CurrencyRec(&pack, (SPpyO_Currency *)rec);
+		Copy_CurrencyRec(&pack, static_cast<SPpyO_Currency *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3403,7 +3403,7 @@ int32 DL6ICLS_PPObjGoodsClass::Search(int32 id, PPYOBJREC rec)
 	if(p_obj) {
 		PPGdsClsPacket pack;
 		ok = p_obj->Fetch(id, &pack);
-		Copy_GoodsClassRec(&pack, (SPpyO_GoodsClass *)rec);
+		Copy_GoodsClassRec(&pack, static_cast<SPpyO_GoodsClass *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3420,7 +3420,7 @@ int32 DL6ICLS_PPObjGoodsClass::SearchByName(SString & text, int32 kind, int32 ex
 		ok = p_obj->SearchByName(text, &id, &gc_rec);
 		if(ok > 0)
 			ok = p_obj->Fetch(id, &pack);
-		Copy_GoodsClassRec(&pack, (SPpyO_GoodsClass *)rec);
+		Copy_GoodsClassRec(&pack, static_cast<SPpyO_GoodsClass *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3653,7 +3653,7 @@ int32 DL6ICLS_PPObjGoods::Search(int32 id, PPYOBJREC rec)
 	if(p_obj) {
 		PPGoodsPacket pack;
 		ok = p_obj->GetPacket(id, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
-		FillGoodsRec(&pack, (SPpyO_Goods*)rec);
+		FillGoodsRec(&pack, static_cast<SPpyO_Goods *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -3670,7 +3670,7 @@ int32 DL6ICLS_PPObjGoods::SearchByName(SString & text, int32 kind, int32 extraPa
 		MEMSZERO(grec);
 		if((ok = p_obj->SearchByName(text, &id, &grec)) > 0) {
 			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
-			FillGoodsRec(&pack, (SPpyO_Goods*)rec);
+			FillGoodsRec(&pack, static_cast<SPpyO_Goods *>(rec));
 		}
 	}
 	SetAppError(ok);
@@ -3704,7 +3704,7 @@ int32 DL6ICLS_PPObjGoods::Update(int32 id, int32 flags, PPYOBJREC rec)
 	if(p_obj) {
 		PPGoodsPacket pack;
 		if(p_obj->GetPacket(id, &pack, PPObjGoods::gpoSkipQuot) > 0) {
-			const SPpyO_Goods * p_src_rec = (const SPpyO_Goods *)rec;
+			const SPpyO_Goods * p_src_rec = static_cast<const SPpyO_Goods *>(rec);
 			if(p_src_rec) {
 				SString name_buf;
 				THROW_PP_S(p_src_rec->RecTag == ppoGoods, PPERR_INVSTRUCTAG, "ppoGoodsGroup");
@@ -4035,7 +4035,7 @@ int32 DL6ICLS_PPObjGoodsGroup::Search(int32 id, PPYOBJREC rec)
 	if(p_obj) {
 		PPGoodsPacket pack;
 		ok = p_obj->GetPacket(id, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
-		FillGoodsRec(&pack, (SPpyO_Goods*)rec);
+		FillGoodsRec(&pack, static_cast<SPpyO_Goods *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -4052,7 +4052,7 @@ int32 DL6ICLS_PPObjGoodsGroup::SearchByName(SString & text, int32 kind, int32 ex
 		MEMSZERO(grec);
 		if((ok = p_obj->SearchByName(text, &id, &grec)) > 0) {
 			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
-			FillGoodsRec(&pack, (SPpyO_Goods*)rec);
+			FillGoodsRec(&pack, static_cast<SPpyO_Goods *>(rec));
 		}
 	}
 	SetAppError(ok);
@@ -4264,7 +4264,7 @@ int32 DL6ICLS_PPObjLocation::Search(int32 id, PPYOBJREC rec)
 		ok = p_obj->LocObj.Search(id, &loc_rec);
 		if(ok > 0 && !loc_rec.OwnerID)
 			p_obj->AdjustLocationOwner(loc_rec);
-		FillLocationRec(&loc_rec, (SPpyO_Location *)rec);
+		FillLocationRec(&loc_rec, static_cast<SPpyO_Location *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -4287,7 +4287,7 @@ int32 DL6ICLS_PPObjLocation::SearchByName(SString & text, int32 kind, int32 extr
 			ok = p_obj->LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, text, &id, &loc_rec);
 		if(ok > 0 && !loc_rec.OwnerID)
 			p_obj->AdjustLocationOwner(loc_rec);
-		FillLocationRec(&loc_rec, (SPpyO_Location*)rec);
+		FillLocationRec(&loc_rec, static_cast<SPpyO_Location *>(rec));
 	}
 	if(!ok)
 		AppError = 1;
@@ -4417,7 +4417,7 @@ int32 DL6ICLS_PPObjLocation::GetRegisterD(int32 locID, int32 regType, LDATE actu
 	MEMSZERO(rec);
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	ok = p_obj->LocObj.GetRegister(locID, regType, actualDate, inheritFromPerson, &rec);
-	FillRegisterRec(&rec, (SPpyO_Register *)pRec, 0);
+	FillRegisterRec(&rec, static_cast<SPpyO_Register *>(pRec), 0);
 	return ok;
 }
 //
@@ -4562,7 +4562,7 @@ int32 DL6ICLS_PPObjPerson::Search(int32 id, PPYOBJREC rec)
 	if(p_e && p_e->P_Obj) {
 		PPPersonPacket pack;
 		if((ok = p_e->P_Obj->GetPacket(id, &pack, 0)) > 0) {
-			FillPersonRec(&pack, (SPpyO_Person*)rec);
+			FillPersonRec(&pack, static_cast<SPpyO_Person *>(rec));
 			ZDELETE(p_e->P_Pack);
 			p_e->P_Pack = new PPPersonPacket;
 			*(p_e->P_Pack) = pack;
@@ -4580,7 +4580,7 @@ int32 DL6ICLS_PPObjPerson::SearchByName(SString & text, int32 kind, int32 extraP
 		if(p_e->P_Obj->P_Tbl->SearchByName(text, &id) > 0) {
 			PPPersonPacket pack;
 			if((ok = p_e->P_Obj->GetPacket(id, &pack, 0)) > 0) {
-				FillPersonRec(&pack, (SPpyO_Person*)rec);
+				FillPersonRec(&pack, static_cast<SPpyO_Person *>(rec));
 				ZDELETE(p_e->P_Pack);
 				p_e->P_Pack = new PPPersonPacket;
 				*(p_e->P_Pack) = pack;
@@ -4957,7 +4957,7 @@ int32 DL6ICLS_PPObjPerson::GetRegister(int32 psnID, int32 regType, SPpyO_Registe
 		RegisterTbl::Rec rec;
 		MEMSZERO(rec);
 		if(p_e->P_Obj->GetRegister(psnID, regType, &rec) > 0) {
-			FillRegisterRec(&rec, (SPpyO_Register *)pRec, 0);
+			FillRegisterRec(&rec, static_cast<SPpyO_Register *>(pRec), 0);
 			ok = 1;
 		}
 	}
@@ -4972,7 +4972,7 @@ int32 DL6ICLS_PPObjPerson::GetRegisterD(int32 psnID, int32 regType, LDATE actual
 		RegisterTbl::Rec rec;
 		MEMSZERO(rec);
 		if(p_e->P_Obj->GetRegister(psnID, regType, actualDate, &rec) > 0) {
-			FillRegisterRec(&rec, (SPpyO_Register *)pRec, 0);
+			FillRegisterRec(&rec, static_cast<SPpyO_Register *>(pRec), 0);
 			ok = 1;
 		}
 	}
@@ -5266,7 +5266,7 @@ int32 DL6ICLS_PPObjBill::Search(int32 id, PPYOBJREC rec)
 		PPBillPacket bpack;
 		ok = p_e->P_BObj->ExtractPacket(id, &bpack);
 		ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok;
-		FillBillRec(&bpack, (SPpyO_Bill*)rec);
+		FillBillRec(&bpack, static_cast<SPpyO_Bill *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -6549,7 +6549,7 @@ int32 DL6ICLS_PPObjWorld::Search(int32 id, PPYOBJREC rec)
 		WorldTbl::Rec wrec;
 		MEMSZERO(wrec);
 		ok = p_obj->Search(id, &wrec);
-		FillWorldRec(&wrec, (SPpyO_World *)rec);
+		FillWorldRec(&wrec, static_cast<SPpyO_World *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -6564,7 +6564,7 @@ int32 DL6ICLS_PPObjWorld::SearchByName(SString & text, int32 kind, int32 extraPa
 		PPID   id = 0;
 		MEMSZERO(wrec);
 		ok = p_obj->SearchByName(kind, text, &wrec);
-		FillWorldRec(&wrec, (SPpyO_World *)rec);
+		FillWorldRec(&wrec, static_cast<SPpyO_World *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -6610,7 +6610,7 @@ int32 DL6ICLS_PPObjRegister::Search(int32 id, PPYOBJREC rec)
 		RegisterTbl::Rec reg_rec;
 		MEMSZERO(reg_rec);
 		ok = p_obj->Search(id, &reg_rec);
-		FillRegisterRec(&reg_rec, (SPpyO_Register *)rec, 0);
+		FillRegisterRec(&reg_rec, static_cast<SPpyO_Register *>(rec), 0);
 	}
 	SetAppError(ok);
 	return ok;
@@ -6716,7 +6716,7 @@ int32 DL6ICLS_PPObjPersonRelType::Search(int32 id, PPYOBJREC rec)
 	if(p_ext) {
 		PPPersonRelType inner_rec;
 		if(p_ext->Search(id, &inner_rec) > 0) {
-			FillPersonRelTypeRec(&inner_rec, (SPpyO_PersonRelType *)rec);
+			FillPersonRelTypeRec(&inner_rec, static_cast<SPpyO_PersonRelType *>(rec));
 			ok = 1;
 		}
 		else
@@ -6734,7 +6734,7 @@ int32 DL6ICLS_PPObjPersonRelType::SearchByName(SString & text, int32 kind, int32
 		PPID   id = 0;
 		if(kind == 1) {
 			if(p_ext->SearchSymb(&id, text) > 0 && p_ext->Search(id, &inner_rec) > 0) {
-				FillPersonRelTypeRec(&inner_rec, (SPpyO_PersonRelType *)rec);
+				FillPersonRelTypeRec(&inner_rec, static_cast<SPpyO_PersonRelType *>(rec));
 				ok = 1;
 			}
 			else
@@ -6742,7 +6742,7 @@ int32 DL6ICLS_PPObjPersonRelType::SearchByName(SString & text, int32 kind, int32
 		}
 		else {
 			if(p_ext->SearchByName(text, &id, &inner_rec) > 0) {
-				FillPersonRelTypeRec(&inner_rec, (SPpyO_PersonRelType *)rec);
+				FillPersonRelTypeRec(&inner_rec, static_cast<SPpyO_PersonRelType *>(rec));
 				ok = 1;
 			}
 			else
@@ -6958,7 +6958,7 @@ int32 DL6ICLS_PPObjPrjTask::Search(int32 id, PPYOBJREC pRec)
 		PrjTaskTbl::Rec rec;
 		MEMSZERO(rec);
 		ok = p_obj->Search(id, &rec);
-		FillPrjTaskRec(&rec, (SPpyO_PrjTask *)pRec);
+		FillPrjTaskRec(&rec, static_cast<SPpyO_PrjTask *>(pRec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -7087,7 +7087,7 @@ int32 DL6ICLS_PPObjProject::Search(int32 id, PPYOBJREC pRec)
 		ProjectTbl::Rec rec;
 		MEMSZERO(rec);
 		ok = p_obj->Search(id, &rec);
-		FillProjectRec(&rec, (SPpyO_Project *)pRec);
+		FillProjectRec(&rec, static_cast<SPpyO_Project *>(pRec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -7274,12 +7274,12 @@ static void FillQCert(const SPpyO_QCert * pInner, QualityCertTbl::Rec * pOuter)
 int32 DL6ICLS_PPObjQCert::Search(int32 id, PPYOBJREC pRec)
 {
 	int    ok = 0;
-	PPObjQCert * p_obj = (PPObjQCert*)ExtraPtr;
+	PPObjQCert * p_obj = static_cast<PPObjQCert *>(ExtraPtr);
 	if(p_obj) {
 		QualityCertTbl::Rec rec;
 		MEMSZERO(rec);
 		ok = p_obj->Search(id, &rec);
-		FillQCert(&rec, (SPpyO_QCert*)pRec);
+		FillQCert(&rec, static_cast<SPpyO_QCert *>(pRec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -9121,7 +9121,7 @@ int32 DL6ICLS_PPObjTransport::Search(int32 id, PPYOBJREC rec)
 	if(p_e) {
 		PPTransport inner_rec;
 		if((ok = p_e->Get(id, &inner_rec)) > 0) {
-			FillTransportRec(&inner_rec, (SPpyO_Transport *)rec);
+			FillTransportRec(&inner_rec, static_cast<SPpyO_Transport *>(rec));
 		}
 	}
 	return ok;
@@ -9135,7 +9135,7 @@ int32 DL6ICLS_PPObjTransport::SearchByName(SString & text, int32 kind, int32 ext
 		PPTransport inner_rec;
 		PPID   id = 0;
 		if(p_e->SearchByName(text, &id, 0) > 0 && p_e->Get(id, &inner_rec) > 0) {
-			FillTransportRec(&inner_rec, (SPpyO_Transport *)rec);
+			FillTransportRec(&inner_rec, static_cast<SPpyO_Transport *>(rec));
 			ok = 1;
 		}
 	}
@@ -9166,7 +9166,7 @@ int32 DL6ICLS_PPObjTransport::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPObjTransport * p_e = static_cast<PPObjTransport *>(ExtraPtr);
 	PPTransport tr_rec;
 	THROW_INVARG(p_e);
-	THROW(AcceptTransportRec((SPpyO_Transport *)pRec, &tr_rec));
+	THROW(AcceptTransportRec(static_cast<SPpyO_Transport *>(pRec), &tr_rec));
 	tr_rec.ID = 0;
 	THROW(p_e->Put(&id, &tr_rec, (flags & 1) ? 0 : 1));
 	CATCHZOK
@@ -9180,7 +9180,7 @@ int32 DL6ICLS_PPObjTransport::Update(int32 id, int32 flags, PPYOBJREC rec)
 	PPObjTransport * p_e = static_cast<PPObjTransport *>(ExtraPtr);
 	PPTransport tr_rec;
 	THROW_INVARG(p_e);
-	THROW(AcceptTransportRec((SPpyO_Transport *)rec, &tr_rec));
+	THROW(AcceptTransportRec(static_cast<SPpyO_Transport *>(rec), &tr_rec));
 	THROW(p_e->Put(&id, &tr_rec, (flags & 1) ? 0 : 1));
 	CATCHZOK
 	return ok;
@@ -9260,7 +9260,7 @@ int32 DL6ICLS_PPObjProcessor::Search(int32 id, PPYOBJREC rec)
 	if(p_e) {
 		PPProcessorPacket inner_rec;
 		if((ok = p_e->GetPacket(id, &inner_rec)) > 0) {
-			FillProcessorRec(&inner_rec, (SPpyO_Processor *)rec);
+			FillProcessorRec(&inner_rec, static_cast<SPpyO_Processor *>(rec));
 		}
 	}
 	return ok;
@@ -9281,14 +9281,14 @@ int32 DL6ICLS_PPObjProcessor::SearchByName(SString & text, int32 kind, int32 ext
 		if(kind == 0) {
 			if((ok = p_e->SearchByName(extraParam, text, &id, &__rec)) > 0) {
 				if(p_e->GetPacket(id, &inner_pack) > 0) {
-					FillProcessorRec(&inner_pack, (SPpyO_Processor *)rec);
+					FillProcessorRec(&inner_pack, static_cast<SPpyO_Processor *>(rec));
 				}
 			}
 		}
 		else if(kind == 1) {
 			if((ok = p_e->SearchByCode(text, &id, &__rec)) > 0) {
 				if(p_e->GetPacket(id, &inner_pack) > 0) {
-					FillProcessorRec(&inner_pack, (SPpyO_Processor *)rec);
+					FillProcessorRec(&inner_pack, static_cast<SPpyO_Processor *>(rec));
 				}
 			}
 		}
@@ -9320,7 +9320,7 @@ int32 DL6ICLS_PPObjProcessor::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPObjProcessor * p_e = static_cast<PPObjProcessor *>(ExtraPtr);
 	PPProcessorPacket inner_pack;
 	THROW_INVARG(p_e);
-	THROW(AcceptProcessorRec((SPpyO_Processor *)pRec, &inner_pack));
+	THROW(AcceptProcessorRec(static_cast<SPpyO_Processor *>(pRec), &inner_pack));
 	inner_pack.Rec.ID = 0;
 	THROW(p_e->PutPacket(&id, &inner_pack, (flags & 1) ? 0 : 1));
 	CATCHZOK
@@ -9334,7 +9334,7 @@ int32 DL6ICLS_PPObjProcessor::Update(int32 id, int32 flags, PPYOBJREC rec)
 	PPObjProcessor * p_e = static_cast<PPObjProcessor *>(ExtraPtr);
 	PPProcessorPacket inner_pack;
 	THROW_INVARG(p_e);
-	THROW(AcceptProcessorRec((SPpyO_Processor *)rec, &inner_pack));
+	THROW(AcceptProcessorRec(static_cast<SPpyO_Processor *>(rec), &inner_pack));
 	THROW(p_e->PutPacket(&id, &inner_pack, (flags & 1) ? 0 : 1));
 	CATCHZOK
 	return ok;
@@ -9430,7 +9430,7 @@ int32 DL6ICLS_PPObjTSession::Search(int32 id, PPYOBJREC rec)
 	if(p_e) {
 		TSessionTbl::Rec inner_rec;
 		if((ok = p_e->Search(id, &inner_rec)) > 0) {
-			FillTSessionRec(&inner_rec, (SPpyO_TSession *)rec);
+			FillTSessionRec(&inner_rec, static_cast<SPpyO_TSession *>(rec));
 		}
 	}
 	return ok;
@@ -9466,7 +9466,7 @@ int32 DL6ICLS_PPObjTSession::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPObjTSession * p_e = static_cast<PPObjTSession *>(ExtraPtr);
 	TSessionTbl::Rec inner_rec;
 	THROW_INVARG(p_e);
-	THROW(AcceptTSessionRec((SPpyO_TSession *)pRec, &inner_rec));
+	THROW(AcceptTSessionRec(static_cast<SPpyO_TSession *>(pRec), &inner_rec));
 	inner_rec.ID = 0;
 	THROW(p_e->PutRec(&id, &inner_rec, (flags & 1) ? 0 : 1));
 	CATCHZOK
@@ -9480,7 +9480,7 @@ int32 DL6ICLS_PPObjTSession::Update(int32 id, int32 flags, PPYOBJREC rec)
 	PPObjTSession * p_e = static_cast<PPObjTSession *>(ExtraPtr);
 	TSessionTbl::Rec inner_rec;
 	THROW_INVARG(p_e);
-	THROW(AcceptTSessionRec((SPpyO_TSession *)rec, &inner_rec));
+	THROW(AcceptTSessionRec(static_cast<SPpyO_TSession *>(rec), &inner_rec));
 	THROW(p_e->PutRec(&id, &inner_rec, (flags & 1) ? 0 : 1));
 	CATCHZOK
 	return ok;

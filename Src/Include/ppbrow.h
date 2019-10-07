@@ -50,7 +50,7 @@
 	#define HELP_BROWSER_PERSONATTR_EMAIL                         6
 #define BROWSER_PERSONATTR_DLVRADDR                      7 // Адреса персоналий {%s}
 	#define HELP_BROWSER_PERSONATTR_DLVRADDR                      7
-#define BROWSER_PERSONATTR_STDALNADDR                    8 // Автономные адреса
+#define BROWSER_PERSONATTR_STDALNADDR                    8 // @{autonomousaddress_pl}
 	#define HELP_BROWSER_PERSONATTR_STDALNADDR                    8
 #define BROWSER_PERSONATTR_TAG                           9 // Теги персоналий {%s}
 	#define HELP_BROWSER_PERSONATTR_TAG                           9

@@ -69,9 +69,7 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
-
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
  */
@@ -79,21 +77,12 @@ enum {
 	NUMTHREADS = 4
 };
 
-typedef struct bag_t_ bag_t;
-struct bag_t_ {
-	int threadnum;
-	int started;
-	/* Add more per-thread state variables here */
-	int count;
-};
-
 static bag_t threadbag[NUMTHREADS + 1];
 
-void * mythread(void * arg)
+static void * mythread(void * arg)
 {
 	void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
-	bag_t * bag = (bag_t*)arg;
-
+	bag_t * bag = static_cast<bag_t *>(arg);
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
 	bag->started = 1;
@@ -129,62 +118,39 @@ int main()
 		assert(pthread_create(&t[i], NULL, mythread, (void*)&threadbag[i])
 		    == 0);
 	}
-
 	/*
 	 * Code to control or manipulate child threads should probably go here.
 	 */
 	Sleep(500);
-
 	for(i = 1; i <= NUMTHREADS; i++) {
 		assert(pthread_cancel(t[i]) == 0);
 	}
-
-	/*
-	 * Give threads time to run.
-	 */
-	Sleep(NUMTHREADS * 100);
-
-	/*
-	 * Standard check that all threads started.
-	 */
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
 	for(i = 1; i <= NUMTHREADS; i++) {
 		if(!threadbag[i].started) {
 			failed |= !threadbag[i].started;
-			fprintf(stderr, "Thread %d: started %d\n", i,
-			    threadbag[i].started);
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
 		}
 	}
-
 	assert(!failed);
-
-	/*
-	 * Check any results here. Set "failed" and only print output on failure.
-	 */
+	// Check any results here. Set "failed" and only print output on failure.
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
 		void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
-
 		/*
 		 * The thread does not contain any cancellation points, so
 		 * a return value of PTHREAD_CANCELED confirms that async
 		 * cancellation succeeded.
 		 */
 		assert(pthread_join(t[i], &result) == 0);
-
 		fail = (result != PTHREAD_CANCELED);
-
 		if(fail) {
-			fprintf(stderr, "Thread %d: started %d: count %d\n",
-			    i, threadbag[i].started, threadbag[i].count);
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
 		}
 		failed = (failed || fail);
 	}
-
 	assert(!failed);
-
-	/*
-	 * Success.
-	 */
-	return 0;
+	return 0; // Success
 }

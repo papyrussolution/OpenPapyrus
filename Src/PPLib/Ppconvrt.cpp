@@ -6303,8 +6303,6 @@ public:
 		FLD(Flags);
 		#undef FLD
 		CpTrfrExt cpext;
-		cpext.PartNo[0] = 0;
-		cpext.Clb[0] = 0;
 		STRNSCPY(cpext.PartNo, p_old_data->PartNo);
 		STRNSCPY(cpext.Clb, p_old_data->Clb);
         CpTransfCore::PutExt__(*data, &cpext);

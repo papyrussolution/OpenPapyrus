@@ -74,9 +74,7 @@
  * - pthread_cond_timedwait returns ETIMEDOUT.
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
-#include <sys/timeb.h>
 
 static pthread_cond_t cv;
 static pthread_mutex_t mutex;
@@ -86,7 +84,7 @@ enum {
 	NUMTHREADS = 2   /* Including the primary thread. */
 };
 
-void * mythread(void * arg)
+static void * mythread(void * arg)
 {
 	int result = 0;
 

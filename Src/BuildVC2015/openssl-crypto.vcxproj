@@ -247,6 +247,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -295,6 +296,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -344,6 +346,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -539,6 +542,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -589,6 +593,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -640,6 +645,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

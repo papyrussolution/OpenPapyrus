@@ -41,10 +41,10 @@
  * - Correct accounting of semaphore and condition variable waiters.
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
  * Attempting to expose race conditions in cond vars, semaphores etc.
@@ -55,7 +55,7 @@
  * which, if there are, cannot be real waiters).
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -65,7 +65,7 @@
  * - No output on success.
  *
  * Assumptions:
- * - 
+ * -
  *
  * Pass Criteria:
  * - CV is successfully destroyed.
@@ -73,19 +73,15 @@
  * Fail Criteria:
  * - CV destroy fails.
  */
-
 #include "test.h"
-#include <string.h>
-#include <sys/timeb.h>
-
 
 const unsigned int ITERATIONS = 1000;
-
 static pthread_t master, slave;
+
 typedef struct {
-  int value;
-  pthread_cond_t cv;
-  pthread_mutex_t mx;
+	int value;
+	pthread_cond_t cv;
+	pthread_mutex_t mx;
 } mysig_t;
 
 static int allExit;
@@ -99,148 +95,106 @@ static int timeout = 10; // Must be > 0
 static const long NANOSEC_PER_MILLISEC = 1000000;
 
 enum {
-  CTL_STOP     = -1
+	CTL_STOP     = -1
 };
 
-void *
-masterThread (void * arg)
+void * masterThread(void * arg)
 {
-  int dither = (int)(size_t)arg;
-
-  timeout = (int)(size_t)arg;
-
-  pthread_barrier_wait(&startBarrier);
-
-  do
-    {
-      int sleepTime;
-
-      assert(pthread_mutex_lock(&control.mx) == 0);
-      control.value = timeout;
-      assert(pthread_mutex_unlock(&control.mx) == 0);
-
-      /*
-       * We are attempting to send the signal close to when the slave
-       * is due to timeout. We feel around by adding some [non-random] dither.
-       *
-       * dither is in the range 2*timeout peak-to-peak
-       * sleep time is the average of timeout plus dither.
-       * e.g.
-       * if timeout = 10 then dither = 20 and
-       * sleep millisecs is: 5 <= ms <= 15
-       *
-       * The bias value attempts to apply some negative feedback to keep
-       * the ratio of timeouts to signals taken close to 1:1.
-       * bias changes more slowly than dither so as to average more.
-       *
-       * Finally, if abs(bias) exceeds timeout then timeout is incremented.
-       */
-      if (signalsSent % timeout == 0)
-	{
-          if (timeoutCount > signalsTakenCount)
-	    {
-	      bias++;
-	    }
-          else if (timeoutCount < signalsTakenCount)
-	    {
-	      bias--;
-	    }
-	  if (bias < -timeout || bias > timeout)
-	    {
-	      timeout++;
-	    }
-	}
-      dither = (dither + 1 ) % (timeout * 2);
-      sleepTime = (timeout - bias + dither) / 2;
-      Sleep(sleepTime);
-      assert(pthread_cond_signal(&control.cv) == 0);
-      signalsSent++;
-
-      pthread_barrier_wait(&holdBarrier);
-      pthread_barrier_wait(&readyBarrier);
-    }
-  while (!allExit);
-
-  return NULL;
+	int dither = (int)(size_t)arg;
+	timeout = (int)(size_t)arg;
+	pthread_barrier_wait(&startBarrier);
+	do {
+		int sleepTime;
+		assert(pthread_mutex_lock(&control.mx) == 0);
+		control.value = timeout;
+		assert(pthread_mutex_unlock(&control.mx) == 0);
+		/*
+		 * We are attempting to send the signal close to when the slave
+		 * is due to timeout. We feel around by adding some [non-random] dither.
+		 *
+		 * dither is in the range 2*timeout peak-to-peak
+		 * sleep time is the average of timeout plus dither.
+		 * e.g.
+		 * if timeout = 10 then dither = 20 and
+		 * sleep millisecs is: 5 <= ms <= 15
+		 *
+		 * The bias value attempts to apply some negative feedback to keep
+		 * the ratio of timeouts to signals taken close to 1:1.
+		 * bias changes more slowly than dither so as to average more.
+		 *
+		 * Finally, if abs(bias) exceeds timeout then timeout is incremented.
+		 */
+		if(signalsSent % timeout == 0) {
+			if(timeoutCount > signalsTakenCount) {
+				bias++;
+			}
+			else if(timeoutCount < signalsTakenCount) {
+				bias--;
+			}
+			if(bias < -timeout || bias > timeout) {
+				timeout++;
+			}
+		}
+		dither = (dither + 1 ) % (timeout * 2);
+		sleepTime = (timeout - bias + dither) / 2;
+		Sleep(sleepTime);
+		assert(pthread_cond_signal(&control.cv) == 0);
+		signalsSent++;
+		pthread_barrier_wait(&holdBarrier);
+		pthread_barrier_wait(&readyBarrier);
+	} while(!allExit);
+	return NULL;
 }
 
-void *
-slaveThread (void * arg)
+void * slaveThread(void * arg)
 {
-  struct timespec abstime, reltime;
-
-  pthread_barrier_wait(&startBarrier);
-
-  do
-    {
-      assert(pthread_mutex_lock(&control.mx) == 0);
-
-      reltime.tv_sec = (control.value / 1000);
-      reltime.tv_nsec = (control.value % 1000) * NANOSEC_PER_MILLISEC;
-
-      if (pthread_cond_timedwait(&control.cv,
-				 &control.mx,
-				 pthread_win32_getabstime_np(&abstime, &reltime)) == ETIMEDOUT)
-	{
-	  timeoutCount++;
-	}
-      else
-	{
-	  signalsTakenCount++;
-	}
-      assert(pthread_mutex_unlock(&control.mx) == 0);
-
-      pthread_barrier_wait(&holdBarrier);
-      pthread_barrier_wait(&readyBarrier);
-    }
-  while (!allExit);
-
-  return NULL;
+	struct timespec abstime, reltime;
+	pthread_barrier_wait(&startBarrier);
+	do {
+		assert(pthread_mutex_lock(&control.mx) == 0);
+		reltime.tv_sec = (control.value / 1000);
+		reltime.tv_nsec = (control.value % 1000) * NANOSEC_PER_MILLISEC;
+		if(pthread_cond_timedwait(&control.cv,
+		    &control.mx,
+		    pthread_win32_getabstime_np(&abstime, &reltime)) == ETIMEDOUT) {
+			timeoutCount++;
+		}
+		else {
+			signalsTakenCount++;
+		}
+		assert(pthread_mutex_unlock(&control.mx) == 0);
+		pthread_barrier_wait(&holdBarrier);
+		pthread_barrier_wait(&readyBarrier);
+	} while(!allExit);
+	return NULL;
 }
 
-int
-main ()
+int main()
 {
-  unsigned int i;
-
-  assert(pthread_barrier_init(&startBarrier, NULL, 3) == 0);
-  assert(pthread_barrier_init(&readyBarrier, NULL, 3) == 0);
-  assert(pthread_barrier_init(&holdBarrier, NULL, 3) == 0);
-
-  assert(pthread_create(&master, NULL, masterThread, (void *)(size_t)timeout) == 0);
-  assert(pthread_create(&slave, NULL, slaveThread, NULL) == 0);
-
-  allExit = FALSE;
-
-  pthread_barrier_wait(&startBarrier);
-
-  for (i = 1; !allExit; i++)
-    {
-      pthread_barrier_wait(&holdBarrier);
-      if (i >= ITERATIONS)
-	{
-	  allExit = TRUE;
+	unsigned int i;
+	assert(pthread_barrier_init(&startBarrier, NULL, 3) == 0);
+	assert(pthread_barrier_init(&readyBarrier, NULL, 3) == 0);
+	assert(pthread_barrier_init(&holdBarrier, NULL, 3) == 0);
+	assert(pthread_create(&master, NULL, masterThread, (void*)(size_t)timeout) == 0);
+	assert(pthread_create(&slave, NULL, slaveThread, NULL) == 0);
+	allExit = FALSE;
+	pthread_barrier_wait(&startBarrier);
+	for(i = 1; !allExit; i++) {
+		pthread_barrier_wait(&holdBarrier);
+		if(i >= ITERATIONS) {
+			allExit = TRUE;
+		}
+		pthread_barrier_wait(&readyBarrier);
 	}
-      pthread_barrier_wait(&readyBarrier);
-    }
-
-  assert(pthread_join(slave, NULL) == 0);
-  assert(pthread_join(master, NULL) == 0);
-
-  printf("Signals sent = %d\nWait timeouts = %d\nSignals taken = %d\nBias = %d\nTimeout = %d\n",
-	 signalsSent,
-	 timeoutCount,
-	 signalsTakenCount,
-	 (int) bias,
-	 timeout);
-
-  /* Cleanup */
-  assert(pthread_barrier_destroy(&holdBarrier) == 0);
-  assert(pthread_barrier_destroy(&readyBarrier) == 0);
-  assert(pthread_barrier_destroy(&startBarrier) == 0);
-  assert(pthread_cond_destroy(&control.cv) == 0);
-  assert(pthread_mutex_destroy(&control.mx) == 0);
-
-  /* Success. */
-  return 0;
+	assert(pthread_join(slave, NULL) == 0);
+	assert(pthread_join(master, NULL) == 0);
+	printf("Signals sent = %d\nWait timeouts = %d\nSignals taken = %d\nBias = %d\nTimeout = %d\n",
+	    signalsSent, timeoutCount, signalsTakenCount, (int)bias, timeout);
+	/* Cleanup */
+	assert(pthread_barrier_destroy(&holdBarrier) == 0);
+	assert(pthread_barrier_destroy(&readyBarrier) == 0);
+	assert(pthread_barrier_destroy(&startBarrier) == 0);
+	assert(pthread_cond_destroy(&control.cv) == 0);
+	assert(pthread_mutex_destroy(&control.mx) == 0);
+	return 0; // Success
 }

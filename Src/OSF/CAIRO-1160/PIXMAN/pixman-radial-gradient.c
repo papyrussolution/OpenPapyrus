@@ -279,31 +279,15 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 		 * This would mean a worst case of unbound relative error or
 		 * about 2^10 absolute error
 		 */
-		b = dot(v.vector[0], v.vector[1], radial->c1.radius,
-			radial->delta.x, radial->delta.y, radial->delta.radius);
-		db = dot(unit.vector[0], unit.vector[1], 0,
-			radial->delta.x, radial->delta.y, 0);
-
-		c = dot(v.vector[0], v.vector[1],
-			-((pixman_fixed_48_16_t)radial->c1.radius),
-			v.vector[0], v.vector[1], radial->c1.radius);
-		dc = dot(2 * (pixman_fixed_48_16_t)v.vector[0] + unit.vector[0],
-			2 * (pixman_fixed_48_16_t)v.vector[1] + unit.vector[1],
-			0,
-			unit.vector[0], unit.vector[1], 0);
-		ddc = 2 * dot(unit.vector[0], unit.vector[1], 0,
-			unit.vector[0], unit.vector[1], 0);
-
+		b = dot(v.vector[0], v.vector[1], radial->c1.radius, radial->delta.x, radial->delta.y, radial->delta.radius);
+		db = dot(unit.vector[0], unit.vector[1], 0, radial->delta.x, radial->delta.y, 0);
+		c = dot(v.vector[0], v.vector[1], -((pixman_fixed_48_16_t)radial->c1.radius), v.vector[0], v.vector[1], radial->c1.radius);
+		dc = dot(2 * (pixman_fixed_48_16_t)v.vector[0] + unit.vector[0], 2 * (pixman_fixed_48_16_t)v.vector[1] + unit.vector[1], 0, unit.vector[0], unit.vector[1], 0);
+		ddc = 2 * dot(unit.vector[0], unit.vector[1], 0, unit.vector[0], unit.vector[1], 0);
 		while(buffer < end) {
 			if(!mask || *mask++) {
-				*buffer = radial_compute_color(radial->a, b, c,
-					radial->inva,
-					radial->delta.radius,
-					radial->mindr,
-					&walker,
-					image->common.repeat);
+				*buffer = radial_compute_color(radial->a, b, c, radial->inva, radial->delta.radius, radial->mindr, &walker, image->common.repeat);
 			}
-
 			b += db;
 			c += dc;
 			dc += ddc;
@@ -319,38 +303,23 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 			if(!mask || *mask++) {
 				if(v.vector[2] != 0) {
 					double pdx, pdy, invv2, b, c;
-
 					invv2 = 1. * pixman_fixed_1 / v.vector[2];
-
 					pdx = v.vector[0] * invv2 - radial->c1.x;
 					/*    / pixman_fixed_1 */
-
 					pdy = v.vector[1] * invv2 - radial->c1.y;
 					/*    / pixman_fixed_1 */
-
-					b = fdot(pdx, pdy, radial->c1.radius,
-						radial->delta.x, radial->delta.y,
-						radial->delta.radius);
+					b = fdot(pdx, pdy, radial->c1.radius, radial->delta.x, radial->delta.y, radial->delta.radius);
 					/*  / pixman_fixed_1 / pixman_fixed_1 */
-
-					c = fdot(pdx, pdy, -radial->c1.radius,
-						pdx, pdy, radial->c1.radius);
+					c = fdot(pdx, pdy, -radial->c1.radius, pdx, pdy, radial->c1.radius);
 					/*  / pixman_fixed_1 / pixman_fixed_1 */
-
-					*buffer = radial_compute_color(radial->a, b, c,
-						radial->inva,
-						radial->delta.radius,
-						radial->mindr,
-						&walker,
-						image->common.repeat);
+					*buffer = radial_compute_color(radial->a, b, c, radial->inva,
+						radial->delta.radius, radial->mindr, &walker, image->common.repeat);
 				}
 				else {
 					*buffer = 0;
 				}
 			}
-
 			++buffer;
-
 			v.vector[0] += unit.vector[0];
 			v.vector[1] += unit.vector[1];
 			v.vector[2] += unit.vector[2];

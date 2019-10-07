@@ -1,9 +1,6 @@
-
-/*-------------------------------------------------------------*/
-/*--- Decompression machinery                               ---*/
-/*---                                          decompress.c ---*/
-/*-------------------------------------------------------------*/
-
+// decompress.c
+// Decompression machinery
+//
 /* ------------------------------------------------------------------
    This file is part of bzip2/libbzip2, a program and library for
    lossless, block-sorting data compression.
@@ -11,11 +8,9 @@
    bzip2/libbzip2 version 1.0.6 of 6 September 2010
    Copyright (C) 1996-2010 Julian Seward <jseward@bzip.org>
 
-   Please read the WARNING, DISCLAIMER and PATENTS sections in the
-   README file.
+   Please read the WARNING, DISCLAIMER and PATENTS sections in the README file.
 
-   This program is released under the terms of the license contained
-   in the file LICENSE.
+   This program is released under the terms of the license contained in the file LICENSE.
    ------------------------------------------------------------------ */
 
 #include "bzlib_private.h"
@@ -329,21 +324,15 @@ int32 BZ2_decompress(DState * s)
 			minLen = 32;
 			maxLen = 0;
 			for(i = 0; i < alphaSize; i++) {
-				if(s->len[t][i] > maxLen) maxLen = s->len[t][i];
-				if(s->len[t][i] < minLen) minLen = s->len[t][i];
+				if(s->len[t][i] > maxLen) 
+					maxLen = s->len[t][i];
+				if(s->len[t][i] < minLen) 
+					minLen = s->len[t][i];
 			}
-			BZ2_hbCreateDecodeTables(
-			    &(s->limit[t][0]),
-			    &(s->base[t][0]),
-			    &(s->perm[t][0]),
-			    &(s->len[t][0]),
-			    minLen, maxLen, alphaSize
-			    );
+			BZ2_hbCreateDecodeTables(&(s->limit[t][0]), &(s->base[t][0]), &(s->perm[t][0]), &(s->len[t][0]), minLen, maxLen, alphaSize);
 			s->minLens[t] = minLen;
 		}
-
 		/*--- Now the MTF values ---*/
-
 		EOB      = s->nInUse+1;
 		nblockMAX = 100000 * s->blockSize100k;
 		groupNo  = -1;
@@ -363,13 +352,11 @@ int32 BZ2_decompress(DState * s)
 			}
 		}
 		/*-- end MTF init --*/
-
 		nblock = 0;
 		GET_MTF_VAL(BZ_X_MTF_1, BZ_X_MTF_2, nextSym);
-
 		while(true) {
-			if(nextSym == EOB) break;
-
+			if(nextSym == EOB) 
+				break;
 			if(nextSym == BZ_RUNA || nextSym == BZ_RUNB) {
 				es = -1;
 				N = 1;

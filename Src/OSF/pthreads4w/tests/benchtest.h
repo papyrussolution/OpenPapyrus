@@ -1,6 +1,4 @@
 /*
- *
- *
  * --------------------------------------------------------------------------
  *
  *      Pthreads4w - POSIX Threads for Windows
@@ -29,7 +27,6 @@
  * limitations under the License.
  *
  */
-
 //#include "../config.h"
 
 enum {

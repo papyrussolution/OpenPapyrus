@@ -48,7 +48,7 @@ pthread_rwlock_t rwlock1 = PTHREAD_RWLOCK_INITIALIZER;
 
 static int washere = 0;
 
-void * func(void * arg)
+static void * func(void * arg)
 {
 	assert(pthread_rwlock_tryrdlock(&rwlock1) == 0);
 	assert(pthread_rwlock_unlock(&rwlock1) == 0);

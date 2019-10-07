@@ -202,39 +202,23 @@ int main()
 	for(i = 0; i < NUMTHREADS; i++) {
 		assert(pthread_cancel(ct[i]) == 0);
 	}
-
-	/*
-	 * Give threads time to run.
-	 */
-	Sleep(NUMTHREADS * 100);
-
-	/*
-	 * Check any results here. Set "failed" and only print output on failure.
-	 */
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Check any results here. Set "failed" and only print output on failure.
 	failed = 0;
 	for(i = 0; i < NUMTHREADS; i++) {
 		int fail = 0;
 		void* result = (void*)0;
-
 		/* Canceled thread */
 		assert(pthread_join(ct[i], &result) == 0);
 		assert(!(fail = (result != PTHREAD_CANCELED)));
-
 		failed = (failed || fail);
-
 		/* Exceptioned thread */
 		assert(pthread_join(et[i], &result) == 0);
 		assert(!(fail = (result != (void*)((int)(size_t)PTHREAD_CANCELED + 2))));
-
 		failed = (failed || fail);
 	}
-
 	assert(!failed);
-
-	/*
-	 * Success.
-	 */
-	return 0;
+	return 0; // Success
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */

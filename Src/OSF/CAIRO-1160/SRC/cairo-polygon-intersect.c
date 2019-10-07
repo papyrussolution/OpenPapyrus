@@ -1008,9 +1008,7 @@ static inline void active_edges(cairo_bo_edge_t * left, int32_t top, cairo_polyg
 	}
 }
 
-static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events,
-    int num_events,
-    cairo_polygon_t * polygon)
+static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events, int num_events, cairo_polygon_t * polygon)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS; /* silence compiler */
 	cairo_bo_event_queue_t event_queue;
@@ -1018,22 +1016,16 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events,
 	cairo_bo_event_t * event;
 	cairo_bo_edge_t * left, * right;
 	cairo_bo_edge_t * e1, * e2;
-
 	_cairo_bo_event_queue_init(&event_queue, start_events, num_events);
 	_cairo_bo_sweep_line_init(&sweep_line);
-
 	while((event = _cairo_bo_event_dequeue(&event_queue))) {
 		if(event->point.y.ordinate != sweep_line.current_y) {
-			active_edges(sweep_line.head,
-			    sweep_line.current_y,
-			    polygon);
+			active_edges(sweep_line.head, sweep_line.current_y, polygon);
 			sweep_line.current_y = event->point.y.ordinate;
 		}
-
 		switch(event->type) {
 			case CAIRO_BO_EVENT_TYPE_START:
-			    e1 = &((cairo_bo_start_event_t*)event)->edge;
-
+			    e1 = &reinterpret_cast<cairo_bo_start_event_t *>(event)->edge;
 			    status = sweep_line_insert(&sweep_line, e1);
 			    if(unlikely(status))
 				    goto unwind;
@@ -1060,7 +1052,7 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events,
 			    break;
 
 			case CAIRO_BO_EVENT_TYPE_STOP:
-			    e1 = ((cairo_bo_queue_event_t*)event)->e1;
+			    e1 = ((cairo_bo_queue_event_t *)event)->e1;
 			    _cairo_bo_event_queue_delete(&event_queue, event);
 
 			    if(e1->deferred.other)
@@ -1080,8 +1072,8 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events,
 			    break;
 
 			case CAIRO_BO_EVENT_TYPE_INTERSECTION:
-			    e1 = ((cairo_bo_queue_event_t*)event)->e1;
-			    e2 = ((cairo_bo_queue_event_t*)event)->e2;
+			    e1 = ((cairo_bo_queue_event_t *)event)->e1;
+			    e2 = ((cairo_bo_queue_event_t *)event)->e2;
 			    _cairo_bo_event_queue_delete(&event_queue, event);
 
 			    /* skip this intersection if its edges are not adjacent */

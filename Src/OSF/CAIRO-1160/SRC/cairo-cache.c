@@ -37,7 +37,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
 
 static void _cairo_cache_shrink_to_accommodate(cairo_cache_t * cache, ulong additional);
 
@@ -135,10 +134,8 @@ void FASTCALL _cairo_cache_fini(cairo_cache_t * cache)
 void _cairo_cache_freeze(cairo_cache_t * cache)
 {
 	assert(cache->freeze_count >= 0);
-
 	cache->freeze_count++;
 }
-
 /**
  * _cairo_cache_thaw:
  * @cache: a cache, just after the entries in it have become less
@@ -156,11 +153,9 @@ void _cairo_cache_freeze(cairo_cache_t * cache)
 void _cairo_cache_thaw(cairo_cache_t * cache)
 {
 	assert(cache->freeze_count > 0);
-
 	if(--cache->freeze_count == 0)
 		_cairo_cache_shrink_to_accommodate(cache, 0);
 }
-
 /**
  * _cairo_cache_lookup:
  * @cache: a cache

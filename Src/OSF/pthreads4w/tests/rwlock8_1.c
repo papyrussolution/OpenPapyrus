@@ -9,9 +9,7 @@
  *
  * Use CPU affinity to compare against non-affinity rwlock8.c
  */
-
 #include "test.h"
-#include <sys/timeb.h>
 
 #define THREADS         5
 #define DATASIZE        7

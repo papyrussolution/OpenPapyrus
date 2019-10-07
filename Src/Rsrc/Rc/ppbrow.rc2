@@ -307,7 +307,7 @@ toolbar MAIN TB_GLOBAL {
 	cmSCard,            "@{scard_pl}",              PPDV_CARD03
 	cmGoodsGroup,       "@{cmd_goodsgroup}",        TBBM_GGRPVIEW
 	cmGoods,            "@{cmd_goods}",             TBBM_GOODSVIEW2
-	cmGoodsBasket,      "Товарные корзины"          PPDV_SHOPPINGCART01
+	cmGoodsBasket,      "@{cmd_goodsbasket}"        PPDV_SHOPPINGCART01
 	cmOprKind,          "@{cmd_oprkind}"            TBBM_OPLIST
 	separator
 	cmAccTurnList,      "Опись бухгалтерских проводок", TBBM_ATURNLIST2
@@ -910,29 +910,29 @@ toolbar export ACCANLZ2 TB_FIRST_TOOLBAR {
 
 toolbar export LOGVIEW TB_FIRST_TOOLBAR {
 	SAVEAS      : kbCtrlS,   TBBM_SAVEAS,        "Сохранить как...\tCtlr-S"
-	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "Поиск и замена...\tCtrl-F"
-	PRINT       : kbF7,      PPDV_PRINTER01,         "@{print}\tF7"
+	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
+	PRINT       : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
 }
 
 toolbar export TEXTBROWSER TB_FIRST_TOOLBAR {
-	OPEN        : kbCtrlO,   TBBM_OPEN,        "Открыть...\tCtlr-O"
-	SAVE        : kbCtrlS,   TBBM_SAVE,        "Сохранить\tCtlr-S"
-	SAVEAS      : kbCtrlA,   TBBM_SAVEAS,      "Сохранить как...\tCtlr-S"
-	SELCODEPAGE : kbShiftF8, TBBM_CODING,      "Выберите кодировку\tShift-F8"
-	CVTCODEPAGE : kbShiftF9, PPDV_NOICON,      "Перекодировать...\tShift-F9"
-	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "Поиск и замена...\tCtrl-F"
+	OPEN        : kbCtrlO,   TBBM_OPEN,          "Открыть...\tCtlr-O"
+	SAVE        : kbCtrlS,   TBBM_SAVE,          "Сохранить\tCtlr-S"
+	SAVEAS      : kbCtrlA,   TBBM_SAVEAS,        "Сохранить как...\tCtlr-S"
+	SELCODEPAGE : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
+	CVTCODEPAGE : kbShiftF9, PPDV_NOICON,        "Перекодировать...\tShift-F9"
+	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
 }
 
 toolbar export TEXTBROWSER_WB_HTML TB_FIRST_TOOLBAR {
-	OPEN         : kbCtrlO,   TBBM_OPEN,        "Открыть...\tCtlr-O"
-	SAVE         : kbCtrlS,   TBBM_SAVE,        "Сохранить\tCtlr-S"
-	SAVEAS       : kbCtrlA,   TBBM_SAVEAS,      "Сохранить как...\tCtlr-S"
-	SELCODEPAGE  : kbShiftF8, TBBM_CODING,      "Выберите кодировку\tShift-F8"
-	CVTCODEPAGE  : kbShiftF9, PPDV_NOICON,      "Перекодировать...\tShift-F9"
-	SEARCH       : kbCtrlF,   TBBM_SEARCHREPLACE, "Поиск и замена...\tCtrl-F"
-	PROCESSTEXT  : kbCtrlF6,  PPDV_NOICON,      "Форматирование HTML\tCtrl-F6"
-	INSERTLINK   : kbCtrlX,   PPDV_NOICON,      "Вставить ссылку\tCtrl-X"
-	BRACEHTMLTAG : kbCtrlT,   PPDV_NOICON,      "Вставить HTML-tag\tCtrl-T"
+	OPEN         : kbCtrlO,   TBBM_OPEN,          "Открыть...\tCtlr-O"
+	SAVE         : kbCtrlS,   TBBM_SAVE,          "Сохранить\tCtlr-S"
+	SAVEAS       : kbCtrlA,   TBBM_SAVEAS,        "Сохранить как...\tCtlr-S"
+	SELCODEPAGE  : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
+	CVTCODEPAGE  : kbShiftF9, PPDV_NOICON,        "Перекодировать...\tShift-F9"
+	SEARCH       : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
+	PROCESSTEXT  : kbCtrlF6,  PPDV_NOICON,        "Форматирование HTML\tCtrl-F6"
+	INSERTLINK   : kbCtrlX,   PPDV_NOICON,        "Вставить ссылку\tCtrl-X"
+	BRACEHTMLTAG : kbCtrlT,   PPDV_NOICON,        "Вставить HTML-tag\tCtrl-T"
 }
 
 toolbar export LIST_DEFAULT TB_FIRST_TOOLBAR {
@@ -1142,7 +1142,7 @@ browser PERSONATTR_DLVRADDR north(100), 1, 0, "Адреса персоналий {%s}", OWNER|GR
 	toolbar PERSON
 }
 
-browser PERSONATTR_STDALNADDR north(100), 1, 0, "Автономные адреса", OWNER|GRID, 0
+browser PERSONATTR_STDALNADDR north(100), 1, 0, "@{autonomousaddress_pl}", OWNER|GRID, 0
 {
 	"Тип адреса",   5, notype, 0, 10
 	"Ид адреса",    1, notype, NMBF_NOZERO, 10
@@ -1260,7 +1260,7 @@ browser ACCOUNT north(100), 1, 0, "%s", OWNER|GRID, 0
 {
 	"@id",                   0, int32,          0,  4, BCO_USERPROC
 	"@account",              1, int16, NMBF_NOZERO, 4, BCO_USERPROC
-	"Субсчет",               2, int16, NMBF_NOZERO, 4, BCO_USERPROC
+	"@subaccount",           2, int16, NMBF_NOZERO, 4, BCO_USERPROC
 	"@kind",                 3, zstring(20),    0,  3, BCO_USERPROC
 	"@appellation",          4, zstring(48),    0, 30, BCO_USERPROC
 	"@accsheet",             5, zstring(48),    0, 30, BCO_USERPROC
@@ -1284,7 +1284,7 @@ browser ACCOUNT_SYS north(100), 1, 0, "%s", OWNER|GRID, 0
 	"@id",                   0, int32,          0,  4, BCO_USERPROC
 	"@code",                 8, zstring(20),    0, 12, BCO_USERPROC
 	"@account",              1, int16, NMBF_NOZERO, 4, BCO_USERPROC
-	"Субсчет",               2, int16, NMBF_NOZERO, 4, BCO_USERPROC
+	"@subaccount",           2, int16, NMBF_NOZERO, 4, BCO_USERPROC
 	"@kind",                 3, zstring(20),    0,  3, BCO_USERPROC
 	"@appellation",          4, zstring(48),    0, 30, BCO_USERPROC
 	"@accsheet",             5, zstring(48),    0, 30, BCO_USERPROC
@@ -1844,17 +1844,18 @@ browser DEBTCARD north(100), 1, 2, "Долговая карточка {%s}", OWNER|GRID, 0
 
 browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 {
-	"#",               1, notype, 0,  4
-	"@ware",           4, notype, 0, 25
-	"@storageplace",  13, notype, 0, 12 // @v8.8.6
-	"@barcode",       12, notype, 0, 10
-	"@serial",        11, notype, 0, 10
-	"@rest",           5, notype, NMBF_NOTRAILZ, 10.3
-	"@price",          6, notype, NMBF_NOZERO,    8.2
-	"Цена списания",   7, notype, NMBF_NOZERO,    8.2
-	"@amount",         8, notype, NMBF_NOZERO,   10.2
-	"Сумма дефицита",  9, notype, NMBF_NOZERO,   10.2
-	"@difference",    10, notype, NMBF_NOZERO,   10.3
+	"#",                     1, notype, 0,  4
+	"@ware",                 4, notype, 0, 25
+	"@storageplace",        13, notype, 0, 12 // @v8.8.6
+	"@barcode",             12, notype, 0, 10
+	"@serial",              11, notype, 0, 10
+	"@rest",                 5, notype, NMBF_NOTRAILZ, 10.3
+	"@price",                6, notype, NMBF_NOZERO,    8.2
+	"@inventory_wroffprice", 7, notype, NMBF_NOZERO,    8.2
+	"@amount",               8, notype, NMBF_NOZERO,   10.2
+	"@inventory_deficitamt", 9, notype, NMBF_NOZERO,   10.2
+	"@difference",          10, notype, NMBF_NOZERO,   10.3
+	"@status",              14, notype, NMBF_NOZERO,   12
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM      : kbEnter,   PPDV_EDITFILE02,       "@{doeditrow}\tEnter"
 		ADDITEM       : kbIns,     PPDV_ADDFILE02,        "Стандартное добавление строки\tInsert"
@@ -1868,7 +1869,7 @@ browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 		ADDTOBASKET   : kbCtrlF8,  TBBM_ADDTISTOBASKET,   "@{doputtobasket}\tCtrl-F8"
 		separator
 		BUILD         : kbF8,      TBBM_REFRESH,      "Автозаполнение инвентарной ведомости\tF8"
-		RECALCREST    : kbCtrlR,   PPDV_REPAIR02,       "Пересчет учетных остатков\tCtrl-R"
+		RECALCREST    : kbCtrlR,   PPDV_REPAIR02,     "Пересчет учетных остатков\tCtrl-R"
 		RECALCPRICE   : kbCtrlP,   PPDV_NOICON,       "Пересчет учетных цен\tCtrl-P"
 		RECALCDFCT    : kbCtrlD,   PPDV_NOICON,       "Пересчет дефицита\tCtrl-D"
 		TOTAL         : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
@@ -6901,6 +6902,7 @@ filter PrcssrTsStrategyAnalyze { "@{tsstrategyanalyze}"  } // @v10.2.11
 view   TimeSeries              { "@{view_timeseries}" } // @v10.4.4
 view   TimSerDetail            { "@{view_timserdetail}" } // @v10.5.4
 view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" } // @v10.5.7
+//view   VetisDocument           {"@{view_vetisdocument}"} // @v10.5.8 @erik
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

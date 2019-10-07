@@ -36,13 +36,7 @@
  * - Mutex
  *   Single thread iteration over lock/unlock for each mutex type.
  */
-
 #include "test.h"
-
-#ifdef __GNUC__
-#include <stdlib.h>
-#endif
-
 #include "benchtest.h"
 
 #define  __PTW32_MUTEX_TYPES
@@ -87,52 +81,32 @@ int main(int argc, char * argv[])
 	CRITICAL_SECTION cs;
 	old_mutex_t ox;
 	pthread_mutexattr_init(&ma);
-
 	printf("=============================================================================\n");
-	printf("\nLock plus unlock on an unlocked mutex.\n%ld iterations\n\n",
-	    ITERATIONS);
-	printf("%-45s %15s %15s\n",
-	    "Test",
-	    "Total(msec)",
-	    "average(usec)");
+	printf("\nLock plus unlock on an unlocked mutex.\n%ld iterations\n\n", ITERATIONS);
+	printf("%-45s %15s %15s\n", "Test", "Total(msec)", "average(usec)");
 	printf("-----------------------------------------------------------------------------\n");
-
 	/*
 	 * Time the loop overhead so we can subtract it from the actual test times.
 	 */
 	TESTSTART assert(1 == one);
 	assert(2 == two);
 	TESTSTOP
-
-	    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	overHeadMilliSecs = durationMilliSecs;
-
 	TESTSTART assert((dummy_call(&i), 1) == one);
 	assert((dummy_call(&i), 2) == two);
 	TESTSTOP
-
-	    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
-
-	printf("%-45s %15ld %15.3f\n",
-	    "Dummy call x 2",
-	    durationMilliSecs,
-	    (float)(durationMilliSecs * 1E3 / ITERATIONS));
-
+	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+	printf("%-45s %15ld %15.3f\n", "Dummy call x 2", durationMilliSecs, (float)(durationMilliSecs * 1E3 / ITERATIONS));
 	TESTSTART assert((interlocked_inc_with_conditionals(&i), 1) == one);
 	assert((interlocked_dec_with_conditionals(&i), 2) == two);
 	TESTSTOP
-
-	    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
-
-	printf("%-45s %15ld %15.3f\n",
-	    "Dummy call -> Interlocked with cond x 2",
-	    durationMilliSecs,
-	    (float)durationMilliSecs * 1E3 / ITERATIONS);
-
+	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+	printf("%-45s %15ld %15.3f\n", "Dummy call -> Interlocked with cond x 2", durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 	TESTSTART assert((InterlockedIncrement((LPLONG)&i), 1) == (LONG)one);
 	assert((InterlockedDecrement((LPLONG)&i), 2) == (LONG)two);
 	TESTSTOP
-	    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	printf("%-45s %15ld %15.3f\n", "InterlockedOp x 2", durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 	InitializeCriticalSection(&cs);
 	TESTSTART assert((EnterCriticalSection(&cs), 1) == one);

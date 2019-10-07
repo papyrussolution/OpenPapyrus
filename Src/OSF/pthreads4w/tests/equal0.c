@@ -33,16 +33,11 @@
  *
  * Depends on functions: pthread_self().
  */
-
 #include "test.h"
 
-int 
-main()
+int main()
 {
-  pthread_t t1 = pthread_self();
-
-  assert(pthread_equal(t1, pthread_self()) != 0);
-
-  /* Success. */
-  return 0;
+	pthread_t t1 = pthread_self();
+	assert(pthread_equal(t1, pthread_self()) != 0);
+	return 0; // Success
 }

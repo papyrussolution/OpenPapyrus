@@ -7,9 +7,7 @@
  * Yield during each access to exercise lock contention code paths
  * more than rwlock7.c does (particularly on uni-processor systems).
  */
-
 #include "test.h"
-#include <sys/timeb.h>
 
 #define THREADS         5
 #define DATASIZE        7

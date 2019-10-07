@@ -68,24 +68,14 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
-#if defined(_MSC_VER) || defined(__cplusplus)
-
 #include "test.h"
 
+#if defined(_MSC_VER) || defined(__cplusplus)
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
  */
 enum {
 	NUMTHREADS = 10
-};
-
-typedef struct bag_t_ bag_t;
-struct bag_t_ {
-	int threadnum;
-	int started;
-	/* Add more per-thread state variables here */
-	int count;
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
@@ -106,10 +96,10 @@ static void increment_pop_count(void * arg)
 	LeaveCriticalSection(&sI->cs);
 }
 
-void * mythread(void * arg)
+static void * mythread(void * arg)
 {
 	int result = 0;
-	bag_t * bag = (bag_t*)arg;
+	bag_t * bag = static_cast<bag_t *>(arg);
 
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
@@ -147,47 +137,31 @@ int main()
 	InitializeCriticalSection(&pop_count.cs);
 
 	assert((t[0] = pthread_self()).p != NULL);
-
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
 		assert(pthread_create(&t[i], NULL, mythread, (void*)&threadbag[i]) == 0);
 	}
-
 	/*
 	 * Code to control or manipulate child threads should probably go here.
 	 */
 	Sleep(500);
-
-	/*
-	 * Give threads time to run.
-	 */
-	Sleep(NUMTHREADS * 100);
-
-	/*
-	 * Standard check that all threads started.
-	 */
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
 	for(i = 1; i <= NUMTHREADS; i++) {
 		if(!threadbag[i].started) {
 			failed |= !threadbag[i].started;
 			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
 		}
 	}
-
 	assert(!failed);
-
-	/*
-	 * Check any results here. Set "failed" and only print output on failure.
-	 */
+	// Check any results here. Set "failed" and only print output on failure.
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
 		void* result = (void*)0;
-
 		assert(pthread_join(t[i], &result) == 0);
-
 		fail = (result == PTHREAD_CANCELED);
-
 		if(fail) {
 			fprintf(stderr, "Thread %d: started %d: result %d\n",
 			    i,
@@ -197,17 +171,10 @@ int main()
 		}
 		failed = (failed || fail);
 	}
-
 	assert(!failed);
-
 	assert(pop_count.i == NUMTHREADS);
-
 	DeleteCriticalSection(&pop_count.cs);
-
-	/*
-	 * Success.
-	 */
-	return 0;
+	return 0; // Success
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */

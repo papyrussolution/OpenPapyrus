@@ -1,4 +1,4 @@
-/* 
+/*
  * mutex6n.c
  *
  *
@@ -35,7 +35,7 @@
  * Thread locks mutex twice (recursive lock).
  * The thread should deadlock.
  *
- * Depends on API functions: 
+ * Depends on API functions:
  *      pthread_create()
  *      pthread_mutexattr_init()
  *      pthread_mutexattr_settype()
@@ -44,65 +44,44 @@
  *	pthread_mutex_lock()
  *	pthread_mutex_unlock()
  */
-
 #include "test.h"
 
 static int lockCount;
-
 static pthread_mutex_t mutex;
 static pthread_mutexattr_t mxAttr;
 
 void * locker(void * arg)
 {
-  assert(pthread_mutex_lock(&mutex) == 0);
-  lockCount++;
-
-  /* Should wait here (deadlocked) */
-  assert(pthread_mutex_lock(&mutex) == 0);
-
-  lockCount++;
-  assert(pthread_mutex_unlock(&mutex) == 0);
-
-  return (void *) 555;
+	assert(pthread_mutex_lock(&mutex) == 0);
+	lockCount++;
+	/* Should wait here (deadlocked) */
+	assert(pthread_mutex_lock(&mutex) == 0);
+	lockCount++;
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	return (void*)555;
 }
- 
-int
-main()
+
+int main()
 {
-  pthread_t t;
-  int mxType = -1;
-
-  assert(pthread_mutexattr_init(&mxAttr) == 0);
-
-  BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
-
-  lockCount = 0;
-  assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
-  assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
-  assert(mxType == PTHREAD_MUTEX_NORMAL);
-
-  assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
-
-  assert(pthread_create(&t, NULL, locker, NULL) == 0);
-
-  while (lockCount < 1)
-    {
-      Sleep(1);
-    }
-
-  assert(lockCount == 1);
-
-  assert(pthread_mutex_unlock(&mutex) == (IS_ROBUST?EPERM:0));
-
-  while (lockCount < (IS_ROBUST?1:2))
-    {
-      Sleep(1);
-    }
-
-  assert(lockCount == (IS_ROBUST?1:2));
-
-  END_MUTEX_STALLED_ROBUST(mxAttr)
-
-  return 0;
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_NORMAL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == (IS_ROBUST ? EPERM : 0));
+	while(lockCount < (IS_ROBUST ? 1 : 2)) {
+		Sleep(1);
+	}
+	assert(lockCount == (IS_ROBUST ? 1 : 2));
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
 }
-

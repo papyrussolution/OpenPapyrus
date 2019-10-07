@@ -71,9 +71,7 @@
  * - Process returns non-zero exit status.
  */
 // @sobolev #define _WIN32_WINNT 0x400
-
 #include "test.h"
-#include <sys/timeb.h>
 
 static pthread_cond_t cv;
 static pthread_mutex_t mutex;
@@ -83,7 +81,7 @@ enum {
 	NUMTHREADS = 30
 };
 
-void * mythread(void * arg)
+static void * mythread(void * arg)
 {
 	assert(pthread_mutex_lock(&mutex) == 0);
 	assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == ETIMEDOUT);

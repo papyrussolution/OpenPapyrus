@@ -32,25 +32,25 @@
  * --------------------------------------------------------------------------
  *
  * Test Synopsis: Verify sem_destroy EBUSY race avoidance
- * - 
+ * -
  *
  * Test Method (Validation or Falsification):
  * - Validation
  *
  * Requirements Tested:
- * - 
+ * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
- * - 
+ * -
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -60,7 +60,7 @@
  * - No output on success.
  *
  * Assumptions:
- * - 
+ * -
  *
  * Pass Criteria:
  * - Process returns zero exit status.
@@ -68,38 +68,27 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 // #define ASSERT_TRACE
-
 #include "test.h"
 
-void *
-thr(void * arg)
+static void * thr(void * arg)
 {
-  assert(sem_post((sem_t *)arg) == 0);
-
-  return 0;
+	assert(sem_post((sem_t*)arg) == 0);
+	return 0;
 }
 
-
-int
-main()
+int main()
 {
-  pthread_t t;
-  sem_t s;
-
-  assert(sem_init(&s, PTHREAD_PROCESS_PRIVATE, 0) == 0);
-  assert(pthread_create(&t, NULL, thr, (void *)&s) == 0);
-
-  assert(sem_wait(&s) == 0);
-  /*
-   * Normally we would retry this next, but we're only
-   * interested in unexpected results in this test.
-   */
-  assert(sem_destroy(&s) == 0 || errno == EBUSY);
-
-  assert(pthread_join(t, NULL) == 0);
-
-  return 0;
+	pthread_t t;
+	sem_t s;
+	assert(sem_init(&s, PTHREAD_PROCESS_PRIVATE, 0) == 0);
+	assert(pthread_create(&t, NULL, thr, (void*)&s) == 0);
+	assert(sem_wait(&s) == 0);
+	/*
+	 * Normally we would retry this next, but we're only
+	 * interested in unexpected results in this test.
+	 */
+	assert(sem_destroy(&s) == 0 || errno == EBUSY);
+	assert(pthread_join(t, NULL) == 0);
+	return 0;
 }
-

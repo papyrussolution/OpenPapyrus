@@ -112,7 +112,6 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int
 			goto end;
 		if(j & V_ASN1_CONSTRUCTED) {
 			const uchar * sp = p;
-
 			ep = p + len;
 			if(BIO_write(bp, "\n", 1) <= 0)
 				goto end;
@@ -138,12 +137,9 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int
 			}
 			else {
 				long tmp = len;
-
 				while(p < ep) {
 					sp = p;
-					r = asn1_parse2(bp, &p, tmp,
-					    offset + (p - *pp), depth + 1,
-					    indent, dump);
+					r = asn1_parse2(bp, &p, tmp, offset + (p - *pp), depth + 1, indent, dump);
 					if(r == 0) {
 						ret = 0;
 						goto end;

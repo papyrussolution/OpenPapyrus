@@ -1,9 +1,6 @@
-
-/*-------------------------------------------------------------*/
-/*--- Huffman coding low-level stuff                        ---*/
-/*---                                             huffman.c ---*/
-/*-------------------------------------------------------------*/
-
+// huffman.c
+// Huffman coding low-level stuff
+//
 /* ------------------------------------------------------------------
    This file is part of bzip2/libbzip2, a program and library for
    lossless, block-sorting data compression.

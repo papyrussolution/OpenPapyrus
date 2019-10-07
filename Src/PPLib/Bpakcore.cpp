@@ -2529,22 +2529,22 @@ int SLAPI PPBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext
 int SLAPI PPBillPacket::IsDraft() const
 {
 	const PPID op_type_id = OpTypeID;
-	return BIN(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT));
+	return BIN(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ));
 }
 
 int SLAPI PPBillPacket::IsGoodsDetail() const
 {
 	const PPID op_type_id = OpTypeID;
-	return BIN(oneof11(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
-		PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER));
+	return BIN(oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GOODSRECEIPT, 
+		PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER));
 }
 
 int SLAPI PPBillPacket::UngetCounter()
 {
 	int    ok = -1;
-	if(!(CConfig.Flags & CCFLG_DONTUNDOOPCNTRONESC)) { // @v9.5.2
+	if(!(CConfig.Flags & CCFLG_DONTUNDOOPCNTRONESC) && Counter) { // @v9.5.2
 		PPOprKind op_rec;
-		if(GetOpData(Rec.OpID, &op_rec) > 0 && Counter) {
+		if(GetOpData(Rec.OpID, &op_rec) > 0) {
 			PPObjOpCounter opc_obj;
 			ok = opc_obj.UngetCounter(op_rec.OpCounterID, Counter, Rec.LocID, 1);
 		}

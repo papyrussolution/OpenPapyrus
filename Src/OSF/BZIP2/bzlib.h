@@ -1,9 +1,6 @@
-
-/*-------------------------------------------------------------*/
-/*--- Public header file for the library.                   ---*/
-/*---                                               bzlib.h ---*/
-/*-------------------------------------------------------------*/
-
+// BZLIB.H
+// Public header file for the library.                   ---*/
+//
 /* ------------------------------------------------------------------
    This file is part of bzip2/libbzip2, a program and library for
    lossless, block-sorting data compression.
@@ -11,11 +8,9 @@
    bzip2/libbzip2 version 1.0.6 of 6 September 2010
    Copyright (C) 1996-2010 Julian Seward <jseward@bzip.org>
 
-   Please read the WARNING, DISCLAIMER and PATENTS sections in the
-   README file.
+   Please read the WARNING, DISCLAIMER and PATENTS sections in the README file.
 
-   This program is released under the terms of the license contained
-   in the file LICENSE.
+   This program is released under the terms of the license contained in the file LICENSE.
    ------------------------------------------------------------------ */
 
 #ifndef _BZLIB_H
@@ -62,145 +57,77 @@ typedef struct {
 #ifndef BZ_IMPORT
 	#define BZ_EXPORT
 #endif
-
 #ifndef BZ_NO_STDIO
-/* Need a definitition for FILE */
-#include <stdio.h>
+	//#include <stdio.h> // Need a definitition for FILE 
 #endif
-
 #ifdef _WIN32
 	#include <windows.h>
 		#ifdef small
-		/* windows.h define small to char */
-			#undef small
+			#undef small // windows.h define small to char 
 		#endif
 		#ifdef BZ_EXPORT
-			#define BZ_API(func) WINAPI func
+			//#define BZ_API(func) WINAPI func
 			#define BZ_EXTERN extern
 		#else
-			/* import windows dll dynamically */
-			#define BZ_API(func) (WINAPI * func)
+			// import windows dll dynamically 
+			//#define BZ_API(func) (WINAPI * func)
 			#define BZ_EXTERN
 		#endif
 #else
-	#define BZ_API(func) func
+	//#define BZ_API(func) func
 	#define BZ_EXTERN extern
 #endif
+// 
+// Core (low-level) library functions
+// 
+BZ_EXTERN int BZ2_bzCompressInit(bz_stream* strm, int blockSize100k, int verbosity, int workFactor);
+BZ_EXTERN int BZ2_bzCompress(bz_stream* strm, int action);
+BZ_EXTERN int BZ2_bzCompressEnd(bz_stream* strm);
+BZ_EXTERN int BZ2_bzDecompressInit(bz_stream *strm, int verbosity, int small);
+BZ_EXTERN int BZ2_bzDecompress(bz_stream* strm);
+BZ_EXTERN int BZ2_bzDecompressEnd(bz_stream *strm);
+// 
+// High(er) level library functions
+// 
+#ifndef BZ_NO_STDIO
+	#define BZ_MAX_UNUSED 5000
 
-/*-- Core (low-level) library functions --*/
+	typedef void BZFILE;
 
-BZ_EXTERN int BZ_API(BZ2_bzCompressInit)(bz_stream* strm, int blockSize100k, int verbosity, int workFactor);
-BZ_EXTERN int BZ_API(BZ2_bzCompress)(bz_stream* strm, int action);
-BZ_EXTERN int BZ_API(BZ2_bzCompressEnd)(bz_stream* strm);
-BZ_EXTERN int BZ_API(BZ2_bzDecompressInit)(bz_stream *strm, int verbosity, int small);
-BZ_EXTERN int BZ_API(BZ2_bzDecompress)(bz_stream* strm);
-BZ_EXTERN int BZ_API(BZ2_bzDecompressEnd)(bz_stream *strm);
-
-/*-- High(er) level library functions --*/
+	BZ_EXTERN BZFILE * BZ2_bzReadOpen(int * bzerror, FILE* f, int verbosity, int small, void* unused, int nUnused);
+	BZ_EXTERN void BZ2_bzReadClose(int * bzerror, BZFILE* b);
+	BZ_EXTERN void BZ2_bzReadGetUnused(int * bzerror, BZFILE* b, void ** unused, int * nUnused);
+	BZ_EXTERN int BZ2_bzRead(int * bzerror, BZFILE* b, void*   buf, int len);
+	BZ_EXTERN BZFILE * BZ2_bzWriteOpen(int * bzerror, FILE* f, int blockSize100k, int verbosity, int workFactor );
+	BZ_EXTERN void BZ2_bzWrite(int * bzerror, BZFILE* b, void*   buf, int len);
+	BZ_EXTERN void BZ2_bzWriteClose(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in, uint* nbytes_out);
+	BZ_EXTERN void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_lo32, uint* nbytes_in_hi32, uint* nbytes_out_lo32, uint* nbytes_out_hi32);
+#endif
+// 
+// Utility functions
+// 
+BZ_EXTERN int BZ2_bzBuffToBuffCompress(char * dest, uint* destLen, char * source, uint sourceLen, int blockSize100k, int verbosity, int workFactor);
+BZ_EXTERN int BZ2_bzBuffToBuffDecompress(char * dest, uint* destLen, char * source, uint sourceLen, int small, int verbosity);
+// 
+// Code contributed by Yoshioka Tsuneo (tsuneo@rr.iij4u.or.jp)
+// to support better zlib compatibility.
+// This code is not _officially_ part of libbzip2 (yet);
+// I haven't tested it, documented it, or considered the
+// threading-safeness of it.
+// If this code breaks, please contact both Yoshioka and me.
+// 
+BZ_EXTERN const char * BZ2_bzlibVersion(void);
 
 #ifndef BZ_NO_STDIO
-#define BZ_MAX_UNUSED 5000
-
-typedef void BZFILE;
-
-BZ_EXTERN BZFILE* BZ_API(BZ2_bzReadOpen) (
-    int*  bzerror,
-    FILE* f,
-    int verbosity,
-    int small,
-    void* unused,
-    int nUnused
-    );
-
-BZ_EXTERN void BZ_API(BZ2_bzReadClose) (
-    int*    bzerror,
-    BZFILE* b
-    );
-
-BZ_EXTERN void BZ_API(BZ2_bzReadGetUnused) (
-    int*    bzerror,
-    BZFILE* b,
-    void**  unused,
-    int*    nUnused
-    );
-
-BZ_EXTERN int BZ_API(BZ2_bzRead) (
-    int*    bzerror,
-    BZFILE* b,
-    void*   buf,
-    int len
-    );
-
-BZ_EXTERN BZFILE* BZ_API(BZ2_bzWriteOpen) (
-    int*  bzerror,
-    FILE* f,
-    int blockSize100k,
-    int verbosity,
-    int workFactor
-    );
-
-BZ_EXTERN void BZ_API(BZ2_bzWrite)(int * bzerror, BZFILE* b, void*   buf, int len);
-BZ_EXTERN void BZ_API(BZ2_bzWriteClose)(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in, uint* nbytes_out);
-
-BZ_EXTERN void BZ_API(BZ2_bzWriteClose64) (
-    int*          bzerror,
-    BZFILE*       b,
-    int abandon,
-    uint* nbytes_in_lo32,
-    uint* nbytes_in_hi32,
-    uint* nbytes_out_lo32,
-    uint* nbytes_out_hi32
-    );
+	BZ_EXTERN BZFILE * BZ2_bzopen(const char * path, const char * mode);
+	BZ_EXTERN BZFILE * BZ2_bzdopen(int fd, const char * mode);
+	BZ_EXTERN int  BZ2_bzread(BZFILE* b, void* buf, int len);
+	BZ_EXTERN int  BZ2_bzwrite(BZFILE* b, void * buf, int len);
+	BZ_EXTERN int  BZ2_bzflush(BZFILE* b);
+	BZ_EXTERN void BZ2_bzclose(BZFILE * b);
+	BZ_EXTERN const char * BZ2_bzerror(BZFILE *b, int * errnum);
 #endif
-
-/*-- Utility functions --*/
-
-BZ_EXTERN int BZ_API(BZ2_bzBuffToBuffCompress) (
-    char*         dest,
-    uint* destLen,
-    char*         source,
-    uint sourceLen,
-    int blockSize100k,
-    int verbosity,
-    int workFactor
-    );
-
-BZ_EXTERN int BZ_API(BZ2_bzBuffToBuffDecompress) (
-    char*         dest,
-    uint* destLen,
-    char*         source,
-    uint sourceLen,
-    int small,
-    int verbosity
-    );
-
-/*--
-   Code contributed by Yoshioka Tsuneo (tsuneo@rr.iij4u.or.jp)
-   to support better zlib compatibility.
-   This code is not _officially_ part of libbzip2 (yet);
-   I haven't tested it, documented it, or considered the
-   threading-safeness of it.
-   If this code breaks, please contact both Yoshioka and me.
-   --*/
-
-BZ_EXTERN const char * BZ_API(BZ2_bzlibVersion)(void);
-
-#ifndef BZ_NO_STDIO
-BZ_EXTERN BZFILE * BZ_API(BZ2_bzopen)(const char * path, const char * mode);
-BZ_EXTERN BZFILE * BZ_API(BZ2_bzdopen)(int fd, const char * mode);
-BZ_EXTERN int BZ_API(BZ2_bzread)(BZFILE* b, void* buf, int len);
-BZ_EXTERN int BZ_API(BZ2_bzwrite) (BZFILE* b, void * buf, int len);
-BZ_EXTERN int BZ_API(BZ2_bzflush)(BZFILE* b);
-BZ_EXTERN void BZ_API(BZ2_bzclose)(BZFILE * b);
-BZ_EXTERN const char * BZ_API(BZ2_bzerror)(BZFILE *b, int * errnum);
-#endif
-
 #ifdef __cplusplus
 }
 #endif
-
 #endif
-
-/*-------------------------------------------------------------*/
-/*--- end                                           bzlib.h ---*/
-/*-------------------------------------------------------------*/

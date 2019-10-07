@@ -39,20 +39,20 @@
  *   Initiate and destroy several CVs in random order.
  *
  * Requirements Tested:
- * - 
+ * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
  * - Creates and then imediately destroys a CV. Does not
  *   test the CV.
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -71,43 +71,32 @@
  *
  * Fail Criteria:
  */
-
-#include <stdlib.h>
 #include "test.h"
 
 enum {
-  NUM_CV = 100
+	NUM_CV = 100
 };
 
 static pthread_cond_t cv[NUM_CV];
 
-int
-main()
+int main()
 {
-  int i, j;
-
-  for (i = 0; i < NUM_CV; i++)
-    {
-      /* Traverse the list before every init of a CV. */
-      assert(pthread_timechange_handler_np(NULL) == (void *) 0);
-      assert(pthread_cond_init(&cv[i], NULL) == 0);
-    }
-
-  j = NUM_CV;
-  (void) srand((unsigned)time(NULL));
-
-  do
-    {
-      i = (NUM_CV - 1) * rand() / RAND_MAX;
-      if (cv[i] != NULL)
-        {
-          j--;
-          assert(pthread_cond_destroy(&cv[i]) == 0);
-          /* Traverse the list every time we remove a CV. */
-          assert(pthread_timechange_handler_np(NULL) == (void *) 0);
-        }
-    }
-  while (j > 0);
-
-  return 0;
+	int i, j;
+	for(i = 0; i < NUM_CV; i++) {
+		/* Traverse the list before every init of a CV. */
+		assert(pthread_timechange_handler_np(NULL) == (void*)0);
+		assert(pthread_cond_init(&cv[i], NULL) == 0);
+	}
+	j = NUM_CV;
+	(void)srand((unsigned)time(NULL));
+	do {
+		i = (NUM_CV - 1) * rand() / RAND_MAX;
+		if(cv[i] != NULL) {
+			j--;
+			assert(pthread_cond_destroy(&cv[i]) == 0);
+			/* Traverse the list every time we remove a CV. */
+			assert(pthread_timechange_handler_np(NULL) == (void*)0);
+		}
+	} while(j > 0);
+	return 0;
 }

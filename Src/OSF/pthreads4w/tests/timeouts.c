@@ -68,12 +68,7 @@
  * Fail Criteria:
  * -
  */
-
 #include "test.h"
-#include <time.h>
-#include <sys/timeb.h>
-//#include <windows.h>
-#include "pthread.h"
 
 #define DEFAULT_MINTIME_INIT    999999999
 #define CYG_ONEBILLION          1000000000LL

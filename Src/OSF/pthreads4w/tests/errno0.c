@@ -34,25 +34,25 @@
  * --------------------------------------------------------------------------
  *
  * Test Synopsis: Test transmissibility of errno between library and exe
- * - 
+ * -
  *
  * Test Method (Validation or Falsification):
  * - Validation
  *
  * Requirements Tested:
- * - 
+ * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
- * - 
+ * -
  *
  * Description:
- * - 
+ * -
  *
  * Environment:
- * - 
+ * -
  *
  * Input:
  * - None.
@@ -62,7 +62,7 @@
  * - No output on success.
  *
  * Assumptions:
- * - 
+ * -
  *
  * Pass Criteria:
  * - Process returns zero exit status.
@@ -70,30 +70,21 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
 
-int
-main()
+int main()
 {
-  int err = 0;
-  errno = 0;
-
-  assert(errno == 0);
-  assert(0 != sem_destroy(NULL));
-
-  err =
+	int err = 0;
+	errno = 0;
+	assert(errno == 0);
+	assert(0 != sem_destroy(NULL));
+	err =
 #if defined(PTW32_USES_SEPARATE_CRT)
-      GetLastError();
+	    GetLastError();
 #else
-      errno;
+	    errno;
 #endif
-
-  assert(err != 0);
-  assert(err == EINVAL);
-
-  /*
-   * Success.
-   */
-  return 0;
+	assert(err != 0);
+	assert(err == EINVAL);
+	return 0; // Success
 }

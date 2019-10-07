@@ -42,18 +42,15 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for snprintf(), strdup() */
-//#include "cairo-array-private.h"
-//#include "cairo-error-private.h"
 
 #if CAIRO_HAS_FONT_SUBSET
 
 //#include "cairo-scaled-font-subsets-private.h"
 #include "cairo-truetype-subset-private.h"
-#include <string.h>
+//#include <string.h>
 #include <locale.h>
 
-/* CFF Dict Operators. If the high byte is 0 the command is encoded
- * with a single byte. */
+// CFF Dict Operators. If the high byte is 0 the command is encoded with a single byte. 
 #define BASEFONTNAME_OP  0x0c16
 #define CIDCOUNT_OP      0x0c22
 #define CHARSET_OP       0x000f
@@ -262,31 +259,15 @@ static uchar * decode_integer(uchar * p, int * integer)
 
 static char * decode_nibble(int n, char * buf)
 {
-	switch(n)
-	{
-		case 0xa:
-		    *buf++ = '.';
-		    break;
-		case 0xb:
-		    *buf++ = 'E';
-		    break;
-		case 0xc:
-		    *buf++ = 'E';
-		    *buf++ = '-';
-		    break;
-		case 0xd:
-		    *buf++ = '-';
-		    break;
-		case 0xe:
-		    *buf++ = '-';
-		    break;
-		case 0xf:
-		    break;
-		default:
-		    *buf++ = '0' + n;
-		    break;
+	switch(n) {
+		case 0xa: *buf++ = '.'; break;
+		case 0xb: *buf++ = 'E'; break;
+		case 0xc: *buf++ = 'E'; *buf++ = '-'; break;
+		case 0xd: *buf++ = '-'; break;
+		case 0xe: *buf++ = '-'; break;
+		case 0xf: break;
+		default: *buf++ = '0' + n; break;
 	}
-
 	return buf;
 }
 
@@ -297,7 +278,6 @@ static uchar * decode_real(uchar * p, double * real)
 	char * buf_end = buffer + sizeof(buffer);
 	char * end;
 	int n;
-
 	p++;
 	while(buf + 2 < buf_end) {
 		n = *p >> 4;
@@ -312,9 +292,7 @@ static uchar * decode_real(uchar * p, double * real)
 	}
 	;
 	*buf = 0;
-
 	*real = _cairo_strtod(buffer, &end);
-
 	return p;
 }
 
@@ -362,7 +340,6 @@ static int operand_length(uchar * p)
 			p++;
 		return p - begin + 1;
 	}
-
 	return 0;
 }
 
@@ -378,7 +355,6 @@ static uchar * encode_index_offset(uchar * p, int offset_size, ulong offset)
 static ulong decode_index_offset(uchar * p, int off_size)
 {
 	ulong offset = 0;
-
 	while(off_size-- > 0)
 		offset = offset*256 + *p++;
 	return offset;

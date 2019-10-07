@@ -174,7 +174,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		ptcg_rec.Ar2ID  = p_filt->Ar2ID;
 		ptcg_rec.IdleStatus = BIN(p_filt->Ft_Idle > 0);
  		dlg->setGroupData(GRP_PRCTECH, &ptcg_rec);
-		PrcTechCtrlGroup * p_grp = (PrcTechCtrlGroup *)dlg->getGroup(GRP_PRCTECH);
+		PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(dlg->getGroup(GRP_PRCTECH));
 		CALLPTRMEMB(p_grp, setIdleStatus(dlg, BIN(p_filt->Ft_Idle > 0)));
 	}
 	dlg->AddClusterAssocDef(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));

@@ -1,4 +1,4 @@
-/* 
+/*
  * mutex8r.c
  *
  *
@@ -45,56 +45,37 @@
  *	pthread_mutex_timedlock()
  *	pthread_mutex_unlock()
  */
-
 #include "test.h"
 
 static int lockCount;
-
 static pthread_mutex_t mutex;
 static pthread_mutexattr_t mxAttr;
 
 void * locker(void * arg)
 {
-  struct timespec abstime, reltime = { 1, 0 };
-
-  (void) pthread_win32_getabstime_np(&abstime, &reltime);
-
-  assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
-
-  lockCount++;
-
-  return 0;
+	struct timespec abstime, reltime = { 1, 0 };
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+	lockCount++;
+	return 0;
 }
 
-int
-main()
+int main()
 {
-  pthread_t t;
-  int mxType = -1;
-
-  assert(pthread_mutexattr_init(&mxAttr) == 0);
-
-  BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
-
-  lockCount = 0;
-  assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
-  assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
-  assert(mxType == PTHREAD_MUTEX_RECURSIVE);
-
-  assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
-
-  assert(pthread_mutex_lock(&mutex) == 0);
-
-  assert(pthread_create(&t, NULL, locker, NULL) == 0);
-
-  Sleep(2000);
-
-  assert(lockCount == 1);
-
-  assert(pthread_mutex_unlock(&mutex) == 0);
-
-  END_MUTEX_STALLED_ROBUST(mxAttr)
-
-  return 0;
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_RECURSIVE);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, locker, NULL) == 0);
+	Sleep(2000);
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
 }
-

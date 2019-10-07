@@ -71,17 +71,7 @@
  * - pthread_cond_timedwait returns ETIMEDOUT.
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
-#include <sys/timeb.h>
-
-typedef struct cvthing_t_ cvthing_t;
-
-struct cvthing_t_ {
-	pthread_cond_t notbusy;
-	pthread_mutex_t lock;
-	int shared;
-};
 
 static cvthing_t cvthing = {
 	PTHREAD_COND_INITIALIZER,
@@ -93,7 +83,7 @@ enum {
 	NUMTHREADS = 2
 };
 
-void * mythread(void * arg)
+static void * mythread(void * arg)
 {
 	assert(pthread_mutex_lock(&cvthing.lock) == 0);
 	cvthing.shared++;

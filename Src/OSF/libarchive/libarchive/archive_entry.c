@@ -31,11 +31,11 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 	#include <sys/types.h>
 #endif
 #if MAJOR_IN_MKDEV
-#include <sys/mkdev.h>
-#define HAVE_MAJOR
+	#include <sys/mkdev.h>
+	#define HAVE_MAJOR
 #elif MAJOR_IN_SYSMACROS
-#include <sys/sysmacros.h>
-#define HAVE_MAJOR
+	#include <sys/sysmacros.h>
+	#define HAVE_MAJOR
 #endif
 #ifdef HAVE_LINUX_FS_H
 	#include <linux/fs.h>   /* for Linux file flags */
@@ -45,10 +45,10 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
  * As the include guards don't agree, the order of include is important.
  */
 #ifdef HAVE_LINUX_EXT2_FS_H
-#include <linux/ext2_fs.h>      /* for Linux file flags */
+	#include <linux/ext2_fs.h>      /* for Linux file flags */
 #endif
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
-#include <ext2fs/ext2_fs.h>     /* for Linux file flags */
+	#include <ext2fs/ext2_fs.h>     /* for Linux file flags */
 #endif
 #include <stddef.h>
 
@@ -1189,10 +1189,9 @@ int archive_entry_acl_next(struct archive_entry * entry, int want_type, int * ty
 		__archive_errx_nomem(1);
 	return r;
 }
-/*
- * Generate a text version of the ACL. The flags parameter controls
- * the style of the generated ACL.
- */
+// 
+// Descr: Generate a text version of the ACL. The flags parameter controls the style of the generated ACL.
+// 
 wchar_t * archive_entry_acl_to_text_w(struct archive_entry * entry, la_ssize_t * len, int flags)
 {
 	return (archive_acl_to_text_w(&entry->acl, len, flags, entry->archive));

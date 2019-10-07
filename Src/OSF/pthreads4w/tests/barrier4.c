@@ -47,7 +47,7 @@ pthread_mutex_t mx = PTHREAD_MUTEX_INITIALIZER;
 static int serialThreadCount = 0;
 static int otherThreadCount = 0;
 
-void * func(void * arg)
+static void * func(void * arg)
 {
 	int result = pthread_barrier_wait(&barrier);
 	assert(pthread_mutex_lock(&mx) == 0);
@@ -57,7 +57,7 @@ void * func(void * arg)
 	else if(0 == result) {
 		otherThreadCount++;
 	}
-	else{
+	else {
 		printf("Barrier wait failed: error = %s\n", error_string[result]);
 		fflush(stdout);
 		return NULL;

@@ -40,7 +40,7 @@
 pthread_barrier_t barrier = NULL;
 static void* result = (void*)1;
 
-void * func(void * arg)
+static void * func(void * arg)
 {
 	return (void*)(size_t)pthread_barrier_wait(&barrier);
 }

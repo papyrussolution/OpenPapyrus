@@ -3711,6 +3711,56 @@ int SLAPI PPObjBill::CalcDraftTransitRest(PPID restOpID, PPID orderOpID, PPID go
 	return ok;
 }
 
+int SLAPI PPObjBill::SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <QuoteReqLink> & rList)
+{
+	int    ok = -1;
+	PPIDArray bill_id_list;
+	PPIDArray op_list;
+	PPOprKind op_rec;
+	for(PPID op_id = 0; EnumOperations(PPOPT_DRAFTQUOTREQ, &op_id, &op_rec) > 0;) {
+		if(op_rec.LinkOpID)
+			op_list.add(op_id);
+	}
+	for(uint opidx = 0; opidx < op_list.getCount(); opidx++) {
+		const PPID op_id = op_list.get(opidx);
+		BillTbl::Rec bill_rec;
+		for(SEnum en = P_Tbl->EnumByOp(op_id, pPeriod, 0); en.Next(&bill_rec) > 0;) {
+			bill_id_list.add(bill_rec.ID);
+		}
+	}
+	if(bill_id_list.getCount()) {
+		bill_id_list.sortAndUndup();
+		//for(uint bidx = 0; bidx < bill_id_list.getCount(); )
+		CpTransfTbl::Rec cpt_rec;
+		CpTransfTbl::Key0 k0;
+		CpTransfCore * p_cpt = P_CpTrfr;
+		const PPID bill_id_beg = bill_id_list.get(0);
+		const PPID bill_id_end = bill_id_list.getLast();
+		MEMSZERO(k0);
+		k0.BillID = bill_id_beg;
+		BExtQuery q(p_cpt, 0);
+		q.select(p_cpt->BillID, p_cpt->RByBill, p_cpt->Flags, p_cpt->Tail, 0L).
+			where(p_cpt->BillID >= bill_id_beg && p_cpt->BillID <= bill_id_end);
+		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+			p_cpt->copyBufTo(&cpt_rec);
+			if(bill_id_list.bsearch(cpt_rec.BillID)) {
+				CpTrfrExt cpext;
+				CpTransfCore::GetExt__(cpt_rec, &cpext);
+				if(cpext.LinkBillID > 0 && cpext.LinkRbb > 0) {
+					QuoteReqLink new_item;
+					new_item.LeadBillID = cpext.LinkBillID;
+					new_item.LeadRbb = cpext.LinkRbb;
+					new_item.SeqBillID = cpt_rec.BillID;
+					new_item.SeqRbb = cpt_rec.RByBill;
+					rList.insert(&new_item);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 PPID SLAPI PPObjBill::GetSupplAgent(PPID lotID)
 {
 	PPID   suppl_id = 1000000;
@@ -7110,13 +7160,14 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 				for(i = 0; pPack->EnumTItems(&i, &pti);) {
 					pPack->ErrLine = i-1;
 					CpTrfrExt cte;
-					MEMSZERO(cte);
 					// @v9.8.11 pPack->ClbL.GetNumber(i-1, &clb);
 					pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11
 					STRNSCPY(cte.Clb, clb);
 					// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
 					pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
 					STRNSCPY(cte.PartNo, clb);
+					cte.LinkBillID = pti->Lbr.ID; // @v10.5.8
+					cte.LinkRbb = pti->Lbr.RByBill; // @v10.5.8
 					THROW(pti->Init(&pPack->Rec, zero_rbybill));
 					THROW(P_CpTrfr->PutItem(pti, (zero_rbybill ? 0 : pti->RByBill), &cte, 0));
 					ufp_counter.TiAddCount++;
@@ -7470,8 +7521,10 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 								if(clb.Strip().CmpNC(strip(cte.Clb)) == 0) {
 									// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
 									pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
-									if(clb.Strip().CmpNC(strip(cte.PartNo)) == 0)
-										not_changed_lines.add(i);
+									if(clb.Strip().CmpNC(strip(cte.PartNo)) == 0) {
+										if(cte.LinkBillID == p_ti->Lbr.ID && cte.LinkRbb == p_ti->Lbr.RByBill) // @v10.5.8
+											not_changed_lines.add(i);
+									}
 								}
 							}
 						}
@@ -7495,13 +7548,14 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							p_ti->TFlags |= PPTransferItem::tfDirty;
 						}
 						CpTrfrExt cte;
-						MEMSZERO(cte);
 						// @v9.8.11 pPack->ClbL.GetNumber(i-1, &clb);
 						pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11
 						STRNSCPY(cte.Clb, clb);
 						// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
 						pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
 						STRNSCPY(cte.PartNo, clb);
+						cte.LinkBillID = p_ti->Lbr.ID; // @v10.5.8
+						cte.LinkRbb = p_ti->Lbr.RByBill; // @v10.5.8
 						THROW(P_CpTrfr->PutItem(p_ti, 0 /*forceRByBill*/, &cte, 0));
 						ufp_counter.TiAddCount++;
 					}
@@ -7842,7 +7896,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 			ufp_counter.AtRmvCount++;
 		}
 		THROW(r);
-		if(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
+		if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.8 PPOPT_DRAFTQUOTREQ
 			if(P_CpTrfr) {
 				for(rbybill = 0; (r = P_CpTrfr->EnumItems(id, &rbybill, 0, 0)) > 0;) {
 					THROW(P_CpTrfr->RemoveItem(id, rbybill, 0));

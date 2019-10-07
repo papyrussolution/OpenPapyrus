@@ -4,13 +4,7 @@
  * Hammer on a bunch of rwlocks to test robustness and fairness.
  * Printed stats should be roughly even for each thread.
  */
-
 #include "test.h"
-#include <sys/timeb.h>
-
-#ifdef __GNUC__
-#include <stdlib.h>
-#endif
 
 #define THREADS         5
 #define DATASIZE        7

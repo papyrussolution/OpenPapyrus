@@ -137,11 +137,7 @@ int main(int argc, char* argv[])
 	}
 
 	Sleep(100);
-
-	/*
-	 * Success.
-	 */
-	return 0;
+	return 0; // Success
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */

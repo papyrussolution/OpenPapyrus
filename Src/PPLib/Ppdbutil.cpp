@@ -356,7 +356,7 @@ int SLAPI PPBackup::EnumScen(long * pPos, PPBackupScen * pScen)
 	int    ok = 1;
 	uint   p = (uint)*pPos;
 	if(P_ScenList && p < P_ScenList->getCount()) {
-		*pScen = *(PPBackupScen*)P_ScenList->at(p);
+		*pScen = *static_cast<const PPBackupScen *>(P_ScenList->at(p));
 		(*pPos)++;
 	}
 	else
@@ -623,7 +623,7 @@ int ConfigBackupDialog::deleteEntry()
 		PPID   ssid = 0;
 		getCtrlData(CTL_BUCFG_SCNAME, &ssid);
 		if(ssid) {
-			PPBackupScen * p_entry = (PPBackupScen *)P_ScenList->at((int)ssid-1);
+			const PPBackupScen * p_entry = static_cast<const PPBackupScen *>(P_ScenList->at((int)ssid-1));
 			if(PPMessage(mfConf, PPCFM_REMOVECFG, p_entry->Name) == cmYes) {
 				P_IniFile->RemoveParam(BACKUP, p_entry->Name);
 				updateList();

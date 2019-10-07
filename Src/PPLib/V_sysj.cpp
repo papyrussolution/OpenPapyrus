@@ -1157,7 +1157,7 @@ int SLAPI PPViewSysJournal::RefreshTempTable(LDATETIME since)
 						{
 							char   name_buf[256];
 							PPObject * ppobj = P_ObjColl->GetObjectPtr(obj_type);
-							name_buf[0] = 0;
+							PTR32(name_buf)[0] = 0;
 							CALLPTRMEMB(ppobj, GetName(obj_id, name_buf, sizeof(name_buf)));
 							if(!P_NamesTbl->search(1, &k1, spEq)) {
 								TempDoubleIDTbl::Rec nm_rec;

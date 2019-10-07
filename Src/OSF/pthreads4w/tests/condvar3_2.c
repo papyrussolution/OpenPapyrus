@@ -74,9 +74,7 @@
  */
 
 // @sobolev #define _WIN32_WINNT 0x400
-
 #include "test.h"
-#include <sys/timeb.h>
 
 static pthread_cond_t cv;
 static pthread_mutex_t mutex;
@@ -89,7 +87,7 @@ enum {
 	NUMTHREADS = 30
 };
 
-void * mythread(void * arg)
+static void * mythread(void * arg)
 {
 	int result;
 
@@ -106,7 +104,7 @@ void * mythread(void * arg)
 	if(result == ETIMEDOUT) {
 		InterlockedIncrement((LPLONG)&timedout);
 	}
-	else{
+	else {
 		InterlockedIncrement((LPLONG)&awoken);
 	}
 

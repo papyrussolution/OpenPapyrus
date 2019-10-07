@@ -169,12 +169,8 @@ int main()
 		assert(pthread_join(t, &result) == 0);
 		assert(result == PTHREAD_CANCELED && "test_udp");
 	}
-	else{
+	else {
 		printf("Alertable async cancel not available.\n");
 	}
-
-	/*
-	 * Success.
-	 */
-	return 0;
+	return 0; // Success
 }

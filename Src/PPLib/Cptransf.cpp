@@ -6,6 +6,12 @@
 #include <pp.h>
 #pragma hdrstop
 
+CpTrfrExt::CpTrfrExt() : LinkBillID(0), LinkRbb(0)
+{
+	PTR32(PartNo)[0] = 0;
+	PTR32(Clb)[0] = 0;
+}
+
 SLAPI CpTransfCore::CpTransfCore() : CpTransfTbl()
 {
 }
@@ -120,8 +126,9 @@ int SLAPI CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDA
 				ti.Flags    = data.Flags;
 				{
 					CpTrfrExt cpext;
-					MEMSZERO(cpext);
 					CpTransfCore::GetExt__(data, &cpext);
+					ti.Lbr.ID = cpext.LinkBillID; // @v10.5.8
+					ti.Lbr.RByBill = cpext.LinkRbb; // @v10.5.8
 					THROW(pPack->LoadTItem(&ti, cpext.Clb, cpext.PartNo));
 				}
 			}

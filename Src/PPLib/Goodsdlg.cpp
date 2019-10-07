@@ -2607,10 +2607,13 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 //
 // Объединение товаров
 //
-#define GRP_GOODS1   1
-#define GRP_GOODS2   2
-
 class ReplGoodsDialog : public TDialog {
+	typedef PPObjGoods::ExtUniteBlock DlgDataType;
+	DlgDataType Data;
+	enum {
+		ctlgroupGoods1 = 1,
+		ctlgroupGoods2 = 2,
+	};
 public:
 	enum {
 		sfCommon = 0,
@@ -2630,20 +2633,20 @@ public:
 			PrcssrAlcReport::ReadConfig(&AlcrCfg);
 		setCtrlOption(CTL_REPLGOODS_PANE1, ofFramed, 1);
 		setCtrlOption(CTL_REPLGOODS_PANE2, ofFramed, 1);
-		addGroup(GRP_GOODS1, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP1, CTLSEL_REPLGOODS_GOODS1));
-		addGroup(GRP_GOODS2, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP2, CTLSEL_REPLGOODS_GOODS2));
+		addGroup(ctlgroupGoods1, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP1, CTLSEL_REPLGOODS_GOODS1));
+		addGroup(ctlgroupGoods2, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP2, CTLSEL_REPLGOODS_GOODS2));
 	}
-	int     setDTS(const PPObjGoods::ExtUniteBlock * pData)
+	int     setDTS(const DlgDataType * pData)
 	{
 		RVALUEPTR(Data, pData);
 		GoodsCtrlGroup::Rec src_rec(0, Data.ResultID);
-		setGroupData(GRP_GOODS1, &src_rec);
+		setGroupData(ctlgroupGoods1, &src_rec);
 		Goods2Tbl::Rec goods_rec;
 		PPID   grp_id = 0;
 		if(GObj.Fetch(Data.ResultID, &goods_rec) > 0)
 			grp_id = goods_rec.ParentID;
 		GoodsCtrlGroup::Rec dest_rec(grp_id, Data.DestList.getSingle());
-		setGroupData(GRP_GOODS2, &dest_rec);
+		setGroupData(ctlgroupGoods2, &dest_rec);
 		if(SpecialForm == sfEgais) {
 			AddClusterAssoc(CTL_REPLGOODS_FLTF, 0, selfByClass);
 			AddClusterAssoc(CTL_REPLGOODS_FLTF, 1, selfByVolume);
@@ -2668,12 +2671,12 @@ public:
 		}
 		return 1;
 	}
-	int    getDTS(PPObjGoods::ExtUniteBlock * pData)
+	int    getDTS(DlgDataType * pData)
 	{
 		int    ok = 1;
 		PPID   dest_id;
 		GoodsCtrlGroup::Rec rec;
-		THROW(getGroupData(GRP_GOODS1, &rec));
+		THROW(getGroupData(ctlgroupGoods1, &rec));
 		Data.ResultID = rec.GoodsID;
 		{
 			uint16 v = getCtrlUInt16(CTL_REPLGOODS_ALLDEST);
@@ -2681,7 +2684,7 @@ public:
 			THROW_PP(Data.ResultID != 0, PPERR_REPLZEROOBJ);
 		}
 		if(!(Data.Flags & Data.fAllToOne)) {
-			THROW(getGroupData(GRP_GOODS2, &rec));
+			THROW(getGroupData(ctlgroupGoods2, &rec));
 			dest_id = rec.GoodsID;
 			THROW_PP(dest_id != 0 && Data.ResultID != 0, PPERR_REPLZEROOBJ);
 			THROW_PP(dest_id != Data.ResultID, PPERR_REPLSAMEOBJ);
@@ -2723,7 +2726,7 @@ private:
 		else if(event.isClusterClk(CTL_REPLGOODS_FLTF)) {
             long   f = GetClusterData(CTL_REPLGOODS_FLTF);
             GoodsCtrlGroup::Rec rec;
-			if(getGroupData(GRP_GOODS2, &rec)) {
+			if(getGroupData(ctlgroupGoods2, &rec)) {
 				PPID   dest_id = rec.GoodsID;
 				Goods2Tbl::Rec goods_rec;
 				if(GObj.Fetch(dest_id, &goods_rec) > 0) {
@@ -2758,16 +2761,16 @@ private:
 						filt.ManufID = goods_rec.ManufID;
 					}
 					{
-						GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(GRP_GOODS1));
+						GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(ctlgroupGoods1));
 						p_grp->setFilt(this, &filt);
 					}
 				}
 			}
 		}
 		else if(event.isCmd(cmLots1))
-			viewLots(GRP_GOODS1);
+			viewLots(ctlgroupGoods1);
 		else if(event.isCmd(cmLots2))
-			viewLots(GRP_GOODS2);
+			viewLots(ctlgroupGoods2);
 		else if(event.isCmd(cmExchange))
 			Exchange();
 		else
@@ -2786,20 +2789,19 @@ private:
 		int    ok = 1;
 		PPID   src_id, dest_id;
 		GoodsCtrlGroup::Rec rec;
-		THROW(getGroupData(GRP_GOODS1, &rec));
+		THROW(getGroupData(ctlgroupGoods1, &rec));
 		src_id = rec.GoodsID;
-		THROW(getGroupData(GRP_GOODS2, &rec));
+		THROW(getGroupData(ctlgroupGoods2, &rec));
 		dest_id = rec.GoodsID;
 		MEMSZERO(rec);
 		rec.GoodsID = dest_id;
-		setGroupData(GRP_GOODS1, &rec);
+		setGroupData(ctlgroupGoods1, &rec);
 		MEMSZERO(rec);
 		rec.GoodsID = src_id;
-		setGroupData(GRP_GOODS2, &rec);
+		setGroupData(ctlgroupGoods2, &rec);
 		CATCHZOKPPERR
 		return ok;
 	}
-	PPObjGoods::ExtUniteBlock Data;
 	long   SelectionFlags;
 	int    SpecialForm;
 	PrcssrAlcReport::Config AlcrCfg;

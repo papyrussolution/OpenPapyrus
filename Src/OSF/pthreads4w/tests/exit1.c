@@ -33,15 +33,12 @@
  *
  * Depends on API functions: None.
  */
-
 #include "test.h"
 
-int
-main(int argc, char * argv[])
+int main(int argc, char * argv[])
 {
 	/* A simple test first. */
-	pthread_exit((void *) 0);
-
+	pthread_exit((void*)0);
 	/* Not reached */
 	return 1;
 }

@@ -72,9 +72,7 @@
  */
 
 // @sobolev #define _WIN32_WINNT 0x400
-
 #include "test.h"
-#include <sys/timeb.h>
 
 pthread_cond_t cv;
 pthread_mutex_t mutex;

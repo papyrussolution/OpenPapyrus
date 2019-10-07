@@ -1,4 +1,4 @@
-/* 
+/*
  * mutex8.c
  *
  *
@@ -38,45 +38,30 @@
  *	pthread_mutex_timedlock()
  *	pthread_mutex_unlock()
  */
-
 #include "test.h"
 
 static int lockCount = 0;
-
 static pthread_mutex_t mutex;
 
 void * locker(void * arg)
 {
-  struct timespec abstime, reltime = { 1, 0 };
-
-  (void) pthread_win32_getabstime_np(&abstime, &reltime);
-
-  assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
-
-  lockCount++;
-
-  return 0;
+	struct timespec abstime, reltime = { 1, 0 };
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+	lockCount++;
+	return 0;
 }
 
-int
-main()
+int main()
 {
-  pthread_t t;
-
-  assert(pthread_mutex_init(&mutex, NULL) == 0);
-
-  assert(pthread_mutex_lock(&mutex) == 0);
-
-  assert(pthread_create(&t, NULL, locker, NULL) == 0);
-
-  while (lockCount < 1)
-    {
-      Sleep(1);
-    }
-
-  assert(lockCount == 1);
-
-  assert(pthread_mutex_unlock(&mutex) == 0);
-
-  return 0;
+	pthread_t t;
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	return 0;
 }

@@ -688,8 +688,107 @@ int SLAPI StringStore2::TranslationWanted(const uchar * pOrgText) const
 
 int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt);
 
-static void RecoverAutotranslatedString(SString & rBuf)
+static void PreserveStringForAutotraslation(const SString & rOrgBuf, SString & rResultBuf, StrAssocArray & rAssocList)
 {
+	rAssocList.Z();
+	rResultBuf.Z();
+	const size_t org_len = rOrgBuf.Len();
+	SString preserve_buf;
+	SString subst_buf;
+	long   subst_n = 0;
+	for(size_t p = 0; p < org_len;) {
+		const char c = rOrgBuf.C(p);
+		const char c2 = rOrgBuf.C(p+1);
+		if(c == '@' && c2 == '{') {
+			subst_buf.Z();
+			preserve_buf.Z().CatChar(c).CatChar(c2);
+			size_t p2 = p+2;
+			do {
+				const char c3 = rOrgBuf.C(p2++);
+				if(isdec(c3) || (c3 >= 'A' && c3 <= 'Z') || (c3 >= 'a' && c3 <= 'z') || oneof2(c3, '_', '-')) {
+					preserve_buf.CatChar(c3);
+				}
+				else if(c3 == '}') {
+					preserve_buf.CatChar(c3);
+					if(rOrgBuf.C(p2) == ':') {
+						preserve_buf.CatChar(rOrgBuf.C(p2++));
+						while(rOrgBuf.C(p2) == ' ') {
+							preserve_buf.CatChar(rOrgBuf.C(p2++));
+						}
+					}
+					break;
+				}
+				else {
+					preserve_buf.Z();
+					break;
+				}
+			} while(1);
+			if(preserve_buf.NotEmpty()) {
+				(subst_buf = "#").CatLongZ(++subst_n, 3);
+				rAssocList.Add(subst_n, preserve_buf);
+				rResultBuf.Cat(subst_buf);
+				p = p2;
+			}
+			else {
+				rResultBuf.CatChar(c);
+				p++;
+			}
+		}
+		else if(oneof4(c, '[', '(', '{', '\'')) {
+			char end_c = 0;
+			if(c == '[')
+				end_c = ']';
+			else if(c == '(')
+				end_c = ')';
+			else if(c == '\'')
+				end_c = '\'';
+			else if(c == '{')
+				end_c = '}';
+			assert(end_c != 0);
+			subst_buf.Z();
+			preserve_buf.Z().CatChar(c);
+			size_t p2 = p+1;
+			do {
+				const char c3 = rOrgBuf.C(p2++);
+				if(c3 == end_c) {
+					preserve_buf.CatChar(c3);
+					if(rOrgBuf.C(p2) == ':') {
+						preserve_buf.CatChar(rOrgBuf.C(p2++));
+						while(rOrgBuf.C(p2) == ' ') {
+							preserve_buf.CatChar(rOrgBuf.C(p2++));
+						}
+					}
+					break;
+				}
+				else if(isdec(c3) || (c3 >= 'A' && c3 <= 'Z') || (c3 >= 'a' && c3 <= 'z') || oneof12(c3, '_', '-', '+', '/', '%', '=', ' ', '.', ',', ':', ';', '@')) {
+					preserve_buf.CatChar(c3);
+				}
+				else {
+					preserve_buf.Z();
+					break;
+				}
+			} while(1);
+			if(preserve_buf.NotEmpty()) {
+				(subst_buf = "#").CatLongZ(++subst_n, 3);
+				rAssocList.Add(subst_n, preserve_buf);
+				rResultBuf.Cat(subst_buf);
+				p = p2;
+			}
+			else {
+				rResultBuf.CatChar(c);
+				p++;
+			}
+		}
+		else {
+			rResultBuf.CatChar(c);
+			p++;
+		}
+	}
+}
+
+static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocList)
+{
+	SString subst_buf;
 	rBuf.ReplaceStr("% s", "%s", 0);
 	rBuf.ReplaceStr("% ld", "%ld", 0);
 	rBuf.ReplaceStr("% lf", "%lf", 0);
@@ -698,6 +797,23 @@ static void RecoverAutotranslatedString(SString & rBuf)
 	rBuf.ReplaceStr(":%", "% :", 0);
 	rBuf.ReplaceStr("\'%s \'", "\'%s\'", 0);
 	rBuf.ReplaceStr("@ {", "@{", 0);
+	for(uint i = 0; i < rAssocList.getCount(); i++) {
+		StrAssocArray::Item item = rAssocList.at_WithoutParent(i);
+		if(item.Id > 0 && item.Id < 1000) {
+			(subst_buf = "#").CatLongZ(item.Id, 3);
+			rBuf.ReplaceStr(subst_buf, item.Txt, 1);
+		}
+	}
+	// @debug {
+	{
+		int  there_is_a_problem = 0;
+		uint debug_pos = 0;
+		if(rBuf.Search("#0", 0, 0, &debug_pos)) {
+			there_is_a_problem = 1;
+		}
+	}
+	// } @debug 
+	rBuf.ReplaceStr("  ", " ", 0);
 }
 
 int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
@@ -759,6 +875,8 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 		SString auto_transl_string;
 		SString auto_transl_file;
 		SString org_text;
+		SString string_to_translate;
+		StrAssocArray subst_list;
 		int    auto_transl_lang = 0;
 		if(!isempty(pTranslateToLang)) {
 			THROW_V(auto_transl_lang = RecognizeLinguaSymb(pTranslateToLang, 0), PPERR_SC2_INVLANGSYMB);
@@ -934,8 +1052,9 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 												auto_transl_string.Cat(temp_buf);
 											}
 											else {
-												if(p_at->Request(slangRU, auto_transl_lang, temp_buf, intr_at_text) > 0) {
-													RecoverAutotranslatedString(intr_at_text);
+												PreserveStringForAutotraslation(temp_buf, string_to_translate, subst_list);
+												if(p_at->Request(slangRU, auto_transl_lang, /*temp_buf*/string_to_translate, intr_at_text) > 0) {
+													RecoverAutotranslatedString(intr_at_text, subst_list);
 													auto_transl_string.Cat(intr_at_text);
 												}
 												else
@@ -943,11 +1062,14 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 											}
 										}
 									}
-									else if(p_at->Request(slangRU, auto_transl_lang, org_text, auto_transl_string) > 0) {
-										RecoverAutotranslatedString(auto_transl_string);
+									else {
+										PreserveStringForAutotraslation(org_text, string_to_translate, subst_list);
+										if(p_at->Request(slangRU, auto_transl_lang, /*org_text*/string_to_translate, auto_transl_string) > 0) {
+											RecoverAutotranslatedString(auto_transl_string, subst_list);
+										}
+										else
+											auto_transl_string = "error-autotranslation";
 									}
-									else
-										auto_transl_string = "error-autotranslation";
 								}
 								else
 									auto_transl_string = "error-autotranslation";

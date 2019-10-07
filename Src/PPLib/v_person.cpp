@@ -561,9 +561,10 @@ struct UpdPersonListParam {
 	{
 	}
 	enum {
-		acnAcqKind    = 1,
-		acnRevokeKind = 2,
-		acnRemoveAll  = 3
+		acnAcqKind      = 1,
+		acnRevokeKind   = 2,
+		acnRemoveAll    = 3,
+		acnGenerateUUID = 4  // @v10.5.8
 	};
 	long    Action;
 	PPID    ExtObj;
@@ -582,8 +583,14 @@ public:
 		RVALUEPTR(Data, pData);
 		AddClusterAssocDef(CTL_UPDPLIST_WHAT, 0, Data.acnAcqKind);
 		AddClusterAssocDef(CTL_UPDPLIST_WHAT, 1, Data.acnRevokeKind);
-		AddClusterAssocDef(CTL_UPDPLIST_WHAT, 2, Data.acnRemoveAll);
+		AddClusterAssocDef(CTL_UPDPLIST_WHAT, 2, Data.acnGenerateUUID); // @v10.5.8
+		AddClusterAssocDef(CTL_UPDPLIST_WHAT, 3, Data.acnRemoveAll); // @v10.5.8 2-->3
 		SetClusterData(CTL_UPDPLIST_WHAT, Data.Action);
+		{
+			PPObjTag tag_obj;
+			PPObjectTag tag_rec;
+			DisableClusterItem(CTL_UPDPLIST_WHAT, 2, (tag_obj.Fetch(PPTAG_PERSON_UUID, &tag_rec) <= 0));
+		}
 		SetupControls(0);
 		return ok;
 	}
@@ -592,17 +599,24 @@ public:
 		int    ok = 1;
 		uint   sel = 0;
 		GetClusterData(CTL_UPDPLIST_WHAT, &Data.Action);
-		if(oneof2(Data.Action, Data.acnAcqKind, Data.acnRevokeKind)) {
-			getCtrlData(sel = CTLSEL_UPDPLIST_EXTOBJ, &Data.ExtObj);
-			THROW_PP(Data.ExtObj && SearchObject(PPOBJ_PRSNKIND, Data.ExtObj, 0) > 0, PPERR_PSNKINDNEEDED);
-			THROW_PP(Data.ExtObj != PPPRK_MAIN || PPMaster, PPERR_UNCHANGABLEPERSONKIND);
-		}
-		else {
-			SString answ;
-			SString yes_str;
-			getCtrlString(sel = CTL_UPDPLIST_YES, answ);
-			PPLoadString("yes", yes_str);
-			THROW_PP(stricmp866(answ, yes_str) == 0, PPERR_STRICTCONFIRMTEXTIGNORED);
+		switch(Data.Action) {
+			case UpdPersonListParam::acnAcqKind:
+			case UpdPersonListParam::acnRevokeKind:
+				getCtrlData(sel = CTLSEL_UPDPLIST_EXTOBJ, &Data.ExtObj);
+				THROW_PP(Data.ExtObj && SearchObject(PPOBJ_PRSNKIND, Data.ExtObj, 0) > 0, PPERR_PSNKINDNEEDED);
+				THROW_PP(Data.ExtObj != PPPRK_MAIN || PPMaster, PPERR_UNCHANGABLEPERSONKIND);
+				break;
+			case UpdPersonListParam::acnGenerateUUID:
+				break;
+			case UpdPersonListParam::acnRemoveAll:
+				{
+					SString answ;
+					SString yes_str;
+					getCtrlString(sel = CTL_UPDPLIST_YES, answ);
+					PPLoadString("yes", yes_str);
+					THROW_PP(stricmp866(answ, yes_str) == 0, PPERR_STRICTCONFIRMTEXTIGNORED);
+				}
+				break;
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -633,6 +647,9 @@ private:
 			SetupPPObjCombo(this, CTLSEL_UPDPLIST_EXTOBJ, PPOBJ_PRSNKIND, Data.ExtObj, 0);
 			disableCtrl(CTL_UPDPLIST_YES, 1);
 		}
+		if(Data.Action == Data.acnGenerateUUID) { // @v10.5.8
+			disableCtrl(CTL_UPDPLIST_YES, 1);
+		}
 		else {
 			PPLoadString("updpersonlist_extobj", label_buf);
 			disableCtrl(CTL_UPDPLIST_YES, 0);
@@ -647,7 +664,7 @@ int SLAPI PPViewPerson::UpdateList()
 	UpdPersonListParam param;
 	THROW(PsnObj.CheckRights(PSNRT_MULTUPD));
 	if(PPDialogProcBody <UpdPersonListParamDialog, UpdPersonListParam>(&param) > 0) {
-		if(oneof3(param.Action, UpdPersonListParam::acnAcqKind, UpdPersonListParam::acnRevokeKind, UpdPersonListParam::acnRemoveAll)) {
+		if(oneof4(param.Action, UpdPersonListParam::acnAcqKind, UpdPersonListParam::acnRevokeKind, UpdPersonListParam::acnRemoveAll, UpdPersonListParam::acnGenerateUUID)) {
 			PersonViewItem item;
 			PPIDArray id_list;
 			PPLogger logger;
@@ -681,6 +698,29 @@ int SLAPI PPViewPerson::UpdateList()
 								const PPID _id = id_list.get(i);
 								if(!PsnObj.P_Tbl->RemoveKind(_id, param.ExtObj, 0)) {
 									logger.LogLastError();
+								}
+								PPWaitPercent(i+1, cnt);
+							}
+							THROW(tra.Commit());
+						}
+						break;
+					case UpdPersonListParam::acnGenerateUUID: // @v10.5.8
+						{
+							Reference * p_ref = PPRef;
+							const PPID obj_type = PPOBJ_PERSON;
+							const PPID tag_id = PPTAG_PERSON_UUID;
+							PPTransaction tra(1);
+							THROW(tra);
+							for(uint i = 0; i < cnt; i++) {
+								const PPID _id = id_list.get(i);
+								S_GUID uuid;
+								if(p_ref->Ot.GetTagGuid(obj_type, _id, tag_id, uuid) < 0) {
+									uuid.Generate();
+									ObjTagItem tag_item;
+									if(!tag_item.SetGuid(tag_id, &uuid)) 
+										logger.LogLastError();
+									else if(!p_ref->Ot.PutTag(obj_type, _id, &tag_item, 0))
+										logger.LogLastError();
 								}
 								PPWaitPercent(i+1, cnt);
 							}

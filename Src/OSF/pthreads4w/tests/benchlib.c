@@ -32,7 +32,6 @@
 #include "test.h"
 #include <ptw32_config.h>
 #include "pthread.h"
-#include "sched.h"
 #include "semaphore.h"
 #include "benchtest.h"
 
@@ -77,7 +76,7 @@ int old_mutex_init(old_mutex_t * mutex, const old_mutexattr_t * attr)
 	if(attr != NULL && *attr != NULL && (*attr)->pshared == PTHREAD_PROCESS_SHARED) {
 		result = ENOSYS;
 	}
-	else{
+	else {
 		CRITICAL_SECTION cs;
 		/*
 		 * Load KERNEL32 and try to get address of TryEnterCriticalSection
@@ -98,7 +97,7 @@ int old_mutex_init(old_mutex_t * mutex, const old_mutexattr_t * attr)
 			if((*__ptw32_try_enter_critical_section)(&cs)) {
 				LeaveCriticalSection(&cs);
 			}
-			else{
+			else {
 				/*
 				 * Not really supported (Win98?).
 				 */
@@ -116,27 +115,21 @@ int old_mutex_init(old_mutex_t * mutex, const old_mutexattr_t * attr)
 			InitializeCriticalSection(&mx->cs);
 		}
 		else if(old_mutex_use == OLD_WIN32MUTEX) {
-			mx->mutex = CreateMutex(NULL,
-				FALSE,
-				NULL);
-
+			mx->mutex = CreateMutex(NULL, FALSE, NULL);
 			if(mx->mutex == 0) {
 				result = EAGAIN;
 			}
 		}
-		else{
+		else {
 			result = EINVAL;
 		}
 	}
-
 	if(result != 0 && mx != NULL) {
 		free(mx);
 		mx = NULL;
 	}
-
 FAIL0:
 	*mutex = mx;
-
 	return(result);
 }
 
@@ -144,32 +137,24 @@ int old_mutex_lock(old_mutex_t * mutex)
 {
 	int result = 0;
 	old_mutex_t mx;
-
 	if(mutex == NULL || *mutex == NULL) {
 		return EINVAL;
 	}
-
 	if(*mutex == (old_mutex_t)__PTW32_OBJECT_AUTO_INIT) {
 		/*
 		 * Don't use initialisers when benchtesting.
 		 */
 		result = EINVAL;
 	}
-
 	mx = *mutex;
-
 	if(result == 0) {
 		if(mx->mutex == 0) {
 			EnterCriticalSection(&mx->cs);
 		}
-		else{
-			result = (WaitForSingleObject(mx->mutex, INFINITE)
-			    == WAIT_OBJECT_0)
-			    ? 0
-			    : EINVAL;
+		else {
+			result = (WaitForSingleObject(mx->mutex, INFINITE) == WAIT_OBJECT_0) ? 0 : EINVAL;
 		}
 	}
-
 	return(result);
 }
 
@@ -177,25 +162,21 @@ int old_mutex_unlock(old_mutex_t * mutex)
 {
 	int result = 0;
 	old_mutex_t mx;
-
 	if(mutex == NULL || *mutex == NULL) {
 		return EINVAL;
 	}
-
 	mx = *mutex;
-
 	if(mx != (old_mutex_t)__PTW32_OBJECT_AUTO_INIT) {
 		if(mx->mutex == 0) {
 			LeaveCriticalSection(&mx->cs);
 		}
-		else{
+		else {
 			result = (ReleaseMutex(mx->mutex) ? 0 : EINVAL);
 		}
 	}
-	else{
+	else {
 		result = EINVAL;
 	}
-
 	return(result);
 }
 
@@ -203,20 +184,16 @@ int old_mutex_trylock(old_mutex_t * mutex)
 {
 	int result = 0;
 	old_mutex_t mx;
-
 	if(mutex == NULL || *mutex == NULL) {
 		return EINVAL;
 	}
-
 	if(*mutex == (old_mutex_t)__PTW32_OBJECT_AUTO_INIT) {
 		/*
 		 * Don't use initialisers when benchtesting.
 		 */
 		result = EINVAL;
 	}
-
 	mx = *mutex;
-
 	if(result == 0) {
 		if(mx->mutex == 0) {
 			if(__ptw32_try_enter_critical_section == NULL) {
@@ -226,19 +203,13 @@ int old_mutex_trylock(old_mutex_t * mutex)
 				result = EBUSY;
 			}
 		}
-		else{
-			DWORD status;
-
-			status = WaitForSingleObject(mx->mutex, 0);
-
+		else {
+			DWORD status = WaitForSingleObject(mx->mutex, 0);
 			if(status != WAIT_OBJECT_0) {
-				result = ((status == WAIT_TIMEOUT)
-				    ? EBUSY
-				    : EINVAL);
+				result = ((status == WAIT_TIMEOUT) ? EBUSY : EINVAL);
 			}
 		}
 	}
-
 	return(result);
 }
 
@@ -251,38 +222,31 @@ int old_mutex_destroy(old_mutex_t * mutex)
 	}
 	if(*mutex != (old_mutex_t)__PTW32_OBJECT_AUTO_INIT) {
 		mx = *mutex;
-
 		if((result = old_mutex_trylock(&mx)) == 0) {
 			*mutex = NULL;
-
 			(void)old_mutex_unlock(&mx);
-
 			if(mx->mutex == 0) {
 				DeleteCriticalSection(&mx->cs);
 			}
-			else{
+			else {
 				result = (CloseHandle(mx->mutex) ? 0 : EINVAL);
 			}
-
 			if(result == 0) {
 				mx->mutex = 0;
 				free(mx);
 			}
-			else{
+			else {
 				*mutex = mx;
 			}
 		}
 	}
-	else{
+	else {
 		result = EINVAL;
 	}
-
 	if(__ptw32_try_enter_critical_section != NULL) {
 		(void)FreeLibrary(__ptw32_h_kernel32);
 		__ptw32_h_kernel32 = 0;
 	}
-
 	return(result);
 }
 
-/****************************************************************************************/

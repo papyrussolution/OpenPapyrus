@@ -806,7 +806,7 @@ int SLAPI PPObjBill::ViewInventoryTotal(const PPIDArray & rIdList, const Invento
 		filt.Flags |= InventoryFilt::fMultipleTotal;
 		filt.BillList.Set(&rIdList);
 		THROW(r_inv_core.CalcTotal(&filt, &total, &goods_list));
-		total.GoodsCount = (long)goods_list.getCount();
+		total.GoodsCount = static_cast<long>(goods_list.getCount());
 	}
 	{
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_INVLINETOTAL))));

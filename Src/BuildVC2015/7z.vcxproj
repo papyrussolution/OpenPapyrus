@@ -290,6 +290,9 @@
       <Culture>0x0419</Culture>
       <AdditionalIncludeDirectories>..\include;..\osf\7z\include;..\osf\7z\Resource;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <ClCompile>
@@ -338,6 +341,9 @@
       <Culture>0x0419</Culture>
       <AdditionalIncludeDirectories>..\include;..\osf\7z\include;..\osf\7z\Resource;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <ClCompile>
@@ -386,6 +392,9 @@
       <Culture>0x0419</Culture>
       <AdditionalIncludeDirectories>..\include;..\osf\7z\include;..\osf\7z\Resource;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -578,6 +587,9 @@
       <Culture>0x0419</Culture>
       <AdditionalIncludeDirectories>..\include;..\osf\7z\include;..\osf\7z\Resource;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
     <ClCompile>
@@ -631,6 +643,9 @@
       <Culture>0x0419</Culture>
       <AdditionalIncludeDirectories>..\include;..\osf\7z\include;..\osf\7z\Resource;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
     <ClCompile>
@@ -684,6 +699,9 @@
       <Culture>0x0419</Culture>
       <AdditionalIncludeDirectories>..\include;..\osf\7z\include;..\osf\7z\Resource;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

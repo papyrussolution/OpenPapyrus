@@ -146,11 +146,9 @@ IMPL_HANDLE_EVENT(CurTransBillDialog)
 int CurTransBillDialog::setDTS(PPBillPacket * pPack)
 {
 	P_Pack = pPack;
-
 	int    ok = 1;
 	PPObjOprKind opkobj;
 	PPOprKindPacket op_pack;
-
 	MEMSZERO(Data);
 	THROW(P_Pack->GetCurTransit(&Data));
 	THROW(opkobj.GetPacket(Data.OpID, &op_pack) > 0);

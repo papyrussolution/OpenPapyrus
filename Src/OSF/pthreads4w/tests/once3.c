@@ -54,94 +54,84 @@ static pthread_once_t o = PTHREAD_ONCE_INIT;
 static pthread_once_t once[NUM_ONCE];
 
 typedef struct {
-  int i;
-  CRITICAL_SECTION cs;
+	int i;
+	CRITICAL_SECTION cs;
 } sharedInt_t;
 
 static sharedInt_t numOnce;
 static sharedInt_t numThreads;
 
-void
-myfunc(void)
+void myfunc(void)
 {
-  EnterCriticalSection(&numOnce.cs);
-  numOnce.i++;
-  assert(numOnce.i > 0);
-  LeaveCriticalSection(&numOnce.cs);
-  /* Simulate slow once routine so that following threads pile up behind it */
-  Sleep(10);
-  /* Test for cancellation late so we're sure to have waiters. */
-  pthread_testcancel();
+	EnterCriticalSection(&numOnce.cs);
+	numOnce.i++;
+	assert(numOnce.i > 0);
+	LeaveCriticalSection(&numOnce.cs);
+	/* Simulate slow once routine so that following threads pile up behind it */
+	Sleep(10);
+	/* Test for cancellation late so we're sure to have waiters. */
+	pthread_testcancel();
 }
 
-void *
-mythread(void * arg)
+static void * mythread(void * arg)
 {
-  /*
-   * Cancel every thread. These threads are deferred cancelable only, so
-   * this thread will see it only when it performs the once routine (my_func).
-   * The result will be that every thread eventually cancels only when it
-   * becomes the new 'once' thread.
-   */
-  assert(pthread_cancel(pthread_self()) == 0);
-  /*
-   * Now we block on the 'once' control.
-   */
-  assert(pthread_once(&once[(int)(size_t)arg], myfunc) == 0);
-  /*
-   * We should never get to here.
-   */
-  EnterCriticalSection(&numThreads.cs);
-  numThreads.i++;
-  LeaveCriticalSection(&numThreads.cs);
-  return (void*)(size_t)0;
+	/*
+	 * Cancel every thread. These threads are deferred cancelable only, so
+	 * this thread will see it only when it performs the once routine (my_func).
+	 * The result will be that every thread eventually cancels only when it
+	 * becomes the new 'once' thread.
+	 */
+	assert(pthread_cancel(pthread_self()) == 0);
+	/*
+	 * Now we block on the 'once' control.
+	 */
+	assert(pthread_once(&once[(int)(size_t)arg], myfunc) == 0);
+	/*
+	 * We should never get to here.
+	 */
+	EnterCriticalSection(&numThreads.cs);
+	numThreads.i++;
+	LeaveCriticalSection(&numThreads.cs);
+	return (void*)(size_t)0;
 }
 
-int
-main()
+int main()
 {
-  pthread_t t[NUM_THREADS][NUM_ONCE];
-  int i, j;
-
+	pthread_t t[NUM_THREADS][NUM_ONCE];
+	int i, j;
 #if defined (__PTW32_CONFIG_MSVC6) && defined(__PTW32_CLEANUP_CXX)
-  puts("If this test fails or hangs, rebuild the library with /EHa instead of /EHs.");
-  puts("(This is a known issue with Microsoft VC++6.0.)");
-  fflush(stdout);
+	puts("If this test fails or hangs, rebuild the library with /EHa instead of /EHs.");
+	puts("(This is a known issue with Microsoft VC++6.0.)");
+	fflush(stdout);
 #endif
-  
-  memset(&numOnce, 0, sizeof(sharedInt_t));
-  memset(&numThreads, 0, sizeof(sharedInt_t));
+	memset(&numOnce, 0, sizeof(sharedInt_t));
+	memset(&numThreads, 0, sizeof(sharedInt_t));
+	InitializeCriticalSection(&numThreads.cs);
+	InitializeCriticalSection(&numOnce.cs);
+	for(j = 0; j < NUM_ONCE; j++) {
+		once[j] = o;
+		for(i = 0; i < NUM_THREADS; i++) {
+			/* GCC build: create was failing with EAGAIN after 790 threads */
+			while(0 != pthread_create(&t[i][j], NULL, mythread, (void*)(size_t)j))
+				sched_yield();
+		}
+	}
 
-  InitializeCriticalSection(&numThreads.cs);
-  InitializeCriticalSection(&numOnce.cs);
+	for(j = 0; j < NUM_ONCE; j++)
+		for(i = 0; i < NUM_THREADS; i++)
+			if(pthread_join(t[i][j], NULL) != 0)
+				printf("Join failed for [thread,once] = [%d,%d]\n", i, j);
 
-  for (j = 0; j < NUM_ONCE; j++)
-    {
-      once[j] = o;
+	/*
+	 * All threads will cancel, none will return normally from
+	 * pthread_once and so numThreads should never be incremented. However,
+	 * numOnce should be incremented by every thread (NUM_THREADS*NUM_ONCE).
+	 */
+	assert(numOnce.i == NUM_ONCE * NUM_THREADS);
+	assert(numThreads.i == 0);
 
-      for (i = 0; i < NUM_THREADS; i++)
-        {
-          /* GCC build: create was failing with EAGAIN after 790 threads */
-          while (0 != pthread_create(&t[i][j], NULL, mythread, (void *)(size_t)j))
-            sched_yield();
-        }
-    }
+	DeleteCriticalSection(&numOnce.cs);
+	DeleteCriticalSection(&numThreads.cs);
 
-  for (j = 0; j < NUM_ONCE; j++)
-    for (i = 0; i < NUM_THREADS; i++)
-      if (pthread_join(t[i][j], NULL) != 0)
-        printf("Join failed for [thread,once] = [%d,%d]\n", i, j);
-
-  /*
-   * All threads will cancel, none will return normally from
-   * pthread_once and so numThreads should never be incremented. However,
-   * numOnce should be incremented by every thread (NUM_THREADS*NUM_ONCE).
-   */
-  assert(numOnce.i == NUM_ONCE * NUM_THREADS);
-  assert(numThreads.i == 0);
-
-  DeleteCriticalSection(&numOnce.cs);
-  DeleteCriticalSection(&numThreads.cs);
-
-  return 0;
+	return 0;
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * mutex6es.c
  *
  *
@@ -36,7 +36,7 @@
  * This should fail with an EDEADLK error.
  * The second unlock attempt should fail with an EPERM error.
  *
- * Depends on API functions: 
+ * Depends on API functions:
  *      pthread_create()
  *      pthread_join()
  *      pthread_mutexattr_init()
@@ -48,42 +48,31 @@
  *	pthread_mutex_lock()
  *	pthread_mutex_unlock()
  */
-
 #include "test.h"
 
 static int lockCount = 0;
-
 static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
 
 void * locker(void * arg)
 {
-  assert(pthread_mutex_lock(&mutex) == 0);
-  lockCount++;
-  assert(pthread_mutex_lock(&mutex) == EDEADLK);
-  lockCount++;
-  assert(pthread_mutex_unlock(&mutex) == 0);
-  assert(pthread_mutex_unlock(&mutex) == EPERM);
-
-  return (void *) 555;
+	assert(pthread_mutex_lock(&mutex) == 0);
+	lockCount++;
+	assert(pthread_mutex_lock(&mutex) == EDEADLK);
+	lockCount++;
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == EPERM);
+	return (void*)555;
 }
- 
-int
-main()
+
+int main()
 {
-  pthread_t t;
-  void* result = (void*)0;
-
-  assert(mutex == PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
-
-  assert(pthread_create(&t, NULL, locker, NULL) == 0);
-
-  assert(pthread_join(t, &result) == 0);
-  assert((int)(size_t)result == 555);
-
-  assert(lockCount == 2);
-
-  assert(pthread_mutex_destroy(&mutex) == 0);
-
-  return 0;
+	pthread_t t;
+	void* result = (void*)0;
+	assert(mutex == PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
+	assert(pthread_create(&t, NULL, locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	return 0;
 }
-

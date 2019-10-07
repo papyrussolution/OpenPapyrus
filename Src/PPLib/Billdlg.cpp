@@ -1777,6 +1777,15 @@ IMPL_HANDLE_EVENT(BillDialog)
 			setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
 		}
 	}
+	else if(event.isCbSelected(CTLSEL_BILL_CUR)) { // @v10.5.8 @construction
+		if(P_Pack->GetTCount()) {
+			const PPID cur_id = getCtrlLong(CTLSEL_BILL_CUR);
+			for(uint tiidx = 0; tiidx < P_Pack->GetTCount(); tiidx++) {
+				PPTransferItem & r_ti = P_Pack->TI(tiidx);
+				r_ti.CurID = cur_id;
+			}
+		}
+	}
 	else if(TVCOMMAND) {
 		switch(TVCMD) {
 			case cmAgreement:
@@ -2798,7 +2807,7 @@ int BillDialog::setCurGroupData()
 		ca_cg_rec.Amount = P_Pack->GetAmount();
 		ca_cg_rec.CRate  = P_Pack->Amounts.Get(PPAMT_CRATE, P_Pack->Rec.CurID);
 		setGroupData(GRP_CURAMT, &ca_cg_rec);
-		disableCtrl(CTLSEL_BILL_CUR, BIN(P_Pack->Rec.ID && P_Pack->GetTCount()));
+		disableCtrl(CTLSEL_BILL_CUR, BIN(P_Pack->Rec.ID && P_Pack->GetTCount() && P_Pack->OpTypeID != PPOPT_DRAFTQUOTREQ)); // @v10.5.8 (P_Pack->OpTypeID != PPOPT_DRAFTQUOTREQ)
 		return 1;
 	}
 	else

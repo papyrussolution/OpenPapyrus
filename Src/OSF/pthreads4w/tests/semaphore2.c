@@ -32,16 +32,16 @@
  * --------------------------------------------------------------------------
  *
  * Test Synopsis: Verify sem_getvalue returns the correct value.
- * - 
+ * -
  *
  * Test Method (Validation or Falsification):
  * - Validation
  *
  * Requirements Tested:
- * - 
+ * -
  *
  * Features Tested:
- * - 
+ * -
  *
  * Cases Tested:
  * -
@@ -68,39 +68,30 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
 #include "test.h"
 
 #define MAX_COUNT 100
 
-int
-main()
+int main()
 {
-  sem_t s;
+	sem_t s;
 	int value = 0;
 	int i;
-
-  assert(sem_init(&s, PTHREAD_PROCESS_PRIVATE, MAX_COUNT) == 0);
+	assert(sem_init(&s, PTHREAD_PROCESS_PRIVATE, MAX_COUNT) == 0);
 	assert(sem_getvalue(&s, &value) == 0);
 	assert(value == MAX_COUNT);
 //	  printf("Value = %ld\n", value);
-
-	for (i = MAX_COUNT - 1; i >= 0; i--)
-		{
-			assert(sem_wait(&s) == 0);
-			assert(sem_getvalue(&s, &value) == 0);
+	for(i = MAX_COUNT - 1; i >= 0; i--) {
+		assert(sem_wait(&s) == 0);
+		assert(sem_getvalue(&s, &value) == 0);
 //			  printf("Value = %ld\n", value);
-			assert(value == i);
-		}
-
-	for (i = 1; i <= MAX_COUNT; i++)
-		{
-			assert(sem_post(&s) == 0);
-			assert(sem_getvalue(&s, &value) == 0);
+		assert(value == i);
+	}
+	for(i = 1; i <= MAX_COUNT; i++) {
+		assert(sem_post(&s) == 0);
+		assert(sem_getvalue(&s, &value) == 0);
 //			  printf("Value = %ld\n", value);
-			assert(value == i);
-		}
-
-  return 0;
+		assert(value == i);
+	}
+	return 0;
 }
-

@@ -30,27 +30,6 @@
     <ClCompile Include="..\Osf\pthreads4w\global.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_barrier_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_barrier_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_barrier_wait.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_barrierattr_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_barrierattr_getpshared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_barrierattr_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_barrierattr_setpshared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\pthread_cancel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -271,6 +250,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\sched.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\pthread_barrier.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

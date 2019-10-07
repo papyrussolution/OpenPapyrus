@@ -266,13 +266,14 @@ struct MakeDatabaseParam {
 	SString Path;
 };
 
-#define FBB_GROUP1 1
-
 class MakeDatabaseParamDialog : public TDialog {
 public:
+	enum {
+		ctlgroupFbb = 1
+	};
 	MakeDatabaseParamDialog() : TDialog(DLG_MAKENEWDB)
 	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_MAKENEWDB_PATH, CTL_MAKENEWDB_PATH, FBB_GROUP1, PPTXT_SELNEWBASEDIR, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_MAKENEWDB_PATH, CTL_MAKENEWDB_PATH, ctlgroupFbb, PPTXT_SELNEWBASEDIR, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
 	}
 	int    setDTS(const MakeDatabaseParam * pData)
 	{
@@ -415,7 +416,7 @@ int SLAPI MakeDatabase()
 				class PPCreateDatabaseSession : public PPThread {
 				public:
 					struct Param {
-						Param() : Action(acnNone)
+						Param() : Action(acnNone), NewPosNodeN(0)
 						{
 						}
 						enum {
@@ -423,6 +424,7 @@ int SLAPI MakeDatabase()
 							acnCreatePosNode
 						};
 						int    Action;
+						long   NewPosNodeN;
 						S_GUID PosHostGuid;
 						S_GUID NewPosNodeGuid;
 						SString DbSymb;
@@ -440,6 +442,7 @@ int SLAPI MakeDatabase()
 					virtual void Run()
 					{
 						char    secret[256];
+						SString temp_buf;
 						PPVersionInfo vi = DS.GetVersionInfo();
 						THROW(vi.GetSecret(secret, sizeof(secret)));
 						THROW(DS.Login(P.DbSymb, PPSession::P_EmptyBaseCreationLogin, secret));
@@ -454,6 +457,10 @@ int SLAPI MakeDatabase()
 								ObjTagItem tag_item;
 								if(tag_item.SetGuid(PPTAG_POSNODE_HOSTUUID, &P.PosHostGuid))
 									cn_pack.TagL.PutItem(PPTAG_POSNODE_HOSTUUID, &tag_item);
+							}
+							if(P.NewPosNodeN > 0) {
+								temp_buf.Z().Cat(P.NewPosNodeN);
+								STRNSCPY(cn_pack.Symb, temp_buf);
 							}
 							if(!P.NewPosNodeGuid.IsZero()) {
 								ObjTagItem tag_item;
@@ -517,8 +524,28 @@ int SLAPI MakeDatabase()
 						PPCreateDatabaseSession::Param sess_param;
 						sess_param.DbSymb = param.DbSymb;
 						if(param.How == param.howAutoPosNode) {
-							PPRef->Ot.GetTagGuid(PPOBJ_CASHNODE, param.AutoPosNodeHostID, PPTAG_POSNODE_UUID, sess_param.PosHostGuid);
-							sess_param.NewPosNodeGuid.Generate();
+							PPObjCashNode cn_obj;
+							PPAsyncCashNode cn_pack;
+							if(cn_obj.GetAsync(param.AutoPosNodeHostID, &cn_pack) > 0) {
+								const ObjTagItem * p_tag_item = cn_pack.TagL.GetItem(PPTAG_POSNODE_UUID);
+								CALLPTRMEMB(p_tag_item, GetGuid(&sess_param.PosHostGuid));
+								sess_param.NewPosNodeGuid.Generate();
+								long  max_child_no = 0;
+								for(uint i = 0; i < cn_pack.ApnCorrList.getCount(); i++) {
+									const PPGenCashNode::PosIdentEntry * p_entry = cn_pack.ApnCorrList.at(i);
+									if(p_entry) {
+										SETMAX(max_child_no, p_entry->N);
+									}
+								}
+								PPGenCashNode::PosIdentEntry * p_child_pos_entry = cn_pack.ApnCorrList.CreateNewItem();
+								if(p_child_pos_entry) {
+									p_child_pos_entry->Uuid = sess_param.NewPosNodeGuid;
+									p_child_pos_entry->N = max_child_no+1;
+									sess_param.NewPosNodeN = p_child_pos_entry->N;
+									PPID  temp_cn_id = param.AutoPosNodeHostID;
+									THROW(cn_obj.Put(&temp_cn_id, &cn_pack, 1));
+								}
+							}
 						}
 						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
 						p_sess->Start(1);
@@ -564,8 +591,28 @@ int SLAPI MakeDatabase()
 						sess_param.Action = sess_param.acnCreatePosNode;
 						sess_param.DbSymb = param.DbSymb;
 						if(param.How == param.howAutoPosNode) {
-							PPRef->Ot.GetTagGuid(PPOBJ_CASHNODE, param.AutoPosNodeHostID, PPTAG_POSNODE_UUID, sess_param.PosHostGuid);
-							sess_param.NewPosNodeGuid.Generate();
+							PPObjCashNode cn_obj;
+							PPAsyncCashNode cn_pack;
+							if(cn_obj.GetAsync(param.AutoPosNodeHostID, &cn_pack) > 0) {
+								const ObjTagItem * p_tag_item = cn_pack.TagL.GetItem(PPTAG_POSNODE_UUID);
+								CALLPTRMEMB(p_tag_item, GetGuid(&sess_param.PosHostGuid));
+								sess_param.NewPosNodeGuid.Generate();
+								long  max_child_no = 0;
+								for(uint i = 0; i < cn_pack.ApnCorrList.getCount(); i++) {
+									const PPGenCashNode::PosIdentEntry * p_entry = cn_pack.ApnCorrList.at(i);
+									if(p_entry) {
+										SETMAX(max_child_no, p_entry->N);
+									}
+								}
+								PPGenCashNode::PosIdentEntry * p_child_pos_entry = cn_pack.ApnCorrList.CreateNewItem();
+								if(p_child_pos_entry) {
+									p_child_pos_entry->Uuid = sess_param.NewPosNodeGuid;
+									p_child_pos_entry->N = max_child_no+1;
+									sess_param.NewPosNodeN = p_child_pos_entry->N;
+									PPID  temp_cn_id = param.AutoPosNodeHostID;
+									THROW(cn_obj.Put(&temp_cn_id, &cn_pack, 1));
+								}
+							}
 						}
 						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
 						p_sess->Start(1);
