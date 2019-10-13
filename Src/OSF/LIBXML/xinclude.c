@@ -16,11 +16,6 @@
 #include <libxml/xinclude.h>
 #define XINCLUDE_MAX_DEPTH 40
 /* #define DEBUG_XINCLUDE */
-#ifdef DEBUG_XINCLUDE
-	#ifdef LIBXML_DEBUG_ENABLED
-		//#include <libxml/debugXML.h>
-	#endif
-#endif
 // 
 // XInclude context handling
 // 
@@ -382,7 +377,7 @@ static xmlDoc * xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char * URL)
 static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 {
 	xmlXIncludeRefPtr ref;
-	xmlURIPtr uri;
+	xmlURI * uri;
 	xmlChar * URL;
 	xmlChar * fragment = NULL;
 	xmlChar * href;
@@ -600,20 +595,19 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, const x
  *
  * Add a new txtument to the list
  */
-static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNode * txt, const xmlURL url) {
+static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNode * txt, const xmlURL url) 
+{
 #ifdef DEBUG_XINCLUDE
 	xmlGenericError(0, "Adding text %s\n", url);
 #endif
 	if(ctxt->txtMax == 0) {
 		ctxt->txtMax = 4;
-		ctxt->txtTab = (xmlNodePtr*)SAlloc::M(ctxt->txtMax *
-		    sizeof(ctxt->txtTab[0]));
+		ctxt->txtTab = static_cast<xmlNode **>(SAlloc::M(ctxt->txtMax * sizeof(ctxt->txtTab[0])));
 		if(ctxt->txtTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, NULL, "processing text");
 			return;
 		}
-		ctxt->txturlTab = (xmlURL*)SAlloc::M(ctxt->txtMax *
-		    sizeof(ctxt->txturlTab[0]));
+		ctxt->txturlTab = static_cast<xmlURL *>(SAlloc::M(ctxt->txtMax * sizeof(ctxt->txturlTab[0])));
 		if(ctxt->txturlTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, NULL, "processing text");
 			return;
@@ -621,14 +615,12 @@ static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNode * txt, const xmlU
 	}
 	if(ctxt->txtNr >= ctxt->txtMax) {
 		ctxt->txtMax *= 2;
-		ctxt->txtTab = (xmlNodePtr*)SAlloc::R(ctxt->txtTab,
-		    ctxt->txtMax * sizeof(ctxt->txtTab[0]));
+		ctxt->txtTab = static_cast<xmlNode **>(SAlloc::R(ctxt->txtTab, ctxt->txtMax * sizeof(ctxt->txtTab[0])));
 		if(ctxt->txtTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, NULL, "processing text");
 			return;
 		}
-		ctxt->txturlTab = (xmlURL*)SAlloc::R(ctxt->txturlTab,
-		    ctxt->txtMax * sizeof(ctxt->txturlTab[0]));
+		ctxt->txturlTab = static_cast<xmlURL *>(SAlloc::R(ctxt->txturlTab, ctxt->txtMax * sizeof(ctxt->txturlTab[0])));
 		if(ctxt->txturlTab == NULL) {
 			xmlXIncludeErrMemory(ctxt, NULL, "processing text");
 			return;
@@ -700,7 +692,6 @@ static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 	}
 	return result;
 }
-
 /**
  * xmlXIncludeGetNthChild:
  * @cur:  the node
@@ -708,7 +699,8 @@ static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
  *
  * Returns the @n'th element child of @cur or NULL
  */
-static xmlNode * xmlXIncludeGetNthChild(xmlNode * cur, int no) {
+static xmlNode * xmlXIncludeGetNthChild(xmlNode * cur, int no) 
+{
 	int i;
 	if(!cur || (cur->type == XML_NAMESPACE_DECL))
 		return 0;
@@ -716,9 +708,7 @@ static xmlNode * xmlXIncludeGetNthChild(xmlNode * cur, int no) {
 	for(i = 0; i <= no; cur = cur->next) {
 		if(!cur)
 			return cur;
-		if((cur->type == XML_ELEMENT_NODE) ||
-		    (cur->type == XML_DOCUMENT_NODE) ||
-		    (cur->type == XML_HTML_DOCUMENT_NODE)) {
+		if((cur->type == XML_ELEMENT_NODE) || (cur->type == XML_DOCUMENT_NODE) || (cur->type == XML_HTML_DOCUMENT_NODE)) {
 			i++;
 			if(i == no)
 				break;
@@ -759,7 +749,6 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, 
 	if(range->type != XPATH_RANGE)
 		return 0;
 	start = (xmlNode *)range->user;
-
 	if((start == NULL) || (start->type == XML_NAMESPACE_DECL))
 		return 0;
 	end = (xmlNode *)range->user2;
@@ -806,7 +795,6 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, 
 			if(cur->type == XML_TEXT_NODE) {
 				const xmlChar * content = cur->content;
 				int len;
-
 				if(content == NULL) {
 					tmp = xmlNewTextLen(NULL, 0);
 				}
@@ -976,7 +964,7 @@ static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 		return 0;
 	switch(obj->type) {
 		case XPATH_NODESET: {
-		    xmlNodeSetPtr set = obj->nodesetval;
+		    xmlNodeSet * set = obj->nodesetval;
 		    if(set == NULL)
 			    return 0;
 		    for(i = 0; i < set->nodeNr; i++) {
@@ -1010,8 +998,7 @@ static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 							case XML_ENTITY_NODE:
 							case XML_PI_NODE:
 							case XML_COMMENT_NODE:
-							    tmp = xmlXIncludeCopyNode(ctxt, target,
-								    source, cur);
+							    tmp = xmlXIncludeCopyNode(ctxt, target, source, cur);
 							    if(last == NULL) {
 								    list = last = tmp;
 							    }
@@ -1105,11 +1092,11 @@ static void xmlXIncludeMergeEntity(xmlEntity * ent, xmlXIncludeMergeData * data,
 	xmlEntity * prev;
 	xmlDoc * doc;
 	xmlXIncludeCtxtPtr ctxt;
-	if((ent == NULL) || (data == NULL))
+	if(!ent || !data)
 		return;
 	ctxt = data->ctxt;
 	doc = data->doc;
-	if(!ctxt || (doc == NULL))
+	if(!ctxt || !doc)
 		return;
 	switch(ent->etype) {
 		case XML_INTERNAL_PARAMETER_ENTITY:
@@ -1220,7 +1207,7 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlDo
 static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int nr) 
 {
 	xmlDoc * doc;
-	xmlURIPtr uri;
+	xmlURI * uri;
 	xmlChar * URL;
 	xmlChar * fragment = NULL;
 	int i = 0;
@@ -1362,7 +1349,7 @@ loaded:
 		 * as the replacement copy.
 		 */
 		xmlXPathObjectPtr xptr;
-		xmlNodeSetPtr set;
+		xmlNodeSet * set;
 		xmlXPathContext * xptrctxt = doc ? xmlXPtrNewContext(doc, 0, 0) : xmlXPtrNewContext(ctxt->doc, ctxt->incTab[nr]->ref, 0);
 		if(!xptrctxt) {
 			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_XPTR_FAILED, "could not create XPointer context\n", 0);
@@ -1580,8 +1567,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		return -1;
 	}
 	/*
-	 * Handling of references to the local document are done
-	 * directly through ctxt->doc.
+	 * Handling of references to the local document are done directly through ctxt->doc.
 	 */
 	if(URL[0] == 0) {
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_TEXT_DOCUMENT, "text serialization of document not available\n", 0);
@@ -1619,7 +1605,6 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		}
 		SAlloc::F(encoding);
 	}
-
 	/*
 	 * Load it.
 	 */

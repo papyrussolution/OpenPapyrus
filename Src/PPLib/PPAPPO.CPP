@@ -31,6 +31,7 @@ int SLAPI TestVetis(); // vetis.cpp
 int SLAPI TestMqc(); // ppmqc.cpp
 int SLAPI RecoverAbsenceTrfr();
 int SLAPI PPValidateXml();
+int SLAPI OpenPhonePane();
 //int SLAPI ImportSartre();
 // } @prototype
 //
@@ -375,6 +376,16 @@ static void ShowTags_(PPID objType)
 	ShowObjects(PPOBJ_TAG, &ot_filt);
 }
 
+TWindow * PPApp::FindPhonePaneDialog()
+{
+	const long res_id = DLG_PHNCPANE;
+	for(TView * p = P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
+		if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && static_cast<const TDialog *>(p)->resourceID == res_id)
+			return static_cast<TWindow *>(p);
+	}
+	return 0;
+}
+
 int PPApp::processCommand(uint cmd)
 {
 	LastCmd = cmd;
@@ -624,6 +635,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPrjTask_ByReminder:   ViewPrjTask_ByReminder();        break;
 		case cmMaintainPrjTask:      MaintainPrjTask();               break;
 		case cmGotoSite:             TProgram::GotoSite();            break;
+		case cmOpenPhonePane:        OpenPhonePane();                 break; // @v10.5.8
 		case cmViewNewVersionList:   PPUhttClient::ViewNewVerList(1); break;
 		case cmViewQuots:            ViewQuot(0);                     break;
 		case cmTech:                 ViewTech(0);                     break;

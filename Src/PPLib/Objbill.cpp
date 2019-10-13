@@ -3739,7 +3739,7 @@ int SLAPI PPObjBill::SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <Quote
 		MEMSZERO(k0);
 		k0.BillID = bill_id_beg;
 		BExtQuery q(p_cpt, 0);
-		q.select(p_cpt->BillID, p_cpt->RByBill, p_cpt->Flags, p_cpt->Tail, 0L).
+		q.select(p_cpt->BillID, p_cpt->RByBill, p_cpt->Flags, p_cpt->Cost, p_cpt->Qtty, p_cpt->Tail, 0L).
 			where(p_cpt->BillID >= bill_id_beg && p_cpt->BillID <= bill_id_end);
 		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
 			p_cpt->copyBufTo(&cpt_rec);
@@ -3748,10 +3748,16 @@ int SLAPI PPObjBill::SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <Quote
 				CpTransfCore::GetExt__(cpt_rec, &cpext);
 				if(cpext.LinkBillID > 0 && cpext.LinkRbb > 0) {
 					QuoteReqLink new_item;
+					MEMSZERO(new_item);
 					new_item.LeadBillID = cpext.LinkBillID;
 					new_item.LeadRbb = cpext.LinkRbb;
 					new_item.SeqBillID = cpt_rec.BillID;
 					new_item.SeqRbb = cpt_rec.RByBill;
+					new_item.AckStatus = cpext.QrSeqAckStatus;
+					if(new_item.AckStatus == 1) {
+						new_item.AckCost = cpt_rec.Cost;
+						new_item.AckQtty = cpt_rec.Qtty;
+					}
 					rList.insert(&new_item);
 					ok = 1;
 				}
@@ -7166,8 +7172,14 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 					// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
 					pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
 					STRNSCPY(cte.PartNo, clb);
-					cte.LinkBillID = pti->Lbr.ID; // @v10.5.8
-					cte.LinkRbb = pti->Lbr.RByBill; // @v10.5.8
+					// @v10.5.8 {
+					cte.LinkBillID = pti->Lbr.ID; 
+					cte.LinkRbb = pti->Lbr.RByBill;
+					if(pti->TFlags & PPTransferItem::tfQrSeqAccepted)
+						cte.QrSeqAckStatus = 1;
+					else if(pti->TFlags & PPTransferItem::tfQrSeqRejected)
+						cte.QrSeqAckStatus = 2;
+					// } @v10.5.8 
 					THROW(pti->Init(&pPack->Rec, zero_rbybill));
 					THROW(P_CpTrfr->PutItem(pti, (zero_rbybill ? 0 : pti->RByBill), &cte, 0));
 					ufp_counter.TiAddCount++;
@@ -7378,7 +7390,10 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	int    ok = 1;
 	int    ta = 0;
 	int    frrl_tag = 0;
-	int    r, found, rbybill, rest_checking = -1;
+	int    rest_checking = -1;
+	int    r;
+	int    found;
+	int    rbybill;
 	uint   i, pos;
 	const  PPRights & r_rt = ObjRts;
 	Reference * p_ref = PPRef; // @v9.8.11
@@ -7503,6 +7518,8 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				const long preserve_tflags = p_ti->TFlags;
 				THROW(p_ti->Init(&pPack->Rec, /*full_update*/0));
 				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfForceNew, preserve_tflags);
+				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfQrSeqAccepted, preserve_tflags); // @v10.5.8
+				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfQrSeqRejected, preserve_tflags); // @v10.5.8
 				if(full_update)
 					p_ti->TFlags |= (PPTransferItem::tfForceReplace|PPTransferItem::tfForceNew);
 			}
@@ -7554,8 +7571,14 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 						// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
 						pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
 						STRNSCPY(cte.PartNo, clb);
-						cte.LinkBillID = p_ti->Lbr.ID; // @v10.5.8
-						cte.LinkRbb = p_ti->Lbr.RByBill; // @v10.5.8
+						// @v10.5.8 {
+						cte.LinkBillID = p_ti->Lbr.ID; 
+						cte.LinkRbb = p_ti->Lbr.RByBill;
+						if(p_ti->TFlags & PPTransferItem::tfQrSeqAccepted)
+							cte.QrSeqAckStatus = 1;
+						else if(p_ti->TFlags & PPTransferItem::tfQrSeqRejected)
+							cte.QrSeqAckStatus = 2;
+						// } @v10.5.8
 						THROW(P_CpTrfr->PutItem(p_ti, 0 /*forceRByBill*/, &cte, 0));
 						ufp_counter.TiAddCount++;
 					}

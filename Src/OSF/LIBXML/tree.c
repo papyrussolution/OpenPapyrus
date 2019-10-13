@@ -40,7 +40,7 @@ static void FASTCALL xmlTreeErrMemory(const char * extra)
  *
  * Handle an out of memory condition
  */
-static void FASTCALL xmlTreeErr(int code, xmlNode * P_Node, const char * extra)
+static void FASTCALL xmlTreeErr(int code, xmlNode * pNode, const char * extra)
 {
 	const char * msg = NULL;
 	switch(code) {
@@ -50,14 +50,11 @@ static void FASTCALL xmlTreeErr(int code, xmlNode * P_Node, const char * extra)
 		case XML_TREE_NOT_UTF8: msg = "string is not in UTF-8\n"; break;
 		default: msg = "unexpected error number\n";
 	}
-	__xmlSimpleError(XML_FROM_TREE, code, P_Node, msg, extra);
+	__xmlSimpleError(XML_FROM_TREE, code, pNode, msg, extra);
 }
-
-/************************************************************************
-*									*
-*		A few static variables and macros			*
-*									*
-************************************************************************/
+// 
+// A few static variables and macros
+// 
 /* #undef xmlStringText */
 const xmlChar xmlStringText[] = { 't', 'e', 'x', 't', 0 };
 /* #undef xmlStringTextNoenc */
@@ -627,7 +624,7 @@ xmlNs * FASTCALL xmlNewNs(xmlNode * P_Node, const xmlChar * href, const xmlChar 
 	/*
 	 * Allocate a new Namespace and fill the fields.
 	 */
-	cur = (xmlNs *)SAlloc::M(sizeof(xmlNs));
+	cur = static_cast<xmlNs *>(SAlloc::M(sizeof(xmlNs)));
 	if(!cur) {
 		xmlTreeErrMemory("building namespace");
 		return 0;
@@ -1593,7 +1590,6 @@ static xmlAttr * FASTCALL xmlNewPropInternal(xmlNode * pNode, xmlNs * ns, const 
 	else
 		cur->name = name;
 	if(value) {
-		xmlNode * tmp;
 		if(!xmlCheckUTF8(value)) {
 			xmlTreeErr(XML_TREE_NOT_UTF8, (xmlNode *)doc, 0);
 			if(doc)
@@ -1601,7 +1597,7 @@ static xmlAttr * FASTCALL xmlNewPropInternal(xmlNode * pNode, xmlNs * ns, const 
 		}
 		cur->children = xmlNewDocText(doc, value);
 		cur->last = NULL;
-		for(tmp = cur->children; tmp; tmp = tmp->next) {
+		for(xmlNode * tmp = cur->children; tmp; tmp = tmp->next) {
 			tmp->P_ParentNode = (xmlNode *)cur;
 			if(!tmp->next)
 				cur->last = tmp;
@@ -5958,14 +5954,13 @@ int xmlUnsetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name)
  */
 xmlAttr * FASTCALL xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value) 
 {
-	int len;
-	const xmlChar * nqname;
 	if(!pNode || !name || (pNode->type != XML_ELEMENT_NODE))
 		return 0;
 	/*
 	 * handle QNames
 	 */
-	nqname = xmlSplitQName3(name, &len);
+	int len;
+	const xmlChar * nqname = xmlSplitQName3(name, &len);
 	if(nqname) {
 		xmlChar * prefix = xmlStrndup(name, len);
 		xmlNs * ns = xmlSearchNs(pNode->doc, pNode, prefix);
@@ -8325,7 +8320,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 					    /*
 					 * Create a new xmlNs.
 					     */
-					    cloneNs = (xmlNs *)SAlloc::M(sizeof(xmlNs));
+					    cloneNs = static_cast<xmlNs *>(SAlloc::M(sizeof(xmlNs)));
 					    if(cloneNs == NULL) {
 						    xmlTreeErrMemory("xmlDOMWrapCloneNode(): allocating namespace");
 						    return -1;

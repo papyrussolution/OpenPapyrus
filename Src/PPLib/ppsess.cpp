@@ -309,6 +309,14 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 				}
 			}
 		}
+		// @v10.5.8 {
+		{
+			TWindow * p_phn_pane = static_cast<PPApp *>(APPL)->FindPhonePaneDialog(); 
+			if(p_phn_pane) {
+				APPL->AddStatusBarItem("Phone Pane", /*PPDV_PHONE03*/ICON_PHONE, 0, /*cmPrjTask_ByReminder*/cmOpenPhonePane);
+			}
+		}
+		// } @v10.5.8
 		if(DS.GetPrivateBasket()) {
 			PPGetWord(PPWORD_PRIVATEBASKET, 1, temp_buf);
 			p_app->AddStatusBarItem(temp_buf, ICON_BASKET_SMALL, 0, cmPrivateBasket);
@@ -3300,7 +3308,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 									void   Register()
 									{
 										//LastPollClock = SLS.GetSSys().GetSystemTimestampMks();
-										LastPollClock = clock() * 1000;
+										LastPollClock = clock() * 1000LL;
 									}
 									int    IsTime() const
 									{
@@ -3308,7 +3316,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 											return 1;
 										else {
 											//const int64 ts = SLS.GetSSys().GetSystemTimestampMks();
-											const int64 ts = clock() * 1000;
+											const int64 ts = clock() * 1000LL;
 											if((ts - LastPollClock) >= PeriodMks)
 												return 1;
 											else

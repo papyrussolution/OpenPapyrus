@@ -17,10 +17,8 @@
 	#define HAVE_STDLIB_H
 	#define HAVE_TIME_H
 	#define HAVE_FCNTL_H
-	//#include <io.h>
 	#include <direct.h>
 #endif
-//#include <libxml/xmlversion.h>
 #ifndef ICONV_CONST
 	#define ICONV_CONST const
 #endif

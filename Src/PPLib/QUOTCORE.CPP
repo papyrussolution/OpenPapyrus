@@ -2428,26 +2428,30 @@ int SLAPI Quotation2Core::Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQu
 	return ok;
 }
 
-int SLAPI  Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray *pList)  // @erik v10.5.8
+int SLAPI  Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray * pList)  // @erik v10.5.8
 {
 	int    ok = -1;
 	Quotation2Tbl::Key4 k4;
 	DBQ * dbq = 0;
-	BExtQuery q(this, 4);
 	MEMSZERO(k4);
 	k4.Dt = rAfter.d;
 	k4.Tm = rAfter.t;
 	dbq = &(*dbq && this->Dt >= rAfter.d);
+	BExtQuery q(this, 4);
 	q.selectAll().where(*dbq);
 	for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
 		if(pList) {
-			PPQuot q;
-			RecToQuot(&data, q);
-			if(!rAfter || cmp(q.Dtm, rAfter) > 0){
-				THROW_SL(pList->insert(&q));
+			PPQuot quot;
+			RecToQuot(&data, quot);
+			if(!rAfter || cmp(quot.Dtm, rAfter) > 0){
+				THROW_SL(pList->insert(&quot));
 				ok = 1;
 			}
 		}		
+		else {
+			ok = 1;
+			break;
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -2455,31 +2459,24 @@ int SLAPI  Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray *pLi
 
 int    SLAPI Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot) //v10.5.8 @erik
 {
-	int    ok = 0;
+	int    ok = -1;
 	Quotation2Tbl::Key0 k0;
-	DBQ * dbq = 0;
-	BExtQuery q(this, 0);
 	MEMSZERO(k0);
 	k0.GoodsID = rGoodsID;
 	k0.RelID = rRelID;
-	dbq = &(this->GoodsID == rGoodsID && this->RelID == rRelID);  // dbq = &(this->GoodsID == rGoodsID && this->RelID == rRelID); => dbq = &(this->GoodsID == rGoodsID);
 	k0.Dt = rBefore.d;
 	k0.Tm = rBefore.t;
-	dbq = &(*dbq && this->Dt < rBefore.d);
-	q.selectAll().where(*dbq);
-	for(q.initIteration(0, &k0, spLt); q.nextIteration() > 0;) {
-		PPQuot q;
-		RecToQuot(&data, q);
-		if(!rBefore || cmp(rBefore, q.Dtm) > 0){
-			//THROW_SL(pList->insert(&q));
-			*pQuot = q;
+	if(search(0, &k0, spLe) && data.GoodsID == rGoodsID && data.RelID == rRelID ){
+		PPQuot quot;
+		RecToQuot(&data, quot);
+		if(!rBefore || cmp(rBefore, quot.Dtm) > 0) {
+			*pQuot = quot;
 			ok = 1;
-		}					
+		}
 	}
-	if(pQuot->IsEmpty()){
+	if(pQuot->IsEmpty()) {
 		ok = 2;
 	}
-	CATCHZOK
 	return ok;
 }
 
@@ -3346,7 +3343,7 @@ struct Quotation2_DumpHeader {
 	uint8  Reserve[44];
 };
 
-int SLAPI Quotation2Core::DumpCurrent(SBuffer & rBuf, int64 * pItemsCount)
+int SLAPI Quotation2Core::DumpCurrent(SBuffer & rBuf, long flags, int64 * pItemsCount)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -3369,6 +3366,11 @@ int SLAPI Quotation2Core::DumpCurrent(SBuffer & rBuf, int64 * pItemsCount)
 			k2.RelID = rel_id;
 			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 				RecToQuotRel(&data, quot);
+				// @v10.5.8 {
+				if(flags & dumpfIgnoreTimestamp) {
+					quot.Dtm.Z();
+				}
+				// } @v10.5.8 
 				THROW(qilist.Add(quot));
 			}
 		}

@@ -6,9 +6,6 @@
  *
  * Author: Daniel Veillard
  */
-
-//#include <libxml/parser.h>
-
 #ifndef __XML_ERROR_H__
 #define __XML_ERROR_H__
 
@@ -18,7 +15,6 @@ struct xmlNode;
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /**
  * xmlErrorLevel:
  *

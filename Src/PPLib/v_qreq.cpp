@@ -54,6 +54,9 @@ int SLAPI PPViewQuoteReqAnalyze::FinishListBySeq(PPID leadBillID, int leadRbb)
 				if(!is_there_anything) {
 					r_item.LinkBillID = r_qrl_item.SeqBillID;
 					r_item.LinkRbb = r_qrl_item.SeqRbb;
+					r_item.SeqAckStatus = r_qrl_item.AckStatus;
+					r_item.RepPrice = r_qrl_item.AckCost;
+					r_item.RepQtty = r_qrl_item.AckQtty;
 					if(P_BObj->Fetch(r_qrl_item.SeqBillID, &seq_bill_rec) > 0) {
 						r_item.LinkArID = seq_bill_rec.Object;
 						r_item.LinkDt = seq_bill_rec.Dt;
@@ -67,6 +70,9 @@ int SLAPI PPViewQuoteReqAnalyze::FinishListBySeq(PPID leadBillID, int leadRbb)
 					BrwItem new_item(r_item);
 					new_item.LinkBillID = r_qrl_item.SeqBillID;
 					new_item.LinkRbb = r_qrl_item.SeqRbb;
+					new_item.SeqAckStatus = r_qrl_item.AckStatus;
+					new_item.RepPrice = r_qrl_item.AckCost;
+					new_item.RepQtty = r_qrl_item.AckQtty;
 					if(P_BObj->Fetch(r_qrl_item.SeqBillID, &seq_bill_rec) > 0) {
 						new_item.LinkArID = seq_bill_rec.Object;
 						new_item.LinkDt = seq_bill_rec.Dt;
@@ -211,7 +217,45 @@ int FASTCALL PPViewQuoteReqAnalyze::NextIteration(QuoteReqAnalyzeViewItem * pIte
 //static 
 int SLAPI PPViewQuoteReqAnalyze::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
 {
-	int    ok = 1;
+	int    ok = -1;
+	if(pBrw && pData && pCellStyle && col >= 0) {
+		BrowserDef * p_def = pBrw->getDef();
+		if(col < static_cast<long>(p_def->getCount())) {
+			const BroColumn & r_col = p_def->at(col);
+			if(r_col.OrgOffs == 11) { // LinkBillCode
+				const  uint idx = *static_cast<const uint *>(pData);
+				PPViewQuoteReqAnalyze * p_view = static_cast<PPViewQuoteReqAnalyze *>(pBrw->P_View);
+				const  BrwItem * p_item = (p_view && idx > 0 && idx <= p_view->List.getCount()) ? &p_view->List.at(idx-1) : 0;
+				if(p_item) {
+					switch(p_item->SeqAckStatus) {
+						case 0:
+							pCellStyle->Color = GetColorRef(SClrIvory);
+							ok = 1;
+							break;
+						case 1:
+							pCellStyle->Color = GetColorRef(SClrLightgreen);
+							ok = 1;
+							break;
+						case 2:
+							pCellStyle->Color = GetColorRef(SClrLightcoral);
+							ok = 1;
+							break;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewQuoteReqAnalyze * p_view = static_cast<PPViewQuoteReqAnalyze *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
 	return ok;
 }
 
@@ -239,7 +283,7 @@ void SLAPI PPViewQuoteReqAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewQuoteReqAnalyze::GetDataForBrowser, this);
-		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 }
 
@@ -293,6 +337,25 @@ int SLAPI PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRb
 	return ok;
 }
 
+int SLAPI PPViewQuoteReqAnalyze::EditSeqItem(PPID seqBillID, int seqRbb)
+{
+	int    ok = -1;
+	if(seqBillID > 0 && seqRbb > 0) {
+		PPBillPacket seq_bpack;
+		uint seq_tipos = 0;
+		if(P_BObj->ExtractPacket(seqBillID, &seq_bpack) > 0 && seq_bpack.SearchTI(seqRbb, &seq_tipos)) {
+			PPTransferItem & r_seq_ti = seq_bpack.TI(seq_tipos);
+			if(EditTransferItem(&seq_bpack, static_cast<int>(seq_tipos), 0, 0, 0) == cmOK) {
+				THROW(P_BObj->UpdatePacket(&seq_bpack, 1));
+				CreateList(0, 0); // @todo Список надо перестроить только по одному документу
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 int SLAPI PPViewQuoteReqAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -301,6 +364,12 @@ int SLAPI PPViewQuoteReqAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, 
 		const  BrwItem * p_item = (idx > 0 && idx <= List.getCount()) ? &List.at(idx-1) : 0;
 		//if(idx)
 		switch(ppvCmd) {
+			case PPVCMD_EDITITEM:
+				ok = -1;
+				if(p_item) {
+					ok = EditSeqItem(p_item->LinkBillID, p_item->LinkRbb);
+				}
+				break;
 			case PPVCMD_CREATELINKQR:
 				ok = -1;
 				if(p_item) {
@@ -384,7 +453,7 @@ int SLAPI PPViewQuoteReqAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 					pBlk->Set(temp_buf); 
 					break; 
 				case 13: // RepQtty
-					pBlk->Set(0.0);
+					pBlk->Set(p_item->RepQtty);
 					break; 
 				case 14: // RepCurrency
 					if(p_item->RepCurID) {
@@ -399,7 +468,7 @@ int SLAPI PPViewQuoteReqAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 					pBlk->Set(temp_buf); 
 					break; 
 				case 15: // RepPrice
-					pBlk->Set(0.0);
+					pBlk->Set(p_item->RepPrice);
 					break; 
 				case 16: // RepShipmTerm
 					if(p_item->RepShipmTerm > 0) {

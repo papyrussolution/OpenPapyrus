@@ -904,7 +904,7 @@ static ssize_t _archive_write_disk_data_block(struct archive * _a, const void * 
 	ssize_t r;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_write_data_block");
 	a->offset = offset;
-	r = write_data_block(a, (const char *)buff, size);
+	r = write_data_block(a, static_cast<const char *>(buff), size);
 	if(r < ARCHIVE_OK)
 		return r;
 	if((size_t)r < size) {
@@ -922,7 +922,7 @@ static ssize_t _archive_write_disk_data(struct archive * _a, const void * buff, 
 {
 	struct archive_write_disk * a = reinterpret_cast<struct archive_write_disk *>(_a);
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_write_data");
-	return (write_data_block(a, (const char *)buff, size));
+	return (write_data_block(a, static_cast<const char *>(buff), size));
 }
 
 static int _archive_write_disk_finish_entry(struct archive * _a)

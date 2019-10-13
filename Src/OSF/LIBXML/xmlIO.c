@@ -7,22 +7,9 @@
  *
  * 14 Nov 2000 ht - for VMS, truncated name of long functions to under 32 char
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#ifdef HAVE_SYS_TYPES_H
-	//#include <sys/types.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-	//#include <zlib.h>
-//#endif
-//#ifdef HAVE_LZMA_H
-	//#include <lzma.h>
-//#endif
 #if defined(_WIN32_WCE)
 	#include <winnls.h> /* for CP_UTF8 */
 #endif
@@ -81,12 +68,12 @@
 /*
  * Input I/O callback sets
  */
-typedef struct _xmlInputCallback {
+struct xmlInputCallback {
 	xmlInputMatchCallback matchcallback;
 	xmlInputOpenCallback opencallback;
 	xmlInputReadCallback readcallback;
 	xmlInputCloseCallback closecallback;
-} xmlInputCallback;
+};
 
 #define MAX_INPUT_CALLBACK 15
 
@@ -98,12 +85,12 @@ static int xmlInputCallbackInitialized = 0;
 /*
  * Output I/O callback sets
  */
-typedef struct _xmlOutputCallback {
+struct xmlOutputCallback {
 	xmlOutputMatchCallback matchcallback;
 	xmlOutputOpenCallback opencallback;
 	xmlOutputWriteCallback writecallback;
 	xmlOutputCloseCallback closecallback;
-} xmlOutputCallback;
+};
 
 #define MAX_OUTPUT_CALLBACK 15
 
@@ -113,13 +100,9 @@ static int xmlOutputCallbackInitialized = 0;
 
 xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder);
 #endif /* LIBXML_OUTPUT_ENABLED */
-
-/************************************************************************
-*									*
-*		Tree memory error handler				*
-*									*
-************************************************************************/
-
+// 
+// Tree memory error handler
+// 
 static const char * IOerr[] = {
 	"Unknown IO error",     /* UNKNOWN */
 	"Permission denied",    /* EACCES */
@@ -193,7 +176,7 @@ static wchar_t * FASTCALL __xmlIOWin32UTF8ToWChar(const char * u8String)
 	if(u8String) {
 		int wLen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, u8String, -1, NULL, 0);
 		if(wLen) {
-			wString = (wchar_t *)SAlloc::M(wLen * sizeof(wchar_t));
+			wString = static_cast<wchar_t *>(SAlloc::M(wLen * sizeof(wchar_t)));
 			if(wString) {
 				if(MultiByteToWideChar(CP_UTF8, 0, u8String, -1, wString, wLen) == 0) {
 					SAlloc::F(wString);
@@ -216,7 +199,6 @@ static void FASTCALL xmlIOErrMemory(const char * extra)
 {
 	__xmlSimpleError(XML_FROM_IO, XML_ERR_NO_MEMORY, NULL, NULL, extra);
 }
-
 /**
  * __xmlIOErr:
  * @code:  the error number
@@ -436,12 +418,9 @@ void __xmlLoaderErr(void * ctx, const char * msg, const char * filename)
 		__xmlRaiseError(schannel, channel, data, ctxt, NULL, XML_FROM_IO, XML_IO_LOAD_ERROR, level, NULL, 0, filename, NULL, NULL, 0, 0, msg, filename);
 	}
 }
-
-/************************************************************************
-*									*
-*		Tree memory error handler				*
-*									*
-************************************************************************/
+// 
+// Tree memory error handler
+// 
 /**
  * xmlNormalizeWindowsPath:
  * @path: the input file path
@@ -473,7 +452,6 @@ void xmlCleanupInputCallbacks()
 		xmlInputCallbackInitialized = 0;
 	}
 }
-
 /**
  * xmlPopInputCallbacks:
  *
@@ -518,15 +496,10 @@ void xmlCleanupOutputCallbacks()
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
-/************************************************************************
-*									*
-*		Standard I/O for file accesses				*
-*									*
-************************************************************************/
-
+// 
+// Standard I/O for file accesses
+// 
 #if defined(_WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
-
 /**
  *  xmlWrapOpenUtf8:
  * @path:  the path in utf-8 encoding
@@ -568,7 +541,6 @@ static gzFile xmlWrapGzOpenUtf8(const char * path, const char * mode)
 }
 
 #endif
-
 /**
  *  xmlWrapStatUtf8:
  * @path:  the path in utf-8 encoding
@@ -592,7 +564,6 @@ static int xmlWrapStatUtf8(const char * path, struct stat * info)
 	return -1;
 #endif
 }
-
 /**
  *  xmlWrapOpenNative:
  * @path:  the path
@@ -605,7 +576,6 @@ static FILE* xmlWrapOpenNative(const char * path, int mode)
 {
 	return fopen(path, mode ? "wb" : "rb");
 }
-
 /**
  *  xmlWrapStatNative:
  * @path:  the path
@@ -660,9 +630,7 @@ static void xmlInitPlatformSpecificIo()
 		xmlPlatformIoInitialized = 1;
 	}
 }
-
 #endif
-
 /**
  * xmlCheckFilename:
  * @path:  the path to check
@@ -676,7 +644,6 @@ static void xmlInitPlatformSpecificIo()
  * if stat succeeds and the file is a directory,
  * returns 2.  otherwise returns 1.
  */
-
 int xmlCheckFilename(const char * path)
 {
 	if(path == NULL)
@@ -703,7 +670,6 @@ int xmlCheckFilename(const char * path)
 #endif /* HAVE_STAT */
 	return 1;
 }
-
 /**
  * xmlNop:
  *
@@ -1913,7 +1879,6 @@ static int xmlIOHTTPClosePut(void * ctxt)
 {
 	return xmlIOHTTPCloseWrite(ctxt, "PUT");
 }
-
 /**
  * xmlIOHTTPClosePost
  *
@@ -1932,11 +1897,9 @@ static int xmlIOHTTPClosePost(void * ctxt)
 #endif /* LIBXML_HTTP_ENABLED */
 
 #ifdef LIBXML_FTP_ENABLED
-/************************************************************************
-*									*
-*			I/O for FTP file accesses			*
-*									*
-************************************************************************/
+// 
+// I/O for FTP file accesses
+// 
 /**
  * xmlIOFTPMatch:
  * @filename:  the URI for matching
@@ -1977,7 +1940,6 @@ int xmlIOFTPRead(void * context, char * buffer, int len)
 {
 	return (buffer && len >= 0) ? xmlNanoFTPRead(context, &buffer[0], len) : -1;
 }
-
 /**
  * xmlIOFTPClose:
  * @context:  the I/O context
@@ -2413,7 +2375,7 @@ xmlParserInputBuffer * xmlParserInputBufferCreateFilename(const char * URI, xmlC
 xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncodingHandler * encoder, int compression ATTRIBUTE_UNUSED)
 {
 	xmlOutputBuffer * ret;
-	xmlURIPtr puri;
+	xmlURI * puri;
 	int i = 0;
 	void * context = NULL;
 	char * unescaped = NULL;
@@ -2930,7 +2892,7 @@ int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 	char * buffer = NULL;
 	int res = 0;
 	int nbchars = 0;
-	if((in == NULL) || (in->error))
+	if(!in || in->error)
 		return -1;
 	if((len <= MINLEN) && (len != 4))
 		len = MINLEN;

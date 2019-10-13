@@ -1640,12 +1640,11 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
  * Returns the number of items if this validates, a negative error code
  *    number otherwise
  */
-static int xmlSchemaValAtomicListNode(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * ret, xmlNodePtr P_Node) 
+static int xmlSchemaValAtomicListNode(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * ret, xmlNode * pNode) 
 {
 	xmlChar * val, * cur, * endval;
 	int nb_values = 0;
 	int tmp = 0;
-
 	if(!value) {
 		return -1;
 	}
@@ -1681,7 +1680,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaType * type, const xmlChar * valu
 	cur = val;
 	while((*cur == 0) && (cur != endval)) cur++;
 	while(cur != endval) {
-		tmp = xmlSchemaValPredefTypeNode(type, cur, NULL, P_Node);
+		tmp = xmlSchemaValPredefTypeNode(type, cur, NULL, pNode);
 		if(tmp != 0)
 			break;
 		while(*cur != 0) cur++;
@@ -2542,7 +2541,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 	    }
 		case XML_SCHEMAS_ANYURI: {
 		    if(*value != 0) {
-			    xmlURIPtr uri;
+			    xmlURI * uri;
 			    xmlChar * tmpval, * cur;
 			    if(normOnTheFly) {
 				    norm = xmlSchemaCollapseString(value);
@@ -2963,9 +2962,9 @@ error:
  * Returns 0 if this validates, a positive error code number otherwise
  *    and -1 in case of internal or API error.
  */
-int xmlSchemaValPredefTypeNode(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * val, xmlNodePtr P_Node) 
+int xmlSchemaValPredefTypeNode(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * val, xmlNode * pNode) 
 {
-	return (xmlSchemaValAtomicType(type, value, val, P_Node, 0, XML_SCHEMA_WHITESPACE_UNKNOWN, 1, 1, 0));
+	return (xmlSchemaValAtomicType(type, value, val, pNode, 0, XML_SCHEMA_WHITESPACE_UNKNOWN, 1, 1, 0));
 }
 /**
  * xmlSchemaValPredefTypeNodeNoNorm:
@@ -2981,9 +2980,9 @@ int xmlSchemaValPredefTypeNode(xmlSchemaType * type, const xmlChar * value, xmlS
  * Returns 0 if this validates, a positive error code number otherwise
  *    and -1 in case of internal or API error.
  */
-int xmlSchemaValPredefTypeNodeNoNorm(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * val, xmlNodePtr P_Node) 
+int xmlSchemaValPredefTypeNodeNoNorm(xmlSchemaType * type, const xmlChar * value, xmlSchemaValPtr * val, xmlNode * pNode) 
 {
-	return (xmlSchemaValAtomicType(type, value, val, P_Node, 1, XML_SCHEMA_WHITESPACE_UNKNOWN, 1, 0, 1));
+	return (xmlSchemaValAtomicType(type, value, val, pNode, 1, XML_SCHEMA_WHITESPACE_UNKNOWN, 1, 0, 1));
 }
 /**
  * xmlSchemaValidatePredefinedType:

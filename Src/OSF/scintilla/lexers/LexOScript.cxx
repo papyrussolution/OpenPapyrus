@@ -445,8 +445,7 @@ static void GetRangeLowered(Sci_PositionU start, Sci_PositionU end,
 	s[i] = '\0';
 }
 
-static void GetForwardWordLowered(Sci_PositionU start, Accessor & styler,
-    char * s, Sci_PositionU len)
+static void GetForwardWordLowered(Sci_PositionU start, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while(i < len - 1 && IsAlpha(styler.SafeGetCharAt(start + i))) {
@@ -456,14 +455,11 @@ static void GetForwardWordLowered(Sci_PositionU start, Accessor & styler,
 	s[i] = '\0';
 }
 
-static void UpdatePreprocessorFoldLevel(int &levelCurrent,
-    Sci_PositionU startPos, Accessor & styler)
+static void UpdatePreprocessorFoldLevel(int &levelCurrent, Sci_PositionU startPos, Accessor & styler)
 {
 	char s[7]; // Size of the longest possible keyword + null.
 	GetForwardWordLowered(startPos, styler, s, sizeof(s));
-
-	if(strcmp(s, "ifdef") == 0 ||
-	    strcmp(s, "ifndef") == 0) {
+	if(strcmp(s, "ifdef") == 0 || strcmp(s, "ifndef") == 0) {
 		levelCurrent++;
 	}
 	else if(strcmp(s, "endif") == 0) {
@@ -474,15 +470,11 @@ static void UpdatePreprocessorFoldLevel(int &levelCurrent,
 	}
 }
 
-static void UpdateKeywordFoldLevel(int &levelCurrent, Sci_PositionU lastStart,
-    Sci_PositionU currentPos, Accessor & styler)
+static void UpdateKeywordFoldLevel(int &levelCurrent, Sci_PositionU lastStart, Sci_PositionU currentPos, Accessor & styler)
 {
 	char s[9];
 	GetRangeLowered(lastStart, currentPos, styler, s, sizeof(s));
-
-	if(strcmp(s, "if") == 0 || strcmp(s, "for") == 0 ||
-	    strcmp(s, "switch") == 0 || strcmp(s, "function") == 0 ||
-	    strcmp(s, "while") == 0 || strcmp(s, "repeat") == 0) {
+	if(strcmp(s, "if") == 0 || strcmp(s, "for") == 0 || strcmp(s, "switch") == 0 || strcmp(s, "function") == 0 || strcmp(s, "while") == 0 || strcmp(s, "repeat") == 0) {
 		levelCurrent++;
 	}
 	else if(strcmp(s, "end") == 0 || strcmp(s, "until") == 0) {
@@ -496,8 +488,7 @@ static void UpdateKeywordFoldLevel(int &levelCurrent, Sci_PositionU lastStart,
 // ------------------------------
 // Function folding OScript code.
 
-static void FoldOScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor & styler)
+static void FoldOScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldPreprocessor = styler.GetPropertyInt("fold.preprocessor") != 0;
@@ -511,7 +502,6 @@ static void FoldOScriptDoc(Sci_PositionU startPos, Sci_Position length, int init
 	int styleNext = styler.StyleAt(startPos);
 	int style = initStyle;
 	int lastStart = 0;
-
 	for(Sci_Position i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);

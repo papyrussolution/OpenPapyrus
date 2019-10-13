@@ -300,7 +300,7 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 			r = xmlTextReaderRead(reader);
 		if(r == 0) {
 			THROW(P_Doc = xmlTextReaderCurrentDoc(reader));
-			xmlNodePtr p_root = xmlDocGetRootElement(P_Doc);
+			xmlNode * p_root = xmlDocGetRootElement(P_Doc);
 			CountRecords(p_root, 0);
 		}
 	}
@@ -507,7 +507,7 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				const xmlNode * p_rec = St.P_CurRec;
 				for(uint fp = 0, fno = 0; r < 0 && fld_set.get(&fp, temp_buf);) {
 					fno++;
-					for(xmlNodePtr p_fld = p_rec->children; p_fld != 0; p_fld = p_fld->next) {
+					for(xmlNode * p_fld = p_rec->children; p_fld != 0; p_fld = p_fld->next) {
 						if(temp_buf.CmpNC((const char *)p_fld->name) == 0) {
 							if(fno == fld_count) {
 								p_fld = p_fld->children;

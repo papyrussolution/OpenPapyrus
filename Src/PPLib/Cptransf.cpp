@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-CpTrfrExt::CpTrfrExt() : LinkBillID(0), LinkRbb(0)
+CpTrfrExt::CpTrfrExt() : LinkBillID(0), LinkRbb(0), QrSeqAckStatus(0)
 {
 	PTR32(PartNo)[0] = 0;
 	PTR32(Clb)[0] = 0;
@@ -24,10 +24,18 @@ int FASTCALL CpTransfCore::PutExt__(CpTransfTbl::Rec & rRec, const CpTrfrExt * p
     PPPutExtStrData(CPTFREXSTR_SERIAL, ext_buf, (temp_buf = pExt ? pExt->PartNo : 0).Strip());
     PPPutExtStrData(CPTFREXSTR_CLB, ext_buf, (temp_buf = pExt ? pExt->Clb : 0).Strip());
     // @v10.5.8 {
-    if(pExt && pExt->LinkBillID > 0 && pExt->LinkRbb > 0) {
-		temp_buf.Z().Cat(pExt->LinkBillID).Semicol().Cat(pExt->LinkRbb);
-		PPPutExtStrData(CPTFREXSTR_LINKBILLROW, ext_buf, temp_buf);
-    }
+    if(pExt) {
+		if(pExt->LinkBillID > 0 && pExt->LinkRbb > 0) {
+			temp_buf.Z().Cat(pExt->LinkBillID).Semicol().Cat(pExt->LinkRbb);
+			PPPutExtStrData(CPTFREXSTR_LINKBILLROW, ext_buf, temp_buf);
+		}
+		temp_buf.Z();
+		if(pExt->QrSeqAckStatus == 1)
+			temp_buf = "ACK";
+		else if(pExt->QrSeqAckStatus == 2)
+			temp_buf = "REJ";
+		PPPutExtStrData(CPTFREXSTR_QRSEQACKSTATUS, ext_buf, temp_buf);
+	}
     // } @v10.5.8
     STRNSCPY(rRec.Tail, ext_buf);
 	return ok;
@@ -70,6 +78,15 @@ int FASTCALL CpTransfCore::GetExt__(CpTransfTbl::Rec & rRec, CpTrfrExt * pExt)
             }
         }
     }
+	{
+		PPGetExtStrData(CPTFREXSTR_QRSEQACKSTATUS, ext_buf, temp_buf.Z());
+		if(temp_buf.IsEqiAscii("ACK"))
+			pExt->QrSeqAckStatus = 1;
+		else if(temp_buf.IsEqiAscii("REJ"))
+			pExt->QrSeqAckStatus = 2;
+		else
+			pExt->QrSeqAckStatus = 0;
+	}
     // } @v10.5.8
     return ok;
 }
@@ -127,8 +144,21 @@ int SLAPI CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDA
 				{
 					CpTrfrExt cpext;
 					CpTransfCore::GetExt__(data, &cpext);
-					ti.Lbr.ID = cpext.LinkBillID; // @v10.5.8
-					ti.Lbr.RByBill = cpext.LinkRbb; // @v10.5.8
+					// @v10.5.8 {
+					ti.Lbr.ID = cpext.LinkBillID; 
+					ti.Lbr.RByBill = cpext.LinkRbb;
+					ti.TFlags &= ~(ti.tfQrSeqAccepted|ti.tfQrSeqRejected);
+					if(cpext.QrSeqAckStatus == 1)
+						ti.TFlags |= ti.tfQrSeqAccepted;
+					else if(cpext.QrSeqAckStatus == 2)
+						ti.TFlags |= ti.tfQrSeqRejected;
+					if(ti.Lbr.ID > 0 && pPack->Rec.Object && pPack->OpTypeID == PPOPT_DRAFTQUOTREQ) {
+						PPObjArticle ar_obj;
+						ArticleTbl::Rec ar_rec;
+						if(ar_obj.Fetch(pPack->Rec.Object, &ar_rec) > 0 && ar_rec.AccSheetID == GetSupplAccSheet())
+							ti.Suppl = pPack->Rec.Object;
+					}
+					// } @v10.5.8
 					THROW(pPack->LoadTItem(&ti, cpext.Clb, cpext.PartNo));
 				}
 			}

@@ -5,25 +5,10 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
 #ifdef LIBXML_HTML_ENABLED
-//#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-//#endif
-//#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-	//#include <zlib.h>
-//#endif
-//#include <libxml/HTMLparser.h>
-//#include <libxml/HTMLtree.h>
 
 #define HTML_MAX_NAMELEN 1000
 #define HTML_PARSER_BIG_BUFFER_SIZE 1000

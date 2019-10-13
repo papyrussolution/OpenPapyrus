@@ -88,7 +88,7 @@ typedef intptr_t        ngx_flag_t;
 	#define NGX_ALIGNMENT   sizeof(ulong)    /* platform word */
 #endif
 #define ngx_align(d, a)     (((d) + (a - 1)) & ~(a - 1))
-#define ngx_align_ptr(p, a) (u_char *)(((uintptr_t) (p) + ((uintptr_t) a - 1)) & ~((uintptr_t) a - 1))
+#define ngx_align_ptr(p, a) reinterpret_cast<u_char *>(((uintptr_t)(p) + ((uintptr_t)a - 1)) & ~((uintptr_t)a - 1))
 
 #define ngx_abort       abort
 

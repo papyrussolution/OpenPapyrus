@@ -16,9 +16,7 @@
  *   The current list of contributors is contained
  *   in the file CONTRIBUTORS included with the source
  *   code distribution. The list can also be seen at the
- *   following World Wide Web location:
- *
- *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   following World Wide Web location: https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +37,6 @@ INLINE int __ptw32_cond_check_need_init(pthread_cond_t * cond)
 {
 	int result = 0;
 	__ptw32_mcs_local_node_t node;
-
 	/*
 	 * The following guarded test is specifically for statically
 	 * initialised condition variables (via PTHREAD_OBJECT_INITIALIZER).

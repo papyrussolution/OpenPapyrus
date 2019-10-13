@@ -183,16 +183,10 @@ static void ColouriseGAPDoc(Sci_PositionU startPos, Sci_Position length, int ini
 static int ClassifyFoldPointGAP(const char* s)
 {
 	int level = 0;
-	if(strcmp(s, "function") == 0 ||
-	    strcmp(s, "do") == 0 ||
-	    strcmp(s, "if") == 0 ||
-	    strcmp(s, "repeat") == 0) {
+	if(strcmp(s, "function") == 0 || strcmp(s, "do") == 0 || strcmp(s, "if") == 0 || strcmp(s, "repeat") == 0) {
 		level = 1;
 	}
-	else if(strcmp(s, "end") == 0 ||
-	    strcmp(s, "od") == 0 ||
-	    strcmp(s, "fi") == 0 ||
-	    strcmp(s, "until") == 0) {
+	else if(strcmp(s, "end") == 0 || strcmp(s, "od") == 0 || strcmp(s, "fi") == 0 || strcmp(s, "until") == 0) {
 		level = -1;
 	}
 	return level;

@@ -366,6 +366,10 @@ int operator != (const TCommandSet& tc1, const TCommandSet& tc2);
 // regex: void[ \t]+([a-zA-Z0-9_]+)::handleEvent\([ \t]*TEvent[ \t]*&[^)]*\)
 #define IMPL_HANDLE_EVENT(cls) void __fastcall cls::handleEvent(TEvent & event)
 #define EVENT_BARRIER(f) if(!EventBarrier()) { f; EventBarrier(1); }
+
+#define DECL_DIALOG_DATA(typ) typedef typ DlgDataType; DlgDataType Data // @v10.5.8
+#define DECL_DIALOG_SETDTS() int setDTS(const DlgDataType * pData)      // @v10.5.8
+#define DECL_DIALOG_GETDTS() int getDTS(DlgDataType * pData)            // @v10.5.8
 //
 // Descr: Контейнер для GDI-объектов. Удобен тем, что "бесконечное" количество предварительно
 // созданных хандлеров можно затолкать в этот контейнер, а при рисовании манипулировать

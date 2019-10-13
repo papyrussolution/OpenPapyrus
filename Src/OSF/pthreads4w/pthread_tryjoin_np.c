@@ -16,15 +16,11 @@
  *   The current list of contributors is contained
  *   in the file CONTRIBUTORS included with the source
  *   code distribution. The list can also be seen at the
- *   following World Wide Web location:
- *
- *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   following World Wide Web location: https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -103,7 +99,7 @@ int pthread_tryjoin_np(pthread_t thread, void ** value_ptr)
 			 * are canceled.
 			 */
 			result = pthreadCancelableTimedWait(tp->threadH, 0);
-			if(0 == result) {
+			if(result == 0) {
 				ASSIGN_PTR(value_ptr, tp->exitStatus);
 				/*
 				 * The result of making multiple simultaneous calls to

@@ -7,7 +7,6 @@
  *
  * http://www.fortran-2000.com/ArnaudRecipes/sharedlib.html
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -23,20 +22,16 @@ struct _xmlModule {
 static void * xmlModulePlatformOpen(const char * name);
 static int xmlModulePlatformClose(void * handle);
 static int xmlModulePlatformSymbol(void * handle, const char * name, void ** result);
-
-/************************************************************************
-*									*
-*		module memory error handler				*
-*									*
-************************************************************************/
-
+//
+// module memory error handler
+//
 /**
  * xmlModuleErrMemory:
  * @extra:  extra information
  *
  * Handle an out of memory condition
  */
-static void xmlModuleErrMemory(xmlModulePtr module, const char * extra)
+static void xmlModuleErrMemory(xmlModule * module, const char * extra)
 {
 	const char * name = module ? (const char *)module->name : 0;
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, name, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
@@ -55,9 +50,9 @@ static void xmlModuleErrMemory(xmlModulePtr module, const char * extra)
  *
  * Returns a handle for the module or NULL in case of error
  */
-xmlModulePtr xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
+xmlModule * xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 {
-	xmlModulePtr module = (xmlModulePtr)SAlloc::M(sizeof(xmlModule));
+	xmlModule * module = (xmlModule *)SAlloc::M(sizeof(xmlModule));
 	if(module == NULL) {
 		xmlModuleErrMemory(NULL, "creating module");
 		return 0;
@@ -86,7 +81,7 @@ xmlModulePtr xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
  *
  * Returns 0 if the symbol was found, or -1 in case of error
  */
-int xmlModuleSymbol(xmlModulePtr module, const char * name, void ** symbol)
+int xmlModuleSymbol(xmlModule * module, const char * name, void ** symbol)
 {
 	int rc = -1;
 	if((NULL == module) || (symbol == NULL) || !name) {
@@ -111,7 +106,7 @@ int xmlModuleSymbol(xmlModulePtr module, const char * name, void ** symbol)
  * Returns 0 in case of success, -1 in case of argument error and -2
  *    if the module could not be closed/unloaded.
  */
-int xmlModuleClose(xmlModulePtr module)
+int xmlModuleClose(xmlModule * module)
 {
 	int rc;
 	if(!module) {
@@ -137,7 +132,7 @@ int xmlModuleClose(xmlModulePtr module)
  *
  * Returns 0 in case of success, -1 in case of argument error
  */
-int xmlModuleFree(xmlModulePtr module)
+int xmlModuleFree(xmlModule * module)
 {
 	if(!module) {
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "null module pointer\n");

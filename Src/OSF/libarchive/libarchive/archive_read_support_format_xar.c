@@ -1979,7 +1979,7 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 
 static void xml_end(void * userData, const char * name)
 {
-	struct archive_read * a = (struct archive_read *)userData;
+	struct archive_read * a = static_cast<struct archive_read *>(userData);
 	struct xar * xar = static_cast<struct xar *>(a->format->data);
 #if DEBUG
 	fprintf(stderr, "xml_end:[%s]\n", name);
@@ -2013,8 +2013,7 @@ static void xml_end(void * userData, const char * name)
 		    break;
 		case TOC_FILE:
 		    if(strcmp(name, "file") == 0) {
-			    if(xar->file->parent != NULL &&
-				((xar->file->mode & AE_IFMT) == AE_IFDIR))
+			    if(xar->file->parent != NULL && ((xar->file->mode & AE_IFMT) == AE_IFDIR))
 				    xar->file->parent->subdirs++;
 			    xar->file = xar->file->parent;
 			    if(xar->file == NULL)
@@ -2340,21 +2339,15 @@ static const int base64[256] = {
 	-1, -1, -1, -1, -1, -1, -1, -1, /* F0 - FF */
 };
 
-static void strappend_base64(struct xar * xar,
-    struct archive_string * as, const char * s, size_t l)
+static void strappend_base64(struct xar * xar, struct archive_string * as, const char * s, size_t l)
 {
 	uchar buff[256];
-	uchar * out;
-	const uchar * b;
-	size_t len;
-
+	uchar * out = buff;
+	const uchar * b = reinterpret_cast<const uchar *>(s);
+	size_t len = 0;
 	(void)xar; /* UNUSED */
-	len = 0;
-	out = buff;
-	b = (const uchar *)s;
 	while(l > 0) {
 		int n = 0;
-
 		if(l > 0) {
 			if(base64[b[0]] < 0 || base64[b[1]] < 0)
 				break;
@@ -2381,13 +2374,13 @@ static void strappend_base64(struct xar * xar,
 			--l;
 		}
 		if(len+3 >= sizeof(buff)) {
-			archive_strncat(as, (const char *)buff, len);
+			archive_strncat(as, reinterpret_cast<const char *>(buff), len);
 			len = 0;
 			out = buff;
 		}
 	}
 	if(len > 0)
-		archive_strncat(as, (const char *)buff, len);
+		archive_strncat(as, reinterpret_cast<const char *>(buff), len);
 }
 
 static int is_string(const char * known, const char * data, size_t len)
@@ -2399,7 +2392,7 @@ static int is_string(const char * known, const char * data, size_t len)
 
 static void xml_data(void * userData, const char * s, int len)
 {
-	struct archive_read * a = (struct archive_read *)userData;
+	struct archive_read * a = static_cast<struct archive_read *>(userData);
 	struct xar * xar = static_cast<struct xar *>(a->format->data);
 #if DEBUG
 	{
@@ -2796,7 +2789,7 @@ static int xml2_read_cb(void * context, char * buffer, int len)
 	size_t outbytes;
 	size_t used = 0;
 	int r;
-	struct archive_read * a = (struct archive_read *)context;
+	struct archive_read * a = static_cast<struct archive_read *>(context);
 	struct xar * xar = static_cast<struct xar *>(a->format->data);
 	if(xar->toc_remaining <= 0)
 		return 0;
@@ -2821,9 +2814,8 @@ static int xml2_close_cb(void * context)
 
 static void xml2_error_hdr(void * arg, const char * msg, xmlParserSeverities severity, xmlTextReaderLocatorPtr locator)
 {
-	struct archive_read * a;
+	struct archive_read * a = static_cast<struct archive_read *>(arg);
 	(void)locator; /* UNUSED */
-	a = (struct archive_read *)arg;
 	switch(severity) {
 		case XML_PARSER_SEVERITY_VALIDITY_WARNING:
 		case XML_PARSER_SEVERITY_WARNING:

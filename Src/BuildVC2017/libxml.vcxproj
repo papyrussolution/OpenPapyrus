@@ -831,84 +831,6 @@
     <ClCompile Include="..\Osf\Libxml\schematron.c" />
     <ClCompile Include="..\Osf\Libxml\threads.c" />
     <ClCompile Include="..\Osf\Libxml\tree.c" />
-    <ClCompile Include="..\Osf\Libxml\trio.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\Osf\Libxml\trionan.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\Osf\Libxml\triostr.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\Osf\Libxml\uri.c" />
     <ClCompile Include="..\Osf\Libxml\valid.c" />
     <ClCompile Include="..\Osf\Libxml\xinclude.c" />
@@ -933,9 +855,6 @@
     <ClInclude Include="..\OSF\LIBXML\acconfig.h" />
     <ClInclude Include="..\OSF\LIBXML\config.h" />
     <ClInclude Include="..\OSF\LIBXML\elfgcchack.h" />
-    <ClInclude Include="..\include\libxml\c14n.h" />
-    <ClInclude Include="..\include\libxml\chvalid.h" />
-    <ClInclude Include="..\include\libxml\debugXML.h" />
     <ClInclude Include="..\include\libxml\DOCBparser.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
     <ClInclude Include="..\include\libxml\globals.h" />
@@ -945,13 +864,8 @@
     <ClInclude Include="..\include\libxml\nanoftp.h" />
     <ClInclude Include="..\include\libxml\nanohttp.h" />
     <ClInclude Include="..\include\libxml\parser.h" />
-    <ClInclude Include="..\include\libxml\parserInternals.h" />
-    <ClInclude Include="..\include\libxml\pattern.h" />
     <ClInclude Include="..\include\libxml\relaxng.h" />
-    <ClInclude Include="..\include\libxml\SAX.h" />
-    <ClInclude Include="..\include\libxml\SAX2.h" />
     <ClInclude Include="..\include\libxml\schemasInternals.h" />
-    <ClInclude Include="..\include\libxml\schematron.h" />
     <ClInclude Include="..\include\libxml\tree.h" />
     <ClInclude Include="..\include\libxml\valid.h" />
     <ClInclude Include="..\include\libxml\xinclude.h" />
@@ -962,25 +876,17 @@
     <ClInclude Include="..\include\libxml\xmlmemory.h" />
     <ClInclude Include="..\include\libxml\xmlmodule.h" />
     <ClInclude Include="..\include\libxml\xmlreader.h" />
-    <ClInclude Include="..\include\libxml\xmlregexp.h" />
     <ClInclude Include="..\include\libxml\xmlsave.h" />
     <ClInclude Include="..\include\libxml\xmlschemas.h" />
     <ClInclude Include="..\include\libxml\xmlschemastypes.h" />
     <ClInclude Include="..\include\libxml\xmlstring.h" />
-    <ClInclude Include="..\include\libxml\xmlunicode.h" />
     <ClInclude Include="..\include\libxml\xmlversion.h" />
     <ClInclude Include="..\include\libxml\xmlwriter.h" />
-    <ClInclude Include="..\include\libxml\xpath.h" />
-    <ClInclude Include="..\include\libxml\xpathInternals.h" />
-    <ClInclude Include="..\include\libxml\xpointer.h" />
     <ClInclude Include="..\OSF\LIBXML\libxml.h" />
     <ClInclude Include="..\OSF\LIBXML\save.h" />
     <ClInclude Include="..\OSF\LIBXML\timsort.h" />
-    <ClInclude Include="..\OSF\LIBXML\trio.h" />
     <ClInclude Include="..\OSF\LIBXML\triodef.h" />
     <ClInclude Include="..\OSF\LIBXML\trionan.h" />
-    <ClInclude Include="..\OSF\LIBXML\triop.h" />
-    <ClInclude Include="..\OSF\LIBXML\triostr.h" />
     <ClInclude Include="..\OSF\LIBXML\xzlib.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

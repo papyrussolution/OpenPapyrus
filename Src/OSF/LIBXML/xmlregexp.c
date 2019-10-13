@@ -18,9 +18,8 @@
 #pragma hdrstop
 
 #ifdef LIBXML_REGEXP_ENABLED
-
-/* #define DEBUG_ERR */
-#include <libxml/xmlunicode.h>
+// #define DEBUG_ERR
+//#include <libxml/xmlunicode.h>
 #ifndef INT_MAX
 	#define INT_MAX 123456789 /* easy to flag and big enough for our needs */
 #endif
@@ -274,7 +273,7 @@ struct _xmlRegInputToken {
 struct _xmlRegExecCtxt {
 	int status;     /* execution status != 0 indicate an error */
 	int determinist; /* did we find an indeterministic behaviour */
-	xmlRegexpPtr comp; /* the compiled regexp */
+	xmlRegexp * comp; /* the compiled regexp */
 	xmlRegExecCallbacks callback;
 	void * data;
 	xmlRegState * state; /* the current state */
@@ -368,9 +367,9 @@ static int xmlFAComputesDeterminism(xmlRegParserCtxt * ctxt);
  *
  * Returns the new regexp or NULL in case of error
  */
-static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
+static xmlRegexp * xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 {
-	xmlRegexpPtr ret = (xmlRegexpPtr)SAlloc::M(sizeof(xmlRegexp));
+	xmlRegexp * ret = static_cast<xmlRegexp *>(SAlloc::M(sizeof(xmlRegexp)));
 	if(!ret) {
 		xmlRegexpErrMemory(ctxt, "compiling regexp");
 		return 0;
@@ -2713,14 +2712,10 @@ static void FASTCALL xmlFARegExecRollBack(xmlRegExecCtxtPtr exec)
 	xmlFARegDebugExec(exec);
 #endif
 }
-
-/************************************************************************
-*									*
-*	Verifier, running an input against a compiled regexp		*
-*									*
-************************************************************************/
-
-static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) 
+//
+// Verifier, running an input against a compiled regexp
+// 
+static int xmlFARegExec(xmlRegexp * comp, const xmlChar * content) 
 {
 	xmlRegExecCtxt execval;
 	xmlRegExecCtxtPtr exec = &execval;
@@ -3022,14 +3017,14 @@ static void testerr(xmlRegExecCtxtPtr exec);
  *
  * Returns the new context
  */
-xmlRegExecCtxtPtr xmlRegNewExecCtxt(xmlRegexpPtr comp, xmlRegExecCallbacks callback, void * data)
+xmlRegExecCtxtPtr xmlRegNewExecCtxt(xmlRegexp * comp, xmlRegExecCallbacks callback, void * data)
 {
 	xmlRegExecCtxtPtr exec;
 	if(comp == NULL)
 		return 0;
 	if((comp->compact == NULL) && (comp->states == NULL))
 		return 0;
-	exec = (xmlRegExecCtxtPtr)SAlloc::M(sizeof(xmlRegExecCtxt));
+	exec = static_cast<xmlRegExecCtxtPtr>(SAlloc::M(sizeof(xmlRegExecCtxt)));
 	if(exec == NULL) {
 		xmlRegexpErrMemory(NULL, "creating execution context");
 		return 0;
@@ -3185,7 +3180,6 @@ static int xmlRegStrEqualWildcard(const xmlChar * expStr, const xmlChar * valStr
 	else
 		return 1;
 }
-
 /**
  * xmlRegCompactPushString:
  * @exec: a regexp execution context
@@ -3198,7 +3192,7 @@ static int xmlRegStrEqualWildcard(const xmlChar * expStr, const xmlChar * valStr
  * Returns: 1 if the regexp reached a final state, 0 if non-final, and
  *   a negative value in case of error.
  */
-static int xmlRegCompactPushString(xmlRegExecCtxtPtr exec, xmlRegexpPtr comp, const xmlChar * value, void * data) 
+static int xmlRegCompactPushString(xmlRegExecCtxtPtr exec, xmlRegexp * comp, const xmlChar * value, void * data) 
 {
 	int state = exec->index;
 	int i, target;
@@ -4865,13 +4859,9 @@ static void xmlFAParseRegExp(xmlRegParserCtxt * ctxt, int top)
 		ctxt->end = end;
 	}
 }
-
-/************************************************************************
-*									*
-*			The basic API					*
-*									*
-************************************************************************/
-
+//
+// The basic API
+// 
 /**
  * xmlRegexpPrint:
  * @output: the file for the output debug
@@ -4879,7 +4869,7 @@ static void xmlFAParseRegExp(xmlRegParserCtxt * ctxt, int top)
  *
  * Print the content of the compiled regular expression
  */
-void xmlRegexpPrint(FILE * output, xmlRegexpPtr regexp)
+void xmlRegexpPrint(FILE * output, xmlRegexp * regexp)
 {
 	int i;
 	if(output) {
@@ -4951,7 +4941,6 @@ xmlRegexp * xmlRegexpCompile(const xmlChar * regexp)
 	xmlRegFreeParserCtxt(ctxt);
 	return ret;
 }
-
 /**
  * xmlRegexpExec:
  * @comp:  the compiled regular expression
@@ -4961,11 +4950,10 @@ xmlRegexp * xmlRegexpCompile(const xmlChar * regexp)
  *
  * Returns 1 if it matches, 0 if not and a negative value in case of error
  */
-int xmlRegexpExec(xmlRegexpPtr comp, const xmlChar * content)
+int xmlRegexpExec(xmlRegexp * comp, const xmlChar * content)
 {
 	return (comp && content) ? xmlFARegExec(comp, content) : -1;
 }
-
 /**
  * xmlRegexpIsDeterminist:
  * @comp:  the compiled regular expression
@@ -4974,7 +4962,7 @@ int xmlRegexpExec(xmlRegexpPtr comp, const xmlChar * content)
  *
  * Returns 1 if it yes, 0 if not and a negative value in case of error
  */
-int xmlRegexpIsDeterminist(xmlRegexpPtr comp)
+int xmlRegexpIsDeterminist(xmlRegexp * comp)
 {
 	xmlAutomataPtr am;
 	int ret;

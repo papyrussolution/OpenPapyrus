@@ -89,6 +89,11 @@ void FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, con
 			ctxt->disableSAX = 1;
 	}
 }
+
+static void FASTCALL __xmlErrEncodingNotSupported(xmlParserCtxt * ctxt, const xmlChar * pEnc)
+{
+	__xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", pEnc, 0);
+}
 /**
  * xmlErrInternal:
  * @ctxt:  an XML parser context
@@ -203,15 +208,15 @@ int FASTCALL xmlParserInputGrow(xmlParserInput * in, int len)
 	size_t ret;
 	size_t indx;
 	const xmlChar * content;
-	if((in == NULL) || (len < 0)) 
+	if(!in || len < 0) 
 		return -1;
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "Grow\n");
 #endif
-	if(in->buf == NULL) return -1;
-	if(in->base == NULL) return -1;
-	if(in->cur == NULL) return -1;
-	if(in->buf->buffer == NULL) return -1;
+	if(!in->buf) return -1;
+	if(!in->base) return -1;
+	if(!in->cur) return -1;
+	if(!in->buf->buffer) return -1;
 	CHECK_BUFFER(in);
 	indx = in->cur - in->base;
 	if(xmlBufUse(in->buf->buffer) > (uint)indx + INPUT_CHUNK) {
@@ -834,24 +839,12 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 			    break;
 			case XML_CHAR_ENCODING_UTF16BE:
 			    break;
-			case XML_CHAR_ENCODING_UCS4LE:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("USC4 little endian"), 0);
-			    break;
-			case XML_CHAR_ENCODING_UCS4BE:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("USC4 big endian"), 0);
-			    break;
-			case XML_CHAR_ENCODING_EBCDIC:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("EBCDIC"), 0);
-			    break;
-			case XML_CHAR_ENCODING_UCS4_2143:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("UCS4 2143"), 0);
-			    break;
-			case XML_CHAR_ENCODING_UCS4_3412:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("UCS4 3412"), 0);
-			    break;
-			case XML_CHAR_ENCODING_UCS2:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("UCS2"), 0);
-			    break;
+			case XML_CHAR_ENCODING_UCS4LE: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("USC4 little endian")); break;
+			case XML_CHAR_ENCODING_UCS4BE: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("USC4 big endian")); break;
+			case XML_CHAR_ENCODING_EBCDIC: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("EBCDIC")); break;
+			case XML_CHAR_ENCODING_UCS4_2143: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("UCS4 2143")); break;
+			case XML_CHAR_ENCODING_UCS4_3412: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("UCS4 3412")); break;
+			case XML_CHAR_ENCODING_UCS2: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("UCS2")); break;
 			case XML_CHAR_ENCODING_8859_1:
 			case XML_CHAR_ENCODING_8859_2:
 			case XML_CHAR_ENCODING_8859_3:
@@ -872,17 +865,10 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 			    }
 			    ctxt->charset = enc;
 			    return 0;
-			case XML_CHAR_ENCODING_2022_JP:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("ISO-2022-JP"), 0);
-			    break;
-			case XML_CHAR_ENCODING_SHIFT_JIS:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("Shift_JIS"), 0);
-			    break;
-			case XML_CHAR_ENCODING_EUC_JP:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("EUC-JP"), 0);
-			    break;
-			default:
-			    break;
+			case XML_CHAR_ENCODING_2022_JP: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("ISO-2022-JP")); break;
+			case XML_CHAR_ENCODING_SHIFT_JIS: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("Shift_JIS")); break;
+			case XML_CHAR_ENCODING_EUC_JP: __xmlErrEncodingNotSupported(ctxt, reinterpret_cast<const xmlChar *>("EUC-JP")); break;
+			default: break;
 		}
 	}
 	if(handler == NULL)
@@ -907,12 +893,10 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInput * input, xmlCharEncodingHandler * handler, int len)
 {
 	int nbchars;
-	if(handler == NULL)
+	if(!handler || !input)
 		return -1;
-	if(!input)
-		return -1;
-	if(input->buf != NULL) {
-		if(input->buf->encoder != NULL) {
+	if(input->buf) {
+		if(input->buf->encoder) {
 			/*
 			 * Check in case the auto encoding detetection triggered in already.
 			 */

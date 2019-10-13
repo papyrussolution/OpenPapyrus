@@ -277,7 +277,7 @@ static int archive_filter_lz4_write(struct archive_write_filter * f,
 	/* Update statistics */
 	data->total_in += length;
 
-	p = (const char *)buff;
+	p = static_cast<const char *>(buff);
 	remaining = length;
 	while(remaining) {
 		size_t l;

@@ -68,9 +68,7 @@ cairo_surface_t * _cairo_xlib_surface_create_shm__image(cairo_xlib_surface_t * s
 	return NULL;
 }
 
-cairo_surface_t * _cairo_xlib_surface_create_similar_shm(void * other,
-    cairo_format_t format,
-    int width, int height)
+cairo_surface_t * _cairo_xlib_surface_create_similar_shm(void * other, cairo_format_t format, int width, int height)
 {
 	return cairo_image_surface_create(format, width, height);
 }
@@ -80,8 +78,7 @@ void _cairo_xlib_shm_surface_mark_active(cairo_surface_t * _shm)
 	ASSERT_NOT_REACHED;
 }
 
-void _cairo_xlib_shm_surface_get_ximage(cairo_surface_t * surface,
-    XImage * ximage)
+void _cairo_xlib_shm_surface_get_ximage(cairo_surface_t * surface, XImage * ximage)
 {
 	ASSERT_NOT_REACHED;
 }
@@ -116,7 +113,8 @@ boolint _cairo_xlib_shm_surface_is_idle(cairo_surface_t * surface)
 	return TRUE;
 }
 
-void _cairo_xlib_display_fini_shm(cairo_xlib_display_t * display) {
+void _cairo_xlib_display_fini_shm(cairo_xlib_display_t * display) 
+{
 }
 
 #else
@@ -149,7 +147,6 @@ typedef struct _cairo_xlib_shm_surface cairo_xlib_shm_surface_t;
 
 struct _cairo_xlib_shm {
 	cairo_mempool_t mem;
-
 	XShmSegmentInfo shm;
 	ulong attached;
 	cairo_list_t link;
@@ -164,7 +161,6 @@ struct _cairo_xlib_shm_info {
 
 struct _cairo_xlib_shm_surface {
 	cairo_image_surface_t image;
-
 	cairo_list_t link;
 	cairo_xlib_shm_info_t * info;
 	Pixmap pixmap;
@@ -178,7 +174,6 @@ struct _cairo_xlib_shm_surface {
 
 /* left and right children are index * 2 and (index * 2) +1 respectively */
 #define PQ_LEFT_CHILD_INDEX(i) ((i) << 1)
-
 #define PQ_TOP(pq) ((pq)->elements[PQ_FIRST_ENTRY])
 
 struct pqueue {
@@ -190,42 +185,25 @@ struct _cairo_xlib_shm_display {
 	int has_pixmaps;
 	int opcode;
 	int event;
-
 	Window window;
 	ulong last_request;
 	ulong last_event;
-
 	cairo_list_t surfaces;
-
 	cairo_list_t pool;
 	struct pqueue info;
 };
 
-static inline boolint seqno_passed(ulong a, ulong b)
-{
-	return (long)(b - a) >= 0;
-}
-
-static inline boolint seqno_before(ulong a, ulong b)
-{
-	return (long)(b - a) > 0;
-}
-
-static inline boolint seqno_after(ulong a, ulong b)
-{
-	return (long)(a - b) > 0;
-}
+static inline boolint seqno_passed(ulong a, ulong b) { return (long)(b - a) >= 0; }
+static inline boolint seqno_before(ulong a, ulong b) { return (long)(b - a) > 0; }
+static inline boolint seqno_after(ulong a, ulong b) { return (long)(a - b) > 0; }
 
 static inline cairo_status_t _pqueue_init(struct pqueue * pq)
 {
 	pq->max_size = 32;
 	pq->size = 0;
-
-	pq->elements = _cairo_malloc_ab(pq->max_size,
-		sizeof(cairo_xlib_shm_info_t *));
+	pq->elements = _cairo_malloc_ab(pq->max_size, sizeof(cairo_xlib_shm_info_t *));
 	if(unlikely(pq->elements == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	PQ_TOP(pq) = NULL;
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -238,13 +216,9 @@ static inline void _pqueue_fini(struct pqueue * pq)
 static cairo_status_t _pqueue_grow(struct pqueue * pq)
 {
 	cairo_xlib_shm_info_t ** new_elements;
-
-	new_elements = _cairo_realloc_ab(pq->elements,
-		2 * pq->max_size,
-		sizeof(cairo_xlib_shm_info_t *));
+	new_elements = _cairo_realloc_ab(pq->elements, 2 * pq->max_size, sizeof(cairo_xlib_shm_info_t *));
 	if(unlikely(new_elements == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	pq->elements = new_elements;
 	pq->max_size *= 2;
 	return CAIRO_STATUS_SUCCESS;
@@ -253,16 +227,11 @@ static cairo_status_t _pqueue_grow(struct pqueue * pq)
 static void _pqueue_shrink(struct pqueue * pq, int min_size)
 {
 	cairo_xlib_shm_info_t ** new_elements;
-
 	if(min_size > pq->max_size)
 		return;
-
-	new_elements = _cairo_realloc_ab(pq->elements,
-		min_size,
-		sizeof(cairo_xlib_shm_info_t *));
+	new_elements = _cairo_realloc_ab(pq->elements, min_size, sizeof(cairo_xlib_shm_info_t *));
 	if(unlikely(new_elements == NULL))
 		return;
-
 	pq->elements = new_elements;
 	pq->max_size = min_size;
 }
@@ -271,53 +240,35 @@ static inline cairo_status_t _pqueue_push(struct pqueue * pq, cairo_xlib_shm_inf
 {
 	cairo_xlib_shm_info_t ** elements;
 	int i, parent;
-
 	if(unlikely(pq->size + 1 == pq->max_size)) {
-		cairo_status_t status;
-
-		status = _pqueue_grow(pq);
+		cairo_status_t status = _pqueue_grow(pq);
 		if(unlikely(status))
 			return status;
 	}
-
 	elements = pq->elements;
-
-	for(i = ++pq->size;
-	    i != PQ_FIRST_ENTRY &&
-	    info->last_request < elements[parent = PQ_PARENT_INDEX(i)]->last_request;
-	    i = parent) {
+	for(i = ++pq->size; i != PQ_FIRST_ENTRY && info->last_request < elements[parent = PQ_PARENT_INDEX(i)]->last_request; i = parent) {
 		elements[i] = elements[parent];
 	}
-
 	elements[i] = info;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static inline void _pqueue_pop(struct pqueue * pq)
 {
 	cairo_xlib_shm_info_t ** elements = pq->elements;
-	cairo_xlib_shm_info_t * tail;
 	int child, i;
-
-	tail = elements[pq->size--];
+	cairo_xlib_shm_info_t * tail = elements[pq->size--];
 	if(pq->size == 0) {
 		elements[PQ_FIRST_ENTRY] = NULL;
 		_pqueue_shrink(pq, 32);
 		return;
 	}
-
-	for(i = PQ_FIRST_ENTRY;
-	    (child = PQ_LEFT_CHILD_INDEX(i)) <= pq->size;
-	    i = child) {
-		if(child != pq->size &&
-		    elements[child+1]->last_request < elements[child]->last_request) {
+	for(i = PQ_FIRST_ENTRY; (child = PQ_LEFT_CHILD_INDEX(i)) <= pq->size; i = child) {
+		if(child != pq->size && elements[child+1]->last_request < elements[child]->last_request) {
 			child++;
 		}
-
 		if(elements[child]->last_request >= tail->last_request)
 			break;
-
 		elements[i] = elements[child];
 	}
 	elements[i] = tail;
@@ -325,8 +276,7 @@ static inline void _pqueue_pop(struct pqueue * pq)
 
 static boolint _x_error_occurred;
 
-static int _check_error_handler(Display * display,
-    XErrorEvent * event)
+static int _check_error_handler(Display * display, XErrorEvent * event)
 {
 	_x_error_occurred = TRUE;
 	return False; /* ignored */
@@ -338,56 +288,38 @@ static boolint can_use_shm(Display * dpy, int * has_pixmap)
 	int (* old_handler) (Display * display, XErrorEvent * event);
 	Status success;
 	int major, minor;
-
 	if(!XShmQueryExtension(dpy))
 		return FALSE;
-
 	XShmQueryVersion(dpy, &major, &minor, has_pixmap);
-
 	shm.shmid = shmget(IPC_PRIVATE, 0x1000, IPC_CREAT | 0600);
 	if(shm.shmid == -1)
 		return FALSE;
-
 	shm.readOnly = FALSE;
 	shm.shmaddr = shmat(shm.shmid, NULL, 0);
-	if(shm.shmaddr == (char *)-1) {
+	if(shm.shmaddr == reinterpret_cast<const char *>(-1)) {
 		shmctl(shm.shmid, IPC_RMID, NULL);
 		return FALSE;
 	}
-
 	assert(CAIRO_MUTEX_IS_LOCKED(_cairo_xlib_display_mutex));
 	_x_error_occurred = FALSE;
-
 	XLockDisplay(dpy);
 	XSync(dpy, False);
 	old_handler = XSetErrorHandler(_check_error_handler);
-
 	success = XShmAttach(dpy, &shm);
 	if(success)
 		XShmDetach(dpy, &shm);
-
 	XSync(dpy, False);
 	XSetErrorHandler(old_handler);
 	XUnlockDisplay(dpy);
-
 	shmctl(shm.shmid, IPC_RMID, NULL);
 	shmdt(shm.shmaddr);
-
 	return success && !_x_error_occurred;
 }
 
-static inline Display * peek_display(cairo_device_t * device)
-{
-	return ((cairo_xlib_display_t*)device)->display;
-}
+static inline Display * peek_display(cairo_device_t * device) { return ((cairo_xlib_display_t*)device)->display; }
+static inline ulong peek_processed(cairo_device_t * device) { return LastKnownRequestProcessed(peek_display(device)); }
 
-static inline ulong peek_processed(cairo_device_t * device)
-{
-	return LastKnownRequestProcessed(peek_display(device));
-}
-
-static void _cairo_xlib_display_shm_pool_destroy(cairo_xlib_display_t * display,
-    cairo_xlib_shm_t * pool)
+static void _cairo_xlib_display_shm_pool_destroy(cairo_xlib_display_t * display, cairo_xlib_shm_t * pool)
 {
 	shmdt(pool->shm.shmaddr);
 	if(display->display) /* may be called after CloseDisplay */
@@ -399,15 +331,11 @@ static void _cairo_xlib_display_shm_pool_destroy(cairo_xlib_display_t * display,
 	SAlloc::F(pool);
 }
 
-static void send_event(cairo_xlib_display_t * display,
-    cairo_xlib_shm_info_t * info,
-    ulong seqno)
+static void send_event(cairo_xlib_display_t * display, cairo_xlib_shm_info_t * info, ulong seqno)
 {
 	XShmCompletionEvent ev;
-
 	if(!seqno_after(seqno, display->shm->last_event))
 		return;
-
 	ev.type = display->shm->event;
 	ev.send_event = 1; /* XXX or lie? */
 	ev.serial = XNextRequest(display->display);
@@ -416,9 +344,7 @@ static void send_event(cairo_xlib_display_t * display,
 	ev.minor_code = X_ShmPutImage;
 	ev.shmseg = info->pool->shm.shmid;
 	ev.offset = (char *)info->mem - (char *)info->pool->shm.shmaddr;
-
 	XSendEvent(display->display, ev.drawable, False, 0, (XEvent*)&ev);
-
 	display->shm->last_event = ev.serial;
 }
 
@@ -426,9 +352,7 @@ static void _cairo_xlib_display_sync(cairo_xlib_display_t * display)
 {
 	cairo_xlib_shm_info_t * info;
 	struct pqueue * pq = &display->shm->info;
-
 	XSync(display->display, False);
-
 	while((info = PQ_TOP(pq))) {
 		_cairo_mempool_free(&info->pool->mem, info->mem);
 		_pqueue_pop(&display->shm->info);
@@ -442,10 +366,8 @@ static void _cairo_xlib_shm_info_cleanup(cairo_xlib_display_t * display)
 	Display * dpy = display->display;
 	struct pqueue * pq = &display->shm->info;
 	ulong processed;
-
 	if(PQ_TOP(pq) == NULL)
 		return;
-
 	XEventsQueued(dpy, QueuedAfterReading);
 	processed = LastKnownRequestProcessed(dpy);
 
@@ -558,11 +480,10 @@ static cairo_xlib_shm_t * _cairo_xlib_shm_pool_create(cairo_xlib_display_t * dis
 
 	pool->shm.readOnly = FALSE;
 	pool->shm.shmaddr = shmat(pool->shm.shmid, NULL, 0);
-	if(pool->shm.shmaddr == (char *)-1) {
+	if(pool->shm.shmaddr == reinterpret_cast<const char *>(-1)) {
 		shmctl(pool->shm.shmid, IPC_RMID, NULL);
 		goto cleanup;
 	}
-
 	pool->attached = XNextRequest(dpy);
 	success = XShmAttach(dpy, &pool->shm);
 #if !IPC_RMID_DEFERRED_RELEASE
@@ -1017,26 +938,21 @@ done:
 cairo_int_status_t _cairo_xlib_surface_put_shm(cairo_xlib_surface_t * surface)
 {
 	cairo_int_status_t status = CAIRO_INT_STATUS_SUCCESS;
-
 	if(!surface->fallback) {
 		if(surface->shm)
 			inc_idle(surface->shm);
 		return CAIRO_INT_STATUS_SUCCESS;
 	}
-
 	if(surface->shm->damage->dirty) {
 		cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface->shm;
 		cairo_xlib_display_t * display;
 		cairo_damage_t * damage;
 		GC gc;
-
 		status = _cairo_xlib_display_acquire(surface->base.device, &display);
 		if(unlikely(status))
 			return status;
-
 		damage = _cairo_damage_reduce(shm->image.base.damage);
 		shm->image.base.damage = _cairo_damage_create();
-
 		TRACE((stderr, "%s: flushing damage x %d\n", __FUNCTION__,
 		    damage->region ? cairo_region_num_rectangles(damage->region) : 0));
 		if(damage->status == CAIRO_STATUS_SUCCESS && damage->region) {
@@ -1073,7 +989,6 @@ cairo_int_status_t _cairo_xlib_surface_put_shm(cairo_xlib_surface_t * surface)
 				}
 				for(i = 0; i < n_rects; i++) {
 					cairo_region_get_rectangle(damage->region, i, &r);
-
 					rects[i].x = r.x;
 					rects[i].y = r.y;
 					rects[i].width  = r.width;
@@ -1082,12 +997,7 @@ cairo_int_status_t _cairo_xlib_surface_put_shm(cairo_xlib_surface_t * surface)
 				XSetClipRectangles(display->display, gc, 0, 0, rects, i, YXBanded);
 
 				_cairo_xlib_shm_surface_mark_active(surface->shm);
-				XCopyArea(display->display,
-				    shm->pixmap, surface->drawable, gc,
-				    0, 0,
-				    shm->image.width, shm->image.height,
-				    0, 0);
-
+				XCopyArea(display->display, shm->pixmap, surface->drawable, gc, 0, 0, shm->image.width, shm->image.height, 0, 0);
 				if(damage->status == CAIRO_STATUS_SUCCESS && damage->region)
 					XSetClipMask(display->display, gc, None);
 			}
@@ -1099,44 +1009,29 @@ out:
 		_cairo_damage_destroy(damage);
 		cairo_device_release(&display->base);
 	}
-
 	return status;
 }
 
-cairo_surface_t * _cairo_xlib_surface_create_shm(cairo_xlib_surface_t * other,
-    pixman_format_code_t format,
-    int width, int height)
+cairo_surface_t * _cairo_xlib_surface_create_shm(cairo_xlib_surface_t * other, pixman_format_code_t format, int width, int height)
 {
-	cairo_surface_t * surface;
-
-	surface = NULL;
+	cairo_surface_t * surface = NULL;
 	if(has_shm(other))
 		surface = &_cairo_xlib_shm_surface_create(other, format, width, height,
 			FALSE, has_shm_pixmaps(other))->image.base;
-
 	return surface;
 }
 
 cairo_surface_t * _cairo_xlib_surface_create_shm__image(cairo_xlib_surface_t * surface,
-    pixman_format_code_t format,
-    int width, int height)
+    pixman_format_code_t format, int width, int height)
 {
 	if(!has_shm(surface))
 		return NULL;
-
-	return &_cairo_xlib_shm_surface_create(surface, format, width, height,
-		   FALSE, 0)->image.base;
+	return &_cairo_xlib_shm_surface_create(surface, format, width, height, FALSE, 0)->image.base;
 }
 
-cairo_surface_t * _cairo_xlib_surface_create_similar_shm(void * other,
-    cairo_format_t format,
-    int width, int height)
+cairo_surface_t * _cairo_xlib_surface_create_similar_shm(void * other, cairo_format_t format, int width, int height)
 {
-	cairo_surface_t * surface;
-
-	surface = _cairo_xlib_surface_create_shm(other,
-		_cairo_format_to_pixman_format_code(format),
-		width, height);
+	cairo_surface_t * surface = _cairo_xlib_surface_create_shm(other, _cairo_format_to_pixman_format_code(format), width, height);
 	if(surface) {
 		if(!surface->is_clear) {
 			cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
@@ -1147,7 +1042,6 @@ cairo_surface_t * _cairo_xlib_surface_create_similar_shm(void * other,
 	}
 	else
 		surface = cairo_image_surface_create(format, width, height);
-
 	return surface;
 }
 
@@ -1155,21 +1049,16 @@ void _cairo_xlib_shm_surface_mark_active(cairo_surface_t * _shm)
 {
 	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)_shm;
 	cairo_xlib_display_t * display = (cairo_xlib_display_t*)_shm->device;
-
 	shm->active = XNextRequest(display->display);
 }
 
-void _cairo_xlib_shm_surface_get_ximage(cairo_surface_t * surface,
-    XImage * ximage)
+void _cairo_xlib_shm_surface_get_ximage(cairo_surface_t * surface, XImage * ximage)
 {
 	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
 	int native_byte_order = _cairo_is_little_endian() ? LSBFirst : MSBFirst;
 	cairo_format_masks_t image_masks;
-	int ret;
-
-	ret = _pixman_format_to_masks(shm->image.pixman_format, &image_masks);
+	int ret = _pixman_format_to_masks(shm->image.pixman_format, &image_masks);
 	assert(ret);
-
 	ximage->width = shm->image.width;
 	ximage->height = shm->image.height;
 	ximage->format = ZPixmap;
@@ -1186,7 +1075,6 @@ void _cairo_xlib_shm_surface_get_ximage(cairo_surface_t * surface,
 	ximage->green_mask = image_masks.green_mask;
 	ximage->blue_mask = image_masks.blue_mask;
 	ximage->xoffset = 0;
-
 	ret = XInitImage(ximage);
 	assert(ret != 0);
 }
@@ -1195,95 +1083,73 @@ void * _cairo_xlib_shm_surface_get_obdata(cairo_surface_t * surface)
 {
 	cairo_xlib_display_t * display = (cairo_xlib_display_t*)surface->device;
 	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
-
 	display->shm->last_event = shm->active = XNextRequest(display->display);
 	return &shm->info->pool->shm;
 }
 
 Pixmap _cairo_xlib_shm_surface_get_pixmap(cairo_surface_t * surface)
 {
-	cairo_xlib_shm_surface_t * shm;
-
-	shm = (cairo_xlib_shm_surface_t*)surface;
+	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
 	return shm->pixmap;
 }
 
 XRenderPictFormat * _cairo_xlib_shm_surface_get_xrender_format(cairo_surface_t * surface)
 {
-	cairo_xlib_shm_surface_t * shm;
-
-	shm = (cairo_xlib_shm_surface_t*)surface;
+	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
 	if(shm->image.format != CAIRO_FORMAT_INVALID)
-		return _cairo_xlib_display_get_xrender_format((cairo_xlib_display_t*)surface->device,
-			   shm->image.format);
-
-	return _cairo_xlib_display_get_xrender_format_for_pixman((cairo_xlib_display_t*)surface->device,
-		   shm->image.pixman_format);
+		return _cairo_xlib_display_get_xrender_format((cairo_xlib_display_t*)surface->device, shm->image.format);
+	return _cairo_xlib_display_get_xrender_format_for_pixman((cairo_xlib_display_t*)surface->device, shm->image.pixman_format);
 }
 
 boolint _cairo_xlib_shm_surface_is_active(cairo_surface_t * surface)
 {
-	cairo_xlib_shm_surface_t * shm;
-
-	shm = (cairo_xlib_shm_surface_t*)surface;
+	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
 	if(shm->active == 0)
 		return FALSE;
-
 	if(seqno_passed(shm->active, peek_processed(shm->image.base.device))) {
 		shm->active = 0;
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
 boolint _cairo_xlib_shm_surface_is_idle(cairo_surface_t * surface)
 {
-	cairo_xlib_shm_surface_t * shm;
-
-	shm = (cairo_xlib_shm_surface_t*)surface;
+	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
 	return shm->idle > 0;
 }
 
 #define XORG_VERSION_ENCODE(major, minor, patch, snap) \
 	(((major) * 10000000) + ((minor) * 100000) + ((patch) * 1000) + snap)
 
-static boolint has_broken_send_shm_event(cairo_xlib_display_t * display,
-    cairo_xlib_shm_display_t * shm)
+static boolint has_broken_send_shm_event(cairo_xlib_display_t * display, cairo_xlib_shm_display_t * shm)
 {
 	Display * dpy = display->display;
 	int (* old_handler) (Display * display, XErrorEvent * event);
 	XShmCompletionEvent ev;
 	XShmSegmentInfo info;
-
 	info.shmid = shmget(IPC_PRIVATE, 0x1000, IPC_CREAT | 0600);
 	if(info.shmid == -1)
 		return TRUE;
-
 	info.readOnly = FALSE;
 	info.shmaddr = shmat(info.shmid, NULL, 0);
-	if(info.shmaddr == (char *)-1) {
+	if(info.shmaddr == reinterpret_cast<const char *>(-1)) {
 		shmctl(info.shmid, IPC_RMID, NULL);
 		return TRUE;
 	}
-
 	ev.type = shm->event;
 	ev.send_event = 1;
 	ev.serial = 1;
 	ev.drawable = shm->window;
 	ev.major_code = shm->opcode;
 	ev.minor_code = X_ShmPutImage;
-
 	ev.shmseg = info.shmid;
 	ev.offset = 0;
-
 	assert(CAIRO_MUTEX_IS_LOCKED(_cairo_xlib_display_mutex));
 	_x_error_occurred = FALSE;
-
 	XLockDisplay(dpy);
 	XSync(dpy, False);
 	old_handler = XSetErrorHandler(_check_error_handler);
-
 	XShmAttach(dpy, &info);
 	XSendEvent(dpy, ev.drawable, False, 0, (XEvent*)&ev);
 	XShmDetach(dpy, &info);

@@ -6756,6 +6756,10 @@ public:
 	//   За счет этого функция работает на много быстрее, чем addUniqueExclusive().
 	//
 	int    SLAPI addExclusive(const LongArray * pS, const LongArray * pExcl);
+	enum {
+		srlzfSortAndUndup = 0x0001
+	};
+	int    SLAPI Serialize__construction(int dir, long flags, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
 //
 //
@@ -6771,12 +6775,14 @@ public:
 	int64  FASTCALL get(uint pos) const;
 	int    lsearch(int64 key, uint * pPos) const;
 	int    FASTCALL lsearch(int64 key) const;
+	int    FASTCALL bsearch(int64 key) const;
 	int    FASTCALL add(int64);
 	int    FASTCALL add(int32);
 	int    FASTCALL addUnique(int64);
 	int    FASTCALL add(const Int64Array *);
 	void   SLAPI sort();
 	void   SLAPI sortAndUndup();
+	void   SLAPI intersect(const Int64Array * pList, int binary = 0);
 };
 //
 //

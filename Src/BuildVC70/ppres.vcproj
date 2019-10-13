@@ -1120,8 +1120,12 @@ XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
-COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
+COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
+COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
+
+"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1131,8 +1135,12 @@ COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
-COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
+COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
+COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
+
+"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ServerDebug|Win32">
@@ -1142,8 +1150,12 @@ COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
-COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
+COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
+COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
+
+"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ServerRelease|Win32">
@@ -1153,8 +1165,12 @@ COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
-COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
+COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
+COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
+
+"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MtDllDebug|Win32">
@@ -1164,8 +1180,12 @@ COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
-COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
+COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
+COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
+
+"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MtDllRelease|Win32">
@@ -1175,8 +1195,12 @@ COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
-COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
+COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
+COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
+
+"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Universe-HTT|Win32">
@@ -1186,8 +1210,12 @@ COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
 						CommandLine="..\..\TOOLS\SC2C $(InputPath)
 COPY $(InputDir)$(InputName).BIN $(OutDir)\ppstr.bin
 COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
-COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin"
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN"/>
+COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
+COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
+COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
+
+"
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
 				</FileConfiguration>
 			</File>
 			<Filter

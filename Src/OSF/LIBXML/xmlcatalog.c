@@ -14,7 +14,6 @@
 		#include <readline/history.h>
 	#endif
 #endif
-//#include <libxml/catalog.h>
 
 #if defined(LIBXML_CATALOG_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 static int shell = 0;
@@ -509,7 +508,7 @@ int main(int argc, char ** argv)
 	else {
 		for(i++; i < argc; i++) {
 			xmlChar * ans;
-			xmlURIPtr uri = xmlParseURI(argv[i]);
+			xmlURI * uri = xmlParseURI(argv[i]);
 			if(!uri) {
 				ans = xmlCatalogResolvePublic((const xmlChar *)argv[i]);
 				if(ans == NULL) {

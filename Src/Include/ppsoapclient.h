@@ -1,5 +1,5 @@
 // PPSOAPCLIENT.H
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 
@@ -635,7 +635,6 @@ int SLAPI gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile);
 int SLAPI gSoapClientInit(struct soap * pSoap, long flags, const char * pKeyfile);
 
 typedef int (*UHTT_DESTROYRESULT)(void *);
-
 typedef SString * (*UHTTAUTH_PROC)(PPSoapClientSession & rSess, const char * pName, const char * pPassword);
 typedef UhttPersonPacket * (*UHTTGETPERSONBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, int id);
 typedef TSCollection <UhttPersonPacket> * (*UHTTGETPERSONBYNAME_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pName);
@@ -670,27 +669,22 @@ typedef TSCollection <UhttStatus> * (*UHTTSETQUOTLIST_PROC)(PPSoapClientSession 
 typedef TSCollection <UhttQuotPacket> * (*UHTTGETQUOT_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttQuotFilter & rFilt);
 typedef TSCollection <UhttGoodsRestListItem> * (*UHTTGETGOODSRESTLIST_PROC)(PPSoapClientSession & rSess, const char * pToken, int uhttGoodsID);
 typedef TSCollection <UhttDCFileVersionInfo> * (*UHTTDCGETFILEVERSIONLIST_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pKey);
-
 typedef UhttWorkbookItemPacket * (*UHTTGETWORKBOOKITEMBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, int ID);
 typedef UhttWorkbookItemPacket * (*UHTTGETWORKBOOKITEMBYCODE_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pCode);
 typedef TSCollection <UhttWorkbookItemPacket> * (*UHTTGETWORKBOOKLISTBYPARENTCODE_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pCode);
 typedef UhttDocumentPacket * (*UHTTGETWORKBOOKCONTENTBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, int id);
 typedef UhttStatus * (*UHTTCREATEWORKBOOKITEM_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttWorkbookItemPacket & rPack);
 typedef UhttStatus * (*UHTTSETWORKBOOKCONTENTBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, UhttDocumentPacket & rPack);
-
 typedef UhttStyloDevicePacket * (*UHTTGETSTYLODEVICEBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, int ID);
 typedef UhttStyloDevicePacket * (*UHTTGETSTYLODEVICEBYCODE_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pCode);
 typedef UhttStatus * (*UHTTCREATESTYLODEVICE_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttStyloDevicePacket & rPack);
-
 typedef UhttProcessorPacket * (*UHTTGETPROCESSORBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, int id);
 typedef UhttProcessorPacket * (*UHTTGETPROCESSORBYCODE_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pCode);
 typedef UhttStatus * (*UHTTCREATEPROCESSOR_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttProcessorPacket & rPack);
-
 typedef UhttTSessionPacket * (*UHTTGETTSESSIONBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, int id);
 typedef UhttTSessionPacket * (*UHTTGETTSESSIONBYUUID_PROC)(PPSoapClientSession & rSess, const char * pToken, const S_GUID & id);
 typedef TSCollection <UhttTSessionPacket> * (*UHTTGETTSESSIONBYPRC_PROC)(PPSoapClientSession & rSess, const char * pToken, int prcID, const UhttTimestamp * pSince);
 typedef UhttStatus * (*UHTTCREATETSESSION_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttTSessionPacket & rPack);
-
 typedef TSCollection <UhttStatus> * (*UHTTSENDSMS_PROC)(PPSoapClientSession & rSess, const char * pToken, const TSCollection <UhttSmsPacket> & rPack);
 //
 // iSales PEPSI SOAP CLIENT
@@ -737,7 +731,6 @@ struct iSalesGoodsPacket {
     SString CLB;     // ÃÒÄ
     TSCollection <iSalesUOM> UomList;
     TSCollection <iSalesUOMCvt> CvtList;
-    //
     SString ErrMsg;
 };
 

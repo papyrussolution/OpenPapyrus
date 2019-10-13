@@ -180,7 +180,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	if(Private == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		(void)close(FileHandle);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 #ifdef _WIN32
@@ -202,8 +202,8 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	if(READ(GifFile, (uint8*)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
 		(void)fclose(f);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)Private);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 	/* Check for GIF prefix at start of file */
@@ -211,14 +211,14 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	if(strncmp(GIF_STAMP, Buf, GIF_VERSION_POS) != 0) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_GIF_FILE);
 		(void)fclose(f);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)Private);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 	if(DGifGetScreenDesc(GifFile) == GIF_ERROR) {
 		(void)fclose(f);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)Private);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 	GifFile->Error = 0;
@@ -245,7 +245,7 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 	if(!Private) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 	GifFile->Private = (void*)Private;
@@ -259,21 +259,21 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	/* Lets see if this is a GIF file: */
 	if(READ(GifFile, (uint8*)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)Private);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 	/* Check for GIF prefix at start of file */
 	Buf[GIF_STAMP_LEN] = '\0';
 	if(strncmp(GIF_STAMP, Buf, GIF_VERSION_POS) != 0) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_GIF_FILE);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)Private);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 	if(DGifGetScreenDesc(GifFile) == GIF_ERROR) {
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)Private);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 	GifFile->Error = 0;
@@ -895,7 +895,7 @@ int DGifCloseFile(GifFileType * GifFile)
 		GifFile->Error = D_GIF_ERR_CLOSE_FAILED;
 		return GIF_ERROR;
 	}
-	SAlloc::F((char*)GifFile->Private);
+	SAlloc::F((char *)GifFile->Private);
 	//
 	// Without the #ifndef, we get spurious warnings because Coverity mistakenly
 	// thinks the GIF structure is freed on an error return.
@@ -1622,7 +1622,7 @@ int EGifPutComment(GifFileType * GifFile, const char * Comment)
 		return EGifPutExtension(GifFile, COMMENT_EXT_FUNC_CODE, length, Comment);
 	}
 	else {
-		buf = (char*)Comment;
+		buf = (char *)Comment;
 		if(EGifPutExtensionLeader(GifFile, COMMENT_EXT_FUNC_CODE) == GIF_ERROR) {
 			return GIF_ERROR;
 		}
@@ -1863,9 +1863,9 @@ int EGifCloseFile(GifFileType * GifFile)
 	}
 	if(Private) {
 		if(Private->HashTable) {
-			SAlloc::F((char*)Private->HashTable);
+			SAlloc::F((char *)Private->HashTable);
 		}
-		SAlloc::F((char*)Private);
+		SAlloc::F((char *)Private);
 	}
 	if(File && fclose(File) != 0) {
 		GifFile->Error = E_GIF_ERR_CLOSE_FAILED;
@@ -2140,13 +2140,13 @@ void GifDrawBoxedText8x8(SavedImage * Image, const int x, const int y, const cha
 	GifDrawRectangle(Image, x + 1, y + 1, border + TextWidth * GIF_FONT_WIDTH + border - 1, border + LineCount * GIF_FONT_HEIGHT + border - 1, bg);
 	/* draw the text */
 	i = 0;
-	cp = strtok((char*)legend, "\r\n");
+	cp = strtok((char *)legend, "\r\n");
 	do {
 		int leadspace = 0;
 		if(cp[0] == '\t')
 			leadspace = (TextWidth - strlen(++cp)) / 2;
 		GifDrawText8x8(Image, x + border + (leadspace * GIF_FONT_WIDTH), y + border + (GIF_FONT_HEIGHT * i++), cp, fg);
-		cp = strtok((char*)NULL, "\r\n");
+		cp = strtok((char *)NULL, "\r\n");
 	} while(cp);
 	/* outline the box */
 	GifDrawBox(Image, x, y, border + TextWidth * GIF_FONT_WIDTH + border, border + LineCount * GIF_FONT_HEIGHT + border, fg);
@@ -2285,7 +2285,7 @@ ColorMapObject * GifMakeMapObject(int ColorCount, const GifColorType * ColorMap)
 	Object->ColorCount = ColorCount;
 	Object->BitsPerPixel = GifBitSize(ColorCount);
 	if(ColorMap != NULL) {
-		memcpy((char*)Object->Colors, (char*)ColorMap, ColorCount * sizeof(GifColorType));
+		memcpy((char *)Object->Colors, (char *)ColorMap, ColorCount * sizeof(GifColorType));
 	}
 	return (Object);
 }
@@ -2428,8 +2428,8 @@ void GifFreeExtensions(int * ExtensionBlockCount, ExtensionBlock ** ExtensionBlo
 	ExtensionBlock * ep;
 	if(*ExtensionBlocks) {
 		for(ep = *ExtensionBlocks; ep < (*ExtensionBlocks + *ExtensionBlockCount); ep++)
-			SAlloc::F((char*)ep->Bytes);
-		SAlloc::F((char*)*ExtensionBlocks);
+			SAlloc::F((char *)ep->Bytes);
+		SAlloc::F((char *)*ExtensionBlocks);
 		*ExtensionBlocks = NULL;
 		*ExtensionBlockCount = 0;
 	}
@@ -2451,7 +2451,7 @@ void FreeLastSavedImage(GifFileType * GifFile)
 			GifFreeMapObject(sp->ImageDesc.ColorMap);
 			sp->ImageDesc.ColorMap = NULL;
 		}
-		SAlloc::F((char*)sp->RasterBits); // Deallocate the image data 
+		SAlloc::F((char *)sp->RasterBits); // Deallocate the image data 
 		GifFreeExtensions(&sp->ExtensionBlockCount, &sp->ExtensionBlocks); // Deallocate any extensions 
 		/*** FIXME: We could SAlloc::R the GifFile->SavedImages structure but is
 		 * there a point to it? Saves some memory but we'd have to do it every
@@ -2475,9 +2475,9 @@ SavedImage * GifMakeSavedImage(GifFileType * GifFile, const SavedImage * CopyFro
 		return ((SavedImage*)NULL);
 	else {
 		sp = &GifFile->SavedImages[GifFile->ImageCount++];
-		memzero((char*)sp, sizeof(SavedImage));
+		memzero((char *)sp, sizeof(SavedImage));
 		if(CopyFrom != NULL) {
-			memcpy((char*)sp, CopyFrom, sizeof(SavedImage));
+			memcpy((char *)sp, CopyFrom, sizeof(SavedImage));
 			/*
 			 * Make our own allocated copies of the heap fields in the
 			 * copied record.  This guards against potential aliasing problems.
@@ -2522,10 +2522,10 @@ void GifFreeSavedImages(GifFileType * GifFile)
 				sp->ImageDesc.ColorMap = NULL;
 			}
 			if(sp->RasterBits != NULL)
-				SAlloc::F((char*)sp->RasterBits);
+				SAlloc::F((char *)sp->RasterBits);
 			GifFreeExtensions(&sp->ExtensionBlockCount, &sp->ExtensionBlocks);
 		}
-		SAlloc::F((char*)GifFile->SavedImages);
+		SAlloc::F((char *)GifFile->SavedImages);
 		GifFile->SavedImages = NULL;
 	}
 }
@@ -2601,7 +2601,7 @@ static int SubdivColorMap(NewColorMapType * NewColorSubdiv, uint ColorMapSize, u
 			SortArray[j]->Pnext = SortArray[j + 1];
 		SortArray[NewColorSubdiv[Index].NumEntries - 1]->Pnext = NULL;
 		NewColorSubdiv[Index].QuantizedColors = QuantizedColor = SortArray[0];
-		SAlloc::F((char*)SortArray);
+		SAlloc::F((char *)SortArray);
 		/* Now simply add the Counts until we have half of the Count: */
 		Sum = NewColorSubdiv[Index].Count / 2 - QuantizedColor->Count;
 		NumEntries = 1;
@@ -2707,7 +2707,7 @@ int GifQuantizeBuffer(uint Width, uint Height,
 	NewColorSubdiv[0].Count = ((long)Width) * Height; /* Pixels */
 	NewColorMapSize = 1;
 	if(SubdivColorMap(NewColorSubdiv, *ColorMapSize, (uint *)&NewColorMapSize) != GIF_OK) {
-		SAlloc::F((char*)ColorArrayEntries);
+		SAlloc::F((char *)ColorArrayEntries);
 		return GIF_ERROR;
 	}
 	if(NewColorMapSize < *ColorMapSize) {
@@ -2752,7 +2752,7 @@ int GifQuantizeBuffer(uint Width, uint Height,
 #ifdef DEBUG
 	fprintf(stderr, "Quantization L(0) errors: Red = %d, Green = %d, Blue = %d.\n", MaxRGBError[0], MaxRGBError[1], MaxRGBError[2]);
 #endif /* DEBUG */
-	SAlloc::F((char*)ColorArrayEntries);
+	SAlloc::F((char *)ColorArrayEntries);
 	*ColorMapSize = NewColorMapSize;
 	return GIF_OK;
 }

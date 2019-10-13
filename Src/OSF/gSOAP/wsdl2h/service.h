@@ -38,8 +38,8 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 #include "includes.h"
 #include "wsdlH.h"
 
-class Message
-{ public:
+class Message { 
+public:
     const char *name;
     const char *URI;
     soap__styleChoice style;
@@ -80,8 +80,8 @@ class Operation
     void generate(Types&);
 };
 
-class Service
-{ public:
+class Service { 
+public:
     const char *prefix;			// a gSOAP service has a unique namespace
     const char *URI;
     const char *name;			// binding name
@@ -102,8 +102,8 @@ class Service
 
 typedef map<const char*, Service*, ltstr> MapOfStringToService;
 
-class Definitions
-{ public:
+class Definitions { 
+public:
     Types types;				// to process schema type information
     MapOfStringToService services;		// service information gathered
     Definitions();

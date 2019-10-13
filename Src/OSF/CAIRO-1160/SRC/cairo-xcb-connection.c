@@ -433,17 +433,14 @@ static boolint can_use_shm(cairo_xcb_connection_t * connection)
 	int shmid;
 	uint32_t shmseg;
 	void * ptr;
-
 	shmid = shmget(IPC_PRIVATE, 0x1000, IPC_CREAT | 0600);
 	if(shmid == -1)
 		return FALSE;
-
 	ptr = shmat(shmid, NULL, 0);
-	if(ptr == (char *)-1) {
+	if(ptr == reinterpret_cast<const char *>(-1)) {
 		shmctl(shmid, IPC_RMID, NULL);
 		return FALSE;
 	}
-
 	shmseg = _cairo_xcb_connection_get_xid(connection);
 	cookie[0] = xcb_shm_attach_checked(c, shmseg, shmid, FALSE);
 	cookie[1] = xcb_shm_detach_checked(c, shmseg);

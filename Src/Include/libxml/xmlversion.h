@@ -9,9 +9,6 @@
 #ifndef __XML_VERSION_H__
 #define __XML_VERSION_H__
 //
-//#include <libxml/xmlexports.h>
-//
-// 
 // XMLPUBFUN, XMLPUBVAR, XMLCALL
 // 
 // Macros which declare an exportable function, an exportable variable and

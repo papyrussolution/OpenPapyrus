@@ -21,10 +21,6 @@
 #pragma hdrstop
 
 #ifdef LIBXML_SCHEMATRON_ENABLED
-//#include <libxml/xpath.h>
-//#include <libxml/xpathInternals.h>
-//#include <libxml/pattern.h>
-//#include <libxml/schematron.h>
 
 #define SCHEMATRON_PARSE_OPTIONS XML_PARSE_NOENT
 #define SCT_OLD_NS reinterpret_cast<const xmlChar *>("http://www.ascc.net/xml/schematron")
@@ -33,14 +29,14 @@
 static const xmlChar * xmlSchematronNs = XML_SCHEMATRON_NS;
 static const xmlChar * xmlOldSchematronNs = SCT_OLD_NS;
 
-#define IS_SCHEMATRON(P_Node, elem) ((P_Node) && (P_Node->type == XML_ELEMENT_NODE ) && (P_Node->ns) && sstreq(P_Node->name, elem) && \
-	((sstreq(P_Node->ns->href, xmlSchematronNs)) || (sstreq(P_Node->ns->href, xmlOldSchematronNs))))
+#define IS_SCHEMATRON(pNode, elem) ((pNode) && (pNode->type == XML_ELEMENT_NODE ) && (pNode->ns) && sstreq(pNode->name, elem) && \
+	((sstreq(pNode->ns->href, xmlSchematronNs)) || (sstreq(pNode->ns->href, xmlOldSchematronNs))))
 
-#define NEXT_SCHEMATRON(P_Node)						\
-	while(P_Node) {						    \
-		if((P_Node->type == XML_ELEMENT_NODE ) && (P_Node->ns) && ((sstreq(P_Node->ns->href, xmlSchematronNs)) || (sstreq(P_Node->ns->href, xmlOldSchematronNs)))) \
+#define NEXT_SCHEMATRON(pNode)						\
+	while(pNode) {						    \
+		if((pNode->type == XML_ELEMENT_NODE ) && (pNode->ns) && ((sstreq(pNode->ns->href, xmlSchematronNs)) || (sstreq(pNode->ns->href, xmlOldSchematronNs)))) \
 			break;							     \
-		P_Node = P_Node->next;						 \
+		pNode = pNode->next;						 \
 	}
 
 /**
@@ -96,7 +92,6 @@ struct _xmlSchematronPattern {
 	xmlSchematronRulePtr rules; /* the list of rules */
 	xmlChar * name;         /* the name of the pattern */
 };
-
 /**
  * _xmlSchematron:
  *
@@ -172,12 +167,9 @@ struct _xmlSchematronParserCtxt {
 
 #define XML_STRON_CTXT_PARSER 1
 #define XML_STRON_CTXT_VALIDATOR 2
-
-/************************************************************************
-*									*
-*			Error reporting					*
-*									*
-************************************************************************/
+// 
+// Error reporting
+// 
 /**
  * xmlSchematronPErrMemory:
  * @node: a context node
@@ -231,12 +223,9 @@ static void xmlSchematronVErrMemory(xmlSchematronValidCtxtPtr ctxt, const char *
 	}
 	__xmlSimpleError(XML_FROM_SCHEMASV, XML_ERR_NO_MEMORY, P_Node, NULL, extra);
 }
-/************************************************************************
-*									*
-*		Parsing and compilation of the Schematrontrons		*
-*									*
-************************************************************************/
-
+// 
+// Parsing and compilation of the Schematrontrons
+// 
 /**
  * xmlSchematronAddTest:
  * @ctxt: the schema parsing context
@@ -295,9 +284,8 @@ static xmlSchematronTestPtr xmlSchematronAddTest(xmlSchematronParserCtxt * ctxt,
  */
 static void xmlSchematronFreeTests(xmlSchematronTestPtr tests)
 {
-	xmlSchematronTestPtr next;
-	while(tests != NULL) {
-		next = tests->next;
+	while(tests) {
+		xmlSchematronTest * next = tests->next;
 		SAlloc::F(tests->test);
 		xmlXPathFreeCompExpr(tests->comp);
 		SAlloc::F(tests->report);
@@ -305,7 +293,6 @@ static void xmlSchematronFreeTests(xmlSchematronTestPtr tests)
 		tests = next;
 	}
 }
-
 /**
  * xmlSchematronAddRule:
  * @ctxt: the schema parsing context
@@ -371,7 +358,7 @@ static xmlSchematronRulePtr xmlSchematronAddRule(xmlSchematronParserCtxt * ctxt,
  */
 static void xmlSchematronFreeRules(xmlSchematronRulePtr rules)
 {
-	while(rules != NULL) {
+	while(rules) {
 		xmlSchematronRule * next = rules->next;
 		if(rules->tests)
 			xmlSchematronFreeTests(rules->tests);
@@ -417,7 +404,6 @@ static xmlSchematronPatternPtr xmlSchematronAddPattern(xmlSchematronParserCtxt *
 	}
 	return ret;
 }
-
 /**
  * xmlSchematronFreePatterns:
  * @patterns:  a list of patterns
@@ -433,7 +419,6 @@ static void xmlSchematronFreePatterns(xmlSchematronPatternPtr patterns)
 		patterns = next;
 	}
 }
-
 /**
  * xmlSchematronNewSchematron:
  * @ctxt:  a schema validation context
@@ -455,7 +440,6 @@ static xmlSchematronPtr xmlSchematronNewSchematron(xmlSchematronParserCtxt * ctx
 	}
 	return ret;
 }
-
 /**
  * xmlSchematronFree:
  * @schema:  a schema structure
@@ -474,7 +458,6 @@ void xmlSchematronFree(xmlSchematronPtr schema)
 		SAlloc::F(schema);
 	}
 }
-
 /**
  * xmlSchematronNewParserCtxt:
  * @URL:  the location of the schema
@@ -508,7 +491,6 @@ xmlSchematronParserCtxt * xmlSchematronNewParserCtxt(const char * URL)
 	ret->xctxt->flags = XML_XPATH_CHECKNS;
 	return ret;
 }
-
 /**
  * xmlSchematronNewMemParserCtxt:
  * @buffer:  a pointer to a char array containing the schemas
@@ -542,7 +524,6 @@ xmlSchematronParserCtxt * xmlSchematronNewMemParserCtxt(const char * buffer, int
 	}
 	return ret;
 }
-
 /**
  * xmlSchematronNewDocParserCtxt:
  * @doc:  a preparsed document tree
@@ -607,7 +588,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxt * ctxt, xmlDoc * do
 {
 	if(ctxt->includes == NULL) {
 		ctxt->maxIncludes = 10;
-		ctxt->includes = (xmlNodePtr*)SAlloc::M(ctxt->maxIncludes * 2 * sizeof(xmlNode *));
+		ctxt->includes = (xmlNode **)SAlloc::M(ctxt->maxIncludes * 2 * sizeof(xmlNode *));
 		if(ctxt->includes == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", 0);
 			return;
@@ -615,7 +596,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxt * ctxt, xmlDoc * do
 		ctxt->nbIncludes = 0;
 	}
 	else if(ctxt->nbIncludes + 2 >= ctxt->maxIncludes) {
-		xmlNode ** tmp = (xmlNodePtr*)SAlloc::R(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNode *));
+		xmlNode ** tmp = (xmlNode **)SAlloc::R(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNode *));
 		if(!tmp) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", 0);
 			return;
@@ -773,7 +754,6 @@ static void xmlSchematronParseRule(xmlSchematronParserCtxt * ctxt, xmlSchematron
 		xmlSchematronPErr(ctxt, rule, XML_SCHEMAP_NOROOT, "rule has no assert nor report element", 0, 0);
 	}
 }
-
 /**
  * xmlSchematronParsePattern:
  * @ctxt:  a schema validation context

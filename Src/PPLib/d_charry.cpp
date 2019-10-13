@@ -134,7 +134,7 @@ int SLAPI PPDS_ELinkAddr::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(PPELink *)dataPtr;
+			Data = *static_cast<const PPELink *>(dataPtr);
 			KindID = Data.KindID;
 			GetObjectName(PPOBJ_ELINKKIND, Data.KindID, KindName, sizeof(KindName));
 			STRNSCPY(Addr, Data.Addr);
@@ -328,7 +328,7 @@ int SLAPI PPDS_Barcode::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(BarcodeTbl::Rec *)dataPtr;
+			Data = *static_cast<const BarcodeTbl::Rec *>(dataPtr);
 		else
 			ok = -1;
 	}
@@ -447,7 +447,7 @@ int SLAPI PPDS_CrrGoods::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(PPGoodsPacket *)dataPtr;
+			Data = *static_cast<const PPGoodsPacket *>(dataPtr);
 			ExtractOuterData();
 		}
 		else if(addedParam) {
@@ -499,7 +499,7 @@ int SLAPI PPDS_CrrGoods::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTran
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRGOODS_CODE) {
-			BarcodeTbl::Rec bc_rec = ((PPDS_Barcode *)pData)->Data;
+			BarcodeTbl::Rec bc_rec = static_cast<const PPDS_Barcode *>(pData)->Data;
 			Data.AddCode(bc_rec.Code, 0, bc_rec.Qtty);
 			ok = 1;
 		}
@@ -532,7 +532,7 @@ int SLAPI PPDS_CrrQCert::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(QualityCertTbl::Rec *)dataPtr;
+			Data = *static_cast<const QualityCertTbl::Rec *>(dataPtr);
 			GetObjectName(PPOBJ_PERSON, Data.RegOrgan, RegOrgName, sizeof(RegOrgName));
 		}
 		if(addedParam) {
@@ -592,7 +592,7 @@ int SLAPI PPDS_CrrBillItem::InitData(Ido op, void * dataPtr, long /*addedParam*/
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(PPTransferItem *)dataPtr;
+			Data = *static_cast<const PPTransferItem *>(dataPtr);
 		}
 		else
 			ok = -1;
@@ -638,10 +638,10 @@ int SLAPI PPDS_CrrBillItem::AcceptListItem(long fldID, PPDeclStruc * pData, ObjT
 			PPObjGoods goods_obj;
 			SString ar_code;
 			PPID   ar_id = 0;
-			PPGoodsPacket * p_data = &((PPDS_CrrGoods *)pData)->Data;
-			const PPID orig_goods_id = ((PPDS_CrrGoods *)pData)->OrigID;
+			PPGoodsPacket * p_data = &static_cast<PPDS_CrrGoods *>(pData)->Data;
+			const PPID orig_goods_id = static_cast<const PPDS_CrrGoods *>(pData)->OrigID;
 			if(P_Outer && P_Outer->GetId() == PPDS_CRRBILL) {
-				const PPDS_CrrBill * p_outer = (const PPDS_CrrBill *)P_Outer;
+				const PPDS_CrrBill * p_outer = static_cast<const PPDS_CrrBill *>(P_Outer);
 				if(p_outer->DbxCfg.Flags & DBDXF_CHARRY_GIDASARCODE && p_outer->SellerArID && orig_goods_id) {
 					ar_id = p_outer->SellerArID;
 					ar_code.Cat(orig_goods_id);
@@ -679,7 +679,7 @@ int SLAPI PPDS_CrrBillItem::AcceptListItem(long fldID, PPDeclStruc * pData, ObjT
 		}
 		else if(fldID == DSF_CRRBILLITEM_QCERT) {
 			PPObjQCert qc_obj;
-			QualityCertTbl::Rec qc_rec = ((PPDS_CrrQCert *)pData)->Data;
+			QualityCertTbl::Rec qc_rec = static_cast<const PPDS_CrrQCert *>(pData)->Data;
 			if(qc_obj.SearchByCode(qc_rec.Code, &id, 0) > 0) {
 				Data.QCert = id;
 			}
@@ -978,7 +978,7 @@ int SLAPI PPDS_CrrBill::CreateListItem(long fldID, uint * pIter, PPDeclStruc * p
 			PPBillPacket::TiItemExt tiie;
 			if(Data.EnumTItemsExt(0, &ti, &tiie) > 0) {
 				pData->InitData(idoExtract, &ti, 0);
-				STRNSCPY(((PPDS_CrrBillItem *)pData)->CLB, tiie.Clb);
+				STRNSCPY(static_cast<PPDS_CrrBillItem *>(pData)->CLB, tiie.Clb);
 				ok = 1;
 			}
 		}
@@ -1307,7 +1307,7 @@ int SLAPI PPDS_CrrStaffCalEntry::InitData(Ido op, void * dataPtr, long /*addedPa
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(StaffCalendarTbl::Rec *)dataPtr;
+			Data = *static_cast<const StaffCalendarTbl::Rec *>(dataPtr);
 		}
 		else
 			ok = -1;
@@ -1390,7 +1390,7 @@ int SLAPI PPDS_CrrStaffCal::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(PPStaffCalPacket *)dataPtr;
+			Data = *static_cast<const PPStaffCalPacket *>(dataPtr);
 			ok = 1;
 		}
 		else if(addedParam) {
@@ -1692,7 +1692,7 @@ int SLAPI PPDS_CrrGoodsType::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPGoodsType*)dataPtr;
+			Data = *static_cast<const PPGoodsType *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2359,7 +2359,7 @@ int SLAPI PPDS_CrrRegisterType::InitData(Ido op, void * dataPtr, long addedParam
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPRegisterType*)dataPtr;
+			Data = *static_cast<const PPRegisterType *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2466,7 +2466,6 @@ int SLAPI PPDS_CrrRegisterType::TransferField(long fldID, Tfd dir, uint * pIter,
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPOpCounter opc_rec;
-					MEMSZERO(opc_rec);
 					if(OpCounterObj.Search(Data.CounterID, &opc_rec) > 0)
 						buf.CopyFrom(opc_rec.Name);
 				}
@@ -2505,7 +2504,7 @@ int SLAPI PPDS_CrrQuotKind::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPQuotKind*)dataPtr;
+			Data = *static_cast<const PPQuotKind *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2668,20 +2667,14 @@ int SLAPI PPDS_CrrQuotKind::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 			}
 			break;
 		case DSF_CRRQUOTKIND_USINGWSCARD:
-			ok = TransferData((uint8 *)&Data.UsingWSCard, dir, rBuf);
+			ok = TransferData(reinterpret_cast<uint8 *>(&Data.UsingWSCard), dir, rBuf);
 			break;
-		case DSF_CRRQUOTKIND_FABSDIS:
-			ok = TransferDataFlag(&Data.Flags, QUOTKF_ABSDIS, dir, rBuf); break;
-		case DSF_CRRQUOTKIND_FNOTFORBILL:
-			ok = TransferDataFlag(&Data.Flags, QUOTKF_NOTFORBILL, dir, rBuf); break;
-		case DSF_CRRQUOTKIND_FPCTDISONCOST:
-			ok = TransferDataFlag(&Data.Flags, QUOTKF_PCTDISONCOST, dir, rBuf); break;
-		case DSF_CRRQUOTKIND_FDSCNTONGROUPS:
-			ok = TransferDataFlag(&Data.Flags, QUOTKF_DSCNTONGROUPS, dir, rBuf); break;
-		case DSF_CRRQUOTKIND_FEXTPRICEBYBASE:
-			ok = TransferDataFlag(&Data.Flags, QUOTKF_EXTPRICEBYBASE, dir, rBuf); break;
-		case DSF_CRRQUOTKIND_FRETAILED:
-			ok = TransferDataFlag(&Data.Flags, QUOTKF_RETAILED, dir, rBuf); break;
+		case DSF_CRRQUOTKIND_FABSDIS: ok = TransferDataFlag(&Data.Flags, QUOTKF_ABSDIS, dir, rBuf); break;
+		case DSF_CRRQUOTKIND_FNOTFORBILL: ok = TransferDataFlag(&Data.Flags, QUOTKF_NOTFORBILL, dir, rBuf); break;
+		case DSF_CRRQUOTKIND_FPCTDISONCOST: ok = TransferDataFlag(&Data.Flags, QUOTKF_PCTDISONCOST, dir, rBuf); break;
+		case DSF_CRRQUOTKIND_FDSCNTONGROUPS: ok = TransferDataFlag(&Data.Flags, QUOTKF_DSCNTONGROUPS, dir, rBuf); break;
+		case DSF_CRRQUOTKIND_FEXTPRICEBYBASE: ok = TransferDataFlag(&Data.Flags, QUOTKF_EXTPRICEBYBASE, dir, rBuf); break;
+		case DSF_CRRQUOTKIND_FRETAILED: ok = TransferDataFlag(&Data.Flags, QUOTKF_RETAILED, dir, rBuf); break;
 	}
 	if(ok > 0)
 		(*pIter)++;
@@ -2698,7 +2691,7 @@ int SLAPI PPDS_CrrAssetWrOffGrp::InitData(Ido op, void * dataPtr, long addedPara
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPAssetWrOffGrp*)dataPtr;
+			Data = *static_cast<const PPAssetWrOffGrp *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2802,7 +2795,7 @@ int SLAPI PPDS_CrrMailAccount::InitData(Ido op, void * dataPtr, long addedParam)
 		Data.Init();
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPInternetAccount*)dataPtr;
+			Data = *static_cast<const PPInternetAccount *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Get(addedParam, &Data) > 0)
 				ok = 1;
@@ -2999,7 +2992,7 @@ int SLAPI PPDS_CrrPersonRelType::InitData(Ido op, void * dataPtr, long addedPara
 		Data.Init();
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPPersonRelTypePacket *)dataPtr;
+			Data = *static_cast<const PPPersonRelTypePacket *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.GetPacket(addedParam, &Data) > 0)
 				ok = 1;
@@ -3154,7 +3147,7 @@ int SLAPI PPDS_CrrObjTag::InitData(Ido op, void * dataPtr, long addedParam)
 		Data.Init();
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPObjTagPacket*)dataPtr;
+			Data = *static_cast<const PPObjTagPacket *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.GetPacket(addedParam, &Data) > 0)
 				ok = 1;
@@ -3297,7 +3290,7 @@ int SLAPI PPDS_CrrDraftWrOffEntry::InitData(Ido op, void * dataPtr, long /*added
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
-			Data = *(PPDraftWrOffEntry *)dataPtr;
+			Data = *static_cast<const PPDraftWrOffEntry *>(dataPtr);
 		}
 		else
 			ok = -1;
@@ -3352,7 +3345,7 @@ int SLAPI PPDS_CrrDraftWrOff::InitData(Ido op, void * dataPtr, long addedParam)
 		Data.Init();
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPDraftWrOffPacket*)dataPtr;
+			Data = *static_cast<const PPDraftWrOffPacket *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.GetPacket(addedParam, &Data) > 0)
 				ok = 1;
@@ -3467,7 +3460,7 @@ int SLAPI PPDS_CrrDraftWrOff::AcceptListItem(long fldID, PPDeclStruc * pData, Ob
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRDRAFTWROFF_ITEMS) {
-			PPDraftWrOffEntry item = ((PPDS_CrrDraftWrOffEntry *)pData)->Data;
+			PPDraftWrOffEntry item = static_cast<const PPDS_CrrDraftWrOffEntry *>(pData)->Data;
 			THROW_MEM(SETIFZ(Data.P_List, new ::SArray(sizeof(PPDraftWrOffEntry))));
 			ok = Data.P_List->insert(&item);
 		}
@@ -3500,7 +3493,7 @@ int SLAPI PPDS_CrrLocation::InitData(Ido op, void * dataPtr, long addedParam)
 		MEMSZERO(Data);
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(LocationTbl::Rec*)dataPtr;
+			Data = *static_cast<const LocationTbl::Rec *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -3661,14 +3654,10 @@ int SLAPI PPDS_CrrLocation::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 			if(dir == tfdBufToData)
 				LocationCore::SetExField(&Data, LOCEXSTR_FULLADDR, temp_buf);
 			break;
-		case DSF_CRRLOCATION_FVATFREE:
-			ok = TransferDataFlag(&Data.Flags, LOCF_VATFREE, dir, rBuf); break;
-		case DSF_CRRLOCATION_FMANUALADDR:
-			ok = TransferDataFlag(&Data.Flags, LOCF_MANUALADDR, dir, rBuf); break;
-		case DSF_CRRLOCATION_FVOLUMEVAL:
-			ok = TransferDataFlag(&Data.Flags, LOCF_VOLUMEVAL, dir, rBuf); break;
-		case DSF_CRRLOCATION_FCOMPARABLE:
-			ok = TransferDataFlag(&Data.Flags, LOCF_COMPARABLE, dir, rBuf); break;
+		case DSF_CRRLOCATION_FVATFREE: ok = TransferDataFlag(&Data.Flags, LOCF_VATFREE, dir, rBuf); break;
+		case DSF_CRRLOCATION_FMANUALADDR: ok = TransferDataFlag(&Data.Flags, LOCF_MANUALADDR, dir, rBuf); break;
+		case DSF_CRRLOCATION_FVOLUMEVAL: ok = TransferDataFlag(&Data.Flags, LOCF_VOLUMEVAL, dir, rBuf); break;
+		case DSF_CRRLOCATION_FCOMPARABLE: ok = TransferDataFlag(&Data.Flags, LOCF_COMPARABLE, dir, rBuf); break;
 	}
 	if(ok > 0)
 		(*pIter)++;
@@ -3680,7 +3669,7 @@ int SLAPI PPDS_CrrLocation::AcceptListItem(long fldID, PPDeclStruc * pData, ObjT
 	int    ok = -1;
 	if(pData) {
 		if(oneof2(fldID, DSF_CRRLOCATION_OWNER, DSF_CRRLOCATION_RSPNSPERSON)) {
-			PPPersonPacket item = ((PPDS_CrrPerson *)pData)->Data;
+			PPPersonPacket item = static_cast<const PPDS_CrrPerson *>(pData)->Data;
 			if(fldID == DSF_CRRLOCATION_OWNER)
 				Data.OwnerID = item.Rec.ID;
 			else
@@ -3688,7 +3677,7 @@ int SLAPI PPDS_CrrLocation::AcceptListItem(long fldID, PPDeclStruc * pData, ObjT
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRLOCATION_PARENT) {
-			LocationTbl::Rec rec = ((PPDS_CrrLocation *)pData)->Data;
+			LocationTbl::Rec rec = static_cast<const PPDS_CrrLocation *>(pData)->Data;
 			Data.ParentID = rec.ID;
 			ok = 1;
 		}
@@ -3731,7 +3720,7 @@ int SLAPI PPDS_CrrArticle::InitData(Ido op, void * dataPtr, long addedParam)
 		MEMSZERO(Data);
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(ArticleTbl::Rec*)dataPtr;
+			Data = *static_cast<const ArticleTbl::Rec *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -3839,22 +3828,22 @@ int SLAPI PPDS_CrrArticle::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTr
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRARTICLE_ACCSHEET) {
-			PPAccSheet item = ((PPDS_CrrAccSheet *)pData)->Data;
+			PPAccSheet item = static_cast<const PPDS_CrrAccSheet *>(pData)->Data;
 			Data.AccSheetID = item.ID;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRARTICLE_ASSOCPERSON) {
-			PPPersonPacket pack = ((PPDS_CrrPerson *)pData)->Data;
+			PPPersonPacket pack = static_cast<const PPDS_CrrPerson *>(pData)->Data;
 			Data.ObjID = (Data.ObjID) ? Data.ObjID : pack.Rec.ID;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRARTICLE_ASSOCLOC) {
-			LocationTbl::Rec rec = ((PPDS_CrrLocation *)pData)->Data;
+			LocationTbl::Rec rec = static_cast<const PPDS_CrrLocation *>(pData)->Data;
 			Data.ObjID = (Data.ObjID) ? Data.ObjID : rec.ID;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRARTICLE_ASSOCACCOUNT) {
-			PPAccountPacket pack = ((PPDS_CrrAccount *)pData)->Data;
+			PPAccountPacket pack = static_cast<const PPDS_CrrAccount *>(pData)->Data;
 			Data.ObjID = (Data.ObjID) ? Data.ObjID : pack.Rec.ID;
 			ok = 1;
 		}
@@ -3909,7 +3898,7 @@ int SLAPI PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 		MEMSZERO(Data);
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPAccSheet*)dataPtr;
+			Data = *static_cast<const PPAccSheet *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Fetch(addedParam, &Data) > 0)
 				ok = 1;
@@ -4029,12 +4018,12 @@ int SLAPI PPDS_CrrAccSheet::AcceptListItem(long fldID, PPDeclStruc * pData, ObjT
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRACCSHEET_CODEREGTYPE) {
-			PPRegisterType item = ((PPDS_CrrRegisterType *)pData)->Data;
+			PPRegisterType item = static_cast<const PPDS_CrrRegisterType *>(pData)->Data;
 			Data.CodeRegTypeID = item.ID;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRACCSHEET_PERSONKIND) {
-			PPPersonKind item = ((PPDS_CrrPersonKind*)pData)->Data;
+			PPPersonKind item = static_cast<const PPDS_CrrPersonKind *>(pData)->Data;
 			Data.ObjGroup = item.ID;
 			ok = 1;
 		}
@@ -4071,7 +4060,7 @@ int SLAPI PPDS_CrrAccount::InitData(Ido op, void * dataPtr, long addedParam)
 		Data.Init();
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPAccountPacket*)dataPtr;
+			Data = *static_cast<const PPAccountPacket *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.GetPacket(addedParam, &Data) > 0)
 				ok = 1;
@@ -4174,19 +4163,19 @@ int SLAPI PPDS_CrrAccount::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTr
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRACCOUNT_CURR) {
-			PPCurrency item = ((PPDS_CrrCurrency *)pData)->Data;
+			PPCurrency item = static_cast<const PPDS_CrrCurrency *>(pData)->Data;
 			Data.Rec.CurID = item.ID;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRACCOUNT_CURLIST) {
-			PPCurrency item = ((PPDS_CrrCurrency *)pData)->Data;
+			PPCurrency item = static_cast<const PPDS_CrrCurrency *>(pData)->Data;
 			if(Data.CurList.insert(&item))
 				ok = 1;
 			else
 				ok = 0;
 		}
 		else if(fldID == DSF_CRRACCOUNT_ACCSHEET) {
-			PPAccSheet item = ((PPDS_CrrAccSheet *)pData)->Data;
+			PPAccSheet item = static_cast<const PPDS_CrrAccSheet *>(pData)->Data;
 			Data.Rec.AccSheetID = item.ID;
 			ok = 1;
 		}
@@ -5801,18 +5790,13 @@ int SLAPI PPDS_CrrBillStatus::TransferField(long fldID, Tfd dir, uint * pIter, S
 				}
 			}
 			break;
-		case DSF_CRRBILLSTATUS_NAME:
-			ok = TransferData(Data.Name, sizeof(Data.Name), dir, rBuf);
-			break;
-		case DSF_CRRBILLSTATUS_SYMB:
-			ok = TransferData(Data.Symb, sizeof(Data.Symb), dir, rBuf);
-			break;
+		case DSF_CRRBILLSTATUS_NAME: ok = TransferData(Data.Name, sizeof(Data.Name), dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_SYMB: ok = TransferData(Data.Symb, sizeof(Data.Symb), dir, rBuf); break;
 		case DSF_CRRBILLSTATUS_COUNTERID:
 			{
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPOpCounter opc_rec;
-					MEMSZERO(opc_rec);
 					if(Data.CounterID && ObjCntr.Search(Data.CounterID, &opc_rec) > 0)
 						buf.CopyFrom(opc_rec.Name);
 				}
@@ -5835,45 +5819,24 @@ int SLAPI PPDS_CrrBillStatus::TransferField(long fldID, Tfd dir, uint * pIter, S
 					ok = OpKObj.SearchByName(buf, &Data.RestrictOpID);
 			}
 			break;
-		case DSF_CRRBILLSTATUS_RANK:
-			ok = TransferData(&Data.Rank, dir, rBuf);
-			break;
-
-		case DSF_CRRBILLSTATUS_FBILSTDENYMOD:
-			ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_MOD, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILSTDENYDEL:
-			ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_DEL, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILSTDENYTRANSM:
-			ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_TRANSM, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILSTDENYCHANGELINK:
-			ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_CHANGELINK, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILSTDENYRANKDOWN:
-			ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_RANKDOWN, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILSTLOCKACCTURN:
-			ok = TransferDataFlag(&Data.Flags, BILSTF_LOCK_ACCTURN, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILSTLOCKPAYMENT:
-			ok = TransferDataFlag(&Data.Flags, BILSTF_LOCK_PAYMENT, dir, rBuf); break;
-
-    	case DSF_CRRBILLSTATUS_FBILCHECKAGENT:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_AGENT, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKPAYER:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_PAYER, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKDLVRADDR:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_DLVRADDR, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKPORTOFLOADING:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_PORTOFLOADING, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKPORTOFDISCHARGE:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_PORTOFDISCHARGE, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKISSUEDT:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_ISSUEDT, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKARRIVALDT:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_ARRIVALDT, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKSHIP:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_SHIP, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKFREIGHTCOST:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_FREIGHTCOST, dir, rBuf); break;
-		case DSF_CRRBILLSTATUS_FBILCHECKFREIGHT:
-			ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_FREIGHT, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_RANK: ok = TransferData(&Data.Rank, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILSTDENYMOD: ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_MOD, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILSTDENYDEL: ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_DEL, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILSTDENYTRANSM: ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_TRANSM, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILSTDENYCHANGELINK: ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_CHANGELINK, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILSTDENYRANKDOWN: ok = TransferDataFlag(&Data.Flags, BILSTF_DENY_RANKDOWN, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILSTLOCKACCTURN: ok = TransferDataFlag(&Data.Flags, BILSTF_LOCK_ACCTURN, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILSTLOCKPAYMENT: ok = TransferDataFlag(&Data.Flags, BILSTF_LOCK_PAYMENT, dir, rBuf); break;
+    	case DSF_CRRBILLSTATUS_FBILCHECKAGENT: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_AGENT, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKPAYER: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_PAYER, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKDLVRADDR: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_DLVRADDR, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKPORTOFLOADING: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_PORTOFLOADING, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKPORTOFDISCHARGE: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_PORTOFDISCHARGE, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKISSUEDT: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_ISSUEDT, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKARRIVALDT: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_ARRIVALDT, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKSHIP: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_SHIP, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKFREIGHTCOST: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_FREIGHTCOST, dir, rBuf); break;
+		case DSF_CRRBILLSTATUS_FBILCHECKFREIGHT: ok = TransferDataFlag(&Data.CheckFields, BILCHECKF_FREIGHT, dir, rBuf); break;
 	}
 	if(ok > 0)
 		(*pIter)++;

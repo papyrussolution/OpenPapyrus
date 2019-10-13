@@ -6,11 +6,11 @@
 //
 // @ModuleDef(PPObjOpCounter)
 //
-PPOpCounterPacket::PPOpCounterPacket() : P_Items(0)
+PPOpCounterPacket::PPOpCounterPacket() : P_Items(0), Flags(0)
 {
-	Init(0, 0);
+	STRNSCPY(Head.CodeTemplate, "%05");
+	//Init(0, 0);
 	//DontLogUpdAction = 0;
-	Flags = 0;
 }
 
 PPOpCounterPacket::~PPOpCounterPacket()
@@ -24,9 +24,7 @@ int SLAPI PPOpCounterPacket::Init(const PPOpCounter * pHead, const LAssocArray *
 	if(!RVALUEPTR(Head, pHead))
 		MEMSZERO(Head);
 	if(*strip(Head.CodeTemplate) == 0) {
-		Head.CodeTemplate[0] = '%';
-		Head.CodeTemplate[1] = '0';
-		Head.CodeTemplate[2] = '5';
+		STRNSCPY(Head.CodeTemplate, "%05");
 	}
 	THROW(Init(pItems));
 	CATCHZOK
@@ -299,7 +297,6 @@ int SLAPI PPObjOpCounter::GetPacket(PPID opCntrID, PPOpCounterPacket * pPack)
 	if(pPack) {
 		LAssocArray cntrs_ary;
 		PPOpCounter opc_rec;
-		MEMSZERO(opc_rec);
 		THROW(r = ref->GetItem(PPOBJ_OPCOUNTER, opCntrID, &opc_rec));
 		if(r > 0) {
 			if(opc_rec.Flags & OPCNTF_DIFFBYLOC)

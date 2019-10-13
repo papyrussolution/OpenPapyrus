@@ -106,9 +106,9 @@ int compute_minrun(uint64_t size) /* {{{ */
 #ifndef SORT_NAME
 	#error "Must declare SORT_NAME"
 #endif
-#ifndef SORT_TYPE
+/* @v10.5.8 (SORT_TYPE is now declared as typedef) #ifndef SORT_TYPE
 	#error "Must declare SORT_TYPE"
-#endif
+#endif*/
 #ifndef SORT_CMP
 	#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
 #endif

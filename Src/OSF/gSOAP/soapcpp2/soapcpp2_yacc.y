@@ -264,7 +264,7 @@ pragma	: PRAGMA	{ if ($1[1] >= 'a' && $1[1] <= 'z')
 			  {	for (pp = &pragmas; *pp; pp = &(*pp)->next)
 			          ;
 				*pp = (Pragma*)emalloc(sizeof(Pragma));
-				(*pp)->pragma = (char*)emalloc(strlen($1)+1);
+				(*pp)->pragma = (char *)emalloc(strlen($1)+1);
 				strcpy((*pp)->pragma, $1);
 				(*pp)->next = NULL;
 			  }
@@ -499,7 +499,7 @@ name	: ID		{ $$ = $1; }
 	| OPERATOR'('')'{ $$ = lookup("operator()"); }
 	| OPERATOR texp { s1 = c_storage($2.sto);
 			  s2 = c_type($2.typ);
-			  s = (char*)emalloc(strlen(s1) + strlen(s2) + 10);
+			  s = (char *)emalloc(strlen(s1) + strlen(s2) + 10);
 			  strcpy(s, "operator ");
 			  strcat(s, s1);
 			  strcat(s, s2);
@@ -521,7 +521,7 @@ constr	: TYPE		{ if (!(p = entry(classtable, $1)))
 destr	: virtual '~' TYPE
 			{ if (!(p = entry(classtable, $3)))
 			  	semerror("invalid destructor");
-			  s = (char*)emalloc(strlen($3->name) + 2);
+			  s = (char *)emalloc(strlen($3->name) + 2);
 			  strcpy(s, "~");
 			  strcat(s, $3->name);
 			  sym = lookup(s);
@@ -1887,7 +1887,7 @@ add_response(Entry *fun, Entry *ret)
   Entry *p, *q;
   Symbol *s;
   size_t n = strlen(fun->sym->name);
-  char *r = (char*)emalloc(n+9);
+  char *r = (char *)emalloc(n+9);
   strcpy(r, fun->sym->name);
   strcat(r, "Response");
   if (!(s = lookup(r)))

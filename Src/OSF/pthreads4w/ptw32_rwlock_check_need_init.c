@@ -15,9 +15,7 @@
  *   The current list of contributors is contained
  *   in the file CONTRIBUTORS included with the source
  *   code distribution. The list can also be seen at the
- *   following World Wide Web location:
- *
- *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   following World Wide Web location: https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,13 +36,11 @@ INLINE int __ptw32_rwlock_check_need_init(pthread_rwlock_t * rwlock)
 {
 	int result = 0;
 	__ptw32_mcs_local_node_t node;
-
 	/*
 	 * The following guarded test is specifically for statically
 	 * initialised rwlocks (via PTHREAD_RWLOCK_INITIALIZER).
 	 */
 	__ptw32_mcs_lock_acquire(&__ptw32_rwlock_test_init_lock, &node);
-
 	/*
 	 * We got here possibly under race
 	 * conditions. Check again inside the critical section

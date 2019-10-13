@@ -3116,7 +3116,7 @@ public:
 		R_Case.SLTEST_CHECK_EQ(XXH32_digest(&state), Nresult);
 		XXH32_reset(&state, seed);
 		for(size_t pos = 0; pos < len; pos++)
-			XXH32_update(&state, ((const char*)sequence)+pos, 1);
+			XXH32_update(&state, ((const char *)sequence)+pos, 1);
 		//BMK_checkResult32(XXH32_digest(&state), Nresult);
 		R_Case.SLTEST_CHECK_EQ(XXH32_digest(&state), Nresult);
 	}
@@ -3131,7 +3131,7 @@ public:
 		R_Case.SLTEST_CHECK_EQ(XXH64(data, len, seed), Nresult);
 		XXH64_reset(&state, seed);
 		for(size_t pos = 0; pos < len; pos++)
-			XXH64_update(&state, ((const char*)data)+pos, 1);
+			XXH64_update(&state, ((const char *)data)+pos, 1);
 		//BMK_checkResult64(XXH64_digest(&state), Nresult);
 		R_Case.SLTEST_CHECK_EQ(XXH64_digest(&state), Nresult);
 	}
@@ -3160,7 +3160,7 @@ public:
 				// 2 ingestions 
 				XXH3_64bits_reset_withSeed(&state, seed);
 				XXH3_64bits_update(&state, data, 3);
-				XXH3_64bits_update(&state, (const char*)data+3, len-3);
+				XXH3_64bits_update(&state, (const char *)data+3, len-3);
 				//BMK_checkResult64(XXH3_64bits_digest(&state), Nresult);
 				R_Case.SLTEST_CHECK_EQ(XXH3_64bits_digest(&state), Nresult);
 			}
@@ -3168,7 +3168,7 @@ public:
 			{   
 				XXH3_64bits_reset_withSeed(&state, seed);
 				for(size_t pos = 0; pos < len; pos++)
-					XXH3_64bits_update(&state, ((const char*)data)+pos, 1);
+					XXH3_64bits_update(&state, ((const char *)data)+pos, 1);
 				//BMK_checkResult64(XXH3_64bits_digest(&state), Nresult);
 				R_Case.SLTEST_CHECK_EQ(XXH3_64bits_digest(&state), Nresult);
 			}   
@@ -3192,7 +3192,7 @@ public:
 			{   
 				XXH3_64bits_reset_withSecret(&state, secret, secretSize);
 				for(size_t pos = 0; pos<len; pos++)
-					XXH3_64bits_update(&state, ((const char*)data)+pos, 1);
+					XXH3_64bits_update(&state, ((const char *)data)+pos, 1);
 				//BMK_checkResult64(XXH3_64bits_digest(&state), Nresult);
 				R_Case.SLTEST_CHECK_EQ(XXH3_64bits_digest(&state), Nresult);
 			}   
@@ -3232,7 +3232,7 @@ public:
 				// 2 ingestions 
 				XXH3_128bits_reset_withSeed(&state, seed);
 				XXH3_128bits_update(&state, data, 3);
-				XXH3_128bits_update(&state, (const char*)data+3, len-3);
+				XXH3_128bits_update(&state, (const char *)data+3, len-3);
 				//BMK_checkResult128(XXH3_128bits_digest(&state), Nresult);
 				{
 					XXH128_hash_t digest128 = XXH3_128bits_digest(&state);
@@ -3243,7 +3243,7 @@ public:
 			{   
 				XXH3_128bits_reset_withSeed(&state, seed);
 				for(size_t pos = 0; pos < len; pos++)
-					XXH3_128bits_update(&state, ((const char*)data)+pos, 1);
+					XXH3_128bits_update(&state, ((const char *)data)+pos, 1);
 				//BMK_checkResult128(XXH3_128bits_digest(&state), Nresult);
 				{
 					XXH128_hash_t digest128 = XXH3_128bits_digest(&state);

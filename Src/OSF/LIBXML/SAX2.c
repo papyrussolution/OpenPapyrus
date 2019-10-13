@@ -8,13 +8,11 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <libxml/HTMLtree.h>
 
 /* Define SIZE_T_MAX unless defined through <limits.h>. */
 #ifndef SIZE_T_MAX
 	#define SIZE_T_MAX     ((size_t)-1)
 #endif /* !SIZE_T_MAX */
-
 /* #define DEBUG_SAX2 */
 /* #define DEBUG_SAX2_TREE */
 
@@ -936,7 +934,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			val = (xmlChar *)value;
 		}
 		if(val[0] != 0) {
-			xmlURIPtr uri = xmlParseURI((const char *)val);
+			xmlURI * uri = xmlParseURI((const char *)val);
 			if(!uri) {
 				if(ctxt->sax && ctxt->sax->warning)
 					ctxt->sax->warning(ctxt->userData, "xmlns: %s not a valid URI\n", val);
@@ -986,7 +984,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			xmlNsErrMsg(ctxt, XML_NS_ERR_EMPTY, "Empty namespace__ name for prefix %s\n", name, 0);
 		}
 		if((ctxt->pedantic != 0) && (val[0] != 0)) {
-			xmlURIPtr uri = xmlParseURI((const char *)val);
+			xmlURI * uri = xmlParseURI((const char *)val);
 			if(!uri) {
 				xmlNsWarnMsg(ctxt, XML_WAR_NS_URI, "xmlns:%s: %s not a valid URI\n", name, value);
 			}

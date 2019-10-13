@@ -13,6 +13,8 @@ struct xmlHashTable;
 struct xmlValidCtxt;
 
 #include <libxml/valid.h>
+#include <libxml/encoding.h>
+#include <libxml/xmlIO.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,7 +25,6 @@ extern "C" {
  * The default version of XML used: 1.0
  */
 #define XML_DEFAULT_VERSION     "1.0"
-
 /**
  * xmlParserInput:
  *
@@ -59,7 +60,7 @@ struct xmlParserInput {
 	 *  so even if there is an overflow this should not give troubles
 	 *  for parsing very large instances.
 	 */
-	unsigned long consumed;       /* How many xmlChars already consumed */
+	ulong consumed;       /* How many xmlChars already consumed */
 	xmlParserInputDeallocate free; /* function to deallocate the base */
 	const xmlChar * encoding;     /* the encoding string for entity */
 	const xmlChar * version;      /* the version string for entity */
@@ -99,7 +100,7 @@ struct _xmlParserNodeInfoSeq {
  * The parser is now working also as a state based parser.
  * The recursive one use the state info for entities processing.
  */
-typedef enum {
+enum xmlParserInputState {
 	XML_PARSER_EOF = -1,    /* nothing is to be parsed */
 	XML_PARSER_START = 0,   /* nothing has been parsed */
 	XML_PARSER_MISC,        /* Misc* before int subset */
@@ -118,8 +119,7 @@ typedef enum {
 	XML_PARSER_EPILOG,      /* the Misc* after the last end tag */
 	XML_PARSER_IGNORE,      /* within an IGNORED section */
 	XML_PARSER_PUBLIC_LITERAL /* within a PUBLIC value */
-} xmlParserInputState;
-
+};
 /**
  * XML_DETECT_IDS:
  *
@@ -127,7 +127,6 @@ typedef enum {
  * Use it to initialize xmlLoadExtDtdDefaultValue.
  */
 #define XML_DETECT_IDS          2
-
 /**
  * XML_COMPLETE_ATTRS:
  *
@@ -148,14 +147,14 @@ typedef enum {
  *
  * A parser can operate in various modes
  */
-typedef enum {
+enum xmlParserMode {
 	XML_PARSE_UNKNOWN = 0,
 	XML_PARSE_DOM = 1,
 	XML_PARSE_SAX = 2,
 	XML_PARSE_PUSH_DOM = 3,
 	XML_PARSE_PUSH_SAX = 4,
 	XML_PARSE_READER = 5
-} xmlParserMode;
+};
 // 
 // Descr: The parser context.
 // NOTE This doesn't completely define the parser state, the (current ?)
@@ -291,7 +290,6 @@ struct xmlSAXLocator {
  * A SAX handler is bunch of callbacks called by the parser when processing
  * of the input generate data or structure informations.
  */
-
 /**
  * resolveEntitySAXFunc:
  * @ctx:  the user data (XML parser context)
@@ -369,10 +367,7 @@ typedef void (*entityDeclSAXFunc)(void * ctx, const xmlChar * name, int type, co
  *
  * What to do when a notation declaration has been parsed.
  */
-typedef void (*notationDeclSAXFunc)(void * ctx,
-    const xmlChar * name,
-    const xmlChar * publicId,
-    const xmlChar * systemId);
+typedef void (*notationDeclSAXFunc)(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId);
 /**
  * attributeDeclSAXFunc:
  * @ctx:  the user data (XML parser context)
@@ -559,7 +554,6 @@ typedef int (*isStandaloneSAXFunc)(void * ctx);
  * Returns 1 if true
  */
 typedef int (*hasInternalSubsetSAXFunc)(void * ctx);
-
 /**
  * hasExternalSubsetSAXFunc:
  * @ctx:  the user data (XML parser context)
@@ -569,12 +563,9 @@ typedef int (*hasInternalSubsetSAXFunc)(void * ctx);
  * Returns 1 if true
  */
 typedef int (*hasExternalSubsetSAXFunc)(void * ctx);
-
-/************************************************************************
-*									*
-*			The SAX version 2 API extensions		*
-*									*
-************************************************************************/
+// 
+// The SAX version 2 API extensions
+// 
 /**
  * XML_SAX2_MAGIC:
  *
@@ -600,17 +591,8 @@ typedef int (*hasExternalSubsetSAXFunc)(void * ctx);
  * It provides the namespace informations for the element, as well as
  * the new namespace declarations on the element.
  */
-
-typedef void (*startElementNsSAX2Func)(void * ctx,
-    const xmlChar * localname,
-    const xmlChar * prefix,
-    const xmlChar * URI,
-    int nb_namespaces,
-    const xmlChar ** namespaces,
-    int nb_attributes,
-    int nb_defaulted,
-    const xmlChar ** attributes);
-
+typedef void (*startElementNsSAX2Func)(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI,
+    int nb_namespaces, const xmlChar ** namespaces, int nb_attributes, int nb_defaulted, const xmlChar ** attributes);
 /**
  * endElementNsSAX2Func:
  * @ctx:  the user data (XML parser context)
@@ -706,18 +688,6 @@ struct xmlSAXHandlerV1 {
  * Returns the entity input parser.
  */
 typedef xmlParserInput * (*xmlExternalEntityLoader)(const char * URL, const char * ID, xmlParserCtxt * context);
-
-#ifdef __cplusplus
-}
-#endif
-
-//#include <libxml/globals.h>
-#include <libxml/encoding.h>
-#include <libxml/xmlIO.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 /*
  * Init/Cleanup
  */
@@ -805,9 +775,14 @@ XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateDocParserCtxt(const xmlChar * cur);
 	XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, const char * chunk, int size, const char * filename);
 	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlParseChunk(xmlParserCtxt * ctxt, const char * chunk, int size, int terminate);
 #endif /* LIBXML_PUSH_ENABLED */
+
+//#include <libxml/xmlIO.h>
 /*
  * Special I/O mode.
  */
+typedef int (XMLCALL * xmlInputReadCallback)(void * context, char * buffer, int len); // @sobolev dup of xmlIO.h declaration
+typedef int (XMLCALL * xmlInputCloseCallback)(void * context); // @sobolev dup of xmlIO.h declaration
+
 XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateIOParserCtxt(xmlSAXHandler * sax, void * user_data, xmlInputReadCallback ioread,
     xmlInputCloseCallback ioclose, void * ioctx, xmlCharEncoding enc);
 XMLPUBFUN xmlParserInput * XMLCALL xmlNewIOInputStream(xmlParserCtxt * ctxt, xmlParserInputBuffer * input, xmlCharEncoding enc);

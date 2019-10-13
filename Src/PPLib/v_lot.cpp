@@ -2918,6 +2918,8 @@ int SLAPI PPLotExporter::Init(const PPLotImpExpParam * pParam)
 int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
+	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	Sdr_Lot  sdr_lot;
 	MEMSZERO(sdr_lot);
@@ -2947,8 +2949,10 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 	sdr_lot.QttyPlus = pItem->QttyPlus;
 	sdr_lot.QttyMinus = pItem->QttyMinus;
 	sdr_lot.OrgLotDt = pItem->OrgLotDt;
+	GetGoodsName(pItem->GoodsID, temp_buf);
+	STRNSCPY(sdr_lot.GoodsName, temp_buf); // @v10.5.8
 	temp_buf = pItem->Serial;
-	BillObj->ReleaseSerialFromUniqSuffix(temp_buf);
+	p_bobj->ReleaseSerialFromUniqSuffix(temp_buf);
 	temp_buf.CopyTo(sdr_lot.Serial, sizeof(sdr_lot.Serial));
 	if(UhttCli.HasAccount() && Param.UhttGoodsCodeArID) {
 		ArticleTbl::Rec ar_rec;
@@ -2992,8 +2996,75 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 			}
 		}
 	}
-	Param.InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_lot);
-	THROW(P_IE->AppendRecord(&sdr_lot, sizeof(sdr_lot)));
+	// @v10.5.8 {
+	{
+		SdbField _f;
+		StringSet ss_ext_codes;
+		uint   ext_code_count = 0;
+		LotExtCodeCore * p_lec = p_bobj->P_LotXcT;
+		if(p_lec && Param.OtrRec.GetFieldByName_Fast("EgaisMark", &_f)) {
+			p_lec->GetMarkListByLot(pItem->ID, 0, ss_ext_codes, &ext_code_count);
+			assert(ext_code_count == ss_ext_codes.getCount());
+			const PPID lot_bill_id = pItem->BillID;
+			TransferTbl::Rec trfr_rec;
+			for(DateIter di; p_bobj->trfr->EnumByLot(pItem->ID, &di, &trfr_rec) > 0;) {
+				if(trfr_rec.BillID == lot_bill_id) {
+					int16 row_idx = 0;
+					int   row_is_found = 0;
+					for(int   rbb_iter = 0; !row_is_found && p_bobj->trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
+						row_idx++;
+						if(rbb_iter == trfr_rec.RByBill)
+							row_is_found = 1;
+					}
+					if(row_is_found) {
+						LotExtCodeTbl::Key2 k2;
+						MEMSZERO(k2);
+						k2.BillID = lot_bill_id;
+						k2.RByBill = /*rbb*/row_idx;
+						if(p_lec->search(2, &k2, spGe) && p_lec->data.BillID == lot_bill_id && p_lec->data.RByBill == row_idx) do {
+							if(p_lec->data.Code[0] && !(p_lec->data.Flags & PPLotExtCodeContainer::fBox)) {
+								ext_code_count++;
+								ss_ext_codes.add(p_lec->data.Code);
+							}
+						} while(p_lec->search(2, &k2, spNext) && p_lec->data.BillID == lot_bill_id && p_lec->data.RByBill == row_idx);
+						break;
+					}
+				}
+			}
+		}
+		if(Param.OtrRec.GetFieldByName_Fast("EgaisRefA", &_f)) {
+			if(p_ref->Ot.GetTagStr(PPOBJ_LOT, pItem->ID, PPTAG_LOT_FSRARINFA, temp_buf) > 0)
+				STRNSCPY(sdr_lot.EgaisRefA, temp_buf);
+		}
+		if(Param.OtrRec.GetFieldByName_Fast("EgaisRefB", &_f)) {
+			if(p_ref->Ot.GetTagStr(PPOBJ_LOT, pItem->ID, PPTAG_LOT_FSRARINFB, temp_buf) > 0)
+				STRNSCPY(sdr_lot.EgaisRefB, temp_buf);
+		}
+		if(Param.OtrRec.GetFieldByName_Fast("EgaisCode", &_f)) {
+			if(p_ref->Ot.GetTagStr(PPOBJ_LOT, pItem->ID, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0)
+				STRNSCPY(sdr_lot.EgaisCode, temp_buf);
+		}
+		if(Param.OtrRec.GetFieldByName_Fast("VetisCertGUID", &_f)) {
+			S_GUID uuid;
+			if(p_ref->Ot.GetTagGuid(PPOBJ_LOT, pItem->ID, PPTAG_LOT_VETIS_UUID, uuid) > 0) {
+				uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+				STRNSCPY(sdr_lot.VetisCertGUID, temp_buf);
+			}
+		}
+		if(ext_code_count) {
+			const Sdr_Lot org_sdr_lot = sdr_lot;
+			for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+				STRNSCPY(sdr_lot.EgaisMark, temp_buf);
+				Param.InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_lot);
+				THROW(P_IE->AppendRecord(&sdr_lot, sizeof(sdr_lot)));
+				sdr_lot = org_sdr_lot;
+			}
+		}
+		else { // } @v10.5.8 
+			Param.InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_lot);
+			THROW(P_IE->AppendRecord(&sdr_lot, sizeof(sdr_lot)));
+		}
+	}
 	CATCHZOK
 	return ok;
 }

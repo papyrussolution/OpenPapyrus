@@ -868,7 +868,7 @@ FT_BEGIN_HEADER
     ( (cur) + sizeof ( (token) ) == (limit) ||                          \
       ( (cur) + sizeof( (token) ) < (limit)          &&                 \
         IS_PS_DELIM( (cur)[sizeof ( (token) ) - 1] ) ) )             && \
-    ft_strncmp( (char*)(cur), (token), sizeof ( (token) ) - 1 ) == 0 )
+    ft_strncmp( (char *)(cur), (token), sizeof ( (token) ) - 1 ) == 0 )
 
 
 FT_END_HEADER

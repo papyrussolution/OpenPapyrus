@@ -15,8 +15,6 @@
 
 #ifdef LIBXML_C14N_ENABLED
 #ifdef LIBXML_OUTPUT_ENABLED
-//#include <libxml/xpathInternals.h>
-//#include <libxml/c14n.h>
 //
 // Some declaration better left private ATM
 //
@@ -58,7 +56,7 @@ static void xmlC14NVisibleNsStackRestore(xmlC14NVisibleNsStackPtr cur, xmlC14NVi
 static void xmlC14NVisibleNsStackShift(xmlC14NVisibleNsStackPtr cur);
 static int  xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns);
 static int  xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlC14NCtxPtr ctx);
-static int  xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr P_Node, xmlNodePtr parent);
+static int  xmlC14NIsNodeInNodeset(const xmlNodeSet * pNodes, xmlNode * pNode, xmlNode * parent);
 static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur);
 static int xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNode * cur);
 typedef enum {
@@ -154,38 +152,38 @@ static void xmlC14NErrRelativeNamespace(const char * ns_uri)
  *
  * Handle a redefinition of attribute error
  */
-static void FASTCALL xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNodePtr P_Node, int error, const char * msg)
+static void FASTCALL xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNode * pNode, int error, const char * msg)
 {
 	if(ctxt)
 		ctxt->error = error;
-	__xmlRaiseError(0, 0, 0, ctxt, P_Node, XML_FROM_C14N, error, XML_ERR_ERROR, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
+	__xmlRaiseError(0, 0, 0, ctxt, pNode, XML_FROM_C14N, error, XML_ERR_ERROR, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
 }
 //
 // The implementation internals
 //
 #define XML_NAMESPACES_DEFAULT          16
 
-static int xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr P_Node, xmlNodePtr parent) 
+static int xmlC14NIsNodeInNodeset(const xmlNodeSet * pNodes, xmlNode * pNode, xmlNode * parent) 
 {
-	if(nodes && P_Node) {
-		if(P_Node->type != XML_NAMESPACE_DECL) {
-			return (xmlXPathNodeSetContains(nodes, P_Node));
+	if(pNodes && pNode) {
+		if(pNode->type != XML_NAMESPACE_DECL) {
+			return (xmlXPathNodeSetContains(pNodes, pNode));
 		}
 		else {
 			xmlNs ns;
-			memcpy(&ns, P_Node, sizeof(ns));
-			/* this is a libxml hack! check xpath.c for details */
+			memcpy(&ns, pNode, sizeof(ns));
+			// this is a libxml hack! check xpath.c for details 
 			if(parent && (parent->type == XML_ATTRIBUTE_NODE)) {
-				ns.next = (xmlNs *)parent->P_ParentNode;
+				ns.next = reinterpret_cast<xmlNs *>(parent->P_ParentNode);
 			}
 			else {
-				ns.next = (xmlNs *)parent;
+				ns.next = reinterpret_cast<xmlNs *>(parent);
 			}
 			/*
 			 * If the input is an XPath node-set, then the node-set must explicitly
 			 * contain every node to be rendered to the canonical form.
 			 */
-			return (xmlXPathNodeSetContains(nodes, (xmlNode *)&ns));
+			return (xmlXPathNodeSetContains(pNodes, reinterpret_cast<const xmlNode *>(&ns)));
 		}
 	}
 	return 1;
@@ -220,7 +218,7 @@ static void xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur)
 	}
 }
 
-static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNodePtr P_Node) 
+static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNode * pNode) 
 {
 	if(!cur || ((cur->nsTab == NULL) && cur->PP_NodeTab) || (cur->nsTab && (cur->PP_NodeTab == NULL))) {
 		xmlC14NErrParam("adding namespace to stack");
@@ -250,11 +248,11 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, x
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
-		cur->PP_NodeTab = (xmlNodePtr*)tmp;
+		cur->PP_NodeTab = (xmlNode **)tmp;
 		cur->nsMax = tmpSize;
 	}
 	cur->nsTab[cur->nsCurEnd] = ns;
-	cur->PP_NodeTab[cur->nsCurEnd] = P_Node;
+	cur->PP_NodeTab[cur->nsCurEnd] = pNode;
 	++cur->nsCurEnd;
 }
 
@@ -483,9 +481,9 @@ static int xmlC14NPrintNamespaces(const xmlNs * ns, xmlC14NCtxPtr ctx)
  *
  * Returns 0 on success or -1 on fail.
  */
-static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
+static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int visible)
 {
-	xmlNodePtr n;
+	xmlNode * n;
 	xmlNs * ns;
 	xmlNs * tmp;
 	xmlList * list;
@@ -578,7 +576,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
  *
  * Returns 0 on success or -1 on fail.
  */
-static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
+static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int visible)
 {
 	xmlNs * ns;
 	xmlList * list;
@@ -817,7 +815,7 @@ static int xmlC14NPrintAttrs(const xmlAttr * attr, xmlC14NCtxPtr ctx)
  *
  * Returns a pointer to the attribute node (if found) or NULL otherwise.
  */
-static xmlAttr * xmlC14NFindHiddenParentAttr(xmlC14NCtxPtr ctx, xmlNodePtr cur, const xmlChar * name, const xmlChar * ns)
+static xmlAttr * xmlC14NFindHiddenParentAttr(xmlC14NCtxPtr ctx, xmlNode * cur, const xmlChar * name, const xmlChar * ns)
 {
 	xmlAttr * res;
 	while(cur && (!xmlC14NIsVisible(ctx, cur, cur->P_ParentNode))) {
@@ -944,7 +942,7 @@ static xmlAttr * xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttr * xml_base_attr
  *
  * Returns 0 on success or -1 on fail.
  */
-static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent_visible)
+static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int parent_visible)
 {
 	xmlAttr * attr;
 	xmlList * list;
@@ -994,8 +992,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 		     */
 		    if(parent_visible && cur->P_ParentNode && (!xmlC14NIsVisible(ctx, cur->P_ParentNode, cur->P_ParentNode->P_ParentNode))) {
 				// If XPath node-set is not specified then the parent is always visible!
-			    xmlNodePtr tmp = cur->P_ParentNode;
-			    while(tmp) {
+			    for(xmlNode * tmp = cur->P_ParentNode; tmp; tmp = tmp->P_ParentNode) {
 				    attr = tmp->properties;
 				    while(attr) {
 					    if(xmlC14NIsXmlAttr(attr) != 0) {
@@ -1005,7 +1002,6 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 					    }
 					    attr = attr->next;
 				    }
-				    tmp = tmp->P_ParentNode;
 			    }
 		    }
 		    /* done */
@@ -1149,7 +1145,7 @@ static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNode * cur)
 	else {
 		for(xmlNs * ns = cur->nsDef; ns; ns = ns->next) {
 			if(sstrlen(ns->href)) {
-				xmlURIPtr uri = xmlParseURI((const char *)ns->href);
+				xmlURI * uri = xmlParseURI((const char *)ns->href);
 				if(!uri) {
 					xmlC14NErrInternal("parsing namespace uri");
 					return -1;
@@ -1194,7 +1190,7 @@ static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNode * cur)
  *
  * Returns non-negative value on success or negative value on fail
  */
-static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
+static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNode * cur, int visible)
 {
 	int ret;
 	xmlC14NVisibleNsStack state;
@@ -1680,9 +1676,9 @@ int xmlC14NExecute(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, v
  *
  * Returns non-negative value on success or a negative value on fail
  */
-int xmlC14NDocSaveTo(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf)
+int xmlC14NDocSaveTo(xmlDoc * doc, xmlNodeSet * nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf)
 {
-	return xmlC14NExecute(doc, (xmlC14NIsVisibleCallback)xmlC14NIsNodeInNodeset, nodes, mode, inclusive_ns_prefixes, with_comments, buf);
+	return xmlC14NExecute(doc, reinterpret_cast<xmlC14NIsVisibleCallback>(xmlC14NIsNodeInNodeset), nodes, mode, inclusive_ns_prefixes, with_comments, buf);
 }
 /**
  * xmlC14NDocDumpMemory:
@@ -1705,7 +1701,7 @@ int xmlC14NDocSaveTo(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inc
  *
  * Returns the number of bytes written on success or a negative value on fail
  */
-int xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlChar ** doc_txt_ptr)
+int xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSet * nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlChar ** doc_txt_ptr)
 {
 	int ret;
 	xmlOutputBuffer * buf;
@@ -1765,7 +1761,7 @@ int xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar **
  *
  * Returns the number of bytes written success or a negative value on fail
  */
-int xmlC14NDocSave(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, const char * filename, int compression)
+int xmlC14NDocSave(xmlDoc * doc, xmlNodeSet * nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, const char * filename, int compression)
 {
 	xmlOutputBuffer * buf;
 	int ret;

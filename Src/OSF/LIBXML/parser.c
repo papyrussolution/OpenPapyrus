@@ -29,7 +29,6 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -42,25 +41,12 @@
 	#include <libxml/xmlschemastypes.h>
 	#include <libxml/relaxng.h>
 #endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-	//#include <zlib.h>
-//#endif
-//#ifdef HAVE_LZMA_H
-	//#include <lzma.h>
-//#endif
 
 static void FASTCALL xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * info);
 static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, const xmlChar * ID, const xmlChar * base, xmlParserCtxt * pctx);
-
-/************************************************************************
-*									*
-*	Arbitrary limits set in the parser. See XML_PARSE_HUGE		*
-*									*
-************************************************************************/
-
+// 
+// Arbitrary limits set in the parser. See XML_PARSE_HUGE
+// 
 #define XML_PARSER_BIG_ENTITY 1000
 #define XML_PARSER_LOT_ENTITY 5000
 
@@ -4720,7 +4706,7 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
 					xmlFatalErr(ctxt, XML_ERR_VALUE_REQUIRED, 0);
 				}
 				if(URI) {
-					xmlURIPtr uri = xmlParseURI((const char *)URI);
+					xmlURI * uri = xmlParseURI((const char *)URI);
 					if(!uri) {
 						xmlErrMsgStr(ctxt, XML_ERR_INVALID_URI, "Invalid URI: %s\n", URI);
 						/*
@@ -4769,7 +4755,7 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
 					xmlFatalErr(ctxt, XML_ERR_VALUE_REQUIRED, 0);
 				}
 				if(URI) {
-					xmlURIPtr uri = xmlParseURI((const char *)URI);
+					xmlURI * uri = xmlParseURI((const char *)URI);
 					if(!uri) {
 						xmlErrMsgStr(ctxt, XML_ERR_INVALID_URI, "Invalid URI: %s\n", URI);
 						/*
@@ -8058,7 +8044,7 @@ reparse:
 				len = sstrlen(attvalue);
 			if((attname == ctxt->str_xmlns) && (aprefix == NULL)) {
 				const xmlChar * URL = xmlDictLookup(ctxt->dict, attvalue, len);
-				xmlURIPtr uri;
+				xmlURI * uri;
 				if(!URL) {
 					xmlErrMemory(ctxt, "dictionary allocation failure");
 					if(attvalue && alloc)
@@ -8111,7 +8097,7 @@ skip_default_ns:
 			}
 			if(aprefix == ctxt->str_xmlns) {
 				const xmlChar * URL = xmlDictLookup(ctxt->dict, attvalue, len);
-				xmlURIPtr uri;
+				xmlURI * uri;
 				if(attname == ctxt->str_xml) {
 					if(URL != ctxt->str_xml_ns) {
 						xmlNsErr(ctxt, XML_NS_ERR_XML_NAMESPACE, "xml namespace prefix mapped to wrong URI\n", NULL, 0, 0);
@@ -12746,20 +12732,11 @@ void xmlSetEntityReferenceFunc(xmlEntityReferenceFunc func)
 }
 
 #endif /* LIBXML_LEGACY_ENABLED */
-
-/************************************************************************
-*									*
-*				Miscellaneous				*
-*									*
-************************************************************************/
-
-#ifdef LIBXML_XPATH_ENABLED
-	//#include <libxml/xpath.h>
-#endif
-
+// 
+// Miscellaneous
+// 
 extern void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx, const char * msg, ...);
 static int xmlParserInitialized = 0;
-
 /**
  * xmlInitParser:
  *

@@ -736,7 +736,7 @@ struct VetisBatchOrigin {
 };
 
 struct VetisBatch {
-	VetisBatch() : NativeGoodsID(0), ProductType(vptUndef), Volume(0.0), PackingAmount(0), Flags(0), P_Owner(0)
+	VetisBatch() : NativeGoodsID(0), ProductType(vptUndef), Volume(0.0), AckVolume(0.0), PackingAmount(0), Flags(0), P_Owner(0)
 	{
 	}
 	~VetisBatch()
@@ -751,6 +751,7 @@ struct VetisBatch {
 		SubProduct = rS.SubProduct;
 		ProductItem = rS.ProductItem;
 		Volume = rS.Volume;
+		AckVolume = rS.AckVolume; // @v10.5.8
 		PackingAmount = rS.PackingAmount;
 		Unit = rS.Unit;
 		DateOfProduction = rS.DateOfProduction;
@@ -777,6 +778,7 @@ struct VetisBatch {
 		SubProduct.Z();
 		ProductItem.Z();
 		Volume = 0.0;
+		AckVolume = 0.0; // @v10.5.8
 		PackingAmount = 0;
 		Unit.Z();
 		DateOfProduction.Z();
@@ -797,21 +799,24 @@ struct VetisBatch {
 	VetisSubProduct SubProduct;
 	VetisProductItem ProductItem;
 	double Volume;
+	double AckVolume; // @v10.5.8 Количество принятое при поступлении товара.
 	long   PackingAmount;
 	VetisUnit Unit;
 	VetisGoodsDate DateOfProduction;
 	VetisGoodsDate ExpiryDate;
-	//StringSet BatchIdList;
 	// StringSet ProductMarkingList; // Список маркировочных кодов продукции (при разборе входящих пакетов
 		// вносим в этот список только коды, удовлетворяющие стандартам EAN13, EAN8, UPCA, UPCE).
 	TSCollection <VetisProductMarks> ProductMarkingList; 
 	enum {
-		fPerishable    = 0x0001,
-		fLowGradeCargo = 0x0002
+		fPerishable     = 0x0001,
+		fLowGradeCargo  = 0x0002,
+		// Следующие 2 флага уточняют условия принятия входящей партии. Если ни один из флагов не 
+		// установлен, то партия считается безусловно приятной.
+		fPartlyAccepted = 0x0004, // @v10.5.8 Партия частично принята
+		fRejected       = 0x0008  // @v10.5.8 Партия полностью отклонена
 	};
 	long   Flags;
-	//SString BatchID; // @v10.5.5
-	StringSet BatchIdList; // @v10.5.6
+	StringSet BatchIdList;
 	VetisBatchOrigin Origin;
 	TSCollection <VetisPackage> PackageList; // @v10.4.0
 	TSCollection <VetisNamedGenericVersioningEntity> PackingList;
@@ -934,7 +939,6 @@ struct VetisShipmentRoutePoint : public VetisGenericEntity {
 		return *this;
 	}
 	SString SqnId;
-	//
 	int   UnionShipmentRoutePoint;
 	VetisLocation * P_Location;
 	VetisEnterprise * P_Enterprise;
@@ -1234,8 +1238,13 @@ struct VetisVetDocument : public VetisDocument {
 		fCargoExpertized = 0x00040000,
 		fFromMainOrg     = 0x00100000,
 		fToMainOrg       = 0x00200000,
-		fDiscrepancy     = 0x00400000  // @v10.5.1 В комбинации со статутом vetisdocstOUTGOING_PREPARING строка представляет 
+		fDiscrepancy     = 0x00400000, // @v10.5.1 В комбинации со статутом vetisdocstOUTGOING_PREPARING строка представляет 
 			// предварительную запись для формирование излишков по инвентаризации
+		// Следующие 2 флага уточняют условия принятия входящей партии. Если ни один из флагов не 
+		// установлен, то партия считается безусловно приятной. 
+		// Проецируются на CertifiedConsignment.Batch.Flags (fPartlyAccepted fRejected)
+		fPartlyAccepted  = 0x00800000, // @v10.5.8 Партия частично принята
+		fRejected        = 0x01000000  // @v10.5.8 Партия полностью отклонена
 	};
 	long   Flags;
 	LDATETIME LastUpdateDate;
@@ -1807,8 +1816,7 @@ int SLAPI VetisEntityCore::CollectUnresolvedEntityList(TSVector <UnresolvedEntit
 		if(oneof5(rec.Kind, kProductItem, kProduct, kSubProduct, kEnterprise, kBusinessEntity)) {
 			if(rec.GuidRef || rec.UuidRef) {
 				if(!rList.lsearch(&rec.ID, 0, CMPF_LONG)) {
-					TextRefIdent tri(PPOBJ_VETISENTITY, rec.ID, PPTRPROP_NAME);
-					if(p_ref->TrT.Search(tri, temp_buf_u) > 0 && temp_buf_u.Len())
+					if(p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, rec.ID, PPTRPROP_NAME), temp_buf_u) > 0 && temp_buf_u.Len())
 						;
 					else {
 						UnresolvedEntity ure_entry;
@@ -1871,8 +1879,7 @@ int SLAPI VetisEntityCore::EntityRecToEntity(const VetisEntityTbl::Rec & rRec, E
 	UrT.Search(rRec.UuidRef, rE.Uuid);
 	{
 		SStringU temp_buf_u;
-		TextRefIdent tri(PPOBJ_VETISENTITY, rRec.ID, PPTRPROP_NAME);
-		PPRef->TrT.Search(tri, temp_buf_u);
+		PPRef->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, rRec.ID, PPTRPROP_NAME), temp_buf_u);
 		if(temp_buf_u.Len()) {
 			temp_buf_u.CopyToUtf8(rE.Name, 0);
 			rE.Name.Transf(CTRANSF_UTF8_TO_INNER);
@@ -1924,24 +1931,14 @@ int SLAPI VetisEntityCore::DeleteEntity(PPID id, int use_ta)
 				THROW(UrT.Remove(rec.GuidRef, 0));
 			if(rec.UuidRef)
 				THROW(UrT.Remove(rec.UuidRef, 0));
-			{
-				TextRefIdent tri(PPOBJ_VETISENTITY, id, PPTRPROP_NAME);
-				THROW(p_ref->TrT.SetText(tri, 0, 0));
-			}
+			THROW(p_ref->TrT.SetText(TextRefIdent(PPOBJ_VETISENTITY, id, PPTRPROP_NAME), 0, 0));
 			if(rec.Kind == kVetDocument) {
-				{
-					TextRefIdent tri(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpProductItemName);
-					THROW(p_ref->TrT.SetText(tri, 0, 0));
-				}
+				THROW(p_ref->TrT.SetText(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpProductItemName), 0, 0));
 				for(uint tti = 0; tti < SIZEOFARRAY(transp_num_tab); tti++) {
 					const TranspNumTabEntry & r_tt_entry = transp_num_tab[tti];
-					TextRefIdent tri(PPOBJ_VETISENTITY, id, r_tt_entry.TxtIdent);
-					THROW(p_ref->TrT.SetText(tri, 0, 0));
+					THROW(p_ref->TrT.SetText(TextRefIdent(PPOBJ_VETISENTITY, id, r_tt_entry.TxtIdent), 0, 0));
 				}
-				{
-					TextRefIdent tri(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpGoodsCodeList);
-					THROW(p_ref->TrT.SetText(tri, 0, 0));
-				}
+				THROW(p_ref->TrT.SetText(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpGoodsCodeList), 0, 0));
 				if(SearchByID_ForUpdate(&DT, PPOBJ_VETISENTITY, id, &doc_rec) > 0) {
 					THROW_DB(DT.deleteRec());
 				}
@@ -1953,19 +1950,12 @@ int SLAPI VetisEntityCore::DeleteEntity(PPID id, int use_ta)
 		}
 		else {
 			if(SearchByID_ForUpdate(&DT, PPOBJ_VETISENTITY, id, &doc_rec) > 0) {
-				{
-					TextRefIdent tri(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpProductItemName);
-					THROW(p_ref->TrT.SetText(tri, 0, 0));
-				}
+				THROW(p_ref->TrT.SetText(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpProductItemName), 0, 0));
 				for(uint tti = 0; tti < SIZEOFARRAY(transp_num_tab); tti++) {
 					const TranspNumTabEntry & r_tt_entry = transp_num_tab[tti];
-					TextRefIdent tri(PPOBJ_VETISENTITY, id, r_tt_entry.TxtIdent);
-					THROW(p_ref->TrT.SetText(tri, 0, 0));
+					THROW(p_ref->TrT.SetText(TextRefIdent(PPOBJ_VETISENTITY, id, r_tt_entry.TxtIdent), 0, 0));
 				}
-				{
-					TextRefIdent tri(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpGoodsCodeList);
-					THROW(p_ref->TrT.SetText(tri, 0, 0));
-				}
+				THROW(p_ref->TrT.SetText(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpGoodsCodeList), 0, 0));
 				THROW_DB(DT.deleteRec());
 			}
 		}
@@ -2027,8 +2017,7 @@ int SLAPI VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * 
 		if(name_buf.NotEmptyS()) {
 			name_buf.Trim(124);
 			temp_buf_u.CopyFromUtf8(name_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-			TextRefIdent tri(PPOBJ_VETISENTITY, entity_id, PPTRPROP_NAME);
-			int sr = p_ref->TrT.SetText(tri, temp_buf_u, 0);
+			int sr = p_ref->TrT.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity_id, PPTRPROP_NAME), temp_buf_u, 0);
 			THROW(sr);
 			if(sr > 0 && ok < 0)
 				ok = 1;
@@ -2038,8 +2027,7 @@ int SLAPI VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * 
 		THROW(tra.Commit());
 		if(pUreList && rE.Kind != kVetDocument) {
 			if(!is_unresolved) {
-				TextRefIdent tri(PPOBJ_VETISENTITY, entity_id, PPTRPROP_NAME);
-				if(p_ref->TrT.Search(tri, temp_buf_u) > 0 && temp_buf_u.Len())
+				if(p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, entity_id, PPTRPROP_NAME), temp_buf_u) > 0 && temp_buf_u.Len())
 					;
 				else
 					is_unresolved = 1;
@@ -2267,6 +2255,19 @@ int SLAPI VetisEntityCore::MatchPersonInDocument(PPID docEntityID, int side /*0 
 	return ok;
 }
 
+int SLAPI VetisEntityCore::ResolveEntityByID(PPID entityID, VetisNamedGenericVersioningEntity & rD)
+{
+	int    ok = -1;
+	if(entityID) {
+		Entity sub_entity;
+		if(GetEntity(entityID, sub_entity) > 0) {
+			sub_entity.Get(rD);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 {
 	Reference * p_ref = PPRef;
@@ -2302,6 +2303,11 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 			r_crtc.Batch.ExpiryDate.SecondDate.FromInt64(rec.ExpiryTo);
 			r_crtc.Batch.NativeGoodsID = rec.LinkGoodsID;
 			r_crtc.Batch.Volume = rec.Volume;
+			// @v10.5.8 {
+			r_crtc.Batch.AckVolume = rec.AckVolume;
+			SETFLAG(r_crtc.Batch.Flags, r_crtc.Batch.fPartlyAccepted, rec.Flags & VetisVetDocument::fPartlyAccepted);
+			SETFLAG(r_crtc.Batch.Flags, r_crtc.Batch.fRejected, rec.Flags & VetisVetDocument::fRejected);
+			// } @v10.5.8 
 			r_crtc.Batch.PackingAmount = rec.PackingAmount;
 			r_crtc.Batch.ProductType = rec.ProductType;
 			r_crtc.TransportInfo.TransportType = rec.TranspType;
@@ -2311,42 +2317,23 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 				sub_entity.Get(r_crtc.Consignor.BusinessEntity);
 				r_crtc.Consignor.BusinessEntity.EntityID = sub_entity.ID; // @v10.4.1
 			}
-			if(rec.FromEnterpriseID) {
-				GetEntity(rec.FromEnterpriseID, sub_entity);
-				sub_entity.Get(r_crtc.Consignor.Enterprise);
-			}
+			ResolveEntityByID(rec.FromEnterpriseID, r_crtc.Consignor.Enterprise);
 			if(rec.ToEntityID) {
 				GetEntity(rec.ToEntityID, sub_entity);
 				sub_entity.Get(r_crtc.Consignee.BusinessEntity);
 				r_crtc.Consignee.BusinessEntity.EntityID = sub_entity.ID; // @v10.4.1
 			}
-			if(rec.ToEnterpriseID) {
-				GetEntity(rec.ToEnterpriseID, sub_entity);
-				sub_entity.Get(r_crtc.Consignee.Enterprise);
-			}
-			if(rec.ProductID) {
-				GetEntity(rec.ProductID, sub_entity);
-				sub_entity.Get(r_crtc.Batch.Product);
-			}
-			if(rec.SubProductID) {
-				GetEntity(rec.SubProductID, sub_entity);
-				sub_entity.Get(r_crtc.Batch.SubProduct);
-			}
-			if(rec.OrgCountryID) {
-				GetEntity(rec.OrgCountryID, sub_entity);
-				sub_entity.Get(r_crtc.Batch.Origin.Country);
-			}
-			if(rec.UOMID) {
-				GetEntity(rec.UOMID, sub_entity);
-				sub_entity.Get(r_crtc.Batch.Unit);
-			}
+			ResolveEntityByID(rec.ToEnterpriseID, r_crtc.Consignee.Enterprise);
+			ResolveEntityByID(rec.ProductID, r_crtc.Batch.Product);
+			ResolveEntityByID(rec.SubProductID, r_crtc.Batch.SubProduct);
+			ResolveEntityByID(rec.OrgCountryID, r_crtc.Batch.Origin.Country);
+			ResolveEntityByID(rec.UOMID, r_crtc.Batch.Unit);
 			if(rec.ProductItemID) {
 				GetEntity(rec.ProductItemID, sub_entity);
 				sub_entity.Get(r_crtc.Batch.ProductItem);
 			}
 			else {
-				TextRefIdent tri(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpProductItemName);
-				p_ref->UtrC.Search(tri, temp_buf_u);
+				p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpProductItemName), temp_buf_u);
 				if(temp_buf_u.Len()) {
 					temp_buf_u.CopyToUtf8(temp_buf, 0);
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -2368,8 +2355,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 				};
 				for(uint tti = 0; tti < SIZEOFARRAY(transp_num_tab); tti++) {
 					const TranspNumTabEntry & r_tt_entry = transp_num_tab[tti];
-					TextRefIdent tri(PPOBJ_VETISENTITY, id, r_tt_entry.TxtIdent);
-					p_ref->UtrC.Search(tri, temp_buf_u);
+					p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, id, r_tt_entry.TxtIdent), temp_buf_u);
 					if(temp_buf_u.Len()) {
 						temp_buf_u.CopyToUtf8(temp_buf, 0);
 						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -2378,8 +2364,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 				}
 			}
 			{
-				TextRefIdent tri(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpGoodsCodeList);
-				p_ref->UtrC.Search(tri, temp_buf_u);
+				p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpGoodsCodeList), temp_buf_u);
 				if(temp_buf_u.Len()) {
 					temp_buf_u.CopyToUtf8(temp_buf, 0);
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -2407,6 +2392,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 	const VetisStockEntry & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
+	PPID   result_id = 0;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
 	SStringU temp_buf_u;
@@ -2418,6 +2404,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SetEntity(entity, pUreList, 0));
+		result_id = entity.ID; // @v10.5.8
 		MEMSZERO(rec);
 		{
 			const VetisBatch & r_bat = rItem.Batch;
@@ -2509,8 +2496,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 				temp_buf = r_bat.ProductItem.Name;
 				if(temp_buf.NotEmptyS()) {
 					temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					TextRefIdent tri(PPOBJ_VETISENTITY, entity.ID, txtprpProductItemName);
-					int sr = p_ref->UtrC.SetText(tri, temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpProductItemName), temp_buf_u, 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -2529,8 +2515,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 				}
 				if(code_list_buf.NotEmptyS()) {
 					temp_buf_u.CopyFromUtf8(code_list_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					TextRefIdent tri(PPOBJ_VETISENTITY, entity.ID, txtprpGoodsCodeList);
-					int sr = p_ref->UtrC.SetText(tri, temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpGoodsCodeList), temp_buf_u, 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -2540,12 +2525,14 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 		THROW(tra.Commit());
 	}
 	CATCHZOK
+	ASSIGN_PTR(pID, result_id);
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
+int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
+	PPID   result_id = 0;
 	Reference * p_ref = PPRef;
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
@@ -2560,6 +2547,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVec
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SetEntity(entity, pUreList, 0));
+		result_id = entity.ID;
 		MEMSZERO(rec);
 		{
 			const VetisCertifiedConsignment & r_crtc = rItem.CertifiedConsignment;
@@ -2711,6 +2699,18 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVec
 						rec.LinkBillRow = ex_rec.LinkBillRow;
 					}
 					// } @v10.2.0
+					// @v10.5.8 {
+					if(flags & putvdfForceUpdateOuterFields) {
+						SETFLAG(rec.Flags, rItem.fPartlyAccepted, rItem.Flags & rItem.fPartlyAccepted);
+						SETFLAG(rec.Flags, rItem.fRejected, rItem.Flags & rItem.fRejected);
+						rec.AckVolume = r_bat.AckVolume;
+					}
+					else {
+						SETFLAGBYSAMPLE(rec.Flags, rItem.fPartlyAccepted, ex_rec.Flags);
+						SETFLAGBYSAMPLE(rec.Flags, rItem.fRejected, ex_rec.Flags);
+						rec.AckVolume = ex_rec.AckVolume;
+					}
+					// } @v10.5.8 
 					if(memcmp(&DT.data, &rec, sizeof(rec)) != 0) {
 						THROW_DB(DT.updateRecBuf(&rec)); // @sfu
 					}
@@ -2725,8 +2725,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVec
 				temp_buf = r_bat.ProductItem.Name;
 				if(temp_buf.NotEmptyS()) {
 					temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					TextRefIdent tri(PPOBJ_VETISENTITY, entity.ID, txtprpProductItemName);
-					int sr = p_ref->UtrC.SetText(tri, temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpProductItemName), temp_buf_u, 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -2750,8 +2749,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVec
 					temp_buf = r_tt_entry.R_Text;
 					if(temp_buf.NotEmptyS()) {
 						temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-						TextRefIdent tri(PPOBJ_VETISENTITY, entity.ID, r_tt_entry.TxtIdent);
-						int sr = p_ref->UtrC.SetText(tri, temp_buf_u, 0);
+						int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, r_tt_entry.TxtIdent), temp_buf_u, 0);
 						THROW(sr);
 						if(sr > 0 && ok < 0)
 							ok = 1;
@@ -2770,8 +2768,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVec
 				}
 				if(code_list_buf.NotEmptyS()) {
 					temp_buf_u.CopyFromUtf8(code_list_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					TextRefIdent tri(PPOBJ_VETISENTITY, entity.ID, txtprpGoodsCodeList);
-					int sr = p_ref->UtrC.SetText(tri, temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpGoodsCodeList), temp_buf_u, 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -2781,6 +2778,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVec
 		THROW(tra.Commit());
 	}
 	CATCHZOK
+	ASSIGN_PTR(pID, result_id); // @v10.5.8
 	return ok;
 }
 
@@ -2868,8 +2866,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TS
 				temp_buf = rItem.JuridicalAddress.AddressView;
 				if(temp_buf.NotEmptyS()) {
 					temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					TextRefIdent tri(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR);
-					int sr = p_ref->UtrC.SetText(tri, temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf_u, 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -2901,24 +2898,14 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisEnterprise & rItem)
 		rItem.Flags = entity.Flags;
 		k0.EntityID = entity.ID;
 		if(BT.search(0, &k0, spEq)) {
-			Entity sub_entity;
 			PiT.copyBufTo(&rec);
 			rItem.Type = rec.EnterpriseType;
-			if(rec.CountryID) {
-				GetEntity(rec.CountryID, sub_entity);
-				sub_entity.Get(rItem.Address.Country);
-			}
-			if(rec.RegionID) {
-				GetEntity(rec.RegionID, sub_entity);
-				sub_entity.Get(rItem.Address.Region);
-			}
-			{
-				TextRefIdent tri(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR);
-				p_ref->UtrC.Search(tri, temp_buf_u);
-				if(temp_buf_u.Len()) {
-					temp_buf_u.CopyToUtf8(rItem.Address.AddressView, 0);
-					rItem.Address.AddressView.Transf(CTRANSF_UTF8_TO_INNER);
-				}
+			ResolveEntityByID(rec.CountryID, rItem.Address.Country);
+			ResolveEntityByID(rec.RegionID, rItem.Address.Region);
+			p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf_u);
+			if(temp_buf_u.Len()) {
+				temp_buf_u.CopyToUtf8(rItem.Address.AddressView, 0);
+				rItem.Address.AddressView.Transf(CTRANSF_UTF8_TO_INNER);
 			}
 		}
 		else
@@ -2977,16 +2964,12 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVect
 					THROW_DB(BT.insertRecBuf(&rec));
 				}
 			}
-			{
-				temp_buf = rItem.Address.AddressView;
-				if(temp_buf.NotEmptyS()) {
-					temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					TextRefIdent tri(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR);
-					int sr = p_ref->UtrC.SetText(tri, temp_buf_u, 0);
-					THROW(sr);
-					if(sr > 0 && ok < 0)
-						ok = 1;
-				}
+			if((temp_buf = rItem.Address.AddressView).NotEmptyS()) {
+				temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
+				int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf_u, 0);
+				THROW(sr);
+				if(sr > 0 && ok < 0)
+					ok = 1;
 			}
 		}
 		THROW(tra.Commit());
@@ -3012,19 +2995,12 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisProductItem & rItem)
 		rItem.Flags = entity.Flags;
 		k0.EntityID = entity.ID;
 		if(PiT.search(0, &k0, spEq)) {
-			Entity sub_entity;
 			PiT.copyBufTo(&rec);
 			rItem.NativeGoodsID = rec.LinkGoodsID;
 			rItem.ProductType = rec.ProductType;
 			rItem.GlobalID = rec.GTIN;
-			if(rec.ProductID) {
-				GetEntity(rec.ProductID, sub_entity);
-				sub_entity.Get(rItem.Product);
-			}
-			if(rec.SubProductID) {
-				GetEntity(rec.SubProductID, sub_entity);
-				sub_entity.Get(rItem.SubProduct);
-			}
+			ResolveEntityByID(rec.ProductID, rItem.Product);
+			ResolveEntityByID(rec.SubProductID, rItem.SubProduct);
 			if(rec.GostTRef && p_ref->TrT.SearchSelfRef(rec.GostTRef, temp_buf_u) > 0) {
 				temp_buf_u.CopyToUtf8(temp_buf, 1);
 				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -3148,6 +3124,7 @@ public:
 	};
 
 	static int SLAPI SetupParam(Param & rP);
+	static int SLAPI GoodsDateToString(const SUniTime & rUt, SString & rBuf);
 	explicit SLAPI PPVetisInterface(PPLogger * pLogger);
 	SLAPI ~PPVetisInterface();
 	int    SLAPI Init(const Param & rP);
@@ -6383,6 +6360,34 @@ void SLAPI PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint o
 	n_lo.PutInner(SXml::nst("base", "offset"), temp_buf.Z().Cat(offs));
 }
 
+//static
+int SLAPI PPVetisInterface::GoodsDateToString(const SUniTime & rUt, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = -1;
+	LDATETIME dtm;
+	const  uint uts = rUt.GetSignature();
+	if(oneof5(uts, SUniTime::indYr, SUniTime::indMon, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
+		if(rUt.Get(dtm)) {
+			if(oneof5(uts, SUniTime::indYr, SUniTime::indMon, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
+				rBuf.Cat(dtm.d.year());
+				if(oneof4(uts, SUniTime::indMon, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
+					rBuf.CatDiv('/', 0).Cat(dtm.d.month());
+					if(oneof3(uts, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
+						rBuf.CatDiv('/', 0).Cat(dtm.d.day());
+						if(oneof2(uts, SUniTime::indHr, SUniTime::indMSec))
+							rBuf.CatDiv(' ', 0).Cat(dtm.t.hour());
+					}
+				}
+			}
+			ok = 1;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
+}
+
 int SLAPI PPVetisInterface::PutGoodsDate(xmlTextWriter * pWriter, const char * pScopeXmlTag, const char * pDtNs, const SUniTime & rUt)
 {
 	int    ok = -1;
@@ -7138,21 +7143,18 @@ int SLAPI PPVetisInterface::ResolveDiscrepancy(PPID docEntityID, TSVector <Vetis
 					PPTransaction tra(1);
 					THROW(tra);
 					if(p_item) {
-						PPID   pi_id = 0;
 						p_item->NativeBillID = app_data.VdRec.LinkBillID;
 						p_item->NativeBillRow = app_data.VdRec.LinkBillRow;
 						p_item->CertifiedConsignment.Batch.NativeGoodsID = app_data.VdRec.LinkGoodsID;
-						THROW(PeC.Put(&pi_id, *p_item, pUreList, 0));
+						THROW(PeC.Put(0, *p_item, 0, pUreList, 0));
 						THROW(PeC.DeleteEntity(docEntityID, 0)); // Создав запись сертификата, необходимо удалить запись подготовки транспортного документа
 						ok = 1;
 					}
 					if(rReply.VetStockList.getCount()) {
 						for(uint i = 0; i < rReply.VetStockList.getCount(); i++) {
 							const VetisStockEntry * p_item = rReply.VetStockList.at(i);
-							if(p_item) {
-								PPID   pi_id = 0;
-								THROW(PeC.Put(&pi_id, P.IssuerUUID, P.EntUUID, *p_item, pUreList, 0));
-							}
+							if(p_item)
+								THROW(PeC.Put(0, P.IssuerUUID, P.EntUUID, *p_item, pUreList, 0));
 						}
 					}
 					THROW(tra.Commit());
@@ -7350,21 +7352,18 @@ int SLAPI PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVecto
 					PPTransaction tra(1);
 					THROW(tra);
 					if(p_item) {
-						PPID   pi_id = 0;
 						p_item->NativeBillID = app_data.VdRec.LinkBillID;
 						p_item->NativeBillRow = app_data.VdRec.LinkBillRow;
 						p_item->CertifiedConsignment.Batch.NativeGoodsID = app_data.VdRec.LinkGoodsID;
-						THROW(PeC.Put(&pi_id, *p_item, pUreList, 0));
+						THROW(PeC.Put(0, *p_item, 0, pUreList, 0));
 						THROW(PeC.DeleteEntity(docEntityID, 0)); // Создав запись сертификата, необходимо удалить запись подготовки транспортного документа
 						ok = 1;
 					}
 					if(rReply.VetStockList.getCount()) {
 						for(uint i = 0; i < rReply.VetStockList.getCount(); i++) {
 							const VetisStockEntry * p_item = rReply.VetStockList.at(i);
-							if(p_item) {
-								PPID   pi_id = 0;
-								THROW(PeC.Put(&pi_id, P.IssuerUUID, P.EntUUID, *p_item, pUreList, 0));
-							}
+							if(p_item)
+								THROW(PeC.Put(0, P.IssuerUUID, P.EntUUID, *p_item, pUreList, 0));
 						}
 					}
 					THROW(tra.Commit());
@@ -7489,11 +7488,12 @@ struct VetisTestParam {
 };
 
 class VetisTestParamDialog : public TDialog {
+	DECL_DIALOG_DATA(VetisTestParam);
 public:
 	VetisTestParamDialog() : TDialog(DLG_TESTVETIS)
 	{
 	}
-	int    setDTS(const VetisTestParam * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -7511,7 +7511,7 @@ public:
 		setCtrlString(CTL_TESTVETIS_PARAM, Data.ParamText);
 		return ok;
 	}
-	int    getDTS(VetisTestParam * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		GetClusterData(CTL_TESTVETIS_FLAGS, &Data.Flags);
@@ -7519,8 +7519,6 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
-private:
-	VetisTestParam Data;
 };
 
 int SLAPI TestVetis()
@@ -8313,6 +8311,7 @@ int SLAPI VetisEntityCore::SetupEnterpriseEntry(PPID psnID, PPID locID, VetisEnt
 int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 {
 	class VetisPiDialog : public TDialog {
+		DECL_DIALOG_DATA(VetisProductItem);
 	public:
 		enum {
 			ctlgroupGoods = 1
@@ -8321,7 +8320,7 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 		{
 			addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_VETISPI_GOODSGRP, CTLSEL_VETISPI_GOODS));
 		}
-		int    setDTS(const VetisProductItem * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			SString temp_buf;
@@ -8343,7 +8342,7 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 			Setup();
 			return ok;
 		}
-		int    getDTS(VetisProductItem * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			Reference * p_ref = PPRef;
@@ -8399,18 +8398,14 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(event.isCbSelected(CTLSEL_VETISPI_ORG)) {
+			if(event.isCbSelected(CTLSEL_VETISPI_ORG))
 				Setup();
-			}
-			else if(event.isCbSelected(CTLSEL_VETISPI_LOC)) {
+			else if(event.isCbSelected(CTLSEL_VETISPI_LOC))
 				Setup();
-			}
-			else if(event.isCbSelected(CTLSEL_VETISPI_GOODS)) {
+			else if(event.isCbSelected(CTLSEL_VETISPI_GOODS))
 				Setup();
-			}
-			else if(event.isCbSelected(CTLSEL_VETISPI_SUBPROD)) {
+			else if(event.isCbSelected(CTLSEL_VETISPI_SUBPROD))
 				Setup();
-			}
 			else if(event.isCmd(cmCreateVetisProductItem)) {
 				VetisProductItem pi;
 				if(getDTS(&pi) && pi.NativeGoodsID) {
@@ -8500,7 +8495,6 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 			enableCommand(cmCreateVetisProductItem, 1/*!Data.NativeLocID && ex_loc_id && person_id*/);
 		}
 		VetisEntityCore & R_Ec;
-		VetisProductItem Data;
 		UUIDAssocArray GuidAsscList;
 		StrAssocArray ProdList;
 		StrAssocArray SubProdList;
@@ -8516,11 +8510,12 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 {
 	class VetEntDialog : public TDialog {
+		DECL_DIALOG_DATA(VetisEnterprise);
 	public:
 		VetEntDialog(VetisEntityCore & rEc) : TDialog(DLG_VETISENT), R_Ec(rEc), CountryIdent(0), RegionIdent(0), LocalityIdent(0)
 		{
 		}
-		int    setDTS(const VetisEnterprise * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			SString temp_buf;
@@ -8546,7 +8541,7 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 			Setup();
 			return ok;
 		}
-		int    getDTS(VetisEnterprise * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 
@@ -8685,7 +8680,6 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 			enableCommand(cmCreateVetisEnterprise, !Data.NativeLocID && ex_loc_id && person_id);
 		}
 		VetisEntityCore & R_Ec;
-		VetisEnterprise Data;
 		UUIDAssocArray GuidAsscList;
 		StrAssocArray CountryList;
 		StrAssocArray RegionList;
@@ -8919,7 +8913,30 @@ int EditVetisVetDocument(VetisVetDocument & rData)
 		SIntToSymbTab_GetSymb(VetisVetDocType_SymbTab, SIZEOFARRAY(VetisVetDocType_SymbTab), rData.VetDType, temp_buf);
 		dlg->setCtrlString(CTL_VETVDOC_VDTYPE, temp_buf);
 		dlg->setCtrlReal(CTL_VETVDOC_QTTY, r_crtc.Batch.Volume);
-
+		// @v10.5.8 {
+		{
+			text_buf.Z();
+			if(PPVetisInterface::GoodsDateToString(r_crtc.Batch.ExpiryDate.FirstDate, temp_buf) > 0)
+				text_buf.Cat(temp_buf);
+			if(PPVetisInterface::GoodsDateToString(r_crtc.Batch.ExpiryDate.SecondDate, temp_buf) > 0)
+				text_buf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+			if(r_crtc.Batch.ExpiryDate.InformalDate.NotEmptyS())
+				text_buf.CatDivIfNotEmpty(' ', 0).CatParStr(r_crtc.Batch.ExpiryDate.InformalDate);
+			dlg->setCtrlString(CTL_VETVDOC_EXPIRY, text_buf);
+		}
+		if(rData.Flags & rData.fFromMainOrg) {
+			dlg->showCtrl(CTL_VETVDOC_ACKQTTY, 0);
+			dlg->showCtrl(CTL_VETVDOC_ACK, 0);
+		}
+		else {
+			dlg->setCtrlReal(CTL_VETVDOC_ACKQTTY, r_crtc.Batch.AckVolume);
+			long   ack = CHKXORFLAGS(rData.Flags, VetisVetDocument::fPartlyAccepted, VetisVetDocument::fRejected);
+			dlg->AddClusterAssocDef(CTL_VETVDOC_ACK, 0, 0);
+			dlg->AddClusterAssoc(CTL_VETVDOC_ACK, 1, VetisVetDocument::fPartlyAccepted);
+			dlg->AddClusterAssoc(CTL_VETVDOC_ACK, 2, VetisVetDocument::fRejected);
+			dlg->SetClusterData(CTL_VETVDOC_ACK, ack);
+		}
+		// } @v10.5.8 
 		text_buf.Z();
 		if(!!r_crtc.Consignor.Enterprise.Guid) {
 			temp_buf.Z().Cat(r_crtc.Consignor.Enterprise.Guid, S_GUID::fmtIDL|S_GUID::fmtLower);
@@ -9007,7 +9024,21 @@ int EditVetisVetDocument(VetisVetDocument & rData)
 		}
 		else
 			dlg->enableCommand(cmLinkedBill, 0);
-		ExecView(dlg);
+		if(ExecView(dlg) == cmOK) {
+			// @v10.5.8 {
+			if(!(rData.Flags & rData.fFromMainOrg)) {
+				dlg->getCtrlData(CTL_VETVDOC_ACKQTTY, &r_crtc.Batch.AckVolume);
+				//long   ack = CHKXORFLAGS(rData.Flags, rData.fPartlyAccepted, rData.fRejected);
+				long   ack = dlg->GetClusterData(CTL_VETVDOC_ACK);
+				rData.Flags &= ~(VetisVetDocument::fPartlyAccepted|VetisVetDocument::fRejected);
+				if(ack == VetisVetDocument::fPartlyAccepted)
+					rData.Flags |= rData.fPartlyAccepted;
+				else if(ack == VetisVetDocument::fRejected)
+					rData.Flags |= rData.fRejected;
+				ok = 1;
+			}
+			// } @v10.5.8 
+		}
 	}
 	else
 		ok = 0;
@@ -9187,7 +9218,7 @@ int FASTCALL PPViewVetisDocument::RunInterchangeProcess(VetisDocumentFilt * pFil
 						const VetisVetDocument * p_item = reply.VetDocList.at(i);
 						if(p_item) {
 							PPID   pi_id = 0;
-							THROW(ifc.PeC.Put(&pi_id, *p_item, &ure_list, 0));
+							THROW(ifc.PeC.Put(&pi_id, *p_item, 0, &ure_list, 0));
 							ok = 1;
 						}
 					}
@@ -9228,7 +9259,7 @@ int FASTCALL PPViewVetisDocument::RunInterchangeProcess(VetisDocumentFilt * pFil
 						const VetisVetDocument * p_item = reply.VetDocList.at(i);
 						if(p_item) {
 							PPID   pi_id = 0;
-							THROW(ifc.PeC.Put(&pi_id, *p_item, &ure_list, 0));
+							THROW(ifc.PeC.Put(&pi_id, *p_item, 0, &ure_list, 0));
 							ok = 1;
 						}
 					}
@@ -9385,8 +9416,7 @@ static IMPL_DBE_PROC(dbqf_vetis_entitytextfld_ip)
 		SString temp_buf;
 		SStringU temp_buf_u;
 		if(entity_id) {
-			TextRefIdent tri(PPOBJ_VETISENTITY, entity_id, PPTRPROP_NAME);
-			p_ref->TrT.Search(tri, temp_buf_u);
+			p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, entity_id, PPTRPROP_NAME), temp_buf_u);
 		}
 		if(temp_buf_u.Len()) {
 			temp_buf_u.CopyToUtf8(temp_buf, 0);
@@ -9412,12 +9442,10 @@ static IMPL_DBE_PROC(dbqf_vetis_businessmembtextfld_iip)
 		SStringU temp_buf_u;
 		// @v10.4.8 Поменял приоритет: сначала пытаемся получить имя enterprise затем entity (до этого было наоборот)
 		if(enterprise_id) {
-			TextRefIdent tri(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_NAME);
-			p_ref->TrT.Search(tri, temp_buf_u);
+			p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_NAME), temp_buf_u);
 		}
 		if(!temp_buf_u.Len() && bent_id) {
-			TextRefIdent tri(PPOBJ_VETISENTITY, bent_id, PPTRPROP_NAME);
-			p_ref->TrT.Search(tri, temp_buf_u);
+			p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, bent_id, PPTRPROP_NAME), temp_buf_u);
 		}
 		if(temp_buf_u.Len()) {
 			temp_buf_u.CopyToUtf8(temp_buf, 0);
@@ -9463,7 +9491,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_uuid_i)
 		SString temp_buf;
 		if(p_ec) {
 			VetisEntityCore::Entity entity;
-			if (entity_id && p_ec->GetEntity(entity_id, entity) && entity.Kind == VetisEntityCore::kVetDocument) {
+			if(entity_id && p_ec->GetEntity(entity_id, entity) && entity.Kind == VetisEntityCore::kVetDocument) {
 				entity.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 			}
 		}
@@ -9497,23 +9525,19 @@ int SLAPI VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID,
 	Reference * p_ref = PPRef;
 	SStringU temp_buf_u;
 	if(productItemID) {
-		TextRefIdent tri(PPOBJ_VETISENTITY, productItemID, PPTRPROP_NAME);
-		p_ref->TrT.Search(tri, temp_buf_u);
+		p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, productItemID, PPTRPROP_NAME), temp_buf_u);
 		ok = 1;
 	}
-	if(temp_buf_u.Len() == 0 && entityID) {
-		TextRefIdent tri(PPOBJ_VETISENTITY, entityID, VetisEntityCore::txtprpProductItemName);
-		p_ref->UtrC.Search(tri, temp_buf_u);
+	if(!temp_buf_u.Len() && entityID) {
+		p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, entityID, VetisEntityCore::txtprpProductItemName), temp_buf_u);
 		ok = 2;
 	}
-	if(temp_buf_u.Len() == 0 && subProductID) {
-		TextRefIdent tri(PPOBJ_VETISENTITY, subProductID, PPTRPROP_NAME);
-		p_ref->TrT.Search(tri, temp_buf_u);
+	if(!temp_buf_u.Len() && subProductID) {
+		p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, subProductID, PPTRPROP_NAME), temp_buf_u);
 		ok = 3;
 	}
-	if(temp_buf_u.Len() == 0 && productID) {
-		TextRefIdent tri(PPOBJ_VETISENTITY, productID, PPTRPROP_NAME);
-		p_ref->TrT.Search(tri, temp_buf_u);
+	if(!temp_buf_u.Len() && productID) {
+		p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, productID, PPTRPROP_NAME), temp_buf_u);
 		ok = 4;
 	}
 	if(temp_buf_u.Len()) {
@@ -10017,7 +10041,7 @@ int SLAPI PPViewVetisDocument::Helper_ProcessIncoming(const S_GUID & rVetDocUuid
 			const VetisVetDocument * p_item = reply.VetDocList.at(docidx);
 			if(p_item) {
 				PPID   pi_id = 0;
-				THROW(rIfc.PeC.Put(&pi_id, *p_item, pUreList, 0));
+				THROW(rIfc.PeC.Put(&pi_id, *p_item, 0, pUreList, 0));
 				ok = 1;
 			}
 		}
@@ -10194,7 +10218,7 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 					const VetisVetDocument * p_item = reply.VetDocList.at(i);
 					if(p_item) {
 						PPID   pi_id = 0;
-						THROW(ifc.PeC.Put(&pi_id, *p_item, &ure_list, 0));
+						THROW(ifc.PeC.Put(&pi_id, *p_item, 0, &ure_list, 0));
 						ok = 1;
 					}
 				}
@@ -10217,7 +10241,7 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 					const VetisVetDocument * p_item = reply.VetDocList.at(i);
 					if(p_item) {
 						PPID   pi_id = 0;
-						THROW(ifc.PeC.Put(&pi_id, *p_item, &ure_list, 0));
+						THROW(ifc.PeC.Put(&pi_id, *p_item, 0, &ure_list, 0));
 						ok = 1;
 					}
 				}
@@ -10366,11 +10390,12 @@ struct PPMatchPersonBlock {
 };
 
 class MatchPersonDialog : public TDialog {
+	DECL_DIALOG_DATA(PPMatchPersonBlock);
 public:
 	MatchPersonDialog() : TDialog(DLG_MTCHPSN)
 	{
 	}
-	int    setDTS(const PPMatchPersonBlock * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -10388,7 +10413,7 @@ public:
 			PsnObj.SetupDlvrLocCombo(this, CTLSEL_MTCHPSN_LOC, Data.PersonID, Data.DlvrLocID);
 		return ok;
 	}
-	int    getDTS(PPMatchPersonBlock * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlData(CTLSEL_MTCHPSN_PSN, &Data.PersonID);
@@ -10413,7 +10438,6 @@ private:
 			return;
 		clearEvent(event);
 	}
-	PPMatchPersonBlock Data;
 	PPObjPerson PsnObj;
 };
 
@@ -10456,24 +10480,17 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 			if(!temp_buf_u.Len() && enterprise_id) {
 				VetisPersonTbl::Rec vp_rec;
 				if(EC.SearchPerson(enterprise_id, &vp_rec) > 0) {
-					{
-						TextRefIdent tri(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_RAWADDR);
-						p_ref->UtrC.Search(tri, temp_buf_u);
-						if(temp_buf_u.Len()) {
-							temp_buf_u.CopyToUtf8(mb.SrcAddr, 0);
-							mb.SrcAddr.Transf(CTRANSF_UTF8_TO_INNER);
-						}
+					p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_RAWADDR), temp_buf_u);
+					if(temp_buf_u.Len()) {
+						temp_buf_u.CopyToUtf8(mb.SrcAddr, 0);
+						mb.SrcAddr.Transf(CTRANSF_UTF8_TO_INNER);
 					}
 					temp_buf_u.Z();
-					{
-						TextRefIdent tri(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_NAME);
-						p_ref->TrT.Search(tri, temp_buf_u);
-					}
+					p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_NAME), temp_buf_u);
 				}
 			}
 			if(!temp_buf_u.Len() && bent_id) {
-				TextRefIdent tri(PPOBJ_VETISENTITY, bent_id, PPTRPROP_NAME);
-				p_ref->TrT.Search(tri, temp_buf_u);
+				p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, bent_id, PPTRPROP_NAME), temp_buf_u);
 			}
 			if(temp_buf_u.Len()) {
 				temp_buf_u.CopyToUtf8(mb.SrcInfo, 0);
@@ -10516,6 +10533,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 				if(bill_id) {
 					PPBillPacket bp;
 					if(p_bobj->ExtractPacketWithFlags(bill_id, &bp, BPLD_LOCK) > 0) { // @v10.3.11 BPLD_LOCK
+						int    do_update_bpack = 0;
 						ar_id = bp.Rec.Object;
 						PPObjBill::SelectLotParam slp(0, bp.Rec.LocID, 0, slp_flags);
 						for(uint i = 0; i < bp.GetTCount(); i++) {
@@ -10543,7 +10561,66 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 							long   rbb = 0;
 							if(lot_to_rbb_list.Search(slp.RetLotID, &rbb, 0) && rbb > 0) {
 								ok = EC.MatchDocument(rRec.EntityID, bill_id, rbb, 0/*fromBill*/, 1);
-								if(!ok)
+								if(ok) {
+									// @v10.5.8 {
+									uint tipos = 0;
+									if(bp.SearchTI(rbb, &tipos)) {
+										PPTransferItem & r_ti = bp.TI(tipos);
+										SUniTime ut;
+										LDATETIME dtm;
+										LDATE expiry = ZERODATE;
+										LDATETIME manuf_dtm = ZERODATETIME;
+										ut.FromInt64(rRec.ExpiryFrom);
+										if(!!ut && ut.Get(dtm))
+											expiry = dtm.d;										
+										else {
+											ut.FromInt64(rRec.ExpiryTo);
+											if(!!ut && ut.Get(dtm))
+												expiry = dtm.d;
+										}
+										if(checkdate(expiry) && expiry != r_ti.Expiry) {
+											r_ti.Expiry = expiry;
+											do_update_bpack = 1;
+										}
+										//
+										{
+											PPObjTag tag_obj;
+											PPObjectTag tag_rec;
+											if(tag_obj.Fetch(PPTAG_LOT_MANUFTIME, &tag_rec) > 0) {
+												ut.FromInt64(rRec.ManufDateFrom);
+												if(!!ut && ut.Get(dtm))
+													manuf_dtm = dtm;
+												else {
+													ut.FromInt64(rRec.ManufDateTo);
+													if(!!ut && ut.Get(dtm))
+														manuf_dtm = dtm;
+												}
+												if(checkdate(manuf_dtm.d) && checktime(manuf_dtm.t)) {
+													const ObjTagItem * p_manuf_tm_tag = bp.LTagL.GetTag(tipos, PPTAG_LOT_MANUFTIME);
+													LDATETIME org_manuf_dtm = ZERODATETIME;
+													CALLPTRMEMB(p_manuf_tm_tag, GetTimestamp(&org_manuf_dtm));
+													if(manuf_dtm != org_manuf_dtm) {
+														ObjTagList dest_tag_list;
+														ObjTagList * p_tag_list = bp.LTagL.Get(tipos);
+														RVALUEPTR(dest_tag_list, p_tag_list);
+														ObjTagItem tag_item;
+														if(tag_item.SetTimestamp(PPTAG_LOT_MANUFTIME, manuf_dtm)) {
+															dest_tag_list.PutItem(PPTAG_LOT_MANUFTIME, &tag_item);
+															bp.LTagL.Set(tipos, &dest_tag_list);
+															do_update_bpack = 1;
+														}
+													}
+												}
+											}
+										}
+										if(do_update_bpack) {
+											if(!p_bobj->UpdatePacket(&bp, 1))
+												PPError();
+										}
+									}
+									// } @v10.5.8 
+								}
+								else
 									PPError();
 							}
 						}
@@ -10553,9 +10630,8 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 					p_bobj->Unlock(bill_id); // @v10.3.12
 				}
 				else {
-					if(rRec.LinkFromPsnID) {
+					if(rRec.LinkFromPsnID)
 						ar_obj.P_Tbl->PersonToArticle(rRec.LinkFromPsnID, acs_id, &ar_id);
-					}
 					if(rRec.LinkFromDlvrLocID) {
 						LocationTbl::Rec loc_rec;
 						if(psn_obj.LocObj.Fetch(rRec.LinkFromDlvrLocID, &loc_rec) > 0) {
@@ -10770,10 +10846,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 						if(bill_view.Init_(&bill_filt)) {
 							{
 								SString brw_title;
-								if(rRec.WayBillNumber[0])
-									temp_buf = rRec.WayBillNumber;
-								else
-									temp_buf = rRec.IssueNumber;
+								temp_buf = rRec.WayBillNumber[0] ? rRec.WayBillNumber : rRec.IssueNumber;
 								(brw_title = temp_buf).Space();
 								if(checkdate(rRec.WayBillDate))
 									brw_title.Cat(rRec.WayBillDate, DATF_DMY);
@@ -10817,7 +10890,12 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 							pBrw->endModal(Filt.Sel ? cmOK : cmCancel);
 						}
 						else {
-							EditVetisVetDocument(item);
+							if(EditVetisVetDocument(item) > 0) {
+								// @v10.5.8 {
+								if(!EC.Put(&id, item, EC.putvdfForceUpdateOuterFields, 0, 1))
+									PPError();
+								// } @v10.5.8 
+							}
 						}
 					}
 				}

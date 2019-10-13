@@ -286,7 +286,7 @@ public:
 	char ** GetStrColl(unsigned count)
 	{
 		char   buf[128];
-		char ** coll = (char **)calloc(count, sizeof(char*));
+		char ** coll = (char **)calloc(count, sizeof(char *));
 		for(uint i = 0; i < count; i++) {
 			GetString(buf);
 			coll[i] = strdup(buf);

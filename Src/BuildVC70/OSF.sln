@@ -115,6 +115,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pthreads4w", "pthreads4w.vc
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Redis", "redis.vcproj", "{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -718,6 +722,28 @@ Global
 		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.ServerRelease.Build.0 = ServerRelease|Win32
 		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Universe-HTT.ActiveCfg = MtDllDebug|Win32
 		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Universe-HTT.Build.0 = MtDllDebug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.Debug.ActiveCfg = Debug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.Debug.Build.0 = Debug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.DebugU.ActiveCfg = Debug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.DebugU.Build.0 = Debug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.MinSizeRel.ActiveCfg = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.MinSizeRel.Build.0 = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.MtDllDebug.ActiveCfg = Debug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.MtDllDebug.Build.0 = Debug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.MtDllRelease.ActiveCfg = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.MtDllRelease.Build.0 = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.Release.ActiveCfg = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.Release.Build.0 = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.ReleaseU.ActiveCfg = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.ReleaseU.Build.0 = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.RelWithDebInfo.ActiveCfg = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.RelWithDebInfo.Build.0 = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.ServerDebug.ActiveCfg = Debug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.ServerDebug.Build.0 = Debug|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.ServerRelease.ActiveCfg = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.ServerRelease.Build.0 = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.Universe-HTT.ActiveCfg = Release|Win32
+		{AEC9985B-DF91-4E41-A6CC-676B3CDBC779}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

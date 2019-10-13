@@ -307,7 +307,7 @@ static void directive(void)
 			break;
 	if (i == j)
 		return;
-	s = (char*)emalloc(j-i+1);
+	s = (char *)emalloc(j-i+1);
 	for (k = 0; k < j-i; k++)
 	{ s[k] = yytext[k+i];
 	  if (s[k] == '_')
@@ -364,7 +364,7 @@ static void directive(void)
 		if (j == k)
 			return;
 		*/
-		s = (char*)emalloc(k-j+1);
+		s = (char *)emalloc(k-j+1);
 		strncpy(s, yytext+j, k-j);
 		s[k-j] = '\0';
 		if (!strncmp(yytext+i, "name:", 5))
@@ -377,7 +377,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			sp->documentation = s;
@@ -398,7 +398,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			sp->documentation = s;
@@ -407,7 +407,7 @@ static void directive(void)
 			sp->transport = s;
 		else if (!strncmp(yytext+i, "location:", 9) || !strncmp(yytext+i, "port:", 5))
 		{	if (sp->URL)
-			{	char *t = (char*)emalloc(strlen(sp->URL) + strlen(s) + 2);
+			{	char *t = (char *)emalloc(strlen(sp->URL) + strlen(s) + 2);
 				strcpy(t, sp->URL);
 				strcat(t, " ");
 				strcat(t, s);
@@ -485,7 +485,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -505,7 +505,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 		 	if (strcmp(s, "encoded"))
@@ -528,7 +528,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 		 	if (strcmp(s, "encoded"))
@@ -551,7 +551,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -571,7 +571,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -591,7 +591,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -611,7 +611,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -631,7 +631,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -651,7 +651,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -671,7 +671,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -691,7 +691,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -711,7 +711,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -731,7 +731,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -751,7 +751,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -771,7 +771,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			m->part = s;
@@ -790,7 +790,7 @@ static void directive(void)
 					break;
 			if (j == k)
 				return;
-			s = (char*)emalloc(k-j+1);
+			s = (char *)emalloc(k-j+1);
 			strncpy(s, yytext+j, k-j);
 			s[k-j] = '\0';
 			d->text = s;
@@ -929,14 +929,14 @@ static void module(const char *name, const char *fullname)
       (*pp)->pragma = s;
       (*pp)->next = NULL;
     }
-    imported = (char*)emalloc(strlen(fullname)+1);
+    imported = (char *)emalloc(strlen(fullname)+1);
     strcpy(imported, fullname);
     fprintf(stderr, "Importing module '%s'\n\n", fullname);
   }
   else
   { lflag = 1;
     typeNO = magic(name);
-    prefix = (char*)emalloc(strlen(fullname)+1);
+    prefix = (char *)emalloc(strlen(fullname)+1);
     strcpy(prefix, fullname);
     fprintf(stderr, "Compiling module '%s' (magic number = %d)\n\n", fullname, typeNO);
   }

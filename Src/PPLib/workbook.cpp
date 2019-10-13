@@ -194,10 +194,10 @@ int SLAPI PPWorkbookPacket::SetLongSymb(const char * pSymb)
 //
 SLAPI PPWorkbookConfig::PPWorkbookConfig()
 {
-	Clear();
+	Z();
 }
 
-PPWorkbookConfig & SLAPI PPWorkbookConfig::Clear()
+PPWorkbookConfig & SLAPI PPWorkbookConfig::Z()
 {
 	THISZERO();
 	return *this;
@@ -1179,20 +1179,19 @@ int PPObjWorkbook::SelectLinkBlock::GetWbType(PPID * pType, PPID * pAddendumType
 int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 {
 	class SelectLinkItemDialog : public TDialog {
+		DECL_DIALOG_DATA(PPObjWorkbook::SelectLinkBlock);
 	public:
 		SelectLinkItemDialog() : TDialog(DLG_SELWBLINK)
 		{
 		}
-		int    setDTS(const PPObjWorkbook::SelectLinkBlock * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			Data = *pData;
-
 			AddClusterAssoc(CTL_SELWBLINK_TYPE, 0, PPObjWorkbook::SelectLinkBlock::ltImage);
 			AddClusterAssoc(CTL_SELWBLINK_TYPE, 1, PPObjWorkbook::SelectLinkBlock::ltRef);
 			AddClusterAssocDef(CTL_SELWBLINK_TYPE, 2, PPObjWorkbook::SelectLinkBlock::ltLink);
 			AddClusterAssoc(CTL_SELWBLINK_TYPE, 3, PPObjWorkbook::SelectLinkBlock::ltAnnot);
 			SetClusterData(CTL_SELWBLINK_TYPE, Data.Type);
-
 			PPID   wb_type = 0, addendum_wb_type = 0;
 			Data.GetWbType(&wb_type, &addendum_wb_type);
 			if(wb_type)
@@ -1205,7 +1204,7 @@ int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 				disableCtrl(CTLSEL_SELWBLINK_IMGITEM, 1);
 			return 1;
 		}
-		int    getDTS(PPObjWorkbook::SelectLinkBlock * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			Data.Type = GetClusterData(CTL_SELWBLINK_TYPE);
@@ -1237,8 +1236,7 @@ int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 				return;
 			clearEvent(event);
 		}
-		PPObjWorkbook    WbObj;
-		PPObjWorkbook::SelectLinkBlock Data;
+		PPObjWorkbook WbObj;
 	};
 	DIALOG_PROC_BODY(SelectLinkItemDialog, pData);
 }
@@ -1257,7 +1255,7 @@ int SLAPI PPObjWorkbook::MakeUniqueCode(SString & rBuf, int use_ta)
 		THROW(tra);
 		do {
 			long   cntr = 0;
-			code[0] = 0;
+			PTR32(code)[0] = 0;
 			THROW(opc_obj.GetCode(PPOPCNTR_WORKBOOK, &cntr, code, 20, 0, 0));
 		} while(SearchBySymb(code, &(_id = 0), 0) > 0);
 		THROW(tra.Commit());

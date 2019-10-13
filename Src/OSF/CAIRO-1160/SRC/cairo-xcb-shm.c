@@ -227,27 +227,22 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
-
 	pool->shm = shmat(pool->shmid, NULL, 0);
-	if(unlikely(pool->shm == (char *)-1)) {
+	if(unlikely(pool->shm == reinterpret_cast<const char *>(-1))) {
 		shmctl(pool->shmid, IPC_RMID, NULL);
 		SAlloc::F(pool);
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-
-	status = _cairo_mempool_init(&pool->mem, pool->shm, bytes,
-		minbits, maxbits - minbits + 1);
+	status = _cairo_mempool_init(&pool->mem, pool->shm, bytes, minbits, maxbits - minbits + 1);
 	if(unlikely(status)) {
 		shmdt(pool->shm);
 		SAlloc::F(pool);
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
 		return status;
 	}
-
 	pool->shmseg = _cairo_xcb_connection_shm_attach(connection, pool->shmid, FALSE);
 	shmctl(pool->shmid, IPC_RMID, NULL);
-
 	cairo_list_add(&pool->link, &connection->shm_pools);
 	mem = _cairo_mempool_alloc(&pool->mem, size);
 

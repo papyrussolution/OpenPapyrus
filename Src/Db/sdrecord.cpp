@@ -554,7 +554,7 @@ int SdRecord::ClearDataBuf()
 const void * FASTCALL SdRecord::GetDataC(uint fldPos) const
 {
 	if(P_DataBuf && (fldPos < Items.getCount())) {
-		uint8 * p = static_cast<uint8 *>(P_DataBuf);
+		const uint8 * p = static_cast<const uint8 *>(P_DataBuf);
 		return (p + Get(fldPos)->InnerOffs);
 	}
 	else

@@ -467,6 +467,18 @@ private:
 	long   SeqID;
 };
 
+class SrNgInvertedIndexTbl : public BDbTable {
+public:
+	explicit SrNgInvertedIndexTbl(BDbDatabase * pDb);
+	~SrNgInvertedIndexTbl();
+	int    AddNg(const SrNGram & rNGram);
+	int    GetNgListByWord(LEXID wordID, Int64Array & rNgList);
+	int    GetNgListByWordList(const LongArray & rWordList, Int64Array & rNgList);
+	int    SerializeRecBuf(int dir, Int64Array * pRec, SBuffer & rBuf);
+private:
+	int    PutNg(LEXID wordID, Int64Array & rNgList);
+};
+
 #define SRPROPT_UNKN      0
 #define SRPROPT_INT       1
 #define SRPROPT_STRING    2

@@ -6,7 +6,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <csoap.h>
+// @v10.5.8 #include <csoap.h>
 #include <ppsoapclient.h>
 
 struct UhttSearchGoodsParam {

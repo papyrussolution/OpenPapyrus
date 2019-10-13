@@ -218,7 +218,7 @@ FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char*  filepathname
 	if(!stream)
 		return FT_THROW(Invalid_Stream_Handle);
 	stream->descriptor.pointer = NULL;
-	stream->pathname.pointer   = (char*)filepathname;
+	stream->pathname.pointer   = (char *)filepathname;
 	stream->base               = NULL;
 	stream->pos                = 0;
 	stream->read               = NULL;

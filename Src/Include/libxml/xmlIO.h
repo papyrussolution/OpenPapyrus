@@ -10,7 +10,10 @@
 #ifndef __XML_IO_H__
 #define __XML_IO_H__
 
+//#include <libxml/globals.h>
+
 struct xmlBuffer;
+struct xmlBuf;
 struct xmlParserCtxt;
 struct xmlCharEncodingHandler;
 struct xmlParserInput;
@@ -30,7 +33,7 @@ extern "C" {
  *
  * Returns 1 if yes and 0 if another Input module should be used
  */
-typedef int (XMLCALL *xmlInputMatchCallback) (char const *filename);
+typedef int (XMLCALL *xmlInputMatchCallback)(char const *filename);
 /**
  * xmlInputOpenCallback:
  * @filename: the filename or URI
@@ -39,7 +42,7 @@ typedef int (XMLCALL *xmlInputMatchCallback) (char const *filename);
  *
  * Returns an Input context or NULL in case or error
  */
-typedef void * (XMLCALL *xmlInputOpenCallback) (char const *filename);
+typedef void * (XMLCALL * xmlInputOpenCallback)(char const *filename);
 /**
  * xmlInputReadCallback:
  * @context:  an Input context
@@ -50,7 +53,7 @@ typedef void * (XMLCALL *xmlInputOpenCallback) (char const *filename);
  *
  * Returns the number of bytes read or -1 in case of error
  */
-typedef int (XMLCALL *xmlInputReadCallback)(void * context, char * buffer, int len);
+typedef int (XMLCALL * xmlInputReadCallback)(void * context, char * buffer, int len);
 /**
  * xmlInputCloseCallback:
  * @context:  an Input context
@@ -59,7 +62,7 @@ typedef int (XMLCALL *xmlInputReadCallback)(void * context, char * buffer, int l
  *
  * Returns 0 or -1 in case of error
  */
-typedef int (XMLCALL *xmlInputCloseCallback) (void * context);
+typedef int (XMLCALL *xmlInputCloseCallback)(void * context);
 
 #ifdef LIBXML_OUTPUT_ENABLED
 	/*
@@ -74,7 +77,7 @@ typedef int (XMLCALL *xmlInputCloseCallback) (void * context);
 	 *
 	 * Returns 1 if yes and 0 if another Output module should be used
 	 */
-	typedef int (XMLCALL *xmlOutputMatchCallback) (char const *filename);
+	typedef int (XMLCALL *xmlOutputMatchCallback)(char const *filename);
 	/**
 	 * xmlOutputOpenCallback:
 	 * @filename: the filename or URI
@@ -83,7 +86,7 @@ typedef int (XMLCALL *xmlInputCloseCallback) (void * context);
 	 *
 	 * Returns an Output context or NULL in case or error
 	 */
-	typedef void * (XMLCALL *xmlOutputOpenCallback) (char const *filename);
+	typedef void * (XMLCALL *xmlOutputOpenCallback)(char const *filename);
 	/**
 	 * xmlOutputWriteCallback:
 	 * @context:  an Output context
@@ -94,7 +97,7 @@ typedef int (XMLCALL *xmlInputCloseCallback) (void * context);
 	 *
 	 * Returns the number of bytes written or -1 in case of error
 	 */
-	typedef int (XMLCALL *xmlOutputWriteCallback) (void * context, const char * buffer, int len);
+	typedef int (XMLCALL *xmlOutputWriteCallback)(void * context, const char * buffer, int len);
 	/**
 	 * xmlOutputCloseCallback:
 	 * @context:  an Output context
@@ -103,20 +106,7 @@ typedef int (XMLCALL *xmlInputCloseCallback) (void * context);
 	 *
 	 * Returns 0 or -1 in case of error
 	 */
-	typedef int (XMLCALL *xmlOutputCloseCallback) (void * context);
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#include <libxml/globals.h>
-#include <libxml/tree.h>
-#include <libxml/parser.h>
-//#include <libxml/encoding.h>
-
-#ifdef __cplusplus
-extern "C" {
+	typedef int (XMLCALL *xmlOutputCloseCallback)(void * context);
 #endif
 
 struct xmlParserInputBuffer {
@@ -234,5 +224,8 @@ XMLPUBFUN int XMLCALL xmlFileClose(void * context);
 #ifdef __cplusplus
 }
 #endif
+
+//#include <libxml/tree.h>
+//#include <libxml/parser.h>
 
 #endif /* __XML_IO_H__ */

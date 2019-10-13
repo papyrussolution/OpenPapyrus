@@ -12,8 +12,6 @@
 
 #ifndef __HTML_PARSER_H__
 #define __HTML_PARSER_H__
-//#include <libxml/xmlversion.h>
-//#include <libxml/parser.h>
 
 #ifdef LIBXML_HTML_ENABLED
 
@@ -31,7 +29,7 @@ typedef xmlSAXHandler * htmlSAXHandlerPtr;
 typedef xmlParserInput htmlParserInput;
 typedef xmlParserInput * htmlParserInputPtr;
 typedef xmlDocPtr htmlDocPtr;
-typedef xmlNodePtr htmlNodePtr;
+typedef xmlNode * htmlNodePtr;
 /*
  * Internal description of an HTML element, representing HTML 4.01
  * and XHTML 1.0 (which share the same structure).

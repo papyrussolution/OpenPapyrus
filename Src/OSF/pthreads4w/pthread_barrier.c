@@ -15,15 +15,11 @@
  *   The current list of contributors is contained
  *   in the file CONTRIBUTORS included with the source
  *   code distribution. The list can also be seen at the
- *   following World Wide Web location:
- *
- *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   following World Wide Web location: https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -151,7 +147,7 @@ int pthread_barrier_wait(pthread_barrier_t * barrier)
 		 * We are the last thread to cross this barrier
 		 */
 		__ptw32_mcs_lock_release(&b->proxynode);
-		if(0 == result) {
+		if(result == 0) {
 			result = PTHREAD_BARRIER_SERIAL_THREAD;
 		}
 	}

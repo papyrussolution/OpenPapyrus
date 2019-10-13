@@ -94,7 +94,7 @@ int archive_read_data_into_fd(struct archive * a, int fd)
 
 	while((r = archive_read_data_block(a, &buff, &size, &target_offset)) ==
 	    ARCHIVE_OK) {
-		const char * p = (const char *)buff;
+		const char * p = static_cast<const char *>(buff);
 		if(target_offset > actual_offset) {
 			r = pad_to(a, fd, can_lseek, nulls_size, nulls,
 				target_offset, actual_offset);

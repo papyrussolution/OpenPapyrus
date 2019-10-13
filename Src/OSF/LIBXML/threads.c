@@ -31,40 +31,23 @@
 	#ifdef __GNUC__
 		#ifdef linux
 			#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
-				extern int pthread_once(pthread_once_t * __once_control, void (* __init_routine)())
-				__attribute((weak));
-				extern void * pthread_getspecific(pthread_key_t __key)
-				__attribute((weak));
-				extern int pthread_setspecific(pthread_key_t __key, __const void * __pointer)
-				__attribute((weak));
-				extern int pthread_key_create(pthread_key_t * __key, void (* __destr_function)(void *))
-				__attribute((weak));
-				extern int pthread_key_delete(pthread_key_t __key)
-				__attribute((weak));
-				extern int pthread_mutex_init()
-				__attribute((weak));
-				extern int pthread_mutex_destroy()
-				__attribute((weak));
-				extern int pthread_mutex_lock()
-				__attribute((weak));
-				extern int pthread_mutex_unlock()
-				__attribute((weak));
-				extern int pthread_cond_init()
-				__attribute((weak));
-				extern int pthread_cond_destroy()
-				__attribute((weak));
-				extern int pthread_cond_wait()
-				__attribute((weak));
-				extern int pthread_equal()
-				__attribute((weak));
-				extern pthread_t pthread_self()
-				__attribute((weak));
-				extern int pthread_key_create()
-				__attribute((weak));
-				extern int pthread_key_delete()
-				__attribute((weak));
-				extern int pthread_cond_signal()
-				__attribute((weak));
+				extern int pthread_once(pthread_once_t * __once_control, void (* __init_routine)()) __attribute((weak));
+				extern void * pthread_getspecific(pthread_key_t __key) __attribute((weak));
+				extern int pthread_setspecific(pthread_key_t __key, __const void * __pointer) __attribute((weak));
+				extern int pthread_key_create(pthread_key_t * __key, void (* __destr_function)(void *)) __attribute((weak));
+				extern int pthread_key_delete(pthread_key_t __key) __attribute((weak));
+				extern int pthread_mutex_init() __attribute((weak));
+				extern int pthread_mutex_destroy() __attribute((weak));
+				extern int pthread_mutex_lock() __attribute((weak));
+				extern int pthread_mutex_unlock() __attribute((weak));
+				extern int pthread_cond_init() __attribute((weak));
+				extern int pthread_cond_destroy() __attribute((weak));
+				extern int pthread_cond_wait() __attribute((weak));
+				extern int pthread_equal() __attribute((weak));
+				extern pthread_t pthread_self() __attribute((weak));
+				extern int pthread_key_create() __attribute((weak));
+				extern int pthread_key_delete() __attribute((weak));
+				extern int pthread_cond_signal() __attribute((weak));
 			#endif
 		#endif /* linux */
 	#endif /* __GNUC__ */
@@ -491,7 +474,7 @@ void __xmlGlobalInitMutexDestroy()
  */
 static void xmlFreeGlobalState(void * state)
 {
-	xmlGlobalState * gs = (xmlGlobalState*)state;
+	xmlGlobalState * gs = static_cast<xmlGlobalState *>(state);
 	// free any memory allocated in the thread's xmlLastError 
 	xmlResetError(&(gs->xmlLastError));
 	SAlloc::F(state);
@@ -734,7 +717,6 @@ void xmlLockLibrary()
 #endif
 	xmlRMutexLock(xmlLibraryLock);
 }
-
 /**
  * xmlUnlockLibrary:
  *

@@ -331,7 +331,7 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 		failf(conn->data, "SOCKS5: no connection here");
 		return CURLE_COULDNT_CONNECT;
 	}
-	if(0 == result) {
+	if(result == 0) {
 		failf(conn->data, "SOCKS5: connection timeout");
 		return CURLE_OPERATION_TIMEDOUT;
 	}
@@ -363,7 +363,7 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 		failf(conn->data, "SOCKS5 nothing to read");
 		return CURLE_COULDNT_CONNECT;
 	}
-	if(0 == result) {
+	if(result == 0) {
 		failf(conn->data, "SOCKS5 read timeout");
 		return CURLE_OPERATION_TIMEDOUT;
 	}

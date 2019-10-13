@@ -157,7 +157,7 @@ static FT_Error ft_bzip2_file_init(FT_BZip2File zip,
 	bzstream->opaque  = zip->memory;
 
 	bzstream->avail_in = 0;
-	bzstream->next_in  = (char*)zip->buffer;
+	bzstream->next_in  = (char *)zip->buffer;
 
 	if(BZ2_bzDecompressInit(bzstream, 0, 0) != BZ_OK ||
 	    !bzstream->next_in)
@@ -198,9 +198,9 @@ static FT_Error ft_bzip2_file_reset(FT_BZip2File zip)
 		BZ2_bzDecompressEnd(bzstream);
 
 		bzstream->avail_in  = 0;
-		bzstream->next_in   = (char*)zip->input;
+		bzstream->next_in   = (char *)zip->input;
 		bzstream->avail_out = 0;
-		bzstream->next_out  = (char*)zip->buffer;
+		bzstream->next_out  = (char *)zip->buffer;
 
 		zip->limit  = zip->buffer + FT_BZIP2_BUFFER_SIZE;
 		zip->cursor = zip->limit;
@@ -240,7 +240,7 @@ static FT_Error ft_bzip2_file_fill_input(FT_BZip2File zip)
 	}
 	stream->pos += size;
 
-	bzstream->next_in  = (char*)zip->input;
+	bzstream->next_in  = (char *)zip->input;
 	bzstream->avail_in = size;
 
 	return FT_Err_Ok;
@@ -252,7 +252,7 @@ static FT_Error ft_bzip2_file_fill_output(FT_BZip2File zip)
 	FT_Error error    = FT_Err_Ok;
 
 	zip->cursor         = zip->buffer;
-	bzstream->next_out  = (char*)zip->cursor;
+	bzstream->next_out  = (char *)zip->cursor;
 	bzstream->avail_out = FT_BZIP2_BUFFER_SIZE;
 
 	while(bzstream->avail_out > 0) {

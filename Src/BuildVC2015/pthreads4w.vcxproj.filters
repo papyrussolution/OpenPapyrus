@@ -33,30 +33,6 @@
     <ClCompile Include="..\Osf\pthreads4w\pthread_cancel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_cond_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_cond_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_cond_signal.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_cond_wait.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_condattr_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_condattr_getpshared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_condattr_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_condattr_setpshared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\pthread_delay_np.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -127,21 +103,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\pthread_setspecific.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_spin_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_spin_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_spin_lock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_spin_trylock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\pthread_spin_unlock.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\pthread_testcancel.c">
@@ -253,6 +214,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\pthread_barrier.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\pthread_cond.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\pthread_spin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

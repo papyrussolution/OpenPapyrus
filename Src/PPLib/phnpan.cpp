@@ -41,7 +41,7 @@ public:
 		PPID   SCardID;  // Персональная карта ассоциированная с выбранным номером звонящего
 		PPID   LocID;    // Локация ассоциированная с выбранным номером звонящего
 	};
-	static PhonePaneDialog * FindAnalogue(const char * pChannel);
+	// @v10.5.8 movedto(PPApp::FindPhonePaneDialog()) static PhonePaneDialog * FindAnalogue(const char * pChannel);
 	PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
 	~PhonePaneDialog();
 	int    SetupInfo();
@@ -427,15 +427,15 @@ private:
 };
 
 //static
-PhonePaneDialog * PhonePaneDialog::FindAnalogue(const char * pChannel)
+/* @v10.5.8 (moved to PPApp::FindPhonePaneDialog()) PhonePaneDialog * PhonePaneDialog::FindAnalogue(const char * pChannel)
 {
 	const long res_id = DLG_PHNCPANE;
 	for(TView * p = APPL->P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
-		if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && ((TDialog *)p)->resourceID == res_id)
+		if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && static_cast<const TDialog *>(p)->resourceID == res_id)
 			return static_cast<PhonePaneDialog *>(p);
 	}
 	return 0;
-}
+}*/
 
 PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) :
 	TDialog(DLG_PHNCPANE), P_PSER(pPSER), P_Box(0), P_PhnSvcCli(0), ChnlStatusReqTmr(1000)
@@ -1010,6 +1010,8 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			// columns:
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
+				if(!S.SCardID && S.PersonID)
+					P_Box->AddColumn(-1, "@scard",    12, 0, 2);
 				P_Box->AddColumn(-1, "@time",         20, 0, 2);
 				P_Box->AddColumn(-1, "@posnode_s",     8, 0, 3);
 				P_Box->AddColumn(-1, "@checkno",      10, 0, 4);
@@ -1038,6 +1040,40 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 					}
 				}
 			}
+			// @v10.5.8 {
+			else if(S.PersonID) {
+				PPIDArray sc_list;
+				ScObj.P_Tbl->GetListByPerson(S.PersonID, 0, &sc_list);
+				if(sc_list.getCount()) {
+					CCheckFilt flt;
+					CCheckViewItem item;
+					PPViewCCheck view;
+					for(uint i = 0; i < sc_list.getCount(); i++) {
+						const PPID sc_id = sc_list.get(i);
+						SCardTbl::Rec sc_rec;
+						if(ScObj.Fetch(sc_id, &sc_rec) > 0) {
+							flt.SCardID = sc_id;
+							if(view.Init_(&flt)) {
+								for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
+									if(!(item.Flags & CCHKF_SKIP)) {
+										ss.clear();
+										LDATETIME dtm;
+										ss.add(temp_buf = sc_rec.Code); // scard code
+										dtm.Set(item.Dt, item.Tm);
+										ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
+										ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
+										ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
+										ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
+										ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
+										P_Box->addItem(item.ID, ss.getBuf());
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			// } @v10.5.8 
 		}
 		else if(mode == State::lmLocCCheck) {
 			// columns:
@@ -1165,10 +1201,21 @@ void PhonePaneDialog::OnContactSelection(int onInit)
 	}
 }
 
+int SLAPI OpenPhonePane()
+{
+	int    ok = -1;
+	TWindow * p_phn_pane = static_cast<PPApp *>(APPL)->FindPhonePaneDialog(); 
+	if(p_phn_pane) {
+		::ShowWindow(p_phn_pane->H(), SW_NORMAL);
+	}
+	return ok;
+}
+
 int SLAPI ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
 {
 	int    ok = 1;
-	PhonePaneDialog * p_prev_dlg = PhonePaneDialog::FindAnalogue("");
+	// @v10.5.8 PhonePaneDialog * p_prev_dlg = PhonePaneDialog::FindAnalogue("");
+	PhonePaneDialog * p_prev_dlg = static_cast<PhonePaneDialog *>(static_cast<PPApp *>(APPL)->FindPhonePaneDialog()); // @v10.5.8 
 	if(p_prev_dlg) {
 		p_prev_dlg->Setup(pPSER, pSt);
 		ok = 2;

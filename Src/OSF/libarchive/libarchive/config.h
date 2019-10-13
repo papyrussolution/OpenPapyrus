@@ -425,22 +425,11 @@
 /* #undef HAVE_STRUCT_STAT_ST_UMTIME */ /* Define to 1 if `st_umtime' is a member of `struct stat'. */
 /* #undef HAVE_STRUCT_TM_TM_GMTOFF */ /* Define to 1 if `tm_gmtoff' is a member of `struct tm'. */
 /* #undef HAVE_STRUCT_TM___TM_GMTOFF */ /* Define to 1 if `__tm_gmtoff' is a member of `struct tm'. */
-
-/* Define to 1 if you have `struct vfsconf'. */
-/* #undef HAVE_STRUCT_VFSCONF */
-
-/* Define to 1 if you have `struct xvfsconf'. */
-/* #undef HAVE_STRUCT_XVFSCONF */
-
-/* Define to 1 if you have the `symlink' function. */
-/* #undef HAVE_SYMLINK */
-
-/* Define to 1 if you have the <sys/acl.h> header file. */
-/* #undef HAVE_SYS_ACL_H */
-
-/* Define to 1 if you have the <sys/cdefs.h> header file. */
-/* #undef HAVE_SYS_CDEFS_H */
-
+/* #undef HAVE_STRUCT_VFSCONF */ /* Define to 1 if you have `struct vfsconf'. */
+/* #undef HAVE_STRUCT_XVFSCONF */ /* Define to 1 if you have `struct xvfsconf'. */
+/* #undef HAVE_SYMLINK */ /* Define to 1 if you have the `symlink' function. */
+/* #undef HAVE_SYS_ACL_H */ /* Define to 1 if you have the <sys/acl.h> header file. */
+/* #undef HAVE_SYS_CDEFS_H */ /* Define to 1 if you have the <sys/cdefs.h> header file. */
 /* #undef HAVE_SYS_DIR_H */ /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'. */
 /* #undef HAVE_SYS_EA_H */ /* Define to 1 if you have the <sys/ea.h> header file. */
 /* #undef HAVE_SYS_EXTATTR_H */ /* Define to 1 if you have the <sys/extattr.h> header file. */
@@ -449,15 +438,9 @@
 /* #undef HAVE_SYS_MOUNT_H */ /* Define to 1 if you have the <sys/mount.h> header file. */
 /* #undef HAVE_SYS_NDIR_H */ /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'. */
 /* #undef HAVE_SYS_PARAM_H */ /* Define to 1 if you have the <sys/param.h> header file. */
-
-/* Define to 1 if you have the <sys/poll.h> header file. */
-/* #undef HAVE_SYS_POLL_H */
-
-/* Define to 1 if you have the <sys/richacl.h> header file. */
-/* #undef HAVE_SYS_RICHACL_H */
-
-/* Define to 1 if you have the <sys/select.h> header file. */
-/* #undef HAVE_SYS_SELECT_H */
+/* #undef HAVE_SYS_POLL_H */ /* Define to 1 if you have the <sys/poll.h> header file. */
+/* #undef HAVE_SYS_RICHACL_H */ /* Define to 1 if you have the <sys/richacl.h> header file. */
+/* #undef HAVE_SYS_SELECT_H */ /* Define to 1 if you have the <sys/select.h> header file. */
 /* #undef HAVE_SYS_STATFS_H */ /* Define to 1 if you have the <sys/statfs.h> header file. */
 /* #undef HAVE_SYS_STATVFS_H */ /* Define to 1 if you have the <sys/statvfs.h> header file. */
 #define HAVE_SYS_STAT_H 1 /* Define to 1 if you have the <sys/stat.h> header file. */
@@ -465,22 +448,11 @@
 /* #undef HAVE_SYS_TIME_H */ /* Define to 1 if you have the <sys/time.h> header file. */
 #define HAVE_SYS_TYPES_H 1 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_UTIME_H 1 /* Define to 1 if you have the <sys/utime.h> header file. */
-
-/* Define to 1 if you have the <sys/utsname.h> header file. */
-/* #undef HAVE_SYS_UTSNAME_H */
-
-/* Define to 1 if you have the <sys/vfs.h> header file. */
-/* #undef HAVE_SYS_VFS_H */
-
-/* Define to 1 if you have <sys/wait.h> that is POSIX.1 compatible. */
-/* #undef HAVE_SYS_WAIT_H */
-
-/* Define to 1 if you have the <sys/xattr.h> header file. */
-/* #undef HAVE_SYS_XATTR_H */
-
-/* Define to 1 if you have the `timegm' function. */
-/* #undef HAVE_TIMEGM */
-
+/* #undef HAVE_SYS_UTSNAME_H */ /* Define to 1 if you have the <sys/utsname.h> header file. */
+/* #undef HAVE_SYS_VFS_H */ /* Define to 1 if you have the <sys/vfs.h> header file. */
+/* #undef HAVE_SYS_WAIT_H */ /* Define to 1 if you have <sys/wait.h> that is POSIX.1 compatible. */
+/* #undef HAVE_SYS_XATTR_H */ /* Define to 1 if you have the <sys/xattr.h> header file. */
+/* #undef HAVE_TIMEGM */ /* Define to 1 if you have the `timegm' function. */
 #define HAVE_TIME_H 1 /* Define to 1 if you have the <time.h> header file. */
 #define HAVE_TZSET 1 /* Define to 1 if you have the `tzset' function. */
 /* #undef HAVE_UNISTD_H */ /* Define to 1 if you have the <unistd.h> header file. */
@@ -490,9 +462,7 @@
 #define HAVE_UTIME 1 /* Define to 1 if you have the `utime' function. */
 /* #undef HAVE_UTIMENSAT */ /* Define to 1 if you have the `utimensat' function. */
 /* #undef HAVE_UTIMES */ /* Define to 1 if you have the `utimes' function. */
-
-/* Define to 1 if you have the <utime.h> header file. */
-/* #undef HAVE_UTIME_H */
+/* #undef HAVE_UTIME_H */ /* Define to 1 if you have the <utime.h> header file. */
 /* #undef HAVE_VFORK */ /* Define to 1 if you have the `vfork' function. */
 #define HAVE_VPRINTF 1 /* Define to 1 if you have the `vprintf' function. */
 #define HAVE_WCHAR_H 1 /* Define to 1 if you have the <wchar.h> header file. */

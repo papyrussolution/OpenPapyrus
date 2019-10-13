@@ -26,12 +26,10 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <libxml/pattern.h>
 
 #ifdef LIBXML_PATTERN_ENABLED
 
 /* #define DEBUG_STREAMING */
-
 #ifdef ERROR
 	#undef ERROR
 #endif

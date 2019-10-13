@@ -27,9 +27,6 @@
 #ifdef LIBXML_XINCLUDE_ENABLED
 	#include <libxml/xinclude.h>
 #endif
-#ifdef LIBXML_PATTERN_ENABLED
-	//#include <libxml/pattern.h>
-#endif
 #define MAX_ERR_MSG_SIZE 64000
 /*
  * The following VA_COPY was coded following an example in
@@ -489,7 +486,7 @@ static int FASTCALL xmlTextReaderEntPush(xmlTextReader * reader, xmlNode * value
 {
 	if(reader->entMax <= 0) {
 		reader->entMax = 10;
-		reader->entTab = (xmlNodePtr*)SAlloc::M(reader->entMax * sizeof(reader->entTab[0]));
+		reader->entTab = (xmlNode **)SAlloc::M(reader->entMax * sizeof(reader->entTab[0]));
 		if(reader->entTab == NULL) {
 			xmlGenericError(0, "xmlMalloc failed !\n");
 			return 0;
@@ -497,7 +494,7 @@ static int FASTCALL xmlTextReaderEntPush(xmlTextReader * reader, xmlNode * value
 	}
 	if(reader->entNr >= reader->entMax) {
 		reader->entMax *= 2;
-		reader->entTab = (xmlNodePtr*)SAlloc::R(reader->entTab, reader->entMax * sizeof(reader->entTab[0]));
+		reader->entTab = (xmlNode **)SAlloc::R(reader->entTab, reader->entMax * sizeof(reader->entTab[0]));
 		if(reader->entTab == NULL) {
 			xmlGenericError(0, "xmlRealloc failed !\n");
 			return 0;

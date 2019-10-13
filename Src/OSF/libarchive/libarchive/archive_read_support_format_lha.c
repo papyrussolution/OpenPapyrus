@@ -355,13 +355,13 @@ static int archive_read_format_lha_bid(struct archive_read * a, int best_bid)
 					return 0;
 				continue;
 			}
-			p = (const char *)buff + offset;
-			while(p + H_SIZE < (const char *)buff + bytes_avail) {
+			p = static_cast<const char *>(buff) + offset;
+			while(p + H_SIZE < static_cast<const char *>(buff) + bytes_avail) {
 				if((next = lha_check_header_format(p)) == 0)
 					return (30);
 				p += next;
 			}
-			offset = p - (const char *)buff;
+			offset = p - static_cast<const char *>(buff);
 		}
 	}
 	return 0;

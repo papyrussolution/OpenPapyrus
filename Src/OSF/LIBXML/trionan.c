@@ -45,8 +45,6 @@
 #pragma hdrstop // Not Using Precompiled Headers
 #include "triodef.h"
 #include "trionan.h"
-//#include <math.h>
-//#include <float.h>
 #if defined(TRIO_PLATFORM_UNIX)
 	#include <signal.h>
 #endif
@@ -57,7 +55,6 @@
 		#include <fp_class.h>
 	#endif
 #endif
-//#include <assert.h>
 #if defined(TRIO_DOCUMENTATION)
 	#include "doc/doc_nan.h"
 #endif
@@ -125,11 +122,10 @@ static const char rcsid[] = "@(#)$Id$";
 #define TRIO_DOUBLE_INDEX(x) (PTR8C(&internalEndianMagic)[7-(x)])
 
 #if (defined(__BORLANDC__) && __BORLANDC__ >= 0x0590)
-static const double internalEndianMagic = 7.949928895127362e-275;
+	static const double internalEndianMagic = 7.949928895127362e-275;
 #else
-static const double internalEndianMagic = 7.949928895127363e-275;
+	static const double internalEndianMagic = 7.949928895127363e-275;
 #endif
-
 /* Mask for the exponent */
 static const uchar ieee_754_exponent_mask[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 /* Mask for the mantissa */
@@ -146,7 +142,6 @@ static const uchar ieee_754_qnan_array[] = { 0x7F, 0xF8, 0x00, 0x00, 0x00, 0x00,
 /*************************************************************************
  * Functions
  */
-
 /*
  * trio_make_double
  */
@@ -173,7 +168,6 @@ TRIO_PRIVATE int trio_is_special_quantity(double number, int * has_mantissa)
 	}
 	return is_special_quantity;
 }
-
 /*
  * trio_is_negative
  */
@@ -202,7 +196,6 @@ TRIO_PUBLIC double trio_nzero()
 	return -zero;
 #endif
 }
-
 /**
    Generate positive infinity.
 
@@ -215,7 +208,6 @@ TRIO_PUBLIC double trio_pinf()
 	if(result == 0.0) {
 #if defined(INFINITY) && defined(__STDC_IEC_559__)
 		result = (double)INFINITY;
-
 #elif defined(USE_IEEE_754)
 		result = trio_make_double(ieee_754_infinity_array);
 
@@ -225,20 +217,17 @@ TRIO_PUBLIC double trio_pinf()
 		 * as infinity. Otherwise we have to resort to an overflow
 		 * operation to generate infinity.
 		 */
-# if defined(TRIO_PLATFORM_UNIX)
+#if defined(TRIO_PLATFORM_UNIX)
 		void (* signal_handler)(int) = signal(SIGFPE, SIG_IGN);
-# endif
-
+#endif
 		result = HUGE_VAL;
 		if(HUGE_VAL == DBL_MAX) {
 			/* Force overflow */
 			result += HUGE_VAL;
 		}
-
-# if defined(TRIO_PLATFORM_UNIX)
+#if defined(TRIO_PLATFORM_UNIX)
 		signal(SIGFPE, signal_handler);
-# endif
-
+#endif
 #endif
 	}
 	return result;
@@ -298,7 +287,6 @@ TRIO_PUBLIC double trio_nan()
 	}
 	return result;
 }
-
 /**
    Check for NaN.
 

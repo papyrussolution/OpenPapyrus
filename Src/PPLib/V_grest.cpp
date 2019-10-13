@@ -220,8 +220,8 @@ int GoodsRestTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 //
 #define DEFAULT_GROUPRESTCALCTHRESHOLD 100
 
-SLAPI PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST), P_GGIter(0), P_Tbl(0), P_BObj(BillObj), 
-	P_Predictor(0), P_TempOrd(0), P_OpGrpngFilt(0), Flags(0), ScalePrefixID(0), SellOpID(0), LastCacheCounter(0), 
+SLAPI PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST), P_GGIter(0), P_Tbl(0), P_BObj(BillObj),
+	P_Predictor(0), P_TempOrd(0), P_OpGrpngFilt(0), Flags(0), ScalePrefixID(0), SellOpID(0), LastCacheCounter(0),
 	GroupCalcThreshold(CConfig.GRestCalcThreshold), P_Rpe(0)
 {
 	DefReportId = REPORT_GOODSREST;
@@ -298,7 +298,7 @@ int SLAPI PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 				P_Rpe = new RetailPriceExtractor(loc_id, &eqb, 0, ZERODATETIME, rtlpf);
 			}
 		}
-		// } @v10.3.2 
+		// } @v10.3.2
 		Goods2Tbl::Rec gg_rec;
 		if(Filt.GoodsGrpID && GObj.Fetch(Filt.GoodsGrpID, &gg_rec) > 0) {
 			if(gg_rec.Flags & GF_FOLDER && gg_rec.Flags & GF_EXCLALTFOLD)
@@ -506,8 +506,8 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	// } @v9.5.8
 	// @v10.3.2 {
 	AddClusterAssoc(CTL_GOODSREST_RTLPRICES, 0, GoodsRestFilt::f2RetailPrice);
-	SetClusterData(CTL_GOODSREST_RTLPRICES, Data.Flags2); 
-	// } @v10.3.2 
+	SetClusterData(CTL_GOODSREST_RTLPRICES, Data.Flags2);
+	// } @v10.3.2
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 0, GoodsRestParam::_diffCost);
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 1, GoodsRestParam::_diffPrice);
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 2, GoodsRestParam::_diffPack);
@@ -858,9 +858,9 @@ int SLAPI PPViewGoodsRest::Cache::SetupCacheItemLotTag(PPViewGoodsRest::CacheIte
 int SLAPI PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
 	{ return GetS(rItem.LotTagP, rBuf); }
 
-IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2) 
-{ 
-	RET_CMPCASCADE5(static_cast<const PPViewGoodsRest::CacheItem *>(_i1), static_cast<const PPViewGoodsRest::CacheItem *>(_i2), GoodsID, LocID, Cost, Price, UnitPerPack); 
+IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2)
+{
+	RET_CMPCASCADE5(static_cast<const PPViewGoodsRest::CacheItem *>(_i1), static_cast<const PPViewGoodsRest::CacheItem *>(_i2), GoodsID, LocID, Cost, Price, UnitPerPack);
 }
 
 void SLAPI PPViewGoodsRest::InitCache()
@@ -1947,7 +1947,7 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 					else
 						grci.Price = 0.0; // Явно сигнализируем о том, что цены нет
 				}
-				// } @v10.3.2 
+				// } @v10.3.2
 				if(oneof2(quot_usage, 1, 2)) {
 					double qv = 0.0;
 					const QuotIdent qi(rRec.LocID, Filt.QuotKindID);
@@ -2548,7 +2548,7 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 							DraftRcptItem dr_item;
 							dr_item.GoodsID = p_ti->GoodsID;
 							dr_item.LocID   = p_ti->LocID;
-							dr_item.Qtty    = -p_ti->Qtty(); 
+							dr_item.Qtty    = -p_ti->Qtty();
 							if(UncompleteSessQttyList.lsearch(&dr_item, &pos, PTR_CMPFUNC(_2long)) > 0)
 								UncompleteSessQttyList.at(pos).Qtty += dr_item.Qtty;
 							else
@@ -3336,8 +3336,10 @@ void SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 		else
 			deficit_col = minstock_col = 3;
 		draft_rcpt_col = deficit_col;
-		if(Flags & fAccsCost)
-			pBrw->InsColumnWord(-1, PPWORD_PCTADDEDVAL, 17, 0, fmt_pct, 0);
+		if(Flags & fAccsCost) {
+			// @v10.5.8 pBrw->InsColumnWord(-1, PPWORD_PCTADDEDVAL, 17, 0, fmt_pct, 0);
+			pBrw->InsColumn(-1, "@extrachargepct",  17, 0, fmt_pct, 0); // @v10.5.8
+		}
 		if(Filt.Flags & GoodsRestFilt::fCalcCVat && Flags & fAccsCost)
 			pBrw->InsColumn(-1, "@vatc", 27, 0, fmt_amt, 0);
 		if(Filt.Flags & GoodsRestFilt::fCalcPVat)
@@ -3425,7 +3427,7 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			THROW(CreateOrderTable(ord, &p_ot));
 		THROW_MEM(q = new DBQuery);
 		q->syntax |= DBQuery::t_select;
-		q->addField(tbl->ID__);           //  #0 
+		q->addField(tbl->ID__);           //  #0
 
 		q->addField(tbl->GoodsID);        //  #1
 		q->addField(tbl->LocID);          //  #2

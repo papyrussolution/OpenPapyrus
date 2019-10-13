@@ -134,10 +134,10 @@ XMLPUBFUN int XMLCALL xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc 
 /*
  * Interfaces for progressive validation when possible
  */
-XMLPUBFUN int XMLCALL xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNodePtr elem);
+XMLPUBFUN int XMLCALL xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem);
 XMLPUBFUN int XMLCALL xmlRelaxNGValidatePushCData(xmlRelaxNGValidCtxtPtr ctxt, const xmlChar * data, int len);
-XMLPUBFUN int XMLCALL xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNodePtr elem);
-XMLPUBFUN int XMLCALL xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNodePtr elem);
+XMLPUBFUN int XMLCALL xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem);
+XMLPUBFUN int XMLCALL xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem);
 
 #ifdef __cplusplus
 }

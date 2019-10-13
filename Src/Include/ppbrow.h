@@ -3774,7 +3774,13 @@ struct Sdr_SBIIBillRowWithCells {
 	#define PPFLD_LOT_QTTYMINUS                               25
 	#define PPFLD_LOT_ORGLOTDT                                26
 	#define PPFLD_LOT_SERIAL                                  27
-	#define PPFLD_LOT_UHTTARCODE                              28
+	#define PPFLD_LOT_GOODSNAME                               28
+	#define PPFLD_LOT_UHTTARCODE                              29
+	#define PPFLD_LOT_EGAISREFA                               30
+	#define PPFLD_LOT_EGAISREFB                               31
+	#define PPFLD_LOT_EGAISCODE                               32
+	#define PPFLD_LOT_EGAISMARK                               33
+	#define PPFLD_LOT_VETISCERTGUID                           34
 
 struct Sdr_Lot {
 	int32  ID;
@@ -3804,7 +3810,13 @@ struct Sdr_Lot {
 	double QttyMinus;
 	LDATE  OrgLotDt;
 	char   Serial[32];
+	char   GoodsName[128];
 	char   UhttArCode[32];
+	char   EgaisRefA[64];
+	char   EgaisRefB[64];
+	char   EgaisCode[64];
+	char   EgaisMark[160];
+	char   VetisCertGUID[64];
 };
 
 #define PPREC_WORKBOOK                                63

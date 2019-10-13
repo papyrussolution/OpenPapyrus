@@ -864,7 +864,7 @@ int SLAPI PPViewTimeSeries::CellStyleFunc_(const void * pData, long col, int pai
 	int    ok = -1;
 	if(pBrw && pData && pCellStyle && col >= 0) {
 		BrowserDef * p_def = pBrw->getDef();
-		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
+		if(col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
 				const long cfg_flags = static_cast<const BrwItem *>(pData)->CfgFlags;

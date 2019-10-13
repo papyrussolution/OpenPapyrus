@@ -544,123 +544,6 @@
 				RelativePath="..\Osf\Libxml\tree.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\trio.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Libxml\trionan.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Libxml\triostr.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\Osf\Libxml\uri.c">
 			</File>
 			<File
@@ -726,19 +609,7 @@
 				RelativePath="..\Osf\Libxml\acconfig.h">
 			</File>
 			<File
-				RelativePath="..\include\libxml\c14n.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\chvalid.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Libxml\config.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\debugXML.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\dict.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\DOCBparser.h">
@@ -750,13 +621,7 @@
 				RelativePath="..\include\libxml\encoding.h">
 			</File>
 			<File
-				RelativePath="..\include\libxml\entities.h">
-			</File>
-			<File
 				RelativePath="..\include\libxml\globals.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\hash.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\HTMLparser.h">
@@ -780,37 +645,19 @@
 				RelativePath="..\include\libxml\parser.h">
 			</File>
 			<File
-				RelativePath="..\include\libxml\parserInternals.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\pattern.h">
-			</File>
-			<File
 				RelativePath="..\include\libxml\relaxng.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Libxml\save.h">
 			</File>
 			<File
-				RelativePath="..\include\libxml\SAX.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\SAX2.h">
-			</File>
-			<File
 				RelativePath="..\include\libxml\schemasInternals.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\schematron.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Libxml\timsort.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\tree.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Libxml\trio.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Libxml\triodef.h">
@@ -823,9 +670,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\Libxml\triostr.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\uri.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\valid.h">
@@ -855,9 +699,6 @@
 				RelativePath="..\include\libxml\xmlreader.h">
 			</File>
 			<File
-				RelativePath="..\include\libxml\xmlregexp.h">
-			</File>
-			<File
 				RelativePath="..\include\libxml\xmlsave.h">
 			</File>
 			<File
@@ -877,15 +718,6 @@
 			</File>
 			<File
 				RelativePath="..\include\libxml\xmlwriter.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\xpath.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\xpathInternals.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\xpointer.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Libxml\xzlib.h">

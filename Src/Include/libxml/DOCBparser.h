@@ -10,7 +10,6 @@
 
 #ifndef __DOCB_PARSER_H__
 #define __DOCB_PARSER_H__
-//#include <libxml/xmlversion.h>
 
 #ifdef LIBXML_DOCB_ENABLED
 #ifndef IN_LIBXML

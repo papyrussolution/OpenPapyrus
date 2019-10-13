@@ -522,5 +522,6 @@
 #define cmTestMqc                      627 // @v10.5.7 Тест клиента брокера сообщений
 #define cmQuoteReqAnalyze              628 // @v10.5.7 Анализ котировочных запросов
 #define cmRollbackQuots                629 // @v10.5.8 Анализ котировочных запросов @erik
+#define cmOpenPhonePane                630 // @v10.5.8 Открыть (восстановить размеры) телефонную панель 
 
 #endif /* __PPMENU_H */

@@ -643,7 +643,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	PRINTLABEL    : kbCtrlL,  TBBM_PRNLABELS,       "Печать этикеток по лоту\tCtrl-L"
 	EDITPERSON    : kbCtrlS,  TBBM_PERSONS,         "@{supplier}\tCtrl-S"
 	separator
-	REVALCOST     : kbCtrlD,  PPDV_NOICON,          "Переоценка цен поступления\tCtrl-D"
+	REVALCOST     : kbCtrlD,  PPDV_NOICON,          "@{goodsrevalcost}\tCtrl-D"
 	VIEWSPOILTSER : kbF6,     PPDV_NOICON,          "Просмотр информации о забракованной серии\tF6"
 	TAGS          : kbCtrlF6, PPDV_TAGS01,          "@{tags}\tCtrl-F6"
 	TAGSALL       : kbShiftF6, TBBM_TAGSALL,        "@{doupdatetags}\tShift-F6"
@@ -6359,17 +6359,17 @@ browser QUOTEREQANALYZE north(100), 1, 0, "@{view_quotereqanalyze}", OWNER|GRID,
 	"LeadBillCode",          3,  zstring(32),  0,  10,   BCO_USERPROC
 	"LeadContractor",        4,  zstring(128), 0,  40,   BCO_USERPROC
 	"@ware",                 5,  zstring(128), 0,  40,   BCO_USERPROC
-	"ReqQtty",               6,  double,       0,   8.3, BCO_USERPROC
+	"ReqQtty",               6,  double,       NMBF_NOZERO,   8.3, BCO_USERPROC
 	"ReqCurrency",           7,  zstring(16),  0,   8,   BCO_USERPROC
-	"ReqPrice",              8,  double,       0,   8.2, BCO_USERPROC
+	"ReqPrice",              8,  double,       NMBF_NOZERO,   8.2, BCO_USERPROC
 	"ReqShipmTerm",          9,  zstring(32),  0,   8,   BCO_USERPROC
 
 	"LinkBillDate",         10,  date,         0,   6,   BCO_USERPROC
 	"LinkBillCode",         11,  zstring(32),  0,  10,   BCO_USERPROC
 	"LinkContractor",       12,  zstring(128), 0,  40,   BCO_USERPROC
-	"RepQtty",              13,  double,       0,   8.3, BCO_USERPROC
+	"RepQtty",              13,  double,       NMBF_NOZERO,   8.3, BCO_USERPROC
 	"RepCurrency",          14,  zstring(16),  0,   8,   BCO_USERPROC
-	"RepPrice",             15,  double,       0,   8.2, BCO_USERPROC
+	"RepPrice",             15,  double,       NMBF_NOZERO,   8.2, BCO_USERPROC
 	"RepShipmTerm",         16,  zstring(32),  0,   8,   BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "Документ\tEnter"
@@ -7938,7 +7938,7 @@ record Lot {
 	Rest          double format(10.3) "Текущий остаток";
 	PrevLotID     long                "Ид родительского лота";
 	SupplID       long                "Ид поставщика";
-	CloseDate     date                "Дата закрытия лота";
+	CloseDate     date                "@{lot_closedate}";
 	Expiry        date                "Дата истечения срока годности";
 	InTaxGrpID    long                "Ид налоговой группы прихода";
 	BegRest       double format(10.3) "Остаток на начало операционного периода";
@@ -7947,7 +7947,13 @@ record Lot {
 	QttyMinus     double format(10.3) "Расход за операционный период (количество)";
 	OrgLotDt      date                "Дата поступления оригинального лота";
 	Serial        zstring(32)         "@{serial}";
+	GoodsName     zstring(128)        "@{goodsname}"; // @v10.5.8
 	UhttArCode    zstring(32)         "Приватный UHTT-код товара";
+	EgaisRefA     zstring(64)         "ЕГАИС справка А"; // @v10.5.8
+	EgaisRefB     zstring(64)         "ЕГАИС справка Б"; // @v10.5.8
+	EgaisCode     zstring(64)         "ЕГАИС код товара"; // @v10.5.8
+	EgaisMark     zstring(160)        "ЕГАИС марка"; // @v10.5.8
+	VetisCertGUID zstring(64)         "ВЕТИС GUID сертификата"; // @v10.5.8
 }
 
 record Workbook {

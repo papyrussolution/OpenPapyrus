@@ -10,28 +10,12 @@
 #include "libxml.h"
 #pragma hdrstop
 #ifdef LIBXML_XPTR_ENABLED
-#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-#endif
-#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
-#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-	//#include <zlib.h>
-//#endif
 
 #define XLINK_NAMESPACE (reinterpret_cast<const xmlChar *>("http://www.w3.org/1999/xlink/namespace/"))
 #define XHTML_NAMESPACE (reinterpret_cast<const xmlChar *>("http://www.w3.org/1999/xhtml/"))
-
-/****************************************************************
-*								*
-*           Default setting and related functions		*
-*								*
-****************************************************************/
-
+// 
+// Default setting and related functions
+// 
 static xlinkHandlerPtr xlinkDefaultHandler = NULL;
 static xlinkNodeDetectFunc xlinkDefaultDetect = NULL;
 /**
@@ -66,7 +50,6 @@ xlinkNodeDetectFunc xlinkGetDefaultDetect()
 {
 	return (xlinkDefaultDetect);
 }
-
 /**
  * xlinkSetDefaultDetect:
  * @func: pointer to the new detection routine.
@@ -77,13 +60,9 @@ void xlinkSetDefaultDetect(xlinkNodeDetectFunc func)
 {
 	xlinkDefaultDetect = func;
 }
-
-/****************************************************************
-*								*
-*                  The detection routines			*
-*								*
-****************************************************************/
-
+// 
+// The detection routines
+// 
 /**
  * xlinkIsLink:
  * @doc:  the document containing the node
@@ -98,19 +77,19 @@ void xlinkSetDefaultDetect(xlinkNodeDetectFunc func)
  * Returns the xlinkType of the node (XLINK_TYPE_NONE if there is no
  *    link detected.
  */
-xlinkType xlinkIsLink(xmlDoc * doc, xmlNodePtr P_Node) 
+xlinkType xlinkIsLink(xmlDoc * doc, xmlNode * pNode) 
 {
 	xmlChar * type = NULL, * role = NULL;
 	xlinkType ret = XLINK_TYPE_NONE;
-	if(!P_Node) 
+	if(!pNode) 
 		return XLINK_TYPE_NONE;
-	SETIFZ(doc, P_Node->doc);
+	SETIFZ(doc, pNode->doc);
 	if(doc && (doc->type == XML_HTML_DOCUMENT_NODE)) {
 		/*
 		 * This is an HTML document.
 		 */
 	}
-	else if(P_Node->ns && (sstreq(P_Node->ns->href, XHTML_NAMESPACE))) {
+	else if(pNode->ns && (sstreq(pNode->ns->href, XHTML_NAMESPACE))) {
 		/*
 		 * !!!! We really need an IS_XHTML_ELEMENT function from HTMLtree.h @@@
 		 */
@@ -123,15 +102,15 @@ xlinkType xlinkIsLink(xmlDoc * doc, xmlNodePtr P_Node)
 	/*
 	 * We don't prevent a-priori having XML Linking constructs on XHTML elements
 	 */
-	type = xmlGetNsProp(P_Node, reinterpret_cast<const xmlChar *>("type"), XLINK_NAMESPACE);
+	type = xmlGetNsProp(pNode, reinterpret_cast<const xmlChar *>("type"), XLINK_NAMESPACE);
 	if(type) {
 		if(sstreq(type, reinterpret_cast<const xmlChar *>("simple"))) {
 			ret = XLINK_TYPE_SIMPLE;
 		}
 		else if(sstreq(type, "extended")) {
-			role = xmlGetNsProp(P_Node, reinterpret_cast<const xmlChar *>("role"), XLINK_NAMESPACE);
+			role = xmlGetNsProp(pNode, reinterpret_cast<const xmlChar *>("role"), XLINK_NAMESPACE);
 			if(role) {
-				xmlNs * xlink = xmlSearchNs(doc, P_Node, XLINK_NAMESPACE);
+				xmlNs * xlink = xmlSearchNs(doc, pNode, XLINK_NAMESPACE);
 				if(xlink == NULL) {
 					/* Humm, fallback method */
 					if(sstreq(role, "xlink:external-linkset"))

@@ -671,9 +671,9 @@ static void reset_file_context(struct rar5* rar)
 	free_filters(rar);
 }
 
-static inline int get_archive_read(struct archive* a, struct archive_read** ar)
+static inline int get_archive_read(struct archive * a, struct archive_read** ar)
 {
-	*ar = (struct archive_read *)a;
+	*ar = reinterpret_cast<struct archive_read *>(a);
 	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_rar5");
 	return ARCHIVE_OK;
 }
@@ -683,7 +683,7 @@ static int read_ahead(struct archive_read* a, size_t how_many, const uint8_t** p
 	if(!ptr)
 		return 0;
 	ssize_t avail = -1;
-	*ptr = (const uint8_t *)__archive_read_ahead(a, how_many, &avail);
+	*ptr = static_cast<const uint8_t *>(__archive_read_ahead(a, how_many, &avail));
 	if(*ptr == NULL) {
 		return 0;
 	}

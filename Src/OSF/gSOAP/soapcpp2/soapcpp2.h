@@ -33,7 +33,6 @@
    A commercial use license is available from Genivia, Inc., contact@genivia.com
    --------------------------------------------------------------------------------
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -46,7 +45,6 @@
  #define VERSION "2.8.8" /* Current version */
  #define GSOAP_VERSION 20808
 #endif
-
 #ifdef WIN32
  #pragma warning(disable : 4996)
  #ifndef WITH_BISON
@@ -332,7 +330,8 @@ typedef struct Service {
 	char * attributeForm;
 	char * documentation;
 	struct Method * list;
-	struct Data * data; } Service;
+	struct Data * data; 
+} Service;
 
 typedef struct Pragma {
 	struct Pragma * next;

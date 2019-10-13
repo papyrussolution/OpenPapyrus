@@ -359,7 +359,7 @@ extern "C++"
 
 
 #define FT_MEM_STRDUP( dst, str )                                            \
-          (dst) = (char*)ft_mem_strdup( memory, (const char*)(str), &error )
+          (dst) = (char *)ft_mem_strdup( memory, (const char*)(str), &error )
 
 #define FT_STRDUP( dst, str )                           \
           FT_MEM_SET_ERROR( FT_MEM_STRDUP( dst, str ) )
@@ -380,7 +380,7 @@ extern "C++"
                   FT_ULong     size );
 
 #define FT_STRCPYN( dst, src, size )                                         \
-          ft_mem_strcpyn( (char*)dst, (const char*)(src), (FT_ULong)(size) )
+          ft_mem_strcpyn( (char *)dst, (const char*)(src), (FT_ULong)(size) )
 
  /* */
 

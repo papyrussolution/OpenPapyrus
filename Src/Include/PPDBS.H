@@ -2513,7 +2513,8 @@ public:
 		int32  LinkToPsnID;
 		int32  LinkToDlvrLocID;
 		int32  OrgDocEntityID;
-		uint8  Reserve2[36]; // raw
+		double AckVolume;
+		uint8  Reserve2[28]; // raw
 	} data;
 	struct Key0 {
 		int32  EntityID;
@@ -2586,6 +2587,7 @@ public:
 	DBField LinkToPsnID;
 	DBField LinkToDlvrLocID;
 	DBField OrgDocEntityID;
+	DBField AckVolume;
 	DBField Reserve2;
 };
 

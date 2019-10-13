@@ -15,15 +15,11 @@
  *   The current list of contributors is contained
  *   in the file CONTRIBUTORS included with the source
  *   code distribution. The list can also be seen at the
- *   following World Wide Web location:
- *
- *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   following World Wide Web location: https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -89,7 +85,7 @@ int pthread_mutex_init(pthread_mutex_t * mutex, const pthread_mutexattr_t * attr
 				}
 			}
 		}
-		if(0 == result) {
+		if(result == 0) {
 			mx->ownerThread.p = NULL;
 			mx->event = CreateEvent(NULL,  __PTW32_FALSE/* manual reset = No */, __PTW32_FALSE/* initial state = not signalled */, NULL/* event name */);
 			if(0 == mx->event) {
@@ -130,7 +126,7 @@ int pthread_mutex_destroy(pthread_mutex_t * mutex)
 				// 
 				*mutex = NULL;
 				result = (0 == result) ? pthread_mutex_unlock(&mx) : 0;
-				if(0 == result) {
+				if(result == 0) {
 					SAlloc::F(mx->robustNode);
 					if(!CloseHandle(mx->event)) {
 						*mutex = mx;
@@ -344,7 +340,7 @@ int pthread_mutex_lock(pthread_mutex_t * mutex)
 							break;
 						}
 					}
-					if(0 == result) {
+					if(result == 0) {
 						mx->recursive_count = 1;
 						mx->ownerThread = self;
 					}
@@ -510,7 +506,7 @@ int pthread_mutex_trylock(pthread_mutex_t * mutex)
 					mx->recursive_count = 1;
 					__ptw32_robust_mutex_add(mutex, self);
 				}
-				else if(0 == result)
+				else if(result == 0)
 					result = EBUSY;
 			}
 		}

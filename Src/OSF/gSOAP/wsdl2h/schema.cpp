@@ -357,7 +357,7 @@ int xs__schema::read(const char * cwd, const char * loc)
 		  fprintf(stderr, "Connected, receiving...\n"); }
 		else if(cwd && (!strncmp(cwd, "http://", 7) || !strncmp(cwd, "https://", 8))) {
 			char * s;
-			location = (char*)soap_malloc(soap, strlen(cwd) + strlen(loc) + 2);
+			location = (char *)soap_malloc(soap, strlen(cwd) + strlen(loc) + 2);
 			strcpy(location, cwd);
 			s = strrchr(location, '/');
 			if(s)
@@ -375,7 +375,7 @@ int xs__schema::read(const char * cwd, const char * loc)
 		     if(soap->recvfd < 0) {
 			     if(cwd) {
 				     char * s;
-				     location = (char*)soap_malloc(soap, strlen(cwd) + strlen(loc) + 2);
+				     location = (char *)soap_malloc(soap, strlen(cwd) + strlen(loc) + 2);
 				     strcpy(location, cwd);
 				     s = strrchr(location, '/');
 #ifdef WIN32
@@ -391,7 +391,7 @@ int xs__schema::read(const char * cwd, const char * loc)
 				     soap->recvfd = open(location, O_RDONLY, 0);
 			     }
 			     if(soap->recvfd < 0 && import_path) {
-				     location = (char*)soap_malloc(soap, strlen(import_path) + strlen(loc) + 2);
+				     location = (char *)soap_malloc(soap, strlen(import_path) + strlen(loc) + 2);
 				     strcpy(location, import_path);
 				     strcat(location, "/");
 				     strcat(location, loc);

@@ -33,25 +33,17 @@ static void FASTCALL xmlURIErrMemory(const char * extra)
 }
 
 static void FASTCALL xmlCleanURI(xmlURI * uri);
-
 /*
  * Old rule from 2396 used in legacy handling code
  * alpha    = lowalpha | upalpha
  */
 #define IS_ALPHA(x) (IS_LOWALPHA(x) || IS_UPALPHA(x))
-
 /*
- * lowalpha = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" |
- *       "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" |
- *       "u" | "v" | "w" | "x" | "y" | "z"
+ * lowalpha = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
  */
-
 #define IS_LOWALPHA(x) (((x) >= 'a') && ((x) <= 'z'))
-
 /*
- * upalpha = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" |
- *      "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" |
- *      "U" | "V" | "W" | "X" | "Y" | "Z"
+ * upalpha = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
  */
 #define IS_UPALPHA(x) (((x) >= 'A') && ((x) <= 'Z'))
 #ifdef IS_DIGIT
@@ -77,8 +69,8 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  * reserved = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | "," |
  *       "[" | "]"
  */
-#define IS_RESERVED(x) (((x) == ';') || ((x) == '/') || ((x) == '?') ||	\
-	((x) == ':') || ((x) == '@') || ((x) == '&') || ((x) == '=') || ((x) == '+') || ((x) == '$') || ((x) == ',') || ((x) == '[') || ((x) == ']'))
+//#define IS_RESERVED(x) (((x) == ';') || ((x) == '/') || ((x) == '?') ||	((x) == ':') || ((x) == '@') || ((x) == '&') || ((x) == '=') || ((x) == '+') || ((x) == '$') || ((x) == ',') || ((x) == '[') || ((x) == ']'))
+#define IS_RESERVED(x) oneof12(x, ';', '/', '?', ':', '@', '&', '=', '+', '$', ',', '[', ']')
 /*
  * unreserved = alphanum | mark
  */
@@ -116,11 +108,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
 /*
  *  gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
  */
-#define ISA_GEN_DELIM(p)						\
-	(((*(p) == ':')) || ((*(p) == '/')) || ((*(p) == '?')) ||	  \
-	    ((*(p) == '#')) || ((*(p) == '[')) || ((*(p) == ']')) ||	     \
-	    ((*(p) == '@')))
-
+#define ISA_GEN_DELIM(p) (((*(p) == ':')) || ((*(p) == '/')) || ((*(p) == '?')) || ((*(p) == '#')) || ((*(p) == '[')) || ((*(p) == ']')) || ((*(p) == '@')))
 /*
  *  reserved      = gen-delims / sub-delims
  */
@@ -148,7 +136,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
+static int xmlParse3986Scheme(xmlURI * uri, const char ** str)
 {
 	const char * cur;
 	if(!str)
@@ -166,7 +154,6 @@ static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
 	*str = cur;
 	return 0;
 }
-
 /**
  * xmlParse3986Fragment:
  * @uri:  pointer to an URI structure
@@ -182,25 +169,25 @@ static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986Fragment(xmlURIPtr uri, const char ** str)
+static int xmlParse3986Fragment(xmlURI * uri, const char ** str)
 {
-	const char * cur;
 	if(!str)
 		return -1;
-	cur = *str;
-	while((ISA_PCHAR(cur)) || oneof4(*cur, '/', '?', '[', ']') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
-		NEXT(cur);
-	if(uri) {
-		SAlloc::F(uri->fragment);
-		if(uri->cleanup & 2)
-			uri->fragment = STRNDUP(*str, cur - *str);
-		else
-			uri->fragment = xmlURIUnescapeString(*str, cur - *str, 0);
+	else {
+		const char * cur = *str;
+		while((ISA_PCHAR(cur)) || oneof4(*cur, '/', '?', '[', ']') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
+			NEXT(cur);
+		if(uri) {
+			SAlloc::F(uri->fragment);
+			if(uri->cleanup & 2)
+				uri->fragment = STRNDUP(*str, cur - *str);
+			else
+				uri->fragment = xmlURIUnescapeString(*str, cur - *str, 0);
+		}
+		*str = cur;
+		return 0;
 	}
-	*str = cur;
-	return 0;
 }
-
 /**
  * xmlParse3986Query:
  * @uri:  pointer to an URI structure
@@ -212,27 +199,28 @@ static int xmlParse3986Fragment(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986Query(xmlURIPtr uri, const char ** str)
+static int xmlParse3986Query(xmlURI * uri, const char ** str)
 {
-	const char * cur;
 	if(!str)
 		return -1;
-	cur = *str;
-	while((ISA_PCHAR(cur)) || oneof2(*cur, '/', '?') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
-		NEXT(cur);
-	if(uri) {
-		SAlloc::F(uri->query);
-		if(uri->cleanup & 2)
-			uri->query = STRNDUP(*str, cur - *str);
-		else
-			uri->query = xmlURIUnescapeString(*str, cur - *str, 0);
-		// Save the raw bytes of the query as well.
-		// See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00114
-		SAlloc::F(uri->query_raw);
-		uri->query_raw = STRNDUP(*str, cur - *str);
+	else {
+		const char * cur = *str;
+		while((ISA_PCHAR(cur)) || oneof2(*cur, '/', '?') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
+			NEXT(cur);
+		if(uri) {
+			SAlloc::F(uri->query);
+			if(uri->cleanup & 2)
+				uri->query = STRNDUP(*str, cur - *str);
+			else
+				uri->query = xmlURIUnescapeString(*str, cur - *str, 0);
+			// Save the raw bytes of the query as well.
+			// See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00114
+			SAlloc::F(uri->query_raw);
+			uri->query_raw = STRNDUP(*str, cur - *str);
+		}
+		*str = cur;
+		return 0;
 	}
-	*str = cur;
-	return 0;
 }
 /**
  * xmlParse3986Port:
@@ -246,7 +234,7 @@ static int xmlParse3986Query(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986Port(xmlURIPtr uri, const char ** str)
+static int xmlParse3986Port(xmlURI * uri, const char ** str)
 {
 	const char * cur = *str;
 	if(ISA_DIGIT(cur)) {
@@ -274,7 +262,7 @@ static int xmlParse3986Port(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986Userinfo(xmlURIPtr uri, const char ** str)
+static int xmlParse3986Userinfo(xmlURI * uri, const char ** str)
 {
 	const char * cur = *str;
 	while(ISA_UNRESERVED(cur) || ISA_PCT_ENCODED(cur) || ISA_SUB_DELIM(cur) || (*cur == ':'))
@@ -338,7 +326,7 @@ static int xmlParse3986DecOctet(const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986Host(xmlURIPtr uri, const char ** str)
+static int xmlParse3986Host(xmlURI * uri, const char ** str)
 {
 	const char * cur = *str;
 	const char * host = cur;
@@ -411,7 +399,7 @@ found:
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986Authority(xmlURIPtr uri, const char ** str)
+static int xmlParse3986Authority(xmlURI * uri, const char ** str)
 {
 	const char * cur = *str;
 	/*
@@ -473,7 +461,7 @@ static int FASTCALL xmlParse3986Segment(const char ** str, char forbid, int empt
  *
  * Returns 0 or the error code
  */
-static int FASTCALL xmlParse3986PathAbEmpty(xmlURIPtr uri, const char ** str)
+static int FASTCALL xmlParse3986PathAbEmpty(xmlURI * uri, const char ** str)
 {
 	int ret;
 	const char * cur = *str;
@@ -505,7 +493,7 @@ static int FASTCALL xmlParse3986PathAbEmpty(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int FASTCALL xmlParse3986PathAbsolute(xmlURIPtr uri, const char ** str)
+static int FASTCALL xmlParse3986PathAbsolute(xmlURI * uri, const char ** str)
 {
 	int ret;
 	const char * cur = *str;
@@ -545,7 +533,7 @@ static int FASTCALL xmlParse3986PathAbsolute(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int FASTCALL xmlParse3986PathRootless(xmlURIPtr uri, const char ** str)
+static int FASTCALL xmlParse3986PathRootless(xmlURI * uri, const char ** str)
 {
 	const char * cur = *str;
 	int ret = xmlParse3986Segment(&cur, 0, 0);
@@ -583,7 +571,7 @@ static int FASTCALL xmlParse3986PathRootless(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
+static int xmlParse3986PathNoScheme(xmlURI * uri, const char ** str)
 {
 	const char * cur = *str;
 	int ret = xmlParse3986Segment(&cur, ':', 0);
@@ -625,7 +613,7 @@ static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986HierPart(xmlURIPtr uri, const char ** str)
+static int xmlParse3986HierPart(xmlURI * uri, const char ** str)
 {
 	int ret;
 	const char * cur = *str;
@@ -674,7 +662,7 @@ static int xmlParse3986HierPart(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986RelativeRef(xmlURIPtr uri, const char * str)
+static int xmlParse3986RelativeRef(xmlURI * uri, const char * str)
 {
 	int ret;
 	if((*str == '/') && (*(str + 1) == '/')) {
@@ -729,7 +717,7 @@ static int xmlParse3986RelativeRef(xmlURIPtr uri, const char * str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986URI(xmlURIPtr uri, const char * str)
+static int xmlParse3986URI(xmlURI * uri, const char * str)
 {
 	int ret = xmlParse3986Scheme(uri, &str);
 	if(ret != 0) 
@@ -771,7 +759,7 @@ static int xmlParse3986URI(xmlURIPtr uri, const char * str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986URIReference(xmlURIPtr uri, const char * str)
+static int xmlParse3986URIReference(xmlURI * uri, const char * str)
 {
 	int ret;
 	if(!str)
@@ -802,9 +790,9 @@ static int xmlParse3986URIReference(xmlURIPtr uri, const char * str)
  *
  * Returns a newly built xmlURIPtr or NULL in case of error
  */
-xmlURIPtr xmlParseURI(const char * str)
+xmlURI * xmlParseURI(const char * str)
 {
-	xmlURIPtr uri = 0;
+	xmlURI * uri = 0;
 	if(str) {
 		uri = xmlCreateURI();
 		if(uri) {
@@ -829,11 +817,10 @@ xmlURIPtr xmlParseURI(const char * str)
  *
  * Returns 0 or the error code
  */
-int xmlParseURIReference(xmlURIPtr uri, const char * str)
+int xmlParseURIReference(xmlURI * uri, const char * str)
 {
 	return (xmlParse3986URIReference(uri, str));
 }
-
 /**
  * xmlParseURIRaw:
  * @str:  the URI string to analyze
@@ -845,9 +832,9 @@ int xmlParseURIReference(xmlURIPtr uri, const char * str)
  *
  * Returns a newly built xmlURIPtr or NULL in case of error
  */
-xmlURIPtr xmlParseURIRaw(const char * str, int raw)
+xmlURI * xmlParseURIRaw(const char * str, int raw)
 {
-	xmlURIPtr uri = 0;
+	xmlURI * uri = 0;
 	if(str) {
 		uri = xmlCreateURI();
 		if(uri) {
@@ -873,9 +860,9 @@ xmlURIPtr xmlParseURIRaw(const char * str, int raw)
  *
  * Returns the new structure or NULL in case of error
  */
-xmlURIPtr xmlCreateURI()
+xmlURI * xmlCreateURI()
 {
-	xmlURI * ret = (xmlURI *)SAlloc::M(sizeof(xmlURI));
+	xmlURI * ret = static_cast<xmlURI *>(SAlloc::M(sizeof(xmlURI)));
 	if(!ret) {
 		xmlURIErrMemory("creating URI structure\n");
 		return 0;
@@ -883,7 +870,6 @@ xmlURIPtr xmlCreateURI()
 	memzero(ret, sizeof(xmlURI));
 	return ret;
 }
-
 /**
  * xmlSaveUriRealloc:
  *
@@ -914,7 +900,7 @@ static xmlChar * FASTCALL xmlSaveUriRealloc(xmlChar * ret, int * max)
  *
  * Returns a new string (to be deallocated by caller)
  */
-xmlChar * xmlSaveUri(xmlURIPtr uri)
+xmlChar * xmlSaveUri(xmlURI * uri)
 {
 	xmlChar * ret = NULL;
 	xmlChar * temp;
@@ -1180,7 +1166,7 @@ mem_error:
  *
  * Prints the URI in the stream @stream.
  */
-void xmlPrintURI(FILE * stream, xmlURIPtr uri)
+void xmlPrintURI(FILE * stream, xmlURI * uri)
 {
 	xmlChar * out = xmlSaveUri(uri);
 	if(out) {
@@ -1658,9 +1644,9 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 {
 	xmlChar * val = NULL;
 	int ret, len, indx, cur, out;
-	xmlURIPtr ref = NULL;
-	xmlURIPtr bas = NULL;
-	xmlURIPtr res = NULL;
+	xmlURI * ref = NULL;
+	xmlURI * bas = NULL;
+	xmlURI * res = NULL;
 	/*
 	 * 1) The URI reference is parsed into the potential four components and
 	 *  fragment identifier, as described in Section 4.3.
@@ -1904,8 +1890,8 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	int pos = 0;
 	int nbslash = 0;
 	int len;
-	xmlURIPtr ref = NULL;
-	xmlURIPtr bas = NULL;
+	xmlURI * ref = NULL;
+	xmlURI * bas = NULL;
 	xmlChar * bptr, * uptr, * vptr;
 	int remove_path = 0;
 	if(isempty(URI))
@@ -2111,7 +2097,7 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 	int i = 0;
 	xmlChar * p = NULL;
 #endif
-	xmlURIPtr uri;
+	xmlURI * uri;
 	xmlChar * ret;
 	const xmlChar * absuri;
 	if(path == NULL)
@@ -2226,7 +2212,7 @@ path_processing:
  */
 xmlChar * xmlPathToURI(const xmlChar * path)
 {
-	xmlURIPtr uri;
+	xmlURI * uri;
 	xmlURI temp;
 	xmlChar * ret, * cal;
 	if(path == NULL)

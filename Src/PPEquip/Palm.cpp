@@ -1117,10 +1117,10 @@ public:
 			P_Doc = 0;
 		}
 	}
-	xmlNode * FindFirstRec(xmlNodePtr pChild, const char * pTag)
+	xmlNode * FindFirstRec(xmlNode * pChild, const char * pTag)
 	{
 		xmlNode * p_result = 0;
-		for(xmlNodePtr p_rec = pChild; p_rec && !p_result; p_rec = p_rec->next) {
+		for(xmlNode * p_rec = pChild; p_rec && !p_result; p_rec = p_rec->next) {
 			p_result = SXml::IsName(p_rec, pTag) ? p_rec : FindFirstRec(p_rec->children, pTag); // @recursion
 		}
 		return p_result;
@@ -3157,7 +3157,7 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 		if(r == 1) {
 			p_doc = xmlTextReaderCurrentDoc(p_reader);
 			if(p_doc) {
-				xmlNodePtr p_root = xmlDocGetRootElement(p_doc);
+				xmlNode * p_root = xmlDocGetRootElement(p_doc);
 				if(p_root && /* p_items->type == XML_ELEMENT_NODE && */ p_root->properties) {
 					xmlAttr * p_attr = p_root->properties;
 					for(; p_attr; p_attr = p_attr->next) {

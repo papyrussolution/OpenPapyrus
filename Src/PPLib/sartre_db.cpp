@@ -1,5 +1,5 @@
 // SARTRE_DB.CPP
-// Copyright (c) A.Sobolev 2017, 2018
+// Copyright (c) A.Sobolev 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -302,7 +302,7 @@ int SrWordAssocTbl::Add(SrWordAssoc * pWa, int32 * pID)
 	else {
 		int64 __id = 0;
 		THROW_DB(P_Db->GetSequence(SeqID, &__id));
-		id = (LEXID)__id;
+		id = static_cast<LEXID>(__id);
 		key_buf = id;
 		data_buf = buf;
 		THROW_DB(InsertRec(key_buf, data_buf));
@@ -417,7 +417,7 @@ SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words
 			SrNGram ng_rec;
 			SBuffer rec_buf;
 			rData.Get(rec_buf);
-			((SrNGramTbl *)P_MainT)->SerializeRecBuf(-1, &ng_rec, rec_buf);
+			static_cast<SrNGramTbl *>(P_MainT)->SerializeRecBuf(-1, &ng_rec, rec_buf);
 			const LongArray & r_list = ng_rec.WordIdList;
 			rResult.Set(r_list.dataPtr(), r_list.getCount() * r_list.getItemSize());
 			return 0;
@@ -574,6 +574,79 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) //
 //
 //
 //
+SrNgInvertedIndexTbl::SrNgInvertedIndexTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->nginvidx", 0, SKILOBYTE(16), 0), pDb)
+{
+}
+	
+SrNgInvertedIndexTbl::~SrNgInvertedIndexTbl()
+{
+}
+
+int SrNgInvertedIndexTbl::SerializeRecBuf(int dir, Int64Array * pRec, SBuffer & rBuf)
+{
+	int    ok = 1;
+	SSerializeContext * p_sctx = GetSCtx();
+	THROW_DB(p_sctx);
+	THROW_SL(p_sctx->Serialize(dir, pRec, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+int SrNgInvertedIndexTbl::GetNgListByWord(LEXID wordID, Int64Array & rNgList)
+{
+	rNgList.clear();
+	int    ok = -1;
+	BDbTable::Buffer key_buf, data_buf;
+	key_buf.Set(&wordID, sizeof(wordID));
+	data_buf.Alloc(512);
+	if(BDbTable::Search(0, key_buf, data_buf)) {
+		SBuffer rec_buf;
+		data_buf.Get(rec_buf);
+		THROW(SerializeRecBuf(-1, &rNgList, rec_buf));
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SrNgInvertedIndexTbl::PutNg(LEXID wordID, Int64Array & rNgList)
+{
+	int    ok = 1;
+	SBuffer rec_buf;
+	BDbTable::Buffer key_buf, data_buf;
+	key_buf = wordID;
+	if(rNgList.getCount()) {
+		THROW(SerializeRecBuf(+1, &rNgList, rec_buf));
+		data_buf = rec_buf;
+		THROW_DB(UpdateRec(key_buf, data_buf));
+	}
+	else {
+		THROW_DB(DeleteRec(key_buf));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SrNgInvertedIndexTbl::AddNg(const SrNGram & rNGram)
+{
+	int    ok = -1;
+	Int64Array ng_list;
+	LongArray temp_list = rNGram.WordIdList;
+	temp_list.sortAndUndup();
+	for(uint i = 0; i < temp_list.getCount(); i++) {
+		const LEXID word_id = temp_list.get(i);
+		THROW(GetNgListByWord(word_id, ng_list));
+		if(!ng_list.lsearch(rNGram.ID)) {
+			ng_list.add(rNGram.ID);
+			// put
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
 SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->concept", 0, SKILOBYTE(16), 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
@@ -582,7 +655,7 @@ SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("c
 			SrConcept rec;
 			SBuffer rec_buf;
 			rData.Get(rec_buf);
-			((SrConceptTbl *)P_MainT)->SerializeRecBuf(-1, &rec, rec_buf);
+			static_cast<SrConceptTbl *>(P_MainT)->SerializeRecBuf(-1, &rec, rec_buf);
 			rResult = rec.SymbID;
 			//
 			// Нулевой сидентификатор символа (аноминая концепция) не индексируем

@@ -492,6 +492,10 @@ int FASTCALL PPTransferItem::IsEqual(const PPTransferItem & rS) const
 		RETIFNEQ(ExtCost);
 	}
 #undef  RETIFNEQ
+	// @v10.5.8 {
+	if((TFlags & (tfQrSeqAccepted|tfQrSeqRejected)) != (rS.TFlags & (tfQrSeqAccepted|tfQrSeqRejected)))
+		return 0;
+	// } @v10.5.8 
 	return 1;
 }
 

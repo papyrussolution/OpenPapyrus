@@ -191,7 +191,6 @@ static bool IsCommentBlockEnd(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
-
 	for(Sci_Position i = pos; i < eol_pos; i++) {
 		char ch = styler[i];
 		char chNext = styler[i+1];
@@ -351,18 +350,10 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 				s[k] = '\0';
 
 				if(keywords.InList(s)) {
-					if(
-					    strcmp(s, "architecture") == 0  ||
-					    strcmp(s, "case") == 0          ||
-					    strcmp(s, "generate") == 0      ||
-					    strcmp(s, "block") == 0         ||
-					    strcmp(s, "loop") == 0          ||
-					    strcmp(s, "package") ==0        ||
-					    strcmp(s, "process") == 0       ||
-					    strcmp(s, "protected") == 0     ||
-					    strcmp(s, "record") == 0        ||
-					    strcmp(s, "then") == 0          ||
-					    strcmp(s, "units") == 0) {
+					if(strcmp(s, "architecture") == 0 || strcmp(s, "case") == 0 ||
+					    strcmp(s, "generate") == 0 || strcmp(s, "block") == 0 || strcmp(s, "loop") == 0 ||
+					    strcmp(s, "package") == 0 || strcmp(s, "process") == 0 || strcmp(s, "protected") == 0 ||
+					    strcmp(s, "record") == 0 || strcmp(s, "then") == 0 || strcmp(s, "units") == 0) {
 						if(strcmp(prevWord, "end") != 0) {
 							if(levelMinCurrentElse > levelNext) {
 								levelMinCurrentElse = levelNext;
@@ -370,23 +361,15 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 							levelNext++;
 						}
 					}
-					else if(
-					    strcmp(s, "component") == 0      ||
-					    strcmp(s, "entity") == 0         ||
-					    strcmp(s, "configuration") == 0) {
-						if(strcmp(prevWord, "end") != 0 && lastStart) { // check for instantiated unit by backward
-							                                        // searching for the colon.
+					else if(strcmp(s, "component") == 0 || strcmp(s, "entity") == 0 || strcmp(s, "configuration") == 0) { 
+						if(strcmp(prevWord, "end") != 0 && lastStart) { // check for instantiated unit by backward searching for the colon.
 							Sci_PositionU pos = lastStart;
 							char chAtPos, styleAtPos;
 							do { // skip white spaces
 								pos--;
 								styleAtPos = styler.StyleAt(pos);
 								chAtPos = styler.SafeGetCharAt(pos);
-							} while(pos>0 &&
-							    (chAtPos == ' ' || chAtPos == '\t' ||
-								    chAtPos == '\n' || chAtPos == '\r' ||
-								    IsCommentStyle(styleAtPos)));
-
+							} while(pos>0 && (chAtPos == ' ' || chAtPos == '\t' || chAtPos == '\n' || chAtPos == '\r' || IsCommentStyle(styleAtPos)));
 							// check for a colon (':') before the instantiated units "entity", "component" or
 							// "configuration". Don't fold thereafter.
 							if(chAtPos != ':') {
@@ -397,9 +380,7 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 							}
 						}
 					}
-					else if(
-					    strcmp(s, "procedure") == 0     ||
-					    strcmp(s, "function") == 0) {
+					else if(strcmp(s, "procedure") == 0 || strcmp(s, "function") == 0) {
 						if(strcmp(prevWord, "end") != 0) { // check for "end procedure" etc.
 							// This code checks to see if the procedure / function is a definition within a
 							// "package"
@@ -410,12 +391,8 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 								char chAtPos = styler.SafeGetCharAt(pos);
 								if(chAtPos == '(') BracketLevel++;
 								if(chAtPos == ')') BracketLevel--;
-								if(
-								    (BracketLevel == 0) &&
-								    (!IsCommentStyle(styleAtPos)) &&
-								    (styleAtPos != SCE_VHDL_STRING) &&
-								    !iswordchar(styler.SafeGetCharAt(pos-1)) &&
-								    (chAtPos|' ')=='i' && (styler.SafeGetCharAt(pos+1)|' ')=='s' &&
+								if((BracketLevel == 0) && (!IsCommentStyle(styleAtPos)) && (styleAtPos != SCE_VHDL_STRING) &&
+								    !iswordchar(styler.SafeGetCharAt(pos-1)) && (chAtPos|' ')=='i' && (styler.SafeGetCharAt(pos+1)|' ')=='s' &&
 								    !iswordchar(styler.SafeGetCharAt(pos+2))) {
 									if(levelMinCurrentElse > levelNext) {
 										levelMinCurrentElse = levelNext;
@@ -441,8 +418,7 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 							                                     // min level
 						}
 					}
-					else if(
-					    ((strcmp(s, "begin") == 0) && (strcmp(prevWord, "architecture") == 0)) ||
+					else if(((strcmp(s, "begin") == 0) && (strcmp(prevWord, "architecture") == 0)) ||
 					    ((strcmp(s, "begin") == 0) && (strcmp(prevWord, "function") == 0)) ||
 					    ((strcmp(s, "begin") == 0) && (strcmp(prevWord, "procedure") == 0))) {
 						levelMinCurrentBegin = levelNext - 1;

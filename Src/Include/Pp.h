@@ -4216,7 +4216,7 @@ public:
 	int    SLAPI GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList); 
 	int    SLAPI Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQuotArray * pList);
 	int    SLAPI GetAfterDT(const LDATETIME & rAfter, PPQuotArray *pList); //v10.5.8 @erik
-	int    SLAPI SLAPI Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot); //v10.5.8 @erik
+	int    SLAPI GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot); //v10.5.8 @erik
 	int    SLAPI GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray & rQuotList);
 	int    SLAPI GetCurrListByRelList(PPID goodsID, const PPIDArray & rRelList, PPQuotArray & rQuotList);
 	int    SLAPI GetCurr(PPID goodsID, const QuotIdent & pIdent, double cost, double price, double * pQ, int useCache);
@@ -4259,7 +4259,13 @@ public:
 	//
 	int    SLAPI DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred);
 	int    SLAPI ReplaceObj(PPID objType, PPID replacedID, PPID newID, int use_ta);
-	int    SLAPI DumpCurrent(SBuffer & rBuf, int64 * pItemsCount);
+	//
+	// Descr: Опции функции DumpCurrent
+	//
+	enum {
+		dumpfIgnoreTimestamp = 0x0001
+	};
+	int    SLAPI DumpCurrent(SBuffer & rBuf, long flags, int64 * pItemsCount);
 	int    SLAPI UndumpCurrent(SBuffer & rBuf, int use_ta);
 
 	Quot2RelTbl RelT;
@@ -4296,7 +4302,8 @@ public:
 		fWarnExistsAbsQuot = 0x0008,  // Предупреждать о замене абсолютной котировки относительной
 		fSkipNoDisGoods    = 0x0010,  // Не изменять котировки для товаров с признаком "Без скидки" (GF_NODISCOUNT)
 		fSkipDatedQuot     = 0x0020,  // @v8.5.2 Не изменять значения котировок, заданные с периодом
-		fSetupDatedSamples = 0x0040   // @v9.1.0 Устанавливать значения котировок по образцу вместе с периодом действия
+		fSetupDatedSamples = 0x0040,  // @v9.1.0 Устанавливать значения котировок по образцу вместе с периодом действия
+		ftest              = 0x0080   // @erik v10.5.8
 	};
 	char   ReserveStart[12]; // @anchor
 	DateRange FiltQuotPeriod; // Фильтрующий критерий периода для значений котировок
@@ -4323,6 +4330,7 @@ public:
 	ObjIdListFilt EventList; //
 	ObjIdListFilt ArList;    //
 	SString Formula;         //
+	//
 private:
 	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
 };
@@ -9311,8 +9319,7 @@ private:
 //
 // Флаг PPTFR_QUOT устанавливается тогда, когда цена (вместе со скидкой)
 // строки указана по котировке. В этом случае установка общей скидки на
-// документ не влечет изменение чистой цены (Price - Discount) по этой
-// строчке.
+// документ не влечет изменение чистой цены (Price - Discount) по этой строчке.
 //
 #define PPTFR_QUOT         0x00040000L // Цена установлена по котировке
 	// Если установлены одновременно флаги PPTFR_QUOT | PPTFR_RECEIPT, то это означает,
@@ -9594,23 +9601,24 @@ public:
 			// определить, что элемент фактически добавлен не был, хотя и имеет признаки
 			// проведенного (RByBill != 0). PPTransferItem::tfDirty
 			//
-		tfForceLotID   = 0x0002,
-		tfLocTransf    = 0x0004,  // Складская операция //
-		tfForceRemove  = 0x0008,  // @v7.5.4 При изменении документа строка должна быть удалена в форсированном порядке
+		tfForceLotID    = 0x0002,
+		tfLocTransf     = 0x0004,  // Складская операция //
+		tfForceRemove   = 0x0008,  // При изменении документа строка должна быть удалена в форсированном порядке
 			// то есть, даже не смотря на остатки и прочие препятствия //
-		tfOrdReserve   = 0x0010,  // @v7.8.10 флаг, заставляющий функции Transfer::AddItem и Transfer::UpdateItem
+		tfOrdReserve    = 0x0010,  // Флаг, заставляющий функции Transfer::AddItem и Transfer::UpdateItem
 			// установить флаг LOTF_ORDRESERVE для создаваемого лота.
 			// До v7.8.10 использовался PPTFR_ORDRESERVE
-		tfForceReplace = 0x0040,  // @v8.0.3 флаг, используемый внутри функции PPObjBill::UpdatePacket() для //
+		tfForceReplace  = 0x0040,  // Флаг, используемый внутри функции PPObjBill::UpdatePacket() для //
 			// индикации необходимости полностью обновить строку в БД (удалить и добавить снова).
 			// Флаг введен вместо обнуления поля RByBill так как создание новой строки может осуществляться и
 			// при ненулевом значении RByBill (см флаг tfForceRByBill выше).
-		tfForceNew     = 0x0080,  // @v8.0.3 Не смотря на то, что RByBill != 0 строка является новой (создана
+		tfForceNew      = 0x0080,  // Не смотря на то, что RByBill != 0 строка является новой (создана
 			// в рамках акцепта документа, поступившего из другого раздела).
-		tfForceNoRcpt  = 0x0100,  // @v8.0.9 Корректировочный флаг, блокирующий установку признака PPTFR_RECEIPT
+		tfForceNoRcpt   = 0x0100,  // Корректировочный флаг, блокирующий установку признака PPTFR_RECEIPT
 			// функцией PPTransferItem::Init ради дополнения остатка существующего лота
-		tfProblemQuot  = 0x0200   // @v8.2.0 Строка имеет проблемную котировку, выявленную при расценке либо
-			// при назначении цены по котировке
+		tfProblemQuot   = 0x0200,  // Строка имеет проблемную котировку, выявленную при расценке либо при назначении цены по котировке
+		tfQrSeqAccepted = 0x0400,  // @v10.5.8 Последовательный котировочный запрос подтвержден поставщиком
+		tfQrSeqRejected = 0x0800,  // @v10.5.8 Последовательный котировочный запрос отклонен поставщиком
 	};
 	long   TFlags;      // @transient tfXXX Не сохраняемые в БД признаки строки.
 	LDATE  Expiry;      // Дата завершения пригодности товара к использованию
@@ -12247,9 +12255,10 @@ private:
 //
 //
 //
-#define CPTFREXSTR_SERIAL      1
-#define CPTFREXSTR_CLB         2
-#define CPTFREXSTR_LINKBILLROW 3 // @v10.5.7
+#define CPTFREXSTR_SERIAL          1
+#define CPTFREXSTR_CLB             2
+#define CPTFREXSTR_LINKBILLROW     3 // @v10.5.7
+#define CPTFREXSTR_QRSEQACKSTATUS  4 // @v10.5.8
 
 struct CpTrfrExt {
 	SLAPI  CpTrfrExt();
@@ -12257,6 +12266,8 @@ struct CpTrfrExt {
 	char   Clb[24];
 	PPID   LinkBillID; // @v10.5.7 (PPOPT_DRAFTQUOTREQ) Ид связанного документа
 	int    LinkRbb;    // @v10.5.7 (PPOPT_DRAFTQUOTREQ) Номер строки связанного документа
+	int    QrSeqAckStatus; // @v10.5.8 Статус ответа поставщика на запрос: 1 - accepted, 2 - rejected
+		// Транслируется во флаги PPTransferItem::TFlags (tfQrSeqAccepted, tfQrSeqRejected)
 };
 
 class CpTransfCore : public CpTransfTbl {
@@ -16985,6 +16996,10 @@ public:
 #define OPCNTF_DIFFBYLOC   0x00000002L // Счетчики, рездельные по складам
 
 struct PPOpCounter2 {      // @persistent @store(Reference2Tbl+)
+	SLAPI  PPOpCounter2()
+	{
+		THISZERO();
+	}
 	long   Tag;            // Const=PPOBJ_OPCOUNTER
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -21410,7 +21425,7 @@ private:
 
 struct PPWorkbookConfig { // @persistent @store(PropertyTbl)
 	SLAPI  PPWorkbookConfig();
-	PPWorkbookConfig & SLAPI Clear();
+	PPWorkbookConfig & SLAPI Z();
 
 	PPID   Tag;                // Const=PPOBJ_CONFIG
 	PPID   ID;                 // Const=PPCFG_MAIN
@@ -31956,6 +31971,9 @@ public:
 		int    LeadRbb;
 		PPID   SeqBillID;
 		int    SeqRbb;
+		int    AckStatus;
+		double AckCost;
+		double AckQtty;
 	};
 	int    SLAPI SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <QuoteReqLink> & rList);
 	//
@@ -36987,6 +37005,7 @@ public:
 		int    LinkRbb;
 		LDATE  LinkDt;
 		PPID   LinkArID;
+		int    SeqAckStatus;
 		double RepQtty;
 		double RepPrice;
 		PPID   RepCurID;
@@ -37011,6 +37030,7 @@ private:
 	int    SLAPI FinishListBySeq(PPID leadBillID, int leadRbb);
 	int    SLAPI MakeViewList();
 	int    SLAPI CreateLinkedRequest(PPID leadBillID, int leadRbb);
+	int    SLAPI EditSeqItem(PPID seqBillID, int seqRbb);
 
 	QuoteReqAnalyzeFilt Filt;
 	PPObjBill * P_BObj;
@@ -46008,7 +46028,13 @@ public:
 	int    SLAPI GetEntity(PPID id, Entity & rE);
 	int    SLAPI GetEntityByGuid(const S_GUID & rGuid, Entity & rE);
 	int    SLAPI GetEntityByUuid(const S_GUID & rUuid, Entity & rE);
-	int    SLAPI Put(PPID * pID, const VetisVetDocument & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	//
+	// Descr: Флаги функции Put(PPID *, const VetisVetDocument &, long flags, TSVector <UnresolvedEntity> *, int use_ta)
+	//
+	enum {
+		putvdfForceUpdateOuterFields = 0x0001 // Заменять значения внешних по отношению к ВЕТИС атрибутов
+	};
+	int    SLAPI Put(PPID * pID, const VetisVetDocument & rItem, long flags, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    SLAPI Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid, const VetisStockEntry & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    SLAPI Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    SLAPI Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
@@ -46044,6 +46070,7 @@ public:
 	UuidRefCore UrT;
 private:
 	int    SLAPI EntityRecToEntity(const VetisEntityTbl::Rec & rRec, Entity & rE);
+	int    SLAPI ResolveEntityByID(PPID entityID, VetisNamedGenericVersioningEntity & rD);
 	long   SLAPI Helper_InitMaxGuidKey(const UUIDAssocArray & rGuidList) const;
 	long   SLAPI Helper_SetGuidToList(const S_GUID & rGuid, long * pMaxGuidKey, UUIDAssocArray & rGuidList) const;
 
@@ -48092,6 +48119,10 @@ public:
 	PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppName);
 	void   login(int processCmdLine /*= 1*/);
 	int    processCommand(uint);
+	//
+	// Descr: Находит открытое окно ассистирования телефонному разговору
+	//
+	TWindow * FindPhonePaneDialog();
 	uint   LastCmd;
 private:
 	DECL_HANDLE_EVENT;

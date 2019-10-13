@@ -2525,6 +2525,7 @@
 	#define CTL_LOT_SOURCESERIAL        (72 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_VETISIND            (73 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_VETISMATCHBUTTON    (74 + WINDOWS_ID_BIAS)
+	#define CTL_LOT_SEQQRACK            (75 + WINDOWS_ID_BIAS)
 
 // Однотипные диалоги заполнения документов
 #define DLG_BILL                  101
@@ -4294,6 +4295,7 @@
 	#define CTL_QUOTUPD_ST_VALEXT       (15 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTUPD_GOODS           (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_QUOTUPD_GOODS        (17 + WINDOWS_ID_BIAS)
+    #define CTL_QUOTUPD_TEST            (18 + WINDOWS_ID_BIAS)
 #define DLG_PRNCASHBOOK           327 // Печать кассовой книги
 	#define CTL_PRNCASHBOOK_WHAT         (1 + WINDOWS_ID_BIAS)
 #define DLG_PSNOPK                328 // Вид персональной операции
@@ -10576,6 +10578,9 @@
 	#define CTL_VETVDOC_QTTY          (23 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_LINKBILL      (24 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_ST_FLAGS      (25 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_ACKQTTY       (26 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_ACK           (27 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_EXPIRY        (28 + WINDOWS_ID_BIAS)
 
 #define DLG_SELVDOCUPD            1343
 	#define CTL_SELVDOCUPD_PERIOD      (1 + WINDOWS_ID_BIAS)
@@ -10943,7 +10948,6 @@
 #define ICON_PALLET_32            226
 #define ICON_DIVISION_16          227
 #define ICON_LOCTRANSF            228
-
 #define ICON_UI_TREELISTBOX       229
 #define ICON_UI_LISTBOX           230
 #define ICON_UI_GROUPBOX          231
@@ -10954,7 +10958,6 @@
 #define ICON_UI_STATICTEXT        236
 #define ICON_UI_COMBOBOX          237
 #define ICON_UI_DIALOG            238
-
 #define ICON_PASTE                239
 #define ICON_OPENTEXTFILE         240
 #define ICON_WORKBOOK             241
@@ -10964,6 +10967,7 @@
 #define ICON_USERGROUP16          245
 #define ICON_GEAR16               246
 #define ICON_STARYELLOW16         247
+#define ICON_PHONE                248   
 //
 // Message groups
 //

@@ -1112,7 +1112,7 @@ int SLAPI PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAct
 		const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
 		if(p_def && col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
-			const PPID goods_id = P_Ct ? ((PPID *)pData)[1] : ((PPID *)pData)[0];
+			const PPID goods_id = P_Ct ? static_cast<const PPID *>(pData)[1] : static_cast<const PPID *>(pData)[0];
 			if(col == 0) { // Наименование товара
 				const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 				SColor clr;

@@ -314,7 +314,7 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 	if(!shar->has_data || n == 0)
 		return 0;
 
-	src = (const char*)buff;
+	src = static_cast<const char *>(buff);
 
 	/*
 	 * ensure is the number of bytes in buffer before expanding the
@@ -440,7 +440,7 @@ static ssize_t archive_write_shar_data_uuencode(struct archive_write * a, const 
 	shar = (struct shar *)a->format_data;
 	if(!shar->has_data)
 		return ARCHIVE_OK;
-	src = (const char*)buff;
+	src = static_cast<const char *>(buff);
 
 	if(shar->outpos != 0) {
 		n = 45 - shar->outpos;

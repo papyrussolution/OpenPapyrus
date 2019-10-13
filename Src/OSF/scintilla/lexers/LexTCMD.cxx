@@ -479,9 +479,7 @@ static void FoldTCMDDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 			if((strcmp(s, "DO") == 0) || (strcmp(s, "IFF") == 0) || (strcmp(s, "SWITCH") == 0) || (strcmp(s, "TEXT") == 0)) {
 				levelIndent++;
 			}
-			else if((strcmp(s,
-					    "ENDDO") == 0) ||
-			    (strcmp(s, "ENDIFF") == 0) || (strcmp(s, "ENDSWITCH") == 0) || (strcmp(s, "ENDTEXT") == 0)) {
+			else if((strcmp(s, "ENDDO") == 0) || (strcmp(s, "ENDIFF") == 0) || (strcmp(s, "ENDSWITCH") == 0) || (strcmp(s, "ENDTEXT") == 0)) {
 				levelIndent--;
 			}
 		}

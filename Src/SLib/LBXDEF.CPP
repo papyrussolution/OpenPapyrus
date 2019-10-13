@@ -240,7 +240,7 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 							if(h_icon) {
 								image_idx = ImageList_AddIcon(himl, h_icon);
 								added_list.Add(image_id, image_idx, 0);
-								DestroyIcon(h_icon);
+								::DestroyIcon(h_icon);
 							}
 						}
 					}
@@ -249,7 +249,7 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 					HICON h_icon = LoadIcon(hInst, MAKEINTRESOURCE(image_id));
 					image_idx = ImageList_AddIcon(himl, h_icon);
 					added_list.Add(image_id, image_idx, 0);
-					DestroyIcon(h_icon);
+					::DestroyIcon(h_icon);
 				}
 			}
 			if(image_idx >= 0)
@@ -433,18 +433,18 @@ int SLAPI StrAssocListBoxDef::search(const void * pPattern, CompFunc fcmp, int s
 	uint   pos;
 	if(srchMode & lbSrchByID) {
 		if(Options & lbtAutoID) {
-			pos = (uint)*(const int32 *)pPattern;
+			pos = static_cast<uint>(*static_cast<const int32 *>(pPattern));
 			r = BIN(static_cast<long>(pos) < c);
 		}
 		else {
 			pos = 0;
-			r = P_Data->Search(*(const long *)pPattern, &pos);
+			r = P_Data->Search(*static_cast<const long *>(pPattern), &pos);
 		}
 	}
 	else {
 		pos = (dir == srchNext) ? ((uint)_curItem() + 1) : 0U;
 		SETIFZ(fcmp, substFCMP);
-		r = P_Data->SearchByText((const char *)pPattern, fcmp, &pos);
+		r = P_Data->SearchByText(static_cast<const char *>(pPattern), fcmp, &pos);
 	}
 	if(r)
 		go(pos);

@@ -350,7 +350,7 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNode * value)
 	if(ctxt->nodeMax <= 0) {
 		ctxt->nodeMax = 4;
 		ctxt->PP_NodeTab =
-		    (xmlNodePtr*)SAlloc::M(ctxt->nodeMax *
+		    (xmlNode **)SAlloc::M(ctxt->nodeMax *
 		    sizeof(ctxt->PP_NodeTab[0]));
 		if(ctxt->PP_NodeTab == NULL) {
 			xmlVErrMemory_MallocFailed(ctxt);
@@ -360,7 +360,7 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNode * value)
 	}
 	if(ctxt->nodeNr >= ctxt->nodeMax) {
 		xmlNode ** tmp;
-		tmp = (xmlNodePtr*)SAlloc::R(ctxt->PP_NodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->PP_NodeTab[0]));
+		tmp = (xmlNode **)SAlloc::R(ctxt->PP_NodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->PP_NodeTab[0]));
 		if(!tmp) {
 			xmlVErrMemory(ctxt, "realloc failed");
 			return 0;

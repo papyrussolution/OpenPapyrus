@@ -195,9 +195,9 @@ static void FASTCALL xmlCatalogErrMemory(const char * extra)
  *
  * Handle a catalog error
  */
-static void FASTCALL xmlCatalogErr(xmlCatalogEntryPtr catal, xmlNodePtr P_Node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
+static void FASTCALL xmlCatalogErr(xmlCatalogEntryPtr catal, xmlNode * pNode, int error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
-	__xmlRaiseError(0, 0, 0, catal, P_Node, XML_FROM_CATALOG, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, (const char *)str3, 0, 0,
+	__xmlRaiseError(0, 0, 0, catal, pNode, XML_FROM_CATALOG, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, (const char *)str3, 0, 0,
 	    msg, str1, str2, str3);
 }
 //
@@ -423,7 +423,7 @@ static void xmlCatalogDumpEntry(xmlCatalogEntryPtr entry, FILE * out)
  * Serializes a Catalog entry, called by xmlDumpXMLCatalog and recursively
  * for group entries
  */
-static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, xmlDoc * doc, xmlNs * ns, xmlCatalogEntryPtr cgroup) 
+static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNode * catalog, xmlDoc * doc, xmlNs * ns, xmlCatalogEntryPtr cgroup) 
 {
 	xmlNode * P_Node;
 	/*
@@ -537,7 +537,7 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
 	int ret;
 	xmlNs * ns;
 	xmlDtd * dtd;
-	xmlNodePtr catalog;
+	xmlNode * catalog;
 	xmlOutputBuffer * buf;
 	/*
 	 * Rebuild a catalog

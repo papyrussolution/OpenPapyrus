@@ -854,7 +854,8 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 							at_pos++;
 						if(show_barcode_or_serial & 0x02)
 							at_pos++;
-						PPGetWord(PPWORD_LINKQTTY, 0, temp_buf);
+						// @v10.5.8 PPGetWord(PPWORD_LINKQTTY, 0, temp_buf);
+						PPLoadString("linkedqtty", temp_buf); // @v10.5.8
 						insertColumn(at_pos+1, temp_buf, 23, MKSTYPE(S_FLOAT, 8), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_NOZERO), BCO_USERPROC);
 					}
 				}
@@ -948,7 +949,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			const int gphupur = goods_rec.ID ? GObj.GetPhUPerU(&goods_rec, 0, &phuperu) : GObj.GetPhUPerU(static_cast<const Goods2Tbl::Rec *>(0), 0, &phuperu);
 			if(gphupur > 0)
 				Total.PhQtty += __q * phuperu;
-			// } @v10.1.8 
+			// } @v10.1.8
 			/* @v10.1.8 if(GObj.GetPhUPerU(p_ti->GoodsID, 0, &phuperu) > 0)
 				Total.PhQtty += __q * phuperu;*/
 		}
@@ -1013,7 +1014,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		item.RByBill = p_ti->RByBill;
 		if(check_spoil) {
 			// @v9.8.11 p_pack->SnL.GetNumber(item.Pos, &temp_buf);
-			p_pack->LTagL.GetNumber(PPTAG_LOT_SN, item.Pos, temp_buf); // @v9.8.11 
+			p_pack->LTagL.GetNumber(PPTAG_LOT_SN, item.Pos, temp_buf); // @v9.8.11
 			if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				SpecSeries2Tbl::Rec spc_rec;
@@ -1029,13 +1030,13 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		}
 		// @v10.1.8 {
 		if(!(Total.Flags & Total.fHasVetisGuid)) {
-			p_pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, item.Pos, temp_buf); 
+			p_pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, item.Pos, temp_buf);
 			if(temp_buf.NotEmpty())
 				Total.Flags |= Total.fHasVetisGuid;
 			else if(goods_rec.Flags & GF_WANTVETISCERT)
 				Total.Flags |= Total.fHasVetisGuid;
 		}
-		// } @v10.1.8 
+		// } @v10.1.8
 		if(AlcoGoodsClsID && goods_rec.GdsClsID == AlcoGoodsClsID) {
 			int    has_egais_code = 0;
 			GObj.P_Tbl->ReadBarcodes(labs(p_ti->GoodsID), bc_list);
@@ -1310,7 +1311,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						}
 						else {
 							// @v9.8.11 P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
-							P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf); // @v9.8.11 
+							P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf); // @v9.8.11
 							pBlk->Set(temp_buf);
 						}
 					}
@@ -1399,7 +1400,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->SetZero();
 					else {
 						// @v9.8.11 P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
-						P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf); // @v9.8.11 
+						P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf); // @v9.8.11
 						pBlk->Set(temp_buf);
 					}
 					break;
@@ -1567,7 +1568,7 @@ void BillItemBrowser::update(int pos)
 				// @v10.1.8 {
 				if(Total.Flags & Total.fHasVetisGuid && vetis_uuid_col < 0)
 					view->insertColumn(-1, "VetisCert", 32, MKSTYPE(S_ZSTRING, 48), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
-				// } @v10.1.8 
+				// } @v10.1.8
 			}
 			if(pos == pos_cur && c >= 0)
 				view->go(c);
@@ -2301,7 +2302,7 @@ protected:
 				SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
 			}
 		}
-		// @erik v10.5.2 { 
+		// @erik v10.5.2 {
 		else if(event.isCmd(cmPasteFromClipboardAll)){
 			pasteFromClipboardAll();
 		}
@@ -2884,7 +2885,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		//  @erik v10.5.2
 		//  функция вставки всех марок из буфера(если они там есть)
 		//
-		virtual int pasteFromClipboardAll() 
+		virtual int pasteFromClipboardAll()
 		{
 			int    ok = 0;
 			uint   sel = 0;
@@ -3267,12 +3268,12 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								int    upd = 0;
 								for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
 									// @v9.8.11 if(P_Pack->SnL.GetNumber(i-1, &temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
-									if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) { // @v9.8.11 
+									if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) { // @v9.8.11
 										templt = (GObj.IsAsset(p_ti->GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 										if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(p_ti->GoodsID), &P_Pack->LTagL/*SnL*/, templt, temp_buf) > 0) {
 											if(temp_buf.NotEmptyS()) {
 												// @v9.8.11 P_Pack->SnL.AddNumber(i-1, temp_buf);
-												P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, i-1, temp_buf); // @v9.8.11 
+												P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, i-1, temp_buf); // @v9.8.11
 												upd = 1;
 											}
 										}

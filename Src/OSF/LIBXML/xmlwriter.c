@@ -9,7 +9,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <libxml/HTMLtree.h>
 
 #ifdef LIBXML_WRITER_ENABLED
 #include <libxml/xmlwriter.h>
@@ -330,7 +329,7 @@ xmlTextWriter * xmlNewTextWriterDoc(xmlDoc ** doc, int compression)
  *
  * Returns the new xmlTextWriter * or NULL in case of error
  */
-xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNodePtr P_Node, int compression)
+xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNode * pNode, int compression)
 {
 	const char * _p_func_name = "xmlNewTextWriterTree";
 	xmlTextWriter * ret = 0;
@@ -360,7 +359,7 @@ xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNodePtr P_Node, int compre
 			}
 			else {
 				ctxt->myDoc = doc;
-				ctxt->P_Node = P_Node;
+				ctxt->P_Node = pNode;
 				ret->no_doc_free = 1;
 				xmlSetDocCompressMode(doc, compression);
 			}

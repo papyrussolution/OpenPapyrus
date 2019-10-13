@@ -1585,7 +1585,8 @@ table VetisDocument {
     long   LinkToPsnID;       // Ид персоналии-получателя, сопоставленной строке
     long   LinkToDlvrLocID;   // Ид адреса доставки получателя
     long   OrgDocEntityID;    // -->VetisDocument.EntityID Ссылка на документ, по которому товар появился у нас
-	raw    Reserve2[36];
+    double AckVolume;         // @v10.5.8 @duetoreserve
+	raw    Reserve2[28];      // @v10.5.8 [36]-->[28]
 index:
 	EntityID (unique);                                 // #0
 	LinkBillID, LinkBillRow (dup mod allsegnull);      // #1

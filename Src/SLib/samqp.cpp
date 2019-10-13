@@ -4895,12 +4895,12 @@ static int connect_socket(struct addrinfo * addr, amqp_time_t deadline)
 		goto err;
 	}
 	/* Disable nagle */
-	if(SOCKET_ERROR == setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (const char*)&one, sizeof(one))) {
+	if(SOCKET_ERROR == setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (const char *)&one, sizeof(one))) {
 		last_error = AMQP_STATUS_SOCKET_ERROR;
 		goto err;
 	}
 	/* Enable TCP keepalives */
-	if(SOCKET_ERROR == setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (const char*)&one, sizeof(one))) {
+	if(SOCKET_ERROR == setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (const char *)&one, sizeof(one))) {
 		last_error = AMQP_STATUS_SOCKET_ERROR;
 		goto err;
 	}
@@ -4918,7 +4918,7 @@ static int connect_socket(struct addrinfo * addr, amqp_time_t deadline)
 	{
 		int result;
 		int result_len = sizeof(result);
-		if(SOCKET_ERROR == getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char*)&result, &result_len) ||
+		if(SOCKET_ERROR == getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char *)&result, &result_len) ||
 		    result != 0) {
 			last_error = AMQP_STATUS_SOCKET_ERROR;
 			goto err;
@@ -6500,9 +6500,9 @@ static amqp_hostname_validation_result amqp_matches_common_name(const char * hos
 		return AMQP_HVR_ERROR;
 	}
 #ifdef AMQP_OPENSSL_V110
-	common_name_str = (const char*)ASN1_STRING_get0_data(common_name_asn1);
+	common_name_str = (const char *)ASN1_STRING_get0_data(common_name_asn1);
 #else
-	common_name_str = (char*)ASN1_STRING_data(common_name_asn1);
+	common_name_str = (char *)ASN1_STRING_data(common_name_asn1);
 #endif
 	// Make sure there isn't an embedded NUL character in the CN
 	if((size_t)ASN1_STRING_length(common_name_asn1) != sstrlen(common_name_str)) {

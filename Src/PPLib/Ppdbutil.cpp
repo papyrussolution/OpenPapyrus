@@ -1191,7 +1191,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 			THROW_MEM(PPRef = new Reference);
 			ref_allocated = 1;
 		}
-		THROW(qc2.DumpCurrent(buffer, &recs_count));
+		THROW(qc2.DumpCurrent(buffer, 0, &recs_count));
 		THROW_SL(FDump.Write(&recs_count, sizeof(recs_count)));
 		THROW_SL(FDump.Write(buffer));
 		{

@@ -3189,7 +3189,7 @@ int SLAPI LongArray::isSorted() const
 void SLAPI LongArray::intersect(const LongArray * p, int binary)
 {
 	if(!p || !p->getCount())
-		freeAll();
+		clear(); // @v10.5.8 freeAll()-->clear()
 	else {
 		uint c = getCount();
 		if(c) do {
@@ -3234,6 +3234,85 @@ int SLAPI LongArray::freeByKey(long key, int binarySearch)
 	else
 		return -1;
 }
+
+int SLAPI LongArray::Serialize__construction(int dir, long flags, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	uint8  ind = 0;
+	if(dir > 0) {
+		const uint _c = getCount();
+		if(_c == 0) {
+			ind = 1;
+			THROW(rBuf.Write(&ind, sizeof(ind)));
+		}
+		else if(_c > 16) {
+			if(flags & srlzfSortAndUndup) {
+				sortAndUndup();
+			}
+			long    up_diff = 0;
+			long    dn_diff = 0;
+			{
+				long    prev_item = get(0);
+				for(uint i = 1; i < _c; i++) {
+					const long item = get(i);
+					const long diff = item - prev_item;
+					if(diff > 0) {
+						SETMAX(up_diff, diff);
+					}
+					else if(diff < 0) {
+						SETMIN(dn_diff, diff);
+					}
+					prev_item = item;
+				}
+			}
+			if(up_diff <= MAXCHAR && dn_diff >= MINCHAR) {
+				ind = 2;
+				THROW(rBuf.Write(&ind, sizeof(ind)));
+				long    item = get(0);
+				{
+					THROW(pSCtx->Serialize(+1, item, rBuf));
+					{
+						long    prev_item = item;
+						for(uint i = 0; i < _c; i++) {
+							item = get(i);
+							const long diff = item - prev_item;
+							assert(diff <= MAXCHAR && diff >= MINCHAR);
+							int8 _diff = static_cast<int8>(diff);
+							THROW(rBuf.Write(&_diff, sizeof(_diff)));
+						}
+					}
+				}
+			}
+			else if(up_diff <= MAXSHORT && dn_diff >= MINSHORT) {
+				ind = 3;
+				THROW(rBuf.Write(&ind, sizeof(ind)));
+				long    item = get(0);
+				{
+					THROW(pSCtx->Serialize(+1, item, rBuf));
+					{
+						long    prev_item = item;
+						for(uint i = 0; i < _c; i++) {
+							item = get(i);
+							const long diff = item - prev_item;
+							assert(diff <= MAXSHORT && diff >= MINSHORT);
+							int16 _diff = static_cast<int16>(diff);
+							THROW(rBuf.Write(&_diff, sizeof(_diff)));
+						}
+					}
+				}
+			}
+			else {
+				ind = 4;
+				THROW(rBuf.Write(&ind, sizeof(ind)));
+				{
+
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 //
 //
 //
@@ -3269,7 +3348,8 @@ int    FASTCALL Int64Array::operator == (const Int64Array & rS) const { return I
 int    FASTCALL Int64Array::operator != (const Int64Array & rS) const { return BIN(!IsEqual(&rS)); }
 int64  FASTCALL Int64Array::get(uint pos) const { return at(pos); }
 int    Int64Array::lsearch(int64 k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); }
-int    FASTCALL Int64Array::lsearch(int64 k) const { return SVector::lsearch(&k, 0, PTR_CMPFUNC(int64)); }
+int    FASTCALL Int64Array::lsearch(int64 key) const { return SVector::lsearch(&key, 0, PTR_CMPFUNC(int64)); }
+int    FASTCALL Int64Array::bsearch(int64 key) const { return SVector::bsearch(&key, 0, PTR_CMPFUNC(int64)); }
 int    FASTCALL Int64Array::addUnique(int64 v) { return lsearch(v) ? -1 : add(v); }
 int    FASTCALL Int64Array::add(int64 v) { return insert(&v); }
 void   SLAPI Int64Array::sort() { SVector::sort(CMPF_INT64); }
@@ -3298,6 +3378,20 @@ void SLAPI Int64Array::sortAndUndup()
 			if(t == prev)
 				atFree(c+1);
 			prev = t;
+		} while(c);
+	}
+}
+
+void SLAPI Int64Array::intersect(const Int64Array * pList, int binary)
+{
+	if(!pList || !pList->getCount())
+		clear();
+	else {
+		uint c = getCount();
+		if(c) do {
+			const int64 id = at(--c);
+			if((binary ? pList->bsearch(id) : pList->lsearch(id)) == 0)
+				atFree(c);
 		} while(c);
 	}
 }

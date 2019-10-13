@@ -72,8 +72,9 @@ int TStatusWin::Update()
 	::SendMessage(hw, SB_SETBKCOLOR, 0, static_cast<LPARAM>(RGB(0xD4, 0xD0, 0xC8)));
 	for(i = 0; i < n_parts; i++)  {
 		SIZE local_size;
-		temp_buf = Items.at(i).str;
-		if(Items.at(i).Icon)
+		const StItem & r_item = Items.at(i);
+		temp_buf = r_item.str;
+		if(r_item.Icon)
 			n_width += 24; // icon size + borders // @v9.2.1 18-->24
         else if(temp_buf.NotEmpty() && GetTextExtentPoint32(hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &local_size)) // @unicodeproblem
 			n_width += local_size.cx;
@@ -82,23 +83,59 @@ int TStatusWin::Update()
 	}
 	::SendMessage(hw, SB_SETPARTS, static_cast<WPARAM>(n_parts), reinterpret_cast<LPARAM>(l_parts));
 	for(i = 0; i < n_parts; i++) {
-		temp_buf = Items.at(i).str;
-		const long icon_id = Items.at(i).Icon;
+		const StItem & r_item = Items.at(i);
+		temp_buf = r_item.str;
+		const long icon_id = r_item.Icon;
 		if(icon_id) {
-			HICON h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(icon_id)); // @1
-			// @construction
-			// Вместо строки выше (@1) следует использовать этот блок, однако, предварительно
-			// решив проблему кэширования изображения (DestroyIcon (@2) не дает отрисовать изображение)
-			// HICON h_icon = (HICON)::LoadImage(TProgram::GetInst(), MAKEINTRESOURCE(icon_id), IMAGE_ICON, 0, 0, 0);
-			//
-			::SendMessage(hw, SB_SETICON, i, reinterpret_cast<LPARAM>(h_icon));
-			::DestroyIcon(h_icon); // @2
-			::SendMessage(hw, SB_SETTIPTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr()))); // @v10.4.9 @fix SUcSwitch
+			HICON h_icon = 0;
+			if(icon_id & _SlConst.VectorImageMask) {
+				TWhatmanToolArray::Item tool_item;
+				const SDrawFigure * p_fig = APPL->LoadDrawFigureById(icon_id, &tool_item);
+				const uint _w = 16;
+				const uint _h = 16;
+				SImageBuffer ib(_w, _h);
+				{
+					TCanvas2 canv(APPL->GetUiToolBox(), ib);
+					if(!tool_item.ReplacedColor.IsEmpty()) {
+						SColor replacement_color;
+						replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
+						canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+					}
+					LMatrix2D mtx;
+					SViewPort vp;
+					FRect pic_bounds;
+					pic_bounds.a.X = 0.0f;
+					pic_bounds.a.Y = 0.0f;
+					pic_bounds.b.X = static_cast<float>(_w);
+					pic_bounds.b.Y = static_cast<float>(_h);
+					//
+					canv.Rect(pic_bounds);
+					//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+					canv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
+					canv.PushTransform();
+					p_fig->GetViewPort(&vp);
+					canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+					canv.Draw(p_fig);
+				}
+				h_icon = static_cast<HICON>(ib.TransformToIcon());
+			}
+			else {
+				h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(icon_id)); // @1
+				// @construction
+				// Вместо строки выше (@1) следует использовать этот блок, однако, предварительно
+				// решив проблему кэширования изображения (DestroyIcon (@2) не дает отрисовать изображение)
+				// HICON h_icon = (HICON)::LoadImage(TProgram::GetInst(), MAKEINTRESOURCE(icon_id), IMAGE_ICON, 0, 0, 0);
+			}
+			if(h_icon) {
+				::SendMessage(hw, SB_SETICON, i, reinterpret_cast<LPARAM>(h_icon));
+				::DestroyIcon(h_icon); // @2
+				::SendMessage(hw, SB_SETTIPTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr())));
+			}
 		}
 		else {
-			COLORREF color = Items.at(i).Color;
-			if(color || Items.at(i).TextColor)
-				::SendMessage(hw, SB_SETTEXT, static_cast<WPARAM>(SBT_OWNERDRAW|i), reinterpret_cast<LPARAM>(&Items.at(i)));
+			COLORREF color = r_item.Color;
+			if(color || r_item.TextColor)
+				::SendMessage(hw, SB_SETTEXT, static_cast<WPARAM>(SBT_OWNERDRAW|i), reinterpret_cast<LPARAM>(&r_item));
 			else
 				::SendMessage(hw, SB_SETTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr())));
 		}

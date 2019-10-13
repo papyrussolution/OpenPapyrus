@@ -16,9 +16,7 @@
  *   The current list of contributors is contained
  *   in the file CONTRIBUTORS included with the source
  *   code distribution. The list can also be seen at the
- *   following World Wide Web location:
- *
- *   https://sourceforge.net/p/pthreads4w/wiki/Contributors/
+ *   following World Wide Web location: https://sourceforge.net/p/pthreads4w/wiki/Contributors/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +38,7 @@
  * is unique for the given (thread,key) combination.The association
  * is referenced by both the thread and the key.
  * This association allows us to determine what keys the
- * current thread references and what threads a given key
- * references.
+ * current thread references and what threads a given key references.
  * See the detailed description
  * at the beginning of this file for further details.
  *
@@ -67,13 +64,11 @@
 int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
 {
 	/*
-	 * Have to create an association and add it
-	 * to both the key and the thread.
+	 * Have to create an association and add it to both the key and the thread.
 	 *
-	 * Both key->keyLock and thread->threadLock are locked before
-	 * entry to this routine.
+	 * Both key->keyLock and thread->threadLock are locked before entry to this routine.
 	 */
-	ThreadKeyAssoc * assoc = (ThreadKeyAssoc*)SAlloc::C(1, sizeof(*assoc));
+	ThreadKeyAssoc * assoc = static_cast<ThreadKeyAssoc *>(SAlloc::C(1, sizeof(*assoc)));
 	if(assoc == NULL) {
 		return ENOMEM;
 	}
@@ -83,7 +78,7 @@ int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
 	 * Register assoc with key
 	 */
 	assoc->prevThread = NULL;
-	assoc->nextThread = (ThreadKeyAssoc*)key->threads;
+	assoc->nextThread = static_cast<ThreadKeyAssoc *>(key->threads);
 	if(assoc->nextThread != NULL) {
 		assoc->nextThread->prevThread = assoc;
 	}
@@ -92,7 +87,7 @@ int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
 	 * Register assoc with thread
 	 */
 	assoc->prevKey = NULL;
-	assoc->nextKey = (ThreadKeyAssoc*)sp->keys;
+	assoc->nextKey = static_cast<ThreadKeyAssoc *>(sp->keys);
 	if(assoc->nextKey != NULL) {
 		assoc->nextKey->prevKey = assoc;
 	}

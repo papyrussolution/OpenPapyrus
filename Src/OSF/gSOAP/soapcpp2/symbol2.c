@@ -7223,7 +7223,7 @@ char * c_init(Entry * e)
 			break;
 		    default:
 			if(e->info.val.s && strlen(e->info.val.s) < sizeof(buf)-6)
-				sprintf(buf, " = (char*)\"%s\"", cstring(e->info.val.s));
+				sprintf(buf, " = (char *)\"%s\"", cstring(e->info.val.s));
 			else if(e->info.typ->type == Tpointer)
 				sprintf(buf, " = NULL");
 			break;
@@ -8281,11 +8281,11 @@ void in_attach(Table * table)
 			if(is_attachment(p)) {
 				if(p->type == Tclass)
 					fprintf(fout,
-						"\n\t\tcase %s:\n\t\t{\t%s a;\n\t\t\ta = (%s)soap_class_id_enter(soap, soap->dime.id, NULL, %s, sizeof(%s), NULL, NULL);\n\t\t\tif(a)\n\t\t\t{\ta->__ptr = (uchar *)soap->dime.ptr;\n\t\t\t\ta->__size = soap->dime.size;\n\t\t\t\ta->id = (char*)soap->dime.id;\n\t\t\t\ta->type = (char*)soap->dime.type;\n\t\t\t\ta->options = (char*)soap->dime.options;\n\t\t\t}\n\t\t\telse\n\t\t\t\treturn soap->error;\n\t\t\tbreak;\n\t\t}",
+						"\n\t\tcase %s:\n\t\t{\t%s a;\n\t\t\ta = (%s)soap_class_id_enter(soap, soap->dime.id, NULL, %s, sizeof(%s), NULL, NULL);\n\t\t\tif(a)\n\t\t\t{\ta->__ptr = (uchar *)soap->dime.ptr;\n\t\t\t\ta->__size = soap->dime.size;\n\t\t\t\ta->id = (char *)soap->dime.id;\n\t\t\t\ta->type = (char *)soap->dime.type;\n\t\t\t\ta->options = (char *)soap->dime.options;\n\t\t\t}\n\t\t\telse\n\t\t\t\treturn soap->error;\n\t\t\tbreak;\n\t\t}",
 						soap_type(p), c_type_id(p, "*"), c_type_id(p, "*"), soap_type(p), c_type(p));
 				else
 					fprintf(fout,
-						"\n\t\tcase %s:\n\t\t{\t%s a;\n\t\t\ta = (%s)soap_id_enter(soap, soap->dime.id, NULL, %s, sizeof(%s), 0, NULL, NULL, NULL);\n\t\t\tif(!a)\n\t\t\t\treturn soap->error;\n\t\t\ta->__ptr = (uchar *)soap->dime.ptr;\n\t\t\ta->__size = soap->dime.size;\n\t\t\ta->id = (char*)soap->dime.id;\n\t\t\ta->type = (char*)soap->dime.type;\n\t\t\ta->options = (char*)soap->dime.options;\n\t\t\tbreak;\n\t\t}",
+						"\n\t\tcase %s:\n\t\t{\t%s a;\n\t\t\ta = (%s)soap_id_enter(soap, soap->dime.id, NULL, %s, sizeof(%s), 0, NULL, NULL, NULL);\n\t\t\tif(!a)\n\t\t\t\treturn soap->error;\n\t\t\ta->__ptr = (uchar *)soap->dime.ptr;\n\t\t\ta->__size = soap->dime.size;\n\t\t\ta->id = (char *)soap->dime.id;\n\t\t\ta->type = (char *)soap->dime.type;\n\t\t\ta->options = (char *)soap->dime.options;\n\t\t\tbreak;\n\t\t}",
 						soap_type(p), c_type_id(p, "*"), c_type_id(p, "*"), soap_type(
 							p), c_type(p));
 			}
@@ -12835,7 +12835,7 @@ void soap_in(Tnode * typ)
 				fprintf(fout, "\n\t\t}\n\t\ta->insert(a->end(), n);\n\t\tsoap_flag = 1;");
 			else
 				fprintf(fout,
-					"\n\t\t}\n\t\tsoap_update_pointers(soap, (char*)&n, (char*)&n + sizeof(n), (char*)&(*a->insert(a->end(), n)), (char*)&n);\n\t\tsoap_flag = 1;");
+					"\n\t\t}\n\t\tsoap_update_pointers(soap, (char *)&n, (char *)&n + sizeof(n), (char *)&(*a->insert(a->end(), n)), (char *)&n);\n\t\tsoap_flag = 1;");
 		}
 		fprintf(fout, "\n\t}\n\twhile(tag && *tag != '-' && !soap_element_begin_in(soap, tag, 1, NULL));");
 		fprintf(fout, "\n\tif(soap_flag && oneof2(soap->error, SOAP_TAG_MISMATCH, SOAP_NO_TAG)) {\n\t\tsoap->error = SOAP_OK;\n\t\treturn a;\n\t}\n\treturn NULL;\n}");
@@ -13072,7 +13072,7 @@ void soap_in_Darray(Tnode * typ)
 			      ident(p->sym->name), c_ident((Tnode *)p->info.typ->ref), c_type((Tnode *)p->info.typ->ref), ident(p->sym->name));
 	      else
 		      fprintf(fout, "\n\t\t\ta->%s = static_cast<%s>(soap_malloc(soap, soap->blist->size));", ident(p->sym->name), c_type(p->info.typ));
-	      fprintf(fout, "\n\t\t\tsoap_save_block(soap, NULL, (char*)a->%s, 1);", ident(p->sym->name));
+	      fprintf(fout, "\n\t\t\tsoap_save_block(soap, NULL, (char *)a->%s, 1);", ident(p->sym->name));
 	      fprintf(fout, "\n\t\t}");
 	      fprintf(fout, "\n\t\tif(soap_element_end_in(soap, tag))\n\t\t\treturn NULL;"); }
 	if(has_getter(typ))

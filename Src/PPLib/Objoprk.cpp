@@ -2571,8 +2571,7 @@ int OpCntrDialog::setDTS(const PPOpCounterPacket * pData)
 {
 	Data = *pData;
 
-	PPOpCounter opc_rec;
-	opc_rec =  Data.Head;
+	PPOpCounter opc_rec = Data.Head;
 	setCtrlData(CTL_OPKCOUNTER_TEMPL, opc_rec.CodeTemplate);
 	setCtrlData(CTL_OPKCOUNTER_COUNTER, &opc_rec.Counter);
 	AddClusterAssoc(CTL_OPKCOUNTER_FLAGS, 0, OPCNTF_LOCKINCR);
@@ -2583,7 +2582,7 @@ int OpCntrDialog::setDTS(const PPOpCounterPacket * pData)
 		SetupPPObjCombo(this, CTLSEL_OPKCOUNTER_CNTR, PPOBJ_OPCOUNTER, opc_rec.OwnerObjID ? 0 : opc_rec.ID, OLW_CANINSERT, 0);
 	else {
 		setCtrlData(CTL_OPKCOUNTER_NAME, opc_rec.Name);
-		setCtrlData(CTL_OPKCOUNTER_SYMB, opc_rec.Symb); // @v8.8.11
+		setCtrlData(CTL_OPKCOUNTER_SYMB, opc_rec.Symb);
 		setCtrlData(CTL_OPKCOUNTER_ID,   &opc_rec.ID);
 		disableCtrl(CTL_OPKCOUNTER_ID, (!PPMaster || opc_rec.ID));
 	}

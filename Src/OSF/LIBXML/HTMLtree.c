@@ -5,20 +5,13 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
 #ifdef LIBXML_HTML_ENABLED
-//#include <libxml/HTMLparser.h>
-//#include <libxml/HTMLtree.h>
-
-/************************************************************************
-*									*
-*		Getting/Setting encoding meta tags			*
-*									*
-************************************************************************/
-
+// 
+// Getting/Setting encoding meta tags
+// 
 /**
  * htmlGetMetaEncoding:
  * @doc:  the document
@@ -296,7 +289,7 @@ static void htmlSaveErrMemory(const char * extra)
  *
  * Handle an out of memory condition
  */
-static void FASTCALL htmlSaveErr(int code, xmlNodePtr P_Node, const char * extra)
+static void FASTCALL htmlSaveErr(int code, xmlNode * pNode, const char * extra)
 {
 	const char * msg = NULL;
 	switch(code) {
@@ -306,7 +299,7 @@ static void FASTCALL htmlSaveErr(int code, xmlNodePtr P_Node, const char * extra
 		case XML_SAVE_NO_DOCTYPE: msg = "HTML has no DOCTYPE\n"; break;
 		default: msg = "unexpected error number\n";
 	}
-	__xmlSimpleError(XML_FROM_OUTPUT, code, P_Node, msg, extra);
+	__xmlSimpleError(XML_FROM_OUTPUT, code, pNode, msg, extra);
 }
 // 
 // Dumping HTML tree content to a simple buffer
@@ -322,7 +315,7 @@ static void FASTCALL htmlSaveErr(int code, xmlNodePtr P_Node, const char * extra
  *
  * Returns the number of byte written or -1 in case of error
  */
-static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDoc * doc, xmlNodePtr cur, int format) 
+static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDoc * doc, xmlNode * cur, int format) 
 {
 	int ret = -1;
 	if(cur && buf) {
@@ -384,7 +377,7 @@ int htmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur)
  *
  * returns: the number of byte written or -1 in case of failure.
  */
-int htmlNodeDumpFileFormat(FILE * out, xmlDoc * doc, xmlNodePtr cur, const char * encoding, int format) 
+int htmlNodeDumpFileFormat(FILE * out, xmlDoc * doc, xmlNode * cur, const char * encoding, int format) 
 {
 	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
@@ -643,7 +636,7 @@ static void htmlAttrListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttr 
  *
  * Dump an HTML node list, recursive behaviour,children are printed too.
  */
-static void htmlNodeListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cur, const char * encoding, int format) 
+static void htmlNodeListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, const char * encoding, int format) 
 {
 	for(; cur; cur = cur->next)
 		htmlNodeDumpFormatOutput(buf, doc, cur, encoding, format);
@@ -658,7 +651,7 @@ static void htmlNodeListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodeP
  *
  * Dump an HTML node, recursive behaviour,children are printed too.
  */
-void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cur, const char * encoding, int format) 
+void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, const char * encoding, int format) 
 {
 	xmlInitParser();
 	if(cur && buf) {
@@ -788,7 +781,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
  * Dump an HTML node, recursive behaviour,children are printed too,
  * and formatting returns/spaces are added.
  */
-void htmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cur, const char * encoding) 
+void htmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, const char * encoding) 
 {
 	htmlNodeDumpFormatOutput(buf, doc, cur, encoding, 1);
 }

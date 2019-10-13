@@ -26,9 +26,6 @@
     <ClCompile Include="..\Osf\Libxml\schematron.c" />
     <ClCompile Include="..\Osf\Libxml\threads.c" />
     <ClCompile Include="..\Osf\Libxml\tree.c" />
-    <ClCompile Include="..\Osf\Libxml\trio.c" />
-    <ClCompile Include="..\Osf\Libxml\trionan.c" />
-    <ClCompile Include="..\Osf\Libxml\triostr.c" />
     <ClCompile Include="..\Osf\Libxml\uri.c" />
     <ClCompile Include="..\Osf\Libxml\valid.c" />
     <ClCompile Include="..\Osf\Libxml\xinclude.c" />
@@ -68,31 +65,16 @@
     <ClInclude Include="..\OSF\LIBXML\timsort.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\LIBXML\trio.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\LIBXML\triodef.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\LIBXML\trionan.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\LIBXML\triop.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\LIBXML\triostr.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\LIBXML\xzlib.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\c14n.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\chvalid.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\debugXML.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\DOCBparser.h">
@@ -125,22 +107,10 @@
     <ClInclude Include="..\include\libxml\parserInternals.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\pattern.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\relaxng.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\SAX.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\SAX2.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\schemasInternals.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\schematron.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\tree.h">
@@ -188,22 +158,10 @@
     <ClInclude Include="..\include\libxml\xmlstring.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\xmlunicode.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\xmlversion.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\xmlwriter.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\xpath.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\xpathInternals.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\xpointer.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

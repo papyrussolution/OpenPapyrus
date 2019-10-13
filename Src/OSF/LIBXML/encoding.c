@@ -23,9 +23,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#ifdef LIBXML_HTML_ENABLED
-	//#include <libxml/HTMLparser.h>
-//#endif
 
 typedef struct _xmlCharEncodingAlias xmlCharEncodingAlias;
 typedef xmlCharEncodingAlias * xmlCharEncodingAliasPtr;

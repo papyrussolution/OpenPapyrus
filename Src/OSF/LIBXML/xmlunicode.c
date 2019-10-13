@@ -14,9 +14,7 @@
 #include "libxml.h"
 #pragma hdrstop
 #ifdef LIBXML_UNICODE_ENABLED
-//#include <libxml/xmlversion.h>
-#include <libxml/xmlunicode.h>
-//#include <libxml/chvalid.h>
+//#include <libxml/xmlunicode.h>
 
 typedef int (xmlIntFunc)(int);  /* just to keep one's mind untwisted */
 

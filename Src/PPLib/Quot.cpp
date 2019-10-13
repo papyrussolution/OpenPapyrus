@@ -170,6 +170,10 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 	setCtrlString(CTL_QUOTUPD_PCT, temp_buf);
 	temp_buf.Z().Cat(Data.QuotValPeriod, 1);
 	setStaticText(CTL_QUOTUPD_ST_VALEXT, temp_buf);
+	// @erik v10.5.8 { 
+	AddClusterAssoc(CTL_QUOTUPD_TEST, 0, QuotUpdFilt::ftest);
+	SetClusterData(CTL_QUOTUPD_TEST, Data.Flags);
+	// } @erik 
 	return 1;
 }
 
@@ -180,6 +184,7 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 	ushort v = 0;
 	SString temp_buf;
 	QuotCls = GetClusterData(CTL_QUOTUPD_WHAT);
+	GetClusterData(CTL_QUOTUPD_TEST, &Data.Flags);  //@erik v10.5.8
 	getCtrlData(CTLSEL_QUOTUPD_KIND, &Data.QuotKindID);
 	{
 		LocationCtrlGroup::Rec grp_rec;
@@ -246,7 +251,7 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 		SETFLAG(Data.Flags, QuotUpdFilt::fSetupIfNotExists, 0);
 		SETFLAG(Data.Flags, QuotUpdFilt::fNonExistOnly, 0);
 		Data.QuotVal = 0.0;
-	}
+	}	
 	if(ok)
 		ASSIGN_PTR(pFilt, Data);
 	CATCHZOKPPERRBYDLG
@@ -866,12 +871,26 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 	PPObjLocation loc_obj;
 	QuotUpdFilt flt;
 	PPIDArray loc_list;
+	// @erik v10.5.8 { 
+	LDATETIME date_time_test;
+	Quotation2Core qc2_test;
+	SBuffer buf_before_test, buf_after_test;
+	int64 items_count_before_test, items_count_after_test;
+	PPQuotItemArray qilist_before_test, qilist_after_test;
+	SSerializeContext sctx_before_test, sctx_after_test;
+	// } @erik v10.5.8
 	THROW(qk_obj.CheckRights(QUOTRT_UPDQUOTS, 0) && goods_obj.CheckRights(GOODSRT_UPDQUOTS, 0));
 	if(!RVALUEPTR(flt, pFilt)) {
 		flt.LocList.Add(LConfig.Location);
 		flt.Flags |= QuotUpdFilt::fExistOnly;
 	}
 	while(pFilt || EditQuotUpdDialog(&flt) > 0) {
+		// @erik v10.5.8 { 
+		if(flt.Flags & flt.ftest){
+			getcurdatetime(&date_time_test);
+			qc2_test.DumpCurrent(buf_before_test, qc2_test.dumpfIgnoreTimestamp,  &items_count_before_test);
+		}
+		// } @erik v10.5.8
 		TSCollection <PPBillPacket> reg_pack_list;
 		flt.ByWhat = (flt.ByWhat == QuotUpdFilt::byDelete) ? QuotUpdFilt::byAbsVal : flt.ByWhat;
 		PPWait(1);
@@ -1149,6 +1168,14 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 			}
 		}
 		PPWait(0);
+		// @erik v10.5.8 {
+		if(ok = 1 && flt.Flags & flt.ftest) {
+			if(RollbackQuots(&date_time_test)) {
+				qc2_test.DumpCurrent(buf_after_test, qc2_test.dumpfIgnoreTimestamp, &items_count_after_test);
+				THROW(buf_after_test.IsEqual(buf_before_test));
+			}
+		}
+		// } @erik v10.5.8
 		if(pFilt || !CONFIRM(PPCFM_QUOTUPD_AGAIN))
 			break;
 	}
@@ -1165,48 +1192,48 @@ int SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt) { DIALOG_PROC_BODY(QuotUpdDialo
 //
 class QuotRollbackDialog : public TDialog {
 public:
-	QuotRollbackDialog(): TDialog(DLG_QUOT_RB)/*, P_Data(pViewDef)*/
+	QuotRollbackDialog() : TDialog(DLG_QUOT_RB)/*, P_Data(pViewDef)*/, Data(ZERODATETIME)
 	{
 	}
-	int    setDTS(const LDATETIME * pDateTime);
-	int    getDTS(LDATETIME * pDateTime);
+	int setDTS(const LDATETIME * pData)
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		if(Data != ZERODATETIME) {
+			SString temp_buf;
+			temp_buf.Z().Cat(Data.d, DATF_DMY|DATF_CENTURY);
+			setCtrlString(CTL_QUOTROLLBACK_DATE, temp_buf);
+			temp_buf.Z().Cat(Data.t);
+			setCtrlString(CTL_QUOTROLLBACK_TIME, temp_buf);
+		}
+		return ok;
+	}
+	//
+	// Descr: Заполняет pData данными из интерфейса
+	//
+	int getDTS(LDATETIME * pData)
+	{
+		int    ok = 1;
+		uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
+		//SString date_str, time_str;
+		SString temp_buf;
+		//LDATE date;
+		//LTIME time;
+		getCtrlString(sel = CTL_QUOTROLLBACK_DATE, temp_buf);
+		strtodate(temp_buf, DATF_DMY, &Data.d);
+		THROW_SL(checkdate(Data.d));
+		getCtrlString(sel = CTL_QUOTROLLBACK_TIME, temp_buf);
+		THROW_PP(temp_buf.NotEmptyS(), PPERR_USERINPUT);
+		strtotime(temp_buf, TIMF_HMS, &Data.t);
+		THROW_SL(checktime(Data.t));
+		//Data.Set(date, time);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	LDATETIME Data;
 };
-
-int QuotRollbackDialog::setDTS(const LDATETIME * pDateTime)
-{
-	int    ok = 1;
-	if(pDateTime) {
-		RVALUEPTR(Data, pDateTime);
-		//setCtrlString(CTL_QUOTROLLBACK_DATE, Data.d.encode);
-		//setCtrlString(CTL_QUOTROLLBACK_TIME, Data.t.encode);
-	}
-	return ok;
-}
-//
-// Descr: Заполняет pData данными из интерфейса
-//
-int QuotRollbackDialog::getDTS(LDATETIME * pDateTime)
-{
-	int    ok = 1;
-	uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
-	SString date_str, time_str;
-	LDATE date;
-	LTIME time;
-	getCtrlString(sel = CTL_MOBCLEDT_Z, date_str);
-	THROW_PP(date_str.NotEmptyS(), PPERR_USERINPUT);
-	getCtrlString(sel = CTL_MOBCLEDT_FN, time_str);
-	THROW_PP(time_str.NotEmptyS(), PPERR_USERINPUT);
-	strtodate(date_str, DATF_DMY, &date);
-	strtotime(time_str, TIMF_HMS, &time);
-	Data.Set(date, time);
-	ASSIGN_PTR(pDateTime, Data);
-	CATCH
-	PPErrorByDialog(this, sel);
-	ENDCATCH
-	return ok;
-}
 
 int SLAPI EditQuotRollbackDialog(LDATETIME *pDateTime) { DIALOG_PROC_BODY(QuotRollbackDialog, pDateTime); }
 
@@ -1218,57 +1245,67 @@ int SLAPI RollbackQuots(const LDATETIME * pDateTime)
 	Quotation2Core * p_qc2 = new Quotation2Core();
 	PPObjQuotKind qk_obj;
 	PPObjGoods goods_obj;
-	LDATETIME ldt;
+	LDATETIME date_time;
+	THROW_MEM(p_qc2);
 	THROW(qk_obj.CheckRights(QUOTRT_UPDQUOTS, 0) && goods_obj.CheckRights(GOODSRT_UPDQUOTS, 0));
-	while(pDateTime || EditQuotRollbackDialog(&ldt) > 0) {
+	if(!RVALUEPTR(date_time, pDateTime)) {
+		date_time = ZERODATETIME;
+	}
+	if(pDateTime || EditQuotRollbackDialog(&date_time) > 0) {
 		PPQuotArray qlist_after;
 		PPQuot q_before;
-		PPQuotArray org_qlist_by_good;
+		PPQuotArray org_qlist_by_goods;
 		PPQuotArray tmp_qlist;
 		PPIDArray goods_id_array;
-		THROW(p_qc2->GetAfterDT(ldt, &qlist_after)); // берем все котировки, созданные после ldt
+		THROW(p_qc2->GetAfterDT(date_time, &qlist_after)); // берем все котировки, созданные после ldt
 		for(uint qlaidx = 0; qlaidx < qlist_after.getCount(); qlaidx++) {  // берем все ID товаров из "новых" котировок
-			const PPQuot quoteTMP = qlist_after.at(qlaidx);
-			goods_id_array.add(qlist_after.at(qlaidx).GoodsID);
+			const PPQuot & r_quote_tmp = qlist_after.at(qlaidx);
+			goods_id_array.add(r_quote_tmp.GoodsID);
 		}
 		goods_id_array.sortAndUndup();  //  оставляем только уникальные 
-		for(uint goodsidx = 0; goodsidx < goods_id_array.getCount(); goodsidx++) {
-			const PPID goods_id = goods_id_array.get(goodsidx);
-			org_qlist_by_good.clear();
-			p_qc2->GetCurrList(goods_id, 0, 0, org_qlist_by_good); //берем список котировок по товару
-			tmp_qlist = org_qlist_by_good; //работаем с копией
-			q_before.Clear();
-			for(uint j = 0; j < org_qlist_by_good.getCount(); j++) {
-				PPQuot r_vola_q = org_qlist_by_good.at(j);
-				for(uint i = 0; i < qlist_after.getCount(); i++) {
-					const PPQuot & r_org_q = qlist_after.at(i);
-					if(r_vola_q.IsEqual(r_org_q)) {
-						state_flag = p_qc2->GetBeforeDT(ldt, r_vola_q.GoodsID, r_vola_q.RelID, &q_before);
-						if(state_flag == 1) {
-							//r_vola_q.Flags = r_vola_q.Flags & (~PPQuot().fActual);  // меняю флаг у актуальной котировки на не аутуальный(это все в массиве котировок, доступ по ссылке)
-							q_before.Flags = q_before.Flags | PPQuot().fActual;
-							tmp_qlist.insert(&q_before);
-						}
-						else if(state_flag == 2) {
-							for(uint del_index = 0; del_index < tmp_qlist.getCount(); del_index++) {
-								if(tmp_qlist.at(del_index).IsEqual(r_vola_q)) {
-									tmp_qlist.atFree(del_index);
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			for(uint goodsidx = 0; goodsidx < goods_id_array.getCount(); goodsidx++) {
+				const PPID goods_id = goods_id_array.get(goodsidx);
+				org_qlist_by_goods.clear();
+				p_qc2->GetCurrList(goods_id, 0, 0, org_qlist_by_goods); //берем список котировок по товару
+				tmp_qlist = org_qlist_by_goods; //работаем с копией
+				for(uint j = 0; j < org_qlist_by_goods.getCount(); j++) {
+					PPQuot r_vola_q = org_qlist_by_goods.at(j);
+					for(uint i = 0; i < qlist_after.getCount(); i++) {
+						const PPQuot & r_org_q = qlist_after.at(i);
+						if(r_vola_q.IsEqual(r_org_q)) {
+							q_before.Clear();
+							state_flag = p_qc2->GetBeforeDT(date_time, r_vola_q.GoodsID, r_vola_q.RelID, &q_before);
+							if(state_flag == 1) {
+								//r_vola_q.Flags = r_vola_q.Flags & (~PPQuot().fActual);  // меняю флаг у актуальной котировки на не аутуальный(это все в массиве котировок, доступ по ссылке)
+								q_before.Flags |= PPQuot::fActual;
+								tmp_qlist.insert(&q_before);
+							}
+							else if(state_flag == 2) {
+								for(uint del_index = 0; del_index < tmp_qlist.getCount(); del_index++) {
+									if(tmp_qlist.at(del_index).IsEqual(r_vola_q)) {
+										tmp_qlist.atFree(del_index);
+									}
 								}
 							}
-						}
-						else if(state_flag == 0) {
-							THROW(0);
+							else {
+								THROW(state_flag);
+							}
+							break;
 						}
 					}
 				}
+				THROW(p_qc2->Set(tmp_qlist, 0, 0, 0, 0))
+				//tmp_qlist.clear();
+				ok = 1;
 			}
-			THROW(p_qc2->Set(tmp_qlist, 0, 0, 0, 0) > 0)
-			tmp_qlist.clear();
-			ok = 1;
+			THROW(tra.Commit());
 		}
-		break;
 	}
-	CATCHZOK
+	CATCHZOKPPERR
+	delete p_qc2;
 	return ok;
 }
 

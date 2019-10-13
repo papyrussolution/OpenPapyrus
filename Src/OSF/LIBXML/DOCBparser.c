@@ -14,7 +14,6 @@
 #pragma hdrstop
 #ifdef LIBXML_DOCB_ENABLED
 #include <libxml/DOCBparser.h>
-
 /**
  * docbEncodeEntities:
  * @out:  a pointer to an array of bytes to store the result

@@ -36,9 +36,9 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 extern char errbuf[];
 
 #ifdef WIN32_WITHOUT_SOLARIS_FLEX
-extern void soapcpp2error(char*);
+extern void soapcpp2error(char *);
 #else
-extern void yyerror(char*);
+extern void yyerror(char *);
 #endif
 
 extern void lexerror(const char*);

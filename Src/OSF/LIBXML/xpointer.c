@@ -23,24 +23,14 @@
  *  need a start to be able to pop out of entities refs since
  *  parent is the endity declaration, not the ref.
  */
-//#include <libxml/xpathInternals.h>
-
 #ifdef LIBXML_XPTR_ENABLED
 #define XPTR_XMLNS_SCHEME // Add support of the xmlns() xpointer scheme to initialize the namespaces 
 /* #define DEBUG_RANGES */
-#ifdef DEBUG_RANGES
-	#ifdef LIBXML_DEBUG_ENABLED
-		//#include <libxml/debugXML.h>
-	#endif
-#endif
 #define TODO    xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 #define STRANGE xmlGenericError(0, "Internal error at %s:%d\n", __FILE__, __LINE__);
-
-/************************************************************************
-*									*
-*		Some factorized error routines				*
-*									*
-************************************************************************/
+// 
+// Some factorized error routines
+// 
 /**
  * xmlXPtrErrMemory:
  * @extra:  extra informations
@@ -711,7 +701,7 @@ xmlXPathObjectPtr xmlXPtrNewLocationSetNodes(xmlNode * start, xmlNode * end)
  *
  * Returns the newly created object.
  */
-xmlXPathObjectPtr xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr set)
+xmlXPathObjectPtr xmlXPtrNewLocationSetNodeSet(xmlNodeSet * set)
 {
 	xmlXPathObject * ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 	if(!ret) {
@@ -800,7 +790,7 @@ static void xmlXPtrGetChildNo(xmlXPathParserContextPtr ctxt, int indx)
 {
 	xmlNode * cur = NULL;
 	xmlXPathObject * obj;
-	xmlNodeSetPtr oldset;
+	xmlNodeSet * oldset;
 	CHECK_TYPE(XPATH_NODESET);
 	obj = valuePop(ctxt);
 	oldset = obj->nodesetval;
@@ -937,7 +927,7 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
 		const xmlChar * left = CUR_PTR;
 		xmlChar * prefix;
 		xmlChar * URI;
-		xmlURIPtr value;
+		xmlURI * value;
 		CUR_PTR = buffer;
 		prefix = xmlXPathParseNCName(ctxt);
 		if(prefix == NULL) {
@@ -1035,7 +1025,7 @@ static void xmlXPtrEvalFullXPtr(xmlXPathParserContextPtr ctxt, xmlChar * name)
 				    break;
 			    }
 				case XPATH_NODESET: {
-				    xmlNodeSetPtr loc = ctxt->value->nodesetval;
+				    xmlNodeSet * loc = ctxt->value->nodesetval;
 				    if(loc && (loc->nodeNr > 0))
 					    return;
 				    break;
@@ -1227,7 +1217,7 @@ xmlXPathObjectPtr xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
 					/*
 					 * Evaluation may push a root nodeset which is unused
 					 */
-					xmlNodeSetPtr set;
+					xmlNodeSet * set;
 					set = tmp->nodesetval;
 					if((set->nodeNr != 1) || (set->PP_NodeTab[0] != (xmlNode *)ctx->doc))
 						stack++;
@@ -1446,7 +1436,7 @@ xmlNode * xmlXPtrBuildNodeList(xmlXPathObject * obj)
 		return 0;
 	switch(obj->type) {
 		case XPATH_NODESET: {
-		    xmlNodeSetPtr set = obj->nodesetval;
+		    xmlNodeSet * set = obj->nodesetval;
 		    if(set == NULL)
 			    return 0;
 		    for(i = 0; i < set->nodeNr; i++) {
@@ -2023,7 +2013,7 @@ void xmlXPtrRangeToFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	xmlXPathObjectPtr res, obj;
 	xmlXPathObjectPtr tmp;
 	xmlLocationSet * newset = NULL;
-	xmlNodeSetPtr oldset;
+	xmlNodeSet * oldset;
 	int i;
 	if(!ctxt)
 		return;

@@ -13,6 +13,7 @@
 
 #ifdef LIBXML_WRITER_ENABLED
 
+#include <libxml/globals.h>
 #include <libxml/xmlIO.h>
 
 #ifdef __cplusplus
@@ -31,7 +32,7 @@ XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterFilename(const char * uri, int
 XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterMemory(xmlBuffer * buf, int compression);
 XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression);
 XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterDoc(xmlDoc ** doc, int compression);
-XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterTree(xmlDoc * doc, xmlNodePtr P_Node, int compression);
+XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterTree(xmlDoc * doc, xmlNode * pNode, int compression);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter);
 /*
  * Functions

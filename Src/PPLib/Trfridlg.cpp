@@ -142,7 +142,7 @@ static int SLAPI CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
 		if(op_rec.AccSheetID && op_rec.AccSheetID == GetSupplAccSheet())
 			yes = 1;
 	}
-	// } @v10.5.8 
+	// } @v10.5.8
 	return yes;
 }
 
@@ -241,6 +241,9 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 		case PPOPT_DRAFTTRANSIT: dlg_id = /*allow_suppl_sel ? DLG_SLOTITEM :*/ DLG_LOTITEM; break;
 		case PPOPT_DRAFTQUOTREQ: // @v10.5.7
 			if(pInitData && pInitData->Flags & TIDIF_SEQQREQ) {
+				dlg_id = DLG_QUOTEREQSEQ;
+			}
+			else if(itemNo >= 0 && pPack->ConstTI(itemNo).Lbr.ID > 0) {
 				dlg_id = DLG_QUOTEREQSEQ;
 			}
 			else
@@ -1751,7 +1754,8 @@ void TrfrItemDialog::setupVaPct()
 			getCtrlData(CTL_LOT_PRICE,    &pc);
 			getCtrlData(CTL_LOT_DISCOUNT, &ds);
 			if(Item.Cost > 0.0 && (pc - ds) > 0.0) {
-				PPGetWord(PPWORD_PCTADDEDVAL, 0, out_buf);
+				// @v10.5.8 PPGetWord(PPWORD_PCTADDEDVAL, 0, out_buf);
+				PPLoadString("extrachargepct",  out_buf); // @v10.5.8
 				out_buf.CatDiv(':', 2).Cat(100.0 * (pc - ds - Item.Cost) / Item.Cost, MKSFMTD(0, 1, 0));
 			}
 			else
@@ -1991,6 +1995,15 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		showButton(cmSourceSerial, 0);
 	}
 	// } @v9.3.6
+	// @v10.5.8 {
+	if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Item.Lbr.ID > 0) {
+		long   seqqrack = CHKXORFLAGS(Item.TFlags, PPTransferItem::tfQrSeqAccepted, PPTransferItem::tfQrSeqRejected);
+		AddClusterAssocDef(CTL_LOT_SEQQRACK, 0, 0);
+		AddClusterAssoc(CTL_LOT_SEQQRACK, 1, PPTransferItem::tfQrSeqAccepted);
+		AddClusterAssoc(CTL_LOT_SEQQRACK, 2, PPTransferItem::tfQrSeqRejected);
+		SetClusterData(CTL_LOT_SEQQRACK, seqqrack);
+	}
+	// } @v10.5.8
 	setupManuf();
 	CATCHZOK
 	St &= ~stLockQttyAutoUpd; // @v10.2.4
@@ -2382,6 +2395,18 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11
 		}
 	}
+	// @v10.5.8 {
+	if(getCtrlView(CTL_LOT_SEQQRACK)) {
+		Item.TFlags &= ~(PPTransferItem::tfQrSeqAccepted|PPTransferItem::tfQrSeqRejected);
+		if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Item.Lbr.ID > 0) {
+			long   seqqrack = GetClusterData(CTL_LOT_SEQQRACK);
+			if(seqqrack == PPTransferItem::tfQrSeqAccepted)
+				Item.TFlags |= PPTransferItem::tfQrSeqAccepted;
+			else if(seqqrack == PPTransferItem::tfQrSeqRejected)
+				Item.TFlags |= PPTransferItem::tfQrSeqRejected;
+		}
+	}
+	// } @v10.5.8
 	getManuf();
 	*pItem = Item;
 	CATCH
@@ -2907,7 +2932,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-//static 
+//static
 int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
@@ -2938,7 +2963,7 @@ int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, Brow
 					}
 				}
 			}
-			// } @v10.4.4 
+			// } @v10.4.4
 		}
 	}
 	return ok;

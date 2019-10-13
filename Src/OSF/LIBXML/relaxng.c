@@ -12,7 +12,6 @@
  * http://www.oasis-open.org/committees/relax-ng/compatibility-20011203.html
  * - report better mem allocations pbms at runtime and abort immediately.
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -132,9 +131,9 @@ struct _xmlRelaxNGDefine {
 	xmlRelaxNGDefinePtr attrs; /* list of attributes for elements */
 	xmlRelaxNGDefinePtr nameClass;  /* the nameClass definition if any */
 	xmlRelaxNGDefinePtr nextHash;   /* next define in defs/refs hash tables */
-	short depth;            /* used for the cycle detection */
-	short dflags;           /* define related flags */
-	xmlRegexpPtr contModel; /* a compiled content model if available */
+	short  depth;            /* used for the cycle detection */
+	short  dflags;           /* define related flags */
+	xmlRegexp * contModel; /* a compiled content model if available */
 };
 /**
  * _xmlRelaxNG:
@@ -5704,7 +5703,7 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxt * ctxt, xmlNode * root)
 					xmlChar * href, * base, * URL;
 					xmlRelaxNGDocumentPtr docu;
 					xmlNode * tmp;
-					xmlURIPtr uri;
+					xmlURI * uri;
 					xmlChar * ns = xmlGetProp(cur, reinterpret_cast<const xmlChar *>("ns"));
 					if(!ns) {
 						tmp = cur->P_ParentNode;
@@ -6429,21 +6428,14 @@ void xmlRelaxNGDump(FILE * output, xmlRelaxNGPtr schema)
  */
 void xmlRelaxNGDumpTree(FILE * output, xmlRelaxNGPtr schema)
 {
-	if(output) {
-		if(schema == NULL) {
+	if(output)
+		if(!schema)
 			fprintf(output, "RelaxNG empty or failed to compile\n");
-		}
-		else {
-			if(schema->doc == NULL) {
-				fprintf(output, "no document\n");
-			}
-			else {
-				xmlDocDump(output, schema->doc);
-			}
-		}
-	}
+		else if(!schema->doc)
+			fprintf(output, "no document\n");
+		else
+			xmlDocDump(output, schema->doc);
 }
-
 #endif /* LIBXML_OUTPUT_ENABLED */
 //
 // Validation of compiled content
@@ -6504,7 +6496,7 @@ static void xmlRelaxNGValidateCompiledCallback(xmlRegExecCtxtPtr exec ATTRIBUTE_
  *
  * Returns 0 in case of success, -1 in case of error.
  */
-static int xmlRelaxNGValidateCompiledContent(xmlRelaxNGValidCtxtPtr ctxt, xmlRegexpPtr regexp, xmlNode * content)
+static int xmlRelaxNGValidateCompiledContent(xmlRelaxNGValidCtxtPtr ctxt, xmlRegexp * regexp, xmlNode * content)
 {
 	xmlRegExecCtxtPtr exec;
 	xmlNode * cur;

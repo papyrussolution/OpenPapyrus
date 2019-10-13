@@ -124,95 +124,89 @@
 	#define TRIO_COMPILER_ANCIENT
 #endif
 #if defined(TRIO_COMPILER_ANCIENT)
-//#define TRIO_CONST
-#define TRIO_VOLATILE
-#define TRIO_SIGNED
-typedef double trio_long_double_t;
-typedef char * trio_pointer_t;
-#define TRIO_SUFFIX_LONG(x) x
-//#define TRIO_PROTO(x) ()
-#define TRIO_NOARGS
-//#define TRIO_ARGS1(list,a1) list a1;
-//#define TRIO_ARGS2(list,a1,a2) list a1; a2;
-//#define TRIO_ARGS3(list,a1,a2,a3) list a1; a2; a3;
-//#define TRIO_ARGS4(list,a1,a2,a3,a4) list a1; a2; a3; a4;
-//#define TRIO_ARGS5(list,a1,a2,a3,a4,a5) list a1; a2; a3; a4; a5;
-//#define TRIO_ARGS6(list,a1,a2,a3,a4,a5,a6) list a1; a2; a3; a4; a5; a6;
-//#define TRIO_VARGS2(list,a1,a2) list a1; a2
-//#define TRIO_VARGS3(list,a1,a2,a3) list a1; a2; a3
-//#define TRIO_VARGS4(list,a1,a2,a3,a4) list a1; a2; a3; a4
-//#define TRIO_VARGS5(list,a1,a2,a3,a4,a5) list a1; a2; a3; a4; a5
-#define TRIO_VA_DECL va_dcl
-#define TRIO_VA_START(x,y) va_start(x)
-#define TRIO_VA_END(x) va_end(x)
+	//#define TRIO_CONST
+	#define TRIO_VOLATILE
+	#define TRIO_SIGNED
+	typedef double trio_long_double_t;
+	typedef char * trio_pointer_t;
+	#define TRIO_SUFFIX_LONG(x) x
+	//#define TRIO_PROTO(x) ()
+	#define TRIO_NOARGS
+	//#define TRIO_ARGS1(list,a1) list a1;
+	//#define TRIO_ARGS2(list,a1,a2) list a1; a2;
+	//#define TRIO_ARGS3(list,a1,a2,a3) list a1; a2; a3;
+	//#define TRIO_ARGS4(list,a1,a2,a3,a4) list a1; a2; a3; a4;
+	//#define TRIO_ARGS5(list,a1,a2,a3,a4,a5) list a1; a2; a3; a4; a5;
+	//#define TRIO_ARGS6(list,a1,a2,a3,a4,a5,a6) list a1; a2; a3; a4; a5; a6;
+	//#define TRIO_VARGS2(list,a1,a2) list a1; a2
+	//#define TRIO_VARGS3(list,a1,a2,a3) list a1; a2; a3
+	//#define TRIO_VARGS4(list,a1,a2,a3,a4) list a1; a2; a3; a4
+	//#define TRIO_VARGS5(list,a1,a2,a3,a4,a5) list a1; a2; a3; a4; a5
+	#define TRIO_VA_DECL va_dcl
+	#define TRIO_VA_START(x,y) va_start(x)
+	#define TRIO_VA_END(x) va_end(x)
 #else /* ANSI C */
-//#define TRIO_CONST const
-#define TRIO_VOLATILE volatile
-#define TRIO_SIGNED signed
-typedef long double trio_long_double_t;
-typedef void * trio_pointer_t;
-#define TRIO_SUFFIX_LONG(x) x ## L
-//#define TRIO_PROTO(x) x
-#define TRIO_NOARGS void
-//#define TRIO_ARGS1(list,a1) (a1)
-//#define TRIO_ARGS2(list,a1,a2) (a1,a2)
-//#define TRIO_ARGS3(list,a1,a2,a3) (a1,a2,a3)
-//#define TRIO_ARGS4(list,a1,a2,a3,a4) (a1,a2,a3,a4)
-//#define TRIO_ARGS5(list,a1,a2,a3,a4,a5) (a1,a2,a3,a4,a5)
-//#define TRIO_ARGS6(list,a1,a2,a3,a4,a5,a6) (a1,a2,a3,a4,a5,a6)
-//#define TRIO_VARGS2 TRIO_ARGS2
-//#define TRIO_VARGS3 TRIO_ARGS3
-//#define TRIO_VARGS4 TRIO_ARGS4
-//#define TRIO_VARGS5 TRIO_ARGS5
-#define TRIO_VA_DECL ...
-#define TRIO_VA_START(x,y) va_start(x,y)
-#define TRIO_VA_END(x) va_end(x)
+	//#define TRIO_CONST const
+	#define TRIO_VOLATILE volatile
+	#define TRIO_SIGNED signed
+	typedef long double trio_long_double_t;
+	typedef void * trio_pointer_t;
+	#define TRIO_SUFFIX_LONG(x) x ## L
+	//#define TRIO_PROTO(x) x
+	#define TRIO_NOARGS void
+	//#define TRIO_ARGS1(list,a1) (a1)
+	//#define TRIO_ARGS2(list,a1,a2) (a1,a2)
+	//#define TRIO_ARGS3(list,a1,a2,a3) (a1,a2,a3)
+	//#define TRIO_ARGS4(list,a1,a2,a3,a4) (a1,a2,a3,a4)
+	//#define TRIO_ARGS5(list,a1,a2,a3,a4,a5) (a1,a2,a3,a4,a5)
+	//#define TRIO_ARGS6(list,a1,a2,a3,a4,a5,a6) (a1,a2,a3,a4,a5,a6)
+	//#define TRIO_VARGS2 TRIO_ARGS2
+	//#define TRIO_VARGS3 TRIO_ARGS3
+	//#define TRIO_VARGS4 TRIO_ARGS4
+	//#define TRIO_VARGS5 TRIO_ARGS5
+	#define TRIO_VA_DECL ...
+	#define TRIO_VA_START(x,y) va_start(x,y)
+	#define TRIO_VA_END(x) va_end(x)
 #endif
-
 #if defined(TRIO_COMPILER_SUPPORTS_C99) || defined(__cplusplus)
-#define TRIO_INLINE inline
+	#define TRIO_INLINE inline
 #elif defined(TRIO_COMPILER_GCC)
-#define TRIO_INLINE __inline__
+	#define TRIO_INLINE __inline__
 #elif defined(TRIO_COMPILER_MSVC)
-#define TRIO_INLINE _inline
+	#define TRIO_INLINE _inline
 #elif defined(TRIO_COMPILER_BCB)
-#define TRIO_INLINE __inline
+	#define TRIO_INLINE __inline
 #else
-#define TRIO_INLINE
+	#define TRIO_INLINE
 #endif
-
-/*************************************************************************
- * Workarounds
- */
-
+// 
+// Workarounds
+//
 #if defined(TRIO_PLATFORM_VMS)
-/*
- * Computations done with constants at compile time can trigger these
- * even when compiling with IEEE enabled.
- */
-# pragma message disable (UNDERFLOW, FLOATOVERFL)
-
-# if (__CRTL_VER < 80000000)
-/*
- * Although the compiler supports C99 language constructs, the C
- * run-time library does not contain all C99 functions.
- *
- * This was the case for 70300022. Update the 80000000 value when
- * it has been accurately determined what version of the library
- * supports C99.
- */
-#  if defined(TRIO_COMPILER_SUPPORTS_C99)
-#   undef TRIO_COMPILER_SUPPORTS_C99
-#  endif
-# endif
+	// 
+	// Computations done with constants at compile time can trigger these
+	// even when compiling with IEEE enabled.
+	// 
+	#pragma message disable (UNDERFLOW, FLOATOVERFL)
+		#if (__CRTL_VER < 80000000)
+		// 
+		// Although the compiler supports C99 language constructs, the C
+		// run-time library does not contain all C99 functions.
+		// 
+		// This was the case for 70300022. Update the 80000000 value when
+		// it has been accurately determined what version of the library supports C99.
+		// 
+		#if defined(TRIO_COMPILER_SUPPORTS_C99)
+			#undef TRIO_COMPILER_SUPPORTS_C99
+		#endif
+	#endif
 #endif
-
 /*
  * Not all preprocessors supports the LL token.
  */
 #if defined(TRIO_COMPILER_BCB)
 #else
-#define TRIO_COMPILER_SUPPORTS_LL
+	#define TRIO_COMPILER_SUPPORTS_LL
 #endif
 
 #endif /* TRIO_TRIODEF_H */

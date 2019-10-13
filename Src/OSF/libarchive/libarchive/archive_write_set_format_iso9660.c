@@ -1492,7 +1492,7 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 
 static int wb_write_to_temp(struct archive_write * a, const void * buff, size_t s)
 {
-	const char * xp = (const char *)buff;
+	const char * xp = static_cast<const char *>(buff);
 	size_t xs = s;
 
 	/*
