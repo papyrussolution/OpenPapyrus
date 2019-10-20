@@ -2514,7 +2514,8 @@ public:
 		int32  LinkToDlvrLocID;
 		int32  OrgDocEntityID;
 		double AckVolume;
-		uint8  Reserve2[28]; // raw
+		S_GUID AppReqId;
+		uint8  Reserve2[12]; // raw
 	} data;
 	struct Key0 {
 		int32  EntityID;
@@ -2588,6 +2589,7 @@ public:
 	DBField LinkToDlvrLocID;
 	DBField OrgDocEntityID;
 	DBField AckVolume;
+	DBField AppReqId;
 	DBField Reserve2;
 };
 

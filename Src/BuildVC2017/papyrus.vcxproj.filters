@@ -1647,6 +1647,7 @@
     <Image Include="..\Rsrc\Bitmap\Tbbutton\wroffdraft.bmp">
       <Filter>Resource\BMP</Filter>
     </Image>
+    <Image Include="..\rsrc\ico\phone.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Rsrc\Dl600\ppifc.tlb" />

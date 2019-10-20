@@ -150,15 +150,15 @@ extern "C" {
 #define	RPRINT(env, x) do {						\
 	if((env)->dbenv->verbose != 0)					\
 		__rep_print_system x;				\
-} while (0)
+} while(0)
 #define	VPRINT(env, x) do {						\
 	if((env)->dbenv->verbose != 0)					\
 		__rep_print x;					\
-} while (0)
+} while(0)
 #define	REP_PRINT_MESSAGE(env, eid, rp, str, fl) do {			\
 	if((env)->dbenv->verbose != 0)					\
 		__rep_print_message(env, eid, rp, str, fl);		\
-} while (0)
+} while(0)
 
 /*
  * Election gen file name
@@ -498,7 +498,7 @@ struct __rep_waiter {
 do {									\
 	(R)->sync_state = SYNC_OFF;					\
 	CLR_LOCKOUT_BDB(R);						\
-} while (0)
+} while(0)
 
 #define	IS_REP_RECOVERING(R) ((R)->sync_state != SYNC_OFF || ISSET_LOCKOUT_BDB(R))
 
@@ -533,7 +533,7 @@ do {									\
 	F_SET((renv), DB_REGENV_REPLOCKED);				\
 	_time64(&(renv)->op_timestamp);				\
 	REP_SYSTEM_UNLOCK(env);						\
-} while (0)
+} while(0)
 
 /*
  * Macro to set a new generation number.  Cached values from the LSN history
@@ -546,7 +546,7 @@ do {									\
 #define	SET_GEN(g) do {							\
 	rep->gen = (g);							\
 	ZERO_LSN(rep->gen_base_lsn);					\
-} while (0)
+} while(0)
 
 
 /*
@@ -577,7 +577,7 @@ do {									\
 		    __env_db_rep_exit(env)) != 0 && (ret) == 0)		\
 		(ret) = __t_ret;					\
 	}								\
-} while (0)
+} while(0)
 
 /*
  * Macro to safely access curinfo and its internal DBT pointers from
@@ -604,7 +604,7 @@ do {									\
 		(curinfo)->info.data = R_ADDR(infop, rep->curinfo_off + sizeof(__rep_fileinfo_args) + (curinfo)->uid.size);	\
 	else								\
 		(curinfo)->info.data = NULL;				\
-} while (0)
+} while(0)
 /*
 	Flag to show what kind of transaction is currently in progress.
 	Primary means we're doing the first (critical) phase of a membership
@@ -834,7 +834,7 @@ struct __db_rep {
 		ENV_LEAVE(env, ip);					\
 	} else if(!F_ISSET((env)->rep_handle, DBREP_APP_BASEAPI))	\
 		F_SET((env)->rep_handle, DBREP_APP_REPMGR);		\
-} while (0)
+} while(0)
 #define	APP_SET_BASEAPI(env) do {					\
 	if(REP_ON(env)) {						\
 		ENV_ENTER(env, ip);					\
@@ -845,7 +845,7 @@ struct __db_rep {
 		ENV_LEAVE(env, ip);					\
 	} else if(!F_ISSET((env)->rep_handle, DBREP_APP_REPMGR)) \
 		F_SET((env)->rep_handle, DBREP_APP_BASEAPI);          \
-} while (0)
+} while(0)
 
 #else
 /*
@@ -854,9 +854,9 @@ struct __db_rep {
  * with a null body to avoid compiler warnings on some platforms.
  */
 #define	APP_IS_REPMGR(env)   0
-#define	APP_SET_REPMGR(env)  do { ; } while (0)
+#define	APP_SET_REPMGR(env)  do { ; } while(0)
 #define	APP_IS_BASEAPI(env)  1
-#define	APP_SET_BASEAPI(env) do { ; } while (0)
+#define	APP_SET_BASEAPI(env) do { ; } while(0)
 #endif  /* HAVE_REPLICATION_THREADS */
 
 /*

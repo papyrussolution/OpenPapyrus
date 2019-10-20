@@ -9,7 +9,7 @@
 		for(size_t _i = 0; _i < (size_t) size; _i++) {				\
 			WRITE((img), _dst +_i, (val));				\
 		}								\
-	} while (0)
+	} while(0)
 
 #else
 	#define READ(img, ptr)		(*(ptr))

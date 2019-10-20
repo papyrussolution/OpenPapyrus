@@ -198,9 +198,10 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 }
 
 //static
-int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
+int FASTCALL PPView::Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr)
 {
-	int    ok = 1, view_in_use = 0;
+	int    ok = 1;
+	int    view_in_use = 0;
 	const  int modeless = GetModelessStatus(BIN(flags & exefModeless));
 	PPViewBrowser * p_prev_win = 0;
 	PPBaseFilt * p_flt = 0;
@@ -228,11 +229,20 @@ int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, vo
 		}
 	}
 	CATCHZOKPPERR
-	if(!modeless || !ok || !view_in_use)
-		delete p_v;
+	if(!modeless || !ok || !view_in_use) {
+		ZDELETE(p_v);
+	}
 	delete p_flt;
+	ASSIGN_PTR(ppResult, p_v);
 	return ok;
 }
+
+//static
+int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, PPView ** ppResult, void * extraPtr)
+	{ return Helper_Execute(viewID, pFilt, flags, ppResult, extraPtr); }
+//static
+int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
+	{ return Helper_Execute(viewID, pFilt, flags, 0, extraPtr); }
 
 PPObject * PPView::GetObj() const
 {
@@ -2389,10 +2399,11 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 	if(TVBROADCAST) {
 		if(TVCMD == cmIdle) {
 			if(RefreshTimer.Check(0)) {
-				int    r = 0;
-				if((r = P_View->ProcessCommand(PPVCMD_REFRESHBYPERIOD, 0, this)) == -2 || r > 0)
+				const int r = P_View->ProcessCommand(PPVCMD_REFRESHBYPERIOD, 0, this);
+				if(r == -2 || r > 0)
 					Update();
 			}
+			return; // @v10.5.9 в конце функции стоит clearEvent(event) который препятствует дальнейшей обработке cmIdle
 		}
 		else if(TVCMD == cmReceivedFocus)
 			P_View->ProcessCommand(PPVCMD_RECEIVEDFOCUS, TVINFOVIEW, this);

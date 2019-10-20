@@ -914,23 +914,22 @@ static IMPL_DBE_PROC(dbqf_invent_diffqtty_i)
 }
 
 
-static IMPL_DBE_PROC(dbqf_inventlnstatus_i)
+static IMPL_DBE_PROC(dbqf_inventlnstatus_ii)
 {
 	if(!DbeInitSize(option, result, 128)) {
 		const long   flags = params[0].lval;
-		//@inventf_genautoline                      "Автозаполнение"
-		//@inventf_genwroffline                     "Автосписание"
-		//@inventf_writedoff                        "Списана"
-		//@inventf_unwritedoff                      "Не списана" // generic !@inventf_writedoff
-		//@inventf_surplus                          "Излишек"
-		//@inventf_lack                             "Недостача"
-		//@inventf_autoline                         "Авто" // @inventf_genautoline || @inventf_genwroffline
+		const long   bill_id = params[1].lval;
 		SString temp_buf;
 		if(flags & INVENTF_WRITEDOFF) {
 			PPLoadString("inventf_writedoff", temp_buf);
 		}
 		else if(flags & (INVENTF_LACK|INVENTF_SURPLUS)) {
 			PPLoadString("inventf_unwritedoff", temp_buf);
+		}
+		else {
+			BillTbl::Rec bill_rec;
+			if(BillObj->Fetch(bill_id, &bill_rec) > 0 && bill_rec.Flags & BILLF_CLOSEDORDER)
+				PPLoadString("inventf_writedoff_zb", temp_buf);
 		}
 		if(temp_buf.NotEmpty())
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Quot('(', ')');
@@ -1128,7 +1127,7 @@ int PPDbqFuncPool::IdObjNameSCardSer   = 0; //
 int PPDbqFuncPool::IdObjNameDebtDim    = 0; //
 int PPDbqFuncPool::IdDateTime          = 0; // (fldDate, fldTime)
 int PPDbqFuncPool::IdInventDiffQtty    = 0; //
-int PPDbqFuncPool::IdInventLnStatus    = 0; // @v10.5.8 (fldFlags)
+int PPDbqFuncPool::IdInventLnStatus    = 0; // @v10.5.8 (fldFlags, fldBillID)
 int PPDbqFuncPool::IdTSesLnPhQtty      = 0; //
 int PPDbqFuncPool::IdTSesLnFlags       = 0; //
 int PPDbqFuncPool::IdPercent           = 0; // (100 * fld1 / fld2)
@@ -1426,7 +1425,7 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdTrfrPrice,           BTS_REAL,   dbqf_trfrprice_irrr, 7, BTS_INT, BTS_INT, BTS_DATE, BTS_INT, BTS_REAL, BTS_REAL, BTS_REAL));
 	THROW(DbqFuncTab::RegisterDyn(&IdDateTime,            BTS_STRING, dbqf_datetime_dt, 2, BTS_DATE, BTS_TIME));
 	THROW(DbqFuncTab::RegisterDyn(&IdInventDiffQtty,      BTS_REAL,   dbqf_invent_diffqtty_i,  2, BTS_INT, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdInventLnStatus,      BTS_STRING, dbqf_inventlnstatus_i,   1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdInventLnStatus,      BTS_STRING, dbqf_inventlnstatus_ii,  2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnPhQtty,        BTS_REAL,   dbqf_tseslnphqtty_iirr,  4, BTS_INT, BTS_INT, BTS_REAL, BTS_REAL));
 	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnFlags,         BTS_STRING, dbqf_tseslnflags_i,      1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdPercent,             BTS_REAL,   dbqf_percent_rr,         2, BTS_REAL, BTS_REAL));

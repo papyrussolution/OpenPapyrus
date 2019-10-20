@@ -1582,6 +1582,7 @@ public:
 	S_GUID();
 	S_GUID(const S_GUID_Base & rS);
 	S_GUID(const S_GUID & rS);
+	explicit S_GUID(const char * pStr);
 	S_GUID & FASTCALL operator = (const S_GUID_Base & rS);
 };
 //

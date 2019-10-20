@@ -25,7 +25,7 @@ int __db_lsn::IsZero() const
 
 void __db_lsn::NotLogged()
 {
-	//#define LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).Offset_ = 1; } while (0)
+	//#define LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).Offset_ = 1; } while(0)
 	file = 0;
 	Offset_ = 1;
 }

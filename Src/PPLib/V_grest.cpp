@@ -3354,8 +3354,10 @@ void SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 		}
 		if(Filt.Sgg)
 			pBrw->InsColumnWord(-1, PPWORD_SUBSTASSCCOUNT, 20, 0, fmt_qtty, 0);
-		if(!Filt.Sgg && Filt.Flags & GoodsRestFilt::fShowMinStock)
-			pBrw->InsColumnWord(minstock_col, PPWORD_MINSTOCK, 21, 0, fmt_qtty, 0);
+		if(!Filt.Sgg && Filt.Flags & GoodsRestFilt::fShowMinStock) {
+			// @v10.5.9 pBrw->InsColumnWord(minstock_col, PPWORD_MINSTOCK, 21, 0, fmt_qtty, 0);
+			pBrw->InsColumn(minstock_col, "@minstock", 21, 0, fmt_qtty, 0); // @v10.5.9
+		}
 		{
 			int    _col = 1;
 			if(!(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) && Filt.Flags & GoodsRestFilt::fEachLocation) { // @v9.5.8 CalcPrognosis-->Flags2

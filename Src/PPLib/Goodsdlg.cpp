@@ -308,7 +308,7 @@ GoodsFiltCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, long flags, v
 {
 }
 
-GoodsFiltCtrlGroup::GoodsFiltCtrlGroup(uint ctlselGoods, uint ctlselGGrp, uint cm) : 
+GoodsFiltCtrlGroup::GoodsFiltCtrlGroup(uint ctlselGoods, uint ctlselGGrp, uint cm) :
 	CtlselGoods(ctlselGoods), CtlselGoodsGrp(ctlselGGrp), Cm(cm), DisableGroupSelection(0)
 {
 }
@@ -477,7 +477,7 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 				AddClusterAssoc(CTL_BARCODE_FLAGS, 1, 0x02);
 				SetClusterData(CTL_BARCODE_FLAGS, bcf);
 			}
-			// } @v10.4.11 
+			// } @v10.4.11
 			selectCtrl(CTL_BARCODE_CODE);
 			if(!GObj.CheckRights(GOODSRT_PRIORCODE)) {
 				DisableClusterItem(CTL_BARCODE_FLAGS, 0, 1);
@@ -515,7 +515,7 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 				else
 					ResetInnerBarcodeType(&Data.BarcodeType, BARCODE_TYPE_MARKED);
 			}
-			// } @v10.4.11 
+			// } @v10.4.11
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
@@ -1781,7 +1781,8 @@ int GoodsVadDialog::editItem(long pos, long id)
 		SString title, input_title;
 		// @v9.1.4 PPGetWord(PPWORD_QTTY, 0, input_title);
 		PPLoadString("qtty", input_title); // @v9.1.4
-		PPGetWord(PPWORD_MINSTOCK, 0, title);
+		// @v10.5.9 PPGetWord(PPWORD_MINSTOCK, 0, title);
+		PPLoadString("minstock", title); // @v10.5.9
 		qtty = Data.Stock.GetMinStock(id, 0);
 		if(InputQttyDialog(title, input_title, &qtty) > 0) {
 			Data.Stock.SetMinStock(id, qtty);
@@ -2025,7 +2026,7 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 		}
 	}
 	// @v10.2.3 {
-	else if(event.isCmd(cmInputUpdated)) { 
+	else if(event.isCmd(cmInputUpdated)) {
 		if(event.isCtlEvent(CTL_GOODSVAD_SZWD) || event.isCtlEvent(CTL_GOODSVAD_SZLN) || event.isCtlEvent(CTL_GOODSVAD_SZHT) || event.isCtlEvent(CTL_GOODSVAD_PACKAGE)) {
 			if(!getCtrlUInt16(CTL_GOODSVAD_VOLUMEVAL)) {
 				getCtrlData(CTL_GOODSVAD_PACKAGE, &Data.Stock.Package);
@@ -2034,7 +2035,7 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 			}
 		}
 	}
-	// } @v10.2.3 
+	// } @v10.2.3
 	else if(event.wasFocusChanged3(CTL_GOODSVAD_SZWD, CTL_GOODSVAD_SZLN, CTL_GOODSVAD_SZHT)) {
 		getDimentions();
 		setCtrlReal(CTL_GOODSVAD_VOLUME, Data.Stock.CalcVolume(1));

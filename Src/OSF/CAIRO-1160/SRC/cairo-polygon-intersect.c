@@ -36,9 +36,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-combsort-inline.h"
 
 typedef struct _cairo_bo_intersect_ordinate {
 	int32_t ordinate;
@@ -809,13 +806,11 @@ static void _cairo_bo_event_queue_fini(cairo_bo_event_queue_t * event_queue)
 	_cairo_freepool_fini(&event_queue->pool);
 }
 
-static inline cairo_status_t event_queue_insert_if_intersect_below_current_y(cairo_bo_event_queue_t * event_queue,
-    cairo_bo_edge_t * left, cairo_bo_edge_t * right)
+static inline cairo_status_t event_queue_insert_if_intersect_below_current_y(cairo_bo_event_queue_t * event_queue, cairo_bo_edge_t * left, cairo_bo_edge_t * right)
 {
 	cairo_bo_intersect_point_t intersection;
 	if(_line_equal(&left->edge.line, &right->edge.line))
 		return CAIRO_STATUS_SUCCESS;
-
 	/* The names "left" and "right" here are correct descriptions of
 	 * the order of the two edges within the active edge list. So if a
 	 * slope comparison also puts left less than right, then we know
@@ -823,14 +818,9 @@ static inline cairo_status_t event_queue_insert_if_intersect_below_current_y(cai
 	 * occurred before the current sweep line position. */
 	if(_slope_compare(left, right) <= 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(!_cairo_bo_edge_intersect(left, right, &intersection))
 		return CAIRO_STATUS_SUCCESS;
-
-	return _cairo_bo_event_queue_insert(event_queue,
-		   CAIRO_BO_EVENT_TYPE_INTERSECTION,
-		   left, right,
-		   &intersection);
+	return _cairo_bo_event_queue_insert(event_queue, CAIRO_BO_EVENT_TYPE_INTERSECTION, left, right, &intersection);
 }
 
 static void _cairo_bo_sweep_line_init(cairo_bo_sweep_line_t * sweep_line)

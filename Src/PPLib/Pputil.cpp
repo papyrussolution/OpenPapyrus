@@ -4442,7 +4442,7 @@ int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCo
 	PPID   id = 0;
 	if(State & stAuth && P_Lib) {
 		PPSoapClientSession sess;
-		UHTTSENDSMS_PROC func = (UHTTSENDSMS_PROC)P_Lib->GetProcAddr("UhttSendSms");
+		UHTTSENDSMS_PROC func = reinterpret_cast<UHTTSENDSMS_PROC>(P_Lib->GetProcAddr("UhttSendSms"));
 		if(func) {
 			sess.Setup(UrlBase);
 			TSCollection <UhttStatus> * p_result = func(sess, Token, rList);

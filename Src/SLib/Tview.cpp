@@ -1340,7 +1340,7 @@ void TGroup::removeView(TView *p)
 
 static void addSubviewDataSize(TView * p, void * pSize)
 {
-	*((int *)pSize) += ((TGroup *)p)->TransmitData(0, 0);
+	*((int *)pSize) += static_cast<TGroup *>(p)->TransmitData(0, 0);
 }
 
 int TGroup::TransmitData(int dir, void * pData)
@@ -1419,9 +1419,9 @@ struct handleStruct {
 	TView::phaseType phase;
 };
 
-static void doHandleEvent(TView * p, void *s)
+static void doHandleEvent(TView * p, void * s)
 {
-	handleStruct * ptr = (handleStruct *)s;
+	handleStruct * ptr = static_cast<handleStruct *>(s);
 	if(ptr->event->what && p && p->IsConsistent() && !(p->IsInState(sfDisabled) && (ptr->event->what & (positionalEvents|focusedEvents)))) {
 		switch(ptr->phase) {
 			case TView::phPreProcess:

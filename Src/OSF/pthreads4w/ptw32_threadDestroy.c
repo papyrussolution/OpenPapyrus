@@ -36,8 +36,7 @@
 void __ptw32_threadDestroy(pthread_t thread)
 {
 	__ptw32_thread_t * tp = static_cast<__ptw32_thread_t *>(thread.p);
-
-	if(tp != NULL) {
+	if(tp) {
 		/*
 		 * Copy thread state so that the thread can be atomically NULLed.
 		 */
@@ -45,18 +44,15 @@ void __ptw32_threadDestroy(pthread_t thread)
 		HANDLE threadH = tp->threadH;
 #endif
 		HANDLE cancelEvent = tp->cancelEvent;
-
 		/*
 		 * Thread ID structs are never freed. They're NULLed and reused.
 		 * This also sets the thread state to PThreadStateInitial before
 		 * it is finally set to PThreadStateReuse.
 		 */
 		__ptw32_threadReusePush(thread);
-
-		if(cancelEvent != NULL) {
+		if(cancelEvent) {
 			CloseHandle(cancelEvent);
 		}
-
 #if !defined(__MINGW32__) || defined (__MSVCRT__) || defined (__DMC__)
 		/*
 		 * See documentation for endthread vs endthreadex.

@@ -284,7 +284,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 					PrevTimeoutRest = timeout_rest;
 					if(diff >= (CloseTimeout * CLOCKS_PER_SEC)) {
 						if(IsInState(sfModal)) {
-							clearEvent(event);
+							// @v10.5.9 clearEvent(event);
 							endModal(cmOK);
 							return; // После endModal не следует обращаться к this
 						}

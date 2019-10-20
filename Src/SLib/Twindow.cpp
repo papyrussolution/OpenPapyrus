@@ -1608,6 +1608,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			}
 			break;
 		case WM_LBUTTONDOWN:
+		case WM_MOUSEWHEEL: // @v10.5.9 
 			if(hWnd != GetFocus())
 				SetFocus(hWnd);
 			// @v10.2.7 {
@@ -1623,7 +1624,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		case WM_MBUTTONUP:
 		case WM_MBUTTONDBLCLK:
 		case WM_MOUSEMOVE:
-		case WM_MOUSEWHEEL:
+		// @v10.5.9 case WM_MOUSEWHEEL:
 		case WM_MOUSELEAVE:
 		case WM_MOUSEHOVER:
 			if(p_view) {

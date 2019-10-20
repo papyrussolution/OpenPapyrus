@@ -131,16 +131,16 @@
 #define BDBOP2(bdb_call, ret, cleanup) do {				\
 	if((ret = (bdb_call)) != 0) { (cleanup); 			\
 		throw_bdb_exception(#bdb_call, ret);}			\
-	} while (0)
+	} while(0)
 // Do not throw the exception if bdb_call returned a specified error number.
 #define BDBOP3(bdb_call, ret, exception, cleanup) do {			\
 	if(((ret = (bdb_call)) != 0) && (ret & exception) == 0) {	\
 		(cleanup); throw_bdb_exception(#bdb_call, ret);}	\
-	} while (0)
+	} while(0)
 
-#define THROW(exception_type, arg_list) do { exception_type ex arg_list; throw ex; } while (0)
+#define THROW(exception_type, arg_list) do { exception_type ex arg_list; throw ex; } while(0)
 
-#define THROW0(exception_type)	do { exception_type ex; throw ex; } while (0)
+#define THROW0(exception_type)	do { exception_type ex; throw ex; } while(0)
 
 #define INVALID_INDEX ((index_type)-1)
 #define INVALID_DLEN  (static_cast<uint32>(-1))

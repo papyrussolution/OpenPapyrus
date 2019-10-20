@@ -2601,6 +2601,7 @@ private:
 	int    SLAPI Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <iSalesBillPacket> & rList);
 	void   SLAPI Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const;
 	void   SLAPI Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const;
+	void   SLAPI SetupLocalPeriod(DateRange & rPeriod) const;
 	int    SLAPI GetGoodsStoreFileName(SString & rBuf) const;
 	int    SLAPI StoreGoods(TSCollection <iSalesGoodsPacket> & rList);
 	int    SLAPI RestoreGoods(TSCollection <iSalesGoodsPacket> & rList);
@@ -2980,12 +2981,9 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 	TSCollection <iSalesBillPacket> * p_result;
 	TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
 	ISALESGETORDERLIST_PROC func = 0;
-	DateRange period = P.ExpPeriod;
-	if(!checkdate(period.low))
-		period.low = encodedate(1, 1, 2016);
-	if(!checkdate(period.upp))
-		period.upp = encodedate(31, 12, 2030);
+	DateRange period;
 	SString tech_buf;
+	SetupLocalPeriod(period);
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 	{
 		//PPTXT_LOG_SUPPLIX_IMPRCPT_S   "Импорт DESADV от поставщика @zstr '@article'"
@@ -3096,6 +3094,15 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
     return ok;
 }
 
+void SLAPI iSalesPepsi::SetupLocalPeriod(DateRange & rPeriod) const
+{
+	rPeriod = P.ExpPeriod;
+	if(!checkdate(rPeriod.low))
+		rPeriod.low = encodedate(1, 1, 2016);
+	if(!checkdate(rPeriod.upp))
+		rPeriod.upp = encodedate(31, 12, 2030);
+}
+
 int SLAPI iSalesPepsi::ReceiveOrders()
 {
     int    ok = -1;
@@ -3107,8 +3114,8 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
 	ISALESGETORDERLIST_PROC func = 0;
 	DateRange period;
-	period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
 	SString tech_buf;
+	SetupLocalPeriod(period);
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 	{
 		PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_S, &msg_buf, tech_buf.cptr());
@@ -3276,19 +3283,11 @@ int SLAPI iSalesPepsi::ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & r
 	TSCollection <iSalesBillDebt> * p_result = 0;
 	ISALESGETUNCLOSEDBILLLIST_PROC func = 0;
 	DateRange period;
-	// @v9.9.7 period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
-	// @v9.9.7 {
-	if(P.ExpPeriod.low && P.ExpPeriod.upp) {
-		period = P.ExpPeriod;
-	}
-	else {
-		period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
-	}
-	// } @v9.9.7
+	SetupLocalPeriod(period);
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (ISALESGETUNCLOSEDBILLLIST_PROC)P_Lib->GetProcAddr("iSalesGetUnclosedBillList"));
+	THROW_SL(func = reinterpret_cast<ISALESGETUNCLOSEDBILLLIST_PROC>(P_Lib->GetProcAddr("iSalesGetUnclosedBillList")));
 	sess.Setup(SvcUrl);
 	p_result = func(sess, UserName, Password, &period);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -3330,18 +3329,15 @@ int SLAPI iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
 	DateRange period;
 	// @v9.9.0 period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
 	// @v9.9.0 {
-	if(P.ExpPeriod.low && P.ExpPeriod.upp) {
+	if(P.ExpPeriod.low && P.ExpPeriod.upp)
 		period = P.ExpPeriod;
-	}
-	else {
-		const LDATE curdt = getcurdate_();
-		period.Set(curdt, curdt);
-	}
+	else
+		period.SetDate(getcurdate_());
 	// } @v9.9.0
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (ISALESGETROUTELIST_PROC)P_Lib->GetProcAddr("iSalesGetRouteList"));
+	THROW_SL(func = reinterpret_cast<ISALESGETROUTELIST_PROC>(P_Lib->GetProcAddr("iSalesGetRouteList")));
 	sess.Setup(SvcUrl);
 	p_result = func(sess, UserName, Password, &period);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -3390,7 +3386,7 @@ int SLAPI iSalesPepsi::SendStatus(const TSCollection <iSalesTransferStatus> & rL
 	if(rList.getCount()) {
 		int    result = 0;
 		ISALESPUTTRANSFERSTATUS_PROC func = 0;
-		THROW_SL(func = (ISALESPUTTRANSFERSTATUS_PROC)P_Lib->GetProcAddr("iSalesPutTransferStatus"));
+		THROW_SL(func = reinterpret_cast<ISALESPUTTRANSFERSTATUS_PROC>(P_Lib->GetProcAddr("iSalesPutTransferStatus")));
 		sess.Setup(SvcUrl);
 		p_result = func(sess, UserName, Password, &rList);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -3403,8 +3399,8 @@ int SLAPI iSalesPepsi::SendStatus(const TSCollection <iSalesTransferStatus> & rL
 
 IMPL_CMPFUNC(iSalesBillDebt, p1, p2)
 {
-	const iSalesBillDebt * b1 = (const iSalesBillDebt *)p1;
-	const iSalesBillDebt * b2 = (const iSalesBillDebt *)p2;
+	const iSalesBillDebt * b1 = static_cast<const iSalesBillDebt *>(p1);
+	const iSalesBillDebt * b2 = static_cast<const iSalesBillDebt *>(p2);
 	int    si = cmp(b1->Dtm, b2->Dtm);
 	SETIFZ(si, stricmp866(b1->Code, b2->Code));
 	return si;
@@ -3462,7 +3458,7 @@ int SLAPI iSalesPepsi::SendDebts()
 		}
 		if(current_debt_list.getCount()) {
 			ISALESPUTDEBTSETTLEMENT_PROC func = 0;
-			THROW_SL(func = (ISALESPUTDEBTSETTLEMENT_PROC)P_Lib->GetProcAddr("iSalesPutDebtSettlement"));
+			THROW_SL(func = reinterpret_cast<ISALESPUTDEBTSETTLEMENT_PROC>(P_Lib->GetProcAddr("iSalesPutDebtSettlement")));
 			sess.Setup(SvcUrl);
 			p_result = func(sess, UserName, Password, &current_debt_list);
 			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -3612,7 +3608,7 @@ int SLAPI iSalesPepsi::SendPrices()
 		}
 		if(do_send) {
 			ISALESPUTPRICES_PROC func = 0;
-			THROW_SL(func = (ISALESPUTPRICES_PROC)P_Lib->GetProcAddr("iSalesPutPrices"));
+			THROW_SL(func = reinterpret_cast<ISALESPUTPRICES_PROC>(P_Lib->GetProcAddr("iSalesPutPrices")));
 			sess.Setup(SvcUrl);
 			p_result = func(sess, UserName, Password, &pl_list);
 			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -3712,7 +3708,7 @@ int SLAPI iSalesPepsi::SendStocks()
     {
 		SString * p_result = 0;
 		ISALESPUTSTOCKCOUNTING_PROC func = 0;
-		THROW_SL(func = (ISALESPUTSTOCKCOUNTING_PROC)P_Lib->GetProcAddr("iSalesPutStockCounting"));
+		THROW_SL(func = reinterpret_cast<ISALESPUTSTOCKCOUNTING_PROC>(P_Lib->GetProcAddr("iSalesPutStockCounting")));
 		sess.Setup(SvcUrl);
 		p_result = func(sess, UserName, Password, &outp_packet);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -3929,7 +3925,6 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				p_new_pack->DestLocCode.Cat(pack.Rec.LocID);
 				//
 				const int transmit_linkret_as_unlink = 1;
-
 				BillTbl::Rec sell_rec;
 				if(!transmit_linkret_as_unlink && GetOpType(pack.Rec.OpID) == PPOPT_GOODSRETURN && pack.Rec.LinkBillID && P_BObj->Search(pack.Rec.LinkBillID, &sell_rec) > 0) {
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
@@ -4556,7 +4551,7 @@ int SLAPI SapEfes::PreprocessResult(const void * pResult, const PPSoapClientSess
 void FASTCALL SapEfes::DestroyResult(void ** ppResult)
 {
 	if(P_DestroyFunc) {
-		((UHTT_DESTROYRESULT)P_DestroyFunc)(*ppResult);
+		static_cast<UHTT_DESTROYRESULT>(P_DestroyFunc)(*ppResult);
 		*ppResult = 0;
 	}
 }
@@ -4613,8 +4608,8 @@ int SLAPI SapEfes::ReceiveOrders()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (EFESGETSALESORDERSYNCLIST_PROC)P_Lib->GetProcAddr("EfesGetSalesOrderSyncList"));
-	THROW_SL(func_status = (EFESSETSALESORDERSTATUSSYNC_PROC)P_Lib->GetProcAddr("EfesSetSalesOrderStatusSync"))
+	THROW_SL(func = reinterpret_cast<EFESGETSALESORDERSYNCLIST_PROC>(P_Lib->GetProcAddr("EfesGetSalesOrderSyncList")));
+	THROW_SL(func_status = reinterpret_cast<EFESSETSALESORDERSTATUSSYNC_PROC>(P_Lib->GetProcAddr("EfesSetSalesOrderStatusSync")));
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
 	{
@@ -5146,8 +5141,7 @@ int SLAPI SapEfes::SendInvoices()
 		EFESSETDELIVERYNOTESYNC_PROC func = 0;
 		//BillExportPeriod.Set(encodedate(1, 6, 2016), encodedate(30, 6, 2016));
 		//THROW(Helper_MakeBillList(Ep.RetOp, 5, outp_packet));
-
-		THROW_SL(func = (EFESSETDELIVERYNOTESYNC_PROC)P_Lib->GetProcAddr("EfesSetDeliveryNoteSync"));
+		THROW_SL(func = reinterpret_cast<EFESSETDELIVERYNOTESYNC_PROC>(P_Lib->GetProcAddr("EfesSetDeliveryNoteSync")));
 		sess.Setup(SvcUrl, UserName, Password);
 		InitCallHeader(sech);
 		p_result = func(sess, sech, &outp_packet);
@@ -5182,7 +5176,7 @@ int SLAPI SapEfes::SendInvoices()
 	if(to_cancel_bill_list.getCount()) {
 		TSCollection <SString> to_cancel_code_list;
 		EFESCANCELDELIVERYNOTESYNC_PROC func = 0;
-		THROW_SL(func = (EFESCANCELDELIVERYNOTESYNC_PROC)P_Lib->GetProcAddr("EfesCancelDeliveryNoteSync"));
+		THROW_SL(func = reinterpret_cast<EFESCANCELDELIVERYNOTESYNC_PROC>(P_Lib->GetProcAddr("EfesCancelDeliveryNoteSync")));
 		{
 			for(uint i = 0; i < to_cancel_bill_list.getCount(); i++) {
 				const PPID to_cancel_bill_id = to_cancel_bill_list.get(i);
@@ -5327,7 +5321,7 @@ int SLAPI SapEfes::Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rLis
 		THROW(State & stInited);
 		THROW(State & stEpDefined);
 		THROW(P_Lib);
-		THROW_SL(func = (EFESSETDEBTSYNC_PROC)P_Lib->GetProcAddr("EfesSetDebtSync"));
+		THROW_SL(func = reinterpret_cast<EFESSETDEBTSYNC_PROC>(P_Lib->GetProcAddr("EfesSetDebtSync")));
 		sess.Setup(SvcUrl, UserName, Password);
 		InitCallHeader(sech);
 		{
@@ -5353,7 +5347,7 @@ int SLAPI SapEfes::Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportE
 		THROW(State & stInited);
 		THROW(State & stEpDefined);
 		THROW(P_Lib);
-		THROW_SL(func = (EFESSETDEBTDETAILSYNC_PROC)P_Lib->GetProcAddr("EfesSetDebtDetailSync"));
+		THROW_SL(func = reinterpret_cast<EFESSETDEBTDETAILSYNC_PROC>(P_Lib->GetProcAddr("EfesSetDebtDetailSync")));
 		sess.Setup(SvcUrl, UserName, Password);
 		InitCallHeader(sech);
 		{
@@ -5658,7 +5652,7 @@ int SLAPI SfaHeineken::PreprocessResult(const void * pResult, const PPSoapClient
 void FASTCALL SfaHeineken::DestroyResult(void ** ppResult)
 {
 	if(P_DestroyFunc) {
-		((UHTT_DESTROYRESULT)P_DestroyFunc)(*ppResult);
+		static_cast<UHTT_DESTROYRESULT>(P_DestroyFunc)(*ppResult);
 		*ppResult = 0;
 	}
 }
@@ -5686,7 +5680,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (SFAHEINEKENGETORDERS_PROC)P_Lib->GetProcAddr("SfaHeineken_GetOrders"));
+	THROW_SL(func = reinterpret_cast<SFAHEINEKENGETORDERS_PROC>(P_Lib->GetProcAddr("SfaHeineken_GetOrders")));
 	sess.Setup(SvcUrl, UserName, Password);
 	// @v10.0.1 {
 	if(checkdate(P.ExpPeriod.low) && P.ExpPeriod.upp == P.ExpPeriod.low) {
@@ -5862,7 +5856,7 @@ int SLAPI SfaHeineken::ReceiveGoods()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (SFAHEINEKENGETSKUASSORTIMENT_PROC)P_Lib->GetProcAddr("SfaHeineken_GetSkuAssortiment"));
+	THROW_SL(func = reinterpret_cast<SFAHEINEKENGETSKUASSORTIMENT_PROC>(P_Lib->GetProcAddr("SfaHeineken_GetSkuAssortiment")));
 	sess.Setup(SvcUrl, UserName, Password);
 	p_result = func(sess);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -5889,7 +5883,7 @@ int SLAPI SfaHeineken::SendStatus(const TSCollection <SfaHeinekenOrderStatusEntr
 		THROW(State & stInited);
 		THROW(State & stEpDefined);
 		THROW(P_Lib);
-		THROW_SL(func = (SFAHEINEKENSENDORDERSSTATUSES_PROC)P_Lib->GetProcAddr("SfaHeineken_SendOrdersStatuses"));
+		THROW_SL(func = reinterpret_cast<SFAHEINEKENSENDORDERSSTATUSES_PROC>(P_Lib->GetProcAddr("SfaHeineken_SendOrdersStatuses")));
 		sess.Setup(SvcUrl, UserName, Password);
 		p_result = func(sess, rList);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -6141,7 +6135,7 @@ int SLAPI SfaHeineken::SendDebts()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC)P_Lib->GetProcAddr("SfaHeineken_SendAllContragentDebet"));
+	THROW_SL(func = reinterpret_cast<SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC>(P_Lib->GetProcAddr("SfaHeineken_SendAllContragentDebet")));
 	{
 		Reference * p_ref = PPRef;
 		PPViewDebtTrnovr debt_view;
@@ -6298,7 +6292,7 @@ int SLAPI SfaHeineken::SendStocks()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (SFAHEINEKENSENDWAREHOUSEBALANCE_PROC)P_Lib->GetProcAddr("SfaHeineken_SendWarehousesBalance"));
+	THROW_SL(func = reinterpret_cast<SFAHEINEKENSENDWAREHOUSEBALANCE_PROC>(P_Lib->GetProcAddr("SfaHeineken_SendWarehousesBalance")));
 	sess.Setup(SvcUrl, UserName, Password);
 	if(Ep.Fb.LocCodeTagID) {
 		Reference * p_ref = PPRef;

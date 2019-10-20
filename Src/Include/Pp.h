@@ -1225,7 +1225,7 @@ public:
 	static int IdDateTime;          // (fldDate, fldTime)
 	static int IdDurationToTime;    // (fldLong)
 	static int IdInventDiffQtty;    // (fldFlags, fldDiffQtty)
-	static int IdInventLnStatus;    // @v10.5.8 (fldFlags)
+	static int IdInventLnStatus;    // @v10.5.8 (fldFlags, fldBillID)
 	static int IdTSesLnPhQtty;      // (fldGoodsID, fldFlags, fldQtty, fldWtQtty)
 	static int IdTSesLnFlags;       // (fldFlags)
 	static int IdPercent;           // (fldDividend, fldDivisor) =(100 * div / divisor)
@@ -4213,7 +4213,7 @@ public:
 	int    SLAPI Verify();
 	int    SLAPI GetRelByID(PPID relID, PPQuot * pVal);
 	int    SLAPI GetRel(const PPQuot * pVal, PPID * pID, int createIfNExists, int use_ta);
-	int    SLAPI GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList); 
+	int    SLAPI GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList);
 	int    SLAPI Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQuotArray * pList);
 	int    SLAPI GetAfterDT(const LDATETIME & rAfter, PPQuotArray *pList); //v10.5.8 @erik
 	int    SLAPI GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot); //v10.5.8 @erik
@@ -4303,7 +4303,7 @@ public:
 		fSkipNoDisGoods    = 0x0010,  // Не изменять котировки для товаров с признаком "Без скидки" (GF_NODISCOUNT)
 		fSkipDatedQuot     = 0x0020,  // @v8.5.2 Не изменять значения котировок, заданные с периодом
 		fSetupDatedSamples = 0x0040,  // @v9.1.0 Устанавливать значения котировок по образцу вместе с периодом действия
-		ftest              = 0x0080   // @erik v10.5.8
+		fTest              = 0x0080   // @erik v10.5.8 Тестовый запуск (только в режиме DEVELOPMENT)
 	};
 	char   ReserveStart[12]; // @anchor
 	DateRange FiltQuotPeriod; // Фильтрующий критерий периода для значений котировок
@@ -5229,6 +5229,7 @@ struct AccTurnParam {
 	// по установленным в конфигурации глобального обмена параметрам доступа к ВЕТИС.
 #define CCFLG2_USEHISTPERSON       0x00001000L // @v10.5.3 Вести историю изменения персоналий
 #define CCFLG2_USEHISTSCARD        0x00002000L // @v10.5.3 Вести историю изменения персональных карт
+#define CCFLG2_DEVELOPMENT         0x00004000L // @v10.5.9 Режим разработки - включаются дополнительные опции отображения и управления
 //
 // Общие параметры конфигурации
 //
@@ -5450,6 +5451,7 @@ private:
 #define PPSCMD_SETTIMESERIESPROP     10114 // @v10.2.5
 #define PPSCMD_SETTIMESERIESSTKENV   10115 // @v10.2.10
 #define PPSCMD_TIMESERIESTANOTIFY    10116 // @v10.3.11
+#define PPSCMD_GETCOMMONMQSCONFIG    10117 // @v10.5.9
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -5986,7 +5988,7 @@ private:
 	enum {
 		cmdNone = 0,
 		cmdGetGlobalAccountList = 1,
-		cmdVerifyGlobalAccount
+		cmdVerifyGlobalAccount = 2,
 	};
 	struct Command {
 		SLAPI  Command();
@@ -14765,6 +14767,7 @@ public:
 		exefDisable3Tier = 0x0002
 	};
 	static int FASTCALL Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, void * extraPtr);
+	static int FASTCALL Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, PPView ** ppResult, void * extraPtr);
 	static int SLAPI ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
 	static int SLAPI Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
 	static int SLAPI Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
@@ -14852,12 +14855,13 @@ public:
 	int    SLAPI GetOuterTitle(SString * pBuf) const;
 private:
 	uint32 Sign; // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
-	int    ExecFlags; // @v8.3.2 Флаги, с которыми была вызвана функция PPView::Execute()
+	int    ExecFlags; // Флаги, с которыми была вызвана функция PPView::Execute()
 	LongArray * P_LastUpdatedObjects; // @v9.0.4 Список идентификаторов объектов, созданных, измененных
 		// или удаленный при последнем вызове PPView::ProcessCommand. Необходим для того,
 		// что бы порожденный класс мог отреагировать на обработку событий базовым классом.
 
 	static int FASTCALL CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV);
+	static int FASTCALL Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr);
 	int    SLAPI Helper_Init(const PPBaseFilt * pFilt, int flags /* exefXXX */);
 protected:
 	static DBQuery * CrosstabDbQueryStub; // realy const (bad ptr)
@@ -17445,7 +17449,8 @@ struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 	int16  AmountCalcMethod; // Метод расчета цен
 	int16  AutoFillMethod;   // Метод автозаполнени
 	int16  Reserve2;         //
-	char   Reserve3[40];     //
+	char   Reserve3[36];     // @v10.5.9 [40]-->[36]
+	long   OnWrOffStatusID;  // @v10.5.9 Статус, устанавливаемый при списании документа
 	long   Flags;            // INVOPF_XXX
 	long   Reserve4;         //
 };
@@ -21379,7 +21384,7 @@ public:
 
 class PPObjUhttStore : public PPObjReference {
 public:
-	SLAPI  PPObjUhttStore(void * extraPtr = 0);
+	explicit SLAPI PPObjUhttStore(void * extraPtr = 0);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
 	int    SLAPI ValidatePacket(const PPUhttStorePacket * pPack, long flags);
@@ -21453,7 +21458,6 @@ public:
 		ufDontChgContent = 0x0001, // Функция PPObjWorkbook::PutPacket не должна изменять контент записей
 	};
 	long   UpdFlags;        // @transient @v8.2.3 Флаги, определяющие правила изменения некоторых полей
-
 	ObjTagList TagL;        // Список тегов
 	ObjLinkFiles F;
 	SString ExtString;
@@ -21491,7 +21495,7 @@ class PPObjWorkbook : public PPObject {
 public:
 	static int  FASTCALL ReadConfig(PPWorkbookConfig * pCfg);
 	static int  SLAPI EditConfig();
-	SLAPI  PPObjWorkbook(void * extraPtr = 0);
+	explicit SLAPI PPObjWorkbook(void * extraPtr = 0);
 	SLAPI ~PPObjWorkbook();
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -21531,7 +21535,6 @@ public:
 			ltLink,
 			ltAnnot
 		};
-
 		PPID   ID;
 		PPID   AddendumID;
 		int    Type;
@@ -31706,7 +31709,11 @@ public:
 	int    SLAPI EditLotSystemInfo(PPID lotID);
 	int    SLAPI UpdateOpCounter(PPBillPacket * pPack);
 	int    SLAPI SetWLabel(PPID, int mode);
-	int    SLAPI SetStatus(PPID id, PPID statusID, int use_ta);
+	//
+	// Descr: Устанавливает статус statusID у документа billID.
+	//   Выполняет все проверки необходимые для установки заданного статуса.
+	//
+	int    SLAPI SetStatus(PPID billID, PPID statusID, int use_ta);
 	//
 	// Descr: Выводит на экран таблицу со списком оплат (или других связанных документов),
 	//   привязанных к документу billID.
@@ -35423,6 +35430,16 @@ struct PrcBusyViewItem {
 
 class PPViewPrcBusy : public PPView {
 public:
+	//
+	// Descr: Внешний контекст при активации экземпляра
+	//
+	struct OuterContext {
+		SLAPI  OuterContext();
+		PPID   PersonID;
+		PPID   SCardID;
+		PPID   LocID;
+		SString Phone;
+	};
 	SLAPI  PPViewPrcBusy();
 	SLAPI ~PPViewPrcBusy();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
@@ -35433,6 +35450,10 @@ public:
 	int    SLAPI GetItem(PPID id, PrcBusyViewItem * pItem);
 	int    SLAPI EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm);
 	int    SLAPI UpdateTimeGridItem(PPID sessID, PPID prcID, const STimeChunk & rNewChunk);
+	//
+	// Descr: Устанавливает внешний контекст. Если pOCtx == 0, то сбрасывает текущий контекст.
+	//
+	void   SLAPI SetOuterContext(const OuterContext * pOCtx);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -35456,6 +35477,7 @@ private:
 	PPObjStaffList SlObj;
 	PPIDArray PrcList;
 	PPIDArray UpdatePrcList;
+	OuterContext * P_OCtx;
 	//
 	class PrcBusyTimeChunkGrid : public STimeChunkGrid {
 	public:
@@ -36924,6 +36946,9 @@ private:
 	int    SLAPI ConvertBasketToBill();
 	int    SLAPI ConvertBasket(const PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta);
 	int    SLAPI MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDoubleIDTbl::Rec * pOutRec);
+
+	static int DynFuncInvLnWrOff;
+
 	InventoryFilt Filt;
 	enum {
 		fIsZeroByDefault = 0x0001, // Операция документа инвентаризации подразумевает нулевой остаток по умолчанию.
@@ -36970,7 +36995,11 @@ private:
 class QuoteReqAnalyzeFilt : public PPBaseFilt {
 public:
 	SLAPI  QuoteReqAnalyzeFilt();
-
+	enum {
+		ordByDefault  = 0,
+		ordByLeadBill = 1,
+		ordBySeqBill  = 2,
+	};
 	uint8  ReserveStart[128]; // @anchor
 	DateRange Period;
 	PPID   OpID;
@@ -37018,6 +37047,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(QuoteReqAnalyzeViewItem *);
 	static int SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+	int    FASTCALL CmpBrwItems(int ord, const BrwItem * p1, const BrwItem * p2);
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
@@ -37028,6 +37058,7 @@ private:
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI CreateList(PPID leadBillID, int leadRbb);
 	int    SLAPI FinishListBySeq(PPID leadBillID, int leadRbb);
+	void   SLAPI SortList(int ord);
 	int    SLAPI MakeViewList();
 	int    SLAPI CreateLinkedRequest(PPID leadBillID, int leadRbb);
 	int    SLAPI EditSeqItem(PPID seqBillID, int seqRbb);
@@ -46047,6 +46078,7 @@ public:
 	int    SLAPI Get(PPID id, VetisProductItem & rItem);
 	int    SLAPI Get(PPID id, VetisProduct & rItem);
 	int    SLAPI Get(PPID id, VetisSubProduct & rItem);
+	int    SLAPI SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rAppId, int use_ta);
 	int    SLAPI SearchPerson(PPID id, VetisPersonTbl::Rec * pRec);
 	int    SLAPI SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec);
 	int    SLAPI MatchPersonInDocument(PPID docEntityID, int side /*0 - from, 1 - to*/, PPID personID, PPID dlvrLocID, int use_ta);

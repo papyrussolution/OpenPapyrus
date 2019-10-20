@@ -147,7 +147,7 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
  * Define a macro which has no runtime effect, yet avoids triggering empty
  * statement compiler warnings. Use it as the text of conditionally-null macros.
  */
-#define	NOP_STATEMENT	do { } while (0)
+#define	NOP_STATEMENT	do { } while(0)
 
 /* Test for a power-of-two (tests true for zero, which doesn't matter here). */
 #define	POWER_OF_TWO(x)	(((x) & ((x) - 1)) == 0)
@@ -263,7 +263,7 @@ typedef struct __fn {
 // STAT_DEC() subtracts one rather than adding (-1) with STAT_ADJUST(); the
 // latter might generate a compilation warning for an unsigned value.
 // 
-#define	STAT_DEC(env, cat, subcat, val, id) do { (val)--; STAT_PERFMON2((env), cat, subcat, (val), (id)); } while (0)
+#define	STAT_DEC(env, cat, subcat, val, id) do { (val)--; STAT_PERFMON2((env), cat, subcat, (val), (id)); } while(0)
 /* N.B.: Add a verbose version of STAT_DEC() when needed. */
 
 #define	STAT_SET(env, cat, subcat, val, newval, id)            do { (val) = (newval); STAT_PERFMON2((env), cat, subcat, (val), (id)); } while(0)
@@ -306,7 +306,7 @@ typedef struct __db_msgbuf {
 #define	DB_MSGBUF_INIT(a) do {						\
 	(a)->buf = (a)->cur = NULL;					\
 	(a)->len = 0;							\
-} while (0)
+} while(0)
 #define	DB_MSGBUF_FLUSH(env, a) do {					\
 	if((a)->buf != NULL) {						\
 		if((a)->cur != (a)->buf)				\
@@ -314,7 +314,7 @@ typedef struct __db_msgbuf {
 		__os_free(env, (a)->buf);				\
 		DB_MSGBUF_INIT(a);					\
 	}								\
-} while (0)
+} while(0)
 #define	DB_MSGBUF_REP_FLUSH(env, a, diag_msg, regular_msg) do {		\
 	if((a)->buf != NULL) {						\
 		if((a)->cur != (a)->buf && diag_msg)			\
@@ -326,14 +326,14 @@ typedef struct __db_msgbuf {
 			DB_MSGBUF_INIT(a);				\
 		}							\
 	}								\
-} while (0)
+} while(0)
 #define	STAT_FMT(msg, fmt, type, v) do {				\
 	DB_MSGBUF __mb;							\
 	DB_MSGBUF_INIT(&__mb);						\
 	__db_msgadd(env, &__mb, fmt, static_cast<type>(v));			\
 	__db_msgadd(env, &__mb, "\t%s", msg);				\
 	DB_MSGBUF_FLUSH(env, &__mb);					\
-} while (0)
+} while(0)
 #define	STAT_HEX(msg, v)     __db_msg(env, "%#lx\t%s", static_cast<ulong>(v), msg)
 #define	STAT_ISSET(msg, p)   __db_msg(env, "%sSet\t%s", (p) == NULL ? "!" : " ", msg)
 #define	STAT_LONG(msg, v)    __db_msg(env, "%ld\t%s", static_cast<long>(v), msg)
@@ -342,7 +342,7 @@ typedef struct __db_msgbuf {
 #define	STAT_STRING(msg, p) do {					\
 	const char *__p = p;	/* p may be a function call. */		\
 	__db_msg(env, "%s\t%s", __p ? __p : "!Set", msg);	\
-} while (0)
+} while(0)
 #define	STAT_ULONG(msg, v) __db_msg(env, "%lu\t%s", static_cast<ulong>(v), msg)
 /*
  * The following macros are used to control how error and message strings are
@@ -384,8 +384,8 @@ typedef struct __db_msgbuf {
  * to size_t in most cases.  This macro avoids a lot of casting.  The macro
  * comes in two flavors because we often want to clear the DBT first.
  */
-#define	DB_SET_DBT(dbt, d, s)  do { (dbt).data = (void *)(d); (dbt).size = static_cast<uint32>(s); } while (0)
-#define DB_INIT_DBT(dbt, d, s) do { memzero(&(dbt), sizeof(dbt)); DB_SET_DBT(dbt, d, s); } while (0)
+#define	DB_SET_DBT(dbt, d, s)  do { (dbt).data = (void *)(d); (dbt).size = static_cast<uint32>(s); } while(0)
+#define DB_INIT_DBT(dbt, d, s) do { memzero(&(dbt), sizeof(dbt)); DB_SET_DBT(dbt, d, s); } while(0)
 
 /*******************************************************
  * API return values
@@ -502,7 +502,7 @@ typedef enum {
 		else 							\
 			ret = __env_set_state(env, &(ip), THREAD_ACTIVE);\
 	}								\
-} while (0)
+} while(0)
 
 #define	ENV_ENTER(env, ip) do {						\
 	int __ret;							\
@@ -510,9 +510,9 @@ typedef enum {
 	ENV_ENTER_RET(env, ip, __ret);					\
 	if(__ret != 0)							\
 		return (__ret);						\
-} while (0)
+} while(0)
 
-#define	FAILCHK_THREAD(env, ip) do { if((ip) != NULL) (ip)->dbth_state = THREAD_FAILCHK; } while (0)
+#define	FAILCHK_THREAD(env, ip) do { if((ip) != NULL) (ip)->dbth_state = THREAD_FAILCHK; } while(0)
 #define	ENV_GET_THREAD_INFO(env, ip) ENV_ENTER(env, ip)
 
 #ifdef DIAGNOSTIC
@@ -521,9 +521,9 @@ typedef enum {
 			DB_ASSERT(env, ((ip)->dbth_state == THREAD_ACTIVE || (ip)->dbth_state == THREAD_FAILCHK)); \
 			(ip)->dbth_state = THREAD_OUT;				\
 		}								\
-	} while (0)
+	} while(0)
 #else
-	#define	ENV_LEAVE(env, ip) do { if((ip) != NULL) (ip)->dbth_state = THREAD_OUT; } while (0)
+	#define	ENV_LEAVE(env, ip) do { if((ip) != NULL) (ip)->dbth_state = THREAD_OUT; } while(0)
 #endif
 #ifdef DIAGNOSTIC
 	#define	CHECK_THREAD(env) do { if((env)->thr_hashtab != NULL) __env_set_state(env, NULL, THREAD_VERIFY); } while(0)
@@ -531,7 +531,7 @@ typedef enum {
 		#define	CHECK_MTX_THREAD(env, mtx) do {					\
 			if(mtx->alloc_id != MTX_MUTEX_REGION && mtx->alloc_id != MTX_ENV_REGION && mtx->alloc_id != MTX_APPLICATION) \
 				CHECK_THREAD(env);					\
-		} while (0)
+		} while(0)
 	#else
 		#define	CHECK_MTX_THREAD(env, mtx)	NOP_STATEMENT
 	#endif
@@ -602,7 +602,7 @@ typedef struct __env_thread_info {
 	roff_t thr_hashoff;
 } THREAD_INFO;
 
-#define	DB_EVENT(env, e, einfo) do { DB_ENV *__dbenv = (env)->dbenv; if(__dbenv->db_event_func) __dbenv->db_event_func(__dbenv, e, einfo); } while (0)
+#define	DB_EVENT(env, e, einfo) do { DB_ENV *__dbenv = (env)->dbenv; if(__dbenv->db_event_func) __dbenv->db_event_func(__dbenv, e, einfo); } while(0)
 
 typedef struct __flag_map {
 	uint32 inflag;
@@ -786,7 +786,7 @@ typedef enum {
 		(dbc)->rskey = &(owner)->my_rskey;	\
 		(dbc)->rkey = &(owner)->my_rkey;	\
 		(dbc)->rdata = &(owner)->my_rdata;	\
-	} while (0)
+	} while(0)
 
 /* Use the return-data memory src is currently set to use in dest as well. */
 #define	COPY_RET_MEM(src, dest)				\
@@ -794,7 +794,7 @@ typedef enum {
 		(dest)->rskey = (src)->rskey;		\
 		(dest)->rkey = (src)->rkey;		\
 		(dest)->rdata = (src)->rdata;		\
-	} while (0)
+	} while(0)
 
 /* Reset the returned-memory pointers to their defaults. */
 #define	RESET_RET_MEM(dbc)				\
@@ -802,9 +802,9 @@ typedef enum {
 		(dbc)->rskey = &(dbc)->my_rskey;	\
 		(dbc)->rkey = &(dbc)->my_rkey;		\
 		(dbc)->rdata = &(dbc)->my_rdata;	\
-	} while (0)
+	} while(0)
 
-#define	COMPACT_TRUNCATE(c_data) do { if(c_data->compact_truncate > 1) c_data->compact_truncate--; } while (0)
+#define	COMPACT_TRUNCATE(c_data) do { if(c_data->compact_truncate > 1) c_data->compact_truncate--; } while(0)
 
 /*******************************************************
  * Mpool.
@@ -829,18 +829,18 @@ typedef struct __dbpginfo {
 //
 // Initialize an LSN to 'zero'
 //
-//#define ZERO_LSN(LSN)           do { (LSN).file = 0; (LSN).Offset_ = 0; } while (0)
+//#define ZERO_LSN(LSN)           do { (LSN).file = 0; (LSN).Offset_ = 0; } while(0)
 //#define IS_ZERO_LSN(LSN)        ((LSN).file == 0 && (LSN).Offset_ == 0)
 #define ZERO_LSN(LSN)           (LSN).Clear()
 #define IS_ZERO_LSN(LSN)        (LSN).IsZero()
 #define	IS_INIT_LSN(LSN)        ((LSN).file == 1 && (LSN).Offset_ == 0)
-#define	INIT_LSN(LSN)           do { (LSN).file = 1; (LSN).Offset_ = 0; } while (0)
-#define	MAX_LSN(LSN)            do { (LSN).file = UINT32_MAX; (LSN).Offset_ = UINT32_MAX; } while (0)
+#define	INIT_LSN(LSN)           do { (LSN).file = 1; (LSN).Offset_ = 0; } while(0)
+#define	MAX_LSN(LSN)            do { (LSN).file = UINT32_MAX; (LSN).Offset_ = UINT32_MAX; } while(0)
 #define	IS_MAX_LSN(LSN)         ((LSN).file == UINT32_MAX && (LSN).Offset_ == UINT32_MAX)
 //
 // If logging is turned off, smash the lsn
 //
-//#define LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).Offset_ = 1; } while (0)
+//#define LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).Offset_ = 1; } while(0)
 #define LSN_NOT_LOGGED(LSN)     (LSN).NotLogged()
 #define	IS_NOT_LOGGED_LSN(LSN)  ((LSN).file == 0 && (LSN).Offset_ == 1)
 //
@@ -1178,13 +1178,13 @@ struct __ckp_verify_params {
  * EPRINT is the macro for error printing.  Takes as an arg the arg set
  * for DB->err.
  */
-#define	EPRINT(x) do { if(!LF_ISSET(DB_SALVAGE)) __db_errx x; } while (0)
+#define	EPRINT(x) do { if(!LF_ISSET(DB_SALVAGE)) __db_errx x; } while(0)
 
 /* Complain about a totally zeroed page where we don't expect one. */
 #define	ZEROPG_ERR_PRINT(dbenv, pgno, str) do {				\
 	EPRINT(((dbenv), DB_STR_A("0501", "Page %lu: %s is of inappropriate type %lu", "%lu %s %lu"), (ulong)(pgno), str, (ulong)P_INVALID)); \
 	EPRINT(((dbenv), DB_STR_A("0502", "Page %lu: totally zeroed page", "%lu"), (ulong)(pgno))); \
-} while (0)
+} while(0)
 /*
  * Note that 0 is, in general, a valid pgno, despite equaling PGNO_INVALID;
  * we have to test it separately where it's not appropriate.

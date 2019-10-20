@@ -215,7 +215,7 @@ JMESSAGE(JWRN_TOO_MUCH_DATA, "Application transferred too many scanlines")
    strncpy((cinfo)->err->msg_parm.s, (str), JMSG_STR_PARM_MAX), \
    (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)))
 
-#define MAKESTMT(stuff)		do { stuff } while (0)
+#define MAKESTMT(stuff)		do { stuff } while(0)
 
 /* Nonfatal errors (we can keep going, but the data is probably corrupt) */
 #define WARNMS(cinfo,code)  \

@@ -157,6 +157,8 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 	AddClusterAssoc(CTL_QUOTUPD_WARN, 0, QuotUpdFilt::fWarnExistsAbsQuot);
 	AddClusterAssoc(CTL_QUOTUPD_WARN, 1, QuotUpdFilt::fSkipNoDisGoods);
 	AddClusterAssoc(CTL_QUOTUPD_WARN, 2, QuotUpdFilt::fSkipDatedQuot);
+	AddClusterAssoc(CTL_QUOTUPD_WARN, 3, QuotUpdFilt::fTest); // @v10.5.9
+	DisableClusterItem(CTL_QUOTUPD_WARN, 3, !(CConfig.Flags2 & CCFLG2_DEVELOPMENT)); // @v10.5.9
 	SetClusterData(CTL_QUOTUPD_WARN, Data.Flags);
 	if(Data.ByWhat == QuotUpdFilt::byFormula) {
 		temp_buf = Data.Formula;
@@ -170,10 +172,12 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 	setCtrlString(CTL_QUOTUPD_PCT, temp_buf);
 	temp_buf.Z().Cat(Data.QuotValPeriod, 1);
 	setStaticText(CTL_QUOTUPD_ST_VALEXT, temp_buf);
+	/* @v10.5.9
 	// @erik v10.5.8 { 
-	AddClusterAssoc(CTL_QUOTUPD_TEST, 0, QuotUpdFilt::ftest);
+	AddClusterAssoc(CTL_QUOTUPD_TEST, 0, QuotUpdFilt::fTest);
 	SetClusterData(CTL_QUOTUPD_TEST, Data.Flags);
 	// } @erik 
+	*/
 	return 1;
 }
 
@@ -184,7 +188,7 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 	ushort v = 0;
 	SString temp_buf;
 	QuotCls = GetClusterData(CTL_QUOTUPD_WHAT);
-	GetClusterData(CTL_QUOTUPD_TEST, &Data.Flags);  //@erik v10.5.8
+	// @v10.5.9 (перемещено в CTL_QUOTUPD_WARN) GetClusterData(CTL_QUOTUPD_TEST, &Data.Flags);  //@erik v10.5.8
 	getCtrlData(CTLSEL_QUOTUPD_KIND, &Data.QuotKindID);
 	{
 		LocationCtrlGroup::Rec grp_rec;
@@ -221,6 +225,10 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 	else
 		Data.Flags |= QuotUpdFilt::fExistOnly;
 	GetClusterData(CTL_QUOTUPD_WARN, &Data.Flags);
+	// @v10.5.9 {
+	if(!(CConfig.Flags2 & CCFLG2_DEVELOPMENT))
+		Data.Flags &= ~QuotUpdFilt::fTest;
+	// } @v10.5.9 
 	getCtrlString(sel = CTL_QUOTUPD_PCT, temp_buf.Z());
 	if(Data.ByWhat == QuotUpdFilt::byFormula) {
 		Data.Formula = temp_buf;
@@ -886,7 +894,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 	}
 	while(pFilt || EditQuotUpdDialog(&flt) > 0) {
 		// @erik v10.5.8 { 
-		if(flt.Flags & flt.ftest){
+		if(flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) { // @v10.5.9 (CConfig.Flags2 & CCFLG2_DEVELOPMENT)
 			getcurdatetime(&date_time_test);
 			qc2_test.DumpCurrent(buf_before_test, qc2_test.dumpfIgnoreTimestamp,  &items_count_before_test);
 		}
@@ -1169,7 +1177,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 		}
 		PPWait(0);
 		// @erik v10.5.8 {
-		if(ok = 1 && flt.Flags & flt.ftest) {
+		if(ok = 1 && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) { // @v10.5.9 CConfig.Flags2 & CCFLG2_DEVELOPMENT
 			if(RollbackQuots(&date_time_test)) {
 				qc2_test.DumpCurrent(buf_after_test, qc2_test.dumpfIgnoreTimestamp, &items_count_after_test);
 				THROW(buf_after_test.IsEqual(buf_before_test));
@@ -1297,7 +1305,7 @@ int SLAPI RollbackQuots(const LDATETIME * pDateTime)
 						}
 					}
 				}
-				THROW(p_qc2->Set(tmp_qlist, 0, 0, 0, 0))
+				THROW(p_qc2->Set(tmp_qlist, 0, &org_qlist_by_goods, 0, 0))
 				//tmp_qlist.clear();
 				ok = 1;
 			}

@@ -2927,6 +2927,7 @@ public:
 		int16  AmountCalcMethod; // Метод расчета цен
 		int16  AutoFillMethod;   // Метод автозаполнени
 		long   Flags;            // INVOPF_XXX
+		long   OnWrOffStatusID;  // @v10.5.9 Статус, устанавливаемый при списании документа
 	};
 	SLAPI InvOpExCache() : ObjCache(PPOBJ_OPRKIND, sizeof(Data))
 	{
@@ -2948,6 +2949,7 @@ int SLAPI InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->AmountCalcMethod = rec.AmountCalcMethod;
 		p_cache_rec->AutoFillMethod = rec.AutoFillMethod;
 		p_cache_rec->Flags   = rec.Flags;
+		p_cache_rec->OnWrOffStatusID = rec.OnWrOffStatusID; // @v10.5.9
 	}
 	else
 		ok = -1;
@@ -2969,6 +2971,7 @@ void SLAPI InvOpExCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	p_data_rec->AmountCalcMethod = p_cache_rec->AmountCalcMethod;
 	p_data_rec->AutoFillMethod = p_cache_rec->AutoFillMethod;
 	p_data_rec->Flags   = p_cache_rec->Flags;
+	p_data_rec->OnWrOffStatusID = p_cache_rec->OnWrOffStatusID; // @v10.5.9
 }
 //
 //

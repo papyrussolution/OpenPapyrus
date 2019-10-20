@@ -5596,6 +5596,17 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				if((ok = WriteOffDraft(hdr.ID)) > 0)
 					update = 1;
 				break;
+			case PPVCMD_WROFFINVENTORY: // @v10.5.9
+				ok = -1;
+				if(hdr.ID && PPMessage(mfConf|mfYesNo, PPCFM_INVWRITEOFF) == cmYes) {
+					PPWait(1);
+					if(P_BObj->ConvertInventory(hdr.ID))
+						ok = 1;
+					else
+						PPError();
+					PPWait(0);
+				}
+				break;
 			case PPVCMD_INPUTCHAR:
 				if(PTR8C(pHdr)[0] == kbCtrlX)
 					CtrlX++;

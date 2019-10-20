@@ -39,7 +39,7 @@ extern "C" {
  * Unused, or not-used-yet variable.  We need to write and then read the
  * variable, some compilers are too bloody clever by half.
  */
-// @sobolev #define	COMPQUIET(n, v)	do { (n) = (v); (n) = (n); } while (0)
+// @sobolev #define	COMPQUIET(n, v)	do { (n) = (v); (n) = (n); } while(0)
 #define	COMPQUIET(n, v)	(n) = (v) // @sobolev
 /*
  * Purify and other run-time tools complain about uninitialized reads/writes
@@ -185,7 +185,7 @@ typedef enum {
 // Hook for testing subdb locks.
 // 
 #if CONFIG_TEST
-	#define	DB_TEST_SUBLOCKS(env, flags) do { if((env)->test_abort == DB_TEST_SUBDB_LOCKS) (flags) |= DB_LOCK_NOWAIT; } while (0)
+	#define	DB_TEST_SUBLOCKS(env, flags) do { if((env)->test_abort == DB_TEST_SUBDB_LOCKS) (flags) |= DB_LOCK_NOWAIT; } while(0)
 
 	#define	DB_ENV_TEST_RECOVERY(env, val, ret, name) do {			\
 		int __ret;							\
@@ -201,7 +201,7 @@ typedef enum {
 			(ret) = EINVAL;						\
 			goto db_tr_err;						\
 		}								\
-	} while (0)
+	} while(0)
 
 	#define	DB_TEST_RECOVERY(dbp, val, ret, name) do {			\
 		ENV *__env = (dbp)->env;					\
@@ -220,10 +220,10 @@ typedef enum {
 			(ret) = EINVAL;						\
 			goto db_tr_err;						\
 		}								\
-	} while (0)
+	} while(0)
 
 	#define	DB_TEST_RECOVERY_LABEL	db_tr_err:
-	#define	DB_TEST_SET(field, val) do { if(field == (val)) goto db_tr_err; } while (0)
+	#define	DB_TEST_SET(field, val) do { if(field == (val)) goto db_tr_err; } while(0)
 	#define	DB_TEST_WAIT(env, val)  if((val) != 0) __os_yield((env), (ulong)(val), 0)
 #else
 	#define	DB_TEST_SUBLOCKS(env, flags)

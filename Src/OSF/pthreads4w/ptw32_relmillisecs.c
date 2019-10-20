@@ -96,12 +96,10 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 	}
 	return milliseconds;
 }
-
 /*
  * Return the first parameter "abstime" modified to represent the current system time.
  * If "relative" is not NULL it represents an interval to add to "abstime".
  */
-
 struct timespec * pthread_win32_getabstime_np(struct timespec * abstime, const struct timespec * relative)                  
 {
 	int64_t sec;

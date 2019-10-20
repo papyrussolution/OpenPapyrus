@@ -96,16 +96,16 @@ extern "C" {
 	((uint8 *)b)[1] = ((uint8 *)a)[1];			\
 	((uint8 *)b)[2] = ((uint8 *)a)[2];			\
 	((uint8 *)b)[3] = ((uint8 *)a)[3];			\
-} while (0)
+} while(0)
 #undef	P_32_COPYSWAP
 #define	P_32_COPYSWAP(a, b) do {					\
 	((uint8 *)b)[0] = ((uint8 *)a)[3];			\
 	((uint8 *)b)[1] = ((uint8 *)a)[2];			\
 	((uint8 *)b)[2] = ((uint8 *)a)[1];			\
 	((uint8 *)b)[3] = ((uint8 *)a)[0];			\
-} while (0)
+} while(0)
 #undef	P_32_SWAP
-#define	P_32_SWAP(a) do { uint32 _tmp; P_32_COPY(a, &_tmp); P_32_COPYSWAP(&_tmp, a); } while (0)
+#define	P_32_SWAP(a) do { uint32 _tmp; P_32_COPY(a, &_tmp); P_32_COPYSWAP(&_tmp, a); } while(0)
 #undef	M_32_SWAP
 #define	M_32_SWAP(a) P_32_SWAP(&a)
 
@@ -120,18 +120,18 @@ extern "C" {
 #define	P_16_COPY(a, b) do {						\
 	((uint8 *)b)[0] = ((uint8 *)a)[0];			\
 	((uint8 *)b)[1] = ((uint8 *)a)[1];			\
-} while (0)
+} while(0)
 #undef	P_16_COPYSWAP
 #define	P_16_COPYSWAP(a, b) do {					\
 	((uint8 *)b)[0] = ((uint8 *)a)[1];			\
 	((uint8 *)b)[1] = ((uint8 *)a)[0];			\
-} while (0)
+} while(0)
 #undef	P_16_SWAP
 #define	P_16_SWAP(a) do {						\
 	uint16 _tmp;							\
 	P_16_COPY(a, &_tmp);						\
 	P_16_COPYSWAP(&_tmp, a);					\
-} while (0)
+} while(0)
 #undef	M_16_SWAP
 #define	M_16_SWAP(a) P_16_SWAP(&a)
 
@@ -146,9 +146,9 @@ extern "C" {
  * finding the real system functions isn't worth the effort.
  */
 #undef	DB_HTONL_SWAP
-#define	DB_HTONL_SWAP(env, p) do { if(F_ISSET((env), ENV_LITTLEENDIAN)) P_32_SWAP(p); } while (0)
+#define	DB_HTONL_SWAP(env, p) do { if(F_ISSET((env), ENV_LITTLEENDIAN)) P_32_SWAP(p); } while(0)
 #undef	DB_NTOHL_SWAP
-#define	DB_NTOHL_SWAP(env, p) do { if(F_ISSET((env), ENV_LITTLEENDIAN)) P_32_SWAP(p); } while (0)
+#define	DB_NTOHL_SWAP(env, p) do { if(F_ISSET((env), ENV_LITTLEENDIAN)) P_32_SWAP(p); } while(0)
 
 #undef	DB_NTOHL_COPYIN
 #define	DB_NTOHL_COPYIN(env, i, p) do {					\
@@ -162,7 +162,7 @@ extern "C" {
 		memcpy(&i, p, sizeof(uint32));			\
 		p = (uint8 *)p + sizeof(uint32);			\
 	}								\
-} while (0)
+} while(0)
 
 #undef	DB_NTOHS_COPYIN
 #define	DB_NTOHS_COPYIN(env, i, p) do {					\
@@ -174,7 +174,7 @@ extern "C" {
 		memcpy(&i, p, sizeof(uint16));			\
 		p = (uint8 *)p + sizeof(uint16);			\
 	}								\
-} while (0)
+} while(0)
 
 #undef	DB_HTONL_COPYOUT
 #define	DB_HTONL_COPYOUT(env, p, i) do {				\
@@ -187,7 +187,7 @@ extern "C" {
 	} else								\
 		memcpy(p, &i, sizeof(uint32));			\
 	p = (uint8 *)p + sizeof(uint32);				\
-} while (0)
+} while(0)
 
 #undef	DB_HTONS_COPYOUT
 #define	DB_HTONS_COPYOUT(env, p, i) do {				\
@@ -198,17 +198,17 @@ extern "C" {
 	} else								\
 		memcpy(p, &i, sizeof(uint16));			\
 	p = (uint8 *)p + sizeof(uint16);				\
-} while (0)
+} while(0)
 /*
  * Helper macros for swapped logs.  We write logs in little endian format to
  * minimize disruption on x86 when upgrading from native byte order to
  * platform-independent logs.
  */
 #define	LOG_SWAPPED(env) !F_ISSET(env, ENV_LITTLEENDIAN)
-#define	LOGCOPY_32(env, x, p) do { if(LOG_SWAPPED(env)) P_32_COPYSWAP((p), (x)); else memcpy((x), (p), sizeof(uint32)); } while (0)
-#define	LOGCOPY_16(env, x, p) do { if(LOG_SWAPPED(env)) P_16_COPYSWAP((p), (x)); else memcpy((x), (p), sizeof(uint16)); } while (0)
-#define	LOGCOPY_TOLSN(env, lsnp, p)   do { LOGCOPY_32((env), &(lsnp)->file, (p)); LOGCOPY_32((env), &(lsnp)->Offset_, (uint8 *)(p) + sizeof(uint32)); } while (0)
-#define	LOGCOPY_FROMLSN(env, p, lsnp) do { LOGCOPY_32((env), (p), &(lsnp)->file); LOGCOPY_32((env), (uint8 *)(p) + sizeof(uint32), &(lsnp)->Offset_); } while (0)
+#define	LOGCOPY_32(env, x, p) do { if(LOG_SWAPPED(env)) P_32_COPYSWAP((p), (x)); else memcpy((x), (p), sizeof(uint32)); } while(0)
+#define	LOGCOPY_16(env, x, p) do { if(LOG_SWAPPED(env)) P_16_COPYSWAP((p), (x)); else memcpy((x), (p), sizeof(uint16)); } while(0)
+#define	LOGCOPY_TOLSN(env, lsnp, p)   do { LOGCOPY_32((env), &(lsnp)->file, (p)); LOGCOPY_32((env), &(lsnp)->Offset_, (uint8 *)(p) + sizeof(uint32)); } while(0)
+#define	LOGCOPY_FROMLSN(env, p, lsnp) do { LOGCOPY_32((env), (p), &(lsnp)->file); LOGCOPY_32((env), (uint8 *)(p) + sizeof(uint32), &(lsnp)->Offset_); } while(0)
 
 #if defined(__cplusplus)
 }

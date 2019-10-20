@@ -264,24 +264,24 @@ struct __db_lock { /* SHARED */
 #define	LOCK_SYSTEM_LOCK(lt, reg) do {					\
 	if((reg)->part_t_size == 1)					\
 		MUTEX_LOCK((lt)->env, (reg)->mtx_region);		\
-} while (0)
+} while(0)
 #define	LOCK_SYSTEM_UNLOCK(lt, reg) do {				\
 	if((reg)->part_t_size == 1)					\
 		MUTEX_UNLOCK((lt)->env, (reg)->mtx_region);		\
-} while (0)
+} while(0)
 #define	MUTEX_LOCK_PARTITION(lt, reg, p) do {				\
 	if((reg)->part_t_size != 1)					\
 		MUTEX_LOCK((lt)->env, (lt)->part_array[p].mtx_part);	\
-} while (0)
+} while(0)
 #define	MUTEX_UNLOCK_PARTITION(lt, reg, p) do {				\
 	if((reg)->part_t_size != 1)					\
 		MUTEX_UNLOCK((lt)->env, (lt)->part_array[p].mtx_part);	\
-} while (0)
+} while(0)
 
 #define	OBJECT_LOCK(lt, reg, obj, ndx) do {				\
 	ndx = __lock_ohash(obj) % (reg)->object_t_size;			\
 	MUTEX_LOCK_PARTITION(lt, reg, LOCK_PART(reg, ndx));		\
-} while (0)
+} while(0)
 
 #define	OBJECT_LOCK_NDX(lt, reg, ndx)					\
 	MUTEX_LOCK_PARTITION(lt, reg, LOCK_PART(reg, ndx));

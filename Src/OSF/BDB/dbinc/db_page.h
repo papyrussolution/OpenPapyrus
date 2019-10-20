@@ -382,7 +382,7 @@ typedef struct __heaphdrsplt {
 #define HEAP_SETSPACE(dbp, pg, n, b) do {				\
 	HEAP_SPACEMAP((dbp), (pg))[(n) / 4] &= ~(3 << (2 * ((n) % 4))); \
 	HEAP_SPACEMAP((dbp), (pg))[(n) / 4] |= ((b & 3) << (2 * ((n) % 4))); \
-} while (0)
+} while(0)
 		
 /* Return the bitmap describing free space on heap data pages. */
 #define HEAP_SPACEMAP(dbp, pg) ((uint8 *)P_INP((dbp), (pg)))
@@ -404,7 +404,7 @@ typedef struct __heaphdrsplt {
 		(space) = HEAP_PG_GT33;				\
 	else							\
 		(space) = HEAP_PG_LT33;				\
-} while (0)
+} while(0)
 	
 /* Return the amount of free space on a heap data page. */
 #define HEAP_FREESPACE(dbp, p) (HOFFSET(p) - HEAPPG_SZ(dbp) - (NUM_ENT(p) == 0 ? 0 : ((HEAP_HIGHINDX(p) + 1) * sizeof(db_indx_t))))
@@ -475,7 +475,7 @@ typedef struct _qpage {
 	HOFFSET(pg) = (db_indx_t)(pg_size);				\
 	LEVEL(pg) = (btl);						\
 	TYPE(pg) = (pg_type);						\
-} while (0)
+} while(0)
 
 /* Page header length (offset to first index). */
 #define	P_OVERHEAD(dbp)	P_TO_UINT16(P_INP(dbp, 0))

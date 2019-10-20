@@ -917,7 +917,7 @@ int SLAPI PPObjBill::PrintCheck(PPBillPacket * pPack, PPID posNodeID, int addSum
 }
 
 struct _CcByBillParam {
-	SLAPI  _CcByBillParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0)
+	SLAPI  _CcByBillParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0)
 	{
 	}
 	PPID   PosNodeID;
@@ -925,13 +925,39 @@ struct _CcByBillParam {
 	PPID   LocID;
     int    DivisionN;
 	SString Info;
+	double Amount; //@erik v10.5.9
 };
 
 static int SLAPI _EditCcByBillParam(_CcByBillParam & rParam)
 {
 	int    ok = -1;
-    TDialog * dlg = new TDialog(DLG_CCBYBILL);
-    if(CheckDialogPtrErr(&dlg)) {
+
+	//@erik v10.5.9 {
+	class CCByBill: public TDialog {
+	public:
+		CCByBill(const _CcByBillParam & rParam): TDialog(DLG_CCBYBILL), R_P(rParam)
+		{
+			setCtrlReal(CTL_CCBYBILL_CASH, 0.0);
+			setCtrlReal(CTL_CCBYBILL_DIFF, -R_P.Amount);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmInputUpdated)) {
+				if(event.isCtlEvent(CTL_CCBYBILL_CASH)) {
+					double cash = R2(getCtrlReal(CTL_CCBYBILL_CASH));
+					setCtrlReal(CTL_CCBYBILL_DIFF, cash - R_P.Amount);
+					clearEvent(event);
+				}
+			}
+		}
+		const _CcByBillParam & R_P;
+	};
+	// } @erik 
+
+	CCByBill * dlg = new CCByBill(rParam);
+	if(CheckDialogPtrErr(&dlg)) {
 		// @v10.0.0 {
 		{
 			PPObjCashNode::SelFilt f;
@@ -983,6 +1009,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 			param.LocID = bill_rec.LocID;
 			param.DivisionN = 0;
 			param.PaymType = cpmCash;
+			param.Amount = bill_rec.Amount;  //@erik v10.5.9
 			if(_EditCcByBillParam(param) > 0) {
 				int    sync_prn_err = 0;
 				PPObjCashNode cn_obj;

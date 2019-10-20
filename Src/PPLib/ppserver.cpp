@@ -266,6 +266,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tGetReqQuotes,  // @v10.2.4
 		tSetTimeSeriesProp,   // @10.2.5
 		tSetTimeSeriesStkEnv, // @v10.2.10
+		tGetCommonMqsConfig,  // @v10.5.9
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -386,6 +387,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_GETREQQUOTES             , "getreqquotes",              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth }, // @v10.2.4
 		{ PPHS_SETTIMESERIESPROP        , "settimeseriesprop",         tSetTimeSeriesProp,       PPSCMD_SETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
 		{ PPHS_SETTIMESERIESSTKENV      , "settimeseriesstkenv",       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth }, // @v10.2.10
+		{ PPHS_GETCOMMONMQSCONFIG       , "getcommonmqsconfig",        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth }, // @v10.5.9       
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -683,6 +685,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PROPVAL, rLine); // value
 				PutParam(3, Term);
 			}
+			break;
+		case tGetCommonMqsConfig: // @v10.5.9
 			break;
 		default:
 			err = PPERR_INVSERVERCMD;

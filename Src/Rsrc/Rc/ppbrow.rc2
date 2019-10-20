@@ -520,6 +520,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	EDITITEM         :  kbEnter,    PPDV_EDITFILE02,        "@{doeditdocument}\tEnter"
 	ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doadddocument}\tInsert"
 	ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+	WROFFINVENTORY   :  kbCtrlW,    TBBM_WROFFDRAFT,        "Списать документ\tCtrl-W" // @v10.5.9
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{doremovebill}\tDelete"
 	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,       "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,         "@{bill_extension}\tF4"
@@ -6076,7 +6077,7 @@ browser STOCKOPT_ITEMS north(100), 2, 1, "@view_stockopt", OWNER|GRID, 0
 	"@termprice",            3, double, NMBF_NOZERO, 6.2, BCO_USERPROC
 	"Среднедневные продажи", 4, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@unitperpack",          5, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
-	"Минимальный запас",     6, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
+	"@minstock",             6, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@expirationdate",       7, long,   NMBF_NOZERO,     6, BCO_USERPROC
 	"@inrest",               8, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
@@ -6726,7 +6727,7 @@ cmd SendBillsWithFilt     { "@{cmd_sendbillsbyfilt}"                       none 
 cmd FreightPackageType    { "@{cmd_freightpackagetype}"                    none                   none cmFreightPackageType } // @v10.4.1
 cmd ExportView            { "@{cmd_exportview}"                            none                   none cmExportView } // @v10.5.3
 cmd TestMqc               { "@{cmd_testmqc}"                               ICON_TEST              none cmTestMqc } // @v10.5.7
-cmd QuoteReqAnalyze       { "@{}"                                          none                   none cmQuoteReqAnalyze } // @v10.5.7
+cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none                   none cmQuoteReqAnalyze } // @v10.5.7
 //
 // -------------- Описания серверных задач
 //

@@ -131,8 +131,8 @@ int SLAPI ObjTagItem::GetEnumData(long * pID, long * pParentID, SString * pTxt, 
 	int    ok = 0;
 	PPID   item_id = 0;
 	PPID   parent_id = 0;
-	ASSIGN_PTR(pTxt, 0);
-	ASSIGN_PTR(pSymb, 0);
+	CALLPTRMEMB(pTxt, Z());
+	CALLPTRMEMB(pSymb, Z());
 	if(TagDataType == OTTYP_ENUM) {
 		item_id = Val.IntVal;
 		if(pTxt || pParentID || pSymb) {

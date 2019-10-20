@@ -2079,7 +2079,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			if(p_pe->PaintType == PaintEvent::tPaint) {
 				MemLeakTracer mlt;
 				{
-					TCanvas2 canv(Tb, (HDC)p_pe->H_DeviceContext);
+					TCanvas2 canv(Tb, static_cast<HDC>(p_pe->H_DeviceContext));
 					TRect rect_cli = getClientRect();
 					canv.Rect(rect_cli, 0, brBackg);
 					W.Draw(canv);
@@ -2250,6 +2250,22 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						if(W.FindObjectByPoint(p_me->Coord, &obj_idx)) {
 							TWhatmanObject * p_obj = W.GetObject(obj_idx);
 							CALLPTRMEMB(p_obj, HandleCommand(TWhatmanObject::cmdMouseHover, 0));
+						}
+					}
+					break;
+				case MouseEvent::tWeel: // @v10.5.9 @todo все равно плохо работает. Надо поработать над скроллингом в этом окне вообще
+					{
+						int r = 0;
+						if(p_me->WeelDelta < 0)
+							r = Sb.Move(SIDE_TOP, -p_me->WeelDelta);
+						else if(p_me->WeelDelta > 0)
+							r = Sb.Move(SIDE_BOTTOM, p_me->WeelDelta);
+						if(r > 0) {
+							TPoint sp;
+							W.SetScrollPos(sp.Set(Sb.ScX, Sb.ScY));
+							Sb.SetupWindow(H());
+							invalidateAll(0);
+							::UpdateWindow(H());
 						}
 					}
 					break;

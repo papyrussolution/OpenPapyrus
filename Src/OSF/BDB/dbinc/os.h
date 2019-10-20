@@ -33,7 +33,7 @@ extern "C" {
 			continue;					\
 		break;							\
 	}								\
-} while (0)
+} while(0)
 #else
 #define	RETRY_CHK(op, ret) do {						\
 	int __retries, __t_ret;						\
@@ -47,7 +47,7 @@ extern "C" {
 			continue;					\
 		break;							\
 	}								\
-} while (0)
+} while(0)
 #endif
 
 #define	RETRY_CHK_EINTR_ONLY(op, ret) do {				\
@@ -60,7 +60,7 @@ extern "C" {
 			continue;					\
 		break;							\
 	}								\
-} while (0)
+} while(0)
 
 /*
  * Flags understood by __os_open.

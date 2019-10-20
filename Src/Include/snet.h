@@ -950,8 +950,7 @@ public:
 	SString DestPath;
 	SString AccsName;
 	SString AccsPassword;
-	//
-	SString Reply;
+	SString Reply; // @out
 	//
 	// @construction
 	// Descr: Стрктура результата копирования одного файла.

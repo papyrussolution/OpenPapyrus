@@ -6,6 +6,8 @@
 #include <pp.h>
 #pragma hdrstop
 
+/*static*/int PPViewInventory::DynFuncInvLnWrOff = 0;
+
 #define GRP_GOODS 1
 #define GRP_QTTY  2
 
@@ -156,12 +158,12 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_INVDIFFLT_SUBST)) {
-			Data.Sgb.S = (SubstGrpBill::_S)getCtrlLong(CTLSEL_INVDIFFLT_SUBST);
+			Data.Sgb.S = static_cast<SubstGrpBill::_S>(getCtrlLong(CTLSEL_INVDIFFLT_SUBST));
 			SetupSubst();
 		}
 		else if(event.isCbSelected(CTLSEL_INVDIFFLT_SUBSTG)) {
 			if(!Data.Sgb) {
-				Data.Sgg = (SubstGrpGoods)getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG);
+				Data.Sgg = static_cast<SubstGrpGoods>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
 				SetupSubst();
 			}
 		}
@@ -225,20 +227,34 @@ int SLAPI PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
+static int SLAPI CheckInventoryLineForWrOff(long fltFlags, PPID billID, long lnFlags, double diffQtty)
+{
+	int    ok = 1;
+	const  long   f = (fltFlags & (InventoryFilt::fWrOff | InventoryFilt::fUnwrOff));
+	if(oneof2(f, InventoryFilt::fWrOff, InventoryFilt::fUnwrOff)) {
+		BillTbl::Rec bill_rec;
+		const int is_bill_wroff = BIN(BillObj->Fetch(billID, &bill_rec) && bill_rec.Flags & BILLF_CLOSEDORDER);
+		if(f == InventoryFilt::fWrOff) {
+			if(!(lnFlags & INVENTF_WRITEDOFF)) {
+				if(!is_bill_wroff || /*diffQtty != 0.0*/(lnFlags & (INVENTF_LACK|INVENTF_SURPLUS))) // @v10.5.9
+					ok = 0;
+			}
+		}
+		else if(f == InventoryFilt::fUnwrOff) {
+			if(lnFlags & INVENTF_WRITEDOFF || (is_bill_wroff && /*diffQtty == 0.0*/!(lnFlags & (INVENTF_LACK|INVENTF_SURPLUS))))
+				ok = 0;
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPViewInventory::CheckLineForFilt(const InventoryTbl::Rec * pRec) const
 {
 	if(!Filt.BillList.CheckID(pRec->BillID))
 		return 0;
-	long   f = (Filt.Flags & (InventoryFilt::fWrOff | InventoryFilt::fUnwrOff));
-	if(f == InventoryFilt::fWrOff) {
-		if(pRec->Flags & INVENTF_WRITEDOFF)
-			return 0;
-	}
-	else if(f == InventoryFilt::fUnwrOff) {
-		if(!(pRec->Flags & INVENTF_WRITEDOFF))
-			return 0;
-	}
-	if(Filt.Flags & (InventoryFilt::fLack | InventoryFilt::fSurplus)) {
+	if(!CheckInventoryLineForWrOff(Filt.Flags, pRec->BillID, pRec->Flags, pRec->DiffQtty))
+		return 0;
+	else if(Filt.Flags & (InventoryFilt::fLack | InventoryFilt::fSurplus)) {
 		if(!(Filt.Flags & InventoryFilt::fLack)) {
 			if(INVENT_DIFFSIGN(pRec->Flags) <= 0)
 				return 0;
@@ -574,16 +590,10 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 									else if(Filt.GoodsGrpID && !GObj.BelongToGroup(org_goods_id, Filt.GoodsGrpID, 0))
 										do_skip = 1;
 								}
-								 //@erik @v10.5.4 {
-								if((Filt.Flags & InventoryFilt::fWrOff)) {
-									if(!(inv_rec.Flags & INVENTF_WRITEDOFF))
-										do_skip = 1;
-								}
-								if((Filt.Flags & InventoryFilt::fUnwrOff)) {
-									if((inv_rec.Flags & INVENTF_WRITEDOFF))
-										do_skip = 1;
-								}
-								if(Filt.Flags & (InventoryFilt::fLack | InventoryFilt::fSurplus)){
+								//@erik @v10.5.4
+								if(!CheckInventoryLineForWrOff(Filt.Flags, inv_rec.BillID, inv_rec.Flags, inv_rec.DiffQtty))
+									do_skip = 1;
+								else if(Filt.Flags & (InventoryFilt::fLack | InventoryFilt::fSurplus)){
 									if((Filt.Flags & InventoryFilt::fLack) && !(Filt.Flags & InventoryFilt::fSurplus)) {
 										if(!(inv_rec.Flags & INVENTF_LACK))
 											do_skip = 1;
@@ -1975,7 +1985,8 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 				}
 				// @v10.5.8 {
 				else if(r_col.OrgOffs == 14) { // Status
-					if(p_hdr->Flags & INVENTF_WRITEDOFF) {
+					//if(p_hdr->Flags & INVENTF_WRITEDOFF) {
+					if(CheckInventoryLineForWrOff(Filt.fWrOff, p_hdr->BillID, p_hdr->Flags, /*diffQtty*/0.0)) {
 						pStyle->Color = GetColorRef(SClrLightblue);
 						ok = 1;
 					}
@@ -2001,8 +2012,19 @@ void SLAPI PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
 }
 
+static IMPL_DBE_PROC(dbqf_invlnwroff_iiir)
+{
+	long   flt_flags = params[0].lval;
+	long   bill_id   = params[1].lval;
+	long   ln_flags  = params[2].lval;
+	double diff_qtty = params[3].rval;
+	long   r = CheckInventoryLineForWrOff(flt_flags, bill_id, ln_flags, diff_qtty);
+	result->init(r);
+}
+
 DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
+	DbqFuncTab::RegisterDyn(&DynFuncInvLnWrOff, BTS_INT, dbqf_invlnwroff_iiir, 4, BTS_INT, BTS_INT, BTS_INT, BTS_REAL);
 	DBQuery * q  = 0;
 	InventoryTbl * it = 0;
 	TempInventorySubstTbl * st = 0;
@@ -2017,6 +2039,7 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DBE    dbe_barcode;
 	DBE    dbe_strgloc;
 	DBE    dbe_status;
+	DBE    dbe_wroff;
 	uint   brw_id = 0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
 	const  int is_subst = Filt.HasSubst();
@@ -2060,6 +2083,7 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		{
 			dbe_status.init();
 			dbe_status.push(it->Flags);
+			dbe_status.push(it->BillID);
 			dbe_status.push(static_cast<DBFunc>(PPDbqFuncPool::IdInventLnStatus));
 		}
 		if(p_tord)
@@ -2085,13 +2109,22 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		ZDELETE(dbe_tmp1);
 		ZDELETE(dbe_tmp2);
 		if(!P_TempTbl) {
-			long   f;
 			double minv = Filt.MinVal;
 			double maxv = Filt.MaxVal;
 			dbq = & (it->BillID == single_bill_id);
-			if((f = CheckXORFlags(Filt.Flags, InventoryFilt::fWrOff, InventoryFilt::fUnwrOff)) != 0)
-				dbq = ppcheckflag(dbq, it->Flags, INVENTF_WRITEDOFF, (Filt.Flags & InventoryFilt::fWrOff) ? +1 : -1);  //v10.5.6 BIN(Filt.Flags & InventoryFilt::fWrOff) => (Filt.Flags & InventoryFilt::fWrOff) ? +1 : -1
-			if(Filt.Flags & (InventoryFilt::fLack | InventoryFilt::fSurplus))
+			if(CheckXORFlags(Filt.Flags, InventoryFilt::fWrOff, InventoryFilt::fUnwrOff)) {
+				//dbq = ppcheckflag(dbq, it->Flags, INVENTF_WRITEDOFF, (Filt.Flags & InventoryFilt::fWrOff) ? +1 : -1);  //v10.5.6 BIN(Filt.Flags & InventoryFilt::fWrOff) => (Filt.Flags & InventoryFilt::fWrOff) ? +1 : -1
+				// @v10.5.9 {
+				dbe_wroff.init();
+				dbe_wroff.push(dbconst(Filt.Flags));
+				dbe_wroff.push(it->BillID);
+				dbe_wroff.push(it->Flags);
+				dbe_wroff.push(it->DiffQtty);
+				dbe_wroff.push(static_cast<DBFunc>(PPViewInventory::DynFuncInvLnWrOff));
+				dbq = &(*dbq && dbe_wroff == 1L);
+				// } @v10.5.9 
+			}
+			if(Filt.Flags & (InventoryFilt::fLack|InventoryFilt::fSurplus))
 				if(Filt.Flags & InventoryFilt::fLack && Filt.Flags & InventoryFilt::fSurplus)
 					dbq = & (*dbq && it->DiffQtty > 0.0);
 				else {

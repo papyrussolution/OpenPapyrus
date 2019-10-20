@@ -40,8 +40,8 @@ pthread_t __ptw32_new(void)
 	 * If there's a reusable pthread_t then use it.
 	 */
 	pthread_t t = __ptw32_threadReusePop();
-	if(NULL != t.p) {
-		tp = (__ptw32_thread_t *)t.p;
+	if(t.p) {
+		tp = static_cast<__ptw32_thread_t *>(t.p);
 	}
 	else {
 		/* No reuse threads available */

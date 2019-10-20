@@ -32,17 +32,13 @@
 #pragma hdrstop
 #if CAIRO_HAS_XCB_SURFACE // {
 #include "cairo-xcb-private.h"
-//#include "cairo-hash-private.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-list-inline.h"
 #include <xcb/xcbext.h>
 #include <xcb/bigreq.h>
 #include <errno.h>
-
 #if CAIRO_HAS_XCB_SHM_FUNCTIONS
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <xcb/shm.h>
+	#include <sys/ipc.h>
+	#include <sys/shm.h>
+	#include <xcb/shm.h>
 #endif
 
 typedef struct _cairo_xcb_xrender_format {

@@ -59,10 +59,10 @@
 		#define PERFMON0(env, cat, id)		bdb_##cat##_##id()
 		#define PERFMON1(env, cat, id, a1)	bdb_##cat##_##id(a1)
 		#define PERFMON2(env, cat, id, a1, a2) bdb_##cat##_##id((a1), (a2))
-		#define PERFMON3(env, cat, id, a1, a2, a3) do { if(PERFMON_ENABLED(env, cat, id)) bdb_##cat##_##id((a1), (a2), (a3)); } while (0)
-		#define PERFMON4(env, cat, id, a1, a2, a3, a4) do { if(PERFMON_ENABLED(env, cat, id)) bdb_##cat##_##id((a1), (a2), (a3), (a4)); } while (0)
-		#define PERFMON5(env, cat, id, a1, a2, a3, a4, a5) do { if(PERFMON_ENABLED(env, cat, id)) bdb_##cat##_##id((a1), (a2), (a3), (a4), (a5)); } while (0)
-		#define PERFMON6(env, cat, id, a1, a2, a3, a4, a5, a6) do { if(PERFMON_ENABLED(env, cat, id)) bdb_##cat##_##id((a1), (a2), (a3), (a4), (a5), (a6)); } while (0)
+		#define PERFMON3(env, cat, id, a1, a2, a3) do { if(PERFMON_ENABLED(env, cat, id)) bdb_##cat##_##id((a1), (a2), (a3)); } while(0)
+		#define PERFMON4(env, cat, id, a1, a2, a3, a4) do { if(PERFMON_ENABLED(env, cat, id)) bdb_##cat##_##id((a1), (a2), (a3), (a4)); } while(0)
+		#define PERFMON5(env, cat, id, a1, a2, a3, a4, a5) do { if(PERFMON_ENABLED(env, cat, id)) bdb_##cat##_##id((a1), (a2), (a3), (a4), (a5)); } while(0)
+		#define PERFMON6(env, cat, id, a1, a2, a3, a4, a5, a6) do { if(PERFMON_ENABLED(env, cat, id)) bdb_##cat##_##id((a1), (a2), (a3), (a4), (a5), (a6)); } while(0)
 		#define PERFMON_ENABLED(env, cat, id)	 bdb_##cat##_##id##_enabled()
 	#endif
 #else

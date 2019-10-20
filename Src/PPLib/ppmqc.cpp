@@ -821,9 +821,49 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 									PPExportDL600DataToBuffer("StrAssocArray", &obj_name_list, cpUTF8, result_buf);
 									result_ok = 1;
 								}
-								else if(cmd.Cmd == cmdVerifyGlobalAccount) {
-									//if(cmd.)
+								//@erik v10.5.9 {
+								else if(cmd.Cmd == cmdVerifyGlobalAccount) { 
+									PPObjGlobalUserAcc gua_obj;
+									PPGlobalUserAccPacket gua_pack;
+									PPGlobalUserAcc gua_rec;
+									StrAssocArray obj_gua_guid_list;
+									SString temp_buf;
+									SString login;
+									SString password;
+									if(gua_obj.GetPacket(cmd.IdVal, &gua_pack) > 0){
+										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_SECRET, password) > 0){}
+										else{
+											Reference::Decrypt(Reference::crymRef2, gua_pack.Rec.Password, sizeof(gua_pack.Rec.Password), password);
+										}
+										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login) > 0) {}
+										else {
+											if(gua_pack.Rec.Name != "")
+												login = gua_pack.Rec.Name;
+										}
+
+										if(login.NotEmpty() &&password.NotEmpty()){
+											char hash[128] = {};
+											char cmd_hash[128] = {};
+											size_t hash_len = 0;
+											temp_buf.Z().Cat(login).CatChar(':').Cat(password);
+											SlHash::Sha1(0, temp_buf, temp_buf.Len(), hash, hash_len);
+											temp_buf.Z().Cat(cmd.Hash);
+											hash_len = 0;
+											decode64(temp_buf, temp_buf.Len(), cmd_hash, &hash_len);
+											if(!memcmp(cmd_hash, hash, hash_len)){												
+												temp_buf.Z();
+												if(gua_pack.TagL.GetItemStr(PPTAG_GUA_GUID, temp_buf)>0) {
+													result_buf = temp_buf;
+													result_ok = 1;
+												}
+												
+											}
+										
+										}
+									}
+									
 								}
+								// } @erik v10.5.9
 							}
 						}
 						if(result_ok) {

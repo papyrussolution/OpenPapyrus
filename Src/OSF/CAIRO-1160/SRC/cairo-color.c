@@ -37,25 +37,10 @@
 #include "cairoint.h"
 #pragma hdrstop
 
-static cairo_color_t const cairo_color_white = {
-	1.0,    1.0,    1.0,    1.0,
-	0xffff, 0xffff, 0xffff, 0xffff
-};
-
-static cairo_color_t const cairo_color_black = {
-	0.0, 0.0, 0.0, 1.0,
-	0x0, 0x0, 0x0, 0xffff
-};
-
-static cairo_color_t const cairo_color_transparent = {
-	0.0, 0.0, 0.0, 0.0,
-	0x0, 0x0, 0x0, 0x0
-};
-
-static cairo_color_t const cairo_color_magenta = {
-	1.0,    0.0, 1.0,    1.0,
-	0xffff, 0x0, 0xffff, 0xffff
-};
+static cairo_color_t const cairo_color_white = { 1.0,    1.0,    1.0,    1.0, 0xffff, 0xffff, 0xffff, 0xffff };
+static cairo_color_t const cairo_color_black = { 0.0, 0.0, 0.0, 1.0, 0x0, 0x0, 0x0, 0xffff };
+static cairo_color_t const cairo_color_transparent = { 0.0, 0.0, 0.0, 0.0, 0x0, 0x0, 0x0, 0x0 };
+static cairo_color_t const cairo_color_magenta = { 1.0,    0.0, 1.0,    1.0, 0xffff, 0x0, 0xffff, 0xffff };
 
 const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t stock)
 {

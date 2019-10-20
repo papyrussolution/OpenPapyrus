@@ -92,7 +92,7 @@ struct __db_foreign_info {
 			goto out;					\
 	}								\
 	mpf = file_dbp->mpf;						\
-} while (0)
+} while(0)
 
 #define	REC_CLOSE {							\
 	int __t_ret;							\
@@ -109,7 +109,7 @@ struct __db_foreign_info {
 	argp = NULL;							\
 	if((ret = func(env, dbtp->data, &argp)) != 0)		\
 		return ret;						\
-} while (0)
+} while(0)
 #define	REC_NOOP_CLOSE							\
 	__os_free(env, argp);					\
 	return (ret)
@@ -215,7 +215,7 @@ struct __db_foreign_info {
  * DB_GET_BOTH flag on a secondary get).
  */
 // @v9.5.5 #include "dbinc/db_swap.h"
-#define	SWAP_IF_NEEDED(sdbp, pkey) do { if(oneof2((sdbp)->s_primary->type, DB_QUEUE, DB_RECNO) && F_ISSET((sdbp), DB_AM_SWAP)) P_32_SWAP((pkey)->data); } while (0)
+#define	SWAP_IF_NEEDED(sdbp, pkey) do { if(oneof2((sdbp)->s_primary->type, DB_QUEUE, DB_RECNO) && F_ISSET((sdbp), DB_AM_SWAP)) P_32_SWAP((pkey)->data); } while(0)
 /*
  * Cursor adjustment:
  *	Return the first DB handle in the sorted ENV list of DB
@@ -224,7 +224,7 @@ struct __db_foreign_info {
 #define	FIND_FIRST_DB_MATCH(env, dbp, tdbp) do {			\
 	for((tdbp) = (dbp); TAILQ_PREV((tdbp), __dblist, dblistlinks) != NULL && TAILQ_PREV((tdbp), __dblist, dblistlinks)->adj_fileid == (dbp)->adj_fileid;\
 	    (tdbp) = TAILQ_PREV((tdbp), __dblist, dblistlinks)); \
-} while (0)
+} while(0)
 
 /*
  * Macros used to implement a binary search algorithm. Shared between the
@@ -232,7 +232,7 @@ struct __db_foreign_info {
  */
 #define	DB_BINARY_SEARCH_FOR(base, limit, nument, adjust)       for(base = 0, limit = (nument) / (db_indx_t)(adjust); (limit) != 0; (limit) >>= 1)
 #define	DB_BINARY_SEARCH_INCR(index, base, limit, adjust)       index = (base) + (((limit) >> 1) * (adjust))
-#define	DB_BINARY_SEARCH_SHIFT_BASE(index, base, limit, adjust) do { base = (index) + (adjust); --(limit); } while (0)
+#define	DB_BINARY_SEARCH_SHIFT_BASE(index, base, limit, adjust) do { base = (index) + (adjust); --(limit); } while(0)
 /*
  * Sequence macros, shared between sequence.c and seq_stat.c
  */

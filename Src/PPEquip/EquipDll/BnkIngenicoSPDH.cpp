@@ -276,7 +276,7 @@ int Init(const char * pLibName)
 	THROWERR_ADD(pLibName, INGVTB_NODLLPATH);
 	P_Lib = new SDynLibrary(pLibName);
 	THROWERR_ADD(P_Lib && P_Lib->IsValid(), INGVTB_DLLFILENOTFOUND);
-	ProcessOw = (ProcDll)P_Lib->GetProcAddr("ProcessOw");
+	ProcessOw = reinterpret_cast<ProcDll>(P_Lib->GetProcAddr("ProcessOw"));
 	THROWERR_ADD(P_Lib && ProcessOw, INGVTB_DLLFILENOTFOUND);
 	if(!P_BnkIngVtb)
 		P_BnkIngVtb = new BnkIngVTB;

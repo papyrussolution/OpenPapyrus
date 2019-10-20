@@ -1889,6 +1889,7 @@
     <Image Include="..\Rsrc\Ico\personevent_add.ico" />
     <Image Include="..\Rsrc\Ico\personrel.ico" />
     <Image Include="..\Rsrc\Ico\persons.ico" />
+    <Image Include="..\rsrc\ico\phone.ico" />
     <Image Include="..\Rsrc\Ico\posmchn.ico" />
     <Image Include="..\Rsrc\Ico\prcfree.ico" />
     <Image Include="..\Rsrc\Ico\prjtask-maintain.ico" />

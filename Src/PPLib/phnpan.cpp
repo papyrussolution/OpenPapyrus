@@ -57,7 +57,8 @@ private:
 				acnPurchase,
 				acnPersonalEvent,
 				acnPrjTask,
-				acnCcOrder
+				acnCcOrder,
+				acnViewPrcBusy // @v10.5.9
 			};
 			Param() : ExtSelector(0), Action(acnUndef), PersonID(0), SCardID(0), LocID(0)
 			{
@@ -69,10 +70,12 @@ private:
 			long   Action;
 			PPID   ExtSelector;
 		};
+		DECL_DIALOG_DATA(Param);		
+
 		ActionByPhoneDialog() : TDialog(DLG_SELACNBYPHN)
 		{
 		}
-		int setDTS(const Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			PPID   buyer_ar_id = 0;
@@ -84,6 +87,7 @@ private:
 			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 2, Param::acnPersonalEvent);
 			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 3, Param::acnPrjTask);
 			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 4, Param::acnCcOrder);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 5, Param::acnViewPrcBusy);
 			SetClusterData(CTL_SELACNBYPHN_WHAT, Data.Action);
 			if(Data.PersonID) {
 				GetPersonName(Data.PersonID, temp_buf);
@@ -121,7 +125,7 @@ private:
 			SetupCtrls();
 			return 1;
 		}
-		int getDTS(Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			GetClusterData(CTL_SELACNBYPHN_WHAT, &Data.Action);
@@ -157,7 +161,6 @@ private:
 			else
 				disableCtrl(CTLSEL_SELACNBYPHN_EXT, 1);
 		}
-		Param  Data;
 		PPObjSCard ScObj;
 		PPObjPerson PsnObj;
 	};
@@ -174,10 +177,12 @@ private:
 			PPID   ExtSelector;
 			SString SearchStr;
 		};
+		DECL_DIALOG_DATA(Param);
+
 		SelectObjByPhoneDialog() : TDialog(DLG_SELOBJBYPHN)
 		{
 		}
-		int setDTS(const Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			setCtrlString(CTL_SELOBJBYPHN_INFO, Data.Phone);
@@ -188,7 +193,7 @@ private:
 			SetupCtrls();
 			return 1;
 		}
-		int getDTS(Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
@@ -254,7 +259,6 @@ private:
 					break;
 			}
 		}
-		Param  Data;
 	};
 
 	DECL_HANDLE_EVENT;
@@ -274,7 +278,7 @@ private:
 			if(ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(&param)) {
 					switch(param.Action) {
-						case param.acnGoodsOrder:
+						case ActionByPhoneDialog::Param::acnGoodsOrder:
 							{
 								PPID   new_bill_id = 0;
 								PPIDArray op_list;
@@ -298,7 +302,7 @@ private:
 								}
 							}
 							break;
-						case param.acnPurchase:
+						case ActionByPhoneDialog::Param::acnPurchase:
 							{
 								PPID   new_bill_id = 0;
 								PPIDArray op_list;
@@ -322,7 +326,7 @@ private:
 								}
 							}
 							break;
-						case param.acnPersonalEvent:
+						case ActionByPhoneDialog::Param::acnPersonalEvent:
 							if(param.ExtSelector && param.PersonID) {
 								PPID   pe_id = 0;
 								PPID   op_id = param.ExtSelector;
@@ -354,7 +358,7 @@ private:
 									PPError();
 							}
 							break;
-						case param.acnPrjTask:
+						case ActionByPhoneDialog::Param::acnPrjTask:
 							if(param.PersonID) {
 								PrjTaskTbl::Rec rec;
 								PPID   emplr_id = 0;
@@ -374,7 +378,19 @@ private:
 									PPError();
 							}
 							break;
-						case param.acnCcOrder:
+						case ActionByPhoneDialog::Param::acnCcOrder:
+							break;
+						case ActionByPhoneDialog::Param::acnViewPrcBusy:
+							{
+								PPView * p_view = 0;
+								if(PPView::Execute(PPVIEW_PRCBUSY, 0, PPView::exefModeless, &p_view, 0) && p_view) {
+									PPViewPrcBusy::OuterContext ctx;
+									ctx.PersonID = param.PersonID;
+									ctx.SCardID = param.SCardID;
+									ctx.Phone = param.Phone;
+									static_cast<PPViewPrcBusy *>(p_view)->SetOuterContext(&ctx);
+								}
+							}
 							break;
 					}
 				}
@@ -453,6 +469,7 @@ PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const Phone
 
 	AddClusterAssoc(CTL_PHNCPANE_AUTOCLOSE, 0, 1);
 	Setup(pPSER, pSt);
+	static_cast<PPApp *>(APPL)->LastCmd = cmPhonePane; // @V10.5.9
 }
 
 PhonePaneDialog::~PhonePaneDialog()
@@ -646,7 +663,7 @@ IMPL_HANDLE_EVENT(PhonePaneDialog)
 			if(state == 0)
 				S.Channel.Z();
 			if(SetupInfo() == 100) {
-				clearEvent(event);
+				// @v10.5.9 clearEvent(event);
 				return;
 			}
 		}
@@ -1446,12 +1463,14 @@ int SLAPI PPViewPhnSvcMonitor::Update()
 {
 	int    ok = -1;
 	if(P_Cli) {
-		int r = P_Cli->GetChannelStatus(0, List);
-		if(!r) {
-			r = CreatePhnSvcClient();
-			if(r) {
-				assert(P_Cli);
-				P_Cli->GetChannelStatus(0, List);
+		ENTER_CRITICAL_SECTION // @v10.5.9
+		if(!P_Cli->GetChannelStatus(0, List)) {
+			for(uint tn = 0; tn < 3; tn++) {
+				if(CreatePhnSvcClient() && P_Cli) { // @v10.5.9 (&& P_Cli) вероятна reenterability
+					// @v10.5.9 assert(P_Cli);
+					P_Cli->GetChannelStatus(0, List);
+					break;
+				}
 			}
 		}
 		if(List.GetCount() && SETIFZ(P_PsnObj, new PPObjPerson)) {
@@ -1481,6 +1500,7 @@ int SLAPI PPViewPhnSvcMonitor::Update()
 				}
 			}
 		}
+		LEAVE_CRITICAL_SECTION // @v10.5.9
 	}
 	else
 		List.Z();

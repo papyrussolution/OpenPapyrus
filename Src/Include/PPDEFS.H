@@ -4238,6 +4238,8 @@
 	#define CTL_OPKINVE_FRAME1          (14 + WINDOWS_ID_BIAS)
 	#define CTL_OPKINVE_FRAME2          (15 + WINDOWS_ID_BIAS)
 	#define CTL_OPKINVE_ACCSLMODE       (16 + WINDOWS_ID_BIAS)
+	#define CTL_OPKINVE_ONWROFFST       (17 + WINDOWS_ID_BIAS)
+	#define CTLSEL_OPKINVE_ONWROFFST    (18 + WINDOWS_ID_BIAS)
 #define DLG_OPRINV                322 // Вид операции "Инвентаризация"
 	// Управляющие элементы те же, что и в DLG_OPRKIND
 #define DLG_INVDIFFLT             323 // Фильтр по рассогласованиям инвентаризации
@@ -10392,6 +10394,9 @@
 	#define CTL_CCBYBILL_PAYMTYPE     (3 + WINDOWS_ID_BIAS)
 	#define CTL_CCBYBILL_DIVISION     (4 + WINDOWS_ID_BIAS)
 	#define CTL_CCBYBILL_ST_INFO      (5 + WINDOWS_ID_BIAS)
+	#define CTL_CCBYBILL_CASH         (6 + WINDOWS_ID_BIAS)
+	#define CTL_CCBYBILL_DIFF         (7 + WINDOWS_ID_BIAS)
+
 #define DLG_PRCROSM               1314
 	#define CTL_PRCROSM_PATH          (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_PRCROSM_PATH       (2 + WINDOWS_ID_BIAS)
@@ -10967,7 +10972,7 @@
 #define ICON_USERGROUP16          245
 #define ICON_GEAR16               246
 #define ICON_STARYELLOW16         247
-#define ICON_PHONE                248   
+#define ICON_PHONE                248
 //
 // Message groups
 //
@@ -11235,61 +11240,60 @@
 // @v10.4.7 #define PPERR_PSNTAGNEEDED        337 // Необходимо задать тег персоналии
 // @v10.4.7 #define PPERR_PRMRPSNNEEDED       338 // Необходимо задать первичную персоналию
 // @v10.4.7 #define PPERR_INVPOCLAUSEVERB     339 // Недопустимый тип персонального действия //
-#define PPERR_VIEWBYFILTISEMPTY   411 // Фильтр дает пустую выборку
-#define PPERR_CANTRMVSUBSESS      412 // Нельзя удалять подчиненную кассовую сессию
-#define PPERR_ACCNGEN             413 // Счет не является группирующим
-#define PPERR_INVGENACCNUMBER     414 // Неверное значение номера группирующего счета
-#define PPERR_TIMAXQTTY           415 // Введенное количество превышает допустимое для такой операции значение
-#define PPERR_TIMINQTTY           416 // Введенное количество ниже допустимого для такой операции значени
-#define PPERR_BILLDEMORESTRICT    417 // Демо-версия допускает ввод не более 1000 документов
-#define PPERR_VERINFONFOUND       418 // Информая о версии файла недоступна
-#define PPERR_UNABLECVTBILL2BILL  419 // Невозможно конвертировать один документ в другой
-#define PPERR_DUPEXCLALTGRPMEMBER 420 // Товар уже является членом одной из эксклюзивных альт групп
-#define PPERR_GDSCLSNMTMPLNEEDED  421 // Для класса товара необходимо задать шаблон имени
-#define PPERR_BL_LOT2PCKG         422 // Висячая ссылка в привязке лота к пакету
-#define PPERR_DUPPCKGCODE         423 // Дублирование кода товарного пакета
-#define PPERR_PCKGINBILL          424 // Пакет уже в документе
-#define PPERR_ALLLOTSINPCKG       425 // Все свободные лоты упакованы в пакеты
-#define PPERR_PHUFORGOODSWOPHU    426 // Выбранный компонент структуры должен иметь физическую единицу измерени
-#define PPERR_MISSPCKGLOC         427 // Selected package is not belong to same location as Bill Packet
-#define PPERR_GTAXENTINTRSCT      428 // Пересечение периодов в элементах налоговой группы
-#define PPERR_IMPORTUNDEFFLD      429 // Ошибка импорта: не определено одно из обязательных полей
-
-#define PPERR_RPTNAVAILONDOS      440 // Отчет не доступен в DOS-версии системы
-#define PPERR_UNDEFTEMPPATH       442 // Не определен временный каталог в файле PP.INI
-#define PPERR_UNDEFPACKPATH       443 // Не определен каталог PACK в файле PP.INI
-#define PPERR_NEXISTPATH          444 // Не найден каталог %s
-#define PPERR_NOSRCFILE           445 // Не найден копируемый файл %s
-#define PPERR_DUPREGNUMBER        446 // Дублирование номера регистрационного документа (%s)
-#define PPERR_ZEROLINKPAYM        447 // Не найден связанный документ оплаты\n\003%s
-#define PPERR_CHKWPER             448 // без указания начала периода прихода товара %s
-#define PPERR_NOCYCLES            449 // не введена периодичность оплаты %s
-#define PPERR_NOTNUMDAY           450 // Не корректно ввели номер дня %s
-#define PPERR_UNDEFWROFFOP        451 // Не определена операция списания //
-#define PPERR_ALDD_NOPENBIN       452 // Невозможно открыть файл ALDD данных
-#define PPERR_CANTOPENFILE        453 // Невозможно открыть файл %s
-#define PPERR_CANTDELMASTER       454 // Нельзя удалять пользователя MASTER
-#define PPERR_MAX_SESSION_DEST    480 // Достигнуто максимальное количество сессий
-#define PPERR_DELLOTWRET          481 // По данной строке был возврат, поэтому удалять ее нельз
-#define PPERR_CANTRMVFILE         482 // Невозможно удалить файл %s
-#define PPERR_SCARDSERNEEDED      483 // Необходимо выбрать серию карты
-#define PPERR_SCARDCODENEEDED     484 // Необходимо ввести код карты
-#define PPERR_REGFILEREADFAULT    485 // Ошибка чтения регистрационных данных
-#define PPERR_REGFILEWRITEFAULT   486 // Ошибка записи регистрационных данных
-#define PPERR_INVLICFILE          487 // Неверный файл обновления лицензии %s
-#define PPERR_INVREGKEY           488 // Неверный регистрационный номер
-#define PPERR_UNDEFDFCTSRCLOC     489 // Для межскладской операции компенсации дефицита должен быть определен склад-источник
-#define PPERR_DWONEEDED           490 // Необходимо выбрать тип списания драфт-документов
-#define PPERR_PGMNOTREGISTERED    491 // Копия системы не зарегистрирована
-#define PPERR_TRANSPORTREGFILE    492 // Файл дополнительных лицензий не является регистрационным
-#define PPERR_INVACCTYPEPAIR      493 // Забалансовый счет не может корреспондировать с балансовым
-#define PPERR_INVPREDICTOP        494 // Операция продаж товара не задана или задана неверно
-#define PPERR_CANTREADARMAPARAM   495 // Ошибка извлечения параметров модели прогноза %s
-#define PPERR_CANTREADGOODSSALES  496 // Данные по продажам данного товара отсутсвуют
-#define PPERR_PSALESTBLEMPTY      497 // Таблица продаж не содержит записей
-#define PPERR_INVMODELPARAM       498 // Параметры модели должны быть положительными числами
-#define PPERR_CANTREADPREVDTFILL  499 // Невозможно извлечь дату последнего обновлени
-#define PPERR_BASKETLOCKED        500 // Корзина заблокирована другим пользователем %s
+// @v10.5.9 #define PPERR_VIEWBYFILTISEMPTY   411 // Фильтр дает пустую выборку
+// @v10.5.9 #define PPERR_CANTRMVSUBSESS      412 // Нельзя удалять подчиненную кассовую сессию
+// @v10.5.9 #define PPERR_ACCNGEN             413 // Счет не является группирующим
+// @v10.5.9 #define PPERR_INVGENACCNUMBER     414 // Неверное значение номера группирующего счета
+// @v10.5.9 #define PPERR_TIMAXQTTY           415 // Введенное количество превышает допустимое для такой операции значение
+// @v10.5.9 #define PPERR_TIMINQTTY           416 // Введенное количество ниже допустимого для такой операции значени
+// @v10.5.9 #define PPERR_BILLDEMORESTRICT    417 // Демо-версия допускает ввод не более 1000 документов
+// @v10.5.9 #define PPERR_VERINFONFOUND       418 // Информая о версии файла недоступна
+// @v10.5.9 #define PPERR_UNABLECVTBILL2BILL  419 // Невозможно конвертировать один документ в другой
+// @v10.5.9 #define PPERR_DUPEXCLALTGRPMEMBER 420 // Товар уже является членом одной из эксклюзивных альт групп
+// @v10.5.9 #define PPERR_GDSCLSNMTMPLNEEDED  421 // Для класса товара необходимо задать шаблон имени
+// @v10.5.9 #define PPERR_BL_LOT2PCKG         422 // Висячая ссылка в привязке лота к пакету
+// @v10.5.9 #define PPERR_DUPPCKGCODE         423 // Дублирование кода товарного пакета
+// @v10.5.9 #define PPERR_PCKGINBILL          424 // Пакет уже в документе
+// @v10.5.9 #define PPERR_ALLLOTSINPCKG       425 // Все свободные лоты упакованы в пакеты
+// @v10.5.9 #define PPERR_PHUFORGOODSWOPHU    426 // Выбранный компонент структуры должен иметь физическую единицу измерени
+// @v10.5.9 #define PPERR_MISSPCKGLOC         427 // Selected package is not belong to same location as Bill Packet
+// @v10.5.9 #define PPERR_GTAXENTINTRSCT      428 // Пересечение периодов в элементах налоговой группы
+// @v10.5.9 #define PPERR_IMPORTUNDEFFLD      429 // Ошибка импорта: не определено одно из обязательных полей
+// @v10.5.9 #define PPERR_RPTNAVAILONDOS      440 // Отчет не доступен в DOS-версии системы
+// @v10.5.9 #define PPERR_UNDEFTEMPPATH       442 // Не определен временный каталог в файле PP.INI
+// @v10.5.9 #define PPERR_UNDEFPACKPATH       443 // Не определен каталог PACK в файле PP.INI
+// @v10.5.9 #define PPERR_NEXISTPATH          444 // Не найден каталог %s
+// @v10.5.9 #define PPERR_NOSRCFILE           445 // Не найден копируемый файл %s
+// @v10.5.9 #define PPERR_DUPREGNUMBER        446 // Дублирование номера регистрационного документа (%s)
+// @v10.5.9 #define PPERR_ZEROLINKPAYM        447 // Не найден связанный документ оплаты\n\003%s
+// @v10.5.9 #define PPERR_CHKWPER             448 // без указания начала периода прихода товара %s
+// @v10.5.9 #define PPERR_NOCYCLES            449 // не введена периодичность оплаты %s
+// @v10.5.9 #define PPERR_NOTNUMDAY           450 // Не корректно ввели номер дня %s
+// @v10.5.9 #define PPERR_UNDEFWROFFOP        451 // Не определена операция списания //
+// @v10.5.9 #define PPERR_ALDD_NOPENBIN       452 // Невозможно открыть файл ALDD данных
+// @v10.5.9 #define PPERR_CANTOPENFILE        453 // Невозможно открыть файл %s
+// @v10.5.9 #define PPERR_CANTDELMASTER       454 // Нельзя удалять пользователя MASTER
+// @v10.5.9 #define PPERR_MAX_SESSION_DEST    480 // Достигнуто максимальное количество сессий
+// @v10.5.9 #define PPERR_DELLOTWRET          481 // По данной строке был возврат, поэтому удалять ее нельз
+// @v10.5.9 #define PPERR_CANTRMVFILE         482 // Невозможно удалить файл %s
+// @v10.5.9 #define PPERR_SCARDSERNEEDED      483 // Необходимо выбрать серию карты
+// @v10.5.9 #define PPERR_SCARDCODENEEDED     484 // Необходимо ввести код карты
+// @v10.5.9 #define PPERR_REGFILEREADFAULT    485 // Ошибка чтения регистрационных данных
+// @v10.5.9 #define PPERR_REGFILEWRITEFAULT   486 // Ошибка записи регистрационных данных
+// @v10.5.9 #define PPERR_INVLICFILE          487 // Неверный файл обновления лицензии %s
+// @v10.5.9 #define PPERR_INVREGKEY           488 // Неверный регистрационный номер
+// @v10.5.9 #define PPERR_UNDEFDFCTSRCLOC     489 // Для межскладской операции компенсации дефицита должен быть определен склад-источник
+// @v10.5.9 #define PPERR_DWONEEDED           490 // Необходимо выбрать тип списания драфт-документов
+// @v10.5.9 #define PPERR_PGMNOTREGISTERED    491 // Копия системы не зарегистрирована
+// @v10.5.9 #define PPERR_TRANSPORTREGFILE    492 // Файл дополнительных лицензий не является регистрационным
+// @v10.5.9 #define PPERR_INVACCTYPEPAIR      493 // Забалансовый счет не может корреспондировать с балансовым
+// @v10.5.9 #define PPERR_INVPREDICTOP        494 // Операция продаж товара не задана или задана неверно
+// @v10.5.9 #define PPERR_CANTREADARMAPARAM   495 // Ошибка извлечения параметров модели прогноза %s
+// @v10.5.9 #define PPERR_CANTREADGOODSSALES  496 // Данные по продажам данного товара отсутсвуют
+// @v10.5.9 #define PPERR_PSALESTBLEMPTY      497 // Таблица продаж не содержит записей
+// @v10.5.9 #define PPERR_INVMODELPARAM       498 // Параметры модели должны быть положительными числами
+// @v10.5.9 #define PPERR_CANTREADPREVDTFILL  499 // Невозможно извлечь дату последнего обновлени
+// @v10.5.9 #define PPERR_BASKETLOCKED        500 // Корзина заблокирована другим пользователем %s
 /* @v9.4.8
 //
 // Decl Struc Parsing
@@ -11313,7 +11317,6 @@
 #define PPERR_DUPLBNKACCT         702 // Дублируемое значение счета банка
 #define PPERR_ABSLOTS             703 // 'Отсутствующий лот {@goods - @loc - @int @bill}' (RecoverAbsenceLots)
 #define PPERR_SCARDIDNEEDEDFOROP  704 // Internal error: При добавлении или модификации операции по карте необходим ID карты
-
 #define PPERR_RCVMAIL             705 // Ошибка при принятии почты из инета
 #define PPERR_SENDMAIL            706 // Ошибка при отправке почты через интернет
 #define PPERR_CANTCONNECTINET     708 // Ошибка при подключении к интернету

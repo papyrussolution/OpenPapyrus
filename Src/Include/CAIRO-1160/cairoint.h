@@ -1172,9 +1172,7 @@ slim_hidden_proto(cairo_region_xor);
 slim_hidden_proto(cairo_region_xor_rectangle);
 
 #if CAIRO_HAS_PNG_FUNCTIONS
-
-slim_hidden_proto(cairo_surface_write_to_png_stream);
-
+	slim_hidden_proto(cairo_surface_write_to_png_stream);
 #endif
 
 CAIRO_END_DECLS

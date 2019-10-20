@@ -1492,15 +1492,11 @@ static int run_test(const char * test_name, cairo_bo_edge_t * test_edges, int nu
 			printf("No remainining intersections found after pass %d\n", passes);
 		}
 	}
-
-	if(edges_have_an_intersection_quadratic(_cairo_array_index(&intersected_edges, 0),
-	    _cairo_array_num_elements(&intersected_edges)))
+	if(edges_have_an_intersection_quadratic(_cairo_array_index(&intersected_edges, 0), _cairo_array_num_elements(&intersected_edges)))
 		printf("*** FAIL ***\n");
 	else
 		printf("PASS\n");
-
 	_cairo_array_fini(&intersected_edges);
-
 	return 0;
 }
 
@@ -1532,12 +1528,9 @@ int main(void)
 				}
 			} while(edge->line.p1.y == edge->line.p2.y);
 		}
-
 		sprintf(random_name, "random-%02d", num_random);
-
 		run_test(random_name, random_edges, num_random);
 	}
-
 	return 0;
 }
 

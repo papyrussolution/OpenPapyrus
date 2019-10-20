@@ -322,7 +322,6 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 	ImpOpID = 0;
 	Flags = 0;
 	PredefFormat = pfUndef; // @v9.7.8
-
 	int    ok = 1;
 	SString params, fld_name, param_val;
 	StringSet excl;

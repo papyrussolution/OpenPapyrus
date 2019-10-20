@@ -36,15 +36,12 @@
 static void combine_mask_ca(uint32_t * src, uint32_t * mask)
 {
 	uint32_t a = *mask;
-
 	uint32_t x;
 	uint16_t xa;
-
 	if(!a) {
 		*(src) = 0;
 		return;
 	}
-
 	x = *(src);
 	if(a == ~0) {
 		x = x >> A_SHIFT;
@@ -53,56 +50,46 @@ static void combine_mask_ca(uint32_t * src, uint32_t * mask)
 		*(mask) = x;
 		return;
 	}
-
 	xa = x >> A_SHIFT;
 	UN8x4_MUL_UN8x4(x, a);
 	*(src) = x;
-
 	UN8x4_MUL_UN8(a, xa);
 	*(mask) = a;
 }
 
-static void combine_mask_value_ca(uint32_t * src, const uint32_t * mask)
+static void FASTCALL combine_mask_value_ca(uint32_t * src, const uint32_t * mask)
 {
 	uint32_t a = *mask;
 	uint32_t x;
-
 	if(!a) {
 		*(src) = 0;
 		return;
 	}
-
 	if(a == ~0)
 		return;
-
 	x = *(src);
 	UN8x4_MUL_UN8x4(x, a);
 	*(src) = x;
 }
 
-static void combine_mask_alpha_ca(const uint32_t * src, uint32_t * mask)
+static void FASTCALL combine_mask_alpha_ca(const uint32_t * src, uint32_t * mask)
 {
 	uint32_t a = *(mask);
 	uint32_t x;
-
 	if(!a)
 		return;
-
 	x = *(src) >> A_SHIFT;
 	if(x == MASK)
 		return;
-
 	if(a == ~0) {
 		x |= x << G_SHIFT;
 		x |= x << R_SHIFT;
 		*(mask) = x;
 		return;
 	}
-
 	UN8x4_MUL_UN8(a, x);
 	*(mask) = a;
 }
-
 /*
  * There are two ways of handling alpha -- either as a single unified value or
  * a separate value for each component, hence each macro must have two
@@ -110,7 +97,6 @@ static void combine_mask_alpha_ca(const uint32_t * src, uint32_t * mask)
  * the component version has a 'ca'.  Similarly, functions which deal with
  * this difference will have two versions using the same convention.
  */
-
 static force_inline uint32_t combine_mask(const uint32_t * src, const uint32_t * mask, int i)
 {
 	uint32_t s, m;
@@ -416,13 +402,7 @@ static void combine_multiply_ca(pixman_implementation_t * imp, pixman_op_t op, u
 		}                                                               \
 	}                                                                   \
                                                                         \
-	static void                                          \
-	    combine_ ## name ## _ca(pixman_implementation_t *imp,              \
-	    pixman_op_t op,               \
-	    uint32_t * dest,           \
-	    const uint32_t * src,              \
-	    const uint32_t * mask,             \
-	    int width)            \
+	static void combine_ ## name ## _ca(pixman_implementation_t *imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width) \
 	{                                                                   \
 		for(int i = 0; i < width; ++i) { \
 			uint32_t m = *(mask + i);                                   \
@@ -521,7 +501,6 @@ static inline int32_t blend_darken(int32_t d, int32_t ad, int32_t s, int32_t as)
 {
 	s = ad * s;
 	d = as * d;
-
 	return s > d ? d : s;
 }
 
@@ -586,8 +565,8 @@ PDF_SEPARABLE_BLEND_MODE(hard_light)
  */
 static inline int32_t blend_difference(int32_t d, int32_t ad, int32_t s, int32_t as)
 {
-	int32_t das = d * as;
-	int32_t sad = s * ad;
+	const int32_t das = d * as;
+	const int32_t sad = s * ad;
 	if(sad < das)
 		return das - sad;
 	else
@@ -650,12 +629,7 @@ static void combine_over_ca(pixman_implementation_t * imp, pixman_op_t op, uint3
 	}
 }
 
-static void combine_over_reverse_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_over_reverse_ca(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t d = *(dest + i);
@@ -670,12 +644,7 @@ static void combine_over_reverse_ca(pixman_implementation_t * imp,
 	}
 }
 
-static void combine_in_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_in_ca(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t d = *(dest + i);
@@ -692,190 +661,114 @@ static void combine_in_ca(pixman_implementation_t * imp,
 	}
 }
 
-static void combine_in_reverse_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_in_reverse_ca(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
-	int i;
-
-	for(i = 0; i < width; ++i) {
+	for(int i = 0; i < width; ++i) {
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t a;
-
 		combine_mask_alpha_ca(&s, &m);
-
 		a = m;
 		if(a != ~0) {
 			uint32_t d = 0;
-
 			if(a) {
 				d = *(dest + i);
 				UN8x4_MUL_UN8x4(d, a);
 			}
-
 			*(dest + i) = d;
 		}
 	}
 }
 
-static void combine_out_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_out_ca(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
-	int i;
-
-	for(i = 0; i < width; ++i) {
+	for(int i = 0; i < width; ++i) {
 		uint32_t d = *(dest + i);
 		uint16_t a = ~d >> A_SHIFT;
 		uint32_t s = 0;
-
 		if(a) {
 			uint32_t m = *(mask + i);
-
 			s = *(src + i);
 			combine_mask_value_ca(&s, &m);
-
 			if(a != MASK)
 				UN8x4_MUL_UN8(s, a);
 		}
-
 		*(dest + i) = s;
 	}
 }
 
-static void combine_out_reverse_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_out_reverse_ca(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
-	int i;
-
-	for(i = 0; i < width; ++i) {
+	for(int i = 0; i < width; ++i) {
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t a;
-
 		combine_mask_alpha_ca(&s, &m);
-
 		a = ~m;
 		if(a != ~0) {
 			uint32_t d = 0;
-
 			if(a) {
 				d = *(dest + i);
 				UN8x4_MUL_UN8x4(d, a);
 			}
-
 			*(dest + i) = d;
 		}
 	}
 }
 
-static void combine_atop_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_atop_ca(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
-	int i;
-
-	for(i = 0; i < width; ++i) {
+	for(int i = 0; i < width; ++i) {
 		uint32_t d = *(dest + i);
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t ad;
 		uint16_t as = d >> A_SHIFT;
-
 		combine_mask_ca(&s, &m);
-
 		ad = ~m;
-
 		UN8x4_MUL_UN8x4_ADD_UN8x4_MUL_UN8(d, ad, s, as);
-
 		*(dest + i) = d;
 	}
 }
 
-static void combine_atop_reverse_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_atop_reverse_ca(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
-	int i;
-
-	for(i = 0; i < width; ++i) {
+	for(int i = 0; i < width; ++i) {
 		uint32_t d = *(dest + i);
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t ad;
 		uint16_t as = ~d >> A_SHIFT;
-
 		combine_mask_ca(&s, &m);
-
 		ad = m;
-
 		UN8x4_MUL_UN8x4_ADD_UN8x4_MUL_UN8(d, ad, s, as);
-
 		*(dest + i) = d;
 	}
 }
 
-static void combine_xor_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_xor_ca(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
-	int i;
-
-	for(i = 0; i < width; ++i) {
+	for(int i = 0; i < width; ++i) {
 		uint32_t d = *(dest + i);
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t ad;
 		uint16_t as = ~d >> A_SHIFT;
-
 		combine_mask_ca(&s, &m);
-
 		ad = ~m;
-
 		UN8x4_MUL_UN8x4_ADD_UN8x4_MUL_UN8(d, ad, s, as);
-
 		*(dest + i) = d;
 	}
 }
 
-static void combine_add_ca(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
-    int width)
+static void combine_add_ca(pixman_implementation_t * imp,  pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
-	int i;
-
-	for(i = 0; i < width; ++i) {
+	for(int i = 0; i < width; ++i) {
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t d = *(dest + i);
-
 		combine_mask_value_ca(&s, &m);
-
 		UN8x4_ADD_UN8x4(d, s);
-
 		*(dest + i) = d;
 	}
 }
@@ -896,7 +789,6 @@ void _pixman_setup_combiner_functions_32(pixman_implementation_t * imp)
 	imp->combine_32[PIXMAN_OP_ATOP_REVERSE] = combine_atop_reverse_u;
 	imp->combine_32[PIXMAN_OP_XOR] = combine_xor_u;
 	imp->combine_32[PIXMAN_OP_ADD] = combine_add_u;
-
 	imp->combine_32[PIXMAN_OP_MULTIPLY] = combine_multiply_u;
 	imp->combine_32[PIXMAN_OP_SCREEN] = combine_screen_u;
 	imp->combine_32[PIXMAN_OP_OVERLAY] = combine_overlay_u;
@@ -905,7 +797,6 @@ void _pixman_setup_combiner_functions_32(pixman_implementation_t * imp)
 	imp->combine_32[PIXMAN_OP_HARD_LIGHT] = combine_hard_light_u;
 	imp->combine_32[PIXMAN_OP_DIFFERENCE] = combine_difference_u;
 	imp->combine_32[PIXMAN_OP_EXCLUSION] = combine_exclusion_u;
-
 	/* Component alpha combiners */
 	imp->combine_32_ca[PIXMAN_OP_CLEAR] = combine_clear_ca;
 	imp->combine_32_ca[PIXMAN_OP_SRC] = combine_src_ca;
@@ -920,7 +811,6 @@ void _pixman_setup_combiner_functions_32(pixman_implementation_t * imp)
 	imp->combine_32_ca[PIXMAN_OP_ATOP_REVERSE] = combine_atop_reverse_ca;
 	imp->combine_32_ca[PIXMAN_OP_XOR] = combine_xor_ca;
 	imp->combine_32_ca[PIXMAN_OP_ADD] = combine_add_ca;
-
 	imp->combine_32_ca[PIXMAN_OP_MULTIPLY] = combine_multiply_ca;
 	imp->combine_32_ca[PIXMAN_OP_SCREEN] = combine_screen_ca;
 	imp->combine_32_ca[PIXMAN_OP_OVERLAY] = combine_overlay_ca;

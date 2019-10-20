@@ -35,25 +35,24 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include "cairo-rtree-private.h"
 
 cairo_rtree_node_t * _cairo_rtree_node_create(cairo_rtree_t * rtree, cairo_rtree_node_t * parent, int x, int y, int width, int height)
 {
-	cairo_rtree_node_t * node = (cairo_rtree_node_t *)_cairo_freepool_alloc(&rtree->node_freepool);
-	if(node == NULL) {
+	cairo_rtree_node_t * node = static_cast<cairo_rtree_node_t *>(_cairo_freepool_alloc(&rtree->node_freepool));
+	if(!node) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
-		return NULL;
 	}
-	node->children[0] = NULL;
-	node->parent = parent;
-	node->state  = CAIRO_RTREE_NODE_AVAILABLE;
-	node->pinned = FALSE;
-	node->x      = x;
-	node->y      = y;
-	node->width  = width;
-	node->height = height;
-	cairo_list_add(&node->link, &rtree->available);
+	else {
+		node->children[0] = NULL;
+		node->parent = parent;
+		node->state  = CAIRO_RTREE_NODE_AVAILABLE;
+		node->pinned = FALSE;
+		node->x      = x;
+		node->y      = y;
+		node->width  = width;
+		node->height = height;
+		cairo_list_add(&node->link, &rtree->available);
+	}
 	return node;
 }
 

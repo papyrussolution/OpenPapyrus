@@ -188,4 +188,4 @@ void __ptw32_callUserDestroyRoutines(pthread_t thread)
 			}
 		} while(assocsRemaining);
 	}
-}                               /* __ptw32_callUserDestroyRoutines */
+}

@@ -40,14 +40,9 @@
 
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-xrender-private.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-list-inline.h"
-
 #include <X11/Xlibint.h>        /* For XESetCloseDisplay */
 
-typedef int (* cairo_xlib_error_func_t) (Display * display,
-    XErrorEvent * event);
+typedef int (* cairo_xlib_error_func_t) (Display * display, XErrorEvent * event);
 
 static cairo_xlib_display_t * _cairo_xlib_display_list;
 

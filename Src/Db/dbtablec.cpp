@@ -646,7 +646,7 @@ int FASTCALL DBTable::HasNote(DBField * pLastFld) const
 			else {
 				int    t_ = GETSTYPE(pLastFld->getField().T);
 				if(t_ != S_NOTE) {
-					assert(t_ == S_NOTE);
+					// @v10.5.9 assert(t_ == S_NOTE);
 					ok = 0;
 				}
 			}

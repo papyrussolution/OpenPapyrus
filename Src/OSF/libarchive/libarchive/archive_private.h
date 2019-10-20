@@ -123,7 +123,7 @@ int	FASTCALL __archive_check_magic(struct archive *, uint magic, uint state, con
 		int magic_test = __archive_check_magic((a), (expected_magic), (allowed_states), (function_name)); \
 		if(magic_test == ARCHIVE_FATAL) \
 			return ARCHIVE_FATAL; \
-	} while (0)
+	} while(0)
 
 void FASTCALL __archive_errx(int retvalue, const char *msg) __LA_DEAD;
 void FASTCALL __archive_errx_nomem(int retvalue);

@@ -124,7 +124,7 @@ typedef struct __qam_filelist {
 		ret = __lock_wakeup((dbc)->dbp->env, &(dbc)->lock_dbt);	\
 	} else								\
 		ret = 0;						\
-} while (0)
+} while(0)
 
 /* Handle wrap around. */
 #define QAM_INC_RECNO(recno) do { recno++; } while (recno == RECNO_OOB)

@@ -90,6 +90,51 @@ int SLAPI PPViewQuoteReqAnalyze::FinishListBySeq(PPID leadBillID, int leadRbb)
 	return ok;
 }
 
+int FASTCALL PPViewQuoteReqAnalyze::CmpBrwItems(int ord, const BrwItem * p1, const BrwItem * p2)
+{
+	int s = 0;
+	if(ord == QuoteReqAnalyzeFilt::ordByLeadBill) {
+		s = CMPSIGN(p1->LeadDt, p2->LeadDt);
+		if(!s) {
+			BillTbl::Rec bill1_rec;
+			BillTbl::Rec bill2_rec;
+			if(P_BObj->Fetch(p1->LeadBillID, &bill1_rec) > 0 && P_BObj->Fetch(p2->LeadBillID, &bill2_rec) > 0) {
+				s = strcmp(bill1_rec.Code, bill2_rec.Code);
+			}
+			if(!s) {
+				s = CMPSIGN(p1->LeadRbb, p2->LeadRbb);
+			}
+		}
+	}
+	else if(ord == QuoteReqAnalyzeFilt::ordBySeqBill) {
+		s = CMPSIGN(p1->LinkDt, p2->LinkDt);
+		if(!s) {
+			BillTbl::Rec bill1_rec;
+			BillTbl::Rec bill2_rec;
+			if(P_BObj->Fetch(p1->LinkBillID, &bill1_rec) > 0 && P_BObj->Fetch(p2->LinkBillID, &bill2_rec) > 0) {
+				s = strcmp(bill1_rec.Code, bill2_rec.Code);
+			}
+			if(!s) {
+				s = CMPSIGN(p1->LinkRbb, p2->LinkRbb);
+			}
+		}
+	}
+	return s;
+}
+
+static IMPL_CMPFUNC(QuoteReqAnalyze_Item_LeadBill, i1, i2)
+{
+	const PPViewQuoteReqAnalyze::BrwItem * p1 = static_cast<const PPViewQuoteReqAnalyze::BrwItem *>(i1);
+	const PPViewQuoteReqAnalyze::BrwItem * p2 = static_cast<const PPViewQuoteReqAnalyze::BrwItem *>(i2);
+	PPViewQuoteReqAnalyze * p_view = static_cast<PPViewQuoteReqAnalyze *>(pExtraData);
+	return p_view ? p_view->CmpBrwItems(QuoteReqAnalyzeFilt::ordByLeadBill, p1, p2) : 0;
+}
+
+void SLAPI PPViewQuoteReqAnalyze::SortList(int ord)
+{
+	List.sort2(PTR_CMPFUNC(QuoteReqAnalyze_Item_LeadBill), this);
+}
+
 int SLAPI PPViewQuoteReqAnalyze::CreateList(PPID leadBillID, int leadRbb)
 {
 	int    ok = 1;
@@ -132,6 +177,7 @@ int SLAPI PPViewQuoteReqAnalyze::CreateList(PPID leadBillID, int leadRbb)
 				}
 			}
 			THROW(FinishListBySeq(0, 0));
+			SortList(QuoteReqAnalyzeFilt::ordByLeadBill);
 		}
 	}
 	else {

@@ -191,7 +191,7 @@ extern "C" {
  * return value of the mutex routine.
  */
 #ifdef HAVE_MUTEX_SUPPORT
-#define	MUTEX_LOCK(env, mutex) do { if((mutex) != MUTEX_INVALID && __mutex_lock(env, mutex) != 0) return (DB_RUNRECOVERY); } while (0)
+#define	MUTEX_LOCK(env, mutex) do { if((mutex) != MUTEX_INVALID && __mutex_lock(env, mutex) != 0) return (DB_RUNRECOVERY); } while(0)
 /*
  * Always check the return value of MUTEX_TRYLOCK()!  Expect 0 on success,
  * or DB_LOCK_NOTGRANTED, or possibly DB_RUNRECOVERY for failchk.
@@ -201,15 +201,15 @@ extern "C" {
 /*
  * Acquire a DB_MUTEX_SHARED "mutex" in shared mode.
  */
-#define	MUTEX_READLOCK(env, mutex) do { if((mutex) != MUTEX_INVALID && __mutex_rdlock(env, mutex) != 0) return (DB_RUNRECOVERY); } while (0)
+#define	MUTEX_READLOCK(env, mutex) do { if((mutex) != MUTEX_INVALID && __mutex_rdlock(env, mutex) != 0) return (DB_RUNRECOVERY); } while(0)
 #define	MUTEX_TRY_READLOCK(env, mutex) ((mutex) != MUTEX_INVALID ? __mutex_tryrdlock(env, mutex) : 0)
-#define	MUTEX_UNLOCK(env, mutex) do { if((mutex) != MUTEX_INVALID && __mutex_unlock(env, mutex) != 0) return (DB_RUNRECOVERY); } while (0)
+#define	MUTEX_UNLOCK(env, mutex) do { if((mutex) != MUTEX_INVALID && __mutex_unlock(env, mutex) != 0) return (DB_RUNRECOVERY); } while(0)
 
 #define	MUTEX_WAIT(env, mutex, duration) do {			      \
 	int __ret;						      \
 	if((mutex) != MUTEX_INVALID && (__ret = __mutex_timedlock(env, mutex, duration)) != 0 && __ret != DB_TIMEOUT) \
 		return (DB_RUNRECOVERY);			      \
-} while (0)
+} while(0)
 #else
 /*
  * There are calls to lock/unlock mutexes outside of #ifdef's -- replace

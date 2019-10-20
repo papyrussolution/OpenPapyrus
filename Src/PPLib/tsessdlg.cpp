@@ -271,7 +271,6 @@ private:
 	int    setupCipButton();
 	void   SetPlannedTiming(long sec);
 	long   GetPlannedTiming();
-
 	int    SetupPayment();
 	int    AddPayment();
 	void   More();
@@ -629,15 +628,17 @@ void TSessionDialog::detail()
 	}
 }
 
-#define GRP_IBG 1
-
 class TSessMoreDialog : public PPListDialog {
+	DECL_DIALOG_DATA(TSessionPacket);
+	enum {
+		ctlgroupIbg = 1
+	};
 public:
 	TSessMoreDialog() : PPListDialog(DLG_TSESSEXT, CTL_TSESSEXT_PLACELIST)
 	{
-		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_TSESSEXT_IMAGE, cmAddImage, cmDelImage, 1));
+		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_TSESSEXT_IMAGE, cmAddImage, cmDelImage, 1));
 	}
-	int    setDTS(const TSessionPacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -648,7 +649,7 @@ public:
 			if(!Data.LinkFiles.GetCount() && Data.Rec.Flags & TSESF_HASIMAGES)
 				Data.LinkFiles.Load(Data.Rec.ID, 0L);
 			Data.LinkFiles.At(0, rec.Path);
-			setGroupData(GRP_IBG, &rec);
+			setGroupData(ctlgroupIbg, &rec);
 		}
 		SetInlineTags();
 		//
@@ -659,14 +660,14 @@ public:
 		updateList(-1);
 		return ok;
 	}
-	int    getDTS(TSessionPacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   ctl_sel = 0;
 		SString temp_buf;
 		{
 			ImageBrowseCtrlGroup::Rec rec;
-			if(getGroupData(GRP_IBG, &rec))
+			if(getGroupData(ctlgroupIbg, &rec))
 				if(rec.Path.Len()) {
 					THROW(Data.LinkFiles.Replace(0, rec.Path));
 				}
@@ -784,7 +785,6 @@ private:
 		}
 		return ok;
 	}
-	TSessionPacket Data;
 };
 
 void TSessionDialog::More()
@@ -1285,7 +1285,6 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	PrcTechCtrlGroup::Rec ptcg_rec;
 	MEMSZERO(ptcg_rec);
 	ptcg_rec.PrcID = Data.Rec.PrcID;
-
 	if(Data.Rec.Flags & TSESF_PLAN) {
 		if(Data.Rec.PrcID == 0)
 			ptcg_rec.PrcParentID = PRCEXDF_GROUP;

@@ -967,10 +967,10 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			// } @v10.0.02
 			break;
 		case WM_TIMECHANGE:
-			TView::messageCommand((TProgram *)TView::GetWindowUserData(hWnd), cmTimeChange);
+			TView::messageCommand(static_cast<TProgram *>(TView::GetWindowUserData(hWnd)), cmTimeChange);
 			break;
 		case WM_DESTROY:
-			p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
+			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 			if(p_pgm->H_FrameWnd) {
 				::DestroyWindow(p_pgm->H_FrameWnd);
 				p_pgm->H_FrameWnd = 0;
@@ -988,7 +988,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		case WM_SETFOCUS:
 			{
-				p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
+				p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 				HWND hb = GetTopWindow(p_pgm->GetFrameWindow());
 				if(hb == p_pgm->H_CloseWnd)
 					hb = GetNextWindow(hb, GW_HWNDNEXT);
@@ -1227,7 +1227,7 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 }
 
 //static
-BOOL CALLBACK SpecTitleWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK SpecTitleWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	WNDPROC prev_wnd_proc = reinterpret_cast<WNDPROC>(TView::GetWindowUserData(hWnd));
 	switch(message) {
@@ -1241,7 +1241,7 @@ BOOL CALLBACK SpecTitleWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	       		LOGBRUSH lb;
          		lb.lbColor = RGB(255, 0, 0);
          		lb.lbStyle = BS_SOLID;
-         		return (LRESULT)CreateBrushIndirect(&lb);
+         		return reinterpret_cast<LRESULT>(CreateBrushIndirect(&lb));
       		}
 	}
 	return prev_wnd_proc(hWnd, message, wParam, lParam);
@@ -1534,7 +1534,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	SETIFZ(brush, CreateSolidBrush(brush_color));
 	old_brush = static_cast<HBRUSH>(::SelectObject(p_di->hDC, brush));
 	SETIFZ(pen, CreatePen(PS_SOLID, 1, pen_color));
-	old_pen   = (HPEN)SelectObject(p_di->hDC, pen);
+	old_pen   = static_cast<HPEN>(SelectObject(p_di->hDC, pen));
 	ok = Rectangle(p_di->hDC, elem_r.left, elem_r.top, elem_r.right, elem_r.bottom);
 	if(ok > 0) {
 		elem_r.left =+ 2;
@@ -1569,7 +1569,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	{
 		HFONT old_font = 0;
-		old_font = (HFONT)SelectObject(p_di->hDC, (HFONT)SendMessage(p_di->hwndItem, WM_GETFONT, 0, 0));
+		old_font = static_cast<HFONT>(::SelectObject(p_di->hDC, reinterpret_cast<HFONT>(::SendMessage(p_di->hwndItem, WM_GETFONT, 0, 0))));
 		SetBkMode(p_di->hDC, TRANSPARENT);
 		SetTextColor(p_di->hDC, text_color);
 		::DrawText(p_di->hDC, SUcSwitch(text_buf), (int)text_buf.Len(), &out_r, text_out_fmt); // @unicodeproblem
@@ -1662,7 +1662,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	SETIFZ(brush, CreateSolidBrush(brush_color));
 	old_brush = static_cast<HBRUSH>(::SelectObject(pDi->hDC, brush));
 	SETIFZ(pen, CreatePen(PS_SOLID, 1, pen_color));
-	old_pen   = (HPEN)SelectObject(pDi->hDC, pen);
+	old_pen   = static_cast<HPEN>(SelectObject(pDi->hDC, pen));
 	ok = RoundRect(pDi->hDC, elem_r.left, elem_r.top, elem_r.right, elem_r.bottom, ROUNDRECT_RADIUS * 2, ROUNDRECT_RADIUS * 2);
 	if(draw_text || draw_bitmap) {
 		SETFLAG(text_out_fmt, DT_CENTER, !(draw_text * draw_bitmap));
@@ -1679,7 +1679,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 	}
 	else if(draw_text) {
-		HFONT old_font = (HFONT)SelectObject(pDi->hDC, (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
+		HFONT old_font = static_cast<HFONT>(::SelectObject(pDi->hDC, reinterpret_cast<HFONT>(::SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0))));
 		SetBkMode(pDi->hDC, TRANSPARENT);
 		SetTextColor(pDi->hDC, text_color);
 		if(style & BS_MULTILINE) {
@@ -1813,7 +1813,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
-			HFONT hf = reinterpret_cast<HFONT>(SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
+			HFONT hf = reinterpret_cast<HFONT>(::SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
 			canv.SelectObjectAndPush(hf);
 			canv.SetBkTranparent();
 			COLORREF text_color;

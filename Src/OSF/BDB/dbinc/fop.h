@@ -10,8 +10,8 @@
 extern "C" {
 #endif
 
-#define	MAKE_INMEM(D) do { F_SET((D), DB_AM_INMEM); __memp_set_flags((D)->mpf, DB_MPOOL_NOFILE, 1); } while (0)
-#define	CLR_INMEM(D)  do { F_CLR((D), DB_AM_INMEM); __memp_set_flags((D)->mpf, DB_MPOOL_NOFILE, 0); } while (0)
+#define	MAKE_INMEM(D) do { F_SET((D), DB_AM_INMEM); __memp_set_flags((D)->mpf, DB_MPOOL_NOFILE, 1); } while(0)
+#define	CLR_INMEM(D)  do { F_CLR((D), DB_AM_INMEM); __memp_set_flags((D)->mpf, DB_MPOOL_NOFILE, 0); } while(0)
 
 #include "dbinc_auto/fileops_auto.h"
 #include "dbinc_auto/fileops_ext.h"

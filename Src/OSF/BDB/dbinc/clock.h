@@ -84,7 +84,7 @@ typedef struct {
 			(vvp)->tv_sec++;				\
 			(vvp)->tv_nsec -= 1000000000;			\
 		}							\
-	} while (0)
+	} while(0)
 #undef timespecsub
 #define	timespecsub(vvp, uvp)						\
 	do {								\
@@ -94,20 +94,20 @@ typedef struct {
 			(vvp)->tv_sec--;				\
 			(vvp)->tv_nsec += 1000000000;			\
 		}							\
-	} while (0)
+	} while(0)
 
 #undef timespecset
 #define	timespecset(vvp, sec, nsec)					\
 	do {								\
 		(vvp)->tv_sec = static_cast<__time64_t>(sec);				\
 		(vvp)->tv_nsec = static_cast<long>(nsec);				\
-	} while (0)
+	} while(0)
 
 #define	DB_TIMEOUT_TO_TIMESPEC(t, vvp)					\
 	do {								\
 		(vvp)->tv_sec = static_cast<__time64_t>((t) / 1000000);		\
 		(vvp)->tv_nsec = static_cast<long>(((t) % 1000000) * 1000);	\
-	} while (0)
+	} while(0)
 
 #define	DB_TIMESPEC_TO_TIMEOUT(t, vvp, prec)				\
 	do {								\
@@ -116,14 +116,14 @@ typedef struct {
 		/* Add in 1 usec for lost nsec precision if wanted. */	\
 		if(prec)						\
 			t++;						\
-	} while (0)
+	} while(0)
 
 #define	TIMESPEC_ADD_DB_TIMEOUT(vvp, t)			        \
 	do {							        \
 		db_timespec __tmp;				        \
 		DB_TIMEOUT_TO_TIMESPEC(t, &__tmp);		        \
 		timespecadd((vvp), &__tmp);			        \
-	} while (0)
+	} while(0)
 
 #if defined(__cplusplus)
 }

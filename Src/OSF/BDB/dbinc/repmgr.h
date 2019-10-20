@@ -761,12 +761,12 @@ typedef struct {
 #define	LOCK_MUTEX(m) do {						\
 	if(__repmgr_lock_mutex(m) != 0)				\
 		return (DB_RUNRECOVERY);				\
-} while (0)
+} while(0)
 
 #define	UNLOCK_MUTEX(m) do {						\
 		if(__repmgr_unlock_mutex(m) != 0)			\
 		return (DB_RUNRECOVERY);				\
-} while (0)
+} while(0)
 
 /* POSIX/Win32 socket (and other) portability. */
 #ifdef DB_WIN32

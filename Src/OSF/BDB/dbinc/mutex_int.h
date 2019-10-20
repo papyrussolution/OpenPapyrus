@@ -71,13 +71,13 @@ extern "C" {
 		RET_SET((pthread_rwlock_wrlock(&(mutexp)->u.rwlock)), ret); \
 	else								\
 		RET_SET((pthread_mutex_lock(&(mutexp)->u.m.mutex)), ret); \
-} while (0)
+} while(0)
 #define	RET_SET_PTHREAD_TRYLOCK(mutexp, ret) do {			\
 	if(F_ISSET(mutexp, DB_MUTEX_SHARED))				\
 		RET_SET((pthread_rwlock_trywrlock(&(mutexp)->u.rwlock)), ret); \
 	else								\
 		RET_SET((pthread_mutex_trylock(&(mutexp)->u.m.mutex)), ret); \
-} while (0)
+} while(0)
 #else
 #define	RET_SET_PTHREAD_LOCK(mutexp, ret)    RET_SET(pthread_mutex_lock(&(mutexp)->u.m.mutex), ret);
 #define	RET_SET_PTHREAD_TRYLOCK(mutexp, ret) RET_SET(pthread_mutex_trylock(&(mutexp)->u.m.mutex), ret);

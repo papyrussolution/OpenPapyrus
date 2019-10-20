@@ -6314,7 +6314,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 				}
 			}
-			clearEvent(event);
+			// @v10.5.9 clearEvent(event);
 			return;
 		}
 		else if(TVCMD == cmDefault && isCurrCtlID(CTL_CHKPAN_INPUT)) {
@@ -6841,7 +6841,6 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 			COLORREF clr_prev = 0;
 			SmartListBox * p_lbx = static_cast<SmartListBox *>(pDrawItem->P_View);
 			RECT   rc = pDrawItem->ItemRect;
-			// char   temp_buf[256];
 			SString temp_buf;
 			if(list_ctrl_id == CTL_CHKPAN_GDSLIST) {
 				if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {

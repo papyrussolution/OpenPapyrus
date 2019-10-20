@@ -58,7 +58,7 @@ struct {								\
 		(elm)->field.sce_next = -1;				\
 	(elm)->field.sce_prev = SH_PTR_TO_OFF(elm, listelm);		\
 	(listelm)->field.sce_next = SH_PTR_TO_OFF(listelm, elm);	\
-} while (0)
+} while(0)
 
 #define	SH_CHAIN_INSERT_BEFORE(listelm, elm, field, type) do {		\
 	struct type *__prev = SH_CHAIN_PREV(listelm, field, type);	\
@@ -69,7 +69,7 @@ struct {								\
 		(elm)->field.sce_prev = -1;				\
 	(elm)->field.sce_next = SH_PTR_TO_OFF(elm, listelm);		\
 	(listelm)->field.sce_prev = SH_PTR_TO_OFF(listelm, elm);	\
-} while (0)
+} while(0)
 
 #define	SH_CHAIN_REMOVE(elm, field, type) do {				\
 	struct type *__prev = SH_CHAIN_PREV(elm, field, type);		\
@@ -79,7 +79,7 @@ struct {								\
 	if(__prev)						\
 		__prev->field.sce_next = (__next == NULL) ? -1 : SH_PTR_TO_OFF(__prev, __next);			\
 	SH_CHAIN_INIT(elm, field);					\
-} while (0)
+} while(0)
 
 /*
  * Shared memory list definitions.
@@ -144,7 +144,7 @@ struct {								\
 						     type)), elm));	\
 	(listelm)->field.sle_prev = SH_LIST_NEXT_TO_PREV(elm, field);	\
 	}								\
-} while (0)
+} while(0)
 
 #define	SH_LIST_INSERT_AFTER(listelm, elm, field, type) do {		\
 	if((listelm)->field.sle_next != -1) {				\
@@ -156,7 +156,7 @@ struct {								\
 		(elm)->field.sle_next = -1;				\
 	(listelm)->field.sle_next = SH_PTR_TO_OFF(listelm, elm);	\
 	(elm)->field.sle_prev = SH_LIST_NEXT_TO_PREV(listelm, field);	\
-} while (0)
+} while(0)
 
 #define	SH_LIST_INSERT_HEAD(head, elm, field, type) do {		\
 	if((head)->slh_first != -1) {					\
@@ -168,7 +168,7 @@ struct {								\
 		(elm)->field.sle_next = -1;				\
 	(head)->slh_first = SH_PTR_TO_OFF(head, elm);			\
 	(elm)->field.sle_prev = SH_PTR_TO_OFF(elm, &(head)->slh_first);	\
-} while (0)
+} while(0)
 
 #define	SH_LIST_REMOVE(elm, field, type) do {				\
 	if((elm)->field.sle_next != -1) {				\
@@ -177,9 +177,9 @@ struct {								\
 		*__SH_LIST_PREV_OFF(elm, field) += (elm)->field.sle_next;\
 	} else								\
 		*__SH_LIST_PREV_OFF(elm, field) = -1;			\
-} while (0)
+} while(0)
 
-#define	SH_LIST_REMOVE_HEAD(head, field, type) do { if(!SH_LIST_EMPTY(head)) { SH_LIST_REMOVE(SH_LIST_FIRSTP(head, type), field, type); } } while (0)
+#define	SH_LIST_REMOVE_HEAD(head, field, type) do { if(!SH_LIST_EMPTY(head)) { SH_LIST_REMOVE(SH_LIST_FIRSTP(head, type), field, type); } } while(0)
 
 /*
  * Shared memory tail queue definitions.
@@ -252,7 +252,7 @@ struct {								\
 	}								\
 	(head)->stqh_first = SH_PTR_TO_OFF(head, elm);			\
 	(elm)->field.stqe_prev = SH_PTR_TO_OFF(elm, &(head)->stqh_first);			\
-} while (0)
+} while(0)
 
 #define	SH_TAILQ_INSERT_TAIL(head, elm, field) do {			\
 	(elm)->field.stqe_next = -1;					\
@@ -263,7 +263,7 @@ struct {								\
 		*__SH_TAILQ_LAST_OFF(head) = -(head)->stqh_last + SH_PTR_TO_OFF((elm), &(elm)->field.stqe_next) +	\
 		    SH_PTR_TO_OFF(head, elm);				\
 	(head)->stqh_last = SH_PTR_TO_OFF(head, &((elm)->field.stqe_next));		\
-} while (0)
+} while(0)
 
 #define	SH_TAILQ_INSERT_BEFORE(head, listelm, elm, field, type) do {	\
 	if(listelm == SH_TAILQ_FIRST(head, type)) {			\
@@ -277,7 +277,7 @@ struct {								\
 		(SH_PTR_TO_OFF((SH_TAILQ_PREVP(listelm, field, type)),	elm)); \
 		(listelm)->field.stqe_prev = SH_TAILQ_NEXT_TO_PREV(elm, field);		\
 	}								\
-} while (0)
+} while(0)
 
 #define	SH_TAILQ_INSERT_AFTER(head, listelm, elm, field, type) do {	\
 	if((listelm)->field.stqe_next != -1) {				\
@@ -289,7 +289,7 @@ struct {								\
 	}								\
 	(listelm)->field.stqe_next = SH_PTR_TO_OFF(listelm, elm);	\
 	(elm)->field.stqe_prev = SH_TAILQ_NEXT_TO_PREV(listelm, field);	\
-} while (0)
+} while(0)
 
 #define	SH_TAILQ_REMOVE(head, elm, field, type) do {			\
 	if((elm)->field.stqe_next != -1) {				\
@@ -300,7 +300,7 @@ struct {								\
 		(head)->stqh_last = (elm)->field.stqe_prev + SH_PTR_TO_OFF(head, elm); \
 		*__SH_TAILQ_PREV_OFF(elm, field) = -1;			\
 	}								\
-} while (0)
+} while(0)
 
 #if defined(__cplusplus)
 }

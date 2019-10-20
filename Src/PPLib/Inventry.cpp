@@ -211,7 +211,7 @@ IMPL_HANDLE_EVENT(InventoryDialog)
 			// @erikB v10.4.13 {
 			case cmTags:
 				P_Data->BTagL.ObjType = PPOBJ_BILL;
-				if (EditObjTagValList(&P_Data->BTagL, 0) > 0) {}
+				EditObjTagValList(&P_Data->BTagL, 0);
 				break;
 			// } @erik 
 			default: return;
@@ -232,16 +232,65 @@ IMPL_HANDLE_EVENT(InventoryDialog)
 // InventoryOptionsDialog
 //
 class InventoryOptionsDialog : public TDialog {
+	DECL_DIALOG_DATA(PPInventoryOpEx);
 public:
 	InventoryOptionsDialog() : TDialog(DLG_OPKINVE)
 	{
 	}
-	int    setDTS(const PPInventoryOpEx *);
-	int    getDTS(PPInventoryOpEx *);
+	DECL_DIALOG_SETDTS()
+	{
+		ushort v;
+		RVALUEPTR(Data, pData);
+		SetupPPObjCombo(this, CTLSEL_OPKINVE_WRDNOP, PPOBJ_OPRKIND, Data.WrDnOp, 0, reinterpret_cast<void *>(PPOPT_GOODSEXPEND));
+		setupAccSheet(CTLSEL_OPKINVE_WRDNOP, CTLSEL_OPKINVE_WRDNOBJ, Data.WrDnObj);
+		SetupPPObjCombo(this, CTLSEL_OPKINVE_WRUPOP, PPOBJ_OPRKIND, Data.WrUpOp, 0, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
+		setupAccSheet(CTLSEL_OPKINVE_WRUPOP, CTLSEL_OPKINVE_WRUPOBJ, Data.WrUpObj);
+		SetupPPObjCombo(this, CTLSEL_OPKINVE_ONWROFFST, PPOBJ_BILLSTATUS, Data.OnWrOffStatusID, 0); // @v10.5.9
+		//setCtrlData(CTL_OPKINVE_NOMINAL,    &(v = Data.Nominal));
+		//setCtrlData(CTL_OPKINVE_DEFREST,    &(v = Data.DefaultRest));
+		setCtrlData(CTL_OPKINVE_AUTOMETHOD, &(v = Data.AutoFillMethod));
+		setCtrlData(CTL_OPKINVE_CALCPRICE,  &(v = Data.AmountCalcMethod));
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 0, INVOPF_COSTNOMINAL);
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 1, INVOPF_ZERODEFAULT);
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 2, INVOPF_WROFFWODSCNT);
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 3, INVOPF_USEPACKS);
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 4, INVOPF_SELGOODSBYNAME);
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 5, INVOPF_USEANOTERLOCLOTS);
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 6, INVOPF_INVBYCLIENT);
+		// @v9.7.6 AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ACCELADDITEMS);
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ASSET); // @v9.7.6 8-->7
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 8, INVOPF_USESERIAL); // @v9.7.6 9-->8
+		SetClusterData(CTL_OPKINVE_FLAGS, Data.Flags);
+		// @v9.7.6 {
+		{
+			AddClusterAssocDef(CTL_OPKINVE_ACCSLMODE, 0, Data.accsliNo);
+			AddClusterAssoc(CTL_OPKINVE_ACCSLMODE, 1, Data.accsliCode);
+			AddClusterAssoc(CTL_OPKINVE_ACCSLMODE, 2, Data.accsliCodeAndQtty);
+			SetClusterData(CTL_OPKINVE_ACCSLMODE, Data.GetAccelInputMode());
+		}
+		// } @v9.7.6
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlData(CTLSEL_OPKINVE_WRDNOP,  &Data.WrDnOp);
+		getCtrlData(CTLSEL_OPKINVE_WRDNOBJ, &Data.WrDnObj);
+		getCtrlData(CTLSEL_OPKINVE_WRUPOP,  &Data.WrUpOp);
+		getCtrlData(CTLSEL_OPKINVE_WRUPOBJ, &Data.WrUpObj);
+		getCtrlData(CTLSEL_OPKINVE_ONWROFFST, &Data.OnWrOffStatusID); // @v10.5.9
+		//getCtrlData(CTL_OPKINVE_NOMINAL,  &Data.Nominal);
+		//getCtrlData(CTL_OPKINVE_DEFREST,  &Data.DefaultRest);
+		getCtrlData(CTL_OPKINVE_AUTOMETHOD, &Data.AutoFillMethod);
+		getCtrlData(CTL_OPKINVE_CALCPRICE,  &Data.AmountCalcMethod);
+		GetClusterData(CTL_OPKINVE_FLAGS, &Data.Flags);
+		Data.SetAccelInputMode(GetClusterData(CTL_OPKINVE_ACCSLMODE)); // @v9.7.6
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID);
-	PPInventoryOpEx Data;
 };
 
 void InventoryOptionsDialog::setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID)
@@ -262,57 +311,6 @@ IMPL_HANDLE_EVENT(InventoryOptionsDialog)
 	else
 		return;
 	clearEvent(event);
-}
-
-int InventoryOptionsDialog::setDTS(const PPInventoryOpEx * pData)
-{
-	ushort v;
-	RVALUEPTR(Data, pData);
-	SetupPPObjCombo(this, CTLSEL_OPKINVE_WRDNOP, PPOBJ_OPRKIND, Data.WrDnOp, 0, reinterpret_cast<void *>(PPOPT_GOODSEXPEND));
-	setupAccSheet(CTLSEL_OPKINVE_WRDNOP, CTLSEL_OPKINVE_WRDNOBJ, Data.WrDnObj);
-	SetupPPObjCombo(this, CTLSEL_OPKINVE_WRUPOP, PPOBJ_OPRKIND, Data.WrUpOp, 0, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
-	setupAccSheet(CTLSEL_OPKINVE_WRUPOP, CTLSEL_OPKINVE_WRUPOBJ, Data.WrUpObj);
-	//setCtrlData(CTL_OPKINVE_NOMINAL,    &(v = Data.Nominal));
-	//setCtrlData(CTL_OPKINVE_DEFREST,    &(v = Data.DefaultRest));
-	setCtrlData(CTL_OPKINVE_AUTOMETHOD, &(v = Data.AutoFillMethod));
-	setCtrlData(CTL_OPKINVE_CALCPRICE,  &(v = Data.AmountCalcMethod));
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 0, INVOPF_COSTNOMINAL);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 1, INVOPF_ZERODEFAULT);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 2, INVOPF_WROFFWODSCNT);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 3, INVOPF_USEPACKS);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 4, INVOPF_SELGOODSBYNAME);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 5, INVOPF_USEANOTERLOCLOTS);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 6, INVOPF_INVBYCLIENT);
-	// @v9.7.6 AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ACCELADDITEMS);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ASSET); // @v9.7.6 8-->7
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 8, INVOPF_USESERIAL); // @v9.7.6 9-->8
-	SetClusterData(CTL_OPKINVE_FLAGS, Data.Flags);
-	// @v9.7.6 {
-	{
-		AddClusterAssocDef(CTL_OPKINVE_ACCSLMODE, 0, Data.accsliNo);
-		AddClusterAssoc(CTL_OPKINVE_ACCSLMODE, 1, Data.accsliCode);
-		AddClusterAssoc(CTL_OPKINVE_ACCSLMODE, 2, Data.accsliCodeAndQtty);
-		SetClusterData(CTL_OPKINVE_ACCSLMODE, Data.GetAccelInputMode());
-	}
-	// } @v9.7.6
-	return 1;
-}
-
-int InventoryOptionsDialog::getDTS(PPInventoryOpEx * pData)
-{
-	int    ok = 1;
-	getCtrlData(CTLSEL_OPKINVE_WRDNOP,  &Data.WrDnOp);
-	getCtrlData(CTLSEL_OPKINVE_WRDNOBJ, &Data.WrDnObj);
-	getCtrlData(CTLSEL_OPKINVE_WRUPOP,  &Data.WrUpOp);
-	getCtrlData(CTLSEL_OPKINVE_WRUPOBJ, &Data.WrUpObj);
-	//getCtrlData(CTL_OPKINVE_NOMINAL,  &Data.Nominal);
-	//getCtrlData(CTL_OPKINVE_DEFREST,  &Data.DefaultRest);
-	getCtrlData(CTL_OPKINVE_AUTOMETHOD, &Data.AutoFillMethod);
-	getCtrlData(CTL_OPKINVE_CALCPRICE,  &Data.AmountCalcMethod);
-	GetClusterData(CTL_OPKINVE_FLAGS, &Data.Flags);
-	Data.SetAccelInputMode(GetClusterData(CTL_OPKINVE_ACCSLMODE)); // @v9.7.6
-	ASSIGN_PTR(pData, Data);
-	return ok;
 }
 
 int SLAPI EditInventoryOptionsDialog(PPInventoryOpEx * pData) { DIALOG_PROC_BODY(InventoryOptionsDialog, pData); }
@@ -760,7 +758,7 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 					uint   wopb_pos = 0;
 					const  WrOffPriceBlock * p_wopb = 0;
 					if(wroff_price_list.lsearch(&rec.OprNo, &wopb_pos, CMPF_LONG)) {
-						p_wopb = (const WrOffPriceBlock *)wroff_price_list.at(wopb_pos);
+						p_wopb = static_cast<const WrOffPriceBlock *>(wroff_price_list.at(wopb_pos));
 						inv_item.RestDt = p_wopb->Dt;
 						inv_item.RestOprNo = p_wopb->OprNo;
 					}
@@ -773,10 +771,8 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 						rec.WrOffPrice = inv_item.StockPrice;
 					}
 					if(flags & rifAverage && rec.Flags & INVENTF_WRITEDOFF) {
-						if(p_wopb) {
-							if(p_wopb->Qtty > 0.0 && p_wopb->Sum > 0.0) {
-								rec.WrOffPrice = R5(p_wopb->Sum / p_wopb->Qtty);
-							}
+						if(p_wopb && p_wopb->Qtty > 0.0 && p_wopb->Sum > 0.0) {
+							rec.WrOffPrice = R5(p_wopb->Sum / p_wopb->Qtty);
 						}
 					}
 					long oprno = rec.OprNo;
@@ -1104,13 +1100,15 @@ int SLAPI InventoryConversion::Run(PPID billID)
 			THROW_SL(goods_id_list.add(grec.ID));
 		}
 		{
-			PPObjSecur::Exclusion ose(PPEXCLRT_INVWROFF); // @v8.6.1
+			PPObjSecur::Exclusion ose(PPEXCLRT_INVWROFF);
 			PPObjArticle ar_obj;
 			PPObjBill::InvBlock blk;
 			PPObjBill::InvItem inv_item;
 			InventoryArray inv_list;
 			LongArray rows;
 			SString clb;
+			SString temp_buf;
+			SString msg, goods_name;
 			StringSet excl_serial(';', 0);
 			THROW(P_BObj->InitInventoryBlock(invID, blk));
 			THROW(InitPackets());
@@ -1191,7 +1189,7 @@ int SLAPI InventoryConversion::Run(PPID billID)
 									ilti.GoodsID  = goods_id;
 									ilti.Cost     = (invOpEx.Flags & INVOPF_COSTNOMINAL) ? inv_price : p.Total.Cost;
 									ilti.Price    = (invOpEx.Flags & INVOPF_COSTNOMINAL) ? p.Total.Price : inv_price;
-									clb = 0; // @v8.4.4 @fix
+									clb.Z();
 									if(SearchLot(goods_id, &lotr) > 0) {
 										if(ilti.Cost <= 0.0)
 											ilti.Cost = R5(lotr.Cost);
@@ -1253,9 +1251,9 @@ int SLAPI InventoryConversion::Run(PPID billID)
 								THROW(R_Tbl.Set(invID, &oprno, &ir, 0));
 								THROW(TurnPackets(0, 1));
 								if(ir.UnwritedDiff) {
-									SString msg, temp_buf, goods_name;
 									PPLoadText(PPTXT_WROFFGOODS, temp_buf);
 									GetGoodsName(ir.GoodsID, goods_name);
+									temp_buf.Z();
 									msg.Printf(temp_buf, goods_name.cptr(), inv_rest - fabs(ir.UnwritedDiff), inv_rest);
 									logger.Log(msg);
 								}
@@ -1274,7 +1272,28 @@ int SLAPI InventoryConversion::Run(PPID billID)
 				PPWaitPercent(i+1, c);
 			}
 			THROW(TurnPackets(1, 0));
-			DS.LogAction(PPACN_INVENTWROFF, PPOBJ_BILL, invID, 0, 1); // @v6.3.7 use_ta = 1 (TurnPackets закрывает свою транзакцию).
+			{
+				PPTransaction tra(1); // use_ta = 1 (TurnPackets закрывает свою транзакцию).
+				THROW(tra);
+				// @v10.5.9 {
+				if(invOpEx.OnWrOffStatusID) {
+					if(P_BObj->SetStatus(billID, invOpEx.OnWrOffStatusID, 0)) {
+						BillTbl::Rec bill_rec;
+						PPID   temp_bill_id = billID;
+						THROW(P_BObj->Search(billID, &bill_rec) > 0);
+						if(!(bill_rec.Flags & BILLF_WRITEDOFF)) {
+							bill_rec.Flags |= BILLF_WRITEDOFF;
+							THROW(P_BObj->P_Tbl->EditRec(&temp_bill_id, &bill_rec, 0));
+						}
+					}
+					else {
+						logger.LogLastError();
+					}
+				}
+				// } @v10.5.9 
+				DS.LogAction(PPACN_INVENTWROFF, PPOBJ_BILL, invID, 0, 0); 
+				THROW(tra.Commit());
+			}
 		}
 	}
 	else

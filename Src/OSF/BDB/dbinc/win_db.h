@@ -103,14 +103,14 @@ extern int getopt(int, char * const *, const char *);
 		s = NULL;						\
 		if((ret = __os_malloc((dbenv), __len, &(s))) == 0 && WideCharToMultiByte(CP_UTF8, 0, (ts), -1, (s), __len, NULL, NULL) == 0) \
 			ret = __os_posix_err(__os_get_syserr());	\
-	} while (0)
+	} while(0)
 
 #define	FREE_STRING(dbenv, s) do {					\
 		if((s) != NULL) {					\
 			__os_free((dbenv), (s));			\
 			(s) = NULL;					\
 		}							\
-	} while (0)
+	} while(0)
 #else
 	#define	TO_TSTRING(dbenv, s, ts, ret) (ret) = 0, (ts) = (_TCHAR *)(s)
 	#define	FROM_TSTRING(dbenv, ts, s, ret) (ret) = 0, (s) = (char *)(ts)

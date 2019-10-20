@@ -217,9 +217,9 @@
 	    __asm lea eax, dword ptr file         \
 	    __asm __internal_skip_line_no:        \
 	};                                        \
-    } while (0)
+    } while(0)
 #else
-	#define CAIRO_ENSURE_UNIQUE    do { } while (0)
+	#define CAIRO_ENSURE_UNIQUE    do { } while(0)
 #endif
 #ifdef __STRICT_ANSI__
 	#undef inline

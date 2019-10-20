@@ -311,7 +311,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 		}
 		// @v10.5.8 {
 		{
-			TWindow * p_phn_pane = static_cast<PPApp *>(APPL)->FindPhonePaneDialog(); 
+			TWindow * p_phn_pane = static_cast<PPApp *>(APPL)->FindPhonePaneDialog();
 			if(p_phn_pane) {
 				APPL->AddStatusBarItem("Phone Pane", /*PPDV_PHONE03*/ICON_PHONE, 0, /*cmPrjTask_ByReminder*/cmOpenPhonePane);
 			}
@@ -1005,7 +1005,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged)); // @v10.3.1
 	IdleCmdList.insert(new IdleCmdMqb(1, PPAdviseBlock::evMqbMessage)); // @v10.5.7
 // @v10.4.8 #if USE_ADVEVQUEUE==2
-	if(_PPConst.UseAdvEvQueue == 2) { // @v10.4.8 
+	if(_PPConst.UseAdvEvQueue == 2) { // @v10.4.8
 		class IdleCmdTestAdvEvQueue : public IdleCommand, private PPAdviseEventQueue::Client {
 		public:
 			IdleCmdTestAdvEvQueue() : IdleCommand(10)
@@ -3128,6 +3128,12 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					}
 				}
 				// } @v10.1.9
+				// @v10.5.9 {
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEVELOPMENT, &(iv = 0)) > 0 && iv == 1)
+					r_cc.Flags2 |= CCFLG2_DEVELOPMENT;
+				else
+					r_cc.Flags2 &= ~CCFLG2_DEVELOPMENT;
+				// } @v10.5.9
 				r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
 				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
@@ -3232,7 +3238,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					{
 						class PPAdviseEventCollectorSjSession : public PPThread {
 						public:
-							SLAPI PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, const PPPhoneServicePacket * pPhnSvcPack, 
+							SLAPI PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, const PPPhoneServicePacket * pPhnSvcPack,
 								PPMqbClient::InitParam * pMqbParam, long cycleMs) :
 								PPThread(PPThread::kEventCollector, 0, 0), /*CycleMs((cycleMs > 0) ? cycleMs : 29989),*/ /*CyclePhnSvcMs(1500),*/ LB(rLB), P_Sj(0)
 							{
@@ -3347,7 +3353,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								AsteriskAmiClient * p_phnsvc_cli = CreatePhnSvcClient(0);
 								LDATETIME sj_since;
 								// Период таймера в сотых долях секунды (37) {
-								const long __cycle_hs = (p_mqb_cli ? 37 : (p_phnsvc_cli ? 83 : 293)); 
+								const long __cycle_hs = (p_mqb_cli ? 37 : (p_phnsvc_cli ? 83 : 293));
 								// }
 								THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync)); // @v9.4.9 PPSession::odfDontInitSync
 								THROW_MEM(P_Sj = new SysJournal);
@@ -3593,7 +3599,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 									p_mqb_init_param = &mqb_init_param;
 								}
 							}
-							// } @v10.5.7 
+							// } @v10.5.7
 							PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, p_phnsvc_pack, p_mqb_init_param, cycle_ms);
 							p_evc->Start(0);
 							r_tla.P_AeqThrd = p_evc;
@@ -4817,7 +4823,7 @@ int SLAPI PPAdviseEvent::ConvertToMqbEnvelope(const PPAdviseEventVector & rAev, 
 		rE.Msg.Props.ContentType = MqbContentType;
 		rE.Msg.Props.Encoding = MqbEncoding;
 		rE.Msg.Props.DeliveryMode = MqbDeliveryMode;
-		
+
 		rAev.GetS(MqbConsumerTagP, rE.ConsumerTag);
 		rAev.GetS(MqbExchangeP, rE.Exchange);
 		rAev.GetS(MqbRoutingKeyP, rE.RoutingKey);
@@ -4865,7 +4871,7 @@ int SLAPI PPAdviseEvent::SetupAndAppendToVector(const PPMqbClient::Envelope & rS
 	MqbContentType = rS.Msg.Props.ContentType;
 	MqbEncoding = rS.Msg.Props.Encoding;
 	MqbDeliveryMode = rS.Msg.Props.DeliveryMode;
-																
+
 	rAev.AddS(rS.ConsumerTag, &MqbConsumerTagP);
 	rAev.AddS(rS.Exchange, &MqbExchangeP);
 	rAev.AddS(rS.RoutingKey, &MqbRoutingKeyP);
@@ -5036,7 +5042,7 @@ int SLAPI PPAdviseEventVector::Pack()
 					if(r_item.Flags & r_item.fMqbExtraIdxIsValid) {
 						assert(r_item.MqbExtraIdx != extraidx);
 						if(r_item.MqbExtraIdx > extraidx)
-							r_item.MqbExtraIdx--; 
+							r_item.MqbExtraIdx--;
 					}
 				}
 				MqbExtraList.atFree(extraidx);

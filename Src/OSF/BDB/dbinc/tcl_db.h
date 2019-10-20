@@ -206,13 +206,13 @@ extern DBTCL_GLOBAL __dbtcl_global;
 	result = _SetListElemInt(interp, res, (s), static_cast<long>(v));		\
 	if(result != TCL_OK)						\
 		goto error;						\
-} while (0)
+} while(0)
 
 #define	MAKE_WSTAT_LIST(s, v) do {					\
 	result = _SetListElemWideInt(interp, res, (s), (int64_t)(v));	\
 	if(result != TCL_OK)						\
 		goto error;						\
-} while (0)
+} while(0)
 
 /*
  * MAKE_STAT_LSN appends a {name {LSNfile LSNoffset}} pair to a result list
@@ -234,7 +234,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
 	result = Tcl_ListObjAppendElement(interp, res, thislist);	\
 	if(result != TCL_OK)						\
 		goto error;						\
-} while (0)
+} while(0)
 
 /*
  * MAKE_STAT_STRLIST appends a {name string} pair to a result list
@@ -248,7 +248,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
 	result = _SetListElem(interp, res, (s), (uint32)sstrlen(s),	(s1), (uint32)sstrlen(s1)); \
 	if(result != TCL_OK)						\
 		goto error;						\
-} while (0)
+} while(0)
 
 /*
  * MAKE_SITE_LIST appends a {eid host port status} tuple to a result list
@@ -267,7 +267,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
 	result = Tcl_ListObjAppendElement(interp, res, thislist);	\
 	if(result != TCL_OK)						\
 		goto error;						\
-} while (0)
+} while(0)
 
 /*
  * FLAG_CHECK checks that the given flag is not set yet.
@@ -281,7 +281,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
 		result = TCL_ERROR;					\
 		break;							\
 	}								\
-} while (0)
+} while(0)
 
 /*
  * FLAG_CHECK2 checks that the given flag is not set yet or is
@@ -296,7 +296,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
 		result = TCL_ERROR;					\
 		break;							\
 	}								\
-} while (0)
+} while(0)
 
 /*
  * IS_HELP checks whether the arg we bombed on is -?, which is a help option.

@@ -22,24 +22,20 @@
 #ifndef CAIRO_FREELIST_H
 #define CAIRO_FREELIST_H
 
-//#include "cairo-types-private.h"
-//#include "cairo-compiler-private.h"
-//#include "cairo-freelist-type-private.h"
-
 /* for stand-alone compilation*/
 #ifndef VG
-#define VG(x)
+	#define VG(x)
 #endif
-
 #ifndef NULL
-#define NULL (void *)0
+	#define NULL (void *)0
 #endif
-
-/* Initialise a freelist that will be responsible for allocating
- * nodes of size nodesize. */
+//
+// Descr: Initialise a freelist that will be responsible for allocating nodes of size nodesize. 
+//
 cairo_private void _cairo_freelist_init(cairo_freelist_t * freelist, unsigned nodesize);
-
-/* Deallocate any nodes in the freelist. */
+//
+// Descr: Deallocate any nodes in the freelist.
+//
 cairo_private void _cairo_freelist_fini(cairo_freelist_t * freelist);
 
 /* Allocate a new node from the freelist.  If the freelist contains no
@@ -59,7 +55,7 @@ cairo_private void * _cairo_freelist_calloc(cairo_freelist_t * freelist);
  * _cairo_freelist_alloc(). */
 cairo_private void _cairo_freelist_free(cairo_freelist_t * freelist, void * node);
 cairo_private void _cairo_freepool_init(cairo_freepool_t * freepool, unsigned nodesize);
-cairo_private void _cairo_freepool_fini(cairo_freepool_t * freepool);
+cairo_private void FASTCALL _cairo_freepool_fini(cairo_freepool_t * freepool);
 
 static inline void _cairo_freepool_reset(cairo_freepool_t * freepool)
 {

@@ -14,6 +14,7 @@ int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu);
 #define USEDEFICON 0x01L
 
 class CmdItemDialog : public TDialog {
+	DECL_DIALOG_DATA(PPCommand);
 public:
 	CmdItemDialog(const PPCommandGroup * pGrp, int isDesktopCmd) : TDialog(DLG_CMDITEM), IsDesktopCmd(isDesktopCmd), P_Grp(pGrp)
 	{
@@ -25,14 +26,70 @@ public:
 		disableCtrl(CTLBRW_CMDITEM_ICON, !IsDesktopCmd);
 		enableCommand(cmCmdParam,   IsDesktopCmd);
 	}
-	int    setDTS(const PPCommand *);
-	int    getDTS(PPCommand *);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		StrAssocArray cmd_txt_list;
+		Data = *pData;
+		setCtrlString(CTL_CMDITEM_NAME, Data.Name);
+		setCtrlLong(CTL_CMDITEM_ID, Data.ID);
+		CmdDescr.GetResourceList(1, &cmd_txt_list);
+		uint   pos = 0;
+		cmd_txt_list.SortByText();
+		SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, &cmd_txt_list, Data.CmdID, 0);
+		setCtrlString(CTL_CMDITEM_ICON, Data.Icon);
+		AddClusterAssoc(CTL_CMDITEM_USEDEFICON, 0, USEDEFICON);
+		SetClusterData(CTL_CMDITEM_USEDEFICON, Data.Icon.ToLong() || !Data.Icon.Len());
+		AddClusterAssoc(CTL_CMDITEM_FLAGS, 0, PPCommand::fAllowEditFilt);
+		SetClusterData(CTL_CMDITEM_FLAGS, Data.Flags);
+		disableCtrl(CTLBRW_CMDITEM_ICON, Data.Icon.ToLong() || !Data.Icon.Len());
+		disableCtrl(CTLSEL_CMDITEM_CMD, Data.CmdID);
+		disableCtrl(CTL_CMDITEM_ID, 1);
+		if(Data.ID && CmdDescr.LoadResource(Data.CmdID) > 0)
+			enableCommand(cmCmdParam, !(CmdDescr.Flags & PPCommandDescr::fNoParam));
+		else
+			enableCommand(cmCmdParam, 0);
+		{
+			FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_FBG));
+			if(p_fbg) {
+				SString spath;
+				if(!Data.Icon.Len() || Data.Icon.ToLong()) {
+					PPGetPath(PPPATH_BIN, spath);
+					spath.SetLastSlash().Cat("Icons").SetLastSlash();
+				}
+				else
+					spath = Data.Icon;
+				p_fbg->setInitPath(spath);
+			}
+		}
+		SetupCtrls();
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		PPID   cmd_id = 0;
+		PPCommandDescr cmd_descr;
+		getCtrlString(CTL_CMDITEM_NAME, Data.Name);
+		THROW_PP(Data.Name.NotEmptyS(), PPERR_NAMENEEDED);
+		getCtrlData(CTLSEL_CMDITEM_CMD, &cmd_id);
+		getCtrlString(CTL_CMDITEM_ICON, Data.Icon);
+		THROW_PP(CmdSymbList.Search(cmd_id), PPERR_INVJOBCMD);
+		THROW(cmd_descr.LoadResource(cmd_id));
+		Data.CmdID  = cmd_id;
+		Data.Flags = 0;
+		GetClusterData(CTL_CMDITEM_FLAGS, &Data.Flags);
+		if(!Data.Icon.Len())
+			Data.Icon.Cat(cmd_descr.IconId);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERR
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
 
 	int    IsDesktopCmd;
-	PPCommand Data;
 	PPCommandDescr CmdDescr;
 	const PPCommandGroup * P_Grp;
 	StrAssocArray CmdSymbList;
@@ -113,67 +170,6 @@ IMPL_HANDLE_EVENT(CmdItemDialog)
 void CmdItemDialog::SetupCtrls()
 {
 	showCtrl(CTL_CMDITEM_CLEARFILT, BIN(Data.Param.GetAvailableSize()));
-}
-
-int CmdItemDialog::setDTS(const PPCommand * pData)
-{
-	int    ok = 1;
-	StrAssocArray cmd_txt_list;
-	Data = *pData;
-	setCtrlString(CTL_CMDITEM_NAME, Data.Name);
-	setCtrlLong(CTL_CMDITEM_ID, Data.ID);
-	CmdDescr.GetResourceList(1, &cmd_txt_list);
-	uint   pos = 0;
-	cmd_txt_list.SortByText();
-	SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, &cmd_txt_list, Data.CmdID, 0);
-	setCtrlString(CTL_CMDITEM_ICON, Data.Icon);
-	AddClusterAssoc(CTL_CMDITEM_USEDEFICON, 0, USEDEFICON);
-	SetClusterData(CTL_CMDITEM_USEDEFICON, Data.Icon.ToLong() || !Data.Icon.Len());
-	AddClusterAssoc(CTL_CMDITEM_FLAGS, 0, PPCommand::fAllowEditFilt);
-	SetClusterData(CTL_CMDITEM_FLAGS, Data.Flags);
-	disableCtrl(CTLBRW_CMDITEM_ICON, Data.Icon.ToLong() || !Data.Icon.Len());
-	disableCtrl(CTLSEL_CMDITEM_CMD, Data.CmdID);
-	disableCtrl(CTL_CMDITEM_ID, 1);
-	if(Data.ID && CmdDescr.LoadResource(Data.CmdID) > 0)
-		enableCommand(cmCmdParam, !(CmdDescr.Flags & PPCommandDescr::fNoParam));
-	else
-		enableCommand(cmCmdParam, 0);
-	{
-		FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_FBG));
-		if(p_fbg) {
-			SString spath;
-			if(!Data.Icon.Len() || Data.Icon.ToLong()) {
-				PPGetPath(PPPATH_BIN, spath);
-				spath.SetLastSlash().Cat("Icons").SetLastSlash();
-			}
-			else
-				spath = Data.Icon;
-			p_fbg->setInitPath(spath);
-		}
-	}
-	SetupCtrls();
-	return ok;
-}
-
-int CmdItemDialog::getDTS(PPCommand * pData)
-{
-	int    ok = 1;
-	PPID   cmd_id = 0;
-	PPCommandDescr cmd_descr;
-	getCtrlString(CTL_CMDITEM_NAME, Data.Name);
-	THROW_PP(Data.Name.NotEmptyS(), PPERR_NAMENEEDED);
-	getCtrlData(CTLSEL_CMDITEM_CMD, &cmd_id);
-	getCtrlString(CTL_CMDITEM_ICON, Data.Icon);
-	THROW_PP(CmdSymbList.Search(cmd_id), PPERR_INVJOBCMD);
-	THROW(cmd_descr.LoadResource(cmd_id));
-	Data.CmdID  = cmd_id;
-	Data.Flags = 0;
-	GetClusterData(CTL_CMDITEM_FLAGS, &Data.Flags);
-	if(!Data.Icon.Len())
-		Data.Icon.Cat(cmd_descr.IconId);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERR
-	return ok;
 }
 
 int SLAPI EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, int isDekstopCmd)

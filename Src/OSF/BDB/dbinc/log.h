@@ -167,7 +167,7 @@ struct __hdr {
 	} else {							\
 		reinterpret_cast<uint32 *>(sum)[0] ^= static_cast<const HDR *>(hdr)->prev ^ static_cast<const HDR *>(hdr)->len; \
 	}								\
-} while (0)
+} while(0)
 
 /*
  * We use HDR internally, and then when we write out, we write out
@@ -389,7 +389,7 @@ struct __db_filestart {
 	__lsnp = &__td->begin_lsn;					\
 	if(IS_ZERO_LSN(*__lsnp))					\
 		*(blsnp) = __lsnp;					\
-} while (0)
+} while(0)
 
 /*
  * Status codes indicating the validity of a log file examined by

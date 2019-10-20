@@ -237,19 +237,19 @@ struct __mpool { /* SHARED */
  * This is equivalent to:
  *   mask = (1 << __db_log2(nbuckets)) - 1;
  */
-#define	MP_MASK(nbuckets, mask) do { for(mask = 1; mask < (nbuckets); mask = (mask << 1) | 1) ; } while (0)
+#define	MP_MASK(nbuckets, mask) do { for(mask = 1; mask < (nbuckets); mask = (mask << 1) | 1) ; } while(0)
 
 #define	MP_HASH_BUCKET(hash, nbuckets, mask, bucket) do {		\
 	(bucket) = (hash) & (mask);					\
 	if((bucket) >= (nbuckets))					\
 		(bucket) &= ((mask) >> 1);				\
-} while (0)
+} while(0)
 
 #define	MP_BUCKET(mf_offset, pgno, nbuckets, bucket) do {		\
 	uint32 __mask;						\
 	MP_MASK(nbuckets, __mask);					\
 	MP_HASH_BUCKET(MP_HASH(mf_offset, pgno), nbuckets, __mask, bucket); \
-} while (0)
+} while(0)
 
 /*
  * MP_GET_REGION --
@@ -262,7 +262,7 @@ struct __mpool { /* SHARED */
 		*(infopp) = &__t_dbmp->reginfo[0];                  \
 	} else                                                  \
 		ret = __memp_get_bucket((dbmfp)->env, (dbmfp)->mfp, (pgno), (infopp), 0, 0); \
-} while (0)
+} while(0)
 
 /*
  * MP_GET_BUCKET --
@@ -282,7 +282,7 @@ struct __mpool { /* SHARED */
 		ret = 0;						\
 	} else								\
 		ret = __memp_get_bucket((env), (mfp), (pgno), (infopp), &(hp), &(bucket)); \
-} while (0)
+} while(0)
 
 struct __db_mpool_hash {
 	db_mutex_t	mtx_hash;	/* Per-bucket mutex. */
@@ -557,7 +557,7 @@ struct __bh_frozen_a {
 	sz += VM_PAGESIZE + sizeof(BH);					\
 	if(mfp->pagesize < VM_PAGESIZE)				\
 		sz += VM_PAGESIZE - mfp->pagesize;			\
-} while (0)
+} while(0)
 
 #define	MVCC_BHALIGN(p) do {						\
 	BH *__bhp;							\
@@ -571,31 +571,31 @@ struct __bh_frozen_a {
 	DB_ASSERT(env, (uint8 *)p + mfp->pagesize < (uint8 *)__orig + len); \
 	__bhp->align_off = static_cast<uint16>((uint8 *)__bhp - (uint8 *)__orig);	\
 	p = __bhp;							\
-} while (0)
+} while(0)
 
 #define	MVCC_BHUNALIGN(bhp) do {					\
 	(bhp) = (BH *)((uint8 *)(bhp) - (bhp)->align_off);		\
-} while (0)
+} while(0)
 
 #ifdef linux
 #define	MVCC_MPROTECT(buf, sz, mode) do {				\
 	int __ret = mprotect((buf), (sz), (mode));			\
 	DB_ASSERT(env, __ret == 0);					\
-} while (0)
+} while(0)
 #else
 #define	MVCC_MPROTECT(buf, sz, mode) do {				\
 	if(!F_ISSET(env, ENV_PRIVATE | ENV_SYSTEM_MEM)) {		\
 		int __ret = mprotect((buf), (sz), (mode));		\
 		DB_ASSERT(env, __ret == 0);				\
 	}								\
-} while (0)
+} while(0)
 #endif /* linux */
 
 #else /* defined(DIAG_MVCC) && defined(HAVE_MPROTECT) */
-#define	MVCC_BHSIZE(mfp, sz) do {} while (0)
-#define	MVCC_BHALIGN(p) do {} while (0)
-#define	MVCC_BHUNALIGN(bhp) do {} while (0)
-#define	MVCC_MPROTECT(buf, size, mode) do {} while (0)
+#define	MVCC_BHSIZE(mfp, sz) do {} while(0)
+#define	MVCC_BHALIGN(p) do {} while(0)
+#define	MVCC_BHUNALIGN(bhp) do {} while(0)
+#define	MVCC_MPROTECT(buf, size, mode) do {} while(0)
 #endif
 
 /*

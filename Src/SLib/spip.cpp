@@ -177,6 +177,11 @@ S_GUID::S_GUID(const S_GUID & rS)
 	memcpy(Data, rS.Data, sizeof(Data));
 }
 
+S_GUID::S_GUID(const char * pStr)
+{
+	FromStr(pStr);
+}
+
 S_GUID & FASTCALL S_GUID::operator = (const S_GUID_Base & rS)
 {
 	memcpy(Data, rS.Data, sizeof(Data));

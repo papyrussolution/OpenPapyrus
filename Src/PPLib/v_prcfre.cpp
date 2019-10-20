@@ -14,7 +14,7 @@ IMPLEMENT_PPFILT_FACTORY(PrcBusy); SLAPI PrcBusyFilt::PrcBusyFilt() : PPBaseFilt
 	Init(1, 0);
 }
 
-SLAPI PPViewPrcBusy::PPViewPrcBusy() : PPView(0, &Filt, PPVIEW_PRCBUSY), P_TempTbl(0), Grid(this)
+SLAPI PPViewPrcBusy::PPViewPrcBusy() : PPView(0, &Filt, PPVIEW_PRCBUSY), P_TempTbl(0), Grid(this), P_OCtx(0)
 {
 	ImplementFlags |= implChangeFilt;
 }
@@ -23,6 +23,7 @@ SLAPI PPViewPrcBusy::~PPViewPrcBusy()
 {
 	UpdateTimeBrowser(1);
 	delete P_TempTbl;
+	delete P_OCtx; // @v10.5.9
 }
 
 PPBaseFilt * PPViewPrcBusy::CreateFilt(void * extraPtr) const
@@ -38,6 +39,7 @@ PPBaseFilt * PPViewPrcBusy::CreateFilt(void * extraPtr) const
 //
 //
 class PrcBusyFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcBusyFilt);
 public:
 	enum {
 		ctlgroupPrc = 1
@@ -50,54 +52,59 @@ public:
 		SetupTimePicker(this, CTL_PRCBUSYFLT_FNTM, CTLTM_PRCBUSYFLT_FNTM);
 		addGroup(ctlgroupPrc, new PrcCtrlGroup(CTLSEL_PRCBUSYFLT_PRC));
 	}
-	int    setDTS(const PrcBusyFilt *);
-	int    getDTS(PrcBusyFilt *);
-private:
-	PrcBusyFilt Data;
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		Data = *pData;
+		PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
+		setGroupData(ctlgroupPrc, &prc_grp_rec);
+		setCtrlData(CTL_PRCBUSYFLT_STDT, &Data.Period.Start.d);
+		setCtrlData(CTL_PRCBUSYFLT_STTM, &Data.Period.Start.t);
+		if(Data.Period.Finish.IsFar())
+			Data.Period.Finish.Z();
+		setCtrlData(CTL_PRCBUSYFLT_FNDT,   &Data.Period.Finish.d);
+		setCtrlData(CTL_PRCBUSYFLT_FNTM,   &Data.Period.Finish.t);
+		setCtrlData(CTL_PRCBUSYFLT_MINDUR, &Data.MinDuration);
+		AddClusterAssoc(CTL_PRCBUSYFLT_FLAGS, 0, PrcBusyFilt::fFree);
+		AddClusterAssoc(CTL_PRCBUSYFLT_FLAGS, 1, PrcBusyFilt::fShowTimeGraph);
+		SetClusterData(CTL_PRCBUSYFLT_FLAGS, Data.Flags);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		PrcCtrlGroup::Rec prc_grp_rec;
+		getGroupData(ctlgroupPrc, &prc_grp_rec);
+		Data.PrcID = prc_grp_rec.PrcID;
+		getCtrlData(CTL_PRCBUSYFLT_STDT, &Data.Period.Start.d);
+		getCtrlData(CTL_PRCBUSYFLT_STTM, &Data.Period.Start.t);
+		getCtrlData(CTL_PRCBUSYFLT_FNDT, &Data.Period.Finish.d);
+		getCtrlData(CTL_PRCBUSYFLT_FNTM, &Data.Period.Finish.t);
+		getCtrlData(CTL_PRCBUSYFLT_MINDUR, &Data.MinDuration);
+		GetClusterData(CTL_PRCBUSYFLT_FLAGS, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 };
-
-int PrcBusyFiltDialog::setDTS(const PrcBusyFilt * pData)
-{
-	int    ok = 1;
-	Data = *pData;
-	PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
-	setGroupData(ctlgroupPrc, &prc_grp_rec);
-	setCtrlData(CTL_PRCBUSYFLT_STDT, &Data.Period.Start.d);
-	setCtrlData(CTL_PRCBUSYFLT_STTM, &Data.Period.Start.t);
-	if(Data.Period.Finish.IsFar())
-		Data.Period.Finish.Z();
-	setCtrlData(CTL_PRCBUSYFLT_FNDT,   &Data.Period.Finish.d);
-	setCtrlData(CTL_PRCBUSYFLT_FNTM,   &Data.Period.Finish.t);
-	setCtrlData(CTL_PRCBUSYFLT_MINDUR, &Data.MinDuration);
-	AddClusterAssoc(CTL_PRCBUSYFLT_FLAGS, 0, PrcBusyFilt::fFree);
-	AddClusterAssoc(CTL_PRCBUSYFLT_FLAGS, 1, PrcBusyFilt::fShowTimeGraph);
-	SetClusterData(CTL_PRCBUSYFLT_FLAGS, Data.Flags);
-	return ok;
-}
-
-int PrcBusyFiltDialog::getDTS(PrcBusyFilt * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	PrcCtrlGroup::Rec prc_grp_rec;
-	getGroupData(ctlgroupPrc, &prc_grp_rec);
-	Data.PrcID = prc_grp_rec.PrcID;
-	getCtrlData(CTL_PRCBUSYFLT_STDT, &Data.Period.Start.d);
-	getCtrlData(CTL_PRCBUSYFLT_STTM, &Data.Period.Start.t);
-	getCtrlData(CTL_PRCBUSYFLT_FNDT, &Data.Period.Finish.d);
-	getCtrlData(CTL_PRCBUSYFLT_FNTM, &Data.Period.Finish.t);
-	getCtrlData(CTL_PRCBUSYFLT_MINDUR, &Data.MinDuration);
-	GetClusterData(CTL_PRCBUSYFLT_FLAGS, &Data.Flags);
-	ASSIGN_PTR(pData, Data);
-	return ok;
-}
 
 int SLAPI PPViewPrcBusy::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
-	PrcBusyFilt * p_filt = (PrcBusyFilt *)pFilt;
+	PrcBusyFilt * p_filt = static_cast<PrcBusyFilt *>(pFilt);
 	DIALOG_PROC_BODY(PrcBusyFiltDialog, p_filt);
+}
+
+SLAPI PPViewPrcBusy::OuterContext::OuterContext() : PersonID(0),  SCardID(0), LocID(0)
+{
+}
+
+void SLAPI PPViewPrcBusy::SetOuterContext(const OuterContext * pOCtx)
+{
+	ZDELETE(P_OCtx);
+	if(pOCtx)
+		P_OCtx = new OuterContext(*pOCtx);
 }
 
 int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
@@ -443,11 +450,9 @@ DBQuery * SLAPI PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	THROW(CheckQueryPtr(p_q));
 	if(pSubTitle) {
 		*pSubTitle = 0;
-		if(Filt.PrcID) {
-			ProcessorTbl::Rec prc_rec;
-			if(TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0)
-				pSubTitle->Cat(prc_rec.Name);
-		}
+		ProcessorTbl::Rec prc_rec;
+		if(Filt.PrcID && TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0)
+			pSubTitle->Cat(prc_rec.Name);
 	}
 	CATCH
 		if(p_q)
@@ -528,6 +533,22 @@ int SLAPI PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIM
 		THROW(TSesObj.InitPacket(&pack, TSESK_SESSION, prc_id, 0, 0));
 		pack.Rec.StDt = rDtm.d;
 		pack.Rec.StTm = rDtm.t;
+		if(P_OCtx) {
+			if(P_OCtx->PersonID) {
+				ProcessorTbl::Rec prc_rec;
+				if(TSesObj.PrcObj.GetRecWithInheritance(prc_id, &prc_rec) > 0) {
+					PPOprKind op_rec;
+					GetOpData(prc_rec.WrOffOpID, &op_rec);
+					if(op_rec.AccSheetID) {
+						PPObjArticle ar_obj;
+						PPID   ar_id = 0;
+						if(ar_obj.GetByPerson(op_rec.AccSheetID, P_OCtx->PersonID, &ar_id) > 0) {
+							pack.Rec.ArID = ar_id;
+						}
+					}
+				}
+			}
+		}
 		while(ok < 0 && (r = TSesObj.EditDialog(&pack)) > 0) {
 			*pID = NZOR(pack.Rec.ID, *pID); // Во время редактирования нулевой идентификатор мог стать действительным
 			if(r == 1) {
@@ -961,13 +982,11 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::MoveChunk(int mode, long id, long rowId
 
 int SLAPI PPViewPrcBusy::UpdateTimeBrowser(int destroy)
 {
-	SString title_buf, temp_buf;
+	SString temp_buf;
 	ProcessorTbl::Rec prc_rec;
-	title_buf = GetDescr();
-	if(Filt.PrcID && TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0) {
-		// title_buf.Space().CatParStr((temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER));
+	SString title_buf = GetDescr();
+	if(Filt.PrcID && TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0)
 		title_buf = prc_rec.Name;
-	}
 	else
 		title_buf.Transf(CTRANSF_OUTER_TO_INNER);
 	return PPView::UpdateTimeBrowser(&Grid, title_buf, destroy);
@@ -1047,13 +1066,9 @@ int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 	{
 		SString temp_buf;
 		SString title_buf = GetDescr();
-		if(Filt.PrcID) {
-			ProcessorTbl::Rec prc_rec;
-			if(TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0) {
-				// title_buf.Space().CatParStr((temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER));
-				(title_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-			}
-		}
+		ProcessorTbl::Rec prc_rec;
+		if(Filt.PrcID && TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0)
+			(title_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 		p_brw->setTitle(title_buf.Transf(CTRANSF_OUTER_TO_INNER));
 	}
 	InsertView(p_brw);

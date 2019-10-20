@@ -304,7 +304,7 @@ private:
 					// SetupLocationCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, Filt.DlvrLocID, 0, LOCTYP_ADDRESS, psn_id);
 					PsnObj.SetupDlvrLocCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, psn_id, Filt.DlvrLocID);
 				}
-				// } @v10.5.0 
+				// } @v10.5.0
 				dlg->AddClusterAssocDef(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  1, PPViewAccAnlz::OrdByBillCode_Date);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  2, PPViewAccAnlz::OrdByCorrAcc_Date);
@@ -406,7 +406,8 @@ private:
 		{
 			PPObjPersonRelType rel_obj;
 			PPPersonRelType rel_item;
-			PPGetWord(PPWORD_RELATION, 0, word_rel);
+			// @v10.5.9 PPGetWord(PPWORD_RELATION, 0, word_rel);
+			PPLoadString("relation", word_rel); // @v10.5.9
 			for(PPID rel_id = 0; rel_obj.EnumItems(&rel_id, &rel_item) > 0;)
 				if(rel_item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
 					(buf = word_rel).CatChar(':').Cat(rel_item.Name);
@@ -813,7 +814,7 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 							continue;
 					}
 				}
-				// } @v10.5.0 
+				// } @v10.5.0
 			}
 			else
 				continue;
@@ -1088,7 +1089,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 	if(Filt.DlvrLocID && Filt.Aco == ACO_3 && Filt.AcctId.ar) {
 		EffDlvrLocID = Filt.DlvrLocID;
 	}
-	// } @v10.5.0 
+	// } @v10.5.0
 	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && (Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID))) {
 		THROW(AdjustPeriodToRights(Filt.Period, 0));
 	}

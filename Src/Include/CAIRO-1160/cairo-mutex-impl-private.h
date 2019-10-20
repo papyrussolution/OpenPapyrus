@@ -50,9 +50,9 @@
 #endif
 
 /* A fully qualified no-operation statement */
-#define CAIRO_MUTEX_IMPL_NOOP	do {/*no-op*/} while (0)
+#define CAIRO_MUTEX_IMPL_NOOP	do {/*no-op*/} while(0)
 /* And one that evaluates its argument once */
-#define CAIRO_MUTEX_IMPL_NOOP1(expr)        do { (void)(expr); } while (0)
+#define CAIRO_MUTEX_IMPL_NOOP1(expr)        do { (void)(expr); } while(0)
 /* Note: 'if (expr) {}' is an alternative to '(void)(expr);' that will 'use' the
  * result of __attribute__((warn_used_result)) functions. */
 
@@ -83,7 +83,7 @@
  * proper statement to lock/unlock the mutex object passed in.
  * You can (and should) assume that the mutex is already
  * initialized, and is-not-already-locked/is-locked,
- * respectively.  Use the "do { ... } while (0)" idiom if necessary.
+ * respectively.  Use the "do { ... } while(0)" idiom if necessary.
  * No trailing semicolons are needed (in any macro you define here).
  * You should be able to compile the following snippet:
  *
@@ -252,7 +252,7 @@
     pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE); \
     pthread_mutex_init (&(mutex), &attr); \
     pthread_mutexattr_destroy (&attr); \
-} while (0)
+} while(0)
 # define CAIRO_RECURSIVE_MUTEX_IMPL_NIL_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 
 #else /**********************************************************************/

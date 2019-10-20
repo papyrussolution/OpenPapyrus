@@ -63,8 +63,7 @@ void __ptw32_tkAssocDestroy(ThreadKeyAssoc * assoc)
 			next->prevKey = prev;
 		}
 		if(assoc->thread->keys == assoc) {
-			/* We're at the head of the thread's keys chain */
-			assoc->thread->keys = next;
+			assoc->thread->keys = next; // We're at the head of the thread's keys chain 
 		}
 		if(assoc->thread->nextAssoc == assoc) {
 			/*
@@ -83,8 +82,7 @@ void __ptw32_tkAssocDestroy(ThreadKeyAssoc * assoc)
 			next->prevThread = prev;
 		}
 		if(assoc->key->threads == assoc) {
-			/* We're at the head of the key's threads chain */
-			assoc->key->threads = next;
+			assoc->key->threads = next; // We're at the head of the key's threads chain 
 		}
 		SAlloc::F(assoc);
 	}

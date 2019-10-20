@@ -421,7 +421,7 @@ void ViewAsyncEventQueueStat()
 					Setup();
 					T.Restart(5000);
 				}
-				clearEvent(event);
+				// @v10.5.9 clearEvent(event);
 			}
 		}
 		void   Setup()
@@ -1627,7 +1627,8 @@ int SLAPI SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
 	for(uint i = 0; ss.get(&i, buf.Z()) > 0;)
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
-	PPGetWord(PPWORD_RELATION, 0, word_rel);
+	// @v10.5.9 PPGetWord(PPWORD_RELATION, 0, word_rel);
+	PPLoadString("relation", word_rel); // @v10.5.9
 	for(id = 0; relt_obj.EnumItems(&id, &item) > 0;)
 		if(item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
 			(buf = word_rel).CatChar(':').Cat(item.Name);
@@ -2182,7 +2183,7 @@ int SLAPI PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, H
 		sofn.Flags |= OFN_FILEMUSTEXIST;
 	sofn.lpstrInitialDir = SUcSwitch(dir); // @unicodeproblem
 	ok = GetOpenFileName(&sofn); // @unicodeproblem
-	if(!ok) 
+	if(!ok)
 		PTR32(file_name)[0] = 0;
 	rPath = SUcSwitch(file_name);
 	return ok;
@@ -2830,7 +2831,7 @@ int UICfgDialog::setDTS(const UserInterfaceSettings * pUICfg)
 		AddClusterAssoc(CTL_UICFG_MULTBILLPRINT, 2, UserInterfaceSettings::fDisableBillMultiPrint);
 		SetClusterData(CTL_UICFG_MULTBILLPRINT, t);
 	}
-	// } @v10.3.0 
+	// } @v10.3.0
 	{
 		UICfg.TableFont.ToStr(temp_buf.Z(), 0);
 		setStaticText(CTL_UICFG_ST_TABLEFONT, temp_buf);
@@ -2863,7 +2864,7 @@ int UICfgDialog::getDTS(UserInterfaceSettings * pUICfg)
 		else if(t & UserInterfaceSettings::fDisableBillMultiPrint)
 			UICfg.Flags |= UserInterfaceSettings::fDisableBillMultiPrint;
 	}
-	// } @v10.3.0 
+	// } @v10.3.0
 	getCtrlString(CTL_UICFG_SPCINPDRV, UICfg.SpecialInputDeviceSymb);
 	ASSIGN_PTR(pUICfg, UICfg);
 	return 1;
@@ -6203,7 +6204,7 @@ int SLAPI EmailToBlock::Edit(long flags)
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_MAILTO_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, 
+			SetupPPObjCombo(this, CTLSEL_MAILTO_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT,
 				reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 			setCtrlString(CTL_MAILTO_SUBJ, Data.Subj);
 			{
@@ -6327,7 +6328,7 @@ int SendMailDialog::delItem(long pos, long id)
 int SendMailDialog::setDTS(const Rec * pData)
 {
 	RVALUEPTR(Data, pData);
-	SetupPPObjCombo(this, CTLSEL_SENDMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, 
+	SetupPPObjCombo(this, CTLSEL_SENDMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT,
 		reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 	setCtrlString(CTL_SENDMAIL_SUBJ, Data.Subj);
 	setCtrlString(CTL_SENDMAIL_TEXT, Data.Text);

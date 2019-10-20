@@ -491,9 +491,9 @@ int PPDrvSberTrmnl::Init(const char * pLibPath)
 	THROWERR(pLibPath, SBRBNK_ERR_NODLLPATH);
 	P_Lib = new SDynLibrary(pLibPath);
 	THROWERR(P_Lib && P_Lib->IsValid(), SBRBNK_ERR_DLLFILENOTFOUND);
-	CardAuth = (CardAuthProc)P_Lib->GetProcAddr("_card_authorize");
-	CloseDay = (CloseDayProc)P_Lib->GetProcAddr("_close_day");
-	TestPinpad = (TestPinpadProc)P_Lib->GetProcAddr("_TestPinpad");
+	CardAuth = reinterpret_cast<CardAuthProc>(P_Lib->GetProcAddr("_card_authorize"));
+	CloseDay = reinterpret_cast<CloseDayProc>(P_Lib->GetProcAddr("_close_day"));
+	TestPinpad = reinterpret_cast<TestPinpadProc>(P_Lib->GetProcAddr("_TestPinpad"));
 	//GlobalFree = (GlobalFreeProc)P_Lib->GetProcAddr("GlobalFree");
 	THROWERR(P_Lib && CardAuth && CloseDay && TestPinpad /*&& GlobalFree*/, SBRBNK_ERR_DLLFILENOTFOUND);
 	{

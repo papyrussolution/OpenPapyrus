@@ -2084,7 +2084,7 @@ int SLAPI PPObjTSession::SetSCardID(TSessionTbl::Rec * pRec, const SCardTbl::Rec
 
 int SLAPI PPObjTSession::InitPacket(TSessionPacket * pPack, int kind /* TSESK_XXX */, PPID prcID, PPID superSessID, int status)
 {
-	int    ok = InitRec(pPack ? &pPack->Rec : (TSessionTbl::Rec *)0, kind, prcID, superSessID, status);
+	int    ok = InitRec(pPack ? &pPack->Rec : static_cast<TSessionTbl::Rec *>(0), kind, prcID, superSessID, status);
 	if(ok) {
 		if(pPack) {
 			pPack->CiList.Init(PPCheckInPersonItem::kTSession, 0);
