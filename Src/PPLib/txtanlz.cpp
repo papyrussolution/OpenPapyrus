@@ -2192,11 +2192,12 @@ int SLAPI PrcssrObjText::VerifyRuleFile(const char * pFileName)
 }
 
 class ObjTextFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcssrObjTextFilt);
 public:
 	ObjTextFiltDialog() : TDialog(DLG_OBJTEXTFILT)
 	{
 	}
-	int    setDTS(const PrcssrObjTextFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		Data = *pData;
@@ -2213,7 +2214,7 @@ public:
 		enableCommand(cmEditFilt, oneof2(Data.ObjType, PPOBJ_GOODS, PPOBJ_PERSON));
 		return ok;
 	}
-	int    getDTS(PrcssrObjTextFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -2256,7 +2257,6 @@ private:
 			return;
 		clearEvent(event);
 	}
-	PrcssrObjTextFilt Data;
 };
 
 int SLAPI PrcssrObjText::InitParam(PPBaseFilt * pBaseFilt)

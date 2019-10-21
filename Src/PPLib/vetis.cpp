@@ -10421,7 +10421,9 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	PPLogger logger;
 	SString fmt_buf, msg_buf;
 	SString addendum_msg_buf;
+	SString wait_msg;
 	SString temp_buf;
+	PPWait(1);
 	for(InitIteration(); NextIteration(&vi) > 0;) {
 		if(vi.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 			entity_id_list.add(vi.EntityID);
@@ -10440,6 +10442,7 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 		logger.Log(msg_buf);
 		THROW(PPVetisInterface::SetupParam(param));
 		THROW(ifc.Init(param));
+		PPLoadText(PPTXT_VETIS_OUTCERTSENDING, wait_msg);
 		for(uint i = 0; i < entity_id_list.getCount(); i++) {
 			const PPID entity_id = entity_id_list.get(i);
 			VetisDocumentTbl::Rec vd_rec;
@@ -10486,6 +10489,7 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 							ok = 1;
 						else if(!cr)
 							logger.LogLastError();
+						PPWaitPercent(i+1, entity_id_list.getCount(), wait_msg);
 					}
 				}
 			}
@@ -10501,7 +10505,10 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 			work_list.DebugOutput(wl_log_buf.Z().Cat("Phase #1").CR());
 			PPLogMessage(PPFILNAM_VETISOUTQUEUE_LOG, wl_log_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_USER);
 			if(use_alg2 == 1) {
+				//PPTXT_VETIS_OUTCERTSENDING          "Отправка исходящих документов"
+				//PPTXT_VETIS_OUTCERTREPLGETTING      "Получение ответов на отправку исходящих документов"
 				for(uint qn = 1; qn <= work_list.GetLastQueue(); qn++) {
+					PPLoadText(PPTXT_VETIS_OUTCERTSENDING, wait_msg);
 					{
 						for(uint wlidx = 0; wlidx < work_list.getCount(); wlidx++) {
 							PPVetisInterface::OutcomingEntry & r_entry = work_list.at(wlidx);
@@ -10510,12 +10517,14 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 								if(!cr)
 									logger.LogLastError();
 							}
+							PPWaitPercent(wlidx+1, work_list.getCount(), (temp_buf = wait_msg).Space().Cat(qn).CatChar('/').Cat(work_list.GetLastQueue()));
 						}
 						work_list.DebugOutput(wl_log_buf.Z().Cat("Phase #2").CR());
 						PPLogMessage(PPFILNAM_VETISOUTQUEUE_LOG, wl_log_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_USER);
 					}
 					uint   wlc = 0;
 					long   phs3iter_no = 0;
+					PPLoadText(PPTXT_VETIS_OUTCERTREPLGETTING, wait_msg);
 					while((wlc = work_list.GetReplyCandidateCount(qn)) > 0) {
 						phs3iter_no++;
 						for(uint wlidx = 0; wlidx < work_list.getCount(); wlidx++) {
@@ -10525,6 +10534,8 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 								SDelay(400 / wlc);
 								ifc.QueryOutgoingConsignmentResult(r_entry, &ure_list, reply);
 							}
+							(temp_buf = wait_msg).Space().Cat(wlc).CatChar('/').Cat(work_list.getCount());
+							PPWaitPercent(wlidx+1, work_list.getCount(), temp_buf);
 						}
 						work_list.DebugOutput(wl_log_buf.Z().Cat("Phase #3").Space().CatChar('(').Cat(phs3iter_no).CatChar(')').CR());
 						PPLogMessage(PPFILNAM_VETISOUTQUEUE_LOG, wl_log_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_USER);
@@ -10542,6 +10553,7 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	}
 	CATCHZOKPPERR
 	logger.Save(PPFILNAM_VETISINFO_LOG, 0);
+	PPWait(0);
 	return ok;
 }
 

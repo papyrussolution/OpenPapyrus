@@ -154,10 +154,9 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx, const uchar * sig, const 
 {
 	uchar hash[SHA_DIGEST_LENGTH];
 	DSA_SIG * dsasig;
-	BIGNUM * r;
 	BIGNUM * s;
 	int ret = -1;
-	r = BN_new();
+	BIGNUM * r = BN_new();
 	BN_bin2bn(sig, 20, r);
 	s = BN_new();
 	BN_bin2bn(sig + 20, 20, s);
@@ -218,10 +217,7 @@ typedef struct {
 
 static int aes_ctr_init(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)         /* init key */
 {
-	/*
-	 * variable "c" is leaked from this scope, but is later freed
-	 * in aes_ctr_cleanup
-	 */
+	// variable "c" is leaked from this scope, but is later freed in aes_ctr_cleanup
 	aes_ctr_ctx * c;
 	const EVP_CIPHER * aes_cipher;
 	(void)enc;
@@ -231,7 +227,7 @@ static int aes_ctr_init(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * i
 		case 32: aes_cipher = EVP_aes_256_ecb(); break;
 		default: return 0;
 	}
-	c = (aes_ctr_ctx *)SAlloc::M(sizeof(*c));
+	c = static_cast<aes_ctr_ctx *>(SAlloc::M(sizeof(*c)));
 	if(c == NULL)
 		return 0;
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -255,13 +251,12 @@ static int aes_ctr_init(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * i
 	EVP_CIPHER_CTX_set_padding(c->aes_ctx, 0);
 	memcpy(c->ctr, iv, AES_BLOCK_SIZE);
 	EVP_CIPHER_CTX_set_app_data(ctx, c);
-
 	return 1;
 }
 
 static int aes_ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl) /* encrypt/decrypt data */
 {
-	aes_ctr_ctx * c = (aes_ctr_ctx *)EVP_CIPHER_CTX_get_app_data(ctx);
+	aes_ctr_ctx * c = static_cast<aes_ctr_ctx *>(EVP_CIPHER_CTX_get_app_data(ctx));
 	uchar b1[AES_BLOCK_SIZE];
 	size_t i = 0;
 	int outlen = 0;
@@ -270,12 +265,12 @@ static int aes_ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 	if(c == NULL) {
 		return 0;
 	}
-/*
-   To encrypt a packet P=P1||P2||...||Pn (where P1, P2, ..., Pn are each
-   blocks of length L), the encryptor first encrypts <X> with <cipher>
-   to obtain a block B1.  The block B1 is then XORed with P1 to generate
-   the ciphertext block C1.  The counter X is then incremented
- */
+	/*
+	   To encrypt a packet P=P1||P2||...||Pn (where P1, P2, ..., Pn are each
+	   blocks of length L), the encryptor first encrypts <X> with <cipher>
+	   to obtain a block B1.  The block B1 is then XORed with P1 to generate
+	   the ciphertext block C1.  The counter X is then incremented
+	 */
 	if(EVP_EncryptUpdate(c->aes_ctx, b1, &outlen, c->ctr, AES_BLOCK_SIZE) != 1) {
 		return 0;
 	}
@@ -292,7 +287,7 @@ static int aes_ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 
 static int aes_ctr_cleanup(EVP_CIPHER_CTX * ctx) /* cleanup ctx */
 {
-	aes_ctr_ctx * c = (aes_ctr_ctx *)EVP_CIPHER_CTX_get_app_data(ctx);
+	aes_ctr_ctx * c = static_cast<aes_ctr_ctx *>(EVP_CIPHER_CTX_get_app_data(ctx));
 	if(c == NULL) {
 		return 1;
 	}
@@ -335,12 +330,10 @@ const EVP_CIPHER * _libssh2_EVP_aes_128_ctr(void)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
 	static EVP_CIPHER * aes_ctr_cipher;
-	return !aes_ctr_cipher ?
-	       make_ctr_evp(16, aes_ctr_cipher, NID_aes_128_ctr) : aes_ctr_cipher;
+	return !aes_ctr_cipher ? make_ctr_evp(16, aes_ctr_cipher, NID_aes_128_ctr) : aes_ctr_cipher;
 #else
 	static EVP_CIPHER aes_ctr_cipher;
-	return !aes_ctr_cipher.key_len ?
-	       make_ctr_evp(16, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
+	return !aes_ctr_cipher.key_len ? make_ctr_evp(16, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
 #endif
 }
 
@@ -348,12 +341,10 @@ const EVP_CIPHER * _libssh2_EVP_aes_192_ctr(void)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
 	static EVP_CIPHER * aes_ctr_cipher;
-	return !aes_ctr_cipher ?
-	       make_ctr_evp(24, aes_ctr_cipher, NID_aes_192_ctr) : aes_ctr_cipher;
+	return !aes_ctr_cipher ? make_ctr_evp(24, aes_ctr_cipher, NID_aes_192_ctr) : aes_ctr_cipher;
 #else
 	static EVP_CIPHER aes_ctr_cipher;
-	return !aes_ctr_cipher.key_len ?
-	       make_ctr_evp(24, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
+	return !aes_ctr_cipher.key_len ? make_ctr_evp(24, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
 #endif
 }
 
@@ -364,8 +355,7 @@ const EVP_CIPHER * _libssh2_EVP_aes_256_ctr(void)
 	return !aes_ctr_cipher ? make_ctr_evp(32, aes_ctr_cipher, NID_aes_256_ctr) : aes_ctr_cipher;
 #else
 	static EVP_CIPHER aes_ctr_cipher;
-	return !aes_ctr_cipher.key_len ?
-	       make_ctr_evp(32, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
+	return !aes_ctr_cipher.key_len ? make_ctr_evp(32, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
 #endif
 }
 

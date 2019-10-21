@@ -16277,7 +16277,7 @@ BEGIN
     PUSHBUTTON      "@but_tags",STDCTL_TAGSBUTTON,270,160,75,13
 END
 
-DLG_INVITEM DIALOGEX 52, 16, 332, 181
+DLG_INVITEM DIALOGEX 52, 16, 331, 242
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@inventory_item"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -16288,27 +16288,27 @@ BEGIN
     LTEXT           "@ware",4002,5,30,220,8
     EDITTEXT        CTL_INVITEM_GOODS,5,40,305,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_INVITEM_GOODS,310,40,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@serial",4003,55,60,150,8,0,WS_EX_RIGHT
-    EDITTEXT        CTL_INVITEM_SERIAL,210,60,100,13,ES_AUTOHSCROLL
-    GROUPBOX        "@inventory_actualrest",IDC_STATIC,5,80,155,75
-    LTEXT           "@unitperpack",4004,10,90,85,8
-    EDITTEXT        CTL_INVITEM_UNITPERPACK,100,90,50,13,ES_AUTOHSCROLL
-    LTEXT           "@packqtty",4006,10,105,85,8
-    EDITTEXT        CTL_INVITEM_PACKS,100,105,50,13,ES_AUTOHSCROLL
-    LTEXT           "@inventory_quantity",4007,10,120,85,8
-    EDITTEXT        CTL_INVITEM_QUANTITY,100,120,50,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "@but_lots",CTL_LOT_LOT,100,160,50,13
-    LTEXT           "@inventory_stockrest",4008,170,90,85,8
-    EDITTEXT        CTL_INVITEM_STOCKREST,260,90,50,13,ES_AUTOHSCROLL
-    LTEXT           "@inventory_diffqtty",4009,170,105,85,8
-    EDITTEXT        CTL_INVITEM_DIFFREST,260,105,50,13,ES_AUTOHSCROLL
-    LTEXT           "@inventory_price",4010,170,120,84,8
-    EDITTEXT        CTL_INVITEM_PRICE,260,120,50,13,ES_AUTOHSCROLL
-    LTEXT           "@inventory_wroffprice",4011,170,135,85,8
-    EDITTEXT        CTL_INVITEM_WROFFPRICE,260,135,50,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,200,160,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,260,160,50,13
-    GROUPBOX        "",IDC_STATIC,165,80,155,75
+    LTEXT           "@serial",4003,210,60,110,8
+    EDITTEXT        CTL_INVITEM_SERIAL,210,70,100,13,ES_AUTOHSCROLL
+    GROUPBOX        "@inventory_actualrest",IDC_STATIC,5,95,130,120
+    LTEXT           "@unitperpack",4004,15,105,105,8
+    EDITTEXT        CTL_INVITEM_UNITPERPACK,15,114,50,13,ES_AUTOHSCROLL
+    LTEXT           "@packqtty",4006,15,130,105,8
+    EDITTEXT        CTL_INVITEM_PACKS,15,140,50,13,ES_AUTOHSCROLL
+    LTEXT           "@inventory_quantity",4007,15,154,110,8
+    EDITTEXT        CTL_INVITEM_QUANTITY,15,164,50,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "@but_lots",CTL_LOT_LOT,5,220,50,13
+    LTEXT           "@inventory_stockrest",4008,156,105,144,8
+    EDITTEXT        CTL_INVITEM_STOCKREST,156,115,50,13,ES_AUTOHSCROLL
+    LTEXT           "@inventory_diffqtty",4009,156,130,139,8
+    EDITTEXT        CTL_INVITEM_DIFFREST,156,140,50,13,ES_AUTOHSCROLL
+    LTEXT           "@inventory_price",4010,156,155,139,8
+    EDITTEXT        CTL_INVITEM_PRICE,156,165,50,13,ES_AUTOHSCROLL
+    LTEXT           "@inventory_wroffprice",4011,156,180,139,8
+    EDITTEXT        CTL_INVITEM_WROFFPRICE,156,190,50,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,195,220,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,260,220,50,13
+    GROUPBOX        "",IDC_STATIC,141,95,169,120
 END
 
 DLG_INVITEMQ DIALOGEX 119, 48, 265, 67
@@ -16413,34 +16413,36 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,375,190,50,13
 END
 
-DLG_JOB_EXPOBJHTM DIALOGEX 36, 16, 287, 246
+DLG_JOB_EXPOBJHTM DIALOGEX 36, 16, 465, 202
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Экспорт объектов в HTML"
+CAPTION "@exportobjlisttohtmlparam"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Каталог вывода",4001,11,5,160,8
+    LTEXT           "@exportobjlisttohtmlparam_outpath",4001,11,5,160,8
     EDITTEXT        CTL_JOB_EXPOBJHTM_OUT,11,15,255,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "",CTLBRW_JOB_EXPOBJHTM_OUT,265,15,14,13,BS_BITMAP
-    GROUPBOX        "@ware_pl",CTL_JOB_EXPOBJHTM_GFLAGS,7,30,263,60,WS_GROUP
-    CONTROL         "@all",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,45,28,10
-    CONTROL         "Случайная выборка",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,60,84,10
-    CONTROL         "Изменения за сутки",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,147,10
-    CONTROL         "@all",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,101,48,13
-    LTEXT           "Количество записей в наборе",4003,113,44,106,8
-    EDITTEXT        CTL_JOB_EXPOBJHTM_GASETS,225,40,40,13,ES_AUTOHSCROLL
-    LTEXT           "Количество записей",4004,145,61,72,8
-    EDITTEXT        CTL_JOB_EXPOBJHTM_GRSETS,225,60,40,13,ES_AUTOHSCROLL
-    CONTROL         "@all",5303,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,138,48,13
-    EDITTEXT        CTL_JOB_EXPOBJHTM_PK,11,181,175,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Вид персоналий для экспорта",4007,11,170,125,8
-    PUSHBUTTON      "",CTLSEL_JOB_EXPOBJHTM_PK,185,180,12,13,BS_BITMAP
-    LTEXT           "Количество записей в наборе",4008,11,200,130,8
-    EDITTEXT        CTL_JOB_EXPOBJHTM_PSETS,145,200,40,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,171,225,45,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,225,225,45,13
-    GROUPBOX        "@brand_pl",IDC_STATIC,5,90,265,31
-    GROUPBOX        "@internetstore_pl",IDC_STATIC,5,125,265,33
-    GROUPBOX        "@person_pl",IDC_STATIC,5,160,265,60
+    PUSHBUTTON      "",CTLBRW_JOB_EXPOBJHTM_OUT,265,15,14,13,BS_BITMAP | NOT WS_TABSTOP
+    GROUPBOX        "@exportobjlisttohtmlparam_goodsflags",CTL_JOB_EXPOBJHTM_GFLAGS,10,35,175,140,WS_GROUP
+    CONTROL         "@exportobjlisttohtmlparam_fexpallgoods",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,55,130,10
+    CONTROL         "@exportobjlisttohtmlparam_fexprndgoods",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,105,84,10
+    CONTROL         "@exportobjlisttohtmlparam_fexpchggoods",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,155,147,10
+    CONTROL         "@exportobjlisttohtmlparam_fexpallbrands",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,196,46,99,13
+    LTEXT           "@exportobjlisttohtmlparam_goodsallsetsz",4003,25,65,145,8
+    EDITTEXT        CTL_JOB_EXPOBJHTM_GASETS,25,74,40,13,ES_AUTOHSCROLL
+    LTEXT           "@exportobjlisttohtmlparam_goodsrndsetsz",4004,25,120,150,8
+    EDITTEXT        CTL_JOB_EXPOBJHTM_GRSETS,25,129,40,13,ES_AUTOHSCROLL
+    CONTROL         "@exportobjlisttohtmlparam_fexpallstores",5303,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,196,83,99,13
+    EDITTEXT        CTL_JOB_EXPOBJHTM_PK,195,125,175,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "@exportobjlisttohtmlparam_personkind",4007,195,114,125,8
+    PUSHBUTTON      "",CTLSEL_JOB_EXPOBJHTM_PK,370,125,12,13,BS_BITMAP | NOT WS_TABSTOP
+    LTEXT           "@exportobjlisttohtmlparam_personsetsz",4008,195,140,169,8
+    EDITTEXT        CTL_JOB_EXPOBJHTM_PSETS,195,150,40,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,355,180,45,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,409,180,45,13
+    GROUPBOX        "@exportobjlisttohtmlparam_brandsflags",IDC_STATIC,190,35,265,31
+    GROUPBOX        "@exportobjlisttohtmlparam_storesflags",IDC_STATIC,190,70,265,33
+    GROUPBOX        "@person_pl",IDC_STATIC,190,105,265,70
+    GROUPBOX        "",IDC_STATIC,15,45,165,50
+    GROUPBOX        "",IDC_STATIC,15,95,165,55
 END
 
 DLG_JOB_SNRSCO DIALOGEX 52, 16, 361, 47
@@ -29006,23 +29008,21 @@ END
 
 DLG_OBJTEXTFILT DIALOGEX 10, 16, 311, 182
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Анализ текстовых атрибутов"
+CAPTION "@prcssrobjtextfilt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_OBJTEXTFILT_OBJ,10,20,200,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@objtype",4001,10,10,195,8
+    LTEXT           "@prcssrobjtextfilt_objtype",4001,10,10,195,8
     PUSHBUTTON      "",CTLSEL_OBJTEXTFILT_OBJ,210,20,12,13,BS_BITMAP | NOT WS_TABSTOP
     EDITTEXT        CTL_OBJTEXTFILT_FLD,10,45,200,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Текстовый атрибут объекта",4002,10,35,190,8
+    LTEXT           "@prcssrobjtextfilt_objtextident",4002,10,35,190,8
     PUSHBUTTON      "",CTLSEL_OBJTEXTFILT_FLD,210,45,12,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "@flags",CTL_OBJTEXTFILT_FLAGS,10,65,200,60,WS_GROUP
-    CONTROL         "Выводить результаты в журнал",5301,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,190,10
-    CONTROL         "Замещать текст согласно спецификации",9397,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,85,190,10
-    CONTROL         "Обрабатывать сигналы согласно спецификации",13493,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,185,10
-    CONTROL         "Нейронный классификатор товаров (construction)",17589,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,105,185,10
-    LTEXT           "Файл правил",4004,10,130,220,8
+    GROUPBOX        "@prcssrobjtextfilt_flags",CTL_OBJTEXTFILT_FLAGS,10,65,275,60,WS_GROUP
+    CONTROL         "@prcssrobjtextfilt_flog",5301,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,260,10
+    CONTROL         "@prcssrobjtextfilt_freplace",9397,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,85,260,10
+    CONTROL         "@prcssrobjtextfilt_fsignal",13493,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,260,10
+    CONTROL         "@prcssrobjtextfilt_fnnclassifier",17589,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,105,260,10
+    LTEXT           "@prcssrobjtextfilt_rulefilename",4004,10,130,220,8
     EDITTEXT        CTL_OBJTEXTFILT_RULEF,10,140,275,13,ES_AUTOHSCROLL
     PUSHBUTTON      "@but_filt",4005,10,160,50,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,165,160,50,13
@@ -31584,7 +31584,8 @@ BEGIN
 
     DLG_INVITEM, DIALOG
     BEGIN
-        BOTTOMMARGIN, 160
+        RIGHTMARGIN, 112
+        BOTTOMMARGIN, 221
     END
 
     DLG_INVITEMQ, DIALOG
@@ -31601,8 +31602,8 @@ BEGIN
 
     DLG_JOB_EXPOBJHTM, DIALOG
     BEGIN
-        RIGHTMARGIN, 285
-        BOTTOMMARGIN, 244
+        RIGHTMARGIN, 463
+        BOTTOMMARGIN, 200
     END
 
     DLG_JOB_SNRSCO, DIALOG
@@ -35801,6 +35802,11 @@ BEGIN
 END
 
 DLG_PP_SALARY AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_JOB_EXPOBJHTM AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
