@@ -186,8 +186,7 @@ int FASTCALL i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
 	return (i);
 }
 
-ASN1_OBJECT * d2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
-    long length)
+ASN1_OBJECT * d2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp, long length)
 {
 	const uchar * p;
 	long len;
@@ -200,7 +199,6 @@ ASN1_OBJECT * d2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 		i = ASN1_R_BAD_OBJECT_HEADER;
 		goto err;
 	}
-
 	if(tag != V_ASN1_OBJECT) {
 		i = ASN1_R_EXPECTING_AN_OBJECT;
 		goto err;
@@ -214,14 +212,12 @@ err:
 	return NULL;
 }
 
-ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
-    long len)
+ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp, long len)
 {
 	ASN1_OBJECT * ret = NULL, tobj;
 	const uchar * p;
 	uchar * data;
 	int i, length;
-
 	/*
 	 * Sanity check OID encoding. Need at least one content octet. MSB must
 	 * be clear in the last octet. can't have leading 0x80 in subidentifiers,
@@ -299,7 +295,6 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 	ret->ln = NULL;
 	/* ret->flags=ASN1_OBJECT_FLAG_DYNAMIC; we know it is dynamic */
 	p += length;
-
 	if(a != NULL)
 		(*a) = ret;
 	*pp = p;
@@ -313,9 +308,7 @@ err:
 
 ASN1_OBJECT * ASN1_OBJECT_new(void)
 {
-	ASN1_OBJECT * ret;
-
-	ret = (ASN1_OBJECT*)OPENSSL_zalloc(sizeof(*ret));
+	ASN1_OBJECT * ret = static_cast<ASN1_OBJECT *>(OPENSSL_zalloc(sizeof(*ret)));
 	if(!ret) {
 		ASN1err(ASN1_F_ASN1_OBJECT_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
@@ -352,8 +345,6 @@ ASN1_OBJECT * ASN1_OBJECT_create(int nid, uchar * data, int len, const char * sn
 	o.data = data;
 	o.nid = nid;
 	o.length = len;
-	o.flags = ASN1_OBJECT_FLAG_DYNAMIC | ASN1_OBJECT_FLAG_DYNAMIC_STRINGS |
-	    ASN1_OBJECT_FLAG_DYNAMIC_DATA;
+	o.flags = ASN1_OBJECT_FLAG_DYNAMIC | ASN1_OBJECT_FLAG_DYNAMIC_STRINGS | ASN1_OBJECT_FLAG_DYNAMIC_DATA;
 	return (OBJ_dup(&o));
 }
-

@@ -235,7 +235,7 @@ int SLAPI PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 	return ok;
 }
 
-int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
+int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw) const
 {
 	rPw.Z();
 	int    ok = 1;
@@ -246,6 +246,130 @@ int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
 	}
 	else
 		ok = -1;
+	return ok;
+}
+
+//static 
+int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & rCfg, SString & rBuf)
+{
+	int    ok = 1;
+	rBuf.Z();
+	xmlTextWriter * p_x = 0;
+	xmlBuffer * p_x_buf = 0;
+	SString temp_buf;
+	SString host;
+	SString user;
+	SString secret;
+	rCfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, host);
+	rCfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, user);
+	rCfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, secret);
+	if(host.NotEmptyS() && user.NotEmptyS() && secret.NotEmptyS()) {
+		{
+			THROW(p_x_buf = xmlBufferCreate());
+			THROW(p_x = xmlNewTextWriterMemory(p_x_buf, 0));
+			{
+				SXml::WDoc _doc(p_x, cpUTF8);
+				{
+					SXml::WNode n_h(_doc, "CommonMqsConfig");
+					n_h.PutInner("host", host);
+					n_h.PutInner("user", user);
+					n_h.PutInner("secret", secret);
+				}
+			}
+			xmlTextWriterFlush(p_x);
+			temp_buf.CatN(reinterpret_cast<char *>(p_x_buf->content), p_x_buf->use);
+		}
+		//temp_buf.Z().Cat(host).CatChar(':').Cat(user).CatChar(':').Cat(secret);
+		size_t len = ALIGNSIZE(temp_buf.Len()+1, 4); // Размер блока AES 128 bit (16 bytes = 2^4) 
+		STempBuffer cbuf(len + 64); // 64 ensurance
+		STempBuffer cbuf2(len + 64); // 64 ensurance
+		memcpy(cbuf.vptr(), temp_buf.cptr(), temp_buf.Len());
+		PTR8(cbuf.vptr())[temp_buf.Len()] = 0;
+		SlCrypto cryp(SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
+		SlCrypto::Key crypkey;
+		size_t cryp_size = 0;
+		uint8 key_buf[16]; // 
+		memzero(key_buf, sizeof(key_buf));
+		key_buf[2] = 1;
+		key_buf[7] = 17;
+		THROW(cryp.SetupKey(crypkey, key_buf, sizeof(key_buf), 0, 0));
+		THROW(cryp.Encrypt(&crypkey, cbuf.vcptr(), len, cbuf2.vptr(), cbuf2.GetSize(), &cryp_size));
+		temp_buf.Z().EncodeMime64(cbuf2.vcptr(), cryp_size);
+		rBuf = temp_buf;
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	xmlFreeTextWriter(p_x);
+	xmlBufferFree(p_x_buf);
+	return ok;
+}
+
+//static 
+int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrosConfig * pCfg)
+{
+	int    ok = -1;
+	xmlParserCtxt * p_ctx = 0;
+	xmlDoc * p_doc = 0;
+	SString src_buf = pBuf;
+	STempBuffer cbuf(1024); 
+	SString temp_buf;
+	SlCrypto cryp(SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
+	SlCrypto::Key crypkey;
+	size_t decryp_size = 0;
+	uint8 key_buf[16]; // 
+	size_t actual_size = 0;
+	THROW_SL(src_buf.DecodeMime64(cbuf, cbuf.GetSize(), &actual_size));
+	{
+		STempBuffer cbuf2(actual_size+64); // 64 ensurance
+		memzero(key_buf, sizeof(key_buf));
+		key_buf[2] = 1;
+		key_buf[7] = 17;
+		THROW(cryp.SetupKey(crypkey, key_buf, sizeof(key_buf), 0, 0));
+		THROW(cryp.Decrypt(&crypkey, cbuf.vcptr(), actual_size, cbuf2.vptr(), cbuf2.GetSize(), &decryp_size));
+		if(pCfg) {
+			SString result_buf;
+			result_buf.CatN(cbuf2.cptr(), actual_size);
+			{
+				xmlNode * p_root = 0;
+				THROW(p_ctx = xmlNewParserCtxt());
+				THROW_LXML((p_doc = xmlCtxtReadMemory(p_ctx, cbuf2.cptr(), actual_size, 0, 0, XML_PARSE_NOENT)), p_ctx);
+				THROW(p_root = xmlDocGetRootElement(p_doc));
+				if(SXml::IsName(p_root, "CommonMqsConfig")) {
+					if(pCfg) {
+						for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+							if(SXml::GetContentByName(p_c, "host", temp_buf))
+								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+							else if(SXml::GetContentByName(p_c, "user", temp_buf))
+								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+							else if(SXml::GetContentByName(p_c, "secret", temp_buf))
+								pCfg->SetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+						}
+					}
+					ok = 1;
+				}
+			}
+			/*
+			StringSet ss(':', result_buf);
+			uint tn = 0;
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				tn++;
+				if(tn == 1) {
+					pCfg->PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+				}
+				else if(tn == 2) {
+					pCfg->PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+				}
+				else if(tn == 3) {
+					pCfg->SetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+				}
+			}
+			*/
+		}
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
 	return ok;
 }
 

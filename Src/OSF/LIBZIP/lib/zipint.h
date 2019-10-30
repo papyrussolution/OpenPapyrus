@@ -32,9 +32,6 @@
   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include <slib.h>
 //
 //#include "compat.h"
@@ -89,10 +86,10 @@
 	#endif
 #endif
 #ifndef HAVE_FSEEKO
-	#define fseeko(s, o, w)	(fseek((s), (long int)(o), (w)))
+	#define fseeko(s, o, w)	(fseek((s), static_cast<long>(o), (w)))
 #endif
 #ifndef HAVE_FTELLO
-	#define ftello(s)	((long)ftell((s)))
+	#define ftello(s)	(static_cast<long>(ftell((s))))
 #endif
 #ifndef HAVE_MKSTEMP
 	// @sobolev int _zip_mkstemp(char *);

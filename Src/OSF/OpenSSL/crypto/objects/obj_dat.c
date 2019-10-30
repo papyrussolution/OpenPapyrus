@@ -202,7 +202,7 @@ err:
 	return (NID_undef);
 }
 
-ASN1_OBJECT * OBJ_nid2obj(int n)
+ASN1_OBJECT * FASTCALL OBJ_nid2obj(int n)
 {
 	ADDED_OBJ ad, * adp;
 	ASN1_OBJECT ob;

@@ -489,7 +489,7 @@ int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 			rEnv.Msg.Props.Flags = envelope.message.properties._flags;
 			rEnv.Msg.Props.DeliveryMode = envelope.message.properties.delivery_mode;
 			rEnv.Msg.Props.Priority = envelope.message.properties.priority;
-			rEnv.Msg.Props.TimeStamp.SetTimeT(envelope.message.properties.timestamp);
+			rEnv.Msg.Props.TimeStamp.SetTimeT(static_cast<time_t>(envelope.message.properties.timestamp));
 			AmpqBytesToSString(envelope.message.properties.content_type, temp_buf);
 			{
 				SFileFormat ft;
@@ -825,7 +825,7 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 								else if(cmd.Cmd == cmdVerifyGlobalAccount) { 
 									PPObjGlobalUserAcc gua_obj;
 									PPGlobalUserAccPacket gua_pack;
-									PPGlobalUserAcc gua_rec;
+									//PPGlobalUserAcc gua_rec;
 									StrAssocArray obj_gua_guid_list;
 									SString temp_buf;
 									SString login;

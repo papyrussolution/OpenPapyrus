@@ -1569,7 +1569,7 @@ int SLAPI SIPoint2::baseto(void * s, const void * b) const
 
 void SLAPI SIPoint2::minval(void * s) const
 {
-	static_cast<TPoint *>(s)->Set(0, 0);
+	static_cast<TPoint *>(s)->Z();
 }
 
 void SLAPI SIPoint2::maxval(void * s) const

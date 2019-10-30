@@ -616,8 +616,8 @@ table Register {          // size=88
 	date   Expiry;        // Дата окончания действия документа
 	long   UniqCntr;      // @v4.4.5 Счетчик, делающий индекс (RegTypeID, Serial, Number, UniqCntr) уникальным
 	long   Flags;         // @v4.4.5
-	long   ExtID;         // @v9.0.4 Reserved-->ExtID Дополнительное значение. Для банковских счетов (PPREGT_BANKACCOUNT)
-		// трактуется как тип банковского счета.
+	long   ExtID;         // @v9.0.4 Reserved-->ExtID Дополнительное значение.
+		// Для банковских счетов (PPREGT_BANKACCOUNT) трактуется как тип банковского счета.
 index:
 	ID         (unique);                                                                       // #0
 	ObjType, ObjID (anysegnull dup mod);                                                       // #1

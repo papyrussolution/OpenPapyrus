@@ -263,7 +263,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 				else {
 					for(uint c = 0; c < BILL_FORM_COUNT; c++)
 						if(((uint16)v >> c) & 0x0001)
-							rSelAry.Add((PPID)(c + 1), static_cast<MultiPrintDialog *>(dlg)->GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c), 0);
+							rSelAry.Add(static_cast<PPID>(c+1), static_cast<MultiPrintDialog *>(dlg)->GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c), 0);
 				}
 			}
 			else {

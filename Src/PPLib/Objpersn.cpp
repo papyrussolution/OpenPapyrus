@@ -3310,7 +3310,6 @@ int SLAPI PPObjPerson::GetSubstObjType(long id, const SubstParam * pParam, PPObj
 {
 	int    ok = 1;
 	PPObjID obj_id;
-	MEMSZERO(obj_id);
 	if(id & sgpArticleMask)
 		obj_id.Set(PPOBJ_ARTICLE, (id & ~sgpArticleMask));
 	else if(oneof3(pParam->Sgp, sgpCity, sgpCountry, sgpRegion))
@@ -4232,7 +4231,7 @@ SLAPI PPObjPerson::EditBlock::EditBlock() : InitKindID(0), InitStatusID(0), Shor
 {
 }
 
-int SLAPI PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
+void SLAPI PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 {
 	rBlk.InitKindID = kindID;
 	rBlk.InitStatusID = PPPRS_LEGAL;
@@ -4253,7 +4252,6 @@ int SLAPI PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 		else
 			rBlk.InitKindID = 0;
 	}
-	return 1;
 }
 
 int SLAPI PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
@@ -4337,7 +4335,14 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		if(kind_id <= 0) {
 			kind_id = SelectPersonKind();
 			if(kind_id > 0) {
-				InitEditBlock(kind_id, rBlk);
+				// @v10.5.11 InitEditBlock(kind_id, rBlk);
+				// @v10.5.11 {
+				EditBlock temp_blk;
+				InitEditBlock(kind_id, temp_blk);
+				rBlk.InitKindID = temp_blk.InitKindID;
+				rBlk.InitStatusID = temp_blk.InitStatusID;
+				rBlk.ShortDialog = temp_blk.ShortDialog;
+				// } @v10.5.11
 				kind_id = rBlk.InitKindID;
 			}
 			else

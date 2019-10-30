@@ -52,13 +52,14 @@ public:
 	const  StrAssocArray & SLAPI GetProblemsList() const;
 
 	struct ColumnPosBlock {
-		SLAPI  ColumnPosBlock() : QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), OrdQttyPos(-2), ShippedQttyPos(-2)
+		SLAPI  ColumnPosBlock() : QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), 
+			OrdQttyPos(-2), ShippedQttyPos(-2), VetisCertPos(-2)
 		{
 		}
 		int    SLAPI IsEmpty() const
 		{
 			return BIN(QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
-				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0);
+				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0 && VetisCertPos < 0);
 		}
 		long   QttyPos;
 		long   CostPos;
@@ -69,6 +70,7 @@ public:
 		long   LinkQttyPos;
 		long   OrdQttyPos;
 		long   ShippedQttyPos;
+		long   VetisCertPos; // @v10.5.11
 	};
 	int    GetColPos(ColumnPosBlock & rBlk);
 	int    HasLinkPack() const { return BIN(P_LinkPack); }
@@ -79,6 +81,7 @@ public:
 	double FASTCALL GetOrderedQtty(const PPTransferItem & rTi) const;
 	int    SLAPI CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal);
 private:
+	static int PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	DECL_HANDLE_EVENT;
 	void   addItem(int fromOrder = 0, TIDlgInitData * = 0, int sign = 0);
 	//
@@ -145,6 +148,7 @@ private:
 	PPID   AlcoGoodsClsID;
 	PPObjBill * P_BObj;
 	Transfer  * P_T;
+	VetisEntityCore * P_Ec; // @v10.5.11
 	PPBillPacket * P_Pack;
 	PPBillPacket * P_LinkPack;
 	LPackage * P_Pckg;
@@ -154,6 +158,7 @@ private:
 	LongArray PriceDevList;
 	RAssocArray OrdQttyList; // Список величин заказанного количества, сопоставленных с соответствующими лотами заказов
 		// используется для ускорения выборки
+	LAssocArray VetisExpiryList; // @v10.5.11 Список дат срока годности сертификатов ВЕТИС, сопоставленных с лотами
 	StrAssocArray ProblemsList; // Список проблем каждой из строк документа
 	SpecSeriesCore * P_SpcCore;
 };
@@ -423,6 +428,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 					case 30: rBlk.QuotInfoPos = static_cast<long>(i); break;
 					case 31: rBlk.OrdQttyPos = static_cast<long>(i); break;
 					case 19: rBlk.ShippedQttyPos = static_cast<long>(i); break;
+					case 32: rBlk.VetisCertPos = static_cast<long>(i); break; // @v10.5.11
 				}
 			}
 			ok = rBlk.IsEmpty() ? -1 : 1;
@@ -431,7 +437,8 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 	return ok;
 }
 
-static int PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+//static 
+int BillItemBrowser::PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(extraPtr);
@@ -472,13 +479,27 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 				const PPBillPacket * p_pack = p_brw->GetPacket();
 				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
 					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-					AryBrowserDef * p_def = static_cast<AryBrowserDef *>(p_brw->getDef());
-					BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)(p_def->getArray()) : 0; // @badcast
+					const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(p_brw->getDef());
+					const BillGoodsBrwItemArray * p_list = p_def ? static_cast<const BillGoodsBrwItemArray *>(p_def->getArray()) : 0;
 					double shp_qtty = 0.0;
 					p_brw->CalcShippedQtty(p_item, p_list, &shp_qtty);
 					if(fabs(shp_qtty - fabs(r_ti.Quantity_)) > 1E-6) {
 						pStyle->Color = GetColorRef(SClrOrange);
 						ok = 1;
+					}
+				}
+			}
+			else if(col == posblk.VetisCertPos && pos >= 0) { // @v10.5.11
+				const PPBillPacket * p_pack = p_brw->GetPacket();
+				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
+					long   expiry_val = 0;
+					if(p_brw->VetisExpiryList.Search(p_item->Pos, &expiry_val, 0)) {
+						LDATE expiry_dt;
+						expiry_dt.v = static_cast<ulong>(expiry_val);
+						if(checkdate(expiry_dt) && expiry_dt <= p_pack->Rec.Dt) {
+							pStyle->Color = GetColorRef(SClrCrimson);
+							ok = 1;
+						}
 					}
 				}
 			}
@@ -532,7 +553,6 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 							ok = 1;
 						}
-						//
 						if(price_flags & LOTSF_LINKCOSTUP) {
 							pStyle->Color2 = GetColorRef(SClrGreen);
 							pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
@@ -718,10 +738,9 @@ int SLAPI BillItemBrowser::CheckRows()
 
 BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p,
 	PPBillPacket * pMainPack /* Продажа по ордеру */, int pckgPos, int asSelector, int editMode) :
-	AsSelector(asSelector), EditMode(editMode), /*ExpndOnReturn(0), */
-	BrowserWindow(rezID, (/*OrderSelector = ((P_LinkPack = pMainPack) != 0),*/ (SArray *)0)),
+	AsSelector(asSelector), EditMode(editMode), BrowserWindow(rezID, static_cast<SArray *>(0)),
 	P_BObj(pBObj), P_T(P_BObj->trfr), P_SpcCore(0), P_Pack(p), P_Pckg(0), State(0), OrderBillID(0),
-	NewGoodsGrpID(0), CurLine(-1000), P_LinkPack(pMainPack)
+	NewGoodsGrpID(0), CurLine(-1000), P_LinkPack(pMainPack), P_Ec(0)
 {
 	SETFLAG(State, stOrderSelector, P_LinkPack);
 	SETFLAG(State, stAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
@@ -881,6 +900,7 @@ inline BillItemBrowser::~BillItemBrowser()
 	if(!(State & stOrderSelector))
 		delete P_LinkPack;
 	delete P_SpcCore;
+	delete P_Ec; // @v10.5.11
 }
 
 int BillItemBrowser::getCurItemPos()
@@ -1200,12 +1220,8 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						ok = 0;
 					break;
-				case 4: // Учетная цена реализации по строке (на одну единицу)
-					pBlk->Set(is_total ? Total.Price : p_ti->Price);
-					break;
-				case 5: // Скидка по строке (на одну единицу)
-					pBlk->Set(is_total ? Total.Discount : p_ti->Discount);
-					break;
+				case 4: pBlk->Set(is_total ? Total.Price : p_ti->Price); break; // Учетная цена реализации по строке (на одну единицу)
+				case 5: pBlk->Set(is_total ? Total.Discount : p_ti->Discount); break; // Скидка по строке (на одну единицу)
 				case 6: // Сумма по строке
 					if(is_total)
 						real_val = Total.Amount;
@@ -1232,10 +1248,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(is_total)
 						pBlk->Set(Total.OldPrice);
 					else if(p_ti->Flags & PPTFR_REVAL) {
-						if(p_ti->IsRecomplete())
-							real_val = p_ti->CurID ? p_ti->CurPrice : p_ti->Price;
-						else
-							real_val = p_ti->Discount;
+						real_val = p_ti->IsRecomplete() ? (p_ti->CurID ? p_ti->CurPrice : p_ti->Price) : p_ti->Discount;
 						pBlk->Set(real_val);
 					}
 					else
@@ -1454,6 +1467,30 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 							if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_WANTVETISCERT)
 								temp_buf = "none";
 						}
+						// @v10.5.11 {
+						else {
+							long  expiry_val = 0;
+							if(!VetisExpiryList.Search(p_item->Pos, &expiry_val, 0)) {
+								S_GUID uuid;
+								if(uuid.FromStr(temp_buf) && !!uuid) {
+									if(SETIFZ(P_Ec, new VetisEntityCore)) {
+										VetisEntityCore::Entity vetis_entity;
+										if(P_Ec->GetEntityByUuid(uuid, vetis_entity) > 0 && vetis_entity.Kind == VetisEntityCore::kVetDocument) {
+											VetisDocumentTbl::Rec vr;
+											if(P_Ec->SearchDocument(vetis_entity.ID, &vr) > 0 && (vr.ExpiryTo || vr.ExpiryFrom)) {
+												SUniTime ut;
+												LDATETIME expiry_dtm;
+												ut.FromInt64(NZOR(vr.ExpiryTo, vr.ExpiryFrom));
+												if(ut.Get(expiry_dtm))
+													expiry_val = static_cast<long>(expiry_dtm.d);
+											}
+										}
+									}
+								}
+								VetisExpiryList.Add(p_item->Pos, expiry_val);
+							}
+						}
+						// } @v10.5.11
 						pBlk->Set(temp_buf);
 					}
 					break;

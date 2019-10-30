@@ -111,6 +111,7 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%d%)%zct%.%>%1ct
 %(%d%)%zoz%.%>%1oz
 %(%d%)%zfl%.%zoz%.%>%1floz
+%(%d%)%zfluid ounces%>%1floz
 %(%d%)%zм%.%>%1м
 %(%d%)%zмм%.%>%1мм
 %(%d%)%zмг%.%>%1мг
@@ -149,6 +150,9 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%D02%)%zpc%.%>%1pcs
 %(%D01%)%zpcs%.%>%1pcs
 %(%D02%)%zpcs%.%>%1pcs
+%(%D02%)%zpieces%>%1pcs
+%(%D03%)%zpieces%>%1pcs
+%(%D04%)%zpieces%>%1pcs
 %(%d%)%zкг%.%>%1кг
 %(%d%) kg%.%>%1kg
 %(%d%)%zгб%.%>%1gb
@@ -485,6 +489,7 @@ wild berry%<wld berry%|wldbry
 breakfast%<brkfst%|brkfast%|breakfst
 bunny%<bnny
 camera%<cmra
+cabernet sauvignon%<cab sauv%|cab sauvgn%|cab sauvig%|cab sauvignon
 chardonnay%<chrdonnay%|chrdonny%|chrdny
 cleanser%<clnsr
 cocktail%<cocktl%|ccktl%|cktl
@@ -593,6 +598,7 @@ pineapple%<p/apple%|p/appl%|pneaple
 powder%<pwdr%|powd%.%|pwd%.%|powdr%.%|pwder
 powdered%<pwdrd
 princess%<prncs%|prncss%|prncess
+reposado%<репосадо
 royal canin%<роял канин
 teva pharmaceutical%<teva pharmaceuticals
 rj-45%<rj45%|rj 45
@@ -3531,7 +3537,7 @@ old el paso%<%^o/e/paso
 %^щетка%(%*%)стеклоочистителя%>щетка стеклоочистителя %1
 %^щетка%(%*%)стеклоочистителей%>щетка стеклоочистителя %1
 %^щетка%(%*%)стеклоочист%.%>щетка стеклоочистителя %1
-%^щетка%(%*%)крацовка%>щетка-крацовка %1
+%^щетка крацовка%>щетка-крацовка
 
 %^щипцы %(%*%) для волос%>щипцы для волос %1
 %^щипцы %(%*%) для выпрямления волос%>щипцы для выпрямления волос %1

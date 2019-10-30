@@ -36,7 +36,8 @@ struct BdtTestItem {
 		fSecret     = 0x0200,
 		fPassphrase = 0x0400,
 		fSeek       = 0x0800,
-		fNonce      = 0x1000
+		fNonce      = 0x1000,
+		fAD         = 0x2000 // @v10.5.11
 	};
 	struct Buffer : private SBaseBuffer {
 	public:
@@ -195,6 +196,12 @@ int SLAPI ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSColle
 							if(!(p_current_item->Flags & BdtTestItem::fNonce)) {
 								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Nonce, temp_data_buffer));
 								p_current_item->Flags |= BdtTestItem::fNonce;
+							}
+                        }
+                        else if(hdr_buf.IsEqiAscii("AD")) { // @v10.5.11
+							if(!(p_current_item->Flags & BdtTestItem::fAD)) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Nonce, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fAD;
 							}
                         }
                         else if(hdr_buf.IsEqiAscii("OutputLen")) {
@@ -1824,6 +1831,68 @@ int FASTCALL SlHash::Sha256(State * pS, const void * pData, size_t dataLen, void
 	return ok;
 }
 
+static int TestCrypto(const SString & rInFileName, const char * pSetName, int alg, int kbl, int algmod)
+{
+	int    ok = 1;
+	if(!isempty(pSetName)) {
+		STempBuffer result_buf(SKILOBYTE(512));
+		TSCollection <BdtTestItem> data_set;
+		ReadBdtTestData(rInFileName, pSetName, data_set);
+		SlCrypto cs(alg, kbl, algmod);
+		for(uint i = 0; i < data_set.getCount(); i++) {
+			const BdtTestItem * p_item = data_set.at(i);
+			const size_t src_size = p_item->In.GetLen();
+			const void * p_src_buf = p_item->In.GetBufC();
+			const size_t pattern_size = p_item->Out.GetLen();
+			const void * p_pattern_buf = p_item->Out.GetBufC();
+			size_t total_size = 0;
+			SlCrypto::Key key;
+			assert(cs.SetupKey(key, p_item->Key.GetBufC(), p_item->Key.GetLen()));
+			size_t actual_size = 0;
+			assert(cs.Encrypt(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
+			total_size += actual_size;
+			assert(total_size >= pattern_size);
+			assert(memcmp(result_buf.vptr(), p_pattern_buf, pattern_size) == 0);
+		}
+	}
+	{
+		const char * p_password = "test_crypto_password";
+		const size_t pattern_buf_size = SKILOBYTE(4096);
+		const size_t pattern_work_size = pattern_buf_size /*- 13*/;
+		SlCrypto::Key key;
+		size_t total_encr_size = 0;
+		size_t work_offs = 0;
+		size_t total_decr_size = 0;
+		size_t actual_size = 0;
+		STempBuffer dest_buf(pattern_buf_size);
+		STempBuffer pattern_buf(pattern_buf_size);
+		STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
+		SLS.GetTLA().Rg.ObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
+		SLS.GetTLA().Rg.ObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
+		{
+			SlCrypto cs(alg, kbl, algmod);
+			assert(cs.SetupKey(key, p_password));
+			work_offs = 0;
+			actual_size = 0;
+			assert(cs.Encrypt(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
+			work_offs += actual_size;
+			total_encr_size += pattern_work_size;
+		}
+		{
+			SlCrypto cs(alg, kbl, algmod);
+			assert(cs.SetupKey(key, p_password));
+			work_offs = 0;
+			actual_size = 0;
+			assert(cs.Decrypt(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
+			work_offs += actual_size;
+			total_decr_size += total_encr_size;
+		}
+		int r = memcmp(dest_buf.vcptr(), pattern_buf.vcptr(), pattern_work_size);
+		assert(r == 0);
+	}
+	return ok;
+}
+
 void TestCRC()
 {
 	SString data_trasform_path;
@@ -1831,6 +1900,12 @@ void TestCRC()
 	data_trasform_path.SetLastDSlash().Cat("data/DataTransform").SetLastDSlash();
 	SString in_file_name;
 	TSCollection <BdtTestItem> data_set;
+	{
+		(in_file_name = data_trasform_path).Cat("aes.vec");
+		TestCrypto(in_file_name, "AES-128", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
+		TestCrypto(in_file_name, "AES-192", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodEcb);
+		TestCrypto(in_file_name, "AES-256", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodEcb);
+	}
 	{
 		(in_file_name = data_trasform_path).Cat("crc24.vec");
 		data_set.freeAll();
@@ -2348,54 +2423,35 @@ public:
 		//
 		// Descr: Конструктор для фазы phaseInit
 		//
-		TransformBlock() : Phase(phaseInit), InBufLen(0)
+		TransformBlock() : Phase(phaseInit), InBufLen(0), P_InBuf(0), P_OutBuf(0), OutBufLen(0), OutBufPos(0)
 		{
 			assert(Phase == phaseInit);
-			P_InBuf = 0;
-			P_OutBuf = 0;
-			OutBufLen = 0;
-			OutBufPos = 0;
 		}
 		//
 		// Descr: Конструктор для фазы phaseUpdate
 		//
-		TransformBlock(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen) : Phase(phaseUpdate), InBufLen(inBufLen)
+		TransformBlock(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen) : Phase(phaseUpdate), 
+			InBufLen(inBufLen), P_InBuf(pInBuf), P_OutBuf(pOutBuf), OutBufLen(outBufLen), OutBufPos(0)
 		{
 			assert(Phase == phaseUpdate);
-			P_InBuf = pInBuf;
-			P_OutBuf = pOutBuf;
-			OutBufLen = outBufLen;
-			OutBufPos = 0;
 		}
 		//
 		// Descr: Конструктор для фазы phaseFinish
 		//
-		TransformBlock(void * pOutBuf, size_t outBufLen) : Phase(phaseFinish), InBufLen(0)
+		TransformBlock(void * pOutBuf, size_t outBufLen) : Phase(phaseFinish), InBufLen(0), P_InBuf(0), P_OutBuf(pOutBuf), OutBufLen(outBufLen), OutBufPos(0)
 		{
-			P_InBuf = 0;
-			P_OutBuf = pOutBuf;
-			OutBufLen = outBufLen;
-			OutBufPos = 0;
 		}
 		//
 		// Descr: Конструктор для получения информации об алгоритме
 		//
-		TransformBlock(SBdtFunct::Info * pInfo) : Phase(phaseGetInfo), InBufLen(0)
+		TransformBlock(SBdtFunct::Info * pInfo) : Phase(phaseGetInfo), InBufLen(0), P_InBuf(0), P_OutBuf(pInfo), OutBufLen(pInfo ? sizeof(*pInfo) : 0), OutBufPos(0)
 		{
-			P_InBuf = 0;
-			P_OutBuf = pInfo;
-			OutBufLen = pInfo ? sizeof(*pInfo) : 0;
-			OutBufPos = 0;
 		}
 		//
 		// Descr: Конструктор для получения статистики после завершения работы алгоритма
 		//
-		TransformBlock(SBdtFunct::Stat * pStat) : Phase(phaseGetStat), InBufLen(0)
+		TransformBlock(SBdtFunct::Stat * pStat) : Phase(phaseGetStat), InBufLen(0), P_InBuf(0), P_OutBuf(pStat), OutBufLen(pStat ? sizeof(*pStat) : 0), OutBufPos(0)
 		{
-			P_InBuf = 0;
-			P_OutBuf = pStat;
-			OutBufLen = pStat ? sizeof(*pStat) : 0;
-			OutBufPos = 0;
 		}
 		const int  Phase;
 		const void * P_InBuf;
@@ -2407,7 +2463,7 @@ public:
 	enum {
 		paramKey = 1
 	};
-	SBdtFunct(int alg);
+	explicit SBdtFunct(int alg);
 	~SBdtFunct();
 	int    GetInfo(Info & rResult);
 	int    GetStat(Stat & rResult);
@@ -2426,12 +2482,10 @@ private:
 	int    FASTCALL Implement_Transform(TransformBlock & rBlk);
 
 	struct State_ {
-		State_()
+		State_() : P_Tab(0), P_Ext(0), P_Ctx(0)
 		{
-			P_Tab = 0;
-			P_Ext = 0;
-			P_Ctx = 0;
-			Reset();
+			MEMSZERO(O);
+			MEMSZERO(S);
 		}
 		void   Reset();
 
@@ -2880,12 +2934,187 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 //#define DISPLAYLEVEL(l, ...) do { if(g_displayLevel>=l) DISPLAY(__VA_ARGS__); } while(0)
 //static int g_displayLevel = 2;
 
+static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName, const char * pSetName, int alg, int kbl, int algmod)
+{
+	int    ok = 1;
+	TSCollection <BdtTestItem> data_set;
+	STempBuffer result_buf(SKILOBYTE(512));
+	{
+		ReadBdtTestData(rInFileName, pSetName, data_set);
+		SlCrypto cs(alg, kbl, algmod);
+		SlCrypto::Key key;
+		for(uint i = 0; i < data_set.getCount(); i++) {
+			const BdtTestItem * p_item = data_set.at(i);
+			const size_t src_size = p_item->In.GetLen();
+			const void * p_src_buf = p_item->In.GetBufC();
+			const size_t key_size = p_item->Key.GetLen();
+			const void * p_key_buf = p_item->Key.GetBufC();
+			const size_t pattern_size = p_item->Out.GetLen();
+			const void * p_pattern_buf = p_item->Out.GetBufC();
+			size_t total_size = 0;
+			rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_key_buf, key_size));
+			size_t actual_size = 0;
+			rCase.SLTEST_CHECK_NZ(cs.Encrypt(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
+			total_size += actual_size;
+			rCase.SLTEST_CHECK_LE(static_cast<ulong>(pattern_size), static_cast<ulong>(total_size));
+			rCase.SLTEST_CHECK_Z(memcmp(result_buf.vptr(), p_pattern_buf, pattern_size));
+		}
+		{
+			const char * p_password = "test_crypto_password";
+			const size_t pattern_buf_size = SKILOBYTE(4096);
+			const size_t pattern_work_size = pattern_buf_size /*- 13*/;
+			SlCrypto::Key key;
+			size_t total_encr_size = 0;
+			size_t work_offs = 0;
+			size_t total_decr_size = 0;
+			size_t actual_size = 0;
+			STempBuffer dest_buf(pattern_buf_size);
+			STempBuffer pattern_buf(pattern_buf_size);
+			STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
+			SLS.GetTLA().Rg.ObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
+			SLS.GetTLA().Rg.ObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
+			{
+				SlCrypto cs(alg, kbl, algmod);
+				rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_password));
+				work_offs = 0;
+				actual_size = 0;
+				rCase.SLTEST_CHECK_NZ(cs.Encrypt(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
+				work_offs += actual_size;
+				total_encr_size += pattern_work_size;
+			}
+			{
+				SlCrypto cs(alg, kbl, algmod);
+				rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_password));
+				work_offs = 0;
+				actual_size = 0;
+				rCase.SLTEST_CHECK_NZ(cs.Decrypt(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
+				work_offs += actual_size;
+				total_decr_size += total_encr_size;
+			}
+			rCase.SLTEST_CHECK_Z(memcmp(dest_buf.vcptr(), pattern_buf.vcptr(), pattern_work_size));
+		}
+	}
+	return ok;
+}
+
 SLTEST_R(BDT)
 {
 	int    ok = 1;
 #ifdef _LOCAL_USE_SSL // {
 	OpenSSL_add_all_ciphers();
 #endif
+	{
+		SString data_trasform_path;
+		SLS.QueryPath("testroot", data_trasform_path);
+		data_trasform_path.SetLastDSlash().Cat("data/DataTransform").SetLastDSlash();
+		SString in_file_name;
+		TSCollection <BdtTestItem> data_set;
+		{
+			(in_file_name = data_trasform_path).Cat("aes.vec");
+			Helper_Test_Crypto_Vec(*this, in_file_name, "AES-128", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
+			Helper_Test_Crypto_Vec(*this, in_file_name, "AES-192", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodEcb);
+			Helper_Test_Crypto_Vec(*this, in_file_name, "AES-256", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodEcb);
+		}
+		{
+			(in_file_name = data_trasform_path).Cat("crc24.vec");
+			data_set.freeAll();
+			ReadBdtTestData(in_file_name, "CRC24", data_set);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				const BdtTestItem * p_item = data_set.at(i);
+				const size_t src_size = p_item->In.GetLen();
+				const uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0] & 0x00ffffff;
+				const void * p_src_buf = p_item->In.GetBufC();
+				SLTEST_CHECK_EQ(SlHash::CRC24(0, p_src_buf, src_size), pattern_value);
+				if(src_size > 10) {
+					SlHash::State st;
+					size_t total_sz = 0;
+					for(size_t ps = 1; total_sz < src_size; ps++) {
+						SlHash::CRC24(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
+						total_sz += ps;
+					}
+					SlHash::CRC24(&st, 0, 0); // finalize
+					SLTEST_CHECK_EQ(st.GetResult32(), pattern_value);
+				}
+			}
+		}
+		{
+			(in_file_name = data_trasform_path).Cat("crc32.vec");
+			data_set.freeAll();
+			ReadBdtTestData(in_file_name, "CRC32", data_set);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				const BdtTestItem * p_item = data_set.at(i);
+				const size_t src_size = p_item->In.GetLen();
+				const void * p_src_buf = p_item->In.GetBufC();
+				uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
+				PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+				PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+				PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+				SLTEST_CHECK_EQ(SlHash::CRC32(0, p_src_buf, src_size), pattern_value);
+				if(src_size > 10) {
+					SlHash::State st;
+					size_t total_sz = 0;
+					for(size_t ps = 1; total_sz < src_size; ps++) {
+						SlHash::CRC32(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
+						total_sz += ps;
+					}
+					SlHash::CRC32(&st, 0, 0); // finalize
+					SLTEST_CHECK_EQ(st.GetResult32(), pattern_value);
+				}
+			}
+		}
+		{
+			(in_file_name = data_trasform_path).Cat("adler32.vec");
+			data_set.freeAll();
+			ReadBdtTestData(in_file_name, "Adler32", data_set);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				const BdtTestItem * p_item = data_set.at(i);
+				const size_t src_size = p_item->In.GetLen();
+				const void * p_src_buf = p_item->In.GetBufC();
+				uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
+				PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+				PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+				PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+				SLTEST_CHECK_EQ(SlHash::Adler32(0, p_src_buf, src_size), pattern_value);
+				if(src_size > 10) {
+					SlHash::State st;
+					size_t total_sz = 0;
+					for(size_t ps = 1; total_sz < src_size; ps++) {
+						SlHash::Adler32(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
+						total_sz += ps;
+					}
+					SlHash::Adler32(&st, 0, 0); // finalize
+					SLTEST_CHECK_EQ(st.GetResult32(), pattern_value);
+				}
+			}
+		}
+		{
+			(in_file_name = data_trasform_path).Cat("sha1.vec");
+			data_set.freeAll();
+			ReadBdtTestData(in_file_name, "SHA-160", data_set);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				const BdtTestItem * p_item = data_set.at(i);
+				const size_t src_size = p_item->In.GetLen();
+				const void * p_src_buf = p_item->In.GetBufC();
+				uint8 result_buf[128];
+				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
+				{
+					SlHash::Sha1(0, p_src_buf, src_size, result_buf, sizeof(result_buf));
+					SLTEST_CHECK_Z(memcmp(result_buf, p_pattern_buf, 20));
+				}
+				if(src_size > 10) {
+					SlHash::State st;
+					size_t total_sz = 0;
+					uint32 r = 0;
+					for(size_t ps = 1; total_sz < src_size; ps++) {
+						SlHash::Sha1(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)), result_buf, sizeof(result_buf));
+						total_sz += ps;
+					}
+					SlHash::Sha1(&st, 0, 0, result_buf, sizeof(result_buf)); // finalize
+					SLTEST_CHECK_Z(memcmp(result_buf, p_pattern_buf, 20));
+				}
+			}
+		}
+	}
 	{
 		// CRC32
 		SString in_file_name = MakeInputFilePath("crc32.vec");

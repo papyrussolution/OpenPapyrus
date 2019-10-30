@@ -10,10 +10,9 @@
 #include <openssl/dh.h>
 
 struct dh_st {
-	/*
-	 * This first argument is used to pick up errors when a DH is passed
-	 * instead of a EVP_PKEY
-	 */
+	//
+	// This first argument is used to pick up errors when a DH is passed instead of a EVP_PKEY
+	//
 	int pad;
 	int version;
 	BIGNUM * p;

@@ -136,8 +136,7 @@ int FASTCALL S_GUID_Base::FromStr(const char * pBuf)
 	}
 	else {
 		memzero(Data, sizeof(Data));
-		SLS.SetError(SLERR_INVGUIDSTR, pBuf);
-		ok = 0;
+		ok = SLS.SetError(SLERR_INVGUIDSTR, pBuf);
 	}
 	return ok;
 }

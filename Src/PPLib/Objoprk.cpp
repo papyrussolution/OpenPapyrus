@@ -4,9 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//
-//
+
 SLAPI PPInventoryOpEx::PPInventoryOpEx()
 {
 	THISZERO();
@@ -197,8 +195,7 @@ int SLAPI PPReckonOpEx::GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) con
 
 void SLAPI PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange & rPeriod) const
 {
-	rPeriod.low = Beg;
-	rPeriod.upp = End;
+	rPeriod.Set(Beg, End);
 	if(rPeriod.low == 0 && Flags & ROXF_BEGISBILLDT)
 		rPeriod.low = paymDate;
 	if(rPeriod.upp == 0 && Flags & ROXF_ENDISBILLDT)
@@ -587,7 +584,7 @@ int SLAPI PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta
 			THROW(ref->AddItem(PPOBJ_OPRKIND, pID, &pack->Rec, 0));
 		}
 		for(i = 0; i < pack->ATTmpls.getCount(); i++) {
-			THROW(ref->PutProp(Obj, *pID, (PPID)(i+1), &pack->ATTmpls.at(i), sizeof(PPAccTurnTempl), 0));
+			THROW(ref->PutProp(Obj, *pID, static_cast<PPID>(i+1), &pack->ATTmpls.at(i), sizeof(PPAccTurnTempl), 0));
 		}
 		if(pack->Rec.OpTypeID == PPOPT_GENERIC) {
 			THROW(ref->PutPropArray(PPOBJ_OPRKIND, *pID, OPKPRP_GENLIST2, pack->P_GenList, 0));
@@ -642,8 +639,8 @@ int SLAPI PPObjOprKind::SetReckonExData(PPID id, const PPReckonOpEx * pData, int
 	PPIDArray temp;
 	if(pData) {
 		uint   i;
-		THROW_SL(temp.add((long)pData->Beg));
-		THROW_SL(temp.add((long)pData->End));
+		THROW_SL(temp.add(static_cast<long>(pData->Beg)));
+		THROW_SL(temp.add(static_cast<long>(pData->End)));
 		THROW_SL(temp.add(pData->Flags));
 		THROW_SL(temp.add(pData->PersonRelTypeID));
 		for(i = 0; i < SIZEOFARRAY(pData->Reserve); i++)
@@ -1931,11 +1928,27 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 			SETFLAG(v, (1 << i), f & o);
 		}
 		dlg->setCtrlUInt16(CTL_OPKMORE_FLAGS, v);
+		//@erik v10.5.9 {
+		long paym_type_flg = 0;
+		const int is_cash_f = ext_options.lsearch(OPKFX_PAYMENT_CASH);
+		const int is_bank_f = ext_options.lsearch(OPKFX_PAYMENT_NONCASH);
+		assert((is_cash_f && is_bank_f) || (!is_cash_f && !is_bank_f));
+		if(is_cash_f && is_bank_f) {
+			paym_type_flg = 1; // если флаги есть, то не придется выполнять поиск еще раз. Далее просто проверим значение этой переменной
+			dlg->AddClusterAssocDef(CTL_OPKMORE_PAYMTYPE, 0, 0);
+			dlg->AddClusterAssoc(CTL_OPKMORE_PAYMTYPE, 1, OPKFX_PAYMENT_CASH);
+			dlg->AddClusterAssoc(CTL_OPKMORE_PAYMTYPE, 2, OPKFX_PAYMENT_NONCASH);
+			const long __p = CHKXORFLAGS(ext_f, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH);
+			dlg->SetClusterData(CTL_OPKMORE_PAYMTYPE, __p);
+		}
+		// } @erik
 		v = 0;
 		for(i = 0; i < ext_options.getCount(); i++) {
 			ext_o = (ulong)ext_options.at(i);
-			SETFLAG(v, (1 << i), ext_f & ext_o);
+			if(!oneof2(ext_o, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH)) //@erik v10.5.9
+				SETFLAG(v, (1 << i), ext_f & ext_o);
 		}
+
 		dlg->setCtrlUInt16(CTL_OPKMORE_EXTFLAGS, v);
 		if(useMainAmt) {
 			s = (f & OPKF_SELLING);
@@ -1980,11 +1993,20 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 			dlg->getCtrlData(CTL_OPKMORE_EXTFLAGS,  &(v = 0));
 			for(i = 0; i < ext_options.getCount(); i++) {
 				ext_o = (ulong)ext_options.at(i);
+				if(oneof2(ext_o, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH)) {
+					continue;
+				}
 				SETFLAG(ext_f, ext_o, v & (1 << i));
 			}
 			if(dlg->getCtrlView(CTL_OPKMORE_MCR)) {
 				dlg->GetClusterData(CTL_OPKMORE_MCR, &ext_f);
 			}
+			//@erik v10.5.9 { 
+			if(paym_type_flg > 0){
+				ext_f &= ~(OPKFX_PAYMENT_CASH|OPKFX_PAYMENT_NONCASH);
+				ext_f |= dlg->GetClusterData(CTL_OPKMORE_PAYMTYPE);
+			}				
+			// } @erik
 			if(useMainAmt) {
 				// ahtoxa {
 				PPBillPacket bill_pack;
@@ -2075,7 +2097,7 @@ void OprKindDialog::moreDialog()
 					OPKF_USEPAYER, OPKF_RENT, OPKF_FREIGHT, OPKF_NOCALCTIORD, OPKF_NOUPDLOTREST, OPKF_PCKGMOUNTING,
 					OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, 0L);
 				// @v8.9.6 OPKFX_CANBEDECLINED // @v10.0.0 OPKFX_AUTOGENUUID // @v10.4.2 OPKFX_IGNORECLISTOP
-				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, OPKFX_IGNORECLISTOP, 0L);
+				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, OPKFX_IGNORECLISTOP, 0L); 
 				editOptions2(DLG_OPKMORE_GEX, 1, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSRECEIPT:
@@ -2118,7 +2140,8 @@ void OprKindDialog::moreDialog()
 				break;
 			case PPOPT_PAYMENT:
 				options_list.addzlist(OPKF_PROFITABLE, OPKF_AUTOWL, OPKF_BANKING, OPKF_ATTACHFILES, 0L);
-				editOptions2(DLG_OPKMORE_PAY, 0, 0, &options_list, 0);
+				ext_options_list.addzlist(OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH, 0L); //@erik v10.5.9
+				editOptions2(DLG_OPKMORE_PAY, 0, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_CHARGE:
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_AUTOWL, OPKF_USEPAYER, OPKF_CHARGENEGPAYM, OPKF_ATTACHFILES, 0L);

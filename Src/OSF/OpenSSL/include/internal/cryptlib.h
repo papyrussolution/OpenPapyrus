@@ -774,17 +774,14 @@ struct evp_cipher_st {
 	BLOCK_CIPHER_def_ecb(cname, kstruct, nid, block_size, key_len, flags, init_key, cleanup, set_asn1, get_asn1, ctrl)
 
 /*-
-   #define BLOCK_CIPHER_defs(cname, kstruct, \
-                                nid, block_size, key_len, iv_len, flags,\
-                                 init_key, cleanup, set_asn1, get_asn1, ctrl)\
+   #define BLOCK_CIPHER_defs(cname, kstruct, nid, block_size, key_len, iv_len, flags, init_key, cleanup, set_asn1, get_asn1, ctrl)\
    static const EVP_CIPHER cname##_cbc = {\
         nid##_cbc, block_size, key_len, iv_len, \
         flags | EVP_CIPH_CBC_MODE,\
         init_key,\
         cname##_cbc_cipher,\
         cleanup,\
-        sizeof(EVP_CIPHER_CTX)-sizeof((((EVP_CIPHER_CTX *)NULL)->c))+\
-                sizeof((((EVP_CIPHER_CTX *)NULL)->c.kstruct)),\
+        sizeof(EVP_CIPHER_CTX)-sizeof((((EVP_CIPHER_CTX *)NULL)->c))+sizeof((((EVP_CIPHER_CTX *)NULL)->c.kstruct)),\
         set_asn1, get_asn1,\
         ctrl, \
         NULL \
@@ -796,8 +793,7 @@ struct evp_cipher_st {
         init_key,\
         cname##_cfb_cipher,\
         cleanup,\
-        sizeof(EVP_CIPHER_CTX)-sizeof((((EVP_CIPHER_CTX *)NULL)->c))+\
-                sizeof((((EVP_CIPHER_CTX *)NULL)->c.kstruct)),\
+        sizeof(EVP_CIPHER_CTX)-sizeof((((EVP_CIPHER_CTX *)NULL)->c))+sizeof((((EVP_CIPHER_CTX *)NULL)->c.kstruct)),\
         set_asn1, get_asn1,\
         ctrl,\
         NULL \
@@ -821,8 +817,7 @@ struct evp_cipher_st {
         init_key,\
         cname##_ecb_cipher,\
         cleanup,\
-        sizeof(EVP_CIPHER_CTX)-sizeof((((EVP_CIPHER_CTX *)NULL)->c))+\
-                sizeof((((EVP_CIPHER_CTX *)NULL)->c.kstruct)),\
+        sizeof(EVP_CIPHER_CTX)-sizeof((((EVP_CIPHER_CTX *)NULL)->c))+sizeof((((EVP_CIPHER_CTX *)NULL)->c.kstruct)),\
         set_asn1, get_asn1,\
         ctrl,\
         NULL \

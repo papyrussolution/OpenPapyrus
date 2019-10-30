@@ -205,6 +205,14 @@ int FASTCALL SStrScan::IsTagBrace() const
 	return BIN(P_Buf[Offs] == '<');
 }
 
+SStrScan & SStrScan::Z()
+{
+	Offs = 0;
+	Len = 0;
+	P_Buf = 0;
+	return *this;
+}
+
 void FASTCALL SStrScan::Set(const char * pBuf, size_t offs)
 {
 	Offs = offs;

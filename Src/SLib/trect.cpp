@@ -90,6 +90,13 @@ TPoint::operator FPoint () const
 	return p;
 }
 
+TPoint & TPoint::Z()
+{
+	x = 0;
+	y = 0;
+	return *this;
+}
+
 int TPoint::IsZero() const
 {
 	return (x == 0 && y == 0);

@@ -5016,8 +5016,23 @@ public:
 		GObj.ReadConfig(&GoodsCfg);
 		updateList(-1);
 	}
-	int    setDTS(const ResolveGoodsItemList * pData);
-	int    getDTS(ResolveGoodsItemList * pData);
+	int    setDTS(const ResolveGoodsItemList * pData)
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		updateList(-1);
+		return ok;
+	}
+	int    getDTS(ResolveGoodsItemList * pData)
+	{
+		int    ok = 1;
+		if(Flags & RESOLVEGF_RESOLVEALLGOODS) {
+			ResolveGoodsItem * p_item = 0;
+			for(uint i = 0; ok && Data.enumItems(&i, (void **)&p_item) > 0;)
+				ok = p_item->ResolvedGoodsID ? 1 : PPSetError(PPERR_EXISTUNRESOLVDEDGOODS);
+		}
+		return (ok > 0) ? (pData->copy(Data), 1) : ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int editItem(long pos, long id);
@@ -5108,26 +5123,6 @@ int ResolveGoodsDialog::setupList()
 	return ok;
 }
 
-int ResolveGoodsDialog::setDTS(const ResolveGoodsItemList * pData)
-{
-	int    ok = 1;
-	if(pData)
-		Data.copy(*pData);
-	updateList(-1);
-	return ok;
-}
-
-int ResolveGoodsDialog::getDTS(ResolveGoodsItemList * pData)
-{
-	int    ok = 1;
-	if(Flags & RESOLVEGF_RESOLVEALLGOODS) {
-		ResolveGoodsItem * p_item = 0;
-		for(uint i = 0; ok && Data.enumItems(&i, (void **)&p_item) > 0;)
-			ok = p_item->ResolvedGoodsID ? 1 : PPSetError(PPERR_EXISTUNRESOLVDEDGOODS);
-	}
-	return (ok > 0) ? (pData->copy(Data), 1) : ok;
-}
-
 int ResolveGoodsDialog::ResolveGoods(PPID resolveGoodsID, uint firstGoodsPos)
 {
 	int    ok = -1;
@@ -5163,10 +5158,9 @@ int ResolveGoodsDialog::editItem(long pos, long id)
 	PPID   resolve_goods_id = 0;
 	ExtGoodsSelDialog * p_dlg = 0;
 	if(id > 0) {
-		int    maxlike_goods = (Flags & RESOLVEGF_MAXLIKEGOODS) ? 1 : 0;
+		const int maxlike_goods = BIN(Flags & RESOLVEGF_MAXLIKEGOODS);
 		TIDlgInitData tidi;
-		THROW_MEM(p_dlg = new ExtGoodsSelDialog(0, maxlike_goods ? 0 : GoodsGrpID,
-			maxlike_goods ? ExtGoodsSelDialog::fByName : 0));
+		THROW_MEM(p_dlg = new ExtGoodsSelDialog(0, maxlike_goods ? 0 : GoodsGrpID, maxlike_goods ? ExtGoodsSelDialog::fByName : 0));
 		THROW(CheckDialogPtr(&p_dlg));
 		if(maxlike_goods) {
 			StrAssocArray goods_list;

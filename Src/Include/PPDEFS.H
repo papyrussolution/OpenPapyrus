@@ -706,9 +706,10 @@
 	#define PPACN_GSTRUCCUPD       84L // @v10.2.1 Изменился компонентный состав товарной структуры (добавлен или удален компонент)
 	#define PPACN_TSSERIESUPD      85L // @v10.3.3 Изменена временная серия
 	#define PPACN_TSSTRATEGYUPD    86L // @v10.3.3 Изменена стратегия временной серии
+	#define PPACN_SCARDEXPRYUPD    87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
 
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST             86L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST             87L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 	//
 	// Далее следуют идентификаторы событий, которые не отображаются в системном журнале, однако
 	// должны быть в том же поле идентификаторов, что и PPACN_XXX поскольку заносятся в очередь
@@ -3014,6 +3015,7 @@
 	#define CTL_OPKMORE_AMTFORMULA       (10 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_EXTFLAGS         (11 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_MCR              (12 + WINDOWS_ID_BIAS)
+    #define CTL_OPKMORE_PAYMTYPE         (13 + WINDOWS_ID_BIAS)
 #define DLG_OPKPRNOPT             155 // Опции печати документов по операции
 	#define CTL_OPKMORE_PRTAMT           (3 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_PRTQC            (4 + WINDOWS_ID_BIAS)
@@ -11294,232 +11296,225 @@
 // @v10.5.9 #define PPERR_INVMODELPARAM       498 // Параметры модели должны быть положительными числами
 // @v10.5.9 #define PPERR_CANTREADPREVDTFILL  499 // Невозможно извлечь дату последнего обновлени
 // @v10.5.9 #define PPERR_BASKETLOCKED        500 // Корзина заблокирована другим пользователем %s
-/* @v9.4.8
 //
 // Decl Struc Parsing
 //
-#define PPERR_DS_UNEXPEOF         601 // Unexpected EOF
-#define PPERR_DS_EXPEQ            602 // Expected '='
-#define PPERR_DS_EXPLEFTBRACE     603 // Expected '{'
-#define PPERR_DS_EXPRIGHTBRACKET  604 // Expected ']'
-#define PPERR_DS_STRUCITEMNFOUND  605 // Не найден элемент структуры %s
-#define PPERR_DS_TYPENAMENFOUND   606 // Не найдена структура с именем %s
-#define PPERR_DS_TYPENAMEEXISTS   607 // Структура с именем %s уже существует
-#define PPERR_DS_STRUCTYPENFOUND  608 // Структура с типом %s не найдена
-#define PPERR_DS_STRUCITEMEXISTS  609 // Элемент структуры %s уже существует
-#define PPERR_DS_EXPRBRACEORNAME  610 // Ожидается '}' или имя пол
-#define PPERR_DS_SYNTAX           611 // Синтаксическая ошибка
-@v9.4.8 */
-//
-//
-//
-#define PPERR_CANTFOUNDUNLOCKEDGB 701 // Все корзины заблокированы другими пользователями
-#define PPERR_DUPLBNKACCT         702 // Дублируемое значение счета банка
-#define PPERR_ABSLOTS             703 // 'Отсутствующий лот {@goods - @loc - @int @bill}' (RecoverAbsenceLots)
-#define PPERR_SCARDIDNEEDEDFOROP  704 // Internal error: При добавлении или модификации операции по карте необходим ID карты
-#define PPERR_RCVMAIL             705 // Ошибка при принятии почты из инета
-#define PPERR_SENDMAIL            706 // Ошибка при отправке почты через интернет
-#define PPERR_CANTCONNECTINET     708 // Ошибка при подключении к интернету
-#define PPERR_CANTCONNECTMAIL     709 // Ошибка при подключении к почтовому серверу
-#define PPERR_CODERNOTSUPPORTED   710 // Данная кодировка вложенных файлов не поддерживается //
-#define PPERR_GETATTACHS          711 // Ошибка при извлечении вложенных файлов
-#define PPERR_CANTDELMSG          712 // Ошибка при удалении сообщения с почтового сервера
-#define PPERR_UNDEFDWODFCTOP      713 // Не определена операция компенсации дефицита для списания драфт-операций
-#define PPERR_UNDEFPPCFUNCID      714 // Неопределенный ид функции калькулятора
-#define PPERR_INVPPCFUNCPARCOUNT  715 // Неправильное число параметров в функции калькулятора
-#define PPERR_INVAMOUNT           716 // Недопустимое значение суммы
-#define PPERR_INVTIIDX            717 // Недопустимый индекс товарной строки документа
-#define PPERR_DRIVEUNAVELAIBLE    718 // Ошибка при чтении диска
-#define PPERR_INVALBORDOPID       719 // Не задана операция для принятия заказов
-#define PPERR_INVLOTREFINPCKG     720 // Сбойная ссылка элемента пакета на лот
-#define PPERR_INVPCKGIDS          721 // Сбойные идентификаторы товарного пакета %s
-#define PPERR_CANTSENDBILLSTODIV  722 // В раздел данных '%s' нельзя передавать документы
-#define PPERR_CANTGENACCNUMBER    723 // Не удается автоматически создать номер счета
-#define PPERR_ACCNUMORCODENEEDED  724 // Необходимо ввести код или номер счета
-
-#define PPERR_CANTREADRDIQUEUE    801 // Ошибка чтения очереди данных для модели ARIMA %s
-#define PPERR_INVCFGPSALES        802 // Конфигурация прогноза продаж не задана либо задана не верно
-#define PPERR_INVMOVFAILONSAMEGOODS 803 // Недопустимая попытка вставки в инвентаризацию строки с уже существующим товаром %s
-#define PPERR_NONEREGISTEROPS     804 // Не настроена операция регистровой проводки либо недостаточно прав для ее использования //
-#define PPERR_INVACCSUPPL         805 // В настройках неправильно указан счет поставщиков
-#define PPERR_DUPBASKETITEM       806 // Дублирование товара в корзине
-#define PPERR_DUPGENOPITEM        807 // Дублирование операции в списке обобщения //
-#define PPERR_UNDEFRECEIPTOP      808 // Не определена операция прихода товара от поставщика
-#define PPERR_UNEQBUYERTPID       809 // Пустой либо несоответствующий ИНН покупателя во входящем документе
-#define PPERR_ALDD_NOFINDDS       810 // Структура данных не найдена в файле (%s)
-#define PPERR_BASKETNEEDED        811 // Необходимо выбрать корзину
-#define PPERR_REGISTERNEEDED      812 // Необходимо ввести регистр: %s
-#define PPERR_ABSGOODS            813 // Отсутствует товар (function RecoverAbsenceGoods())
-#define PPERR_INVOP               815 // Операция не задана или задана неверно
-#define PPERR_INVSCARDNUM         816 // Номер карточки не задан или задан неверно
-#define PPERR_SCRDCLOSEDSRV       817 // Карта блокирована для данной службы
-#define PPERR_PPOS_NSYNCCMPMODE   818 // Внутренняя ошибка: поток связи открыт не в режиме передачи сравнения синхронизации
-#define PPERR_PPOS_NOBJTRANMODE   819 // Внутренняя ошибка: поток связи открыт не в режиме передачи объектов
-#define PPERR_ONGRAPHSHOW         820 // Ошибка при отображении диаграммы
-#define PPERR_CASHSRV_IMPCHECKS   821 // Ошибка при импорте чеков в Кристалл-Кассовом сервере
-#define PPERR_INVARMAPQ           822 // Недопустимые значения параметра P или Q в модели прогноза (0..30) [GoodsID=%s]
-#define PPERR_INVARMAMODELSIZE    823 // Внутренняя ошибка: сбойные длины векторов в модели прогноза [GoodsID=%s]
-#define PPERR_ARMARECCORRUPTED    824 // Сбойная запись параметров модели прогноза [GoodsID=%s]
-#define PPERR_PREDICTHOLESFAULT   825 // Внутренняя ошибка: Сбой функции заполнения пропусков таблицы продаж
-#define PPERR_ORDRESERVEEXHAUSTED 826 // Исчерпан зарезервированный остаток товара %s
-#define PPERR_OPHASNTEXTOBJ       827 // Операция не имеет дополнительного объекта
-#define PPERR_COMINTERFACE        828 // COM-интерфейс: код возврата %s
-#define PPERR_SYNCCASH_INVPORT    829 // Неверный порт вывода (должен быть COM)
-#define PPERR_SYNCCASH_NO_CHK_RBN 830 // Нет чековой ленты
-#define PPERR_SYNCCASH_NO_JRN_RBN 831 // Нет контрольной ленты
-#define PPERR_SYNCCASH_DAYCLOSED  832 // День уже закрыт
-#define PPERR_SYNCCASH            833 // %s (описание ошибки)
-#define PPERR_SYNCCASH_NO_CASH    834 // Не хватает наличности в кассе
-#define PPERR_SYNCCASH_OVERFLOW   835 // ЭКЛЗ или ФП переполнена
-
-#define PPERR_INVVATBOOKKIND      850 // Внутренняя ошибка: недопустимый вид книги продаж/покупок
-#define PPERR_POP3SRVREPLYERR     851 // Почтовый сервер POP3 вернул ошибку %s
-#define PPERR_POP3SRVNOREPLY      852 // Почтовый сервер POP3 не отвечает
-#define PPERR_SMTPSRVREPLYERR     853 // Почтовый сервер SMTP вернул ошибку %s
-#define PPERR_SMTPSRVNOREPLY      854 // Почтовый сервер SMTP не отвечает
-#define PPERR_MAILSESSNOTCONNECT  855 // Внутренняя ошибка: почтовая сессия не инициализирована
-#define PPERR_BHTLDPGMNOTSUPPR    856 // Загрузка программы для этого типа терминалов не поддерживается //
-#define PPERR_ASSETGOODSNEEDED    857 // В этот документ допускается вставка только объектов основных средств
-#define PPERR_INVCLIAGTDIS        858 // Скидка в соглашении должна быть в диапазоне [-100..+100] и не превышать максимальную скидку
-#define PPERR_INVEXPOP            859 // Операция отгрузки не задана либо задана неверно
-#define PPERR_CLNBNKSYNTAX        861 // Ошибка разбора формата экспорта в систему клиент-банк %s
-#define PPERR_WARRANT_OVERFLOW    862 // Кол-во строк в доверенности больше максимального
-#define PPERR_INVQUOTLIST         863 // Inside error: ИД товара в списке котировок не соответствует переданному параметру
-#define PPERR_UNDEFALBATROCONFIG  864 // Не определена конфигурация обмена данными по электронной почте
-#define PPERR_UNDEFMAILACC        865 // Учетная запись электронной почты не определена или определена не полностью
-#define PPERR_BHTMAXRECSREACHED   866 // Достигнуто максимально возможное кол-во строк, которое может\n\003быть передано на терминал
-#define PPERR_QUOTKINDNEEDED      867 // Необходимо выбрать вид котировки
-#define PPERR_MAILACCNEEDED       869 // Необходимо указать почтовую учетную запись
-#define PPERR_GOODSISLOCKED       870 // Товар заблокирован другим пользователем (%s)
-#define PPERR_ZIPEXTRACT          871 // Ошибка распаковки файла %s
-#define PPERR_INVPRCTSUM          872 // Сумма всех долей должна равна 100%
-#define PPERR_DUPGOODSGROUP       873 // Дублирование товарной группы в списке
-#define PPERR_CHKDATENEEDED       874 // Необходимо указать дату чека
-#define PPERR_CHKNUMNEEDED        875 // Необходимо указать номер чека
-#define PPERR_CASHNUMNEEDED       876 // Необходимо указать номер кассы
-#define PPERR_CHKBYSCARDNFOUND    877 // Чек по указанной карте не найден
-#define PPERR_SCARDPERSONNODEF    878 // Неизвестен владелец карты
-#define PPERR_INT_TRFRLOADINGLOT  879 // Внутренняя ошибка: неверно загружены данные по лоту
-#define PPERR_DUPLOGINGDISABLED   880 // Вход в систему под этим именем с разных машин запрещен
-#define PPERR_REFAMTTYPENEEDED    881 // Необходимо указать тип комплементарной суммы
-#define PPERR_NRT_GOODS_UPDTAXGRP 882 // Нет прав для изменения налоговой группы товара '%s'
-#define PPERR_HISTBILLNOTFOUND    883 // История документа не найдена
-#define PPERR_INVDAYOFWEEK        884 // Недопустимый день недели (допускается [1..7])
-#define PPERR_DUPHOLIDAY          885 // Дублирование значения выходного дня //
-#define PPERR_DIRNOTEXISTS        886 // Каталог '%s' не существует
-#define PPERR_BUNOTEXISTSORINV    887 // Резервная копия (путь - %s) отсутсвует либо повреждена
-#define PPERR_DUPSCALEIP          888 // Дублирование IP-адреса весов (%s)
-#define PPERR_EXPFILEWRITEFAULT   889 // Ошибка записи в файл для экспорта
-#define PPERR_ATOL_IMPCHECKS      890 // Ошибка при импорте чеков из Атол
-#define PPERR_UNDEFPPOBJTYPE      891 // Неопределенный тип объекта (%s)
-#define PPERR_DUPPERSONREL        892 // Отношение с этой персоналией уже установлено
-#define PPERR_RELTYPENEEDED       893 // Необходимо задать тип отношений
-#define PPERR_SAMEPERSONREL       894 // Попытка установить отношение персоналии к самой себе
-#define PPERR_ATOL_CARD           895 // ATOL-CARD: %s (описание ошибки)
-#define PPERR_CRAZS_IMPCHECKS     896 // Ошибка при импорте чеков из Кристалл-АЗС
-#define PPERR_DUPRECOMPLETE       897 // Нельзя в один документ модификации вставлять более одной строки рекомплектации
-#define PPERR_NONCOMPLETEDLOT     898 // К лоту неприменима операция рекомплектации, поскольку он не скомплектованный
-#define PPERR_NONCOMPLCOMPONENT   899 // Выбранный товар или лот не является компонентом рекомплектуемого лота
-#define PPERR_LOTGENONRECOMPL     900 // Независимый выход на рекомплектации
-#define PPERR_INNNOTFOUND         901 // Для данной проводки наша организация не является ни плательщиком, ни получателем
-#define PPERR_ASSOCNOTFOUND       902 // Не настроены ассоциации импорта из системы клиент-банк
-#define PPERR_DOC_ALREADY_EXISTS  903 // Аналогичный документ уже существует
-#define PPERR_ASSOCCOLLISION      904 // Найдено более одной ассоциации импорта из системы клиент-банк
-#define PPERR_CLIBNKCFG_NOTFOUND  905 // Не настроены конфигурации импорта/экспорта в систему клиент-банк
-#define PPERR_CASHNODENEEDED      906 // Необходимо указать кассовый узел
-#define PPERR_DUPSUBSTALIASONARTICLE 907 // Дублирование алиаса счета в списке подстановки
-#define PPERR_ACCALIASNEEDED      908 // Необходимо выбрать алиас счета
-#define PPERR_UNABLERESOLVEALIAS  909 // @v4.6.4  Невозможно подставить счет вместо алиаса %s
-#define PPERR_CSESSCOMPLLOCKED    910 // @v4.6.4  Завершение кассовых сессий сверх 10-го уровня блокировано
-#define PPERR_DUPMRPTABLINKOBJ    911 // @v4.6.6  Дублирование связанного объекта в MRP-таблице
-#define PPERR_INVAR2LOCASSOC      912 // @v4.6.7  Инвалидная ассоциация статья-склад (%s)
-#define PPERR_INVLOC2ARASSOC      913 // @v4.6.7  Инвалидная ассоциация склад-статья (%s)
-#define PPERR_UNDEFCLIACCSHEET    914 // @v4.6.8  Не определена таблица статей покупателей
-#define PPERR_UNDEFAGENTACCSHEET  915 // @v4.6.8  Не определена таблица статей агентов
-#define PPERR_NOWEEKDAYS          916 // @v4.6.9  Не задано ни одного дня недели
-#define PPERR_PROBDBINDEXFAULT    917 // @v4.6.11 Вероятна ошибка в индексе таблицы БД '%s'
-#define PPERR_EXPANDCHILDGSTRUC   918 // @v4.7.0  Нельзя расширять дочернюю структуру товара
-#define PPERR_REDUCEMULTGSTRUCFOLDER 919 // @v4.7.0 Нельзя редуцировать структуру имеющую более одного элемента
-#define PPERR_CYCLELINKGOODSGRP   920 // @v4.7.0 Циклическая ссылка в товарной группе '%s'
-#define PPERR_INVPRCKIND          921 // @v4.7.0 Внутренняя ошибка: недопустимый вид процессора (%s)
-#define PPERR_CODENEEDED          922 // @v4.7.0 Необходимо ввести код
-#define PPERR_PRCNEEDED           923 // @v4.7.0 Необходимо выбрать процессор
-#define PPERR_PRGNPRDNEEDED       924 // @v4.7.0  Необходимо ввести период прогноза
-#define PPERR_TECHNEEDED          925 // @v4.7.2  Необходимо выбрать технологию
-#define PPERR_CYCLELINKPRC        926 // @v4.7.2 Циклическая ссылка в процессоре '%s'
-#define PPERR_INVTSESSTTRANSITION 927 // @v4.7.2 Недопустимое изменение статуса технологической сессии
-#define PPERR_PRCISBUSY           928 // @v4.7.2 Процессор в указанное время занят %s
-#define PPERR_WROFFUNCLOSEDTSESS  929 // @v4.7.2 Списывать можно только закрытые техн сессии
-#define PPERR_ADDTOINACTSESS      930 // @v4.7.3 Нельзя добавлять строки в неактивную технологическую сессию
-#define PPERR_TSESSWRITEDOFF      931 // @v4.7.3 Сессия списана - операция невозможна
-#define PPERR_UNDEFPRCLOC         932 // @v4.7.3 Не определен склад процессора - списание невозможно
-#define PPERR_GSTRUCNEEDED        933 // @v4.7.4 Необходимо выбрать структуру товара
-#define PPERR_BASEMRPNFOUND       934 // @v4.7.5 Внутренняя ошибка: не найдена базовая MRP-таблица
-#define PPERR_UNDEFMRPLEAF        935 // @v4.7.5 Внутренняя ошибка: MRP-лист не найден в MRP-пакете
-#define PPERR_PORTNEEDED          936 // @v4.7.6 Необходимо указать порт вывода
-#define PPERR_CUSTDISP_INVPORT    937 // @v4.7.6 Неверный порт вывода для дисплея покупателя //
-#define PPERR_IMPEXPPATHNOTVALID  938 // @v4.7.8 Путь импорта экспорта не определен
-#define PPERR_INVOPNOTDEF         939 // @v4.7.8 Не определена операция инвентаризации
-#define PPERR_PARENTISNTSUPERSESS 940 // @v4.7.8 Родительская сессия должна иметь признак суперсессии
-#define PPERR_INCOMPSUPERSESSPRC  941 // @v4.7.8 Суперсессия принадлежит процессору, к которому дочерняя технологическая сессия не относится //
-#define PPERR_CHILDOLDERSUPERSESS 942 // @v4.7.8 Дочерняя техн сессия должна начинаться не ранее суперсессии
-#define PPERR_CHILDCANTBESUPERSESS 943 // @v4.7.8 Дочерняя техн сессия не может быть суперсессией
-#define PPERR_INVSUPERSESSSTATUS  944 // @v4.7.8 Статус присваиваемой суперсессии не может быть TSESST_CLOSED или TSESST_CANCELED
-#define PPERR_INVCHILDTSESSSTATUS 945 // @v4.7.8 Нельзя переприсваивать закрытую или отмененную сессию другой суперсессии
-#define PPERR_INTREXPNDNOTDEF     946 // операция межскладской передачи не определена
-#define PPERR_INVCAPACITYVAL      947 // Недопустимые значения структуры CalcCapacity
-#define PPERR_INVOPONTSUPERSESS   948 // Недопустимая операция для технологической суперсессии
-#define PPERR_CHKFMTDEF           949 // Ошибка определения формата чека
-#define PPERR_DUPGOODSTOOBJASSOC  950 // Дублирование товара в списке ассоциаций товар-объект
-#define PPERR_GOODS2OBJASSCNFOUND 951 // Не найден товар %s в таблице ассоциаций товар-объект
-#define PPERR_INVCSESSDFCTOP      952 // Вид операции покрытия дефицита по кассовой сессии должен быть драфт-операцией
-#define PPERR_CASHNNNOTVALID      953 // Номера кассовых аппаратов введены неверно
-#define PPERR_RULENOTSEL          954 // Правило не выбрано
-#define PPERR_ASCASHNREADYFOREXP  955 // Кассовая машина не готова к приему данных
-#define PPERR_BARCODEEXISTS       956 // Заданный штрихкод существует {%s}
-#define PPERR_RMVACTIVECSESS      957 // Нельзя удалять активную кассовую сессию
-#define PPERR_GOODSRCPTDISABLED   958 // Товар заблокирован для поступления //
-#define PPERR_SUPPLDEALVIOLATION  959 // Цена поступления не соответствует контрактной цене поставщика %s
-#define PPERR_QUOTNOTSEL          962 // Котировка не выбрана
-#define PPERR_DUPLPLU             963 // Такой PLU уже существует
-#define PPERR_DIRNOTWACCS         964 // Каталог '%s' не существует или не доступен для записи
-#define PPERR_NSUBSTMRPLINEONSUBST 965 // При попытке замещения товара в MRP-таблице пара замещаемый-замещающий не может быть использована
-#define PPERR_MRPSUBSTNTERM       966 // Попытка замещения нетерминальной позиции MRP-таблицы
-#define PPERR_INVMRPSUBSTQTTY     967 // Недопустимое изменение замещаемого количества в MRP-таблице\n\003%s
-#define PPERR_DVCTYPENEEDED       968 // Необходимо указать тип устройства
-#define PPERR_INVGENERICGOODSOP   969 // Обобщенный товар '%s' не может быть использован в документах //
-#define PPERR_SCALE_INVLOGNUM     970 // Логический номер весов должен находиться в диапазоне 1..254
-#define PPERR_INTRSTRNOVRRNG      971 // Пересечение диапазонов оборотов
-#define PPERR_TRNOVRRNG           972 // Верхняя граница диапазона, должна быть больше нижней
-#define PPERR_BARCODEORSERNFOUND  973 // Штрихкод или серийный номер '%s' не найден
-#define PPERR_INVTODOSTATUS       974 // Недопустимый статус задачи
-#define PPERR_SCARDCLOSED         976 // Карта '%s' закрыта для использования //
-#define PPERR_CHECKNOTFOUND       977 // Чек не найден
-#define PPERR_CANTUPDGDSCLSPROP   978 // Невозможно подменить тип объекта в свойстве класса товара
-#define PPERR_INVGDSCLSDIM        979 // Недопустимое значение размерности '%s' для товара
-#define PPERR_GDSCLSDISABLED      980 // Модуль управления классами товаров заблокирован
-#define PPERR_BL_EXT2GOODS        981 // Висячая ссылка от расширения товара к товару (%s)
-#define PPERR_INVSERVERCMD        983 // Недопустимая команда сервера '%s'
-#define PPERR_INVTIMEINPUT        984 // Неправильный ввод времени
-#define PPERR_DBSYMBUNDEF         989 // Не определен символ текущей базы данных
-#define PPERR_JOBSTRGCORRUPTED    990 // Хранилище пакетных задач повреждено
-#define PPERR_JOBUNIMPL           991 // Серверная задача '%s' не реализована
-#define PPERR_STOPED              992 // Процесс остановлен
-#define PPERR_CYCLEGOODSSTRUC     993 // Рекурсивная структура товара
-#define PPERR_BILLST_DENY_MOD     994 // Статус документа запрещает его модификацию
-#define PPERR_BILLST_DENY_DEL     995 // Статус документа запрещает его удаление
-#define PPERR_SCARDFCONFLICT      996 // Противоречивые установочные флаги пластиковых карт
-#define PPERR_DBDIRNFOUND         997 // Каталог '%s' базы данных не найден
-#define PPERR_INVOBJ              998 // Для передачи изменений должен быть указан хотя бы один объект
-#define PPERR_CGLRECNFOUND        999 // Не найдена запись в таблице CGoodsLine
-#define PPERR_INVCSESSTEMPOP     1001 // Вид операции покрытия временных кассовых сессий должен быть драфт-операцией
-#define PPERR_PRCPAN_GOODSUNDEF  1002 // В панели процессора не определен товар
-#define PPERR_PRCPAN_PACKUNDEF   1003 // Для выбранного товара не определена емкость упаковки
-#define PPERR_INVTSESLINESIGN    1004 // Недопустимый знак '%s' строки технологической сессии
-#define PPERR_UNKNOWNPRCNAME     1005 // Неизвестное имя процессора '%s'
-#define PPERR_DIRACCESSDENIED_W  1006 // Каталог '%s' не доступен для записи
-#define PPERR_FTPSRVREPLYERR     1010 // FTP сервер вернул ошибку %s
-#define PPERR_BARLABELPRINTFAULT 1011 // Ошибка печать этикетки
+// @v9.4.8 #define PPERR_DS_UNEXPEOF         601 // Unexpected EOF
+// @v9.4.8 #define PPERR_DS_EXPEQ            602 // Expected '='
+// @v9.4.8 #define PPERR_DS_EXPLEFTBRACE     603 // Expected '{'
+// @v9.4.8 #define PPERR_DS_EXPRIGHTBRACKET  604 // Expected ']'
+// @v9.4.8 #define PPERR_DS_STRUCITEMNFOUND  605 // Не найден элемент структуры %s
+// @v9.4.8 #define PPERR_DS_TYPENAMENFOUND   606 // Не найдена структура с именем %s
+// @v9.4.8 #define PPERR_DS_TYPENAMEEXISTS   607 // Структура с именем %s уже существует
+// @v9.4.8 #define PPERR_DS_STRUCTYPENFOUND  608 // Структура с типом %s не найдена
+// @v9.4.8 #define PPERR_DS_STRUCITEMEXISTS  609 // Элемент структуры %s уже существует
+// @v9.4.8 #define PPERR_DS_EXPRBRACEORNAME  610 // Ожидается '}' или имя пол
+// @v9.4.8 #define PPERR_DS_SYNTAX           611 // Синтаксическая ошибка
+// @v10.5.11 #define PPERR_CANTFOUNDUNLOCKEDGB 701 // Все корзины заблокированы другими пользователями
+// @v10.5.11 #define PPERR_DUPLBNKACCT         702 // Дублируемое значение счета банка
+// @v10.5.11 #define PPERR_ABSLOTS             703 // 'Отсутствующий лот {@goods - @loc - @int @bill}' (RecoverAbsenceLots)
+// @v10.5.11 #define PPERR_SCARDIDNEEDEDFOROP  704 // Internal error: При добавлении или модификации операции по карте необходим ID карты
+// @v10.5.11 #define PPERR_RCVMAIL             705 // Ошибка при принятии почты из инета
+// @v10.5.11 #define PPERR_SENDMAIL            706 // Ошибка при отправке почты через интернет
+// @v10.5.11 #define PPERR_CANTCONNECTINET     708 // Ошибка при подключении к интернету
+// @v10.5.11 #define PPERR_CANTCONNECTMAIL     709 // Ошибка при подключении к почтовому серверу
+// @v10.5.11 #define PPERR_CODERNOTSUPPORTED   710 // Данная кодировка вложенных файлов не поддерживается //
+// @v10.5.11 #define PPERR_GETATTACHS          711 // Ошибка при извлечении вложенных файлов
+// @v10.5.11 #define PPERR_CANTDELMSG          712 // Ошибка при удалении сообщения с почтового сервера
+// @v10.5.11 #define PPERR_UNDEFDWODFCTOP      713 // Не определена операция компенсации дефицита для списания драфт-операций
+// @v10.5.11 #define PPERR_UNDEFPPCFUNCID      714 // Неопределенный ид функции калькулятора
+// @v10.5.11 #define PPERR_INVPPCFUNCPARCOUNT  715 // Неправильное число параметров в функции калькулятора
+// @v10.5.11 #define PPERR_INVAMOUNT           716 // Недопустимое значение суммы
+// @v10.5.11 #define PPERR_INVTIIDX            717 // Недопустимый индекс товарной строки документа
+// @v10.5.11 #define PPERR_DRIVEUNAVELAIBLE    718 // Ошибка при чтении диска
+// @v10.5.11 #define PPERR_INVALBORDOPID       719 // Не задана операция для принятия заказов
+// @v10.5.11 #define PPERR_INVLOTREFINPCKG     720 // Сбойная ссылка элемента пакета на лот
+// @v10.5.11 #define PPERR_INVPCKGIDS          721 // Сбойные идентификаторы товарного пакета %s
+// @v10.5.11 #define PPERR_CANTSENDBILLSTODIV  722 // В раздел данных '%s' нельзя передавать документы
+// @v10.5.11 #define PPERR_CANTGENACCNUMBER    723 // Не удается автоматически создать номер счета
+// @v10.5.11 #define PPERR_ACCNUMORCODENEEDED  724 // Необходимо ввести код или номер счета
+// @v10.5.11 #define PPERR_CANTREADRDIQUEUE    801 // Ошибка чтения очереди данных для модели ARIMA %s
+// @v10.5.11 #define PPERR_INVCFGPSALES        802 // Конфигурация прогноза продаж не задана либо задана не верно
+// @v10.5.11 #define PPERR_INVMOVFAILONSAMEGOODS 803 // Недопустимая попытка вставки в инвентаризацию строки с уже существующим товаром %s
+// @v10.5.11 #define PPERR_NONEREGISTEROPS     804 // Не настроена операция регистровой проводки либо недостаточно прав для ее использования //
+// @v10.5.11 #define PPERR_INVACCSUPPL         805 // В настройках неправильно указан счет поставщиков
+// @v10.5.11 #define PPERR_DUPBASKETITEM       806 // Дублирование товара в корзине
+// @v10.5.11 #define PPERR_DUPGENOPITEM        807 // Дублирование операции в списке обобщения //
+// @v10.5.11 #define PPERR_UNDEFRECEIPTOP      808 // Не определена операция прихода товара от поставщика
+// @v10.5.11 #define PPERR_UNEQBUYERTPID       809 // Пустой либо несоответствующий ИНН покупателя во входящем документе
+// @v10.5.11 #define PPERR_ALDD_NOFINDDS       810 // Структура данных не найдена в файле (%s)
+// @v10.5.11 #define PPERR_BASKETNEEDED        811 // Необходимо выбрать корзину
+// @v10.5.11 #define PPERR_REGISTERNEEDED      812 // Необходимо ввести регистр: %s
+// @v10.5.11 #define PPERR_ABSGOODS            813 // Отсутствует товар (function RecoverAbsenceGoods())
+// @v10.5.11 #define PPERR_INVOP               815 // Операция не задана или задана неверно
+// @v10.5.11 #define PPERR_INVSCARDNUM         816 // Номер карточки не задан или задан неверно
+// @v10.5.11 #define PPERR_SCRDCLOSEDSRV       817 // Карта блокирована для данной службы
+// @v10.5.11 #define PPERR_PPOS_NSYNCCMPMODE   818 // Внутренняя ошибка: поток связи открыт не в режиме передачи сравнения синхронизации
+// @v10.5.11 #define PPERR_PPOS_NOBJTRANMODE   819 // Внутренняя ошибка: поток связи открыт не в режиме передачи объектов
+// @v10.5.11 #define PPERR_ONGRAPHSHOW         820 // Ошибка при отображении диаграммы
+// @v10.5.11 #define PPERR_CASHSRV_IMPCHECKS   821 // Ошибка при импорте чеков в Кристалл-Кассовом сервере
+// @v10.5.11 #define PPERR_INVARMAPQ           822 // Недопустимые значения параметра P или Q в модели прогноза (0..30) [GoodsID=%s]
+// @v10.5.11 #define PPERR_INVARMAMODELSIZE    823 // Внутренняя ошибка: сбойные длины векторов в модели прогноза [GoodsID=%s]
+// @v10.5.11 #define PPERR_ARMARECCORRUPTED    824 // Сбойная запись параметров модели прогноза [GoodsID=%s]
+// @v10.5.11 #define PPERR_PREDICTHOLESFAULT   825 // Внутренняя ошибка: Сбой функции заполнения пропусков таблицы продаж
+// @v10.5.11 #define PPERR_ORDRESERVEEXHAUSTED 826 // Исчерпан зарезервированный остаток товара %s
+// @v10.5.11 #define PPERR_OPHASNTEXTOBJ       827 // Операция не имеет дополнительного объекта
+// @v10.5.11 #define PPERR_COMINTERFACE        828 // COM-интерфейс: код возврата %s
+// @v10.5.11 #define PPERR_SYNCCASH_INVPORT    829 // Неверный порт вывода (должен быть COM)
+// @v10.5.11 #define PPERR_SYNCCASH_NO_CHK_RBN 830 // Нет чековой ленты
+// @v10.5.11 #define PPERR_SYNCCASH_NO_JRN_RBN 831 // Нет контрольной ленты
+// @v10.5.11 #define PPERR_SYNCCASH_DAYCLOSED  832 // День уже закрыт
+// @v10.5.11 #define PPERR_SYNCCASH            833 // %s (описание ошибки)
+// @v10.5.11 #define PPERR_SYNCCASH_NO_CASH    834 // Не хватает наличности в кассе
+// @v10.5.11 #define PPERR_SYNCCASH_OVERFLOW   835 // ЭКЛЗ или ФП переполнена
+// @v10.5.11 #define PPERR_INVVATBOOKKIND      850 // Внутренняя ошибка: недопустимый вид книги продаж/покупок
+// @v10.5.11 #define PPERR_POP3SRVREPLYERR     851 // Почтовый сервер POP3 вернул ошибку %s
+// @v10.5.11 #define PPERR_POP3SRVNOREPLY      852 // Почтовый сервер POP3 не отвечает
+// @v10.5.11 #define PPERR_SMTPSRVREPLYERR     853 // Почтовый сервер SMTP вернул ошибку %s
+// @v10.5.11 #define PPERR_SMTPSRVNOREPLY      854 // Почтовый сервер SMTP не отвечает
+// @v10.5.11 #define PPERR_MAILSESSNOTCONNECT  855 // Внутренняя ошибка: почтовая сессия не инициализирована
+// @v10.5.11 #define PPERR_BHTLDPGMNOTSUPPR    856 // Загрузка программы для этого типа терминалов не поддерживается //
+// @v10.5.11 #define PPERR_ASSETGOODSNEEDED    857 // В этот документ допускается вставка только объектов основных средств
+// @v10.5.11 #define PPERR_INVCLIAGTDIS        858 // Скидка в соглашении должна быть в диапазоне [-100..+100] и не превышать максимальную скидку
+// @v10.5.11 #define PPERR_INVEXPOP            859 // Операция отгрузки не задана либо задана неверно
+// @v10.5.11 #define PPERR_CLNBNKSYNTAX        861 // Ошибка разбора формата экспорта в систему клиент-банк %s
+// @v10.5.11 #define PPERR_WARRANT_OVERFLOW    862 // Кол-во строк в доверенности больше максимального
+// @v10.5.11 #define PPERR_INVQUOTLIST         863 // Inside error: ИД товара в списке котировок не соответствует переданному параметру
+// @v10.5.11 #define PPERR_UNDEFALBATROCONFIG  864 // Не определена конфигурация обмена данными по электронной почте
+// @v10.5.11 #define PPERR_UNDEFMAILACC        865 // Учетная запись электронной почты не определена или определена не полностью
+// @v10.5.11 #define PPERR_BHTMAXRECSREACHED   866 // Достигнуто максимально возможное кол-во строк, которое может\n\003быть передано на терминал
+// @v10.5.11 #define PPERR_QUOTKINDNEEDED      867 // Необходимо выбрать вид котировки
+// @v10.5.11 #define PPERR_MAILACCNEEDED       869 // Необходимо указать почтовую учетную запись
+// @v10.5.11 #define PPERR_GOODSISLOCKED       870 // Товар заблокирован другим пользователем (%s)
+// @v10.5.11 #define PPERR_ZIPEXTRACT          871 // Ошибка распаковки файла %s
+// @v10.5.11 #define PPERR_INVPRCTSUM          872 // Сумма всех долей должна равна 100%
+// @v10.5.11 #define PPERR_DUPGOODSGROUP       873 // Дублирование товарной группы в списке
+// @v10.5.11 #define PPERR_CHKDATENEEDED       874 // Необходимо указать дату чека
+// @v10.5.11 #define PPERR_CHKNUMNEEDED        875 // Необходимо указать номер чека
+// @v10.5.11 #define PPERR_CASHNUMNEEDED       876 // Необходимо указать номер кассы
+// @v10.5.11 #define PPERR_CHKBYSCARDNFOUND    877 // Чек по указанной карте не найден
+// @v10.5.11 #define PPERR_SCARDPERSONNODEF    878 // Неизвестен владелец карты
+// @v10.5.11 #define PPERR_INT_TRFRLOADINGLOT  879 // Внутренняя ошибка: неверно загружены данные по лоту
+// @v10.5.11 #define PPERR_DUPLOGINGDISABLED   880 // Вход в систему под этим именем с разных машин запрещен
+// @v10.5.11 #define PPERR_REFAMTTYPENEEDED    881 // Необходимо указать тип комплементарной суммы
+// @v10.5.11 #define PPERR_NRT_GOODS_UPDTAXGRP 882 // Нет прав для изменения налоговой группы товара '%s'
+// @v10.5.11 #define PPERR_HISTBILLNOTFOUND    883 // История документа не найдена
+// @v10.5.11 #define PPERR_INVDAYOFWEEK        884 // Недопустимый день недели (допускается [1..7])
+// @v10.5.11 #define PPERR_DUPHOLIDAY          885 // Дублирование значения выходного дня //
+// @v10.5.11 #define PPERR_DIRNOTEXISTS        886 // Каталог '%s' не существует
+// @v10.5.11 #define PPERR_BUNOTEXISTSORINV    887 // Резервная копия (путь - %s) отсутсвует либо повреждена
+// @v10.5.11 #define PPERR_DUPSCALEIP          888 // Дублирование IP-адреса весов (%s)
+// @v10.5.11 #define PPERR_EXPFILEWRITEFAULT   889 // Ошибка записи в файл для экспорта
+// @v10.5.11 #define PPERR_ATOL_IMPCHECKS      890 // Ошибка при импорте чеков из Атол
+// @v10.5.11 #define PPERR_UNDEFPPOBJTYPE      891 // Неопределенный тип объекта (%s)
+// @v10.5.11 #define PPERR_DUPPERSONREL        892 // Отношение с этой персоналией уже установлено
+// @v10.5.11 #define PPERR_RELTYPENEEDED       893 // Необходимо задать тип отношений
+// @v10.5.11 #define PPERR_SAMEPERSONREL       894 // Попытка установить отношение персоналии к самой себе
+// @v10.5.11 #define PPERR_ATOL_CARD           895 // ATOL-CARD: %s (описание ошибки)
+// @v10.5.11 #define PPERR_CRAZS_IMPCHECKS     896 // Ошибка при импорте чеков из Кристалл-АЗС
+// @v10.5.11 #define PPERR_DUPRECOMPLETE       897 // Нельзя в один документ модификации вставлять более одной строки рекомплектации
+// @v10.5.11 #define PPERR_NONCOMPLETEDLOT     898 // К лоту неприменима операция рекомплектации, поскольку он не скомплектованный
+// @v10.5.11 #define PPERR_NONCOMPLCOMPONENT   899 // Выбранный товар или лот не является компонентом рекомплектуемого лота
+// @v10.5.11 #define PPERR_LOTGENONRECOMPL     900 // Независимый выход на рекомплектации
+// @v10.5.11 #define PPERR_INNNOTFOUND         901 // Для данной проводки наша организация не является ни плательщиком, ни получателем
+// @v10.5.11 #define PPERR_ASSOCNOTFOUND       902 // Не настроены ассоциации импорта из системы клиент-банк
+// @v10.5.11 #define PPERR_DOC_ALREADY_EXISTS  903 // Аналогичный документ уже существует
+// @v10.5.11 #define PPERR_ASSOCCOLLISION      904 // Найдено более одной ассоциации импорта из системы клиент-банк
+// @v10.5.11 #define PPERR_CLIBNKCFG_NOTFOUND  905 // Не настроены конфигурации импорта/экспорта в систему клиент-банк
+// @v10.5.11 #define PPERR_CASHNODENEEDED      906 // Необходимо указать кассовый узел
+// @v10.5.11 #define PPERR_DUPSUBSTALIASONARTICLE 907 // Дублирование алиаса счета в списке подстановки
+// @v10.5.11 #define PPERR_ACCALIASNEEDED      908 // Необходимо выбрать алиас счета
+// @v10.5.11 #define PPERR_UNABLERESOLVEALIAS  909 // @v4.6.4  Невозможно подставить счет вместо алиаса %s
+// @v10.5.11 #define PPERR_CSESSCOMPLLOCKED    910 // @v4.6.4  Завершение кассовых сессий сверх 10-го уровня блокировано
+// @v10.5.11 #define PPERR_DUPMRPTABLINKOBJ    911 // @v4.6.6  Дублирование связанного объекта в MRP-таблице
+// @v10.5.11 #define PPERR_INVAR2LOCASSOC      912 // @v4.6.7  Инвалидная ассоциация статья-склад (%s)
+// @v10.5.11 #define PPERR_INVLOC2ARASSOC      913 // @v4.6.7  Инвалидная ассоциация склад-статья (%s)
+// @v10.5.11 #define PPERR_UNDEFCLIACCSHEET    914 // @v4.6.8  Не определена таблица статей покупателей
+// @v10.5.11 #define PPERR_UNDEFAGENTACCSHEET  915 // @v4.6.8  Не определена таблица статей агентов
+// @v10.5.11 #define PPERR_NOWEEKDAYS          916 // @v4.6.9  Не задано ни одного дня недели
+// @v10.5.11 #define PPERR_PROBDBINDEXFAULT    917 // @v4.6.11 Вероятна ошибка в индексе таблицы БД '%s'
+// @v10.5.11 #define PPERR_EXPANDCHILDGSTRUC   918 // @v4.7.0  Нельзя расширять дочернюю структуру товара
+// @v10.5.11 #define PPERR_REDUCEMULTGSTRUCFOLDER 919 // @v4.7.0 Нельзя редуцировать структуру имеющую более одного элемента
+// @v10.5.11 #define PPERR_CYCLELINKGOODSGRP   920 // @v4.7.0 Циклическая ссылка в товарной группе '%s'
+// @v10.5.11 #define PPERR_INVPRCKIND          921 // @v4.7.0 Внутренняя ошибка: недопустимый вид процессора (%s)
+// @v10.5.11 #define PPERR_CODENEEDED          922 // @v4.7.0 Необходимо ввести код
+// @v10.5.11 #define PPERR_PRCNEEDED           923 // @v4.7.0 Необходимо выбрать процессор
+// @v10.5.11 #define PPERR_PRGNPRDNEEDED       924 // @v4.7.0  Необходимо ввести период прогноза
+// @v10.5.11 #define PPERR_TECHNEEDED          925 // @v4.7.2  Необходимо выбрать технологию
+// @v10.5.11 #define PPERR_CYCLELINKPRC        926 // @v4.7.2 Циклическая ссылка в процессоре '%s'
+// @v10.5.11 #define PPERR_INVTSESSTTRANSITION 927 // @v4.7.2 Недопустимое изменение статуса технологической сессии
+// @v10.5.11 #define PPERR_PRCISBUSY           928 // @v4.7.2 Процессор в указанное время занят %s
+// @v10.5.11 #define PPERR_WROFFUNCLOSEDTSESS  929 // @v4.7.2 Списывать можно только закрытые техн сессии
+// @v10.5.11 #define PPERR_ADDTOINACTSESS      930 // @v4.7.3 Нельзя добавлять строки в неактивную технологическую сессию
+// @v10.5.11 #define PPERR_TSESSWRITEDOFF      931 // @v4.7.3 Сессия списана - операция невозможна
+// @v10.5.11 #define PPERR_UNDEFPRCLOC         932 // @v4.7.3 Не определен склад процессора - списание невозможно
+// @v10.5.11 #define PPERR_GSTRUCNEEDED        933 // @v4.7.4 Необходимо выбрать структуру товара
+// @v10.5.11 #define PPERR_BASEMRPNFOUND       934 // @v4.7.5 Внутренняя ошибка: не найдена базовая MRP-таблица
+// @v10.5.11 #define PPERR_UNDEFMRPLEAF        935 // @v4.7.5 Внутренняя ошибка: MRP-лист не найден в MRP-пакете
+// @v10.5.11 #define PPERR_PORTNEEDED          936 // @v4.7.6 Необходимо указать порт вывода
+// @v10.5.11 #define PPERR_CUSTDISP_INVPORT    937 // @v4.7.6 Неверный порт вывода для дисплея покупателя //
+// @v10.5.11 #define PPERR_IMPEXPPATHNOTVALID  938 // @v4.7.8 Путь импорта экспорта не определен
+// @v10.5.11 #define PPERR_INVOPNOTDEF         939 // @v4.7.8 Не определена операция инвентаризации
+// @v10.5.11 #define PPERR_PARENTISNTSUPERSESS 940 // @v4.7.8 Родительская сессия должна иметь признак суперсессии
+// @v10.5.11 #define PPERR_INCOMPSUPERSESSPRC  941 // @v4.7.8 Суперсессия принадлежит процессору, к которому дочерняя технологическая сессия не относится //
+// @v10.5.11 #define PPERR_CHILDOLDERSUPERSESS 942 // @v4.7.8 Дочерняя техн сессия должна начинаться не ранее суперсессии
+// @v10.5.11 #define PPERR_CHILDCANTBESUPERSESS 943 // @v4.7.8 Дочерняя техн сессия не может быть суперсессией
+// @v10.5.11 #define PPERR_INVSUPERSESSSTATUS  944 // @v4.7.8 Статус присваиваемой суперсессии не может быть TSESST_CLOSED или TSESST_CANCELED
+// @v10.5.11 #define PPERR_INVCHILDTSESSSTATUS 945 // @v4.7.8 Нельзя переприсваивать закрытую или отмененную сессию другой суперсессии
+// @v10.5.11 #define PPERR_INTREXPNDNOTDEF     946 // операция межскладской передачи не определена
+// @v10.5.11 #define PPERR_INVCAPACITYVAL      947 // Недопустимые значения структуры CalcCapacity
+// @v10.5.11 #define PPERR_INVOPONTSUPERSESS   948 // Недопустимая операция для технологической суперсессии
+// @v10.5.11 #define PPERR_CHKFMTDEF           949 // Ошибка определения формата чека
+// @v10.5.11 #define PPERR_DUPGOODSTOOBJASSOC  950 // Дублирование товара в списке ассоциаций товар-объект
+// @v10.5.11 #define PPERR_GOODS2OBJASSCNFOUND 951 // Не найден товар %s в таблице ассоциаций товар-объект
+// @v10.5.11 #define PPERR_INVCSESSDFCTOP      952 // Вид операции покрытия дефицита по кассовой сессии должен быть драфт-операцией
+// @v10.5.11 #define PPERR_CASHNNNOTVALID      953 // Номера кассовых аппаратов введены неверно
+// @v10.5.11 #define PPERR_RULENOTSEL          954 // Правило не выбрано
+// @v10.5.11 #define PPERR_ASCASHNREADYFOREXP  955 // Кассовая машина не готова к приему данных
+// @v10.5.11 #define PPERR_BARCODEEXISTS       956 // Заданный штрихкод существует {%s}
+// @v10.5.11 #define PPERR_RMVACTIVECSESS      957 // Нельзя удалять активную кассовую сессию
+// @v10.5.11 #define PPERR_GOODSRCPTDISABLED   958 // Товар заблокирован для поступления //
+// @v10.5.11 #define PPERR_SUPPLDEALVIOLATION  959 // Цена поступления не соответствует контрактной цене поставщика %s
+// @v10.5.11 #define PPERR_QUOTNOTSEL          962 // Котировка не выбрана
+// @v10.5.11 #define PPERR_DUPLPLU             963 // Такой PLU уже существует
+// @v10.5.11 #define PPERR_DIRNOTWACCS         964 // Каталог '%s' не существует или не доступен для записи
+// @v10.5.11 #define PPERR_NSUBSTMRPLINEONSUBST 965 // При попытке замещения товара в MRP-таблице пара замещаемый-замещающий не может быть использована
+// @v10.5.11 #define PPERR_MRPSUBSTNTERM       966 // Попытка замещения нетерминальной позиции MRP-таблицы
+// @v10.5.11 #define PPERR_INVMRPSUBSTQTTY     967 // Недопустимое изменение замещаемого количества в MRP-таблице\n\003%s
+// @v10.5.11 #define PPERR_DVCTYPENEEDED       968 // Необходимо указать тип устройства
+// @v10.5.11 #define PPERR_INVGENERICGOODSOP   969 // Обобщенный товар '%s' не может быть использован в документах //
+// @v10.5.11 #define PPERR_SCALE_INVLOGNUM     970 // Логический номер весов должен находиться в диапазоне 1..254
+// @v10.5.11 #define PPERR_INTRSTRNOVRRNG      971 // Пересечение диапазонов оборотов
+// @v10.5.11 #define PPERR_TRNOVRRNG           972 // Верхняя граница диапазона, должна быть больше нижней
+// @v10.5.11 #define PPERR_BARCODEORSERNFOUND  973 // Штрихкод или серийный номер '%s' не найден
+// @v10.5.11 #define PPERR_INVTODOSTATUS       974 // Недопустимый статус задачи
+// @v10.5.11 #define PPERR_SCARDCLOSED         976 // Карта '%s' закрыта для использования //
+// @v10.5.11 #define PPERR_CHECKNOTFOUND       977 // Чек не найден
+// @v10.5.11 #define PPERR_CANTUPDGDSCLSPROP   978 // Невозможно подменить тип объекта в свойстве класса товара
+// @v10.5.11 #define PPERR_INVGDSCLSDIM        979 // Недопустимое значение размерности '%s' для товара
+// @v10.5.11 #define PPERR_GDSCLSDISABLED      980 // Модуль управления классами товаров заблокирован
+// @v10.5.11 #define PPERR_BL_EXT2GOODS        981 // Висячая ссылка от расширения товара к товару (%s)
+// @v10.5.11 #define PPERR_INVSERVERCMD        983 // Недопустимая команда сервера '%s'
+// @v10.5.11 #define PPERR_INVTIMEINPUT        984 // Неправильный ввод времени
+// @v10.5.11 #define PPERR_DBSYMBUNDEF         989 // Не определен символ текущей базы данных
+// @v10.5.11 #define PPERR_JOBSTRGCORRUPTED    990 // Хранилище пакетных задач повреждено
+// @v10.5.11 #define PPERR_JOBUNIMPL           991 // Серверная задача '%s' не реализована
+// @v10.5.11 #define PPERR_STOPED              992 // Процесс остановлен
+// @v10.5.11 #define PPERR_CYCLEGOODSSTRUC     993 // Рекурсивная структура товара
+// @v10.5.11 #define PPERR_BILLST_DENY_MOD     994 // Статус документа запрещает его модификацию
+// @v10.5.11 #define PPERR_BILLST_DENY_DEL     995 // Статус документа запрещает его удаление
+// @v10.5.11 #define PPERR_SCARDFCONFLICT      996 // Противоречивые установочные флаги пластиковых карт
+// @v10.5.11 #define PPERR_DBDIRNFOUND         997 // Каталог '%s' базы данных не найден
+// @v10.5.11 #define PPERR_INVOBJ              998 // Для передачи изменений должен быть указан хотя бы один объект
+// @v10.5.11 #define PPERR_CGLRECNFOUND        999 // Не найдена запись в таблице CGoodsLine
+// @v10.5.11 #define PPERR_INVCSESSTEMPOP     1001 // Вид операции покрытия временных кассовых сессий должен быть драфт-операцией
+// @v10.5.11 #define PPERR_PRCPAN_GOODSUNDEF  1002 // В панели процессора не определен товар
+// @v10.5.11 #define PPERR_PRCPAN_PACKUNDEF   1003 // Для выбранного товара не определена емкость упаковки
+// @v10.5.11 #define PPERR_INVTSESLINESIGN    1004 // Недопустимый знак '%s' строки технологической сессии
+// @v10.5.11 #define PPERR_UNKNOWNPRCNAME     1005 // Неизвестное имя процессора '%s'
+// @v10.5.11 #define PPERR_DIRACCESSDENIED_W  1006 // Каталог '%s' не доступен для записи
+// @v10.5.11 #define PPERR_FTPSRVREPLYERR     1010 // FTP сервер вернул ошибку %s
+// @v10.5.11 #define PPERR_BARLABELPRINTFAULT 1011 // Ошибка печать этикетки
 // @v10.1.7 #define PPERR_DUPLSCARDFOUND     1030 // Найдены дублирующиеся номера карточек
 // @v10.1.7 #define PPERR_RECURSIONFOUND     1031 // Найдена рекурсия //
 // @v10.1.7 #define PPERR_MUSTBETAG          1032 // Выбранное значение не является тегом
@@ -11540,154 +11535,154 @@
 // @v10.1.7 #define PPERR_PRCPANMUSTBEFREE   1047
 // @v10.1.7 #define PPERR_BILLFORANOTHERPRC  1048
 // @v10.1.7 #define PPERR_HANGGOODSPARENTLNK 1049 // Висячая ссылка на родителя в товаре '%s'
-#define PPERR_CMDMNGREADONLY     1050 // Внутренняя ошибка: менеджер команд открыт в режиме 'только-для-чтения'
-#define PPERR_CMDFILSIGN         1051 // Неверная сигнатура файла команд '%s'
-#define PPERR_CMDFILCRC          1052 // Нарушена целостность файла команд '%s'
-#define PPERR_MENUBLOCKED        1053 // Невозможно удалить. Данное меню используется //
-#define PPERR_TSESRECOMPLNOSER   1054 // Для рекомплектующей сессии основной товар должен выбираться по серийному номеру
-#define PPERR_TSESRECOMPLDIFSER  1055 // В рекомплектующей сессии не должно быть более одного серийного номера основного товара
-#define PPERR_INADEQSERIAL       1056 // Неадекватный серийный номер (%s)
-#define PPERR_DESKTOPBLOCKED     1057 // Невозможно удалить. Данный рабочий стол используется //
-#define PPERR_UNDEFCMDFILENAME   1058 // Не определено имя файла команд
-#define PPERR_DESKNOTFOUND       1060 // Рабочий стол не найден
-#define PPERR_PALMEXPIMPBLOCKED  1061 // Задача Импорт/Экспорт данных Palm заблокирована другим потоком или процессом
-#define PPERR_FTPSIZEINVALID     1062 // Размер файла на FTP сервере не равен размеру файла на локальной машине (файл - %s).
-#define PPERR_SENDTOFTP          1063 // Ошибка передачи данных на FTP
-#define PPERR_RCVFROMFTP         1064 // Ошибка при получении данных с FTP
-#define PPERR_UNKNOWN            1065 // Неизвестная ошибка
-#define PPERR_PAYDTLTBILLDT      1066 // Дата планируемого платежа не может быть меньше даты документа
-#define PPERR_FOREIGNPRCBILL     1067 // Документ обрабатывается процессором (%s), на который нельзя переключить панель ввода
-#define PPERR_BILLPRCSESSCLOSED  1068 // Сессия обработки документа уже закрыта
-#define PPERR_NOFREEPRC          1069 // Нет ни одного свободного процессора
-#define PPERR_PRCPAN_UNABLEXPIRY 1070 // Невозможно перейти в режим ввода срока годности. Выберите товар.
-#define PPERR_INVFLDCORR         1071 // Неверная строка в описании соответствий полей\n%s
-#define PPERR_IMPEXPFMTUNSUPP    1072 // Неподдерживаемый формат импорта/экспорта
-#define PPERR_IMPEXPREADONLY     1073 // Файл импорта/экспорта открыт только для чтения //
-#define PPERR_IMPEXNOPENED       1074 // Файл импорта/экспорта '%s' не открыт
-#define PPERR_BASELOCNOTDEF      1075 // Склад для определения базовой цены не выбран
-#define PPERR_BARLAB_NOWRAPTEXT  1076 // Описание этикетки '%s': строка переноса должна следовать за текстом с определенной длиной
-#define PPERR_BARLAB_NMBEXP      1077 // Описание этикетки '%s': ожидается числовое значение
-#define PPERR_BARLAB_POINTEXP    1078 // Описание этикетки '%s': ожидается координата x,y
-#define PPERR_BARLAB_STREXP      1079 // Описание этикетки '%s': ожидается строка
-#define PPERR_OBJGRPNEEDED       1080 // Необходимо указать группу объектов
-#define PPERR_ARNEEDED           1081 // Необходимо указать статью
-#define PPERR_DTRNEEDED          1082 // Необходимо указать периодичность
-#define PPERR_DUTYSCHEDNOCP      1083 // Для очередности дежурств '%s' не определено ни одной точки отсчета
-#define PPERR_DUTYSCHEDEMPTY     1084 // Очередность дежерств '%s' пуста
-#define PPERR_DUTYSCHEDENUMDT    1085 // Первая точка отсчета в очередности дежурств находится после заданного начала периода
-#define PPERR_PRCPAN_NOCOSTCFG   1086 // Невозможно перейти в режим ввода цены: не допускает конфигурация.
-#define PPERR_PRCPAN_UNABLCOST   1087 // Невозможно перейти в режим ввода цены: выберите товар.
-#define PPERR_GSTRUCHASNTMAINC   1088 // Структура '%s' не имеет основного компонента
-#define PPERR_GSTRUCHASNTGOODS   1089 // Структура не содержит товар '%s'
-#define PPERR_ARCODENFOUND       1090 // Статья по коду '%s' не найдена
-#define PPERR_CDY_PORTNINITED    1091 // Дисплей покупателя: порт не инициализирован
-#define PPERR_FILETYPENOTSEL     1092 // Не выбран тип создаваемого файла
-#define PPERR_SHTRIHFRADMPASSW   1093 // В pp.ini не описан пароль администратора
-#define PPERR_REGIONORCNTRYINV   1094 // Не выбрана страна или регион
-#define PPERR_CITYREGIONINV      1095 // Выбранный регион не принадлежит выбранной стране
-#define PPERR_UNKNOWNGOODSINFONAME 1100 // Неизвестное имя информационного киоска
-#define PPERR_SHTRIHPRINT        1101 // Штрих-Принт: %s (описание ошибки)
-#define PPERR_LNKFILESPATHINV    1102 // Недопустимый путь для присоединяемых файлов
-#define PPERR_MAXLINKFILESREACHED 1103 // Достигнуто максимально возможное количество [%d] присоединенных файлов для данного объекта
-#define PPERR_UNDEFGOODSMATRIX   1104 // Товарная матрица не определена в конфигурации товаров
-#define PPERR_NRT_UPDIMAGE       1105 // Нет прав для изменения присоединенной картинки
-#define PPERR_MAILACCOUNTSNF     1106 // Не найдено ни одного почтового акаунта
-#define PPERR_SUPPORTMAILNOTDEF  1107 // Не определен почтовый адрес службы сопровождения ([config]SupportMail=...)
-#define PPERR_UNMATCHGGRPKIND    1108 // Несоответствие между видом создаваемой группы '%s' и ее аналогом в базе данных
-#define PPERR_CSES_CHKAMOUNT     1109 // Рассогласование суммы  чеков по кассовой сессии (%s)
-#define PPERR_CSES_CHKDISCOUNT   1110 // Рассогласование скидки чеков по кассовой сессии (%s)
-#define PPERR_CSES_INNERSUPER    1111 // Суперсессия содержит внутреннюю суперсессию (%s)
-#define PPERR_CSES_WROFFAMOUNT   1112 // Рассогласование суммы списания по кассовой сессии (%s)
-#define PPERR_TAGBLOCKED         1115 // Невозможно удалить. Данный тег используетс
-#define PPERR_INVHDRSIZE         1116 // Неверный размер заголовка
-#define PPERR_MINVER             1117 // Работа с этой базой данных возможна начиная с версии %s программы Papyrus
-#define PPERR_VERHISTINVSIGN     1118 // Неверная сигнатура файла %s
-#define PPERR_INETACCOUNTNOTDEF  1119 // Почтовый акаунт не выбран
-#define PPERR_INVRECSIZE         1120 // Неверный размер записи
-#define PPERR_MAIL_INVSMTPSERVER      1121 // Не задан сервер входящей почты. Учетная запись [%s]
-#define PPERR_MAIL_INVSMTPSERVERPORT  1122 // Не задан порт сервера входящей почты. Учетная запись [%s]
-#define PPERR_MAIL_INVPOP3SERVER      1123 // Не задан сервер исходящей почты. Учетная запись [%s]
-#define PPERR_MAIL_INVPOP3SERVERPORT  1124 // Не задан порт сервера исходящей почты. Учетная запись [%s]
-#define PPERR_MAIL_INVFROMADDRESS     1125 // Не задан обратный почтовый адрес. Учетная запись [%s]
-#define PPERR_MAIL_RCVNAME            1126 // Не задано имя доступа к входящей почте. Учетная запись [%s]
-#define PPERR_MAIL_DUPINETACCOUNT     1127 // Почтовый акаунт [%s] уже существует
-#define PPERR_ABSLOTBILL         1130 // Отсутствует документ (id=@int) для отсутствующего лота {@goods - @loc - @int}
-#define PPERR_MUSTBELATINCHAR    1131 // Должны присутствовать только латинские буквы
-#define PPERR_INVCSESSIMPEXPPARAM     1132 // Неверно определены параметры импорта/экспорта кассовых сессий
-#define PPERR_INVFPVAL           1133 // Недопустимое значение числа с плавающей точкой (%s)
-#define PPERR_INVWORKTIME        1134 // Количество рабочих часов должно быть больше 0
-#define PPERR_DUPSTAFFCALDATE    1135 // Дублирование значения дня штатного календаря //
-#define PPERR_INVGOODSGRP        1136 // Товарная группа не указана
-#define PPERR_EXISTUNRESOLVDEDGOODS   1137 // Имеются неразрешенные товары
-#define PPERR_INVIP              1138 // Неверный IP адрес
-#define PPERR_ABSACCOUNT         1139 // Отсутствует счет [ID=%ld], [счет=%d, субсчет=%d]
-#define PPERR_INVCOMMAND         1140 // Неверная команда меню
-#define PPERR_INVSPECCODE        1141 // Не введен специальный код или комбинация клавиш
-#define PPERR_CMDASSCEXISTS      1142 // Команда ассоциированная с такой комбинацией клавиш(спец. кодом) уже существует
-#define PPERR_PNSOPKNOTFOUND     1143 // Вид персональной операции [Symb=%s] не найден
-#define PPERR_PERSONNOTFOUND     1144 // Персоналия с регистрационным номером=[%s] не найдена
-#define PPERR_CMDASSCNOTFOUND    1145 // Команда ассоциированная с кодом(комбинацией клавиш)=[%s] не найдена
-#define PPERR_REGTYPSRCHNOTEXISTS 1146 // Не задан тип регистрационного документа для поиска (вид персоналии - %s)
-#define PPERR_PARENTCALNOTFOUND   1147 // Не задан родительский календарь
-#define PPERR_OBJKINDNOTEQUAL    1148 // Объекты должны принадлежать одному виду
-#define PPERR_BILLST_DENY_CHANGELINK 1149 // Статус документ запрещает изменение связанного документа
-#define PPERR_UNDEFTASKWCODE        1225 // Не определена задача с кодом '%s'
-#define PPERR_DUPTASKCODE           1226 // Дублируемое значение кода задачи '%s'
-#define PPERR_NOPRINT_CN_ISLOCKED   1227 // Печать чека запрещена.\nКассовый узел заблокирован другим пользователем.
-#define PPERR_CCHKMUSTBEJUNK        1228 // Внутренняя ошибка: чек '%s' должен иметь признаки SUSPENDED | JUNK
-#define PPERR_MAXDUPPSNREL          1229 // Максимальное количество отношений между двумя персоналиями не может превышать 4
-#define PPERR_DL6_ICLSPARNOTIFACE   1230 // DL600  База '%s' класса не является интерфейсом
-#define PPERR_DL6_CLASSEXISTS       1231 // DL600  Класс %s уже определен
-#define PPERR_DL6_INVATTRLIB        1232 // DL600  Недопустимый атрибут '%s' библиотеки типов
-#define PPERR_CCHKNOMORESUSPENDED   1233 // Чек '%s' открыт другим пользователем
-#define PPERR_CHKPAN_SALERNEEDED    1234 // Для выполнения операции необходимо выбрать агента
-#define PPERR_DUPGOODS              1235 // Дублирование индекса в записи товара (%s)
-#define PPERR_DL6_NOENUM            1236 // Попытка вставить элемент перечисления в структуру, не являющуюся перечислением
-#define PPERR_UUIDNFOUND            1237 // UUID %s не найден
-#define PPERR_DL6_INVSCOPEKIND      1238 // Внутренняя ошибка: область видимости DL600 '%s' принадлежит другому виду
-#define PPERR_DL6_ICLSNOTIMPL       1239 // DL600  Класс '%s' не реализован
-#define PPERR_DL6_IMPFILENFOUND     1241 // Импортируемый файл %s не найден
-#define PPERR_STAFFCALNEEDED        1242 // Необходимо выбрать штатный календарь
-#define PPERR_NONPAIRPSNEVNT        1243 // Нарушение парности персональной операции '%s'
-#define PPERR_STAFFCALSYMBNFOUND    1244 // Символ '%s' штатного календаря не найден
-#define PPERR_DL6_DUPTYPEDEFINSCOPE 1245 // DL600  Дублирование typedef-определения '%s' в области видимости
-#define PPERR_INVINTRCORRLOC        1246 // Недопустимое значение корреспондентского склада во внутренней передаче '%s'
-#define PPERR_PSNDONTBELONGTOKIND   1247 // Персоналия не принадлежит заданному виду
-#define PPERR_PERSONBYREGNFOUND     1248 // Персоналия по регистру '%s' не найдена
-#define PPERR_PERSONBYREGNKIND      1249 // Персоналия '%s' по регистру не соответствует заданному виду
-#define PPERR_PERSONSBYREGNKIND     1250 // Персоналии по регистру '%s' не соответствуют заданному виду
-#define PPERR_FILTNEQTYPE           1251 // Не соответствующий тип фильтра
-#define PPERR_PPIFCFUNCNSUPPORTED   1252 // Функция не поддерживается //
-#define PPERR_DL6_CLSNFOUND         1253 // Кокласс '%s' не найден
-#define PPERR_DL6_IFCUUIDNFOUND     1254 // UUID интерфейса '%s' не найден
-#define PPERR_DL6_CTXNINITED        1255 // Контекст DL600 не инициализирован
-#define PPERR_NOTLOGGEDIN           1256 // Сеанс не авторизован в базе данных
-#define PPERR_UNKNOWNVIEWID         1257 // Неопределенный тип объекта PPView '%s'
-#define PPERR_DL6_ARGMUSTBECONST    1258 // Аргумент должен быть константой
-#define PPERR_BASEFILTUNSUPPORTED   1259 // Внутренняя ошибка: класс PPView не поддерживает PPBaseFilt
-#define PPERR_UNDEFVIEWID           1260 // Внутренняя ошибка: неопределенный идентификатор класса PPView
-#define PPERR_INVSTRUCTAG           1261 // Неверная метка структуры. Должно быть %s
-#define PPERR_AMTTYPENEEDED         1262 // Необходимо выбрать тип суммы
-#define PPERR_STAFFAMTINTERSECT     1263 // Пересечение периодов в штатных суммах
-#define PPERR_DUPPERSONPOST         1264 // Дублирование назначения персоналии на должность '%s'
-#define PPERR_CLOSEDPPOSTCREATING   1265 // Нельзя создавать закрытое штатное назначение
-#define PPERR_CLOSEDPOSTUPD         1266 // Нельзя менять персоналию и должность у закрытого назначения //
-#define PPERR_UNDEFPOSTSALCHARGEGRP 1267 // Для штатного назначения '%s' не определена группа начислений
-#define PPERR_SALPERIODINTERSECT    1268 // Пересечение периодов записей в таблице начисления зарплаты
-#define PPERR_SALCHARGENEEDED       1269 // Необходимо выбрать вид начисления //
-#define PPERR_STAFFPOSTNEEDED       1270 // Необходимо выбрать штатное назначение
-#define PPERR_PERSONCANTHAVEAMTS    1271 // Персоналия не может иметь списка сумм
-#define PPERR_UPDLINKNONEMPTYPRCGRP 1272 // Нельзя менять тип и группу связанного объкта для непустой группы процессоров
-#define PPERR_NEXISTGOODSINBILL     1273 // В документе указан несуществующий ИД товара (id=%s)
-#define PPERR_PERIODMUSTBECLOSED    1274 // Период [%s] должен быть закрытым
-#define PPERR_INVSUPPL              1275 // Не задан поставщик
-#define PPERR_INVEXPCFG             1276 // Не заданы опции экспорта
-#define PPERR_NRT_GOODS_UPDGTYPE    1277 // Нет прав для изменения типа товара '%s'
-#define PPERR_ADDLNCOMPLTSESS       1278 // Нельзя добавлять строки в списанную техн сессию
-#define PPERR_UPDLNCOMPLTSESS       1279 // Нельзя модифицировать строки списанной техн сессии
-#define PPERR_RMVLNCOMPLTSESS       1280 // Нельзя удалять строки из списанной техн сессии
-#define PPERR_STARTGTFINISH         1281 // Время начала не должно быть больше времени окончания //
-#define PPERR_UNDEFINNERBASEFILT    1282 // Внутренняя ошибка: неопределенный PPBaseFilt
+// @v10.5.11 #define PPERR_CMDMNGREADONLY     1050 // Внутренняя ошибка: менеджер команд открыт в режиме 'только-для-чтения'
+// @v10.5.11 #define PPERR_CMDFILSIGN         1051 // Неверная сигнатура файла команд '%s'
+// @v10.5.11 #define PPERR_CMDFILCRC          1052 // Нарушена целостность файла команд '%s'
+// @v10.5.11 #define PPERR_MENUBLOCKED        1053 // Невозможно удалить. Данное меню используется //
+// @v10.5.11 #define PPERR_TSESRECOMPLNOSER   1054 // Для рекомплектующей сессии основной товар должен выбираться по серийному номеру
+// @v10.5.11 #define PPERR_TSESRECOMPLDIFSER  1055 // В рекомплектующей сессии не должно быть более одного серийного номера основного товара
+// @v10.5.11 #define PPERR_INADEQSERIAL       1056 // Неадекватный серийный номер (%s)
+// @v10.5.11 #define PPERR_DESKTOPBLOCKED     1057 // Невозможно удалить. Данный рабочий стол используется //
+// @v10.5.11 #define PPERR_UNDEFCMDFILENAME   1058 // Не определено имя файла команд
+// @v10.5.11 #define PPERR_DESKNOTFOUND       1060 // Рабочий стол не найден
+// @v10.5.11 #define PPERR_PALMEXPIMPBLOCKED  1061 // Задача Импорт/Экспорт данных Palm заблокирована другим потоком или процессом
+// @v10.5.11 #define PPERR_FTPSIZEINVALID     1062 // Размер файла на FTP сервере не равен размеру файла на локальной машине (файл - %s).
+// @v10.5.11 #define PPERR_SENDTOFTP          1063 // Ошибка передачи данных на FTP
+// @v10.5.11 #define PPERR_RCVFROMFTP         1064 // Ошибка при получении данных с FTP
+// @v10.5.11 #define PPERR_UNKNOWN            1065 // Неизвестная ошибка
+// @v10.5.11 #define PPERR_PAYDTLTBILLDT      1066 // Дата планируемого платежа не может быть меньше даты документа
+// @v10.5.11 #define PPERR_FOREIGNPRCBILL     1067 // Документ обрабатывается процессором (%s), на который нельзя переключить панель ввода
+// @v10.5.11 #define PPERR_BILLPRCSESSCLOSED  1068 // Сессия обработки документа уже закрыта
+// @v10.5.11 #define PPERR_NOFREEPRC          1069 // Нет ни одного свободного процессора
+// @v10.5.11 #define PPERR_PRCPAN_UNABLEXPIRY 1070 // Невозможно перейти в режим ввода срока годности. Выберите товар.
+// @v10.5.11 #define PPERR_INVFLDCORR         1071 // Неверная строка в описании соответствий полей\n%s
+// @v10.5.11 #define PPERR_IMPEXPFMTUNSUPP    1072 // Неподдерживаемый формат импорта/экспорта
+// @v10.5.11 #define PPERR_IMPEXPREADONLY     1073 // Файл импорта/экспорта открыт только для чтения //
+// @v10.5.11 #define PPERR_IMPEXNOPENED       1074 // Файл импорта/экспорта '%s' не открыт
+// @v10.5.11 #define PPERR_BASELOCNOTDEF      1075 // Склад для определения базовой цены не выбран
+// @v10.5.11 #define PPERR_BARLAB_NOWRAPTEXT  1076 // Описание этикетки '%s': строка переноса должна следовать за текстом с определенной длиной
+// @v10.5.11 #define PPERR_BARLAB_NMBEXP      1077 // Описание этикетки '%s': ожидается числовое значение
+// @v10.5.11 #define PPERR_BARLAB_POINTEXP    1078 // Описание этикетки '%s': ожидается координата x,y
+// @v10.5.11 #define PPERR_BARLAB_STREXP      1079 // Описание этикетки '%s': ожидается строка
+// @v10.5.11 #define PPERR_OBJGRPNEEDED       1080 // Необходимо указать группу объектов
+// @v10.5.11 #define PPERR_ARNEEDED           1081 // Необходимо указать статью
+// @v10.5.11 #define PPERR_DTRNEEDED          1082 // Необходимо указать периодичность
+// @v10.5.11 #define PPERR_DUTYSCHEDNOCP      1083 // Для очередности дежурств '%s' не определено ни одной точки отсчета
+// @v10.5.11 #define PPERR_DUTYSCHEDEMPTY     1084 // Очередность дежерств '%s' пуста
+// @v10.5.11 #define PPERR_DUTYSCHEDENUMDT    1085 // Первая точка отсчета в очередности дежурств находится после заданного начала периода
+// @v10.5.11 #define PPERR_PRCPAN_NOCOSTCFG   1086 // Невозможно перейти в режим ввода цены: не допускает конфигурация.
+// @v10.5.11 #define PPERR_PRCPAN_UNABLCOST   1087 // Невозможно перейти в режим ввода цены: выберите товар.
+// @v10.5.11 #define PPERR_GSTRUCHASNTMAINC   1088 // Структура '%s' не имеет основного компонента
+// @v10.5.11 #define PPERR_GSTRUCHASNTGOODS   1089 // Структура не содержит товар '%s'
+// @v10.5.11 #define PPERR_ARCODENFOUND       1090 // Статья по коду '%s' не найдена
+// @v10.5.11 #define PPERR_CDY_PORTNINITED    1091 // Дисплей покупателя: порт не инициализирован
+// @v10.5.11 #define PPERR_FILETYPENOTSEL     1092 // Не выбран тип создаваемого файла
+// @v10.5.11 #define PPERR_SHTRIHFRADMPASSW   1093 // В pp.ini не описан пароль администратора
+// @v10.5.11 #define PPERR_REGIONORCNTRYINV   1094 // Не выбрана страна или регион
+// @v10.5.11 #define PPERR_CITYREGIONINV      1095 // Выбранный регион не принадлежит выбранной стране
+// @v10.5.11 #define PPERR_UNKNOWNGOODSINFONAME 1100 // Неизвестное имя информационного киоска
+// @v10.5.11 #define PPERR_SHTRIHPRINT        1101 // Штрих-Принт: %s (описание ошибки)
+// @v10.5.11 #define PPERR_LNKFILESPATHINV    1102 // Недопустимый путь для присоединяемых файлов
+// @v10.5.11 #define PPERR_MAXLINKFILESREACHED 1103 // Достигнуто максимально возможное количество [%d] присоединенных файлов для данного объекта
+// @v10.5.11 #define PPERR_UNDEFGOODSMATRIX   1104 // Товарная матрица не определена в конфигурации товаров
+// @v10.5.11 #define PPERR_NRT_UPDIMAGE       1105 // Нет прав для изменения присоединенной картинки
+// @v10.5.11 #define PPERR_MAILACCOUNTSNF     1106 // Не найдено ни одного почтового акаунта
+// @v10.5.11 #define PPERR_SUPPORTMAILNOTDEF  1107 // Не определен почтовый адрес службы сопровождения ([config]SupportMail=...)
+// @v10.5.11 #define PPERR_UNMATCHGGRPKIND    1108 // Несоответствие между видом создаваемой группы '%s' и ее аналогом в базе данных
+// @v10.5.11 #define PPERR_CSES_CHKAMOUNT     1109 // Рассогласование суммы  чеков по кассовой сессии (%s)
+// @v10.5.11 #define PPERR_CSES_CHKDISCOUNT   1110 // Рассогласование скидки чеков по кассовой сессии (%s)
+// @v10.5.11 #define PPERR_CSES_INNERSUPER    1111 // Суперсессия содержит внутреннюю суперсессию (%s)
+// @v10.5.11 #define PPERR_CSES_WROFFAMOUNT   1112 // Рассогласование суммы списания по кассовой сессии (%s)
+// @v10.5.11 #define PPERR_TAGBLOCKED         1115 // Невозможно удалить. Данный тег используетс
+// @v10.5.11 #define PPERR_INVHDRSIZE         1116 // Неверный размер заголовка
+// @v10.5.11 #define PPERR_MINVER             1117 // Работа с этой базой данных возможна начиная с версии %s программы Papyrus
+// @v10.5.11 #define PPERR_VERHISTINVSIGN     1118 // Неверная сигнатура файла %s
+// @v10.5.11 #define PPERR_INETACCOUNTNOTDEF  1119 // Почтовый акаунт не выбран
+// @v10.5.11 #define PPERR_INVRECSIZE         1120 // Неверный размер записи
+// @v10.5.11 #define PPERR_MAIL_INVSMTPSERVER      1121 // Не задан сервер входящей почты. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_INVSMTPSERVERPORT  1122 // Не задан порт сервера входящей почты. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_INVPOP3SERVER      1123 // Не задан сервер исходящей почты. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_INVPOP3SERVERPORT  1124 // Не задан порт сервера исходящей почты. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_INVFROMADDRESS     1125 // Не задан обратный почтовый адрес. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_RCVNAME            1126 // Не задано имя доступа к входящей почте. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_DUPINETACCOUNT     1127 // Почтовый акаунт [%s] уже существует
+// @v10.5.11 #define PPERR_ABSLOTBILL         1130 // Отсутствует документ (id=@int) для отсутствующего лота {@goods - @loc - @int}
+// @v10.5.11 #define PPERR_MUSTBELATINCHAR    1131 // Должны присутствовать только латинские буквы
+// @v10.5.11 #define PPERR_INVCSESSIMPEXPPARAM     1132 // Неверно определены параметры импорта/экспорта кассовых сессий
+// @v10.5.11 #define PPERR_INVFPVAL           1133 // Недопустимое значение числа с плавающей точкой (%s)
+// @v10.5.11 #define PPERR_INVWORKTIME        1134 // Количество рабочих часов должно быть больше 0
+// @v10.5.11 #define PPERR_DUPSTAFFCALDATE    1135 // Дублирование значения дня штатного календаря //
+// @v10.5.11 #define PPERR_INVGOODSGRP        1136 // Товарная группа не указана
+// @v10.5.11 #define PPERR_EXISTUNRESOLVDEDGOODS   1137 // Имеются неразрешенные товары
+// @v10.5.11 #define PPERR_INVIP              1138 // Неверный IP адрес
+// @v10.5.11 #define PPERR_ABSACCOUNT         1139 // Отсутствует счет [ID=%ld], [счет=%d, субсчет=%d]
+// @v10.5.11 #define PPERR_INVCOMMAND         1140 // Неверная команда меню
+// @v10.5.11 #define PPERR_INVSPECCODE        1141 // Не введен специальный код или комбинация клавиш
+// @v10.5.11 #define PPERR_CMDASSCEXISTS      1142 // Команда ассоциированная с такой комбинацией клавиш(спец. кодом) уже существует
+// @v10.5.11 #define PPERR_PNSOPKNOTFOUND     1143 // Вид персональной операции [Symb=%s] не найден
+// @v10.5.11 #define PPERR_PERSONNOTFOUND     1144 // Персоналия с регистрационным номером=[%s] не найдена
+// @v10.5.11 #define PPERR_CMDASSCNOTFOUND    1145 // Команда ассоциированная с кодом(комбинацией клавиш)=[%s] не найдена
+// @v10.5.11 #define PPERR_REGTYPSRCHNOTEXISTS 1146 // Не задан тип регистрационного документа для поиска (вид персоналии - %s)
+// @v10.5.11 #define PPERR_PARENTCALNOTFOUND   1147 // Не задан родительский календарь
+// @v10.5.11 #define PPERR_OBJKINDNOTEQUAL    1148 // Объекты должны принадлежать одному виду
+// @v10.5.11 #define PPERR_BILLST_DENY_CHANGELINK 1149 // Статус документ запрещает изменение связанного документа
+// @v10.5.11 #define PPERR_UNDEFTASKWCODE        1225 // Не определена задача с кодом '%s'
+// @v10.5.11 #define PPERR_DUPTASKCODE           1226 // Дублируемое значение кода задачи '%s'
+// @v10.5.11 #define PPERR_NOPRINT_CN_ISLOCKED   1227 // Печать чека запрещена.\nКассовый узел заблокирован другим пользователем.
+// @v10.5.11 #define PPERR_CCHKMUSTBEJUNK        1228 // Внутренняя ошибка: чек '%s' должен иметь признаки SUSPENDED | JUNK
+// @v10.5.11 #define PPERR_MAXDUPPSNREL          1229 // Максимальное количество отношений между двумя персоналиями не может превышать 4
+// @v10.5.11 #define PPERR_DL6_ICLSPARNOTIFACE   1230 // DL600  База '%s' класса не является интерфейсом
+// @v10.5.11 #define PPERR_DL6_CLASSEXISTS       1231 // DL600  Класс %s уже определен
+// @v10.5.11 #define PPERR_DL6_INVATTRLIB        1232 // DL600  Недопустимый атрибут '%s' библиотеки типов
+// @v10.5.11 #define PPERR_CCHKNOMORESUSPENDED   1233 // Чек '%s' открыт другим пользователем
+// @v10.5.11 #define PPERR_CHKPAN_SALERNEEDED    1234 // Для выполнения операции необходимо выбрать агента
+// @v10.5.11 #define PPERR_DUPGOODS              1235 // Дублирование индекса в записи товара (%s)
+// @v10.5.11 #define PPERR_DL6_NOENUM            1236 // Попытка вставить элемент перечисления в структуру, не являющуюся перечислением
+// @v10.5.11 #define PPERR_UUIDNFOUND            1237 // UUID %s не найден
+// @v10.5.11 #define PPERR_DL6_INVSCOPEKIND      1238 // Внутренняя ошибка: область видимости DL600 '%s' принадлежит другому виду
+// @v10.5.11 #define PPERR_DL6_ICLSNOTIMPL       1239 // DL600  Класс '%s' не реализован
+// @v10.5.11 #define PPERR_DL6_IMPFILENFOUND     1241 // Импортируемый файл %s не найден
+// @v10.5.11 #define PPERR_STAFFCALNEEDED        1242 // Необходимо выбрать штатный календарь
+// @v10.5.11 #define PPERR_NONPAIRPSNEVNT        1243 // Нарушение парности персональной операции '%s'
+// @v10.5.11 #define PPERR_STAFFCALSYMBNFOUND    1244 // Символ '%s' штатного календаря не найден
+// @v10.5.11 #define PPERR_DL6_DUPTYPEDEFINSCOPE 1245 // DL600  Дублирование typedef-определения '%s' в области видимости
+// @v10.5.11 #define PPERR_INVINTRCORRLOC        1246 // Недопустимое значение корреспондентского склада во внутренней передаче '%s'
+// @v10.5.11 #define PPERR_PSNDONTBELONGTOKIND   1247 // Персоналия не принадлежит заданному виду
+// @v10.5.11 #define PPERR_PERSONBYREGNFOUND     1248 // Персоналия по регистру '%s' не найдена
+// @v10.5.11 #define PPERR_PERSONBYREGNKIND      1249 // Персоналия '%s' по регистру не соответствует заданному виду
+// @v10.5.11 #define PPERR_PERSONSBYREGNKIND     1250 // Персоналии по регистру '%s' не соответствуют заданному виду
+// @v10.5.11 #define PPERR_FILTNEQTYPE           1251 // Не соответствующий тип фильтра
+// @v10.5.11 #define PPERR_PPIFCFUNCNSUPPORTED   1252 // Функция не поддерживается //
+// @v10.5.11 #define PPERR_DL6_CLSNFOUND         1253 // Кокласс '%s' не найден
+// @v10.5.11 #define PPERR_DL6_IFCUUIDNFOUND     1254 // UUID интерфейса '%s' не найден
+// @v10.5.11 #define PPERR_DL6_CTXNINITED        1255 // Контекст DL600 не инициализирован
+// @v10.5.11 #define PPERR_NOTLOGGEDIN           1256 // Сеанс не авторизован в базе данных
+// @v10.5.11 #define PPERR_UNKNOWNVIEWID         1257 // Неопределенный тип объекта PPView '%s'
+// @v10.5.11 #define PPERR_DL6_ARGMUSTBECONST    1258 // Аргумент должен быть константой
+// @v10.5.11 #define PPERR_BASEFILTUNSUPPORTED   1259 // Внутренняя ошибка: класс PPView не поддерживает PPBaseFilt
+// @v10.5.11 #define PPERR_UNDEFVIEWID           1260 // Внутренняя ошибка: неопределенный идентификатор класса PPView
+// @v10.5.11 #define PPERR_INVSTRUCTAG           1261 // Неверная метка структуры. Должно быть %s
+// @v10.5.11 #define PPERR_AMTTYPENEEDED         1262 // Необходимо выбрать тип суммы
+// @v10.5.11 #define PPERR_STAFFAMTINTERSECT     1263 // Пересечение периодов в штатных суммах
+// @v10.5.11 #define PPERR_DUPPERSONPOST         1264 // Дублирование назначения персоналии на должность '%s'
+// @v10.5.11 #define PPERR_CLOSEDPPOSTCREATING   1265 // Нельзя создавать закрытое штатное назначение
+// @v10.5.11 #define PPERR_CLOSEDPOSTUPD         1266 // Нельзя менять персоналию и должность у закрытого назначения //
+// @v10.5.11 #define PPERR_UNDEFPOSTSALCHARGEGRP 1267 // Для штатного назначения '%s' не определена группа начислений
+// @v10.5.11 #define PPERR_SALPERIODINTERSECT    1268 // Пересечение периодов записей в таблице начисления зарплаты
+// @v10.5.11 #define PPERR_SALCHARGENEEDED       1269 // Необходимо выбрать вид начисления //
+// @v10.5.11 #define PPERR_STAFFPOSTNEEDED       1270 // Необходимо выбрать штатное назначение
+// @v10.5.11 #define PPERR_PERSONCANTHAVEAMTS    1271 // Персоналия не может иметь списка сумм
+// @v10.5.11 #define PPERR_UPDLINKNONEMPTYPRCGRP 1272 // Нельзя менять тип и группу связанного объкта для непустой группы процессоров
+// @v10.5.11 #define PPERR_NEXISTGOODSINBILL     1273 // В документе указан несуществующий ИД товара (id=%s)
+// @v10.5.11 #define PPERR_PERIODMUSTBECLOSED    1274 // Период [%s] должен быть закрытым
+// @v10.5.11 #define PPERR_INVSUPPL              1275 // Не задан поставщик
+// @v10.5.11 #define PPERR_INVEXPCFG             1276 // Не заданы опции экспорта
+// @v10.5.11 #define PPERR_NRT_GOODS_UPDGTYPE    1277 // Нет прав для изменения типа товара '%s'
+// @v10.5.11 #define PPERR_ADDLNCOMPLTSESS       1278 // Нельзя добавлять строки в списанную техн сессию
+// @v10.5.11 #define PPERR_UPDLNCOMPLTSESS       1279 // Нельзя модифицировать строки списанной техн сессии
+// @v10.5.11 #define PPERR_RMVLNCOMPLTSESS       1280 // Нельзя удалять строки из списанной техн сессии
+// @v10.5.11 #define PPERR_STARTGTFINISH         1281 // Время начала не должно быть больше времени окончания //
+// @v10.5.11 #define PPERR_UNDEFINNERBASEFILT    1282 // Внутренняя ошибка: неопределенный PPBaseFilt
 //#define PPERR_TOKENEXPECTED         1283 // Ожидается лексема: %s
 //#define PPERR_SLIPFMT_INVTOKEN      1284 // Недопустимая лексема '%s' в файле описания формата
 //#define PPERR_SLIPFMT_INVZONE       1285 // Недопустимый тип зоны '%s' в файле описания формата
@@ -11697,71 +11692,71 @@
 //#define PPERR_MISPLACEDELSE         1286 // Недопустимое использование оператора 'else'
 //#define PPERR_MISPLACEDENDIF        1287 // Недопустимое использование оператора 'endif'
 //#define PPERR_MISPLACEDIF           1288 // Недопустимое использование оператора 'if'
-#define PPERR_UNEXPEOF              1290 // Неожиданное завершение файла
-#define PPERR_F_Transfer_EnumItems  1292 // (уточняющее сообщение) Ошибка при переборе строк документа '%s'
-#define PPERR_CSESS_NOTFOUND        1293 // Кассовая сессия не найдена
-#define PPERR_DUPWORLDOBJSTATUSCODE 1295 // Дублирование кода статуса географического объекта
-#define PPERR_NONATIVECOUNTRY       1296 // Не удалось идентифицировать собственное государство
-#define PPERR_TSESSCANTMOVETOPRC    1297 // Сессия не может быть перемещена на заданный процессор (%s)
-#define PPERR_INVPPVIEWQUERY        1298 // Внутренняя ошибка: недопустимый запрос в объекте PPView
-#define PPERR_LOCTYPECHNG           1299 // Изменение типа локации недопустимо (%s)
-#define PPERR_GDSCLSNEEDED          1300 // Необходимо выбрать класс товара
-#define PPERR_UNDEFCLSTYPE          1301 // Неопределенный тип класса (%s)
-#define PPERR_OBJSYNCQFILERECNFOUND 1302 // Не найдена запись файла очереди синхронизации (ID=%s)
-#define PPERR_INVARIANT_STAFFAMTENT 1303 // Нарушение инварианта StaffAmtEntry
-#define PPERR_UNKNCRYPTMETHOD       1304 // Неизвестный метод шифрования файла '%s'
-#define PPERR_UNKNPACKMETHOD        1305 // Неизвестный метод сжатия файла '%s'
-#define PPERR_ARCODEDUPAR           1306 // Список артикулов по товару уже содержит элемент для статьи
-#define PPERR_INVSCALEGOODSGROUP    1307 // Товарная группа для весов должна быть альтернативной и не динамической
-#define PPERR_INVFILTVERSION        1308 // Несовместимость версий фильтра
-#define PPERR_BL_ARCODE2GOODS       1309 // Висячая ссылка на товар в записи артикула. Ид статьи=[%ld]
-#define PPERR_ARCODEEXISTS          1310 // Заданный артикул существует {%s}
-#define PPERR_BILLHASINVPAYMPOOL    1314 // Документ имеет ошибочные связанные зачетные оплаты (%s), ссылающиеся не на документ
-#define PPERR_UNDEFCHARRYSTRUCID    1315 // Неопределенный идентификатор типа структуры CHARRY
-#define PPERR_OBJNOTSUPPORTED       1330 // Данный тип объекта не поддерживается [ID=%s]
-#define PPERR_INVSCARDCHARGEGOODS   1331 // Товар для начисления по карте должен быть нелимитируемым
-#define PPERR_INVUSAGECHARGEGOODS   1332 // Товар предназначен только для начисления по кредитной карте
-#define PPERR_UNABLECHNGCHARGESCARD 1333 // Нельзя переустанавливать карту при начислении
-#define PPERR_OBJTYPENEEDED         1334 // Необходимо выбрать тип объекта данных
-#define PPERR_NAMEDOBJASSCNGOODS    1335 // Именованная ассоциация объектов не может быть просмотрена через PPViewGoodsToObjAssoc
-#define PPERR_UNKGOODSTOOBJASSOC    1336 // Неизвестная ассоциация товар-объект (%s)
-#define PPERR_INVPOSGOODSLOCASSOC   1337 // Недопустимая именованная ассоциация объектов (%s) в кассовом узле
-#define PPERR_CANTLOADDESKTOPLIST   1338 // Невозможно загрузить список рабочих столов. Файл заблокирован другим пользователем.
-#define PPERR_UNDEFSUPPLDEAL        1339 // Не определена котировка контрактных цен
-#define PPERR_UNDEFSUPPLDEALLOWDEV  1340 // Не определена котировка нижнего отклонения контрактной цены
-#define PPERR_UNDEFSUPPLDEALUPPDEV  1341 // Не определена котировка верхнего отклонения контрактной цены
-#define PPERR_INVQUOTCAT            1342 // Недопустимое значение категории котировки (%s)
-#define PPERR_UNMATCHEDQUOTKIND     1343 // Заданный вид котировки не соответсвует категории
-#define PPERR_ACCNOTACCESSIBLE      1344 // Недоступный счет
-#define PPERR_ACCNOTVALID           1345 // Счет не выбран или выбран неверно
-#define PPERR_JOBITEMLOOP           1346 // Обнаружена циклическая зависимость между задачами
-#define PPERR_STRICTMODE_QKNEEDED   1347 // При выборе строгого режима расценки необходимо указать вид котировки
-#define PPERR_CYCLEWORLDOBJ         1348 // Обнаружена рекурсивная ссылка в географических объектах (%s)
-#define PPERR_CFGNEEDED             1349 // Необходимо выбрать конфигурацию
-#define PPERR_EXPORTBNKORDER        1350 // Не удалось экспортировать платежное поручение (№=%s, Дата=%s), так как: %s.
-#define PPERR_PAYERBNKACCNOTFOUND   1351 // Банковский счет плательщика не найден.
-#define PPERR_RCVRBNKACCNOTFOUND    1352 // Банковский счет получателя не найден.
-#define PPERR_PAYERBNKACCEMPTY      1353 // Не указан банковский счет плательщика.
-#define PPERR_RCVRBNKACCEMPTY       1354 // Не указан банковский счет получателя.
-#define PPERR_DUPSCALEBCPREFIX      1355 // Дублирование префикса штрихкода весов (%s)
-#define PPERR_GENSCALECODEFAULT     1356 // Не удалось сформировать правильный весовой код (%s)
-#define PPERR_MATRIXRESTRICTION     1357 // Превышено ограничение матрицы для склада %s.
-#define PPERR_DL6_FUNCINVSCOPE      1358 // Недопустимый вид области видимости для декларации функции
-#define PPERR_FTPACCTUNDEF          1359 // FTP аккаунт не указан
-#define PPERR_DBGUIDUNDEF           1360 // Не определен GUID базы данных
-#define PPERR_INVDBGUIDINFILE       1361 // Не верный GUID базы данных в файле
-#define PPERR_DL6_INVPROPSYMB       1362 // DL600 Неизвестное имя свойства '%s'
-#define PPERR_DL6_INVPROPTYPE       1363 // DL600 Недопустимый тип данных для свойства '%s'
-#define PPERR_DL6_INVCONSTDESCR     1364 // DL600 Недопустимый дескриптор константы
+// @v10.5.11 #define PPERR_UNEXPEOF              1290 // Неожиданное завершение файла
+// @v10.5.11 #define PPERR_F_Transfer_EnumItems  1292 // (уточняющее сообщение) Ошибка при переборе строк документа '%s'
+// @v10.5.11 #define PPERR_CSESS_NOTFOUND        1293 // Кассовая сессия не найдена
+// @v10.5.11 #define PPERR_DUPWORLDOBJSTATUSCODE 1295 // Дублирование кода статуса географического объекта
+// @v10.5.11 #define PPERR_NONATIVECOUNTRY       1296 // Не удалось идентифицировать собственное государство
+// @v10.5.11 #define PPERR_TSESSCANTMOVETOPRC    1297 // Сессия не может быть перемещена на заданный процессор (%s)
+// @v10.5.11 #define PPERR_INVPPVIEWQUERY        1298 // Внутренняя ошибка: недопустимый запрос в объекте PPView
+// @v10.5.11 #define PPERR_LOCTYPECHNG           1299 // Изменение типа локации недопустимо (%s)
+// @v10.5.11 #define PPERR_GDSCLSNEEDED          1300 // Необходимо выбрать класс товара
+// @v10.5.11 #define PPERR_UNDEFCLSTYPE          1301 // Неопределенный тип класса (%s)
+// @v10.5.11 #define PPERR_OBJSYNCQFILERECNFOUND 1302 // Не найдена запись файла очереди синхронизации (ID=%s)
+// @v10.5.11 #define PPERR_INVARIANT_STAFFAMTENT 1303 // Нарушение инварианта StaffAmtEntry
+// @v10.5.11 #define PPERR_UNKNCRYPTMETHOD       1304 // Неизвестный метод шифрования файла '%s'
+// @v10.5.11 #define PPERR_UNKNPACKMETHOD        1305 // Неизвестный метод сжатия файла '%s'
+// @v10.5.11 #define PPERR_ARCODEDUPAR           1306 // Список артикулов по товару уже содержит элемент для статьи
+// @v10.5.11 #define PPERR_INVSCALEGOODSGROUP    1307 // Товарная группа для весов должна быть альтернативной и не динамической
+// @v10.5.11 #define PPERR_INVFILTVERSION        1308 // Несовместимость версий фильтра
+// @v10.5.11 #define PPERR_BL_ARCODE2GOODS       1309 // Висячая ссылка на товар в записи артикула. Ид статьи=[%ld]
+// @v10.5.11 #define PPERR_ARCODEEXISTS          1310 // Заданный артикул существует {%s}
+// @v10.5.11 #define PPERR_BILLHASINVPAYMPOOL    1314 // Документ имеет ошибочные связанные зачетные оплаты (%s), ссылающиеся не на документ
+// @v10.5.11 #define PPERR_UNDEFCHARRYSTRUCID    1315 // Неопределенный идентификатор типа структуры CHARRY
+// @v10.5.11 #define PPERR_OBJNOTSUPPORTED       1330 // Данный тип объекта не поддерживается [ID=%s]
+// @v10.5.11 #define PPERR_INVSCARDCHARGEGOODS   1331 // Товар для начисления по карте должен быть нелимитируемым
+// @v10.5.11 #define PPERR_INVUSAGECHARGEGOODS   1332 // Товар предназначен только для начисления по кредитной карте
+// @v10.5.11 #define PPERR_UNABLECHNGCHARGESCARD 1333 // Нельзя переустанавливать карту при начислении
+// @v10.5.11 #define PPERR_OBJTYPENEEDED         1334 // Необходимо выбрать тип объекта данных
+// @v10.5.11 #define PPERR_NAMEDOBJASSCNGOODS    1335 // Именованная ассоциация объектов не может быть просмотрена через PPViewGoodsToObjAssoc
+// @v10.5.11 #define PPERR_UNKGOODSTOOBJASSOC    1336 // Неизвестная ассоциация товар-объект (%s)
+// @v10.5.11 #define PPERR_INVPOSGOODSLOCASSOC   1337 // Недопустимая именованная ассоциация объектов (%s) в кассовом узле
+// @v10.5.11 #define PPERR_CANTLOADDESKTOPLIST   1338 // Невозможно загрузить список рабочих столов. Файл заблокирован другим пользователем.
+// @v10.5.11 #define PPERR_UNDEFSUPPLDEAL        1339 // Не определена котировка контрактных цен
+// @v10.5.11 #define PPERR_UNDEFSUPPLDEALLOWDEV  1340 // Не определена котировка нижнего отклонения контрактной цены
+// @v10.5.11 #define PPERR_UNDEFSUPPLDEALUPPDEV  1341 // Не определена котировка верхнего отклонения контрактной цены
+// @v10.5.11 #define PPERR_INVQUOTCAT            1342 // Недопустимое значение категории котировки (%s)
+// @v10.5.11 #define PPERR_UNMATCHEDQUOTKIND     1343 // Заданный вид котировки не соответсвует категории
+// @v10.5.11 #define PPERR_ACCNOTACCESSIBLE      1344 // Недоступный счет
+// @v10.5.11 #define PPERR_ACCNOTVALID           1345 // Счет не выбран или выбран неверно
+// @v10.5.11 #define PPERR_JOBITEMLOOP           1346 // Обнаружена циклическая зависимость между задачами
+// @v10.5.11 #define PPERR_STRICTMODE_QKNEEDED   1347 // При выборе строгого режима расценки необходимо указать вид котировки
+// @v10.5.11 #define PPERR_CYCLEWORLDOBJ         1348 // Обнаружена рекурсивная ссылка в географических объектах (%s)
+// @v10.5.11 #define PPERR_CFGNEEDED             1349 // Необходимо выбрать конфигурацию
+// @v10.5.11 #define PPERR_EXPORTBNKORDER        1350 // Не удалось экспортировать платежное поручение (№=%s, Дата=%s), так как: %s.
+// @v10.5.11 #define PPERR_PAYERBNKACCNOTFOUND   1351 // Банковский счет плательщика не найден.
+// @v10.5.11 #define PPERR_RCVRBNKACCNOTFOUND    1352 // Банковский счет получателя не найден.
+// @v10.5.11 #define PPERR_PAYERBNKACCEMPTY      1353 // Не указан банковский счет плательщика.
+// @v10.5.11 #define PPERR_RCVRBNKACCEMPTY       1354 // Не указан банковский счет получателя.
+// @v10.5.11 #define PPERR_DUPSCALEBCPREFIX      1355 // Дублирование префикса штрихкода весов (%s)
+// @v10.5.11 #define PPERR_GENSCALECODEFAULT     1356 // Не удалось сформировать правильный весовой код (%s)
+// @v10.5.11 #define PPERR_MATRIXRESTRICTION     1357 // Превышено ограничение матрицы для склада %s.
+// @v10.5.11 #define PPERR_DL6_FUNCINVSCOPE      1358 // Недопустимый вид области видимости для декларации функции
+// @v10.5.11 #define PPERR_FTPACCTUNDEF          1359 // FTP аккаунт не указан
+// @v10.5.11 #define PPERR_DBGUIDUNDEF           1360 // Не определен GUID базы данных
+// @v10.5.11 #define PPERR_INVDBGUIDINFILE       1361 // Не верный GUID базы данных в файле
+// @v10.5.11 #define PPERR_DL6_INVPROPSYMB       1362 // DL600 Неизвестное имя свойства '%s'
+// @v10.5.11 #define PPERR_DL6_INVPROPTYPE       1363 // DL600 Недопустимый тип данных для свойства '%s'
+// @v10.5.11 #define PPERR_DL6_INVCONSTDESCR     1364 // DL600 Недопустимый дескриптор константы
 // @paul @pentaho {
-#define PPERR_NFSTRNGFORPOOL        1365 // @paul  Именованный фильтр относится к другой БД и не может быть вставлен в этот пул
-#define PPERR_NFPOOLISREADONLY      1366 // @paul  Именованный фильтр не может быть вставлен в пул, поскольку пул 'только для чтения'
-#define PPERR_INVNFCMD              1367 // @paul  Обьект PPView не задан или задан неверно
-#define PPERR_NFSTRGCORRUPTED       1368 // @paul  Хранилище пакетных именованных фильтров повреждено
-#define PPERR_NFUNIMPL              1369 // @paul  Серверный именованный фильтр '%s' не реализован
-#define PPERR_INVNFPARAMBUF         1370 // @paul  Внутренняя ошибка: недопустимый размер буфера параметров пакетного задани
-#define PPERR_NFILTNAMENEEDED		1371 // @paul  Необходимо ввести название
-#define PPERR_SYMBNEEDED            1372 // @paul  Символ не задан или задан не верно
+// @v10.5.11 #define PPERR_NFSTRNGFORPOOL        1365 // @paul  Именованный фильтр относится к другой БД и не может быть вставлен в этот пул
+// @v10.5.11 #define PPERR_NFPOOLISREADONLY      1366 // @paul  Именованный фильтр не может быть вставлен в пул, поскольку пул 'только для чтения'
+// @v10.5.11 #define PPERR_INVNFCMD              1367 // @paul  Обьект PPView не задан или задан неверно
+// @v10.5.11 #define PPERR_NFSTRGCORRUPTED       1368 // @paul  Хранилище пакетных именованных фильтров повреждено
+// @v10.5.11 #define PPERR_NFUNIMPL              1369 // @paul  Серверный именованный фильтр '%s' не реализован
+// @v10.5.11 #define PPERR_INVNFPARAMBUF         1370 // @paul  Внутренняя ошибка: недопустимый размер буфера параметров пакетного задани
+// @v10.5.11 #define PPERR_NFILTNAMENEEDED		1371 // @paul  Необходимо ввести название
+// @v10.5.11 #define PPERR_SYMBNEEDED            1372 // @paul  Символ не задан или задан не верно
 // } @paul @pentaho
 //PPERR_INVTSESSTATUS      xxxx // Недопустимый статус технологической сессии (%s).
 // @v8.2.0 #define PPERR_EMPTY_EDISYMB					1446 // У поставщика id = %s отсутствует символ провайдера
@@ -11772,87 +11767,87 @@
 //
 // @v9.1.3 #define PPTXT_SELECTLOCATION        1
 // @v9.1.3 #define PPTXT_SELECTOPRKIND         2
-#define PPTXT_INTRRECEIPT           3
-#define PPTXT_INREST                4
-#define PPTXT_OUTREST               5
-#define PPTXT_ACCANLZTITLE          6
+// @v10.5.11 #define PPTXT_INTRRECEIPT           3
+// @v10.5.11 #define PPTXT_INREST                4
+// @v10.5.11 #define PPTXT_OUTREST               5
+// @v10.5.11 #define PPTXT_ACCANLZTITLE          6
 // @v9.1.3 #define PPTXT_SELECTCASHNODE        7
 // #define PPTXT_BILLTOTAL             8
-#define PPTXT_LOTERROR1             9
+// @v10.5.11 #define PPTXT_LOTERROR1             9
 // #define PPTXT_LOTTOTAL             10
 // OBSOLETE\GDSREST.CPP #define PPTXT_GDSRESTTOTAL         11
 // OBSOLETE\ACCANLZ.CPP #define PPTXT_ACCTOTAL             12
-#define PPTXT_ONPACK               13 // "На упаковке" (для серификатов)
+// @v10.5.11 #define PPTXT_ONPACK               13 // "На упаковке" (для серификатов)
 // Следующие четыре строки для печати накладных
 //#define PPTXT_GEXPEND              14 // "отпуск товара"
 //#define PPTXT_GRCPT                15 // "поступление товара"
-#define PPTXT_INCLDIS              16 // "Сумма включает скидку"
+// @v10.5.11 #define PPTXT_INCLDIS              16 // "Сумма включает скидку"
 //#define PPTXT_INCLVATAX            17 // "В т.ч. НДС (%s%%):"
 //#define PPTXT_BILLPAYM             18 // "Оплатить до "
 // Следующие пять строк для печати отчета по операции (GDSOPR.CPP)
-#define PPTXT_BYOPR                19
-#define PPTXT_BYINCOMINGOPR        20
-#define PPTXT_BYPROFITABLEOPR      21
-#define PPTXT_BYPAYEDOPR           22
-#define PPTXT_BYINTROPR            34
-#define PPTXT_JURSTAT              23 // "Юридический статус: %s"
+// @v10.5.11 #define PPTXT_BYOPR                19
+// @v10.5.11 #define PPTXT_BYINCOMINGOPR        20
+// @v10.5.11 #define PPTXT_BYPROFITABLEOPR      21
+// @v10.5.11 #define PPTXT_BYPAYEDOPR           22
+// @v10.5.11 #define PPTXT_BYINTROPR            34
+// @v10.5.11 #define PPTXT_JURSTAT              23 // "Юридический статус: %s"
 // Печать баланса
 // OBSOLETE\BALVIEW.CPP #define PPTXT_TOTALBYAC            24 // "Итого по счету %d:"
 // Печать расходного кассового ордера
-#define PPTXT_PASSPORT             25 // "паспорту %s %s выданному %s %s"
-#define PPTXT_SUPPLTXT             26 // "Поставщик"
-#define PPTXT_CNTRAGNTXT           27 // "Контрагент"
-#define PPTXT_LP15REC              28 // Формат строки для экспорта в весы LP15
+// @v10.5.11 #define PPTXT_PASSPORT             25 // "паспорту %s %s выданному %s %s"
+// @v10.5.11 #define PPTXT_SUPPLTXT             26 // "Поставщик"
+// @v10.5.11 #define PPTXT_CNTRAGNTXT           27 // "Контрагент"
+// @v10.5.11 #define PPTXT_LP15REC              28 // Формат строки для экспорта в весы LP15
 // @v9.1.3 #define PPTXT_SELECTDBDIV          29 // Выберите раздел БД
-#define PPTXT_GDSOPRTOTAL          31 // Итог отчета по товарной операции
-#define PPTXT_CSALESEXTOTAL        32 // Итог излишков по кассовым сессиям
-#define PPTXT_BILLFLTCAPTIONS      33 // Шапки фильтров по документам
+// @v10.5.11 #define PPTXT_GDSOPRTOTAL          31 // Итог отчета по товарной операции
+// @v10.5.11 #define PPTXT_CSALESEXTOTAL        32 // Итог излишков по кассовым сессиям
+// @v10.5.11 #define PPTXT_BILLFLTCAPTIONS      33 // Шапки фильтров по документам
 //                                 34 // Occupied
-#define PPTXT_SELLDEBTEXTRA        35 // Доп строка к отчету о должниках
+// @v10.5.11 #define PPTXT_SELLDEBTEXTRA        35 // Доп строка к отчету о должниках
 // Записи в журнале восстановления базы данных
-#define PPTXT_RCVR_START           36
-#define PPTXT_RCVR_FINISH          37
-#define PPTXT_RCVR_ERRCREATE       38
-#define PPTXT_RCVR_ERRINS          39
-#define PPTXT_RCVR_ERRSTEP         40
-#define PPTXT_RCVR_USRBRK          41
-#define PPTXT_RCVR_ERROR           42
-#define PPTXT_RCVR_ERRDELPREV      43
-#define PPTXT_RCVR_ERRRENAME       44
-#define PPTXT_CCHKTOTAL            50 // Итог по кассовым чекам
-#define PPTXT_ZPL_LABEL            51 // Товарная этикетка (ZEBRA)
-#define PPTXT_SCALE_PREPARE        52 // Подготовка данных для весов %s
-#define PPTXT_SCALE_TRANSMIT       53 // Загрузка в весы %s товара %s
-#define PPTXT_SELLDEBTTOTAL        54 // Итог по ведомости должников
-#define PPTXT_BILLBRWCAPTIONS      55 // Шапки броузеров документов
+// @v10.5.11 #define PPTXT_RCVR_START           36
+// @v10.5.11 #define PPTXT_RCVR_FINISH          37
+// @v10.5.11 #define PPTXT_RCVR_ERRCREATE       38
+// @v10.5.11 #define PPTXT_RCVR_ERRINS          39
+// @v10.5.11 #define PPTXT_RCVR_ERRSTEP         40
+// @v10.5.11 #define PPTXT_RCVR_USRBRK          41
+// @v10.5.11 #define PPTXT_RCVR_ERROR           42
+// @v10.5.11 #define PPTXT_RCVR_ERRDELPREV      43
+// @v10.5.11 #define PPTXT_RCVR_ERRRENAME       44
+// @v10.5.11 #define PPTXT_CCHKTOTAL            50 // Итог по кассовым чекам
+// @v10.5.11 #define PPTXT_ZPL_LABEL            51 // Товарная этикетка (ZEBRA)
+// @v10.5.11 #define PPTXT_SCALE_PREPARE        52 // Подготовка данных для весов %s
+// @v10.5.11 #define PPTXT_SCALE_TRANSMIT       53 // Загрузка в весы %s товара %s
+// @v10.5.11 #define PPTXT_SELLDEBTTOTAL        54 // Итог по ведомости должников
+// @v10.5.11 #define PPTXT_BILLBRWCAPTIONS      55 // Шапки броузеров документов
 // @v9.1.3 #define PPTXT_SELECTOPRTYPE        56 // Выберите тип операции
 // @v9.1.3 #define PPTXT_SELECTPSNOP          58 // Выберите вид персональной операции
-#define PPTXT_DEBTRKIND            59 // Вид плательщика (дебитор/кредитор)
-#define PPTXT_ATLISTTOTAL          60 // Итоги по описи проводок
-#define PPTXT_ARTYPE               61 // Типы статей (поставщик,покупатель...)
+// @v10.5.11 #define PPTXT_DEBTRKIND            59 // Вид плательщика (дебитор/кредитор)
+// @v10.5.11 #define PPTXT_ATLISTTOTAL          60 // Итоги по описи проводок
+// @v10.5.11 #define PPTXT_ARTYPE               61 // Типы статей (поставщик,покупатель...)
 // @v9.1.3 #define PPTXT_SELECTOBJTAG         62 // Выберите тег
-#define PPTXT_INCLEXCISE           63 // Сумма включает налог с продаж
-#define PPTXT_OTTYP                64 // Наименования типов тегов
+// @v10.5.11 #define PPTXT_INCLEXCISE           63 // Сумма включает налог с продаж
+// @v10.5.11 #define PPTXT_OTTYP                64 // Наименования типов тегов
 // Строки, используемые для вывода в файл PROBLEMS.LOG
-#define PPTXT_STARTRCVPACKET       65 // Заголовок приема файла
-#define PPTXT_BTP_HEADER           66 // Формат документа
-#define PPTXT_BTP_LINE             67 // Формат строки документа
+// @v10.5.11 #define PPTXT_STARTRCVPACKET       65 // Заголовок приема файла
+// @v10.5.11 #define PPTXT_BTP_HEADER           66 // Формат документа
+// @v10.5.11 #define PPTXT_BTP_LINE             67 // Формат строки документа
 	// "Товар [id=@int] @goods дефицит=@real цп=@real цр=@real поставщик=@article\n"
 	// (obsolet: "    %-30s %8.3lf %8.2lf %8.2lf\n")
-#define PPTXT_BTP_NOTTURNED        68 // "Не проведен"
-#define PPTXT_BTP_TOTAL            69 // Заголовок итога непроведенных товаров
-#define PPTXT_BDR_LINE             72 // Формат строки документа
-#define PPTXT_WAITONDBLOCK         73 // Waiting msg
-#define PPTXT_CHECKLOTS            74 // Проверка лотов
-#define PPTXT_BTP_NOLINKBILL       75 // Документ не проведен поскольку отсутсвует связанный документ
-#define PPTXT_GRPACO               76 // "ПО СЧЕТУ;ПО СУБСЧЕТУ;ПО СУБКОНТО"
-#define PPTXT_SCALEPLUREC          78 // Формат строки для экспорта в весы
-#define PPTXT_EL92AQCASHLIST       79 // Список DBF-полей структуры CashList для драйвера MnCash
-#define PPTXT_EL92AQWARELIST       80 // Список DBF-полей структуры WareList для драйвера MnCash
-#define PPTXT_CUTTINGPROCESS       81 // Строки информации о процессе усечения базы данных
-#define PPTXT_TIDLG_STRINGS        83 // Строки класса TrfrItemDialog
-#define PPTXT_SAVBAL_STRINGS       84 // Форматы сохранения и восстановления балансов
-#define PPTXT_BCLABEL_VARS         85 // Переменные определения этикетки штрихкодов
+// @v10.5.11 #define PPTXT_BTP_NOTTURNED        68 // "Не проведен"
+// @v10.5.11 #define PPTXT_BTP_TOTAL            69 // Заголовок итога непроведенных товаров
+// @v10.5.11 #define PPTXT_BDR_LINE             72 // Формат строки документа
+// @v10.5.11 #define PPTXT_WAITONDBLOCK         73 // Waiting msg
+// @v10.5.11 #define PPTXT_CHECKLOTS            74 // Проверка лотов
+// @v10.5.11 #define PPTXT_BTP_NOLINKBILL       75 // Документ не проведен поскольку отсутсвует связанный документ
+// @v10.5.11 #define PPTXT_GRPACO               76 // "ПО СЧЕТУ;ПО СУБСЧЕТУ;ПО СУБКОНТО"
+// @v10.5.11 #define PPTXT_SCALEPLUREC          78 // Формат строки для экспорта в весы
+// @v10.5.11 #define PPTXT_EL92AQCASHLIST       79 // Список DBF-полей структуры CashList для драйвера MnCash
+// @v10.5.11 #define PPTXT_EL92AQWARELIST       80 // Список DBF-полей структуры WareList для драйвера MnCash
+// @v10.5.11 #define PPTXT_CUTTINGPROCESS       81 // Строки информации о процессе усечения базы данных
+// @v10.5.11 #define PPTXT_TIDLG_STRINGS        83 // Строки класса TrfrItemDialog
+// @v10.5.11 #define PPTXT_SAVBAL_STRINGS       84 // Форматы сохранения и восстановления балансов
+// @v10.5.11 #define PPTXT_BCLABEL_VARS         85 // Переменные определения этикетки штрихкодов
 //#define PPTXT_UNKNOWNACC           82 // "Unknown account ID = %ld"
 //#define PPTXT_CALCREST             86 // Расчет товарных остатков
 //#define PPTXT_CALCINREST           87 // Расчет входящих товарных остатков
@@ -11867,11 +11862,10 @@
 //
 // Сообщения при закрытии кассовых сессий
 //
-#define PPTXT_ACSCLS_CLOSEINCMPL  121 // Закрытие незавершенных сессий
-#define PPTXT_ACSCLS_IMPORT       122 // Импорт кассовых чеков
-#define PPTXT_ACSCLS_TOBILLS      123 // Формирование документов
-#define PPTXT_ACSCLS_TESTCHECKS   124 // Тестирование чеков
-
+// @v10.5.11 #define PPTXT_ACSCLS_CLOSEINCMPL  121 // Закрытие незавершенных сессий
+// @v10.5.11 #define PPTXT_ACSCLS_IMPORT       122 // Импорт кассовых чеков
+// @v10.5.11 #define PPTXT_ACSCLS_TOBILLS      123 // Формирование документов
+// @v10.5.11 #define PPTXT_ACSCLS_TESTCHECKS   124 // Тестирование чеков
 //#define PPTXT_FIXSTAFFLIST        131 // Список фиксированных должностей
 //#define PPTXT_POVERB              132 // Список глаголов по персональным событиям
 #define PPTXT_ALBATROSTAGNAMES    147 // Имена тегов в файле заказов проекта альбатрос
@@ -11907,6 +11901,7 @@
 #define PPTXT_FILLHOLESARMISER            166 // Заполнение инициализационных пробелов
 #define PPTXT_FILLHOLES                   167 // Заполнение пробелов
 #define PPTXT_CLCHANGEINNTITLE            168 // Измените, если это нужно, ИНН клиента в БД
+/* @v10.5.11 @obsolete
 #define PPTXT_CLINFOTXTSTR                169 // Текстовые строки в диалоге DLT_CLINFO
 	#define PPCLINFO_STR1     0
 	#define PPCLINFO_STR2     1
@@ -11914,6 +11909,7 @@
 	#define PPCLINFO_STR4     3
 	#define PPCLINFO_STR5     4
 	#define PPCLINFO_STR6     5
+*/
 #define PPTXT_CLCHANGEPSNTITLE            170 // Изменение персоналии
 #define PPTXT_WAITONDATAFROMCASH          172 // Ожидание данных от кассового аппарата
 #define PPTXT_FILLMODELS                  173 // Формирование моделей
@@ -12194,26 +12190,25 @@
 // @v10.0.09 #define PPTXT_DBMAINTAIN                  340 // Обслуживание таблицы %s
 // @v10.0.09 #define PPTXT_ERRACCEPTBILL_INCOMPATOP    341 // Несовместимый вид операции (ошибка синхронизации)
 // @v10.0.09 #define PPTXT_PRCISFREE                   342 // Процессор свободен
-#define PPTXT_TSESSLINESIGN               343 // Расход;Выход;Использование;Не определен
+// @v10.5.11 #define PPTXT_TSESSLINESIGN               343 // Расход;Выход;Использование;Не определен
 //
 // Подсказки панели ввода по процессору
 //
-#define PPTXT_PRCPAN_HINT01               344 // Выход = Escape
-#define PPTXT_PRCPAN_HINT02               345 // Провести строку = Enter
-#define PPTXT_PRCPAN_HINT03               346 // Выбор основного товара = F10
-#define PPTXT_PRCPAN_HINT04               347 // Выбор товара по коду = Штрихкод или серийный номер + Enter
-#define PPTXT_PRCPAN_HINT05               348 // Количество торговых единиц = *количество + Enter
-#define PPTXT_PRCPAN_HINT06               349 // Количество упаковок = /количество + Enter
-#define PPTXT_PRCPAN_HINT07               350 // Восстановить рабочее состояние процессора = Enter
-#define PPTXT_PRCPAN_HINT08               351 // Печать последней этикетки = F7
-#define PPTXT_PRCPAN_HINT09               352 // Перевести процессор в состояние простоя = F5
-#define PPTXT_PRCPAN_HINT10               353 // Остановить текущую сессию = СТОП
-#define PPTXT_PRCPAN_HINT11               354 // empty
-#define PPTXT_PRCPAN_HINT12               355 // Выход из состояния ввода остатка по партии
-#define PPTXT_PRCPAN_HINT13               356 // Срок годности товара = ДДММГГ
-#define PPTXT_PRCPAN_HINT14               357 // Выход из состояния ввода срока годности = Escape
-
-#define PPTXT_PRCPAN_IDLECONT             369 // Продолжительность простоя //
+// @v10.5.11 #define PPTXT_PRCPAN_HINT01               344 // Выход = Escape
+// @v10.5.11 #define PPTXT_PRCPAN_HINT02               345 // Провести строку = Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT03               346 // Выбор основного товара = F10
+// @v10.5.11 #define PPTXT_PRCPAN_HINT04               347 // Выбор товара по коду = Штрихкод или серийный номер + Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT05               348 // Количество торговых единиц = *количество + Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT06               349 // Количество упаковок = /количество + Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT07               350 // Восстановить рабочее состояние процессора = Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT08               351 // Печать последней этикетки = F7
+// @v10.5.11 #define PPTXT_PRCPAN_HINT09               352 // Перевести процессор в состояние простоя = F5
+// @v10.5.11 #define PPTXT_PRCPAN_HINT10               353 // Остановить текущую сессию = СТОП
+// @v10.5.11 #define PPTXT_PRCPAN_HINT11               354 // empty
+// @v10.5.11 #define PPTXT_PRCPAN_HINT12               355 // Выход из состояния ввода остатка по партии
+// @v10.5.11 #define PPTXT_PRCPAN_HINT13               356 // Срок годности товара = ДДММГГ
+// @v10.5.11 #define PPTXT_PRCPAN_HINT14               357 // Выход из состояния ввода срока годности = Escape
+// @v10.5.11 #define PPTXT_PRCPAN_IDLECONT             369 // Продолжительность простоя //
 // @v9.2.5 (автомат) #define PPTXT_CFGNAMES                    371 // Названия конфигураций
 #define PPTXT_IMPEXPPARAM                 409
 	#define IMPEXPPAR_FILENAME                  0  // Имя файла импорта/экспорта

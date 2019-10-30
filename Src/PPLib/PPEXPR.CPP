@@ -863,7 +863,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 							SString obj_type_symb;
 							SString obj_id_symb;
 							uint   pos = 0;
-							oid.Set(0, 0);
+							oid.Z();
 							fc.StrArg.Strip();
 							THROW_PP_S(fc.StrArg[0] == '(', PPERR_INVEXPR, P_S);
 							fc.StrArg.ShiftLeft().Strip();

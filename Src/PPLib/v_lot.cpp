@@ -284,6 +284,7 @@ PPBaseFilt * PPViewLot::CreateFilt(void * extraPtr) const
 // PPViewLot::EditFilt with helpers
 //
 class LotFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(LotFilt);
 public:
 	enum {
 		ctlgroupGoods     = 1,
@@ -295,11 +296,62 @@ public:
 		SetupCalPeriod(CTLCAL_FLTLOT_PERIOD, CTL_FLTLOT_PERIOD);
 		SetupCalPeriod(CTLCAL_FLTLOT_OPERAT, CTL_FLTLOT_OPERAT);
 	}
-	int    setDTS(const LotFilt*);
-	int    getDTS(LotFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SetPeriodInput(this, CTL_FLTLOT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_FLTLOT_OPERAT, &Data.Operation);
+		const PPID suppl_acs_id = (Data.Flags & LotFilt::fOrders) ? GetSellAccSheet() : GetSupplAccSheet();
+		setCtrlData(CTL_FLTLOT_CLOSED, &Data.ClosedTag);
+		SetupPPObjCombo(this, CTLSEL_FLTLOT_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
+		if(BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
+			SetupArCombo(this, CTLSEL_FLTLOT_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, suppl_acs_id, sacfDisableIfZeroSheet);
+		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
+		setGroupData(ctlgroupGoodsFilt, &gf_rec);
+		if(Data.Flags & LotFilt::fOrders) {
+			AddClusterAssoc(CTL_FLTLOT_FLAGS, 0, LotFilt::fShowBillStatus);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS, 1, LotFilt::fShowSerialN);
+		}
+		else {
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  0, LotFilt::fWithoutQCert);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  1, LotFilt::fCostAbovePrice);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  2, LotFilt::fWithoutClb);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  3, LotFilt::fDeadLots);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  4, LotFilt::fWithoutExpiry);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  5, LotFilt::fOnlySpoilage);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  6, LotFilt::fShowSerialN);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  7, LotFilt::fSkipNoOp);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  8, LotFilt::fSkipClosedBeforeOp);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS,  9, LotFilt::fCheckOriginLotDate);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS, 10, LotFilt::fRestByPaym);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS, 11, LotFilt::fLotfPrWoTaxes);
+		}
+		SetClusterData(CTL_FLTLOT_FLAGS, Data.Flags);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GoodsFiltCtrlGroup::Rec gf_rec;
+		THROW(GetPeriodInput(this, sel = CTL_FLTLOT_PERIOD, &Data.Period));
+		THROW(AdjustPeriodToRights(Data.Period, 1));
+		THROW(GetPeriodInput(this, sel = CTL_FLTLOT_OPERAT, &Data.Operation));
+		if(!Data.Operation.IsZero())
+			THROW(AdjustPeriodToRights(Data.Operation, 1));
+		getCtrlData(CTL_FLTLOT_CLOSED,   &Data.ClosedTag);
+		getCtrlData(CTLSEL_FLTLOT_LOC,   &Data.LocID);
+		getCtrlData(CTLSEL_FLTLOT_SUPPL, &Data.SupplID);
+		THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
+		Data.GoodsGrpID = gf_rec.GoodsGrpID;
+		Data.GoodsID    = gf_rec.GoodsID;
+		GetClusterData(CTL_FLTLOT_FLAGS, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERR
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
-	LotFilt Data;
 	PPObjGoods GObj;
 };
 
@@ -384,62 +436,6 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 	}
 }
 
-int LotFiltDialog::setDTS(const LotFilt * pFilt)
-{
-	Data = *pFilt;
-	SetPeriodInput(this, CTL_FLTLOT_PERIOD, &Data.Period);
-	SetPeriodInput(this, CTL_FLTLOT_OPERAT, &Data.Operation);
-	const PPID suppl_acs_id = (Data.Flags & LotFilt::fOrders) ? GetSellAccSheet() : GetSupplAccSheet();
-	setCtrlData(CTL_FLTLOT_CLOSED, &Data.ClosedTag);
-	SetupPPObjCombo(this, CTLSEL_FLTLOT_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
-	if(BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
-		SetupArCombo(this, CTLSEL_FLTLOT_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, suppl_acs_id, sacfDisableIfZeroSheet);
-	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(ctlgroupGoodsFilt, &gf_rec);
-	if(Data.Flags & LotFilt::fOrders) {
-		AddClusterAssoc(CTL_FLTLOT_FLAGS, 0, LotFilt::fShowBillStatus);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS, 1, LotFilt::fShowSerialN);
-	}
-	else {
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  0, LotFilt::fWithoutQCert);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  1, LotFilt::fCostAbovePrice);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  2, LotFilt::fWithoutClb);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  3, LotFilt::fDeadLots);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  4, LotFilt::fWithoutExpiry);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  5, LotFilt::fOnlySpoilage);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  6, LotFilt::fShowSerialN);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  7, LotFilt::fSkipNoOp);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  8, LotFilt::fSkipClosedBeforeOp);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS,  9, LotFilt::fCheckOriginLotDate);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS, 10, LotFilt::fRestByPaym);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS, 11, LotFilt::fLotfPrWoTaxes);
-	}
-	SetClusterData(CTL_FLTLOT_FLAGS, Data.Flags);
-	return 1;
-}
-
-int LotFiltDialog::getDTS(LotFilt * pFilt)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	GoodsFiltCtrlGroup::Rec gf_rec;
-	THROW(GetPeriodInput(this, sel = CTL_FLTLOT_PERIOD, &Data.Period));
-	THROW(AdjustPeriodToRights(Data.Period, 1));
-	THROW(GetPeriodInput(this, sel = CTL_FLTLOT_OPERAT, &Data.Operation));
-	if(!Data.Operation.IsZero())
-		THROW(AdjustPeriodToRights(Data.Operation, 1));
-	getCtrlData(CTL_FLTLOT_CLOSED,   &Data.ClosedTag);
-	getCtrlData(CTLSEL_FLTLOT_LOC,   &Data.LocID);
-	getCtrlData(CTLSEL_FLTLOT_SUPPL, &Data.SupplID);
-	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
-	Data.GoodsGrpID = gf_rec.GoodsGrpID;
-	Data.GoodsID    = gf_rec.GoodsID;
-	GetClusterData(CTL_FLTLOT_FLAGS, &Data.Flags);
-	ASSIGN_PTR(pFilt, Data);
-	CATCHZOKPPERR
-	return ok;
-}
-
 int SLAPI PPViewLot::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
@@ -452,36 +448,36 @@ int SLAPI PPViewLot::EditBaseFilt(PPBaseFilt * pBaseFilt)
 // PPViewLot::MovLotOps with helpers
 //
 class MovLotOpsDialog : public TDialog {
+	DECL_DIALOG_DATA(long);
 public:
 	MovLotOpsDialog() : TDialog(DLG_MOVLOTOPS)
 	{
 	}
-	int    setDTS(const long * fl)
+	DECL_DIALOG_SETDTS()
 	{
-		long   f = *fl;
+		RVALUEPTR(Data, pData);
 		AddClusterAssoc(CTL_MOVLOTOPS_MERGE, 0, TMLOF_ADDLOTS);
-		SetClusterData(CTL_MOVLOTOPS_MERGE, f);
+		SetClusterData(CTL_MOVLOTOPS_MERGE, Data);
 		AddClusterAssoc(CTL_MOVLOTOPS_AVG, 0, TMLOF_AVGCOST);
 		AddClusterAssoc(CTL_MOVLOTOPS_AVG, 1, TMLOF_AVGPRICE);
-		SetClusterData(CTL_MOVLOTOPS_AVG, f);
-		setCtrlUInt16(CTL_MOVLOTOPS_RMVSRC, BIN(f & TMLOF_RMVSRCLOT));
-		setCtrlUInt16(CTL_MOVLOTOPS_RMVREVAL, BIN(f & (TMLOF_RMVSRCLOT | TMLOF_RMVREVAL)));
-		disableCtrl(CTL_MOVLOTOPS_AVG, !BIN(f & TMLOF_ADDLOTS));
-		disableCtrl(CTL_MOVLOTOPS_RMVREVAL, BIN(f & TMLOF_RMVSRCLOT));
+		SetClusterData(CTL_MOVLOTOPS_AVG, Data);
+		setCtrlUInt16(CTL_MOVLOTOPS_RMVSRC, BIN(Data & TMLOF_RMVSRCLOT));
+		setCtrlUInt16(CTL_MOVLOTOPS_RMVREVAL, BIN(Data & (TMLOF_RMVSRCLOT | TMLOF_RMVREVAL)));
+		disableCtrl(CTL_MOVLOTOPS_AVG, !BIN(Data & TMLOF_ADDLOTS));
+		disableCtrl(CTL_MOVLOTOPS_RMVREVAL, BIN(Data & TMLOF_RMVSRCLOT));
 		return 1;
 	}
-	int    getDTS(long * fl)
+	DECL_DIALOG_GETDTS()
 	{
-		long   f = 0;
-		GetClusterData(CTL_MOVLOTOPS_MERGE, &f);
-		GetClusterData(CTL_MOVLOTOPS_AVG,   &f);
-		SETFLAG(f, TMLOF_RMVSRCLOT, getCtrlUInt16(CTL_MOVLOTOPS_RMVSRC));
-		if(f & TMLOF_RMVSRCLOT)
-			f |= TMLOF_RMVREVAL;
+		GetClusterData(CTL_MOVLOTOPS_MERGE, &Data);
+		GetClusterData(CTL_MOVLOTOPS_AVG,   &Data);
+		SETFLAG(Data, TMLOF_RMVSRCLOT, getCtrlUInt16(CTL_MOVLOTOPS_RMVSRC));
+		if(Data & TMLOF_RMVSRCLOT)
+			Data |= TMLOF_RMVREVAL;
 		else {
-			SETFLAG(f, TMLOF_RMVREVAL, getCtrlUInt16(CTL_MOVLOTOPS_RMVREVAL));
+			SETFLAG(Data, TMLOF_RMVREVAL, getCtrlUInt16(CTL_MOVLOTOPS_RMVREVAL));
 		}
-		ASSIGN_PTR(fl, f);
+		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
 private:

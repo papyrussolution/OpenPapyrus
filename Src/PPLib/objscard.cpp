@@ -1380,7 +1380,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				double rval = getCtrlReal(sel = CTL_SCARDSER_FIXBON);
 				Data.Rec.FixedBonus = fmul100i(rval);
 			}
-			// } @v10.5.5 
+			// } @v10.5.5
 			THROW(GetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd));
 			{
 				long   bonus_ext_rule = 0;
@@ -1517,7 +1517,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 							PPObjGoods goods_obj;
 							Goods2Tbl::Rec goods_rec;
 							if(goods_obj.Fetch(sc_cfg.ChargeGoodsID, &goods_rec) > 0)
-								SetupPPObjCombo(this, CTLSEL_SCARDSER_BONCGRP, PPOBJ_GOODS, Data.Rec.ChargeGoodsID, 
+								SetupPPObjCombo(this, CTLSEL_SCARDSER_BONCGRP, PPOBJ_GOODS, Data.Rec.ChargeGoodsID,
 									OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(goods_rec.ParentID));
 						}
 					}
@@ -2033,12 +2033,17 @@ int SLAPI PPObjSCard::UpdateBySeries(PPID seriesID, int use_ta)
 			SCardTbl::Rec rec;
 			THROW_DB(P_Tbl->rereadForUpdate(2, &k2));
 			P_Tbl->copyBufTo(&rec);
-			const long prev_pdis = rec.PDis;
+			const long  prev_pdis = rec.PDis;
+			const LDATE prev_expiry = rec.Expiry;
 			if(SetInheritance(&scs_pack, &rec) > 0) {
 				THROW_DB(P_Tbl->updateRecBuf(&rec)); // @sfu
 				DS.LogAction(PPACN_OBJUPD, PPOBJ_SCARD, rec.ID, 0, 0);
 				if(rec.PDis != prev_pdis)
-					DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, rec.ID, 0, 0);
+					DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, rec.ID, prev_pdis, 0); // @v10.5.10 @fix 0-->prev_pdis
+				// @v10.5.10 {
+				if(rec.Expiry != prev_expiry)
+					DS.LogAction(PPACN_SCARDEXPRYUPD, PPOBJ_SCARD, rec.ID, static_cast<long>(prev_expiry), 0);
+				// } @v10.5.10
 			}
 		}
 		THROW(tra.Commit());
@@ -2309,11 +2314,9 @@ int SLAPI PPObjSCard::CheckRestrictions(const SCardTbl::Rec * pRec, long flags, 
 			THROW_PP_S(!pRec->UsageTmStart || !dtm.t || dtm.t >= pRec->UsageTmStart, PPERR_SCARDTIME, pRec->Code);
 			THROW_PP_S(!pRec->UsageTmEnd   || !dtm.t || dtm.t <= pRec->UsageTmEnd,   PPERR_SCARDTIME, pRec->Code);
 		}
-		// @v8.6.9 {
 		if(GetConfig().Flags & PPSCardConfig::fCheckBillDebt) {
 			THROW(CheckExpiredBillDebt(pRec->ID));
 		}
-		// } @v8.6.9
 		{
 			SString added_msg_buf;
 			TSVector <SCardCore::OpBlock> frz_op_list; // @v9.8.4 TSArray-->TSVector
@@ -3690,7 +3693,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 						THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
 					}
 				}
-				// } @v10.5.3 
+				// } @v10.5.3
 				THROW(RemoveObjV(id, 0, 0, 0));
 				if(do_index_phones) {
 					org_pack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
@@ -3722,7 +3725,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 							THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
 						}
 					}
-					// } @v10.5.3 
+					// } @v10.5.3
 					THROW(UpdateByID(P_Tbl, Obj, id, &pPack->Rec, 0));
 					(ext_buffer = pPack->GetBuffer()).Strip();
 					THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
@@ -3742,6 +3745,10 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 					log_action_id = PPACN_OBJUPD;
 					if(pPack->Rec.PDis != org_pack.Rec.PDis)
 						DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, id, org_pack.Rec.PDis, 0);
+					// @v10.5.10 {
+					if(pPack->Rec.Expiry != org_pack.Rec.Expiry)
+						DS.LogAction(PPACN_SCARDEXPRYUPD, PPOBJ_SCARD, id, static_cast<long>(org_pack.Rec.Expiry), 0);
+					// } @v10.5.10
 					do_dirty = 1;
 				}
 			}
@@ -3780,8 +3787,8 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 				PPObjID oid;
 				THROW(p_ovc->Add(&hid, oid.Set(Obj, id), &hist_buf, 0));
 			}
-		}		
-		// } @v10.5.3 
+		}
+		// } @v10.5.3
 		if(log_action_id) {
 			DS.LogAction(log_action_id, Obj, id, hid, 0);
 		}
@@ -3982,47 +3989,22 @@ int SLAPI PPObjSCard::PutTransmitPacket(PPID * pID, SCardTransmitPacket * pPack,
 						do_update = 0;
 				}
 				pPack->P.Rec.ID = *pID;
-				// @v9.4.0 {
 				if(do_update) {
 					if(!PutPacket(pID, &pPack->P, 0)) {
 						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCARD, pPack->P.Rec.ID, pPack->P.Rec.Code);
 						ok = -1;
 					}
 				}
-				// } @v9.4.0
-				/* @v9.4.0
-				if(do_update && memcmp(&same_rec, &pPack->Rec, sizeof(same_rec)) != 0) {
-					if(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0)) {
-						DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
-						if(pPack->Rec.PDis != prev_pdis)
-							DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, *pID, prev_pdis, 0);
-					}
-					else {
-						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCARD, pPack->Rec.ID, pPack->Rec.Code);
-						ok = -1;
-					}
-				}
-				*/
 			}
 		}
 		else {
 			pPack->P.Rec.ID = 0;
 			pPack->P.Rec.Turnover = 0;
-			// @v9.4.0 {
 			*pID = 0;
 			if(!PutPacket(pID, &pPack->P, 0)) {
 				pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCARD, pPack->P.Rec.ID, pPack->P.Rec.Code);
 				ok = -1;
 			}
-			// } @v9.4.0
-			/* @v9.4.0
-			if(AddObjRecByID(P_Tbl, Obj, pID, &pPack->P.Rec, 0))
-				DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
-			else {
-				pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCARD, pPack->Rec.ID, pPack->Rec.Code);
-				ok = -1;
-			}
-			*/
 		}
 		if(ok > 0) {
 			uint   i;

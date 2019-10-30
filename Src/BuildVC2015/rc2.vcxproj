@@ -22,13 +22,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -181,14 +181,6 @@
     <ClInclude Include="..\Tools\Rc2\rc2.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="cairo-1.14.2.vcxproj">
-      <Project>{1022ff32-79e9-44df-b5e3-9130f0c4252d}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="db.vcxproj">
-      <Project>{b69839d2-66ea-4506-aa8d-9f1287e0dee7}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="giflib.vcxproj">
       <Project>{f4e0fd0f-6237-49d3-822e-b228d12ea184}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

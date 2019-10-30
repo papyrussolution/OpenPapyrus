@@ -252,10 +252,8 @@ static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uch
 
 			Poly1305_Update(POLY1305_ctx(actx), temp, POLY1305_BLOCK_SIZE);
 		}
-		Poly1305_Final(POLY1305_ctx(actx), ctx->encrypt ? actx->tag
-		    : temp);
+		Poly1305_Final(POLY1305_ctx(actx), ctx->encrypt ? actx->tag : temp);
 		actx->mac_inited = 0;
-
 		if(in != NULL && len != plen) { /* tls mode */
 			if(ctx->encrypt) {
 				memcpy(out, actx->tag, POLY1305_BLOCK_SIZE);
@@ -303,34 +301,26 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 
 		case EVP_CTRL_COPY:
 		    if(actx) {
-			    EVP_CIPHER_CTX * dst = (EVP_CIPHER_CTX*)ptr;
-
-			    dst->cipher_data =
-			    OPENSSL_memdup(actx, sizeof(*actx) + Poly1305_ctx_size());
+			    EVP_CIPHER_CTX * dst = static_cast<EVP_CIPHER_CTX *>(ptr);
+			    dst->cipher_data = OPENSSL_memdup(actx, sizeof(*actx) + Poly1305_ctx_size());
 			    if(dst->cipher_data == NULL) {
 				    EVPerr(EVP_F_CHACHA20_POLY1305_CTRL, EVP_R_COPY_ERROR);
 				    return 0;
 			    }
 		    }
 		    return 1;
-
 		case EVP_CTRL_AEAD_SET_IVLEN:
 		    if(arg <= 0 || arg > CHACHA_CTR_SIZE)
 			    return 0;
 		    actx->nonce_len = arg;
 		    return 1;
-
 		case EVP_CTRL_AEAD_SET_IV_FIXED:
 		    if(arg != 12)
 			    return 0;
-		    actx->nonce[0] = actx->key.counter[1]
-			    = CHACHA_U8TOU32((uchar *)ptr);
-		    actx->nonce[1] = actx->key.counter[2]
-			    = CHACHA_U8TOU32((uchar *)ptr+4);
-		    actx->nonce[2] = actx->key.counter[3]
-			    = CHACHA_U8TOU32((uchar *)ptr+8);
+		    actx->nonce[0] = actx->key.counter[1] = CHACHA_U8TOU32((uchar *)ptr);
+		    actx->nonce[1] = actx->key.counter[2] = CHACHA_U8TOU32((uchar *)ptr+4);
+		    actx->nonce[2] = actx->key.counter[3] = CHACHA_U8TOU32((uchar *)ptr+8);
 		    return 1;
-
 		case EVP_CTRL_AEAD_SET_TAG:
 		    if(arg <= 0 || arg > POLY1305_BLOCK_SIZE)
 			    return 0;
@@ -350,10 +340,9 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 		    if(arg != EVP_AEAD_TLS1_AAD_LEN)
 			    return 0;
 		    {
-			    uint len;
 			    uchar * aad = (uchar *)ptr;
 				uchar temp[POLY1305_BLOCK_SIZE];
-			    len = aad[EVP_AEAD_TLS1_AAD_LEN - 2] << 8 |
+			    uint len = aad[EVP_AEAD_TLS1_AAD_LEN - 2] << 8 |
 			    aad[EVP_AEAD_TLS1_AAD_LEN - 1];
 			    if(!ctx->encrypt) {
 				    if(len < POLY1305_BLOCK_SIZE)
@@ -391,9 +380,7 @@ static EVP_CIPHER chacha20_poly1305 = {
 	1,              /* block_size */
 	CHACHA_KEY_SIZE, /* key_len */
 	12,             /* iv_len, 96-bit nonce in the context */
-	EVP_CIPH_FLAG_AEAD_CIPHER | EVP_CIPH_CUSTOM_IV |
-	EVP_CIPH_ALWAYS_CALL_INIT | EVP_CIPH_CTRL_INIT |
-	EVP_CIPH_CUSTOM_COPY | EVP_CIPH_FLAG_CUSTOM_CIPHER,
+	EVP_CIPH_FLAG_AEAD_CIPHER | EVP_CIPH_CUSTOM_IV | EVP_CIPH_ALWAYS_CALL_INIT | EVP_CIPH_CTRL_INIT | EVP_CIPH_CUSTOM_COPY | EVP_CIPH_FLAG_CUSTOM_CIPHER,
 	chacha20_poly1305_init_key,
 	chacha20_poly1305_cipher,
 	chacha20_poly1305_cleanup,

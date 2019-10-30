@@ -129,15 +129,8 @@ int EVP_CIPHER_type(const EVP_CIPHER * ctx)
 	}
 }
 
-int EVP_CIPHER_block_size(const EVP_CIPHER * e)
-{
-	return e->block_size;
-}
-
-int EVP_CIPHER_CTX_block_size(const EVP_CIPHER_CTX * ctx)
-{
-	return ctx->cipher->block_size;
-}
+int FASTCALL EVP_CIPHER_block_size(const EVP_CIPHER * e) { return e->block_size; }
+int FASTCALL EVP_CIPHER_CTX_block_size(const EVP_CIPHER_CTX * ctx) { return ctx->cipher->block_size; }
 
 int EVP_CIPHER_impl_ctx_size(const EVP_CIPHER * e)
 {
@@ -174,10 +167,7 @@ void EVP_CIPHER_CTX_set_app_data(EVP_CIPHER_CTX * ctx, void * data)
 	ctx->app_data = data;
 }
 
-void * EVP_CIPHER_CTX_get_cipher_data(const EVP_CIPHER_CTX * ctx)
-{
-	return ctx->cipher_data;
-}
+void * FASTCALL EVP_CIPHER_CTX_get_cipher_data(const EVP_CIPHER_CTX * ctx) { return ctx->cipher_data; }
 
 void * EVP_CIPHER_CTX_set_cipher_data(EVP_CIPHER_CTX * ctx, void * cipher_data)
 {
@@ -186,15 +176,8 @@ void * EVP_CIPHER_CTX_set_cipher_data(EVP_CIPHER_CTX * ctx, void * cipher_data)
 	return old_cipher_data;
 }
 
-int EVP_CIPHER_iv_length(const EVP_CIPHER * cipher)
-{
-	return cipher->iv_len;
-}
-
-int EVP_CIPHER_CTX_iv_length(const EVP_CIPHER_CTX * ctx)
-{
-	return ctx->cipher->iv_len;
-}
+int FASTCALL EVP_CIPHER_iv_length(const EVP_CIPHER * cipher) { return cipher->iv_len; }
+int FASTCALL EVP_CIPHER_CTX_iv_length(const EVP_CIPHER_CTX * ctx) { return ctx->cipher->iv_len; }
 
 const uchar * EVP_CIPHER_CTX_original_iv(const EVP_CIPHER_CTX * ctx)
 {
@@ -221,20 +204,9 @@ int EVP_CIPHER_CTX_num(const EVP_CIPHER_CTX * ctx)
 	return ctx->num;
 }
 
-void FASTCALL EVP_CIPHER_CTX_set_num(EVP_CIPHER_CTX * ctx, int num)
-{
-	ctx->num = num;
-}
-
-int FASTCALL EVP_CIPHER_key_length(const EVP_CIPHER * cipher)
-{
-	return cipher->key_len;
-}
-
-int EVP_CIPHER_CTX_key_length(const EVP_CIPHER_CTX * ctx)
-{
-	return ctx->key_len;
-}
+void FASTCALL EVP_CIPHER_CTX_set_num(EVP_CIPHER_CTX * ctx, int num) { ctx->num = num; }
+int FASTCALL EVP_CIPHER_key_length(const EVP_CIPHER * cipher) { return cipher->key_len; }
+int FASTCALL EVP_CIPHER_CTX_key_length(const EVP_CIPHER_CTX * ctx) { return ctx->key_len; }
 
 int EVP_CIPHER_nid(const EVP_CIPHER * cipher)
 {
@@ -428,40 +400,15 @@ int(*EVP_MD_CTX_update_fn(EVP_MD_CTX *ctx)) (EVP_MD_CTX *ctx, const void * data,
 	return ctx->update;
 }
 
-void EVP_MD_CTX_set_update_fn(EVP_MD_CTX * ctx,
-    int (* update)(EVP_MD_CTX * ctx,
-	    const void * data, size_t count))
+void EVP_MD_CTX_set_update_fn(EVP_MD_CTX * ctx, int (* update)(EVP_MD_CTX * ctx, const void * data, size_t count))
 {
 	ctx->update = update;
 }
 
-void FASTCALL EVP_MD_CTX_set_flags(EVP_MD_CTX * ctx, int flags)
-{
-	ctx->flags |= flags;
-}
-
-void EVP_MD_CTX_clear_flags(EVP_MD_CTX * ctx, int flags)
-{
-	ctx->flags &= ~flags;
-}
-
-int FASTCALL EVP_MD_CTX_test_flags(const EVP_MD_CTX * ctx, int flags)
-{
-	return (ctx->flags & flags);
-}
-
-void EVP_CIPHER_CTX_set_flags(EVP_CIPHER_CTX * ctx, int flags)
-{
-	ctx->flags |= flags;
-}
-
-void EVP_CIPHER_CTX_clear_flags(EVP_CIPHER_CTX * ctx, int flags)
-{
-	ctx->flags &= ~flags;
-}
-
-int EVP_CIPHER_CTX_test_flags(const EVP_CIPHER_CTX * ctx, int flags)
-{
-	return (ctx->flags & flags);
-}
+void FASTCALL EVP_MD_CTX_set_flags(EVP_MD_CTX * ctx, int flags) { ctx->flags |= flags; }
+void EVP_MD_CTX_clear_flags(EVP_MD_CTX * ctx, int flags) { ctx->flags &= ~flags; }
+int FASTCALL EVP_MD_CTX_test_flags(const EVP_MD_CTX * ctx, int flags) { return (ctx->flags & flags); }
+void EVP_CIPHER_CTX_set_flags(EVP_CIPHER_CTX * ctx, int flags) { ctx->flags |= flags; }
+void EVP_CIPHER_CTX_clear_flags(EVP_CIPHER_CTX * ctx, int flags) { ctx->flags &= ~flags; }
+int FASTCALL EVP_CIPHER_CTX_test_flags(const EVP_CIPHER_CTX * ctx, int flags) { return (ctx->flags & flags); }
 

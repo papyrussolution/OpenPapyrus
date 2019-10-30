@@ -46,7 +46,7 @@ public:
 	~PhonePaneDialog();
 	int    SetupInfo();
 	void   Setup(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
-	void   SetupOidList();
+	void   SetupOidList(const PPObjID * pOidToSelect);
 private:
 	class ActionByPhoneDialog : public TDialog {
 	public:
@@ -170,7 +170,7 @@ private:
 		struct Param {
 			Param() : ExtSelector(0)
 			{
-				Oid.Set(0, 0);
+				Oid.Z();
 			}
 			SString Phone;
 			PPObjID Oid;
@@ -262,6 +262,7 @@ private:
 	};
 
 	DECL_HANDLE_EVENT;
+	void   SelectContact(PPObjID oid, int onInit);
 	void   OnContactSelection(int onInit);
 	void   ShowList(int mode, int onInit);
 	void   DoAction()
@@ -519,7 +520,7 @@ int PhonePaneDialog::SetupInfo()
 	return result;
 }
 
-void PhonePaneDialog::SetupOidList()
+void PhonePaneDialog::SetupOidList(const PPObjID * pOidToSelect)
 {
 	SString temp_buf;
 	SString name_buf;
@@ -554,14 +555,18 @@ void PhonePaneDialog::SetupOidList()
 				GetObjectTitle(r_oid.Obj, list_item_buf);
 				list_item_buf.CatDiv(':', 2).Cat(sc_rec.Code);
 				PersonTbl::Rec psn_rec;
-				if(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0) {
+				if(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0)
 					list_item_buf.Space().Cat(psn_rec.Name);
-				}
 			}
 		}
 		if(list_item_buf.NotEmpty()) {
 			name_list.Add(i+1, list_item_buf);
-			SETIFZ(init_id, i+1);
+			if(pOidToSelect && !pOidToSelect->IsZero()) {
+				if(*pOidToSelect == r_oid)
+					init_id = i+1;
+			}
+			else
+				SETIFZ(init_id, i+1);
 		}
 	}
 	SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
@@ -588,7 +593,7 @@ void PhonePaneDialog::Setup(PhoneServiceEventResponder * pPSER, const PhonePaneD
 				P_PSER->IdentifyCaller(S.ConnectedLine, OidList);
 			else
 				OidList.clear();
-			SetupOidList();
+			SetupOidList(0);
 			OnContactSelection(1);
 		}
 	}
@@ -737,6 +742,7 @@ void PhonePaneDialog::NewContact()
 		S.Flags |= S.fLockAutoExit;
 		if(ExecView(dlg) == cmOK) {
 			dlg->getDTS(&param);
+			PPObjID sel_oid;
 			if(param.Oid.Obj == PPOBJ_PERSON) {
 				PersonTbl::Rec psn_rec;
 				PPID   psn_id = 0;
@@ -748,7 +754,7 @@ void PhonePaneDialog::NewContact()
 				eb.InitPhone = p_phone;
 				if(PsnObj.Edit_(&psn_id, eb) > 0) {
 					OidList.Add(param.Oid.Obj, psn_id);
-					SetupOidList();
+					SetupOidList(&sel_oid.Set(param.Oid.Obj, psn_id));
 				}
 			}
 			else if(param.Oid.Obj == PPOBJ_SCARD) {
@@ -761,7 +767,7 @@ void PhonePaneDialog::NewContact()
 				ap.Phone = p_phone;
 				if(ScObj.Edit(&sc_id, ap) > 0) {
 					OidList.Add(param.Oid.Obj, sc_id);
-					SetupOidList();
+					SetupOidList(&sel_oid.Set(param.Oid.Obj, sc_id));
 				}
 			}
 			else if(param.Oid.Obj == PPOBJ_LOCATION) {
@@ -773,7 +779,7 @@ void PhonePaneDialog::NewContact()
 				if(PsnObj.LocObj.EditDialog(LOCTYP_ADDRESS, &loc_pack, 0) > 0) {
 					if(PsnObj.LocObj.PutPacket(&loc_id, &loc_pack, 1)) {
 						OidList.Add(param.Oid.Obj, loc_id);
-						SetupOidList();
+						SetupOidList(&sel_oid.Set(param.Oid.Obj, loc_id));
 					}
 					else
 						PPError();
@@ -1151,22 +1157,13 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 	}
 }
 
-void PhonePaneDialog::OnContactSelection(int onInit)
+void PhonePaneDialog::SelectContact(PPObjID oid, int onInit)
 {
-	long   item_id = getCtrlLong(CTLSEL_PHNCPANE_NAME);
-	/*AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 0, State::lmSwitchTo);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmBill);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 2, State::lmTask);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 3, State::lmPersonEvent);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);*/
 	S.PersonID = 0;
 	S.SCardID = 0;
 	S.LocID = 0;
-	if(item_id && item_id > 0 && item_id <= (long)OidList.getCount()) {
-		const PPObjID & r_oid = OidList.at(item_id-1);
-		if(r_oid.Obj == PPOBJ_PERSON) {
+	if(oid.Obj && oid.Id) {
+		if(oid.Obj == PPOBJ_PERSON) {
 			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 0);
 			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 0);
 			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
@@ -1177,25 +1174,25 @@ void PhonePaneDialog::OnContactSelection(int onInit)
 			PPID   acs_id_sell = GetSellAccSheet();
 			PPID   ar_id_suppl = 0;
 			PPID   ar_id_sell = 0;
-			S.PersonID = r_oid.Id;
+			S.PersonID = oid.Id;
 			if(acs_id_suppl) {
-				ArObj.P_Tbl->PersonToArticle(r_oid.Id, acs_id_suppl, &ar_id_suppl);
+				ArObj.P_Tbl->PersonToArticle(oid.Id, acs_id_suppl, &ar_id_suppl);
 			}
 			if(acs_id_sell) {
-				ArObj.P_Tbl->PersonToArticle(r_oid.Id, acs_id_sell, &ar_id_sell);
+				ArObj.P_Tbl->PersonToArticle(oid.Id, acs_id_sell, &ar_id_sell);
 			}
 			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 1, !(ar_id_suppl || ar_id_sell));
 		}
-		else if(r_oid.Obj == PPOBJ_LOCATION) {
-			S.LocID = r_oid.Id;
+		else if(oid.Obj == PPOBJ_LOCATION) {
+			S.LocID = oid.Id;
 			LocationTbl::Rec loc_rec;
 			if(PsnObj.LocObj.Fetch(S.LocID, &loc_rec) > 0) {
 				if(loc_rec.OwnerID)
 					S.PersonID = loc_rec.OwnerID;
 			}
 		}
-		else if(r_oid.Obj == PPOBJ_SCARD) {
-			S.SCardID = r_oid.Id;
+		else if(oid.Obj == PPOBJ_SCARD) {
+			S.SCardID = oid.Id;
 			SCardTbl::Rec sc_rec;
 			if(ScObj.Fetch(S.SCardID, &sc_rec) > 0) {
 				if(sc_rec.PersonID)
@@ -1203,19 +1200,29 @@ void PhonePaneDialog::OnContactSelection(int onInit)
 			}
 		}
 	}
-	else {
-		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 1, 1);
-		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 1);
-		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 1);
-		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
-		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
-		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
-	}
 	{
 		long   mode = 0;
 		GetClusterData(CTL_PHNCPANE_LISTMODE, &mode);
 		ShowList(mode, onInit);
 	}
+}
+
+void PhonePaneDialog::OnContactSelection(int onInit)
+{
+	long   item_id = getCtrlLong(CTLSEL_PHNCPANE_NAME);
+	/*AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 0, State::lmSwitchTo);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmBill);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 2, State::lmTask);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 3, State::lmPersonEvent);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);*/
+	PPObjID oid;
+	if(item_id && item_id > 0 && item_id <= (long)OidList.getCount())
+		oid = OidList.at(item_id-1);
+	else
+		oid.Z();
+	SelectContact(oid, onInit);
 }
 
 int SLAPI OpenPhonePane()

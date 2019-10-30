@@ -2060,7 +2060,7 @@ int PPSlipFormat::GetFormList(const char * pFileName, StrAssocArray * pList, int
 	long   counter = 0;
 	SFile  file;
 	SString tok_result, form_name;
-	Scan.Set(0, 0);
+	Scan.Z();
 	THROW_SL(file.Open(pFileName, SFile::mRead));
 	do {
 		if(!token)
@@ -2123,7 +2123,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 		ZoneList.freeAll();
 		FontList.freeAll();
 		PictList.freeAll();
-		Scan.Set(0, 0);
+		Scan.Z();
 
 		int    token = 0;
 		int    zone_kind = -1;

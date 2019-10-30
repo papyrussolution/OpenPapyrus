@@ -1102,7 +1102,7 @@ static int aes_gcm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 
 		case EVP_CTRL_COPY:
 	    {
-		    EVP_CIPHER_CTX * out = (EVP_CIPHER_CTX*)ptr;
+		    EVP_CIPHER_CTX * out = static_cast<EVP_CIPHER_CTX *>(ptr);
 		    EVP_AES_GCM_CTX * gctx_out = EVP_C_DATA(EVP_AES_GCM_CTX, out);
 		    if(gctx->gcm.key) {
 			    if(gctx->gcm.key != &gctx->ks)
@@ -1421,7 +1421,7 @@ static int aes_xts_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 {
 	EVP_AES_XTS_CTX * xctx = EVP_C_DATA(EVP_AES_XTS_CTX, c);
 	if(type == EVP_CTRL_COPY) {
-		EVP_CIPHER_CTX * out = (EVP_CIPHER_CTX*)ptr;
+		EVP_CIPHER_CTX * out = static_cast<EVP_CIPHER_CTX *>(ptr);
 		EVP_AES_XTS_CTX * xctx_out = EVP_C_DATA(EVP_AES_XTS_CTX, out);
 		if(xctx->xts.key1) {
 			if(xctx->xts.key1 != &xctx->ks1)
@@ -1613,7 +1613,7 @@ static int aes_ccm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 		    return 1;
 		case EVP_CTRL_COPY:
 	    {
-		    EVP_CIPHER_CTX * out = (EVP_CIPHER_CTX*)ptr;
+		    EVP_CIPHER_CTX * out = static_cast<EVP_CIPHER_CTX *>(ptr);
 		    EVP_AES_CCM_CTX * cctx_out = EVP_C_DATA(EVP_AES_CCM_CTX, out);
 		    if(cctx->ccm.key) {
 			    if(cctx->ccm.key != &cctx->ks)
@@ -1979,7 +1979,7 @@ static int aes_ocb_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 		    memcpy(ptr, octx->tag, arg);
 		    return 1;
 		case EVP_CTRL_COPY:
-		    newc = (EVP_CIPHER_CTX*)ptr;
+		    newc = static_cast<EVP_CIPHER_CTX *>(ptr);
 		    new_octx = EVP_C_DATA(EVP_AES_OCB_CTX, newc);
 		    return CRYPTO_ocb128_copy_ctx(&new_octx->ocb, &octx->ocb, &new_octx->ksenc.ks, &new_octx->ksdec.ks);
 		default:

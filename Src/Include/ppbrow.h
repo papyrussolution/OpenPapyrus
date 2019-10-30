@@ -304,9 +304,9 @@
 	#define HELP_BROWSER_SYSJ_OBJ                               132
 #define BROWSER_SYSJ_SUBST                             133 // @{view_sysjournal}
 	#define HELP_BROWSER_SYSJ_SUBST                             133
-#define BROWSER_GTAJ                                   134 // Журнал тарифицируемых операций глобальных аккаунтов
+#define BROWSER_GTAJ                                   134 // @{gtajournal}
 	#define HELP_BROWSER_GTAJ                                   134
-#define BROWSER_GTAJ_OBJ                               135 // Журнал тарифицируемых операций глобальных аккаунтов
+#define BROWSER_GTAJ_OBJ                               135 // @{gtajournal}
 	#define HELP_BROWSER_GTAJ_OBJ                               135
 #define BROWSER_GEOTRACKING                            136 // Гео-треки
 	#define HELP_BROWSER_GEOTRACKING                            136

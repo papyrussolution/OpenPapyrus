@@ -1009,12 +1009,10 @@ int WhatmanObjectBarcode::Draw(TCanvas2 & rCanv)
 	int    r = 0;
 	if(P.Code.NotEmpty()) {
 		TRect b = GetBounds();
-		if(oneof4(P.Std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
-			P.Size.Set(0, 0);
-		}
-		else {
+		if(oneof4(P.Std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE))
+			P.Size.Z();
+		else
 			P.Size.Set(b.width(), b.height());
-		}
 		P.ColorFg = SClrDarkcyan;
 		P.ColorBg = SClrYellow;
 		if(PPBarcode::CreateImage(P)) {
@@ -2755,7 +2753,7 @@ int SLAPI DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 	//TestMqc();
-	//TestCRC();
+	TestCRC();
 	//Test_MailMsg_ReadFromFile();
 	//TestSArchive();
 	//LuaTest();

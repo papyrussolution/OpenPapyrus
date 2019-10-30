@@ -2682,13 +2682,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_GETFILE:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-			if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0) {
-				name.ShiftLeft(sstrlen(MAGIC_FILETRANSMIT));
-				ok = TransmitFile(tfvStart, name, rReply);
-			}
-			else {
-				CALLEXCEPT_PP_S(PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
-			}
+			THROW_PP_S(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0, PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
+			name.ShiftLeft(sstrlen(MAGIC_FILETRANSMIT));
+			ok = TransmitFile(tfvStart, name, rReply);
 			break;
 		case PPSCMD_GETNEXTFILEPART:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
@@ -2705,13 +2701,11 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_GETSERVERSTAT:
 			{
 				const ThreadID this_thread_id = DS.GetConstTLA().GetThreadID();
-
 				TSCollection <PPThread::Info> list;
 				DS.GetThreadInfoList(0, list);
 				SSerializeContext ctx;
 				int32 c = list.getCount();
 				SBuffer _temp_sbuf;
-
 				ctx.Init(0, getcurdate_());
 				THROW_SL(ctx.Serialize(+1, c, _temp_sbuf));
 				for(int i = 0; i < c; i++) {
@@ -2780,6 +2774,33 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				temp_buf.Cat(DS.GetConstTLA().GlobAccID);
 				rReply.SetString(temp_buf);
 				ok = cmdretOK;
+			}
+			break;
+		case PPSCMD_GETCOMMONMQSCONFIG:
+			{
+				PPAlbatrosConfig alb_cfg;
+				if(PPAlbatrosCfgMngr::Get(&alb_cfg)) {
+					THROW(PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(alb_cfg, temp_buf));
+					rReply.SetString(temp_buf);
+					ok = cmdretOK;
+#ifndef NDEBUG // {
+					if(1) {
+						// reverse test
+						PPAlbatrosConfig test_cfg;
+						SString test_buf;
+						THROW(PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(temp_buf, &test_cfg));
+						alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+						test_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, test_buf);
+						assert(test_buf == temp_buf);
+						alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+						test_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, test_buf);
+						assert(test_buf == temp_buf);
+						alb_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+						test_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, test_buf);
+						assert(test_buf == temp_buf);
+					}
+#endif // } !NDEBUG
+				}
 			}
 			break;
 		case PPSCMD_EXPTARIFFTA:
@@ -3002,9 +3023,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					SString from;
 					SString message;
 					PPLogger logger;
-					PPAlbatrosConfig  albtr_cfg;
+					PPAlbatrosConfig alb_cfg;
 					SmsClient client(&logger);
-
 					pEv->GetParam(1, old_phone); // PPGetExtStrData(1, pEv->Params, old_phone);
 					pEv->GetParam(2, from); // PPGetExtStrData(2, pEv->Params, from);
 					pEv->GetParam(3, message); // PPGetExtStrData(3, pEv->Params, message);
@@ -3012,7 +3032,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					THROW(!old_phone.Empty());
 					THROW(!message.Empty());
 					THROW(!from.Empty());
-					THROW(PPAlbatrosCfgMngr::Get(&albtr_cfg));
+					THROW(PPAlbatrosCfgMngr::Get(&alb_cfg));
 					{
 						size_t bin_size = 0;
 						STempBuffer buf(message.Len() * 2);
@@ -3021,7 +3041,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 						buf[bin_size] = 0;
 						message.Z().Cat(buf.cptr()).Transf(CTRANSF_UTF8_TO_INNER);
 					}
-					THROW(client.SmsInit_(albtr_cfg.Hdr.SmsAccID, from));
+					THROW(client.SmsInit_(alb_cfg.Hdr.SmsAccID, from));
 					if(FormatPhone(old_phone, new_phone, err_msg)) {
 						THROW(client.SendSms(new_phone, message, result.Z()));
 						temp_buf.Z().Cat(new_phone).Space().Cat(result);
@@ -3747,21 +3767,13 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0)
 					name.ShiftLeft(sstrlen(MAGIC_FILETRANSMIT));
 				else
-					name = 0;
+					name.Z();
 				ok = ReceiveFile(tfvStart, name, rReply);
 				break;
-			case PPSCMD_PUTNEXTFILEPART:
-				ok = ReceiveFile(tfvNext, name, rReply);
-				break;
-			case PPSCMD_TEST:
-				ok = Testing();
-				break;
-			case PPSCMD_GETREQQUOTES: // @v10.2.4 @construction
-				ok = GetReqQuotes(rReply);
-				break;
-			case PPSCMD_SETTIMESERIES: // @v10.2.3 @construction
-				ok = SetTimeSeries(rReply);
-				break;
+			case PPSCMD_PUTNEXTFILEPART: ok = ReceiveFile(tfvNext, name, rReply); break;
+			case PPSCMD_TEST: ok = Testing(); break;
+			case PPSCMD_GETREQQUOTES: ok = GetReqQuotes(rReply); break; // @v10.2.4 
+			case PPSCMD_SETTIMESERIES: ok = SetTimeSeries(rReply); break; // @v10.2.3
 			case PPSCMD_SETTIMESERIESPROP: // @v10.2.5
 				{
 					pEv->GetParam(1, db_symb);
@@ -3776,12 +3788,8 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 						ok = cmdretOK;
 				}
 				break;
-			case PPSCMD_SETTIMESERIESSTKENV: // @v10.2.10
-				ok = SetTimeSeriesStakeEnvironment(rReply);
-				break;
-			case PPSCMD_TIMESERIESTANOTIFY: // @v10.4.0
-				ok = SetTimeSeriesTaNotification(rReply);
-				break;
+			case PPSCMD_SETTIMESERIESSTKENV: ok = SetTimeSeriesStakeEnvironment(rReply); break; // @v10.2.10
+			case PPSCMD_TIMESERIESTANOTIFY:  ok = SetTimeSeriesTaNotification(rReply); break; // @v10.4.0
 			case PPSCMD_GETDISPLAYINFO:
 				{
 					long   id = 0;

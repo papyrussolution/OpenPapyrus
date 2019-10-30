@@ -209,8 +209,47 @@ public:
 	{
 		P_Pack = pPack;
 	}
-	virtual int setDTS(const PPAdvBillItemList::Item *);
-	virtual int getDTS(PPAdvBillItemList::Item *);
+	virtual int setDTS(const PPAdvBillItemList::Item * pData)
+	{
+		int    ok = 1;
+		Data = *pData;
+		AcctCtrlGroup::Rec acc_rec;
+		AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ADVBITEM_ACC, CTL_ADVBITEM_ART, CTLSEL_ADVBITEM_ACCNAME, CTLSEL_ADVBITEM_ARTNAME);
+		THROW_MEM(p_acc_grp);
+		addGroup(ctlgroupAcc, p_acc_grp);
+		acc_rec.AcctId.ac   = Data.AccID;
+		acc_rec.AcctId.ar   = Data.ArID;
+		BillObj->atobj->P_Tbl->AccObj.InitAccSheetForAcctID(&acc_rec.AcctId, &acc_rec.AccSheetID);
+		acc_rec.AccSelParam = ACY_SEL_BAL;
+		setGroupData(ctlgroupAcc, &acc_rec);
+		SetupCalDate(CTLCAL_ADVBITEM_DT, CTL_ADVBITEM_DT);
+		setCtrlData(CTL_ADVBITEM_DT,     &Data.AdvDt);
+		SetupPPObjCombo(this, CTLSEL_ADVBITEM_BILLKIND, PPOBJ_ADVBILLKIND, Data.AdvBillKindID, OLW_CANINSERT);
+		setCtrlData(CTL_ADVBITEM_CODE,   Data.AdvCode);
+		setCtrlData(CTL_ADVBITEM_AMOUNT, &Data.Amount);
+		setCtrlData(CTL_ADVBITEM_MEMO,   Data.Memo);
+		setupLinkBill();
+		CATCHZOK
+		return ok;
+	}
+	virtual int getDTS(PPAdvBillItemList::Item * pData)
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		AcctCtrlGroup::Rec acc_rec;
+		getCtrlData(sel = CTL_ADVBITEM_DT,   &Data.AdvDt);
+		THROW_SL(checkdate(Data.AdvDt, 1));
+		getCtrlData(CTL_ADVBITEM_CODE, Data.AdvCode);
+		getCtrlData(CTLSEL_ADVBITEM_BILLKIND, &Data.AdvBillKindID);
+		getCtrlData(CTL_ADVBITEM_AMOUNT, &Data.Amount);
+		getCtrlData(CTL_ADVBITEM_MEMO,   Data.Memo);
+		getGroupData(ctlgroupAcc, &acc_rec);
+		Data.AccID = acc_rec.AcctId.ac;
+		Data.ArID  = acc_rec.AcctId.ar;
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 protected:
 	DECL_HANDLE_EVENT;
 	void   setupLinkBill();
@@ -370,49 +409,6 @@ IMPL_HANDLE_EVENT(AdvBillItemDialog)
 		return;
 	clearEvent(event);
 }
-
-int AdvBillItemDialog::setDTS(const PPAdvBillItemList::Item * pData)
-{
-	int    ok = 1;
-	Data = *pData;
-	AcctCtrlGroup::Rec acc_rec;
-	AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ADVBITEM_ACC, CTL_ADVBITEM_ART, CTLSEL_ADVBITEM_ACCNAME, CTLSEL_ADVBITEM_ARTNAME);
-	THROW_MEM(p_acc_grp);
-	addGroup(ctlgroupAcc, p_acc_grp);
-	acc_rec.AcctId.ac   = Data.AccID;
-	acc_rec.AcctId.ar   = Data.ArID;
-	BillObj->atobj->P_Tbl->AccObj.InitAccSheetForAcctID(&acc_rec.AcctId, &acc_rec.AccSheetID);
-	acc_rec.AccSelParam = ACY_SEL_BAL;
-	setGroupData(ctlgroupAcc, &acc_rec);
-	SetupCalDate(CTLCAL_ADVBITEM_DT, CTL_ADVBITEM_DT);
-	setCtrlData(CTL_ADVBITEM_DT,     &Data.AdvDt);
-	SetupPPObjCombo(this, CTLSEL_ADVBITEM_BILLKIND, PPOBJ_ADVBILLKIND, Data.AdvBillKindID, OLW_CANINSERT);
-	setCtrlData(CTL_ADVBITEM_CODE,   Data.AdvCode);
-	setCtrlData(CTL_ADVBITEM_AMOUNT, &Data.Amount);
-	setCtrlData(CTL_ADVBITEM_MEMO,   Data.Memo);
-	setupLinkBill();
-	CATCHZOK
-	return ok;
-}
-
-int AdvBillItemDialog::getDTS(PPAdvBillItemList::Item * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	AcctCtrlGroup::Rec acc_rec;
-	getCtrlData(sel = CTL_ADVBITEM_DT,   &Data.AdvDt);
-	THROW_SL(checkdate(Data.AdvDt, 1));
-	getCtrlData(CTL_ADVBITEM_CODE, Data.AdvCode);
-	getCtrlData(CTLSEL_ADVBITEM_BILLKIND, &Data.AdvBillKindID);
-	getCtrlData(CTL_ADVBITEM_AMOUNT, &Data.Amount);
-	getCtrlData(CTL_ADVBITEM_MEMO,   Data.Memo);
-	getGroupData(ctlgroupAcc, &acc_rec);
-	Data.AccID = acc_rec.AcctId.ac;
-	Data.ArID  = acc_rec.AcctId.ar;
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
 //
 // WarrantItemDialog
 //
@@ -421,7 +417,7 @@ public:
 	WarrantItemDialog(uint dlgID) : AdvBillItemDialog(dlgID) 
 	{
 	}
-	virtual int WarrantItemDialog::setDTS(const PPAdvBillItemList::Item * pData)
+	virtual int setDTS(const PPAdvBillItemList::Item * pData)
 	{
 		Data = *pData;
 		setCtrlData(CTL_WARRITEM_NAME, Data.Memo);
@@ -429,7 +425,7 @@ public:
 		setCtrlData(CTL_WARRITEM_QTTY, &Data.Amount);
 		return 1;
 	}
-	virtual int WarrantItemDialog::getDTS(PPAdvBillItemList::Item * pData)
+	virtual int getDTS(PPAdvBillItemList::Item * pData)
 	{
 		getCtrlData(CTL_WARRITEM_NAME, Data.Memo);
 		getCtrlData(CTLSEL_WARRITEM_UNIT, &Data.ArID);
@@ -443,9 +439,8 @@ public:
 //
 class DebtInventItemDialog : public AdvBillItemDialog {
 public:
-	DebtInventItemDialog(PPID accSheetID) : AdvBillItemDialog(DLG_DINVITEM)
+	DebtInventItemDialog(PPID accSheetID) : AdvBillItemDialog(DLG_DINVITEM), AccSheetID(accSheetID)
 	{
-		AccSheetID = accSheetID;
 	}
 	virtual int setDTS(const PPAdvBillItemList::Item * pData)
 	{

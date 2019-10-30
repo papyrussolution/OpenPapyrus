@@ -950,7 +950,7 @@ void   OBJ_NAME_do_all(int type, void (*fn) (const OBJ_NAME *, void *arg), void 
 void   OBJ_NAME_do_all_sorted(int type, void (*fn) (const OBJ_NAME *, void *arg), void *arg);
 
 ASN1_OBJECT * OBJ_dup(const ASN1_OBJECT *o);
-ASN1_OBJECT * OBJ_nid2obj(int n);
+ASN1_OBJECT * FASTCALL OBJ_nid2obj(int n);
 const char * FASTCALL OBJ_nid2ln(int n);
 const char * FASTCALL OBJ_nid2sn(int n);
 int    FASTCALL OBJ_obj2nid(const ASN1_OBJECT *o);

@@ -23,13 +23,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -161,10 +161,6 @@
     <ClCompile Include="..\Util\Ppdsc.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="db.vcxproj">
-      <Project>{b69839d2-66ea-4506-aa8d-9f1287e0dee7}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="openssl-crypto.vcxproj">
       <Project>{519272d1-6ac2-4b29-badf-9f9a7af3383c}</Project>
     </ProjectReference>

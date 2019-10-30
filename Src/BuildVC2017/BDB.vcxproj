@@ -1002,6 +1002,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Osf\Bdb\lock_alloc.incl" />
+    <None Include="cairo-1.16.0.vcxproj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

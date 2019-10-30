@@ -917,7 +917,7 @@ int SLAPI PPObjBill::PrintCheck(PPBillPacket * pPack, PPID posNodeID, int addSum
 }
 
 struct _CcByBillParam {
-	SLAPI  _CcByBillParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0)
+	SLAPI  _CcByBillParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0), Flags(0)
 	{
 	}
 	PPID   PosNodeID;
@@ -926,6 +926,7 @@ struct _CcByBillParam {
     int    DivisionN;
 	SString Info;
 	double Amount; //@erik v10.5.9
+	long   Flags;  //@erik v10.5.9
 };
 
 static int SLAPI _EditCcByBillParam(_CcByBillParam & rParam)
@@ -966,9 +967,21 @@ static int SLAPI _EditCcByBillParam(_CcByBillParam & rParam)
 			SetupPPObjCombo(dlg, CTLSEL_CCBYBILL_POSNODE, PPOBJ_CASHNODE, rParam.PosNodeID, 0, &f);
 		}
 		// } @v10.0.0
-        dlg->AddClusterAssocDef(CTL_CCBYBILL_PAYMTYPE,  0, cpmCash);
-        dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE,  1, cpmBank);
-        dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, rParam.PaymType);
+		// @erik v10.5.9 {
+		dlg->AddClusterAssocDef(CTL_CCBYBILL_PAYMTYPE, 0, cpmCash);
+		dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE, 1, cpmBank);
+		const long __p = CHKXORFLAGS(rParam.Flags, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH);
+		if(__p > 0) {
+			if(__p & OPKFX_PAYMENT_CASH)
+				dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmCash);
+			else if(__p & OPKFX_PAYMENT_NONCASH)
+				dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmBank);
+			dlg->disableCtrl(CTL_CCBYBILL_PAYMTYPE, 1);
+		}
+		else {
+			dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, rParam.PaymType);
+		}
+		// } @erik v10.5.9
         dlg->setCtrlLong(CTL_CCBYBILL_DIVISION, rParam.DivisionN);
         dlg->setStaticText(CTL_CCBYBILL_ST_INFO, rParam.Info);
         while(ok < 0 && ExecView(dlg) == cmOK) {
@@ -1004,12 +1017,15 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 			PPMessage(mfInfo|mfOK, PPINF_NPRNTCASHCHKBYOPRKIND);
 		if(_mode && (!(bill_rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes))) {
 			const PPID  __node_id = NZOR(LConfig.DefBillCashID, Cfg.CashNodeID);
+			PPOprKindPacket pack;  //@erik v10.5.9
+			P_OpObj->GetPacket(bill_rec.OpID, &pack);  //@erik v10.5.9
 			_CcByBillParam param;
 			param.PosNodeID = __node_id;
 			param.LocID = bill_rec.LocID;
 			param.DivisionN = 0;
 			param.PaymType = cpmCash;
 			param.Amount = bill_rec.Amount;  //@erik v10.5.9
+			param.Flags = pack.Rec.ExtFlags;
 			if(_EditCcByBillParam(param) > 0) {
 				int    sync_prn_err = 0;
 				PPObjCashNode cn_obj;
@@ -1265,7 +1281,7 @@ int SLAPI PPObjBill::GetOriginalPacket(PPID billID, SysJournalTbl::Rec * pSjRec,
 				long   vv = 0;
 				SBuffer ov_buf;
 				PPObjID oid;
-				oid.Set(0, 0);
+				oid.Z();
 				ov_buf.Z();
 				if(p_ovc->Search(ev_mod.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEqual(ev_mod.ObjType, ev_mod.ObjID)) {
 					PPBillPacket org_pack;
@@ -5544,7 +5560,7 @@ int SLAPI PPObjBill::GetSubstObjType(long id, const SubstParam * pParam, PPObjID
 {
 	int    ok = 1;
 	PPObjID obj_id;
-	MEMSZERO(obj_id);
+	obj_id.Z();
 	switch(pParam->Sgb.S) {
 		case SubstGrpBill::sgbNone: break;
 		case SubstGrpBill::sgbObject:

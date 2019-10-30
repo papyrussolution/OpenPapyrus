@@ -2174,7 +2174,7 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			SArray * p_ary = CreateExtRegList(&Filt, &reg_id, 0);
 			if(p_ary) {
 				uint   pos = 0;
-				ExtRegEntry * p_ere = p_ary->lsearch(&reg_id, &pos, CMPF_LONG) ? (ExtRegEntry *)p_ary->at(pos) : 0;
+				const  ExtRegEntry * p_ere = p_ary->lsearch(&reg_id, &pos, CMPF_LONG) ? static_cast<const ExtRegEntry *>(p_ary->at(pos)) : 0;
 				if(p_ere)
 					title_buf.Cat(p_ere->Name);
 				delete p_ary;
@@ -2768,7 +2768,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					PPID    obj_id = 0;
 					if(Filt.IsLocAttr() && Filt.Flags & PersonFilt::fLocTagF) {
 						obj_type = PPOBJ_LOCATION;
-						obj_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
+						obj_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
 					}
 					else {
 						obj_type = PPOBJ_PERSON;
@@ -2780,7 +2780,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_CURREG:
 				if(Filt.IsLocAttr()) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
+					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id)
 						ok = (PsnObj.LocObj.Edit(&loc_id, 0) == cmOK) ? 1 : -1;
 				}
@@ -2789,7 +2789,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_DLVRADDREXFLDS:
 				if(Filt.IsLocAttr()) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
+					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id)
 						if((ok = EditDlvrAddrExtFlds(loc_id)) == 0)
 							PPError();
@@ -2839,7 +2839,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_UNITEOBJ:
 				if(oneof4(Filt.AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_HANGEDADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
+					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id)
 						ok = PPObjPerson::ReplaceDlvrAddr(loc_id);
 				}
@@ -2903,8 +2903,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 								link_files.At(0, img_path);
 							}
 							PPTooltipMessage(buf, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-								SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|
-								SMessageWindow::fChildWindow);
+								SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 						}
 					}
 				}
@@ -2940,7 +2939,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 			case PPVCMD_VIEWCCHECKS:
 				ok = -1;
 				if(Filt.AttribType == PPPSNATTR_STANDALONEADDR) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
+					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id) {
 						CCheckFilt cc_filt;
 						cc_filt.DlvrAddrID = loc_id;

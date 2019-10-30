@@ -108,8 +108,9 @@ int FASTCALL PPGetSubStrById(int strId, int subId, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
-	SString line_buf, item_buf, id_buf, txt_buf;
+	SString line_buf;
 	if(PPLoadText(strId, line_buf)) {
+		SString item_buf, id_buf, txt_buf;
 		for(int idx = 0; !ok && PPGetSubStr(line_buf, idx, item_buf) > 0; idx++) {
 			long   id = 0;
 			if(item_buf.Divide(',', id_buf, txt_buf) > 0)

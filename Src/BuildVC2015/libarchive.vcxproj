@@ -245,6 +245,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AssemblerOutput>NoListing</AssemblerOutput>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Lib>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
@@ -267,6 +268,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;LIBARCHIVE_STATIC;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\osf\libarchive\libarchive;..\__build__;D:\TOOLS\MinGW\msys\1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <ClCompile>

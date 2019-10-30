@@ -616,6 +616,18 @@ int SLAPI ObjIdListFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 //
 //
 //
+int SLAPI PPObjID::IsZero() const
+{
+	return (Obj == 0 && Id == 0);
+}
+
+PPObjID & PPObjID::Z()
+{
+	Obj = 0;
+	Id = 0;
+	return *this;
+}
+
 PPObjID PPObjID::Set(PPID objType, PPID objID)
 {
 	Obj = objType;
@@ -689,8 +701,7 @@ int SLAPI PPObjIDArray::Search(PPObjID key, uint * pPos) const
 int SLAPI PPObjIDArray::Add(PPID objType, PPID objID)
 {
 	PPObjID item;
-	item.Obj = objType;
-	item.Id = objID;
+	item.Set(objType, objID);
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
@@ -698,8 +709,7 @@ int SLAPI PPObjIDArray::Add_NotPreprocess(PPID objType, PPID objID)
 {
 	int    ok = 1;
 	PPObjID item;
-	item.Obj = objType;
-	item.Id = objID;
+	item.Set(objType, objID);
 	const uint pos = getCount();
 	if(insert(&item)) {
 		DontPreprocPosList.add(pos);

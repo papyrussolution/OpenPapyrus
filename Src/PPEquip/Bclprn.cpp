@@ -1571,7 +1571,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 			THROW_SL(p_rgi);
 			const PPTransferItem * p_ti = &pPack->ConstTI(cur_pos);
 			int    r = 0;
-			if(p_ti->LotID) {
+			if(p_ti->LotID && pPack->OpTypeID != PPOPT_GOODSORDER) { // @v10.5.10 (&& pPack->OpTypeID != PPOPT_GOODSORDER) для заказа те же правила, что и для драфт-документов
 				PPID   lot_id = p_ti->LotID;
 				if(cor_loc_id && p_ti->BillID && p_ti->RByBill) {
 					TransferTbl::Rec trfr_rec;

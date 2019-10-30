@@ -1714,7 +1714,7 @@ int SLAPI PPViewGeoTracking::Export()
 					n_gpx.PutAttrib("xsi:schemaLocation", temp_buf);
 				GeoTrackingViewItem item;
 				PPObjID last_oid;
-				last_oid.Set(0, 0);
+				last_oid.Z();
 				while(NextIteration(&item) > 0) {
 					PPObjID oid;
 					oid.Set(item.ObjType, item.ObjID);

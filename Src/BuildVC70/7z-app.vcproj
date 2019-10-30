@@ -55,7 +55,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib Ws2_32.lib winmm.lib wbemuuid.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib"
 				OutputFile="..\..\ppy\bin\7zs.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -136,7 +136,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib Ws2_32.lib winmm.lib wbemuuid.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib"
 				OutputFile="..\..\ppy\bin\7zs.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -217,7 +217,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib Ws2_32.lib winmm.lib wbemuuid.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib"
 				OutputFile="..\..\ppy\bin\7zs.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -296,7 +296,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib Ws2_32.lib winmm.lib wbemuuid.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib"
 				OutputFile="..\..\ppy\bin\7zs.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -377,7 +377,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib Ws2_32.lib winmm.lib wbemuuid.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib"
 				OutputFile="..\..\ppy\bin\7zs.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -456,7 +456,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib Ws2_32.lib winmm.lib wbemuuid.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib"
 				OutputFile="..\..\ppy\bin\7zs.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

@@ -1,5 +1,5 @@
 // CRYPTO.CPP
-// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016
+// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019
 // @threadsafe
 //
 #include <slib.h>
@@ -51,19 +51,17 @@ static ulong SLAPI unmix(ulong v)
 
 void * SLAPI encrypt(void * pBuf, size_t len)
 {
-	size_t i;
 	len = ((len + 3) >> 2);
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 		((ulong*)pBuf)[i] = mix(((ulong*)pBuf)[i]);
 	return pBuf;
 }
 
 void * SLAPI decrypt(void * pBuf, size_t len)
 {
-	size_t i;
 	len >>= 2;
-	for(i = 0; i < len; i++)
-		((ulong*)pBuf)[i] = unmix(((ulong*)pBuf)[i]);
+	for(size_t i = 0; i < len; i++)
+		static_cast<ulong *>(pBuf)[i] = unmix(static_cast<const ulong *>(pBuf)[i]);
 	return pBuf;
 }
 
@@ -72,6 +70,509 @@ ulong SLAPI _checksum__(const char * buf, size_t len)
 	ulong r = 0xc22cc22cUL;
 	size_t i;
 	for(i = 0; i < len; i++)
-		((uchar *)&r)[i % 4] += (uchar)((uint)buf[i] ^ (uint)((uchar *)&r)[3 - (i % 4)]);
+		reinterpret_cast<uchar *>(&r)[i % 4] += (uchar)((uint)buf[i] ^ (uint)((uchar *)&r)[3 - (i % 4)]);
 	return r;
+}
+//
+//
+//
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+
+SlCrypto::CipherProperties::CipherProperties() : BlockSize(0), KeySize(0), IvSize(0), AadSize(0)
+{
+}
+
+SlCrypto::Key::Key() : EndP(0)
+{
+	KEY.Init();
+	IV.Init();
+	AAD.Init();
+}
+
+SlCrypto::Key & SlCrypto::Key::Z()
+{
+	KEY.Init();
+	IV.Init();
+	AAD.Init();
+	EndP = 0;
+	return *this;
+}
+
+const SBaseBuffer & SlCrypto::Key::GetKey() const
+{
+	return KEY;
+}
+
+const SBaseBuffer & SlCrypto::Key::GetIV() const
+{
+	return IV;
+}
+
+const SBaseBuffer & SlCrypto::Key::GetAAD() const
+{
+	return AAD;
+}
+
+int SlCrypto::Key::SetKey(const void * pData, size_t size)
+{
+	int    ok = 1;
+	if((EndP + size) > sizeof(Bin))
+		ok = 0;
+	else {
+		memcpy(Bin+EndP, pData, size);
+		KEY.P_Buf = reinterpret_cast<char *>(Bin+EndP);
+		KEY.Size = size;
+		EndP += size;
+	}
+	return ok;
+}
+		
+int SlCrypto::Key::SetIV(const void * pData, size_t size)
+{
+	int    ok = 1;
+	if((EndP + size) > sizeof(Bin))
+		ok = 0;
+	else {
+		memcpy(Bin+EndP, pData, size);
+		IV.P_Buf = reinterpret_cast<char *>(Bin+EndP);
+		IV.Size = size;
+		EndP += size;
+	}
+	return ok;
+}
+		
+int SlCrypto::Key::SetAAD(const void * pData, size_t size)
+{
+	int    ok = 1;
+	if((EndP + size) > sizeof(Bin))
+		ok = 0;
+	else {
+		memcpy(Bin+EndP, pData, size);
+		AAD.P_Buf = reinterpret_cast<char *>(Bin+EndP);
+		AAD.Size = size;
+		EndP += size;
+	}
+	return ok;
+}
+
+SlCrypto::SlCrypto(int alg, uint kbl, int algModif) : P_Ctx(0), P_Cphr(0), Alg(alg), KeyBitLen(kbl), AlgModif(algModif), State(0)
+{
+	const EVP_CIPHER * p_cphr = 0;
+	switch(Alg) {
+		case algAes:
+			switch(KeyBitLen) {
+				case kbl128:
+					switch(AlgModif) {
+						case algmodCbc: p_cphr = EVP_aes_128_cbc(); break;
+						case algmodEcb: p_cphr = EVP_aes_128_ecb(); break;
+						case algmodOcb: p_cphr = EVP_aes_128_ocb(); break;
+						case algmodOfb: p_cphr = EVP_aes_128_ofb(); break;
+						case algmodCcm: p_cphr = EVP_aes_128_ccm(); break;
+						case algmodGcm: p_cphr = EVP_aes_128_gcm(); break;
+						case algmodCtr: p_cphr = EVP_aes_128_ctr(); break;
+						case algmodXts: p_cphr = EVP_aes_128_xts(); break;
+						case algmodWrap: p_cphr = EVP_aes_128_wrap(); break;
+						case algmodWrapPad: p_cphr = EVP_aes_128_wrap_pad(); break;
+						case algmodCfb1: p_cphr = EVP_aes_128_cfb1(); break;
+						case algmodCfb8: p_cphr = EVP_aes_128_cfb8(); break;
+						case algmodCfb128: p_cphr = EVP_aes_128_cfb128(); break;
+					}
+					break;
+				case kbl192:
+					switch(AlgModif) {
+						case algmodCbc: p_cphr = EVP_aes_192_cbc(); break;
+						case algmodEcb: p_cphr = EVP_aes_192_ecb(); break;
+						case algmodOcb: p_cphr = EVP_aes_192_ocb(); break;
+						case algmodOfb: p_cphr = EVP_aes_192_ofb(); break;
+						case algmodCcm: p_cphr = EVP_aes_192_ccm(); break;
+						case algmodGcm: p_cphr = EVP_aes_192_gcm(); break;
+						case algmodCtr: p_cphr = EVP_aes_192_ctr(); break;
+						//case algmodXts: p_cphr = EVP_aes_192_xts(); break;
+						case algmodWrap: p_cphr = EVP_aes_192_wrap(); break;
+						case algmodWrapPad: p_cphr = EVP_aes_192_wrap_pad(); break;
+						case algmodCfb1: p_cphr = EVP_aes_192_cfb1(); break;
+						case algmodCfb8: p_cphr = EVP_aes_192_cfb8(); break;
+						case algmodCfb128: p_cphr = EVP_aes_192_cfb128(); break;
+					}
+					break;
+				case kbl256:
+					switch(AlgModif) {
+						case algmodCbc: p_cphr = EVP_aes_256_cbc(); break;
+						case algmodEcb: p_cphr = EVP_aes_256_ecb(); break;
+						case algmodOcb: p_cphr = EVP_aes_256_ocb(); break;
+						case algmodOfb: p_cphr = EVP_aes_256_ofb(); break;
+						case algmodCcm: p_cphr = EVP_aes_256_ccm(); break;
+						case algmodGcm: p_cphr = EVP_aes_256_gcm(); break;
+						case algmodCtr: p_cphr = EVP_aes_256_ctr(); break;
+						case algmodXts: p_cphr = EVP_aes_256_xts(); break;
+						case algmodWrap: p_cphr = EVP_aes_256_wrap(); break;
+						case algmodWrapPad: p_cphr = EVP_aes_256_wrap_pad(); break;
+						case algmodCfb1: p_cphr = EVP_aes_256_cfb1(); break;
+						case algmodCfb8: p_cphr = EVP_aes_256_cfb8(); break;
+						case algmodCfb128: p_cphr = EVP_aes_256_cfb128(); break;
+					}
+					break;
+				default:
+					break;
+			}
+			break;
+		case algDes:
+			switch(AlgModif) {
+				case algmodCbc: p_cphr = EVP_des_cbc(); break;
+				case algmodEcb: p_cphr = EVP_des_ecb(); break;
+				case algmodOfb: p_cphr = EVP_des_ofb(); break;
+				case algmodCfb1: p_cphr = EVP_des_cfb1(); break;
+				case algmodCfb8: p_cphr = EVP_des_cfb8(); break;
+				case algmodCfb: 
+				case algmodCfb64: p_cphr = EVP_des_cfb64(); break;
+			}
+			break;
+		case algDes_Ede:
+			switch(AlgModif) {
+				case algmodCbc: p_cphr = EVP_des_ede_cbc(); break;
+				case algmodEcb: p_cphr = EVP_des_ede_ecb(); break;
+				case algmodOfb: p_cphr = EVP_des_ede_ofb(); break;
+				case algmodCfb: 
+				case algmodCfb64: p_cphr = EVP_des_ede_cfb64(); break;
+				default: p_cphr = EVP_des_ede(); break;
+			}
+			break;
+		case algDes_Ede3:
+			switch(AlgModif) {
+				case algmodCbc: p_cphr = EVP_des_ede3_cbc(); break;
+				case algmodEcb: p_cphr = EVP_des_ede3_ecb(); break;
+				case algmodOfb: p_cphr = EVP_des_ede3_ofb(); break;
+				case algmodWrap: p_cphr = EVP_des_ede3_wrap(); break;
+				case algmodCfb1: p_cphr = EVP_des_ede3_cfb1(); break;
+				case algmodCfb8: p_cphr = EVP_des_ede3_cfb8(); break;
+				case algmodCfb: 
+				case algmodCfb64: p_cphr = EVP_des_ede3_cfb64(); break;
+				default: p_cphr = EVP_des_ede3(); break;
+			}
+			break;
+		case algDesx:
+			switch(AlgModif) {
+				case algmodCbc: p_cphr = EVP_desx_cbc(); break;
+				default: p_cphr = EVP_desx_cbc(); break;
+			}
+			break;
+		case algIdea:
+			switch(AlgModif) {
+				case algmodEcb: p_cphr = EVP_idea_ecb(); break;
+				case algmodCbc: p_cphr = EVP_idea_cbc(); break;
+				case algmodOfb: p_cphr = EVP_idea_ofb(); break;
+				case algmodCfb: 
+				case algmodCfb64: p_cphr = EVP_idea_cfb64(); break;
+			}
+			break;
+		case algCamellia:
+			switch(KeyBitLen) {
+				case kbl128:
+					switch(AlgModif) {
+						case algmodEcb: p_cphr = EVP_camellia_128_ecb(); break;
+						case algmodCbc: p_cphr = EVP_camellia_128_cbc(); break;
+						case algmodOfb: p_cphr = EVP_camellia_128_ofb(); break;
+						case algmodCtr: p_cphr = EVP_camellia_128_ctr(); break;
+						case algmodCfb1: p_cphr = EVP_camellia_128_cfb1(); break;
+						case algmodCfb8: p_cphr = EVP_camellia_128_cfb8(); break;
+						case algmodCfb:
+						case algmodCfb128: p_cphr = EVP_camellia_128_cfb128(); break;
+					}
+					break;
+				case kbl192:
+					switch(AlgModif) {
+						case algmodEcb: p_cphr = EVP_camellia_192_ecb(); break;
+						case algmodCbc: p_cphr = EVP_camellia_192_cbc(); break;
+						case algmodOfb: p_cphr = EVP_camellia_192_ofb(); break;
+						case algmodCtr: p_cphr = EVP_camellia_192_ctr(); break;
+						case algmodCfb1: p_cphr = EVP_camellia_192_cfb1(); break;
+						case algmodCfb8: p_cphr = EVP_camellia_192_cfb8(); break;
+						case algmodCfb:
+						case algmodCfb128: p_cphr = EVP_camellia_192_cfb128(); break;
+					}
+					break;
+				case kbl256:
+					switch(AlgModif) {
+						case algmodEcb: p_cphr = EVP_camellia_256_ecb(); break;
+						case algmodCbc: p_cphr = EVP_camellia_256_cbc(); break;
+						case algmodOfb: p_cphr = EVP_camellia_256_ofb(); break;
+						case algmodCtr: p_cphr = EVP_camellia_256_ctr(); break;
+						case algmodCfb1: p_cphr = EVP_camellia_256_cfb1(); break;
+						case algmodCfb8: p_cphr = EVP_camellia_256_cfb8(); break;
+						case algmodCfb:
+						case algmodCfb128: p_cphr = EVP_camellia_256_cfb128(); break;
+					}
+					break;
+			}
+			break;
+		case algBlowfish:
+			switch(AlgModif) {
+				case algmodEcb: p_cphr = EVP_bf_ecb(); break;
+				case algmodCbc: p_cphr = EVP_bf_cbc(); break;
+				case algmodOfb: p_cphr = EVP_bf_ofb(); break;
+				case algmodCfb: 
+				case algmodCfb64: p_cphr = EVP_bf_cfb64(); break;
+			}
+			break;
+		case algChaCha20:
+			switch(AlgModif) {
+				case algmodPoly1305: p_cphr = EVP_chacha20_poly1305(); break;
+				default: p_cphr = EVP_chacha20(); break;
+			}
+			break;
+	}
+	if(p_cphr) {
+		P_Cphr = p_cphr;
+		P_Ctx = EVP_CIPHER_CTX_new();
+		Cp.BlockSize = static_cast<uint>(EVP_CIPHER_block_size(p_cphr));
+		Cp.KeySize = static_cast<uint>(EVP_CIPHER_key_length(p_cphr));
+		Cp.IvSize = static_cast<uint>(EVP_CIPHER_iv_length(p_cphr));
+		if(EVP_EncryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), p_cphr, NULL, NULL, NULL)) { // Set cipher type and mode 
+			Cp.BlockSize = static_cast<uint>(EVP_CIPHER_CTX_block_size(static_cast<EVP_CIPHER_CTX *>(P_Ctx)));
+			Cp.KeySize = static_cast<uint>(EVP_CIPHER_CTX_key_length(static_cast<EVP_CIPHER_CTX *>(P_Ctx)));
+			Cp.IvSize = static_cast<uint>(EVP_CIPHER_CTX_iv_length(static_cast<EVP_CIPHER_CTX *>(P_Ctx)));
+		}
+		else {
+			EVP_CIPHER_CTX_free(static_cast<EVP_CIPHER_CTX *>(P_Ctx));
+			P_Ctx = 0;
+			State |= stError;
+		}
+	}
+	else {
+		State |= stError;
+	}
+}
+	
+SlCrypto::~SlCrypto()
+{
+	if(P_Ctx) {
+		EVP_CIPHER_CTX_free(static_cast<EVP_CIPHER_CTX *>(P_Ctx));
+		P_Ctx = 0;
+	}
+}
+	
+const  SlCrypto::CipherProperties & SlCrypto::GetCipherProperties() const { return Cp; }
+
+int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen)
+{
+	rK.Z();
+	int    ok = 1;
+	THROW(P_Ctx && P_Cphr);
+	if(pKey) {
+		THROW(keyByteLen == Cp.KeySize);
+		THROW(rK.SetKey(pKey, keyByteLen));
+	}
+	if(pIv) {
+		THROW(ivLen == Cp.IvSize);
+		THROW(rK.SetIV(pIv, ivLen));
+	}
+	if(pAad) {
+		THROW(rK.SetAAD(pAad, aadLen));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen)
+{
+	return SetupKey(rK, pKey, keyByteLen, pIv, ivLen, 0, 0);
+}
+
+int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen)
+{
+	return SetupKey(rK, pKey, keyByteLen, 0, 0, 0, 0);
+}
+
+int SlCrypto::SetupKey(SlCrypto::Key & rK, const char * pPassword)
+{
+	rK.Z();
+	int    ok = 1;
+	const  uchar * p_salt = 0;
+	uchar  key[EVP_MAX_KEY_LENGTH];
+	uchar  iv[EVP_MAX_IV_LENGTH];
+	int    result_key_len = 0;
+	THROW(P_Ctx && P_Cphr);
+	result_key_len = EVP_BytesToKey(static_cast<const EVP_CIPHER *>(P_Cphr), EVP_md5(), p_salt, 
+		reinterpret_cast<const uchar *>(pPassword), sstrlen(pPassword), 1/*count*/, key, iv);
+	THROW(result_key_len);
+	assert(result_key_len == static_cast<int>(Cp.KeySize));
+	if(Cp.KeySize) {
+		rK.SetKey(key, result_key_len);
+	}
+	if(Cp.IvSize) {
+		rK.SetIV(iv, Cp.IvSize);
+	}
+	CATCHZOK
+	return ok;
+}
+	
+#if 0 // {
+	int    SlCrypto::SetupEncrypt(const char * pPassword)
+	{
+		int    ok = 1;
+		const  EVP_MD * p_dgst = 0;
+		const  uchar * p_salt = 0;
+		uchar  key[EVP_MAX_KEY_LENGTH];
+		uchar  iv[EVP_MAX_IV_LENGTH];
+		int    result_key_len = 0;
+		THROW(P_Ctx && P_Cphr);
+		p_dgst = EVP_md5();
+		result_key_len = EVP_BytesToKey(static_cast<const EVP_CIPHER *>(P_Cphr), p_dgst, p_salt, 
+			reinterpret_cast<const uchar *>(pPassword), sstrlen(pPassword), 1/*count*/, key, iv);
+		THROW(result_key_len);
+		assert(result_key_len == static_cast<int>(Cp.KeySize));
+		THROW(EVP_EncryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<const EVP_CIPHER *>(P_Cphr), 0, key, iv)); // Initialise key and IV 
+		State &= ~stInitDecr;
+		State |= stInitEncr;
+		CATCHZOK
+		return ok;
+	}
+	
+	int    SlCrypto::SetupEncrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen)
+	{
+		int    ok = 1;
+		THROW(P_Ctx && P_Cphr);
+		THROW(EVP_EncryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
+		THROW(!Cp.KeySize || !keyByteLen || keyByteLen == Cp.KeySize);
+		THROW(!ivLen || Cp.IvSize == ivLen);
+		THROW(EVP_EncryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), 0, 0, static_cast<const uint8 *>(pKey), static_cast<const uint8 *>(pIv))); // Initialise key and IV 
+		State &= ~stInitDecr;
+		State |= stInitEncr;
+		CATCHZOK
+		return ok;
+	}
+	
+	int    SlCrypto::SetupDecrypt(const char * pPassword)
+	{
+		int    ok = 1;
+		const  EVP_MD * p_dgst = 0;
+		const  uchar * p_salt = 0;
+		uchar  key[EVP_MAX_KEY_LENGTH];
+		uchar  iv[EVP_MAX_IV_LENGTH];
+		int    result_key_len = 0;
+		THROW(P_Ctx && P_Cphr);
+		p_dgst = EVP_md5();
+		result_key_len = EVP_BytesToKey(static_cast<const EVP_CIPHER *>(P_Cphr), p_dgst, p_salt, 
+			reinterpret_cast<const uchar *>(pPassword), sstrlen(pPassword), 1/*count*/, key, iv);
+		THROW(result_key_len);
+		assert(result_key_len == static_cast<int>(Cp.KeySize));
+		THROW(EVP_DecryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<const EVP_CIPHER *>(P_Cphr), 0, key, iv)); // Initialise key and IV 
+		State |= stInitDecr;
+		State &= ~stInitEncr;
+		CATCHZOK
+		return ok;
+	}
+	
+	int SlCrypto::SetupDecrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen)
+	{
+		int    ok = 1;
+		THROW(P_Ctx && P_Cphr);
+		THROW(EVP_DecryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
+		THROW(!Cp.KeySize || !keyByteLen || keyByteLen == Cp.KeySize);
+		THROW(Cp.IvSize == ivLen);
+		THROW(EVP_DecryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), 0, 0, static_cast<const uint8 *>(pKey), static_cast<const uint8 *>(pIv))); // Initialise key and IV 
+		State |= stInitDecr;
+		State &= ~stInitEncr;
+		CATCHZOK
+		return ok;
+	}
+
+	int SlCrypto::Encrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen)
+	{
+		int    ok = 1;
+		int    outl = 0;
+		THROW(P_Ctx && P_Cphr);
+		THROW(State & stInitEncr);
+		if(pData && dataLen) {
+			THROW(EVP_EncryptUpdate(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)));
+		}
+		else {
+			THROW(EVP_EncryptFinal_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<uchar *>(pResult), &outl));
+		}
+		CATCHZOK
+		ASSIGN_PTR(pActualResultLen, outl);
+		return ok;
+	}
+	
+	int SlCrypto::Decrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen)
+	{
+		int    ok = 1;
+		int    outl = 0;
+		THROW(P_Ctx && P_Cphr);
+		THROW(State & stInitDecr);
+		if(pData && dataLen) {
+			THROW(EVP_DecryptUpdate(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)));
+		}
+		else {
+			THROW(EVP_DecryptFinal_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<uchar *>(pResult), &outl));
+		}
+		CATCHZOK
+		ASSIGN_PTR(pActualResultLen, outl);
+		return ok;
+	}
+#endif // } 0
+
+int SlCrypto::Encrypt(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen)
+{
+	int    ok = 1;
+	int    outl = 0;
+	EVP_CIPHER_CTX * p_ctx = static_cast<EVP_CIPHER_CTX *>(P_Ctx);
+	THROW(p_ctx && P_Cphr);
+	if(pKey) {
+		const SBaseBuffer & r_key = pKey->GetKey();
+		const SBaseBuffer & r_iv = pKey->GetIV();
+		const SBaseBuffer & r_aad = pKey->GetAAD();
+		//THROW(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
+		THROW(!Cp.KeySize || !r_key.Size || r_key.Size == Cp.KeySize);
+		THROW(!r_iv.Size || r_iv.Size == Cp.IvSize);
+		THROW(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, 
+			reinterpret_cast<const uint8 *>(r_key.P_Buf), reinterpret_cast<const uint8 *>(r_iv.P_Buf))); // Initialise key and IV 
+		State &= ~stInitDecr;
+		State |= stInitEncr;
+	}
+	if(pResult) {
+		THROW(State & stInitEncr);
+		if(pData && dataLen) {
+			THROW(EVP_EncryptUpdate(p_ctx, static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)));
+		}
+		else {
+			THROW(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult), &outl));
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pActualResultLen, outl);
+	return ok;
+}
+
+int SlCrypto::Decrypt(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen)
+{
+	int    ok = 1;
+	int    outl = 0;
+	EVP_CIPHER_CTX * p_ctx = static_cast<EVP_CIPHER_CTX *>(P_Ctx);
+	THROW(p_ctx && P_Cphr);
+	if(pKey) {
+		const SBaseBuffer & r_key = pKey->GetKey();
+		const SBaseBuffer & r_iv = pKey->GetIV();
+		const SBaseBuffer & r_aad = pKey->GetAAD();
+		//THROW(EVP_DecryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
+		THROW(!r_key.Size || !r_key.Size || r_key.Size == Cp.KeySize);
+		THROW(r_iv.Size == Cp.IvSize);
+		THROW(EVP_DecryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, 
+			reinterpret_cast<const uint8 *>(r_key.P_Buf), reinterpret_cast<const uint8 *>(r_iv.P_Buf))); // Initialise key and IV 
+		State |= stInitDecr;
+		State &= ~stInitEncr;
+	}
+	if(pResult) {
+		THROW(State & stInitDecr);
+		if(pData && dataLen) {
+			THROW(EVP_DecryptUpdate(p_ctx, static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)));
+		}
+		else {
+			THROW(EVP_DecryptFinal_ex(p_ctx, static_cast<uchar *>(pResult), &outl));
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pActualResultLen, outl);
+	return ok;
 }

@@ -120,72 +120,6 @@
     <ClCompile Include="..\Osf\pthreads4w\pthread_win32_attach_detach_np.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_calloc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_callUserDestroyRoutines.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_cond_check_need_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_getprocessors.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_is_attr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_MCS_lock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_mutex_check_need_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_new.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_processInitialize.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_processTerminate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_relmillisecs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_reuse.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_rwlock_cancelwrwait.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_rwlock_check_need_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_semwait.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_spinlock_check_need_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_threadDestroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_threadStart.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_throw.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_timespec.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_tkAssocCreate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\pthreads4w\ptw32_tkAssocDestroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\pthreads4w\signal.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -220,6 +154,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\pthread_spin.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\ptw32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1304,7 +1304,7 @@ int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPOb
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	PPObjID ident;
-	ident.Set(0, 0);
+	ident.Z();
 	long   obj_type_ext = 0;
 	long   int_type_id = atol(pObjType);
 	if(!SETIFZ(ident.Obj, NZOR(int_type_id, GetObjectTypeBySymb(pObjType, &obj_type_ext)))) {

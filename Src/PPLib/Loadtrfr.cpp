@@ -145,7 +145,7 @@ int SLAPI Transfer::EnumItems(PPID billID, int *pRByBill, PPTransferItem * pTI)
 		{
 			SString msg_buf, bill_code;
 			GetObjectName(PPOBJ_BILL, billID, bill_code);
-			PPGetMessage(mfError, PPERR_F_Transfer_EnumItems, bill_code, 1, msg_buf);
+			PPGetMessage(mfError, PPERR_F_TRANSFER_ENUMITEMS, bill_code, 1, msg_buf);
 			PPLogMessage(PPFILNAM_ERRMSG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 		ok = 0;

@@ -31,7 +31,7 @@ int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX * c)
 
 EVP_CIPHER_CTX * EVP_CIPHER_CTX_new(void)
 {
-	return (EVP_CIPHER_CTX*)OPENSSL_zalloc(sizeof(EVP_CIPHER_CTX));
+	return static_cast<EVP_CIPHER_CTX *>(OPENSSL_zalloc(sizeof(EVP_CIPHER_CTX)));
 }
 
 void EVP_CIPHER_CTX_free(EVP_CIPHER_CTX * ctx)
@@ -110,7 +110,6 @@ int EVP_CipherInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, ENGINE * 
 		else
 			ctx->engine = NULL;
 #endif
-
 		ctx->cipher = cipher;
 		if(ctx->cipher->ctx_size) {
 			ctx->cipher_data = OPENSSL_zalloc(ctx->cipher->ctx_size);
@@ -152,13 +151,10 @@ skip_to_init:
 			case EVP_CIPH_STREAM_CIPHER:
 			case EVP_CIPH_ECB_MODE:
 			    break;
-
 			case EVP_CIPH_CFB_MODE:
 			case EVP_CIPH_OFB_MODE:
-
 			    ctx->num = 0;
 			/* fall-through */
-
 			case EVP_CIPH_CBC_MODE:
 			    OPENSSL_assert(EVP_CIPHER_CTX_iv_length(ctx) <= (int)sizeof(ctx->iv));
 			    if(iv)
@@ -328,50 +324,59 @@ int EVP_EncryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar
 
 int EVP_EncryptFinal(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
-	int ret = EVP_EncryptFinal_ex(ctx, out, outl);
-	return ret;
+	return EVP_EncryptFinal_ex(ctx, out, outl);
 }
 
 int EVP_EncryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
-	int n, ret;
-	uint i, b, bl;
+	int    ret;
+	int    n;
+	uint   i, bl;
 	if(ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
 		ret = ctx->cipher->do_cipher(ctx, out, NULL, 0);
 		if(ret < 0)
 			return 0;
-		else
+		else {
 			*outl = ret;
-		return 1;
-	}
-	b = ctx->cipher->block_size;
-	OPENSSL_assert(b <= sizeof ctx->buf);
-	if(b == 1) {
-		*outl = 0;
-		return 1;
-	}
-	bl = ctx->buf_len;
-	if(ctx->flags & EVP_CIPH_NO_PADDING) {
-		if(bl) {
-			EVPerr(EVP_F_EVP_ENCRYPTFINAL_EX, EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH);
-			return 0;
+			return 1;
 		}
-		*outl = 0;
-		return 1;
 	}
-	n = b - bl;
-	for(i = bl; i < b; i++)
-		ctx->buf[i] = n;
-	ret = ctx->cipher->do_cipher(ctx, out, ctx->buf, b);
-	if(ret)
-		*outl = b;
-	return ret;
+	else {
+		uint   b = ctx->cipher->block_size;
+		OPENSSL_assert(b <= sizeof(ctx->buf));
+		if(b == 1) {
+			*outl = 0;
+			return 1;
+		}
+		else {
+			bl = ctx->buf_len;
+			if(ctx->flags & EVP_CIPH_NO_PADDING) {
+				if(bl) {
+					EVPerr(EVP_F_EVP_ENCRYPTFINAL_EX, EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH);
+					return 0;
+				}
+				else {
+					*outl = 0;
+					return 1;
+				}
+			}
+			else {
+				n = b - bl;
+				for(i = bl; i < b; i++)
+					ctx->buf[i] = n;
+				ret = ctx->cipher->do_cipher(ctx, out, ctx->buf, b);
+				if(ret)
+					*outl = b;
+				return ret;
+			}
+		}
+	}
 }
 
 int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar * in, int inl)
 {
 	int    fix_len, cmpl = inl;
-	uint   b = ctx->cipher->block_size;
+	const  uint b = ctx->cipher->block_size;
 	if(EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS))
 		cmpl = (cmpl + 7) / 8;
 	if(ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
@@ -564,7 +569,7 @@ int EVP_CIPHER_CTX_copy(EVP_CIPHER_CTX * out, const EVP_CIPHER_CTX * in)
 	}
 
 	if(in->cipher->flags & EVP_CIPH_CUSTOM_COPY)
-		if(!in->cipher->ctrl((EVP_CIPHER_CTX*)in, EVP_CTRL_COPY, 0, out)) {
+		if(!in->cipher->ctrl((EVP_CIPHER_CTX *)in, EVP_CTRL_COPY, 0, out)) {
 			out->cipher = NULL;
 			EVPerr(EVP_F_EVP_CIPHER_CTX_COPY, EVP_R_INITIALIZATION_ERROR);
 			return 0;

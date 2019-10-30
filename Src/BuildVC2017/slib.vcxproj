@@ -6303,11 +6303,20 @@
     <ProjectReference Include="bzip2.vcxproj">
       <Project>{bd776450-1675-4703-bfd3-2517b5a45da8}</Project>
     </ProjectReference>
+    <ProjectReference Include="cairo-1.16.0.vcxproj">
+      <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
+    </ProjectReference>
     <ProjectReference Include="libzip.vcxproj">
       <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
     </ProjectReference>
     <ProjectReference Include="lz4.vcxproj">
       <Project>{6b7325a2-a019-4fc4-9585-1dba4cadefeb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-crypto.vcxproj">
+      <Project>{519272d1-6ac2-4b29-badf-9f9a7af3383c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl.vcxproj">
+      <Project>{1e4e6bbc-3e70-4f77-9f13-fd9b3242d11e}</Project>
     </ProjectReference>
     <ProjectReference Include="pthreads4w.vcxproj">
       <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>

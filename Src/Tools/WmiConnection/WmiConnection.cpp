@@ -134,13 +134,14 @@ const char *const sDOUBLE_QUOTE		= "\"";
 // } КОНСТАНТЫ
 //
 // структура соединеня с сервисом WMI
-struct WmiConnection
-{
-	WmiConnection()
+struct WmiConnection {
+	WmiConnection() : status(0), P_loc(0), P_svc(0)
 	{
-		status = 0;
-		P_loc = NULL; P_svc = NULL;
-		currentNS = ""; lastServer = ""; lastUser = ""; lastPassword = ""; lastMsg = "";
+		currentNS = ""; 
+		lastServer = ""; 
+		lastUser = ""; 
+		lastPassword = ""; 
+		lastMsg = "";
 	}
 	~WmiConnection()
 	{
@@ -156,14 +157,13 @@ struct WmiConnection
 	int status;	// connected & OK?
 	IWbemLocator* P_loc;
 	IWbemServices* P_svc;
-	SString
-		currentNS,		// текущее подключенное пространство имен
-		lastServer,
-		lastUser,
-		lastPassword,
-		lastMsg;
-} *P_conn; // возникает ограничение - возможно только одно соединение в каждом адресном пространстве
-// используется в ф-ции "AuthBox"
+	SString currentNS; // текущее подключенное пространство имен
+	SString lastServer;
+	SString lastUser;
+	SString lastPassword;
+	SString lastMsg;
+} *P_conn; // возникает ограничение - возможно только одно соединение в каждом адресном пространстве используется в ф-ции "AuthBox"
+
 struct Account {
 	char *pUserName;
 	char *pPassWord;
@@ -176,27 +176,29 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 //
 BOOL CALLBACK AuthDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
-	{	//
+	switch(message) {
 		case WM_INITDIALOG:
 		{	// погдотовить результат
-			Account *pAccount = (Account *) lParam;
+			Account * pAccount = reinterpret_cast<Account *>(lParam);
 			if(pAccount)
 				SetWindowLong(hwndDlg, GWL_USERDATA, (long)pAccount);
 			return TRUE;
 		}
 		case WM_COMMAND:
 		{	// пользователь что-то сделал
-			switch(LOWORD(wParam))
-			{	// пользователь нажал "OK" или "Cancel"?
+			switch(LOWORD(wParam)) { // пользователь нажал "OK" или "Cancel"?
 				case IDOK:
 				{	// получить логин и пароль
-					Account * pAccount = (Account *)GetWindowLong(hwndDlg, GWL_USERDATA);
+					Account * pAccount = reinterpret_cast<Account *>(GetWindowLong(hwndDlg, GWL_USERDATA));
 					if(pAccount) {
-						pAccount->pUserName = new char[256];
-						GetDlgItemText(hwndDlg, IDC_USERNAME, pAccount->pUserName, 0x100);
-						pAccount->pPassWord = new char[256];
-						GetDlgItemText(hwndDlg, IDC_PASSWORD, pAccount->pPassWord, 0x100);
+						TCHAR ctl_text[256];
+						SString temp_buf;
+						pAccount->pUserName = new char[SIZEOFARRAY(ctl_text)];
+						pAccount->pPassWord = new char[SIZEOFARRAY(ctl_text)];
+						GetDlgItemText(hwndDlg, IDC_USERNAME, /*pAccount->pUserName*/ctl_text, SIZEOFARRAY(ctl_text));
+						(temp_buf = SUcSwitch(ctl_text)).CopyTo(pAccount->pUserName, SIZEOFARRAY(ctl_text));
+						GetDlgItemText(hwndDlg, IDC_PASSWORD, /*pAccount->pPassWord*/ctl_text, SIZEOFARRAY(ctl_text));
+						(temp_buf = SUcSwitch(ctl_text)).CopyTo(pAccount->pPassWord, SIZEOFARRAY(ctl_text));
 						EndDialog(hwndDlg, wParam);
 					}
 					return TRUE;

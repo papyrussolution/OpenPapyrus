@@ -30,8 +30,7 @@ static CMS_SignedData * cms_signed_data_init(CMS_ContentInfo * cms)
 			return NULL;
 		}
 		cms->d.signedData->version = 1;
-		cms->d.signedData->encapContentInfo->eContentType =
-		    OBJ_nid2obj(NID_pkcs7_data);
+		cms->d.signedData->encapContentInfo->eContentType = OBJ_nid2obj(NID_pkcs7_data);
 		cms->d.signedData->encapContentInfo->partial = 1;
 		ASN1_OBJECT_free(cms->contentType);
 		cms->contentType = OBJ_nid2obj(NID_pkcs7_signed);
@@ -44,10 +43,7 @@ static CMS_SignedData * cms_signed_data_init(CMS_ContentInfo * cms)
 
 int CMS_SignedData_init(CMS_ContentInfo * cms)
 {
-	if(cms_signed_data_init(cms))
-		return 1;
-	else
-		return 0;
+	return cms_signed_data_init(cms) ? 1 : 0;
 }
 
 /* Check structures and fixup version numbers (if necessary) */
@@ -58,7 +54,6 @@ static void cms_sd_set_version(CMS_SignedData * sd)
 	CMS_CertificateChoices * cch;
 	CMS_RevocationInfoChoice * rch;
 	CMS_SignerInfo * si;
-
 	for(i = 0; i < sk_CMS_CertificateChoices_num(sd->certificates); i++) {
 		cch = sk_CMS_CertificateChoices_value(sd->certificates, i);
 		if(cch->type == CMS_CERTCHOICE_OTHER) {
@@ -141,26 +136,19 @@ int cms_set1_SignerIdentifier(CMS_SignerIdentifier * sid, X509 * cert, int type)
 		    if(!cms_set1_ias(&sid->d.issuerAndSerialNumber, cert))
 			    return 0;
 		    break;
-
 		case CMS_SIGNERINFO_KEYIDENTIFIER:
 		    if(!cms_set1_keyid(&sid->d.subjectKeyIdentifier, cert))
 			    return 0;
 		    break;
-
 		default:
 		    CMSerr(CMS_F_CMS_SET1_SIGNERIDENTIFIER, CMS_R_UNKNOWN_ID);
 		    return 0;
 	}
-
 	sid->type = type;
-
 	return 1;
 }
 
-int cms_SignerIdentifier_get0_signer_id(CMS_SignerIdentifier * sid,
-    ASN1_OCTET_STRING ** keyid,
-    X509_NAME ** issuer,
-    ASN1_INTEGER ** sno)
+int cms_SignerIdentifier_get0_signer_id(CMS_SignerIdentifier * sid, ASN1_OCTET_STRING ** keyid, X509_NAME ** issuer, ASN1_INTEGER ** sno)
 {
 	if(sid->type == CMS_SIGNERINFO_ISSUER_SERIAL) {
 		if(issuer)
@@ -261,14 +249,11 @@ CMS_SignerInfo * CMS_add1_signer(CMS_ContentInfo * cms, X509 * signer, EVP_PKEY 
 			goto err;
 		}
 	}
-
 	if(!md) {
 		CMSerr(CMS_F_CMS_ADD1_SIGNER, CMS_R_NO_DIGEST_SET);
 		goto err;
 	}
-
 	X509_ALGOR_set_md(si->digestAlgorithm, md);
-
 	/* See if digest is present in digestAlgorithms */
 	for(i = 0; i < sk_X509_ALGOR_num(sd->digestAlgorithms); i++) {
 		const ASN1_OBJECT * aoid;
@@ -288,7 +273,6 @@ CMS_SignerInfo * CMS_add1_signer(CMS_ContentInfo * cms, X509 * signer, EVP_PKEY 
 			goto merr;
 		}
 	}
-
 	if(!(flags & CMS_KEY_PARAM) && !cms_sd_asn1_ctrl(si, 0))
 		goto err;
 	if(!(flags & CMS_NOATTR)) {
@@ -301,7 +285,6 @@ CMS_SignerInfo * CMS_add1_signer(CMS_ContentInfo * cms, X509 * signer, EVP_PKEY 
 			if(!si->signedAttrs)
 				goto merr;
 		}
-
 		if(!(flags & CMS_NOSMIMECAP)) {
 			STACK_OF(X509_ALGOR) *smcap = NULL;
 			i = CMS_add_standard_smimecap(&smcap);
@@ -314,18 +297,15 @@ CMS_SignerInfo * CMS_add1_signer(CMS_ContentInfo * cms, X509 * signer, EVP_PKEY 
 		if(flags & CMS_REUSE_DIGEST) {
 			if(!cms_copy_messageDigest(cms, si))
 				goto err;
-			if(!(flags & (CMS_PARTIAL | CMS_KEY_PARAM)) &&
-			    !CMS_SignerInfo_sign(si))
+			if(!(flags & (CMS_PARTIAL | CMS_KEY_PARAM)) && !CMS_SignerInfo_sign(si))
 				goto err;
 		}
 	}
-
 	if(!(flags & CMS_NOCERTS)) {
 		/* NB ignore -1 return for duplicate cert */
 		if(!CMS_add1_cert(cms, signer))
 			goto merr;
 	}
-
 	if(flags & CMS_KEY_PARAM) {
 		if(flags & CMS_NOATTR) {
 			si->pctx = EVP_PKEY_CTX_new(si->pkey, 0);
@@ -340,14 +320,11 @@ CMS_SignerInfo * CMS_add1_signer(CMS_ContentInfo * cms, X509 * signer, EVP_PKEY 
 		    0)
 			goto err;
 	}
-
 	if(!sd->signerInfos)
 		sd->signerInfos = sk_CMS_SignerInfo_new_null();
 	if(!sd->signerInfos || !sk_CMS_SignerInfo_push(sd->signerInfos, si))
 		goto merr;
-
 	return si;
-
 merr:
 	CMSerr(CMS_F_CMS_ADD1_SIGNER, ERR_R_MALLOC_FAILURE);
 err:
@@ -363,24 +340,16 @@ static int cms_add1_signingTime(CMS_SignerInfo * si, ASN1_TIME * t)
 		tt = t;
 	else
 		tt = X509_gmtime_adj(NULL, 0);
-
 	if(!tt)
 		goto merr;
-
-	if(CMS_signed_add1_attr_by_NID(si, NID_pkcs9_signingTime,
-		    tt->type, tt, -1) <= 0)
+	if(CMS_signed_add1_attr_by_NID(si, NID_pkcs9_signingTime, tt->type, tt, -1) <= 0)
 		goto merr;
-
 	r = 1;
-
 merr:
-
 	if(!t)
 		ASN1_TIME_free(tt);
-
 	if(!r)
 		CMSerr(CMS_F_CMS_ADD1_SIGNINGTIME, ERR_R_MALLOC_FAILURE);
-
 	return r;
 }
 
@@ -396,8 +365,7 @@ EVP_MD_CTX * CMS_SignerInfo_get0_md_ctx(CMS_SignerInfo * si)
 
 STACK_OF(CMS_SignerInfo) *CMS_get0_SignerInfos(CMS_ContentInfo *cms)
 {
-	CMS_SignedData * sd;
-	sd = cms_get0_signed(cms);
+	CMS_SignedData * sd = cms_get0_signed(cms);
 	if(!sd)
 		return NULL;
 	return sd->signerInfos;
@@ -438,9 +406,7 @@ void CMS_SignerInfo_set1_signer_cert(CMS_SignerInfo * si, X509 * signer)
 	si->signer = signer;
 }
 
-int CMS_SignerInfo_get0_signer_id(CMS_SignerInfo * si,
-    ASN1_OCTET_STRING ** keyid,
-    X509_NAME ** issuer, ASN1_INTEGER ** sno)
+int CMS_SignerInfo_get0_signer_id(CMS_SignerInfo * si, ASN1_OCTET_STRING ** keyid, X509_NAME ** issuer, ASN1_INTEGER ** sno)
 {
 	return cms_SignerIdentifier_get0_signer_id(si->sid, keyid, issuer, sno);
 }
@@ -450,8 +416,7 @@ int CMS_SignerInfo_cert_cmp(CMS_SignerInfo * si, X509 * cert)
 	return cms_SignerIdentifier_cert_cmp(si->sid, cert);
 }
 
-int CMS_set1_signers_certs(CMS_ContentInfo * cms, STACK_OF(X509) * scerts,
-    uint flags)
+int CMS_set1_signers_certs(CMS_ContentInfo * cms, STACK_OF(X509) * scerts, uint flags)
 {
 	CMS_SignedData * sd;
 	CMS_SignerInfo * si;

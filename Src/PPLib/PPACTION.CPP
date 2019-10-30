@@ -771,7 +771,7 @@ int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
 		SCtx.Init(SSerializeContext::fSeparateDataStruct|SSerializeContext::fDontProcessAttachment, ZERODATE);
 		const uint32 sysver = DS.GetMinCompatVersion();
 		PPObjID oid_dummy;
-		oid_dummy.Set(0, 0);
+		oid_dummy.Z();
 		ObjVerTbl::Rec rec;
 		SBuffer ctx_buf;
 		if(SearchOid(oid_dummy, (long)sysver, &rec, &ctx_buf) > 0) {

@@ -3175,7 +3175,7 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 
 SLAPI PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputFormat(0), Angle(0), ColorFg(ZEROCOLOR), ColorBg(ZEROCOLOR)
 {
-	Size.Set(0, 0);
+	Size.Z();
 }
 
 //static

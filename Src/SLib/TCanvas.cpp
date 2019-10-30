@@ -914,7 +914,7 @@ TPoint SLAPI TCanvas2::GetTextSize(const char * pStr)
 	}
 	TPoint p;
 	SIZE   sz;
-	return ::GetTextExtentPoint32(static_cast<HDC>(S.HCtx), SUcSwitch(pStr), static_cast<int>(len), &sz) ? p.Set(sz.cx, sz.cy) : p.Set(0, 0); // @unicodeproblem
+	return ::GetTextExtentPoint32(static_cast<HDC>(S.HCtx), SUcSwitch(pStr), static_cast<int>(len), &sz) ? p.Set(sz.cx, sz.cy) : p.Z(); // @unicodeproblem
 }
 
 int FASTCALL TCanvas2::SetBkColor(COLORREF c)
@@ -1610,7 +1610,7 @@ TPoint FASTCALL TCanvas::GetTextSize(const char * pStr)
 	}
 	TPoint p;
 	SIZE   sz;
-	return ::GetTextExtentPoint32(H_Dc, SUcSwitch(pStr), len, &sz) ?  p.Set(sz.cx, sz.cy) : p.Set(0, 0); // @unicodeproblem
+	return ::GetTextExtentPoint32(H_Dc, SUcSwitch(pStr), len, &sz) ?  p.Set(sz.cx, sz.cy) : p.Z(); // @unicodeproblem
 }
 
 void SLAPI TCanvas::SetBkTranparent()

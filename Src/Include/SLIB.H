@@ -5317,6 +5317,7 @@ public:
 	const  char  * SLAPI cptr() const;
 	const  void  * SLAPI vcptr() const;
 	void * SLAPI vptr();
+	void * SLAPI vptr(size_t offs);
 	int    FASTCALL Alloc(size_t sz);
 	//
 	// Descr: Если текущий размер буфера больше или равен sz, то ничего не делает, в противном
@@ -5646,6 +5647,106 @@ public:
 	static int    FASTCALL Sha256(State * pS, const void * pData, size_t len, void * pResult, size_t resultBufLen);
 private:
 	static const  uchar * Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size);
+};
+//
+// Descr: Высокоуровневые функции для работы с шифрованием
+//
+//
+//
+//
+class SlCrypto {
+public:
+	enum {
+		algUndef = 0,
+		algAes,       // mod: 
+		algDes,       // mod: 
+		algDes_Ede,   // mod: 
+		algDes_Ede3,  // mod: 
+		algDesx,      // mod:  
+		algIdea,      // mod:  
+		algCamellia,  // mod: 
+		algBlowfish,  // mod: algmodEcb, algmodCbc, algmodOfb, (algmodCfb, algmodCfb64)
+		algChaCha20   // mod: nothing|algmodPoly1305
+	};
+	enum {
+		kblUndef = 0,
+		kbl128 = 128,
+		kbl192 = 192,
+		kbl256 = 256
+	};
+	enum {
+		algmodUndef = 0,
+		algmodCbc,       // cipher block chaining
+		algmodEcb,       // electronic code book
+		algmodOcb, 
+		algmodOfb,       // output feed back
+		algmodCcm,
+		algmodGcm,
+		algmodCtr,       // Counter Mode
+		algmodXts,
+		algmodWrap,
+		algmodWrapPad,
+		algmodCfb1,      // cipher feed back
+		algmodCfb8,      // cipher feed back
+		algmodCfb64,     // cipher feed back
+		algmodCfb128,    // cipher feed back
+		algmodCfb,       // cipher feed back (default)
+		algmodPoly1305   // algChaCha20
+	};
+	struct CipherProperties {
+		CipherProperties();
+		uint32 BlockSize;
+		uint32 KeySize;
+		uint32 IvSize;
+		uint32 AadSize;
+	};
+	class Key {
+	public:
+		Key();
+		Key & Z();
+		int    SetKey(const void * pData, size_t size);
+		int    SetIV(const void * pData, size_t size);
+		int    SetAAD(const void * pData, size_t size);
+		const SBaseBuffer & GetKey() const;
+		const SBaseBuffer & GetIV() const;
+		const SBaseBuffer & GetAAD() const;
+	private:
+		SBaseBuffer KEY; // don't destroy - it's Ptr refers to Bin
+		SBaseBuffer IV;  // don't destroy - it's Ptr refers to Bin
+		SBaseBuffer AAD; // don't destroy - it's Ptr refers to Bin
+		uint32 EndP;     // Смещение доступного пространства
+		uint8  Bin[256];
+	};
+	SlCrypto(int alg, uint kbl, int algModif);
+	~SlCrypto();
+	const  CipherProperties & GetCipherProperties() const;
+	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
+	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen);
+	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen);
+	int    SetupKey(SlCrypto::Key & rK, const char * pPassword);
+	//int    SetupEncrypt(const char * pPassword);
+	//int    SetupEncrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
+	//int    SetupDecrypt(const char * pPassword);
+	//int    SetupDecrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
+	//int    Encrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+	//int    Decrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+	int    Encrypt(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+	int    Decrypt(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+private:
+	enum {
+		stError    = 0x0001,
+		stInitEncr = 0x0002,
+		stInitDecr = 0x0004
+	};
+	void * P_Ctx;
+	const void * P_Cphr;
+	const int  Alg;
+	const uint KeyBitLen;
+	const uint AlgModif;
+	CipherProperties Cp;
+	//uint8 Key_[64];
+	//uint8 IV_[16];
+	uint  State;
 };
 //
 // Descr: Алгоритмы расчета контрольной цифры
@@ -9582,6 +9683,7 @@ struct SStrScan : public SRegExpSet {
 
 	explicit SStrScan(const char * pBuf = 0, size_t offs = 0);
 	~SStrScan();
+	SStrScan & Z();
 	void   FASTCALL Set(const char * pBuf, size_t offs);
 	operator const char * () const { return P_Buf ? (P_Buf+Offs) : 0; }
 	const char * GetBuf() const { return P_Buf; }
@@ -10983,6 +11085,7 @@ public:
 	TPoint FASTCALL operator = (POINT p);
 	operator POINT() const;
 	int    IsZero() const;
+	TPoint & Z();
 	TPoint Set(int _x, int _y);
 	TPoint FASTCALL setwparam(uint32 wp);
 	TPoint Add(int add_x, int add_y);

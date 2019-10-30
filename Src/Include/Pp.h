@@ -1762,6 +1762,8 @@ int FASTCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
 //
 struct PPObjID { // @flat
 	PPObjID Set(PPID objType, PPID objID);
+	PPObjID & Z();
+	int    SLAPI IsZero() const;
 	int    SLAPI IsEqual(PPID objType, PPID objID) const;
 	int    FASTCALL operator == (PPObjID s) const;
 	int    FASTCALL operator != (PPObjID s) const;
@@ -17336,6 +17338,8 @@ public:
 #define OPKFX_IGNORECLISTOP    0x00000800L // @v9.8.4 Игнорировать признак STOP контрагента при создании документа
 #define OPKFX_AUTOGENUUID      0x00001000L // @v10.0.0 Автоматически генерировать UUID документа при создании.
 #define OPKFX_WROFFTODRAFTORD  0x00002000L // @v10.0.2 Специализированная операция заказа, списываемая в драфт-документ
+#define OPKFX_PAYMENT_CASH     0x00004000L // @v10.5.9 @erik Наличный расчет по операции
+#define OPKFX_PAYMENT_NONCASH  0x00008000L // @v10.5.9 @erik Безналичный расчет по операции
 
 #define OPKF_PRT_INCINVC       0x00000001L // Входящая счет-фактура на предоплату
 #define OPKF_PRT_NEGINVC       0x00000002L // Счет-фактура с отрицательными суммами
@@ -17616,7 +17620,25 @@ class PPObjOprKind : public PPObjReference {
 public:
 	static int SLAPI GetATTemplList(PPID opID, PPAccTurnTemplArray * pList);
 	static StrAssocArray * SLAPI MakeOprKindList(PPID linkOp, const PPIDArray *, uint flags /* OPKLF_XXX */);
+	//
+	// Descr: Формирует список терминальных (не обобщенных) видов операций rResultList из идентификатора
+	//   вида операции opID. Если opID не обобщенная операция, то в rResultList будет только она в противном
+	//   случае - все члены обобщения.
+	// Note: Функция предварительно очищает список rResultList и в конце работы сортирует вызовом sortAndUndup().
+	// Returns:
+	//   >0 - rResultList содержит хотя бы один элемент
+	//   <0 - по-видимому, opID вообще не является идентификатором вида операции, либо ссылается на пустое обобщение.
+	//
 	static int FASTCALL ExpandOp(PPID opID, PPIDArray & rResultList);
+	//
+	// Descr: Формирует список терминальных (не обобщенных) видов операций rResultList из списка
+	//   видов операций rBaseOpList. Если элемент rBaseOpList - не обобщенная операция, то в rResultList попадает она сама,
+	//   в противном случае - все члены обобщения.
+	// Note: Функция предварительно очищает список rResultList и в конце работы сортирует вызовом sortAndUndup().
+	// Returns:
+	//   >0 - rResultList содержит хотя бы один элемент
+	//   <0 - rResultList не содержит ни одного элемента
+	//
 	static int FASTCALL ExpandOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList);
 
 	explicit SLAPI  PPObjOprKind(void * extraPtr = 0);
@@ -24284,7 +24306,7 @@ public:
 		PPID   RetSCardID;   // @out Ид дисконтной карты, созданной (выбранной) в сокращенном диалоге
 		long   UpdFlags;     // -> PPPersonPacket::UpdFlags
 	};
-	int    SLAPI InitEditBlock(PPID kindID, EditBlock & rBlk);
+	void   SLAPI InitEditBlock(PPID kindID, EditBlock & rBlk);
 	int    SLAPI Edit_(PPID * pID, EditBlock & rBlk);
 	//
 	// Descr: Извлекает частичную запись персоналии с идентификатором id из кэша.
@@ -28637,7 +28659,7 @@ public:
 	SLAPI  PPAlbatrosConfig();
 	PPAlbatrosConfig & SLAPI Z();
 	int    SLAPI SetPassword(int fld, const char * pPw);
-	int    SLAPI GetPassword(int fld, SString & rPw);
+	int    SLAPI GetPassword(int fld, SString & rPw) const;
 	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
 	int    SLAPI PutExtStrData(int fldID, const char * pStr);
 
@@ -28651,9 +28673,10 @@ public:
 	static int SLAPI Fetch(PPAlbatrosConfig * pCfg); // @macrow
 	static int SLAPI Put(PPAlbatrosConfig * pCfg, int use_ta);
 	static int SLAPI Edit();
-	//
 	static int SLAPI Helper_Get(Reference * pRef, PPAlbatrosConfig * pCfg);
 	static int SLAPI Helper_Put(Reference * pRef, PPAlbatrosConfig * pCfg, int use_ta);
+	static int SLAPI MakeCommonMqsConfigPacket(const PPAlbatrosConfig & rCfg, SString & rBuf);
+	static int SLAPI ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrosConfig * pCfg);
 private:
 	static int SLAPI Get(PPAlbatrosCfgHdr * pHdr);
 	static int SLAPI Put(const PPAlbatrosCfgHdr * pHdr, int use_ta);
@@ -28797,7 +28820,10 @@ public:
 class PrcssrAlcReport {
 public:
 	friend class DL6ICLS_PrcssrAlcReport;
-
+	//
+	// Descr: Конфигурация алкогольной декларациия. Используется для конфигурирования формирования алкогольной
+	//   декларации, обмена с ЕГАИС а так же некоторых аспектов работы VETIS.
+	//
 	class Config { // @persistent
 	public:
 		SLAPI  Config();
@@ -28826,7 +28852,7 @@ public:
 			woswByBills           // Списывать продажи по документам
 		};
 
-		SVerT  Ver;
+		SVerT  Ver;                  // Версия системы, создавшая экземпляр объекта
 		PPID   RcptOpID;             // Операция прихода от поставщика
 		PPID   SaleRetOpID;          // Операция возврата от покупателя
 		PPID   RcptEtcOpID;          // Операция прочего прихода
@@ -31392,8 +31418,8 @@ public:
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr /* (PPObjBill::EditParam *) */);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	int    SLAPI CheckRightsWithOp(PPID opID, long rtflags);
-	int    SLAPI Lock(PPID);
-	int    SLAPI Unlock(PPID);
+	int    SLAPI Lock(PPID billID);
+	int    SLAPI Unlock(PPID billID);
 	int    SLAPI CheckStatusFlag(PPID statusID, long flag);
 	int    FASTCALL GetEdiUserStatus(const BillTbl::Rec & rRec);
 	//
@@ -37123,11 +37149,9 @@ public:
 	};
 	SLAPI  PPViewAccturn();
 	SLAPI ~PPViewAccturn();
-
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
-
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(AccturnViewItem *);
 	int    SLAPI PrintItem(PPID billID);
@@ -37152,7 +37176,6 @@ private:
 
 	static int DynFuncCheckRelRestrictions;
 	static int DynFuncCurSymbByAccRelID;
-
 	TempAssocTbl * P_TmpBillTbl;
 	AccturnFilt Filt;
 	TempAccturnGrpngTbl * P_TmpAGTbl;
@@ -38791,7 +38814,6 @@ struct GoodsTaxAnalyzeViewItem {
 	char   Name[128];
 	char   TaxStr[48];
 	const  char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsTaxAnalyze instance
-
 	double Qtty;
 	double PhQtty;
 	double TrnovrCost;
@@ -38868,7 +38890,6 @@ private:
 	int    SLAPI NextOuterIteration();
 
 	GoodsTaxAnalyzeFilt Filt;
-
 	TempGoodsTaxAnlzTbl * P_TempTbl;
 	GoodsGroupIterator  * P_GGIter;
 	PPCycleArray CycleList;
@@ -39059,7 +39080,6 @@ private:
 	int    IterIdx;
 	SString IterGrpName_;
 	GoodsSubstList Gsl;
-
 	enum {
 		stFiltArIsSupple = 0x0001 // Статья Filt.ArticleID является поставщиком
 	};
@@ -42450,8 +42470,7 @@ struct PaymPlanFilt : public PPBaseFilt {
 	char   ReserveStart[32]; // @anchor
 	DateRange Period;
 	PPCycleFilt Cycl;
-	PPID   AccSheetID; // Таблица статей, к которой относятся долговые документы
-	//                    if AccSheetID == 0 then AccSheetID = GetSellAccSheet()
+	PPID   AccSheetID; // Таблица статей, к которой относятся долговые документы if AccSheetID == 0 then AccSheetID = GetSellAccSheet()
 	PPID   ObjectID;
 	SubstGrpPerson Sgp;      // Подстановка персоналии
 	long   Flags;            // PaymPlanFilt::fXXX
@@ -43395,12 +43414,11 @@ class PPObjProject : public PPObject {
 public:
 	static int FASTCALL ReadConfig(PPProjectConfig *);
 	static int SLAPI EditConfig();
-	static int FASTCALL FetchConfig(PPProjectConfig * pCfg); // @v8.0.2
-	static int SLAPI DirtyConfig();                       // @v8.0.2
-
+	static int FASTCALL FetchConfig(PPProjectConfig * pCfg);
+	static int SLAPI DirtyConfig();
 	static SString & FASTCALL MakeCodeString(const ProjectTbl::Rec * pRec, SString & rBuf);
 
-	SLAPI  PPObjProject(void * extraPtr = 0);
+	explicit SLAPI  PPObjProject(void * extraPtr = 0);
 	SLAPI ~PPObjProject();
 	virtual int    SLAPI Search(PPID id, void * b = 0);
 	virtual int    SLAPI Browse(void * extraPtr);
@@ -43481,8 +43499,7 @@ private:
 //
 //
 #define TODOF_OPENEDBYEMPL       0x0001 // Исполнитель видел задачу
-#define TODOF_ACTIONVIEWED       0x0002 // @transient В журнал выводить
-	// событие исполнитель видел задачу, вместо - объект изменен
+#define TODOF_ACTIONVIEWED       0x0002 // @transient В журнал выводить событие "исполнитель видел задачу", вместо - объект изменен
 
 #define PRJTASKRT_MULTCHANGE     0x0100
 
@@ -43504,7 +43521,7 @@ public:
 	//
 	static int SLAPI RecoverAbsencePerson();
 
-	SLAPI  PPObjPrjTask(void * extraPtr = 0);
+	explicit SLAPI  PPObjPrjTask(void * extraPtr = 0);
 	SLAPI ~PPObjPrjTask();
 	virtual int SLAPI Search(PPID id, void * pRec = 0);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -43561,7 +43578,6 @@ public:
 	int    SLAPI ExcludeStatus(long status);
 	int    SLAPI IncludePrior(long prior);
 	int    SLAPI ExcludePrior(long prior);
-
 	int    SLAPI GetStatusList(PPIDArray *) const;
 	int    SLAPI GetPriorList(PPIDArray *) const;
 	SString & SLAPI GetStatusListText(SString &) const;
@@ -43610,8 +43626,7 @@ public:
 	PPID   TemplateID;         // ->PrjTask.ID (Kind=TODOKIND_TEMPLATE)
 	PPID   CreatorID;          // ->Person.ID  Персоналия, создавшая задачу
 	PPID   CliCityID;          // ->City.ID Город клиента
-	PPID   LinkTaskID;         // ->PrjTask.LinkTaskID Связанная задача.
-		// Если != 0, Kind = TODOKIND_TASK, другие поля фильтра не используютс
+	PPID   LinkTaskID;         // ->PrjTask.LinkTaskID Связанная задача. Если != 0, Kind = TODOKIND_TASK, другие поля фильтра не используютс
 	int16  PriorList[10];      // TODOPRIOR_XXX Список приоритетов, по которым необходимо получить выборку
 	int16  StatusList[10];     // TODOSTTS_XXX  Список статусов, по которым необходимо получить выборку
 	DateRange Period;          //
@@ -46177,6 +46192,8 @@ public:
 		PPID   LinkToDlvrLocID;
 		LDATE  IssueDate;
 		PPID   OrgDocEntityID;
+		int64  ExpiryFrom;     // @v10.5.11 SUniTime
+		int64  ExpiryTo;       // @v10.5.11 SUniTime
 	};
 
 	static int FASTCALL EditInterchangeParam(VetisDocumentFilt * pFilt);
@@ -46220,7 +46237,7 @@ private:
 		otmBill,
 		otmLot
 	};
-	int    SLAPI MatchObject(VetisDocumentTbl::Rec & rRec, int objToMatch);
+	int    SLAPI MatchObject(const VetisDocumentTbl::Rec & rRec, int objToMatch);
 
 	VetisDocumentFilt Filt;
 	PPID   FromEntityID;

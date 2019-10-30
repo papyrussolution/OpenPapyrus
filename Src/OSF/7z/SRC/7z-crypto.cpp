@@ -17,7 +17,9 @@ extern "C" void FASTCALL AesCtr_Code_Intel(uint32 * ivAes, Byte * data, size_t n
 // @sobolev EXTERN_C_END
 
 namespace NCrypto {
-	static struct CAesTabInit { CAesTabInit() { AesGenTables(); } } g_AesTabInit;
+	static struct CAesTabInit { 
+		CAesTabInit() { AesGenTables(); } 
+	} g_AesTabInit;
 
 	CAesCbcCoder::CAesCbcCoder(bool encodeMode, unsigned keySize) : _keySize(keySize), _keyIsSet(false), _encodeMode(encodeMode)
 	{

@@ -405,5 +405,6 @@
     <None Include="..\Osf\Bdb\lock_alloc.incl">
       <Filter>Header</Filter>
     </None>
+    <None Include="cairo-1.16.0.vcxproj" />
   </ItemGroup>
 </Project>

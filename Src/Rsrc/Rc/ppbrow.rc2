@@ -430,7 +430,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	//ATTACHBILLTOORD  :  kbCtrlY,    PPDV_LINK01,        "Привязать документ к заказу\tCtrl-Y"
 	// @v10.3.5 ATTACHBILLTODRAFT:  kbNoKey,    PPDV_NOICON,          "Привязать документ к драфт-документу"
-	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,            "Привязать документ к другому документу\tCtrl-Y" // @v10.3.5
+	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,            "@{dolinkbilltoanother}\tCtrl-Y" // @v10.3.5
 	separator
 	TAGS             :  kbF6,    PPDV_TAGS01,            "@{tags}\tF6" // @v10.3.5
 	//TAGSALL        :  kbAltG,  TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
@@ -491,7 +491,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	//WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,        "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	// @v10.3.5 ATTACHBILLTOORD  :  kbCtrlY,    PPDV_LINK01,  "Привязать документ к заказу\tCtrl-Y"
-	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,          "Привязать документ к другому документу\tCtrl-Y" // @v10.3.5
+	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,          "@{dolinkbilltoanother}\tCtrl-Y" // @v10.3.5
 	separator
 	TAGS             :  kbF6,    PPDV_TAGS01,             "@{tags}\tF6" // @v10.3.5
 	//TAGSALL        :  kbAltG,  TBBM_TAGSALL,            "@{doupdatetags}\Alt-G" // @v10.3.5
@@ -591,7 +591,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,          "@{view_trfranlz}\tCtrl-T"
 	// @v10.3.5 ATTACHBILLTOORD  :  kbCtrlY,    PPDV_LINK01, "Привязать документ к заказу\tCtrl-Y"
 	// @v10.3.5 ATTACHBILLTODRAFT:  kbNoKey,    PPDV_NOICON, "Привязать документ к драфт-документу"
-	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,            "Привязать документ к другому документу\tCtrl-Y" // @v10.3.5
+	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,            "@{dolinkbilltoanother}\tCtrl-Y" // @v10.3.5
 	separator
 	TAGS             :  kbF6,   PPDV_TAGS01,             "@{tags}\tF6" // @v10.3.5
 	//TAGSALL          :  kbAltG,  TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
@@ -1945,6 +1945,10 @@ browser CASHNODEBILL north(100), 1, 2, "Товарные чеки {%s}", OWNER|GRID, 0
 // 26 - Складская ячейка
 // 27 - Штрихкод       (поле 16 показывает ЛИБО штрихкод, ЛИБО серию в зависимости от настройки)
 // 28 - Серийный номер (поле 16 показывает ЛИБО штрихкод, ЛИБО серию в зависимости от настройки)
+// 29 - Количество в упаковках
+// 30 - Информация об установленной котировке @v8.2.0
+// 31 - Заказанное количество (для документов отгрузки) @v9.1.1
+// 32 - GUID сертификата VETIS @v10.1.8
 //
 browser GOODSITEM_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {
@@ -3336,7 +3340,7 @@ browser SYSJ_SUBST north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 	}
 }
 
-browser GTAJ north(100), 1, 1, "Журнал тарифицируемых операций глобальных аккаунтов", OWNER|GRID, 0
+browser GTAJ north(100), 1, 1, "@{gtajournal}", OWNER|GRID, 0
 {
 	"@date",        3, notype, DATF_DMY, 8
 	"@time",        4, notype, TIMF_HMS | TIMF_MSEC, 11
@@ -3351,7 +3355,7 @@ browser GTAJ north(100), 1, 1, "Журнал тарифицируемых операций глобальных аккаун
 	}
 }
 
-browser GTAJ_OBJ north(100), 1, 1, "Журнал тарифицируемых операций глобальных аккаунтов", OWNER|GRID, 0
+browser GTAJ_OBJ north(100), 1, 1, "@{gtajournal}", OWNER|GRID, 0
 {
 	"@date",        3, notype, DATF_DMY, 8
 	"@time",        4, notype, TIMF_HMS | TIMF_MSEC, 11
@@ -6150,14 +6154,14 @@ browser GLOBALUSERACC north(100), 1, 1, "@{globaluseracc_pl}", OWNER|GRID, 0
 	"@person",         2, notype, 0, 20
 	"GUID",            3, notype, 0, 30
 	toolbar TB_FIRST_TOOLBAR {
-		ADDITEM       : kbIns,    PPDV_ADDFILE02, "@{add}\tInsert"
+		ADDITEM       : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		EDITITEM      : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
 		separator
-		TAGS          : kbCtrlF6, PPDV_TAGS01,   "@{tags}\tCtrl-F6"
-		TRANSACTJ     : kbCtrlF3, PPDV_NOICON, "Журнал тарифицируемых транзакций\tCtrlF3"
+		TAGS          : kbCtrlF6, PPDV_TAGS01,       "@{tags}\tCtrl-F6"
+		TRANSACTJ     : kbCtrlF3, PPDV_NOICON,       "@{gtajournal}\tCtrlF3"
 		separator
-		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01, "@{filter}\tCtrl-V"
+		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 		SYSJ          : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 	}
 }
@@ -6322,18 +6326,18 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 {
 	"ID",                    0,  notype, 0,  5
 	"Дата выпуска",          9,  notype, 0, 10
-	"@number",              20,  notype, 0, 10
-	"@type",                12,  notype, 0, 10
-	"@status",              13,  notype, 0, 10
-	"Дата ТТН",             14,  notype, 0, 10
-	"Номер ТТН",            15,  notype, 0, 15
-	"@sender",              18,  notype, 0, 30
-	"@recipient",           19,  notype, 0, 30
-	"Продукт",              16,  notype, 0, 30
-	"@qtty",                17,  notype, NMBF_NOZERO, 10.3
-	"@rest",                21,  notype, NMBF_NOZERO, 10.3
-	"UUID",                 22,  notype, 0, 30  //@erik v10.4.11
-	"@form",                11,  notype, 0, 10
+	"@number",              22,  notype, 0, 10 // @v10.5.11 20-->22
+	"@type",                14,  notype, 0, 10 // @v10.5.11 12-->14
+	"@status",              15,  notype, 0, 10 // @v10.5.11 13-->15
+	"Дата ТТН",             16,  notype, 0, 10 // @v10.5.11 14-->16
+	"Номер ТТН",            17,  notype, 0, 15 // @v10.5.11 15-->17
+	"@sender",              20,  notype, 0, 30 // @v10.5.11 18-->20
+	"@recipient",           21,  notype, 0, 30 // @v10.5.11 19-->21
+	"Продукт",              18,  notype, 0, 30 // @v10.5.11 16-->18
+	"@qtty",                19,  notype, NMBF_NOZERO, 10.3       // @v10.5.11 17-->19
+	"@rest",                23,  notype, NMBF_NOZERO, 10.3       // @v10.5.11 21-->23
+	"UUID",                 24,  notype, 0, 30  //@erik v10.4.11 // @v10.5.11 22-->24
+	"@form",                13,  notype, 0, 10  // @v10.5.11 11-->13
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "Детализация\tEnter"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,   "Удалить документ (только для исходящих)\tDelete"
@@ -6373,8 +6377,8 @@ browser QUOTEREQANALYZE north(100), 1, 0, "@{view_quotereqanalyze}", OWNER|GRID,
 	"RepPrice",             15,  double,       NMBF_NOZERO,   8.2, BCO_USERPROC
 	"RepShipmTerm",         16,  zstring(32),  0,   8,   BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "Документ\tEnter"
-		EDITLINKQR       : kbF3,       PPDV_NOICON,         "Связанный документ\tEnter"
+		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "@{document}\tEnter"
+		EDITLINKQR       : kbF3,       PPDV_NOICON,         "@{linkdocument}\tEnter"
 		CREATELINKQR     : kbAltF3,    PPDV_NOICON,         "Создать связанный запрос\tAlt-F3"
 		separator
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
@@ -7013,7 +7017,7 @@ record Bill {
 	Obj2INN       zstring(32)  "ИНН дополнительного объекта по документу";
 	Obj2GLN       zstring(16)  "GLN дополнительного объекта по документу";          // @v7.1.12
 	Obj2No        long         "Номер статьи дополнительного объекта по документу";
-	DueDate       date         "Дата исполнения документа";
+	DueDate       date         "@{bill_duedate}";
 	PaymDate      date         "Последняя дата из плана платежей по документу";
 	Amount        double       format(8.2) "@{amount}";
 	CRate         double       format(8.2) "@{currate}";
@@ -7107,7 +7111,7 @@ record BRow {
 	Obj2Name      zstring(128) "Наименование дополнительного объекта по документу"; // @v8.9.12 (48)-->(128)
 	Obj2INN       zstring(32)  "ИНН дополнительного объекта по документу";
 	Obj2No        long         "Номер статьи дополнительного объекта по документу";
-	DueDate       date         "Дата исполнения документа";
+	DueDate       date         "@{bill_duedate}";
 	PaymDate      date         "Последняя дата из плана платежей по документу";
 	BillAmt       double       format(8.2) "@{nominalamount}";
 	CRate         double       format(8.2) "@{currate}";
@@ -7254,7 +7258,7 @@ record CSessComplex {
 	//
 	// Итерация по оплатам чека
 	//
-	PaymType     int16        "Тип оплаты";
+	PaymType     int16        "@{paymenttype}";
 	PaymAmt      double       format(13.2) "Сумма оплаты";
 	PaymCardN    zstring(32)  "Номер карты оплаты";
 	//
@@ -7380,10 +7384,10 @@ record CS_Dscnt {
 record EmailAccount {
 	Name         zstring(32)  "@{appellation}";
 	FromAddress  zstring(255) "Обратный адрес";
-	SmtpServer   zstring(255) "Сервер исходящей почты";
+	SmtpServer   zstring(255) "@{server_smtp}";
 	SmtpPort     int16        "Порт сервера исходящей почты";
 	AuthType     zstring(32)  "Тип аутентификации";
-	Pop3Server   zstring(255) "Сервер входящей почты";
+	Pop3Server   zstring(255) "@{server_pop3}";
 	Pop3Port     int16        "Порт сервера входящей почты";
 	RcvName      zstring(32)  "Имя доступа к входящей почте";
 	RcvPassword  zstring(255) "Пароль доступа к входящей почте";
@@ -7427,7 +7431,7 @@ record SupplBillLine {
 	DocumentNumber    zstring(24)         "@{billno}";    // @v10.2.3 (16)-->(24)
 	DocumentDate      date                "@{billdate}";
     SrcCRMDbId        zstring(36)         "Ид базы данных-источника";
-	PayDate           date                "Дата оплаты";
+	PayDate           date                "@{paymdate}";
 	WareHouseId       zstring(24)         "@{warehouse}";
 	WareId            zstring(24)         "@{goodscode}";
 	Price             double format(10.2) "@{price}";
@@ -8018,8 +8022,8 @@ record BaltikaSaldoDoc {
 	ProductName      zstring(128)        "Название продукта";
 	DocumentNumber   zstring(32)         "@{billno}";
 	DocumentDate     date                "@{billdate}";
-	ActionDate       date                "Дата исполнения";
-	PaymentDate      date                "Дата оплаты";
+	ActionDate       date                "@{duedate}";
+	PaymentDate      date                "@{paymdate}";
 	OverduePeriod    long                "OverduePeriod";
 	CustInvoiceSumm  double format(10.2) "CustInvoiceSumm";
 	CustReturnSumm   double format(10.2) "Сумма возврата поставщику";

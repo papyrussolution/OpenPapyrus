@@ -2014,7 +2014,7 @@ int SLAPI PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID
 	PPObjStaffList sl_obj;
 	memzero(pAssc, sizeof(*pAssc));
 	pAssc->List[ScObjAssoc::scPerson].Oi.Set(PPOBJ_PERSON, personID);
-	pAssc->List[ScObjAssoc::scHeader].Oi.Set(0, 0);
+	pAssc->List[ScObjAssoc::scHeader].Oi.Z();
 	for(uint i = 0; i < ScObjAssoc::scCount; i++) {
 		ScObjAssoc::H & r_entry = pAssc->List[i];
 		if(i != ScObjAssoc::scHeader) {

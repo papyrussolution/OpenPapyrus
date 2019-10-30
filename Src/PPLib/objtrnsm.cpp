@@ -1237,7 +1237,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 		}
 		{
 			TSVector <ObjSyncQueueTbl::Rec> idx_rec_list; // @v9.8.6 TSArray-->TSVector
-			for(objid.Set(0, 0); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
+			for(objid.Z(); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
 				THROW_SL(idx_rec_list.insert(&idx_rec));
 				if(idx_rec_list.getCount() >= max_idx_recs_per_ta) {
 					THROW(Helper_PushObjectsToQueue(rHdr, sys_file_id, idx_rec_list, use_ta));
@@ -1315,7 +1315,7 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 	if(hdr.PacketType == PPOT_SYNCCMP) {
 		if(pTbl) {
 			long count = 0;
-			for(MEMSZERO(objid); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
+			for(objid.Z(); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
 				int    skip = 0;
 				TempSyncCmpTbl::Rec sct_rec, ex_rec;
 				TempSyncCmpTbl::Key0 k0;
@@ -1566,7 +1566,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 	PPObjID oi_f = rItem.Oi;
 	PPCommSyncID comm_id = rItem.CommID;
 	PPObjID dont_process_pair;
-	dont_process_pair.Set(0, 0);
+	dont_process_pair.Z();
 	SString added_buf, msg_buf;
 	SString temp_buf;
 	THROW(PPCheckUserBreak());
@@ -1999,7 +1999,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 			//
 			// До начала транзакции создадим экземляры всех необходимых объектов данных (что бы не открывать таблицы внутри транзакции).
 			//
-			for(MEMSZERO(objid); EnumObjectsByIndex(&objid, &rec) > 0;) {
+			for(objid.Z(); EnumObjectsByIndex(&objid, &rec) > 0;) {
 				if(!(rec.Flags & PPObjPack::fNoObj)) {
 					THROW(_GetObjectPtr(objid.Obj));
 				}
@@ -2018,7 +2018,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 				PPInitIterCounter(cntr, P_TmpIdxTbl);
 				if(!SyncCmpTransmit) {
 					PPObjID iter_objid;
-					for(MEMSZERO(iter_objid); EnumObjectsByIndex(&iter_objid, &rec) > 0; PPWaitPercent(cntr.Increment(), wait_msg)) {
+					for(iter_objid.Z(); EnumObjectsByIndex(&iter_objid, &rec) > 0; PPWaitPercent(cntr.Increment(), wait_msg)) {
 						objid = iter_objid; // objid внутри блока может измениться //
 						if(!(rec.Flags & PPObjPack::fNoObj)) {
 							DBRowId rowid;

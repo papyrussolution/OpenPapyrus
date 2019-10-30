@@ -89,15 +89,15 @@ int _tmain(int argc, _TCHAR* argv[])
 			pLoginPasswordBox(win_user, win_pwd, 0x40);
 			cout << "WinSvcCreate:\t" << pWinSvcCreate(svc_name, svc_display_name, svc_path, 0x10, 1, 1, win_user, win_pwd, NULL, NULL, NULL, 1) << endl;
 
-			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, "message", MB_OK);
+			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, _T("message"), MB_OK);
 			cout << "WinSvcStart:\t" << pWinSvcStart(svc_name, 1) << endl;
-			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, "message", MB_OK);
+			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, _T("message"), MB_OK);
 			cout << "WinSvcStop:\t" << pWinSvcStop(svc_name, 1) << endl;
-			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, "message", MB_OK);
+			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, _T("message"), MB_OK);
 			cout << "WinSvcGetProperty:\t" << pWinSvcGetProperty(svc_name, "PathName", 1, buff, 0x100) << '\t' << buff << endl;
-			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, "message", MB_OK);
+			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, _T("message"), MB_OK);
 			cout << "WinSvcDelete:\t" << pWinSvcDelete(svc_name, 1) << endl;
-			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, "message", MB_OK);
+			pGetLastMsg(msg, 0x100); MessageBox(NULL, msg, _T("message"), MB_OK);
 			// windows registry tests
 			cout << "WinRegGetStr:\t";
 			cout << pWinRegGetStr(0x80000002, "software\\javasoft\\java runtime environment\\1.6", "javahome", 0, buff, 0x80);

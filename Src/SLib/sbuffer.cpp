@@ -717,6 +717,7 @@ const  uchar * SLAPI STempBuffer::ucptr() const { return reinterpret_cast<const 
 const  char * SLAPI STempBuffer::cptr() const { return P_Buf; }
 const  void * SLAPI STempBuffer::vcptr() const { return P_Buf; }
 void * SLAPI STempBuffer::vptr() { return P_Buf; }
+void * SLAPI STempBuffer::vptr(size_t offs) { return (PTR8(P_Buf)+offs); }
 //
 //
 //
@@ -861,7 +862,7 @@ int SLAPI SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 		if(Flags & fSeparateDataStruct) {
 			for(uint i = 0; i < blk.StructCount; i++) {
 				assert(P_DbtDescrList);
-				SscDbtItem * p_item = (SscDbtItem *)P_DbtDescrList->at(i);
+				SscDbtItem * p_item = static_cast<SscDbtItem *>(P_DbtDescrList->at(i));
 				SymbTbl.GetByAssoc(p_item->DbtID, TempStrBuf);
 				rBuf.Write(TempStrBuf);
 				rBuf.Write(p_item->DbtID);

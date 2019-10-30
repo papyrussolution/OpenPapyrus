@@ -951,7 +951,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	AbstractGoodsID(0), ExtCnLocID(0), ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), CnPhnSvcID(0), UiFlags(0),
 	State_p(0), LastGrpListUpdTime(ZERODATETIME)
 {
-	OuterOi.Set(0, 0);
+	OuterOi.Z();
 	MEMSZERO(R);
 	SETFLAG(Flags, fNoEdit, (P_ChkPack || !CashNodeID));
 	PPCashNode    cn_rec;
@@ -2533,7 +2533,7 @@ void CPosProcessor::ClearCheck()
 	SetupAgent(0, 0);
 	P.OrderCheckID = 0;
 	P.Clear();
-	OuterOi.Set(0, 0);
+	OuterOi.Z();
 	if(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 		SetupState(sEMPTYLIST_EMPTYBUF);
 	//ClearRow();

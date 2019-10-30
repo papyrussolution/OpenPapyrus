@@ -868,8 +868,7 @@ int PutAmountList(PPID realDivID, DivType divt, StaffAmtList * pAmtList)
 		post_pack.Amounts.copy(amt_list);
 		THROW(obj_staff.PutPostPacket(&realDivID, &post_pack, 1) > 0);
 	}
-	if(pAmtList)
-		pAmtList->copy(amt_list);
+	CALLPTRMEMB(pAmtList, copy(amt_list));
 	CATCHZOK
 	return ok;
 }
@@ -882,7 +881,28 @@ public:
 		updateList(-1);
 	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(TVCOMMAND) {
+			if(TVCMD == cmLBItemSelected && event.isCtlEvent(CTL_EDDIVSUM_DIV)) {
+				SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_EDDIVSUM_DIV));
+				if(p_lb) {
+					long id = 0;
+					p_lb->getCurID(&id);
+					if(id != CurDivID) {
+						CurDivID = id;
+						updateList(-1);
+					}
+				}
+			}
+			else
+				return;
+		}
+		else
+			return;
+		clearEvent(event);
+	}
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
@@ -898,29 +918,6 @@ private:
 	PPObjPerson     ObjPsn;
 	PPObjAmountType ObjAmtT;
 };
-
-IMPL_HANDLE_EVENT(FastEditSumByDivDlg)
-{
-	PPListDialog::handleEvent(event);
-	if(TVCOMMAND) {
-		if(TVCMD == cmLBItemSelected && event.isCtlEvent(CTL_EDDIVSUM_DIV)) {
-			SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_EDDIVSUM_DIV));
-			if(p_lb) {
-				long id = 0;
-				p_lb->getCurID(&id);
-				if(id != CurDivID) {
-					CurDivID = id;
-					updateList(-1);
-				}
-			}
-		}
-		else
-			return;
-	}
-	else
-		return;
-	clearEvent(event);
-}
 
 StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 {
@@ -1051,16 +1048,13 @@ int FastEditSumByDivDlg::SetupDivList()
 				DivType divt;
 				StrAssocArray::Item item = p_div_list->Get(i);
 				GetRealDivID(&ObjPsn, item.Id, &divt);
-				if(divt == divtEmployer)
-					img_id = ICON_SMALLEMPLOYER;
-				else if(divt == divtStaff)
-					img_id = ICON_SMALLSTAFF;
-				else if(divt == divtStaffPost)
-					img_id = ICON_SMALLSTAFFPOST;
-				else if(divt == divtPerson)
-					img_id = ICON_SMALLPERSON;
-				else
-					img_id = ICON_SMALLALL;
+				switch(divt) {
+					case divtEmployer: img_id = ICON_SMALLEMPLOYER; break;
+					case divtStaff: img_id = ICON_SMALLSTAFF; break;
+					case divtStaffPost: img_id = ICON_SMALLSTAFFPOST; break;
+					case divtPerson: img_id = ICON_SMALLPERSON; break;
+					default: img_id = ICON_SMALLALL; break;
+				}
 				p_def->AddImageAssoc(item.Id, img_id);
 			}
 			p_lb->setDef(p_def);
@@ -1204,7 +1198,28 @@ public:
 		updateList(-1);
 	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(TVCOMMAND) {
+			if(TVCMD == cmLBItemSelected && event.isCtlEvent(CTL_VIEWSUMDIV_SUM)) {
+				SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_VIEWSUMDIV_SUM));
+				if(p_lb) {
+					long id = 0;
+					p_lb->getCurID(&id);
+					if(id != CurAmtID) {
+						CurAmtID = id;
+						updateList(-1);
+					}
+				}
+			}
+			else
+				return;
+		}
+		else
+			return;
+		clearEvent(event);
+	}
 	virtual int editItem(long pos, long id);
 	virtual int setupList();
 	int    EditAmount(PPID divID, PPID amtID);
@@ -1221,29 +1236,6 @@ private:
 	PPObjPerson     ObjPsn;
 	PPObjAmountType ObjAmtT;
 };
-
-IMPL_HANDLE_EVENT(FastEditDivBySumDlg)
-{
-	PPListDialog::handleEvent(event);
-	if(TVCOMMAND) {
-		if(TVCMD == cmLBItemSelected && event.isCtlEvent(CTL_VIEWSUMDIV_SUM)) {
-			SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_VIEWSUMDIV_SUM));
-			if(p_lb) {
-				long id = 0;
-				p_lb->getCurID(&id);
-				if(id != CurAmtID) {
-					CurAmtID = id;
-					updateList(-1);
-				}
-			}
-		}
-		else
-			return;
-	}
-	else
-		return;
-	clearEvent(event);
-}
 
 int FastEditDivBySumDlg::PutDivEntryToList(PPID objType, PPID objID, StrAssocArray * pDivList)
 {

@@ -2345,7 +2345,7 @@ int PrcssrObjText::SignalProc(const char * pResource, int64 orgOffs, const char 
 	int    ok = 1;
 	SignalProcBlock * p_blk = static_cast<SignalProcBlock *>(pExtraPtr);
 	PPObjID oi;
-	oi.Set(0, 0);
+	oi.Z();
 	if(p_blk && oi.FromStr(pResource)) {
 		if(oi.Obj == PPOBJ_GOODS) {
 			if(!p_blk->GObj.SetupAttrByTextDescr(oi.Id, pSignalStr, !(p_blk->State & p_blk->stOuterTransaction))) {

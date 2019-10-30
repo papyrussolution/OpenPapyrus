@@ -713,7 +713,7 @@ int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_t
 		const uint plt_c = pData->PltList.getCount();
 		if(plt_c > 1)
 			sz += sizeof(GoodsStockExt::Pallet) * (plt_c - 1);
-		THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::M(sz));
+		THROW_MEM(p_strg = static_cast<__GoodsStockExt *>(SAlloc::M(sz)));
 		memzero(p_strg, sizeof(*p_strg));
 		p_strg->ObjType  = PPOBJ_GOODS;
 		p_strg->ObjID    = id;
@@ -752,14 +752,14 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 		uint   init_plt_c = 4;
 		pData->Init();
 		sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
-		THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::M(sz));
+		THROW_MEM(p_strg = static_cast<__GoodsStockExt *>(SAlloc::M(sz)));
 		memzero(p_strg, sizeof(*p_strg));
 		THROW(ok = P_Ref->GetProperty(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz));
 		if(ok > 0) {
 			if(p_strg->PltList.Count > init_plt_c && p_strg->PltList.Count <= 8) {
 				init_plt_c = p_strg->PltList.Count;
 				sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
-				THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::R(p_strg, sz));
+				THROW_MEM(p_strg = static_cast<__GoodsStockExt *>(SAlloc::R(p_strg, sz)));
 				THROW(P_Ref->GetProperty(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz) > 0);
 			}
 			// Защита от 'грязных' значений в базе данных {
@@ -879,10 +879,11 @@ struct PPTextSrchPatternEntry {
 		delete P_ApxP;
 	}
 	enum {
-		kText = 0,
-		kApproxText,
-		kLinkAnd,
-		kLinkOr,
+		kText    = 0,
+		kLinkOr  = 1,
+		kLinkAnd = 2,
+		kApproxText = 0x0100,
+		kFromStart  = 0x0200,
 	};
 	int    Kind;
 	SString Text;
@@ -911,13 +912,17 @@ private:
 		const uint _c = getCount();
 		if(textLen && entryIdx < _c) {
 			const PPTextSrchPatternEntry * p_entry = at(entryIdx);
-			if(p_entry->Kind == PPTextSrchPatternEntry::kText) {
-				size_t fp = 0;
-                if(p_entry->P_Sp->Search(pText, 0, textLen, &fp))
+			if(p_entry->Kind & PPTextSrchPatternEntry::kFromStart) {
+				if(strncmp(p_entry->Text, pText, p_entry->Text.Len()) == 0)
 					ok = 1;
 			}
-			else if(p_entry->Kind == PPTextSrchPatternEntry::kApproxText) {
+			else if(p_entry->Kind & PPTextSrchPatternEntry::kApproxText) {
 				if(ApproxStrSrch(p_entry->Text, pText, p_entry->P_ApxP) > 0)
+					ok = 1;
+			}
+			else if(p_entry->Kind == PPTextSrchPatternEntry::kText) {
+				size_t fp = 0;
+                if(p_entry->P_Sp->Search(pText, 0, textLen, &fp))
 					ok = 1;
 			}
 			if((entryIdx+1) < _c) {
@@ -986,8 +991,12 @@ private:
 			const char * p_srch_str = temp_buf;
 			PPTextSrchPatternEntry * p_new_entry = CreateNewItem();
 			THROW_SL(p_new_entry);
-			if(*p_srch_str == '!' && *++p_srch_str != '!') {
-				p_new_entry->Kind = PPTextSrchPatternEntry::kApproxText;
+			if(p_srch_str[0] == '%' && p_srch_str[1] == '^') {
+				p_new_entry->Kind |= PPTextSrchPatternEntry::kFromStart;
+				p_new_entry->Text = (p_srch_str+2);
+			}
+			else if(*p_srch_str == '!' && *++p_srch_str != '!') {
+				p_new_entry->Kind |= PPTextSrchPatternEntry::kApproxText;
 				THROW_SL(p_new_entry->P_ApxP = new ApproxStrSrchParam);
 				p_new_entry->P_ApxP->weight = 1;
 				p_new_entry->P_ApxP->method = 1;
@@ -2852,6 +2861,7 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 						}
 					}
 					PROFILE_END
+					FullGoodsList.SortByText(); // @v10.5.11
 					ufp.SetFactor(0, _mc); // @v10.1.4
 					ufp.Commit(); // @v10.1.4
 				}

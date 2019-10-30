@@ -1,5 +1,5 @@
 // OBJREGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -153,11 +153,12 @@ int SLAPI PPObjRegisterType::GetPacket(PPID id, PPRegisterTypePacket * pPack)
 }
 
 class RegisterTypeDialog : public TDialog {
+	DECL_DIALOG_DATA(PPRegisterTypePacket);
 public:
 	RegisterTypeDialog() : TDialog(DLG_PREGTYP)
 	{
 	}
-	int    setDTS(const PPRegisterTypePacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		long   st = 0;
 		RVALUEPTR(Data, pData);
@@ -193,12 +194,11 @@ public:
 		SetupCtrls();
 		return 1;
 	}
-	int    getDTS(PPRegisterTypePacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		int    err = 0, sel = 0;
 		long   st = 0, ggrp_allow = 0;
-
 		getCtrlData(sel = CTL_PREGTYP_NAME, Data.Rec.Name);
 		THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
 		getCtrlData(sel = CTL_PREGTYP_SYMB, Data.Rec.Symb);
@@ -227,7 +227,7 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(TVCOMMAND && TVCMD == cmCBSelected && event.isCtlEvent(CTLSEL_PREGTYP_GGRP)) {
+		if(event.isCbSelected(CTLSEL_PREGTYP_GGRP)) {
 			SetupCtrls();
 			clearEvent(event);
 		}
@@ -237,12 +237,14 @@ private:
 		const PPID grp_id = getCtrlLong(CTLSEL_PREGTYP_GGRP);
 		disableCtrl(CTL_PREGTYP_GGRPALLOW, BIN(!grp_id));
 	}
-	PPRegisterTypePacket Data;
 };
 
 int SLAPI PPObjRegisterType::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, ok = 1, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	ushort flags = 0;
 	PPRegisterTypePacket pack;
 	RegisterTypeDialog * p_dlg = 0;

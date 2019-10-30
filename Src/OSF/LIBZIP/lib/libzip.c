@@ -2,17 +2,6 @@
 //
 //#define _ZIP_COMPILING_DEPRECATED
 #include "zipint.h"
-//#ifdef HAVE_STRINGS_H
-	//#include <strings.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include <sys/types.h>
-//#include <sys/stat.h>
-#ifdef _WIN32
-	//#include <fcntl.h> // WIN32 needs <fcntl.h> for _O_BINARY 
-#endif
 // Windows sys/types.h does not provide these 
 #ifndef S_ISREG
 	#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
@@ -114,39 +103,7 @@ static int GetZipErrType(int errCode)
 		return ZIP_ET_NONE;
 }
 
-/*static const int _zip_err_type[] = {
-    N,
-    N,
-    S,
-    S,
-    S,
-    S,
-    S,
-    N,
-    N,
-    N,
-    N,
-    S,
-    S,
-    Z,
-    N,
-    N,
-    N,
-    N,
-    N,
-    N,
-    N,
-    N,
-    S,
-    N,
-    N,
-    N, 
-    N,
-    N,
-    N,
-    N,
-    S,
-};*/
+/*static const int _zip_err_type[] = { N, N, S, S, S, S, S, N, N, N, N, S, S, Z, N, N, N, N, N, N, N, N, S, N, N, N, N, N, N, N, S, };*/
 //
 // ZIPERROR
 //
@@ -257,7 +214,7 @@ static void FASTCALL _zip_error_set_from_source(zip_error_t * err, zip_source_t 
 
 int64 FASTCALL zip_error_to_data(const zip_error_t * error, void * data, uint64 length)
 {
-	int * e = (int *)data;
+	int * e = static_cast<int *>(data);
 	if(length < sizeof(int)*2) {
 		return -1;
 	}
@@ -336,7 +293,7 @@ int64 FASTCALL _zip_add_entry(zip_t * za)
 		if(sizeof(struct zip_entry) * (size_t)za->nentry_alloc > realloc_size) {
 			return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
-		rentries = (zip_entry_t*)SAlloc::R(za->entry, sizeof(struct zip_entry) * (size_t)nalloc);
+		rentries = static_cast<zip_entry_t *>(SAlloc::R(za->entry, sizeof(struct zip_entry) * (size_t)nalloc));
 		if(!rentries) {
 			return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
@@ -413,7 +370,7 @@ zip_buffer_t * FASTCALL _zip_buffer_new(uint8 * data, size_t size)
 {
 	const bool free_data = (data == NULL);
 	zip_buffer_t * buffer = 0;
-	if(SETIFZ(data, (uint8 *)SAlloc::M(size))) {
+	if(SETIFZ(data, static_cast<uint8 *>(SAlloc::M(size)))) {
 		buffer = static_cast<zip_buffer_t *>(SAlloc::M(sizeof(*buffer)));
 		if(!buffer) {
 			if(free_data)
@@ -686,16 +643,15 @@ const char * _zip_get_name(zip_t * za, uint64 idx, zip_flags_t flags, zip_error_
 {
 	zip_dirent_t * de = _zip_get_dirent(za, idx, flags, error);
 	const uint8 * str = de ? _zip_string_get(de->filename, NULL, flags, error) : 0;
-	return (const char *)str;
+	return reinterpret_cast<const char *>(str);
 }
 
 ZIP_EXTERN int zip_get_num_files(zip_t * za)
 {
 	if(za == NULL)
 		return -1;
-	else if(za->nentry > INT_MAX) {
+	else if(za->nentry > INT_MAX)
 		return zip_error_set(&za->error, SLERR_ZIP_OPNOTSUPP, 0);
-	}
 	else
 		return (int)za->nentry;
 }
@@ -762,10 +718,8 @@ int _zip_stat_merge(zip_stat_t * dst, const zip_stat_t * src, zip_error_t * erro
 
 ZIP_EXTERN int zip_stat(zip_t * za, const char * fname, zip_flags_t flags, zip_stat_t * st)
 {
-	int64 idx;
-	if((idx = zip_name_locate(za, fname, flags)) < 0)
-		return -1;
-	return zip_stat_index(za, (uint64)idx, flags, st);
+	const int64 idx = zip_name_locate(za, fname, flags);
+	return (idx < 0) ? -1 : zip_stat_index(za, (uint64)idx, flags, st);
 }
 
 ZIP_EXTERN int zip_stat_index(zip_t * za, uint64 index, zip_flags_t flags, zip_stat_t * st)
@@ -835,14 +789,13 @@ ZIP_EXTERN zip_source_t * zip_source_function(zip_t * za, zip_source_callback zc
 
 ZIP_EXTERN zip_source_t * zip_source_function_create(zip_source_callback zcb, void * ud, zip_error_t * error)
 {
-	zip_source_t * zs;
-	if((zs = _zip_source_new(error)) == NULL)
-		return NULL;
-	zs->cb.f = zcb;
-	zs->ud = ud;
-	zs->supports = zcb(ud, NULL, 0, ZIP_SOURCE_SUPPORTS);
-	if(zs->supports < 0) {
-		zs->supports = ZIP_SOURCE_SUPPORTS_READABLE;
+	zip_source_t * zs = _zip_source_new(error);
+	if(zs) {
+		zs->cb.f = zcb;
+		zs->ud = ud;
+		zs->supports = zcb(ud, NULL, 0, ZIP_SOURCE_SUPPORTS);
+		if(zs->supports < 0)
+			zs->supports = ZIP_SOURCE_SUPPORTS_READABLE;
 	}
 	return zs;
 }
@@ -854,20 +807,20 @@ ZIP_EXTERN void zip_source_keep(zip_source_t * src)
 
 zip_source_t * _zip_source_new(zip_error_t * error)
 {
-	zip_source_t * src;
-	if((src = (zip_source_t*)SAlloc::M(sizeof(*src))) == NULL) {
+	zip_source_t * src = static_cast<zip_source_t *>(SAlloc::M(sizeof(*src)));
+	if(!src)
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
-		return NULL;
+	else {
+		src->src = NULL;
+		src->cb.f = NULL;
+		src->ud = NULL;
+		src->open_count = 0;
+		src->write_state = ZIP_SOURCE_WRITE_CLOSED;
+		src->source_closed = false;
+		src->source_archive = NULL;
+		src->refcount = 1;
+		zip_error_init(&src->error);
 	}
-	src->src = NULL;
-	src->cb.f = NULL;
-	src->ud = NULL;
-	src->open_count = 0;
-	src->write_state = ZIP_SOURCE_WRITE_CLOSED;
-	src->source_closed = false;
-	src->source_archive = NULL;
-	src->refcount = 1;
-	zip_error_init(&src->error);
 	return src;
 }
 
@@ -935,7 +888,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 	int64 ret;
 	uint64 n, i;
 	char b[8192];
-	struct ZipSourceWindow * ctx = (struct ZipSourceWindow*)_ctx;
+	struct ZipSourceWindow * ctx = static_cast<struct ZipSourceWindow *>(_ctx);
 	switch(cmd) {
 		case ZIP_SOURCE_CLOSE:
 		    return 0;
@@ -988,7 +941,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 	    }
 		case ZIP_SOURCE_STAT:
 	    {
-		    zip_stat_t * st = (zip_stat_t*)data;
+		    zip_stat_t * st = static_cast<zip_stat_t *>(data);
 			return (_zip_stat_merge(st, &ctx->stat, &ctx->error) >= 0) ? 0 : -1;
 	    }
 		case ZIP_SOURCE_SUPPORTS:
@@ -1063,7 +1016,7 @@ int _zip_register_source(zip_t * za, zip_source_t * src)
 	zip_source_t ** open_source;
 	if(za->nopen_source+1 >= za->nopen_source_alloc) {
 		uint n = za->nopen_source_alloc + 10;
-		open_source = (zip_source_t**)SAlloc::R(za->open_source, n*sizeof(zip_source_t *));
+		open_source = static_cast<zip_source_t **>(SAlloc::R(za->open_source, n*sizeof(zip_source_t *)));
 		if(!open_source)
 			return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		za->nopen_source_alloc = n;
@@ -1106,7 +1059,7 @@ zip_source_t * zip_source_pkware(zip_t * za, zip_source_t * src, uint16 em, int 
 		ctx->key[0] = KEY0;
 		ctx->key[1] = KEY1;
 		ctx->key[2] = KEY2;
-		decrypt(ctx, NULL, (const uint8 *)password, strlen(password), 1);
+		decrypt(ctx, NULL, reinterpret_cast<const uint8 *>(password), strlen(password), 1);
 		if((s2 = zip_source_layered(za, src, pkware_decrypt, ctx)) == NULL)
 			SAlloc::F(ctx);
 	}
@@ -1164,7 +1117,7 @@ static int FASTCALL decrypt_header(zip_source_t * src, struct trad_pkware * ctx)
 static int64 pkware_decrypt(zip_source_t * src, void * ud, void * data, uint64 len, zip_source_cmd_t cmd)
 {
 	int64 n;
-	struct trad_pkware * ctx = (struct trad_pkware*)ud;
+	struct trad_pkware * ctx = static_cast<struct trad_pkware *>(ud);
 	switch(cmd) {
 		case ZIP_SOURCE_OPEN:
 		    return (decrypt_header(src, ctx) < 0) ? -1 : 0;
@@ -1181,7 +1134,7 @@ static int64 pkware_decrypt(zip_source_t * src, void * ud, void * data, uint64 l
 		    return 0;
 		case ZIP_SOURCE_STAT:
 	    {
-		    zip_stat_t * st = (zip_stat_t*)data;
+		    zip_stat_t * st = static_cast<zip_stat_t *>(data);
 		    st->encryption_method = ZIP_EM_NONE;
 		    st->valid |= ZIP_STAT_ENCRYPTION_METHOD;
 		    // @todo deduce HEADERLEN from size for uncompressed 
@@ -1190,8 +1143,7 @@ static int64 pkware_decrypt(zip_source_t * src, void * ud, void * data, uint64 l
 		    return 0;
 	    }
 		case ZIP_SOURCE_SUPPORTS:
-		    return zip_source_make_command_bitmap(ZIP_SOURCE_OPEN,
-			    ZIP_SOURCE_READ, ZIP_SOURCE_CLOSE, ZIP_SOURCE_STAT, ZIP_SOURCE_ERROR, ZIP_SOURCE_FREE, -1);
+		    return zip_source_make_command_bitmap(ZIP_SOURCE_OPEN, ZIP_SOURCE_READ, ZIP_SOURCE_CLOSE, ZIP_SOURCE_STAT, ZIP_SOURCE_ERROR, ZIP_SOURCE_FREE, -1);
 		case ZIP_SOURCE_ERROR:
 		    return zip_error_to_data(&ctx->error, data, len);
 		case ZIP_SOURCE_FREE:
@@ -1274,7 +1226,7 @@ ZIP_EXTERN zip_file_t * zip_fopen_index(zip_t * za, uint64 index, zip_flags_t fl
 
 static zip_file_t * _zip_file_new(zip_t * za)
 {
-	zip_file_t * zf = (zip_file_t*)SAlloc::M(sizeof(zip_file_t));
+	zip_file_t * zf = static_cast<zip_file_t *>(SAlloc::M(sizeof(zip_file_t)));
 	if(!zf) {
 		zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 	}
@@ -2388,7 +2340,7 @@ uint8 * _zip_read_data(zip_buffer_t * buffer, zip_source_t * src, size_t length,
 	if(length == 0 && !nulp) {
 		return NULL;
 	}
-	r = (uint8 *)SAlloc::M(length + (nulp ? 1 : 0));
+	r = static_cast<uint8 *>(SAlloc::M(length + (nulp ? 1 : 0)));
 	if(!r) {
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
@@ -2990,12 +2942,9 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 			}
 		}
 	}
-
 	zde->filename = _zip_dirent_process_ef_utf_8(zde, ZIP_EF_UTF_8_NAME, zde->filename);
 	zde->comment = _zip_dirent_process_ef_utf_8(zde, ZIP_EF_UTF_8_COMMENT, zde->comment);
-
 	/* Zip64 */
-
 	if(zde->uncomp_size == ZIP_UINT32_MAX || zde->comp_size == ZIP_UINT32_MAX || zde->offset == ZIP_UINT32_MAX) {
 		uint16 got_len;
 		zip_buffer_t * ef_buffer;
@@ -3082,12 +3031,11 @@ static zip_string_t * _zip_dirent_process_ef_utf_8(const zip_dirent_t * de, uint
 
 int32 _zip_dirent_size(zip_source_t * src, uint16 flags, zip_error_t * error)
 {
-	int32 size;
 	bool local = (flags & ZIP_EF_LOCAL) != 0;
 	int i;
 	uint8 b[6];
 	zip_buffer_t * buffer;
-	size = local ? LENTRYSIZE : CDENTRYSIZE;
+	int32 size = local ? LENTRYSIZE : CDENTRYSIZE;
 	if(zip_source_seek(src, local ? 26 : 28, SEEK_CUR) < 0) {
 		_zip_error_set_from_source(error, src);
 		return -1;
@@ -3106,17 +3054,13 @@ int32 _zip_dirent_size(zip_source_t * src, uint16 flags, zip_error_t * error)
 	_zip_buffer_free(buffer);
 	return size;
 }
-
-/* _zip_dirent_write
-   Writes zip directory entry.
-
-   If flags & ZIP_EF_LOCAL, it writes a local header instead of a central
-   directory entry.  If flags & ZIP_EF_FORCE_ZIP64, a ZIP64 extra field is written, even if not needed.
-
-   Returns 0 if successful, 1 if successful and wrote ZIP64 extra field. On error, error is filled in and -1 is
-   returned.
- */
-
+// 
+// Descr: Writes zip directory entry.
+//   If flags & ZIP_EF_LOCAL, it writes a local header instead of a central
+//   directory entry.  If flags & ZIP_EF_FORCE_ZIP64, a ZIP64 extra field is written, even if not needed.
+// Returns:
+//   0 if successful, 1 if successful and wrote ZIP64 extra field. On error, error is filled in and -1 is returned.
+// 
 int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 {
 	uint16 dostime, dosdate;
@@ -3401,7 +3345,7 @@ zip_source_t * zip_source_crc(zip_t * za, zip_source_t * src, int validate)
 		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (struct crc_context*)SAlloc::M(sizeof(*ctx))) == NULL) {
+	if((ctx = static_cast<struct crc_context *>(SAlloc::M(sizeof(*ctx)))) == NULL) {
 		zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
@@ -3417,7 +3361,7 @@ zip_source_t * zip_source_crc(zip_t * za, zip_source_t * src, int validate)
 static int64 crc_read(zip_source_t * src, void * _ctx, void * data, uint64 len, zip_source_cmd_t cmd)
 {
 	int64 n;
-	struct crc_context * ctx = (struct crc_context*)_ctx;
+	struct crc_context * ctx = static_cast<struct crc_context *>(_ctx);
 	switch(cmd) {
 		case ZIP_SOURCE_OPEN:
 		    ctx->position = 0;
@@ -3682,17 +3626,21 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 
 static int write_cdir(zip_t * za, const zip_filelist_t * filelist, uint64 survivors)
 {
-	int64 cd_start, end, size;
-	if((cd_start = zip_source_tell_write(za->src)) < 0) {
-		return -1;
+	int    result = 0;
+	int64  cd_start = zip_source_tell_write(za->src);
+	if(cd_start < 0)
+		result = -1;
+	else {
+		int64 size = _zip_cdir_write(za, filelist, survivors);
+		if(size < 0)
+			result = -1;
+		else {
+			int64 end = zip_source_tell_write(za->src);
+			if(end < 0)
+				result = -1;
+		}
 	}
-	if((size = _zip_cdir_write(za, filelist, survivors)) < 0) {
-		return -1;
-	}
-	if((end = zip_source_tell_write(za->src)) < 0) {
-		return -1;
-	}
-	return 0;
+	return result;
 }
 
 ZIP_EXTERN int zip_close(zip_t * za)
@@ -3923,7 +3871,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 				    else {
 					    if(ctx->zstr.total_in > 0)
 						    ctx->can_store = false; // we overwrote a previously filled ctx->buffer 
-					    ctx->zstr.next_in = (Bytef *)ctx->buffer;
+					    ctx->zstr.next_in = static_cast<Bytef *>(ctx->buffer);
 					    ctx->zstr.avail_in = (uInt)n;
 				    }
 				    continue;
@@ -4020,7 +3968,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 static int64 deflate_compress(zip_source_t * src, void * ud, void * data, uint64 len, zip_source_cmd_t cmd)
 {
 	int ret;
-	ZipDeflate * ctx = (ZipDeflate*)ud;
+	ZipDeflate * ctx = static_cast<ZipDeflate *>(ud);
 	switch(cmd) {
 		case ZIP_SOURCE_OPEN:
 		    ctx->zstr.zalloc = Z_NULL;
@@ -4069,7 +4017,7 @@ static int64 deflate_decompress(zip_source_t * src, void * ud, void * data, uint
 {
 	int64 n;
 	int ret;
-	ZipDeflate * ctx = (ZipDeflate*)ud;
+	ZipDeflate * ctx = static_cast<ZipDeflate *>(ud);
 	switch(cmd) {
 		case ZIP_SOURCE_OPEN:
 		    if((n = zip_source_read(src, ctx->buffer, sizeof(ctx->buffer))) < 0) {
@@ -4079,7 +4027,7 @@ static int64 deflate_decompress(zip_source_t * src, void * ud, void * data, uint
 		    ctx->zstr.zalloc = Z_NULL;
 		    ctx->zstr.zfree = Z_NULL;
 		    ctx->zstr.opaque = NULL;
-		    ctx->zstr.next_in = (Bytef *)ctx->buffer;
+		    ctx->zstr.next_in = static_cast<Bytef *>(ctx->buffer);
 		    ctx->zstr.avail_in = (uInt)n;
 		    // negative value to tell zlib that there is no header 
 		    if((ret = inflateInit2(&ctx->zstr, -MAX_WBITS)) != Z_OK)
@@ -4093,7 +4041,7 @@ static int64 deflate_decompress(zip_source_t * src, void * ud, void * data, uint
 		    return 0;
 		case ZIP_SOURCE_STAT:
 	    {
-		    zip_stat_t * st = (zip_stat_t*)data;
+		    zip_stat_t * st = static_cast<zip_stat_t *>(data);
 		    st->comp_method = ZIP_CM_STORE;
 		    if(st->comp_size > 0 && st->size > 0)
 			    st->comp_size = st->size;
@@ -4119,7 +4067,7 @@ zip_source_t * zip_source_deflate(zip_t * za, zip_source_t * src, int32 cm, int 
 		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (ZipDeflate*)SAlloc::M(sizeof(*ctx))) == NULL) {
+	if((ctx = static_cast<ZipDeflate *>(SAlloc::M(sizeof(*ctx)))) == NULL) {
 		zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
@@ -4160,12 +4108,12 @@ zip_hash_t * _zip_hash_new(uint16 table_size, zip_error_t * error)
 		zip_error_set(error, SLERR_ZIP_INTERNAL, 0);
 		return NULL;
 	}
-	if((hash = (zip_hash_t*)SAlloc::M(sizeof(zip_hash_t))) == NULL) {
+	if((hash = static_cast<zip_hash_t *>(SAlloc::M(sizeof(zip_hash_t)))) == NULL) {
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	hash->table_size = table_size;
-	if((hash->table = (zip_hash_entry_t**)SAlloc::C(table_size, sizeof(zip_hash_entry_t *))) == NULL) {
+	if((hash->table = static_cast<zip_hash_entry_t **>(SAlloc::C(table_size, sizeof(zip_hash_entry_t *)))) == NULL) {
 		SAlloc::F(hash);
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
@@ -4230,8 +4178,8 @@ bool _zip_hash_add(zip_hash_t * hash, const uint8 * name, uint64 index, zip_flag
 			}
 		}
 	}
-	if(entry == NULL) {
-		if((entry = (zip_hash_entry_t*)SAlloc::M(sizeof(zip_hash_entry_t))) == NULL) {
+	if(!entry) {
+		if((entry = static_cast<zip_hash_entry_t *>(SAlloc::M(sizeof(zip_hash_entry_t)))) == NULL) {
 			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			return false;
 		}
@@ -4789,7 +4737,7 @@ zip_extra_field_t * _zip_ef_merge(zip_extra_field_t * to, zip_extra_field_t * fr
 
 zip_extra_field_t * _zip_ef_new(uint16 id, uint16 size, const uint8 * data, zip_flags_t flags)
 {
-	zip_extra_field_t * ef = (zip_extra_field_t*)SAlloc::M(sizeof(*ef));
+	zip_extra_field_t * ef = static_cast<zip_extra_field_t *>(SAlloc::M(sizeof(*ef)));
 	if(ef) {
 		ef->next = NULL;
 		ef->flags = flags;
@@ -5814,12 +5762,12 @@ uint8 * _zip_cp437_to_utf8(const uint8 * const _cp437buf, uint32 len, uint32 * u
 		ASSIGN_PTR(utf8_lenp, 0);
 	}
 	else {
-		const uint8 * cp437buf = (const uint8 *)_cp437buf;
+		const uint8 * cp437buf = static_cast<const uint8 *>(_cp437buf);
 		uint32 buflen = 1;
 		uint32 i;
 		for(i = 0; i < len; i++)
 			buflen += _zip_unicode_to_utf8_len(_cp437_to_unicode[cp437buf[i]]);
-		if((utf8buf = (uint8 *)SAlloc::M(buflen)) == NULL) {
+		if((utf8buf = static_cast<uint8 *>(SAlloc::M(buflen))) == NULL) {
 			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		}
 		else {
@@ -5878,7 +5826,7 @@ zip_source_t * _zip_source_file_or_p(const char * fname, FILE * file, uint64 sta
 		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (ZipReadFileBlock *)SAlloc::M(sizeof(ZipReadFileBlock))) == NULL) {
+	if((ctx = static_cast<ZipReadFileBlock *>(SAlloc::M(sizeof(ZipReadFileBlock)))) == NULL) {
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
@@ -6015,7 +5963,7 @@ static int create_temp_output(ZipReadFileBlock * ctx)
 	int tfd;
 	mode_t mask;
 	FILE * tfp;
-	char * temp = (char *)SAlloc::M(strlen(ctx->fname)+8);
+	char * temp = static_cast<char *>(SAlloc::M(strlen(ctx->fname)+8));
 	if(!temp)
 		return zip_error_set(&ctx->error, SLERR_ZIP_MEMORY, 0);
 	sprintf(temp, "%s.XXXXXX", ctx->fname);

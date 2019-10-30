@@ -72,23 +72,17 @@
 #undef  __PTW32_LEVEL
 #undef  __PTW32_LEVEL_MAX
 #define __PTW32_LEVEL_MAX  3
-
 #if _POSIX_C_SOURCE >= 200112L                  /* POSIX.1-2001 and later */
-# define __PTW32_LEVEL  __PTW32_LEVEL_MAX       /* include everything     */
-
+	#define __PTW32_LEVEL  __PTW32_LEVEL_MAX       /* include everything     */
 #elif defined INCLUDE_NP                        /* earlier than POSIX.1-2001, but... */
-# define __PTW32_LEVEL  2                       /* include non-portable extensions   */
-
+	#define __PTW32_LEVEL  2                       /* include non-portable extensions   */
 #elif _POSIX_C_SOURCE >= 199309L                /* POSIX.1-1993           */
-# define __PTW32_LEVEL  1                       /* include 1b, 1c, and 1d */
-
+	#define __PTW32_LEVEL  1                       /* include 1b, 1c, and 1d */
 #elif defined _POSIX_SOURCE                     /* early POSIX     */
-# define __PTW32_LEVEL  0                       /* minimal support */
-
+	#define __PTW32_LEVEL  0                       /* minimal support */
 #else                                           /* unspecified support level */
-# define __PTW32_LEVEL  __PTW32_LEVEL_MAX       /* include everything anyway */
+	#define __PTW32_LEVEL  __PTW32_LEVEL_MAX       /* include everything anyway */
 #endif
-
 /*
  * -------------------------------------------------------------
  *
@@ -852,21 +846,19 @@ __PTW32_DLLPORT int __PTW32_CDECL pthread_attr_getname_np(pthread_attr_t * attr,
 __PTW32_DLLPORT int __PTW32_CDECL pthreadCancelableWait(void * waitHandle);
 __PTW32_DLLPORT int __PTW32_CDECL pthreadCancelableTimedWait(void * waitHandle, unsigned long timeout);
 #endif /* __PTW32_LEVEL >= __PTW32_LEVEL_MAX */
-
 /*
  * Declare a thread-safe errno for Open Watcom
  * (note: this has not been tested in a long time)
  */
 #if defined(__WATCOMC__) && !defined(errno)
-#  if defined(_MT) || defined(_DLL)
-__declspec(dllimport) extern int * __cdecl _errno(void);
-#    define errno (*_errno())
-#  endif
+	#if defined(_MT) || defined(_DLL)
+		__declspec(dllimport) extern int * __cdecl _errno(void);
+		#define errno (*_errno())
+	#endif
 #endif
-
 #if defined (__PTW32_USES_SEPARATE_CRT) && (defined(__PTW32_CLEANUP_CXX) || defined(__PTW32_CLEANUP_SEH))
-typedef void (* __ptw32_terminate_handler)();
-__PTW32_DLLPORT __ptw32_terminate_handler __PTW32_CDECL pthread_win32_set_terminate_np(__ptw32_terminate_handler termFunction);
+	typedef void (* __ptw32_terminate_handler)();
+	__PTW32_DLLPORT __ptw32_terminate_handler __PTW32_CDECL pthread_win32_set_terminate_np(__ptw32_terminate_handler termFunction);
 #endif
 #if defined(__cplusplus)
 	/*
@@ -876,78 +868,54 @@ __PTW32_DLLPORT __ptw32_terminate_handler __PTW32_CDECL pthread_win32_set_termin
 	class __ptw32_exception_cancel : public __ptw32_exception {};
 	class __ptw32_exception_exit : public __ptw32_exception {};
 #endif
-
 #if __PTW32_LEVEL >= __PTW32_LEVEL_MAX
-
-/* FIXME: This is only required if the library was built using SEH */
-/*
- * Get internal SEH tag
- */
-__PTW32_DLLPORT unsigned long __PTW32_CDECL __ptw32_get_exception_services_code(void);
-
+	/* FIXME: This is only required if the library was built using SEH */
+	/*
+	 * Get internal SEH tag
+	 */
+	__PTW32_DLLPORT unsigned long __PTW32_CDECL __ptw32_get_exception_services_code(void);
 #endif /* __PTW32_LEVEL >= __PTW32_LEVEL_MAX */
-
 #if !defined (__PTW32_BUILD)
-
-#if defined(__PTW32_CLEANUP_SEH)
-
-/*
- * Redefine the SEH __except keyword to ensure that applications
- * propagate our internal exceptions up to the library's internal handlers.
- */
-#define __except(E) \
-	__except( ( GetExceptionCode() == __ptw32_get_exception_services_code() ) \
-	    ? EXCEPTION_CONTINUE_SEARCH : ( E ) )
-
-#endif /* __PTW32_CLEANUP_SEH */
-
-#if defined(__PTW32_CLEANUP_CXX)
-
-/*
- * Redefine the C++ catch keyword to ensure that applications
- * propagate our internal exceptions up to the library's internal handlers.
- */
-#if defined(_MSC_VER)
-/*
- * WARNING: Replace any 'catch( ... )' with '__PtW32CatchAll'
- * if you want Pthread-Win32 cancellation and pthread_exit to work.
- */
-
-#if !defined(__PtW32NoCatchWarn)
-
-#pragma message("Specify \"/D__PtW32NoCatchWarn\" compiler flag to skip this message.")
-#pragma message("------------------------------------------------------------------")
-#pragma message("When compiling applications with MSVC++ and C++ exception handling:")
-#pragma message("  Replace any 'catch( ... )' in routines called from POSIX threads")
-#pragma message("  with '__PtW32CatchAll' or 'CATCHALL' if you want POSIX thread")
-#pragma message("  cancellation and pthread_exit to work. For example:")
-#pragma message("")
-#pragma message("    #if defined(__PtW32CatchAll)")
-#pragma message("      __PtW32CatchAll")
-#pragma message("    #else")
-#pragma message("      catch(...)")
-#pragma message("    #endif")
-#pragma message("        {")
-#pragma message("          /* Catchall block processing */")
-#pragma message("        }")
-#pragma message("------------------------------------------------------------------")
-
-#endif
-
-#define __PtW32CatchAll \
-	catch(__ptw32_exception &) { throw; } \
-	catch(...)
-
-#else /* _MSC_VER */
-
-#define catch(E) \
-	catch(__ptw32_exception &) { throw; } \
-	catch(E)
-
-#endif /* _MSC_VER */
-
-#endif /* __PTW32_CLEANUP_CXX */
-
+	#if defined(__PTW32_CLEANUP_SEH)
+		/*
+		 * Redefine the SEH __except keyword to ensure that applications
+		 * propagate our internal exceptions up to the library's internal handlers.
+		 */
+		#define __except(E) __except((GetExceptionCode() == __ptw32_get_exception_services_code()) ? EXCEPTION_CONTINUE_SEARCH : ( E ) )
+	#endif /* __PTW32_CLEANUP_SEH */
+	#if defined(__PTW32_CLEANUP_CXX)
+		/*
+		 * Redefine the C++ catch keyword to ensure that applications
+		 * propagate our internal exceptions up to the library's internal handlers.
+		 */
+		#if defined(_MSC_VER)
+			/*
+			 * WARNING: Replace any 'catch( ... )' with '__PtW32CatchAll'
+			 * if you want Pthread-Win32 cancellation and pthread_exit to work.
+			 */
+			#if !defined(__PtW32NoCatchWarn)
+				#pragma message("Specify \"/D__PtW32NoCatchWarn\" compiler flag to skip this message.")
+				#pragma message("------------------------------------------------------------------")
+				#pragma message("When compiling applications with MSVC++ and C++ exception handling:")
+				#pragma message("  Replace any 'catch( ... )' in routines called from POSIX threads")
+				#pragma message("  with '__PtW32CatchAll' or 'CATCHALL' if you want POSIX thread")
+				#pragma message("  cancellation and pthread_exit to work. For example:")
+				#pragma message("")
+				#pragma message("    #if defined(__PtW32CatchAll)")
+				#pragma message("      __PtW32CatchAll")
+				#pragma message("    #else")
+				#pragma message("      catch(...)")
+				#pragma message("    #endif")
+				#pragma message("        {")
+				#pragma message("          /* Catchall block processing */")
+				#pragma message("        }")
+				#pragma message("------------------------------------------------------------------")
+			#endif
+			#define __PtW32CatchAll catch(__ptw32_exception &) { throw; } catch(...)
+		#else /* _MSC_VER */
+			#define catch(E) catch(__ptw32_exception &) { throw; } catch(E)
+		#endif /* _MSC_VER */
+	#endif /* __PTW32_CLEANUP_CXX */
 #endif /* !  __PTW32_BUILD */
 
 __PTW32_END_C_DECLS

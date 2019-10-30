@@ -8950,6 +8950,12 @@ data UhttTSessPlaceStatusList {
 		string Descr[128]; // Описание места
 	}
 }
+
+data UhttCommonMqsConfig {
+    string Address[128];
+    string Login[128];
+    string Secret[128];
+}
 //
 // Descr: Специальная структура, используемая как базовая для
 //   препроцессинга html-контента.

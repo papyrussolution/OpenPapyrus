@@ -2910,14 +2910,36 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 				}
 			}
 			if(div) {
-				int r1 = ExtStrSrch(pBuffer, temp_buf, flags); // @recursion
-				int r2 = ExtStrSrch(pBuffer, pPattern+p+inc, flags); // @recursion
+				const int r1 = ExtStrSrch(pBuffer, temp_buf, flags); // @recursion
+				/* @v10.5.11
+				const int r2 = ExtStrSrch(pBuffer, pPattern+p+inc, flags); // @recursion
 				if(div == 1 && (r1 || r2))
 					ok = 1;
 				else if(div == 2 && (r1 && r2))
 					ok = 1;
 				else
 					ok = 0;
+				*/
+				// @v10.5.11 {
+				if(div == 1) { // OR
+					if(r1)
+						ok = 1;
+					else {
+						const int r2 = ExtStrSrch(pBuffer, pPattern+p+inc, flags); // @recursion
+						ok = r2 ? 1 : 0;
+					}
+				}
+				else if(div == 2) { // AND
+					if(!r1)
+						ok = 0;
+					else {
+						const int r2 = ExtStrSrch(pBuffer, pPattern+p+inc, flags); // @recursion
+						ok = r2 ? 1 : 0;
+					}
+				}
+				else
+					ok = 0;
+				// } @v10.5.11 
 				done = 1;
 			}
 			else
@@ -2952,11 +2974,27 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 					ok = 0;
 			}
 			else {
-				const char * p_local_r = (flags & essfCaseSensitive) ? strstr(pBuffer, p_srch_str) : stristr866(pBuffer, p_srch_str);
-				if(!p_local_r)
-					ok = 0;
-				/*if(!stristr866(pBuffer, p_srch_str))
-					ok = 0;*/
+				if(p_srch_str[0] == '%' && p_srch_str[1] == '^') {
+					p_srch_str += 2;
+					const size_t prefix_len = strlen(p_srch_str);
+					if(prefix_len) {
+						if(flags & essfCaseSensitive) {
+							ok = (strncmp(pBuffer, p_srch_str, prefix_len) == 0) ? 1 : 0;
+						}
+						else {
+							ok = (strnicmp866(pBuffer, p_srch_str, prefix_len) == 0) ? 1 : 0;
+						}
+					}
+					else
+						ok = 1; // Вырожденный паттерн - считаем, что любая строка для него годится //
+				}
+				else {
+					const char * p_local_r = (flags & essfCaseSensitive) ? strstr(pBuffer, p_srch_str) : stristr866(pBuffer, p_srch_str);
+					if(!p_local_r)
+						ok = 0;
+					/*if(!stristr866(pBuffer, p_srch_str))
+						ok = 0;*/
+				}
 			}
 		}
 	}

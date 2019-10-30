@@ -26,7 +26,6 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 #include "zipint.h"
-//#include "zipwin32.h"
 
 // 0x0501 => Windows XP; needs to be at least this value because of GetFileSizeEx 
 // @sobolev #define _WIN32_WINNT 0x0501
@@ -48,7 +47,6 @@ struct _zip_source_win32_read_file {
     uint64 start;     /* start offset of data to read */
     uint64 end;       /* end offset of data to read, 0 for up to EOF */
     uint64 current;   /* current offset */
-
     /* writing */
     void *tmpname;          /* name of temp file - ANSI (char *) or Unicode (wchar_t *) */
     void *hout;             /* HANDLE for output file */
@@ -123,7 +121,7 @@ ZIP_EXTERN zip_source_t * zip_source_win32a_create(const char * fname, uint64 st
 
 static void * _win32_strdup_a(const void * str)
 {
-	return sstrdup((const char *)str);
+	return sstrdup(static_cast<const char *>(str));
 }
 
 static HANDLE _win32_open_a(_zip_source_win32_read_file_t * ctx)
@@ -133,14 +131,14 @@ static HANDLE _win32_open_a(_zip_source_win32_read_file_t * ctx)
 
 static HANDLE _win32_create_temp_a(_zip_source_win32_read_file_t * ctx, void ** temp, uint32 value, PSECURITY_ATTRIBUTES sa)
 {
-	size_t len = strlen((const char *)ctx->fname) + 10;
+	size_t len = strlen(static_cast<const char *>(ctx->fname)) + 10;
 	if(*temp == NULL) {
 		if((*temp = SAlloc::M(sizeof(char) * len)) == NULL) {
 			zip_error_set(&ctx->error, SLERR_ZIP_MEMORY, 0);
 			return INVALID_HANDLE_VALUE;
 		}
 	}
-	if(sprintf((char *)*temp, "%s.%08x", (const char *)ctx->fname, value) != len - 1) {
+	if(sprintf(static_cast<char *>(*temp), "%s.%08x", static_cast<const char *>(ctx->fname), value) != len - 1) {
 		return INVALID_HANDLE_VALUE;
 	}
 	return CreateFileA((const char *)*temp, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, sa, CREATE_NEW,
@@ -464,7 +462,7 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 			    DWORD  win32err;
 			    HANDLE h;
 			    int    success;
-			    zip_stat_t * st = (zip_stat_t*)data;
+			    zip_stat_t * st = static_cast<zip_stat_t *>(data);
 			    if(ctx->h != INVALID_HANDLE_VALUE) {
 				    h = ctx->h;
 			    }

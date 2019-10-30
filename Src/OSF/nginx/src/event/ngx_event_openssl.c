@@ -2019,7 +2019,7 @@ ngx_int_t ngx_ssl_session_ticket_keys(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_arra
 	if(keys == NULL) {
 		return NGX_ERROR;
 	}
-	path = (ngx_str_t *)paths->elts;
+	path = static_cast<ngx_str_t *>(paths->elts);
 	for(i = 0; i < paths->nelts; i++) {
 		if(ngx_conf_full_name(cf->cycle, &path[i], 1) != NGX_OK) {
 			return NGX_ERROR;
@@ -2050,7 +2050,7 @@ ngx_int_t ngx_ssl_session_ticket_keys(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_arra
 			ngx_conf_log_error(NGX_LOG_CRIT, cf, 0, ngx_read_file_n " \"%V\" returned only %z bytes instead of %uz", &file.name, n, size);
 			goto failed;
 		}
-		key = (ngx_ssl_session_ticket_key_t *)ngx_array_push(keys);
+		key = static_cast<ngx_ssl_session_ticket_key_t *>(ngx_array_push(keys));
 		if(key == NULL) {
 			goto failed;
 		}
@@ -2097,18 +2097,18 @@ static int ngx_ssl_session_ticket_key_callback(ngx_ssl_conn_t * ssl_conn,
 #if (NGX_DEBUG)
 	u_char buf[32];
 #endif
-	ngx_connection_t * c = (ngx_connection_t *)ngx_ssl_get_connection(ssl_conn);
+	ngx_connection_t * c = static_cast<ngx_connection_t *>(ngx_ssl_get_connection(ssl_conn));
 	SSL_CTX * ssl_ctx = c->ssl->session_ctx;
 #ifdef OPENSSL_NO_SHA256
 	const EVP_MD * digest = EVP_sha1();
 #else
 	const EVP_MD * digest = EVP_sha256();
 #endif
-	ngx_array_t * keys = (ngx_array_t*)SSL_CTX_get_ex_data(ssl_ctx, ngx_ssl_session_ticket_keys_index);
+	ngx_array_t * keys = static_cast<ngx_array_t *>(SSL_CTX_get_ex_data(ssl_ctx, ngx_ssl_session_ticket_keys_index));
 	if(keys == NULL) {
 		return -1;
 	}
-	key = (ngx_ssl_session_ticket_key_t *)keys->elts;
+	key = static_cast<ngx_ssl_session_ticket_key_t *>(keys->elts);
 	if(enc == 1) {
 		/* encrypt session ticket */
 		ngx_log_debug3(NGX_LOG_DEBUG_EVENT, c->log, 0, "ssl session ticket encrypt, key: \"%*s\" (%s session)",
