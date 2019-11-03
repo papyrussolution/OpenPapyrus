@@ -375,14 +375,9 @@ int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen,
 }
 
 int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen)
-{
-	return SetupKey(rK, pKey, keyByteLen, pIv, ivLen, 0, 0);
-}
-
+	{ return SetupKey(rK, pKey, keyByteLen, pIv, ivLen, 0, 0); }
 int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen)
-{
-	return SetupKey(rK, pKey, keyByteLen, 0, 0, 0, 0);
-}
+	{ return SetupKey(rK, pKey, keyByteLen, 0, 0, 0, 0); }
 
 int SlCrypto::SetupKey(SlCrypto::Key & rK, const char * pPassword)
 {

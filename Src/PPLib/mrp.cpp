@@ -1657,7 +1657,7 @@ int SLAPI PPObjMrpTab::ArrangePugl(PPID tabID, PUGL * pSrc, uint pos, PUGL * pDe
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::CreateModif(const MrpTabLeaf * pLeaf, PPID mrpSrcID, PPID opID, PPIDArray * pBillList, PPLogger * pLogger, int use_ta)
+int SLAPI PPObjMrpTab::CreateModif(const MrpTabLeaf * pLeaf, PPID mrpSrcID, PPID opID, const PUGL::SetLotManufTimeParam * pSlmt, PPIDArray * pBillList, PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	PUGL   pugl;
@@ -1679,6 +1679,7 @@ int SLAPI PPObjMrpTab::CreateModif(const MrpTabLeaf * pLeaf, PPID mrpSrcID, PPID
 				PUGL   single;
 				single.Dt = pLeaf->Dt;
 				single.LocID = pLeaf->LocID;
+				RVALUEPTR(single.Slmt, pSlmt);
 				THROW(single.Add(p_pugi, pLeaf->Dt));
 				THROW(r = BillObj->CreateModifByPUGL(opID, &bill_id, &single, 0, &gra));
 				if(pBillList && bill_id)

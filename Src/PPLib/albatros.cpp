@@ -71,7 +71,7 @@ int AlbatrosConfigDialog::EditVetisConfig()
 		dlg->setCtrlString(CTL_VETISCFG_DOCTUSER, temp_buf);
 		Data.GetPassword(ALBATROSEXSTR_VETISDOCTPASSW, temp_buf);
 		dlg->setCtrlString(CTL_VETISCFG_DOCTPASSW, temp_buf);
-		dlg->setCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout); 
+		dlg->setCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout);
 		dlg->setCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay); // @v10.1.10
 		// } @v10.1.0
 		dlg->AddClusterAssoc(CTL_VETISCFG_FLAGS, 0, Data.Hdr.fVetisTestContour); // @v10.5.1
@@ -88,7 +88,7 @@ int AlbatrosConfigDialog::EditVetisConfig()
 			Data.PutExtStrData(ALBATROSEXSTR_VETISDOCTUSER, temp_buf.Strip());
 			dlg->getCtrlString(CTL_VETISCFG_DOCTPASSW, temp_buf);
 			Data.SetPassword(ALBATROSEXSTR_VETISDOCTPASSW, temp_buf);
-			dlg->getCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout); 
+			dlg->getCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout);
 			// } @v10.1.0
 			dlg->getCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay); // @v10.1.10
 			dlg->GetClusterData(CTL_VETISCFG_FLAGS, &Data.Hdr.Flags); // @v10.5.1
@@ -136,8 +136,9 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrosConfig * pCfg)
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_OPKINDID, Data.Hdr.OpID, 0, &op_type_list, 0);
 	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, Data.Hdr.MailAccID, OLW_CANINSERT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_SMSACC, PPOBJ_SMSPRVACCOUNT, Data.Hdr.SmsAccID, OLW_CANINSERT, 0);
-	Data.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
-	setCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf/*Data.UhttUrn*/);
+	// @v10.5.12 @unused Data.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
+	// @v10.5.12 @unused setCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf/*Data.UhttUrn*/);
+	disableCtrl(CTL_ALBTRCFG_UHTTURN, 1); // @v10.5.12 @unused
 	Data.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 	setCtrlString(CTL_ALBTRCFG_UHTTURLPFX, temp_buf/*Data.UhttUrlPrefix*/);
 	Data.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
@@ -181,8 +182,8 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrosConfig * pCfg)
 	getCtrlData(CTLSEL_ALBTRCFG_OPKINDID, &Data.Hdr.OpID);
 	getCtrlData(CTLSEL_ALBTRCFG_MAILACC,  &Data.Hdr.MailAccID);
 	getCtrlData(CTLSEL_ALBTRCFG_SMSACC,  &Data.Hdr.SmsAccID);
-	getCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf);
-	Data.PutExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
+	// @v10.5.12 @unused getCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf);
+	// @v10.5.12 @unused Data.PutExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
 	getCtrlString(CTL_ALBTRCFG_UHTTURLPFX, temp_buf/*Data.UhttUrlPrefix*/);
 	Data.PutExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 	getCtrlString(CTL_ALBTRCFG_UHTTACCOUNT, temp_buf/*Data.UhttAccount*/);
@@ -249,7 +250,7 @@ int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw) const
 	return ok;
 }
 
-//static 
+//static
 int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & rCfg, SString & rBuf)
 {
 	int    ok = 1;
@@ -280,7 +281,7 @@ int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & 
 			temp_buf.CatN(reinterpret_cast<char *>(p_x_buf->content), p_x_buf->use);
 		}
 		//temp_buf.Z().Cat(host).CatChar(':').Cat(user).CatChar(':').Cat(secret);
-		size_t len = ALIGNSIZE(temp_buf.Len()+1, 4); // Размер блока AES 128 bit (16 bytes = 2^4) 
+		size_t len = ALIGNSIZE(temp_buf.Len()+1, 4); // Размер блока AES 128 bit (16 bytes = 2^4)
 		STempBuffer cbuf(len + 64); // 64 ensurance
 		STempBuffer cbuf2(len + 64); // 64 ensurance
 		memcpy(cbuf.vptr(), temp_buf.cptr(), temp_buf.Len());
@@ -288,7 +289,7 @@ int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & 
 		SlCrypto cryp(SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
 		SlCrypto::Key crypkey;
 		size_t cryp_size = 0;
-		uint8 key_buf[16]; // 
+		uint8 key_buf[16]; //
 		memzero(key_buf, sizeof(key_buf));
 		key_buf[2] = 1;
 		key_buf[7] = 17;
@@ -305,19 +306,19 @@ int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & 
 	return ok;
 }
 
-//static 
+//static
 int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrosConfig * pCfg)
 {
 	int    ok = -1;
 	xmlParserCtxt * p_ctx = 0;
 	xmlDoc * p_doc = 0;
 	SString src_buf = pBuf;
-	STempBuffer cbuf(1024); 
+	STempBuffer cbuf(1024);
 	SString temp_buf;
 	SlCrypto cryp(SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
 	SlCrypto::Key crypkey;
 	size_t decryp_size = 0;
-	uint8 key_buf[16]; // 
+	uint8 key_buf[16]; //
 	size_t actual_size = 0;
 	THROW_SL(src_buf.DecodeMime64(cbuf, cbuf.GetSize(), &actual_size));
 	{
@@ -373,7 +374,7 @@ int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlb
 	return ok;
 }
 
-static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN, ALBATROSEXSTR_UHTTURLPFX, ALBATROSEXSTR_UHTTACC, ALBATROSEXSTR_UHTTPASSW,
+static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN_unused, ALBATROSEXSTR_UHTTURLPFX, ALBATROSEXSTR_UHTTACC, ALBATROSEXSTR_UHTTPASSW,
 	ALBATROSEXSTR_EGAISSRVURL, ALBATROSEXSTR_VETISUSER, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISAPIKEY,
 	ALBATROSEXSTR_VETISDOCTUSER, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_HOST, ALBATROSEXSTR_MQC_USER, ALBATROSEXSTR_MQC_SECRET, ALBATROSEXSTR_MQC_DATADOMAIN };
 
@@ -731,7 +732,7 @@ int SLAPI AlbatrosTagParser::ResolveArticleByPerson(PPID psnID, PPID opID, PPID 
 }
 
 // @v10.5.3 Описание диалога перенесено сюда из ppw.rc дабы не заниматься не нужной языковой локализацией строк {
-/* 
+/*
 DLG_CLINFO DIALOGEX 52, 0, 332, 181
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Будет добавлена персоналия"
@@ -955,37 +956,19 @@ int SLAPI AlbatrosTagParser::SaveTagVal(const char * pTag)
 		SCharToOem(buf);
 		switch(tag_idx) {
 			// if get head items
-			case PPALTAGNAM_ORDDT:
-				strtodate(buf, DATF_DMY, &P_Order->Head.OrderDate);
-				break;
-			case PPALTAGNAM_ORDCODE:
-				STRNSCPY(P_Order->Head.OrderCode, buf);
-				break;
+			case PPALTAGNAM_ORDDT: strtodate(buf, DATF_DMY, &P_Order->Head.OrderDate); break;
+			case PPALTAGNAM_ORDCODE: STRNSCPY(P_Order->Head.OrderCode, buf); break;
 			case PPALTAGNAM_CLID:
 				if(!strtolong(buf, &P_Order->Head.ClientID))
 					ok = 0;
 				break;
-			case PPALTAGNAM_CLNAM:
-				STRNSCPY(P_Order->Head.ClientName, buf);
-				break;
-			case PPALTAGNAM_CLINN:
-				STRNSCPY(P_Order->Head.ClientINN, buf);
-				break;
-			case PPALTAGNAM_CLCITY:
-				STRNSCPY(P_Order->Head.ClientCity, buf);
-				break;
-			case PPALTAGNAM_CLADDR:
-				STRNSCPY(P_Order->Head.ClientAddr, buf);
-				break;
-			case PPALTAGNAM_CLPHONE:
-				STRNSCPY(P_Order->Head.ClientPhone, buf);
-				break;
-			case PPALTAGNAM_CLMAIL:
-				STRNSCPY(P_Order->Head.ClientMail, buf);
-				break;
-			case PPALTAGNAM_CLBNKACCT:
-				STRNSCPY(P_Order->Head.ClientBankAcc, buf);
-				break;
+			case PPALTAGNAM_CLNAM: STRNSCPY(P_Order->Head.ClientName, buf); break;
+			case PPALTAGNAM_CLINN: STRNSCPY(P_Order->Head.ClientINN, buf); break;
+			case PPALTAGNAM_CLCITY: STRNSCPY(P_Order->Head.ClientCity, buf); break;
+			case PPALTAGNAM_CLADDR: STRNSCPY(P_Order->Head.ClientAddr, buf); break;
+			case PPALTAGNAM_CLPHONE: STRNSCPY(P_Order->Head.ClientPhone, buf); break;
+			case PPALTAGNAM_CLMAIL: STRNSCPY(P_Order->Head.ClientMail, buf); break;
+			case PPALTAGNAM_CLBNKACCT: STRNSCPY(P_Order->Head.ClientBankAcc, buf); break;
 			case PPALTAGNAM_ORDAMT:
 				if(!strtodoub(buf, &P_Order->Head.OrderAmount))
 					ok = 0;
@@ -1004,12 +987,8 @@ int SLAPI AlbatrosTagParser::SaveTagVal(const char * pTag)
 				if(!strtolong(buf, &OrderItem.GoodsID))
 					ok = 0;
 				break;
-			case PPALTAGNAM_GOODSNAM:
-				STRNSCPY(OrderItem.GoodsName, buf);
-				break;
-			case PPALTAGNAM_GOODSCODE:
-				STRNSCPY(OrderItem.GoodsCode, buf);
-				break;
+			case PPALTAGNAM_GOODSNAM: STRNSCPY(OrderItem.GoodsName, buf); break;
+			case PPALTAGNAM_GOODSCODE: STRNSCPY(OrderItem.GoodsCode, buf); break;
 			case PPALTAGNAM_UPP:
 				if(!strtodoub(buf, &OrderItem.UnitsPerPack))
 					ok = 0;

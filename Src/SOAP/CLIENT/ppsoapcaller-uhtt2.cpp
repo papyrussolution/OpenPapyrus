@@ -274,15 +274,12 @@ extern "C" __declspec(dllexport) UhttStatus * UhttSetImageByID(PPSoapClientSessi
 	SString temp_buf;
 	InParamString arg_token(pToken);
 	InParamString arg_objtype(rPack.ObjTypeSymb);
-
 	InParamString content_type(rPack.ContentType);
 	InParamString content(rPack.ContentMime);
 	InParamString encoding(rPack.Encoding);
 	InParamString name(rPack.Name);
-
 	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	gSoapClientInit(&proxi, 0, 0);
-
 	ns1__dataChunk chunk;
 	ns1__setImageByID param;
 	ns1__setImageByIDResponse resp;
@@ -368,7 +365,7 @@ extern "C" __declspec(dllexport) int UhttGetGoodsRefList(PPSoapClientSession & r
 				p_new_item->UhttObjID = 0;
 				ref_list.insert(p_new_item);
 			}
-			param.refList = (ns1__objRefItem **)calloc(ref_list.getCount(), sizeof(ns1__objRefItem*));
+			param.refList = static_cast<ns1__objRefItem **>(SAlloc::C(ref_list.getCount(), sizeof(ns1__objRefItem*)));
 			THROW(param.refList);
 			for(i = 0; i < ref_list.getCount(); i++) {
 				param.refList[i] = ref_list.at(i);
@@ -552,7 +549,6 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateGoods(PPSoapClientSessio
 	for(i = 0; i < rPack.TagList.getCount(); i++) {
 		const UhttTagItem * p_item = rPack.TagList.at(i);
 		ns1__tagValue * p_tag = new ns1__tagValue;
-
 		InParamString * p_arg_symb = new InParamString(p_item->Symb);
 		InParamString * p_arg_val = new InParamString(p_item->Value);
 		arglist_tag.insert(p_arg_symb);
@@ -563,7 +559,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateGoods(PPSoapClientSessio
 		tag_list.insert(p_tag);
 	}
 	goods_param.__sizeTags = 0;
-	goods_param.Tags = (ns1__tagValue **)calloc(tag_list.getCount(), sizeof(ns1__tagValue*));
+	goods_param.Tags = static_cast<ns1__tagValue **>(SAlloc::C(tag_list.getCount(), sizeof(ns1__tagValue*)));
 	for(i = 0; i < tag_list.getCount(); i++) {
 		goods_param.Tags[i] = tag_list.at(i);
 		goods_param.__sizeTags++;
@@ -578,7 +574,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateGoods(PPSoapClientSessio
 	if(PreprocessCall(proxi, rSess, proxi.createGoods(rSess.GetUrl(), 0 /* soap_action */, &param, &resp))) {
 		p_result = CreateResultStatus(resp.status);
 	}
-	free(goods_param.Tags); // @v8.2.10
+	SAlloc::F(goods_param.Tags);
 	return p_result;
 }
 
@@ -1133,7 +1129,7 @@ extern "C" __declspec(dllexport) TSCollection <UhttStatus> * UhttSetQuotList(PPS
 			UhttQuotPacketTo_ns1__quote(p_src_item, p_new_item);
 			quot_list.insert(p_new_item);
 		}
-		param.quote = (ns1__quote **)calloc(quot_list.getCount(), sizeof(ns1__quote*));
+		param.quote = static_cast<ns1__quote **>(SAlloc::C(quot_list.getCount(), sizeof(ns1__quote*)));
 		THROW(param.quote);
 		for(i = 0; i < quot_list.getCount(); i++) {
 			param.quote[i] = quot_list.at(i);
@@ -1192,7 +1188,7 @@ extern "C" __declspec(dllexport) int UhttCreateBill(PPSoapClientSession & rSess,
 	bill_param.Memo = arg_bill_memo;
 
 	bill_param.__sizeItems = 0;
-	bill_param.Items = (ns1__billLine **)calloc(rPack.Items.getCount(), sizeof(ns1__billLine*));
+	bill_param.Items = static_cast<ns1__billLine **>(SAlloc::C(rPack.Items.getCount(), sizeof(ns1__billLine*)));
 	for(i = 0; i < rPack.Items.getCount(); i++) {
 		const UhttBillPacket::BillItem & r_item = rPack.Items.at(i);
 		ns1__billLine * p_line = new ns1__billLine;
@@ -1379,12 +1375,10 @@ extern "C" __declspec(dllexport) TSCollection <UhttGoodsRestListItem> * UhttGetG
 	SString temp_buf;
 	TSCollection <UhttGoodsRestListItem> * p_result = 0;
 	InParamString arg_token(pToken);
-
 	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	gSoapClientInit(&proxi, 0, 0);
 	ns1__getGoodsRestList param;
 	ns1__getGoodsRestListResponse resp;
-
 	param.token = arg_token;
 	param.goodsID = uhttGoodsID;
 	if(PreprocessCall(proxi, rSess, proxi.getGoodsRestList(rSess.GetUrl(), 0 /* soap_action */, &param, &resp))) {
@@ -1434,7 +1428,6 @@ extern "C" __declspec(dllexport) TSCollection <UhttDCFileVersionInfo> * UhttDCGe
 	gSoapClientInit(&proxi, 0, 0);
 	ns1__DCGetFileVersionList          param;
 	ns1__DCGetFileVersionListResponse  resp;
-
 	param.token   = arg_token;
 	param.key     = arg_key;
 	if(PreprocessCall(proxi, rSess, proxi.DCGetFileVersionList(rSess.GetUrl(), 0 /* soap_action */, &param, &resp))) {
@@ -1454,7 +1447,7 @@ extern "C" __declspec(dllexport) TSCollection <UhttDCFileVersionInfo> * UhttDCGe
 						(p_pack->Label    = p_item->Label).Transf(CTRANSF_UTF8_TO_INNER);
 						p_pack->Revision  = p_item->Revision;
 						p_pack->Ts        = p_item->Ts->nanos; // наносекунд
-						p_pack->Size      = (long)p_item->Size;
+						p_pack->Size      = static_cast<long>(p_item->Size);
 						p_pack->Flags     = p_item->Flags;
 						(p_pack->Memo     = p_item->Memo).Transf(CTRANSF_UTF8_TO_INNER);
 					}
@@ -1682,7 +1675,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateWorkbookItem(PPSoapClien
 			p_tag->Value = GetDynamicParamString(p_item->Value, arg_str_pool);
 		}
 		instance.__sizeTags = 0;
-		instance.Tags = (ns1__tagValue **)calloc(tag_list.getCount(), sizeof(ns1__tagValue*));
+		instance.Tags = static_cast<ns1__tagValue **>(SAlloc::C(tag_list.getCount(), sizeof(ns1__tagValue*)));
 		for(i = 0; i < tag_list.getCount(); i++) {
 			instance.Tags[i] = tag_list.at(i);
 			instance.__sizeTags++;
@@ -1702,7 +1695,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateWorkbookItem(PPSoapClien
 	CATCH
 		ZDELETE(p_result);
 	ENDCATCH
-	free(instance.Tags);
+	SAlloc::F(instance.Tags);
 	return p_result;
 }
 //
@@ -1907,7 +1900,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateProcessor(PPSoapClientSe
 			place_list.insert(p_place);
 		}
 		instance.__sizePlaces = 0;
-		instance.Places = (ns1__prcPlace **)calloc(place_list.getCount(), sizeof(ns1__prcPlace*));
+		instance.Places = static_cast<ns1__prcPlace **>(SAlloc::C(place_list.getCount(), sizeof(ns1__prcPlace*)));
 		for(i = 0; i < place_list.getCount(); i++) {
 			instance.Places[i] = place_list.at(i);
 			instance.__sizePlaces++;
@@ -2075,7 +2068,7 @@ extern "C" __declspec(dllexport) TSCollection <UhttTSessionPacket> * UhttGetTSes
 {
 	TSCollection <UhttTSessionPacket> * p_result = 0;
 	InParamString arg_token(pToken);
-	InParamString arg_since(pSince ? (const char *)pSince->T : 0);
+	InParamString arg_since(pSince ? pSince->T.cptr() : 0);
 	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	gSoapClientInit(&proxi, 0, 0);
 	ns1__getTSessionByPrc param;
@@ -2107,7 +2100,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 	uint   i;
 	InParamString arg_token(pToken);
 	InParamString arg_memo(rPack.Memo);
-	InParamString arg_detail(rPack.Detail); // @v8.8.0
+	InParamString arg_detail(rPack.Detail);
 	InParamString arg_sttime(rPack.StTime.T);
 	InParamString arg_fntime(rPack.FinTime.T);
 	TSCollection <InParamString> arglist;
@@ -2129,12 +2122,11 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 		instance.StTime = arg_sttime;
 		instance.FinTime = arg_fntime;
 		instance.Memo = arg_memo;
-		instance.Detail = arg_detail; // @v8.8.0
+		instance.Detail = arg_detail;
 		{
 			for(i = 0; i < rPack.Lines.getCount(); i++) {
 				const UhttTSessLine & r_item = *rPack.Lines.at(i);
 				ns1__tSessionLine * p_line = new ns1__tSessionLine;
-
 				InParamString * p_arg_serial = new InParamString(r_item.Serial);
 				InParamString * p_arg_tm = new InParamString(r_item.Tm.T);
 				InParamString * p_arg_expiry = new InParamString(r_item.Expiry.T);
@@ -2162,7 +2154,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 				lines_list.insert(p_line);
 			}
 			instance.__sizeLines = 0;
-			instance.Lines = (ns1__tSessionLine **)calloc(lines_list.getCount(), sizeof(ns1__tSessionLine*));
+			instance.Lines = static_cast<ns1__tSessionLine **>(SAlloc::C(lines_list.getCount(), sizeof(ns1__tSessionLine*)));
 			for(i = 0; i < lines_list.getCount(); i++) {
 				instance.Lines[i] = lines_list.at(i);
 				instance.__sizeLines++;
@@ -2172,7 +2164,6 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 			for(i = 0; i < rPack.Cips.getCount(); i++) {
 				const UhttCipPacket & r_item = *rPack.Cips.at(i);
 				ns1__checkInPerson * p_cip = new ns1__checkInPerson;
-
 				InParamString * p_arg_regtm = new InParamString(r_item.RegTm.T);
 				InParamString * p_arg_citm = new InParamString(r_item.CiTm.T);
 				InParamString * p_arg_placecode = new InParamString(r_item.PlaceCode);
@@ -2204,7 +2195,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 				cip_list.insert(p_cip);
 			}
 			instance.__sizeCips = 0;
-			instance.Cips = (ns1__checkInPerson **)calloc(cip_list.getCount(), sizeof(ns1__checkInPerson*));
+			instance.Cips = static_cast<ns1__checkInPerson **>(SAlloc::C(cip_list.getCount(), sizeof(ns1__checkInPerson*)));
 			for(i = 0; i < cip_list.getCount(); i++) {
 				instance.Cips[i] = cip_list.at(i);
 				instance.__sizeCips++;
@@ -2214,18 +2205,16 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 			for(i = 0; i < rPack.TagList.getCount(); i++) {
 				const UhttTagItem * p_item = rPack.TagList.at(i);
 				ns1__tagValue * p_tag = new ns1__tagValue;
-
 				InParamString * p_arg_symb = new InParamString(p_item->Symb);
 				InParamString * p_arg_val = new InParamString(p_item->Value);
 				arglist.insert(p_arg_symb);
 				arglist.insert(p_arg_val);
-
 				p_tag->Symb = *p_arg_symb;
 				p_tag->Value = *p_arg_val;
 				tag_list.insert(p_tag);
 			}
 			instance.__sizeTags = 0;
-			instance.Tags = (ns1__tagValue **)calloc(tag_list.getCount(), sizeof(ns1__tagValue*));
+			instance.Tags = static_cast<ns1__tagValue **>(SAlloc::C(tag_list.getCount(), sizeof(ns1__tagValue*)));
 			for(i = 0; i < tag_list.getCount(); i++) {
 				instance.Tags[i] = tag_list.at(i);
 				instance.__sizeTags++;
@@ -2236,7 +2225,6 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 			for(i = 0; i < rPack.Places.getCount(); i++) {
 				const UhttPrcPlaceDescription & r_item = *rPack.Places.at(i);
 				ns1__prcPlace * p_place = new ns1__prcPlace;
-
 				InParamString * p_arg_range = new InParamString(r_item.Range);
 				InParamString * p_arg_descr = new InParamString(r_item.Descr);
 				arglist.insert(p_arg_range);
@@ -2248,7 +2236,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 				place_list.insert(p_place);
 			}
 			instance.__sizePlaces = 0;
-			instance.Places = (ns1__prcPlace **)calloc(place_list.getCount(), sizeof(ns1__prcPlace*));
+			instance.Places = static_cast<ns1__prcPlace **>(SAlloc::C(place_list.getCount(), sizeof(ns1__prcPlace*)));
 			for(i = 0; i < place_list.getCount(); i++) {
 				instance.Places[i] = place_list.at(i);
 				instance.__sizePlaces++;
@@ -2271,7 +2259,6 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 extern "C" __declspec(dllexport) TSCollection <UhttStatus> * UhttSendSms(PPSoapClientSession & rSess, const char * pToken, const TSCollection <UhttSmsPacket> & rPack)
 {
 	TSCollection <UhttStatus> * p_result = 0;
-#if 1 // @construction {
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;
 	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
@@ -2318,7 +2305,21 @@ extern "C" __declspec(dllexport) TSCollection <UhttStatus> * UhttSendSms(PPSoapC
 	CATCH
 		ZDELETE(p_result);
 	ENDCATCH
-	free(param.message);
-#endif // } 0 @construction
+	SAlloc::F(param.message);
 	return p_result;
+}
+
+extern "C" __declspec(dllexport) int UhttGetCommonMqsConfig(PPSoapClientSession & rSess, SString & rCfgText)
+{
+	rCfgText.Z();
+	int    result = 0;
+	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	gSoapClientInit(&proxi, 0, 0);
+	ns1__getCommonMqsConfig param;
+	ns1__getCommonMqsConfigResponse resp;
+	if(PreprocessCall(proxi, rSess, proxi.getCommonMqsConfig(rSess.GetUrl(), 0 /* soap_action */, &param, &resp))) {
+		rCfgText = resp.result;
+		result = 1;
+	}
+	return result;
 }

@@ -3022,15 +3022,15 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 		Goods2Tbl::Rec grec;
 		ReceiptTbl::Rec lot_rec;
 		double qtty = 0.0;
-		int    init_chr = (TVKEY == kbF3) ? 0 : c;
+		const  int  init_chr = (TVKEY == kbF3) ? 0 : c;
 		const  long cfg_flags = LConfig.Flags;
 		if(GObj.SelectGoodsByBarcode(init_chr, P_Pack->Rec.Object, &grec, &qtty, &code) > 0) {
 			uint   pos = 0;
 			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && P_Pack->SearchGoods(grec.ID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
 				view->go(pos);
 			else {
-				PPID   op_type = GetOpType(P_Pack->Rec.OpID);
-				int    skip_dlg = BIN((P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE) && oneof2(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
+				const  PPID op_type = GetOpType(P_Pack->Rec.OpID);
+				const  int  skip_dlg = BIN((P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE) && oneof2(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
 				TIDlgInitData tidi;
 				SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, skip_dlg);
 				tidi.GoodsID  = grec.ID;

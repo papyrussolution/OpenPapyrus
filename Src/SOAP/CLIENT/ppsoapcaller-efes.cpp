@@ -1,5 +1,5 @@
 // PPSOAPCALLER-EFES.CPP
-// Copyright (c) A.Sobolev 2016, 2017
+// Copyright (c) A.Sobolev 2016, 2017, 2019
 //
 #include <ppsoapclient.h>
 #include "efes\efesSoapWS_USCOREEFES_USCOREDDEBindingProxy.h"
@@ -103,7 +103,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 			StringSet ss_doc_num(';', pDocNumberList);
 			const uint doc_num_count = ss_doc_num.getCount();
 			uint  ssi = 0;
-			THROW(param.EFRDocNum = (char **)calloc(doc_num_count, sizeof(char *)));
+			THROW(param.EFRDocNum = static_cast<char **>(SAlloc::C(doc_num_count, sizeof(char *))));
 			for(uint ssp = 0; ss_doc_num.get(&ssp, temp_buf);) {
 				param.EFRDocNum[ssi++] = GetDynamicParamString(temp_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 			}
@@ -196,7 +196,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 		ZDELETE(p_result);
 	ENDCATCH
 	if(param.__sizeEFRDocNum)
-		free(param.EFRDocNum);
+		SAlloc::F(param.EFRDocNum);
 	return p_result;
 }
 
@@ -342,7 +342,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesBillStatus> * EfesCancelDe
 	CATCH
 		ZDELETE(p_result);
 	ENDCATCH
-	free(param.DeliveryList.PRTDocNum);
+	SAlloc::F(param.DeliveryList.PRTDocNum);
 	return p_result;
 }
 

@@ -707,9 +707,10 @@
 	#define PPACN_TSSERIESUPD      85L // @v10.3.3 Изменена временная серия
 	#define PPACN_TSSTRATEGYUPD    86L // @v10.3.3 Изменена стратегия временной серии
 	#define PPACN_SCARDEXPRYUPD    87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
+	#define PPACN_SYSMAINTENANCE   88L // @v10.5.12 Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
 
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST             87L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST             88L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 	//
 	// Далее следуют идентификаторы событий, которые не отображаются в системном журнале, однако
 	// должны быть в том же поле идентификаторов, что и PPACN_XXX поскольку заносятся в очередь
@@ -5763,6 +5764,9 @@
 	#define CTL_DRAFTWROFF_DFCTAR        (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DRAFTWROFF_DFCTAR     (9 + WINDOWS_ID_BIAS)
 	#define CTL_DRAFTWROFF_FLAGS         (10 + WINDOWS_ID_BIAS)
+	#define CTL_DRAFTWROFF_SETMT         (11 + WINDOWS_ID_BIAS)
+	#define CTL_DRAFTWROFF_SETMTDO       (12 + WINDOWS_ID_BIAS)
+	#define CTL_DRAFTWROFF_SETMTFT       (13 + WINDOWS_ID_BIAS)
 #define DLG_DWOITEM               539 // Элемент типа списания драфт-документов
 	#define CTL_DWOITEM_OP               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DWOITEM_OP            (2 + WINDOWS_ID_BIAS)
@@ -5778,6 +5782,9 @@
 	#define CTL_DWOFILT_FLAGS            (7 + WINDOWS_ID_BIAS)
 	#define CTL_DWOFILT_MRPNAME          (8 + WINDOWS_ID_BIAS)
 	#define CTL_DWOFILT_ST_INFO          (9 + WINDOWS_ID_BIAS)
+	#define CTL_DWOFILT_SETMT            (10 + WINDOWS_ID_BIAS)
+	#define CTL_DWOFILT_SETMTDO          (11 + WINDOWS_ID_BIAS)
+	#define CTL_DWOFILT_SETMTFT          (12 + WINDOWS_ID_BIAS)
 #define DLG_GOODSWOG              541 // Группа списания товара (диалог товара)
 	#define CTL_GOODSWOG_WOG             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSWOG_WOG          (2 + WINDOWS_ID_BIAS)
@@ -10770,6 +10777,8 @@
 #define DLG_QUOT_RB               1374 // @erik v10.5.8
     #define CTL_QUOTROLLBACK_DATE     (1 + WINDOWS_ID_BIAS)
     #define CTL_QUOTROLLBACK_TIME     (2 + WINDOWS_ID_BIAS)
+#define DLG_DIAGPOSNODE           1375
+	#define CTL_DIAGPOSNODE_RESULT    (1 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -11868,39 +11877,39 @@
 // @v10.5.11 #define PPTXT_ACSCLS_TESTCHECKS   124 // Тестирование чеков
 //#define PPTXT_FIXSTAFFLIST        131 // Список фиксированных должностей
 //#define PPTXT_POVERB              132 // Список глаголов по персональным событиям
-#define PPTXT_ALBATROSTAGNAMES    147 // Имена тегов в файле заказов проекта альбатрос
-	#define PPALTAGNAM_ALBORD      0
-	#define PPALTAGNAM_ALBHEAD     1
-	#define PPALTAGNAM_ORDDT       2
-	#define PPALTAGNAM_ORDCODE     3
-	#define PPALTAGNAM_CLID        4
-	#define PPALTAGNAM_CLNAM       5
-	#define PPALTAGNAM_CLINN       6
-	#define PPALTAGNAM_CLCITY      7
-	#define PPALTAGNAM_CLADDR      8
-	#define PPALTAGNAM_CLPHONE     9
-	#define PPALTAGNAM_CLMAIL      10
-	#define PPALTAGNAM_CLBNKACCT   11
-	#define PPALTAGNAM_ORDAMT      12
-	#define PPALTAGNAM_PCTDIS      13
-	#define PPALTAGNAM_ALBORDITEM  14
-	#define PPALTAGNAM_GOODSID     15
-	#define PPALTAGNAM_GOODSNAM    16
-	#define PPALTAGNAM_GOODSCODE   17
-	#define PPALTAGNAM_UPP         18
-	#define PPALTAGNAM_QTTY        19
-	#define PPALTAGNAM_PRICE       20
-	#define PPALTAGNAM_DISC        21
-	#define PPALTAGNAM_AMOUNT      22
+// @v10.5.12 #define PPTXT_ALBATROSTAGNAMES    147 // Имена тегов в файле заказов проекта альбатрос
+	// @v10.5.12 #define PPALTAGNAM_ALBORD      0
+	// @v10.5.12 #define PPALTAGNAM_ALBHEAD     1
+	// @v10.5.12 #define PPALTAGNAM_ORDDT       2
+	// @v10.5.12 #define PPALTAGNAM_ORDCODE     3
+	// @v10.5.12 #define PPALTAGNAM_CLID        4
+	// @v10.5.12 #define PPALTAGNAM_CLNAM       5
+	// @v10.5.12 #define PPALTAGNAM_CLINN       6
+	// @v10.5.12 #define PPALTAGNAM_CLCITY      7
+	// @v10.5.12 #define PPALTAGNAM_CLADDR      8
+	// @v10.5.12 #define PPALTAGNAM_CLPHONE     9
+	// @v10.5.12 #define PPALTAGNAM_CLMAIL      10
+	// @v10.5.12 #define PPALTAGNAM_CLBNKACCT   11
+	// @v10.5.12 #define PPALTAGNAM_ORDAMT      12
+	// @v10.5.12 #define PPALTAGNAM_PCTDIS      13
+	// @v10.5.12 #define PPALTAGNAM_ALBORDITEM  14
+	// @v10.5.12 #define PPALTAGNAM_GOODSID     15
+	// @v10.5.12 #define PPALTAGNAM_GOODSNAM    16
+	// @v10.5.12 #define PPALTAGNAM_GOODSCODE   17
+	// @v10.5.12 #define PPALTAGNAM_UPP         18
+	// @v10.5.12 #define PPALTAGNAM_QTTY        19
+	// @v10.5.12 #define PPALTAGNAM_PRICE       20
+	// @v10.5.12 #define PPALTAGNAM_DISC        21
+	// @v10.5.12 #define PPALTAGNAM_AMOUNT      22
 //
 // Event codes for backup callback function (backuplog)
 //
-#define PPTXT_NUMBERWORDS                 160 // Словесные выражения для чисел
-#define PPTXT_CURRENCYWORDS               161 // Словесные выражения для валюты (рубли)
-#define PPTXT_RCVMAILWAITMSG              165 // Принимается сообщение
-#define PPTXT_FILLHOLESARMISER            166 // Заполнение инициализационных пробелов
-#define PPTXT_FILLHOLES                   167 // Заполнение пробелов
-#define PPTXT_CLCHANGEINNTITLE            168 // Измените, если это нужно, ИНН клиента в БД
+// @v10.5.12 #define PPTXT_NUMBERWORDS                 160 // Словесные выражения для чисел
+// @v10.5.12 #define PPTXT_CURRENCYWORDS               161 // Словесные выражения для валюты (рубли)
+// @v10.5.12 #define PPTXT_RCVMAILWAITMSG              165 // Принимается сообщение
+// @v10.5.12 #define PPTXT_FILLHOLESARMISER            166 // Заполнение инициализационных пробелов
+// @v10.5.12 #define PPTXT_FILLHOLES                   167 // Заполнение пробелов
+// @v10.5.12 #define PPTXT_CLCHANGEINNTITLE            168 // Измените, если это нужно, ИНН клиента в БД
 /* @v10.5.11 @obsolete
 #define PPTXT_CLINFOTXTSTR                169 // Текстовые строки в диалоге DLT_CLINFO
 	#define PPCLINFO_STR1     0
@@ -11910,11 +11919,11 @@
 	#define PPCLINFO_STR5     4
 	#define PPCLINFO_STR6     5
 */
-#define PPTXT_CLCHANGEPSNTITLE            170 // Изменение персоналии
-#define PPTXT_WAITONDATAFROMCASH          172 // Ожидание данных от кассового аппарата
-#define PPTXT_FILLMODELS                  173 // Формирование моделей
-#define PPTXT_CALCSEASONS                 174 // Вычисление сезонных интервалов
-#define PPTXT_ERRACCEPTGOODSSTRUC         175 // Ошибка акцепта структуры товара
+// @v10.5.12 #define PPTXT_CLCHANGEPSNTITLE            170 // Изменение персоналии
+// @v10.5.12 #define PPTXT_WAITONDATAFROMCASH          172 // Ожидание данных от кассового аппарата
+// @v10.5.12 #define PPTXT_FILLMODELS                  173 // Формирование моделей
+// @v10.5.12 #define PPTXT_CALCSEASONS                 174 // Вычисление сезонных интервалов
+// @v10.5.12 #define PPTXT_ERRACCEPTGOODSSTRUC         175 // Ошибка акцепта структуры товара
 #define PPTXT_NOTUNEANYOPS                176 // Не настроено ни одной операции по
 	#define PPNOTUNE_ORDER    0                //   товарным заказам
 	#define PPNOTUNE_INVENT   1                //   инвентаризации
@@ -11931,14 +11940,14 @@
 	#define PPPSNATTR_DUPDLVRADDR    8        //   Дублированные адреса доставки (по тексту адреса)
 	#define PPPSNATTR_STANDALONEADDR 9        //   Автономные адреса
 	#define PPPSNATTR_EMAIL          10       //   Email адрес
-#define PPTXT_ERRACCEPTACCOUNT            178 // Ошибка акцепта счета
-#define PPTXT_RESTORECSESS                179 // Восстановление кассовых чеков
-#define PPTXT_SELARTICLES                 180 // Заголовок диалога выбора аналитических статей
-#define PPTXT_INVCCARDBYCHECK             181 // Сообщение о неправильной установке пластиковой карты по чеку
-#define PPTXT_DUPRCPTINVGOODS             182 // Дублирование товара в принимаемой инвентаризации
-#define PPTXT_RECALCAGGRVALS              183 // Расчет агрегированных параметров продаж
-#define PPTXT_FLASHTEMPCCHECKS            184 // Сброс чеков в систему
-#define PPTXT_FLASHTEMPCCLINES            185 // Сброс строк чеков в систему
+// @v10.5.12 #define PPTXT_ERRACCEPTACCOUNT            178 // Ошибка акцепта счета
+// @v10.5.12 #define PPTXT_RESTORECSESS                179 // Восстановление кассовых чеков
+// @v10.5.12 #define PPTXT_SELARTICLES                 180 // Заголовок диалога выбора аналитических статей
+// @v10.5.12 #define PPTXT_INVCCARDBYCHECK             181 // Сообщение о неправильной установке пластиковой карты по чеку
+// @v10.5.12 #define PPTXT_DUPRCPTINVGOODS             182 // Дублирование товара в принимаемой инвентаризации
+// @v10.5.12 #define PPTXT_RECALCAGGRVALS              183 // Расчет агрегированных параметров продаж
+// @v10.5.12 #define PPTXT_FLASHTEMPCCHECKS            184 // Сброс чеков в систему
+// @v10.5.12 #define PPTXT_FLASHTEMPCCLINES            185 // Сброс строк чеков в систему
 #define PPTXT_MAILFILEDS                  186 // Строки полей почтовых сообщений
 	#define PPMAILFLD_FROM              0 // From:
 	#define PPMAILFLD_TO                1 // To:
@@ -11959,18 +11968,18 @@
 	#define PPMAILFLD_READDATE         16 // read-date
 	#define PPMAILFLD_SIZE             17 // size
 	#define PPMAILFLD_DATE             18 // Date:
-#define PPTXT_WTMAILCONNECTION            187 // Ожидание соединения с почтовым сервером %s
-#define PPTXT_CHECKINMAILFORPPY           188 // Просмотр входящей почты
-#define PPTXT_TAXPAYMREASON               189 // Коды основания бюджетных платежей
-#define PPTXT_TAXPAYMTYPE                 190 // Коды типов бюджетных платежей
-#define PPTXT_MONTHES                     191 // Названия месяцев
-#define PPTXT_ERRACCEPTSCARD              192 // Ошибка акцепта карты
-#define PPTXT_GOODSEXTITLES               193 // Наименования дополнительных полей товара по умолчанию
-#define PPTXT_INVENTEXTINFO               194 // Информация о флаге "Нулевой остаток по умолчанию" для инвентаризации
-#define PPTXT_TRFRANLZINITGRPNGTEXT       195 // Инициализация группирующих наименований (PPViewTrfrAnlz)
-#define PPTXT_PRESSHOTSYNC                196 // Нажмите кнопку обмена данными на Palm'e
-#define PPTXT_DEFPLISTEXPORTSPEC          197 // Спецификация экспорта прайс-листа в формате SYLK
-#define PPTXT_PLISTEXPORTVAR              198 // Псевдопеременные колонок прайс-листа
+// @v10.5.12 #define PPTXT_WTMAILCONNECTION            187 // Ожидание соединения с почтовым сервером %s
+// @v10.5.12 #define PPTXT_CHECKINMAILFORPPY           188 // Просмотр входящей почты
+// @v10.5.12 #define PPTXT_TAXPAYMREASON               189 // Коды основания бюджетных платежей
+// @v10.5.12 #define PPTXT_TAXPAYMTYPE                 190 // Коды типов бюджетных платежей
+// @v10.5.12 #define PPTXT_MONTHES                     191 // Названия месяцев
+// @v10.5.12 #define PPTXT_ERRACCEPTSCARD              192 // Ошибка акцепта карты
+// @v10.5.12 #define PPTXT_GOODSEXTITLES               193 // Наименования дополнительных полей товара по умолчанию
+// @v10.5.12 #define PPTXT_INVENTEXTINFO               194 // Информация о флаге "Нулевой остаток по умолчанию" для инвентаризации
+// @v10.5.12 #define PPTXT_TRFRANLZINITGRPNGTEXT       195 // Инициализация группирующих наименований (PPViewTrfrAnlz)
+// @v10.5.12 #define PPTXT_PRESSHOTSYNC                196 // Нажмите кнопку обмена данными на Palm'e
+// @v10.5.12 #define PPTXT_DEFPLISTEXPORTSPEC          197 // Спецификация экспорта прайс-листа в формате SYLK
+// @v10.5.12 #define PPTXT_PLISTEXPORTVAR              198 // Псевдопеременные колонок прайс-листа
 #define PPTXT_CURRLISTTAGNAMES            199 // Имена тегов в файле списка валют
 	#define PPCURRLTAGNAM_CONTENT       0
 	#define PPCURRLTAGNAM_CURRLIST      1
@@ -12102,35 +12111,36 @@
 	#define SIGN_LT                      1
 	#define SIGN_GT                      2
 	#define SIGN_NO_MATTER               3
-#define PPTXT_OPRKIND_NEEDED              238
-#define PPTXT_SELECT_CONFIGURATION        239
-#define PPTXT_EXPORT_FORMATTYPES          240 //
-#define PPTXT_EXPORT_DESTTYPES            241 //
-#define PPTXT_EXPORT_FORMATDLL32          242 //
-#define PPTXT_EXPORT_DESTDLL32            243 //
-#define PPTXT_EXPORT_EXTS                 244 //
-#define PPTXT_LOG_PSALES                  245 // Построены данные по товару %s за период %s
-#define PPTXT_LOG_PSALES_DUPDAY           246 // Дублирование данных на дату %s
-#define PPTXT_IMPORTCHECKS                247 // Импорт чеков из кассового модуля %s //
-#define PPTXT_WAITONFILE                  248 // Ожидание файла %s
-#define PPTXT_ERRACCEPTGOODSQUOTS         249 // Ошибка акцепта товарных котировок
-#define PPTXT_RMVDUPBARCODE               250 //
-#define PPTXT_ERRACCEPTBILL_CONVERT       255 // Ошибка конвертации принятого документа
-#define PPTXT_TODO_PRIOR                  256 // Список приоритетов задач
-#define PPTXT_TODO_STATUS                 257 // Список статусов задач
-#define PPTXT_WEEKNO                      263 // "1,первый;2,второй;3,третий;4,четвертый;5,последний"
-#define PPTXT_RCVPACKETREJVER             265 // Пакет приема данных отклонен, поскольку требует более позднюю версию (%s)
-#define PPTXT_WAIT_PALMEXPSELL            266 // Формирование таблицы продаж
+
+// @v10.5.12 #define PPTXT_OPRKIND_NEEDED              238
+// @v10.5.12 #define PPTXT_SELECT_CONFIGURATION        239
+// @v10.5.12 #define PPTXT_EXPORT_FORMATTYPES          240 //
+// @v10.5.12 #define PPTXT_EXPORT_DESTTYPES            241 //
+// @v10.5.12 #define PPTXT_EXPORT_FORMATDLL32          242 //
+// @v10.5.12 #define PPTXT_EXPORT_DESTDLL32            243 //
+// @v10.5.12 #define PPTXT_EXPORT_EXTS                 244 //
+// @v10.5.12 #define PPTXT_LOG_PSALES                  245 // Построены данные по товару %s за период %s
+// @v10.5.12 #define PPTXT_LOG_PSALES_DUPDAY           246 // Дублирование данных на дату %s
+// @v10.5.12 #define PPTXT_IMPORTCHECKS                247 // Импорт чеков из кассового модуля %s //
+// @v10.5.12 #define PPTXT_WAITONFILE                  248 // Ожидание файла %s
+// @v10.5.12 #define PPTXT_ERRACCEPTGOODSQUOTS         249 // Ошибка акцепта товарных котировок
+// @v10.5.12 #define PPTXT_RMVDUPBARCODE               250 //
+// @v10.5.12 #define PPTXT_ERRACCEPTBILL_CONVERT       255 // Ошибка конвертации принятого документа
+// @v10.5.12 #define PPTXT_TODO_PRIOR                  256 // Список приоритетов задач
+// @v10.5.12 #define PPTXT_TODO_STATUS                 257 // Список статусов задач
+// @v10.5.12 #define PPTXT_WEEKNO                      263 // "1,первый;2,второй;3,третий;4,четвертый;5,последний"
+// @v10.5.12 #define PPTXT_RCVPACKETREJVER             265 // Пакет приема данных отклонен, поскольку требует более позднюю версию (%s)
+// @v10.5.12 #define PPTXT_WAIT_PALMEXPSELL            266 // Формирование таблицы продаж
 //                                        267 // @v4.6.14 Occupied
-#define PPTXT_LOG_PSALES_UNDEFLOC         268 // Не определен склад: товар %s, документ %s, дата %s, вид операции %s
-#define PPTXT_LOG_PSALES_UNDEFLOC_REST    269 // Товарные остатки на неопределенном складе: товар %s, дата %s
-#define PPTXT_AR_STOP                     270 // Слово "Стоп" для броузера статей
-#define PPTXT_STATLOG_GOODSCACHE          271 // STAT GoodsCache: hits=%ld misses=%ld count=%u
-#define PPTXT_PRCTITLES                   272 // Процессоры;Группы процессоров
-#define PPTXT_TSESS_STATUS                273 // Список статусов тех сессий
-#define PPTXT_TSESSLN_SIGN                274 // Список знаков строк тех сессий
-#define PPTXT_ST_MRPLINE                  275 // Заголовки броузера строк MRP-таблицы
-#define PPTXT_CUSTDISP                    276 // Список типов дисплеев покупателей
+// @v10.5.12 #define PPTXT_LOG_PSALES_UNDEFLOC         268 // Не определен склад: товар %s, документ %s, дата %s, вид операции %s
+// @v10.5.12 #define PPTXT_LOG_PSALES_UNDEFLOC_REST    269 // Товарные остатки на неопределенном складе: товар %s, дата %s
+// @v10.5.12 #define PPTXT_AR_STOP                     270 // Слово "Стоп" для броузера статей
+// @v10.5.12 #define PPTXT_STATLOG_GOODSCACHE          271 // STAT GoodsCache: hits=%ld misses=%ld count=%u
+// @v10.5.12 #define PPTXT_PRCTITLES                   272 // Процессоры;Группы процессоров
+// @v10.5.12 #define PPTXT_TSESS_STATUS                273 // Список статусов тех сессий
+// @v10.5.12 #define PPTXT_TSESSLN_SIGN                274 // Список знаков строк тех сессий
+// @v10.5.12 #define PPTXT_ST_MRPLINE                  275 // Заголовки броузера строк MRP-таблицы
+// @v10.5.12 #define PPTXT_CUSTDISP                    276 // Список типов дисплеев покупателей
 #define PPTXT_CUSTDISP_WORDS              277 // Слова и короткие фразы для дисплея покупателя //
 	#define PPCDY_WELCOME                0     // Добро пожаловать
 	#define PPCDY_CASH_NOWORK            1     // Касса не работает
@@ -12139,44 +12149,43 @@
 	#define PPCDY_CASH                   4     // Наличными
 	#define PPCDY_CHANGE                 5     // Сдача
 	#define PPCDY_PRESENT                6     // Подарок
-#define PPTXT_CHKFMT_SERVWORDS            278 // Служебные слова определения формата чеков
-#define PPTXT_CHKFMT_VARS                 279 // Переменные определения формата чеков
-#define PPTXT_LOG_ACNEXP_START            280 // Экспорт данных для кассового узла %s
-#define PPTXT_LOG_ACNEXP_FINISH           281 // Завершен экспорт данных для кассового узла %s
-#define PPTXT_LOG_ACNEXP_GOODS            282 // Экспортируется товар %s
-#define PPTXT_CRTGOODSLIST                283 // Создание списка товаров (сессия %d/%d правило %d/%d)
-#define PPTXT_ADDGOODSTOPACK              284 // Обработка товаров (сессия %d/%d  правило %d/%d)
-#define PPTXT_LOG_ACNEXP_NREADYTAGIGNORED 285 // Кассовый узел %s не готов к приему данных,
-	// но этот признак проигнорирован согласно конфигурации оборудования //
-#define PPTXT_TURNBILLPACKETS             287 // Проведение документов
-#define PPTXT_LOG_SHTRIH                  288 // Команда=%s, ошибка=%s, режим=%s, подрежим=%ld
-#define PPTXT_LOG_ALTGGRPHASGOODS         289 // Товар '%s' ссылается на альтернативную группу '%s'
-#define PPTXT_LOG_FOLDERGGRPHASGOODS      290 // Товар '%s' ссылается на группу-папку '%s'
-#define PPTXT_LOG_GGRPHASGOODS_CORR       291 // Товар '%s' перенесен в группу '%s'
-#define PPTXT_LOG_CORRECTGGRP             292 // Проверка товарных групп
-#define PPTXT_LOG_SCALELOADED             293 // На весы %s загружено %ld наименований товаров
-#define PPTXT_FLAG_YES                    295 // Флаг '0;Да'
-#define PPTXT_DEVICE_TYPES                296 // Типы оборудования, по которым формируется таблица статистики загрузки
-#define PPTXT_APPEAL_CTO                  297 // Обязательно обратитесь в ЦТО !!!
-#define PPTXT_DUPTEMPCCHECK               307 // Дублирование временного чека '%s': чек пропущен
-#define PPTXT_DEBTTO_CYCLEKINDTITLE       308 // Заголовки видов цикличности в долговой ведомости
-#define PPTXT_USEDSERIALFROMTSESS         309 // Использован серийный номер '%s' из технологической сессии '%s'
-#define PPTXT_TODOORDER                   312 // Список вариантов сортировки задач PrjTaskFilt::Order
+// @v10.5.12 #define PPTXT_CHKFMT_SERVWORDS            278 // Служебные слова определения формата чеков
+// @v10.5.12 #define PPTXT_CHKFMT_VARS                 279 // Переменные определения формата чеков
+// @v10.5.12 #define PPTXT_LOG_ACNEXP_START            280 // Экспорт данных для кассового узла %s
+// @v10.5.12 #define PPTXT_LOG_ACNEXP_FINISH           281 // Завершен экспорт данных для кассового узла %s
+// @v10.5.12 #define PPTXT_LOG_ACNEXP_GOODS            282 // Экспортируется товар %s
+// @v10.5.12 #define PPTXT_CRTGOODSLIST                283 // Создание списка товаров (сессия %d/%d правило %d/%d)
+// @v10.5.12 #define PPTXT_ADDGOODSTOPACK              284 // Обработка товаров (сессия %d/%d  правило %d/%d)
+// @v10.5.12 #define PPTXT_LOG_ACNEXP_NREADYTAGIGNORED 285 // Кассовый узел %s не готов к приему данных, но этот признак проигнорирован согласно конфигурации оборудования //
+// @v10.5.12 #define PPTXT_TURNBILLPACKETS             287 // Проведение документов
+// @v10.5.12 #define PPTXT_LOG_SHTRIH                  288 // Команда=%s, ошибка=%s, режим=%s, подрежим=%ld
+// @v10.5.12 #define PPTXT_LOG_ALTGGRPHASGOODS         289 // Товар '%s' ссылается на альтернативную группу '%s'
+// @v10.5.12 #define PPTXT_LOG_FOLDERGGRPHASGOODS      290 // Товар '%s' ссылается на группу-папку '%s'
+// @v10.5.12 #define PPTXT_LOG_GGRPHASGOODS_CORR       291 // Товар '%s' перенесен в группу '%s'
+// @v10.5.12 #define PPTXT_LOG_CORRECTGGRP             292 // Проверка товарных групп
+// @v10.5.12 #define PPTXT_LOG_SCALELOADED             293 // На весы %s загружено %ld наименований товаров
+// @v10.5.12 #define PPTXT_FLAG_YES                    295 // Флаг '0;Да'
+// @v10.5.12 #define PPTXT_DEVICE_TYPES                296 // Типы оборудования, по которым формируется таблица статистики загрузки
+// @v10.5.12 #define PPTXT_APPEAL_CTO                  297 // Обязательно обратитесь в ЦТО !!!
+// @v10.5.12 #define PPTXT_DUPTEMPCCHECK               307 // Дублирование временного чека '%s': чек пропущен
+// @v10.5.12 #define PPTXT_DEBTTO_CYCLEKINDTITLE       308 // Заголовки видов цикличности в долговой ведомости
+// @v10.5.12 #define PPTXT_USEDSERIALFROMTSESS         309 // Использован серийный номер '%s' из технологической сессии '%s'
+// @v10.5.12 #define PPTXT_TODOORDER                   312 // Список вариантов сортировки задач PrjTaskFilt::Order
 // @v10.2.11 (автомат) #define PPTXT_LOG_PSALESPROCESS           313 // Сформировано %ld%% таблицы продаж. Осталось %s часов
 // @v10.2.11 (автомат) #define PPTXT_LOG_PSALESRETRANSACT        314 // Заполнение таблицы продаж: завершена промежуточная транзакция //
-#define PPTXT_STATLOG_OBJCACHE            315 // Статистика по кэшу объектов
-#define PPTXT_TODOTEMPL_STATUS            316 // Список статусов шаблонов задач
-#define PPTXT_WAIT_CHNGTODOSTATUS         317 // Изменение статусов задач
-#define PPTXT_WAIT_GENTEMPLTASK           318 // Создание задач по шаблонам
-#define PPTXT_LOG_SCARDDISUPDATED         319 // "Изменена скидка по карте '%s': оборот=%.2lf, %.1lf --> %.1lf"
-#define PPTXT_LEDGERKINDTITLES            320 // Наименования видов книг (продаж, покупок и т.д.) соотносится с PPVTB_XXX
-#define PPTXT_TODOCROSSTAB                321 // Список вариантов построения кросстабов на основе задач PrjTaskFilt::Crosstab
-#define PPTXT_SCALEREADY                  322 // Весы готовы к приему данных
-#define PPTXT_RIGHTSBYOBJ                 324 // %ld,Права по объектам (%s)
-#define PPTXT_ERRACCEPTPSNRELTYPE         325 // Ошибка акцепта типа отношений персоналий
+// @v10.5.12 #define PPTXT_STATLOG_OBJCACHE            315 // Статистика по кэшу объектов
+// @v10.5.12 #define PPTXT_TODOTEMPL_STATUS            316 // Список статусов шаблонов задач
+// @v10.5.12 #define PPTXT_WAIT_CHNGTODOSTATUS         317 // Изменение статусов задач
+// @v10.5.12 #define PPTXT_WAIT_GENTEMPLTASK           318 // Создание задач по шаблонам
+// @v10.5.12 #define PPTXT_LOG_SCARDDISUPDATED         319 // "Изменена скидка по карте '%s': оборот=%.2lf, %.1lf --> %.1lf"
+// @v10.5.12 #define PPTXT_LEDGERKINDTITLES            320 // Наименования видов книг (продаж, покупок и т.д.) соотносится с PPVTB_XXX
+// @v10.5.12 #define PPTXT_TODOCROSSTAB                321 // Список вариантов построения кросстабов на основе задач PrjTaskFilt::Crosstab
+// @v10.5.12 #define PPTXT_SCALEREADY                  322 // Весы готовы к приему данных
+// @v10.5.12 #define PPTXT_RIGHTSBYOBJ                 324 // %ld,Права по объектам (%s)
+// @v10.5.12 #define PPTXT_ERRACCEPTPSNRELTYPE         325 // Ошибка акцепта типа отношений персоналий
 // @v9.2.5 (автомат) #define PPTXT_GOODSGRPNGLIST              326 // Список группировок товара
-#define PPTXT_SMTPAUTHTYPES               327 // Список типов аутентификация для SMTP
-#define PPTXT_SERVICEDESCR                329 // Строка описания Windows-сервиса
+// @v10.5.12 #define PPTXT_SMTPAUTHTYPES               327 // Список типов аутентификация для SMTP
+// @v10.5.12 #define PPTXT_SERVICEDESCR                329 // Строка описания Windows-сервиса
 // @v10.0.09 #define PPTXT_CYCLESSTRUCT                332 // Компонент структуры %s, ссылается на структуру %s, чьим компонентом он являетс
 // @v10.0.09 #define PPTXT_JOBPOOLLOADFAULT            334 // Не удалось загрузить пул задач
 // @v10.0.09 #define PPTXT_PPYSERVERSTOPPED            335 // TCP сервер остановлен
@@ -12342,8 +12351,7 @@
 #define PPTXT_LOG_SCALELOADSTAT           472 // NumSendPluColl=@int; MaxSendPluCollIters=@int; NumGetColl=@int; MaxGetCollIters=@int
 #define PPTXT_LOG_SCALELOADERR            473 // Error loading: GoodsID=@int; GoodsName=@goods; PLU=@int; Price=@real
 #define PPTXT_GENERATEBILLS               475 // Сообщение о генерации документов
-#define PPTXT_XMLSYMBENTITIES             476 // Подстановка символов XML-файлов (разделитель сущностей ".", разделитель
-	// сущность-подстановка "$"
+#define PPTXT_XMLSYMBENTITIES             476 // Подстановка символов XML-файлов (разделитель сущностей ".", разделитель сущность-подстановка "$"
 #define PPTXT_WORDS_MONEY_CENT            477 // "копеек;копейка;копейки"
 #define PPTXT_OWNBASKETISLOCKED           478 // Последняя использованная вами корзина '%s' заблокирована (%s). Выберите другую.
 #define PPTXT_DEFBASKETISLOCKED           479 // Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
@@ -12354,22 +12362,22 @@
 	#define PPWNDVIEWKINDS_KIND1        1
 	#define PPWNDVIEWKINDS_KIND2        2
 	#define PPWNDVIEWKINDS_VECTOR       3 @v9.1.12 */
-#define PPTXT_LOG_PRCSALCHARGEBYPOST      484 // Обработка начислений по штатному назначению: '@person - @zstr' - '@period'
-#define PPTXT_LOG_PRCSALAMTUNDEFINED      485 // Сумма '@zstr' не определена для штатного назначения '@person - @str'
-#define PPTXT_LOG_PRCSALCALUNDEFINED      486 // Календарь '@zstr' не определен для штатного назначения '@person - @str'
-#define PPTXT_LOG_PRCSALUSEDPOSTAMT       487 // Применена сумма штатного назначения: @zstr = @real
-#define PPTXT_LOG_PRCSALUSEDSTAFFAMT      488 // Применена сумма штатной должности: @zstr = @real
-#define PPTXT_LOG_SALCHARGEFORMULAEMPTY   489 // Штатное начисление '@zstr' не содержит формулу
-#define PPTXT_LOG_GOODSNEWSYNC            490 // Товар %s [ID=%ld] теперь синхронизирован с товаром %s [ID=%ld]
-#define PPTXT_LOG_PRCSALNDEFWROFFOP       491 // Для вида начисления '%s' не определена операция списания //
-#define PPTXT_LOG_PRCSALWROFFCHARGE       492 // Формирование документов для вида начисления '%s'
-#define PPTXT_LOG_PRCSALUSEDEMPLOYERAMT   493 // Применена сумма предприятия: @zstr = @real
-#define PPTXT_LOG_PRCSALUUSEDPSNEV        494 // Применен вид персональной операции: @zstr=@real
-#define PPTXT_LOG_SCALE_INVBARCODE        510 // Неверный штрихкод: товар @goods, штрихкод @zstr
-#define PPTXT_LOG_SCALE_INVEXPIRY         511 // Неверный срок хранения: товар @goods, срок хранения до @date
-#define PPTXT_IMPKLADR_KLADR              512 // Импорт справочника КЛАДР (регионы и города)
-#define PPTXT_IMPKLADR_STREET             513 // Импорт справочника КЛАДР (улицы)
-#define PPTXT_IMPKLADR_PREPROCESS         514 // Препроцессинг кодов
+// @v10.5.12 #define PPTXT_LOG_PRCSALCHARGEBYPOST      484 // Обработка начислений по штатному назначению: '@person - @zstr' - '@period'
+// @v10.5.12 #define PPTXT_LOG_PRCSALAMTUNDEFINED      485 // Сумма '@zstr' не определена для штатного назначения '@person - @str'
+// @v10.5.12 #define PPTXT_LOG_PRCSALCALUNDEFINED      486 // Календарь '@zstr' не определен для штатного назначения '@person - @str'
+// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDPOSTAMT       487 // Применена сумма штатного назначения: @zstr = @real
+// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDSTAFFAMT      488 // Применена сумма штатной должности: @zstr = @real
+// @v10.5.12 #define PPTXT_LOG_SALCHARGEFORMULAEMPTY   489 // Штатное начисление '@zstr' не содержит формулу
+// @v10.5.12 #define PPTXT_LOG_GOODSNEWSYNC            490 // Товар %s [ID=%ld] теперь синхронизирован с товаром %s [ID=%ld]
+// @v10.5.12 #define PPTXT_LOG_PRCSALNDEFWROFFOP       491 // Для вида начисления '%s' не определена операция списания //
+// @v10.5.12 #define PPTXT_LOG_PRCSALWROFFCHARGE       492 // Формирование документов для вида начисления '%s'
+// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDEMPLOYERAMT   493 // Применена сумма предприятия: @zstr = @real
+// @v10.5.12 #define PPTXT_LOG_PRCSALUUSEDPSNEV        494 // Применен вид персональной операции: @zstr=@real
+// @v10.5.12 #define PPTXT_LOG_SCALE_INVBARCODE        510 // Неверный штрихкод: товар @goods, штрихкод @zstr
+// @v10.5.12 #define PPTXT_LOG_SCALE_INVEXPIRY         511 // Неверный срок хранения: товар @goods, срок хранения до @date
+// @v10.5.12 #define PPTXT_IMPKLADR_KLADR              512 // Импорт справочника КЛАДР (регионы и города)
+// @v10.5.12 #define PPTXT_IMPKLADR_STREET             513 // Импорт справочника КЛАДР (улицы)
+// @v10.5.12 #define PPTXT_IMPKLADR_PREPROCESS         514 // Препроцессинг кодов
 #define PPTXT_IMPEXPCASH_FILENAMES        515 // Имена файлов импорта/экспорта в Папирус данных по кассам
 	#define PPIECFN_PPYGGRPS            0 // Файл для импорта/экспорта справочника товарных групп
 	#define PPIECFN_PPYGOODS            1 // Файл для импорта/экспорта справочника товаров

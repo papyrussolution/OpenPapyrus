@@ -2298,7 +2298,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNextPassNeeded)
 {
 	int    ok = 1;
-	if(pCtx->Cfg.Flags & (DBDXF_TURNTOTALDEFICITE | DBDXF_CALCTOTALDEFICITE)) {
+	if(pCtx->Cfg.Flags & (DBDXF_TURNTOTALDEFICITE|DBDXF_CALCTOTALDEFICITE)) {
 		if(CompleteGoodsRest()) {
 			if(ok) {
 				if(pCtx->Cfg.Flags & DBDXF_TURNTOTALDEFICITE) {

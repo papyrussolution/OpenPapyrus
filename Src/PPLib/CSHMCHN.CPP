@@ -998,7 +998,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					;
 				}
 				*/
-				if(fiscal != 0.0) { // @v6.8.2
+				if(fiscal != 0.0) {
 					;
 				}
 				else {
@@ -1013,14 +1013,14 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintCheck(CCheckPacket * p, int addSummator)
+int SLAPI PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 {
 	int    ok = 1;
 	SyncPrintErrCode = 0;
 	CmLocking cml(NodeRec);
 	THROW(cml);
 	THROW(GetSyncIntrf());
-	if(!(p->Rec.Flags & CCHKF_PRINTED) || PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes) {
+	if(!(pCcPack->Rec.Flags & CCHKF_PRINTED) || PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes) {
 		uint   flags = 0;
 		THROW(GetNode() > 0);
 		if(NodeRec.Flags & CASHF_OPENBOX)
@@ -1033,15 +1033,15 @@ int SLAPI PPCashMachine::SyncPrintCheck(CCheckPacket * p, int addSummator)
 			flags |= PRNCHK_ADDFISCCNTR;
 		else
 			flags |= PRNCHK_REPRINT;
-		if(p->Rec.Flags & CCHKF_RETURN)
+		if(pCcPack->Rec.Flags & CCHKF_RETURN)
 			flags |= PRNCHK_RETURN;
-		if(p->Rec.Flags & CCHKF_BANKING)
+		if(pCcPack->Rec.Flags & CCHKF_BANKING)
 			flags |= PRNCHK_BANKING;
 		NodeRec.Flags |= CASHF_LASTCHKCANCELLED;
 		THROW(UpdateNode(1));
-		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintCheck(p, flags), 1);
+		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintCheck(pCcPack, flags), 1);
 		if(ok > 0 && NodeRec.Flags & CASHF_AUTO_PRINTCOPY)
-			ok = SyncPrintCheckCopy(p, 0);
+			ok = SyncPrintCheckCopy(pCcPack, 0);
 	}
 	CATCHZOK
 	return ok;

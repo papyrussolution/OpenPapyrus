@@ -196,7 +196,8 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 					p_price_fld = &p_tbl->Amount;
 				else
 					p_price_fld = &p_tbl->Price;
-				PPGetWord(PPWORD_SUM, 0, title.Z());
+				// @v10.5.12 PPGetWord(PPWORD_SUM, 0, title.Z());
+				PPLoadString("amount", title); // @v10.5.12
 				P_Ct->AddAggrField(*p_price_fld, Crosstab::afSum, title, MKSFMTD(8, 2, NMBF_NOZERO));
 				total_list.Add(p_tbl->Qtty);
 				total_list.Add(*p_price_fld);

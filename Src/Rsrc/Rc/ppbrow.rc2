@@ -6916,7 +6916,7 @@ view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" } // @v10.5.7
 //
 record ImpExpHeader {
 	CurDate       date         format(DATF_DMY|DATF_CENTURY) "@{currentdate}";
-	CurTime       time         format(TIMF_HMS) "Текущее время";
+	CurTime       time         format(TIMF_HMS) "@{currenttime}";
 	PeriodLow     date         format(DATF_DMY|DATF_CENTURY) "Дата начала периода обработки";
 	PeriodUpp     date         format(DATF_DMY|DATF_CENTURY) "Дата конца периода обработки";
 	SrcSystemName zstring(64)  "Наименование системы-источника данных";
@@ -7940,7 +7940,7 @@ record Lot {
 	Cost          double format(10.2) "@{termcost}";
 	ExtCost       double format(10.2) "Величина накладных расходов";
 	Price         double format(10.2) "@{termprice}";
-	Rest          double format(10.3) "Текущий остаток";
+	Rest          double format(10.3) "@{currentrest}";
 	PrevLotID     long                "Ид родительского лота";
 	SupplID       long                "Ид поставщика";
 	CloseDate     date                "@{lot_closedate}";

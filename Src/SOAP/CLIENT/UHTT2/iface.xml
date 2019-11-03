@@ -54,6 +54,8 @@
   <xs:element name="getBrandByIDResponse" type="tns:getBrandByIDResponse"/>
   <xs:element name="getBrandByName" type="tns:getBrandByName"/>
   <xs:element name="getBrandByNameResponse" type="tns:getBrandByNameResponse"/>
+  <xs:element name="getCommonMqsConfig" type="tns:getCommonMqsConfig"/>
+  <xs:element name="getCommonMqsConfigResponse" type="tns:getCommonMqsConfigResponse"/>
   <xs:element name="getGoodsArCode" type="tns:getGoodsArCode"/>
   <xs:element name="getGoodsArCodeResponse" type="tns:getGoodsArCodeResponse"/>
   <xs:element name="getGoodsByCode" type="tns:getGoodsByCode"/>
@@ -506,6 +508,14 @@
   <xs:complexType name="createStyloDeviceResponse">
     <xs:sequence>
       <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getCommonMqsConfig">
+    <xs:sequence/>
+  </xs:complexType>
+  <xs:complexType name="getCommonMqsConfigResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="result" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="DCAddFileVersion">
@@ -1436,12 +1446,12 @@
     <wsdl:part element="tns:getGoodsRestList" name="parameters">
     </wsdl:part>
   </wsdl:message>
-  <wsdl:message name="getWorkbookItemContent">
-    <wsdl:part element="tns:getWorkbookItemContent" name="parameters">
-    </wsdl:part>
-  </wsdl:message>
   <wsdl:message name="getGoodsByID">
     <wsdl:part element="tns:getGoodsByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getWorkbookItemContent">
+    <wsdl:part element="tns:getWorkbookItemContent" name="parameters">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="getStyloDeviceByIDResponse">
@@ -1552,12 +1562,12 @@
     <wsdl:part element="tns:createGoodsResponse" name="parameters">
     </wsdl:part>
   </wsdl:message>
-  <wsdl:message name="getSpecSeriesByGoodsID">
-    <wsdl:part element="tns:getSpecSeriesByGoodsID" name="parameters">
-    </wsdl:part>
-  </wsdl:message>
   <wsdl:message name="getGoodsByNameResponse">
     <wsdl:part element="tns:getGoodsByNameResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSpecSeriesByGoodsID">
+    <wsdl:part element="tns:getSpecSeriesByGoodsID" name="parameters">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="getImageByCode">
@@ -1630,6 +1640,10 @@
   </wsdl:message>
   <wsdl:message name="DCGetFileVersionListResponse">
     <wsdl:part element="tns:DCGetFileVersionListResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getCommonMqsConfigResponse">
+    <wsdl:part element="tns:getCommonMqsConfigResponse" name="parameters">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="getGoodsByCodeResponse">
@@ -1904,6 +1918,10 @@
     <wsdl:part element="tns:getGoodsArCodeResponse" name="parameters">
     </wsdl:part>
   </wsdl:message>
+  <wsdl:message name="getCommonMqsConfig">
+    <wsdl:part element="tns:getCommonMqsConfig" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
   <wsdl:message name="setGoodsQuoteResponse">
     <wsdl:part element="tns:setGoodsQuoteResponse" name="parameters">
     </wsdl:part>
@@ -2114,6 +2132,12 @@
     </wsdl:fault>
       <wsdl:fault message="tns:OperationException" name="OperationException">
     </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getCommonMqsConfig">
+      <wsdl:input message="tns:getCommonMqsConfig" name="getCommonMqsConfig">
+    </wsdl:input>
+      <wsdl:output message="tns:getCommonMqsConfigResponse" name="getCommonMqsConfigResponse">
+    </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="DCAddFileVersion">
       <wsdl:input message="tns:DCAddFileVersion" name="DCAddFileVersion">
@@ -2978,6 +3002,15 @@
       <wsdl:fault name="OperationException">
         <soap:fault name="OperationException" use="literal"/>
       </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getCommonMqsConfig">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getCommonMqsConfig">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getCommonMqsConfigResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="DCAddFileVersion">
       <soap:operation soapAction="" style="document"/>

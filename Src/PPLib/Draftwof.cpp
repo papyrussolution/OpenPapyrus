@@ -1,14 +1,42 @@
 // DRAFTWOF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #include <charry.h>
 
+SLAPI PPDraftWrOffEntry::PPDraftWrOffEntry() : OpID(0), LocID(0), Flags(0)
+{
+	Reserve[0] = Reserve[1] = 0;
+}
+
+void SLAPI PPDraftWrOff2::SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS)
+{
+	if(pS) {
+		SETFLAG(Flags, DWOF_SETMANUFDATE, pS->Flags & pS->fEnable);
+		SetManufDateOffsDays = static_cast<int16>(pS->DateOffsDays);
+		SetManufFixedTime = static_cast<int16>(pS->FixedTime);
+	}
+	else {
+		Flags &= ~DWOF_SETMANUFDATE;
+		SetManufDateOffsDays = 0;
+		SetManufFixedTime = 0;
+	}
+}
+
+void SLAPI PPDraftWrOff2::GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const
+{
+	if(pS) {
+		SETFLAG(pS->Flags, pS->fEnable, Flags & DWOF_SETMANUFDATE);
+		pS->DateOffsDays = SetManufDateOffsDays;
+		pS->FixedTime = SetManufFixedTime;
+	}
+}
+
 SLAPI PPDraftWrOffPacket::PPDraftWrOffPacket() : P_List(0)
 {
-	Init();
+	// @v10.5.12 (Rec get ctr now) Init();
 }
 
 SLAPI PPDraftWrOffPacket::~PPDraftWrOffPacket()
@@ -102,76 +130,107 @@ int SLAPI PPObjDraftWrOff::GetPacket(PPID id, PPDraftWrOffPacket * pPack)
 //
 //
 class DraftWrOffDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPDraftWrOffPacket);
 public:
 	DraftWrOffDialog() : PPListDialog(DLG_DRAFTWROFF, CTL_DRAFTWROFF_LIST)
 	{
 	}
-	int    setDTS(const PPDraftWrOffPacket *);
-	int    getDTS(PPDraftWrOffPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		int    ok = 1;
+		PPIDArray types;
+		PPOprKind op_rec;
+		setCtrlData(CTL_DRAFTWROFF_NAME, Data.Rec.Name);
+		setCtrlData(CTL_DRAFTWROFF_ID, &Data.Rec.ID);
+		AddClusterAssoc(CTL_DRAFTWROFF_FLAGS, 0, DWOF_USEMRPTAB);
+		SetClusterData(CTL_DRAFTWROFF_FLAGS, Data.Rec.Flags);
+		SetupPPObjCombo(this, CTLSEL_DRAFTWROFF_POOLOP, PPOBJ_OPRKIND, Data.Rec.PoolOpID, 0, reinterpret_cast<void *>(PPOPT_POOL));
+		for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
+			if(op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
+				types.add(op_id);
+			else if(IsIntrExpndOp(op_id))
+				types.add(op_id);
+		}
+		SetupOprKindCombo(this, CTLSEL_DRAFTWROFF_DFCTOP, Data.Rec.DfctCompensOpID, 0, &types, OPKLF_OPLIST);
+		// @v10.5.12 {
+		{
+			PUGL::SetLotManufTimeParam slmtp;
+			Data.Rec.GetLotManufTimeParam(&slmtp);
+			SString temp_buf;
+			AddClusterAssoc(CTL_DRAFTWROFF_SETMT, 0, slmtp.fEnable);
+			SetClusterData(CTL_DRAFTWROFF_SETMT, slmtp.Flags);
+			setCtrlData(CTL_DRAFTWROFF_SETMTDO, &slmtp.DateOffsDays);
+			slmtp.FixedTimeToString(temp_buf);
+			setCtrlString(CTL_DRAFTWROFF_SETMTFT, temp_buf);
+		}
+		// } @v10.5.12
+		setupDfctSelectors(Data.Rec.DfctCompensArID);
+		SetupManufTimeCtrls(); // @v10.5.12
+		updateList(-1);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok  = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_DRAFTWROFF_NAME, Data.Rec.Name);
+		if(*strip(Data.Rec.Name) == 0)
+			ok = PPErrorByDialog(this, sel, PPERR_NAMENEEDED);
+		//getCtrlData(CTL_DRAFTWROFF_ID, &Data.Rec.ID);
+		GetClusterData(CTL_DRAFTWROFF_FLAGS, &Data.Rec.Flags);
+		getCtrlData(CTLSEL_DRAFTWROFF_POOLOP, &Data.Rec.PoolOpID);
+		getCtrlData(CTLSEL_DRAFTWROFF_DFCTOP,  &Data.Rec.DfctCompensOpID);
+		getCtrlData(sel = CTLSEL_DRAFTWROFF_DFCTAR,  &Data.Rec.DfctCompensArID);
+		if(IsIntrExpndOp(Data.Rec.DfctCompensOpID))
+			if(!Data.Rec.DfctCompensArID)
+				ok = PPErrorByDialog(this, sel, PPERR_UNDEFDFCTSRCLOC);
+			else
+				Data.Rec.Flags |= DWOF_DFCTARISLOC;
+		// @v10.5.12 {
+		{
+			SString temp_buf;
+			PUGL::SetLotManufTimeParam slmtp;
+			GetClusterData(CTL_DRAFTWROFF_SETMT, &slmtp.Flags);
+			getCtrlData(CTL_DRAFTWROFF_SETMTDO, &slmtp.DateOffsDays);
+			getCtrlString(CTL_DRAFTWROFF_SETMTFT, temp_buf);
+			slmtp.FixedTimeFromString(temp_buf);
+			Data.Rec.SetLotManufTimeParam(&slmtp);
+		}
+		// } @v10.5.12
+		if(ok > 0)
+			ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
 	virtual int  addItem(long * pPos, long * pID);
 	virtual int  editItem(long pos, long id);
 	virtual int  delItem(long pos, long id);
-	int    setupDfctSelectors(PPID arID);
-
-	PPDraftWrOffPacket Data;
-};
-
-int DraftWrOffDialog::setDTS(const PPDraftWrOffPacket * pData)
-{
-	Data = *pData;
-
-	int    ok = 1;
-	PPIDArray types;
-	PPOprKind op_rec;
-
-	setCtrlData(CTL_DRAFTWROFF_NAME, Data.Rec.Name);
-	setCtrlData(CTL_DRAFTWROFF_ID, &Data.Rec.ID);
-	AddClusterAssoc(CTL_DRAFTWROFF_FLAGS, 0, DWOF_USEMRPTAB);
-	SetClusterData(CTL_DRAFTWROFF_FLAGS, Data.Rec.Flags);
-	SetupPPObjCombo(this, CTLSEL_DRAFTWROFF_POOLOP, PPOBJ_OPRKIND, Data.Rec.PoolOpID, 0, reinterpret_cast<void *>(PPOPT_POOL));
-	for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
-		if(op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
-			types.add(op_id);
-		else if(IsIntrExpndOp(op_id))
-			types.add(op_id);
-	}
-	SetupOprKindCombo(this, CTLSEL_DRAFTWROFF_DFCTOP, Data.Rec.DfctCompensOpID, 0, &types, OPKLF_OPLIST);
-	setupDfctSelectors(Data.Rec.DfctCompensArID);
-	updateList(-1);
-	return ok;
-}
-
-int DraftWrOffDialog::getDTS(PPDraftWrOffPacket * pData)
-{
-	int    ok  = 1;
-	uint   sel = 0;
-	getCtrlData(sel = CTL_DRAFTWROFF_NAME, Data.Rec.Name);
-	if(*strip(Data.Rec.Name) == 0)
-		ok = PPErrorByDialog(this, sel, PPERR_NAMENEEDED);
-	//getCtrlData(CTL_DRAFTWROFF_ID, &Data.Rec.ID);
-	GetClusterData(CTL_DRAFTWROFF_FLAGS, &Data.Rec.Flags);
-	getCtrlData(CTLSEL_DRAFTWROFF_POOLOP, &Data.Rec.PoolOpID);
-	getCtrlData(CTLSEL_DRAFTWROFF_DFCTOP,  &Data.Rec.DfctCompensOpID);
-	getCtrlData(sel = CTLSEL_DRAFTWROFF_DFCTAR,  &Data.Rec.DfctCompensArID);
-	if(IsIntrExpndOp(Data.Rec.DfctCompensOpID))
-		if(!Data.Rec.DfctCompensArID)
-			ok = PPErrorByDialog(this, sel, PPERR_UNDEFDFCTSRCLOC);
+	void   setupDfctSelectors(PPID arID);
+	void   SetupManufTimeCtrls()
+	{
+		const PPID dfct_compens_op_id = getCtrlLong(CTLSEL_DRAFTWROFF_DFCTOP);
+		DisableClusterItem(CTL_DRAFTWROFF_SETMT, 0, dfct_compens_op_id ? 0 : 1);
+		if(dfct_compens_op_id) {
+			PUGL::SetLotManufTimeParam slmtp;
+			GetClusterData(CTL_DRAFTWROFF_SETMT, &slmtp.Flags);
+			disableCtrls((slmtp.Flags & slmtp.fEnable) ? 0 : 1, CTL_DRAFTWROFF_SETMTDO, CTL_DRAFTWROFF_SETMTFT, 0);
+		}
 		else
-			Data.Rec.Flags |= DWOF_DFCTARISLOC;
-	if(ok > 0)
-		ASSIGN_PTR(pData, Data);
-	return ok;
-}
+			disableCtrls(1, CTL_DRAFTWROFF_SETMTDO, CTL_DRAFTWROFF_SETMTFT, 0);
+	}
+};
 
 IMPL_HANDLE_EVENT(DraftWrOffDialog)
 {
 	long   p, i;
 	PPListDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_DRAFTWROFF_DFCTOP))
+	if(event.isCbSelected(CTLSEL_DRAFTWROFF_DFCTOP)) {
 		setupDfctSelectors(0);
+		SetupManufTimeCtrls(); // @v10.5.12
+	}
 	else if(event.isCmd(cmaLevelUp)) {
 		if(getCurItem(&p, &i) && Data.P_List && p > 0 && p < (long)Data.P_List->getCount()) {
 			Data.P_List->swap(p, p-1);
@@ -183,6 +242,9 @@ IMPL_HANDLE_EVENT(DraftWrOffDialog)
 			Data.P_List->swap(p, p+1);
 			updateList(p+1);
 		}
+	}
+	else if(event.isClusterClk(CTL_DRAFTWROFF_SETMT)) { // @v10.5.12
+		SetupManufTimeCtrls(); 
 	}
 	else
 		return;
@@ -213,12 +275,12 @@ int DraftWrOffDialog::delItem(long pos, long)
 	return (Data.P_List && Data.P_List->atFree(static_cast<uint>(pos))) ? 1 : -1;
 }
 
-int DraftWrOffDialog::setupDfctSelectors(PPID arID)
+void DraftWrOffDialog::setupDfctSelectors(PPID arID)
 {
 	int    ok = -1;
 	PPOprKind op_rec;
-	PPID   op_id = getCtrlLong(CTLSEL_DRAFTWROFF_DFCTOP);
-	if(op_id)
+	const  PPID op_id = getCtrlLong(CTLSEL_DRAFTWROFF_DFCTOP);
+	if(op_id) {
 		if(IsIntrExpndOp(op_id)) {
 			SetupPPObjCombo(this, CTLSEL_DRAFTWROFF_DFCTAR, PPOBJ_LOCATION, arID, 0, 0);
 			ok = 1;
@@ -227,32 +289,33 @@ int DraftWrOffDialog::setupDfctSelectors(PPID arID)
 			SetupArCombo(this, CTLSEL_DRAFTWROFF_DFCTAR, arID, OLW_LOADDEFONOPEN|OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
 			ok = 1;
 		}
-	if(ok <= 0) {
+	}
+	if(ok < 0) {
 		setCtrlLong(CTLSEL_DRAFTWROFF_DFCTAR, 0);
 		disableCtrl(CTLSEL_DRAFTWROFF_DFCTAR, 1);
 	}
 	else
 		disableCtrl(CTLSEL_DRAFTWROFF_DFCTAR, 0);
-	return ok;
 }
 
 static int SLAPI EditDraftWrOffItem(PPDraftWrOffEntry * pItem)
 {
 	class DraftWrOffEntryDialog : public TDialog {
+		DECL_DIALOG_DATA(PPDraftWrOffEntry);
 	public:
 		DraftWrOffEntryDialog() : TDialog(DLG_DWOITEM)
 		{
 		}
-		int    setDTS(const PPDraftWrOffEntry * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			PPIDArray types;
 			types.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
 			SetupOprKindCombo(this, CTLSEL_DWOITEM_OP, Data.OpID, 0, &types, 0);
 			SetupPPObjCombo(this, CTLSEL_DWOITEM_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 			return 1;
 		}
-		int    getDTS(PPDraftWrOffEntry * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlData(CTLSEL_DWOITEM_OP, &Data.OpID);
@@ -260,9 +323,6 @@ static int SLAPI EditDraftWrOffItem(PPDraftWrOffEntry * pItem)
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
-	private:
-		//DECL_HANDLE_EVENT;
-		PPDraftWrOffEntry Data;
 	};
 	DIALOG_PROC_BODY(DraftWrOffEntryDialog, pItem);
 }
@@ -271,7 +331,6 @@ int DraftWrOffDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = 1;
 	PPDraftWrOffEntry item;
-	MEMSZERO(item);
 	if(EditDraftWrOffItem(&item) > 0) {
 		if(!Data.P_List)
 			THROW_MEM(Data.P_List = new SArray(sizeof(PPDraftWrOffEntry)));
@@ -291,7 +350,7 @@ int DraftWrOffDialog::addItem(long * pPos, long * pID)
 int DraftWrOffDialog::editItem(long pos, long /*id*/)
 {
 	if(Data.P_List && pos >= 0 && pos < (long)Data.P_List->getCount() &&
-		EditDraftWrOffItem((PPDraftWrOffEntry *)Data.P_List->at(static_cast<uint>(pos))) > 0)
+		EditDraftWrOffItem(static_cast<PPDraftWrOffEntry *>(Data.P_List->at(static_cast<uint>(pos)))) > 0)
 		return 1;
 	return -1;
 }
@@ -336,53 +395,159 @@ IMPLEMENT_PPFILT_FACTORY(PrcssrWrOffDraft); SLAPI PrcssrWrOffDraftFilt::PrcssrWr
 	Init(1, 0);
 }
 
+void SLAPI PrcssrWrOffDraftFilt::SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS)
+{
+	if(pS) {
+		SETFLAG(Flags, fSetManufDate, pS->Flags & pS->fEnable);
+		SetManufDateOffsDays = static_cast<int16>(pS->DateOffsDays);
+		SetManufFixedTime = static_cast<int16>(pS->FixedTime);
+	}
+	else {
+		Flags &= ~fSetManufDate;
+		SetManufDateOffsDays = 0;
+		SetManufFixedTime = 0;
+	}
+}
+
+void SLAPI PrcssrWrOffDraftFilt::GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const
+{
+	if(pS) {
+		SETFLAG(pS->Flags, pS->fEnable, Flags & fSetManufDate);
+		pS->DateOffsDays = SetManufDateOffsDays;
+		pS->FixedTime = SetManufFixedTime;
+	}
+}
+
 SLAPI PrcssrWrOffDraft::PrcssrWrOffDraft() : P_BObj(BillObj)
 {
 }
 
 int SLAPI PrcssrWrOffDraft::InitParam(PrcssrWrOffDraftFilt * pP)
 {
-	PPObjLocation loc_obj;
-	pP->Init(1, 0);
-	pP->Period.SetDate(LConfig.OperDate);
-	pP->DwoID = DwoObj.GetSingle();
-	pP->PoolLocID = loc_obj.GetSingleWarehouse();
+	if(pP) {
+		PPObjLocation loc_obj;
+		pP->Init(1, 0);
+		pP->Period.SetDate(LConfig.OperDate);
+		pP->DwoID = DwoObj.GetSingle();
+		pP->PoolLocID = loc_obj.GetSingleWarehouse();
+	}
 	return 1;
 }
 
 int SLAPI PrcssrWrOffDraft::Init(const PrcssrWrOffDraftFilt * pP)
 {
-	P = *pP;
+	RVALUEPTR(P, pP);
 	P.Period.Actualize(ZERODATE);
 	return 1;
 }
 
 class WrOffDraftParamDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcssrWrOffDraftFilt);
 public:
 	WrOffDraftParamDialog() : TDialog(DLG_DWOFILT)
 	{
 		SetupCalPeriod(CTLCAL_DWOFILT_PERIOD, CTL_DWOFILT_PERIOD);
 	}
-	int    setDTS(const PrcssrWrOffDraftFilt *);
-	int    getDTS(PrcssrWrOffDraftFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString temp_buf;
+		if(Data.CSessList.getCount()) {
+			PPLoadText(PPTXT_WROFFDRAFTBYCSESSLIST, temp_buf);
+			setStaticText(CTL_DWOFILT_ST_INFO, temp_buf);
+			disableCtrl(CTL_DWOFILT_PERIOD, 1);
+		}
+		else
+			disableCtrl(CTL_DWOFILT_PERIOD, 0);
+		SetPeriodInput(this, CTL_DWOFILT_PERIOD, &Data.Period);
+		SetupPPObjCombo(this, CTLSEL_DWOFILT_DWO, PPOBJ_DRAFTWROFF, Data.DwoID, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_DWOFILT_LOC, PPOBJ_LOCATION, Data.PoolLocID, 0, 0);
+		AddClusterAssoc(CTL_DWOFILT_FLAGS, 0, PrcssrWrOffDraftFilt::fCreateMrpTab);
+		SetClusterData(CTL_DWOFILT_FLAGS, Data.Flags);
+		setCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
+		SetManufTimeParam(); // @v10.5.12
+		SetupSetManufTimeParams(0);
+		// } @v10.5.12 
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		THROW(GetPeriodInput(this, sel = CTL_DWOFILT_PERIOD, &Data.Period));
+		getCtrlData(sel = CTLSEL_DWOFILT_DWO, &Data.DwoID);
+		THROW_PP(Data.DwoID, PPERR_DWONEEDED);
+		getCtrlData(CTLSEL_DWOFILT_LOC, &Data.PoolLocID);
+		GetClusterData(CTL_DWOFILT_FLAGS, &Data.Flags);
+		getCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
+		GetManufTimeParam(); // @v10.5.12 
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_DWOFILT_DWO))
-			setupName();
+			SetupCtrls();
 		else if(event.isClusterClk(CTL_DWOFILT_FLAGS))
-			setupName();
+			SetupCtrls();
+		else if(event.isClusterClk(CTL_DWOFILT_SETMT)) {
+			GetManufTimeParam();
+			SetupSetManufTimeParams(0);
+		}
 		else
 			return;
 		clearEvent(event);
 	}
-	void   setupName();
-
-	PrcssrWrOffDraftFilt Data;
+	void   SetManufTimeParam()
+	{
+		SString temp_buf;
+		PUGL::SetLotManufTimeParam slmtp;
+		Data.GetLotManufTimeParam(&slmtp);
+		AddClusterAssoc(CTL_DWOFILT_SETMT, 0, slmtp.fEnable);
+		SetClusterData(CTL_DWOFILT_SETMT, slmtp.Flags);
+		setCtrlData(CTL_DWOFILT_SETMTDO, &slmtp.DateOffsDays);
+		slmtp.FixedTimeToString(temp_buf);
+		setCtrlString(CTL_DWOFILT_SETMTFT, temp_buf);
+	}
+	void   GetManufTimeParam()
+	{
+		SString temp_buf;
+		PUGL::SetLotManufTimeParam slmtp;
+		GetClusterData(CTL_DWOFILT_SETMT, &slmtp.Flags);
+		getCtrlData(CTL_DWOFILT_SETMTDO, &slmtp.DateOffsDays);
+		getCtrlString(CTL_DWOFILT_SETMTFT, temp_buf);
+		slmtp.FixedTimeFromString(temp_buf);
+		Data.SetLotManufTimeParam(&slmtp);
+	}
+	void   SetupSetManufTimeParams(const PPDraftWrOff * pDwoRec)
+	{
+		SString temp_buf;
+		int    setmt_enabled = 0;
+		int    setmt_param_enabled = 0;
+		PPDraftWrOff local_dwo_rec;
+		if(!pDwoRec) {
+			const PPID dwo_id = getCtrlLong(CTLSEL_DWOFILT_DWO);
+			if(dwo_id && DwoObj.Search(dwo_id, &local_dwo_rec) > 0)
+				pDwoRec = &local_dwo_rec;
+		}
+		if(pDwoRec && pDwoRec->ID && pDwoRec->DfctCompensOpID) {
+			setmt_enabled = 1;
+		}
+		if(setmt_enabled) {
+			SetManufTimeParam();
+			setmt_param_enabled = BIN(Data.Flags & Data.fSetManufDate);
+		}
+		DisableClusterItem(CTL_DWOFILT_SETMT, 0, !setmt_enabled);
+		disableCtrls(!setmt_param_enabled, CTL_DWOFILT_SETMTDO, CTL_DWOFILT_SETMTFT, 0);
+	}
+	void   SetupCtrls();
+	PPObjDraftWrOff DwoObj;
 };
 
-void WrOffDraftParamDialog::setupName()
+void WrOffDraftParamDialog::SetupCtrls()
 {
 	PPID   prev_dwo_id = Data.DwoID;
 	int    prev_crmrp_flag = BIN(Data.Flags & PrcssrWrOffDraftFilt::fCreateMrpTab);
@@ -390,51 +555,31 @@ void WrOffDraftParamDialog::setupName()
 	GetClusterData(CTL_DWOFILT_FLAGS, &Data.Flags);
 	getCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
 	Data.MrpTabName.Strip();
-	if((Data.DwoID != prev_dwo_id || !prev_crmrp_flag) && (!Data.MrpTabName[0] || sstrchr(Data.MrpTabName, '#'))) {
-		PPDraftWrOff dwo_rec;
-		if(SearchObject(PPOBJ_DRAFTWROFF, Data.DwoID, &dwo_rec) > 0) {
-			if(dwo_rec.Flags & DWOF_USEMRPTAB || Data.Flags & PrcssrWrOffDraftFilt::fCreateMrpTab) {
-				SString mrp_name;
-				PPObjMrpTab::GenerateName(PPOBJ_DRAFTWROFF, Data.DwoID, &mrp_name, 1);
-				setCtrlString(CTL_DWOFILT_MRPNAME, mrp_name);
+	PPDraftWrOff dwo_rec;
+	if(DwoObj.Search(Data.DwoID, &dwo_rec) > 0) {
+		if(Data.DwoID != prev_dwo_id || !prev_crmrp_flag) {
+			if(!Data.MrpTabName[0] || sstrchr(Data.MrpTabName, '#')) {
+				if(dwo_rec.Flags & DWOF_USEMRPTAB || Data.Flags & PrcssrWrOffDraftFilt::fCreateMrpTab) {
+					SString mrp_name;
+					PPObjMrpTab::GenerateName(PPOBJ_DRAFTWROFF, Data.DwoID, &mrp_name, 1);
+					setCtrlString(CTL_DWOFILT_MRPNAME, mrp_name);
+				}
+			}
+			if(dwo_rec.DfctCompensOpID) {
+				SETFLAG(Data.Flags, Data.fSetManufDate, dwo_rec.Flags & DWOF_SETMANUFDATE);
+				Data.SetManufDateOffsDays = dwo_rec.SetManufDateOffsDays;
+				Data.SetManufFixedTime = dwo_rec.SetManufFixedTime;
+			}
+			else {
+				Data.Flags &= ~Data.fSetManufDate;
+				Data.SetManufDateOffsDays = 0;
+				Data.SetManufFixedTime = 0;
 			}
 		}
 	}
-}
-
-int WrOffDraftParamDialog::setDTS(const PrcssrWrOffDraftFilt * pData)
-{
-	Data = *pData;
-	if(Data.CSessList.getCount()) {
-		SString temp_buf;
-		PPLoadText(PPTXT_WROFFDRAFTBYCSESSLIST, temp_buf);
-		setStaticText(CTL_DWOFILT_ST_INFO, temp_buf);
-		disableCtrl(CTL_DWOFILT_PERIOD, 1);
-	}
 	else
-		disableCtrl(CTL_DWOFILT_PERIOD, 0);
-	SetPeriodInput(this, CTL_DWOFILT_PERIOD, &Data.Period);
-	SetupPPObjCombo(this, CTLSEL_DWOFILT_DWO, PPOBJ_DRAFTWROFF, Data.DwoID, 0, 0);
-	SetupPPObjCombo(this, CTLSEL_DWOFILT_LOC, PPOBJ_LOCATION, Data.PoolLocID, 0, 0);
-	AddClusterAssoc(CTL_DWOFILT_FLAGS, 0, PrcssrWrOffDraftFilt::fCreateMrpTab);
-	SetClusterData(CTL_DWOFILT_FLAGS, Data.Flags);
-	setCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
-	return 1;
-}
-
-int WrOffDraftParamDialog::getDTS(PrcssrWrOffDraftFilt * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	THROW(GetPeriodInput(this, sel = CTL_DWOFILT_PERIOD, &Data.Period));
-	getCtrlData(sel = CTLSEL_DWOFILT_DWO, &Data.DwoID);
-	THROW_PP(Data.DwoID, PPERR_DWONEEDED);
-	getCtrlData(CTLSEL_DWOFILT_LOC, &Data.PoolLocID);
-	GetClusterData(CTL_DWOFILT_FLAGS, &Data.Flags);
-	getCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
+		dwo_rec.ID = 0;
+	SetupSetManufTimeParams(&dwo_rec);
 }
 
 int SLAPI PrcssrWrOffDraft::EditParam(PrcssrWrOffDraftFilt * pParam) { DIALOG_PROC_BODY(WrOffDraftParamDialog, pParam); }
@@ -656,9 +801,11 @@ int SLAPI PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL *
 							mrp_pack.Sort();
 							for(uint j = 0; mrp_pack.enumItems(&j, (void **)&p_leaf);) {
 								if(!mrp_pack.IsTree() || p_leaf->TabID != mrp_pack.GetBaseID()) {
-									THROW(MrpObj.CreateModif(p_leaf, mrp_src_id, wroff_compl_op_id, &wroff_bill_list, &Logger, 0));
+									PUGL::SetLotManufTimeParam slmt; // @v10.5.12
+									P.GetLotManufTimeParam(&slmt); // @v10.5.12
+									THROW(MrpObj.CreateModif(p_leaf, mrp_src_id, wroff_compl_op_id, &slmt, &wroff_bill_list, &Logger, 0));
 									for(uint k = 0; k < bill_list.getCount(); k++) {
-										PPID   bill_id = bill_list.at(k);
+										const PPID bill_id = bill_list.at(k);
 										BillTbl::Rec bill_rec;
 										if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.LocID == p_leaf->LocID && bill_rec.Dt == p_leaf->Dt) {
 											PUGL local_pugl;
@@ -724,7 +871,8 @@ int SLAPI PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL *
 int SLAPI PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillList, int use_ta)
 {
 	int    ok = 1;
-	if(poolOpID && pBillList->getCount()) {
+	const  uint bcount = SVectorBase::GetCount(pBillList);
+	if(poolOpID && bcount) {
 		TSVector <ObjAssocTbl::Rec> pool_list;
 		PPBillPacket pool_pack;
 		{
@@ -734,7 +882,7 @@ int SLAPI PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillLi
 			if(P.PoolLocID)
 				pool_pack.Rec.LocID = P.PoolLocID;
 			pool_pack.Rec.Dt = ZERODATE;
-			for(uint i = 0; i < pBillList->getCount(); i++) {
+			for(uint i = 0; i < bcount; i++) {
 				const PPID bill_id = pBillList->get(i);
 				BillTbl::Rec bill_rec;
 				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
@@ -820,6 +968,7 @@ int SLAPI PrcssrWrOffDraft::Run()
 					pugl.OPcug = PCUG_CANCEL;
 					ProcessUnsuffisientList(DLG_MSGNCMPL4, &pugl);
 					if(pugl.OPcug == PCUG_BALANCE) {
+						P.GetLotManufTimeParam(&pugl.Slmt); // @v10.5.12
 						THROW_PP(dwo_pack.Rec.DfctCompensOpID, PPERR_UNDEFDWODFCTOP);
 						THROW(ProcessDeficit(&dwo_pack, &pugl, 1));
 						dfct_bill_list.freeAll();

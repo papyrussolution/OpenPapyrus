@@ -78,7 +78,7 @@ struct GoaUniqItem {       // size=36
 	double Price;
 };
 
-IMPL_CMPFUNC(GoaCacheItem, i1, i2) 
+IMPL_CMPFUNC(GoaCacheItem, i1, i2)
 	{ RET_CMPCASCADE4(static_cast<const GoaCacheItem *>(i1), static_cast<const GoaCacheItem *>(i2), Sign, GoodsID, ArID, LocID); }
 
 IMPL_CMPFUNC(GoaCacheItem_P, i1, i2)
@@ -120,7 +120,7 @@ IMPL_CMPFUNC(GoaCacheItem_CP, i1, i2)
 	return si;
 }
 
-IMPL_CMPFUNC(GoaUniqItem, i1, i2) 
+IMPL_CMPFUNC(GoaUniqItem, i1, i2)
 	{ RET_CMPCASCADE4(static_cast<const GoaUniqItem *>(i1), static_cast<const GoaUniqItem *>(i2), Sign, GoodsID, ArID, LocID); }
 
 IMPL_CMPFUNC(GoaUniqItem_P, i1, i2)
@@ -3387,21 +3387,24 @@ int SLAPI PPViewGoodsOpAnalyze::ViewGraph()
 			plot.PutEOR();
 			if(goa_total.Qtty) {
 				// @v9.1.4 PPGetWord(PPWORD_QTTY, 1, temp_buf);
-				PPLoadString("qtty", temp_buf); // @v9.1.4
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v9.1.4
+				PPLoadStringS("qtty", temp_buf).Transf(CTRANSF_INNER_TO_OUTER); // @v9.1.4
 				plot.PutData(temp_buf, 1);
 				for(c = 0; c < abc_ary.getCount(); c++)
 					plot.PutData(abc_ary.at(c).Quantity / goa_total.Qtty);
 				plot.PutEOR();
 			}
 			if(goa_total.Cost) {
-				plot.PutData(PPGetWord(PPWORD_SUM, 1, temp_buf).Cat("Cost"), 1); // @v10.2.2 "_ЦП"-->"Cost"
+				// @v10.5.12 PPGetWord(PPWORD_SUM, 1, temp_buf).Cat("Cost"); // @v10.2.2 "_ЦП"-->"Cost"
+				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Cost"); // @v10.5.12 
+				plot.PutData(temp_buf, 1); 
 				for(c = 0; c < abc_ary.getCount(); c++)
 					plot.PutData(abc_ary.at(c).SumCost / goa_total.Cost);
 				plot.PutEOR();
 			}
 			if(goa_total.Price) {
-				plot.PutData(PPGetWord(PPWORD_SUM, 1, temp_buf).Cat("Price"), 1); // @v10.2.2 "_ЦР"-->"Price"
+				// @v10.5.12 PPGetWord(PPWORD_SUM, 1, temp_buf).Cat("Price"); // @v10.2.2 "_ЦР"-->"Price"
+				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Price"); // @v10.5.12 
+				plot.PutData(temp_buf, 1);
 				for(c = 0; c < abc_ary.getCount(); c++)
 					plot.PutData(abc_ary.at(c).SumPrice / goa_total.Price);
 				plot.PutEOR();

@@ -26,6 +26,49 @@ SString & FASTCALL PUGL::SupplSubstItem::QttyToStr(SString & rBuf) const
 	return rBuf;
 }
 
+PUGL::SetLotManufTimeParam::SetLotManufTimeParam() : Flags(0), DateOffsDays(0), FixedTime(0)
+{
+}
+
+int SLAPI PUGL::SetLotManufTimeParam::FixedTimeToString(SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 1;
+	if(FixedTime > 0 && FixedTime < (60*24))
+		rBuf.Cat(FixedTime / 60).CatChar(':').Cat(FixedTime % 60);
+	else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI PUGL::SetLotManufTimeParam::FixedTimeFromString(const char * pStr)
+{
+	int    ok = -1;
+	if(!isempty(pStr)) {
+		SString temp_buf;
+		StringSet ss(':', pStr);
+		uint   tokn = 0;
+		int    hr = 0;
+		int    mn = 0;
+		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+			tokn++;
+			if(tokn == 1) 
+				hr = temp_buf.ToLong();
+			else if(tokn == 2)
+				mn = temp_buf.ToLong();
+		}
+		if((hr >= 0 && hr < 24) && (mn >= 0 && mn < 60)) {
+			FixedTime = (hr * 60 + mn);
+			ok = 1;
+		}
+		else {
+			FixedTime = 0;
+			ok = 0;
+		}
+	}
+	return ok;
+}
+
 //static
 int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty) // @v9.8.6 TSArray-->TSVector
 {
@@ -91,6 +134,7 @@ PUGL & FASTCALL PUGL::operator = (const PUGL & rS)
 	CalcCostPct  = rS.CalcCostPct;
 	SArray::copy(rS);
 	SupplSubstList = rS.SupplSubstList;
+	Slmt = rS.Slmt; // @v10.5.12
 	return *this;
 }
 
@@ -749,7 +793,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 				double out_price = 0.0;
 				ilti.GoodsID = ps->GoodsID;
 				if(sign > 0) {
-					ilti.SetQtty(ps->NeedQty, 0, PPTFR_RECEIPT | PPTFR_PLUS);
+					ilti.SetQtty(ps->NeedQty, 0, PPTFR_RECEIPT|PPTFR_PLUS);
 					SETFLAG(ilti.Flags, PPTFR_COSTWOVAT, pGS->Rec.Flags & GSF_OUTPWOVAT);
 					if(ps->GoodsFlags & GF_UNLIM) {
 						const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);

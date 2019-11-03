@@ -1188,7 +1188,7 @@ private:
 
 int SLAPI PPViewBizScValByTempl::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	DIALOG_PROC_BODYERR(BizScValByTemplFiltDialog, (BizScValByTemplFilt*)pFilt);
+	DIALOG_PROC_BODYERR(BizScValByTemplFiltDialog, static_cast<BizScValByTemplFilt *>(pFilt));
 }
 
 int SLAPI PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
@@ -1197,7 +1197,7 @@ int SLAPI PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
 		SString temp_buf;
-		BizScValByTemplViewItem * p_item = (BizScValByTemplViewItem *)pBlk->P_SrcData;
+		const BizScValByTemplViewItem * p_item = static_cast<const BizScValByTemplViewItem *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
 			case 0:
 				pBlk->Set(p_item->Id);
@@ -1290,7 +1290,7 @@ int FASTCALL PPViewBizScValByTempl::NextIteration(BizScValByTemplViewItem * pIte
 {
 	int    ok = -1;
 	if(pItem && Counter < Data.getCount()) {
-		ASSIGN_PTR(pItem, *((BizScValByTemplViewItem*)Data.at(Counter)));
+		ASSIGN_PTR(pItem, *static_cast<const BizScValByTemplViewItem *>(Data.at(Counter)));
 		Counter.Increment();
 		ok = 1;
 	}

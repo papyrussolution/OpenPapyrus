@@ -467,6 +467,15 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 	uint   i;
 	PUGL   compl_pugl;
 	PPBillPacket pack;
+	LongArray row_list; // @v10.5.12
+	int    do_set_manuf_time = 0;
+	ObjTagItem tag_item;
+	if(pPugl && pPugl->Slmt.Flags & PUGL::SetLotManufTimeParam::fEnable) {
+		PPObjTag tag_obj;
+		PPObjectTag tag_rec;
+		if(tag_obj.Fetch(PPTAG_LOT_MANUFTIME, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT)
+			do_set_manuf_time = 1;
+	}
 	ASSIGN_PTR(pID, 0);
 	THROW(pack.CreateBlank(modifOpID, 0, pPugl->LocID, 0));
 	pack.Rec.Dt = pPugl->Dt;
@@ -508,7 +517,35 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 			if(pugi.Price > 0.0)
 				ti.Price = pugi.Price;
 			acpos = pack.GetTCount();
-			THROW(pack.InsertRow(&ti, 0));
+			{
+				row_list.clear();
+				THROW(pack.InsertRow(&ti, &row_list));
+				// @v10.5.12 {
+				if(do_set_manuf_time && row_list.getCount() == 1) {
+					const uint row_pos = static_cast<uint>(row_list.get(0));
+					const PPTransferItem & r_ti = pack.TI(row_pos);
+					if(r_ti.Flags & PPTFR_RECEIPT) {
+						LDATETIME manuf_dtm = ZERODATETIME;
+						if(!pPugl->Slmt.DateOffsDays)
+							manuf_dtm.d = pack.Rec.Dt;
+						else if(pPugl->Slmt.DateOffsDays >= -30 && pPugl->Slmt.DateOffsDays <= 30)
+							manuf_dtm.d = plusdate(pack.Rec.Dt, pPugl->Slmt.DateOffsDays);
+						if(checkdate(manuf_dtm.d)) {
+							if(pPugl->Slmt.FixedTime > 0 && pPugl->Slmt.FixedTime < (24 * 60)) {
+								manuf_dtm.t = encodetime(pPugl->Slmt.FixedTime/60, pPugl->Slmt.FixedTime%60, 0, 0);
+							}
+							if(tag_item.SetTimestamp(PPTAG_LOT_MANUFTIME, manuf_dtm)) {
+								const ObjTagList * p_dest_tag_list = pack.LTagL.Get(row_pos);
+								ObjTagList dest_tag_list;
+								RVALUEPTR(dest_tag_list, p_dest_tag_list);
+								dest_tag_list.PutItem(PPTAG_LOT_MANUFTIME, &tag_item);
+								pack.LTagL.Set(row_pos, &dest_tag_list);
+							}
+						}
+					}
+				}
+				// } @v10.5.12
+			}
 			THROW(r = pack.InsertComplete(&gs, acpos, &compl_pugl, PCUG_CANCEL, pGra));
 			THROW(pack.ShrinkTRows());
 		}
@@ -1325,7 +1362,42 @@ int SLAPI PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * p
 		cost = pItem->Cost;
 	}
 	ti.Cost = R5(pPugl->CostByCalc ? ti.Price / (1 + fdiv100r(pPugl->CalcCostPct)) : cost);
-	THROW(rPack.InsertRow(&ti, 0));
+	{
+		// LongArray row_list; // @v10.5.12
+		THROW(rPack.InsertRow(&ti, 0/*&row_list*/));
+		// @v10.5.12 {
+		/* не то я сделал, мать-перемать! if(pPugl->Slmt.Flags & PUGL::SetLotManufTimeParam::fEnable) {
+			PPObjTag tag_obj;
+			PPObjectTag tag_rec;
+			if(tag_obj.Fetch(PPTAG_LOT_MANUFTIME, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
+				for(uint ridx = 0; ridx < row_list.getCount(); ridx++) {
+					const uint row_pos = static_cast<uint>(row_list.get(ridx));
+					const PPTransferItem & r_ti = rPack.TI(row_pos);
+					if(r_ti.Flags & PPTFR_RECEIPT) {
+						LDATETIME manuf_dtm = ZERODATETIME;
+						if(!pPugl->Slmt.DateOffsDays)
+							manuf_dtm.d = rPack.Rec.Dt;
+						else if(pPugl->Slmt.DateOffsDays >= -30 && pPugl->Slmt.DateOffsDays <= 30)
+							manuf_dtm.d = plusdate(rPack.Rec.Dt, pPugl->Slmt.DateOffsDays);
+						if(checkdate(manuf_dtm.d)) {
+							if(pPugl->Slmt.FixedTime > 0 && pPugl->Slmt.FixedTime < (24 * 60)) {
+								manuf_dtm.t = encodetime(pPugl->Slmt.FixedTime/60, pPugl->Slmt.FixedTime%60, 0, 0);
+							}
+							ObjTagItem tag_item;
+							if(tag_item.SetTimestamp(PPTAG_LOT_MANUFTIME, manuf_dtm)) {
+								const ObjTagList * p_dest_tag_list = rPack.LTagL.Get(row_pos);
+								ObjTagList dest_tag_list;
+								RVALUEPTR(dest_tag_list, p_dest_tag_list);
+								dest_tag_list.PutItem(PPTAG_LOT_MANUFTIME, &tag_item);
+								rPack.LTagL.Set(row_pos, &dest_tag_list);
+							}
+						}
+					}
+				}
+			}
+		}*/
+		// } @v10.5.12
+	}
 	CATCHZOK
 	return ok;
 }

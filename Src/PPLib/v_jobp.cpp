@@ -483,7 +483,7 @@ private:
 
 int SLAPI PPViewJob::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	DIALOG_PROC_BODY_P2ERR(JobFiltDialog, &Mngr, P_Pool, (JobFilt*)pFilt);
+	DIALOG_PROC_BODY_P2ERR(JobFiltDialog, &Mngr, P_Pool, static_cast<JobFilt *>(pFilt));
 }
 
 int SLAPI PPViewJob::Init_(const PPBaseFilt * pFilt)

@@ -480,7 +480,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetOrde
 #if 0 // {
 static void ** FASTCALL /*_CreateSoapArray*/PPSoapCreateArray(uint count, int & rArrayCount)
 {
-	void ** pp_list = count ? (void **)calloc(count, sizeof(void *)) : 0;
+	void ** pp_list = count ? (void **)SAlloc::C(count, sizeof(void *)) : 0;
 	rArrayCount = (int)count;
 	return pp_list;
 }

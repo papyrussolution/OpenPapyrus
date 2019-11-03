@@ -419,7 +419,7 @@ int SLAPI PPViewQuot::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
-	return PPDialogProcBody <QuotFiltDialog, QuotFilt> ((QuotFilt *)pFilt);
+	return PPDialogProcBody <QuotFiltDialog, QuotFilt> (static_cast<QuotFilt *>(pFilt));
 }
 
 SString & SLAPI PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos, SString & rBuf)

@@ -3524,7 +3524,7 @@ int SLAPI PPBillPacket::ShrinkTRows(long fl /* = ETIEF_DIFFBYLOT | ETIEF_UNITEBY
 	LongArray saw;
 	PPTransferItem * p_ti;
 	for(uint i = 0; EnumTItems(&i, &p_ti);) {
-		const long idx = (long)(i-1);
+		const long idx = static_cast<long>(i-1);
 		if(!saw.lsearch(idx))
 			MergeTI(p_ti, idx, fl, saw, 0);
 	}

@@ -2950,7 +2950,7 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 	temp_buf = pItem->Serial;
 	p_bobj->ReleaseSerialFromUniqSuffix(temp_buf);
 	temp_buf.CopyTo(sdr_lot.Serial, sizeof(sdr_lot.Serial));
-	if(UhttCli.HasAccount() && Param.UhttGoodsCodeArID) {
+	if(UhttCli.GetState() & PPUhttClient::stHasAccount && Param.UhttGoodsCodeArID) {
 		ArticleTbl::Rec ar_rec;
 		if(ArObj.Fetch(Param.UhttGoodsCodeArID, &ar_rec) > 0) {
 			PPID   acs_id = 0;
@@ -2965,7 +2965,7 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 					GObj.ReadBarcodes(pItem->GoodsID, bc_list);
 					if(bc_list.getCount()) {
 						for(uint i = 0; i < bc_list.getCount(); i++) {
-							if(UhttCli.IsAuth() || UhttCli.Auth()) {
+							if(UhttCli.GetState() & PPUhttClient::stAuth || UhttCli.Auth()) {
 								org_code = bc_list.at(i).Code;
 								if(UhttCli.GetGoodsArCode(org_code, inn, temp_buf) && temp_buf.NotEmptyS()) {
 									temp_buf.CopyTo(sdr_lot.UhttArCode, sizeof(sdr_lot.UhttArCode));

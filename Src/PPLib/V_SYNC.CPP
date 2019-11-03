@@ -471,7 +471,7 @@ int SLAPI PPViewObjSyncCmp::EditBaseFilt(PPBaseFilt * pFilt)
 	ObjSyncCmpFilt * p_filt = 0;
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pFilt));
-	p_filt = (ObjSyncCmpFilt *)pFilt;
+	p_filt = static_cast<ObjSyncCmpFilt *>(pFilt);
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SYNCCMPFLT))));
 	SetupObjListCombo(dlg, CTLSEL_SYNCCMPFLT_OBJ, p_filt->ObjType);
 	switch(p_filt->ErrCode) {

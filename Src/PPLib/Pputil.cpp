@@ -2780,82 +2780,6 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 //
 #include <ppsoapclient.h>
 
-//static
-int SLAPI PPUhttClient::TestUi_GetLocationListByPhone()
-{
-	int    ok = -1;
-	PPLogger logger;
-	SString phone_buf, log_buf;
-	while(InputStringDialog(0, phone_buf) > 0) {
-		PPUhttClient uhtt_cli;
-		TSCollection <UhttLocationPacket> uhtt_loc_list;
-		THROW(uhtt_cli.Auth());
-		{
-			int r = uhtt_cli.GetLocationListByPhone(phone_buf, uhtt_loc_list);
-			if(r > 0 && uhtt_loc_list.getCount()) {
-				for(uint i = 0; i < uhtt_loc_list.getCount(); i++) {
-					const UhttLocationPacket * p_uhtt_loc_item = uhtt_loc_list.at(i);
-					log_buf.Z().
-						CatEq("id", (long)p_uhtt_loc_item->ID).CatDiv(';', 2).
-						CatEq("phone", p_uhtt_loc_item->Phone).CatDiv(';', 2).
-						CatEq("contact", p_uhtt_loc_item->Contact);
-					logger.Log(log_buf);
-				}
-			}
-			else if(r == 0) {
-				logger.LogLastError();
-			}
-			else {
-				logger.Log(log_buf = "nothing");
-			}
-		}
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-
-//static
-int SLAPI PPUhttClient::TestUi_GetQuotByLoc()
-{
-	int    ok = -1;
-	PPLogger logger;
-	SString code_buf, log_buf;
-	while(InputStringDialog(0, code_buf) > 0) {
-		PPUhttClient uhtt_cli;
-		THROW(uhtt_cli.Auth());
-		{
-			UhttLocationPacket uhtt_loc;
-            if(uhtt_cli.GetLocationByCode(code_buf, uhtt_loc)) {
-				UhttQuotFilter filt;
-				TSCollection <UhttQuotPacket> uhtt_list;
-				filt.LocationID = uhtt_loc.ID;
-				int r = uhtt_cli.GetQuot(filt, uhtt_list);
-				if(r > 0 && uhtt_list.getCount()) {
-					for(uint i = 0; i < uhtt_list.getCount(); i++) {
-						const UhttQuotPacket * p_uhtt_item = uhtt_list.at(i);
-						log_buf.Z().
-							CatEq("goodsid", (long)p_uhtt_item->GoodsID).CatDiv(';', 2).
-							CatEq("value", p_uhtt_item->Value).CatDiv(';', 2).
-							CatEq("loc", (long)p_uhtt_item->LocID);
-						logger.Log(log_buf);
-					}
-				}
-				else if(r == 0) {
-					logger.LogLastError();
-				}
-				else {
-					logger.Log(log_buf = "nothing");
-				}
-            }
-            else {
-            	logger.LogLastError();
-            }
-		}
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-
 SLAPI PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 {
 	SString temp_buf;
@@ -2872,11 +2796,13 @@ SLAPI PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 	PPAlbatrosConfig cfg;
 	DS.FetchAlbatrosConfig(&cfg);
 	//Urn = cfg.UhttUrn.NotEmpty() ? (const char *)cfg.UhttUrn : 0; // "urn:http.service.universehtt.ru";
-	cfg.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
-	Urn = temp_buf.NotEmpty() ? temp_buf.cptr() : 0; // "urn:http.service.universehtt.ru";
+	// @v10.5.12 @unused cfg.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
+	// @v10.5.12 @unused Urn = temp_buf.NotEmpty() ? temp_buf.cptr() : 0; // "urn:http.service.universehtt.ru";
 	//UrlBase = cfg.UhttUrlPrefix.NotEmpty() ? cfg.UhttUrlPrefix.cptr() : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
 	cfg.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 	UrlBase = temp_buf.NotEmpty() ? temp_buf.cptr() : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
+	if(UrlBase.Empty())
+		State |= stDefaultServer;
 	cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
 	//if(cfg.UhttAccount.NotEmpty())
 	if(temp_buf.NotEmpty())
@@ -2887,15 +2813,9 @@ SLAPI PPUhttClient::~PPUhttClient()
 {
 }
 
-int SLAPI PPUhttClient::HasAccount() const
-{
-	return (State & stHasAccount);
-}
-
-int SLAPI PPUhttClient::IsAuth() const
-{
-	return (State & stAuth);
-}
+int SLAPI PPUhttClient::GetState() const { return State; }
+// @v10.5.12 int SLAPI PPUhttClient::HasAccount() const { return (State & stHasAccount); }
+// @v10.5.12 int SLAPI PPUhttClient::IsAuth() const { return (State & stAuth); }
 
 int SLAPI PPUhttClient::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
 {
@@ -2903,33 +2823,37 @@ int SLAPI PPUhttClient::PreprocessResult(const void * pResult, const PPSoapClien
     return BIN(pResult);
 }
 
+FARPROC SLAPI PPUhttClient::GetFuncEntryAndSetupSess(const char * pFuncName, PPSoapClientSession & rSess)
+{
+	FARPROC func = P_Lib ? P_Lib->GetProcAddr(pFuncName) : 0;
+	if(func)
+		rSess.Setup(UrlBase);
+	return func;
+}
+
 int SLAPI PPUhttClient::Auth()
 {
 	Token.Z();
 	State &= ~stAuth;
 	int    ok = 1;
-	if(P_Lib) {
-		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTAUTH_PROC func = reinterpret_cast<UHTTAUTH_PROC>(P_Lib->GetProcAddr("UhttAuth"));
-		if(func) {
-			SString pw;
-			sess.Setup(UrlBase);
-			PPAlbatrosConfig cfg;
-			DS.FetchAlbatrosConfig(&cfg);
-			cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, pw);
-			cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
-			SString * p_token = func(sess, /*cfg.UhttAccount*/temp_buf, pw.Transf(CTRANSF_INNER_TO_UTF8));
-			(pw = 0).Align(64, ALIGN_RIGHT); // Забиваем пароль пробелами
-			if(PreprocessResult(p_token, sess)) {
-				Token = *p_token;
-				State |= stAuth;
-				DestroyResult((void **)&p_token);
-			}
-			else
-				ok = PPSetError(PPERR_UHTTSVCFAULT, LastMsg);
+	PPSoapClientSession sess;
+	UHTTAUTH_PROC func = reinterpret_cast<UHTTAUTH_PROC>(GetFuncEntryAndSetupSess("UhttAuth", sess));
+	if(func) {
+		SString temp_buf;
+		SString pw;
+		PPAlbatrosConfig cfg;
+		DS.FetchAlbatrosConfig(&cfg);
+		cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, pw);
+		cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
+		SString * p_token = func(sess, /*cfg.UhttAccount*/temp_buf, pw.Transf(CTRANSF_INNER_TO_UTF8));
+		pw.Z().Align(64, ALIGN_RIGHT); // Забиваем пароль пробелами
+		if(PreprocessResult(p_token, sess)) {
+			Token = *p_token;
+			State |= stAuth;
+			DestroyResult((void **)&p_token);
 		}
+		else
+			ok = PPSetError(PPERR_UHTTSVCFAULT, LastMsg);
 	}
 	return ok;
 }
@@ -2937,11 +2861,10 @@ int SLAPI PPUhttClient::Auth()
 int SLAPI PPUhttClient::GetLocationByID(int id, UhttLocationPacket & rResult)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETLOCATIONBYID_PROC func = reinterpret_cast<UHTTGETLOCATIONBYID_PROC>(P_Lib->GetProcAddr("UhttGetLocationByID"));
+		UHTTGETLOCATIONBYID_PROC func = reinterpret_cast<UHTTGETLOCATIONBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetLocationByID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttLocationPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
@@ -2956,11 +2879,10 @@ int SLAPI PPUhttClient::GetLocationByID(int id, UhttLocationPacket & rResult)
 int SLAPI PPUhttClient::GetLocationByCode(const char * pCode, UhttLocationPacket & rResult)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETLOCATIONBYCODE_PROC func = reinterpret_cast<UHTTGETLOCATIONBYCODE_PROC>(P_Lib->GetProcAddr("UhttGetLocationByCode"));
+		UHTTGETLOCATIONBYCODE_PROC func = reinterpret_cast<UHTTGETLOCATIONBYCODE_PROC>(GetFuncEntryAndSetupSess("UhttGetLocationByCode", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttLocationPacket * p_result = func(sess, Token, pCode);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
@@ -2976,11 +2898,10 @@ int SLAPI PPUhttClient::GetLocationListByPhone(const char * pPhone, TSCollection
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETLOCATIONLISTBYPHONE_PROC func = reinterpret_cast<UHTTGETLOCATIONLISTBYPHONE_PROC>(P_Lib->GetProcAddr("UhttGetLocationListByPhone"));
+		UHTTGETLOCATIONLISTBYPHONE_PROC func = reinterpret_cast<UHTTGETLOCATIONLISTBYPHONE_PROC>(GetFuncEntryAndSetupSess("UhttGetLocationListByPhone", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttLocationPacket> * p_result = func(sess, Token, pPhone);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -2996,13 +2917,11 @@ int SLAPI PPUhttClient::GetBrandByName(const char * pName, TSCollection <UhttBra
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTGETBRANDBYNAME_PROC func = reinterpret_cast<UHTTGETBRANDBYNAME_PROC>(P_Lib->GetProcAddr("UhttGetBrandByName"));
+		UHTTGETBRANDBYNAME_PROC func = reinterpret_cast<UHTTGETBRANDBYNAME_PROC>(GetFuncEntryAndSetupSess("UhttGetBrandByName", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString temp_buf;
 			(temp_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <UhttBrandPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
@@ -3044,11 +2963,10 @@ int SLAPI PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray *
 		}
 	}
 	if(ref_list.getCount()) {
-		if(State & stAuth && P_Lib) {
+		if(State & stAuth) {
 			PPSoapClientSession sess;
-			UHTTGETGOODSREFLIST_PROC func = reinterpret_cast<UHTTGETGOODSREFLIST_PROC>(P_Lib->GetProcAddr("UhttGetGoodsRefList"));
+			UHTTGETGOODSREFLIST_PROC func = reinterpret_cast<UHTTGETGOODSREFLIST_PROC>(GetFuncEntryAndSetupSess("UhttGetGoodsRefList", sess));
 			if(func) {
-				sess.Setup(UrlBase);
 				int result = func(sess, Token, ref_list);
 				if(PreprocessResult((void *)result, sess)) {
 					if(result > 0) {
@@ -3180,11 +3098,10 @@ int SLAPI PPUhttClient::ResolveGoodsByUhttID(int uhttID, UhttGoodsPacket * pUhtt
 int SLAPI PPUhttClient::GetPersonByID(int id, UhttPersonPacket & rResult)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETPERSONBYID_PROC func = reinterpret_cast<UHTTGETPERSONBYID_PROC>(P_Lib->GetProcAddr("UhttGetPersonByID"));
+		UHTTGETPERSONBYID_PROC func = reinterpret_cast<UHTTGETPERSONBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetPersonByID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttPersonPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
@@ -3200,13 +3117,11 @@ int SLAPI PPUhttClient::GetPersonByName(const char * pName, TSCollection <UhttPe
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTGETPERSONBYNAME_PROC func = reinterpret_cast<UHTTGETPERSONBYNAME_PROC>(P_Lib->GetProcAddr("UhttGetPersonByName"));
+		UHTTGETPERSONBYNAME_PROC func = reinterpret_cast<UHTTGETPERSONBYNAME_PROC>(GetFuncEntryAndSetupSess("UhttGetPersonByName", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString temp_buf;
 			(temp_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <UhttPersonPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
@@ -3222,11 +3137,10 @@ int SLAPI PPUhttClient::GetPersonByName(const char * pName, TSCollection <UhttPe
 int SLAPI PPUhttClient::GetGoodsByID(int id, UhttGoodsPacket & rResult)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETGOODSBYID_PROC func = reinterpret_cast<UHTTGETGOODSBYID_PROC>(P_Lib->GetProcAddr("UhttGetGoodsByID"));
+		UHTTGETGOODSBYID_PROC func = reinterpret_cast<UHTTGETGOODSBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetGoodsByID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttGoodsPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
@@ -3242,11 +3156,10 @@ int SLAPI PPUhttClient::GetGoodsByCode(const char * pCode, TSCollection <UhttGoo
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETGOODSBYCODE_PROC func = reinterpret_cast<UHTTGETGOODSBYCODE_PROC>(P_Lib->GetProcAddr("UhttGetGoodsByCode"));
+		UHTTGETGOODSBYCODE_PROC func = reinterpret_cast<UHTTGETGOODSBYCODE_PROC>(GetFuncEntryAndSetupSess("UhttGetGoodsByCode", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttGoodsPacket> * p_result = func(sess, Token, pCode);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -3262,13 +3175,11 @@ int SLAPI PPUhttClient::GetGoodsByName(const char * pName, TSCollection <UhttGoo
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTGETGOODSBYNAME_PROC func = reinterpret_cast<UHTTGETGOODSBYNAME_PROC>(P_Lib->GetProcAddr("UhttGetGoodsByName"));
+		UHTTGETGOODSBYNAME_PROC func = reinterpret_cast<UHTTGETGOODSBYNAME_PROC>(GetFuncEntryAndSetupSess("UhttGetGoodsByName", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString temp_buf;
 			(temp_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <UhttGoodsPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
@@ -3285,13 +3196,11 @@ int SLAPI PPUhttClient::GetGoodsArCode(const char * pBarcode, const char * pPers
 {
 	int    ok = 0;
 	rArCode.Z();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString bcode, inn;
-		UHTTGETGOODSARCODE_PROC func = reinterpret_cast<UHTTGETGOODSARCODE_PROC>(P_Lib->GetProcAddr("UhttGetGoodsArCode"));
+		UHTTGETGOODSARCODE_PROC func = reinterpret_cast<UHTTGETGOODSARCODE_PROC>(GetFuncEntryAndSetupSess("UhttGetGoodsArCode", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString bcode, inn;
 			(bcode = pBarcode).Transf(CTRANSF_INNER_TO_UTF8);
 			(inn = pPersonINN).Transf(CTRANSF_INNER_TO_UTF8);
 			SString * p_result = func(sess, Token, bcode, inn);
@@ -3309,13 +3218,10 @@ int SLAPI PPUhttClient::GetGoodsRestList(int uhttGoodsID, TSCollection <UhttGood
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString bcode, inn;
-		UHTTGETGOODSRESTLIST_PROC func = reinterpret_cast<UHTTGETGOODSRESTLIST_PROC>(P_Lib->GetProcAddr("UhttGetGoodsRestList"));
+		UHTTGETGOODSRESTLIST_PROC func = reinterpret_cast<UHTTGETGOODSRESTLIST_PROC>(GetFuncEntryAndSetupSess("UhttGetGoodsRestList", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttGoodsRestListItem> * p_result = func(sess, Token, uhttGoodsID);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -3331,13 +3237,10 @@ int SLAPI PPUhttClient::CreateStandaloneLocation(long * pID, const UhttLocationP
 {
 	int    ok = 0;
 	int    id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATESTANDALONELOCATION_PROC func = reinterpret_cast<UHTTCREATESTANDALONELOCATION_PROC>(P_Lib->GetProcAddr("UhttCreateStandaloneLocation"));
+		UHTTCREATESTANDALONELOCATION_PROC func = reinterpret_cast<UHTTCREATESTANDALONELOCATION_PROC>(GetFuncEntryAndSetupSess("UhttCreateStandaloneLocation", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -3359,13 +3262,10 @@ int SLAPI PPUhttClient::CreateGoods(long * pID, const UhttGoodsPacket & rPack)
 {
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATEGOODS_PROC func = reinterpret_cast<UHTTCREATEGOODS_PROC>(P_Lib->GetProcAddr("UhttCreateGoods"));
+		UHTTCREATEGOODS_PROC func = reinterpret_cast<UHTTCREATEGOODS_PROC>(GetFuncEntryAndSetupSess("UhttCreateGoods", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -3386,17 +3286,14 @@ int SLAPI PPUhttClient::CreateGoods(long * pID, const UhttGoodsPacket & rPack)
 int SLAPI PPUhttClient::SetObjImage(const char * pObjTypeSymb, PPID uhttObjID, const char * pFileName)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTSETIMAGEBYID_PROC func = reinterpret_cast<UHTTSETIMAGEBYID_PROC>(P_Lib->GetProcAddr("UhttSetImageByID"));
+		UHTTSETIMAGEBYID_PROC func = reinterpret_cast<UHTTSETIMAGEBYID_PROC>(GetFuncEntryAndSetupSess("UhttSetImageByID", sess));
 		if(func) {
 			UhttDocumentPacket doc_pack;
 			doc_pack.SetFile(pFileName);
 			doc_pack.ObjTypeSymb = pObjTypeSymb;
 			doc_pack.UhttObjID = uhttObjID;
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, doc_pack);
 			if(PreprocessResult(p_result, sess)) {
 				DestroyResult(reinterpret_cast<void **>(&p_result));
@@ -3412,13 +3309,11 @@ int SLAPI PPUhttClient::GetSpecSeriesByPeriod(const char * pPeriod, TSCollection
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTGETSPECSERIESBYPERIOD_PROC func = reinterpret_cast<UHTTGETSPECSERIESBYPERIOD_PROC>(P_Lib->GetProcAddr("UhttGetSpecSeriesByPeriod"));
+		UHTTGETSPECSERIESBYPERIOD_PROC func = reinterpret_cast<UHTTGETSPECSERIESBYPERIOD_PROC>(GetFuncEntryAndSetupSess("UhttGetSpecSeriesByPeriod", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString temp_buf;
 			(temp_buf = pPeriod).Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <UhttSpecSeriesPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
@@ -3435,13 +3330,10 @@ int SLAPI PPUhttClient::CreateSpecSeries(long * pID, const UhttSpecSeriesPacket 
 {
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATESPECSERIES_PROC func = reinterpret_cast<UHTTCREATESPECSERIES_PROC>(P_Lib->GetProcAddr("UhttCreateSpecSeries"));
+		UHTTCREATESPECSERIES_PROC func = reinterpret_cast<UHTTCREATESPECSERIES_PROC>(GetFuncEntryAndSetupSess("UhttCreateSpecSeries", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -3462,13 +3354,10 @@ int SLAPI PPUhttClient::CreateSpecSeries(long * pID, const UhttSpecSeriesPacket 
 int SLAPI PPUhttClient::CreateSCard(UhttSCardPacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATESCARD_PROC func = reinterpret_cast<UHTTCREATESCARD_PROC>(P_Lib->GetProcAddr("UhttCreateSCard"));
+		UHTTCREATESCARD_PROC func = reinterpret_cast<UHTTCREATESCARD_PROC>(GetFuncEntryAndSetupSess("UhttCreateSCard", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -3488,13 +3377,11 @@ int SLAPI PPUhttClient::CreateSCard(UhttSCardPacket & rPack)
 int SLAPI PPUhttClient::GetSCardByNumber(const char * pNumber, UhttSCardPacket & rResult)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTGETSCARDBYNUMBER_PROC func = reinterpret_cast<UHTTGETSCARDBYNUMBER_PROC>(P_Lib->GetProcAddr("UhttGetSCardByNumber"));
+		UHTTGETSCARDBYNUMBER_PROC func = reinterpret_cast<UHTTGETSCARDBYNUMBER_PROC>(GetFuncEntryAndSetupSess("UhttGetSCardByNumber", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString temp_buf;
 			(temp_buf = pNumber).Transf(CTRANSF_INNER_TO_UTF8);
 			UhttSCardPacket * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
@@ -3513,11 +3400,10 @@ int SLAPI PPUhttClient::CreateBill(UhttBillPacket & rPack)
 {
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTCREATEBILL_PROC func = reinterpret_cast<UHTTCREATEBILL_PROC>(P_Lib->GetProcAddr("UhttCreateBill"));
+		UHTTCREATEBILL_PROC func = reinterpret_cast<UHTTCREATEBILL_PROC>(GetFuncEntryAndSetupSess("UhttCreateBill", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			int result = func(sess, Token, rPack);
 			if(PreprocessResult((void *)result, sess))
 				ok = 1;
@@ -3533,13 +3419,10 @@ int SLAPI PPUhttClient::GetBill(const UhttBillFilter & rFilt, TSCollection <Uhtt
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTGETBILL_PROC func = reinterpret_cast<UHTTGETBILL_PROC>(P_Lib->GetProcAddr("UhttGetBill"));
+		UHTTGETBILL_PROC func = reinterpret_cast<UHTTGETBILL_PROC>(GetFuncEntryAndSetupSess("UhttGetBill", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttBillPacket> * p_result = func(sess, Token, rFilt);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -3555,13 +3438,10 @@ int SLAPI PPUhttClient::GetQuot(const UhttQuotFilter & rFilt, TSCollection <Uhtt
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTGETQUOT_PROC func = reinterpret_cast<UHTTGETQUOT_PROC>(P_Lib->GetProcAddr("UhttGetQuot"));
+		UHTTGETQUOT_PROC func = reinterpret_cast<UHTTGETQUOT_PROC>(GetFuncEntryAndSetupSess("UhttGetQuot", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttQuotPacket> * p_result = func(sess, Token, rFilt);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -3576,13 +3456,10 @@ int SLAPI PPUhttClient::GetQuot(const UhttQuotFilter & rFilt, TSCollection <Uhtt
 int SLAPI PPUhttClient::SetQuot(const UhttQuotPacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTSETQUOT_PROC func = reinterpret_cast<UHTTSETQUOT_PROC>(P_Lib->GetProcAddr("UhttSetQuot"));
+		UHTTSETQUOT_PROC func = reinterpret_cast<UHTTSETQUOT_PROC>(GetFuncEntryAndSetupSess("UhttSetQuot", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			ok = func(sess, Token, rPack);
 			if(!PreprocessResult((void *)ok, sess)) {
 				PPSetError(PPERR_UHTTSVCFAULT, LastMsg);
@@ -3596,13 +3473,10 @@ int SLAPI PPUhttClient::SetQuotList(const TSCollection <UhttQuotPacket> & rList,
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTSETQUOTLIST_PROC func = reinterpret_cast<UHTTSETQUOTLIST_PROC>(P_Lib->GetProcAddr("UhttSetQuotList"));
+		UHTTSETQUOTLIST_PROC func = reinterpret_cast<UHTTSETQUOTLIST_PROC>(GetFuncEntryAndSetupSess("UhttSetQuotList", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttStatus> * p_result = func(sess, Token, rList);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -3620,13 +3494,10 @@ int SLAPI PPUhttClient::CreateSCardCheck(const char * pLocSymb, const char * pSC
 {
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATESCARDCHECK_PROC func = reinterpret_cast<UHTTCREATESCARDCHECK_PROC>(P_Lib->GetProcAddr("UhttCreateSCardCheck"));
+		UHTTCREATESCARDCHECK_PROC func = reinterpret_cast<UHTTCREATESCARDCHECK_PROC>(GetFuncEntryAndSetupSess("UhttCreateSCardCheck", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, pLocSymb, pSCardNumber, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -3646,13 +3517,10 @@ int SLAPI PPUhttClient::DepositSCardAmount(const char * pNumber, const double am
 {
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTDEPOSITSCARDAMOUNT_PROC func = reinterpret_cast<UHTTDEPOSITSCARDAMOUNT_PROC>(P_Lib->GetProcAddr("UhttDepositSCardAmount"));
+		UHTTDEPOSITSCARDAMOUNT_PROC func = reinterpret_cast<UHTTDEPOSITSCARDAMOUNT_PROC>(GetFuncEntryAndSetupSess("UhttDepositSCardAmount", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, pNumber, amount);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -3672,13 +3540,10 @@ int SLAPI PPUhttClient::WithdrawSCardAmount(const char * pNumber, const double a
 {
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTWITHDRAWSCARDAMOUNT_PROC func = reinterpret_cast<UHTTWITHDRAWSCARDAMOUNT_PROC>(P_Lib->GetProcAddr("UhttWithdrawSCardAmount"));
+		UHTTWITHDRAWSCARDAMOUNT_PROC func = reinterpret_cast<UHTTWITHDRAWSCARDAMOUNT_PROC>(GetFuncEntryAndSetupSess("UhttWithdrawSCardAmount", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, pNumber, amount);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -3698,13 +3563,10 @@ int SLAPI PPUhttClient::GetSCardRest(const char * pNumber, const char * pDate, d
 {
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTGETSCARDREST_PROC func = reinterpret_cast<UHTTGETSCARDREST_PROC>(P_Lib->GetProcAddr("UhttGetSCardRest"));
+		UHTTGETSCARDREST_PROC func = reinterpret_cast<UHTTGETSCARDREST_PROC>(GetFuncEntryAndSetupSess("UhttGetSCardRest", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			int    result = func(sess, Token, pNumber, pDate, rRest);
 			if(PreprocessResult((void *)BIN(result == 1), sess))
 				ok = 1;
@@ -3728,10 +3590,9 @@ int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey
 	THROW_SL(fileExists(pFileName));
 	if(State & stAuth && P_Lib) {
 		PPSoapClientSession sess;
-		SString temp_buf;
-		//typedef int (*UHTTADDFILEVERSION_PROC)(PPSoapClientSession & rSess, const char * pToken, int transferID, const char * pKey, const char * pLabel, const char * pMemo);
 		UHTTADDFILEVERSION_PROC func = reinterpret_cast<UHTTADDFILEVERSION_PROC>(P_Lib->GetProcAddr("UhttAddFileVersion"));
 		if(func) {
+			SString temp_buf;
 			int64 file_size = 0;
 			SFile f(pFileName, SFile::mRead|SFile::mBinary);
 			THROW_SL(f.IsValid());
@@ -3816,12 +3677,11 @@ int SLAPI PPUhttClient::StartTransferData(const char * pName, int64 totalRawSize
 {
 	int    ok = 0;
 	int    transfer_id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString temp_buf;
-		UHTTSTARTDATATRANSFER_PROC func = reinterpret_cast<UHTTSTARTDATATRANSFER_PROC>(P_Lib->GetProcAddr("UhttStartDataTransfer"));
+		UHTTSTARTDATATRANSFER_PROC func = reinterpret_cast<UHTTSTARTDATATRANSFER_PROC>(GetFuncEntryAndSetupSess("UhttStartDataTransfer", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString temp_buf;
 			(temp_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
 			transfer_id = func(sess, Token, temp_buf, totalRawSize, chunkCount);
 			if(PreprocessResult((void *)transfer_id, sess))
@@ -3835,12 +3695,11 @@ int SLAPI PPUhttClient::StartTransferData(const char * pName, int64 totalRawSize
 int SLAPI PPUhttClient::TransferData(int transferID, int chunkNumber, size_t rawChunkSize, const void * pBinaryChunkData)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString temp_buf;
-		UHTTTRANSFERDATA_PROC func = reinterpret_cast<UHTTTRANSFERDATA_PROC>(P_Lib->GetProcAddr("UhttTransferData"));
+		UHTTTRANSFERDATA_PROC func = reinterpret_cast<UHTTTRANSFERDATA_PROC>(GetFuncEntryAndSetupSess("UhttTransferData", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString temp_buf;
 			temp_buf.EncodeMime64(pBinaryChunkData, (size_t)rawChunkSize);
 			int    result = func(sess, Token, transferID, chunkNumber, (int64)rawChunkSize, (char *)temp_buf.cptr()); // @badcast
 			if(PreprocessResult(reinterpret_cast<void *>(result), sess))
@@ -3853,12 +3712,10 @@ int SLAPI PPUhttClient::TransferData(int transferID, int chunkNumber, size_t raw
 int SLAPI PPUhttClient::FinishTransferData(int transferID)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		// typedef int (*UHTTFINISHTRANSFERDATA_PROC)(PPSoapClientSession & rSess, const char * pToken, int transferID);
-		UHTTFINISHTRANSFERDATA_PROC func = reinterpret_cast<UHTTFINISHTRANSFERDATA_PROC>(P_Lib->GetProcAddr("UhttFinishTransferData"));
+		UHTTFINISHTRANSFERDATA_PROC func = reinterpret_cast<UHTTFINISHTRANSFERDATA_PROC>(GetFuncEntryAndSetupSess("UhttFinishTransferData", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			int    result = func(sess, Token, transferID);
 			if(PreprocessResult(reinterpret_cast<void *>(result), sess))
 				ok = 1;
@@ -3949,17 +3806,32 @@ int SLAPI PPUhttClient::ConvertPersonPacket(const UhttPersonPacket & rUhttPack, 
 	return ok;
 }
 
+int SLAPI PPUhttClient::GetCommonMqsConfig(PPAlbatrosConfig & rCfg)
+{
+	int    ok = -1;
+	PPSoapClientSession sess;
+	UHTTGETCOMMONMQSCONFIG_PROC func = reinterpret_cast<UHTTGETCOMMONMQSCONFIG_PROC>(GetFuncEntryAndSetupSess("UhttGetCommonMqsConfig", sess));
+	if(func) {
+		SString result_buf;
+		int    result = func(sess, result_buf);
+		LastMsg = sess.GetMsg();
+		if(result) {
+			if(PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(result_buf, &rCfg) > 0) {
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFileVersionInfo> & rResult, SVerT * pMinVer)
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString bcode, inn;
-		UHTTDCGETFILEVERSIONLIST_PROC func = reinterpret_cast<UHTTDCGETFILEVERSIONLIST_PROC>(P_Lib->GetProcAddr("UhttDCGetFileVersionList"));
+		UHTTDCGETFILEVERSIONLIST_PROC func = reinterpret_cast<UHTTDCGETFILEVERSIONLIST_PROC>(GetFuncEntryAndSetupSess("UhttDCGetFileVersionList", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttDCFileVersionInfo> * p_result = func(sess, Token, pKey);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -3979,7 +3851,6 @@ int SLAPI PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFi
 								mi = buf.ToLong();
 								if(ss.get(&j, buf)) {
 									rev = buf.ToLong();
-
 									SVerT cur_ver;
 									cur_ver.Set(mj, mi, rev);
 									if(cur_ver.Cmp(pMinVer) > 0)
@@ -4031,11 +3902,10 @@ int SLAPI PPUhttClient::ViewNewVerList(int showSelDlg)
 int SLAPI PPUhttClient::GetWorkbookItemByID(int id, UhttWorkbookItemPacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETWORKBOOKITEMBYID_PROC func = reinterpret_cast<UHTTGETWORKBOOKITEMBYID_PROC>(P_Lib->GetProcAddr("UhttGetWorkbookItemByID"));
+		UHTTGETWORKBOOKITEMBYID_PROC func = reinterpret_cast<UHTTGETWORKBOOKITEMBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetWorkbookItemByID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttWorkbookItemPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
@@ -4052,11 +3922,10 @@ int SLAPI PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFile
 	int    ok = 0;
 	SString file_name_to_remove;
 	UhttDocumentPacket * p_result = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETWORKBOOKCONTENTBYID_PROC func = reinterpret_cast<UHTTGETWORKBOOKCONTENTBYID_PROC>(P_Lib->GetProcAddr("UhttGetWorkbookContentByID"));
+		UHTTGETWORKBOOKCONTENTBYID_PROC func = reinterpret_cast<UHTTGETWORKBOOKCONTENTBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetWorkbookContentByID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			/* @v10.3.0 UhttDocumentPacket * */p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				if(!isempty(pFileName)) {
@@ -4090,11 +3959,10 @@ int SLAPI PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFile
 int SLAPI PPUhttClient::GetWorkbookItemByCode(const char * pCode, UhttWorkbookItemPacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETWORKBOOKITEMBYCODE_PROC func = reinterpret_cast<UHTTGETWORKBOOKITEMBYCODE_PROC>(P_Lib->GetProcAddr("UhttGetWorkbookItemByCode"));
+		UHTTGETWORKBOOKITEMBYCODE_PROC func = reinterpret_cast<UHTTGETWORKBOOKITEMBYCODE_PROC>(GetFuncEntryAndSetupSess("UhttGetWorkbookItemByCode", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttWorkbookItemPacket * p_result = func(sess, Token, pCode);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
@@ -4108,14 +3976,12 @@ int SLAPI PPUhttClient::GetWorkbookItemByCode(const char * pCode, UhttWorkbookIt
 
 int SLAPI PPUhttClient::GetWorkbookListByParentCode(const char * pParentCode, TSCollection <UhttWorkbookItemPacket> & rResult)
 {
-	// UHTTGETWORKBOOKLISTBYPARENTCODE_PROC
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETWORKBOOKLISTBYPARENTCODE_PROC func = reinterpret_cast<UHTTGETWORKBOOKLISTBYPARENTCODE_PROC>(P_Lib->GetProcAddr("UhttGetWorkbookListByParentCode"));
+		UHTTGETWORKBOOKLISTBYPARENTCODE_PROC func = reinterpret_cast<UHTTGETWORKBOOKLISTBYPARENTCODE_PROC>(GetFuncEntryAndSetupSess("UhttGetWorkbookListByParentCode", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttWorkbookItemPacket> * p_result = func(sess, Token, pParentCode);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -4131,13 +3997,10 @@ int SLAPI PPUhttClient::CreateWorkbookItem(long * pID, const UhttWorkbookItemPac
 {
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATEWORKBOOKITEM_PROC func = reinterpret_cast<UHTTCREATEWORKBOOKITEM_PROC>(P_Lib->GetProcAddr("UhttCreateWorkbookItem"));
+		UHTTCREATEWORKBOOKITEM_PROC func = reinterpret_cast<UHTTCREATEWORKBOOKITEM_PROC>(GetFuncEntryAndSetupSess("UhttCreateWorkbookItem", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -4158,17 +4021,14 @@ int SLAPI PPUhttClient::CreateWorkbookItem(long * pID, const UhttWorkbookItemPac
 int SLAPI PPUhttClient::SetWorkbookContentByID(int id, const char * pFileName)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTSETWORKBOOKCONTENTBYID_PROC func = reinterpret_cast<UHTTSETWORKBOOKCONTENTBYID_PROC>(P_Lib->GetProcAddr("UhttSetWorkbookContentByID"));
+		UHTTSETWORKBOOKCONTENTBYID_PROC func = reinterpret_cast<UHTTSETWORKBOOKCONTENTBYID_PROC>(GetFuncEntryAndSetupSess("UhttSetWorkbookContentByID", sess));
 		if(func) {
 			UhttDocumentPacket doc_pack;
 			doc_pack.SetFile(pFileName);
 			doc_pack.ObjTypeSymb = "WORKBOOK";
 			doc_pack.UhttObjID = id;
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, doc_pack);
 			if(PreprocessResult(p_result, sess)) {
 				DestroyResult(reinterpret_cast<void **>(&p_result));
@@ -4182,11 +4042,10 @@ int SLAPI PPUhttClient::SetWorkbookContentByID(int id, const char * pFileName)
 int SLAPI PPUhttClient::GetStyloDeviceByID(int id, UhttStyloDevicePacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETSTYLODEVICEBYID_PROC func = reinterpret_cast<UHTTGETSTYLODEVICEBYID_PROC>(P_Lib->GetProcAddr("UhttGetStyloDeviceByID"));
+		UHTTGETSTYLODEVICEBYID_PROC func = reinterpret_cast<UHTTGETSTYLODEVICEBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetStyloDeviceByID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStyloDevicePacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
@@ -4201,12 +4060,11 @@ int SLAPI PPUhttClient::GetStyloDeviceByID(int id, UhttStyloDevicePacket & rPack
 int SLAPI PPUhttClient::GetStyloDeviceByCode(const char * pCode, UhttStyloDevicePacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETSTYLODEVICEBYCODE_PROC func = reinterpret_cast<UHTTGETSTYLODEVICEBYCODE_PROC>(P_Lib->GetProcAddr("UhttGetStyloDeviceByCode"));
+		UHTTGETSTYLODEVICEBYCODE_PROC func = reinterpret_cast<UHTTGETSTYLODEVICEBYCODE_PROC>(GetFuncEntryAndSetupSess("UhttGetStyloDeviceByCode", sess));
 		if(func) {
 			SString temp_buf;
-			sess.Setup(UrlBase);
 			(temp_buf = pCode).Transf(CTRANSF_INNER_TO_UTF8);
 			UhttStyloDevicePacket * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
@@ -4223,13 +4081,10 @@ int SLAPI PPUhttClient::CreateStyloDevice(long * pID, const UhttStyloDevicePacke
 {
 	int    ok = 0;
 	int    id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATESTYLODEVICE_PROC func = reinterpret_cast<UHTTCREATESTYLODEVICE_PROC>(P_Lib->GetProcAddr("UhttCreateStyloDevice"));
+		UHTTCREATESTYLODEVICE_PROC func = reinterpret_cast<UHTTCREATESTYLODEVICE_PROC>(GetFuncEntryAndSetupSess("UhttCreateStyloDevice", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -4250,11 +4105,10 @@ int SLAPI PPUhttClient::CreateStyloDevice(long * pID, const UhttStyloDevicePacke
 int SLAPI PPUhttClient::GetProcessorByID(long id, UhttProcessorPacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETPROCESSORBYID_PROC func = reinterpret_cast<UHTTGETPROCESSORBYID_PROC>(P_Lib->GetProcAddr("UhttGetProcessorByID"));
+		UHTTGETPROCESSORBYID_PROC func = reinterpret_cast<UHTTGETPROCESSORBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetProcessorByID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttProcessorPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
@@ -4269,12 +4123,11 @@ int SLAPI PPUhttClient::GetProcessorByID(long id, UhttProcessorPacket & rPack)
 int SLAPI PPUhttClient::GetProcessorByCode(const char * pCode, UhttProcessorPacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETPROCESSORBYCODE_PROC func = reinterpret_cast<UHTTGETPROCESSORBYCODE_PROC>(P_Lib->GetProcAddr("UhttGetProcessorByCode"));
+		UHTTGETPROCESSORBYCODE_PROC func = reinterpret_cast<UHTTGETPROCESSORBYCODE_PROC>(GetFuncEntryAndSetupSess("UhttGetProcessorByCode", sess));
 		if(func) {
 			SString temp_buf;
-			sess.Setup(UrlBase);
 			(temp_buf = pCode).Transf(CTRANSF_INNER_TO_UTF8);
 			UhttProcessorPacket * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
@@ -4291,13 +4144,11 @@ int SLAPI PPUhttClient::CreateProcessor(long * pID, const UhttProcessorPacket & 
 {
 	int    ok = 0;
 	int    id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATEPROCESSOR_PROC func = reinterpret_cast<UHTTCREATEPROCESSOR_PROC>(P_Lib->GetProcAddr("UhttCreateProcessor"));
+		UHTTCREATEPROCESSOR_PROC func = reinterpret_cast<UHTTCREATEPROCESSOR_PROC>(GetFuncEntryAndSetupSess("UhttCreateProcessor", sess));
 		if(func) {
-			sess.Setup(UrlBase);
+			SString temp_buf;
 			UhttStatus * p_result = func(sess, Token, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -4318,11 +4169,10 @@ int SLAPI PPUhttClient::CreateProcessor(long * pID, const UhttProcessorPacket & 
 int SLAPI PPUhttClient::GetTSessionByID(long id, UhttTSessionPacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETTSESSIONBYID_PROC func = reinterpret_cast<UHTTGETTSESSIONBYID_PROC>(P_Lib->GetProcAddr("UhttGetTSessionByID"));
+		UHTTGETTSESSIONBYID_PROC func = reinterpret_cast<UHTTGETTSESSIONBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetTSessionByID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttTSessionPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
@@ -4337,11 +4187,10 @@ int SLAPI PPUhttClient::GetTSessionByID(long id, UhttTSessionPacket & rPack)
 int SLAPI PPUhttClient::GetTSessionByUUID(const S_GUID & rUuid, UhttTSessionPacket & rPack)
 {
 	int    ok = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETTSESSIONBYUUID_PROC func = reinterpret_cast<UHTTGETTSESSIONBYUUID_PROC>(P_Lib->GetProcAddr("UhttGetTSessionByUUID"));
+		UHTTGETTSESSIONBYUUID_PROC func = reinterpret_cast<UHTTGETTSESSIONBYUUID_PROC>(GetFuncEntryAndSetupSess("UhttGetTSessionByUUID", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttTSessionPacket * p_result = func(sess, Token, rUuid);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
@@ -4357,11 +4206,10 @@ int SLAPI PPUhttClient::GetTSessionByPrc(long prcID, const LDATETIME & rSince, T
 {
 	int    ok = 0;
 	rResult.freeAll();
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTGETTSESSIONBYPRC_PROC func = reinterpret_cast<UHTTGETTSESSIONBYPRC_PROC>(P_Lib->GetProcAddr("UhttGetTSessionByPrc"));
+		UHTTGETTSESSIONBYPRC_PROC func = reinterpret_cast<UHTTGETTSESSIONBYPRC_PROC>(GetFuncEntryAndSetupSess("UhttGetTSessionByPrc", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttTimestamp since;
 			since = rSince;
 			TSCollection <UhttTSessionPacket> * p_result = func(sess, Token, prcID, !rSince ? 0 : &since);
@@ -4384,13 +4232,10 @@ int SLAPI PPUhttClient::CreateTSession(long * pID, const UhttTSessionPacket & rP
 {
 	int    ok = 0;
 	int    id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		SString lib_path;
-		SString temp_buf, url;
-		UHTTCREATETSESSION_PROC func = reinterpret_cast<UHTTCREATETSESSION_PROC>(P_Lib->GetProcAddr("UhttCreateTSession"));
+		UHTTCREATETSESSION_PROC func = reinterpret_cast<UHTTCREATETSESSION_PROC>(GetFuncEntryAndSetupSess("UhttCreateTSession", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, rPack);
 			if(PreprocessResult(p_result, sess)) {
 				if(p_result->Code > 0) {
@@ -4441,11 +4286,10 @@ int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCo
 	rResult.freeAll();
 	int    ok = 0;
 	PPID   id = 0;
-	if(State & stAuth && P_Lib) {
+	if(State & stAuth) {
 		PPSoapClientSession sess;
-		UHTTSENDSMS_PROC func = reinterpret_cast<UHTTSENDSMS_PROC>(P_Lib->GetProcAddr("UhttSendSms"));
+		UHTTSENDSMS_PROC func = reinterpret_cast<UHTTSENDSMS_PROC>(GetFuncEntryAndSetupSess("UhttSendSms", sess));
 		if(func) {
-			sess.Setup(UrlBase);
 			TSCollection <UhttStatus> * p_result = func(sess, Token, rList);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
@@ -4457,6 +4301,189 @@ int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCo
 			}
 		}
 	}
+	return ok;
+}
+
+#if 0 // @v10.5.12 {
+//static
+int SLAPI PPUhttClient::TestUi_GetLocationListByPhone()
+{
+	int    ok = -1;
+	PPLogger logger;
+	SString log_buf;
+	SString phone_buf;
+	/*while(InputStringDialog(0, phone_buf) > 0)*/ {
+		PPUhttClient uhtt_cli;
+		TSCollection <UhttLocationPacket> uhtt_loc_list;
+		THROW(uhtt_cli.Auth());
+		{
+			int r = uhtt_cli.GetLocationListByPhone(phone_buf, uhtt_loc_list);
+			if(r > 0 && uhtt_loc_list.getCount()) {
+				for(uint i = 0; i < uhtt_loc_list.getCount(); i++) {
+					const UhttLocationPacket * p_uhtt_loc_item = uhtt_loc_list.at(i);
+					log_buf.Z().
+						CatEq("id", (long)p_uhtt_loc_item->ID).CatDiv(';', 2).
+						CatEq("phone", p_uhtt_loc_item->Phone).CatDiv(';', 2).
+						CatEq("contact", p_uhtt_loc_item->Contact);
+					logger.Log(log_buf);
+				}
+			}
+			else if(r == 0) {
+				logger.LogLastError();
+			}
+			else {
+				logger.Log(log_buf = "nothing");
+			}
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
+//static
+int SLAPI PPUhttClient::TestUi_GetQuotByLoc()
+{
+	int    ok = -1;
+	PPLogger logger;
+	SString log_buf;
+	SString code_buf = "AG1";
+	/*while(InputStringDialog(0, code_buf) > 0)*/ {
+		PPUhttClient uhtt_cli;
+		THROW(uhtt_cli.Auth());
+		{
+			UhttLocationPacket uhtt_loc;
+            if(uhtt_cli.GetLocationByCode(code_buf, uhtt_loc)) {
+				UhttQuotFilter filt;
+				TSCollection <UhttQuotPacket> uhtt_list;
+				filt.LocationID = uhtt_loc.ID;
+				int r = uhtt_cli.GetQuot(filt, uhtt_list);
+				if(r > 0 && uhtt_list.getCount()) {
+					for(uint i = 0; i < uhtt_list.getCount(); i++) {
+						const UhttQuotPacket * p_uhtt_item = uhtt_list.at(i);
+						log_buf.Z().
+							CatEq("goodsid", (long)p_uhtt_item->GoodsID).CatDiv(';', 2).
+							CatEq("value", p_uhtt_item->Value).CatDiv(';', 2).
+							CatEq("loc", (long)p_uhtt_item->LocID);
+						logger.Log(log_buf);
+					}
+				}
+				else if(r == 0) {
+					logger.LogLastError();
+				}
+				else {
+					logger.Log(log_buf = "nothing");
+				}
+            }
+            else {
+            	logger.LogLastError();
+            }
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+#endif // } 0 @v10.5.12
+
+int SLAPI TestUhttClient()
+{
+	int    ok = 1;
+	PPLogger logger;
+	SString log_buf;
+	SString code_buf;
+	SString temp_buf;
+	PPUhttClient uhtt_cli;
+	log_buf.Z().Cat("Universe-HTT client ctr").CatDiv(':', 2);
+	log_buf.Cat((uhtt_cli.GetState() & PPUhttClient::stHasAccount) ? "has-account" : "no-account");
+	log_buf.Space().Cat((uhtt_cli.GetState() & PPUhttClient::stDefaultServer) ? "default-server" : "own-server");
+	PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+	{
+		PPAlbatrosConfig alb_cfg;
+		log_buf.Z().Cat("PPUhttClient::GetCommonMqsConfig");
+		if(uhtt_cli.GetCommonMqsConfig(alb_cfg) > 0) {
+			log_buf.Space().Cat("ok");
+			alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+			log_buf.Space().Cat(temp_buf);
+			alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+			log_buf.Space().Cat(temp_buf);
+			ok = 1;
+		}
+		else
+			log_buf.Space().Cat("fail");
+		PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+	}
+	{
+		THROW(uhtt_cli.Auth());
+		log_buf.Z().Cat("PPUhttClient::Auth").Space().Cat("ok");
+		PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+		{
+			//
+			// Get Quot By Loc
+			//
+			code_buf = "AG1";
+			UhttLocationPacket uhtt_loc;
+			log_buf.Z().Cat("PPUhttClient::GetLocationByCode").CatParStr(code_buf);
+			int r = 0;
+            if(uhtt_cli.GetLocationByCode(code_buf, uhtt_loc)) {
+				log_buf.Space().Cat("ok");
+				PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+				UhttQuotFilter filt;
+				TSCollection <UhttQuotPacket> uhtt_list;
+				filt.LocationID = uhtt_loc.ID;
+				log_buf.Z().Cat("PPUhttClient::GetQuot");
+				r = uhtt_cli.GetQuot(filt, uhtt_list);
+				if(r > 0 && uhtt_list.getCount()) {
+					log_buf.Space().Cat("ok");
+					PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+					for(uint i = 0; i < uhtt_list.getCount(); i++) {
+						const UhttQuotPacket * p_uhtt_item = uhtt_list.at(i);
+						temp_buf.Z().
+							CatEq("goodsid", (long)p_uhtt_item->GoodsID).CatDiv(';', 2).
+							CatEq("value", p_uhtt_item->Value).CatDiv(';', 2).
+							CatEq("loc", (long)p_uhtt_item->LocID);
+						log_buf.CR().Cat(temp_buf);
+					}
+				}
+				else
+					log_buf.Cat((r == 0) ? "fail" : "nothing");
+            }
+            else
+				log_buf.Space().Cat("fail");
+			PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+			if(r == 0)
+				PPLogMessage(PPFILNAM_TEST_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+		}
+		{
+			//
+			// Get Location List by Phone
+			//
+			code_buf = "777777";
+			{
+				TSCollection <UhttLocationPacket> uhtt_loc_list;
+				log_buf.Z().Cat("PPUhttClient::GetLocationListByPhone").CatParStr(code_buf);
+				int r = uhtt_cli.GetLocationListByPhone(code_buf, uhtt_loc_list);
+				if(r > 0 && uhtt_loc_list.getCount()) {
+					log_buf.Space().Cat("ok");
+					for(uint i = 0; i < uhtt_loc_list.getCount(); i++) {
+						const UhttLocationPacket * p_uhtt_loc_item = uhtt_loc_list.at(i);
+						temp_buf.Z().
+							CatEq("id", (long)p_uhtt_loc_item->ID).CatDiv(';', 2).
+							CatEq("phone", p_uhtt_loc_item->Phone).CatDiv(';', 2).
+							CatEq("contact", p_uhtt_loc_item->Contact);
+						log_buf.CR().Cat(temp_buf);
+					}
+				}
+				else 
+					log_buf.Cat((r == 0) ? "fail" : "nothing");
+				PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+				if(r == 0)
+					PPLogMessage(PPFILNAM_TEST_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+			}
+		}
+	}
+	CATCH
+		PPLogMessage(PPFILNAM_TEST_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 //

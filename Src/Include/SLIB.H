@@ -545,14 +545,6 @@ extern "C" uint   cdecl xeos_strlen32_sse2(const char * s);
 	//
 #endif
 
-class SAlloc {
-public:
-	static void * FASTCALL M(size_t sz);
-	static void * FASTCALL C(size_t n, size_t sz);
-	static void * FASTCALL R(void * ptr, size_t sz);
-	static void   FASTCALL F(void * ptr);
-};
-
 void * operator new(size_t sz);
 void operator delete(void * ptr);
 //
@@ -7793,8 +7785,7 @@ protected:
 		int    SetVal(uint key, uint val);
 		int    FASTCALL Remove(uint pos);
 		LAssoc Val;
-		uint16 Count; // Количество элементов в точке кэша (включая Val)
-			// То есть, если Count == 0, то точка не содержит элементов.
+		uint16 Count; // Количество элементов в точке кэша (включая Val). То есть, если Count == 0, то точка не содержит элементов.
 		LAssoc * P_Ext;
 	};
 
@@ -8171,6 +8162,35 @@ public:
 	int    FASTCALL Read(SBuffer & rBuf);
 
 	uint32 * P_Data;
+};
+//
+//
+//
+class SAlloc {
+public:
+	class Stat { // @v10.5.12 @construction
+	public:
+		struct AllocEntry {
+			uint   Size;
+			uint64 Count;
+		};
+		struct ReallocEntry {
+			uint   FromSize;
+			uint   ToSize;
+			uint64 Count;
+		};
+		Stat();
+		void    RegisterAlloc(uint size);
+		void    RegisterRealloc(uint fromSize, uint toSize);
+		void    Merge(const Stat & rS);
+	private:
+		TSVector <AllocEntry> AL;
+		TSVector <ReallocEntry> RL;
+	};
+	static void * FASTCALL M(size_t sz);
+	static void * FASTCALL C(size_t n, size_t sz);
+	static void * FASTCALL R(void * ptr, size_t sz);
+	static void   FASTCALL F(void * ptr);
 };
 //
 // Descr: Класс для разбора сложных текстов.
@@ -10737,7 +10757,7 @@ private:
 //
 class SRandGenerator {
 public:
-	SRandGenerator(SRng::Algorithm alg = SRng::algMT, uint level = 0);
+	explicit SRandGenerator(SRng::Algorithm alg = SRng::algMT, uint level = 0);
 	~SRandGenerator();
 	void   Set(ulong seed);
 	ulong  Get();
@@ -10761,8 +10781,16 @@ public:
 	double GetGamma(double a, double b);
 	double GetGammaInt(uint a);
 	double GetGammaPdf(double x, double a, double b);
-
-	int    ObfuscateBuffer(void * pBuffer, size_t bufferSize) const;
+	//
+	// Descr: Заполняет случайными данными буфер pBuffer длиной bufferSize.
+	//
+	void   ObfuscateBuffer(void * pBuffer, size_t bufferSize) const;
+	//
+	// Descr: Возвращает 1 с вероятностью prob генерируя случайное число в диапазоне [0..1] и сравнивая его со значением prob.
+	//   Если случайное число меньше или равно prob, то возвращает 1 в противном случае - 0.
+	// ARG(prob IN): @#[0..1] Заданная вероятность получения 1.
+	//
+	int    GetProbabilityEvent(double prob);
 private:
 	SRng * P_Inner;
 };

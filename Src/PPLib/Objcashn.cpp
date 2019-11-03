@@ -1884,6 +1884,8 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 		DisableClusterItem(CTL_CASHN_NOA_PRINTONLY, 0, !getCtrlLong(CTLSEL_CASHN_NOA));
 	else if(event.isCmd(cmEditCashParam))
 		EditCashParam();
+	else if(event.isCmd(cmDiagnostics)) { // @v10.5.12
+	}
 	else
 		return;
 	clearEvent(event);

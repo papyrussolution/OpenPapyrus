@@ -2539,7 +2539,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 				AddAttrib("CreateDt",       pHdr->CreateDtm.d);
 				AddAttrib("CreateTm",       pHdr->CreateDtm.t);
 				AddAttrib("MaxNotSentOrd",  pHdr->MaxNotSentOrd);
-				cfg.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
+				cfg.GetExtStrData(ALBATROSEXSTR_UHTTURN_unused, temp_buf);
 				AddAttrib("UhttUrn",        /*cfg.UhttUrn*/temp_buf);
 				cfg.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 				AddAttrib("UhttUrlPrefix",  /*cfg.UhttUrlPrefix*/temp_buf);

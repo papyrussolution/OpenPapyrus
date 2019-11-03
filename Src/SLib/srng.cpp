@@ -632,9 +632,9 @@ double SRng::GetGaussianZiggurat(double sigma)
 			double U1 = 1.0 - GetReal();
 			double U2 = GetReal();
 			x = PARAM_R - log(U1) / PARAM_R;
-			y = exp (-PARAM_R * (x - 0.5 * PARAM_R)) * U2;
+			y = exp(-PARAM_R * (x - 0.5 * PARAM_R)) * U2;
 		}
-		if(y < exp (-0.5 * x * x))
+		if(y < exp(-0.5 * x * x))
 			break;
 	}
 	return sign * sigma * x;
@@ -1033,7 +1033,7 @@ ulong SRng::GetPoisson(double mu)
 	double prod = 1.0;
 	ulong  k = 0;
 	while(mu > 10) {
-		ulong  m = (ulong)(mu * (7.0 / 8.0));
+		ulong  m = static_cast<ulong>(mu * (7.0 / 8.0));
 		double X = GetGammaInt(m);
 		if(X >= mu)
 			return (k + GetBinomial(mu / X, m - 1));
@@ -1079,105 +1079,27 @@ SRandGenerator::~SRandGenerator()
 
 void SRandGenerator::Set(ulong seed)
 {
-	assert(P_Inner);
-	P_Inner->Set(seed);
+	CALLPTRMEMB(P_Inner, Set(seed));
 }
 
-ulong  SRandGenerator::Get()
-{
-	assert(P_Inner);
-	return P_Inner->Get();
-}
+ulong  SRandGenerator::Get() { return P_Inner ? P_Inner->Get() : 0U; }
+double SRandGenerator::GetReal() { return P_Inner ? P_Inner->GetReal() : 0.0; }
+ulong  SRandGenerator::GetUniformInt(ulong n) { return P_Inner ? P_Inner->GetUniformInt(n) : 0U; }
+double SRandGenerator::GetUniformPos() { return P_Inner ? P_Inner->GetUniformPos() : 0.0; }
+ulong  SRandGenerator::GetMin() const { return P_Inner ? P_Inner->GetMin() : 0U; }
+ulong  SRandGenerator::GetMax() const { return P_Inner ? P_Inner->GetMax() : 0U; }
+double SRandGenerator::GetGaussian(double sigma) { return P_Inner ? P_Inner->GetGaussian(sigma) : 0.0; }
+double SRandGenerator::GetGaussianZiggurat(double sigma) { return P_Inner ? P_Inner->GetGaussianZiggurat(sigma) : 0.0; }
+double SRandGenerator::GetGaussianPdf(double x, double sigma) { return P_Inner ? P_Inner->GetGaussianPdf(x, sigma) : 0.0; }
+ulong  SRandGenerator::GetBinomial(double p, ulong n) { return P_Inner ? P_Inner->GetBinomial(p, n) : 0U; }
+ulong  SRandGenerator::GetPoisson(double mu) { return P_Inner ? P_Inner->GetPoisson(mu) : 0U; }
+// double SRandGenerator::GetPoissonPdf(ulong k) { return P_Inner ? P_Inner->GetPoissonPdf(k) : 0.0; }
+double SRandGenerator::GetGamma(double a, double b) { return P_Inner ? P_Inner->GetGamma(a, b) : 0.0; }
+double SRandGenerator::GetGammaInt(uint a) { return P_Inner ? P_Inner->GetGammaInt(a) : 0.0; }
+double SRandGenerator::GetGammaPdf(double x, double a, double b) { return P_Inner ? P_Inner->GetGammaPdf(x, a, b) : 0.0; }
 
-double SRandGenerator::GetReal()
+void SRandGenerator::ObfuscateBuffer(void * pBuffer, size_t bufferSize) const
 {
-	assert(P_Inner);
-	return P_Inner->GetReal();
-}
-
-ulong  SRandGenerator::GetUniformInt(ulong n)
-{
-	assert(P_Inner);
-	return P_Inner->GetUniformInt(n);
-}
-
-double SRandGenerator::GetUniformPos()
-{
-	assert(P_Inner);
-	return P_Inner->GetUniformPos();
-}
-
-ulong  SRandGenerator::GetMin() const
-{
-	assert(P_Inner);
-	return P_Inner->GetMin();
-}
-
-ulong  SRandGenerator::GetMax() const
-{
-	assert(P_Inner);
-	return P_Inner->GetMax();
-}
-
-double SRandGenerator::GetGaussian(double sigma)
-{
-	assert(P_Inner);
-	return P_Inner->GetGaussian(sigma);
-}
-
-double SRandGenerator::GetGaussianZiggurat(double sigma)
-{
-	assert(P_Inner);
-	return P_Inner->GetGaussianZiggurat(sigma);
-}
-
-double SRandGenerator::GetGaussianPdf(double x, double sigma)
-{
-	assert(P_Inner);
-	return P_Inner->GetGaussianPdf(x, sigma);
-}
-
-ulong  SRandGenerator::GetBinomial(double p, ulong n)
-{
-	assert(P_Inner);
-	return P_Inner->GetBinomial(p, n);
-}
-
-ulong  SRandGenerator::GetPoisson(double mu)
-{
-	assert(P_Inner);
-	return P_Inner->GetPoisson(mu);
-}
-
-/*
-double SRandGenerator::GetPoissonPdf(ulong k)
-{
-	assert(P_Inner);
-	return P_Inner->GetPoissonPdf(k);
-}
-*/
-
-double SRandGenerator::GetGamma(double a, double b)
-{
-	assert(P_Inner);
-	return P_Inner->GetGamma(a, b);
-}
-
-double SRandGenerator::GetGammaInt(uint a)
-{
-	assert(P_Inner);
-	return P_Inner->GetGammaInt(a);
-}
-
-double SRandGenerator::GetGammaPdf(double x, double a, double b)
-{
-	assert(P_Inner);
-	return P_Inner->GetGammaPdf(x, a, b);
-}
-
-int SRandGenerator::ObfuscateBuffer(void * pBuffer, size_t bufferSize) const
-{
-	int    ok = 1;
 	assert(P_Inner);
 	if(P_Inner) {
 		size_t p = 0;
@@ -1188,15 +1110,24 @@ int SRandGenerator::ObfuscateBuffer(void * pBuffer, size_t bufferSize) const
 				p += 4;
 			}
 			else {
-                PTR8(pBuffer)[p] = (uint8)P_Inner->GetUniformInt(256);
+                PTR8(pBuffer)[p] = static_cast<uint8>(P_Inner->GetUniformInt(256));
                 p++;
 			}
 		}
 		assert(p == bufferSize);
 	}
-	else
-		ok = 0;
-	return ok;
+}
+
+int SRandGenerator::GetProbabilityEvent(double prob)
+{
+	assert(prob >= 0.0 && prob <= 1.0);
+	int    result = 0;
+	if(P_Inner) {
+		double rv = P_Inner->GetReal();		
+		if(rv <= prob)
+			result = 1;
+	}
+	return result;
 }
 //
 // TEST

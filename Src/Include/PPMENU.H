@@ -478,8 +478,8 @@
 #define cmConvertLatexToHtml           583 // @v8.1.12 Команда конвертации документации (только для внутреннего использования)
 #define cmRecoverLostUnifiedLinks      584 // @v8.2.8 Корректировка потерянных в результате объединения объектов, ссылок в т'гах
 #define cmGenerateKeywordSeq           585 // @v8.2.10 Генерация последовательностей ключевых слов (тест)
-#define cmTestUhttGetLocByPhone        586 // @v8.3.2 Тест SOAP-функции получения списка адресов по номеру телефона
-#define cmTestUhttGetQuotByLoc         587 // @v8.3.6 Тест SOAP-функции получения списка котировок по коду локации
+#define cmTestUhttGetLocByPhone        586 // @v8.3.2 Тест SOAP-функции получения списка адресов по номеру телефона // @v10.5.12 @unused
+#define cmTestUhttGetQuotByLoc         587 // @v8.3.6 Тест SOAP-функции получения списка котировок по коду локации  // @v10.5.12 @unused
 #define cmLocationTag                  588 // @v8.3.6 Теги локаций
 #define cmCorrectGoodsGroupsNIA        589 // @v8.3.6 Корректировка товарных групп (не интерактивная)
 #define cmConvertVersionToHtml         590 // @v8.3.12 Команда конвертации информации о версиях (только для внутреннего использования)

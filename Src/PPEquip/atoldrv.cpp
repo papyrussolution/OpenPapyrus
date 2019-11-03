@@ -512,32 +512,24 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI CutPaper(int partial)
+	void   SLAPI CutPaper(int partial)
 	{
-		int    ok = 0;
 		if(P_Fptr10) {
 			P_Fptr10->SetParamIntProc(P_Fptr10->Handler, LIBFPTR_PARAM_CUT_TYPE, partial ? LIBFPTR_CT_PART : LIBFPTR_CT_FULL);
 			P_Fptr10->CutProc(P_Fptr10->Handler);
-			ok = 1;
 		}
 		else if(P_Disp) {
 			ExecOper(FullCut);
-			ok = 1;
 		}
-		return ok;
 	}
-	int    SLAPI DoBeep()
+	void   SLAPI DoBeep()
 	{
-		int    ok = 0;
 		if(P_Fptr10) {
 			P_Fptr10->BeepProc(P_Fptr10->Handler);
-			ok = 1;
 		}
 		else if(P_Disp) {
 			Exec(Beep);
-			ok = 1;
 		}
-		return ok;
 	}
 	int  SLAPI CheckForCash(double sum)
 	{
@@ -560,7 +552,6 @@ private:
 				THROW(ExecOper(CancelCheck) > 0);
 				if(mode)
 					THROW(ExecOper(ResetMode));
-				//THROW(ExecOper(FullCut));
 				CutPaper(0);
 			}
 		}
@@ -568,23 +559,8 @@ private:
 		return ok;
 	}
 	void SLAPI WriteLogFile(PPID id);
-	/*void SLAPI CutLongTail(char * pBuf) const
-	{
-		if(static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
-			char * p = 0;
-			pBuf[CheckStrLen+1] = 0;
-			if((p = strrchr(pBuf, ' ')) != 0)
-				*p = 0;
-			else
-				pBuf[CheckStrLen] = 0;
-		}
-	}*/
 	void SLAPI CutLongTail(SString & rBuf) const
 	{
-		//char   buf[256];
-		//rBuf.CopyTo(buf, sizeof(buf));
-		//CutLongTail(buf);
-		//rBuf = buf;
 		rBuf.Trim(CheckStrLen).TrimRightChr(' ');
 	}
 	int  SLAPI AllowPrintOper(uint id);
@@ -970,30 +946,22 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 		double  pcnt = round(dscnt * 100.0 / (amt + dscnt), 1);
 		SString prn_str, temp_str;
 		SCardCore scc;
-		//THROW(SetProp(Caption, prn_str.Z().CatCharN('-', CheckStrLen)));
-		//THROW(ExecOper(PrintString));
 		THROW(PrintText(prn_str.Z().CatCharN('-', CheckStrLen), 0, 0));
 		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
 		// @v10.0.10 prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
 		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v10.0.10 
 		prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
-		//THROW(SetProp(Caption, prn_str));
-		//THROW(ExecOper(PrintString));
 		THROW(PrintText(prn_str, 0, 0));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
 			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v10.0.10 
 			prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
-			//THROW(SetProp(Caption, (prn_str/*= "КАРТА"*/).Space().Cat(scc.data.Code)));
-			//THROW(ExecOper(PrintString));
 			THROW(PrintText((prn_str/*= "КАРТА"*/).Space().Cat(scc.data.Code), 0, 0));
 			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
 				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v10.0.10 
 				prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
 				(prn_str/*= "ВЛАДЕЛЕЦ"*/).Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER));
 				CutLongTail(prn_str);
-				//THROW(SetProp(Caption, prn_str));
-				//THROW(ExecOper(PrintString));
 				THROW(PrintText(prn_str, 0, 0));
 			}
 		}
@@ -1002,8 +970,6 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 		prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
 		(prn_str/*= "СКИДКА"*/).Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%');
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
-		//THROW(SetProp(Caption, prn_str));
-		//THROW(ExecOper(PrintString));
 		THROW(PrintText(prn_str, 0, 0));
 	}
 	CATCHZOK
@@ -1137,7 +1103,6 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 			if(PPLoadText(PPTXT_APPEAL_CTO, added_msg))
 				err_msg.CR().CatChar('\003').Cat(added_msg);
 			PPSetAddedMsgString(err_msg);
-			//Exec(Beep);
 			DoBeep();
 			PPError();
 			ok = -1;
@@ -1149,7 +1114,6 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 	//
 	if(!wait_prn_err || last_res_code == RESCODE_PAYM_LESS_SUM) {
 		WriteLogFile(id);
-		//Exec(Beep);
 		DoBeep();
 		PPError();
 		Flags |= sfCancelled;
@@ -1471,9 +1435,6 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 					// } @v9.1.4
 					else {
-						//THROW(SetProp(TextWrap, 1L));
-						//THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
-						//THROW(ExecOper(PrintString));
 						THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
 					}
 				}
@@ -1551,8 +1512,6 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			// Информация о скидке
 			THROW(PrintDiscountInfo(pPack, flags));
 			buf.Z().CatCharN('-', CheckStrLen);
-			//THROW(SetProp(Caption, buf.Trim(CheckStrLen)));
-			//THROW(ExecOper(PrintString));
 			THROW(PrintText(buf.Trim(CheckStrLen), 0, 0));
 		}
 		debug_log_buf.Space().CatEq("SUM", sum, MKSFMTD(0, 10, 0)).Space().CatEq("RUNNINGTOTAL", running_total, MKSFMTD(0, 10, 0));
@@ -1572,24 +1531,14 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					_paym_bnk = R2(sum);
 			}
 			{
-				//#define PAYTYPE_CASH           0L
-				//#define PAYTYPE_BANKING        3L
-				//const int atol_paytype_cash = 0;
-				//const int atol_paytype_bank = (SCn.DrvVerMajor > 8 || (SCn.DrvVerMajor == 8 && SCn.DrvVerMinor >= 15)) ? 1 : 3;
 				if(nonfiscal > 0.0) {
 					if(fiscal > 0.0) {
 						const double _paym_cash = R2(fiscal - _paym_bnk);
 						debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
 						if(_paym_cash > 0.0) {
-							//THROW(SetProp(Summ, R2(_paym_cash)));
-							//THROW(SetProp(TypeClose, atol_paytype_cash));
-							//THROW(ExecOper(Payment));
 							THROW(RegisterPayment(R2(_paym_cash), LIBFPTR_PT_CASH));
 						}
 						if(_paym_bnk > 0.0) {
-							//THROW(SetProp(Summ, R2(_paym_bnk)));
-							//THROW(SetProp(TypeClose, atol_paytype_bank));
-							//THROW(ExecOper(Payment));
 							THROW(RegisterPayment(R2(_paym_bnk), LIBFPTR_PT_ELECTRONICALLY));
 						}
 					}
@@ -1602,15 +1551,9 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					const double _paym_cash = R2(sum - _paym_bnk);
 					debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
 					if(_paym_cash > 0.0) {
-						//THROW(SetProp(Summ, _paym_cash));
-						//THROW(SetProp(TypeClose, atol_paytype_cash));
-						//THROW(ExecOper(Payment));
 						THROW(RegisterPayment(_paym_cash, LIBFPTR_PT_CASH));
 					}
 					if(_paym_bnk > 0.0) {
-						//THROW(SetProp(Summ, _paym_bnk));
-						//THROW(SetProp(TypeClose, atol_paytype_bank));
-						//THROW(ExecOper(Payment));
 						THROW(RegisterPayment(_paym_bnk, LIBFPTR_PT_ELECTRONICALLY));
 					}
 				}
@@ -1627,7 +1570,6 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		Flags &= ~sfOpenCheck;
 		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 		if(!(Flags & sfNotUseCutter)) {
-			//THROW(ExecOper(FullCut));
 			CutPaper(0);
 		}
 		ErrCode = SYNCPRN_NO_ERROR;
@@ -1645,7 +1587,6 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		else {
 			SetErrorMessage();
-			//Exec(Beep);
 			DoBeep();
 			if(Flags & sfOpenCheck)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
@@ -1679,8 +1620,6 @@ int SLAPI SCS_ATOLDRV::PrintCheckCopy(const CCheckPacket * pPack, const char * p
 	if(P_Disp) {
 		THROW(SetProp(Mode, MODE_REGISTER));
 	}
-	// THROW(ExecOper(NewDocument));
-	//THROW(GetProp(CharLineLength, &CheckStrLen));
 	if(P_SlipFmt) {
 		int   r = 0;
 		SString  line_buf;
@@ -1688,33 +1627,24 @@ int SLAPI SCS_ATOLDRV::PrintCheckCopy(const CCheckPacket * pPack, const char * p
 		SlipLineParam sl_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
-			SString buf;
 			for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-				//THROW(SetProp(TextWrap, 1L));
-				//THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
-				//THROW(ExecOper(PrintString));
 				THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
 			}
 			if(P_Disp) {
 				THROW(ExecOper(PrintHeader));
 			}
 			if(!(Flags & sfNotUseCutter)) {
-				//THROW(ExecOper(FullCut));
 				CutPaper(0);
 			}
 		}
 	}
 	ErrCode = SYNCPRN_NO_ERROR;
 	CATCH
-		if(Flags & sfCancelled) {
+		if(Flags & sfCancelled)
 			Flags &= ~sfCancelled;
-			ok = -1;
-		}
 		else {
 			SetErrorMessage();
-			//Exec(Beep);
 			DoBeep();
-			ok = 0;
 		}
 		ok = 0;
 	ENDCATCH
@@ -1770,7 +1700,6 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 		THROW(ExecOper(Report));
 	}
 	if(!(Flags & sfNotUseCutter)) {
-		//THROW(ExecOper(FullCut));
 		CutPaper(0);
 	}
 	CATCH
@@ -1779,7 +1708,6 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 		else {
 			SetErrorMessage();
 			DoBeep();
-			//Exec(Beep);
 		}
 		ok = 0;
 	ENDCATCH
@@ -1814,9 +1742,6 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 			if(sdc_param.PageWidth > (uint)CheckStrLen)
 				WriteLogFile_PageWidthOver(format_name);
 			for(P_SlipFmt->InitIteration(pInfo); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-				//THROW(SetProp(TextWrap, 1L));
-				//THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
-				//THROW(ExecOper(PrintString));
 				THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
 			}
 			if(P_Disp) {
@@ -1824,7 +1749,6 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 			}
 			// THROW(Exec(EndDocument)); // Закончить и напечатать документ
 			if(!(Flags & sfNotUseCutter)) {
-				//THROW(ExecOper(FullCut));
 				CutPaper(0);
 			}
 		}
@@ -1837,7 +1761,6 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 		}
 		else {
 			SetErrorMessage();
-			//Exec(Beep);
 			DoBeep();
 			ok = 0;
 		}
@@ -1871,10 +1794,9 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 		THROW(ExecOper(SetMode));
 		Flags |= sfOpenCheck;
 		THROW(SetProp(Summ, sum));
-		THROW(ExecOper((isIncome) ? CashIncome : CashOutcome));
+		THROW(ExecOper(isIncome ? CashIncome : CashOutcome));
 	}
 	if(!(Flags & sfNotUseCutter)) {
-		//THROW(ExecOper(FullCut));
 		CutPaper(0);
 	}
 	CATCH
@@ -1884,7 +1806,6 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 		}
 		else {
 			SetErrorMessage();
-			//Exec(Beep);
 			DoBeep();
 			ok = 0;
 		}
@@ -1924,17 +1845,11 @@ int SLAPI SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
 		{
 			for(uint pos = 0; str_set.get(&pos, str) > 0;) {
 				str.Chomp();
-				//THROW(SetProp(TextWrap, 1L));
-				//THROW(SetProp(Caption, str));
-				//THROW(ExecOper(PrintString));
 				THROW(PrintText(str, ptfWrap, 0));
 				SDelay(10); // @v10.4.11 Иногда не удается распечатать слип. Гипотеза: драйвер не успевает обрабатывать быструю последовательность строк.
 			}
-			//THROW(ExecOper(PrintHeader));
-			if(!(Flags & sfNotUseCutter)) {
-				//THROW(ExecOper(FullCut));
+			if(!(Flags & sfNotUseCutter))
 				CutPaper(0);
-			}
 		}
 	}
 	CATCH

@@ -5723,13 +5723,19 @@ private:
 //
 class PPUhttClient {
 public:
-	static int SLAPI TestUi_GetLocationListByPhone();
-	static int SLAPI TestUi_GetQuotByLoc();
+	enum {
+		stAuth          = 0x0001,
+		stHasAccount    = 0x0002,
+		stDefaultServer = 0x0004 // @v10.5.12
+	};
+	// @v10.5.12 static int SLAPI TestUi_GetLocationListByPhone();
+	// @v10.5.12 static int SLAPI TestUi_GetQuotByLoc();
 	static int SLAPI ViewNewVerList(int showSelDlg);
 	SLAPI  PPUhttClient();
 	SLAPI ~PPUhttClient();
-	int    SLAPI HasAccount() const;
-	int    SLAPI IsAuth() const;
+	int    SLAPI GetState() const;
+	// @v10.5.12 int    SLAPI HasAccount() const;
+	// @v10.5.12 int    SLAPI IsAuth() const;
 	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	int    SLAPI Auth();
 	int    SLAPI Unauth();
@@ -5793,20 +5799,18 @@ public:
 	int    SLAPI CreateTSession(long * pID, const UhttTSessionPacket & rPack);
 	int    SLAPI ConvertLocationPacket(const UhttLocationPacket & rUhttPack, LocationTbl::Rec & rLocRec) const;
 	int    SLAPI ConvertPersonPacket(const UhttPersonPacket & rUhttPack, PPID kindID, PPPersonPacket & rPsnPack) const;
+	int    SLAPI GetCommonMqsConfig(PPAlbatrosConfig & rCfg);
 	const SString & SLAPI GetLastMessage() const { return LastMsg; }
 	const SString & SLAPI GetUrlBase() const { return UrlBase; }
 private:
+	FARPROC SLAPI GetFuncEntryAndSetupSess(const char * pFuncName, PPSoapClientSession & rSess);
 	int    SLAPI StartTransferData(const char * pName, int64 totalRawSize, int32 chunkCount, int * pTransferID);
 	int    SLAPI TransferData(int transferID, int chunkNumber, size_t rawChunkSize, const void * pBinaryChunkData);
 	int    SLAPI FinishTransferData(int transferID);
 	void   FASTCALL DestroyResult(void ** ppResult);
 
-	enum {
-		stAuth       = 0x0001,
-		stHasAccount = 0x0002
-	};
 	long   State;
-	SString Urn;
+	// @v10.5.12 @unused SString Urn;
 	SString UrlBase;
 	SString Token;
 	SString LastMsg;
@@ -10467,7 +10471,7 @@ public:
 	// Descr: Дескриптор подстановки поставщика при списании дефицита
 	//
 	struct SupplSubstItem { // @flat
-		SupplSubstItem(uint pos);
+		explicit SLAPI SupplSubstItem(uint pos);
 		SString & FASTCALL QttyToStr(SString & rBuf) const;
 
 		enum {
@@ -10479,6 +10483,20 @@ public:
 		PPID   SupplID;  // ->Article.ID ИД поставщика
 		long   Unit;     // SupplSubstItem::uXXX
 		double Qtty;     // Количество
+	};
+	//
+	// Descr: Параметры установки времени производства для лотов, компенсирующих дефицит
+	//
+	struct SetLotManufTimeParam {
+		SLAPI  SetLotManufTimeParam();
+		int    SLAPI FixedTimeToString(SString & rBuf) const;
+		int    SLAPI FixedTimeFromString(const char * pStr);
+		enum {
+			fEnable = 0x0001
+		};
+		long   Flags;
+		int    DateOffsDays;
+		int    FixedTime;
 	};
 	SLAPI  PUGL();
 	PUGL & FASTCALL operator = (const PUGL & s);
@@ -10510,6 +10528,7 @@ public:
 	TSVector <SupplSubstItem> SupplSubstList; // Список определителей подстановки поставщиков,
 		// применяемый для оприходования дефицита с привязкой к конкретным поставщикам.
 		// @v9.8.6 TSArray-->TSVector
+	SetLotManufTimeParam Slmt; // @v10.5.12 Параметры установки времени производства для лотов дефицита
 	static int BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty); // @v9.8.6 TSArray-->TSVector
 };
 //
@@ -28604,7 +28623,7 @@ private:
 //
 //
 //
-#define ALBATROSEXSTR_UHTTURN          1
+#define ALBATROSEXSTR_UHTTURN_unused   1 // @v10.5.12 ALBATROSEXSTR_UHTTURN-->ALBATROSEXSTR_UHTTURN_unused
 #define ALBATROSEXSTR_UHTTURLPFX       2
 #define ALBATROSEXSTR_UHTTACC          3
 #define ALBATROSEXSTR_UHTTPASSW        4
@@ -33864,22 +33883,34 @@ private:
 // @ModuleDecl(PPObjDraftWrOff)
 // @prefix=dwo
 //
-#define DWOF_DFCTARISLOC 0x0001L
-#define DWOF_USEMRPTAB   0x0002L // При списании использовать MRP-таблицы
+#define DWOF_DFCTARISLOC   0x0001L
+#define DWOF_USEMRPTAB     0x0002L // При списании использовать MRP-таблицы
+#define DWOF_SETMANUFDATE  0x0004L // @v10.5.12 При формировании компенсации дефицита устанавливать в лотах дату производства
 
-struct PPDraftWrOff2 {     // @persistent @store(Reference2Tbl+)
-	long   Tag;            // Const=PPOBJ_DRAFTWROFF
-	long   ID;             // @id
-	char   Name[48];       // @name
-	char   Symb[20];       //
-	char   Reserve[56];    // @reserve
-	PPID   PoolOpID;       // Операция формирования пула документов списания //
-	long   Flags;          // Флаги DWOF_XXX
-	PPID   DfctCompensOpID; // Операция компенсации дефицита
-	PPID   DfctCompensArID; // Контрагент в документах компенсации дефицита
+struct PPDraftWrOff2 {           // @persistent @store(Reference2Tbl+)
+	PPDraftWrOff2()
+	{
+		THISZERO();
+	}
+	void   SLAPI SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS);
+	void   SLAPI GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const;
+
+	long   Tag;                  // Const=PPOBJ_DRAFTWROFF
+	long   ID;                   // @id
+	char   Name[48];             // @name
+	char   Symb[20];             //
+	char   Reserve[52];          // @reserve // @v10.5.12 [56]-->[52]
+	int16  SetManufDateOffsDays; // @v10.5.12 Смещение в днях от исходной даты до даты производства, присваиваемого лотам
+		// при компенсации дефицита if(Flags & DWOF_SETMANUFDATE).
+	int16  SetManufFixedTime;    // @v10.5.12 Фиксированное время производства компенсации дефицита в минутах (напр. 720=12:00)
+	PPID   PoolOpID;             // Операция формирования пула документов списания //
+	long   Flags;                // Флаги DWOF_XXX
+	PPID   DfctCompensOpID;      // Операция компенсации дефицита
+	PPID   DfctCompensArID;      // Контрагент в документах компенсации дефицита
 };
 
 struct PPDraftWrOffEntry {
+	SLAPI  PPDraftWrOffEntry();
 	PPID   OpID;
 	PPID   LocID;
 	long   Reserve[2];
@@ -33901,7 +33932,6 @@ public:
 	SLAPI  PPObjDraftWrOff(void * extraPtr = 0);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
-
 	int    SLAPI PutPacket(PPID * pID, PPDraftWrOffPacket *, int use_ta);
 	int    SLAPI GetPacket(PPID id, PPDraftWrOffPacket *);
 };
@@ -43030,7 +43060,7 @@ public:
 	//
 	static int SLAPI SetupLinkObjTypeCombo(TDialog * dlg, uint ctlID, PPID initObjType);
 		// @>>SetupObjListCombo
-	int    SLAPI CreateModif(const MrpTabLeaf * pMrpLeaf, PPID mrpSrcID, PPID opID, PPIDArray * pBillList, PPLogger *, int use_ta);
+	int    SLAPI CreateModif(const MrpTabLeaf * pMrpLeaf, PPID mrpSrcID, PPID opID, const PUGL::SetLotManufTimeParam *, PPIDArray * pBillList, PPLogger *, int use_ta);
 	int    SLAPI DoMaintain(LDATE toDt);
 		// @>>DoDBMaintain
 private:
@@ -43237,11 +43267,16 @@ public:
 class PrcssrWrOffDraftFilt : public PPBaseFilt {
 public:
 	SLAPI  PrcssrWrOffDraftFilt();
+	void   SLAPI SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS);
+	void   SLAPI GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const;
 
 	enum {
-		fCreateMrpTab = 0x0001
+		fCreateMrpTab = 0x0001,
+		fSetManufDate = 0x0002 // @v10.5.12 Проекция PPDraftWrOff::Flags & DWOF_SETMANUFDATE
 	};
-	uint8  ReserveStart[32]; // @anchor
+	uint8  ReserveStart[28]; // @anchor // @v10.5.12 [32]-->[28]
+	int16  SetManufDateOffsDays; // @v10.5.12 Проекция PPDraftWrOff::SetManufDateOffsDays с возможностью изменения
+	int16  SetManufFixedTime;    // @v10.5.12 Проекция PPDraftWrOff::SetManufFixedTime с возможностью изменения
 	DateRange Period;
 	PPID   DwoID;
 	PPID   PoolLocID;
