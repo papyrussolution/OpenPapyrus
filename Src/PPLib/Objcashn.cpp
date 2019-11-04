@@ -1765,7 +1765,7 @@ int SyncCashNodeCfgDialog::getDTS(PPSyncCashNode * pData)
 	THROW_PP(Data.CashType != 0, PPERR_CMTNEEDED);
 	THROW_PP(Data.CashType != PPCMT_OKA500, PPERR_OKA500NOTSUPPORTED);
 	THROW_PP(PPCashMachine::IsSyncCMT(Data.CashType), PPERR_CMSYNCNOTSUPP);
-	Data.Speciality = (uint16)getCtrlLong(CTLSEL_CASHN_SPECIALITY);
+	Data.Speciality = static_cast<uint16>(getCtrlLong(CTLSEL_CASHN_SPECIALITY));
 	getCtrlData(CTL_CASHN_DRVVERMAJOR, &Data.DrvVerMajor);
 	getCtrlData(CTL_CASHN_DRVVERMINOR, &Data.DrvVerMinor);
 	sel = CTL_CASHN_LOC;
@@ -1885,6 +1885,24 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 	else if(event.isCmd(cmEditCashParam))
 		EditCashParam();
 	else if(event.isCmd(cmDiagnostics)) { // @v10.5.12
+		PPObjCashNode cn_obj;
+		if(getDTS(0)) {
+			StringSet ss;
+			if(cn_obj.DiagnoseNode(Data, ss) > 0) {
+				if(ss.getCount()) {
+					TDialog * dlg = new TDialog(DLG_DIAGPOSNODE);
+					if(CheckDialogPtrErr(&dlg)) {
+						SString temp_buf;
+						SString info_buf;
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							info_buf.Cat(temp_buf).CRB();
+						} 
+						dlg->setStaticText(CTL_DIAGPOSNODE_RESULT, info_buf);
+						ExecViewAndDestroy(dlg);
+					}
+				}
+			}
+		}
 	}
 	else
 		return;
@@ -1892,6 +1910,24 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 }
 
 int SLAPI PPObjCashNode::EditSync(PPSyncCashNode * pSCN) { DIALOG_PROC_BODY(SyncCashNodeCfgDialog, pSCN); }
+
+int SLAPI PPObjCashNode::DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResult)
+{
+	int    ok = -1;
+	rSsResult.clear();
+	if(PPCashMachine::IsSyncCMT(rNode.CashType)) {
+		if(rNode.ID) {
+			PPCashMachine * p_cm = PPCashMachine::CreateInstance(rNode.ID);
+			if(p_cm && p_cm->SyncDiagnose(&rSsResult) > 0 && rSsResult.getCount()) {
+				ok = 1;
+			}
+			delete p_cm;
+		}
+	}
+	else if(PPCashMachine::IsAsyncCMT(rNode.CashType)) {
+	}
+	return ok;
+}
 
 int SLAPI PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 {

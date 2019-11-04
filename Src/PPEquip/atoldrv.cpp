@@ -88,7 +88,6 @@ public:
 			}
 			else {
 				SetErrorMessage();
-				//Exec(Beep);
 				DoBeep();
 				if(Flags & sfOpenCheck)
 					ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
@@ -100,12 +99,8 @@ public:
 	virtual int SLAPI GetSummator(double * pVal)
 	{
 		int    ok = 1;
-		//double cash_amt = 0.0;
-		//ResCode = RESCODE_NO_ERROR;
 		StateBlock stb;
 		THROW(Connect(&stb));
-		//THROW(ExecOper(GetSumm));
-		//THROW(GetProp(Summ, &cash_amt));
 		CATCH
 			ok = (SetErrorMessage(), 0);
 		ENDCATCH
@@ -126,7 +121,6 @@ public:
 		else if(P_Disp) {
 			SetProp(Mode, MODE_REGISTER);
 			Exec(SetMode);
-			// Exec(NewDocument);
 			if(ResCode == RESCODE_OPEN_SESS_LONG)
 				ok = 1;
 		}
@@ -136,6 +130,24 @@ public:
 		return ok;
 	}
 	virtual int SLAPI PrintBnkTermReport(const char * pZCheck);
+	virtual int SLAPI Diagnose(StringSet * pSs) // @v10.5.12
+	{ 
+		if(pSs) {
+			SString temp_buf;
+			if(P_Fptr10) {
+				pSs->add("DLL-mode");
+				if(P_Fptr10->GetVersionString) {
+					temp_buf = P_Fptr10->GetVersionString();
+					if(temp_buf.NotEmptyS())
+						pSs->add(temp_buf);
+				}
+			}
+			else if(P_Disp) {
+				pSs->add("COM-mode");
+			}
+		}
+		return 1; 
+	} 
 private:
 	struct StateBlock {
 		StateBlock() : OperatorId(0), LogicalNumber(0), ShiftState(0), ShiftNumber(0), Model(0), Mode(0),

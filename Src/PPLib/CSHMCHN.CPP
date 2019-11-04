@@ -234,12 +234,7 @@ int SLAPI PPCashMachine::GetSyncIntrf()
 
 int SLAPI PPCashMachine::GetAsyncIntrf()
 {
-	if(!P_AsyncIntrf) {
-		P_AsyncIntrf = AsyncInterface();
-		if(!P_AsyncIntrf)
-			return PPSetError(PPERR_ASYNCCSNOTSUPP);
-	}
-	return 1;
+	return SETIFZ(P_AsyncIntrf, AsyncInterface()) ? 1 : PPSetError(PPERR_ASYNCCSNOTSUPP);
 }
 //
 // Синхронные методы
@@ -401,6 +396,15 @@ int SLAPI CSessionCore::SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm
 		}
 	}
 	THROW_DB(BTROKORNFOUND);
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPCashMachine::SyncDiagnose(StringSet * pSs)
+{
+	int    ok = -1;
+	THROW(GetSyncIntrf());
+	ok = P_SyncIntrf->Diagnose(pSs);
 	CATCHZOK
 	return ok;
 }

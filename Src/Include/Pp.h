@@ -18868,12 +18868,10 @@ public:
 	char   CustDispPort[8];  // Имя порта дисплея покупателя (COM)
 	uint16 CustDispFlags;	 // cdfXXX
 	int16  EgaisMode;        // @v9.0.9 Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
-
 	long   BnkTermType;		 // Тип банковского терминала
 	uint16 BnkTermLogNum;	 // Логический номер банковского терминала
 	uint16 BnkTermFlags;	 // btfXXX
 	char   BnkTermPort[8];	 // Имя порта банковского терминала (COM)
-
 	uint16 ClearCDYTimeout;  // Таймаут очистки дисплея покупателя после печати чека
 	uint16 SleepTimeout;     //
 	PPID   LocalTouchScrID;  // Локальный (по отношению к компютеру) идентификатор записи PPObjTouchScreen
@@ -19003,6 +19001,7 @@ public:
 	//     0 - ошибка
 	//
 	int    SLAPI IsVatFree(PPID id);
+	int    SLAPI DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResult);
 private:
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -19072,6 +19071,7 @@ public:
 	//
 	int    SLAPI SyncOpenSession(LDATE *);
 	int    SLAPI SyncCloseSession();
+	int    SLAPI SyncDiagnose(StringSet * pSs);
 	//
 	// Descr: Опции отображения панели итогов по кассовой сессии SyncViewSessionStat()
 	//
@@ -19923,11 +19923,20 @@ public:
 	virtual int SLAPI CheckForSessionOver() { return -1; }
 	virtual int SLAPI PrintBnkTermReport(const char * pZCheck) { return -1; }
 	//
-	// Редактирование особых параметров устройства
-	// На данный момент эта функция используется в универсальном драйвере АТОЛ
-	// для редактирования и выбора кассы
+	// Descr: Редактирование особых параметров устройства
+	//   На данный момент эта функция используется в универсальном драйвере АТОЛ
+	//   для редактирования и выбора кассы
 	//
 	virtual int SLAPI EditParam(void *) { return -1; }
+	//
+	// Descr: Выполняет диагностику оборудования и возвращает результат в виде
+	//   набора строк pSs.
+	// Returns:
+	//   >0 - диагностика выполнена (даже если есть проблемы с оборудованием)
+	//   <0 - функция не поддерживается
+	//   0  - ошибка (на уровне самой функции, но не ошибка в работе оборудования)
+	//
+	virtual int SLAPI Diagnose(StringSet * pSs) { return -1; } // @v10.5.12
 	const  char * GetName() const { return Name; }
 	PPSlipFormatter * GetSlipFormatter() { return P_SlipFmt; }
 	int    SLAPI CompleteSession(PPID sessID);
