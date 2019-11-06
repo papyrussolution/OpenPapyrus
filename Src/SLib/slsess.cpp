@@ -765,7 +765,7 @@ int SLAPI SlSession::IsThereDragndropObj(void ** ppObj)
 	int    type = 0;
 	ENTER_CRITICAL_SECTION
 	if(DragndropObjIdx) {
-		DdoEntry * p_item = (DdoEntry *)SLS.GetGlobalObject(DragndropObjIdx);
+		DdoEntry * p_item = static_cast<DdoEntry *>(SLS.GetGlobalObject(DragndropObjIdx));
 		if(p_item) {
 			ASSIGN_PTR(ppObj, p_item->P_Obj);
 			type = p_item->Type;

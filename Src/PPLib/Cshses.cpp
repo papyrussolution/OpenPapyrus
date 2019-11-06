@@ -1745,12 +1745,12 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 			}
 			else {
 				int    updated = 1;
-				int    c;
 				double old_price = 0.0;
-				RetailExtrItem  rtl_ext_item;
+				RetailExtrItem rtl_ext_item;
 				Rec.Init();
 				rtl_ext_item.QuotList = pInfo->QuotList;
-				THROW(c = RetailExtr.GetPrice(grec.ID, 0, 0.0, &rtl_ext_item));
+				const int c = RetailExtr.GetPrice(grec.ID, 0, 0.0, &rtl_ext_item);
+				THROW(c);
 				Rec.QuotList = rtl_ext_item.QuotList;
 				const double price_ = (Flags & ACGIF_UNCONDBASEPRICE) ? rtl_ext_item.BasePrice : rtl_ext_item.Price;
 				if(Flags & ACGIF_INITLOCPRN && P_G2OAssoc) {
@@ -1786,7 +1786,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						}
 					}
 				}
-				if(updated && price_ > 0.0) {
+				if(updated && /*price_ > 0.0*/c > 0) { // @v10.6.0 (price_ > 0.0)-->(c > 0) условие заменено для того, чтобы товар с валидной нулевой ценой загружался.
 					uint  i;
 					PPUnit unit_rec;
 					PPGoodsTaxEntry gtx;

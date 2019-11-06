@@ -73,175 +73,7 @@ public:
 		ASSIGN_PTR(pIsForwardSess, is_forward);
 		return ok;
 	}
-	virtual int SLAPI ImportSession(int sessN)
-	{
-		int    ok = -1;
-        int    local_n = 0;
-		SString temp_buf;
-		SString wait_msg_tmpl, wait_msg;
-		const TSCollection <PPPosProtocol::ReadBlock> * p_rb_list = P_Pib ? (const TSCollection <PPPosProtocol::ReadBlock> *)P_Pib->GetStoredReadBlocks() : 0;
-		PPLoadText(PPTXT_IMPORTCHECKS, wait_msg_tmpl);
-		THROW(CreateTables());
-		if(p_rb_list) {
-			for(uint i = 0; ok < 0 && i < p_rb_list->getCount(); i++) {
-				const PPPosProtocol::ReadBlock * p_ib = p_rb_list->at(i);
-				if(p_ib) {
-					const PPPosProtocol::RouteObjectBlock * p_src_route_blk = 0;
-					int    pos_no = 0;
-					for(uint _csidx = 0; ok < 0 && _csidx < p_ib->RefList.getCount(); _csidx++) {
-						const PPPosProtocol::ObjBlockRef & r_ref = p_ib->RefList.at(_csidx);
-						int    type = 0;
-						if(r_ref.Type == PPPosProtocol::obSource) {
-							p_src_route_blk = (const PPPosProtocol::RouteObjectBlock *)p_ib->GetItem(_csidx, &type);
-							THROW(type == PPPosProtocol::obSource);
-							if(p_src_route_blk) {
-								const PPGenCashNode::PosIdentEntry * p_pie = Acn.SearchPosIdentEntryByGUID(p_src_route_blk->Uuid);
-								pos_no = p_pie ? p_pie->N : 0;
-							}
-						}
-						else if(r_ref.Type == PPPosProtocol::obCSession) {
-							if(local_n != sessN) {
-								local_n++;
-							}
-							else {
-								int    local_pos_no = 0;
-								//PPID   src_ar_id = 0;
-								PPPosProtocol::ResolveGoodsParam rgp;
-								SCardTbl::Rec sc_rec;
-								const PPPosProtocol::CSessionBlock * p_cb = (const PPPosProtocol::CSessionBlock *)p_ib->GetItem(_csidx, &type);
-								const uint rc = p_ib->RefList.getCount();
-								THROW(type == PPPosProtocol::obCSession);
-								wait_msg.Printf(wait_msg_tmpl, temp_buf.Z().Cat(p_cb->Dtm, DATF_DMY, TIMF_HMS).cptr());
-								if(p_cb->PosBlkP) {
-									const PPPosProtocol::PosNodeBlock * p_pnb = (const PPPosProtocol::PosNodeBlock *)p_ib->GetItem(p_cb->PosBlkP, &type);
-									if(p_pnb) {
-										assert(type == PPPosProtocol::obPosNode);
-										p_ib->GetS(p_pnb->CodeP, temp_buf);
-										const PPGenCashNode::PosIdentEntry * p_pie = Acn.SearchPosIdentEntryByName(temp_buf);
-										local_pos_no = p_pie ? p_pie->N : 0;
-									}
-								}
-								SETIFZ(local_pos_no, pos_no);
-								SETIFZ(local_pos_no, 1);
-								{
-        							PPTransaction tra(1);
-        							THROW(tra);
-									for(uint cc_refi = 0; cc_refi < rc; cc_refi++) {
-										const PPPosProtocol::ObjBlockRef & r_cc_ref = p_ib->RefList.at(cc_refi);
-										//const long pos_n = 1; // @stub // Целочисленный номер кассы
-										if(r_cc_ref.Type == PPPosProtocol::obCCheck) {
-											int    cc_type = 0;
-											const PPPosProtocol::CCheckBlock * p_ccb = (const PPPosProtocol::CCheckBlock *)p_ib->GetItem(cc_refi, &cc_type);
-											THROW(cc_type == PPPosProtocol::obCCheck);
-											if(p_ccb->CSessionBlkP == _csidx) {
-												int    ccr = 0;
-												PPID   cc_id = 0;
-												PPID   cashier_id = 0;
-												PPID   sc_id = 0; // ИД персональной карты, привязанной к чеку
-												LDATETIME cc_dtm = p_ccb->Dtm;
-												double cc_amount = p_ccb->Amount;
-												double cc_discount = p_ccb->Discount;
-												long   cc_flags = 0;
-												if(p_ccb->SaCcFlags & CCHKF_RETURN)
-													cc_flags |= CCHKF_RETURN;
-												if(p_ccb->SCardBlkP) {
-													int    sc_type = 0;
-													const PPPosProtocol::SCardBlock * p_scb = (const PPPosProtocol::SCardBlock *)p_ib->GetItem(p_ccb->SCardBlkP, &sc_type);
-													assert(sc_type == PPPosProtocol::obSCard);
-													if(p_scb->NativeID)
-														sc_id = p_scb->NativeID;
-													else {
-														p_ib->GetS(p_scb->CodeP, temp_buf);
-														temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-														if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
-															sc_id = sc_rec.ID;
-														else {
-															; // @log
-														}
-													}
-												}
-												// @v10.1.10 {
-												while(SearchTempCheckByTime(local_pos_no, &cc_dtm) > 0) {
-													int    h, m, s, hs;
-													decodetime(&h, &m, &s, &hs, &cc_dtm.t);
-													THROW_PP_S(hs < 99, PPERR_DUPTEMPCHECK, MakeMsgByCheck(&cc_dtm, local_pos_no, p_ccb->Code, temp_buf));
-													cc_dtm.t = encodetime(h, m, s, hs + 1);
-												}
-												// } @v10.1.10
-												THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
-												if(ccr > 0) { // @v9.9.12
-													for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
-														const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);
-														if(r_cl_ref.Type == PPPosProtocol::obCcLine) {
-															int    cl_type = 0;
-															const PPPosProtocol::CcLineBlock * p_clb = (const PPPosProtocol::CcLineBlock *)p_ib->GetItem(cl_refi, &cl_type);
-															THROW(cl_type == PPPosProtocol::obCcLine);
-															if(p_clb->CCheckBlkP == cc_refi) {
-																short  div_n = (short)p_clb->DivN;
-																double qtty = (cc_flags & CCHKF_RETURN) ? -fabs(p_clb->Qtty) : fabs(p_clb->Qtty);
-																double price = p_clb->Price;
-																double dscnt = (p_clb->SumDiscount != 0.0 && qtty != 0.0) ? (p_clb->SumDiscount / fabs(qtty)) : p_clb->Discount; // @v10.2.0
-																PPID   goods_id = 0;
-																if(p_clb->GoodsBlkP) {
-																	int    g_type = 0;
-																	const PPPosProtocol::GoodsBlock * p_gb = (const PPPosProtocol::GoodsBlock *)p_ib->GetItem(p_clb->GoodsBlkP, &g_type);
-																	assert(g_type == PPPosProtocol::obGoods);
-																	if(p_gb->NativeID) {
-																		goods_id = p_gb->NativeID;
-																	}
-																	else {
-																		THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, rgp, &goods_id));
-																	}
-																}
-																SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
-																p_ib->GetS(p_clb->SerialP, temp_buf); // @v10.0.08
-																SetTempCcLineValues(0, qtty, price, dscnt, temp_buf/*serial*/); // @v10.0.08 0-->temp_buf
-																THROW_DB(P_TmpCclTbl->insertRec());
-															}
-														}
-														else if(r_cl_ref.Type == PPPosProtocol::obPayment) {
-															int    cl_type = 0;
-															const PPPosProtocol::CcPaymentBlock * p_cpb = (const PPPosProtocol::CcPaymentBlock *)p_ib->GetItem(cl_refi, &cl_type);
-															THROW(cl_type == PPPosProtocol::obPayment);
-															if(p_cpb->CCheckBlkP == cc_refi) {
-																PPID   paym_sc_id = 0;
-																if(p_cpb->SCardBlkP && p_cpb->PaymType == CCAMTTYP_CRDCARD) {
-																	int    sc_type = 0;
-																	const PPPosProtocol::SCardBlock * p_scb = (const PPPosProtocol::SCardBlock *)p_ib->GetItem(p_cpb->SCardBlkP, &sc_type);
-																	assert(sc_type == PPPosProtocol::obSCard);
-																	if(p_scb->NativeID)
-																		paym_sc_id = p_scb->NativeID;
-																	else {
-																		p_ib->GetS(p_scb->CodeP, temp_buf);
-																		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-																		if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
-																			paym_sc_id = sc_rec.ID;
-																		else {
-																			; // @log
-																		}
-																	}
-																}
-																THROW(AddTempCheckPaym(cc_id, p_cpb->PaymType, p_cpb->Amount, paym_sc_id));
-															}
-														}
-													}
-												}
-											}
-										}
-										PPWaitPercent(cc_refi+1, rc, wait_msg);
-									}
-									THROW(tra.Commit());
-								}
-								ok = 1;
-							}
-						}
-					}
-				}
-			}
-		}
-		CATCHZOK
-		return ok;
-	}
+	virtual int SLAPI ImportSession(int sessN);
 	virtual int SLAPI FinishImportSession(PPIDArray * pList)
 	{
 		Pp.DestroyReadBlock();
@@ -273,6 +105,173 @@ private:
 	PPPosProtocol Pp; // Экземпляр PPPosProtocol создаваемый для импорта сессий
 	PPPosProtocol::ProcessInputBlock * P_Pib;
 };
+
+int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
+{
+	int    ok = -1;
+    int    local_n = 0;
+	SString temp_buf;
+	SString wait_msg_tmpl, wait_msg;
+	const TSCollection <PPPosProtocol::ReadBlock> * p_rb_list = P_Pib ? static_cast<const TSCollection <PPPosProtocol::ReadBlock> *>(P_Pib->GetStoredReadBlocks()) : 0;
+	PPLoadText(PPTXT_IMPORTCHECKS, wait_msg_tmpl);
+	THROW(CreateTables());
+	if(p_rb_list) {
+		for(uint i = 0; ok < 0 && i < p_rb_list->getCount(); i++) {
+			const PPPosProtocol::ReadBlock * p_ib = p_rb_list->at(i);
+			if(p_ib) {
+				const PPPosProtocol::RouteObjectBlock * p_src_route_blk = 0;
+				int    pos_no = 0;
+				for(uint _csidx = 0; ok < 0 && _csidx < p_ib->RefList.getCount(); _csidx++) {
+					const PPPosProtocol::ObjBlockRef & r_ref = p_ib->RefList.at(_csidx);
+					int    type = 0;
+					if(r_ref.Type == PPPosProtocol::obSource) {
+						p_src_route_blk = static_cast<const PPPosProtocol::RouteObjectBlock *>(p_ib->GetItem(_csidx, &type));
+						THROW(type == PPPosProtocol::obSource);
+						if(p_src_route_blk) {
+							const PPGenCashNode::PosIdentEntry * p_pie = Acn.SearchPosIdentEntryByGUID(p_src_route_blk->Uuid);
+							pos_no = p_pie ? p_pie->N : 0;
+						}
+					}
+					else if(r_ref.Type == PPPosProtocol::obCSession) {
+						if(local_n != sessN) {
+							local_n++;
+						}
+						else {
+							int    local_pos_no = 0;
+							PPPosProtocol::ResolveGoodsParam rgp;
+							SCardTbl::Rec sc_rec;
+							const PPPosProtocol::CSessionBlock * p_cb = static_cast<const PPPosProtocol::CSessionBlock *>(p_ib->GetItem(_csidx, &type));
+							const uint rc = p_ib->RefList.getCount();
+							THROW(type == PPPosProtocol::obCSession);
+							wait_msg.Printf(wait_msg_tmpl, temp_buf.Z().Cat(p_cb->Dtm, DATF_DMY, TIMF_HMS).cptr());
+							if(p_cb->PosBlkP) {
+								const PPPosProtocol::PosNodeBlock * p_pnb = static_cast<const PPPosProtocol::PosNodeBlock *>(p_ib->GetItem(p_cb->PosBlkP, &type));
+								if(p_pnb) {
+									assert(type == PPPosProtocol::obPosNode);
+									p_ib->GetS(p_pnb->CodeP, temp_buf);
+									const PPGenCashNode::PosIdentEntry * p_pie = Acn.SearchPosIdentEntryByName(temp_buf);
+									local_pos_no = p_pie ? p_pie->N : 0;
+								}
+							}
+							SETIFZ(local_pos_no, pos_no);
+							SETIFZ(local_pos_no, 1);
+							{
+        						PPTransaction tra(1);
+        						THROW(tra);
+								for(uint cc_refi = 0; cc_refi < rc; cc_refi++) {
+									const PPPosProtocol::ObjBlockRef & r_cc_ref = p_ib->RefList.at(cc_refi);
+									//const long pos_n = 1; // @stub // Целочисленный номер кассы
+									if(r_cc_ref.Type == PPPosProtocol::obCCheck) {
+										int    cc_type = 0;
+										const PPPosProtocol::CCheckBlock * p_ccb = static_cast<const PPPosProtocol::CCheckBlock *>(p_ib->GetItem(cc_refi, &cc_type));
+										THROW(cc_type == PPPosProtocol::obCCheck);
+										if(p_ccb->CSessionBlkP == _csidx) {
+											int    ccr = 0;
+											PPID   cc_id = 0;
+											PPID   cashier_id = 0;
+											PPID   sc_id = 0; // ИД персональной карты, привязанной к чеку
+											LDATETIME cc_dtm = p_ccb->Dtm;
+											double cc_amount = p_ccb->Amount;
+											double cc_discount = p_ccb->Discount;
+											long   cc_flags = 0;
+											if(p_ccb->SaCcFlags & CCHKF_RETURN)
+												cc_flags |= CCHKF_RETURN;
+											if(p_ccb->SCardBlkP) {
+												int    sc_type = 0;
+												const PPPosProtocol::SCardBlock * p_scb = static_cast<const PPPosProtocol::SCardBlock *>(p_ib->GetItem(p_ccb->SCardBlkP, &sc_type));
+												assert(sc_type == PPPosProtocol::obSCard);
+												if(p_scb->NativeID)
+													sc_id = p_scb->NativeID;
+												else {
+													p_ib->GetS(p_scb->CodeP, temp_buf);
+													temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+													if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
+														sc_id = sc_rec.ID;
+													else {
+														; // @log
+													}
+												}
+											}
+											// @v10.1.10 {
+											while(SearchTempCheckByTime(local_pos_no, &cc_dtm) > 0) {
+												int    h, m, s, hs;
+												decodetime(&h, &m, &s, &hs, &cc_dtm.t);
+												THROW_PP_S(hs < 99, PPERR_DUPTEMPCHECK, MakeMsgByCheck(&cc_dtm, local_pos_no, p_ccb->Code, temp_buf));
+												cc_dtm.t = encodetime(h, m, s, hs + 1);
+											}
+											// } @v10.1.10
+											THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
+											if(ccr > 0) { // @v9.9.12
+												for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
+													const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);
+													int    cl_type = 0;
+													if(r_cl_ref.Type == PPPosProtocol::obCcLine) {
+														const PPPosProtocol::CcLineBlock * p_clb = static_cast<const PPPosProtocol::CcLineBlock *>(p_ib->GetItem(cl_refi, &cl_type));
+														THROW(cl_type == PPPosProtocol::obCcLine);
+														if(p_clb->CCheckBlkP == cc_refi) {
+															short  div_n = (short)p_clb->DivN;
+															double qtty = (cc_flags & CCHKF_RETURN) ? -fabs(p_clb->Qtty) : fabs(p_clb->Qtty);
+															double price = p_clb->Price;
+															double dscnt = (p_clb->SumDiscount != 0.0 && qtty != 0.0) ? (p_clb->SumDiscount / fabs(qtty)) : p_clb->Discount; // @v10.2.0
+															PPID   goods_id = 0;
+															if(p_clb->GoodsBlkP) {
+																int    g_type = 0;
+																const PPPosProtocol::GoodsBlock * p_gb = static_cast<const PPPosProtocol::GoodsBlock *>(p_ib->GetItem(p_clb->GoodsBlkP, &g_type));
+																assert(g_type == PPPosProtocol::obGoods);
+																if(p_gb->NativeID)
+																	goods_id = p_gb->NativeID;
+																else {
+																	THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, rgp, &goods_id));
+																}
+															}
+															SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
+															p_ib->GetS(p_clb->SerialP, temp_buf); // @v10.0.08
+															SetTempCcLineValues(0, qtty, price, dscnt, temp_buf/*serial*/); // @v10.0.08 0-->temp_buf
+															THROW_DB(P_TmpCclTbl->insertRec());
+														}
+													}
+													else if(r_cl_ref.Type == PPPosProtocol::obPayment) {
+														const PPPosProtocol::CcPaymentBlock * p_cpb = static_cast<const PPPosProtocol::CcPaymentBlock *>(p_ib->GetItem(cl_refi, &cl_type));
+														THROW(cl_type == PPPosProtocol::obPayment);
+														if(p_cpb->CCheckBlkP == cc_refi) {
+															PPID   paym_sc_id = 0;
+															if(p_cpb->SCardBlkP && p_cpb->PaymType == CCAMTTYP_CRDCARD) {
+																int    sc_type = 0;
+																const PPPosProtocol::SCardBlock * p_scb = static_cast<const PPPosProtocol::SCardBlock *>(p_ib->GetItem(p_cpb->SCardBlkP, &sc_type));
+																assert(sc_type == PPPosProtocol::obSCard);
+																if(p_scb->NativeID)
+																	paym_sc_id = p_scb->NativeID;
+																else {
+																	p_ib->GetS(p_scb->CodeP, temp_buf);
+																	temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+																	if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
+																		paym_sc_id = sc_rec.ID;
+																	else {
+																		; // @log
+																	}
+																}
+															}
+															THROW(AddTempCheckPaym(cc_id, p_cpb->PaymType, p_cpb->Amount, paym_sc_id));
+														}
+													}
+												}
+											}
+										}
+									}
+									PPWaitPercent(cc_refi+1, rc, wait_msg);
+								}
+								THROW(tra.Commit());
+							}
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 
 class CM_PAPYRUS : public PPCashMachine {
 public:
@@ -1541,33 +1540,6 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 		if(rInfo.Rest > 0.0)
 			w_s.PutInner("rest", temp_buf.Z().Cat(rInfo.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
         {
-			//static
-			/*
-			int SLAPI AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(PPID goodsID, PPID locID, double basePrice, int lookBackPeriod, RealArray & rList)
-			{
-				int    ok = -1;
-				rList.clear();
-				if(lookBackPeriod > 0) {
-					// @v9.9.0 (unused) const double base_price = R3(basePrice);
-					const LDATE cd = getcurdate_();
-					const LDATE stop_date = plusdate(cd, -lookBackPeriod);
-					ReceiptCore & r_rc = BillObj->trfr->Rcpt;
-					ReceiptTbl::Rec lot_rec;
-					LDATE   enm_dt = MAXDATE;
-					long    enm_opn = MAXLONG;
-					while(r_rc.EnumLastLots(goodsID, locID, &enm_dt, &enm_opn, &lot_rec) > 0 && enm_dt >= stop_date) {
-						double price = R3(lot_rec.Price);
-						uint   p = 0;
-						if(price > 0.0 && price != basePrice && !rList.lsearch(&price, &p, PTR_CMPFUNC(double))) {
-							rList.insert(&price);
-							ok = 1;
-						}
-					}
-			#endif // }
-				}
-				return ok;
-			}
-			*/
         	//
         	// Лоты
         	//

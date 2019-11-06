@@ -971,7 +971,7 @@ int SLAPI PPCommandGroup::LoadLogo()
 	ObjLinkFiles logo;
 	logo.Init(PPOBJ_DESKTOP, dir);
 	logo.Load(ID, 0L);
-	if(logo.At(0, (Logo_ = 0)))
+	if(logo.At(0, Logo_.Z()))
 		ok = 1;
 	return ok;
 }

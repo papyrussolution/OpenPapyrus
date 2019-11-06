@@ -24,27 +24,80 @@ private:
 
 int AlbatrosConfigDialog::EditMqcConfig()
 {
-	int    ok = -1;
-	TDialog * dlg = new TDialog(DLG_MQCCFG);
-	if(CheckDialogPtrErr(&dlg)) {
-		SString temp_buf;
-		Data.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-		dlg->setCtrlString(CTL_MQCCFG_HOST, temp_buf);
-		Data.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
-		dlg->setCtrlString(CTL_MQCCFG_USER, temp_buf);
-		Data.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
-		dlg->setCtrlString(CTL_MQCCFG_SECRET, temp_buf);
-		Data.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, temp_buf);
-		dlg->setCtrlString(CTL_MQCCFG_DATADOMAIN, temp_buf);
-		while(ok < 0 && ExecView(dlg) == cmOK) {
-			dlg->getCtrlString(CTL_MQCCFG_HOST, temp_buf);
+	class MqcConfigDialog : public TDialog {
+		DECL_DIALOG_DATA(PPAlbatrosConfig);
+	public:
+		MqcConfigDialog() : TDialog(DLG_MQCCFG)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			int    ok = 1;
+			SString temp_buf;
+			Data.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+			setCtrlString(CTL_MQCCFG_HOST, temp_buf);
+			// @v10.6.0 {
+			Data.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
+			setCtrlString(CTL_MQCCFG_VIRTHOST, temp_buf);
+			// } @v10.6.0 
+			Data.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+			setCtrlString(CTL_MQCCFG_USER, temp_buf);
+			Data.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+			setCtrlString(CTL_MQCCFG_SECRET, temp_buf);
+			Data.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, temp_buf);
+			setCtrlString(CTL_MQCCFG_DATADOMAIN, temp_buf);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			SString temp_buf;
+			getCtrlString(CTL_MQCCFG_HOST, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf.Strip());
-			dlg->getCtrlString(CTL_MQCCFG_USER, temp_buf);
+			// @v10.6.0 {
+			getCtrlString(CTL_MQCCFG_VIRTHOST, temp_buf);
+			Data.PutExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf.Strip());
+			// } @v10.6.0
+			getCtrlString(CTL_MQCCFG_USER, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf.Strip());
-			dlg->getCtrlString(CTL_MQCCFG_SECRET, temp_buf);
+			getCtrlString(CTL_MQCCFG_SECRET, temp_buf);
 			Data.SetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
-			dlg->getCtrlString(CTL_MQCCFG_DATADOMAIN, temp_buf);
+			getCtrlString(CTL_MQCCFG_DATADOMAIN, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, temp_buf);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmMqcGetCommonConfig)) {
+				SString temp_buf;
+				PPUhttClient uhtt_cli;
+				PPAlbatrosConfig temp_alb_cfg;
+				if(uhtt_cli.GetCommonMqsConfig(temp_alb_cfg) > 0) {
+					temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+					setCtrlString(CTL_MQCCFG_HOST, temp_buf);
+					temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
+					setCtrlString(CTL_MQCCFG_VIRTHOST, temp_buf);
+					temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+					setCtrlString(CTL_MQCCFG_USER, temp_buf);
+					temp_alb_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+					setCtrlString(CTL_MQCCFG_SECRET, temp_buf);
+				}
+				clearEvent(event);
+			}
+			else
+				return;
+		}
+	};
+	int    ok = -1;
+	MqcConfigDialog * dlg = new MqcConfigDialog();
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setDTS(&Data);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			dlg->getDTS(&Data);
 			ok = 1;
 		}
 	}
@@ -259,9 +312,11 @@ int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & 
 	xmlBuffer * p_x_buf = 0;
 	SString temp_buf;
 	SString host;
+	SString virthost;
 	SString user;
 	SString secret;
 	rCfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, host);
+	rCfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, virthost);
 	rCfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, user);
 	rCfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, secret);
 	if(host.NotEmptyS() && user.NotEmptyS() && secret.NotEmptyS()) {
@@ -273,6 +328,7 @@ int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & 
 				{
 					SXml::WNode n_h(_doc, "CommonMqsConfig");
 					n_h.PutInner("host", host);
+					n_h.PutInner("virtual-host", virthost); // @v10.6.0
 					n_h.PutInner("user", user);
 					n_h.PutInner("secret", secret);
 				}
@@ -341,6 +397,8 @@ int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlb
 						for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 							if(SXml::GetContentByName(p_c, "host", temp_buf))
 								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+							else if(SXml::GetContentByName(p_c, "virtual-host", temp_buf)) // @v10.6.0
+								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
 							else if(SXml::GetContentByName(p_c, "user", temp_buf))
 								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
 							else if(SXml::GetContentByName(p_c, "secret", temp_buf))

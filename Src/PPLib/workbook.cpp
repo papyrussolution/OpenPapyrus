@@ -586,6 +586,7 @@ int SLAPI PPObjWorkbook::SelectKeyword(SString & rKeyword)
 }
 
 class Workbook2Dialog : public TDialog {
+	DECL_DIALOG_DATA(PPWorkbookPacket);
 public:
 	enum {
 		ctlgroupIBG = 1
@@ -600,7 +601,7 @@ public:
 		SetupCalDate(CTLCAL_WORKBOOK_DT, CTL_WORKBOOK_DT);
 		SetupTimePicker(this, CTL_WORKBOOK_TM, CTLTM_WORKBOOK_TM);
 	}
-	int    setDTS(const PPWorkbookPacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		Data = *pData;
 		SString temp_buf;
@@ -701,7 +702,7 @@ public:
 		setCtrlString(CTL_WORKBOOK_VER, temp_buf = Data.Rec.Version);
 		return 1;
 	}
-	int    getDTS(PPWorkbookPacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -935,7 +936,6 @@ private:
 	}
 	int    DisableImage;
 	PPObjWorkbook    WbObj;
-	PPWorkbookPacket Data;
 };
 
 class AddWorkbookItemDialog : public TDialog {

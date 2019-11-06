@@ -872,7 +872,10 @@ static int SLAPI FinishUpdateQuots(TSCollection <PPBillPacket> & rRegPackList, i
 
 int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 {
-	int    ok = -1, r = 0, for_all = 0;
+	int    ok = 1;
+	int    r = 0;
+	int    for_all = 0;
+	PPObjBill * p_bobj = BillObj;
 	SString log_msg_buf, temp_buf;
 	PPObjQuotKind qk_obj;
 	PPObjGoods goods_obj;
@@ -918,15 +921,15 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 					BillTbl::Key1 k;
 					k.Dt     = MAXDATE;
 					k.BillNo = MAXLONG;
-					while(!bill_id && BillObj->P_Tbl->search(1, &k, spLt)) {
+					while(!bill_id && p_bobj->P_Tbl->search(1, &k, spLt)) {
 						BillTbl::Rec bill_rec;
-						BillObj->P_Tbl->copyBufTo(&bill_rec);
+						p_bobj->P_Tbl->copyBufTo(&bill_rec);
 						if(loc_list.bsearch(bill_rec.LocID, 0) && GetOpType(bill_rec.OpID) == PPOPT_GOODSREVAL)
 							bill_id = bill_rec.ID;
 					}
 				}
 				if(bill_id) {
-					THROW(BillObj->ExtractPacket(bill_id, &pack) > 0);
+					THROW(p_bobj->ExtractPacket(bill_id, &pack) > 0);
 					{
 						PPTransaction tra(1);
 						THROW(tra);
@@ -1020,10 +1023,8 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
                                         }
 									}
 								}
-								else {
-									if(qary.SearchNearest(qi, &qpos) > 0) {
-										qpos_list.add((long)qpos);
-									}
+								else if(qary.SearchNearest(qi, &qpos) > 0) {
+									qpos_list.add((long)qpos);
 								}
 								if(qpos_list.getCount()) {
 									const PPQuotArray qtemplate = qary;
@@ -1177,7 +1178,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 		}
 		PPWait(0);
 		// @erik v10.5.8 {
-		if(ok = 1 && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) { // @v10.5.9 CConfig.Flags2 & CCFLG2_DEVELOPMENT
+		if(ok && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) { // @v10.5.9 CConfig.Flags2 & CCFLG2_DEVELOPMENT
 			if(RollbackQuots(&date_time_test)) {
 				qc2_test.DumpCurrent(buf_after_test, qc2_test.dumpfIgnoreTimestamp, &items_count_after_test);
 				THROW(buf_after_test.IsEqual(buf_before_test));

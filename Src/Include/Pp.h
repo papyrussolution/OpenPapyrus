@@ -5991,6 +5991,7 @@ public:
 	int    SLAPI IsConsistent() const;
 private:
 	static int AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
+	static int ResponseByAdviseCallback(const SString & rResponseMsg, const PPMqbClient::Envelope * pEnv, MqbEventResponder * pSelf, SString &rDomainBuf);
 	enum {
 		cmdNone = 0,
 		cmdGetGlobalAccountList = 1,
@@ -6179,8 +6180,9 @@ public:
 	//   за высокоуровневую реакцию на различные внешние события.
 	//
 	enum {
-		eventresponderPhoneService = 1, // респондер для событий телефонного сервиса
-		eventresponderMqb = 2 // респондер для событий брокера сообщений
+		eventresponderPhoneService   = 1, // респондер для событий телефонного сервиса
+		eventresponderMqb            = 2, // респондер для событий брокера сообщений
+		eventresponderSysMaintenance = 3  // @v10.6.0 респондер для событий evQuartz, изредка осуществляющий вызов функций системного обслуживания
 	};
 
 	int    SLAPI SetupEventResponder(int eventResponderId); // @v10.5.7
@@ -11631,7 +11633,6 @@ public:
 	};
 
 	static SString & FASTCALL MakeCodeString(const ReceiptTbl::Rec * pRec, int options, SString & rBuf);
-
 	SLAPI  ReceiptCore();
 	int    SLAPI Search(PPID id, ReceiptTbl::Rec * pRec = 0);
 	//
@@ -15137,7 +15138,6 @@ public:
 	int    FASTCALL Copy(const PPCommandGroup &);
 	PPCommandGroup * FASTCALL GetDesktop(long id);
 	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
-
 	int    SLAPI InitDefaultDesktop(const char * pName);
 	int    SLAPI LoadLogo();
 	int    SLAPI StoreLogo();
@@ -28646,6 +28646,7 @@ private:
 #define ALBATROSEXSTR_MQC_USER        12 // @v10.5.2 Имя доступа к брокеру сообщений
 #define ALBATROSEXSTR_MQC_SECRET      13 // @v10.5.2 Пароль доступа к брокеру сообщений
 #define ALBATROSEXSTR_MQC_DATADOMAIN  14 // @v10.5.2 Домен данных
+#define ALBATROSEXSTR_MQC_VIRTHOST    15 // @v10.6.0 Виртуальный хост
 
 struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	enum {
@@ -29797,9 +29798,9 @@ struct AsyncCashGoodsInfo { // @transient
 	// для определения базовой цены, виды с определенным периодом временем.
 #define ACGIF_INITLOCPRN        0x0008 // Инициализировать идентификатор и символ локального принтера,
 	// ассоциированного со складом, с которым, в свою очередь, ассоциирован товар.
-#define ACGIF_UNCONDBASEPRICE   0x0010 // @v7.1.3 Базовая цена - без учета розничных котировок
+#define ACGIF_UNCONDBASEPRICE   0x0010 // Базовая цена - без учета розничных котировок
 	// Инициализируется самим классом AsyncCashGoodsIterator как проекция флага PPEquipConfig::fUncondAsyncBasePrice
-#define ACGIF_EXCLALTFOLD       0x0020 // @internal @v7.3.0 Товарная группа, заданная в кассовом узле является группой-папкой
+#define ACGIF_EXCLALTFOLD       0x0020 // @internal Товарная группа, заданная в кассовом узле является группой-папкой
 	// эксклюзивных альтернат групп.
 #define ACGIF_ALLCODESPERITER   0x0040 // @v9.0.6 Все коды товара передавать в одной итерации
 #define ACGIF_REDOSINCEDLS      0x0080 // @v9.0.11 Повторная выгрузка данных, которые были начиная с заданного DLSID
@@ -51084,7 +51085,7 @@ public:
 	explicit PPBizScoreWindow(HWND hParentWnd);
 	~PPBizScoreWindow();
 	int    Create();
-	int    Destroy();
+	void   Destroy();
 	int    DoCommand(TPoint p);
 	int    Move();
 	int    LoadData();

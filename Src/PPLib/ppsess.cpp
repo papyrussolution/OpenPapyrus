@@ -424,24 +424,12 @@ SLAPI PPThreadLocalArea::~PPThreadLocalArea()
 
 int  SLAPI PPThreadLocalArea::SetupEventResponder(int eventResponderId)
 {
-	int    ok = 0;
+	int    ok = -1;
 	if(eventResponderId == eventresponderPhoneService) {
-		if(!P_PhnSvcEvRespr) {
-			P_PhnSvcEvRespr = new PhoneServiceEventResponder;
-			if(P_PhnSvcEvRespr)
-				ok = 1;
-		}
-		else
-			ok = -1;
+		ok = SETIFZ(P_PhnSvcEvRespr, new PhoneServiceEventResponder);
 	}
 	else if(eventResponderId == eventresponderMqb) {
-		if(!P_MqbEvRespr) {
-			P_MqbEvRespr = new MqbEventResponder;
-			if(P_MqbEvRespr)
-				ok = 1;
-		}
-		else
-			ok = -1;
+		ok = SETIFZ(P_MqbEvRespr, new MqbEventResponder);
 	}
 	return ok;
 }

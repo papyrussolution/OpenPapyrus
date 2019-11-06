@@ -919,7 +919,7 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 		const size_t packet_size = (line_len * line_count) + 1 + 2;
 		THROW(CheckSync_16());
 		p = 0;
-		memset(data_buf, ' ', (size_t)404);
+		memset(data_buf, ' ', 404U);
 		data_buf[p++] = 0x84;
 		// MSG CODE
 		*reinterpret_cast<int16 *>(data_buf+p) = local_msg_code;
@@ -1969,9 +1969,8 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 
 		if(P_DbfTbl) {
 			DbfRecord dbf_rec(P_DbfTbl);
-
 			dbf_rec.put(1, pScalePLU->GoodsID);              // PRD_ID
-			dbf_rec.put(2, (const char *)goods_name.Transf(CTRANSF_INNER_TO_OUTER)); // PRD_NAME
+			dbf_rec.put(2, goods_name.Transf(CTRANSF_INNER_TO_OUTER).cptr()); // PRD_NAME
 			dbf_rec.put(3, "0");                             // FLG_CNTR
 			dbf_rec.put(4, pScalePLU->Barcode);              // PRD_CODE
 			dbf_rec.put(5, pScalePLU->GoodsNo);              // PRD_PLU
@@ -1985,7 +1984,7 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			dbf_rec.put(13, "");                             // PRD_CERT
 
 			for(uint p = 0, j = 0; ss.get(&p, temp_buf.Z()) > 0 && j < 2; j++)
-				dbf_rec.put(14 + j, (const char *)temp_buf.Transf(CTRANSF_INNER_TO_OUTER));  // PRD_CMP1, PRD_CMP2
+				dbf_rec.put(14 + j, temp_buf.Transf(CTRANSF_INNER_TO_OUTER).cptr());  // PRD_CMP1, PRD_CMP2
 			dbf_rec.put(16, "0");                            // PRD_TARE
 			dbf_rec.put(17, expiry_minutes);                 // PRD_LIFE
 			dbf_rec.put(18, "");                             // PRD_DATE
@@ -2007,11 +2006,9 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			line_buf.Cat(R2(pScalePLU->Price) * 100.0).Semicol(); // price
 			line_buf.CatChar('0').Semicol(); // tare
 			line_buf.CatChar(pScalePLU->GoodsID).Semicol(); // code
-			if(expiry_minutes) {
-				temp_buf.Z().Cat(expiry, DATF_GERMAN|DATF_CENTURY).Space().Cat(encodetime(23, 0, 0, 0), TIMF_HMS);
-			}
-			else
-				temp_buf.Z();
+			temp_buf.Z();
+			if(expiry_minutes)
+				temp_buf.Cat(expiry, DATF_GERMAN|DATF_CENTURY).Space().Cat(encodetime(23, 0, 0, 0), TIMF_HMS);
 			line_buf.Cat(temp_buf).Semicol(); // best_before
 			line_buf.CatChar('0').Semicol(); // shelf_life
 			line_buf.Semicol(); // certificate
@@ -4940,7 +4937,6 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 			ZDELETE(p_list);
 		}
 		else if(pack.Rec.ScaleTypeID != PPSCLT_WEIGHTTERM) {
-			//int    send_goodsid = 0;
 			int    barcode_kind = 0;
 			char   wp[16], cp[16];
 			SString temp_buf;
@@ -5044,7 +5040,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 						plu.Expiry = rtl_ext_item.Expiry;
 						plu.GoodsName = gr_item.GoodsName;
 						plu.GoodsName.ReplaceChar('\t', ' ');
-						goods_obj.GetPacket(plu.GoodsID, &gds_pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
+						goods_obj.GetPacket(plu.GoodsID, &gds_pack, PPObjGoods::gpoSkipQuot);
 						line_buf.Z();
 						line_buf.Cat(plu.GoodsID).Tab();
 						line_buf.Cat(plu.GoodsNo).Tab();

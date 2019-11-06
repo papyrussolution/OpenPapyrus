@@ -656,7 +656,9 @@ int SLAPI SCS_SHTRIHFRF::GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * 
 //
 int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 {
-	int     ok = 1, chk_no = 0, is_format = 0;
+	int     ok = 1;
+	int     chk_no = 0;
+	int     is_format = 0;
 	SString temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
@@ -879,9 +881,9 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			const double __amt_bnk = amt_bnk;
 			const double __amt_ccrd = amt_ccrd;
 			const double __amt_cash = sum - __amt_bnk - __amt_ccrd;
-			if(amt_bnk != 0.0)
+			// @v10.6.0 if(amt_bnk != 0.0)
 				THROW(SetFR(Summ2, __amt_bnk));
-			if((__amt_cash+__amt_ccrd) != 0.0)
+			// @v10.6.0 if((__amt_cash+__amt_ccrd) != 0.0)
 				THROW(SetFR(Summ1, (__amt_cash+__amt_ccrd)));
 		}
 		// } @v10.4.11 

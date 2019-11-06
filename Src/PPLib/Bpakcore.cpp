@@ -2134,16 +2134,12 @@ int SLAPI PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTra
 			fl |= CILTIF_QUOT;
 		THROW(P_BObj->ConvertILTI(&ilti, this, &row_pos_list, fl, 0));
 		if(IsIntrExpndOp(Rec.OpID)) {
-			// @v9.8.11 SString clb_number;
 			for(uint i = 0; i < row_pos_list.getCount(); i++) {
 				const uint row_pos = row_pos_list.at(i);
 				const PPTransferItem & r_item = TI(row_pos);
 				ObjTagList tag_list;
-				P_BObj->GetTagListByLot(r_item.LotID, 0, &tag_list); // @v9.8.11 skipReserved 1-->0
+				P_BObj->GetTagListByLot(r_item.LotID, 0/*skipReserveTags*/, &tag_list);
 				LTagL.Set(row_pos, tag_list.GetCount() ? &tag_list : 0);
-				/* @v9.8.11 if(P_BObj->GetSerialNumberByLot(r_item.LotID, clb_number, 0) > 0) {
-					THROW(SnL.AddNumber(row_pos, clb_number));
-				}*/
 			}
 		}
 	}

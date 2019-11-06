@@ -6105,17 +6105,9 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 			if(p_ti->LotID) {
 				const int row_idx = (int)(i-1);
 				if((p_ti->Flags & PPTFR_RECEIPT) || force || is_intrexpnd) {
-					{
-						ObjTagList tag_list;
-						GetTagListByLot(p_ti->LotID, 0, &tag_list); // @v9.8.11 skipReserved 1-->0
-						pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
-					}
-					/* @v9.5.5 if(!is_intrexpnd) */ { // @v9.5.5 Уже не вспомнить зачем это ограничение вводилось
-						// @v9.8.11 GetClbNumberByLot(p_ti->LotID, 0, b);
-						// @v9.8.11 THROW(pPack->ClbL.AddNumber(row_idx, b));
-					}
-					// @v9.8.11 GetSerialNumberByLot(p_ti->LotID, b, 0);
-					// @v9.8.11 THROW(pPack->SnL.AddNumber(row_idx, b));
+					ObjTagList tag_list;
+					GetTagListByLot(p_ti->LotID, 0/*skipReserveTags*/, &tag_list); // @v9.8.11 skipReserved 1-->0
+					pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 				}
 				if(is_intrexpnd && trfr->SearchByBill(p_ti->BillID, 1, p_ti->RByBill, 0) > 0) {
 					const PPID mirror_lot_id = trfr->data.LotID;

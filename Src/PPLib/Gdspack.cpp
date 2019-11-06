@@ -434,7 +434,7 @@ int FASTCALL PPGdsClsPacket::Copy(const PPGdsClsPacket & s)
 	PhUPerU_Formula = s.PhUPerU_Formula;
 	TaxMult_Formula = s.TaxMult_Formula;
 	Package_Formula = s.Package_Formula;
-	LotDimQtty_Formula = s.LotDimQtty_Formula; // @v8.9.10
+	LotDimQtty_Formula = s.LotDimQtty_Formula;
 	PropKind  = s.PropKind;
 	PropGrade = s.PropGrade;
 	PropAdd   = s.PropAdd;
@@ -518,7 +518,7 @@ int SLAPI PPGdsClsPacket::RealToExtDim(double realVal, int dim, long * pLongVal)
 		default: ok = 0; break;
 	}
 	if(ok) {
-		lv = (long)(realVal * fpow10i(p));
+		lv = static_cast<long>(realVal * fpow10i(p));
 		ok = 1;
 	}
 	ASSIGN_PTR(pLongVal, lv);
@@ -606,7 +606,7 @@ int SLAPI PPGdsClsPacket::GetDynGenFilt(const GoodsExtTbl::Rec * pRec, ClsdGoods
 		ok = 1;
 	}
 	ASSIGN_PTR(pFilt, flt);
-	return 1;
+	return ok; // @v10.6.0 @fix 1-->ok
 }
 
 // @<<PPGdsClsPacket::GetNameByTemplate
@@ -621,7 +621,7 @@ int SLAPI PPGdsClsPacket::CheckForSgg(long sym, SubstGrpGoods sgg) const
 			sym1 = PPSYM_GC_DIMY;
 		else if(sgg == sggDimZ)
 			sym1 = PPSYM_GC_DIMZ;
-		else if(sgg == sggDimW) // @v8.6.1
+		else if(sgg == sggDimW)
 			sym1 = PPSYM_GC_DIMW;
 		else if(sgg == sggBrand)
 			sym1 = PPSYM_BRAND;

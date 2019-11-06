@@ -78,7 +78,7 @@
 	#define HELP_BROWSER_GOODSCARGOBARCODE                       20
 #define BROWSER_GOODSWITHSTRUC                          21 // Товары {%s} со структурами
 	#define HELP_BROWSER_GOODSWITHSTRUC                          21
-#define BROWSER_GOODSSTRUC2                             22 // Товарные структуры {%s}
+#define BROWSER_GOODSSTRUC2                             22 // @{view_goodsstruc} {%s}
 	#define HELP_BROWSER_GOODSSTRUC2                             22
 #define BROWSER_TRANSPORT                               23 // @{view_transport}
 	#define HELP_BROWSER_TRANSPORT                               23

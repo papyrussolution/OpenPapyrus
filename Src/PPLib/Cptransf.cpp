@@ -634,6 +634,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 	PPID   compl_bill_id = 0;
 	PPBillPacket * p_pack = 0;
 	LongArray rows;
+	LongArray local_row_pos_list;
 	SString serial_buf;
 	{
 		PPTransaction tra(use_ta);
@@ -649,7 +650,20 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE; // @v9.2.1 CILTIF_ALLOWZPRICE
 				if(!(CcFlags & CCFLG_NOADJPRWROFFDRAFT)) // @v9.3.4
 					ciltif |= CILTIF_CAREFULLYALIGNPRICE;
-				THROW(ConvertILTI(&ilti, p_pack, &rows, ciltif, serial_buf));
+				local_row_pos_list.clear(); // @v10.6.0
+				THROW(ConvertILTI(&ilti, p_pack, &local_row_pos_list, ciltif, serial_buf)); // @v10.6.0 rows-->local_row_pos_list
+				rows.add(&local_row_pos_list); // @v10.6.0
+				// @v10.6.0 {
+				if(IsIntrExpndOp(p_pack->Rec.OpID)) {
+					for(uint i = 0; i < local_row_pos_list.getCount(); i++) {
+						const uint row_pos = local_row_pos_list.at(i);
+						const PPTransferItem & r_item = p_pack->ConstTI(row_pos);
+						ObjTagList tag_list;
+						GetTagListByLot(r_item.LotID, 0/*skipReserveTags*/, &tag_list);
+						p_pack->LTagL.Set(row_pos, tag_list.GetCount() ? &tag_list : 0);
+					}
+				}
+				// } @v10.6.0 
 				if(ilti.HasDeficit()) {
 					THROW(temp_pugl.Add(&ilti, rBlk.SrcDraftPack.Rec.LocID, i, p_pack->Rec.Dt));
 					incomplete = 1;

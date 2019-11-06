@@ -2846,7 +2846,10 @@ int SLAPI RetailPriceExtractor::Init(PPID locID, const ExtQuotBlock * pEqBlk, PP
 int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtty, RetailExtrItem * pItem)
 {
 	int    use_quot_cache = 1000; // @v8.2.7 1-->1000 // @v9.2.2 1000-->0 // @v9.3.1 0-->1000
-	int    ok = -1, r = -1;
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPObjBill * p_bobj = BillObj;
+	int    r = -1;
 	uint   i, gp_flags = GPRET_INDEF;
 	const  LDATE curdt = getcurdate_();
 	//
@@ -2896,8 +2899,18 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 		if(lot_rec.ID) {
 			ObjTagItem tag;
 			LDATETIME dtm;
-			if(PPRef->Ot.GetTag(PPOBJ_LOT, lot_rec.ID, PPTAG_LOT_MANUFTIME, &tag) > 0 && tag.GetTimestamp(&dtm) > 0)
+			if(p_ref->Ot.GetTag(PPOBJ_LOT, lot_rec.ID, PPTAG_LOT_MANUFTIME, &tag) > 0 && tag.GetTimestamp(&dtm) > 0)
 				pItem->ManufDtm = dtm;
+			// @v10.6.0 {
+			else {
+				PPID   org_lot_id = 0;
+				ReceiptTbl::Rec org_lot_rec;
+				if(p_bobj->trfr->Rcpt.SearchOrigin(lot_rec.ID, &org_lot_id, 0, &org_lot_rec) > 0 && org_lot_id != lot_rec.ID) {
+					if(p_ref->Ot.GetTag(PPOBJ_LOT, org_lot_id, PPTAG_LOT_MANUFTIME, &tag) > 0 && tag.GetTimestamp(&dtm) > 0)
+						pItem->ManufDtm = dtm;
+				}
+			}
+			// } @v10.6.0 
 		}
 		if(Flags & RTLPF_PRICEBYQUOT) { 
 			double q_price = 0.0;

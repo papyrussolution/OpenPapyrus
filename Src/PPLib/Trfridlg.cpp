@@ -1514,41 +1514,39 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		Item.Cost  = 0.0;
 		Item.Rest_ = 0.0;
 		Rest = 0.0;
-		{
-			if(Item.Flags & PPTFR_AUTOCOMPL) {
-				if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, Item.LocID, MAXDATE, &lot_rec) > 0) {
-					Item.Price = R5(lot_rec.Price);
-					Item.UnitPerPack = lot_rec.UnitPerPack;
-				}
+		if(Item.Flags & PPTFR_AUTOCOMPL) {
+			if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, Item.LocID, MAXDATE, &lot_rec) > 0) {
+				Item.Price = R5(lot_rec.Price);
+				Item.UnitPerPack = lot_rec.UnitPerPack;
 			}
-			else if(Item.Flags & PPTFR_REVAL) {
-				Item.RevalCost = 0.0;
-				Item.Discount = 0.0;
-			}
-			if(suppl_deal_cost > 0.0) {
-				PPOprKind op_rec;
-				if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL)
-					Item.Cost = suppl_deal_cost;
-			}
-			//
-			// Наследуем теги из предыдущего лота данного товара
-			//
-			if(ItemNo < 0 && Item.LotID && Item.Flags & PPTFR_RECEIPT) {
-				ObjTagList inh_tag_list;
-				P_BObj->GetTagListByLot(Item.LotID, 1, &inh_tag_list);
-				const uint tc = inh_tag_list.GetCount();
-				if(tc) {
-					PPObjectTag tag_rec;
-					for(uint i_ = 0; i_ < tc; i_++) {
-						const ObjTagItem * p_tag = inh_tag_list.GetItemByPos(i_);
-						if(p_tag && TagObj.Fetch(p_tag->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_INHERITABLE)
-							InheritedLotTagList.PutItem(p_tag->TagID, p_tag);
-					}
-				}
-			}
-			THROW(setupLot());
-			setCtrlData(CTL_LOT_DISCOUNT, &Item.Discount);
 		}
+		else if(Item.Flags & PPTFR_REVAL) {
+			Item.RevalCost = 0.0;
+			Item.Discount = 0.0;
+		}
+		if(suppl_deal_cost > 0.0) {
+			PPOprKind op_rec;
+			if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL)
+				Item.Cost = suppl_deal_cost;
+		}
+		//
+		// Наследуем теги из предыдущего лота данного товара
+		//
+		if(ItemNo < 0 && Item.LotID && Item.Flags & PPTFR_RECEIPT) {
+			ObjTagList inh_tag_list;
+			P_BObj->GetTagListByLot(Item.LotID, 1, &inh_tag_list);
+			const uint tc = inh_tag_list.GetCount();
+			if(tc) {
+				PPObjectTag tag_rec;
+				for(uint i_ = 0; i_ < tc; i_++) {
+					const ObjTagItem * p_tag = inh_tag_list.GetItemByPos(i_);
+					if(p_tag && TagObj.Fetch(p_tag->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_INHERITABLE)
+						InheritedLotTagList.PutItem(p_tag->TagID, p_tag);
+				}
+			}
+		}
+		THROW(setupLot());
+		setCtrlData(CTL_LOT_DISCOUNT, &Item.Discount);
 	} while(dir != 2 && Item.LotID && Rest <= 0.0);
 	calcOrderRest();
 	setupRest();
@@ -2377,14 +2375,9 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		}
 	}
 	else if(IsIntrExpndOp(P_Pack->Rec.OpID)) {
-		{
-			ObjTagList tag_list;
-			P_BObj->GetTagListByLot(Item.LotID, 0, &tag_list); // @v9.8.11 skipReserved 1-->0
-			P_Pack->LTagL.Set(ItemNo, tag_list.GetCount() ? &tag_list : 0);
-		}
-		/* @v9.8.11 if(P_BObj->GetSerialNumberByLot(Item.LotID, clb_number, 0) > 0) {
-			THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
-		}*/
+		ObjTagList tag_list;
+		P_BObj->GetTagListByLot(Item.LotID, 0/*skipReserveTags*/, &tag_list); // @v9.8.11 skipReserved 1-->0
+		P_Pack->LTagL.Set(ItemNo, tag_list.GetCount() ? &tag_list : 0);
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());

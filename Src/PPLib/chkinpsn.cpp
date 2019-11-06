@@ -165,12 +165,8 @@ int SLAPI PPCheckInPersonItem::IsAnonym() const
 	return BIN(Flags & fAnonym);
 }
 
-//int SLAPI PPCheckInPersonItem::Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const
 void SLAPI PPCheckInPersonItem::Count(Total & rT) const
 {
-	//uint   reg_count = 0;
-	//uint   ci_count = 0;
-	//uint   canceled_count = 0;
 	const uint rc = (RegCount > 0) ? RegCount : 1;
 	const int  status = GetStatus();
 	if(status == statusCheckedIn) {
@@ -182,10 +178,6 @@ void SLAPI PPCheckInPersonItem::Count(Total & rT) const
 	else if(status == statusCanceled)
 		rT.CalceledCount += rc;
 	rT.RegCount += rc;
-	//ASSIGN_PTR(pRegCount, reg_count);
-	//ASSIGN_PTR(pCiCount, ci_count);
-	//ASSIGN_PTR(pCanceledCount, canceled_count);
-	//return 1;
 }
 
 int SLAPI PPCheckInPersonItem::CalcAmount(const PPCheckInPersonConfig * pCfg, double * pPrice, double * pAmount) const

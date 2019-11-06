@@ -2309,17 +2309,19 @@ extern "C" __declspec(dllexport) TSCollection <UhttStatus> * UhttSendSms(PPSoapC
 	return p_result;
 }
 
-extern "C" __declspec(dllexport) int UhttGetCommonMqsConfig(PPSoapClientSession & rSess, SString & rCfgText)
+extern "C" __declspec(dllexport) SString * UhttGetCommonMqsConfig(PPSoapClientSession & rSess)
 {
-	rCfgText.Z();
-	int    result = 0;
+	SString * p_result = 0;
 	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	gSoapClientInit(&proxi, 0, 0);
 	ns1__getCommonMqsConfig param;
 	ns1__getCommonMqsConfigResponse resp;
 	if(PreprocessCall(proxi, rSess, proxi.getCommonMqsConfig(rSess.GetUrl(), 0 /* soap_action */, &param, &resp))) {
-		rCfgText = resp.result;
-		result = 1;
+		p_result = new SString;
+		if(p_result) {
+			PPSoapRegisterResultPtr(p_result);
+			*p_result = resp.result;
+		}
 	}
-	return result;
+	return p_result;
 }

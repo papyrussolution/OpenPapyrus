@@ -3812,13 +3812,13 @@ int SLAPI PPUhttClient::GetCommonMqsConfig(PPAlbatrosConfig & rCfg)
 	PPSoapClientSession sess;
 	UHTTGETCOMMONMQSCONFIG_PROC func = reinterpret_cast<UHTTGETCOMMONMQSCONFIG_PROC>(GetFuncEntryAndSetupSess("UhttGetCommonMqsConfig", sess));
 	if(func) {
-		SString result_buf;
-		int    result = func(sess, result_buf);
+		SString * p_result_buf = func(sess);
 		LastMsg = sess.GetMsg();
-		if(result) {
-			if(PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(result_buf, &rCfg) > 0) {
+		if(p_result_buf) {
+			if(PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(*p_result_buf, &rCfg) > 0) {
 				ok = 1;
 			}
+			DestroyResult(reinterpret_cast<void **>(&p_result_buf));
 		}
 	}
 	return ok;
@@ -4403,6 +4403,10 @@ int SLAPI TestUhttClient()
 			log_buf.Space().Cat("ok");
 			alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
 			log_buf.Space().Cat(temp_buf);
+			// @v10.6.0 {
+			alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
+			log_buf.Space().Cat(temp_buf); 
+			// } @v10.6.0
 			alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
 			log_buf.Space().Cat(temp_buf);
 			ok = 1;

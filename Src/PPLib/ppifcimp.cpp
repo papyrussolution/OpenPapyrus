@@ -5287,7 +5287,7 @@ SString & DL6ICLS_PPObjBill::GetName(int32 id)
 
 IStrAssocList * DL6ICLS_PPObjBill::GetSelector(int32 extraParam)
 {
-	return (IStrAssocList *)RaiseAppErrorPtr();
+	return static_cast<IStrAssocList *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPObjBill::Create(PPYOBJREC pRec, int32 flags, int32* pID)
@@ -5417,7 +5417,7 @@ IStrAssocList * DL6ICLS_PPBillPacket::GetOrderList()
 			assoc_list.Add(list.get(i), 0, 0);
 		}
 	}
-	return (assoc_list.getCount()) ? (IStrAssocList *)GetIStrAssocList(this, &assoc_list, 0) : 0;
+	return (assoc_list.getCount()) ? reinterpret_cast<IStrAssocList *>(GetIStrAssocList(this, &assoc_list, 0)) : 0;
 }
 
 IPapyrusAmountList * DL6ICLS_PPBillPacket::GetAmountList()
@@ -5551,7 +5551,7 @@ IUnknown * GetICompleteList(SCoClass * pCls, CompleteArray * pList, int delList 
 DL6_IC_CONSTRUCTOR(CompleteList, DL6ICLS_CompleteList_VTab)
 	{ ExtraPtr = new CompleteArray; }
 DL6_IC_DESTRUCTOR(CompleteList)
-	{ delete (CompleteArray *)ExtraPtr; }
+	{ delete static_cast<CompleteArray *>(ExtraPtr); }
 //
 // Interface ICompleteList implementation
 //
@@ -5672,10 +5672,10 @@ int32 DL6ICLS_PPLotList::GetCount()
 int32 DL6ICLS_PPLotList::Get(int32 pos, SPpyO_Lot * pLot)
 {
 	int    ok = 0;
-	SArray * p_data = static_cast<SArray *>(ExtraPtr);
+	const SArray * p_data = static_cast<const SArray *>(ExtraPtr);
 	if(p_data) {
 		if(pos < static_cast<int32>(p_data->getCount())) {
-			FillLotRec((ReceiptTbl::Rec*)p_data->at(static_cast<uint>(pos)), pLot);
+			FillLotRec(static_cast<const ReceiptTbl::Rec *>(p_data->at(static_cast<uint>(pos))), pLot);
 			ok = 1;
 		}
 	}
@@ -5763,7 +5763,7 @@ void DL6ICLS_PPLotList::Clone(ILotList** ppClone)
 	ILotList * p = 0;
 	if(CreateInnerInstance(P_Scope->GetName(), "ILotList", (void **)&p)) {
 		SArray * p_data = static_cast<SArray *>(ExtraPtr);
-		SArray * p_outer_data = (SArray*)SCoClass::GetExtraPtrByInterface(p);
+		SArray * p_outer_data = static_cast<SArray *>(SCoClass::GetExtraPtrByInterface(p));
 		if(p_data && p_outer_data)
 			*p_outer_data = *p_data;
 		else
@@ -5808,7 +5808,7 @@ IPapyrusBillPacket* DL6ICLS_PPObjBill::CreatePacket()
 	CATCH
 		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
-	return (IPapyrusBillPacket*)p_ifc;
+	return static_cast<IPapyrusBillPacket *>(p_ifc);
 }
 
 int32 DL6ICLS_PPObjBill::SearchAnalog(SPpyO_Bill * pSample, int32 * pID, SPpyO_Bill * pRec)
@@ -5874,9 +5874,9 @@ int32 DL6ICLS_PPObjBill::CalcClientDebt(long clientID, SDateRange * pPeriod, SDe
 #define FLD(f) pBlk->f = blk.f
 		FLD(Amount);
 		FLD(Debt);
-		pBlk->HasMatured = (int)blk.HasMatured;
-		pBlk->MaxDelay   = (int)blk.MaxDelay;
-		pBlk->MaxExpiry  = (int)blk.MaxExpiry;
+		pBlk->HasMatured = blk.HasMatured;
+		pBlk->MaxDelay   = blk.MaxDelay;
+		pBlk->MaxExpiry  = blk.MaxExpiry;
 
 #undef FLD
 	}
@@ -5965,7 +5965,7 @@ int32 DL6ICLS_PPObjBill::GetGuid(long billID, SString * pGuidStr)
 		SString temp_buf;
 		if(p_e->P_BObj->GetGuid(billID, &uuid) > 0) {
 			uuid.ToStr(S_GUID::fmtIDL, temp_buf);
-			ASSIGN_PTR(pGuidStr, (const char *)temp_buf);
+			ASSIGN_PTR(pGuidStr, temp_buf);
 			ok = 1;
 		}
 	}

@@ -1,5 +1,7 @@
 // V_ARTCL.CPP
 // A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
+// Р РµР°Р»РёР·Р°С†РёСЏ РєРѕРЅС‚СЂРѕР»Р»РµСЂР° Р°РЅР°Р»РёР· РґР°РЅРЅС‹С… PPViewArticle
 //
 #include <pp.h>
 #pragma hdrstop
@@ -37,7 +39,7 @@ void * SLAPI PPViewArticle::GetEditExtraParam()
 PPBaseFilt * PPViewArticle::CreateFilt(void * extraPtr) const
 {
 	ArticleFilt * p_filt = new ArticleFilt;
-	p_filt->AccSheetID = (reinterpret_cast<long>(extraPtr));
+	p_filt->AccSheetID = reinterpret_cast<long>(extraPtr);
 	return p_filt;
 }
 
@@ -190,10 +192,10 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 				}
 				else if(AgtProp == ARTPRP_SUPPLAGT) {
 					//
-					// Соглашение с поставщиком может хранится в Property с идентификатором ARTPRP_SUPPLAGT (формат до v8.5.0),
-					// и с иденти ARTPRP_SUPPLAGT2 (формат v8.5.0 и выше). По этому пришлось так усложнить выборку соглашений:
-					// сначала быстро получаем статьи, которые имеют соглашения, а потом для каждой такой статьи
-					// полной функцией PPObjArticle::GetSupplAgreement извлекаем соглашение
+					// РЎРѕРіР»Р°С€РµРЅРёРµ СЃ РїРѕСЃС‚Р°РІС‰РёРєРѕРј РјРѕР¶РµС‚ С…СЂР°РЅРёС‚СЃСЏ РІ Property СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј ARTPRP_SUPPLAGT (С„РѕСЂРјР°С‚ РґРѕ v8.5.0),
+					// Рё СЃ РёРґРµРЅС‚Рё ARTPRP_SUPPLAGT2 (С„РѕСЂРјР°С‚ v8.5.0 Рё РІС‹С€Рµ). РџРѕ СЌС‚РѕРјСѓ РїСЂРёС€Р»РѕСЃСЊ С‚Р°Рє СѓСЃР»РѕР¶РЅРёС‚СЊ РІС‹Р±РѕСЂРєСѓ СЃРѕРіР»Р°С€РµРЅРёР№:
+					// СЃРЅР°С‡Р°Р»Р° Р±С‹СЃС‚СЂРѕ РїРѕР»СѓС‡Р°РµРј СЃС‚Р°С‚СЊРё, РєРѕС‚РѕСЂС‹Рµ РёРјРµСЋС‚ СЃРѕРіР»Р°С€РµРЅРёСЏ, Р° РїРѕС‚РѕРј РґР»СЏ РєР°Р¶РґРѕР№ С‚Р°РєРѕР№ СЃС‚Р°С‚СЊРё
+					// РїРѕР»РЅРѕР№ С„СѓРЅРєС†РёРµР№ PPObjArticle::GetSupplAgreement РёР·РІР»РµРєР°РµРј СЃРѕРіР»Р°С€РµРЅРёРµ
 					//
 					PPIDArray ar_agt_list;
 					{
@@ -679,8 +681,8 @@ int SLAPI PPViewArticle::UpdateAll()
 								if(do_update) {
 									PPID   temp_id = _id;
 									if(ArObj.PutPacket(&temp_id, &pack, 0)) {
-										//PPTXT_ARMASSUPD_UPD               "Изменена статья аналитического учета '@zstr'"
-										//PPTXT_ARMASSUPD_UPD_CRAGT         "Изменена статья аналитического учета '@zstr' (создано соглашение)"
+										//PPTXT_ARMASSUPD_UPD               "РР·РјРµРЅРµРЅР° СЃС‚Р°С‚СЊСЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р° '@zstr'"
+										//PPTXT_ARMASSUPD_UPD_CRAGT         "РР·РјРµРЅРµРЅР° СЃС‚Р°С‚СЊСЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р° '@zstr' (СЃРѕР·РґР°РЅРѕ СЃРѕРіР»Р°С€РµРЅРёРµ)"
 										if(do_update == 2) {
 											logger.Log(PPFormatT(PPTXT_ARMASSUPD_UPD_CRAGT, &msg_buf, pack.Rec.Name));
 										}
@@ -1114,4 +1116,3 @@ void PPALDD_ArticleView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Article);
 }
-

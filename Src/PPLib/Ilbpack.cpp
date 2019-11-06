@@ -1260,22 +1260,34 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		PPID   dest_loc_id = Rec.LocID;
 		PPID   dest_ar_id = 0;
 		if(cvt_op_typeid == PPOPT_GOODSRECEIPT) {
+			// @v10.6.0 {
+			PPID   main_org_ar_id = 0;
+			PPObjArticle ar_obj;
+			PPObjAccSheet acs_obj;
+			if(Rec.Object2) {
+				PPID    acs_id = 0;
+				PPID    psn_id = ObjectToPerson(Rec.Object2, &acs_id);
+				if(psn_id) {
+					if(acs_obj.IsLinkedToMainOrg(acs_id))
+						ar_obj.P_Tbl->PersonToArticle(psn_id, cvt_op_rec.AccSheetID, &main_org_ar_id);
+				}
+			}
+			if(!main_org_ar_id) {
+				PPID   main_org_psn_id = 0;
+				GetMainOrgID(&main_org_psn_id);
+				if(main_org_psn_id) {
+					ar_obj.P_Tbl->PersonToArticle(main_org_psn_id, cvt_op_rec.AccSheetID, &main_org_ar_id);
+				}
+			}
+			// } @v10.6.0 
 			if(IsIntrExpndOp(Rec.OpID)) {
 				dest_loc_id = PPObjLocation::ObjToWarehouse(Rec.Object);
 				SETIFZ(dest_loc_id, Rec.LocID);
-				if(Rec.Object2) {
-					PPID    acs_id = 0;
-					PPID    psn_id = ObjectToPerson(Rec.Object2, &acs_id);
-					if(psn_id) {
-						PPObjArticle ar_obj;
-						PPObjAccSheet acs_obj;
-						if(acs_obj.IsLinkedToMainOrg(acs_id))
-							ar_obj.P_Tbl->PersonToArticle(psn_id, cvt_op_rec.AccSheetID, &dest_ar_id);
-					}
-				}
+				dest_ar_id = main_org_ar_id;
 			}
 			// @v9.0.4 {
 			else if(GetOpType(Rec.OpID) == PPOPT_GOODSEXPEND) {
+				dest_ar_id = main_org_ar_id;
 				if(P_Freight && P_Freight->DlvrAddrID) {
 					PPObjLocation loc_obj;
 					LocationTbl::Rec loc_rec;
@@ -1310,7 +1322,7 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		STRNSCPY(bpack.Rec.Memo, Rec.Memo);
 		bpack.Amounts        = Amounts;
 		bpack.Rec.Amount     = Rec.Amount;
-		*(PPBill*)this = *(PPBill*)&bpack;
+		*static_cast<PPBill *>(this) = *static_cast<const PPBill *>(&bpack);
 	}
 	LocObj = PPObjLocation::WarehouseToObj(Rec.LocID);
 	if(op_type_id == PPOPT_ACCTURN) {
@@ -1338,7 +1350,7 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		if(op_type_id == PPOPT_INVENTORY) {
 			THROW(p_bobj->LoadInventoryArray(billID, InvList));
 		}
-		if(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
+		if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.6.0 PPOPT_DRAFTQUOTREQ
 			if(p_bobj->P_CpTrfr) {
 				CpTrfrExt ext;
 				for(rbybill = 0; (r = p_bobj->P_CpTrfr->EnumItems(billID, &rbybill, &ti, &ext)) > 0;) {
@@ -1367,13 +1379,11 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 						ti.Price = ti.Cost;
 						ti.Discount = 0.0;
 					}
-					// @v9.0.8 {
 					else if(op_type_id == PPOPT_GOODSEXPEND && cvt_op_typeid == PPOPT_GOODSRECEIPT) {
 						ti.Cost = ti.NetPrice();
 						ti.Price = ti.Cost;
 						ti.Discount = 0.0;
 					}
-					// } @v9.0.8
 					//
 					// В данном случае требуется корректно установить флаги, так как поменялся знак операции
 					//
@@ -1390,15 +1400,9 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				THROW_SL(Lots.insert(&ilti));
 				{
 					ObjTagList tag_list;
-					p_bobj->GetTagListByLot(ti.LotID, 0, &tag_list); // @v9.8.11 skipReserved 1-->0
+					p_bobj->GetTagListByLot(ti.LotID, 0/*skipReserveTags*/, &tag_list);
 					LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 				}
-				/* @v9.8.11 if(p_bobj->GetClbNumberByLot(ti.LotID, 0, clb) > 0) {
-					THROW(ClbL.AddNumber(row_idx, clb));
-				}
-				if(p_bobj->GetSerialNumberByLot(ti.LotID, clb, 0) > 0) {
-					THROW(SnL.AddNumber(row_idx, clb));
-				}*/
 			}
 			THROW(r);
 			//

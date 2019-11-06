@@ -4611,7 +4611,7 @@ static StyloDisplayQueue * FASTCALL GetStyloDisplayQueue(PPID dvcID)
 	if(symbol_id < 0) {
 		TSClassWrapper <StyloDisplayQueue> cls;
 		THROW_SL(symbol_id = SLS.CreateGlobalObject(cls));
-		THROW_SL(p_queue = (StyloDisplayQueue *)SLS.GetGlobalObject(symbol_id));
+		THROW_SL(p_queue = static_cast<StyloDisplayQueue *>(SLS.GetGlobalObject(symbol_id)));
 		p_queue->DvcID = dvcID;
 		{
 			long s = SLS.GetGlobalSymbol(queue_symb, symbol_id, 0);
@@ -4619,7 +4619,7 @@ static StyloDisplayQueue * FASTCALL GetStyloDisplayQueue(PPID dvcID)
 		}
 	}
 	else {
-		THROW_SL(p_queue = (StyloDisplayQueue *)SLS.GetGlobalObject(symbol_id));
+		THROW_SL(p_queue = static_cast<StyloDisplayQueue *>(SLS.GetGlobalObject(symbol_id)));
 		assert(p_queue->DvcID == dvcID);
 	}
 	CATCH

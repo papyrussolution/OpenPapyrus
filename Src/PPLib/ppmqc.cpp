@@ -777,6 +777,7 @@ int SLAPI MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd)
 int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = 1;
+	int compulsory_response_flag = 0;
 	if(kind == PPAdviseBlock::evMqbMessage) {
 		MqbEventResponder * p_self = static_cast<MqbEventResponder *>(procExtPtr);
 		PPMqbClient::Envelope * p_env = (p_self && pEv && pEv->P_MqbEnv) ? pEv->P_MqbEnv : 0;
@@ -822,10 +823,10 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 									result_ok = 1;
 								}
 								//@erik v10.5.9 {
-								else if(cmd.Cmd == cmdVerifyGlobalAccount) { 
+								else if(cmd.Cmd == cmdVerifyGlobalAccount) {
+									compulsory_response_flag = 1;
 									PPObjGlobalUserAcc gua_obj;
 									PPGlobalUserAccPacket gua_pack;
-									//PPGlobalUserAcc gua_rec;
 									StrAssocArray obj_gua_guid_list;
 									SString temp_buf;
 									SString login;
@@ -840,11 +841,12 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 											if(gua_pack.Rec.Name != "")
 												login = gua_pack.Rec.Name;
 										}
-
 										if(login.NotEmpty() &&password.NotEmpty()){
-											char hash[128] = {};
-											char cmd_hash[128] = {};
+											char hash[128];
+											char cmd_hash[128];
 											size_t hash_len = 0;
+											PTR32(hash)[0] = 0;
+											PTR32(cmd_hash)[0] = 0;
 											temp_buf.Z().Cat(login).CatChar(':').Cat(password);
 											SlHash::Sha1(0, temp_buf, temp_buf.Len(), hash, hash_len);
 											temp_buf.Z().Cat(cmd.Hash);
@@ -856,33 +858,20 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 													result_buf = temp_buf;
 													result_ok = 1;
 												}
-												
 											}
-										
 										}
-									}
-									
+									}									
 								}
 								// } @erik v10.5.9
 							}
 						}
 						if(result_ok) {
-							if(!p_self->P_Cli) {
-								p_self->P_Cli = new PPMqbClient;
-								if(!PPMqbClient::InitClient(*p_self->P_Cli, &domain_buf))
-									ZDELETE(p_self->P_Cli);
-							}
-							if(p_self->P_Cli) {
-								PPMqbClient::RoutingParamEntry rpe;
-								PPMqbClient::MessageProperties props;
-								THROW(rpe.SetupRpcReply(*p_env));
-								props.ContentType = SFileFormat::Xml;
-								props.Encoding = SEncodingFormat::Unkn;
-								props.Priority = 0;
-								props.TimeStamp = getcurdatetime_();
-								props.CorrelationId = rpe.CorrelationId;
-								THROW(p_self->P_Cli->ApplyRoutingParamEntry(rpe));
-								THROW(p_self->P_Cli->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, result_buf.cptr(), result_buf.Len()));
+							ResponseByAdviseCallback(result_buf, p_env, p_self, domain_buf);
+						}
+						else{
+							if(compulsory_response_flag){
+								result_buf = "Error";
+								ResponseByAdviseCallback(result_buf, p_env, p_self, domain_buf);
 							}
 						}
 					}
@@ -893,6 +882,32 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 	CATCHZOK
 	return ok;
 }
+
+// @erik v10.5.12 {
+int MqbEventResponder::ResponseByAdviseCallback(const SString & rResponseMsg, const PPMqbClient::Envelope * pEnv, MqbEventResponder * pSelf, SString &rDomainBuf)
+{
+	int ok = 1;
+	if(!pSelf->P_Cli) {
+		pSelf->P_Cli = new PPMqbClient;
+		if(!PPMqbClient::InitClient(*pSelf->P_Cli, &rDomainBuf))
+			ZDELETE(pSelf->P_Cli);
+	}
+	if(pSelf->P_Cli) {
+		PPMqbClient::RoutingParamEntry rpe;
+		PPMqbClient::MessageProperties props;
+		THROW(rpe.SetupRpcReply(*pEnv));
+		props.ContentType = SFileFormat::Xml;
+		props.Encoding = SEncodingFormat::Unkn;
+		props.Priority = 0;
+		props.TimeStamp = getcurdatetime_();
+		props.CorrelationId = rpe.CorrelationId;
+		THROW(pSelf->P_Cli->ApplyRoutingParamEntry(rpe));
+		THROW(pSelf->P_Cli->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, rResponseMsg.cptr(), rResponseMsg.Len()));
+	}
+	CATCHZOK
+	return ok;
+}
+//  } @erik
 
 class TestMqcDialog : public TDialog {
 	static int AdviseProc(int kind, const PPNotifyEvent * pEv, void * procExtPtr)

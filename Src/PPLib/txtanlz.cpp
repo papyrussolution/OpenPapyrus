@@ -3377,12 +3377,10 @@ int SLAPI PPKeywordListGenerator::ReadData(const char * pFileName)
 						temp_buf = line_buf;
 					if(temp_buf.NotEmptyS()) {
 						Group * p_group = List.at(cur_grp_pos);
-						if(temp_buf.CmpNC("#wordlimit") == 0) {
+						if(temp_buf.CmpNC("#wordlimit") == 0)
 							p_group->WordsLimit = (uint)new_item.Prob;
-						}
-						else if(temp_buf.CmpNC("#itemlimit") == 0) {
+						else if(temp_buf.CmpNC("#itemlimit") == 0)
 							p_group->ItemsLimit = (uint)new_item.Prob;
-						}
 						else {
 							temp_buf.ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 							AddS(temp_buf, &new_item.TextP);

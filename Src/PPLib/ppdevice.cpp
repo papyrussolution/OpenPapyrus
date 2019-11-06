@@ -411,7 +411,7 @@ int PPAbstractDevice::IdentifyDevice(int dvcClass, const char * pName)
 			if(symbol_id < 0) {
 				TSClassWrapper <SDynLibrary> cls;
 				THROW_SL(symbol_id = SLS.CreateGlobalObject(cls));
-				THROW_SL(p_dll = (SDynLibrary *)SLS.GetGlobalObject(symbol_id));
+				THROW_SL(p_dll = static_cast<SDynLibrary *>(SLS.GetGlobalObject(symbol_id)));
 				if(GetDllName(dvcClass, pName, dll_file_name)) {
 					if(!p_dll->Load(dll_file_name)) {
 						SLS.DestroyGlobalObject(symbol_id);
@@ -428,7 +428,7 @@ int PPAbstractDevice::IdentifyDevice(int dvcClass, const char * pName)
 				}
 			}
 			else if(symbol_id > 0) {
-				THROW_SL(p_dll = (SDynLibrary *)SLS.GetGlobalObject(symbol_id));
+				THROW_SL(p_dll = static_cast<SDynLibrary *>(SLS.GetGlobalObject(symbol_id)));
 				THROW_SL(p_dll->IsValid());
 			}
 			THROW(Ib.Set(p_dll, 0));

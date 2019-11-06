@@ -1368,7 +1368,7 @@ browser GOODSWITHSTRUC north(100), 3, 1, "Товары {%s} со структурами", OWNER|GRI
 	toolbar GOODS
 }
 
-browser GOODSSTRUC2 north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
+browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 {
 	"@id",                 0, long, 0,             10, BCO_USERPROC
 	"N",                   7, long, 0,              4, BCO_USERPROC
@@ -1397,7 +1397,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
 	}
 }
 
-//browser GOODSSTRUC north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
+//browser GOODSSTRUC north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 //{
 //	"@id",                 1, notype, 0, 10
 //	"@ware",               3, notype, 0, 60, BCO_DONTSHOWDUPL
@@ -8352,7 +8352,7 @@ reportstub GTaxAnlz_PrpRcpt	{ dl600data=GoodsTaxAnlz,		"Тетрадь частного предпри
 reportstub GTaxAnlz_PrpExpnd { dl600data=GoodsTaxAnlz,		"Тетрадь частного предпринимателя (по операциям расхода товаров)"}
 reportstub GTaxAnlz			{ dl600data=GoodsTaxAnlz,		"Налоговый анализ товарооборота (по товарам)"}
 reportstub GTaxAnlzTotal	{ dl600data=GTaxAnlzTotal,		"Итоги налогового анализа товарооборота"}
-reportstub GoodsStrucList	{ dl600data=GoodsStrucList,		"Товарные структуры"}
+reportstub GoodsStrucList	{ dl600data=GoodsStrucList,		"@{view_goodsstruc}"}
 reportstub GoodsRest		{ dl600data=GoodsRest,			"Остатки товаров"}
 reportstub GoodsRestTotal	{ dl600data=GoodsRestTotal,		"Итоги товарных остатков"}
 reportstub GoodsRestPrgn	{ dl600data=GoodsRest,			"Остатки товаров с прогнозом продаж"}

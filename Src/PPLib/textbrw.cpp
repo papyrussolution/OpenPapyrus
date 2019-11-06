@@ -481,7 +481,7 @@ static SScEditorStyleSet * _GetGlobalSScEditorStyleSetInstance()
 	if(symbol_id < 0) {
 		TSClassWrapper <SScEditorStyleSet> cls;
 		THROW_SL(symbol_id = SLS.CreateGlobalObject(cls));
-		THROW_SL(p_ss = (SScEditorStyleSet *)SLS.GetGlobalObject(symbol_id));
+		THROW_SL(p_ss = static_cast<SScEditorStyleSet *>(SLS.GetGlobalObject(symbol_id)));
 		{
 			long s = SLS.GetGlobalSymbol(P_GlobalSymbol, symbol_id, 0);
 			assert(symbol_id == s);
@@ -502,7 +502,7 @@ static SScEditorStyleSet * _GetGlobalSScEditorStyleSetInstance()
 		}
 	}
 	else if(symbol_id > 0) {
-		THROW_SL(p_ss = (SScEditorStyleSet *)SLS.GetGlobalObject(symbol_id));
+		THROW_SL(p_ss = static_cast<SScEditorStyleSet *>(SLS.GetGlobalObject(symbol_id)));
 	}
 	CATCH
 		p_ss = 0;

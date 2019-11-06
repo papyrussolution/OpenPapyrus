@@ -686,7 +686,7 @@ typedef UhttTSessionPacket * (*UHTTGETTSESSIONBYUUID_PROC)(PPSoapClientSession &
 typedef TSCollection <UhttTSessionPacket> * (*UHTTGETTSESSIONBYPRC_PROC)(PPSoapClientSession & rSess, const char * pToken, int prcID, const UhttTimestamp * pSince);
 typedef UhttStatus * (*UHTTCREATETSESSION_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttTSessionPacket & rPack);
 typedef TSCollection <UhttStatus> * (*UHTTSENDSMS_PROC)(PPSoapClientSession & rSess, const char * pToken, const TSCollection <UhttSmsPacket> & rPack);
-typedef int (*UHTTGETCOMMONMQSCONFIG_PROC)(PPSoapClientSession & rSess, SString & rCfgText);
+typedef SString * (*UHTTGETCOMMONMQSCONFIG_PROC)(PPSoapClientSession & rSess);
 //
 // iSales PEPSI SOAP CLIENT
 //
