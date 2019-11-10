@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147491341
+LastSignatureCode=2147491358
 LastAutoCodeList=1,11966;102,10170;103,10071;110,10000;111,11871;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10119;120,10005;1001,10000;121,10000;122,10000;123,10290;124,10097
 
 [SignatureList]
@@ -584,6 +584,7 @@ daddressextfield=2147484224
 daddressextfield_pl=2147484225
 haddress=2147484226
 postzip=2147484227
+addressbook=2147491358
 inn=2147484228
 kpp=2147484229
 bic=2147484230
@@ -7698,6 +7699,22 @@ posnquery_qvtest=2147491295
 posnquery_dvcnumlist=2147491296
 posnquery_sessnumlist=2147491297
 posnquery_sessperiod=2147491298
+aeqstat=2147491342
+aeqstat_livingtime=2147491343
+aeqstat_startclock=2147491344
+aeqstat_push_count=2147491345
+aeqstat_get_count=2147491346
+aeqstat_getdecline_count=2147491347
+aeqstat_maxlength=2147491348
+aeqstat_state=2147491349
+aeqstat_stphnsvcinit=2147491350
+aeqstat_stmqbcliinit=2147491351
+aeqstat_sjprccount=2147491352
+aeqstat_sjmsgcount=2147491353
+aeqstat_phnsvcprccount=2147491354
+aeqstat_phnsvcmsgcount=2147491355
+aeqstat_mqbprccount=2147491356
+aeqstat_mqbmsgcount=2147491357
 
 [GrpSymbList]
 .N.=124

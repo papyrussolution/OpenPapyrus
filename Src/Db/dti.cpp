@@ -187,7 +187,8 @@ int PervasiveDBCatalog::CreateDB(const char * pEntryName, const char * pDict, co
 	int    ok = 1;
 	int    r;
 	SString dict_path, data_path;
-	char * p_dict = 0, * p_data = 0, * p_entry_name = 0;
+	char * p_dict = 0, * p_data = 0;
+	char * p_entry_name = 0;
 	THROW(IsValid());
 	THROW(State & sConnected);
 	THROW_V(pathToUNC(pDict, dict_path), SDBERR_SLIB);

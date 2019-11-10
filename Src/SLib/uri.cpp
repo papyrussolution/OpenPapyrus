@@ -731,26 +731,26 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 								switch(breakConversion) {
 									case URI_BR_TO_LF:
 										if(!prevWasCr) {
-											p_write[0] =(char)10;
+											p_write[0] = 10;
 											p_write++;
 										}
 										break;
 									case URI_BR_TO_CRLF:
 										if(!prevWasCr) {
-											p_write[0] =(char)13;
-											p_write[1] =(char)10;
+											p_write[0] = 13;
+											p_write[1] = 10;
 											p_write += 2;
 										}
 										break;
 									case URI_BR_TO_CR:
 										if(!prevWasCr) {
-											p_write[0] =(char)13;
+											p_write[0] = 13;
 											p_write++;
 										}
 										break;
 									case URI_BR_DONT_TOUCH:
 									default:
-										p_write[0] =(char)10;
+										p_write[0] = 10;
 										p_write++;
 								}
 								prevWasCr = FALSE;
@@ -758,27 +758,27 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 							case 13:
 								switch(breakConversion) {
 									case URI_BR_TO_LF:
-										p_write[0] =(char)10;
+										p_write[0] = 10;
 										p_write++;
 										break;
 									case URI_BR_TO_CRLF:
-										p_write[0] =(char)13;
-										p_write[1] =(char)10;
+										p_write[0] = 13;
+										p_write[1] = 10;
 										p_write += 2;
 										break;
 									case URI_BR_TO_CR:
-										p_write[0] =(char)13;
+										p_write[0] = 13;
 										p_write++;
 										break;
 									case URI_BR_DONT_TOUCH:
 									default:
-										p_write[0] =(char)13;
+										p_write[0] = 13;
 										p_write++;
 								}
 								prevWasCr = TRUE;
 								break;
 							default:
-								p_write[0] =(char)(code);
+								p_write[0] = static_cast<char>(code);
 								p_write++;
 								prevWasCr = FALSE;
 							}

@@ -255,7 +255,7 @@ int SLAPI DBBackup::InfoFile::ReadRecord(FILE * stream, BCopyData * pData)
 {
 	int    ok = -1;
 	char   buf[1024];
-	pData->Z();
+	CALLPTRMEMB(pData, Z());
 	while(fgets(buf, sizeof(buf), stream)) {
 		if(*strip(chomp(buf))) {
 			if(pData) {
@@ -271,9 +271,7 @@ int SLAPI DBBackup::InfoFile::ReadRecord(FILE * stream, BCopyData * pData)
 						case 3: pData->SubDir = str; break;
 						case 4: strtodate(str, DATF_DMY, &pData->Dtm.d); break;
 						case 5: strtotime(str, TIMF_HMS, &pData->Dtm.t); break;
-						case 6:
-							SETFLAG(pData->Flags, BCOPYDF_USECOMPRESS, str.ToLong());
-							break; // copy format
+						case 6: SETFLAG(pData->Flags, BCOPYDF_USECOMPRESS, str.ToLong()); break; // copy format
 						case 7: pData->SrcSize  = _atoi64(str); break;
 						case 8: pData->DestSize = _atoi64(str); break;
 						case 9: pData->CheckSum = strtoul(str, 0, 10); break;
@@ -699,7 +697,7 @@ int SLAPI DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, lo
 	return 1;
 }
 
-int SLAPI DBBackup::Restore(BCopyData * pData, BackupLogFunc fnLog, long initParam)
+int SLAPI DBBackup::Restore(const BCopyData * pData, BackupLogFunc fnLog, long initParam)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;

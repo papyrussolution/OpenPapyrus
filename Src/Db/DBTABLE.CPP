@@ -768,7 +768,7 @@ int SLAPI DBTable::getByPercentage(int16 relPos, int keyIndex)
 	int    saveIndex = index;
 	index  = keyIndex;
 	relPos = swapw(relPos);
-	BtrError = BTRV(B_GETBYPERCENT, FPB, (char *)&relPos, (uint16 *)&retBufLen, keyBuf, WBTRVTAIL);
+	BtrError = BTRV(B_GETBYPERCENT, FPB, reinterpret_cast<char *>(&relPos), reinterpret_cast<uint16 *>(&retBufLen), keyBuf, WBTRVTAIL);
 	index = saveIndex;
 	InitErrFileName();
 	return (BtrError == 0);

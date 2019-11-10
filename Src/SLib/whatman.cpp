@@ -698,7 +698,7 @@ int TWhatman::MoveObject(TWhatmanObject * pObj, const TRect & rRect)
 	return ok;
 }
 
-int TWhatman::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam)
+int TWhatman::ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam)
 {
 	int    ok = -1;
 	TRect area = Area;

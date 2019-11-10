@@ -10247,6 +10247,14 @@
 	#define CTL_AEQSTAT_GETDECLCOUNT   (3  + IMPEXP_CTL_BIAS)
 	#define CTL_AEQSTAT_PUTCOUNT       (4  + IMPEXP_CTL_BIAS)
 	#define CTL_AEQSTAT_MAXQUEUE       (5  + IMPEXP_CTL_BIAS)
+	#define CTL_AEQSTAT_STATEINFO      (6  + IMPEXP_CTL_BIAS)
+	#define CTL_AEQSTAT_SJPRCCOUNT     (7  + IMPEXP_CTL_BIAS)
+	#define CTL_AEQSTAT_SJMSGCOUNT     (8  + IMPEXP_CTL_BIAS)
+	#define CTL_AEQSTAT_PHNPRCCOUNT    (9  + IMPEXP_CTL_BIAS)
+	#define CTL_AEQSTAT_PHNMSGCOUNT    (10  + IMPEXP_CTL_BIAS)
+	#define CTL_AEQSTAT_MQBPRCCOUNT    (11  + IMPEXP_CTL_BIAS)
+	#define CTL_AEQSTAT_MQBMSGCOUNT    (12  + IMPEXP_CTL_BIAS)
+
 #define DLG_USRER                 1279
 #define DLG_GDSOPRTOTALCMP        1280 // T_GDSOPR Итоги товарного отчета по операции со сравнением
 #define DLG_SCARDOPFRZ            1281 // Операция приостановки действия персональной карте
@@ -12342,31 +12350,31 @@
 	#define PPFONT_TIMESNEWROMAN        2
 	#define PPFONT_ARIAL                3
 	#define PPFONT_ARIALCYR             4
-// @10.6.0 #define PPTXT_LOG_DBLOCKED                456 // База данных заблокирована
-// @10.6.0 #define PPTXT_LOG_DBUNLOCKED              457 // База данных не заблокирована
-// @10.6.0 #define PPTXT_CCHKLOG                     458 // Chk Printed;Chk Writed;Chk Recalled;Chk Removed;Chk Cleared;Chk Suspended;Chk RowCleared;Chk RowDiscount
-// @10.6.0 #define PPTXT_TRFRLOADINGFAULT            459 // Ошибка загрузки строки документа (%s):
-// @10.6.0 #define PPTXT_SEARCHLOTFAULT              460 // Ошибка извлечения лота (%s):
-// @10.6.0 #define PPTXT_TRFRRECERROR                461 // Ошибка в строке Transfer (%s):
-// @10.6.0 #define PPTXT_LOG_ACGIMISS                462 // AsyncCashGoodsIterator miss: [id=@int] @zstr
-// @10.6.0 #define PPTXT_LOG_CHKPAN_ALLREADYPRN      463 // LocalPrn: Already printed - check='@zstr' goods=@goods qtty=@real
-// @10.6.0 #define PPTXT_LOG_CHKPAN_PRINTING         464 // LocalPrn: Printing - check='@zstr' prn='@zstr' goods=@goods qtty=@real
-// @10.6.0 #define PPTXT_LOG_CHKPAN_UNDEFPRN         465 // LocalPrn: Undef local printer - check='@zstr' goods=@goods qtty=@real
-// @10.6.0 #define PPTXT_BILL_COUNT                  466 // Заголовок диалогового окна "Количество документов
-// @10.6.0 #define PPTXT_INP_BILL_COUNT              467 // Введите количество генерируемых документов
-// @10.6.0 #define PPTXT_LOG_CHKPAN_ERRPRINTING      468 // LocalPrn: ErrorPrinting - check='@zstr' prn='@zstr' goods=@goods qtty=@real
-// @10.6.0 #define PPTXT_LOG_TSES_WROFF_LINE         469 // Списание строки техн сессии: товар=@goods серия=@zstr колич=@real
-// @10.6.0 #define PPTXT_INCLUDEINGOODSMATRIX        470 // Заголовок диалгового окна Включить в товарную матрицу
-// @10.6.0 #define PPTXT_LOG_SHTRIH_WRITETBLERR      471 // Ошибка записи в таблицу=%ld, ряд=%ld, поле=%ld, значение=%s
-// @10.6.0 #define PPTXT_LOG_SCALELOADSTAT           472 // NumSendPluColl=@int; MaxSendPluCollIters=@int; NumGetColl=@int; MaxGetCollIters=@int
-// @10.6.0 #define PPTXT_LOG_SCALELOADERR            473 // Error loading: GoodsID=@int; GoodsName=@goods; PLU=@int; Price=@real
-// @10.6.0 #define PPTXT_GENERATEBILLS               475 // Сообщение о генерации документов
-// @10.6.0 #define PPTXT_XMLSYMBENTITIES             476 // Подстановка символов XML-файлов (разделитель сущностей ".", разделитель сущность-подстановка "$"
-// @10.6.0 #define PPTXT_WORDS_MONEY_CENT            477 // "копеек;копейка;копейки"
-// @10.6.0 #define PPTXT_OWNBASKETISLOCKED           478 // Последняя использованная вами корзина '%s' заблокирована (%s). Выберите другую.
-// @10.6.0 #define PPTXT_DEFBASKETISLOCKED           479 // Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
-// @10.6.0 #define PPTXT_ACCEPTANALOG_PSN_NAME       480 // Найден аналог по имени для персоналии '%s'
-// @10.6.0 #define PPTXT_ACCEPTANALOG_PSN_CODE       481 // Найден аналог по регистру для персоналии '%s'
+// @v10.6.0 #define PPTXT_LOG_DBLOCKED                456 // База данных заблокирована
+// @v10.6.0 #define PPTXT_LOG_DBUNLOCKED              457 // База данных не заблокирована
+// @v10.6.0 #define PPTXT_CCHKLOG                     458 // Chk Printed;Chk Writed;Chk Recalled;Chk Removed;Chk Cleared;Chk Suspended;Chk RowCleared;Chk RowDiscount
+// @v10.6.0 #define PPTXT_TRFRLOADINGFAULT            459 // Ошибка загрузки строки документа (%s):
+// @v10.6.0 #define PPTXT_SEARCHLOTFAULT              460 // Ошибка извлечения лота (%s):
+// @v10.6.0 #define PPTXT_TRFRRECERROR                461 // Ошибка в строке Transfer (%s):
+// @v10.6.0 #define PPTXT_LOG_ACGIMISS                462 // AsyncCashGoodsIterator miss: [id=@int] @zstr
+// @v10.6.0 #define PPTXT_LOG_CHKPAN_ALLREADYPRN      463 // LocalPrn: Already printed - check='@zstr' goods=@goods qtty=@real
+// @v10.6.0 #define PPTXT_LOG_CHKPAN_PRINTING         464 // LocalPrn: Printing - check='@zstr' prn='@zstr' goods=@goods qtty=@real
+// @v10.6.0 #define PPTXT_LOG_CHKPAN_UNDEFPRN         465 // LocalPrn: Undef local printer - check='@zstr' goods=@goods qtty=@real
+// @v10.6.0 #define PPTXT_BILL_COUNT                  466 // Заголовок диалогового окна "Количество документов
+// @v10.6.0 #define PPTXT_INP_BILL_COUNT              467 // Введите количество генерируемых документов
+// @v10.6.0 #define PPTXT_LOG_CHKPAN_ERRPRINTING      468 // LocalPrn: ErrorPrinting - check='@zstr' prn='@zstr' goods=@goods qtty=@real
+// @v10.6.0 #define PPTXT_LOG_TSES_WROFF_LINE         469 // Списание строки техн сессии: товар=@goods серия=@zstr колич=@real
+// @v10.6.0 #define PPTXT_INCLUDEINGOODSMATRIX        470 // Заголовок диалгового окна Включить в товарную матрицу
+// @v10.6.0 #define PPTXT_LOG_SHTRIH_WRITETBLERR      471 // Ошибка записи в таблицу=%ld, ряд=%ld, поле=%ld, значение=%s
+// @v10.6.0 #define PPTXT_LOG_SCALELOADSTAT           472 // NumSendPluColl=@int; MaxSendPluCollIters=@int; NumGetColl=@int; MaxGetCollIters=@int
+// @v10.6.0 #define PPTXT_LOG_SCALELOADERR            473 // Error loading: GoodsID=@int; GoodsName=@goods; PLU=@int; Price=@real
+// @v10.6.0 #define PPTXT_GENERATEBILLS               475 // Сообщение о генерации документов
+// @v10.6.0 #define PPTXT_XMLSYMBENTITIES             476 // Подстановка символов XML-файлов (разделитель сущностей ".", разделитель сущность-подстановка "$"
+// @v10.6.0 #define PPTXT_WORDS_MONEY_CENT            477 // "копеек;копейка;копейки"
+// @v10.6.0 #define PPTXT_OWNBASKETISLOCKED           478 // Последняя использованная вами корзина '%s' заблокирована (%s). Выберите другую.
+// @v10.6.0 #define PPTXT_DEFBASKETISLOCKED           479 // Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
+// @v10.6.0 #define PPTXT_ACCEPTANALOG_PSN_NAME       480 // Найден аналог по имени для персоналии '%s'
+// @v10.6.0 #define PPTXT_ACCEPTANALOG_PSN_CODE       481 // Найден аналог по регистру для персоналии '%s'
 /* @v9.1.12 #define PPTXT_WINDOWSVIEWKINDS            482 // имена и идентификаторы внешнего вида окон
 	#define PPWNDVIEWKINDS_DEFAULT      0
 	#define PPWNDVIEWKINDS_KIND1        1

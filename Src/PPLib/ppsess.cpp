@@ -524,7 +524,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	private:
 		long   Timer;
 	};
-	class IdleCmdMqb : public IdleCommand, private PPAdviseEventQueue::Client { // @construction
+	class IdleCmdMqb : public IdleCommand, private PPAdviseEventQueue::Client {
 	public:
 		IdleCmdMqb(long refreshPeriod, PPID notifyID) : IdleCommand(refreshPeriod), NotifyID(notifyID)
 		{
@@ -795,7 +795,6 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 					Marker = EvqList.at(evqc-1).Ident;
 				if(DS.GetAdviseList(NotifyID, 0, adv_list) > 0) {
 					PPThreadLocalArea & r_tla = DS.GetTLA();
-					//TSVector <PPAdviseEvent> result_list; // @v9.8.4 TSArray-->TSVector
 					PPAdviseEventVector result_list;
 					if(!p_queue) {
 						SysJournal * p_sj = r_tla.P_SysJ;
@@ -1966,9 +1965,8 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 		SDynLibrary lib_user32("USER32.DLL");
 		if(lib_user32.IsValid()) {
 			DISABLEPROCESSWINDOWSGHOSTING proc_DisableProcessWindowsGhosting = reinterpret_cast<DISABLEPROCESSWINDOWSGHOSTING>(lib_user32.GetProcAddr("DisableProcessWindowsGhosting"));
-			if(proc_DisableProcessWindowsGhosting) {
+			if(proc_DisableProcessWindowsGhosting)
 				proc_DisableProcessWindowsGhosting();
-			}
 		}
 	}
 	{
@@ -3228,7 +3226,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						public:
 							SLAPI PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, const PPPhoneServicePacket * pPhnSvcPack,
 								PPMqbClient::InitParam * pMqbParam, long cycleMs) :
-								PPThread(PPThread::kEventCollector, 0, 0), /*CycleMs((cycleMs > 0) ? cycleMs : 29989),*/ /*CyclePhnSvcMs(1500),*/ LB(rLB), P_Sj(0)
+								PPThread(PPThread::kEventCollector, 0, 0), /*CycleMs((cycleMs > 0) ? cycleMs : 29989),*/ /*CyclePhnSvcMs(1500),*/ LB(rLB), P_Sj(0), State(0)
 							{
 								RVALUEPTR(StartUp_PhnSvcPack, pPhnSvcPack);
 								RVALUEPTR(StartUp_MqbParam, pMqbParam); // @v10.5.7
@@ -3320,7 +3318,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 									const  int64 PeriodMks;
 									int64  LastPollClock;
 								};
-								const int  do_debug_log = 0; // @debug
+								const int   do_debug_log = 0; // @debug
 								const long  pollperiod_phnsvc = 1000;
 								const long  pollperiod_sj = 3000;
 								const long  pollperiod_mqc = 500;
@@ -3340,9 +3338,12 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								PPMqbClient * p_mqb_cli = CreateMqbClient(); // @v10.5.7
 								AsteriskAmiClient * p_phnsvc_cli = CreatePhnSvcClient(0);
 								LDATETIME sj_since;
-								// ѕериод таймера в сотых дол€х секунды (37) {
-								const long __cycle_hs = (p_mqb_cli ? 37 : (p_phnsvc_cli ? 83 : 293));
-								// }
+								const long __cycle_hs = (p_mqb_cli ? 37 : (p_phnsvc_cli ? 83 : 293)); // ѕериод таймера в сотых дол€х секунды (37)
+								// @v10.6.0 {
+								int    queue_stat_flags_inited = 0;
+								SETFLAG(State, stPhnSvc, p_phnsvc_cli); 
+								SETFLAG(State, stMqb, p_mqb_cli);
+								// } @v10.6.0 
 								THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync)); // @v9.4.9 PPSession::odfDontInitSync
 								THROW_MEM(P_Sj = new SysJournal);
 								if(use_sj_scan_alg2) {
@@ -3381,6 +3382,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 											{
 												temp_list.Clear();
 												PPAdviseEventQueue * p_queue = 0;
+												PPAdviseEventQueue::Stat addendum_queue_stat;
 												if(pt_purge.IsTime()) {
 													if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
 														p_queue->Purge();
@@ -3389,6 +3391,24 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 												}
 												if(pt_sj.IsTime()) {
 													if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
+														// @v10.6.0 {
+														// ћы вынуждены устанавливать флаги статистики очереди в рабочем цикле из-за
+														// того, что в момент старта потока очередь может еще и не существовать.
+														if(!queue_stat_flags_inited) {
+															if(State & (stMqb|stPhnSvc)) {
+																PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
+																if(p_queue) {
+																	uint qsf = 0;
+																	if(State & stMqb)
+																		qsf |= PPAdviseEventQueue::Stat::stMqbCliInit;
+																	if(State & stPhnSvc)
+																		qsf |= PPAdviseEventQueue::Stat::stPhnSvcInit;
+																	p_queue->SetStatFlag(qsf);
+																}
+															}
+															queue_stat_flags_inited = 1;
+														}
+														// } @v10.6.0 
 														LDATETIME last_ev_dtm = ZERODATETIME;
 														SysJournalTbl::Key0 k0, k0_;
 														if(use_sj_scan_alg2) {
@@ -3433,6 +3453,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																		ev = rec;
 																		temp_list.insert(&ev);
 																		last_ev_dtm.Set(rec.Dt, rec.Tm);
+																		addendum_queue_stat.SjMsgCount++;
 																	}
 																}
 															}
@@ -3455,11 +3476,18 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																	sj_since = local_cdtm;
 															}
 														}
+														addendum_queue_stat.SjPrcCount = 1;
 														pt_sj.Register();
 													}
 												}
-												if(p_phnsvc_cli && pt_phnsvc.IsTime()) {
+												if(State & stPhnSvc && pt_phnsvc.IsTime()) { // @v10.6.0 p_phnsvc_cli-->(State & stPhnSvc)
 													if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
+														// @v10.6.0 Ќемного мен€ем схему: ранее, если !p_phnsvc_cli то мы больше не обращались к телефонному сервису.
+														// ќднако могло случитьс€ что очередна€ попытка получени€ статуса и не удачного восстановлени€ соединени€
+														// полность обрывало возможность получени€ сообщений в дальнейшем.
+														// “еперь смотрим на то был ли клиент инициализирован изначально (State & stPhnSvc). ≈сли да, то 
+														// будем каждый раз пытатьс€ восстановить работу клиента.
+														SETIFZ(p_phnsvc_cli, CreatePhnSvcClient(p_phnsvc_cli)); // @v10.6.0
 														int gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
 														if(!gcs_ret) {
 															PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
@@ -3483,9 +3511,11 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																if(local_action) {
 																	PPAdviseEvent ev;
 																	ev.SetupAndAppendToVector(chnl_status, local_action, StartUp_PhnSvcPack.Rec.ID, temp_list);
+																	addendum_queue_stat.PhnSvcMsgCount++;
 																}
 															}
 														}
+														addendum_queue_stat.PhnSvcPrcCount = 1;
 														pt_phnsvc.Register();
 													}
 												}
@@ -3495,11 +3525,16 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 															PPAdviseEvent ev;
 															ev.SetupAndAppendToVector(mqb_envelop, temp_list);
 															p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
+															addendum_queue_stat.MqbMsgCount++;
 														}
+														addendum_queue_stat.MqbPrcCount = 1;
 														pt_mqc.Register();
 													}
 												}
-												CALLPTRMEMB(p_queue, Push(temp_list));
+												if(p_queue) {
+													p_queue->Push(temp_list);
+													p_queue->AddStatCounters(addendum_queue_stat); // @v10.6.0
+												}
 												if(do_debug_log) {
 													(temp_buf = "TimerSjEvent").Space().CatEq("use_sj_scan_alg2", static_cast<long>(use_sj_scan_alg2));
 													if(!p_queue)
@@ -3528,7 +3563,6 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								ZDELETE(P_Sj);
 								DBS.CloseDictionary();
 							}
-							//const long CycleMs;
 							DbLoginBlock LB;
 							SysJournal * P_Sj;
 							SString PhnSvcLocalUpChannelSymb; // @v9.8.11 —имвол канала (каналов), по которым должны регистрироватьс€ событи€ подъема трубки
@@ -3536,6 +3570,11 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							PPPhoneServicePacket StartUp_PhnSvcPack; // @v9.8.11
 							PhnSvcChannelStatusPool PhnSvcStP; // @v9.8.11
 							PPMqbClient::InitParam StartUp_MqbParam; // @v10.5.7
+							enum {
+								stPhnSvc = 0x0001, // ”станавливаетс€ если при старте потока был инициирован клиент телефонного сервиса
+								stMqb    = 0x0002  // ”станавливаетс€ если при старте потока был инициирован клиент брокера сообщений
+							};
+							uint   State;
 						};
 						if(_PPConst.UseAdvEvQueue) {
 							int    cycle_ms = 0;
@@ -5066,7 +5105,8 @@ int PPAdviseEventQueue::Client::Register(long dbPathID, PPAdviseEventQueue * pQu
 	return ok;
 }
 
-PPAdviseEventQueue::Stat::Stat() : LivingTime(0), StartClock(0), Push_Count(0), Get_Count(0), GetDecline_Count(0), MaxLength(0)
+PPAdviseEventQueue::Stat::Stat() : LivingTime(0), StartClock(0), Push_Count(0), Get_Count(0), GetDecline_Count(0), MaxLength(0),
+	State(0), SjPrcCount(0), SjMsgCount(0), PhnSvcPrcCount(0), PhnSvcMsgCount(0), MqbPrcCount(0), MqbMsgCount(0)
 {
 }
 
@@ -5074,6 +5114,30 @@ SLAPI PPAdviseEventQueue::PPAdviseEventQueue() :
 	/*TSVector <PPAdviseEvent> ()*/PPAdviseEventVector(), CliList(/*DEFCOLLECTDELTA,*/(aryDataOwner|aryPtrContainer)), LastIdent(0)
 {
 	S.StartClock = clock();
+}
+
+void FASTCALL PPAdviseEventQueue::SetStatFlag(uint f)
+{
+	if(f & (Stat::stMqbCliInit|Stat::stPhnSvcInit)) {
+		SLck.Lock();
+		if(f & Stat::stMqbCliInit)
+			S.State |= Stat::stMqbCliInit;
+		if(f & Stat::stPhnSvcInit)
+			S.State |= Stat::stPhnSvcInit;
+		SLck.Unlock();
+	}
+}
+
+void FASTCALL PPAdviseEventQueue::AddStatCounters(const Stat & rAddendum)
+{
+    SLck.Lock();
+	S.SjPrcCount += rAddendum.SjPrcCount;
+	S.SjMsgCount += rAddendum.SjMsgCount;
+	S.PhnSvcPrcCount += rAddendum.PhnSvcPrcCount;
+	S.PhnSvcMsgCount += rAddendum.PhnSvcMsgCount;
+	S.MqbPrcCount += rAddendum.MqbPrcCount;
+	S.MqbMsgCount += rAddendum.MqbMsgCount;
+    SLck.Unlock();
 }
 
 int SLAPI PPAdviseEventQueue::GetStat(PPAdviseEventQueue::Stat & rStat)

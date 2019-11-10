@@ -832,11 +832,13 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 									SString login;
 									SString password;
 									if(gua_obj.GetPacket(cmd.IdVal, &gua_pack) > 0){
-										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_SECRET, password) > 0){}
-										else{
+										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_SECRET, password) > 0) {
+										}
+										else {
 											Reference::Decrypt(Reference::crymRef2, gua_pack.Rec.Password, sizeof(gua_pack.Rec.Password), password);
 										}
-										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login) > 0) {}
+										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login) > 0) {
+										}
 										else {
 											if(gua_pack.Rec.Name != "")
 												login = gua_pack.Rec.Name;
@@ -868,8 +870,8 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 						if(result_ok) {
 							ResponseByAdviseCallback(result_buf, p_env, p_self, domain_buf);
 						}
-						else{
-							if(compulsory_response_flag){
+						else {
+							if(compulsory_response_flag) {
 								result_buf = "Error";
 								ResponseByAdviseCallback(result_buf, p_env, p_self, domain_buf);
 							}

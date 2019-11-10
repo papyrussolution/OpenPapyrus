@@ -87,7 +87,7 @@ int SLAPI PPObjGoodsClass::PutPropsToLine(SString & rLine, PPGdsClsPacket * pPac
 }
 
 // static
-int SLAPI PPObjGoodsClass::GetPropsFromLine(SString & rLine, PPGdsClsPacket * pPack)
+int SLAPI PPObjGoodsClass::GetPropsFromLine(const SString & rLine, PPGdsClsPacket * pPack)
 {
 	int    ok = 1;
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_NAMECONV,   rLine, pPack->NameConv);

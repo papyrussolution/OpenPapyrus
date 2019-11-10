@@ -2425,7 +2425,7 @@ public:
 	SLAPI ~DBBackup();
 	int    SLAPI SetDictionary(DbProvider * pDb);
 	int    SLAPI Backup(BCopyData *, BackupLogFunc, long initParam);
-	int    SLAPI Restore(BCopyData *, BackupLogFunc, long initParam);
+	int    SLAPI Restore(const BCopyData *, BackupLogFunc, long initParam);
 	int    SLAPI RemoveCopy(const BCopyData *, BackupLogFunc, long initParam);
 	int    SLAPI GetCopySet(BCopySet *);
 	int    SLAPI GetCopyData(long copyID, BCopyData *);

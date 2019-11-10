@@ -55,7 +55,7 @@ public:
 private:
 	int    SLAPI Search(long tabNum, LDATE dt, uint * pPos = 0) const;
 	int    SLAPI SearchNearest(long tabNum, LDATE dt, uint * pPos = 0) const;
-	int    SLAPI Insert(CashierEntry * pEntry, uint * pPos = 0)
+	int    SLAPI Insert(const CashierEntry * pEntry, uint * pPos = 0)
 	{
 		return ordInsert(pEntry, pPos, PTR_CMPFUNC(CashierEnKey)) ? 1 : PPSetErrorSLib();
 	}

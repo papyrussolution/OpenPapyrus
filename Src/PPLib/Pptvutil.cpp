@@ -434,6 +434,27 @@ void ViewAsyncEventQueueStat()
 			setCtrlLong(CTL_AEQSTAT_GETDECLCOUNT, stat.GetDecline_Count);
 			setCtrlLong(CTL_AEQSTAT_PUTCOUNT, stat.Push_Count);
 			setCtrlLong(CTL_AEQSTAT_MAXQUEUE, stat.MaxLength);
+			// @v10.6.0 {
+			{
+				SString temp_buf;
+				SString info_buf;
+				if(stat.State & stat.stPhnSvcInit) {
+					PPLoadString("aeqstat_stphnsvcinit", temp_buf);
+					info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+				}
+				if(stat.State & stat.stMqbCliInit) {
+					PPLoadString("aeqstat_stmqbcliinit", temp_buf);
+					info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+				}
+				setCtrlString(CTL_AEQSTAT_STATEINFO, info_buf);
+			}
+			setCtrlLong(CTL_AEQSTAT_SJPRCCOUNT, stat.SjPrcCount);
+			setCtrlLong(CTL_AEQSTAT_SJMSGCOUNT, stat.SjMsgCount);
+			setCtrlLong(CTL_AEQSTAT_PHNPRCCOUNT, stat.PhnSvcPrcCount);
+			setCtrlLong(CTL_AEQSTAT_PHNMSGCOUNT, stat.PhnSvcMsgCount);
+			setCtrlLong(CTL_AEQSTAT_MQBPRCCOUNT, stat.MqbPrcCount);
+			setCtrlLong(CTL_AEQSTAT_MQBMSGCOUNT, stat.MqbMsgCount);
+			// } @v10.6.0 
 		}
 		SCycleTimer T;
 	};
@@ -479,11 +500,11 @@ int SLAPI ViewStatus()
 							getCtrlString(ctl_id, path);
 							if(IsDirectory(path.RmvLastSlash())) {
 								::SetBkMode(p_dc->H_DC, TRANSPARENT);
-								p_dc->H_Br = (HBRUSH)Ptb.Get(brushValidPath);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidPath));
 							}
 							else {
 								::SetBkMode(p_dc->H_DC, TRANSPARENT);
-								p_dc->H_Br = (HBRUSH)Ptb.Get(brushInvalidPath);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidPath));
 							}
 							clearEvent(event);
 							break;

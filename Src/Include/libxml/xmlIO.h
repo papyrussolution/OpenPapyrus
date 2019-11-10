@@ -132,7 +132,7 @@ struct xmlParserInputBuffer {
 		int    written;   // total number of byte written
 		int    error;
 	};
-#endif /* LIBXML_OUTPUT_ENABLED */
+#endif
 /*
  * Interfaces for input
  */

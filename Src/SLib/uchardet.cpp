@@ -2719,21 +2719,21 @@ static const SequenceModel MacCyrillicRussianModel = { macCyrillic_CharToOrderMa
 static const SequenceModel Ibm866RussianModel      = { IBM866_CharToOrderMap,      RussianLangModel, 64, 0.976601f, false, "IBM866" };
 static const SequenceModel Ibm855RussianModel      = { IBM855_CharToOrderMap,      RussianLangModel, 64, 0.976601f, false, "IBM855" };
 static const SequenceModel Iso_8859_15DanishModel = { Iso_8859_15_Danish_CharToOrderMap, DanishLangModel, 30, 0.9968082796759031f, true, "ISO-8859-15" };
-static const SequenceModel Iso_8859_1DanishModel = { Iso_8859_1_Danish_CharToOrderMap, DanishLangModel, 30, (float)0.9968082796759031, true, "ISO-8859-1" };
-static const SequenceModel Iso_8859_1FrenchModel = { Iso_8859_1_French_CharToOrderMap, FrenchLangModel, 38, (float)0.997057879992383, true, "ISO-8859-1" };
-static const SequenceModel Iso_8859_15FrenchModel = { Iso_8859_15_French_CharToOrderMap, FrenchLangModel, 38, (float)0.997057879992383, true, "ISO-8859-15" };
-static const SequenceModel Iso_8859_1SpanishModel   = { Iso_8859_1_Spanish_CharToOrderMap, SpanishLangModel, 33, (float)0.9970385677528184, true, "ISO-8859-1" };
-static const SequenceModel Iso_8859_15SpanishModel  = { Iso_8859_15_Spanish_CharToOrderMap, SpanishLangModel, 33, (float)0.9970385677528184, true, "ISO-8859-15" };
-static const SequenceModel Windows_1252FrenchModel = { Windows_1252_French_CharToOrderMap, FrenchLangModel, 38, (float)0.997057879992383, true, "WINDOWS-1252" };
-static const SequenceModel Windows_1252GermanModel = { Windows_1252_German_CharToOrderMap, GermanLangModel, 31, (float)0.9934041448127945, true, "WINDOWS-1252" };
-static const SequenceModel Windows_1252SpanishModel = { Windows_1252_Spanish_CharToOrderMap, SpanishLangModel, 33, (float)0.9970385677528184, true, "WINDOWS-1252" };
-static const SequenceModel Tis_620ThaiModel = { Tis_620_CharToOrderMap, ThaiLangModel, 64, (float)0.8815720594354438, false, "TIS-620" };
-static const SequenceModel Iso_8859_11ThaiModel = { Iso_8859_11_CharToOrderMap, ThaiLangModel, 64, (float)0.8815720594354438, false, "ISO-8859-11" };
-static const SequenceModel Iso_8859_3EsperantoModel = { Iso_8859_3_Esperanto_CharToOrderMap, EsperantoLangModel, 35, (float)0.9942980632768038, false, "ISO-8859-3" };
-static const SequenceModel Iso_8859_3TurkishModel = { Iso_8859_3_Turkish_CharToOrderMap, TurkishLangModel, 36, (float)0.991865243864388, false, "ISO-8859-3" };
-static const SequenceModel Iso_8859_9TurkishModel = { Iso_8859_9_Turkish_CharToOrderMap, TurkishLangModel, 36, (float)0.991865243864388, false, "ISO-8859-9" };
-static const SequenceModel Windows_1258VietnameseModel = { Windows_1258_CharToOrderMap, VietnameseLangModel, 55, (float)0.9321889118082535, false, "WINDOWS-1258" };
-static const SequenceModel VisciiVietnameseModel = { Viscii_CharToOrderMap, VietnameseLangModel, 55, (float)0.9321889118082535, false, "VISCII" };
+static const SequenceModel Iso_8859_1DanishModel = { Iso_8859_1_Danish_CharToOrderMap, DanishLangModel, 30, 0.9968082796759031f, true, "ISO-8859-1" };
+static const SequenceModel Iso_8859_1FrenchModel = { Iso_8859_1_French_CharToOrderMap, FrenchLangModel, 38, 0.997057879992383f, true, "ISO-8859-1" };
+static const SequenceModel Iso_8859_15FrenchModel = { Iso_8859_15_French_CharToOrderMap, FrenchLangModel, 38, 0.997057879992383f, true, "ISO-8859-15" };
+static const SequenceModel Iso_8859_1SpanishModel   = { Iso_8859_1_Spanish_CharToOrderMap, SpanishLangModel, 33, 0.9970385677528184f, true, "ISO-8859-1" };
+static const SequenceModel Iso_8859_15SpanishModel  = { Iso_8859_15_Spanish_CharToOrderMap, SpanishLangModel, 33, 0.9970385677528184f, true, "ISO-8859-15" };
+static const SequenceModel Windows_1252FrenchModel = { Windows_1252_French_CharToOrderMap, FrenchLangModel, 38, 0.997057879992383f, true, "WINDOWS-1252" };
+static const SequenceModel Windows_1252GermanModel = { Windows_1252_German_CharToOrderMap, GermanLangModel, 31, 0.9934041448127945f, true, "WINDOWS-1252" };
+static const SequenceModel Windows_1252SpanishModel = { Windows_1252_Spanish_CharToOrderMap, SpanishLangModel, 33, 0.9970385677528184f, true, "WINDOWS-1252" };
+static const SequenceModel Tis_620ThaiModel = { Tis_620_CharToOrderMap, ThaiLangModel, 64, 0.8815720594354438f, false, "TIS-620" };
+static const SequenceModel Iso_8859_11ThaiModel = { Iso_8859_11_CharToOrderMap, ThaiLangModel, 64, 0.8815720594354438f, false, "ISO-8859-11" };
+static const SequenceModel Iso_8859_3EsperantoModel = { Iso_8859_3_Esperanto_CharToOrderMap, EsperantoLangModel, 35, 0.9942980632768038f, false, "ISO-8859-3" };
+static const SequenceModel Iso_8859_3TurkishModel = { Iso_8859_3_Turkish_CharToOrderMap, TurkishLangModel, 36, 0.991865243864388f, false, "ISO-8859-3" };
+static const SequenceModel Iso_8859_9TurkishModel = { Iso_8859_9_Turkish_CharToOrderMap, TurkishLangModel, 36, 0.991865243864388f, false, "ISO-8859-9" };
+static const SequenceModel Windows_1258VietnameseModel = { Windows_1258_CharToOrderMap, VietnameseLangModel, 55, 0.9321889118082535f, false, "WINDOWS-1258" };
+static const SequenceModel VisciiVietnameseModel = { Viscii_CharToOrderMap, VietnameseLangModel, 55, 0.9321889118082535f, false, "VISCII" };
 //
 // nsSBCSGroupProber.cpp
 //

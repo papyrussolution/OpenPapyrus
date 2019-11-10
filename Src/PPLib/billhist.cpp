@@ -39,7 +39,7 @@ int SLAPI HistBillCore::SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec)
 }
 
 //static
-int SLAPI HistBillCore::HBRecToBRec(HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec)
+int SLAPI HistBillCore::HBRecToBRec(const HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec)
 {
 	if(pHBRec && pBRec) {
 		pBRec->ID   = pHBRec->BillID;

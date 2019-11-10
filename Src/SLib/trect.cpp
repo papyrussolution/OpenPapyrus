@@ -494,7 +494,7 @@ FShape & FASTCALL FShape::operator = (const Polygon & rS)
 
 FShape & FASTCALL FShape::operator = (const Polyline & rS)
 {
-	operator = ((Polygon &)rS);
+	operator = (static_cast<const Polygon &>(rS));
 	Kind = SHAPE_POLYLINE;
 	return *this;
 }
@@ -621,7 +621,7 @@ int FASTCALL FShape::Get(CircleArc & rS) const
 		rS.Start = P[3];
 		rS.End   = P[4];
 	}
-	else if(Get((Circle &)rS)) {
+	else if(Get(static_cast<Circle &>(rS))) {
 		rS.Start = 0.0f;
 		rS.End = SMathConst::Pi2_f;
 	}
@@ -641,7 +641,7 @@ int FASTCALL FShape::Get(EllipseArc & rS) const
 		rS.Start = P[4];
 		rS.End   = P[5];
 	}
-	else if(Get((Ellipse &)rS)) {
+	else if(Get(static_cast<Ellipse &>(rS))) {
 		rS.Start = 0.0f;
 		rS.End = SMathConst::Pi2_f;
 	}
@@ -656,7 +656,7 @@ int FASTCALL FShape::Get(Polygon & rS) const
 	rS.clear();
 	if(Kind == SHAPE_POLYGON) {
 		if(P_List)
-			((FloatArray &)rS) = *P_List;
+			static_cast<FloatArray &>(rS) = *P_List;
 	}
 	else {
 		Rect rect;
@@ -686,7 +686,7 @@ int FASTCALL FShape::Get(Polyline & rS) const
 	rS.clear();
 	if(Kind == SHAPE_POLYLINE) {
 		if(P_List)
-			((FloatArray &)rS) = *P_List;
+			static_cast<FloatArray &>(rS) = *P_List;
 	}
 	else {
 		Line line;
@@ -1442,8 +1442,8 @@ SColorBase::operator COLORREF() const
 
 SColorBase::operator RGBQUAD() const
 {
-	uint32 q = (*(uint32 *)this & 0x00ffffff);
-	return *(RGBQUAD *)&q;
+	uint32 q = (*reinterpret_cast<const uint32 *>(this) & 0x00ffffff);
+	return *reinterpret_cast<const RGBQUAD *>(&q);
 }
 
 float SColorBase::RedF() const { return (R / 255.0f); }

@@ -498,7 +498,7 @@ int SLAPI PutFilesToEmail(const StringSet * pFileList, PPID mailAccID, const cha
 #endif // } 0 @v9.8.11
 
 //int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
-int SLAPI PPSendEmail(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
+int SLAPI PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
 {
 	int    ok = 1;
 	SString temp_buf;

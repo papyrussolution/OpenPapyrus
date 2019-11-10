@@ -1926,7 +1926,7 @@ uint   SImageBuffer::GetWidth() const { return (uint)S.x; }
 uint   SImageBuffer::GetHeight() const { return (uint)S.y; }
 TPoint SImageBuffer::GetDim() const { return S; }
 FPoint SImageBuffer::GetDimF() const { return (FPoint)S; }
-const  uint8 * SImageBuffer::GetData() const { return (const uint8 *)P_Buf; }
+const  uint8 * SImageBuffer::GetData() const { return reinterpret_cast<const uint8 *>(P_Buf); }
 
 int SImageBuffer::Store(const StoreParam & rP, SFile & rF)
 {
@@ -2436,7 +2436,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	if(pageIdx < hdr.idCount) {
 		BITMAPINFOHEADER bm_hdr;
 		size_t dir_entry_size = sizeof(IconDirEntry) * hdr.idCount;
-		THROW(p_idir = (IconDirEntry *)SAlloc::M(dir_entry_size));
+		THROW(p_idir = static_cast<IconDirEntry *>(SAlloc::M(dir_entry_size)));
 		THROW(rF.ReadV(p_idir, dir_entry_size));
 		THROW(rF.Seek(p_idir[pageIdx].dwImageOffset));
 		THROW(rF.ReadV(&bm_hdr, sizeof(bm_hdr)));
@@ -2537,7 +2537,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 		static void ExitFunc(j_common_ptr pCInfo)
 		{
 			int    err_code = 0;
-			JpegErr * p_err = (JpegErr *)pCInfo->err;
+			JpegErr * p_err = reinterpret_cast<JpegErr *>(pCInfo->err);
 			// Are there any other error codes we might care about?
 			switch(p_err->pub.msg_code) {
 	    		case JERR_NO_SOI: err_code = SLERR_IMAGEFILENOTJPEG; break;
@@ -2636,7 +2636,7 @@ int SImageBuffer::StoreJpeg(const StoreParam & rP, SFile & rF)
 		static void ExitFunc(j_common_ptr pCInfo)
 		{
 			int    err_code = 0;
-			JpegErr * p_err = (JpegErr *)pCInfo->err;
+			JpegErr * p_err = reinterpret_cast<JpegErr *>(pCInfo->err);
 			// Are there any other error codes we might care about?
 			switch(p_err->pub.msg_code) {
 	    		case JERR_NO_SOI: err_code = SLERR_IMAGEFILENOTJPEG; break;
@@ -2941,11 +2941,11 @@ int SImageBuffer::LoadGif(SFile & rF)
 		// GIF file parameters.
 		//
 		size_t size = 0;
-		THROW(p_buffer = (GifRowType *)SAlloc::M(p_gf->SHeight * sizeof(GifRowType)));
+		THROW(p_buffer = static_cast<GifRowType *>(SAlloc::M(p_gf->SHeight * sizeof(GifRowType))));
 		size = p_gf->SWidth * sizeof(GifPixelType); // Size in bytes one row
 		for(i = 0; i < p_gf->SHeight; i++) {
 			// Allocate rows, and set their color to background
-			THROW(p_buffer[i] = (GifRowType)SAlloc::M(size));
+			THROW(p_buffer[i] = static_cast<GifRowType>(SAlloc::M(size)));
 			memset(p_buffer[i], p_gf->SBackGroundColor, size); // Set its color to BackGround
 		}
 	}

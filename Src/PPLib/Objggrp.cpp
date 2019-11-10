@@ -2558,7 +2558,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjSuprWare::PutAssoc(PPSuprWareAssoc & rItem, int use_ta)
+int SLAPI PPObjSuprWare::PutAssoc(const PPSuprWareAssoc & rItem, int use_ta)
 {
 	assert(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
 	const  PPID assoc_type = PPASS_GOODSCOMP;

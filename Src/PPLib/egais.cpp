@@ -519,29 +519,17 @@ int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack 
 		SString temp_buf;
 		xmlNode * p_root = 0;
 		THROW(p_ctx = xmlNewParserCtxt());
-		PPLogMessage(PPFILNAM_DEBUG_LOG, "xmlNewParserCtxt", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, static_cast<const char *>(pBuf->GetBuf()), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx);
-		PPLogMessage(PPFILNAM_DEBUG_LOG, "xmlCtxtReadMemory", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, static_cast<const char *>(pBuf->GetBuf()), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx); // note @v10.6.0 Здесь 
+			// может произойти сбой сеанса по непонятным причинам (Win10)
 		THROW(p_root = xmlDocGetRootElement(p_doc));
-		PPLogMessage(PPFILNAM_DEBUG_LOG, "xmlDocGetRootElement", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 		if(SXml::IsName(p_root, "A")) {
-			PPLogMessage(PPFILNAM_DEBUG_LOG, "SXml::IsName(p_root, A)", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 			for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 				if(SXml::GetContentByName(p_c, "error", temp_buf)) {
-					{
-						debug_log_buf.Z().Cat("xml-tag error").Space().Cat(temp_buf);
-						PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-					}
 					rAck.Status |= Ack::stError;
 					rAck.Message = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				}
 				else if(SXml::GetContentByName(p_c, "url", temp_buf)) {
-					{
-						debug_log_buf.Z().Cat("xml-tag url").Space().Cat(temp_buf);
-						PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-					}
 					rAck.Url = temp_buf; // @v9.1.8
-					PPLogMessage(PPFILNAM_DEBUG_LOG, "S_GUID_Base::FromStr before", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 					if(rAck.Id.FromStr(temp_buf))
 						rAck.Status &= ~Ack::stError;
 					else {
@@ -549,21 +537,12 @@ int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack 
 						if(temp_buf.Search("id=", 0, 1, &id_pos) && rAck.Id.FromStr(temp_buf+id_pos+3))
 							rAck.Status &= ~PPEgaisProcessor::Ack::stError;
 					}
-					PPLogMessage(PPFILNAM_DEBUG_LOG, "S_GUID_Base::FromStr after", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 				}
 				else if(SXml::GetContentByName(p_c, "sign", temp_buf)) {
-					{
-						debug_log_buf.Z().Cat("xml-tag sign").Space().Cat(temp_buf);
-						PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-					}
 					strnzcpy(reinterpret_cast<char *>(rAck.Sign), temp_buf, sizeof(rAck.Sign));
 					rAck.SignSize = static_cast<uint8>(temp_buf.Len());
 				}
 				else if(SXml::GetContentByName(p_c, "ver", temp_buf)) {
-					{
-						debug_log_buf.Z().Cat("xml-tag ver").Space().Cat(temp_buf);
-						PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-					}
 					rAck.Ver = temp_buf.ToLong();
 				}
 			}
@@ -573,7 +552,6 @@ int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack 
 	CATCHZOK
 	xmlFreeDoc(p_doc);
 	xmlFreeParserCtxt(p_ctx);
-	PPLogMessage(PPFILNAM_DEBUG_LOG, "ReadAck finish", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 	return ok;
 }
 
@@ -808,7 +786,6 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 					p_wr_buffer->SetWrOffs(preserve_wr_offs);
 				}
 				THROW(ReadAck(p_wr_buffer, rAck));
-				PPLogMessage(PPFILNAM_DEBUG_LOG, "ReadAck(static_cast<SBuffer *>(wr_stream), rAck) after", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 				/*
 				<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 				<A><url>https://146.120.90.148:1444?id=ab43d5e0-855c-4b54-b1d8-ddeb34d1d110&amp;dt=1503271510&amp;cn=00040218</url>
@@ -831,7 +808,6 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 						PPFormatT(PPTXT_CCACKOK, &temp_buf, cc_text.cptr(), reinterpret_cast<const char *>(rAck.Sign));
 						Log(temp_buf);
 					}
-					//PPLogMessage(PPFILNAM_DEBUG_LOG, "ReadAck after 1 step", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 				}
 			}
 		}
@@ -841,7 +817,6 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 	xmlFreeDoc(p_doc);
 	xmlFreeParserCtxt(p_ctx);
 	xmlFreeTextWriter(p_x);
-	PPLogMessage(PPFILNAM_DEBUG_LOG, "PutCCheck finish", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
     return ok;
 }
 

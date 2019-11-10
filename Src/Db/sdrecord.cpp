@@ -44,7 +44,7 @@ int SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, con
 	size_t ns = T.GetBinSize();
 	const  TYPEID st = T.GetDbFieldType();
 	int    base_type = stbase(st);
-	const  void * p_fld_data = ((const uint8 *)pRecBuf)+InnerOffs;
+	const  void * p_fld_data = PTR8C(pRecBuf)+InnerOffs;
 	long   fmt = 0;
 	if(OuterFormat) {
 		fmt = OuterFormat;
@@ -62,7 +62,7 @@ int SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, con
 		fmt = rFmt.FTime;
 	else if(base_type == BTS_REAL)
 		fmt = rFmt.FReal;
-	char   temp_buf[8192]; // @v8.1.1 [1024]-->[8192]
+	char   temp_buf[8192];
 	temp_buf[0] = 0;
 	sttostr(st, p_fld_data, fmt, temp_buf);
 	rTextData = temp_buf;
@@ -78,7 +78,7 @@ void SdbField::PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, cons
 	const  int    base_type = stbase(st);
 	const SString * p_text_data = &rTextData;
 	SString stub_text_data;
-	void * p_fld_data = ((uint8 *)pRecBuf)+InnerOffs;
+	void * p_fld_data = PTR8(pRecBuf)+InnerOffs;
 	long   fmt = 0;
 	if(base_type == BTS_STRING) {
 		if(rFmt.Flags & SFormatParam::fQuotText) {

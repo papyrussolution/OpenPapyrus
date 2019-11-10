@@ -6124,15 +6124,28 @@ public:
 	};
 	struct Stat {
 		Stat();
+		enum {
+			stPhnSvcInit = 0x0001,
+			stMqbCliInit = 0x0002
+		};
         int64  LivingTime;       // Время жизни очереди (ms)
         int64  StartClock;       // Стартовое значение Clock() для отмеривания времени жизни очереди
         uint32 Push_Count;       // Количество запросов Push
         uint32 Get_Count;        // Количество запросов Get
         uint32 GetDecline_Count; // Количество отклоненных запросов Get по причине блокировки
         uint32 MaxLength;        // Максимальная длина очереди
+		uint   State;            // @v10.6.0 Флаги состояния очереди 
+		uint   SjPrcCount;       // @v10.6.0 Количество обращений к системному журналу
+		uint   SjMsgCount;       // @v10.6.0 Количество событий, поступивщих от системного журнала
+		uint   PhnSvcPrcCount;   // @v10.6.0 Количество обращений к телефонному сервису
+		uint   PhnSvcMsgCount;   // @v10.6.0 Количество событий поступивших от телефонного сервиса
+		uint   MqbPrcCount;      // @v10.6.0 Количество обращений к брокеру сообщений  
+		uint   MqbMsgCount;      // @v10.6.0 Количество сообщений поступивших от брокера сообщений  
 	};
 
 	int    FASTCALL RegisterClient(const Client * pCli);
+	void   FASTCALL SetStatFlag(uint f);
+	void   FASTCALL AddStatCounters(const Stat & rAddendum);
 	int    SLAPI   GetStat(Stat & rStat);
 private:
 	int64  LastIdent;
@@ -11553,7 +11566,7 @@ public:
 	int    SLAPI SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec);
 	int    SLAPI PutPacket(PPID * pID, PPHistBillPacket * pPack, int close, int use_ta);
 	int    SLAPI GetPacket(PPID id, PPHistBillPacket * pPack);
-	static int SLAPI HBRecToBRec(HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec);
+	static int SLAPI HBRecToBRec(const HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec);
 	int    SLAPI DoMaintain(LDATE toDt, int recover, PPLogger * pLogger);
 		// @>>DoDBMaintain
 	int    SLAPI Remove(PPID id, int useTa);
@@ -17258,7 +17271,7 @@ private:
 	static int SLAPI PutProp(SString & rLineBuf, uint fldID, PPGdsClsProp *);
 	static int SLAPI GetProp(const SString & rLineBuf, uint fldID, PPGdsClsProp *);
 	static int SLAPI PutPropsToLine(SString & rLine, PPGdsClsPacket * pPack);
-	static int SLAPI GetPropsFromLine(SString & rLine, PPGdsClsPacket * pPack);
+	static int SLAPI GetPropsFromLine(const SString & rLine, PPGdsClsPacket * pPack);
 	static int SLAPI SerializeDim(int dir, PPGdsClsDim * p, SBuffer & rBuf, SSerializeContext * pSCtx);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -28625,7 +28638,7 @@ public:
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	int    SLAPI Get(PPID goodsID, PPSuprWarePacket * pPack);
 	int    SLAPI Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta);
-	int    SLAPI PutAssoc(PPSuprWareAssoc & rItem, int use_ta);
+	int    SLAPI PutAssoc(const PPSuprWareAssoc & rItem, int use_ta);
 	//
 	// Descr: Ищет товар или компонент по коду. Код базового товара хранится в таблице BarcodeTbl с префиксом '~'.
 	//
@@ -51679,7 +51692,7 @@ int    SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, lon
 int    SLAPI PutFilesToEmail(const /*PPFileNameArray*/SFileEntryPool *, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
 // @v9.8.11 int    SLAPI PutFilesToEmail(const StringSet *, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
 int    SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags); // @v9.8.11
-int    SLAPI PPSendEmail(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter); // @v9.8.11
+int    SLAPI PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter); // @v9.8.11
 //
 // Descr: Загружает из ресурсов структуру SdRecord.
 //   Тип ресурса - PP_RCDECLRECORD, идентификатор - rezID.

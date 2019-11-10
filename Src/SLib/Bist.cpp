@@ -481,7 +481,7 @@ int SLAPI SLString::comp(const void * i1, const void * i2) const
 char * SLAPI SLString::tostr(const void * d, long fmt, char * buf) const
 {
 	size_t l = *static_cast<const char *>(d);
-	return strfmt(strnzcpy(buf, ((char *)d)+1, MIN(S, l+1)), fmt, buf);
+	return strfmt(strnzcpy(buf, static_cast<const char *>(d)+1, MIN(S, l+1)), fmt, buf);
 }
 
 int SLAPI SLString::fromstr(void * d, long, const char * buf) const
@@ -494,12 +494,12 @@ int SLAPI SLString::fromstr(void * d, long, const char * buf) const
 
 void SLAPI SLString::minval(void * d) const
 {
-	((char *)d)[0] = 0;
+	PTR8(d)[0] = 0;
 }
 
 void SLAPI SLString::maxval(void * d) const
 {
-	((char *)d)[0] = 0;
+	PTR8(d)[0] = 0;
 }
 //
 // SInt
@@ -518,10 +518,10 @@ static long FASTCALL _tolong(const void * d, int sz)
 static void FASTCALL _longto(long v, void * d, int sz)
 {
 	switch(sz) {
-		case 4: *(int32 *)d = v; break;
-		case 2: *(int16 *)d = (int16)v; break;
-		case 1: *(int8 *)d = (int8)v; break;
-		case 8: *(int64 *)d = (int64)v; break;
+		case 4: *static_cast<int32 *>(d) = v; break;
+		case 2: *static_cast<int16 *>(d) = (int16)v; break;
+		case 1: *static_cast<int8 *>(d) = (int8)v; break;
+		case 8: *static_cast<int64 *>(d) = (int64)v; break;
 	}
 }
 
@@ -532,8 +532,8 @@ SLAPI SInt::SInt(uint32 sz) : DataType(sz)
 int SLAPI SInt::comp(const void * i1, const void * i2) const
 {
 	if(S == 0) {
-		const int64 l1 = *(int64 *)i1;
-		const int64 l2 = *(int64 *)i2;
+		const int64 l1 = *static_cast<const int64 *>(i1);
+		const int64 l2 = *static_cast<const int64 *>(i2);
 		return CMPSIGN(l1, l2);
 	}
 	else {
@@ -546,7 +546,7 @@ int SLAPI SInt::comp(const void * i1, const void * i2) const
 char * SLAPI SInt::tostr(const void * d, long fmt, char * buf) const
 {
 	if(S == 8)
-		return int64fmt(*(int64 *)d, fmt, buf);
+		return int64fmt(*static_cast<const int64 *>(d), fmt, buf);
 	else
 		return intfmt(_tolong(d, S), fmt, buf);
 }
@@ -561,21 +561,21 @@ int SLAPI SInt::fromstr(void * d, long, const char * buf) const
 
 int SLAPI SInt::tobase(const void * d, void * baseData) const
 {
-	return ((*(int32 *)baseData = _tolong(d, S)), 1);
+	return ((*static_cast<int32 *>(baseData) = _tolong(d, S)), 1);
 }
 
 int SLAPI SInt::baseto(void * d, const void * baseData) const
 {
-	return (_longto(*(int32 *)baseData, d, S), 1);
+	return (_longto(*static_cast<const int32 *>(baseData), d, S), 1);
 }
 
 void SLAPI SInt::minval(void * d) const
 {
 	switch(S) {
-		case 2: *(int16 *)d = SHRT_MIN;  break;
-		case 4: *(int32 *)d = LONG_MIN;  break;
-		case 1: *(int8  *)d = SCHAR_MIN; break;
-		case 8: *(int64 *)d = LLONG_MIN; break;
+		case 2: *static_cast<int16 *>(d) = SHRT_MIN;  break;
+		case 4: *static_cast<int32 *>(d) = LONG_MIN;  break;
+		case 1: *static_cast<int8  *>(d) = SCHAR_MIN; break;
+		case 8: *static_cast<int64 *>(d) = LLONG_MIN; break;
 		default: ; // assert(INVALID_DATA_SIZE);
 	}
 }
@@ -583,10 +583,10 @@ void SLAPI SInt::minval(void * d) const
 void SLAPI SInt::maxval(void * d) const
 {
 	switch(S) {
-		case 2: *(int16 *)d = SHRT_MAX; break;
-		case 4: *(int32 *)d  = LONG_MAX; break;
-		case 1: *(int8  *)d  = SCHAR_MAX; break;
-		case 8: *(int64 *)d  = LLONG_MAX; break;
+		case 2: *static_cast<int16 *>(d) = SHRT_MAX; break;
+		case 4: *static_cast<int32 *>(d) = LONG_MAX; break;
+		case 1: *static_cast<int8  *>(d) = SCHAR_MAX; break;
+		case 8: *static_cast<int64 *>(d) = LLONG_MAX; break;
 		default: ; // assert(INVALID_DATA_SIZE);
 	}
 }
@@ -597,7 +597,7 @@ int SLAPI SInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, S
 	if(dir > 0) {
 		int    spec = 0; // 1 - zero, 2 - full
 		if(S == 8) {
-			const int64 v64 = *(int64 *)pData;
+			const int64 v64 = *static_cast<const int64 *>(pData);
 			if(v64 == 0)
 				spec = 1;
 			else {
@@ -735,21 +735,21 @@ int SLAPI SBool::fromstr(void * d, long fmt, const char * buf) const
 
 int SLAPI SBool::tobase(const void * pData, void * pBaseData) const
 {
-	return ((*(int32 *)pBaseData = _tolong(pData, S)), 1);
+	return ((*static_cast<int32 *>(pBaseData) = _tolong(pData, S)), 1);
 }
 
 int SLAPI SBool::baseto(void * pData, const void * pBaseData) const
 {
-	return (_longto(*(int32 *)pBaseData, pData, S), 1);
+	return (_longto(*static_cast<const int32 *>(pBaseData), pData, S), 1);
 }
 
 void SLAPI SBool::minval(void * pData) const
 {
 	switch(S) {
-		case 2: *(int16 *)pData = 0;  break;
-		case 4: *(int32 *)pData = 0;  break;
-		case 1: *(int8  *)pData = 0; break;
-		case 8: *(int64 *)pData = 0; break;
+		case 2: *static_cast<int16 *>(pData) = 0;  break;
+		case 4: *static_cast<int32 *>(pData) = 0;  break;
+		case 1: *static_cast<int8  *>(pData) = 0; break;
+		case 8: *static_cast<int64 *>(pData) = 0; break;
 		default: ; // assert(INVALID_DATA_SIZE);
 	}
 }
@@ -757,10 +757,10 @@ void SLAPI SBool::minval(void * pData) const
 void SLAPI SBool::maxval(void * pData) const
 {
 	switch(S) {
-		case 2: *(int16 *)pData = 1; break;
-		case 4: *(int32 *)pData = 1; break;
-		case 1: *(int8  *)pData = 1; break;
-		case 8: *(int64 *)pData = 1; break;
+		case 2: *static_cast<int16 *>(pData) = 1; break;
+		case 4: *static_cast<int32 *>(pData) = 1; break;
+		case 1: *static_cast<int8  *>(pData) = 1; break;
+		case 8: *static_cast<int64 *>(pData) = 1; break;
 		default: ; // assert(INVALID_DATA_SIZE);
 	}
 }
@@ -771,7 +771,7 @@ int SLAPI SBool::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 	if(dir > 0) {
 		int    spec = 0; // 1 - false, 2 - true
 		if(S == 8) {
-			const int64 v64 = *(int64 *)pData;
+			const int64 v64 = *static_cast<const int64 *>(pData);
 			if(v64 == 0)
 				spec = 1;
 			else
@@ -852,7 +852,7 @@ int SLAPI SUInt::comp(const void * i1, const void * i2) const
 char * SLAPI SUInt::tostr(const void * d, long fmt, char * buf) const
 {
 	if(S == 8)
-		return uint64fmt(*(uint64 *)d, fmt, buf);
+		return uint64fmt(*static_cast<const uint64 *>(d), fmt, buf);
 	else
 		return uintfmt(_toulong(d, S), fmt, buf);
 }

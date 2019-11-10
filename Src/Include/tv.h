@@ -2604,7 +2604,7 @@ public:
 	TPoint GetScrollDelta() const;
 	int    SetTool(int toolId, int paintObjIdent);
 	int    GetTool(int toolId) const;
-	int    ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam);
+	int    ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Store(const char * pFileName);
 	int    Load(const char * pFileName);
