@@ -11785,10 +11785,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 #ifdef LIBXML_HTML_ENABLED
 	else if(doc->type == XML_HTML_DOCUMENT_NODE) {
 		ctxt = htmlCreateMemoryParserCtxt((char *)data, datalen);
-		/*
-		 * When parsing in context, it makes no sense to add implied
-		 * elements like html/body/etc...
-		 */
+		// When parsing in context, it makes no sense to add implied elements like html/body/etc...
 		options |= HTML_PARSE_NOIMPLIED;
 	}
 #endif

@@ -436,35 +436,134 @@ int SLAPI PPEgaisProcessor::GetTempFileName(const char * pPath, const char * pSu
 	return ok;
 }
 
+int SLAPI TestReadXmlMem_EgaisAck()
+{
+	int    ok = 1;
+    xmlParserCtxt * p_ctx = 0;
+	xmlDoc * p_doc = 0;
+	PPEgaisProcessor::Ack ack;
+	SString temp_buf;
+	SString src_path;
+	PPGetPath(PPPATH_TESTROOT, src_path);
+	if(src_path.NotEmpty()) {
+		src_path.SetLastSlash().Cat("data").SetLastSlash().Cat("egais-ack.xml");
+		SFile f_in(src_path, SFile::mRead|SFile::mBinary);
+		int64 f_in_size = 0;
+		f_in.CalcSize(&f_in_size);
+		STempBuffer inbuf(static_cast<size_t>(f_in_size + 1024));
+		if(inbuf.IsValid()) {
+			size_t actual_size = 0;
+			if(f_in.Read(inbuf.vptr(), inbuf.GetSize(), &actual_size) > 0) {
+				SBuffer test_buf;
+				test_buf.Write(inbuf.vcptr(), actual_size);
+				//
+				const int avl_size = static_cast<int>(test_buf.GetAvailableSize());
+				xmlNode * p_root = 0;
+				THROW(p_ctx = xmlNewParserCtxt());
+				THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, static_cast<const char *>(test_buf.GetBuf()), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx);
+				THROW(p_root = xmlDocGetRootElement(p_doc));
+				if(SXml::IsName(p_root, "A")) {
+					for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+						if(SXml::GetContentByName(p_c, "error", temp_buf)) {
+							ack.Status |= PPEgaisProcessor::Ack::stError;
+							ack.Message = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						}
+						else if(SXml::GetContentByName(p_c, "url", temp_buf)) {
+							ack.Url = temp_buf;
+							if(ack.Id.FromStr(temp_buf))
+								ack.Status &= ~PPEgaisProcessor::Ack::stError;
+							else {
+								size_t id_pos = 0;
+								if(temp_buf.Search("id=", 0, 1, &id_pos) && ack.Id.FromStr(temp_buf+id_pos+3))
+									ack.Status &= ~PPEgaisProcessor::Ack::stError;
+							}
+						}
+						else if(SXml::GetContentByName(p_c, "sign", temp_buf)) {
+							strnzcpy(reinterpret_cast<char *>(ack.Sign), temp_buf, sizeof(ack.Sign));
+							ack.SignSize = static_cast<uint8>(temp_buf.Len());
+						}
+						else if(SXml::GetContentByName(p_c, "ver", temp_buf)) {
+							ack.Ver = temp_buf.ToLong();
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
 int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck)
 {
 	rAck.Clear();
 	int    ok = -1;
     xmlParserCtxt * p_ctx = 0;
 	xmlDoc * p_doc = 0;
+	const int avl_size = pBuf ? static_cast<int>(pBuf->GetAvailableSize()) : 0;
+	// @v10.6.0 {
+	SString debug_log_buf;
+	{
+		// @debug {
+		debug_log_buf.Cat("UTM reply 3").CatDiv(':', 2).CatEq("size", static_cast<long>(avl_size));
+		if(avl_size) {
+			debug_log_buf.CatN(static_cast<const char *>(pBuf->GetBuf(pBuf->GetRdOffs())), avl_size);
+			PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP);
+		}
+		// } @debug
+	}
+	// } @v10.6.0 
 	if(pBuf) {
-		const int avl_size = static_cast<int>(pBuf->GetAvailableSize());
 		SString temp_buf;
 		xmlNode * p_root = 0;
 		THROW(p_ctx = xmlNewParserCtxt());
-		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, (const char *)pBuf->GetBuf(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx);
+		PPLogMessage(PPFILNAM_DEBUG_LOG, "xmlNewParserCtxt", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, static_cast<const char *>(pBuf->GetBuf()), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx);
+		PPLogMessage(PPFILNAM_DEBUG_LOG, "xmlCtxtReadMemory", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 		THROW(p_root = xmlDocGetRootElement(p_doc));
+		PPLogMessage(PPFILNAM_DEBUG_LOG, "xmlDocGetRootElement", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 		if(SXml::IsName(p_root, "A")) {
-			for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+			PPLogMessage(PPFILNAM_DEBUG_LOG, "SXml::IsName(p_root, A)", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+			for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 				if(SXml::GetContentByName(p_c, "error", temp_buf)) {
+					{
+						debug_log_buf.Z().Cat("xml-tag error").Space().Cat(temp_buf);
+						PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+					}
 					rAck.Status |= Ack::stError;
 					rAck.Message = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				}
 				else if(SXml::GetContentByName(p_c, "url", temp_buf)) {
+					{
+						debug_log_buf.Z().Cat("xml-tag url").Space().Cat(temp_buf);
+						PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+					}
 					rAck.Url = temp_buf; // @v9.1.8
+					PPLogMessage(PPFILNAM_DEBUG_LOG, "S_GUID_Base::FromStr before", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 					if(rAck.Id.FromStr(temp_buf))
 						rAck.Status &= ~Ack::stError;
+					else {
+						size_t id_pos = 0;
+						if(temp_buf.Search("id=", 0, 1, &id_pos) && rAck.Id.FromStr(temp_buf+id_pos+3))
+							rAck.Status &= ~PPEgaisProcessor::Ack::stError;
+					}
+					PPLogMessage(PPFILNAM_DEBUG_LOG, "S_GUID_Base::FromStr after", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 				}
 				else if(SXml::GetContentByName(p_c, "sign", temp_buf)) {
+					{
+						debug_log_buf.Z().Cat("xml-tag sign").Space().Cat(temp_buf);
+						PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+					}
 					strnzcpy(reinterpret_cast<char *>(rAck.Sign), temp_buf, sizeof(rAck.Sign));
 					rAck.SignSize = static_cast<uint8>(temp_buf.Len());
 				}
 				else if(SXml::GetContentByName(p_c, "ver", temp_buf)) {
+					{
+						debug_log_buf.Z().Cat("xml-tag ver").Space().Cat(temp_buf);
+						PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+					}
 					rAck.Ver = temp_buf.ToLong();
 				}
 			}
@@ -474,6 +573,7 @@ int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack 
 	CATCHZOK
 	xmlFreeDoc(p_doc);
 	xmlFreeParserCtxt(p_ctx);
+	PPLogMessage(PPFILNAM_DEBUG_LOG, "ReadAck finish", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 	return ok;
 }
 
@@ -693,29 +793,45 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 				hf.AddContentFile(file_name, temp_buf, "xml_file");
 			}
 			THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
-			//LogSended(rPack);
-			THROW(ReadAck(static_cast<SBuffer *>(wr_stream), rAck));
-			/*
-			<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-			<A><url>https://146.120.90.148:1444?id=ab43d5e0-855c-4b54-b1d8-ddeb34d1d110&amp;dt=1503271510&amp;cn=00040218</url>
-			<sign>32B7136A7BCEAFEBE4DA92D9510C196CC42DC(1.174)
-			56260E1E2802B8C24A8C3EA75F3978EA6963F370F
-			3165B89DBF98FD94F2F0C7F4803965B62A6616A12D8159A5D3</sign>
-			<ver>2</ver></A>
-			*/
 			{
-				/*
-					PPTXT_CCACKOK                 "Отправка чека '@zstr' серверу ЕГАИС завершилась УСПЕШНО: @zstr"
-					PPTXT_CCACKERROR              "Отправка чека '@zstr' серверу ЕГАИС завершилась С ОШИБКОЙ: @zstr"
-				*/
-				if(rAck.Status & rAck.stError) {
-					PPFormatT(PPTXT_CCACKERROR, &temp_buf, cc_text.cptr(), rAck.Message.cptr());
-					Log(temp_buf);
-					CALLEXCEPT_PP_S(PPERR_EGAIS_CCSENDFAULT, rAck.Message.cptr());
+				//LogSended(rPack);
+				SBuffer * p_wr_buffer = static_cast<SBuffer *>(wr_stream);
+				THROW(p_wr_buffer);
+				{
+					//
+					// @v10.6.0 Танец с бубном в стремлении решить непонятную проблему с аварийным завершением сеанса
+					// в функции ReadAck при чтении xml из буфера 
+					//
+					uint32 dummy_bytes = 0;
+					const size_t preserve_wr_offs = p_wr_buffer->GetWrOffs();
+					p_wr_buffer->Write(dummy_bytes);
+					p_wr_buffer->SetWrOffs(preserve_wr_offs);
 				}
-				else {
-					PPFormatT(PPTXT_CCACKOK, &temp_buf, cc_text.cptr(), reinterpret_cast<const char *>(rAck.Sign));
-					Log(temp_buf);
+				THROW(ReadAck(p_wr_buffer, rAck));
+				PPLogMessage(PPFILNAM_DEBUG_LOG, "ReadAck(static_cast<SBuffer *>(wr_stream), rAck) after", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+				/*
+				<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+				<A><url>https://146.120.90.148:1444?id=ab43d5e0-855c-4b54-b1d8-ddeb34d1d110&amp;dt=1503271510&amp;cn=00040218</url>
+				<sign>32B7136A7BCEAFEBE4DA92D9510C196CC42DC(1.174)
+				56260E1E2802B8C24A8C3EA75F3978EA6963F370F
+				3165B89DBF98FD94F2F0C7F4803965B62A6616A12D8159A5D3</sign>
+				<ver>2</ver></A>
+				*/
+				{
+					/*
+						PPTXT_CCACKOK                 "Отправка чека '@zstr' серверу ЕГАИС завершилась УСПЕШНО: @zstr"
+						PPTXT_CCACKERROR              "Отправка чека '@zstr' серверу ЕГАИС завершилась С ОШИБКОЙ: @zstr"
+					*/
+					if(rAck.Status & rAck.stError) {
+						PPFormatT(PPTXT_CCACKERROR, &temp_buf, cc_text.cptr(), rAck.Message.cptr());
+						Log(temp_buf);
+						CALLEXCEPT_PP_S(PPERR_EGAIS_CCSENDFAULT, rAck.Message.cptr());
+					}
+					else {
+						PPFormatT(PPTXT_CCACKOK, &temp_buf, cc_text.cptr(), reinterpret_cast<const char *>(rAck.Sign));
+						Log(temp_buf);
+					}
+					//PPLogMessage(PPFILNAM_DEBUG_LOG, "ReadAck after 1 step", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 				}
 			}
 		}
@@ -725,6 +841,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 	xmlFreeDoc(p_doc);
 	xmlFreeParserCtxt(p_ctx);
 	xmlFreeTextWriter(p_x);
+	PPLogMessage(PPFILNAM_DEBUG_LOG, "PutCCheck finish", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
     return ok;
 }
 
@@ -757,68 +874,82 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 		}
 		THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
 		LogSended(rPack);
-		THROW(ReadAck(static_cast<SBuffer *>(wr_stream), rAck));
-		if(rAck.Status & Ack::stError) {
-			PPLoadText(PPTXT_EGAIS_ERRONQUERY, temp_buf);
-			Log(temp_buf.CatDiv(':', 2).Cat(rAck.Message));
-		}
-		else if(!!rAck.Id) {
-			BillTbl::Rec bill_rec;
-			ObjTagItem tag_item;
-			PPIDArray edi_op_list;
-			edi_op_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3,
-				PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFF,
-				PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
-				PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, 0);
-			// @v9.6.4 (useless) THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
+		{
+			SBuffer * p_wr_buffer = static_cast<SBuffer *>(wr_stream);
+			THROW(p_wr_buffer);
 			{
-				Reference * p_ref = PPRef;
-				PPTransaction tra(1);
-				THROW(tra);
-				// @v9.6.4 (useless) THROW(P_Dgq->PutQuery(rAck.Id, rPack.DocType, 0));
-				if(rPack.DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
-					RepealWb * p_req = static_cast<RepealWb *>(rPack.P_Data);
-                    if(p_req) {
-						THROW(P_BObj->Search(p_req->BillID, &bill_rec) > 0);
-						rAck.Id.ToStr(S_GUID::fmtIDL, temp_buf);
-						THROW(tag_item.SetStr(PPTAG_BILL_EDIREPEALACK, temp_buf));
-						THROW(p_ref->Ot.PutTag(PPOBJ_BILL, p_req->BillID, &tag_item, 0));
-                    }
-				}
-				else if(edi_op_list.lsearch(rPack.DocType)) {
-					PPBillPacket * p_bp = static_cast<PPBillPacket *>(rPack.P_Data);
-					if(p_bp) {
-						THROW(P_BObj->Search(p_bp->Rec.ID, &bill_rec) > 0);
-						{
-							const long org_flags2 = bill_rec.Flags2;
-							bill_rec.Flags2 |= BILLF2_ACKPENDING;
-							THROW(P_BObj->P_Tbl->SetRecFlag2(p_bp->Rec.ID, BILLF2_ACKPENDING, 1, 0));
-							if(oneof3(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
-								const int recadv_status = BillCore::GetRecadvStatus(p_bp->Rec);
-								BillCore::SetRecadvStatus(recadv_status, bill_rec);
-							}
-							if(bill_rec.Flags2 != org_flags2) {
-								THROW_DB(P_BObj->P_Tbl->rereadForUpdate(0, 0));
-								THROW_DB(P_BObj->P_Tbl->updateRecBuf(&bill_rec)); // @sfu
-							}
-						}
-						{
+				//
+				// @v10.6.0 Танец с бубном в стремлении решить непонятную проблему с аварийным завершением сеанса
+				// в функции ReadAck при чтении xml из буфера 
+				//
+				uint32 dummy_bytes = 0;
+				const size_t preserve_wr_offs = p_wr_buffer->GetWrOffs();
+				p_wr_buffer->Write(dummy_bytes);
+				p_wr_buffer->SetWrOffs(preserve_wr_offs);
+			}
+			THROW(ReadAck(p_wr_buffer, rAck));
+			if(rAck.Status & Ack::stError) {
+				PPLoadText(PPTXT_EGAIS_ERRONQUERY, temp_buf);
+				Log(temp_buf.CatDiv(':', 2).Cat(rAck.Message));
+			}
+			else if(!!rAck.Id) {
+				BillTbl::Rec bill_rec;
+				ObjTagItem tag_item;
+				PPIDArray edi_op_list;
+				edi_op_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3,
+					PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFF,
+					PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
+					PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, 0);
+				// @v9.6.4 (useless) THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
+				{
+					Reference * p_ref = PPRef;
+					PPTransaction tra(1);
+					THROW(tra);
+					// @v9.6.4 (useless) THROW(P_Dgq->PutQuery(rAck.Id, rPack.DocType, 0));
+					if(rPack.DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
+						RepealWb * p_req = static_cast<RepealWb *>(rPack.P_Data);
+						if(p_req) {
+							THROW(P_BObj->Search(p_req->BillID, &bill_rec) > 0);
 							rAck.Id.ToStr(S_GUID::fmtIDL, temp_buf);
-							if(oneof3(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3) &&
-								!p_bp->Rec.EdiOp && p_bp->Rec.Flags2 & BILLF2_DECLINED) {
-								//
-								// Для отказа от собственного документа необходимо установить специальный тег квитанции
-								//
-								THROW(tag_item.SetStr(PPTAG_BILL_EDIREJECTACK, temp_buf));
-							}
-							else {
-								THROW(tag_item.SetStr(PPTAG_BILL_EDIACK, temp_buf));
-							}
-							THROW(p_ref->Ot.PutTag(PPOBJ_BILL, p_bp->Rec.ID, &tag_item, 0));
+							THROW(tag_item.SetStr(PPTAG_BILL_EDIREPEALACK, temp_buf));
+							THROW(p_ref->Ot.PutTag(PPOBJ_BILL, p_req->BillID, &tag_item, 0));
 						}
 					}
+					else if(edi_op_list.lsearch(rPack.DocType)) {
+						PPBillPacket * p_bp = static_cast<PPBillPacket *>(rPack.P_Data);
+						if(p_bp) {
+							THROW(P_BObj->Search(p_bp->Rec.ID, &bill_rec) > 0);
+							{
+								const long org_flags2 = bill_rec.Flags2;
+								bill_rec.Flags2 |= BILLF2_ACKPENDING;
+								THROW(P_BObj->P_Tbl->SetRecFlag2(p_bp->Rec.ID, BILLF2_ACKPENDING, 1, 0));
+								if(oneof3(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
+									const int recadv_status = BillCore::GetRecadvStatus(p_bp->Rec);
+									BillCore::SetRecadvStatus(recadv_status, bill_rec);
+								}
+								if(bill_rec.Flags2 != org_flags2) {
+									THROW_DB(P_BObj->P_Tbl->rereadForUpdate(0, 0));
+									THROW_DB(P_BObj->P_Tbl->updateRecBuf(&bill_rec)); // @sfu
+								}
+							}
+							{
+								rAck.Id.ToStr(S_GUID::fmtIDL, temp_buf);
+								if(oneof3(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3) &&
+									!p_bp->Rec.EdiOp && p_bp->Rec.Flags2 & BILLF2_DECLINED) {
+									//
+									// Для отказа от собственного документа необходимо установить специальный тег квитанции
+									//
+									THROW(tag_item.SetStr(PPTAG_BILL_EDIREJECTACK, temp_buf));
+								}
+								else {
+									THROW(tag_item.SetStr(PPTAG_BILL_EDIACK, temp_buf));
+								}
+								THROW(p_ref->Ot.PutTag(PPOBJ_BILL, p_bp->Rec.ID, &tag_item, 0));
+							}
+						}
+					}
+					THROW(tra.Commit());
 				}
-				THROW(tra.Commit());
 			}
 		}
 	}
@@ -4462,7 +4593,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 										org_line_ident = temp_buf;
 									}
 									else {
-										ti.RByBill = (dec_id % RowIdentDivider);
+										ti.RByBill = static_cast<int16>(dec_id % RowIdentDivider);
 										if(dec_id != ti.RByBill)
 											org_line_ident = temp_buf;
 									}

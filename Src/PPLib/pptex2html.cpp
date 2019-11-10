@@ -1731,12 +1731,12 @@ public:
 		if(prc.EditParam(&filt) > 0) {
 			pParam->Z();
 			THROW(filt.Write(*pParam, 0));
+			ok = 1; // @v10.6.0
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
 		CATCH
-			if(pParam)
-				pParam->SetRdOffs(sav_offs);
+			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
 			ok = 0;
 		ENDCATCH
 		return ok;

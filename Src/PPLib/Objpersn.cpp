@@ -3377,19 +3377,20 @@ static PPID SLAPI SelectPersonKind()
 //
 //
 class AddrListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPPersonPacket);
 public:
 	AddrListDialog() : PPListDialog(DLG_ADDRLIST, CTL_ADDRLIST_LIST)
 	{
 	}
-	int    setDTS(const PPPersonPacket * pPack)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pPack;
+		RVALUEPTR(Data, pData);
 		updateList(0);
 		return 1;
 	}
-	int    getDTS(PPPersonPacket * pPack)
+	DECL_DIALOG_GETDTS()
 	{
-		ASSIGN_PTR(pPack, Data);
+		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
 private:
@@ -3398,8 +3399,6 @@ private:
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	int    editAddr(uint pos);
-
-	PPPersonPacket Data;
 };
 
 int AddrListDialog::setupList()
@@ -3713,7 +3712,6 @@ private:
 	};
 	long   St;
 	PPObjSCard ScObj;
-
 	DateAddDialogParam ScExpiryPeriodParam;
 };
 
@@ -3723,7 +3721,6 @@ int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 	uint   i;
 	PPID   reg_type_id = 0;
 	SString temp_buf;
-
 	Data = *pData;
 	PhonePos = -1;
 	CodeRegPos = -1;

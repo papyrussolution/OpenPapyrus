@@ -1754,7 +1754,8 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				Rec.QuotList = rtl_ext_item.QuotList;
 				const double price_ = (Flags & ACGIF_UNCONDBASEPRICE) ? rtl_ext_item.BasePrice : rtl_ext_item.Price;
 				if(Flags & ACGIF_INITLOCPRN && P_G2OAssoc) {
-					PPID loc_id = 0, prn_id = 0;
+					PPID   loc_id = 0;
+					PPID   prn_id = 0;
 					P_G2OAssoc->Get(grec.ID, &loc_id);
 					if(LocPrnAssoc.Search(loc_id, &prn_id, 0)) {
 						Rec.LocPrnID = prn_id;

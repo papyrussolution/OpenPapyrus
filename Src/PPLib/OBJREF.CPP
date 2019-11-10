@@ -646,7 +646,7 @@ int SLAPI PPObjReference::ProcessReservedItem(TVRez & rez)
 	int    ok = 1;
 	int    r;
 	SString name;
-	PPID   id = (PPID)rez.getUINT();
+	PPID   id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.2.1
 	THROW(r = Search(id));
@@ -695,6 +695,7 @@ int SLAPI PPObjReference::MakeReserved(long flags)
 		case PPOBJ_REGISTERTYPE:  rez_id = ROD_REGISTERTYPE;  break;
 		case PPOBJ_ELINKKIND:     rez_id = ROD_ELINKKIND;     break;
 		case PPOBJ_PERSONRELTYPE: rez_id = ROD_PERSONRELTYPE; break;
+		case PPOBJ_TAXSYSTEMKIND: rez_id = ROD_TAXSYSTEMKIND; break; // @v10.6.0
 	}
 	return rez_id ? LoadReservedItems(rez_id) : 1;
 }
@@ -3839,11 +3840,12 @@ SLAPI PPObjFreightPackageType::PPObjFreightPackageType(void * extraPtr) : PPObjR
 }
 
 class FreightPackageTypeDialog : public TDialog {
+	DECL_DIALOG_DATA(PPFreightPackageType);
 public:
 	FreightPackageTypeDialog() : TDialog(DLG_FPACKTYPE)
 	{
 	}
-	int    setDTS(const PPFreightPackageType * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -3854,7 +3856,7 @@ public:
 		SetClusterData(CTL_FPACKTYPE_FLAGS, Data.Flags);
 		return ok;
 	}
-	int    getDTS(PPFreightPackageType * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlData(CTL_FPACKTYPE_NAME, Data.Name);
@@ -3863,8 +3865,6 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
-private:
-	PPFreightPackageType Data;
 };
 
 int SLAPI PPObjFreightPackageType::Edit(PPID * pID, void * extraPtr)
@@ -3902,4 +3902,33 @@ int SLAPI PPObjFreightPackageType::Edit(PPID * pID, void * extraPtr)
 	delete dlg;
 	return ok ? r : 0;
 }
+//
+//
+//
+SLAPI PPObjTaxSystemKind::PPObjTaxSystemKind(void * extraPtr) : PPObjReference(PPOBJ_TAXSYSTEMKIND, extraPtr)
+{
+}
 
+int SLAPI PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
+{
+	int    ok = 1;
+	int    r;
+	SString name;
+	SString symb;
+	PPID   id = static_cast<PPID>(rRez.getUINT());
+	rRez.getString(name, 2);
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
+	rRez.getString(symb, 2);
+	THROW(r = Search(id));
+	if(r < 0) {
+		ReferenceTbl::Rec rec;
+		MEMSZERO(rec);
+		rec.ObjType = Obj;
+		rec.ObjID   = id;
+		STRNSCPY(rec.ObjName, name);
+		STRNSCPY(rec.Symb, symb);
+		THROW(EditItem(Obj, 0, &rec, 1));
+	}
+	CATCHZOK
+	return ok;
+}

@@ -436,9 +436,9 @@
 	#define HELP_BROWSER_SCARDOP                                196
 #define BROWSER_SYNCCMP                                197 // Сравнение синхронизации объектов
 	#define HELP_BROWSER_SYNCCMP                                197
-#define BROWSER_ASSET                                  198 // Объекты основных средств
+#define BROWSER_ASSET                                  198 // @view_asset
 	#define HELP_BROWSER_ASSET                                  198
-#define BROWSER_ASSETOPER                              199 // Объекты основных средств {%s}
+#define BROWSER_ASSETOPER                              199 // @{view_asset} {%s}
 	#define HELP_BROWSER_ASSETOPER                              199
 #define BROWSER_SSTAT                                  200 // Статистика по продажам товаров {%s}
 	#define HELP_BROWSER_SSTAT                                  200

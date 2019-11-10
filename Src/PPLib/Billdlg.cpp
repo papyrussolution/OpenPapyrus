@@ -3489,12 +3489,22 @@ static int EditPaymPlanItem(const PPBillPacket * pPack, PayPlanTbl::Rec * pData)
 }
 
 class PaymPlanDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PayPlanArray);
 public:
 	PaymPlanDialog(const PPBillPacket * pPack) : PPListDialog(DLG_PAYPLAN, CTL_PAYPLAN_LIST), P_Pack(pPack)
 	{
 	}
-	int    setDTS(const PayPlanArray *);
-	int    getDTS(PayPlanArray *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
@@ -3503,22 +3513,8 @@ private:
 	virtual int delItem(long pos, long id);
 
 	const PPBillPacket * P_Pack;
-	PayPlanArray Data;
 	PctChargeArray PcList;
 };
-
-int PaymPlanDialog::setDTS(const PayPlanArray * pData)
-{
-	Data = *pData;
-	updateList(-1);
-	return 1;
-}
-
-int PaymPlanDialog::getDTS(PayPlanArray * pData)
-{
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
 
 IMPL_HANDLE_EVENT(PaymPlanDialog)
 {

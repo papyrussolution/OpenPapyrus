@@ -124,7 +124,7 @@ struct _xmlSchematronValidCtxt {
 	xmlDict * dict;
 	int nberrors;
 	int err;
-	xmlSchematronPtr schema;
+	xmlSchematron * schema;
 	xmlXPathContextPtr xctxt;
 	FILE * outputFile;      /* if using XML_SCHEMATRON_OUT_FILE */
 	xmlBuffer * outputBuffer; /* if using XML_SCHEMATRON_OUT_BUFFER */
@@ -151,7 +151,7 @@ struct _xmlSchematronParserCtxt {
 	int nberrors;
 	int err;
 	xmlXPathContextPtr xctxt; /* the XPath context used for compilation */
-	xmlSchematronPtr schema;
+	xmlSchematron * schema;
 	int nbNamespaces;       /* number of namespaces in the array */
 	int maxNamespaces;      /* size of the array */
 	const xmlChar ** namespaces; /* the array of namespaces */
@@ -215,7 +215,7 @@ static void FASTCALL xmlSchematronPErr(xmlSchematronParserCtxt * ctxt, xmlNode *
  *
  * Handle an out of memory condition
  */
-static void xmlSchematronVErrMemory(xmlSchematronValidCtxtPtr ctxt, const char * extra, xmlNode * P_Node)
+static void xmlSchematronVErrMemory(xmlSchematronValidCtxt * ctxt, const char * extra, xmlNode * P_Node)
 {
 	if(ctxt) {
 		ctxt->nberrors++;
@@ -305,7 +305,7 @@ static void xmlSchematronFreeTests(xmlSchematronTestPtr tests)
  *
  * Returns the new pointer or NULL in case of error
  */
-static xmlSchematronRulePtr xmlSchematronAddRule(xmlSchematronParserCtxt * ctxt, xmlSchematronPtr schema, xmlSchematronPatternPtr pat, xmlNode * P_Node, xmlChar * context, xmlChar * report)
+static xmlSchematronRulePtr xmlSchematronAddRule(xmlSchematronParserCtxt * ctxt, xmlSchematron * schema, xmlSchematronPatternPtr pat, xmlNode * P_Node, xmlChar * context, xmlChar * report)
 {
 	xmlSchematronRulePtr ret;
 	xmlPattern * pattern;
@@ -318,7 +318,7 @@ static xmlSchematronRulePtr xmlSchematronAddRule(xmlSchematronParserCtxt * ctxt,
 	if(pattern == NULL) {
 		xmlSchematronPErr(ctxt, P_Node, XML_SCHEMAP_NOROOT, "Failed to compile context expression %s", context, 0);
 	}
-	ret = (xmlSchematronRulePtr)SAlloc::M(sizeof(xmlSchematronRule));
+	ret = static_cast<xmlSchematronRulePtr>(SAlloc::M(sizeof(xmlSchematronRule)));
 	if(!ret) {
 		xmlSchematronPErrMemory(ctxt, "allocating schema rule", P_Node);
 		return 0;
@@ -380,12 +380,12 @@ static void xmlSchematronFreeRules(xmlSchematronRulePtr rules)
  *
  * Returns the new pointer or NULL in case of error
  */
-static xmlSchematronPatternPtr xmlSchematronAddPattern(xmlSchematronParserCtxt * ctxt, xmlSchematronPtr schema, xmlNode * P_Node, xmlChar * name)
+static xmlSchematronPatternPtr xmlSchematronAddPattern(xmlSchematronParserCtxt * ctxt, xmlSchematron * schema, xmlNode * P_Node, xmlChar * name)
 {
 	xmlSchematronPatternPtr ret;
 	if(!ctxt || !schema || !P_Node || !name)
 		return 0;
-	ret = (xmlSchematronPatternPtr)SAlloc::M(sizeof(xmlSchematronPattern));
+	ret = static_cast<xmlSchematronPatternPtr>(SAlloc::M(sizeof(xmlSchematronPattern)));
 	if(!ret) {
 		xmlSchematronPErrMemory(ctxt, "allocating schema pattern", P_Node);
 		return 0;
@@ -427,9 +427,9 @@ static void xmlSchematronFreePatterns(xmlSchematronPatternPtr patterns)
  *
  * Returns the newly allocated structure or NULL in case or error
  */
-static xmlSchematronPtr xmlSchematronNewSchematron(xmlSchematronParserCtxt * ctxt)
+static xmlSchematron * xmlSchematronNewSchematron(xmlSchematronParserCtxt * ctxt)
 {
-	xmlSchematronPtr ret = (xmlSchematronPtr)SAlloc::M(sizeof(xmlSchematron));
+	xmlSchematron * ret = static_cast<xmlSchematron *>(SAlloc::M(sizeof(xmlSchematron)));
 	if(!ret) {
 		xmlSchematronPErrMemory(ctxt, "allocating schema", 0);
 	}
@@ -446,7 +446,7 @@ static xmlSchematronPtr xmlSchematronNewSchematron(xmlSchematronParserCtxt * ctx
  *
  * Deallocate a Schematron structure.
  */
-void xmlSchematronFree(xmlSchematronPtr schema)
+void xmlSchematronFree(xmlSchematron * schema)
 {
 	if(schema) {
 		if(schema->doc && !(schema->preserve))
@@ -855,9 +855,9 @@ done:
  * Returns the internal XML Schematron structure built from the resource or
  *    NULL in case of error
  */
-xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxt * ctxt)
+xmlSchematron * xmlSchematronParse(xmlSchematronParserCtxt * ctxt)
 {
-	xmlSchematronPtr ret = NULL;
+	xmlSchematron * ret = NULL;
 	xmlDoc * doc;
 	xmlNode * root;
 	xmlNode * cur;
@@ -988,7 +988,7 @@ exit:
 // 
 // Schematrontron Reports handler
 // 
-static xmlNode * xmlSchematronGetNode(xmlSchematronValidCtxtPtr ctxt, xmlNode * cur, const xmlChar * xpath)
+static xmlNode * xmlSchematronGetNode(xmlSchematronValidCtxt * ctxt, xmlNode * cur, const xmlChar * xpath)
 {
 	xmlNode * P_Node = NULL;
 	if(ctxt && cur && xpath) {
@@ -1011,7 +1011,7 @@ static xmlNode * xmlSchematronGetNode(xmlSchematronValidCtxtPtr ctxt, xmlNode * 
  *
  * Output part of the report to whatever channel the user selected
  */
-static void xmlSchematronReportOutput(xmlSchematronValidCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlNode * cur ATTRIBUTE_UNUSED, const char * msg) 
+static void xmlSchematronReportOutput(xmlSchematronValidCtxt * ctxt ATTRIBUTE_UNUSED, xmlNode * cur ATTRIBUTE_UNUSED, const char * msg) 
 {
 	/* @todo */
 	fprintf(stderr, "%s", msg);
@@ -1027,7 +1027,7 @@ static void xmlSchematronReportOutput(xmlSchematronValidCtxtPtr ctxt ATTRIBUTE_U
  * Returns a report string or NULL in case of error. The string needs
  *    to be deallocated by teh caller
  */
-static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNode * test, xmlNode * cur)
+static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxt * ctxt, xmlNode * test, xmlNode * cur)
 {
 	xmlChar * ret = NULL;
 	xmlNode * child;
@@ -1095,7 +1095,7 @@ static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNo
  * called from the validation engine when an assert or report test have
  * been done.
  */
-static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, xmlSchematronTestPtr test, xmlNode * cur, xmlSchematronPatternPtr pattern, int success)
+static void xmlSchematronReportSuccess(xmlSchematronValidCtxt * ctxt, xmlSchematronTestPtr test, xmlNode * cur, xmlSchematronPatternPtr pattern, int success)
 {
 	if(!ctxt || !cur || !test)
 		return;
@@ -1161,7 +1161,7 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, xmlSchema
  *
  * called from the validation engine when starting to check a pattern
  */
-static void xmlSchematronReportPattern(xmlSchematronValidCtxtPtr ctxt, xmlSchematronPatternPtr pattern) 
+static void xmlSchematronReportPattern(xmlSchematronValidCtxt * ctxt, xmlSchematronPatternPtr pattern) 
 {
 	if(!ctxt || (pattern == NULL))
 		return;
@@ -1187,7 +1187,7 @@ static void xmlSchematronReportPattern(xmlSchematronValidCtxtPtr ctxt, xmlSchema
  *
  * Set the structured error callback
  */
-void xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxtPtr ctxt, xmlStructuredErrorFunc serror, void * ctx)
+void xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxt * ctxt, xmlStructuredErrorFunc serror, void * ctx)
 {
 	if(ctxt) {
 		ctxt->serror = serror;
@@ -1205,7 +1205,7 @@ void xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxtPtr ctxt, xmlSt
  *
  * Returns the validation context or NULL in case of error
  */
-xmlSchematronValidCtxtPtr xmlSchematronNewValidCtxt(xmlSchematronPtr schema, int options)
+xmlSchematronValidCtxt * xmlSchematronNewValidCtxt(xmlSchematron * schema, int options)
 {
 	int i;
 	xmlSchematronValidCtxt * ret = (xmlSchematronValidCtxt *)SAlloc::M(sizeof(xmlSchematronValidCtxt));
@@ -1236,7 +1236,7 @@ xmlSchematronValidCtxtPtr xmlSchematronNewValidCtxt(xmlSchematronPtr schema, int
  *
  * Free the resources associated to the schema validation context
  */
-void xmlSchematronFreeValidCtxt(xmlSchematronValidCtxtPtr ctxt)
+void xmlSchematronFreeValidCtxt(xmlSchematronValidCtxt * ctxt)
 {
 	if(ctxt) {
 		xmlXPathFreeContext(ctxt->xctxt);
@@ -1289,7 +1289,7 @@ static xmlNode * xmlSchematronNextNode(xmlNode * cur)
  *
  * Returns 1 in case of success, 0 if error and -1 in case of internal error
  */
-static int xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
+static int xmlSchematronRunTest(xmlSchematronValidCtxt * ctxt,
     xmlSchematronTestPtr test, xmlDoc * instance, xmlNode * cur, xmlSchematronPatternPtr pattern)
 {
 	xmlXPathObjectPtr ret;
@@ -1345,7 +1345,7 @@ static int xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
  * Returns 0 in case of success, -1 in case of internal error
  *    and an error count otherwise.
  */
-int xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDoc * instance)
+int xmlSchematronValidateDoc(xmlSchematronValidCtxt * ctxt, xmlDoc * instance)
 {
 	xmlNode * cur;
 	xmlNode * root;
@@ -1403,8 +1403,8 @@ int main()
 {
 	int ret;
 	xmlDoc * instance;
-	xmlSchematronValidCtxtPtr vctxt;
-	xmlSchematronPtr schema = NULL;
+	xmlSchematronValidCtxt * vctxt;
+	xmlSchematron * schema = NULL;
 	xmlSchematronParserCtxt * pctxt = xmlSchematronNewParserCtxt("tst.sct");
 	if(pctxt == NULL) {
 		fprintf(stderr, "failed to build schematron parser\n");

@@ -1955,8 +1955,8 @@ browser GOODSITEM_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID,
 	"#",          0, int32,        0,  4, BCO_USERPROC
 	"@ware",      1, zstring(128), 0, 25, BCO_USERPROC
 	"@qtty",      2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
-	"Ц пост",     3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
-	"Ц реал",     4, double, NMBF_NOZERO,   8.2, BCO_USERPROC
+	"@termcost",  3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
+	"@termprice", 4, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	"@discount",  5, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	"@amount",    6, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	toolbar GOODSBILLITEM
@@ -1991,8 +1991,8 @@ browser GOODSITEMPH_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRI
 	"@ware",          1, zstring(128), 0, 25, BCO_USERPROC
 	"@qtty",          2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@phqtty",        7, double, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3, BCO_USERPROC
-	"Ц пост",         3, double, NMBF_NOZERO, 8.2, BCO_USERPROC
-	"Ц реал",         4, double, NMBF_NOZERO, 8.2, BCO_USERPROC
+	"@termcost",      3, double, NMBF_NOZERO, 8.2, BCO_USERPROC
+	"@termprice",     4, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	"@discount",      5, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	"@amount",        6, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	toolbar GOODSBILLITEM
@@ -2003,7 +2003,7 @@ browser GOODSITEM_REVAL_W2 south(73), 3, 0, "@{view_billitem_goods} {%s}", OWNER
 	"#",           0, int32,        0,  4, BCO_USERPROC
 	"@ware",       1, zstring(128), 0, 25, BCO_USERPROC
 	"@qtty",       2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
-	"Ц пост",      3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
+	"@termcost",   3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	group "@termprice" {
 		"Старая",     9, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 		"@new_fem",   4, double, NMBF_NOZERO, 8.2, BCO_USERPROC
@@ -2150,8 +2150,8 @@ browser OPSBYLOT south(56), 1, 0, "@{view_lotop} {%s}", OWNER|GRID, 0
 	"@contractor",  3, notype, 0, 20
 	"@qtty",        4, notype, NMBF_NOTRAILZ, 7.3
 	"@rest",        5, notype, NMBF_NOTRAILZ, 10.7
-	"Ц пост",       6, notype, NMBF_NOZERO, 8.2
-	"Ц реал",       7, notype, NMBF_NOZERO, 8.2
+	"@termcost",    6, notype, NMBF_NOZERO, 8.2
+	"@termprice",   7, notype, NMBF_NOZERO, 8.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL     : kbEnter,  PPDV_EDITFILE02,   "Операции по порожденному лоту\tEnter"
 		EDITBILL   : kbF2,     PPDV_LINS01,       "@{document}\tF2"
@@ -2195,8 +2195,8 @@ browser ZEROLOTOPS north(100), 1, 3, "Операции с нулевым лотом", OWNER|GRID, 0
 	"@contractor", 3, notype, 0, 20
 	"@qtty",       4, notype, NMBF_NOTRAILZ, 7.3
 	"@rest",       5, notype, NMBF_NOTRAILZ, 7.3
-	"Ц пост",      6, notype, NMBF_NOZERO, 8.2
-	"Ц реал",      7, notype, NMBF_NOZERO, 8.2
+	"@termcost",   6, notype, NMBF_NOZERO, 8.2
+	"@termprice",  7, notype, NMBF_NOZERO, 8.2
 }
 
 browser OPSBYGOODS north(100), 1, 0, "Операции по товару {%s}", OWNER|GRID, 0
@@ -2206,8 +2206,8 @@ browser OPSBYGOODS north(100), 1, 0, "Операции по товару {%s}", OWNER|GRID, 0
 	"@contractor", 3, notype, 0, 20
 	"@qtty",       4, notype, NMBF_NOTRAILZ, 7.3
 	"@rest",       5, notype, NMBF_NOTRAILZ, 10.7
-	"Ц пост",      6, notype, NMBF_NOZERO,   8.2
-	"Ц реал",      7, notype, NMBF_NOZERO,   8.2
+	"@termcost",   6, notype, NMBF_NOZERO,   8.2
+	"@termprice",  7, notype, NMBF_NOZERO,   8.2
 }
 
 browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
@@ -2217,11 +2217,11 @@ browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
-	"Пришло",          6, notype, NMBF_NOTRAILZ,  6.3
+	"@lot_initqtty",   6, notype, NMBF_NOTRAILZ,  6.3
 	"@rest",           7, notype, NMBF_NOTRAILZ, 10.7
 	"@lot_closedate", 11, notype, DATF_DMY, 8
-	"Ц пост",          8, notype, NMBF_NOZERO, 8.2
-	"Ц реал",          9, notype, NMBF_NOZERO, 8.2
+	"@termcost",       8, notype, NMBF_NOZERO, 8.2
+	"@termprice",      9, notype, NMBF_NOZERO, 8.2
 	"@lot_expiry",    10, notype, DATF_DMY, 8
 	toolbar LOTS
 }
@@ -2232,14 +2232,14 @@ browser LOTOPER2 north(100), 3, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
-	"Пришло",          6, notype, NMBF_NOTRAILZ, 6.3
+	"@lot_initqtty",   6, notype, NMBF_NOTRAILZ, 6.3
 	group "@rest" {
 		"На начало",  12, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7
 		"На конец",   13, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7
 	}
 	"@lot_closedate", 11, notype, DATF_DMY, 8
-	"Ц пост",          8, notype, NMBF_NOZERO, 8.2
-	"Ц реал",          9, notype, NMBF_NOZERO, 8.2
+	"@termcost",       8, notype, NMBF_NOZERO, 8.2
+	"@termprice",      9, notype, NMBF_NOZERO, 8.2
 	"@lot_expiry",    10, notype, DATF_DMY, 8
 	toolbar LOTS
 }
@@ -2885,8 +2885,8 @@ browser GOODSREST_CROSSTAB north(100), 3, 1, "Остатки товаров за период {%s} с т
 
 browser GOODSTAXANLZ north(100), 2, 1, "@{view_goodstaxanalyze}", OWNER|GRID, 0
 {
-	"Товар (группа)",         2, notype, 0, 30
-	"Схема\nналогообложения", 3, notype, 0, 15
+	"@{ware} (@{group})",     2, notype, 0, 30
+	"@taxscheme",             3, notype, 0, 15
 	"@primecost",             9, notype, NMBF_NOZERO, 10.2
 	"@selling",               4, notype, NMBF_NOZERO, 10.2
 	"@income",                5, notype, NMBF_NOZERO, 9.2
@@ -2906,8 +2906,8 @@ browser GOODSTAXANLZ north(100), 2, 1, "@{view_goodstaxanalyze}", OWNER|GRID, 0
 browser GOODSTAXANLZ_D north(100), 2, 1, "@{view_goodstaxanalyze}", OWNER|GRID, 0
 {
 	"@date",                  1, notype, DATF_DMY, 8
-	"Товар (группа)",         2, notype, 0, 30
-	"Схема\nналогообложения", 3, notype, 0, 15
+	"@{ware} (@{group})",     2, notype, 0, 30
+	"@taxscheme",             3, notype, 0, 15
 	"@primecost",             9, notype, NMBF_NOZERO, 10.2
 	"@selling",               4, notype, NMBF_NOZERO, 10.2
 	"@income",                5, notype, NMBF_NOZERO, 9.2
@@ -2928,7 +2928,7 @@ browser GOODSTAXANLZ_PIL north(100), 2, 1, "Тетрадь индивидуального предпринимат
 {
 	"@date",                      2, notype, DATF_DMY, 8
 	"@billno",                    3, notype, 0, 10
-	"Товар (группа)",             4, notype, 0, 30
+	"@{ware} (@{group})",         4, notype, 0, 30
 	"@priceaftertaxes",           5, notype, NMBF_NOZERO, 10.2
 	"@vat",                       6, notype, NMBF_NOZERO, 10.2
 	"НП",                         7, notype, NMBF_NOZERO, 10.2
@@ -4540,7 +4540,7 @@ browser SYNCCMP north(100), 3, 1, "Сравнение синхронизации объектов", OWNER|GRID
 	}
 }
 
-browser ASSET north(100), 2, 1, "Объекты основных средств", OWNER|GRID, 0
+browser ASSET north(100), 2, 1, "@view_asset", OWNER|GRID, 0
 {
 	"@appellation",               2, notype, 0, 40
 	"Инв номер",                  3, notype, 0, 16
@@ -4563,7 +4563,7 @@ browser ASSET north(100), 2, 1, "Объекты основных средств", OWNER|GRID, 0
 	}
 }
 
-browser ASSETOPER north(100), 4, 1, "Объекты основных средств {%s}", OWNER|GRID, 0
+browser ASSETOPER north(100), 4, 1, "@{view_asset} {%s}", OWNER|GRID, 0
 {
 	"@appellation",               2, notype, 0, 40
 	"Инв номер",                  3, notype, 0, 16

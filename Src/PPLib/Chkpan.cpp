@@ -2413,16 +2413,20 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 						// } @v9.1.0
 						{
 							PPEgaisProcessor::Ack eg_ack;
+							PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck before", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 							THROW(P_EgPrc->PutCCheck(epb.Pack, CnLocID, eg_ack));
+							//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
                             if(eg_ack.Sign[0] && eg_ack.SignSize) {
 								msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
                                 epb.Pack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
                             }
+							//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after 1 step more", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
                             // @v9.1.8 {
                             if(eg_ack.Url.NotEmpty()) {
 								epb.Pack.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
                             }
                             // } @v9.1.8
+							//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after 2 step more", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 						}
 						if(epb.Flags & epb.fIsExtPack) {
 							PPEgaisProcessor::Ack eg_ack;

@@ -1901,11 +1901,11 @@ static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNode * 
  *
  * Returns 0
  */
-int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(!ctxt)
 		return 0;
-	if(!P_Node) {
+	if(!pNode) {
 		fprintf(ctxt->output, "NULL\n");
 		return 0;
 	}
@@ -1916,24 +1916,23 @@ int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_N
 		else
 			htmlNodeDumpFile(ctxt->output, ctxt->doc, P_Node);
 #else
-		if(node->type == XML_DOCUMENT_NODE)
-			xmlDocDump(ctxt->output, (xmlDoc *)node);
+		if(pNode->type == XML_DOCUMENT_NODE)
+			xmlDocDump(ctxt->output, (xmlDoc *)pNode);
 		else
-			xmlElemDump(ctxt->output, ctxt->doc, node);
+			xmlElemDump(ctxt->output, ctxt->doc, pNode);
 #endif /* LIBXML_HTML_ENABLED */
 	}
 	else {
-		if(P_Node->type == XML_DOCUMENT_NODE)
-			xmlDocDump(ctxt->output, (xmlDoc *)P_Node);
+		if(pNode->type == XML_DOCUMENT_NODE)
+			xmlDocDump(ctxt->output, (xmlDoc *)pNode);
 		else
-			xmlElemDump(ctxt->output, ctxt->doc, P_Node);
+			xmlElemDump(ctxt->output, ctxt->doc, pNode);
 	}
 	fprintf(ctxt->output, "\n");
 	return 0;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
 /**
  * xmlShellLoad:
  * @ctxt:  the shell context
@@ -1946,7 +1945,7 @@ int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_N
  *
  * Returns 0 or -1 if loading failed
  */
-int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlDoc * doc;
 	int html = 0;
@@ -1954,14 +1953,13 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node ATTRIBU
 		return -1;
 	if(ctxt->doc)
 		html = (ctxt->doc->type == XML_HTML_DOCUMENT_NODE);
-
 	if(html) {
 #ifdef LIBXML_HTML_ENABLED
 		doc = htmlParseFile(filename, 0);
 #else
 		fprintf(ctxt->output, "HTML support not compiled in\n");
 		doc = NULL;
-#endif /* LIBXML_HTML_ENABLED */
+#endif
 	}
 	else {
 		doc = xmlReadFile(filename, NULL, 0);
@@ -1973,14 +1971,14 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node ATTRIBU
 		ctxt->loaded = 1;
 #ifdef LIBXML_XPATH_ENABLED
 		xmlXPathFreeContext(ctxt->pctxt);
-#endif /* LIBXML_XPATH_ENABLED */
+#endif
 		SAlloc::F(ctxt->filename);
 		ctxt->doc = doc;
 		ctxt->P_Node = (xmlNode *)doc;
 #ifdef LIBXML_XPATH_ENABLED
 		ctxt->pctxt = xmlXPathNewContext(doc);
-#endif /* LIBXML_XPATH_ENABLED */
-		ctxt->filename = (char *)xmlCanonicPath((xmlChar *)filename);
+#endif
+		ctxt->filename = reinterpret_cast<char *>(xmlCanonicPath((xmlChar *)filename));
 	}
 	else
 		return -1;

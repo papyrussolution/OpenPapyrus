@@ -308,70 +308,64 @@ int SLAPI PPObjPersonRelType::Fetch(PPID id, PPPersonRelTypePacket * pPack)
 //
 //
 class PersonRelTypeDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPPersonRelTypePacket);
 public:
 	SLAPI  PersonRelTypeDialog() : PPListDialog(DLG_PSNRELTYPE, CTL_PSNRELTYPE_INHRGLIST)
 	{
 	}
-	int    setDTS(const PPPersonRelTypePacket *);
-	int    getDTS(PPPersonRelTypePacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlData(CTL_PSNRELTYPE_NAME, Data.Rec.Name);
+		setCtrlData(CTL_PSNRELTYPE_SYMB, Data.Rec.Symb);
+		setCtrlData(CTL_PSNRELTYPE_ID, &Data.Rec.ID);
+		disableCtrl(CTL_PSNRELTYPE_ID, 1);
+
+		AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 0, PPPersonRelType::fInhAddr);
+		AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 1, PPPersonRelType::fInhRAddr);
+		AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 2, PPPersonRelType::fGrouping);
+		AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 3, PPPersonRelType::fInhMainOrgAgreement);
+		AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 4, PPPersonRelType::fInhAgreements);
+		SetClusterData(CTL_PSNRELTYPE_FLAGS, Data.Rec.Flags);
+
+		AddClusterAssocDef(CTL_PSNRELTYPE_CARDINAL, 0, PPPersonRelType::cOneToOne);
+		AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 1, PPPersonRelType::cOneToMany);
+		AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 2, PPPersonRelType::cManyToOne);
+		AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 3, PPPersonRelType::cManyToMany);
+		SetClusterData(CTL_PSNRELTYPE_CARDINAL, Data.Rec.Cardinality);
+
+		AddClusterAssocDef(CTL_PSNRELTYPE_STATUSR, 0, PPPersonRelType::ssUndef);
+		AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 1, PPPersonRelType::ssPrivateToPrivate);
+		AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 2, PPPersonRelType::ssPrivateToLegal);
+		AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 3, PPPersonRelType::ssLegalToPrivate);
+		AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 4, PPPersonRelType::ssLegalToLegal);
+		SetClusterData(CTL_PSNRELTYPE_STATUSR, Data.Rec.StatusRestriction);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		long   lv = 0;
+		getCtrlData(sel = CTL_PSNRELTYPE_NAME, Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlData(CTL_PSNRELTYPE_SYMB, Data.Rec.Symb);
+		//getCtrlData(CTL_PSNRELTYPE_ID, &Data.Rec.ID);
+		GetClusterData(CTL_PSNRELTYPE_FLAGS,    &Data.Rec.Flags);
+		if(GetClusterData(CTL_PSNRELTYPE_CARDINAL, &(lv = Data.Rec.Cardinality)))
+			Data.Rec.Cardinality = (int16)lv;
+		if(GetClusterData(CTL_PSNRELTYPE_STATUSR, &(lv = Data.Rec.StatusRestriction)))
+			Data.Rec.StatusRestriction = (int16)lv;
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int delItem(long pos, long id);
-
-	PPPersonRelTypePacket Data;
 };
-
-int PersonRelTypeDialog::setDTS(const PPPersonRelTypePacket * pData)
-{
-	Data = *pData;
-
-	setCtrlData(CTL_PSNRELTYPE_NAME, Data.Rec.Name);
-	setCtrlData(CTL_PSNRELTYPE_SYMB, Data.Rec.Symb);
-	setCtrlData(CTL_PSNRELTYPE_ID, &Data.Rec.ID);
-	disableCtrl(CTL_PSNRELTYPE_ID, 1);
-
-	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 0, PPPersonRelType::fInhAddr);
-	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 1, PPPersonRelType::fInhRAddr);
-	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 2, PPPersonRelType::fGrouping);
-	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 3, PPPersonRelType::fInhMainOrgAgreement);
-	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 4, PPPersonRelType::fInhAgreements); // @v8.2.2
-	SetClusterData(CTL_PSNRELTYPE_FLAGS, Data.Rec.Flags);
-
-	AddClusterAssocDef(CTL_PSNRELTYPE_CARDINAL, 0, PPPersonRelType::cOneToOne);
-	AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 1, PPPersonRelType::cOneToMany);
-	AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 2, PPPersonRelType::cManyToOne);
-	AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 3, PPPersonRelType::cManyToMany);
-	SetClusterData(CTL_PSNRELTYPE_CARDINAL, Data.Rec.Cardinality);
-
-	AddClusterAssocDef(CTL_PSNRELTYPE_STATUSR, 0, PPPersonRelType::ssUndef);
-	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 1, PPPersonRelType::ssPrivateToPrivate);
-	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 2, PPPersonRelType::ssPrivateToLegal);
-	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 3, PPPersonRelType::ssLegalToPrivate);
-	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 4, PPPersonRelType::ssLegalToLegal);
-	SetClusterData(CTL_PSNRELTYPE_STATUSR, Data.Rec.StatusRestriction);
-	updateList(-1);
-	return 1;
-}
-
-int PersonRelTypeDialog::getDTS(PPPersonRelTypePacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	long   lv = 0;
-	getCtrlData(sel = CTL_PSNRELTYPE_NAME, Data.Rec.Name);
-	THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
-	getCtrlData(CTL_PSNRELTYPE_SYMB, Data.Rec.Symb);
-	//getCtrlData(CTL_PSNRELTYPE_ID, &Data.Rec.ID);
-	GetClusterData(CTL_PSNRELTYPE_FLAGS,    &Data.Rec.Flags);
-	if(GetClusterData(CTL_PSNRELTYPE_CARDINAL, &(lv = Data.Rec.Cardinality)))
-		Data.Rec.Cardinality = (int16)lv;
-	if(GetClusterData(CTL_PSNRELTYPE_STATUSR, &(lv = Data.Rec.StatusRestriction)))
-		Data.Rec.StatusRestriction = (int16)lv;
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
 
 int PersonRelTypeDialog::setupList()
 {
@@ -408,7 +402,8 @@ int PersonRelTypeDialog::delItem(long pos, long /*id*/)
 
 int SLAPI PPObjPersonRelType::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = -1, valid_data = 0, r = cmCancel, is_new = (*pID == 0);
+	int    ok = -1, valid_data = 0, r = cmCancel;
+	const  int  is_new = (*pID == 0);
 	PersonRelTypeDialog * dlg = 0;
 	PPPersonRelTypePacket pack;
 	THROW(CheckRightsModByID(pID));

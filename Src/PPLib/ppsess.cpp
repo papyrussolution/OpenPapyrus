@@ -4506,9 +4506,8 @@ PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
 			TitleList.AddFast(obj_type, name_buf); // @v9.9.3 Add-->AddFast
 	}
 	{
-		SString name_list;
-		PPLoadText(PPTXT_CFGNAMES, name_list);
-		StringSet ss(';', name_list);
+		PPLoadText(PPTXT_CFGNAMES, name_buf);
+		StringSet ss(';', name_buf);
 		for(uint i = 0, j = 1; ss.get(&i, name_buf) > 0; j++)
 			TitleList.AddFast(PPOBJ_FIRST_CFG_OBJ + j, name_buf); // @v9.9.3 Add-->AddFast
 	}

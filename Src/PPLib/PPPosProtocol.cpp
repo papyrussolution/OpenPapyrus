@@ -5140,12 +5140,13 @@ int SLAPI PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQL
 		qvTest
 	};
 	class PosQueryDialog : public TDialog {
+		DECL_DIALOG_DATA(TSVector <PPPosProtocol::QueryBlock>);
 	public:
         SLAPI  PosQueryDialog() : TDialog(DLG_POSNQUERY)
         {
         	SetupCalPeriod(CTLCAL_POSNQUERY_PERIOD, CTL_POSNQUERY_PERIOD);
         }
-        int    SLAPI setDTS(const TSVector <PPPosProtocol::QueryBlock> * pData)
+		DECL_DIALOG_SETDTS()
         {
         	int    ok = 1;
         	//RVALUEPTR(Data, pData);
@@ -5160,7 +5161,7 @@ int SLAPI PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQL
 			SetupCtrls();
         	return ok;
         }
-        int    SLAPI getDTS(TSVector <PPPosProtocol::QueryBlock> * pData)
+		DECL_DIALOG_GETDTS()
         {
         	int    ok = 1;
 			uint   sel = 0;
@@ -5260,21 +5261,18 @@ int SLAPI PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQL
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(event.isClusterClk(CTL_POSNQUERY_Q)) {
+			if(event.isClusterClk(CTL_POSNQUERY_Q))
 				SetupCtrls();
-			}
 			else
 				return;
 			clearEvent(event);
 		}
 		void   SetupCtrls()
 		{
-			long   qv = 0;
-            GetClusterData(CTL_POSNQUERY_Q, &qv);
+			const long qv = GetClusterData(CTL_POSNQUERY_Q);
 			disableCtrl(CTL_POSNQUERY_PERIOD, (qv != qvSessByPeriod));
 			disableCtrl(CTL_POSNQUERY_SESSL, !oneof2(qv, qvSessByNumber, qvSessByID));
 		}
-		TSVector <PPPosProtocol::QueryBlock> Data; // @v9.8.4 TSArray-->TSVector
 	};
 	DIALOG_PROC_BODY(PosQueryDialog, &rQList);
 }

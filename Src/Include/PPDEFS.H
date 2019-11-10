@@ -115,6 +115,7 @@
 	#define ROD_QUOTKIND        17   // Виды котировок
 	#define ROD_TAG             18   // Типы тегов
 	#define ROD_OPCOUNTER       19   // Счетчики
+	#define ROD_TAXSYSTEMKIND   20   // Виды налогообложения //
 #define PP_RCDECLSTRUC        502   // Тип ресурса для деклараций структур экспорта/импорта данных
 #define PP_RCDECLOBJ          503   // Тип ресурса для деклараций типов объектов PPObject
 	//
@@ -779,6 +780,7 @@
 	#define PPREGT_COUNTRYCODE  15 // Аналог кода государства для персоналий со статусом PPPRS_COUNTRY
 	#define PPREGT_BANKACCOUNT  16 // @v9.0.4 Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
 	#define PPREGT_DTO_ID       17 // @v9.8.0 Идентификатор оператора передачи данных (PPPRK_DTO)
+	#define PPREGT_TAXSYSTEM    18 // @v10.6.0 Вид системы налогообложения //
 	//
 	// Extra records of PPOBJ_REGISTERTYPE
 	#define REGTPRP_FORMAT       1L // Формат вывода регистра
@@ -998,6 +1000,12 @@
 	#define TIMSERPRP_EXTENSION       10L // @v10.5.4
 
 #define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 Тип транспортной упаковки
+#define PPOBJ_TAXSYSTEMKIND      80L // @v10.6.0 Вид системы налогообложения //
+	#define TAXSYSK_GENERAL            1L // RU: ОСН — общая система налогообложения
+	#define TAXSYSK_SIMPLIFIED         2L // RU: УСН — упрощенная система налогообложения
+	#define TAXSYSK_PATENT             3L // RU: ПАТЕНТ — патентная система налогообложения
+	#define TAXSYSK_IMPUTED            4L // RU: ЕНВД — вмененная система налогообложения или единый налог на вмененный доход
+	#define TAXSYSK_SINGLEAGRICULT     5L // RU: ЕСХН — единый сельскохозяйственный налог
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -10754,7 +10762,7 @@
 	#define CTL_VETISPI_BENTY         (14 + WINDOWS_ID_BIAS)
 	#define CTL_VETISPI_ENT           (15 + WINDOWS_ID_BIAS)
 #define DLG_MQCCFG                1370
-	#define cmMqcGetCommonConfig      101 
+	#define cmMqcGetCommonConfig      101
 	#define CTL_MQCCFG_HOST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_MQCCFG_USER           (2 + WINDOWS_ID_BIAS)
 	#define CTL_MQCCFG_SECRET         (3 + WINDOWS_ID_BIAS)
@@ -12334,31 +12342,31 @@
 	#define PPFONT_TIMESNEWROMAN        2
 	#define PPFONT_ARIAL                3
 	#define PPFONT_ARIALCYR             4
-#define PPTXT_LOG_DBLOCKED                456 // База данных заблокирована
-#define PPTXT_LOG_DBUNLOCKED              457 // База данных не заблокирована
-#define PPTXT_CCHKLOG                     458 // Chk Printed;Chk Writed;Chk Recalled;Chk Removed;Chk Cleared;Chk Suspended;Chk RowCleared;Chk RowDiscount
-#define PPTXT_TRFRLOADINGFAULT            459 // Ошибка загрузки строки документа (%s):
-#define PPTXT_SEARCHLOTFAULT              460 // Ошибка извлечения лота (%s):
-#define PPTXT_TRFRRECERROR                461 // Ошибка в строке Transfer (%s):
-#define PPTXT_LOG_ACGIMISS                462 // AsyncCashGoodsIterator miss: [id=@int] @zstr
-#define PPTXT_LOG_CHKPAN_ALLREADYPRN      463 // LocalPrn: Already printed - check='@zstr' goods=@goods qtty=@real
-#define PPTXT_LOG_CHKPAN_PRINTING         464 // LocalPrn: Printing - check='@zstr' prn='@zstr' goods=@goods qtty=@real
-#define PPTXT_LOG_CHKPAN_UNDEFPRN         465 // LocalPrn: Undef local printer - check='@zstr' goods=@goods qtty=@real
-#define PPTXT_BILL_COUNT                  466 // Заголовок диалогового окна "Количество документов
-#define PPTXT_INP_BILL_COUNT              467 // Введите количество генерируемых документов
-#define PPTXT_LOG_CHKPAN_ERRPRINTING      468 // LocalPrn: ErrorPrinting - check='@zstr' prn='@zstr' goods=@goods qtty=@real
-#define PPTXT_LOG_TSES_WROFF_LINE         469 // Списание строки техн сессии: товар=@goods серия=@zstr колич=@real
-#define PPTXT_INCLUDEINGOODSMATRIX        470 // Заголовок диалгового окна Включить в товарную матрицу
-#define PPTXT_LOG_SHTRIH_WRITETBLERR      471 // Ошибка записи в таблицу=%ld, ряд=%ld, поле=%ld, значение=%s
-#define PPTXT_LOG_SCALELOADSTAT           472 // NumSendPluColl=@int; MaxSendPluCollIters=@int; NumGetColl=@int; MaxGetCollIters=@int
-#define PPTXT_LOG_SCALELOADERR            473 // Error loading: GoodsID=@int; GoodsName=@goods; PLU=@int; Price=@real
-#define PPTXT_GENERATEBILLS               475 // Сообщение о генерации документов
-#define PPTXT_XMLSYMBENTITIES             476 // Подстановка символов XML-файлов (разделитель сущностей ".", разделитель сущность-подстановка "$"
-#define PPTXT_WORDS_MONEY_CENT            477 // "копеек;копейка;копейки"
-#define PPTXT_OWNBASKETISLOCKED           478 // Последняя использованная вами корзина '%s' заблокирована (%s). Выберите другую.
-#define PPTXT_DEFBASKETISLOCKED           479 // Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
-#define PPTXT_ACCEPTANALOG_PSN_NAME       480 // Найден аналог по имени для персоналии '%s'
-#define PPTXT_ACCEPTANALOG_PSN_CODE       481 // Найден аналог по регистру для персоналии '%s'
+// @10.6.0 #define PPTXT_LOG_DBLOCKED                456 // База данных заблокирована
+// @10.6.0 #define PPTXT_LOG_DBUNLOCKED              457 // База данных не заблокирована
+// @10.6.0 #define PPTXT_CCHKLOG                     458 // Chk Printed;Chk Writed;Chk Recalled;Chk Removed;Chk Cleared;Chk Suspended;Chk RowCleared;Chk RowDiscount
+// @10.6.0 #define PPTXT_TRFRLOADINGFAULT            459 // Ошибка загрузки строки документа (%s):
+// @10.6.0 #define PPTXT_SEARCHLOTFAULT              460 // Ошибка извлечения лота (%s):
+// @10.6.0 #define PPTXT_TRFRRECERROR                461 // Ошибка в строке Transfer (%s):
+// @10.6.0 #define PPTXT_LOG_ACGIMISS                462 // AsyncCashGoodsIterator miss: [id=@int] @zstr
+// @10.6.0 #define PPTXT_LOG_CHKPAN_ALLREADYPRN      463 // LocalPrn: Already printed - check='@zstr' goods=@goods qtty=@real
+// @10.6.0 #define PPTXT_LOG_CHKPAN_PRINTING         464 // LocalPrn: Printing - check='@zstr' prn='@zstr' goods=@goods qtty=@real
+// @10.6.0 #define PPTXT_LOG_CHKPAN_UNDEFPRN         465 // LocalPrn: Undef local printer - check='@zstr' goods=@goods qtty=@real
+// @10.6.0 #define PPTXT_BILL_COUNT                  466 // Заголовок диалогового окна "Количество документов
+// @10.6.0 #define PPTXT_INP_BILL_COUNT              467 // Введите количество генерируемых документов
+// @10.6.0 #define PPTXT_LOG_CHKPAN_ERRPRINTING      468 // LocalPrn: ErrorPrinting - check='@zstr' prn='@zstr' goods=@goods qtty=@real
+// @10.6.0 #define PPTXT_LOG_TSES_WROFF_LINE         469 // Списание строки техн сессии: товар=@goods серия=@zstr колич=@real
+// @10.6.0 #define PPTXT_INCLUDEINGOODSMATRIX        470 // Заголовок диалгового окна Включить в товарную матрицу
+// @10.6.0 #define PPTXT_LOG_SHTRIH_WRITETBLERR      471 // Ошибка записи в таблицу=%ld, ряд=%ld, поле=%ld, значение=%s
+// @10.6.0 #define PPTXT_LOG_SCALELOADSTAT           472 // NumSendPluColl=@int; MaxSendPluCollIters=@int; NumGetColl=@int; MaxGetCollIters=@int
+// @10.6.0 #define PPTXT_LOG_SCALELOADERR            473 // Error loading: GoodsID=@int; GoodsName=@goods; PLU=@int; Price=@real
+// @10.6.0 #define PPTXT_GENERATEBILLS               475 // Сообщение о генерации документов
+// @10.6.0 #define PPTXT_XMLSYMBENTITIES             476 // Подстановка символов XML-файлов (разделитель сущностей ".", разделитель сущность-подстановка "$"
+// @10.6.0 #define PPTXT_WORDS_MONEY_CENT            477 // "копеек;копейка;копейки"
+// @10.6.0 #define PPTXT_OWNBASKETISLOCKED           478 // Последняя использованная вами корзина '%s' заблокирована (%s). Выберите другую.
+// @10.6.0 #define PPTXT_DEFBASKETISLOCKED           479 // Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
+// @10.6.0 #define PPTXT_ACCEPTANALOG_PSN_NAME       480 // Найден аналог по имени для персоналии '%s'
+// @10.6.0 #define PPTXT_ACCEPTANALOG_PSN_CODE       481 // Найден аналог по регистру для персоналии '%s'
 /* @v9.1.12 #define PPTXT_WINDOWSVIEWKINDS            482 // имена и идентификаторы внешнего вида окон
 	#define PPWNDVIEWKINDS_DEFAULT      0
 	#define PPWNDVIEWKINDS_KIND1        1
@@ -12390,30 +12398,30 @@
 	#define PPIECFN_PPYCSESS            6 // Файл для импорта/экспорта кассовых сессий
 	#define PPIECFN_PPYCCHKS            7 // Файл для импорта/экспорта кассовых чеков
 	#define PPIECFN_PPYCCLNS            8 // Файл для импорта/экспорта строк чеков
-#define PPTXT_PSALESPROCESS               516 // Заполнение таблицы продаж
-#define PPTXT_SLIPFMT_WIDTHOVER           517 // В файле stdslip.fmt в описании формата %s превышен максимальный размер строки
-#define PPTXT_LOG_IMPEXP_INVREC           518 // Неверная запись @int в файле @str
-#define PPTXT_TITLE_WAREPLACEVIEW         519 // Места хранения (%s)
-// @v9.2.5 (more unused) #define PPTXT_TITLE_WAREHOUSEVIEW         520 // Склады
-#define PPTXT_ERR_SYSJLOGGING             523 // Ошибка записи в SysJournal (%s)
-#define PPTXT_IMP_INVENTORYLINES          524 // Прием строк инвентаризации
-#define PPTXT_RPTSUPPMAIL_HEADER          534 // Шаблон заголовка письма с отчетом, отправляемого в службу поддержки
-#define PPTXT_RPTSUPPMAIL_TIMESTAMP       535 // Дата и время:
-#define PPTXT_ERR_OBJSYNCALLREADYRMVD     536 // Объект {%s} уже зарегестрирован в таблице синхронизации как удаленный
-#define PPTXT_LOG_ADDOBJREC_JUMPED_ID     537 // Function AddObjRecByID jumped ID [obj=%s]
-#define PPTXT_PATHACCESS                  544 // Путь доступен
-#define PPTXT_PATHACCESSNO                545 // Путь не доступен
-#define PPTXT_LOG_FILEALLREADYINQUEUE     546 // Файл '%s' уже находится в очереди приема данных
-#define PPTXT_TSESSSTATUSCOLORS           547 // Список цветов для статусов технологических сессий
-#define PPTXT_USERDEF                     548 // Определенный пользователем
-#define PPTXT_LOG_INVCONVERTEDREC         549 // Недопустимая конвертируемая запись пропущена (%s)
-#define PPTXT_PLISTIMPORTCFG              550 // Конфигурация импорта прайс-листа
-#define PPTXT_PLISTEXPORTCFG              551 // Конфигурация экспорта прайс-листа
-#define PPTXT_UNRESOLVEDGOODSITEM         552 // Неизвестный товар Ид=[%ld], Имя=[%s], Штрихкод=[%s]
-#define PPTXT_OPENFILET_LINKBILLFILES     553 // Файлы прикрепляемых документов
-#define PPTXT_LOG_LOADACCTURNFAULT        554 // Ошибка загрузки бух проводки по документу '@bill': @zstr
-#define PPTXT_LOG_LOADACCTURNFAULT_C      555 // Ошибка загрузки бух проводки по документу '@bill': @zstr: попытка удаления строки
-#define PPTXT_SALFRM_PERIOD               556 // Периоды в формулах начисления зарплаты
+// @v10.6.0 #define PPTXT_PSALESPROCESS               516 // Заполнение таблицы продаж
+// @v10.6.0 #define PPTXT_SLIPFMT_WIDTHOVER           517 // В файле stdslip.fmt в описании формата %s превышен максимальный размер строки
+// @v10.6.0 #define PPTXT_LOG_IMPEXP_INVREC           518 // Неверная запись @int в файле @str
+// @v10.6.0 #define PPTXT_TITLE_WAREPLACEVIEW         519 // Места хранения (%s)
+// @v10.6.0 // @v9.2.5 (more unused) #define PPTXT_TITLE_WAREHOUSEVIEW         520 // Склады
+// @v10.6.0 #define PPTXT_ERR_SYSJLOGGING             523 // Ошибка записи в SysJournal (%s)
+// @v10.6.0 #define PPTXT_IMP_INVENTORYLINES          524 // Прием строк инвентаризации
+// @v10.6.0 #define PPTXT_RPTSUPPMAIL_HEADER          534 // Шаблон заголовка письма с отчетом, отправляемого в службу поддержки
+// @v10.6.0 #define PPTXT_RPTSUPPMAIL_TIMESTAMP       535 // Дата и время:
+// @v10.6.0 #define PPTXT_ERR_OBJSYNCALLREADYRMVD     536 // Объект {%s} уже зарегестрирован в таблице синхронизации как удаленный
+// @v10.6.0 #define PPTXT_LOG_ADDOBJREC_JUMPED_ID     537 // Function AddObjRecByID jumped ID [obj=%s]
+// @v10.6.0 #define PPTXT_PATHACCESS                  544 // Путь доступен
+// @v10.6.0 #define PPTXT_PATHACCESSNO                545 // Путь не доступен
+// @v10.6.0 #define PPTXT_LOG_FILEALLREADYINQUEUE     546 // Файл '%s' уже находится в очереди приема данных
+// @v10.6.0 #define PPTXT_TSESSSTATUSCOLORS           547 // Список цветов для статусов технологических сессий
+// @v10.6.0 #define PPTXT_USERDEF                     548 // Определенный пользователем
+// @v10.6.0 #define PPTXT_LOG_INVCONVERTEDREC         549 // Недопустимая конвертируемая запись пропущена (%s)
+// @v10.6.0 #define PPTXT_PLISTIMPORTCFG              550 // Конфигурация импорта прайс-листа
+// @v10.6.0 #define PPTXT_PLISTEXPORTCFG              551 // Конфигурация экспорта прайс-листа
+// @v10.6.0 #define PPTXT_UNRESOLVEDGOODSITEM         552 // Неизвестный товар Ид=[%ld], Имя=[%s], Штрихкод=[%s]
+// @v10.6.0 #define PPTXT_OPENFILET_LINKBILLFILES     553 // Файлы прикрепляемых документов
+// @v10.6.0 #define PPTXT_LOG_LOADACCTURNFAULT        554 // Ошибка загрузки бух проводки по документу '@bill': @zstr
+// @v10.6.0 #define PPTXT_LOG_LOADACCTURNFAULT_C      555 // Ошибка загрузки бух проводки по документу '@bill': @zstr: попытка удаления строки
+// @v10.6.0 #define PPTXT_SALFRM_PERIOD               556 // Периоды в формулах начисления зарплаты
 // @v9.4.3 #define PPTXT_FILPAT_MAILACC              557 // "Почтовые учетные записи (*.acc):*.acc"
 // @v9.4.1 #define PPTXT_LOG_ERRINSSYNCQUEUE         558 // Ошибка вставки записи в очередь синхронизации (%s): %s
 // @v9.4.1 #define PPTXT_LOG_ERRMODSYNCQUEUE         559 // Ошибка изменения записи очереди синхронизации (%s): %s

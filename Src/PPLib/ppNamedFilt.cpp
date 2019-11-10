@@ -383,24 +383,57 @@ int SLAPI ViewFiltPool()
 // Descr: Класс, отвечающий за диалог "Создать фильтр"
 //
 class FiltItemDialog : public TDialog {
+	DECL_DIALOG_DATA(PPNamedFilt);
 public:
 	FiltItemDialog(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pPool) : TDialog(DLG_FILTITEM), P_Mngr(pMngr), P_Pool(pPool)
 	{
-		P_Mngr->GetResourceLists(&CmdSymbList, &CmdTextList);
+		CALLPTRMEMB(P_Mngr, GetResourceLists(&CmdSymbList, &CmdTextList));
 	}
-	//
-	// Descr: Заполняет интерфейс данными из pData
-	//
-	int    setDTS(const PPNamedFilt * pData);
-	//
-	// Descr: Заполняет pData данными из интерфейса
-	//
-	int    getDTS(PPNamedFilt * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		PPID   view_id = 0;                            // Идентификатор обьекта PPView
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_FILTITEM_NAME, Data.Name); // Поле "Наименование"
+		setCtrlString(CTL_FILTITEM_SYMB, Data.Symb); // Поле "Символ"
+		setCtrlLong(CTL_FILTITEM_ID, Data.ID);       // Поле "ID"
+		disableCtrl(CTL_FILTITEM_ID, 1);             // Идентификатор только отображаетс
+		view_id = Data.ViewID; // Может быть и ноль, если это создание (а не редактирование) именованного фильтра
+		//
+		// Инициализировать комбобокс:
+		//   отсортированный по описанию список {id PPView, описание PPView}
+		//   активным элементом сделать элемент с идентификатором view_id
+		//
+		SetupStrAssocCombo(this, CTLSEL_FILTITEM_CMD, &CmdTextList, view_id, 0);
+		AddClusterAssoc(CTL_FILTITEM_FLAGS, 0, PPNamedFilt::fDontWriteXmlDTD);
+		AddClusterAssoc(CTL_FILTITEM_FLAGS, 1, PPNamedFilt::fCompressXml); // @v10.6.0
+		SetClusterData(CTL_FILTITEM_FLAGS, Data.Flags);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		PPID   view_id = 0; // Идентификатор обьекта PPView
+		uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
+		uint pos;
+		getCtrlString(sel = CTL_FILTITEM_NAME, Data.Name);
+		THROW_PP(Data.Name.NotEmptyS(), PPERR_NFILTNAMENEEDED);
+		getCtrlString(sel = CTL_FILTITEM_SYMB, Data.Symb);
+		THROW_PP(stricmp(Data.Symb, "") != 0, PPERR_SYMBNEEDED);
+		THROW(P_Pool->CheckUniqueNamedFilt(&Data));
+		getCtrlData(sel = CTLSEL_FILTITEM_CMD, &view_id);
+		THROW_PP(CmdSymbList.Search(view_id, &pos), PPERR_INVNFCMD);
+		GetClusterData(CTL_FILTITEM_FLAGS, &Data.Flags);
+		Data.ViewSymb = CmdSymbList.Get(pos).Txt;
+		Data.ViewID = view_id;
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG // Вывести сообщение о ошибке и активировать породивший его управляющий элемент
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    ChangeBaseFilter();    // Обрабатывает изменение базового фильтра
 	int    ViewMobColumnList(); //@erik 10.5.0
-	PPNamedFilt Data;          // Собственно, редактируемый именованный фильтр
 	StrAssocArray CmdSymbList; // Список ассоциаций для обьектов PPView {id, символ}
 	StrAssocArray CmdTextList; // Список ассоциаций для обьектов PPView {id, описание} (упорядоченный по возрастанию)
 	PPNamedFiltPool * P_Pool;  // @notowned
@@ -488,49 +521,6 @@ int FiltItemDialog::ChangeBaseFilter()
 	ZDELETE(p_view);
 	return ok;
 }
-
-int FiltItemDialog::setDTS(const PPNamedFilt * pData)
-{
-	int    ok = 1;
-	PPID   view_id = 0;                            // Идентификатор обьекта PPView
-	Data = *pData;
-	setCtrlString(CTL_FILTITEM_NAME, Data.Name); // Поле "Наименование"
-	setCtrlString(CTL_FILTITEM_SYMB, Data.Symb); // Поле "Символ"
-	setCtrlLong(CTL_FILTITEM_ID, Data.ID);       // Поле "ID"
-	disableCtrl(CTL_FILTITEM_ID, 1);             // Идентификатор только отображаетс
-	view_id = Data.ViewID; // Может быть и ноль, если это создание (а не редактирование) именованного фильтра
-	//
-	// Инициализировать комбобокс:
-	//   отсортированный по описанию список {id PPView, описание PPView}
-	//   активным элементом сделать элемент с идентификатором view_id
-	//
-	SetupStrAssocCombo(this, CTLSEL_FILTITEM_CMD, &CmdTextList, view_id, 0);
-	AddClusterAssoc(CTL_FILTITEM_FLAGS, 0, PPNamedFilt::fDontWriteXmlDTD);
-	SetClusterData(CTL_FILTITEM_FLAGS, Data.Flags);
-	return ok;
-}
-
-int FiltItemDialog::getDTS(PPNamedFilt * pData)
-{
-	int    ok = 1;
-	PPID   view_id = 0; // Идентификатор обьекта PPView
-	uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
-	uint pos;
-	getCtrlString(sel = CTL_FILTITEM_NAME, Data.Name);
-	THROW_PP(Data.Name.NotEmptyS(), PPERR_NFILTNAMENEEDED);
-	getCtrlString(sel = CTL_FILTITEM_SYMB, Data.Symb);
-	THROW_PP(stricmp(Data.Symb, "") != 0, PPERR_SYMBNEEDED);
-	THROW(P_Pool->CheckUniqueNamedFilt(&Data));
-	getCtrlData(sel = CTLSEL_FILTITEM_CMD, &view_id);
-	THROW_PP(CmdSymbList.Search(view_id, &pos), PPERR_INVNFCMD);
-	GetClusterData(CTL_FILTITEM_FLAGS, &Data.Flags);
-	Data.ViewSymb = CmdSymbList.Get(pos).Txt;
-	Data.ViewID = view_id;
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG // Вывести сообщение о ошибке и активировать породивший его управляющий элемент
-	return ok;
-}
-
 //
 // Descr: Обрабатывает нажатие кнопки "Добавить.."
 //

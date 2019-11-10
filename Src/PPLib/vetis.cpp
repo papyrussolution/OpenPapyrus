@@ -8680,9 +8680,9 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 							VetisApplicationBlock reply;
 							int rr = GetEntityQuery(qtBusinessEntityByGuid, VGuidToStr(guid, temp_buf), reply);
 							if(rr > 0) {
-								for(uint j = 0; j < reply.EntItemList.getCount(); j++) {
+								for(uint j = 0; j < reply.BEntList.getCount(); j++) { // @v10.6.0 @fix EntItemList-->BEntList
 									PPID   local_entity_id = 0;
-									THROW(PeC.Put(&local_entity_id, *reply.EntItemList.at(j), 0, 0));
+									THROW(PeC.Put(&local_entity_id, *reply.BEntList.at(j), 0, 0)); // @v10.6.0 @fix EntItemList-->BEntList
 								}
 								if(PeC.GetEntityByGuid(rPbrBlk.PersonGuid, entity_to_person) > 0) {
 									rec.ToEntityID = entity_to_person.ID;

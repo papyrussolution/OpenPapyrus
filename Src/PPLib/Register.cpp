@@ -63,6 +63,7 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 	if(r1.RegOrgID != r2.RegOrgID) return 1;
 	if(r1.Expiry != r2.Expiry) return 1;
 	if(r1.Flags != r2.Flags) return 1;
+	if(r1.ExtID != r2.ExtID) return 1; // @v10.6.0
 	if(strcmp(r1.Serial, r2.Serial) != 0) return 1;
 	if(strcmp(r1.Num, r2.Num) != 0) return 1;
 	return 0;
@@ -73,8 +74,8 @@ int FASTCALL RegisterCore::IsEqualRec(const RegisterTbl::Rec & rRec1, const Regi
 {
 	#define ISEQ(f) (rRec1.f == rRec2.f)
 	if(ISEQ(ObjType) && ISEQ(ObjID) && ISEQ(PsnEventID) && ISEQ(RegTypeID) && ISEQ(Dt) && ISEQ(RegOrgID) &&
-		ISEQ(Expiry) && ISEQ(Flags) && strcmp(rRec1.Serial, rRec2.Serial) == 0 &&
-		strcmp(rRec1.Num, rRec2.Num) == 0)
+		ISEQ(Expiry) && ISEQ(Flags) && ISEQ(ExtID) && strcmp(rRec1.Serial, rRec2.Serial) == 0 &&
+		strcmp(rRec1.Num, rRec2.Num) == 0) // @v10.6.0 ISEQ(ExtID)
 		return 1;
 	else
 		return 0;

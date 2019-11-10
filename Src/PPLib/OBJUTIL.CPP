@@ -116,7 +116,8 @@ static const ushort _Objects[] = {
 	PPOBJ_EDIPROVIDER,
 	PPOBJ_USREXCLRIGHTS,
 	PPOBJ_WORKBOOK,      // @v9.3.8
-	PPOBJ_FREIGHTPACKAGETYPE // @v10.4.1
+	PPOBJ_FREIGHTPACKAGETYPE, // @v10.4.1
+	PPOBJ_TAXSYSTEMKIND // @v10.6.0
 };
 
 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
@@ -139,7 +140,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_PRICETYPE   :
 		case PPOBJ_WOODBREED   :
 		case PPOBJ_EVENTTOKEN  :
-		case PPOBJ_CAFETABLE   : 
+		case PPOBJ_CAFETABLE   :
 		case PPOBJ_TRANSPMODEL : p = new PPObjReference(obj, extraPtr); break;
 		case PPOBJ_ACTION      : p = new PPObjSysAction(extraPtr); break;
 		case PPOBJ_GTACTION    : p = new PPObjGtaAction(extraPtr); break;
@@ -231,6 +232,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_EDIPROVIDER :  p = new PPObjEdiProvider(extraPtr); break; // @v8.5.5
 		case PPOBJ_TIMESERIES  :  p = new PPObjTimeSeries(extraPtr); break; // @v10.2.3 @experimental
 		case PPOBJ_FREIGHTPACKAGETYPE: p = new PPObjFreightPackageType(extraPtr); break; // @v10.4.1
+		case PPOBJ_TAXSYSTEMKIND: p = new PPObjTaxSystemKind(extraPtr); break; // @v10.6.0
 		default                :
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);
@@ -1369,7 +1371,7 @@ IMPL_CMPFUNC(Acct, k1, k2)
 	int    si = 0;
 	CMPCASCADE2(si, a1, &a2, ac, sb);
 	return si;
-	// } @v10.3.1 
+	// } @v10.3.1
 	/* @v10.3.1
 	if(a1->ac < a2.ac) return -1;
 	if(a1->ac > a2.ac) return  1;

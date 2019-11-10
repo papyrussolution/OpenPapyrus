@@ -1363,6 +1363,7 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 				ep.Sort = 0;
 				ep.Flags |= (DlRtm::ExportParam::fIsView|DlRtm::ExportParam::fInheritedTblNames);
 				ep.Flags &= ~DlRtm::ExportParam::fDiff_ID_ByScope;
+				SETFLAG(ep.Flags, DlRtm::ExportParam::fCompressXml, p_nf->Flags & PPNamedFilt::fCompressXml); // @v10.6.0
 				if(p_nf->Flags & PPNamedFilt::fDontWriteXmlDTD)
 					ep.Flags |= (DlRtm::ExportParam::fDontWriteXmlDTD|DlRtm::ExportParam::fDontWriteXmlTypes);
 				//@erik v10.5.1 {

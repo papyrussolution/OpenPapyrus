@@ -7,9 +7,8 @@
 class PrcssrBuild {
 public:
 	struct BuildVer {
-		BuildVer()
+		BuildVer() : Major(0), Minor(0), Revision(0), Asm(0)
 		{
-			THISZERO();
 		}
 		int    Major; // MajorVer
 		int    Minor; // MinorVer
@@ -214,6 +213,7 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 {
 	class SelfBuildDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrBuild::Param);
 	public:
 		SelfBuildDialog(PrcssrBuild & rPrcssr) : TDialog(DLG_SELFBUILD), R_Prcssr(rPrcssr), PrevTimeoutRest(-1), StartClock(0)
 		{
@@ -223,18 +223,17 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 			CloseTimeout = -1;
 #endif
 		}
-		int setDTS(const PrcssrBuild::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			SString temp_buf;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			{
 				StrAssocArray config_str_list;
 				for(uint i = 0; i < Data.ConfigList.getCount(); i++) {
 					Param::ConfigEntry * p_entry = Data.ConfigList.at(i);
-					if(p_entry) {
+					if(p_entry)
 						config_str_list.Add(i+1, p_entry->Name);
-					}
 				}
 				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_CONFIG, &config_str_list, Data.ConfigEntryIdx, 0, 0, 0);
 			}
@@ -251,7 +250,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 			StartClock = clock();
 			return ok;
 		}
-		int getDTS(PrcssrBuild::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTLSEL_SELFBUILD_CONFIG, &Data.ConfigEntryIdx);
 			GetClusterData(CTL_SELFBUILD_FLAGS, &Data.Flags);
@@ -323,7 +322,6 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 				setStaticText(CTL_SELFBUILD_ST_INFO, temp_buf);
 			}
 		}
-		PrcssrBuild::Param Data;
 		long   CloseTimeout;
 		long   PrevTimeoutRest;
 		clock_t StartClock;
@@ -335,7 +333,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 int	SLAPI PrcssrBuild::Init(const Param * pParam)
 {
 	int    ok = 1;
-	P = *pParam;
+	RVALUEPTR(P, pParam);
 	return ok;
 }
 
@@ -373,18 +371,37 @@ int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SSt
 {
 	int    ok = -1;
 	rList.Z();
-	const char * p_sub_msvs = "Software\\Microsoft\\VisualStudio";
-	WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_sub_msvs, 1); // @v9.2.0 readonly 0-->1
 	SString temp_buf, major, minor, subkey_buf, path_buf;
 	StrAssocArray msvs_ver_list;
-	for(uint kidx = 0; reg_key.EnumKeys(&kidx, temp_buf);) {
-		if(temp_buf.Divide('.', major, minor) > 0) {
-			long msvs_ver = (major.ToLong() << 16) | (minor.ToLong() & 0xffff);
-			(subkey_buf = p_sub_msvs).SetLastSlash().Cat(temp_buf); //.Cat("InstallDir");
-			WinRegKey reg_key_ver(HKEY_LOCAL_MACHINE, subkey_buf, 1); // @v9.2.0 readonly 0-->1
-			if(reg_key_ver.GetString("InstallDir", path_buf) > 0 && path_buf.NotEmpty() && fileExists(path_buf)) {
-				rList.Add(msvs_ver, path_buf);
-				ok = 1;
+	{
+		const char * p_sub_msvs = "Software\\Microsoft\\VisualStudio";
+		WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_sub_msvs, 1); // @v9.2.0 readonly 0-->1
+		for(uint kidx = 0; reg_key.EnumKeys(&kidx, temp_buf);) {
+			if(temp_buf.Divide('.', major, minor) > 0) {
+				long msvs_ver = (major.ToLong() << 16) | (minor.ToLong() & 0xffff);
+				(subkey_buf = p_sub_msvs).SetLastSlash().Cat(temp_buf); //.Cat("InstallDir");
+				WinRegKey reg_key_ver(HKEY_LOCAL_MACHINE, subkey_buf, 1); // @v9.2.0 readonly 0-->1
+				if(reg_key_ver.GetString("InstallDir", path_buf) > 0 && path_buf.NotEmpty() && fileExists(path_buf)) {
+					rList.Add(msvs_ver, path_buf);
+					ok = 1;
+				}
+			}
+		}
+	}
+	{
+		const char * p_sub_msvs_2 = "Software\\Microsoft\\VisualStudio\\SxS\\VS7";
+		WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_sub_msvs_2, 1); // @v9.2.0 readonly 0-->1
+		WinRegValue reg_val;
+		for(uint vidx = 0; reg_key.EnumValues(&vidx, &temp_buf, &reg_val);) {
+			if(temp_buf.Divide('.', major, minor) > 0) {
+				long msvs_ver = (major.ToLong() << 16) | (minor.ToLong() & 0xffff);
+				if(reg_val.GetString(path_buf) && path_buf.NotEmpty() && fileExists(path_buf)) {
+					path_buf.SetLastSlash().Cat("Common7").SetLastSlash().Cat("IDE").SetLastSlash();
+					if(fileExists(path_buf)) {
+						rList.Add(msvs_ver, path_buf, 0/*replaceDup*/);
+						ok = 1;
+					}
+				}
 			}
 		}
 	}

@@ -1265,35 +1265,36 @@ int SLAPI SFile::Open(const char * pName, long mode)
 {
 	int    ok = 1;
 	SString mode_buf;
-	long   m = (mode & ~(mBinary | mDenyRead | mDenyWrite | mNoStd | mNullWrite));
+	// @v10.6.0 const  long   m = (mode & ~(mBinary | mDenyRead | mDenyWrite | mNoStd | mNullWrite));
 	int    oflag = 0;
 	int    pflag = S_IREAD | S_IWRITE;
 	int    shflag = 0;
-
 	Mode = mode;
-	if(m == mRead) {
-		oflag |= O_RDONLY;
-		mode_buf.CatChar('r');
-	}
-	else if(m == mWrite) {
-		oflag |= (O_WRONLY | O_CREAT | O_TRUNC);
-		mode_buf.CatChar('w');
-	}
-	else if(m == mAppend) {
-		oflag |= (O_WRONLY | O_CREAT | O_APPEND);
-		mode_buf.CatChar('a');
-	}
-	else if(m == mReadWrite) {
-		oflag |= (O_RDWR | O_CREAT);
-		mode_buf.CatChar('r').CatChar('+');
-	}
-	else if(m == mReadWriteTrunc) {
-		oflag |= (O_RDWR | O_TRUNC | O_CREAT);
-		mode_buf.CatChar('w').CatChar('+');
-	}
-	else if(m == mAppendRead) {
-		oflag |= (O_RDWR | O_APPEND);
-		mode_buf.CatChar('a').CatChar('+');
+	switch(mode & ~(mBinary|mDenyRead|mDenyWrite|mNoStd|mNullWrite)) { // @v10.6.0
+		case mRead:
+			oflag |= O_RDONLY;
+			mode_buf.CatChar('r');
+			break;
+		case mWrite:
+			oflag |= (O_WRONLY | O_CREAT | O_TRUNC);
+			mode_buf.CatChar('w');
+			break;
+		case mAppend:
+			oflag |= (O_WRONLY | O_CREAT | O_APPEND);
+			mode_buf.CatChar('a');
+			break;
+		case mReadWrite:
+			oflag |= (O_RDWR | O_CREAT);
+			mode_buf.CatChar('r').CatChar('+');
+			break;
+		case mReadWriteTrunc:
+			oflag |= (O_RDWR | O_TRUNC | O_CREAT);
+			mode_buf.CatChar('w').CatChar('+');
+			break;
+		case mAppendRead:
+			oflag |= (O_RDWR | O_APPEND);
+			mode_buf.CatChar('a').CatChar('+');
+			break;
 	}
 	if(mode & mBinary) {
 		oflag |= O_BINARY;

@@ -1,5 +1,5 @@
 // V_ASSET.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -190,8 +190,8 @@ int SLAPI PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 		dt = NZOR(Filt.OperPeriod.upp, MAXDATE);
 		lot_rec = org_lot_rec;
 		P_BObj->trfr->GetLotPrices(&lot_rec, dt, 0);
-		asset_rec.Cost2  = R5(lot_rec.Cost) * rest;  // @v6.1.12 qtty -> rest
-		asset_rec.Price2 = R5(lot_rec.Price) * rest; // @v6.1.12 qtty -> rest
+		asset_rec.Cost2  = R5(lot_rec.Cost) * rest;
+		asset_rec.Price2 = R5(lot_rec.Price) * rest;
 		{
 			double tax_factor = 1.0;
 			PPID   tax_grp_id = lot_rec.InTaxGrpID;

@@ -22,7 +22,7 @@
 /*
  * The Relax-NG namespace
  */
-static const xmlChar * xmlRelaxNGNs = (const xmlChar *)"http://relaxng.org/ns/structure/1.0";
+static const xmlChar * xmlRelaxNGNs = reinterpret_cast<const xmlChar *>("http://relaxng.org/ns/structure/1.0");
 
 #define IS_RELAXNG(P_Node, typ) (P_Node && P_Node->ns && (P_Node->type == XML_ELEMENT_NODE) && (sstreq(P_Node->name, typ)) && (sstreq(P_Node->ns->href, xmlRelaxNGNs)))
 
@@ -56,26 +56,26 @@ typedef xmlRelaxNGDocument * xmlRelaxNGDocumentPtr;
 typedef struct _xmlRelaxNGInclude xmlRelaxNGInclude;
 typedef xmlRelaxNGInclude * xmlRelaxNGIncludePtr;
 
-typedef enum {
+enum xmlRelaxNGCombine {
 	XML_RELAXNG_COMBINE_UNDEFINED = 0, /* undefined */
 	XML_RELAXNG_COMBINE_CHOICE, /* choice */
 	XML_RELAXNG_COMBINE_INTERLEAVE  /* interleave */
-} xmlRelaxNGCombine;
+};
 
-typedef enum {
+enum xmlRelaxNGContentType {
 	XML_RELAXNG_CONTENT_ERROR = -1,
 	XML_RELAXNG_CONTENT_EMPTY = 0,
 	XML_RELAXNG_CONTENT_SIMPLE,
 	XML_RELAXNG_CONTENT_COMPLEX
-} xmlRelaxNGContentType;
+};
 
-typedef struct _xmlRelaxNGGrammar xmlRelaxNGGrammar;
-typedef xmlRelaxNGGrammar * xmlRelaxNGGrammarPtr;
+//typedef struct _xmlRelaxNGGrammar xmlRelaxNGGrammar;
+//typedef xmlRelaxNGGrammar * xmlRelaxNGGrammarPtr;
 
-struct _xmlRelaxNGGrammar {
-	xmlRelaxNGGrammarPtr parent;    /* the parent grammar if any */
-	xmlRelaxNGGrammarPtr children;  /* the children grammar if any */
-	xmlRelaxNGGrammarPtr next; /* the next grammar if any */
+struct xmlRelaxNGGrammar {
+	xmlRelaxNGGrammar * parent;    /* the parent grammar if any */
+	xmlRelaxNGGrammar * children;  /* the children grammar if any */
+	xmlRelaxNGGrammar * next; /* the next grammar if any */
 	xmlRelaxNGDefinePtr start; /* <start> content */
 	xmlRelaxNGCombine combine; /* the default combine value */
 	xmlRelaxNGDefinePtr startList;  /* list of <start> definitions */
@@ -83,7 +83,7 @@ struct _xmlRelaxNGGrammar {
 	xmlHashTable * refs;   /* references */
 };
 
-typedef enum {
+enum xmlRelaxNGType {
 	XML_RELAXNG_NOOP = -1,  /* a no operation from simplification  */
 	XML_RELAXNG_EMPTY = 0,  /* an empty pattern */
 	XML_RELAXNG_NOT_ALLOWED, /* not allowed top */
@@ -106,7 +106,7 @@ typedef enum {
 	XML_RELAXNG_GROUP,      /* a pair/group of non empty patterns */
 	XML_RELAXNG_INTERLEAVE, /* interleaving choice of non-empty patterns */
 	XML_RELAXNG_START       /* Used to keep track of starts on grammars */
-} xmlRelaxNGType;
+};
 
 #define IS_NULLABLE             (1 << 0)
 #define IS_NOT_NULLABLE         (1 << 1)
@@ -142,7 +142,7 @@ struct _xmlRelaxNGDefine {
  */
 struct _xmlRelaxNG {
 	void * _private;        /* unused by the library for users or bindings */
-	xmlRelaxNGGrammarPtr topgrammar;
+	xmlRelaxNGGrammar * topgrammar;
 	xmlDoc * doc;
 	int idref;              /* requires idref checking */
 	xmlHashTable * defs;   /* define */
@@ -170,16 +170,14 @@ struct _xmlRelaxNGParserCtxt {
 	xmlRelaxNGValidityWarningFunc warning;  /* the callback in case of warning */
 	xmlStructuredErrorFunc serror;
 	xmlRelaxNGValidErr err;
-
 	xmlRelaxNGPtr schema;   /* The schema in use */
-	xmlRelaxNGGrammarPtr grammar;   /* the current grammar */
-	xmlRelaxNGGrammarPtr parentgrammar; /* the parent grammar */
+	xmlRelaxNGGrammar * grammar;   /* the current grammar */
+	xmlRelaxNGGrammar * parentgrammar; /* the parent grammar */
 	int flags;              /* parser flags */
 	int nbErrors;           /* number of errors at parse time */
 	int nbWarnings;         /* number of warnings at parse time */
 	const xmlChar * define; /* the current define scope */
 	xmlRelaxNGDefinePtr def; /* the current define */
-
 	int nbInterleaves;
 	xmlHashTable * interleaves;    /* keep track of all the interleaves */
 	xmlRelaxNGDocumentPtr documents; /* all the documents loaded */
@@ -196,19 +194,15 @@ struct _xmlRelaxNGParserCtxt {
 	int docNr;              /* Depth of the parsing stack */
 	int docMax;             /* Max depth of the parsing stack */
 	xmlRelaxNGDocumentPtr * docTab; /* array of docs */
-
 	/* the include stack */
 	xmlRelaxNGIncludePtr inc; /* Current parsed include */
 	int incNr;              /* Depth of the include parsing stack */
 	int incMax;             /* Max depth of the parsing stack */
 	xmlRelaxNGIncludePtr * incTab;  /* array of incs */
-
 	int idref;              /* requires idref checking */
-
 	/* used to compile content models */
 	xmlAutomataPtr am;      /* the automata */
 	xmlAutomataStatePtr state; /* used to build the automata */
-
 	int crng;               /* compact syntax and other flags */
 	int freedoc;            /* need to free the document */
 };
@@ -217,37 +211,35 @@ struct _xmlRelaxNGParserCtxt {
 #define FLAGS_NEGATIVE          2
 #define FLAGS_MIXED_CONTENT     4
 #define FLAGS_NOERROR           8
-
 /**
  * xmlRelaxNGInterleaveGroup:
  *
  * A RelaxNGs partition set associated to lists of definitions
  */
-typedef struct _xmlRelaxNGInterleaveGroup xmlRelaxNGInterleaveGroup;
-typedef xmlRelaxNGInterleaveGroup * xmlRelaxNGInterleaveGroupPtr;
-struct _xmlRelaxNGInterleaveGroup {
+struct xmlRelaxNGInterleaveGroup {
 	xmlRelaxNGDefinePtr rule; /* the rule to satisfy */
 	xmlRelaxNGDefinePtr * defs; /* the array of element definitions */
 	xmlRelaxNGDefinePtr * attrs; /* the array of attributes definitions */
 };
 
+//typedef struct _xmlRelaxNGInterleaveGroup xmlRelaxNGInterleaveGroup;
+//typedef xmlRelaxNGInterleaveGroup * xmlRelaxNGInterleaveGroupPtr;
+
 #define IS_DETERMINIST          1
 #define IS_NEEDCHECK            2
-
 /**
  * xmlRelaxNGPartitions:
  *
  * A RelaxNGs partition associated to an interleave group
  */
-typedef struct _xmlRelaxNGPartition xmlRelaxNGPartition;
-typedef xmlRelaxNGPartition * xmlRelaxNGPartitionPtr;
-struct _xmlRelaxNGPartition {
-	int nbgroups;           /* number of groups in the partitions */
+//typedef struct _xmlRelaxNGPartition xmlRelaxNGPartition;
+//typedef xmlRelaxNGPartition * xmlRelaxNGPartitionPtr;
+struct xmlRelaxNGPartition {
+	int    nbgroups;       // number of groups in the partitions 
 	xmlHashTable * triage; // hash table used to direct nodes to the right group when possible 
-	int flags;              /* determinist ? */
-	xmlRelaxNGInterleaveGroupPtr * groups;
+	int    flags;          // determinist ? 
+	xmlRelaxNGInterleaveGroup ** groups;
 };
-
 /**
  * xmlRelaxNGValidState:
  *
@@ -563,7 +555,7 @@ struct _xmlRelaxNGTypeLibrary {
 //
 // Allocation functions
 //
-static void xmlRelaxNGFreeGrammar(xmlRelaxNGGrammarPtr grammar);
+static void xmlRelaxNGFreeGrammar(xmlRelaxNGGrammar * grammar);
 static void xmlRelaxNGFreeDefine(xmlRelaxNGDefinePtr define);
 static void xmlRelaxNGNormExtSpace(xmlChar * value);
 static void xmlRelaxNGFreeInnerSchema(xmlRelaxNG * schema);
@@ -692,9 +684,9 @@ void xmlRelaxNGFree(xmlRelaxNG * schema)
  *
  * Returns the newly allocated structure or NULL in case or error
  */
-static xmlRelaxNGGrammarPtr xmlRelaxNGNewGrammar(xmlRelaxNGParserCtxt * ctxt)
+static xmlRelaxNGGrammar * xmlRelaxNGNewGrammar(xmlRelaxNGParserCtxt * ctxt)
 {
-	xmlRelaxNGGrammarPtr ret = (xmlRelaxNGGrammarPtr)SAlloc::M(sizeof(xmlRelaxNGGrammar));
+	xmlRelaxNGGrammar * ret = static_cast<xmlRelaxNGGrammar *>(SAlloc::M(sizeof(xmlRelaxNGGrammar)));
 	if(!ret)
 		xmlRngPErrMemory(ctxt, 0);
 	else
@@ -707,7 +699,7 @@ static xmlRelaxNGGrammarPtr xmlRelaxNGNewGrammar(xmlRelaxNGParserCtxt * ctxt)
  *
  * Deallocate a RelaxNG grammar structure.
  */
-static void xmlRelaxNGFreeGrammar(xmlRelaxNGGrammarPtr grammar)
+static void xmlRelaxNGFreeGrammar(xmlRelaxNGGrammar * grammar)
 {
 	if(grammar) {
 		xmlRelaxNGFreeGrammar(grammar->children); // @recursion
@@ -766,7 +758,7 @@ static xmlRelaxNGDefine * FASTCALL xmlRelaxNGNewDefine(xmlRelaxNGParserCtxt * ct
  *
  * Deallocate RelaxNG partition set structures.
  */
-static void xmlRelaxNGFreePartition(xmlRelaxNGPartitionPtr partitions)
+static void xmlRelaxNGFreePartition(xmlRelaxNGPartition * partitions)
 {
 	if(partitions) {
 		if(partitions->groups) {
@@ -799,7 +791,7 @@ static void xmlRelaxNGFreeDefine(xmlRelaxNGDefinePtr define)
 				lib->freef(lib->data, (void *)define->attrs);
 		}
 		if(define->data && define->type == XML_RELAXNG_INTERLEAVE)
-			xmlRelaxNGFreePartition((xmlRelaxNGPartitionPtr)define->data);
+			xmlRelaxNGFreePartition((xmlRelaxNGPartition *)define->data);
 		if(define->data && define->type == XML_RELAXNG_CHOICE)
 			xmlHashFree(static_cast<xmlHashTable *>(define->data), 0);
 		SAlloc::F(define->name);
@@ -809,7 +801,6 @@ static void xmlRelaxNGFreeDefine(xmlRelaxNGDefinePtr define)
 		SAlloc::F(define);
 	}
 }
-
 /**
  * xmlRelaxNGNewStates:
  * @ctxt:  a Relax-NG validation context
@@ -2662,7 +2653,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxt * ctxt, x
 static xmlRelaxNGPtr xmlRelaxNGParseDocument(xmlRelaxNGParserCtxt * ctxt, xmlNode * P_Node);
 static int xmlRelaxNGParseGrammarContent(xmlRelaxNGParserCtxt * ctxt, xmlNode * nodes);
 static xmlRelaxNGDefinePtr xmlRelaxNGParseNameClass(xmlRelaxNGParserCtxt * ctxt, xmlNode * P_Node, xmlRelaxNGDefinePtr def);
-static xmlRelaxNGGrammarPtr xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxt * ctxt, xmlNode * nodes);
+static xmlRelaxNGGrammar * xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxt * ctxt, xmlNode * nodes);
 static int xmlRelaxNGElementMatch(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefinePtr define, xmlNode * elem);
 
 #define IS_BLANK_NODE(n) (xmlRelaxNGIsBlank((n)->content))
@@ -3450,9 +3441,9 @@ static void xmlRelaxNGCheckGroupAttrs(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 static void xmlRelaxNGComputeInterleaves(xmlRelaxNGDefinePtr def, xmlRelaxNGParserCtxt * ctxt, xmlChar * name ATTRIBUTE_UNUSED)
 {
 	xmlRelaxNGDefinePtr cur, * tmp;
-	xmlRelaxNGPartitionPtr partitions = NULL;
-	xmlRelaxNGInterleaveGroupPtr * groups = NULL;
-	xmlRelaxNGInterleaveGroupPtr group;
+	xmlRelaxNGPartition * partitions = NULL;
+	xmlRelaxNGInterleaveGroup ** groups = NULL;
+	xmlRelaxNGInterleaveGroup * group;
 	int i, j, ret, res;
 	int nbgroups = 0;
 	int nbchild = 0;
@@ -3475,12 +3466,12 @@ static void xmlRelaxNGComputeInterleaves(xmlRelaxNGDefinePtr def, xmlRelaxNGPars
 #ifdef DEBUG_INTERLEAVE
 	xmlGenericError(0, "  %d child\n", nbchild);
 #endif
-	groups = (xmlRelaxNGInterleaveGroupPtr*)SAlloc::M(nbchild * sizeof(xmlRelaxNGInterleaveGroupPtr));
+	groups = static_cast<xmlRelaxNGInterleaveGroup **>(SAlloc::M(nbchild * sizeof(xmlRelaxNGInterleaveGroup *)));
 	if(groups == NULL)
 		goto error;
 	cur = def->content;
 	while(cur) {
-		groups[nbgroups] = static_cast<xmlRelaxNGInterleaveGroupPtr>(SAlloc::M(sizeof(xmlRelaxNGInterleaveGroup)));
+		groups[nbgroups] = static_cast<xmlRelaxNGInterleaveGroup *>(SAlloc::M(sizeof(xmlRelaxNGInterleaveGroup)));
 		if(groups[nbgroups] == NULL)
 			goto error;
 		if(cur->type == XML_RELAXNG_TEXT)
@@ -3497,7 +3488,7 @@ static void xmlRelaxNGComputeInterleaves(xmlRelaxNGDefinePtr def, xmlRelaxNGPars
 	/*
 	 * Let's check that all rules makes a partitions according to 7.4
 	 */
-	partitions = static_cast<xmlRelaxNGPartitionPtr>(SAlloc::M(sizeof(xmlRelaxNGPartition)));
+	partitions = static_cast<xmlRelaxNGPartition *>(SAlloc::M(sizeof(xmlRelaxNGPartition)));
 	if(partitions == NULL)
 		goto error;
 	memzero(partitions, sizeof(xmlRelaxNGPartition));
@@ -3779,7 +3770,7 @@ static void xmlRelaxNGParseImportRef(void * payload, void * data, xmlChar * name
  *
  * Returns 0 in case of success, -1 in case of failure
  */
-static int xmlRelaxNGParseImportRefs(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGGrammarPtr grammar) 
+static int xmlRelaxNGParseImportRefs(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGGrammar * grammar) 
 {
 	if(!ctxt || (grammar == NULL) || (ctxt->grammar == NULL))
 		return -1;
@@ -4019,8 +4010,9 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxt * ctxt, x
 				xmlRngPErr(ctxt, P_Node, XML_RNGP_NOTALLOWED_NOT_EMPTY, "xmlRelaxNGParse: notAllowed element is not empty\n", 0, 0);
 		}
 		else if(IS_RELAXNG(P_Node, "grammar")) {
-			xmlRelaxNGGrammarPtr grammar, old;
-			xmlRelaxNGGrammarPtr oldparent;
+			xmlRelaxNGGrammar * grammar;
+			xmlRelaxNGGrammar * old;
+			xmlRelaxNGGrammar * oldparent;
 #ifdef DEBUG_GRAMMAR
 			xmlGenericError(0, "Found <grammar> pattern\n");
 #endif
@@ -4742,7 +4734,7 @@ static void xmlRelaxNGCheckCombine(xmlRelaxNGDefinePtr define, xmlRelaxNGParserC
  * Applies the 4.17. combine rule for all the start
  * element of a given grammar.
  */
-static void xmlRelaxNGCombineStart(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGGrammarPtr grammar)
+static void xmlRelaxNGCombineStart(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGGrammar * grammar)
 {
 	xmlChar * combine;
 	int choiceOrInterleave = -1;
@@ -5323,12 +5315,13 @@ static xmlRelaxNGContentType FASTCALL xmlRelaxNGCheckRules(xmlRelaxNGParserCtxt 
  *
  * parse a Relax-NG <grammar> node
  *
- * Returns the internal xmlRelaxNGGrammarPtr built or
- *    NULL in case of error
+ * Returns the internal xmlRelaxNGGrammarPtr built or NULL in case of error
  */
-static xmlRelaxNGGrammarPtr xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxt * ctxt, xmlNode * nodes)
+static xmlRelaxNGGrammar * xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxt * ctxt, xmlNode * nodes)
 {
-	xmlRelaxNGGrammarPtr ret, tmp, old;
+	xmlRelaxNGGrammar * ret;
+	xmlRelaxNGGrammar * tmp;
+	xmlRelaxNGGrammar * old;
 #ifdef DEBUG_GRAMMAR
 	xmlGenericError(0, "Parsing a new grammar\n");
 #endif
@@ -5390,7 +5383,7 @@ static xmlRelaxNGPtr xmlRelaxNGParseDocument(xmlRelaxNGParserCtxt * ctxt, xmlNod
 {
 	xmlRelaxNGPtr schema = NULL;
 	const xmlChar * olddefine;
-	xmlRelaxNGGrammarPtr old;
+	xmlRelaxNGGrammar * old;
 	if(!ctxt || !P_Node)
 		return 0;
 	schema = xmlRelaxNGNewRelaxNG(ctxt);
@@ -5406,7 +5399,8 @@ static xmlRelaxNGPtr xmlRelaxNGParseDocument(xmlRelaxNGParserCtxt * ctxt, xmlNod
 		}
 	}
 	else {
-		xmlRelaxNGGrammarPtr tmp, ret;
+		xmlRelaxNGGrammar * tmp;
+		xmlRelaxNGGrammar * ret;
 		schema->topgrammar = ret = xmlRelaxNGNewGrammar(ctxt);
 		if(schema->topgrammar == NULL) {
 			xmlRelaxNGFree(schema);
@@ -6367,7 +6361,7 @@ static void xmlRelaxNGDumpDefine(FILE * output, xmlRelaxNGDefinePtr define)
  *
  * Dump a RelaxNG structure back
  */
-static void xmlRelaxNGDumpGrammar(FILE * output, xmlRelaxNGGrammarPtr grammar, int top)
+static void xmlRelaxNGDumpGrammar(FILE * output, xmlRelaxNGGrammar * grammar, int top)
 {
 	if(grammar) {
 		fprintf(output, "<grammar");
@@ -6779,7 +6773,7 @@ int xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTR
 	xmlGenericError(0, "PushElem %s\n", elem->name);
 #endif
 	if(ctxt->elem == 0) {
-		xmlRelaxNGGrammarPtr grammar;
+		xmlRelaxNGGrammar * grammar;
 		xmlRegExecCtxtPtr exec;
 		xmlRelaxNGDefinePtr define;
 		xmlRelaxNG * schema = ctxt->schema;
@@ -7633,8 +7627,8 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 	int errNr = ctxt->errNr;
 	int oldflags;
 	xmlRelaxNGValidStatePtr oldstate;
-	xmlRelaxNGPartitionPtr partitions;
-	xmlRelaxNGInterleaveGroupPtr group = NULL;
+	xmlRelaxNGPartition * partitions;
+	xmlRelaxNGInterleaveGroup * group = NULL;
 	xmlNode * cur;
 	xmlNode * start;
 	xmlNode * last = NULL;
@@ -7643,7 +7637,7 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 	xmlNode ** list = NULL;
 	xmlNode ** lasts = NULL;
 	if(define->data) {
-		partitions = (xmlRelaxNGPartitionPtr)define->data;
+		partitions = static_cast<xmlRelaxNGPartition *>(define->data);
 		nbgroups = partitions->nbgroups;
 	}
 	else {
@@ -8924,7 +8918,7 @@ static int xmlRelaxNGValidateDocument(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
 {
 	int ret;
 	xmlRelaxNGPtr schema;
-	xmlRelaxNGGrammarPtr grammar;
+	xmlRelaxNGGrammar * grammar;
 	xmlRelaxNGValidStatePtr state;
 	xmlNode * P_Node;
 	if(!ctxt || (ctxt->schema == NULL) || (doc == NULL))

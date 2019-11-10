@@ -1315,6 +1315,7 @@ int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const 
 int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 {
 	class SetQuotDialog : public TDialog {
+		DECL_DIALOG_DATA(PPQuot);
 	public:
 		SetQuotDialog(int quotCls) : TDialog((quotCls == PPQuot::clsPredictCoeff) ? DLG_SETQUOTPC : DLG_SETQUOT), QuotCls(quotCls),
 			UseQuot2(BIN(CConfig.Flags2 & CCFLG2_QUOT2))
@@ -1330,7 +1331,7 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 			else
 				disableCtrl(CTL_SETQUOT_PERIOD, 1);
 		}
-		int    setDTS(const PPQuot * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			Data = *pData;
 			ushort v = 0;
@@ -1360,7 +1361,7 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 			SetupVal();
 			return 1;
 		}
-		int    getDTS(PPQuot * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			ushort v = getCtrlUInt16(CTL_SETQUOT_HOW);
@@ -1410,7 +1411,6 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 		}
 		const int QuotCls;
 		const int UseQuot2;
-		PPQuot Data;
 	};
 	DIALOG_PROC_BODY_P1(SetQuotDialog, quotCls, pQ);
 }
@@ -1673,13 +1673,13 @@ private:
 			}
 			QuotKindsOrder.add(PPQUOTK_BASE);
 			for(i = 0; i < qlist.getCount(); i++)
-				QuotKindsOrder.add(((RankNNameEntry*)qlist.at(i))->ID);
+				QuotKindsOrder.add(static_cast<const RankNNameEntry *>(qlist.at(i))->ID);
 			disableCtrl(CTL_GQUOT_BASE, !RightsForUpdate);
 			for(i = 0; i < NUM_QUOTS_IN_DLG; i++) {
 				int    disable_input = !RightsForUpdate;
 				int    used_entry = 0;
 				if(i < qlist.getCount()) {
-					const RankNNameEntry * p_e = (RankNNameEntry*)qlist.at(i);
+					const RankNNameEntry * p_e = static_cast<const RankNNameEntry *>(qlist.at(i));
 					if(p_e->ID != PPQUOTK_BASE) {
 						Kinds[i] = p_e->ID;
 						temp_buf = p_e->Name;
@@ -2850,7 +2850,8 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	Reference * p_ref = PPRef;
 	PPObjBill * p_bobj = BillObj;
 	int    r = -1;
-	uint   i, gp_flags = GPRET_INDEF;
+	uint   i;
+	uint   gp_flags = GPRET_INDEF;
 	const  LDATE curdt = getcurdate_();
 	//
 	// Список видов котировок уже использованных для расчета цены.
@@ -3325,7 +3326,7 @@ int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <
 	{
 		THROW_SL(p_fig = SDrawFigure::CreateFromFile(pInpFileName, 0));
 		if(p_fig->GetKind() == SDrawFigure::kImage) {
-			p_ib = &((SDrawImage *)p_fig)->GetBuffer();
+			p_ib = &static_cast<const SDrawImage *>(p_fig)->GetBuffer();
 		}
 		else if(p_fig->GetKind()) { // Вероятно, векторная фигура
 			FPoint sz = p_fig->GetSize();
@@ -3344,7 +3345,7 @@ int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <
 	if(p_ib) {
     	const uint src_width = p_ib->GetWidth();
     	const uint src_height = p_ib->GetHeight();
-		uint8 * p_zbar_img_buf = (uint8 *)SAlloc::C(src_height * src_width, sizeof(uint8));
+		uint8 * p_zbar_img_buf = static_cast<uint8 *>(SAlloc::C(src_height * src_width, sizeof(uint8)));
     	THROW_MEM(p_zbar_img_buf);
 		{
 			//

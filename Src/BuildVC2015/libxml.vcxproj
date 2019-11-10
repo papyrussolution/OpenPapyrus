@@ -809,8 +809,6 @@
     <ClCompile Include="..\Osf\Libxml\error.c" />
     <ClCompile Include="..\Osf\Libxml\globals.c" />
     <ClCompile Include="..\Osf\Libxml\hash.c" />
-    <ClCompile Include="..\Osf\Libxml\HTMLparser.c" />
-    <ClCompile Include="..\Osf\Libxml\HTMLtree.c" />
     <ClCompile Include="..\Osf\Libxml\libxml-pch.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -865,8 +863,6 @@
     <ClInclude Include="..\include\libxml\DOCBparser.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
     <ClInclude Include="..\include\libxml\globals.h" />
-    <ClInclude Include="..\include\libxml\HTMLparser.h" />
-    <ClInclude Include="..\include\libxml\HTMLtree.h" />
     <ClInclude Include="..\include\libxml\list.h" />
     <ClInclude Include="..\include\libxml\nanoftp.h" />
     <ClInclude Include="..\include\libxml\nanohttp.h" />

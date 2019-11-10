@@ -275,7 +275,7 @@ int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
 	{ return BIN(pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->name), pName)); }
 //static
 int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
-	{ return BIN(pNode && sstreqi_ascii((const char *)pNode->content, pText)); }
+	{ return BIN(pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->content), pText)); }
 
 //static
 int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)

@@ -197,7 +197,7 @@ extern "C" {
 #if 1
 	#define LIBXML_VALID_ENABLED // Whether the DTD validation support is configured in
 #endif
-#if 1
+#if 0 // @v10.5.6 1-->0
 	#define LIBXML_HTML_ENABLED // Whether the HTML support is configured in
 #endif
 #if 1

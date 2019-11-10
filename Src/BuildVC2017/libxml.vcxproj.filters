@@ -13,8 +13,6 @@
     <ClCompile Include="..\Osf\Libxml\error.c" />
     <ClCompile Include="..\Osf\Libxml\globals.c" />
     <ClCompile Include="..\Osf\Libxml\hash.c" />
-    <ClCompile Include="..\Osf\Libxml\HTMLparser.c" />
-    <ClCompile Include="..\Osf\Libxml\HTMLtree.c" />
     <ClCompile Include="..\Osf\Libxml\libxml-pch.c" />
     <ClCompile Include="..\Osf\Libxml\list.c" />
     <ClCompile Include="..\Osf\Libxml\parser.c" />
@@ -81,12 +79,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\globals.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\HTMLparser.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\HTMLtree.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\list.h">

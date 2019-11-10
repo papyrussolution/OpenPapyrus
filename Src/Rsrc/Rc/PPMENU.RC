@@ -106,6 +106,7 @@
 			MENUITEM "@cmd_elinkkind",					cmELinkKind
 			MENUITEM "@cmd_personreltype",				cmPersonRelType
 			MENUITEM "@cmd_personrel",					cmPersonRel
+			MENUITEM "@cmd_taxsystemkind",	            cmTaxSystemKind
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_scardseries",				cmSCardSeries
 			MENUITEM "@cmd_scard",						cmSCard

@@ -961,23 +961,25 @@ ROD_LOCATION PP_RCDATA {
 // 'A' REGTF_LOCATION    Регистр может быть использован для привязки к локациям
 //
 ROD_REGISTERTYPE PP_RCDATA {
-	16,
-	 1, "Паспорт\0",                                "UP\0",
-	 2, "Свидетельство частного предпринимателя\0", "UP\0",
-	 3, "@{inn}\0",                                 "U\0",
-	 4, "ОКОНХ\0",                                  "U\0",
-	 5, "ОКПО\0",                                   "U\0",
-	 6, "Банковский код (БИК)\0",                   "UL\0",
-	 7, "Корреспондентский счет банка\0",           "UL\0",
-	 9, "Заказчик Universe-HTT\0",                  "U\0"
-	10, "Код КПП\0",                                "U\0"
-	11, "Код ОКАТО\0",                              "UL\0"
-	12, "Код сертификатора\0",                      "UL\0"
-	13, "Код GLN\0",                                "UL\0"
-	14, "Символьный код страны\0",                  "L\0"
-	15, "Цифровой код страны\0",                    "L\0"
-	16, "@{bankaccount}\0",                         "LPN\0"
-	17, "Ид оператора передачи данных\0",           "UL\0"
+	18,
+	 1, "@{rregt_passport}\0",            "UP\0"
+	 2, "@{rregt_regfree}\0",             "UP\0"
+	 3, "@{rregt_tpid}\0",                "U\0"
+	 4, "@{rregt_okonh}\0",               "U\0"
+	 5, "@{rregt_okpo}\0",                "U\0"
+	 6, "@{rregt_bic}\0",                 "UL\0"
+	 7, "@{rregt_bnkcorracc}\0",          "UL\0"
+	 8, "@{rregt_code}\0",                "U\0"
+	 9, "@{rregt_uhttclid}\0",            "U\0"
+	10, "@{rregt_kpp}\0",                 "U\0"
+	11, "@{rregt_okato}\0",               "UL\0"
+	12, "@{rregt_certorgcode}\0",         "UL\0"
+	13, "@{rregt_gln}\0",                 "UL\0"
+	14, "@{rregt_countryabbr}\0",         "L\0"
+	15, "@{rregt_countrycode}\0",         "L\0"
+	16, "@{rregt_bankaccount}\0",         "LPN\0"
+	17, "@{rregt_dto_id}\0",              "UL\0"
+	18, "@{rregt_taxsystem}\0",           "UD\0"
 };
 //
 // Зарезервированные записи объекта PPOBJ_ELINKKIND
@@ -1098,5 +1100,17 @@ ROD_TAG PP_RCDATA {
 //
 ROD_OPCOUNTER PP_RCDATA {
 	1,
-	1, "Счетик символов рабочей книги\0", "CNTR-WORKBOOK\0", "%05\0"
+	1, "@{ropcntr_workbook}\0", "CNTR-WORKBOOK\0", "%05\0"
+}
+//
+// Зарезервированные записи объекта PPOBJ_TAXSYSTEMKIND
+// {ID, Name, Symb}
+//
+ROD_TAXSYSTEMKIND PP_RCDATA {
+	5,
+	1, "@{txsk_general}\0",        "TXSK_GENERAL\0"
+	2, "@{txsk_simplified}\0",     "TXSK_SIMPLIFIED\0"
+	3, "@{txsk_patent}\0",         "TXSK_PATENT\0"
+	4, "@{taxsysk_imputed}\0",     "TAXSYSK_IMPUTED\0"
+	5, "@{txsk_singleagricult}\0", "TXSK_SINGLEAGRICULT\0"
 }

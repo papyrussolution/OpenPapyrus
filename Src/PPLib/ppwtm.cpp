@@ -2748,13 +2748,15 @@ void SLAPI Test_MakeEmailMessage();
 int  SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
 void SLAPI TestCRC();
 int  SLAPI TestUhttClient();
+int  SLAPI TestReadXmlMem_EgaisAck();
 
 int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	TestReadXmlMem_EgaisAck();
 	//TestMqc();
-	TestUhttClient();
+	//TestUhttClient();
 	//TestCRC();
 	//Test_MailMsg_ReadFromFile();
 	//TestSArchive();

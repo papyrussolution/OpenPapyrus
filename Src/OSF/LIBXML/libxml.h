@@ -1963,7 +1963,7 @@ int xmlNop(void);
 		 * The schemas related types are kept internal
 		 */
 		typedef struct _xmlSchematron xmlSchematron;
-		typedef xmlSchematron *xmlSchematronPtr;
+		// @v10.6.0 typedef xmlSchematron * xmlSchematronPtr;
 		/**
 		 * xmlSchematronValidityErrorFunc:
 		 * @ctx: the validation context
@@ -1988,7 +1988,7 @@ int xmlNop(void);
 		typedef struct _xmlSchematronParserCtxt xmlSchematronParserCtxt;
 		//typedef xmlSchematronParserCtxt *xmlSchematronParserCtxtPtr;
 		typedef struct _xmlSchematronValidCtxt xmlSchematronValidCtxt;
-		typedef xmlSchematronValidCtxt *xmlSchematronValidCtxtPtr;
+		//typedef xmlSchematronValidCtxt * xmlSchematronValidCtxtPtr;
 		/*
 		 * Interfaces for parsing.
 		 */
@@ -1998,21 +1998,21 @@ int xmlNop(void);
 		XMLPUBFUN void XMLCALL xmlSchematronFreeParserCtxt(xmlSchematronParserCtxt * ctxt);
 		// XMLPUBFUN void XMLCALL xmlSchematronSetParserErrors(xmlSchematronParserCtxt * ctxt, xmlSchematronValidityErrorFunc err, xmlSchematronValidityWarningFunc warn, void *ctx);
 		// XMLPUBFUN int XMLCALL xmlSchematronGetParserErrors(xmlSchematronParserCtxt * ctxt, xmlSchematronValidityErrorFunc * err, xmlSchematronValidityWarningFunc * warn, void **ctx);
-		// XMLPUBFUN int XMLCALL xmlSchematronIsValid	(xmlSchematronValidCtxtPtr ctxt);
-		XMLPUBFUN xmlSchematronPtr XMLCALL xmlSchematronParse(xmlSchematronParserCtxt * ctxt);
-		XMLPUBFUN void XMLCALL xmlSchematronFree(xmlSchematronPtr schema);
+		// XMLPUBFUN int XMLCALL xmlSchematronIsValid(xmlSchematronValidCtxt * ctxt);
+		XMLPUBFUN xmlSchematron * XMLCALL xmlSchematronParse(xmlSchematronParserCtxt * ctxt);
+		XMLPUBFUN void XMLCALL xmlSchematronFree(xmlSchematron * schema);
 		/*
 		 * Interfaces for validating
 		 */
-		XMLPUBFUN void XMLCALL xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxtPtr ctxt, xmlStructuredErrorFunc serror, void *ctx);
-		// XMLPUBFUN void XMLCALL xmlSchematronSetValidErrors(xmlSchematronValidCtxtPtr ctxt, xmlSchematronValidityErrorFunc err, xmlSchematronValidityWarningFunc warn, void *ctx);
-		// XMLPUBFUN int XMLCALL xmlSchematronGetValidErrors	(xmlSchematronValidCtxtPtr ctxt, xmlSchematronValidityErrorFunc *err, xmlSchematronValidityWarningFunc *warn, void **ctx);
-		// XMLPUBFUN int XMLCALL xmlSchematronSetValidOptions(xmlSchematronValidCtxtPtr ctxt, int options);
-		// XMLPUBFUN int XMLCALL xmlSchematronValidCtxtGetOptions(xmlSchematronValidCtxtPtr ctxt);
-		// XMLPUBFUN int XMLCALL xmlSchematronValidateOneElement (xmlSchematronValidCtxtPtr ctxt, xmlNode * elem);
-		XMLPUBFUN xmlSchematronValidCtxtPtr XMLCALL xmlSchematronNewValidCtxt(xmlSchematronPtr schema, int options);
-		XMLPUBFUN void XMLCALL xmlSchematronFreeValidCtxt(xmlSchematronValidCtxtPtr ctxt);
-		XMLPUBFUN int XMLCALL xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDoc * instance);
+		XMLPUBFUN void XMLCALL xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxt * ctxt, xmlStructuredErrorFunc serror, void *ctx);
+		// XMLPUBFUN void XMLCALL xmlSchematronSetValidErrors(xmlSchematronValidCtxt * ctxt, xmlSchematronValidityErrorFunc err, xmlSchematronValidityWarningFunc warn, void *ctx);
+		// XMLPUBFUN int XMLCALL xmlSchematronGetValidErrors(xmlSchematronValidCtxt * ctxt, xmlSchematronValidityErrorFunc *err, xmlSchematronValidityWarningFunc *warn, void **ctx);
+		// XMLPUBFUN int XMLCALL xmlSchematronSetValidOptions(xmlSchematronValidCtxt * ctxt, int options);
+		// XMLPUBFUN int XMLCALL xmlSchematronValidCtxtGetOptions(xmlSchematronValidCtxt * ctxt);
+		// XMLPUBFUN int XMLCALL xmlSchematronValidateOneElement(xmlSchematronValidCtxt * ctxt, xmlNode * elem);
+		XMLPUBFUN xmlSchematronValidCtxt * XMLCALL xmlSchematronNewValidCtxt(xmlSchematron * schema, int options);
+		XMLPUBFUN void XMLCALL xmlSchematronFreeValidCtxt(xmlSchematronValidCtxt * ctxt);
+		XMLPUBFUN int XMLCALL xmlSchematronValidateDoc(xmlSchematronValidCtxt * ctxt, xmlDoc * instance);
 
 		#ifdef __cplusplus
 		}
@@ -2138,9 +2138,9 @@ int xmlNop(void);
 		const xmlChLRange * longRange;
 	};
 
-	typedef xmlChSRange * xmlChSRangePtr;
-	typedef xmlChLRange * xmlChLRangePtr;
-	typedef xmlChRangeGroup * xmlChRangeGroupPtr;
+	// @v10.6.0 typedef xmlChSRange * xmlChSRangePtr;
+	// @v10.6.0 typedef xmlChLRange * xmlChLRangePtr;
+	// @v10.6.0 typedef xmlChRangeGroup * xmlChRangeGroupPtr;
 	// 
 	// Descr: Range checking routine
 	// 
@@ -2416,8 +2416,8 @@ int xmlNop(void);
 		#endif
 	#endif
 
-	#include <libxml/HTMLparser.h>
-	#include <libxml/HTMLtree.h>
+	// @v10.6.0 #include <libxml/HTMLparser.h>
+	// @v10.6.0 #include <libxml/HTMLtree.h>
 
 	#ifdef __cplusplus
 	extern "C" {

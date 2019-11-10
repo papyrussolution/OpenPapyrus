@@ -124,6 +124,7 @@ int SLAPI PPObjRegister::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, PPID outerObjType, const void * pOuterPacket)
 {
 	class RegisterDialog : public TDialog {
+		DECL_DIALOG_DATA(RegisterTbl::Rec);
 	public:
 		//
 		// ARG(rezID IN): ָה הטאכמדא
@@ -146,10 +147,10 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 				P_RegAry = &P_LocPack->Regs;
 			Init();
 		}
-		int    setDTS(const RegisterTbl::Rec * pRec)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			Data = *pRec;
+			RVALUEPTR(Data, pData);
 			setupRegOrgKind(0);
 			SString obj_name;
 			if(P_PsnPack)
@@ -182,10 +183,10 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 			setCtrlData(CTL_REG_EXPIRY,   &Data.Expiry);
 			setCtrlData(CTL_REG_SERIALNO, Data.Serial);
 			setCtrlData(CTL_REG_NUMBER,   Data.Num);
-			setCtrlLong(CTL_REG_ID, Data.ID); // @v8.2.7
+			setCtrlLong(CTL_REG_ID, Data.ID);
 			return ok;
 		}
-		int    getDTS(RegisterTbl::Rec * pRec)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlData(CTLSEL_REG_REGTYP, &Data.RegTypeID);
@@ -193,8 +194,11 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 			getCtrlData(CTL_REG_EXPIRY,   &Data.Expiry);
 			getCtrlData(CTL_REG_SERIALNO, Data.Serial);
 			getCtrlData(CTL_REG_NUMBER,   Data.Num);
-			getCtrlData(CTLSEL_REG_ORGAN, &Data.RegOrgID);
-			ASSIGN_PTR(pRec, Data);
+			if(Data.RegTypeID == PPREGT_TAXSYSTEM)
+				getCtrlData(CTLSEL_REG_ORGAN, &Data.ExtID);
+			else
+				getCtrlData(CTLSEL_REG_ORGAN, &Data.RegOrgID);
+			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
 	private:
@@ -205,7 +209,6 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 			ValidCode = -1;
 			SetupCalDate(CTLCAL_REG_DATE, CTL_REG_DATE);
 			SetupCalDate(CTLCAL_REG_EXPIRY, CTL_REG_EXPIRY);
-
 			Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
 			Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 		}
@@ -215,8 +218,7 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 			getCtrlString(CTL_REG_NUMBER, temp_buf);
 			int    prev = ValidCode;
 			if(Data.RegTypeID == PPREGT_TPID) {
-				// @v8.7.4 ValidCode = CheckINN(temp_buf);
-				ValidCode = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, temp_buf, temp_buf.Len()); // @v8.7.4
+				ValidCode = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, temp_buf, temp_buf.Len());
 			}
 			else if(Data.RegTypeID == PPREGT_OKPO)
 				ValidCode = CheckOKPO(temp_buf);
@@ -249,10 +251,9 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 					else {
 						PPRegisterType    rt;
 						PPObjRegisterType rt_obj;
-						char   numb[64];
-						numb[0] = 0;
-						getCtrlData(CTL_REG_NUMBER, numb);
-						if(*strip(numb) == 0) {
+						SString numb;
+						getCtrlString(CTL_REG_NUMBER, numb);
+						if(!numb.NotEmptyS()) {
 							PPObjRegisterType rt_obj;
 							if(rt_obj.GetCode(Data.RegTypeID, 0, Data.Num, sizeof(Data.Num)) > 0)
 								setCtrlData(CTL_REG_NUMBER, Data.Num);
@@ -293,14 +294,8 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 				else if(TVCMD == cmCtlColor) {
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc && ValidCode >= 0 && getCtrlHandle(CTL_REG_NUMBER) == p_dc->H_Ctl) {
-						if(ValidCode > 0) {
-							::SetBkMode(p_dc->H_DC, TRANSPARENT);
-							p_dc->H_Br = (HBRUSH)Ptb.Get(brushValidNumber);
-						}
-						else {
-							::SetBkMode(p_dc->H_DC, TRANSPARENT);
-							p_dc->H_Br = (HBRUSH)Ptb.Get(brushInvalidNumber);
-						}
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((ValidCode > 0) ? brushValidNumber : brushInvalidNumber));
 					}
 					else
 						return;
@@ -314,10 +309,14 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 		{
 			int    ok = 1;
 			PPObjRegisterType rt_obj;
+			const int is_taxsystem = BIN(Data.RegTypeID == PPREGT_TAXSYSTEM);
+			SString temp_buf;
 			if(Data.RegTypeID) {
 				PPRegisterType rt;
 				if(rt_obj.Search(Data.RegTypeID, &rt) > 0) {
 					RegOrgKind = rt.RegOrgKind;
+					disableCtrl(CTL_REG_NUMBER, is_taxsystem);
+					disableCtrl(CTL_REG_SERIALNO, is_taxsystem);
 					if(checkRegType && Data.ObjType == PPOBJ_PERSON && Data.ObjID) {
 						PPObjPerson pobj;
 						if(rt.PersonKindID) {
@@ -365,11 +364,20 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 					RegOrgKind   = 0;
 				}
 			}
-			disableCtrl(CTLSEL_REG_ORGAN, !Data.RegTypeID);
-			SetupPPObjCombo(this, CTLSEL_REG_ORGAN, PPOBJ_PERSON, Data.RegOrgID, OLW_CANINSERT, reinterpret_cast<void *>(RegOrgKind));
+			temp_buf.Z();
+			if(is_taxsystem) {
+				PPLoadString("register_taxsystem", temp_buf);
+				disableCtrl(CTLSEL_REG_ORGAN, 0);
+				SetupPPObjCombo(this, CTLSEL_REG_ORGAN, PPOBJ_TAXSYSTEMKIND, Data.ExtID, OLW_CANINSERT, 0);
+			}
+			else {
+				PPLoadString("register_regorg", temp_buf);
+				disableCtrl(CTLSEL_REG_ORGAN, !Data.RegTypeID);
+				SetupPPObjCombo(this, CTLSEL_REG_ORGAN, PPOBJ_PERSON, Data.RegOrgID, OLW_CANINSERT, reinterpret_cast<void *>(RegOrgKind));
+			}
+			setLabelText(CTL_REG_ORGAN, temp_buf);
 			return ok;
 		}
-		RegisterTbl::Rec Data;
 		const RegisterArray * P_RegAry;
 		const PPPersonPacket * P_PsnPack;
 		const PPLocationPacket * P_LocPack;
@@ -382,12 +390,12 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 	const PPPersonPacket * p_psn_pack = 0;
 	const PPLocationPacket * p_loc_pack = 0;
 	if(outerObjType == PPOBJ_PERSON && pOuterPacket) {
-		p_psn_pack = (const PPPersonPacket *)pOuterPacket;
+		p_psn_pack = static_cast<const PPPersonPacket *>(pOuterPacket);
 		pRegList = &p_psn_pack->Regs;
 		dlg = new RegisterDialog(DLG_REGISTER, p_psn_pack);
 	}
 	else if(outerObjType == PPOBJ_LOCATION && pOuterPacket) {
-		p_loc_pack = (const PPLocationPacket *)pOuterPacket;
+		p_loc_pack = static_cast<const PPLocationPacket *>(pOuterPacket);
 		pRegList = &p_loc_pack->Regs;
 		dlg = new RegisterDialog(DLG_REGISTER, p_loc_pack);
 	}
@@ -531,7 +539,12 @@ private:
 					ltoa(r_reg_rec.RegTypeID, rtrec.Name, 10);
 				ss.add(rtrec.Name);
 				ss.add(r_reg_rec.Serial);
-				ss.add(r_reg_rec.Num);
+				if(r_reg_rec.RegTypeID == PPREGT_TAXSYSTEM) {
+					GetObjectName(PPOBJ_TAXSYSTEMKIND, r_reg_rec.ExtID, temp_buf);
+					ss.add(temp_buf);
+				}
+				else
+					ss.add(r_reg_rec.Num);
 				ss.add(temp_buf.Z().Cat(r_reg_rec.Dt));
 				ss.add(temp_buf.Z().Cat(r_reg_rec.Expiry));
 				THROW(addStringToList(i+1, ss.getBuf()));

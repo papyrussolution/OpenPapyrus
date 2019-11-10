@@ -15399,7 +15399,8 @@ public:
 	//
 	int    SLAPI Read(SBuffer &, long);
 	enum {
-		fDontWriteXmlDTD = 0x0001 // В исходящий XML-файле на писать DTD
+		fDontWriteXmlDTD = 0x0001, // В исходящий XML-файле на писать DTD
+		fCompressXml     = 0x0002  // @v10.6.0 Сжимать создаваемый xml-файл
 	};
 	PPID   ID;          // Уникальный идентификатор фильтра внутри пула
 	long   Ver;         // Номер версии хранимой копии именованного фильтра
@@ -23465,6 +23466,15 @@ private:
     FiasObjCore FT;
 	SrDatabase * P_SrDb; // @v9.8.12
 	void * P_SrStoreFiasAddrBlock; // @v9.9.0
+};
+//
+// Descr: Объект данных, управляющий справочником видов налогообложения //
+//
+class PPObjTaxSystemKind : public PPObjReference {
+public:
+	SLAPI  PPObjTaxSystemKind(void * extraPtr = 0);
+private:
+	virtual int  SLAPI ProcessReservedItem(TVRez &);
 };
 //
 // @ModuleDecl(PPObjRegister)

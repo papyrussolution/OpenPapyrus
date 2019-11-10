@@ -83,7 +83,7 @@ pthread_t __ptw32_new(void)
 	tp->robustMxList = NULL;
 	tp->name = NULL;
 #if defined(HAVE_CPU_AFFINITY)
-	CPU_ZERO((cpu_set_t*)&tp->cpuset);
+	CPU_ZERO(reinterpret_cast<cpu_set_t *>(&tp->cpuset));
 #endif
 	tp->cancelEvent = CreateEvent(0, (int)__PTW32_TRUE/* manualReset  */, (int)__PTW32_FALSE/* setSignaled  */, NULL);
 	if(tp->cancelEvent == NULL) {

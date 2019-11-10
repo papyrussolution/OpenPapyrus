@@ -1175,7 +1175,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 		}
 		xmlTextWriterEndDocument(p_writer);
 		xmlTextWriterFlush(p_writer);
-		rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use)/*.UTF8ToChar()*/;
+		rBuf.CopyFromN(reinterpret_cast<const char *>(p_xml_buf->content), p_xml_buf->use)/*.UTF8ToChar()*/;
 	}
 	CATCHZOK
 	xmlFreeTextWriter(p_writer);
@@ -1207,7 +1207,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 	head_name = data_name;
 	data_name.Dot().Cat("xml");
 	PPGetFilePath(PPPATH_OUT, data_name, path);
-	p_writer = xmlNewTextWriterFilename(path, 0);
+	p_writer = xmlNewTextWriterFilename(path, (rParam.Flags & ExportParam::fCompressXml) ? 9 : 0); // @v10.6.0 0-->((rParam.Flags & ExportParam::fCompressXml) ? 9 : 0)
 	if(rParam.P_F && p_writer) {
 		uint   i;
 		DlScope * p_child = 0;

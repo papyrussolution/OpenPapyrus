@@ -93,7 +93,7 @@ static const xmlChSRange xmlIsBaseChar_srng[] = { {0x100, 0x131},
 	{0x2126, 0x2126}, {0x212a, 0x212b}, {0x212e, 0x212e}, {0x2180, 0x2182},
 	{0x3041, 0x3094}, {0x30a1, 0x30fa}, {0x3105, 0x312c}, {0xac00, 0xd7a3}};
 
-const xmlChRangeGroup xmlIsBaseCharGroup = {197, 0, xmlIsBaseChar_srng, (xmlChLRangePtr)0};
+const xmlChRangeGroup xmlIsBaseCharGroup = { 197, 0, xmlIsBaseChar_srng, 0 };
 static const xmlChSRange xmlIsChar_srng[] = { {0x100, 0xd7ff}, {0xe000, 0xfffd}};
 static const xmlChLRange xmlIsChar_lrng[] = { {0x10000, 0x10ffff}};
 const xmlChRangeGroup xmlIsCharGroup = {2, 1, xmlIsChar_srng, xmlIsChar_lrng};
@@ -124,7 +124,7 @@ static const xmlChSRange xmlIsCombining_srng[] = { {0x300, 0x345},
 	{0xfb9, 0xfb9}, {0x20d0, 0x20dc}, {0x20e1, 0x20e1}, {0x302a, 0x302f},
 	{0x3099, 0x3099}, {0x309a, 0x309a}};
 
-const xmlChRangeGroup xmlIsCombiningGroup = {95, 0, xmlIsCombining_srng, (xmlChLRangePtr)0};
+const xmlChRangeGroup xmlIsCombiningGroup = { 95, 0, xmlIsCombining_srng, 0 };
 
 static const xmlChSRange xmlIsDigit_srng[] = { {0x660, 0x669},
 	{0x6f0, 0x6f9}, {0x966, 0x96f}, {0x9e6, 0x9ef}, {0xa66, 0xa6f},
@@ -132,16 +132,16 @@ static const xmlChSRange xmlIsDigit_srng[] = { {0x660, 0x669},
 	{0xce6, 0xcef}, {0xd66, 0xd6f}, {0xe50, 0xe59}, {0xed0, 0xed9},
 	{0xf20, 0xf29}};
 
-const xmlChRangeGroup xmlIsDigitGroup = {14, 0, xmlIsDigit_srng, (xmlChLRangePtr)0};
+const xmlChRangeGroup xmlIsDigitGroup = { 14, 0, xmlIsDigit_srng, 0 };
 
 static const xmlChSRange xmlIsExtender_srng[] = { {0x2d0, 0x2d0},
 	{0x2d1, 0x2d1}, {0x387, 0x387}, {0x640, 0x640}, {0xe46, 0xe46},
 	{0xec6, 0xec6}, {0x3005, 0x3005}, {0x3031, 0x3035}, {0x309d, 0x309e},
 	{0x30fc, 0x30fe}};
 
-const xmlChRangeGroup xmlIsExtenderGroup = {10, 0, xmlIsExtender_srng, (xmlChLRangePtr)0};
+const xmlChRangeGroup xmlIsExtenderGroup = {10, 0, xmlIsExtender_srng, 0 };
 static const xmlChSRange xmlIsIdeographic_srng[] = { {0x3007, 0x3007}, {0x3021, 0x3029}, {0x4e00, 0x9fa5}};
-const xmlChRangeGroup xmlIsIdeographicGroup = {3, 0, xmlIsIdeographic_srng, (xmlChLRangePtr)0};
+const xmlChRangeGroup xmlIsIdeographicGroup = {3, 0, xmlIsIdeographic_srng, 0 };
 /**
  * xmlCharInRange:
  * @val: character to be validated

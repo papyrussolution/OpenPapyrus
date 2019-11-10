@@ -3384,7 +3384,7 @@ int ScURL::HttpPost(const char * pUrl, int mflags, HttpForm & rF, SFile * pReply
 	int    ok = 1;
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
 	THROW(SetCommonOptions(mflags, 0, 0))
-	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_HTTPPOST, (struct curl_httppost *)rF.FH)));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_HTTPPOST, static_cast<struct curl_httppost *>(rF.FH))));
 	THROW(SetupCbWrite(pReplyStream));
 	THROW(Execute());
 	CATCHZOK
