@@ -276,7 +276,6 @@ static int camellia_cfb1_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar *
 		CRYPTO_cfb128_1_encrypt(in, out, len * 8, &dat->ks, EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
 		EVP_CIPHER_CTX_set_num(ctx, num);
 	}
-
 	return 1;
 }
 

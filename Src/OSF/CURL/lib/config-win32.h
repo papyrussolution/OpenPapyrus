@@ -309,15 +309,15 @@
 #endif
 /* VS2008 default target settings and minimum build target check. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1500) && (_MSC_VER <= 1600)
-#  ifndef _WIN32_WINNT
-#    define _WIN32_WINNT VS2008_DEF_TARGET
-#  endif
-#  ifndef WINVER
-#    define WINVER VS2008_DEF_TARGET
-#  endif
-#  if (_WIN32_WINNT < VS2008_MIN_TARGET) || (WINVER < VS2008_MIN_TARGET)
-#    error VS2008 does not support Windows build targets prior to Windows 2000
-#  endif
+	#ifndef _WIN32_WINNT
+		#define _WIN32_WINNT VS2008_DEF_TARGET
+	#endif
+	#ifndef WINVER
+		#define WINVER VS2008_DEF_TARGET
+	#endif
+	#if (_WIN32_WINNT < VS2008_MIN_TARGET) || (WINVER < VS2008_MIN_TARGET)
+		#error VS2008 does not support Windows build targets prior to Windows 2000
+	#endif
 #endif
 /* VS2012 default target settings and minimum build target check. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1700)

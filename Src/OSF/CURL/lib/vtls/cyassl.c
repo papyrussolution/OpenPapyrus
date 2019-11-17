@@ -114,8 +114,7 @@ static int do_file_type(const char * type)
  * This function loads all the client/CA certificates and CRLs. Setup the TLS
  * layer and do all necessary magic.
  */
-static CURLcode cyassl_connect_step1(struct connectdata * conn,
-    int sockindex)
+static CURLcode cyassl_connect_step1(struct connectdata * conn, int sockindex)
 {
 	char error_buffer[CYASSL_MAX_ERROR_SZ];
 	char * ciphers;

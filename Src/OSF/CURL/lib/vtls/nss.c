@@ -203,7 +203,6 @@ static const char * nss_error_to_name(PRErrorCode code)
 	const char * name = PR_ErrorToName(code);
 	if(name)
 		return name;
-
 	return "unknown error";
 }
 
@@ -212,14 +211,12 @@ static void nss_print_error_message(struct Curl_easy * data, PRUint32 err)
 	failf(data, "%s", PR_ErrorToString(err, PR_LANGUAGE_I_DEFAULT));
 }
 
-static SECStatus set_ciphers(struct Curl_easy * data, PRFileDesc * model,
-    char * cipher_list)
+static SECStatus set_ciphers(struct Curl_easy * data, PRFileDesc * model, char * cipher_list)
 {
 	uint i;
 	PRBool cipher_state[NUM_OF_CIPHERS];
 	PRBool found;
 	char * cipher;
-
 	/* use accessors to avoid dynamic linking issues after an update of NSS */
 	const PRUint16 num_implemented_ciphers = SSL_GetNumImplementedCiphers();
 	const PRUint16 * implemented_ciphers = SSL_GetImplementedCiphers();

@@ -310,12 +310,14 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	SString spii_path;
 	SString sartredb_path;
 	SString reportdata_path;
+	SString workspace_path;
 	GetPath(PPPATH_TEMP, 0, temp_path);
 	GetPath(PPPATH_LOG, 0, log_path);
 	GetPath(PPPATH_PACK, 0, pack_path);
 	GetPath(PPPATH_SPII, 0, spii_path); // @v9.7.8
 	GetPath(PPPATH_SARTREDB, 0, sartredb_path); // @v9.7.8
 	GetPath(PPPATH_REPORTDATA, 0, reportdata_path); // @v9.8.9
+	GetPath(PPPATH_WORKSPACE, 0, workspace_path); // @v10.6.1
 	PathItem * p = 0;
 	THROW(Resize(sz));
 	THROW(r = p_ref->GetConfig(securType, securID, PPPRP_PATHS, P, sz));
@@ -378,6 +380,10 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	if(reportdata_path.NotEmptyS())
 		SetPath(PPPATH_REPORTDATA, reportdata_path, 0, 1);
 	// } @v9.8.9
+	// @v10.6.1 {
+	if(workspace_path.NotEmptyS())
+		SetPath(PPPATH_WORKSPACE, workspace_path, 0, 1);
+	// } @v10.6.1
 	CATCHZOK
 	return ok;
 }

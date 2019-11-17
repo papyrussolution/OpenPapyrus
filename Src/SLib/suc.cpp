@@ -993,7 +993,7 @@ int SLAPI SCodepageMapPool::ParseCpName(const SString & rName, int * pSis, SStri
 			if(ss.get(&ss_pos, temp_buf)) {
 				rVersion = temp_buf;
 				ret = -1;
-				if(sis == ssisWindows && rCode.ToLong())
+				if(sis == SSystem::ssisWindows && rCode.ToLong())
 					ret = rCode.ToLong();
 			}
         }
@@ -2103,7 +2103,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 					f_out.WriteLine(line_buf.CR());
 					out_line_no++;
 				}
-                if(map.CpSis == ssisWindows && map.Id != cpUndef && map.P_Map) {
+                if(map.CpSis == SSystem::ssisWindows && map.Id != cpUndef && map.P_Map) {
 					int    result_len = 0;
 					int    _err = 0;
 					for(uint i = 0; i < map.MapCount; i++) {

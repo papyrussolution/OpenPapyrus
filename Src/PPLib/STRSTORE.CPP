@@ -1432,6 +1432,10 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 	if(TempBuf.NotEmpty()) {
 		if(rItem.Flags & StringStore2::ParseItem::fNextLine) {
 			rItem.Flags &= ~StringStore2::ParseItem::fNextLine;
+			// @v10.6.1 {
+			while(oneof2(TempBuf.C(0), ' ', '\t'))
+				TempBuf.ShiftLeft();
+			// } @v10.6.1 
 			left = TempBuf;
 			if(left.Last() == '\\') {
 				rItem.Flags |= StringStore2::ParseItem::fNextLine;

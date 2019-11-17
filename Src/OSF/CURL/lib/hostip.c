@@ -112,7 +112,6 @@ void Curl_global_host_cache_dtor(void)
 		host_cache_initialized = 0;
 	}
 }
-
 /*
  * Return # of addresses in a Curl_addrinfo struct
  */
@@ -142,12 +141,12 @@ const char * Curl_printable_address(const Curl_addrinfo * ai, char * buf, size_t
 #endif
 	switch(ai->ai_family) {
 		case AF_INET:
-		    sa4 = (const struct sockaddr_in *)ai->ai_addr;
+		    sa4 = reinterpret_cast<const struct sockaddr_in *>(ai->ai_addr);
 		    ipaddr4 = &sa4->sin_addr;
 		    return Curl_inet_ntop(ai->ai_family, (const void *)ipaddr4, buf, bufsize);
 #ifdef ENABLE_IPV6
 		case AF_INET6:
-		    sa6 = (const struct sockaddr_in6 *)ai->ai_addr;
+		    sa6 = reinterpret_cast<const struct sockaddr_in6 *>(ai->ai_addr);
 		    ipaddr6 = &sa6->sin6_addr;
 		    return Curl_inet_ntop(ai->ai_family, (const void *)ipaddr6, buf,
 		    bufsize);
@@ -157,7 +156,6 @@ const char * Curl_printable_address(const Curl_addrinfo * ai, char * buf, size_t
 	}
 	return NULL;
 }
-
 /*
  * Return a hostcache id string for the provided host + port, to be used by
  * the DNS caching.
@@ -181,7 +179,6 @@ struct hostcache_prune_data {
 	long cache_timeout;
 	time_t now;
 };
-
 /*
  * This function is set as a callback to be called for every entry in the DNS
  * cache when we want to prune old unused entries.
@@ -191,29 +188,20 @@ struct hostcache_prune_data {
  */
 static int hostcache_timestamp_remove(void * datap, void * hc)
 {
-	struct hostcache_prune_data * data =
-	    (struct hostcache_prune_data*)datap;
+	struct hostcache_prune_data * data = (struct hostcache_prune_data*)datap;
 	struct Curl_dns_entry * c = (struct Curl_dns_entry*)hc;
-
-	return (0 != c->timestamp)
-	       && (data->now - c->timestamp >= data->cache_timeout);
+	return (0 != c->timestamp) && (data->now - c->timestamp >= data->cache_timeout);
 }
-
 /*
  * Prune the DNS cache. This assumes that a lock has already been taken.
  */
 static void hostcache_prune(struct curl_hash * hostcache, long cache_timeout, time_t now)
 {
 	struct hostcache_prune_data user;
-
 	user.cache_timeout = cache_timeout;
 	user.now = now;
-
-	Curl_hash_clean_with_criterium(hostcache,
-	    (void *)&user,
-	    hostcache_timestamp_remove);
+	Curl_hash_clean_with_criterium(hostcache, &user, hostcache_timestamp_remove);
 }
-
 /*
  * Library-wide function for pruning the DNS cache. This function takes and
  * returns the appropriate locks.
@@ -221,22 +209,13 @@ static void hostcache_prune(struct curl_hash * hostcache, long cache_timeout, ti
 void Curl_hostcache_prune(struct Curl_easy * data)
 {
 	time_t now;
-
 	if((data->set.dns_cache_timeout == -1) || !data->dns.hostcache)
-		/* cache forever means never prune, and NULL hostcache means
-		   we can't do it */
-		return;
-
+		return; // cache forever means never prune, and NULL hostcache means we can't do it 
 	if(data->share)
 		Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
-
 	time(&now);
-
 	/* Remove outdated and unused entries from the hostcache */
-	hostcache_prune(data->dns.hostcache,
-	    data->set.dns_cache_timeout,
-	    now);
-
+	hostcache_prune(data->dns.hostcache, data->set.dns_cache_timeout, now);
 	if(data->share)
 		Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
 }
@@ -278,7 +257,6 @@ static struct Curl_dns_entry * fetch_addr(struct connectdata * conn, const char 
 	SAlloc::F(entry_id);
 	return dns;
 }
-
 /*
  * Curl_fetch_addr() fetches a 'Curl_dns_entry' already in the DNS cache.
  *
@@ -293,27 +271,19 @@ static struct Curl_dns_entry * fetch_addr(struct connectdata * conn, const char 
  * The returned data *MUST* be "unlocked" with Curl_resolv_unlock() after
  * use, or we'll leak memory!
  */
-struct Curl_dns_entry * Curl_fetch_addr(struct connectdata * conn,
-    const char * hostname,
-    int port)
+struct Curl_dns_entry * Curl_fetch_addr(struct connectdata * conn, const char * hostname, int port)
 {
 	struct Curl_easy * data = conn->data;
 	struct Curl_dns_entry * dns = NULL;
-
 	if(data->share)
 		Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
-
 	dns = fetch_addr(conn, hostname, port);
-
 	if(dns)
 		dns->inuse++;  /* we use it! */
-
 	if(data->share)
 		Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
-
 	return dns;
 }
-
 /*
  * Curl_cache_addr() stores a 'Curl_addrinfo' struct in the DNS cache.
  *
@@ -379,60 +349,42 @@ struct Curl_dns_entry * Curl_cache_addr(struct Curl_easy * data, Curl_addrinfo *
  * CURLRESOLV_RESOLVED (0) = OK, pointer provided
  * CURLRESOLV_PENDING  (1) = waiting for response, no pointer
  */
-
-int Curl_resolv(struct connectdata * conn,
-    const char * hostname,
-    int port,
-    struct Curl_dns_entry ** entry)
+int Curl_resolv(struct connectdata * conn, const char * hostname, int port, struct Curl_dns_entry ** entry)
 {
 	struct Curl_dns_entry * dns = NULL;
 	struct Curl_easy * data = conn->data;
 	CURLcode result;
 	int rc = CURLRESOLV_ERROR; /* default to failure */
-
 	*entry = NULL;
-
 	if(data->share)
 		Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
-
 	dns = fetch_addr(conn, hostname, port);
-
 	if(dns) {
 		infof(data, "Hostname %s was found in DNS cache\n", hostname);
 		dns->inuse++; /* we use it! */
 		rc = CURLRESOLV_RESOLVED;
 	}
-
 	if(data->share)
 		Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
-
 	if(!dns) {
-		/* The entry was not in the cache. Resolve it to IP address */
-
+		// The entry was not in the cache. Resolve it to IP address 
 		Curl_addrinfo * addr;
 		int respwait;
-
-		/* Check what IP specifics the app has requested and if we can provide it.
-		 * If not, bail out. */
+		// Check what IP specifics the app has requested and if we can provide it.
+		// If not, bail out. 
 		if(!Curl_ipvalid(conn))
 			return CURLRESOLV_ERROR;
-
-		/* If Curl_getaddrinfo() returns NULL, 'respwait' might be set to a
-		   non-zero value indicating that we need to wait for the response to the
-		   resolve call */
+		// If Curl_getaddrinfo() returns NULL, 'respwait' might be set to a
+		// non-zero value indicating that we need to wait for the response to the resolve call 
 		addr = Curl_getaddrinfo(conn,
 #ifdef DEBUGBUILD
-		    (data->set.str[STRING_DEVICE]
-			    && !strcmp(data->set.str[STRING_DEVICE],
-				    "LocalHost")) ? "localhost" :
+		    (data->set.str[STRING_DEVICE] && !strcmp(data->set.str[STRING_DEVICE], "LocalHost")) ? "localhost" :
 #endif
 		    hostname, port, &respwait);
-
 		if(!addr) {
 			if(respwait) {
-				/* the response to our resolve call will come asynchronously at
-				   a later time, good or bad */
-				/* First, check that we haven't received the info by now */
+				// the response to our resolve call will come asynchronously at a later time, good or bad 
+				// First, check that we haven't received the info by now 
 				result = Curl_resolver_is_resolved(conn, &dns);
 				if(result) /* error detected */
 					return CURLRESOLV_ERROR;
@@ -445,23 +397,16 @@ int Curl_resolv(struct connectdata * conn,
 		else {
 			if(data->share)
 				Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
-
-			/* we got a response, store it in the cache */
-			dns = Curl_cache_addr(data, addr, hostname, port);
-
+			dns = Curl_cache_addr(data, addr, hostname, port); // we got a response, store it in the cache 
 			if(data->share)
 				Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
-
 			if(!dns)
-				/* returned failure, bail out nicely */
-				Curl_freeaddrinfo(addr);
+				Curl_freeaddrinfo(addr); // returned failure, bail out nicely 
 			else
 				rc = CURLRESOLV_RESOLVED;
 		}
 	}
-
 	*entry = dns;
-
 	return rc;
 }
 
@@ -471,8 +416,7 @@ int Curl_resolv(struct connectdata * conn,
  * execution.  This effectively causes the remainder of the application to run
  * within a signal handler which is nonportable and could lead to problems.
  */
-static
-RETSIGTYPE alarmfunc(int sig)
+static RETSIGTYPE alarmfunc(int sig)
 {
 	/* this is for "-ansi -Wall -pedantic" to stop complaining!   (rabe) */
 	(void)sig;
@@ -593,29 +537,21 @@ int Curl_resolv_timeout(struct connectdata * conn, const char * hostname, int po
 	 * alarm if it takes too long.
 	 */
 	rc = Curl_resolv(conn, hostname, port, entry);
-
 #ifdef USE_ALARM_TIMEOUT
 clean_up:
-
 	if(!prev_alarm)
-		/* deactivate a possibly active alarm before uninstalling the handler */
-		alarm(0);
-
+		alarm(0); // deactivate a possibly active alarm before uninstalling the handler 
 #ifdef HAVE_SIGACTION
 	if(keep_copysig) {
-		/* we got a struct as it looked before, now put that one back nice
-		   and clean */
-		sigaction(SIGALRM, &keep_sigact, 0); /* put it back */
+		// we got a struct as it looked before, now put that one back nice and clean 
+		sigaction(SIGALRM, &keep_sigact, 0); /* put it back */ 
 	}
 #else
 #ifdef HAVE_SIGNAL
-	/* restore the previous SIGALRM handler */
-	signal(SIGALRM, keep_sigact);
+	signal(SIGALRM, keep_sigact); // restore the previous SIGALRM handler 
 #endif
 #endif /* HAVE_SIGACTION */
-
-	/* switch back the alarm() to either zero or to what it was before minus
-	   the time we spent until now! */
+	// switch back the alarm() to either zero or to what it was before minus the time we spent until now! 
 	if(prev_alarm) {
 		/* there was an alarm() set before us, now put it back */
 		ulong elapsed_ms = Curl_tvdiff(Curl_tvnow(), conn->created);
@@ -634,10 +570,8 @@ clean_up:
 			alarm((uint)alarm_set);
 	}
 #endif /* USE_ALARM_TIMEOUT */
-
 	return rc;
 }
-
 /*
  * Curl_resolv_unlock() unlocks the given cached DNS entry. When this has been
  * made, the struct may be destroyed due to pruning. It is important that only

@@ -50,13 +50,8 @@ static int pkcs12_gen_gost_mac_key(const char * pass, int passlen, const uchar *
 }
 
 /* Generate a MAC */
-static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen,
-    uchar * mac, uint * maclen,
-    int (* pkcs12_key_gen)(const char * pass, int passlen,
-	    uchar * salt, int slen,
-	    int id, int iter, int n,
-	    uchar * out,
-	    const EVP_MD * md_type))
+static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen, uchar * mac, uint * maclen,
+    int (* pkcs12_key_gen)(const char * pass, int passlen, uchar * salt, int slen, int id, int iter, int n, uchar * out, const EVP_MD * md_type))
 {
 	const EVP_MD * md_type;
 	HMAC_CTX * hmac = NULL;
@@ -66,15 +61,12 @@ static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen,
 	int md_type_nid;
 	const X509_ALGOR * macalg;
 	const ASN1_OBJECT * macoid;
-
 	if(pkcs12_key_gen == NULL)
 		pkcs12_key_gen = PKCS12_key_gen_utf8;
-
 	if(!PKCS7_type_is_data(p12->authsafes)) {
 		PKCS12err(PKCS12_F_PKCS12_GEN_MAC, PKCS12_R_CONTENT_TYPE_NOT_DATA);
 		return 0;
 	}
-
 	salt = p12->mac->salt->data;
 	saltlen = p12->mac->salt->length;
 	if(!p12->mac->iter)
@@ -91,26 +83,19 @@ static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen,
 	md_type_nid = EVP_MD_type(md_type);
 	if(md_size < 0)
 		return 0;
-	if((md_type_nid == NID_id_GostR3411_94
-		    || md_type_nid == NID_id_GostR3411_2012_256
-		    || md_type_nid == NID_id_GostR3411_2012_512)
-	    && !getenv("LEGACY_GOST_PKCS12")) {
+	if((md_type_nid == NID_id_GostR3411_94 || md_type_nid == NID_id_GostR3411_2012_256 || md_type_nid == NID_id_GostR3411_2012_512) && !getenv("LEGACY_GOST_PKCS12")) {
 		md_size = TK26_MAC_KEY_LEN;
-		if(!pkcs12_gen_gost_mac_key(pass, passlen, salt, saltlen, iter,
-			    md_size, key, md_type)) {
+		if(!pkcs12_gen_gost_mac_key(pass, passlen, salt, saltlen, iter, md_size, key, md_type)) {
 			PKCS12err(PKCS12_F_PKCS12_GEN_MAC, PKCS12_R_KEY_GEN_ERROR);
 			return 0;
 		}
 	}
-	else if(!(*pkcs12_key_gen)(pass, passlen, salt, saltlen, PKCS12_MAC_ID,
-		    iter, md_size, key, md_type)) {
+	else if(!(*pkcs12_key_gen)(pass, passlen, salt, saltlen, PKCS12_MAC_ID, iter, md_size, key, md_type)) {
 		PKCS12err(PKCS12_F_PKCS12_GEN_MAC, PKCS12_R_KEY_GEN_ERROR);
 		return 0;
 	}
 	hmac = HMAC_CTX_new();
-	if(!HMAC_Init_ex(hmac, key, md_size, md_type, NULL)
-	    || !HMAC_Update(hmac, p12->authsafes->d.data->data,
-		    p12->authsafes->d.data->length)
+	if(!HMAC_Init_ex(hmac, key, md_size, md_type, NULL) || !HMAC_Update(hmac, p12->authsafes->d.data->data, p12->authsafes->d.data->length)
 	    || !HMAC_Final(hmac, mac, maclen)) {
 		HMAC_CTX_free(hmac);
 		return 0;

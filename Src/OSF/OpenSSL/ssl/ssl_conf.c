@@ -284,7 +284,6 @@ static int protocol_from_string(const char * value)
 	};
 	size_t i;
 	size_t n = OSSL_NELEM(versions);
-
 	for(i = 0; i < n; i++)
 		if(strcmp(versions[i].name, value) == 0)
 			return versions[i].version;
@@ -295,7 +294,6 @@ static int min_max_proto(SSL_CONF_CTX * cctx, const char * value, int * bound)
 {
 	int method_version;
 	int new_version;
-
 	if(cctx->ctx != NULL)
 		method_version = cctx->ctx->method->version;
 	else if(cctx->ssl != NULL)

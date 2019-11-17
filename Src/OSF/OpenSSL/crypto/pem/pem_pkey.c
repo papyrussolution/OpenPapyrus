@@ -20,11 +20,9 @@ EVP_PKEY * PEM_read_bio_PrivateKey(BIO * bp, EVP_PKEY ** x, pem_password_cb * cb
 	long len;
 	int slen;
 	EVP_PKEY * ret = NULL;
-
 	if(!PEM_bytes_read_bio(&data, &len, &nm, PEM_STRING_EVP_PKEY, bp, cb, u))
 		return NULL;
 	p = data;
-
 	if(strcmp(nm, PEM_STRING_PKCS8INF) == 0) {
 		PKCS8_PRIV_KEY_INFO * p8inf;
 		p8inf = d2i_PKCS8_PRIV_KEY_INFO(NULL, &p, len);
@@ -32,7 +30,7 @@ EVP_PKEY * PEM_read_bio_PrivateKey(BIO * bp, EVP_PKEY ** x, pem_password_cb * cb
 			goto p8err;
 		ret = EVP_PKCS82PKEY(p8inf);
 		if(x) {
-			EVP_PKEY_free((EVP_PKEY*)*x);
+			EVP_PKEY_free((EVP_PKEY *)*x);
 			*x = ret;
 		}
 		PKCS8_PRIV_KEY_INFO_free(p8inf);
@@ -60,7 +58,7 @@ EVP_PKEY * PEM_read_bio_PrivateKey(BIO * bp, EVP_PKEY ** x, pem_password_cb * cb
 			goto p8err;
 		ret = EVP_PKCS82PKEY(p8inf);
 		if(x) {
-			EVP_PKEY_free((EVP_PKEY*)*x);
+			EVP_PKEY_free((EVP_PKEY *)*x);
 			*x = ret;
 		}
 		PKCS8_PRIV_KEY_INFO_free(p8inf);
@@ -81,8 +79,7 @@ err:
 	return ret;
 }
 
-int PEM_write_bio_PrivateKey(BIO * bp, EVP_PKEY * x, const EVP_CIPHER * enc,
-    uchar * kstr, int klen, pem_password_cb * cb, void * u)
+int PEM_write_bio_PrivateKey(BIO * bp, EVP_PKEY * x, const EVP_CIPHER * enc, uchar * kstr, int klen, pem_password_cb * cb, void * u)
 {
 	if(x->ameth == NULL || x->ameth->priv_encode != NULL)
 		return PEM_write_bio_PKCS8PrivateKey(bp, x, enc, (char *)kstr, klen, cb, u);
@@ -121,7 +118,7 @@ EVP_PKEY * PEM_read_bio_Parameters(BIO * bp, EVP_PKEY ** x)
 			goto err;
 		}
 		if(x) {
-			EVP_PKEY_free((EVP_PKEY*)*x);
+			EVP_PKEY_free((EVP_PKEY *)*x);
 			*x = ret;
 		}
 	}
@@ -138,10 +135,8 @@ int PEM_write_bio_Parameters(BIO * bp, EVP_PKEY * x)
 	char pem_str[80];
 	if(!x->ameth || !x->ameth->param_encode)
 		return 0;
-
 	BIO_snprintf(pem_str, 80, "%s PARAMETERS", x->ameth->pem_str);
-	return PEM_ASN1_write_bio((i2d_of_void*)x->ameth->param_encode,
-	    pem_str, bp, x, NULL, NULL, 0, 0, 0);
+	return PEM_ASN1_write_bio((i2d_of_void*)x->ameth->param_encode, pem_str, bp, x, NULL, NULL, 0, 0, 0);
 }
 
 #ifndef OPENSSL_NO_STDIO

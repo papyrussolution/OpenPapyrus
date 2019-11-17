@@ -713,9 +713,9 @@ int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, SString * pDomain)
 	return ok;
 }
 
-static const uint32 MqbEventResponder_Signature = 0xB4C7E6F1;
+// @v10.6.1 (moved to PPConst) static const uint32 MqbEventResponder_Signature = 0xB4C7E6F1;
 
-SLAPI MqbEventResponder::MqbEventResponder() : Signature(MqbEventResponder_Signature), AdvCookie_Msg(0), P_Cli(0)
+SLAPI MqbEventResponder::MqbEventResponder() : Signature(_PPConst.Signature_MqbEventResponder), AdvCookie_Msg(0), P_Cli(0)
 {
 	{
 		PPAdviseBlock adv_blk;
@@ -734,9 +734,7 @@ SLAPI MqbEventResponder::~MqbEventResponder()
 }
 	
 int SLAPI MqbEventResponder::IsConsistent() const
-{
-	return BIN(Signature == MqbEventResponder_Signature);
-}
+	{ return BIN(Signature == _PPConst.Signature_MqbEventResponder); }
 
 MqbEventResponder::Command::Command() : Cmd(cmdNone), IdVal(0)
 {
@@ -881,7 +879,7 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 			}
 		}
 	}
-	CATCHZOK
+	//CATCHZOK
 	return ok;
 }
 

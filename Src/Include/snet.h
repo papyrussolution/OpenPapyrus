@@ -856,7 +856,7 @@ public:
 	};
 	int    SetAuth(int auth, const char * pUser, const char * pPassword);
 	void   SetLogFileName(const char * pFileName);
-	int    SetupDefaultSslOptions();
+	int    SetupDefaultSslOptions(int sslVer /* SSystem::sslXXX */, const StringSet * pSsCipherList);
 
 	enum {
 		mfDontVerifySslPeer = 0x0001, // Устанавливает опцию CURLOPT_SSL_VERIFYPEER в FALSE

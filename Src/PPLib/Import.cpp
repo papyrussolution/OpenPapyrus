@@ -1613,7 +1613,6 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 						{
 							SString accno;
 							PPBank bnk_rec;
-							MEMSZERO(bnk_rec);
 							rec.get(fldn_bankname, temp_buf);
 							STRNSCPY(bnk_rec.Name, temp_buf.Strip());
 							rec.get(fldn_bic, temp_buf);
@@ -3519,7 +3518,6 @@ int SLAPI PrcssrPersonImport::Run()
 					{
 						SString accno;
 						PPBank bnk_rec;
-						MEMSZERO(bnk_rec);
 						(temp_buf = rec.BankName).Strip().CopyTo(bnk_rec.Name, sizeof(bnk_rec.Name));
 						(temp_buf = rec.BIC).Strip().CopyTo(bnk_rec.BIC, sizeof(bnk_rec.BIC));
 						(temp_buf = rec.CorrAcc).Strip().CopyTo(bnk_rec.CorrAcc, sizeof(bnk_rec.CorrAcc));

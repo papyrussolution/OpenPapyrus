@@ -6732,6 +6732,7 @@ cmd FreightPackageType    { "@{cmd_freightpackagetype}"                    none 
 cmd ExportView            { "@{cmd_exportview}"                            none                   none cmExportView } // @v10.5.3
 cmd TestMqc               { "@{cmd_testmqc}"                               ICON_TEST              none cmTestMqc } // @v10.5.7
 cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none                   none cmQuoteReqAnalyze } // @v10.5.7
+cmd UniFindObj            { "@{cmd_unifindobj}"                            none                   none cmUniFindObj } // @v10.6.1
 //
 // -------------- Описания серверных задач
 //

@@ -502,6 +502,7 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 #define GRP_PERSONFOLD  2
 
 class ExtFieldsDialog : public PPListDialog {
+	DECL_DIALOG_DATA(TaggedStringArray);
 public:
 	ExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
@@ -510,53 +511,56 @@ public:
 		}
 		selectCtrl(CTL_LBXSEL_LIST);
 	}
-	int    setDTS(const TaggedStringArray *);
-	int    getDTS(TaggedStringArray *);
+	DECL_DIALOG_SETDTS()
+	{
+		Data.freeAll();
+		RVALUEPTR(Data, pData);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		CALLPTRMEMB(pData, copy(Data));
+		return 1;
+	}
 private:
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	virtual int setupList();
 	int    Edit(TaggedString * pItem);
-
-	TaggedStringArray Data;
 };
 
 class ExtFldCfgDialog : public TDialog {
+	DECL_DIALOG_DATA(TaggedString);
 public:
 	explicit ExtFldCfgDialog(int isNew) : TDialog(DLG_EXTFLDCFG)
 	{
 		disableCtrl(CTL_EXTFLDCFG_ID, !isNew);
 	}
-	int setDTS(const TaggedString *);
-	int getDTS(TaggedString *);
-private:
-	TaggedString Data;
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		setCtrlData(CTL_EXTFLDCFG_ID,  &Data.Id);
+		setCtrlData(CTL_EXTFLDCFG_NAME, Data.Txt);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_EXTFLDCFG_ID,  &Data.Id);
+		THROW_PP(Data.Id > LOCEXSTR_EXTFLDSOFFS && Data.Id <= LOCEXSTR_EXTFLDSOFFS + MAX_DLVRADDRFLDS, PPERR_INVEXTFLDIDRANGE);
+		getCtrlData(sel = CTL_EXTFLDCFG_NAME, Data.Txt);
+		THROW_PP(sstrlen(Data.Txt) > 0, PPERR_USERINPUT);
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			ok = (selectCtrl(sel), 0);
+		ENDCATCH
+		return ok;
+	}
 };
-
-int ExtFldCfgDialog::setDTS(const TaggedString * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	setCtrlData(CTL_EXTFLDCFG_ID,  &Data.Id);
-	setCtrlData(CTL_EXTFLDCFG_NAME, Data.Txt);
-	return 1;
-}
-
-int ExtFldCfgDialog::getDTS(TaggedString * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	getCtrlData(sel = CTL_EXTFLDCFG_ID,  &Data.Id);
-	THROW_PP(Data.Id > LOCEXSTR_EXTFLDSOFFS && Data.Id <= LOCEXSTR_EXTFLDSOFFS + MAX_DLVRADDRFLDS, PPERR_INVEXTFLDIDRANGE);
-	getCtrlData(sel = CTL_EXTFLDCFG_NAME, Data.Txt);
-	THROW_PP(sstrlen(Data.Txt) > 0, PPERR_USERINPUT);
-	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = (selectCtrl(sel), 0);
-	ENDCATCH
-	return ok;
-}
 
 int ExtFieldsDialog::Edit(TaggedString * pItem)
 {
@@ -623,22 +627,9 @@ int ExtFieldsDialog::setupList()
 	return ok;
 }
 
-int ExtFieldsDialog::setDTS(const TaggedStringArray * pData)
-{
-	Data.freeAll();
-	RVALUEPTR(Data, pData);
-	updateList(-1);
-	return 1;
-}
-
-int ExtFieldsDialog::getDTS(TaggedStringArray * pData)
-{
-	CALLPTRMEMB(pData, copy(Data));
-	return 1;
-}
-
 // @vmiller
 class NewPersMarksDialog : public PPListDialog {
+	DECL_DIALOG_DATA(TSVector <PPPersonConfig::NewClientDetectionItem>); // @v9.8.4 TSArray-->TSVector
 public:
 	NewPersMarksDialog() : PPListDialog(DLG_NEWCLNT, CTL_LBXSEL_LIST)
 	{
@@ -650,24 +641,33 @@ public:
 		}
 		selectCtrl(CTL_LBXSEL_LIST);
 	}
-	int    setDTS(const TSVector <PPPersonConfig::NewClientDetectionItem> *);
-	int    getDTS(TSVector <PPPersonConfig::NewClientDetectionItem> *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.clear();
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	virtual int setupList();
 	int    Edit(PPPersonConfig::NewClientDetectionItem * pItem, SString & rStr);
-
-	TSVector <PPPersonConfig::NewClientDetectionItem> Data; // @v9.8.4 TSArray-->TSVector
 };
 
 class NewPersMarksFieldDialog : public TDialog {
+	DECL_DIALOG_DATA(PPPersonConfig::NewClientDetectionItem);
 public:
 	explicit NewPersMarksFieldDialog(int isNew) : TDialog(DLG_NEWCNTCF)
 	{
 	}
-	int setDTS(const PPPersonConfig::NewClientDetectionItem * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		SString str, op_type;
 		if(!RVALUEPTR(Data, pData))
@@ -689,7 +689,7 @@ public:
 		SetupStringCombo(this, CTLSEL_NEWCNTCF_OPTYPE, PPTXT_NEWCLNT_TRANSTYPE, Data.Oi.Obj);
 		return 1;
 	}
-	int getDTS(PPPersonConfig::NewClientDetectionItem * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -738,7 +738,6 @@ private:
 		clearEvent(event);
 
 	}
-	PPPersonConfig::NewClientDetectionItem Data;
 };
 
 int NewPersMarksDialog::Edit(PPPersonConfig::NewClientDetectionItem * pItem, SString & rStr)
@@ -855,21 +854,6 @@ int NewPersMarksDialog::setupList()
 	return ok;
 }
 
-int NewPersMarksDialog::setDTS(const TSVector <PPPersonConfig::NewClientDetectionItem> * pData)
-{
-	Data.freeAll();
-	if(pData)
-		Data.copy(*pData);
-	updateList(-1);
-	return 1;
-}
-
-int NewPersMarksDialog::getDTS(TSVector <PPPersonConfig::NewClientDetectionItem> * pData)
-{
-	CALLPTRMEMB(pData, copy(Data));
-	return 1;
-}
-
 SLAPI PPPersonConfig::PPPersonConfig()
 {
 	Init();
@@ -888,6 +872,7 @@ void SLAPI PPPersonConfig::Init()
 int SLAPI PPObjPerson::EditConfig()
 {
 	class PersonCfgDialog : public TDialog {
+		DECL_DIALOG_DATA(PPPersonConfig);
 	public:
 		PersonCfgDialog() : TDialog(DLG_PSNCFG)
 		{
@@ -895,7 +880,7 @@ int SLAPI PPObjPerson::EditConfig()
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_PSNCFG_IMGFOLDER, CTL_PSNCFG_IMGFOLDER, GRP_IMGFOLD, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 			enableCommand(cmOK, CheckCfgRights(PPCFGOBJ_PERSON, PPR_MOD, 0));
 		}
-		int setDTS(const PPPersonConfig * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			if(!RVALUEPTR(Data, pData))
 				Data.Init();
@@ -916,7 +901,7 @@ int SLAPI PPObjPerson::EditConfig()
 			SetTimeRangeInput(this, CTL_PSNCFG_SMSPRTR, TIMF_HM, &Data.SmsProhibitedTr); // @v10.2.3
 			return 1;
 		}
-		int getDTS(PPPersonConfig * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlString(CTL_PSNCFG_FOLDER,    Data.TopFolder);
@@ -967,7 +952,6 @@ int SLAPI PPObjPerson::EditConfig()
 			}
 			// } @vmiller
 		}
-		PPPersonConfig Data;
 	};
 	int    ok = -1;
 	PersonCfgDialog * dlg = 0;
@@ -1338,10 +1322,18 @@ int SLAPI PPObjPerson::GetAddress(PPID id, SString & rBuf)
 //
 //
 //
-SLAPI BnkAcctData::BnkAcctData(long initFlags)
+SLAPI PPBank::PPBank() : ID(0)
 {
-	THISZERO();
-	InitFlags = initFlags;
+	PTR32(Name)[0] = 0;
+	PTR32(BIC)[0] = 0;
+	PTR32(CorrAcc)[0] = 0;
+	PTR32(City)[0] = 0;
+	PTR32(ExtName)[0] = 0;
+}
+
+SLAPI BnkAcctData::BnkAcctData(long initFlags) : InitFlags(initFlags), BnkAcctID(0), OwnerID(0)
+{
+	PTR32(Acct)[0] = 0;
 }
 
 int SLAPI BnkAcctData::Format(const char * pTitle, char * pBuf, size_t bufLen) const
@@ -1370,9 +1362,19 @@ int SLAPI BnkAcctData::Format(const char * pTitle, char * pBuf, size_t bufLen) c
 	return 1;
 }
 
-SLAPI PersonReq::PersonReq()
+SLAPI PersonReq::PersonReq() : Flags(0), AddrID(0), RAddrID(0), SrchRegTypeID(0)
 {
-	THISZERO();
+	PTR32(Name)[0] = 0;
+	PTR32(ExtName)[0] = 0;
+	PTR32(Addr)[0] = 0;
+	PTR32(RAddr)[0] = 0;
+	PTR32(Phone1)[0] = 0;
+	PTR32(TPID)[0] = 0;
+	PTR32(KPP)[0] = 0;
+	PTR32(OKONF)[0] = 0;
+	PTR32(OKPO)[0] = 0;
+	PTR32(SrchCode)[0] = 0;
+	PTR32(Memo)[0] = 0;
 }
 //
 //
@@ -6554,8 +6556,8 @@ int PPALDD_PersonReq::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = rFilt.ID;
 		PPObjPerson pobj;
 		PersonTbl::Rec rec;
-		PersonReq pr;
 		if(pobj.Search(rFilt.ID, &rec) > 0) {
+			PersonReq pr;
 			pobj.GetPersonReq(rFilt.ID, &pr);
 			H.ID = H.PersonID = rec.ID;
 			H.BankID = pr.BnkAcct.Bnk.ID;

@@ -532,9 +532,9 @@
 #ifndef NTDDI_VERSION
 	#define NTDDI_VERSION 0x06010000
 #endif // NTDDI_VERSION
-#ifndef _WIN32_WINNT
-	#define _WIN32_WINNT 0x0601
-#endif // _WIN32_WINNT
+// @v10.6.1 #ifndef _WIN32_WINNT
+	// @v10.6.1 #define _WIN32_WINNT 0x0601
+// @v10.6.1 #endif // _WIN32_WINNT
 #ifndef WINVER
 	#define WINVER 0x0601
 #endif // WINVER

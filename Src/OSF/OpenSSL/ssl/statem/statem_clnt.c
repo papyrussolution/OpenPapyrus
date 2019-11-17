@@ -2198,7 +2198,6 @@ static int tls_construct_cke_ecdhe(SSL * s, uchar ** p, int * len, int * al)
 	EVP_PKEY_free(ckey);
 	ckey = NULL;
 	*len = encoded_pt_len;
-
 	/* length of encoded point */
 	**p = *len;
 	*p += 1;
@@ -2206,9 +2205,7 @@ static int tls_construct_cke_ecdhe(SSL * s, uchar ** p, int * len, int * al)
 	memcpy(*p, encodedPoint, *len);
 	/* increment len to account for length field */
 	*len += 1;
-
 	OPENSSL_free(encodedPoint);
-
 	return 1;
 err:
 	EVP_PKEY_free(ckey);
@@ -2235,7 +2232,6 @@ static int tls_construct_cke_gost(SSL * s, uchar ** p, int * len, int * al)
 	size_t pmslen = 0;
 	if((s->s3->tmp.new_cipher->algorithm_auth & SSL_aGOST12) != 0)
 		dgst_nid = NID_id_GostR3411_2012_256;
-
 	/*
 	 * Get server sertificate PKEY and create ctx from it
 	 */
@@ -2368,20 +2364,13 @@ static int tls_construct_cke_srp(SSL * s, uchar ** p, int * len, int * al)
 
 int tls_construct_client_key_exchange(SSL * s)
 {
-	uchar * p;
 	int len;
 	size_t pskhdrlen = 0;
-	unsigned long alg_k;
 	int al = -1;
-
-	alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
-
-	p = ssl_handshake_start(s);
-
-	if((alg_k & SSL_PSK)
-	    && !tls_construct_cke_psk_preamble(s, &p, &pskhdrlen, &al))
+	unsigned long alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
+	uchar * p = ssl_handshake_start(s);
+	if((alg_k & SSL_PSK) && !tls_construct_cke_psk_preamble(s, &p, &pskhdrlen, &al))
 		goto err;
-
 	if(alg_k & SSL_kPSK) {
 		len = 0;
 	}
@@ -2410,15 +2399,12 @@ int tls_construct_client_key_exchange(SSL * s)
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_KEY_EXCHANGE, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	len += pskhdrlen;
-
 	if(!ssl_set_handshake_header(s, SSL3_MT_CLIENT_KEY_EXCHANGE, len)) {
 		ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_HANDSHAKE_FAILURE);
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_KEY_EXCHANGE, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	return 1;
 err:
 	if(al != -1)
@@ -2487,21 +2473,17 @@ int tls_construct_client_verify(SSL * s)
 	uchar * p;
 	EVP_PKEY * pkey;
 	const EVP_MD * md = s->s3->tmp.md[s->cert->key - s->cert->pkeys];
-	EVP_MD_CTX * mctx;
 	unsigned u = 0;
 	unsigned long n = 0;
 	long hdatalen = 0;
 	void * hdata;
-
-	mctx = EVP_MD_CTX_new();
+	EVP_MD_CTX * mctx = EVP_MD_CTX_new();
 	if(mctx == NULL) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	p = ssl_handshake_start(s);
 	pkey = s->cert->key->privatekey;
-
 	hdatalen = BIO_get_mem_data(s->s3->handshake_buffer, &hdata);
 	if(hdatalen <= 0) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_VERIFY, ERR_R_INTERNAL_ERROR);
@@ -2518,26 +2500,18 @@ int tls_construct_client_verify(SSL * s)
 #ifdef SSL_DEBUG
 	fprintf(stderr, "Using client alg %s\n", EVP_MD_name(md));
 #endif
-	if(!EVP_SignInit_ex(mctx, md, NULL)
-	    || !EVP_SignUpdate(mctx, hdata, hdatalen)
-	    || (s->version == SSL3_VERSION
-		    && !EVP_MD_CTX_ctrl(mctx, EVP_CTRL_SSL3_MASTER_SECRET,
-			    s->session->master_key_length,
-			    s->session->master_key))
-	    || !EVP_SignFinal(mctx, p + 2, &u, pkey)) {
+	if(!EVP_SignInit_ex(mctx, md, NULL) || !EVP_SignUpdate(mctx, hdata, hdatalen) || (s->version == SSL3_VERSION && 
+		!EVP_MD_CTX_ctrl(mctx, EVP_CTRL_SSL3_MASTER_SECRET, s->session->master_key_length, s->session->master_key)) || !EVP_SignFinal(mctx, p + 2, &u, pkey)) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_VERIFY, ERR_R_EVP_LIB);
 		goto err;
 	}
 #ifndef OPENSSL_NO_GOST
 	{
 		int pktype = EVP_PKEY_id(pkey);
-		if(pktype == NID_id_GostR3410_2001
-		    || pktype == NID_id_GostR3410_2012_256
-		    || pktype == NID_id_GostR3410_2012_512)
+		if(pktype == NID_id_GostR3410_2001 || pktype == NID_id_GostR3410_2012_256 || pktype == NID_id_GostR3410_2012_512)
 			BUF_reverse(p + 2, NULL, u);
 	}
 #endif
-
 	s2n(u, p);
 	n += u + 2;
 	/* Digest cached records and discard handshake buffer */
@@ -2547,14 +2521,12 @@ int tls_construct_client_verify(SSL * s)
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_VERIFY, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	EVP_MD_CTX_free(mctx);
 	return 1;
 err:
 	EVP_MD_CTX_free(mctx);
 	return 0;
 }
-
 /*
  * Check a certificate can be used for client authentication. Currently check
  * cert exists, if we have a suitable digest for TLS 1.2 if static DH client

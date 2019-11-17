@@ -2547,31 +2547,39 @@ struct UniFindObjParam {
 };
 
 class UniFindObjParamDialog : public TDialog {
+	DECL_DIALOG_DATA(UniFindObjParam);
 public:
 	UniFindObjParamDialog() : TDialog(DLG_UNIFINDOBJ)
 	{
 	}
-	int    setDTS(const UniFindObjParam * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
 		return ok;
 	}
-	int    getDTS(UniFindObjParam * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
-
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
-public:
-	UniFindObjParam Data;
 };
 
 int SLAPI UniFindObj()
 {
 	int    ok = -1;
-
+	UniFindObjParamDialog * dlg = new UniFindObjParamDialog();
+	UniFindObjParam param;
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setDTS(&param);
+		if(ExecView(dlg) == cmOK) {
+			if(dlg->getDTS(&param)) {
+				//
+			}
+		}
+	}
+	delete dlg;
 	return ok;
 }
 // } @construction

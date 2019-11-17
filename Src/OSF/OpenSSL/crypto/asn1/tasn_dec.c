@@ -272,7 +272,6 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 				    asn1_template_free(pseqval, seqtt);
 			    }
 		    }
-
 		    /* Get each field entry */
 		    for(i = 0, tt = it->templates; i < it->tcount; i++, tt++) {
 			    ASN1_VALUE ** pseqval;
@@ -294,20 +293,17 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 				    q = p;
 				    break;
 			    }
-			    /*
-			 * This determines the OPTIONAL flag value. The field cannot be
-			 * omitted if it is the last of a SEQUENCE and there is still
-			 * data to be read. This isn't strictly necessary but it
-			 * increases efficiency in some cases.
-			     */
+				// 
+				// This determines the OPTIONAL flag value. The field cannot be
+				// omitted if it is the last of a SEQUENCE and there is still
+				// data to be read. This isn't strictly necessary but it
+				// increases efficiency in some cases.
+				// 
 			    if(i == (it->tcount - 1))
 				    isopt = 0;
 			    else
 				    isopt = (char)(seqtt->flags & ASN1_TFLG_OPTIONAL);
-			    /*
-			 * attempt to read in field, allowing each to be OPTIONAL
-			     */
-
+			    // attempt to read in field, allowing each to be OPTIONAL
 			    ret = asn1_template_ex_d2i(pseqval, &p, len, seqtt, isopt, ctx);
 			    if(!ret) {
 				    errtt = seqtt;

@@ -2749,12 +2749,22 @@ int  SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCp
 void SLAPI TestCRC();
 int  SLAPI TestUhttClient();
 int  SLAPI TestReadXmlMem_EgaisAck();
+int  SLAPI TestChZn();
+
+/*static int SLAPI TestWorkspacePath()
+{
+	SString path;
+	PPGetPath(PPPATH_WORKSPACE, path);
+	return BIN(path.NotEmpty());
+}*/
 
 int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	TestReadXmlMem_EgaisAck();
+	TestChZn();
+	//TestWorkspacePath();
+	//TestReadXmlMem_EgaisAck();
 	//TestMqc();
 	//TestUhttClient();
 	//TestCRC();

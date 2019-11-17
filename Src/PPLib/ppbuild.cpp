@@ -17,16 +17,17 @@ public:
 	};
 	struct Param {
 		enum {
-			fBuildClient     = 0x0001,
-			fBuildServer     = 0x0002,
-			fBuildMtdll      = 0x0004,
-			fBuildDrv        = 0x0008,
-			fBuildSoap       = 0x0010,
-			fBuildDistrib    = 0x0020,
-			fCopyToUhtt      = 0x0040,
-			fOpenSource      = 0x0080  // OpenSource-вариант сборки
+			fBuildClient       = 0x0001,
+			fBuildServer       = 0x0002,
+			fBuildMtdll        = 0x0004,
+			fBuildDrv          = 0x0008,
+			fBuildSoap         = 0x0010,
+			fBuildDistrib      = 0x0020,
+			fCopyToUhtt        = 0x0040,
+			fOpenSource        = 0x0080, // OpenSource-вариант сборки
+			fSupplementalBuild = 0x0100  // @v10.6.1 дополнительная сборка XP-совместимых исполняемых файлов
 		};
-		Param() : Flags(0), ConfigEntryIdx(0)
+		Param() : Flags(0), ConfigEntryIdx(0), XpConfigEntryIdx(0)
 		{
 			//PrefMsvsVerMajor = 0;
 		}
@@ -43,6 +44,7 @@ public:
 			Ver = rS.Ver;
 			Flags = rS.Flags;
 			ConfigEntryIdx = rS.ConfigEntryIdx;
+			XpConfigEntryIdx = rS.XpConfigEntryIdx; // @v10.6.1
 			VerSuffix = rS.VerSuffix;
 			TSCollection_Copy(ConfigList, rS.ConfigList);
 			return *this;
@@ -55,6 +57,7 @@ public:
 		BuildVer Ver;            // Собираемая версия //
 		long   Flags;
 		uint   ConfigEntryIdx;   // Индекс выбранной конфигурации сборки. 0 - undef
+		uint   XpConfigEntryIdx; // @v10.6.1 Индекс дополнительной конфигурации сборки для Windows-XP. 0 - undef
 		SString VerSuffix;       // Опциональный суффикс версии дистрибутива (например, PRE)
 		struct ConfigEntry {
 			ConfigEntry() : PrefMsvsVerMajor(0)
@@ -79,11 +82,12 @@ public:
 	int	   SLAPI Run();
 	int    SLAPI Build();
 	int    SLAPI BuildLocalDl600(const char * pPath);
-	Param::ConfigEntry * SLAPI SetupParamByEntryIdx(Param * pParam);
+	Param::ConfigEntry * SLAPI SetupParamByEntryIdx(Param * pParam, int supplementalConfig);
 private:
 	static int CopyProgressProc(const SDataMoveProgressInfo * scfd); // SDataMoveProgressProc
 	int	   SLAPI UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo);
 	int	   SLAPI InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry);
+	int    SLAPI Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger);
 
 	Param  P;
 };
@@ -136,11 +140,12 @@ int	SLAPI PrcssrBuild::InitConfigEntry(PPIniFile & rIniFile, const char * pSecti
 	return ok;
 }
 
-PrcssrBuild::Param::ConfigEntry * SLAPI PrcssrBuild::SetupParamByEntryIdx(Param * pParam)
+PrcssrBuild::Param::ConfigEntry * SLAPI PrcssrBuild::SetupParamByEntryIdx(Param * pParam, int supplementalConfig)
 {
 	Param::ConfigEntry * p_entry = 0;
-	THROW(pParam && pParam->ConfigEntryIdx > 0 && pParam->ConfigEntryIdx <= pParam->ConfigList.getCount());
-	p_entry = pParam->ConfigList.at(pParam->ConfigEntryIdx-1);
+	const uint cfg_entry_idx = supplementalConfig ? pParam->XpConfigEntryIdx : pParam->ConfigEntryIdx;
+	THROW(pParam && cfg_entry_idx > 0 && cfg_entry_idx <= pParam->ConfigList.getCount());
+	p_entry = pParam->ConfigList.at(cfg_entry_idx-1);
 	if(p_entry) {
 		SString temp_buf;
 		SString file_name_buf;
@@ -203,7 +208,7 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 			}
 		}
 	}
-	SetupParamByEntryIdx(pParam);
+	SetupParamByEntryIdx(pParam, 0/*supplementalConfig*/);
 	pParam->Flags |= (Param::fBuildClient|Param::fBuildServer|Param::fBuildMtdll|
 		Param::fBuildDrv|Param::fBuildSoap|Param::fBuildDistrib/*|Param::fCopyToUhtt*/);
 	CATCHZOK
@@ -236,6 +241,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 						config_str_list.Add(i+1, p_entry->Name);
 				}
 				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_CONFIG, &config_str_list, Data.ConfigEntryIdx, 0, 0, 0);
+				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_SCFG,   &config_str_list, Data.XpConfigEntryIdx, 0, 0, 0); // @v10.6.1
 			}
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 0, PrcssrBuild::Param::fBuildClient);
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 1, PrcssrBuild::Param::fBuildServer);
@@ -253,6 +259,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTLSEL_SELFBUILD_CONFIG, &Data.ConfigEntryIdx);
+			getCtrlData(CTLSEL_SELFBUILD_SCFG,   &Data.XpConfigEntryIdx); // @v10.6.1
 			GetClusterData(CTL_SELFBUILD_FLAGS, &Data.Flags);
 			getCtrlString(CTL_SELFBUILD_VERSFX, Data.VerSuffix);
 			ASSIGN_PTR(pData, Data);
@@ -296,7 +303,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 		void Setup()
 		{
 			SString temp_buf;
-			const Param::ConfigEntry * p_config_entry = R_Prcssr.SetupParamByEntryIdx(&Data);
+			const Param::ConfigEntry * p_config_entry = R_Prcssr.SetupParamByEntryIdx(&Data, 0/*supplementalConfig*/);
 			SetClusterData(CTL_SELFBUILD_FLAGS, Data.Flags);
 			setCtrlString(CTL_SELFBUILD_VERSION, Data.GetVerLabel(temp_buf));
 			setCtrlString(CTL_SELFBUILD_VERSFX, Data.VerSuffix);
@@ -309,18 +316,8 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 				}
 				setCtrlString(CTL_SELFBUILD_CMPLRPATH, temp_buf);
 			}
-			{
-				temp_buf.Z();
-				if(p_config_entry)
-					temp_buf = p_config_entry->NsisPath;
-				setCtrlString(CTL_SELFBUILD_IMPATH, temp_buf);
-			}
-			{
-				temp_buf.Z();
-				if(Data.Flags & Data.fOpenSource)
-					temp_buf = "OPENSOURCE";
-				setStaticText(CTL_SELFBUILD_ST_INFO, temp_buf);
-			}
+			setCtrlString(CTL_SELFBUILD_IMPATH, p_config_entry ? p_config_entry->NsisPath : temp_buf.Z());
+			setStaticText(CTL_SELFBUILD_ST_INFO, (Data.Flags & Data.fOpenSource) ? "OPENSOURCE" : 0);
 		}
 		long   CloseTimeout;
 		long   PrevTimeoutRest;
@@ -445,6 +442,115 @@ int	SLAPI PrcssrBuild::UploadFileToUhtt(const char * pFileName, const char * pKe
 	return ok;
 }
 
+int SLAPI PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString msg_buf;
+	SString fmt_buf;
+	SString build_log_path;
+	//
+	// Сборка исполняемых файлов и ресурсов
+	//
+	struct SolutionEntry {
+		const char * P_Name;
+		const char * P_Sln;
+		const char * P_Config;
+		const char * P_Result;
+		long   Flag;
+	};
+	SolutionEntry sln_list[] = {
+		// P_Name          P_Sln                P_Config         P_Result           Flag
+		{ "client",        "papyrus.sln",       "Release",       "ppw.exe;ppdrv-pirit.dll;ppdrv-ie-korus.dll;ppdrv-ie-kontur.dll", Param::fBuildClient|Param::fSupplementalBuild },
+		{ "mtdll",         "papyrus.sln",       "MtDllRelease",  "ppwmt.dll",       Param::fBuildMtdll|Param::fSupplementalBuild },
+		{ "jobsrv",        "papyrus.sln",       "ServerRelease", "ppws.exe",        Param::fBuildServer },
+		// @v9.6.9 { "equipsolution", "EquipSolution.sln", "Release",       "ppdrv-pirit.dll", Param::fBuildDrv },
+		// @v8.3.2 { "ppsoapmodules", "PPSoapModules.sln", "Release",       "PPSoapUhtt.dll",  Param::fBuildSoap }
+	};
+	StrAssocArray msvs_ver_list;
+	SString msvs_path;
+	SString name_buf;
+	StringSet result_file_list(";");
+	const char * p_prc_cur_dir = pCfgEntry->SlnPath.NotEmpty() ? pCfgEntry->SlnPath.cptr() : static_cast<const char *>(0);
+	rLogger.Log((msg_buf = "Current dir for child processes").CatDiv(':', 2).Cat(p_prc_cur_dir));
+	THROW(FindMsvs(pCfgEntry->PrefMsvsVerMajor, msvs_ver_list, &msvs_path));
+	PPLoadText(PPTXT_BUILD_COMPILERNAME_VS71, temp_buf);
+	THROW_PP_S(msvs_path.NotEmpty() && fileExists(msvs_path), PPERR_BUILD_COMPILERNFOUND, temp_buf);
+	for(uint j = 0; j < SIZEOFARRAY(sln_list); j++) {
+		SolutionEntry & r_sln_entry = sln_list[j];
+		if(P.Flags & r_sln_entry.Flag && (!supplementalConfig || r_sln_entry.Flag & Param::fSupplementalBuild)) { // @v10.6.1 (!supplementalConfig || r_sln_entry.Flag & Param::fSupplementalBuild)
+			PPGetPath(PPPATH_LOG, build_log_path);
+			const char * p_log_build_text = supplementalConfig ? "build_xp" : "build";
+			build_log_path.SetLastSlash().Cat(p_log_build_text).CatChar('-').Cat(r_sln_entry.P_Name).Dot().Cat("log");
+			//D:\msvs70\common7\ide\devenv.exe papyrus.sln /rebuild "Release" /out %BUILDLOG%\client.log
+			{
+				STARTUPINFO si;
+				DWORD exit_code = 0;
+				PROCESS_INFORMATION pi;
+				MEMSZERO(si);
+				si.cb = sizeof(si);
+				MEMSZERO(pi);
+				temp_buf.Z().CatQStr(msvs_path).Space().Cat(r_sln_entry.P_Sln).Space().Cat("/rebuild").Space().
+					Cat(r_sln_entry.P_Config).Space().Cat("/out").Space().Cat(build_log_path);
+				STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
+				strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
+				PPLoadText(PPTXT_BUILD_SOLUTION, fmt_buf);
+				rLogger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+				int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(p_prc_cur_dir), &si, &pi); // @unicodeproblem
+				if(!r) {
+					SLS.SetOsError(0);
+					CALLEXCEPT_PP(PPERR_SLIB);
+				}
+				WaitForSingleObject(pi.hProcess, INFINITE); // Wait until child process exits.
+				{
+					GetExitCodeProcess(pi.hProcess, &exit_code);
+					if(exit_code == 0) {
+                        result_file_list.setBuf(r_sln_entry.P_Result, sstrlen(r_sln_entry.P_Result)+1);
+                        int    result_files_are_ok = 1;
+						int    result_file_no = 0;
+						for(uint ssp = 0; result_file_list.get(&ssp, name_buf);) {
+							result_file_no++;
+							if(name_buf.NotEmptyS()) {
+								(temp_buf = pCfgEntry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(name_buf);
+								if(!fileExists(temp_buf)) {
+									result_files_are_ok = 0;
+									msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_TARGETNFOUND, fmt_buf), r_sln_entry.P_Name, temp_buf.cptr());
+									rLogger.Log(msg_buf);
+								}
+								else {
+									if(supplementalConfig && result_file_no == 1) {
+										SString supplement_file_name;
+										SPathStruc ps(temp_buf);
+										ps.Nam.Cat("-xp");
+										ps.Merge(supplement_file_name);
+										if(!SCopyFile(temp_buf, supplement_file_name, 0, FILE_SHARE_READ, 0)) {
+											PPSetError(PPERR_SLIB);
+											rLogger.LogLastError();
+										}
+									}
+								}
+							}
+						}
+						if(result_files_are_ok) {
+							msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_SUCCESS, fmt_buf), r_sln_entry.P_Name);
+							rLogger.Log(msg_buf);
+						}
+					}
+					else {
+						msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_FAIL, fmt_buf), r_sln_entry.P_Name, build_log_path.cptr());
+						rLogger.Log(msg_buf);
+					}
+				}
+				// Close process and thread handles.
+				::CloseHandle(pi.hProcess);
+				::CloseHandle(pi.hThread);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int	SLAPI PrcssrBuild::Run()
 {
 	int    ok = 1;
@@ -463,94 +569,15 @@ int	SLAPI PrcssrBuild::Run()
 	}
 	*/
 	// } @debug
-	const Param::ConfigEntry * p_config_entry = SetupParamByEntryIdx(&P);
+	const Param::ConfigEntry * p_config_entry = SetupParamByEntryIdx(&P, 0/*supplementalConfig*/);
+	const Param::ConfigEntry * p_supplemental_config_entry = SetupParamByEntryIdx(&P, 1/*supplementalConfig*/);
 	THROW(p_config_entry);
-	logger.Log((msg_buf = "Configuration").CatDiv(':', 2).Cat(p_config_entry->Name));
-	{
-		//
-		// Сборка исполняемых файлов и ресурсов
-		//
-		struct SolutionEntry {
-			const char * P_Name;
-			const char * P_Sln;
-			const char * P_Config;
-			const char * P_Result;
-			long   Flag;
-		};
-		SolutionEntry sln_list[] = {
-			// P_Name          P_Sln                P_Config         P_Result           Flag
-			{ "client",        "papyrus.sln",       "Release",       "ppw.exe;ppdrv-pirit.dll;ppdrv-ie-korus.dll;ppdrv-ie-kontur.dll", Param::fBuildClient },
-			{ "mtdll",         "papyrus.sln",       "MtDllRelease",  "ppwmt.dll",       Param::fBuildMtdll },
-			{ "jobsrv",        "papyrus.sln",       "ServerRelease", "ppws.exe",        Param::fBuildServer },
-			// @v9.6.9 { "equipsolution", "EquipSolution.sln", "Release",       "ppdrv-pirit.dll", Param::fBuildDrv },
-			// @v8.3.2 { "ppsoapmodules", "PPSoapModules.sln", "Release",       "PPSoapUhtt.dll",  Param::fBuildSoap }
-		};
-		StrAssocArray msvs_ver_list;
-		SString msvs_path;
-		SString name_buf;
-		StringSet result_file_list(";");
-		const char * p_prc_cur_dir = p_config_entry->SlnPath.NotEmpty() ? p_config_entry->SlnPath.cptr() : static_cast<const char *>(0);
-		logger.Log((msg_buf = "Current dir for child processes").CatDiv(':', 2).Cat(p_prc_cur_dir));
-		THROW(FindMsvs(p_config_entry->PrefMsvsVerMajor, msvs_ver_list, &msvs_path));
-		PPLoadText(PPTXT_BUILD_COMPILERNAME_VS71, temp_buf);
-		THROW_PP_S(msvs_path.NotEmpty() && fileExists(msvs_path), PPERR_BUILD_COMPILERNFOUND, temp_buf);
-		for(uint j = 0; j < SIZEOFARRAY(sln_list); j++) {
-			SolutionEntry & r_sln_entry = sln_list[j];
-			if(P.Flags & r_sln_entry.Flag) {
-				PPGetPath(PPPATH_LOG, build_log_path);
-				build_log_path.SetLastSlash().Cat("build").CatChar('-').Cat(r_sln_entry.P_Name).Dot().Cat("log");
-				//D:\msvs70\common7\ide\devenv.exe papyrus.sln /rebuild "Release" /out %BUILDLOG%\client.log
-				{
-					STARTUPINFO si;
-					DWORD exit_code = 0;
-					PROCESS_INFORMATION pi;
-					MEMSZERO(si);
-					si.cb = sizeof(si);
-					MEMSZERO(pi);
-					temp_buf.Z().CatQStr(msvs_path).Space().Cat(r_sln_entry.P_Sln).Space().Cat("/rebuild").Space().
-						Cat(r_sln_entry.P_Config).Space().Cat("/out").Space().Cat(build_log_path);
-					STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
-					strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
-					PPLoadText(PPTXT_BUILD_SOLUTION, fmt_buf);
-					logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
-					int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(p_prc_cur_dir), &si, &pi); // @unicodeproblem
-					if(!r) {
-						SLS.SetOsError(0);
-						CALLEXCEPT_PP(PPERR_SLIB);
-					}
-					WaitForSingleObject(pi.hProcess, INFINITE); // Wait until child process exits.
-					{
-						GetExitCodeProcess(pi.hProcess, &exit_code);
-						if(exit_code == 0) {
-                            result_file_list.setBuf(r_sln_entry.P_Result, sstrlen(r_sln_entry.P_Result)+1);
-                            int    result_files_are_ok = 1;
-							for(uint ssp = 0; result_file_list.get(&ssp, name_buf);) {
-								if(name_buf.NotEmptyS()) {
-									(temp_buf = p_config_entry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(name_buf);
-									if(!fileExists(temp_buf)) {
-										result_files_are_ok = 0;
-										msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_TARGETNFOUND, fmt_buf), r_sln_entry.P_Name, temp_buf.cptr());
-										logger.Log(msg_buf);
-									}
-								}
-							}
-							if(result_files_are_ok) {
-								msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_SUCCESS, fmt_buf), r_sln_entry.P_Name);
-								logger.Log(msg_buf);
-							}
-						}
-						else {
-							msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_FAIL, fmt_buf), r_sln_entry.P_Name, build_log_path.cptr());
-							logger.Log(msg_buf);
-						}
-					}
-					// Close process and thread handles.
-					::CloseHandle(pi.hProcess);
-					::CloseHandle(pi.hThread);
-				}
-			}
-		}
+	if(p_supplemental_config_entry) {
+		logger.Log((msg_buf = "Supplemental Configuration").CatDiv(':', 2).Cat(p_supplemental_config_entry->Name));
+		THROW(Helper_Compile(p_supplemental_config_entry, 1, logger));
 	}
+	logger.Log((msg_buf = "Configuration").CatDiv(':', 2).Cat(p_config_entry->Name));
+	THROW(Helper_Compile(p_config_entry, 0, logger));
 	if(P.Flags & Param::fBuildDistrib) {
 		//
 		// Сборка дистрибутива
@@ -613,13 +640,15 @@ int	SLAPI PrcssrBuild::Run()
 				build_log_path.SetLastSlash().Cat("build").CatChar('-').Cat("nsis").CatChar('-').Cat(r_nsis_entry.P_Name).Dot().Cat("log");
 				temp_buf.Z().CatQStr(p_config_entry->NsisPath).Space().CatEq("/DPRODUCT_VERSION", ver_label).Space().
 					CatEq("/DSRC_ROOT", p_config_entry->RootPath).Space().Cat("/NOCD").Space().Cat("/V2").Space().Cat("/P1").Space();
-				if(r_nsis_entry.P_Config) {
+				if(r_nsis_entry.P_Config)
 					temp_buf.Cat("/D").Cat(r_nsis_entry.P_Config).Space();
-				}
+				// @v10.6.1 {
+				if(p_supplemental_config_entry)
+					temp_buf.Cat("/D").Cat("XPCOMPAT").Space();
+				// } @v10.6.1 
 				// @v9.4.9 {
-				if(P.Flags & Param::fOpenSource) {
+				if(P.Flags & Param::fOpenSource)
 					temp_buf.Cat("/D").Cat("OPENSOURCE").Space();
-				}
 				// } @v9.4.9
 				temp_buf.Cat("/O").Cat(build_log_path).Space().Cat(r_nsis_entry.P_NsisFile);
 

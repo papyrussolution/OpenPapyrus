@@ -178,7 +178,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 		do {
 			int keepgoing;
 			size_t len_0 = strlen(fmta) + 1, i;
-			WCHAR * fmtw = (WCHAR*)alloca(len_0 * sizeof(WCHAR));
+			WCHAR * fmtw = static_cast<WCHAR *>(alloca(len_0 * sizeof(WCHAR)));
 			if(fmtw == NULL) {
 				fmt = (const TCHAR*)L"no stack?";
 				break;

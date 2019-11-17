@@ -32,6 +32,7 @@ int SLAPI TestMqc(); // ppmqc.cpp
 int SLAPI RecoverAbsenceTrfr();
 int SLAPI PPValidateXml();
 int SLAPI OpenPhonePane();
+int SLAPI UniFindObj();
 //int SLAPI ImportSartre();
 // } @prototype
 //
@@ -668,6 +669,7 @@ int PPApp::processCommand(uint cmd)
 		case cmReplaceLikeWorld:     PPObjWorld::UniteMaxLike();        break;
 		case cmReplaceDynamicObj:    PPObject::ReplaceObjInteractive(PPOBJ_DYNAMICOBJS, 0);   break;
 		case cmReplaceBrand:         PPObject::ReplaceObjInteractive(PPOBJ_BRAND, 0); break;
+		case cmUniFindObj:           UniFindObj();                      break; // @v10.6.1 @construction 
 		case cmPrinterCfg:           EditDefaultPrinterCfg();           break;
 		case cmGoodsCfg:             PPObjGoods::EditConfig();          break;
 		case cmPersonCfg:            PPObjPerson::EditConfig();         break;
@@ -903,7 +905,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTestLogWindow:           TestLogWindow(); break; // @v9.7.0
 		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
 		case cmTestVetis:               TestVetis(); break; // @v9.8.9
-		case cmTestMqc:                 TestMqc(); break; // @v10.5.7
+		case cmTestMqc:                 TestMqc();   break; // @v10.5.7
 		case cmConvertLatexToHtml:      PPTex2Html(); break;
 		case cmConvertVersionToHtml:    PPVer2Html(); break;
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
@@ -1182,7 +1184,7 @@ int SLAPI PPVerHistory::Read(const char * pDataPath, Info * pInfo)
 			MEMSZERO(hdr);
 			THROW_SL(f.Open(path, SFile::mRead|SFile::mBinary) > 0);
 			THROW_PP(f.Read(&hdr, hdr_size, &len) > 0 && len == hdr_size, PPERR_INVHDRSIZE);
-			THROW_PP_S(hdr.Signature == _PPConst.VerHistSignature, PPERR_VERHISTINVSIGN, path);
+			THROW_PP_S(hdr.Signature == _PPConst.Signature_VerHist, PPERR_VERHISTINVSIGN, path);
 			THROW_SL(f.CalcCRC(hdr_size, &crc));
 			SLibError = SLERR_INVALIDCRC;
 			THROW_SL(crc == hdr.CRC);
@@ -1221,7 +1223,7 @@ int SLAPI PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 	MEMSZERO(hdr);
 	MEMSZERO(rec);
 	f.Seek(0);
-	hdr.Signature = _PPConst.VerHistSignature;
+	hdr.Signature = _PPConst.Signature_VerHist;
 	hdr.CRC       = crc;
 	hdr.CurVer    = pInfo->CurVer;
 	hdr.MinVer    = pInfo->MinVer;
@@ -1980,115 +1982,121 @@ int PPApp::InitMenuBar()
 	return 1;
 }
 
-class RegComSvrDialog : public TDialog {
-public:
-	enum RegisterAction {
-		aRegister   = 0x0001,
-		aDeregister = 0x0002
-	};
-	struct Param {
-		Param()
-		{
-			Init();
-		}
-		void Init()
-		{
-			Action = aRegister;
-			DL200Install = 0;
-			ExcelRegKeyDir.Z();
-		}
-		int16  Action;
-		int16  DL200Install;
-		SString ExcelRegKeyDir;
-	};
-	RegComSvrDialog() : TDialog(DLG_REGCOMSVR)
-	{
-		SString reg_path;
-		for(uint i = 14; XLARegKeyDir.Len() == 0 && i > 8; i--) {
-			(reg_path = "Software\\Microsoft\\Office\\").Cat(i).Dot().Cat("0").Cat("\\Excel");
-			WinRegKey reg_key;
-			if(reg_key.Open(HKEY_CURRENT_USER, reg_path, 1, 1) > 0)
-				XLARegKeyDir = reg_path;
-		}
-	}
-	int   setDTS(const RegComSvrDialog::Param *);
-	int   getDTS(RegComSvrDialog::Param *);
-private:
-	DECL_HANDLE_EVENT;
-	void   SetupCtrls(long action);
-
-	SString XLARegKeyDir;
-	Param   Data;
-};
-
-IMPL_HANDLE_EVENT(RegComSvrDialog)
-{
-	TDialog::handleEvent(event);
-	if(TVCOMMAND && TVCMD == cmClusterClk && event.isCtlEvent(CTL_REGCOMSVR_ACTION)) {
-		SetupCtrls(GetClusterData(CTL_REGCOMSVR_ACTION));
-		clearEvent(event);
-	}
-}
-
-void RegComSvrDialog::SetupCtrls(long action)
-{
-	const int disable = BIN(XLARegKeyDir.Len() == 0 || action == aDeregister);
-	DisableClusterItem(CTL_REGCOMSVR_DL200INST, 0, disable);
-	if(disable)
-		SetClusterData(CTL_REGCOMSVR_DL200INST, 0);
-}
-
-int RegComSvrDialog::setDTS(const RegComSvrDialog::Param * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	AddClusterAssocDef(CTL_REGCOMSVR_ACTION,  0, aRegister);
-	AddClusterAssoc(CTL_REGCOMSVR_ACTION,  1, aDeregister);
-	SetClusterData(CTL_REGCOMSVR_ACTION, (long)Data.Action);
-	AddClusterAssoc(CTL_REGCOMSVR_DL200INST, 0, 1L);
-	SetClusterData(CTL_REGCOMSVR_DL200INST, (long)Data.DL200Install);
-	SetupCtrls((long)Data.Action);
-	return 1;
-}
-
-int RegComSvrDialog::getDTS(RegComSvrDialog::Param * pData)
-{
-	long   v = 0;
-	GetClusterData(CTL_REGCOMSVR_ACTION, &v);
-	Data.Action = (int16)v;
-	GetClusterData(CTL_REGCOMSVR_DL200INST, &(v = 0));
-	Data.DL200Install = (int16)v;
-	Data.ExcelRegKeyDir = XLARegKeyDir;
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-
 int PPApp::RegisterComServer()
 {
+	class RegComSvrDialog : public TDialog {
+	public:
+		struct Param {
+			Param() : Action(aRegister), Flags(0)
+			{
+			}
+			/*void Init()
+			{
+				Action = aRegister;
+				Flags = 0;
+				ExcelRegKeyDir.Z();
+				DllPath.Z();
+				DllPath_XpCompat.Z();
+			}*/
+			enum {
+				aRegister   = 0x0001,
+				aDeregister = 0x0002
+			};
+			enum {
+				fDl200Install = 0x0001,
+				fXpCompat     = 0x0002 
+			};
+			long   Action;
+			long   Flags;
+			SString ExcelRegKeyDir;
+			SString DllPath;
+			SString DllPath_XpCompat;
+		};
+
+		DECL_DIALOG_DATA(Param);
+	
+		RegComSvrDialog() : TDialog(DLG_REGCOMSVR)
+		{
+			SString reg_path;
+			for(uint i = 14; XLARegKeyDir.Len() == 0 && i > 8; i--) {
+				(reg_path = "Software\\Microsoft\\Office\\").Cat(i).Dot().Cat("0").Cat("\\Excel");
+				WinRegKey reg_key;
+				if(reg_key.Open(HKEY_CURRENT_USER, reg_path, 1, 1) > 0)
+					XLARegKeyDir = reg_path;
+			}
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			AddClusterAssocDef(CTL_REGCOMSVR_ACTION,  0, Param::aRegister);
+			AddClusterAssoc(CTL_REGCOMSVR_ACTION,  1, Param::aDeregister);
+			SetClusterData(CTL_REGCOMSVR_ACTION, Data.Action);
+			AddClusterAssoc(CTL_REGCOMSVR_FLAGS, 0, Param::fDl200Install);
+			AddClusterAssoc(CTL_REGCOMSVR_FLAGS, 1, Param::fXpCompat);
+			SetClusterData(CTL_REGCOMSVR_DL200INST, Data.Flags);
+			SetupCtrls();
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			GetClusterData(CTL_REGCOMSVR_ACTION, &Data.Action);
+			GetClusterData(CTL_REGCOMSVR_FLAGS, &Data.Flags);
+			Data.ExcelRegKeyDir = XLARegKeyDir;
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_REGCOMSVR_ACTION) || event.isClusterClk(CTL_REGCOMSVR_FLAGS)) {
+				GetClusterData(CTL_REGCOMSVR_ACTION, &Data.Action);
+				GetClusterData(CTL_REGCOMSVR_FLAGS, &Data.Flags);
+				SetupCtrls();
+				clearEvent(event);
+			}
+		}
+		void   SetupCtrls()
+		{
+			const int disable = BIN(XLARegKeyDir.Len() == 0 || Data.Action == Param::aDeregister);
+			DisableClusterItem(CTL_REGCOMSVR_FLAGS, 0, disable);
+			DisableClusterItem(CTL_REGCOMSVR_FLAGS, 1, disable || Data.DllPath_XpCompat.Empty());
+			if(Data.Flags & Param::fXpCompat)
+				setCtrlString(CTL_REGCOMSVR_INFO, Data.DllPath_XpCompat);
+			else
+				setCtrlString(CTL_REGCOMSVR_INFO, Data.DllPath);
+		}
+		SString XLARegKeyDir;
+	};
 	int    ok = -1;
-	SString path;
+	int    is_xpcompat_exists = 0;
 	SString proc_name;
 	SString param_buf;
 	RegComSvrDialog::Param param;
 	RegComSvrDialog * p_dlg = new RegComSvrDialog;
-	PPGetFilePath(PPPATH_BIN, "ppwmt.dll", path);
-	THROW_SL(::fileExists(path));
+	PPGetFilePath(PPPATH_BIN, "ppwmt.dll", param.DllPath);
+	PPGetFilePath(PPPATH_BIN, "ppwmt-xp.dll", param.DllPath_XpCompat);
+	THROW_SL(::fileExists(param.DllPath));
+	if(!::fileExists(param.DllPath_XpCompat))
+		param.DllPath_XpCompat.Z();
+	else
+		is_xpcompat_exists = 1;
 	THROW(CheckDialogPtr(&p_dlg));
-	param.Init();
 	p_dlg->setDTS(&param);
 	if(ExecView(p_dlg) == cmOK)	{
 		p_dlg->getDTS(&param);
 		HRESULT hr;
-		SDynLibrary lib(path);
+		const char * p_dll_path = (param.Flags & param.fXpCompat && ::fileExists(param.DllPath_XpCompat)) ? param.DllPath_XpCompat : param.DllPath;
+		SDynLibrary lib(p_dll_path);
 		THROW_SL(lib.IsValid());
 		typedef HRESULT (STDAPICALLTYPE *procDllRegisterServer)();
-		proc_name = (param.Action == RegComSvrDialog::aDeregister) ? "DllUnregisterServer" : "DllRegisterServer";
+		proc_name = (param.Action == RegComSvrDialog::Param::aDeregister) ? "DllUnregisterServer" : "DllRegisterServer";
 		procDllRegisterServer proc = reinterpret_cast<procDllRegisterServer>(lib.GetProcAddr(proc_name));
 		THROW_SL(proc);
 		hr = proc();
 		THROW(hr == S_OK);
-		PPMessage(mfInfo|mfOK, (param.Action == RegComSvrDialog::aDeregister) ? PPINF_COMSRVUNREGISTERED : PPINF_COMSRVREGISTERED, path);
-		if(param.DL200Install == 1) {
+		PPMessage(mfInfo|mfOK, (param.Action == RegComSvrDialog::Param::aDeregister) ? PPINF_COMSRVUNREGISTERED : PPINF_COMSRVREGISTERED, p_dll_path);
+		if(param.Flags & RegComSvrDialog::Param::fDl200Install) {
 			const char * p_dl200_name = "dl200.xla";
 			const char * p_open_name = "OPEN";
 			SString   src_path, subkey, opt_param;

@@ -80,10 +80,8 @@ int SSL_in_before(SSL * s)
 	 * first message to arrive). There "in before" is taken to mean "in before"
 	 * and not started any handshake process yet.
 	 */
-	return (s->statem.hand_state == TLS_ST_BEFORE)
-	       && (s->statem.state == MSG_FLOW_UNINITED);
+	return (s->statem.hand_state == TLS_ST_BEFORE) && (s->statem.state == MSG_FLOW_UNINITED);
 }
-
 /*
  * Clear the state machine state and reset back to MSG_FLOW_UNINITED
  */
@@ -655,36 +653,29 @@ static SUB_STATE_RETURN write_state_machine(SSL * s)
 			    }
 			    switch(transition(s)) {
 				    case WRITE_TRAN_CONTINUE:
-					st->write_state = WRITE_STATE_PRE_WORK;
-					st->write_state_work = WORK_MORE_A;
-					break;
-
+						st->write_state = WRITE_STATE_PRE_WORK;
+						st->write_state_work = WORK_MORE_A;
+						break;
 				    case WRITE_TRAN_FINISHED:
-					return SUB_STATE_FINISHED;
-					break;
-
+						return SUB_STATE_FINISHED;
+						break;
 				    default:
-					return SUB_STATE_ERROR;
+						return SUB_STATE_ERROR;
 			    }
 			    break;
-
 			case WRITE_STATE_PRE_WORK:
 			    switch(st->write_state_work = pre_work(s, st->write_state_work)) {
 				    default:
-					return SUB_STATE_ERROR;
-
+						return SUB_STATE_ERROR;
 				    case WORK_FINISHED_CONTINUE:
-					st->write_state = WRITE_STATE_SEND;
-					break;
-
+						st->write_state = WRITE_STATE_SEND;
+						break;
 				    case WORK_FINISHED_STOP:
-					return SUB_STATE_END_HANDSHAKE;
+						return SUB_STATE_END_HANDSHAKE;
 			    }
 			    if(construct_message(s) == 0)
 				    return SUB_STATE_ERROR;
-
 			/* Fall through */
-
 			case WRITE_STATE_SEND:
 			    if(SSL_IS_DTLS(s) && st->use_timer) {
 				    dtls1_start_timer(s);
@@ -696,27 +687,22 @@ static SUB_STATE_RETURN write_state_machine(SSL * s)
 			    st->write_state = WRITE_STATE_POST_WORK;
 			    st->write_state_work = WORK_MORE_A;
 			/* Fall through */
-
 			case WRITE_STATE_POST_WORK:
 			    switch(st->write_state_work = post_work(s, st->write_state_work)) {
 				    default:
-					return SUB_STATE_ERROR;
-
+						return SUB_STATE_ERROR;
 				    case WORK_FINISHED_CONTINUE:
-					st->write_state = WRITE_STATE_TRANSITION;
-					break;
-
+						st->write_state = WRITE_STATE_TRANSITION;
+						break;
 				    case WORK_FINISHED_STOP:
-					return SUB_STATE_END_HANDSHAKE;
+						return SUB_STATE_END_HANDSHAKE;
 			    }
 			    break;
-
 			default:
 			    return SUB_STATE_ERROR;
 		}
 	}
 }
-
 /*
  * Flush the write BIO
  */
@@ -727,10 +713,8 @@ int statem_flush(SSL * s)
 		return 0;
 	}
 	s->rwstate = SSL_NOTHING;
-
 	return 1;
 }
-
 /*
  * Called by the record layer to determine whether application data is
  * allowed to be sent in the current handshake state or not.
@@ -742,20 +726,16 @@ int statem_flush(SSL * s)
 int ossl_statem_app_data_allowed(SSL * s)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	if(st->state == MSG_FLOW_UNINITED || st->state == MSG_FLOW_RENEGOTIATE)
 		return 0;
-
 	if(!s->s3->in_read_app_data || (s->s3->total_renegotiations == 0))
 		return 0;
-
 	if(s->server) {
 		/*
 		 * If we're a server and we haven't got as far as writing our
 		 * ServerHello yet then we allow app data
 		 */
-		if(st->hand_state == TLS_ST_BEFORE
-		    || st->hand_state == TLS_ST_SR_CLNT_HELLO)
+		if(st->hand_state == TLS_ST_BEFORE || st->hand_state == TLS_ST_SR_CLNT_HELLO)
 			return 1;
 	}
 	else {
@@ -766,7 +746,6 @@ int ossl_statem_app_data_allowed(SSL * s)
 		if(st->hand_state == TLS_ST_CW_CLNT_HELLO)
 			return 1;
 	}
-
 	return 0;
 }
 
@@ -778,7 +757,6 @@ void ossl_statem_set_sctp_read_sock(SSL * s, int read_sock)
 {
 	s->statem.in_sctp_read_sock = read_sock;
 }
-
 /*
  * Called by the record layer to determine whether we are in the read sock
  * state or not.
@@ -791,5 +769,4 @@ int ossl_statem_in_sctp_read_sock(SSL * s)
 {
 	return s->statem.in_sctp_read_sock;
 }
-
 #endif

@@ -37,10 +37,10 @@
 #define WIN32_LEAN_AND_MEAN
 /* We require Windows 2000 features such as GetGlyphIndices */
 #if !defined(WINVER) || (WINVER < 0x0500)
-# define WINVER 0x0500
+	#define WINVER 0x0500
 #endif
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
-# define _WIN32_WINNT 0x0500
+	#define _WIN32_WINNT 0x0500
 #endif
 #include "cairo-win32-private.h"
 //#include "cairo-array-private.h"

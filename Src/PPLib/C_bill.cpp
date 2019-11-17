@@ -324,7 +324,7 @@ int SLAPI PrcssrAbsentBill::EditParam(Param * pParam)
 
 int SLAPI PrcssrAbsentBill::Init(const Param * pParam)
 {
-	P = *pParam;
+	RVALUEPTR(P, pParam);
 	return 1;
 }
 

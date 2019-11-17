@@ -1788,7 +1788,6 @@ const char * SSL_get_cipher_list(const SSL * s, int n)
 {
 	const SSL_CIPHER * c;
 	STACK_OF(SSL_CIPHER) *sk;
-
 	if(s == NULL)
 		return NULL;
 	sk = SSL_get_ciphers(s);
@@ -2397,13 +2396,11 @@ void ssl_set_masks(SSL * s)
 #endif
 	if(c == NULL)
 		return;
-
 #ifndef OPENSSL_NO_DH
 	dh_tmp = (c->dh_tmp != NULL || c->dh_tmp_cb != NULL || c->dh_tmp_auto);
 #else
 	dh_tmp = 0;
 #endif
-
 	rsa_enc = pvalid[SSL_PKEY_RSA_ENC] & CERT_PKEY_VALID;
 	rsa_sign = pvalid[SSL_PKEY_RSA_SIGN] & CERT_PKEY_SIGN;
 	dsa_sign = pvalid[SSL_PKEY_DSA_SIGN] & CERT_PKEY_SIGN;
@@ -2412,12 +2409,9 @@ void ssl_set_masks(SSL * s)
 #endif
 	mask_k = 0;
 	mask_a = 0;
-
 #ifdef CIPHER_DEBUG
-	fprintf(stderr, "dht=%d re=%d rs=%d ds=%d\n",
-	    dh_tmp, rsa_enc, rsa_sign, dsa_sign);
+	fprintf(stderr, "dht=%d re=%d rs=%d ds=%d\n", dh_tmp, rsa_enc, rsa_sign, dsa_sign);
 #endif
-
 #ifndef OPENSSL_NO_GOST
 	cpk = &(c->pkeys[SSL_PKEY_GOST12_512]);
 	if(cpk->x509 != NULL && cpk->privatekey != NULL) {
@@ -2435,23 +2429,17 @@ void ssl_set_masks(SSL * s)
 		mask_a |= SSL_aGOST01;
 	}
 #endif
-
 	if(rsa_enc)
 		mask_k |= SSL_kRSA;
-
 	if(dh_tmp)
 		mask_k |= SSL_kDHE;
-
 	if(rsa_enc || rsa_sign) {
 		mask_a |= SSL_aRSA;
 	}
-
 	if(dsa_sign) {
 		mask_a |= SSL_aDSS;
 	}
-
 	mask_a |= SSL_aNULL;
-
 	/*
 	 * An ECC certificate may be usable for ECDH and/or ECDSA cipher suites
 	 * depending on the key usage extension.
@@ -2469,11 +2457,9 @@ void ssl_set_masks(SSL * s)
 			mask_a |= SSL_aECDSA;
 	}
 #endif
-
 #ifndef OPENSSL_NO_EC
 	mask_k |= SSL_kECDHE;
 #endif
-
 #ifndef OPENSSL_NO_PSK
 	mask_k |= SSL_kPSK;
 	mask_a |= SSL_aPSK;
@@ -2484,7 +2470,6 @@ void ssl_set_masks(SSL * s)
 	if(mask_k & SSL_kECDHE)
 		mask_k |= SSL_kECDHEPSK;
 #endif
-
 	s->s3->tmp.mask_k = mask_k;
 	s->s3->tmp.mask_a = mask_a;
 }

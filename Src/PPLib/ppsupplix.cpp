@@ -2380,13 +2380,14 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 //
 //
 class SupplInterchangeFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(SupplInterchangeFilt);
 public:
 	SupplInterchangeFiltDialog() : TDialog(DLG_SUPPLIX)
 	{
 		SetupCalPeriod(CTLCAL_SUPPLIX_EXPPRD, CTL_SUPPLIX_EXPPRD);
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SUPPLIX_LOC, 0, 0, cmLocList, 0, 0, 0));
 	}
-	int    setDTS(const SupplInterchangeFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -2426,7 +2427,7 @@ public:
 		//CATCHZOK
 		return ok;
 	}
-	int    getDTS(SupplInterchangeFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -2463,7 +2464,6 @@ private:
 			clearEvent(event);
 		}
 	}
-	SupplInterchangeFilt Data;
 	PPObjArticle ArObj;
 };
 //

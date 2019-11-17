@@ -31,12 +31,14 @@ int SLAPI PPInventoryOpEx::GetAccelInputMode() const
 void SLAPI PPInventoryOpEx::SetAccelInputMode(int mode)
 {
 	if(mode == accsliCode) {
-		Flags |= INVOPF_ACCELADDITEMS;
-		Flags &= ~INVOPF_ACCELADDITEMSQTTY;
+		SETUPFLAGS(Flags, INVOPF_ACCELADDITEMS, INVOPF_ACCELADDITEMSQTTY); // @v10.6.1
+		// @v10.6.1 Flags |= INVOPF_ACCELADDITEMS;
+		// @v10.6.1 Flags &= ~INVOPF_ACCELADDITEMSQTTY;
 	}
 	else if(mode == accsliCodeAndQtty) {
-		Flags &= ~INVOPF_ACCELADDITEMS;
-		Flags |= INVOPF_ACCELADDITEMSQTTY;
+		SETUPFLAGS(Flags, INVOPF_ACCELADDITEMSQTTY, INVOPF_ACCELADDITEMS); // @v10.6.1
+		// @v10.6.1 Flags &= ~INVOPF_ACCELADDITEMS;
+		// @v10.6.1 Flags |= INVOPF_ACCELADDITEMSQTTY;
 	}
 	else {
 		Flags &= ~(INVOPF_ACCELADDITEMS|INVOPF_ACCELADDITEMSQTTY);
@@ -56,7 +58,7 @@ void SLAPI PPReckonOpEx::Init()
 	Flags = 0;
 	PersonRelTypeID = 0;
 	memzero(Reserve, sizeof(Reserve));
-	OpList.freeAll();
+	OpList.clear(); // @v10.6.1 freeAll-->clear
 }
 
 PPReckonOpEx & FASTCALL PPReckonOpEx::operator = (const PPReckonOpEx & src)
@@ -2454,14 +2456,32 @@ void OprKindDialog::editPaymList()
 }
 
 class DiffByLocCntrDlg : public PPListDialog {
+	DECL_DIALOG_DATA(LAssocArray);
 public:
 	DiffByLocCntrDlg() : PPListDialog(DLG_DIFFCNTR, CTL_DIFFCNTR_LOCLIST), LocID(0)
 	{
 		/*updateList(-1);*/
 	}
-	int    setupCounter(PPID locID);
-	int    setDTS(const LAssocArray * pData);
-	int    getDTS(LAssocArray * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.freeAll();
+		setupList();
+		if(P_Box && P_Box->def) {
+			long   val = 0;
+			Data.Search(LocID = LConfig.Location, &val, 0);
+			P_Box->search(&LocID, CMPF_LONG, lbSrchByID);
+			setCtrlData(CTL_DIFFCNTR_VAL, &val);
+		}
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		setupCounter(0);
+		CALLPTRMEMB(pData, copy(Data));
+		return 1;
+	}
+	void   setupCounter(PPID locID);
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
@@ -2470,7 +2490,6 @@ private:
 		PPID   id = 0;
 		return (P_Box && P_Box->getCurID(&id)) ? id : 0;
 	}
-	LAssocArray Data;
 	PPObjLocation LObj;
 	PPID   LocID;
 };
@@ -2481,8 +2500,7 @@ IMPL_HANDLE_EVENT(DiffByLocCntrDlg)
 	if(event.isCmd(cmLBItemFocused)) {
 		const PPID loc_id = getCurrID();
 		if(loc_id)
-			if(!setupCounter(loc_id))
-				PPError();
+			setupCounter(loc_id);
 	}
 	else if(event.isClusterClk(CTL_DIFFCNTR_LOCLIST)) {
 		const PPID loc_id = getCurrID();
@@ -2495,7 +2513,7 @@ IMPL_HANDLE_EVENT(DiffByLocCntrDlg)
 	clearEvent(event);
 }
 
-int DiffByLocCntrDlg::setupCounter(PPID locID)
+void DiffByLocCntrDlg::setupCounter(PPID locID)
 {
 	if(LocID != locID) {
 		// запоминаем значение счетчика предыдущего склада
@@ -2511,7 +2529,6 @@ int DiffByLocCntrDlg::setupCounter(PPID locID)
 			setCtrlData(CTL_DIFFCNTR_VAL, &val);
 		}
 	}
-	return 1;
 }
 
 int DiffByLocCntrDlg::setupList()
@@ -2523,39 +2540,55 @@ int DiffByLocCntrDlg::setupList()
 	return 1;
 }
 
-int DiffByLocCntrDlg::setDTS(const LAssocArray * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.freeAll();
-	setupList();
-	if(P_Box && P_Box->def) {
-		long   val = 0;
-		Data.Search(LocID = LConfig.Location, &val, 0);
-		P_Box->search(&LocID, CMPF_LONG, lbSrchByID);
-		setCtrlData(CTL_DIFFCNTR_VAL, &val);
-	}
-	return 1;
-}
-
-int DiffByLocCntrDlg::getDTS(LAssocArray * pData)
-{
-	setupCounter(0);
-	CALLPTRMEMB(pData, copy(Data));
-	return 1;
-}
-
 class OpCntrDialog : public TDialog {
+	DECL_DIALOG_DATA(PPOpCounterPacket);
 public:
 	explicit OpCntrDialog(uint resID) : TDialog(resID)
 	{
 	}
-	int    setDTS(const PPOpCounterPacket *);
-	int    getDTS(PPOpCounterPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		PPOpCounter opc_rec = Data.Head;
+		setCtrlData(CTL_OPKCOUNTER_TEMPL, opc_rec.CodeTemplate);
+		setCtrlData(CTL_OPKCOUNTER_COUNTER, &opc_rec.Counter);
+		AddClusterAssoc(CTL_OPKCOUNTER_FLAGS, 0, OPCNTF_LOCKINCR);
+		AddClusterAssoc(CTL_OPKCOUNTER_FLAGS, 1, OPCNTF_DIFFBYLOC);
+		SetClusterData(CTL_OPKCOUNTER_FLAGS, opc_rec.Flags);
+		enableCommand(cmDiffByLoc, BIN(opc_rec.Flags & OPCNTF_DIFFBYLOC));
+		if(resourceID == DLG_OPKCOUNTER)
+			SetupPPObjCombo(this, CTLSEL_OPKCOUNTER_CNTR, PPOBJ_OPCOUNTER, opc_rec.OwnerObjID ? 0 : opc_rec.ID, OLW_CANINSERT, 0);
+		else {
+			setCtrlData(CTL_OPKCOUNTER_NAME, opc_rec.Name);
+			setCtrlData(CTL_OPKCOUNTER_SYMB, opc_rec.Symb);
+			setCtrlData(CTL_OPKCOUNTER_ID,   &opc_rec.ID);
+			disableCtrl(CTL_OPKCOUNTER_ID, (!PPMaster || opc_rec.ID));
+		}
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		char   temp_buf[64];
+		getCtrlData(sel = CTL_OPKCOUNTER_TEMPL, temp_buf);
+		THROW_PP(OpcObj.CheckCodeTemplate(temp_buf, sizeof(((BillTbl::Rec*)0)->Code)), PPERR_INVCODETEMPLATE)
+		STRNSCPY(Data.Head.CodeTemplate, temp_buf);
+		getCtrlData(CTL_OPKCOUNTER_COUNTER, &Data.Head.Counter);
+		if(resourceID == DLG_OPCNTR) {
+			getCtrlData(sel = CTL_OPKCOUNTER_NAME, Data.Head.Name);
+			THROW_PP(*strip(Data.Head.Name), PPERR_NAMENEEDED);
+			getCtrlData(CTL_OPKCOUNTER_SYMB, Data.Head.Symb);
+		}
+		GetClusterData(CTL_OPKCOUNTER_FLAGS, &Data.Head.Flags);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    editDiffCounters(LAssocArray *);
 	PPObjOpCounter OpcObj;
-	PPOpCounterPacket Data;
 };
 
 int OpCntrDialog::editDiffCounters(LAssocArray * pData) { DIALOG_PROC_BODY(DiffByLocCntrDlg, pData); }
@@ -2588,48 +2621,6 @@ IMPL_HANDLE_EVENT(OpCntrDialog)
 	else
 		return;
 	clearEvent(event);
-}
-
-int OpCntrDialog::setDTS(const PPOpCounterPacket * pData)
-{
-	Data = *pData;
-
-	PPOpCounter opc_rec = Data.Head;
-	setCtrlData(CTL_OPKCOUNTER_TEMPL, opc_rec.CodeTemplate);
-	setCtrlData(CTL_OPKCOUNTER_COUNTER, &opc_rec.Counter);
-	AddClusterAssoc(CTL_OPKCOUNTER_FLAGS, 0, OPCNTF_LOCKINCR);
-	AddClusterAssoc(CTL_OPKCOUNTER_FLAGS, 1, OPCNTF_DIFFBYLOC);
-	SetClusterData(CTL_OPKCOUNTER_FLAGS, opc_rec.Flags);
-	enableCommand(cmDiffByLoc, BIN(opc_rec.Flags & OPCNTF_DIFFBYLOC));
-	if(resourceID == DLG_OPKCOUNTER)
-		SetupPPObjCombo(this, CTLSEL_OPKCOUNTER_CNTR, PPOBJ_OPCOUNTER, opc_rec.OwnerObjID ? 0 : opc_rec.ID, OLW_CANINSERT, 0);
-	else {
-		setCtrlData(CTL_OPKCOUNTER_NAME, opc_rec.Name);
-		setCtrlData(CTL_OPKCOUNTER_SYMB, opc_rec.Symb);
-		setCtrlData(CTL_OPKCOUNTER_ID,   &opc_rec.ID);
-		disableCtrl(CTL_OPKCOUNTER_ID, (!PPMaster || opc_rec.ID));
-	}
-	return 1;
-}
-
-int OpCntrDialog::getDTS(PPOpCounterPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	char   temp_buf[64];
-	getCtrlData(sel = CTL_OPKCOUNTER_TEMPL, temp_buf);
-	THROW_PP(OpcObj.CheckCodeTemplate(temp_buf, sizeof(((BillTbl::Rec*)0)->Code)), PPERR_INVCODETEMPLATE)
-	STRNSCPY(Data.Head.CodeTemplate, temp_buf);
-	getCtrlData(CTL_OPKCOUNTER_COUNTER, &Data.Head.Counter);
-	if(resourceID == DLG_OPCNTR) {
-		getCtrlData(sel = CTL_OPKCOUNTER_NAME, Data.Head.Name);
-		THROW_PP(*strip(Data.Head.Name), PPERR_NAMENEEDED);
-		getCtrlData(CTL_OPKCOUNTER_SYMB, Data.Head.Symb);
-	}
-	GetClusterData(CTL_OPKCOUNTER_FLAGS, &Data.Head.Flags);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int SLAPI EditCounter(PPOpCounterPacket * pPack, uint resID, PPID * pOpcID)

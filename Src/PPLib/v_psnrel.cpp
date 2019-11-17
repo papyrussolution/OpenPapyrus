@@ -33,63 +33,55 @@ SLAPI PPViewPersonRel::~PPViewPersonRel()
 }
 
 class PersonRelFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PersonRelFilt);
 public:
 	PersonRelFiltDialog() : TDialog(DLG_PSNRELFLT)
 	{
 	}
-	int    setDTS(const PersonRelFilt *);
-	int    getDTS(PersonRelFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SetupPPObjCombo(this, CTLSEL_PSNRELFLT_RELTYPE, PPOBJ_PERSONRELTYPE, Data.RelTypeID, 0, 0);
+		long   apply_psn_filt_to_scnd = (Data.Flags & PersonRelFilt::fApplyPsnFiltToScnd) ? 1 : 0;
+		AddClusterAssocDef(CTL_PSNRELFLT_PSNFLTTO,  0, 0);
+		AddClusterAssoc(CTL_PSNRELFLT_PSNFLTTO,  1, 1);
+		SetClusterData(CTL_PSNRELFLT_PSNFLTTO, apply_psn_filt_to_scnd);
+		AddClusterAssocDef(CTL_PSNRELFLT_SORTORD,  0, PersonRelFilt::ordByPrmrPerson);
+		AddClusterAssoc(CTL_PSNRELFLT_SORTORD,  1, PersonRelFilt::ordByScndPerson);
+		AddClusterAssoc(CTL_PSNRELFLT_SORTORD,  2, PersonRelFilt::ordByRelationType);
+		SetClusterData(CTL_PSNRELFLT_SORTORD, Data.SortOrd);
+		long   added_sel = 0;
+		if(Data.Flags & PersonRelFilt::fAddedSelectorByPrmr)
+			added_sel = 1;
+		else if(Data.Flags & PersonRelFilt::fAddedSelectorByScnd)
+			added_sel = 2;
+		AddClusterAssocDef(CTL_PSNRELFLT_ADDEDSEL, 0, 0);
+		AddClusterAssoc(CTL_PSNRELFLT_ADDEDSEL, 1, 1);
+		AddClusterAssoc(CTL_PSNRELFLT_ADDEDSEL, 2, 2);
+		SetClusterData(CTL_PSNRELFLT_ADDEDSEL, added_sel);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = -1;
+		getCtrlData(CTLSEL_PSNRELFLT_RELTYPE, &Data.RelTypeID);
+		long   apply_psn_filt_to_scnd = GetClusterData(CTL_PSNRELFLT_PSNFLTTO);
+		SETFLAG(Data.Flags, PersonRelFilt::fApplyPsnFiltToScnd, apply_psn_filt_to_scnd == 1);
+		Data.SortOrd = GetClusterData(CTL_PSNRELFLT_SORTORD);
+		long   added_sel = GetClusterData(CTL_PSNRELFLT_ADDEDSEL);
+		Data.Flags &= ~(PersonRelFilt::fAddedSelectorByPrmr | PersonRelFilt::fAddedSelectorByScnd);
+		if(added_sel == 1)
+			Data.Flags |= PersonRelFilt::fAddedSelectorByPrmr;
+		else if(added_sel == 2)
+			Data.Flags |= PersonRelFilt::fAddedSelectorByScnd;
+		ok = 1;
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
-	PersonRelFilt Data;
 };
 
-int PersonRelFiltDialog::setDTS(const PersonRelFilt * pData)
-{
-	if(pData)
-		Data.Copy(pData, 1);
-	SetupPPObjCombo(this, CTLSEL_PSNRELFLT_RELTYPE, PPOBJ_PERSONRELTYPE, Data.RelTypeID, 0, 0);
-	long   apply_psn_filt_to_scnd = (Data.Flags & PersonRelFilt::fApplyPsnFiltToScnd) ? 1 : 0;
-	AddClusterAssocDef(CTL_PSNRELFLT_PSNFLTTO,  0, 0);
-	AddClusterAssoc(CTL_PSNRELFLT_PSNFLTTO,  1, 1);
-	SetClusterData(CTL_PSNRELFLT_PSNFLTTO, apply_psn_filt_to_scnd);
-
-	AddClusterAssocDef(CTL_PSNRELFLT_SORTORD,  0, PersonRelFilt::ordByPrmrPerson);
-	AddClusterAssoc(CTL_PSNRELFLT_SORTORD,  1, PersonRelFilt::ordByScndPerson);
-	AddClusterAssoc(CTL_PSNRELFLT_SORTORD,  2, PersonRelFilt::ordByRelationType);
-	SetClusterData(CTL_PSNRELFLT_SORTORD, Data.SortOrd);
-
-	long   added_sel = 0;
-	if(Data.Flags & PersonRelFilt::fAddedSelectorByPrmr)
-		added_sel = 1;
-	else if(Data.Flags & PersonRelFilt::fAddedSelectorByScnd)
-		added_sel = 2;
-	AddClusterAssocDef(CTL_PSNRELFLT_ADDEDSEL, 0, 0);
-	AddClusterAssoc(CTL_PSNRELFLT_ADDEDSEL, 1, 1);
-	AddClusterAssoc(CTL_PSNRELFLT_ADDEDSEL, 2, 2);
-	SetClusterData(CTL_PSNRELFLT_ADDEDSEL, added_sel);
-
-	return 1;
-}
-
-int PersonRelFiltDialog::getDTS(PersonRelFilt * pData)
-{
-	int    ok = -1;
-	getCtrlData(CTLSEL_PSNRELFLT_RELTYPE, &Data.RelTypeID);
-	long   apply_psn_filt_to_scnd = GetClusterData(CTL_PSNRELFLT_PSNFLTTO);
-	SETFLAG(Data.Flags, PersonRelFilt::fApplyPsnFiltToScnd, apply_psn_filt_to_scnd == 1);
-	Data.SortOrd = GetClusterData(CTL_PSNRELFLT_SORTORD);
-	long   added_sel = GetClusterData(CTL_PSNRELFLT_ADDEDSEL);
-	Data.Flags &= ~(PersonRelFilt::fAddedSelectorByPrmr | PersonRelFilt::fAddedSelectorByScnd);
-	if(added_sel == 1)
-		Data.Flags |= PersonRelFilt::fAddedSelectorByPrmr;
-	else if(added_sel == 2)
-		Data.Flags |= PersonRelFilt::fAddedSelectorByScnd;
-	ok = 1;
-	if(pData)
-		pData->Copy(&Data, 1);
-	return ok;
-}
 
 IMPL_HANDLE_EVENT(PersonRelFiltDialog)
 {
@@ -100,7 +92,7 @@ IMPL_HANDLE_EVENT(PersonRelFiltDialog)
 			v_psn.EditBaseFilt(Data.P_PsnFilt);
 		}
 		else {
-			PersonFilt * p_filt = (PersonFilt *)v_psn.CreateFilt(0);
+			PersonFilt * p_filt = static_cast<PersonFilt *>(v_psn.CreateFilt(0));
 			if(v_psn.EditBaseFilt(p_filt) > 0)
 				Data.P_PsnFilt = p_filt;
 			else
@@ -172,7 +164,7 @@ int SLAPI PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 			THROW(p_q = new BExtQuery(&r_assc, 1));
 			p_q->selectAll().where(r_assc.AsscType == PPASS_PERSONREL);
 			for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;) {
-				const PersonCore::RelationRecord * p_rec = (const PersonCore::RelationRecord *)&r_assc.data;
+				const PersonCore::RelationRecord * p_rec = reinterpret_cast<const PersonCore::RelationRecord *>(&r_assc.data);
 				if(!Filt.RelTypeID || p_rec->RelTypeID == Filt.RelTypeID) {
 					PrmrList.Add(p_rec->PrmrObjID);
 					ScndList.Add(p_rec->ScndObjID);

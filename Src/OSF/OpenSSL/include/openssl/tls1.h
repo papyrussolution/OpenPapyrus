@@ -878,10 +878,8 @@ SSL_CTX_callback_ctrl(ssl,SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB,(void (*)(void))cb)
 #define TLS_CT_GOST01_SIGN              22
 #define TLS_CT_GOST12_SIGN              238
 #define TLS_CT_GOST12_512_SIGN          239
-
 /*
- * when correcting this number, correct also SSL3_CT_NUMBER in ssl3.h (see
- * comment there)
+ * when correcting this number, correct also SSL3_CT_NUMBER in ssl3.h (see comment there)
  */
 #define TLS_CT_NUMBER                   9
 

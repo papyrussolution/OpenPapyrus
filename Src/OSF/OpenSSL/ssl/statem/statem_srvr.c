@@ -2380,9 +2380,7 @@ static int tls_process_cke_srp(SSL * s, PACKET * pkt, int * al)
 #ifndef OPENSSL_NO_SRP
 	uint i;
 	const uchar * data;
-
-	if(!PACKET_get_net_2(pkt, &i)
-	    || !PACKET_get_bytes(pkt, &data, i)) {
+	if(!PACKET_get_net_2(pkt, &i) || !PACKET_get_bytes(pkt, &data, i)) {
 		*al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_CKE_SRP, SSL_R_BAD_SRP_A_LENGTH);
 		return 0;
@@ -2402,12 +2400,10 @@ static int tls_process_cke_srp(SSL * s, PACKET * pkt, int * al)
 		SSLerr(SSL_F_TLS_PROCESS_CKE_SRP, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
-
 	if(!srp_generate_server_master_secret(s)) {
 		SSLerr(SSL_F_TLS_PROCESS_CKE_SRP, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	return 1;
 #else
 	/* Should never happen */
@@ -2443,7 +2439,6 @@ static int tls_process_cke_gost(SSL * s, PACKET * pkt, int * al)
 	else if(alg_a & SSL_aGOST01) {
 		pk = s->cert->pkeys[SSL_PKEY_GOST01].privatekey;
 	}
-
 	pkey_ctx = EVP_PKEY_CTX_new(pk, 0);
 	if(pkey_ctx == NULL) {
 		*al = SSL_AD_INTERNAL_ERROR;

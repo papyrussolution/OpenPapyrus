@@ -389,10 +389,8 @@ void ssl_load_ciphers(void)
 	/* Make sure we can access MD5 and SHA1 */
 	OPENSSL_assert(ssl_digest_methods[SSL_MD_MD5_IDX] != NULL);
 	OPENSSL_assert(ssl_digest_methods[SSL_MD_SHA1_IDX] != NULL);
-
 	disabled_mkey_mask = 0;
 	disabled_auth_mask = 0;
-
 #ifdef OPENSSL_NO_RSA
 	disabled_mkey_mask |= SSL_kRSA | SSL_kRSAPSK;
 	disabled_auth_mask |= SSL_aRSA;
@@ -414,36 +412,32 @@ void ssl_load_ciphers(void)
 #ifdef OPENSSL_NO_SRP
 	disabled_mkey_mask |= SSL_kSRP;
 #endif
-
 	/*
 	 * Check for presence of GOST 34.10 algorithms, and if they are not
 	 * present, disable appropriate auth and key exchange
 	 */
 	ssl_mac_pkey_id[SSL_MD_GOST89MAC_IDX] = get_optional_pkey_id("gost-mac");
-	if(ssl_mac_pkey_id[SSL_MD_GOST89MAC_IDX]) {
+	if(ssl_mac_pkey_id[SSL_MD_GOST89MAC_IDX])
 		ssl_mac_secret_size[SSL_MD_GOST89MAC_IDX] = 32;
-	}
-	else {
+	else
 		disabled_mac_mask |= SSL_GOST89MAC;
-	}
 	ssl_mac_pkey_id[SSL_MD_GOST89MAC12_IDX] = get_optional_pkey_id("gost-mac-12");
-	if(ssl_mac_pkey_id[SSL_MD_GOST89MAC12_IDX]) {
+	if(ssl_mac_pkey_id[SSL_MD_GOST89MAC12_IDX])
 		ssl_mac_secret_size[SSL_MD_GOST89MAC12_IDX] = 32;
-	}
-	else {
+	else
 		disabled_mac_mask |= SSL_GOST89MAC12;
-	}
+	/* @sobolev @v10.6.2
 	if(!get_optional_pkey_id("gost2001"))
-		disabled_auth_mask |= SSL_aGOST01 | SSL_aGOST12;
+		disabled_auth_mask |= (SSL_aGOST01 | SSL_aGOST12);
 	if(!get_optional_pkey_id("gost2012_256"))
 		disabled_auth_mask |= SSL_aGOST12;
 	if(!get_optional_pkey_id("gost2012_512"))
 		disabled_auth_mask |= SSL_aGOST12;
+	*/
 	/*
 	 * Disable GOST key exchange if no GOST signature algs are available *
 	 */
-	if((disabled_auth_mask & (SSL_aGOST01 | SSL_aGOST12)) ==
-	    (SSL_aGOST01 | SSL_aGOST12))
+	if((disabled_auth_mask & (SSL_aGOST01 | SSL_aGOST12)) == (SSL_aGOST01 | SSL_aGOST12))
 		disabled_mkey_mask |= SSL_kGOST;
 }
 
@@ -461,7 +455,7 @@ DEFINE_RUN_ONCE_STATIC(do_load_builtin_compressions)
 	CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_DISABLE);
 	ssl_comp_methods = sk_SSL_COMP_new(sk_comp_cmp);
 	if(COMP_get_type(method) != NID_undef && ssl_comp_methods != NULL) {
-		comp = (SSL_COMP*)OPENSSL_malloc(sizeof(*comp));
+		comp = static_cast<SSL_COMP *>(OPENSSL_malloc(sizeof(*comp)));
 		if(comp != NULL) {
 			comp->method = method;
 			comp->id = SSL_COMP_ZLIB_IDX;
@@ -611,27 +605,21 @@ static void ll_append_head(CIPHER_ORDER ** head, CIPHER_ORDER * curr, CIPHER_ORD
 static void ssl_cipher_collect_ciphers(const SSL_METHOD * ssl_method, int num_of_ciphers, uint32_t disabled_mkey, 
 	uint32_t disabled_auth, uint32_t disabled_enc, uint32_t disabled_mac, CIPHER_ORDER * co_list, CIPHER_ORDER ** head_p, CIPHER_ORDER ** tail_p)
 {
-	int i, co_list_num;
-	const SSL_CIPHER * c;
-
+	int i;
 	/*
-	 * We have num_of_ciphers descriptions compiled in, depending on the
-	 * method selected (SSLv3, TLSv1 etc).
-	 * These will later be sorted in a linked list with at most num
-	 * entries.
+	 * We have num_of_ciphers descriptions compiled in, depending on the method selected (SSLv3, TLSv1 etc).
+	 * These will later be sorted in a linked list with at most num entries.
 	 */
-
 	/* Get the initial list of ciphers */
-	co_list_num = 0;        /* actual count of ciphers */
+	int co_list_num = 0;        /* actual count of ciphers */
 	for(i = 0; i < num_of_ciphers; i++) {
-		c = ssl_method->get_cipher(i);
+		const SSL_CIPHER * c = ssl_method->get_cipher(i);
 		/* drop those that use any of that is not available */
 		if(c == NULL || !c->valid)
 			continue;
 		if(FIPS_mode() && (c->algo_strength & SSL_FIPS))
 			continue;
-		if((c->algorithm_mkey & disabled_mkey) || (c->algorithm_auth & disabled_auth) ||
-		    (c->algorithm_enc & disabled_enc) || (c->algorithm_mac & disabled_mac))
+		if((c->algorithm_mkey & disabled_mkey) || (c->algorithm_auth & disabled_auth) || (c->algorithm_enc & disabled_enc) || (c->algorithm_mac & disabled_mac))
 			continue;
 		if(((ssl_method->ssl3_enc->enc_flags & SSL_ENC_FLAG_DTLS) == 0) && c->min_tls == 0)
 			continue;
@@ -665,13 +653,8 @@ static void ssl_cipher_collect_ciphers(const SSL_METHOD * ssl_method, int num_of
 	}
 }
 
-static void ssl_cipher_collect_aliases(const SSL_CIPHER ** ca_list,
-    int num_of_group_aliases,
-    uint32_t disabled_mkey,
-    uint32_t disabled_auth,
-    uint32_t disabled_enc,
-    uint32_t disabled_mac,
-    CIPHER_ORDER * head)
+static void ssl_cipher_collect_aliases(const SSL_CIPHER ** ca_list, int num_of_group_aliases, uint32_t disabled_mkey,
+    uint32_t disabled_auth, uint32_t disabled_enc, uint32_t disabled_mac, CIPHER_ORDER * head)
 {
 	CIPHER_ORDER * ciph_curr;
 	const SSL_CIPHER ** ca_curr;
@@ -1186,14 +1169,24 @@ static int check_suiteb_cipher_list(const SSL_METHOD * meth, CERT * c, const cha
 
 #endif
 
-STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK_OF(SSL_CIPHER)
-    **cipher_list, STACK_OF(SSL_CIPHER) **cipher_list_by_id, const char * rule_str, CERT *c)
+STACK_OF(SSL_CIPHER) * ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK_OF(SSL_CIPHER) ** cipher_list, 
+	STACK_OF(SSL_CIPHER) ** cipher_list_by_id, const char * rule_str, CERT *c)
 {
-	int ok, num_of_ciphers, num_of_alias_max, num_of_group_aliases;
-	uint32_t disabled_mkey, disabled_auth, disabled_enc, disabled_mac;
-	STACK_OF(SSL_CIPHER) *cipherstack, *tmp_cipher_list;
+	int ok;
+	int num_of_ciphers;
+	int num_of_alias_max;
+	int num_of_group_aliases;
+	uint32_t disabled_mkey;
+	uint32_t disabled_auth;
+	uint32_t disabled_enc;
+	uint32_t disabled_mac;
+	STACK_OF(SSL_CIPHER) * cipherstack;
+	STACK_OF(SSL_CIPHER) * tmp_cipher_list;
 	const char * rule_p;
-	CIPHER_ORDER * co_list = NULL, * head = NULL, * tail = NULL, * curr;
+	CIPHER_ORDER * co_list = NULL;
+	CIPHER_ORDER * head = NULL;
+	CIPHER_ORDER * tail = NULL;
+	CIPHER_ORDER * curr;
 	const SSL_CIPHER ** ca_list = NULL;
 	/*
 	 * Return with error if nothing to do.
@@ -1218,7 +1211,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK
 	 * it is used for allocation.
 	 */
 	num_of_ciphers = ssl_method->num_ciphers();
-	co_list = (CIPHER_ORDER*)OPENSSL_malloc(sizeof(*co_list) * num_of_ciphers);
+	co_list = static_cast<CIPHER_ORDER *>(OPENSSL_malloc(sizeof(*co_list) * num_of_ciphers));
 	if(co_list == NULL) {
 		SSLerr(SSL_F_SSL_CREATE_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
 		return NULL;  /* Failure */

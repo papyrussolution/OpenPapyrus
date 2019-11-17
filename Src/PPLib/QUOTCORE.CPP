@@ -3330,10 +3330,10 @@ int SLAPI Quotation2Core::Verify()
 	return ok;
 }
 
-static const uint64 Quotation2_DumpHeader_Signature = 0x7654321098fedcbaLL; // @persistent
+// @v10.6.1 (moved to PPConst) static const uint64 Quotation2_DumpHeader_Signature = 0x7654321098fedcbaLL; // @persistent
 
 struct Quotation2_DumpHeader {
-	Quotation2_DumpHeader() : Signature(Quotation2_DumpHeader_Signature), Dtm(ZERODATETIME), CRC(0)
+	Quotation2_DumpHeader() : Signature(_PPConst.Signature_Quotation2_DumpHeader), Dtm(ZERODATETIME), CRC(0)
 	{
 		memzero(Reserve, sizeof(Reserve));
 	}

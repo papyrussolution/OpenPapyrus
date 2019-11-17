@@ -246,7 +246,7 @@ private:
 	void SLAPI SetErrorMessage();
 	void SLAPI WriteLogFile(PPID id);
 	void SLAPI CutLongTail(char * pBuf);
-	void SLAPI CutLongTail(SString &rBuf);
+	void SLAPI CutLongTail(SString & rBuf);
 	void SLAPI SetCheckLine(char pattern, char * pBuf);
 	int  SLAPI LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon);
 	int  SLAPI ReadStringFromTbl(int tblNum, int rowNum, int fldNum, SString & rStr);
@@ -361,7 +361,20 @@ private:
 		// @v9.1.7 BarcodeParameter5,                      // @v9.1.5
 		// @v9.1.7 BarcodeAlignment,                       // @v9.1.5
 		FirstLineNumber,                        // @v9.1.5
-		LineNumber                              // @v9.1.5
+		LineNumber,                             // @v9.1.5
+		Summ4,                                  // @v10.6.1
+		Summ5,                                  // @v10.6.1
+		Summ6,                                  // @v10.6.1
+		Summ7,                                  // @v10.6.1
+		Summ8,                                  // @v10.6.1
+		Summ9,                                  // @v10.6.1
+		Summ10,                                 // @v10.6.1
+		Summ11,                                 // @v10.6.1
+		Summ12,                                 // @v10.6.1
+		Summ13,                                 // @v10.6.1
+		Summ14,                                 // @v10.6.1
+		Summ15,                                 // @v10.6.1
+		Summ16,                                 // @v10.6.1
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -390,12 +403,14 @@ private:
 		sfUseWghtSensor = 0x0040  // использовать весовой датчик
 	};
 	static FR_INTRF * P_DrvFRIntrf;
-	static int RefToIntrf;
+	static int  RefToIntrf;
+	static uint PayTypeRegFlags;  // @v10.6.1 Флаги успешности получения интерфейсов для Summ1..Summ16
 	long   CashierPassword;    // Пароль кассира
 	long   AdmPassword;        // Пароль сист.администратора
 	int    ResCode;            //
 	int    ErrCode;            //
 	int    DeviceType;         //
+	int    SCardPaymEntryN;    // @v10.6.2 PPINIPARAM_SHTRIHFRSCARDPAYMENTRY Регистр аппарата, в который заносится оплата по корпоративной карте [1..16]
 	long   CheckStrLen;        //
 	long   Flags;              //
 	uint   RibbonParam;        //
@@ -404,6 +419,7 @@ private:
 
 FR_INTRF * SCS_SHTRIHFRF::P_DrvFRIntrf = 0; // @global
 int  SCS_SHTRIHFRF::RefToIntrf = 0;         // @global
+uint SCS_SHTRIHFRF::PayTypeRegFlags = 0;   // @global
 
 class CM_SHTRIHFRF : public PPCashMachine {
 public:
@@ -427,7 +443,7 @@ REGISTER_CMT(SHTRIHFRF,1,0);
 
 SLAPI SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
 	CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
-	DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0)
+	DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0)
 {
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfNotUseCutter;
@@ -660,6 +676,9 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 	int     chk_no = 0;
 	int     is_format = 0;
 	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
+	SString added_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
 	THROW_INVARG(pPack);
@@ -799,7 +818,6 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 				}
 				else if(running_total != amt) {
-					SString fmt_buf, msg_buf, added_buf;
 					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 					const char * p_sign = (running_total > amt) ? " > " : ((running_total < amt) ? " < " : " ?==? ");
 					added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
@@ -811,7 +829,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		if(!is_format) {
 			CCheckLineTbl::Rec ccl;
 			for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
-				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
+				const int division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
 				// Наименование товара
 				GetGoodsName(ccl.GoodsID, temp_buf);
 				temp_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
@@ -881,10 +899,47 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			const double __amt_bnk = amt_bnk;
 			const double __amt_ccrd = amt_ccrd;
 			const double __amt_cash = sum - __amt_bnk - __amt_ccrd;
+			// @v10.6.2 {
+			const int ccrd_entry_n = inrangeordefault(static_cast<long>(SCardPaymEntryN), 1, 16, 2);
+			PPID  ccrd_entry_id = 0;
+			switch(ccrd_entry_n) {
+				case  1: ccrd_entry_id =  Summ1; break;
+				case  2: ccrd_entry_id =  Summ2; break;
+				case  3: ccrd_entry_id =  Summ3; break;
+				case  4: ccrd_entry_id =  Summ4; break;
+				case  5: ccrd_entry_id =  Summ5; break;
+				case  6: ccrd_entry_id =  Summ6; break;
+				case  7: ccrd_entry_id =  Summ7; break;
+				case  8: ccrd_entry_id =  Summ8; break;
+				case  9: ccrd_entry_id =  Summ9; break;
+				case 10: ccrd_entry_id = Summ10; break;
+				case 11: ccrd_entry_id = Summ11; break;
+				case 12: ccrd_entry_id = Summ12; break;
+				case 13: ccrd_entry_id = Summ13; break;
+				case 14: ccrd_entry_id = Summ14; break;
+				case 15: ccrd_entry_id = Summ15; break;
+				case 16: ccrd_entry_id = Summ16; break;
+			}
+			if(PayTypeRegFlags & (1U << ccrd_entry_n) && !ccrd_entry_id)
+				ccrd_entry_id = Summ2;
+			// } @v10.6.2 
+			{
+				msg_buf.Z().Cat("Payment").CatDiv(':', 2).Cat("PayTypeRegFlags-hex").CatChar('=').CatHex(static_cast<ulong>(PayTypeRegFlags));
+				msg_buf.Space().Cat("PayTypeRegFlags-dec").CatChar('=').Cat(PayTypeRegFlags);
+				msg_buf.Space().CatEq("sum", sum, MKSFMTD(0, 6, 0)).Space().CatEq("amt_cash", __amt_cash, MKSFMTD(0, 6, 0)).Space().
+					CatEq("amt_bnk", __amt_bnk, MKSFMTD(0, 6, 0)).Space().CatEq("amt_ccrd", __amt_ccrd, MKSFMTD(0, 6, 0));
+				PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+			}
+			// 1  - наличная оплата
+			// 2  - безналичная оплата
+			// 14 - предварительная оплата
+			// 15 - последующая оплата
 			// @v10.6.0 if(amt_bnk != 0.0)
-				THROW(SetFR(Summ2, __amt_bnk));
-			// @v10.6.0 if((__amt_cash+__amt_ccrd) != 0.0)
-				THROW(SetFR(Summ1, (__amt_cash+__amt_ccrd)));
+			THROW(SetFR(Summ1, (ccrd_entry_id == Summ1) ? (__amt_cash + __amt_ccrd) : __amt_cash));
+			THROW(SetFR(Summ2, (ccrd_entry_id == Summ2) ? (__amt_bnk  + __amt_ccrd) : __amt_bnk));
+			if(!oneof3(ccrd_entry_id, Summ1, Summ2, 0)) {
+				THROW(SetFR(ccrd_entry_id, __amt_ccrd));
+			}
 		}
 		// } @v10.4.11 
 		if(_fiscal != 0.0) {
@@ -1532,6 +1587,7 @@ int SLAPI SCS_SHTRIHFRF::GetSummator(double * val)
 FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
 {
 	FR_INTRF * p_drv = 0;
+	SCS_SHTRIHFRF::PayTypeRegFlags = 0;
 	THROW_MEM(p_drv = new ComDispInterface);
 	THROW(p_drv->Init("AddIn.DrvFR"));
 	THROW(ASSIGN_ID_BY_NAME(p_drv, ResultCode) > 0);
@@ -1548,8 +1604,26 @@ FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Quantity) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Price) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Summ1) > 0);
+	PayTypeRegFlags |= (1U << 1); // @v10.6.1
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Summ2) > 0);
+	PayTypeRegFlags |= (1U << 2); // @v10.6.1
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Summ3) > 0);
+	PayTypeRegFlags |= (1U << 3); // @v10.6.1
+
+	if(ASSIGN_ID_BY_NAME(p_drv,  Summ4)) PayTypeRegFlags |= (1U <<  4); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv,  Summ5)) PayTypeRegFlags |= (1U <<  5); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv,  Summ6)) PayTypeRegFlags |= (1U <<  6); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv,  Summ7)) PayTypeRegFlags |= (1U <<  7); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv,  Summ8)) PayTypeRegFlags |= (1U <<  8); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv,  Summ9)) PayTypeRegFlags |= (1U <<  9); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv, Summ10)) PayTypeRegFlags |= (1U << 10); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv, Summ11)) PayTypeRegFlags |= (1U << 11); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv, Summ12)) PayTypeRegFlags |= (1U << 12); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv, Summ13)) PayTypeRegFlags |= (1U << 13); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv, Summ14)) PayTypeRegFlags |= (1U << 14); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv, Summ15)) PayTypeRegFlags |= (1U << 15); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv, Summ16)) PayTypeRegFlags |= (1U << 16); // @v10.6.1
+
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax1) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax2) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax3) > 0);
@@ -1879,6 +1953,8 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		int    def_timeout = -1;
 		SString buf, buf1;
 		PPIniFile ini_file;
+		int    temp_int = 0;
+		SCardPaymEntryN = ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRSCARDPAYMENTRY, &temp_int) ? inrangeordefault(static_cast<long>(temp_int), 1, 16, 0) : 0; // @v10.6.2
 		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
 		buf.Divide(',', buf1, AdmName);
 		CashierPassword = AdmPassword = buf1.ToLong();

@@ -798,16 +798,12 @@ int CMS_add_simple_smimecap(STACK_OF(X509_ALGOR) ** algs, int algnid, int keysiz
 
 static int cms_add_cipher_smcap(STACK_OF(X509_ALGOR) ** sk, int nid, int arg)
 {
-	if(EVP_get_cipherbynid(nid))
-		return CMS_add_simple_smimecap(sk, nid, arg);
-	return 1;
+	return (EVP_get_cipherbynid(nid)) ? CMS_add_simple_smimecap(sk, nid, arg) : 1;
 }
 
 static int cms_add_digest_smcap(STACK_OF(X509_ALGOR) ** sk, int nid, int arg)
 {
-	if(EVP_get_digestbynid(nid))
-		return CMS_add_simple_smimecap(sk, nid, arg);
-	return 1;
+	return (EVP_get_digestbynid(nid)) ? CMS_add_simple_smimecap(sk, nid, arg) : 1;
 }
 
 int CMS_add_standard_smimecap(STACK_OF(X509_ALGOR) ** smcap)

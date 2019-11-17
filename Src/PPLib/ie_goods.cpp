@@ -1020,7 +1020,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 		{
 			PersonReq psn_req;
 			PPCountryBlock country_blk;
-			sdr_goods.ManufID = pPack->Rec.ManufID; // @v7.4.11
+			sdr_goods.ManufID = pPack->Rec.ManufID;
 			GetObjectName(PPOBJ_PERSON, pPack->Rec.ManufID, temp_buf);
 			temp_buf.CopyTo(sdr_goods.ManufName, sizeof(sdr_goods.ManufName));
 			P_PsnObj->GetCountry(pPack->Rec.ManufID, 0, &country_blk);

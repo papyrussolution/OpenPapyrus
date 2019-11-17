@@ -301,7 +301,6 @@ void Curl_ssl_kill_session(struct curl_ssl_session * session)
 		ZFREE(session->conn_to_host);
 	}
 }
-
 /*
  * Delete the given session ID from the cache.
  */
@@ -316,7 +315,6 @@ void Curl_ssl_delsessionid(struct connectdata * conn, void * ssl_sessionid)
 		}
 	}
 }
-
 /*
  * Store session id in the session cache. The ID passed on to this function
  * must already have been extracted and allocated the proper way for the SSL
@@ -349,12 +347,10 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn, void * ssl_sessionid, 
 	else
 		clone_conn_to_host = NULL;
 	conn_to_port = conn->bits.conn_to_port ? conn->conn_to_port : -1;
-	/* Now we should add the session ID and the host name to the cache, (remove
-	   the oldest if necessary) */
-
-	/* If using shared SSL session, lock! */
+	// Now we should add the session ID and the host name to the cache, (remove the oldest if necessary) 
+	// If using shared SSL session, lock! 
 	general_age = SSLSESSION_SHARED(data) ? &data->share->sessionage : &data->state.sessionage;
-	/* find an empty slot for us, or find the oldest */
+	// find an empty slot for us, or find the oldest 
 	for(i = 1; (i < data->set.general_ssl.max_ssl_sessions) && data->state.session[i].sessionid; i++) {
 		if(data->state.session[i].age < oldest_age) {
 			oldest_age = data->state.session[i].age;
@@ -362,11 +358,9 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn, void * ssl_sessionid, 
 		}
 	}
 	if(i == data->set.general_ssl.max_ssl_sessions)
-		/* cache is full, we must "kill" the oldest entry! */
-		Curl_ssl_kill_session(store);
+		Curl_ssl_kill_session(store); // cache is full, we must "kill" the oldest entry! 
 	else
 		store = &data->state.session[i];  /* use this slot */
-
 	/* now init the session struct wisely */
 	store->sessionid = ssl_sessionid;
 	store->idsize = idsize;
@@ -380,70 +374,52 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn, void * ssl_sessionid, 
 	/* port number */
 	store->remote_port = isProxy ? (int)conn->port : conn->remote_port;
 	store->scheme = conn->handler->scheme;
-
 	if(!Curl_clone_primary_ssl_config(ssl_config, &store->ssl_config)) {
 		store->sessionid = NULL; /* let caller free sessionid */
 		SAlloc::F(clone_host);
 		SAlloc::F(clone_conn_to_host);
 		return CURLE_OUT_OF_MEMORY;
 	}
-
 	return CURLE_OK;
 }
 
 void Curl_ssl_close_all(struct Curl_easy * data)
 {
-	size_t i;
-	/* kill the session ID cache if not shared */
+	// kill the session ID cache if not shared 
 	if(data->state.session && !SSLSESSION_SHARED(data)) {
-		for(i = 0; i < data->set.general_ssl.max_ssl_sessions; i++)
-			/* the single-killer function handles empty table slots */
-			Curl_ssl_kill_session(&data->state.session[i]);
-
-		/* free the cache data */
-		ZFREE(data->state.session);
+		for(size_t i = 0; i < data->set.general_ssl.max_ssl_sessions; i++)
+			Curl_ssl_kill_session(&data->state.session[i]); // the single-killer function handles empty table slots 
+		ZFREE(data->state.session); // free the cache data 
 	}
-
 	curlssl_close_all(data);
 }
 
-#if defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_SCHANNEL) || \
-	defined(USE_DARWINSSL) || defined(USE_POLARSSL) || defined(USE_NSS) || \
-	defined(USE_MBEDTLS)
-int Curl_ssl_getsock(struct connectdata * conn, curl_socket_t * socks,
-    int numsocks)
-{
-	struct ssl_connect_data * connssl = &conn->ssl[FIRSTSOCKET];
-
-	if(!numsocks)
+#if defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_DARWINSSL) || defined(USE_POLARSSL) || defined(USE_NSS) || defined(USE_MBEDTLS)
+	int Curl_ssl_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks)
+	{
+		struct ssl_connect_data * connssl = &conn->ssl[FIRSTSOCKET];
+		if(!numsocks)
+			return GETSOCK_BLANK;
+		if(connssl->connecting_state == ssl_connect_2_writing) {
+			/* write mode */
+			socks[0] = conn->sock[FIRSTSOCKET];
+			return GETSOCK_WRITESOCK(0);
+		}
+		if(connssl->connecting_state == ssl_connect_2_reading) {
+			/* read mode */
+			socks[0] = conn->sock[FIRSTSOCKET];
+			return GETSOCK_READSOCK(0);
+		}
 		return GETSOCK_BLANK;
-
-	if(connssl->connecting_state == ssl_connect_2_writing) {
-		/* write mode */
-		socks[0] = conn->sock[FIRSTSOCKET];
-		return GETSOCK_WRITESOCK(0);
 	}
-	if(connssl->connecting_state == ssl_connect_2_reading) {
-		/* read mode */
-		socks[0] = conn->sock[FIRSTSOCKET];
-		return GETSOCK_READSOCK(0);
-	}
-
-	return GETSOCK_BLANK;
-}
-
 #else
-int Curl_ssl_getsock(struct connectdata * conn,
-    curl_socket_t * socks,
-    int numsocks)
-{
-	(void)conn;
-	(void)socks;
-	(void)numsocks;
-	return GETSOCK_BLANK;
-}
-
-/* USE_OPENSSL || USE_GNUTLS || USE_SCHANNEL || USE_DARWINSSL || USE_NSS */
+	int Curl_ssl_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks)
+	{
+		(void)conn;
+		(void)socks;
+		(void)numsocks;
+		return GETSOCK_BLANK;
+	}
 #endif
 
 void Curl_ssl_close(struct connectdata * conn, int sockindex)
@@ -462,44 +438,43 @@ CURLcode Curl_ssl_shutdown(struct connectdata * conn, int sockindex)
 	conn->send[sockindex] = Curl_send_plain;
 	return CURLE_OK;
 }
-
-/* Selects an SSL crypto engine
- */
+// 
+// Selects an SSL crypto engine
+// 
 CURLcode Curl_ssl_set_engine(struct Curl_easy * data, const char * engine)
 {
 	return curlssl_set_engine(data, engine);
 }
-
-/* Selects the default SSL crypto engine
- */
+// 
+// Selects the default SSL crypto engine
+// 
 CURLcode Curl_ssl_set_engine_default(struct Curl_easy * data)
 {
 	return curlssl_set_engine_default(data);
 }
-
-/* Return list of OpenSSL crypto engine names. */
+// 
+// Return list of OpenSSL crypto engine names.
+// 
 struct curl_slist * Curl_ssl_engines_list(struct Curl_easy * data)
 {
 	return curlssl_engines_list(data);
 }
-
-/*
- * This sets up a session ID cache to the specified size. Make sure this code
- * is agnostic to what underlying SSL technology we use.
- */
+// 
+// This sets up a session ID cache to the specified size. Make sure this code
+// is agnostic to what underlying SSL technology we use.
+// 
 CURLcode Curl_ssl_initsessions(struct Curl_easy * data, size_t amount)
 {
 	struct curl_ssl_session * session;
 	if(data->state.session)
-		/* this is just a precaution to prevent multiple inits */
-		return CURLE_OK;
-	session = (struct curl_ssl_session *)SAlloc::C(amount, sizeof(struct curl_ssl_session));
+		return CURLE_OK; // this is just a precaution to prevent multiple inits 
+	session = static_cast<struct curl_ssl_session *>(SAlloc::C(amount, sizeof(struct curl_ssl_session)));
 	if(!session)
 		return CURLE_OUT_OF_MEMORY;
-	/* store the info in the SSL section */
+	// store the info in the SSL section 
 	data->set.general_ssl.max_ssl_sessions = amount;
 	data->state.session = session;
-	data->state.sessionage = 1; /* this is brand new */
+	data->state.sessionage = 1; // this is brand new 
 	return CURLE_OK;
 }
 

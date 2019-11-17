@@ -112,7 +112,7 @@ CURLcode Curl_http_setup_conn(struct connectdata * conn)
 	// allocate the HTTP-specific struct for the Curl_easy, only to survive during this request 
 	struct HTTP * http;
 	DEBUGASSERT(conn->data->req.protop == NULL);
-	http = (struct HTTP *)SAlloc::C(1, sizeof(struct HTTP));
+	http = static_cast<struct HTTP *>(SAlloc::C(1, sizeof(struct HTTP)));
 	if(!http)
 		return CURLE_OUT_OF_MEMORY;
 	conn->data->req.protop = http;
@@ -1118,27 +1118,18 @@ bool Curl_compareheader(const char * headerline, /* line to check */
 CURLcode Curl_http_connect(struct connectdata * conn, bool * done)
 {
 	CURLcode result;
-
-	/* We default to persistent connections. We set this already in this connect
-	   function to make the re-use checks properly be able to check this bit. */
+	// We default to persistent connections. We set this already in this connect function to make the re-use checks properly be able to check this bit. 
 	connkeep(conn, "HTTP default");
-
 	/* the CONNECT procedure might not have been completed */
 	result = Curl_proxy_connect(conn, FIRSTSOCKET);
 	if(result)
 		return result;
-
 	if(conn->bits.proxy_connect_closed)
-		/* this is not an error, just part of the connection negotiation */
-		return CURLE_OK;
-
+		return CURLE_OK; // this is not an error, just part of the connection negotiation 
 	if(CONNECT_FIRSTSOCKET_PROXY_SSL())
 		return CURLE_OK;  /* wait for HTTPS proxy SSL initialization to complete */
-
 	if(conn->tunnel_state[FIRSTSOCKET] == TUNNEL_CONNECT)
-		/* nothing else to do except wait right now - we're not done here. */
-		return CURLE_OK;
-
+		return CURLE_OK; // nothing else to do except wait right now - we're not done here. 
 	if(conn->given->protocol & CURLPROTO_HTTPS) {
 		/* perform SSL initialization */
 		result = https_connecting(conn, done);
@@ -1147,16 +1138,12 @@ CURLcode Curl_http_connect(struct connectdata * conn, bool * done)
 	}
 	else
 		*done = TRUE;
-
 	return CURLE_OK;
 }
-
 /* this returns the socket to wait for in the DO and DOING state for the multi
    interface and then we're always _sending_ a request and thus we wait for
    the single socket to become writable only */
-static int http_getsock_do(struct connectdata * conn,
-    curl_socket_t * socks,
-    int numsocks)
+static int http_getsock_do(struct connectdata * conn, curl_socket_t * socks, int numsocks)
 {
 	/* write mode */
 	(void)numsocks; /* unused, we trust it to be at least 1 */
@@ -1169,26 +1156,20 @@ static CURLcode https_connecting(struct connectdata * conn, bool * done)
 {
 	CURLcode result;
 	DEBUGASSERT((conn) && (conn->handler->flags & PROTOPT_SSL));
-
 	/* perform SSL initialization for this socket */
 	result = Curl_ssl_connect_nonblocking(conn, FIRSTSOCKET, done);
 	if(result)
 		connclose(conn, "Failed HTTPS connection");
-
 	return result;
 }
 
-static int https_getsock(struct connectdata * conn,
-    curl_socket_t * socks,
-    int numsocks)
+static int https_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks)
 {
 	if(conn->handler->flags & PROTOPT_SSL)
 		return Curl_ssl_getsock(conn, socks, numsocks);
 	return GETSOCK_BLANK;
 }
-
 #endif /* USE_SSL */
-
 /*
  * Curl_http_done() gets called after a single HTTP request has been
  * performed.
@@ -1196,7 +1177,7 @@ static int https_getsock(struct connectdata * conn,
 CURLcode Curl_http_done(struct connectdata * conn, CURLcode status, bool premature)
 {
 	struct Curl_easy * data = conn->data;
-	struct HTTP * http = (struct HTTP *)data->req.protop;
+	struct HTTP * http = static_cast<struct HTTP *>(data->req.protop);
 	/* Clear multipass flag. If authentication isn't done yet, then it will get
 	 * a chance to be set back to true when we output the next auth header */
 	data->state.authhost.multipass = FALSE;

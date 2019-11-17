@@ -38,10 +38,10 @@
 
 /* required for cross-compilation against the w64 mingw-runtime package */
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
-#undef _WIN32_WINNT
+	#undef _WIN32_WINNT
 #endif
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
+	#define _WIN32_WINNT 0x0600
 #endif
 
 #include <windows.h>

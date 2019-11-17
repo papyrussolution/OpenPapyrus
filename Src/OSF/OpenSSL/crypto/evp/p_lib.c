@@ -111,7 +111,7 @@ int EVP_PKEY_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 
 EVP_PKEY * EVP_PKEY_new(void)
 {
-	EVP_PKEY * ret = (EVP_PKEY*)OPENSSL_zalloc(sizeof(*ret));
+	EVP_PKEY * ret = static_cast<EVP_PKEY *>(OPENSSL_zalloc(sizeof(*ret)));
 	if(!ret)
 		EVPerr(EVP_F_EVP_PKEY_NEW, ERR_R_MALLOC_FAILURE);
 	else {
@@ -138,12 +138,10 @@ int FASTCALL EVP_PKEY_up_ref(EVP_PKEY * pkey)
 	REF_ASSERT_ISNT(i < 2);
 	return ((i > 1) ? 1 : 0);
 }
-
 /*
  * Setup a public key ASN1 method and ENGINE from a NID or a string. If pkey
  * is NULL just return 1 or 0 if the algorithm exists.
  */
-
 static int pkey_set_type(EVP_PKEY * pkey, int type, const char * str, int len)
 {
 	const EVP_PKEY_ASN1_METHOD * ameth;
@@ -178,7 +176,6 @@ static int pkey_set_type(EVP_PKEY * pkey, int type, const char * str, int len)
 	if(pkey) {
 		pkey->ameth = ameth;
 		pkey->engine = e;
-
 		pkey->type = pkey->ameth->pkey_id;
 		pkey->save_type = type;
 	}

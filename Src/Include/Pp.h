@@ -409,10 +409,14 @@ typedef LongArray PPIDArray;
 class PPConstParam {
 public:
 	SLAPI  PPConstParam() : UseAdvEvQueue(1), Flags(/*fDoSeparateNonFiscalCcItems*/),
-		PPObjSCard_FiltSignature(0xfbefffffU),
-		DbDumpSignature(0x44445050UL),
-		VerHistSignature(0x48565050UL), // 'PPVH'
-		LaunchAppParam_Signature(0x4c484150L), // 'LHAP'
+		Signature_PPObjSCard_Filt(0xfbefffffU),
+		Signature_DbDump(0x44445050UL),
+		Signature_VerHist(0x48565050UL), // 'PPVH'
+		Signature_PhoneServiceEventResponder(0x5A6B7C8E),
+		Signature_MqbEventResponder(0xB4C7E6F1),
+		Signature_SysMaintenanceEventResponder(0x35079E8D),
+		Signature_LaunchAppParam(0x4c484150L), // 'LHAP'
+		Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
 		P_SubjectDbDiv("$PpyDbDivTransmission$"),
 		P_SubjectOrder("$PpyOrderTransmission$"),
 		P_SubjectCharry("$PpyCharryTransmission$")
@@ -423,10 +427,14 @@ public:
 	};
 	const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
 	const uint32 Flags;
-	const uint32 DbDumpSignature;
-	const uint32 VerHistSignature;         // Сигнатура файла истории обновления версий
-	const uint32 PPObjSCard_FiltSignature; // Специальная сигнатура объекта PPObjSCard::Filt
-	const long   LaunchAppParam_Signature;
+	const uint32 Signature_DbDump;
+	const uint32 Signature_VerHist;         // Сигнатура файла истории обновления версий
+	const uint32 Signature_PPObjSCard_Filt; // Специальная сигнатура объекта PPObjSCard::Filt
+	const uint32 Signature_PhoneServiceEventResponder; // Сигнатура респондера событий телефонного сервиса
+	const uint32 Signature_MqbEventResponder; // Сигнатура респондера событий брокера сообщений
+	const uint32 Signature_SysMaintenanceEventResponder; // Сигатура респондера событий обслуживания системы
+	const long   Signature_LaunchAppParam;
+	const uint64 Signature_Quotation2_DumpHeader; // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
 	const char * P_SubjectDbDiv;
 	const char * P_SubjectOrder;
 	const char * P_SubjectCharry;
@@ -6010,6 +6018,26 @@ private:
 	long   AdvCookie_Msg;
 	PPMqbClient * P_Cli;
 };
+//
+// Descr: Идентификаторы функций системного обслуживания.
+//   Ассоциируются с системными событиями PPACN_SYSMAINTENANCE в виде дополнительного значения.
+//
+enum { // @persistent
+	sysmntncfuncGetCommonMqsConfig = 1 // Получение общей конфигурации брокера сообщений
+};
+
+class SysMaintenanceEventResponder {
+public:
+	SLAPI  SysMaintenanceEventResponder();
+	SLAPI ~SysMaintenanceEventResponder();
+	int    SLAPI IsConsistent() const;
+private:
+	static int AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
+	static int ResponseByAdviseCallback(const SString & rResponseMsg, const PPMqbClient::Envelope * pEnv, SysMaintenanceEventResponder * pSelf, SString &rDomainBuf);
+
+	uint32 Signature;
+	long   AdvCookie;
+};
 
 struct PPAdviseEvent {
 	void   SLAPI Clear();
@@ -6134,13 +6162,13 @@ public:
         uint32 Get_Count;        // Количество запросов Get
         uint32 GetDecline_Count; // Количество отклоненных запросов Get по причине блокировки
         uint32 MaxLength;        // Максимальная длина очереди
-		uint   State;            // @v10.6.0 Флаги состояния очереди 
+		uint   State;            // @v10.6.0 Флаги состояния очереди
 		uint   SjPrcCount;       // @v10.6.0 Количество обращений к системному журналу
 		uint   SjMsgCount;       // @v10.6.0 Количество событий, поступивщих от системного журнала
 		uint   PhnSvcPrcCount;   // @v10.6.0 Количество обращений к телефонному сервису
 		uint   PhnSvcMsgCount;   // @v10.6.0 Количество событий поступивших от телефонного сервиса
-		uint   MqbPrcCount;      // @v10.6.0 Количество обращений к брокеру сообщений  
-		uint   MqbMsgCount;      // @v10.6.0 Количество сообщений поступивших от брокера сообщений  
+		uint   MqbPrcCount;      // @v10.6.0 Количество обращений к брокеру сообщений
+		uint   MqbMsgCount;      // @v10.6.0 Количество сообщений поступивших от брокера сообщений
 	};
 
 	int    FASTCALL RegisterClient(const Client * pCli);
@@ -6259,6 +6287,7 @@ private:
 	SrDatabase * P_SrDb; // @v9.7.11
 	PhoneServiceEventResponder * P_PhnSvcEvRespr; // @v9.8.12
 	MqbEventResponder * P_MqbEvRespr; // @v10.5.7
+	SysMaintenanceEventResponder * P_SysMntnc; // @v10.6.1
 public:
 	class WaitBlock {
 	public:
@@ -18152,6 +18181,7 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_FACEBOOK      2 //
 #define PPGLS_VK            3 //
 #define PPGLS_VETIS         4 //
+#define PPGLS_CHZN          5 // @v10.6.1 честный знак
 
 struct PPGlobalUserAcc {
 	long   Tag;            // Const=PPOBJ_GLOBALUSERACC
@@ -24028,6 +24058,7 @@ public:
 	BADIF_INITCITY|BADIF_INITBEXTNAME)
 
 struct PPBank {
+	SLAPI  PPBank();
 	PPID   ID;
 	char   Name[128];
 	char   BIC[24];

@@ -971,7 +971,7 @@ int SLAPI PrcssrDbDump::OpenStream(const char * pFileName)
 	if(P.Mode) {
 		THROW_SL(FDump.Open(pFileName, SFile::mReadWriteTrunc | SFile::mBinary | SFile::mNoStd));
 		MEMSZERO(hdr);
-		hdr.Signature = _PPConst.DbDumpSignature;
+		hdr.Signature = _PPConst.Signature_DbDump;
 		hdr.Ver = DS.GetVersion();
 		THROW_SL(FDump.Write(&hdr, sizeof(hdr)));
 		ok = 1;
@@ -981,7 +981,7 @@ int SLAPI PrcssrDbDump::OpenStream(const char * pFileName)
 		SBuffer buffer;
 		THROW_SL(FDump.Open(pFileName, SFile::mRead | SFile::mBinary | SFile::mNoStd));
 		THROW_SL(FDump.Read(&hdr, sizeof(hdr)));
-		THROW(hdr.Signature == _PPConst.DbDumpSignature);
+		THROW(hdr.Signature == _PPConst.Signature_DbDump);
 		THROW_SL(FDump.CalcCRC(sizeof(hdr), &crc));
 		THROW(hdr.Crc32 == crc);
 
@@ -1009,7 +1009,7 @@ int SLAPI PrcssrDbDump::CloseStream()
 		THROW_SL(FDump.Write(buffer));
 
 		MEMSZERO(hdr);
-		hdr.Signature = _PPConst.DbDumpSignature;
+		hdr.Signature = _PPConst.Signature_DbDump;
 		hdr.Ver = DS.GetVersion();
 		hdr.CtxOffs = state_offs;
 		THROW_SL(FDump.CalcCRC(sizeof(hdr), &hdr.Crc32));

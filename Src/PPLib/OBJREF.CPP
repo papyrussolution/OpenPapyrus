@@ -2181,15 +2181,16 @@ int SLAPI PPObjGlobalUserAcc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, 
 }
 
 class GlobalUserAccDialog : public TDialog {
+	DECL_DIALOG_DATA(PPGlobalUserAccPacket);
 public:
 	GlobalUserAccDialog() : TDialog(DLG_GLOBUSERACC)
 	{
 	}
-	int    setDTS(const PPGlobalUserAccPacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		PPGlobalUserAccConfig cfg;
 		GuaObj.FetchConfig(&cfg);
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		SString temp_buf;
 		setCtrlData(CTL_GLOBUSERACC_NAME, Data.Rec.Name);
 		setCtrlData(CTL_GLOBUSERACC_SYMB, Data.Rec.Symb); // @v10.1.6
@@ -2203,7 +2204,7 @@ public:
 		SetupStringCombo(this, CTLSEL_GLOBUSERACC_SVC, PPTXT_GLOBALSERVICELIST, Data.Rec.ServiceIdent); // @v10.5.5
 		return 1;
 	}
-	int    getDTS(PPGlobalUserAccPacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -2242,7 +2243,6 @@ private:
 			return;
 		clearEvent(event);
 	}
-	PPGlobalUserAccPacket Data;
 	PPObjGlobalUserAcc GuaObj;
 };
 

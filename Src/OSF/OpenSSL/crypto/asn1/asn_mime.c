@@ -160,30 +160,12 @@ static int asn1_write_micalg(BIO * out, STACK_OF(X509_ALGOR) * mdalgs)
 				goto err;
 		}
 		switch(md_nid) {
-			case NID_sha1:
-			    BIO_puts(out, "sha1");
-			    break;
-
-			case NID_md5:
-			    BIO_puts(out, "md5");
-			    break;
-
-			case NID_sha256:
-			    BIO_puts(out, "sha-256");
-			    break;
-
-			case NID_sha384:
-			    BIO_puts(out, "sha-384");
-			    break;
-
-			case NID_sha512:
-			    BIO_puts(out, "sha-512");
-			    break;
-
-			case NID_id_GostR3411_94:
-			    BIO_puts(out, "gostr3411-94");
-			    goto err;
-
+			case NID_sha1: BIO_puts(out, "sha1"); break;
+			case NID_md5: BIO_puts(out, "md5"); break;
+			case NID_sha256: BIO_puts(out, "sha-256"); break;
+			case NID_sha384: BIO_puts(out, "sha-384"); break;
+			case NID_sha512: BIO_puts(out, "sha-512"); break;
+			case NID_id_GostR3411_94: BIO_puts(out, "gostr3411-94"); goto err;
 			default:
 			    if(have_unknown)
 				    write_comma = 0;
@@ -194,10 +176,8 @@ static int asn1_write_micalg(BIO * out, STACK_OF(X509_ALGOR) * mdalgs)
 			    break;
 		}
 	}
-
 	ret = 1;
 err:
-
 	return ret;
 }
 

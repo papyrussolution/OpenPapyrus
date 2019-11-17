@@ -15,8 +15,7 @@
 
 static int pkcs7_copy_existing_digest(PKCS7 * p7, PKCS7_SIGNER_INFO * si);
 
-PKCS7 * PKCS7_sign(X509 * signcert, EVP_PKEY * pkey, STACK_OF(X509) * certs,
-    BIO * data, int flags)
+PKCS7 * PKCS7_sign(X509 * signcert, EVP_PKEY * pkey, STACK_OF(X509) * certs, BIO * data, int flags)
 {
 	PKCS7 * p7;
 	int i;
@@ -26,31 +25,24 @@ PKCS7 * PKCS7_sign(X509 * signcert, EVP_PKEY * pkey, STACK_OF(X509) * certs,
 	}
 	if(!PKCS7_set_type(p7, NID_pkcs7_signed))
 		goto err;
-
 	if(!PKCS7_content_new(p7, NID_pkcs7_data))
 		goto err;
-
 	if(pkey && !PKCS7_sign_add_signer(p7, signcert, pkey, NULL, flags)) {
 		PKCS7err(PKCS7_F_PKCS7_SIGN, PKCS7_R_PKCS7_ADD_SIGNER_ERROR);
 		goto err;
 	}
-
 	if(!(flags & PKCS7_NOCERTS)) {
 		for(i = 0; i < sk_X509_num(certs); i++) {
 			if(!PKCS7_add_certificate(p7, sk_X509_value(certs, i)))
 				goto err;
 		}
 	}
-
 	if(flags & PKCS7_DETACHED)
 		PKCS7_set_detached(p7, 1);
-
 	if(flags & (PKCS7_STREAM | PKCS7_PARTIAL))
 		return p7;
-
 	if(PKCS7_final(p7, data, flags))
 		return p7;
-
 err:
 	PKCS7_free(p7);
 	return NULL;
@@ -60,26 +52,19 @@ int PKCS7_final(PKCS7 * p7, BIO * data, int flags)
 {
 	BIO * p7bio;
 	int ret = 0;
-
 	if((p7bio = PKCS7_dataInit(p7, NULL)) == NULL) {
 		PKCS7err(PKCS7_F_PKCS7_FINAL, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
-
 	SMIME_crlf_copy(data, p7bio, flags);
-
 	(void)BIO_flush(p7bio);
-
 	if(!PKCS7_dataFinal(p7, p7bio)) {
 		PKCS7err(PKCS7_F_PKCS7_FINAL, PKCS7_R_PKCS7_DATASIGN);
 		goto err;
 	}
-
 	ret = 1;
-
 err:
 	BIO_free_all(p7bio);
-
 	return ret;
 }
 
@@ -87,41 +72,30 @@ err:
 
 static int add_cipher_smcap(STACK_OF(X509_ALGOR) * sk, int nid, int arg)
 {
-	if(EVP_get_cipherbynid(nid))
-		return PKCS7_simple_smimecap(sk, nid, arg);
-	return 1;
+	return (EVP_get_cipherbynid(nid)) ? PKCS7_simple_smimecap(sk, nid, arg) : 1;
 }
 
 static int add_digest_smcap(STACK_OF(X509_ALGOR) * sk, int nid, int arg)
 {
-	if(EVP_get_digestbynid(nid))
-		return PKCS7_simple_smimecap(sk, nid, arg);
-	return 1;
+	return (EVP_get_digestbynid(nid)) ? PKCS7_simple_smimecap(sk, nid, arg) : 1;
 }
 
-PKCS7_SIGNER_INFO * PKCS7_sign_add_signer(PKCS7 * p7, X509 * signcert,
-    EVP_PKEY * pkey, const EVP_MD * md,
-    int flags)
+PKCS7_SIGNER_INFO * PKCS7_sign_add_signer(PKCS7 * p7, X509 * signcert, EVP_PKEY * pkey, const EVP_MD * md, int flags)
 {
 	PKCS7_SIGNER_INFO * si = NULL;
 	STACK_OF(X509_ALGOR) *smcap = NULL;
 	if(!X509_check_private_key(signcert, pkey)) {
-		PKCS7err(PKCS7_F_PKCS7_SIGN_ADD_SIGNER,
-		    PKCS7_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE);
+		PKCS7err(PKCS7_F_PKCS7_SIGN_ADD_SIGNER, PKCS7_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE);
 		return NULL;
 	}
-
 	if((si = PKCS7_add_signature(p7, signcert, pkey, md)) == NULL) {
-		PKCS7err(PKCS7_F_PKCS7_SIGN_ADD_SIGNER,
-		    PKCS7_R_PKCS7_ADD_SIGNATURE_ERROR);
+		PKCS7err(PKCS7_F_PKCS7_SIGN_ADD_SIGNER, PKCS7_R_PKCS7_ADD_SIGNATURE_ERROR);
 		return NULL;
 	}
-
 	if(!(flags & PKCS7_NOCERTS)) {
 		if(!PKCS7_add_certificate(p7, signcert))
 			goto err;
 	}
-
 	if(!(flags & PKCS7_NOATTR)) {
 		if(!PKCS7_add_attrib_content_type(si, NULL))
 			goto err;
@@ -160,19 +134,15 @@ err:
 	sk_X509_ALGOR_pop_free(smcap, X509_ALGOR_free);
 	return NULL;
 }
-
 /*
- * Search for a digest matching SignerInfo digest type and if found copy
- * across.
+ * Search for a digest matching SignerInfo digest type and if found copy across.
  */
-
 static int pkcs7_copy_existing_digest(PKCS7 * p7, PKCS7_SIGNER_INFO * si)
 {
 	int i;
-	STACK_OF(PKCS7_SIGNER_INFO) *sinfos;
 	PKCS7_SIGNER_INFO * sitmp;
 	ASN1_OCTET_STRING * osdig = NULL;
-	sinfos = PKCS7_get_signer_info(p7);
+	STACK_OF(PKCS7_SIGNER_INFO) * sinfos = PKCS7_get_signer_info(p7);
 	for(i = 0; i < sk_PKCS7_SIGNER_INFO_num(sinfos); i++) {
 		sitmp = sk_PKCS7_SIGNER_INFO_value(sinfos, i);
 		if(si == sitmp)
@@ -184,17 +154,13 @@ static int pkcs7_copy_existing_digest(PKCS7 * p7, PKCS7_SIGNER_INFO * si)
 			break;
 		}
 	}
-
 	if(osdig)
 		return PKCS7_add1_attrib_digest(si, osdig->data, osdig->length);
-
-	PKCS7err(PKCS7_F_PKCS7_COPY_EXISTING_DIGEST,
-	    PKCS7_R_NO_MATCHING_DIGEST_TYPE_FOUND);
+	PKCS7err(PKCS7_F_PKCS7_COPY_EXISTING_DIGEST, PKCS7_R_NO_MATCHING_DIGEST_TYPE_FOUND);
 	return 0;
 }
 
-int PKCS7_verify(PKCS7 * p7, STACK_OF(X509) * certs, X509_STORE * store,
-    BIO * indata, BIO * out, int flags)
+int PKCS7_verify(PKCS7 * p7, STACK_OF(X509) * certs, X509_STORE * store, BIO * indata, BIO * out, int flags)
 {
 	STACK_OF(X509) *signers;
 	X509 * signer;
@@ -205,12 +171,10 @@ int PKCS7_verify(PKCS7 * p7, STACK_OF(X509) * certs, X509_STORE * store,
 	int i, j = 0, k, ret = 0;
 	BIO * p7bio = NULL;
 	BIO * tmpin = NULL, * tmpout = NULL;
-
 	if(!p7) {
 		PKCS7err(PKCS7_F_PKCS7_VERIFY, PKCS7_R_INVALID_NULL_POINTER);
 		return 0;
 	}
-
 	if(!PKCS7_type_is_signed(p7)) {
 		PKCS7err(PKCS7_F_PKCS7_VERIFY, PKCS7_R_WRONG_CONTENT_TYPE);
 		return 0;

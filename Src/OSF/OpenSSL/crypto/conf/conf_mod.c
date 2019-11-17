@@ -11,12 +11,10 @@
 
 #define DSO_mod_init_name "OPENSSL_init"
 #define DSO_mod_finish_name "OPENSSL_finish"
-
 /*
  * This structure contains a data about supported modules. entries in this
  * table correspond to either dynamic or static modules.
  */
-
 struct conf_module_st {
 	DSO * dso; /* DSO of this module or NULL if static */
 	char * name; /* Name of the module */
@@ -80,7 +78,6 @@ int CONF_modules_load(const CONF * cnf, const char * appname, ulong flags)
 			if(!(flags & CONF_MFLAGS_IGNORE_ERRORS))
 				return ret;
 	}
-
 	return 1;
 }
 
@@ -146,11 +143,10 @@ static CONF_MODULE * module_load_dso(const CONF * cnf, const char * name, const 
 	DSO * dso = NULL;
 	conf_init_func * ifunc;
 	conf_finish_func * ffunc;
-	const char * path = NULL;
 	int errcode = 0;
 	CONF_MODULE * md;
 	/* Look for alternative path in module section */
-	path = NCONF_get_string(cnf, value, "path");
+	const char * path = NCONF_get_string(cnf, value, "path");
 	if(!path) {
 		ERR_clear_error();
 		path = name;
@@ -160,12 +156,12 @@ static CONF_MODULE * module_load_dso(const CONF * cnf, const char * name, const 
 		errcode = CONF_R_ERROR_LOADING_DSO;
 		goto err;
 	}
-	ifunc = (conf_init_func*)DSO_bind_func(dso, DSO_mod_init_name);
+	ifunc = reinterpret_cast<conf_init_func *>(DSO_bind_func(dso, DSO_mod_init_name));
 	if(!ifunc) {
 		errcode = CONF_R_MISSING_INIT_FUNCTION;
 		goto err;
 	}
-	ffunc = (conf_finish_func*)DSO_bind_func(dso, DSO_mod_finish_name);
+	ffunc = reinterpret_cast<conf_finish_func *>(DSO_bind_func(dso, DSO_mod_finish_name));
 	/* All OK, add module */
 	md = module_add(dso, name, ifunc, ffunc);
 	if(!md)
@@ -184,7 +180,7 @@ static CONF_MODULE * module_add(DSO * dso, const char * name, conf_init_func * i
 	CONF_MODULE * tmod = NULL;
 	SETIFZ(supported_modules, sk_CONF_MODULE_new_null());
 	if(supported_modules) {
-		tmod = (CONF_MODULE*)OPENSSL_zalloc(sizeof(*tmod));
+		tmod = static_cast<CONF_MODULE *>(OPENSSL_zalloc(sizeof(*tmod)));
 		if(tmod) {
 			tmod->dso = dso;
 			tmod->name = OPENSSL_strdup(name);
@@ -226,7 +222,7 @@ static int module_init(CONF_MODULE * pmod, const char * name, const char * value
 	int ret = 1;
 	int init_called = 0;
 	// Otherwise add initialized module to list 
-	CONF_IMODULE * imod = (CONF_IMODULE*)OPENSSL_malloc(sizeof(*imod));
+	CONF_IMODULE * imod = static_cast<CONF_IMODULE *>(OPENSSL_malloc(sizeof(*imod)));
 	if(imod == NULL)
 		goto err;
 	imod->pmod = pmod;
@@ -268,13 +264,11 @@ memerr:
 	}
 	return -1;
 }
-
 /*
  * Unload any dynamic modules that have a link count of zero: i.e. have no
  * active initialized modules. If 'all' is set then all modules are unloaded
  * including static ones.
  */
-
 void CONF_modules_unload(int all)
 {
 	int i;
@@ -346,50 +340,15 @@ void conf_modules_free_int(void)
 
 /* Utility functions */
 
-const char * CONF_imodule_get_name(const CONF_IMODULE * md)
-{
-	return md->name;
-}
-
-const char * CONF_imodule_get_value(const CONF_IMODULE * md)
-{
-	return md->value;
-}
-
-void * CONF_imodule_get_usr_data(const CONF_IMODULE * md)
-{
-	return md->usr_data;
-}
-
-void CONF_imodule_set_usr_data(CONF_IMODULE * md, void * usr_data)
-{
-	md->usr_data = usr_data;
-}
-
-CONF_MODULE * CONF_imodule_get_module(const CONF_IMODULE * md)
-{
-	return md->pmod;
-}
-
-ulong CONF_imodule_get_flags(const CONF_IMODULE * md)
-{
-	return md->flags;
-}
-
-void CONF_imodule_set_flags(CONF_IMODULE * md, ulong flags)
-{
-	md->flags = flags;
-}
-
-void * CONF_module_get_usr_data(CONF_MODULE * pmod)
-{
-	return pmod->usr_data;
-}
-
-void CONF_module_set_usr_data(CONF_MODULE * pmod, void * usr_data)
-{
-	pmod->usr_data = usr_data;
-}
+const char * CONF_imodule_get_name(const CONF_IMODULE * md) { return md->name; }
+const char * CONF_imodule_get_value(const CONF_IMODULE * md) { return md->value; }
+void * CONF_imodule_get_usr_data(const CONF_IMODULE * md) { return md->usr_data; }
+void CONF_imodule_set_usr_data(CONF_IMODULE * md, void * usr_data) { md->usr_data = usr_data; }
+CONF_MODULE * CONF_imodule_get_module(const CONF_IMODULE * md) { return md->pmod; }
+ulong CONF_imodule_get_flags(const CONF_IMODULE * md) { return md->flags; }
+void CONF_imodule_set_flags(CONF_IMODULE * md, ulong flags) { md->flags = flags; }
+void * CONF_module_get_usr_data(CONF_MODULE * pmod) { return pmod->usr_data; }
+void CONF_module_set_usr_data(CONF_MODULE * pmod, void * usr_data) { pmod->usr_data = usr_data; }
 
 /* Return default config file name */
 
@@ -404,7 +363,7 @@ char * CONF_get1_default_config_file(void)
 	len++;
 #endif
 	len += strlen(OPENSSL_CONF);
-	file = (char *)OPENSSL_malloc(len+1);
+	file = static_cast<char *>(OPENSSL_malloc(len+1));
 	if(file == NULL)
 		return NULL;
 	OPENSSL_strlcpy(file, X509_get_default_cert_area(), len + 1);
@@ -414,7 +373,6 @@ char * CONF_get1_default_config_file(void)
 	OPENSSL_strlcat(file, OPENSSL_CONF, len + 1);
 	return file;
 }
-
 /*
  * This function takes a list separated by 'sep' and calls the callback
  * function giving the start and length of each member optionally stripping

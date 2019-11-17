@@ -50,7 +50,6 @@
 #pragma hdrstop
 
 #define SSL3_NUM_CIPHERS        OSSL_NELEM(ssl3_ciphers)
-
 /*
  * The list of available ciphers, mostly organized into the following
  * groups:
@@ -2406,9 +2405,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		256,
 	},
 # endif                         /* OPENSSL_NO_PSK */
-
 #endif                          /* OPENSSL_NO_CAMELLIA */
-
 #ifndef OPENSSL_NO_GOST
 	{
 		1,
@@ -2471,7 +2468,6 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		0,
 	},
 #endif                          /* OPENSSL_NO_GOST */
-
 #ifndef OPENSSL_NO_IDEA
 	{
 		1,
@@ -2716,16 +2712,14 @@ static SSL_CIPHER ssl3_ciphers[] = {
 
 static int cipher_compare(const void * a, const void * b)
 {
-	const SSL_CIPHER * ap = (const SSL_CIPHER*)a;
-	const SSL_CIPHER * bp = (const SSL_CIPHER*)b;
-
+	const SSL_CIPHER * ap = static_cast<const SSL_CIPHER *>(a);
+	const SSL_CIPHER * bp = static_cast<const SSL_CIPHER *>(b);
 	return ap->id - bp->id;
 }
 
 void ssl_sort_cipher_list(void)
 {
-	qsort(ssl3_ciphers, OSSL_NELEM(ssl3_ciphers), sizeof ssl3_ciphers[0],
-	    cipher_compare);
+	qsort(ssl3_ciphers, OSSL_NELEM(ssl3_ciphers), sizeof ssl3_ciphers[0], cipher_compare);
 }
 
 const SSL3_ENC_METHOD SSLv3_enc_data = {
@@ -2739,13 +2733,8 @@ const SSL3_ENC_METHOD SSLv3_enc_data = {
 	SSL3_MD_CLIENT_FINISHED_CONST, 4,
 	SSL3_MD_SERVER_FINISHED_CONST, 4,
 	ssl3_alert_code,
-	(int (*)(SSL *, uchar *, size_t, const char *,
-		    size_t, const uchar *, size_t,
-		    int use_context))ssl_undefined_function,
-	0,
-	SSL3_HM_HEADER_LENGTH,
-	ssl3_set_handshake_header,
-	ssl3_handshake_write
+	(int (*)(SSL *, uchar *, size_t, const char *, size_t, const uchar *, size_t, int use_context))
+	ssl_undefined_function, 0, SSL3_HM_HEADER_LENGTH, ssl3_set_handshake_header, ssl3_handshake_write
 };
 
 long ssl3_default_timeout(void)
@@ -2772,12 +2761,11 @@ const SSL_CIPHER * ssl3_get_cipher(uint u)
 
 int ssl3_set_handshake_header(SSL * s, int htype, unsigned long len)
 {
-	uchar * p = (uchar *)s->init_buf->data;
+	uchar * p = reinterpret_cast<uchar *>(s->init_buf->data);
 	*(p++) = htype;
 	l2n3(len, p);
 	s->init_num = (int)len + SSL3_HM_HEADER_LENGTH;
 	s->init_off = 0;
-
 	return 1;
 }
 
@@ -3387,12 +3375,10 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    else
 			    *(STACK_OF(X509) **)parg = ctx->extra_certs;
 		    break;
-
 		case SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS:
 		    sk_X509_pop_free(ctx->extra_certs, X509_free);
 		    ctx->extra_certs = NULL;
 		    break;
-
 		case SSL_CTRL_CHAIN:
 		    if(larg)
 			    return ssl_cert_set1_chain(NULL, ctx, (STACK_OF(X509) *)parg);
@@ -3427,18 +3413,12 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
 		case SSL_CTRL_SET_TLSEXT_SERVERNAME_CB:
 		    ctx->tlsext_servername_callback = (int (*)(SSL *, int *, void *))fp;
 		    break;
-
 		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB:
 		    ctx->tlsext_status_cb = (int (*)(SSL *, void *))fp;
 		    break;
-
 		case SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB:
-		    ctx->tlsext_ticket_key_cb = (int (*)(SSL *, uchar *,
-			    uchar *,
-			    EVP_CIPHER_CTX *,
-			    HMAC_CTX *, int))fp;
+		    ctx->tlsext_ticket_key_cb = (int (*)(SSL *, uchar *, uchar *, EVP_CIPHER_CTX *, HMAC_CTX *, int))fp;
 		    break;
-
 #ifndef OPENSSL_NO_SRP
 		case SSL_CTRL_SET_SRP_VERIFY_PARAM_CB:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;
@@ -3446,13 +3426,11 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
 		    break;
 		case SSL_CTRL_SET_TLS_EXT_SRP_USERNAME_CB:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;
-		    ctx->srp_ctx.TLS_ext_srp_username_callback =
-		    (int (*)(SSL *, int *, void *))fp;
+		    ctx->srp_ctx.TLS_ext_srp_username_callback = (int (*)(SSL *, int *, void *))fp;
 		    break;
 		case SSL_CTRL_SET_SRP_GIVE_CLIENT_PWD_CB:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;
-		    ctx->srp_ctx.SRP_give_srp_client_pwd_callback =
-		    (char *(*)(SSL *, void *))fp;
+		    ctx->srp_ctx.SRP_give_srp_client_pwd_callback = (char *(*)(SSL *, void *))fp;
 		    break;
 #endif
 		case SSL_CTRL_SET_NOT_RESUMABLE_SESS_CB:
@@ -3465,18 +3443,14 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
 	}
 	return 1;
 }
-
 /*
- * This function needs to check if the ciphers required are actually
- * available
+ * This function needs to check if the ciphers required are actually available
  */
 const SSL_CIPHER * ssl3_get_cipher_by_char(const uchar * p)
 {
 	SSL_CIPHER c;
 	const SSL_CIPHER * cp;
-	uint32_t id;
-
-	id = 0x03000000 | ((uint32_t)p[0] << 8L) | (uint32_t)p[1];
+	uint32_t id = 0x03000000 | ((uint32_t)p[0] << 8L) | (uint32_t)p[1];
 	c.id = id;
 	cp = OBJ_bsearch_ssl_cipher_id(&c, ssl3_ciphers, SSL3_NUM_CIPHERS);
 	return cp;
@@ -3485,7 +3459,6 @@ const SSL_CIPHER * ssl3_get_cipher_by_char(const uchar * p)
 int ssl3_put_cipher_by_char(const SSL_CIPHER * c, uchar * p)
 {
 	long l;
-
 	if(p) {
 		l = c->id;
 		if((l & 0xff000000) != 0x03000000)
@@ -3495,7 +3468,6 @@ int ssl3_put_cipher_by_char(const SSL_CIPHER * c, uchar * p)
 	}
 	return (2);
 }
-
 /*
  * ssl3_choose_cipher - choose a cipher from those offered by the client
  * @s: SSL connection
@@ -3618,9 +3590,7 @@ int ssl3_get_req_cert_type(SSL * s, uchar * p)
 	}
 	/* Get mask of algorithms disabled by signature list */
 	ssl_set_sig_mask(&alg_a, s, SSL_SECOP_SIGALG_MASK);
-
 	alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
-
 #ifndef OPENSSL_NO_GOST
 	if(s->version >= TLS1_VERSION) {
 		if(alg_k & SSL_kGOST) {
@@ -3631,7 +3601,6 @@ int ssl3_get_req_cert_type(SSL * s, uchar * p)
 		}
 	}
 #endif
-
 	if((s->version == SSL3_VERSION) && (alg_k & SSL_kDHE)) {
 #ifndef OPENSSL_NO_DH
 # ifndef OPENSSL_NO_RSA
@@ -3690,7 +3659,6 @@ int ssl3_shutdown(SSL * s)
 		s->shutdown = (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
 		return 1;
 	}
-
 	if(!(s->shutdown & SSL_SENT_SHUTDOWN)) {
 		s->shutdown |= SSL_SENT_SHUTDOWN;
 		ssl3_send_alert(s, SSL3_AL_WARNING, SSL_AD_CLOSE_NOTIFY);
@@ -3722,9 +3690,7 @@ int ssl3_shutdown(SSL * s)
 			return -1; /* return WANT_READ */
 		}
 	}
-
-	if((s->shutdown == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) &&
-	    !s->s3->alert_dispatch)
+	if((s->shutdown == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) && !s->s3->alert_dispatch)
 		return 1;
 	else
 		return 0;
@@ -3735,7 +3701,6 @@ int ssl3_write(SSL * s, const void * buf, int len)
 	clear_sys_error();
 	if(s->s3->renegotiate)
 		ssl3_renegotiate_check(s);
-
 	return s->method->ssl_write_bytes(s, SSL3_RT_APPLICATION_DATA, buf, len);
 }
 
@@ -3761,7 +3726,6 @@ static int ssl3_read_internal(SSL * s, void * buf, int len, int peek)
 	}
 	else
 		s->s3->in_read_app_data = 0;
-
 	return ret;
 }
 
@@ -3779,10 +3743,8 @@ int ssl3_renegotiate(SSL * s)
 {
 	if(s->handshake_func == NULL)
 		return 1;
-
 	if(s->s3->flags & SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS)
 		return 0;
-
 	s->s3->renegotiate = 1;
 	return 1;
 }

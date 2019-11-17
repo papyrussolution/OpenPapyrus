@@ -653,15 +653,14 @@ const EVP_CIPHER * EVP_aes_256_cbc_hmac_sha256(void);
 	#ifndef OPENSSL_NO_POLY1305
 		const EVP_CIPHER * EVP_chacha20_poly1305(void);
 	#endif
-# endif
-
-# ifndef OPENSSL_NO_SEED
-const EVP_CIPHER * EVP_seed_ecb(void);
-const EVP_CIPHER * EVP_seed_cbc(void);
-const EVP_CIPHER * EVP_seed_cfb128(void);
-#define EVP_seed_cfb EVP_seed_cfb128
-const EVP_CIPHER * EVP_seed_ofb(void);
-# endif
+#endif
+#ifndef OPENSSL_NO_SEED
+	const EVP_CIPHER * EVP_seed_ecb(void);
+	const EVP_CIPHER * EVP_seed_cbc(void);
+	const EVP_CIPHER * EVP_seed_cfb128(void);
+	#define EVP_seed_cfb EVP_seed_cfb128
+	const EVP_CIPHER * EVP_seed_ofb(void);
+#endif
 
 # if OPENSSL_API_COMPAT < 0x10100000L
 #define OPENSSL_add_all_algorithms_conf() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS|OPENSSL_INIT_ADD_ALL_DIGESTS|OPENSSL_INIT_LOAD_CONFIG, NULL)

@@ -818,54 +818,43 @@ int FASTCALL GetSNScriptCode(int ident, SString & rCode)
 	return ok;
 }
 
-/*
-enum {
-	ssisUnkn    = 0,
-	ssisWindows = 1,
-	ssisMAC     = 2,
-	ssisIBM     = 3,
-	ssisAIX     = 4,
-	ssisJava    = 5,
-	ssisSolaris = 6,
-	ssisHPUX    = 7,
-	ssisGLibC   = 8
-};
-*/
-struct SSisIdent {
+/* @v10.6.2 struct SSisIdent {
 	int16  Id;
 	const char * P_Code;
-};
+};*/
 
-static const SSisIdent P_SisIdentList[] = {
-	{ ssisWindows, "windows" },
-	{ ssisWindows, "win" },
-	{ ssisMAC, "mac" },
-	{ ssisMAC, "imac" },
-	{ ssisIBM, "ibm" },
-	{ ssisAIX, "aix" },
-	{ ssisJava, "java" },
-	{ ssisSolaris, "solaris" },
-	{ ssisHPUX, "hpux" },
-	{ ssisGLibC, "glibc" },
-	{ ssisBSD, "bsd" }, // @v10.4.5
-	{ ssisGNU, "gnu" }  // @v10.4.5
+static const /*SSisIdent*/SIntToSymbTabEntry P_SisIdentList[] = { // @v10.6.2 SSisIdent-->SIntToSymbTabEntry
+	{ SSystem::ssisWindows, "windows" },
+	{ SSystem::ssisWindows, "win" },
+	{ SSystem::ssisMAC, "mac" },
+	{ SSystem::ssisMAC, "imac" },
+	{ SSystem::ssisIBM, "ibm" },
+	{ SSystem::ssisAIX, "aix" },
+	{ SSystem::ssisJava, "java" },
+	{ SSystem::ssisSolaris, "solaris" },
+	{ SSystem::ssisHPUX, "hpux" },
+	{ SSystem::ssisGLibC, "glibc" },
+	{ SSystem::ssisBSD, "bsd" }, // @v10.4.5
+	{ SSystem::ssisGNU, "gnu" }  // @v10.4.5
 };
 
 int FASTCALL RecognizeSisSymb(const char * pSymb)
 {
-	int    ret_ident = 0;
+	return SIntToSymbTab_GetId(P_SisIdentList, SIZEOFARRAY(P_SisIdentList), pSymb); // @v10.6.2 
+	/* @v10.6.2 int    ret_ident = 0;
 	if(!isempty(pSymb)) {
 		for(uint i = 0; !ret_ident && i < SIZEOFARRAY(P_SisIdentList); i++) {
 			if(sstreqi_ascii(pSymb, P_SisIdentList[i].P_Code))
                 ret_ident = P_SisIdentList[i].Id;
 		}
 	}
-	return ret_ident;
+	return ret_ident;*/
 }
 
 int FASTCALL GetSisCode(int ident, SString & rCode)
 {
-	int    ok = 0;
+	return SIntToSymbTab_GetSymb(P_SisIdentList, SIZEOFARRAY(P_SisIdentList), ident, rCode); // @v10.6.2
+	/* @v10.6.2 int    ok = 0;
 	rCode.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(P_SisIdentList); i++) {
 		if(ident == P_SisIdentList[i].Id) {
@@ -873,7 +862,7 @@ int FASTCALL GetSisCode(int ident, SString & rCode)
 			ok = 1;
 		}
 	}
-	return ok;
+	return ok;*/
 }
 
 #if 0 // {

@@ -112,16 +112,12 @@ static int entropy_func_mutex(void * data, uchar * output, size_t len)
 static void polarssl_debug(void * context, int level, const char * line)
 {
 	struct Curl_easy * data = NULL;
-
 	if(!context)
 		return;
-
 	data = (struct Curl_easy*)context;
-
 	infof(data, "%s", line);
 	(void)level;
 }
-
 #else
 #endif
 
@@ -136,17 +132,10 @@ static Curl_send polarssl_send;
 static CURLcode polarssl_version_from_curl(int * polarver, long ssl_version)
 {
 	switch(ssl_version) {
-		case CURL_SSLVERSION_TLSv1_0:
-		    *polarver = SSL_MINOR_VERSION_1;
-		    return CURLE_OK;
-		case CURL_SSLVERSION_TLSv1_1:
-		    *polarver = SSL_MINOR_VERSION_2;
-		    return CURLE_OK;
-		case CURL_SSLVERSION_TLSv1_2:
-		    *polarver = SSL_MINOR_VERSION_3;
-		    return CURLE_OK;
-		case CURL_SSLVERSION_TLSv1_3:
-		    break;
+		case CURL_SSLVERSION_TLSv1_0: *polarver = SSL_MINOR_VERSION_1; return CURLE_OK;
+		case CURL_SSLVERSION_TLSv1_1: *polarver = SSL_MINOR_VERSION_2; return CURLE_OK;
+		case CURL_SSLVERSION_TLSv1_2: *polarver = SSL_MINOR_VERSION_3; return CURLE_OK;
+		case CURL_SSLVERSION_TLSv1_3: break;
 	}
 	return CURLE_SSL_CONNECT_ERROR;
 }
@@ -195,14 +184,12 @@ static CURLcode set_ssl_version_min_max(struct connectdata * conn, int sockindex
 	return result;
 }
 
-static CURLcode polarssl_connect_step1(struct connectdata * conn,
-    int sockindex)
+static CURLcode polarssl_connect_step1(struct connectdata * conn, int sockindex)
 {
 	struct Curl_easy * data = conn->data;
 	struct ssl_connect_data* connssl = &conn->ssl[sockindex];
 	const char * capath = SSL_CONN_CONFIG(CApath);
-	const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
-	    conn->host.name;
+	const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name : conn->host.name;
 	const long int port = SSL_IS_PROXY() ? conn->port : conn->remote_port;
 	int ret = -1;
 	char errorbuf[128];

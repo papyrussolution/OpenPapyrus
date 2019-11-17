@@ -62,7 +62,7 @@
     <ProjectGuid>{45586DBF-6009-49EA-8FFA-B9330F6A9488}</ProjectGuid>
     <RootNamespace>papyrus</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>5.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
@@ -1212,6 +1212,7 @@
     <ClCompile Include="..\PPLib\CCHECK.CPP" />
     <ClCompile Include="..\PPLib\chkinpsn.cpp" />
     <ClCompile Include="..\PPLib\Chkpan.cpp" />
+    <ClCompile Include="..\PPLib\chzn.cpp" />
     <ClCompile Include="..\PPLib\Cliagt.cpp" />
     <ClCompile Include="..\PPLib\clibnk2.cpp" />
     <ClCompile Include="..\PPLib\Commcfg.cpp" />

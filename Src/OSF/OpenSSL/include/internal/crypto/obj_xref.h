@@ -9,8 +9,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
-
 typedef struct {
     int sign_id;
     int hash_id;
@@ -45,34 +43,23 @@ static const nid_triple sigoid_srt[] = {
     {NID_ecdsa_with_SHA512, NID_sha512, NID_X9_62_id_ecPublicKey},
     {NID_dsa_with_SHA224, NID_sha224, NID_dsa},
     {NID_dsa_with_SHA256, NID_sha256, NID_dsa},
-    {NID_id_GostR3411_94_with_GostR3410_2001, NID_id_GostR3411_94,
-     NID_id_GostR3410_2001},
-    {NID_id_GostR3411_94_with_GostR3410_94, NID_id_GostR3411_94,
-     NID_id_GostR3410_94},
-    {NID_id_GostR3411_94_with_GostR3410_94_cc, NID_id_GostR3411_94,
-     NID_id_GostR3410_94_cc},
-    {NID_id_GostR3411_94_with_GostR3410_2001_cc, NID_id_GostR3411_94,
-     NID_id_GostR3410_2001_cc},
+    {NID_id_GostR3411_94_with_GostR3410_2001, NID_id_GostR3411_94, NID_id_GostR3410_2001},
+    {NID_id_GostR3411_94_with_GostR3410_94, NID_id_GostR3411_94, NID_id_GostR3410_94},
+    {NID_id_GostR3411_94_with_GostR3410_94_cc, NID_id_GostR3411_94, NID_id_GostR3410_94_cc},
+    {NID_id_GostR3411_94_with_GostR3410_2001_cc, NID_id_GostR3411_94, NID_id_GostR3410_2001_cc},
     {NID_rsassaPss, NID_undef, NID_rsaEncryption},
     {NID_dhSinglePass_stdDH_sha1kdf_scheme, NID_sha1, NID_dh_std_kdf},
     {NID_dhSinglePass_stdDH_sha224kdf_scheme, NID_sha224, NID_dh_std_kdf},
     {NID_dhSinglePass_stdDH_sha256kdf_scheme, NID_sha256, NID_dh_std_kdf},
     {NID_dhSinglePass_stdDH_sha384kdf_scheme, NID_sha384, NID_dh_std_kdf},
     {NID_dhSinglePass_stdDH_sha512kdf_scheme, NID_sha512, NID_dh_std_kdf},
-    {NID_dhSinglePass_cofactorDH_sha1kdf_scheme, NID_sha1,
-     NID_dh_cofactor_kdf},
-    {NID_dhSinglePass_cofactorDH_sha224kdf_scheme, NID_sha224,
-     NID_dh_cofactor_kdf},
-    {NID_dhSinglePass_cofactorDH_sha256kdf_scheme, NID_sha256,
-     NID_dh_cofactor_kdf},
-    {NID_dhSinglePass_cofactorDH_sha384kdf_scheme, NID_sha384,
-     NID_dh_cofactor_kdf},
-    {NID_dhSinglePass_cofactorDH_sha512kdf_scheme, NID_sha512,
-     NID_dh_cofactor_kdf},
-    {NID_id_tc26_signwithdigest_gost3410_2012_256, NID_id_GostR3411_2012_256,
-     NID_id_GostR3410_2012_256},
-    {NID_id_tc26_signwithdigest_gost3410_2012_512, NID_id_GostR3411_2012_512,
-     NID_id_GostR3410_2012_512},
+    {NID_dhSinglePass_cofactorDH_sha1kdf_scheme, NID_sha1, NID_dh_cofactor_kdf},
+    {NID_dhSinglePass_cofactorDH_sha224kdf_scheme, NID_sha224, NID_dh_cofactor_kdf},
+    {NID_dhSinglePass_cofactorDH_sha256kdf_scheme, NID_sha256, NID_dh_cofactor_kdf},
+    {NID_dhSinglePass_cofactorDH_sha384kdf_scheme, NID_sha384, NID_dh_cofactor_kdf},
+    {NID_dhSinglePass_cofactorDH_sha512kdf_scheme, NID_sha512, NID_dh_cofactor_kdf},
+    {NID_id_tc26_signwithdigest_gost3410_2012_256, NID_id_GostR3411_2012_256, NID_id_GostR3410_2012_256},
+    {NID_id_tc26_signwithdigest_gost3410_2012_512, NID_id_GostR3411_2012_512, NID_id_GostR3410_2012_512},
 };
 
 static const nid_triple *const sigoid_srt_xref[] = {

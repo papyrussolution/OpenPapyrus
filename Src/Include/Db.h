@@ -2576,7 +2576,6 @@ private:
 	SString Temp;
 };
 //
-// @construction
 // Descr: Провайдер доступа к СУБД Oracle
 //
 #define ORAERR_NFOUND 1403

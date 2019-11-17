@@ -5175,7 +5175,7 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchang
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
 		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
-		THROW_SL(c.SetupDefaultSslOptions());
+		THROW_SL(c.SetupDefaultSslOptions(SSystem::sslDefault, 0));
 		THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
@@ -5283,7 +5283,7 @@ int SLAPI EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
 	SFileFormat::GetMime(SFileFormat::Json, temp_buf);
 	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
-	THROW_SL(c.SetupDefaultSslOptions());
+	THROW_SL(c.SetupDefaultSslOptions(SSystem::sslDefault, 0));
 	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 	{
 		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
@@ -5353,7 +5353,7 @@ int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDoc
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
 	SFileFormat::GetMime(SFileFormat::Json, temp_buf);
 	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
-	THROW_SL(c.SetupDefaultSslOptions());
+	THROW_SL(c.SetupDefaultSslOptions(SSystem::sslDefault, 0));
 	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 	{
 		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
@@ -5653,9 +5653,9 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
 	SFileFormat::GetMime(SFileFormat::Json, temp_buf);
 	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
-	THROW_SL(c.SetupDefaultSslOptions());
+	THROW_SL(c.SetupDefaultSslOptions(SSystem::sslDefault, 0));
 	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
-	p_ack_buf = (SBuffer *)wr_stream;
+	p_ack_buf = static_cast<SBuffer *>(wr_stream);
 	if(p_ack_buf) {
 		const int avl_size = (int)p_ack_buf->GetAvailableSize();
 		temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);

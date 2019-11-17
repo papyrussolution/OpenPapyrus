@@ -1464,6 +1464,7 @@
 #define PPCMD_EXPORTVIEW                            1339
 #define PPCMD_TESTMQC                               1340
 #define PPCMD_QUOTEREQANALYZE                       1341
+#define PPCMD_UNIFINDOBJ                            1342
 //
 // PPJOB definitions
 //

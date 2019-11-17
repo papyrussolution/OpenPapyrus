@@ -1005,7 +1005,7 @@ int SLAPI PPLinkFile::Init(const char * pPath)
 size_t SLAPI PPLinkFile::Size() const
 {
 	return sizeof(Id) + sizeof(Flags) + sizeof(uint32) + Ext.Len() + 1 + sizeof(uint32) +
-		Path.Len() + 1 + sizeof(uint32) + Description.Len() + 1; 
+		Path.Len() + 1 + sizeof(uint32) + Description.Len() + 1;
 	// @v10.3.2 sizeof(Ext.Len())-->sizeof(uint32)
 	// @v10.3.2 sizeof(Description.Len())-->sizeof(uint32)
 	// @v10.3.2 sizeof(Path.Len())-->sizeof(uint32)
@@ -2289,7 +2289,9 @@ void BillDialog::ReplyCntragntSelection(int force)
 						}
 						else {
 							ss.add(0);
-							ss.add(PPGetWord(PPWORD_ABSENCE, 0, add_msg));
+							// @v10.6.2 PPGetWord(PPWORD_ABSENCE, 0, add_msg);
+							PPLoadString("absence", add_msg); // @v10.6.2
+							ss.add(add_msg);
 						}
 						p_list->addItem(i+1, ss.getBuf());
 					}
@@ -3014,9 +3016,11 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 		}
 		int getDTS(PPBillPacket *)
 		{
-			getCtrlData(CTL_BILLINFO_OMTPAYM, &P_Pack->Rec.PaymAmount);
-			AmtListDialog::getDTS(&P_Pack->Amounts);
-			P_Pack->Rec.Amount = BR2(P_Pack->Amounts.Get(PPAMT_MAIN, P_Pack->Rec.CurID));
+			if(P_Pack) {
+				getCtrlData(CTL_BILLINFO_OMTPAYM, &P_Pack->Rec.PaymAmount);
+				AmtListDialog::getDTS(&P_Pack->Amounts);
+				P_Pack->Rec.Amount = BR2(P_Pack->Amounts.Get(PPAMT_MAIN, P_Pack->Rec.CurID));
+			}
 			return 1;
 		}
 	private:
@@ -3024,12 +3028,16 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 		{
 			AmtListDialog::handleEvent(event);
 			if(event.isCmd(cmPrint)) {
-				PView pf(P_Pack);
-				PPAlddPrint(REPORT_BILLINFO, &pf);
+				if(P_Pack) {
+					PView pf(P_Pack);
+					PPAlddPrint(REPORT_BILLINFO, &pf);
+				}
 			}
 			else if(event.isCmd(cmObjSyncTab)) {
-				PPObjID oid;
-				ViewObjSyncTab(oid.Set(PPOBJ_BILL, P_Pack->Rec.ID));
+				if(P_Pack) {
+					PPObjID oid;
+					ViewObjSyncTab(oid.Set(PPOBJ_BILL, P_Pack->Rec.ID));
+				}
 			}
 			else
 				return;

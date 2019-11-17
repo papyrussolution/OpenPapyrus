@@ -1754,7 +1754,7 @@ SLAPI PPObjSCard::AddParam::AddParam(PPID serID, PPID ownerID) : SerID(serID), O
 {
 }
 
-SLAPI PPObjSCard::Filt::Filt() : Signature(_PPConst.PPObjSCard_FiltSignature), SeriesID(0), OwnerID(0)
+SLAPI PPObjSCard::Filt::Filt() : Signature(_PPConst.Signature_PPObjSCard_Filt), SeriesID(0), OwnerID(0)
 {
 }
 
@@ -4135,8 +4135,8 @@ int SLAPI PPObjSCard::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 StrAssocArray * SLAPI PPObjSCard::MakeStrAssocList(void * extraPtr /*cardSerID*/)
 {
 	const  Filt * p_filt = static_cast<const Filt *>(extraPtr);
-	const  PPID ser_id = (p_filt && p_filt->Signature == _PPConst.PPObjSCard_FiltSignature) ? p_filt->SeriesID : reinterpret_cast<PPID>(extraPtr);
-	const  PPID owner_id = (p_filt && p_filt->Signature == _PPConst.PPObjSCard_FiltSignature) ? p_filt->OwnerID : 0;
+	const  PPID ser_id = (p_filt && p_filt->Signature == _PPConst.Signature_PPObjSCard_Filt) ? p_filt->SeriesID : reinterpret_cast<PPID>(extraPtr);
+	const  PPID owner_id = (p_filt && p_filt->Signature == _PPConst.Signature_PPObjSCard_Filt) ? p_filt->OwnerID : 0;
 	union {;
 		SCardTbl::Key2 k2;
 		SCardTbl::Key3 k3;

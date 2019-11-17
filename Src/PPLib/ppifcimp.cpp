@@ -3501,7 +3501,7 @@ static void FASTCALL FillGoodsRec(PPGoodsPacket * pInner, SPpyO_Goods * pOuter)
 	FLD(StrucID);
 	FLD(TaxGrpID);
 	FLD(WrOffGrpID);
-	pOuter->Flags = (PpyOGoodsFlags)pInner->Rec.Flags;
+	pOuter->Flags = static_cast<PpyOGoodsFlags>(pInner->Rec.Flags);
 	FLD(GdsClsID);
 	FLD(BrandID);
 	FLD(DefBCodeStrucID);
@@ -3545,7 +3545,7 @@ static void FASTCALL FillGoodsRec(PPGoodsPacket * pInner, SPpyO_Goods * pOuter)
 	FLD(MinShippmQtty);
 	FLD(ExpiryPeriod);
 	#undef FLD
-	pOuter->GseFlags = (PpyGseFlags)pInner->Stock.GseFlags; // @v8.6.8
+	pOuter->GseFlags = static_cast<PpyGseFlags>(pInner->Stock.GseFlags);
 	//
 	// Дополнительные поля //
 	//
@@ -3742,7 +3742,7 @@ IStrAssocList* DL6ICLS_PPObjGoods::GetBarcodes(int32 goodsID)
 	}
 	CATCH
 	ENDCATCH
-	return (IStrAssocList *)GetIStrAssocList(this, p_list);
+	return reinterpret_cast<IStrAssocList *>(GetIStrAssocList(this, p_list));
 }
 
 IStrAssocList* DL6ICLS_PPObjGoods::GetQuotations(int32 goodsID)
@@ -3763,7 +3763,7 @@ IStrAssocList* DL6ICLS_PPObjGoods::GetQuotations(int32 goodsID)
 	}
 	CATCH
 	ENDCATCH
-	return (IStrAssocList *)GetIStrAssocList(this, p_list);
+	return reinterpret_cast<IStrAssocList *>(GetIStrAssocList(this, p_list));
 }
 
 int32 DL6ICLS_PPObjGoods::GetQuot(int32 goodsID, int32 quotKind, double * pQuot)
@@ -3788,11 +3788,9 @@ int32 DL6ICLS_PPObjGoods::SearchByBarcode(SString & rBCode, SPpyO_Goods * pGRec,
 		if((ok = p_obj->SearchByBarcode(rBCode, &code_rec, &grec, adoptSearching)) > 0) {
 			PPGoodsPacket pack;
 			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
-			// @v8.9.7 {
 			if(ok > 0) {
 				ok = (code_rec.Qtty > 0) ? (int)(code_rec.Qtty * 1000.0) : 1;
 			}
-			// } @v8.9.7
 			FillGoodsRec(&pack, pGRec);
 		}
 	}
@@ -3857,7 +3855,7 @@ int32 DL6ICLS_PPObjGoods::BelongToGroup(int32 goodsID, int32 grpID, int32 * pSub
 double DL6ICLS_PPObjGoods::CalcVatSum(int32 goodsID, double qtty, double price, int32 withoutVat, LDATE dt)
 {
 	double result = 0.0;
-	PPObjGoods * p_obj = ((PPObjGoods *)ExtraPtr);
+	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
 	Goods2Tbl::Rec goods_rec;
 	if(p_obj && p_obj->Fetch(goodsID, &goods_rec) > 0) {
 		p_obj->CalcCostVat(0, goods_rec.TaxGrpID, dt, qtty, price, &result, withoutVat, 0);
@@ -3969,7 +3967,17 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 		gse.Package = pGRec->Package;
 		gse.MinShippmQtty = pGRec->MinShippmQtty;
 		gse.ExpiryPeriod = (int16)pGRec->ExpiryPeriod;
-		//
+		// @v10.6.2 {
+		struct { int FldID; const BSTR SrcStr; } fld_descr_list[] = {
+			{ GDSEXSTR_STORAGE, pGRec->Storage }, { GDSEXSTR_STANDARD, pGRec->Standard }, { GDSEXSTR_INGRED,    pGRec->Ingred    },
+			{ GDSEXSTR_ENERGY,  pGRec->Energy  }, { GDSEXSTR_USAGE,    pGRec->Usage },    { GDSEXSTR_LABELNAME, pGRec->LabelName },
+		};
+		for(size_t fdlidx = 0; fdlidx < SIZEOFARRAY(fld_descr_list); fdlidx++) {
+			(temp_u_buf = fld_descr_list[fdlidx].SrcStr).CopyToUtf8(temp_buf, 1);
+			PPPutExtStrData(fld_descr_list[fdlidx].FldID, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+		}
+		// } @v10.6.2 
+		/* @v10.6.2 
 		(temp_u_buf = pGRec->Storage).CopyToUtf8(temp_buf, 1);
 		PPPutExtStrData(GDSEXSTR_STORAGE, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		//
@@ -3987,6 +3995,7 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 		//
 		(temp_u_buf = pGRec->LabelName).CopyToUtf8(temp_buf, 1);
 		PPPutExtStrData(GDSEXSTR_LABELNAME, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+		*/
 		//
 		THROW(p_obj->P_Tbl->PutStockExt(goodsID, &gse, 0));
 		THROW(PPRef->PutPropVlrString(PPOBJ_GOODS, goodsID, GDSPRP_EXTSTRDATA, ext_string));
@@ -4034,7 +4043,7 @@ int32 DL6ICLS_PPObjGoodsGroup::Search(int32 id, PPYOBJREC rec)
 	PPObjGoodsGroup * p_obj = static_cast<PPObjGoodsGroup *>(ExtraPtr);
 	if(p_obj) {
 		PPGoodsPacket pack;
-		ok = p_obj->GetPacket(id, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
+		ok = p_obj->GetPacket(id, &pack, PPObjGoods::gpoSkipQuot);
 		FillGoodsRec(&pack, static_cast<SPpyO_Goods *>(rec));
 	}
 	SetAppError(ok);
@@ -4161,7 +4170,7 @@ IStrAssocList * DL6ICLS_PPObjGoodsGroup::GetGGroupsFromAltGrp(long altGrpID)
 			}
 		}
 	}
-	return (IStrAssocList *)GetIStrAssocList(this, p_list);
+	return reinterpret_cast<IStrAssocList *>(GetIStrAssocList(this, p_list));
 }
 
 int32 DL6ICLS_PPObjGoodsGroup::IsDynamicAlt(long grpID)
@@ -4187,7 +4196,7 @@ IStrAssocList* DL6ICLS_PPObjGoodsGroup::GetChildList(int32 parentGrpID)
 	if(p_obj && parentGrpID)
 		p_list = p_obj->MakeStrAssocList(reinterpret_cast<void *>(parentGrpID));
 	SETIFZ(p_list, new StrAssocArray);
-	return (IStrAssocList *)GetIStrAssocList(this, p_list);
+	return reinterpret_cast<IStrAssocList *>(GetIStrAssocList(this, p_list));
 }
 //
 // } PPObjGoodsGroup
@@ -4200,21 +4209,21 @@ DL6_IC_CONSTRUCTOR(PPLocAddrStruc, DL6ICLS_PPLocAddrStruc_VTab)
 
 DL6_IC_DESTRUCTOR(PPLocAddrStruc)
 {
-	delete ((PPLocAddrStruc *)ExtraPtr);
+	delete static_cast<PPLocAddrStruc *>(ExtraPtr);
 }
 //
 // Interface ILocAddrStruc implementation
 //
 int32 DL6ICLS_PPLocAddrStruc::Recognize(SString & addr)
 {
-	PPLocAddrStruc * p_las = (PPLocAddrStruc *)ExtraPtr;
+	PPLocAddrStruc * p_las = static_cast<PPLocAddrStruc *>(ExtraPtr);
 	return p_las ? p_las->Recognize(addr.Transf(CTRANSF_INNER_TO_OUTER)) : RaiseAppError();
 }
 
 SString & DL6ICLS_PPLocAddrStruc::Get(PpyLocAddrPart partId)
 {
 	RetStrBuf.Z();
-	PPLocAddrStruc * p_las = (PPLocAddrStruc *)ExtraPtr;
+	const PPLocAddrStruc * p_las = static_cast<const PPLocAddrStruc *>(ExtraPtr);
 	if(p_las)
 		p_las->GetText(partId, RetStrBuf);
 	else
@@ -4542,7 +4551,7 @@ void FillPersonRec(const PPPersonPacket * pInner, SPpyO_Person * pOuter)
 	FLD(Division);
 	FLD(Position);
 	FLD(CatID);
-	pOuter->UpdFlags = (PpyOPsnUpdateFlags)pInner->UpdFlags;
+	pOuter->UpdFlags = static_cast<PpyOPsnUpdateFlags>(pInner->UpdFlags);
 	#undef FLD
 	(temp_buf = pInner->Rec.Name).CopyToOleStr(&pOuter->Name);
 	(temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
@@ -4595,14 +4604,14 @@ SString & DL6ICLS_PPObjPerson::GetName(int32 id)
 	int    ok = 0;
 	char   name_buf[64];
 	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
-	memzero(name_buf, sizeof(name_buf));
+	PTR32(name_buf)[0] = 0;
 	ok = (p_e && p_e->P_Obj) ? p_e->P_Obj->GetName(id, name_buf, sizeof(name_buf)) : 0;
 	return (RetStrBuf = name_buf);
 }
 
 IStrAssocList* DL6ICLS_PPObjPerson::GetSelector(int32 extraParam)
 {
-	return (IStrAssocList *)RaiseAppErrorPtr();
+	return static_cast<IStrAssocList *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPObjPerson::Create(PPYOBJREC pRec, int32 flags, int32* pID)

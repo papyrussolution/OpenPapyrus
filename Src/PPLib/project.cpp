@@ -94,7 +94,7 @@ int SLAPI PPObjProject::EditConfig()
 			setCtrlData(CTL_PRJCFG_REFRESHTIME,  &Data.Cfg.RefreshTime);
 			AddClusterAssoc(CTL_PRJCFG_FLAGS, 0, PRJCFGF_NEWTASKNOTICEONLOGIN);
 			AddClusterAssoc(CTL_PRJCFG_FLAGS, 1, PRJCFGF_NEWTASKNOTICE);
-			AddClusterAssoc(CTL_PRJCFG_FLAGS, 2, PRJCFGF_INCOMPLETETASKREMIND); // @v6.4.15 AHTOXA
+			AddClusterAssoc(CTL_PRJCFG_FLAGS, 2, PRJCFGF_INCOMPLETETASKREMIND); 
 			SetClusterData(CTL_PRJCFG_FLAGS,  Data.Cfg.Flags);
 			SetIntRangeInput(this, CTL_PRJCFG_REMINDPRD, &Data.Cfg.RemindPrd);
 			{

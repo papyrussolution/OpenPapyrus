@@ -550,29 +550,11 @@ void operator delete(void * ptr);
 //
 // Descr: Перечисление, обеспечивающее типизированное применение "лекого" варианта конструктора
 //   объекта. Применяется в специальных случаях, когда необходимо максимально быстро создать
-//   упрощенный 'кземпляр "тяжелого" объекта.
+//   упрощенный экземпляр "тяжелого" объекта.
 //
 enum SCtrLite {
 	SConstructorDef = 0,
 	SConstructorLite = 1
-};
-//
-// Классификатор систем программной инфраструктуры
-// Это - не операционные системы, а именно инфраструктурные понятия, в рамках которых
-// могут быть определены те или иные стандарты и классификаторы (например, кодовые страницы)
-//
-enum {
-	ssisUnkn    =  0,
-	ssisWindows =  1,
-	ssisMAC     =  2,
-	ssisIBM     =  3,
-	ssisAIX     =  4,
-	ssisJava    =  5,
-	ssisSolaris =  6,
-	ssisHPUX    =  7,
-	ssisGLibC   =  8,
-	ssisBSD     =  9, // @v10.4.4
-	ssisGNU     = 10  // @v10.4.4
 };
 //
 // Descr: Возвращает идентификатор системы программной инфраструктуры ssisXXX
@@ -2031,7 +2013,6 @@ private:
 	LDATETIME  Last;
 };
 //
-// @construction
 // Descr: Универсальное представление времени, обеспечивающее хранение любых временных
 //   отметок с (почти) любой точностью.
 //
@@ -2194,6 +2175,7 @@ private:
 #define TESTMULTFLAG(v,f)           (((v)&(f))==(f))
 #define INVERSEFLAG(v,f)            {if((v)&(f)) {(v)&=~(f);} else {(v)|=(f);}}
 #define CHKXORFLAGS(v,f1,f2)        ((((v)&(f1)) ^ ((v)&(f2))) ? (((v)&(f1))?(f1):(f2)) : 0)
+#define SETUPFLAGS(value, andFlags, notFlags) { (value) |= (andFlags); (value) &= ~(notFlags); }
 #define BIN(x)                      ((x)?1:0)
 #define LOGIC(x)                    ((x)?true:false)
 #define BOOLXOR(p1,p2)              (((p1)&&(p2))||(!(p1)&&!(p2)))
@@ -8370,6 +8352,24 @@ private:
 //
 class SSystem {
 public:
+	//
+	// Классификатор систем программной инфраструктуры
+	// Это - не операционные системы, а именно инфраструктурные понятия, в рамках которых
+	// могут быть определены те или иные стандарты и классификаторы (например, кодовые страницы)
+	//
+	enum {
+		ssisUnkn    =  0,
+		ssisWindows =  1,
+		ssisMAC     =  2,
+		ssisIBM     =  3,
+		ssisAIX     =  4,
+		ssisJava    =  5,
+		ssisSolaris =  6,
+		ssisHPUX    =  7,
+		ssisGLibC   =  8,
+		ssisBSD     =  9, // @v10.4.4
+		ssisGNU     = 10  // @v10.4.4
+	};
 	enum CpuVendor {
 		cpuvUnkn = 0,
 		cpuvIntel,
@@ -8398,6 +8398,19 @@ public:
 	enum {
 		fBigEndian    = 0x0001, // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
 		fPerfFreqIsOk = 0x0002  // @v10.5.7
+	};
+	//
+	// Descr: Версии сетевых протоколов SSL
+	//
+	enum {
+		sslDefault = 0,
+		sslTLS_v1x = 1,
+		sslSSL_v2  = 2,
+		sslSSL_v3  = 3,
+		sslTLS_v10 = 4,
+		sslTLS_v11 = 5,
+		sslTLS_v12 = 6,
+		sslTLS_v13 = 7
 	};
 
 	static int     BigEndian();

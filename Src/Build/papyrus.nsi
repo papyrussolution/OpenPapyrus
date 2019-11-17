@@ -19,6 +19,8 @@
 ;!define INSTALL_DEMO
 ; Установка OpenSource-варианта сборки
 ;!define OPENSOURCE
+; Дополнительные исполняемые и DLL-модули совместимые с Windows-XP
+;!define XPCOMPAT
 
 ;
 ; Внимание: функция сборки дистрибутива, встроенная в Papyrus полагается на следующие значения префиксов дистрибутивов
@@ -296,8 +298,12 @@ Section "Файлы приложения" SEC01
 	SetOutPath "${DIR_BIN}"
 	SetOverwrite on
 	File "${SRC_TARGET}\ppw.exe"
-	File "${SRC_TARGET}\ppShuttleSG15_20.exe" ; @v7.4.10
 	File "${SRC_TARGET}\ppwmt.dll"
+	!ifdef XPCOMPAT
+		File "${SRC_TARGET}\ppw-xp.exe" ; @v10.6.1
+		File "${SRC_TARGET}\ppwmt-xp.dll" ; @v10.6.1
+	!endif
+	File "${SRC_TARGET}\ppShuttleSG15_20.exe" ; @v7.4.10
 	File "${SRC_TARGET}\PPSoapUhtt.dll"       ; @v7.3.0
 	!ifndef OPENSOURCE
 		File "${SRC_TARGET}\PPSoapPepsi.dll"      ; @v9.2.3
@@ -324,7 +330,7 @@ Section "Файлы приложения" SEC01
 	; @v8.9.8 File "${SRC_REDIST}\stdrpt.ini"	
 	File "${SRC_ROOT}\src\rsrc\rpt\stdrpt.ini" ; @v8.9.8
 	File "${SRC_REDIST}\mkmenu.bat"
-        File "${SRC_REDIST}\ppos.exe"
+    File "${SRC_REDIST}\ppos.exe"
 	File "${SRC_ROOT}\src\include\ppmenu.h"
 	File "${SRC_ROOT}\src\rsrc\rc\ppmenu.rc"
 	!ifdef INSTALL_SERVER | INSTALL_DEMO

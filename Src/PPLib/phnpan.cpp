@@ -1254,12 +1254,12 @@ int SLAPI ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneD
 	return ok;
 }
 
-static const uint32 PhoneServiceEventResponder_Signature = 0x5A6B7C8E;
+// @v10.6.1 (moved to PPConst) static const uint32 PhoneServiceEventResponder_Signature = 0x5A6B7C8E;
 
 int SLAPI PhoneServiceEventResponder::IsConsistent() const
-	{ return (Signature == PhoneServiceEventResponder_Signature); }
+	{ return (Signature == _PPConst.Signature_PhoneServiceEventResponder); }
 
-SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(PhoneServiceEventResponder_Signature),
+SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(_PPConst.Signature_PhoneServiceEventResponder),
 	AdvCookie_Ringing(0), AdvCookie_Up(0), P_PsnObj(0), P_InternalPhoneList(0)
 {
 	{

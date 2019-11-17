@@ -56,9 +56,7 @@ int SLAPI PPObjBarcodePrinter::PutPacket(PPID * pID, const PPBarcodePrinter * pP
 			THROW(ref->AddItem(Obj, pID, pPack, 0));
 		}
 		if(*pID) {
-			const char * p = 0;
-			if(pPack && pPack->Flags & PPBarcodePrinter::fPortEx)
-				p = pPack->PortEx;
+			const char * p = (pPack && pPack->Flags & PPBarcodePrinter::fPortEx) ? pPack->PortEx : 0;
 			THROW(ref->PutPropVlrString(Obj, *pID, BCPPRP_PORTEX, p));
 		}
 		THROW(tra.Commit());
@@ -672,9 +670,6 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 			long   lval = 0;
 			PPSecur secur;
 			switch(i) {
-				case bcvsGoodsName:
-					d = stpcpy(d, RGI.Name);
-					break;
 				case bcvsGoodsGrpName:
 					{
 						Goods2Tbl::Rec goods_rec;
@@ -684,30 +679,9 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 						}
 					}
 					break;
-				case bcvsPrice:
-					d = stpcpy(d, realfmt(RGI.Price, MKSFMTD(0, 2, NMBF_NOZERO), temp));
-					break;
-				case bcvsRevalPrice:
-					d = stpcpy(d, realfmt(RGI.RevalPrice, MKSFMTD(0, 2, NMBF_NOZERO), temp));
-					break;
-				case bcvsLineCost:
-					d = stpcpy(d, realfmt(NZOR(RGI.LineCost, RGI.Cost), MKSFMTD(0, 2, NMBF_NOZERO), temp));
-					break;
-				case bcvsLinePrice:
-					d = stpcpy(d, realfmt(NZOR(RGI.LinePrice, RGI.Price), MKSFMTD(0, 2, NMBF_NOZERO), temp));
-					break;
-				case bcvsExpiry:
-					d = stpcpy(d, datefmt(&RGI.Expiry, DATF_DMY, temp));
-					break;
 				case bcvsManufDate:
 					temp_str.Z().Cat(RGI.ManufDtm, DATF_DMY|DATF_NOZERO, TIMF_HM|TIMF_NOZERO);
 					d = stpcpy(d, temp_str);
-					break;
-				case bcvsManuf:
-					d = stpcpy(d, RGI.Manuf);
-					break;
-				case bcvsCountry:
-					d = stpcpy(d, RGI.ManufCountry);
 					break;
 				case bcvsDate:
 					curdate = getcurdate_();
@@ -724,36 +698,24 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 						else
 							d = stpcpy(d, secur.Name);
 					break;
-				case bcvsSerial:
-					d = stpcpy(d, RGI.Serial);
-					break;
-				case bcvsBillDate:
-					d = stpcpy(d, datefmt(&RGI.BillDate, DATF_DMY, temp));
-					break;
-				case bcvsBillNo:
-					d = stpcpy(d, RGI.BillCode);
-					break;
-				case bcvsQtty:
-					d = stpcpy(d, realfmt(RGI.Qtty, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp));
-					break;
-				case bcvsPhQtty:
-					d = stpcpy(d, realfmt(RGI.PhQtty, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp));
-					break;
-				case bcvsPack:
-					d = stpcpy(d, realfmt(RGI.UnitPerPack, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp));
-					break;
-				case bcvsBrutto:
-					d = stpcpy(d, realfmt(RGI.Brutto, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp));
-					break;
-				case bcvsObjName:
-					d = stpcpy(d, RGI.ArName);
-					break;
-				case bcvsObj2Name:
-					d = stpcpy(d, RGI.Ar2Name);
-					break;
-				case bcvsPrcName:
-					d = stpcpy(d, RGI.PrcName);
-					break;
+				case bcvsGoodsName:  d = stpcpy(d, RGI.Name); break;
+				case bcvsPrice:      d = stpcpy(d, realfmt(RGI.Price, MKSFMTD(0, 2, NMBF_NOZERO), temp)); break;
+				case bcvsRevalPrice: d = stpcpy(d, realfmt(RGI.RevalPrice, MKSFMTD(0, 2, NMBF_NOZERO), temp)); break;
+				case bcvsLineCost:   d = stpcpy(d, realfmt(NZOR(RGI.LineCost, RGI.Cost), MKSFMTD(0, 2, NMBF_NOZERO), temp)); break;
+				case bcvsLinePrice:  d = stpcpy(d, realfmt(NZOR(RGI.LinePrice, RGI.Price), MKSFMTD(0, 2, NMBF_NOZERO), temp)); break;
+				case bcvsExpiry:     d = stpcpy(d, datefmt(&RGI.Expiry, DATF_DMY, temp)); break;
+				case bcvsManuf:      d = stpcpy(d, RGI.Manuf); break;
+				case bcvsCountry:    d = stpcpy(d, RGI.ManufCountry); break;
+				case bcvsSerial:     d = stpcpy(d, RGI.Serial); break;
+				case bcvsBillDate:   d = stpcpy(d, datefmt(&RGI.BillDate, DATF_DMY, temp)); break;
+				case bcvsBillNo:     d = stpcpy(d, RGI.BillCode); break;
+				case bcvsQtty:       d = stpcpy(d, realfmt(RGI.Qtty, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp)); break;
+				case bcvsPhQtty:     d = stpcpy(d, realfmt(RGI.PhQtty, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp)); break;
+				case bcvsPack:       d = stpcpy(d, realfmt(RGI.UnitPerPack, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp)); break;
+				case bcvsBrutto:     d = stpcpy(d, realfmt(RGI.Brutto, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp)); break;
+				case bcvsObjName:    d = stpcpy(d, RGI.ArName); break;
+				case bcvsObj2Name:   d = stpcpy(d, RGI.Ar2Name); break;
+				case bcvsPrcName:    d = stpcpy(d, RGI.PrcName); break;
 				case bcvsGcDimX:
 				case bcvsGcDimY:
 				case bcvsGcDimZ:
@@ -768,7 +730,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 				case bcvsExtC:
 				case bcvsExtD:
 				case bcvsExtE:
-					temp_str = 0;
+					temp_str.Z();
 					if(P_GPack == 0) {
 						P_GPack = new PPGoodsPacket;
 						goods_obj.GetPacket(RGI.ID, P_GPack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
@@ -820,20 +782,16 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 						}
 					}
 					else if(i == bcvsGcKind) {
-						if(P_GcPack)
-							P_GcPack->GetExtProp(&P_GPack->ExtRec, PPGdsCls::eKind, &lval, temp_str);
+						CALLPTRMEMB(P_GcPack, GetExtProp(&P_GPack->ExtRec, PPGdsCls::eKind, &lval, temp_str));
 					}
 					else if(i == bcvsGcGrade) {
-						if(P_GcPack)
-							P_GcPack->GetExtProp(&P_GPack->ExtRec, PPGdsCls::eGrade, &lval, temp_str);
+						CALLPTRMEMB(P_GcPack, GetExtProp(&P_GPack->ExtRec, PPGdsCls::eGrade, &lval, temp_str));
 					}
 					else if(i == bcvsGcAddProp) {
-						if(P_GcPack)
-							P_GcPack->GetExtProp(&P_GPack->ExtRec, PPGdsCls::eAdd, &lval, temp_str);
+						CALLPTRMEMB(P_GcPack, GetExtProp(&P_GPack->ExtRec, PPGdsCls::eAdd, &lval, temp_str));
 					}
 					else if(i == bcvsGcAddProp2) {
-						if(P_GcPack)
-							P_GcPack->GetExtProp(&P_GPack->ExtRec, PPGdsCls::eAdd2, &lval, temp_str);
+						CALLPTRMEMB(P_GcPack, GetExtProp(&P_GPack->ExtRec, PPGdsCls::eAdd2, &lval, temp_str));
 					}
 					d = stpcpy(d, temp_str);
 					break;
@@ -859,12 +817,10 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 						}
 					}
 					break;
-				// @v8.1.3 {
 				case bcvsGoodsCode:
 					(temp_str = RGI.BarCode).Strip();
 					d = stpcpy(d, temp_str);
 					break;
-				// } @v8.1.3
 				// @v9.8.11 {
 				case bcvsMainOrg:
 					GetMainOrgName(temp_str);
@@ -2277,7 +2233,7 @@ struct BarCStdToEltronEntry {
 	char * P_Str;
 };
 
-static BarCStdToEltronEntry _E_BarCStdTab[] = {
+static const BarCStdToEltronEntry _E_BarCStdTab[] = {
 	{BARCSTD_INTRLVD2OF5, "2"},
 	{BARCSTD_CODE39,      "3"},
 	{BARCSTD_EAN8,        "E80"},
@@ -2400,9 +2356,6 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	return 1;
 }
 //
-//
-//
-//
 // Implementation of PPALDD_BarcodeLabelList
 //
 struct DlBarcodeLabelListBlock {
@@ -2429,13 +2382,8 @@ PPALDD_DESTRUCTOR(BarcodeLabelList)
 
 int PPALDD_BarcodeLabelList::InitData(PPFilt & rFilt, long rsrv)
 {
-	//SString temp_buf;
-
 	DlBarcodeLabelListBlock * p_blk = new DlBarcodeLabelListBlock(rFilt.Ptr);
 	Extra[0].Ptr = p_blk;
-
-	//TSCollection <RetailGoodsInfo> * p_rgi_list = (TSCollection <RetailGoodsInfo> *)rFilt.Ptr;
-	//Extra[1].Ptr = p_rgi_list;
 	H.nn = 0;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -2443,7 +2391,6 @@ int PPALDD_BarcodeLabelList::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_BarcodeLabelList::InitIteration(long iterId, int sortId, long rsrv)
 {
 	DlBarcodeLabelListBlock * p_blk = static_cast<DlBarcodeLabelListBlock *>(Extra[0].Ptr);
-	//TSCollection <RetailGoodsInfo> * p_rgi_list = (TSCollection <RetailGoodsInfo> *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
 	IterProlog(iterId, 1);
 	if(p_blk && p_blk->P_RgiList) {
 		if(sortId >= 0)
@@ -2461,7 +2408,6 @@ int PPALDD_BarcodeLabelList::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	//TSCollection <RetailGoodsInfo> * p_rgi_list = (TSCollection <RetailGoodsInfo> *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
 	DlBarcodeLabelListBlock * p_blk = static_cast<DlBarcodeLabelListBlock *>(Extra[0].Ptr);
 	if(p_blk && p_blk->P_RgiList && p_blk->N < (int)p_blk->P_RgiList->getCount()) {
 		const RetailGoodsInfo * p_rgi = p_blk->P_RgiList->at(p_blk->N);

@@ -3034,18 +3034,12 @@ static int tls_decrypt_ticket(SSL * s, const uchar * etick,
 	}
 	else {
 		/* Check key name matches */
-		if(memcmp(etick, tctx->tlsext_tick_key_name,
-			    sizeof(tctx->tlsext_tick_key_name)) != 0) {
+		if(memcmp(etick, tctx->tlsext_tick_key_name, sizeof(tctx->tlsext_tick_key_name)) != 0) {
 			ret = 2;
 			goto err;
 		}
-		if(HMAC_Init_ex(hctx, tctx->tlsext_tick_hmac_key,
-			    sizeof(tctx->tlsext_tick_hmac_key),
-			    EVP_sha256(), NULL) <= 0
-		    || EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL,
-			    tctx->tlsext_tick_aes_key,
-			    etick + sizeof(tctx->tlsext_tick_key_name)) <=
-		    0) {
+		if(HMAC_Init_ex(hctx, tctx->tlsext_tick_hmac_key, sizeof(tctx->tlsext_tick_hmac_key), EVP_sha256(), NULL) <= 0
+		    || EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, tctx->tlsext_tick_aes_key, etick + sizeof(tctx->tlsext_tick_key_name)) <= 0) {
 			goto err;
 		}
 	}
@@ -3153,8 +3147,7 @@ static const tls12_lookup tls12_sig[] = {
 
 static int tls12_find_id(int nid, const tls12_lookup * table, size_t tlen)
 {
-	size_t i;
-	for(i = 0; i < tlen; i++) {
+	for(size_t i = 0; i < tlen; i++) {
 		if(table[i].nid == nid)
 			return table[i].id;
 	}
@@ -3163,8 +3156,7 @@ static int tls12_find_id(int nid, const tls12_lookup * table, size_t tlen)
 
 static int tls12_find_nid(int id, const tls12_lookup * table, size_t tlen)
 {
-	size_t i;
-	for(i = 0; i < tlen; i++) {
+	for(size_t i = 0; i < tlen; i++) {
 		if((table[i].id) == id)
 			return table[i].nid;
 	}
@@ -3215,15 +3207,12 @@ static const tls12_hash_info tls12_md_info[] = {
 
 static const tls12_hash_info * tls12_get_hash_info(uchar hash_alg)
 {
-	uint i;
-	if(hash_alg == 0)
-		return NULL;
-
-	for(i = 0; i < OSSL_NELEM(tls12_md_info); i++) {
-		if(tls12_md_info[i].tlsext_hash == hash_alg)
-			return tls12_md_info + i;
+	if(hash_alg) {
+		for(uint i = 0; i < OSSL_NELEM(tls12_md_info); i++) {
+			if(tls12_md_info[i].tlsext_hash == hash_alg)
+				return tls12_md_info + i;
+		}
 	}
-
 	return NULL;
 }
 
@@ -3242,34 +3231,25 @@ static int tls12_get_pkey_idx(uchar sig_alg)
 {
 	switch(sig_alg) {
 #ifndef OPENSSL_NO_RSA
-		case TLSEXT_signature_rsa:
-		    return SSL_PKEY_RSA_SIGN;
+		case TLSEXT_signature_rsa: return SSL_PKEY_RSA_SIGN;
 #endif
 #ifndef OPENSSL_NO_DSA
-		case TLSEXT_signature_dsa:
-		    return SSL_PKEY_DSA_SIGN;
+		case TLSEXT_signature_dsa: return SSL_PKEY_DSA_SIGN;
 #endif
 #ifndef OPENSSL_NO_EC
-		case TLSEXT_signature_ecdsa:
-		    return SSL_PKEY_ECC;
+		case TLSEXT_signature_ecdsa: return SSL_PKEY_ECC;
 #endif
 #ifndef OPENSSL_NO_GOST
-		case TLSEXT_signature_gostr34102001:
-		    return SSL_PKEY_GOST01;
-
-		case TLSEXT_signature_gostr34102012_256:
-		    return SSL_PKEY_GOST12_256;
-
-		case TLSEXT_signature_gostr34102012_512:
-		    return SSL_PKEY_GOST12_512;
+		case TLSEXT_signature_gostr34102001: return SSL_PKEY_GOST01;
+		case TLSEXT_signature_gostr34102012_256: return SSL_PKEY_GOST12_256;
+		case TLSEXT_signature_gostr34102012_512: return SSL_PKEY_GOST12_512;
 #endif
 	}
 	return -1;
 }
 
 /* Convert TLS 1.2 signature algorithm extension values into NIDs */
-static void tls1_lookup_sigalg(int * phash_nid, int * psign_nid,
-    int * psignhash_nid, const uchar * data)
+static void tls1_lookup_sigalg(int * phash_nid, int * psign_nid, int * psignhash_nid, const uchar * data)
 {
 	int sign_nid = NID_undef, hash_nid = NID_undef;
 	if(!phash_nid && !psign_nid && !psignhash_nid)
@@ -3285,8 +3265,7 @@ static void tls1_lookup_sigalg(int * phash_nid, int * psign_nid,
 			*psign_nid = sign_nid;
 	}
 	if(psignhash_nid) {
-		if(sign_nid == NID_undef || hash_nid == NID_undef
-		    || OBJ_find_sigid_by_algs(psignhash_nid, hash_nid, sign_nid) <= 0)
+		if(sign_nid == NID_undef || hash_nid == NID_undef || OBJ_find_sigid_by_algs(psignhash_nid, hash_nid, sign_nid) <= 0)
 			*psignhash_nid = NID_undef;
 	}
 }
@@ -3352,8 +3331,7 @@ void ssl_set_sig_mask(uint32_t * pmask_a, SSL * s, int op)
 		*pmask_a |= SSL_aECDSA;
 }
 
-size_t tls12_copy_sigalgs(SSL * s, uchar * out,
-    const uchar * psig, size_t psiglen)
+size_t tls12_copy_sigalgs(SSL * s, uchar * out, const uchar * psig, size_t psiglen)
 {
 	uchar * tmpout = out;
 	size_t i;
@@ -3367,9 +3345,7 @@ size_t tls12_copy_sigalgs(SSL * s, uchar * out,
 }
 
 /* Given preference and allowed sigalgs set shared sigalgs */
-static int tls12_shared_sigalgs(SSL * s, TLS_SIGALGS * shsig,
-    const uchar * pref, size_t preflen,
-    const uchar * allow, size_t allowlen)
+static int tls12_shared_sigalgs(SSL * s, TLS_SIGALGS * shsig, const uchar * pref, size_t preflen, const uchar * allow, size_t allowlen)
 {
 	const uchar * ptmp, * atmp;
 	size_t i, j, nmatch = 0;
@@ -3383,9 +3359,7 @@ static int tls12_shared_sigalgs(SSL * s, TLS_SIGALGS * shsig,
 				if(shsig) {
 					shsig->rhash = ptmp[0];
 					shsig->rsign = ptmp[1];
-					tls1_lookup_sigalg(&shsig->hash_nid,
-					    &shsig->sign_nid,
-					    &shsig->signandhash_nid, ptmp);
+					tls1_lookup_sigalg(&shsig->hash_nid, &shsig->sign_nid, &shsig->signandhash_nid, ptmp);
 					shsig++;
 				}
 				break;
@@ -3404,7 +3378,6 @@ static int tls1_set_shared_sigalgs(SSL * s)
 	TLS_SIGALGS * salgs = NULL;
 	CERT * c = s->cert;
 	uint is_suiteb = tls1_suiteb(s);
-
 	OPENSSL_free(c->shared_sigalgs);
 	c->shared_sigalgs = NULL;
 	c->shared_sigalgslen = 0;
@@ -3433,7 +3406,7 @@ static int tls1_set_shared_sigalgs(SSL * s)
 	}
 	nmatch = tls12_shared_sigalgs(s, NULL, pref, preflen, allow, allowlen);
 	if(nmatch) {
-		salgs = (TLS_SIGALGS*)OPENSSL_malloc(nmatch * sizeof(TLS_SIGALGS));
+		salgs = static_cast<TLS_SIGALGS *>(OPENSSL_malloc(nmatch * sizeof(TLS_SIGALGS)));
 		if(salgs == NULL)
 			return 0;
 		nmatch = tls12_shared_sigalgs(s, salgs, pref, preflen, allow, allowlen);
@@ -3457,7 +3430,6 @@ int tls1_save_sigalgs(SSL * s, const uchar * data, int dsize)
 	/* Should never happen */
 	if(!c)
 		return 0;
-
 	OPENSSL_free(s->s3->tmp.peer_sigalgs);
 	s->s3->tmp.peer_sigalgs = (uchar *)OPENSSL_malloc(dsize);
 	if(s->s3->tmp.peer_sigalgs == NULL)
@@ -3478,7 +3450,6 @@ int tls1_process_sigalgs(SSL * s)
 	TLS_SIGALGS * sigptr;
 	if(!tls1_set_shared_sigalgs(s))
 		return 0;
-
 	for(i = 0, sigptr = c->shared_sigalgs;
 	    i < c->shared_sigalgslen; i++, sigptr++) {
 		idx = tls12_get_pkey_idx(sigptr->rsign);
@@ -3519,19 +3490,15 @@ int tls1_process_sigalgs(SSL * s)
 		if(pmd[SSL_PKEY_GOST01] == NULL)
 			pmd[SSL_PKEY_GOST01] = EVP_get_digestbynid(NID_id_GostR3411_94);
 		if(pmd[SSL_PKEY_GOST12_256] == NULL)
-			pmd[SSL_PKEY_GOST12_256] =
-			    EVP_get_digestbynid(NID_id_GostR3411_2012_256);
+			pmd[SSL_PKEY_GOST12_256] = EVP_get_digestbynid(NID_id_GostR3411_2012_256);
 		if(pmd[SSL_PKEY_GOST12_512] == NULL)
-			pmd[SSL_PKEY_GOST12_512] =
-			    EVP_get_digestbynid(NID_id_GostR3411_2012_512);
+			pmd[SSL_PKEY_GOST12_512] = EVP_get_digestbynid(NID_id_GostR3411_2012_512);
 #endif
 	}
 	return 1;
 }
 
-int SSL_get_sigalgs(SSL * s, int idx,
-    int * psign, int * phash, int * psignhash,
-    uchar * rsig, uchar * rhash)
+int SSL_get_sigalgs(SSL * s, int idx, int * psign, int * phash, int * psignhash, uchar * rsig, uchar * rhash)
 {
 	const uchar * psig = s->s3->tmp.peer_sigalgs;
 	if(psig == NULL)
@@ -3550,9 +3517,7 @@ int SSL_get_sigalgs(SSL * s, int idx,
 	return s->s3->tmp.peer_sigalgslen / 2;
 }
 
-int SSL_get_shared_sigalgs(SSL * s, int idx,
-    int * psign, int * phash, int * psignhash,
-    uchar * rsig, uchar * rhash)
+int SSL_get_shared_sigalgs(SSL * s, int idx, int * psign, int * phash, int * psignhash, uchar * rsig, uchar * rhash)
 {
 	TLS_SIGALGS * shsigalgs = s->cert->shared_sigalgs;
 	if(!shsigalgs || idx >= (int)s->cert->shared_sigalgslen)

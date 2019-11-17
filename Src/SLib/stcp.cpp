@@ -3550,7 +3550,7 @@ int ScURL::SetAuth(int auth, const char * pUser, const char * pPassword)
     return ok;
 }
 
-int ScURL::SetupDefaultSslOptions()
+int ScURL::SetupDefaultSslOptions(int sslVer /* SSystem::sslXXX */, const StringSet * pSsCipherList)
 {
 	int    ok = 1;
 	const SGlobalSecureConfig & r_cfg = SLS.GetGlobalSecureConfig();
@@ -3560,8 +3560,31 @@ int ScURL::SetupDefaultSslOptions()
 	SPathStruc::NormalizePath(r_cfg.CaPath, SPathStruc::npfSlash, ca_path);
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAINFO, ca_file.cptr())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAPATH, ca_path.cptr())));
+	// @v10.6.2 {
+	{
+		int    curl_ssl_ver = CURL_SSLVERSION_DEFAULT;
+		switch(sslVer) {
+			case SSystem::sslTLS_v1x: curl_ssl_ver = CURL_SSLVERSION_TLSv1; break;
+			case SSystem::sslSSL_v2:  curl_ssl_ver = CURL_SSLVERSION_SSLv2; break;
+			case SSystem::sslSSL_v3:  curl_ssl_ver = CURL_SSLVERSION_SSLv3; break;
+			case SSystem::sslTLS_v10: curl_ssl_ver = CURL_SSLVERSION_TLSv1_0; break;
+			case SSystem::sslTLS_v11: curl_ssl_ver = CURL_SSLVERSION_TLSv1_1; break;
+			case SSystem::sslTLS_v12: curl_ssl_ver = CURL_SSLVERSION_TLSv1_2; break;
+			case SSystem::sslTLS_v13: curl_ssl_ver = CURL_SSLVERSION_TLSv1_3; break;
+		}
+		if(curl_ssl_ver) {
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSLVERSION, curl_ssl_ver)));
+		}
+	}
+	// } @v10.6.2 
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 1L)));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYHOST, 2L)));
+	if(pSsCipherList) {
+		/*SString temp_buf;
+		for(uint ssp = 0; pSsCipherList->get(&ssp, temp_buf);) {
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_CIPHER_LIST, 2L)));
+		}*/
+	}
 	CATCHZOK
 	return ok;
 }

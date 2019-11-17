@@ -340,10 +340,10 @@ int __os_is_winnt()
 	return 1;
 #else
 	static int __os_type = -1;
-	/*
-	 * The value of __os_type is computed only once, and cached to
-	 * avoid the overhead of repeated calls to GetVersion().
-	 */
+	// 
+	// The value of __os_type is computed only once, and cached to
+	// avoid the overhead of repeated calls to GetVersion().
+	// 
 	if(__os_type == -1) {
 		if((GetVersion() & 0x80000000) == 0)
 			__os_type = 1;

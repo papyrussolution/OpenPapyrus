@@ -6761,7 +6761,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 			p_ti = &temp_ti;
 			if(qk_id) {
 				const double base = extprice_by_base ? p_ti->Price : p_ti->NetPrice();
-				QuotIdent qi(p_ti->LocID, qk_id, p_ti->CurID, p_pack->Rec.Object);
+				const QuotIdent qi(p_ti->LocID, qk_id, p_ti->CurID, p_pack->Rec.Object);
 				goods_obj.GetQuotExt(p_ti->GoodsID, qi, p_ti->Cost, base, &ext_price, 1);
 			}
 		}
@@ -7508,7 +7508,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			double new_price = (correction_type == -1) ? (p_ti->Price-p_ti->Discount) : p_ti->Price;
 			double new_cost  = p_ti->Cost;
 			double old_price = (correction_type == -1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Discount : 0.0);
-			double old_cost  = (correction_type == +1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Discount : 0.0);
+			double old_cost  = (correction_type == +1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Cost : 0.0); // @v10.6.1 p_ti->Discount-->p_ti->Cost
 			const double qtty      = correction_type ? fabs(p_ti->Quantity_) : fabs(p_ti->Rest_);
 			const double old_qtty  = correction_type ? fabs(p_ti->QuotPrice) : fabs(qtty);
 			double vatsum_oldcost = 0.0;
@@ -8311,11 +8311,11 @@ PPALDD_DESTRUCTOR(BnkPaymOrder) { Destroy(); }
 
 int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 {
-	BnkAcctData bnk_data;
 	PPObjPerson psn_obj;
 	PPBillPacket * pack = static_cast<PPBillPacket *>(rFilt.Ptr);
 	if(pack && pack->P_PaymOrder) {
 		SString temp_buf;
+		BnkAcctData bnk_data(BADIF_INITALLBR);
 		H.PayerID = pack->P_PaymOrder->PayerID;
 		H.RcvrID  = pack->P_PaymOrder->RcvrID;
 		H.BillID  = pack->P_PaymOrder->BillID;
@@ -8323,7 +8323,6 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.LclCode, pack->P_PaymOrder->Code);
 		STRNSCPY(H.LclMemo, pack->Rec.Memo);
 		H.PayerBnkAccID = pack->P_PaymOrder->PayerBnkAccID;
-		bnk_data.InitFlags = BADIF_INITALLBR;
 		psn_obj.GetBnkAcctData(H.PayerBnkAccID, 0, &bnk_data);
 		H.PayerBnkID = bnk_data.Bnk.ID;
 		//STRNSCPY(H.PayerBnkName, bnk_data.Bnk.Name);

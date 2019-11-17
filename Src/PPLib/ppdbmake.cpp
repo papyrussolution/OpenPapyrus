@@ -288,7 +288,7 @@ public:
 		{
 			PPObjCashNode::SelFilt filt;
 			filt.OnlyGroups = -1;
-			filt.SyncGroup = 2; // async only 
+			filt.SyncGroup = 2; // async only
 			SetupPPObjCombo(this, CTLSEL_MAKENEWDB_POSHOST, PPOBJ_CASHNODE, Data.AutoPosNodeHostID, 0, &filt);
 		}
 		disableCtrl(CTLSEL_MAKENEWDB_POSHOST, Data.How != Data.howAutoPosNode);

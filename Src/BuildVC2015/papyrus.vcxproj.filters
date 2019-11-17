@@ -332,6 +332,7 @@
     <ClCompile Include="..\PPLib\tsenv.cpp" />
     <ClCompile Include="..\PPLib\ppmqc.cpp" />
     <ClCompile Include="..\PPLib\v_qreq.cpp" />
+    <ClCompile Include="..\PPLib\chzn.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

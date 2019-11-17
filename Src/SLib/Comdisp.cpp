@@ -74,7 +74,7 @@ int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
 	wname_len = mbstowcs(NULL, pName, MAXPATH) + 1;
 	THROW(p_wname = new OLECHAR[wname_len]);
 	mbstowcs(p_wname, pName, MAXPATH);
-	THROW(SUCCEEDED(HRes = P_Disp->GetIDsOfNames(IID_NULL, (OLECHAR **)&p_wname, 1, LOCALE_USER_DEFAULT, &dispid_entry.DispID)));
+	THROW(SUCCEEDED(HRes = P_Disp->GetIDsOfNames(IID_NULL, &p_wname, 1, LOCALE_USER_DEFAULT, &dispid_entry.DispID)));
 	dispid_entry.ID = nameID;
 	STRNSCPY(dispid_entry.Name, pName);
 	THROW(DispIDAry.insert(&dispid_entry));
