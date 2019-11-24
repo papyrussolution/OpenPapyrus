@@ -1732,6 +1732,11 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 				w_s.PutInner("fixedbonus", temp_buf.Z().Cat(fixed_bonus, MKSFMTD(0, 2, NMBF_NOTRAILZ)));
 		}
 		// } @v10.5.7 
+		// @v10.6.3 {
+		if(rInfo.Phone.NotEmpty()) {
+			w_s.PutInner("phone", rInfo.Phone);
+		}
+		// } @v10.6.3 
 		//if(rInfo.P_QuotByQttyList)
 	}
 	CATCHZOK
@@ -1810,7 +1815,7 @@ PPPosProtocol::QueryBlock * PPPosProtocol::Helper_RenewQuery(uint & rRefPos, int
 	RdB.RefPosStack.pop(rRefPos);
 	THROW(Helper_PushQuery(queryType));
 	rRefPos = PeekRefPos();
-	p_blk = (QueryBlock *)RdB.GetItemWithTest(rRefPos, obQuery);
+	p_blk = static_cast<QueryBlock *>(RdB.GetItemWithTest(rRefPos, obQuery));
 	assert(p_blk && p_blk->Q == queryType);
 	CATCH
 		p_blk = 0;
@@ -2112,6 +2117,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_SALESTAXRATE:
 				case PPHS_UNLIMITED:
 				case PPHS_LOOKBACKPRICES:
+				case PPHS_PHONE: // @v10.6.3
 					break;
 			}
 		}
@@ -2337,10 +2343,10 @@ int PPPosProtocol::EndElement(const char * pName)
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
 				if(type == obUnit) {
-					((UnitBlock *)p_item)->PhUnitBlkP = ref_pos;
+					static_cast<UnitBlock *>(p_item)->PhUnitBlkP = ref_pos;
 				}
 				else if(type == obGoods) {
-					((GoodsBlock *)p_item)->PhUnitBlkP = ref_pos;
+					static_cast<GoodsBlock *>(p_item)->PhUnitBlkP = ref_pos;
 				}
 				break;
 			case PPHS_QUOTE:
@@ -2349,7 +2355,7 @@ int PPPosProtocol::EndElement(const char * pName)
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
 				if(type == obGoods) {
-					((SCardBlock *)p_item)->OwnerBlkP = ref_pos;
+					static_cast<SCardBlock *>(p_item)->OwnerBlkP = ref_pos;
 				}
 				else if(type == obGoodsGroup) {
 
@@ -2361,10 +2367,10 @@ int PPPosProtocol::EndElement(const char * pName)
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
 				if(type == obCCheck) {
-					((CCheckBlock *)p_item)->SCardBlkP = ref_pos;
+					static_cast<CCheckBlock *>(p_item)->SCardBlkP = ref_pos;
 				}
 				else if(type == obPayment) {
-					((CcPaymentBlock *)p_item)->SCardBlkP = ref_pos;
+					static_cast<CcPaymentBlock *>(p_item)->SCardBlkP = ref_pos;
 				}
 				break;
 			case PPHS_QUOTEKIND:
@@ -2384,7 +2390,7 @@ int PPPosProtocol::EndElement(const char * pName)
 							assert(obr.Type == obQuotKind);
 							if(obr.P == (RdB.QkBlkList.getCount()-1)) {
 								uint   other_ref_pos = 0;
-								if(RdB.SearchAnalogRef_QuotKind(*(QuotKindBlock *)p_this_item, ref_pos, &other_ref_pos)) {
+								if(RdB.SearchAnalogRef_QuotKind(*static_cast<const QuotKindBlock *>(p_this_item), ref_pos, &other_ref_pos)) {
 									RdB.RefList.atFree(ref_pos);
 									RdB.QkBlkList.atFree(obr.P);
 									ref_pos = other_ref_pos;
@@ -2394,10 +2400,10 @@ int PPPosProtocol::EndElement(const char * pName)
 						parent_ref_pos = PeekRefPos();
 						p_item = RdB.GetItem(parent_ref_pos, &type);
 						if(type == obQuot) {
-							((QuotBlock *)p_item)->QuotKindBlkP = ref_pos;
+							static_cast<QuotBlock *>(p_item)->QuotKindBlkP = ref_pos;
 						}
 						else if(type == obSCardSeries) {
-							((SCardSeriesBlock *)p_item)->QuotKindBlkP = ref_pos;
+							static_cast<SCardSeriesBlock *>(p_item)->QuotKindBlkP = ref_pos;
 						}
 					}
 				}
@@ -2417,7 +2423,7 @@ int PPPosProtocol::EndElement(const char * pName)
 							assert(obr.Type == obSCardSeries);
 							if(obr.P == (RdB.ScsBlkList.getCount()-1)) {
 								uint   other_ref_pos = 0;
-								if(RdB.SearchAnalogRef_SCardSeries(*(SCardSeriesBlock *)p_this_item, ref_pos, &other_ref_pos)) {
+								if(RdB.SearchAnalogRef_SCardSeries(*static_cast<const SCardSeriesBlock *>(p_this_item), ref_pos, &other_ref_pos)) {
 									RdB.RefList.atFree(ref_pos);
 									RdB.ScsBlkList.atFree(obr.P);
 									ref_pos = other_ref_pos;
@@ -2529,18 +2535,18 @@ int PPPosProtocol::EndElement(const char * pName)
 					const long _val_id = RdB.TagValue.ToLong();
 					p_item = PeekRefItem(&ref_pos, &type);
 					switch(type) {
-						case obPosNode: static_cast<PosNodeBlock *>(p_item)->ID = _val_id; break;
-						case obGoods: static_cast<GoodsBlock *>(p_item)->ID = _val_id; break;
-						case obGoodsGroup: static_cast<GoodsGroupBlock *>(p_item)->ID = _val_id; break;
-						case obPerson: static_cast<PersonBlock *>(p_item)->ID = _val_id; break;
+						case obPosNode:     static_cast<PosNodeBlock *>(p_item)->ID = _val_id; break;
+						case obGoods:       static_cast<GoodsBlock *>(p_item)->ID = _val_id; break;
+						case obGoodsGroup:  static_cast<GoodsGroupBlock *>(p_item)->ID = _val_id; break;
+						case obPerson:      static_cast<PersonBlock *>(p_item)->ID = _val_id; break;
 						case obSCardSeries: static_cast<SCardSeriesBlock *>(p_item)->ID = _val_id; break;
-						case obSCard: static_cast<SCardBlock *>(p_item)->ID = _val_id; break;
-						case obParent: static_cast<ParentBlock *>(p_item)->ID = _val_id; break;
-						case obQuotKind: static_cast<QuotKindBlock *>(p_item)->ID = _val_id; break;
-						case obUnit: static_cast<UnitBlock *>(p_item)->ID = _val_id; break; // @v9.8.6
-						case obCSession: static_cast<CSessionBlock *>(p_item)->ID = _val_id; break;
-						case obCCheck: static_cast<CCheckBlock *>(p_item)->ID = _val_id; break;
-						case obCcLine: static_cast<CcLineBlock *>(p_item)->RByCheck = _val_id; break;
+						case obSCard:       static_cast<SCardBlock *>(p_item)->ID = _val_id; break;
+						case obParent:      static_cast<ParentBlock *>(p_item)->ID = _val_id; break;
+						case obQuotKind:    static_cast<QuotKindBlock *>(p_item)->ID = _val_id; break;
+						case obUnit:        static_cast<UnitBlock *>(p_item)->ID = _val_id; break; // @v9.8.6
+						case obCSession:    static_cast<CSessionBlock *>(p_item)->ID = _val_id; break;
+						case obCCheck:      static_cast<CCheckBlock *>(p_item)->ID = _val_id; break;
+						case obCcLine:      static_cast<CcLineBlock *>(p_item)->RByCheck = _val_id; break;
 						case obQuery:
 							{
 								QueryBlock * p_blk = static_cast<QueryBlock *>(p_item);
@@ -2657,14 +2663,14 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_SERIAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obLot)
-					Helper_AddStringToPool(&((LotBlock *)p_item)->SerialP);
+					Helper_AddStringToPool(&static_cast<LotBlock *>(p_item)->SerialP);
 				else if(type == obCcLine) // @v10.0.08
-					Helper_AddStringToPool(&((CcLineBlock *)p_item)->SerialP);
+					Helper_AddStringToPool(&static_cast<CcLineBlock *>(p_item)->SerialP);
 				break;
 			case PPHS_SYMB:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
-					Helper_AddStringToPool(&((UnitBlock *)p_item)->SymbP);
+					Helper_AddStringToPool(&static_cast<UnitBlock *>(p_item)->SymbP);
 				}
 				break;
 			case PPHS_CODE:
@@ -2804,6 +2810,11 @@ int PPPosProtocol::EndElement(const char * pName)
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obSCard)
 					static_cast<SCardBlock *>(p_item)->FixedBonus = RdB.TagValue.ToReal();
+				break;
+			case PPHS_PHONE: // @v10.6.3
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obSCard)
+					Helper_AddStringToPool(&static_cast<SCardBlock *>(p_item)->PhoneP);
 				break;
 			case PPHS_RETURN:
 				p_item = PeekRefItem(&ref_pos, &type);
@@ -3003,7 +3014,7 @@ int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint ref
 		PPID   inner_parent_id = 0;
 		if(rBlk.ParentBlkP) {
 			int   inner_type = 0;
-			ParentBlock * p_inner_blk = (ParentBlock *)RdB.GetItem(rBlk.ParentBlkP, &inner_type);
+			ParentBlock * p_inner_blk = static_cast<ParentBlock *>(RdB.GetItem(rBlk.ParentBlkP, &inner_type));
 			assert(p_inner_blk);
 			if(p_inner_blk) {
 				assert(inner_type == obParent);
@@ -3332,7 +3343,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 		}
 		if(rBlk.UnitBlkP) {
 			int   inner_type = 0;
-			UnitBlock * p_inner_blk = (UnitBlock *)RdB.GetItem(rBlk.UnitBlkP, &inner_type);
+			UnitBlock * p_inner_blk = static_cast<UnitBlock *>(RdB.GetItem(rBlk.UnitBlkP, &inner_type));
 			assert(p_inner_blk);
 			if(p_inner_blk) {
 				assert(inner_type == obUnit);
@@ -3340,7 +3351,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					goods_pack.Rec.UnitID = p_inner_blk->NativeID;
 					if(p_inner_blk->PhUnitBlkP) {
 						int   phinner_type = 0;
-						UnitBlock * p_phinner_blk = (UnitBlock *)RdB.GetItem(p_inner_blk->PhUnitBlkP, &phinner_type);
+						UnitBlock * p_phinner_blk = static_cast<UnitBlock *>(RdB.GetItem(p_inner_blk->PhUnitBlkP, &phinner_type));
 						assert(p_phinner_blk);
 						if(p_phinner_blk) {
 							assert(phinner_type == obUnit);
@@ -4257,6 +4268,13 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						RdB.GetS(r_blk.CodeP, temp_buf);
 						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						STRNSCPY(sc_pack.Rec.Code, temp_buf);
+						// @v10.6.3 {
+						RdB.GetS(r_blk.PhoneP, temp_buf);
+						if(temp_buf.NotEmptyS()) {
+							temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							sc_pack.PutExtStrData(PPSCardPacket::extssPhone, temp_buf);
+						}
+						// } @v10.6.3 
 						if(r_blk.Discount != 0.0) {
 							// @v10.2.9 sc_pack.Rec.PDis = R0i(r_blk.Discount * 100);
 							sc_pack.Rec.PDis = fmul100i(r_blk.Discount); // @v10.2.9
@@ -4278,7 +4296,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 							PPPersonKind pk_rec;
 							PPID   owner_status_id = PPPRS_PRIVATE;
 							int    ref_type = 0;
-							PersonBlock * p_psn_blk = (PersonBlock *)RdB.GetItem(r_blk.OwnerBlkP, &ref_type);
+							PersonBlock * p_psn_blk = static_cast<PersonBlock *>(RdB.GetItem(r_blk.OwnerBlkP, &ref_type));
 							assert(p_psn_blk);
 							assert(ref_type == obPerson);
 							if(p_psn_blk->NativeID) {

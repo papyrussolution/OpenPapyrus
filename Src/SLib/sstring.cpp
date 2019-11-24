@@ -7513,7 +7513,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					// Здесь .. не будет распознано как разделитель границ (SString::torfHyphen)
 					r = (str = "12..987").ToIntRange(ir, SString::torfHyphen);
 					SLTEST_CHECK_NZ(r);
-					SLTEST_CHECK_EQ(r, (long)2);
+					SLTEST_CHECK_EQ(r, 2L);
 					SLTEST_CHECK_EQ(ir.low, 12);
 					SLTEST_CHECK_EQ(ir.upp, 12);
 				}

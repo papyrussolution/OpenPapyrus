@@ -268,17 +268,18 @@ struct ec_key_st {
 
 struct ec_point_st {
     const EC_METHOD *meth;
-    /*
- * All members except 'meth' are handled by the method functions, even if
- * they appear generic
-     */
+	// @v10.6.3 (this member was included in later version of openssl) int curve_name; // NID for the curve if known 
+	// All members except 'meth' are handled by the method functions, even if they appear generic
     BIGNUM *X;
     BIGNUM *Y;
-    BIGNUM *Z;                  /* Jacobian projective coordinates: * (X, Y,
- * Z) represents (X/Z^2, Y/Z^3) if Z != 0 */
-    int Z_is_one;               /* enable optimized point arithmetics for
- * special case */
+    BIGNUM *Z;    // Jacobian projective coordinates: * (X, Y, Z) represents (X/Z^2, Y/Z^3) if Z != 0 
+    int Z_is_one; // enable optimized point arithmetics for special case 
 };
+
+static ossl_inline int ec_point_is_compat(const EC_POINT *point, const EC_GROUP *group) // @sobolev @v10.6.3
+{
+	return group->meth == point->meth /*&& (group->curve_name == 0 || point->curve_name == 0 || group->curve_name == point->curve_name)*/;
+}
 
 NISTP224_PRE_COMP *EC_nistp224_pre_comp_dup(NISTP224_PRE_COMP *);
 NISTP256_PRE_COMP *EC_nistp256_pre_comp_dup(NISTP256_PRE_COMP *);

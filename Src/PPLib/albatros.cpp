@@ -12,20 +12,20 @@ public:
 	AlbatrosConfigDialog() : TDialog(DLG_ALBTRCFG2)
 	{
 	}
-	int    setDTS(const PPAlbatrosConfig *);
-	int    getDTS(PPAlbatrosConfig *);
+	int    setDTS(const PPAlbatrossConfig *);
+	int    getDTS(PPAlbatrossConfig *);
 private:
 	DECL_HANDLE_EVENT;
 	int    EditVetisConfig();
 	int    EditMqcConfig();
 
-	PPAlbatrosConfig Data;
+	PPAlbatrossConfig Data;
 };
 
 int AlbatrosConfigDialog::EditMqcConfig()
 {
 	class MqcConfigDialog : public TDialog {
-		DECL_DIALOG_DATA(PPAlbatrosConfig);
+		DECL_DIALOG_DATA(PPAlbatrossConfig);
 	public:
 		MqcConfigDialog() : TDialog(DLG_MQCCFG)
 		{
@@ -75,7 +75,7 @@ int AlbatrosConfigDialog::EditMqcConfig()
 			if(event.isCmd(cmMqcGetCommonConfig)) {
 				SString temp_buf;
 				PPUhttClient uhtt_cli;
-				PPAlbatrosConfig temp_alb_cfg;
+				PPAlbatrossConfig temp_alb_cfg;
 				if(uhtt_cli.GetCommonMqsConfig(temp_alb_cfg) > 0) {
 					temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
 					setCtrlString(CTL_MQCCFG_HOST, temp_buf);
@@ -178,7 +178,7 @@ IMPL_HANDLE_EVENT(AlbatrosConfigDialog)
 	clearEvent(event);
 }
 
-int AlbatrosConfigDialog::setDTS(const PPAlbatrosConfig * pCfg)
+int AlbatrosConfigDialog::setDTS(const PPAlbatrossConfig * pCfg)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -229,7 +229,7 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrosConfig * pCfg)
 	return ok;
 }
 
-int AlbatrosConfigDialog::getDTS(PPAlbatrosConfig * pCfg)
+int AlbatrosConfigDialog::getDTS(PPAlbatrossConfig * pCfg)
 {
 	SString temp_buf;
 	getCtrlData(CTLSEL_ALBTRCFG_OPKINDID, &Data.Hdr.OpID);
@@ -259,24 +259,24 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrosConfig * pCfg)
 	return 1;
 }
 
-SLAPI PPAlbatrosConfig::PPAlbatrosConfig()
+SLAPI PPAlbatrossConfig::PPAlbatrossConfig()
 {
 	MEMSZERO(Hdr);
 }
 
-PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Z()
+PPAlbatrossConfig & SLAPI PPAlbatrossConfig::Z()
 {
 	MEMSZERO(Hdr);
 	ExtString.Z();
 	return *this;
 }
 
-int SLAPI PPAlbatrosConfig::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPAlbatrosConfig::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
+int SLAPI PPAlbatrossConfig::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int SLAPI PPAlbatrossConfig::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
 
 #define UHTT_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
 
-int SLAPI PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
+int SLAPI PPAlbatrossConfig::SetPassword(int fld, const char * pPassword)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -289,7 +289,7 @@ int SLAPI PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 	return ok;
 }
 
-int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw) const
+int SLAPI PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 {
 	rPw.Z();
 	int    ok = 1;
@@ -304,7 +304,7 @@ int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw) const
 }
 
 //static
-int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & rCfg, SString & rBuf)
+int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrossConfig & rCfg, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -363,7 +363,7 @@ int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrosConfig & 
 }
 
 //static
-int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrosConfig * pCfg)
+int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrossConfig * pCfg)
 {
 	int    ok = -1;
 	xmlParserCtxt * p_ctx = 0;
@@ -437,7 +437,7 @@ static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN_unused, ALBATR
 	ALBATROSEXSTR_VETISDOCTUSER, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_HOST, ALBATROSEXSTR_MQC_USER, ALBATROSEXSTR_MQC_SECRET, ALBATROSEXSTR_MQC_DATADOMAIN };
 
 //static
-int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrosConfig * pCfg, int use_ta)
+int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrossConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	size_t p = 0;
@@ -470,12 +470,12 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrosConfig * pCf
 }
 
 //static
-int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrosConfig * pCfg, int use_ta)
+int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrossConfig * pCfg, int use_ta)
 {
 	return Helper_Put(PPRef, pCfg, use_ta);
 }
 
-int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCfg)
+int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 {
 	int    ok = 1, r;
 	SString tail;
@@ -555,7 +555,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCf
 }
 
 //static
-int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosConfig * pCfg)
+int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrossConfig * pCfg)
 {
 	return Helper_Get(PPRef, pCfg);
 }
@@ -643,7 +643,7 @@ int SLAPI PPAlbatrosCfgMngr::Edit()
 {
 	int    ok = -1, valid_data = 0, is_new = 0;
 	AlbatrosConfigDialog * p_dlg = new AlbatrosConfigDialog();
-	PPAlbatrosConfig cfg;
+	PPAlbatrossConfig cfg;
 
 	THROW(CheckCfgRights(PPCFGOBJ_ALBATROS, PPR_READ, 0));
 	MEMSZERO(cfg);
@@ -1086,7 +1086,7 @@ int SLAPI ImportOrders()
 	PPFileNameArray fary;
 	SString path_in, file_path;
 	SDirec sdirec;
-	PPAlbatrosConfig cfg;
+	PPAlbatrossConfig cfg;
 	AlbatrosOrder al_order;
 	AlbatrosTagParser tag_pars;
 	PPObjGoods goods_obj;

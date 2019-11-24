@@ -2174,7 +2174,7 @@ int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::Update
 			PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 		}
 		else {
-			PPAlbatrosConfig  albtr_cfg;
+			PPAlbatrossConfig  albtr_cfg;
 			SmsClient sms_cli(0);
 			if(PPAlbatrosCfgMngr::Get(&albtr_cfg) && sms_cli.SmsInit_(albtr_cfg.Hdr.SmsAccID, "UHTT") > 0) {
 				Reference * p_ref = PPRef;

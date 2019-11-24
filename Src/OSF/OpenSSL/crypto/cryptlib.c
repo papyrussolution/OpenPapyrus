@@ -173,14 +173,14 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	}
 # endif
 	if(sizeof(TCHAR) == sizeof(char))
-		fmt = (const TCHAR*)fmta;
+		fmt = reinterpret_cast<const TCHAR *>(fmta);
 	else
 		do {
 			int keepgoing;
 			size_t len_0 = strlen(fmta) + 1, i;
 			WCHAR * fmtw = static_cast<WCHAR *>(alloca(len_0 * sizeof(WCHAR)));
 			if(fmtw == NULL) {
-				fmt = (const TCHAR*)L"no stack?";
+				fmt = L"no stack?";
 				break;
 			}
 			if(!MultiByteToWideChar(CP_ACP, 0, fmta, len_0, fmtw, len_0))
@@ -207,18 +207,10 @@ void OPENSSL_showfatal(const char * fmta, ...)
 							    i++;
 							    keepgoing = 1;
 							    break;
-							case L's':
-							    fmtw[i + 1] = L'S';
-							    break;
-							case L'S':
-							    fmtw[i + 1] = L's';
-							    break;
-							case L'c':
-							    fmtw[i + 1] = L'C';
-							    break;
-							case L'C':
-							    fmtw[i + 1] = L'c';
-							    break;
+							case L's': fmtw[i + 1] = L'S'; break;
+							case L'S': fmtw[i + 1] = L's'; break;
+							case L'c': fmtw[i + 1] = L'C'; break;
+							case L'C': fmtw[i + 1] = L'c'; break;
 						}
 					} while(keepgoing);
 			}
@@ -236,8 +228,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 		HANDLE hEventLog = RegisterEventSource(NULL, _T("OpenSSL"));
 		if(hEventLog != NULL) {
 			const TCHAR * pmsg = buf;
-			if(!ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, 0, 0, NULL,
-				    1, 0, &pmsg, NULL)) {
+			if(!ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, 0, 0, NULL, 1, 0, &pmsg, NULL)) {
 #if defined(DEBUG)
 				/*
 				 * We are in a situation where we tried to report a critical

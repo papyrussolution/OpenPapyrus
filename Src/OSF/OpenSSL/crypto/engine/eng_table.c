@@ -67,7 +67,6 @@ static int int_table_check(ENGINE_TABLE ** t, int create)
 	*t = (ENGINE_TABLE*)lh;
 	return 1;
 }
-
 /*
  * Privately exposed (via eng_int.h) functions for adding and/or removing
  * ENGINEs from the implementation table
@@ -82,8 +81,7 @@ int engine_table_register(ENGINE_TABLE ** table, ENGINE_CLEANUP_CB * cleanup, EN
 	if(!int_table_check(table, 1))
 		goto end;
 	if(added)
-		/* The cleanup callback needs to be added */
-		engine_cleanup_add_first(cleanup);
+		engine_cleanup_add_first(cleanup); /* The cleanup callback needs to be added */
 	while(num_nids--) {
 		tmplate.nid = *nids;
 		fnd = lh_ENGINE_PILE_retrieve(&(*table)->piles, &tmplate);
@@ -112,8 +110,7 @@ int engine_table_register(ENGINE_TABLE ** table, ENGINE_CLEANUP_CB * cleanup, EN
 		fnd->uptodate = 0;
 		if(setdefault) {
 			if(!engine_unlocked_init(e)) {
-				ENGINEerr(ENGINE_F_ENGINE_TABLE_REGISTER,
-				    ENGINE_R_INIT_FAILED);
+				ENGINEerr(ENGINE_F_ENGINE_TABLE_REGISTER, ENGINE_R_INIT_FAILED);
 				goto end;
 			}
 			if(fnd->funct)

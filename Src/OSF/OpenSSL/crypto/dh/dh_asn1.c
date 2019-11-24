@@ -66,8 +66,7 @@ ASN1_SEQUENCE(DHxparams) = {
 	ASN1_OPT(int_dhx942_dh, vparams, DHvparams),
 } static_ASN1_SEQUENCE_END_name(int_dhx942_dh, DHxparams)
 
-int_dhx942_dh *d2i_int_dhx(int_dhx942_dh **a,
-    const uchar **pp, long length);
+int_dhx942_dh *d2i_int_dhx(int_dhx942_dh **a, const uchar **pp, long length);
 int i2d_int_dhx(const int_dhx942_dh * a, uchar ** pp);
 
 IMPLEMENT_ASN1_ENCODE_FUNCTIONS_const_fname(int_dhx942_dh, DHxparams, int_dhx)
@@ -77,8 +76,7 @@ IMPLEMENT_ASN1_ENCODE_FUNCTIONS_const_fname(int_dhx942_dh, DHxparams, int_dhx)
 DH *d2i_DHxparams(DH **a, const uchar **pp, long length)
 {
 	int_dhx942_dh * dhx = NULL;
-	DH * dh = NULL;
-	dh = DH_new();
+	DH * dh = DH_new();
 	if(dh == NULL)
 		return NULL;
 	dhx = d2i_int_dhx(NULL, pp, length);
@@ -86,17 +84,14 @@ DH *d2i_DHxparams(DH **a, const uchar **pp, long length)
 		DH_free(dh);
 		return NULL;
 	}
-
 	if(a) {
 		DH_free(*a);
 		*a = dh;
 	}
-
 	dh->p = dhx->p;
 	dh->q = dhx->q;
 	dh->g = dhx->g;
 	dh->j = dhx->j;
-
 	if(dhx->vparams) {
 		dh->seed = dhx->vparams->seed->data;
 		dh->seedlen = dhx->vparams->seed->length;

@@ -3005,7 +3005,7 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 		PPWaitMsg(msg_buf);
 	}
 	if(p_result->getCount()) {
-		PPAlbatrosConfig acfg;
+		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		if(acfg.Hdr.EdiDesadvOpID && GetOpData(acfg.Hdr.EdiDesadvOpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
@@ -3137,7 +3137,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	}
 	if(p_result->getCount()) {
 		SString srcloc_attr_pattern = "ORD_GROUPCODE1";
-		PPAlbatrosConfig acfg;
+		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
@@ -4297,7 +4297,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 	THROW(Helper_MakeBillList(Ep.ExpendOp, 1, outp_packet));
 	THROW(Helper_MakeBillList(Ep.RetOp, 5, outp_packet));
     {
-		PPAlbatrosConfig acfg;
+		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		if(acfg.Hdr.EdiDesadvOpID && GetOpData(acfg.Hdr.EdiDesadvOpID, &op_rec) > 0) {
@@ -4624,7 +4624,7 @@ int SLAPI SapEfes::ReceiveOrders()
 		PPWaitMsg(msg_buf);
 	}
 	if(p_result->getCount()) {
-		PPAlbatrosConfig acfg;
+		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
@@ -5692,7 +5692,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	ParseOrdersPacket(p_result, &reply_info, result_list);
 	DestroyResult(reinterpret_cast<void **>(&p_result));
 	if(result_list.getCount()) {
-		PPAlbatrosConfig acfg;
+		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
@@ -6191,7 +6191,7 @@ int SLAPI SfaHeineken::SendReceipts()
 	THROW(P_Lib);
 	THROW_SL(func = reinterpret_cast<SFAHEINEKENSENDSELLIN_PROC>(P_Lib->GetProcAddr("SfaHeineken_SendSellin")));
     {
-		PPAlbatrosConfig acfg;
+		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		if(acfg.Hdr.EdiDesadvOpID && GetOpData(acfg.Hdr.EdiDesadvOpID, &op_rec) > 0) {

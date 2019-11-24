@@ -2778,7 +2778,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_GETCOMMONMQSCONFIG:
 			{
-				PPAlbatrosConfig alb_cfg;
+				PPAlbatrossConfig alb_cfg;
 				if(PPAlbatrosCfgMngr::Get(&alb_cfg)) {
 					THROW(PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(alb_cfg, temp_buf));
 					rReply.SetString(temp_buf);
@@ -2786,7 +2786,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 #ifndef NDEBUG // {
 					if(1) {
 						// reverse test
-						PPAlbatrosConfig test_cfg;
+						PPAlbatrossConfig test_cfg;
 						SString test_buf;
 						THROW(PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(temp_buf, &test_cfg));
 						alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
@@ -3023,7 +3023,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					SString from;
 					SString message;
 					PPLogger logger;
-					PPAlbatrosConfig alb_cfg;
+					PPAlbatrossConfig alb_cfg;
 					SmsClient client(&logger);
 					pEv->GetParam(1, old_phone); // PPGetExtStrData(1, pEv->Params, old_phone);
 					pEv->GetParam(2, from); // PPGetExtStrData(2, pEv->Params, from);

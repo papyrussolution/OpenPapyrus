@@ -1023,7 +1023,7 @@ int AddToArray(SArray * pAry, uchar * pBuf, uint32 uniqID)
 	if(pAry && pBuf) {
 		char * p_buf = new char[pAry->getItemSize() + sizeof(uint32)];
 		memcpy(p_buf, &uniqID, sizeof(uint32));
-		memcpy(p_buf + sizeof(long), (char *)pBuf, pAry->getItemSize());
+		memcpy(p_buf + sizeof(long), pBuf, pAry->getItemSize());
 		pAry->insert(p_buf);
 		delete p_buf;
 	}

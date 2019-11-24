@@ -32,8 +32,7 @@ int ENGINE_register_EC(ENGINE * e)
 
 void ENGINE_register_all_EC()
 {
-	ENGINE * e;
-	for(e = ENGINE_get_first(); e; e = ENGINE_get_next(e))
+	for(ENGINE * e = ENGINE_get_first(); e; e = ENGINE_get_next(e))
 		ENGINE_register_EC(e);
 }
 
@@ -43,7 +42,6 @@ int ENGINE_set_default_EC(ENGINE * e)
 		return engine_table_register(&dh_table, engine_unregister_all_EC, e, &dummy_nid, 1, 1);
 	return 1;
 }
-
 /*
  * Exposed API function to get a functional reference from the implementation
  * table (ie. try to get a functional reference from the tabled structural

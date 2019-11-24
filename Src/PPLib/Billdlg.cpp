@@ -1667,7 +1667,7 @@ int BillDialog::sendItem(long pos, long id)
 		SString path, addr;
 		PPLinkFile file_info;
 		SendMailDialog::Rec data;
-		PPAlbatrosConfig alb_cfg;
+		PPAlbatrossConfig alb_cfg;
 		THROW(CheckDialogPtr(&(dlg = new SendMailDialog)));
 		getCtrlData(CTLSEL_BILL_OBJECT, &ar_id);
 		{

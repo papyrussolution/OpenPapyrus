@@ -6,7 +6,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 #include "internal/cryptlib.h"
 #pragma hdrstop
 

@@ -200,7 +200,7 @@ int EVP_PKEY_assign(EVP_PKEY * pkey, int type, void * key)
 	return (key != NULL);
 }
 
-void * EVP_PKEY_get0(const EVP_PKEY * pkey)
+void * FASTCALL EVP_PKEY_get0(const EVP_PKEY * pkey)
 {
 	return pkey->pkey.ptr;
 }
@@ -212,7 +212,7 @@ const uchar * EVP_PKEY_get0_hmac(const EVP_PKEY * pkey, size_t * len)
 		return NULL;
 	}
 	else {
-		ASN1_OCTET_STRING * os = (ASN1_OCTET_STRING*)EVP_PKEY_get0(pkey);
+		const ASN1_OCTET_STRING * os = static_cast<const ASN1_OCTET_STRING *>(EVP_PKEY_get0(pkey));
 		*len = os->length;
 		return os->data;
 	}

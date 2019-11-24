@@ -362,7 +362,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	//GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,      "Возврат по документу\tCtrl-F5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,      "Зачет платежного документа\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "Зачет долгового документа\tCtrl-E"
-	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "Сравнение документов\tCtrl-C"
+	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	//CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,        "Создать MRP-таблицу\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,         "@{unite_docs}\tCtrl-U"
@@ -422,7 +422,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	//GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,      "Возврат по документу\tCtrl-F5"
 	//RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,    "Зачет платежного документа\tCtrl-P"
 	//RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,    "Зачет долгового документа\tCtrl-E"
-	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "Сравнение документов\tCtrl-C"
+	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,         "@{unite_docs}\tCtrl-U"
@@ -484,7 +484,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	//GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,      "Возврат по документу\tCtrl-F5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,      "Зачет платежного документа\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "Зачет долгового документа\tCtrl-E"
-	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "Сравнение документов\tCtrl-C"
+	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,         "@{unite_docs}\tCtrl-U"
@@ -535,7 +535,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	SETWLABEL        :  kbF8,       TBBM_MARK,              "@{dowhitelabel}\tF8"
 	separator
 	PAYMENT          :  kbF5,       PPDV_DOCUMENT_PL02,     "@{document_wroff_pl}\tF5"
-	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,         "Сравнение документов\tCtrl-C"
+	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,         "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,            "@{oprkind}\tCtrl-Q"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,           "@{unite_docs}\tCtrl-U"
 	separator
@@ -583,7 +583,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,          "Возврат по документу\tCtrl-F5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,        "Зачет платежного документа\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,        "Зачет долгового документа\tCtrl-E"
-	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,         "Сравнение документов\tCtrl-C"
+	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,         "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,            "@{oprkind}\tCtrl-Q"
 	//CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,           "@{unite_docs}\tCtrl-U"
@@ -766,7 +766,7 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbIns,     "Стандартное добавление строки\tInsert", PPDV_ADDFILE02
 	kbDel,     "@{doremoverow}\tDelete",                PPDV_DELETEFILE02
 	kbF2,      "Расширенное добавление строки\tF2",     TBBM_EXTADDTI
-	kbShiftF2, "Редактировать товар\tShift-F2",         TBBM_GOODS
+	kbShiftF2, "@{doeditware}\tShift-F2",               TBBM_GOODS
 	kbShiftF3, "Партии по строке\tShift-F3",            TBBM_LOTS
 	kbF3,      "@{searchbybarcode}\tF3",                TBBM_BARCODE
 	kbF4,      "@{searchbyappellation}\tF4",            TBBM_ABC
@@ -2362,7 +2362,7 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
 		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
 		WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,          "Списание драфт-документа\tCtrl-W"
-		COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "Сравнение документов\tCtrl-C"
+		COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 		VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 		separator
 		PRINT            :  kbF7,       PPDV_PRINTER01,       "Печать текущего документа\tF7"
@@ -3289,7 +3289,7 @@ browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL           : kbEnter, PPDV_EDITFILE02,     "@{viewobject}\tEnter"
 		VIEWHISTORY      : kbF3,    PPDV_DOCUMENT_PL02,  "@{dobrowseobjbeforemod}\tF3"
-		COMPARE          : kbF4,    PPDV_COMPARE01,      "Сравнение с документом истории\tF4"
+		COMPARE          : kbF4,    PPDV_COMPARE01,      "@{docomparedocumentwithprevver}\tF4"
 		// @v10.5.3 VIEWGOODSHISTORY : kbF6,    TBBM_GOODS,       "Просмотр товара до изменения\tF6"
 		RESTOREGOODS     : kbCtrlR, PPDV_NOICON,         "Восстановление товара\tCtrl-R"
 		PRINT            : kbF7,    PPDV_PRINTER01,      "@{print}\tF7"
@@ -3314,7 +3314,7 @@ browser SYSJ_OBJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL           : kbEnter, PPDV_EDITFILE02,     "@{viewobject}\tEnter"
 		VIEWHISTORY      : kbF3,    PPDV_DOCUMENT_PL02,  "@{dobrowseobjbeforemod}\tF3"
-		COMPARE          : kbF4,    PPDV_COMPARE01,      "Сравнение с документом истории\tF4"
+		COMPARE          : kbF4,    PPDV_COMPARE01,      "@{docomparedocumentwithprevver}\tF4"
 		// @v10.5.3 VIEWGOODSHISTORY : kbF6,    TBBM_GOODS,      "Просмотр товара до изменения\tF6"
 		RESTOREGOODS     : kbCtrlR, PPDV_NOICON,         "Восстановление товара\tCtrl-R"
 		PRINT            : kbF7,    PPDV_PRINTER01,      "@{print}\tF7"
@@ -3556,9 +3556,9 @@ browser QUOT north(100), 2, 1, "@{view_quot}", OWNER|GRID, 0
 	"@warehouse",  5, notype, 0, 10
 	"@client",     6, notype, 0, 15
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM        : kbEnter,     PPDV_EDITFILE02,      "Редактировать котировки по товару\tEnter"
+		EDITITEM        : kbEnter,     PPDV_EDITFILE02,      "@{doeditquotbyware}\tEnter"
 		EDITITEMSIMPLE  : kbCtrlS,     PPDV_NOICON,          "Быстрое редактирование котировки\tCtrl-S"
-		ADDITEM         : kbIns,       PPDV_ADDFILE02,       "Редактировать котировки, выбрав товар\tInsert"
+		ADDITEM         : kbIns,       PPDV_ADDFILE02,       "@{doeditquotselectingware}\tInsert"
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        TBBM_GOODS,           "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        TBBM_LOTS,            "@{view_lot}\tF3"
@@ -3582,9 +3582,9 @@ browser QUOT_AR north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 	"@ware",      4, notype, 0, 25
 	"@warehouse", 5, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM        : kbEnter,     PPDV_EDITFILE02,      "Редактировать котировки по товару\tEnter"
+		EDITITEM        : kbEnter,     PPDV_EDITFILE02,      "@{doeditquotbyware}\tEnter"
 		EDITITEMSIMPLE  : kbCtrlS,     PPDV_NOICON,          "Быстрое редактирование котировки\tCtrl-S"
-		ADDITEM         : kbIns,       PPDV_ADDFILE02,       "Редактировать котировки, выбрав товар\tInsert"
+		ADDITEM         : kbIns,       PPDV_ADDFILE02,       "@{doeditquotselectingware}\tInsert"
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        TBBM_GOODS,           "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        TBBM_LOTS,            "@{lots}\tF3"
@@ -3608,9 +3608,9 @@ browser QUOT_LOC north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 	"@ware",   4, notype, 0, 25
 	"@client", 6, notype, 0, 15
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM        : kbEnter,     PPDV_EDITFILE02,   "Редактировать котировки по товару\tEnter"
+		EDITITEM        : kbEnter,     PPDV_EDITFILE02,   "@{doeditquotbyware}\tEnter"
 		EDITITEMSIMPLE  : kbCtrlS,     PPDV_NOICON,       "Быстрое редактирование котировки\tCtrl-S"
-		ADDITEM         : kbIns,       PPDV_ADDFILE02,    "Редактировать котировки, выбрав товар\tInsert"
+		ADDITEM         : kbIns,       PPDV_ADDFILE02,    "@{doeditquotselectingware}\tInsert"
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02, "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        TBBM_GOODS,        "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        TBBM_LOTS,         "@{lots}\tF3"
@@ -3633,9 +3633,9 @@ browser QUOT_CROSSTAB north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 	"@ware",       2, notype, 0, 25
 	crosstab  "@goodsmatrix", notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM        : kbEnter,     PPDV_EDITFILE02,      "Редактировать котировки по товару\tEnter"
+		EDITITEM        : kbEnter,     PPDV_EDITFILE02,      "@{doeditquotbyware}\tEnter"
 		EDITITEMSIMPLE  : kbCtrlS,     PPDV_NOICON,          "Быстрое редактирование котировки\tCtrl-S"
-		ADDITEM         : kbIns,       PPDV_ADDFILE02,       "Редактировать котировки, выбрав товар\tInsert"
+		ADDITEM         : kbIns,       PPDV_ADDFILE02,       "@{doeditquotselectingware}\tInsert"
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        TBBM_GOODS,           "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        TBBM_LOTS,            "@{lots}\tF3"
@@ -3917,8 +3917,8 @@ browser CCHECK_GOODSCORR north(100), 1, 1, "Корреляция товаров по кассовым чекам
 	"@{poscheckcount}, %", 7, notype, 0, 6.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter, PPDV_LINS01,            "@{detail}\tEnter"
-		ADDITEM     : kbF2,    PPDV_EDITFILE02,        "Редактировать товар 1\tF2"
-		ADDBYSAMPLE : kbAltF2, PPDV_CREATEBYEXAMPLE01, "Редактировать товар 2\tAltF2"
+		ADDITEM     : kbF2,    PPDV_EDITFILE02,        "@{doeditware} 1\tF2"
+		ADDBYSAMPLE : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doeditware} 2\tAltF2"
 		separator
 		PRINT       : kbF7,    PPDV_PRINTER01,         "@{print}\tF7"
 		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,          "@{filter}\tCtrl-V"
@@ -4681,10 +4681,10 @@ browser SSTAT_SORD north(100), 2, 1, "Расчет заказа поставщику {%s}", OWNER|GRID
 	"Мин запас",             17, notype, ALIGN_RIGHT | NMBF_NOZERO,   10
 	"Рекомендуемый\nзаказ",  14, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.4
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL            : kbEnter,  TBBM_SELLTAB,  "@{waresalestable}\tEnter"
-		EDITGOODS         : kbF2,     TBBM_GOODS,    "@{ware}\tF2"
-		VIEWLOTS          : kbF3,     TBBM_LOTS,     "@{dobrowselotsbycurware}\tF3"
-		EDITVAL           : kbF8,     PPDV_NOICON,   "Редактировать количество\tF8"
+		DETAIL            : kbEnter,  TBBM_SELLTAB,        "@{waresalestable}\tEnter"
+		EDITGOODS         : kbF2,     TBBM_GOODS,          "@{ware}\tF2"
+		VIEWLOTS          : kbF3,     TBBM_LOTS,           "@{dobrowselotsbycurware}\tF3"
+		EDITVAL           : kbF8,     PPDV_NOICON,         "Редактировать количество\tF8"
 		PUTTOBASKET       : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
 		PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET, "Добавить в корзину товары, подлежащие заказу\tCtrl-F8"
 		MAKEPURCHASEBILL  : kbCtrlP,  PPDV_NOICON,         "Создание закупки\tCtrl-P"
@@ -5005,7 +5005,7 @@ browser PRJTASKTEMPL north(100), 2, 1, "Шаблоны задач {%s}", OWNER|GRID, 0
 	}
 }
 
-browser GBILLCMP north(100), 3, 1, "Сравнение документов %s", OWNER|GRID, 0
+browser GBILLCMP north(100), 3, 1, "@{docomparedocuments} %s", OWNER|GRID, 0
 {
 	"@ware",      1, notype, 0, 20
 	"@barcode",   2, notype, 0, 12
@@ -5633,14 +5633,14 @@ browser PRCFREE north(100), 3, 1, "Свободные процессоры {%s}", OWNER|GRID, 0
 	}
 }
 
-browser OBJLIKENESS north(100), 1, 1, "Сравнение объектов {%s}", OWNER|GRID, 0
+browser OBJLIKENESS north(100), 1, 1, "@{view_objlikeness} {%s}", OWNER|GRID, 0
 {
 	"@{name} 1",      4, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
 	"@{name} 2",      5, notype, 0, 30
 	"Совпадение (%)", 3, notype, NMBF_NOZERO, 20.2
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM1 : kbF2,     PPDV_NOICON,     "Редактировать объект 1\tF2"
-		EDITITEM2 : kbAltF2,  PPDV_NOICON,     "Редактировать объект 2\tCtrl-F2"
+		EDITITEM1 : kbF2,     PPDV_NOICON,     "@{doeditobject} 1\tF2"
+		EDITITEM2 : kbAltF2,  PPDV_NOICON,     "@{doeditobject} 2\tCtrl-F2"
 		UNITE:      kbCtrlU,  PPDV_MERGE01,    "@{selsuspcheck_merge}\tCtrl-U"
 		separator
 		PRINT     : kbF7,     PPDV_PRINTER01,  "@{print}\tF7"

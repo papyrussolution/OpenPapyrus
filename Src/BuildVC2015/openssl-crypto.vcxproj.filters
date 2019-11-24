@@ -602,6 +602,78 @@
     <ClCompile Include="..\OSF\OpenSSL\engines\e_capi.c" />
     <ClCompile Include="..\OSF\OpenSSL\engines\e_chil.c" />
     <ClCompile Include="..\OSF\OpenSSL\engines\e_padlock.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\e_gost_err.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ameth.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_asn1.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_crypt.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ctl.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_keyx.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_sign.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_eng.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_cipher.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_core.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_defines.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_galois_precompiled.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_precompiled.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keyexpimp.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keywrap.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md2012.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac_acpkm.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_params.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_pmeth.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost89.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash2012.c">
+      <Filter>GOST</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\__DECC_INCLUDE_EPILOGUE.H" />
@@ -1038,10 +1110,64 @@
     <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\x509_lcl.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\e_gost_err.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_cipher.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_core.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_defines.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_math.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_precompiled.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_keywrap.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_lcl.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost89.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_const.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_precalc.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_ref.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_sse2.h">
+      <Filter>Header\GOST</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">
       <UniqueIdentifier>{c680c542-2db5-4b53-a772-4b6dc36a9793}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\GOST">
+      <UniqueIdentifier>{9e0145e7-d4c0-40e3-9fca-aa7a99169b01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GOST">
+      <UniqueIdentifier>{8862735b-dc1b-4a4c-ad0d-4194d864a237}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

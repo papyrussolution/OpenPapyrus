@@ -618,16 +618,12 @@ typedef struct ASN1_STREAM_ARG_st {
 #define IMPLEMENT_ASN1_ALLOC_FUNCTIONS(stname) IMPLEMENT_ASN1_ALLOC_FUNCTIONS_fname(stname, stname, stname)
 
 #define IMPLEMENT_ASN1_ALLOC_FUNCTIONS_pfname(pre, stname, itname, fname) \
-	pre stname *fname ## _new(void)	\
-		{ return (stname*)ASN1_item_new(ASN1_ITEM_rptr(itname)); } \
-	pre void fname ## _free(stname *a) \
-		{ ASN1_item_free((ASN1_VALUE*)a, ASN1_ITEM_rptr(itname)); }
+	pre stname *fname ## _new(void)	{ return (stname*)ASN1_item_new(ASN1_ITEM_rptr(itname)); } \
+	pre void fname ## _free(stname *a) { ASN1_item_free((ASN1_VALUE*)a, ASN1_ITEM_rptr(itname)); }
 
 #define IMPLEMENT_ASN1_ALLOC_FUNCTIONS_fname(stname, itname, fname) \
-	stname *fname ## _new(void) \
-		{ return (stname*)ASN1_item_new(ASN1_ITEM_rptr(itname)); } \
-	void fname ## _free(stname *a) \
-		{ ASN1_item_free((ASN1_VALUE*)a, ASN1_ITEM_rptr(itname)); }
+	stname *fname ## _new(void) { return (stname*)ASN1_item_new(ASN1_ITEM_rptr(itname)); } \
+	void fname ## _free(stname *a) { ASN1_item_free((ASN1_VALUE*)a, ASN1_ITEM_rptr(itname)); }
 
 #define IMPLEMENT_ASN1_FUNCTIONS_fname(stname, itname, fname) \
 	IMPLEMENT_ASN1_ENCODE_FUNCTIONS_fname(stname, itname, fname) \

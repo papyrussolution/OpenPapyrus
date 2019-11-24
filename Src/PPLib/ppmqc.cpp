@@ -321,7 +321,7 @@ int SLAPI PPMqbClient::Login(const LoginParam & rP)
 {
 	int    ok = 1;
 	if(P_Conn) {
-		amqp_rpc_reply_t amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), "papyrus", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());
+		amqp_rpc_reply_t amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), "papyrus", 0, 131072, 10, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());   // @erik param heartbeats: 0 ==> 10
 		THROW(ProcessAmqpRpcReply(amqp_reply));
 		ChannelN = 1;
 		amqp_channel_open(GetNativeConnHandle(P_Conn), ChannelN);
@@ -682,7 +682,7 @@ int SLAPI PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, SString * pDo
 	int    ok = 1;
 	SString data_domain;
 	SString temp_buf;
-	PPAlbatrosConfig acfg;
+	PPAlbatrossConfig acfg;
 	THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
 	{
 		acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
@@ -868,12 +868,14 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 						if(result_ok) {
 							ResponseByAdviseCallback(result_buf, p_env, p_self, domain_buf);
 						}
+						// @erik v10.6.0{
 						else {
 							if(compulsory_response_flag) {
 								result_buf = "Error";
 								ResponseByAdviseCallback(result_buf, p_env, p_self, domain_buf);
 							}
 						}
+						// } @erik v10.6.0 
 					}
 				}
 			}
@@ -903,6 +905,7 @@ int MqbEventResponder::ResponseByAdviseCallback(const SString & rResponseMsg, co
 		props.CorrelationId = rpe.CorrelationId;
 		THROW(pSelf->P_Cli->ApplyRoutingParamEntry(rpe));
 		THROW(pSelf->P_Cli->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, rResponseMsg.cptr(), rResponseMsg.Len()));
+		ZDELETE(pSelf->P_Cli); // @erik v10.6.2
 	}
 	CATCHZOK
 	return ok;
@@ -1032,7 +1035,7 @@ int SLAPI TestMqc()
 	}
 	{
 		PPMqbClient mqc;
-		PPAlbatrosConfig acfg;
+		PPAlbatrossConfig acfg;
 		THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
 		{
 			acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);

@@ -67,10 +67,8 @@ int OBJ_find_sigid_by_algs(int * psignid, int dig_nid, int pkey_nid)
 	nid_triple tmp;
 	const nid_triple * t = &tmp;
 	const nid_triple ** rv = NULL;
-
 	tmp.hash_id = dig_nid;
 	tmp.pkey_id = pkey_nid;
-
 	if(sigx_app) {
 		int idx = sk_nid_triple_find(sigx_app, &tmp);
 		if(idx >= 0) {
@@ -92,15 +90,13 @@ int OBJ_find_sigid_by_algs(int * psignid, int dig_nid, int pkey_nid)
 int OBJ_add_sigid(int signid, int dig_id, int pkey_id)
 {
 	nid_triple * ntr;
-	if(sig_app == NULL)
-		sig_app = sk_nid_triple_new(sig_sk_cmp);
+	SETIFZ(sig_app, sk_nid_triple_new(sig_sk_cmp));
 	if(sig_app == NULL)
 		return 0;
-	if(sigx_app == NULL)
-		sigx_app = sk_nid_triple_new(sigx_cmp);
+	SETIFZ(sigx_app, sk_nid_triple_new(sigx_cmp));
 	if(sigx_app == NULL)
 		return 0;
-	ntr = (nid_triple*)OPENSSL_malloc(sizeof(*ntr));
+	ntr = static_cast<nid_triple *>(OPENSSL_malloc(sizeof(*ntr)));
 	if(ntr == NULL)
 		return 0;
 	ntr->sign_id = signid;
@@ -131,28 +127,22 @@ void OBJ_sigid_free(void)
 }
 
 #ifdef OBJ_XREF_TEST
-
-main()
+void main()
 {
 	int n1, n2, n3;
-
 	int i, rv;
 # ifdef OBJ_XREF_TEST2
 	for(i = 0; i < OSSL_NELEM(sigoid_srt); i++) {
 		OBJ_add_sigid(sigoid_srt[i][0], sigoid_srt[i][1], sigoid_srt[i][2]);
 	}
 # endif
-
 	for(i = 0; i < OSSL_NELEM(sigoid_srt); i++) {
 		n1 = sigoid_srt[i][0];
 		rv = OBJ_find_sigid_algs(n1, &n2, &n3);
-		printf("Forward: %d, %s %s %s\n", rv,
-		    OBJ_nid2ln(n1), OBJ_nid2ln(n2), OBJ_nid2ln(n3));
+		printf("Forward: %d, %s %s %s\n", rv, OBJ_nid2ln(n1), OBJ_nid2ln(n2), OBJ_nid2ln(n3));
 		n1 = 0;
 		rv = OBJ_find_sigid_by_algs(&n1, n2, n3);
-		printf("Reverse: %d, %s %s %s\n", rv,
-		    OBJ_nid2ln(n1), OBJ_nid2ln(n2), OBJ_nid2ln(n3));
+		printf("Reverse: %d, %s %s %s\n", rv, OBJ_nid2ln(n1), OBJ_nid2ln(n2), OBJ_nid2ln(n3));
 	}
 }
-
 #endif

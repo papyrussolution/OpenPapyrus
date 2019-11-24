@@ -1305,6 +1305,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 								THROW(rpe.SetupReserved(PPMqbClient::rtrsrvStyloView, data_domain, &gua_guid, 0));
 								THROW(mqc.ApplyRoutingParamEntry(rpe));
 								THROW(mqc.Publish(rpe.ExchangeName, rpe.RoutingKey, &props, data_buf, actual_rd_size));
+								ok = 1;
 							}
 						}
 					}
@@ -1373,7 +1374,9 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 				//ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
 				ep.Cp = cpUTF8; // @v10.5.0 DS.GetConstTLA().DL600XmlCp-->cpUTF8
 				THROW(p_rtm->ExportXML(ep, rResultFileName));
-				PublishNfViewToMqb(p_nf, rResultFileName); // @v10.5.3
+				if(!PublishNfViewToMqb(p_nf, rResultFileName)) { // @v10.5.3
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v10.6.3
+				}
 			}
 		}
 	}

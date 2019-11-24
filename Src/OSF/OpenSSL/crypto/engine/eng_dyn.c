@@ -35,9 +35,7 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx);
 static const char * engine_dynamic_id = "dynamic";
 static const char * engine_dynamic_name = "Dynamic engine loading support";
 static const ENGINE_CMD_DEFN dynamic_cmd_defns[] = {
-	{DYNAMIC_CMD_SO_PATH,
-	 "SO_PATH",
-	 "Specifies the path to the new ENGINE shared library",
+	{DYNAMIC_CMD_SO_PATH, "SO_PATH", "Specifies the path to the new ENGINE shared library",
 	 ENGINE_CMD_FLAG_STRING},
 	{DYNAMIC_CMD_NO_VCHECK,
 	 "NO_VCHECK",

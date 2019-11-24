@@ -470,7 +470,7 @@
 	#define HELP_BROWSER_PRJTASK_CLIENTEMPLOYERCT               213
 #define BROWSER_PRJTASKTEMPL                           214 // Шаблоны задач {%s}
 	#define HELP_BROWSER_PRJTASKTEMPL                           214
-#define BROWSER_GBILLCMP                               215 // Сравнение документов %s
+#define BROWSER_GBILLCMP                               215 // @{docomparedocuments} %s
 	#define HELP_BROWSER_GBILLCMP                               215
 #define BROWSER_OPRKIND                                216 // @{view_oprkind}
 	#define HELP_BROWSER_OPRKIND                                216
@@ -518,7 +518,7 @@
 	#define HELP_BROWSER_PRCBUSY                                237
 #define BROWSER_PRCFREE                                238 // Свободные процессоры {%s}
 	#define HELP_BROWSER_PRCFREE                                238
-#define BROWSER_OBJLIKENESS                            239 // Сравнение объектов {%s}
+#define BROWSER_OBJLIKENESS                            239 // @{view_objlikeness} {%s}
 	#define HELP_BROWSER_OBJLIKENESS                            239
 #define BROWSER_SCALE                                  240 // @{scales}
 	#define HELP_BROWSER_SCALE                                  240

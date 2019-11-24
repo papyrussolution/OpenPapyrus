@@ -223,7 +223,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -275,7 +275,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -329,7 +329,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -383,7 +383,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -436,7 +436,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -490,7 +490,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -544,7 +544,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -600,7 +600,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -658,7 +658,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -716,7 +716,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -772,7 +772,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -829,7 +829,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -883,6 +883,30 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\e_gost_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost89.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash2012.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_crypt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ctl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_keyx.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_eng.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_cipher.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_core.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_defines.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_galois_precompiled.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_precompiled.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keyexpimp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keywrap.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md2012.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac_acpkm.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_params.c" />
+    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_pmeth.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\aes\aes_cbc.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\aes\aes_cfb.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\aes\aes_core.c" />
@@ -1512,6 +1536,22 @@
     <ClCompile Include="..\OSF\OpenSSL\engines\e_padlock.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\e_gost_err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost89.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_const.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_precalc.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_ref.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_sse2.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_cipher.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_core.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_defines.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_math.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_precompiled.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_keywrap.h" />
+    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_lcl.h" />
     <ClInclude Include="..\Osf\OpenSSL\e_os.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\bio.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\constant_time_locl.h" />
@@ -1658,6 +1698,9 @@
     <ClInclude Include="..\Osf\OpenSSL\include\openssl\x509_vfy.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\__DECC_INCLUDE_EPILOGUE.H" />
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\__DECC_INCLUDE_PROLOGUE.H" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

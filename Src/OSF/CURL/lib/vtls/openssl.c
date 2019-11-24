@@ -138,38 +138,25 @@
 static const char * SSL_ERROR_to_str(int err)
 {
 	switch(err) {
-		case SSL_ERROR_NONE:
-		    return "SSL_ERROR_NONE";
-		case SSL_ERROR_SSL:
-		    return "SSL_ERROR_SSL";
-		case SSL_ERROR_WANT_READ:
-		    return "SSL_ERROR_WANT_READ";
-		case SSL_ERROR_WANT_WRITE:
-		    return "SSL_ERROR_WANT_WRITE";
-		case SSL_ERROR_WANT_X509_LOOKUP:
-		    return "SSL_ERROR_WANT_X509_LOOKUP";
-		case SSL_ERROR_SYSCALL:
-		    return "SSL_ERROR_SYSCALL";
-		case SSL_ERROR_ZERO_RETURN:
-		    return "SSL_ERROR_ZERO_RETURN";
-		case SSL_ERROR_WANT_CONNECT:
-		    return "SSL_ERROR_WANT_CONNECT";
-		case SSL_ERROR_WANT_ACCEPT:
-		    return "SSL_ERROR_WANT_ACCEPT";
+		case SSL_ERROR_NONE: return "SSL_ERROR_NONE";
+		case SSL_ERROR_SSL: return "SSL_ERROR_SSL";
+		case SSL_ERROR_WANT_READ: return "SSL_ERROR_WANT_READ";
+		case SSL_ERROR_WANT_WRITE: return "SSL_ERROR_WANT_WRITE";
+		case SSL_ERROR_WANT_X509_LOOKUP: return "SSL_ERROR_WANT_X509_LOOKUP";
+		case SSL_ERROR_SYSCALL: return "SSL_ERROR_SYSCALL";
+		case SSL_ERROR_ZERO_RETURN: return "SSL_ERROR_ZERO_RETURN";
+		case SSL_ERROR_WANT_CONNECT: return "SSL_ERROR_WANT_CONNECT";
+		case SSL_ERROR_WANT_ACCEPT: return "SSL_ERROR_WANT_ACCEPT";
 #if defined(SSL_ERROR_WANT_ASYNC)
-		case SSL_ERROR_WANT_ASYNC:
-		    return "SSL_ERROR_WANT_ASYNC";
+		case SSL_ERROR_WANT_ASYNC: return "SSL_ERROR_WANT_ASYNC";
 #endif
 #if defined(SSL_ERROR_WANT_ASYNC_JOB)
-		case SSL_ERROR_WANT_ASYNC_JOB:
-		    return "SSL_ERROR_WANT_ASYNC_JOB";
+		case SSL_ERROR_WANT_ASYNC_JOB: return "SSL_ERROR_WANT_ASYNC_JOB";
 #endif
 #if defined(SSL_ERROR_WANT_EARLY)
-		case SSL_ERROR_WANT_EARLY:
-		    return "SSL_ERROR_WANT_EARLY";
+		case SSL_ERROR_WANT_EARLY: return "SSL_ERROR_WANT_EARLY";
 #endif
-		default:
-		    return "SSL_ERROR unknown";
+		default: return "SSL_ERROR unknown";
 	}
 }
 
@@ -867,9 +854,7 @@ struct curl_slist * Curl_ossl_engines_list(struct Curl_easy * data)
 	struct curl_slist * list = NULL;
 #if defined(USE_OPENSSL) && defined(HAVE_OPENSSL_ENGINE_H)
 	struct curl_slist * beg;
-
 	ENGINE * e;
-
 	for(e = ENGINE_get_first(); e; e = ENGINE_get_next(e)) {
 		beg = curl_slist_append(list, ENGINE_get_id(e));
 		if(!beg) {
@@ -2057,13 +2042,13 @@ static CURLcode ossl_connect_step2(struct connectdata * conn, int sockindex)
 	/* 1  is fine
 	   0  is "not successful but was shut down controlled"
 	   <0 is "handshake was not successful, because a fatal error occurred" */
-	if(1 != err) {
+	if(err != 1) {
 		int detail = SSL_get_error(connssl->handle, err);
-		if(SSL_ERROR_WANT_READ == detail) {
+		if(detail == SSL_ERROR_WANT_READ) {
 			connssl->connecting_state = ssl_connect_2_reading;
 			return CURLE_OK;
 		}
-		if(SSL_ERROR_WANT_WRITE == detail) {
+		if(detail == SSL_ERROR_WANT_WRITE) {
 			connssl->connecting_state = ssl_connect_2_writing;
 			return CURLE_OK;
 		}
@@ -2079,7 +2064,7 @@ static CURLcode ossl_connect_step2(struct connectdata * conn, int sockindex)
 			connssl->connecting_state = ssl_connect_2;
 			// Get the earliest error code from the thread's error queue and removes the entry. 
 			errdetail = ERR_get_error();
-			/* Extract which lib and reason */
+			// Extract which lib and reason 
 			lib = ERR_GET_LIB(errdetail);
 			reason = ERR_GET_REASON(errdetail);
 			if((lib == ERR_LIB_SSL) && (reason == SSL_R_CERTIFICATE_VERIFY_FAILED)) {
@@ -2101,23 +2086,22 @@ static CURLcode ossl_connect_step2(struct connectdata * conn, int sockindex)
 			 * (RST connection etc.), OpenSSL gives no explanation whatsoever and
 			 * the SO_ERROR is also lost.
 			 */
-			if(CURLE_SSL_CONNECT_ERROR == result && errdetail == 0) {
+			if(result == CURLE_SSL_CONNECT_ERROR && errdetail == 0) {
 				const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name : conn->host.name;
 				const long int port = SSL_IS_PROXY() ? conn->port : conn->remote_port;
 				failf(data, OSSL_PACKAGE " SSL_connect: %s in connection to %s:%ld ", SSL_ERROR_to_str(detail), hostname, port);
 				return result;
 			}
-			/* Could be a CERT problem */
+			// Could be a CERT problem
 			failf(data, "%s", error_buffer);
 			return result;
 		}
 	}
 	else {
-		/* we have been connected fine, we're not waiting for anything else. */
+		// we have been connected fine, we're not waiting for anything else. 
 		connssl->connecting_state = ssl_connect_3;
-		/* Informational message */
+		// Informational message 
 		infof(data, "SSL connection using %s / %s\n", get_ssl_version_txt(connssl->handle), SSL_get_cipher(connssl->handle));
-
 #ifdef HAS_ALPN
 		// Sets data and len to negotiated protocol, len is 0 if no protocol was negotiated
 		if(conn->bits.tls_enable_alpn) {

@@ -61,8 +61,7 @@ static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen, uchar * 
 	int md_type_nid;
 	const X509_ALGOR * macalg;
 	const ASN1_OBJECT * macoid;
-	if(pkcs12_key_gen == NULL)
-		pkcs12_key_gen = PKCS12_key_gen_utf8;
+	SETIFZ(pkcs12_key_gen, PKCS12_key_gen_utf8);
 	if(!PKCS7_type_is_data(p12->authsafes)) {
 		PKCS12err(PKCS12_F_PKCS12_GEN_MAC, PKCS12_R_CONTENT_TYPE_NOT_DATA);
 		return 0;
@@ -95,8 +94,7 @@ static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen, uchar * 
 		return 0;
 	}
 	hmac = HMAC_CTX_new();
-	if(!HMAC_Init_ex(hmac, key, md_size, md_type, NULL) || !HMAC_Update(hmac, p12->authsafes->d.data->data, p12->authsafes->d.data->length)
-	    || !HMAC_Final(hmac, mac, maclen)) {
+	if(!HMAC_Init_ex(hmac, key, md_size, md_type, NULL) || !HMAC_Update(hmac, p12->authsafes->d.data->data, p12->authsafes->d.data->length) || !HMAC_Final(hmac, mac, maclen)) {
 		HMAC_CTX_free(hmac);
 		return 0;
 	}
@@ -124,10 +122,8 @@ int PKCS12_verify_mac(PKCS12 * p12, const char * pass, int passlen)
 		return 0;
 	}
 	X509_SIG_get0(p12->mac->dinfo, NULL, &macoct);
-	if((maclen != (uint)ASN1_STRING_length(macoct))
-	    || CRYPTO_memcmp(mac, ASN1_STRING_get0_data(macoct), maclen) != 0)
+	if((maclen != (uint)ASN1_STRING_length(macoct)) || CRYPTO_memcmp(mac, ASN1_STRING_get0_data(macoct), maclen) != 0)
 		return 0;
-
 	return 1;
 }
 

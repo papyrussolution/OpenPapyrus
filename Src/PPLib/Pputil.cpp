@@ -2793,7 +2793,7 @@ SLAPI PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 			P_DestroyFunc = P_Lib->GetProcAddr("UhttDestroyResult");
 		}
 	}
-	PPAlbatrosConfig cfg;
+	PPAlbatrossConfig cfg;
 	DS.FetchAlbatrosConfig(&cfg);
 	//Urn = cfg.UhttUrn.NotEmpty() ? (const char *)cfg.UhttUrn : 0; // "urn:http.service.universehtt.ru";
 	// @v10.5.12 @unused cfg.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
@@ -2841,7 +2841,7 @@ int SLAPI PPUhttClient::Auth()
 	if(func) {
 		SString temp_buf;
 		SString pw;
-		PPAlbatrosConfig cfg;
+		PPAlbatrossConfig cfg;
 		DS.FetchAlbatrosConfig(&cfg);
 		cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, pw);
 		cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
@@ -3806,7 +3806,7 @@ int SLAPI PPUhttClient::ConvertPersonPacket(const UhttPersonPacket & rUhttPack, 
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetCommonMqsConfig(PPAlbatrosConfig & rCfg)
+int SLAPI PPUhttClient::GetCommonMqsConfig(PPAlbatrossConfig & rCfg)
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -4397,7 +4397,7 @@ int SLAPI TestUhttClient()
 	log_buf.Space().Cat((uhtt_cli.GetState() & PPUhttClient::stDefaultServer) ? "default-server" : "own-server");
 	PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 	{
-		PPAlbatrosConfig alb_cfg;
+		PPAlbatrossConfig alb_cfg;
 		log_buf.Z().Cat("PPUhttClient::GetCommonMqsConfig");
 		if(uhtt_cli.GetCommonMqsConfig(alb_cfg) > 0) {
 			log_buf.Space().Cat("ok");

@@ -11,30 +11,28 @@
 
 int FASTCALL EVP_add_cipher(const EVP_CIPHER * c)
 {
-	int r;
-	if(c == NULL)
-		return 0;
-	r = OBJ_NAME_add(OBJ_nid2sn(c->nid), OBJ_NAME_TYPE_CIPHER_METH, (const char *)c);
-	if(r == 0)
-		return 0;
-	r = OBJ_NAME_add(OBJ_nid2ln(c->nid), OBJ_NAME_TYPE_CIPHER_METH, (const char *)c);
+	int r = 0;
+	if(c) {
+		r = OBJ_NAME_add(OBJ_nid2sn(c->nid), OBJ_NAME_TYPE_CIPHER_METH, reinterpret_cast<const char *>(c));
+		if(r)
+			r = OBJ_NAME_add(OBJ_nid2ln(c->nid), OBJ_NAME_TYPE_CIPHER_METH, reinterpret_cast<const char *>(c));
+	}
 	return r;
 }
 
 int FASTCALL EVP_add_digest(const EVP_MD * md)
 {
 	const char * name = OBJ_nid2sn(md->type);
-	int r = OBJ_NAME_add(name, OBJ_NAME_TYPE_MD_METH, (const char *)md);
-	if(r == 0)
-		return 0;
-	r = OBJ_NAME_add(OBJ_nid2ln(md->type), OBJ_NAME_TYPE_MD_METH, (const char *)md);
-	if(r == 0)
-		return 0;
-	if(md->pkey_type && md->type != md->pkey_type) {
-		r = OBJ_NAME_add(OBJ_nid2sn(md->pkey_type), OBJ_NAME_TYPE_MD_METH | OBJ_NAME_ALIAS, name);
-		if(r == 0)
-			return 0;
-		r = OBJ_NAME_add(OBJ_nid2ln(md->pkey_type), OBJ_NAME_TYPE_MD_METH | OBJ_NAME_ALIAS, name);
+	int r = OBJ_NAME_add(name, OBJ_NAME_TYPE_MD_METH, reinterpret_cast<const char *>(md));
+	if(r) {
+		r = OBJ_NAME_add(OBJ_nid2ln(md->type), OBJ_NAME_TYPE_MD_METH, reinterpret_cast<const char *>(md));
+		if(r) {
+			if(md->pkey_type && md->type != md->pkey_type) {
+				r = OBJ_NAME_add(OBJ_nid2sn(md->pkey_type), OBJ_NAME_TYPE_MD_METH | OBJ_NAME_ALIAS, name);
+				if(r) 
+					r = OBJ_NAME_add(OBJ_nid2ln(md->pkey_type), OBJ_NAME_TYPE_MD_METH | OBJ_NAME_ALIAS, name);
+			}
+		}
 	}
 	return r;
 }
@@ -53,11 +51,10 @@ void evp_cleanup_int(void)
 {
 	OBJ_NAME_cleanup(OBJ_NAME_TYPE_CIPHER_METH);
 	OBJ_NAME_cleanup(OBJ_NAME_TYPE_MD_METH);
-	/*
-	 * The above calls will only clean out the contents of the name hash
-	 * table, but not the hash table itself.  The following line does that
-	 * part.  -- Richard Levitte
-	 */
+	// 
+	// The above calls will only clean out the contents of the name hash
+	// table, but not the hash table itself.  The following line does that part.  -- Richard Levitte
+	// 
 	OBJ_NAME_cleanup(-1);
 	EVP_PBE_cleanup();
 	OBJ_sigid_free();
@@ -70,7 +67,7 @@ struct doall_cipher {
 
 static void do_all_cipher_fn(const OBJ_NAME * nm, void * arg)
 {
-	struct doall_cipher * dc = (struct doall_cipher*)arg;
+	struct doall_cipher * dc = static_cast<struct doall_cipher *>(arg);
 	if(nm->alias)
 		dc->fn(NULL, nm->name, nm->data, dc->arg);
 	else
@@ -104,7 +101,7 @@ struct doall_md {
 
 static void do_all_md_fn(const OBJ_NAME * nm, void * arg)
 {
-	struct doall_md * dc = (struct doall_md*)arg;
+	struct doall_md * dc = static_cast<struct doall_md *>(arg);
 	if(nm->alias)
 		dc->fn(NULL, nm->name, nm->data, dc->arg);
 	else

@@ -197,9 +197,7 @@ static struct passwd * vms_getpwuid(uid_t uid)
 /* Ancient OpenSSL on VAX/VMS missing this constant */
 #    define CONF_MFLAGS_IGNORE_MISSING_FILE 0x10
 #    undef CONF_modules_load_file
-static int CONF_modules_load_file(const char * filename,
-    const char * appname,
-    ulong flags)
+static int CONF_modules_load_file(const char * filename, const char * appname, ulong flags)
 {
 	return 1;
 }

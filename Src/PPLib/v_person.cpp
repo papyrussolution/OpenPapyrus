@@ -2912,7 +2912,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				{
 					uint   what = 0;
 					if(SelectorDialog(DLG_DISPTYPE, CTL_DISPTYPE_WHAT, &what) > 0) {
-						PPAlbatrosConfig albtr_cfg;
+						PPAlbatrossConfig albtr_cfg;
  						SString msg;
  						PPLogger logger;
  						StrAssocArray psn_list;

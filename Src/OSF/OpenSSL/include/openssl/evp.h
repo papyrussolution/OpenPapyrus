@@ -88,7 +88,8 @@ int(*EVP_MD_meth_get_copy(const EVP_MD *md))(EVP_MD_CTX *to, const EVP_MD_CTX *f
 int(*EVP_MD_meth_get_cleanup(const EVP_MD *md))(EVP_MD_CTX *ctx);
 int(*EVP_MD_meth_get_ctrl(const EVP_MD *md))(EVP_MD_CTX *ctx, int cmd, int p1, void * p2);
 
-#define EVP_MD_FLAG_ONESHOT     0x0001 /* digest can only handle a single block */
+#define EVP_MD_FLAG_ONESHOT     0x0001 // digest can only handle a single block 
+#define EVP_MD_FLAG_XOF         0x0002 // digest is extensible-output function, XOF // @sobolev @v10.6.3
 // 
 // DigestAlgorithmIdentifier flags... 
 //
@@ -102,6 +103,8 @@ int(*EVP_MD_meth_get_ctrl(const EVP_MD *md))(EVP_MD_CTX *ctx, int cmd, int p1, v
 // 
 #define EVP_MD_CTRL_DIGALGID                    0x1
 #define EVP_MD_CTRL_MICALG                      0x2
+#define EVP_MD_CTRL_XOF_LEN                     0x3 // @sobolev @v10.6.3
+
 #define EVP_MD_CTRL_ALG_CTRL                    0x1000 /* Minimum Algorithm specific ctrl value */
 #endif                         /* !EVP_MD */
 // 
@@ -698,7 +701,7 @@ int EVP_PKEY_size(EVP_PKEY * pkey);
 int EVP_PKEY_set_type(EVP_PKEY * pkey, int type);
 int EVP_PKEY_set_type_str(EVP_PKEY * pkey, const char * str, int len);
 int EVP_PKEY_assign(EVP_PKEY * pkey, int type, void * key);
-void * EVP_PKEY_get0(const EVP_PKEY * pkey);
+void * FASTCALL EVP_PKEY_get0(const EVP_PKEY * pkey);
 const uchar * EVP_PKEY_get0_hmac(const EVP_PKEY * pkey, size_t * len);
 
 #ifndef OPENSSL_NO_RSA
@@ -925,44 +928,29 @@ int EVP_PKEY_decrypt(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, const uch
 int EVP_PKEY_derive_init(EVP_PKEY_CTX * ctx);
 int EVP_PKEY_derive_set_peer(EVP_PKEY_CTX * ctx, EVP_PKEY * peer);
 int EVP_PKEY_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen);
-
 /*@funcdef*/typedef int EVP_PKEY_gen_cb(EVP_PKEY_CTX *ctx);
-
 int EVP_PKEY_paramgen_init(EVP_PKEY_CTX * ctx);
 int EVP_PKEY_paramgen(EVP_PKEY_CTX * ctx, EVP_PKEY ** ppkey);
 int EVP_PKEY_keygen_init(EVP_PKEY_CTX * ctx);
 int EVP_PKEY_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY ** ppkey);
-
 void EVP_PKEY_CTX_set_cb(EVP_PKEY_CTX * ctx, EVP_PKEY_gen_cb * cb);
 EVP_PKEY_gen_cb * EVP_PKEY_CTX_get_cb(EVP_PKEY_CTX * ctx);
-
 int EVP_PKEY_CTX_get_keygen_info(EVP_PKEY_CTX * ctx, int idx);
-
 void EVP_PKEY_meth_set_init(EVP_PKEY_METHOD * pmeth, int (* init)(EVP_PKEY_CTX * ctx));
-
 void EVP_PKEY_meth_set_copy(EVP_PKEY_METHOD * pmeth, int (* copy)(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src));
 void EVP_PKEY_meth_set_cleanup(EVP_PKEY_METHOD * pmeth, void (* cleanup)(EVP_PKEY_CTX * ctx));
 void EVP_PKEY_meth_set_paramgen(EVP_PKEY_METHOD * pmeth, int (* paramgen_init)(EVP_PKEY_CTX * ctx), int (* paramgen)(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey));
 void EVP_PKEY_meth_set_keygen(EVP_PKEY_METHOD * pmeth, int (* keygen_init)(EVP_PKEY_CTX * ctx), int (* keygen)(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey));
-
-void EVP_PKEY_meth_set_sign(EVP_PKEY_METHOD * pmeth,
-    int (* sign_init)(EVP_PKEY_CTX * ctx),
-    int (* sign)(EVP_PKEY_CTX * ctx,
-	    uchar * sig, size_t * siglen,
-	    const uchar * tbs,
-	    size_t tbslen));
-
+void EVP_PKEY_meth_set_sign(EVP_PKEY_METHOD * pmeth, int (* sign_init)(EVP_PKEY_CTX * ctx),
+    int (* sign)(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const uchar * tbs, size_t tbslen));
 void EVP_PKEY_meth_set_verify(EVP_PKEY_METHOD * pmeth, int (* verify_init)(EVP_PKEY_CTX * ctx),
     int (* verify)(EVP_PKEY_CTX * ctx, const uchar * sig, size_t siglen, const uchar * tbs, size_t tbslen));
-
 void EVP_PKEY_meth_set_verify_recover(EVP_PKEY_METHOD * pmeth, int (* verify_recover_init)(EVP_PKEY_CTX * ctx),
     int (* verify_recover)(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const uchar * tbs, size_t tbslen));
 void EVP_PKEY_meth_set_signctx(EVP_PKEY_METHOD * pmeth,
     int (* signctx_init)(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx),
     int (* signctx)(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, EVP_MD_CTX * mctx));
-
 void EVP_PKEY_meth_set_verifyctx(EVP_PKEY_METHOD * pmeth, int (* verifyctx_init)(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx), int (* verifyctx)(EVP_PKEY_CTX * ctx, const uchar * sig, int siglen, EVP_MD_CTX * mctx));
-
 void EVP_PKEY_meth_set_encrypt(EVP_PKEY_METHOD * pmeth, int (* encrypt_init)(EVP_PKEY_CTX * ctx), int (* encryptfn)(EVP_PKEY_CTX * ctx, 
 	uchar * out, size_t * outlen, const uchar * in, size_t inlen));
 void EVP_PKEY_meth_set_decrypt(EVP_PKEY_METHOD * pmeth, int (* decrypt_init)(EVP_PKEY_CTX * ctx), int (* decrypt)(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, const uchar * in, size_t inlen));
@@ -977,7 +965,8 @@ void EVP_PKEY_meth_get_sign(EVP_PKEY_METHOD *pmeth, int(**psign_init)(EVP_PKEY_C
     int(**psign)(EVP_PKEY_CTX *ctx, uchar * sig, size_t *siglen, const uchar * tbs, size_t tbslen));
 void EVP_PKEY_meth_get_verify(EVP_PKEY_METHOD *pmeth, int(**pverify_init)(EVP_PKEY_CTX *ctx),
     int(**pverify)(EVP_PKEY_CTX *ctx, const uchar * sig, size_t siglen, const uchar * tbs, size_t tbslen));
-
+void EVP_PKEY_meth_set_check(EVP_PKEY_METHOD *pmeth, int (*check)(EVP_PKEY *pkey)); // @sobolev @v10.6.3
+void EVP_PKEY_meth_set_public_check(EVP_PKEY_METHOD *pmeth, int (*check)(EVP_PKEY *pkey)); // @sobolev @v10.6.3
 void EVP_PKEY_meth_get_verify_recover(EVP_PKEY_METHOD *pmeth, int(**pverify_recover_init)(EVP_PKEY_CTX *ctx),
     int(**pverify_recover)(EVP_PKEY_CTX *ctx, uchar * sig, size_t *siglen, const uchar * tbs, size_t tbslen));
 void EVP_PKEY_meth_get_signctx(EVP_PKEY_METHOD *pmeth, int(**psignctx_init)(EVP_PKEY_CTX *ctx, EVP_MD_CTX *mctx),

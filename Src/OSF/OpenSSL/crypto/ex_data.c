@@ -19,7 +19,6 @@ struct ex_callback_st {
 	CRYPTO_EX_free * free_func;
 	CRYPTO_EX_dup * dup_func;
 };
-
 /*
  * The state for each class.  This could just be a typedef, but
  * a structure allows future changes.
@@ -29,7 +28,6 @@ typedef struct ex_callbacks_st {
 } EX_CALLBACKS;
 
 static EX_CALLBACKS ex_data[CRYPTO_EX_INDEX__COUNT];
-
 static CRYPTO_RWLOCK * ex_data_lock = NULL;
 static CRYPTO_ONCE ex_data_init = CRYPTO_ONCE_STATIC_INIT;
 
@@ -39,26 +37,20 @@ DEFINE_RUN_ONCE_STATIC(do_ex_data_init)
 	ex_data_lock = CRYPTO_THREAD_lock_new();
 	return ex_data_lock != NULL;
 }
-
 /*
  * Return the EX_CALLBACKS from the |ex_data| array that corresponds to
  * a given class.  On success, *holds the lock.*
  */
 static EX_CALLBACKS * get_and_lock(int class_index)
 {
-	EX_CALLBACKS * ip;
-
+	EX_CALLBACKS * ip = 0;
 	if(class_index < 0 || class_index >= CRYPTO_EX_INDEX__COUNT) {
 		CRYPTOerr(CRYPTO_F_GET_AND_LOCK, ERR_R_PASSED_INVALID_ARGUMENT);
-		return NULL;
 	}
-
-	if(!RUN_ONCE(&ex_data_init, do_ex_data_init)) {
+	else if(!RUN_ONCE(&ex_data_init, do_ex_data_init)) {
 		CRYPTOerr(CRYPTO_F_GET_AND_LOCK, ERR_R_MALLOC_FAILURE);
-		return NULL;
 	}
-
-	if(ex_data_lock == NULL) {
+	else if(ex_data_lock == NULL) {
 		/*
 		 * This can happen in normal operation when using CRYPTO_mem_leaks().
 		 * The CRYPTO_mem_leaks() function calls OPENSSL_cleanup() which cleans
@@ -68,11 +60,11 @@ static EX_CALLBACKS * get_and_lock(int class_index)
 		 * before OPENSSL_cleanup() is called), so if we get here we can safely
 		 * ignore this operation. We just treat it as an error.
 		 */
-		return NULL;
 	}
-
-	ip = &ex_data[class_index];
-	CRYPTO_THREAD_write_lock(ex_data_lock);
+	else {
+		ip = &ex_data[class_index];
+		CRYPTO_THREAD_write_lock(ex_data_lock);
+	}
 	return ip;
 }
 
@@ -80,7 +72,6 @@ static void cleanup_cb(EX_CALLBACK * funcs)
 {
 	OPENSSL_free(funcs);
 }
-
 /*
  * Release all "ex_data" state to prevent memory leaks. This can't be made
  * thread-safe without overhauling a lot of stuff, and shouldn't really be
@@ -89,8 +80,7 @@ static void cleanup_cb(EX_CALLBACK * funcs)
  */
 void crypto_cleanup_all_ex_data_int(void)
 {
-	int i;
-	for(i = 0; i < CRYPTO_EX_INDEX__COUNT; ++i) {
+	for(int i = 0; i < CRYPTO_EX_INDEX__COUNT; ++i) {
 		EX_CALLBACKS * ip = &ex_data[i];
 		sk_EX_CALLBACK_pop_free(ip->meth, cleanup_cb);
 		ip->meth = NULL;
@@ -98,7 +88,6 @@ void crypto_cleanup_all_ex_data_int(void)
 	CRYPTO_THREAD_lock_free(ex_data_lock);
 	ex_data_lock = NULL;
 }
-
 /*
  * Unregister a new index by replacing the callbacks with no-ops.
  * Any in-use instances are leaked.
@@ -136,12 +125,10 @@ err:
 	CRYPTO_THREAD_unlock(ex_data_lock);
 	return toret;
 }
-
 /*
  * Register a new index.
  */
-int CRYPTO_get_ex_new_index(int class_index, long argl, void * argp,
-    CRYPTO_EX_new * new_func, CRYPTO_EX_dup * dup_func, CRYPTO_EX_free * free_func)
+int CRYPTO_get_ex_new_index(int class_index, long argl, void * argp, CRYPTO_EX_new * new_func, CRYPTO_EX_dup * dup_func, CRYPTO_EX_free * free_func)
 {
 	int toret = -1;
 	EX_CALLBACK * a;
@@ -157,8 +144,7 @@ int CRYPTO_get_ex_new_index(int class_index, long argl, void * argp,
 			goto err;
 		}
 	}
-
-	a = (EX_CALLBACK*)OPENSSL_malloc(sizeof(*a));
+	a = static_cast<EX_CALLBACK *>(OPENSSL_malloc(sizeof(*a)));
 	if(!a) {
 		CRYPTOerr(CRYPTO_F_CRYPTO_GET_EX_NEW_INDEX, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -198,7 +184,7 @@ int CRYPTO_new_ex_data(int class_index, void * obj, CRYPTO_EX_DATA * ad)
 	ad->sk = NULL;
 	mx = sk_EX_CALLBACK_num(ip->meth);
 	if(mx > 0) {
-		storage = (mx < (int)OSSL_NELEM(stack)) ? stack : (EX_CALLBACK**)OPENSSL_malloc(sizeof(*storage) * mx);
+		storage = (mx < (int)OSSL_NELEM(stack)) ? stack : static_cast<EX_CALLBACK **>(OPENSSL_malloc(sizeof(*storage) * mx));
 		if(storage != NULL)
 			for(i = 0; i < mx; i++)
 				storage[i] = sk_EX_CALLBACK_value(ip->meth, i);
@@ -231,8 +217,7 @@ int CRYPTO_dup_ex_data(int class_index, CRYPTO_EX_DATA * to, const CRYPTO_EX_DAT
 	EX_CALLBACK ** storage = NULL;
 	EX_CALLBACKS * ip;
 	if(from->sk == NULL)
-		/* Nothing to copy over */
-		return 1;
+		return 1; /* Nothing to copy over */
 	if((ip = get_and_lock(class_index)) == NULL)
 		return 0;
 	mx = sk_EX_CALLBACK_num(ip->meth);
@@ -243,7 +228,7 @@ int CRYPTO_dup_ex_data(int class_index, CRYPTO_EX_DATA * to, const CRYPTO_EX_DAT
 		if(mx < (int)OSSL_NELEM(stack))
 			storage = stack;
 		else
-			storage = (EX_CALLBACK**)OPENSSL_malloc(sizeof(*storage) * mx);
+			storage = static_cast<EX_CALLBACK **>(OPENSSL_malloc(sizeof(*storage) * mx));
 		if(storage != NULL)
 			for(i = 0; i < mx; i++)
 				storage[i] = sk_EX_CALLBACK_value(ip->meth, i);
@@ -254,7 +239,7 @@ int CRYPTO_dup_ex_data(int class_index, CRYPTO_EX_DATA * to, const CRYPTO_EX_DAT
 		return 0;
 	}
 	for(i = 0; i < mx; i++) {
-		ptr = (char *)CRYPTO_get_ex_data(from, i);
+		ptr = static_cast<char *>(CRYPTO_get_ex_data(from, i));
 		if(storage[i] && storage[i]->dup_func)
 			storage[i]->dup_func(to, from, &ptr, i, storage[i]->argl, storage[i]->argp);
 		CRYPTO_set_ex_data(to, i, ptr);
@@ -263,7 +248,6 @@ int CRYPTO_dup_ex_data(int class_index, CRYPTO_EX_DATA * to, const CRYPTO_EX_DAT
 		OPENSSL_free(storage);
 	return 1;
 }
-
 /*
  * Cleanup a CRYPTO_EX_DATA variable - including calling free() callbacks for
  * each index in the class used by this variable
@@ -283,7 +267,7 @@ void CRYPTO_free_ex_data(int class_index, void * obj, CRYPTO_EX_DATA * ad)
 		if(mx < (int)OSSL_NELEM(stack))
 			storage = stack;
 		else
-			storage = (EX_CALLBACK**)OPENSSL_malloc(sizeof(*storage) * mx);
+			storage = static_cast<EX_CALLBACK **>(OPENSSL_malloc(sizeof(*storage) * mx));
 		if(storage != NULL)
 			for(i = 0; i < mx; i++)
 				storage[i] = sk_EX_CALLBACK_value(ip->meth, i);
@@ -308,7 +292,6 @@ err:
 	sk_void_free(ad->sk);
 	ad->sk = NULL;
 }
-
 /*
  * For a given CRYPTO_EX_DATA variable, set the value corresponding to a
  * particular index in the class used by this variable
@@ -340,4 +323,3 @@ void * CRYPTO_get_ex_data(const CRYPTO_EX_DATA * ad, int idx)
 {
 	return (ad->sk == NULL || idx >= sk_void_num(ad->sk)) ? NULL : sk_void_value(ad->sk, idx);
 }
-

@@ -1896,7 +1896,7 @@ int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const
 			//
 			// Отправка на определенный почтовый адрес
 			//
-			PPAlbatrosConfig alb_cfg;
+			PPAlbatrossConfig alb_cfg;
 			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 			if(alb_cfg.Hdr.MailAccID) {
 				THROW(SendMailWithAttach(pReportName, path, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID));

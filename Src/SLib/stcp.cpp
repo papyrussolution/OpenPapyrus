@@ -3420,7 +3420,7 @@ int ScURL::HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * p
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
-	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
+	p_chunk = static_cast<struct curl_slist *>(ComposeHeaderList(pHttpHeaderFields));
 	if(p_chunk)
 		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
 	url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);

@@ -63,7 +63,7 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 						}
 					}
 					{
-						PPAlbatrosConfig acfg;
+						PPAlbatrossConfig acfg;
 						if(PPAlbatrosCfgMngr::Helper_Get(p_ref, &acfg) > 0) {
 							SString password;
 							acfg.GetExtStrData(ALBATROSEXSTR_UHTTPASSW, password);

@@ -753,7 +753,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 	if(EqCfg.FtpAcctID)
 		THROW(obj_acct.Get(EqCfg.FtpAcctID, &acct));
 	{
-		PPAlbatrosConfig alb_cfg;
+		PPAlbatrossConfig alb_cfg;
 		MEMSZERO(mac_rec);
 		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID) {
 			THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);

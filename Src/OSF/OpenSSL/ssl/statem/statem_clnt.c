@@ -513,45 +513,26 @@ WORK_STATE ossl_statem_client_post_work(SSL * s, WORK_STATE wst)
 int ossl_statem_client_construct_message(SSL * s)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	switch(st->hand_state) {
-		case TLS_ST_CW_CLNT_HELLO:
-		    return tls_construct_client_hello(s);
-
-		case TLS_ST_CW_CERT:
-		    return tls_construct_client_certificate(s);
-
-		case TLS_ST_CW_KEY_EXCH:
-		    return tls_construct_client_key_exchange(s);
-
-		case TLS_ST_CW_CERT_VRFY:
-		    return tls_construct_client_verify(s);
-
+		case TLS_ST_CW_CLNT_HELLO: return tls_construct_client_hello(s);
+		case TLS_ST_CW_CERT: return tls_construct_client_certificate(s);
+		case TLS_ST_CW_KEY_EXCH: return tls_construct_client_key_exchange(s);
+		case TLS_ST_CW_CERT_VRFY: return tls_construct_client_verify(s);
 		case TLS_ST_CW_CHANGE:
 		    if(SSL_IS_DTLS(s))
 			    return dtls_construct_change_cipher_spec(s);
 		    else
 			    return tls_construct_change_cipher_spec(s);
-
 #if !defined(OPENSSL_NO_NEXTPROTONEG)
 		case TLS_ST_CW_NEXT_PROTO:
 		    return tls_construct_next_proto(s);
 #endif
 		case TLS_ST_CW_FINISHED:
-		    return tls_construct_finished(s,
-		    s->method->
-		    ssl3_enc->client_finished_label,
-		    s->method->
-		    ssl3_enc->client_finished_label_len);
-
-		default:
-		    /* Shouldn't happen */
-		    break;
+		    return tls_construct_finished(s, s->method->ssl3_enc->client_finished_label, s->method->ssl3_enc->client_finished_label_len);
+		default: break; /* Shouldn't happen */
 	}
-
 	return 0;
 }
-
 /*
  * Returns the maximum allowed length for the current message that we are
  * reading. Excludes the message header.
@@ -612,43 +593,19 @@ unsigned long ossl_statem_client_max_message_size(SSL * s)
 MSG_PROCESS_RETURN ossl_statem_client_process_message(SSL * s, PACKET * pkt)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	switch(st->hand_state) {
-		case TLS_ST_CR_SRVR_HELLO:
-		    return tls_process_server_hello(s, pkt);
-
-		case DTLS_ST_CR_HELLO_VERIFY_REQUEST:
-		    return dtls_process_hello_verify(s, pkt);
-
-		case TLS_ST_CR_CERT:
-		    return tls_process_server_certificate(s, pkt);
-
-		case TLS_ST_CR_CERT_STATUS:
-		    return tls_process_cert_status(s, pkt);
-
-		case TLS_ST_CR_KEY_EXCH:
-		    return tls_process_key_exchange(s, pkt);
-
-		case TLS_ST_CR_CERT_REQ:
-		    return tls_process_certificate_request(s, pkt);
-
-		case TLS_ST_CR_SRVR_DONE:
-		    return tls_process_server_done(s, pkt);
-
-		case TLS_ST_CR_CHANGE:
-		    return tls_process_change_cipher_spec(s, pkt);
-
-		case TLS_ST_CR_SESSION_TICKET:
-		    return tls_process_new_session_ticket(s, pkt);
-
-		case TLS_ST_CR_FINISHED:
-		    return tls_process_finished(s, pkt);
-
-		default:
-		    /* Shouldn't happen */
-		    break;
+		case TLS_ST_CR_SRVR_HELLO: return tls_process_server_hello(s, pkt);
+		case DTLS_ST_CR_HELLO_VERIFY_REQUEST: return dtls_process_hello_verify(s, pkt);
+		case TLS_ST_CR_CERT: return tls_process_server_certificate(s, pkt);
+		case TLS_ST_CR_CERT_STATUS: return tls_process_cert_status(s, pkt);
+		case TLS_ST_CR_KEY_EXCH: return tls_process_key_exchange(s, pkt);
+		case TLS_ST_CR_CERT_REQ: return tls_process_certificate_request(s, pkt);
+		case TLS_ST_CR_SRVR_DONE: return tls_process_server_done(s, pkt);
+		case TLS_ST_CR_CHANGE: return tls_process_change_cipher_spec(s, pkt);
+		case TLS_ST_CR_SESSION_TICKET: return tls_process_new_session_ticket(s, pkt);
+		case TLS_ST_CR_FINISHED: return tls_process_finished(s, pkt);
+		default: break; /* Shouldn't happen */
 	}
-
 	return MSG_PROCESS_ERROR;
 }
 
@@ -659,11 +616,8 @@ MSG_PROCESS_RETURN ossl_statem_client_process_message(SSL * s, PACKET * pkt)
 WORK_STATE ossl_statem_client_post_process_message(SSL * s, WORK_STATE wst)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	switch(st->hand_state) {
-		case TLS_ST_CR_CERT_REQ:
-		    return tls_prepare_client_certificate(s, wst);
-
+		case TLS_ST_CR_CERT_REQ: return tls_prepare_client_certificate(s, wst);
 #ifndef OPENSSL_NO_SCTP
 		case TLS_ST_CR_SRVR_DONE:
 		    /* We only get here if we are using SCTP and we are renegotiating */
@@ -678,18 +632,14 @@ WORK_STATE ossl_statem_client_post_process_message(SSL * s, WORK_STATE wst)
 		    ossl_statem_set_sctp_read_sock(s, 0);
 		    return WORK_FINISHED_STOP;
 #endif
-
 		default:
 		    break;
 	}
-
-	/* Shouldn't happen */
-	return WORK_ERROR;
+	return WORK_ERROR; /* Shouldn't happen */
 }
 
 int tls_construct_client_hello(SSL * s)
 {
-	uchar * buf;
 	uchar * p, * d;
 	int i;
 	int protverr;
@@ -700,30 +650,21 @@ int tls_construct_client_hello(SSL * s)
 	SSL_COMP * comp;
 #endif
 	SSL_SESSION * sess = s->session;
-
-	buf = (uchar *)s->init_buf->data;
-
+	uchar * buf = (uchar *)s->init_buf->data;
 	/* Work out what SSL/TLS/DTLS version to use */
 	protverr = ssl_set_client_hello_version(s);
 	if(protverr != 0) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_HELLO, protverr);
 		goto err;
 	}
-
 	if((sess == NULL) || !ssl_version_supported(s, sess->ssl_version) ||
-	    /*
-	 * In the case of EAP-FAST, we can have a pre-shared
-	 * "ticket" without a session ID.
-	     */
-	    (!sess->session_id_length && !sess->tlsext_tick) ||
-	    (sess->not_resumable)) {
+	    /*In the case of EAP-FAST, we can have a pre-shared "ticket" without a session ID.*/
+	    (!sess->session_id_length && !sess->tlsext_tick) || (sess->not_resumable)) {
 		if(!ssl_get_new_session(s, 0))
 			goto err;
 	}
 	/* else use the pre-loaded session */
-
 	p = s->s3->client_random;
-
 	/*
 	 * for DTLS if client_random is initialized, reuse it, we are
 	 * required to use same upon reply to HelloVerify
@@ -740,13 +681,10 @@ int tls_construct_client_hello(SSL * s)
 	}
 	else
 		i = 1;
-
 	if(i && ssl_fill_hello_random(s, 0, p, sizeof(s->s3->client_random)) <= 0)
 		goto err;
-
 	/* Do the message type and length last */
 	d = p = ssl_handshake_start(s);
-
 	/*-
 	 * version indicates the negotiated version: for example from
 	 * an SSLv2/v3 compatible client hello). The client_version
@@ -779,11 +717,9 @@ int tls_construct_client_hello(SSL * s)
 	 */
 	*(p++) = s->client_version >> 8;
 	*(p++) = s->client_version & 0xff;
-
 	/* Random stuff */
 	memcpy(p, s->s3->client_random, SSL3_RANDOM_SIZE);
 	p += SSL3_RANDOM_SIZE;
-
 	/* Session ID */
 	if(s->new_session)
 		i = 0;
@@ -798,7 +734,6 @@ int tls_construct_client_hello(SSL * s)
 		memcpy(p, s->session->session_id, i);
 		p += i;
 	}
-
 	/* cookie stuff for DTLS */
 	if(SSL_IS_DTLS(s)) {
 		if(s->d1->cookie_len > sizeof(s->d1->cookie)) {
@@ -809,7 +744,6 @@ int tls_construct_client_hello(SSL * s)
 		memcpy(p, s->d1->cookie, s->d1->cookie_len);
 		p += s->d1->cookie_len;
 	}
-
 	/* Ciphers supported */
 	i = ssl_cipher_list_to_bytes(s, SSL_get_ciphers(s), &(p[2]));
 	if(i == 0) {
@@ -822,18 +756,15 @@ int tls_construct_client_hello(SSL * s)
 	 * chop number of supported ciphers to keep it well below this if we
 	 * use TLS v1.2
 	 */
-	if(TLS1_get_version(s) >= TLS1_2_VERSION
-	    && i > OPENSSL_MAX_TLS1_2_CIPHER_LENGTH)
+	if(TLS1_get_version(s) >= TLS1_2_VERSION && i > OPENSSL_MAX_TLS1_2_CIPHER_LENGTH)
 		i = OPENSSL_MAX_TLS1_2_CIPHER_LENGTH & ~1;
 #endif
 	s2n(i, p);
 	p += i;
-
 	/* COMPRESSION */
 #ifdef OPENSSL_NO_COMP
 	*(p++) = 1;
 #else
-
 	if(!ssl_allow_compression(s) || !s->ctx->comp_methods)
 		j = 0;
 	else
@@ -845,27 +776,22 @@ int tls_construct_client_hello(SSL * s)
 	}
 #endif
 	*(p++) = 0;             /* Add the NULL method */
-
 	/* TLS extensions */
 	if(ssl_prepare_clienthello_tlsext(s) <= 0) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_HELLO, SSL_R_CLIENTHELLO_TLSEXT);
 		goto err;
 	}
-	if((p =
-			    ssl_add_clienthello_tlsext(s, p, buf + SSL3_RT_MAX_PLAIN_LENGTH,
-			    &al)) == NULL) {
+	if((p = ssl_add_clienthello_tlsext(s, p, buf + SSL3_RT_MAX_PLAIN_LENGTH, &al)) == NULL) {
 		ssl3_send_alert(s, SSL3_AL_FATAL, al);
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_HELLO, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	l = p - d;
 	if(!ssl_set_handshake_header(s, SSL3_MT_CLIENT_HELLO, l)) {
 		ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_HANDSHAKE_FAILURE);
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_HELLO, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	return 1;
 err:
 	ossl_statem_set_error(s);
@@ -920,20 +846,17 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 #ifndef OPENSSL_NO_COMP
 	SSL_COMP * comp;
 #endif
-
 	if(!PACKET_get_net_2(pkt, &sversion)) {
 		al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_LENGTH_MISMATCH);
 		goto f_err;
 	}
-
 	protverr = ssl_choose_client_version(s, sversion);
 	if(protverr != 0) {
 		al = SSL_AD_PROTOCOL_VERSION;
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, protverr);
 		goto f_err;
 	}
-
 	/* load the server hello data */
 	/* load the server random */
 	if(!PACKET_copy_bytes(pkt, s->s3->server_random, SSL3_RANDOM_SIZE)) {
@@ -941,9 +864,7 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_LENGTH_MISMATCH);
 		goto f_err;
 	}
-
 	s->hit = 0;
-
 	/* Get the session-id. */
 	if(!PACKET_get_length_prefixed_1(pkt, &session_id)) {
 		al = SSL_AD_DECODE_ERROR;
@@ -963,7 +884,6 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 		al = SSL_AD_DECODE_ERROR;
 		goto f_err;
 	}
-
 	/*
 	 * Check if we can resume the session based on external pre-shared secret.
 	 * EAP-FAST (RFC 4851) supports two types of session resumption.
@@ -1082,8 +1002,7 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 		goto f_err;
 	}
 	/*
-	 * If compression is disabled we'd better not try to resume a session
-	 * using compression.
+	 * If compression is disabled we'd better not try to resume a session using compression.
 	 */
 	if(s->session->compress_meth != 0) {
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_INCONSISTENT_COMPRESSION);
@@ -1129,26 +1048,15 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 	if(SSL_IS_DTLS(s) && s->hit) {
 		uchar sctpauthkey[64];
 		char labelbuffer[sizeof(DTLS1_SCTP_AUTH_LABEL)];
-
 		/*
-		 * Add new shared key for SCTP-Auth, will be ignored if
-		 * no SCTP used.
+		 * Add new shared key for SCTP-Auth, will be ignored if no SCTP used.
 		 */
-		memcpy(labelbuffer, DTLS1_SCTP_AUTH_LABEL,
-		    sizeof(DTLS1_SCTP_AUTH_LABEL));
-
-		if(SSL_export_keying_material(s, sctpauthkey,
-			    sizeof(sctpauthkey),
-			    labelbuffer,
-			    sizeof(labelbuffer), NULL, 0, 0) <= 0)
+		memcpy(labelbuffer, DTLS1_SCTP_AUTH_LABEL, sizeof(DTLS1_SCTP_AUTH_LABEL));
+		if(SSL_export_keying_material(s, sctpauthkey, sizeof(sctpauthkey), labelbuffer, sizeof(labelbuffer), NULL, 0, 0) <= 0)
 			goto err;
-
-		BIO_ctrl(SSL_get_wbio(s),
-		    BIO_CTRL_DGRAM_SCTP_ADD_AUTH_KEY,
-		    sizeof(sctpauthkey), sctpauthkey);
+		BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_ADD_AUTH_KEY, sizeof(sctpauthkey), sctpauthkey);
 	}
 #endif
-
 	return MSG_PROCESS_CONTINUE_READING;
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
@@ -1163,9 +1071,9 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 	unsigned long cert_list_len, cert_len;
 	X509 * x = NULL;
 	const uchar * certstart, * certbytes;
-	STACK_OF(X509) *sk = NULL;
 	EVP_PKEY * pkey = NULL;
-	if((sk = sk_X509_new_null()) == NULL) {
+	STACK_OF(X509) * sk = sk_X509_new_null();
+	if(!sk) {
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -1224,7 +1132,6 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 		al = SSL_AD_HANDSHAKE_FAILURE;
 		goto f_err;
 	}
-
 	s->session->peer_chain = sk;
 	/*
 	 * Inconsistency alert: cert_chain does include the peer's certificate,

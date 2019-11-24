@@ -1478,7 +1478,7 @@ int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMess
 	rMail.Transf(CTRANSF_INNER_TO_UTF8);
 	// @v9.6.5 {
 	if(acctID == 0) {
-		PPAlbatrosConfig a_cfg;
+		PPAlbatrossConfig a_cfg;
 		if(PPAlbatrosCfgMngr::Get(&a_cfg) > 0 && a_cfg.Hdr.MailAccID)
 			acctID = a_cfg.Hdr.MailAccID;
 	}
@@ -1660,7 +1660,7 @@ int32 DL6ICLS_PPUtil::GetSupplInterchangeConfig(int32 supplID, PpySupplInterchan
 		pValue->LocCodeTagID = agt.Ep.Fb.LocCodeTagID; // @v9.5.0
 		//
 		{
-			PPAlbatrosConfig acfg;
+			PPAlbatrossConfig acfg;
 			PPAlbatrosCfgMngr::Get(&acfg);
 			PPOprKind op_rec;
 			if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND))

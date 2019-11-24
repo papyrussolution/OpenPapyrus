@@ -43,14 +43,9 @@ extern "C" {
 /** Enum for the point conversion form as defined in X9.62 (ECDSA)
  *  for the encoding of a elliptic curve point (x,y) */
 typedef enum {
-        /** the point is encoded as z||x, where the octet z specifies
-    *  which solution of the quadratic equation y is  */
-    POINT_CONVERSION_COMPRESSED = 2,
-        /** the point is encoded as z||x||y, where z is the octet 0x04  */
-    POINT_CONVERSION_UNCOMPRESSED = 4,
-        /** the point is encoded as z||x||y, where the octet z specifies
-    *  which solution of the quadratic equation y is  */
-    POINT_CONVERSION_HYBRID = 6
+    POINT_CONVERSION_COMPRESSED = 2, // the point is encoded as z||x, where the octet z specifies which solution of the quadratic equation y is  
+    POINT_CONVERSION_UNCOMPRESSED = 4, // the point is encoded as z||x||y, where z is the octet 0x04  
+    POINT_CONVERSION_HYBRID = 6 // the point is encoded as z||x||y, where the octet z specifies which solution of the quadratic equation y is  
 } point_conversion_form_t;
 
 typedef struct ec_method_st EC_METHOD;
@@ -451,10 +446,7 @@ int EC_POINT_set_to_infinity(const EC_GROUP *group, EC_POINT *point);
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_set_Jprojective_coordinates_GFp(const EC_GROUP *group,
-                                             EC_POINT *p, const BIGNUM *x,
-                                             const BIGNUM *y, const BIGNUM *z,
-                                             BN_CTX *ctx);
+int EC_POINT_set_Jprojective_coordinates_GFp(const EC_GROUP *group, EC_POINT *p, const BIGNUM *x, const BIGNUM *y, const BIGNUM *z, BN_CTX *ctx);
 
 /** Gets the jacobian projective coordinates of a EC_POINT over GFp
  *  \param  group  underlying EC_GROUP object
@@ -465,10 +457,7 @@ int EC_POINT_set_Jprojective_coordinates_GFp(const EC_GROUP *group,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_get_Jprojective_coordinates_GFp(const EC_GROUP *group,
-                                             const EC_POINT *p, BIGNUM *x,
-                                             BIGNUM *y, BIGNUM *z,
-                                             BN_CTX *ctx);
+int EC_POINT_get_Jprojective_coordinates_GFp(const EC_GROUP *group, const EC_POINT *p, BIGNUM *x, BIGNUM *y, BIGNUM *z, BN_CTX *ctx);
 
 /** Sets the affine coordinates of a EC_POINT over GFp
  *  \param  group  underlying EC_GROUP object
@@ -478,9 +467,7 @@ int EC_POINT_get_Jprojective_coordinates_GFp(const EC_GROUP *group,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_set_affine_coordinates_GFp(const EC_GROUP *group, EC_POINT *p,
-                                        const BIGNUM *x, const BIGNUM *y,
-                                        BN_CTX *ctx);
+int EC_POINT_set_affine_coordinates_GFp(const EC_GROUP *group, EC_POINT *p, const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
 
 /** Gets the affine coordinates of a EC_POINT over GFp
  *  \param  group  underlying EC_GROUP object
@@ -490,9 +477,7 @@ int EC_POINT_set_affine_coordinates_GFp(const EC_GROUP *group, EC_POINT *p,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_get_affine_coordinates_GFp(const EC_GROUP *group,
-                                        const EC_POINT *p, BIGNUM *x,
-                                        BIGNUM *y, BN_CTX *ctx);
+int EC_POINT_get_affine_coordinates_GFp(const EC_GROUP *group, const EC_POINT *p, BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
 
 /** Sets the x9.62 compressed coordinates of a EC_POINT over GFp
  *  \param  group  underlying EC_GROUP object
@@ -502,9 +487,7 @@ int EC_POINT_get_affine_coordinates_GFp(const EC_GROUP *group,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_set_compressed_coordinates_GFp(const EC_GROUP *group,
-                                            EC_POINT *p, const BIGNUM *x,
-                                            int y_bit, BN_CTX *ctx);
+int EC_POINT_set_compressed_coordinates_GFp(const EC_GROUP *group, EC_POINT *p, const BIGNUM *x, int y_bit, BN_CTX *ctx);
 # ifndef OPENSSL_NO_EC2M
 /** Sets the affine coordinates of a EC_POINT over GF2m
  *  \param  group  underlying EC_GROUP object
@@ -514,9 +497,7 @@ int EC_POINT_set_compressed_coordinates_GFp(const EC_GROUP *group,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_set_affine_coordinates_GF2m(const EC_GROUP *group, EC_POINT *p,
-                                         const BIGNUM *x, const BIGNUM *y,
-                                         BN_CTX *ctx);
+int EC_POINT_set_affine_coordinates_GF2m(const EC_GROUP *group, EC_POINT *p, const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
 
 /** Gets the affine coordinates of a EC_POINT over GF2m
  *  \param  group  underlying EC_GROUP object
@@ -526,9 +507,7 @@ int EC_POINT_set_affine_coordinates_GF2m(const EC_GROUP *group, EC_POINT *p,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_get_affine_coordinates_GF2m(const EC_GROUP *group,
-                                         const EC_POINT *p, BIGNUM *x,
-                                         BIGNUM *y, BN_CTX *ctx);
+int EC_POINT_get_affine_coordinates_GF2m(const EC_GROUP *group, const EC_POINT *p, BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
 
 /** Sets the x9.62 compressed coordinates of a EC_POINT over GF2m
  *  \param  group  underlying EC_GROUP object
@@ -538,10 +517,29 @@ int EC_POINT_get_affine_coordinates_GF2m(const EC_GROUP *group,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_set_compressed_coordinates_GF2m(const EC_GROUP *group,
-                                             EC_POINT *p, const BIGNUM *x,
-                                             int y_bit, BN_CTX *ctx);
-# endif
+int EC_POINT_set_compressed_coordinates_GF2m(const EC_GROUP *group, EC_POINT *p, const BIGNUM *x, int y_bit, BN_CTX *ctx);
+#endif
+// @sobolev @v10.6.3 {
+/** Sets the affine coordinates of an EC_POINT
+ *  \param  group  underlying EC_GROUP object
+ *  \param  p      EC_POINT object
+ *  \param  x      BIGNUM with the x-coordinate
+ *  \param  y      BIGNUM with the y-coordinate
+ *  \param  ctx    BN_CTX object (optional)
+ *  \return 1 on success and 0 if an error occurred
+ */
+int EC_POINT_set_affine_coordinates(const EC_GROUP *group, EC_POINT *p, const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
+/** Gets the affine coordinates of an EC_POINT.
+ *  \param  group  underlying EC_GROUP object
+ *  \param  p      EC_POINT object
+ *  \param  x      BIGNUM for the x-coordinate
+ *  \param  y      BIGNUM for the y-coordinate
+ *  \param  ctx    BN_CTX object (optional)
+ *  \return 1 on success and 0 if an error occurred
+ */
+int EC_POINT_get_affine_coordinates(const EC_GROUP *group, const EC_POINT *p, BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
+// } @sobolev @v10.6.3
+
 /** Encodes a EC_POINT object to a octet string
  *  \param  group  underlying EC_GROUP object
  *  \param  p      EC_POINT object
@@ -552,9 +550,7 @@ int EC_POINT_set_compressed_coordinates_GF2m(const EC_GROUP *group,
  *  \param  ctx    BN_CTX object (optional)
  *  \return the length of the encoded octet string or 0 if an error occurred
  */
-size_t EC_POINT_point2oct(const EC_GROUP *group, const EC_POINT *p,
-                          point_conversion_form_t form,
-                          uchar *buf, size_t len, BN_CTX *ctx);
+size_t EC_POINT_point2oct(const EC_GROUP *group, const EC_POINT *p, point_conversion_form_t form, uchar *buf, size_t len, BN_CTX *ctx);
 
 /** Decodes a EC_POINT from a octet string
  *  \param  group  underlying EC_GROUP object
@@ -1476,6 +1472,8 @@ int ERR_load_EC_strings(void);
 #define EC_F_EC_POINT_GET_AFFINE_COORDINATES_GF2M        183
 #define EC_F_EC_POINT_GET_AFFINE_COORDINATES_GFP         116
 #define EC_F_EC_POINT_GET_JPROJECTIVE_COORDINATES_GFP    117
+#define EC_F_EC_POINT_GET_AFFINE_COORDINATES             118 // @sobolev @v10.6.3 @attention i don't know exact number value for this macro
+#define EC_F_EC_POINT_SET_AFFINE_COORDINATES             119 // @sobolev @v10.6.3 @attention i don't know exact number value for this macro
 #define EC_F_EC_POINT_INVERT                             210
 #define EC_F_EC_POINT_IS_AT_INFINITY                     118
 #define EC_F_EC_POINT_IS_ON_CURVE                        119

@@ -217,7 +217,7 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 	PPObjInternetAccount mac_obj;
 	PPInternetAccount mac_rec;
 	if(mail_acc_id == 0) {
-		PPAlbatrosConfig cfg;
+		PPAlbatrossConfig cfg;
 		THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
 		mail_acc_id = cfg.Hdr.MailAccID;
 	}
@@ -299,7 +299,7 @@ int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long fi
 	PPWait(1);
 	PPGetPath(PPPATH_TEMP, temp_path);
 	if(mail_acc_id == 0) {
-		PPAlbatrosConfig cfg;
+		PPAlbatrossConfig cfg;
 		THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
 		mail_acc_id = cfg.Hdr.MailAccID;
 	}
@@ -469,7 +469,7 @@ int SLAPI PutFilesToEmail(const StringSet * pFileList, PPID mailAccID, const cha
 	msg_counter.Init(1);
 	PPWait(1);
 	if(mail_acc_id == 0) {
-		PPAlbatrosConfig cfg;
+		PPAlbatrossConfig cfg;
 		THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
 		mail_acc_id = cfg.Hdr.MailAccID;
 	}
@@ -541,7 +541,7 @@ int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const ch
 	PPInternetAccount mac_rec;
 	{
 		if(mail_acc_id == 0) {
-			PPAlbatrosConfig cfg;
+			PPAlbatrossConfig cfg;
 			THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
 			mail_acc_id = cfg.Hdr.MailAccID;
 		}

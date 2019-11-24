@@ -171,8 +171,7 @@ static int ssl_cipher_info_find(const ssl_cipher_table * table, size_t table_cnt
 #define ssl_cipher_info_lookup(table, x) ssl_cipher_info_find(table, OSSL_NELEM(table), x)
 /*
  * PKEY_TYPE for GOST89MAC is known in advance, but, because implementation
- * is engine-provided, we'll fill it only if corresponding EVP_PKEY_METHOD is
- * found
+ * is engine-provided, we'll fill it only if corresponding EVP_PKEY_METHOD is found
  */
 static int ssl_mac_pkey_id[SSL_MD_NUM_IDX] = {
 	/* MD5, SHA, GOST94, MAC89 */
@@ -416,6 +415,7 @@ void ssl_load_ciphers(void)
 	 * Check for presence of GOST 34.10 algorithms, and if they are not
 	 * present, disable appropriate auth and key exchange
 	 */
+	// /* @sobolev @v10.6.2
 	ssl_mac_pkey_id[SSL_MD_GOST89MAC_IDX] = get_optional_pkey_id("gost-mac");
 	if(ssl_mac_pkey_id[SSL_MD_GOST89MAC_IDX])
 		ssl_mac_secret_size[SSL_MD_GOST89MAC_IDX] = 32;
@@ -426,14 +426,13 @@ void ssl_load_ciphers(void)
 		ssl_mac_secret_size[SSL_MD_GOST89MAC12_IDX] = 32;
 	else
 		disabled_mac_mask |= SSL_GOST89MAC12;
-	/* @sobolev @v10.6.2
 	if(!get_optional_pkey_id("gost2001"))
 		disabled_auth_mask |= (SSL_aGOST01 | SSL_aGOST12);
 	if(!get_optional_pkey_id("gost2012_256"))
 		disabled_auth_mask |= SSL_aGOST12;
 	if(!get_optional_pkey_id("gost2012_512"))
 		disabled_auth_mask |= SSL_aGOST12;
-	*/
+	// @sobolev */
 	/*
 	 * Disable GOST key exchange if no GOST signature algs are available *
 	 */
@@ -501,7 +500,7 @@ int ssl_cipher_get_evp(const SSL_SESSION * s, const EVP_CIPHER ** enc, const EVP
 				*comp = NULL;
 		}
 		/* If were only interested in comp then return success */
-		if((enc == NULL) && (md == NULL))
+		if(!enc && !md)
 			return 1;
 	}
 	if((enc == NULL) || (md == NULL))
@@ -509,9 +508,8 @@ int ssl_cipher_get_evp(const SSL_SESSION * s, const EVP_CIPHER ** enc, const EVP
 	i = ssl_cipher_info_lookup(ssl_cipher_table_cipher, c->algorithm_enc);
 	if(i == -1)
 		*enc = NULL;
-	else {
+	else
 		*enc = (i == SSL_ENC_NULL_IDX) ? EVP_enc_null() : ssl_cipher_methods[i];
-	}
 	i = ssl_cipher_info_lookup(ssl_cipher_table_mac, c->algorithm_mac);
 	if(i == -1) {
 		*md = NULL;
@@ -529,8 +527,7 @@ int ssl_cipher_get_evp(const SSL_SESSION * s, const EVP_CIPHER ** enc, const EVP
 		const EVP_CIPHER * evp;
 		if(use_etm)
 			return 1;
-		if(s->ssl_version >> 8 != TLS1_VERSION_MAJOR ||
-		    s->ssl_version < TLS1_VERSION)
+		if(s->ssl_version >> 8 != TLS1_VERSION_MAJOR || s->ssl_version < TLS1_VERSION)
 			return 1;
 		if(FIPS_mode())
 			return 1;
@@ -656,8 +653,6 @@ static void ssl_cipher_collect_ciphers(const SSL_METHOD * ssl_method, int num_of
 static void ssl_cipher_collect_aliases(const SSL_CIPHER ** ca_list, int num_of_group_aliases, uint32_t disabled_mkey,
     uint32_t disabled_auth, uint32_t disabled_enc, uint32_t disabled_mac, CIPHER_ORDER * head)
 {
-	CIPHER_ORDER * ciph_curr;
-	const SSL_CIPHER ** ca_curr;
 	int i;
 	uint32_t mask_mkey = ~disabled_mkey;
 	uint32_t mask_auth = ~disabled_auth;
@@ -666,8 +661,8 @@ static void ssl_cipher_collect_aliases(const SSL_CIPHER ** ca_list, int num_of_g
 	/*
 	 * First, add the real ciphers as already collected
 	 */
-	ciph_curr = head;
-	ca_curr = ca_list;
+	CIPHER_ORDER * ciph_curr = head;
+	const SSL_CIPHER ** ca_curr = ca_list;
 	while(ciph_curr != NULL) {
 		*ca_curr = ciph_curr->cipher;
 		ca_curr++;
@@ -702,12 +697,8 @@ static void ssl_cipher_collect_aliases(const SSL_CIPHER ** ca_list, int num_of_g
 	*ca_curr = NULL;        /* end of list */
 }
 
-static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
-    uint32_t alg_auth, uint32_t alg_enc,
-    uint32_t alg_mac, int min_tls,
-    uint32_t algo_strength, int rule,
-    int32_t strength_bits, CIPHER_ORDER ** head_p,
-    CIPHER_ORDER ** tail_p)
+static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey, uint32_t alg_auth, uint32_t alg_enc, uint32_t alg_mac, int min_tls,
+    uint32_t algo_strength, int rule, int32_t strength_bits, CIPHER_ORDER ** head_p, CIPHER_ORDER ** tail_p)
 {
 	CIPHER_ORDER * head, * tail, * curr, * next, * last;
 	const SSL_CIPHER * cp;
@@ -771,7 +762,6 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 #ifdef CIPHER_DEBUG
 		fprintf(stderr, "Action = %d\n", rule);
 #endif
-
 		/* add the cipher if it has not been added yet. */
 		if(rule == CIPHER_ADD) {
 			/* reverse == 0 */
@@ -820,7 +810,6 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 			curr->prev = NULL;
 		}
 	}
-
 	*head_p = head;
 	*tail_p = tail;
 }
@@ -862,9 +851,7 @@ static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p, CIPHER_ORDER ** tail
 	 */
 	for(i = max_strength_bits; i >= 0; i--)
 		if(number_uses[i] > 0)
-			ssl_cipher_apply_rule(0, 0, 0, 0, 0, 0, 0, CIPHER_ORD, i, head_p,
-			    tail_p);
-
+			ssl_cipher_apply_rule(0, 0, 0, 0, 0, 0, 0, CIPHER_ORD, i, head_p, tail_p);
 	OPENSSL_free(number_uses);
 	return 1;
 }
@@ -965,18 +952,15 @@ static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** hea
 			j = found = 0;
 			cipher_id = 0;
 			while(ca_list[j]) {
-				if(strncmp(buf, ca_list[j]->name, buflen) == 0
-				    && (ca_list[j]->name[buflen] == '\0')) {
+				if(strncmp(buf, ca_list[j]->name, buflen) == 0 && (ca_list[j]->name[buflen] == '\0')) {
 					found = 1;
 					break;
 				}
 				else
 					j++;
 			}
-
 			if(!found)
 				break;  /* ignore this entry */
-
 			if(ca_list[j]->algorithm_mkey) {
 				if(alg_mkey) {
 					alg_mkey &= ca_list[j]->algorithm_mkey;
@@ -1042,16 +1026,13 @@ static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** hea
 					}
 				}
 				else
-					algo_strength |=
-					    ca_list[j]->algo_strength & SSL_DEFAULT_MASK;
+					algo_strength |= ca_list[j]->algo_strength & SSL_DEFAULT_MASK;
 			}
-
 			if(ca_list[j]->valid) {
 				/*
 				 * explicit ciphersuite found; its protocol version does not
 				 * become part of the search pattern!
 				 */
-
 				cipher_id = ca_list[j]->id;
 			}
 			else {
@@ -1059,7 +1040,6 @@ static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** hea
 				 * not an explicit ciphersuite; only in this case, the
 				 * protocol version is considered part of the search pattern
 				 */
-
 				if(ca_list[j]->min_tls) {
 					if(min_tls != 0 && min_tls != ca_list[j]->min_tls) {
 						found = 0;
@@ -1348,7 +1328,6 @@ STACK_OF(SSL_CIPHER) * ssl_create_cipher_list(const SSL_METHOD *ssl_method, STAC
 		}
 	}
 	OPENSSL_free(co_list);  /* Not needed any longer */
-
 	tmp_cipher_list = sk_SSL_CIPHER_dup(cipherstack);
 	if(tmp_cipher_list == NULL) {
 		sk_SSL_CIPHER_free(cipherstack);
@@ -1360,7 +1339,6 @@ STACK_OF(SSL_CIPHER) * ssl_create_cipher_list(const SSL_METHOD *ssl_method, STAC
 		sk_SSL_CIPHER_free(*cipher_list_by_id);
 	*cipher_list_by_id = tmp_cipher_list;
 	(void)sk_SSL_CIPHER_set_cmp_func(*cipher_list_by_id, ssl_cipher_ptr_id_cmp);
-
 	sk_SSL_CIPHER_sort(*cipher_list_by_id);
 	return (cipherstack);
 }
@@ -1485,17 +1463,17 @@ uint32_t SSL_CIPHER_get_id(const SSL_CIPHER * c)
 
 SSL_COMP * ssl3_comp_find(STACK_OF(SSL_COMP) * sk, int n)
 {
-	SSL_COMP * ctmp;
-	int i, nn;
 	if((n == 0) || (sk == NULL))
 		return NULL;
-	nn = sk_SSL_COMP_num(sk);
-	for(i = 0; i < nn; i++) {
-		ctmp = sk_SSL_COMP_value(sk, i);
-		if(ctmp->id == n)
-			return (ctmp);
+	else {
+		int nn = sk_SSL_COMP_num(sk);
+		for(int i = 0; i < nn; i++) {
+			SSL_COMP * ctmp = sk_SSL_COMP_value(sk, i);
+			if(ctmp->id == n)
+				return (ctmp);
+		}
+		return NULL;
 	}
-	return NULL;
 }
 
 #ifdef OPENSSL_NO_COMP

@@ -30,30 +30,29 @@
  * doesn't exist elsewhere, but it even can't be compiled on other platforms!
  */
 
-#  undef COMPILE_HW_PADLOCK
-#  if !defined(I386_ONLY) && defined(PADLOCK_ASM)
-#   define COMPILE_HW_PADLOCK
-#   ifdef OPENSSL_NO_DYNAMIC_ENGINE
-static ENGINE * ENGINE_padlock(void);
-#   endif
-#  endif
+#undef COMPILE_HW_PADLOCK
+#if !defined(I386_ONLY) && defined(PADLOCK_ASM)
+	#define COMPILE_HW_PADLOCK
+	#ifdef OPENSSL_NO_DYNAMIC_ENGINE
+		static ENGINE * ENGINE_padlock(void);
+	#endif
+#endif
 
-#  ifdef OPENSSL_NO_DYNAMIC_ENGINE
+#ifdef OPENSSL_NO_DYNAMIC_ENGINE
 void engine_load_padlock_int(void);
 void engine_load_padlock_int(void)
 {
 /* On non-x86 CPUs it just returns. */
-#   ifdef COMPILE_HW_PADLOCK
+#ifdef COMPILE_HW_PADLOCK
 	ENGINE * toadd = ENGINE_padlock();
 	if(!toadd)
 		return;
 	ENGINE_add(toadd);
 	ENGINE_free(toadd);
 	ERR_clear_error();
-#   endif
+#endif
 }
-
-#  endif
+#endif
 
 #  ifdef COMPILE_HW_PADLOCK
 

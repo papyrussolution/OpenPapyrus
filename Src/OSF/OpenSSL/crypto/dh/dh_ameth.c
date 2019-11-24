@@ -338,7 +338,7 @@ static int int_dh_param_copy(DH * to, const DH * from, int is_x942)
 DH * DHparams_dup(DH * dh)
 {
 	DH * ret = DH_new();
-	if(!ret)
+	if(ret)
 		return NULL;
 	else if(!int_dh_param_copy(ret, dh, -1)) {
 		DH_free(ret);

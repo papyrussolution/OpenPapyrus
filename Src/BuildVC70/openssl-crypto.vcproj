@@ -27,7 +27,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;&quot;..\OSF\OpenSSL-Supplement\include&quot;"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -103,7 +103,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;&quot;..\OSF\OpenSSL-Supplement\include&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -176,7 +176,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;&quot;..\OSF\OpenSSL-Supplement\include&quot;"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -252,7 +252,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;&quot;..\OSF\OpenSSL-Supplement\include&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -325,7 +325,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;&quot;..\OSF\OpenSSL-Supplement\include&quot;"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -401,7 +401,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;&quot;..\OSF\OpenSSL-Supplement\include&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -2303,6 +2303,82 @@
 			<File
 				RelativePath="..\OSF\OpenSSL\crypto\modes\xts128.c">
 			</File>
+			<Filter
+				Name="GOST"
+				Filter="">
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\e_gost_err.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost89.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_ameth.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_asn1.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_crypt.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_ctl.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_ec_keyx.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_ec_sign.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_eng.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_grasshopper_cipher.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_grasshopper_core.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_grasshopper_defines.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_grasshopper_galois_precompiled.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_grasshopper_precompiled.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_keyexpimp.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_keywrap.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_md.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_md2012.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_omac.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_omac_acpkm.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_params.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gost_pmeth.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gosthash.c">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\crypto\gost\gosthash2012.c">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -2412,6 +2488,58 @@
 			<File
 				RelativePath="..\Osf\OpenSSL\include\openssl\x509v3.h">
 			</File>
+			<Filter
+				Name="GOST"
+				Filter="">
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\e_gost_err.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost89.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_cipher.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_core.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_defines.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_math.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_precompiled.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_keywrap.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_lcl.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012_const.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012_precalc.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012_ref.h">
+				</File>
+				<File
+					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012_sse2.h">
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

@@ -1250,7 +1250,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 // @vmiller
 int SLAPI PPViewTSession::SendAutoSms()
 {
-	PPAlbatrosConfig albtr_cfg;
+	PPAlbatrossConfig albtr_cfg;
 	SString msg;
  	PPLogger logger;
  	StrAssocArray psn_list;

@@ -38,7 +38,7 @@ enum SrvCmd {
 
 static int TranslateCmd(int cmd, SString & rCmdBuf)
 {
-	struct SrvCmdName {
+	/*struct SrvCmdName {
 		SrvCmd Cmd;
 		const char * P_CmdText;
 	} SrvCmdList[] = {
@@ -52,20 +52,20 @@ static int TranslateCmd(int cmd, SString & rCmdBuf)
 		{srvcmdDemon,     "daemon"},
 		{srvcmdRFIDPrcssr, "rfidprcssr"},
 		{srvcmdHelp,      "/?"}
+	};*/
+	static const SIntToSymbTabEntry SrvCmdList[] = {
+		{ srvcmdRun,        "service"      },
+		{ srvcmdClient,     "client"       },
+		{ srvcmdInstall,    "install"      },
+		{ srvcmdUninstall,  "uninstall"    },
+		{ srvcmdStart,      "servicestart" },
+		{ srvcmdStop,       "servicestop"  },
+		{ srvcmdDemon,      "demon"        },
+		{ srvcmdDemon,      "daemon"       },
+		{ srvcmdRFIDPrcssr, "rfidprcssr"   },
+		{ srvcmdHelp,       "/?"           }
 	};
-	if(cmd) {
-		for(uint i = 0; i < SIZEOFARRAY(SrvCmdList); i++)
-			if(cmd == (int)SrvCmdList[i].Cmd) {
-				rCmdBuf = SrvCmdList[i].P_CmdText;
-				return 1;
-			}
-	}
-	else {
-		for(uint i = 0; i < SIZEOFARRAY(SrvCmdList); i++)
-			if(rCmdBuf.CmpNC(SrvCmdList[i].P_CmdText) == 0)
-				return (int)SrvCmdList[i].Cmd;
-	}
-	return 0;
+	return cmd ? SIntToSymbTab_GetSymb(SrvCmdList, SIZEOFARRAY(SrvCmdList), cmd, rCmdBuf) : SIntToSymbTab_GetId(SrvCmdList, SIZEOFARRAY(SrvCmdList), rCmdBuf);
 }
 
 static SString & FormatCmdHelp(SrvCmd cmd, SString & rBuf, int addTabs)
@@ -83,7 +83,7 @@ static void OutHelp(const char * pInvCmd)
 	SString line_buf;
 	if(pInvCmd)
 		printf("Invalid command '%s'\n", pInvCmd);
-	printf("Papyrus JobServer. Copyright (c) A.Sobolev 2005-2016\n");
+	printf("Papyrus JobServer. Copyright (c) A.Sobolev 2005-2019\n");
 	printf("Usage:\n");
 	printf(FormatCmdHelp(srvcmdInstall,   line_buf, 0).
 		Cat("[login_name] [login_password]\tservice installation").CR());

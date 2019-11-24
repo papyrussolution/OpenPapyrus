@@ -802,7 +802,7 @@ int LZAri::GetFileInfo(int compress)
 			P_Header->FileCreatDateTime = fs.CrtTime;
 			P_Header->FileLAccDateTime  = fs.AccsTime;
 			P_Header->FileLModDateTime  = fs.ModTime;
-			P_Header->CRC               = (long) crc;
+			P_Header->CRC               = (long)crc;
 			P_Header->Signature         = LZARI_SIGNATURE;
 			filename.CopyTo(P_Header->FileName, sizeof(P_Header->FileName));
 		}

@@ -90,15 +90,9 @@ static const struct {
 	uint8_t ord;
 	int nid;
 } dane_mds[] = {
-	{
-		DANETLS_MATCHING_FULL, 0, NID_undef
-	},
-	{
-		DANETLS_MATCHING_2256, 1, NID_sha256
-	},
-	{
-		DANETLS_MATCHING_2512, 2, NID_sha512
-	},
+	{ DANETLS_MATCHING_FULL, 0, NID_undef },
+	{ DANETLS_MATCHING_2256, 1, NID_sha256 },
+	{ DANETLS_MATCHING_2512, 2, NID_sha512 },
 };
 
 static int dane_ctx_enable(struct dane_ctx_st * dctx)
@@ -118,22 +112,17 @@ static int dane_ctx_enable(struct dane_ctx_st * dctx)
 		SSLerr(SSL_F_DANE_CTX_ENABLE, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
-
 	/* Install default entries */
 	for(i = 0; i < OSSL_NELEM(dane_mds); ++i) {
 		const EVP_MD * md;
-
-		if(dane_mds[i].nid == NID_undef ||
-		    (md = EVP_get_digestbynid(dane_mds[i].nid)) == NULL)
+		if(dane_mds[i].nid == NID_undef || (md = EVP_get_digestbynid(dane_mds[i].nid)) == NULL)
 			continue;
 		mdevp[dane_mds[i].mtype] = md;
 		mdord[dane_mds[i].mtype] = dane_mds[i].ord;
 	}
-
 	dctx->mdevp = mdevp;
 	dctx->mdord = mdord;
 	dctx->mdmax = mdmax;
-
 	return 1;
 }
 
@@ -159,17 +148,14 @@ static void dane_final(SSL_DANE * dane)
 {
 	sk_danetls_record_pop_free(dane->trecs, tlsa_free);
 	dane->trecs = NULL;
-
 	sk_X509_pop_free(dane->certs, X509_free);
 	dane->certs = NULL;
-
 	X509_free(dane->mcert);
 	dane->mcert = NULL;
 	dane->mtlsa = NULL;
 	dane->mdpth = -1;
 	dane->pdpth = -1;
 }
-
 /*
  * dane_copy - Copy dane configuration, sans verification state.
  */
@@ -1357,13 +1343,11 @@ int SSL_read(SSL * s, void * buf, int num)
 	}
 	if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
 		struct ssl_async_args args;
-
 		args.s = s;
 		args.buf = buf;
 		args.num = num;
 		args.type = ssl_async_args::READFUNC;
 		args.f.func_read = s->method->ssl_read;
-
 		return ssl_start_async_job(s, &args, ssl_io_intern);
 	}
 	else {
@@ -1377,19 +1361,16 @@ int SSL_peek(SSL * s, void * buf, int num)
 		SSLerr(SSL_F_SSL_PEEK, SSL_R_UNINITIALIZED);
 		return -1;
 	}
-
 	if(s->shutdown & SSL_RECEIVED_SHUTDOWN) {
 		return 0;
 	}
 	if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
 		struct ssl_async_args args;
-
 		args.s = s;
 		args.buf = buf;
 		args.num = num;
 		args.type = ssl_async_args::READFUNC;
 		args.f.func_read = s->method->ssl_peek;
-
 		return ssl_start_async_job(s, &args, ssl_io_intern);
 	}
 	else {
@@ -1430,7 +1411,6 @@ int SSL_shutdown(SSL * s)
 	 * calling it once is usually not enough, even if blocking I/O is used
 	 * (see ssl3_shutdown).
 	 */
-
 	if(s->handshake_func == NULL) {
 		SSLerr(SSL_F_SSL_SHUTDOWN, SSL_R_UNINITIALIZED);
 		return -1;
@@ -1480,23 +1460,17 @@ long SSL_ctrl(SSL * s, int cmd, long larg, void * parg)
 {
 	long l;
 	switch(cmd) {
-		case SSL_CTRL_GET_READ_AHEAD:
-		    return (RECORD_LAYER_get_read_ahead(&s->rlayer));
+		case SSL_CTRL_GET_READ_AHEAD: return (RECORD_LAYER_get_read_ahead(&s->rlayer));
 		case SSL_CTRL_SET_READ_AHEAD:
 		    l = RECORD_LAYER_get_read_ahead(&s->rlayer);
 		    RECORD_LAYER_set_read_ahead(&s->rlayer, larg);
 		    return (l);
-
 		case SSL_CTRL_SET_MSG_CALLBACK_ARG:
 		    s->msg_callback_arg = parg;
 		    return 1;
-
-		case SSL_CTRL_MODE:
-		    return (s->mode |= larg);
-		case SSL_CTRL_CLEAR_MODE:
-		    return (s->mode &= ~larg);
-		case SSL_CTRL_GET_MAX_CERT_LIST:
-		    return (s->max_cert_list);
+		case SSL_CTRL_MODE: return (s->mode |= larg);
+		case SSL_CTRL_CLEAR_MODE: return (s->mode &= ~larg);
+		case SSL_CTRL_GET_MAX_CERT_LIST: return (s->max_cert_list);
 		case SSL_CTRL_SET_MAX_CERT_LIST:
 		    l = s->max_cert_list;
 		    s->max_cert_list = larg;
@@ -1525,11 +1499,8 @@ long SSL_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    return s->s3->send_connection_binding;
 		    else
 			    return 0;
-		case SSL_CTRL_CERT_FLAGS:
-		    return (s->cert->cert_flags |= larg);
-		case SSL_CTRL_CLEAR_CERT_FLAGS:
-		    return (s->cert->cert_flags &= ~larg);
-
+		case SSL_CTRL_CERT_FLAGS: return (s->cert->cert_flags |= larg);
+		case SSL_CTRL_CLEAR_CERT_FLAGS: return (s->cert->cert_flags &= ~larg);
 		case SSL_CTRL_GET_RAW_CIPHERLIST:
 		    if(parg) {
 			    if(s->s3->tmp.ciphers_raw == NULL)
@@ -1547,14 +1518,9 @@ long SSL_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    return 1;
 		    else
 			    return 0;
-		case SSL_CTRL_SET_MIN_PROTO_VERSION:
-		    return ssl_set_version_bound(s->ctx->method->version, (int)larg,
-		    &s->min_proto_version);
-		case SSL_CTRL_SET_MAX_PROTO_VERSION:
-		    return ssl_set_version_bound(s->ctx->method->version, (int)larg,
-		    &s->max_proto_version);
-		default:
-		    return (s->method->ssl_ctrl(s, cmd, larg, parg));
+		case SSL_CTRL_SET_MIN_PROTO_VERSION: return ssl_set_version_bound(s->ctx->method->version, (int)larg, &s->min_proto_version);
+		case SSL_CTRL_SET_MAX_PROTO_VERSION: return ssl_set_version_bound(s->ctx->method->version, (int)larg, &s->max_proto_version);
+		default: return (s->method->ssl_ctrl(s, cmd, larg, parg));
 	}
 }
 
@@ -1585,77 +1551,51 @@ long SSL_CTX_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 	if(!ctx) {
 		switch(cmd) {
 #ifndef OPENSSL_NO_EC
-			case SSL_CTRL_SET_CURVES_LIST:
-			    return tls1_set_curves_list(NULL, NULL, (const char *)parg);
+			case SSL_CTRL_SET_CURVES_LIST: return tls1_set_curves_list(NULL, NULL, (const char *)parg);
 #endif
 			case SSL_CTRL_SET_SIGALGS_LIST:
-			case SSL_CTRL_SET_CLIENT_SIGALGS_LIST:
-			    return tls1_set_sigalgs_list(NULL, (const char *)parg, 0);
-			default:
-			    return 0;
+			case SSL_CTRL_SET_CLIENT_SIGALGS_LIST: return tls1_set_sigalgs_list(NULL, (const char *)parg, 0);
+			default: return 0;
 		}
 	}
-
 	switch(cmd) {
-		case SSL_CTRL_GET_READ_AHEAD:
-		    return (ctx->read_ahead);
+		case SSL_CTRL_GET_READ_AHEAD: return (ctx->read_ahead);
 		case SSL_CTRL_SET_READ_AHEAD:
 		    l = ctx->read_ahead;
 		    ctx->read_ahead = larg;
 		    return (l);
-
 		case SSL_CTRL_SET_MSG_CALLBACK_ARG:
 		    ctx->msg_callback_arg = parg;
 		    return 1;
-
-		case SSL_CTRL_GET_MAX_CERT_LIST:
-		    return (ctx->max_cert_list);
+		case SSL_CTRL_GET_MAX_CERT_LIST: return (ctx->max_cert_list);
 		case SSL_CTRL_SET_MAX_CERT_LIST:
 		    l = ctx->max_cert_list;
 		    ctx->max_cert_list = larg;
 		    return (l);
-
 		case SSL_CTRL_SET_SESS_CACHE_SIZE:
 		    l = ctx->session_cache_size;
 		    ctx->session_cache_size = larg;
 		    return (l);
-		case SSL_CTRL_GET_SESS_CACHE_SIZE:
-		    return (ctx->session_cache_size);
+		case SSL_CTRL_GET_SESS_CACHE_SIZE: return (ctx->session_cache_size);
 		case SSL_CTRL_SET_SESS_CACHE_MODE:
 		    l = ctx->session_cache_mode;
 		    ctx->session_cache_mode = larg;
 		    return (l);
-		case SSL_CTRL_GET_SESS_CACHE_MODE:
-		    return (ctx->session_cache_mode);
-
-		case SSL_CTRL_SESS_NUMBER:
-		    return (lh_SSL_SESSION_num_items(ctx->sessions));
-		case SSL_CTRL_SESS_CONNECT:
-		    return (ctx->stats.sess_connect);
-		case SSL_CTRL_SESS_CONNECT_GOOD:
-		    return (ctx->stats.sess_connect_good);
-		case SSL_CTRL_SESS_CONNECT_RENEGOTIATE:
-		    return (ctx->stats.sess_connect_renegotiate);
-		case SSL_CTRL_SESS_ACCEPT:
-		    return (ctx->stats.sess_accept);
-		case SSL_CTRL_SESS_ACCEPT_GOOD:
-		    return (ctx->stats.sess_accept_good);
-		case SSL_CTRL_SESS_ACCEPT_RENEGOTIATE:
-		    return (ctx->stats.sess_accept_renegotiate);
-		case SSL_CTRL_SESS_HIT:
-		    return (ctx->stats.sess_hit);
-		case SSL_CTRL_SESS_CB_HIT:
-		    return (ctx->stats.sess_cb_hit);
-		case SSL_CTRL_SESS_MISSES:
-		    return (ctx->stats.sess_miss);
-		case SSL_CTRL_SESS_TIMEOUTS:
-		    return (ctx->stats.sess_timeout);
-		case SSL_CTRL_SESS_CACHE_FULL:
-		    return (ctx->stats.sess_cache_full);
-		case SSL_CTRL_MODE:
-		    return (ctx->mode |= larg);
-		case SSL_CTRL_CLEAR_MODE:
-		    return (ctx->mode &= ~larg);
+		case SSL_CTRL_GET_SESS_CACHE_MODE: return (ctx->session_cache_mode);
+		case SSL_CTRL_SESS_NUMBER: return (lh_SSL_SESSION_num_items(ctx->sessions));
+		case SSL_CTRL_SESS_CONNECT: return (ctx->stats.sess_connect);
+		case SSL_CTRL_SESS_CONNECT_GOOD: return (ctx->stats.sess_connect_good);
+		case SSL_CTRL_SESS_CONNECT_RENEGOTIATE: return (ctx->stats.sess_connect_renegotiate);
+		case SSL_CTRL_SESS_ACCEPT: return (ctx->stats.sess_accept);
+		case SSL_CTRL_SESS_ACCEPT_GOOD: return (ctx->stats.sess_accept_good);
+		case SSL_CTRL_SESS_ACCEPT_RENEGOTIATE: return (ctx->stats.sess_accept_renegotiate);
+		case SSL_CTRL_SESS_HIT: return (ctx->stats.sess_hit);
+		case SSL_CTRL_SESS_CB_HIT: return (ctx->stats.sess_cb_hit);
+		case SSL_CTRL_SESS_MISSES: return (ctx->stats.sess_miss);
+		case SSL_CTRL_SESS_TIMEOUTS: return (ctx->stats.sess_timeout);
+		case SSL_CTRL_SESS_CACHE_FULL: return (ctx->stats.sess_cache_full);
+		case SSL_CTRL_MODE: return (ctx->mode |= larg);
+		case SSL_CTRL_CLEAR_MODE: return (ctx->mode &= ~larg);
 		case SSL_CTRL_SET_MAX_SEND_FRAGMENT:
 		    if(larg < 512 || larg > SSL3_RT_MAX_PLAIN_LENGTH)
 			    return 0;
@@ -1673,18 +1613,11 @@ long SSL_CTX_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    return 0;
 		    ctx->max_pipelines = larg;
 		    return 1;
-		case SSL_CTRL_CERT_FLAGS:
-		    return (ctx->cert->cert_flags |= larg);
-		case SSL_CTRL_CLEAR_CERT_FLAGS:
-		    return (ctx->cert->cert_flags &= ~larg);
-		case SSL_CTRL_SET_MIN_PROTO_VERSION:
-		    return ssl_set_version_bound(ctx->method->version, (int)larg,
-		    &ctx->min_proto_version);
-		case SSL_CTRL_SET_MAX_PROTO_VERSION:
-		    return ssl_set_version_bound(ctx->method->version, (int)larg,
-		    &ctx->max_proto_version);
-		default:
-		    return (ctx->method->ssl_ctx_ctrl(ctx, cmd, larg, parg));
+		case SSL_CTRL_CERT_FLAGS: return (ctx->cert->cert_flags |= larg);
+		case SSL_CTRL_CLEAR_CERT_FLAGS: return (ctx->cert->cert_flags &= ~larg);
+		case SSL_CTRL_SET_MIN_PROTO_VERSION: return ssl_set_version_bound(ctx->method->version, (int)larg, &ctx->min_proto_version);
+		case SSL_CTRL_SET_MAX_PROTO_VERSION: return ssl_set_version_bound(ctx->method->version, (int)larg, &ctx->max_proto_version);
+		default: return (ctx->method->ssl_ctx_ctrl(ctx, cmd, larg, parg));
 	}
 }
 
@@ -1692,12 +1625,8 @@ long SSL_CTX_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
 {
 	switch(cmd) {
 		case SSL_CTRL_SET_MSG_CALLBACK:
-		    ctx->msg_callback = (void (*)
-		    (int write_p, int version, int content_type,
-			    const void * buf, size_t len, SSL *ssl,
-			    void * arg))(fp);
+		    ctx->msg_callback = (void (*) (int write_p, int version, int content_type, const void * buf, size_t len, SSL *ssl, void * arg))(fp);
 		    return 1;
-
 		default:
 		    return (ctx->method->ssl_ctx_callback_ctrl(ctx, cmd, fp));
 	}
@@ -1712,8 +1641,7 @@ int ssl_cipher_id_cmp(const SSL_CIPHER * a, const SSL_CIPHER * b)
 	return 0;
 }
 
-int ssl_cipher_ptr_id_cmp(const SSL_CIPHER * const * ap,
-    const SSL_CIPHER * const * bp)
+int ssl_cipher_ptr_id_cmp(const SSL_CIPHER * const * ap, const SSL_CIPHER * const * bp)
 {
 	if((*ap)->id > (*bp)->id)
 		return 1;
@@ -1721,16 +1649,16 @@ int ssl_cipher_ptr_id_cmp(const SSL_CIPHER * const * ap,
 		return -1;
 	return 0;
 }
-
-/** return a STACK of the ciphers available for the SSL and in order of
- * preference */
+//
+// return a STACK of the ciphers available for the SSL and in order of preference 
+//
 STACK_OF(SSL_CIPHER) *SSL_get_ciphers(const SSL *s)
 {
-	if(s != NULL) {
-		if(s->cipher_list != NULL) {
+	if(s) {
+		if(s->cipher_list) {
 			return (s->cipher_list);
 		}
-		else if((s->ctx != NULL) && (s->ctx->cipher_list != NULL)) {
+		else if(s->ctx && s->ctx->cipher_list) {
 			return (s->ctx->cipher_list);
 		}
 	}
@@ -1791,12 +1719,10 @@ const char * SSL_get_cipher_list(const SSL * s, int n)
 	if(s == NULL)
 		return NULL;
 	sk = SSL_get_ciphers(s);
-	if((sk == NULL) || (sk_SSL_CIPHER_num(sk) <= n))
+	if(!sk || (sk_SSL_CIPHER_num(sk) <= n))
 		return NULL;
 	c = sk_SSL_CIPHER_value(sk, n);
-	if(c == NULL)
-		return NULL;
-	return (c->name);
+	return c ? (c->name) : NULL;
 }
 
 /** return a STACK of the ciphers available for the SSL_CTX and in order of
@@ -2669,19 +2595,13 @@ int SSL_get_error(const SSL * s, int i)
 					return (SSL_ERROR_SYSCALL);  /* unknown */
 			}
 		}
-
 		if(SSL_want_write(s)) {
-			/*
-			 * Access wbio directly - in order to use the buffered bio if
-			 * present
-			 */
+			// Access wbio directly - in order to use the buffered bio if present
 			bio = s->wbio;
 			if(BIO_should_write(bio))
 				return (SSL_ERROR_WANT_WRITE);
 			else if(BIO_should_read(bio))
-				/*
-				 * See above (SSL_want_read(s) with BIO_should_write(bio))
-				 */
+				// See above (SSL_want_read(s) with BIO_should_write(bio))
 				return (SSL_ERROR_WANT_READ);
 			else if(BIO_should_io_special(bio)) {
 				reason = BIO_get_retry_reason(bio);
@@ -2712,7 +2632,7 @@ int SSL_get_error(const SSL * s, int i)
 
 static int ssl_do_handshake_intern(void * vargs)
 {
-	struct ssl_async_args * args = (struct ssl_async_args*)vargs;
+	struct ssl_async_args * args = static_cast<struct ssl_async_args *>(vargs);
 	SSL * s = args->s;
 	return s->handshake_func(s);
 }
@@ -2722,17 +2642,18 @@ int SSL_do_handshake(SSL * s)
 	int ret = 1;
 	if(s->handshake_func == NULL) {
 		SSLerr(SSL_F_SSL_DO_HANDSHAKE, SSL_R_CONNECTION_TYPE_NOT_SET);
-		return -1;
+		ret = -1;
 	}
-	s->method->ssl_renegotiate_check(s);
-	if(SSL_in_init(s) || SSL_in_before(s)) {
-		if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
-			struct ssl_async_args args;
-			args.s = s;
-			ret = ssl_start_async_job(s, &args, ssl_do_handshake_intern);
-		}
-		else {
-			ret = s->handshake_func(s);
+	else {
+		s->method->ssl_renegotiate_check(s);
+		if(SSL_in_init(s) || SSL_in_before(s)) {
+			if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
+				struct ssl_async_args args;
+				args.s = s;
+				ret = ssl_start_async_job(s, &args, ssl_do_handshake_intern);
+			}
+			else
+				ret = s->handshake_func(s);
 		}
 	}
 	return ret;
@@ -3335,14 +3256,12 @@ void SSL_set_not_resumable_session_callback(SSL * ssl, int (* cb)(SSL * ssl, int
 {
 	SSL_callback_ctrl(ssl, SSL_CTRL_SET_NOT_RESUMABLE_SESS_CB, (void (*)(void))cb);
 }
-
 /*
  * Allocates new EVP_MD_CTX and sets pointer to it into given pointer
  * variable, freeing EVP_MD_CTX previously stored in that variable, if any.
  * If EVP_MD pointer is passed, initializes ctx with this md Returns newly
  * allocated ctx;
  */
-
 EVP_MD_CTX * ssl_replace_hash(EVP_MD_CTX ** hash, const EVP_MD * md)
 {
 	ssl_clear_hash_ctx(hash);
@@ -3377,8 +3296,7 @@ int ssl_handshake_hash(SSL * s, uchar * out, int outlen)
 		ret = 0;
 		goto err;
 	}
-	if(!EVP_MD_CTX_copy_ex(ctx, hdgst)
-	    || EVP_DigestFinal_ex(ctx, out, NULL) <= 0)
+	if(!EVP_MD_CTX_copy_ex(ctx, hdgst) || EVP_DigestFinal_ex(ctx, out, NULL) <= 0)
 		ret = 0;
 err:
 	EVP_MD_CTX_free(ctx);
@@ -3402,7 +3320,6 @@ void SSL_set_debug(SSL * s, int debug)
 	(void)s;
 	(void)debug;
 }
-
 #endif
 
 void SSL_set_security_level(SSL * s, int level)
@@ -3415,18 +3332,13 @@ int SSL_get_security_level(const SSL * s)
 	return s->cert->sec_level;
 }
 
-void SSL_set_security_callback(SSL * s,
-    int (* cb)(const SSL * s, const SSL_CTX * ctx,
-	    int op, int bits, int nid,
-	    void * other, void * ex))
+void SSL_set_security_callback(SSL * s, int (* cb)(const SSL * s, const SSL_CTX * ctx, int op, int bits, int nid, void * other, void * ex))
 {
 	s->cert->sec_cb = cb;
 }
 
-int(*SSL_get_security_callback(const SSL *s)) (const SSL *s,
-    const SSL_CTX *ctx, int op,
-    int bits, int nid, void * other,
-    void * ex) {
+int(*SSL_get_security_callback(const SSL *s)) (const SSL *s, const SSL_CTX *ctx, int op, int bits, int nid, void * other, void * ex) 
+{
 	return s->cert->sec_cb;
 }
 
@@ -3450,20 +3362,13 @@ int SSL_CTX_get_security_level(const SSL_CTX * ctx)
 	return ctx->cert->sec_level;
 }
 
-void SSL_CTX_set_security_callback(SSL_CTX * ctx,
-    int (* cb)(const SSL * s, const SSL_CTX * ctx,
-	    int op, int bits, int nid,
-	    void * other, void * ex))
+void SSL_CTX_set_security_callback(SSL_CTX * ctx, int (* cb)(const SSL * s, const SSL_CTX * ctx, int op, int bits, int nid, void * other, void * ex))
 {
 	ctx->cert->sec_cb = cb;
 }
 
-int(*SSL_CTX_get_security_callback(const SSL_CTX *ctx)) (const SSL *s,
-    const SSL_CTX *ctx,
-    int op, int bits,
-    int nid,
-    void * other,
-    void * ex) {
+int(*SSL_CTX_get_security_callback(const SSL_CTX *ctx)) (const SSL *s, const SSL_CTX *ctx, int op, int bits, int nid, void * other, void * ex) 
+{
 	return ctx->cert->sec_cb;
 }
 
@@ -3614,7 +3519,6 @@ err:
 	return 0;
 # endif
 }
-
 /*
  * Attempts to extract SCTs from the peer certificate.
  * Return the number of SCTs extracted, or a negative integer if an error
@@ -3631,7 +3535,6 @@ static int ct_extract_x509v3_extension_scts(SSL * s)
 	}
 	return scts_extracted;
 }
-
 /*
  * Attempts to find all received SCTs by checking TLS extensions, the OCSP
  * response (if it exists) and X509v3 extensions in the certificate.
@@ -3678,7 +3581,6 @@ int SSL_set_ct_validation_callback(SSL * s, ssl_ct_validation_cb callback, void 
 		SSLerr(SSL_F_SSL_SET_CT_VALIDATION_CALLBACK, SSL_R_CUSTOM_EXT_HANDLER_ALREADY_INSTALLED);
 		return 0;
 	}
-
 	if(callback != NULL) {
 		/*
 		 * If we are validating CT, then we MUST accept SCTs served via OCSP
@@ -3724,7 +3626,6 @@ int ssl_validate_ct(SSL * s)
 	SSL_DANE * dane = &s->dane;
 	CT_POLICY_EVAL_CTX * ctx = NULL;
 	const STACK_OF(SCT) *scts;
-
 	/*
 	 * If no callback is set, the peer is anonymous, or its chain is invalid,
 	 * skip SCT validation - just return success.  Applications that continue
@@ -3814,10 +3715,8 @@ int SSL_CTX_enable_ct(SSL_CTX * ctx, int validation_mode)
 		default:
 		    SSLerr(SSL_F_SSL_CTX_ENABLE_CT, SSL_R_INVALID_CT_VALIDATION_TYPE);
 		    return 0;
-		case SSL_CT_VALIDATION_PERMISSIVE:
-		    return SSL_CTX_set_ct_validation_callback(ctx, ct_permissive, 0);
-		case SSL_CT_VALIDATION_STRICT:
-		    return SSL_CTX_set_ct_validation_callback(ctx, ct_strict, 0);
+		case SSL_CT_VALIDATION_PERMISSIVE: return SSL_CTX_set_ct_validation_callback(ctx, ct_permissive, 0);
+		case SSL_CT_VALIDATION_STRICT: return SSL_CTX_set_ct_validation_callback(ctx, ct_strict, 0);
 	}
 }
 
@@ -3827,10 +3726,8 @@ int SSL_enable_ct(SSL * s, int validation_mode)
 		default:
 		    SSLerr(SSL_F_SSL_ENABLE_CT, SSL_R_INVALID_CT_VALIDATION_TYPE);
 		    return 0;
-		case SSL_CT_VALIDATION_PERMISSIVE:
-		    return SSL_set_ct_validation_callback(s, ct_permissive, 0);
-		case SSL_CT_VALIDATION_STRICT:
-		    return SSL_set_ct_validation_callback(s, ct_strict, 0);
+		case SSL_CT_VALIDATION_PERMISSIVE: return SSL_set_ct_validation_callback(s, ct_permissive, 0);
+		case SSL_CT_VALIDATION_STRICT: return SSL_set_ct_validation_callback(s, ct_strict, 0);
 	}
 }
 

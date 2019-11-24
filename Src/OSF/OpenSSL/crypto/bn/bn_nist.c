@@ -368,39 +368,39 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc = rp[0];
 		acc += bp[3 * 2 - 6];
 		acc += bp[5 * 2 - 6];
-		rp[0] = (uint)acc;
+		rp[0] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[1];
 		acc += bp[3 * 2 - 5];
 		acc += bp[5 * 2 - 5];
-		rp[1] = (uint)acc;
+		rp[1] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[2];
 		acc += bp[3 * 2 - 6];
 		acc += bp[4 * 2 - 6];
 		acc += bp[5 * 2 - 6];
-		rp[2] = (uint)acc;
+		rp[2] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[3];
 		acc += bp[3 * 2 - 5];
 		acc += bp[4 * 2 - 5];
 		acc += bp[5 * 2 - 5];
-		rp[3] = (uint)acc;
+		rp[3] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[4];
 		acc += bp[4 * 2 - 6];
 		acc += bp[5 * 2 - 6];
-		rp[4] = (uint)acc;
+		rp[4] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[5];
 		acc += bp[4 * 2 - 5];
 		acc += bp[5 * 2 - 5];
-		rp[5] = (uint)acc;
+		rp[5] = static_cast<uint>(acc);
 
 		carry = (int)(acc >> 32);
 	}
@@ -518,46 +518,46 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc = rp[0];
 		acc -= bp[7 - 7];
 		acc -= bp[11 - 7];
-		rp[0] = (uint)acc;
+		rp[0] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[1];
 		acc -= bp[8 - 7];
 		acc -= bp[12 - 7];
-		rp[1] = (uint)acc;
+		rp[1] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[2];
 		acc -= bp[9 - 7];
 		acc -= bp[13 - 7];
-		rp[2] = (uint)acc;
+		rp[2] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[3];
 		acc += bp[7 - 7];
 		acc += bp[11 - 7];
 		acc -= bp[10 - 7];
-		rp[3] = (uint)acc;
+		rp[3] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[4];
 		acc += bp[8 - 7];
 		acc += bp[12 - 7];
 		acc -= bp[11 - 7];
-		rp[4] = (uint)acc;
+		rp[4] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[5];
 		acc += bp[9 - 7];
 		acc += bp[13 - 7];
 		acc -= bp[12 - 7];
-		rp[5] = (uint)acc;
+		rp[5] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[6];
 		acc += bp[10 - 7];
 		acc -= bp[13 - 7];
-		rp[6] = (uint)acc;
+		rp[6] = static_cast<uint>(acc);
 
 		carry = (int)(acc >> 32);
 # if BN_BITS2==64
@@ -683,7 +683,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc -= bp[12 - 8];
 		acc -= bp[13 - 8];
 		acc -= bp[14 - 8];
-		rp[0] = (uint)acc;
+		rp[0] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[1];
@@ -693,7 +693,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc -= bp[13 - 8];
 		acc -= bp[14 - 8];
 		acc -= bp[15 - 8];
-		rp[1] = (uint)acc;
+		rp[1] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[2];
@@ -702,7 +702,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc -= bp[13 - 8];
 		acc -= bp[14 - 8];
 		acc -= bp[15 - 8];
-		rp[2] = (uint)acc;
+		rp[2] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[3];
@@ -714,7 +714,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc -= bp[15 - 8];
 		acc -= bp[8 - 8];
 		acc -= bp[9 - 8];
-		rp[3] = (uint)acc;
+		rp[3] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[4];
@@ -725,7 +725,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc += bp[14 - 8];
 		acc -= bp[9 - 8];
 		acc -= bp[10 - 8];
-		rp[4] = (uint)acc;
+		rp[4] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[5];
@@ -736,7 +736,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc += bp[15 - 8];
 		acc -= bp[10 - 8];
 		acc -= bp[11 - 8];
-		rp[5] = (uint)acc;
+		rp[5] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[6];
@@ -748,7 +748,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc += bp[13 - 8];
 		acc -= bp[8 - 8];
 		acc -= bp[9 - 8];
-		rp[6] = (uint)acc;
+		rp[6] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[7];
@@ -760,7 +760,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		acc -= bp[11 - 8];
 		acc -= bp[12 - 8];
 		acc -= bp[13 - 8];
-		rp[7] = (uint)acc;
+		rp[7] = static_cast<uint>(acc);
 
 		carry = (int)(acc >> 32);
 	}
@@ -931,7 +931,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[21 - 12];
 		acc += bp[20 - 12];
 		acc -= bp[23 - 12];
-		rp[0] = (uint)acc;
+		rp[0] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[1];
@@ -940,7 +940,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[23 - 12];
 		acc -= bp[12 - 12];
 		acc -= bp[20 - 12];
-		rp[1] = (uint)acc;
+		rp[1] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[2];
@@ -948,7 +948,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[23 - 12];
 		acc -= bp[13 - 12];
 		acc -= bp[21 - 12];
-		rp[2] = (uint)acc;
+		rp[2] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[3];
@@ -959,7 +959,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc -= bp[14 - 12];
 		acc -= bp[22 - 12];
 		acc -= bp[23 - 12];
-		rp[3] = (uint)acc;
+		rp[3] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[4];
@@ -973,7 +973,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc -= bp[15 - 12];
 		acc -= bp[23 - 12];
 		acc -= bp[23 - 12];
-		rp[4] = (uint)acc;
+		rp[4] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[5];
@@ -985,7 +985,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[21 - 12];
 		acc += bp[23 - 12];
 		acc -= bp[16 - 12];
-		rp[5] = (uint)acc;
+		rp[5] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[6];
@@ -996,7 +996,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[14 - 12];
 		acc += bp[22 - 12];
 		acc -= bp[17 - 12];
-		rp[6] = (uint)acc;
+		rp[6] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[7];
@@ -1005,7 +1005,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[15 - 12];
 		acc += bp[23 - 12];
 		acc -= bp[18 - 12];
-		rp[7] = (uint)acc;
+		rp[7] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[8];
@@ -1013,7 +1013,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[17 - 12];
 		acc += bp[16 - 12];
 		acc -= bp[19 - 12];
-		rp[8] = (uint)acc;
+		rp[8] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[9];
@@ -1021,7 +1021,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[18 - 12];
 		acc += bp[17 - 12];
 		acc -= bp[20 - 12];
-		rp[9] = (uint)acc;
+		rp[9] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[10];
@@ -1029,7 +1029,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[19 - 12];
 		acc += bp[18 - 12];
 		acc -= bp[21 - 12];
-		rp[10] = (uint)acc;
+		rp[10] = static_cast<uint>(acc);
 		acc >>= 32;
 
 		acc += rp[11];
@@ -1037,7 +1037,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		acc += bp[20 - 12];
 		acc += bp[19 - 12];
 		acc -= bp[22 - 12];
-		rp[11] = (uint)acc;
+		rp[11] = static_cast<uint>(acc);
 
 		carry = (int)(acc >> 32);
 	}

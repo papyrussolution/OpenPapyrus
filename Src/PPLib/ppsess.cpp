@@ -318,7 +318,9 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 		}
 		// } @v10.5.8
 		if(DS.GetPrivateBasket()) {
-			PPGetWord(PPWORD_PRIVATEBASKET, 1, temp_buf);
+			// @v10.6.3 PPGetWord(PPWORD_PRIVATEBASKET, 1, temp_buf);
+			PPLoadString("privategoodsbasket", temp_buf); // @v10.6.3
+			temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.6.3
 			p_app->AddStatusBarItem(temp_buf, ICON_BASKET_SMALL, 0, cmPrivateBasket);
 		}
 		// @v9.9.9 {
@@ -2565,13 +2567,16 @@ int SLAPI PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	return ok;
 }
 
-int SLAPI PPSession::FetchAlbatrosConfig(PPAlbatrosConfig * pCfg)
+int SLAPI PPSession::FetchAlbatrosConfig(PPAlbatrossConfig * pCfg)
 {
+	PPObjGlobalUserAcc gua_obj; // @v10.6.3
+	return gua_obj.FetchAlbatossConfig(pCfg); // @v10.6.3
+	/* @v10.6.3
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
 	if(pCfg) {
 		if(!P_AlbatrosCfg) {
-			P_AlbatrosCfg = new PPAlbatrosConfig;
+			P_AlbatrosCfg = new PPAlbatrossConfig;
 			if(!P_AlbatrosCfg) {
 				ok = PPSetErrorNoMem();
 			}
@@ -2591,6 +2596,7 @@ int SLAPI PPSession::FetchAlbatrosConfig(PPAlbatrosConfig * pCfg)
 	}
 	LEAVE_CRITICAL_SECTION
 	return ok;
+	*/
 }
 
 int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
@@ -3133,7 +3139,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				// @v10.1.9 {
 				{
 					r_cc.Flags2 &= ~CCFLG2_USEVETIS;
-					PPAlbatrosConfig acfg;
+					PPAlbatrossConfig acfg;
 					if(DS.FetchAlbatrosConfig(&acfg) > 0) {
 						acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf.Z());
 						if(temp_buf.NotEmpty()) {
@@ -5374,7 +5380,7 @@ int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent *
 	if(kind == PPAdviseBlock::evQuartz) {
 		const double prob_common_mqs_config = 0.00001;
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_common_mqs_config)) {
-			/* @construction 
+			/* @construction
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			if(p_sj) {
 				LDATETIME since = ZERODATETIME;
@@ -5388,12 +5394,12 @@ int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent *
 			SString org_val_buf;
 			SString logmsg_buf;
 			PPUhttClient uhtt_cli;
-			PPAlbatrosConfig temp_alb_cfg;
+			PPAlbatrossConfig temp_alb_cfg;
 			int result_uhtt_get = uhtt_cli.GetCommonMqsConfig(temp_alb_cfg);
 			int result_cfgmngr_get = 0;
 			int result_cfgmngr_put = 0;
 			if(result_uhtt_get > 0) {
-				PPAlbatrosConfig current_alb_cfg;
+				PPAlbatrossConfig current_alb_cfg;
 				result_cfgmngr_get = PPAlbatrosCfgMngr::Get(&current_alb_cfg);
 				if(result_cfgmngr_get != 0) {
 					int    do_update = 0;

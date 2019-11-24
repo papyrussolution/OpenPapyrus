@@ -572,10 +572,8 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    data->set.reuse_fresh = (0 != va_arg(param, long)) ? TRUE : FALSE;
 		    break;
 		case CURLOPT_VERBOSE:
-		    /*
-		 * Verbose means infof() calls that give a lot of information about
-		 * the connection and transfer procedures as well as internal choices.
-		     */
+			// Verbose means infof() calls that give a lot of information about
+			// connection and transfer procedures as well as internal choices.
 		    data->set.verbose = (0 != va_arg(param, long)) ? TRUE : FALSE;
 		    break;
 		case CURLOPT_HEADER: // Set to include the header in the general data output stream.
@@ -598,26 +596,21 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		case CURLOPT_PUT: // We want to sent data to the remote host. If this is HTTP, that equals using the PUT request.
 		    data->set.upload = (0 != va_arg(param, long)) ? TRUE : FALSE;
 		    if(data->set.upload) {
-			    /* If this is HTTP, PUT is what's needed to "upload" */
+			    // If this is HTTP, PUT is what's needed to "upload" 
 			    data->set.httpreq = HTTPREQ_PUT;
 			    data->set.opt_no_body = FALSE; /* this is implied */
 		    }
 		    else
-			    /* In HTTP, the opposite of upload is GET (unless NOBODY is true as
-			       then this can be changed to HEAD later on) */
+			    // In HTTP, the opposite of upload is GET (unless NOBODY is true as then this can be changed to HEAD later on) 
 			    data->set.httpreq = HTTPREQ_GET;
 		    break;
 		case CURLOPT_FILETIME:
-		    /*
-		 * Try to get the file time of the remote document. The time will
-		 * later (possibly) become available using curl_easy_getinfo().
-		     */
+			// Try to get the file time of the remote document. The time will
+			// later (possibly) become available using curl_easy_getinfo().
 		    data->set.get_filetime = (0 != va_arg(param, long)) ? TRUE : FALSE;
 		    break;
 		case CURLOPT_FTP_CREATE_MISSING_DIRS:
-		    /*
-		 * An FTP option that modifies an upload to create missing directories on the server.
-		     */
+			// An FTP option that modifies an upload to create missing directories on the server.
 		    switch(va_arg(param, long)) {
 			    case 0: data->set.ftp_create_missing_dirs = 0; break;
 			    case 1: data->set.ftp_create_missing_dirs = 1; break;
@@ -626,10 +619,8 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    }
 		    break;
 		case CURLOPT_SERVER_RESPONSE_TIMEOUT:
-		    /*
-		 * Option that specifies how quickly an server response must be obtained
-		 * before it is considered failure. For pingpong protocols.
-		     */
+			// Option that specifies how quickly an server response must be obtained
+			// before it is considered failure. For pingpong protocols.
 		    data->set.server_response_timeout = va_arg(param, long) * 1000;
 		    break;
 		case CURLOPT_TFTP_NO_OPTIONS:
@@ -770,8 +761,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 				    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], 0);
 				    /* Allocate even when size == 0. This satisfies the need of possible
 				       later address compare to detect the COPYPOSTFIELDS mode, and
-				       to mark that postfields is used rather than read function or
-				       form data.
+				       to mark that postfields is used rather than read function or form data.
 				     */
 				    p = static_cast<char *>(SAlloc::M((size_t)(data->set.postfieldsize ? data->set.postfieldsize : 1)));
 				    if(!p)

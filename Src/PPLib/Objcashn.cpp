@@ -1722,7 +1722,7 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 		SETFLAG(ef, 0x0400, Data.ExtFlags & CASHFX_ABSTRGOODSALLOWED); // @v9.5.10
 		SetClusterData(CTL_CASHN_EXTFLAGS, ef);
 		{
-			PPAlbatrosConfig acfg;
+			PPAlbatrossConfig acfg;
 			PPAlbatrosCfgMngr::Get(&acfg);
 			SString temp_buf;
 			acfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);

@@ -878,7 +878,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							SString temp_buf;
 							VetisDocumentFilt vetis_filt;
 							int    delay_days = 0;
-							PPAlbatrosConfig acfg;
+							PPAlbatrossConfig acfg;
 							if(DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0)
 								delay_days = acfg.Hdr.VetisCertDelay;
 							else

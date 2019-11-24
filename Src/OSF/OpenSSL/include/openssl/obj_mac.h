@@ -4039,6 +4039,55 @@
 #define NID_id_tc26_gost_3410_2012_512_paramSetB                999
 #define OBJ_id_tc26_gost_3410_2012_512_paramSetB                OBJ_id_tc26_gost_3410_2012_512_constants,2L
 
+// @sobolev @v10.6.3 {
+#define SN_id_tc26_gost_3410_2012_512_paramSetC         "id-tc26-gost-3410-2012-512-paramSetC"
+#define LN_id_tc26_gost_3410_2012_512_paramSetC         "GOST R 34.10-2012 (512 bit) ParamSet C"
+#define NID_id_tc26_gost_3410_2012_512_paramSetC                1149
+#define OBJ_id_tc26_gost_3410_2012_512_paramSetC                OBJ_id_tc26_gost_3410_2012_512_constants,3L
+
+#define NID_id_tc26_gost_3410_2012_256_paramSetA                1148
+#define OBJ_id_tc26_gost_3410_2012_256_paramSetA                OBJ_id_tc26_gost_3410_2012_256_constants,1L
+
+#define SN_id_tc26_gost_3410_2012_256_paramSetB         "id-tc26-gost-3410-2012-256-paramSetB"
+#define LN_id_tc26_gost_3410_2012_256_paramSetB         "GOST R 34.10-2012 (256 bit) ParamSet B"
+#define NID_id_tc26_gost_3410_2012_256_paramSetB                1184
+#define OBJ_id_tc26_gost_3410_2012_256_paramSetB                OBJ_id_tc26_gost_3410_2012_256_constants,2L
+
+#define SN_id_tc26_gost_3410_2012_256_paramSetC         "id-tc26-gost-3410-2012-256-paramSetC"
+#define LN_id_tc26_gost_3410_2012_256_paramSetC         "GOST R 34.10-2012 (256 bit) ParamSet C"
+#define NID_id_tc26_gost_3410_2012_256_paramSetC                1185
+#define OBJ_id_tc26_gost_3410_2012_256_paramSetC                OBJ_id_tc26_gost_3410_2012_256_constants,3L
+
+#define SN_id_tc26_gost_3410_2012_256_paramSetD         "id-tc26-gost-3410-2012-256-paramSetD"
+#define LN_id_tc26_gost_3410_2012_256_paramSetD         "GOST R 34.10-2012 (256 bit) ParamSet D"
+#define NID_id_tc26_gost_3410_2012_256_paramSetD                1186
+#define OBJ_id_tc26_gost_3410_2012_256_paramSetD                OBJ_id_tc26_gost_3410_2012_256_constants,4L
+
+#define SN_id_tc26_cipher_gostr3412_2015_magma          "id-tc26-cipher-gostr3412-2015-magma"
+#define NID_id_tc26_cipher_gostr3412_2015_magma         1173
+#define OBJ_id_tc26_cipher_gostr3412_2015_magma         OBJ_id_tc26_cipher,1L
+
+#define SN_id_tc26_cipher_gostr3412_2015_magma_ctracpkm         "id-tc26-cipher-gostr3412-2015-magma-ctracpkm"
+#define NID_id_tc26_cipher_gostr3412_2015_magma_ctracpkm                1174
+#define OBJ_id_tc26_cipher_gostr3412_2015_magma_ctracpkm                OBJ_id_tc26_cipher_gostr3412_2015_magma,1L
+
+#define SN_id_tc26_cipher_gostr3412_2015_magma_ctracpkm_omac            "id-tc26-cipher-gostr3412-2015-magma-ctracpkm-omac"
+#define NID_id_tc26_cipher_gostr3412_2015_magma_ctracpkm_omac           1175
+#define OBJ_id_tc26_cipher_gostr3412_2015_magma_ctracpkm_omac           OBJ_id_tc26_cipher_gostr3412_2015_magma,2L
+
+#define SN_id_tc26_cipher_gostr3412_2015_kuznyechik             "id-tc26-cipher-gostr3412-2015-kuznyechik"
+#define NID_id_tc26_cipher_gostr3412_2015_kuznyechik            1176
+#define OBJ_id_tc26_cipher_gostr3412_2015_kuznyechik            OBJ_id_tc26_cipher,2L
+
+#define SN_id_tc26_cipher_gostr3412_2015_kuznyechik_ctracpkm            "id-tc26-cipher-gostr3412-2015-kuznyechik-ctracpkm"
+#define NID_id_tc26_cipher_gostr3412_2015_kuznyechik_ctracpkm           1177
+#define OBJ_id_tc26_cipher_gostr3412_2015_kuznyechik_ctracpkm           OBJ_id_tc26_cipher_gostr3412_2015_kuznyechik,1L
+
+#define SN_id_tc26_cipher_gostr3412_2015_kuznyechik_ctracpkm_omac               "id-tc26-cipher-gostr3412-2015-kuznyechik-ctracpkm-omac"
+#define NID_id_tc26_cipher_gostr3412_2015_kuznyechik_ctracpkm_omac              1178
+#define OBJ_id_tc26_cipher_gostr3412_2015_kuznyechik_ctracpkm_omac              OBJ_id_tc26_cipher_gostr3412_2015_kuznyechik,2L
+// } @sobolev @v10.6.3
+
 #define SN_id_tc26_digest_constants             "id-tc26-digest-constants"
 #define NID_id_tc26_digest_constants            1000
 #define OBJ_id_tc26_digest_constants            OBJ_id_tc26_constants,2L
@@ -4098,7 +4147,20 @@
 
 #define SN_grasshopper_mac              "grasshopper-mac"
 #define NID_grasshopper_mac             1017
-
+// @sobolev @v10.6.3 {
+#define SN_magma_ecb            "magma-ecb"
+#define NID_magma_ecb           1187
+#define SN_magma_ctr            "magma-ctr"
+#define NID_magma_ctr           1188
+#define SN_magma_ofb            "magma-ofb"
+#define NID_magma_ofb           1189
+#define SN_magma_cbc            "magma-cbc"
+#define NID_magma_cbc           1190
+#define SN_magma_cfb            "magma-cfb"
+#define NID_magma_cfb           1191
+#define SN_magma_mac            "magma-mac"
+#define NID_magma_mac           1192
+// } @sobolev @v10.6.3 
 #define SN_camellia_128_cbc             "CAMELLIA-128-CBC"
 #define LN_camellia_128_cbc             "camellia-128-cbc"
 #define NID_camellia_128_cbc            751

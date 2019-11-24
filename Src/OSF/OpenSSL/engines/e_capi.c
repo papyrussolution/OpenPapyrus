@@ -523,7 +523,7 @@ memerr:
 	return 0;
 }
 
-# ifndef OPENSSL_NO_DYNAMIC_ENGINE
+#ifndef OPENSSL_NO_DYNAMIC_ENGINE
 static int bind_helper(ENGINE * e, const char * id)
 {
 	if(id && (strcmp(id, engine_capi_id) != 0))
@@ -535,7 +535,7 @@ static int bind_helper(ENGINE * e, const char * id)
 
 IMPLEMENT_DYNAMIC_CHECK_FN()
 IMPLEMENT_DYNAMIC_BIND_FN(bind_helper)
-# else
+#else
 static ENGINE * engine_capi(void)
 {
 	ENGINE * ret = ENGINE_new();
@@ -552,14 +552,13 @@ void engine_load_capi_int(void)
 {
 	/* Copied from eng_[openssl|dyn].c */
 	ENGINE * toadd = engine_capi();
-	if(!toadd)
-		return;
-	ENGINE_add(toadd);
-	ENGINE_free(toadd);
-	ERR_clear_error();
+	if(toadd) {
+		ENGINE_add(toadd);
+		ENGINE_free(toadd);
+		ERR_clear_error();
+	}
 }
-
-# endif
+#endif
 
 static int lend_tobn(BIGNUM * bn, uchar * bin, int binlen)
 {

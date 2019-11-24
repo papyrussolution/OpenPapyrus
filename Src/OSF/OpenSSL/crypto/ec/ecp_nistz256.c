@@ -1200,20 +1200,14 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 			EC_POINT * pre_comp_generator = EC_POINT_new(group);
 			if(pre_comp_generator == NULL)
 				goto err;
-
-			if(!ecp_nistz256_set_from_affine(pre_comp_generator,
-				    group, pre_comp->precomp[0],
-				    ctx)) {
+			if(!ecp_nistz256_set_from_affine(pre_comp_generator, group, pre_comp->precomp[0], ctx)) {
 				EC_POINT_free(pre_comp_generator);
 				goto err;
 			}
-
 			if(0 == EC_POINT_cmp(group, generator, pre_comp_generator, ctx))
 				preComputedTable = (const PRECOMP256_ROW*)pre_comp->precomp;
-
 			EC_POINT_free(pre_comp_generator);
 		}
-
 		if(preComputedTable == NULL && ecp_nistz256_is_affine_G(generator)) {
 			/*
 			 * If there is no precomputed data, but the generator is the
@@ -1223,13 +1217,10 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 			 */
 			preComputedTable = ecp_nistz256_precomputed;
 		}
-
 		if(preComputedTable) {
-			if((BN_num_bits(scalar) > 256)
-			    || BN_is_negative(scalar)) {
+			if((BN_num_bits(scalar) > 256) || BN_is_negative(scalar)) {
 				if((tmp_scalar = BN_CTX_get(ctx)) == NULL)
 					goto err;
-
 				if(!BN_nnmod(tmp_scalar, scalar, group->order, ctx)) {
 					ECerr(EC_F_ECP_NISTZ256_POINTS_MUL, ERR_R_BN_LIB);
 					goto err;

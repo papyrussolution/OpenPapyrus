@@ -2699,7 +2699,7 @@ int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, u
 			SString err_msg;
 			SString from = "CHECK PHONE";
 			SString message;
-			PPAlbatrosConfig  albtr_cfg;
+			PPAlbatrossConfig  albtr_cfg;
 			SmsClient client(0);
 			PPLoadText(PPTXT_PHONEVERIFYCODE, message);
             message.CatDiv(':', 2).Cat(Data.CheckCode);

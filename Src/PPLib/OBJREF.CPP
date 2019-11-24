@@ -2415,14 +2415,18 @@ public:
 	SLAPI  GlobalUserAccCache() : ObjCache(PPOBJ_GLOBALUSERACC, sizeof(GlobalUserAccData))
 	{
 		MEMSZERO(Cfg);
+		AlbCfg.Hdr.Prop = 0; // @v10.6.3 @paranoic
 	}
 	int    SLAPI GetConfig(PPGlobalUserAccConfig * pCfg, int enforce);
+	int    SLAPI GetAlbatrossConfig(PPAlbatrossConfig * pCfg, int enforce);
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	PPGlobalUserAccConfig Cfg;
+	PPAlbatrossConfig AlbCfg; // @v10.6.3
 	ReadWriteLock CfgLock;
+	ReadWriteLock AlbCfgLock; // @v10.6.3
 public:
 	struct GlobalUserAccData : public ObjCacheEntry {
 		S_GUID LocalDbUuid;
@@ -2445,6 +2449,22 @@ int SLAPI GlobalUserAccCache::GetConfig(PPGlobalUserAccConfig * pCfg, int enforc
 			}
 		}
 		ASSIGN_PTR(pCfg, Cfg);
+	}
+	return 1;
+}
+
+int SLAPI GlobalUserAccCache::GetAlbatrossConfig(PPAlbatrossConfig * pCfg, int enforce)
+{
+	{
+		SRWLOCKER(AlbCfgLock, SReadWriteLocker::Read);
+		if(AlbCfg.Hdr.Tag != PPPRP_ALBATROSCFG2 || enforce) {
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(AlbCfg.Hdr.Tag != PPPRP_ALBATROSCFG2 || enforce) {
+				PPAlbatrosCfgMngr::Get(&AlbCfg);
+				AlbCfg.Hdr.Tag = PPPRP_ALBATROSCFG2;
+			}
+		}
+		ASSIGN_PTR(pCfg, AlbCfg);
 	}
 	return 1;
 }
@@ -2507,6 +2527,12 @@ int FASTCALL PPObjGlobalUserAcc::FetchConfig(PPGlobalUserAccConfig * pCfg)
 		memzero(pCfg, sizeof(*pCfg));
 		return 0;
 	}
+}
+
+int FASTCALL PPObjGlobalUserAcc::FetchAlbatossConfig(PPAlbatrossConfig * pCfg)
+{
+	GlobalUserAccCache * p_cache = GetDbLocalCachePtr <GlobalUserAccCache> (Obj);
+	return p_cache ? p_cache->GetAlbatrossConfig(pCfg, 0) : PPAlbatrosCfgMngr::Get(pCfg);
 }
 
 int SLAPI PPObjGlobalUserAcc::DirtyConfig()

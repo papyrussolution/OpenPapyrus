@@ -259,7 +259,7 @@ int SLAPI PrcssrMailCharry::RestoreParam(Param * pParam)
 	if(r == 0)
 		ok = 0;
 	else if(r < 0) {
-		PPAlbatrosConfig alb_cfg;
+		PPAlbatrossConfig alb_cfg;
 		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0)
 			pParam->MailAccID = alb_cfg.Hdr.MailAccID;
 		ok = -1;
@@ -344,7 +344,7 @@ int SLAPI ReceiveCharryObjects(const RcvCharryParam * pParam)
 	int    ok = -1, r;
 	RcvCharryParam rcp;
 	rcp.Action = RcvCharryParam::aRcvFromMail;
-	PPAlbatrosConfig alb_cfg;
+	PPAlbatrossConfig alb_cfg;
 	if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0)
 		rcp.MailAccID = alb_cfg.Hdr.MailAccID;
 	if(pParam || rcp.Edit() > 0) {

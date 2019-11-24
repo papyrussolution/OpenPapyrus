@@ -95,10 +95,9 @@ static int int_engine_configure(const char * name, const char * value, const CON
 				if(!e)
 					goto err;
 			}
-			/*
-			 * Allow "EMPTY" to mean no value: this allows a valid "value" to
-			 * be passed to ctrls of type NO_INPUT
-			 */
+			//
+			// Allow "EMPTY" to mean no value: this allows a valid "value" to be passed to ctrls of type NO_INPUT
+			//
 			if(sstreq(ctrlvalue, "EMPTY"))
 				ctrlvalue = NULL;
 			if(sstreq(ctrlname, "init")) {

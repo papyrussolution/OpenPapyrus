@@ -3498,7 +3498,7 @@ int SLAPI PPVetisInterface::SetupParam(Param & rP)
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
-	PPAlbatrosConfig acfg;
+	PPAlbatrossConfig acfg;
 	// @v10.1.9 THROW(PPAlbatrosCfgMngr::Get(&acfg) > 0);
 	THROW(DS.FetchAlbatrosConfig(&acfg) > 0); // @v10.1.9
 	SETFLAG(rP.Flags, rP.fTestContour, acfg.Hdr.Flags & acfg.Hdr.fVetisTestContour); // @v10.5.1
@@ -11171,7 +11171,7 @@ private:
 static int FASTCALL SetupSurveyPeriod(const VetisDocumentTbl::Rec & rRec, DateRange & rPeriod)
 {
 	int    ok = 1;
-	PPAlbatrosConfig acfg;
+	PPAlbatrossConfig acfg;
 	const  int delay_days = (DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0) ? acfg.Hdr.VetisCertDelay : 3;
 	if(checkdate(rRec.WayBillDate)) {
 		// @v10.5.1 rPeriod.Set(rRec.WayBillDate, plusdate(rRec.WayBillDate, delay_days));

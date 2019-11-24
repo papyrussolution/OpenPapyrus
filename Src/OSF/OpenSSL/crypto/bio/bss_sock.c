@@ -95,9 +95,8 @@ static int sock_read(BIO * b, char * out, int outl)
 
 static int sock_write(BIO * b, const char * in, int inl)
 {
-	int ret;
 	clear_socket_error();
-	ret = writesocket(b->num, in, inl);
+	int ret = writesocket(b->num, in, inl);
 	BIO_clear_retry_flags(b);
 	if(ret <= 0) {
 		if(BIO_sock_should_retry(ret))
@@ -110,7 +109,6 @@ static long sock_ctrl(BIO * b, int cmd, long num, void * ptr)
 {
 	long ret = 1;
 	int * ip;
-
 	switch(cmd) {
 		case BIO_C_SET_FD:
 		    sock_free(b);
@@ -153,9 +151,8 @@ static int sock_puts(BIO * bp, const char * str)
 
 int BIO_sock_should_retry(int i)
 {
-	int err;
-	if((i == 0) || (i == -1)) {
-		err = get_last_socket_error();
+	if(oneof2(i, 0, -1)) {
+		int err = get_last_socket_error();
 		return (BIO_sock_non_fatal_error(err));
 	}
 	return 0;

@@ -1763,7 +1763,6 @@ void OprKindDialog::prnOptDialog()
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD,  5, TiIter::ordByLocation);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD,  6, TiIter::ordByStorePlaceGrpGoods);
 			dlg->SetClusterData(CTL_OPKMORE_PRTORD, P_Data->Rec.PrnOrder);
-
 			if(ExecView(dlg) == cmOK) {
 				long   temp_long = 0;
 				dlg->getCtrlData(CTL_OPKMORE_PRTAMT, &v);
@@ -1776,7 +1775,7 @@ void OprKindDialog::prnOptDialog()
 				dlg->GetClusterData(CTL_OPKMORE_PRTQC, &f);
 				P_Data->Rec.PrnFlags = f;
 				if(dlg->GetClusterData(CTL_OPKMORE_PRTORD, &temp_long))
-					P_Data->Rec.PrnOrder = (int16)temp_long;
+					P_Data->Rec.PrnOrder = static_cast<int16>(temp_long);
 				dlg->getCtrlString(CTL_OPKMORE_PRNFORM, prn_form_name);
 				P_Data->PutExtStrData(OPKEXSTR_DEFPRNFORM, prn_form_name.Strip());
 			}

@@ -1142,7 +1142,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 			THROW(obj_acct.Get(EqCfg.FtpAcctID, &acct));
 		}
 		{
-			PPAlbatrosConfig alb_cfg;
+			PPAlbatrossConfig alb_cfg;
 			MEMSZERO(mac_rec);
 			if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID)
 				THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
@@ -2033,6 +2033,21 @@ int SLAPI AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 //
 // AsyncCashSCardsIterator
 //
+SLAPI AsyncCashSCardInfo::AsyncCashSCardInfo() : IsClosed(0), Rest(0.0)
+{
+	MEMSZERO(Rec);
+}
+
+AsyncCashSCardInfo & SLAPI AsyncCashSCardInfo::Z()
+{
+	MEMSZERO(Rec);
+	IsClosed = 0;
+	Rest = 0.0;
+	PsnName.Z();
+	Phone.Z();
+	return *this;
+}
+
 SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, DeviceLoadingStat * pDLS, PPID statID) :
 	P_IterQuery(0), UpdatedOnly(updOnly), P_DLS(pDLS), StatID(statID), Since(ZERODATETIME)
 {
@@ -2111,37 +2126,42 @@ int SLAPI AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 {
 	int    ok = -1;
 	if(pInfo) {
-		memzero(pInfo, sizeof(*pInfo));
+		pInfo->Z();
 		PersonTbl::Rec psn_rec;
+		PPSCardPacket sc_pack; // @v10.6.3
 		while(ok < 0 && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
-			Rec = SCObj.P_Tbl->data;
-			if(NodeRec.Flags & CASHF_EXPCHECKD) {
-				if(sstrlen(Rec.Code) == 12)
-					AddBarcodeCheckDigit(Rec.Code);
-			}
-			SCObj.SetInheritance(&ScsPack, &Rec);
-			if(!UpdatedOnly || UpdSCardList.bsearch(Rec.ID)) {
-				pInfo->Rec = Rec;
-				SETIFZ(pInfo->Rec.PersonID, DefSCardPersonID);
-				if(pInfo->Rec.PersonID) {
-					if(pInfo->Rec.PersonID == DefSCardPersonID)
-						STRNSCPY(pInfo->PsnName, DefPersonName);
-					else if(PsnObj.Fetch(pInfo->Rec.PersonID, &psn_rec) > 0)
-						STRNSCPY(pInfo->PsnName, psn_rec.Name);
+			const PPID sc_id = SCObj.P_Tbl->data.ID;
+			if(SCObj.GetPacket(sc_id, &sc_pack) > 0) {
+				Rec = sc_pack.Rec;
+				if(NodeRec.Flags & CASHF_EXPCHECKD) {
+					if(sstrlen(Rec.Code) == 12)
+						AddBarcodeCheckDigit(Rec.Code);
 				}
-				pInfo->IsClosed = BIN((Rec.Flags & SCRDF_CLOSED) || (Rec.Expiry && diffdate(Rec.Expiry, LConfig.OperDate) < 0));
-				{
-					int    scst = ScsPack.Rec.GetType();
-					if(oneof2(scst, scstCredit, scstBonus)) {
-						double rest = 0.0;
-						SCObj.P_Tbl->GetRest(Rec.ID, ZERODATE, &rest);
-						pInfo->Rest = rest;
+				SCObj.SetInheritance(&ScsPack, &Rec);
+				if(!UpdatedOnly || UpdSCardList.bsearch(Rec.ID)) {
+					pInfo->Rec = Rec;
+					SETIFZ(pInfo->Rec.PersonID, DefSCardPersonID);
+					if(pInfo->Rec.PersonID) {
+						if(pInfo->Rec.PersonID == DefSCardPersonID)
+							pInfo->PsnName = DefPersonName;
+						else if(PsnObj.Fetch(pInfo->Rec.PersonID, &psn_rec) > 0)
+							pInfo->PsnName = psn_rec.Name;
 					}
-					else
-						pInfo->Rest = 0.0;
+					pInfo->IsClosed = BIN((Rec.Flags & SCRDF_CLOSED) || (Rec.Expiry && diffdate(Rec.Expiry, LConfig.OperDate) < 0));
+					{
+						int    scst = ScsPack.Rec.GetType();
+						if(oneof2(scst, scstCredit, scstBonus)) {
+							double rest = 0.0;
+							SCObj.P_Tbl->GetRest(Rec.ID, ZERODATE, &rest);
+							pInfo->Rest = rest;
+						}
+						else
+							pInfo->Rest = 0.0;
+					}
+					sc_pack.GetExtStrData(PPSCardPacket::extssPhone, pInfo->Phone); // @v10.6.3
+					ok = 1;
 				}
-				ok = 1;
 			}
 		}
 	}

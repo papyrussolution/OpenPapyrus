@@ -159,6 +159,8 @@ private:
 	int    SLAPI GetFilesLocal();
 	PPBillImpExpParam * SLAPI CreateImpExpParam(uint sdRecID);
 	void   SLAPI Backup(const char * pPrefix, const char * pPath);
+	int    SLAPI Helper_ExportGoods_V10(int mode, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex, 
+		AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo);
 
 	class DeferredRemovingFileList : public SStrGroup {
 	public:
@@ -557,61 +559,430 @@ int SLAPI XmlWriter::PutElement(const char * pName, const char * pValue)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
+struct _SalesGrpEntry { // @flat
+	PPID   GrpID;
+	char   GrpName[64];
+	char   Code[24];
+};
+
+struct _MaxDisEntry { // @flat
+	char   Barcode[24];
+	int16  Deleted;
+	int16  NoDis;
+};
+
+int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex, 
+	AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo)
 {
+	assert(oneof3(mode, 0, 1, 2));
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	int    check_dig = 0;
-	int    add_time_to_fname = 0;
-	int    use_new_dscnt_code_alg = 0;
-	uint   i = 0;
+	XmlWriter * p_writer = 0;
 	long   plu_num = 1;
-	PPID   prev_goods_id = 0;
+	SString temp_buf;
+	SString iter_msg;
+	SString grp_code;
+	AsyncCashGoodsInfo prev_gds_info;
+	PPUnit    unit_rec;
+	PPObjUnit unit_obj;
+	PPGoodsConfig gds_cfg;
+	PPObjGoods gobj;
+	PPObjGoodsGroup ggobj;
+	PPObjTag tag_obj;
+	BarcodeArray barcodes;
+	RetailPriceExtractor rpe;
+	PrcssrAlcReport::GoodsItem agi;
 	PPID   alc_cls_id = 0;
 	PPID   tobacco_cls_id = 0;
 	PPID   giftcard_cls_id = 0;
 	PPID   sr_prodtagb_tag = 0;
+	PPID   prev_goods_id = 0;
+	SVector max_dis_list(sizeof(_MaxDisEntry));
+	LDATETIME beg_dtm;
+	LDATETIME end_dtm;
+	getcurdate(&beg_dtm.d);
+	plusperiod(&(end_dtm.d = beg_dtm.d), PRD_ANNUAL, 50, 0);
+	beg_dtm.t = encodetime(0,  0, 0, 0);
+	end_dtm.t = encodetime(23, 59, 59, 0);
+	PPObjGoods::ReadConfig(&gds_cfg);
+	rpe.Init(rCnData.LocID, 0, 0, ZERODATETIME, 0);
+	{
+		PPID   temp_tag_id = 0;
+		if(tag_obj.FetchBySymb("setretail-prodtagb", &temp_tag_id) > 0)
+			sr_prodtagb_tag = temp_tag_id;
+	}
+	{
+		SString alc_proof;
+		SString alc_vol;
+		PPObjGoodsClass obj_gdscls;
+		PPGdsClsPacket gc_pack;
+		alc_cls_id = pGoodsIter->GetAlcoGoodsCls(&alc_proof, &alc_vol);
+		if(!(alc_proof.Len() || alc_vol.Len()) || obj_gdscls.Fetch(alc_cls_id, &gc_pack) <= 0)
+			alc_cls_id = 0;
+		tobacco_cls_id = pGoodsIter->GetTobaccoGoodsCls();
+		giftcard_cls_id = pGoodsIter->GetGiftCardGoodsCls();
+	}
+	{
+		temp_buf.Z();
+		if(mode == 0)
+			temp_buf = rPathGoods_;
+		else if(oneof2(mode, 1, 2)) {
+			SPathStruc ps(rPathGoods_);
+			ps.Nam.CatChar('-').Cat((mode == 1) ? "attr" : "prices");
+			ps.Merge(temp_buf);
+		}
+		THROW_MEM(p_writer = new XmlWriter(temp_buf, 1));
+	}
+	p_writer->StartElement("goods-catalog");
+	int    last_goods_export = 0, iter_end = 0;
+	const int ignore_lookbackprices = CheckCnExtFlag(CASHFX_IGNLOOKBACKPRICES);
+	while((iter_end = pGoodsIter->Next(&rGoodsInfo)) > 0 || !last_goods_export) {
+		if(iter_end <= 0)
+			last_goods_export = 1;
+		if(last_goods_export || rGoodsInfo.ID != prev_goods_id && prev_goods_id) {
+			// @v9.0.9 const  int is_spirit    = BIN(alc_cls_id && alc_cls_id == prev_gds_info.GdsClsID);
+			const  int is_spirit    = BIN(pGoodsIter->GetAlcoGoodsExtension(prev_gds_info.ID, 0, agi) > 0); // @v9.0.9
+			const  int is_tobacco   = BIN(tobacco_cls_id && tobacco_cls_id == prev_gds_info.GdsClsID);
+			const  int is_gift_card = BIN(giftcard_cls_id && giftcard_cls_id == prev_gds_info.GdsClsID);
+			int    do_process_lookbackprices = 0;
+			int    is_weight = 0;
+			LDATE  expiry = ZERODATE;
+			PPID   country_id = 0;
+			PPGoodsPacket goods_pack;
+			PPQuotKind qk_rec;
+			temp_buf.Z();
+			if(CConfig.Flags & CCFLG_DEBUG)
+				LogExportingGoodsItem(&prev_gds_info);
+			{
+				RetailExtrItem  rtl_ext_item;
+				rpe.GetPrice(prev_gds_info.ID, 0, 0.0, &rtl_ext_item);
+				expiry = rtl_ext_item.Expiry;
+			}
+			AddCheckDigToBarcode(prev_gds_info.PrefBarCode);
+			p_writer->StartElement("good", "marking-of-the-good", prev_gds_info.PrefBarCode);
+			if(oneof2(mode, 0, 2)) {
+				if(rStoreIndex.NotEmpty()) {
+					//<shop-indices>2</shop-indices>
+					p_writer->PutElement("shop-indices", rStoreIndex);
+				}
+			}
+			p_writer->PutElement("name", prev_gds_info.Name);
+			{
+				for(uint i = 0; i < barcodes.getCount(); i++) {
+					BarcodeTbl::Rec bc = barcodes.at(i);
+					if(sstrlen(bc.Code)) {
+						if(!is_weight && !is_spirit && !is_tobacco && !is_gift_card)
+							is_weight = gds_cfg.IsWghtPrefix(bc.Code);
+						AddCheckDigToBarcode(bc.Code);
+						p_writer->StartElement("bar-code", "code", bc.Code);
+						// @v10.4.11 {
+						if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
+							p_writer->AddAttrib("marked", "true");
+						}
+						// } @v10.4.11 
+						// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price));
+						// p_writer->PutElement("begin-date", beg_dtm);
+						// p_writer->PutElement("end-date", end_dtm);
+						// p_writer->EndElement();
+						p_writer->PutElement("count", bc.Qtty);
+						p_writer->PutElement("default-code", LOGIC(strcmp(bc.Code, prev_gds_info.PrefBarCode) == 0));
+						p_writer->EndElement(); // </bar-code>
+					}
+				}
+			}
+			if(oneof2(mode, 0, 1)) {
+				// тип товара:
+				// ProductPieceEntity - штучный, ProductWeightEntity - весовой и т.д.
+				if(is_spirit) {
+					p_writer->PutElement("product-type", "ProductSpiritsEntity");
+				}
+				else if(is_tobacco) {
+					p_writer->PutElement("product-type", "ProductCiggyEntity");
+					if(!ignore_lookbackprices)
+						do_process_lookbackprices = 1;
+				}
+				else if(is_gift_card)
+					p_writer->PutElement("product-type", "ProductGiftCardEntity");
+				else if(is_weight == 1)
+					p_writer->PutElement("product-type", "ProductWeightEntity");
+				else if(is_weight == 2)
+					p_writer->PutElement("product-type", "ProductPieceWeightEntity");
+				else
+					p_writer->PutElement("product-type", "ProductPieceEntity");
+				// @v10.4.12 {
+				if(sr_prodtagb_tag && p_ref->Ot.GetTagStr(PPOBJ_GOODS, prev_gds_info.ID, sr_prodtagb_tag, temp_buf) > 0) {
+					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+					p_writer->PutElement(temp_buf, "true");
+				}
+				// } @v10.4.12 
+			}
+			if(oneof2(mode, 0, 2)) {
+				long divn  = (rCnData.Flags & CASHF_EXPDIVN) ? prev_gds_info.DivN : 1;
+				p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price, SFMT_MONEY));
+				p_writer->PutElement("begin-date", beg_dtm);
+				p_writer->PutElement("end-date", end_dtm);
+				p_writer->PutElement("number", "1");
+				p_writer->StartElement("department", "number", temp_buf.Z().Cat(divn));
+				p_writer->PutElement("name", temp_buf);
+				p_writer->EndElement();
+				p_writer->EndElement();
+			}
+			if(oneof2(mode, 0, 1)) {
+				p_writer->PutElement("vat", prev_gds_info.VatRate);
+				//
+				// Иерархия товарных групп
+				//
+				if(rCnData.Flags & CASHF_EXPGOODSGROUPS && prev_gds_info.ParentID) {
+					Goods2Tbl::Rec ggrec;
+					grp_code.Z();
+					if(gobj.FetchSingleBarcode(prev_gds_info.ParentID, grp_code) > 0 && grp_code.Len())
+						grp_code.ShiftLeftChr('@');
+					else
+						grp_code.Z().Cat(prev_gds_info.ParentID);
+					p_writer->StartElement("group", "id", grp_code);
+					GetObjectName(PPOBJ_GOODSGROUP, prev_gds_info.ParentID, temp_buf);
+					p_writer->PutElement("name", temp_buf);
+					MEMSZERO(ggrec);
+					{
+						PPID   parent_id = prev_gds_info.ParentID;
+						long   parents_count = 0;
+						while(gobj.GetParentID(parent_id, &parent_id) > 0 && parent_id != 0) {
+							if(gobj.FetchSingleBarcode(parent_id, grp_code) > 0 && grp_code.Len())
+								grp_code.ShiftLeftChr('@');
+							else
+								grp_code.Z().Cat(parent_id);
+							p_writer->StartElement("parent-group");
+							p_writer->AddAttrib("id", grp_code);
+							GetObjectName(PPOBJ_GOODSGROUP, parent_id, temp_buf);
+							p_writer->PutElement("name", temp_buf);
+							parents_count++;
+						}
+						for(uint i = 0; i < (uint)parents_count; i++)
+							p_writer->EndElement(); // </parent-group>
+					}
+					p_writer->EndElement(); // </group>
+				}
+				MEMSZERO(unit_rec);
+				unit_obj.Fetch(prev_gds_info.UnitID, &unit_rec);
+				p_writer->StartElement("measure-type");
+				p_writer->AddAttrib("id", unit_rec.ID);
+				p_writer->PutElement("name", unit_rec.Name);
+				p_writer->EndElement();
+				{
+					if(country_id) {
+						p_writer->StartElement("country", "id", temp_buf.Z().Cat(country_id));
+						GetObjectName(PPOBJ_WORLD, country_id, temp_buf.Z());
+						p_writer->PutElement("name", temp_buf);
+						p_writer->EndElement();
+					}
+					if(prev_gds_info.ManufID) {
+						p_writer->StartElement("manufacturer", "id", temp_buf.Z().Cat(prev_gds_info.ManufID));
+						GetPersonName(prev_gds_info.ManufID, temp_buf.Z());
+						p_writer->PutElement("name", temp_buf);
+						p_writer->EndElement();
+					}
+				}
+				//
+				// Загрузка принадлежности группам продаж
+				//
+				if(EqCfg.SalesGoodsGrp != 0) {
+					uint   sg_pos = 0;
+					PPID   sub_grp_id = 0;
+					if(ggobj.BelongToGroup(prev_gds_info.ID, EqCfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && rSalesGrpList.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
+						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(rSalesGrpList.at(sg_pos));
+						p_writer->StartElement("sale-group");
+						p_writer->AddAttrib("id", sub_grp_id);
+						p_writer->PutElement("name", p_sentry->GrpName);
+						p_writer->EndElement();
+					}
+				}
+				p_writer->PutPlugin("precision", prev_gds_info.Precision); // @v9.1.3
+				if(is_spirit) {
+					if(agi.Proof != 0.0) {
+						temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0));
+						p_writer->PutPlugin("alcoholic-content-percentage", temp_buf);
+					}
+					if(agi.StatusFlags & agi.stMarkWanted) {
+						p_writer->PutElement("excise", true);
+					}
+				}
+				else if(!is_weight) {
+					if(checkdate(expiry))
+						p_writer->PutPlugin("best-before", expiry);
+				}
+				else {
+					SString ingred, storage, energy;
+					/*
+						1. composition (состав)
+						2. storage-conditions (условия хранения)
+						3. food-value (пищевая ценность)
+					*/
+					{
+						uint   ss_pos = 0;
+						prev_gds_info.AddedMsgList.get(&ss_pos, ingred) && prev_gds_info.AddedMsgList.get(&ss_pos, storage) && prev_gds_info.AddedMsgList.get(&ss_pos, energy);
+					}
+					if(checkdate(expiry)) {
+						long   hours = diffdate(expiry, beg_dtm.d) * 24;
+						p_writer->PutPlugin("good-for-hours", hours);
+						// p_writer->PutPlugin("best-before", expiry);
+					}
+					p_writer->PutPlugin("composition", ingred);
+					p_writer->PutPlugin("storage-conditions", storage);
+					p_writer->PutPlugin("food-value", energy);
+					p_writer->PutPlugin("plu-number", plu_num++);
+					p_writer->PutPlugin("description-on-scale-screen", prev_gds_info.LabelName);
+					p_writer->PutPlugin("name-on-scale-screen", prev_gds_info.Name);
+				}
+			}
+			if(oneof2(mode, 0, 2)) {
+				if(do_process_lookbackprices) {
+					RealArray price_list;
+					if(pGoodsIter->GetDifferentPricesForLookBackPeriod(prev_gds_info.ID, prev_gds_info.Price, price_list) > 0) {
+						assert(price_list.getCount());
+						p_writer->StartElement("plugin-property", "key", "mrc");
+						for(uint pi = 0; pi < price_list.getCount(); pi++) {
+							p_writer->PutPlugin("price", price_list[pi]);
+						}
+						if(ModuleSubVer >= 2) {
+							p_writer->PutPlugin("price", prev_gds_info.Price);
+						}
+						p_writer->EndElement(); // </plugin-property>
+						/*
+							<plugin-property key="mrc">
+							<plugin-property key="price" value="15.00"/>
+							<plugin-property key="price" value="18.00"/>
+							<plugin-property key="price" value="25.00"/>
+							</plugin-property>
+						*/
+					}
+				}
+			}
+			if(oneof2(mode, 0, 1)) {
+				// @v9.5.2 {
+				if(prev_gds_info.GoodsFlags & GF_PASSIV && rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && prev_gds_info.Rest <= 0.0) { // @v10.2.3 @fix gds_info-->prev_gds_info
+					//<delete-from-cash>true</delete-from-cash>
+					p_writer->PutElement("delete-from-cash", true);
+				}
+				// } @v9.5.2
+			}
+			p_writer->EndElement(); // </good>
+			if((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted) || labs(prev_gds_info.NoDis) == 1) {
+				_MaxDisEntry dis_entry;
+				STRNSCPY(dis_entry.Barcode, prev_gds_info.PrefBarCode);
+				dis_entry.NoDis = prev_gds_info.NoDis;
+				dis_entry.Deleted = BIN(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted);
+				max_dis_list.insert(&dis_entry);
+			}
+			barcodes.clear();
+		}
+		if(rGoodsInfo.BarCode[0]) {
+			BarcodeTbl::Rec bc;
+			MEMSZERO(bc);
+			bc.GoodsID = rGoodsInfo.ID;
+			STRNSCPY(bc.Code, rGoodsInfo.BarCode);
+			bc.Qtty = rGoodsInfo.UnitPerPack;
+			if(bc.Qtty <= 0.0)
+				bc.Qtty = 1.0;
+			if(rGoodsInfo.Flags_ & rGoodsInfo.fGMarkedCode)
+				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_MARKED);
+			IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED);
+			if(rGoodsInfo.PrefBarCode[0] && strcmp(bc.Code, rGoodsInfo.PrefBarCode) == 0) {
+				//bc.BarcodeType = BARCODE_TYPE_PREFERRED;
+				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_PREFERRED);
+			}
+			barcodes.insert(&bc);
+		}
+		prev_goods_id = rGoodsInfo.ID;
+		prev_gds_info = rGoodsInfo;
+		PPWaitPercent(pGoodsIter->GetIterCounter());
+	}
+	if(oneof2(mode, 0, 2)) {
+		//
+		// Выгрузка максимальных скидок на товар
+		//
+		const uint max_dis_count = max_dis_list.getCount();
+		PPLoadText(PPTXT_MAXDISEXPORT, iter_msg);
+		{
+			for(uint i = 0; i < max_dis_count; i++) {
+				const char * p_subj_type = "GOOD";
+				const char * p_type = "MAX_DISCOUNT_PERCENT";
+				SString restr_id;
+				const _MaxDisEntry * p_entry = static_cast<const _MaxDisEntry *>(max_dis_list.at(i));
+				(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
+				p_writer->StartElement("max-discount-restriction");
+	 			p_writer->AddAttrib("id", restr_id.cptr());
+				p_writer->AddAttrib("subject-type", p_subj_type);
+				p_writer->AddAttrib("subject-code", p_entry->Barcode);
+				p_writer->AddAttrib("type", p_type);
+				p_writer->AddAttrib("value", (p_entry->NoDis > 0) ? 0.00 : 99.99);
+				p_writer->PutElement("since-date", beg_dtm);
+				p_writer->PutElement("till-date", end_dtm);
+				p_writer->PutElement("since-time", beg_dtm.t);
+				p_writer->PutElement("till-time", end_dtm.t);
+				p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
+				p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
+				// @v10.4.6 {
+				if(rStoreIndex.NotEmpty())
+					p_writer->PutElement("shop-indices", rStoreIndex); //<shop-indices>2</shop-indices>
+				// } @v10.4.6 
+				p_writer->EndElement(); // </max-discount-restriction>
+				PPWaitPercent(i + 1, max_dis_count, iter_msg);
+			}
+		}
+	}
+	p_writer->EndElement(); // </goods-catalog>
+	CATCHZOK
+	ZDELETE(p_writer);
+	return ok;
+}
+
+int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
+{
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	//int    check_dig = 0;
+	int    add_time_to_fname = 0;
+	int    use_new_dscnt_code_alg = 0;
+	int    diff_goods_export = 0;
+	uint   i = 0;
+	//long   plu_num = 1;
+	//PPID   prev_goods_id = 0;
+	//PPID   alc_cls_id = 0;
+	//PPID   tobacco_cls_id = 0;
+	//PPID   giftcard_cls_id = 0;
+	//PPID   sr_prodtagb_tag = 0;
 	SString temp_buf;
 	SString path;
 	SString path_goods;
 	SString path_cashiers;
 	SString path_cards;
 	SString iter_msg;
-	SString alc_proof;
-	SString alc_vol;
+	//SString alc_proof;
+	//SString alc_vol;
 	SString store_index; // Индекс магазина (извлекается из тега склада по конфигурационному параметру PPLocationConfig::StoreIdxTag)
-	SString grp_code;
-	BarcodeArray barcodes;
-	PPUnit    unit_rec;
-	PPObjUnit unit_obj;
+	//SString grp_code;
+	//BarcodeArray barcodes;
+	//PPUnit    unit_rec;
+	//PPObjUnit unit_obj;
 	PPObjTag  tag_obj;
-	PPGdsClsPacket gc_pack;
+	//PPGdsClsPacket gc_pack;
 	PPObjQuotKind  qk_obj;
-	PPObjGoodsClass obj_gdscls;
-	PPGoodsConfig gds_cfg;
-	PPObjGoods gobj;
+	//PPObjGoodsClass obj_gdscls;
+	//PPGoodsConfig gds_cfg;
+	//PPObjGoods gobj;
 	XmlWriter * p_writer = 0;
 	PPAsyncCashNode cn_data;
-	AsyncCashGoodsInfo gds_info, prev_gds_info;
+	AsyncCashGoodsInfo gds_info;
+	//AsyncCashGoodsInfo prev_gds_info;
 	AsyncCashGoodsGroupInfo grp_info;
-	AsyncCashGoodsIterator * p_gds_iter = 0;
+	//AsyncCashGoodsIterator * p_gds_iter = 0;
 	AsyncCashGoodsGroupIterator * p_grp_iter = 0;
-	PrcssrAlcReport::GoodsItem agi;
-	struct _SalesGrpEntry {
-		PPID   GrpID;
-		char   GrpName[64];
-		char   Code[24];
-	};
-	SArray  sales_grp_list(sizeof(_SalesGrpEntry));
-	struct _MaxDisEntry {
-		char   Barcode[24];
-		int16  Deleted;
-		int16  NoDis;
-	};
-	SArray max_dis_list(sizeof(_MaxDisEntry));
+	//PrcssrAlcReport::GoodsItem agi;
+	SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v10.6.3 SArray-->SVector
+	//SVector max_dis_list(sizeof(_MaxDisEntry)); // @v10.6.3 SArray-->SVector
 	PPObjGoodsGroup ggobj;
-	RetailPriceExtractor rpe;
-	PPObjGoods::ReadConfig(&gds_cfg);
+	//RetailPriceExtractor rpe;
+	//PPObjGoods::ReadConfig(&gds_cfg);
 	//
 	// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
 	//
@@ -627,18 +998,21 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			p_ref->Ot.GetTagStr(PPOBJ_LOCATION, cn_data.LocID, loc_cfg.StoreIdxTagID, store_index);
 	}
 	// @v10.4.12 {
-	{
+	/* @v10.6.3 (moved to Helper_ExportGoods_V10()) {
 		PPID   temp_tag_id = 0;
 		if(tag_obj.FetchBySymb("setretail-prodtagb", &temp_tag_id) > 0)
 			sr_prodtagb_tag = temp_tag_id;
-	}
+	}*/
 	// } @v10.4.12 
-	rpe.Init(cn_data.LocID, 0, 0, ZERODATETIME, 0);
-	check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
+	// @v10.6.3 (moved to Helper_ExportGoods_V10()) rpe.Init(cn_data.LocID, 0, 0, ZERODATETIME, 0);
+	//const int check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	THROW(DistributeFile(0, 3, SUBDIR_PRODUCTS));
 	THROW(DistributeFile(0, 3, SUBDIR_CARDS));
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
+	// @v10.6.3 {
+	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT, &diff_goods_export);
+	// } @v10.6.3
 	THROW(PPGetFilePath(PPPATH_OUT, GOODS_XML,            path_goods));
 	THROW(PPGetFilePath(PPPATH_OUT, CASHIERS_XML,         path_cashiers));
 	THROW(PPGetFilePath(PPPATH_OUT, CARDS_XML,            path_cards));
@@ -672,6 +1046,21 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		sales_grp_list.sort(CMPF_LONG);
 	}
 	P_Dls->StartLoading(&StatID, dvctCashs, NodeID, 1);
+	PROFILE_START
+	/* @v10.6.3 (moved to Helper_ExportGoods_V10()) 
+	alc_cls_id = p_gds_iter->GetAlcoGoodsCls(&alc_proof, &alc_vol);
+	if(!(alc_proof.Len() || alc_vol.Len()) || obj_gdscls.Fetch(alc_cls_id, &gc_pack) <= 0)
+		alc_cls_id = 0;
+	tobacco_cls_id = p_gds_iter->GetTobaccoGoodsCls();
+	giftcard_cls_id = p_gds_iter->GetGiftCardGoodsCls();
+	*/
+	//
+	// Инициализируем список видов котировок, которые нам понадобятся от RetailGoodsExtractor для экспорта
+	//
+	for(i = 0; i < scard_quot_ary.getCount(); i++)
+		if(scard_quot_ary.at(i).Val)
+			gds_info.QuotList.Add(scard_quot_ary.at(i).Val, 0, 1);
+	//
 	{
 		long acgif = 0;
 		if(updOnly) {
@@ -679,324 +1068,26 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			if(updOnly == 2)
 				acgif |= ACGIF_REDOSINCEDLS;
 		}
-		THROW_MEM(p_gds_iter = new AsyncCashGoodsIterator(NodeID, acgif, SinceDlsID, P_Dls));
-	}
-	PROFILE_START
-	alc_cls_id = p_gds_iter->GetAlcoGoodsCls(&alc_proof, &alc_vol);
-	if(!(alc_proof.Len() || alc_vol.Len()) || obj_gdscls.Fetch(alc_cls_id, &gc_pack) <= 0)
-		alc_cls_id = 0;
-	tobacco_cls_id = p_gds_iter->GetTobaccoGoodsCls();
-	giftcard_cls_id = p_gds_iter->GetGiftCardGoodsCls();
-	//
-	// Инициализируем список видов котировок, которые нам понадобятся от RetailGoodsExtractor для экспорта
-	//
-	for(i = 0; i < scard_quot_ary.getCount(); i++)
-		if(scard_quot_ary.at(i).Val)
-			gds_info.QuotList.Add(scard_quot_ary.at(i).Val, 0, 1);
-
-	LDATETIME beg_dtm;
-	LDATETIME end_dtm;
-	getcurdate(&beg_dtm.d);
-	plusperiod(&(end_dtm.d = beg_dtm.d), PRD_ANNUAL, 50, 0);
-	beg_dtm.t = encodetime(0,  0, 0, 0);
-	end_dtm.t = encodetime(23, 59, 59, 0);
-	THROW_MEM(p_writer = new XmlWriter(path_goods, 1));
-	p_writer->StartElement("goods-catalog");
-	int    last_goods_export = 0, iter_end = 0;
-	const int ignore_lookbackprices = CheckCnExtFlag(CASHFX_IGNLOOKBACKPRICES);
-	while((iter_end = p_gds_iter->Next(&gds_info)) > 0 || !last_goods_export) {
-		if(iter_end <= 0)
-			last_goods_export = 1;
-		if(last_goods_export || gds_info.ID != prev_goods_id && prev_goods_id) {
-			// @v9.0.9 const  int is_spirit    = BIN(alc_cls_id && alc_cls_id == prev_gds_info.GdsClsID);
-			const  int is_spirit    = BIN(p_gds_iter->GetAlcoGoodsExtension(prev_gds_info.ID, 0, agi) > 0); // @v9.0.9
-			const  int is_tobacco   = BIN(tobacco_cls_id && tobacco_cls_id == prev_gds_info.GdsClsID);
-			const  int is_gift_card = BIN(giftcard_cls_id && giftcard_cls_id == prev_gds_info.GdsClsID);
-			int    do_process_lookbackprices = 0;
-			int    is_weight = 0;
-			LDATE  expiry = ZERODATE;
-			PPID   country_id = 0;
-			PPGoodsPacket goods_pack;
-			PPQuotKind qk_rec;
-			temp_buf.Z();
-			if(CConfig.Flags & CCFLG_DEBUG)
-				LogExportingGoodsItem(&prev_gds_info);
+		//THROW_MEM(p_gds_iter = new AsyncCashGoodsIterator(NodeID, acgif, SinceDlsID, P_Dls));
+		if(diff_goods_export) {
 			{
-				RetailExtrItem  rtl_ext_item;
-				rpe.GetPrice(prev_gds_info.ID, 0, 0.0, &rtl_ext_item);
-				expiry = rtl_ext_item.Expiry;
+				AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
+				THROW(Helper_ExportGoods_V10(1/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info));
 			}
-			AddCheckDigToBarcode(prev_gds_info.PrefBarCode);
-			p_writer->StartElement("good", "marking-of-the-good", prev_gds_info.PrefBarCode);
-			if(store_index.NotEmpty()) {
-				//<shop-indices>2</shop-indices>
-				p_writer->PutElement("shop-indices", store_index);
-			}
-			p_writer->PutElement("name", prev_gds_info.Name);
-			for(i = 0; i < barcodes.getCount(); i++) {
-				BarcodeTbl::Rec bc = barcodes.at(i);
-				if(sstrlen(bc.Code)) {
-					if(!is_weight && !is_spirit && !is_tobacco && !is_gift_card)
-						is_weight = gds_cfg.IsWghtPrefix(bc.Code);
-					AddCheckDigToBarcode(bc.Code);
-					p_writer->StartElement("bar-code", "code", bc.Code);
-					// @v10.4.11 {
-					if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
-						p_writer->AddAttrib("marked", "true");
-					}
-					// } @v10.4.11 
-					// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price));
-					// p_writer->PutElement("begin-date", beg_dtm);
-					// p_writer->PutElement("end-date", end_dtm);
-					// p_writer->EndElement();
-					p_writer->PutElement("count", bc.Qtty);
-					p_writer->PutElement("default-code", LOGIC(strcmp(bc.Code, prev_gds_info.PrefBarCode) == 0));
-					p_writer->EndElement(); // </bar-code>
-				}
-			}
-			// тип товара:
-			// ProductPieceEntity - штучный, ProductWeightEntity - весовой и т.д.
-			if(is_spirit) {
-				p_writer->PutElement("product-type", "ProductSpiritsEntity");
-			}
-			else if(is_tobacco) {
-				p_writer->PutElement("product-type", "ProductCiggyEntity");
-				if(!ignore_lookbackprices)
-					do_process_lookbackprices = 1;
-			}
-			else if(is_gift_card)
-				p_writer->PutElement("product-type", "ProductGiftCardEntity");
-			else if(is_weight == 1)
-				p_writer->PutElement("product-type", "ProductWeightEntity");
-			else if(is_weight == 2)
-				p_writer->PutElement("product-type", "ProductPieceWeightEntity");
-			else
-				p_writer->PutElement("product-type", "ProductPieceEntity");
-			// @v10.4.12 {
-			if(sr_prodtagb_tag && p_ref->Ot.GetTagStr(PPOBJ_GOODS, prev_gds_info.ID, sr_prodtagb_tag, temp_buf) > 0) {
-				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-				p_writer->PutElement(temp_buf, "true");
-			}
-			// } @v10.4.12 
-			long divn  = (cn_data.Flags & CASHF_EXPDIVN) ? prev_gds_info.DivN : 1;
-			p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price, SFMT_MONEY));
-			p_writer->PutElement("begin-date", beg_dtm);
-			p_writer->PutElement("end-date", end_dtm);
-			p_writer->PutElement("number", "1");
-			p_writer->StartElement("department", "number", temp_buf.Z().Cat(divn));
-			p_writer->PutElement("name", temp_buf);
-			p_writer->EndElement();
-			p_writer->EndElement();
-			p_writer->PutElement("vat", prev_gds_info.VatRate);
-			//
-			// Иерархия товарных групп
-			//
-			if(cn_data.Flags & CASHF_EXPGOODSGROUPS && prev_gds_info.ParentID) {
-				Goods2Tbl::Rec ggrec;
-				grp_code.Z();
-				if(gobj.FetchSingleBarcode(prev_gds_info.ParentID, grp_code) > 0 && grp_code.Len())
-					grp_code.ShiftLeftChr('@');
-				else
-					grp_code.Z().Cat(prev_gds_info.ParentID);
-				p_writer->StartElement("group", "id", grp_code);
-				GetObjectName(PPOBJ_GOODSGROUP, prev_gds_info.ParentID, temp_buf);
-				p_writer->PutElement("name", temp_buf);
-				MEMSZERO(ggrec);
-				{
-					PPID   parent_id = prev_gds_info.ParentID;
-					long   parents_count = 0;
-					while(gobj.GetParentID(parent_id, &parent_id) > 0 && parent_id != 0) {
-						if(gobj.FetchSingleBarcode(parent_id, grp_code) > 0 && grp_code.Len())
-							grp_code.ShiftLeftChr('@');
-						else
-							grp_code.Z().Cat(parent_id);
-						p_writer->StartElement("parent-group");
-						p_writer->AddAttrib("id", grp_code);
-						GetObjectName(PPOBJ_GOODSGROUP, parent_id, temp_buf);
-						p_writer->PutElement("name", temp_buf);
-						parents_count++;
-					}
-					for(i = 0; i < (uint)parents_count; i++)
-						p_writer->EndElement(); // </parent-group>
-				}
-				p_writer->EndElement(); // </group>
-			}
-			MEMSZERO(unit_rec);
-			unit_obj.Fetch(prev_gds_info.UnitID, &unit_rec);
-			p_writer->StartElement("measure-type");
-			p_writer->AddAttrib("id", unit_rec.ID);
-			p_writer->PutElement("name", unit_rec.Name);
-			p_writer->EndElement();
 			{
-				if(country_id) {
-					p_writer->StartElement("country", "id", temp_buf.Z().Cat(country_id));
-					GetObjectName(PPOBJ_WORLD, country_id, temp_buf.Z());
-					p_writer->PutElement("name", temp_buf);
-					p_writer->EndElement();
-				}
-				if(prev_gds_info.ManufID) {
-					p_writer->StartElement("manufacturer", "id", temp_buf.Z().Cat(prev_gds_info.ManufID));
-					GetPersonName(prev_gds_info.ManufID, temp_buf.Z());
-					p_writer->PutElement("name", temp_buf);
-					p_writer->EndElement();
-				}
+				AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
+				THROW(Helper_ExportGoods_V10(2/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info));
 			}
-			//
-			// Загрузка принадлежности группам продаж
-			//
-			if(EqCfg.SalesGoodsGrp != 0) {
-				uint   sg_pos = 0;
-				PPID   sub_grp_id = 0;
-				if(ggobj.BelongToGroup(prev_gds_info.ID, EqCfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
-					_SalesGrpEntry * p_sentry = static_cast<_SalesGrpEntry *>(sales_grp_list.at(sg_pos));
-					p_writer->StartElement("sale-group");
-					p_writer->AddAttrib("id", sub_grp_id);
-					p_writer->PutElement("name", p_sentry->GrpName);
-					p_writer->EndElement();
-				}
-			}
-			p_writer->PutPlugin("precision", prev_gds_info.Precision); // @v9.1.3
-			if(is_spirit) {
-				/* @v9.0.9
-				double proof = 0.0;
-				if(alc_proof.Len()) {
-					if(goods_pack.Rec.ID || gobj.GetPacket(prev_gds_info.ID, &goods_pack, 0) > 0) {
-						GdsClsCalcExprContext ctx(&gc_pack, &goods_pack);
-						PPCalcExpression(alc_proof, &proof, &ctx);
-					}
-				}
-				*/
-				if(agi.Proof != 0.0) { // @v9.0.9 proof-->agi.Proof
-					temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0));
-					p_writer->PutPlugin("alcoholic-content-percentage", temp_buf);
-				}
-				if(agi.StatusFlags & agi.stMarkWanted) {
-					p_writer->PutElement("excise", true);
-				}
-			}
-			else if(!is_weight) {
-				// @v9.1.3 (перенесено наверх) p_writer->PutPlugin("precision", prev_gds_info.Precision);
-				if(checkdate(expiry))
-					p_writer->PutPlugin("best-before", expiry);
-			}
-			else {
-				SString ingred, storage, energy;
-				/*
-					1. composition (состав)
-					2. storage-conditions (условия хранения)
-					3. food-value (пищевая ценность)
-				*/
-				{
-					uint   ss_pos = 0;
-					prev_gds_info.AddedMsgList.get(&ss_pos, ingred) && prev_gds_info.AddedMsgList.get(&ss_pos, storage) && prev_gds_info.AddedMsgList.get(&ss_pos, energy);
-				}
-				// @v9.1.3 (перенесено наверх) p_writer->PutPlugin("precision", prev_gds_info.Precision);
-				if(checkdate(expiry)) {
-					long   hours = diffdate(expiry, beg_dtm.d) * 24;
-					p_writer->PutPlugin("good-for-hours", hours);
-					// p_writer->PutPlugin("best-before", expiry);
-				}
-				p_writer->PutPlugin("composition", ingred);
-				p_writer->PutPlugin("storage-conditions", storage);
-				p_writer->PutPlugin("food-value", energy);
-				p_writer->PutPlugin("plu-number", plu_num++);
-				p_writer->PutPlugin("description-on-scale-screen", prev_gds_info.LabelName);
-				p_writer->PutPlugin("name-on-scale-screen", prev_gds_info.Name);
-			}
-			if(do_process_lookbackprices) {
-				RealArray price_list;
-				if(p_gds_iter->GetDifferentPricesForLookBackPeriod(prev_gds_info.ID, prev_gds_info.Price, price_list) > 0) {
-					assert(price_list.getCount());
-					p_writer->StartElement("plugin-property", "key", "mrc");
-					for(uint pi = 0; pi < price_list.getCount(); pi++) {
-						p_writer->PutPlugin("price", price_list[pi]);
-					}
-					if(ModuleSubVer >= 2) {
-						p_writer->PutPlugin("price", prev_gds_info.Price);
-					}
-					p_writer->EndElement(); // </plugin-property>
-                    /*
-						<plugin-property key="mrc">
-						<plugin-property key="price" value="15.00"/>
-						<plugin-property key="price" value="18.00"/>
-						<plugin-property key="price" value="25.00"/>
-						</plugin-property>
-                    */
-				}
-			}
-			// @v9.5.2 {
-			if(prev_gds_info.GoodsFlags & GF_PASSIV && cn_data.ExtFlags & CASHFX_RMVPASSIVEGOODS && prev_gds_info.Rest <= 0.0) { // @v10.2.3 @fix gds_info-->prev_gds_info
-				//<delete-from-cash>true</delete-from-cash>
-				p_writer->PutElement("delete-from-cash", true);
-			}
-			// } @v9.5.2
-			p_writer->EndElement(); // </good>
-			if((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted) || labs(prev_gds_info.NoDis) == 1) {
-				_MaxDisEntry dis_entry;
-				STRNSCPY(dis_entry.Barcode, prev_gds_info.PrefBarCode);
-				dis_entry.NoDis = prev_gds_info.NoDis;
-				dis_entry.Deleted = BIN(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted);
-				max_dis_list.insert(&dis_entry);
-			}
-			barcodes.clear();
 		}
-		if(gds_info.BarCode[0]) {
-			BarcodeTbl::Rec bc;
-			MEMSZERO(bc);
-			bc.GoodsID = gds_info.ID;
-			STRNSCPY(bc.Code, gds_info.BarCode);
-			bc.Qtty = gds_info.UnitPerPack;
-			if(bc.Qtty <= 0.0)
-				bc.Qtty = 1.0;
-			if(gds_info.Flags_ & gds_info.fGMarkedCode)
-				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_MARKED);
-			IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED);
-			if(gds_info.PrefBarCode[0] && strcmp(bc.Code, gds_info.PrefBarCode) == 0) {
-				//bc.BarcodeType = BARCODE_TYPE_PREFERRED;
-				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_PREFERRED);
-			}
-			barcodes.insert(&bc);
+		else {
+			AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
+			THROW(Helper_ExportGoods_V10(0/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info));
 		}
-		prev_goods_id = gds_info.ID;
-		prev_gds_info = gds_info;
-		PPWaitPercent(p_gds_iter->GetIterCounter());
 	}
 	//
-	// Выгрузка максимальных скидок на товар
-	//
-	uint   max_dis_count = max_dis_list.getCount();
-	PPLoadText(PPTXT_MAXDISEXPORT, iter_msg);
-	for(i = 0; i < max_dis_count; i++) {
-		const char * p_subj_type = "GOOD";
-		const char * p_type = "MAX_DISCOUNT_PERCENT";
-		SString restr_id;
-		const _MaxDisEntry * p_entry = static_cast<const _MaxDisEntry *>(max_dis_list.at(i));
-		(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
-		p_writer->StartElement("max-discount-restriction");
-	 	p_writer->AddAttrib("id", restr_id.cptr());
-		p_writer->AddAttrib("subject-type", p_subj_type);
-		p_writer->AddAttrib("subject-code", p_entry->Barcode);
-		p_writer->AddAttrib("type", p_type);
-		p_writer->AddAttrib("value", (p_entry->NoDis > 0) ? 0.00 : 99.99);
-		p_writer->PutElement("since-date", beg_dtm);
-		p_writer->PutElement("till-date", end_dtm);
-		p_writer->PutElement("since-time", beg_dtm.t);
-		p_writer->PutElement("till-time", end_dtm.t);
-		p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
-		p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
-		// @v10.4.6 {
-		if(store_index.NotEmpty())
-			p_writer->PutElement("shop-indices", store_index); //<shop-indices>2</shop-indices>
-		// } @v10.4.6 
-		p_writer->EndElement(); // </max-discount-restriction>
-		PPWaitPercent(i + 1, max_dis_count, iter_msg);
-	}
-	p_writer->EndElement(); // </goods-catalog>
-	ZDELETE(p_writer);
-
 	PROFILE_END
 	ZDELETE(p_grp_iter);
-	ZDELETE(p_gds_iter);
+	//ZDELETE(p_gds_iter);
 	/* кассиры заводятся в сете
 	if(EqCfg.CshrsPsnKindID) {
 		AsyncCashierInfo      cshr_info;
@@ -1196,7 +1287,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	ENDCATCH
 	ZDELETE(p_writer);
 	PPWait(0);
-	delete p_gds_iter;
+	//delete p_gds_iter;
 	delete p_grp_iter;
 	return ok;
 }
@@ -1363,7 +1454,10 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	CrsFilePool fp;
 	AsyncCashGoodsIterator * p_gds_iter = 0;
 	AsyncCashGoodsGroupIterator * p_grp_iter = 0;
-	int    check_dig = 0, use_dscnt_code = 0, add_time_to_fname = 0, use_new_dscnt_code_alg = 0;
+	int    check_dig = 0;
+	int    use_dscnt_code = 0;
+	int    add_time_to_fname = 0;
+	int    use_new_dscnt_code_alg = 0;
 	uint   i, k;
 	PPID   prev_goods_id = 0, old_dscnt_code_bias = 0;
 	PPID   loc_id = 0;
@@ -1674,7 +1768,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 					uint   sg_pos = 0;
 					PPID   sub_grp_id = 0;
 					if(ggobj.BelongToGroup(gi.ID, EqCfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
-						_SalesGrpEntry * p_sentry = (_SalesGrpEntry*)sales_grp_list.at(sg_pos);
+						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(sales_grp_list.at(sg_pos));
 						dbfrSGI.empty();
 						dbfrSGI.put(1, ltoa(gi.ID, tempbuf, 10));
 						dbfrSGI.put(2, p_sentry->Code);
@@ -1714,7 +1808,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 							if(use_new_dscnt_code_alg)
 								dbfrD.put(next_fld++, GetDscntCode(gi.ID, scard_quot_ary.at(i).Key, 0)); // Код скидки
 							else
-								dbfrD.put(next_fld++, (long)(0x01000000 * old_dscnt_code_bias + gi.ID)); // Код скидки
+								dbfrD.put(next_fld++, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
 						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_rec) <= 0)
 							MEMSZERO(qk_rec);
 						dbfrD.put(next_fld++, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
@@ -1749,7 +1843,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 						if(use_new_dscnt_code_alg)
 							dbfrGQD.put(2, GetDscntCode(gi.ID, quot_by_qtty.Kind, 1)); // Код скидки
 						else
-							dbfrGQD.put(2, (long)(0x01000000 * old_dscnt_code_bias + gi.ID)); // Код скидки
+							dbfrGQD.put(2, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
 						dbfrGQD.put(3, 0L);                             // Тип скидки (0 - на кол-во)
 						dbfrGQD.put(4, quot_by_qtty.MinQtty);           // Кол-во, на которое применяется скидка
 						dbfrGQD.put(5, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
@@ -1793,7 +1887,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 								dbfr.put(5, dscnt_sum); // Сумма скидки
 								dbfr.put(6, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
 								dbfr.put(7, GetDatetimeStrEnd(qk_rec.Period.upp, qk_rec.EndTm,   dttm_str));
-								dbfr.put(8, (long)4);
+								dbfr.put(8, 4L);
 								THROW_PP(p_tbl->appendRec(&dbfr), PPERR_DBFWRFAULT);
 							}
 						}
@@ -1801,7 +1895,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 				}
 			}
 		}
-		if(sstrlen(gi.BarCode) != 0) {
+		if(sstrlen(gi.BarCode)) {
 			DbfTable * p_tbl = fp.GetTable(fp.tBarcode);
 			THROW(p_tbl);
 			{
@@ -1812,7 +1906,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 				dbfrB.put(1, ltoa(gi.ID, tempbuf, 10));
 				dbfrB.put(2, gi.BarCode);
 				dbfrB.put(3, gi.UnitPerPack);
-				dbfrB.put(4, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // @v6.7.10 Номер секции
+				dbfrB.put(4, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
 				THROW_PP(p_tbl->appendRec(&dbfrB), PPERR_DBFWRFAULT);
 			}
 		}
@@ -2122,7 +2216,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						if(use_new_dscnt_code_alg)
 							dbfrGGQD.put(6, GetDscntCode(grpe.GrpID[0], quot_by_qtty.Kind, 1)); // Код скидки
 						else
-							dbfrGGQD.put(6, (long)(0x01000000 * old_dscnt_code_bias + grpe.GrpID[0])); // Код скидки
+							dbfrGGQD.put(6, (0x01000000L * old_dscnt_code_bias + grpe.GrpID[0])); // Код скидки
 						dbfrGGQD.put(7, 2L);                             // Код обработки кол-ва (2 - на превышение)
 						dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // Кол-во, больше которого применяется скидка
 						dbfrGGQD.put(9, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
@@ -2169,11 +2263,11 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					for(k = 0; k <= grpe.Level; k++)
 						dbfrG.put(5 + k, grpe.GrpID[grpe.Level - k]);
 					for(; k <= grpe.Level; k++)
-						dbfrG.put(5 + k, (int)0);
+						dbfrG.put(5 + k, static_cast<int>(0));
 				}
 				else {
 					for(k = 5; k < 10; k++)
-						dbfrG.put(k, (int)0);
+						dbfrG.put(k, static_cast<int>(0));
 				}
 				// } Группа товаров 1-5
 				dbfrG.put(10, gi.Price);	  // Цена товара
@@ -2181,7 +2275,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				dbfrG.put(11, gi.Precision);           // @v6.7.8 Мерность товара
 				dbfrG.put(12, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
 				dbfrG.put(13,  gi.ID);       // ID ограничения на скидку
-				dbfrG.put(14, (double)((gi.NoDis > 0) ? 100 : 0)); // Min цена товара
+				dbfrG.put(14, (gi.NoDis > 0) ? 100.0 : 0.0); // Min цена товара
 				// (100% - скидки запрещены, 0% - любые скидки разрешены)
 				dbfrG.put(15, gi.VatRate);
 				dbfrG.put(16, gi.Rest);
@@ -2194,7 +2288,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					PPID   sub_grp_id = 0;
 					DbfRecord dbfrSGI(p_out_tbl_sggrpi);
 					if(ggobj.BelongToGroup(gi.ID, EqCfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
-						_SalesGrpEntry * p_sentry = (_SalesGrpEntry*)sales_grp_list.at(sg_pos);
+						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(sales_grp_list.at(sg_pos));
 						dbfrSGI.empty();
 						dbfrSGI.put(1, ltoa(gi.ID, tempbuf, 10));
 						dbfrSGI.put(2, p_sentry->Code);
@@ -2233,7 +2327,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 							if(use_new_dscnt_code_alg)
 								dbfrD.put(next_fld++, GetDscntCode(gi.ID, scard_quot_ary.at(i).Key, 0)); // Код скидки
 							else
-								dbfrD.put(next_fld++, (long)(0x01000000 * old_dscnt_code_bias + gi.ID)); // Код скидки
+								dbfrD.put(next_fld++, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
 						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_rec) > 0) {
 							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
 							dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.BeginTm,*(((char *)&qk_rec.BeginTm) + 1), 0, 0), TIMF_HM);
@@ -2262,7 +2356,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 							if(use_new_dscnt_code_alg)
 								dbfrGQD.put(2, GetDscntCode(gi.ID, quot_by_qtty.Kind, 1)); // Код скидки
 							else
-								dbfrGQD.put(2, (long)(0x01000000 * old_dscnt_code_bias + gi.ID)); // Код скидки
+								dbfrGQD.put(2, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
 							dbfrGQD.put(3, 0L);                             // Тип скидки (0 - на кол-во)
 							dbfrGQD.put(4, quot_by_qtty.MinQtty);           // Кол-во, на которое применяется скидка
 							dbfrGQD.put(5, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
@@ -2446,15 +2540,15 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, co
 static void SLAPI ConvertCrystalRightsSetToCashierRights(long crystCshrRights, long * pCshrRights)
 {
 	int    i;
-	char   rights_buf[32];
-	char   correspondance[32] = {3,18,4,5,6,20,12,22,8,9,30,1,10,31,7,23,19,24,25,26,27,17,28,21,29,0,2,0,11,0,0,0};
+	char   correspondance[] = {3,18,4,5,6,20,12,22,8,9,30,1,10,31,7,23,19,24,25,26,27,17,28,21,29,0,2,0,11,0,0,0}; // 32 items
+	char   rights_buf[SIZEOFARRAY(correspondance)];
 	BitArray  cryst_righst_ary, rights_ary;
 	cryst_righst_ary.Init(&crystCshrRights, 32);
 	memzero(rights_buf, sizeof(rights_buf));
-	for(i = 0; i < 32; i++)
+	for(i = 0; i < SIZEOFARRAY(correspondance); i++)
 		if(cryst_righst_ary.get(i) && correspondance[i])
-			rights_buf[correspondance[i] - 1] = 1;
-	for(i = 0; i < 32; i++)
+			rights_buf[correspondance[i]-1] = 1;
+	for(i = 0; i < SIZEOFARRAY(rights_buf); i++)
 		rights_ary.insert(rights_buf[i]);
 	rights_ary.getBuf(pCshrRights, sizeof(long));
 }
@@ -2877,7 +2971,7 @@ static int FindFirstRec(xmlNode * pChild, xmlNode ** ppCurRec, const char * pTag
 	if(pChild)
 		p_rec = pChild;
 	for(; p_rec && ok < 0; p_rec = p_rec->next) {
-		if(sstreqi_ascii((const char *)p_rec->name, pTag)) {
+		if(sstreqi_ascii(reinterpret_cast<const char *>(p_rec->name), pTag)) {
 			*ppCurRec = p_rec;
 			ok = 1;
 		}
@@ -2990,7 +3084,7 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 		P_Reader = xmlReaderForFile(pPath, NULL, XML_PARSE_NOENT);
 	if(P_Reader) {
 		int r = 0;
-		xmlTextReaderPreservePattern(P_Reader, (const xmlChar *)(const char *)p_chr_tag, 0);
+		xmlTextReaderPreservePattern(P_Reader, reinterpret_cast<const xmlChar *>(p_chr_tag), 0);
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);
@@ -3001,7 +3095,7 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char *)P_CurRec->name, p_chr_tag)) {
 					xmlNode * p_rec = P_CurRec;
 					for(ChecksCount = 1; p_rec = p_rec->next;)
-						if(sstreqi_ascii((const char *)p_rec->name, p_chr_tag))
+						if(sstreqi_ascii(reinterpret_cast<const char *>(p_rec->name), p_chr_tag))
 							ChecksCount++;
 				}
 			}

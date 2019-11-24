@@ -2485,7 +2485,6 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		128,
 	},
 #endif
-
 #ifndef OPENSSL_NO_SEED
 	{
 		1,
@@ -2548,7 +2547,6 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		128,
 	},
 #endif                          /* OPENSSL_NO_SEED */
-
 #ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
@@ -2777,11 +2775,9 @@ int ssl3_handshake_write(SSL * s)
 int ssl3_new(SSL * s)
 {
 	SSL3_STATE * s3;
-
 	if((s3 = (SSL3_STATE*)OPENSSL_zalloc(sizeof(*s3))) == NULL)
 		goto err;
 	s->s3 = s3;
-
 #ifndef OPENSSL_NO_SRP
 	if(!SSL_SRP_CTX_init(s))
 		goto err;
@@ -2796,16 +2792,13 @@ void ssl3_free(SSL * s)
 {
 	if(s == NULL || s->s3 == NULL)
 		return;
-
 	ssl3_cleanup_key_block(s);
-
 #if !defined(OPENSSL_NO_EC) || !defined(OPENSSL_NO_DH)
 	EVP_PKEY_free(s->s3->peer_tmp);
 	s->s3->peer_tmp = NULL;
 	EVP_PKEY_free(s->s3->tmp.pkey);
 	s->s3->tmp.pkey = NULL;
 #endif
-
 	sk_X509_NAME_pop_free(s->s3->tmp.ca_names, X509_NAME_free);
 	OPENSSL_free(s->s3->tmp.ciphers_raw);
 	OPENSSL_clear_free(s->s3->tmp.pms, s->s3->tmp.pmslen);
@@ -2813,7 +2806,6 @@ void ssl3_free(SSL * s)
 	ssl3_free_digest_list(s);
 	OPENSSL_free(s->s3->alpn_selected);
 	OPENSSL_free(s->s3->alpn_proposed);
-
 #ifndef OPENSSL_NO_SRP
 	SSL_SRP_CTX_free(s);
 #endif
@@ -2853,7 +2845,6 @@ static char * srp_password_from_info_cb(SSL * s, void * arg)
 {
 	return OPENSSL_strdup(s->srp_ctx.info);
 }
-
 #endif
 
 static int ssl3_set_req_cert_type(CERT * c, const uchar * p, size_t len);
@@ -2861,7 +2852,6 @@ static int ssl3_set_req_cert_type(CERT * c, const uchar * p, size_t len);
 long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 {
 	int ret = 0;
-
 	switch(cmd) {
 		case SSL_CTRL_GET_CLIENT_CERT_REQUEST:
 		    break;
@@ -2881,7 +2871,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 #ifndef OPENSSL_NO_DH
 		case SSL_CTRL_SET_TMP_DH:
 	    {
-		    DH * dh = (DH*)parg;
+		    DH * dh = static_cast<DH *>(parg);
 		    EVP_PKEY * pkdh = NULL;
 		    if(dh == NULL) {
 			    SSLerr(SSL_F_SSL3_CTRL, ERR_R_PASSED_NULL_PARAMETER);
@@ -2892,8 +2882,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    SSLerr(SSL_F_SSL3_CTRL, ERR_R_MALLOC_FAILURE);
 			    return 0;
 		    }
-		    if(!ssl_security(s, SSL_SECOP_TMP_DH,
-				    EVP_PKEY_security_bits(pkdh), 0, pkdh)) {
+		    if(!ssl_security(s, SSL_SECOP_TMP_DH, EVP_PKEY_security_bits(pkdh), 0, pkdh)) {
 			    SSLerr(SSL_F_SSL3_CTRL, SSL_R_DH_KEY_TOO_SMALL);
 			    EVP_PKEY_free(pkdh);
 			    return ret;
@@ -2917,7 +2906,6 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 	    {
 		    const EC_GROUP * group = NULL;
 		    int nid;
-
 		    if(parg == NULL) {
 			    SSLerr(SSL_F_SSL3_CTRL, ERR_R_PASSED_NULL_PARAMETER);
 			    return 0;
@@ -3043,10 +3031,8 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		case SSL_CTRL_GET_CHAIN_CERTS:
 		    *(STACK_OF(X509) **)parg = s->cert->key->chain;
 		    break;
-
 		case SSL_CTRL_SELECT_CURRENT_CERT:
 		    return ssl_cert_select_current(s->cert, (X509*)parg);
-
 		case SSL_CTRL_SET_CURRENT_CERT:
 		    if(larg == SSL_CERT_SET_SERVER) {
 			    CERT_PKEY * cpk;
@@ -3094,29 +3080,21 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    }
 		    return (int)clistlen;
 	    }
-
 		case SSL_CTRL_SET_CURVES:
 		    return tls1_set_curves(&s->tlsext_ellipticcurvelist, &s->tlsext_ellipticcurvelist_length, (int *)parg, larg);
-
 		case SSL_CTRL_SET_CURVES_LIST:
 		    return tls1_set_curves_list(&s->tlsext_ellipticcurvelist, &s->tlsext_ellipticcurvelist_length, (const char *)parg);
-
 		case SSL_CTRL_GET_SHARED_CURVE:
 		    return tls1_shared_curve(s, larg);
-
 #endif
 		case SSL_CTRL_SET_SIGALGS:
 		    return tls1_set_sigalgs(s->cert, (const int*)parg, larg, 0);
-
 		case SSL_CTRL_SET_SIGALGS_LIST:
 		    return tls1_set_sigalgs_list(s->cert, (const char *)parg, 0);
-
 		case SSL_CTRL_SET_CLIENT_SIGALGS:
 		    return tls1_set_sigalgs(s->cert, (const int*)parg, larg, 1);
-
 		case SSL_CTRL_SET_CLIENT_SIGALGS_LIST:
 		    return tls1_set_sigalgs_list(s->cert, (const char *)parg, 1);
-
 		case SSL_CTRL_GET_CLIENT_CERT_TYPES:
 	    {
 		    const uchar ** pctype = (const uchar**)parg;

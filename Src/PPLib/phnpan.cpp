@@ -288,7 +288,7 @@ private:
 									PPObjBill::AddBlock ab;
 									ArObj.P_Tbl->PersonToArticle(param.PersonID, GetSellAccSheet(), &ab.ObjectID);
 									if(ab.ObjectID) {
-										PPAlbatrosConfig acfg;
+										PPAlbatrossConfig acfg;
 										PPAlbatrosCfgMngr::Get(&acfg);
 										ab.OpID = acfg.Hdr.OpID;
 										SETIFZ(ab.OpID, op_list.getSingle());

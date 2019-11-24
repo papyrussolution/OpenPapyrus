@@ -26,19 +26,16 @@ int ENGINE_register_digests(ENGINE * e)
 {
 	if(e->digests) {
 		const int * nids;
-		int num_nids = e->digests(e, NULL, &nids, 0);
+		const int num_nids = e->digests(e, NULL, &nids, 0);
 		if(num_nids > 0)
-			return engine_table_register(&digest_table,
-			    engine_unregister_all_digests, e,
-			    nids, num_nids, 0);
+			return engine_table_register(&digest_table, engine_unregister_all_digests, e, nids, num_nids, 0);
 	}
 	return 1;
 }
 
 void ENGINE_register_all_digests()
 {
-	ENGINE * e;
-	for(e = ENGINE_get_first(); e; e = ENGINE_get_next(e))
+	for(ENGINE * e = ENGINE_get_first(); e; e = ENGINE_get_next(e))
 		ENGINE_register_digests(e);
 }
 
@@ -48,9 +45,7 @@ int ENGINE_set_default_digests(ENGINE * e)
 		const int * nids;
 		int num_nids = e->digests(e, NULL, &nids, 0);
 		if(num_nids > 0)
-			return engine_table_register(&digest_table,
-			    engine_unregister_all_digests, e,
-			    nids, num_nids, 1);
+			return engine_table_register(&digest_table, engine_unregister_all_digests, e, nids, num_nids, 1);
 	}
 	return 1;
 }

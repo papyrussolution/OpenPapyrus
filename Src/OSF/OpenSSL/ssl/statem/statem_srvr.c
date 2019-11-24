@@ -588,57 +588,27 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
  */
 int ossl_statem_server_construct_message(SSL * s)
 {
-	OSSL_STATEM * st = &s->statem;
-
+	const OSSL_STATEM * st = &s->statem;
 	switch(st->hand_state) {
-		case DTLS_ST_SW_HELLO_VERIFY_REQUEST:
-		    return dtls_construct_hello_verify_request(s);
-
-		case TLS_ST_SW_HELLO_REQ:
-		    return tls_construct_hello_request(s);
-
-		case TLS_ST_SW_SRVR_HELLO:
-		    return tls_construct_server_hello(s);
-
-		case TLS_ST_SW_CERT:
-		    return tls_construct_server_certificate(s);
-
-		case TLS_ST_SW_KEY_EXCH:
-		    return tls_construct_server_key_exchange(s);
-
-		case TLS_ST_SW_CERT_REQ:
-		    return tls_construct_certificate_request(s);
-
-		case TLS_ST_SW_SRVR_DONE:
-		    return tls_construct_server_done(s);
-
-		case TLS_ST_SW_SESSION_TICKET:
-		    return tls_construct_new_session_ticket(s);
-
-		case TLS_ST_SW_CERT_STATUS:
-		    return tls_construct_cert_status(s);
-
+		case DTLS_ST_SW_HELLO_VERIFY_REQUEST: return dtls_construct_hello_verify_request(s);
+		case TLS_ST_SW_HELLO_REQ: return tls_construct_hello_request(s);
+		case TLS_ST_SW_SRVR_HELLO: return tls_construct_server_hello(s);
+		case TLS_ST_SW_CERT: return tls_construct_server_certificate(s);
+		case TLS_ST_SW_KEY_EXCH: return tls_construct_server_key_exchange(s);
+		case TLS_ST_SW_CERT_REQ: return tls_construct_certificate_request(s);
+		case TLS_ST_SW_SRVR_DONE: return tls_construct_server_done(s);
+		case TLS_ST_SW_SESSION_TICKET: return tls_construct_new_session_ticket(s);
+		case TLS_ST_SW_CERT_STATUS: return tls_construct_cert_status(s);
 		case TLS_ST_SW_CHANGE:
 		    if(SSL_IS_DTLS(s))
 			    return dtls_construct_change_cipher_spec(s);
 		    else
 			    return tls_construct_change_cipher_spec(s);
-
-		case TLS_ST_SW_FINISHED:
-		    return tls_construct_finished(s,
-		    s->method->
-		    ssl3_enc->server_finished_label,
-		    s->method->
-		    ssl3_enc->server_finished_label_len);
-
-		default:
-		    /* Shouldn't happen */
-		    break;
+		case TLS_ST_SW_FINISHED: return tls_construct_finished(s, s->method->ssl3_enc->server_finished_label, s->method->ssl3_enc->server_finished_label_len);
+		default: break; /* Shouldn't happen */
 	}
-
 	return 0;
 }
-
 /*
  * Maximum size (excluding the Handshake header) of a ClientHello message,
  * calculated as follows:
@@ -658,101 +628,56 @@ int ossl_statem_server_construct_message(SSL * s)
 
 #define CLIENT_KEY_EXCH_MAX_LENGTH      2048
 #define NEXT_PROTO_MAX_LENGTH           514
-
 /*
  * Returns the maximum allowed length for the current message that we are
  * reading. Excludes the message header.
  */
 unsigned long ossl_statem_server_max_message_size(SSL * s)
 {
-	OSSL_STATEM * st = &s->statem;
-
+	const OSSL_STATEM * st = &s->statem;
 	switch(st->hand_state) {
-		case TLS_ST_SR_CLNT_HELLO:
-		    return CLIENT_HELLO_MAX_LENGTH;
-
-		case TLS_ST_SR_CERT:
-		    return s->max_cert_list;
-
-		case TLS_ST_SR_KEY_EXCH:
-		    return CLIENT_KEY_EXCH_MAX_LENGTH;
-
-		case TLS_ST_SR_CERT_VRFY:
-		    return SSL3_RT_MAX_PLAIN_LENGTH;
-
+		case TLS_ST_SR_CLNT_HELLO: return CLIENT_HELLO_MAX_LENGTH;
+		case TLS_ST_SR_CERT: return s->max_cert_list;
+		case TLS_ST_SR_KEY_EXCH: return CLIENT_KEY_EXCH_MAX_LENGTH;
+		case TLS_ST_SR_CERT_VRFY: return SSL3_RT_MAX_PLAIN_LENGTH;
 #ifndef OPENSSL_NO_NEXTPROTONEG
-		case TLS_ST_SR_NEXT_PROTO:
-		    return NEXT_PROTO_MAX_LENGTH;
+		case TLS_ST_SR_NEXT_PROTO: return NEXT_PROTO_MAX_LENGTH;
 #endif
-
-		case TLS_ST_SR_CHANGE:
-		    return CCS_MAX_LENGTH;
-
-		case TLS_ST_SR_FINISHED:
-		    return FINISHED_MAX_LENGTH;
-
-		default:
-		    /* Shouldn't happen */
-		    break;
+		case TLS_ST_SR_CHANGE: return CCS_MAX_LENGTH;
+		case TLS_ST_SR_FINISHED: return FINISHED_MAX_LENGTH;
+		default: break; /* Shouldn't happen */
 	}
-
 	return 0;
 }
-
 /*
  * Process a message that the server has received from the client.
  */
 MSG_PROCESS_RETURN ossl_statem_server_process_message(SSL * s, PACKET * pkt)
 {
-	OSSL_STATEM * st = &s->statem;
-
+	const OSSL_STATEM * st = &s->statem;
 	switch(st->hand_state) {
-		case TLS_ST_SR_CLNT_HELLO:
-		    return tls_process_client_hello(s, pkt);
-
-		case TLS_ST_SR_CERT:
-		    return tls_process_client_certificate(s, pkt);
-
-		case TLS_ST_SR_KEY_EXCH:
-		    return tls_process_client_key_exchange(s, pkt);
-
-		case TLS_ST_SR_CERT_VRFY:
-		    return tls_process_cert_verify(s, pkt);
-
+		case TLS_ST_SR_CLNT_HELLO: return tls_process_client_hello(s, pkt);
+		case TLS_ST_SR_CERT: return tls_process_client_certificate(s, pkt);
+		case TLS_ST_SR_KEY_EXCH: return tls_process_client_key_exchange(s, pkt);
+		case TLS_ST_SR_CERT_VRFY: return tls_process_cert_verify(s, pkt);
 #ifndef OPENSSL_NO_NEXTPROTONEG
-		case TLS_ST_SR_NEXT_PROTO:
-		    return tls_process_next_proto(s, pkt);
+		case TLS_ST_SR_NEXT_PROTO: return tls_process_next_proto(s, pkt);
 #endif
-
-		case TLS_ST_SR_CHANGE:
-		    return tls_process_change_cipher_spec(s, pkt);
-
-		case TLS_ST_SR_FINISHED:
-		    return tls_process_finished(s, pkt);
-
-		default:
-		    /* Shouldn't happen */
-		    break;
+		case TLS_ST_SR_CHANGE: return tls_process_change_cipher_spec(s, pkt);
+		case TLS_ST_SR_FINISHED: return tls_process_finished(s, pkt);
+		default: break; /* Shouldn't happen */
 	}
-
 	return MSG_PROCESS_ERROR;
 }
-
 /*
- * Perform any further processing required following the receipt of a message
- * from the client
+ * Perform any further processing required following the receipt of a message from the client
  */
 WORK_STATE ossl_statem_server_post_process_message(SSL * s, WORK_STATE wst)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	switch(st->hand_state) {
-		case TLS_ST_SR_CLNT_HELLO:
-		    return tls_post_process_client_hello(s, wst);
-
-		case TLS_ST_SR_KEY_EXCH:
-		    return tls_post_process_client_key_exchange(s, wst);
-
+		case TLS_ST_SR_CLNT_HELLO: return tls_post_process_client_hello(s, wst);
+		case TLS_ST_SR_KEY_EXCH: return tls_post_process_client_key_exchange(s, wst);
 		case TLS_ST_SR_CERT_VRFY:
 #ifndef OPENSSL_NO_SCTP
 		    if(         /* Is this SCTP? */
@@ -784,16 +709,11 @@ WORK_STATE ossl_statem_server_post_process_message(SSL * s, WORK_STATE wst)
 static int ssl_check_srp_ext_ClientHello(SSL * s, int * al)
 {
 	int ret = SSL_ERROR_NONE;
-
 	*al = SSL_AD_UNRECOGNIZED_NAME;
-
 	if((s->s3->tmp.new_cipher->algorithm_mkey & SSL_kSRP) &&
 	    (s->srp_ctx.TLS_ext_srp_username_callback != NULL)) {
 		if(s->srp_ctx.login == NULL) {
-			/*
-			 * RFC 5054 says SHOULD reject, we do so if There is no srp
-			 * login name
-			 */
+			// RFC 5054 says SHOULD reject, we do so if There is no srp login name
 			ret = SSL3_AL_FATAL;
 			*al = SSL_AD_UNKNOWN_PSK_IDENTITY;
 		}
@@ -803,7 +723,6 @@ static int ssl_check_srp_ext_ClientHello(SSL * s, int * al)
 	}
 	return ret;
 }
-
 #endif
 
 int tls_construct_hello_request(SSL * s)
@@ -813,57 +732,39 @@ int tls_construct_hello_request(SSL * s)
 		ossl_statem_set_error(s);
 		return 0;
 	}
-
 	return 1;
 }
 
-uint dtls_raw_hello_verify_request(uchar * buf,
-    uchar * cookie,
-    uchar cookie_len)
+uint dtls_raw_hello_verify_request(uchar * buf, uchar * cookie, uchar cookie_len)
 {
 	uint msg_len;
-	uchar * p;
-
-	p = buf;
+	uchar * p = buf;
 	/* Always use DTLS 1.0 version: see RFC 6347 */
 	*(p++) = DTLS1_VERSION >> 8;
 	*(p++) = DTLS1_VERSION & 0xFF;
-
 	*(p++) = (uchar)cookie_len;
 	memcpy(p, cookie, cookie_len);
 	p += cookie_len;
 	msg_len = p - buf;
-
 	return msg_len;
 }
 
 int dtls_construct_hello_verify_request(SSL * s)
 {
 	uint len;
-	uchar * buf;
-
-	buf = (uchar *)s->init_buf->data;
-
-	if(s->ctx->app_gen_cookie_cb == NULL ||
-	    s->ctx->app_gen_cookie_cb(s, s->d1->cookie,
-		    &(s->d1->cookie_len)) == 0 ||
+	uchar * buf = reinterpret_cast<uchar *>(s->init_buf->data);
+	if(s->ctx->app_gen_cookie_cb == NULL || s->ctx->app_gen_cookie_cb(s, s->d1->cookie, &(s->d1->cookie_len)) == 0 ||
 	    s->d1->cookie_len > 255) {
-		SSLerr(SSL_F_DTLS_CONSTRUCT_HELLO_VERIFY_REQUEST,
-		    SSL_R_COOKIE_GEN_CALLBACK_FAILURE);
+		SSLerr(SSL_F_DTLS_CONSTRUCT_HELLO_VERIFY_REQUEST, SSL_R_COOKIE_GEN_CALLBACK_FAILURE);
 		ossl_statem_set_error(s);
 		return 0;
 	}
-
-	len = dtls_raw_hello_verify_request(&buf[DTLS1_HM_HEADER_LENGTH],
-	    s->d1->cookie, s->d1->cookie_len);
-
+	len = dtls_raw_hello_verify_request(&buf[DTLS1_HM_HEADER_LENGTH], s->d1->cookie, s->d1->cookie_len);
 	dtls1_set_message_header(s, DTLS1_MT_HELLO_VERIFY_REQUEST, len, 0, len);
 	len += DTLS1_HM_HEADER_LENGTH;
-
 	/* number of bytes to write */
 	s->init_num = len;
 	s->init_off = 0;
-
 	return 1;
 }
 
@@ -1171,8 +1072,7 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 			 * to reuse it
 			 */
 			al = SSL_AD_ILLEGAL_PARAMETER;
-			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO,
-			    SSL_R_REQUIRED_CIPHER_MISSING);
+			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO, SSL_R_REQUIRED_CIPHER_MISSING);
 			goto f_err;
 		}
 	}
@@ -1205,16 +1105,13 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 	 * processing to use it in key derivation.
 	 */
 	{
-		uchar * pos;
-		pos = s->s3->server_random;
+		uchar * pos = s->s3->server_random;
 		if(ssl_fill_hello_random(s, 1, pos, SSL3_RANDOM_SIZE) <= 0) {
 			goto f_err;
 		}
 	}
-
 	if(!s->hit && s->version >= TLS1_VERSION && s->tls_session_secret_cb) {
 		const SSL_CIPHER * pref_cipher = NULL;
-
 		s->session->master_key_length = sizeof(s->session->master_key);
 		if(s->tls_session_secret_cb(s, s->session->master_key,
 			    &s->session->master_key_length, ciphers,
@@ -2622,8 +2519,7 @@ WORK_STATE tls_post_process_client_key_exchange(SSL * s, WORK_STATE wst)
 	}
 	else {
 		if(!s->s3->handshake_buffer) {
-			SSLerr(SSL_F_TLS_POST_PROCESS_CLIENT_KEY_EXCHANGE,
-			    ERR_R_INTERNAL_ERROR);
+			SSLerr(SSL_F_TLS_POST_PROCESS_CLIENT_KEY_EXCHANGE, ERR_R_INTERNAL_ERROR);
 			ossl_statem_set_error(s);
 			return WORK_ERROR;
 		}
@@ -2636,7 +2532,6 @@ WORK_STATE tls_post_process_client_key_exchange(SSL * s, WORK_STATE wst)
 			return WORK_ERROR;
 		}
 	}
-
 	return WORK_FINISHED_CONTINUE;
 }
 
@@ -2654,27 +2549,21 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 	const EVP_MD * md = NULL;
 	long hdatalen = 0;
 	void * hdata;
-
 	EVP_MD_CTX * mctx = EVP_MD_CTX_new();
-
 	if(mctx == NULL) {
 		SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, ERR_R_MALLOC_FAILURE);
 		al = SSL_AD_INTERNAL_ERROR;
 		goto f_err;
 	}
-
 	peer = s->session->peer;
 	pkey = X509_get0_pubkey(peer);
 	if(pkey == NULL) {
 		al = SSL_AD_INTERNAL_ERROR;
 		goto f_err;
 	}
-
 	type = X509_certificate_type(peer, pkey);
-
 	if(!(type & EVP_PKT_SIGN)) {
-		SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY,
-		    SSL_R_SIGNATURE_FOR_NON_SIGNING_CERTIFICATE);
+		SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, SSL_R_SIGNATURE_FOR_NON_SIGNING_CERTIFICATE);
 		al = SSL_AD_ILLEGAL_PARAMETER;
 		goto f_err;
 	}
@@ -2685,8 +2574,7 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 	 * length field (CryptoPro implementations at least till CSP 4.0)
 	 */
 #ifndef OPENSSL_NO_GOST
-	if(PACKET_remaining(pkt) == 64
-	    && EVP_PKEY_id(pkey) == NID_id_GostR3410_2001) {
+	if(PACKET_remaining(pkt) == 64 && EVP_PKEY_id(pkey) == NID_id_GostR3410_2001) {
 		len = 64;
 	}
 	else
@@ -2694,7 +2582,6 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 	{
 		if(SSL_USE_SIGALGS(s)) {
 			int rv;
-
 			if(!PACKET_get_bytes(pkt, &sig, 2)) {
 				al = SSL_AD_DECODE_ERROR;
 				goto f_err;
@@ -2722,7 +2609,6 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 				goto f_err;
 			}
 		}
-
 		if(!PACKET_get_net_2(pkt, &len)) {
 			SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, SSL_R_LENGTH_MISMATCH);
 			al = SSL_AD_DECODE_ERROR;
@@ -2730,8 +2616,7 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 		}
 	}
 	j = EVP_PKEY_size(pkey);
-	if(((int)len > j) || ((int)PACKET_remaining(pkt) > j)
-	    || (PACKET_remaining(pkt) == 0)) {
+	if(((int)len > j) || ((int)PACKET_remaining(pkt) > j) || (PACKET_remaining(pkt) == 0)) {
 		SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, SSL_R_WRONG_SIGNATURE_SIZE);
 		al = SSL_AD_DECODE_ERROR;
 		goto f_err;
@@ -2741,7 +2626,6 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 		al = SSL_AD_DECODE_ERROR;
 		goto f_err;
 	}
-
 	hdatalen = BIO_get_mem_data(s->s3->handshake_buffer, &hdata);
 	if(hdatalen <= 0) {
 		SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, ERR_R_INTERNAL_ERROR);
@@ -2751,8 +2635,7 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 #ifdef SSL_DEBUG
 	fprintf(stderr, "Using client verify alg %s\n", EVP_MD_name(md));
 #endif
-	if(!EVP_VerifyInit_ex(mctx, md, NULL)
-	    || !EVP_VerifyUpdate(mctx, hdata, hdatalen)) {
+	if(!EVP_VerifyInit_ex(mctx, md, NULL) || !EVP_VerifyUpdate(mctx, hdata, hdatalen)) {
 		SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, ERR_R_EVP_LIB);
 		al = SSL_AD_INTERNAL_ERROR;
 		goto f_err;
@@ -2760,9 +2643,7 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 #ifndef OPENSSL_NO_GOST
 	{
 		int pktype = EVP_PKEY_id(pkey);
-		if(pktype == NID_id_GostR3410_2001
-		    || pktype == NID_id_GostR3410_2012_256
-		    || pktype == NID_id_GostR3410_2012_512) {
+		if(pktype == NID_id_GostR3410_2001 || pktype == NID_id_GostR3410_2012_256 || pktype == NID_id_GostR3410_2012_512) {
 			if((gost_data = (uchar *)OPENSSL_malloc(len)) == NULL) {
 				SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, ERR_R_MALLOC_FAILURE);
 				al = SSL_AD_INTERNAL_ERROR;
@@ -2773,16 +2654,11 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 		}
 	}
 #endif
-
-	if(s->version == SSL3_VERSION
-	    && !EVP_MD_CTX_ctrl(mctx, EVP_CTRL_SSL3_MASTER_SECRET,
-		    s->session->master_key_length,
-		    s->session->master_key)) {
+	if(s->version == SSL3_VERSION && !EVP_MD_CTX_ctrl(mctx, EVP_CTRL_SSL3_MASTER_SECRET, s->session->master_key_length, s->session->master_key)) {
 		SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, ERR_R_EVP_LIB);
 		al = SSL_AD_INTERNAL_ERROR;
 		goto f_err;
 	}
-
 	if(EVP_VerifyFinal(mctx, data, len, pkey) <= 0) {
 		al = SSL_AD_DECRYPT_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_CERT_VERIFY, SSL_R_BAD_SIGNATURE);

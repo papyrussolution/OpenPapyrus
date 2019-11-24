@@ -10,6 +10,8 @@
 #pragma hdrstop
 //#include <openssl/pkcs12.h>
 
+void ENGINE_load_gost(void); // @sobolev @v10.6.3
+
 void openssl_add_all_ciphers_int(void)
 {
 #ifndef OPENSSL_NO_DES
@@ -196,9 +198,6 @@ void openssl_add_all_ciphers_int(void)
     EVP_add_cipher(EVP_chacha20());
 #ifndef OPENSSL_NO_POLY1305
     EVP_add_cipher(EVP_chacha20_poly1305());
-#endif
-#ifndef OPENSSL_NO_GOST // @sobolev @v10.6.2
-	//ENGINE_load_gost
 #endif
 #endif
 }

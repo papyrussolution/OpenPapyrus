@@ -52,7 +52,7 @@ public:
 				SBuffer ack_buf;
 				SFile wr_stream(ack_buf, SFile::mWrite);
 				THROW_SL(c.SetupDefaultSslOptions(SSystem::sslTLS_v10, 0)); //CURLOPT_SSLVERSION значением CURL_SSLVERSION_TLSv1_0
-				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+				THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
 				{
 					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 					if(p_ack_buf) {

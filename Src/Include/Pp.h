@@ -303,7 +303,7 @@ class  TSessionPacket;
 struct PPBillConfig;
 class  CheckOpJrnl;
 struct CCheckViewItem;
-class  PPAlbatrosConfig;
+class  PPAlbatrossConfig;
 struct PPSCardSeries2;
 class  GtaJournalCore;
 struct PPSCardSerPacket;
@@ -5807,7 +5807,7 @@ public:
 	int    SLAPI CreateTSession(long * pID, const UhttTSessionPacket & rPack);
 	int    SLAPI ConvertLocationPacket(const UhttLocationPacket & rUhttPack, LocationTbl::Rec & rLocRec) const;
 	int    SLAPI ConvertPersonPacket(const UhttPersonPacket & rUhttPack, PPID kindID, PPPersonPacket & rPsnPack) const;
-	int    SLAPI GetCommonMqsConfig(PPAlbatrosConfig & rCfg);
+	int    SLAPI GetCommonMqsConfig(PPAlbatrossConfig & rCfg);
 	const SString & SLAPI GetLastMessage() const { return LastMsg; }
 	const SString & SLAPI GetUrlBase() const { return UrlBase; }
 private:
@@ -7214,11 +7214,11 @@ public:
 	const  PPConfig & SLAPI LCfg() const { return GetConstTLA().Lc; }
 	const  PPCommConfig & SLAPI CCfg() const { return GetConstTLA().Cc; }
 	//
-	// Descr: Извлекает через кэш конфигурацию глобального обмена PPAlbatrosConfig.
+	// Descr: Извлекает через кэш конфигурацию глобального обмена PPAlbatrossConfig.
 	// ARG(pCfg INOUT): Если pCfg != 0, то извлекает через кэш конфигурацию. Если pCfg == 0,
 	//   то удаляет кэш конфигурации (dirty).
 	//
-	int    SLAPI FetchAlbatrosConfig(PPAlbatrosConfig * pCfg); // @cs
+	int    SLAPI FetchAlbatrosConfig(PPAlbatrossConfig * pCfg); // @cs
 	//
 	// Really const function: don't modify result object
 	//
@@ -7360,7 +7360,7 @@ private:
 	DbLocalCacheMng CMng;  // Менеджер локальных по отношению к базе данных объектных кэшей
 	PPAdviseList AdvList;  // Подписка на извещения о событиях.
 	DlContext * P_DbCtx;   // Контекст структуры базы данных. Контекст глобальный (не привязан к потокам)
-	PPAlbatrosConfig * P_AlbatrosCfg; // Кэшированная конфигурация глобального обмена
+	PPAlbatrossConfig * P_AlbatrosCfg; // Кэшированная конфигурация глобального обмена
 		// Единственная точка прямого доступа к этому указателю - FetchAlbatrosConfig()
 	SrSyntaxRuleSet * P_SrStxSet; // @v9.8.10 Глобально доступный скомпилированный набор синтаксических правил
 		// Единственная точка прямого доступа к этому указателю - PPSession::GetSrSyntaxRuleSet()
@@ -18233,6 +18233,7 @@ public:
 	int    SLAPI Unregister(const char * pName, const char * pPassword);
 	int    SLAPI ChangePassword(const char * pName, const char * pOldPassword, const char * pNewPassword);
 	int    FASTCALL FetchConfig(PPGlobalUserAccConfig * pCfg);
+	int    FASTCALL FetchAlbatossConfig(PPAlbatrossConfig * pCfg);
 	int    SLAPI DirtyConfig();
 protected:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
@@ -28737,10 +28738,10 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	PPID   MailAccID;      // ->Ref(PPOBJ_MAILACCOUNT) ИД учетной записи электронной почты
 };
 
-class PPAlbatrosConfig {
+class PPAlbatrossConfig {
 public:
-	SLAPI  PPAlbatrosConfig();
-	PPAlbatrosConfig & SLAPI Z();
+	SLAPI  PPAlbatrossConfig();
+	PPAlbatrossConfig & SLAPI Z();
 	int    SLAPI SetPassword(int fld, const char * pPw);
 	int    SLAPI GetPassword(int fld, SString & rPw) const;
 	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
@@ -28752,14 +28753,14 @@ public:
 
 class PPAlbatrosCfgMngr {
 public:
-	static int SLAPI Get(PPAlbatrosConfig * pCfg);
-	static int SLAPI Fetch(PPAlbatrosConfig * pCfg); // @macrow
-	static int SLAPI Put(PPAlbatrosConfig * pCfg, int use_ta);
+	static int SLAPI Get(PPAlbatrossConfig * pCfg);
+	static int SLAPI Fetch(PPAlbatrossConfig * pCfg); // @macrow
+	static int SLAPI Put(PPAlbatrossConfig * pCfg, int use_ta);
 	static int SLAPI Edit();
-	static int SLAPI Helper_Get(Reference * pRef, PPAlbatrosConfig * pCfg);
-	static int SLAPI Helper_Put(Reference * pRef, PPAlbatrosConfig * pCfg, int use_ta);
-	static int SLAPI MakeCommonMqsConfigPacket(const PPAlbatrosConfig & rCfg, SString & rBuf);
-	static int SLAPI ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrosConfig * pCfg);
+	static int SLAPI Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg);
+	static int SLAPI Helper_Put(Reference * pRef, PPAlbatrossConfig * pCfg, int use_ta);
+	static int SLAPI MakeCommonMqsConfigPacket(const PPAlbatrossConfig & rCfg, SString & rBuf);
+	static int SLAPI ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrossConfig * pCfg);
 private:
 	static int SLAPI Get(PPAlbatrosCfgHdr * pHdr);
 	static int SLAPI Put(const PPAlbatrosCfgHdr * pHdr, int use_ta);
@@ -29055,7 +29056,7 @@ public:
     	//   До тех пор, пока не получим высокого уровня надожности кода, использующего
     	//   такие данные, эти поля будут дублировать соответствующие, определенные выше.
     	// Note: Какие-либо действия по извлечению этих полей предпринимаются только
-    	//   если установлен флаг PPAlbatrosConfig::Hdr::fUseOwnEgaisObjects
+    	//   если установлен флаг PPAlbatrossConfig::Hdr::fUseOwnEgaisObjects
     	//
     	LDATE  RefcInfA_ActualDate;
     	LDATE  RefcPr_ActualDate;
@@ -29153,7 +29154,7 @@ protected:
 
     StrStrAssocArray CategoryNameList;
 	Config Cfg;
-	PPAlbatrosConfig ACfg;
+	PPAlbatrossConfig ACfg;
 	PPObjPerson PsnObj;
 	PPObjGoods GObj;
 	PPObjGoodsClass GcObj;
@@ -31322,7 +31323,7 @@ public:
 		PPObjPerson PsnObj;
 		PPObjArticle ArObj;
 		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
-		PPAlbatrosConfig ACfg;
+		PPAlbatrossConfig ACfg;
 		PrcssrAlcReport Arp;
 	protected:
 		const SString & FASTCALL EncXmlText(const char * pS);
@@ -31351,7 +31352,7 @@ private:
 	PPLogger * P_Logger; // @notowned
 	PPObjBill * P_BObj;
 	PPObjPerson PsnObj;
-	PPAlbatrosConfig ACfg;
+	PPAlbatrossConfig ACfg;
 };
 //
 //
@@ -33555,8 +33556,7 @@ public:
 	static SString & SLAPI CalcSCardHash(const char * pNumber, SString & rHash);
 	static long GetValidFlags()
 	{
-		return (SCRDF_INHERITED|SCRDF_CLOSED|SCRDF_CLOSEDSRV|SCRDF_NOGIFT|SCRDF_NEEDACTIVATION|
-			SCRDF_AUTOACTIVATION|SCRDF_NOTIFYDISCOUNT|SCRDF_NOTIFYDRAW|SCRDF_NOTIFYWITHDRAW);
+		return (SCRDF_INHERITED|SCRDF_CLOSED|SCRDF_CLOSEDSRV|SCRDF_NOGIFT|SCRDF_NEEDACTIVATION|SCRDF_AUTOACTIVATION|SCRDF_NOTIFYDISCOUNT|SCRDF_NOTIFYDRAW|SCRDF_NOTIFYWITHDRAW);
 	}
 
 	explicit SLAPI PPObjSCard(void * extraPtr = 0);
@@ -33910,10 +33910,14 @@ private:
 // @ModuleDecl(AsyncCashSCardsIterator)
 //
 struct AsyncCashSCardInfo {
-	SCardTbl::Rec  Rec;
+	SLAPI  AsyncCashSCardInfo();
+	AsyncCashSCardInfo & SLAPI Z();
+
+	SCardTbl::Rec Rec;
 	int    IsClosed;
-	double Rest;         // Остаток по кредитной карте
-	char   PsnName[128]; // Наименование персоналии-владельца
+	double Rest;     // Остаток по кредитной карте
+	SString PsnName; // Наименование персоналии-владельца // @v10.6.3 char[128]-->SString
+	SString Phone;   // @V10.6.3 Номер телефона, ассоциированный с картой (не с персоналией)
 };
 
 class AsyncCashSCardsIterator {
@@ -45419,6 +45423,7 @@ private:
 		uint   CodeP;
 		uint   OwnerBlkP;
 		uint   SeriesBlkP; // @v9.8.7
+		uint   PhoneP;     // @v10.6.3
 		double Discount;
 		double FixedBonus; // @v10.5.7
 	};

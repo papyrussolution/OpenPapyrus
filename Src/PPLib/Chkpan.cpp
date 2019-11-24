@@ -3243,7 +3243,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				}
 				PhnSvcConnect();
 				if(scn.ExtFlags & CASHFX_UHTTORDIMPORT) {
-					PPAlbatrosConfig acfg;
+					PPAlbatrossConfig acfg;
 					PPAlbatrosCfgMngr::Get(&acfg);
 					acfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
 					//if(acfg.UhttAccount.NotEmpty() && acfg.Hdr.OpID) {
@@ -6304,7 +6304,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				ProcessPhnSvc(1);
 			}
 			if(UhttImportTimer.Check(0) && P_UhttImporter) {
-				PPAlbatrosConfig acfg;
+				PPAlbatrossConfig acfg;
 				PPAlbatrosCfgMngr::Get(&acfg);
 				P_UhttImporter->InitUhttImport(acfg.Hdr.OpID, CnLocID, CashNodeID);
 				if(P_UhttImporter->Run() > 0) {

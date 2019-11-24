@@ -46,8 +46,7 @@ static STACK_OF(EVP_PKEY_ASN1_METHOD) *app_methods = NULL;
 #ifdef TEST
 void main()
 {
-	int i;
-	for(i = 0; i < OSSL_NELEM(standard_methods); i++)
+	for(int i = 0; i < OSSL_NELEM(standard_methods); i++)
 		fprintf(stderr, "Number %d id=%d (%s)\n", i, standard_methods[i]->pkey_id, OBJ_nid2sn(standard_methods[i]->pkey_id));
 }
 #endif
@@ -83,18 +82,17 @@ const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_get0(int idx)
 static const EVP_PKEY_ASN1_METHOD * pkey_asn1_find(int type)
 {
 	EVP_PKEY_ASN1_METHOD tmp;
-	const EVP_PKEY_ASN1_METHOD * t = &tmp, ** ret;
+	const EVP_PKEY_ASN1_METHOD * t = &tmp;
 	tmp.pkey_id = type;
 	if(app_methods) {
-		int idx;
-		idx = sk_EVP_PKEY_ASN1_METHOD_find(app_methods, &tmp);
+		int idx = sk_EVP_PKEY_ASN1_METHOD_find(app_methods, &tmp);
 		if(idx >= 0)
 			return sk_EVP_PKEY_ASN1_METHOD_value(app_methods, idx);
 	}
-	ret = OBJ_bsearch_ameth(&t, standard_methods, OSSL_NELEM(standard_methods));
-	if(!ret || !*ret)
-		return NULL;
-	return *ret;
+	{
+		const EVP_PKEY_ASN1_METHOD ** ret = OBJ_bsearch_ameth(&t, standard_methods, OSSL_NELEM(standard_methods));
+		return (ret && *ret) ? *ret : 0;
+	}
 }
 /*
  * Find an implementation of an ASN1 algorithm. If 'pe' is not NULL also
@@ -112,9 +110,8 @@ const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find(ENGINE ** pe, int type)
 	}
 	if(pe) {
 #ifndef OPENSSL_NO_ENGINE
-		ENGINE * e;
 		/* type will contain the final unaliased type */
-		e = ENGINE_get_pkey_asn1_meth_engine(type);
+		ENGINE * e = ENGINE_get_pkey_asn1_meth_engine(type);
 		if(e) {
 			*pe = e;
 			return ENGINE_get_pkey_asn1_meth(e, type);

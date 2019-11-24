@@ -1679,28 +1679,22 @@ static CURLcode nss_setup_connect(struct connectdata * conn, int sockindex)
 	if(ssl_cbc_random_iv)
 		infof(data, "warning: support for SSL_CBC_RANDOM_IV not compiled in\n");
 #endif
-
 	if(SSL_CONN_CONFIG(cipher_list)) {
 		if(set_ciphers(data, model, SSL_CONN_CONFIG(cipher_list)) != SECSuccess) {
 			result = CURLE_SSL_CIPHER;
 			goto error;
 		}
 	}
-
 	if(!SSL_CONN_CONFIG(verifypeer) && SSL_CONN_CONFIG(verifyhost))
 		infof(data, "warning: ignoring value of ssl.verifyhost\n");
-
-	/* bypass the default SSL_AuthCertificate() hook in case we do not want to
-	 * verify peer */
+	/* bypass the default SSL_AuthCertificate() hook in case we do not want to verify peer */
 	if(SSL_AuthCertificateHook(model, nss_auth_cert_hook, conn) != SECSuccess)
 		goto error;
-
 	/* not checked yet */
 	if(SSL_IS_PROXY())
 		data->set.proxy_ssl.certverifyresult = 0;
 	else
 		data->set.ssl.certverifyresult = 0;
-
 	if(SSL_BadCertHook(model, BadCertHandler, conn) != SECSuccess)
 		goto error;
 

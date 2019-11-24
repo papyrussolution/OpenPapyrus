@@ -557,7 +557,7 @@ int SLAPI PPViewReport::SendMail(long id)
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		ReportMailDialog::Rec data;
 		PPIniFile ini_file;
-		PPAlbatrosConfig alb_cfg;
+		PPAlbatrossConfig alb_cfg;
 		TempReportTbl::Rec & r_rec = P_TempTbl->data;
 		THROW(ini_file.IsValid());
 		THROW_PP(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SUPPORTMAIL, data.SupportMail) > 0, PPERR_SUPPORTMAILNOTDEF);

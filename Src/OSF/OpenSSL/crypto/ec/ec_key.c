@@ -363,40 +363,30 @@ int EC_KEY_set_public_key_affine_coordinates(EC_KEY * key, BIGNUM * x,
 	ty = BN_CTX_get(ctx);
 	if(ty == NULL)
 		goto err;
-
 #ifndef OPENSSL_NO_EC2M
 	tmp_nid = EC_METHOD_get_field_type(EC_GROUP_method_of(key->group));
-
 	if(tmp_nid == NID_X9_62_characteristic_two_field)
 		is_char_two = 1;
-
 	if(is_char_two) {
-		if(!EC_POINT_set_affine_coordinates_GF2m(key->group, point,
-			    x, y, ctx))
+		if(!EC_POINT_set_affine_coordinates_GF2m(key->group, point, x, y, ctx))
 			goto err;
-		if(!EC_POINT_get_affine_coordinates_GF2m(key->group, point,
-			    tx, ty, ctx))
+		if(!EC_POINT_get_affine_coordinates_GF2m(key->group, point, tx, ty, ctx))
 			goto err;
 	}
 	else
 #endif
 	{
-		if(!EC_POINT_set_affine_coordinates_GFp(key->group, point,
-			    x, y, ctx))
+		if(!EC_POINT_set_affine_coordinates_GFp(key->group, point, x, y, ctx))
 			goto err;
-		if(!EC_POINT_get_affine_coordinates_GFp(key->group, point,
-			    tx, ty, ctx))
+		if(!EC_POINT_get_affine_coordinates_GFp(key->group, point, tx, ty, ctx))
 			goto err;
 	}
 	/*
 	 * Check if retrieved coordinates match originals and are less than field
 	 * order: if not values are out of range.
 	 */
-	if(BN_cmp(x, tx) || BN_cmp(y, ty)
-	    || (BN_cmp(x, key->group->field) >= 0)
-	    || (BN_cmp(y, key->group->field) >= 0)) {
-		ECerr(EC_F_EC_KEY_SET_PUBLIC_KEY_AFFINE_COORDINATES,
-		    EC_R_COORDINATES_OUT_OF_RANGE);
+	if(BN_cmp(x, tx) || BN_cmp(y, ty) || (BN_cmp(x, key->group->field) >= 0) || (BN_cmp(y, key->group->field) >= 0)) {
+		ECerr(EC_F_EC_KEY_SET_PUBLIC_KEY_AFFINE_COORDINATES, EC_R_COORDINATES_OUT_OF_RANGE);
 		goto err;
 	}
 	if(!EC_KEY_set_public_key(key, point))
@@ -434,11 +424,9 @@ int EC_KEY_set_private_key(EC_KEY * key, const BIGNUM * priv_key)
 {
 	if(key->group == NULL || key->group->meth == NULL)
 		return 0;
-	if(key->group->meth->set_private != NULL
-	    && key->group->meth->set_private(key, priv_key) == 0)
+	if(key->group->meth->set_private != NULL && key->group->meth->set_private(key, priv_key) == 0)
 		return 0;
-	if(key->meth->set_private != NULL
-	    && key->meth->set_private(key, priv_key) == 0)
+	if(key->meth->set_private != NULL && key->meth->set_private(key, priv_key) == 0)
 		return 0;
 	BN_clear_free(key->priv_key);
 	key->priv_key = BN_dup(priv_key);
@@ -452,8 +440,7 @@ const EC_POINT * EC_KEY_get0_public_key(const EC_KEY * key)
 
 int EC_KEY_set_public_key(EC_KEY * key, const EC_POINT * pub_key)
 {
-	if(key->meth->set_public != NULL
-	    && key->meth->set_public(key, pub_key) == 0)
+	if(key->meth->set_public != NULL && key->meth->set_public(key, pub_key) == 0)
 		return 0;
 	EC_POINT_free(key->pub_key);
 	key->pub_key = EC_POINT_dup(pub_key, key->group);
@@ -510,16 +497,14 @@ void EC_KEY_clear_flags(EC_KEY * key, int flags)
 	key->flags &= ~flags;
 }
 
-size_t EC_KEY_key2buf(const EC_KEY * key, point_conversion_form_t form,
-    uchar ** pbuf, BN_CTX * ctx)
+size_t EC_KEY_key2buf(const EC_KEY * key, point_conversion_form_t form, uchar ** pbuf, BN_CTX * ctx)
 {
 	if(key == NULL || key->pub_key == NULL || key->group == NULL)
 		return 0;
 	return EC_POINT_point2buf(key->group, key->pub_key, form, pbuf, ctx);
 }
 
-int EC_KEY_oct2key(EC_KEY * key, const uchar * buf, size_t len,
-    BN_CTX * ctx)
+int EC_KEY_oct2key(EC_KEY * key, const uchar * buf, size_t len, BN_CTX * ctx)
 {
 	if(key == NULL || key->group == NULL)
 		return 0;

@@ -105,7 +105,7 @@ int LogsDialog::SendByEmail()
 		SString path, support, subj, temp_buf, fmt_buf;
 		UserInterfaceSettings uis;
 		LogFileEntry & r_e = LogsAry.at(pos);
-		PPAlbatrosConfig alb_cfg;
+		PPAlbatrossConfig alb_cfg;
 		PPIniFile ini_file;
 		THROW(CreateVerHistLog(id - 1));
 		THROW(ini_file.IsValid());

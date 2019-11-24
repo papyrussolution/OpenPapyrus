@@ -10,6 +10,7 @@
 #define HEADER_CRYPTLIB_H
 
 #include <slib.h>
+#include <stdint.h> // @v10.6.3
 
 #define OPENSSL_NO_DYNAMIC_ENGINE // @sobolev
 #define USE_SOCKETS

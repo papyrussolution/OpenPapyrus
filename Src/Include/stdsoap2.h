@@ -715,11 +715,12 @@
   #endif
   #undef WITH_GNUTLS
   #define OPENSSL_NO_KRB5
-  #include <openssl/bio.h>
-  #include <openssl/err.h>
-  #include <openssl/rand.h>
-  #include <openssl/ssl.h>
-  #include <openssl/x509v3.h>
+	#include <openssl/bio.h>
+	#include <openssl/err.h>
+	#include <openssl/rand.h>
+	#include <openssl/ssl.h>
+	#include <openssl/x509v3.h>
+	#include <openssl/engine.h> // @v10.6.3
   #ifndef ALLOW_OLD_VERSIONS
    #if (OPENSSL_VERSION_NUMBER < 0x00905100L)
     #error "Must use OpenSSL 0.9.6 or later"
@@ -2271,11 +2272,11 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap *, int, long, long);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_wstring_out(struct soap *, const wchar_t * s, int flag);
 	SOAP_FMAC1 wchar_t * SOAP_FMAC2 soap_wstring_in(struct soap *, int, long, long);
 #endif
-SOAP_FMAC1 int SOAP_FMAC2 soap_match_namespace(struct soap *, const char *, const char *, size_t n1, size_t n2);
-SOAP_FMAC1 int SOAP_FMAC2 soap_set_namespaces(struct soap *, const struct Namespace *);
-SOAP_FMAC1 void SOAP_FMAC2 soap_set_local_namespaces(struct soap *);
-SOAP_FMAC1 void SOAP_FMAC2 soap_pop_namespace(struct soap *);
-SOAP_FMAC1 struct soap_nlist * SOAP_FMAC2 soap_push_namespace(struct soap *, const char *, const char *);
+SOAP_FMAC1 int  SOAP_FMAC2 soap_match_namespace(struct soap *, const char *, const char *, size_t n1, size_t n2);
+SOAP_FMAC1 int  SOAP_FMAC2 soap_set_namespaces(struct soap *, const struct Namespace *);
+SOAP_FMAC1 void /*SOAP_FMAC2*/FASTCALL soap_set_local_namespaces(struct soap *);
+SOAP_FMAC1 void /*SOAP_FMAC2*/FASTCALL soap_pop_namespace(struct soap *);
+SOAP_FMAC1 struct soap_nlist * /*SOAP_FMAC2*/FASTCALL soap_push_namespace(struct soap *, const char *, const char *);
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_current_namespace(struct soap * soap, const char * tag);
 SOAP_FMAC1 struct soap_nlist * SOAP_FMAC2 soap_lookup_ns(struct soap * soap, const char * tag, size_t n);
 SOAP_FMAC1 int SOAP_FMAC2 soap_store_lab(struct soap *, const char *, size_t);

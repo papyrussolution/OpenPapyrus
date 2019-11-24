@@ -291,7 +291,7 @@ int  SLAPI SIniFile::Close() { return File.Close(); }
 int  SLAPI SIniFile::GetParam(const char * pSect, const char * pParam, SString & rBuf)
 	{ return (Flags & fIniBufInited) ? P_IniBuf->GetParam(pSect, pParam, rBuf) : SearchParam(pSect, pParam, rBuf); }
 int  SLAPI SIniFile::AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite)
-	{ return AppendParam(pSect, pParam, TempBuf.Z().Cat((long)val), overwrite ? 1 : 0); }
+	{ return AppendParam(pSect, pParam, TempBuf.Z().Cat((long)val), BIN(overwrite)); }
 int  SLAPI SIniFile::RemoveSection(const char * pSect)
 	{ return SetParam(pSect, 0, 0, 0); }
 int  SLAPI SIniFile::ClearSection(const char * pSect)

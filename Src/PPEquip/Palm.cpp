@@ -2522,7 +2522,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 		if(P_Writer) {
 			SString temp_buf;
 			SString uhtt_acc;
-			PPAlbatrosConfig cfg;
+			PPAlbatrossConfig cfg;
 			DS.FetchAlbatrosConfig(&cfg);
 			xmlTextWriterSetIndent(P_Writer, 1);
 			xmlTextWriterSetIndentString(P_Writer, reinterpret_cast<const xmlChar *>("\t"));

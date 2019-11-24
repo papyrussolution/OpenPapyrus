@@ -29,9 +29,7 @@ int ENGINE_register_pkey_meths(ENGINE * e)
 		const int * nids;
 		int num_nids = e->pkey_meths(e, NULL, &nids, 0);
 		if(num_nids > 0)
-			return engine_table_register(&pkey_meth_table,
-			    engine_unregister_all_pkey_meths, e,
-			    nids, num_nids, 0);
+			return engine_table_register(&pkey_meth_table, engine_unregister_all_pkey_meths, e, nids, num_nids, 0);
 	}
 	return 1;
 }

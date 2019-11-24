@@ -120,7 +120,7 @@ int NCONF_dump_bio(const CONF * conf, BIO * out);
 // Module functions 
 //
 int CONF_modules_load(const CONF * cnf, const char * appname, unsigned long flags);
-int CONF_modules_load_file(const char * filename, const char * appname, unsigned long flags);
+int CONF_modules_load_file(const char * filename, const char * appname, ulong flags);
 void CONF_modules_unload(int all);
 void CONF_modules_finish(void);
 #if OPENSSL_API_COMPAT < 0x10100000L

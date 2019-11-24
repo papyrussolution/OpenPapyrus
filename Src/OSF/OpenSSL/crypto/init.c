@@ -9,6 +9,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
+void ENGINE_load_gost(void); // @sobolev @v10.6.3
+
 static int stopped = 0;
 static CRYPTO_THREAD_LOCAL threadstopkey;
 
@@ -418,7 +420,6 @@ void OPENSSL_cleanup(void)
 	err_cleanup();
 	base_inited = 0;
 }
-
 /*
  * If this function is called with a non NULL settings value then it must be
  * called prior to any threads making calls to any OpenSSL functions,
@@ -431,8 +432,7 @@ int FASTCALL OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS * se
 		if(!stoperrset) {
 			/*
 			 * We only ever set this once to avoid getting into an infinite
-			 * loop where the error system keeps trying to init and fails so
-			 * sets an error etc
+			 * loop where the error system keeps trying to init and fails so sets an error etc
 			 */
 			stoperrset = 1;
 			CRYPTOerr(CRYPTO_F_OPENSSL_INIT_CRYPTO, ERR_R_INIT_FAIL);
@@ -447,12 +447,17 @@ int FASTCALL OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS * se
 		return 0;
 	if((opts & OPENSSL_INIT_NO_ADD_ALL_CIPHERS) && !RUN_ONCE(&add_all_ciphers, ossl_init_no_add_algs))
 		return 0;
-	if((opts & OPENSSL_INIT_ADD_ALL_CIPHERS) && !RUN_ONCE(&add_all_ciphers, ossl_init_add_all_ciphers))
+	if(opts & OPENSSL_INIT_ADD_ALL_CIPHERS && !RUN_ONCE(&add_all_ciphers, ossl_init_add_all_ciphers))
 		return 0;
 	if((opts & OPENSSL_INIT_NO_ADD_ALL_DIGESTS) && !RUN_ONCE(&add_all_digests, ossl_init_no_add_algs))
 		return 0;
 	if((opts & OPENSSL_INIT_ADD_ALL_DIGESTS) && !RUN_ONCE(&add_all_digests, ossl_init_add_all_digests))
 		return 0;
+	// @sobolev @v10.6.3 {
+	if(opts & (OPENSSL_INIT_ADD_ALL_CIPHERS|OPENSSL_INIT_ADD_ALL_DIGESTS)) {
+		ENGINE_load_gost();
+	}
+	// } @sobolev @v10.6.3 
 	if((opts & OPENSSL_INIT_NO_LOAD_CONFIG) && !RUN_ONCE(&config, ossl_init_no_config))
 		return 0;
 	if(opts & OPENSSL_INIT_LOAD_CONFIG) {
@@ -469,35 +474,33 @@ int FASTCALL OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS * se
 #ifndef OPENSSL_NO_ENGINE
 	if((opts & OPENSSL_INIT_ENGINE_OPENSSL) && !RUN_ONCE(&engine_openssl, ossl_init_engine_openssl))
 		return 0;
-# if !defined(OPENSSL_NO_HW) &&	\
-	(defined(__OpenBSD__) || defined(__FreeBSD__) || defined(HAVE_CRYPTODEV))
-	if((opts & OPENSSL_INIT_ENGINE_CRYPTODEV)
-	    && !RUN_ONCE(&engine_cryptodev, ossl_init_engine_cryptodev))
+#if !defined(OPENSSL_NO_HW) &&	(defined(__OpenBSD__) || defined(__FreeBSD__) || defined(HAVE_CRYPTODEV))
+	if((opts & OPENSSL_INIT_ENGINE_CRYPTODEV) && !RUN_ONCE(&engine_cryptodev, ossl_init_engine_cryptodev))
 		return 0;
-# endif
-# ifndef OPENSSL_NO_RDRAND
+#endif
+#ifndef OPENSSL_NO_RDRAND
 	if((opts & OPENSSL_INIT_ENGINE_RDRAND) && !RUN_ONCE(&engine_rdrand, ossl_init_engine_rdrand))
 		return 0;
-# endif
+#endif
 	if((opts & OPENSSL_INIT_ENGINE_DYNAMIC) && !RUN_ONCE(&engine_dynamic, ossl_init_engine_dynamic))
 		return 0;
-# ifndef OPENSSL_NO_STATIC_ENGINE
-#  if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_HW_PADLOCK)
+#ifndef OPENSSL_NO_STATIC_ENGINE
+#if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_HW_PADLOCK)
 	if((opts & OPENSSL_INIT_ENGINE_PADLOCK) && !RUN_ONCE(&engine_padlock, ossl_init_engine_padlock))
 		return 0;
-#  endif
-#  if defined(OPENSSL_SYS_WIN32) && !defined(OPENSSL_NO_CAPIENG)
+#endif
+#if defined(OPENSSL_SYS_WIN32) && !defined(OPENSSL_NO_CAPIENG)
 	if((opts & OPENSSL_INIT_ENGINE_CAPI) && !RUN_ONCE(&engine_capi, ossl_init_engine_capi))
 		return 0;
-#  endif
-#  if !defined(OPENSSL_NO_AFALGENG)
-	if((opts & OPENSSL_INIT_ENGINE_AFALG)
-	    && !RUN_ONCE(&engine_afalg, ossl_init_engine_afalg))
+#endif
+#if !defined(OPENSSL_NO_AFALGENG)
+	if((opts & OPENSSL_INIT_ENGINE_AFALG) && !RUN_ONCE(&engine_afalg, ossl_init_engine_afalg))
 		return 0;
-#  endif
-# endif
+#endif
+#endif
 	if(opts & (OPENSSL_INIT_ENGINE_ALL_BUILTIN|OPENSSL_INIT_ENGINE_OPENSSL|OPENSSL_INIT_ENGINE_AFALG)) {
 		ENGINE_register_all_complete();
+		ENGINE_register_all_pkey_asn1_meths(); // @sobolev
 	}
 #endif
 #ifndef OPENSSL_NO_COMP

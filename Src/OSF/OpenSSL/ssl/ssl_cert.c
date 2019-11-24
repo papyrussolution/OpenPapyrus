@@ -354,7 +354,7 @@ int ssl_verify_cert_chain(SSL * s, STACK_OF(X509) * sk)
 	X509_STORE * verify_store;
 	X509_STORE_CTX * ctx = NULL;
 	X509_VERIFY_PARAM * param;
-	if((sk == NULL) || (sk_X509_num(sk) == 0))
+	if(!sk || !sk_X509_num(sk))
 		return 0;
 	verify_store = s->cert->verify_store ? s->cert->verify_store : s->ctx->cert_store;
 	ctx = X509_STORE_CTX_new();
